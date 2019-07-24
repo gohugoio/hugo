@@ -30,7 +30,6 @@ func (c Caches) Prune() (int, error) {
 	for k, cache := range c {
 
 		count, err := cache.Prune(false)
-
 		if err != nil {
 			return counter, errors.Wrapf(err, "failed to prune cache %q", k)
 		}
@@ -97,7 +96,6 @@ func (c *Cache) Prune(force bool) (int, error) {
 }
 
 func (c *Cache) pruneRootDir(force bool) (int, error) {
-
 	info, err := c.Fs.Stat(c.pruneAllRootDir)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -123,5 +121,4 @@ func (c *Cache) pruneRootDir(force bool) (int, error) {
 		return nil
 	})
 	return 1, c.Fs.RemoveAll(c.pruneAllRootDir)
-
 }

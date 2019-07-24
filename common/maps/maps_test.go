@@ -21,7 +21,6 @@ import (
 )
 
 func TestToLower(t *testing.T) {
-
 	tests := []struct {
 		input    map[string]interface{}
 		expected map[string]interface{}
@@ -119,5 +118,4 @@ func TestRenameKeys(t *testing.T) {
 	if !reflect.DeepEqual(expected, m) {
 		t.Errorf("Expected\n%#v, got\n%#v\n", expected, m)
 	}
-
 }

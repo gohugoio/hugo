@@ -20,7 +20,6 @@ import (
 )
 
 func TestGetNestedParam(t *testing.T) {
-
 	m := map[string]interface{}{
 		"first":           1,
 		"with_underscore": 2,
@@ -41,5 +40,4 @@ func TestGetNestedParam(t *testing.T) {
 	assert.Equal(1, must("First", "_", m))
 	assert.Equal(2, must("with_underscore", "_", m))
 	assert.Equal("blue", must("nested_color", "_", m))
-
 }

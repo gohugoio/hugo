@@ -434,9 +434,9 @@ func (ns *Namespace) Seq(args ...interface{}) ([]int, error) {
 		return nil, errors.New("invalid arguments to Seq")
 	}
 
-	var inc = 1
+	inc := 1
 	var last int
-	var first = intArgs[0]
+	first := intArgs[0]
 
 	if len(intArgs) == 1 {
 		last = first
@@ -536,7 +536,6 @@ type intersector struct {
 }
 
 func (i *intersector) appendIfNotSeen(v reflect.Value) {
-
 	vi := v.Interface()
 	if !i.seen[vi] {
 		i.r = reflect.Append(i.r, v)
@@ -684,7 +683,6 @@ func (ns *Namespace) Uniq(seq interface{}) (interface{}, error) {
 	}
 
 	return slice.Interface(), nil
-
 }
 
 // KeyVals creates a key and values wrapper.

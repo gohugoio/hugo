@@ -36,5 +36,4 @@ type Namespace struct {
 func (ns *Namespace) Exists(name string) bool {
 	_, found := ns.deps.Tmpl.Lookup(name)
 	return found
-
 }

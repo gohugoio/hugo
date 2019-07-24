@@ -104,11 +104,9 @@ Menu Main:  {{ partial "menu.html" (dict "page" . "menu" "main") }}`,
 			"/sect1/|Section One|Section One|100|-|-|"+
 			"/sect2/|Sect2s|Sect2s|0|-|HasMenuCurrent|"+
 			"/sect3/|Sect3s|Sect3s|0|-|-|")
-
 }
 
 func TestMenuFrontMatter(t *testing.T) {
-
 	b := newTestSitesBuilder(t).WithSimpleConfigFile()
 
 	b.WithTemplatesAdded("index.html", `
@@ -155,12 +153,10 @@ menu:
 		"Main|P1: /blog/page1/",
 		"Other|P2: /blog/page2/",
 	)
-
 }
 
 // https://github.com/gohugoio/hugo/issues/5849
 func TestMenuPageMultipleOutputFormats(t *testing.T) {
-
 	config := `
 baseURL = "https://example.com"
 
@@ -219,7 +215,6 @@ menu: "main"
 
 // https://github.com/gohugoio/hugo/issues/5989
 func TestMenuPageSortByDate(t *testing.T) {
-
 	b := newTestSitesBuilder(t).WithSimpleConfigFile()
 
 	b.WithContent("blog/a.md", `

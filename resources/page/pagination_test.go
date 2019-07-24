@@ -37,7 +37,6 @@ func TestSplitPages(t *testing.T) {
 
 	lastChunk := chunks[4]
 	require.Equal(t, 1, lastChunk.Len())
-
 }
 
 func TestSplitPageGroups(t *testing.T) {
@@ -77,7 +76,6 @@ func TestSplitPageGroups(t *testing.T) {
 	} else {
 		t.Fatal("Excepted PageGroup")
 	}
-
 }
 
 func TestPager(t *testing.T) {
@@ -109,11 +107,9 @@ func TestPager(t *testing.T) {
 	first = pag.Pagers()[0].First()
 	require.NotEmpty(t, first.PageGroups())
 	require.Empty(t, first.Pages())
-
 }
 
 func doTestPages(t *testing.T, paginator *Paginator) {
-
 	paginatorPages := paginator.Pagers()
 
 	require.Equal(t, 5, len(paginatorPages))
@@ -168,7 +164,6 @@ func TestPagerNoPages(t *testing.T) {
 	first = paginator.Pagers()[0].First()
 	require.Empty(t, first.PageGroups())
 	require.Empty(t, first.Pages())
-
 }
 
 func doTestPagerNoPages(t *testing.T, paginator *Paginator) {
@@ -192,7 +187,6 @@ func doTestPagerNoPages(t *testing.T, paginator *Paginator) {
 	require.Equal(t, 0, pageOne.TotalPages())
 	require.Equal(t, 1, pageOne.PageNumber())
 	require.Equal(t, 5, pageOne.PageSize())
-
 }
 
 func TestPaginationURLFactory(t *testing.T) {
@@ -202,7 +196,6 @@ func TestPaginationURLFactory(t *testing.T) {
 
 	for _, uglyURLs := range []bool{false, true} {
 		t.Run(fmt.Sprintf("uglyURLs=%t", uglyURLs), func(t *testing.T) {
-
 			tests := []struct {
 				name         string
 				d            TargetPathDescriptor
@@ -211,10 +204,14 @@ func TestPaginationURLFactory(t *testing.T) {
 				expected     string
 				expectedUgly string
 			}{
-				{"HTML home page 32",
-					TargetPathDescriptor{Kind: KindHome, Type: output.HTMLFormat}, "http://example.com/", 32, "/zoo/32/", "/zoo/32.html"},
-				{"JSON home page 42",
-					TargetPathDescriptor{Kind: KindHome, Type: output.JSONFormat}, "http://example.com/", 42, "/zoo/42/index.json", "/zoo/42.json"},
+				{
+					"HTML home page 32",
+					TargetPathDescriptor{Kind: KindHome, Type: output.HTMLFormat}, "http://example.com/", 32, "/zoo/32/", "/zoo/32.html",
+				},
+				{
+					"JSON home page 42",
+					TargetPathDescriptor{Kind: KindHome, Type: output.JSONFormat}, "http://example.com/", 42, "/zoo/42/index.json", "/zoo/42.json",
+				},
 			}
 
 			for _, test := range tests {
@@ -238,7 +235,6 @@ func TestPaginationURLFactory(t *testing.T) {
 
 			}
 		})
-
 	}
 }
 
@@ -272,7 +268,6 @@ func TestProbablyEqualPageLists(t *testing.T) {
 
 		if result != this.expect {
 			t.Errorf("[%d] got %t but expected %t", i, result, this.expect)
-
 		}
 	}
 }

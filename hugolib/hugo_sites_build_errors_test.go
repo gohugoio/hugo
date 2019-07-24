@@ -36,11 +36,9 @@ func (t testSiteBuildErrorAsserter) assertErrorMessage(e1, e2 string) {
 	// The error message will contain filenames with OS slashes. Normalize before compare.
 	e1, e2 = filepath.ToSlash(e1), filepath.ToSlash(e2)
 	t.assert.Contains(e2, e1, stackTrace())
-
 }
 
 func TestSiteBuildErrors(t *testing.T) {
-
 	const (
 		yamlcontent = "yamlcontent"
 		tomlcontent = "tomlcontent"
@@ -93,7 +91,6 @@ func TestSiteBuildErrors(t *testing.T) {
 				a.assert.Equal(1, fe.Position().ColumnNumber)
 				a.assert.Equal("go-html-template", fe.ChromaLexer)
 				a.assertErrorMessage("\"layouts/_default/single.html:5:1\": parse failed: template: _default/single.html:5: unexpected \"}\" in operand", fe.Error())
-
 			},
 		},
 		{
@@ -108,7 +105,6 @@ func TestSiteBuildErrors(t *testing.T) {
 				a.assert.Equal(14, fe.Position().ColumnNumber)
 				a.assert.Equal("go-html-template", fe.ChromaLexer)
 				a.assertErrorMessage("\"layouts/_default/single.html:5:14\": execute of template failed", fe.Error())
-
 			},
 		},
 		{
@@ -123,7 +119,6 @@ func TestSiteBuildErrors(t *testing.T) {
 				a.assert.Equal(14, fe.Position().ColumnNumber)
 				a.assert.Equal("go-html-template", fe.ChromaLexer)
 				a.assertErrorMessage("\"layouts/_default/single.html:5:14\": execute of template failed", fe.Error())
-
 			},
 		},
 		{
@@ -185,7 +180,6 @@ func TestSiteBuildErrors(t *testing.T) {
 				fe := a.getFileError(err)
 				a.assert.Equal(6, fe.Position().LineNumber)
 				a.assert.Equal("toml", fe.ErrorContext.ChromaLexer)
-
 			},
 		},
 		{
@@ -199,7 +193,6 @@ func TestSiteBuildErrors(t *testing.T) {
 
 				a.assert.Equal(3, fe.Position().LineNumber)
 				a.assert.Equal("json", fe.ErrorContext.ChromaLexer)
-
 			},
 		},
 		{
@@ -241,7 +234,6 @@ func TestSiteBuildErrors(t *testing.T) {
 					return content
 				}
 				return test.fileFixer(content)
-
 			}
 
 			b.WithTemplatesAdded("layouts/shortcodes/sc.html", f(shortcode, `SHORTCODE L1
@@ -347,9 +339,7 @@ title: "A page"
 ---
 
 {{< c >}}`)
-
 	}
 
 	b.CreateSites().BuildFail(BuildCfg{})
-
 }

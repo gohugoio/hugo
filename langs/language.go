@@ -117,7 +117,6 @@ func (l Languages) Less(i, j int) bool {
 	}
 
 	return wj == 0 || wi < wj
-
 }
 
 func (l Languages) Swap(i, j int) { l[i], l[j] = l[j], l[i] }
@@ -238,5 +237,4 @@ func (l *Language) IsSet(key string) bool {
 		}
 	}
 	return l.Cfg.IsSet(key)
-
 }

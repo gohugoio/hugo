@@ -21,14 +21,12 @@ import (
 )
 
 func TestShortcodesTemplate(t *testing.T) {
-
 	t.Run("isShortcode", func(t *testing.T) {
 		assert := require.New(t)
 		assert.True(isShortcode("shortcodes/figures.html"))
 		assert.True(isShortcode("_internal/shortcodes/figures.html"))
 		assert.False(isShortcode("shortcodes\\figures.html"))
 		assert.False(isShortcode("myshortcodes"))
-
 	})
 
 	t.Run("variantsFromName", func(t *testing.T) {
@@ -41,7 +39,6 @@ func TestShortcodesTemplate(t *testing.T) {
 		name, variants := templateNameAndVariants("figure.html")
 		assert.Equal("figure", name)
 		assert.Equal([]string{"", "html", "html"}, variants)
-
 	})
 
 	t.Run("compareVariants", func(t *testing.T) {
@@ -66,7 +63,6 @@ func TestShortcodesTemplate(t *testing.T) {
 			w := s.compareVariants(templateVariants(test.name1), templateVariants(test.name2))
 			assert.Equal(test.expected, w, fmt.Sprintf("[%d] %s", i, test.name))
 		}
-
 	})
 
 	t.Run("indexOf", func(t *testing.T) {
@@ -82,7 +78,6 @@ func TestShortcodesTemplate(t *testing.T) {
 		assert.Equal(0, s.indexOf([]string{"a", "b", "c"}))
 		assert.Equal(1, s.indexOf([]string{"a", "b", "d"}))
 		assert.Equal(-1, s.indexOf([]string{"a", "b", "x"}))
-
 	})
 
 	t.Run("Name", func(t *testing.T) {
@@ -93,6 +88,5 @@ func TestShortcodesTemplate(t *testing.T) {
 		assert.Equal("test/foo.html", templateBaseName(templateShortcode, "shortcodes/test/foo.html"))
 
 		assert.True(true)
-
 	})
 }

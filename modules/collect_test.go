@@ -34,5 +34,4 @@ func TestPathKey(t *testing.T) {
 	} {
 		assert.Equal(test.expect, pathKey(test.in))
 	}
-
 }

@@ -69,7 +69,6 @@ func TestNew(t *testing.T) {
 		assert.NoError(m.Minify(test.tp, &b, strings.NewReader(test.rawString)))
 		assert.Equal(test.expectedMinString, b.String())
 	}
-
 }
 
 func TestBugs(t *testing.T) {
@@ -89,5 +88,4 @@ func TestBugs(t *testing.T) {
 		assert.NoError(m.Minify(test.tp, &b, strings.NewReader(test.rawString)))
 		assert.Equal(test.expectedMinString, b.String())
 	}
-
 }

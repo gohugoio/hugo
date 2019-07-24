@@ -25,7 +25,6 @@ import (
 )
 
 func TestURLize(t *testing.T) {
-
 	v := newTestCfg()
 	l := langs.NewDefaultLanguage(v)
 	p, _ := NewPathSpec(hugofs.NewMem(v), l)
@@ -100,7 +99,6 @@ func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 			} else {
 				expected = strings.Replace(expected, "MULTI", lang+"/", 1)
 			}
-
 		} else {
 			expected = strings.Replace(expected, "MULTI", "", 1)
 		}
@@ -263,7 +261,6 @@ func TestURLPrep(t *testing.T) {
 			t.Errorf("Test #%d failed. Expected %q got %q", i, d.output, output)
 		}
 	}
-
 }
 
 func TestAddContextRoot(t *testing.T) {

@@ -98,7 +98,6 @@ func TestInit(t *testing.T) {
 			}
 			_, err = branch1_2.Do()
 			assert.NoError(err)
-
 		}(i)
 
 		wg.Wait()
@@ -106,7 +105,6 @@ func TestInit(t *testing.T) {
 		assert.Equal("root(1)|root(2)|branch_1|branch_1_1|branch_1_2|branch_1_2_1|", result)
 
 	}
-
 }
 
 func TestInitAddWithTimeout(t *testing.T) {
@@ -142,7 +140,6 @@ func TestInitAddWithTimeoutTimeout(t *testing.T) {
 	assert.Contains(err.Error(), "timed out")
 
 	time.Sleep(1 * time.Second)
-
 }
 
 func TestInitAddWithTimeoutError(t *testing.T) {
@@ -204,7 +201,6 @@ func TestInitBranchOrder(t *testing.T) {
 			// V1 is A
 			ab := state.V1 + "B"
 			state.Add2(ab)
-
 		}))
 	}
 

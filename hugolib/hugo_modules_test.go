@@ -265,7 +265,6 @@ other = %q
 		"i18n theme: Theme C",
 		"i18n theme2: Theme2 D",
 	)
-
 }
 
 func TestModulesIgnoreConfig(t *testing.T) {
@@ -293,7 +292,6 @@ a = "Should Be Ignored!"
 	b.AssertFileContentFn("public/index.html", func(s string) bool {
 		return !strings.Contains(s, "Ignored")
 	})
-
 }
 
 func TestModulesDisabled(t *testing.T) {
@@ -329,7 +327,6 @@ b = "B param"
 	b.AssertFileContentFn("public/index.html", func(s string) bool {
 		return strings.Contains(s, "A param") && !strings.Contains(s, "B param")
 	})
-
 }
 
 func TestModulesIncompatible(t *testing.T) {
@@ -374,7 +371,6 @@ min_version = "5.0.0"
 	assert := require.New(t)
 
 	assert.Equal(uint64(2), logger.WarnCounter.Count())
-
 }
 
 func TestModulesSymlinks(t *testing.T) {
@@ -463,8 +459,8 @@ weight = 2
 		bfs.Data.Fs,
 		bfs.Assets.Fs,
 		bfs.Static[""].Fs,
-		bfs.I18n.Fs} {
-
+		bfs.I18n.Fs,
+	} {
 		for i, id := range []string{"mod", "project"} {
 
 			statCheck := func(fs afero.Fs, filename string) {

@@ -210,7 +210,6 @@ func TestGetTitleFunc(t *testing.T) {
 	assert.Equal("Somewhere Over the Rainbow", GetTitleFunc("ap")(title), "AP style")
 	assert.Equal("Somewhere Over the Rainbow", GetTitleFunc("")(title), "AP style")
 	assert.Equal("Somewhere Over the Rainbow", GetTitleFunc("unknown")(title), "AP style")
-
 }
 
 func BenchmarkReaderContains(b *testing.B) {
@@ -344,7 +343,6 @@ func BenchmarkMD5FromFileFast(b *testing.B) {
 			}
 		})
 	}
-
 }
 
 func BenchmarkUniqueStrings(b *testing.B) {
@@ -396,5 +394,4 @@ func BenchmarkUniqueStrings(b *testing.B) {
 			}
 		}
 	})
-
 }

@@ -29,13 +29,11 @@ func (t *templateHandler) compileAmberWithTemplate(b []byte, path string, templ 
 	}
 
 	data, err := c.CompileString()
-
 	if err != nil {
 		return nil, err
 	}
 
 	tpl, err := templ.Funcs(t.amberFuncMap).Parse(data)
-
 	if err != nil {
 		return nil, err
 	}

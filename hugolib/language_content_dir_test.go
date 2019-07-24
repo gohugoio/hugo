@@ -100,7 +100,7 @@ Content.
 	var contentFiles []string
 	section := "sect"
 
-	var contentRoot = func(lang string) string {
+	contentRoot := func(lang string) string {
 		switch lang {
 		case "nn":
 			return "content/norsk"
@@ -109,10 +109,9 @@ Content.
 		default:
 			return "content/main"
 		}
-
 	}
 
-	var contentSectionRoot = func(lang string) string {
+	contentSectionRoot := func(lang string) string {
 		return contentRoot(lang) + "/" + section
 	}
 
@@ -213,7 +212,7 @@ Content.
 
 	err := b.BuildE(BuildCfg{})
 
-	//dumpPages(b.H.Sites[1].RegularPages()...)
+	// dumpPages(b.H.Sites[1].RegularPages()...)
 
 	assert.NoError(err)
 
@@ -226,7 +225,7 @@ Content.
 	b.AssertFileContent("/my/project/public/en/mystatic/file1.yaml", "en")
 	b.AssertFileContent("/my/project/public/nn/mystatic/file1.yaml", "nn")
 
-	//dumpPages(nnSite.RegularPages()...)
+	// dumpPages(nnSite.RegularPages()...)
 
 	assert.Equal(12, len(nnSite.RegularPages()))
 	assert.Equal(13, len(enSite.RegularPages()))
@@ -306,5 +305,4 @@ Content.
 	assert.Equal(12, len(nnSect.Pages()))
 	nnHome, _ := nnSite.Info.Home()
 	assert.Equal("/nn/", nnHome.RelPermalink())
-
 }

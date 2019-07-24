@@ -81,7 +81,6 @@ func (ns *Namespace) Get(filename interface{}) (resource.Resource, error) {
 	// Resource Get'ing is currently limited to /assets to make it simpler
 	// to control the behaviour of publishing and partial rebuilding.
 	return ns.createClient.Get(ns.deps.BaseFs.Assets.Fs, filenamestr)
-
 }
 
 // Concat concatenates a slice of Resource objects. These resources must

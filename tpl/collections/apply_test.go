@@ -64,5 +64,4 @@ func TestApply(t *testing.T) {
 	if err == nil {
 		t.Errorf("apply with unknown func should fail")
 	}
-
 }

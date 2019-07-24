@@ -54,7 +54,6 @@ func Recover() {
 	if r := recover(); r != nil {
 		fmt.Println("stacktrace from panic: \n" + string(debug.Stack()))
 	}
-
 }
 
 // ErrFeatureNotAvailable denotes that a feature is unavailable.

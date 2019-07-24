@@ -64,7 +64,6 @@ func (ns *Namespace) Floor(x interface{}) (float64, error) {
 // Log returns the natural logarithm of a number.
 func (ns *Namespace) Log(a interface{}) (float64, error) {
 	af, err := cast.ToFloat64E(a)
-
 	if err != nil {
 		return 0, errors.New("Log operator can't be used with non integer or float value")
 	}

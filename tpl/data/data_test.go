@@ -110,7 +110,7 @@ func TestGetCSV(t *testing.T) {
 
 		if _, ok := test.expect.(bool); ok {
 			require.Equal(t, 1, int(ns.deps.Log.ErrorCounter.Count()))
-			//require.Error(t, err, msg)
+			// require.Error(t, err, msg)
 			require.Nil(t, got)
 			continue
 		}
@@ -194,7 +194,7 @@ func TestGetJSON(t *testing.T) {
 
 		if _, ok := test.expect.(bool); ok {
 			require.Equal(t, 1, int(ns.deps.Log.ErrorCounter.Count()))
-			//require.Error(t, err, msg)
+			// require.Error(t, err, msg)
 			continue
 		}
 

@@ -51,5 +51,4 @@ func HugoGenerator(ft transform.FromTo) error {
 	}
 
 	return nil
-
 }

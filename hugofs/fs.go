@@ -21,10 +21,8 @@ import (
 	"github.com/spf13/afero"
 )
 
-var (
-	// Os points to the (real) Os filesystem.
-	Os = &afero.OsFs{}
-)
+// Os points to the (real) Os filesystem.
+var Os = &afero.OsFs{}
 
 // Fs abstracts the file system to separate source and destination file systems
 // and allows both to be mocked for testing.

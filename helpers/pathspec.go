@@ -44,7 +44,6 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
 // NewPathSpecWithBaseBaseFsProvided creats a new PathSpec from the given filesystems and language.
 // If an existing BaseFs is provided, parts of that is reused.
 func NewPathSpecWithBaseBaseFsProvided(fs *hugofs.Fs, cfg config.Provider, baseBaseFs *filesystems.BaseFs) (*PathSpec, error) {
-
 	p, err := paths.New(fs, cfg)
 	if err != nil {
 		return nil, err
@@ -84,5 +83,4 @@ func (p *PathSpec) PermalinkForBaseURL(link, baseURL string) string {
 		baseURL += "/"
 	}
 	return baseURL + link
-
 }

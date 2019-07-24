@@ -19,21 +19,18 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+	"io"
+	"path/filepath"
+	"fmt"
 
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/resources/page"
 
-	"io"
-
 	"github.com/gohugoio/hugo/htesting"
 
 	"github.com/gohugoio/hugo/media"
-
-	"path/filepath"
-
-	"fmt"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/spf13/viper"
@@ -263,12 +260,10 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 							b.AssertFileContent(filepath.FromSlash("/work/public/root/index.html"), "Single Title")
 
 						}
-
 					})
 			}
 		}
 	}
-
 }
 
 func TestPageBundlerSiteMultilingual(t *testing.T) {
@@ -294,7 +289,7 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 
 				assert.Equal(8, len(s.RegularPages()))
 				assert.Equal(16, len(s.Pages()))
-				//dumpPages(s.AllPages()...)
+				// dumpPages(s.AllPages()...)
 				assert.Equal(31, len(s.AllPages()))
 
 				bundleWithSubPath := s.getPage(page.KindPage, "lb/index")
@@ -335,7 +330,6 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 				bundlePage := bundleWithSubPath.Resources().GetMatch("c/page*")
 				assert.NotNil(bundlePage)
 				assert.IsType(&pageState{}, bundlePage)
-
 			})
 	}
 }
@@ -380,7 +374,6 @@ func TestMultilingualDisableLanguage(t *testing.T) {
 	for _, p := range s.AllPages() {
 		assert.True(p.Language().Lang != "nn")
 	}
-
 }
 
 func TestPageBundlerSiteWitSymbolicLinksInContent(t *testing.T) {
@@ -486,7 +479,6 @@ TheContent.
 	b.AssertFileContent(filepath.FromSlash(workDir+"/public/a/page/index.html"), "TheContent")
 	b.AssertFileContent(filepath.FromSlash(workDir+"/public/symbolic1/s1/index.html"), "TheContent")
 	b.AssertFileContent(filepath.FromSlash(workDir+"/public/symbolic2/a1/index.html"), "TheContent")
-
 }
 
 func TestPageBundlerHeadless(t *testing.T) {
@@ -566,7 +558,6 @@ HEADLESS {{< myShort >}}
 	th.assertFileNotExist(workDir + "/public/s2/index.html")
 	// But the bundled resources needs to be published
 	th.assertFileContent(filepath.FromSlash(workDir+"/public/s2/l1.png"), "PNG")
-
 }
 
 func TestMultiSiteBundles(t *testing.T) {
@@ -651,7 +642,6 @@ Single content.
 
 	b.AssertFileContent("public/section-not-bundle/index.html", "Section Page", "Content: <p>Section content.</p>")
 	b.AssertFileContent("public/section-not-bundle/single/index.html", "Section Single", "|<p>Single content.</p>")
-
 }
 
 func newTestBundleSources(t *testing.T) (*hugofs.Fs, *viper.Viper) {
@@ -818,7 +808,6 @@ Content for 은행.
 	assert.NoError(err)
 
 	return fs, cfg
-
 }
 
 func newTestBundleSourcesMultilingual(t *testing.T) (*hugofs.Fs, *viper.Viper) {
@@ -896,7 +885,7 @@ TheContent.
 	writeSource(t, fs, filepath.Join(workDir, "base", "lb", "c", "one.png"), "content")
 	writeSource(t, fs, filepath.Join(workDir, "base", "lb", "c", "d", "deep.png"), "content")
 
-	//Translated bundle in some sensible sub path.
+	// Translated bundle in some sensible sub path.
 	writeSource(t, fs, filepath.Join(workDir, "base", "bf", "my-bf-bundle", "index.md"), pageContent)
 	writeSource(t, fs, filepath.Join(workDir, "base", "bf", "my-bf-bundle", "index.nn.md"), pageContent)
 	writeSource(t, fs, filepath.Join(workDir, "base", "bf", "my-bf-bundle", "page.md"), pageContent)
@@ -935,7 +924,6 @@ date: 2017-01-15
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent("public/mybundle/data.json", "My changed data")
-
 }
 
 // https://github.com/gohugoio/hugo/issues/4870
@@ -964,7 +952,6 @@ slug: %s
 
 	assert.True(b.CheckExists("public/about/services1/this-is-the-slug/index.html"))
 	assert.True(b.CheckExists("public/about/services2/this-is-another-slug/index.html"))
-
 }
 
 func TestBundleMisc(t *testing.T) {
@@ -1049,13 +1036,11 @@ slug: leaf
 	b.AssertFileContentFn("public/en/index.html", func(s string) bool {
 		// Check ignored files
 		return !regexp.MustCompile("README|ignore").MatchString(s)
-
 	})
 
 	b.AssertFileContent("public/nn/index.html", filepath.FromSlash("page|sect1/sect2/page.md|CurrentSection: sect1"))
 	b.AssertFileContentFn("public/nn/index.html", func(s string) bool {
 		return !strings.Contains(s, "enonly")
-
 	})
 
 	// Check order of inherited data file
@@ -1073,5 +1058,4 @@ slug: leaf
 	b.AssertFileContent("public/en/b2/index.html",
 		"/en/b2/leaf/",
 		filepath.FromSlash("section|sect1/sect2/_index.md|CurrentSection: sect1/sect2/_index.md"))
-
 }

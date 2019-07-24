@@ -43,7 +43,6 @@ func TestLoadConfig(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal("side", cfg.GetString("paginatePath"))
-
 }
 
 func TestLoadMultiConfig(t *testing.T) {
@@ -359,7 +358,6 @@ map[string]interface {}{
     },
   },
 }`, got["menu"])
-
 }
 
 func TestPrivacyConfig(t *testing.T) {
@@ -381,7 +379,6 @@ privacyEnhanced = true
 	b.Build(BuildCfg{SkipRender: true})
 
 	assert.True(b.H.Sites[0].Info.Config().Privacy.YouTube.PrivacyEnhanced)
-
 }
 
 func TestLoadConfigModules(t *testing.T) {
@@ -475,11 +472,9 @@ o1 n2
 n1 n3
 project n4
 `, graphb.String())
-
 }
 
 func TestLoadConfigWithOsEnvOverrides(t *testing.T) {
-
 	assert := require.New(t)
 
 	baseConfig := `
@@ -520,5 +515,4 @@ resamplefilter = "CatmullRom"
 	assert.Equal([]interface{}{"c", "d"}, cfg.Get("stringSlice"))
 	assert.Equal([]interface{}{5.32}, cfg.Get("floatSlice"))
 	assert.Equal([]interface{}{5, 8, 9}, cfg.Get("intSlice"))
-
 }

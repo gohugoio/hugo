@@ -44,5 +44,4 @@ func GetGlob(pattern string) (glob.Glob, error) {
 	}
 
 	return g, nil
-
 }

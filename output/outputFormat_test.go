@@ -67,7 +67,6 @@ func TestDefaultTypes(t *testing.T) {
 	require.False(t, RSSFormat.IsPlainText)
 	require.True(t, RSSFormat.NoUgly)
 	require.False(t, CalendarFormat.IsHTML)
-
 }
 
 func TestGetFormatByName(t *testing.T) {
@@ -131,14 +130,12 @@ func TestGetFormatByFilename(t *testing.T) {
 	require.Equal(t, noExt, f)
 	_, found = formats.FromFilename("my.css")
 	require.False(t, found)
-
 }
 
 func TestDecodeFormats(t *testing.T) {
-
 	mediaTypes := media.Types{media.JSONType, media.XMLType}
 
-	var tests = []struct {
+	tests := []struct {
 		name        string
 		maps        []map[string]interface{}
 		shouldError bool
@@ -150,7 +147,10 @@ func TestDecodeFormats(t *testing.T) {
 				{
 					"JsON": map[string]interface{}{
 						"baseName":    "myindex",
-						"isPlainText": "false"}}},
+						"isPlainText": "false",
+					},
+				},
+			},
 			false,
 			func(t *testing.T, name string, f Formats) {
 				require.Len(t, f, len(DefaultFormats), name)
@@ -158,8 +158,8 @@ func TestDecodeFormats(t *testing.T) {
 				require.Equal(t, "myindex", json.BaseName)
 				require.Equal(t, media.JSONType, json.MediaType)
 				require.False(t, json.IsPlainText)
-
-			}},
+			},
+		},
 		{
 			"Add XML format with string as mediatype",
 			[]map[string]interface{}{
@@ -167,7 +167,9 @@ func TestDecodeFormats(t *testing.T) {
 					"MYXMLFORMAT": map[string]interface{}{
 						"baseName":  "myxml",
 						"mediaType": "application/xml",
-					}}},
+					},
+				},
+			},
 			false,
 			func(t *testing.T, name string, f Formats) {
 				require.Len(t, f, len(DefaultFormats)+1, name)
@@ -179,8 +181,8 @@ func TestDecodeFormats(t *testing.T) {
 				// Verify that we haven't changed the DefaultFormats slice.
 				json, _ := f.GetByName("JSON")
 				require.Equal(t, "index", json.BaseName, name)
-
-			}},
+			},
+		},
 		{
 			"Add format unknown mediatype",
 			[]map[string]interface{}{
@@ -188,11 +190,13 @@ func TestDecodeFormats(t *testing.T) {
 					"MYINVALID": map[string]interface{}{
 						"baseName":  "mymy",
 						"mediaType": "application/hugo",
-					}}},
+					},
+				},
+			},
 			true,
 			func(t *testing.T, name string, f Formats) {
-
-			}},
+			},
+		},
 		{
 			"Add and redefine XML format",
 			[]map[string]interface{}{
@@ -200,11 +204,13 @@ func TestDecodeFormats(t *testing.T) {
 					"MYOTHERXMLFORMAT": map[string]interface{}{
 						"baseName":  "myotherxml",
 						"mediaType": media.XMLType,
-					}},
+					},
+				},
 				{
 					"MYOTHERXMLFORMAT": map[string]interface{}{
 						"baseName": "myredefined",
-					}},
+					},
+				},
 			},
 			false,
 			func(t *testing.T, name string, f Formats) {
@@ -213,7 +219,8 @@ func TestDecodeFormats(t *testing.T) {
 				require.True(t, found)
 				require.Equal(t, "myredefined", xml.BaseName, fmt.Sprint(xml))
 				require.Equal(t, media.XMLType, xml.MediaType)
-			}},
+			},
+		},
 	}
 
 	for _, test := range tests {
@@ -246,5 +253,4 @@ func TestSort(t *testing.T) {
 	assert.Equal("JSON", formats[0].Name)
 	assert.Equal("HTML", formats[1].Name)
 	assert.Equal("AMP", formats[2].Name)
-
 }

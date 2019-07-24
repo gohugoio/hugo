@@ -116,7 +116,6 @@ func newPageCollections() *PageCollections {
 }
 
 func newPageCollectionsFromPages(pages pageStatePages) *PageCollections {
-
 	c := &PageCollections{rawAllPages: pages}
 
 	c.pages = newLazyPagesFactory(func() page.Pages {
@@ -358,7 +357,6 @@ func (c *PageCollections) removePageFilename(filename string) {
 		c.clearResourceCacheForPage(c.rawAllPages[i])
 		c.rawAllPages = append(c.rawAllPages[:i], c.rawAllPages[i+1:]...)
 	}
-
 }
 
 func (c *PageCollections) removePage(page *pageState) {

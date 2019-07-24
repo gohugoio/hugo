@@ -106,7 +106,6 @@ func (c *pageCache) getP(key string, apply func(p *Pages), pageLists ...Pages) (
 	}
 
 	return pagesCopy, false
-
 }
 
 // pagesEqual returns whether p1 and p2 are equal.

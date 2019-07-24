@@ -26,7 +26,6 @@ import (
 )
 
 func TestDateAndSlugFromBaseFilename(t *testing.T) {
-
 	t.Parallel()
 
 	assert := require.New(t)
@@ -113,7 +112,6 @@ func TestFrontMatterNewConfig(t *testing.T) {
 	assert.Equal([]string{"d2", ":git", "lastmod", "modified", "date", "publishdate", "pubdate", "published"}, fc.lastmod)
 	assert.Equal([]string{"d3", "expirydate", "unpublishdate"}, fc.expiryDate)
 	assert.Equal([]string{"d4", "publishdate", "pubdate", "published", "date"}, fc.publishDate)
-
 }
 
 func TestFrontMatterDatesHandlers(t *testing.T) {
@@ -201,7 +199,6 @@ func TestFrontMatterDatesCustomConfig(t *testing.T) {
 	assert.True(handler.IsDateKey("mydate"))
 	assert.True(handler.IsDateKey("publishdate"))
 	assert.True(handler.IsDateKey("pubdate"))
-
 }
 
 func TestFrontMatterDatesDefaultKeyword(t *testing.T) {
@@ -232,7 +229,6 @@ func TestFrontMatterDatesDefaultKeyword(t *testing.T) {
 	assert.Equal(2, d.Dates.FLastmod.Day())
 	assert.Equal(4, d.Dates.FPublishDate.Day())
 	assert.True(d.Dates.FExpiryDate.IsZero())
-
 }
 
 func TestExpandDefaultValues(t *testing.T) {
@@ -240,7 +236,6 @@ func TestExpandDefaultValues(t *testing.T) {
 	assert.Equal([]string{"a", "b", "c", "d"}, expandDefaultValues([]string{"a", ":default", "d"}, []string{"b", "c"}))
 	assert.Equal([]string{"a", "b", "c"}, expandDefaultValues([]string{"a", "b", "c"}, []string{"a", "b", "c"}))
 	assert.Equal([]string{"b", "c", "a", "b", "c", "d"}, expandDefaultValues([]string{":default", "a", ":default", "d"}, []string{"b", "c"}))
-
 }
 
 func TestFrontMatterDateFieldHandler(t *testing.T) {

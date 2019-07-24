@@ -72,11 +72,9 @@ Import from Jekyll requires two paths, e.g. ` + "`hugo import jekyll jekyll_root
 	cc.cmd.AddCommand(importJekyllCmd)
 
 	return cc
-
 }
 
 func (i *importCmd) importFromJekyll(cmd *cobra.Command, args []string) error {
-
 	if len(args) < 2 {
 		return newUserError(`import from jekyll requires two paths, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`.")
 	}
@@ -106,7 +104,6 @@ func (i *importCmd) importFromJekyll(cmd *cobra.Command, args []string) error {
 	}
 
 	site, err := i.createSiteFromJekyll(jekyllRoot, targetDir, jekyllPostDirs, forceImport)
-
 	if err != nil {
 		return newUserError(err)
 	}
@@ -253,13 +250,11 @@ func (i *importCmd) loadJekyllConfig(fs afero.Fs, jekyllRoot string) map[string]
 	defer f.Close()
 
 	b, err := ioutil.ReadAll(f)
-
 	if err != nil {
 		return nil
 	}
 
 	c, err := metadecoders.Default.UnmarshalToMap(b, metadecoders.YAML)
-
 	if err != nil {
 		return nil
 	}
@@ -336,8 +331,10 @@ func (i *importCmd) copyJekyllFilesAndFolders(jekyllRoot, dest string, jekyllPos
 			}
 		} else {
 			lowerEntryName := strings.ToLower(entry.Name())
-			exceptSuffix := []string{".md", ".markdown", ".html", ".htm",
-				".xml", ".textile", "rakefile", "gemfile", ".lock"}
+			exceptSuffix := []string{
+				".md", ".markdown", ".html", ".htm",
+				".xml", ".textile", "rakefile", "gemfile", ".lock",
+			}
 			isExcept := false
 			for _, suffix := range exceptSuffix {
 				if strings.HasSuffix(lowerEntryName, suffix) {
@@ -587,8 +584,8 @@ func replaceImageTag(match string) string {
 	}
 	result.WriteString(">}}")
 	return result.String()
-
 }
+
 func replaceOptionalPart(buffer *bytes.Buffer, partName string, part string) {
 	if len(part) > 0 {
 		buffer.WriteString(partName + "=\"" + part + "\" ")

@@ -54,7 +54,6 @@ as you see fit.`,
 // newTheme creates a new Hugo theme template
 func (n *newThemeCmd) newTheme(cmd *cobra.Command, args []string) error {
 	c, err := initializeConfig(false, false, &n.hugoBuilderCommon, n, nil)
-
 	if err != nil {
 		return err
 	}
@@ -146,7 +145,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 }
 
 func (n *newThemeCmd) createThemeMD(fs *hugofs.Fs, inpath string) (err error) {
-
 	by := []byte(`# theme.toml template for a Hugo theme
 # See https://github.com/gohugoio/hugoThemes#themetoml for an example
 

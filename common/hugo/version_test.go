@@ -67,7 +67,6 @@ func TestCompareVersions(t *testing.T) {
 	require.Equal(t, 1, compareVersionsWithSuffix(0.22, 0, "-DEV", "0.22"))
 	require.Equal(t, -1, compareVersionsWithSuffix(0.22, 1, "-DEV", "0.22"))
 	require.Equal(t, 0, compareVersionsWithSuffix(0.22, 1, "-DEV", "0.22.1-DEV"))
-
 }
 
 func TestParseHugoVersion(t *testing.T) {
@@ -75,7 +74,6 @@ func TestParseHugoVersion(t *testing.T) {
 	require.Equal(t, "0.25.2", MustParseVersion("0.25.2").String())
 	require.Equal(t, "0.25-test", MustParseVersion("0.25-test").String())
 	require.Equal(t, "0.25-DEV", MustParseVersion("0.25-DEV").String())
-
 }
 
 func TestGoMinorVersion(t *testing.T) {

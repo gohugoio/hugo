@@ -30,7 +30,6 @@ import (
 
 // New returns a new instance of the data-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
-
 	return &Namespace{
 		deps:         deps,
 		cacheGetCSV:  deps.FileCaches.GetCSVCache(),

@@ -25,6 +25,7 @@ import (
 	"runtime"
 	"unicode"
 	"unicode/utf8"
+	"strings"
 
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/niklasfasching/go-org/org"
@@ -35,8 +36,6 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/russross/blackfriday"
 	jww "github.com/spf13/jwalterweatherman"
-
-	"strings"
 )
 
 // SummaryDivider denotes where content summarization should end. The default is "<!--more-->".
@@ -202,7 +201,6 @@ var mmarkExtensionMap = map[string]int{
 
 // StripHTML accepts a string, strips out all HTML tags and returns it.
 func StripHTML(s string) string {
-
 	// Shortcut strings with no tags in them
 	if !strings.ContainsAny(s, "<>") {
 		return s
@@ -723,7 +721,7 @@ func getRstContent(ctx *RenderingContext) []byte {
 	// TODO(bep) check if rst2html has a body only option.
 	bodyStart := bytes.Index(result, []byte("<body>\n"))
 	if bodyStart < 0 {
-		bodyStart = -7 //compensate for length
+		bodyStart = -7 // compensate for length
 	}
 
 	bodyEnd := bytes.Index(result, []byte("\n</body>"))

@@ -112,7 +112,6 @@ func (g *gitHubAPI) fetchRepo() (gitHubRepo, error) {
 	repo.Contributors = contributors
 
 	return repo, err
-
 }
 
 func doGitHubRequest(req *http.Request, v interface{}) error {

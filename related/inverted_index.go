@@ -180,7 +180,6 @@ func (idx *InvertedIndex) Add(docs ...Document) error {
 	}
 
 	return err
-
 }
 
 // queryElement holds the index name and keywords that can be used to compose a

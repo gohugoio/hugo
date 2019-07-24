@@ -17,15 +17,14 @@ import (
 	"fmt"
 	"html/template"
 	"os"
-
-	"github.com/gohugoio/hugo/config"
-
-	"github.com/gohugoio/hugo/common/loggers"
-
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/gohugoio/hugo/config"
+
+	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/gohugoio/hugo/hugofs"
 
@@ -373,7 +372,6 @@ func normalizeExpected(ext, str string) string {
 
 func testAllMarkdownEnginesForPages(t *testing.T,
 	assertFunc func(t *testing.T, ext string, pages page.Pages), settings map[string]interface{}, pageSources ...string) {
-
 	engines := []struct {
 		ext           string
 		shouldExecute func() bool
@@ -394,7 +392,6 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 				cfg.Set(k, v)
 			}
 			return nil
-
 		})
 
 		contentDir := "content"
@@ -433,7 +430,6 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 		require.Contains(t, content(home), "Home Page Content")
 
 	}
-
 }
 
 // Issue #1076
@@ -494,7 +490,6 @@ categories: ["cool stuff"]
 		checkDated(p, p.Kind())
 	}
 	checkDate(s.Info.LastChange(), "site")
-
 }
 
 func TestPageDatesSections(t *testing.T) {
@@ -531,7 +526,6 @@ date: 2018-01-15
 	assert.Equal(2017, s.getPage("/no-index").Date().Year())
 	assert.True(s.getPage("/with-index-no-date").Date().IsZero())
 	assert.Equal(2018, s.getPage("/with-index-date").Date().Year())
-
 }
 
 func TestCreateNewPage(t *testing.T) {
@@ -625,7 +619,6 @@ Simple Page With Some Date`
 		for _, p := range pages {
 			assert.True(hasDate(p))
 		}
-
 	}
 
 	fields := []string{"date", "publishdate", "pubdate", "published"}
@@ -655,7 +648,6 @@ title: Raw
 	p := s.RegularPages()[0]
 
 	require.Equal(t, p.RawContent(), "**Raw**")
-
 }
 
 func TestPageWithShortCodeInSummary(t *testing.T) {
@@ -701,7 +693,6 @@ func TestPageWithAdditionalExtension(t *testing.T) {
 }
 
 func TestTableOfContents(t *testing.T) {
-
 	cfg, fs := newTestCfg()
 
 	writeSource(t, fs, filepath.Join("content", "tocpage.md"), pageWithToC)
@@ -724,7 +715,6 @@ func TestPageWithMoreTag(t *testing.T) {
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Same Line</p>\n\n<p>Some more text</p>\n"))
 		checkPageSummary(t, p, normalizeExpected(ext, "<p>Summary Same Line</p>"))
 		checkPageType(t, p, "page")
-
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithSummaryDelimiterSameLine)
@@ -732,7 +722,6 @@ func TestPageWithMoreTag(t *testing.T) {
 
 // #2973
 func TestSummaryWithHTMLTagsOnNextLine(t *testing.T) {
-
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
 		p := pages[0]
 		require.Contains(t, p.Summary(), "Happy new year everyone!")
@@ -821,7 +810,6 @@ func TestPageWithLastmodFromGitInfo(t *testing.T) {
 
 	// 2018-08-11 is the Git author date for testsite/content_nn/first-post.md
 	assrt.Equal("2018-08-11", nnSite.RegularPages()[0].Lastmod().Format("2006-01-02"))
-
 }
 
 func TestPageWithFrontMatterConfig(t *testing.T) {
@@ -887,7 +875,6 @@ Content
 			}
 		})
 	}
-
 }
 
 func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
@@ -953,7 +940,6 @@ func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, settings, simplePageWithIsCJKLanguageFalse)
-
 }
 
 func TestWordCount(t *testing.T) {
@@ -971,7 +957,6 @@ func TestWordCount(t *testing.T) {
 		if p.ReadingTime() != 3 {
 			t.Fatalf("[%s] incorrect min read. expected %v, got %v", ext, 3, p.ReadingTime())
 		}
-
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithLongContent)
@@ -1034,7 +1019,6 @@ func TestTranslationKey(t *testing.T) {
 	p2 := s.RegularPages()[1]
 
 	assert.Equal("page/sect/simple", p2.TranslationKey())
-
 }
 
 func TestChompBOM(t *testing.T) {
@@ -1106,7 +1090,6 @@ but if you like it, hit :+1: and get subscribed!
 		}
 
 	}
-
 }
 
 func TestPageHTMLContent(t *testing.T) {
@@ -1143,7 +1126,6 @@ title: "HTML Content"
 		"Summary: \n<p>This is summary</p>\n|Truncated: true",
 		"|<p>This is the main content.</p>|",
 	)
-
 }
 
 // https://github.com/gohugoio/hugo/issues/5381
@@ -1259,7 +1241,6 @@ Content:{{ .Content }}
 		"Title: hello",
 		"Content:<p>This is the content.</p>",
 	)
-
 }
 
 // https://github.com/gohugoio/hugo/issues/5781
@@ -1286,11 +1267,11 @@ Content.
 
 func TestShouldBuild(t *testing.T) {
 	t.Parallel()
-	var past = time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC)
-	var future = time.Date(2037, 11, 17, 20, 34, 58, 651387237, time.UTC)
-	var zero = time.Time{}
+	past := time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC)
+	future := time.Date(2037, 11, 17, 20, 34, 58, 651387237, time.UTC)
+	zero := time.Time{}
 
-	var publishSettings = []struct {
+	publishSettings := []struct {
 		buildFuture  bool
 		buildExpired bool
 		buildDrafts  bool
@@ -1414,7 +1395,6 @@ tags:
 				} else {
 					require.Equal(t, "/post/test0.dot/", p.RelPermalink())
 				}
-
 			})
 		}
 	}
@@ -1422,7 +1402,6 @@ tags:
 
 // https://github.com/gohugoio/hugo/issues/4675
 func TestWordCountAndSimilarVsSummary(t *testing.T) {
-
 	t.Parallel()
 	assert := require.New(t)
 
@@ -1514,7 +1493,6 @@ Summary: In Chinese, 好 means good.
 	b.AssertFileContent("public/p4/index.html", "WordCount: 7\nFuzzyWordCount: 100\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 43\nLen Content: 652")
 	b.AssertFileContent("public/p5/index.html", "WordCount: 206\nFuzzyWordCount: 300\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 229\nLen Content: 653")
 	b.AssertFileContent("public/p6/index.html", "WordCount: 7\nFuzzyWordCount: 100\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: false\nLen Summary: 637\nLen Content: 653")
-
 }
 
 func TestScratchSite(t *testing.T) {

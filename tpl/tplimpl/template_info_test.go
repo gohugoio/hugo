@@ -35,7 +35,6 @@ func TestTemplateInfoShortcode(t *testing.T) {
 	tti, ok := tt.(tpl.TemplateInfoProvider)
 	assert.True(ok)
 	assert.True(tti.TemplateInfo().IsInner)
-
 }
 
 // TODO(bep) move and use in other places
@@ -52,5 +51,4 @@ func newD(assert *require.Assertions) *deps.Deps {
 	provider.Update(d)
 
 	return d
-
 }

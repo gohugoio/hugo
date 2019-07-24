@@ -61,7 +61,6 @@ func (c *releaseCommandeer) getCommand() *cobra.Command {
 }
 
 func (c *releaseCommandeer) flagsToConfig(cfg config.Provider) {
-
 }
 
 func (r *releaseCommandeer) release() error {

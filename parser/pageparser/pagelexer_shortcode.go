@@ -86,7 +86,6 @@ func lexShortcodeRightDelim(l *pageLexer) stateFunc {
 // 3. param="123" or param="123\"
 // 4. param="Some \"escaped\" text"
 func lexShortcodeParam(l *pageLexer, escapedQuoteStart bool) stateFunc {
-
 	first := true
 	nextEq := false
 
@@ -134,7 +133,6 @@ func lexShortcodeParam(l *pageLexer, escapedQuoteStart bool) stateFunc {
 
 	l.emit(tScParam)
 	return lexInsideShortcode
-
 }
 
 func lexShortcodeQuotedParamVal(l *pageLexer, escapedQuotedValuesAllowed bool, typ ItemType) stateFunc {
@@ -312,7 +310,6 @@ func (l *pageLexer) currentLeftShortcodeDelim() []byte {
 		return leftDelimScWithMarkup
 	}
 	return leftDelimScNoMarkup
-
 }
 
 func (l *pageLexer) currentRightShortcodeDelim() []byte {

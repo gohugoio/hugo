@@ -25,5 +25,4 @@ func TestMinIndex(t *testing.T) {
 	assert.Equal(0, minIndex(4, 0, -2, 2, 5))
 	assert.Equal(-1, minIndex())
 	assert.Equal(-1, minIndex(-2, -3))
-
 }

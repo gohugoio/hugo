@@ -57,5 +57,4 @@ func TestHugoGeneratorInject(t *testing.T) {
 			t.Errorf("[%d] Expected \n%q got \n%q", i, this.expect, out.String())
 		}
 	}
-
 }

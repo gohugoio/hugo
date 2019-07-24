@@ -18,6 +18,9 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"fmt"
+	"io"
+	"sync"
 
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/herrors"
@@ -25,10 +28,6 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/mitchellh/hashstructure"
-
-	"fmt"
-	"io"
-	"sync"
 
 	"github.com/gohugoio/hugo/media"
 
@@ -47,7 +46,8 @@ func (s *Spec) Transform(r resource.Resource, t ResourceTransformation) (resourc
 		Resource:                    r,
 		transformation:              t,
 		transformedResourceMetadata: transformedResourceMetadata{MetaData: make(map[string]interface{})},
-		cache:                       s.ResourceCache}, nil
+		cache:                       s.ResourceCache,
+	}, nil
 }
 
 type ResourceTransformationCtx struct {
@@ -290,7 +290,6 @@ func (r *transformedResource) openPublishFileForWriting(relTargetPath string) (i
 }
 
 func (r *transformedResource) transform(setContent, publish bool) (err error) {
-
 	// This can be the last resource in a chain.
 	// Rewind and create a processing chain.
 	var chain []resource.Resource
@@ -500,7 +499,6 @@ func (r *transformedResource) initTransform(setContent, publish bool) error {
 			r.transformErr = err
 			r.cache.rs.Logger.ERROR.Println("error: failed to transform resource:", err)
 		}
-
 	})
 
 	if !publish {
@@ -536,7 +534,6 @@ func (r *transformedResource) initTransform(setContent, publish bool) error {
 			r.cache.rs.Logger.ERROR.Println("error: failed to publish resource:", err)
 			return
 		}
-
 	})
 
 	return r.transformErr

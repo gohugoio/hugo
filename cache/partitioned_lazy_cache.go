@@ -42,7 +42,6 @@ func (l *Lazy) init() error {
 		c, err := l.load()
 		l.cache = c
 		l.initErr = err
-
 	})
 
 	return l.initErr
@@ -95,5 +94,4 @@ func (c *PartitionedLazyCache) Get(partition, key string) (interface{}, error) {
 	}
 
 	return nil, nil
-
 }

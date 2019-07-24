@@ -55,5 +55,4 @@ func TestNewPathSpecFromConfig(t *testing.T) {
 	require.Equal(t, "http://base.com", p.BaseURL.String())
 	require.Equal(t, "thethemes", p.ThemesDir)
 	require.Equal(t, "thework", p.WorkingDir)
-
 }

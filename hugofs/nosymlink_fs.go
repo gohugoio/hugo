@@ -20,9 +20,7 @@ import (
 	"github.com/spf13/afero"
 )
 
-var (
-	ErrPermissionSymlink = errors.New("symlinks not allowed in this filesystem")
-)
+var ErrPermissionSymlink = errors.New("symlinks not allowed in this filesystem")
 
 func NewNoSymlinkFs(fs afero.Fs) afero.Fs {
 	return &noSymlinkFs{Fs: fs}
@@ -43,7 +41,6 @@ func (fs *noSymlinkFs) Stat(name string) (os.FileInfo, error) {
 }
 
 func (fs *noSymlinkFs) stat(name string) (os.FileInfo, bool, error) {
-
 	var (
 		fi       os.FileInfo
 		wasLstat bool
@@ -53,7 +50,6 @@ func (fs *noSymlinkFs) stat(name string) (os.FileInfo, bool, error) {
 	if lstater, ok := fs.Fs.(afero.Lstater); ok {
 		fi, wasLstat, err = lstater.LstatIfPossible(name)
 	} else {
-
 		fi, err = fs.Fs.Stat(name)
 	}
 

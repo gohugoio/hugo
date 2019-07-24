@@ -27,5 +27,4 @@ func TestKind(t *testing.T) {
 	require.Equal(t, "section", KindSection)
 	require.Equal(t, "taxonomy", KindTaxonomy)
 	require.Equal(t, "taxonomyTerm", KindTaxonomyTerm)
-
 }

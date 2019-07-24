@@ -158,12 +158,10 @@ LOOP:
 	l.emit(TypeFrontMatterORG)
 
 	return lexMainSection
-
 }
 
 // Handle YAML or TOML front matter.
 func (l *pageLexer) lexFrontMatterSection(tp ItemType, delimr rune, name string, delim []byte) stateFunc {
-
 	for i := 0; i < 2; i++ {
 		if r := l.next(); r != delimr {
 			return l.errorf("invalid %s delimiter", name)

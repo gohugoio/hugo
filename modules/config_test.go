@@ -89,7 +89,6 @@ lang="en"
 	assert.Equal("src/markdown/blog", imp.Mounts[1].Source)
 	assert.Equal("content/blog", imp.Mounts[1].Target)
 	assert.Equal("en", imp.Mounts[1].Lang)
-
 }
 
 func TestDecodeConfigBothOldAndNewProvided(t *testing.T) {
@@ -110,7 +109,6 @@ path="a"
 	assert.NoError(err)
 	assert.Len(modCfg.Imports, 3)
 	assert.Equal("a", modCfg.Imports[0].Path)
-
 }
 
 // Test old style theme import.

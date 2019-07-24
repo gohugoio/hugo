@@ -85,7 +85,6 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 	d.Translate = tp.t.Func(d.Language.Lang)
 
 	return nil
-
 }
 
 func addTranslationFile(bundle *bundle.Bundle, r source.File) error {
@@ -129,5 +128,4 @@ func errWithFileContext(inerr error, r source.File) error {
 		herrors.SimpleLineMatcher)
 
 	return err
-
 }

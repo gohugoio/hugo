@@ -22,9 +22,7 @@ import (
 	"github.com/nicksnyder/go-i18n/i18n/translation"
 )
 
-var (
-	i18nWarningLogger = helpers.NewDistinctFeedbackLogger()
-)
+var i18nWarningLogger = helpers.NewDistinctFeedbackLogger()
 
 // Translator handles i18n translations.
 type Translator struct {
@@ -54,7 +52,6 @@ func (t Translator) Func(lang string) bundle.TranslateFunc {
 	return func(translationID string, args ...interface{}) string {
 		return ""
 	}
-
 }
 
 func (t Translator) initFuncs(bndl *bundle.Bundle) {

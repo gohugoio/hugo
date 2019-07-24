@@ -16,12 +16,11 @@ package hugolib
 import (
 	"fmt"
 	"path/filepath"
-
-	"github.com/gohugoio/hugo/resources/page"
-
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/stretchr/testify/require"
 
@@ -73,7 +72,6 @@ func TestTaxonomiesWithAndWithoutContentFile(t *testing.T) {
 }
 
 func doTestTaxonomiesWithAndWithoutContentFile(t *testing.T, uglyURLs bool) {
-
 	siteConfig := `
 baseURL = "http://example.com/blog"
 uglyURLs = %t
@@ -201,7 +199,6 @@ permalinkeds:
 
 	// Issue #2977
 	b.AssertFileContent(pathFunc("public/empties/index.html"), "Taxonomy Term Page", "Empties")
-
 }
 
 // https://github.com/gohugoio/hugo/issues/5513
@@ -276,7 +273,6 @@ title: "This is S3s"
 	b.AssertFileContent("public/news/categories/index.html", "Taxonomy Term Page 1|News/Categories|Hello|https://example.com/news/categories/|")
 	b.AssertFileContent("public/t1/t2/t3s/index.html", "Taxonomy Term Page 1|T1/T2/T3s|Hello|https://example.com/t1/t2/t3s/|")
 	b.AssertFileContent("public/s1/s2/s3s/index.html", "Taxonomy Term Page 1|This is S3s|Hello|https://example.com/s1/s2/s3s/|")
-
 }
 
 // https://github.com/gohugoio/hugo/issues/5719
@@ -320,5 +316,4 @@ Content.
 	b.AssertFileContent("public/index.html", `<li><a href="http://example.com/tags/hugo-rocks/">Hugo Rocks!</a> 10</li>`)
 	b.AssertFileContent("public/categories/index.html", `<li><a href="http://example.com/categories/this-is-cool/">This is Cool</a> 10</li>`)
 	b.AssertFileContent("public/tags/index.html", `<li><a href="http://example.com/tags/rocks-i-say/">Rocks I say!</a> 10</li>`)
-
 }

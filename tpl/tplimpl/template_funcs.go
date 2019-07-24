@@ -66,14 +66,13 @@ func createFuncMap(d *deps.Deps) map[string]interface{} {
 				}
 				funcMap[alias] = mm.Method
 			}
-
 		}
 
 	}
 
 	return funcMap
-
 }
+
 func (t *templateFuncster) initFuncMap(funcMap template.FuncMap) {
 	t.funcMap = funcMap
 	t.Tmpl.(*templateHandler).setFuncs(funcMap)

@@ -53,7 +53,6 @@ func (t *fingerprintTransformation) Key() resources.ResourceTransformationKey {
 // Transform creates a MD5 hash of the Resource content and inserts that hash before
 // the extension in the filename.
 func (t *fingerprintTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
-
 	h, err := newHash(t.algo)
 	if err != nil {
 		return err

@@ -89,7 +89,6 @@ func (p pageRef) ref(argsm map[string]interface{}, source interface{}) (string, 
 	}
 
 	return s.refLink(args.Path, source, false, args.OutputFormat)
-
 }
 
 func (p pageRef) relRef(argsm map[string]interface{}, source interface{}) (string, error) {
@@ -107,7 +106,6 @@ func (p pageRef) relRef(argsm map[string]interface{}, source interface{}) (strin
 	}
 
 	return s.refLink(args.Path, source, true, args.OutputFormat)
-
 }
 
 type refArgs struct {

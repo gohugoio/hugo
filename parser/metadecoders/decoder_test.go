@@ -87,7 +87,6 @@ func TestUnmarshalToInterface(t *testing.T) {
 		}
 
 	}
-
 }
 
 func TestUnmarshalStringTo(t *testing.T) {

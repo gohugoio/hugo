@@ -44,35 +44,35 @@ baseURL = "https://example.com"
 `
 
 	benchmarks := []siteBenchmarkTestcase{
-		{"Bundle with image", func(b testing.TB) *sitesBuilder {
-			sb := newTestSitesBuilder(b).WithConfigFile("toml", config)
-			sb.WithContent("content/blog/mybundle/index.md", pageContent)
-			sb.WithSunset("content/blog/mybundle/sunset1.jpg")
+		{
+			"Bundle with image", func(b testing.TB) *sitesBuilder {
+				sb := newTestSitesBuilder(b).WithConfigFile("toml", config)
+				sb.WithContent("content/blog/mybundle/index.md", pageContent)
+				sb.WithSunset("content/blog/mybundle/sunset1.jpg")
 
-			return sb
-		},
+				return sb
+			},
 			func(s *sitesBuilder) {
 				s.AssertFileContent("public/blog/mybundle/index.html", "/blog/mybundle/sunset1.jpg")
 				s.CheckExists("public/blog/mybundle/sunset1.jpg")
-
 			},
 		},
-		{"Bundle with JSON file", func(b testing.TB) *sitesBuilder {
-			sb := newTestSitesBuilder(b).WithConfigFile("toml", config)
-			sb.WithContent("content/blog/mybundle/index.md", pageContent)
-			sb.WithContent("content/blog/mybundle/mydata.json", `{ "hello": "world" }`)
+		{
+			"Bundle with JSON file", func(b testing.TB) *sitesBuilder {
+				sb := newTestSitesBuilder(b).WithConfigFile("toml", config)
+				sb.WithContent("content/blog/mybundle/index.md", pageContent)
+				sb.WithContent("content/blog/mybundle/mydata.json", `{ "hello": "world" }`)
 
-			return sb
-		},
+				return sb
+			},
 			func(s *sitesBuilder) {
 				s.AssertFileContent("public/blog/mybundle/index.html", "Resources: application/json: /blog/mybundle/mydata.json")
 				s.CheckExists("public/blog/mybundle/mydata.json")
-
 			},
 		},
-		{"Deep content tree", func(b testing.TB) *sitesBuilder {
-
-			sb := newTestSitesBuilder(b).WithConfigFile("toml", `
+		{
+			"Deep content tree", func(b testing.TB) *sitesBuilder {
+				sb := newTestSitesBuilder(b).WithConfigFile("toml", `
 baseURL = "https://example.com"
 
 [languages]
@@ -91,45 +91,43 @@ contentDir="content/sv"
 			
 `)
 
-			createContent := func(dir, name string) {
-				sb.WithContent(filepath.Join("content", dir, name), pageContent)
-			}
-
-			createBundledFiles := func(dir string) {
-				sb.WithContent(filepath.Join("content", dir, "data.json"), `{ "hello": "world" }`)
-				for i := 1; i <= 3; i++ {
-					sb.WithContent(filepath.Join("content", dir, fmt.Sprintf("page%d.md", i)), pageContent)
+				createContent := func(dir, name string) {
+					sb.WithContent(filepath.Join("content", dir, name), pageContent)
 				}
-			}
 
-			for _, lang := range []string{"en", "fr", "no", "sv"} {
-				for level := 1; level <= 5; level++ {
-					sectionDir := path.Join(lang, strings.Repeat("section/", level))
-					createContent(sectionDir, "_index.md")
-					createBundledFiles(sectionDir)
+				createBundledFiles := func(dir string) {
+					sb.WithContent(filepath.Join("content", dir, "data.json"), `{ "hello": "world" }`)
 					for i := 1; i <= 3; i++ {
-						leafBundleDir := path.Join(sectionDir, fmt.Sprintf("bundle%d", i))
-						createContent(leafBundleDir, "index.md")
-						createBundledFiles(path.Join(leafBundleDir, "assets1"))
-						createBundledFiles(path.Join(leafBundleDir, "assets1", "assets2"))
+						sb.WithContent(filepath.Join("content", dir, fmt.Sprintf("page%d.md", i)), pageContent)
 					}
 				}
-			}
 
-			return sb
-		},
+				for _, lang := range []string{"en", "fr", "no", "sv"} {
+					for level := 1; level <= 5; level++ {
+						sectionDir := path.Join(lang, strings.Repeat("section/", level))
+						createContent(sectionDir, "_index.md")
+						createBundledFiles(sectionDir)
+						for i := 1; i <= 3; i++ {
+							leafBundleDir := path.Join(sectionDir, fmt.Sprintf("bundle%d", i))
+							createContent(leafBundleDir, "index.md")
+							createBundledFiles(path.Join(leafBundleDir, "assets1"))
+							createBundledFiles(path.Join(leafBundleDir, "assets1", "assets2"))
+						}
+					}
+				}
+
+				return sb
+			},
 			func(s *sitesBuilder) {
 				s.CheckExists("public/blog/mybundle/index.html")
 				s.Assertions.Equal(4, len(s.H.Sites))
 				s.Assertions.Equal(len(s.H.Sites[0].RegularPages()), len(s.H.Sites[1].RegularPages()))
 				s.Assertions.Equal(30, len(s.H.Sites[0].RegularPages()))
-
 			},
 		},
 	}
 
 	return benchmarks
-
 }
 
 // Run the benchmarks below as tests. Mostly useful when adding new benchmark
@@ -145,7 +143,6 @@ func TestBenchmarkSiteNew(b *testing.T) {
 				b.Fatal(err)
 			}
 			bm.check(s)
-
 		})
 	}
 }

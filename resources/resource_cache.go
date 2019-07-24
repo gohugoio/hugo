@@ -118,7 +118,6 @@ func (c *ResourceCache) GetOrCreate(partition, key string, f func() (resource.Re
 	c.set(key, r)
 
 	return r, nil
-
 }
 
 func (c *ResourceCache) getFilenames(key string) (string, string) {
@@ -147,7 +146,6 @@ func (c *ResourceCache) getFromFile(key string) (filecache.ItemInfo, io.ReadClos
 	fi, rc, _ := c.fileCache.Get(filenameContent)
 
 	return fi, rc, meta, rc != nil
-
 }
 
 // writeMeta writes the metadata to file and returns a writer for the content part.
@@ -171,7 +169,6 @@ func (c *ResourceCache) writeMeta(key string, meta transformedResourceMetadata) 
 	fi, fc, err := c.fileCache.WriteCloser(filenameContent)
 
 	return fi, fc, err
-
 }
 
 func (c *ResourceCache) set(key string, r resource.Resource) {
@@ -213,5 +210,4 @@ func (c *ResourceCache) DeletePartitions(partitions ...string) {
 			delete(c.cache, k)
 		}
 	}
-
 }

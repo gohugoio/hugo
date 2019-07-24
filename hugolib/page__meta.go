@@ -240,7 +240,6 @@ func (p *pageMeta) Path() string {
 
 // RelatedKeywords implements the related.Document interface needed for fast page searches.
 func (p *pageMeta) RelatedKeywords(cfg related.IndexConfig) ([]related.Keyword, error) {
-
 	v, err := p.Param(cfg.Name)
 	if err != nil {
 		return nil, err
@@ -271,7 +270,6 @@ func (p *pageMeta) Section() string {
 	}
 
 	panic("invalid page state")
-
 }
 
 func (p *pageMeta) SectionsEntries() []string {
@@ -392,7 +390,6 @@ func (pm *pageMeta) setMetadata(p *pageState, frontmatter map[string]interface{}
 					// this may get its language path added twice.
 					// TODO(bep) eventually remove this.
 					p.s.Log.WARN.Printf(`Front matter in %q with the url %q with no leading / has what looks like the language prefix added. In Hugo 0.55 we added support for page relative URLs in front matter, no language prefix needed. Check the URL and consider to either add a leading / or remove the language prefix.`, p.pathOrTitle(), url)
-
 				}
 			}
 			pm.urlPaths.URL = url
@@ -619,7 +616,6 @@ func (p *pageMeta) applyDefaultValues() error {
 	}
 
 	return nil
-
 }
 
 // The output formats this page will be rendered to.
@@ -667,7 +663,7 @@ func getParam(m resource.ResourceParamsProvider, key string, stringToLower bool)
 		return v
 	}
 
-	//p.s.Log.ERROR.Printf("GetParam(\"%s\"): Unknown type %s\n", key, reflect.TypeOf(v))
+	// p.s.Log.ERROR.Printf("GetParam(\"%s\"): Unknown type %s\n", key, reflect.TypeOf(v))
 	return nil
 }
 

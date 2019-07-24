@@ -89,7 +89,6 @@ func TestNewPartitionedLazyCache(t *testing.T) {
 
 	_, err = cache.Get("p3", "doesnotexist")
 	assert.Error(err)
-
 }
 
 func TestConcurrentPartitionedLazyCache(t *testing.T) {

@@ -36,10 +36,8 @@ import (
 	"golang.org/x/text/unicode/norm"
 )
 
-var (
-	// ErrThemeUndefined is returned when a theme has not be defined by the user.
-	ErrThemeUndefined = errors.New("no theme set")
-)
+// ErrThemeUndefined is returned when a theme has not be defined by the user.
+var ErrThemeUndefined = errors.New("no theme set")
 
 // filepathPathBridge is a bridge for common functionality in filepath vs path
 type filepathPathBridge interface {
@@ -175,7 +173,6 @@ func ReplaceExtension(path string, newExt string) string {
 }
 
 func makePathRelative(inPath string, possibleDirectories ...string) (string, error) {
-
 	for _, currentPath := range possibleDirectories {
 		if strings.HasPrefix(inPath, currentPath) {
 			return strings.TrimPrefix(inPath, currentPath), nil
@@ -281,7 +278,6 @@ func fileAndExt(in string, b filepathPathBridge) (name string, ext string) {
 }
 
 func extractFilename(in, ext, base, pathSeparator string) (name string) {
-
 	// No file name cases. These are defined as:
 	// 1. any "in" path that ends in a pathSeparator
 	// 2. any "base" consisting of just an pathSeparator
@@ -299,7 +295,6 @@ func extractFilename(in, ext, base, pathSeparator string) (name string) {
 		name = base
 	}
 	return
-
 }
 
 // GetRelativePath returns the relative path of a given path.
@@ -474,21 +469,18 @@ func ExtractRootPaths(paths []string) []string {
 		r[i] = root
 	}
 	return r
-
 }
 
 // FindCWD returns the current working directory from where the Hugo
 // executable is run.
 func FindCWD() (string, error) {
 	serverFile, err := filepath.Abs(os.Args[0])
-
 	if err != nil {
 		return "", fmt.Errorf("can't get absolute path for executable: %v", err)
 	}
 
 	path := filepath.Dir(serverFile)
 	realFile, err := filepath.EvalSymlinks(serverFile)
-
 	if err != nil {
 		if _, err = os.Stat(serverFile + ".exe"); err == nil {
 			realFile = filepath.Clean(serverFile + ".exe")
@@ -516,7 +508,6 @@ func SymbolicWalk(fs afero.Fs, root string, walker hugofs.WalkFunc) error {
 	})
 
 	return w.Walk()
-
 }
 
 // LstatIfPossible can be used to call Lstat if possible, else Stat.
@@ -555,7 +546,6 @@ func OpenFilesForWriting(fs afero.Fs, filenames ...string) (io.WriteCloser, erro
 	}
 
 	return hugio.NewMultiWriteCloser(writeClosers...), nil
-
 }
 
 // OpenFileForWriting opens or creates the given file. If the target directory
@@ -598,7 +588,6 @@ func GetCacheDir(fs afero.Fs, cfg config.Provider) (string, error) {
 
 	// Fall back to a cache in /tmp.
 	return GetTempDir("hugo_cache", fs), nil
-
 }
 
 func getCacheDir(cfg config.Provider) string {
@@ -614,7 +603,6 @@ func getCacheDir(cfg config.Provider) string {
 		// is this project:
 		// https://github.com/philhawksworth/content-shards/blob/master/gulpfile.js
 		return "/opt/build/cache/hugo_cache/"
-
 	}
 
 	// This will fall back to an hugo_cache folder in the tmp dir, which should work fine for most CI

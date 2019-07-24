@@ -20,9 +20,7 @@ import (
 	"github.com/gohugoio/hugo/common/collections"
 )
 
-var (
-	_ collections.Slicer = WeightedPage{}
-)
+var _ collections.Slicer = WeightedPage{}
 
 // WeightedPages is a list of Pages with their corresponding (and relative) weight
 // [{Weight: 30, Page: *1}, {Weight: 40, Page: *2}]

@@ -51,7 +51,6 @@ func (t *onceMore) Do(f func()) {
 	}
 	defer atomic.StoreUint32(&t.done, 1)
 	f()
-
 }
 
 func (t *onceMore) InProgress() bool {

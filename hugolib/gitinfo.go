@@ -32,7 +32,6 @@ func (g *gitInfo) forPage(p page.Page) *gitmap.GitInfo {
 	name = strings.TrimPrefix(name, "/")
 
 	return g.repo.Files[name]
-
 }
 
 func newGitInfo(cfg config.Provider) (*gitInfo, error) {

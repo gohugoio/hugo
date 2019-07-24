@@ -31,5 +31,4 @@ func TestHugoInfo(t *testing.T) {
 	assert.Equal(buildDate, hugoInfo.BuildDate)
 	assert.Equal("production", hugoInfo.Environment)
 	assert.Contains(hugoInfo.Generator(), fmt.Sprintf("Hugo %s", hugoInfo.Version()))
-
 }

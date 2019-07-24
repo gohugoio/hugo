@@ -47,7 +47,6 @@ func (lc *listCmd) buildSites(config map[string]interface{}) (*hugolib.HugoSites
 	}
 
 	sites, err := hugolib.NewHugoSites(*c.DepsCfg)
-
 	if err != nil {
 		return nil, newSystemError("Error creating sites", err)
 	}
@@ -78,7 +77,6 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 			Long:  `List all of the drafts in your content directory.`,
 			RunE: func(cmd *cobra.Command, args []string) error {
 				sites, err := cc.buildSites(map[string]interface{}{"buildDrafts": true})
-
 				if err != nil {
 					return newSystemError("Error building sites", err)
 				}
@@ -98,7 +96,6 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 			Long:  `List all of the posts in your content directory which will be posted in the future.`,
 			RunE: func(cmd *cobra.Command, args []string) error {
 				sites, err := cc.buildSites(map[string]interface{}{"buildFuture": true})
-
 				if err != nil {
 					return newSystemError("Error building sites", err)
 				}
@@ -127,7 +124,6 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 			Long:  `List all of the posts in your content directory which has already expired.`,
 			RunE: func(cmd *cobra.Command, args []string) error {
 				sites, err := cc.buildSites(map[string]interface{}{"buildExpired": true})
-
 				if err != nil {
 					return newSystemError("Error building sites", err)
 				}
@@ -160,7 +156,6 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 					"buildDrafts":  true,
 					"buildFuture":  true,
 				})
-
 				if err != nil {
 					return newSystemError("Error building sites", err)
 				}

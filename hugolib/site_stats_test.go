@@ -84,7 +84,8 @@ aliases: [/Ali%d]
 
 	stats := []*helpers.ProcessingStats{
 		h.Sites[0].PathSpec.ProcessingStats,
-		h.Sites[1].PathSpec.ProcessingStats}
+		h.Sites[1].PathSpec.ProcessingStats,
+	}
 
 	stats[0].Table(ioutil.Discard)
 	stats[1].Table(ioutil.Discard)
@@ -94,5 +95,4 @@ aliases: [/Ali%d]
 	helpers.ProcessingStatsTable(&buff, stats...)
 
 	assert.Contains(buff.String(), "Pages            | 19 |  6")
-
 }

@@ -31,7 +31,6 @@ func IsTruthful(in interface{}) bool {
 	default:
 		return IsTruthfulValue(reflect.ValueOf(in))
 	}
-
 }
 
 var zeroType = reflect.TypeOf((*types.Zeroer)(nil)).Elem()

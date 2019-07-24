@@ -40,9 +40,11 @@ func TestAppend(t *testing.T) {
 		{"", []interface{}{[]string{"a", "b"}}, false},
 		{[]string{"a", "b"}, []interface{}{}, false},
 		// No string concatenation.
-		{"ab",
+		{
+			"ab",
 			[]interface{}{"c"},
-			false},
+			false,
+		},
 	} {
 
 		errMsg := fmt.Sprintf("[%d]", i)
@@ -62,5 +64,4 @@ func TestAppend(t *testing.T) {
 			t.Fatalf("%s got\n%T: %v\nexpected\n%T: %v", errMsg, result, result, test.expected, test.expected)
 		}
 	}
-
 }

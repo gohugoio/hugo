@@ -50,7 +50,6 @@ func TestScratchAdd(t *testing.T) {
 	if err == nil {
 		t.Errorf("Expected error from invalid arithmetic")
 	}
-
 }
 
 func TestScratchAddSlice(t *testing.T) {
@@ -93,7 +92,6 @@ func TestScratchAddTypedSliceToInterfaceSlice(t *testing.T) {
 	_, err := scratch.Add("slice", []int{1, 2})
 	assert.NoError(err)
 	assert.Equal([]int{1, 2}, scratch.Get("slice"))
-
 }
 
 // https://github.com/gohugoio/hugo/issues/5361
@@ -107,7 +105,6 @@ func TestScratchAddDifferentTypedSliceToInterfaceSlice(t *testing.T) {
 	_, err := scratch.Add("slice", []int{1, 2})
 	assert.NoError(err)
 	assert.Equal([]interface{}{"foo", 1, 2}, scratch.Get("slice"))
-
 }
 
 func TestScratchSet(t *testing.T) {

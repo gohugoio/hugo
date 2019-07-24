@@ -51,7 +51,6 @@ func NewScratcher() Scratcher {
 //
 // If the first add for a key is an array or slice, then the next value(s) will be appended.
 func (c *Scratch) Add(key string, newAddend interface{}) (string, error) {
-
 	var newVal interface{}
 	c.mu.RLock()
 	existingAddend, found := c.values[key]

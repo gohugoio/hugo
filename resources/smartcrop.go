@@ -43,7 +43,6 @@ func newSmartCropAnalyzer(filter imaging.ResampleFilter) smartcrop.Analyzer {
 }
 
 func smartCrop(img image.Image, width, height int, anchor imaging.Anchor, filter imaging.ResampleFilter) (*image.NRGBA, error) {
-
 	if width <= 0 || height <= 0 {
 		return &image.NRGBA{}, nil
 	}
@@ -63,7 +62,6 @@ func smartCrop(img image.Image, width, height int, anchor imaging.Anchor, filter
 	smart := newSmartCropAnalyzer(filter)
 
 	rect, err := smart.FindBestCrop(img, width, height)
-
 	if err != nil {
 		return nil, err
 	}
@@ -76,5 +74,4 @@ func smartCrop(img image.Image, width, height int, anchor imaging.Anchor, filter
 	}
 
 	return imaging.Resize(cropped, width, height, filter), nil
-
 }

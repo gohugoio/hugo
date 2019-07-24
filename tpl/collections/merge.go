@@ -25,7 +25,6 @@ import (
 // Merge creates a copy of dst and merges src into it.
 // Currently only maps supported. Key handling is case insensitive.
 func (ns *Namespace) Merge(src, dst interface{}) (interface{}, error) {
-
 	vdst, vsrc := reflect.ValueOf(dst), reflect.ValueOf(src)
 
 	if vdst.Kind() != reflect.Map {
@@ -58,14 +57,12 @@ func caseInsensitiveLookup(m, k reflect.Value) (reflect.Value, bool) {
 		if strings.EqualFold(k.String(), key.String()) {
 			return m.MapIndex(key), true
 		}
-
 	}
 
 	return reflect.Value{}, false
 }
 
 func mergeMap(dst, src reflect.Value) reflect.Value {
-
 	out := reflect.MakeMap(dst.Type())
 
 	// Copy the destination map.

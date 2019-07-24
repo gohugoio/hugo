@@ -25,7 +25,6 @@ import (
 )
 
 func TestNestedSections(t *testing.T) {
-
 	var (
 		assert  = require.New(t)
 		cfg, fs = newTestCfg()
@@ -139,7 +138,6 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			// > b,c
 			assert.NotNil(getPage(p, "/empty1/b"))
 			assert.NotNil(getPage(p, "/empty1/b/c"))
-
 		}},
 		{"empty2", func(assert *require.Assertions, p page.Page) {
 			// > b,c,d where b and d have content files.
@@ -158,7 +156,6 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			assert.False(c.Eq(d))
 			assert.True(c.Eq(c))
 			assert.False(c.Eq("asdf"))
-
 		}},
 		{"empty3", func(assert *require.Assertions, p page.Page) {
 			// b,c,d with regular page in b
@@ -166,7 +163,6 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			assert.NotNil(b)
 			assert.Len(b.Pages(), 1)
 			assert.Equal("empty3.md", b.Pages()[0].File().LogicalName())
-
 		}},
 		{"empty3", func(assert *require.Assertions, p page.Page) {
 			xxx := getPage(p, "/empty3/nil")
@@ -230,7 +226,6 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			}
 
 			assert.True(p.Eq(p.CurrentSection()))
-
 		}},
 		{"l1,l2_2", func(assert *require.Assertions, p page.Page) {
 			assert.Equal("T22_-1", p.Title())
@@ -274,7 +269,6 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			isAncestor, err = nilp.IsAncestor(l1)
 			assert.NoError(err)
 			assert.False(isAncestor)
-
 		}},
 		{"perm a,link", func(assert *require.Assertions, p page.Page) {
 			assert.Equal("T9_-1", p.Title())
@@ -286,7 +280,6 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 
 			last := p.Pages()[3]
 			assert.Equal("/perm-a/link/t1_5/", last.RelPermalink())
-
 		}},
 	}
 
@@ -329,7 +322,6 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 	require.Equal(t, "/spaces-in-section/", sectionWithSpace.RelPermalink())
 
 	th.assertFileContent("public/l1/l2/page/2/index.html", "L1/l2-IsActive: true", "PAG|T2_3|true")
-
 }
 
 func TestNextInSectionNested(t *testing.T) {
@@ -374,5 +366,4 @@ Next: {{ with .NextInSection }}{{ .RelPermalink }}{{ end }}|
 		"Prev: /blog/cool/cool2/|", "Next: |")
 	b.AssertFileContent("public/blog/cool/cool2/index.html",
 		"Prev: |", "Next: /blog/cool/cool1/|")
-
 }

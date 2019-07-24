@@ -97,7 +97,6 @@ func (m Type) Type() string {
 		return fmt.Sprintf("%s/%s+%s", m.MainType, m.SubType, m.mimeSuffix)
 	}
 	return fmt.Sprintf("%s/%s", m.MainType, m.SubType)
-
 }
 
 func (m Type) String() string {

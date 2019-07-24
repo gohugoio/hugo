@@ -74,7 +74,6 @@ func TestUnicodeNorm(t *testing.T) {
 			t.Fatalf("file %q name in NFD form should be normalized (%s)", f.BaseFileName(), path.NFC)
 		}
 	}
-
 }
 
 func newTestConfig() *viper.Viper {

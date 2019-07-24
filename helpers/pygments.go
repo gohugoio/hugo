@@ -91,7 +91,6 @@ func (h highlighters) chromaHighlight(code, lang, optsStr string) (string, error
 
 func (h highlighters) pygmentsHighlight(code, lang, optsStr string) (string, error) {
 	options, err := h.cs.createPygmentsOptionsString(optsStr)
-
 	if err != nil {
 		jww.ERROR.Print(err.Error())
 		return code, nil
@@ -289,7 +288,6 @@ func parseDefaultPygmentsOpts(cfg config.Provider) (map[string]string, error) {
 		} else {
 			options["noclasses"] = "true"
 		}
-
 	}
 
 	if _, ok := options["encoding"]; !ok {
@@ -300,7 +298,7 @@ func parseDefaultPygmentsOpts(cfg config.Provider) (map[string]string, error) {
 }
 
 func (cs *ContentSpec) chromaFormatterFromOptions(pygmentsOpts map[string]string) (chroma.Formatter, error) {
-	var options = []html.Option{html.TabWidth(4)}
+	options := []html.Option{html.TabWidth(4)}
 
 	if pygmentsOpts["noclasses"] == "false" {
 		options = append(options, html.WithClasses())
@@ -315,7 +313,7 @@ func (cs *ContentSpec) chromaFormatterFromOptions(pygmentsOpts map[string]string
 	}
 
 	startLineStr := pygmentsOpts["linenostart"]
-	var startLine = 1
+	startLine := 1
 	if startLineStr != "" {
 
 		line, err := strconv.Atoi(strings.TrimSpace(startLineStr))
@@ -344,7 +342,6 @@ func (cs *ContentSpec) parsePygmentsOpts(in string) (map[string]string, error) {
 		return nil, err
 	}
 	return opts, nil
-
 }
 
 func (cs *ContentSpec) createPygmentsOptionsString(in string) (string, error) {
@@ -398,5 +395,4 @@ func hlLinesToRanges(startLine int, s string) ([][2]int, error) {
 		ranges = append(ranges, r)
 	}
 	return ranges, nil
-
 }

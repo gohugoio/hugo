@@ -31,7 +31,6 @@ func TestNewContentPathSectionWithForwardSlashes(t *testing.T) {
 }
 
 func checkNewSiteInited(fs *hugofs.Fs, basepath string, t *testing.T) {
-
 	paths := []string{
 		filepath.Join(basepath, "layouts"),
 		filepath.Join(basepath, "content"),
@@ -77,7 +76,6 @@ func TestDoNewSite_error_base_exists(t *testing.T) {
 	require.NoError(t, err)
 	// Since the directory already exists and isn't empty, expect an error
 	require.Error(t, n.doNewSite(fs, basepath, false))
-
 }
 
 func TestDoNewSite_force_empty_dir(t *testing.T) {
@@ -117,12 +115,10 @@ func TestDoNewSite_error_force_config_inside_exists(t *testing.T) {
 }
 
 func newTestCfg() (*viper.Viper, *hugofs.Fs) {
-
 	v := viper.New()
 	fs := hugofs.NewMem(v)
 
 	v.SetFs(fs.Source)
 
 	return v, fs
-
 }

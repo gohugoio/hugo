@@ -19,7 +19,6 @@ func captureStdout(f func() (*cobra.Command, error)) (string, error) {
 	os.Stdout = w
 
 	_, err := f()
-
 	if err != nil {
 		return "", err
 	}

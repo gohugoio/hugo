@@ -21,7 +21,6 @@ import (
 )
 
 func TestLangInfoFrom(t *testing.T) {
-
 	langs := map[string]int{
 		"sv": 10,
 		"en": 20,
@@ -44,5 +43,4 @@ func TestLangInfoFrom(t *testing.T) {
 		v1, v2, v3 := langInfoFrom(langs, test.input)
 		assert.Equal(test.expected, []string{v1, v2, v3})
 	}
-
 }

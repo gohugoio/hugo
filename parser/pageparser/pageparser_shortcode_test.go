@@ -45,8 +45,10 @@ var shortCodeLexerTests = []lexerTest{
 
 	{"simple with markup", `{{% sc1 %}}`, []Item{tstLeftMD, tstSC1, tstRightMD, tstEOF}},
 	{"with spaces", `{{<     sc1     >}}`, []Item{tstLeftNoMD, tstSC1, tstRightNoMD, tstEOF}},
-	{"mismatched rightDelim", `{{< sc1 %}}`, []Item{tstLeftNoMD, tstSC1,
-		nti(tError, "unrecognized character in shortcode action: U+0025 '%'. Note: Parameters with non-alphanumeric args must be quoted")}},
+	{"mismatched rightDelim", `{{< sc1 %}}`, []Item{
+		tstLeftNoMD, tstSC1,
+		nti(tError, "unrecognized character in shortcode action: U+0025 '%'. Note: Parameters with non-alphanumeric args must be quoted"),
+	}},
 	{"inner, markup", `{{% sc1 %}} inner {{% /sc1 %}}`, []Item{
 		tstLeftMD,
 		tstSC1,
@@ -59,42 +61,55 @@ var shortCodeLexerTests = []lexerTest{
 		tstEOF,
 	}},
 	{"close, but no open", `{{< /sc1 >}}`, []Item{
-		tstLeftNoMD, nti(tError, "got closing shortcode, but none is open")}},
+		tstLeftNoMD, nti(tError, "got closing shortcode, but none is open"),
+	}},
 	{"close wrong", `{{< sc1 >}}{{< /another >}}`, []Item{
 		tstLeftNoMD, tstSC1, tstRightNoMD, tstLeftNoMD, tstSCClose,
-		nti(tError, "closing tag for shortcode 'another' does not match start tag")}},
+		nti(tError, "closing tag for shortcode 'another' does not match start tag"),
+	}},
 	{"close, but no open, more", `{{< sc1 >}}{{< /sc1 >}}{{< /another >}}`, []Item{
 		tstLeftNoMD, tstSC1, tstRightNoMD, tstLeftNoMD, tstSCClose, tstSC1, tstRightNoMD, tstLeftNoMD, tstSCClose,
-		nti(tError, "closing tag for shortcode 'another' does not match start tag")}},
+		nti(tError, "closing tag for shortcode 'another' does not match start tag"),
+	}},
 	{"close with extra keyword", `{{< sc1 >}}{{< /sc1 keyword>}}`, []Item{
 		tstLeftNoMD, tstSC1, tstRightNoMD, tstLeftNoMD, tstSCClose, tstSC1,
-		nti(tError, "unclosed shortcode")}},
+		nti(tError, "unclosed shortcode"),
+	}},
 	{"Youtube id", `{{< sc1 -ziL-Q_456igdO-4 >}}`, []Item{
-		tstLeftNoMD, tstSC1, nti(tScParam, "-ziL-Q_456igdO-4"), tstRightNoMD, tstEOF}},
+		tstLeftNoMD, tstSC1, nti(tScParam, "-ziL-Q_456igdO-4"), tstRightNoMD, tstEOF,
+	}},
 	{"non-alphanumerics param quoted", `{{< sc1 "-ziL-.%QigdO-4" >}}`, []Item{
-		tstLeftNoMD, tstSC1, nti(tScParam, "-ziL-.%QigdO-4"), tstRightNoMD, tstEOF}},
+		tstLeftNoMD, tstSC1, nti(tScParam, "-ziL-.%QigdO-4"), tstRightNoMD, tstEOF,
+	}},
 
 	{"two params", `{{< sc1 param1   param2 >}}`, []Item{
-		tstLeftNoMD, tstSC1, tstParam1, tstParam2, tstRightNoMD, tstEOF}},
+		tstLeftNoMD, tstSC1, tstParam1, tstParam2, tstRightNoMD, tstEOF,
+	}},
 	// issue #934
 	{"self-closing", `{{< sc1 />}}`, []Item{
-		tstLeftNoMD, tstSC1, tstSCClose, tstRightNoMD, tstEOF}},
+		tstLeftNoMD, tstSC1, tstSCClose, tstRightNoMD, tstEOF,
+	}},
 	// Issue 2498
 	{"multiple self-closing", `{{< sc1 />}}{{< sc1 />}}`, []Item{
 		tstLeftNoMD, tstSC1, tstSCClose, tstRightNoMD,
-		tstLeftNoMD, tstSC1, tstSCClose, tstRightNoMD, tstEOF}},
+		tstLeftNoMD, tstSC1, tstSCClose, tstRightNoMD, tstEOF,
+	}},
 	{"self-closing with param", `{{< sc1 param1 />}}`, []Item{
-		tstLeftNoMD, tstSC1, tstParam1, tstSCClose, tstRightNoMD, tstEOF}},
+		tstLeftNoMD, tstSC1, tstParam1, tstSCClose, tstRightNoMD, tstEOF,
+	}},
 	{"multiple self-closing with param", `{{< sc1 param1 />}}{{< sc1 param1 />}}`, []Item{
 		tstLeftNoMD, tstSC1, tstParam1, tstSCClose, tstRightNoMD,
-		tstLeftNoMD, tstSC1, tstParam1, tstSCClose, tstRightNoMD, tstEOF}},
+		tstLeftNoMD, tstSC1, tstParam1, tstSCClose, tstRightNoMD, tstEOF,
+	}},
 	{"multiple different self-closing with param", `{{< sc1 param1 />}}{{< sc2 param1 />}}`, []Item{
 		tstLeftNoMD, tstSC1, tstParam1, tstSCClose, tstRightNoMD,
-		tstLeftNoMD, tstSC2, tstParam1, tstSCClose, tstRightNoMD, tstEOF}},
+		tstLeftNoMD, tstSC2, tstParam1, tstSCClose, tstRightNoMD, tstEOF,
+	}},
 	{"nested simple", `{{< sc1 >}}{{< sc2 >}}{{< /sc1 >}}`, []Item{
 		tstLeftNoMD, tstSC1, tstRightNoMD,
 		tstLeftNoMD, tstSC2, tstRightNoMD,
-		tstLeftNoMD, tstSCClose, tstSC1, tstRightNoMD, tstEOF}},
+		tstLeftNoMD, tstSCClose, tstSC1, tstRightNoMD, tstEOF,
+	}},
 	{"nested complex", `{{< sc1 >}}ab{{% sc2 param1 %}}cd{{< sc3 >}}ef{{< /sc3 >}}gh{{% /sc2 %}}ij{{< /sc1 >}}kl`, []Item{
 		tstLeftNoMD, tstSC1, tstRightNoMD,
 		nti(tText, "ab"),
@@ -111,51 +126,72 @@ var shortCodeLexerTests = []lexerTest{
 	}},
 
 	{"two quoted params", `{{< sc1 "param nr. 1" "param nr. 2" >}}`, []Item{
-		tstLeftNoMD, tstSC1, nti(tScParam, "param nr. 1"), nti(tScParam, "param nr. 2"), tstRightNoMD, tstEOF}},
+		tstLeftNoMD, tstSC1, nti(tScParam, "param nr. 1"), nti(tScParam, "param nr. 2"), tstRightNoMD, tstEOF,
+	}},
 	{"two named params", `{{< sc1 param1="Hello World" param2="p2Val">}}`, []Item{
-		tstLeftNoMD, tstSC1, tstParam1, tstVal, tstParam2, nti(tScParamVal, "p2Val"), tstRightNoMD, tstEOF}},
+		tstLeftNoMD, tstSC1, tstParam1, tstVal, tstParam2, nti(tScParamVal, "p2Val"), tstRightNoMD, tstEOF,
+	}},
 	{"escaped quotes", `{{< sc1 param1=\"Hello World\"  >}}`, []Item{
-		tstLeftNoMD, tstSC1, tstParam1, tstVal, tstRightNoMD, tstEOF}},
+		tstLeftNoMD, tstSC1, tstParam1, tstVal, tstRightNoMD, tstEOF,
+	}},
 	{"escaped quotes, positional param", `{{< sc1 \"param1\"  >}}`, []Item{
-		tstLeftNoMD, tstSC1, tstParam1, tstRightNoMD, tstEOF}},
+		tstLeftNoMD, tstSC1, tstParam1, tstRightNoMD, tstEOF,
+	}},
 	{"escaped quotes inside escaped quotes", `{{< sc1 param1=\"Hello \"escaped\" World\"  >}}`, []Item{
 		tstLeftNoMD, tstSC1, tstParam1,
-		nti(tScParamVal, `Hello `), nti(tError, `got positional parameter 'escaped'. Cannot mix named and positional parameters`)}},
-	{"escaped quotes inside nonescaped quotes",
+		nti(tScParamVal, `Hello `), nti(tError, `got positional parameter 'escaped'. Cannot mix named and positional parameters`),
+	}},
+	{
+		"escaped quotes inside nonescaped quotes",
 		`{{< sc1 param1="Hello \"escaped\" World"  >}}`, []Item{
-			tstLeftNoMD, tstSC1, tstParam1, nti(tScParamVal, `Hello "escaped" World`), tstRightNoMD, tstEOF}},
-	{"escaped quotes inside nonescaped quotes in positional param",
+			tstLeftNoMD, tstSC1, tstParam1, nti(tScParamVal, `Hello "escaped" World`), tstRightNoMD, tstEOF,
+		},
+	},
+	{
+		"escaped quotes inside nonescaped quotes in positional param",
 		`{{< sc1 "Hello \"escaped\" World"  >}}`, []Item{
-			tstLeftNoMD, tstSC1, nti(tScParam, `Hello "escaped" World`), tstRightNoMD, tstEOF}},
+			tstLeftNoMD, tstSC1, nti(tScParam, `Hello "escaped" World`), tstRightNoMD, tstEOF,
+		},
+	},
 	{"unterminated quote", `{{< sc1 param2="Hello World>}}`, []Item{
-		tstLeftNoMD, tstSC1, tstParam2, nti(tError, "unterminated quoted string in shortcode parameter-argument: 'Hello World>}}'")}},
+		tstLeftNoMD, tstSC1, tstParam2, nti(tError, "unterminated quoted string in shortcode parameter-argument: 'Hello World>}}'"),
+	}},
 	{"one named param, one not", `{{< sc1 param1="Hello World" p2 >}}`, []Item{
 		tstLeftNoMD, tstSC1, tstParam1, tstVal,
-		nti(tError, "got positional parameter 'p2'. Cannot mix named and positional parameters")}},
+		nti(tError, "got positional parameter 'p2'. Cannot mix named and positional parameters"),
+	}},
 	{"one named param, one quoted positional param", `{{< sc1 param1="Hello World" "And Universe" >}}`, []Item{
 		tstLeftNoMD, tstSC1, tstParam1, tstVal,
-		nti(tError, "got quoted positional parameter. Cannot mix named and positional parameters")}},
+		nti(tError, "got quoted positional parameter. Cannot mix named and positional parameters"),
+	}},
 	{"one quoted positional param, one named param", `{{< sc1 "param1" param2="And Universe" >}}`, []Item{
 		tstLeftNoMD, tstSC1, tstParam1,
-		nti(tError, "got named parameter 'param2'. Cannot mix named and positional parameters")}},
+		nti(tError, "got named parameter 'param2'. Cannot mix named and positional parameters"),
+	}},
 	{"ono positional param, one not", `{{< sc1 param1 param2="Hello World">}}`, []Item{
 		tstLeftNoMD, tstSC1, tstParam1,
-		nti(tError, "got named parameter 'param2'. Cannot mix named and positional parameters")}},
+		nti(tError, "got named parameter 'param2'. Cannot mix named and positional parameters"),
+	}},
 	{"commented out", `{{</* sc1 */>}}`, []Item{
-		nti(tText, "{{<"), nti(tText, " sc1 "), nti(tText, ">}}"), tstEOF}},
+		nti(tText, "{{<"), nti(tText, " sc1 "), nti(tText, ">}}"), tstEOF,
+	}},
 	{"commented out, with asterisk inside", `{{</* sc1 "**/*.pdf" */>}}`, []Item{
-		nti(tText, "{{<"), nti(tText, " sc1 \"**/*.pdf\" "), nti(tText, ">}}"), tstEOF}},
+		nti(tText, "{{<"), nti(tText, " sc1 \"**/*.pdf\" "), nti(tText, ">}}"), tstEOF,
+	}},
 	{"commented out, missing close", `{{</* sc1 >}}`, []Item{
-		nti(tError, "comment must be closed")}},
+		nti(tError, "comment must be closed"),
+	}},
 	{"commented out, misplaced close", `{{</* sc1 >}}*/`, []Item{
-		nti(tError, "comment must be closed")}},
+		nti(tError, "comment must be closed"),
+	}},
 	// Inline shortcodes
 	{"basic inline", `{{< sc1.inline >}}Hello World{{< /sc1.inline >}}`, []Item{tstLeftNoMD, tstSC1Inline, tstRightNoMD, tstText, tstLeftNoMD, tstSCClose, tstSC1Inline, tstRightNoMD, tstEOF}},
 	{"basic inline with space", `{{< sc1.inline >}}Hello World{{< / sc1.inline >}}`, []Item{tstLeftNoMD, tstSC1Inline, tstRightNoMD, tstText, tstLeftNoMD, tstSCClose, tstSC1Inline, tstRightNoMD, tstEOF}},
 	{"inline self closing", `{{< sc1.inline >}}Hello World{{< /sc1.inline >}}Hello World{{< sc1.inline />}}`, []Item{tstLeftNoMD, tstSC1Inline, tstRightNoMD, tstText, tstLeftNoMD, tstSCClose, tstSC1Inline, tstRightNoMD, tstText, tstLeftNoMD, tstSC1Inline, tstSCClose, tstRightNoMD, tstEOF}},
 	{"inline self closing, then a new inline", `{{< sc1.inline >}}Hello World{{< /sc1.inline >}}Hello World{{< sc1.inline />}}{{< sc2.inline >}}Hello World{{< /sc2.inline >}}`, []Item{
 		tstLeftNoMD, tstSC1Inline, tstRightNoMD, tstText, tstLeftNoMD, tstSCClose, tstSC1Inline, tstRightNoMD, tstText, tstLeftNoMD, tstSC1Inline, tstSCClose, tstRightNoMD,
-		tstLeftNoMD, tstSC2Inline, tstRightNoMD, tstText, tstLeftNoMD, tstSCClose, tstSC2Inline, tstRightNoMD, tstEOF}},
+		tstLeftNoMD, tstSC2Inline, tstRightNoMD, tstText, tstLeftNoMD, tstSCClose, tstSC2Inline, tstRightNoMD, tstEOF,
+	}},
 	{"inline with template syntax", `{{< sc1.inline >}}{{ .Get 0 }}{{ .Get 1 }}{{< /sc1.inline >}}`, []Item{tstLeftNoMD, tstSC1Inline, tstRightNoMD, nti(tText, "{{ .Get 0 }}"), nti(tText, "{{ .Get 1 }}"), tstLeftNoMD, tstSCClose, tstSC1Inline, tstRightNoMD, tstEOF}},
 	{"inline with nested shortcode (not supported)", `{{< sc1.inline >}}Hello World{{< sc1 >}}{{< /sc1.inline >}}`, []Item{tstLeftNoMD, tstSC1Inline, tstRightNoMD, tstText, nti(tError, "inline shortcodes do not support nesting")}},
 	{"inline case mismatch", `{{< sc1.Inline >}}Hello World{{< /sc1.Inline >}}`, []Item{tstLeftNoMD, nti(tError, "period in shortcode name only allowed for inline identifiers")}},

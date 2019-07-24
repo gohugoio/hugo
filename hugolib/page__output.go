@@ -25,7 +25,6 @@ func newPageOutput(
 	pp pagePaths,
 	f output.Format,
 	render bool) *pageOutput {
-
 	var targetPathsProvider targetPathsHolder
 	var linksProvider resource.ResourceLinksProvider
 
@@ -76,7 +75,6 @@ func newPageOutput(
 	}
 
 	return po
-
 }
 
 // We create a pageOutput for every output format combination, even if this

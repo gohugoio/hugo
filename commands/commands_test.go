@@ -29,7 +29,6 @@ import (
 )
 
 func TestExecute(t *testing.T) {
-
 	assert := require.New(t)
 
 	dir, err := createSimpleTestSite(t, testSiteConfig{})
@@ -56,7 +55,8 @@ func TestCommandsPersistentFlags(t *testing.T) {
 	tests := []struct {
 		args  []string
 		check func(command []cmder)
-	}{{[]string{"server",
+	}{{[]string{
+		"server",
 		"--config=myconfig.toml",
 		"--configDir=myconfigdir",
 		"--contentDir=mycontent",
@@ -120,7 +120,6 @@ func TestCommandsPersistentFlags(t *testing.T) {
 
 		// The flag is named i18n-warnings
 		assert.True(cfg.GetBool("logI18nWarnings"))
-
 	}}}
 
 	for _, test := range tests {
@@ -139,11 +138,9 @@ func TestCommandsPersistentFlags(t *testing.T) {
 		assert.NoError(rootCmd.Execute())
 		test.check(b.commands)
 	}
-
 }
 
 func TestCommandsExecute(t *testing.T) {
-
 	assert := require.New(t)
 
 	dir, err := createSimpleTestSite(t, testSiteConfig{})
@@ -214,7 +211,6 @@ func TestCommandsExecute(t *testing.T) {
 		}
 
 	}
-
 }
 
 type testSiteConfig struct {
@@ -271,7 +267,6 @@ Environment: {{ hugo.Environment }}
 `)
 
 	return d, nil
-
 }
 
 func writeFile(t *testing.T, filename, content string) {

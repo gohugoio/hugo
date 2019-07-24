@@ -207,7 +207,6 @@ And then some.
 	assert.Equal(template.HTML(
 		"<p>#First</p>\n\n<p>This is some <em>bold</em> text.</p>\n\n<h2 id=\"second\">Second</h2>\n\n<p>This is some more text.</p>\n\n<p>And then some.</p>\n"),
 		result)
-
 }
 
 func TestPlainify(t *testing.T) {

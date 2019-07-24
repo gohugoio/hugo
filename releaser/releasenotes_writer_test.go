@@ -40,5 +40,4 @@ func _TestReleaseNotesWriter(t *testing.T) {
 	require.NoError(t, writeReleaseNotes("0.21", infos, infos, &b))
 
 	fmt.Println(b.String())
-
 }

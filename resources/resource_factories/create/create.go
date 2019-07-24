@@ -43,9 +43,9 @@ func (c *Client) Get(fs afero.Fs, filename string) (resource.Resource, error) {
 		return c.rs.New(resources.ResourceSourceDescriptor{
 			Fs:             fs,
 			LazyPublish:    true,
-			SourceFilename: filename})
+			SourceFilename: filename,
+		})
 	})
-
 }
 
 // FromString creates a new Resource from a string with the given relative target path.
@@ -58,8 +58,7 @@ func (c *Client) FromString(targetPath, content string) (resource.Resource, erro
 				OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
 					return hugio.NewReadSeekerNoOpCloserFromString(content), nil
 				},
-				RelTargetFilename: filepath.Clean(targetPath)})
-
+				RelTargetFilename: filepath.Clean(targetPath),
+			})
 	})
-
 }

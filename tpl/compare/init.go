@@ -100,7 +100,6 @@ func init() {
 		)
 
 		return ns
-
 	}
 
 	internal.AddTemplateFuncsNamespace(f)

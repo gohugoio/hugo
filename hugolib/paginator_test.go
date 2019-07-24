@@ -45,7 +45,6 @@ title: Page %d
 Content.
 `, i))
 		}
-
 	}
 
 	b.WithContent(content...)
@@ -95,7 +94,6 @@ URL: {{ $pag.URL }}
 	b.AssertFileContent("public/nn/index.xml",
 		"Page Number: 1",
 		"0: 1/1  true")
-
 }
 
 // Issue 6023

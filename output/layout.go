@@ -58,7 +58,6 @@ func NewLayoutHandler() *LayoutHandler {
 // For returns a layout for the given LayoutDescriptor and options.
 // Layouts are rendered and cached internally.
 func (l *LayoutHandler) For(d LayoutDescriptor, f Format) ([]string, error) {
-
 	// We will get lots of requests for the same layouts, so avoid recalculations.
 	key := layoutCacheKey{d, f.Name}
 	l.mu.RLock()
@@ -116,7 +115,6 @@ func (l *layoutBuilder) addKind() {
 }
 
 func resolvePageTemplate(d LayoutDescriptor, f Format) []string {
-
 	b := &layoutBuilder{d: d, f: f}
 
 	if d.Layout != "" {
@@ -179,11 +177,9 @@ func resolvePageTemplate(d LayoutDescriptor, f Format) []string {
 	}
 
 	return layouts
-
 }
 
 func (l *layoutBuilder) resolveVariations() []string {
-
 	var layouts []string
 
 	var variations []string
@@ -213,14 +209,12 @@ func (l *layoutBuilder) resolveVariations() []string {
 				))
 			}
 		}
-
 	}
 
 	return filterDotLess(layouts)
 }
 
 func layoutTemplate(typeVar, layoutVar string) string {
-
 	var l string
 
 	if typeVar != "" {

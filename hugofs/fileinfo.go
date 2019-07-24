@@ -79,6 +79,7 @@ func (f FileMeta) OriginalFilename() string {
 func (f FileMeta) SkipDir() bool {
 	return f.GetBool(metaKeySkipDir)
 }
+
 func (f FileMeta) TranslationBaseName() string {
 	return f.stringV(metaKeyTranslationBaseName)
 }
@@ -188,7 +189,6 @@ func (fi *fileInfoMeta) Meta() FileMeta {
 }
 
 func NewFileMetaInfo(fi os.FileInfo, m FileMeta) FileMetaInfo {
-
 	if fim, ok := fi.(FileMetaInfo); ok {
 		mergeFileMeta(fim.Meta(), m)
 	}
@@ -241,14 +241,14 @@ func newDirNameOnlyFileInfo(name string, isOrdered bool, fileOpener func() (afer
 	return NewFileMetaInfo(&dirNameOnlyFileInfo{name: base}, FileMeta{
 		metaKeyFilename:  name,
 		metaKeyIsOrdered: isOrdered,
-		metaKeyOpener:    fileOpener})
+		metaKeyOpener:    fileOpener,
+	})
 }
 
 func decorateFileInfo(
 	fi os.FileInfo,
 	fs afero.Fs, opener func() (afero.File, error),
 	filename, filepath string, inMeta FileMeta) FileMetaInfo {
-
 	var meta FileMeta
 	var fim FileMetaInfo
 
@@ -270,7 +270,6 @@ func decorateFileInfo(
 	mergeFileMeta(inMeta, meta)
 
 	return fim
-
 }
 
 func isSymlink(fi os.FileInfo) bool {

@@ -140,7 +140,7 @@ theme = ["atheme"]
 	assert.NoError(err)
 	assert.Equal([]string{"f1.txt", "f2.txt", "f3.txt", "f4.txt", "f5.txt", "f6.txt", "f7.txt", "f3.txt", "theme-file-btheme.txt", "f3.txt", "theme-file-atheme.txt"}, dirnames)
 
-	//printFs(bfs.Work, "", os.Stdout)
+	// printFs(bfs.Work, "", os.Stdout)
 
 	checkFileCount(bfs.Layouts.Fs, "", assert, 7)
 
@@ -275,7 +275,6 @@ func TestRealDirs(t *testing.T) {
 	assert.Equal(filepath.Join(themesDir, "mytheme/assets/scss"), realDirs[len(realDirs)-1])
 
 	assert.NotNil(bfs.theBigFs)
-
 }
 
 func TestStaticFs(t *testing.T) {
@@ -306,7 +305,6 @@ func TestStaticFs(t *testing.T) {
 	sfs := bfs.StaticFs("en")
 	checkFileContent(sfs, "f1.txt", assert, "Hugo Rocks!")
 	checkFileContent(sfs, "f2.txt", assert, "Hugo Themes Still Rocks!")
-
 }
 
 func TestStaticFsMultiHost(t *testing.T) {
@@ -362,7 +360,6 @@ func checkFileCount(fs afero.Fs, dirname string, assert *require.Assertions, exp
 }
 
 func checkFileContent(fs afero.Fs, filename string, assert *require.Assertions, expected ...string) {
-
 	b, err := afero.ReadFile(fs, filename)
 	assert.NoError(err)
 

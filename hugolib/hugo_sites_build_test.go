@@ -200,7 +200,6 @@ p1 = "p1en"
 }
 
 func TestMultiSitesBuild(t *testing.T) {
-
 	for _, config := range []struct {
 		content string
 		suffix  string
@@ -209,7 +208,6 @@ func TestMultiSitesBuild(t *testing.T) {
 		{multiSiteYAMLConfigTemplate, "yml"},
 		{multiSiteJSONConfigTemplate, "json"},
 	} {
-
 		t.Run(config.suffix, func(t *testing.T) {
 			t.Parallel()
 			doTestMultiSitesBuild(t, config.content, config.suffix)
@@ -246,7 +244,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 
 	require.Equal(t, "en", enSite.language.Lang)
 
-	//dumpPages(enSite.RegularPages()...)
+	// dumpPages(enSite.RegularPages()...)
 
 	assert.Equal(5, len(enSite.RegularPages()))
 	assert.Equal(32, len(enSite.AllPages()))
@@ -412,7 +410,6 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.NotNil(t, logoEn)
 	b.AssertFileContent("public/en/bundles/b1/index.html", "Resources: image/png: /blog/en/bundles/b1/logo.png")
 	b.AssertFileContent("public/en/bundles/b1/logo.png", "PNG Data")
-
 }
 
 func TestMultiSitesRebuild(t *testing.T) {
@@ -515,7 +512,6 @@ func TestMultiSitesRebuild(t *testing.T) {
 				assert.Len(enSite.RegularPages(), 6)
 				doc1 := readDestination(t, fs, "public/en/sect/doc1-slug/index.html")
 				require.True(t, strings.Contains(doc1, "CHANGED"), doc1)
-
 			},
 		},
 		// Rename a file
@@ -534,7 +530,8 @@ func TestMultiSitesRebuild(t *testing.T) {
 				require.Equal(t, "new_en_1", enSite.RegularPages()[1].Title())
 				rendered := readDestination(t, fs, "public/en/new1renamed/index.html")
 				require.True(t, strings.Contains(rendered, "new_en_1"), rendered)
-			}},
+			},
+		},
 		{
 			// Change a template
 			func(t *testing.T) {
@@ -574,7 +571,6 @@ func TestMultiSitesRebuild(t *testing.T) {
 				require.NotNil(t, homeEn)
 				assert.Len(homeEn.Translations(), 3)
 				require.Equal(t, "fr", homeEn.Translations()[0].Language().Lang)
-
 			},
 		},
 		// Change a shortcode
@@ -600,14 +596,12 @@ func TestMultiSitesRebuild(t *testing.T) {
 		}
 
 		err := b.H.Build(BuildCfg{}, this.events...)
-
 		if err != nil {
 			t.Fatalf("[%d] Failed to rebuild sites: %s", i, err)
 		}
 
 		this.assertFunc(t)
 	}
-
 }
 
 func TestAddNewLanguage(t *testing.T) {
@@ -634,7 +628,6 @@ title = "Svenska"
 
 	assert.NoError(b.LoadConfig())
 	err := b.H.Build(BuildCfg{NewConfig: b.Cfg})
-
 	if err != nil {
 		t.Fatalf("Failed to rebuild sites: %s", err)
 	}
@@ -671,7 +664,6 @@ title = "Svenska"
 	// Regular pages have no children
 	require.Len(t, svPage.Pages(), 0)
 	require.Len(t, svPage.Data().(page.Data).Pages(), 0)
-
 }
 
 // https://github.com/gohugoio/hugo/issues/4706
@@ -782,7 +774,6 @@ func checkContent(s *sitesBuilder, filename string, matches ...string) {
 			s.Fatalf("No match for %q in content for %s\n%q", match, filename, content)
 		}
 	}
-
 }
 
 func TestTranslationsFromContentToNonContent(t *testing.T) {
@@ -833,7 +824,6 @@ Title: My categories
 `)
 
 	for _, lang := range []string{"en", "nn"} {
-
 		b.WithContent(lang+"/mysection/page.md", `
 ---
 Title: My Page
@@ -841,7 +831,6 @@ categories: ["mycat"]
 ---
 
 `)
-
 	}
 
 	b.Build(BuildCfg{})
@@ -852,7 +841,6 @@ categories: ["mycat"]
 		"/categories",
 		"/categories/mycat",
 	} {
-
 		t.Run(path, func(t *testing.T) {
 			assert := require.New(t)
 
@@ -873,7 +861,6 @@ categories: ["mycat"]
 			assert.Equal(1, len(m1))
 			assert.Equal(1, len(m2))
 		})
-
 	}
 }
 

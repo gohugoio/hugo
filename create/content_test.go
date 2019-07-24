@@ -18,12 +18,11 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"fmt"
 
 	"github.com/gohugoio/hugo/deps"
 
 	"github.com/gohugoio/hugo/hugolib"
-
-	"fmt"
 
 	"github.com/gohugoio/hugo/hugofs"
 
@@ -35,7 +34,6 @@ import (
 )
 
 func TestNewContent(t *testing.T) {
-
 	cases := []struct {
 		kind     string
 		path     string
@@ -59,7 +57,8 @@ func TestNewContent(t *testing.T) {
 			`title = "GO"`,
 			"{{< myshortcode >}}",
 			"{{% myshortcode %}}",
-			"{{</* comment */>}}\n{{%/* comment */%}}"}}, // shortcodes
+			"{{</* comment */>}}\n{{%/* comment */%}}",
+		}}, // shortcodes
 	}
 
 	for i, c := range cases {
@@ -140,7 +139,6 @@ i18n: {{ T "hugo" }}
 	assert.NoError(create.NewContent(h, "my-theme-bundle", "post/my-theme-post"))
 	assertContains(assert, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-theme-post/index.md")), `File: index.md`, `Site Lang: en`, `Name: My Theme Post`, `i18n: Hugo Rocks!`)
 	assertContains(assert, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-theme-post/resources/hugo1.json")), `hugo1: {{ printf "no template handling in here" }}`)
-
 }
 
 func initFs(fs afero.Fs) error {
@@ -248,7 +246,6 @@ func readFileFromFs(t *testing.T, fs afero.Fs, filename string) string {
 }
 
 func newTestCfg(assert *require.Assertions, mm afero.Fs) (*viper.Viper, *hugofs.Fs) {
-
 	cfg := `
 
 theme = "mytheme"
@@ -281,5 +278,4 @@ other = "Hugo Rokkar!"`), 0755))
 	assert.NoError(err)
 
 	return v, hugofs.NewFrom(mm, v)
-
 }

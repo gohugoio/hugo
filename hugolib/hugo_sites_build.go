@@ -56,7 +56,6 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		to <- h.pickOneAndLogTheRest(errors)
 
 		close(to)
-
 	}(errCollector, errs)
 
 	if h.Metrics != nil {
@@ -163,7 +162,6 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 	}
 
 	return nil
-
 }
 
 // Build lifecycle methods below.
@@ -221,11 +219,9 @@ func (h *HugoSites) process(config *BuildCfg, events ...fsnotify.Event) error {
 	}
 
 	return firstSite.process(*config)
-
 }
 
 func (h *HugoSites) assemble(config *BuildCfg) error {
-
 	if len(h.Sites) > 1 {
 		// The first is initialized during process; initialize the rest
 		for _, site := range h.Sites[1:] {
@@ -258,7 +254,6 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 	}
 
 	return nil
-
 }
 
 func (h *HugoSites) render(config *BuildCfg) error {
@@ -313,7 +308,6 @@ func (h *HugoSites) render(config *BuildCfg) error {
 			}
 
 		}
-
 	}
 
 	if !config.SkipRender {

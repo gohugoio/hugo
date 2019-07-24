@@ -51,7 +51,6 @@ func (p *pageMenus) Menus() navigation.PageMenus {
 func (p *pageMenus) menus() navigation.PageMenus {
 	p.init()
 	return p.pm
-
 }
 
 func (p *pageMenus) init() {
@@ -68,7 +67,5 @@ func (p *pageMenus) init() {
 		if err != nil {
 			p.p.s.Log.ERROR.Println(p.p.wrapError(err))
 		}
-
 	})
-
 }

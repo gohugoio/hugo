@@ -251,13 +251,11 @@ func (h *HugoSites) GetContentPage(filename string) page.Page {
 // NewHugoSites creates a new collection of sites given the input sites, building
 // a language configuration based on those.
 func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
-
 	if cfg.Language != nil {
 		return nil, errors.New("Cannot provide Language in Cfg when sites are provided")
 	}
 
 	langConfig, err := newMultiLingualFromSites(cfg.Cfg, sites...)
-
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create language config")
 	}
@@ -449,9 +447,7 @@ func (s *Site) withSiteTemplates(withTemplates ...func(templ tpl.TemplateHandler
 
 func createSitesFromConfig(cfg deps.DepsCfg) ([]*Site, error) {
 
-	var (
-		sites []*Site
-	)
+	var sites []*Site
 
 	languages := getLanguages(cfg.Cfg)
 
@@ -512,13 +508,11 @@ func (h *HugoSites) createSitesFromConfig(cfg config.Provider) error {
 	depsCfg := deps.DepsCfg{Fs: h.Fs, Cfg: cfg}
 
 	sites, err := createSitesFromConfig(depsCfg)
-
 	if err != nil {
 		return err
 	}
 
 	langConfig, err := newMultiLingualFromSites(depsCfg.Cfg, sites...)
-
 	if err != nil {
 		return err
 	}
@@ -598,7 +592,6 @@ func (cfg *BuildCfg) shouldRender(p *pageState) bool {
 }
 
 func (h *HugoSites) renderCrossSitesArtifacts() error {
-
 	if !h.multilingual.enabled() || h.IsMultihost() {
 		return nil
 	}
@@ -626,7 +619,6 @@ func (h *HugoSites) renderCrossSitesArtifacts() error {
 // createMissingPages creates home page, taxonomies etc. that isnt't created as an
 // effect of having a content file.
 func (h *HugoSites) createMissingPages() error {
-
 	for _, s := range h.Sites {
 		if s.isEnabled(page.KindHome) {
 			// home pages
@@ -784,7 +776,6 @@ func (h *HugoSites) createPageCollections() error {
 }
 
 func (s *Site) preparePagesForRender(isRenderingSite bool, idx int) error {
-
 	for _, p := range s.workAllPages {
 		if err := p.initOutputFormat(isRenderingSite, idx); err != nil {
 			return err
@@ -1025,7 +1016,6 @@ func (m *contentChangeMap) resolveAndRemove(filename string) (string, string, bu
 	}
 
 	return dir, filename, bundleNot
-
 }
 
 func (m *contentChangeMap) addSymbolicLinkMapping(fim hugofs.FileMetaInfo) {

@@ -66,7 +66,6 @@ func isShorthCodeOrPartial(name string) bool {
 
 // CreateTemplateNames returns a TemplateNames object for a given template.
 func CreateTemplateNames(d TemplateLookupDescriptor) (TemplateNames, error) {
-
 	name := filepath.ToSlash(d.RelPath)
 	name = strings.TrimPrefix(name, "/")
 
@@ -74,9 +73,7 @@ func CreateTemplateNames(d TemplateLookupDescriptor) (TemplateNames, error) {
 		name = strings.Trim(d.Prefix, "/") + "/" + name
 	}
 
-	var (
-		id TemplateNames
-	)
+	var id TemplateNames
 
 	// The filename will have a suffix with an optional type indicator.
 	// Examples:
@@ -174,7 +171,6 @@ func CreateTemplateNames(d TemplateLookupDescriptor) (TemplateNames, error) {
 	}
 
 	return id, nil
-
 }
 
 func createPathsToCheck(baseTemplatedDir, baseFilename, currBaseFilename string) []string {

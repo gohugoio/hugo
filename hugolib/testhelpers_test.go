@@ -7,17 +7,17 @@ import (
 	"strconv"
 	"testing"
 	"unicode/utf8"
-
-	"github.com/gohugoio/hugo/parser/metadecoders"
-
-	"github.com/gohugoio/hugo/parser"
-	"github.com/pkg/errors"
-
 	"bytes"
 	"fmt"
 	"regexp"
 	"strings"
 	"text/template"
+	"os"
+
+	"github.com/gohugoio/hugo/parser/metadecoders"
+
+	"github.com/gohugoio/hugo/parser"
+	"github.com/pkg/errors"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/common/herrors"
@@ -31,8 +31,6 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/spf13/viper"
-
-	"os"
 
 	"github.com/gohugoio/hugo/resources/resource"
 
@@ -119,7 +117,6 @@ func newTestSitesBuilderFromDepsCfg(t testing.TB, d deps.DepsCfg) *sitesBuilder 
 	b.WithWorkingDir(workingDir)
 
 	return b.WithViper(d.Cfg.(*viper.Viper))
-
 }
 
 func (s *sitesBuilder) Running() *sitesBuilder {
@@ -259,7 +256,7 @@ func (s *sitesBuilder) WithSimpleConfigFileAndBaseURL(baseURL string) *sitesBuil
 }
 
 func (s *sitesBuilder) WithDefaultMultiSiteConfig() *sitesBuilder {
-	var defaultMultiSiteConfig = `
+	defaultMultiSiteConfig := `
 baseURL = "http://example.com/blog"
 
 paginate = 1
@@ -317,7 +314,6 @@ lag = "lag"
 ` + commonConfigSections
 
 	return s.WithConfigFile("toml", defaultMultiSiteConfig)
-
 }
 
 func (s *sitesBuilder) WithSunset(in string) {
@@ -428,11 +424,10 @@ func (s *sitesBuilder) LoadConfig() error {
 		Fs:         s.Fs.Source,
 		Logger:     s.logger,
 		Environ:    s.environ,
-		Filename:   "config." + s.configFormat}, func(cfg config.Provider) error {
-
+		Filename:   "config." + s.configFormat,
+	}, func(cfg config.Provider) error {
 		return nil
 	})
-
 	if err != nil {
 		return err
 	}
@@ -554,7 +549,6 @@ func (s *sitesBuilder) build(cfg BuildCfg, shouldFail bool) *sitesBuilder {
 }
 
 func (s *sitesBuilder) addDefaults() {
-
 	var (
 		contentTemplate = `---
 title: doc1
@@ -728,7 +722,6 @@ func (th testHelper) replaceDefaultContentLanguageValue(value string) string {
 
 	if !defaultInSubDir {
 		value = strings.Replace(value, replace, "", 1)
-
 	}
 	return value
 }
@@ -746,7 +739,6 @@ func newTestCfgBasic() (*viper.Viper, *hugofs.Fs) {
 	fs := hugofs.NewFrom(hugofs.NewBaseFileDecorator(mm), v)
 
 	return v, fs
-
 }
 
 func newTestCfg(withConfig ...func(cfg config.Provider) error) (*viper.Viper, *hugofs.Fs) {
@@ -770,7 +762,6 @@ func newTestCfg(withConfig ...func(cfg config.Provider) error) (*viper.Viper, *h
 	fs := hugofs.NewFrom(hugofs.NewBaseFileDecorator(mm), v)
 
 	return v, fs
-
 }
 
 func newTestSitesFromConfig(t testing.TB, afs afero.Fs, tomlConfig string, layoutPathContentPairs ...string) (testHelper, *HugoSites) {
@@ -799,7 +790,6 @@ func newTestSitesFromConfig(t testing.TB, afs afero.Fs, tomlConfig string, layou
 }
 
 func createWithTemplateFromNameValues(additionalTemplates ...string) func(templ tpl.TemplateHandler) error {
-
 	return func(templ tpl.TemplateHandler) error {
 		for i := 0; i < len(additionalTemplates); i += 2 {
 			err := templ.AddTemplate(additionalTemplates[i], additionalTemplates[i+1])
@@ -934,5 +924,4 @@ func skipSymlink(t *testing.T) {
 	if runtime.GOOS == "windows" && os.Getenv("CI") == "" {
 		t.Skip("skip symlink test on local Windows (needs admin)")
 	}
-
 }

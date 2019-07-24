@@ -160,7 +160,6 @@ Also note that if you configure a positive maxAge for the "modules" file cache, 
 
 				_, err = com.hugo.FileCaches.ModulesCache().Prune(true)
 				return err
-
 			},
 		},
 	)
@@ -168,7 +167,6 @@ Also note that if you configure a positive maxAge for the "modules" file cache, 
 	c.baseBuilderCmd = b.newBuilderCmd(cmd)
 
 	return c
-
 }
 
 func (c *modCmd) withModsClient(failOnMissingConfig bool, f func(*modules.Client) error) error {

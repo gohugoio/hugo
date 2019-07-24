@@ -29,7 +29,8 @@ var (
 		"rest", "rst",
 		"mmark",
 		"org",
-		"pandoc", "pdc"}
+		"pandoc", "pdc",
+	}
 
 	contentFileExtensionsSet map[string]bool
 )

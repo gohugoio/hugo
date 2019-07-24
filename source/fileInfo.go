@@ -232,7 +232,6 @@ func (sp *SourceSpec) NewFileInfoFrom(path, filename string) (*FileInfo, error) 
 }
 
 func (sp *SourceSpec) NewFileInfo(fi hugofs.FileMetaInfo) (*FileInfo, error) {
-
 	m := fi.Meta()
 
 	filename := m.Filename()
@@ -290,5 +289,4 @@ func (sp *SourceSpec) NewFileInfo(fi hugofs.FileMetaInfo) (*FileInfo, error) {
 	}
 
 	return f, nil
-
 }

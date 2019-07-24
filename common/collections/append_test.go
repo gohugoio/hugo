@@ -35,28 +35,42 @@ func TestAppend(t *testing.T) {
 		{nil, []interface{}{"a", "b"}, []string{"a", "b"}},
 		{nil, []interface{}{nil}, []interface{}{nil}},
 		{[]interface{}{}, []interface{}{[]string{"c", "d", "e"}}, []string{"c", "d", "e"}},
-		{tstSlicers{&tstSlicer{"a"}, &tstSlicer{"b"}},
+		{
+			tstSlicers{&tstSlicer{"a"}, &tstSlicer{"b"}},
 			[]interface{}{&tstSlicer{"c"}},
-			tstSlicers{&tstSlicer{"a"}, &tstSlicer{"b"}, &tstSlicer{"c"}}},
-		{&tstSlicers{&tstSlicer{"a"}, &tstSlicer{"b"}},
+			tstSlicers{&tstSlicer{"a"}, &tstSlicer{"b"}, &tstSlicer{"c"}},
+		},
+		{
+			&tstSlicers{&tstSlicer{"a"}, &tstSlicer{"b"}},
 			[]interface{}{&tstSlicer{"c"}},
-			tstSlicers{&tstSlicer{"a"},
+			tstSlicers{
+				&tstSlicer{"a"},
 				&tstSlicer{"b"},
-				&tstSlicer{"c"}}},
-		{testSlicerInterfaces{&tstSlicerIn1{"a"}, &tstSlicerIn1{"b"}},
+				&tstSlicer{"c"},
+			},
+		},
+		{
+			testSlicerInterfaces{&tstSlicerIn1{"a"}, &tstSlicerIn1{"b"}},
 			[]interface{}{&tstSlicerIn1{"c"}},
-			testSlicerInterfaces{&tstSlicerIn1{"a"}, &tstSlicerIn1{"b"}, &tstSlicerIn1{"c"}}},
+			testSlicerInterfaces{&tstSlicerIn1{"a"}, &tstSlicerIn1{"b"}, &tstSlicerIn1{"c"}},
+		},
 		//https://github.com/gohugoio/hugo/issues/5361
-		{[]string{"a", "b"}, []interface{}{tstSlicers{&tstSlicer{"a"}, &tstSlicer{"b"}}},
-			[]interface{}{"a", "b", &tstSlicer{"a"}, &tstSlicer{"b"}}},
-		{[]string{"a", "b"}, []interface{}{&tstSlicer{"a"}},
-			[]interface{}{"a", "b", &tstSlicer{"a"}}},
+		{
+			[]string{"a", "b"}, []interface{}{tstSlicers{&tstSlicer{"a"}, &tstSlicer{"b"}}},
+			[]interface{}{"a", "b", &tstSlicer{"a"}, &tstSlicer{"b"}},
+		},
+		{
+			[]string{"a", "b"}, []interface{}{&tstSlicer{"a"}},
+			[]interface{}{"a", "b", &tstSlicer{"a"}},
+		},
 		// Errors
 		{"", []interface{}{[]string{"a", "b"}}, false},
 		// No string concatenation.
-		{"ab",
+		{
+			"ab",
 			[]interface{}{"c"},
-			false},
+			false,
+		},
 	} {
 
 		errMsg := fmt.Sprintf("[%d]", i)
@@ -74,5 +88,4 @@ func TestAppend(t *testing.T) {
 			t.Fatalf("%s got\n%T: %v\nexpected\n%T: %v", errMsg, result, result, test.expected, test.expected)
 		}
 	}
-
 }

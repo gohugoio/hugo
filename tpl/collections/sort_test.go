@@ -218,7 +218,6 @@ func TestSort(t *testing.T) {
 		},
 		{nil, nil, "asc", false},
 	} {
-
 		t.Run(fmt.Sprintf("test%d", i), func(t *testing.T) {
 			var result interface{}
 			var err error
@@ -241,6 +240,5 @@ func TestSort(t *testing.T) {
 				}
 			}
 		})
-
 	}
 }

@@ -103,7 +103,6 @@ func (ns *Namespace) Chomp(s interface{}) (interface{}, error) {
 	default:
 		return res, nil
 	}
-
 }
 
 // Contains reports whether substr is in s.
@@ -231,7 +230,6 @@ func (ns *Namespace) SliceString(a interface{}, startEnd ...interface{}) (string
 	} else {
 		return string(asRunes[:]), nil
 	}
-
 }
 
 // Split slices an input string into all substrings separated by delimiter.

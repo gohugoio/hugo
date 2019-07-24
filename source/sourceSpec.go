@@ -74,7 +74,6 @@ func NewSourceSpec(ps *helpers.PathSpec, fs afero.Fs) *SourceSpec {
 	}
 
 	return &SourceSpec{ignoreFilesRe: regexps, PathSpec: ps, SourceFs: fs, Languages: languages, DefaultContentLanguage: defaultLang, DisabledLanguages: disabledLangsSet}
-
 }
 
 // IgnoreFile returns whether a given file should be ignored.

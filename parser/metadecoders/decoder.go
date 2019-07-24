@@ -118,7 +118,6 @@ func (d Decoder) Unmarshal(data []byte, f Format) (interface{}, error) {
 		default:
 			return make(map[string]interface{}), nil
 		}
-
 	}
 	var v interface{}
 	err := d.unmarshal(data, f, &v)
@@ -128,7 +127,6 @@ func (d Decoder) Unmarshal(data []byte, f Format) (interface{}, error) {
 
 // unmarshal unmarshals data in format f into v.
 func (d Decoder) unmarshal(data []byte, f Format, v interface{}) error {
-
 	var err error
 
 	switch f {
@@ -178,7 +176,6 @@ func (d Decoder) unmarshal(data []byte, f Format, v interface{}) error {
 	}
 
 	return toFileError(f, errors.Wrap(err, "unmarshal failed"))
-
 }
 
 func (d Decoder) unmarshalCSV(data []byte, v interface{}) error {
@@ -200,7 +197,6 @@ func (d Decoder) unmarshalCSV(data []byte, v interface{}) error {
 	}
 
 	return nil
-
 }
 
 func (d Decoder) unmarshalORG(data []byte, v interface{}) error {
@@ -242,7 +238,6 @@ func toFileError(f Format, err error) error {
 //
 // Inspired by https://github.com/stripe/stripe-mock, MIT licensed
 func stringifyMapKeys(in interface{}) (interface{}, bool) {
-
 	switch in := in.(type) {
 	case []interface{}:
 		for i, v := range in {

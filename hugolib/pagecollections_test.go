@@ -122,7 +122,6 @@ func (t *testCase) check(p page.Page, err error, errorMsg string, assert *requir
 }
 
 func TestGetPage(t *testing.T) {
-
 	var (
 		assert  = require.New(t)
 		cfg, fs = newTestCfg()
@@ -168,7 +167,7 @@ func TestGetPage(t *testing.T) {
 		{page.KindPage, nil, []string{"sect4/page2.md"}, "Title4_2"},
 		{page.KindSection, nil, []string{"sect3/sect7"}, "another sect7"},
 		{page.KindPage, nil, []string{"sect3/subsect/deep.md"}, "deep page"},
-		{page.KindPage, nil, []string{filepath.FromSlash("sect5/page3.md")}, "Title5_3"}, //test OS-specific path
+		{page.KindPage, nil, []string{filepath.FromSlash("sect5/page3.md")}, "Title5_3"}, // test OS-specific path
 
 		// shorthand refs (potentially ambiguous)
 		{page.KindPage, nil, []string{"unique.md"}, "UniqueBase"},
@@ -188,8 +187,8 @@ func TestGetPage(t *testing.T) {
 		{page.KindPage, nil, []string{"/sect4/page2.md"}, "Title4_2"},
 		{page.KindSection, nil, []string{"/sect3/sect7"}, "another sect7"},
 		{page.KindPage, nil, []string{"/sect3/subsect/deep.md"}, "deep page"},
-		{page.KindPage, nil, []string{filepath.FromSlash("/sect5/page3.md")}, "Title5_3"}, //test OS-specific path
-		{page.KindPage, nil, []string{"/sect3/unique.md"}, "UniqueBase"},                  //next test depends on this page existing
+		{page.KindPage, nil, []string{filepath.FromSlash("/sect5/page3.md")}, "Title5_3"}, // test OS-specific path
+		{page.KindPage, nil, []string{"/sect3/unique.md"}, "UniqueBase"},                  // next test depends on this page existing
 		// {"NoPage", nil, []string{"/unique.md"}, ""},  // ISSUE #4969: this is resolving to /sect3/unique.md
 		{"NoPage", nil, []string{"/missing-page.md"}, ""},
 		{"NoPage", nil, []string{"/missing-section"}, ""},
@@ -207,7 +206,7 @@ func TestGetPage(t *testing.T) {
 		{page.KindSection, sec3, []string{"./sect7"}, "another sect7"},
 		{page.KindPage, sec3, []string{"./subsect/deep.md"}, "deep page"},
 		{page.KindPage, sec3, []string{"./subsect/../../sect7/page9.md"}, "Title7_9"},
-		{page.KindPage, sec3, []string{filepath.FromSlash("../sect5/page3.md")}, "Title5_3"}, //test OS-specific path
+		{page.KindPage, sec3, []string{filepath.FromSlash("../sect5/page3.md")}, "Title5_3"}, // test OS-specific path
 		{page.KindPage, sec3, []string{"./unique.md"}, "UniqueBase"},
 		{"NoPage", sec3, []string{"./sect2"}, ""},
 		//{"NoPage", sec3, []string{"sect2"}, ""}, // ISSUE: /sect3 page relative query is resolving to /sect2
@@ -216,7 +215,7 @@ func TestGetPage(t *testing.T) {
 		{page.KindHome, sec3, []string{"/"}, "home page"},
 		{page.KindPage, sec3, []string{"/about.md"}, "about page"},
 		{page.KindPage, sec3, []string{"/sect4/page2.md"}, "Title4_2"},
-		{page.KindPage, sec3, []string{"/sect3/subsect/deep.md"}, "deep page"}, //next test depends on this page existing
+		{page.KindPage, sec3, []string{"/sect3/subsect/deep.md"}, "deep page"}, // next test depends on this page existing
 		{"NoPage", sec3, []string{"/subsect/deep.md"}, ""},
 	}
 
@@ -240,5 +239,4 @@ func TestGetPage(t *testing.T) {
 		page2, err := s.getPageNew(test.context, ref)
 		test.check(page2, err, errorMsg, assert)
 	}
-
 }

@@ -127,5 +127,4 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 
 	_, err := c.doWithPublishDirs(syncFn)
 	return err
-
 }

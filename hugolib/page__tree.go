@@ -83,7 +83,6 @@ func (pt pageTree) FirstSection() page.Page {
 			return current
 		}
 	}
-
 }
 
 func (pt pageTree) InSection(other interface{}) (bool, error) {
@@ -101,7 +100,6 @@ func (pt pageTree) InSection(other interface{}) (bool, error) {
 	}
 
 	return pp.CurrentSection().Eq(pt.p.CurrentSection()), nil
-
 }
 
 func (pt pageTree) Page() page.Page {

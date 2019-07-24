@@ -36,7 +36,6 @@ func TestTruth(t *testing.T) {
 	t.Run("And", func(t *testing.T) {
 		assertTruth(t, n.And(truthv, truthv), true)
 		assertTruth(t, n.And(truthv, falsev), false)
-
 	})
 
 	t.Run("Or", func(t *testing.T) {

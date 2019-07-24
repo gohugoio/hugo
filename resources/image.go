@@ -25,6 +25,8 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	_ "image/gif"
+	_ "image/png"
 
 	"github.com/gohugoio/hugo/resources/resource"
 
@@ -36,8 +38,6 @@ import (
 	"github.com/mitchellh/mapstructure"
 
 	// Blind import for image.Decode
-	_ "image/gif"
-	_ "image/png"
 
 	// Blind import for image.Decode
 	_ "golang.org/x/image/webp"
@@ -149,7 +149,8 @@ func (i *Image) WithNewBase(base string) resource.Resource {
 	return &Image{
 		imaging:         i.imaging,
 		format:          i.format,
-		genericResource: i.genericResource.WithNewBase(base).(*genericResource)}
+		genericResource: i.genericResource.WithNewBase(base).(*genericResource),
+	}
 }
 
 // Resize resizes the image to the specified width and height using the specified resampling
@@ -285,7 +286,6 @@ func (i *Image) doWithImageConfig(action, spec string, f func(src image.Image, c
 
 		return ci, converted, nil
 	})
-
 }
 
 func (i imageConfig) key(format imaging.Format) string {
@@ -479,7 +479,6 @@ func (i *Image) openDestinationsForWriting() (io.WriteCloser, error) {
 	}
 
 	return helpers.OpenFilesForWriting(i.spec.BaseFs.PublishFs, changedFilenames...)
-
 }
 
 func (i *Image) encodeTo(conf imageConfig, img image.Image, w io.Writer) error {
@@ -517,7 +516,8 @@ func (i *Image) clone() *Image {
 	return &Image{
 		imaging:         i.imaging,
 		format:          i.format,
-		genericResource: &g}
+		genericResource: &g,
+	}
 }
 
 func (i *Image) setBasePath(conf imageConfig) {
@@ -557,7 +557,6 @@ func (i *Image) relTargetPathFromConfig(conf imageConfig) dirFile {
 		dir:  i.relTargetDirFile.dir,
 		file: fmt.Sprintf("%s%s_%s%s", p1, idStr, key, p2),
 	}
-
 }
 
 func decodeImaging(m map[string]interface{}) (Imaging, error) {

@@ -125,5 +125,4 @@ E`, offsetMatcher)
 	assert.Equal([]string{"A", "B", "C", "D"}, location.Lines)
 	assert.Equal(2, location.Position().LineNumber)
 	assert.Equal(1, location.LinesPos)
-
 }

@@ -107,7 +107,6 @@ title: Test Metadata
 
 		}
 	}
-
 }
 
 func TestRemarshalComments(t *testing.T) {
@@ -168,5 +167,4 @@ func TestTestRemarshalError(t *testing.T) {
 
 	_, err = ns.Remarshal("json", "asdf")
 	assert.Error(err)
-
 }

@@ -174,7 +174,6 @@ func (s *Store) WriteMetrics(w io.Writer) {
 			fmt.Fprintf(w, "  %13s  %12s  %12s  %5d  %s\n", v.sum, v.avg, v.max, v.count, v.key)
 		}
 	}
-
 }
 
 // A result represents the calculated results for a given metric.
@@ -229,7 +228,6 @@ func howSimilar(a, b interface{}) int {
 // a number between 0-100 indicating how similar a and b are.
 // 100 is when all words in a also exists in b.
 func howSimilarStrings(a, b string) int {
-
 	// Give some weight to the word positions.
 	const partitionSize = 4
 

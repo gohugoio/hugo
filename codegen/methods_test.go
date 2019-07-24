@@ -25,7 +25,6 @@ import (
 )
 
 func TestMethods(t *testing.T) {
-
 	var (
 		zeroIE     = reflect.TypeOf((*IEmbed)(nil)).Elem()
 		zeroIEOnly = reflect.TypeOf((*IEOnly)(nil)).Elem()
@@ -58,7 +57,6 @@ func TestMethods(t *testing.T) {
 		methodsStr := fmt.Sprint(methods)
 
 		assert.Contains(methodsStr, "MethodEmbed3(arg0 string) string")
-
 	})
 
 	t.Run("ToMarshalJSON", func(t *testing.T) {
@@ -76,9 +74,7 @@ func TestMethods(t *testing.T) {
 		assert.Contains(pkg, "encoding/json")
 
 		fmt.Println(pkg)
-
 	})
-
 }
 
 type I interface {

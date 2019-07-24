@@ -26,7 +26,6 @@ type Sitemap struct {
 }
 
 func DecodeSitemap(prototype Sitemap, input map[string]interface{}) Sitemap {
-
 	for key, value := range input {
 		switch key {
 		case "changefreq":

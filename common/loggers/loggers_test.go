@@ -28,5 +28,4 @@ func TestLogger(t *testing.T) {
 	l.WARN.Println("A warning")
 
 	assert.Equal(uint64(2), l.ErrorCounter.Count())
-
 }

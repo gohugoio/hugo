@@ -71,7 +71,6 @@ func (c *imageCache) clear() {
 
 func (c *imageCache) getOrCreate(
 	parent *Image, conf imageConfig, createImage func() (*Image, image.Image, error)) (*Image, error) {
-
 	relTarget := parent.relTargetPathFromConfig(conf)
 	key := parent.relTargetPathForRel(relTarget.path(), false, false, false)
 
@@ -156,7 +155,6 @@ func (c *imageCache) getOrCreate(
 	c.mu.Unlock()
 
 	return img, nil
-
 }
 
 func newImageCache(fileCache *filecache.Cache, ps *helpers.PathSpec) *imageCache {

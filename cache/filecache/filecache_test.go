@@ -181,7 +181,6 @@ dir = ":cacheDir/c"
 		assert.Equal("Hugo is great!", string(b))
 
 	}
-
 }
 
 func TestFileCacheConcurrent(t *testing.T) {
@@ -295,5 +294,4 @@ func newPathsSpec(t *testing.T, fs afero.Fs, configStr string) *helpers.PathSpec
 	p, err := helpers.NewPathSpec(hugofs.NewFrom(fs, cfg), cfg)
 	assert.NoError(err)
 	return p
-
 }

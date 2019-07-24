@@ -58,7 +58,6 @@ func (p Pages) Related(doc related.Document) (Pages, error) {
 	}
 
 	return result, nil
-
 }
 
 // RelatedIndices searches the given indices with the search keywords from the
@@ -79,7 +78,6 @@ func (p Pages) RelatedIndices(doc related.Document, indices ...interface{}) (Pag
 	}
 
 	return result, nil
-
 }
 
 // RelatedTo searches the given indices with the corresponding values.
@@ -89,14 +87,12 @@ func (p Pages) RelatedTo(args ...types.KeyValues) (Pages, error) {
 	}
 
 	return p.search(args...)
-
 }
 
 func (p Pages) search(args ...types.KeyValues) (Pages, error) {
 	return p.withInvertedIndex(func(idx *related.InvertedIndex) ([]related.Document, error) {
 		return idx.SearchKeyValues(args...)
 	})
-
 }
 
 func (p Pages) searchDoc(doc related.Document, indices ...string) (Pages, error) {

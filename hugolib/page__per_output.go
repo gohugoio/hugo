@@ -57,7 +57,6 @@ var (
 )
 
 func newPageContentOutput(p *pageState) func(f output.Format) (*pageContentOutput, error) {
-
 	parent := p.init
 
 	return func(f output.Format) (*pageContentOutput, error) {
@@ -133,7 +132,8 @@ func newPageContentOutput(p *pageState) func(f output.Format) (*pageContentOutpu
 						Content: []byte(cp.p.m.summary), RenderTOC: false, PageFmt: cp.p.m.markup,
 						Cfg:        p.Language(),
 						DocumentID: p.File().UniqueID(), DocumentName: p.File().Path(),
-						Config: cp.p.getRenderingConfig()})
+						Config: cp.p.getRenderingConfig(),
+					})
 					html = cp.p.s.ContentSpec.TrimShortHTML(html)
 					cp.summary = helpers.BytesToHTML(html)
 				}
@@ -147,7 +147,6 @@ func newPageContentOutput(p *pageState) func(f output.Format) (*pageContentOutpu
 			}
 
 			return nil
-
 		}
 
 		// Recursive loops can only happen in content files with template code (shortcodes etc.)
@@ -177,9 +176,7 @@ func newPageContentOutput(p *pageState) func(f output.Format) (*pageContentOutpu
 		})
 
 		return cp, nil
-
 	}
-
 }
 
 // pageContentOutput represents the Page content for a given output format.
@@ -296,7 +293,6 @@ func (p *pageContentOutput) setAutoSummary() error {
 	p.truncated = truncated
 
 	return nil
-
 }
 
 func (cp *pageContentOutput) renderContent(p page.Page, content []byte) []byte {
@@ -304,7 +300,8 @@ func (cp *pageContentOutput) renderContent(p page.Page, content []byte) []byte {
 		Content: content, RenderTOC: true, PageFmt: cp.p.m.markup,
 		Cfg:        p.Language(),
 		DocumentID: p.File().UniqueID(), DocumentName: p.File().Path(),
-		Config: cp.p.getRenderingConfig()})
+		Config: cp.p.getRenderingConfig(),
+	})
 }
 
 func (p *pageContentOutput) setWordCounts(isCJKLanguage bool) {
@@ -386,7 +383,6 @@ func executeToString(templ tpl.Template, data interface{}) (string, error) {
 		return "", err
 	}
 	return b.String(), nil
-
 }
 
 func splitUserDefinedSummaryAndContent(markup string, c []byte) (summary []byte, content []byte, err error) {
@@ -406,7 +402,6 @@ func splitUserDefinedSummaryAndContent(markup string, c []byte) (summary []byte,
 	switch markup {
 	case "asciidoc":
 		startTag = "div"
-
 	}
 
 	// Walk back and forward to the surrounding tags.

@@ -91,7 +91,6 @@ func NewSpec(
 	logger *loggers.Logger,
 	outputFormats output.Formats,
 	mimeTypes media.Types) (*Spec, error) {
-
 	imaging, err := decodeImaging(s.Cfg.GetStringMap("imaging"))
 	if err != nil {
 		return nil, err
@@ -106,7 +105,8 @@ func NewSpec(
 		return nil, err
 	}
 
-	rs := &Spec{PathSpec: s,
+	rs := &Spec{
+		PathSpec:      s,
 		Logger:        logger,
 		imaging:       &imaging,
 		MediaTypes:    mimeTypes,
@@ -117,12 +117,12 @@ func NewSpec(
 			fileCaches.ImageCache(),
 
 			s,
-		)}
+		),
+	}
 
 	rs.ResourceCache = newResourceCache(rs)
 
 	return rs, nil
-
 }
 
 type ResourceSourceDescriptor struct {
@@ -253,10 +253,10 @@ func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (reso
 		return &Image{
 			format:          imgFormat,
 			imaging:         r.imaging,
-			genericResource: gr}, nil
+			genericResource: gr,
+		}, nil
 	}
 	return gr, nil
-
 }
 
 // TODO(bep) unify
@@ -409,7 +409,6 @@ func (l *genericResource) ReadSeekCloser() (hugio.ReadSeekCloser, error) {
 		return nil, err
 	}
 	return f, nil
-
 }
 
 func (l *genericResource) MediaType() media.Type {
@@ -461,7 +460,6 @@ func (l *genericResource) initHash() error {
 			return
 		}
 		l.hash = hash
-
 	})
 
 	return err
@@ -484,7 +482,6 @@ func (l *genericResource) initContent() error {
 		}
 
 		l.content = string(b)
-
 	})
 
 	return err
@@ -516,12 +513,12 @@ func (l *genericResource) Key() string {
 
 func (l *genericResource) relPermalinkFor(target string) string {
 	return l.relPermalinkForRel(target, false)
-
 }
+
 func (l *genericResource) permalinkFor(target string) string {
 	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(target, true), l.spec.BaseURL.HostURL())
-
 }
+
 func (l *genericResource) relTargetPathsFor(target string) []string {
 	return l.relTargetPathsForRel(target)
 }
@@ -573,7 +570,7 @@ func (l *genericResource) relTargetPathsForRel(rel string) []string {
 		return []string{l.relTargetPathForRelAndBasePath(rel, "", false, false)}
 	}
 
-	var targetPaths = make([]string, len(l.baseTargetPathDirs))
+	targetPaths := make([]string, len(l.baseTargetPathDirs))
 	for i, dir := range l.baseTargetPathDirs {
 		targetPaths[i] = l.relTargetPathForRelAndBasePath(rel, dir, false, false)
 	}
@@ -687,7 +684,6 @@ func (r *Spec) newGenericResource(sourceFs afero.Fs,
 		baseFilename,
 		mediaType,
 	)
-
 }
 
 func (r *Spec) newGenericResourceWithBase(
@@ -700,7 +696,6 @@ func (r *Spec) newGenericResourceWithBase(
 	sourceFilename,
 	baseFilename string,
 	mediaType media.Type) *genericResource {
-
 	if osFileInfo != nil && osFileInfo.IsDir() {
 		panic(fmt.Sprintf("dirs nto supported resource types: %v", osFileInfo))
 	}

@@ -29,5 +29,4 @@ func TestPositionStringFormatter(t *testing.T) {
 	assert.Equal("好:13", createPositionStringFormatter("好::col")(pos))
 	assert.Equal("\"/my/file.txt:12:13\"", createPositionStringFormatter("")(pos))
 	assert.Equal("\"/my/file.txt:12:13\"", pos.String())
-
 }

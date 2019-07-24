@@ -50,12 +50,11 @@ func (pos Position) IsValid() bool {
 var positionStringFormatfunc func(p Position) string
 
 func createPositionStringFormatter(formatStr string) func(p Position) string {
-
 	if formatStr == "" {
 		formatStr = "\":file::line::col\""
 	}
 
-	var identifiers = []string{":file", ":line", ":col"}
+	identifiers := []string{":file", ":line", ":col"}
 	var identifiersFound []string
 
 	for i := range formatStr {

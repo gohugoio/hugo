@@ -103,11 +103,9 @@ Content
 			}
 		})
 	}
-
 }
 
 func TestRelativeURLInFrontMatter(t *testing.T) {
-
 	config := `
 baseURL = "https://example.com"
 defaultContentLanguage = "en"
@@ -147,5 +145,4 @@ Some content.
 	b.AssertFileContent("public/myblog/p1/index.html", "Single: A page|Hello|en|RelPermalink: /myblog/p1/|Permalink: https://example.com/myblog/p1/|")
 	b.AssertFileContent("public/myblog/p2/index.html", "Single: A page|Hello|en|RelPermalink: /myblog/p2/|Permalink: https://example.com/myblog/p2/|")
 	b.AssertFileContent("public/myblog/p3/index.html", "Single: A page|Hello|en|RelPermalink: /myblog/p3/|Permalink: https://example.com/myblog/p3/|")
-
 }

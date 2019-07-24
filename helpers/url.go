@@ -83,7 +83,7 @@ func sanitizeURLWithFlags(in string, f purell.NormalizationFlags) string {
 	return u.String()
 	// End temporary kludge
 
-	//return s
+	// return s
 
 }
 
@@ -103,7 +103,6 @@ func SanitizeURLKeepTrailingSlash(in string) string {
 //     urlize: vim-text-editor
 func (p *PathSpec) URLize(uri string) string {
 	return p.URLEscape(p.MakePathSanitized(uri))
-
 }
 
 // URLizeFilename creates an URL from a filename by esacaping unicode letters
@@ -130,7 +129,6 @@ func (p *PathSpec) URLEscape(uri string) string {
 //    path:   post/how-i-blog
 //    result: http://spf13.com/post/how-i-blog
 func MakePermalink(host, plink string) *url.URL {
-
 	base, err := url.Parse(host)
 	if err != nil {
 		panic(err)
@@ -267,7 +265,6 @@ func (p *PathSpec) RelURL(in string, addLanguage bool) string {
 // For relative URL entries on sites with a base url with a context root set (i.e. http://example.com/mysite),
 // relative URLs must not include the context root if canonifyURLs is enabled. But if it's disabled, it must be set.
 func AddContextRoot(baseURL, relativePath string) string {
-
 	url, err := url.Parse(baseURL)
 	if err != nil {
 		panic(err)

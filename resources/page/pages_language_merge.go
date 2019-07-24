@@ -17,9 +17,7 @@ import (
 	"fmt"
 )
 
-var (
-	_ pagesLanguageMerger = (*Pages)(nil)
-)
+var _ pagesLanguageMerger = (*Pages)(nil)
 
 type pagesLanguageMerger interface {
 	MergeByLanguage(other Pages) Pages

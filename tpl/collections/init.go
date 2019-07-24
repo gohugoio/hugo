@@ -116,10 +116,12 @@ func init() {
 			[][2]string{
 				{
 					`{{ (querify "foo" 1 "bar" 2 "baz" "with spaces" "qux" "this&that=those") | safeHTML }}`,
-					`bar=2&baz=with+spaces&foo=1&qux=this%26that%3Dthose`},
+					`bar=2&baz=with+spaces&foo=1&qux=this%26that%3Dthose`,
+				},
 				{
 					`<a href="https://www.google.com?{{ (querify "q" "test" "page" 3) | safeURL }}">Search</a>`,
-					`<a href="https://www.google.com?page=3&amp;q=test">Search</a>`},
+					`<a href="https://www.google.com?page=3&amp;q=test">Search</a>`,
+				},
 			},
 		)
 
@@ -186,15 +188,18 @@ func init() {
 		ns.AddMethodMapping(ctx.Merge,
 			[]string{"merge"},
 			[][2]string{
-				{`{{ dict "title" "Hugo Rocks!" | collections.Merge (dict "title" "Default Title" "description" "Yes, Hugo Rocks!") | sort }}`,
-					`[Yes, Hugo Rocks! Hugo Rocks!]`},
-				{`{{  merge (dict "title" "Default Title" "description" "Yes, Hugo Rocks!") (dict "title" "Hugo Rocks!") | sort }}`,
-					`[Yes, Hugo Rocks! Hugo Rocks!]`},
+				{
+					`{{ dict "title" "Hugo Rocks!" | collections.Merge (dict "title" "Default Title" "description" "Yes, Hugo Rocks!") | sort }}`,
+					`[Yes, Hugo Rocks! Hugo Rocks!]`,
+				},
+				{
+					`{{  merge (dict "title" "Default Title" "description" "Yes, Hugo Rocks!") (dict "title" "Hugo Rocks!") | sort }}`,
+					`[Yes, Hugo Rocks! Hugo Rocks!]`,
+				},
 			},
 		)
 
 		return ns
-
 	}
 
 	internal.AddTemplateFuncsNamespace(f)

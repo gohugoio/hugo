@@ -20,7 +20,6 @@ import (
 )
 
 func TestHashFromAlgo(t *testing.T) {
-
 	for _, algo := range []struct {
 		name string
 		bits int
@@ -31,7 +30,6 @@ func TestHashFromAlgo(t *testing.T) {
 		{"sha512", 512},
 		{"shaman", -1},
 	} {
-
 		t.Run(algo.name, func(t *testing.T) {
 			assert := require.New(t)
 			h, err := newHash(algo.name)
@@ -42,7 +40,6 @@ func TestHashFromAlgo(t *testing.T) {
 				assert.Error(err)
 				assert.Contains(err.Error(), "use either md5, sha256, sha384 or sha512")
 			}
-
 		})
 	}
 }

@@ -246,12 +246,10 @@ func TestParamsKeysToLower(t *testing.T) {
 	require.Contains(t, result, "PARAMS SITE GLOBAL1: global-site")
 	require.Contains(t, result, "PARAMS SITE GLOBAL2: global-site")
 	require.Contains(t, result, "PARAMS SITE GLOBAL3: global-site")
-
 }
 
 func BenchmarkTemplateParamsKeysToLower(b *testing.B) {
 	templ, err := template.New("foo").Funcs(testFuncs).Parse(paramsTempl)
-
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -321,7 +319,6 @@ Pretty First3: {{ $__amber_4.COLORS.PRETTY.FIRST}}
 	require.Contains(t, result, "Pretty First1: Indigo")
 	require.Contains(t, result, "Pretty First2: Indigo")
 	require.Contains(t, result, "Pretty First3: Indigo")
-
 }
 
 func TestParamsKeysToLowerInBlockTemplate(t *testing.T) {
@@ -366,7 +363,6 @@ P2: {{ .Params.LOWER }}
 
 // Issue #2927
 func TestTransformRecursiveTemplate(t *testing.T) {
-
 	recursive := `
 {{ define "menu-nodes" }}
 {{ template "menu-node" }}
@@ -382,7 +378,6 @@ func TestTransformRecursiveTemplate(t *testing.T) {
 
 	c := newTemplateContext(createParseTreeLookup(templ))
 	c.applyTransformations(templ.Tree.Root)
-
 }
 
 type I interface {
@@ -462,11 +457,9 @@ func TestInsertIsZeroFunc(t *testing.T) {
 		assert.Contains(result, ".TimeZero1: other-file-template: FALSE")
 		assert.Contains(result, ".NonEmptyInterfaceTypedNil: FALSE")
 	}
-
 }
 
 func TestCollectInfo(t *testing.T) {
-
 	configStr := `{ "version": 42 }`
 
 	tests := []struct {
@@ -504,11 +497,9 @@ func TestCollectInfo(t *testing.T) {
 			assert.Equal(test.expected, c.Info)
 		})
 	}
-
 }
 
 func TestPartialReturn(t *testing.T) {
-
 	tests := []struct {
 		name      string
 		tplString string
@@ -544,8 +535,6 @@ func TestPartialReturn(t *testing.T) {
 			// Just check that it doesn't fail in this test. We have functional tests
 			// in hugoblib.
 			assert.NoError(err)
-
 		})
 	}
-
 }

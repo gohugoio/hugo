@@ -228,7 +228,6 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 		}
 
 		return err
-
 	}
 
 	if err := memStats(); err != nil {
@@ -262,7 +261,6 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 			jww.FEEDBACK.Printf("Watching for changes in %s\n", group)
 		}
 		watcher, err := c.newWatcher(watchDirs...)
-
 		if err != nil {
 			return err
 		}
@@ -272,7 +270,6 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 	}
 
 	return c.serve(sc)
-
 }
 
 func getRootWatchDirsStr(baseDir string, watchDirs []string) string {
@@ -396,8 +393,8 @@ var logErrorRe = regexp.MustCompile(`(?s)ERROR \d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{
 func removeErrorPrefixFromLog(content string) string {
 	return logErrorRe.ReplaceAllLiteralString(content, "")
 }
-func (c *commandeer) serve(s *serverCmd) error {
 
+func (c *commandeer) serve(s *serverCmd) error {
 	isMultiHost := c.hugo.IsMultihost()
 
 	var (
@@ -435,7 +432,7 @@ func (c *commandeer) serve(s *serverCmd) error {
 		livereload.Initialize()
 	}
 
-	var sigs = make(chan os.Signal, 1)
+	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
 	for i := range baseURLs {

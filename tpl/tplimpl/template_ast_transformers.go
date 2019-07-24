@@ -90,7 +90,8 @@ func newTemplateContext(lookupFn func(name string) *parse.Tree) *templateContext
 		lookupFn: lookupFn,
 		decl:     make(map[string]string),
 		visited:  make(map[string]bool),
-		notFound: make(map[string]bool)}
+		notFound: make(map[string]bool),
+	}
 }
 
 func createParseTreeLookup(templ *template.Template) func(nn string) *parse.Tree {
@@ -163,7 +164,6 @@ func (c *templateContext) wrapInPartialReturnWrapper(n *parse.ListNode) *parse.L
 	withNode.List.Nodes = append(n.Nodes, retn)
 
 	return wrapper
-
 }
 
 // The truth logic in Go's template package is broken for certain values
@@ -188,7 +188,6 @@ func (c *templateContext) wrapWithGetIf(p *parse.PipeNode) {
 	newCmd.Args = []parse.Node{firstArg, secondArg}
 
 	p.Cmds = []*parse.CommandNode{newCmd}
-
 }
 
 // applyTransformations do 3 things:
@@ -271,7 +270,6 @@ func (c *templateContext) updateIdentsIfNeeded(idents []string) {
 	for i := index; i < len(idents); i++ {
 		idents[i] = strings.ToLower(idents[i])
 	}
-
 }
 
 func (c *templateContext) hasIdent(idents []string, ident string) bool {
@@ -324,7 +322,6 @@ func (c *templateContext) collectConfig(n *parse.PipeNode) {
 			c.err = errors.Wrap(err, errMsg)
 		}
 	}
-
 }
 
 // collectInner determines if the given CommandNode represents a
@@ -351,7 +348,6 @@ func (c *templateContext) collectInner(n *parse.CommandNode) {
 			break
 		}
 	}
-
 }
 
 func (c *templateContext) collectReturnNode(n *parse.CommandNode) bool {
@@ -373,13 +369,11 @@ func (c *templateContext) collectReturnNode(n *parse.CommandNode) bool {
 	c.returnNode.Args = c.returnNode.Args[1:]
 
 	return false
-
 }
 
 // indexOfReplacementStart will return the index of where to start doing replacement,
 // -1 if none needed.
 func (d decl) indexOfReplacementStart(idents []string) int {
-
 	l := len(idents)
 
 	if l == 0 {
@@ -464,7 +458,6 @@ func (d decl) indexOfReplacementStart(idents []string) int {
 		}
 	}
 	return idx
-
 }
 
 func (d decl) resolveVariables(idents []string) ([]string, bool) {
@@ -527,7 +520,6 @@ func (d decl) resolveVariables(idents []string) ([]string, bool) {
 	}
 
 	return append(replaced, idents[1:]...), true
-
 }
 
 func (d decl) isKeyword(s string) bool {

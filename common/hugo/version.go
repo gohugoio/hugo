@@ -146,7 +146,6 @@ func BuildVersionString() string {
 	}
 
 	return fmt.Sprintf("%s %s %s BuildDate: %s", program, version, osArch, date)
-
 }
 
 func version(version float32, patchVersion int, suffix string) string {
@@ -247,5 +246,4 @@ func goMinorVersion(version string) int {
 	}
 	i, _ := strconv.Atoi(strings.Split(version, ".")[1])
 	return i
-
 }

@@ -129,13 +129,12 @@ func (c *Client) Concat(targetPath string, r resource.Resources) (resource.Resou
 				Fs:                 c.rs.FileCaches.AssetsCache().Fs,
 				LazyPublish:        true,
 				OpenReadSeekCloser: concatr,
-				RelTargetFilename:  filepath.Clean(targetPath)})
-
+				RelTargetFilename:  filepath.Clean(targetPath),
+			})
 		if err != nil {
 			return nil, err
 		}
 
 		return composite, nil
 	})
-
 }

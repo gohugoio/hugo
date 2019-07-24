@@ -79,7 +79,6 @@ func (t testContentResource) Key() string {
 }
 
 func TestUnmarshal(t *testing.T) {
-
 	v := viper.New()
 	ns := New(newDeps(v))
 	assert := require.New(t)
@@ -120,21 +119,17 @@ func TestUnmarshal(t *testing.T) {
 		}},
 		{testContentResource{key: "r1", content: `a;b;c`, mime: media.CSVType}, map[string]interface{}{"delimiter": ";"}, func(r [][]string) {
 			assert.Equal(r, [][]string{{"a", "b", "c"}})
-
 		}},
 		{"a,b,c", nil, func(r [][]string) {
 			assert.Equal(r, [][]string{{"a", "b", "c"}})
-
 		}},
 		{"a;b;c", map[string]interface{}{"delimiter": ";"}, func(r [][]string) {
 			assert.Equal(r, [][]string{{"a", "b", "c"}})
-
 		}},
 		{testContentResource{key: "r1", content: `
 % This is a comment
 a;b;c`, mime: media.CSVType}, map[string]interface{}{"DElimiter": ";", "Comment": "%"}, func(r [][]string) {
 			assert.Equal(r, [][]string{{"a", "b", "c"}})
-
 		}},
 		// errors
 		{"thisisnotavaliddataformat", nil, false},

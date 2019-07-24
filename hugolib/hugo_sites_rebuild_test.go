@@ -18,7 +18,6 @@ import (
 )
 
 func TestSitesRebuild(t *testing.T) {
-
 	configFile := `
 baseURL = "https://example.com"
 title = "Rebuild this"
@@ -79,5 +78,4 @@ Edited content.
 
 	// https://github.com/gohugoio/hugo/issues/5833
 	b.AssertFileContent("public/index.html", "* Page Pages: Page 1 edit|Summary: Edited summary|Content: <p>Edited content.</p>")
-
 }

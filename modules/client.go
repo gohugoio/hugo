@@ -24,13 +24,12 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
+	"time"
 
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/gohugoio/hugo/common/loggers"
-
-	"strings"
-	"time"
 
 	"github.com/gohugoio/hugo/config"
 
@@ -42,9 +41,7 @@ import (
 	"github.com/spf13/afero"
 )
 
-var (
-	fileSeparator = string(os.PathSeparator)
-)
+var fileSeparator = string(os.PathSeparator)
 
 const (
 	goBinaryStatusOK goBinaryStatus = iota
@@ -86,7 +83,6 @@ func NewClient(cfg ClientConfig) *Client {
 	if cfg.CacheDir != "" {
 		// Module cache stored below $GOPATH/pkg
 		config.SetEnvVars(&env, "GOPATH", cfg.CacheDir)
-
 	}
 
 	logger := cfg.Logger
@@ -102,7 +98,8 @@ func NewClient(cfg ClientConfig) *Client {
 		logger:            logger,
 		moduleConfig:      mcfg,
 		environ:           env,
-		GoModulesFilename: goModFilename}
+		GoModulesFilename: goModFilename,
+	}
 }
 
 // Client contains most of the API provided by this package.
@@ -159,7 +156,6 @@ func (c *Client) Graph(w io.Writer) error {
 				// Local dir.
 				dep += " => " + replace.Dir()
 			}
-
 		}
 		fmt.Fprintln(w, prefix+dep)
 	}
@@ -325,7 +321,6 @@ func (c *Client) listGoMods() (goModules, error) {
 	}
 
 	return modules, err
-
 }
 
 func (c *Client) rewriteGoMod(name string, isGoMod map[string]bool) error {
@@ -390,7 +385,6 @@ func (c *Client) rewriteGoModRewrite(name string, isGoMod map[string]bool) ([]by
 	}
 
 	return b.Bytes(), nil
-
 }
 
 func (c *Client) rmVendorDir(vendorDir string) error {
@@ -414,7 +408,6 @@ func (c *Client) runGo(
 	ctx context.Context,
 	stdout io.Writer,
 	args ...string) error {
-
 	if c.goBinaryStatus != 0 {
 		return nil
 	}

@@ -129,7 +129,6 @@ Partial Site Global: {{ site.Params.COLOR }}|{{ site.Params.COLORS.YELLOW }}
 `)
 
 	writeToFs(t, fs, "config.toml", caseMixingSiteConfigTOML)
-
 }
 
 func TestCaseInsensitiveConfigurationVariations(t *testing.T) {
@@ -182,7 +181,6 @@ Site Colors: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}
 `)
 
 	sites, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
-
 	if err != nil {
 		t.Fatalf("Failed to create sites: %s", err)
 	}
@@ -252,13 +250,10 @@ func TestCaseInsensitiveConfigurationForAllTemplateEngines(t *testing.T) {
 		{"ace", noOp},
 	} {
 		doTestCaseInsensitiveConfigurationForTemplateEngine(t, config.suffix, config.templateFixer)
-
 	}
-
 }
 
 func doTestCaseInsensitiveConfigurationForTemplateEngine(t *testing.T, suffix string, templateFixer func(s string) string) {
-
 	mm := afero.NewMemMapFs()
 
 	caseMixingTestsWriteCommonSources(t, mm)
@@ -288,7 +283,6 @@ p
 	writeSource(t, fs, filepath.Join("layouts", "_default", fmt.Sprintf("single.%s", suffix)), templ)
 
 	sites, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
-
 	if err != nil {
 		t.Fatalf("Failed to create sites: %s", err)
 	}
@@ -305,5 +299,4 @@ p
 		"Shortcode Page: red|heavenly",
 		"Shortcode Site: green|yellow",
 	)
-
 }

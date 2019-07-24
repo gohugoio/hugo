@@ -108,7 +108,6 @@ func (l *absurllexer) posAfterURL(q []byte) int {
 	return bytes.IndexFunc(l.content[l.pos:], func(r rune) bool {
 		return r == '>' || unicode.IsSpace(r)
 	})
-
 }
 
 // handle URLs in srcset.
@@ -165,7 +164,6 @@ func checkCandidateSrcset(l *absurllexer) {
 
 	l.pos += len(section)
 	l.start = l.pos
-
 }
 
 // main loop
@@ -215,12 +213,12 @@ func (l *absurllexer) replace() {
 }
 
 func doReplace(path string, ct transform.FromTo, quotes [][]byte) {
-
 	lexer := &absurllexer{
 		content: ct.From().Bytes(),
 		w:       ct.To(),
 		path:    []byte(path),
-		quotes:  quotes}
+		quotes:  quotes,
+	}
 
 	lexer.replace()
 }
@@ -233,7 +231,8 @@ type absURLReplacer struct {
 func newAbsURLReplacer() *absURLReplacer {
 	return &absURLReplacer{
 		htmlQuotes: [][]byte{[]byte("\""), []byte("'")},
-		xmlQuotes:  [][]byte{[]byte("&#34;"), []byte("&#39;")}}
+		xmlQuotes:  [][]byte{[]byte("&#34;"), []byte("&#39;")},
+	}
 }
 
 func (au *absURLReplacer) replaceInHTML(path string, ct transform.FromTo) {

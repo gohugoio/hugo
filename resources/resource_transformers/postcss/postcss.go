@@ -16,12 +16,11 @@ package postcss
 import (
 	"io"
 	"path/filepath"
+	"os"
+	"os/exec"
 
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/pkg/errors"
-
-	"os"
-	"os/exec"
 
 	"github.com/mitchellh/mapstructure"
 
@@ -97,7 +96,6 @@ func (t *postcssTransformation) Key() resources.ResourceTransformationKey {
 // npm install -g postcss-cli
 // npm install -g autoprefixer
 func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
-
 	const localPostCSSPath = "node_modules/.bin/"
 	const binaryName = "postcss"
 

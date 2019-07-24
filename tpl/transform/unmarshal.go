@@ -36,7 +36,7 @@ func (ns *Namespace) Unmarshal(args ...interface{}) (interface{}, error) {
 	}
 
 	var data interface{}
-	var decoder = metadecoders.Default
+	decoder := metadecoders.Default
 
 	if len(args) == 1 {
 		data = args[0]

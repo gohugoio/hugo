@@ -53,7 +53,6 @@ func TestDefaultTypes(t *testing.T) {
 	}
 
 	require.Equal(t, 17, len(DefaultTypes))
-
 }
 
 func TestGetByType(t *testing.T) {
@@ -135,12 +134,10 @@ func TestFromExtensionMultipleSuffixes(t *testing.T) {
 	assert.Equal("image/svg+xml", tp.String())
 	assert.True(found)
 	assert.Equal(".svg", tp.FullSuffix())
-
 }
 
 func TestDecodeTypes(t *testing.T) {
-
-	var tests = []struct {
+	tests := []struct {
 		name        string
 		maps        []map[string]interface{}
 		shouldError bool
@@ -151,7 +148,10 @@ func TestDecodeTypes(t *testing.T) {
 			[]map[string]interface{}{
 				{
 					"application/json": map[string]interface{}{
-						"suffixes": []string{"jasn"}}}},
+						"suffixes": []string{"jasn"},
+					},
+				},
+			},
 			false,
 			func(t *testing.T, name string, tt Types) {
 				require.Len(t, tt, len(DefaultTypes))
@@ -159,7 +159,8 @@ func TestDecodeTypes(t *testing.T) {
 				require.True(t, found)
 				require.Equal(t, "application/json", json.String(), name)
 				require.Equal(t, ".jasn", json.FullSuffix())
-			}},
+			},
+		},
 		{
 			"MIME suffix in key, multiple file suffixes, custom delimiter",
 			[]map[string]interface{}{
@@ -167,7 +168,9 @@ func TestDecodeTypes(t *testing.T) {
 					"application/hugo+hg": map[string]interface{}{
 						"suffixes":  []string{"hg1", "hg2"},
 						"Delimiter": "_",
-					}}},
+					},
+				},
+			},
 			false,
 			func(t *testing.T, name string, tt Types) {
 				require.Len(t, tt, len(DefaultTypes)+1)
@@ -180,14 +183,17 @@ func TestDecodeTypes(t *testing.T) {
 
 				hg, found = tt.GetByType("application/hugo+hg")
 				require.True(t, found)
-
-			}},
+			},
+		},
 		{
 			"Add custom media type",
 			[]map[string]interface{}{
 				{
 					"text/hugo+hgo": map[string]interface{}{
-						"Suffixes": []string{"hgo2"}}}},
+						"Suffixes": []string{"hgo2"},
+					},
+				},
+			},
 			false,
 			func(t *testing.T, name string, tt Types) {
 				require.Len(t, tt, len(DefaultTypes)+1)
@@ -199,7 +205,8 @@ func TestDecodeTypes(t *testing.T) {
 				hugo, found := tt.GetBySuffix("hgo2")
 				require.True(t, found)
 				require.Equal(t, "text/hugo+hgo", hugo.String(), name)
-			}},
+			},
+		},
 	}
 
 	for _, test := range tests {

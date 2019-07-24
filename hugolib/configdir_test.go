@@ -123,7 +123,6 @@ p3 = "p3params_no_production"
 	noMenus := cfg.Get("languages.no.menus.docs")
 	assert.NotNil(noMenus)
 	assert.Equal(1, len(noMenus.(([]map[string]interface{}))))
-
 }
 
 func TestLoadConfigDirError(t *testing.T) {
@@ -150,5 +149,4 @@ baseURL = "https://example.org"
 	fe := herrors.UnwrapErrorWithFileContext(err)
 	assert.NotNil(fe)
 	assert.Equal(filepath.FromSlash("config/development/config.toml"), fe.Position().Filename)
-
 }

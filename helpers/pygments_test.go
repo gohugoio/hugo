@@ -145,7 +145,6 @@ func TestChromaHTMLHighlight(t *testing.T) {
 	assert.NoError(err)
 
 	assert.Contains(result, `<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">echo</span> <span class="s2">&#34;Hello&#34;</span></code></pre></div>`)
-
 }
 
 func TestChromaHTMLFormatterFromOptions(t *testing.T) {
@@ -162,7 +161,6 @@ func TestChromaHTMLFormatterFromOptions(t *testing.T) {
 			assert.True(c.classes)
 			assert.False(c.lineNumbers)
 			assert.Equal(0, c.highlightRangesLen)
-
 		}},
 		{"", nil, nil, "style=monokai,noclasses=false", func(c chromaInfo) {
 			assert.True(c.classes)

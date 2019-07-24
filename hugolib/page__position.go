@@ -24,7 +24,6 @@ func newPagePosition(n *nextPrev) pagePosition {
 
 func newPagePositionInSection(n *nextPrev) pagePositionInSection {
 	return pagePositionInSection{nextPrev: n}
-
 }
 
 type nextPrev struct {

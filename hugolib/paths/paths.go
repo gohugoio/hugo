@@ -82,7 +82,6 @@ type Paths struct {
 func New(fs *hugofs.Fs, cfg config.Provider) (*Paths, error) {
 	baseURLstr := cfg.GetString("baseURL")
 	baseURL, err := newBaseURLFromString(baseURLstr)
-
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to create baseURL from %q:", baseURLstr)
 	}
@@ -106,7 +105,6 @@ func New(fs *hugofs.Fs, cfg config.Provider) (*Paths, error) {
 
 	if l, ok := cfg.(*langs.Language); ok {
 		language = l
-
 	}
 
 	if l, ok := cfg.Get("languagesSorted").(langs.Languages); ok {
@@ -268,7 +266,6 @@ func (p *Paths) RelPathify(filename string) string {
 	}
 
 	return strings.TrimPrefix(strings.TrimPrefix(filename, p.WorkingDir), FilePathSeparator)
-
 }
 
 // AbsPathify creates an absolute path if given a working dir and arelative path.

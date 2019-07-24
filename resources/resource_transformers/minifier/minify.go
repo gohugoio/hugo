@@ -54,6 +54,7 @@ func (c *Client) Minify(res resource.Resource) (resource.Resource, error) {
 		res,
 		&minifyTransformation{
 			rs: c.rs,
-			m:  c.m},
+			m:  c.m,
+		},
 	)
 }

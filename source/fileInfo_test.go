@@ -38,18 +38,15 @@ func TestFileInfo(t *testing.T) {
 			assert.Equal("b", f.Section())
 			assert.Equal(filepath.FromSlash("page"), f.TranslationBaseName())
 			assert.Equal(filepath.FromSlash("page"), f.BaseFileName())
-
 		}},
 		{filepath.FromSlash("/a/"), filepath.FromSlash("/a/b/c/d/page.md"), func(f *FileInfo) {
 			assert.Equal("b", f.Section())
-
 		}},
 		{filepath.FromSlash("/a/"), filepath.FromSlash("/a/b/page.en.MD"), func(f *FileInfo) {
 			assert.Equal("b", f.Section())
 			assert.Equal(filepath.FromSlash("b/page.en.MD"), f.Path())
 			assert.Equal(filepath.FromSlash("page"), f.TranslationBaseName())
 			assert.Equal(filepath.FromSlash("page.en"), f.BaseFileName())
-
 		}},
 	} {
 		path := strings.TrimPrefix(this.filename, this.base)
@@ -57,5 +54,4 @@ func TestFileInfo(t *testing.T) {
 		assert.NoError(err)
 		this.assert(f)
 	}
-
 }

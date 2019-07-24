@@ -93,5 +93,4 @@ func TestNoSymlinkFs(t *testing.T) {
 	f.Close()
 
 	// os.OpenFile(logFile, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
-
 }

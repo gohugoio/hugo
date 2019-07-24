@@ -627,7 +627,6 @@ func findDiffs(localFiles map[string]*localFile, remoteFiles map[string]*blob.Li
 //
 // The subslices are sorted by Local.SlashPath.
 func applyOrdering(ordering []*regexp.Regexp, uploads []*fileToUpload) [][]*fileToUpload {
-
 	// Sort the whole slice by Local.SlashPath first.
 	sort.Slice(uploads, func(i, j int) bool { return uploads[i].Local.SlashPath < uploads[j].Local.SlashPath })
 

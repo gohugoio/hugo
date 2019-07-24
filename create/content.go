@@ -16,14 +16,13 @@ package create
 
 import (
 	"bytes"
-
-	"github.com/pkg/errors"
-
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/hugofs/files"
 
@@ -130,7 +129,6 @@ func newContentFromDir(
 	sites *hugolib.HugoSites,
 	targetFs afero.Fs,
 	cm archetypeMap, name, targetPath string) error {
-
 	for _, f := range cm.otherFiles {
 		meta := f.Meta()
 		filename := meta.Path()
@@ -195,11 +193,9 @@ func mapArcheTypeDir(
 	ps *helpers.PathSpec,
 	fs afero.Fs,
 	archetypeDir string) (archetypeMap, error) {
-
 	var m archetypeMap
 
 	walkFn := func(path string, fi hugofs.FileMetaInfo, err error) error {
-
 		if err != nil {
 			return err
 		}
@@ -307,7 +303,6 @@ func resolveContentPath(sites *hugolib.HugoSites, fs afero.Fs, targetPath string
 	}
 
 	if siteContentDir == "" {
-
 	}
 
 	if siteContentDir != "" {
@@ -323,7 +318,6 @@ func resolveContentPath(sites *hugolib.HugoSites, fs afero.Fs, targetPath string
 		}
 		return s.PathSpec.AbsPathify(filepath.Join(contentDir, targetPath)), s
 	}
-
 }
 
 // FindArchetype takes a given kind/archetype of content and returns the path

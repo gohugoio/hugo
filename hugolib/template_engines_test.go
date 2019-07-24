@@ -54,11 +54,9 @@ func TestAllTemplateEngines(t *testing.T) {
 				doTestTemplateEngine(t, config.suffix, config.templateFixer)
 			})
 	}
-
 }
 
 func doTestTemplateEngine(t *testing.T, suffix string, templateFixer func(s string) string) {
-
 	cfg, fs := newTestCfg()
 
 	t.Log("Testing", suffix)
@@ -105,5 +103,4 @@ Shortcode: {{< myShort >}}
 		"Hello World",
 		"Shortcode: false",
 	)
-
 }

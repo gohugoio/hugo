@@ -179,7 +179,6 @@ type taxonomyNodeInfo struct {
 }
 
 func (t *taxonomyNodeInfo) UpdateFromPage(p page.Page) {
-
 	// Select the latest dates
 	t.dates.UpdateDateAndLastmodIfAfter(p)
 }

@@ -69,9 +69,11 @@ func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 		rootMapToReal.Insert(key, mappings)
 	}
 
-	rfs := &RootMappingFs{Fs: fs,
+	rfs := &RootMappingFs{
+		Fs:            fs,
 		virtualRoots:  rms,
-		rootMapToReal: rootMapToReal.Commit().Root()}
+		rootMapToReal: rootMapToReal.Commit().Root(),
+	}
 
 	return rfs, nil
 }
@@ -158,7 +160,6 @@ func (fs *RootMappingFs) LstatIfPossible(name string) (os.FileInfo, bool, error)
 		return nil, b, err
 	}
 	return fis[0], b, nil
-
 }
 
 func (fs *RootMappingFs) virtualDirOpener(name string, isRoot bool) func() (afero.File, error) {
@@ -166,7 +167,6 @@ func (fs *RootMappingFs) virtualDirOpener(name string, isRoot bool) func() (afer
 }
 
 func (fs *RootMappingFs) doLstat(name string, allowMultiple bool) ([]FileMetaInfo, bool, error) {
-
 	if fs.isRoot(name) {
 		return []FileMetaInfo{newDirNameOnlyFileInfo(name, true, fs.virtualDirOpener(name, true))}, false, nil
 	}
@@ -218,7 +218,6 @@ func (fs *RootMappingFs) doLstat(name string, allowMultiple bool) ([]FileMetaInf
 	}
 
 	return []FileMetaInfo{decorateFileInfo(fi, fs, opener, "", "", root.Meta)}, b, nil
-
 }
 
 // Open opens the namedrootMappingFile file for reading.
@@ -243,7 +242,6 @@ func (fs *RootMappingFs) Open(name string) (afero.File, error) {
 	}
 
 	return fs.newUnionFile(fis...)
-
 }
 
 // Stat returns the os.FileInfo structure describing a given file.  If there is
@@ -251,7 +249,6 @@ func (fs *RootMappingFs) Open(name string) (afero.File, error) {
 func (fs *RootMappingFs) Stat(name string) (os.FileInfo, error) {
 	fi, _, err := fs.LstatIfPossible(name)
 	return fi, err
-
 }
 
 // Filter creates a copy of this filesystem with the applied filter.
@@ -262,7 +259,6 @@ func (fs RootMappingFs) Filter(f func(m RootMapping) bool) *RootMappingFs {
 
 func (fs *RootMappingFs) isRoot(name string) bool {
 	return name == "" || name == filepathSeparator
-
 }
 
 func (fs *RootMappingFs) getRoots(name string) []RootMapping {
@@ -344,7 +340,6 @@ func (fs *RootMappingFs) newUnionFile(fis ...FileMetaInfo) (afero.File, error) {
 	}
 
 	return uf, nil
-
 }
 
 func (fs *RootMappingFs) statRoot(root RootMapping, name string) (os.FileInfo, bool, error) {
@@ -378,7 +373,6 @@ func (fs *RootMappingFs) statRoot(root RootMapping, name string) (os.FileInfo, b
 	}
 
 	return decorateFileInfo(fi, fs.Fs, opener, "", "", root.Meta), b, nil
-
 }
 
 type rootMappingFile struct {

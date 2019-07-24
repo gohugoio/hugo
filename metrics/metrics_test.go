@@ -39,7 +39,6 @@ func TestSimilarPercentage(t *testing.T) {
 	assert.Equal(66, howSimilar("The Hugo", "The Hugo Rules"))
 	assert.Equal(0, howSimilar("Totally different", "Not Same"))
 	assert.Equal(14, howSimilar(sentence, sentenceReversed))
-
 }
 
 func TestSimilarPercentageNonString(t *testing.T) {

@@ -122,7 +122,6 @@ func TestLanguageRootMapping(t *testing.T) {
 
 	assert.Equal([]string{"blog", "docs"}, getDirnames("content", rfsSv))
 	assert.Equal([]string{"blog", "docs"}, getDirnames("content", rfs))
-
 }
 
 func TestRootMappingFsDirnames(t *testing.T) {
@@ -150,7 +149,6 @@ func TestRootMappingFsDirnames(t *testing.T) {
 	dirnames, err := root.Readdirnames(-1)
 	assert.NoError(err)
 	assert.Equal([]string{"bf1", "cf2", "af3"}, dirnames)
-
 }
 
 func TestRootMappingFsFilename(t *testing.T) {
@@ -189,15 +187,18 @@ func TestRootMappingFsMount(t *testing.T) {
 
 	bfs := afero.NewBasePathFs(fs, "themes/a").(*afero.BasePathFs)
 	rm := []RootMapping{
-		RootMapping{From: "content/blog",
+		RootMapping{
+			From: "content/blog",
 			To:   "mynoblogcontent",
 			Meta: FileMeta{"lang": "no"},
 		},
-		RootMapping{From: "content/blog",
+		RootMapping{
+			From: "content/blog",
 			To:   "myenblogcontent",
 			Meta: FileMeta{"lang": "en"},
 		},
-		RootMapping{From: "content/blog",
+		RootMapping{
+			From: "content/blog",
 			To:   "mysvblogcontent",
 			Meta: FileMeta{"lang": "sv"},
 		},
@@ -235,7 +236,6 @@ func TestRootMappingFsMount(t *testing.T) {
 	c, err := ioutil.ReadAll(tf)
 	assert.NoError(err)
 	assert.Equal("some no content", string(c))
-
 }
 
 func TestRootMappingFsOs(t *testing.T) {
@@ -267,5 +267,4 @@ func TestRootMappingFsOs(t *testing.T) {
 	dirnames, err := root.Readdirnames(-1)
 	assert.NoError(err)
 	assert.Equal([]string{"bf1", "cf2", "af3"}, dirnames)
-
 }

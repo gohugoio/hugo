@@ -19,6 +19,9 @@ import (
 	"strings"
 	texttemplate "text/template"
 	"text/template/parse"
+	"os"
+	"path/filepath"
+	"sync"
 
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/tpl/tplimpl/embedded"
@@ -26,12 +29,7 @@ import (
 
 	"github.com/eknkc/amber"
 
-	"os"
-
 	"github.com/gohugoio/hugo/output"
-
-	"path/filepath"
-	"sync"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -125,7 +123,6 @@ func templateBaseName(typ templateType, name string) string {
 	default:
 		panic("not implemented")
 	}
-
 }
 
 func (t *templateHandler) addShortcodeVariant(name string, info tpl.Info, templ tpl.Template) {
@@ -171,7 +168,6 @@ func (t *templateHandler) NewTextTemplate() tpl.TemplateParseFinder {
 		tt,
 		new(nopLookupVariant),
 	}
-
 }
 
 type nopLookupVariant int
@@ -188,7 +184,6 @@ func (t *templateHandler) Debug() {
 // Lookup tries to find a template with the given name in both template
 // collections: First HTML, then the plain text template collection.
 func (t *templateHandler) Lookup(name string) (tpl.Template, bool) {
-
 	if strings.HasPrefix(name, textTmplNamePrefix) {
 		// The caller has explicitly asked for a text template, so only look
 		// in the text template collection.
@@ -204,7 +199,6 @@ func (t *templateHandler) Lookup(name string) (tpl.Template, bool) {
 	}
 
 	return t.applyTemplateInfo(t.text.Lookup(name))
-
 }
 
 func (t *templateHandler) applyTemplateInfo(templ tpl.Template, found bool) (tpl.Template, bool) {
@@ -240,8 +234,8 @@ func (t *templateHandler) LookupVariant(name string, variants tpl.TemplateVarian
 		Info:                 sv.info,
 		Metrics:              t.Deps.Metrics,
 		Fs:                   t.layoutsFs,
-		NameBaseTemplateName: t.html.nameBaseTemplateName}, true, more
-
+		NameBaseTemplateName: t.html.nameBaseTemplateName,
+	}, true, more
 }
 
 func (t *textTemplates) LookupVariant(name string, variants tpl.TemplateVariants) (tpl.Template, bool, bool) {
@@ -323,7 +317,6 @@ func (t *templateHandler) clone(d *deps.Deps) *templateHandler {
 	}
 
 	return c
-
 }
 
 func newTemplateAdapter(deps *deps.Deps) *templateHandler {
@@ -355,7 +348,6 @@ func newTemplateAdapter(deps *deps.Deps) *templateHandler {
 	common.handler = h
 
 	return h
-
 }
 
 // Shared by both HTML and text templates.
@@ -370,6 +362,7 @@ type templatesCommon struct {
 	// pass.
 	transformNotFound map[string]bool
 }
+
 type htmlTemplates struct {
 	mu sync.RWMutex
 
@@ -446,7 +439,6 @@ func (t *textTemplates) Lookup(name string) (tpl.Template, bool) {
 }
 
 func (t *textTemplates) lookup(name string) *texttemplate.Template {
-
 	// Need to check in the overlay registry first as it will also be found below.
 	if t.overlays != nil {
 		if templ, ok := t.overlays[name]; ok {
@@ -493,7 +485,6 @@ func (t *textTemplates) setFuncs(funcMap map[string]interface{}) {
 // into, i.e. "_internal" etc.
 func (t *templateHandler) LoadTemplates(prefix string) error {
 	return t.loadTemplates(prefix)
-
 }
 
 func (t *htmlTemplates) addTemplateIn(tt *template.Template, name, tpl string) (*templateContext, error) {
@@ -710,7 +701,6 @@ func (t *templateHandler) RebuildClone() {
 }
 
 func (t *templateHandler) loadTemplates(prefix string) error {
-
 	walker := func(path string, fi hugofs.FileMetaInfo, err error) error {
 		if err != nil || fi.IsDir() {
 			return err
@@ -756,11 +746,9 @@ func (t *templateHandler) loadTemplates(prefix string) error {
 	}
 
 	return nil
-
 }
 
 func (t *templateHandler) initFuncs() {
-
 	// Both template types will get their own funcster instance, which
 	// in the current case contains the same set of funcs.
 	funcMap := createFuncMap(t.Deps)
@@ -801,7 +789,6 @@ func (t *templateHandler) initFuncs() {
 		}
 	}
 	amberMu.Unlock()
-
 }
 
 func (t *templateHandler) getTemplateHandler(name string) templateLoader {
@@ -817,7 +804,6 @@ func (t *templateHandler) handleMaster(name, overlayFilename, masterFilename str
 }
 
 func (t *htmlTemplates) handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (templateInfo, error)) error {
-
 	masterTpl := t.lookup(masterFilename)
 
 	if masterTpl == nil {
@@ -854,11 +840,9 @@ func (t *htmlTemplates) handleMaster(name, overlayFilename, masterFilename strin
 	t.nameBaseTemplateName[name] = masterFilename
 
 	return err
-
 }
 
 func (t *textTemplates) handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (templateInfo, error)) error {
-
 	name = strings.TrimPrefix(name, textTmplNamePrefix)
 	masterTpl := t.lookup(masterFilename)
 
@@ -893,7 +877,6 @@ func (t *textTemplates) handleMaster(name, overlayFilename, masterFilename strin
 	t.nameBaseTemplateName[name] = templ.filename
 
 	return err
-
 }
 
 func removeLeadingBOM(s string) string {
@@ -909,7 +892,6 @@ func removeLeadingBOM(s string) string {
 	}
 
 	return s
-
 }
 
 func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) error {
@@ -944,7 +926,6 @@ func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) e
 		withoutExt := strings.TrimSuffix(name, filepath.Ext(name))
 		templateName := withoutExt + ".html"
 		b, err := afero.ReadFile(t.Layouts.Fs, path)
-
 		if err != nil {
 			return err
 		}
@@ -975,7 +956,6 @@ func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) e
 		//	Only HTML support for Ace
 		var innerContent, baseContent []byte
 		innerContent, err := afero.ReadFile(t.Layouts.Fs, path)
-
 		if err != nil {
 			return err
 		}
@@ -995,7 +975,6 @@ func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) e
 		}
 
 		templ, err := getTemplate(path)
-
 		if err != nil {
 			return err
 		}
@@ -1024,12 +1003,10 @@ func (t *templateHandler) loadEmbedded() error {
 					return err
 				}
 			}
-
 		}
 	}
 
 	return nil
-
 }
 
 func (t *templateHandler) addInternalTemplate(name, tpl string) error {

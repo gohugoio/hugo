@@ -153,7 +153,7 @@ func (s *Site) assembleSections() pageStatePages {
 		inPages.Insert([]byte(pagePath), p)
 	}
 
-	var rootPages = inPages.Commit().Root()
+	rootPages := inPages.Commit().Root()
 
 	rootPages.Walk(func(path []byte, v interface{}) bool {
 		p := v.(*pageState)
@@ -240,5 +240,4 @@ func (s *Site) assembleSections() pageStatePages {
 	s.Info.Params()[sectionsParamIdLower] = mainSections
 
 	return newPages
-
 }

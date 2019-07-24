@@ -35,7 +35,6 @@ type LanguagesConfig struct {
 }
 
 func LoadLanguageSettings(cfg config.Provider, oldLangs Languages) (c LanguagesConfig, err error) {
-
 	defaultLang := cfg.GetString("defaultContentLanguage")
 	if defaultLang == "" {
 		defaultLang = "en"
@@ -160,7 +159,6 @@ func LoadLanguageSettings(cfg config.Provider, oldLangs Languages) (c LanguagesC
 				return c, errors.New("baseURL must be set on all or none of the languages")
 			}
 		}
-
 	}
 
 	return c, nil
@@ -172,7 +170,6 @@ func toSortedLanguages(cfg config.Provider, l map[string]interface{}) (Languages
 
 	for lang, langConf := range l {
 		langsMap, err := cast.ToStringMapE(langConf)
-
 		if err != nil {
 			return nil, fmt.Errorf("Language config is not a map: %T", langConf)
 		}

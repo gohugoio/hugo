@@ -16,6 +16,7 @@ package resources
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/gohugoio/hugo/resources/internal"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -23,14 +24,10 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cast"
 
-	"strings"
-
 	"github.com/gohugoio/hugo/common/maps"
 )
 
-var (
-	_ metaAssigner = (*genericResource)(nil)
-)
+var _ metaAssigner = (*genericResource)(nil)
 
 // metaAssigner allows updating metadata in resources that supports it.
 type metaAssigner interface {

@@ -40,7 +40,6 @@ func createDefaultOutputFormats(allFormats output.Formats, cfg config.Provider) 
 		kindRobotsTXT: {robotsOut},
 		kind404:       {htmlOut},
 	}
-
 }
 
 func createSiteOutputFormats(allFormats output.Formats, cfg config.Provider) (map[string]output.Formats, error) {
@@ -87,5 +86,4 @@ func createSiteOutputFormats(allFormats output.Formats, cfg config.Provider) (ma
 	}
 
 	return outFormats, nil
-
 }

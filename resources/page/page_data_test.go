@@ -53,5 +53,4 @@ func TestPageData(t *testing.T) {
 	assert.NoError(templ.Execute(&buff, data))
 
 	assert.Contains(buff.String(), "Pages(2)")
-
 }

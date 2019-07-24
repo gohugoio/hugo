@@ -181,7 +181,6 @@ func ReaderToString(lines io.Reader) string {
 
 // ReaderContains reports whether subslice is within r.
 func ReaderContains(r io.Reader, subslice []byte) bool {
-
 	if r == nil || len(subslice) == 0 {
 		return false
 	}
@@ -366,7 +365,6 @@ func Deprecated(object, item, alternative string, err bool) {
 
 	if err {
 		DistinctErrorLog.Printf("%s's %s is deprecated and will be removed in Hugo %s. %s", object, item, hugo.CurrentVersion.Next().ReleaseVersion(), alternative)
-
 	} else {
 		DistinctWarnLog.Printf("%s's %s is deprecated and will be removed in a future release. %s", object, item, alternative)
 	}

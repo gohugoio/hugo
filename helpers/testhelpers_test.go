@@ -30,7 +30,6 @@ func newTestCfgFor(fs *hugofs.Fs) *viper.Viper {
 	v.SetFs(fs.Source)
 
 	return v
-
 }
 
 func newTestCfg() *viper.Viper {

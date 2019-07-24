@@ -98,11 +98,9 @@ github.com/gohugoio/tests/hugo-modules-basic-test github.com/gohugoio/hugoTestMo
 
 	// Test Tidy
 	assert.NoError(client.Tidy())
-
 }
 
 func TestGetModlineSplitter(t *testing.T) {
-
 	assert := require.New(t)
 
 	gomodSplitter := getModlineSplitter(true)
@@ -113,5 +111,4 @@ func TestGetModlineSplitter(t *testing.T) {
 
 	gosumSplitter := getModlineSplitter(false)
 	assert.Equal([]string{"github.com/BurntSushi/toml", "v0.3.1"}, gosumSplitter("github.com/BurntSushi/toml v0.3.1"))
-
 }

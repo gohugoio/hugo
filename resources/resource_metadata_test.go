@@ -43,7 +43,6 @@ func TestAssignMetadata(t *testing.T) {
 			assert.Equal("My Resource", logo1.Title())
 			assert.Equal("My Name", logo1.Name())
 			assert.Equal("My Name", foo2.Name())
-
 		}},
 		{[]map[string]interface{}{
 			{
@@ -62,7 +61,6 @@ func TestAssignMetadata(t *testing.T) {
 			assert.Equal("My Name", foo2.Name())
 			assert.Equal("My Name", foo3.Name())
 			assert.Equal("My Resource", foo3.Title())
-
 		}},
 		{[]map[string]interface{}{
 			{
@@ -102,7 +100,6 @@ func TestAssignMetadata(t *testing.T) {
 
 			assert.Equal("logo", icon1)
 			assert.Equal("resource", icon2)
-
 		}},
 		{[]map[string]interface{}{
 			{
@@ -126,7 +123,6 @@ func TestAssignMetadata(t *testing.T) {
 			assert.Equal("Resource #5", foo3.Title())
 
 			assert.Equal(logo2, resources.GetMatch("logo name #1*"))
-
 		}},
 		{[]map[string]interface{}{
 			{
@@ -146,7 +142,6 @@ func TestAssignMetadata(t *testing.T) {
 			assert.Equal("Name #1", logo2.Name())
 			assert.Equal("Other Logo #2", logo1.Title())
 			assert.Equal("Name #2", logo1.Name())
-
 		}},
 		{[]map[string]interface{}{
 			{
@@ -166,7 +161,6 @@ func TestAssignMetadata(t *testing.T) {
 			assert.Equal("Name #1", logo2.Name())
 			assert.Equal("Other Logo #2", logo1.Title())
 			assert.Equal("Name #2", logo1.Name())
-
 		}},
 		{[]map[string]interface{}{
 			{
@@ -186,7 +180,6 @@ func TestAssignMetadata(t *testing.T) {
 			assert.Equal("Name #1", logo2.Name())
 			assert.Equal("Logo #2", logo1.Title())
 			assert.Equal("Name #2", logo1.Name())
-
 		}},
 		{[]map[string]interface{}{
 			{
@@ -195,7 +188,6 @@ func TestAssignMetadata(t *testing.T) {
 		}, func(err error) {
 			// Missing src
 			assert.Error(err)
-
 		}},
 		{[]map[string]interface{}{
 			{
@@ -205,7 +197,6 @@ func TestAssignMetadata(t *testing.T) {
 		}, func(err error) {
 			// Invalid pattern
 			assert.Error(err)
-
 		}},
 	} {
 
@@ -227,5 +218,4 @@ func TestAssignMetadata(t *testing.T) {
 
 		this.assertFunc(AssignMetadata(this.metaData, resources...))
 	}
-
 }

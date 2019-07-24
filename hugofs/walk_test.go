@@ -81,7 +81,6 @@ func TestWalkRootMappingFs(t *testing.T) {
 
 	assert.NoError(err)
 	assert.Equal([]string{"a/test.txt", "b/test.txt", "c/test.txt"}, names)
-
 }
 
 func skipSymlink() bool {
@@ -133,7 +132,6 @@ func TestWalkSymbolicLink(t *testing.T) {
 			// https://github.com/golang/go/issues/30520
 			// This is fixed in Go 1.13 and in the latest Go 1.12
 			t.Skip("skip this for Go <= 1.11 due to a bug in Go's stdlib")
-
 		}
 		assert := require.New(t)
 
@@ -145,7 +143,6 @@ func TestWalkSymbolicLink(t *testing.T) {
 		// Note: the docsreal folder is considered cyclic when walking from the root, but this works.
 		assert.Equal([]string{"b.txt", "docsreal/sub/a.txt"}, names)
 	})
-
 }
 
 func collectFilenames(fs afero.Fs, base, root string) ([]string, error) {
@@ -173,7 +170,6 @@ func collectFilenames(fs afero.Fs, base, root string) ([]string, error) {
 	err := w.Walk()
 
 	return names, err
-
 }
 
 func BenchmarkWalk(b *testing.B) {
@@ -221,5 +217,4 @@ func BenchmarkWalk(b *testing.B) {
 			b.Fatal(err)
 		}
 	}
-
 }

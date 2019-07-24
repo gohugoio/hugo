@@ -19,6 +19,7 @@ import (
 	"io"
 	"strings"
 	"time"
+	"path/filepath"
 
 	"github.com/gohugoio/hugo/resources/page"
 
@@ -34,14 +35,10 @@ import (
 
 	"github.com/gohugoio/hugo/hugolib"
 
-	"path/filepath"
-
 	"github.com/spf13/cobra"
 )
 
-var (
-	_ cmder = (*convertCmd)(nil)
-)
+var _ cmder = (*convertCmd)(nil)
 
 type convertCmd struct {
 	hugoBuilderCommon
@@ -234,7 +231,6 @@ func parseContentFile(r io.Reader) (parsedFile, error) {
 			pf.frontMatterSource = item.Val
 		}
 		return true
-
 	}
 
 	iter.PeekWalk(walkFn)
@@ -246,5 +242,4 @@ func parseContentFile(r io.Reader) (parsedFile, error) {
 	pf.frontMatter = metadata
 
 	return pf, nil
-
 }

@@ -78,7 +78,6 @@ T1: {{ $r.Content }}
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), `T1: moo{color:#fff}`)
-
 }
 
 func TestSCSSWithThemeOverrides(t *testing.T) {
@@ -164,7 +163,6 @@ T1: {{ $r.Content }}
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), `T1: moo{color:#ccc}boo{color:green}`)
-
 }
 
 func TestResourceChain(t *testing.T) {
@@ -205,7 +203,6 @@ T6: {{ $bundle1.Permalink }}
 
 			assert.False(b.CheckExists("public/styles/templ.min.css"))
 			b.AssertFileContent("public/styles/bundle1.css", `.home{color:blue}body{color:#333}`)
-
 		}},
 
 		{"minify", func() bool { return true }, func(b *sitesBuilder) {
@@ -277,11 +274,9 @@ T3: Content: {{ $combinedJs.Content }}|{{ $combinedJs.RelPermalink }}
 {{ $r := "Hugo Rocks!" | resources.FromString "rocks/hugo.txt" }}
 {{ $r.Content }}|{{ $r.RelPermalink }}|{{ $r.Permalink }}|{{ $r.MediaType.Type }}
 `)
-
 		}, func(b *sitesBuilder) {
 			b.AssertFileContent("public/index.html", `Hugo Rocks!|/rocks/hugo.txt|http://example.com/rocks/hugo.txt|text/plain`)
 			b.AssertFileContent("public/rocks/hugo.txt", "Hugo Rocks!")
-
 		}},
 		{"execute-as-template", func() bool {
 			// TODO(bep) eventually remove
@@ -296,10 +291,8 @@ T1: {{ $var }}
 {{ $result := "{{ .Kind | upper }}" | resources.FromString "mytpl.txt" | resources.ExecuteAsTemplate "result.txt" . }}
 T2: {{ $result.Content }}|{{ $result.RelPermalink}}|{{$result.MediaType.Type }}
 `)
-
 		}, func(b *sitesBuilder) {
 			b.AssertFileContent("public/index.html", `T2: HOME|/result.txt|text/plain`, `T1: Hugo Home`)
-
 		}},
 		{"fingerprint", func() bool { return true }, func(b *sitesBuilder) {
 			b.WithTemplates("home.html", `
@@ -321,7 +314,6 @@ T4: {{ $r2.Data.Integrity }}|
 			b.AssertFileContent("public/index.html", `T2: ab|/rocks/hugo.2d408a0717ec188158278a796c689044361dc6fdde28d6f04973b80896e1823975cdbf12eb63f9e0591328ee235d80e9b5bf1aa6a44f4617ff3caf6400eb172d.txt|text/plain|sha512-LUCKBxfsGIFYJ4p5bGiQRDYdxv3eKNbwSXO4CJbhgjl1zb8S62P54FkTKO4jXYDptb8apqRPRhf/PK9kAOsXLQ==|`)
 			b.AssertFileContent("public/index.html", `T3: ab|/rocks/hugo.187ef4436122d1cc2f40dc2b92f0eba0.txt|text/plain|md5-GH70Q2Ei0cwvQNwrkvDroA==|`)
 			b.AssertFileContent("public/index.html", `T4: sha256-Hgu9bGhroFC46wP/7txk/cnYCUf86CGrvl1tyNJSxaw=|`)
-
 		}},
 		// https://github.com/gohugoio/hugo/issues/5226
 		{"baseurl-path", func() bool { return true }, func(b *sitesBuilder) {
@@ -332,7 +324,6 @@ T1: {{ $r1.Permalink }}|{{ $r1.RelPermalink }}
 `)
 		}, func(b *sitesBuilder) {
 			b.AssertFileContent("public/index.html", `T1: https://example.com/hugo/rocks/hugo.txt|/hugo/rocks/hugo.txt`)
-
 		}},
 
 		// https://github.com/gohugoio/hugo/issues/4944
@@ -346,7 +337,6 @@ Inline: {{ $cssInline.Content }}
 Publish 1: {{ $cssPublish1.Content }} {{ $cssPublish1.RelPermalink }}
 Publish 2: {{ $cssPublish2.Permalink }}
 `)
-
 		}, func(b *sitesBuilder) {
 			b.AssertFileContent("public/index.html",
 				`Inline: body{color:green}`,
@@ -482,7 +472,6 @@ $color: #333;
 			test.prepare(b)
 			b.Build(BuildCfg{})
 			test.verify(b)
-
 		})
 	}
 }
@@ -501,5 +490,4 @@ func TestMultiSiteResource(t *testing.T) {
 	assert.False(b.CheckExists("public/en/text/pipes.txt"))
 	b.AssertFileContent("public/en/index.html", "Default Home Page", "String Resource: /blog/text/pipes.txt")
 	b.AssertFileContent("public/text/pipes.txt", "Hugo Pipes")
-
 }

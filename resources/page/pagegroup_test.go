@@ -214,7 +214,6 @@ func TestGroupByParamCalledWithCapitalLetterString(t *testing.T) {
 
 	assert.NoError(err)
 	assert.Equal(testStr, groups[0].Key)
-
 }
 
 func TestGroupByParamCalledWithSomeUnavailableParams(t *testing.T) {

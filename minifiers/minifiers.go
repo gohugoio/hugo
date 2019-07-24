@@ -94,7 +94,6 @@ func New(mediaTypes media.Types, outputFormats output.Formats) Client {
 	}
 
 	return Client{m: m}
-
 }
 
 func addMinifier(m *minify.M, mt media.Types, suffix string, min minify.Minifier) {

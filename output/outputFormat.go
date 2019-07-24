@@ -200,7 +200,6 @@ func (formats Formats) Less(i, j int) bool {
 	}
 
 	return fi.Weight > 0 && fi.Weight < fj.Weight
-
 }
 
 // GetBySuffix gets a output format given as suffix, e.g. "html".

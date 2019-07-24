@@ -20,7 +20,6 @@ import (
 )
 
 func TestProbablyEq(t *testing.T) {
-
 	p1, p2, p3 := &testPage{title: "p1"}, &testPage{title: "p2"}, &testPage{title: "p3"}
 	pages12 := Pages{p1, p2}
 	pages21 := Pages{p2, p1}
@@ -39,7 +38,6 @@ func TestProbablyEq(t *testing.T) {
 
 		assert.True(PageGroup{Key: "a", Pages: pages12}.ProbablyEq(PageGroup{Key: "a", Pages: pages12}))
 		assert.False(PageGroup{Key: "a", Pages: pages12}.ProbablyEq(PageGroup{Key: "b", Pages: pages12}))
-
 	})
 
 	t.Run("PagesGroup", func(t *testing.T) {
@@ -49,9 +47,7 @@ func TestProbablyEq(t *testing.T) {
 
 		assert.True(PagesGroup{pg1, pg2}.ProbablyEq(PagesGroup{pg1, pg2}))
 		assert.False(PagesGroup{pg1, pg2}.ProbablyEq(PagesGroup{pg2, pg1}))
-
 	})
-
 }
 
 func TestToPages(t *testing.T) {

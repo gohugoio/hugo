@@ -175,7 +175,6 @@ func (m *moduleAdapter) Watch() bool {
 }
 
 func (m *moduleAdapter) validateAndApplyDefaults(fs afero.Fs) error {
-
 	/*if len(m.modImport.Mounts) == 0 {
 		// Create default mount points for every component folder that
 		// exists in the module.
@@ -192,5 +191,4 @@ func (m *moduleAdapter) validateAndApplyDefaults(fs afero.Fs) error {
 	}*/
 
 	return nil
-
 }

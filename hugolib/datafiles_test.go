@@ -18,13 +18,12 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"fmt"
+	"runtime"
 
 	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/gohugoio/hugo/deps"
-
-	"fmt"
-	"runtime"
 
 	"github.com/stretchr/testify/require"
 )
@@ -198,7 +197,6 @@ func TestDataDirMultipleSources(t *testing.T) {
 
 	doTestDataDir(t, dd, expected,
 		"theme", "mytheme")
-
 }
 
 // test (and show) the way values from four different sources,
@@ -315,9 +313,8 @@ func doTestDataDir(t *testing.T, dd dataDir, expected interface{}, configKeyValu
 }
 
 func doTestDataDirImpl(t *testing.T, dd dataDir, expected interface{}, configKeyValues ...interface{}) (err string) {
-	var (
-		cfg, fs = newTestCfg()
-	)
+
+	cfg, fs := newTestCfg()
 
 	for i := 0; i < len(configKeyValues); i += 2 {
 		cfg.Set(configKeyValues[i].(string), configKeyValues[i+1])
@@ -375,9 +372,7 @@ func doTestDataDirImpl(t *testing.T, dd dataDir, expected interface{}, configKey
 func TestDataFromShortcode(t *testing.T) {
 	t.Parallel()
 
-	var (
-		cfg, fs = newTestCfg()
-	)
+	cfg, fs := newTestCfg()
 
 	writeSource(t, fs, "data/hugo.toml", "slogan = \"Hugo Rocks!\"")
 	writeSource(t, fs, "layouts/_default/single.html", `
@@ -394,5 +389,4 @@ Slogan from shortcode: {{< d >}}
 	content := readSource(t, fs, "public/c/index.html")
 	require.True(t, strings.Contains(content, "Slogan from template: Hugo Rocks!"), content)
 	require.True(t, strings.Contains(content, "Slogan from shortcode: Hugo Rocks!"), content)
-
 }

@@ -107,7 +107,6 @@ categories:
 	require.Len(t, h.Sites, 1)
 
 	assertDisabledKinds(b, h.Sites[0], disabled...)
-
 }
 
 func assertDisabledKinds(b *sitesBuilder, s *Site, disabled ...string) {
@@ -142,7 +141,6 @@ func assertDisabledKinds(b *sitesBuilder, s *Site, disabled ...string) {
 				return p == nil
 			}
 			return p != nil
-
 		}, disabled, page.KindTaxonomy, "public/tags/tag1/index.html", "Tag1")
 	assertDisabledKind(b,
 		func(isDisabled bool) bool {
@@ -151,7 +149,6 @@ func assertDisabledKinds(b *sitesBuilder, s *Site, disabled ...string) {
 				return p == nil
 			}
 			return p != nil
-
 		}, disabled, page.KindTaxonomyTerm, "public/tags/index.html", "Tags")
 	assertDisabledKind(b,
 		func(isDisabled bool) bool {
@@ -161,7 +158,6 @@ func assertDisabledKinds(b *sitesBuilder, s *Site, disabled ...string) {
 				return p == nil
 			}
 			return p != nil
-
 		}, disabled, page.KindTaxonomyTerm, "public/categories/index.html", "Category Terms")
 	assertDisabledKind(b,
 		func(isDisabled bool) bool {
@@ -170,7 +166,6 @@ func assertDisabledKinds(b *sitesBuilder, s *Site, disabled ...string) {
 				return p == nil
 			}
 			return p != nil
-
 		}, disabled, page.KindTaxonomy, "public/categories/hugo/index.html", "Hugo")
 	// The below have no page in any collection.
 	assertDisabledKind(b, func(isDisabled bool) bool { return true }, disabled, kindRSS, "public/index.xml", "<link>")

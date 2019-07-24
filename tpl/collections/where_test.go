@@ -59,7 +59,6 @@ func TestWhere(t *testing.T) {
 		}
 
 		return testVariants
-
 	}
 
 	for i, test := range []testt{

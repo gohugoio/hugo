@@ -61,8 +61,8 @@ func (p *nopPage) RSSLink() template.URL {
 
 func (p *nopPage) Author() Author {
 	return Author{}
-
 }
+
 func (p *nopPage) Authors() AuthorList {
 	return nil
 }
@@ -114,6 +114,7 @@ func (p *nopPage) Description() string {
 func (p *nopPage) RefFrom(argsm map[string]interface{}, source interface{}) (string, error) {
 	return "", nil
 }
+
 func (p *nopPage) RelRefFrom(argsm map[string]interface{}, source interface{}) (string, error) {
 	return "", nil
 }
@@ -335,6 +336,7 @@ func (p *nopPage) PublishDate() (t time.Time) {
 func (p *nopPage) PrevInSection() Page {
 	return nil
 }
+
 func (p *nopPage) NextInSection() Page {
 	return nil
 }

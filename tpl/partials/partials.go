@@ -148,7 +148,6 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 	}
 
 	return result, nil
-
 }
 
 // IncludeCached executes and caches partial templates.  An optional variant
@@ -166,7 +165,6 @@ func (ns *Namespace) IncludeCached(name string, context interface{}, variant ...
 }
 
 func (ns *Namespace) getOrCreate(key, name string, context interface{}) (interface{}, error) {
-
 	ns.cachedPartials.RLock()
 	p, ok := ns.cachedPartials.p[key]
 	ns.cachedPartials.RUnlock()

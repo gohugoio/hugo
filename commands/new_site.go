@@ -58,7 +58,6 @@ Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
 	ccmd.baseCmd = newBaseCmd(cmd)
 
 	return ccmd
-
 }
 
 func (n *newSiteCmd) doNewSite(fs *hugofs.Fs, basepath string, force bool) error {

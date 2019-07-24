@@ -20,6 +20,9 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"html/template"
+	texttemplate "text/template"
+	"text/template/parse"
 
 	"github.com/gohugoio/hugo/output"
 
@@ -28,10 +31,6 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/spf13/afero"
-
-	"html/template"
-	texttemplate "text/template"
-	"text/template/parse"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/metrics"
@@ -193,7 +192,6 @@ func (t *TemplateAdapter) addFileContext(name string, inerr error) error {
 	f, realFilename, err := t.fileAndFilename(t.Name())
 	if err != nil {
 		return inerr
-
 	}
 	defer f.Close()
 
@@ -238,10 +236,8 @@ func (t *TemplateAdapter) addFileContext(name string, inerr error) error {
 	if !ok {
 		// Return the most specific.
 		return ferr
-
 	}
 	return fe
-
 }
 
 func (t *TemplateAdapter) fileAndFilename(name string) (afero.File, string, error) {

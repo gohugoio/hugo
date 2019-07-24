@@ -21,9 +21,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-var (
-	_ causer = (*fileError)(nil)
-)
+var _ causer = (*fileError)(nil)
 
 // FileError represents an error when handling a file: Parsing a config file,
 // execute a template etc.

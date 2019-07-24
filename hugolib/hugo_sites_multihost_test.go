@@ -13,7 +13,7 @@ func TestMultihosts(t *testing.T) {
 
 	assert := require.New(t)
 
-	var configTemplate = `
+	configTemplate := `
 paginate = 1
 disablePathToLower = true
 defaultContentLanguage = "fr"
@@ -109,5 +109,4 @@ languageName = "Nynorsk"
 	require.Equal(t, 1, len(bundleFr.Resources()))
 	b.AssertFileContent("public/fr/bundles/b1/logo.png", "PNG Data")
 	b.AssertFileContent("public/fr/bundles/b1/index.html", " image/png: /bundles/b1/logo.png")
-
 }

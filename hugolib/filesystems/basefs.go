@@ -22,6 +22,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"fmt"
 
 	"github.com/gohugoio/hugo/hugofs/files"
 
@@ -30,8 +31,6 @@ import (
 	"github.com/gohugoio/hugo/modules"
 
 	"github.com/gohugoio/hugo/hugofs"
-
-	"fmt"
 
 	"github.com/gohugoio/hugo/hugolib/paths"
 	"github.com/spf13/afero"
@@ -74,7 +73,7 @@ func (fs *BaseFs) AllDirs() []hugofs.FileMetaInfo {
 		fs.Content.Dirs,
 		fs.Assets.Dirs,
 		fs.Layouts.Dirs,
-		//fs.Resources.Dirs,
+		// fs.Resources.Dirs,
 		fs.StaticDirs,
 	} {
 		dirs = append(dirs, dirSet...)
@@ -151,7 +150,6 @@ func (s SourceFilesystems) ContentStaticAssetFs(lang string) afero.Fs {
 
 	base := afero.NewCopyOnWriteFs(s.Assets.Fs, staticFs)
 	return afero.NewCopyOnWriteFs(base, s.Content.Fs)
-
 }
 
 // StaticFs returns the static filesystem for the given language.
@@ -344,8 +342,8 @@ func (b *sourceFilesystemsBuilder) newSourceFilesystem(fs afero.Fs, dirs []hugof
 		Dirs: dirs,
 	}
 }
-func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 
+func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 	if b.theBigFs == nil {
 
 		theBigFs, err := b.createMainOverlayFs(b.p)
@@ -364,7 +362,6 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 		dirs := b.theBigFs.overlayDirs[componentID]
 
 		return b.newSourceFilesystem(afero.NewBasePathFs(b.theBigFs.overlayMounts, componentID), dirs)
-
 	}
 
 	b.theBigFs.finalizeDirs()
@@ -420,11 +417,9 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 	}
 
 	return b.result, nil
-
 }
 
 func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesystemsCollector, error) {
-
 	var staticFsMap map[string]afero.Fs
 	if b.p.Cfg.GetBool("multihost") {
 		staticFsMap = make(map[string]afero.Fs)
@@ -468,7 +463,6 @@ func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesys
 	err := b.createOverlayFs(collector, modsReversed)
 
 	return collector, err
-
 }
 
 func (b *sourceFilesystemsBuilder) isContentMount(mnt modules.Mount) bool {
@@ -478,7 +472,6 @@ func (b *sourceFilesystemsBuilder) isContentMount(mnt modules.Mount) bool {
 func (b *sourceFilesystemsBuilder) createModFs(
 	collector *filesystemsCollector,
 	md mountsDescriptor) error {
-
 	var (
 		fromTo        []hugofs.RootMapping
 		fromToContent []hugofs.RootMapping
@@ -582,7 +575,6 @@ OUTER:
 			sfs, found := collector.staticPerLanguage[lang]
 			if found {
 				collector.staticPerLanguage[lang] = afero.NewCopyOnWriteFs(sfs, bfs)
-
 			} else {
 				collector.staticPerLanguage[lang] = bfs
 			}
@@ -610,7 +602,6 @@ OUTER:
 	}
 
 	return nil
-
 }
 
 func printFs(fs afero.Fs, path string, w io.Writer) {
@@ -669,7 +660,6 @@ func (c *filesystemsCollector) finalizeDirs() {
 			c.reverseFis(dirs)
 		}
 	})
-
 }
 
 func (c *filesystemsCollector) reverseFis(fis []hugofs.FileMetaInfo) {

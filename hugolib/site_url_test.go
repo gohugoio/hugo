@@ -17,10 +17,9 @@ import (
 	"fmt"
 	"path/filepath"
 	"testing"
+	"html/template"
 
 	"github.com/gohugoio/hugo/resources/page"
-
-	"html/template"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/stretchr/testify/require"
@@ -50,7 +49,8 @@ func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
 		{"http://base.com/", "http://base.com/"},
 		{"http://base.com/sub/", "http://base.com/sub/"},
 		{"http://base.com/sub", "http://base.com/sub"},
-		{"http://base.com", "http://base.com"}} {
+		{"http://base.com", "http://base.com"},
+	} {
 
 		cfg, fs := newTestCfg()
 		cfg.Set("baseURL", this.in)
@@ -182,5 +182,4 @@ Do not go gentle into that good night.
 	assert.Equal("/ss1/", sect1.RelPermalink())
 	th.assertFileContent(filepath.Join("public", "ss1", "index.html"), "P1|URL: /ss1/|Next: /ss1/page/2/")
 	th.assertFileContent(filepath.Join("public", "ss1", "page", "2", "index.html"), "P2|URL: /ss1/page/2/|Next: /ss1/page/3/")
-
 }

@@ -25,11 +25,9 @@ func TestGitInfos(t *testing.T) {
 
 	require.NoError(t, err)
 	require.True(t, len(infos) > 0)
-
 }
 
 func TestIssuesRe(t *testing.T) {
-
 	body := `
 This is a commit message.
 
@@ -44,7 +42,6 @@ See #456
 	require.Len(t, issues, 4)
 	require.Equal(t, 123, issues[0])
 	require.Equal(t, 543, issues[2])
-
 }
 
 func TestGitVersionTagBefore(t *testing.T) {
@@ -63,7 +60,6 @@ func TestTagExists(t *testing.T) {
 	b2, err := tagExists("adfagdsfg")
 	require.NoError(t, err)
 	require.False(t, b2)
-
 }
 
 func skipIfCI(t *testing.T) {

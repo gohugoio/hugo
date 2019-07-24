@@ -26,10 +26,8 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-var (
-	// Counts ERROR logs to the global jww logger.
-	GlobalErrorCounter *jww.Counter
-)
+// Counts ERROR logs to the global jww logger.
+var GlobalErrorCounter *jww.Counter
 
 func init() {
 	GlobalErrorCounter = &jww.Counter{}
@@ -113,7 +111,6 @@ func (a labelColorizer) Write(p []byte) (n int, err error) {
 	// bytes, so we lie a little.
 	_, err = a.w.Write([]byte(replaced))
 	return len(p), err
-
 }
 
 // InitGlobalLogger initializes the global logger, used in some rare cases.
@@ -124,7 +121,6 @@ func InitGlobalLogger(stdoutThreshold, logThreshold jww.Threshold, outHandle, lo
 	jww.SetLogOutput(logHandle)
 	jww.SetLogThreshold(logThreshold)
 	jww.SetStdoutThreshold(stdoutThreshold)
-
 }
 
 func getLogWriters(outHandle, logHandle io.Writer) (io.Writer, io.Writer) {
@@ -139,7 +135,6 @@ func getLogWriters(outHandle, logHandle io.Writer) (io.Writer, io.Writer) {
 	}
 
 	return outHandle, logHandle
-
 }
 
 func newLogger(stdoutThreshold, logThreshold jww.Threshold, outHandle, logHandle io.Writer, saveErrors bool) *Logger {

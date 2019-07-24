@@ -55,7 +55,6 @@ func (p *tstSlicerIn1) Slice(in interface{}) (interface{}, error) {
 		default:
 			return nil, errors.New("invalid type")
 		}
-
 	}
 	return result, nil
 }

@@ -28,5 +28,4 @@ func Test404(t *testing.T) {
 	// multiple, to follow the Custom Output scheme, but I don't see how that would work
 	// right now.
 	b.AssertFileContent("public/404.html", "Not Found")
-
 }

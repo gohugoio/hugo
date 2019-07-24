@@ -114,7 +114,6 @@ func TestNewContentSpec(t *testing.T) {
 	assert.True(spec.BuildFuture)
 	assert.True(spec.BuildExpired)
 	assert.True(spec.BuildDrafts)
-
 }
 
 var benchmarkTruncateString = strings.Repeat("This is a sentence about nothing.", 20)
@@ -246,7 +245,7 @@ func TestGetHTMLRendererAllFlags(t *testing.T) {
 	renderer := c.getHTMLRenderer(defaultFlags, ctx)
 	actualFlags := renderer.GetFlags()
 	var expectedFlags int
-	//OR-ing flags together...
+	// OR-ing flags together...
 	for _, d := range allFlags {
 		expectedFlags |= d.testFlag
 	}
@@ -385,7 +384,7 @@ func TestGetMarkdownRendererWithTOC(t *testing.T) {
 }
 
 func TestGetMmarkExtensions(t *testing.T) {
-	//TODO: This is doing the same just with different marks...
+	// TODO: This is doing the same just with different marks...
 	type data struct {
 		testFlag int
 	}
@@ -448,7 +447,7 @@ func TestExtractTOCGreaterThanSeventy(t *testing.T) {
 	content := []byte("<nav>\n<ul>\nTOC This is a very long content which will definitely be greater than seventy, I promise you that.<li><a href=\"#")
 
 	actualTocLessContent, actualToc := ExtractTOC(content)
-	//Because the start of Toc is greater than 70+startpoint of <li> content and empty TOC will be returned
+	// Because the start of Toc is greater than 70+startpoint of <li> content and empty TOC will be returned
 	expectedToc := []byte("")
 
 	if !bytes.Equal(actualTocLessContent, content) {
@@ -478,7 +477,6 @@ func TestExtractNoTOC(t *testing.T) {
 var totalWordsBenchmarkString = strings.Repeat("Hugo Rocks ", 200)
 
 func TestTotalWords(t *testing.T) {
-
 	for i, this := range []struct {
 		s     string
 		words int

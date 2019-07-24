@@ -30,7 +30,6 @@ import (
 )
 
 func TestMerge(t *testing.T) {
-
 	ns := New(&deps.Deps{})
 
 	simpleMap := map[string]interface{}{"a": 1, "b": 2}
@@ -46,17 +45,20 @@ func TestMerge(t *testing.T) {
 			"basic",
 			map[string]interface{}{"a": 1, "b": 2},
 			map[string]interface{}{"a": 42, "c": 3},
-			map[string]interface{}{"a": 1, "b": 2, "c": 3}, false},
+			map[string]interface{}{"a": 1, "b": 2, "c": 3}, false,
+		},
 		{
 			"basic case insensitive",
 			map[string]interface{}{"a": 1, "b": 2},
 			map[string]interface{}{"A": 42, "c": 3},
-			map[string]interface{}{"a": 1, "b": 2, "c": 3}, false},
+			map[string]interface{}{"a": 1, "b": 2, "c": 3}, false,
+		},
 		{
 			"nested",
 			map[string]interface{}{"a": 1, "b": map[string]interface{}{"d": 1, "e": 2}},
 			map[string]interface{}{"a": 42, "c": 3, "b": map[string]interface{}{"d": 55, "e": 66, "f": 3}},
-			map[string]interface{}{"a": 1, "b": map[string]interface{}{"d": 1, "e": 2, "f": 3}, "c": 3}, false},
+			map[string]interface{}{"a": 1, "b": map[string]interface{}{"d": 1, "e": 2, "f": 3}, "c": 3}, false,
+		},
 		{"src nil", simpleMap, nil, simpleMap, false},
 		// Error cases.
 		{"dst not a map", "not a map", nil, nil, true},
@@ -91,7 +93,6 @@ func TestMerge(t *testing.T) {
 				assert.Equal(srcStr, fmt.Sprint(test.src))
 				assert.Equal(dstStr, fmt.Sprint(test.dst))
 			}
-
 		})
 	}
 }
@@ -141,7 +142,6 @@ V22 = "v22_2"
 
 		assert.Equal(map[string]interface{}{"V1": "v1_1", "V2": "v2_2", "V2s": map[string]interface{}{"V21": "v21_1", "V22": "v22_2"}}, merged)
 	}
-
 }
 
 func TestCaseInsensitiveMapLookup(t *testing.T) {

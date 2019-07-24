@@ -14,11 +14,11 @@
 package navigation
 
 import (
-	"github.com/gohugoio/hugo/common/types"
-
 	"html/template"
 	"sort"
 	"strings"
+
+	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/spf13/cast"
 )

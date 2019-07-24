@@ -318,5 +318,4 @@ func buildTags() string {
 		return envtags
 	}
 	return "none"
-
 }

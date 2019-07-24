@@ -70,7 +70,6 @@ func TestCodeFence(t *testing.T) {
 			result := c.render(d.input)
 
 			expectedRe, err := regexp.Compile(d.expected)
-
 			if err != nil {
 				t.Fatal("Invalid regexp", err)
 			}

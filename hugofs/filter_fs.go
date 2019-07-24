@@ -35,9 +35,7 @@ var (
 )
 
 func NewLanguageFs(langs map[string]int, fs afero.Fs) (afero.Fs, error) {
-
 	applyMeta := func(fs *FilterFs, name string, fis []os.FileInfo) {
-
 		for i, fi := range fis {
 			if fi.IsDir() {
 				filename := filepath.Join(name, fi.Name())
@@ -104,11 +102,9 @@ func NewLanguageFs(langs map[string]int, fs afero.Fs) (afero.Fs, error) {
 		applyPerSource: applyMeta,
 		applyAll:       all,
 	}, nil
-
 }
 
 func NewFilterFs(fs afero.Fs) (afero.Fs, error) {
-
 	applyMeta := func(fs *FilterFs, name string, fis []os.FileInfo) {
 		for i, fi := range fis {
 			if fi.IsDir() {
@@ -123,7 +119,6 @@ func NewFilterFs(fs afero.Fs) (afero.Fs, error) {
 	}
 
 	return ffs, nil
-
 }
 
 // FilterFs is an ordered composite filesystem.
@@ -144,7 +139,6 @@ func (fs *FilterFs) Chtimes(n string, a, m time.Time) error {
 
 func (fs *FilterFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {
 	fi, b, err := lstatIfPossible(fs.fs, name)
-
 	if err != nil {
 		return nil, false, err
 	}
@@ -156,7 +150,6 @@ func (fs *FilterFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {
 	fs.applyFilters(name, -1, fi)
 
 	return fi, b, nil
-
 }
 
 func (fs *FilterFs) Mkdir(n string, p os.FileMode) error {
@@ -181,7 +174,6 @@ func (fs *FilterFs) Open(name string) (afero.File, error) {
 		File: f,
 		ffs:  fs,
 	}, nil
-
 }
 
 func (fs *FilterFs) OpenFile(name string, flag int, perm os.FileMode) (afero.File, error) {
@@ -254,7 +246,6 @@ func (fs *FilterFs) applyFilters(name string, count int, fis ...os.FileInfo) ([]
 	}
 
 	return fis, nil
-
 }
 
 type filterDir struct {
@@ -312,7 +303,6 @@ func langInfoFrom(languages map[string]int, name string) (string, string, string
 	}
 
 	return lang, translationBaseName, translationBaseNameWithExt
-
 }
 
 func printFs(fs afero.Fs, path string, w io.Writer) {

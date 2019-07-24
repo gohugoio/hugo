@@ -39,7 +39,7 @@ const (
 var defaultAliasTemplates *template.Template
 
 func init() {
-	//TODO(bep) consolidate
+	// TODO(bep) consolidate
 	defaultAliasTemplates = template.New("")
 	template.Must(defaultAliasTemplates.New("alias").Parse(alias))
 	template.Must(defaultAliasTemplates.New("alias-xhtml").Parse(aliasXHtml))
@@ -122,7 +122,6 @@ func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, outputFo
 	}
 
 	return s.publisher.Publish(pd)
-
 }
 
 func (a aliasHandler) targetPathAlias(src string) (string, error) {

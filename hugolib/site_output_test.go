@@ -16,14 +16,13 @@ package hugolib
 import (
 	"strings"
 	"testing"
+	"fmt"
 
 	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/spf13/afero"
 
 	"github.com/stretchr/testify/require"
-
-	"fmt"
 
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/output"
@@ -41,7 +40,6 @@ func TestSiteWithPageOutputs(t *testing.T) {
 }
 
 func doTestSiteWithPageOutputs(t *testing.T, outputs []string) {
-
 	outputsStr := strings.Replace(fmt.Sprintf("%q", outputs), " ", ", ", -1)
 
 	siteConfig := `
@@ -217,7 +215,6 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 
 	require.True(t, home.HasShortcode("myShort"))
 	require.False(t, home.HasShortcode("doesNotExist"))
-
 }
 
 // Issue #3447
@@ -250,9 +247,8 @@ baseName = "feed"
 
 	s := h.Sites[0]
 
-	//Issue #3450
+	// Issue #3450
 	require.Equal(t, "http://example.com/blog/feed.xml", s.Info.RSSLink)
-
 }
 
 // Issue #3614
@@ -323,7 +319,6 @@ baseName = "customdelimbase"
 	require.Equal(t, "/blog/defaultdelimbase.defd", outputs.Get("DEF").RelPermalink())
 	require.Equal(t, "/blog/nosuffixbase", outputs.Get("NOS").RelPermalink())
 	require.Equal(t, "/blog/customdelimbase_del", outputs.Get("CUS").RelPermalink())
-
 }
 
 func TestCreateSiteOutputFormats(t *testing.T) {
@@ -354,7 +349,6 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 	assert.Equal(output.Formats{output.SitemapFormat}, outputs[kindSitemap])
 	assert.Equal(output.Formats{output.RobotsTxtFormat}, outputs[kindRobotsTXT])
 	assert.Equal(output.Formats{output.HTMLFormat}, outputs[kind404])
-
 }
 
 func TestCreateSiteOutputFormatsInvalidConfig(t *testing.T) {
@@ -408,7 +402,6 @@ func TestCreateSiteOutputFormatsCustomFormats(t *testing.T) {
 
 // https://github.com/gohugoio/hugo/issues/5849
 func TestOutputFormatPermalinkable(t *testing.T) {
-
 	config := `
 baseURL = "https://example.com"
 
@@ -551,5 +544,4 @@ Output Formats: {{ len .OutputFormats }};{{ range .OutputFormats }}{{ .Name }};{
 		"This RelPermalink: /blog/html-base-nobase/",
 		outputFormats,
 	)
-
 }

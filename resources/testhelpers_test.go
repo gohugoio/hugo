@@ -49,7 +49,6 @@ func createTestCfg() *viper.Viper {
 	cfg.Set("allModules", modules.Modules{mod})
 
 	return cfg
-
 }
 
 func newTestResourceSpecForBaseURL(assert *require.Assertions, baseURL string) *Spec {
@@ -113,7 +112,6 @@ func newTestResourceOsFs(assert *require.Assertions) *Spec {
 	spec, err := NewSpec(s, filecaches, nil, output.DefaultFormats, media.DefaultTypes)
 	assert.NoError(err)
 	return spec
-
 }
 
 func fetchSunset(assert *require.Assertions) *Image {

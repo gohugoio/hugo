@@ -74,7 +74,6 @@ func TestEmojiCustom(t *testing.T) {
 // Hugo have a byte slice, wants a byte slice and doesn't mind if the original is modified.
 
 func BenchmarkEmojiKyokomiFprint(b *testing.B) {
-
 	f := func(in []byte) []byte {
 		buff := bufferpool.GetBuffer()
 		defer bufferpool.PutBuffer(buff)
@@ -89,7 +88,6 @@ func BenchmarkEmojiKyokomiFprint(b *testing.B) {
 }
 
 func BenchmarkEmojiKyokomiSprint(b *testing.B) {
-
 	f := func(in []byte) []byte {
 		return []byte(emoji.Sprint(string(in)))
 	}
@@ -102,7 +100,6 @@ func BenchmarkHugoEmoji(b *testing.B) {
 }
 
 func doBenchmarkEmoji(b *testing.B, f func(in []byte) []byte) {
-
 	type input struct {
 		in     []byte
 		expect []byte
@@ -119,8 +116,8 @@ func doBenchmarkEmoji(b *testing.B, f func(in []byte) []byte) {
 		{"No smiles for you or " + strings.Repeat("you ", 1000), "No smiles for you or " + strings.Repeat("you ", 1000)},
 	}
 
-	var in = make([]input, b.N*len(data))
-	var cnt = 0
+	in := make([]input, b.N*len(data))
+	cnt := 0
 	for i := 0; i < b.N; i++ {
 		for _, this := range data {
 			in[cnt] = input{[]byte(this.input), []byte(this.expect)}
@@ -142,6 +139,5 @@ func doBenchmarkEmoji(b *testing.B, f func(in []byte) []byte) {
 				b.Fatalf("[%d] emoji std, got \n%q but expected \n%q", j, result, currIn.expect)
 			}
 		}
-
 	}
 }

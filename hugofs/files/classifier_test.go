@@ -45,5 +45,4 @@ func TestComponentFolders(t *testing.T) {
 	assert.True(IsComponentFolder("content"))
 	assert.False(IsComponentFolder("foo"))
 	assert.False(IsComponentFolder(""))
-
 }

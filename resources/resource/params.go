@@ -26,5 +26,4 @@ func Param(r ResourceParamsProvider, fallback map[string]interface{}, key interf
 	}
 
 	return maps.GetNestedParam(keyStr, ".", r.Params(), fallback)
-
 }

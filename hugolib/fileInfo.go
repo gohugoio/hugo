@@ -63,7 +63,6 @@ func (fi *fileInfo) String() string {
 
 // TODO(bep) rename
 func newFileInfo(sp *source.SourceSpec, fi hugofs.FileMetaInfo) (*fileInfo, error) {
-
 	baseFi, err := sp.NewFileInfo(fi)
 	if err != nil {
 		return nil, err
@@ -74,7 +73,6 @@ func newFileInfo(sp *source.SourceSpec, fi hugofs.FileMetaInfo) (*fileInfo, erro
 	}
 
 	return f, nil
-
 }
 
 type bundleDirType int

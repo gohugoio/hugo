@@ -83,7 +83,6 @@ func (t *TemplateFuncsNamespace) AddMethodMapping(m interface{}, aliases []strin
 		Aliases:  aliases,
 		Examples: examples,
 	}
-
 }
 
 // TemplateFuncMethodMapping represents a mapping of functions to methods for a
@@ -165,7 +164,6 @@ func (namespaces TemplateFuncsNamespaces) MarshalJSON() ([]byte, error) {
 }
 
 func (t *TemplateFuncsNamespace) toJSON() ([]byte, error) {
-
 	var buf bytes.Buffer
 
 	godoc := getGetTplPackagesGoDoc()[t.Name]

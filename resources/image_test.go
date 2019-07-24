@@ -19,10 +19,9 @@ import (
 	"path/filepath"
 	"strconv"
 	"testing"
+	"sync"
 
 	"github.com/disintegration/imaging"
-
-	"sync"
 
 	"github.com/stretchr/testify/require"
 )
@@ -58,7 +57,6 @@ func TestParseImageConfig(t *testing.T) {
 }
 
 func TestImageTransformBasic(t *testing.T) {
-
 	assert := require.New(t)
 
 	image := fetchSunset(assert)
@@ -130,7 +128,6 @@ func TestImageTransformBasic(t *testing.T) {
 	assert.True(filled == filledAgain)
 	assert.True(filled.sourceFilename == filledAgain.sourceFilename)
 	assertFileCache(assert, fileCache, filledAgain.RelPermalink(), 200, 100)
-
 }
 
 // https://github.com/gohugoio/hugo/issues/4261
@@ -161,7 +158,6 @@ func TestImagePermalinkPublishOrder(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-
 			assert := require.New(t)
 			spec := newTestResourceOsFs(assert)
 
@@ -193,11 +189,9 @@ func TestImagePermalinkPublishOrder(t *testing.T) {
 			}
 		})
 	}
-
 }
 
 func TestImageTransformConcurrent(t *testing.T) {
-
 	var wg sync.WaitGroup
 
 	assert := require.New(t)
@@ -284,7 +278,6 @@ func TestDecodeImaging(t *testing.T) {
 	})
 	assert.NoError(err)
 	assert.Equal("smart", imaging.Anchor)
-
 }
 
 func TestImageWithMetadata(t *testing.T) {
@@ -292,7 +285,7 @@ func TestImageWithMetadata(t *testing.T) {
 
 	image := fetchSunset(assert)
 
-	var meta = []map[string]interface{}{
+	meta := []map[string]interface{}{
 		{
 			"title": "My Sunset",
 			"name":  "Sunset #:counter",
@@ -306,11 +299,9 @@ func TestImageWithMetadata(t *testing.T) {
 	resized, err := image.Resize("200x")
 	assert.NoError(err)
 	assert.Equal("Sunset #1", resized.Name())
-
 }
 
 func TestImageResize8BitPNG(t *testing.T) {
-
 	assert := require.New(t)
 
 	image := fetchImage(assert, "gohugoio.png")
@@ -324,11 +315,9 @@ func TestImageResize8BitPNG(t *testing.T) {
 	assert.Equal(imaging.PNG, resized.format)
 	assert.Equal("/a/gohugoio_hu0e1b9e4a4be4d6f86c7b37b9ccce3fbc_73886_800x0_resize_linear_2.png", resized.RelPermalink())
 	assert.Equal(800, resized.Width())
-
 }
 
 func TestImageResizeInSubPath(t *testing.T) {
-
 	assert := require.New(t)
 
 	image := fetchImage(assert, "sub/gohugoio2.png")
@@ -358,7 +347,6 @@ func TestImageResizeInSubPath(t *testing.T) {
 	assert.Equal(101, resizedAgain.Width())
 	assertFileCache(assert, fileCache, resizedAgain.RelPermalink(), 101, 101)
 	assertImageFile(assert, image.spec.BaseFs.PublishFs, publishedImageFilename, 101, 101)
-
 }
 
 func TestSVGImage(t *testing.T) {

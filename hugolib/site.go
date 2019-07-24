@@ -260,7 +260,6 @@ func (s *Site) prepareInits() {
 		s.assembleMenus()
 		return nil, nil
 	})
-
 }
 
 // Build stats for a given site.
@@ -339,7 +338,8 @@ func (s *Site) isEnabled(kind string) bool {
 
 // reset returns a new Site prepared for rebuild.
 func (s *Site) reset() *Site {
-	return &Site{Deps: s.Deps,
+	return &Site{
+		Deps:                   s.Deps,
 		layoutHandler:          output.NewLayoutHandler(),
 		disabledKinds:          s.disabledKinds,
 		titleFunc:              s.titleFunc,
@@ -360,7 +360,6 @@ func (s *Site) reset() *Site {
 		PageCollections:        newPageCollections(),
 		siteCfg:                s.siteCfg,
 	}
-
 }
 
 // newSite creates a new site with the given configuration.
@@ -461,7 +460,6 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 	s.prepareInits()
 
 	return s, nil
-
 }
 
 // NewSite creates a new site with the given dependency configuration.
@@ -518,7 +516,6 @@ func newSiteForLang(lang *langs.Language, withTemplate ...func(templ tpl.Templat
 	cfg := deps.DepsCfg{WithTemplate: withTemplates, Cfg: lang}
 
 	return NewSiteForCfg(cfg)
-
 }
 
 // NewSiteForCfg creates a new site for the given configuration.
@@ -530,7 +527,6 @@ func NewSiteForCfg(cfg deps.DepsCfg) (*Site, error) {
 		return nil, err
 	}
 	return h.Sites[0], nil
-
 }
 
 type SiteInfo struct {
@@ -564,12 +560,10 @@ type SiteInfo struct {
 
 func (s *SiteInfo) Pages() page.Pages {
 	return s.s.Pages()
-
 }
 
 func (s *SiteInfo) RegularPages() page.Pages {
 	return s.s.RegularPages()
-
 }
 
 func (s *SiteInfo) AllPages() page.Pages {
@@ -656,7 +650,6 @@ func (s *SiteInfo) ServerPort() int {
 // GoogleAnalytics is kept here for historic reasons.
 func (s *SiteInfo) GoogleAnalytics() string {
 	return s.Config().Services.GoogleAnalytics.ID
-
 }
 
 // DisqusShortname is kept here for historic reasons.
@@ -727,7 +720,6 @@ func (s siteRefLinker) logNotFound(ref, what string, p page.Page, position text.
 }
 
 func (s *siteRefLinker) refLink(ref string, source interface{}, relative bool, outputFormat string) (string, error) {
-
 	p, err := unwrapPage(source)
 	if err != nil {
 		return "", err
@@ -752,7 +744,6 @@ func (s *siteRefLinker) refLink(ref string, source interface{}, relative bool, o
 		if err != nil || target == nil {
 			if p, ok := source.(text.Positioner); ok {
 				pos = p.Position()
-
 			}
 		}
 
@@ -921,7 +912,6 @@ func (s *Site) translateFileEvents(events []fsnotify.Event) []fsnotify.Event {
 // It returns whetever the content source was changed.
 // TODO(bep) clean up/rewrite this method.
 func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
-
 	events = s.filterFileEvents(events)
 	events = s.translateFileEvents(events)
 
@@ -1074,7 +1064,6 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 	}
 
 	return changed, nil
-
 }
 
 func (s *Site) process(config BuildCfg) (err error) {
@@ -1087,7 +1076,6 @@ func (s *Site) process(config BuildCfg) (err error) {
 		return
 	}
 	return err
-
 }
 
 func (s *Site) setupSitePages() {
@@ -1135,11 +1123,9 @@ func (s *Site) setupSitePages() {
 		homeDates.FDate = siteLastDate
 		homeDates.FLastmod = s.lastmod
 	}
-
 }
 
 func (s *Site) render(ctx *siteRenderContext) (err error) {
-
 	if err := page.Clear(); err != nil {
 		return err
 	}
@@ -1157,7 +1143,6 @@ func (s *Site) render(ctx *siteRenderContext) (err error) {
 				return
 			}
 		}
-
 	}
 
 	if err = s.renderPages(ctx); err != nil {
@@ -1236,7 +1221,7 @@ func (s *Site) initializeSiteInfo() error {
 		languagePrefix = "/" + lang.Lang
 	}
 
-	var uglyURLs = func(p page.Page) bool {
+	uglyURLs := func(p page.Page) bool {
 		return false
 	}
 
@@ -1318,7 +1303,6 @@ func (s *Site) readAndProcessContent(filenames ...string) error {
 }
 
 func (s *Site) getMenusFromConfig() navigation.Menus {
-
 	ret := navigation.Menus{}
 
 	if menus := s.language.GetStringMap("menus"); menus != nil {
@@ -1355,7 +1339,6 @@ func (s *Site) getMenusFromConfig() navigation.Menus {
 }
 
 func (s *SiteInfo) createNodeMenuEntryURL(in string) string {
-
 	if !strings.HasPrefix(in, "/") {
 		return in
 	}
@@ -1398,10 +1381,12 @@ func (s *Site) assembleMenus() {
 					continue
 				}
 
-				me := navigation.MenuEntry{Identifier: id,
-					Name:   p.LinkTitle(),
-					Weight: p.Weight(),
-					Page:   p}
+				me := navigation.MenuEntry{
+					Identifier: id,
+					Name:       p.LinkTitle(),
+					Weight:     p.Weight(),
+					Page:       p,
+				}
 				flat[twoD{sectionPagesMenu, me.KeyName()}] = &me
 			}
 		}
@@ -1458,7 +1443,6 @@ func (s *Site) getLanguageTargetPathLang(alwaysInSubDir bool) string {
 
 // get any lanaguagecode to prefix the relative permalink with.
 func (s *Site) getLanguagePermalinkLang(alwaysInSubDir bool) string {
-
 	if !s.Info.IsMultiLingual() || s.h.IsMultihost() {
 		return ""
 	}
@@ -1594,7 +1578,6 @@ func (s *SiteInfo) GetPage(ref ...string) (page.Page, error) {
 
 func (s *Site) permalink(link string) string {
 	return s.PathSpec.PermalinkForBaseURL(link, s.PathSpec.BaseURL.String())
-
 }
 
 func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath string, d interface{}, layouts ...string) error {
@@ -1628,7 +1611,6 @@ func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath st
 	}
 
 	return s.publisher.Publish(pd)
-
 }
 
 func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath string, p *pageState, layouts ...string) error {
@@ -1782,13 +1764,11 @@ func (s *Site) newTaxonomyPage(title string, sections ...string) *pageState {
 		kind:     page.KindTaxonomy,
 		sections: sections,
 	})
-
 	if err != nil {
 		panic(err)
 	}
 
 	return p
-
 }
 
 func (s *Site) newPage(kind string, sections ...string) *pageState {
@@ -1797,7 +1777,6 @@ func (s *Site) newPage(kind string, sections ...string) *pageState {
 		kind:     kind,
 		sections: sections,
 	})
-
 	if err != nil {
 		panic(err)
 	}

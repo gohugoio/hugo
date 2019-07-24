@@ -170,7 +170,6 @@ func (p *pageState) RawContent() string {
 
 func (p *pageState) Resources() resource.Resources {
 	p.resourcesInit.Do(func() {
-
 		sort := func() {
 			sort.SliceStable(p.resources, func(i, j int) bool {
 				ri, rj := p.resources[i], p.resources[j]
@@ -199,7 +198,6 @@ func (p *pageState) Resources() resource.Resources {
 			resources.AssignMetadata(p.m.resourcesMetadata, p.resources...)
 			sort()
 		}
-
 	})
 	return p.resources
 }
@@ -243,11 +241,9 @@ func (p *pageState) TranslationKey() string {
 		} else if p.IsNode() {
 			p.translationKey = path.Join(p.Kind(), p.SectionsPath())
 		}
-
 	})
 
 	return p.translationKey
-
 }
 
 // AllTranslations returns all translations, including the current Page.
@@ -312,7 +308,6 @@ func (p *pageState) getLayoutDescriptor() output.LayoutDescriptor {
 	})
 
 	return p.layoutDescriptor
-
 }
 
 func (p *pageState) getLayouts(layouts ...string) ([]string, error) {
@@ -348,7 +343,6 @@ func (p *pageState) initOutputFormat(isRenderingSite bool, idx int) error {
 	}
 
 	return nil
-
 }
 
 // Must be run after the site section tree etc. is built and ready.
@@ -399,7 +393,6 @@ func (p *pageState) renderResources() (err error) {
 		for _, i := range toBeDeleted {
 			p.deleteResource(i)
 		}
-
 	})
 
 	return
@@ -464,12 +457,10 @@ func (p *pageState) Render(layout ...string) template.HTML {
 	}
 
 	return ""
-
 }
 
 // wrapError adds some more context to the given error if possible
 func (p *pageState) wrapError(err error) error {
-
 	var filename string
 	if !p.File().IsZero() {
 		filename = p.File().Filename()
@@ -497,7 +488,6 @@ func (p *pageState) addSectionToParent() {
 }
 
 func (p *pageState) mapContent(meta *pageMeta) error {
-
 	s := p.shortcodeState
 
 	p.renderable = true
@@ -662,7 +652,6 @@ func (p *pageState) parseError(err error, input []byte, offset int) error {
 	}
 	pos := p.posFromInput(input, offset)
 	return herrors.NewFileError("md", -1, pos.LineNumber, pos.ColumnNumber, err)
-
 }
 
 func (p *pageState) pathOrTitle() string {
@@ -754,7 +743,6 @@ func (p *pageState) getTaxonomyNodeInfo() *taxonomyNodeInfo {
 	}
 
 	return info
-
 }
 
 func (p *pageState) sortParentSections() {
