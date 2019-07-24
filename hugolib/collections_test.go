@@ -123,7 +123,7 @@ func TestCollectionsFuncs(t *testing.T) {
 
 	pageContent := `
 ---
-title: "Page"
+title: "Page %d"
 tags: ["blue", "green"]
 tags_weight: %d
 ---
@@ -131,8 +131,8 @@ tags_weight: %d
 `
 	b := newTestSitesBuilder(t)
 	b.WithSimpleConfigFile().
-		WithContent("page1.md", fmt.Sprintf(pageContent, 10), "page2.md", fmt.Sprintf(pageContent, 20),
-			"page3.md", fmt.Sprintf(pageContent, 30)).
+		WithContent("page1.md", fmt.Sprintf(pageContent, 10, 10), "page2.md", fmt.Sprintf(pageContent, 20, 20),
+			"page3.md", fmt.Sprintf(pageContent, 30, 30)).
 		WithTemplatesAdded("index.html", `
 {{ $uniqPages := first 2 .Site.RegularPages | append .Site.RegularPages | uniq  }}
 {{ $inTrue := in .Site.RegularPages (index .Site.RegularPages 1)  }}
