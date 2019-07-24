@@ -301,7 +301,7 @@ func (v HugoVersion) IsValid() bool {
 type Import struct {
 	Path         string // Module path
 	IgnoreConfig bool   // Ignore any config.toml found.
-	Disabled     bool   // Turn off this module.
+	Disable     bool   // Turn off this module.
 	Mounts       []Mount
 }
 

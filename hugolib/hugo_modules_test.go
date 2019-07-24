@@ -307,7 +307,7 @@ workingDir="/site"
 path="a"
 [[module.imports]]
 path="b"
-disabled=true
+disable=true
 
 
 `)

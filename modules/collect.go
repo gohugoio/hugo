@@ -284,7 +284,7 @@ func (c *collector) addAndRecurse(owner *moduleAdapter, disabled bool) error {
 	}
 
 	for _, moduleImport := range moduleConfig.Imports {
-		disabled := disabled || moduleImport.Disabled
+		disabled := disabled || moduleImport.Disable
 
 		if !c.isSeen(moduleImport.Path) {
 			tc, err := c.add(owner, moduleImport, disabled)
