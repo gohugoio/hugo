@@ -203,7 +203,7 @@ func newDeps(cfg config.Provider) *deps.Deps {
 	fs := hugofs.NewMem(cfg)
 	logger := loggers.NewErrorLogger()
 
-	p, err := helpers.NewPathSpec(fs, cfg)
+	p, err := helpers.NewPathSpec(fs, cfg, nil)
 	if err != nil {
 		panic(err)
 	}

@@ -73,7 +73,7 @@ func newTestPathSpecFor(cfg config.Provider) *helpers.PathSpec {
 	}
 	cfg.Set("allModules", modules.Modules{mod})
 	fs := hugofs.NewMem(cfg)
-	s, err := helpers.NewPathSpec(fs, cfg)
+	s, err := helpers.NewPathSpec(fs, cfg, nil)
 	if err != nil {
 		panic(err)
 	}

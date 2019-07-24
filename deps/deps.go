@@ -207,7 +207,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		cfg.OutputFormats = output.DefaultFormats
 	}
 
-	ps, err := helpers.NewPathSpec(fs, cfg.Language)
+	ps, err := helpers.NewPathSpec(fs, cfg.Language, logger)
 
 	if err != nil {
 		return nil, errors.Wrap(err, "create PathSpec")
@@ -272,7 +272,7 @@ func (d Deps) ForLanguage(cfg DepsCfg, onCreated func(d *Deps) error) (*Deps, er
 	l := cfg.Language
 	var err error
 
-	d.PathSpec, err = helpers.NewPathSpecWithBaseBaseFsProvided(d.Fs, l, d.BaseFs)
+	d.PathSpec, err = helpers.NewPathSpecWithBaseBaseFsProvided(d.Fs, l, d.Log, d.BaseFs)
 	if err != nil {
 		return nil, err
 	}

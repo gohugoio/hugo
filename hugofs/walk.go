@@ -121,8 +121,7 @@ func (w *Walkway) Walk() error {
 				return nil
 			}
 
-			if err == ErrPermissionSymlink {
-				w.logger.WARN.Printf("Unsupported symlink found in %q, skipping.", w.root)
+			if w.checkErr(w.root, err) {
 				return nil
 			}
 
@@ -149,6 +148,19 @@ func lstatIfPossible(fs afero.Fs, path string) (os.FileInfo, bool, error) {
 	return fi, false, err
 }
 
+// checkErr returns true if the error is handled.
+func (w *Walkway) checkErr(filename string, err error) bool {
+	if err == ErrPermissionSymlink {
+		logUnsupportedSymlink(filename, w.logger)
+		return true
+	}
+	return false
+}
+
+func logUnsupportedSymlink(filename string, logger *loggers.Logger) {
+	logger.WARN.Printf("Unsupported symlink found in %q, skipping.", filename)
+}
+
 // walk recursively descends path, calling walkFn.
 // It follow symlinks if supported by the filesystem, but only the same path once.
 func (w *Walkway) walk(path string, info FileMetaInfo, dirEntries []FileMetaInfo, walkFn WalkFunc) error {
@@ -168,16 +180,17 @@ func (w *Walkway) walk(path string, info FileMetaInfo, dirEntries []FileMetaInfo
 
 	if dirEntries == nil {
 		f, err := w.fs.Open(path)
-
 		if err != nil {
+			if w.checkErr(path, err) {
+				return nil
+			}
 			return walkFn(path, info, errors.Wrapf(err, "walk: open %q (%q)", path, w.root))
 		}
 
 		fis, err := f.Readdir(-1)
 		f.Close()
 		if err != nil {
-			if err == ErrPermissionSymlink {
-				w.logger.WARN.Printf("Unsupported symlink found in %q, skipping.", filename)
+			if w.checkErr(filename, err) {
 				return nil
 			}
 			return walkFn(path, info, errors.Wrap(err, "walk: Readdir"))

@@ -60,7 +60,7 @@ func TestMakePath(t *testing.T) {
 		v.Set("removePathAccents", test.removeAccents)
 
 		l := langs.NewDefaultLanguage(v)
-		p, err := NewPathSpec(hugofs.NewMem(v), l)
+		p, err := NewPathSpec(hugofs.NewMem(v), l, nil)
 		require.NoError(t, err)
 
 		output := p.MakePath(test.input)
@@ -73,7 +73,7 @@ func TestMakePath(t *testing.T) {
 func TestMakePathSanitized(t *testing.T) {
 	v := newTestCfg()
 
-	p, _ := NewPathSpec(hugofs.NewMem(v), v)
+	p, _ := NewPathSpec(hugofs.NewMem(v), v, nil)
 
 	tests := []struct {
 		input    string
@@ -101,7 +101,7 @@ func TestMakePathSanitizedDisablePathToLower(t *testing.T) {
 	v.Set("disablePathToLower", true)
 
 	l := langs.NewDefaultLanguage(v)
-	p, _ := NewPathSpec(hugofs.NewMem(v), l)
+	p, _ := NewPathSpec(hugofs.NewMem(v), l, nil)
 
 	tests := []struct {
 		input    string

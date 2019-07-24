@@ -459,9 +459,5 @@ func (f *rootMappingFile) Readdirnames(count int) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	dirss := make([]string, len(dirs))
-	for i, d := range dirs {
-		dirss[i] = d.Name()
-	}
-	return dirss, nil
+	return fileInfosToNames(dirs), nil
 }

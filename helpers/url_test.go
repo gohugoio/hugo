@@ -28,7 +28,7 @@ func TestURLize(t *testing.T) {
 
 	v := newTestCfg()
 	l := langs.NewDefaultLanguage(v)
-	p, _ := NewPathSpec(hugofs.NewMem(v), l)
+	p, _ := NewPathSpec(hugofs.NewMem(v), l, nil)
 
 	tests := []struct {
 		input    string
@@ -90,7 +90,7 @@ func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 		v.Set("baseURL", test.baseURL)
 		v.Set("contentDir", "content")
 		l := langs.NewLanguage(lang, v)
-		p, _ := NewPathSpec(hugofs.NewMem(v), l)
+		p, _ := NewPathSpec(hugofs.NewMem(v), l, nil)
 
 		output := p.AbsURL(test.input, addLanguage)
 		expected := test.expected
@@ -168,7 +168,7 @@ func doTestRelURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 		v.Set("baseURL", test.baseURL)
 		v.Set("canonifyURLs", test.canonify)
 		l := langs.NewLanguage(lang, v)
-		p, _ := NewPathSpec(hugofs.NewMem(v), l)
+		p, _ := NewPathSpec(hugofs.NewMem(v), l, nil)
 
 		output := p.RelURL(test.input, addLanguage)
 
@@ -256,7 +256,7 @@ func TestURLPrep(t *testing.T) {
 		v := newTestCfg()
 		v.Set("uglyURLs", d.ugly)
 		l := langs.NewDefaultLanguage(v)
-		p, _ := NewPathSpec(hugofs.NewMem(v), l)
+		p, _ := NewPathSpec(hugofs.NewMem(v), l, nil)
 
 		output := p.URLPrep(d.input)
 		if d.output != output {

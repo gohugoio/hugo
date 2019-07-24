@@ -292,7 +292,7 @@ func newPathsSpec(t *testing.T, fs afero.Fs, configStr string) *helpers.PathSpec
 	cfg, err := config.FromConfigString(configStr, "toml")
 	assert.NoError(err)
 	initConfig(fs, cfg)
-	p, err := helpers.NewPathSpec(hugofs.NewFrom(fs, cfg), cfg)
+	p, err := helpers.NewPathSpec(hugofs.NewFrom(fs, cfg), cfg, nil)
 	assert.NoError(err)
 	return p
 

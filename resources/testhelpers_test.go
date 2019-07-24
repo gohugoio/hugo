@@ -66,7 +66,7 @@ func newTestResourceSpecForBaseURL(assert *require.Assertions, baseURL string) *
 
 	fs := hugofs.NewMem(cfg)
 
-	s, err := helpers.NewPathSpec(fs, cfg)
+	s, err := helpers.NewPathSpec(fs, cfg, nil)
 	assert.NoError(err)
 
 	filecaches, err := filecache.NewCaches(s)
@@ -104,7 +104,7 @@ func newTestResourceOsFs(assert *require.Assertions) *Spec {
 	fs.Destination = &afero.MemMapFs{}
 	fs.Source = afero.NewBasePathFs(hugofs.Os, workDir)
 
-	s, err := helpers.NewPathSpec(fs, cfg)
+	s, err := helpers.NewPathSpec(fs, cfg, nil)
 	assert.NoError(err)
 
 	filecaches, err := filecache.NewCaches(s)

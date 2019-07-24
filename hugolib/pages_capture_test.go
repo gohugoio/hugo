@@ -52,7 +52,7 @@ func TestPagesCapture(t *testing.T) {
 	writeFile("pages/page2.md")
 	writeFile("pages/page.png")
 
-	ps, err := helpers.NewPathSpec(hugofs.NewFrom(fs, cfg), cfg)
+	ps, err := helpers.NewPathSpec(hugofs.NewFrom(fs, cfg), cfg, loggers.NewErrorLogger())
 	assert.NoError(err)
 	sourceSpec := source.NewSourceSpec(ps, fs)
 
