@@ -38,7 +38,7 @@ hugo --config a.toml,b.toml,c.toml
 Multiple site config files can be specified as a comma-separated string to the `--config` switch.
 {{% /note %}}
 
-TODO: distinct config.toml and others (the root object files)
+{{< todo >}}TODO: distinct config.toml and others (the root object files){{< /todo >}}
 
 ## Configuration Directory
 
@@ -76,10 +76,10 @@ value in parentheses. Users may choose to override those values in their site
 config file(s).
 
 archetypeDir ("archetypes")
-: The directory where Hugo finds archetype files (content templates).
+: The directory where Hugo finds archetype files (content templates). {{% module-mounts-note %}}
 
 assetDir ("assets")
-: The directory where Hugo finds asset files used in [Hugo Pipes](/hugo-pipes/).
+: The directory where Hugo finds asset files used in [Hugo Pipes](/hugo-pipes/). {{% module-mounts-note %}}
 
 baseURL
 : Hostname (and path) to the root, e.g. http://bep.is/
@@ -103,10 +103,10 @@ canonifyURLs (false)
 : Enable to turn relative URLs into absolute.
 
 contentDir ("content")
-: The directory from where Hugo reads content files.
+: The directory from where Hugo reads content files. {{% module-mounts-note %}}
 
 dataDir ("data")
-: The directory from where Hugo reads data files.
+: The directory from where Hugo reads data files. {{% module-mounts-note %}}
 
 defaultContentLanguage ("en")
 : Content without language indicator will default to this language.
@@ -190,6 +190,9 @@ menu
 metaDataFormat ("toml")
 : Front matter meta-data format. Valid values: `"toml"`, `"yaml"`, or `"json"`.
 
+module
+: Module config see [Module Config](/hugo-modules/configuration/).
+
 newContentEditor ("")
 : The editor to use when creating new content.
 
@@ -245,7 +248,7 @@ sitemap
 : Default [sitemap configuration](/templates/sitemap-template/#configure-sitemap-xml).
 
 staticDir ("static")
-: A directory or a list of directories from where Hugo reads [static files][static-files].
+: A directory or a list of directories from where Hugo reads [static files][static-files]. {{% module-mounts-note %}}
 
 summaryLength (70)
 : The length of text in words to show in a [`.Summary`](/content-management/summaries/#hugo-defined-automatic-summary-splitting).
@@ -470,8 +473,10 @@ maxAge = -1
 [caches.assets]
 dir = ":resourceDir/_gen"
 maxAge = -1
+[caches.modules]
+dir = ":cacheDir/modules"
+maxAge = -1
 ```
-
 
 You can override any of these cache setting in your own `config.toml`.
 

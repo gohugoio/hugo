@@ -11,11 +11,11 @@
   url = "/getting-started/"
 
 [[docs]]
-  name = "Themes"
+  name = "Hugo Modules"
   weight = 15
-  identifier = "themes"
+  identifier = "modules"
   post = "break"
-  url = "/themes/"
+  url = "/hugo-modules/"
 
 # Core Menus
 
