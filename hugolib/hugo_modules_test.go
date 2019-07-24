@@ -443,6 +443,7 @@ weight = 2
 `
 
 	b := newTestSitesBuilder(t).WithNothingAdded().WithWorkingDir(workDir)
+	b.WithLogger(loggers.NewErrorLogger())
 	b.Fs = fs
 
 	b.WithConfigFile("toml", config)
@@ -457,35 +458,46 @@ weight = 2
 
 	bfs := b.H.BaseFs
 
-	for _, componentFs := range []afero.Fs{
+	for i, componentFs := range []afero.Fs{
+		bfs.Static[""].Fs,
 		bfs.Archetypes.Fs,
 		bfs.Content.Fs,
 		bfs.Data.Fs,
 		bfs.Assets.Fs,
-		bfs.Static[""].Fs,
 		bfs.I18n.Fs} {
 
-		for i, id := range []string{"mod", "project"} {
+		if i != 0 {
+			continue
+		}
 
-			statCheck := func(fs afero.Fs, filename string) {
-				shouldFail := i == 0
+		for j, id := range []string{"mod", "project"} {
+
+			statCheck := func(fs afero.Fs, filename string, isDir bool) {
+				shouldFail := j == 0
+				if !shouldFail && i == 0 {
+					// Static dirs only supports symlinks for files
+					shouldFail = isDir
+				}
+
 				_, err := fs.Stat(filepath.FromSlash(filename))
+
 				if err != nil {
-					if strings.HasSuffix(filename, "toml") && strings.Contains(err.Error(), "files not supported") {
+					if i > 0 && strings.HasSuffix(filename, "toml") && strings.Contains(err.Error(), "files not supported") {
 						// OK
 						return
 					}
 				}
+
 				if shouldFail {
 					assert.Error(err)
-					assert.Equal(hugofs.ErrPermissionSymlink, err)
+					assert.Equal(hugofs.ErrPermissionSymlink, err, filename)
 				} else {
-					assert.NoError(err)
+					assert.NoError(err, filename)
 				}
 			}
 
-			statCheck(componentFs, fmt.Sprintf("realsym%s", id))
-			statCheck(componentFs, fmt.Sprintf("real/datasym%s.toml", id))
+			statCheck(componentFs, fmt.Sprintf("realsym%s", id), true)
+			statCheck(componentFs, fmt.Sprintf("real/datasym%s.toml", id), false)
 
 		}
 	}

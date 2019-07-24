@@ -54,7 +54,7 @@ func TestIgnoreDotFilesAndDirectories(t *testing.T) {
 		v := newTestConfig()
 		v.Set("ignoreFiles", test.ignoreFilesRegexpes)
 		fs := hugofs.NewMem(v)
-		ps, err := helpers.NewPathSpec(fs, v)
+		ps, err := helpers.NewPathSpec(fs, v, nil)
 		assert.NoError(err)
 
 		s := NewSourceSpec(ps, fs.Source)

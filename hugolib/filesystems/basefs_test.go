@@ -124,7 +124,7 @@ theme = ["atheme"]
 	p, err := paths.New(fs, v)
 	assert.NoError(err)
 
-	bfs, err := NewBase(p)
+	bfs, err := NewBase(p, nil)
 	assert.NoError(err)
 	assert.NotNil(bfs)
 
@@ -206,7 +206,7 @@ func TestNewBaseFsEmpty(t *testing.T) {
 
 	p, err := paths.New(fs, v)
 	assert.NoError(err)
-	bfs, err := NewBase(p)
+	bfs, err := NewBase(p, nil)
 	assert.NoError(err)
 	assert.NotNil(bfs)
 	assert.NotNil(bfs.Archetypes.Fs)
@@ -263,7 +263,7 @@ func TestRealDirs(t *testing.T) {
 
 	p, err := paths.New(fs, v)
 	assert.NoError(err)
-	bfs, err := NewBase(p)
+	bfs, err := NewBase(p, nil)
 	assert.NoError(err)
 	assert.NotNil(bfs)
 
@@ -300,7 +300,7 @@ func TestStaticFs(t *testing.T) {
 
 	p, err := paths.New(fs, v)
 	assert.NoError(err)
-	bfs, err := NewBase(p)
+	bfs, err := NewBase(p, nil)
 	assert.NoError(err)
 
 	sfs := bfs.StaticFs("en")
@@ -344,7 +344,7 @@ func TestStaticFsMultiHost(t *testing.T) {
 
 	p, err := paths.New(fs, v)
 	assert.NoError(err)
-	bfs, err := NewBase(p)
+	bfs, err := NewBase(p, nil)
 	assert.NoError(err)
 	enFs := bfs.StaticFs("en")
 	checkFileContent(enFs, "f1.txt", assert, "Hugo Rocks!")

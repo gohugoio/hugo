@@ -90,19 +90,14 @@ func NewBaseFileDecorator(fs afero.Fs) afero.Fs {
 		isSymlink := isSymlink(fi)
 		if isSymlink {
 			meta[metaKeyOriginalFilename] = filename
-			link, err := filepath.EvalSymlinks(filename)
+			var link string
+			var err error
+			link, fi, err = evalSymlinks(fs, filename)
 			if err != nil {
 				return nil, err
 			}
-
-			fi, err = fs.Stat(link)
-			if err != nil {
-				return nil, err
-			}
-
 			filename = link
 			meta[metaKeyIsSymlink] = true
-
 		}
 
 		opener := func() (afero.File, error) {
@@ -115,6 +110,20 @@ func NewBaseFileDecorator(fs afero.Fs) afero.Fs {
 
 	ffs.decorate = decorator
 	return ffs
+}
+
+func evalSymlinks(fs afero.Fs, filename string) (string, os.FileInfo, error) {
+	link, err := filepath.EvalSymlinks(filename)
+	if err != nil {
+		return "", nil, err
+	}
+
+	fi, err := fs.Stat(link)
+	if err != nil {
+		return "", nil, err
+	}
+
+	return link, fi, nil
 }
 
 type baseFileDecoratorFs struct {

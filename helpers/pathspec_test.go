@@ -42,7 +42,7 @@ func TestNewPathSpecFromConfig(t *testing.T) {
 	fs := hugofs.NewMem(v)
 	fs.Source.MkdirAll(filepath.FromSlash("thework/thethemes/thetheme"), 0777)
 
-	p, err := NewPathSpec(fs, l)
+	p, err := NewPathSpec(fs, l, nil)
 
 	require.NoError(t, err)
 	require.True(t, p.CanonifyURLs)

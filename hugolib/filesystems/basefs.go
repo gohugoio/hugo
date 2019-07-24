@@ -23,6 +23,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/common/loggers"
+
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/pkg/errors"
@@ -295,8 +297,11 @@ func WithBaseFs(b *BaseFs) func(*BaseFs) error {
 }
 
 // NewBase builds the filesystems used by Hugo given the paths and options provided.NewBase
-func NewBase(p *paths.Paths, options ...func(*BaseFs) error) (*BaseFs, error) {
+func NewBase(p *paths.Paths, logger *loggers.Logger, options ...func(*BaseFs) error) (*BaseFs, error) {
 	fs := p.Fs
+	if logger == nil {
+		logger = loggers.NewWarningLogger()
+	}
 
 	publishFs := afero.NewBasePathFs(fs.Destination, p.AbsPublishDir)
 
@@ -314,7 +319,7 @@ func NewBase(p *paths.Paths, options ...func(*BaseFs) error) (*BaseFs, error) {
 		return b, nil
 	}
 
-	builder := newSourceFilesystemsBuilder(p, b)
+	builder := newSourceFilesystemsBuilder(p, logger, b)
 	sourceFilesystems, err := builder.Build()
 	if err != nil {
 		return nil, errors.Wrap(err, "build filesystems")
@@ -327,15 +332,16 @@ func NewBase(p *paths.Paths, options ...func(*BaseFs) error) (*BaseFs, error) {
 }
 
 type sourceFilesystemsBuilder struct {
+	logger   *loggers.Logger
 	p        *paths.Paths
 	sourceFs afero.Fs
 	result   *SourceFilesystems
 	theBigFs *filesystemsCollector
 }
 
-func newSourceFilesystemsBuilder(p *paths.Paths, b *BaseFs) *sourceFilesystemsBuilder {
+func newSourceFilesystemsBuilder(p *paths.Paths, logger *loggers.Logger, b *BaseFs) *sourceFilesystemsBuilder {
 	sourceFs := hugofs.NewBaseFileDecorator(p.Fs.Source)
-	return &sourceFilesystemsBuilder{p: p, sourceFs: sourceFs, theBigFs: b.theBigFs, result: &SourceFilesystems{}}
+	return &sourceFilesystemsBuilder{p: p, logger: logger, sourceFs: sourceFs, theBigFs: b.theBigFs, result: &SourceFilesystems{}}
 }
 
 func (b *sourceFilesystemsBuilder) newSourceFilesystem(fs afero.Fs, dirs []hugofs.FileMetaInfo) *SourceFilesystem {
@@ -415,7 +421,7 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 			ms[k] = sfs
 		}
 	} else {
-		bfs := afero.NewBasePathFs(b.theBigFs.overlayMounts, files.ComponentFolderStatic)
+		bfs := afero.NewBasePathFs(b.theBigFs.overlayMountsStatic, files.ComponentFolderStatic)
 		ms[""] = b.newSourceFilesystem(bfs, b.result.StaticDirs)
 	}
 
@@ -432,7 +438,7 @@ func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesys
 
 	collector := &filesystemsCollector{
 		sourceProject:     b.sourceFs,
-		sourceModules:     hugofs.NewNoSymlinkFs(b.sourceFs),
+		sourceModules:     hugofs.NewNoSymlinkFs(b.sourceFs, b.logger, false),
 		overlayDirs:       make(map[string][]hugofs.FileMetaInfo),
 		staticPerLanguage: staticFsMap,
 	}
@@ -475,6 +481,10 @@ func (b *sourceFilesystemsBuilder) isContentMount(mnt modules.Mount) bool {
 	return strings.HasPrefix(mnt.Target, files.ComponentFolderContent)
 }
 
+func (b *sourceFilesystemsBuilder) isStaticMount(mnt modules.Mount) bool {
+	return strings.HasPrefix(mnt.Target, files.ComponentFolderStatic)
+}
+
 func (b *sourceFilesystemsBuilder) createModFs(
 	collector *filesystemsCollector,
 	md mountsDescriptor) error {
@@ -482,6 +492,7 @@ func (b *sourceFilesystemsBuilder) createModFs(
 	var (
 		fromTo        []hugofs.RootMapping
 		fromToContent []hugofs.RootMapping
+		fromToStatic  []hugofs.RootMapping
 	)
 
 	absPathify := func(path string) string {
@@ -544,6 +555,8 @@ OUTER:
 
 		if isContentMount {
 			fromToContent = append(fromToContent, rm)
+		} else if b.isStaticMount(mount) {
+			fromToStatic = append(fromToStatic, rm)
 		} else {
 			fromTo = append(fromTo, rm)
 		}
@@ -553,6 +566,7 @@ OUTER:
 	if !md.isMainProject {
 		modBase = collector.sourceModules
 	}
+	sourceStatic := hugofs.NewNoSymlinkFs(modBase, b.logger, true)
 
 	rmfs, err := hugofs.NewRootMappingFs(modBase, fromTo...)
 	if err != nil {
@@ -562,17 +576,22 @@ OUTER:
 	if err != nil {
 		return err
 	}
+	rmfsStatic, err := hugofs.NewRootMappingFs(sourceStatic, fromToStatic...)
+	if err != nil {
+		return err
+	}
 
 	// We need to keep the ordered list of directories for watching and
 	// some special merge operations (data, i18n).
 	collector.addDirs(rmfs)
 	collector.addDirs(rmfsContent)
+	collector.addDirs(rmfsStatic)
 
 	if collector.staticPerLanguage != nil {
 		for _, l := range b.p.Languages {
 			lang := l.Lang
 
-			lfs := rmfs.Filter(func(rm hugofs.RootMapping) bool {
+			lfs := rmfsStatic.Filter(func(rm hugofs.RootMapping) bool {
 				rlang := rm.Meta.Lang()
 				return rlang == "" || rlang == lang
 			})
@@ -599,12 +618,14 @@ OUTER:
 	if collector.overlayMounts == nil {
 		collector.overlayMounts = rmfs
 		collector.overlayMountsContent = rmfsContent
+		collector.overlayMountsStatic = rmfsStatic
 		collector.overlayFull = afero.NewBasePathFs(modBase, md.dir)
 		collector.overlayResources = afero.NewBasePathFs(modBase, getResourcesDir())
 	} else {
 
 		collector.overlayMounts = afero.NewCopyOnWriteFs(collector.overlayMounts, rmfs)
 		collector.overlayMountsContent = hugofs.NewLanguageCompositeFs(collector.overlayMountsContent, rmfsContent)
+		collector.overlayMountsStatic = hugofs.NewLanguageCompositeFs(collector.overlayMountsStatic, rmfsStatic)
 		collector.overlayFull = afero.NewCopyOnWriteFs(collector.overlayFull, afero.NewBasePathFs(modBase, md.dir))
 		collector.overlayResources = afero.NewCopyOnWriteFs(collector.overlayResources, afero.NewBasePathFs(modBase, getResourcesDir()))
 	}
@@ -639,6 +660,7 @@ type filesystemsCollector struct {
 
 	overlayMounts        afero.Fs
 	overlayMountsContent afero.Fs
+	overlayMountsStatic  afero.Fs
 	overlayFull          afero.Fs
 	overlayResources     afero.Fs
 

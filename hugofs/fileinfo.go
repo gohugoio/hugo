@@ -180,7 +180,18 @@ type FileMetaInfo interface {
 
 type fileInfoMeta struct {
 	os.FileInfo
+
 	m FileMeta
+}
+
+// Name returns the file's name. Note that we follow symlinks,
+// if supported by the file system, and the Name given here will be the
+// name of the symlink, which is what Hugo needs in all situations.
+func (fi *fileInfoMeta) Name() string {
+	if name := fi.m.Name(); name != "" {
+		return name
+	}
+	return fi.FileInfo.Name()
 }
 
 func (fi *fileInfoMeta) Meta() FileMeta {
@@ -294,4 +305,12 @@ func normalizeFilename(filename string) string {
 		return norm.NFC.String(filename)
 	}
 	return filename
+}
+
+func fileInfosToNames(fis []os.FileInfo) []string {
+	names := make([]string, len(fis))
+	for i, d := range fis {
+		names[i] = d.Name()
+	}
+	return names
 }

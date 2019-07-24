@@ -103,7 +103,7 @@ func newTestConfig() *viper.Viper {
 func newTestSourceSpec() *SourceSpec {
 	v := newTestConfig()
 	fs := hugofs.NewFrom(hugofs.NewBaseFileDecorator(afero.NewMemMapFs()), v)
-	ps, err := helpers.NewPathSpec(fs, v)
+	ps, err := helpers.NewPathSpec(fs, v, nil)
 	if err != nil {
 		panic(err)
 	}

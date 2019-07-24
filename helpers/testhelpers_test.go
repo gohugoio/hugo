@@ -10,7 +10,7 @@ import (
 
 func newTestPathSpec(fs *hugofs.Fs, v *viper.Viper) *PathSpec {
 	l := langs.NewDefaultLanguage(v)
-	ps, _ := NewPathSpec(fs, l)
+	ps, _ := NewPathSpec(fs, l, nil)
 	return ps
 }
 
