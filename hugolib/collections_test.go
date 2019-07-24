@@ -142,6 +142,13 @@ tags_weight: %d
 {{ printf "inTrue: %t" $inTrue }}
 {{ printf "inFalse: %t" $inFalse  }}
 `)
+
+	b.WithTemplatesAdded("_default/single.html", `
+{{ $related := .Site.RegularPages.Related . }}
+{{ $symdiff := $related | symdiff .Site.RegularPages }}
+Related: {{ range $related }}{{ .RelPermalink }}|{{ end }}
+Symdiff: {{ range $symdiff }}{{ .RelPermalink }}|{{ end }}
+`)
 	b.CreateSites().Build(BuildCfg{})
 
 	assert.Equal(1, len(b.H.Sites))
@@ -152,6 +159,8 @@ tags_weight: %d
 		"inTrue: true",
 		"inFalse: false",
 	)
+
+	b.AssertFileContent("public/page1/index.html", `Related: /page2/|/page3/|`, `Symdiff: /page1/|`)
 }
 
 func TestAppendFunc(t *testing.T) {
