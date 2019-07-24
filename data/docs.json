@@ -299,6 +299,13 @@
         ]
       },
       {
+        "Name": "D",
+        "Aliases": [
+          "d",
+          "di"
+        ]
+      },
+      {
         "Name": "DTD",
         "Aliases": [
           "dtd"
@@ -501,6 +508,12 @@
         ]
       },
       {
+        "Name": "HCL",
+        "Aliases": [
+          "hcl"
+        ]
+      },
+      {
         "Name": "HTML",
         "Aliases": [
           "htm",
@@ -576,13 +589,6 @@
         "Name": "JSON",
         "Aliases": [
           "json"
-        ]
-      },
-      {
-        "Name": "JSX",
-        "Aliases": [
-          "jsx",
-          "react"
         ]
       },
       {
@@ -1299,6 +1305,13 @@
         ]
       },
       {
+        "Name": "react",
+        "Aliases": [
+          "jsx",
+          "react"
+        ]
+      },
+      {
         "Name": "reg",
         "Aliases": [
           "reg",
@@ -1318,6 +1331,13 @@
         "Aliases": [
           "v",
           "verilog"
+        ]
+      },
+      {
+        "Name": "vue",
+        "Aliases": [
+          "vue",
+          "vuejs"
         ]
       }
     ]
@@ -2557,6 +2577,26 @@
             "last"
           ],
           "Examples": []
+        },
+        "Merge": {
+          "Description": "Merge creates a copy of dst and merges src into it.\nCurrently only maps supported. Key handling is case insensitive.",
+          "Args": [
+            "src",
+            "dst"
+          ],
+          "Aliases": [
+            "merge"
+          ],
+          "Examples": [
+            [
+              "{{ dict \"title\" \"Hugo Rocks!\" | collections.Merge (dict \"title\" \"Default Title\" \"description\" \"Yes, Hugo Rocks!\") | sort }}",
+              "[Yes, Hugo Rocks! Hugo Rocks!]"
+            ],
+            [
+              "{{  merge (dict \"title\" \"Default Title\" \"description\" \"Yes, Hugo Rocks!\") (dict \"title\" \"Hugo Rocks!\") | sort }}",
+              "[Yes, Hugo Rocks! Hugo Rocks!]"
+            ]
+          ]
         },
         "NewScratch": {
           "Description": "NewScratch creates a new Scratch which can be used to store values in a\nthread safe way.",
