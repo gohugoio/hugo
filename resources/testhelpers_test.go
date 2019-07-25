@@ -102,7 +102,6 @@ func newTestResourceOsFs(assert *require.Assertions) *Spec {
 
 	fs := hugofs.NewFrom(hugofs.Os, cfg)
 	fs.Destination = &afero.MemMapFs{}
-	fs.Source = afero.NewBasePathFs(hugofs.Os, workDir)
 
 	s, err := helpers.NewPathSpec(fs, cfg, nil)
 	assert.NoError(err)
