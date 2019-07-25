@@ -1,8 +1,8 @@
 
 ---
 date: 2019-07-25
-title: "0.56.0"
-description: "0.56.0"
+title: "Hugo 0.56.0: Hugo Modules and Deployment"
+description: "This release adds powerful module support with dependency management for all component types, including content. And we now have built-in deployment support to GCS, S3, or Azure."
 categories: ["Releases"]
 ---
 
