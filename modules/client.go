@@ -79,6 +79,7 @@ func NewClient(cfg ClientConfig) *Client {
 
 	config.SetEnvVars(&env,
 		"PWD", cfg.WorkingDir,
+		"GO111MODULE", "on",
 		"GOPROXY", mcfg.Proxy,
 		"GOPRIVATE", mcfg.Private,
 		"GONOPROXY", mcfg.NoProxy)
