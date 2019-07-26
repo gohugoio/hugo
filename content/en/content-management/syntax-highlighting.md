@@ -190,10 +190,10 @@ On Debian and Ubuntu systems, you may also install Pygments by running `sudo apt
 
 
 
-[Prism]: http://prismjs.com
-[prismdownload]: http://prismjs.com/download.html
-[Highlight.js]: http://highlightjs.org/
-[Rainbow]: http://craig.is/making/rainbows
-[Syntax Highlighter]: http://alexgorbatchev.com/SyntaxHighlighter/
+[Prism]: https://prismjs.com
+[prismdownload]: https://prismjs.com/download.html
+[Highlight.js]: https://highlightjs.org/
+[Rainbow]: https://craig.is/making/rainbows
+[Syntax Highlighter]: https://alexgorbatchev.com/SyntaxHighlighter/
 [Google Prettify]: https://github.com/google/code-prettify
-[Yandex]: http://yandex.ru/
+[Yandex]: https://yandex.ru/
