@@ -234,7 +234,7 @@ Markdown syntax is simple enough to learn in a single sitting. The following are
 * [The Markdown Guide, Matt Cone][mdguide]
 
 [`emojify` function]: /functions/emojify/
-[ascii]: http://asciidoctor.org/
+[ascii]: https://asciidoctor.org/
 [bfconfig]: /getting-started/configuration/#configuring-blackfriday-rendering
 [blackfriday]: https://github.com/russross/blackfriday
 [mmark]: https://github.com/miekg/mmark
@@ -251,11 +251,11 @@ Markdown syntax is simple enough to learn in a single sitting. The following are
 [mathjaxdocs]: https://docs.mathjax.org/en/latest/
 [mdcheatsheet]: https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
 [mdguide]: https://www.markdownguide.org/
-[mdtutorial]: http://www.markdowntutorial.com/
+[mdtutorial]: https://www.markdowntutorial.com/
 [Miek Gieben's website]: https://miek.nl/2016/march/05/mmark-syntax-document/
 [mmark]: https://github.com/mmarkdown/mmark
-[org]: http://orgmode.org/
-[pandoc]: http://www.pandoc.org/
+[org]: https://orgmode.org/
+[pandoc]: https://www.pandoc.org/
 [Pygments]: http://pygments.org/
 [rest]: http://docutils.sourceforge.net/rst.html
 [sc]: /content-management/shortcodes/
