@@ -330,9 +330,6 @@ func NewCaches(p *helpers.PathSpec) (Caches, error) {
 
 		if v.isResourceDir {
 			cfs = p.BaseFs.ResourcesCache
-			if cfs == nil {
-				continue
-			}
 		} else {
 			cfs = fs
 		}
