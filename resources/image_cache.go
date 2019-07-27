@@ -91,6 +91,8 @@ func (c *imageCache) getOrCreate(
 		img = parent.clone()
 		img.relTargetDirFile.file = relTarget.file
 		img.sourceFilename = info.Name
+		// Make sure it's always loaded by sourceFilename.
+		img.openReadSeekerCloser = nil
 
 		w, err := img.openDestinationsForWriting()
 		if err != nil {
