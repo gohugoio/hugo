@@ -42,7 +42,7 @@ This is best explained with an example:
 
 ## Example: Jaco Pastorius' Solo Discography
 
-[Jaco Pastorius](http://en.wikipedia.org/wiki/Jaco_Pastorius_discography) was a great bass player, but his solo discography is short enough to use as an example. [John Patitucci](http://en.wikipedia.org/wiki/John_Patitucci) is another bass giant.
+[Jaco Pastorius](https://en.wikipedia.org/wiki/Jaco_Pastorius_discography) was a great bass player, but his solo discography is short enough to use as an example. [John Patitucci](https://en.wikipedia.org/wiki/John_Patitucci) is another bass giant.
 
 The example below is a bit contrived, but it illustrates the flexibility of data Files. This example uses TOML as its file format with the two following data files:
 
@@ -118,7 +118,7 @@ Note the use of the [`markdownify` template function][markdownify]. This will se
 
 ## Data-Driven Content
 
-In addition to the [data files](/extras/datafiles/) feature, Hugo also has a "data-driven content" feature, which lets you load any [JSON](http://www.json.org/) or [CSV](http://en.wikipedia.org/wiki/Comma-separated_values) file from nearly any resource.
+In addition to the [data files](/extras/datafiles/) feature, Hugo also has a "data-driven content" feature, which lets you load any [JSON](https://www.json.org/) or [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) file from nearly any resource.
 
 Data-driven content currently consists of two functions, `getJSON` and `getCSV`, which are available in all template files.
 
@@ -250,10 +250,10 @@ If you change any local file and the LiveReload is triggered, Hugo will read the
 [LiveReload]: /getting-started/usage/#livereload
 [lookup]: /templates/lookup-order/
 [markdownify]: /functions/markdownify/
-[OAuth]: http://en.wikipedia.org/wiki/OAuth
+[OAuth]: https://en.wikipedia.org/wiki/OAuth
 [partials]: /templates/partials/
 [themes]: /themes/
 [toml]: https://github.com/toml-lang/toml
-[variadic]: http://en.wikipedia.org/wiki/Variadic_function
+[variadic]: https://en.wikipedia.org/wiki/Variadic_function
 [vars]: /variables/
-[yaml]: http://yaml.org/spec/
+[yaml]: https://yaml.org/spec/

@@ -88,5 +88,5 @@ To easily generate new instances of a content type (e.g., new `.md` files in a s
 [partials]: /templates/partials/
 [section]: /content-management/sections/
 [site variables]: /variables/site/
-[spf13]: http://spf13.com/
+[spf13]: https://spf13.com/
 [`with`]: /functions/with/

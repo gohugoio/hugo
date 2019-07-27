@@ -113,7 +113,7 @@ Continuing on the previous example, we can change our render function to use a s
 [pagevars]: /variables/page/
 [render]: /functions/render/
 [single]: /templates/single-page-templates/
-[spf]: http://spf13.com
+[spf]: https://spf13.com
 [spfsourceli]: https://github.com/spf13/spf13.com/blob/master/layouts/_default/li.html
 [spfsourcesection]: https://github.com/spf13/spf13.com/blob/master/layouts/_default/section.html
 [spfsourcesummary]: https://github.com/spf13/spf13.com/blob/master/layouts/_default/summary.html

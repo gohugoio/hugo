@@ -141,7 +141,7 @@ Go Templates only ship with a few basic functions but also provide a mechanism f
 Note that both examples make use of Go Template's [math functions][].
 
 {{% note "Additional Boolean Operators" %}}
-There are more boolean operators than those listed in the Hugo docs in the [Go Template documentation](http://golang.org/pkg/text/template/#hdr-Functions).
+There are more boolean operators than those listed in the Hugo docs in the [Go Template documentation](https://golang.org/pkg/text/template/#hdr-Functions).
 {{% /note %}}
 
 ## Includes
@@ -391,7 +391,7 @@ By default, Go Templates remove HTML comments from output. This has the unfortun
 {{ "<![endif]-->" | safeHTML }}
 ```
 
-Alternatively, you can use the backtick (`` ` ``) to quote the IE conditional comments, avoiding the tedious task of escaping every double quotes (`"`) inside, as demonstrated in the [examples](http://golang.org/pkg/text/template/#hdr-Examples) in the Go text/template documentation:
+Alternatively, you can use the backtick (`` ` ``) to quote the IE conditional comments, avoiding the tedious task of escaping every double quotes (`"`) inside, as demonstrated in the [examples](https://golang.org/pkg/text/template/#hdr-Examples) in the Go text/template documentation:
 
 ```go-html-template
 {{ `<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"><![endif]-->` | safeHTML }}
@@ -642,12 +642,12 @@ Go allows you to do more than what's shown here. Using Hugo's [`where` function]
 
 [`where` function]: /functions/where/
 [config]: /getting-started/configuration/
-[dotdoc]: http://golang.org/pkg/text/template/#hdr-Variables
+[dotdoc]: https://golang.org/pkg/text/template/#hdr-Variables
 [first]: /functions/first/
 [front matter]: /content-management/front-matter/
 [functions]: /functions/ "See the full list of Hugo's templating functions with a quick start reference guide and basic and advanced examples."
-[Go html/template]: http://golang.org/pkg/html/template/ "Godocs references for Go's html templating"
-[gohtmltemplate]: http://golang.org/pkg/html/template/ "Godocs references for Go's html templating"
+[Go html/template]: https://golang.org/pkg/html/template/ "Godocs references for Go's html templating"
+[gohtmltemplate]: https://golang.org/pkg/html/template/ "Godocs references for Go's html templating"
 [index]: /functions/index/
 [math functions]: /functions/math/
 [partials]: /templates/partials/ "Link to the partial templates page inside of the templating section of the Hugo docs"
@@ -659,6 +659,6 @@ Go allows you to do more than what's shown here. Using Hugo's [`where` function]
 [variables]: /variables/ "See the full extent of page-, site-, and other variables that Hugo make available to you in your templates."
 [where]: /functions/where/
 [with]: /functions/with/
-[godocsindex]: http://golang.org/pkg/text/template/ "Godocs page for index function"
+[godocsindex]: https://golang.org/pkg/text/template/ "Godocs page for index function"
 [param]: /functions/param/
 [isset]: /functions/isset/

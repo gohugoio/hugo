@@ -51,4 +51,4 @@ This template disallows all the pages of the site by creating one `Disallow` ent
 
 [config]: /getting-started/configuration/
 [lookup]: /templates/lookup-order/
-[robots]: http://www.robotstxt.org/
+[robots]: https://www.robotstxt.org/

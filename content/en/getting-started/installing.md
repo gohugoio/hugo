@@ -515,7 +515,7 @@ Now that you've installed Hugo, read the [Quick Start guide][quickstart] and exp
 [mage]: https://github.com/magefile/mage
 [dep]: https://github.com/golang/dep
 [highlight shortcode]: /content-management/shortcodes/#highlight
-[installgit]: http://git-scm.com/
+[installgit]: https://git-scm.com/
 [installgo]: https://golang.org/dl/
 [linuxbrew]: https://linuxbrew.sh/
 [Path Editor]: https://patheditor2.codeplex.com/
@@ -524,6 +524,6 @@ Now that you've installed Hugo, read the [Quick Start guide][quickstart] and exp
 [redhatforum]: https://discourse.gohugo.io/t/solved-fedora-copr-repository-out-of-service/2491
 [releases]: https://github.com/gohugoio/hugo/releases
 [Scoop]: https://scoop.sh/
-[snaps]: http://snapcraft.io/docs/core/install
+[snaps]: https://snapcraft.io/docs/installing-snapd
 [windowsarch]: https://esupport.trendmicro.com/en-us/home/pages/technical-support/1038680.aspx
 [Windows Environment Variables Editor]: http://eveditor.com/

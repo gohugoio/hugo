@@ -183,7 +183,7 @@ Would load the template at `/layouts/shortcodes/youtube.html`:
 
 {{< code file="/layouts/shortcodes/youtube.html" >}}
 <div class="embed video-player">
-<iframe class="youtube-player" type="text/html" width="640" height="385" src="http://www.youtube.com/embed/{{ index .Params 0 }}" allowfullscreen frameborder="0">
+<iframe class="youtube-player" type="text/html" width="640" height="385" src="https://www.youtube.com/embed/{{ index .Params 0 }}" allowfullscreen frameborder="0">
 </iframe>
 </div>
 {{< /code >}}
@@ -192,7 +192,7 @@ Would load the template at `/layouts/shortcodes/youtube.html`:
 <div class="embed video-player">
     <iframe class="youtube-player" type="text/html"
         width="640" height="385"
-        src="http://www.youtube.com/embed/09jf3ow9jfw"
+        src="https://www.youtube.com/embed/09jf3ow9jfw"
         allowfullscreen frameborder="0">
     </iframe>
 </div>

@@ -82,7 +82,7 @@ assetDir ("assets")
 : The directory where Hugo finds asset files used in [Hugo Pipes](/hugo-pipes/). {{% module-mounts-note %}}
 
 baseURL
-: Hostname (and path) to the root, e.g. http://bep.is/
+: Hostname (and path) to the root, e.g. https://bep.is/
 
 blackfriday
 : See [Configure Blackfriday](/getting-started/configuration/#configure-blackfriday)

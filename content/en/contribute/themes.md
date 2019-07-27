@@ -94,7 +94,7 @@ min_version = 0.13
 
 [author]
     name = "spf13"
-    homepage = "http://spf13.com/"
+    homepage = "https://spf13.com/"
 
 # If porting an existing theme
 [original]
@@ -128,7 +128,7 @@ Your theme's README file should be written in markdown and saved at the root of 
 2. General information about the theme in your GitHub repository (i.e., it's usual purpose, features and instructions)
 
 {{% note "Screenshots in your `README.md`"%}}
-If you add screenshots to the README, please make use of absolute file paths instead of relative ones like `/images/screenshot.png`. Relative paths work great on GitHub but they don't correspond to the directory structure of [themes.gohugo.io](http://themes.gohugo.io/). Therefore, browsers will not be able to display screenshots on the theme site under the given (relative) path.
+If you add screenshots to the README, please make use of absolute file paths instead of relative ones like `/images/screenshot.png`. Relative paths work great on GitHub but they don't correspond to the directory structure of [themes.gohugo.io](https://themes.gohugo.io/). Therefore, browsers will not be able to display screenshots on the theme site under the given (relative) path.
 {{% /note %}}
 
 [artistexample]: https://github.com/digitalcraftsman/hugo-artists-theme/tree/master/exampleSite

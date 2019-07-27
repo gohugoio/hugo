@@ -25,7 +25,7 @@ In Hugo, A list template is any template that will be used to render multiple pi
 
 ### Section Template
 
-This list template is used for [spf13.com](http://spf13.com/). It makes use of [partial templates][partials]. All examples use a [view](/templates/views/) called either "li" or "summary."
+This list template is used for [spf13.com](https://spf13.com/). It makes use of [partial templates][partials]. All examples use a [view](/templates/views/) called either "li" or "summary."
 
 {{< code file="layouts/section/post.html" >}}
 {{ partial "header.html" . }}
