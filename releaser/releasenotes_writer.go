@@ -29,21 +29,29 @@ import (
 )
 
 const (
-	issueLinkTemplate            = "[#%d](https://github.com/gohugoio/hugo/issues/%d)"
-	linkTemplate                 = "[%s](%s)"
-	releaseNotesMarkdownTemplate = `
-{{- $patchRelease := isPatch . -}}
-{{- $contribsPerAuthor := .All.ContribCountPerAuthor -}}
-{{- $docsContribsPerAuthor := .Docs.ContribCountPerAuthor -}}
-{{- if $patchRelease }}
+	issueLinkTemplate                        = "[#%d](https://github.com/gohugoio/hugo/issues/%d)"
+	linkTemplate                             = "[%s](%s)"
+	releaseNotesMarkdownTemplatePatchRelease = `
 {{ if eq (len .All) 1 }}
 This is a bug-fix release with one important fix.
 {{ else }}
 This is a bug-fix release with a couple of important fixes.
 {{ end }}
-{{ else }}
-This release represents **{{ len .All }} contributions by {{ len $contribsPerAuthor }} contributors** to the main Hugo code base.
+{{ range .All }}
+{{- if .GitHubCommit -}}
+* {{ .Subject }} {{ . | commitURL }} {{ . | authorURL }} {{ range .Issues }}{{ . | issue }}{{ end }}
+{{ else -}}
+* {{ .Subject }} {{ range .Issues }}{{ . | issue }}{{ end }}
 {{ end -}}
+{{- end }}
+
+
+`
+	releaseNotesMarkdownTemplate = `
+{{- $contribsPerAuthor := .All.ContribCountPerAuthor -}}
+{{- $docsContribsPerAuthor := .Docs.ContribCountPerAuthor -}}
+
+This release represents **{{ len .All }} contributions by {{ len $contribsPerAuthor }} contributors** to the main Hugo code base.
 
 {{- if  gt (len $contribsPerAuthor) 3 -}}
 {{- $u1 := index $contribsPerAuthor 0 -}}
@@ -53,7 +61,6 @@ This release represents **{{ len .All }} contributions by {{ len $contribsPerAut
 {{- $u1.AuthorLink }} leads the Hugo development with a significant amount of contributions, but also a big shoutout to {{ $u2.AuthorLink }}, {{ $u3.AuthorLink }}, and {{ $u4.AuthorLink }} for their ongoing contributions.
 And a big thanks to [@digitalcraftsman](https://github.com/digitalcraftsman) and [@onedrawingperday](https://github.com/onedrawingperday) for their relentless work on keeping the themes site in pristine condition and to [@kaushalmodi](https://github.com/kaushalmodi) for his great work on the documentation site.
 {{ end }}
-{{- if not $patchRelease }}
 Many have also been busy writing and fixing the documentation in [hugoDocs](https://github.com/gohugoio/hugoDocs), 
 which has received **{{ len .Docs }} contributions by {{ len $docsContribsPerAuthor }} contributors**.
 {{- if  gt (len $docsContribsPerAuthor) 3 -}}
@@ -62,7 +69,7 @@ which has received **{{ len .Docs }} contributions by {{ len $docsContribsPerAut
 {{- $u3 := index $docsContribsPerAuthor 2 -}}
 {{- $u4 := index $docsContribsPerAuthor 3 }} A special thanks to {{ $u1.AuthorLink }}, {{ $u2.AuthorLink }}, {{ $u3.AuthorLink }}, and {{ $u4.AuthorLink }} for their work on the documentation site.
 {{ end }}
-{{ end }}
+
 Hugo now has:
 
 {{ with .Repo -}}
@@ -151,7 +158,13 @@ func writeReleaseNotes(version string, infosMain, infosDocs gitInfos, to io.Writ
 		changes.ThemeCount = themeCount
 	}
 
-	tmpl, err := template.New("").Funcs(templateFuncs).Parse(releaseNotesMarkdownTemplate)
+	mtempl := releaseNotesMarkdownTemplate
+
+	if !strings.HasSuffix(version, "0") {
+		mtempl = releaseNotesMarkdownTemplatePatchRelease
+	}
+
+	tmpl, err := template.New("").Funcs(templateFuncs).Parse(mtempl)
 	if err != nil {
 		return err
 	}
@@ -225,9 +238,9 @@ func (r *ReleaseHandler) releaseNotesState(version string) (releaseNotesState, e
 
 }
 
-func (r *ReleaseHandler) writeReleaseNotesToTemp(version string, infosMain, infosDocs gitInfos) (string, error) {
+func (r *ReleaseHandler) writeReleaseNotesToTemp(version string, isPatch bool, infosMain, infosDocs gitInfos) (string, error) {
 
-	docsTempPath, name := getReleaseNotesDocsTempDirAndName(version, false)
+	docsTempPath, name := getReleaseNotesDocsTempDirAndName(version, isPatch)
 
 	var (
 		w io.WriteCloser
