@@ -1543,3 +1543,58 @@ title: Scratch Me!
 	b.AssertFileContent("public/index.html", "B: bv")
 	b.AssertFileContent("public/scratchme/index.html", "C: cv")
 }
+
+func TestPageParam(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t).WithConfigFile("toml", `
+
+baseURL = "https://example.org"
+
+[params]
+[params.author]
+  name = "Kurt Vonnegut"
+
+`)
+	b.WithTemplatesAdded("index.html", `
+
+{{ $withParam := .Site.GetPage "withparam" }}
+{{ $noParam := .Site.GetPage "noparam" }}
+{{ $withStringParam := .Site.GetPage "withstringparam" }}
+
+Author page: {{ $withParam.Param "author.name" }}
+Author page string: {{ $withStringParam.Param "author.name" }}|
+Author site config:  {{ $noParam.Param "author.name" }}
+
+`,
+	)
+
+	b.WithContent("withparam.md", `
++++
+title = "With Param!"
+[author]
+  name = "Ernest Miller Hemingway"
+
++++
+
+`,
+
+		"noparam.md", `
+---
+title: "No Param!"
+---
+`, "withstringparam.md", `
++++
+title = "With string Param!"
+author = "Jo Nesbø"
+
++++
+
+`)
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", "Author page: Ernest Miller Hemingway")
+	b.AssertFileContent("public/index.html", "Author page string: |")
+	b.AssertFileContent("public/index.html", "Author site config:  Kurt Vonnegut")
+
+}

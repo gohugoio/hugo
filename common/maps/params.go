@@ -16,8 +16,6 @@ package maps
 import (
 	"strings"
 
-	"github.com/pkg/errors"
-
 	"github.com/spf13/cast"
 )
 
@@ -72,7 +70,7 @@ func traverseNestedParams(keySegments []string, lookupFn func(key string) interf
 		v, key, owner := traverseParams(rest, m)
 		return v, key, owner, nil
 	default:
-		return nil, "", nil, errors.Errorf("unsupported Params type: %T", result)
+		return nil, "", nil, nil
 	}
 }
 
