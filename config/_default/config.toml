@@ -7,7 +7,6 @@ footnotereturnlinkcontents = "↩"
 languageCode = "en-us"
 metaDataFormat = "yaml"
 title = "Hugo"
-theme = "gohugoioTheme"
 
 googleAnalytics = "UA-7131036-4"
 
