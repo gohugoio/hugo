@@ -37,7 +37,7 @@ require (
 	github.com/ncw/rclone v1.48.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/nicksnyder/go-i18n v1.10.0
-	github.com/niklasfasching/go-org v0.1.1
+	github.com/niklasfasching/go-org v0.1.2
 	github.com/olekukonko/tablewriter v0.0.0-20180506121414-d4647c9c7a84
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/pelletier/go-toml v1.4.0 // indirect
