@@ -1,8 +1,8 @@
 
 ---
 date: 2019-07-28
-title: "0.56.1"
-description: "0.56.1"
+title: "0.56.1: Two Bug Fixes"
+description: "This version fixes a couple of regressions introduced in 0.56.0."
 categories: ["Releases"]
 images:
 - images/blog/hugo-bug-poster.png
