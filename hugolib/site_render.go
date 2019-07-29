@@ -349,6 +349,12 @@ func (s *Site) renderMainLanguageRedirect() error {
 		return nil
 	}
 
+	if s.Cfg.GetBool("disableDefaultLanguageSubdirRedir") {
+		// Do not generate the redirect to default language in subfolder.
+		// todo( Write in docs how to use URL front-matter to place  the /index.html file.
+		return nil
+	}
+
 	html, found := s.outputFormatsConfig.GetByName("HTML")
 	if found {
 		mainLang := s.h.multilingual.DefaultLang

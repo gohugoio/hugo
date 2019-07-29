@@ -559,6 +559,7 @@ type SiteInfo struct {
 	s                              *Site
 	language                       *langs.Language
 	defaultContentLanguageInSubdir bool
+	disableDefaultLanguageSubdirRedir bool
 	sectionPagesMenu               string
 }
 
