@@ -19,6 +19,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pkg/errors"
+
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugio"
@@ -43,6 +45,10 @@ var (
 )
 
 func (s *Spec) Transform(r resource.Resource, t ResourceTransformation) (resource.Resource, error) {
+	if r == nil {
+		return nil, errors.New("got nil Resource in transformation. Make sure you check with 'with' or 'if' when you get a resource, e.g. with resources.Get.")
+	}
+
 	return &transformedResource{
 		Resource:                    r,
 		transformation:              t,
