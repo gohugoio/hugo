@@ -24,11 +24,12 @@ You can use the "hugo deploy" command to upload your site directly to a Google C
 ## Assumptions
 
 * You have completed the [Quick Start][] or have a Hugo website you are ready to deploy and share with the world.
-* You have an account with the service provider ([Google Cloud][], [AWS][], or [Azure][]) that you want to deploy to.
-* You have authenticated locally.
+* You have an account with the service provider ([Google Cloud](https://cloud.google.com/), [AWS](https://aws.amazon.com), or [Azure](https://azure.microsoft.com)) that you want to deploy to.
+* You have authenticated.
   * Google Cloud: [Install the CLI](https://cloud.google.com/sdk) and run [`gcloud auth login`](https://cloud.google.com/sdk/gcloud/reference/auth/login).
   * AWS: [Install the CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html) and run [`aws configure`](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html).
   * Azure: [Install the CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) and run [`az login`](https://docs.microsoft.com/en-us/cli/azure/authenticate-azure-cli).
+  * NOTE: Each service supports alternatives for authentication, including using environment variables. See [here](https://gocloud.dev/howto/blob/#services) for more details.
 
 ## Create a bucket to deploy to
 
