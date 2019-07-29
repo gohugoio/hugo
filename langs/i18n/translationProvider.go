@@ -50,7 +50,11 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 	}
 	var newLangs []string
 
-	for _, dir := range d.BaseFs.I18n.Dirs {
+	// The source dirs are ordered so the most important comes first. Since this is a
+	// last key win situation, we have to reverse the iteration order.
+	dirs := d.BaseFs.I18n.Dirs
+	for i := len(dirs) - 1; i >= 0; i-- {
+		dir := dirs[i]
 		src := spec.NewFilesystemFromFileMetaInfo(dir)
 
 		files, err := src.Files()
@@ -71,10 +75,8 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 			language.RegisterPluralSpec(newLangs, en)
 		}
 
-		// The source files are ordered so the most important comes first. Since this is a
-		// last key win situation, we have to reverse the iteration order.
-		for i := len(files) - 1; i >= 0; i-- {
-			if err := addTranslationFile(i18nBundle, files[i]); err != nil {
+		for _, file := range files {
+			if err := addTranslationFile(i18nBundle, file); err != nil {
 				return err
 			}
 		}

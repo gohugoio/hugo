@@ -204,7 +204,7 @@ Data C: {{ $data.c.value }}
 Data D: {{ $data.d.value }}
 All Data: {{ $data }}
 
-i18n hello: {{ i18n "hello" . }}
+i18n hello1: {{ i18n "hello1" . }}
 i18n theme: {{ i18n "theme" . }}
 i18n theme2: {{ i18n "theme2" . }}
 `)
@@ -238,9 +238,13 @@ other = %q
 	b.WithSourceFile("themes/d/data/d.toml", `value="Hugo Rodks!"`)
 
 	// i18n files
-	b.WithSourceFile("i18n/en.toml", i18nContent("hello", "Project"))
-	b.WithSourceFile("themes/c/en.toml", i18nContent("hello", "Theme C"))
-	b.WithSourceFile("themes/c/i18n/en.toml", i18nContent("theme", "Theme C"))
+	b.WithSourceFile("i18n/en.toml", i18nContent("hello1", "Project"))
+	b.WithSourceFile("themes/c/i18n/en.toml", `
+[hello1]
+other="Theme C Hello"
+[theme]
+other="Theme C"
+`)
 	b.WithSourceFile("themes/d/i18n/en.toml", i18nContent("theme", "Theme D"))
 	b.WithSourceFile("themes/d/i18n/en.toml", i18nContent("theme2", "Theme2 D"))
 
@@ -261,7 +265,7 @@ other = %q
 
 	// i18n
 	b.AssertFileContent("public/index.html",
-		"i18n hello: Project",
+		"i18n hello1: Project",
 		"i18n theme: Theme C",
 		"i18n theme2: Theme2 D",
 	)
