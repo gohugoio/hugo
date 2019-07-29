@@ -11,9 +11,9 @@ authors: [Robert van Gent]
 menu:
   docs:
     parent: "hosting-and-deployment"
-    weight: 10
-weight: 10
-sections_weight: 10
+    weight: 2
+weight: 2
+sections_weight: 2
 draft: false
 aliases: []
 toc: true
