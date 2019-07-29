@@ -65,11 +65,19 @@ order = [".jpg$", ".gif$"]
 # An arbitrary name for this target.
 name = "mydeployment"
 # The Go Cloud Development Kit URL to deploy to. Examples:
-  # URL = "gs://<Bucket Name>"  # For GCS; see https://gocloud.dev/howto/blob/open-bucket/#gcs.
-  # URL = "s3://<Bucket Name>?region=<AWS region>"  # For S3; see https://gocloud.dev/howto/blob/open-bucket/#s3.
-  # URL = "azblob://$web"  # For Azure Storage; see https://gocloud.dev/howto/blob/open-bucket/#azure.
+# GCS; see https://gocloud.dev/howto/blob/#gcs
+# URL = "gs://<Bucket Name>"
+
+# S3; see https://gocloud.dev/howto/blob/#s3
+# For S3-compatible endpoints, see https://gocloud.dev/howto/blob/#s3-compatible
+# URL = "s3://<Bucket Name>?region=<AWS region>"
+
+# Azure Blob Storage; see https://gocloud.dev/howto/blob/#azure
+# URL = "azblob://$web"
+
 # You can use a "prefix=" query parameter to target a subfolder of the bucket:
-  # URL = "gs://<Bucket Name>?prefix=a/subfolder/"
+# URL = "gs://<Bucket Name>?prefix=a/subfolder/"
+
 # If you are using a CloudFront CDN, deploy will invalidate the cache as needed.
 cloudFrontDistributionID = <ID>
 
