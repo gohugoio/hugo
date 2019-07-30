@@ -95,6 +95,8 @@ func (r *ReleaseHandler) Run() error {
 	version := newVersion.String()
 	tag := "v" + version
 	isPatch := newVersion.PatchLevel > 0
+	mainVersion := newVersion
+	mainVersion.PatchLevel = 0
 
 	// Exit early if tag already exists
 	exists, err := tagExists(tag)
@@ -193,8 +195,14 @@ func (r *ReleaseHandler) Run() error {
 
 	releaseNotesFile := getReleaseNotesDocsTempFilename(version, true)
 
+	title, description := version, version
+	if isPatch {
+		title = "Hugo " + version + ": A couple of Bug Fixes"
+		description = "This version fixes a couple of bugs introduced in " + mainVersion.String() + "."
+	}
+
 	// Write the release notes to the docs site as well.
-	docFile, err := r.writeReleaseNotesToDocs(version, releaseNotesFile)
+	docFile, err := r.writeReleaseNotesToDocs(title, description, releaseNotesFile)
 	if err != nil {
 		return err
 	}

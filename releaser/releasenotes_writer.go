@@ -272,7 +272,7 @@ func (r *ReleaseHandler) writeReleaseNotesToTemp(version string, isPatch bool, i
 
 }
 
-func (r *ReleaseHandler) writeReleaseNotesToDocs(title, sourceFilename string) (string, error) {
+func (r *ReleaseHandler) writeReleaseNotesToDocs(title, description, sourceFilename string) (string, error) {
 	targetFilename := "index.md"
 	bundleDir := strings.TrimSuffix(filepath.Base(sourceFilename), "-ready.md")
 	contentDir := hugoFilepath("docs/content/en/news/" + bundleDir)
@@ -315,7 +315,7 @@ description: %q
 categories: ["Releases"]%s
 ---
 
-	`, time.Now().Format("2006-01-02"), title, title, fmTail)); err != nil {
+	`, time.Now().Format("2006-01-02"), title, description, fmTail)); err != nil {
 		return "", err
 	}
 
