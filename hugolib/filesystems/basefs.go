@@ -463,6 +463,7 @@ func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesys
 		}
 
 		isMainProject := mod.Owner() == nil
+		// TODO(bep) embed mount + move any duplicate/overlap
 		modsReversed[i] = mountsDescriptor{
 			mounts:        mod.Mounts(),
 			dir:           dir,

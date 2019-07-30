@@ -238,6 +238,53 @@ func TestRootMappingFsMount(t *testing.T) {
 
 }
 
+func TestRootMappingFsMountOverlap(t *testing.T) {
+	assert := require.New(t)
+	fs := NewBaseFileDecorator(afero.NewMemMapFs())
+
+	assert.NoError(afero.WriteFile(fs, filepath.FromSlash("da/a.txt"), []byte("some no content"), 0755))
+	assert.NoError(afero.WriteFile(fs, filepath.FromSlash("db/b.txt"), []byte("some no content"), 0755))
+	assert.NoError(afero.WriteFile(fs, filepath.FromSlash("dc/c.txt"), []byte("some no content"), 0755))
+	assert.NoError(afero.WriteFile(fs, filepath.FromSlash("de/e.txt"), []byte("some no content"), 0755))
+
+	rm := []RootMapping{
+		RootMapping{
+			From: "static",
+			To:   "da",
+		},
+		RootMapping{
+			From: "static/b",
+			To:   "db",
+		},
+		RootMapping{
+			From: "static/b/c",
+			To:   "dc",
+		},
+		RootMapping{
+			From: "/static/e/",
+			To:   "de",
+		},
+	}
+
+	rfs, err := NewRootMappingFs(fs, rm...)
+	assert.NoError(err)
+
+	getDirnames := func(name string) []string {
+		name = filepath.FromSlash(name)
+		f, err := rfs.Open(name)
+		assert.NoError(err)
+		defer f.Close()
+		names, err := f.Readdirnames(-1)
+		assert.NoError(err)
+		return names
+	}
+
+	assert.Equal([]string{"a.txt", "b", "e"}, getDirnames("static"))
+	assert.Equal([]string{"b.txt", "c"}, getDirnames("static/b"))
+	assert.Equal([]string{"c.txt"}, getDirnames("static/b/c"))
+
+}
+
 func TestRootMappingFsOs(t *testing.T) {
 	assert := require.New(t)
 	fs := afero.NewOsFs()
