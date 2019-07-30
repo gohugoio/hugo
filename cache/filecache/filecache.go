@@ -334,6 +334,14 @@ func NewCaches(p *helpers.PathSpec) (Caches, error) {
 			cfs = fs
 		}
 
+		if cfs == nil {
+			// TODO(bep) we still have some places that do not initialize the
+			// full dependencies of a site, e.g. the import Jekyll command.
+			// That command does not need these caches, so let us just continue
+			// for now.
+			continue
+		}
+
 		baseDir := v.Dir
 
 		if err := cfs.MkdirAll(baseDir, 0777); err != nil && !os.IsExist(err) {
