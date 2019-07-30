@@ -914,12 +914,12 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 					}
 				}
 
-				// A write event will follow.
-				continue
 			}
 
 			// Config file(s) changed. Need full rebuild.
 			c.fullRebuild(configChangeType)
+
+			return
 		}
 	}
 
