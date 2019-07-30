@@ -171,6 +171,9 @@ func ApplyProjectConfigDefaults(cfg config.Provider, mod Module) error {
 		mounts = append(mounts, Mount{Source: dirKey.component, Target: dirKey.component})
 	}
 
+	// Prepend the mounts from configuration.
+	mounts = append(moda.mounts, mounts...)
+
 	// Remove duplicates
 	seen := make(map[string]bool)
 	tmp := mounts[:0]

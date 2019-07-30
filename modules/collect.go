@@ -305,21 +305,25 @@ func (c *collector) addAndRecurse(owner *moduleAdapter, disabled bool) error {
 func (c *collector) applyMounts(moduleImport Import, mod *moduleAdapter) error {
 	mounts := moduleImport.Mounts
 
-	if !mod.projectMod && len(mounts) == 0 {
-		modConfig := mod.Config()
+	modConfig := mod.Config()
+
+	if len(mounts) == 0 {
+		// Mounts not defined by the import.
 		mounts = modConfig.Mounts
-		if len(mounts) == 0 {
-			// Create default mount points for every component folder that
-			// exists in the module.
-			for _, componentFolder := range files.ComponentFolders {
-				sourceDir := filepath.Join(mod.Dir(), componentFolder)
-				_, err := c.fs.Stat(sourceDir)
-				if err == nil {
-					mounts = append(mounts, Mount{
-						Source: componentFolder,
-						Target: componentFolder,
-					})
-				}
+
+	}
+
+	if !mod.projectMod && len(mounts) == 0 {
+		// Create default mount points for every component folder that
+		// exists in the module.
+		for _, componentFolder := range files.ComponentFolders {
+			sourceDir := filepath.Join(mod.Dir(), componentFolder)
+			_, err := c.fs.Stat(sourceDir)
+			if err == nil {
+				mounts = append(mounts, Mount{
+					Source: componentFolder,
+					Target: componentFolder,
+				})
 			}
 		}
 	}
