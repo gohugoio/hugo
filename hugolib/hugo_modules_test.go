@@ -506,3 +506,31 @@ weight = 2
 		}
 	}
 }
+
+func TestMountsProject(t *testing.T) {
+
+	config := `
+
+baseURL="https://example.org"
+
+[module]
+[[module.mounts]]
+source="mycontent"
+target="content"
+
+`
+	b := newTestSitesBuilder(t).
+		WithConfigFile("toml", config).
+		WithSourceFile(filepath.Join("mycontent", "mypage.md"), `
+---
+title: "My Page"
+---
+
+`)
+
+	b.Build(BuildCfg{})
+
+	//helpers.PrintFs(b.H.Fs.Source, "public", os.Stdout)
+
+	b.AssertFileContent("public/mypage/index.html", "Permalink: https://example.org/mypage/")
+}
