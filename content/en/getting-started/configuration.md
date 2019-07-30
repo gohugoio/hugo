@@ -351,6 +351,8 @@ This is really useful if you use a service such as Netlify to deploy your site. 
 
 {{% note "Setting Environment Variables" %}}
 Names must be prefixed with `HUGO_` and the configuration key must be set in uppercase when setting operating system environment variables.
+
+To set config params, prefix the name with `HUGO_PARAMS_`
 {{% /note %}}
 
 {{< todo >}}
