@@ -152,6 +152,16 @@ func TestImageTransformLongFilename(t *testing.T) {
 	assert.Equal("/a/_hu59e56ffff1bc1d8d122b1403d34e039f_90587_c876768085288f41211f768147ba2647.jpg", resized.RelPermalink())
 }
 
+// Issue 6137
+func TestImageTransformUppercaseExt(t *testing.T) {
+	assert := require.New(t)
+	image := fetchImage(assert, "sunrise.JPG")
+	resized, err := image.Resize("200x")
+	assert.NoError(err)
+	assert.NotNil(resized)
+	assert.Equal(200, resized.Width())
+}
+
 // https://github.com/gohugoio/hugo/issues/5730
 func TestImagePermalinkPublishOrder(t *testing.T) {
 	for _, checkOriginalFirst := range []bool{true, false} {

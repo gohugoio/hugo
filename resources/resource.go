@@ -209,7 +209,7 @@ func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (reso
 		fd.RelTargetFilename = sourceFilename
 	}
 
-	ext := filepath.Ext(fd.RelTargetFilename)
+	ext := strings.ToLower(filepath.Ext(fd.RelTargetFilename))
 	mimeType, found := r.MediaTypes.GetFirstBySuffix(strings.TrimPrefix(ext, "."))
 	// TODO(bep) we need to handle these ambigous types better, but in this context
 	// we most likely want the application/xml type.
