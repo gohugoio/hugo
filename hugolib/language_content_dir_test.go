@@ -278,6 +278,18 @@ Content.
 		}
 	}
 
+	for i, p := range nnSite.RegularPages() {
+		msg := fmt.Sprintf("Test %d", i+1)
+		assert.Equal("nn", p.Language().Lang, msg)
+		assert.Contains(p.Title(), "nn", msg)
+	}
+
+	for i, p := range svSite.RegularPages() {
+		msg := fmt.Sprintf("Test %d", i+1)
+		assert.Equal("sv", p.Language().Lang, msg)
+		assert.Contains(p.Title(), "sv", msg)
+	}
+
 	// Check bundles
 	bundleEn := enSite.RegularPages()[len(enSite.RegularPages())-1]
 	bundleNn := nnSite.RegularPages()[len(nnSite.RegularPages())-1]
