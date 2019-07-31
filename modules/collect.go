@@ -478,8 +478,8 @@ func (c *collector) collect() {
 		return
 	}
 
-	// Append the project module at the tail.
-	c.modules = append(c.modules, projectMod)
+	// Add the project mod on top.
+	c.modules = append(Modules{projectMod}, c.modules...)
 
 }
 

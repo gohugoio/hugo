@@ -217,7 +217,7 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 		mods := m.ActiveModules
 
 		// Apply default project mounts.
-		if err := modules.ApplyProjectConfigDefaults(v, mods[len(mods)-1]); err != nil {
+		if err := modules.ApplyProjectConfigDefaults(v, mods[0]); err != nil {
 			return err
 		}
 

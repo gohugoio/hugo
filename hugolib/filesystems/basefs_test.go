@@ -62,7 +62,7 @@ func initConfig(fs afero.Fs, cfg config.Provider) error {
 		return err
 	}
 
-	if err := modules.ApplyProjectConfigDefaults(cfg, moduleConfig.ActiveModules[len(moduleConfig.ActiveModules)-1]); err != nil {
+	if err := modules.ApplyProjectConfigDefaults(cfg, moduleConfig.ActiveModules[0]); err != nil {
 		return err
 	}
 

@@ -14,10 +14,17 @@
 package commands
 
 import (
+	"encoding/json"
+	"os"
 	"reflect"
 	"regexp"
 	"sort"
 	"strings"
+
+	"github.com/gohugoio/hugo/parser"
+	"github.com/gohugoio/hugo/parser/metadecoders"
+
+	"github.com/gohugoio/hugo/modules"
 
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
@@ -40,14 +47,37 @@ func newConfigCmd() *configCmd {
 		RunE:  cc.printConfig,
 	})
 
-	cc.cmd.Flags().StringVarP(&cc.source, "source", "s", "", "filesystem path to read files relative from")
+	cc.cmd.PersistentFlags().StringVarP(&cc.source, "source", "s", "", "filesystem path to read files relative from")
+
+	printMountsCmd := &cobra.Command{
+		Use:   "mounts",
+		Short: "Print the configured file mounts",
+		RunE:  cc.printMounts,
+	}
+
+	cc.cmd.AddCommand(printMountsCmd)
 
 	return cc
 }
 
+func (c *configCmd) printMounts(cmd *cobra.Command, args []string) error {
+	cfg, err := initializeConfig(true, false, &c.hugoBuilderCommon, c, nil)
+	if err != nil {
+		return err
+	}
+
+	allModules := cfg.Cfg.Get("allmodules").(modules.Modules)
+
+	for _, m := range allModules {
+		if err := parser.InterfaceToConfig(&modMounts{m: m}, metadecoders.JSON, os.Stdout); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (c *configCmd) printConfig(cmd *cobra.Command, args []string) error {
 	cfg, err := initializeConfig(true, false, &c.hugoBuilderCommon, c, nil)
-
 	if err != nil {
 		return err
 	}
@@ -82,4 +112,36 @@ func (c *configCmd) printConfig(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+type modMounts struct {
+	m modules.Module
+}
+
+type modMount struct {
+	Source string `json:"source"`
+	Target string `json:"target"`
+	Lang   string `json:"lang,omitempty"`
+}
+
+func (m *modMounts) MarshalJSON() ([]byte, error) {
+	var mounts []modMount
+
+	for _, mount := range m.m.Mounts() {
+		mounts = append(mounts, modMount{
+			Source: mount.Source,
+			Target: mount.Target,
+			Lang:   mount.Lang,
+		})
+	}
+
+	return json.Marshal(&struct {
+		Path   string     `json:"path"`
+		Dir    string     `json:"dir"`
+		Mounts []modMount `json:"mounts"`
+	}{
+		Path:   m.m.Path(),
+		Dir:    m.m.Dir(),
+		Mounts: mounts,
+	})
 }
