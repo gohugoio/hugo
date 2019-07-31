@@ -344,7 +344,7 @@ func (c *pagesCollector) addToBundle(info hugofs.FileMetaInfo, btyp bundleDirTyp
 	}
 
 	cloneBundle := func(lang string) *fileinfoBundle {
-		// Every bundled file needs a content file header.
+		// Every bundled content file needs a content file header.
 		// Use the default content language if found, else just
 		// pick one.
 		var (
@@ -376,6 +376,7 @@ func (c *pagesCollector) addToBundle(info hugofs.FileMetaInfo, btyp bundleDirTyp
 	bundle := getBundle(lang)
 	isBundleHeader := c.isBundleHeader(info)
 	classifier := info.Meta().Classifier()
+	isContent := classifier == files.ContentClassContent
 	if bundle == nil {
 		if isBundleHeader {
 			bundle = &fileinfoBundle{header: info}
@@ -384,28 +385,32 @@ func (c *pagesCollector) addToBundle(info hugofs.FileMetaInfo, btyp bundleDirTyp
 			if btyp == bundleBranch {
 				// No special logic for branch bundles.
 				// Every language needs its own _index.md file.
+				// Also, we only clone bundle headers for lonsesome, bundled,
+				// content files.
 				return c.handleFiles(info)
 			}
 
-			bundle = cloneBundle(lang)
-			bundles[lang] = bundle
+			if isContent {
+				bundle = cloneBundle(lang)
+				bundles[lang] = bundle
+			}
 		}
 	}
 
-	if !isBundleHeader {
+	if !isBundleHeader && bundle != nil {
 		bundle.resources = append(bundle.resources, info)
 	}
 
 	if classifier == files.ContentClassFile {
 		translations := info.Meta().Translations()
-		if len(translations) < len(bundles) {
-			for lang, b := range bundles {
-				if !stringSliceContains(lang, translations...) && !b.containsResource(info.Name()) {
-					// Clone and add it to the bundle.
-					clone := c.cloneFileInfo(info)
-					clone.Meta()["lang"] = lang
-					b.resources = append(b.resources, clone)
-				}
+
+		for lang, b := range bundles {
+			if !stringSliceContains(lang, translations...) && !b.containsResource(info.Name()) {
+
+				// Clone and add it to the bundle.
+				clone := c.cloneFileInfo(info)
+				clone.Meta()["lang"] = lang
+				b.resources = append(b.resources, clone)
 			}
 		}
 	}
