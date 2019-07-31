@@ -1075,3 +1075,84 @@ slug: leaf
 		filepath.FromSlash("section|sect1/sect2/_index.md|CurrentSection: sect1/sect2/_index.md"))
 
 }
+
+// Issue 6136
+func TestPageBundlerPartialTranslations(t *testing.T) {
+	config := `
+baseURL = "https://example.org"
+defaultContentLanguage = "en"
+defaultContentLanguageInSubDir = true
+disableKinds = ["taxonomyTerm", "taxonomy"]
+
+[languages]
+[languages.nn]
+languageName = "Nynorsk"
+weight = 2
+title = "Tittel på Nynorsk"
+
+[languages.en]
+title = "Title in English"
+languageName = "English"
+weight = 1
+
+`
+
+	pageContent := func(id string) string {
+		return fmt.Sprintf(`
+---
+title: %q
+---
+`, id)
+	}
+
+	dataContent := func(id string) string {
+		return id
+	}
+
+	b := newTestSitesBuilder(t).WithConfigFile("toml", config)
+
+	b.WithContent("blog/sect1/_index.nn.md", pageContent("s1.nn"))
+	b.WithContent("blog/sect1/data.json", dataContent("s1.data"))
+
+	b.WithContent("blog/sect1/b1/index.nn.md", pageContent("s1.b1.nn"))
+	b.WithContent("blog/sect1/b1/data.json", dataContent("s1.b1.data"))
+
+	b.WithContent("blog/sect2/_index.md", pageContent("s2"))
+	b.WithContent("blog/sect2/data.json", dataContent("s2.data"))
+
+	b.WithContent("blog/sect2/b1/index.md", pageContent("s2.b1"))
+	b.WithContent("blog/sect2/b1/data.json", dataContent("s2.b1.data"))
+
+	b.WithContent("blog/sect2/b2/index.md", pageContent("s2.b2"))
+	b.WithContent("blog/sect2/b2/bp.md", pageContent("s2.b2.bundlecontent"))
+
+	b.WithContent("blog/sect2/b3/index.md", pageContent("s2.b3"))
+	b.WithContent("blog/sect2/b3/bp.nn.md", pageContent("s2.b3.bundlecontent.nn"))
+
+	b.WithContent("blog/sect2/b4/index.nn.md", pageContent("s2.b4"))
+	b.WithContent("blog/sect2/b4/bp.nn.md", pageContent("s2.b4.bundlecontent.nn"))
+
+	b.WithTemplates("index.html", `
+Num Pages: {{ len .Site.Pages }}
+{{ range .Site.Pages }}
+{{ .Kind }}|{{ .RelPermalink }}|Content: {{ .Title }}|Resources: {{ range .Resources }}R: {{ .Title }}|{{ .Content }}|{{ end -}}
+{{ end }}
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/nn/index.html",
+		"Num Pages: 6",
+		"page|/nn/blog/sect1/b1/|Content: s1.b1.nn|Resources: R: data.json|s1.b1.data|",
+		"page|/nn/blog/sect2/b3/|Content: s2.b3|Resources: R: s2.b3.bundlecontent.nn|",
+		"page|/nn/blog/sect2/b4/|Content: s2.b4|Resources: R: s2.b4.bundlecontent.nn",
+	)
+
+	b.AssertFileContent("public/en/index.html",
+		"Num Pages: 6",
+		"section|/en/blog/sect2/|Content: s2|Resources: R: data.json|s2.data|",
+		"page|/en/blog/sect2/b1/|Content: s2.b1|Resources: R: data.json|s2.b1.data|",
+		"page|/en/blog/sect2/b2/|Content: s2.b2|Resources: R: s2.b2.bundlecontent|",
+	)
+
+}
