@@ -15,7 +15,9 @@ package commands
 
 import (
 	"reflect"
+	"regexp"
 	"sort"
+	"strings"
 
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
@@ -52,15 +54,21 @@ func (c *configCmd) printConfig(cmd *cobra.Command, args []string) error {
 
 	allSettings := cfg.Cfg.(*viper.Viper).AllSettings()
 
-	var separator string
-	if allSettings["metadataformat"] == "toml" {
+	// We need to clean up this, but we store objects in the config that
+	// isn't really interesting to the end user, so filter these.
+	ignoreKeysRe := regexp.MustCompile("client|sorted|filecacheconfigs|allmodules|multilingual")
+
+	separator := ": "
+
+	if len(cfg.configFiles) > 0 && strings.HasSuffix(cfg.configFiles[0], ".toml") {
 		separator = " = "
-	} else {
-		separator = ": "
 	}
 
 	var keys []string
 	for k := range allSettings {
+		if ignoreKeysRe.MatchString(k) {
+			continue
+		}
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
