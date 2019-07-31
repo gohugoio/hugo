@@ -12,7 +12,7 @@
 // limitations under the License.
 
 // Package modules provides a client that can be used to manage Hugo Components,
-// what's refered to as Hugo Modules. Hugo Modules is built on top of Go Modules,
+// what's referred to as Hugo Modules. Hugo Modules is built on top of Go Modules,
 // but also supports vendoring and components stored directly in the themes dir.
 package modules
 

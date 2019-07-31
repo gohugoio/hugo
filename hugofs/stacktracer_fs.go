@@ -24,7 +24,7 @@ import (
 	"github.com/spf13/afero"
 )
 
-// Make sure we don't accidently use this in the real Hugo.
+// Make sure we don't accidentally use this in the real Hugo.
 var _ types.DevMarker = (*stacktracerFs)(nil)
 
 // NewStacktracerFs wraps the given fs printing stack traces for file creates

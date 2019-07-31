@@ -702,7 +702,7 @@ func (r *Spec) newGenericResourceWithBase(
 	mediaType media.Type) *genericResource {
 
 	if osFileInfo != nil && osFileInfo.IsDir() {
-		panic(fmt.Sprintf("dirs nto supported resource types: %v", osFileInfo))
+		panic(fmt.Sprintf("dirs not supported resource types: %v", osFileInfo))
 	}
 
 	// This value is used both to construct URLs and file paths, but start

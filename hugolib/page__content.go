@@ -70,7 +70,7 @@ func (p pageContent) contentToRender(renderedShortcodes map[string]string) []byt
 
 			}
 		default:
-			panic(fmt.Sprintf("unkown item type %T", it))
+			panic(fmt.Sprintf("unknown item type %T", it))
 		}
 	}
 

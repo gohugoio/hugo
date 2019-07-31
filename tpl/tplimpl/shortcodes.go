@@ -83,7 +83,7 @@ func (s *shortcodeTemplates) fromVariantsSlice(variants []string) (shortcodeVari
 	return bestMatch, true
 }
 
-// calculate a weight for two string slices of same lenght.
+// calculate a weight for two string slices of same length.
 // higher value means "better match".
 func (s *shortcodeTemplates) compareVariants(a, b []string) int {
 
