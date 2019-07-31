@@ -61,7 +61,7 @@ func TestMerge(t *testing.T) {
 		// Error cases.
 		{"dst not a map", "not a map", nil, nil, true},
 		{"src not a map", simpleMap, "not a map", nil, true},
-		{"diferent map typs", simpleMap, map[int]interface{}{32: "a"}, nil, true},
+		{"different map types", simpleMap, map[int]interface{}{32: "a"}, nil, true},
 		{"all nil", nil, nil, nil, true},
 	} {
 

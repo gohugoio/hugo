@@ -219,7 +219,7 @@ type PageWithoutContent interface {
 	ChildCareProvider
 	TreeProvider
 
-	// Horisontal navigation
+	// Horizontal navigation
 	InSectionPositioner
 	PageRenderProvider
 	PaginatorProvider
