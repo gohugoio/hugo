@@ -452,20 +452,19 @@ func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesys
 
 	// The theme components are ordered from left to right.
 	// We need to revert it to get the
-	// overlay logic below working as expected, with the project on top (last).
-	for i, mod := range mods {
+	// overlay logic below working as expected, with the project on top.
+	j := 0
+	for i := len(mods) - 1; i >= 0; i-- {
+		mod := mods[i]
 		dir := mod.Dir()
 
-		if i < len(mods)-1 {
-			i = len(mods) - 2 - i
-		}
-
 		isMainProject := mod.Owner() == nil
-		modsReversed[i] = mountsDescriptor{
+		modsReversed[j] = mountsDescriptor{
 			Module:        mod,
 			dir:           dir,
 			isMainProject: isMainProject,
 		}
+		j++
 	}
 
 	err := b.createOverlayFs(collector, modsReversed)
