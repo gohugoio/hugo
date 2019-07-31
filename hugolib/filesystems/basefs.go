@@ -18,7 +18,6 @@ package filesystems
 import (
 	"io"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -454,7 +453,6 @@ func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesys
 	// The theme components are ordered from left to right.
 	// We need to revert it to get the
 	// overlay logic below working as expected, with the project on top (last).
-
 	for i, mod := range mods {
 		dir := mod.Dir()
 
@@ -463,11 +461,9 @@ func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesys
 		}
 
 		isMainProject := mod.Owner() == nil
-		// TODO(bep) embed mount + move any duplicate/overlap
 		modsReversed[i] = mountsDescriptor{
-			mounts:        mod.Mounts(),
+			Module:        mod,
 			dir:           dir,
-			watch:         mod.Watch(),
 			isMainProject: isMainProject,
 		}
 	}
@@ -500,36 +496,7 @@ func (b *sourceFilesystemsBuilder) createModFs(
 		return paths.AbsPathify(md.dir, path)
 	}
 
-	seen := make(map[string]bool)
-
-	var mounts []modules.Mount
-
-OUTER:
-	for i, mount := range md.mounts {
-		key := path.Join(mount.Lang, mount.Source, mount.Target)
-		if seen[key] {
-			continue
-		}
-		seen[key] = true
-
-		// Prevent overlapping mounts
-		for j, mount2 := range md.mounts {
-			if j == i || mount2.Target != mount.Target {
-				continue
-			}
-			source := mount.Source
-			if !strings.HasSuffix(source, filePathSeparator) {
-				source += filePathSeparator
-			}
-			if strings.HasPrefix(mount2.Source, source) {
-				continue OUTER
-			}
-		}
-
-		mounts = append(mounts, mount)
-	}
-
-	for _, mount := range mounts {
+	for _, mount := range md.Mounts() {
 
 		mountWeight := 1
 		if md.isMainProject {
@@ -540,7 +507,7 @@ OUTER:
 			From: mount.Target,
 			To:   absPathify(mount.Source),
 			Meta: hugofs.FileMeta{
-				"watch":       md.watch,
+				"watch":       md.Watch(),
 				"mountWeight": mountWeight,
 			},
 		}
@@ -703,9 +670,8 @@ func (c *filesystemsCollector) reverseFis(fis []hugofs.FileMetaInfo) {
 }
 
 type mountsDescriptor struct {
-	mounts        []modules.Mount
+	modules.Module
 	dir           string
-	watch         bool // whether this is a candidate for watching in server mode.
 	isMainProject bool
 }
 

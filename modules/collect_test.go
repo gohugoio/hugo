@@ -36,3 +36,19 @@ func TestPathKey(t *testing.T) {
 	}
 
 }
+
+func TestFilterUnwantedMounts(t *testing.T) {
+
+	mounts := []Mount{
+		Mount{Source: "a", Target: "b", Lang: "en"},
+		Mount{Source: "a", Target: "b", Lang: "en"},
+		Mount{Source: "b", Target: "c", Lang: "en"},
+	}
+
+	filtered := filterUnwantedMounts(mounts)
+
+	assert := require.New(t)
+	assert.Len(filtered, 2)
+	assert.Equal([]Mount{Mount{Source: "a", Target: "b", Lang: "en"}, Mount{Source: "b", Target: "c", Lang: "en"}}, filtered)
+
+}

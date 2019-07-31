@@ -15,7 +15,6 @@ package modules
 
 import (
 	"fmt"
-	"path"
 	"path/filepath"
 	"strings"
 
@@ -174,18 +173,7 @@ func ApplyProjectConfigDefaults(cfg config.Provider, mod Module) error {
 	// Prepend the mounts from configuration.
 	mounts = append(moda.mounts, mounts...)
 
-	// Remove duplicates
-	seen := make(map[string]bool)
-	tmp := mounts[:0]
-	for _, m := range mounts {
-		key := path.Join(m.Lang, m.Source, m.Target)
-		if !seen[key] {
-			tmp = append(tmp, m)
-		}
-		seen[key] = true
-	}
-
-	moda.mounts = tmp
+	moda.mounts = mounts
 
 	return nil
 }

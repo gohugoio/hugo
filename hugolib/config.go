@@ -207,17 +207,25 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 		return v, configFiles, err
 	}
 
-	mods, modulesConfigFiles, err := l.collectModules(modulesConfig, v)
+	// Need to run these after the modules are loaded, but before
+	// they are finalized.
+	collectHook := func(m *modules.ModulesConfig) error {
+		if err := loadLanguageSettings(v, nil); err != nil {
+			return err
+		}
+
+		mods := m.ActiveModules
+
+		// Apply default project mounts.
+		if err := modules.ApplyProjectConfigDefaults(v, mods[len(mods)-1]); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	_, modulesConfigFiles, err := l.collectModules(modulesConfig, v, collectHook)
 	if err != nil {
-		return v, configFiles, err
-	}
-
-	if err := loadLanguageSettings(v, nil); err != nil {
-		return v, configFiles, err
-	}
-
-	// Apply default project mounts.
-	if err := modules.ApplyProjectConfigDefaults(v, mods[len(mods)-1]); err != nil {
 		return v, configFiles, err
 	}
 
@@ -406,7 +414,7 @@ func (l configLoader) loadModulesConfig(v1 *viper.Viper) (modules.Config, error)
 	return modConfig, nil
 }
 
-func (l configLoader) collectModules(modConfig modules.Config, v1 *viper.Viper) (modules.Modules, []string, error) {
+func (l configLoader) collectModules(modConfig modules.Config, v1 *viper.Viper, hookBeforeFinalize func(m *modules.ModulesConfig) error) (modules.Modules, []string, error) {
 	workingDir := l.WorkingDir
 	if workingDir == "" {
 		workingDir = v1.GetString("workingDir")
@@ -420,16 +428,40 @@ func (l configLoader) collectModules(modConfig modules.Config, v1 *viper.Viper) 
 	if err != nil {
 		return nil, nil, err
 	}
+
 	v1.Set("filecacheConfigs", filecacheConfigs)
 
+	var configFilenames []string
+
+	hook := func(m *modules.ModulesConfig) error {
+		for _, tc := range m.ActiveModules {
+			if tc.ConfigFilename() != "" {
+				if tc.Watch() {
+					configFilenames = append(configFilenames, tc.ConfigFilename())
+				}
+				if err := l.applyThemeConfig(v1, tc); err != nil {
+					return err
+				}
+			}
+		}
+
+		if hookBeforeFinalize != nil {
+			return hookBeforeFinalize(m)
+		}
+
+		return nil
+
+	}
+
 	modulesClient := modules.NewClient(modules.ClientConfig{
-		Fs:           l.Fs,
-		Logger:       l.Logger,
-		WorkingDir:   workingDir,
-		ThemesDir:    themesDir,
-		CacheDir:     filecacheConfigs.CacheDirModules(),
-		ModuleConfig: modConfig,
-		IgnoreVendor: ignoreVendor,
+		Fs:                 l.Fs,
+		Logger:             l.Logger,
+		HookBeforeFinalize: hook,
+		WorkingDir:         workingDir,
+		ThemesDir:          themesDir,
+		CacheDir:           filecacheConfigs.CacheDirModules(),
+		ModuleConfig:       modConfig,
+		IgnoreVendor:       ignoreVendor,
 	})
 
 	v1.Set("modulesClient", modulesClient)
@@ -441,22 +473,6 @@ func (l configLoader) collectModules(modConfig modules.Config, v1 *viper.Viper) 
 
 	// Avoid recreating these later.
 	v1.Set("allModules", moduleConfig.ActiveModules)
-
-	if len(moduleConfig.ActiveModules) == 0 {
-		return nil, nil, nil
-	}
-
-	var configFilenames []string
-	for _, tc := range moduleConfig.ActiveModules {
-		if tc.ConfigFilename() != "" {
-			if tc.Watch() {
-				configFilenames = append(configFilenames, tc.ConfigFilename())
-			}
-			if err := l.applyThemeConfig(v1, tc); err != nil {
-				return nil, nil, err
-			}
-		}
-	}
 
 	if moduleConfig.GoModulesFilename != "" {
 		// We want to watch this for changes and trigger rebuild on version
