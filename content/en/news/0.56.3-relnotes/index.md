@@ -23,7 +23,7 @@ source="content2"
 target="content/docs"
 ```
 
-The above is obviously both common and very useful. This was never an issue with the situations where load a specific file/directory (e.g. `resources.Get "a/b/c/d/sunset.jpg"`).
+The above is obviously both common and very useful. This was never an issue with the situations where you load a specific file/directory (e.g. `resources.Get "a/b/c/d/sunset.jpg"`).
 
 User feedback also told us that these file mounts were a little hard to debug, so we added a new command that prints the configured mounts as a JSON:
 
