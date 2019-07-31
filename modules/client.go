@@ -66,7 +66,6 @@ const (
 // level imports to start out.
 func NewClient(cfg ClientConfig) *Client {
 	fs := cfg.Fs
-
 	n := filepath.Join(cfg.WorkingDir, goModFilename)
 	goModEnabled, _ := afero.Exists(fs, n)
 	var goModFilename string
@@ -97,9 +96,7 @@ func NewClient(cfg ClientConfig) *Client {
 
 	return &Client{
 		fs:                fs,
-		ignoreVendor:      cfg.IgnoreVendor,
-		workingDir:        cfg.WorkingDir,
-		themesDir:         cfg.ThemesDir,
+		ccfg:              cfg,
 		logger:            logger,
 		moduleConfig:      mcfg,
 		environ:           env,
@@ -111,14 +108,7 @@ type Client struct {
 	fs     afero.Fs
 	logger *loggers.Logger
 
-	// Ignore any _vendor directory.
-	ignoreVendor bool
-
-	// Absolute path to the project dir.
-	workingDir string
-
-	// Absolute path to the project's themes dir.
-	themesDir string
+	ccfg ClientConfig
 
 	// The top level module config
 	moduleConfig Config
@@ -194,7 +184,7 @@ func (c *Client) Tidy() error {
 // meaning that if the top-level module is vendored, that will be the full
 // set of dependencies.
 func (c *Client) Vendor() error {
-	vendorDir := filepath.Join(c.workingDir, vendord)
+	vendorDir := filepath.Join(c.ccfg.WorkingDir, vendord)
 	if err := c.rmVendorDir(vendorDir); err != nil {
 		return err
 	}
@@ -284,7 +274,7 @@ func (c *Client) Init(path string) error {
 		return errors.Wrap(err, "failed to init modules")
 	}
 
-	c.GoModulesFilename = filepath.Join(c.workingDir, goModFilename)
+	c.GoModulesFilename = filepath.Join(c.ccfg.WorkingDir, goModFilename)
 
 	return nil
 }
@@ -335,7 +325,7 @@ func (c *Client) rewriteGoMod(name string, isGoMod map[string]bool) error {
 		return err
 	}
 	if data != nil {
-		if err := afero.WriteFile(c.fs, filepath.Join(c.workingDir, name), data, 0666); err != nil {
+		if err := afero.WriteFile(c.fs, filepath.Join(c.ccfg.WorkingDir, name), data, 0666); err != nil {
 			return err
 		}
 	}
@@ -352,7 +342,7 @@ func (c *Client) rewriteGoModRewrite(name string, isGoMod map[string]bool) ([]by
 	modlineSplitter := getModlineSplitter(name == goModFilename)
 
 	b := &bytes.Buffer{}
-	f, err := c.fs.Open(filepath.Join(c.workingDir, name))
+	f, err := c.fs.Open(filepath.Join(c.ccfg.WorkingDir, name))
 	if err != nil {
 		if os.IsNotExist(err) {
 			// It's been deleted.
@@ -424,7 +414,7 @@ func (c *Client) runGo(
 	cmd := exec.CommandContext(ctx, "go", args...)
 
 	cmd.Env = c.environ
-	cmd.Dir = c.workingDir
+	cmd.Dir = c.ccfg.WorkingDir
 	cmd.Stdout = stdout
 	cmd.Stderr = io.MultiWriter(stderr, os.Stderr)
 
@@ -482,11 +472,22 @@ func (c *Client) tidy(mods Modules, goModOnly bool) error {
 
 // ClientConfig configures the module Client.
 type ClientConfig struct {
-	Fs           afero.Fs
-	Logger       *loggers.Logger
+	Fs     afero.Fs
+	Logger *loggers.Logger
+
+	// If set, it will be run before we do any duplicate checks for modules
+	// etc.
+	HookBeforeFinalize func(m *ModulesConfig) error
+
+	// Ignore any _vendor directory.
 	IgnoreVendor bool
-	WorkingDir   string
-	ThemesDir    string // Absolute directory path
+
+	// Absolute path to the project dir.
+	WorkingDir string
+
+	// Absolute path to the project's themes dir.
+	ThemesDir string
+
 	CacheDir     string // Module cache
 	ModuleConfig Config
 }

@@ -20,6 +20,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/loggers"
+
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/common/maps"
@@ -62,8 +64,25 @@ func CreateProjectModule(cfg config.Provider) (Module, error) {
 
 func (h *Client) Collect() (ModulesConfig, error) {
 	mc, coll := h.collect(true)
-	return mc, coll.err
+	if coll.err != nil {
+		return mc, coll.err
+	}
 
+	if err := (&mc).setActiveMods(h.logger); err != nil {
+		return mc, err
+	}
+
+	if h.ccfg.HookBeforeFinalize != nil {
+		if err := h.ccfg.HookBeforeFinalize(&mc); err != nil {
+			return mc, err
+		}
+	}
+
+	if err := (&mc).finalize(h.logger); err != nil {
+		return mc, err
+	}
+
+	return mc, nil
 }
 
 func (h *Client) collect(tidy bool) (ModulesConfig, *collector) {
@@ -83,20 +102,8 @@ func (h *Client) collect(tidy bool) (ModulesConfig, *collector) {
 		}
 	}
 
-	// TODO(bep) consider --ignoreVendor vs removing from go.mod
-	var activeMods Modules
-	for _, mod := range c.modules {
-		if !mod.Config().HugoVersion.IsValid() {
-			h.logger.WARN.Printf(`Module %q is not compatible with this Hugo version; run "hugo mod graph" for more information.`, mod.Path())
-		}
-		if !mod.Disabled() {
-			activeMods = append(activeMods, mod)
-		}
-	}
-
 	return ModulesConfig{
 		AllModules:        c.modules,
-		ActiveModules:     activeMods,
 		GoModulesFilename: c.GoModulesFilename,
 	}, c
 
@@ -111,6 +118,43 @@ type ModulesConfig struct {
 
 	// Set if this is a Go modules enabled project.
 	GoModulesFilename string
+}
+
+func (m *ModulesConfig) setActiveMods(logger *loggers.Logger) error {
+	var activeMods Modules
+	for _, mod := range m.AllModules {
+		if !mod.Config().HugoVersion.IsValid() {
+			logger.WARN.Printf(`Module %q is not compatible with this Hugo version; run "hugo mod graph" for more information.`, mod.Path())
+		}
+		if !mod.Disabled() {
+			activeMods = append(activeMods, mod)
+		}
+	}
+
+	m.ActiveModules = activeMods
+
+	return nil
+}
+
+func (m *ModulesConfig) finalize(logger *loggers.Logger) error {
+	for _, mod := range m.AllModules {
+		m := mod.(*moduleAdapter)
+		m.mounts = filterUnwantedMounts(m.mounts)
+	}
+	return nil
+}
+
+func filterUnwantedMounts(mounts []Mount) []Mount {
+	// Remove duplicates
+	seen := make(map[Mount]bool)
+	tmp := mounts[:0]
+	for _, m := range mounts {
+		if !seen[m] {
+			tmp = append(tmp, m)
+		}
+		seen[m] = true
+	}
+	return tmp
 }
 
 type collected struct {
@@ -177,7 +221,7 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import, disabled bool
 	modulePath := moduleImport.Path
 	var realOwner Module = owner
 
-	if !c.ignoreVendor {
+	if !c.ccfg.IgnoreVendor {
 		if err := c.collectModulesTXT(owner); err != nil {
 			return nil, err
 		}
@@ -223,10 +267,10 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import, disabled bool
 
 			// Fall back to /themes/<mymodule>
 			if moduleDir == "" {
-				moduleDir = filepath.Join(c.themesDir, modulePath)
+				moduleDir = filepath.Join(c.ccfg.ThemesDir, modulePath)
 
 				if found, _ := afero.Exists(c.fs, moduleDir); !found {
-					c.err = c.wrapModuleNotFound(errors.Errorf(`module %q not found; either add it as a Hugo Module or store it in %q.`, modulePath, c.themesDir))
+					c.err = c.wrapModuleNotFound(errors.Errorf(`module %q not found; either add it as a Hugo Module or store it in %q.`, modulePath, c.ccfg.ThemesDir))
 					return nil, nil
 				}
 			}
@@ -427,7 +471,7 @@ func (c *collector) collect() {
 		return
 	}
 
-	projectMod := createProjectModule(c.gomods.GetMain(), c.workingDir, c.moduleConfig)
+	projectMod := createProjectModule(c.gomods.GetMain(), c.ccfg.WorkingDir, c.moduleConfig)
 
 	if err := c.addAndRecurse(projectMod, false); err != nil {
 		c.err = err
