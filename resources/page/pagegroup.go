@@ -52,7 +52,7 @@ func (s mapKeyByInt) Less(i, j int) bool { return s.mapKeyValues[i].Int() < s.ma
 type mapKeyByStr struct{ mapKeyValues }
 
 func (s mapKeyByStr) Less(i, j int) bool {
-	return s.mapKeyValues[i].String() < s.mapKeyValues[j].String()
+	return compare.LessStrings(s.mapKeyValues[i].String(), s.mapKeyValues[j].String())
 }
 
 func sortKeys(v []reflect.Value, order string) []reflect.Value {

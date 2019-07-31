@@ -213,8 +213,8 @@ menu: "main"
 
 	b.Build(BuildCfg{})
 
-	b.AssertFileContent("public/index.html", "AMP and HTML|/blog/html-amp/|AMP only|/amp/blog/amp/|HTML only|/blog/html/|Home Sweet Home|/|")
-	b.AssertFileContent("public/amp/index.html", "AMP and HTML|/amp/blog/html-amp/|AMP only|/amp/blog/amp/|HTML only|/blog/html/|Home Sweet Home|/amp/|")
+	b.AssertFileContent("public/index.html", "AMP and HTML|/blog/html-amp/|AMP only|/amp/blog/amp/|Home Sweet Home|/|HTML only|/blog/html/|")
+	b.AssertFileContent("public/amp/index.html", "AMP and HTML|/amp/blog/html-amp/|AMP only|/amp/blog/amp/|Home Sweet Home|/amp/|HTML only|/blog/html/|")
 }
 
 // https://github.com/gohugoio/hugo/issues/5989

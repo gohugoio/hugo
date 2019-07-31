@@ -23,7 +23,7 @@ import (
 	"github.com/spf13/cast"
 )
 
-var comp = compare.New()
+var sortComp = compare.New(true)
 
 // Sort returns a sorted sequence.
 func (ns *Namespace) Sort(seq interface{}, args ...interface{}) (interface{}, error) {
@@ -133,15 +133,15 @@ func (p pairList) Less(i, j int) bool {
 	if iv.IsValid() {
 		if jv.IsValid() {
 			// can only call Interface() on valid reflect Values
-			return comp.Lt(iv.Interface(), jv.Interface())
+			return sortComp.Lt(iv.Interface(), jv.Interface())
 		}
 		// if j is invalid, test i against i's zero value
-		return comp.Lt(iv.Interface(), reflect.Zero(iv.Type()))
+		return sortComp.Lt(iv.Interface(), reflect.Zero(iv.Type()))
 	}
 
 	if jv.IsValid() {
 		// if i is invalid, test j against j's zero value
-		return comp.Lt(reflect.Zero(jv.Type()), jv.Interface())
+		return sortComp.Lt(reflect.Zero(jv.Type()), jv.Interface())
 	}
 
 	return false

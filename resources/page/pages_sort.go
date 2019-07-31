@@ -18,6 +18,7 @@ import (
 
 	"github.com/gohugoio/hugo/resources/resource"
 
+	"github.com/gohugoio/hugo/compare"
 	"github.com/spf13/cast"
 )
 
@@ -50,13 +51,14 @@ func (by pageBy) Sort(pages Pages) {
 var DefaultPageSort = func(p1, p2 Page) bool {
 	if p1.Weight() == p2.Weight() {
 		if p1.Date().Unix() == p2.Date().Unix() {
-			if p1.LinkTitle() == p2.LinkTitle() {
+			c := compare.Strings(p1.LinkTitle(), p2.LinkTitle())
+			if c == 0 {
 				if p1.File().IsZero() || p2.File().IsZero() {
 					return p1.File().IsZero()
 				}
-				return p1.File().Filename() < p2.File().Filename()
+				return compare.LessStrings(p1.File().Filename(), p2.File().Filename())
 			}
-			return (p1.LinkTitle() < p2.LinkTitle())
+			return c < 0
 		}
 		return p1.Date().Unix() > p2.Date().Unix()
 	}
@@ -76,12 +78,13 @@ var languagePageSort = func(p1, p2 Page) bool {
 
 	if p1.Language().Weight == p2.Language().Weight {
 		if p1.Date().Unix() == p2.Date().Unix() {
-			if p1.LinkTitle() == p2.LinkTitle() {
+			c := compare.Strings(p1.LinkTitle(), p2.LinkTitle())
+			if c == 0 {
 				if !p1.File().IsZero() && !p2.File().IsZero() {
-					return p1.File().Filename() < p2.File().Filename()
+					return compare.LessStrings(p1.File().Filename(), p2.File().Filename())
 				}
 			}
-			return (p1.LinkTitle() < p2.LinkTitle())
+			return c < 0
 		}
 		return p1.Date().Unix() > p2.Date().Unix()
 	}
@@ -137,7 +140,7 @@ func (p Pages) ByTitle() Pages {
 	const key = "pageSort.ByTitle"
 
 	title := func(p1, p2 Page) bool {
-		return p1.Title() < p2.Title()
+		return compare.LessStrings(p1.Title(), p2.Title())
 	}
 
 	pages, _ := spc.get(key, pageBy(title).Sort, p)
@@ -154,7 +157,7 @@ func (p Pages) ByLinkTitle() Pages {
 	const key = "pageSort.ByLinkTitle"
 
 	linkTitle := func(p1, p2 Page) bool {
-		return p1.LinkTitle() < p2.LinkTitle()
+		return compare.LessStrings(p1.LinkTitle(), p2.LinkTitle())
 	}
 
 	pages, _ := spc.get(key, pageBy(linkTitle).Sort, p)
@@ -339,7 +342,8 @@ func (p Pages) ByParam(paramsKey interface{}) Pages {
 		s1 := cast.ToString(v1)
 		s2 := cast.ToString(v2)
 
-		return s1 < s2
+		return compare.LessStrings(s1, s2)
+
 	}
 
 	pages, _ := spc.get(key, pageBy(paramsKeyComparator).Sort, p)
