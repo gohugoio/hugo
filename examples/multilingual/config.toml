@@ -3,7 +3,6 @@ baseURL = "http://example.com"
 defaultContentLanguage = "en"
 
 [taxonomies]
-group = "groups"
 
 [languages]
 [languages.en]
@@ -26,14 +25,14 @@ weight = 2
 weight = 1
 title = "Minu mitmekeelne leht"
 [[languages.et.menu.main]]
-url = "/kodu"
+url = "/et/home"
 name = "Kodu"
 weight = 0
 [[languages.et.menu.main]]
-url = "/uudised"
+url = "/et/news"
 name = "Uudised"
 weight = 1
 [[languages.et.menu.main]]
-url = "/minust"
+url = "/et/about"
 name = "Minust"
 weight = 2
