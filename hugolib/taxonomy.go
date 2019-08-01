@@ -18,6 +18,8 @@ import (
 	"path"
 	"sort"
 
+	"github.com/gohugoio/hugo/compare"
+
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 )
@@ -73,7 +75,7 @@ func (i Taxonomy) TaxonomyArray() OrderedTaxonomy {
 // Alphabetical returns an ordered taxonomy sorted by key name.
 func (i Taxonomy) Alphabetical() OrderedTaxonomy {
 	name := func(i1, i2 *OrderedTaxonomyEntry) bool {
-		return i1.Name < i2.Name
+		return compare.LessStrings(i1.Name, i2.Name)
 	}
 
 	ia := i.TaxonomyArray()
@@ -89,7 +91,7 @@ func (i Taxonomy) ByCount() OrderedTaxonomy {
 		li2 := len(i2.WeightedPages)
 
 		if li1 == li2 {
-			return i1.Name < i2.Name
+			return compare.LessStrings(i1.Name, i2.Name)
 		}
 		return li1 > li2
 	}

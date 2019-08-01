@@ -45,6 +45,7 @@ func TestSort(t *testing.T) {
 	}{
 		{[]string{"class1", "class2", "class3"}, nil, "asc", []string{"class1", "class2", "class3"}},
 		{[]string{"class3", "class1", "class2"}, nil, "asc", []string{"class1", "class2", "class3"}},
+		{[]string{"CLASS3", "class1", "class2"}, nil, "asc", []string{"class1", "class2", "CLASS3"}},
 		// Issue 6023
 		{stringsSlice{"class3", "class1", "class2"}, nil, "asc", stringsSlice{"class1", "class2", "class3"}},
 

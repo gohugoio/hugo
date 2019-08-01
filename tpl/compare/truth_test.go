@@ -23,7 +23,7 @@ import (
 )
 
 func TestTruth(t *testing.T) {
-	n := New()
+	n := New(false)
 
 	truthv, falsev := reflect.ValueOf(time.Now()), reflect.ValueOf(false)
 

@@ -83,7 +83,7 @@ func TestDefaultFunc(t *testing.T) {
 
 	then := time.Now()
 	now := time.Now()
-	ns := New()
+	ns := New(false)
 
 	for i, test := range []struct {
 		dflt   interface{}
@@ -139,7 +139,7 @@ func TestDefaultFunc(t *testing.T) {
 func TestCompare(t *testing.T) {
 	t.Parallel()
 
-	n := New()
+	n := New(false)
 
 	for _, test := range []struct {
 		tstCompareType
@@ -233,6 +233,14 @@ func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b inte
 	}
 }
 
+func TestCase(t *testing.T) {
+	assert := require.New(t)
+	n := New(true)
+
+	assert.True(n.Lt("az", "Za"))
+	assert.True(n.Gt("ab", "Ab"))
+}
+
 func TestTimeUnix(t *testing.T) {
 	t.Parallel()
 	var sec int64 = 1234567890
@@ -258,7 +266,7 @@ func TestTimeUnix(t *testing.T) {
 
 func TestConditional(t *testing.T) {
 	assert := require.New(t)
-	n := New()
+	n := New(false)
 	a, b := "a", "b"
 
 	assert.Equal(a, n.Conditional(true, a, b))

@@ -15,6 +15,7 @@ package navigation
 
 import (
 	"github.com/gohugoio/hugo/common/types"
+	"github.com/gohugoio/hugo/compare"
 
 	"html/template"
 	"sort"
@@ -159,10 +160,11 @@ func (by menuEntryBy) Sort(menu Menu) {
 
 var defaultMenuEntrySort = func(m1, m2 *MenuEntry) bool {
 	if m1.Weight == m2.Weight {
-		if m1.Name == m2.Name {
+		c := compare.Strings(m1.Name, m2.Name)
+		if c == 0 {
 			return m1.Identifier < m2.Identifier
 		}
-		return m1.Name < m2.Name
+		return c < 0
 	}
 
 	if m2.Weight == 0 {
@@ -205,7 +207,7 @@ func (m Menu) ByWeight() Menu {
 // ByName sorts the menu by the name defined in the menu configuration.
 func (m Menu) ByName() Menu {
 	title := func(m1, m2 *MenuEntry) bool {
-		return m1.Name < m2.Name
+		return compare.LessStrings(m1.Name, m2.Name)
 	}
 
 	menuEntryBy(title).Sort(m)
