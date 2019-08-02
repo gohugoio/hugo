@@ -188,7 +188,7 @@ type permalinkExpandError struct {
 }
 
 func (pee *permalinkExpandError) Error() string {
-	return fmt.Sprintf("error expanding %q: %s", string(pee.pattern), pee.err)
+	return fmt.Sprintf("error expanding %q: %s", pee.pattern, pee.err)
 }
 
 var (
