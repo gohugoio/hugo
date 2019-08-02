@@ -93,7 +93,7 @@ func TestNSConfig(t *testing.T) {
 
 		// check for expected errors early to avoid writing files
 		if b, ok := test.expect.(bool); ok && !b {
-			_, err := ns.Config(interface{}(test.path))
+			_, err := ns.Config(test.path)
 			require.Error(t, err, errMsg)
 			continue
 		}

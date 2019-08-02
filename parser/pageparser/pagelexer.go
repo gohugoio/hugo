@@ -117,7 +117,7 @@ var (
 )
 
 func (l *pageLexer) next() rune {
-	if int(l.pos) >= len(l.input) {
+	if l.pos >= len(l.input) {
 		l.width = 0
 		return eof
 	}
