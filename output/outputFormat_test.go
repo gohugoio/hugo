@@ -118,7 +118,7 @@ func TestGetFormatByFilename(t *testing.T) {
 	f, found := formats.FromFilename("my.amp.html")
 	require.True(t, found)
 	require.Equal(t, AMPFormat, f)
-	f, found = formats.FromFilename("my.ics")
+	_, found = formats.FromFilename("my.ics")
 	require.True(t, found)
 	f, found = formats.FromFilename("my.html")
 	require.True(t, found)

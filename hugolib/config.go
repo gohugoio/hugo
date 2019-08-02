@@ -256,8 +256,7 @@ func (l configLoader) loadConfig(configName string, v *viper.Viper) (string, err
 	}
 
 	var filename string
-	fileExt := helpers.ExtNoDelimiter(configName)
-	if fileExt != "" {
+	if helpers.ExtNoDelimiter(configName) != "" {
 		exists, _ := helpers.Exists(baseFilename, l.Fs)
 		if exists {
 			filename = baseFilename
@@ -268,7 +267,6 @@ func (l configLoader) loadConfig(configName string, v *viper.Viper) (string, err
 			exists, _ := helpers.Exists(filenameToCheck, l.Fs)
 			if exists {
 				filename = filenameToCheck
-				fileExt = ext
 				break
 			}
 		}
