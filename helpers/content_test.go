@@ -45,7 +45,7 @@ func TestTrimShortHTML(t *testing.T) {
 	c := newTestContentSpec()
 	for i, test := range tests {
 		output := c.TrimShortHTML(test.input)
-		if bytes.Compare(test.output, output) != 0 {
+		if !bytes.Equal(test.output, output) {
 			t.Errorf("Test %d failed. Expected %q got %q", i, test.output, output)
 		}
 	}

@@ -125,7 +125,7 @@ func (c *pagesCollector) Collect() error {
 			dirs[contentDirKey{dir, filename, btype}] = true
 		}
 
-		for dir, _ := range dirs {
+		for dir := range dirs {
 			switch dir.tp {
 			case bundleLeaf, bundleBranch:
 				collectErr = c.collectDir(dir.dirname, true, nil)
