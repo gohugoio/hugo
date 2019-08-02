@@ -206,7 +206,7 @@ func locateError(r io.Reader, le FileError, matches LineMatcherFn) ErrorContext 
 
 	lines := strings.Split(string(b), "\n")
 
-	if le != nil && lepos.ColumnNumber >= 0 {
+	if lepos.ColumnNumber >= 0 {
 		pos.ColumnNumber = lepos.ColumnNumber
 	}
 

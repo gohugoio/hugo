@@ -70,10 +70,7 @@ func smartCrop(img image.Image, width, height int, anchor imaging.Anchor, filter
 
 	b := img.Bounds().Intersect(rect)
 
-	cropped, err := imaging.Crop(img, b), nil
-	if err != nil {
-		return nil, err
-	}
+	cropped := imaging.Crop(img, b)
 
 	return imaging.Resize(cropped, width, height, filter), nil
 

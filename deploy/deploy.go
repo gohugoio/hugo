@@ -143,9 +143,6 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 
 	// Diff local vs remote to see what changes need to be applied.
 	uploads, deletes := findDiffs(local, remote, d.force)
-	if err != nil {
-		return err
-	}
 	d.summary.NumUploads = len(uploads)
 	d.summary.NumDeletes = len(deletes)
 	if len(uploads)+len(deletes) == 0 {
