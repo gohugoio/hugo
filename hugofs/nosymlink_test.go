@@ -102,9 +102,9 @@ func TestNoSymlinkFs(t *testing.T) {
 					return fi, err
 				},
 			} {
-				fi, err := stat(symlinkedDir)
+				_, err := stat(symlinkedDir)
 				assert.Equal(ErrPermissionSymlink, err)
-				fi, err = stat(symlinkedFile)
+				fi, err := stat(symlinkedFile)
 				assertFileStat(symlinkedFilename, fi, err)
 
 				fi, err = stat(filepath.Join(workDir, "blog"))

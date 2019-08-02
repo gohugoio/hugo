@@ -98,8 +98,9 @@ func (ns *Namespace) Delimit(seq, delimiter interface{}, last ...interface{}) (t
 		dStr, err := cast.ToStringE(l)
 		if err != nil {
 			dLast = nil
+		} else {
+			dLast = &dStr
 		}
-		dLast = &dStr
 	}
 
 	seqv := reflect.ValueOf(seq)
