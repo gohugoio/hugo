@@ -512,7 +512,7 @@ func (t *htmlTemplates) addTemplateIn(tt *template.Template, name, tpl string) (
 		return nil, err
 	}
 
-	for k, _ := range c.notFound {
+	for k := range c.notFound {
 		t.transformNotFound[k] = true
 	}
 
@@ -580,7 +580,7 @@ func (t *textTemplates) addTemplateIn(tt *texttemplate.Template, name, tpl strin
 		return nil, err
 	}
 
-	for k, _ := range c.notFound {
+	for k := range c.notFound {
 		t.transformNotFound[k] = true
 	}
 
@@ -637,7 +637,7 @@ func (t *templateHandler) postTransform() error {
 			return templT.Tree
 		}, t.text.transformNotFound},
 	} {
-		for name, _ := range s.transformNotFound {
+		for name := range s.transformNotFound {
 			templ := s.lookup(name)
 			if templ != nil {
 				_, err := applyTemplateTransformers(templateUndefined, templ, s.lookup)
