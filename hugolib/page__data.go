@@ -16,6 +16,8 @@ package hugolib
 import (
 	"sync"
 
+	"github.com/gohugoio/hugo/common/maps"
+
 	"github.com/gohugoio/hugo/resources/page"
 )
 
@@ -36,22 +38,22 @@ func (p *pageData) Data() interface{} {
 
 		switch p.Kind() {
 		case page.KindTaxonomy:
-			termInfo := p.getTaxonomyNodeInfo()
-			pluralInfo := termInfo.parent
+			bucket := p.bucket
+			meta := bucket.meta
+			plural := maps.GetString(meta, "plural")
+			singular := maps.GetString(meta, "singular")
 
-			singular := pluralInfo.singular
-			plural := pluralInfo.plural
-			term := termInfo.term
-			taxonomy := p.s.Taxonomies[plural].Get(termInfo.termKey)
+			taxonomy := p.s.Taxonomies[plural].Get(maps.GetString(meta, "termKey"))
 
 			p.data[singular] = taxonomy
-			p.data["Singular"] = singular
+			p.data["Singular"] = meta["singular"]
 			p.data["Plural"] = plural
-			p.data["Term"] = term
+			p.data["Term"] = meta["term"]
 		case page.KindTaxonomyTerm:
-			info := p.getTaxonomyNodeInfo()
-			plural := info.plural
-			singular := info.singular
+			bucket := p.bucket
+			meta := bucket.meta
+			plural := maps.GetString(meta, "plural")
+			singular := maps.GetString(meta, "singular")
 
 			p.data["Singular"] = singular
 			p.data["Plural"] = plural

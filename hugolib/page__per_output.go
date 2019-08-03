@@ -27,9 +27,8 @@ import (
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/tpl"
 
-	"github.com/gohugoio/hugo/output"
-
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 )

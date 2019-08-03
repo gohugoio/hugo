@@ -18,7 +18,6 @@ import (
 	"context"
 	"fmt"
 	"runtime/trace"
-	"sort"
 
 	"github.com/gohugoio/hugo/output"
 
@@ -31,6 +30,7 @@ import (
 // Build builds all sites. If filesystem events are provided,
 // this is considered to be a potential partial rebuild.
 func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
+
 	if h.running {
 		// Make sure we don't trigger rebuilds in parallel.
 		h.runningMu.Lock()
@@ -75,25 +75,29 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 
 	if !config.PartialReRender {
 		prepare := func() error {
-			for _, s := range h.Sites {
-				s.Deps.BuildStartListeners.Notify()
-			}
+			init := func(conf *BuildCfg) error {
+				for _, s := range h.Sites {
+					s.Deps.BuildStartListeners.Notify()
+				}
 
-			if len(events) > 0 {
-				// Rebuild
-				if err := h.initRebuild(conf); err != nil {
-					return errors.Wrap(err, "initRebuild")
+				if len(events) > 0 {
+					// Rebuild
+					if err := h.initRebuild(conf); err != nil {
+						return errors.Wrap(err, "initRebuild")
+					}
+				} else {
+					if err := h.initSites(conf); err != nil {
+						return errors.Wrap(err, "initSites")
+					}
 				}
-			} else {
-				if err := h.initSites(conf); err != nil {
-					return errors.Wrap(err, "initSites")
-				}
+
+				return nil
 			}
 
 			var err error
 
 			f := func() {
-				err = h.process(conf, events...)
+				err = h.process(conf, init, events...)
 			}
 			trace.WithRegion(ctx, "process", f)
 			if err != nil {
@@ -195,7 +199,7 @@ func (h *HugoSites) initRebuild(config *BuildCfg) error {
 	}
 
 	for _, s := range h.Sites {
-		s.resetBuildState()
+		s.resetBuildState(config.whatChanged.source)
 	}
 
 	h.reset(config)
@@ -205,7 +209,7 @@ func (h *HugoSites) initRebuild(config *BuildCfg) error {
 	return nil
 }
 
-func (h *HugoSites) process(config *BuildCfg, events ...fsnotify.Event) error {
+func (h *HugoSites) process(config *BuildCfg, init func(config *BuildCfg) error, events ...fsnotify.Event) error {
 	// We should probably refactor the Site and pull up most of the logic from there to here,
 	// but that seems like a daunting task.
 	// So for now, if there are more than one site (language),
@@ -215,9 +219,7 @@ func (h *HugoSites) process(config *BuildCfg, events ...fsnotify.Event) error {
 
 	if len(events) > 0 {
 		// This is a rebuild
-		changed, err := firstSite.processPartial(events)
-		config.whatChanged = &changed
-		return err
+		return firstSite.processPartial(config, init, events)
 	}
 
 	return firstSite.process(*config)
@@ -235,26 +237,27 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 		}
 	}
 
-	if err := h.createPageCollections(); err != nil {
-		return err
-	}
-
-	if config.whatChanged.source {
-		for _, s := range h.Sites {
-			if err := s.assembleTaxonomies(); err != nil {
-				return err
-			}
-		}
-	}
-
-	// Create pagexs for the section pages etc. without content file.
-	if err := h.createMissingPages(); err != nil {
-		return err
+	if !config.whatChanged.source {
+		return nil
 	}
 
 	for _, s := range h.Sites {
-		s.setupSitePages()
-		sort.Stable(s.workAllPages)
+		if err := s.assemblePagesMap(s); err != nil {
+			return err
+		}
+
+		if err := s.pagesMap.assembleTaxonomies(s); err != nil {
+			return err
+		}
+
+		if err := s.createWorkAllPages(); err != nil {
+			return err
+		}
+
+	}
+
+	if err := h.createPageCollections(); err != nil {
+		return err
 	}
 
 	return nil

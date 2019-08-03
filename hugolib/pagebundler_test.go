@@ -1040,6 +1040,10 @@ slug: leaf
 	b.WithContent("sv/b1/data2.json", "sv: data2")
 	b.WithContent("nb/b1/data2.json", "nb: data2")
 
+	b.WithContent("en/b3/_index.md", createPage("en: branch"))
+	b.WithContent("en/b3/p1.md", createPage("en: page"))
+	b.WithContent("en/b3/data1.json", "en: data")
+
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent("public/en/index.html",

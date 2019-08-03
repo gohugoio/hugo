@@ -365,7 +365,6 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.NotNil(t, enTags["tag1"])
 	require.NotNil(t, frTags["FRtag1"])
 	b.AssertFileContent("public/fr/plaques/FRtag1/index.html", "FRtag1|Bonjour|http://example.com/blog/fr/plaques/FRtag1/")
-	b.AssertFileContent("public/en/tags/tag1/index.html", "tag1|Hello|http://example.com/blog/en/tags/tag1/")
 
 	// Check Blackfriday config
 	require.True(t, strings.Contains(content(doc1fr), "&laquo;"), content(doc1fr))
@@ -470,13 +469,6 @@ func TestMultiSitesRebuild(t *testing.T) {
 			func(t *testing.T) {
 				assert.Len(enSite.RegularPages(), 4, "1 en removed")
 
-				// Check build stats
-				require.Equal(t, 1, enSite.buildStats.draftCount, "Draft")
-				require.Equal(t, 1, enSite.buildStats.futureCount, "Future")
-				require.Equal(t, 1, enSite.buildStats.expiredCount, "Expired")
-				require.Equal(t, 0, frSite.buildStats.draftCount, "Draft")
-				require.Equal(t, 1, frSite.buildStats.futureCount, "Future")
-				require.Equal(t, 1, frSite.buildStats.expiredCount, "Expired")
 			},
 		},
 		{
@@ -609,70 +601,6 @@ func TestMultiSitesRebuild(t *testing.T) {
 
 }
 
-func TestAddNewLanguage(t *testing.T) {
-	t.Parallel()
-	assert := require.New(t)
-
-	b := newMultiSiteTestDefaultBuilder(t)
-	b.CreateSites().Build(BuildCfg{})
-
-	fs := b.Fs
-
-	newConfig := multiSiteTOMLConfigTemplate + `
-
-[Languages.sv]
-weight = 15
-title = "Svenska"
-`
-
-	writeNewContentFile(t, fs.Source, "Swedish Contentfile", "2016-01-01", "content/sect/doc1.sv.md", 10)
-	// replace the config
-	b.WithNewConfig(newConfig)
-
-	sites := b.H
-
-	assert.NoError(b.LoadConfig())
-	err := b.H.Build(BuildCfg{NewConfig: b.Cfg})
-
-	if err != nil {
-		t.Fatalf("Failed to rebuild sites: %s", err)
-	}
-
-	require.Len(t, sites.Sites, 5, fmt.Sprintf("Len %d", len(sites.Sites)))
-
-	// The Swedish site should be put in the middle (language weight=15)
-	enSite := sites.Sites[0]
-	svSite := sites.Sites[1]
-	frSite := sites.Sites[2]
-	require.True(t, enSite.language.Lang == "en", enSite.language.Lang)
-	require.True(t, svSite.language.Lang == "sv", svSite.language.Lang)
-	require.True(t, frSite.language.Lang == "fr", frSite.language.Lang)
-
-	homeEn := enSite.getPage(page.KindHome)
-	require.NotNil(t, homeEn)
-	require.Len(t, homeEn.Translations(), 4)
-
-	require.Equal(t, "sv", homeEn.Translations()[0].Language().Lang)
-
-	require.Len(t, enSite.RegularPages(), 5)
-	require.Len(t, frSite.RegularPages(), 4)
-
-	// Veriy Swedish site
-	require.Len(t, svSite.RegularPages(), 1)
-	svPage := svSite.RegularPages()[0]
-
-	require.Equal(t, "Swedish Contentfile", svPage.Title())
-	require.Equal(t, "sv", svPage.Language().Lang)
-	require.Len(t, svPage.Translations(), 2)
-	require.Len(t, svPage.AllTranslations(), 3)
-	require.Equal(t, "en", svPage.Translations()[0].Language().Lang)
-
-	// Regular pages have no children
-	require.Len(t, svPage.Pages(), 0)
-	require.Len(t, svPage.Data().(page.Data).Pages(), 0)
-
-}
-
 // https://github.com/gohugoio/hugo/issues/4706
 func TestContentStressTest(t *testing.T) {
 	b := newTestSitesBuilder(t)
@@ -775,13 +703,13 @@ END
 }
 
 func checkContent(s *sitesBuilder, filename string, matches ...string) {
+	s.T.Helper()
 	content := readDestination(s.T, s.Fs, filename)
 	for _, match := range matches {
 		if !strings.Contains(content, match) {
 			s.Fatalf("No match for %q in content for %s\n%q", match, filename, content)
 		}
 	}
-
 }
 
 func TestTranslationsFromContentToNonContent(t *testing.T) {

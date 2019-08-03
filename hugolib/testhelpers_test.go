@@ -698,6 +698,7 @@ type testHelper struct {
 }
 
 func (th testHelper) assertFileContent(filename string, matches ...string) {
+	th.T.Helper()
 	filename = th.replaceDefaultContentLanguageValue(filename)
 	content := readDestination(th.T, th.Fs, filename)
 	for _, match := range matches {

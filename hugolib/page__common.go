@@ -30,6 +30,8 @@ type pageCommon struct {
 	s *Site
 	m *pageMeta
 
+	bucket *pagesMapBucket
+
 	// Laziliy initialized dependencies.
 	init *lazy.Init
 
@@ -101,17 +103,17 @@ type pageCommon struct {
 	translationKey     string
 	translationKeyInit sync.Once
 
-	// Will only be set for sections and regular pages.
+	// Will only be set for bundled pages.
 	parent *pageState
-
-	// Will only be set for section pages and the home page.
-	subSections page.Pages
 
 	// Set in fast render mode to force render a given page.
 	forceRender bool
 }
 
 type pagePages struct {
-	pages     page.Pages
 	pagesInit sync.Once
+	pages     page.Pages
+
+	regularPagesInit sync.Once
+	regularPages     page.Pages
 }

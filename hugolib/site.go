@@ -58,7 +58,6 @@ import (
 	"github.com/gohugoio/hugo/related"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
-	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/gohugoio/hugo/source"
 	"github.com/gohugoio/hugo/tpl"
 
@@ -94,14 +93,10 @@ type Site struct {
 
 	Taxonomies TaxonomyList
 
-	taxonomyNodes *taxonomyNodeInfos
-
 	Sections Taxonomy
 	Info     SiteInfo
 
 	layoutHandler *output.LayoutHandler
-
-	buildStats *buildStats
 
 	language *langs.Language
 
@@ -216,12 +211,13 @@ func (s *Site) prepareInits() {
 
 	s.init.prevNextInSection = init.Branch(func() (interface{}, error) {
 		var rootSection []int
+		// TODO(bep) cm attach this to the bucket.
 		for i, p1 := range s.workAllPages {
 			if p1.IsPage() && p1.Section() == "" {
 				rootSection = append(rootSection, i)
 			}
 			if p1.IsSection() {
-				sectionPages := p1.Pages()
+				sectionPages := p1.RegularPages()
 				for i, p2 := range sectionPages {
 					p2s := p2.(*pageState)
 					if p2s.posNextPrevSection == nil {
@@ -261,28 +257,6 @@ func (s *Site) prepareInits() {
 		return nil, nil
 	})
 
-}
-
-// Build stats for a given site.
-type buildStats struct {
-	draftCount   int
-	futureCount  int
-	expiredCount int
-}
-
-// TODO(bep) consolidate all site stats into this
-func (b *buildStats) update(p page.Page) {
-	if p.Draft() {
-		b.draftCount++
-	}
-
-	if resource.IsFuture(p) {
-		b.futureCount++
-	}
-
-	if resource.IsExpired(p) {
-		b.expiredCount++
-	}
 }
 
 type siteRenderingContext struct {
@@ -355,9 +329,8 @@ func (s *Site) reset() *Site {
 		publisher:              s.publisher,
 		siteConfigConfig:       s.siteConfigConfig,
 		enableInlineShortcodes: s.enableInlineShortcodes,
-		buildStats:             &buildStats{},
 		init:                   s.init,
-		PageCollections:        newPageCollections(),
+		PageCollections:        s.PageCollections,
 		siteCfg:                s.siteCfg,
 	}
 
@@ -453,7 +426,6 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		outputFormatsConfig:    siteOutputFormatsConfig,
 		mediaTypesConfig:       siteMediaTypesConfig,
 		frontmatterHandler:     frontMatterHandler,
-		buildStats:             &buildStats{},
 		enableInlineShortcodes: cfg.Language.GetBool("enableInlineShortcodes"),
 		siteCfg:                siteConfig,
 	}
@@ -920,7 +892,7 @@ func (s *Site) translateFileEvents(events []fsnotify.Event) []fsnotify.Event {
 // reBuild partially rebuilds a site given the filesystem events.
 // It returns whetever the content source was changed.
 // TODO(bep) clean up/rewrite this method.
-func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
+func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) error, events []fsnotify.Event) error {
 
 	events = s.filterFileEvents(events)
 	events = s.translateFileEvents(events)
@@ -974,6 +946,18 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 		}
 	}
 
+	changed := &whatChanged{
+		source: len(sourceChanged) > 0 || len(shortcodesChanged) > 0,
+		other:  len(tmplChanged) > 0 || len(i18nChanged) > 0 || len(dataChanged) > 0,
+		files:  sourceFilesChanged,
+	}
+
+	config.whatChanged = changed
+
+	if err := init(config); err != nil {
+		return err
+	}
+
 	// These in memory resource caches will be rebuilt on demand.
 	for _, s := range s.h.Sites {
 		s.ResourceSpec.ResourceCache.DeletePartitions(cachePartitions...)
@@ -987,7 +971,7 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 
 		// TOD(bep) globals clean
 		if err := first.Deps.LoadResources(); err != nil {
-			return whatChanged{}, err
+			return err
 		}
 
 		for i := 1; i < len(sites); i++ {
@@ -1003,7 +987,7 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 				return nil
 			})
 			if err != nil {
-				return whatChanged{}, err
+				return err
 			}
 		}
 	}
@@ -1062,18 +1046,12 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 		filenamesChanged = helpers.UniqueStringsReuse(filenamesChanged)
 
 		if err := s.readAndProcessContent(filenamesChanged...); err != nil {
-			return whatChanged{}, err
+			return err
 		}
 
 	}
 
-	changed := whatChanged{
-		source: len(sourceChanged) > 0 || len(shortcodesChanged) > 0,
-		other:  len(tmplChanged) > 0 || len(i18nChanged) > 0 || len(dataChanged) > 0,
-		files:  sourceFilesChanged,
-	}
-
-	return changed, nil
+	return nil
 
 }
 
@@ -1087,54 +1065,6 @@ func (s *Site) process(config BuildCfg) (err error) {
 		return
 	}
 	return err
-
-}
-
-func (s *Site) setupSitePages() {
-	var homeDates *resource.Dates
-	if s.home != nil {
-		// If the home page has no dates set, we fall back to the site dates.
-		homeDates = &s.home.m.Dates
-	}
-
-	if !s.lastmod.IsZero() && (homeDates == nil || !resource.IsZeroDates(homeDates)) {
-		return
-	}
-
-	if homeDates != nil && !s.lastmod.IsZero() {
-		homeDates.FDate = s.lastmod
-		homeDates.FLastmod = s.lastmod
-		return
-
-	}
-
-	var siteLastmod time.Time
-	var siteLastDate time.Time
-
-	for _, page := range s.workAllPages {
-		if !page.IsPage() {
-			continue
-		}
-		// Determine Site.Info.LastChange
-		// Note that the logic to determine which date to use for Lastmod
-		// is already applied, so this is *the* date to use.
-		// We cannot just pick the last page in the default sort, because
-		// that may not be ordered by date.
-		// TODO(bep) check if this can be done earlier
-		if page.Lastmod().After(siteLastmod) {
-			siteLastmod = page.Lastmod()
-		}
-		if page.Date().After(siteLastDate) {
-			siteLastDate = page.Date()
-		}
-	}
-
-	s.lastmod = siteLastmod
-
-	if homeDates != nil && resource.IsZeroDates(homeDates) {
-		homeDates.FDate = siteLastDate
-		homeDates.FLastmod = s.lastmod
-	}
 
 }
 
@@ -1483,81 +1413,22 @@ func (s *Site) getTaxonomyKey(key string) string {
 	return strings.ToLower(s.PathSpec.MakePath(key))
 }
 
-func (s *Site) assembleTaxonomies() error {
-	s.Taxonomies = make(TaxonomyList)
-	taxonomies := s.siteCfg.taxonomiesConfig
-	for _, plural := range taxonomies {
-		s.Taxonomies[plural] = make(Taxonomy)
-	}
-
-	s.taxonomyNodes = &taxonomyNodeInfos{
-		m:      make(map[string]*taxonomyNodeInfo),
-		getKey: s.getTaxonomyKey,
-	}
-
-	s.Log.INFO.Printf("found taxonomies: %#v\n", taxonomies)
-
-	for singular, plural := range taxonomies {
-		parent := s.taxonomyNodes.GetOrCreate(plural, "")
-		parent.singular = singular
-
-		addTaxonomy := func(plural, term string, weight int, p page.Page) {
-			key := s.getTaxonomyKey(term)
-
-			n := s.taxonomyNodes.GetOrCreate(plural, term)
-			n.parent = parent
-
-			w := page.NewWeightedPage(weight, p, n.owner)
-
-			s.Taxonomies[plural].add(key, w)
-
-			n.UpdateFromPage(w.Page)
-			parent.UpdateFromPage(w.Page)
-		}
-
-		for _, p := range s.workAllPages {
-			vals := getParam(p, plural, false)
-
-			w := getParamToLower(p, plural+"_weight")
-			weight, err := cast.ToIntE(w)
-			if err != nil {
-				s.Log.ERROR.Printf("Unable to convert taxonomy weight %#v to int for %q", w, p.pathOrTitle())
-				// weight will equal zero, so let the flow continue
-			}
-
-			if vals != nil {
-				if v, ok := vals.([]string); ok {
-					for _, idx := range v {
-						addTaxonomy(plural, idx, weight, p)
-					}
-				} else if v, ok := vals.(string); ok {
-					addTaxonomy(plural, v, weight, p)
-				} else {
-					s.Log.ERROR.Printf("Invalid %s in %q\n", plural, p.pathOrTitle())
-				}
-			}
-		}
-
-		for k := range s.Taxonomies[plural] {
-			s.Taxonomies[plural][k].Sort()
-		}
-	}
-
-	return nil
-}
-
 // Prepare site for a new full build.
-func (s *Site) resetBuildState() {
+func (s *Site) resetBuildState(sourceChanged bool) {
 	s.relatedDocsHandler = s.relatedDocsHandler.Clone()
-	s.PageCollections = newPageCollectionsFromPages(s.rawAllPages)
-	s.buildStats = &buildStats{}
 	s.init.Reset()
 
-	for _, p := range s.rawAllPages {
-		p.pagePages = &pagePages{}
-		p.subSections = page.Pages{}
-		p.parent = nil
-		p.Scratcher = maps.NewScratcher()
+	if sourceChanged {
+		s.PageCollections = newPageCollectionsFromPages(s.rawAllPages)
+		for _, p := range s.rawAllPages {
+			p.pagePages = &pagePages{}
+			p.parent = nil
+			p.Scratcher = maps.NewScratcher()
+		}
+	} else {
+		s.pagesMap.withEveryPage(func(p *pageState) {
+			p.Scratcher = maps.NewScratcher()
+		})
 	}
 }
 
@@ -1759,8 +1630,11 @@ func (s *Site) kindFromSections(sections []string) string {
 		return page.KindHome
 	}
 
-	sectionPath := path.Join(sections...)
+	return s.kindFromSectionPath(path.Join(sections...))
 
+}
+
+func (s *Site) kindFromSectionPath(sectionPath string) string {
 	for _, plural := range s.siteCfg.taxonomiesConfig {
 		if plural == sectionPath {
 			return page.KindTaxonomyTerm

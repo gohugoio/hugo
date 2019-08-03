@@ -14,15 +14,13 @@
 package hugolib
 
 import (
-	"fmt"
 	"io"
-	"path"
 	"path/filepath"
 	"sort"
 	"strings"
 	"sync"
 
-	radix "github.com/hashicorp/go-immutable-radix"
+	radix "github.com/armon/go-radix"
 
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/parser/metadecoders"
@@ -623,118 +621,6 @@ func (h *HugoSites) renderCrossSitesArtifacts() error {
 		s.siteCfg.sitemap.Filename, h.toSiteInfos(), smLayouts...)
 }
 
-// createMissingPages creates home page, taxonomies etc. that isnt't created as an
-// effect of having a content file.
-func (h *HugoSites) createMissingPages() error {
-
-	for _, s := range h.Sites {
-		if s.isEnabled(page.KindHome) {
-			// home pages
-			homes := s.findWorkPagesByKind(page.KindHome)
-			if len(homes) > 1 {
-				panic("Too many homes")
-			}
-			var home *pageState
-			if len(homes) == 0 {
-				home = s.newPage(page.KindHome)
-				s.workAllPages = append(s.workAllPages, home)
-			} else {
-				home = homes[0]
-			}
-
-			s.home = home
-		}
-
-		// Will create content-less root sections.
-		newSections := s.assembleSections()
-		s.workAllPages = append(s.workAllPages, newSections...)
-
-		taxonomyTermEnabled := s.isEnabled(page.KindTaxonomyTerm)
-		taxonomyEnabled := s.isEnabled(page.KindTaxonomy)
-
-		// taxonomy list and terms pages
-		taxonomies := s.Language().GetStringMapString("taxonomies")
-		if len(taxonomies) > 0 {
-			taxonomyPages := s.findWorkPagesByKind(page.KindTaxonomy)
-			taxonomyTermsPages := s.findWorkPagesByKind(page.KindTaxonomyTerm)
-
-			// Make them navigable from WeightedPage etc.
-			for _, p := range taxonomyPages {
-				ni := p.getTaxonomyNodeInfo()
-				if ni == nil {
-					// This can be nil for taxonomies, e.g. an author,
-					// with a content file, but no actual usage.
-					// Create one.
-					sections := p.SectionsEntries()
-					if len(sections) < 2 {
-						// Invalid state
-						panic(fmt.Sprintf("invalid taxonomy state for %q with sections %v", p.pathOrTitle(), sections))
-					}
-					ni = p.s.taxonomyNodes.GetOrAdd(sections[0], path.Join(sections[1:]...))
-				}
-				ni.TransferValues(p)
-			}
-			for _, p := range taxonomyTermsPages {
-				p.getTaxonomyNodeInfo().TransferValues(p)
-			}
-
-			for _, plural := range taxonomies {
-				if taxonomyTermEnabled {
-					foundTaxonomyTermsPage := false
-					for _, p := range taxonomyTermsPages {
-						if p.SectionsPath() == plural {
-							foundTaxonomyTermsPage = true
-							break
-						}
-					}
-
-					if !foundTaxonomyTermsPage {
-						n := s.newPage(page.KindTaxonomyTerm, plural)
-						n.getTaxonomyNodeInfo().TransferValues(n)
-						s.workAllPages = append(s.workAllPages, n)
-					}
-				}
-
-				if taxonomyEnabled {
-					for termKey := range s.Taxonomies[plural] {
-
-						foundTaxonomyPage := false
-
-						for _, p := range taxonomyPages {
-							sectionsPath := p.SectionsPath()
-
-							if !strings.HasPrefix(sectionsPath, plural) {
-								continue
-							}
-
-							singularKey := strings.TrimPrefix(sectionsPath, plural)
-							singularKey = strings.TrimPrefix(singularKey, "/")
-
-							if singularKey == termKey {
-								foundTaxonomyPage = true
-								break
-							}
-						}
-
-						if !foundTaxonomyPage {
-							info := s.taxonomyNodes.Get(plural, termKey)
-							if info == nil {
-								panic("no info found")
-							}
-
-							n := s.newTaxonomyPage(info.term, info.plural, info.termKey)
-							info.TransferValues(n)
-							s.workAllPages = append(s.workAllPages, n)
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return nil
-}
-
 func (h *HugoSites) removePageByFilename(filename string) {
 	for _, s := range h.Sites {
 		s.removePageFilename(filename)
@@ -742,23 +628,6 @@ func (h *HugoSites) removePageByFilename(filename string) {
 }
 
 func (h *HugoSites) createPageCollections() error {
-	for _, s := range h.Sites {
-		for _, p := range s.rawAllPages {
-			if !s.isEnabled(p.Kind()) {
-				continue
-			}
-
-			shouldBuild := s.shouldBuild(p)
-			s.buildStats.update(p)
-			if shouldBuild {
-				if p.m.headless {
-					s.headlessPages = append(s.headlessPages, p)
-				} else {
-					s.workAllPages = append(s.workAllPages, p)
-				}
-			}
-		}
-	}
 
 	allPages := newLazyPagesFactory(func() page.Pages {
 		var pages page.Pages
@@ -950,8 +819,7 @@ type contentChangeMap struct {
 	mu sync.RWMutex
 
 	// Holds directories with leaf bundles.
-	leafBundles    *radix.Tree
-	leafBundlesTxn *radix.Txn
+	leafBundles *radix.Tree
 
 	// Holds directories with branch bundles.
 	branchBundles map[string]bool
@@ -969,18 +837,6 @@ type contentChangeMap struct {
 	symContent   map[string]map[string]bool
 }
 
-func (m *contentChangeMap) start() {
-	m.mu.Lock()
-	m.leafBundlesTxn = m.leafBundles.Txn()
-	m.mu.Unlock()
-}
-
-func (m *contentChangeMap) stop() {
-	m.mu.Lock()
-	m.leafBundles = m.leafBundlesTxn.Commit()
-	m.mu.Unlock()
-}
-
 func (m *contentChangeMap) add(filename string, tp bundleDirType) {
 	m.mu.Lock()
 	dir := filepath.Dir(filename) + helpers.FilePathSeparator
@@ -989,7 +845,7 @@ func (m *contentChangeMap) add(filename string, tp bundleDirType) {
 	case bundleBranch:
 		m.branchBundles[dir] = true
 	case bundleLeaf:
-		m.leafBundlesTxn.Insert([]byte(dir), true)
+		m.leafBundles.Insert(dir, true)
 	default:
 		panic("invalid bundle type")
 	}
@@ -1012,8 +868,8 @@ func (m *contentChangeMap) resolveAndRemove(filename string) (string, string, bu
 		return dir, dir, bundleBranch
 	}
 
-	if key, _, found := m.leafBundles.Root().LongestPrefix([]byte(dir)); found {
-		m.leafBundlesTxn.Delete(key)
+	if key, _, found := m.leafBundles.LongestPrefix(dir); found {
+		m.leafBundles.Delete(key)
 		dir = string(key)
 		return dir, dir, bundleLeaf
 	}

@@ -36,9 +36,8 @@ import (
 
 	"github.com/gohugoio/hugo/source"
 
-	"github.com/gohugoio/hugo/hugofs"
-
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
 )
 
@@ -109,10 +108,6 @@ type contentDirKey struct {
 // Collect.
 func (c *pagesCollector) Collect() error {
 	c.proc.Start(context.Background())
-	if c.tracker != nil {
-		c.tracker.start()
-		defer c.tracker.stop()
-	}
 
 	var collectErr error
 	if len(c.filenames) == 0 {
@@ -125,7 +120,7 @@ func (c *pagesCollector) Collect() error {
 			dirs[contentDirKey{dir, filename, btype}] = true
 		}
 
-		for dir, _ := range dirs {
+		for dir := range dirs {
 			switch dir.tp {
 			case bundleLeaf, bundleBranch:
 				collectErr = c.collectDir(dir.dirname, true, nil)

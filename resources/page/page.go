@@ -57,6 +57,13 @@ type AuthorProvider interface {
 // ChildCareProvider provides accessors to child resources.
 type ChildCareProvider interface {
 	Pages() Pages
+
+	// RegularPages returns a list of pages of kind 'Page'.
+	// In Hugo 0.57 we changed the Pages method so it returns all page
+	// kinds, even sections. If you want the old behaviour, you can
+	// use RegularPages.
+	RegularPages() Pages
+
 	Resources() resource.Resources
 }
 

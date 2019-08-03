@@ -531,7 +531,6 @@ date: 2018-01-15
 	assert.Equal(2017, s.getPage("/no-index").Date().Year())
 	assert.True(s.getPage("/with-index-no-date").Date().IsZero())
 	assert.Equal(2018, s.getPage("/with-index-date").Date().Year())
-
 }
 
 func TestCreateNewPage(t *testing.T) {
