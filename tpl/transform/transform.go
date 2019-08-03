@@ -19,6 +19,7 @@ import (
 	"html/template"
 
 	"github.com/gohugoio/hugo/cache/namedmemcache"
+	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -91,17 +92,24 @@ func (ns *Namespace) HTMLUnescape(s interface{}) (string, error) {
 }
 
 // Markdownify renders a given input from Markdown to HTML.
-func (ns *Namespace) Markdownify(s interface{}) (template.HTML, error) {
-	ss, err := cast.ToStringE(s)
+func (ns *Namespace) Markdownify(args ...interface{}) (template.HTML, error) {
+	if len(args) == 0 || len(args) > 2 {
+		return "", errors.New("markdownify takes 1 or 2 arguments")
+	}
+	s, err := cast.ToStringE(args[len(args)-1])
 	if err != nil {
 		return "", err
 	}
 
+	options := map[string]string{"format": "markdown"}
+	if len(args) == 2 {
+		options = cast.ToStringMapString(args[0])
+	}
 	m := ns.deps.ContentSpec.RenderBytes(
 		&helpers.RenderingContext{
 			Cfg:     ns.deps.Cfg,
-			Content: []byte(ss),
-			PageFmt: "markdown",
+			Content: []byte(s),
+			PageFmt: options["format"],
 			Config:  ns.deps.ContentSpec.BlackFriday,
 		},
 	)

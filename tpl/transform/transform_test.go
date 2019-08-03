@@ -159,16 +159,24 @@ func TestMarkdownify(t *testing.T) {
 	ns := New(newDeps(v))
 
 	for i, test := range []struct {
-		s      interface{}
+		args   []interface{}
 		expect interface{}
 	}{
-		{"Hello **World!**", template.HTML("Hello <strong>World!</strong>")},
-		{[]byte("Hello Bytes **World!**"), template.HTML("Hello Bytes <strong>World!</strong>")},
-		{tstNoStringer{}, false},
+		{[]interface{}{"Hello **World!**"}, template.HTML("Hello <strong>World!</strong>")},
+		{[]interface{}{[]byte("Hello Bytes **World!**")}, template.HTML("Hello Bytes <strong>World!</strong>")},
+		{[]interface{}{tstNoStringer{}}, false},
+		{[]interface{}{map[string]string{"format": "org"}, tstNoStringer{}}, false},
+		{[]interface{}{nil, "", "superfluous argument"}, false},
+		{[]interface{}{
+			map[string]string{"format": "we fall back to markdown for non-existant in ContentSpec.RenderBytes"},
+			"Hello **World!**",
+		}, template.HTML("Hello <strong>World!</strong>")},
+		{[]interface{}{nil, []byte("*BatMan!*")}, template.HTML("<em>BatMan!</em>")},
+		{[]interface{}{map[string]interface{}{"format": "org"}, []byte("*BatMan!*")}, template.HTML("<strong>BatMan!</strong>")},
 	} {
-		errMsg := fmt.Sprintf("[%d] %s", i, test.s)
+		errMsg := fmt.Sprintf("[%d] %v", i, test.args)
 
-		result, err := ns.Markdownify(test.s)
+		result, err := ns.Markdownify(test.args...)
 
 		if b, ok := test.expect.(bool); ok && !b {
 			require.Error(t, err, errMsg)
@@ -190,8 +198,8 @@ func TestMarkdownifyBlocksOfText(t *testing.T) {
 	v.Set("contentDir", "content")
 	ns := New(newDeps(v))
 
-	text := `
-#First 
+	markdownText := `
+#First
 
 This is some *bold* text.
 
@@ -202,12 +210,25 @@ This is some more text.
 And then some.
 `
 
-	result, err := ns.Markdownify(text)
+	orgText := `
+This is some *bold* text.
+
+And here is some more text in a new paragraph.
+
+This makes a block of text.
+`
+
+	result, err := ns.Markdownify(markdownText)
 	assert.NoError(err)
 	assert.Equal(template.HTML(
 		"<p>#First</p>\n\n<p>This is some <em>bold</em> text.</p>\n\n<h2 id=\"second\">Second</h2>\n\n<p>This is some more text.</p>\n\n<p>And then some.</p>\n"),
 		result)
 
+	result, err = ns.Markdownify(map[string]string{"format": "org"}, orgText)
+	assert.NoError(err)
+	assert.Equal(template.HTML(
+		"<p>\nThis is some <strong>bold</strong> text.\n</p>\n<p>\nAnd here is some more text in a new paragraph.\n</p>\n<p>\nThis makes a block of text.\n</p>\n"),
+		result)
 }
 
 func TestPlainify(t *testing.T) {

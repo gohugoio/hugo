@@ -78,6 +78,8 @@ func init() {
 			[]string{"markdownify"},
 			[][2]string{
 				{`{{ .Title | markdownify}}`, `<strong>BatMan</strong>`},
+				{`{{ "*BatMan*" | markdownify (dict "format" "org")}}`, `<strong>BatMan</strong>`},
+				{`{{ "**BatMan**" | markdownify (dict "format" "markdown")}}`, `<strong>BatMan</strong>`},
 			},
 		)
 
