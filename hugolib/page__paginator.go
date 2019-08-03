@@ -80,7 +80,17 @@ func (p *pagePaginator) Paginator(options ...interface{}) (*page.Pager, error) {
 
 		pd := p.source.targetPathDescriptor
 		pd.Type = p.source.outputFormat()
-		paginator, err := page.Paginate(pd, p.source.Pages(), pagerSize)
+
+		var pages page.Pages
+		if p.source.IsHome() {
+			// From Hugo 0.57 we made home.Pages() work like any other
+			// section. To avoid the default paginators for the home page
+			// changing in the wild, we make this a special case.
+			pages = p.source.s.RegularPages()
+		} else {
+			pages = p.source.Pages()
+		}
+		paginator, err := page.Paginate(pd, pages, pagerSize)
 		if err != nil {
 			initErr = err
 			return

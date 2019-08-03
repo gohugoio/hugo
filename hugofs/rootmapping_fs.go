@@ -23,7 +23,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	radix "github.com/hashicorp/go-immutable-radix"
+	radix "github.com/armon/go-radix"
 	"github.com/spf13/afero"
 )
 
@@ -33,7 +33,7 @@ var filepathSeparator = string(filepath.Separator)
 // of root mappings with some optional metadata about the root.
 // Note that From represents a virtual root that maps to the actual filename in To.
 func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
-	rootMapToReal := radix.New().Txn()
+	rootMapToReal := radix.New()
 
 	for _, rm := range rms {
 		(&rm).clean()
@@ -58,7 +58,7 @@ func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 		// Extract "blog" from "content/blog"
 		rm.path = strings.TrimPrefix(strings.TrimPrefix(rm.From, fromBase), filepathSeparator)
 
-		key := []byte(rm.rootKey())
+		key := rm.rootKey()
 		var mappings []RootMapping
 		v, found := rootMapToReal.Get(key)
 		if found {
@@ -71,7 +71,7 @@ func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 
 	rfs := &RootMappingFs{Fs: fs,
 		virtualRoots:  rms,
-		rootMapToReal: rootMapToReal.Commit().Root()}
+		rootMapToReal: rootMapToReal}
 
 	return rfs, nil
 }
@@ -119,7 +119,7 @@ func (r RootMapping) rootKey() string {
 // in the order given.
 type RootMappingFs struct {
 	afero.Fs
-	rootMapToReal *radix.Node
+	rootMapToReal *radix.Tree
 	virtualRoots  []RootMapping
 	filter        func(r RootMapping) bool
 }
@@ -303,8 +303,8 @@ func (fs *RootMappingFs) isRoot(name string) bool {
 }
 
 func (fs *RootMappingFs) getRoots(name string) []RootMapping {
-	nameb := []byte(filepath.Clean(name))
-	_, v, found := fs.rootMapToReal.LongestPrefix(nameb)
+	name = filepath.Clean(name)
+	_, v, found := fs.rootMapToReal.LongestPrefix(name)
 	if !found {
 		return nil
 	}
@@ -333,10 +333,10 @@ func (fs *RootMappingFs) getRootsWithPrefix(prefix string) []RootMapping {
 	if fs.isRoot(prefix) {
 		return fs.virtualRoots
 	}
-	prefixb := []byte(filepath.Clean(prefix))
+	prefix = filepath.Clean(prefix)
 	var roots []RootMapping
 
-	fs.rootMapToReal.WalkPrefix(prefixb, func(b []byte, v interface{}) bool {
+	fs.rootMapToReal.WalkPrefix(prefix, func(b string, v interface{}) bool {
 		roots = append(roots, v.([]RootMapping)...)
 		return false
 	})

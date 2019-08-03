@@ -11,22 +11,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hugolib
+package maps
 
 import (
-	"github.com/gohugoio/hugo/resources/page"
+	"github.com/spf13/cast"
 )
 
-// Sections returns the top level sections.
-func (s *SiteInfo) Sections() page.Pages {
-	home, err := s.Home()
-	if err == nil {
-		return home.Sections()
+// GetString tries to get a value with key from map m and convert it to a string.
+// It will return an empty string if not found or if it cannot be convertd to a string.
+func GetString(m map[string]interface{}, key string) string {
+	if m == nil {
+		return ""
 	}
-	return nil
-}
-
-// Home is a shortcut to the home page, equivalent to .Site.GetPage "home".
-func (s *SiteInfo) Home() (page.Page, error) {
-	return s.s.home, nil
+	v, found := m[key]
+	if !found {
+		return ""
+	}
+	return cast.ToString(v)
 }

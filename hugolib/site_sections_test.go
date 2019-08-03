@@ -137,21 +137,20 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 		}},
 		{"empty1", func(assert *require.Assertions, p page.Page) {
 			// > b,c
-			assert.NotNil(getPage(p, "/empty1/b"))
+			assert.Nil(getPage(p, "/empty1/b")) // No _index.md page.
 			assert.NotNil(getPage(p, "/empty1/b/c"))
 
 		}},
 		{"empty2", func(assert *require.Assertions, p page.Page) {
-			// > b,c,d where b and d have content files.
+			// > b,c,d where b and d have _index.md files.
 			b := getPage(p, "/empty2/b")
 			assert.NotNil(b)
 			assert.Equal("T40_-1", b.Title())
+
 			c := getPage(p, "/empty2/b/c")
+			assert.Nil(c) // No _index.md
 
-			assert.NotNil(c)
-			assert.Equal("Cs", c.Title())
 			d := getPage(p, "/empty2/b/c/d")
-
 			assert.NotNil(d)
 			assert.Equal("T41_-1", d.Title())
 
@@ -163,9 +162,10 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 		{"empty3", func(assert *require.Assertions, p page.Page) {
 			// b,c,d with regular page in b
 			b := getPage(p, "/empty3/b")
-			assert.NotNil(b)
-			assert.Len(b.Pages(), 1)
-			assert.Equal("empty3.md", b.Pages()[0].File().LogicalName())
+			assert.Nil(b) // No _index.md
+			e3 := getPage(p, "/empty3/b/empty3")
+			assert.NotNil(e3)
+			assert.Equal("empty3.md", e3.File().LogicalName())
 
 		}},
 		{"empty3", func(assert *require.Assertions, p page.Page) {
@@ -188,19 +188,23 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 		}},
 		{"l1", func(assert *require.Assertions, p page.Page) {
 			assert.Equal("L1s", p.Title())
-			assert.Len(p.Pages(), 2)
+			assert.Len(p.Pages(), 4) // 2 pages + 2 sections
 			assert.True(p.Parent().IsHome())
 			assert.Len(p.Sections(), 2)
 		}},
 		{"l1,l2", func(assert *require.Assertions, p page.Page) {
 			assert.Equal("T2_-1", p.Title())
-			assert.Len(p.Pages(), 3)
+			assert.Len(p.Pages(), 4) // 3 pages + 1 section
 			assert.Equal(p, p.Pages()[0].Parent())
 			assert.Equal("L1s", p.Parent().Title())
 			assert.Equal("/l1/l2/", p.RelPermalink())
 			assert.Len(p.Sections(), 1)
 
 			for _, child := range p.Pages() {
+				if child.IsSection() {
+					assert.Equal(child, child.CurrentSection())
+					continue
+				}
 
 				assert.Equal(p, child.CurrentSection())
 				active, err := child.InSection(p)

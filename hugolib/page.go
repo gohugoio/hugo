@@ -23,6 +23,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/maps"
+
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/bep/gitmap"
@@ -121,31 +123,66 @@ func (p *pageState) MarshalJSON() ([]byte, error) {
 	return page.MarshalPageToJSON(p)
 }
 
-func (p *pageState) Pages() page.Pages {
-	p.pagesInit.Do(func() {
-		if p.pages != nil {
-			return
-		}
+func (p *pageState) getPages() page.Pages {
+	b := p.bucket
+	if b == nil {
+		return nil
+	}
+	return b.getPages()
+}
 
+func (p *pageState) getPagesAndSections() page.Pages {
+	b := p.bucket
+	if b == nil {
+		return nil
+	}
+	return b.getPagesAndSections()
+}
+
+// TODO(bep) cm add a test
+func (p *pageState) RegularPages() page.Pages {
+	p.regularPagesInit.Do(func() {
 		var pages page.Pages
 
 		switch p.Kind() {
 		case page.KindPage:
-		case page.KindHome:
-			pages = p.s.RegularPages()
+		case page.KindSection, page.KindHome, page.KindTaxonomyTerm:
+			pages = p.getPages()
 		case page.KindTaxonomy:
-			termInfo := p.getTaxonomyNodeInfo()
-			taxonomy := p.s.Taxonomies[termInfo.plural].Get(termInfo.termKey)
-			pages = taxonomy.Pages()
-		case page.KindTaxonomyTerm:
-			plural := p.getTaxonomyNodeInfo().plural
-			// A list of all page.KindTaxonomy pages with matching plural
-			for _, p := range p.s.findPagesByKind(page.KindTaxonomy) {
-				if p.SectionsEntries()[0] == plural {
+			all := p.Pages()
+			for _, p := range all {
+				if p.IsPage() {
 					pages = append(pages, p)
 				}
 			}
-		case kind404, kindSitemap, kindRobotsTXT:
+		default:
+			pages = p.s.RegularPages()
+		}
+
+		p.regularPages = pages
+
+	})
+
+	return p.regularPages
+}
+
+func (p *pageState) Pages() page.Pages {
+	p.pagesInit.Do(func() {
+		var pages page.Pages
+
+		switch p.Kind() {
+		case page.KindPage:
+		case page.KindSection, page.KindHome:
+			pages = p.getPagesAndSections()
+		case page.KindTaxonomy:
+			termInfo := p.bucket
+			plural := maps.GetString(termInfo.meta, "plural")
+			term := maps.GetString(termInfo.meta, "termKey")
+			taxonomy := p.s.Taxonomies[plural].Get(term)
+			pages = taxonomy.Pages()
+		case page.KindTaxonomyTerm:
+			pages = p.getPagesAndSections()
+		default:
 			pages = p.s.Pages()
 		}
 
@@ -295,10 +332,9 @@ func (p *pageState) getLayoutDescriptor() output.LayoutDescriptor {
 			if len(sections) > 0 {
 				section = sections[0]
 			}
-		case page.KindTaxonomyTerm:
-			section = p.getTaxonomyNodeInfo().singular
-		case page.KindTaxonomy:
-			section = p.getTaxonomyNodeInfo().parent.singular
+		case page.KindTaxonomyTerm, page.KindTaxonomy:
+			section = maps.GetString(p.bucket.meta, "singular")
+
 		default:
 		}
 
@@ -357,11 +393,6 @@ func (p *pageState) initPage() error {
 		return err
 	}
 	return nil
-}
-
-func (p *pageState) setPages(pages page.Pages) {
-	page.SortByDefault(pages)
-	p.pages = pages
 }
 
 func (p *pageState) renderResources() (err error) {
@@ -487,13 +518,6 @@ func (p *pageState) wrapError(err error) error {
 
 func (p *pageState) addResources(r ...resource.Resource) {
 	p.resources = append(p.resources, r...)
-}
-
-func (p *pageState) addSectionToParent() {
-	if p.parent == nil {
-		return
-	}
-	p.parent.subSections = append(p.parent.subSections, p)
 }
 
 func (p *pageState) mapContent(meta *pageMeta) error {
@@ -741,27 +765,6 @@ func (p *pageState) shiftToOutputFormat(isRenderingSite bool, idx int) error {
 	}
 
 	return nil
-}
-
-func (p *pageState) getTaxonomyNodeInfo() *taxonomyNodeInfo {
-	info := p.s.taxonomyNodes.Get(p.SectionsEntries()...)
-
-	if info == nil {
-		// There can be unused content pages for taxonomies (e.g. author that
-		// has not written anything, yet), and these will not have a taxonomy
-		// node created in the assemble taxonomies step.
-		return nil
-	}
-
-	return info
-
-}
-
-func (p *pageState) sortParentSections() {
-	if p.parent == nil {
-		return
-	}
-	page.SortByDefault(p.parent.subSections)
 }
 
 // sourceRef returns the reference used by GetPage and ref/relref shortcodes to refer to

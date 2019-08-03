@@ -54,7 +54,7 @@ Content.
 {{ range (.Paginate .Site.RegularPages).Pages }}
 * Page Paginate: {{ .Title }}|Summary: {{ .Summary }}|Content: {{ .Content }}
 {{ end }}
-{{ range .Pages }}
+{{ range .Site.RegularPages }}
 * Page Pages: {{ .Title }}|Summary: {{ .Summary }}|Content: {{ .Content }}
 {{ end }}
 `)

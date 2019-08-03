@@ -109,9 +109,21 @@ func (pt pageTree) Page() page.Page {
 }
 
 func (pt pageTree) Parent() page.Page {
-	return pt.p.parent
+	if pt.p.parent != nil {
+		return pt.p.parent
+	}
+
+	if pt.p.bucket == nil || pt.p.bucket.parent == nil {
+		return nil
+	}
+
+	return pt.p.bucket.parent.owner
 }
 
 func (pt pageTree) Sections() page.Pages {
-	return pt.p.subSections
+	if pt.p.bucket == nil {
+		return nil
+	}
+
+	return pt.p.bucket.getSections()
 }

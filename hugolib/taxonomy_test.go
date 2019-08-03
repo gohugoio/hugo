@@ -168,7 +168,7 @@ permalinkeds:
 	for taxonomy, count := range taxonomyTermPageCounts {
 		term := s.getPage(page.KindTaxonomyTerm, taxonomy)
 		require.NotNil(t, term)
-		require.Len(t, term.Pages(), count)
+		require.Len(t, term.Pages(), count, taxonomy)
 
 		for _, p := range term.Pages() {
 			require.Equal(t, page.KindTaxonomy, p.Kind())

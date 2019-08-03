@@ -42,7 +42,7 @@ func (p WeightedPages) Page() Page {
 		return nil
 	}
 
-	return first.owner.Page
+	return first.owner
 }
 
 // A WeightedPage is a Page with a weight.
@@ -54,15 +54,10 @@ type WeightedPage struct {
 	// manual .Site.GetPage lookups. It is implemented in this roundabout way
 	// because we cannot add additional state to the WeightedPages slice
 	// without breaking lots of templates in the wild.
-	owner *PageWrapper
+	owner Page
 }
 
-// PageWrapper wraps a Page.
-type PageWrapper struct {
-	Page
-}
-
-func NewWeightedPage(weight int, p Page, owner *PageWrapper) WeightedPage {
+func NewWeightedPage(weight int, p Page, owner Page) WeightedPage {
 	return WeightedPage{Weight: weight, Page: p, owner: owner}
 }
 
