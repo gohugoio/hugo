@@ -34,7 +34,7 @@ func createDefaultOutputFormats(allFormats output.Formats, cfg config.Provider) 
 		page.KindSection:      {htmlOut, rssOut},
 		page.KindTaxonomy:     {htmlOut, rssOut},
 		page.KindTaxonomyTerm: {htmlOut, rssOut},
-		// Below are for conistency. They are currently not used during rendering.
+		// Below are for consistency. They are currently not used during rendering.
 		kindRSS:       {rssOut},
 		kindSitemap:   {sitemapOut},
 		kindRobotsTXT: {robotsOut},
@@ -61,6 +61,11 @@ func createSiteOutputFormats(allFormats output.Formats, cfg config.Provider) (ma
 	seen := make(map[string]bool)
 
 	for k, v := range outputs {
+		k = getKind(k)
+		if k == "" {
+			// Invalid kind
+			continue
+		}
 		var formats output.Formats
 		vals := cast.ToStringSlice(v)
 		for _, format := range vals {

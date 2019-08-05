@@ -14,6 +14,8 @@
 package hugolib
 
 import (
+	"strings"
+
 	"github.com/gohugoio/hugo/resources/page"
 )
 
@@ -38,3 +40,17 @@ const (
 
 	pageResourceType = "page"
 )
+
+var kindMap = map[string]string{
+	strings.ToLower(kindRSS):       kindRSS,
+	strings.ToLower(kindSitemap):   kindSitemap,
+	strings.ToLower(kindRobotsTXT): kindRobotsTXT,
+	strings.ToLower(kind404):       kind404,
+}
+
+func getKind(s string) string {
+	if pkind := page.GetKind(s); pkind != "" {
+		return pkind
+	}
+	return kindMap[strings.ToLower(s)]
+}

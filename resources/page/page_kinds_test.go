@@ -28,4 +28,10 @@ func TestKind(t *testing.T) {
 	require.Equal(t, "taxonomy", KindTaxonomy)
 	require.Equal(t, "taxonomyTerm", KindTaxonomyTerm)
 
+	require.Equal(t, KindTaxonomyTerm, GetKind("TAXONOMYTERM"))
+	require.Equal(t, KindTaxonomy, GetKind("Taxonomy"))
+	require.Equal(t, KindPage, GetKind("Page"))
+	require.Equal(t, KindHome, GetKind("Home"))
+	require.Equal(t, KindSection, GetKind("SEction"))
+
 }

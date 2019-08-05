@@ -327,33 +327,53 @@ baseName = "customdelimbase"
 }
 
 func TestCreateSiteOutputFormats(t *testing.T) {
-	assert := require.New(t)
 
-	outputsConfig := map[string]interface{}{
-		page.KindHome:    []string{"HTML", "JSON"},
-		page.KindSection: []string{"JSON"},
-	}
+	t.Run("Basic", func(t *testing.T) {
+		assert := require.New(t)
 
-	cfg := viper.New()
-	cfg.Set("outputs", outputsConfig)
+		outputsConfig := map[string]interface{}{
+			page.KindHome:    []string{"HTML", "JSON"},
+			page.KindSection: []string{"JSON"},
+		}
 
-	outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg)
-	assert.NoError(err)
-	assert.Equal(output.Formats{output.JSONFormat}, outputs[page.KindSection])
-	assert.Equal(output.Formats{output.HTMLFormat, output.JSONFormat}, outputs[page.KindHome])
+		cfg := viper.New()
+		cfg.Set("outputs", outputsConfig)
 
-	// Defaults
-	assert.Equal(output.Formats{output.HTMLFormat, output.RSSFormat}, outputs[page.KindTaxonomy])
-	assert.Equal(output.Formats{output.HTMLFormat, output.RSSFormat}, outputs[page.KindTaxonomyTerm])
-	assert.Equal(output.Formats{output.HTMLFormat}, outputs[page.KindPage])
+		outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg)
+		assert.NoError(err)
+		assert.Equal(output.Formats{output.JSONFormat}, outputs[page.KindSection])
+		assert.Equal(output.Formats{output.HTMLFormat, output.JSONFormat}, outputs[page.KindHome])
 
-	// These aren't (currently) in use when rendering in Hugo,
-	// but the pages needs to be assigned an output format,
-	// so these should also be correct/sensible.
-	assert.Equal(output.Formats{output.RSSFormat}, outputs[kindRSS])
-	assert.Equal(output.Formats{output.SitemapFormat}, outputs[kindSitemap])
-	assert.Equal(output.Formats{output.RobotsTxtFormat}, outputs[kindRobotsTXT])
-	assert.Equal(output.Formats{output.HTMLFormat}, outputs[kind404])
+		// Defaults
+		assert.Equal(output.Formats{output.HTMLFormat, output.RSSFormat}, outputs[page.KindTaxonomy])
+		assert.Equal(output.Formats{output.HTMLFormat, output.RSSFormat}, outputs[page.KindTaxonomyTerm])
+		assert.Equal(output.Formats{output.HTMLFormat}, outputs[page.KindPage])
+
+		// These aren't (currently) in use when rendering in Hugo,
+		// but the pages needs to be assigned an output format,
+		// so these should also be correct/sensible.
+		assert.Equal(output.Formats{output.RSSFormat}, outputs[kindRSS])
+		assert.Equal(output.Formats{output.SitemapFormat}, outputs[kindSitemap])
+		assert.Equal(output.Formats{output.RobotsTxtFormat}, outputs[kindRobotsTXT])
+		assert.Equal(output.Formats{output.HTMLFormat}, outputs[kind404])
+
+	})
+
+	// Issue #4528
+	t.Run("Mixed case", func(t *testing.T) {
+		assert := require.New(t)
+		cfg := viper.New()
+
+		outputsConfig := map[string]interface{}{
+			"taxonomyterm": []string{"JSON"},
+		}
+		cfg.Set("outputs", outputsConfig)
+
+		outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg)
+		assert.NoError(err)
+		assert.Equal(output.Formats{output.JSONFormat}, outputs[page.KindTaxonomyTerm])
+
+	})
 
 }
 
