@@ -17,6 +17,8 @@ import (
 	"io"
 	"path/filepath"
 
+	"github.com/spf13/cast"
+
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/pkg/errors"
 
@@ -36,7 +38,7 @@ type Options struct {
 	// Set a custom path to look for a config file.
 	Config string
 
-	NoMap bool `mapstructure:"no-map"` // Disable the default inline sourcemaps
+	NoMap bool // Disable the default inline sourcemaps
 
 	// Options for when not using a config file
 	Use         string // List of postcss plugins to use
@@ -50,6 +52,14 @@ func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
 		return
 	}
 	err = mapstructure.WeakDecode(m, &opts)
+
+	if !opts.NoMap {
+		// There was for a long time a disrepency between documentation and
+		// implementation for the noMap property, so we need to support both
+		// camel and snake case.
+		opts.NoMap = cast.ToBool(m["no-map"])
+	}
+
 	return
 }
 
