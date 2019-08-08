@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"path"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -28,15 +29,30 @@ type siteBenchmarkTestcase struct {
 }
 
 func getBenchmarkSiteNewTestCases() []siteBenchmarkTestcase {
-	// TODO(bep) create some common and stable data set
 
-	const pageContent = `---
+	const markdownSnippets = `
+
+## Links
+
+
+This is [an example](http://example.com/ "Title") inline link.
+
+[This link](http://example.net/) has no title attribute.
+
+This is [Relative](/all-is-relative).
+
+See my [About](/about/) page for details. 
+`
+
+	pageContent := func(size int) string {
+		return `---
 title: "My Page"
 ---
 
 My page content.
 
-`
+` + strings.Repeat(markdownSnippets, size)
+	}
 
 	config := `
 baseURL = "https://example.com"
@@ -46,7 +62,7 @@ baseURL = "https://example.com"
 	benchmarks := []siteBenchmarkTestcase{
 		{"Bundle with image", func(b testing.TB) *sitesBuilder {
 			sb := newTestSitesBuilder(b).WithConfigFile("toml", config)
-			sb.WithContent("content/blog/mybundle/index.md", pageContent)
+			sb.WithContent("content/blog/mybundle/index.md", pageContent(1))
 			sb.WithSunset("content/blog/mybundle/sunset1.jpg")
 
 			return sb
@@ -59,7 +75,7 @@ baseURL = "https://example.com"
 		},
 		{"Bundle with JSON file", func(b testing.TB) *sitesBuilder {
 			sb := newTestSitesBuilder(b).WithConfigFile("toml", config)
-			sb.WithContent("content/blog/mybundle/index.md", pageContent)
+			sb.WithContent("content/blog/mybundle/index.md", pageContent(1))
 			sb.WithContent("content/blog/mybundle/mydata.json", `{ "hello": "world" }`)
 
 			return sb
@@ -68,6 +84,52 @@ baseURL = "https://example.com"
 				s.AssertFileContent("public/blog/mybundle/index.html", "Resources: application/json: /blog/mybundle/mydata.json")
 				s.CheckExists("public/blog/mybundle/mydata.json")
 
+			},
+		},
+		{"Tags and categories", func(b testing.TB) *sitesBuilder {
+			sb := newTestSitesBuilder(b).WithConfigFile("toml", `
+title = "Tags and Cats"
+baseURL = "https://example.com"
+
+`)
+
+			const pageTemplate = `
+---
+title: "Some tags and cats"
+categories: ["caGR", "cbGR"]
+tags: ["taGR", "tbGR"]
+---
+
+Some content.
+			
+`
+			for i := 1; i <= 100; i++ {
+				content := strings.Replace(pageTemplate, "GR", strconv.Itoa(i/3), -1)
+				sb.WithContent(fmt.Sprintf("content/page%d.md", i), content)
+			}
+
+			return sb
+		},
+			func(s *sitesBuilder) {
+				s.AssertFileContent("public/page3/index.html", "/page3/|Permalink: https://example.com/page3/")
+				s.AssertFileContent("public/tags/ta3/index.html", "|ta3|")
+			},
+		},
+		{"Canonify URLs", func(b testing.TB) *sitesBuilder {
+			sb := newTestSitesBuilder(b).WithConfigFile("toml", `
+title = "Canon"
+baseURL = "https://example.com"
+canonifyURLs = true
+
+`)
+			for i := 1; i <= 100; i++ {
+				sb.WithContent(fmt.Sprintf("content/page%d.md", i), pageContent(i))
+			}
+
+			return sb
+		},
+			func(s *sitesBuilder) {
+				s.AssertFileContent("public/page8/index.html", "https://example.com/about/")
 			},
 		},
 		{"Deep content tree", func(b testing.TB) *sitesBuilder {
@@ -92,13 +154,13 @@ contentDir="content/sv"
 `)
 
 			createContent := func(dir, name string) {
-				sb.WithContent(filepath.Join("content", dir, name), pageContent)
+				sb.WithContent(filepath.Join("content", dir, name), pageContent(1))
 			}
 
 			createBundledFiles := func(dir string) {
 				sb.WithContent(filepath.Join("content", dir, "data.json"), `{ "hello": "world" }`)
 				for i := 1; i <= 3; i++ {
-					sb.WithContent(filepath.Join("content", dir, fmt.Sprintf("page%d.md", i)), pageContent)
+					sb.WithContent(filepath.Join("content", dir, fmt.Sprintf("page%d.md", i)), pageContent(1))
 				}
 			}
 
