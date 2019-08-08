@@ -284,7 +284,7 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 				cfg.Set("uglyURLs", ugly)
 
 				b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{Fs: fs, Cfg: cfg}).WithNothingAdded()
-				b.Build(BuildCfg{SkipRender: true})
+				b.Build(BuildCfg{})
 
 				sites := b.H
 
@@ -335,6 +335,20 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 				bundlePage := bundleWithSubPath.Resources().GetMatch("c/page*")
 				assert.NotNil(bundlePage)
 				assert.IsType(&pageState{}, bundlePage)
+
+				bcBundleNN, _ := nnSite.getPageNew(nil, "bc")
+				assert.NotNil(bcBundleNN)
+				bcBundleEN, _ := s.getPageNew(nil, "bc")
+				assert.Equal("nn", bcBundleNN.Language().Lang)
+				assert.Equal("en", bcBundleEN.Language().Lang)
+				assert.Equal(3, len(bcBundleNN.Resources()))
+				assert.Equal(3, len(bcBundleEN.Resources()))
+				b.AssertFileContent("public/en/bc/data1.json", "data1")
+				b.AssertFileContent("public/en/bc/data2.json", "data2")
+				b.AssertFileContent("public/en/bc/logo-bc.png", "logo")
+				b.AssertFileContent("public/nn/bc/data1.nn.json", "data1.nn")
+				b.AssertFileContent("public/nn/bc/data2.json", "data2")
+				b.AssertFileContent("public/nn/bc/logo-bc.png", "logo")
 
 			})
 	}
@@ -872,9 +886,13 @@ TheContent.
 	writeSource(t, fs, filepath.Join(workDir, "base", "bb", "b", "d.nn.png"), "content")
 
 	writeSource(t, fs, filepath.Join(workDir, "base", "bc", "_index.md"), pageContent)
+	writeSource(t, fs, filepath.Join(workDir, "base", "bc", "_index.nn.md"), pageContent)
 	writeSource(t, fs, filepath.Join(workDir, "base", "bc", "page.md"), pageContent)
-	writeSource(t, fs, filepath.Join(workDir, "base", "bc", "logo-bc.png"), pageContent)
+	writeSource(t, fs, filepath.Join(workDir, "base", "bc", "logo-bc.png"), "logo")
 	writeSource(t, fs, filepath.Join(workDir, "base", "bc", "page.nn.md"), pageContent)
+	writeSource(t, fs, filepath.Join(workDir, "base", "bc", "data1.json"), "data1")
+	writeSource(t, fs, filepath.Join(workDir, "base", "bc", "data2.json"), "data2")
+	writeSource(t, fs, filepath.Join(workDir, "base", "bc", "data1.nn.json"), "data1.nn")
 
 	writeSource(t, fs, filepath.Join(workDir, "base", "bd", "index.md"), pageContent)
 	writeSource(t, fs, filepath.Join(workDir, "base", "bd", "page.md"), pageContent)
