@@ -25,7 +25,7 @@ An example merging two maps.
 Resulting __$params__:
 
 ```
-"color": "blue"
+"color": "red"
 "extra":
   "duration": 2
 "height": "25%"
