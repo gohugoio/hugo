@@ -1,7 +1,7 @@
 ---
 title: merge
 description: "`merge` deep merges two maps and returns the resulting map."
-date: 2018-09-14
+date: 2019-08-08
 categories: [functions]
 menu:
   docs:
@@ -9,8 +9,8 @@ menu:
 keywords: [dictionary]
 signature: ["$params :=  merge $default_params $user_params", $params := $default_params | merge $user_params]
 workson: []
-hugoversion: "0.49"
-relatedfuncs: [append, reflect.IsMap, reflect.IsSlice]
+hugoversion: "0.56.0"
+relatedfuncs: [dict, append, reflect.IsMap, reflect.IsSlice]
 aliases: []
 ---
 
