@@ -7,7 +7,7 @@ menu:
   docs:
     parent: "functions"
 keywords: [dictionary]
-signature: ["$params :=  merge $default_params $user_params", $params := $default_params | merge $user_params]
+signature: ["$params :=  merge $default_params $user_params"]
 workson: []
 hugoversion: "0.56.0"
 relatedfuncs: [dict, append, reflect.IsMap, reflect.IsSlice]
@@ -19,7 +19,7 @@ An example merging two maps.
 ```go-html-template
 {{ $default_params := dict "color" "blue" "width" "50%" "height" "25%" }}
 {{ $user_params := dict "color" "red" "extra" (dict "duration" 2) }}
-{{ $params := $default_params | merge $user_params }}
+{{ $params := merge $default_params $user_params }}
 ```
 
 Resulting __$params__:
