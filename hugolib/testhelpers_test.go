@@ -649,9 +649,16 @@ func (s *sitesBuilder) AssertHome(matches ...string) {
 func (s *sitesBuilder) AssertFileContent(filename string, matches ...string) {
 	s.T.Helper()
 	content := s.FileContent(filename)
-	for _, match := range matches {
-		if !strings.Contains(content, match) {
-			s.Fatalf("No match for %q in content for %s\n%s\n%q", match, filename, content, content)
+	for _, m := range matches {
+		lines := strings.Split(m, "\n")
+		for _, match := range lines {
+			match = strings.TrimSpace(match)
+			if match == "" {
+				continue
+			}
+			if !strings.Contains(content, match) {
+				s.Fatalf("No match for %q in content for %s\n%s\n%q", match, filename, content, content)
+			}
 		}
 	}
 }

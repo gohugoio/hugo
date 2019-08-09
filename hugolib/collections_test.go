@@ -178,7 +178,6 @@ tags_weight: %d
 	b.WithSimpleConfigFile().
 		WithContent("page1.md", fmt.Sprintf(pageContent, 10), "page2.md", fmt.Sprintf(pageContent, 20)).
 		WithTemplatesAdded("index.html", `
-
 {{ $p1 := index .Site.RegularPages 0 }}{{ $p2 := index .Site.RegularPages 1 }}
 
 {{ $pages := slice }}
@@ -205,7 +204,7 @@ tags_weight: %d
 	b.CreateSites().Build(BuildCfg{})
 
 	assert.Equal(1, len(b.H.Sites))
-	require.Len(t, b.H.Sites[0].RegularPages(), 2)
+	assert.Len(b.H.Sites[0].RegularPages(), 2)
 
 	b.AssertFileContent("public/index.html",
 		"pages:2:page.Pages:Page(/page2.md)/Page(/page1.md)",

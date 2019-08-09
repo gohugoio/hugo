@@ -520,7 +520,7 @@ func (p *pageState) addResources(r ...resource.Resource) {
 	p.resources = append(p.resources, r...)
 }
 
-func (p *pageState) mapContent(meta *pageMeta) error {
+func (p *pageState) mapContent(bucket *pagesMapBucket, meta *pageMeta) error {
 
 	s := p.shortcodeState
 
@@ -563,7 +563,7 @@ Loop:
 				}
 			}
 
-			if err := meta.setMetadata(p, m); err != nil {
+			if err := meta.setMetadata(bucket, p, m); err != nil {
 				return err
 			}
 
