@@ -387,6 +387,7 @@ func (c *PageCollections) clearResourceCacheForPage(page *pageState) {
 }
 
 func (c *PageCollections) assemblePagesMap(s *Site) error {
+
 	c.pagesMap = newPagesMap(s)
 
 	rootSections := make(map[string]bool)
@@ -437,18 +438,14 @@ func (c *PageCollections) createWorkAllPages() error {
 	var (
 		bucketsToRemove []string
 		rootBuckets     []*pagesMapBucket
+		walkErr         error
 	)
 
 	c.pagesMap.r.Walk(func(s string, v interface{}) bool {
 		bucket := v.(*pagesMapBucket)
-		var parentBucket *pagesMapBucket
+		parentBucket := c.pagesMap.parentBucket(s)
 
-		if s != "/" {
-			_, parentv, found := c.pagesMap.r.LongestPrefix(path.Dir(s))
-			if !found {
-				panic(fmt.Sprintf("[BUG] parent bucket not found for %q", s))
-			}
-			parentBucket = parentv.(*pagesMapBucket)
+		if parentBucket != nil {
 
 			if !mainSectionsFound && strings.Count(s, "/") == 1 {
 				// Root section
@@ -535,6 +532,10 @@ func (c *PageCollections) createWorkAllPages() error {
 
 		return false
 	})
+
+	if walkErr != nil {
+		return walkErr
+	}
 
 	c.pagesMap.s.lastmod = siteLastmod
 

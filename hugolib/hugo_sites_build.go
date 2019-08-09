@@ -19,7 +19,10 @@ import (
 	"fmt"
 	"runtime/trace"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/output"
+	"golang.org/x/sync/errgroup"
+	"golang.org/x/sync/semaphore"
 
 	"github.com/pkg/errors"
 
@@ -226,7 +229,7 @@ func (h *HugoSites) process(config *BuildCfg, init func(config *BuildCfg) error,
 
 }
 
-func (h *HugoSites) assemble(config *BuildCfg) error {
+func (h *HugoSites) assemble(bcfg *BuildCfg) error {
 
 	if len(h.Sites) > 1 {
 		// The first is initialized during process; initialize the rest
@@ -237,23 +240,46 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 		}
 	}
 
-	if !config.whatChanged.source {
+	if !bcfg.whatChanged.source {
 		return nil
 	}
 
+	numWorkers := config.GetNumWorkerMultiplier()
+	sem := semaphore.NewWeighted(int64(numWorkers))
+	g, ctx := errgroup.WithContext(context.Background())
+
 	for _, s := range h.Sites {
-		if err := s.assemblePagesMap(s); err != nil {
-			return err
-		}
+		s := s
+		g.Go(func() error {
+			err := sem.Acquire(ctx, 1)
+			if err != nil {
+				return err
+			}
+			defer sem.Release(1)
 
-		if err := s.pagesMap.assembleTaxonomies(s); err != nil {
-			return err
-		}
+			if err := s.assemblePagesMap(s); err != nil {
+				return err
+			}
 
-		if err := s.createWorkAllPages(); err != nil {
-			return err
-		}
+			if err := s.pagesMap.assemblePageMeta(); err != nil {
+				return err
+			}
 
+			if err := s.pagesMap.assembleTaxonomies(s); err != nil {
+				return err
+			}
+
+			if err := s.createWorkAllPages(); err != nil {
+				return err
+			}
+
+			return nil
+
+		})
+	}
+
+	if err := g.Wait(); err != nil {
+		return err
 	}
 
 	if err := h.createPageCollections(); err != nil {

@@ -35,6 +35,9 @@ type pageCommon struct {
 	// Laziliy initialized dependencies.
 	init *lazy.Init
 
+	metaInit   sync.Once
+	metaInitFn func(bucket *pagesMapBucket) error
+
 	// All of these represents the common parts of a page.Page
 	maps.Scratcher
 	navigation.PageMenusProvider

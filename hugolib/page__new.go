@@ -95,7 +95,7 @@ func newPageBase(metaProvider *pageMeta) (*pageState, error) {
 
 }
 
-func newPageFromMeta(metaProvider *pageMeta) (*pageState, error) {
+func newPageFromMeta(meta map[string]interface{}, metaProvider *pageMeta) (*pageState, error) {
 	if metaProvider.f == nil {
 		metaProvider.f = page.NewZeroFile(metaProvider.s.DistinctWarningLog)
 	}
@@ -105,8 +105,26 @@ func newPageFromMeta(metaProvider *pageMeta) (*pageState, error) {
 		return nil, err
 	}
 
-	if err := metaProvider.applyDefaultValues(); err != nil {
-		return nil, err
+	initMeta := func(bucket *pagesMapBucket) error {
+		if meta != nil || bucket != nil {
+			if err := metaProvider.setMetadata(bucket, ps, meta); err != nil {
+				return ps.wrapError(err)
+			}
+		}
+
+		if err := metaProvider.applyDefaultValues(); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	if metaProvider.standalone {
+		initMeta(nil)
+	} else {
+		// Because of possible cascade keywords, we need to delay this
+		// until we have the complete page graph.
+		ps.metaInitFn = initMeta
 	}
 
 	ps.init.Add(func() (interface{}, error) {
@@ -152,7 +170,7 @@ func newPageFromMeta(metaProvider *pageMeta) (*pageState, error) {
 func newPageStandalone(m *pageMeta, f output.Format) (*pageState, error) {
 	m.configuredOutputFormats = output.Formats{f}
 	m.standalone = true
-	p, err := newPageFromMeta(m)
+	p, err := newPageFromMeta(nil, m)
 
 	if err != nil {
 		return nil, err
@@ -211,12 +229,16 @@ func newPageWithContent(f *fileInfo, s *Site, bundled bool, content resource.Ope
 
 	ps.shortcodeState = newShortcodeHandler(ps, ps.s, nil)
 
-	if err := ps.mapContent(metaProvider); err != nil {
-		return nil, ps.wrapError(err)
-	}
+	ps.metaInitFn = func(bucket *pagesMapBucket) error {
+		if err := ps.mapContent(bucket, metaProvider); err != nil {
+			return ps.wrapError(err)
+		}
 
-	if err := metaProvider.applyDefaultValues(); err != nil {
-		return nil, err
+		if err := metaProvider.applyDefaultValues(); err != nil {
+			return err
+		}
+
+		return nil
 	}
 
 	ps.init.Add(func() (interface{}, error) {

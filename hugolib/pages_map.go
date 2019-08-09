@@ -68,6 +68,43 @@ func (m *pagesMap) getOrCreateHome() *pageState {
 	return home
 }
 
+func (m *pagesMap) initPageMeta(p *pageState, bucket *pagesMapBucket) error {
+	var err error
+	p.metaInit.Do(func() {
+		if p.metaInitFn != nil {
+			err = p.metaInitFn(bucket)
+		}
+	})
+	return err
+}
+
+func (m *pagesMap) initPageMetaFor(prefix string, bucket *pagesMapBucket) error {
+	parentBucket := m.parentBucket(prefix)
+
+	m.mergeCascades(bucket, parentBucket)
+
+	if err := m.initPageMeta(bucket.owner, bucket); err != nil {
+		return err
+	}
+
+	if !bucket.view {
+		for _, p := range bucket.pages {
+			ps := p.(*pageState)
+			if err := m.initPageMeta(ps, bucket); err != nil {
+				return err
+			}
+
+			for _, p := range ps.resources.ByType(pageResourceType) {
+				if err := m.initPageMeta(p.(*pageState), bucket); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
 func (m *pagesMap) createSectionIfNotExists(section string) {
 	key := m.cleanKey(section)
 	_, found := m.r.Get(key)
@@ -126,18 +163,19 @@ func (m *pagesMap) addPage(p *pageState) {
 	bucket.pages = append(bucket.pages, p)
 }
 
-func (m *pagesMap) withEveryPage(f func(p *pageState)) {
-	m.r.Walk(func(k string, v interface{}) bool {
-		b := v.(*pagesMapBucket)
-		f(b.owner)
-		if !b.view {
-			for _, p := range b.pages {
-				f(p.(*pageState))
-			}
-		}
+func (m *pagesMap) assemblePageMeta() error {
+	var walkErr error
+	m.r.Walk(func(s string, v interface{}) bool {
+		bucket := v.(*pagesMapBucket)
 
+		if err := m.initPageMetaFor(s, bucket); err != nil {
+			walkErr = err
+			return true
+		}
 		return false
 	})
+
+	return walkErr
 }
 
 func (m *pagesMap) assembleTaxonomies(s *Site) error {
@@ -165,6 +203,9 @@ func (m *pagesMap) assembleTaxonomies(s *Site) error {
 
 			key := m.cleanKey(plural)
 			bucket = m.addBucketFor(key, n, nil)
+			if err := m.initPageMetaFor(key, bucket); err != nil {
+				return err
+			}
 		}
 
 		if bucket.meta == nil {
@@ -201,7 +242,7 @@ func (m *pagesMap) assembleTaxonomies(s *Site) error {
 
 	}
 
-	addTaxonomy := func(singular, plural, term string, weight int, p page.Page) {
+	addTaxonomy := func(singular, plural, term string, weight int, p page.Page) error {
 		bkey := bucketKey{
 			plural: plural,
 		}
@@ -228,6 +269,9 @@ func (m *pagesMap) assembleTaxonomies(s *Site) error {
 
 			key := m.cleanKey(path.Join(plural, termKey))
 			b2 = m.addBucketFor(key, n, meta)
+			if err := m.initPageMetaFor(key, b2); err != nil {
+				return err
+			}
 			b1.pages = append(b1.pages, b2.owner)
 			taxonomyBuckets[bkey] = b2
 
@@ -239,6 +283,8 @@ func (m *pagesMap) assembleTaxonomies(s *Site) error {
 
 		b1.owner.m.Dates.UpdateDateAndLastmodIfAfter(p)
 		b2.owner.m.Dates.UpdateDateAndLastmodIfAfter(p)
+
+		return nil
 	}
 
 	m.r.Walk(func(k string, v interface{}) bool {
@@ -262,10 +308,14 @@ func (m *pagesMap) assembleTaxonomies(s *Site) error {
 				if vals != nil {
 					if v, ok := vals.([]string); ok {
 						for _, idx := range v {
-							addTaxonomy(singular, plural, idx, weight, p)
+							if err := addTaxonomy(singular, plural, idx, weight, p); err != nil {
+								m.s.Log.ERROR.Printf("Failed to add taxonomy %q for %q: %s", plural, p.Path(), err)
+							}
 						}
 					} else if v, ok := vals.(string); ok {
-						addTaxonomy(singular, plural, v, weight, p)
+						if err := addTaxonomy(singular, plural, v, weight, p); err != nil {
+							m.s.Log.ERROR.Printf("Failed to add taxonomy %q for %q: %s", plural, p.Path(), err)
+						}
 					} else {
 						m.s.Log.ERROR.Printf("Invalid %s in %q\n", plural, p.Path())
 					}
@@ -291,16 +341,41 @@ func (m *pagesMap) cleanKey(key string) string {
 	return "/" + key
 }
 
-func (m *pagesMap) dump() {
-	m.r.Walk(func(s string, v interface{}) bool {
+func (m *pagesMap) mergeCascades(b1, b2 *pagesMapBucket) {
+	if b1.cascade == nil {
+		b1.cascade = make(map[string]interface{})
+	}
+	if b2 != nil && b2.cascade != nil {
+		for k, v := range b2.cascade {
+			if _, found := b1.cascade[k]; !found {
+				b1.cascade[k] = v
+			}
+		}
+	}
+}
+
+func (m *pagesMap) parentBucket(prefix string) *pagesMapBucket {
+	if prefix == "/" {
+		return nil
+	}
+	_, parentv, found := m.r.LongestPrefix(path.Dir(prefix))
+	if !found {
+		panic(fmt.Sprintf("[BUG] parent bucket not found for %q", prefix))
+	}
+	return parentv.(*pagesMapBucket)
+
+}
+
+func (m *pagesMap) withEveryPage(f func(p *pageState)) {
+	m.r.Walk(func(k string, v interface{}) bool {
 		b := v.(*pagesMapBucket)
-		fmt.Println("-------\n", s, ":", b.owner.Kind(), ":")
-		if b.owner != nil {
-			fmt.Println("Owner:", b.owner.Path())
+		f(b.owner)
+		if !b.view {
+			for _, p := range b.pages {
+				f(p.(*pageState))
+			}
 		}
-		for _, p := range b.pages {
-			fmt.Println(p.Path())
-		}
+
 		return false
 	})
 }
@@ -311,6 +386,9 @@ type pagesMapBucket struct {
 
 	// Some additional metatadata attached to this node.
 	meta map[string]interface{}
+
+	// Cascading front matter.
+	cascade map[string]interface{}
 
 	owner *pageState // The branch node
 

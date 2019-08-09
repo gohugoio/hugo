@@ -1650,12 +1650,13 @@ func (s *Site) kindFromSectionPath(sectionPath string) string {
 }
 
 func (s *Site) newTaxonomyPage(title string, sections ...string) *pageState {
-	p, err := newPageFromMeta(&pageMeta{
-		title:    title,
-		s:        s,
-		kind:     page.KindTaxonomy,
-		sections: sections,
-	})
+	p, err := newPageFromMeta(
+		map[string]interface{}{"title": title},
+		&pageMeta{
+			s:        s,
+			kind:     page.KindTaxonomy,
+			sections: sections,
+		})
 
 	if err != nil {
 		panic(err)
@@ -1666,11 +1667,13 @@ func (s *Site) newTaxonomyPage(title string, sections ...string) *pageState {
 }
 
 func (s *Site) newPage(kind string, sections ...string) *pageState {
-	p, err := newPageFromMeta(&pageMeta{
-		s:        s,
-		kind:     kind,
-		sections: sections,
-	})
+	p, err := newPageFromMeta(
+		map[string]interface{}{},
+		&pageMeta{
+			s:        s,
+			kind:     kind,
+			sections: sections,
+		})
 
 	if err != nil {
 		panic(err)
