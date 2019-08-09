@@ -355,6 +355,45 @@ func TestStaticFsMultiHost(t *testing.T) {
 	checkFileContent(noFs, "f2.txt", assert, "Hugo Themes Still Rocks!")
 }
 
+func TestMakePathRelative(t *testing.T) {
+	assert := require.New(t)
+	v := createConfig()
+	fs := hugofs.NewMem(v)
+	workDir := "mywork"
+	v.Set("workingDir", workDir)
+
+	assert.NoError(fs.Source.MkdirAll(filepath.Join(workDir, "dist"), 0777))
+	assert.NoError(fs.Source.MkdirAll(filepath.Join(workDir, "static"), 0777))
+
+	moduleCfg := map[string]interface{}{
+		"mounts": []interface{}{
+			map[string]interface{}{
+				"source": "dist",
+				"target": "static/dist",
+			},
+			map[string]interface{}{
+				"source": "static",
+				"target": "static",
+			},
+		},
+	}
+
+	v.Set("module", moduleCfg)
+
+	assert.NoError(initConfig(fs.Source, v))
+
+	p, err := paths.New(fs, v)
+	assert.NoError(err)
+	bfs, err := NewBase(p, nil)
+	assert.NoError(err)
+
+	sfs := bfs.Static[""]
+	assert.NotNil(sfs)
+
+	assert.Equal(filepath.FromSlash("/foo.txt"), sfs.MakePathRelative(filepath.Join(workDir, "static", "foo.txt")))
+	assert.Equal(filepath.FromSlash("/dist/foo.txt"), sfs.MakePathRelative(filepath.Join(workDir, "dist", "foo.txt")))
+}
+
 func checkFileCount(fs afero.Fs, dirname string, assert *require.Assertions, expected int) {
 	count, fnames, err := countFileaAndGetFilenames(fs, dirname)
 	assert.NoError(err, fnames)

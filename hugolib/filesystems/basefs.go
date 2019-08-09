@@ -239,8 +239,14 @@ func (s SourceFilesystems) MakeStaticPathRelative(filename string) string {
 // It will return an empty string if the filename is not a member of this filesystem.
 func (d *SourceFilesystem) MakePathRelative(filename string) string {
 	for _, dir := range d.Dirs {
-		currentPath := dir.(hugofs.FileMetaInfo).Meta().Filename()
+		meta := dir.(hugofs.FileMetaInfo).Meta()
+		currentPath := meta.Filename()
+
 		if strings.HasPrefix(filename, currentPath) {
+			if path := meta.Path(); path != "" {
+				currentPath = strings.TrimRight(strings.TrimSuffix(currentPath, path), filePathSeparator)
+			}
+
 			return strings.TrimPrefix(filename, currentPath)
 		}
 	}
