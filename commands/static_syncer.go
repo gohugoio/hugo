@@ -80,6 +80,7 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 			fromPath := ev.Name
 
 			relPath := sourceFs.MakePathRelative(fromPath)
+
 			if relPath == "" {
 				// Not member of this virtual host.
 				continue

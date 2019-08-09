@@ -283,6 +283,10 @@ func TestRootMappingFsMountOverlap(t *testing.T) {
 	assert.Equal([]string{"b.txt", "c"}, getDirnames("static/b"))
 	assert.Equal([]string{"c.txt"}, getDirnames("static/b/c"))
 
+	fi, err := rfs.Stat(filepath.FromSlash("static/b/b.txt"))
+	assert.NoError(err)
+	assert.Equal("b.txt", fi.Name())
+
 }
 
 func TestRootMappingFsOs(t *testing.T) {
