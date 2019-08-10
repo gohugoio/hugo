@@ -14,19 +14,18 @@
 package data
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestGetCSV(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	for i, test := range []struct {
 		sep     string
@@ -74,7 +73,7 @@ func TestGetCSV(t *testing.T) {
 			false,
 		},
 	} {
-		msg := fmt.Sprintf("Test %d", i)
+		msg := qt.Commentf("Test %d", i)
 
 		ns := newTestNs()
 
@@ -100,7 +99,7 @@ func TestGetCSV(t *testing.T) {
 		// Setup local test file for schema-less URLs
 		if !strings.Contains(test.url, ":") && !strings.HasPrefix(test.url, "fail/") {
 			f, err := ns.deps.Fs.Source.Create(filepath.Join(ns.deps.Cfg.GetString("workingDir"), test.url))
-			require.NoError(t, err, msg)
+			c.Assert(err, qt.IsNil, msg)
 			f.WriteString(test.content)
 			f.Close()
 		}
@@ -109,22 +108,23 @@ func TestGetCSV(t *testing.T) {
 		got, err := ns.GetCSV(test.sep, test.url)
 
 		if _, ok := test.expect.(bool); ok {
-			require.Equal(t, 1, int(ns.deps.Log.ErrorCounter.Count()))
-			//require.Error(t, err, msg)
-			require.Nil(t, got)
+			c.Assert(int(ns.deps.Log.ErrorCounter.Count()), qt.Equals, 1)
+			//c.Assert(err, msg, qt.Not(qt.IsNil))
+			c.Assert(got, qt.IsNil)
 			continue
 		}
 
-		require.NoError(t, err, msg)
-		require.Equal(t, 0, int(ns.deps.Log.ErrorCounter.Count()))
-		require.NotNil(t, got, msg)
+		c.Assert(err, qt.IsNil, msg)
+		c.Assert(int(ns.deps.Log.ErrorCounter.Count()), qt.Equals, 0)
+		c.Assert(got, qt.Not(qt.IsNil), msg)
+		c.Assert(got, qt.DeepEquals, test.expect, msg)
 
-		assert.EqualValues(t, test.expect, got, msg)
 	}
 }
 
 func TestGetJSON(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	for i, test := range []struct {
 		url     string
@@ -159,7 +159,7 @@ func TestGetJSON(t *testing.T) {
 		},
 	} {
 
-		msg := fmt.Sprintf("Test %d", i)
+		msg := qt.Commentf("Test %d", i)
 		ns := newTestNs()
 
 		// Setup HTTP test server
@@ -184,7 +184,7 @@ func TestGetJSON(t *testing.T) {
 		// Setup local test file for schema-less URLs
 		if !strings.Contains(test.url, ":") && !strings.HasPrefix(test.url, "fail/") {
 			f, err := ns.deps.Fs.Source.Create(filepath.Join(ns.deps.Cfg.GetString("workingDir"), test.url))
-			require.NoError(t, err, msg)
+			c.Assert(err, qt.IsNil, msg)
 			f.WriteString(test.content)
 			f.Close()
 		}
@@ -193,20 +193,20 @@ func TestGetJSON(t *testing.T) {
 		got, _ := ns.GetJSON(test.url)
 
 		if _, ok := test.expect.(bool); ok {
-			require.Equal(t, 1, int(ns.deps.Log.ErrorCounter.Count()))
-			//require.Error(t, err, msg)
+			c.Assert(int(ns.deps.Log.ErrorCounter.Count()), qt.Equals, 1)
+			//c.Assert(err, msg, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.Equal(t, 0, int(ns.deps.Log.ErrorCounter.Count()), msg)
-		require.NotNil(t, got, msg)
-
-		assert.EqualValues(t, test.expect, got, msg)
+		c.Assert(int(ns.deps.Log.ErrorCounter.Count()), qt.Equals, 0, msg)
+		c.Assert(got, qt.Not(qt.IsNil), msg)
+		c.Assert(got, qt.DeepEquals, test.expect)
 	}
 }
 
 func TestParseCSV(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	for i, test := range []struct {
 		csv []byte
@@ -221,21 +221,21 @@ func TestParseCSV(t *testing.T) {
 		{[]byte("a|b|c\nd|e|f|g"), "|", "abcdefg", true},
 		{[]byte("z|y|c\nd|e|f"), "|", "zycdef", false},
 	} {
-		msg := fmt.Sprintf("Test %d: %v", i, test)
+		msg := qt.Commentf("Test %d: %v", i, test)
 
 		csv, err := parseCSV(test.csv, test.sep)
 		if test.err {
-			assert.Error(t, err, msg)
+			c.Assert(err, qt.Not(qt.IsNil), msg)
 			continue
 		}
-		require.NoError(t, err, msg)
+		c.Assert(err, qt.IsNil, msg)
 
 		act := ""
 		for _, v := range csv {
 			act = act + strings.Join(v, "")
 		}
 
-		assert.Equal(t, test.exp, act, msg)
+		c.Assert(act, qt.Equals, test.exp, msg)
 	}
 }
 

@@ -16,11 +16,11 @@ package modules
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestPathKey(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	for _, test := range []struct {
 		in     string
@@ -32,7 +32,7 @@ func TestPathKey(t *testing.T) {
 		{"github.com/foo/v3d", "github.com/foo/v3d"},
 		{"MyTheme", "mytheme"},
 	} {
-		assert.Equal(test.expect, pathKey(test.in))
+		c.Assert(pathKey(test.in), qt.Equals, test.expect)
 	}
 
 }
@@ -47,8 +47,8 @@ func TestFilterUnwantedMounts(t *testing.T) {
 
 	filtered := filterUnwantedMounts(mounts)
 
-	assert := require.New(t)
-	assert.Len(filtered, 2)
-	assert.Equal([]Mount{Mount{Source: "a", Target: "b", Lang: "en"}, Mount{Source: "b", Target: "c", Lang: "en"}}, filtered)
+	c := qt.New(t)
+	c.Assert(len(filtered), qt.Equals, 2)
+	c.Assert(filtered, qt.DeepEquals, []Mount{Mount{Source: "a", Target: "b", Lang: "en"}, Mount{Source: "b", Target: "c", Lang: "en"}})
 
 }

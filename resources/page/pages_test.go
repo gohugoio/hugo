@@ -16,7 +16,7 @@ package page
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestProbablyEq(t *testing.T) {
@@ -27,50 +27,50 @@ func TestProbablyEq(t *testing.T) {
 	pages123 := Pages{p1, p2, p3}
 
 	t.Run("Pages", func(t *testing.T) {
-		assert := require.New(t)
+		c := qt.New(t)
 
-		assert.True(pages12.ProbablyEq(pages12))
-		assert.False(pages123.ProbablyEq(pages12))
-		assert.False(pages12.ProbablyEq(pages21))
+		c.Assert(pages12.ProbablyEq(pages12), qt.Equals, true)
+		c.Assert(pages123.ProbablyEq(pages12), qt.Equals, false)
+		c.Assert(pages12.ProbablyEq(pages21), qt.Equals, false)
 	})
 
 	t.Run("PageGroup", func(t *testing.T) {
-		assert := require.New(t)
+		c := qt.New(t)
 
-		assert.True(PageGroup{Key: "a", Pages: pages12}.ProbablyEq(PageGroup{Key: "a", Pages: pages12}))
-		assert.False(PageGroup{Key: "a", Pages: pages12}.ProbablyEq(PageGroup{Key: "b", Pages: pages12}))
+		c.Assert(PageGroup{Key: "a", Pages: pages12}.ProbablyEq(PageGroup{Key: "a", Pages: pages12}), qt.Equals, true)
+		c.Assert(PageGroup{Key: "a", Pages: pages12}.ProbablyEq(PageGroup{Key: "b", Pages: pages12}), qt.Equals, false)
 
 	})
 
 	t.Run("PagesGroup", func(t *testing.T) {
-		assert := require.New(t)
+		c := qt.New(t)
 
 		pg1, pg2 := PageGroup{Key: "a", Pages: pages12}, PageGroup{Key: "b", Pages: pages123}
 
-		assert.True(PagesGroup{pg1, pg2}.ProbablyEq(PagesGroup{pg1, pg2}))
-		assert.False(PagesGroup{pg1, pg2}.ProbablyEq(PagesGroup{pg2, pg1}))
+		c.Assert(PagesGroup{pg1, pg2}.ProbablyEq(PagesGroup{pg1, pg2}), qt.Equals, true)
+		c.Assert(PagesGroup{pg1, pg2}.ProbablyEq(PagesGroup{pg2, pg1}), qt.Equals, false)
 
 	})
 
 }
 
 func TestToPages(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	p1, p2 := &testPage{title: "p1"}, &testPage{title: "p2"}
 	pages12 := Pages{p1, p2}
 
 	mustToPages := func(in interface{}) Pages {
 		p, err := ToPages(in)
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 		return p
 	}
 
-	assert.Equal(Pages{}, mustToPages(nil))
-	assert.Equal(pages12, mustToPages(pages12))
-	assert.Equal(pages12, mustToPages([]Page{p1, p2}))
-	assert.Equal(pages12, mustToPages([]interface{}{p1, p2}))
+	c.Assert(mustToPages(nil), eq, Pages{})
+	c.Assert(mustToPages(pages12), eq, pages12)
+	c.Assert(mustToPages([]Page{p1, p2}), eq, pages12)
+	c.Assert(mustToPages([]interface{}{p1, p2}), eq, pages12)
 
 	_, err := ToPages("not a page")
-	assert.Error(err)
+	c.Assert(err, qt.Not(qt.IsNil))
 }

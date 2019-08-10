@@ -18,16 +18,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestIsTruthful(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
-	assert.True(IsTruthful(true))
-	assert.False(IsTruthful(false))
-	assert.True(IsTruthful(time.Now()))
-	assert.False(IsTruthful(time.Time{}))
+	c.Assert(IsTruthful(true), qt.Equals, true)
+	c.Assert(IsTruthful(false), qt.Equals, false)
+	c.Assert(IsTruthful(time.Now()), qt.Equals, true)
+	c.Assert(IsTruthful(time.Time{}), qt.Equals, false)
 }
 
 func BenchmarkIsTruthFul(b *testing.B) {

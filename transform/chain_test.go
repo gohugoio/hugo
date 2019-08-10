@@ -18,7 +18,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestChainZeroTransformers(t *testing.T) {
@@ -64,6 +64,7 @@ func TestChaingMultipleTransformers(t *testing.T) {
 }
 
 func TestNewEmptyTransforms(t *testing.T) {
+	c := qt.New(t)
 	transforms := NewEmpty()
-	assert.Equal(t, 20, cap(transforms))
+	c.Assert(cap(transforms), qt.Equals, 20)
 }

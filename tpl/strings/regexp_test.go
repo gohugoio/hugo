@@ -14,17 +14,16 @@
 package strings
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestFindRE(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		expr    string
 		content interface{}
 		limit   interface{}
@@ -39,24 +38,23 @@ func TestFindRE(t *testing.T) {
 		{"[G|go", "Hugo is a static site generator written in Go.", nil, false},
 		{"[G|g]o", t, nil, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test)
-
 		result, err := ns.FindRE(test.expr, test.content, test.limit)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.DeepEquals, test.expect)
 	}
 }
 
 func TestReplaceRE(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		pattern interface{}
 		repl    interface{}
 		s       interface{}
@@ -71,16 +69,15 @@ func TestReplaceRE(t *testing.T) {
 		{"^https?://([^/]+).*", tstNoStringer{}, "http://gohugo.io/docs", false},
 		{"^https?://([^/]+).*", "$2", tstNoStringer{}, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test)
 
 		result, err := ns.ReplaceRE(test.pattern, test.repl, test.s)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
 	}
 }

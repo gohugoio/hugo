@@ -22,7 +22,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 var (
@@ -44,7 +44,7 @@ func doWorkOfSize(size int) {
 }
 
 func TestInit(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	var result string
 
@@ -84,33 +84,33 @@ func TestInit(t *testing.T) {
 			var err error
 			if rnd.Intn(10) < 5 {
 				_, err = root.Do()
-				assert.NoError(err)
+				c.Assert(err, qt.IsNil)
 			}
 
 			// Add a new branch on the fly.
 			if rnd.Intn(10) > 5 {
 				branch := branch1_2.Branch(f2())
 				_, err = branch.Do()
-				assert.NoError(err)
+				c.Assert(err, qt.IsNil)
 			} else {
 				_, err = branch1_2_1.Do()
-				assert.NoError(err)
+				c.Assert(err, qt.IsNil)
 			}
 			_, err = branch1_2.Do()
-			assert.NoError(err)
+			c.Assert(err, qt.IsNil)
 
 		}(i)
 
 		wg.Wait()
 
-		assert.Equal("root(1)|root(2)|branch_1|branch_1_1|branch_1_2|branch_1_2_1|", result)
+		c.Assert(result, qt.Equals, "root(1)|root(2)|branch_1|branch_1_1|branch_1_2|branch_1_2_1|")
 
 	}
 
 }
 
 func TestInitAddWithTimeout(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	init := New().AddWithTimeout(100*time.Millisecond, func(ctx context.Context) (interface{}, error) {
 		return nil, nil
@@ -118,11 +118,11 @@ func TestInitAddWithTimeout(t *testing.T) {
 
 	_, err := init.Do()
 
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 }
 
 func TestInitAddWithTimeoutTimeout(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	init := New().AddWithTimeout(100*time.Millisecond, func(ctx context.Context) (interface{}, error) {
 		time.Sleep(500 * time.Millisecond)
@@ -137,16 +137,16 @@ func TestInitAddWithTimeoutTimeout(t *testing.T) {
 
 	_, err := init.Do()
 
-	assert.Error(err)
+	c.Assert(err, qt.Not(qt.IsNil))
 
-	assert.Contains(err.Error(), "timed out")
+	c.Assert(err.Error(), qt.Contains, "timed out")
 
 	time.Sleep(1 * time.Second)
 
 }
 
 func TestInitAddWithTimeoutError(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	init := New().AddWithTimeout(100*time.Millisecond, func(ctx context.Context) (interface{}, error) {
 		return nil, errors.New("failed")
@@ -154,7 +154,7 @@ func TestInitAddWithTimeoutError(t *testing.T) {
 
 	_, err := init.Do()
 
-	assert.Error(err)
+	c.Assert(err, qt.Not(qt.IsNil))
 }
 
 type T struct {
@@ -177,7 +177,7 @@ func (t *T) Add2(v string) {
 
 // https://github.com/gohugoio/hugo/issues/5901
 func TestInitBranchOrder(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	base := New()
 
@@ -216,11 +216,11 @@ func TestInitBranchOrder(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			_, err := v.Do()
-			assert.NoError(err)
+			c.Assert(err, qt.IsNil)
 		}()
 	}
 
 	wg.Wait()
 
-	assert.Equal("ABAB", state.V2)
+	c.Assert(state.V2, qt.Equals, "ABAB")
 }

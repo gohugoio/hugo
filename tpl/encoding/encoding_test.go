@@ -14,23 +14,22 @@
 package encoding
 
 import (
-	"fmt"
 	"html/template"
 	"math"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 type tstNoStringer struct{}
 
 func TestBase64Decode(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	ns := New()
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		v      interface{}
 		expect interface{}
 	}{
@@ -38,26 +37,26 @@ func TestBase64Decode(t *testing.T) {
 		// errors
 		{t, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test.v)
 
 		result, err := ns.Base64Decode(test.v)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
 	}
 }
 
 func TestBase64Encode(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	ns := New()
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		v      interface{}
 		expect interface{}
 	}{
@@ -65,26 +64,25 @@ func TestBase64Encode(t *testing.T) {
 		// errors
 		{t, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test.v)
 
 		result, err := ns.Base64Encode(test.v)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
 	}
 }
 
 func TestJsonify(t *testing.T) {
 	t.Parallel()
-
+	c := qt.New(t)
 	ns := New()
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		v      interface{}
 		expect interface{}
 	}{
@@ -94,16 +92,15 @@ func TestJsonify(t *testing.T) {
 		// errors
 		{math.NaN(), false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test.v)
 
 		result, err := ns.Jsonify(test.v)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
 	}
 }

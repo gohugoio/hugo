@@ -19,11 +19,12 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestPageCache(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 	c1 := newPageCache()
 
 	changeFirst := func(p Pages) {
@@ -50,21 +51,21 @@ func TestPageCache(t *testing.T) {
 			defer wg.Done()
 			for k, pages := range testPageSets {
 				l1.Lock()
-				p, c := c1.get("k1", nil, pages)
-				assert.Equal(t, !atomic.CompareAndSwapUint64(&o1, uint64(k), uint64(k+1)), c)
+				p, ca := c1.get("k1", nil, pages)
+				c.Assert(ca, qt.Equals, !atomic.CompareAndSwapUint64(&o1, uint64(k), uint64(k+1)))
 				l1.Unlock()
 				p2, c2 := c1.get("k1", nil, p)
-				assert.True(t, c2)
-				assert.True(t, pagesEqual(p, p2))
-				assert.True(t, pagesEqual(p, pages))
-				assert.NotNil(t, p)
+				c.Assert(c2, qt.Equals, true)
+				c.Assert(pagesEqual(p, p2), qt.Equals, true)
+				c.Assert(pagesEqual(p, pages), qt.Equals, true)
+				c.Assert(p, qt.Not(qt.IsNil))
 
 				l2.Lock()
 				p3, c3 := c1.get("k2", changeFirst, pages)
-				assert.Equal(t, !atomic.CompareAndSwapUint64(&o2, uint64(k), uint64(k+1)), c3)
+				c.Assert(c3, qt.Equals, !atomic.CompareAndSwapUint64(&o2, uint64(k), uint64(k+1)))
 				l2.Unlock()
-				assert.NotNil(t, p3)
-				assert.Equal(t, p3[0].(*testPage).description, "changed")
+				c.Assert(p3, qt.Not(qt.IsNil))
+				c.Assert("changed", qt.Equals, p3[0].(*testPage).description)
 			}
 		}()
 	}

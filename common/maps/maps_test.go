@@ -17,7 +17,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestToLower(t *testing.T) {
@@ -74,7 +74,7 @@ func TestToLower(t *testing.T) {
 }
 
 func TestRenameKeys(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	m := map[string]interface{}{
 		"a":    32,
@@ -112,7 +112,7 @@ func TestRenameKeys(t *testing.T) {
 		"{ren1,sub/*/ren1}", "new1",
 		"{Ren2,sub/ren2}", "new2",
 	)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	renamer.Rename(m)
 

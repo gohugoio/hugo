@@ -16,13 +16,13 @@ package privacy
 import (
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/require"
 )
 
 func TestDecodeConfigFromTOML(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	tomlConfig := `
 
@@ -52,30 +52,27 @@ privacyEnhanced = true
 simple = true
 `
 	cfg, err := config.FromConfigString(tomlConfig, "toml")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	pc, err := DecodeConfig(cfg)
-	assert.NoError(err)
-	assert.NotNil(pc)
+	c.Assert(err, qt.IsNil)
+	c.Assert(pc, qt.Not(qt.IsNil))
 
-	assert.True(pc.Disqus.Disable)
-	assert.True(pc.GoogleAnalytics.Disable)
-	assert.True(pc.GoogleAnalytics.RespectDoNotTrack)
-	assert.True(pc.GoogleAnalytics.AnonymizeIP)
-	assert.True(pc.GoogleAnalytics.UseSessionStorage)
-	assert.True(pc.Instagram.Disable)
-	assert.True(pc.Instagram.Simple)
-	assert.True(pc.Twitter.Disable)
-	assert.True(pc.Twitter.EnableDNT)
-	assert.True(pc.Twitter.Simple)
-	assert.True(pc.Vimeo.Disable)
-	assert.True(pc.Vimeo.Simple)
-	assert.True(pc.YouTube.PrivacyEnhanced)
-	assert.True(pc.YouTube.Disable)
+	got := []bool{
+		pc.Disqus.Disable, pc.GoogleAnalytics.Disable,
+		pc.GoogleAnalytics.RespectDoNotTrack, pc.GoogleAnalytics.AnonymizeIP,
+		pc.GoogleAnalytics.UseSessionStorage, pc.Instagram.Disable,
+		pc.Instagram.Simple, pc.Twitter.Disable, pc.Twitter.EnableDNT,
+		pc.Twitter.Simple, pc.Vimeo.Disable, pc.Vimeo.Simple,
+		pc.YouTube.PrivacyEnhanced, pc.YouTube.Disable,
+	}
+
+	c.Assert(got, qt.All(qt.Equals), true)
+
 }
 
 func TestDecodeConfigFromTOMLCaseInsensitive(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	tomlConfig := `
 
@@ -86,19 +83,19 @@ someOtherValue = "foo"
 PrivacyENhanced = true
 `
 	cfg, err := config.FromConfigString(tomlConfig, "toml")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	pc, err := DecodeConfig(cfg)
-	assert.NoError(err)
-	assert.NotNil(pc)
-	assert.True(pc.YouTube.PrivacyEnhanced)
+	c.Assert(err, qt.IsNil)
+	c.Assert(pc, qt.Not(qt.IsNil))
+	c.Assert(pc.YouTube.PrivacyEnhanced, qt.Equals, true)
 }
 
 func TestDecodeConfigDefault(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	pc, err := DecodeConfig(viper.New())
-	assert.NoError(err)
-	assert.NotNil(pc)
-	assert.False(pc.YouTube.PrivacyEnhanced)
+	c.Assert(err, qt.IsNil)
+	c.Assert(pc, qt.Not(qt.IsNil))
+	c.Assert(pc.YouTube.PrivacyEnhanced, qt.Equals, false)
 }

@@ -23,7 +23,7 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestClient(t *testing.T) {
@@ -40,10 +40,10 @@ func TestClient(t *testing.T) {
 	modConfig := DefaultModuleConfig
 	modConfig.Imports = []Import{Import{Path: "github.com/gohugoio/hugoTestModules1_darwin/modh2_2"}}
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	workingDir, clean, err := htesting.CreateTempDir(hugofs.Os, modName)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	defer clean()
 
 	client := NewClient(ClientConfig{
@@ -53,36 +53,36 @@ func TestClient(t *testing.T) {
 	})
 
 	// Test Init
-	assert.NoError(client.Init(modPath))
+	c.Assert(client.Init(modPath), qt.IsNil)
 
 	// Test Collect
 	mc, err := client.Collect()
-	assert.NoError(err)
-	assert.Equal(4, len(mc.AllModules))
+	c.Assert(err, qt.IsNil)
+	c.Assert(len(mc.AllModules), qt.Equals, 4)
 	for _, m := range mc.AllModules {
-		assert.NotNil(m)
+		c.Assert(m, qt.Not(qt.IsNil))
 	}
 
 	// Test Graph
 	var graphb bytes.Buffer
-	assert.NoError(client.Graph(&graphb))
+	c.Assert(client.Graph(&graphb), qt.IsNil)
 
 	expect := `github.com/gohugoio/tests/hugo-modules-basic-test github.com/gohugoio/hugoTestModules1_darwin/modh2_2@v1.4.0
 github.com/gohugoio/hugoTestModules1_darwin/modh2_2@v1.4.0 github.com/gohugoio/hugoTestModules1_darwin/modh2_2_1v@v1.3.0
 github.com/gohugoio/hugoTestModules1_darwin/modh2_2@v1.4.0 github.com/gohugoio/hugoTestModules1_darwin/modh2_2_2@v1.3.0
 `
 
-	assert.Equal(expect, graphb.String())
+	c.Assert(graphb.String(), qt.Equals, expect)
 
 	// Test Vendor
-	assert.NoError(client.Vendor())
+	c.Assert(client.Vendor(), qt.IsNil)
 	graphb.Reset()
-	assert.NoError(client.Graph(&graphb))
+	c.Assert(client.Graph(&graphb), qt.IsNil)
 	expectVendored := `github.com/gohugoio/tests/hugo-modules-basic-test github.com/gohugoio/hugoTestModules1_darwin/modh2_2@v1.4.0+vendor
 github.com/gohugoio/tests/hugo-modules-basic-test github.com/gohugoio/hugoTestModules1_darwin/modh2_2_1v@v1.3.0+vendor
 github.com/gohugoio/tests/hugo-modules-basic-test github.com/gohugoio/hugoTestModules1_darwin/modh2_2_2@v1.3.0+vendor
 `
-	assert.Equal(expectVendored, graphb.String())
+	c.Assert(graphb.String(), qt.Equals, expectVendored)
 
 	// Test the ignoreVendor setting
 	clientIgnoreVendor := NewClient(ClientConfig{
@@ -93,25 +93,25 @@ github.com/gohugoio/tests/hugo-modules-basic-test github.com/gohugoio/hugoTestMo
 	})
 
 	graphb.Reset()
-	assert.NoError(clientIgnoreVendor.Graph(&graphb))
-	assert.Equal(expect, graphb.String())
+	c.Assert(clientIgnoreVendor.Graph(&graphb), qt.IsNil)
+	c.Assert(graphb.String(), qt.Equals, expect)
 
 	// Test Tidy
-	assert.NoError(client.Tidy())
+	c.Assert(client.Tidy(), qt.IsNil)
 
 }
 
 func TestGetModlineSplitter(t *testing.T) {
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	gomodSplitter := getModlineSplitter(true)
 
-	assert.Equal([]string{"github.com/BurntSushi/toml", "v0.3.1"}, gomodSplitter("\tgithub.com/BurntSushi/toml v0.3.1"))
-	assert.Equal([]string{"github.com/cpuguy83/go-md2man", "v1.0.8"}, gomodSplitter("\tgithub.com/cpuguy83/go-md2man v1.0.8 // indirect"))
-	assert.Nil(gomodSplitter("require ("))
+	c.Assert(gomodSplitter("\tgithub.com/BurntSushi/toml v0.3.1"), qt.DeepEquals, []string{"github.com/BurntSushi/toml", "v0.3.1"})
+	c.Assert(gomodSplitter("\tgithub.com/cpuguy83/go-md2man v1.0.8 // indirect"), qt.DeepEquals, []string{"github.com/cpuguy83/go-md2man", "v1.0.8"})
+	c.Assert(gomodSplitter("require ("), qt.IsNil)
 
 	gosumSplitter := getModlineSplitter(false)
-	assert.Equal([]string{"github.com/BurntSushi/toml", "v0.3.1"}, gosumSplitter("github.com/BurntSushi/toml v0.3.1"))
+	c.Assert(gosumSplitter("github.com/BurntSushi/toml v0.3.1"), qt.DeepEquals, []string{"github.com/BurntSushi/toml", "v0.3.1"})
 
 }

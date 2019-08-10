@@ -27,7 +27,7 @@ import (
 
 	"github.com/gohugoio/hugo/langs"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
@@ -35,6 +35,7 @@ import (
 )
 
 func TestMakePath(t *testing.T) {
+	c := qt.New(t)
 	tests := []struct {
 		input         string
 		expected      string
@@ -61,7 +62,7 @@ func TestMakePath(t *testing.T) {
 
 		l := langs.NewDefaultLanguage(v)
 		p, err := NewPathSpec(hugofs.NewMem(v), l, nil)
-		require.NoError(t, err)
+		c.Assert(err, qt.IsNil)
 
 		output := p.MakePath(test.input)
 		if output != test.expected {
@@ -547,8 +548,8 @@ func TestAbsPathify(t *testing.T) {
 }
 
 func TestExtNoDelimiter(t *testing.T) {
-	assert := require.New(t)
-	assert.Equal("json", ExtNoDelimiter(filepath.FromSlash("/my/data.json")))
+	c := qt.New(t)
+	c.Assert(ExtNoDelimiter(filepath.FromSlash("/my/data.json")), qt.Equals, "json")
 }
 
 func TestFilename(t *testing.T) {
@@ -636,11 +637,11 @@ func TestExtractAndGroupRootPaths(t *testing.T) {
 
 	result := ExtractAndGroupRootPaths(in)
 
-	assert := require.New(t)
-	assert.Equal(filepath.FromSlash("[/a/b/{c,e} /c/d/e]"), fmt.Sprint(result))
+	c := qt.New(t)
+	c.Assert(fmt.Sprint(result), qt.Equals, filepath.FromSlash("[/a/b/{c,e} /c/d/e]"))
 
 	// Make sure the original is preserved
-	assert.Equal(inCopy, in)
+	c.Assert(in, qt.DeepEquals, inCopy)
 
 }
 

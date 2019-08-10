@@ -17,11 +17,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestGroupFunc(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	pageContent := `
 ---
@@ -39,14 +39,14 @@ title: "Page"
 `)
 	b.CreateSites().Build(BuildCfg{})
 
-	assert.Equal(1, len(b.H.Sites))
-	require.Len(t, b.H.Sites[0].RegularPages(), 2)
+	c.Assert(len(b.H.Sites), qt.Equals, 1)
+	c.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 2)
 
 	b.AssertFileContent("public/index.html", "cool: 2")
 }
 
 func TestSliceFunc(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	pageContent := `
 ---
@@ -78,8 +78,8 @@ tags_weight: %d
 `)
 	b.CreateSites().Build(BuildCfg{})
 
-	assert.Equal(1, len(b.H.Sites))
-	require.Len(t, b.H.Sites[0].RegularPages(), 2)
+	c.Assert(len(b.H.Sites), qt.Equals, 1)
+	c.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 2)
 
 	b.AssertFileContent("public/index.html",
 		"pages:2:page.Pages:Page(/page1.md)/Page(/page2.md)",
@@ -88,7 +88,7 @@ tags_weight: %d
 }
 
 func TestUnionFunc(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	pageContent := `
 ---
@@ -110,8 +110,8 @@ tags_weight: %d
 `)
 	b.CreateSites().Build(BuildCfg{})
 
-	assert.Equal(1, len(b.H.Sites))
-	require.Len(t, b.H.Sites[0].RegularPages(), 3)
+	c.Assert(len(b.H.Sites), qt.Equals, 1)
+	c.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 3)
 
 	b.AssertFileContent("public/index.html",
 		"unionPages: page.Pages 3",
@@ -119,7 +119,7 @@ tags_weight: %d
 }
 
 func TestCollectionsFuncs(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	pageContent := `
 ---
@@ -151,8 +151,8 @@ Symdiff: {{ range $symdiff }}{{ .RelPermalink }}|{{ end }}
 `)
 	b.CreateSites().Build(BuildCfg{})
 
-	assert.Equal(1, len(b.H.Sites))
-	require.Len(t, b.H.Sites[0].RegularPages(), 3)
+	c.Assert(len(b.H.Sites), qt.Equals, 1)
+	c.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 3)
 
 	b.AssertFileContent("public/index.html",
 		"uniqPages: page.Pages 3",
@@ -164,7 +164,7 @@ Symdiff: {{ range $symdiff }}{{ .RelPermalink }}|{{ end }}
 }
 
 func TestAppendFunc(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	pageContent := `
 ---
@@ -203,8 +203,8 @@ tags_weight: %d
 `)
 	b.CreateSites().Build(BuildCfg{})
 
-	assert.Equal(1, len(b.H.Sites))
-	assert.Len(b.H.Sites[0].RegularPages(), 2)
+	c.Assert(len(b.H.Sites), qt.Equals, 1)
+	c.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 2)
 
 	b.AssertFileContent("public/index.html",
 		"pages:2:page.Pages:Page(/page2.md)/Page(/page1.md)",

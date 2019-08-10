@@ -27,38 +27,38 @@ import (
 
 	"github.com/gohugoio/hugo/media"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestGenericResource(t *testing.T) {
-	assert := require.New(t)
-	spec := newTestResourceSpec(assert)
+	c := qt.New(t)
+	spec := newTestResourceSpec(c)
 
 	r := spec.newGenericResource(nil, nil, nil, "/a/foo.css", "foo.css", media.CSSType)
 
-	assert.Equal("https://example.com/foo.css", r.Permalink())
-	assert.Equal("/foo.css", r.RelPermalink())
-	assert.Equal("css", r.ResourceType())
+	c.Assert(r.Permalink(), qt.Equals, "https://example.com/foo.css")
+	c.Assert(r.RelPermalink(), qt.Equals, "/foo.css")
+	c.Assert(r.ResourceType(), qt.Equals, "css")
 
 }
 
 func TestGenericResourceWithLinkFacory(t *testing.T) {
-	assert := require.New(t)
-	spec := newTestResourceSpec(assert)
+	c := qt.New(t)
+	spec := newTestResourceSpec(c)
 
 	factory := newTargetPaths("/foo")
 
 	r := spec.newGenericResource(nil, factory, nil, "/a/foo.css", "foo.css", media.CSSType)
 
-	assert.Equal("https://example.com/foo/foo.css", r.Permalink())
-	assert.Equal("/foo/foo.css", r.RelPermalink())
-	assert.Equal("foo.css", r.Key())
-	assert.Equal("css", r.ResourceType())
+	c.Assert(r.Permalink(), qt.Equals, "https://example.com/foo/foo.css")
+	c.Assert(r.RelPermalink(), qt.Equals, "/foo/foo.css")
+	c.Assert(r.Key(), qt.Equals, "foo.css")
+	c.Assert(r.ResourceType(), qt.Equals, "css")
 }
 
 func TestNewResourceFromFilename(t *testing.T) {
-	assert := require.New(t)
-	spec := newTestResourceSpec(assert)
+	c := qt.New(t)
+	spec := newTestResourceSpec(c)
 
 	writeSource(t, spec.Fs, "content/a/b/logo.png", "image")
 	writeSource(t, spec.Fs, "content/a/b/data.json", "json")
@@ -67,26 +67,26 @@ func TestNewResourceFromFilename(t *testing.T) {
 
 	r, err := spec.New(ResourceSourceDescriptor{Fs: bfs, SourceFilename: "a/b/logo.png"})
 
-	assert.NoError(err)
-	assert.NotNil(r)
-	assert.Equal("image", r.ResourceType())
-	assert.Equal("/a/b/logo.png", r.RelPermalink())
-	assert.Equal("https://example.com/a/b/logo.png", r.Permalink())
+	c.Assert(err, qt.IsNil)
+	c.Assert(r, qt.Not(qt.IsNil))
+	c.Assert(r.ResourceType(), qt.Equals, "image")
+	c.Assert(r.RelPermalink(), qt.Equals, "/a/b/logo.png")
+	c.Assert(r.Permalink(), qt.Equals, "https://example.com/a/b/logo.png")
 
 	r, err = spec.New(ResourceSourceDescriptor{Fs: bfs, SourceFilename: "a/b/data.json"})
 
-	assert.NoError(err)
-	assert.NotNil(r)
-	assert.Equal("json", r.ResourceType())
+	c.Assert(err, qt.IsNil)
+	c.Assert(r, qt.Not(qt.IsNil))
+	c.Assert(r.ResourceType(), qt.Equals, "json")
 
 	cloned := r.(resource.Cloner).WithNewBase("aceof")
-	assert.Equal(r.ResourceType(), cloned.ResourceType())
-	assert.Equal("/aceof/a/b/data.json", cloned.RelPermalink())
+	c.Assert(cloned.ResourceType(), qt.Equals, r.ResourceType())
+	c.Assert(cloned.RelPermalink(), qt.Equals, "/aceof/a/b/data.json")
 }
 
 func TestNewResourceFromFilenameSubPathInBaseURL(t *testing.T) {
-	assert := require.New(t)
-	spec := newTestResourceSpecForBaseURL(assert, "https://example.com/docs")
+	c := qt.New(t)
+	spec := newTestResourceSpecForBaseURL(c, "https://example.com/docs")
 
 	writeSource(t, spec.Fs, "content/a/b/logo.png", "image")
 	bfs := afero.NewBasePathFs(spec.Fs.Source, "content")
@@ -94,35 +94,35 @@ func TestNewResourceFromFilenameSubPathInBaseURL(t *testing.T) {
 	fmt.Println()
 	r, err := spec.New(ResourceSourceDescriptor{Fs: bfs, SourceFilename: filepath.FromSlash("a/b/logo.png")})
 
-	assert.NoError(err)
-	assert.NotNil(r)
-	assert.Equal("image", r.ResourceType())
-	assert.Equal("/docs/a/b/logo.png", r.RelPermalink())
-	assert.Equal("https://example.com/docs/a/b/logo.png", r.Permalink())
+	c.Assert(err, qt.IsNil)
+	c.Assert(r, qt.Not(qt.IsNil))
+	c.Assert(r.ResourceType(), qt.Equals, "image")
+	c.Assert(r.RelPermalink(), qt.Equals, "/docs/a/b/logo.png")
+	c.Assert(r.Permalink(), qt.Equals, "https://example.com/docs/a/b/logo.png")
 	img := r.(*Image)
-	assert.Equal(filepath.FromSlash("/a/b/logo.png"), img.targetFilenames()[0])
+	c.Assert(img.targetFilenames()[0], qt.Equals, filepath.FromSlash("/a/b/logo.png"))
 
 }
 
 var pngType, _ = media.FromStringAndExt("image/png", "png")
 
 func TestResourcesByType(t *testing.T) {
-	assert := require.New(t)
-	spec := newTestResourceSpec(assert)
+	c := qt.New(t)
+	spec := newTestResourceSpec(c)
 	resources := resource.Resources{
 		spec.newGenericResource(nil, nil, nil, "/a/foo1.css", "foo1.css", media.CSSType),
 		spec.newGenericResource(nil, nil, nil, "/a/logo.png", "logo.css", pngType),
 		spec.newGenericResource(nil, nil, nil, "/a/foo2.css", "foo2.css", media.CSSType),
 		spec.newGenericResource(nil, nil, nil, "/a/foo3.css", "foo3.css", media.CSSType)}
 
-	assert.Len(resources.ByType("css"), 3)
-	assert.Len(resources.ByType("image"), 1)
+	c.Assert(len(resources.ByType("css")), qt.Equals, 3)
+	c.Assert(len(resources.ByType("image")), qt.Equals, 1)
 
 }
 
 func TestResourcesGetByPrefix(t *testing.T) {
-	assert := require.New(t)
-	spec := newTestResourceSpec(assert)
+	c := qt.New(t)
+	spec := newTestResourceSpec(c)
 	resources := resource.Resources{
 		spec.newGenericResource(nil, nil, nil, "/a/foo1.css", "foo1.css", media.CSSType),
 		spec.newGenericResource(nil, nil, nil, "/a/logo1.png", "logo1.png", pngType),
@@ -130,28 +130,28 @@ func TestResourcesGetByPrefix(t *testing.T) {
 		spec.newGenericResource(nil, nil, nil, "/b/foo2.css", "foo2.css", media.CSSType),
 		spec.newGenericResource(nil, nil, nil, "/b/foo3.css", "foo3.css", media.CSSType)}
 
-	assert.Nil(resources.GetMatch("asdf*"))
-	assert.Equal("/logo1.png", resources.GetMatch("logo*").RelPermalink())
-	assert.Equal("/logo1.png", resources.GetMatch("loGo*").RelPermalink())
-	assert.Equal("/Logo2.png", resources.GetMatch("logo2*").RelPermalink())
-	assert.Equal("/foo2.css", resources.GetMatch("foo2*").RelPermalink())
-	assert.Equal("/foo1.css", resources.GetMatch("foo1*").RelPermalink())
-	assert.Equal("/foo1.css", resources.GetMatch("foo1*").RelPermalink())
-	assert.Nil(resources.GetMatch("asdfasdf*"))
+	c.Assert(resources.GetMatch("asdf*"), qt.IsNil)
+	c.Assert(resources.GetMatch("logo*").RelPermalink(), qt.Equals, "/logo1.png")
+	c.Assert(resources.GetMatch("loGo*").RelPermalink(), qt.Equals, "/logo1.png")
+	c.Assert(resources.GetMatch("logo2*").RelPermalink(), qt.Equals, "/Logo2.png")
+	c.Assert(resources.GetMatch("foo2*").RelPermalink(), qt.Equals, "/foo2.css")
+	c.Assert(resources.GetMatch("foo1*").RelPermalink(), qt.Equals, "/foo1.css")
+	c.Assert(resources.GetMatch("foo1*").RelPermalink(), qt.Equals, "/foo1.css")
+	c.Assert(resources.GetMatch("asdfasdf*"), qt.IsNil)
 
-	assert.Equal(2, len(resources.Match("logo*")))
-	assert.Equal(1, len(resources.Match("logo2*")))
+	c.Assert(len(resources.Match("logo*")), qt.Equals, 2)
+	c.Assert(len(resources.Match("logo2*")), qt.Equals, 1)
 
 	logo := resources.GetMatch("logo*")
-	assert.NotNil(logo.Params())
-	assert.Equal("logo1.png", logo.Name())
-	assert.Equal("logo1.png", logo.Title())
+	c.Assert(logo.Params(), qt.Not(qt.IsNil))
+	c.Assert(logo.Name(), qt.Equals, "logo1.png")
+	c.Assert(logo.Title(), qt.Equals, "logo1.png")
 
 }
 
 func TestResourcesGetMatch(t *testing.T) {
-	assert := require.New(t)
-	spec := newTestResourceSpec(assert)
+	c := qt.New(t)
+	spec := newTestResourceSpec(c)
 	resources := resource.Resources{
 		spec.newGenericResource(nil, nil, nil, "/a/foo1.css", "foo1.css", media.CSSType),
 		spec.newGenericResource(nil, nil, nil, "/a/logo1.png", "logo1.png", pngType),
@@ -163,35 +163,35 @@ func TestResourcesGetMatch(t *testing.T) {
 		spec.newGenericResource(nil, nil, nil, "/b/c/d/foo6.css", "c/d/foo6.css", media.CSSType),
 	}
 
-	assert.Equal("/logo1.png", resources.GetMatch("logo*").RelPermalink())
-	assert.Equal("/logo1.png", resources.GetMatch("loGo*").RelPermalink())
-	assert.Equal("/Logo2.png", resources.GetMatch("logo2*").RelPermalink())
-	assert.Equal("/foo2.css", resources.GetMatch("foo2*").RelPermalink())
-	assert.Equal("/foo1.css", resources.GetMatch("foo1*").RelPermalink())
-	assert.Equal("/foo1.css", resources.GetMatch("foo1*").RelPermalink())
-	assert.Equal("/c/foo4.css", resources.GetMatch("*/foo*").RelPermalink())
+	c.Assert(resources.GetMatch("logo*").RelPermalink(), qt.Equals, "/logo1.png")
+	c.Assert(resources.GetMatch("loGo*").RelPermalink(), qt.Equals, "/logo1.png")
+	c.Assert(resources.GetMatch("logo2*").RelPermalink(), qt.Equals, "/Logo2.png")
+	c.Assert(resources.GetMatch("foo2*").RelPermalink(), qt.Equals, "/foo2.css")
+	c.Assert(resources.GetMatch("foo1*").RelPermalink(), qt.Equals, "/foo1.css")
+	c.Assert(resources.GetMatch("foo1*").RelPermalink(), qt.Equals, "/foo1.css")
+	c.Assert(resources.GetMatch("*/foo*").RelPermalink(), qt.Equals, "/c/foo4.css")
 
-	assert.Nil(resources.GetMatch("asdfasdf"))
+	c.Assert(resources.GetMatch("asdfasdf"), qt.IsNil)
 
-	assert.Equal(2, len(resources.Match("Logo*")))
-	assert.Equal(1, len(resources.Match("logo2*")))
-	assert.Equal(2, len(resources.Match("c/*")))
+	c.Assert(len(resources.Match("Logo*")), qt.Equals, 2)
+	c.Assert(len(resources.Match("logo2*")), qt.Equals, 1)
+	c.Assert(len(resources.Match("c/*")), qt.Equals, 2)
 
-	assert.Equal(6, len(resources.Match("**.css")))
-	assert.Equal(3, len(resources.Match("**/*.css")))
-	assert.Equal(1, len(resources.Match("c/**/*.css")))
+	c.Assert(len(resources.Match("**.css")), qt.Equals, 6)
+	c.Assert(len(resources.Match("**/*.css")), qt.Equals, 3)
+	c.Assert(len(resources.Match("c/**/*.css")), qt.Equals, 1)
 
 	// Matches only CSS files in c/
-	assert.Equal(3, len(resources.Match("c/**.css")))
+	c.Assert(len(resources.Match("c/**.css")), qt.Equals, 3)
 
 	// Matches all CSS files below c/ (including in c/d/)
-	assert.Equal(3, len(resources.Match("c/**.css")))
+	c.Assert(len(resources.Match("c/**.css")), qt.Equals, 3)
 
 	// Patterns beginning with a slash will not match anything.
 	// We could maybe consider trimming that slash, but let's be explicit about this.
 	// (it is possible for users to do a rename)
 	// This is analogous to standing in a directory and doing "ls *.*".
-	assert.Equal(0, len(resources.Match("/c/**.css")))
+	c.Assert(len(resources.Match("/c/**.css")), qt.Equals, 0)
 
 }
 
@@ -212,8 +212,8 @@ func BenchmarkResourcesMatch(b *testing.B) {
 // I don't expect Hugo users to "stumble upon" this problem, so this is more to satisfy
 // my own curiosity.
 func BenchmarkResourcesMatchA100(b *testing.B) {
-	assert := require.New(b)
-	spec := newTestResourceSpec(assert)
+	c := qt.New(b)
+	spec := newTestResourceSpec(c)
 	a100 := strings.Repeat("a", 100)
 	pattern := "a*a*a*a*a*a*a*a*b"
 
@@ -227,8 +227,8 @@ func BenchmarkResourcesMatchA100(b *testing.B) {
 }
 
 func benchResources(b *testing.B) resource.Resources {
-	assert := require.New(b)
-	spec := newTestResourceSpec(assert)
+	c := qt.New(b)
+	spec := newTestResourceSpec(c)
 	var resources resource.Resources
 
 	for i := 0; i < 30; i++ {
@@ -251,8 +251,8 @@ func benchResources(b *testing.B) resource.Resources {
 }
 
 func BenchmarkAssignMetadata(b *testing.B) {
-	assert := require.New(b)
-	spec := newTestResourceSpec(assert)
+	c := qt.New(b)
+	spec := newTestResourceSpec(c)
 
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()

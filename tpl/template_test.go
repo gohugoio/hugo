@@ -16,16 +16,16 @@ package tpl
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestExtractBaseof(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	replaced := extractBaseOf(`failed: template: _default/baseof.html:37:11: executing "_default/baseof.html" at <.Parents>: can't evaluate field Parents in type *hugolib.PageOutput`)
 
-	assert.Equal("_default/baseof.html", replaced)
-	assert.Equal("", extractBaseOf("not baseof for you"))
-	assert.Equal("blog/baseof.html", extractBaseOf("template: blog/baseof.html:23:11:"))
-	assert.Equal("blog/baseof.ace", extractBaseOf("template: blog/baseof.ace:23:11:"))
+	c.Assert(replaced, qt.Equals, "_default/baseof.html")
+	c.Assert(extractBaseOf("not baseof for you"), qt.Equals, "")
+	c.Assert(extractBaseOf("template: blog/baseof.html:23:11:"), qt.Equals, "blog/baseof.html")
+	c.Assert(extractBaseOf("template: blog/baseof.ace:23:11:"), qt.Equals, "blog/baseof.ace")
 }

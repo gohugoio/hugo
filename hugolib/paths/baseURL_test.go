@@ -16,51 +16,52 @@ package paths
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestBaseURL(t *testing.T) {
+	c := qt.New(t)
 	b, err := newBaseURLFromString("http://example.com")
-	require.NoError(t, err)
-	require.Equal(t, "http://example.com", b.String())
+	c.Assert(err, qt.IsNil)
+	c.Assert(b.String(), qt.Equals, "http://example.com")
 
 	p, err := b.WithProtocol("webcal://")
-	require.NoError(t, err)
-	require.Equal(t, "webcal://example.com", p)
+	c.Assert(err, qt.IsNil)
+	c.Assert(p, qt.Equals, "webcal://example.com")
 
 	p, err = b.WithProtocol("webcal")
-	require.NoError(t, err)
-	require.Equal(t, "webcal://example.com", p)
+	c.Assert(err, qt.IsNil)
+	c.Assert(p, qt.Equals, "webcal://example.com")
 
 	_, err = b.WithProtocol("mailto:")
-	require.Error(t, err)
+	c.Assert(err, qt.Not(qt.IsNil))
 
 	b, err = newBaseURLFromString("mailto:hugo@rules.com")
-	require.NoError(t, err)
-	require.Equal(t, "mailto:hugo@rules.com", b.String())
+	c.Assert(err, qt.IsNil)
+	c.Assert(b.String(), qt.Equals, "mailto:hugo@rules.com")
 
 	// These are pretty constructed
 	p, err = b.WithProtocol("webcal")
-	require.NoError(t, err)
-	require.Equal(t, "webcal:hugo@rules.com", p)
+	c.Assert(err, qt.IsNil)
+	c.Assert(p, qt.Equals, "webcal:hugo@rules.com")
 
 	p, err = b.WithProtocol("webcal://")
-	require.NoError(t, err)
-	require.Equal(t, "webcal://hugo@rules.com", p)
+	c.Assert(err, qt.IsNil)
+	c.Assert(p, qt.Equals, "webcal://hugo@rules.com")
 
 	// Test with "non-URLs". Some people will try to use these as a way to get
 	// relative URLs working etc.
 	b, err = newBaseURLFromString("/")
-	require.NoError(t, err)
-	require.Equal(t, "/", b.String())
+	c.Assert(err, qt.IsNil)
+	c.Assert(b.String(), qt.Equals, "/")
 
 	b, err = newBaseURLFromString("")
-	require.NoError(t, err)
-	require.Equal(t, "", b.String())
+	c.Assert(err, qt.IsNil)
+	c.Assert(b.String(), qt.Equals, "")
 
 	// BaseURL with sub path
 	b, err = newBaseURLFromString("http://example.com/sub")
-	require.NoError(t, err)
-	require.Equal(t, "http://example.com/sub", b.String())
-	require.Equal(t, "http://example.com", b.HostURL())
+	c.Assert(err, qt.IsNil)
+	c.Assert(b.String(), qt.Equals, "http://example.com/sub")
+	c.Assert(b.HostURL(), qt.Equals, "http://example.com")
 }

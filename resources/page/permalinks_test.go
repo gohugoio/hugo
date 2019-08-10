@@ -19,7 +19,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 // testdataPermalinks is used by a couple of tests; the expandsTo content is
@@ -47,7 +47,7 @@ var testdataPermalinks = []struct {
 func TestPermalinkExpansion(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	page := newTestPageWithFile("/test-page/index.md")
 	page.title = "Spf13 Vim 3.0 Release and new website"
@@ -56,10 +56,7 @@ func TestPermalinkExpansion(t *testing.T) {
 	page.section = "blue"
 	page.slug = "The Slug"
 
-	for i, item := range testdataPermalinks {
-
-		msg := fmt.Sprintf("Test %d", i)
-
+	for _, item := range testdataPermalinks {
 		if !item.valid {
 			continue
 		}
@@ -72,11 +69,11 @@ func TestPermalinkExpansion(t *testing.T) {
 		ps.Cfg.Set("permalinks", permalinksConfig)
 
 		expander, err := NewPermalinkExpander(ps)
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 
 		expanded, err := expander.Expand("posts", page)
-		assert.NoError(err)
-		assert.Equal(item.expandsTo, expanded, msg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(expanded, qt.Equals, item.expandsTo)
 
 	}
 }
@@ -84,7 +81,7 @@ func TestPermalinkExpansion(t *testing.T) {
 func TestPermalinkExpansionMultiSection(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	page := newTestPage()
 	page.title = "Page Title"
@@ -102,22 +99,22 @@ func TestPermalinkExpansionMultiSection(t *testing.T) {
 	ps.Cfg.Set("permalinks", permalinksConfig)
 
 	expander, err := NewPermalinkExpander(ps)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	expanded, err := expander.Expand("posts", page)
-	assert.NoError(err)
-	assert.Equal("/the-slug", expanded)
+	c.Assert(err, qt.IsNil)
+	c.Assert(expanded, qt.Equals, "/the-slug")
 
 	expanded, err = expander.Expand("blog", page)
-	assert.NoError(err)
-	assert.Equal("/blue/2012", expanded)
+	c.Assert(err, qt.IsNil)
+	c.Assert(expanded, qt.Equals, "/blue/2012")
 
 }
 
 func TestPermalinkExpansionConcurrent(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	permalinksConfig := map[string]string{
 		"posts": "/:slug/",
@@ -127,7 +124,7 @@ func TestPermalinkExpansionConcurrent(t *testing.T) {
 	ps.Cfg.Set("permalinks", permalinksConfig)
 
 	expander, err := NewPermalinkExpander(ps)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	var wg sync.WaitGroup
 
@@ -139,8 +136,8 @@ func TestPermalinkExpansionConcurrent(t *testing.T) {
 			for j := 1; j < 20; j++ {
 				page.slug = fmt.Sprintf("slug%d", i+j)
 				expanded, err := expander.Expand("posts", page)
-				assert.NoError(err)
-				assert.Equal(fmt.Sprintf("/%s/", page.slug), expanded)
+				c.Assert(err, qt.IsNil)
+				c.Assert(expanded, qt.Equals, fmt.Sprintf("/%s/", page.slug))
 			}
 		}(i)
 	}

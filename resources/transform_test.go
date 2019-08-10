@@ -16,7 +16,7 @@ package resources
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 type testStruct struct {
@@ -31,6 +31,6 @@ func TestResourceTransformationKey(t *testing.T) {
 	// We really need this key to be portable across OSes.
 	key := NewResourceTransformationKey("testing",
 		testStruct{Name: "test", V1: int64(10), V2: int32(20), V3: 30, V4: uint64(40)})
-	assert := require.New(t)
-	assert.Equal(key.key(), "testing_518996646957295636")
+	c := qt.New(t)
+	c.Assert("testing_518996646957295636", qt.Equals, key.key())
 }

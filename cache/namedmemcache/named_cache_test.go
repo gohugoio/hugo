@@ -18,12 +18,12 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestNamedCache(t *testing.T) {
 	t.Parallel()
-	assert := require.New(t)
+	c := qt.New(t)
 
 	cache := New()
 
@@ -35,24 +35,24 @@ func TestNamedCache(t *testing.T) {
 
 	for i := 0; i < 5; i++ {
 		v1, err := cache.GetOrCreate("a1", create)
-		assert.NoError(err)
-		assert.Equal(1, v1)
+		c.Assert(err, qt.IsNil)
+		c.Assert(v1, qt.Equals, 1)
 		v2, err := cache.GetOrCreate("a2", create)
-		assert.NoError(err)
-		assert.Equal(2, v2)
+		c.Assert(err, qt.IsNil)
+		c.Assert(v2, qt.Equals, 2)
 	}
 
 	cache.Clear()
 
 	v3, err := cache.GetOrCreate("a2", create)
-	assert.NoError(err)
-	assert.Equal(3, v3)
+	c.Assert(err, qt.IsNil)
+	c.Assert(v3, qt.Equals, 3)
 }
 
 func TestNamedCacheConcurrent(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	var wg sync.WaitGroup
 
@@ -71,8 +71,8 @@ func TestNamedCacheConcurrent(t *testing.T) {
 			for j := 0; j < 100; j++ {
 				id := fmt.Sprintf("id%d", j)
 				v, err := cache.GetOrCreate(id, create(j))
-				assert.NoError(err)
-				assert.Equal(j, v)
+				c.Assert(err, qt.IsNil)
+				c.Assert(v, qt.Equals, j)
 			}
 		}()
 	}

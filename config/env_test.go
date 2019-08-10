@@ -16,17 +16,17 @@ package config
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestSetEnvVars(t *testing.T) {
 	t.Parallel()
-	assert := require.New(t)
+	c := qt.New(t)
 	vars := []string{"FOO=bar", "HUGO=cool", "BAR=foo"}
 	SetEnvVars(&vars, "HUGO", "rocking!", "NEW", "bar")
-	assert.Equal([]string{"FOO=bar", "HUGO=rocking!", "BAR=foo", "NEW=bar"}, vars)
+	c.Assert(vars, qt.DeepEquals, []string{"FOO=bar", "HUGO=rocking!", "BAR=foo", "NEW=bar"})
 
 	key, val := SplitEnvVar("HUGO=rocks")
-	assert.Equal("HUGO", key)
-	assert.Equal("rocks", val)
+	c.Assert(key, qt.Equals, "HUGO")
+	c.Assert(val, qt.Equals, "rocks")
 }

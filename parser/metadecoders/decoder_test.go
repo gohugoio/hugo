@@ -14,15 +14,14 @@
 package metadecoders
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestUnmarshalToMap(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	expect := map[string]interface{}{"a": "b"}
 
@@ -44,19 +43,19 @@ func TestUnmarshalToMap(t *testing.T) {
 		{`a = b`, TOML, false},
 		{`a,b,c`, CSV, false}, // Use Unmarshal for CSV
 	} {
-		msg := fmt.Sprintf("%d: %s", i, test.format)
+		msg := qt.Commentf("%d: %s", i, test.format)
 		m, err := d.UnmarshalToMap([]byte(test.data), test.format)
 		if b, ok := test.expect.(bool); ok && !b {
-			assert.Error(err, msg)
+			c.Assert(err, qt.Not(qt.IsNil), msg)
 		} else {
-			assert.NoError(err, msg)
-			assert.Equal(test.expect, m, msg)
+			c.Assert(err, qt.IsNil, msg)
+			c.Assert(m, qt.DeepEquals, test.expect, msg)
 		}
 	}
 }
 
 func TestUnmarshalToInterface(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	expect := map[string]interface{}{"a": "b"}
 
@@ -77,13 +76,13 @@ func TestUnmarshalToInterface(t *testing.T) {
 		// errors
 		{`a = "`, TOML, false},
 	} {
-		msg := fmt.Sprintf("%d: %s", i, test.format)
+		msg := qt.Commentf("%d: %s", i, test.format)
 		m, err := d.Unmarshal([]byte(test.data), test.format)
 		if b, ok := test.expect.(bool); ok && !b {
-			assert.Error(err, msg)
+			c.Assert(err, qt.Not(qt.IsNil), msg)
 		} else {
-			assert.NoError(err, msg)
-			assert.Equal(test.expect, m, msg)
+			c.Assert(err, qt.IsNil, msg)
+			c.Assert(m, qt.DeepEquals, test.expect, msg)
 		}
 
 	}
@@ -91,7 +90,7 @@ func TestUnmarshalToInterface(t *testing.T) {
 }
 
 func TestUnmarshalStringTo(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	d := Default
 
@@ -110,13 +109,13 @@ func TestUnmarshalStringTo(t *testing.T) {
 		{"[3,7,9]", []interface{}{}, []interface{}{3, 7, 9}},
 		{"[3.1,7.2,9.3]", []interface{}{}, []interface{}{3.1, 7.2, 9.3}},
 	} {
-		msg := fmt.Sprintf("%d: %T", i, test.to)
+		msg := qt.Commentf("%d: %T", i, test.to)
 		m, err := d.UnmarshalStringTo(test.data, test.to)
 		if b, ok := test.expect.(bool); ok && !b {
-			assert.Error(err, msg)
+			c.Assert(err, qt.Not(qt.IsNil), msg)
 		} else {
-			assert.NoError(err, msg)
-			assert.Equal(test.expect, m, msg)
+			c.Assert(err, qt.IsNil, msg)
+			c.Assert(m, qt.DeepEquals, test.expect, msg)
 		}
 
 	}

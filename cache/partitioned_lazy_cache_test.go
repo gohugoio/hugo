@@ -18,13 +18,13 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestNewPartitionedLazyCache(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	p1 := Partition{
 		Key: "p1",
@@ -51,28 +51,28 @@ func TestNewPartitionedLazyCache(t *testing.T) {
 	cache := NewPartitionedLazyCache(p1, p2)
 
 	v, err := cache.Get("p1", "p1_1")
-	assert.NoError(err)
-	assert.Equal("p1v1", v)
+	c.Assert(err, qt.IsNil)
+	c.Assert(v, qt.Equals, "p1v1")
 
 	v, err = cache.Get("p1", "p2_1")
-	assert.NoError(err)
-	assert.Nil(v)
+	c.Assert(err, qt.IsNil)
+	c.Assert(v, qt.IsNil)
 
 	v, err = cache.Get("p1", "p1_nil")
-	assert.NoError(err)
-	assert.Nil(v)
+	c.Assert(err, qt.IsNil)
+	c.Assert(v, qt.IsNil)
 
 	v, err = cache.Get("p2", "p2_3")
-	assert.NoError(err)
-	assert.Equal("p2v3", v)
+	c.Assert(err, qt.IsNil)
+	c.Assert(v, qt.Equals, "p2v3")
 
 	v, err = cache.Get("doesnotexist", "p1_1")
-	assert.NoError(err)
-	assert.Nil(v)
+	c.Assert(err, qt.IsNil)
+	c.Assert(v, qt.IsNil)
 
 	v, err = cache.Get("p1", "doesnotexist")
-	assert.NoError(err)
-	assert.Nil(v)
+	c.Assert(err, qt.IsNil)
+	c.Assert(v, qt.IsNil)
 
 	errorP := Partition{
 		Key: "p3",
@@ -84,18 +84,18 @@ func TestNewPartitionedLazyCache(t *testing.T) {
 	cache = NewPartitionedLazyCache(errorP)
 
 	v, err = cache.Get("p1", "doesnotexist")
-	assert.NoError(err)
-	assert.Nil(v)
+	c.Assert(err, qt.IsNil)
+	c.Assert(v, qt.IsNil)
 
 	_, err = cache.Get("p3", "doesnotexist")
-	assert.Error(err)
+	c.Assert(err, qt.Not(qt.IsNil))
 
 }
 
 func TestConcurrentPartitionedLazyCache(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	var wg sync.WaitGroup
 
@@ -129,8 +129,8 @@ func TestConcurrentPartitionedLazyCache(t *testing.T) {
 			defer wg.Done()
 			for j := 0; j < 10; j++ {
 				v, err := cache.Get("p1", "p1_1")
-				assert.NoError(err)
-				assert.Equal("p1v1", v)
+				c.Assert(err, qt.IsNil)
+				c.Assert(v, qt.Equals, "p1v1")
 			}
 		}()
 	}

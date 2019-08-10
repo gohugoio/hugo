@@ -23,7 +23,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 
 	"github.com/gohugoio/hugo/deps"
 )
@@ -167,37 +167,37 @@ permalinkeds:
 
 	for taxonomy, count := range taxonomyTermPageCounts {
 		term := s.getPage(page.KindTaxonomyTerm, taxonomy)
-		require.NotNil(t, term)
-		require.Len(t, term.Pages(), count, taxonomy)
+		b.Assert(term, qt.Not(qt.IsNil))
+		b.Assert(len(term.Pages()), qt.Equals, count, qt.Commentf(taxonomy))
 
 		for _, p := range term.Pages() {
-			require.Equal(t, page.KindTaxonomy, p.Kind())
+			b.Assert(p.Kind(), qt.Equals, page.KindTaxonomy)
 		}
 	}
 
 	cat1 := s.getPage(page.KindTaxonomy, "categories", "cat1")
-	require.NotNil(t, cat1)
+	b.Assert(cat1, qt.Not(qt.IsNil))
 	if uglyURLs {
-		require.Equal(t, "/blog/categories/cat1.html", cat1.RelPermalink())
+		b.Assert(cat1.RelPermalink(), qt.Equals, "/blog/categories/cat1.html")
 	} else {
-		require.Equal(t, "/blog/categories/cat1/", cat1.RelPermalink())
+		b.Assert(cat1.RelPermalink(), qt.Equals, "/blog/categories/cat1/")
 	}
 
 	pl1 := s.getPage(page.KindTaxonomy, "permalinkeds", "pl1")
 	permalinkeds := s.getPage(page.KindTaxonomyTerm, "permalinkeds")
-	require.NotNil(t, pl1)
-	require.NotNil(t, permalinkeds)
+	b.Assert(pl1, qt.Not(qt.IsNil))
+	b.Assert(permalinkeds, qt.Not(qt.IsNil))
 	if uglyURLs {
-		require.Equal(t, "/blog/perma/pl1.html", pl1.RelPermalink())
-		require.Equal(t, "/blog/permalinkeds.html", permalinkeds.RelPermalink())
+		b.Assert(pl1.RelPermalink(), qt.Equals, "/blog/perma/pl1.html")
+		b.Assert(permalinkeds.RelPermalink(), qt.Equals, "/blog/permalinkeds.html")
 	} else {
-		require.Equal(t, "/blog/perma/pl1/", pl1.RelPermalink())
-		require.Equal(t, "/blog/permalinkeds/", permalinkeds.RelPermalink())
+		b.Assert(pl1.RelPermalink(), qt.Equals, "/blog/perma/pl1/")
+		b.Assert(permalinkeds.RelPermalink(), qt.Equals, "/blog/permalinkeds/")
 	}
 
 	helloWorld := s.getPage(page.KindTaxonomy, "others", "hello-hugo-world")
-	require.NotNil(t, helloWorld)
-	require.Equal(t, "Hello Hugo world", helloWorld.Title())
+	b.Assert(helloWorld, qt.Not(qt.IsNil))
+	b.Assert(helloWorld.Title(), qt.Equals, "Hello Hugo world")
 
 	// Issue #2977
 	b.AssertFileContent(pathFunc("public/empties/index.html"), "Taxonomy Term Page", "Empties")
@@ -208,8 +208,6 @@ permalinkeds:
 // https://github.com/gohugoio/hugo/issues/5571
 func TestTaxonomiesPathSeparation(t *testing.T) {
 	t.Parallel()
-
-	assert := require.New(t)
 
 	config := `
 baseURL = "https://example.com"
@@ -263,8 +261,8 @@ title: "This is S3s"
 	ta := s.findPagesByKind(page.KindTaxonomy)
 	te := s.findPagesByKind(page.KindTaxonomyTerm)
 
-	assert.Equal(4, len(te))
-	assert.Equal(7, len(ta))
+	b.Assert(len(te), qt.Equals, 4)
+	b.Assert(len(ta), qt.Equals, 7)
 
 	b.AssertFileContent("public/news/categories/a/index.html", "Taxonomy List Page 1|a|Hello|https://example.com/news/categories/a/|")
 	b.AssertFileContent("public/news/categories/b/index.html", "Taxonomy List Page 1|This is B|Hello|https://example.com/news/categories/b/|")

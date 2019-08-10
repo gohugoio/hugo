@@ -26,8 +26,8 @@ import (
 
 	"github.com/gohugoio/hugo/deps"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/tpl"
-	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -45,6 +45,7 @@ func TestShortcodeCrossrefs(t *testing.T) {
 func doTestShortcodeCrossrefs(t *testing.T, relative bool) {
 	var (
 		cfg, fs = newTestCfg()
+		c       = qt.New(t)
 	)
 
 	cfg.Set("baseURL", testBaseURL)
@@ -69,10 +70,10 @@ func doTestShortcodeCrossrefs(t *testing.T, relative bool) {
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-	require.Len(t, s.RegularPages(), 1)
+	c.Assert(len(s.RegularPages()), qt.Equals, 1)
 
 	content, err := s.RegularPages()[0].Content()
-	require.NoError(t, err)
+	c.Assert(err, qt.IsNil)
 	output := cast.ToString(content)
 
 	if !strings.Contains(output, expected) {
@@ -100,7 +101,7 @@ void do();
 
 		var (
 			cfg, fs = newTestCfg()
-			th      = testHelper{cfg, fs, t}
+			th      = newTestHelper(cfg, fs, t)
 		)
 
 		cfg.Set("pygmentsStyle", "bw")
@@ -148,7 +149,7 @@ func TestShortcodeFigure(t *testing.T) {
 
 		var (
 			cfg, fs = newTestCfg()
-			th      = testHelper{cfg, fs, t}
+			th      = newTestHelper(cfg, fs, t)
 		)
 
 		writeSource(t, fs, filepath.Join("content", "simple.md"), fmt.Sprintf(`---
@@ -187,7 +188,7 @@ func TestShortcodeYoutube(t *testing.T) {
 	} {
 		var (
 			cfg, fs = newTestCfg()
-			th      = testHelper{cfg, fs, t}
+			th      = newTestHelper(cfg, fs, t)
 		)
 
 		writeSource(t, fs, filepath.Join("content", "simple.md"), fmt.Sprintf(`---
@@ -226,7 +227,7 @@ func TestShortcodeVimeo(t *testing.T) {
 	} {
 		var (
 			cfg, fs = newTestCfg()
-			th      = testHelper{cfg, fs, t}
+			th      = newTestHelper(cfg, fs, t)
 		)
 
 		writeSource(t, fs, filepath.Join("content", "simple.md"), fmt.Sprintf(`---
@@ -259,7 +260,7 @@ func TestShortcodeGist(t *testing.T) {
 	} {
 		var (
 			cfg, fs = newTestCfg()
-			th      = testHelper{cfg, fs, t}
+			th      = newTestHelper(cfg, fs, t)
 		)
 
 		writeSource(t, fs, filepath.Join("content", "simple.md"), fmt.Sprintf(`---
@@ -302,7 +303,7 @@ func TestShortcodeTweet(t *testing.T) {
 
 		var (
 			cfg, fs = newTestCfg()
-			th      = testHelper{cfg, fs, t}
+			th      = newTestHelper(cfg, fs, t)
 		)
 
 		withTemplate := func(templ tpl.TemplateHandler) error {
@@ -357,7 +358,7 @@ func TestShortcodeInstagram(t *testing.T) {
 
 		var (
 			cfg, fs = newTestCfg()
-			th      = testHelper{cfg, fs, t}
+			th      = newTestHelper(cfg, fs, t)
 		)
 
 		withTemplate := func(templ tpl.TemplateHandler) error {

@@ -19,7 +19,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"sync"
 	"testing"
@@ -35,19 +34,19 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestFileCache(t *testing.T) {
 	t.Parallel()
-	assert := require.New(t)
+	c := qt.New(t)
 
 	tempWorkingDir, err := ioutil.TempDir("", "hugo_filecache_test_work")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	defer os.Remove(tempWorkingDir)
 
 	tempCacheDir, err := ioutil.TempDir("", "hugo_filecache_test_cache")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	defer os.Remove(tempCacheDir)
 
 	osfs := afero.NewOsFs()
@@ -89,30 +88,30 @@ dir = ":cacheDir/c"
 		p := newPathsSpec(t, osfs, configStr)
 
 		caches, err := NewCaches(p)
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 
 		cache := caches.Get("GetJSON")
-		assert.NotNil(cache)
-		assert.Equal("10h0m0s", cache.maxAge.String())
+		c.Assert(cache, qt.Not(qt.IsNil))
+		c.Assert(cache.maxAge.String(), qt.Equals, "10h0m0s")
 
 		bfs, ok := cache.Fs.(*afero.BasePathFs)
-		assert.True(ok)
+		c.Assert(ok, qt.Equals, true)
 		filename, err := bfs.RealPath("key")
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 		if test.cacheDir != "" {
-			assert.Equal(filepath.Join(test.cacheDir, "c/"+filecacheRootDirname+"/getjson/key"), filename)
+			c.Assert(filename, qt.Equals, filepath.Join(test.cacheDir, "c/"+filecacheRootDirname+"/getjson/key"))
 		} else {
 			// Temp dir.
-			assert.Regexp(regexp.MustCompile(".*hugo_cache.*"+filecacheRootDirname+".*key"), filename)
+			c.Assert(filename, qt.Matches, ".*hugo_cache.*"+filecacheRootDirname+".*key")
 		}
 
 		cache = caches.Get("Images")
-		assert.NotNil(cache)
-		assert.Equal(time.Duration(-1), cache.maxAge)
+		c.Assert(cache, qt.Not(qt.IsNil))
+		c.Assert(cache.maxAge, qt.Equals, time.Duration(-1))
 		bfs, ok = cache.Fs.(*afero.BasePathFs)
-		assert.True(ok)
+		c.Assert(ok, qt.Equals, true)
 		filename, _ = bfs.RealPath("key")
-		assert.Equal(filepath.FromSlash("_gen/images/key"), filename)
+		c.Assert(filename, qt.Equals, filepath.FromSlash("_gen/images/key"))
 
 		rf := func(s string) func() (io.ReadCloser, error) {
 			return func() (io.ReadCloser, error) {
@@ -130,55 +129,55 @@ dir = ":cacheDir/c"
 			return []byte("bcd"), nil
 		}
 
-		for _, c := range []*Cache{caches.ImageCache(), caches.AssetsCache(), caches.GetJSONCache(), caches.GetCSVCache()} {
+		for _, ca := range []*Cache{caches.ImageCache(), caches.AssetsCache(), caches.GetJSONCache(), caches.GetCSVCache()} {
 			for i := 0; i < 2; i++ {
-				info, r, err := c.GetOrCreate("a", rf("abc"))
-				assert.NoError(err)
-				assert.NotNil(r)
-				assert.Equal("a", info.Name)
+				info, r, err := ca.GetOrCreate("a", rf("abc"))
+				c.Assert(err, qt.IsNil)
+				c.Assert(r, qt.Not(qt.IsNil))
+				c.Assert(info.Name, qt.Equals, "a")
 				b, _ := ioutil.ReadAll(r)
 				r.Close()
-				assert.Equal("abc", string(b))
+				c.Assert(string(b), qt.Equals, "abc")
 
-				info, b, err = c.GetOrCreateBytes("b", bf)
-				assert.NoError(err)
-				assert.NotNil(r)
-				assert.Equal("b", info.Name)
-				assert.Equal("bcd", string(b))
+				info, b, err = ca.GetOrCreateBytes("b", bf)
+				c.Assert(err, qt.IsNil)
+				c.Assert(r, qt.Not(qt.IsNil))
+				c.Assert(info.Name, qt.Equals, "b")
+				c.Assert(string(b), qt.Equals, "bcd")
 
-				_, b, err = c.GetOrCreateBytes("a", bf)
-				assert.NoError(err)
-				assert.Equal("abc", string(b))
+				_, b, err = ca.GetOrCreateBytes("a", bf)
+				c.Assert(err, qt.IsNil)
+				c.Assert(string(b), qt.Equals, "abc")
 
-				_, r, err = c.GetOrCreate("a", rf("bcd"))
-				assert.NoError(err)
+				_, r, err = ca.GetOrCreate("a", rf("bcd"))
+				c.Assert(err, qt.IsNil)
 				b, _ = ioutil.ReadAll(r)
 				r.Close()
-				assert.Equal("abc", string(b))
+				c.Assert(string(b), qt.Equals, "abc")
 			}
 		}
 
-		assert.NotNil(caches.Get("getJSON"))
+		c.Assert(caches.Get("getJSON"), qt.Not(qt.IsNil))
 
 		info, w, err := caches.ImageCache().WriteCloser("mykey")
-		assert.NoError(err)
-		assert.Equal("mykey", info.Name)
+		c.Assert(err, qt.IsNil)
+		c.Assert(info.Name, qt.Equals, "mykey")
 		io.WriteString(w, "Hugo is great!")
 		w.Close()
-		assert.Equal("Hugo is great!", caches.ImageCache().getString("mykey"))
+		c.Assert(caches.ImageCache().getString("mykey"), qt.Equals, "Hugo is great!")
 
 		info, r, err := caches.ImageCache().Get("mykey")
-		assert.NoError(err)
-		assert.NotNil(r)
-		assert.Equal("mykey", info.Name)
+		c.Assert(err, qt.IsNil)
+		c.Assert(r, qt.Not(qt.IsNil))
+		c.Assert(info.Name, qt.Equals, "mykey")
 		b, _ := ioutil.ReadAll(r)
 		r.Close()
-		assert.Equal("Hugo is great!", string(b))
+		c.Assert(string(b), qt.Equals, "Hugo is great!")
 
 		info, b, err = caches.ImageCache().GetBytes("mykey")
-		assert.NoError(err)
-		assert.Equal("mykey", info.Name)
-		assert.Equal("Hugo is great!", string(b))
+		c.Assert(err, qt.IsNil)
+		c.Assert(info.Name, qt.Equals, "mykey")
+		c.Assert(string(b), qt.Equals, "Hugo is great!")
 
 	}
 
@@ -187,7 +186,7 @@ dir = ":cacheDir/c"
 func TestFileCacheConcurrent(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	configStr := `
 resourceDir = "myresources"
@@ -208,7 +207,7 @@ dir = "/cache/c"
 	p := newPathsSpec(t, afero.NewMemMapFs(), configStr)
 
 	caches, err := NewCaches(p)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	const cacheName = "getjson"
 
@@ -225,16 +224,16 @@ dir = "/cache/c"
 		go func(i int) {
 			defer wg.Done()
 			for j := 0; j < 20; j++ {
-				c := caches.Get(cacheName)
-				assert.NotNil(c)
+				ca := caches.Get(cacheName)
+				c.Assert(ca, qt.Not(qt.IsNil))
 				filename, data := filenameData(i)
-				_, r, err := c.GetOrCreate(filename, func() (io.ReadCloser, error) {
+				_, r, err := ca.GetOrCreate(filename, func() (io.ReadCloser, error) {
 					return hugio.ToReadCloser(strings.NewReader(data)), nil
 				})
-				assert.NoError(err)
+				c.Assert(err, qt.IsNil)
 				b, _ := ioutil.ReadAll(r)
 				r.Close()
-				assert.Equal(data, string(b))
+				c.Assert(string(b), qt.Equals, data)
 				// Trigger some expiration.
 				time.Sleep(50 * time.Millisecond)
 			}
@@ -245,9 +244,9 @@ dir = "/cache/c"
 }
 
 func TestCleanID(t *testing.T) {
-	assert := require.New(t)
-	assert.Equal(filepath.FromSlash("a/b/c.txt"), cleanID(filepath.FromSlash("/a/b//c.txt")))
-	assert.Equal(filepath.FromSlash("a/b/c.txt"), cleanID(filepath.FromSlash("a/b//c.txt")))
+	c := qt.New(t)
+	c.Assert(cleanID(filepath.FromSlash("/a/b//c.txt")), qt.Equals, filepath.FromSlash("a/b/c.txt"))
+	c.Assert(cleanID(filepath.FromSlash("a/b//c.txt")), qt.Equals, filepath.FromSlash("a/b/c.txt"))
 }
 
 func initConfig(fs afero.Fs, cfg config.Provider) error {
@@ -288,12 +287,12 @@ func initConfig(fs afero.Fs, cfg config.Provider) error {
 }
 
 func newPathsSpec(t *testing.T, fs afero.Fs, configStr string) *helpers.PathSpec {
-	assert := require.New(t)
+	c := qt.New(t)
 	cfg, err := config.FromConfigString(configStr, "toml")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	initConfig(fs, cfg)
 	p, err := helpers.NewPathSpec(hugofs.NewFrom(fs, cfg), cfg, nil)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	return p
 
 }

@@ -22,7 +22,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func _TestReleaseNotesWriter(t *testing.T) {
@@ -30,14 +30,15 @@ func _TestReleaseNotesWriter(t *testing.T) {
 		// Travis has an ancient git with no --invert-grep: https://github.com/travis-ci/travis-ci/issues/6328
 		t.Skip("Skip git test on CI to make Travis happy.")
 	}
+	c := qt.New(t)
 
 	var b bytes.Buffer
 
 	// TODO(bep) consider to query GitHub directly for the gitlog with author info, probably faster.
 	infos, err := getGitInfosBefore("HEAD", "v0.20", "hugo", "", false)
-	require.NoError(t, err)
+	c.Assert(err, qt.IsNil)
 
-	require.NoError(t, writeReleaseNotes("0.21", infos, infos, &b))
+	c.Assert(writeReleaseNotes("0.21", infos, infos, &b), qt.IsNil)
 
 	fmt.Println(b.String())
 

@@ -16,45 +16,46 @@ package hugofs
 import (
 	"testing"
 
+	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/htesting/hqt"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestNewDefault(t *testing.T) {
+	c := qt.New(t)
 	v := viper.New()
 	f := NewDefault(v)
 
-	assert.NotNil(t, f.Source)
-	assert.IsType(t, new(afero.OsFs), f.Source)
-	assert.NotNil(t, f.Destination)
-	assert.IsType(t, new(afero.OsFs), f.Destination)
-	assert.NotNil(t, f.Os)
-	assert.IsType(t, new(afero.OsFs), f.Os)
-	assert.Nil(t, f.WorkingDir)
+	c.Assert(f.Source, qt.Not(qt.IsNil))
+	c.Assert(f.Source, hqt.IsSameType, new(afero.OsFs))
+	c.Assert(f.Os, qt.Not(qt.IsNil))
+	c.Assert(f.WorkingDir, qt.IsNil)
 
-	assert.IsType(t, new(afero.OsFs), Os)
 }
 
 func TestNewMem(t *testing.T) {
+	c := qt.New(t)
 	v := viper.New()
 	f := NewMem(v)
 
-	assert.NotNil(t, f.Source)
-	assert.IsType(t, new(afero.MemMapFs), f.Source)
-	assert.NotNil(t, f.Destination)
-	assert.IsType(t, new(afero.MemMapFs), f.Destination)
-	assert.IsType(t, new(afero.OsFs), f.Os)
-	assert.Nil(t, f.WorkingDir)
+	c.Assert(f.Source, qt.Not(qt.IsNil))
+	c.Assert(f.Source, hqt.IsSameType, new(afero.MemMapFs))
+	c.Assert(f.Destination, qt.Not(qt.IsNil))
+	c.Assert(f.Destination, hqt.IsSameType, new(afero.MemMapFs))
+	c.Assert(f.Os, hqt.IsSameType, new(afero.OsFs))
+	c.Assert(f.WorkingDir, qt.IsNil)
 }
 
 func TestWorkingDir(t *testing.T) {
+	c := qt.New(t)
 	v := viper.New()
 
 	v.Set("workingDir", "/a/b/")
 
 	f := NewMem(v)
 
-	assert.NotNil(t, f.WorkingDir)
-	assert.IsType(t, new(afero.BasePathFs), f.WorkingDir)
+	c.Assert(f.WorkingDir, qt.Not(qt.IsNil))
+	c.Assert(f.WorkingDir, hqt.IsSameType, new(afero.BasePathFs))
+
 }

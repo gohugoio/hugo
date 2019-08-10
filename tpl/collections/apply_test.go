@@ -18,9 +18,9 @@ import (
 
 	"fmt"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/tpl"
-	"github.com/stretchr/testify/require"
 )
 
 type templateFinder int
@@ -41,24 +41,25 @@ func (templateFinder) GetFuncs() map[string]interface{} {
 
 func TestApply(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	ns := New(&deps.Deps{Tmpl: new(templateFinder)})
 
 	strings := []interface{}{"a\n", "b\n"}
 
 	result, err := ns.Apply(strings, "print", "a", "b", "c")
-	require.NoError(t, err)
-	require.Equal(t, []interface{}{"abc", "abc"}, result, "testing variadic")
+	c.Assert(err, qt.IsNil)
+	c.Assert(result, qt.DeepEquals, []interface{}{"abc", "abc"})
 
 	_, err = ns.Apply(strings, "apply", ".")
-	require.Error(t, err)
+	c.Assert(err, qt.Not(qt.IsNil))
 
 	var nilErr *error
 	_, err = ns.Apply(nilErr, "chomp", ".")
-	require.Error(t, err)
+	c.Assert(err, qt.Not(qt.IsNil))
 
 	_, err = ns.Apply(strings, "dobedobedo", ".")
-	require.Error(t, err)
+	c.Assert(err, qt.Not(qt.IsNil))
 
 	_, err = ns.Apply(strings, "foo.Chomp", "c\n")
 	if err == nil {

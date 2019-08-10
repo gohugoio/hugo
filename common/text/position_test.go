@@ -16,18 +16,18 @@ package text
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestPositionStringFormatter(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	pos := Position{Filename: "/my/file.txt", LineNumber: 12, ColumnNumber: 13, Offset: 14}
 
-	assert.Equal("/my/file.txt|13|12", createPositionStringFormatter(":file|:col|:line")(pos))
-	assert.Equal("13|/my/file.txt|12", createPositionStringFormatter(":col|:file|:line")(pos))
-	assert.Equal("好:13", createPositionStringFormatter("好::col")(pos))
-	assert.Equal("\"/my/file.txt:12:13\"", createPositionStringFormatter("")(pos))
-	assert.Equal("\"/my/file.txt:12:13\"", pos.String())
+	c.Assert(createPositionStringFormatter(":file|:col|:line")(pos), qt.Equals, "/my/file.txt|13|12")
+	c.Assert(createPositionStringFormatter(":col|:file|:line")(pos), qt.Equals, "13|/my/file.txt|12")
+	c.Assert(createPositionStringFormatter("好::col")(pos), qt.Equals, "好:13")
+	c.Assert(createPositionStringFormatter("")(pos), qt.Equals, "\"/my/file.txt:12:13\"")
+	c.Assert(pos.String(), qt.Equals, "\"/my/file.txt:12:13\"")
 
 }

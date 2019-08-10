@@ -16,7 +16,6 @@ package hugolib
 import (
 	"path/filepath"
 	"reflect"
-	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -26,7 +25,7 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestDataDir(t *testing.T) {
@@ -377,6 +376,7 @@ func TestDataFromShortcode(t *testing.T) {
 
 	var (
 		cfg, fs = newTestCfg()
+		c       = qt.New(t)
 	)
 
 	writeSource(t, fs, "data/hugo.toml", "slogan = \"Hugo Rocks!\"")
@@ -392,7 +392,7 @@ Slogan from shortcode: {{< d >}}
 	buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
 	content := readSource(t, fs, "public/c/index.html")
-	require.True(t, strings.Contains(content, "Slogan from template: Hugo Rocks!"), content)
-	require.True(t, strings.Contains(content, "Slogan from shortcode: Hugo Rocks!"), content)
 
+	c.Assert(content, qt.Contains, "Slogan from template: Hugo Rocks!")
+	c.Assert(content, qt.Contains, "Slogan from shortcode: Hugo Rocks!")
 }

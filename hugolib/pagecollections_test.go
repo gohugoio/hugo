@@ -21,10 +21,10 @@ import (
 	"testing"
 	"time"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/gohugoio/hugo/deps"
-	"github.com/stretchr/testify/require"
 )
 
 const pageCollectionsPageTemplate = `---
@@ -72,6 +72,7 @@ func BenchmarkGetPage(b *testing.B) {
 
 func BenchmarkGetPageRegular(b *testing.B) {
 	var (
+		c       = qt.New(b)
 		cfg, fs = newTestCfg()
 		r       = rand.New(rand.NewSource(time.Now().UnixNano()))
 	)
@@ -94,7 +95,7 @@ func BenchmarkGetPageRegular(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		page, _ := s.getPageNew(nil, pagePaths[i])
-		require.NotNil(b, page)
+		c.Assert(page, qt.Not(qt.IsNil))
 	}
 }
 
@@ -105,27 +106,28 @@ type testCase struct {
 	expectedTitle string
 }
 
-func (t *testCase) check(p page.Page, err error, errorMsg string, assert *require.Assertions) {
+func (t *testCase) check(p page.Page, err error, errorMsg string, c *qt.C) {
+	errorComment := qt.Commentf(errorMsg)
 	switch t.kind {
 	case "Ambiguous":
-		assert.Error(err)
-		assert.Nil(p, errorMsg)
+		c.Assert(err, qt.Not(qt.IsNil))
+		c.Assert(p, qt.IsNil, errorComment)
 	case "NoPage":
-		assert.NoError(err)
-		assert.Nil(p, errorMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(p, qt.IsNil, errorComment)
 	default:
-		assert.NoError(err, errorMsg)
-		assert.NotNil(p, errorMsg)
-		assert.Equal(t.kind, p.Kind(), errorMsg)
-		assert.Equal(t.expectedTitle, p.Title(), errorMsg)
+		c.Assert(err, qt.IsNil, errorComment)
+		c.Assert(p, qt.Not(qt.IsNil), errorComment)
+		c.Assert(p.Kind(), qt.Equals, t.kind, errorComment)
+		c.Assert(p.Title(), qt.Equals, t.expectedTitle, errorComment)
 	}
 }
 
 func TestGetPage(t *testing.T) {
 
 	var (
-		assert  = require.New(t)
 		cfg, fs = newTestCfg()
+		c       = qt.New(t)
 	)
 
 	for i := 0; i < 10; i++ {
@@ -156,8 +158,8 @@ func TestGetPage(t *testing.T) {
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
 	sec3, err := s.getPageNew(nil, "/sect3")
-	assert.NoError(err, "error getting Page for /sec3")
-	assert.NotNil(sec3, "failed to get Page for /sec3")
+	c.Assert(err, qt.IsNil)
+	c.Assert(sec3, qt.Not(qt.IsNil))
 
 	tests := []testCase{
 		// legacy content root relative paths
@@ -227,7 +229,7 @@ func TestGetPage(t *testing.T) {
 		if test.context == nil {
 			args := append([]string{test.kind}, test.path...)
 			page, err := s.Info.GetPage(args...)
-			test.check(page, err, errorMsg, assert)
+			test.check(page, err, errorMsg, c)
 		}
 
 		// test new internal Site.getPageNew
@@ -238,7 +240,7 @@ func TestGetPage(t *testing.T) {
 			ref = path.Join(test.path...)
 		}
 		page2, err := s.getPageNew(test.context, ref)
-		test.check(page2, err, errorMsg, assert)
+		test.check(page2, err, errorMsg, c)
 	}
 
 }

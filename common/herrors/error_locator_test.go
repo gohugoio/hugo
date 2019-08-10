@@ -18,11 +18,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestErrorLocator(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	lineMatcher := func(m LineMatcher) bool {
 		return strings.Contains(m.Line, "THEONE")
@@ -39,45 +39,45 @@ LINE 8
 `
 
 	location := locateErrorInString(lines, lineMatcher)
-	assert.Equal([]string{"LINE 3", "LINE 4", "This is THEONE", "LINE 6", "LINE 7"}, location.Lines)
+	c.Assert(location.Lines, qt.DeepEquals, []string{"LINE 3", "LINE 4", "This is THEONE", "LINE 6", "LINE 7"})
 
 	pos := location.Position()
-	assert.Equal(5, pos.LineNumber)
-	assert.Equal(2, location.LinesPos)
+	c.Assert(pos.LineNumber, qt.Equals, 5)
+	c.Assert(location.LinesPos, qt.Equals, 2)
 
-	assert.Equal([]string{"This is THEONE"}, locateErrorInString(`This is THEONE`, lineMatcher).Lines)
+	c.Assert(locateErrorInString(`This is THEONE`, lineMatcher).Lines, qt.DeepEquals, []string{"This is THEONE"})
 
 	location = locateErrorInString(`L1
 This is THEONE
 L2
 `, lineMatcher)
-	assert.Equal(2, location.Position().LineNumber)
-	assert.Equal(1, location.LinesPos)
-	assert.Equal([]string{"L1", "This is THEONE", "L2", ""}, location.Lines)
+	c.Assert(location.Position().LineNumber, qt.Equals, 2)
+	c.Assert(location.LinesPos, qt.Equals, 1)
+	c.Assert(location.Lines, qt.DeepEquals, []string{"L1", "This is THEONE", "L2", ""})
 
 	location = locateErrorInString(`This is THEONE
 L2
 `, lineMatcher)
-	assert.Equal(0, location.LinesPos)
-	assert.Equal([]string{"This is THEONE", "L2", ""}, location.Lines)
+	c.Assert(location.LinesPos, qt.Equals, 0)
+	c.Assert(location.Lines, qt.DeepEquals, []string{"This is THEONE", "L2", ""})
 
 	location = locateErrorInString(`L1
 This THEONE
 `, lineMatcher)
-	assert.Equal([]string{"L1", "This THEONE", ""}, location.Lines)
-	assert.Equal(1, location.LinesPos)
+	c.Assert(location.Lines, qt.DeepEquals, []string{"L1", "This THEONE", ""})
+	c.Assert(location.LinesPos, qt.Equals, 1)
 
 	location = locateErrorInString(`L1
 L2
 This THEONE
 `, lineMatcher)
-	assert.Equal([]string{"L1", "L2", "This THEONE", ""}, location.Lines)
-	assert.Equal(2, location.LinesPos)
+	c.Assert(location.Lines, qt.DeepEquals, []string{"L1", "L2", "This THEONE", ""})
+	c.Assert(location.LinesPos, qt.Equals, 2)
 
 	location = locateErrorInString("NO MATCH", lineMatcher)
-	assert.Equal(-1, location.Position().LineNumber)
-	assert.Equal(-1, location.LinesPos)
-	assert.Equal(0, len(location.Lines))
+	c.Assert(location.Position().LineNumber, qt.Equals, -1)
+	c.Assert(location.LinesPos, qt.Equals, -1)
+	c.Assert(len(location.Lines), qt.Equals, 0)
 
 	lineMatcher = func(m LineMatcher) bool {
 		return m.LineNumber == 6
@@ -94,9 +94,9 @@ H
 I
 J`, lineMatcher)
 
-	assert.Equal([]string{"D", "E", "F", "G", "H"}, location.Lines)
-	assert.Equal(6, location.Position().LineNumber)
-	assert.Equal(2, location.LinesPos)
+	c.Assert(location.Lines, qt.DeepEquals, []string{"D", "E", "F", "G", "H"})
+	c.Assert(location.Position().LineNumber, qt.Equals, 6)
+	c.Assert(location.LinesPos, qt.Equals, 2)
 
 	// Test match EOF
 	lineMatcher = func(m LineMatcher) bool {
@@ -108,9 +108,9 @@ B
 C
 `, lineMatcher)
 
-	assert.Equal([]string{"B", "C", ""}, location.Lines)
-	assert.Equal(4, location.Position().LineNumber)
-	assert.Equal(2, location.LinesPos)
+	c.Assert(location.Lines, qt.DeepEquals, []string{"B", "C", ""})
+	c.Assert(location.Position().LineNumber, qt.Equals, 4)
+	c.Assert(location.LinesPos, qt.Equals, 2)
 
 	offsetMatcher := func(m LineMatcher) bool {
 		return m.Offset == 1
@@ -122,8 +122,8 @@ C
 D
 E`, offsetMatcher)
 
-	assert.Equal([]string{"A", "B", "C", "D"}, location.Lines)
-	assert.Equal(2, location.Position().LineNumber)
-	assert.Equal(1, location.LinesPos)
+	c.Assert(location.Lines, qt.DeepEquals, []string{"A", "B", "C", "D"})
+	c.Assert(location.Position().LineNumber, qt.Equals, 2)
+	c.Assert(location.LinesPos, qt.Equals, 1)
 
 }

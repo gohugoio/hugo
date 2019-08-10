@@ -26,9 +26,9 @@ import (
 
 	"github.com/gohugoio/hugo/common/loggers"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
-	"github.com/stretchr/testify/require"
 )
 
 func TestPagesCapture(t *testing.T) {
@@ -36,10 +36,10 @@ func TestPagesCapture(t *testing.T) {
 	cfg, hfs := newTestCfg()
 	fs := hfs.Source
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	var writeFile = func(filename string) {
-		assert.NoError(afero.WriteFile(fs, filepath.FromSlash(filename), []byte(fmt.Sprintf("content-%s", filename)), 0755))
+		c.Assert(afero.WriteFile(fs, filepath.FromSlash(filename), []byte(fmt.Sprintf("content-%s", filename)), 0755), qt.IsNil)
 	}
 
 	writeFile("_index.md")
@@ -53,22 +53,22 @@ func TestPagesCapture(t *testing.T) {
 	writeFile("pages/page.png")
 
 	ps, err := helpers.NewPathSpec(hugofs.NewFrom(fs, cfg), cfg, loggers.NewErrorLogger())
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	sourceSpec := source.NewSourceSpec(ps, fs)
 
 	t.Run("Collect", func(t *testing.T) {
-		assert := require.New(t)
+		c := qt.New(t)
 		proc := &testPagesCollectorProcessor{}
-		c := newPagesCollector(sourceSpec, loggers.NewErrorLogger(), nil, proc)
-		assert.NoError(c.Collect())
-		assert.Equal(4, len(proc.items))
+		coll := newPagesCollector(sourceSpec, loggers.NewErrorLogger(), nil, proc)
+		c.Assert(coll.Collect(), qt.IsNil)
+		c.Assert(len(proc.items), qt.Equals, 4)
 	})
 
 	t.Run("error in Wait", func(t *testing.T) {
-		assert := require.New(t)
-		c := newPagesCollector(sourceSpec, loggers.NewErrorLogger(), nil,
+		c := qt.New(t)
+		coll := newPagesCollector(sourceSpec, loggers.NewErrorLogger(), nil,
 			&testPagesCollectorProcessor{waitErr: errors.New("failed")})
-		assert.Error(c.Collect())
+		c.Assert(coll.Collect(), qt.Not(qt.IsNil))
 	})
 }
 

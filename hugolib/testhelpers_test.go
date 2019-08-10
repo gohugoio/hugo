@@ -8,7 +8,10 @@ import (
 	"testing"
 	"unicode/utf8"
 
+	"github.com/gohugoio/hugo/output"
+
 	"github.com/gohugoio/hugo/parser/metadecoders"
+	"github.com/google/go-cmp/cmp"
 
 	"github.com/gohugoio/hugo/parser"
 	"github.com/pkg/errors"
@@ -36,10 +39,16 @@ import (
 
 	"github.com/gohugoio/hugo/resources/resource"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+)
+
+var (
+	deepEqualsPages         = qt.CmpEquals(cmp.Comparer(func(p1, p2 *pageState) bool { return p1 == p2 }))
+	deepEqualsOutputFormats = qt.CmpEquals(cmp.Comparer(func(o1, o2 output.Format) bool {
+		return o1.Name == o2.Name && o1.MediaType.Type() == o2.MediaType.Type()
+	}))
 )
 
 type sitesBuilder struct {
@@ -50,7 +59,7 @@ type sitesBuilder struct {
 	T       testing.TB
 	depsCfg deps.DepsCfg
 
-	*require.Assertions
+	*qt.C
 
 	logger *loggers.Logger
 
@@ -101,11 +110,11 @@ func newTestSitesBuilder(t testing.TB) *sitesBuilder {
 		Separator:         " ",
 	}
 
-	return &sitesBuilder{T: t, Assertions: require.New(t), Fs: fs, configFormat: "toml", dumper: litterOptions}
+	return &sitesBuilder{T: t, C: qt.New(t), Fs: fs, configFormat: "toml", dumper: litterOptions}
 }
 
 func newTestSitesBuilderFromDepsCfg(t testing.TB, d deps.DepsCfg) *sitesBuilder {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	litterOptions := litter.Options{
 		HidePrivateFields: true,
@@ -113,7 +122,7 @@ func newTestSitesBuilderFromDepsCfg(t testing.TB, d deps.DepsCfg) *sitesBuilder 
 		Separator:         " ",
 	}
 
-	b := &sitesBuilder{T: t, Assertions: assert, depsCfg: d, Fs: d.Fs, dumper: litterOptions}
+	b := &sitesBuilder{T: t, C: c, depsCfg: d, Fs: d.Fs, dumper: litterOptions}
 	workingDir := d.Cfg.GetString("workingDir")
 
 	b.WithWorkingDir(workingDir)
@@ -177,7 +186,7 @@ func (s *sitesBuilder) WithViper(v *viper.Viper) *sitesBuilder {
 	// Write to a config file to make sure the tests follow the same code path.
 	var buff bytes.Buffer
 	m := v.AllSettings()
-	s.Assertions.NoError(parser.InterfaceToConfig(m, metadecoders.TOML, &buff))
+	s.Assert(parser.InterfaceToConfig(m, metadecoders.TOML, &buff), qt.IsNil)
 	return s.WithConfigFile("toml", buff.String())
 }
 
@@ -323,13 +332,13 @@ lag = "lag"
 func (s *sitesBuilder) WithSunset(in string) {
 	// Write a real image into one of the bundle above.
 	src, err := os.Open(filepath.FromSlash("testdata/sunset.jpg"))
-	s.NoError(err)
+	s.Assert(err, qt.IsNil)
 
 	out, err := s.Fs.Source.Create(filepath.FromSlash(in))
-	s.NoError(err)
+	s.Assert(err, qt.IsNil)
 
 	_, err = io.Copy(out, src)
-	s.NoError(err)
+	s.Assert(err, qt.IsNil)
 
 	out.Close()
 	src.Close()
@@ -630,10 +639,6 @@ func (s *sitesBuilder) Fatalf(format string, args ...interface{}) {
 	s.T.Fatalf(format, args...)
 }
 
-func stackTrace() string {
-	return strings.Join(assert.CallerInfo(), "\n\r\t\t\t")
-}
-
 func (s *sitesBuilder) AssertFileContentFn(filename string, f func(s string) bool) {
 	s.T.Helper()
 	content := s.FileContent(filename)
@@ -698,36 +703,44 @@ func (s *sitesBuilder) CheckExists(filename string) bool {
 	return destinationExists(s.Fs, filepath.Clean(filename))
 }
 
+func newTestHelper(cfg config.Provider, fs *hugofs.Fs, t testing.TB) testHelper {
+	return testHelper{
+		Cfg: cfg,
+		Fs:  fs,
+		C:   qt.New(t),
+	}
+}
+
 type testHelper struct {
 	Cfg config.Provider
 	Fs  *hugofs.Fs
-	T   testing.TB
+	*qt.C
 }
 
 func (th testHelper) assertFileContent(filename string, matches ...string) {
-	th.T.Helper()
+	th.Helper()
 	filename = th.replaceDefaultContentLanguageValue(filename)
-	content := readDestination(th.T, th.Fs, filename)
+	content := readDestination(th, th.Fs, filename)
 	for _, match := range matches {
 		match = th.replaceDefaultContentLanguageValue(match)
-		require.True(th.T, strings.Contains(content, match), fmt.Sprintf("File no match for\n%q in\n%q:\n%s", strings.Replace(match, "%", "%%", -1), filename, strings.Replace(content, "%", "%%", -1)))
+		th.Assert(strings.Contains(content, match), qt.Equals, true)
 	}
 }
 
 func (th testHelper) assertFileContentRegexp(filename string, matches ...string) {
 	filename = th.replaceDefaultContentLanguageValue(filename)
-	content := readDestination(th.T, th.Fs, filename)
+	content := readDestination(th, th.Fs, filename)
 	for _, match := range matches {
 		match = th.replaceDefaultContentLanguageValue(match)
 		r := regexp.MustCompile(match)
-		require.True(th.T, r.MatchString(content), fmt.Sprintf("File no match for\n%q in\n%q:\n%s", strings.Replace(match, "%", "%%", -1), filename, strings.Replace(content, "%", "%%", -1)))
+		th.Assert(r.MatchString(content), qt.Equals, true)
 	}
 }
 
 func (th testHelper) assertFileNotExist(filename string) {
 	exists, err := helpers.Exists(filename, th.Fs.Destination)
-	require.NoError(th.T, err)
-	require.False(th.T, exists)
+	th.Assert(err, qt.IsNil)
+	th.Assert(exists, qt.Equals, false)
 }
 
 func (th testHelper) replaceDefaultContentLanguageValue(value string) string {
@@ -786,14 +799,16 @@ func newTestSitesFromConfig(t testing.TB, afs afero.Fs, tomlConfig string, layou
 		t.Fatalf("Layouts must be provided in pairs")
 	}
 
+	c := qt.New(t)
+
 	writeToFs(t, afs, filepath.Join("content", ".gitkeep"), "")
 	writeToFs(t, afs, "config.toml", tomlConfig)
 
 	cfg, err := LoadConfigDefault(afs)
-	require.NoError(t, err)
+	c.Assert(err, qt.IsNil)
 
 	fs := hugofs.NewFrom(afs, cfg)
-	th := testHelper{cfg, fs, t}
+	th := newTestHelper(cfg, fs, t)
 
 	for i := 0; i < len(layoutPathContentPairs); i += 2 {
 		writeSource(t, fs, layoutPathContentPairs[i], layoutPathContentPairs[i+1])
@@ -801,7 +816,7 @@ func newTestSitesFromConfig(t testing.TB, afs afero.Fs, tomlConfig string, layou
 
 	h, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
 
-	require.NoError(t, err)
+	c.Assert(err, qt.IsNil)
 
 	return th, h
 }
@@ -821,6 +836,7 @@ func createWithTemplateFromNameValues(additionalTemplates ...string) func(templ 
 
 // TODO(bep) replace these with the builder
 func buildSingleSite(t testing.TB, depsCfg deps.DepsCfg, buildCfg BuildCfg) *Site {
+	t.Helper()
 	return buildSingleSiteExpected(t, false, false, depsCfg, buildCfg)
 }
 
@@ -831,23 +847,23 @@ func buildSingleSiteExpected(t testing.TB, expectSiteInitEror, expectBuildError 
 	err := b.CreateSitesE()
 
 	if expectSiteInitEror {
-		require.Error(t, err)
+		b.Assert(err, qt.Not(qt.IsNil))
 		return nil
 	} else {
-		require.NoError(t, err)
+		b.Assert(err, qt.IsNil)
 	}
 
 	h := b.H
 
-	require.Len(t, h.Sites, 1)
+	b.Assert(len(h.Sites), qt.Equals, 1)
 
 	if expectBuildError {
-		require.Error(t, h.Build(buildCfg))
+		b.Assert(h.Build(buildCfg), qt.Not(qt.IsNil))
 		return nil
 
 	}
 
-	require.NoError(t, h.Build(buildCfg))
+	b.Assert(h.Build(buildCfg), qt.IsNil)
 
 	return h.Sites[0]
 }

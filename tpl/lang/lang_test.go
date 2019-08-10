@@ -1,16 +1,15 @@
 package lang
 
 import (
-	"fmt"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestNumFormat(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	ns := New(&deps.Deps{})
 
@@ -41,23 +40,21 @@ func TestNumFormat(t *testing.T) {
 		{6, -12345.6789, "‏-|٫| ", "|", "‏-12 345٫678900"},
 	}
 
-	for i, c := range cases {
-		errMsg := fmt.Sprintf("[%d] %v", i, c)
-
+	for _, cas := range cases {
 		var s string
 		var err error
 
-		if len(c.runes) == 0 {
-			s, err = ns.NumFmt(c.prec, c.n)
+		if len(cas.runes) == 0 {
+			s, err = ns.NumFmt(cas.prec, cas.n)
 		} else {
-			if c.delim == "" {
-				s, err = ns.NumFmt(c.prec, c.n, c.runes)
+			if cas.delim == "" {
+				s, err = ns.NumFmt(cas.prec, cas.n, cas.runes)
 			} else {
-				s, err = ns.NumFmt(c.prec, c.n, c.runes, c.delim)
+				s, err = ns.NumFmt(cas.prec, cas.n, cas.runes, cas.delim)
 			}
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, c.want, s, errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(s, qt.Equals, cas.want)
 	}
 }

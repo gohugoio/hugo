@@ -14,20 +14,19 @@
 package modules
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/gohugoio/hugo/common/hugo"
 
 	"github.com/gohugoio/hugo/config"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestConfigHugoVersionIsValid(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		in     HugoVersion
 		expect bool
 	}{
@@ -36,12 +35,12 @@ func TestConfigHugoVersionIsValid(t *testing.T) {
 		{HugoVersion{Min: "0.33.0", Max: "0.55.0"}, false},
 		{HugoVersion{Min: "0.33.0", Max: "0.99.0"}, true},
 	} {
-		assert.Equal(test.expect, test.in.IsValid(), fmt.Sprintf("test %d", i))
+		c.Assert(test.in.IsValid(), qt.Equals, test.expect)
 	}
 }
 
 func TestDecodeConfig(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	tomlConfig := `
 [module]
 
@@ -65,35 +64,35 @@ target="content/blog"
 lang="en"
 `
 	cfg, err := config.FromConfigString(tomlConfig, "toml")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	mcfg, err := DecodeConfig(cfg)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	v056 := hugo.VersionString("0.56.0")
 
 	hv := mcfg.HugoVersion
 
-	assert.Equal(-1, v056.Compare(hv.Min))
-	assert.Equal(1, v056.Compare(hv.Max))
-	assert.True(hv.Extended)
+	c.Assert(v056.Compare(hv.Min), qt.Equals, -1)
+	c.Assert(v056.Compare(hv.Max), qt.Equals, 1)
+	c.Assert(hv.Extended, qt.Equals, true)
 
 	if hugo.IsExtended {
-		assert.True(hv.IsValid())
+		c.Assert(hv.IsValid(), qt.Equals, true)
 	}
 
-	assert.Len(mcfg.Mounts, 1)
-	assert.Len(mcfg.Imports, 1)
+	c.Assert(len(mcfg.Mounts), qt.Equals, 1)
+	c.Assert(len(mcfg.Imports), qt.Equals, 1)
 	imp := mcfg.Imports[0]
 	imp.Path = "github.com/bep/mycomponent"
-	assert.Equal("src/markdown/blog", imp.Mounts[1].Source)
-	assert.Equal("content/blog", imp.Mounts[1].Target)
-	assert.Equal("en", imp.Mounts[1].Lang)
+	c.Assert(imp.Mounts[1].Source, qt.Equals, "src/markdown/blog")
+	c.Assert(imp.Mounts[1].Target, qt.Equals, "content/blog")
+	c.Assert(imp.Mounts[1].Lang, qt.Equals, "en")
 
 }
 
 func TestDecodeConfigBothOldAndNewProvided(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	tomlConfig := `
 
 theme = ["b", "c"]
@@ -104,29 +103,29 @@ path="a"
 
 `
 	cfg, err := config.FromConfigString(tomlConfig, "toml")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	modCfg, err := DecodeConfig(cfg)
-	assert.NoError(err)
-	assert.Len(modCfg.Imports, 3)
-	assert.Equal("a", modCfg.Imports[0].Path)
+	c.Assert(err, qt.IsNil)
+	c.Assert(len(modCfg.Imports), qt.Equals, 3)
+	c.Assert(modCfg.Imports[0].Path, qt.Equals, "a")
 
 }
 
 // Test old style theme import.
 func TestDecodeConfigTheme(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	tomlConfig := `
 
 theme = ["a", "b"]
 `
 	cfg, err := config.FromConfigString(tomlConfig, "toml")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	mcfg, err := DecodeConfig(cfg)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
-	assert.Len(mcfg.Imports, 2)
-	assert.Equal("a", mcfg.Imports[0].Path)
-	assert.Equal("b", mcfg.Imports[1].Path)
+	c.Assert(len(mcfg.Imports), qt.Equals, 2)
+	c.Assert(mcfg.Imports[0].Path, qt.Equals, "a")
+	c.Assert(mcfg.Imports[1].Path, qt.Equals, "b")
 }

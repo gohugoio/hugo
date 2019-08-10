@@ -16,14 +16,17 @@ package hugo
 import (
 	"testing"
 
+	"github.com/gohugoio/hugo/htesting/hqt"
+
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/tpl/internal"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/require"
 )
 
 func TestInit(t *testing.T) {
+	c := qt.New(t)
 	var found bool
 	var ns *internal.TemplateFuncsNamespace
 	v := viper.New()
@@ -38,6 +41,6 @@ func TestInit(t *testing.T) {
 		}
 	}
 
-	require.True(t, found)
-	require.IsType(t, s.Hugo(), ns.Context())
+	c.Assert(found, qt.Equals, true)
+	c.Assert(ns.Context(), hqt.IsSameType, s.Hugo())
 }

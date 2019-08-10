@@ -17,36 +17,36 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestEvictingStringQueue(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	queue := NewEvictingStringQueue(3)
 
-	assert.Equal("", queue.Peek())
+	c.Assert(queue.Peek(), qt.Equals, "")
 	queue.Add("a")
 	queue.Add("b")
 	queue.Add("a")
-	assert.Equal("b", queue.Peek())
+	c.Assert(queue.Peek(), qt.Equals, "b")
 	queue.Add("b")
-	assert.Equal("b", queue.Peek())
+	c.Assert(queue.Peek(), qt.Equals, "b")
 
 	queue.Add("a")
 	queue.Add("b")
 
-	assert.True(queue.Contains("a"))
-	assert.False(queue.Contains("foo"))
+	c.Assert(queue.Contains("a"), qt.Equals, true)
+	c.Assert(queue.Contains("foo"), qt.Equals, false)
 
-	assert.Equal([]string{"b", "a"}, queue.PeekAll())
-	assert.Equal("b", queue.Peek())
+	c.Assert(queue.PeekAll(), qt.DeepEquals, []string{"b", "a"})
+	c.Assert(queue.Peek(), qt.Equals, "b")
 	queue.Add("c")
 	queue.Add("d")
 	// Overflowed, a should now be removed.
-	assert.Equal([]string{"d", "c", "b"}, queue.PeekAll())
-	assert.Len(queue.PeekAllSet(), 3)
-	assert.True(queue.PeekAllSet()["c"])
+	c.Assert(queue.PeekAll(), qt.DeepEquals, []string{"d", "c", "b"})
+	c.Assert(len(queue.PeekAllSet()), qt.Equals, 3)
+	c.Assert(queue.PeekAllSet()["c"], qt.Equals, true)
 }
 
 func TestEvictingStringQueueConcurrent(t *testing.T) {

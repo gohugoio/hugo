@@ -14,22 +14,21 @@
 package safe
 
 import (
-	"fmt"
 	"html/template"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 type tstNoStringer struct{}
 
 func TestCSS(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	ns := New()
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		a      interface{}
 		expect interface{}
 	}{
@@ -37,26 +36,26 @@ func TestCSS(t *testing.T) {
 		// errors
 		{tstNoStringer{}, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test)
 
 		result, err := ns.CSS(test.a)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
 	}
 }
 
 func TestHTML(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	ns := New()
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		a      interface{}
 		expect interface{}
 	}{
@@ -64,26 +63,26 @@ func TestHTML(t *testing.T) {
 		// errors
 		{tstNoStringer{}, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test)
 
 		result, err := ns.HTML(test.a)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
 	}
 }
 
 func TestHTMLAttr(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	ns := New()
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		a      interface{}
 		expect interface{}
 	}{
@@ -91,26 +90,25 @@ func TestHTMLAttr(t *testing.T) {
 		// errors
 		{tstNoStringer{}, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test)
-
 		result, err := ns.HTMLAttr(test.a)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
 	}
 }
 
 func TestJS(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	ns := New()
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		a      interface{}
 		expect interface{}
 	}{
@@ -118,26 +116,26 @@ func TestJS(t *testing.T) {
 		// errors
 		{tstNoStringer{}, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test)
 
 		result, err := ns.JS(test.a)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
 	}
 }
 
 func TestJSStr(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	ns := New()
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		a      interface{}
 		expect interface{}
 	}{
@@ -145,26 +143,26 @@ func TestJSStr(t *testing.T) {
 		// errors
 		{tstNoStringer{}, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test)
 
 		result, err := ns.JSStr(test.a)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
 	}
 }
 
 func TestURL(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	ns := New()
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		a      interface{}
 		expect interface{}
 	}{
@@ -172,26 +170,26 @@ func TestURL(t *testing.T) {
 		// errors
 		{tstNoStringer{}, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test)
 
 		result, err := ns.URL(test.a)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
 	}
 }
 
 func TestSanitizeURL(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	ns := New()
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		a      interface{}
 		expect interface{}
 	}{
@@ -199,16 +197,15 @@ func TestSanitizeURL(t *testing.T) {
 		// errors
 		{tstNoStringer{}, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test)
 
 		result, err := ns.SanitizeURL(test.a)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
 	}
 }

@@ -14,12 +14,11 @@
 package transform
 
 import (
-	"fmt"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/require"
 )
 
 func TestRemarshal(t *testing.T) {
@@ -28,7 +27,7 @@ func TestRemarshal(t *testing.T) {
 	v := viper.New()
 	v.Set("contentDir", "content")
 	ns := New(newDeps(v))
-	assert := require.New(t)
+	c := qt.New(t)
 
 	tomlExample := `title = "Test Metadata"
 		
@@ -96,10 +95,10 @@ title: Test Metadata
 	for _, v1 := range variants {
 		for _, v2 := range variants {
 			// Both from and to may be the same here, but that is fine.
-			fromTo := fmt.Sprintf("%s => %s", v2.format, v1.format)
+			fromTo := qt.Commentf("%s => %s", v2.format, v1.format)
 
 			converted, err := ns.Remarshal(v1.format, v2.data)
-			assert.NoError(err, fromTo)
+			c.Assert(err, qt.IsNil, fromTo)
 			diff := helpers.DiffStrings(v1.data, converted)
 			if len(diff) > 0 {
 				t.Errorf("[%s] Expected \n%v\ngot\n%v\ndiff:\n%v", fromTo, v1.data, converted, diff)
@@ -117,7 +116,7 @@ func TestRemarshalComments(t *testing.T) {
 	v.Set("contentDir", "content")
 	ns := New(newDeps(v))
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	input := `
 Hugo = "Rules"
@@ -138,14 +137,14 @@ Hugo = "Rules"
 `
 
 	for _, format := range []string{"json", "yaml", "toml"} {
-		fromTo := fmt.Sprintf("%s => %s", "toml", format)
+		fromTo := qt.Commentf("%s => %s", "toml", format)
 
 		converted := input
 		var err error
 		// Do a round-trip conversion
 		for _, toFormat := range []string{format, "toml"} {
 			converted, err = ns.Remarshal(toFormat, converted)
-			assert.NoError(err, fromTo)
+			c.Assert(err, qt.IsNil, fromTo)
 		}
 
 		diff := helpers.DiffStrings(expected, converted)
@@ -161,12 +160,12 @@ func TestTestRemarshalError(t *testing.T) {
 	v := viper.New()
 	v.Set("contentDir", "content")
 	ns := New(newDeps(v))
-	assert := require.New(t)
+	c := qt.New(t)
 
 	_, err := ns.Remarshal("asdf", "asdf")
-	assert.Error(err)
+	c.Assert(err, qt.Not(qt.IsNil))
 
 	_, err = ns.Remarshal("json", "asdf")
-	assert.Error(err)
+	c.Assert(err, qt.Not(qt.IsNil))
 
 }

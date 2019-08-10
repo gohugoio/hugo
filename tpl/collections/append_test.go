@@ -14,17 +14,17 @@
 package collections
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
-	"github.com/stretchr/testify/require"
 )
 
 // Also see tests in common/collection.
 func TestAppend(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	ns := New(&deps.Deps{})
 
@@ -45,18 +45,18 @@ func TestAppend(t *testing.T) {
 			false},
 	} {
 
-		errMsg := fmt.Sprintf("[%d]", i)
+		errMsg := qt.Commentf("[%d]", i)
 
 		args := append(test.addend, test.start)
 
 		result, err := ns.Append(args...)
 
 		if b, ok := test.expected.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil), errMsg)
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
+		c.Assert(err, qt.IsNil, errMsg)
 
 		if !reflect.DeepEqual(test.expected, result) {
 			t.Fatalf("%s got\n%T: %v\nexpected\n%T: %v", errMsg, result, result, test.expected, test.expected)

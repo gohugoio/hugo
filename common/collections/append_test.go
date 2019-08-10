@@ -14,17 +14,16 @@
 package collections
 
 import (
-	"fmt"
-	"reflect"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestAppend(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		start    interface{}
 		addend   []interface{}
 		expected interface{}
@@ -59,20 +58,16 @@ func TestAppend(t *testing.T) {
 			false},
 	} {
 
-		errMsg := fmt.Sprintf("[%d]", i)
-
 		result, err := Append(test.start, test.addend...)
 
 		if b, ok := test.expected.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-
-		if !reflect.DeepEqual(test.expected, result) {
-			t.Fatalf("%s got\n%T: %v\nexpected\n%T: %v", errMsg, result, result, test.expected, test.expected)
-		}
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.DeepEquals, test.expected)
 	}
 
 }

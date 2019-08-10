@@ -17,33 +17,33 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestIsContentFile(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
-	assert.True(IsContentFile(filepath.FromSlash("my/file.md")))
-	assert.True(IsContentFile(filepath.FromSlash("my/file.ad")))
-	assert.False(IsContentFile(filepath.FromSlash("textfile.txt")))
-	assert.True(IsContentExt("md"))
-	assert.False(IsContentExt("json"))
+	c.Assert(IsContentFile(filepath.FromSlash("my/file.md")), qt.Equals, true)
+	c.Assert(IsContentFile(filepath.FromSlash("my/file.ad")), qt.Equals, true)
+	c.Assert(IsContentFile(filepath.FromSlash("textfile.txt")), qt.Equals, false)
+	c.Assert(IsContentExt("md"), qt.Equals, true)
+	c.Assert(IsContentExt("json"), qt.Equals, false)
 }
 
 func TestComponentFolders(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	// It's important that these are absolutely right and not changed.
-	assert.Equal(len(ComponentFolders), len(componentFoldersSet))
-	assert.True(IsComponentFolder("archetypes"))
-	assert.True(IsComponentFolder("layouts"))
-	assert.True(IsComponentFolder("data"))
-	assert.True(IsComponentFolder("i18n"))
-	assert.True(IsComponentFolder("assets"))
-	assert.False(IsComponentFolder("resources"))
-	assert.True(IsComponentFolder("static"))
-	assert.True(IsComponentFolder("content"))
-	assert.False(IsComponentFolder("foo"))
-	assert.False(IsComponentFolder(""))
+	c.Assert(len(componentFoldersSet), qt.Equals, len(ComponentFolders))
+	c.Assert(IsComponentFolder("archetypes"), qt.Equals, true)
+	c.Assert(IsComponentFolder("layouts"), qt.Equals, true)
+	c.Assert(IsComponentFolder("data"), qt.Equals, true)
+	c.Assert(IsComponentFolder("i18n"), qt.Equals, true)
+	c.Assert(IsComponentFolder("assets"), qt.Equals, true)
+	c.Assert(IsComponentFolder("resources"), qt.Equals, false)
+	c.Assert(IsComponentFolder("static"), qt.Equals, true)
+	c.Assert(IsComponentFolder("content"), qt.Equals, true)
+	c.Assert(IsComponentFolder("foo"), qt.Equals, false)
+	c.Assert(IsComponentFolder(""), qt.Equals, false)
 
 }

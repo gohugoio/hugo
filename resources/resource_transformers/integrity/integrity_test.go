@@ -16,7 +16,7 @@ package integrity
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestHashFromAlgo(t *testing.T) {
@@ -33,14 +33,14 @@ func TestHashFromAlgo(t *testing.T) {
 	} {
 
 		t.Run(algo.name, func(t *testing.T) {
-			assert := require.New(t)
+			c := qt.New(t)
 			h, err := newHash(algo.name)
 			if algo.bits > 0 {
-				assert.NoError(err)
-				assert.Equal(algo.bits/8, h.Size())
+				c.Assert(err, qt.IsNil)
+				c.Assert(h.Size(), qt.Equals, algo.bits/8)
 			} else {
-				assert.Error(err)
-				assert.Contains(err.Error(), "use either md5, sha256, sha384 or sha512")
+				c.Assert(err, qt.Not(qt.IsNil))
+				c.Assert(err.Error(), qt.Contains, "use either md5, sha256, sha384 or sha512")
 			}
 
 		})

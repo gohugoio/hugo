@@ -16,7 +16,7 @@ package hugolib
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 // Just some simple test of the embedded templates to avoid
@@ -25,8 +25,8 @@ import (
 func _TestEmbeddedTemplates(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
-	assert.True(true)
+	c := qt.New(t)
+	c.Assert(true, qt.Equals, true)
 
 	home := []string{"index.html", `
 GA:

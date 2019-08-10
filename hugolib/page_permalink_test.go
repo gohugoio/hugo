@@ -19,7 +19,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 
 	"github.com/gohugoio/hugo/deps"
 )
@@ -66,6 +66,7 @@ func TestPermalink(t *testing.T) {
 		test := test
 		t.Run(fmt.Sprintf("%s-%d", test.file, i), func(t *testing.T) {
 			t.Parallel()
+			c := qt.New(t)
 			cfg, fs := newTestCfg()
 
 			cfg.Set("uglyURLs", test.uglyURLs)
@@ -84,7 +85,7 @@ Content
 			writeSource(t, fs, filepath.Join("content", filepath.FromSlash(test.file)), pageContent)
 
 			s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
-			require.Len(t, s.RegularPages(), 1)
+			c.Assert(len(s.RegularPages()), qt.Equals, 1)
 
 			p := s.RegularPages()[0]
 

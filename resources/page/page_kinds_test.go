@@ -16,22 +16,23 @@ package page
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestKind(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 	// Add tests for these constants to make sure they don't change
-	require.Equal(t, "page", KindPage)
-	require.Equal(t, "home", KindHome)
-	require.Equal(t, "section", KindSection)
-	require.Equal(t, "taxonomy", KindTaxonomy)
-	require.Equal(t, "taxonomyTerm", KindTaxonomyTerm)
+	c.Assert(KindPage, qt.Equals, "page")
+	c.Assert(KindHome, qt.Equals, "home")
+	c.Assert(KindSection, qt.Equals, "section")
+	c.Assert(KindTaxonomy, qt.Equals, "taxonomy")
+	c.Assert(KindTaxonomyTerm, qt.Equals, "taxonomyTerm")
 
-	require.Equal(t, KindTaxonomyTerm, GetKind("TAXONOMYTERM"))
-	require.Equal(t, KindTaxonomy, GetKind("Taxonomy"))
-	require.Equal(t, KindPage, GetKind("Page"))
-	require.Equal(t, KindHome, GetKind("Home"))
-	require.Equal(t, KindSection, GetKind("SEction"))
+	c.Assert(GetKind("TAXONOMYTERM"), qt.Equals, KindTaxonomyTerm)
+	c.Assert(GetKind("Taxonomy"), qt.Equals, KindTaxonomy)
+	c.Assert(GetKind("Page"), qt.Equals, KindPage)
+	c.Assert(GetKind("Home"), qt.Equals, KindHome)
+	c.Assert(GetKind("SEction"), qt.Equals, KindSection)
 
 }

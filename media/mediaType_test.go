@@ -16,10 +16,16 @@ package media
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
+	"github.com/google/go-cmp/cmp"
 )
 
+var eq = qt.CmpEquals(cmp.Comparer(func(m1, m2 Type) bool {
+	return m1.Type() == m2.Type()
+}))
+
 func TestDefaultTypes(t *testing.T) {
+	c := qt.New(t)
 	for _, test := range []struct {
 		tp               Type
 		expectedMainType string
@@ -42,103 +48,107 @@ func TestDefaultTypes(t *testing.T) {
 		{TOMLType, "application", "toml", "toml", "application/toml", "application/toml"},
 		{YAMLType, "application", "yaml", "yaml", "application/yaml", "application/yaml"},
 	} {
-		require.Equal(t, test.expectedMainType, test.tp.MainType)
-		require.Equal(t, test.expectedSubType, test.tp.SubType)
-		require.Equal(t, test.expectedSuffix, test.tp.Suffix(), test.tp.String())
-		require.Equal(t, defaultDelimiter, test.tp.Delimiter)
+		c.Assert(test.tp.MainType, qt.Equals, test.expectedMainType)
+		c.Assert(test.tp.SubType, qt.Equals, test.expectedSubType)
+		c.Assert(test.tp.Suffix(), qt.Equals, test.expectedSuffix)
+		c.Assert(test.tp.Delimiter, qt.Equals, defaultDelimiter)
 
-		require.Equal(t, test.expectedType, test.tp.Type())
-		require.Equal(t, test.expectedString, test.tp.String())
+		c.Assert(test.tp.Type(), qt.Equals, test.expectedType)
+		c.Assert(test.tp.String(), qt.Equals, test.expectedString)
 
 	}
 
-	require.Equal(t, 17, len(DefaultTypes))
+	c.Assert(len(DefaultTypes), qt.Equals, 17)
 
 }
 
 func TestGetByType(t *testing.T) {
+	c := qt.New(t)
+
 	types := Types{HTMLType, RSSType}
 
 	mt, found := types.GetByType("text/HTML")
-	require.True(t, found)
-	require.Equal(t, mt, HTMLType)
+	c.Assert(found, qt.Equals, true)
+	c.Assert(HTMLType, eq, mt)
 
 	_, found = types.GetByType("text/nono")
-	require.False(t, found)
+	c.Assert(found, qt.Equals, false)
 
 	mt, found = types.GetByType("application/rss+xml")
-	require.True(t, found)
-	require.Equal(t, mt, RSSType)
+	c.Assert(found, qt.Equals, true)
+	c.Assert(RSSType, eq, mt)
 
 	mt, found = types.GetByType("application/rss")
-	require.True(t, found)
-	require.Equal(t, mt, RSSType)
+	c.Assert(found, qt.Equals, true)
+	c.Assert(RSSType, eq, mt)
 }
 
 func TestGetByMainSubType(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	f, found := DefaultTypes.GetByMainSubType("text", "plain")
-	assert.True(found)
-	assert.Equal(f, TextType)
+	c.Assert(found, qt.Equals, true)
+	c.Assert(TextType, eq, f)
 	_, found = DefaultTypes.GetByMainSubType("foo", "plain")
-	assert.False(found)
+	c.Assert(found, qt.Equals, false)
 }
 
 func TestBySuffix(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	formats := DefaultTypes.BySuffix("xml")
-	assert.Equal(2, len(formats))
-	assert.Equal("rss", formats[0].SubType)
-	assert.Equal("xml", formats[1].SubType)
+	c.Assert(len(formats), qt.Equals, 2)
+	c.Assert(formats[0].SubType, qt.Equals, "rss")
+	c.Assert(formats[1].SubType, qt.Equals, "xml")
 }
 
 func TestGetFirstBySuffix(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	f, found := DefaultTypes.GetFirstBySuffix("xml")
-	assert.True(found)
-	assert.Equal(Type{MainType: "application", SubType: "rss", mimeSuffix: "xml", Delimiter: ".", Suffixes: []string{"xml"}, fileSuffix: "xml"}, f)
+	c.Assert(found, qt.Equals, true)
+	c.Assert(f, eq, Type{MainType: "application", SubType: "rss", mimeSuffix: "xml", Delimiter: ".", Suffixes: []string{"xml"}, fileSuffix: "xml"})
 }
 
 func TestFromTypeString(t *testing.T) {
+	c := qt.New(t)
 	f, err := fromString("text/html")
-	require.NoError(t, err)
-	require.Equal(t, HTMLType.Type(), f.Type())
+	c.Assert(err, qt.IsNil)
+	c.Assert(f.Type(), eq, HTMLType.Type())
 
 	f, err = fromString("application/custom")
-	require.NoError(t, err)
-	require.Equal(t, Type{MainType: "application", SubType: "custom", mimeSuffix: "", fileSuffix: ""}, f)
+	c.Assert(err, qt.IsNil)
+	c.Assert(f, eq, Type{MainType: "application", SubType: "custom", mimeSuffix: "", fileSuffix: ""})
 
 	f, err = fromString("application/custom+sfx")
-	require.NoError(t, err)
-	require.Equal(t, Type{MainType: "application", SubType: "custom", mimeSuffix: "sfx"}, f)
+	c.Assert(err, qt.IsNil)
+	c.Assert(f, eq, Type{MainType: "application", SubType: "custom", mimeSuffix: "sfx"})
 
 	_, err = fromString("noslash")
-	require.Error(t, err)
+	c.Assert(err, qt.Not(qt.IsNil))
 
 	f, err = fromString("text/xml; charset=utf-8")
-	require.NoError(t, err)
-	require.Equal(t, Type{MainType: "text", SubType: "xml", mimeSuffix: ""}, f)
-	require.Equal(t, "", f.Suffix())
+	c.Assert(err, qt.IsNil)
+	c.Assert(f, eq, Type{MainType: "text", SubType: "xml", mimeSuffix: ""})
+	c.Assert(f.Suffix(), qt.Equals, "")
 }
 
 // Add a test for the SVG case
 // https://github.com/gohugoio/hugo/issues/4920
 func TestFromExtensionMultipleSuffixes(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	tp, found := DefaultTypes.GetBySuffix("svg")
-	assert.True(found)
-	assert.Equal("image/svg+xml", tp.String())
-	assert.Equal("svg", tp.fileSuffix)
-	assert.Equal(".svg", tp.FullSuffix())
+	c.Assert(found, qt.Equals, true)
+	c.Assert(tp.String(), qt.Equals, "image/svg+xml")
+	c.Assert(tp.fileSuffix, qt.Equals, "svg")
+	c.Assert(tp.FullSuffix(), qt.Equals, ".svg")
 	tp, found = DefaultTypes.GetByType("image/svg+xml")
-	assert.True(found)
-	assert.Equal("image/svg+xml", tp.String())
-	assert.True(found)
-	assert.Equal(".svg", tp.FullSuffix())
+	c.Assert(found, qt.Equals, true)
+	c.Assert(tp.String(), qt.Equals, "image/svg+xml")
+	c.Assert(found, qt.Equals, true)
+	c.Assert(tp.FullSuffix(), qt.Equals, ".svg")
 
 }
 
 func TestDecodeTypes(t *testing.T) {
+	c := qt.New(t)
 
 	var tests = []struct {
 		name        string
@@ -154,11 +164,11 @@ func TestDecodeTypes(t *testing.T) {
 						"suffixes": []string{"jasn"}}}},
 			false,
 			func(t *testing.T, name string, tt Types) {
-				require.Len(t, tt, len(DefaultTypes))
+				c.Assert(len(tt), qt.Equals, len(DefaultTypes))
 				json, found := tt.GetBySuffix("jasn")
-				require.True(t, found)
-				require.Equal(t, "application/json", json.String(), name)
-				require.Equal(t, ".jasn", json.FullSuffix())
+				c.Assert(found, qt.Equals, true)
+				c.Assert(json.String(), qt.Equals, "application/json")
+				c.Assert(json.FullSuffix(), qt.Equals, ".jasn")
 			}},
 		{
 			"MIME suffix in key, multiple file suffixes, custom delimiter",
@@ -170,16 +180,16 @@ func TestDecodeTypes(t *testing.T) {
 					}}},
 			false,
 			func(t *testing.T, name string, tt Types) {
-				require.Len(t, tt, len(DefaultTypes)+1)
+				c.Assert(len(tt), qt.Equals, len(DefaultTypes)+1)
 				hg, found := tt.GetBySuffix("hg2")
-				require.True(t, found)
-				require.Equal(t, "hg", hg.mimeSuffix)
-				require.Equal(t, "hg2", hg.Suffix())
-				require.Equal(t, "_hg2", hg.FullSuffix())
-				require.Equal(t, "application/hugo+hg", hg.String(), name)
+				c.Assert(found, qt.Equals, true)
+				c.Assert(hg.mimeSuffix, qt.Equals, "hg")
+				c.Assert(hg.Suffix(), qt.Equals, "hg2")
+				c.Assert(hg.FullSuffix(), qt.Equals, "_hg2")
+				c.Assert(hg.String(), qt.Equals, "application/hugo+hg")
 
 				hg, found = tt.GetByType("application/hugo+hg")
-				require.True(t, found)
+				c.Assert(found, qt.Equals, true)
 
 			}},
 		{
@@ -190,24 +200,24 @@ func TestDecodeTypes(t *testing.T) {
 						"Suffixes": []string{"hgo2"}}}},
 			false,
 			func(t *testing.T, name string, tt Types) {
-				require.Len(t, tt, len(DefaultTypes)+1)
+				c.Assert(len(tt), qt.Equals, len(DefaultTypes)+1)
 				// Make sure we have not broken the default config.
 
 				_, found := tt.GetBySuffix("json")
-				require.True(t, found)
+				c.Assert(found, qt.Equals, true)
 
 				hugo, found := tt.GetBySuffix("hgo2")
-				require.True(t, found)
-				require.Equal(t, "text/hugo+hgo", hugo.String(), name)
+				c.Assert(found, qt.Equals, true)
+				c.Assert(hugo.String(), qt.Equals, "text/hugo+hgo")
 			}},
 	}
 
 	for _, test := range tests {
 		result, err := DecodeTypes(test.maps...)
 		if test.shouldError {
-			require.Error(t, err, test.name)
+			c.Assert(err, qt.Not(qt.IsNil))
 		} else {
-			require.NoError(t, err, test.name)
+			c.Assert(err, qt.IsNil)
 			test.assert(t, test.name, result)
 		}
 	}

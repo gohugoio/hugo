@@ -16,17 +16,17 @@ package loggers
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestLogger(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	l := NewWarningLogger()
 
 	l.ERROR.Println("One error")
 	l.ERROR.Println("Two error")
 	l.WARN.Println("A warning")
 
-	assert.Equal(uint64(2), l.ErrorCounter.Count())
+	c.Assert(l.ErrorCounter.Count(), qt.Equals, uint64(2))
 
 }

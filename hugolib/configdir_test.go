@@ -19,15 +19,15 @@ import (
 
 	"github.com/gohugoio/hugo/common/herrors"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/spf13/afero"
-	"github.com/stretchr/testify/require"
 )
 
 func TestLoadConfigDir(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	configContent := `
 baseURL = "https://example.org"
@@ -107,29 +107,29 @@ p3 = "p3params_no_production"
 	fb.Build()
 
 	cfg, _, err := LoadConfig(ConfigSourceDescriptor{Fs: mm, Environment: "development", Filename: "hugo.toml", AbsConfigDir: "config"})
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
-	assert.Equal("pag_development", cfg.GetString("paginatePath")) // /config/development/config.toml
+	c.Assert(cfg.GetString("paginatePath"), qt.Equals, "pag_development") // /config/development/config.toml
 
-	assert.Equal(10, cfg.GetInt("languages.no.weight"))                          //  /config.toml
-	assert.Equal("Norsk_no_default", cfg.GetString("languages.no.languageName")) // /config/_default/languages.no.toml
+	c.Assert(cfg.GetInt("languages.no.weight"), qt.Equals, 10)                          //  /config.toml
+	c.Assert(cfg.GetString("languages.no.languageName"), qt.Equals, "Norsk_no_default") // /config/_default/languages.no.toml
 
-	assert.Equal("p1_base", cfg.GetString("params.p1"))
-	assert.Equal("p2params_default", cfg.GetString("params.p2")) // Is in both _default and production
-	assert.Equal("p3params_development", cfg.GetString("params.p3"))
-	assert.Equal("p3params_no_development", cfg.GetString("languages.no.params.p3"))
+	c.Assert(cfg.GetString("params.p1"), qt.Equals, "p1_base")
+	c.Assert(cfg.GetString("params.p2"), qt.Equals, "p2params_default") // Is in both _default and production
+	c.Assert(cfg.GetString("params.p3"), qt.Equals, "p3params_development")
+	c.Assert(cfg.GetString("languages.no.params.p3"), qt.Equals, "p3params_no_development")
 
-	assert.Equal(2, len(cfg.Get("menus.docs").(([]map[string]interface{}))))
+	c.Assert(len(cfg.Get("menus.docs").(([]map[string]interface{}))), qt.Equals, 2)
 	noMenus := cfg.Get("languages.no.menus.docs")
-	assert.NotNil(noMenus)
-	assert.Equal(1, len(noMenus.(([]map[string]interface{}))))
+	c.Assert(noMenus, qt.Not(qt.IsNil))
+	c.Assert(len(noMenus.(([]map[string]interface{}))), qt.Equals, 1)
 
 }
 
 func TestLoadConfigDirError(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	configContent := `
 baseURL = "https://example.org"
@@ -145,10 +145,10 @@ baseURL = "https://example.org"
 	fb.Add("config.toml", `invalid & syntax`).Build()
 
 	_, _, err := LoadConfig(ConfigSourceDescriptor{Fs: mm, Environment: "development", Filename: "hugo.toml", AbsConfigDir: "config"})
-	assert.Error(err)
+	c.Assert(err, qt.Not(qt.IsNil))
 
 	fe := herrors.UnwrapErrorWithFileContext(err)
-	assert.NotNil(fe)
-	assert.Equal(filepath.FromSlash("config/development/config.toml"), fe.Position().Filename)
+	c.Assert(fe, qt.Not(qt.IsNil))
+	c.Assert(fe.Position().Filename, qt.Equals, filepath.FromSlash("config/development/config.toml"))
 
 }

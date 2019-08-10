@@ -17,11 +17,10 @@ import (
 	"strings"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/spf13/afero"
-
-	"github.com/stretchr/testify/require"
 
 	"fmt"
 
@@ -142,15 +141,15 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 	b.Build(BuildCfg{})
 
 	s := b.H.Sites[0]
-	require.Equal(t, "en", s.language.Lang)
+	b.Assert(s.language.Lang, qt.Equals, "en")
 
 	home := s.getPage(page.KindHome)
 
-	require.NotNil(t, home)
+	b.Assert(home, qt.Not(qt.IsNil))
 
 	lenOut := len(outputs)
 
-	require.Len(t, home.OutputFormats(), lenOut)
+	b.Assert(len(home.OutputFormats()), qt.Equals, lenOut)
 
 	// There is currently always a JSON output to make it simpler ...
 	altFormats := lenOut - 1
@@ -179,9 +178,8 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 			"OtherShort: <h1>Hi!</h1>",
 			"Len Pages: home 10",
 		)
-		assert := require.New(t)
 		b.AssertFileContent("public/page/2/index.html", "Page Number: 2")
-		assert.False(b.CheckExists("public/page/2/index.json"))
+		b.Assert(b.CheckExists("public/page/2/index.json"), qt.Equals, false)
 
 		b.AssertFileContent("public/nn/index.html",
 			"List HTML|JSON Nynorsk Heim|",
@@ -204,19 +202,19 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 	of := home.OutputFormats()
 
 	json := of.Get("JSON")
-	require.NotNil(t, json)
-	require.Equal(t, "/blog/index.json", json.RelPermalink())
-	require.Equal(t, "http://example.com/blog/index.json", json.Permalink())
+	b.Assert(json, qt.Not(qt.IsNil))
+	b.Assert(json.RelPermalink(), qt.Equals, "/blog/index.json")
+	b.Assert(json.Permalink(), qt.Equals, "http://example.com/blog/index.json")
 
 	if helpers.InStringArray(outputs, "cal") {
 		cal := of.Get("calendar")
-		require.NotNil(t, cal)
-		require.Equal(t, "/blog/index.ics", cal.RelPermalink())
-		require.Equal(t, "webcal://example.com/blog/index.ics", cal.Permalink())
+		b.Assert(cal, qt.Not(qt.IsNil))
+		b.Assert(cal.RelPermalink(), qt.Equals, "/blog/index.ics")
+		b.Assert(cal.Permalink(), qt.Equals, "webcal://example.com/blog/index.ics")
 	}
 
-	require.True(t, home.HasShortcode("myShort"))
-	require.False(t, home.HasShortcode("doesNotExist"))
+	b.Assert(home.HasShortcode("myShort"), qt.Equals, true)
+	b.Assert(home.HasShortcode("doesNotExist"), qt.Equals, false)
 
 }
 
@@ -237,6 +235,8 @@ baseName = "feed"
 
 `
 
+	c := qt.New(t)
+
 	mf := afero.NewMemMapFs()
 	writeToFs(t, mf, "content/foo.html", `foo`)
 
@@ -244,14 +244,14 @@ baseName = "feed"
 
 	err := h.Build(BuildCfg{})
 
-	require.NoError(t, err)
+	c.Assert(err, qt.IsNil)
 
 	th.assertFileContent("public/feed.xml", "Recent content on")
 
 	s := h.Sites[0]
 
 	//Issue #3450
-	require.Equal(t, "http://example.com/blog/feed.xml", s.Info.RSSLink)
+	c.Assert(s.Info.RSSLink, qt.Equals, "http://example.com/blog/feed.xml")
 
 }
 
@@ -294,6 +294,8 @@ baseName = "customdelimbase"
 
 `
 
+	c := qt.New(t)
+
 	mf := afero.NewMemMapFs()
 	writeToFs(t, mf, "content/foo.html", `foo`)
 	writeToFs(t, mf, "layouts/_default/list.dotless", `a dotless`)
@@ -305,7 +307,7 @@ baseName = "customdelimbase"
 
 	err := h.Build(BuildCfg{})
 
-	require.NoError(t, err)
+	c.Assert(err, qt.IsNil)
 
 	th.assertFileContent("public/_redirects", "a dotless")
 	th.assertFileContent("public/defaultdelimbase.defd", "default delimim")
@@ -315,21 +317,21 @@ baseName = "customdelimbase"
 
 	s := h.Sites[0]
 	home := s.getPage(page.KindHome)
-	require.NotNil(t, home)
+	c.Assert(home, qt.Not(qt.IsNil))
 
 	outputs := home.OutputFormats()
 
-	require.Equal(t, "/blog/_redirects", outputs.Get("DOTLESS").RelPermalink())
-	require.Equal(t, "/blog/defaultdelimbase.defd", outputs.Get("DEF").RelPermalink())
-	require.Equal(t, "/blog/nosuffixbase", outputs.Get("NOS").RelPermalink())
-	require.Equal(t, "/blog/customdelimbase_del", outputs.Get("CUS").RelPermalink())
+	c.Assert(outputs.Get("DOTLESS").RelPermalink(), qt.Equals, "/blog/_redirects")
+	c.Assert(outputs.Get("DEF").RelPermalink(), qt.Equals, "/blog/defaultdelimbase.defd")
+	c.Assert(outputs.Get("NOS").RelPermalink(), qt.Equals, "/blog/nosuffixbase")
+	c.Assert(outputs.Get("CUS").RelPermalink(), qt.Equals, "/blog/customdelimbase_del")
 
 }
 
 func TestCreateSiteOutputFormats(t *testing.T) {
 
 	t.Run("Basic", func(t *testing.T) {
-		assert := require.New(t)
+		c := qt.New(t)
 
 		outputsConfig := map[string]interface{}{
 			page.KindHome:    []string{"HTML", "JSON"},
@@ -340,28 +342,28 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 		cfg.Set("outputs", outputsConfig)
 
 		outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg)
-		assert.NoError(err)
-		assert.Equal(output.Formats{output.JSONFormat}, outputs[page.KindSection])
-		assert.Equal(output.Formats{output.HTMLFormat, output.JSONFormat}, outputs[page.KindHome])
+		c.Assert(err, qt.IsNil)
+		c.Assert(outputs[page.KindSection], deepEqualsOutputFormats, output.Formats{output.JSONFormat})
+		c.Assert(outputs[page.KindHome], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.JSONFormat})
 
 		// Defaults
-		assert.Equal(output.Formats{output.HTMLFormat, output.RSSFormat}, outputs[page.KindTaxonomy])
-		assert.Equal(output.Formats{output.HTMLFormat, output.RSSFormat}, outputs[page.KindTaxonomyTerm])
-		assert.Equal(output.Formats{output.HTMLFormat}, outputs[page.KindPage])
+		c.Assert(outputs[page.KindTaxonomy], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.RSSFormat})
+		c.Assert(outputs[page.KindTaxonomyTerm], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.RSSFormat})
+		c.Assert(outputs[page.KindPage], deepEqualsOutputFormats, output.Formats{output.HTMLFormat})
 
 		// These aren't (currently) in use when rendering in Hugo,
 		// but the pages needs to be assigned an output format,
 		// so these should also be correct/sensible.
-		assert.Equal(output.Formats{output.RSSFormat}, outputs[kindRSS])
-		assert.Equal(output.Formats{output.SitemapFormat}, outputs[kindSitemap])
-		assert.Equal(output.Formats{output.RobotsTxtFormat}, outputs[kindRobotsTXT])
-		assert.Equal(output.Formats{output.HTMLFormat}, outputs[kind404])
+		c.Assert(outputs[kindRSS], deepEqualsOutputFormats, output.Formats{output.RSSFormat})
+		c.Assert(outputs[kindSitemap], deepEqualsOutputFormats, output.Formats{output.SitemapFormat})
+		c.Assert(outputs[kindRobotsTXT], deepEqualsOutputFormats, output.Formats{output.RobotsTxtFormat})
+		c.Assert(outputs[kind404], deepEqualsOutputFormats, output.Formats{output.HTMLFormat})
 
 	})
 
 	// Issue #4528
 	t.Run("Mixed case", func(t *testing.T) {
-		assert := require.New(t)
+		c := qt.New(t)
 		cfg := viper.New()
 
 		outputsConfig := map[string]interface{}{
@@ -370,15 +372,15 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 		cfg.Set("outputs", outputsConfig)
 
 		outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg)
-		assert.NoError(err)
-		assert.Equal(output.Formats{output.JSONFormat}, outputs[page.KindTaxonomyTerm])
+		c.Assert(err, qt.IsNil)
+		c.Assert(outputs[page.KindTaxonomyTerm], deepEqualsOutputFormats, output.Formats{output.JSONFormat})
 
 	})
 
 }
 
 func TestCreateSiteOutputFormatsInvalidConfig(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	outputsConfig := map[string]interface{}{
 		page.KindHome: []string{"FOO", "JSON"},
@@ -388,11 +390,11 @@ func TestCreateSiteOutputFormatsInvalidConfig(t *testing.T) {
 	cfg.Set("outputs", outputsConfig)
 
 	_, err := createSiteOutputFormats(output.DefaultFormats, cfg)
-	assert.Error(err)
+	c.Assert(err, qt.Not(qt.IsNil))
 }
 
 func TestCreateSiteOutputFormatsEmptyConfig(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	outputsConfig := map[string]interface{}{
 		page.KindHome: []string{},
@@ -402,12 +404,12 @@ func TestCreateSiteOutputFormatsEmptyConfig(t *testing.T) {
 	cfg.Set("outputs", outputsConfig)
 
 	outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg)
-	assert.NoError(err)
-	assert.Equal(output.Formats{output.HTMLFormat, output.RSSFormat}, outputs[page.KindHome])
+	c.Assert(err, qt.IsNil)
+	c.Assert(outputs[page.KindHome], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.RSSFormat})
 }
 
 func TestCreateSiteOutputFormatsCustomFormats(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	outputsConfig := map[string]interface{}{
 		page.KindHome: []string{},
@@ -422,8 +424,8 @@ func TestCreateSiteOutputFormatsCustomFormats(t *testing.T) {
 	)
 
 	outputs, err := createSiteOutputFormats(output.Formats{customRSS, customHTML}, cfg)
-	assert.NoError(err)
-	assert.Equal(output.Formats{customHTML, customRSS}, outputs[page.KindHome])
+	c.Assert(err, qt.IsNil)
+	c.Assert(outputs[page.KindHome], deepEqualsOutputFormats, output.Formats{customHTML, customRSS})
 }
 
 // https://github.com/gohugoio/hugo/issues/5849

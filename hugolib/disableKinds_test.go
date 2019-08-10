@@ -18,10 +18,10 @@ import (
 
 	"fmt"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/stretchr/testify/require"
 )
 
 func TestDisableKindsNoneDisabled(t *testing.T) {
@@ -104,8 +104,6 @@ categories:
 	b.Build(BuildCfg{})
 	h := b.H
 
-	require.Len(t, h.Sites, 1)
-
 	assertDisabledKinds(b, h.Sites[0], disabled...)
 
 }
@@ -181,7 +179,7 @@ func assertDisabledKinds(b *sitesBuilder, s *Site, disabled ...string) {
 
 func assertDisabledKind(b *sitesBuilder, kindAssert func(bool) bool, disabled []string, kind, path, matcher string) {
 	isDisabled := stringSliceContains(kind, disabled...)
-	require.True(b.T, kindAssert(isDisabled), fmt.Sprintf("%s: %t", kind, isDisabled))
+	b.Assert(kindAssert(isDisabled), qt.Equals, true)
 
 	if kind == kindRSS && !isDisabled {
 		// If the home page is also disabled, there is not RSS to look for.
@@ -193,8 +191,8 @@ func assertDisabledKind(b *sitesBuilder, kindAssert func(bool) bool, disabled []
 	if isDisabled {
 		// Path should not exist
 		fileExists, err := helpers.Exists(path, b.Fs.Destination)
-		require.False(b.T, fileExists)
-		require.NoError(b.T, err)
+		b.Assert(err, qt.IsNil)
+		b.Assert(fileExists, qt.Equals, false)
 
 	} else {
 		b.AssertFileContent(path, matcher)

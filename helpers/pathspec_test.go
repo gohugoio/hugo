@@ -17,13 +17,14 @@ import (
 	"path/filepath"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/langs"
-	"github.com/stretchr/testify/require"
 )
 
 func TestNewPathSpecFromConfig(t *testing.T) {
+	c := qt.New(t)
 	v := newTestCfg()
 	l := langs.NewLanguage("no", v)
 	v.Set("disablePathToLower", true)
@@ -44,16 +45,16 @@ func TestNewPathSpecFromConfig(t *testing.T) {
 
 	p, err := NewPathSpec(fs, l, nil)
 
-	require.NoError(t, err)
-	require.True(t, p.CanonifyURLs)
-	require.True(t, p.DisablePathToLower)
-	require.True(t, p.RemovePathAccents)
-	require.True(t, p.UglyURLs)
-	require.Equal(t, "no", p.Language.Lang)
-	require.Equal(t, "side", p.PaginatePath)
+	c.Assert(err, qt.IsNil)
+	c.Assert(p.CanonifyURLs, qt.Equals, true)
+	c.Assert(p.DisablePathToLower, qt.Equals, true)
+	c.Assert(p.RemovePathAccents, qt.Equals, true)
+	c.Assert(p.UglyURLs, qt.Equals, true)
+	c.Assert(p.Language.Lang, qt.Equals, "no")
+	c.Assert(p.PaginatePath, qt.Equals, "side")
 
-	require.Equal(t, "http://base.com", p.BaseURL.String())
-	require.Equal(t, "thethemes", p.ThemesDir)
-	require.Equal(t, "thework", p.WorkingDir)
+	c.Assert(p.BaseURL.String(), qt.Equals, "http://base.com")
+	c.Assert(p.ThemesDir, qt.Equals, "thethemes")
+	c.Assert(p.WorkingDir, qt.Equals, "thework")
 
 }

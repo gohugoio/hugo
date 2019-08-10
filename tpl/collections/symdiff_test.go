@@ -14,19 +14,18 @@
 package collections
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 
 	"github.com/gohugoio/hugo/deps"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestSymDiff(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	ns := New(&deps.Deps{})
 
@@ -56,16 +55,16 @@ func TestSymDiff(t *testing.T) {
 		{[]int{1, 2, 3}, []string{"3", "4"}, false},
 	} {
 
-		errMsg := fmt.Sprintf("[%d]", i)
+		errMsg := qt.Commentf("[%d]", i)
 
 		result, err := ns.SymDiff(test.s2, test.s1)
 
 		if b, ok := test.expected.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil), errMsg)
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
+		c.Assert(err, qt.IsNil, errMsg)
 
 		if !reflect.DeepEqual(test.expected, result) {
 			t.Fatalf("%s got\n%T: %v\nexpected\n%T: %v", errMsg, result, result, test.expected, test.expected)
@@ -73,8 +72,8 @@ func TestSymDiff(t *testing.T) {
 	}
 
 	_, err := ns.Complement()
-	assert.Error(err)
+	c.Assert(err, qt.Not(qt.IsNil))
 	_, err = ns.Complement([]string{"a", "b"})
-	assert.Error(err)
+	c.Assert(err, qt.Not(qt.IsNil))
 
 }

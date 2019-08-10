@@ -24,14 +24,14 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/require"
 )
 
 func TestDecodeConfig(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	configStr := `
 resourceDir = "myresources"
@@ -55,27 +55,27 @@ dir = "/path/to/c3"
 `
 
 	cfg, err := config.FromConfigString(configStr, "toml")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	fs := afero.NewMemMapFs()
 	decoded, err := DecodeConfig(fs, cfg)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
-	assert.Equal(5, len(decoded))
+	c.Assert(len(decoded), qt.Equals, 5)
 
 	c2 := decoded["getcsv"]
-	assert.Equal("11h0m0s", c2.MaxAge.String())
-	assert.Equal(filepath.FromSlash("/path/to/c2/filecache/getcsv"), c2.Dir)
+	c.Assert(c2.MaxAge.String(), qt.Equals, "11h0m0s")
+	c.Assert(c2.Dir, qt.Equals, filepath.FromSlash("/path/to/c2/filecache/getcsv"))
 
 	c3 := decoded["images"]
-	assert.Equal(time.Duration(-1), c3.MaxAge)
-	assert.Equal(filepath.FromSlash("/path/to/c3/filecache/images"), c3.Dir)
+	c.Assert(c3.MaxAge, qt.Equals, time.Duration(-1))
+	c.Assert(c3.Dir, qt.Equals, filepath.FromSlash("/path/to/c3/filecache/images"))
 
 }
 
 func TestDecodeConfigIgnoreCache(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	configStr := `
 resourceDir = "myresources"
@@ -100,21 +100,21 @@ dir = "/path/to/c3"
 `
 
 	cfg, err := config.FromConfigString(configStr, "toml")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	fs := afero.NewMemMapFs()
 	decoded, err := DecodeConfig(fs, cfg)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
-	assert.Equal(5, len(decoded))
+	c.Assert(len(decoded), qt.Equals, 5)
 
 	for _, v := range decoded {
-		assert.Equal(time.Duration(0), v.MaxAge)
+		c.Assert(v.MaxAge, qt.Equals, time.Duration(0))
 	}
 
 }
 
 func TestDecodeConfigDefault(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	cfg := newTestConfig()
 
 	if runtime.GOOS == "windows" {
@@ -130,28 +130,28 @@ func TestDecodeConfigDefault(t *testing.T) {
 
 	decoded, err := DecodeConfig(fs, cfg)
 
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
-	assert.Equal(5, len(decoded))
+	c.Assert(len(decoded), qt.Equals, 5)
 
 	imgConfig := decoded[cacheKeyImages]
 	jsonConfig := decoded[cacheKeyGetJSON]
 
 	if runtime.GOOS == "windows" {
-		assert.Equal(filepath.FromSlash("_gen/images"), imgConfig.Dir)
+		c.Assert(imgConfig.Dir, qt.Equals, filepath.FromSlash("_gen/images"))
 	} else {
-		assert.Equal("_gen/images", imgConfig.Dir)
-		assert.Equal("/cache/thecache/hugoproject/filecache/getjson", jsonConfig.Dir)
+		c.Assert(imgConfig.Dir, qt.Equals, "_gen/images")
+		c.Assert(jsonConfig.Dir, qt.Equals, "/cache/thecache/hugoproject/filecache/getjson")
 	}
 
-	assert.True(imgConfig.isResourceDir)
-	assert.False(jsonConfig.isResourceDir)
+	c.Assert(imgConfig.isResourceDir, qt.Equals, true)
+	c.Assert(jsonConfig.isResourceDir, qt.Equals, false)
 }
 
 func TestDecodeConfigInvalidDir(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	configStr := `
 resourceDir = "myresources"
@@ -173,11 +173,11 @@ dir = "/"
 	}
 
 	cfg, err := config.FromConfigString(configStr, "toml")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	fs := afero.NewMemMapFs()
 
 	_, err = DecodeConfig(fs, cfg)
-	assert.Error(err)
+	c.Assert(err, qt.Not(qt.IsNil))
 
 }
 

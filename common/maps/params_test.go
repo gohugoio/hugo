@@ -16,7 +16,7 @@ package maps
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestGetNestedParam(t *testing.T) {
@@ -33,19 +33,19 @@ func TestGetNestedParam(t *testing.T) {
 		},
 	}
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	must := func(keyStr, separator string, candidates ...map[string]interface{}) interface{} {
 		v, err := GetNestedParam(keyStr, separator, candidates...)
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 		return v
 	}
 
-	assert.Equal(1, must("first", "_", m))
-	assert.Equal(1, must("First", "_", m))
-	assert.Equal(2, must("with_underscore", "_", m))
-	assert.Equal("blue", must("nested_color", "_", m))
-	assert.Equal("green", must("nested.nestednested.color", ".", m))
-	assert.Nil(must("string.name", ".", m))
+	c.Assert(must("first", "_", m), qt.Equals, 1)
+	c.Assert(must("First", "_", m), qt.Equals, 1)
+	c.Assert(must("with_underscore", "_", m), qt.Equals, 2)
+	c.Assert(must("nested_color", "_", m), qt.Equals, "blue")
+	c.Assert(must("nested.nestednested.color", ".", m), qt.Equals, "green")
+	c.Assert(must("string.name", ".", m), qt.IsNil)
 
 }

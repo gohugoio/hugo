@@ -14,20 +14,19 @@
 package os
 
 import (
-	"fmt"
 	"path/filepath"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestReadFile(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	workingDir := "/home/hugo"
 
@@ -40,7 +39,7 @@ func TestReadFile(t *testing.T) {
 	afero.WriteFile(ns.deps.Fs.Source, filepath.Join(workingDir, "/f/f1.txt"), []byte("f1-content"), 0755)
 	afero.WriteFile(ns.deps.Fs.Source, filepath.Join("/home", "f2.txt"), []byte("f2-content"), 0755)
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		filename string
 		expect   interface{}
 	}{
@@ -50,22 +49,22 @@ func TestReadFile(t *testing.T) {
 		{"", false},
 		{"b", false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test)
 
 		result, err := ns.ReadFile(test.filename)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
 	}
 }
 
 func TestFileExists(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	workingDir := "/home/hugo"
 
@@ -77,7 +76,7 @@ func TestFileExists(t *testing.T) {
 	afero.WriteFile(ns.deps.Fs.Source, filepath.Join(workingDir, "/f/f1.txt"), []byte("f1-content"), 0755)
 	afero.WriteFile(ns.deps.Fs.Source, filepath.Join("/home", "f2.txt"), []byte("f2-content"), 0755)
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		filename string
 		expect   interface{}
 	}{
@@ -87,22 +86,21 @@ func TestFileExists(t *testing.T) {
 		{"b", false},
 		{"", nil},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test)
 		result, err := ns.FileExists(test.filename)
 
 		if test.expect == nil {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
 	}
 }
 
 func TestStat(t *testing.T) {
 	t.Parallel()
-
+	c := qt.New(t)
 	workingDir := "/home/hugo"
 
 	v := viper.New()
@@ -112,7 +110,7 @@ func TestStat(t *testing.T) {
 
 	afero.WriteFile(ns.deps.Fs.Source, filepath.Join(workingDir, "/f/f1.txt"), []byte("f1-content"), 0755)
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		filename string
 		expect   interface{}
 	}{
@@ -121,15 +119,14 @@ func TestStat(t *testing.T) {
 		{"b", nil},
 		{"", nil},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test)
 		result, err := ns.Stat(test.filename)
 
 		if test.expect == nil {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result.Size(), errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(result.Size(), qt.Equals, test.expect)
 	}
 }

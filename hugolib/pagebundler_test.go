@@ -38,7 +38,7 @@ import (
 	"github.com/gohugoio/hugo/deps"
 	"github.com/spf13/viper"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestPageBundlerSiteRegular(t *testing.T) {
@@ -63,7 +63,7 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 						if canonify {
 							relURLBase = ""
 						}
-						assert := require.New(t)
+						c := qt.New(t)
 						fs, cfg := newTestBundleSources(t)
 						cfg.Set("baseURL", baseURL)
 						cfg.Set("canonifyURLs", canonify)
@@ -98,16 +98,16 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 
 						s := b.H.Sites[0]
 
-						assert.Len(s.RegularPages(), 8)
+						c.Assert(len(s.RegularPages()), qt.Equals, 8)
 
 						singlePage := s.getPage(page.KindPage, "a/1.md")
-						assert.Equal("", singlePage.BundleType())
+						c.Assert(singlePage.BundleType(), qt.Equals, "")
 
-						assert.NotNil(singlePage)
-						assert.Equal(singlePage, s.getPage("page", "a/1"))
-						assert.Equal(singlePage, s.getPage("page", "1"))
+						c.Assert(singlePage, qt.Not(qt.IsNil))
+						c.Assert(s.getPage("page", "a/1"), qt.Equals, singlePage)
+						c.Assert(s.getPage("page", "1"), qt.Equals, singlePage)
 
-						assert.Contains(content(singlePage), "TheContent")
+						c.Assert(content(singlePage), qt.Contains, "TheContent")
 
 						relFilename := func(basePath, outBase string) (string, string) {
 							rel := basePath
@@ -147,53 +147,53 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 						b.AssertFileContent(filepath.FromSlash("/work/public/assets/pic1.png"), "content")
 
 						leafBundle1 := s.getPage(page.KindPage, "b/my-bundle/index.md")
-						assert.NotNil(leafBundle1)
-						assert.Equal("leaf", leafBundle1.BundleType())
-						assert.Equal("b", leafBundle1.Section())
+						c.Assert(leafBundle1, qt.Not(qt.IsNil))
+						c.Assert(leafBundle1.BundleType(), qt.Equals, "leaf")
+						c.Assert(leafBundle1.Section(), qt.Equals, "b")
 						sectionB := s.getPage(page.KindSection, "b")
-						assert.NotNil(sectionB)
+						c.Assert(sectionB, qt.Not(qt.IsNil))
 						home, _ := s.Info.Home()
-						assert.Equal("branch", home.BundleType())
+						c.Assert(home.BundleType(), qt.Equals, "branch")
 
 						// This is a root bundle and should live in the "home section"
 						// See https://github.com/gohugoio/hugo/issues/4332
 						rootBundle := s.getPage(page.KindPage, "root")
-						assert.NotNil(rootBundle)
-						assert.True(rootBundle.Parent().IsHome())
+						c.Assert(rootBundle, qt.Not(qt.IsNil))
+						c.Assert(rootBundle.Parent().IsHome(), qt.Equals, true)
 						if !ugly {
 							b.AssertFileContent(filepath.FromSlash("/work/public/root/index.html"), "Single RelPermalink: "+relURLBase+"/root/")
 							b.AssertFileContent(filepath.FromSlash("/work/public/cpath/root/cindex.html"), "Single RelPermalink: "+relURLBase+"/cpath/root/")
 						}
 
 						leafBundle2 := s.getPage(page.KindPage, "a/b/index.md")
-						assert.NotNil(leafBundle2)
+						c.Assert(leafBundle2, qt.Not(qt.IsNil))
 						unicodeBundle := s.getPage(page.KindPage, "c/bundle/index.md")
-						assert.NotNil(unicodeBundle)
+						c.Assert(unicodeBundle, qt.Not(qt.IsNil))
 
 						pageResources := leafBundle1.Resources().ByType(pageResourceType)
-						assert.Len(pageResources, 2)
+						c.Assert(len(pageResources), qt.Equals, 2)
 						firstPage := pageResources[0].(page.Page)
 						secondPage := pageResources[1].(page.Page)
 
-						assert.Equal(filepath.FromSlash("/work/base/b/my-bundle/1.md"), firstPage.File().Filename(), secondPage.File().Filename())
-						assert.Contains(content(firstPage), "TheContent")
-						assert.Equal(6, len(leafBundle1.Resources()))
+						c.Assert(firstPage.File().Filename(), qt.Equals, filepath.FromSlash("/work/base/b/my-bundle/1.md"))
+						c.Assert(content(firstPage), qt.Contains, "TheContent")
+						c.Assert(len(leafBundle1.Resources()), qt.Equals, 6)
 
 						// Verify shortcode in bundled page
-						assert.Contains(content(secondPage), filepath.FromSlash("MyShort in b/my-bundle/2.md"))
+						c.Assert(content(secondPage), qt.Contains, filepath.FromSlash("MyShort in b/my-bundle/2.md"))
 
 						// https://github.com/gohugoio/hugo/issues/4582
-						assert.Equal(leafBundle1, firstPage.Parent())
-						assert.Equal(leafBundle1, secondPage.Parent())
+						c.Assert(firstPage.Parent(), qt.Equals, leafBundle1)
+						c.Assert(secondPage.Parent(), qt.Equals, leafBundle1)
 
-						assert.Equal(firstPage, pageResources.GetMatch("1*"))
-						assert.Equal(secondPage, pageResources.GetMatch("2*"))
-						assert.Nil(pageResources.GetMatch("doesnotexist*"))
+						c.Assert(pageResources.GetMatch("1*"), qt.Equals, firstPage)
+						c.Assert(pageResources.GetMatch("2*"), qt.Equals, secondPage)
+						c.Assert(pageResources.GetMatch("doesnotexist*"), qt.IsNil)
 
 						imageResources := leafBundle1.Resources().ByType("image")
-						assert.Equal(3, len(imageResources))
+						c.Assert(len(imageResources), qt.Equals, 3)
 
-						assert.NotNil(leafBundle1.OutputFormats().Get("CUSTOMO"))
+						c.Assert(leafBundle1.OutputFormats().Get("CUSTOMO"), qt.Not(qt.IsNil))
 
 						relPermalinker := func(s string) string {
 							return fmt.Sprintf(s, relURLBase)
@@ -224,10 +224,10 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 
 						b.AssertFileContent(filepath.FromSlash("/work/public/2017/pageslug/c/logo.png"), "content")
 						b.AssertFileContent(filepath.FromSlash("/work/public/cpath/2017/pageslug/c/logo.png"), "content")
-						assert.False(b.CheckExists("/work/public/cpath/cpath/2017/pageslug/c/logo.png"))
+						c.Assert(b.CheckExists("/work/public/cpath/cpath/2017/pageslug/c/logo.png"), qt.Equals, false)
 
 						// Custom media type defined in site config.
-						assert.Len(leafBundle1.Resources().ByType("bepsays"), 1)
+						c.Assert(len(leafBundle1.Resources().ByType("bepsays")), qt.Equals, 1)
 
 						if ugly {
 							b.AssertFileContent(filepath.FromSlash("/work/public/2017/pageslug.html"),
@@ -279,7 +279,7 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 		t.Run(fmt.Sprintf("ugly=%t", ugly),
 			func(t *testing.T) {
 				t.Parallel()
-				assert := require.New(t)
+				c := qt.New(t)
 				fs, cfg := newTestBundleSourcesMultilingual(t)
 				cfg.Set("uglyURLs", ugly)
 
@@ -288,17 +288,17 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 
 				sites := b.H
 
-				assert.Equal(2, len(sites.Sites))
+				c.Assert(len(sites.Sites), qt.Equals, 2)
 
 				s := sites.Sites[0]
 
-				assert.Equal(8, len(s.RegularPages()))
-				assert.Equal(16, len(s.Pages()))
+				c.Assert(len(s.RegularPages()), qt.Equals, 8)
+				c.Assert(len(s.Pages()), qt.Equals, 16)
 				//dumpPages(s.AllPages()...)
-				assert.Equal(31, len(s.AllPages()))
+				c.Assert(len(s.AllPages()), qt.Equals, 31)
 
 				bundleWithSubPath := s.getPage(page.KindPage, "lb/index")
-				assert.NotNil(bundleWithSubPath)
+				c.Assert(bundleWithSubPath, qt.Not(qt.IsNil))
 
 				// See https://github.com/gohugoio/hugo/issues/4312
 				// Before that issue:
@@ -312,37 +312,36 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 				// These may also be translated, so we also need to test that.
 				//  "bf", "my-bf-bundle", "index.md + nn
 				bfBundle := s.getPage(page.KindPage, "bf/my-bf-bundle/index")
-				assert.NotNil(bfBundle)
-				assert.Equal("en", bfBundle.Language().Lang)
-				assert.Equal(bfBundle, s.getPage(page.KindPage, "bf/my-bf-bundle/index.md"))
-				assert.Equal(bfBundle, s.getPage(page.KindPage, "bf/my-bf-bundle"))
-				assert.Equal(bfBundle, s.getPage(page.KindPage, "my-bf-bundle"))
+				c.Assert(bfBundle, qt.Not(qt.IsNil))
+				c.Assert(bfBundle.Language().Lang, qt.Equals, "en")
+				c.Assert(s.getPage(page.KindPage, "bf/my-bf-bundle/index.md"), qt.Equals, bfBundle)
+				c.Assert(s.getPage(page.KindPage, "bf/my-bf-bundle"), qt.Equals, bfBundle)
+				c.Assert(s.getPage(page.KindPage, "my-bf-bundle"), qt.Equals, bfBundle)
 
 				nnSite := sites.Sites[1]
-				assert.Equal(7, len(nnSite.RegularPages()))
+				c.Assert(len(nnSite.RegularPages()), qt.Equals, 7)
 
 				bfBundleNN := nnSite.getPage(page.KindPage, "bf/my-bf-bundle/index")
-				assert.NotNil(bfBundleNN)
-				assert.Equal("nn", bfBundleNN.Language().Lang)
-				assert.Equal(bfBundleNN, nnSite.getPage(page.KindPage, "bf/my-bf-bundle/index.nn.md"))
-				assert.Equal(bfBundleNN, nnSite.getPage(page.KindPage, "bf/my-bf-bundle"))
-				assert.Equal(bfBundleNN, nnSite.getPage(page.KindPage, "my-bf-bundle"))
+				c.Assert(bfBundleNN, qt.Not(qt.IsNil))
+				c.Assert(bfBundleNN.Language().Lang, qt.Equals, "nn")
+				c.Assert(nnSite.getPage(page.KindPage, "bf/my-bf-bundle/index.nn.md"), qt.Equals, bfBundleNN)
+				c.Assert(nnSite.getPage(page.KindPage, "bf/my-bf-bundle"), qt.Equals, bfBundleNN)
+				c.Assert(nnSite.getPage(page.KindPage, "my-bf-bundle"), qt.Equals, bfBundleNN)
 
 				// See https://github.com/gohugoio/hugo/issues/4295
 				// Every resource should have its Name prefixed with its base folder.
 				cBundleResources := bundleWithSubPath.Resources().Match("c/**")
-				assert.Equal(4, len(cBundleResources))
+				c.Assert(len(cBundleResources), qt.Equals, 4)
 				bundlePage := bundleWithSubPath.Resources().GetMatch("c/page*")
-				assert.NotNil(bundlePage)
-				assert.IsType(&pageState{}, bundlePage)
+				c.Assert(bundlePage, qt.Not(qt.IsNil))
 
 				bcBundleNN, _ := nnSite.getPageNew(nil, "bc")
-				assert.NotNil(bcBundleNN)
+				c.Assert(bcBundleNN, qt.Not(qt.IsNil))
 				bcBundleEN, _ := s.getPageNew(nil, "bc")
-				assert.Equal("nn", bcBundleNN.Language().Lang)
-				assert.Equal("en", bcBundleEN.Language().Lang)
-				assert.Equal(3, len(bcBundleNN.Resources()))
-				assert.Equal(3, len(bcBundleEN.Resources()))
+				c.Assert(bcBundleNN.Language().Lang, qt.Equals, "nn")
+				c.Assert(bcBundleEN.Language().Lang, qt.Equals, "en")
+				c.Assert(len(bcBundleNN.Resources()), qt.Equals, 3)
+				c.Assert(len(bcBundleEN.Resources()), qt.Equals, 3)
 				b.AssertFileContent("public/en/bc/data1.json", "data1")
 				b.AssertFileContent("public/en/bc/data2.json", "data2")
 				b.AssertFileContent("public/en/bc/logo-bc.png", "logo")
@@ -357,22 +356,22 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 func TestMultilingualDisableDefaultLanguage(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 	_, cfg := newTestBundleSourcesMultilingual(t)
 
 	cfg.Set("disableLanguages", []string{"en"})
 
 	err := loadDefaultSettingsFor(cfg)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	err = loadLanguageSettings(cfg, nil)
-	assert.Error(err)
-	assert.Contains(err.Error(), "cannot disable default language")
+	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err.Error(), qt.Contains, "cannot disable default language")
 }
 
 func TestMultilingualDisableLanguage(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 	fs, cfg := newTestBundleSourcesMultilingual(t)
 	cfg.Set("disableLanguages", []string{"nn"})
 
@@ -380,19 +379,19 @@ func TestMultilingualDisableLanguage(t *testing.T) {
 	b.Build(BuildCfg{})
 	sites := b.H
 
-	assert.Equal(1, len(sites.Sites))
+	c.Assert(len(sites.Sites), qt.Equals, 1)
 
 	s := sites.Sites[0]
 
-	assert.Equal(8, len(s.RegularPages()))
-	assert.Equal(16, len(s.Pages()))
+	c.Assert(len(s.RegularPages()), qt.Equals, 8)
+	c.Assert(len(s.Pages()), qt.Equals, 16)
 	// No nn pages
-	assert.Equal(16, len(s.AllPages()))
+	c.Assert(len(s.AllPages()), qt.Equals, 16)
 	for _, p := range s.rawAllPages {
-		assert.True(p.Language().Lang != "nn")
+		c.Assert(p.Language().Lang != "nn", qt.Equals, true)
 	}
 	for _, p := range s.AllPages() {
-		assert.True(p.Language().Lang != "nn")
+		c.Assert(p.Language().Lang != "nn", qt.Equals, true)
 	}
 
 }
@@ -405,42 +404,42 @@ func TestPageBundlerSiteWitSymbolicLinksInContent(t *testing.T) {
 		os.Chdir(wd)
 	}()
 
-	assert := require.New(t)
+	c := qt.New(t)
 	// We need to use the OS fs for this.
 	cfg := viper.New()
 	fs := hugofs.NewFrom(hugofs.Os, cfg)
 
 	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugosym")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	contentDirName := "content"
 
 	contentDir := filepath.Join(workDir, contentDirName)
-	assert.NoError(os.MkdirAll(filepath.Join(contentDir, "a"), 0777))
+	c.Assert(os.MkdirAll(filepath.Join(contentDir, "a"), 0777), qt.IsNil)
 
 	for i := 1; i <= 3; i++ {
-		assert.NoError(os.MkdirAll(filepath.Join(workDir, fmt.Sprintf("symcontent%d", i)), 0777))
+		c.Assert(os.MkdirAll(filepath.Join(workDir, fmt.Sprintf("symcontent%d", i)), 0777), qt.IsNil)
 	}
 
-	assert.NoError(os.MkdirAll(filepath.Join(workDir, "symcontent2", "a1"), 0777))
+	c.Assert(os.MkdirAll(filepath.Join(workDir, "symcontent2", "a1"), 0777), qt.IsNil)
 
 	// Symlinked sections inside content.
 	os.Chdir(contentDir)
 	for i := 1; i <= 3; i++ {
-		assert.NoError(os.Symlink(filepath.FromSlash(fmt.Sprintf(("../symcontent%d"), i)), fmt.Sprintf("symbolic%d", i)))
+		c.Assert(os.Symlink(filepath.FromSlash(fmt.Sprintf(("../symcontent%d"), i)), fmt.Sprintf("symbolic%d", i)), qt.IsNil)
 	}
 
-	assert.NoError(os.Chdir(filepath.Join(contentDir, "a")))
+	c.Assert(os.Chdir(filepath.Join(contentDir, "a")), qt.IsNil)
 
 	// Create a symlink to one single content file
-	assert.NoError(os.Symlink(filepath.FromSlash("../../symcontent2/a1/page.md"), "page_s.md"))
+	c.Assert(os.Symlink(filepath.FromSlash("../../symcontent2/a1/page.md"), "page_s.md"), qt.IsNil)
 
-	assert.NoError(os.Chdir(filepath.FromSlash("../../symcontent3")))
+	c.Assert(os.Chdir(filepath.FromSlash("../../symcontent3")), qt.IsNil)
 
 	// Create a circular symlink. Will print some warnings.
-	assert.NoError(os.Symlink(filepath.Join("..", contentDirName), filepath.FromSlash("circus")))
+	c.Assert(os.Symlink(filepath.Join("..", contentDirName), filepath.FromSlash("circus")), qt.IsNil)
 
-	assert.NoError(os.Chdir(workDir))
+	c.Assert(os.Chdir(workDir), qt.IsNil)
 
 	defer clean()
 
@@ -491,11 +490,11 @@ TheContent.
 	b.Build(BuildCfg{})
 	s := b.H.Sites[0]
 
-	assert.Equal(7, len(s.RegularPages()))
+	c.Assert(len(s.RegularPages()), qt.Equals, 7)
 	a1Bundle := s.getPage(page.KindPage, "symbolic2/a1/index.md")
-	assert.NotNil(a1Bundle)
-	assert.Equal(2, len(a1Bundle.Resources()))
-	assert.Equal(1, len(a1Bundle.Resources().ByType(pageResourceType)))
+	c.Assert(a1Bundle, qt.Not(qt.IsNil))
+	c.Assert(len(a1Bundle.Resources()), qt.Equals, 2)
+	c.Assert(len(a1Bundle.Resources().ByType(pageResourceType)), qt.Equals, 1)
 
 	b.AssertFileContent(filepath.FromSlash(workDir+"/public/a/page/index.html"), "TheContent")
 	b.AssertFileContent(filepath.FromSlash(workDir+"/public/symbolic1/s1/index.html"), "TheContent")
@@ -507,7 +506,7 @@ func TestPageBundlerHeadless(t *testing.T) {
 	t.Parallel()
 
 	cfg, fs := newTestCfg()
-	assert := require.New(t)
+	c := qt.New(t)
 
 	workDir := "/work"
 	cfg.Set("workingDir", workDir)
@@ -549,30 +548,29 @@ HEADLESS {{< myShort >}}
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-	assert.Equal(1, len(s.RegularPages()))
-	assert.Equal(1, len(s.headlessPages))
+	c.Assert(len(s.RegularPages()), qt.Equals, 1)
+	c.Assert(len(s.headlessPages), qt.Equals, 1)
 
 	regular := s.getPage(page.KindPage, "a/index")
-	assert.Equal("/s1/", regular.RelPermalink())
+	c.Assert(regular.RelPermalink(), qt.Equals, "/s1/")
 
 	headless := s.getPage(page.KindPage, "b/index")
-	assert.NotNil(headless)
-	assert.Equal("Headless Bundle in Topless Bar", headless.Title())
-	assert.Equal("", headless.RelPermalink())
-	assert.Equal("", headless.Permalink())
-	assert.Contains(content(headless), "HEADLESS SHORTCODE")
+	c.Assert(headless, qt.Not(qt.IsNil))
+	c.Assert(headless.Title(), qt.Equals, "Headless Bundle in Topless Bar")
+	c.Assert(headless.RelPermalink(), qt.Equals, "")
+	c.Assert(headless.Permalink(), qt.Equals, "")
+	c.Assert(content(headless), qt.Contains, "HEADLESS SHORTCODE")
 
 	headlessResources := headless.Resources()
-	assert.Equal(3, len(headlessResources))
-	assert.Equal(2, len(headlessResources.Match("l*")))
+	c.Assert(len(headlessResources), qt.Equals, 3)
+	c.Assert(len(headlessResources.Match("l*")), qt.Equals, 2)
 	pageResource := headlessResources.GetMatch("p*")
-	assert.NotNil(pageResource)
-	assert.IsType(&pageState{}, pageResource)
+	c.Assert(pageResource, qt.Not(qt.IsNil))
 	p := pageResource.(page.Page)
-	assert.Contains(content(p), "SHORTCODE")
-	assert.Equal("p1.md", p.Name())
+	c.Assert(content(p), qt.Contains, "SHORTCODE")
+	c.Assert(p.Name(), qt.Equals, "p1.md")
 
-	th := testHelper{s.Cfg, s.Fs, t}
+	th := newTestHelper(s.Cfg, s.Fs, t)
 
 	th.assertFileContent(filepath.FromSlash(workDir+"/public/s1/index.html"), "TheContent")
 	th.assertFileContent(filepath.FromSlash(workDir+"/public/s1/l1.png"), "PNG")
@@ -584,7 +582,7 @@ HEADLESS {{< myShort >}}
 }
 
 func TestMultiSiteBundles(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	b := newTestSitesBuilder(t)
 	b.WithConfigFile("toml", `
 
@@ -656,12 +654,12 @@ Single content.
 	b.AssertFileContent("public/mybundle/data.yaml", "data en")
 	b.AssertFileContent("public/mybundle/forms.yaml", "forms en")
 
-	assert.False(b.CheckExists("public/nn/nn/mybundle/data.yaml"))
-	assert.False(b.CheckExists("public/en/mybundle/data.yaml"))
+	c.Assert(b.CheckExists("public/nn/nn/mybundle/data.yaml"), qt.Equals, false)
+	c.Assert(b.CheckExists("public/en/mybundle/data.yaml"), qt.Equals, false)
 
 	homeEn := b.H.Sites[0].home
-	assert.NotNil(homeEn)
-	assert.Equal(2018, homeEn.Date().Year())
+	c.Assert(homeEn, qt.Not(qt.IsNil))
+	c.Assert(homeEn.Date().Year(), qt.Equals, 2018)
 
 	b.AssertFileContent("public/section-not-bundle/index.html", "Section Page", "Content: <p>Section content.</p>")
 	b.AssertFileContent("public/section-not-bundle/single/index.html", "Section Single", "|<p>Single content.</p>")
@@ -670,7 +668,7 @@ Single content.
 
 func newTestBundleSources(t *testing.T) (*hugofs.Fs, *viper.Viper) {
 	cfg, fs := newTestCfgBasic()
-	assert := require.New(t)
+	c := qt.New(t)
 
 	workDir := "/work"
 	cfg.Set("workingDir", workDir)
@@ -814,22 +812,22 @@ Content for 은행.
 
 	// Write a real image into one of the bundle above.
 	src, err := os.Open("testdata/sunset.jpg")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	// We need 2 to test https://github.com/gohugoio/hugo/issues/4202
 	out, err := fs.Source.Create(filepath.Join(workDir, "base", "b", "my-bundle", "sunset1.jpg"))
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	out2, err := fs.Source.Create(filepath.Join(workDir, "base", "b", "my-bundle", "sunset2.jpg"))
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	_, err = io.Copy(out, src)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	out.Close()
 	src.Seek(0, 0)
 	_, err = io.Copy(out2, src)
 	out2.Close()
 	src.Close()
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	return fs, cfg
 
@@ -959,7 +957,7 @@ date: 2017-01-15
 // https://github.com/gohugoio/hugo/issues/4870
 func TestBundleSlug(t *testing.T) {
 	t.Parallel()
-	assert := require.New(t)
+	c := qt.New(t)
 
 	const pageTemplate = `---
 title: Title
@@ -980,8 +978,8 @@ slug: %s
 		"|/about/services1/this-is-the-slug/|/",
 		"|/about/services2/this-is-another-slug/|")
 
-	assert.True(b.CheckExists("public/about/services1/this-is-the-slug/index.html"))
-	assert.True(b.CheckExists("public/about/services2/this-is-another-slug/index.html"))
+	c.Assert(b.CheckExists("public/about/services1/this-is-the-slug/index.html"), qt.Equals, true)
+	c.Assert(b.CheckExists("public/about/services2/this-is-another-slug/index.html"), qt.Equals, true)
 
 }
 
@@ -1087,8 +1085,8 @@ slug: leaf
 	b.AssertFileContent("public/en/enonly/myen/index.html", "Single: en: Page")
 	b.AssertFileContent("public/en/enonly/myendata.json", "mydata")
 
-	assert := require.New(t)
-	assert.False(b.CheckExists("public/sv/enonly/myen/index.html"))
+	c := qt.New(t)
+	c.Assert(b.CheckExists("public/sv/enonly/myen/index.html"), qt.Equals, false)
 
 	// Both leaf and branch bundle in same dir
 	// We log a warning about it, but we keep both.

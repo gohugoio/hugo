@@ -20,12 +20,12 @@ import (
 
 	"github.com/alecthomas/chroma/formatters/html"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/require"
 )
 
 func TestParsePygmentsArgs(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	for i, this := range []struct {
 		in                 string
@@ -46,7 +46,7 @@ func TestParsePygmentsArgs(t *testing.T) {
 		v.Set("pygmentsStyle", this.pygmentsStyle)
 		v.Set("pygmentsUseClasses", this.pygmentsUseClasses)
 		spec, err := NewContentSpec(v)
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 
 		result1, err := spec.createPygmentsOptionsString(this.in)
 		if b, ok := this.expect1.(bool); ok && !b {
@@ -67,7 +67,7 @@ func TestParsePygmentsArgs(t *testing.T) {
 }
 
 func TestParseDefaultPygmentsArgs(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	expect := "encoding=utf8,noclasses=false,style=foo"
 
@@ -95,7 +95,7 @@ func TestParseDefaultPygmentsArgs(t *testing.T) {
 		}
 
 		spec, err := NewContentSpec(v)
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 
 		result, err := spec.createPygmentsOptionsString(this.in)
 		if err != nil {
@@ -134,22 +134,22 @@ func formatterChromaInfo(f *html.Formatter) chromaInfo {
 }
 
 func TestChromaHTMLHighlight(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	v := viper.New()
 	v.Set("pygmentsUseClasses", true)
 	spec, err := NewContentSpec(v)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	result, err := spec.Highlight(`echo "Hello"`, "bash", "")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
-	assert.Contains(result, `<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">echo</span> <span class="s2">&#34;Hello&#34;</span></code></pre></div>`)
+	c.Assert(result, qt.Contains, `<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">echo</span> <span class="s2">&#34;Hello&#34;</span></code></pre></div>`)
 
 }
 
 func TestChromaHTMLFormatterFromOptions(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	for i, this := range []struct {
 		in                 string
@@ -158,40 +158,40 @@ func TestChromaHTMLFormatterFromOptions(t *testing.T) {
 		pygmentsOptions    string
 		assert             func(c chromaInfo)
 	}{
-		{"", "monokai", true, "style=manni,noclasses=true", func(c chromaInfo) {
-			assert.True(c.classes)
-			assert.False(c.lineNumbers)
-			assert.Equal(0, c.highlightRangesLen)
+		{"", "monokai", true, "style=manni,noclasses=true", func(ci chromaInfo) {
+			c.Assert(ci.classes, qt.Equals, true)
+			c.Assert(ci.lineNumbers, qt.Equals, false)
+			c.Assert(ci.highlightRangesLen, qt.Equals, 0)
 
 		}},
-		{"", nil, nil, "style=monokai,noclasses=false", func(c chromaInfo) {
-			assert.True(c.classes)
+		{"", nil, nil, "style=monokai,noclasses=false", func(ci chromaInfo) {
+			c.Assert(ci.classes, qt.Equals, true)
 		}},
-		{"linenos=sure,hl_lines=1 2 3", nil, nil, "style=monokai,noclasses=false", func(c chromaInfo) {
-			assert.True(c.classes)
-			assert.True(c.lineNumbers)
-			assert.Equal(3, c.highlightRangesLen)
-			assert.Equal("[[1 1] [2 2] [3 3]]", c.highlightRangesStr)
-			assert.Equal(1, c.baseLineNumber)
+		{"linenos=sure,hl_lines=1 2 3", nil, nil, "style=monokai,noclasses=false", func(ci chromaInfo) {
+			c.Assert(ci.classes, qt.Equals, true)
+			c.Assert(ci.lineNumbers, qt.Equals, true)
+			c.Assert(ci.highlightRangesLen, qt.Equals, 3)
+			c.Assert(ci.highlightRangesStr, qt.Equals, "[[1 1] [2 2] [3 3]]")
+			c.Assert(ci.baseLineNumber, qt.Equals, 1)
 		}},
-		{"linenos=inline,hl_lines=1,linenostart=4", nil, nil, "style=monokai,noclasses=false", func(c chromaInfo) {
-			assert.True(c.classes)
-			assert.True(c.lineNumbers)
-			assert.False(c.lineNumbersInTable)
-			assert.Equal(1, c.highlightRangesLen)
+		{"linenos=inline,hl_lines=1,linenostart=4", nil, nil, "style=monokai,noclasses=false", func(ci chromaInfo) {
+			c.Assert(ci.classes, qt.Equals, true)
+			c.Assert(ci.lineNumbers, qt.Equals, true)
+			c.Assert(ci.lineNumbersInTable, qt.Equals, false)
+			c.Assert(ci.highlightRangesLen, qt.Equals, 1)
 			// This compansates for https://github.com/alecthomas/chroma/issues/30
-			assert.Equal("[[4 4]]", c.highlightRangesStr)
-			assert.Equal(4, c.baseLineNumber)
+			c.Assert(ci.highlightRangesStr, qt.Equals, "[[4 4]]")
+			c.Assert(ci.baseLineNumber, qt.Equals, 4)
 		}},
-		{"linenos=table", nil, nil, "style=monokai", func(c chromaInfo) {
-			assert.True(c.lineNumbers)
-			assert.True(c.lineNumbersInTable)
+		{"linenos=table", nil, nil, "style=monokai", func(ci chromaInfo) {
+			c.Assert(ci.lineNumbers, qt.Equals, true)
+			c.Assert(ci.lineNumbersInTable, qt.Equals, true)
 		}},
-		{"style=monokai,noclasses=false", nil, nil, "style=manni,noclasses=true", func(c chromaInfo) {
-			assert.True(c.classes)
+		{"style=monokai,noclasses=false", nil, nil, "style=manni,noclasses=true", func(ci chromaInfo) {
+			c.Assert(ci.classes, qt.Equals, true)
 		}},
-		{"style=monokai,noclasses=true", "friendly", false, "style=manni,noclasses=false", func(c chromaInfo) {
-			assert.False(c.classes)
+		{"style=monokai,noclasses=true", "friendly", false, "style=manni,noclasses=false", func(ci chromaInfo) {
+			c.Assert(ci.classes, qt.Equals, false)
 		}},
 	} {
 		v := viper.New()
@@ -207,7 +207,7 @@ func TestChromaHTMLFormatterFromOptions(t *testing.T) {
 		}
 
 		spec, err := NewContentSpec(v)
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 
 		opts, err := spec.parsePygmentsOpts(this.in)
 		if err != nil {
@@ -257,7 +257,7 @@ func TestHlLinesToRanges(t *testing.T) {
 }
 
 func BenchmarkChromaHighlight(b *testing.B) {
-	assert := require.New(b)
+	c := qt.New(b)
 	v := viper.New()
 
 	v.Set("pygmentsstyle", "trac")
@@ -289,7 +289,7 @@ func GetTitleFunc(style string) func(s string) string {
 `
 
 	spec, err := NewContentSpec(v)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	for i := 0; i < b.N; i++ {
 		_, err := spec.Highlight(code, "go", "linenos=inline,hl_lines=8 15-17")

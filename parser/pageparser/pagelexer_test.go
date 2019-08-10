@@ -16,14 +16,14 @@ package pageparser
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestMinIndex(t *testing.T) {
-	assert := require.New(t)
-	assert.Equal(1, minIndex(4, 1, 2, 3))
-	assert.Equal(0, minIndex(4, 0, -2, 2, 5))
-	assert.Equal(-1, minIndex())
-	assert.Equal(-1, minIndex(-2, -3))
+	c := qt.New(t)
+	c.Assert(minIndex(4, 1, 2, 3), qt.Equals, 1)
+	c.Assert(minIndex(4, 0, -2, 2, 5), qt.Equals, 0)
+	c.Assert(minIndex(), qt.Equals, -1)
+	c.Assert(minIndex(-2, -3), qt.Equals, -1)
 
 }

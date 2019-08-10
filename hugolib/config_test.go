@@ -19,15 +19,15 @@ import (
 	"path/filepath"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/require"
 )
 
 func TestLoadConfig(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	// Add a random config variable for testing.
 	// side = page in Norwegian.
@@ -40,16 +40,16 @@ func TestLoadConfig(t *testing.T) {
 	writeToFs(t, mm, "hugo.toml", configContent)
 
 	cfg, _, err := LoadConfig(ConfigSourceDescriptor{Fs: mm, Filename: "hugo.toml"})
-	require.NoError(t, err)
+	c.Assert(err, qt.IsNil)
 
-	assert.Equal("side", cfg.GetString("paginatePath"))
+	c.Assert(cfg.GetString("paginatePath"), qt.Equals, "side")
 
 }
 
 func TestLoadMultiConfig(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	// Add a random config variable for testing.
 	// side = page in Norwegian.
@@ -67,16 +67,16 @@ func TestLoadMultiConfig(t *testing.T) {
 	writeToFs(t, mm, "override.toml", configContentSub)
 
 	cfg, _, err := LoadConfig(ConfigSourceDescriptor{Fs: mm, Filename: "base.toml,override.toml"})
-	require.NoError(t, err)
+	c.Assert(err, qt.IsNil)
 
-	assert.Equal("top", cfg.GetString("paginatePath"))
-	assert.Equal("same", cfg.GetString("DontChange"))
+	c.Assert(cfg.GetString("paginatePath"), qt.Equals, "top")
+	c.Assert(cfg.GetString("DontChange"), qt.Equals, "same")
 }
 
 func TestLoadConfigFromTheme(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	mainConfigBasic := `
 theme = "test-theme"
@@ -291,7 +291,7 @@ map[string]interface {}{
 }
 `, got["menus"])
 
-	assert.Equal("https://example.com/", got["baseurl"])
+	c.Assert(got["baseurl"], qt.Equals, "https://example.com/")
 
 	if true {
 		return
@@ -314,7 +314,7 @@ map[string]interface {}{
   },
 }`, got["params"])
 
-	assert.Nil(got["languages"])
+	c.Assert(got["languages"], qt.IsNil)
 	b.AssertObject(`
 map[string]interface {}{
   "text/m1": map[string]interface {}{
@@ -365,7 +365,7 @@ map[string]interface {}{
 func TestPrivacyConfig(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	tomlConfig := `
 
@@ -380,14 +380,14 @@ privacyEnhanced = true
 	b.WithConfigFile("toml", tomlConfig)
 	b.Build(BuildCfg{SkipRender: true})
 
-	assert.True(b.H.Sites[0].Info.Config().Privacy.YouTube.PrivacyEnhanced)
+	c.Assert(b.H.Sites[0].Info.Config().Privacy.YouTube.PrivacyEnhanced, qt.Equals, true)
 
 }
 
 func TestLoadConfigModules(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	// https://github.com/gohugoio/hugoThemes#themetoml
 
@@ -469,18 +469,20 @@ path="n4"
 	var graphb bytes.Buffer
 	modulesClient.Graph(&graphb)
 
-	assert.Equal(`project n1
+	expected := `project n1
 n1 o1
 o1 n2
 n1 n3
 project n4
-`, graphb.String())
+`
+
+	c.Assert(graphb.String(), qt.Equals, expected)
 
 }
 
 func TestLoadConfigWithOsEnvOverrides(t *testing.T) {
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	baseConfig := `
 
@@ -512,13 +514,13 @@ resamplefilter = "CatmullRom"
 
 	cfg := b.H.Cfg
 
-	assert.Equal("test", cfg.Get("environment"))
-	assert.Equal(false, cfg.GetBool("enablegitinfo"))
-	assert.Equal("new", cfg.Get("new"))
-	assert.Equal("top", cfg.Get("imaging.anchor"))
-	assert.Equal(int64(75), cfg.Get("imaging.quality"))
-	assert.Equal([]interface{}{"c", "d"}, cfg.Get("stringSlice"))
-	assert.Equal([]interface{}{5.32}, cfg.Get("floatSlice"))
-	assert.Equal([]interface{}{5, 8, 9}, cfg.Get("intSlice"))
+	c.Assert(cfg.Get("environment"), qt.Equals, "test")
+	c.Assert(cfg.GetBool("enablegitinfo"), qt.Equals, false)
+	c.Assert(cfg.Get("new"), qt.Equals, "new")
+	c.Assert(cfg.Get("imaging.anchor"), qt.Equals, "top")
+	c.Assert(cfg.Get("imaging.quality"), qt.Equals, int64(75))
+	c.Assert(cfg.Get("stringSlice"), qt.DeepEquals, []interface{}{"c", "d"})
+	c.Assert(cfg.Get("floatSlice"), qt.DeepEquals, []interface{}{5.32})
+	c.Assert(cfg.Get("intSlice"), qt.DeepEquals, []interface{}{5, 8, 9})
 
 }

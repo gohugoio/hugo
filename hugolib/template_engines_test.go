@@ -97,7 +97,7 @@ Shortcode: {{< myShort >}}
 	writeSource(t, fs, filepath.Join("layouts", "shortcodes", fmt.Sprintf("myShort.%s", suffix)), shortcodeTempl)
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
-	th := testHelper{s.Cfg, s.Fs, t}
+	th := newTestHelper(s.Cfg, s.Fs, t)
 
 	th.assertFileContent(filepath.Join("public", "p", "index.html"),
 		"Page Title: My Title",

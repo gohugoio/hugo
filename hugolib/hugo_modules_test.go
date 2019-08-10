@@ -33,9 +33,9 @@ import (
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugofs"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/testmodBuilder/mods"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/require"
 )
 
 // TODO(bep) this fails when testmodBuilder is also building ...
@@ -60,12 +60,12 @@ func TestHugoModules(t *testing.T) {
 	rnd.Shuffle(len(testmods), func(i, j int) { testmods[i], testmods[j] = testmods[j], testmods[i] })
 
 	for _, m := range testmods[:2] {
-		assert := require.New(t)
+		c := qt.New(t)
 
 		v := viper.New()
 
 		workingDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-modules-test")
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 		defer clean()
 
 		configTemplate := `
@@ -375,9 +375,9 @@ min_version = "5.0.0"
 
 	b.Build(BuildCfg{})
 
-	assert := require.New(t)
+	c := qt.New(t)
 
-	assert.Equal(uint64(2), logger.WarnCounter.Count())
+	c.Assert(logger.WarnCounter.Count(), qt.Equals, uint64(2))
 
 }
 
@@ -389,13 +389,13 @@ func TestModulesSymlinks(t *testing.T) {
 		os.Chdir(wd)
 	}()
 
-	assert := require.New(t)
+	c := qt.New(t)
 	// We need to use the OS fs for this.
 	cfg := viper.New()
 	fs := hugofs.NewFrom(hugofs.Os, cfg)
 
 	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-mod-sym")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	defer clean()
 
@@ -406,11 +406,11 @@ Data: {{ .Site.Data }}
 	createDirsAndFiles := func(baseDir string) {
 		for _, dir := range files.ComponentFolders {
 			realDir := filepath.Join(baseDir, dir, "real")
-			assert.NoError(os.MkdirAll(realDir, 0777))
-			assert.NoError(afero.WriteFile(fs.Source, filepath.Join(realDir, "data.toml"), []byte("[hello]\nother = \"hello\""), 0777))
+			c.Assert(os.MkdirAll(realDir, 0777), qt.IsNil)
+			c.Assert(afero.WriteFile(fs.Source, filepath.Join(realDir, "data.toml"), []byte("[hello]\nother = \"hello\""), 0777), qt.IsNil)
 		}
 
-		assert.NoError(afero.WriteFile(fs.Source, filepath.Join(baseDir, "layouts", "index.html"), []byte(homeTemplate), 0777))
+		c.Assert(afero.WriteFile(fs.Source, filepath.Join(baseDir, "layouts", "index.html"), []byte(homeTemplate), 0777), qt.IsNil)
 	}
 
 	// Create project dirs and files.
@@ -421,10 +421,10 @@ Data: {{ .Site.Data }}
 
 	createSymlinks := func(baseDir, id string) {
 		for _, dir := range files.ComponentFolders {
-			assert.NoError(os.Chdir(filepath.Join(baseDir, dir)))
-			assert.NoError(os.Symlink("real", fmt.Sprintf("realsym%s", id)))
-			assert.NoError(os.Chdir(filepath.Join(baseDir, dir, "real")))
-			assert.NoError(os.Symlink("data.toml", fmt.Sprintf(filepath.FromSlash("datasym%s.toml"), id)))
+			c.Assert(os.Chdir(filepath.Join(baseDir, dir)), qt.IsNil)
+			c.Assert(os.Symlink("real", fmt.Sprintf("realsym%s", id)), qt.IsNil)
+			c.Assert(os.Chdir(filepath.Join(baseDir, dir, "real")), qt.IsNil)
+			c.Assert(os.Symlink("data.toml", fmt.Sprintf(filepath.FromSlash("datasym%s.toml"), id)), qt.IsNil)
 		}
 	}
 
@@ -451,7 +451,7 @@ weight = 2
 	b.Fs = fs
 
 	b.WithConfigFile("toml", config)
-	assert.NoError(os.Chdir(workDir))
+	c.Assert(os.Chdir(workDir), qt.IsNil)
 
 	b.Build(BuildCfg{})
 
@@ -493,10 +493,10 @@ weight = 2
 				}
 
 				if shouldFail {
-					assert.Error(err)
-					assert.Equal(hugofs.ErrPermissionSymlink, err, filename)
+					c.Assert(err, qt.Not(qt.IsNil))
+					c.Assert(err, qt.Equals, hugofs.ErrPermissionSymlink)
 				} else {
-					assert.NoError(err, filename)
+					c.Assert(err, qt.IsNil)
 				}
 			}
 

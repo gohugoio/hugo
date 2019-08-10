@@ -196,7 +196,7 @@ func TestTemplateLookupOrder(t *testing.T) {
 		t.Run(this.name, func(t *testing.T) {
 			// TODO(bep) there are some function vars need to pull down here to enable => t.Parallel()
 			cfg, fs = newTestCfg()
-			th = testHelper{cfg, fs, t}
+			th = newTestHelper(cfg, fs, t)
 
 			for i := 1; i <= 3; i++ {
 				writeSource(t, fs, filepath.Join("content", fmt.Sprintf("sect%d", i), fmt.Sprintf("page%d.md", i)), `---

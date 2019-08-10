@@ -20,43 +20,44 @@ import (
 
 	"github.com/spf13/viper"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/output"
-	"github.com/stretchr/testify/require"
 )
 
 func TestSplitPages(t *testing.T) {
 	t.Parallel()
-
+	c := qt.New(t)
 	pages := createTestPages(21)
 	chunks := splitPages(pages, 5)
-	require.Equal(t, 5, len(chunks))
+	c.Assert(len(chunks), qt.Equals, 5)
 
 	for i := 0; i < 4; i++ {
-		require.Equal(t, 5, chunks[i].Len())
+		c.Assert(chunks[i].Len(), qt.Equals, 5)
 	}
 
 	lastChunk := chunks[4]
-	require.Equal(t, 1, lastChunk.Len())
+	c.Assert(lastChunk.Len(), qt.Equals, 1)
 
 }
 
 func TestSplitPageGroups(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 	pages := createTestPages(21)
 	groups, _ := pages.GroupBy("Weight", "desc")
 	chunks := splitPageGroups(groups, 5)
-	require.Equal(t, 5, len(chunks))
+	c.Assert(len(chunks), qt.Equals, 5)
 
 	firstChunk := chunks[0]
 
 	// alternate weight 5 and 10
 	if groups, ok := firstChunk.(PagesGroup); ok {
-		require.Equal(t, 5, groups.Len())
+		c.Assert(groups.Len(), qt.Equals, 5)
 		for _, pg := range groups {
 			// first group 10 in weight
-			require.Equal(t, 10, pg.Key)
+			c.Assert(pg.Key, qt.Equals, 10)
 			for _, p := range pg.Pages {
-				require.True(t, p.FuzzyWordCount()%2 == 0) // magic test
+				c.Assert(p.FuzzyWordCount()%2 == 0, qt.Equals, true) // magic test
 			}
 		}
 	} else {
@@ -66,12 +67,12 @@ func TestSplitPageGroups(t *testing.T) {
 	lastChunk := chunks[4]
 
 	if groups, ok := lastChunk.(PagesGroup); ok {
-		require.Equal(t, 1, groups.Len())
+		c.Assert(groups.Len(), qt.Equals, 1)
 		for _, pg := range groups {
 			// last should have 5 in weight
-			require.Equal(t, 5, pg.Key)
+			c.Assert(pg.Key, qt.Equals, 5)
 			for _, p := range pg.Pages {
-				require.True(t, p.FuzzyWordCount()%2 != 0) // magic test
+				c.Assert(p.FuzzyWordCount()%2 != 0, qt.Equals, true) // magic test
 			}
 		}
 	} else {
@@ -82,6 +83,7 @@ func TestSplitPageGroups(t *testing.T) {
 
 func TestPager(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 	pages := createTestPages(21)
 	groups, _ := pages.GroupBy("Weight", "desc")
 
@@ -90,64 +92,65 @@ func TestPager(t *testing.T) {
 	}
 
 	_, err := newPaginatorFromPages(pages, -1, urlFactory)
-	require.NotNil(t, err)
+	c.Assert(err, qt.Not(qt.IsNil))
 
 	_, err = newPaginatorFromPageGroups(groups, -1, urlFactory)
-	require.NotNil(t, err)
+	c.Assert(err, qt.Not(qt.IsNil))
 
 	pag, err := newPaginatorFromPages(pages, 5, urlFactory)
-	require.Nil(t, err)
+	c.Assert(err, qt.IsNil)
 	doTestPages(t, pag)
 	first := pag.Pagers()[0].First()
-	require.Equal(t, "Pager 1", first.String())
-	require.NotEmpty(t, first.Pages())
-	require.Empty(t, first.PageGroups())
+	c.Assert(first.String(), qt.Equals, "Pager 1")
+	c.Assert(first.Pages(), qt.Not(qt.HasLen), 0)
+	c.Assert(first.PageGroups(), qt.HasLen, 0)
 
 	pag, err = newPaginatorFromPageGroups(groups, 5, urlFactory)
-	require.Nil(t, err)
+	c.Assert(err, qt.IsNil)
 	doTestPages(t, pag)
 	first = pag.Pagers()[0].First()
-	require.NotEmpty(t, first.PageGroups())
-	require.Empty(t, first.Pages())
+	c.Assert(first.PageGroups(), qt.Not(qt.HasLen), 0)
+	c.Assert(first.Pages(), qt.HasLen, 0)
 
 }
 
 func doTestPages(t *testing.T, paginator *Paginator) {
-
+	c := qt.New(t)
 	paginatorPages := paginator.Pagers()
 
-	require.Equal(t, 5, len(paginatorPages))
-	require.Equal(t, 21, paginator.TotalNumberOfElements())
-	require.Equal(t, 5, paginator.PageSize())
-	require.Equal(t, 5, paginator.TotalPages())
+	c.Assert(len(paginatorPages), qt.Equals, 5)
+	c.Assert(paginator.TotalNumberOfElements(), qt.Equals, 21)
+	c.Assert(paginator.PageSize(), qt.Equals, 5)
+	c.Assert(paginator.TotalPages(), qt.Equals, 5)
 
 	first := paginatorPages[0]
-	require.Equal(t, template.HTML("page/1/"), first.URL())
-	require.Equal(t, first, first.First())
-	require.True(t, first.HasNext())
-	require.Equal(t, paginatorPages[1], first.Next())
-	require.False(t, first.HasPrev())
-	require.Nil(t, first.Prev())
-	require.Equal(t, 5, first.NumberOfElements())
-	require.Equal(t, 1, first.PageNumber())
+	c.Assert(first.URL(), qt.Equals, template.HTML("page/1/"))
+	c.Assert(first.First(), qt.Equals, first)
+	c.Assert(first.HasNext(), qt.Equals, true)
+	c.Assert(first.Next(), qt.Equals, paginatorPages[1])
+	c.Assert(first.HasPrev(), qt.Equals, false)
+	c.Assert(first.Prev(), qt.IsNil)
+	c.Assert(first.NumberOfElements(), qt.Equals, 5)
+	c.Assert(first.PageNumber(), qt.Equals, 1)
 
 	third := paginatorPages[2]
-	require.True(t, third.HasNext())
-	require.True(t, third.HasPrev())
-	require.Equal(t, paginatorPages[1], third.Prev())
+	c.Assert(third.HasNext(), qt.Equals, true)
+	c.Assert(third.HasPrev(), qt.Equals, true)
+	c.Assert(third.Prev(), qt.Equals, paginatorPages[1])
 
 	last := paginatorPages[4]
-	require.Equal(t, template.HTML("page/5/"), last.URL())
-	require.Equal(t, last, last.Last())
-	require.False(t, last.HasNext())
-	require.Nil(t, last.Next())
-	require.True(t, last.HasPrev())
-	require.Equal(t, 1, last.NumberOfElements())
-	require.Equal(t, 5, last.PageNumber())
+	c.Assert(last.URL(), qt.Equals, template.HTML("page/5/"))
+	c.Assert(last.Last(), qt.Equals, last)
+	c.Assert(last.HasNext(), qt.Equals, false)
+	c.Assert(last.Next(), qt.IsNil)
+	c.Assert(last.HasPrev(), qt.Equals, true)
+	c.Assert(last.NumberOfElements(), qt.Equals, 1)
+	c.Assert(last.PageNumber(), qt.Equals, 5)
 }
 
 func TestPagerNoPages(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 	pages := createTestPages(0)
 	groups, _ := pages.GroupBy("Weight", "desc")
 
@@ -159,49 +162,50 @@ func TestPagerNoPages(t *testing.T) {
 	doTestPagerNoPages(t, paginator)
 
 	first := paginator.Pagers()[0].First()
-	require.Empty(t, first.PageGroups())
-	require.Empty(t, first.Pages())
+	c.Assert(first.PageGroups(), qt.HasLen, 0)
+	c.Assert(first.Pages(), qt.HasLen, 0)
 
 	paginator, _ = newPaginatorFromPageGroups(groups, 5, urlFactory)
 	doTestPagerNoPages(t, paginator)
 
 	first = paginator.Pagers()[0].First()
-	require.Empty(t, first.PageGroups())
-	require.Empty(t, first.Pages())
+	c.Assert(first.PageGroups(), qt.HasLen, 0)
+	c.Assert(first.Pages(), qt.HasLen, 0)
 
 }
 
 func doTestPagerNoPages(t *testing.T, paginator *Paginator) {
 	paginatorPages := paginator.Pagers()
-
-	require.Equal(t, 1, len(paginatorPages))
-	require.Equal(t, 0, paginator.TotalNumberOfElements())
-	require.Equal(t, 5, paginator.PageSize())
-	require.Equal(t, 0, paginator.TotalPages())
+	c := qt.New(t)
+	c.Assert(len(paginatorPages), qt.Equals, 1)
+	c.Assert(paginator.TotalNumberOfElements(), qt.Equals, 0)
+	c.Assert(paginator.PageSize(), qt.Equals, 5)
+	c.Assert(paginator.TotalPages(), qt.Equals, 0)
 
 	// pageOne should be nothing but the first
 	pageOne := paginatorPages[0]
-	require.NotNil(t, pageOne.First())
-	require.False(t, pageOne.HasNext())
-	require.False(t, pageOne.HasPrev())
-	require.Nil(t, pageOne.Next())
-	require.Equal(t, 1, len(pageOne.Pagers()))
-	require.Equal(t, 0, pageOne.Pages().Len())
-	require.Equal(t, 0, pageOne.NumberOfElements())
-	require.Equal(t, 0, pageOne.TotalNumberOfElements())
-	require.Equal(t, 0, pageOne.TotalPages())
-	require.Equal(t, 1, pageOne.PageNumber())
-	require.Equal(t, 5, pageOne.PageSize())
+	c.Assert(pageOne.First(), qt.Not(qt.IsNil))
+	c.Assert(pageOne.HasNext(), qt.Equals, false)
+	c.Assert(pageOne.HasPrev(), qt.Equals, false)
+	c.Assert(pageOne.Next(), qt.IsNil)
+	c.Assert(len(pageOne.Pagers()), qt.Equals, 1)
+	c.Assert(pageOne.Pages().Len(), qt.Equals, 0)
+	c.Assert(pageOne.NumberOfElements(), qt.Equals, 0)
+	c.Assert(pageOne.TotalNumberOfElements(), qt.Equals, 0)
+	c.Assert(pageOne.TotalPages(), qt.Equals, 0)
+	c.Assert(pageOne.PageNumber(), qt.Equals, 1)
+	c.Assert(pageOne.PageSize(), qt.Equals, 5)
 
 }
 
 func TestPaginationURLFactory(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 	cfg := viper.New()
 	cfg.Set("paginatePath", "zoo")
 
 	for _, uglyURLs := range []bool{false, true} {
-		t.Run(fmt.Sprintf("uglyURLs=%t", uglyURLs), func(t *testing.T) {
+		c.Run(fmt.Sprintf("uglyURLs=%t", uglyURLs), func(c *qt.C) {
 
 			tests := []struct {
 				name         string
@@ -231,9 +235,9 @@ func TestPaginationURLFactory(t *testing.T) {
 				got := factory(test.page)
 
 				if uglyURLs {
-					require.Equal(t, test.expectedUgly, got)
+					c.Assert(got, qt.Equals, test.expectedUgly)
 				} else {
-					require.Equal(t, test.expected, got)
+					c.Assert(got, qt.Equals, test.expected)
 				}
 
 			}
@@ -279,6 +283,7 @@ func TestProbablyEqualPageLists(t *testing.T) {
 
 func TestPaginationPage(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 	urlFactory := func(page int) string {
 		return fmt.Sprintf("page/%d/", page)
 	}
@@ -298,10 +303,10 @@ func TestPaginationPage(t *testing.T) {
 	page21, _ := f2.page(1)
 	page2Nil, _ := f2.page(3)
 
-	require.Equal(t, 3, page11.FuzzyWordCount())
-	require.Nil(t, page1Nil)
+	c.Assert(page11.FuzzyWordCount(), qt.Equals, 3)
+	c.Assert(page1Nil, qt.IsNil)
 
-	require.NotNil(t, page21)
-	require.Equal(t, 3, page21.FuzzyWordCount())
-	require.Nil(t, page2Nil)
+	c.Assert(page21, qt.Not(qt.IsNil))
+	c.Assert(page21.FuzzyWordCount(), qt.Equals, 3)
+	c.Assert(page2Nil, qt.IsNil)
 }

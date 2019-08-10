@@ -14,19 +14,18 @@
 package metadecoders
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/gohugoio/hugo/media"
 
 	"github.com/gohugoio/hugo/parser/pageparser"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestFormatFromString(t *testing.T) {
-	assert := require.New(t)
-	for i, test := range []struct {
+	c := qt.New(t)
+	for _, test := range []struct {
 		s      string
 		expect Format
 	}{
@@ -39,13 +38,13 @@ func TestFormatFromString(t *testing.T) {
 		{"org", ORG},
 		{"foo", ""},
 	} {
-		assert.Equal(test.expect, FormatFromString(test.s), fmt.Sprintf("t%d", i))
+		c.Assert(FormatFromString(test.s), qt.Equals, test.expect)
 	}
 }
 
 func TestFormatFromMediaType(t *testing.T) {
-	assert := require.New(t)
-	for i, test := range []struct {
+	c := qt.New(t)
+	for _, test := range []struct {
 		m      media.Type
 		expect Format
 	}{
@@ -54,13 +53,13 @@ func TestFormatFromMediaType(t *testing.T) {
 		{media.TOMLType, TOML},
 		{media.CalendarType, ""},
 	} {
-		assert.Equal(test.expect, FormatFromMediaType(test.m), fmt.Sprintf("t%d", i))
+		c.Assert(FormatFromMediaType(test.m), qt.Equals, test.expect)
 	}
 }
 
 func TestFormatFromFrontMatterType(t *testing.T) {
-	assert := require.New(t)
-	for i, test := range []struct {
+	c := qt.New(t)
+	for _, test := range []struct {
 		typ    pageparser.ItemType
 		expect Format
 	}{
@@ -70,13 +69,13 @@ func TestFormatFromFrontMatterType(t *testing.T) {
 		{pageparser.TypeFrontMatterORG, ORG},
 		{pageparser.TypeIgnore, ""},
 	} {
-		assert.Equal(test.expect, FormatFromFrontMatterType(test.typ), fmt.Sprintf("t%d", i))
+		c.Assert(FormatFromFrontMatterType(test.typ), qt.Equals, test.expect)
 	}
 }
 
 func TestFormatFromContentString(t *testing.T) {
 	t.Parallel()
-	assert := require.New(t)
+	c := qt.New(t)
 
 	for i, test := range []struct {
 		data   string
@@ -92,10 +91,10 @@ func TestFormatFromContentString(t *testing.T) {
 		{`asdfasdf`, Format("")},
 		{``, Format("")},
 	} {
-		errMsg := fmt.Sprintf("[%d] %s", i, test.data)
+		errMsg := qt.Commentf("[%d] %s", i, test.data)
 
 		result := Default.FormatFromContentString(test.data)
 
-		assert.Equal(test.expect, result, errMsg)
+		c.Assert(result, qt.Equals, test.expect, errMsg)
 	}
 }

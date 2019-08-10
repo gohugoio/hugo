@@ -15,38 +15,39 @@ package tplimpl
 import (
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/tpl"
-	"github.com/stretchr/testify/require"
 )
 
 func TestTemplateInfoShortcode(t *testing.T) {
-	assert := require.New(t)
-	d := newD(assert)
+	c := qt.New(t)
+	d := newD(c)
 	h := d.Tmpl.(tpl.TemplateHandler)
 
-	assert.NoError(h.AddTemplate("shortcodes/mytemplate.html", `
+	c.Assert(h.AddTemplate("shortcodes/mytemplate.html", `
 {{ .Inner }}
-`))
+`), qt.IsNil)
+
 	tt, found, _ := d.Tmpl.LookupVariant("mytemplate", tpl.TemplateVariants{})
 
-	assert.True(found)
+	c.Assert(found, qt.Equals, true)
 	tti, ok := tt.(tpl.TemplateInfoProvider)
-	assert.True(ok)
-	assert.True(tti.TemplateInfo().IsInner)
+	c.Assert(ok, qt.Equals, true)
+	c.Assert(tti.TemplateInfo().IsInner, qt.Equals, true)
 
 }
 
 // TODO(bep) move and use in other places
-func newD(assert *require.Assertions) *deps.Deps {
+func newD(c *qt.C) *deps.Deps {
 	v := newTestConfig()
 	fs := hugofs.NewMem(v)
 
 	depsCfg := newDepsConfig(v)
 	depsCfg.Fs = fs
 	d, err := deps.New(depsCfg)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	provider := DefaultTemplateProvider
 	provider.Update(d)

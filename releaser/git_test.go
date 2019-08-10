@@ -16,19 +16,20 @@ package releaser
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestGitInfos(t *testing.T) {
+	c := qt.New(t)
 	skipIfCI(t)
 	infos, err := getGitInfos("v0.20", "hugo", "", false)
 
-	require.NoError(t, err)
-	require.True(t, len(infos) > 0)
-
+	c.Assert(err, qt.IsNil)
+	c.Assert(len(infos) > 0, qt.Equals, true)
 }
 
 func TestIssuesRe(t *testing.T) {
+	c := qt.New(t)
 
 	body := `
 This is a commit message.
@@ -41,28 +42,30 @@ See #456
 
 	issues := extractIssues(body)
 
-	require.Len(t, issues, 4)
-	require.Equal(t, 123, issues[0])
-	require.Equal(t, 543, issues[2])
+	c.Assert(len(issues), qt.Equals, 4)
+	c.Assert(issues[0], qt.Equals, 123)
+	c.Assert(issues[2], qt.Equals, 543)
 
 }
 
 func TestGitVersionTagBefore(t *testing.T) {
 	skipIfCI(t)
+	c := qt.New(t)
 	v1, err := gitVersionTagBefore("v0.18")
-	require.NoError(t, err)
-	require.Equal(t, "v0.17", v1)
+	c.Assert(err, qt.IsNil)
+	c.Assert(v1, qt.Equals, "v0.17")
 }
 
 func TestTagExists(t *testing.T) {
 	skipIfCI(t)
+	c := qt.New(t)
 	b1, err := tagExists("v0.18")
-	require.NoError(t, err)
-	require.True(t, b1)
+	c.Assert(err, qt.IsNil)
+	c.Assert(b1, qt.Equals, true)
 
 	b2, err := tagExists("adfagdsfg")
-	require.NoError(t, err)
-	require.False(t, b2)
+	c.Assert(err, qt.IsNil)
+	c.Assert(b2, qt.Equals, false)
 
 }
 

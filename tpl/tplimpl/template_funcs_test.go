@@ -25,6 +25,7 @@ import (
 
 	"github.com/gohugoio/hugo/resources/page"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
@@ -37,7 +38,6 @@ import (
 	"github.com/gohugoio/hugo/tpl/partials"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -80,6 +80,7 @@ func newDepsConfig(cfg config.Provider) deps.DepsCfg {
 
 func TestTemplateFuncsExamples(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	workingDir := "/home/hugo"
 
@@ -99,7 +100,7 @@ func TestTemplateFuncsExamples(t *testing.T) {
 	depsCfg := newDepsConfig(v)
 	depsCfg.Fs = fs
 	d, err := deps.New(depsCfg)
-	require.NoError(t, err)
+	c.Assert(err, qt.IsNil)
 
 	var data struct {
 		Title   string
@@ -119,15 +120,15 @@ func TestTemplateFuncsExamples(t *testing.T) {
 			for i, example := range mm.Examples {
 				in, expected := example[0], example[1]
 				d.WithTemplate = func(templ tpl.TemplateHandler) error {
-					require.NoError(t, templ.AddTemplate("test", in))
-					require.NoError(t, templ.AddTemplate("partials/header.html", "<title>Hugo Rocks!</title>"))
+					c.Assert(templ.AddTemplate("test", in), qt.IsNil)
+					c.Assert(templ.AddTemplate("partials/header.html", "<title>Hugo Rocks!</title>"), qt.IsNil)
 					return nil
 				}
-				require.NoError(t, d.LoadResources())
+				c.Assert(d.LoadResources(), qt.IsNil)
 
 				var b bytes.Buffer
 				templ, _ := d.Tmpl.Lookup("test")
-				require.NoError(t, templ.Execute(&b, &data))
+				c.Assert(templ.Execute(&b, &data), qt.IsNil)
 				if b.String() != expected {
 					t.Fatalf("%s[%d]: got %q expected %q", ns.Name, i, b.String(), expected)
 				}
@@ -141,7 +142,7 @@ func TestTemplateFuncsExamples(t *testing.T) {
 func TestPartialCached(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	partial := `Now: {{ now.UnixNano }}`
 	name := "testing"
@@ -163,25 +164,25 @@ func TestPartialCached(t *testing.T) {
 	}
 
 	de, err := deps.New(config)
-	assert.NoError(err)
-	assert.NoError(de.LoadResources())
+	c.Assert(err, qt.IsNil)
+	c.Assert(de.LoadResources(), qt.IsNil)
 
 	ns := partials.New(de)
 
 	res1, err := ns.IncludeCached(name, &data)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	for j := 0; j < 10; j++ {
 		time.Sleep(2 * time.Nanosecond)
 		res2, err := ns.IncludeCached(name, &data)
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 
 		if !reflect.DeepEqual(res1, res2) {
 			t.Fatalf("cache mismatch")
 		}
 
 		res3, err := ns.IncludeCached(name, &data, fmt.Sprintf("variant%d", j))
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 
 		if reflect.DeepEqual(res1, res3) {
 			t.Fatalf("cache mismatch")
@@ -205,6 +206,7 @@ func BenchmarkPartialCached(b *testing.B) {
 }
 
 func doBenchmarkPartial(b *testing.B, f func(ns *partials.Namespace) error) {
+	c := qt.New(b)
 	config := newDepsConfig(viper.New())
 	config.WithTemplate = func(templ tpl.TemplateHandler) error {
 		err := templ.AddTemplate("partials/bench1", `{{ shuffle (seq 1 10) }}`)
@@ -216,8 +218,8 @@ func doBenchmarkPartial(b *testing.B, f func(ns *partials.Namespace) error) {
 	}
 
 	de, err := deps.New(config)
-	require.NoError(b, err)
-	require.NoError(b, de.LoadResources())
+	c.Assert(err, qt.IsNil)
+	c.Assert(de.LoadResources(), qt.IsNil)
 
 	ns := partials.New(de)
 

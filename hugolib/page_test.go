@@ -34,10 +34,9 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -306,7 +305,6 @@ func checkPageContent(t *testing.T, page page.Page, expected string, msg ...inte
 	a := normalizeContent(expected)
 	b := normalizeContent(content(page))
 	if a != b {
-		t.Log(stackTrace())
 		t.Fatalf("Page content is:\n%q\nExpected:\n%q (%q)", b, a, msg)
 	}
 }
@@ -422,15 +420,15 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 
 		s := b.H.Sites[0]
 
-		require.Len(t, s.RegularPages(), len(pageSources))
+		b.Assert(len(s.RegularPages()), qt.Equals, len(pageSources))
 
 		assertFunc(t, e.ext, s.RegularPages())
 
 		home, err := s.Info.Home()
-		require.NoError(t, err)
-		require.NotNil(t, home)
-		require.Equal(t, homePath, home.File().Path())
-		require.Contains(t, content(home), "Home Page Content")
+		b.Assert(err, qt.IsNil)
+		b.Assert(home, qt.Not(qt.IsNil))
+		b.Assert(home.File().Path(), qt.Equals, homePath)
+		b.Assert(content(home), qt.Contains, "Home Page Content")
 
 	}
 
@@ -440,12 +438,13 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 	t.Parallel()
 	cfg, fs := newTestCfg()
+	c := qt.New(t)
 
 	writeSource(t, fs, filepath.Join("content", "simple.md"), simplePageWithSummaryDelimiterAndMarkdownThatCrossesBorder)
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
-	require.Len(t, s.RegularPages(), 1)
+	c.Assert(len(s.RegularPages()), qt.Equals, 1)
 
 	p := s.RegularPages()[0]
 
@@ -454,15 +453,14 @@ func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 		t.Fatalf("Got summary:\n%q", p.Summary())
 	}
 
-	c := content(p)
-	if c != "<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a href=\"#fn:1\">1</a></sup></p>\n\n<div class=\"footnotes\">\n\n<hr />\n\n<ol>\n<li id=\"fn:1\">Many people say so.\n <a class=\"footnote-return\" href=\"#fnref:1\"><sup>[return]</sup></a></li>\n</ol>\n</div>" {
-		t.Fatalf("Got content:\n%q", c)
+	cnt := content(p)
+	if cnt != "<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a href=\"#fn:1\">1</a></sup></p>\n\n<div class=\"footnotes\">\n\n<hr />\n\n<ol>\n<li id=\"fn:1\">Many people say so.\n <a class=\"footnote-return\" href=\"#fnref:1\"><sup>[return]</sup></a></li>\n</ol>\n</div>" {
+		t.Fatalf("Got content:\n%q", cnt)
 	}
 }
 
 func TestPageDatesAllKinds(t *testing.T) {
 	t.Parallel()
-	assert := assert.New(t)
 
 	pageContent := `
 ---
@@ -479,11 +477,11 @@ categories: ["cool stuff"]
 
 	b.CreateSites().Build(BuildCfg{})
 
-	assert.Equal(1, len(b.H.Sites))
+	b.Assert(len(b.H.Sites), qt.Equals, 1)
 	s := b.H.Sites[0]
 
 	checkDate := func(t time.Time, msg string) {
-		assert.Equal(2017, t.Year(), msg)
+		b.Assert(t.Year(), qt.Equals, 2017)
 	}
 
 	checkDated := func(d resource.Dated, msg string) {
@@ -499,7 +497,6 @@ categories: ["cool stuff"]
 
 func TestPageDatesSections(t *testing.T) {
 	t.Parallel()
-	assert := assert.New(t)
 
 	b := newTestSitesBuilder(t)
 	b.WithSimpleConfigFile().WithContent("no-index/page.md", `
@@ -524,23 +521,24 @@ date: 2018-01-15
 
 	b.CreateSites().Build(BuildCfg{})
 
-	assert.Equal(1, len(b.H.Sites))
+	b.Assert(len(b.H.Sites), qt.Equals, 1)
 	s := b.H.Sites[0]
 
-	assert.Equal(2017, s.getPage("/").Date().Year())
-	assert.Equal(2017, s.getPage("/no-index").Date().Year())
-	assert.True(s.getPage("/with-index-no-date").Date().IsZero())
-	assert.Equal(2018, s.getPage("/with-index-date").Date().Year())
+	b.Assert(s.getPage("/").Date().Year(), qt.Equals, 2017)
+	b.Assert(s.getPage("/no-index").Date().Year(), qt.Equals, 2017)
+	b.Assert(s.getPage("/with-index-no-date").Date().IsZero(), qt.Equals, true)
+	b.Assert(s.getPage("/with-index-date").Date().Year(), qt.Equals, 2018)
 }
 
 func TestCreateNewPage(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
 		p := pages[0]
 
 		// issue #2290: Path is relative to the content dir and will continue to be so.
-		require.Equal(t, filepath.FromSlash(fmt.Sprintf("p0.%s", ext)), p.File().Path())
-		assert.False(t, p.IsHome())
+		c.Assert(p.File().Path(), qt.Equals, fmt.Sprintf("p0.%s", ext))
+		c.Assert(p.IsHome(), qt.Equals, false)
 		checkPageTitle(t, p, "Simple")
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Simple Page</p>\n"))
 		checkPageSummary(t, p, "Simple Page")
@@ -602,7 +600,7 @@ func TestPageWithSummaryParameter(t *testing.T) {
 // Issue #3854
 // Also see https://github.com/gohugoio/hugo/issues/3977
 func TestPageWithDateFields(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	pageWithDate := `---
 title: P%d
 weight: %d
@@ -620,9 +618,9 @@ Simple Page With Some Date`
 
 	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
-		assert.True(len(pages) > 0)
+		c.Assert(len(pages) > 0, qt.Equals, true)
 		for _, p := range pages {
-			assert.True(hasDate(p))
+			c.Assert(hasDate(p), qt.Equals, true)
 		}
 
 	}
@@ -640,6 +638,7 @@ Simple Page With Some Date`
 func TestPageRawContent(t *testing.T) {
 	t.Parallel()
 	cfg, fs := newTestCfg()
+	c := qt.New(t)
 
 	writeSource(t, fs, filepath.Join("content", "raw.md"), `---
 title: Raw
@@ -650,10 +649,10 @@ title: Raw
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
-	require.Len(t, s.RegularPages(), 1)
+	c.Assert(len(s.RegularPages()), qt.Equals, 1)
 	p := s.RegularPages()[0]
 
-	require.Equal(t, p.RawContent(), "**Raw**")
+	c.Assert("**Raw**", qt.Equals, p.RawContent())
 
 }
 
@@ -687,12 +686,13 @@ func TestPageWithEmbeddedScriptTag(t *testing.T) {
 func TestPageWithAdditionalExtension(t *testing.T) {
 	t.Parallel()
 	cfg, fs := newTestCfg()
+	c := qt.New(t)
 
 	writeSource(t, fs, filepath.Join("content", "simple.md"), simplePageWithAdditionalExtension)
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
-	require.Len(t, s.RegularPages(), 1)
+	c.Assert(len(s.RegularPages()), qt.Equals, 1)
 
 	p := s.RegularPages()[0]
 
@@ -702,12 +702,13 @@ func TestPageWithAdditionalExtension(t *testing.T) {
 func TestTableOfContents(t *testing.T) {
 
 	cfg, fs := newTestCfg()
+	c := qt.New(t)
 
 	writeSource(t, fs, filepath.Join("content", "tocpage.md"), pageWithToC)
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
-	require.Len(t, s.RegularPages(), 1)
+	c.Assert(len(s.RegularPages()), qt.Equals, 1)
 
 	p := s.RegularPages()[0]
 
@@ -733,9 +734,11 @@ func TestPageWithMoreTag(t *testing.T) {
 func TestSummaryWithHTMLTagsOnNextLine(t *testing.T) {
 
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
+		c := qt.New(t)
 		p := pages[0]
-		require.Contains(t, p.Summary(), "Happy new year everyone!")
-		require.NotContains(t, p.Summary(), "User interface")
+		s := string(p.Summary())
+		c.Assert(s, qt.Contains, "Happy new year everyone!")
+		c.Assert(s, qt.Not(qt.Contains), "User interface")
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, `---
@@ -755,12 +758,13 @@ Here is the last report for commits in the year 2016. It covers hrev50718-hrev50
 func TestPageWithDate(t *testing.T) {
 	t.Parallel()
 	cfg, fs := newTestCfg()
+	c := qt.New(t)
 
 	writeSource(t, fs, filepath.Join("content", "simple.md"), simplePageRFC3339Date)
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
-	require.Len(t, s.RegularPages(), 1)
+	c.Assert(len(s.RegularPages()), qt.Equals, 1)
 
 	p := s.RegularPages()[0]
 	d, _ := time.Parse(time.RFC3339, "2013-05-17T16:59:30Z")
@@ -769,7 +773,7 @@ func TestPageWithDate(t *testing.T) {
 }
 
 func TestPageWithLastmodFromGitInfo(t *testing.T) {
-	assrt := require.New(t)
+	c := qt.New(t)
 
 	// We need to use the OS fs for this.
 	cfg := viper.New()
@@ -777,7 +781,7 @@ func TestPageWithLastmodFromGitInfo(t *testing.T) {
 	fs.Destination = &afero.MemMapFs{}
 
 	wd, err := os.Getwd()
-	assrt.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	cfg.Set("frontmatter", map[string]interface{}{
 		"lastmod": []string{":git", "lastmod"},
@@ -807,19 +811,19 @@ func TestPageWithLastmodFromGitInfo(t *testing.T) {
 	b.Build(BuildCfg{SkipRender: true})
 	h := b.H
 
-	assrt.Len(h.Sites, 2)
+	c.Assert(len(h.Sites), qt.Equals, 2)
 
 	enSite := h.Sites[0]
-	assrt.Len(enSite.RegularPages(), 1)
+	c.Assert(len(enSite.RegularPages()), qt.Equals, 1)
 
 	// 2018-03-11 is the Git author date for testsite/content/first-post.md
-	assrt.Equal("2018-03-11", enSite.RegularPages()[0].Lastmod().Format("2006-01-02"))
+	c.Assert(enSite.RegularPages()[0].Lastmod().Format("2006-01-02"), qt.Equals, "2018-03-11")
 
 	nnSite := h.Sites[1]
-	assrt.Len(nnSite.RegularPages(), 1)
+	c.Assert(len(nnSite.RegularPages()), qt.Equals, 1)
 
 	// 2018-08-11 is the Git author date for testsite/content_nn/first-post.md
-	assrt.Equal("2018-08-11", nnSite.RegularPages()[0].Lastmod().Format("2006-01-02"))
+	c.Assert(nnSite.RegularPages()[0].Lastmod().Format("2006-01-02"), qt.Equals, "2018-08-11")
 
 }
 
@@ -828,7 +832,7 @@ func TestPageWithFrontMatterConfig(t *testing.T) {
 		dateHandler := dateHandler
 		t.Run(fmt.Sprintf("dateHandler=%q", dateHandler), func(t *testing.T) {
 			t.Parallel()
-			assrt := require.New(t)
+			c := qt.New(t)
 			cfg, fs := newTestCfg()
 
 			pageTemplate := `
@@ -852,36 +856,36 @@ Content
 			writeSource(t, fs, c2, fmt.Sprintf(pageTemplate, 2, "slug: aslug"))
 
 			c1fi, err := fs.Source.Stat(c1)
-			assrt.NoError(err)
+			c.Assert(err, qt.IsNil)
 			c2fi, err := fs.Source.Stat(c2)
-			assrt.NoError(err)
+			c.Assert(err, qt.IsNil)
 
 			b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{Fs: fs, Cfg: cfg}).WithNothingAdded()
 			b.Build(BuildCfg{SkipRender: true})
 
 			s := b.H.Sites[0]
-			assrt.Len(s.RegularPages(), 2)
+			c.Assert(len(s.RegularPages()), qt.Equals, 2)
 
 			noSlug := s.RegularPages()[0]
 			slug := s.RegularPages()[1]
 
-			assrt.Equal(28, noSlug.Lastmod().Day())
+			c.Assert(noSlug.Lastmod().Day(), qt.Equals, 28)
 
 			switch strings.ToLower(dateHandler) {
 			case ":filename":
-				assrt.False(noSlug.Date().IsZero())
-				assrt.False(slug.Date().IsZero())
-				assrt.Equal(2012, noSlug.Date().Year())
-				assrt.Equal(2012, slug.Date().Year())
-				assrt.Equal("noslug", noSlug.Slug())
-				assrt.Equal("aslug", slug.Slug())
+				c.Assert(noSlug.Date().IsZero(), qt.Equals, false)
+				c.Assert(slug.Date().IsZero(), qt.Equals, false)
+				c.Assert(noSlug.Date().Year(), qt.Equals, 2012)
+				c.Assert(slug.Date().Year(), qt.Equals, 2012)
+				c.Assert(noSlug.Slug(), qt.Equals, "noslug")
+				c.Assert(slug.Slug(), qt.Equals, "aslug")
 			case ":filemodtime":
-				assrt.Equal(c1fi.ModTime().Year(), noSlug.Date().Year())
-				assrt.Equal(c2fi.ModTime().Year(), slug.Date().Year())
+				c.Assert(noSlug.Date().Year(), qt.Equals, c1fi.ModTime().Year())
+				c.Assert(slug.Date().Year(), qt.Equals, c2fi.ModTime().Year())
 				fallthrough
 			default:
-				assrt.Equal("", noSlug.Slug())
-				assrt.Equal("aslug", slug.Slug())
+				c.Assert(noSlug.Slug(), qt.Equals, "")
+				c.Assert(slug.Slug(), qt.Equals, "aslug")
 
 			}
 		})
@@ -978,6 +982,7 @@ func TestWordCount(t *testing.T) {
 
 func TestPagePaths(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	siteParmalinksSetting := map[string]string{
 		"post": ":year/:month/:day/:title/",
@@ -1009,14 +1014,14 @@ func TestPagePaths(t *testing.T) {
 		writeSource(t, fs, filepath.Join("content", filepath.FromSlash(test.path)), test.content)
 
 		s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
-		require.Len(t, s.RegularPages(), 1)
+		c.Assert(len(s.RegularPages()), qt.Equals, 1)
 
 	}
 }
 
 func TestTranslationKey(t *testing.T) {
 	t.Parallel()
-	assert := require.New(t)
+	c := qt.New(t)
 	cfg, fs := newTestCfg()
 
 	writeSource(t, fs, filepath.Join("content", filepath.FromSlash("sect/simple.no.md")), "---\ntitle: \"A1\"\ntranslationKey: \"k1\"\n---\nContent\n")
@@ -1024,20 +1029,21 @@ func TestTranslationKey(t *testing.T) {
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
-	require.Len(t, s.RegularPages(), 2)
+	c.Assert(len(s.RegularPages()), qt.Equals, 2)
 
 	home, _ := s.Info.Home()
-	assert.NotNil(home)
-	assert.Equal("home", home.TranslationKey())
-	assert.Equal("page/k1", s.RegularPages()[0].TranslationKey())
+	c.Assert(home, qt.Not(qt.IsNil))
+	c.Assert(home.TranslationKey(), qt.Equals, "home")
+	c.Assert(s.RegularPages()[0].TranslationKey(), qt.Equals, "page/k1")
 	p2 := s.RegularPages()[1]
 
-	assert.Equal("page/sect/simple", p2.TranslationKey())
+	c.Assert(p2.TranslationKey(), qt.Equals, "page/sect/simple")
 
 }
 
 func TestChompBOM(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 	const utf8BOM = "\xef\xbb\xbf"
 
 	cfg, fs := newTestCfg()
@@ -1046,7 +1052,7 @@ func TestChompBOM(t *testing.T) {
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
-	require.Len(t, s.RegularPages(), 1)
+	c.Assert(len(s.RegularPages()), qt.Equals, 1)
 
 	p := s.RegularPages()[0]
 
@@ -1340,7 +1346,8 @@ func TestPathIssues(t *testing.T) {
 			t.Run(fmt.Sprintf("disablePathToLower=%t,uglyURLs=%t", disablePathToLower, uglyURLs), func(t *testing.T) {
 				t.Parallel()
 				cfg, fs := newTestCfg()
-				th := testHelper{cfg, fs, t}
+				th := newTestHelper(cfg, fs, t)
+				c := qt.New(t)
 
 				cfg.Set("permalinks", map[string]string{
 					"post": ":section/:title",
@@ -1376,7 +1383,7 @@ tags:
 
 				s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-				require.Len(t, s.RegularPages(), 4)
+				c.Assert(len(s.RegularPages()), qt.Equals, 4)
 
 				pathFunc := func(s string) string {
 					if uglyURLs {
@@ -1409,9 +1416,9 @@ tags:
 
 				p := s.RegularPages()[0]
 				if uglyURLs {
-					require.Equal(t, "/post/test0.dot.html", p.RelPermalink())
+					c.Assert(p.RelPermalink(), qt.Equals, "/post/test0.dot.html")
 				} else {
-					require.Equal(t, "/post/test0.dot/", p.RelPermalink())
+					c.Assert(p.RelPermalink(), qt.Equals, "/post/test0.dot/")
 				}
 
 			})
@@ -1423,7 +1430,7 @@ tags:
 func TestWordCountAndSimilarVsSummary(t *testing.T) {
 
 	t.Parallel()
-	assert := require.New(t)
+	c := qt.New(t)
 
 	single := []string{"_default/single.html", `
 WordCount: {{ .WordCount }}
@@ -1502,8 +1509,8 @@ Summary: In Chinese, 好 means good.
 
 	b.CreateSites().Build(BuildCfg{})
 
-	assert.Equal(1, len(b.H.Sites))
-	require.Len(t, b.H.Sites[0].RegularPages(), 6)
+	c.Assert(len(b.H.Sites), qt.Equals, 1)
+	c.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 6)
 
 	b.AssertFileContent("public/p1/index.html", "WordCount: 510\nFuzzyWordCount: 600\nReadingTime: 3\nLen Plain: 2550\nLen PlainWords: 510\nTruncated: false\nLen Summary: 2549\nLen Content: 2557")
 

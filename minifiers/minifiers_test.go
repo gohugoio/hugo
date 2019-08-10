@@ -20,12 +20,12 @@ import (
 
 	"github.com/gohugoio/hugo/media"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/output"
-	"github.com/stretchr/testify/require"
 )
 
 func TestNew(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	m := New(media.DefaultTypes, output.DefaultFormats)
 
 	var rawJS string
@@ -66,14 +66,14 @@ func TestNew(t *testing.T) {
 	} {
 		var b bytes.Buffer
 
-		assert.NoError(m.Minify(test.tp, &b, strings.NewReader(test.rawString)))
-		assert.Equal(test.expectedMinString, b.String())
+		c.Assert(m.Minify(test.tp, &b, strings.NewReader(test.rawString)), qt.IsNil)
+		c.Assert(b.String(), qt.Equals, test.expectedMinString)
 	}
 
 }
 
 func TestBugs(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	m := New(media.DefaultTypes, output.DefaultFormats)
 
 	for _, test := range []struct {
@@ -86,8 +86,8 @@ func TestBugs(t *testing.T) {
 	} {
 		var b bytes.Buffer
 
-		assert.NoError(m.Minify(test.tp, &b, strings.NewReader(test.rawString)))
-		assert.Equal(test.expectedMinString, b.String())
+		c.Assert(m.Minify(test.tp, &b, strings.NewReader(test.rawString)), qt.IsNil)
+		c.Assert(b.String(), qt.Equals, test.expectedMinString)
 	}
 
 }

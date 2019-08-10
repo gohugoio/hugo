@@ -18,10 +18,10 @@ import (
 
 	"reflect"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/tpl"
-	"github.com/stretchr/testify/require"
 )
 
 const sitemapTemplate = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -44,6 +44,7 @@ func TestSitemapOutput(t *testing.T) {
 
 func doTestSitemapOutput(t *testing.T, internal bool) {
 
+	c := qt.New(t)
 	cfg, fs := newTestCfg()
 	cfg.Set("baseURL", "http://auth/bub/")
 
@@ -63,7 +64,7 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 
 	writeSourcesToSource(t, "content", fs, weightedSources...)
 	s := buildSingleSite(t, depsCfg, BuildCfg{})
-	th := testHelper{s.Cfg, s.Fs, t}
+	th := newTestHelper(s.Cfg, s.Fs, t)
 	outputSitemap := "public/sitemap.xml"
 
 	th.assertFileContent(outputSitemap,
@@ -79,8 +80,8 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 		"<loc>http://auth/bub/categories/hugo/</loc>",
 	)
 
-	content := readDestination(th.T, th.Fs, outputSitemap)
-	require.NotContains(t, content, "404")
+	content := readDestination(th, th.Fs, outputSitemap)
+	c.Assert(content, qt.Not(qt.Contains), "404")
 
 }
 

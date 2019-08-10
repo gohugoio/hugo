@@ -20,6 +20,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	qt "github.com/frankban/quicktest"
 )
 
 type siteBenchmarkTestcase struct {
@@ -182,9 +184,9 @@ contentDir="content/sv"
 		},
 			func(s *sitesBuilder) {
 				s.CheckExists("public/blog/mybundle/index.html")
-				s.Assertions.Equal(4, len(s.H.Sites))
-				s.Assertions.Equal(len(s.H.Sites[0].RegularPages()), len(s.H.Sites[1].RegularPages()))
-				s.Assertions.Equal(30, len(s.H.Sites[0].RegularPages()))
+				s.Assert(len(s.H.Sites), qt.Equals, 4)
+				s.Assert(len(s.H.Sites[0].RegularPages()), qt.Equals, len(s.H.Sites[1].RegularPages()))
+				s.Assert(len(s.H.Sites[0].RegularPages()), qt.Equals, 30)
 
 			},
 		},

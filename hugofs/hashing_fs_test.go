@@ -16,8 +16,8 @@ package hugofs
 import (
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/spf13/afero"
-	"github.com/stretchr/testify/require"
 )
 
 type testHashReceiver struct {
@@ -31,23 +31,23 @@ func (t *testHashReceiver) OnFileClose(name, md5hash string) {
 }
 
 func TestHashingFs(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	fs := afero.NewMemMapFs()
 	observer := &testHashReceiver{}
 	ofs := NewHashingFs(fs, observer)
 
 	f, err := ofs.Create("hashme")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	_, err = f.Write([]byte("content"))
-	assert.NoError(err)
-	assert.NoError(f.Close())
-	assert.Equal("9a0364b9e99bb480dd25e1f0284c8555", observer.sum)
-	assert.Equal("hashme", observer.name)
+	c.Assert(err, qt.IsNil)
+	c.Assert(f.Close(), qt.IsNil)
+	c.Assert(observer.sum, qt.Equals, "9a0364b9e99bb480dd25e1f0284c8555")
+	c.Assert(observer.name, qt.Equals, "hashme")
 
 	f, err = ofs.Create("nowrites")
-	assert.NoError(err)
-	assert.NoError(f.Close())
-	assert.Equal("d41d8cd98f00b204e9800998ecf8427e", observer.sum)
+	c.Assert(err, qt.IsNil)
+	c.Assert(f.Close(), qt.IsNil)
+	c.Assert(observer.sum, qt.Equals, "d41d8cd98f00b204e9800998ecf8427e")
 
 }

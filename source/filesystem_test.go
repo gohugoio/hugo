@@ -25,19 +25,19 @@ import (
 
 	"github.com/spf13/afero"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/stretchr/testify/require"
 
 	"github.com/spf13/viper"
 )
 
 func TestEmptySourceFilesystem(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	ss := newTestSourceSpec()
 	src := ss.NewFilesystem("")
 	files, err := src.Files()
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	if len(files) != 0 {
 		t.Errorf("new filesystem should contain 0 files.")
 	}
@@ -49,7 +49,7 @@ func TestUnicodeNorm(t *testing.T) {
 		return
 	}
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	paths := []struct {
 		NFC string
@@ -64,11 +64,11 @@ func TestUnicodeNorm(t *testing.T) {
 
 	for i, path := range paths {
 		base := fmt.Sprintf("base%d", i)
-		assert.NoError(afero.WriteFile(ss.Fs.Source, filepath.Join(base, path.NFD), []byte("some data"), 0777))
+		c.Assert(afero.WriteFile(ss.Fs.Source, filepath.Join(base, path.NFD), []byte("some data"), 0777), qt.IsNil)
 		src := ss.NewFilesystem(base)
 		_ = src.add(path.NFD, fi)
 		files, err := src.Files()
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 		f := files[0]
 		if f.BaseFileName() != path.NFC {
 			t.Fatalf("file %q name in NFD form should be normalized (%s)", f.BaseFileName(), path.NFC)

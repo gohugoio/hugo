@@ -25,8 +25,8 @@ import (
 
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
-	"github.com/stretchr/testify/require"
 )
 
 func TestMerge(t *testing.T) {
@@ -69,27 +69,27 @@ func TestMerge(t *testing.T) {
 
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
-			errMsg := fmt.Sprintf("[%d] %v", i, test)
+			errMsg := qt.Commentf("[%d] %v", i, test)
 
-			assert := require.New(t)
+			c := qt.New(t)
 
 			srcStr, dstStr := fmt.Sprint(test.src), fmt.Sprint(test.dst)
 
 			result, err := ns.Merge(test.src, test.dst)
 
 			if test.isErr {
-				assert.Error(err, errMsg)
+				c.Assert(err, qt.Not(qt.IsNil), errMsg)
 				return
 			}
 
-			assert.NoError(err, errMsg)
-			assert.Equal(test.expect, result, errMsg)
+			c.Assert(err, qt.IsNil)
+			c.Assert(result, qt.DeepEquals, test.expect, errMsg)
 
 			// map sort in fmt was fixed in go 1.12.
 			if !strings.HasPrefix(runtime.Version(), "go1.11") {
 				// Verify that the original maps are preserved.
-				assert.Equal(srcStr, fmt.Sprint(test.src))
-				assert.Equal(dstStr, fmt.Sprint(test.dst))
+				c.Assert(fmt.Sprint(test.src), qt.Equals, srcStr)
+				c.Assert(fmt.Sprint(test.dst), qt.Equals, dstStr)
 			}
 
 		})
@@ -97,7 +97,7 @@ func TestMerge(t *testing.T) {
 }
 
 func TestMergeDataFormats(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	ns := New(&deps.Deps{})
 
 	toml1 := `
@@ -119,33 +119,38 @@ V22 = "v22_2"
 `
 
 	meta1, err := metadecoders.Default.UnmarshalToMap([]byte(toml1), metadecoders.TOML)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	meta2, err := metadecoders.Default.UnmarshalToMap([]byte(toml2), metadecoders.TOML)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	for _, format := range []metadecoders.Format{metadecoders.JSON, metadecoders.YAML, metadecoders.TOML} {
 
 		var dataStr1, dataStr2 bytes.Buffer
 		err = parser.InterfaceToConfig(meta1, format, &dataStr1)
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 		err = parser.InterfaceToConfig(meta2, format, &dataStr2)
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 
 		dst, err := metadecoders.Default.UnmarshalToMap(dataStr1.Bytes(), format)
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 		src, err := metadecoders.Default.UnmarshalToMap(dataStr2.Bytes(), format)
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 
 		merged, err := ns.Merge(src, dst)
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 
-		assert.Equal(map[string]interface{}{"V1": "v1_1", "V2": "v2_2", "V2s": map[string]interface{}{"V21": "v21_1", "V22": "v22_2"}}, merged)
+		c.Assert(
+			merged,
+			qt.DeepEquals,
+			map[string]interface{}{
+				"V1": "v1_1", "V2": "v2_2",
+				"V2s": map[string]interface{}{"V21": "v21_1", "V22": "v22_2"}})
 	}
 
 }
 
 func TestCaseInsensitiveMapLookup(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	m1 := reflect.ValueOf(map[string]interface{}{
 		"a": 1,
@@ -160,14 +165,14 @@ func TestCaseInsensitiveMapLookup(t *testing.T) {
 	var found bool
 
 	a, found := caseInsensitiveLookup(m1, reflect.ValueOf("A"))
-	assert.True(found)
-	assert.Equal(1, a.Interface())
+	c.Assert(found, qt.Equals, true)
+	c.Assert(a.Interface(), qt.Equals, 1)
 
 	b, found := caseInsensitiveLookup(m1, reflect.ValueOf("b"))
-	assert.True(found)
-	assert.Equal(2, b.Interface())
+	c.Assert(found, qt.Equals, true)
+	c.Assert(b.Interface(), qt.Equals, 2)
 
 	two, found := caseInsensitiveLookup(m2, reflect.ValueOf(2))
-	assert.True(found)
-	assert.Equal(2, two.Interface())
+	c.Assert(found, qt.Equals, true)
+	c.Assert(two.Interface(), qt.Equals, 2)
 }

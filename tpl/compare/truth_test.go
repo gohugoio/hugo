@@ -18,8 +18,8 @@ import (
 	"testing"
 	"time"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/hreflect"
-	"github.com/stretchr/testify/require"
 )
 
 func TestTruth(t *testing.T) {
@@ -46,15 +46,15 @@ func TestTruth(t *testing.T) {
 	})
 
 	t.Run("Not", func(t *testing.T) {
-		assert := require.New(t)
-		assert.True(n.Not(falsev))
-		assert.False(n.Not(truthv))
+		c := qt.New(t)
+		c.Assert(n.Not(falsev), qt.Equals, true)
+		c.Assert(n.Not(truthv), qt.Equals, false)
 	})
 
 	t.Run("getIf", func(t *testing.T) {
-		assert := require.New(t)
+		c := qt.New(t)
 		assertTruth(t, n.getIf(reflect.ValueOf(nil)), false)
 		s := reflect.ValueOf("Hugo")
-		assert.Equal(s, n.getIf(s))
+		c.Assert(n.getIf(s), qt.Equals, s)
 	})
 }

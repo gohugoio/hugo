@@ -18,13 +18,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestSmoke(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	const configFile = `
 baseURL = "https://example.com"
@@ -203,8 +203,8 @@ Some **Markdown** in JSON shortcode.
 
 	// Check RSS
 	rssHome := b.FileContent("public/index.xml")
-	assert.Contains(rssHome, `<atom:link href="https://example.com/index.xml" rel="self" type="application/rss+xml" />`)
-	assert.Equal(3, strings.Count(rssHome, "<item>")) // rssLimit = 3
+	c.Assert(rssHome, qt.Contains, `<atom:link href="https://example.com/index.xml" rel="self" type="application/rss+xml" />`)
+	c.Assert(strings.Count(rssHome, "<item>"), qt.Equals, 3) // rssLimit = 3
 
 	// .Render should use template/content from the current output format
 	// even if that output format isn't configured for that page.

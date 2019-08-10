@@ -14,16 +14,15 @@
 package cast
 
 import (
-	"fmt"
 	"html/template"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestToInt(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	ns := New()
 
@@ -40,23 +39,23 @@ func TestToInt(t *testing.T) {
 		{"a", false},
 		{t, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test.v)
+		errMsg := qt.Commentf("[%d] %v", i, test.v)
 
 		result, err := ns.ToInt(test.v)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil), errMsg)
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil, errMsg)
+		c.Assert(result, qt.Equals, test.expect, errMsg)
 	}
 }
 
 func TestToString(t *testing.T) {
 	t.Parallel()
-
+	c := qt.New(t)
 	ns := New()
 
 	for i, test := range []struct {
@@ -68,23 +67,23 @@ func TestToString(t *testing.T) {
 		{"a", "a"},
 		{t, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test.v)
+		errMsg := qt.Commentf("[%d] %v", i, test.v)
 
 		result, err := ns.ToString(test.v)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil), errMsg)
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil, errMsg)
+		c.Assert(result, qt.Equals, test.expect, errMsg)
 	}
 }
 
 func TestToFloat(t *testing.T) {
 	t.Parallel()
-
+	c := qt.New(t)
 	ns := New()
 
 	for i, test := range []struct {
@@ -105,16 +104,16 @@ func TestToFloat(t *testing.T) {
 		{2, 2.0},
 		{t, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test.v)
+		errMsg := qt.Commentf("[%d] %v", i, test.v)
 
 		result, err := ns.ToFloat(test.v)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil), errMsg)
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil, errMsg)
+		c.Assert(result, qt.Equals, test.expect, errMsg)
 	}
 }

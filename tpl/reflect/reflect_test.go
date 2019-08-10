@@ -14,10 +14,9 @@
 package reflect
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	qt "github.com/frankban/quicktest"
 )
 
 var ns = New()
@@ -25,7 +24,8 @@ var ns = New()
 type tstNoStringer struct{}
 
 func TestIsMap(t *testing.T) {
-	for i, test := range []struct {
+	c := qt.New(t)
+	for _, test := range []struct {
 		v      interface{}
 		expect interface{}
 	}{
@@ -33,14 +33,14 @@ func TestIsMap(t *testing.T) {
 		{"foo", false},
 		{nil, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test)
 		result := ns.IsMap(test.v)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(result, qt.Equals, test.expect)
 	}
 }
 
 func TestIsSlice(t *testing.T) {
-	for i, test := range []struct {
+	c := qt.New(t)
+	for _, test := range []struct {
 		v      interface{}
 		expect interface{}
 	}{
@@ -48,8 +48,7 @@ func TestIsSlice(t *testing.T) {
 		{"foo", false},
 		{nil, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test)
 		result := ns.IsSlice(test.v)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(result, qt.Equals, test.expect)
 	}
 }

@@ -24,28 +24,28 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func prepareSymlinks(t *testing.T) (string, func()) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	workDir, clean, err := htesting.CreateTempDir(Os, "hugo-symlink-test")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	wd, _ := os.Getwd()
 
 	blogDir := filepath.Join(workDir, "blog")
 	blogSubDir := filepath.Join(blogDir, "sub")
-	assert.NoError(os.MkdirAll(blogSubDir, 0777))
+	c.Assert(os.MkdirAll(blogSubDir, 0777), qt.IsNil)
 	blogFile1 := filepath.Join(blogDir, "a.txt")
 	blogFile2 := filepath.Join(blogSubDir, "b.txt")
 	afero.WriteFile(Os, filepath.Join(blogFile1), []byte("content1"), 0777)
 	afero.WriteFile(Os, filepath.Join(blogFile2), []byte("content2"), 0777)
 	os.Chdir(workDir)
-	assert.NoError(os.Symlink("blog", "symlinkdedir"))
+	c.Assert(os.Symlink("blog", "symlinkdedir"), qt.IsNil)
 	os.Chdir(blogDir)
-	assert.NoError(os.Symlink("sub", "symsub"))
-	assert.NoError(os.Symlink("a.txt", "symlinkdedfile.txt"))
+	c.Assert(os.Symlink("sub", "symsub"), qt.IsNil)
+	c.Assert(os.Symlink("a.txt", "symlinkdedfile.txt"), qt.IsNil)
 
 	return workDir, func() {
 		clean()
@@ -57,7 +57,7 @@ func TestNoSymlinkFs(t *testing.T) {
 	if skipSymlink() {
 		t.Skip("Skip; os.Symlink needs administrator rights on Windows")
 	}
-	assert := require.New(t)
+	c := qt.New(t)
 	workDir, clean := prepareSymlinks(t)
 	defer clean()
 
@@ -77,9 +77,9 @@ func TestNoSymlinkFs(t *testing.T) {
 
 			assertFileErr := func(err error) {
 				if allowFiles {
-					assert.NoError(err)
+					c.Assert(err, qt.IsNil)
 				} else {
-					assert.Equal(ErrPermissionSymlink, err)
+					c.Assert(err, qt.Equals, ErrPermissionSymlink)
 				}
 			}
 
@@ -87,8 +87,8 @@ func TestNoSymlinkFs(t *testing.T) {
 				t.Helper()
 				assertFileErr(err)
 				if err == nil {
-					assert.NotNil(fi)
-					assert.Equal(name, fi.Name())
+					c.Assert(fi, qt.Not(qt.IsNil))
+					c.Assert(fi.Name(), qt.Equals, name)
 				}
 			}
 
@@ -103,42 +103,42 @@ func TestNoSymlinkFs(t *testing.T) {
 				},
 			} {
 				_, err := stat(symlinkedDir)
-				assert.Equal(ErrPermissionSymlink, err)
+				c.Assert(err, qt.Equals, ErrPermissionSymlink)
 				fi, err := stat(symlinkedFile)
 				assertFileStat(symlinkedFilename, fi, err)
 
 				fi, err = stat(filepath.Join(workDir, "blog"))
-				assert.NoError(err)
-				assert.NotNil(fi)
+				c.Assert(err, qt.IsNil)
+				c.Assert(fi, qt.Not(qt.IsNil))
 
 				fi, err = stat(blogFile1)
-				assert.NoError(err)
-				assert.NotNil(fi)
+				c.Assert(err, qt.IsNil)
+				c.Assert(fi, qt.Not(qt.IsNil))
 			}
 
 			// Check Open
 			_, err := fs.Open(symlinkedDir)
-			assert.Equal(ErrPermissionSymlink, err)
+			c.Assert(err, qt.Equals, ErrPermissionSymlink)
 			_, err = fs.OpenFile(symlinkedDir, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
-			assert.Equal(ErrPermissionSymlink, err)
+			c.Assert(err, qt.Equals, ErrPermissionSymlink)
 			_, err = fs.OpenFile(symlinkedFile, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
 			assertFileErr(err)
 			_, err = fs.Open(symlinkedFile)
 			assertFileErr(err)
 			f, err := fs.Open(blogDir)
-			assert.NoError(err)
+			c.Assert(err, qt.IsNil)
 			f.Close()
 			f, err = fs.Open(blogFile1)
-			assert.NoError(err)
+			c.Assert(err, qt.IsNil)
 			f.Close()
 
 			// Check readdir
 			f, err = fs.Open(workDir)
-			assert.NoError(err)
+			c.Assert(err, qt.IsNil)
 			// There is at least one unsported symlink inside workDir
 			_, err = f.Readdir(-1)
 			f.Close()
-			assert.Equal(uint64(1), logger.WarnCounter.Count())
+			c.Assert(logger.WarnCounter.Count(), qt.Equals, uint64(1))
 
 		}
 	}

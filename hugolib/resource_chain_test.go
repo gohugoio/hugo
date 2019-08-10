@@ -22,7 +22,7 @@ import (
 
 	"github.com/spf13/viper"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 
 	"github.com/gohugoio/hugo/hugofs"
 
@@ -34,9 +34,9 @@ func TestSCSSWithIncludePaths(t *testing.T) {
 	if !scss.Supports() {
 		t.Skip("Skip SCSS")
 	}
-	assert := require.New(t)
+	c := qt.New(t)
 	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-scss-include")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	defer clean()
 
 	v := viper.New()
@@ -49,13 +49,13 @@ func TestSCSSWithIncludePaths(t *testing.T) {
 
 	fooDir := filepath.Join(workDir, "node_modules", "foo")
 	scssDir := filepath.Join(workDir, "assets", "scss")
-	assert.NoError(os.MkdirAll(fooDir, 0777))
-	assert.NoError(os.MkdirAll(filepath.Join(workDir, "content", "sect"), 0777))
-	assert.NoError(os.MkdirAll(filepath.Join(workDir, "data"), 0777))
-	assert.NoError(os.MkdirAll(filepath.Join(workDir, "i18n"), 0777))
-	assert.NoError(os.MkdirAll(filepath.Join(workDir, "layouts", "shortcodes"), 0777))
-	assert.NoError(os.MkdirAll(filepath.Join(workDir, "layouts", "_default"), 0777))
-	assert.NoError(os.MkdirAll(filepath.Join(scssDir), 0777))
+	c.Assert(os.MkdirAll(fooDir, 0777), qt.IsNil)
+	c.Assert(os.MkdirAll(filepath.Join(workDir, "content", "sect"), 0777), qt.IsNil)
+	c.Assert(os.MkdirAll(filepath.Join(workDir, "data"), 0777), qt.IsNil)
+	c.Assert(os.MkdirAll(filepath.Join(workDir, "i18n"), 0777), qt.IsNil)
+	c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "shortcodes"), 0777), qt.IsNil)
+	c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "_default"), 0777), qt.IsNil)
+	c.Assert(os.MkdirAll(filepath.Join(scssDir), 0777), qt.IsNil)
 
 	b.WithSourceFile(filepath.Join(fooDir, "_moo.scss"), `
 $moolor: #fff;
@@ -85,9 +85,9 @@ func TestSCSSWithThemeOverrides(t *testing.T) {
 	if !scss.Supports() {
 		t.Skip("Skip SCSS")
 	}
-	assert := require.New(t)
+	c := qt.New(t)
 	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-scss-include")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	defer clean()
 
 	theme := "mytheme"
@@ -105,14 +105,14 @@ func TestSCSSWithThemeOverrides(t *testing.T) {
 	fooDir := filepath.Join(workDir, "node_modules", "foo")
 	scssDir := filepath.Join(workDir, "assets", "scss")
 	scssThemeDir := filepath.Join(themeDirs, "assets", "scss")
-	assert.NoError(os.MkdirAll(fooDir, 0777))
-	assert.NoError(os.MkdirAll(filepath.Join(workDir, "content", "sect"), 0777))
-	assert.NoError(os.MkdirAll(filepath.Join(workDir, "data"), 0777))
-	assert.NoError(os.MkdirAll(filepath.Join(workDir, "i18n"), 0777))
-	assert.NoError(os.MkdirAll(filepath.Join(workDir, "layouts", "shortcodes"), 0777))
-	assert.NoError(os.MkdirAll(filepath.Join(workDir, "layouts", "_default"), 0777))
-	assert.NoError(os.MkdirAll(filepath.Join(scssDir, "components"), 0777))
-	assert.NoError(os.MkdirAll(filepath.Join(scssThemeDir, "components"), 0777))
+	c.Assert(os.MkdirAll(fooDir, 0777), qt.IsNil)
+	c.Assert(os.MkdirAll(filepath.Join(workDir, "content", "sect"), 0777), qt.IsNil)
+	c.Assert(os.MkdirAll(filepath.Join(workDir, "data"), 0777), qt.IsNil)
+	c.Assert(os.MkdirAll(filepath.Join(workDir, "i18n"), 0777), qt.IsNil)
+	c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "shortcodes"), 0777), qt.IsNil)
+	c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "_default"), 0777), qt.IsNil)
+	c.Assert(os.MkdirAll(filepath.Join(scssDir, "components"), 0777), qt.IsNil)
+	c.Assert(os.MkdirAll(filepath.Join(scssThemeDir, "components"), 0777), qt.IsNil)
 
 	b.WithSourceFile(filepath.Join(scssThemeDir, "components", "_imports.scss"), `
 @import "moo";
@@ -170,7 +170,7 @@ T1: {{ $r.Content }}
 func TestResourceChain(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	tests := []struct {
 		name      string
@@ -203,7 +203,7 @@ T6: {{ $bundle1.Permalink }}
 			b.AssertFileContent("public/index.html", `T5 RelPermalink: /sass/styles3.css|`)
 			b.AssertFileContent("public/index.html", `T6: http://example.com/styles/bundle1.css`)
 
-			assert.False(b.CheckExists("public/styles/templ.min.css"))
+			c.Assert(b.CheckExists("public/styles/templ.min.css"), qt.Equals, false)
 			b.AssertFileContent("public/styles/bundle1.css", `.home{color:blue}body{color:#333}`)
 
 		}},
@@ -353,10 +353,9 @@ Publish 2: {{ $cssPublish2.Permalink }}
 				"Publish 1: body{color:blue} /external1.min.css",
 				"Publish 2: http://example.com/external2.min.css",
 			)
-			assert.True(b.CheckExists("public/external2.min.css"), "Referenced content should be copied to /public")
-			assert.True(b.CheckExists("public/external1.min.css"), "Referenced content should be copied to /public")
-
-			assert.False(b.CheckExists("public/inline.min.css"), "Inline content should not be copied to /public")
+			c.Assert(b.CheckExists("public/external2.min.css"), qt.Equals, true)
+			c.Assert(b.CheckExists("public/external1.min.css"), qt.Equals, true)
+			c.Assert(b.CheckExists("public/inline.min.css"), qt.Equals, false)
 		}},
 
 		{"unmarshal", func() bool { return true }, func(b *sitesBuilder) {
@@ -489,7 +488,7 @@ $color: #333;
 
 func TestMultiSiteResource(t *testing.T) {
 	t.Parallel()
-	assert := require.New(t)
+	c := qt.New(t)
 
 	b := newMultiSiteTestDefaultBuilder(t)
 
@@ -497,8 +496,8 @@ func TestMultiSiteResource(t *testing.T) {
 
 	// This build is multilingual, but not multihost. There should be only one pipes.txt
 	b.AssertFileContent("public/fr/index.html", "French Home Page", "String Resource: /blog/text/pipes.txt")
-	assert.False(b.CheckExists("public/fr/text/pipes.txt"))
-	assert.False(b.CheckExists("public/en/text/pipes.txt"))
+	c.Assert(b.CheckExists("public/fr/text/pipes.txt"), qt.Equals, false)
+	c.Assert(b.CheckExists("public/en/text/pipes.txt"), qt.Equals, false)
 	b.AssertFileContent("public/en/index.html", "Default Home Page", "String Resource: /blog/text/pipes.txt")
 	b.AssertFileContent("public/text/pipes.txt", "Hugo Pipes")
 

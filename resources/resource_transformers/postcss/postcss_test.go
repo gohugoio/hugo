@@ -16,24 +16,24 @@ package postcss
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 // Issue 6166
 func TestDecodeOptions(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	opts1, err := DecodeOptions(map[string]interface{}{
 		"no-map": true,
 	})
 
-	assert.NoError(err)
-	assert.True(opts1.NoMap)
+	c.Assert(err, qt.IsNil)
+	c.Assert(opts1.NoMap, qt.Equals, true)
 
 	opts2, err := DecodeOptions(map[string]interface{}{
 		"noMap": true,
 	})
 
-	assert.NoError(err)
-	assert.True(opts2.NoMap)
+	c.Assert(err, qt.IsNil)
+	c.Assert(opts2.NoMap, qt.Equals, true)
 
 }

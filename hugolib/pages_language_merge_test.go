@@ -17,15 +17,15 @@ import (
 	"fmt"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/resources/resource"
-	"github.com/stretchr/testify/require"
 )
 
 // TODO(bep) move and rewrite in resource/page.
 
 func TestMergeLanguages(t *testing.T) {
 	t.Parallel()
-	assert := require.New(t)
+	c := qt.New(t)
 
 	b := newTestSiteForLanguageMerge(t, 30)
 	b.CreateSites()
@@ -38,53 +38,53 @@ func TestMergeLanguages(t *testing.T) {
 	frSite := h.Sites[1]
 	nnSite := h.Sites[2]
 
-	assert.Equal(31, len(enSite.RegularPages()))
-	assert.Equal(6, len(frSite.RegularPages()))
-	assert.Equal(12, len(nnSite.RegularPages()))
+	c.Assert(len(enSite.RegularPages()), qt.Equals, 31)
+	c.Assert(len(frSite.RegularPages()), qt.Equals, 6)
+	c.Assert(len(nnSite.RegularPages()), qt.Equals, 12)
 
 	for i := 0; i < 2; i++ {
 		mergedNN := nnSite.RegularPages().MergeByLanguage(enSite.RegularPages())
-		assert.Equal(31, len(mergedNN))
+		c.Assert(len(mergedNN), qt.Equals, 31)
 		for i := 1; i <= 31; i++ {
 			expectedLang := "en"
 			if i == 2 || i%3 == 0 || i == 31 {
 				expectedLang = "nn"
 			}
 			p := mergedNN[i-1]
-			assert.Equal(expectedLang, p.Language().Lang, fmt.Sprintf("Test %d", i))
+			c.Assert(p.Language().Lang, qt.Equals, expectedLang)
 		}
 	}
 
 	mergedFR := frSite.RegularPages().MergeByLanguage(enSite.RegularPages())
-	assert.Equal(31, len(mergedFR))
+	c.Assert(len(mergedFR), qt.Equals, 31)
 	for i := 1; i <= 31; i++ {
 		expectedLang := "en"
 		if i%5 == 0 {
 			expectedLang = "fr"
 		}
 		p := mergedFR[i-1]
-		assert.Equal(expectedLang, p.Language().Lang, fmt.Sprintf("Test %d", i))
+		c.Assert(p.Language().Lang, qt.Equals, expectedLang)
 	}
 
 	firstNN := nnSite.RegularPages()[0]
-	assert.Equal(4, len(firstNN.Sites()))
-	assert.Equal("en", firstNN.Sites().First().Language().Lang)
+	c.Assert(len(firstNN.Sites()), qt.Equals, 4)
+	c.Assert(firstNN.Sites().First().Language().Lang, qt.Equals, "en")
 
 	nnBundle := nnSite.getPage("page", "bundle")
 	enBundle := enSite.getPage("page", "bundle")
 
-	assert.Equal(6, len(enBundle.Resources()))
-	assert.Equal(2, len(nnBundle.Resources()))
+	c.Assert(len(enBundle.Resources()), qt.Equals, 6)
+	c.Assert(len(nnBundle.Resources()), qt.Equals, 2)
 
 	var ri interface{} = nnBundle.Resources()
 
 	// This looks less ugly in the templates ...
 	mergedNNResources := ri.(resource.ResourcesLanguageMerger).MergeByLanguage(enBundle.Resources())
-	assert.Equal(6, len(mergedNNResources))
+	c.Assert(len(mergedNNResources), qt.Equals, 6)
 
 	unchanged, err := nnSite.RegularPages().MergeByLanguageInterface(nil)
-	assert.NoError(err)
-	assert.Equal(nnSite.RegularPages(), unchanged)
+	c.Assert(err, qt.IsNil)
+	c.Assert(unchanged, deepEqualsPages, nnSite.RegularPages())
 
 }
 

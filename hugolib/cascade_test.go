@@ -19,10 +19,9 @@ import (
 	"path"
 	"testing"
 
-	"github.com/alecthomas/assert"
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/parser"
 	"github.com/gohugoio/hugo/parser/metadecoders"
-	"github.com/stretchr/testify/require"
 )
 
 func BenchmarkCascade(b *testing.B) {
@@ -31,7 +30,7 @@ func BenchmarkCascade(b *testing.B) {
 	for i := 1; i <= len(allLangs); i += 2 {
 		langs := allLangs[0:i]
 		b.Run(fmt.Sprintf("langs-%d", len(langs)), func(b *testing.B) {
-			assert := require.New(b)
+			c := qt.New(b)
 			b.StopTimer()
 			builders := make([]*sitesBuilder, b.N)
 			for i := 0; i < b.N; i++ {
@@ -42,16 +41,15 @@ func BenchmarkCascade(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				builder := builders[i]
 				err := builder.BuildE(BuildCfg{})
-				assert.NoError(err)
+				c.Assert(err, qt.IsNil)
 				first := builder.H.Sites[0]
-				assert.NotNil(first)
+				c.Assert(first, qt.Not(qt.IsNil))
 			}
 		})
 	}
 }
 
 func TestCascade(t *testing.T) {
-	assert := assert.New(t)
 
 	allLangs := []string{"en", "nn", "nb", "sv"}
 
@@ -93,7 +91,7 @@ func TestCascade(t *testing.T) {
 		// Check output formats set in cascade
 		b.AssertFileContent("public/sect4/index.xml", `<link>https://example.org/sect4/index.xml</link>`)
 		b.AssertFileContent("public/sect4/p1/index.xml", `<link>https://example.org/sect4/p1/index.xml</link>`)
-		assert.False(b.CheckExists("public/sect2/index.xml"))
+		b.C.Assert(b.CheckExists("public/sect2/index.xml"), qt.Equals, false)
 
 		// Check cascade into bundled page
 		b.AssertFileContent("public/bundle1/index.html", `Resources: bp1.md|home.png|`)

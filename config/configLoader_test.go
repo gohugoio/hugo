@@ -17,18 +17,18 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestIsValidConfigFileName(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	for _, ext := range ValidConfigFileExtensions {
 		filename := "config." + ext
-		assert.True(IsValidConfigFilename(filename), ext)
-		assert.True(IsValidConfigFilename(strings.ToUpper(filename)))
+		c.Assert(IsValidConfigFilename(filename), qt.Equals, true)
+		c.Assert(IsValidConfigFilename(strings.ToUpper(filename)), qt.Equals, true)
 	}
 
-	assert.False(IsValidConfigFilename(""))
-	assert.False(IsValidConfigFilename("config.toml.swp"))
+	c.Assert(IsValidConfigFilename(""), qt.Equals, false)
+	c.Assert(IsValidConfigFilename("config.toml.swp"), qt.Equals, false)
 }

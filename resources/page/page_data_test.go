@@ -19,15 +19,15 @@ import (
 
 	"text/template"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestPageData(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	data := make(Data)
 
-	assert.Nil(data.Pages())
+	c.Assert(data.Pages(), qt.IsNil)
 
 	pages := Pages{
 		&testPage{title: "a1"},
@@ -36,22 +36,22 @@ func TestPageData(t *testing.T) {
 
 	data["pages"] = pages
 
-	assert.Equal(pages, data.Pages())
+	c.Assert(data.Pages(), eq, pages)
 
 	data["pages"] = func() Pages {
 		return pages
 	}
 
-	assert.Equal(pages, data.Pages())
+	c.Assert(data.Pages(), eq, pages)
 
 	templ, err := template.New("").Parse(`Pages: {{ .Pages }}`)
 
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	var buff bytes.Buffer
 
-	assert.NoError(templ.Execute(&buff, data))
+	c.Assert(templ.Execute(&buff, data), qt.IsNil)
 
-	assert.Contains(buff.String(), "Pages(2)")
+	c.Assert(buff.String(), qt.Contains, "Pages(2)")
 
 }

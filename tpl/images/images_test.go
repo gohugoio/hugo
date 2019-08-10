@@ -15,20 +15,18 @@ package images
 
 import (
 	"bytes"
-	"fmt"
 	"image"
 	"image/color"
 	"image/png"
 	"path/filepath"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 type tstNoStringer struct{}
@@ -82,32 +80,32 @@ var configTests = []struct {
 
 func TestNSConfig(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	v := viper.New()
 	v.Set("workingDir", "/a/b")
 
 	ns := New(&deps.Deps{Fs: hugofs.NewMem(v)})
 
-	for i, test := range configTests {
-		errMsg := fmt.Sprintf("[%d] %s", i, test.path)
+	for _, test := range configTests {
 
 		// check for expected errors early to avoid writing files
 		if b, ok := test.expect.(bool); ok && !b {
 			_, err := ns.Config(test.path)
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
 		// cast path to string for afero.WriteFile
 		sp, err := cast.ToStringE(test.path)
-		require.NoError(t, err, errMsg)
+		c.Assert(err, qt.IsNil)
 		afero.WriteFile(ns.deps.Fs.Source, filepath.Join(v.GetString("workingDir"), sp), test.input, 0755)
 
 		result, err := ns.Config(test.path)
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
-		assert.NotEqual(t, 0, len(ns.cache), errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+		c.Assert(len(ns.cache), qt.Not(qt.Equals), 0)
 	}
 }
 

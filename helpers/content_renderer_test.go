@@ -18,8 +18,8 @@ import (
 	"regexp"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/require"
 )
 
 // Renders a codeblock using Blackfriday
@@ -43,7 +43,7 @@ func (c ContentSpec) renderWithMmark(input string) string {
 }
 
 func TestCodeFence(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	type test struct {
 		enabled         bool
@@ -64,10 +64,10 @@ func TestCodeFence(t *testing.T) {
 			v.Set("pygmentsCodeFences", d.enabled)
 			v.Set("pygmentsUseClassic", useClassic)
 
-			c, err := NewContentSpec(v)
-			assert.NoError(err)
+			cs, err := NewContentSpec(v)
+			c.Assert(err, qt.IsNil)
 
-			result := c.render(d.input)
+			result := cs.render(d.input)
 
 			expectedRe, err := regexp.Compile(d.expected)
 
@@ -80,7 +80,7 @@ func TestCodeFence(t *testing.T) {
 				t.Errorf("Test %d failed. BlackFriday enabled:%t, Expected:\n%q got:\n%q", i, d.enabled, d.expected, result)
 			}
 
-			result = c.renderWithMmark(d.input)
+			result = cs.renderWithMmark(d.input)
 			matched = expectedRe.MatchString(result)
 			if !matched {
 				t.Errorf("Test %d failed. Mmark enabled:%t, Expected:\n%q got:\n%q", i, d.enabled, d.expected, result)

@@ -17,12 +17,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 // Issue #5662
 func TestHugoWithContentDirOverride(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	hugoCmd := newCommandsBuilder().addAll().build()
 	cmd := hugoCmd.getCommand()
@@ -38,7 +38,7 @@ contentDir = "thisdoesnotexist"
 
 `
 	dir, err := createSimpleTestSite(t, testSiteConfig{configTOML: cfgStr, contentDir: contentDir})
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	defer func() {
 		os.RemoveAll(dir)
@@ -47,6 +47,6 @@ contentDir = "thisdoesnotexist"
 	cmd.SetArgs([]string{"-s=" + dir, "-c=" + contentDir})
 
 	_, err = cmd.ExecuteC()
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 }

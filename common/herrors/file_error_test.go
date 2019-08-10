@@ -14,18 +14,17 @@
 package herrors
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/pkg/errors"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestToLineNumberError(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	for i, test := range []struct {
 		in           error
@@ -43,15 +42,15 @@ func TestToLineNumberError(t *testing.T) {
 
 		got := ToFileError("template", test.in)
 
-		errMsg := fmt.Sprintf("[%d][%T]", i, got)
+		errMsg := qt.Commentf("[%d][%T]", i, got)
 		le, ok := got.(FileError)
-		assert.True(ok)
+		c.Assert(ok, qt.Equals, true)
 
-		assert.True(ok, errMsg)
+		c.Assert(ok, qt.Equals, true, errMsg)
 		pos := le.Position()
-		assert.Equal(test.lineNumber, pos.LineNumber, errMsg)
-		assert.Equal(test.columnNumber, pos.ColumnNumber, errMsg)
-		assert.Error(errors.Cause(got))
+		c.Assert(pos.LineNumber, qt.Equals, test.lineNumber, errMsg)
+		c.Assert(pos.ColumnNumber, qt.Equals, test.columnNumber, errMsg)
+		c.Assert(errors.Cause(got), qt.Not(qt.IsNil))
 	}
 
 }

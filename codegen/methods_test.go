@@ -20,8 +20,8 @@ import (
 	"reflect"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/herrors"
-	"github.com/stretchr/testify/require"
 )
 
 func TestMethods(t *testing.T) {
@@ -33,47 +33,47 @@ func TestMethods(t *testing.T) {
 	)
 
 	dir, _ := os.Getwd()
-	c := NewInspector(dir)
+	insp := NewInspector(dir)
 
 	t.Run("MethodsFromTypes", func(t *testing.T) {
-		assert := require.New(t)
+		c := qt.New(t)
 
-		methods := c.MethodsFromTypes([]reflect.Type{zeroI}, nil)
+		methods := insp.MethodsFromTypes([]reflect.Type{zeroI}, nil)
 
 		methodsStr := fmt.Sprint(methods)
 
-		assert.Contains(methodsStr, "Method1(arg0 herrors.ErrorContext)")
-		assert.Contains(methodsStr, "Method7() interface {}")
-		assert.Contains(methodsStr, "Method0() string\n Method4() string")
-		assert.Contains(methodsStr, "MethodEmbed3(arg0 string) string\n MethodEmbed1() string")
+		c.Assert(methodsStr, qt.Contains, "Method1(arg0 herrors.ErrorContext)")
+		c.Assert(methodsStr, qt.Contains, "Method7() interface {}")
+		c.Assert(methodsStr, qt.Contains, "Method0() string\n Method4() string")
+		c.Assert(methodsStr, qt.Contains, "MethodEmbed3(arg0 string) string\n MethodEmbed1() string")
 
-		assert.Contains(methods.Imports(), "github.com/gohugoio/hugo/common/herrors")
+		c.Assert(methods.Imports(), qt.Contains, "github.com/gohugoio/hugo/common/herrors")
 	})
 
 	t.Run("EmbedOnly", func(t *testing.T) {
-		assert := require.New(t)
+		c := qt.New(t)
 
-		methods := c.MethodsFromTypes([]reflect.Type{zeroIEOnly}, nil)
+		methods := insp.MethodsFromTypes([]reflect.Type{zeroIEOnly}, nil)
 
 		methodsStr := fmt.Sprint(methods)
 
-		assert.Contains(methodsStr, "MethodEmbed3(arg0 string) string")
+		c.Assert(methodsStr, qt.Contains, "MethodEmbed3(arg0 string) string")
 
 	})
 
 	t.Run("ToMarshalJSON", func(t *testing.T) {
-		assert := require.New(t)
+		c := qt.New(t)
 
-		m, pkg := c.MethodsFromTypes(
+		m, pkg := insp.MethodsFromTypes(
 			[]reflect.Type{zeroI},
 			[]reflect.Type{zeroIE}).ToMarshalJSON("*page", "page")
 
-		assert.Contains(m, "method6 := p.Method6()")
-		assert.Contains(m, "Method0: method0,")
-		assert.Contains(m, "return json.Marshal(&s)")
+		c.Assert(m, qt.Contains, "method6 := p.Method6()")
+		c.Assert(m, qt.Contains, "Method0: method0,")
+		c.Assert(m, qt.Contains, "return json.Marshal(&s)")
 
-		assert.Contains(pkg, "github.com/gohugoio/hugo/common/herrors")
-		assert.Contains(pkg, "encoding/json")
+		c.Assert(pkg, qt.Contains, "github.com/gohugoio/hugo/common/herrors")
+		c.Assert(pkg, qt.Contains, "encoding/json")
 
 		fmt.Println(pkg)
 

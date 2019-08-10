@@ -18,13 +18,13 @@ import (
 
 	"github.com/gohugoio/hugo/langs"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/require"
 )
 
 func TestNewPaths(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	v := viper.New()
 	fs := hugofs.NewMem(v)
@@ -43,9 +43,9 @@ func TestNewPaths(t *testing.T) {
 	langs.LoadLanguageSettings(v, nil)
 
 	p, err := New(fs, v)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
-	assert.Equal(true, p.defaultContentLanguageInSubdir)
-	assert.Equal("no", p.DefaultContentLanguage)
-	assert.Equal(true, p.multilingual)
+	c.Assert(p.defaultContentLanguageInSubdir, qt.Equals, true)
+	c.Assert(p.DefaultContentLanguage, qt.Equals, "no")
+	c.Assert(p.multilingual, qt.Equals, true)
 }

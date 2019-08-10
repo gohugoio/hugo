@@ -22,8 +22,8 @@ import (
 
 	"html/template"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
-	"github.com/stretchr/testify/require"
 )
 
 const slugDoc1 = "---\ntitle: slug doc 1\nslug: slug-doc-1\naliases:\n - /sd1/foo/\n - /sd2\n - /sd3/\n - /sd4.html\n---\nslug doc 1 content\n"
@@ -43,6 +43,8 @@ var urlFakeSource = [][2]string{
 // Issue #1105
 func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
+
 	for i, this := range []struct {
 		in       string
 		expected string
@@ -56,8 +58,8 @@ func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
 		cfg.Set("baseURL", this.in)
 		d := deps.DepsCfg{Cfg: cfg, Fs: fs}
 		s, err := NewSiteForCfg(d)
-		require.NoError(t, err)
-		require.NoError(t, s.initializeSiteInfo())
+		c.Assert(err, qt.IsNil)
+		c.Assert(s.initializeSiteInfo(), qt.IsNil)
 
 		if s.Info.BaseURL() != template.URL(this.expected) {
 			t.Errorf("[%d] got %s expected %s", i, s.Info.BaseURL(), this.expected)
@@ -94,7 +96,7 @@ func TestPageCount(t *testing.T) {
 func TestUglyURLsPerSection(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	const dt = `---
 title: Do not go gentle into that good night
@@ -117,23 +119,23 @@ Do not go gentle into that good night.
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
-	assert.Len(s.RegularPages(), 2)
+	c.Assert(len(s.RegularPages()), qt.Equals, 2)
 
 	notUgly := s.getPage(page.KindPage, "sect1/p1.md")
-	assert.NotNil(notUgly)
-	assert.Equal("sect1", notUgly.Section())
-	assert.Equal("/sect1/p1/", notUgly.RelPermalink())
+	c.Assert(notUgly, qt.Not(qt.IsNil))
+	c.Assert(notUgly.Section(), qt.Equals, "sect1")
+	c.Assert(notUgly.RelPermalink(), qt.Equals, "/sect1/p1/")
 
 	ugly := s.getPage(page.KindPage, "sect2/p2.md")
-	assert.NotNil(ugly)
-	assert.Equal("sect2", ugly.Section())
-	assert.Equal("/sect2/p2.html", ugly.RelPermalink())
+	c.Assert(ugly, qt.Not(qt.IsNil))
+	c.Assert(ugly.Section(), qt.Equals, "sect2")
+	c.Assert(ugly.RelPermalink(), qt.Equals, "/sect2/p2.html")
 }
 
 func TestSectionWithURLInFrontMatter(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	const st = `---
 title: Do not go gentle into that good night
@@ -157,7 +159,7 @@ Do not go gentle into that good night.
 `
 
 	cfg, fs := newTestCfg()
-	th := testHelper{cfg, fs, t}
+	th := newTestHelper(cfg, fs, t)
 
 	cfg.Set("paginate", 1)
 
@@ -175,11 +177,11 @@ Do not go gentle into that good night.
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-	assert.Len(s.RegularPages(), 10)
+	c.Assert(len(s.RegularPages()), qt.Equals, 10)
 
 	sect1 := s.getPage(page.KindSection, "sect1")
-	assert.NotNil(sect1)
-	assert.Equal("/ss1/", sect1.RelPermalink())
+	c.Assert(sect1, qt.Not(qt.IsNil))
+	c.Assert(sect1.RelPermalink(), qt.Equals, "/ss1/")
 	th.assertFileContent(filepath.Join("public", "ss1", "index.html"), "P1|URL: /ss1/|Next: /ss1/page/2/")
 	th.assertFileContent(filepath.Join("public", "ss1", "page", "2", "index.html"), "P2|URL: /ss1/page/2/|Next: /ss1/page/3/")
 

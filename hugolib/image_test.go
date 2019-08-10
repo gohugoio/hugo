@@ -21,18 +21,18 @@ import (
 
 	"github.com/gohugoio/hugo/htesting"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/require"
 )
 
 // We have many tests for the different resize operations etc. in the resource package,
 // this is an integration test.
 func TestImageResize(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	// Make this a real as possible.
 	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "image-resize")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	defer clean()
 
 	newBuilder := func() *sitesBuilder {
@@ -74,22 +74,22 @@ title: "My bundle"
 	imageDir := filepath.Join(workDir, "assets", "images")
 	bundleDir := filepath.Join(workDir, "content", "mybundle")
 
-	assert.NoError(os.MkdirAll(imageDir, 0777))
-	assert.NoError(os.MkdirAll(bundleDir, 0777))
+	c.Assert(os.MkdirAll(imageDir, 0777), qt.IsNil)
+	c.Assert(os.MkdirAll(bundleDir, 0777), qt.IsNil)
 	src, err := os.Open("testdata/sunset.jpg")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	out, err := os.Create(filepath.Join(imageDir, "sunset.jpg"))
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	_, err = io.Copy(out, src)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	out.Close()
 
 	src.Seek(0, 0)
 
 	out, err = os.Create(filepath.Join(bundleDir, "sunset.jpg"))
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	_, err = io.Copy(out, src)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	out.Close()
 	src.Close()
 

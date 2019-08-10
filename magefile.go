@@ -304,7 +304,7 @@ func TestCoverHTML() error {
 }
 
 func isGoLatest() bool {
-	return strings.Contains(runtime.Version(), "1.11")
+	return strings.Contains(runtime.Version(), "1.12")
 }
 
 func isCI() bool {

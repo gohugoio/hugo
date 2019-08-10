@@ -14,17 +14,15 @@
 package collections
 
 import (
-	"fmt"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestIndex(t *testing.T) {
 	t.Parallel()
-
+	c := qt.New(t)
 	ns := New(&deps.Deps{})
 
 	for i, test := range []struct {
@@ -45,16 +43,16 @@ func TestIndex(t *testing.T) {
 		{[]int{0, 1}, []interface{}{nil}, nil, true},
 		{tstNoStringer{}, []interface{}{0}, nil, true},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test)
+		errMsg := qt.Commentf("[%d] %v", i, test)
 
 		result, err := ns.Index(test.item, test.indices...)
 
 		if test.isErr {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil), errMsg)
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil, errMsg)
+		c.Assert(result, qt.DeepEquals, test.expect, errMsg)
 	}
 }

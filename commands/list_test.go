@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/spf13/cobra"
-	"github.com/stretchr/testify/require"
 )
 
 func captureStdout(f func() (*cobra.Command, error)) (string, error) {
@@ -33,10 +33,10 @@ func captureStdout(f func() (*cobra.Command, error)) (string, error) {
 }
 
 func TestListAll(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	dir, err := createSimpleTestSite(t, testSiteConfig{})
 
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	hugoCmd := newCommandsBuilder().addAll().build()
 	cmd := hugoCmd.getCommand()
@@ -48,24 +48,25 @@ func TestListAll(t *testing.T) {
 	cmd.SetArgs([]string{"-s=" + dir, "list", "all"})
 
 	out, err := captureStdout(cmd.ExecuteC)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	r := csv.NewReader(strings.NewReader(out))
 
 	header, err := r.Read()
-	assert.NoError(err)
 
-	assert.Equal([]string{
+	c.Assert(err, qt.IsNil)
+	c.Assert(header, qt.DeepEquals, []string{
 		"path", "slug", "title",
 		"date", "expiryDate", "publishDate",
 		"draft", "permalink",
-	}, header)
+	})
 
 	record, err := r.Read()
-	assert.NoError(err)
-	assert.Equal([]string{
+
+	c.Assert(err, qt.IsNil)
+	c.Assert(record, qt.DeepEquals, []string{
 		filepath.Join("content", "p1.md"), "", "P1",
 		"0001-01-01T00:00:00Z", "0001-01-01T00:00:00Z", "0001-01-01T00:00:00Z",
 		"false", "https://example.org/p1/",
-	}, record)
+	})
 }

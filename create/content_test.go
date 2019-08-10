@@ -27,11 +27,11 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/create"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/require"
 )
 
 func TestNewContent(t *testing.T) {
@@ -62,25 +62,25 @@ func TestNewContent(t *testing.T) {
 			"{{</* comment */>}}\n{{%/* comment */%}}"}}, // shortcodes
 	}
 
-	for i, c := range cases {
-		c := c
-		t.Run(fmt.Sprintf("%s-%d", c.kind, i), func(t *testing.T) {
+	for i, cas := range cases {
+		cas := cas
+		t.Run(fmt.Sprintf("%s-%d", cas.kind, i), func(t *testing.T) {
 			t.Parallel()
-			assert := require.New(t)
+			c := qt.New(t)
 			mm := afero.NewMemMapFs()
-			assert.NoError(initFs(mm))
-			cfg, fs := newTestCfg(assert, mm)
+			c.Assert(initFs(mm), qt.IsNil)
+			cfg, fs := newTestCfg(c, mm)
 			h, err := hugolib.NewHugoSites(deps.DepsCfg{Cfg: cfg, Fs: fs})
-			assert.NoError(err)
+			c.Assert(err, qt.IsNil)
 
-			assert.NoError(create.NewContent(h, c.kind, c.path))
+			c.Assert(create.NewContent(h, cas.kind, cas.path), qt.IsNil)
 
-			fname := filepath.FromSlash(c.path)
+			fname := filepath.FromSlash(cas.path)
 			if !strings.HasPrefix(fname, "content") {
 				fname = filepath.Join("content", fname)
 			}
 			content := readFileFromFs(t, fs.Source, fname)
-			for _, v := range c.expected {
+			for _, v := range cas.expected {
 				found := strings.Contains(content, v)
 				if !found {
 					t.Fatalf("[%d] %q missing from output:\n%q", i, v, content)
@@ -93,13 +93,13 @@ func TestNewContent(t *testing.T) {
 
 func TestNewContentFromDir(t *testing.T) {
 	mm := afero.NewMemMapFs()
-	assert := require.New(t)
+	c := qt.New(t)
 
 	archetypeDir := filepath.Join("archetypes", "my-bundle")
-	assert.NoError(mm.MkdirAll(archetypeDir, 0755))
+	c.Assert(mm.MkdirAll(archetypeDir, 0755), qt.IsNil)
 
 	archetypeThemeDir := filepath.Join("themes", "mytheme", "archetypes", "my-theme-bundle")
-	assert.NoError(mm.MkdirAll(archetypeThemeDir, 0755))
+	c.Assert(mm.MkdirAll(archetypeThemeDir, 0755), qt.IsNil)
 
 	contentFile := `
 File: %s
@@ -108,38 +108,38 @@ Name: {{ replace .Name "-" " " | title }}
 i18n: {{ T "hugo" }}
 `
 
-	assert.NoError(afero.WriteFile(mm, filepath.Join(archetypeDir, "index.md"), []byte(fmt.Sprintf(contentFile, "index.md")), 0755))
-	assert.NoError(afero.WriteFile(mm, filepath.Join(archetypeDir, "index.nn.md"), []byte(fmt.Sprintf(contentFile, "index.nn.md")), 0755))
+	c.Assert(afero.WriteFile(mm, filepath.Join(archetypeDir, "index.md"), []byte(fmt.Sprintf(contentFile, "index.md")), 0755), qt.IsNil)
+	c.Assert(afero.WriteFile(mm, filepath.Join(archetypeDir, "index.nn.md"), []byte(fmt.Sprintf(contentFile, "index.nn.md")), 0755), qt.IsNil)
 
-	assert.NoError(afero.WriteFile(mm, filepath.Join(archetypeDir, "pages", "bio.md"), []byte(fmt.Sprintf(contentFile, "bio.md")), 0755))
-	assert.NoError(afero.WriteFile(mm, filepath.Join(archetypeDir, "resources", "hugo1.json"), []byte(`hugo1: {{ printf "no template handling in here" }}`), 0755))
-	assert.NoError(afero.WriteFile(mm, filepath.Join(archetypeDir, "resources", "hugo2.xml"), []byte(`hugo2: {{ printf "no template handling in here" }}`), 0755))
+	c.Assert(afero.WriteFile(mm, filepath.Join(archetypeDir, "pages", "bio.md"), []byte(fmt.Sprintf(contentFile, "bio.md")), 0755), qt.IsNil)
+	c.Assert(afero.WriteFile(mm, filepath.Join(archetypeDir, "resources", "hugo1.json"), []byte(`hugo1: {{ printf "no template handling in here" }}`), 0755), qt.IsNil)
+	c.Assert(afero.WriteFile(mm, filepath.Join(archetypeDir, "resources", "hugo2.xml"), []byte(`hugo2: {{ printf "no template handling in here" }}`), 0755), qt.IsNil)
 
-	assert.NoError(afero.WriteFile(mm, filepath.Join(archetypeThemeDir, "index.md"), []byte(fmt.Sprintf(contentFile, "index.md")), 0755))
-	assert.NoError(afero.WriteFile(mm, filepath.Join(archetypeThemeDir, "resources", "hugo1.json"), []byte(`hugo1: {{ printf "no template handling in here" }}`), 0755))
+	c.Assert(afero.WriteFile(mm, filepath.Join(archetypeThemeDir, "index.md"), []byte(fmt.Sprintf(contentFile, "index.md")), 0755), qt.IsNil)
+	c.Assert(afero.WriteFile(mm, filepath.Join(archetypeThemeDir, "resources", "hugo1.json"), []byte(`hugo1: {{ printf "no template handling in here" }}`), 0755), qt.IsNil)
 
-	assert.NoError(initFs(mm))
-	cfg, fs := newTestCfg(assert, mm)
+	c.Assert(initFs(mm), qt.IsNil)
+	cfg, fs := newTestCfg(c, mm)
 
 	h, err := hugolib.NewHugoSites(deps.DepsCfg{Cfg: cfg, Fs: fs})
-	assert.NoError(err)
-	assert.Equal(2, len(h.Sites))
+	c.Assert(err, qt.IsNil)
+	c.Assert(len(h.Sites), qt.Equals, 2)
 
-	assert.NoError(create.NewContent(h, "my-bundle", "post/my-post"))
+	c.Assert(create.NewContent(h, "my-bundle", "post/my-post"), qt.IsNil)
 
-	assertContains(assert, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post/resources/hugo1.json")), `hugo1: {{ printf "no template handling in here" }}`)
-	assertContains(assert, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post/resources/hugo2.xml")), `hugo2: {{ printf "no template handling in here" }}`)
+	cContains(c, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post/resources/hugo1.json")), `hugo1: {{ printf "no template handling in here" }}`)
+	cContains(c, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post/resources/hugo2.xml")), `hugo2: {{ printf "no template handling in here" }}`)
 
 	// Content files should get the correct site context.
 	// TODO(bep) archetype check i18n
-	assertContains(assert, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post/index.md")), `File: index.md`, `Site Lang: en`, `Name: My Post`, `i18n: Hugo Rocks!`)
-	assertContains(assert, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post/index.nn.md")), `File: index.nn.md`, `Site Lang: nn`, `Name: My Post`, `i18n: Hugo Rokkar!`)
+	cContains(c, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post/index.md")), `File: index.md`, `Site Lang: en`, `Name: My Post`, `i18n: Hugo Rocks!`)
+	cContains(c, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post/index.nn.md")), `File: index.nn.md`, `Site Lang: nn`, `Name: My Post`, `i18n: Hugo Rokkar!`)
 
-	assertContains(assert, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post/pages/bio.md")), `File: bio.md`, `Site Lang: en`, `Name: My Post`)
+	cContains(c, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post/pages/bio.md")), `File: bio.md`, `Site Lang: en`, `Name: My Post`)
 
-	assert.NoError(create.NewContent(h, "my-theme-bundle", "post/my-theme-post"))
-	assertContains(assert, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-theme-post/index.md")), `File: index.md`, `Site Lang: en`, `Name: My Theme Post`, `i18n: Hugo Rocks!`)
-	assertContains(assert, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-theme-post/resources/hugo1.json")), `hugo1: {{ printf "no template handling in here" }}`)
+	c.Assert(create.NewContent(h, "my-theme-bundle", "post/my-theme-post"), qt.IsNil)
+	cContains(c, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-theme-post/index.md")), `File: index.md`, `Site Lang: en`, `Name: My Theme Post`, `i18n: Hugo Rocks!`)
+	cContains(c, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-theme-post/resources/hugo1.json")), `hugo1: {{ printf "no template handling in here" }}`)
 
 }
 
@@ -221,9 +221,9 @@ Some text.
 	return nil
 }
 
-func assertContains(assert *require.Assertions, v interface{}, matches ...string) {
+func cContains(c *qt.C, v interface{}, matches ...string) {
 	for _, m := range matches {
-		assert.Contains(v, m)
+		c.Assert(v, qt.Contains, m)
 	}
 }
 
@@ -247,7 +247,7 @@ func readFileFromFs(t *testing.T, fs afero.Fs, filename string) string {
 	return string(b)
 }
 
-func newTestCfg(assert *require.Assertions, mm afero.Fs) (*viper.Viper, *hugofs.Fs) {
+func newTestCfg(c *qt.C, mm afero.Fs) (*viper.Viper, *hugofs.Fs) {
 
 	cfg := `
 
@@ -270,15 +270,15 @@ contentDir = "content_nn"
 
 	mm.MkdirAll(filepath.FromSlash("themes/mytheme"), 0777)
 
-	assert.NoError(afero.WriteFile(mm, filepath.Join("i18n", "en.toml"), []byte(`[hugo]
-other = "Hugo Rocks!"`), 0755))
-	assert.NoError(afero.WriteFile(mm, filepath.Join("i18n", "nn.toml"), []byte(`[hugo]
-other = "Hugo Rokkar!"`), 0755))
+	c.Assert(afero.WriteFile(mm, filepath.Join("i18n", "en.toml"), []byte(`[hugo]
+other = "Hugo Rocks!"`), 0755), qt.IsNil)
+	c.Assert(afero.WriteFile(mm, filepath.Join("i18n", "nn.toml"), []byte(`[hugo]
+other = "Hugo Rokkar!"`), 0755), qt.IsNil)
 
-	assert.NoError(afero.WriteFile(mm, "config.toml", []byte(cfg), 0755))
+	c.Assert(afero.WriteFile(mm, "config.toml", []byte(cfg), 0755), qt.IsNil)
 
 	v, _, err := hugolib.LoadConfig(hugolib.ConfigSourceDescriptor{Fs: mm, Filename: "config.toml"})
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	return v, hugofs.NewFrom(mm, v)
 

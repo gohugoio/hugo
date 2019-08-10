@@ -14,7 +14,6 @@
 package pagemeta
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -22,14 +21,14 @@ import (
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/spf13/viper"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestDateAndSlugFromBaseFilename(t *testing.T) {
 
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	tests := []struct {
 		name string
@@ -50,15 +49,14 @@ func TestDateAndSlugFromBaseFilename(t *testing.T) {
 		{"asdfasdf.md", "0001-01-01", ""},
 	}
 
-	for i, test := range tests {
+	for _, test := range tests {
 		expecteFDate, err := time.Parse("2006-01-02", test.date)
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 
-		errMsg := fmt.Sprintf("Test %d", i)
 		gotDate, gotSlug := dateAndSlugFromBaseFilename(test.name)
 
-		assert.Equal(expecteFDate, gotDate, errMsg)
-		assert.Equal(test.slug, gotSlug, errMsg)
+		c.Assert(gotDate, qt.Equals, expecteFDate)
+		c.Assert(gotSlug, qt.Equals, test.slug)
 
 	}
 }
@@ -73,7 +71,7 @@ func newTestFd() *FrontMatterDescriptor {
 }
 
 func TestFrontMatterNewConfig(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	cfg := viper.New()
 
@@ -85,20 +83,20 @@ func TestFrontMatterNewConfig(t *testing.T) {
 	})
 
 	fc, err := newFrontmatterConfig(cfg)
-	assert.NoError(err)
-	assert.Equal([]string{"publishdate", "pubdate", "published", "lastmod", "modified"}, fc.date)
-	assert.Equal([]string{"publishdate", "pubdate", "published"}, fc.lastmod)
-	assert.Equal([]string{"lastmod", "modified"}, fc.expiryDate)
-	assert.Equal([]string{"date"}, fc.publishDate)
+	c.Assert(err, qt.IsNil)
+	c.Assert(fc.date, qt.DeepEquals, []string{"publishdate", "pubdate", "published", "lastmod", "modified"})
+	c.Assert(fc.lastmod, qt.DeepEquals, []string{"publishdate", "pubdate", "published"})
+	c.Assert(fc.expiryDate, qt.DeepEquals, []string{"lastmod", "modified"})
+	c.Assert(fc.publishDate, qt.DeepEquals, []string{"date"})
 
 	// Default
 	cfg = viper.New()
 	fc, err = newFrontmatterConfig(cfg)
-	assert.NoError(err)
-	assert.Equal([]string{"date", "publishdate", "pubdate", "published", "lastmod", "modified"}, fc.date)
-	assert.Equal([]string{":git", "lastmod", "modified", "date", "publishdate", "pubdate", "published"}, fc.lastmod)
-	assert.Equal([]string{"expirydate", "unpublishdate"}, fc.expiryDate)
-	assert.Equal([]string{"publishdate", "pubdate", "published", "date"}, fc.publishDate)
+	c.Assert(err, qt.IsNil)
+	c.Assert(fc.date, qt.DeepEquals, []string{"date", "publishdate", "pubdate", "published", "lastmod", "modified"})
+	c.Assert(fc.lastmod, qt.DeepEquals, []string{":git", "lastmod", "modified", "date", "publishdate", "pubdate", "published"})
+	c.Assert(fc.expiryDate, qt.DeepEquals, []string{"expirydate", "unpublishdate"})
+	c.Assert(fc.publishDate, qt.DeepEquals, []string{"publishdate", "pubdate", "published", "date"})
 
 	// :default keyword
 	cfg.Set("frontmatter", map[string]interface{}{
@@ -108,16 +106,16 @@ func TestFrontMatterNewConfig(t *testing.T) {
 		"publishDate": []string{"d4", ":default"},
 	})
 	fc, err = newFrontmatterConfig(cfg)
-	assert.NoError(err)
-	assert.Equal([]string{"d1", "date", "publishdate", "pubdate", "published", "lastmod", "modified"}, fc.date)
-	assert.Equal([]string{"d2", ":git", "lastmod", "modified", "date", "publishdate", "pubdate", "published"}, fc.lastmod)
-	assert.Equal([]string{"d3", "expirydate", "unpublishdate"}, fc.expiryDate)
-	assert.Equal([]string{"d4", "publishdate", "pubdate", "published", "date"}, fc.publishDate)
+	c.Assert(err, qt.IsNil)
+	c.Assert(fc.date, qt.DeepEquals, []string{"d1", "date", "publishdate", "pubdate", "published", "lastmod", "modified"})
+	c.Assert(fc.lastmod, qt.DeepEquals, []string{"d2", ":git", "lastmod", "modified", "date", "publishdate", "pubdate", "published"})
+	c.Assert(fc.expiryDate, qt.DeepEquals, []string{"d3", "expirydate", "unpublishdate"})
+	c.Assert(fc.publishDate, qt.DeepEquals, []string{"d4", "publishdate", "pubdate", "published", "date"})
 
 }
 
 func TestFrontMatterDatesHandlers(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	for _, handlerID := range []string{":filename", ":fileModTime", ":git"} {
 
@@ -128,7 +126,7 @@ func TestFrontMatterDatesHandlers(t *testing.T) {
 		})
 
 		handler, err := NewFrontmatterHandler(nil, cfg)
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 
 		d1, _ := time.Parse("2006-01-02", "2018-02-01")
 		d2, _ := time.Parse("2006-01-02", "2018-02-02")
@@ -143,15 +141,15 @@ func TestFrontMatterDatesHandlers(t *testing.T) {
 			d.GitAuthorDate = d1
 		}
 		d.Frontmatter["date"] = d2
-		assert.NoError(handler.HandleDates(d))
-		assert.Equal(d1, d.Dates.FDate)
-		assert.Equal(d2, d.Params["date"])
+		c.Assert(handler.HandleDates(d), qt.IsNil)
+		c.Assert(d.Dates.FDate, qt.Equals, d1)
+		c.Assert(d.Params["date"], qt.Equals, d2)
 
 		d = newTestFd()
 		d.Frontmatter["date"] = d2
-		assert.NoError(handler.HandleDates(d))
-		assert.Equal(d2, d.Dates.FDate)
-		assert.Equal(d2, d.Params["date"])
+		c.Assert(handler.HandleDates(d), qt.IsNil)
+		c.Assert(d.Dates.FDate, qt.Equals, d2)
+		c.Assert(d.Params["date"], qt.Equals, d2)
 
 	}
 }
@@ -159,7 +157,7 @@ func TestFrontMatterDatesHandlers(t *testing.T) {
 func TestFrontMatterDatesCustomConfig(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	cfg := viper.New()
 	cfg.Set("frontmatter", map[string]interface{}{
@@ -169,10 +167,10 @@ func TestFrontMatterDatesCustomConfig(t *testing.T) {
 	})
 
 	handler, err := NewFrontmatterHandler(nil, cfg)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	testDate, err := time.Parse("2006-01-02", "2018-02-01")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	d := newTestFd()
 	d.Frontmatter["mydate"] = testDate
@@ -185,29 +183,29 @@ func TestFrontMatterDatesCustomConfig(t *testing.T) {
 	testDate = testDate.Add(24 * time.Hour)
 	d.Frontmatter["expirydate"] = testDate
 
-	assert.NoError(handler.HandleDates(d))
+	c.Assert(handler.HandleDates(d), qt.IsNil)
 
-	assert.Equal(1, d.Dates.FDate.Day())
-	assert.Equal(4, d.Dates.FLastmod.Day())
-	assert.Equal(4, d.Dates.FPublishDate.Day())
-	assert.Equal(5, d.Dates.FExpiryDate.Day())
+	c.Assert(d.Dates.FDate.Day(), qt.Equals, 1)
+	c.Assert(d.Dates.FLastmod.Day(), qt.Equals, 4)
+	c.Assert(d.Dates.FPublishDate.Day(), qt.Equals, 4)
+	c.Assert(d.Dates.FExpiryDate.Day(), qt.Equals, 5)
 
-	assert.Equal(d.Dates.FDate, d.Params["date"])
-	assert.Equal(d.Dates.FDate, d.Params["mydate"])
-	assert.Equal(d.Dates.FPublishDate, d.Params["publishdate"])
-	assert.Equal(d.Dates.FExpiryDate, d.Params["expirydate"])
+	c.Assert(d.Params["date"], qt.Equals, d.Dates.FDate)
+	c.Assert(d.Params["mydate"], qt.Equals, d.Dates.FDate)
+	c.Assert(d.Params["publishdate"], qt.Equals, d.Dates.FPublishDate)
+	c.Assert(d.Params["expirydate"], qt.Equals, d.Dates.FExpiryDate)
 
-	assert.False(handler.IsDateKey("date")) // This looks odd, but is configured like this.
-	assert.True(handler.IsDateKey("mydate"))
-	assert.True(handler.IsDateKey("publishdate"))
-	assert.True(handler.IsDateKey("pubdate"))
+	c.Assert(handler.IsDateKey("date"), qt.Equals, false) // This looks odd, but is configured like this.
+	c.Assert(handler.IsDateKey("mydate"), qt.Equals, true)
+	c.Assert(handler.IsDateKey("publishdate"), qt.Equals, true)
+	c.Assert(handler.IsDateKey("pubdate"), qt.Equals, true)
 
 }
 
 func TestFrontMatterDatesDefaultKeyword(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	cfg := viper.New()
 
@@ -217,7 +215,7 @@ func TestFrontMatterDatesDefaultKeyword(t *testing.T) {
 	})
 
 	handler, err := NewFrontmatterHandler(nil, cfg)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	testDate, _ := time.Parse("2006-01-02", "2018-02-01")
 	d := newTestFd()
@@ -226,27 +224,27 @@ func TestFrontMatterDatesDefaultKeyword(t *testing.T) {
 	d.Frontmatter["mypubdate"] = testDate.Add(2 * 24 * time.Hour)
 	d.Frontmatter["publishdate"] = testDate.Add(3 * 24 * time.Hour)
 
-	assert.NoError(handler.HandleDates(d))
+	c.Assert(handler.HandleDates(d), qt.IsNil)
 
-	assert.Equal(1, d.Dates.FDate.Day())
-	assert.Equal(2, d.Dates.FLastmod.Day())
-	assert.Equal(4, d.Dates.FPublishDate.Day())
-	assert.True(d.Dates.FExpiryDate.IsZero())
+	c.Assert(d.Dates.FDate.Day(), qt.Equals, 1)
+	c.Assert(d.Dates.FLastmod.Day(), qt.Equals, 2)
+	c.Assert(d.Dates.FPublishDate.Day(), qt.Equals, 4)
+	c.Assert(d.Dates.FExpiryDate.IsZero(), qt.Equals, true)
 
 }
 
 func TestExpandDefaultValues(t *testing.T) {
-	assert := require.New(t)
-	assert.Equal([]string{"a", "b", "c", "d"}, expandDefaultValues([]string{"a", ":default", "d"}, []string{"b", "c"}))
-	assert.Equal([]string{"a", "b", "c"}, expandDefaultValues([]string{"a", "b", "c"}, []string{"a", "b", "c"}))
-	assert.Equal([]string{"b", "c", "a", "b", "c", "d"}, expandDefaultValues([]string{":default", "a", ":default", "d"}, []string{"b", "c"}))
+	c := qt.New(t)
+	c.Assert(expandDefaultValues([]string{"a", ":default", "d"}, []string{"b", "c"}), qt.DeepEquals, []string{"a", "b", "c", "d"})
+	c.Assert(expandDefaultValues([]string{"a", "b", "c"}, []string{"a", "b", "c"}), qt.DeepEquals, []string{"a", "b", "c"})
+	c.Assert(expandDefaultValues([]string{":default", "a", ":default", "d"}, []string{"b", "c"}), qt.DeepEquals, []string{"b", "c", "a", "b", "c", "d"})
 
 }
 
 func TestFrontMatterDateFieldHandler(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	handlers := new(frontmatterFieldHandlers)
 
@@ -256,7 +254,7 @@ func TestFrontMatterDateFieldHandler(t *testing.T) {
 	h := handlers.newDateFieldHandler("date", func(d *FrontMatterDescriptor, t time.Time) { d.Dates.FDate = t })
 
 	handled, err := h(fd)
-	assert.True(handled)
-	assert.NoError(err)
-	assert.Equal(d, fd.Dates.FDate)
+	c.Assert(handled, qt.Equals, true)
+	c.Assert(err, qt.IsNil)
+	c.Assert(fd.Dates.FDate, qt.Equals, d)
 }

@@ -14,17 +14,16 @@
 package compare
 
 import (
-	"fmt"
 	"sort"
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestCompare(t *testing.T) {
-	assert := require.New(t)
-	for i, test := range []struct {
+	c := qt.New(t)
+	for _, test := range []struct {
 		a string
 		b string
 	}{
@@ -47,13 +46,13 @@ func TestCompare(t *testing.T) {
 		expect := strings.Compare(strings.ToLower(test.a), strings.ToLower(test.b))
 		got := compareFold(test.a, test.b)
 
-		assert.Equal(expect, got, fmt.Sprintf("test %d: %d", i, expect))
+		c.Assert(got, qt.Equals, expect)
 
 	}
 }
 
 func TestLexicographicSort(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	s := []string{"b", "Bz", "ba", "A", "Ba", "ba"}
 
@@ -61,6 +60,6 @@ func TestLexicographicSort(t *testing.T) {
 		return LessStrings(s[i], s[j])
 	})
 
-	assert.Equal([]string{"A", "b", "Ba", "ba", "ba", "Bz"}, s)
+	c.Assert(s, qt.DeepEquals, []string{"A", "b", "Ba", "ba", "ba", "Bz"})
 
 }

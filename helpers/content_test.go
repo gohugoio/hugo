@@ -21,10 +21,9 @@ import (
 
 	"github.com/spf13/viper"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/miekg/mmark"
 	"github.com/russross/blackfriday"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 const tstHTMLContent = "<!DOCTYPE html><html><head><script src=\"http://two/foobar.js\"></script></head><body><nav><ul><li hugo-nav=\"section_0\"></li><li hugo-nav=\"section_1\"></li></ul></nav><article>content <a href=\"http://two/foobar\">foobar</a>. Follow up</article><p>This is some text.<br>And some more.</p></body></html>"
@@ -90,17 +89,19 @@ func BenchmarkStripHTML(b *testing.B) {
 }
 
 func TestStripEmptyNav(t *testing.T) {
+	c := qt.New(t)
 	cleaned := stripEmptyNav([]byte("do<nav>\n</nav>\n\nbedobedo"))
-	assert.Equal(t, []byte("dobedobedo"), cleaned)
+	c.Assert(cleaned, qt.DeepEquals, []byte("dobedobedo"))
 }
 
 func TestBytesToHTML(t *testing.T) {
-	assert.Equal(t, template.HTML("dobedobedo"), BytesToHTML([]byte("dobedobedo")))
+	c := qt.New(t)
+	c.Assert(BytesToHTML([]byte("dobedobedo")), qt.Equals, template.HTML("dobedobedo"))
 }
 
 func TestNewContentSpec(t *testing.T) {
 	cfg := viper.New()
-	assert := require.New(t)
+	c := qt.New(t)
 
 	cfg.Set("summaryLength", 32)
 	cfg.Set("buildFuture", true)
@@ -109,11 +110,11 @@ func TestNewContentSpec(t *testing.T) {
 
 	spec, err := NewContentSpec(cfg)
 
-	assert.NoError(err)
-	assert.Equal(32, spec.summaryLength)
-	assert.True(spec.BuildFuture)
-	assert.True(spec.BuildExpired)
-	assert.True(spec.BuildDrafts)
+	c.Assert(err, qt.IsNil)
+	c.Assert(spec.summaryLength, qt.Equals, 32)
+	c.Assert(spec.BuildFuture, qt.Equals, true)
+	c.Assert(spec.BuildExpired, qt.Equals, true)
+	c.Assert(spec.BuildDrafts, qt.Equals, true)
 
 }
 

@@ -14,13 +14,12 @@
 package collections
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 
 	"github.com/gohugoio/hugo/deps"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 type StructWithSlice struct {
@@ -33,7 +32,7 @@ type StructWithSlicePointers []*StructWithSlice
 func TestComplement(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	ns := New(&deps.Deps{})
 
@@ -69,18 +68,18 @@ func TestComplement(t *testing.T) {
 		{[]interface{}{[][]string{{"c", "d"}}}, []interface{}{[]string{"c", "d"}, []string{"a", "b"}}, false},
 	} {
 
-		errMsg := fmt.Sprintf("[%d]", i)
+		errMsg := qt.Commentf("[%d]", i)
 
 		args := append(test.t, test.s)
 
 		result, err := ns.Complement(args...)
 
 		if b, ok := test.expected.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil), errMsg)
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
+		c.Assert(err, qt.IsNil, errMsg)
 
 		if !reflect.DeepEqual(test.expected, result) {
 			t.Fatalf("%s got\n%T: %v\nexpected\n%T: %v", errMsg, result, result, test.expected, test.expected)
@@ -88,8 +87,8 @@ func TestComplement(t *testing.T) {
 	}
 
 	_, err := ns.Complement()
-	assert.Error(err)
+	c.Assert(err, qt.Not(qt.IsNil))
 	_, err = ns.Complement([]string{"a", "b"})
-	assert.Error(err)
+	c.Assert(err, qt.Not(qt.IsNil))
 
 }

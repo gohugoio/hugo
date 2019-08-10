@@ -14,14 +14,18 @@
 package bufferpool
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	qt "github.com/frankban/quicktest"
 )
 
 func TestBufferPool(t *testing.T) {
+	c := qt.New(t)
+
 	buff := GetBuffer()
 	buff.WriteString("do be do be do")
-	assert.Equal(t, "do be do be do", buff.String())
+	c.Assert(buff.String(), qt.Equals, "do be do be do")
 	PutBuffer(buff)
-	assert.Equal(t, 0, buff.Len())
+
+	c.Assert(buff.Len(), qt.Equals, 0)
 }

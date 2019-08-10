@@ -16,8 +16,8 @@ package page
 import (
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/spf13/cast"
-	"github.com/stretchr/testify/assert"
 )
 
 type pagePNTestObject struct {
@@ -36,18 +36,20 @@ var pagePNTestSources = []pagePNTestObject{
 
 func TestPrev(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 	pages := preparePageGroupTestPages(t)
-	assert.Equal(t, pages.Prev(pages[0]), pages[4])
-	assert.Equal(t, pages.Prev(pages[1]), pages[0])
-	assert.Equal(t, pages.Prev(pages[4]), pages[3])
+	c.Assert(pages[4], qt.Equals, pages.Prev(pages[0]))
+	c.Assert(pages[0], qt.Equals, pages.Prev(pages[1]))
+	c.Assert(pages[3], qt.Equals, pages.Prev(pages[4]))
 }
 
 func TestNext(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 	pages := preparePageGroupTestPages(t)
-	assert.Equal(t, pages.Next(pages[0]), pages[1])
-	assert.Equal(t, pages.Next(pages[1]), pages[2])
-	assert.Equal(t, pages.Next(pages[4]), pages[0])
+	c.Assert(pages[1], qt.Equals, pages.Next(pages[0]))
+	c.Assert(pages[2], qt.Equals, pages.Next(pages[1]))
+	c.Assert(pages[0], qt.Equals, pages.Next(pages[4]))
 }
 
 func prepareWeightedPagesPrevNext(t *testing.T) WeightedPages {
@@ -68,16 +70,18 @@ func prepareWeightedPagesPrevNext(t *testing.T) WeightedPages {
 
 func TestWeightedPagesPrev(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 	w := prepareWeightedPagesPrevNext(t)
-	assert.Equal(t, w.Prev(w[0].Page), w[4].Page)
-	assert.Equal(t, w.Prev(w[1].Page), w[0].Page)
-	assert.Equal(t, w.Prev(w[4].Page), w[3].Page)
+	c.Assert(w[4].Page, qt.Equals, w.Prev(w[0].Page))
+	c.Assert(w[0].Page, qt.Equals, w.Prev(w[1].Page))
+	c.Assert(w[3].Page, qt.Equals, w.Prev(w[4].Page))
 }
 
 func TestWeightedPagesNext(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 	w := prepareWeightedPagesPrevNext(t)
-	assert.Equal(t, w.Next(w[0].Page), w[1].Page)
-	assert.Equal(t, w.Next(w[1].Page), w[2].Page)
-	assert.Equal(t, w.Next(w[4].Page), w[0].Page)
+	c.Assert(w[1].Page, qt.Equals, w.Next(w[0].Page))
+	c.Assert(w[2].Page, qt.Equals, w.Next(w[1].Page))
+	c.Assert(w[0].Page, qt.Equals, w.Next(w[4].Page))
 }

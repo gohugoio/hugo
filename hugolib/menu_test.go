@@ -18,7 +18,7 @@ import (
 
 	"fmt"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 const (
@@ -77,12 +77,12 @@ Menu Main:  {{ partial "menu.html" (dict "page" . "menu" "main") }}`,
 
 	s := h.Sites[0]
 
-	require.Len(t, s.Menus(), 2)
+	b.Assert(len(s.Menus()), qt.Equals, 2)
 
 	p1 := s.RegularPages()[0].Menus()
 
 	// There is only one menu in the page, but it is "member of" 2
-	require.Len(t, p1, 1)
+	b.Assert(len(p1), qt.Equals, 1)
 
 	b.AssertFileContent("public/sect1/p1/index.html", "Single",
 		"Menu Sect:  "+

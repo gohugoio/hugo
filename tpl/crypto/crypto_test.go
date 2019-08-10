@@ -14,15 +14,14 @@
 package crypto
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestMD5(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	ns := New()
 
@@ -34,23 +33,23 @@ func TestMD5(t *testing.T) {
 		{"Lorem ipsum dolor", "06ce65ac476fc656bea3fca5d02cfd81"},
 		{t, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test.in)
+		errMsg := qt.Commentf("[%d] %v", i, test.in)
 
 		result, err := ns.MD5(test.in)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil), errMsg)
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil, errMsg)
+		c.Assert(result, qt.Equals, test.expect, errMsg)
 	}
 }
 
 func TestSHA1(t *testing.T) {
 	t.Parallel()
-
+	c := qt.New(t)
 	ns := New()
 
 	for i, test := range []struct {
@@ -61,23 +60,23 @@ func TestSHA1(t *testing.T) {
 		{"Lorem ipsum dolor", "45f75b844be4d17b3394c6701768daf39419c99b"},
 		{t, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test.in)
+		errMsg := qt.Commentf("[%d] %v", i, test.in)
 
 		result, err := ns.SHA1(test.in)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil), errMsg)
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil, errMsg)
+		c.Assert(result, qt.Equals, test.expect, errMsg)
 	}
 }
 
 func TestSHA256(t *testing.T) {
 	t.Parallel()
-
+	c := qt.New(t)
 	ns := New()
 
 	for i, test := range []struct {
@@ -88,16 +87,16 @@ func TestSHA256(t *testing.T) {
 		{"Lorem ipsum dolor", "9b3e1beb7053e0f900a674dd1c99aca3355e1275e1b03d3cb1bc977f5154e196"},
 		{t, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test.in)
+		errMsg := qt.Commentf("[%d] %v", i, test.in)
 
 		result, err := ns.SHA256(test.in)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil), errMsg)
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil, errMsg)
+		c.Assert(result, qt.Equals, test.expect, errMsg)
 	}
 }

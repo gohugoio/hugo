@@ -20,13 +20,13 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestPrune(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	configStr := `
 resourceDir = "myresources"
@@ -53,10 +53,10 @@ dir = ":resourceDir/_gen"
 `
 
 	for _, name := range []string{cacheKeyGetCSV, cacheKeyGetJSON, cacheKeyAssets, cacheKeyImages} {
-		msg := fmt.Sprintf("cache: %s", name)
+		msg := qt.Commentf("cache: %s", name)
 		p := newPathsSpec(t, afero.NewMemMapFs(), configStr)
 		caches, err := NewCaches(p)
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 		cache := caches[name]
 		for i := 0; i < 10; i++ {
 			id := fmt.Sprintf("i%d", i)
@@ -70,21 +70,21 @@ dir = ":resourceDir/_gen"
 		}
 
 		count, err := caches.Prune()
-		assert.NoError(err)
-		assert.Equal(5, count, msg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(count, qt.Equals, 5, msg)
 
 		for i := 0; i < 10; i++ {
 			id := fmt.Sprintf("i%d", i)
 			v := cache.getString(id)
 			if i < 5 {
-				assert.Equal("", v, id)
+				c.Assert(v, qt.Equals, "")
 			} else {
-				assert.Equal("abc", v, id)
+				c.Assert(v, qt.Equals, "abc")
 			}
 		}
 
 		caches, err = NewCaches(p)
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 		cache = caches[name]
 		// Touch one and then prune.
 		cache.GetOrCreateBytes("i5", func() ([]byte, error) {
@@ -92,17 +92,17 @@ dir = ":resourceDir/_gen"
 		})
 
 		count, err = caches.Prune()
-		assert.NoError(err)
-		assert.Equal(4, count)
+		c.Assert(err, qt.IsNil)
+		c.Assert(count, qt.Equals, 4)
 
 		// Now only the i5 should be left.
 		for i := 0; i < 10; i++ {
 			id := fmt.Sprintf("i%d", i)
 			v := cache.getString(id)
 			if i != 5 {
-				assert.Equal("", v, id)
+				c.Assert(v, qt.Equals, "")
 			} else {
-				assert.Equal("abc", v, id)
+				c.Assert(v, qt.Equals, "abc")
 			}
 		}
 

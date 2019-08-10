@@ -16,14 +16,14 @@ package types
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestKeyValues(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	kv := NewKeyValuesStrings("key", "a1", "a2")
 
-	assert.Equal("key", kv.KeyString())
-	assert.Equal([]interface{}{"a1", "a2"}, kv.Values)
+	c.Assert(kv.KeyString(), qt.Equals, "key")
+	c.Assert(kv.Values, qt.DeepEquals, []interface{}{"a1", "a2"})
 }

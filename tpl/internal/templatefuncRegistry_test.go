@@ -17,7 +17,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 type Test struct {
@@ -28,11 +28,12 @@ func (t *Test) MyTestMethod() string {
 }
 
 func TestMethodToName(t *testing.T) {
+	c := qt.New(t)
 	test := &Test{}
 
 	if runtime.Compiler == "gccgo" {
-		require.Contains(t, methodToName(test.MyTestMethod), "thunk")
+		c.Assert(methodToName(test.MyTestMethod), qt.Contains, "thunk")
 	} else {
-		require.Equal(t, "MyTestMethod", methodToName(test.MyTestMethod))
+		c.Assert(methodToName(test.MyTestMethod), qt.Equals, "MyTestMethod")
 	}
 }

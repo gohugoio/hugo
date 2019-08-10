@@ -25,7 +25,7 @@ func TestRSSOutput(t *testing.T) {
 	t.Parallel()
 	var (
 		cfg, fs = newTestCfg()
-		th      = testHelper{cfg, fs, t}
+		th      = newTestHelper(cfg, fs, t)
 	)
 
 	rssLimit := len(weightedSources) - 1

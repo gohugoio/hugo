@@ -14,17 +14,17 @@
 package compare
 
 import (
-	"fmt"
 	"path"
 	"reflect"
 	"runtime"
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/htesting/hqt"
+
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/spf13/cast"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 type T struct {
@@ -80,6 +80,7 @@ func tstIsLt(tp tstCompareType) bool { return tp == tstLt || tp == tstLe }
 
 func TestDefaultFunc(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	then := time.Now()
 	now := time.Now()
@@ -127,12 +128,15 @@ func TestDefaultFunc(t *testing.T) {
 		{then, now, now},
 		{then, time.Time{}, then},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test)
+
+		eq := qt.CmpEquals(hqt.DeepAllowUnexported(test.dflt))
+
+		errMsg := qt.Commentf("[%d] %v", i, test)
 
 		result, err := ns.Default(test.dflt, test.given)
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, result, test.expect, errMsg)
+		c.Assert(err, qt.IsNil, errMsg)
+		c.Assert(result, eq, test.expect, errMsg)
 	}
 }
 
@@ -234,11 +238,11 @@ func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b inte
 }
 
 func TestCase(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	n := New(true)
 
-	assert.True(n.Lt("az", "Za"))
-	assert.True(n.Gt("ab", "Ab"))
+	c.Assert(n.Lt("az", "Za"), qt.Equals, true)
+	c.Assert(n.Gt("ab", "Ab"), qt.Equals, true)
 }
 
 func TestTimeUnix(t *testing.T) {
@@ -265,10 +269,10 @@ func TestTimeUnix(t *testing.T) {
 }
 
 func TestConditional(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	n := New(false)
 	a, b := "a", "b"
 
-	assert.Equal(a, n.Conditional(true, a, b))
-	assert.Equal(b, n.Conditional(false, a, b))
+	c.Assert(n.Conditional(true, a, b), qt.Equals, a)
+	c.Assert(n.Conditional(false, a, b), qt.Equals, b)
 }

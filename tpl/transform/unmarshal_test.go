@@ -23,9 +23,9 @@ import (
 
 	"github.com/gohugoio/hugo/media"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -82,13 +82,13 @@ func TestUnmarshal(t *testing.T) {
 
 	v := viper.New()
 	ns := New(newDeps(v))
-	assert := require.New(t)
+	c := qt.New(t)
 
 	assertSlogan := func(m map[string]interface{}) {
-		assert.Equal("Hugo Rocks!", m["slogan"])
+		c.Assert(m["slogan"], qt.Equals, "Hugo Rocks!")
 	}
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		data    interface{}
 		options interface{}
 		expect  interface{}
@@ -113,27 +113,27 @@ func TestUnmarshal(t *testing.T) {
 		}},
 		{testContentResource{key: "r1", content: `1997,Ford,E350,"ac, abs, moon",3000.00
 1999,Chevy,"Venture ""Extended Edition""","",4900.00`, mime: media.CSVType}, nil, func(r [][]string) {
-			assert.Equal(2, len(r))
+			c.Assert(len(r), qt.Equals, 2)
 			first := r[0]
-			assert.Equal(5, len(first))
-			assert.Equal("Ford", first[1])
+			c.Assert(len(first), qt.Equals, 5)
+			c.Assert(first[1], qt.Equals, "Ford")
 		}},
 		{testContentResource{key: "r1", content: `a;b;c`, mime: media.CSVType}, map[string]interface{}{"delimiter": ";"}, func(r [][]string) {
-			assert.Equal(r, [][]string{{"a", "b", "c"}})
+			c.Assert([][]string{{"a", "b", "c"}}, qt.DeepEquals, r)
 
 		}},
 		{"a,b,c", nil, func(r [][]string) {
-			assert.Equal(r, [][]string{{"a", "b", "c"}})
+			c.Assert([][]string{{"a", "b", "c"}}, qt.DeepEquals, r)
 
 		}},
 		{"a;b;c", map[string]interface{}{"delimiter": ";"}, func(r [][]string) {
-			assert.Equal(r, [][]string{{"a", "b", "c"}})
+			c.Assert([][]string{{"a", "b", "c"}}, qt.DeepEquals, r)
 
 		}},
 		{testContentResource{key: "r1", content: `
 % This is a comment
 a;b;c`, mime: media.CSVType}, map[string]interface{}{"DElimiter": ";", "Comment": "%"}, func(r [][]string) {
-			assert.Equal(r, [][]string{{"a", "b", "c"}})
+			c.Assert([][]string{{"a", "b", "c"}}, qt.DeepEquals, r)
 
 		}},
 		// errors
@@ -144,7 +144,6 @@ a;b;c`, mime: media.CSVType}, map[string]interface{}{"DElimiter": ";", "Comment"
 		{`{ notjson }`, nil, false},
 		{tstNoStringer{}, nil, false},
 	} {
-		errMsg := fmt.Sprintf("[%d]", i)
 
 		ns.cache.Clear()
 
@@ -159,20 +158,20 @@ a;b;c`, mime: media.CSVType}, map[string]interface{}{"DElimiter": ";", "Comment"
 		result, err := ns.Unmarshal(args...)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			assert.Error(err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 		} else if fn, ok := test.expect.(func(m map[string]interface{})); ok {
-			assert.NoError(err, errMsg)
+			c.Assert(err, qt.IsNil)
 			m, ok := result.(map[string]interface{})
-			assert.True(ok, errMsg)
+			c.Assert(ok, qt.Equals, true)
 			fn(m)
 		} else if fn, ok := test.expect.(func(r [][]string)); ok {
-			assert.NoError(err, errMsg)
+			c.Assert(err, qt.IsNil)
 			r, ok := result.([][]string)
-			assert.True(ok, errMsg)
+			c.Assert(ok, qt.Equals, true)
 			fn(r)
 		} else {
-			assert.NoError(err, errMsg)
-			assert.Equal(test.expect, result, errMsg)
+			c.Assert(err, qt.IsNil)
+			c.Assert(result, qt.Equals, test.expect)
 		}
 
 	}

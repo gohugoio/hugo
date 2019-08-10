@@ -14,38 +14,37 @@
 package tplimpl
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestShortcodesTemplate(t *testing.T) {
 
 	t.Run("isShortcode", func(t *testing.T) {
-		assert := require.New(t)
-		assert.True(isShortcode("shortcodes/figures.html"))
-		assert.True(isShortcode("_internal/shortcodes/figures.html"))
-		assert.False(isShortcode("shortcodes\\figures.html"))
-		assert.False(isShortcode("myshortcodes"))
+		c := qt.New(t)
+		c.Assert(isShortcode("shortcodes/figures.html"), qt.Equals, true)
+		c.Assert(isShortcode("_internal/shortcodes/figures.html"), qt.Equals, true)
+		c.Assert(isShortcode("shortcodes\\figures.html"), qt.Equals, false)
+		c.Assert(isShortcode("myshortcodes"), qt.Equals, false)
 
 	})
 
 	t.Run("variantsFromName", func(t *testing.T) {
-		assert := require.New(t)
-		assert.Equal([]string{"", "html", "html"}, templateVariants("figure.html"))
-		assert.Equal([]string{"no", "no", "html"}, templateVariants("figure.no.html"))
-		assert.Equal([]string{"no", "amp", "html"}, templateVariants("figure.no.amp.html"))
-		assert.Equal([]string{"amp", "amp", "html"}, templateVariants("figure.amp.html"))
+		c := qt.New(t)
+		c.Assert(templateVariants("figure.html"), qt.DeepEquals, []string{"", "html", "html"})
+		c.Assert(templateVariants("figure.no.html"), qt.DeepEquals, []string{"no", "no", "html"})
+		c.Assert(templateVariants("figure.no.amp.html"), qt.DeepEquals, []string{"no", "amp", "html"})
+		c.Assert(templateVariants("figure.amp.html"), qt.DeepEquals, []string{"amp", "amp", "html"})
 
 		name, variants := templateNameAndVariants("figure.html")
-		assert.Equal("figure", name)
-		assert.Equal([]string{"", "html", "html"}, variants)
+		c.Assert(name, qt.Equals, "figure")
+		c.Assert(variants, qt.DeepEquals, []string{"", "html", "html"})
 
 	})
 
 	t.Run("compareVariants", func(t *testing.T) {
-		assert := require.New(t)
+		c := qt.New(t)
 		var s *shortcodeTemplates
 
 		tests := []struct {
@@ -62,15 +61,15 @@ func TestShortcodesTemplate(t *testing.T) {
 			{"One with output format, one without", "figure.amp.html", "figure.html", -1},
 		}
 
-		for i, test := range tests {
+		for _, test := range tests {
 			w := s.compareVariants(templateVariants(test.name1), templateVariants(test.name2))
-			assert.Equal(test.expected, w, fmt.Sprintf("[%d] %s", i, test.name))
+			c.Assert(w, qt.Equals, test.expected)
 		}
 
 	})
 
 	t.Run("indexOf", func(t *testing.T) {
-		assert := require.New(t)
+		c := qt.New(t)
 
 		s := &shortcodeTemplates{
 			variants: []shortcodeVariant{
@@ -79,20 +78,20 @@ func TestShortcodesTemplate(t *testing.T) {
 			},
 		}
 
-		assert.Equal(0, s.indexOf([]string{"a", "b", "c"}))
-		assert.Equal(1, s.indexOf([]string{"a", "b", "d"}))
-		assert.Equal(-1, s.indexOf([]string{"a", "b", "x"}))
+		c.Assert(s.indexOf([]string{"a", "b", "c"}), qt.Equals, 0)
+		c.Assert(s.indexOf([]string{"a", "b", "d"}), qt.Equals, 1)
+		c.Assert(s.indexOf([]string{"a", "b", "x"}), qt.Equals, -1)
 
 	})
 
 	t.Run("Name", func(t *testing.T) {
-		assert := require.New(t)
+		c := qt.New(t)
 
-		assert.Equal("foo.html", templateBaseName(templateShortcode, "shortcodes/foo.html"))
-		assert.Equal("foo.html", templateBaseName(templateShortcode, "_internal/shortcodes/foo.html"))
-		assert.Equal("test/foo.html", templateBaseName(templateShortcode, "shortcodes/test/foo.html"))
+		c.Assert(templateBaseName(templateShortcode, "shortcodes/foo.html"), qt.Equals, "foo.html")
+		c.Assert(templateBaseName(templateShortcode, "_internal/shortcodes/foo.html"), qt.Equals, "foo.html")
+		c.Assert(templateBaseName(templateShortcode, "shortcodes/test/foo.html"), qt.Equals, "test/foo.html")
 
-		assert.True(true)
+		c.Assert(true, qt.Equals, true)
 
 	})
 }

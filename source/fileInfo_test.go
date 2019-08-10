@@ -18,11 +18,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestFileInfo(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	s := newTestSourceSpec()
 
@@ -32,29 +32,29 @@ func TestFileInfo(t *testing.T) {
 		assert   func(f *FileInfo)
 	}{
 		{filepath.FromSlash("/a/"), filepath.FromSlash("/a/b/page.md"), func(f *FileInfo) {
-			assert.Equal(filepath.FromSlash("/a/b/page.md"), f.Filename())
-			assert.Equal(filepath.FromSlash("b/"), f.Dir())
-			assert.Equal(filepath.FromSlash("b/page.md"), f.Path())
-			assert.Equal("b", f.Section())
-			assert.Equal(filepath.FromSlash("page"), f.TranslationBaseName())
-			assert.Equal(filepath.FromSlash("page"), f.BaseFileName())
+			c.Assert(f.Filename(), qt.Equals, filepath.FromSlash("/a/b/page.md"))
+			c.Assert(f.Dir(), qt.Equals, filepath.FromSlash("b/"))
+			c.Assert(f.Path(), qt.Equals, filepath.FromSlash("b/page.md"))
+			c.Assert(f.Section(), qt.Equals, "b")
+			c.Assert(f.TranslationBaseName(), qt.Equals, filepath.FromSlash("page"))
+			c.Assert(f.BaseFileName(), qt.Equals, filepath.FromSlash("page"))
 
 		}},
 		{filepath.FromSlash("/a/"), filepath.FromSlash("/a/b/c/d/page.md"), func(f *FileInfo) {
-			assert.Equal("b", f.Section())
+			c.Assert(f.Section(), qt.Equals, "b")
 
 		}},
 		{filepath.FromSlash("/a/"), filepath.FromSlash("/a/b/page.en.MD"), func(f *FileInfo) {
-			assert.Equal("b", f.Section())
-			assert.Equal(filepath.FromSlash("b/page.en.MD"), f.Path())
-			assert.Equal(filepath.FromSlash("page"), f.TranslationBaseName())
-			assert.Equal(filepath.FromSlash("page.en"), f.BaseFileName())
+			c.Assert(f.Section(), qt.Equals, "b")
+			c.Assert(f.Path(), qt.Equals, filepath.FromSlash("b/page.en.MD"))
+			c.Assert(f.TranslationBaseName(), qt.Equals, filepath.FromSlash("page"))
+			c.Assert(f.BaseFileName(), qt.Equals, filepath.FromSlash("page.en"))
 
 		}},
 	} {
 		path := strings.TrimPrefix(this.filename, this.base)
 		f, err := s.NewFileInfoFrom(path, this.filename)
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 		this.assert(f)
 	}
 

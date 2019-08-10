@@ -16,7 +16,6 @@ package hugolib
 import (
 	"fmt"
 	"path/filepath"
-	"regexp"
 
 	"reflect"
 
@@ -31,7 +30,7 @@ import (
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/spf13/cast"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func CheckShortCodeMatch(t *testing.T, input, expected string, withTemplate func(templ tpl.TemplateHandler) error) {
@@ -41,6 +40,7 @@ func CheckShortCodeMatch(t *testing.T, input, expected string, withTemplate func
 func CheckShortCodeMatchAndError(t *testing.T, input, expected string, withTemplate func(templ tpl.TemplateHandler) error, expectError bool) {
 
 	cfg, fs := newTestCfg()
+	c := qt.New(t)
 
 	// Need some front matter, see https://github.com/gohugoio/hugo/issues/2337
 	contentFile := `---
@@ -62,9 +62,9 @@ title: "Title"
 	}
 
 	h := b.H
-	require.Len(t, h.Sites, 1)
+	c.Assert(len(h.Sites), qt.Equals, 1)
 
-	require.Len(t, h.Sites[0].RegularPages(), 1)
+	c.Assert(len(h.Sites[0].RegularPages()), qt.Equals, 1)
 
 	output := strings.TrimSpace(content(h.Sites[0].RegularPages()[0]))
 	output = strings.TrimPrefix(output, "<p>")
@@ -358,8 +358,8 @@ title: "Shortcodes Galore!"
 
 	/*errCheck := func(s string) func(name string, assert *require.Assertions, shortcode *shortcode, err error) {
 		return func(name string, assert *require.Assertions, shortcode *shortcode, err error) {
-			assert.Error(err, name)
-			assert.Equal(s, err.Error(), name)
+			c.Assert(err, name, qt.Not(qt.IsNil))
+			c.Assert(err.Error(), name, qt.Equals, s)
 		}
 	}*/
 
@@ -374,18 +374,18 @@ title: "Shortcodes Galore!"
 			s.name, s.isInline, s.isClosing, s.inner, s.params, s.ordinal, s.doMarkup, s.info.Config.Version, s.pos))
 	}
 
-	regexpCheck := func(re string) func(assert *require.Assertions, shortcode *shortcode, err error) {
-		return func(assert *require.Assertions, shortcode *shortcode, err error) {
-			assert.NoError(err)
-			got := str(shortcode)
-			assert.Regexp(regexp.MustCompile(re), got, got)
+	regexpCheck := func(re string) func(c *qt.C, shortcode *shortcode, err error) {
+		return func(c *qt.C, shortcode *shortcode, err error) {
+			c.Assert(err, qt.IsNil)
+			c.Assert(str(shortcode), qt.Matches, ".*"+re+".*")
+
 		}
 	}
 
 	for _, test := range []struct {
 		name  string
 		input string
-		check func(assert *require.Assertions, shortcode *shortcode, err error)
+		check func(c *qt.C, shortcode *shortcode, err error)
 	}{
 		{"one shortcode, no markup", "{{< tag >}}", regexpCheck("tag.*closing:false.*markup:false")},
 		{"one shortcode, markup", "{{% tag %}}", regexpCheck("tag.*closing:false.*markup:true;version:2")},
@@ -411,7 +411,7 @@ title: "Shortcodes Galore!"
 
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
-			assert := require.New(t)
+			c := qt.New(t)
 
 			counter := 0
 			placeholderFunc := func() string {
@@ -420,13 +420,13 @@ title: "Shortcodes Galore!"
 			}
 
 			p, err := pageparser.ParseMain(strings.NewReader(test.input), pageparser.Config{})
-			assert.NoError(err)
+			c.Assert(err, qt.IsNil)
 			handler := newShortcodeHandler(nil, s, placeholderFunc)
 			iter := p.Iterator()
 
 			short, err := handler.extractShortcode(0, 0, iter)
 
-			test.check(assert, short, err)
+			test.check(c, short, err)
 
 		})
 	}
@@ -582,7 +582,7 @@ title: "Foo"
 				t.Skip("Skip Rst test case as no rst2html present.")
 			}
 
-			th := testHelper{s.Cfg, s.Fs, t}
+			th := newTestHelper(s.Cfg, s.Fs, t)
 
 			expected := cast.ToStringSlice(test.expected)
 			th.assertFileContent(filepath.FromSlash(test.outFile), expected...)
@@ -655,12 +655,12 @@ CSV: {{< myShort >}}
 
 	b.Build(BuildCfg{})
 	h := b.H
-	require.Len(t, h.Sites, 1)
+	b.Assert(len(h.Sites), qt.Equals, 1)
 
 	s := h.Sites[0]
 	home := s.getPage(page.KindHome)
-	require.NotNil(t, home)
-	require.Len(t, home.OutputFormats(), 3)
+	b.Assert(home, qt.Not(qt.IsNil))
+	b.Assert(len(home.OutputFormats()), qt.Equals, 3)
 
 	b.AssertFileContent("public/index.html",
 		"Home HTML",
@@ -827,7 +827,6 @@ func TestReplaceShortcodeTokens(t *testing.T) {
 
 func TestShortcodeGetContent(t *testing.T) {
 	t.Parallel()
-	assert := require.New(t)
 
 	contentShortcode := `
 {{- $t := .Get 0 -}}
@@ -878,7 +877,7 @@ C-%s`
 
 	builder.WithContent(content...).WithTemplates(templates...).CreateSites().Build(BuildCfg{})
 	s := builder.H.Sites[0]
-	assert.Equal(3, len(s.RegularPages()))
+	builder.Assert(len(s.RegularPages()), qt.Equals, 3)
 
 	builder.AssertFileContent("public/en/section1/index.html",
 		"List Content: <p>Logo:P1:|P2:logo.png/PNG logo|:P1: P1:|P2:docs1p1/<p>C-s1p1</p>\n|",
@@ -958,7 +957,7 @@ SHORTCODE: {{< c >}}
 
 func TestShortcodePreserveOrder(t *testing.T) {
 	t.Parallel()
-	assert := require.New(t)
+	c := qt.New(t)
 
 	contentTemplate := `---
 title: doc%d
@@ -1004,7 +1003,7 @@ weight: %d
 	builder.WithContent(content...).WithTemplatesAdded(shortcodes...).CreateSites().Build(BuildCfg{})
 
 	s := builder.H.Sites[0]
-	assert.Equal(3, len(s.RegularPages()))
+	c.Assert(len(s.RegularPages()), qt.Equals, 3)
 
 	builder.AssertFileContent("public/en/p1/index.html", `v1: 0 sgo: |v2: 1 sgo: 0|v3: 2 sgo: 1|v4: 3 sgo: 2|v5: 4 sgo: 3`)
 	builder.AssertFileContent("public/en/p1/index.html", `outer ordinal: 5 inner: 
@@ -1016,7 +1015,7 @@ ordinal: 4 scratch ordinal: 5 scratch get ordinal: 4`)
 
 func TestShortcodeVariables(t *testing.T) {
 	t.Parallel()
-	assert := require.New(t)
+	c := qt.New(t)
 
 	builder := newTestSitesBuilder(t).WithSimpleConfigFile()
 
@@ -1041,7 +1040,7 @@ String: {{ . | safeHTML }}
 `).CreateSites().Build(BuildCfg{})
 
 	s := builder.H.Sites[0]
-	assert.Equal(1, len(s.RegularPages()))
+	c.Assert(len(s.RegularPages()), qt.Equals, 1)
 
 	builder.AssertFileContent("public/page/index.html",
 		filepath.FromSlash("File: content/page.md"),
@@ -1134,7 +1133,7 @@ CONTENT:{{ .Content }}
 // https://github.com/gohugoio/hugo/issues/5863
 func TestShortcodeNamespaced(t *testing.T) {
 	t.Parallel()
-	assert := require.New(t)
+	c := qt.New(t)
 
 	builder := newTestSitesBuilder(t).WithSimpleConfigFile()
 
@@ -1152,7 +1151,7 @@ title: "Hugo Rocks!"
 		"layouts/shortcodes/test/hello.html", `test/hello`).CreateSites().Build(BuildCfg{})
 
 	s := builder.H.Sites[0]
-	assert.Equal(1, len(s.RegularPages()))
+	c.Assert(len(s.RegularPages()), qt.Equals, 1)
 
 	builder.AssertFileContent("public/page/index.html",
 		"hello: hello",

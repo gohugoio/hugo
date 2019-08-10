@@ -18,22 +18,24 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestGitHubLookupCommit(t *testing.T) {
 	skipIfNoToken(t)
+	c := qt.New(t)
 	client := newGitHubAPI("hugo")
 	commit, err := client.fetchCommit("793554108763c0984f1a1b1a6ee5744b560d78d0")
-	require.NoError(t, err)
+	c.Assert(err, qt.IsNil)
 	fmt.Println(commit)
 }
 
 func TestFetchRepo(t *testing.T) {
 	skipIfNoToken(t)
+	c := qt.New(t)
 	client := newGitHubAPI("hugo")
 	repo, err := client.fetchRepo()
-	require.NoError(t, err)
+	c.Assert(err, qt.IsNil)
 	fmt.Println(">>", len(repo.Contributors))
 }
 

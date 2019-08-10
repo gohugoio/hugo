@@ -21,10 +21,11 @@ import (
 
 	"github.com/gohugoio/hugo/media"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestLayout(t *testing.T) {
+	c := qt.New(t)
 
 	noExtNoDelimMediaType := media.TextType
 	noExtNoDelimMediaType.Suffixes = nil
@@ -111,14 +112,14 @@ func TestLayout(t *testing.T) {
 		{"Reserved section, partials", LayoutDescriptor{Kind: "section", Section: "partials", Type: "partials"}, "", ampType,
 			[]string{"section/partials.amp.html"}, 12},
 	} {
-		t.Run(this.name, func(t *testing.T) {
+		c.Run(this.name, func(c *qt.C) {
 			l := NewLayoutHandler()
 
 			layouts, err := l.For(this.d, this.tp)
 
-			require.NoError(t, err)
-			require.NotNil(t, layouts)
-			require.True(t, len(layouts) >= len(this.expect), fmt.Sprint(layouts))
+			c.Assert(err, qt.IsNil)
+			c.Assert(layouts, qt.Not(qt.IsNil))
+			c.Assert(len(layouts) >= len(this.expect), qt.Equals, true)
 			// Not checking the complete list for now ...
 			got := layouts[:len(this.expect)]
 			if len(layouts) != this.expectCount || !reflect.DeepEqual(got, this.expect) {
@@ -136,12 +137,13 @@ func TestLayout(t *testing.T) {
 }
 
 func BenchmarkLayout(b *testing.B) {
+	c := qt.New(b)
 	descriptor := LayoutDescriptor{Kind: "taxonomyTerm", Section: "categories"}
 	l := NewLayoutHandler()
 
 	for i := 0; i < b.N; i++ {
 		layouts, err := l.For(descriptor, HTMLFormat)
-		require.NoError(b, err)
-		require.NotEmpty(b, layouts)
+		c.Assert(err, qt.IsNil)
+		c.Assert(layouts, qt.Not(qt.HasLen), 0)
 	}
 }

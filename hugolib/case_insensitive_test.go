@@ -21,9 +21,9 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/spf13/afero"
-	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -135,6 +135,8 @@ Partial Site Global: {{ site.Params.COLOR }}|{{ site.Params.COLORS.YELLOW }}
 func TestCaseInsensitiveConfigurationVariations(t *testing.T) {
 	t.Parallel()
 
+	c := qt.New(t)
+
 	// See issues 2615, 1129, 2590 and maybe some others
 	// Also see 2598
 	//
@@ -152,11 +154,11 @@ func TestCaseInsensitiveConfigurationVariations(t *testing.T) {
 	caseMixingTestsWriteCommonSources(t, mm)
 
 	cfg, _, err := LoadConfig(ConfigSourceDescriptor{Fs: mm, Filename: "config.toml"})
-	require.NoError(t, err)
+	c.Assert(err, qt.IsNil)
 
 	fs := hugofs.NewFrom(mm, cfg)
 
-	th := testHelper{cfg, fs, t}
+	th := newTestHelper(cfg, fs, t)
 
 	writeSource(t, fs, filepath.Join("layouts", "_default", "baseof.html"), `
 Block Page Colors: {{ .Params.COLOR }}|{{ .Params.Colors.Blue }}	
@@ -258,17 +260,17 @@ func TestCaseInsensitiveConfigurationForAllTemplateEngines(t *testing.T) {
 }
 
 func doTestCaseInsensitiveConfigurationForTemplateEngine(t *testing.T, suffix string, templateFixer func(s string) string) {
-
+	c := qt.New(t)
 	mm := afero.NewMemMapFs()
 
 	caseMixingTestsWriteCommonSources(t, mm)
 
 	cfg, err := LoadConfigDefault(mm)
-	require.NoError(t, err)
+	c.Assert(err, qt.IsNil)
 
 	fs := hugofs.NewFrom(mm, cfg)
 
-	th := testHelper{cfg, fs, t}
+	th := newTestHelper(cfg, fs, t)
 
 	t.Log("Testing", suffix)
 

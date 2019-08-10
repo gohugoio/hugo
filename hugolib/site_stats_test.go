@@ -21,13 +21,13 @@ import (
 
 	"github.com/gohugoio/hugo/helpers"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestSiteStats(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	siteConfig := `
 baseURL = "http://example.com/blog"
@@ -93,6 +93,6 @@ aliases: [/Ali%d]
 
 	helpers.ProcessingStatsTable(&buff, stats...)
 
-	assert.Contains(buff.String(), "Pages            | 19 |  6")
+	c.Assert(buff.String(), qt.Contains, "Pages            | 19 |  6")
 
 }

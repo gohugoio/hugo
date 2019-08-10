@@ -20,7 +20,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/loggers"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 const pageWithAlias = `---
@@ -43,14 +43,14 @@ const aliasTemplate = "<html><body>ALIASTEMPLATE</body></html>"
 
 func TestAlias(t *testing.T) {
 	t.Parallel()
-	assert := require.New(t)
+	c := qt.New(t)
 
 	b := newTestSitesBuilder(t)
 	b.WithSimpleConfigFile().WithContent("blog/page.md", pageWithAlias)
 	b.CreateSites().Build(BuildCfg{})
 
-	assert.Equal(1, len(b.H.Sites))
-	require.Len(t, b.H.Sites[0].RegularPages(), 1)
+	c.Assert(len(b.H.Sites), qt.Equals, 1)
+	c.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 1)
 
 	// the real page
 	b.AssertFileContent("public/blog/page/index.html", "For some moments the old man")
@@ -62,7 +62,7 @@ func TestAlias(t *testing.T) {
 func TestAliasMultipleOutputFormats(t *testing.T) {
 	t.Parallel()
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	b := newTestSitesBuilder(t)
 	b.WithSimpleConfigFile().WithContent("blog/page.md", pageWithAliasMultipleOutputs)
@@ -82,7 +82,7 @@ func TestAliasMultipleOutputFormats(t *testing.T) {
 	// the alias redirectors
 	b.AssertFileContent("public/foo/bar/index.html", "<meta http-equiv=\"refresh\" content=\"0; ")
 	b.AssertFileContent("public/amp/foo/bar/index.html", "<meta http-equiv=\"refresh\" content=\"0; ")
-	assert.False(b.CheckExists("public/foo/bar/index.json"))
+	c.Assert(b.CheckExists("public/foo/bar/index.json"), qt.Equals, false)
 }
 
 func TestAliasTemplate(t *testing.T) {

@@ -16,13 +16,13 @@ package services
 import (
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/require"
 )
 
 func TestDecodeConfigFromTOML(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	tomlConfig := `
 
@@ -39,31 +39,31 @@ disableInlineCSS = true
 disableInlineCSS = true
 `
 	cfg, err := config.FromConfigString(tomlConfig, "toml")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	config, err := DecodeConfig(cfg)
-	assert.NoError(err)
-	assert.NotNil(config)
+	c.Assert(err, qt.IsNil)
+	c.Assert(config, qt.Not(qt.IsNil))
 
-	assert.Equal("DS", config.Disqus.Shortname)
-	assert.Equal("ga_id", config.GoogleAnalytics.ID)
+	c.Assert(config.Disqus.Shortname, qt.Equals, "DS")
+	c.Assert(config.GoogleAnalytics.ID, qt.Equals, "ga_id")
 
-	assert.True(config.Instagram.DisableInlineCSS)
+	c.Assert(config.Instagram.DisableInlineCSS, qt.Equals, true)
 }
 
 // Support old root-level GA settings etc.
 func TestUseSettingsFromRootIfSet(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 
 	cfg := viper.New()
 	cfg.Set("disqusShortname", "root_short")
 	cfg.Set("googleAnalytics", "ga_root")
 
 	config, err := DecodeConfig(cfg)
-	assert.NoError(err)
-	assert.NotNil(config)
+	c.Assert(err, qt.IsNil)
+	c.Assert(config, qt.Not(qt.IsNil))
 
-	assert.Equal("root_short", config.Disqus.Shortname)
-	assert.Equal("ga_root", config.GoogleAnalytics.ID)
+	c.Assert(config.Disqus.Shortname, qt.Equals, "root_short")
+	c.Assert(config.GoogleAnalytics.ID, qt.Equals, "ga_root")
 
 }

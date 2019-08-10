@@ -14,17 +14,16 @@
 package math
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/alecthomas/assert"
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestDoArithmetic(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		a      interface{}
 		b      interface{}
 		op     rune
@@ -94,16 +93,14 @@ func TestDoArithmetic(t *testing.T) {
 		{"foo", "bar", '-', false},
 		{3, 2, '%', false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %v", i, test)
-
 		result, err := DoArithmetic(test.a, test.b, test.op)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(test.expect, qt.Equals, result)
 	}
 }

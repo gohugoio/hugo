@@ -24,8 +24,8 @@ import (
 
 	"github.com/gohugoio/hugo/helpers"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/require"
 )
 
 func TestServer(t *testing.T) {
@@ -33,9 +33,9 @@ func TestServer(t *testing.T) {
 		// TODO(bep) not sure why server tests have started to fail on the Windows CI server.
 		t.Skip("Skip server test on appveyor")
 	}
-	assert := require.New(t)
+	c := qt.New(t)
 	dir, err := createSimpleTestSite(t, testSiteConfig{})
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	// Let us hope that this port is available on all systems ...
 	port := 1331
@@ -54,7 +54,7 @@ func TestServer(t *testing.T) {
 
 	go func() {
 		_, err = cmd.ExecuteC()
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 	}()
 
 	// There is no way to know exactly when the server is ready for connections.
@@ -63,12 +63,12 @@ func TestServer(t *testing.T) {
 	time.Sleep(2 * time.Second)
 
 	resp, err := http.Get("http://localhost:1331/")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	defer resp.Body.Close()
 	homeContent := helpers.ReaderToString(resp.Body)
 
-	assert.Contains(homeContent, "List: Hugo Commands")
-	assert.Contains(homeContent, "Environment: development")
+	c.Assert(homeContent, qt.Contains, "List: Hugo Commands")
+	c.Assert(homeContent, qt.Contains, "Environment: development")
 
 	// Stop the server.
 	stop <- true
@@ -118,14 +118,14 @@ func TestFixURL(t *testing.T) {
 }
 
 func TestRemoveErrorPrefixFromLog(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	content := `ERROR 2018/10/07 13:11:12 Error while rendering "home": template: _default/baseof.html:4:3: executing "main" at <partial "logo" .>: error calling partial: template: partials/logo.html:5:84: executing "partials/logo.html" at <$resized.AHeight>: can't evaluate field AHeight in type *resource.Image
 ERROR 2018/10/07 13:11:12 Rebuild failed: logged 1 error(s)
 `
 
 	withoutError := removeErrorPrefixFromLog(content)
 
-	assert.False(strings.Contains(withoutError, "ERROR"), withoutError)
+	c.Assert(strings.Contains(withoutError, "ERROR"), qt.Equals, false)
 
 }
 

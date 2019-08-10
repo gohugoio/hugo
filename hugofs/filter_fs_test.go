@@ -17,7 +17,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestLangInfoFrom(t *testing.T) {
@@ -27,7 +27,7 @@ func TestLangInfoFrom(t *testing.T) {
 		"en": 20,
 	}
 
-	assert := require.New(t)
+	c := qt.New(t)
 
 	tests := []struct {
 		input    string
@@ -42,7 +42,7 @@ func TestLangInfoFrom(t *testing.T) {
 
 	for _, test := range tests {
 		v1, v2, v3 := langInfoFrom(langs, test.input)
-		assert.Equal(test.expected, []string{v1, v2, v3})
+		c.Assert([]string{v1, v2, v3}, qt.DeepEquals, test.expected)
 	}
 
 }

@@ -21,24 +21,24 @@ import (
 
 	"github.com/spf13/viper"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/spf13/afero"
-	"github.com/stretchr/testify/require"
 )
 
 func TestLanguageRootMapping(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	v := viper.New()
 	v.Set("contentDir", "content")
 
 	fs := NewBaseFileDecorator(afero.NewMemMapFs())
 
-	assert.NoError(afero.WriteFile(fs, filepath.Join("content/sv/svdir", "main.txt"), []byte("main sv"), 0755))
-	assert.NoError(afero.WriteFile(fs, filepath.Join("themes/a/mysvblogcontent", "sv-f.txt"), []byte("some sv blog content"), 0755))
-	assert.NoError(afero.WriteFile(fs, filepath.Join("themes/a/myenblogcontent", "en-f.txt"), []byte("some en blog content in a"), 0755))
-	assert.NoError(afero.WriteFile(fs, filepath.Join("themes/a/myotherenblogcontent", "en-f2.txt"), []byte("some en content"), 0755))
-	assert.NoError(afero.WriteFile(fs, filepath.Join("themes/a/mysvdocs", "sv-docs.txt"), []byte("some sv docs content"), 0755))
-	assert.NoError(afero.WriteFile(fs, filepath.Join("themes/b/myenblogcontent", "en-b-f.txt"), []byte("some en content"), 0755))
+	c.Assert(afero.WriteFile(fs, filepath.Join("content/sv/svdir", "main.txt"), []byte("main sv"), 0755), qt.IsNil)
+	c.Assert(afero.WriteFile(fs, filepath.Join("themes/a/mysvblogcontent", "sv-f.txt"), []byte("some sv blog content"), 0755), qt.IsNil)
+	c.Assert(afero.WriteFile(fs, filepath.Join("themes/a/myenblogcontent", "en-f.txt"), []byte("some en blog content in a"), 0755), qt.IsNil)
+	c.Assert(afero.WriteFile(fs, filepath.Join("themes/a/myotherenblogcontent", "en-f2.txt"), []byte("some en content"), 0755), qt.IsNil)
+	c.Assert(afero.WriteFile(fs, filepath.Join("themes/a/mysvdocs", "sv-docs.txt"), []byte("some sv docs content"), 0755), qt.IsNil)
+	c.Assert(afero.WriteFile(fs, filepath.Join("themes/b/myenblogcontent", "en-b-f.txt"), []byte("some en content"), 0755), qt.IsNil)
 
 	rfs, err := NewRootMappingFs(fs,
 		RootMapping{
@@ -68,38 +68,38 @@ func TestLanguageRootMapping(t *testing.T) {
 		},
 	)
 
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	collected, err := collectFilenames(rfs, "content", "content")
-	assert.NoError(err)
-	assert.Equal([]string{"blog/en-f.txt", "blog/en-f2.txt", "blog/sv-f.txt", "blog/svdir/main.txt", "docs/sv-docs.txt"}, collected)
+	c.Assert(err, qt.IsNil)
+	c.Assert(collected, qt.DeepEquals, []string{"blog/en-f.txt", "blog/en-f2.txt", "blog/sv-f.txt", "blog/svdir/main.txt", "docs/sv-docs.txt"})
 
 	bfs := afero.NewBasePathFs(rfs, "content")
 	collected, err = collectFilenames(bfs, "", "")
-	assert.NoError(err)
-	assert.Equal([]string{"blog/en-f.txt", "blog/en-f2.txt", "blog/sv-f.txt", "blog/svdir/main.txt", "docs/sv-docs.txt"}, collected)
+	c.Assert(err, qt.IsNil)
+	c.Assert(collected, qt.DeepEquals, []string{"blog/en-f.txt", "blog/en-f2.txt", "blog/sv-f.txt", "blog/svdir/main.txt", "docs/sv-docs.txt"})
 
 	dirs, err := rfs.Dirs(filepath.FromSlash("content/blog"))
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
-	assert.Equal(4, len(dirs))
+	c.Assert(len(dirs), qt.Equals, 4)
 
 	getDirnames := func(name string, rfs *RootMappingFs) []string {
 		filename := filepath.FromSlash(name)
 		f, err := rfs.Open(filename)
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 		names, err := f.Readdirnames(-1)
 
 		f.Close()
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 
 		info, err := rfs.Stat(filename)
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 		f2, err := info.(FileMetaInfo).Meta().Open()
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 		names2, err := f2.Readdirnames(-1)
-		assert.NoError(err)
-		assert.Equal(names, names2)
+		c.Assert(err, qt.IsNil)
+		c.Assert(names2, qt.DeepEquals, names)
 		f2.Close()
 
 		return names
@@ -109,83 +109,83 @@ func TestLanguageRootMapping(t *testing.T) {
 		return rm.Meta.Lang() == "en"
 	})
 
-	assert.Equal([]string{"en-f.txt", "en-f2.txt"}, getDirnames("content/blog", rfsEn))
+	c.Assert(getDirnames("content/blog", rfsEn), qt.DeepEquals, []string{"en-f.txt", "en-f2.txt"})
 
 	rfsSv := rfs.Filter(func(rm RootMapping) bool {
 		return rm.Meta.Lang() == "sv"
 	})
 
-	assert.Equal([]string{"sv-f.txt", "svdir"}, getDirnames("content/blog", rfsSv))
+	c.Assert(getDirnames("content/blog", rfsSv), qt.DeepEquals, []string{"sv-f.txt", "svdir"})
 
 	// Make sure we have not messed with the original
-	assert.Equal([]string{"sv-f.txt", "en-f.txt", "svdir", "en-f2.txt"}, getDirnames("content/blog", rfs))
+	c.Assert(getDirnames("content/blog", rfs), qt.DeepEquals, []string{"sv-f.txt", "en-f.txt", "svdir", "en-f2.txt"})
 
-	assert.Equal([]string{"blog", "docs"}, getDirnames("content", rfsSv))
-	assert.Equal([]string{"blog", "docs"}, getDirnames("content", rfs))
+	c.Assert(getDirnames("content", rfsSv), qt.DeepEquals, []string{"blog", "docs"})
+	c.Assert(getDirnames("content", rfs), qt.DeepEquals, []string{"blog", "docs"})
 
 }
 
 func TestRootMappingFsDirnames(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	fs := NewBaseFileDecorator(afero.NewMemMapFs())
 
 	testfile := "myfile.txt"
-	assert.NoError(fs.Mkdir("f1t", 0755))
-	assert.NoError(fs.Mkdir("f2t", 0755))
-	assert.NoError(fs.Mkdir("f3t", 0755))
-	assert.NoError(afero.WriteFile(fs, filepath.Join("f2t", testfile), []byte("some content"), 0755))
+	c.Assert(fs.Mkdir("f1t", 0755), qt.IsNil)
+	c.Assert(fs.Mkdir("f2t", 0755), qt.IsNil)
+	c.Assert(fs.Mkdir("f3t", 0755), qt.IsNil)
+	c.Assert(afero.WriteFile(fs, filepath.Join("f2t", testfile), []byte("some content"), 0755), qt.IsNil)
 
 	rfs, err := NewRootMappingFsFromFromTo(fs, "static/bf1", "f1t", "static/cf2", "f2t", "static/af3", "f3t")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	fif, err := rfs.Stat(filepath.Join("static/cf2", testfile))
-	assert.NoError(err)
-	assert.Equal("myfile.txt", fif.Name())
+	c.Assert(err, qt.IsNil)
+	c.Assert(fif.Name(), qt.Equals, "myfile.txt")
 	fifm := fif.(FileMetaInfo).Meta()
-	assert.Equal(filepath.FromSlash("f2t/myfile.txt"), fifm.Filename())
+	c.Assert(fifm.Filename(), qt.Equals, filepath.FromSlash("f2t/myfile.txt"))
 
 	root, err := rfs.Open(filepathSeparator)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	dirnames, err := root.Readdirnames(-1)
-	assert.NoError(err)
-	assert.Equal([]string{"bf1", "cf2", "af3"}, dirnames)
+	c.Assert(err, qt.IsNil)
+	c.Assert(dirnames, qt.DeepEquals, []string{"bf1", "cf2", "af3"})
 
 }
 
 func TestRootMappingFsFilename(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	workDir, clean, err := htesting.CreateTempDir(Os, "hugo-root-filename")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	defer clean()
 	fs := NewBaseFileDecorator(Os)
 
 	testfilename := filepath.Join(workDir, "f1t/foo/file.txt")
 
-	assert.NoError(fs.MkdirAll(filepath.Join(workDir, "f1t/foo"), 0777))
-	assert.NoError(afero.WriteFile(fs, testfilename, []byte("content"), 0666))
+	c.Assert(fs.MkdirAll(filepath.Join(workDir, "f1t/foo"), 0777), qt.IsNil)
+	c.Assert(afero.WriteFile(fs, testfilename, []byte("content"), 0666), qt.IsNil)
 
 	rfs, err := NewRootMappingFsFromFromTo(fs, "static/f1", filepath.Join(workDir, "f1t"), "static/f2", filepath.Join(workDir, "f2t"))
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	fi, err := rfs.Stat(filepath.FromSlash("static/f1/foo/file.txt"))
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	fim := fi.(FileMetaInfo)
-	assert.Equal(testfilename, fim.Meta().Filename())
+	c.Assert(fim.Meta().Filename(), qt.Equals, testfilename)
 	_, err = rfs.Stat(filepath.FromSlash("static/f1"))
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 }
 
 func TestRootMappingFsMount(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	fs := NewBaseFileDecorator(afero.NewMemMapFs())
 
 	testfile := "test.txt"
 
-	assert.NoError(afero.WriteFile(fs, filepath.Join("themes/a/mynoblogcontent", testfile), []byte("some no content"), 0755))
-	assert.NoError(afero.WriteFile(fs, filepath.Join("themes/a/myenblogcontent", testfile), []byte("some en content"), 0755))
-	assert.NoError(afero.WriteFile(fs, filepath.Join("themes/a/mysvblogcontent", testfile), []byte("some sv content"), 0755))
-	assert.NoError(afero.WriteFile(fs, filepath.Join("themes/a/mysvblogcontent", "other.txt"), []byte("some sv content"), 0755))
+	c.Assert(afero.WriteFile(fs, filepath.Join("themes/a/mynoblogcontent", testfile), []byte("some no content"), 0755), qt.IsNil)
+	c.Assert(afero.WriteFile(fs, filepath.Join("themes/a/myenblogcontent", testfile), []byte("some en content"), 0755), qt.IsNil)
+	c.Assert(afero.WriteFile(fs, filepath.Join("themes/a/mysvblogcontent", testfile), []byte("some sv content"), 0755), qt.IsNil)
+	c.Assert(afero.WriteFile(fs, filepath.Join("themes/a/mysvblogcontent", "other.txt"), []byte("some sv content"), 0755), qt.IsNil)
 
 	bfs := afero.NewBasePathFs(fs, "themes/a").(*afero.BasePathFs)
 	rm := []RootMapping{
@@ -204,48 +204,48 @@ func TestRootMappingFsMount(t *testing.T) {
 	}
 
 	rfs, err := NewRootMappingFs(bfs, rm...)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	blog, err := rfs.Stat(filepath.FromSlash("content/blog"))
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	blogm := blog.(FileMetaInfo).Meta()
-	assert.Equal("sv", blogm.Lang()) // Last match
+	c.Assert(blogm.Lang(), qt.Equals, "sv") // Last match
 
 	f, err := blogm.Open()
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	defer f.Close()
 	dirs1, err := f.Readdirnames(-1)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	// Union with duplicate dir names filtered.
-	assert.Equal([]string{"test.txt", "test.txt", "other.txt", "test.txt"}, dirs1)
+	c.Assert(dirs1, qt.DeepEquals, []string{"test.txt", "test.txt", "other.txt", "test.txt"})
 
 	files, err := afero.ReadDir(rfs, filepath.FromSlash("content/blog"))
-	assert.NoError(err)
-	assert.Equal(4, len(files))
+	c.Assert(err, qt.IsNil)
+	c.Assert(len(files), qt.Equals, 4)
 
 	testfilefi := files[1]
-	assert.Equal(testfile, testfilefi.Name())
+	c.Assert(testfilefi.Name(), qt.Equals, testfile)
 
 	testfilem := testfilefi.(FileMetaInfo).Meta()
-	assert.Equal(filepath.FromSlash("themes/a/mynoblogcontent/test.txt"), testfilem.Filename())
+	c.Assert(testfilem.Filename(), qt.Equals, filepath.FromSlash("themes/a/mynoblogcontent/test.txt"))
 
 	tf, err := testfilem.Open()
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	defer tf.Close()
-	c, err := ioutil.ReadAll(tf)
-	assert.NoError(err)
-	assert.Equal("some no content", string(c))
+	b, err := ioutil.ReadAll(tf)
+	c.Assert(err, qt.IsNil)
+	c.Assert(string(b), qt.Equals, "some no content")
 
 }
 
 func TestRootMappingFsMountOverlap(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	fs := NewBaseFileDecorator(afero.NewMemMapFs())
 
-	assert.NoError(afero.WriteFile(fs, filepath.FromSlash("da/a.txt"), []byte("some no content"), 0755))
-	assert.NoError(afero.WriteFile(fs, filepath.FromSlash("db/b.txt"), []byte("some no content"), 0755))
-	assert.NoError(afero.WriteFile(fs, filepath.FromSlash("dc/c.txt"), []byte("some no content"), 0755))
-	assert.NoError(afero.WriteFile(fs, filepath.FromSlash("de/e.txt"), []byte("some no content"), 0755))
+	c.Assert(afero.WriteFile(fs, filepath.FromSlash("da/a.txt"), []byte("some no content"), 0755), qt.IsNil)
+	c.Assert(afero.WriteFile(fs, filepath.FromSlash("db/b.txt"), []byte("some no content"), 0755), qt.IsNil)
+	c.Assert(afero.WriteFile(fs, filepath.FromSlash("dc/c.txt"), []byte("some no content"), 0755), qt.IsNil)
+	c.Assert(afero.WriteFile(fs, filepath.FromSlash("de/e.txt"), []byte("some no content"), 0755), qt.IsNil)
 
 	rm := []RootMapping{
 		RootMapping{
@@ -267,56 +267,56 @@ func TestRootMappingFsMountOverlap(t *testing.T) {
 	}
 
 	rfs, err := NewRootMappingFs(fs, rm...)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	getDirnames := func(name string) []string {
 		name = filepath.FromSlash(name)
 		f, err := rfs.Open(name)
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 		defer f.Close()
 		names, err := f.Readdirnames(-1)
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 		return names
 	}
 
-	assert.Equal([]string{"a.txt", "b", "e"}, getDirnames("static"))
-	assert.Equal([]string{"b.txt", "c"}, getDirnames("static/b"))
-	assert.Equal([]string{"c.txt"}, getDirnames("static/b/c"))
+	c.Assert(getDirnames("static"), qt.DeepEquals, []string{"a.txt", "b", "e"})
+	c.Assert(getDirnames("static/b"), qt.DeepEquals, []string{"b.txt", "c"})
+	c.Assert(getDirnames("static/b/c"), qt.DeepEquals, []string{"c.txt"})
 
 	fi, err := rfs.Stat(filepath.FromSlash("static/b/b.txt"))
-	assert.NoError(err)
-	assert.Equal("b.txt", fi.Name())
+	c.Assert(err, qt.IsNil)
+	c.Assert(fi.Name(), qt.Equals, "b.txt")
 
 }
 
 func TestRootMappingFsOs(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	fs := afero.NewOsFs()
 
 	d, err := ioutil.TempDir("", "hugo-root-mapping")
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	defer func() {
 		os.RemoveAll(d)
 	}()
 
 	testfile := "myfile.txt"
-	assert.NoError(fs.Mkdir(filepath.Join(d, "f1t"), 0755))
-	assert.NoError(fs.Mkdir(filepath.Join(d, "f2t"), 0755))
-	assert.NoError(fs.Mkdir(filepath.Join(d, "f3t"), 0755))
-	assert.NoError(afero.WriteFile(fs, filepath.Join(d, "f2t", testfile), []byte("some content"), 0755))
+	c.Assert(fs.Mkdir(filepath.Join(d, "f1t"), 0755), qt.IsNil)
+	c.Assert(fs.Mkdir(filepath.Join(d, "f2t"), 0755), qt.IsNil)
+	c.Assert(fs.Mkdir(filepath.Join(d, "f3t"), 0755), qt.IsNil)
+	c.Assert(afero.WriteFile(fs, filepath.Join(d, "f2t", testfile), []byte("some content"), 0755), qt.IsNil)
 
 	rfs, err := NewRootMappingFsFromFromTo(fs, "static/bf1", filepath.Join(d, "f1t"), "static/cf2", filepath.Join(d, "f2t"), "static/af3", filepath.Join(d, "f3t"))
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	fif, err := rfs.Stat(filepath.Join("static/cf2", testfile))
-	assert.NoError(err)
-	assert.Equal("myfile.txt", fif.Name())
+	c.Assert(err, qt.IsNil)
+	c.Assert(fif.Name(), qt.Equals, "myfile.txt")
 
 	root, err := rfs.Open(filepathSeparator)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	dirnames, err := root.Readdirnames(-1)
-	assert.NoError(err)
-	assert.Equal([]string{"bf1", "cf2", "af3"}, dirnames)
+	c.Assert(err, qt.IsNil)
+	c.Assert(dirnames, qt.DeepEquals, []string{"bf1", "cf2", "af3"})
 
 }

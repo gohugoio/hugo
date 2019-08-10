@@ -16,16 +16,16 @@ package hugolib
 import (
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/spf13/cast"
-	"github.com/stretchr/testify/require"
 )
 
 func TestFileInfo(t *testing.T) {
 	t.Run("String", func(t *testing.T) {
 		t.Parallel()
-		assert := require.New(t)
+		c := qt.New(t)
 		fi := &fileInfo{}
 		_, err := cast.ToStringE(fi)
-		assert.NoError(err)
+		c.Assert(err, qt.IsNil)
 	})
 }

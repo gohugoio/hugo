@@ -4,6 +4,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/gohugoio/hugo/htesting/hqt"
+
 	"image"
 	"io"
 	"io/ioutil"
@@ -14,6 +16,7 @@ import (
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/modules"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
@@ -23,11 +26,10 @@ import (
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/require"
 )
 
-func newTestResourceSpec(assert *require.Assertions) *Spec {
-	return newTestResourceSpecForBaseURL(assert, "https://example.com/")
+func newTestResourceSpec(c *qt.C) *Spec {
+	return newTestResourceSpecForBaseURL(c, "https://example.com/")
 }
 
 func createTestCfg() *viper.Viper {
@@ -52,7 +54,7 @@ func createTestCfg() *viper.Viper {
 
 }
 
-func newTestResourceSpecForBaseURL(assert *require.Assertions, baseURL string) *Spec {
+func newTestResourceSpecForBaseURL(c *qt.C, baseURL string) *Spec {
 	cfg := createTestCfg()
 	cfg.Set("baseURL", baseURL)
 
@@ -67,13 +69,13 @@ func newTestResourceSpecForBaseURL(assert *require.Assertions, baseURL string) *
 	fs := hugofs.NewMem(cfg)
 
 	s, err := helpers.NewPathSpec(fs, cfg, nil)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	filecaches, err := filecache.NewCaches(s)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	spec, err := NewSpec(s, filecaches, nil, output.DefaultFormats, media.DefaultTypes)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	return spec
 }
 
@@ -86,7 +88,7 @@ func newTargetPaths(link string) func() page.TargetPaths {
 	}
 }
 
-func newTestResourceOsFs(assert *require.Assertions) *Spec {
+func newTestResourceOsFs(c *qt.C) *Spec {
 	cfg := createTestCfg()
 	cfg.Set("baseURL", "https://example.com")
 
@@ -104,66 +106,66 @@ func newTestResourceOsFs(assert *require.Assertions) *Spec {
 	fs.Destination = &afero.MemMapFs{}
 
 	s, err := helpers.NewPathSpec(fs, cfg, nil)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	filecaches, err := filecache.NewCaches(s)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	spec, err := NewSpec(s, filecaches, nil, output.DefaultFormats, media.DefaultTypes)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	return spec
 
 }
 
-func fetchSunset(assert *require.Assertions) *Image {
-	return fetchImage(assert, "sunset.jpg")
+func fetchSunset(c *qt.C) *Image {
+	return fetchImage(c, "sunset.jpg")
 }
 
-func fetchImage(assert *require.Assertions, name string) *Image {
-	spec := newTestResourceSpec(assert)
-	return fetchImageForSpec(spec, assert, name)
+func fetchImage(c *qt.C, name string) *Image {
+	spec := newTestResourceSpec(c)
+	return fetchImageForSpec(spec, c, name)
 }
 
-func fetchImageForSpec(spec *Spec, assert *require.Assertions, name string) *Image {
-	r := fetchResourceForSpec(spec, assert, name)
-	assert.IsType(&Image{}, r)
+func fetchImageForSpec(spec *Spec, c *qt.C, name string) *Image {
+	r := fetchResourceForSpec(spec, c, name)
+	c.Assert(r, hqt.IsSameType, &Image{})
 	return r.(*Image)
 }
 
-func fetchResourceForSpec(spec *Spec, assert *require.Assertions, name string) resource.ContentResource {
+func fetchResourceForSpec(spec *Spec, c *qt.C, name string) resource.ContentResource {
 	src, err := os.Open(filepath.FromSlash("testdata/" + name))
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	out, err := helpers.OpenFileForWriting(spec.Fs.Source, name)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	_, err = io.Copy(out, src)
 	out.Close()
 	src.Close()
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	factory := newTargetPaths("/a")
 
 	r, err := spec.New(ResourceSourceDescriptor{Fs: spec.Fs.Source, TargetPaths: factory, LazyPublish: true, SourceFilename: name})
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
 	return r.(resource.ContentResource)
 }
 
-func assertImageFile(assert *require.Assertions, fs afero.Fs, filename string, width, height int) {
+func assertImageFile(c *qt.C, fs afero.Fs, filename string, width, height int) {
 	filename = filepath.Clean(filename)
 	f, err := fs.Open(filename)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 	defer f.Close()
 
 	config, _, err := image.DecodeConfig(f)
-	assert.NoError(err)
+	c.Assert(err, qt.IsNil)
 
-	assert.Equal(width, config.Width)
-	assert.Equal(height, config.Height)
+	c.Assert(config.Width, qt.Equals, width)
+	c.Assert(config.Height, qt.Equals, height)
 }
 
-func assertFileCache(assert *require.Assertions, fs afero.Fs, filename string, width, height int) {
-	assertImageFile(assert, fs, filepath.Clean(filename), width, height)
+func assertFileCache(c *qt.C, fs afero.Fs, filename string, width, height int) {
+	assertImageFile(c, fs, filepath.Clean(filename), width, height)
 }
 
 func writeSource(t testing.TB, fs *hugofs.Fs, filename, content string) {

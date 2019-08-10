@@ -18,8 +18,8 @@ import (
 	"strings"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/spf13/cast"
-	"github.com/stretchr/testify/require"
 )
 
 type pageGroupTestObject struct {
@@ -204,7 +204,7 @@ func TestGroupByParamInReverseOrder(t *testing.T) {
 }
 
 func TestGroupByParamCalledWithCapitalLetterString(t *testing.T) {
-	assert := require.New(t)
+	c := qt.New(t)
 	testStr := "TestString"
 	p := newTestPage()
 	p.params["custom_param"] = testStr
@@ -212,8 +212,8 @@ func TestGroupByParamCalledWithCapitalLetterString(t *testing.T) {
 
 	groups, err := pages.GroupByParam("custom_param")
 
-	assert.NoError(err)
-	assert.Equal(testStr, groups[0].Key)
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups[0].Key, qt.Equals, testStr)
 
 }
 

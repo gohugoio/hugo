@@ -18,10 +18,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
 func TestLayoutBase(t *testing.T) {
+	c := qt.New(t)
 
 	var (
 		workingDir     = "/sites/mysite/"
@@ -117,7 +118,7 @@ func TestLayoutBase(t *testing.T) {
 				MasterFilename:  "_default/single-baseof.json",
 			}},
 	} {
-		t.Run(this.name, func(t *testing.T) {
+		c.Run(this.name, func(c *qt.C) {
 
 			this.basePathMatchStrings = filepath.FromSlash(this.basePathMatchStrings)
 
@@ -152,8 +153,9 @@ func TestLayoutBase(t *testing.T) {
 
 			id, err := CreateTemplateNames(this.d)
 
-			require.NoError(t, err)
-			require.Equal(t, this.expect, id, this.name)
+			c.Assert(err, qt.IsNil)
+			msg := qt.Commentf(this.name)
+			c.Assert(id, qt.Equals, this.expect, msg)
 
 		})
 	}

@@ -14,29 +14,28 @@
 package transform
 
 import (
-	"fmt"
 	"html/template"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 type tstNoStringer struct{}
 
 func TestEmojify(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	v := viper.New()
 	ns := New(newDeps(v))
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		s      interface{}
 		expect interface{}
 	}{
@@ -45,28 +44,28 @@ func TestEmojify(t *testing.T) {
 		// errors
 		{tstNoStringer{}, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %s", i, test.s)
 
 		result, err := ns.Emojify(test.s)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
 	}
 }
 
 func TestHighlight(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	v := viper.New()
 	v.Set("contentDir", "content")
 	ns := New(newDeps(v))
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		s      interface{}
 		lang   string
 		opts   string
@@ -77,28 +76,28 @@ func TestHighlight(t *testing.T) {
 		{`<Foo attr=" &lt; "></Foo>`, "xml", "", `&amp;lt;`},
 		{tstNoStringer{}, "go", "", false},
 	} {
-		errMsg := fmt.Sprintf("[%d]", i)
 
 		result, err := ns.Highlight(test.s, test.lang, test.opts)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Contains(t, result, test.expect.(string), errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(string(result), qt.Contains, test.expect.(string))
 	}
 }
 
 func TestHTMLEscape(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	v := viper.New()
 	v.Set("contentDir", "content")
 	ns := New(newDeps(v))
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		s      interface{}
 		expect interface{}
 	}{
@@ -107,28 +106,28 @@ func TestHTMLEscape(t *testing.T) {
 		// errors
 		{tstNoStringer{}, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %s", i, test.s)
 
 		result, err := ns.HTMLEscape(test.s)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
 	}
 }
 
 func TestHTMLUnescape(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	v := viper.New()
 	v.Set("contentDir", "content")
 	ns := New(newDeps(v))
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		s      interface{}
 		expect interface{}
 	}{
@@ -137,28 +136,28 @@ func TestHTMLUnescape(t *testing.T) {
 		// errors
 		{tstNoStringer{}, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %s", i, test.s)
 
 		result, err := ns.HTMLUnescape(test.s)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
 	}
 }
 
 func TestMarkdownify(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	v := viper.New()
 	v.Set("contentDir", "content")
 	ns := New(newDeps(v))
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		s      interface{}
 		expect interface{}
 	}{
@@ -166,26 +165,23 @@ func TestMarkdownify(t *testing.T) {
 		{[]byte("Hello Bytes **World!**"), template.HTML("Hello Bytes <strong>World!</strong>")},
 		{tstNoStringer{}, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %s", i, test.s)
 
 		result, err := ns.Markdownify(test.s)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
 	}
 }
 
 // Issue #3040
 func TestMarkdownifyBlocksOfText(t *testing.T) {
 	t.Parallel()
-
-	assert := require.New(t)
-
+	c := qt.New(t)
 	v := viper.New()
 	v.Set("contentDir", "content")
 	ns := New(newDeps(v))
@@ -203,20 +199,20 @@ And then some.
 `
 
 	result, err := ns.Markdownify(text)
-	assert.NoError(err)
-	assert.Equal(template.HTML(
-		"<p>#First</p>\n\n<p>This is some <em>bold</em> text.</p>\n\n<h2 id=\"second\">Second</h2>\n\n<p>This is some more text.</p>\n\n<p>And then some.</p>\n"),
-		result)
+	c.Assert(err, qt.IsNil)
+	c.Assert(result, qt.Equals, template.HTML(
+		"<p>#First</p>\n\n<p>This is some <em>bold</em> text.</p>\n\n<h2 id=\"second\">Second</h2>\n\n<p>This is some more text.</p>\n\n<p>And then some.</p>\n"))
 
 }
 
 func TestPlainify(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	v := viper.New()
 	ns := New(newDeps(v))
 
-	for i, test := range []struct {
+	for _, test := range []struct {
 		s      interface{}
 		expect interface{}
 	}{
@@ -224,17 +220,16 @@ func TestPlainify(t *testing.T) {
 		// errors
 		{tstNoStringer{}, false},
 	} {
-		errMsg := fmt.Sprintf("[%d] %s", i, test.s)
 
 		result, err := ns.Plainify(test.s)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			require.Error(t, err, errMsg)
+			c.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		require.NoError(t, err, errMsg)
-		assert.Equal(t, test.expect, result, errMsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
 	}
 }
 
