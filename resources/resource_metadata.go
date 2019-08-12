@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/gohugoio/hugo/resources/internal"
+	"github.com/gohugoio/hugo/hugofs/glob"
 	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/pkg/errors"
@@ -70,7 +70,7 @@ func AssignMetadata(metadata []map[string]interface{}, resources ...resource.Res
 
 			srcKey := strings.ToLower(cast.ToString(src))
 
-			glob, err := internal.GetGlob(srcKey)
+			glob, err := glob.GetGlob(srcKey)
 			if err != nil {
 				return errors.Wrap(err, "failed to match resource with metadata")
 			}

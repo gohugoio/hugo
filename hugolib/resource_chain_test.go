@@ -502,3 +502,33 @@ func TestMultiSiteResource(t *testing.T) {
 	b.AssertFileContent("public/text/pipes.txt", "Hugo Pipes")
 
 }
+
+func TestResourcesMatch(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t)
+
+	b.WithContent("page.md", "")
+
+	b.WithSourceFile(
+		"assets/jsons/data1.json", "json1 content",
+		"assets/jsons/data2.json", "json2 content",
+		"assets/jsons/data3.xml", "xml content",
+	)
+
+	b.WithTemplates("index.html", `
+{{ $jsons := (resources.Match "jsons/*.json") }}
+{{ $json := (resources.GetMatch "jsons/*.json") }}
+{{ printf "JSONS: %d"  (len $jsons) }}
+JSON: {{ $json.RelPermalink }}: {{ $json.Content }}
+{{ range $jsons }}
+{{- .RelPermalink }}: {{ .Content }}
+{{ end }}
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html",
+		"JSON: /jsons/data1.json: json1 content",
+		"JSONS: 2", "/jsons/data1.json: json1 content")
+}

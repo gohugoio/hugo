@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gohugoio/hugo/resources/internal"
+	"github.com/gohugoio/hugo/hugofs/glob"
 )
 
 // Resources represents a slice of resources, which can be a mix of different types.
@@ -44,7 +44,7 @@ func (r Resources) ByType(tp string) Resources {
 // GetMatch finds the first Resource matching the given pattern, or nil if none found.
 // See Match for a more complete explanation about the rules used.
 func (r Resources) GetMatch(pattern string) Resource {
-	g, err := internal.GetGlob(pattern)
+	g, err := glob.GetGlob(pattern)
 	if err != nil {
 		return nil
 	}
@@ -68,7 +68,7 @@ func (r Resources) GetMatch(pattern string) Resource {
 // path relative to the bundle root with Unix style slashes (/) and no leading slash, e.g. "images/logo.png".
 // See https://github.com/gobwas/glob for the full rules set.
 func (r Resources) Match(pattern string) Resources {
-	g, err := internal.GetGlob(pattern)
+	g, err := glob.GetGlob(pattern)
 	if err != nil {
 		return nil
 	}
