@@ -15,7 +15,6 @@ package commands
 
 import (
 	"os"
-	"strings"
 
 	"github.com/gohugoio/hugo/modules"
 	"github.com/spf13/cobra"
@@ -80,7 +79,7 @@ Run "go help get" for more information. All flags available for "go get" is also
 				return c.withModsClient(false, func(c *modules.Client) error {
 					// We currently just pass on the flags we get to Go and
 					// need to do the flag handling manually.
-					if len(args) == 1 && strings.Contains(args[0], "-h") {
+					if len(args) == 1 && args[0] == "-h" {
 						return cmd.Help()
 					}
 					return c.Get(args...)
