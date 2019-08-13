@@ -349,7 +349,8 @@ path="ok"
 path="incompat1"
 [[module.imports]]
 path="incompat2"
-
+[[module.imports]]
+path="incompat3"
 
 `)
 
@@ -370,6 +371,12 @@ min_version = "5.0.0"
 
 `)
 
+	// Issue 6162
+	b.WithSourceFile("themes/incompat3/theme.toml", `
+min_version = 0.55.0
+
+`)
+
 	logger := loggers.NewWarningLogger()
 	b.WithLogger(logger)
 
@@ -377,7 +384,7 @@ min_version = "5.0.0"
 
 	c := qt.New(t)
 
-	c.Assert(logger.WarnCounter.Count(), qt.Equals, uint64(2))
+	c.Assert(logger.WarnCounter.Count(), qt.Equals, uint64(3))
 
 }
 

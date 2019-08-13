@@ -412,9 +412,10 @@ func (c *collector) applyThemeConfig(tc *moduleAdapter) error {
 		}
 		themeCfg, err = metadecoders.Default.UnmarshalToMap(data, metadecoders.TOML)
 		if err != nil {
-			return errors.Wrapf(err, "failed to read module config for %q in %q", tc.Path(), themeTOML)
+			c.logger.WARN.Printf("Failed to read module config for %q in %q: %s", tc.Path(), themeTOML, err)
+		} else {
+			maps.ToLower(themeCfg)
 		}
-		maps.ToLower(themeCfg)
 	}
 
 	if hasConfig {
