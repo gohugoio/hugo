@@ -917,10 +917,12 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 		logger = helpers.NewDistinctFeedbackLogger()
 	)
 
-	cachePartitions := make([]string, len(events))
+	var cachePartitions []string
 
-	for i, ev := range events {
-		cachePartitions[i] = resources.ResourceKeyPartition(ev.Name)
+	for _, ev := range events {
+		if assetsFilename := s.BaseFs.Assets.MakePathRelative(ev.Name); assetsFilename != "" {
+			cachePartitions = append(cachePartitions, resources.ResourceKeyPartitions(assetsFilename)...)
+		}
 
 		if s.isContentDirEvent(ev) {
 			logger.Println("Source changed", ev)

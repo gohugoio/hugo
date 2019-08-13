@@ -330,14 +330,13 @@ func (r *transformedResource) transform(setContent, publish bool) (err error) {
 			if p == "" {
 				panic("target path needed for key creation")
 			}
-			partition := ResourceKeyPartition(p)
-			base = partition + "/" + p
+			base = ResourceCacheKey(p)
 		default:
 			return fmt.Errorf("transformation not supported for type %T", element)
 		}
 	}
 
-	key = r.cache.cleanKey(base + "_" + helpers.MD5String(key))
+	key = r.cache.cleanKey(base) + "_" + helpers.MD5String(key)
 
 	cached, found := r.cache.get(key)
 	if found {
