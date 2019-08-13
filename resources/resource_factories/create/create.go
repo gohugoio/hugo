@@ -18,6 +18,7 @@ package create
 import (
 	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/gohugoio/hugo/hugofs/glob"
 
@@ -42,7 +43,7 @@ func New(rs *resources.Spec) *Client {
 // Get creates a new Resource by opening the given filename in the assets filesystem.
 func (c *Client) Get(filename string) (resource.Resource, error) {
 	filename = filepath.Clean(filename)
-	return c.rs.ResourceCache.GetOrCreate(resources.ResourceKeyPartition(filename), filename, func() (resource.Resource, error) {
+	return c.rs.ResourceCache.GetOrCreate(resources.ResourceCacheKey(filename), func() (resource.Resource, error) {
 		return c.rs.New(resources.ResourceSourceDescriptor{
 			Fs:             c.rs.BaseFs.Assets.Fs,
 			LazyPublish:    true,
@@ -66,18 +67,22 @@ func (c *Client) GetMatch(pattern string) (resource.Resource, error) {
 }
 
 func (c *Client) match(pattern string, firstOnly bool) (resource.Resources, error) {
-	var partition string
+	var name string
 	if firstOnly {
-		partition = "__get-match"
+		name = "__get-match"
 	} else {
-		partition = "__match"
+		name = "__match"
 	}
 
-	// TODO(bep) match will be improved as part of https://github.com/gohugoio/hugo/issues/6199
-	partition = path.Join(resources.CACHE_OTHER, partition)
-	key := glob.NormalizePath(pattern)
+	pattern = glob.NormalizePath(pattern)
+	partitions := glob.FilterGlobParts(strings.Split(pattern, "/"))
+	if len(partitions) == 0 {
+		partitions = []string{resources.CACHE_OTHER}
+	}
+	key := path.Join(name, path.Join(partitions...))
+	key = path.Join(key, pattern)
 
-	return c.rs.ResourceCache.GetOrCreateResources(partition, key, func() (resource.Resources, error) {
+	return c.rs.ResourceCache.GetOrCreateResources(key, func() (resource.Resources, error) {
 		var res resource.Resources
 
 		handle := func(info hugofs.FileMetaInfo) (bool, error) {
@@ -110,7 +115,7 @@ func (c *Client) match(pattern string, firstOnly bool) (resource.Resources, erro
 
 // FromString creates a new Resource from a string with the given relative target path.
 func (c *Client) FromString(targetPath, content string) (resource.Resource, error) {
-	return c.rs.ResourceCache.GetOrCreate(resources.CACHE_OTHER, targetPath, func() (resource.Resource, error) {
+	return c.rs.ResourceCache.GetOrCreate(path.Join(resources.CACHE_OTHER, targetPath), func() (resource.Resource, error) {
 		return c.rs.New(
 			resources.ResourceSourceDescriptor{
 				Fs:          c.rs.FileCaches.AssetsCache().Fs,

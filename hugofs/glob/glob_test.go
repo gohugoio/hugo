@@ -24,8 +24,8 @@ func TestResolveRootDir(t *testing.T) {
 	c := qt.New(t)
 
 	for _, test := range []struct {
-		in     string
-		expect string
+		input    string
+		expected string
 	}{
 		{"data/foo.json", "data"},
 		{"a/b/**/foo.json", "a/b"},
@@ -33,7 +33,21 @@ func TestResolveRootDir(t *testing.T) {
 		{"a/b[a-c]/foo.json", "a"},
 	} {
 
-		c.Assert(ResolveRootDir(test.in), qt.Equals, test.expect)
+		c.Assert(ResolveRootDir(test.input), qt.Equals, test.expected)
+	}
+}
+
+func TestFilterGlobParts(t *testing.T) {
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		input    []string
+		expected []string
+	}{
+		{[]string{"a", "*", "c"}, []string{"a", "c"}},
+	} {
+
+		c.Assert(FilterGlobParts(test.input), qt.DeepEquals, test.expected)
 	}
 }
 
@@ -41,8 +55,8 @@ func TestNormalizePath(t *testing.T) {
 	c := qt.New(t)
 
 	for _, test := range []struct {
-		in     string
-		expect string
+		input    string
+		expected string
 	}{
 		{filepath.FromSlash("data/FOO.json"), "data/foo.json"},
 		{filepath.FromSlash("/data/FOO.json"), "data/foo.json"},
@@ -50,7 +64,7 @@ func TestNormalizePath(t *testing.T) {
 		{"//", ""},
 	} {
 
-		c.Assert(NormalizePath(test.in), qt.Equals, test.expect)
+		c.Assert(NormalizePath(test.input), qt.Equals, test.expected)
 	}
 }
 

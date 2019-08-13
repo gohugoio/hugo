@@ -51,7 +51,7 @@ func GetGlob(pattern string) (glob.Glob, error) {
 }
 
 func NormalizePath(p string) string {
-	return strings.Trim(filepath.ToSlash(strings.ToLower(p)), "/.")
+	return strings.Trim(path.Clean(filepath.ToSlash(strings.ToLower(p))), "/.")
 }
 
 // ResolveRootDir takes a normalized path on the form "assets/**.json" and
@@ -60,14 +60,7 @@ func ResolveRootDir(p string) string {
 	parts := strings.Split(path.Dir(p), "/")
 	var roots []string
 	for _, part := range parts {
-		isSpecial := false
-		for i := 0; i < len(part); i++ {
-			if syntax.Special(part[i]) {
-				isSpecial = true
-				break
-			}
-		}
-		if isSpecial {
+		if HasGlobChar(part) {
 			break
 		}
 		roots = append(roots, part)
@@ -78,4 +71,26 @@ func ResolveRootDir(p string) string {
 	}
 
 	return strings.Join(roots, "/")
+}
+
+// FilterGlobParts removes any string with glob wildcard.
+func FilterGlobParts(a []string) []string {
+	b := a[:0]
+	for _, x := range a {
+		if !HasGlobChar(x) {
+			b = append(b, x)
+		}
+	}
+	return b
+}
+
+// HasGlobChar returns whether s contains any glob wildcards.
+func HasGlobChar(s string) bool {
+	for i := 0; i < len(s); i++ {
+		if syntax.Special(s[i]) {
+			return true
+		}
+	}
+	return false
+
 }

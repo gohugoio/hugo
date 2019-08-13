@@ -21,6 +21,10 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/helpers"
+
+	"github.com/gohugoio/hugo/hugofs/glob"
+
 	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/cache/filecache"
@@ -47,16 +51,76 @@ type ResourceCache struct {
 	nlocker *locker.Locker
 }
 
-// ResourceKeyPartition returns a partition name
-// to  allow for more fine grained cache flushes.
-// It will return the file extension without the leading ".". If no
-// extension, it will return "other".
-func ResourceKeyPartition(filename string) string {
+// ResourceCacheKey converts the filename into the format used in the resource
+// cache.
+func ResourceCacheKey(filename string) string {
+	filename = filepath.ToSlash(filename)
+	return path.Join(resourceKeyPartition(filename), filename)
+}
+
+func resourceKeyPartition(filename string) string {
 	ext := strings.TrimPrefix(path.Ext(filepath.ToSlash(filename)), ".")
 	if ext == "" {
 		ext = CACHE_OTHER
 	}
 	return ext
+}
+
+// Commonly used aliases and directory names used for some types.
+var extAliasKeywords = map[string][]string{
+	"sass": []string{"scss"},
+	"scss": []string{"sass"},
+}
+
+// ResourceKeyPartitions resolves a ordered slice of partitions that is
+// used to do resource cache invalidations.
+//
+// We use the first directory path element and the extension, so:
+//     a/b.json => "a", "json"
+//     b.json => "json"
+//
+// For some of the extensions we will also map to closely related types,
+// e.g. "scss" will also return "sass".
+//
+func ResourceKeyPartitions(filename string) []string {
+	var partitions []string
+	filename = glob.NormalizePath(filename)
+	dir, name := path.Split(filename)
+	ext := strings.TrimPrefix(path.Ext(filepath.ToSlash(name)), ".")
+
+	if dir != "" {
+		partitions = append(partitions, strings.Split(dir, "/")[0])
+	}
+
+	if ext != "" {
+		partitions = append(partitions, ext)
+	}
+
+	if aliases, found := extAliasKeywords[ext]; found {
+		partitions = append(partitions, aliases...)
+	}
+
+	if len(partitions) == 0 {
+		partitions = []string{CACHE_OTHER}
+	}
+
+	return helpers.UniqueStringsSorted(partitions)
+}
+
+// ResourceKeyContainsAny returns whether the key is a member of any of the
+// given partitions.
+//
+// This is used for resource cache invalidation.
+func ResourceKeyContainsAny(key string, partitions []string) bool {
+	parts := strings.Split(key, "/")
+	for _, p1 := range partitions {
+		for _, p2 := range parts {
+			if p1 == p2 {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func newResourceCache(rs *Spec) *ResourceCache {
@@ -83,7 +147,7 @@ func (c *ResourceCache) Contains(key string) bool {
 }
 
 func (c *ResourceCache) cleanKey(key string) string {
-	return strings.TrimPrefix(path.Clean(key), "/")
+	return strings.TrimPrefix(path.Clean(strings.ToLower(key)), "/")
 }
 
 func (c *ResourceCache) get(key string) (interface{}, bool) {
@@ -93,24 +157,24 @@ func (c *ResourceCache) get(key string) (interface{}, bool) {
 	return r, found
 }
 
-func (c *ResourceCache) GetOrCreate(partition, key string, f func() (resource.Resource, error)) (resource.Resource, error) {
-	r, err := c.getOrCreate(partition, key, func() (interface{}, error) { return f() })
+func (c *ResourceCache) GetOrCreate(key string, f func() (resource.Resource, error)) (resource.Resource, error) {
+	r, err := c.getOrCreate(key, func() (interface{}, error) { return f() })
 	if r == nil || err != nil {
 		return nil, err
 	}
 	return r.(resource.Resource), nil
 }
 
-func (c *ResourceCache) GetOrCreateResources(partition, key string, f func() (resource.Resources, error)) (resource.Resources, error) {
-	r, err := c.getOrCreate(partition, key, func() (interface{}, error) { return f() })
+func (c *ResourceCache) GetOrCreateResources(key string, f func() (resource.Resources, error)) (resource.Resources, error) {
+	r, err := c.getOrCreate(key, func() (interface{}, error) { return f() })
 	if r == nil || err != nil {
 		return nil, err
 	}
 	return r.(resource.Resources), nil
 }
 
-func (c *ResourceCache) getOrCreate(partition, key string, f func() (interface{}, error)) (interface{}, error) {
-	key = c.cleanKey(path.Join(partition, key))
+func (c *ResourceCache) getOrCreate(key string, f func() (interface{}, error)) (interface{}, error) {
+	key = c.cleanKey(key)
 	// First check in-memory cache.
 	r, found := c.get(key)
 	if found {
@@ -200,7 +264,7 @@ func (c *ResourceCache) set(key string, r interface{}) {
 
 func (c *ResourceCache) DeletePartitions(partitions ...string) {
 	partitionsSet := map[string]bool{
-		// Always clear out the resources not matching the partition.
+		// Always clear out the resources not matching any partition.
 		"other": true,
 	}
 	for _, p := range partitions {
@@ -217,13 +281,11 @@ func (c *ResourceCache) DeletePartitions(partitions ...string) {
 
 	for k := range c.cache {
 		clear := false
-		partIdx := strings.Index(k, "/")
-		if partIdx == -1 {
-			clear = true
-		} else {
-			partition := k[:partIdx]
-			if partitionsSet[partition] {
+		for p, _ := range partitionsSet {
+			if strings.Contains(k, p) {
+				// There will be some false positive, but that's fine.
 				clear = true
+				break
 			}
 		}
 
