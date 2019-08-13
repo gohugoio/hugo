@@ -55,12 +55,14 @@ title: "My bundle"
 {{ $p := .Site.GetPage "mybundle" }}
 {{ $img1 := resources.Get "images/sunset.jpg" }}
 {{ $img2 := $p.Resources.GetMatch "sunset.jpg" }}
+{{ $img3 := resources.GetMatch "images/*.jpg" }}
 {{ $r := $img1.Resize "123x234" }}
 {{ $r2 := $r.Resize "12x23" }}
 {{ $b := $img2.Resize "345x678" }}
 {{ $b2 := $b.Resize "34x67" }}
+{{ $c := $img3.Resize "456x789" }}
 
-{{ $images := slice $r $r2 $b $b2 }}
+{{ $images := slice $r $r2 $b $b2 $c }}
 
 {{ range $i, $r := $images }}
 {{ printf "Resized%d:" (add $i  1) }} {{ $r.Name }}|{{ $r.Width }}|{{ $r.Height }}|{{ $r.MediaType }}|{{ $r.RelPermalink }}|
@@ -101,6 +103,7 @@ title: "My bundle"
 		"Resized2: images/sunset.jpg|12|23|image/jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_ada4bb1a57f77a63306e3bd67286248e.jpg|",
 		"Resized3: sunset.jpg|345|678|image/jpg|/mybundle/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_345x678_resize_q75_box.jpg|",
 		"Resized4: sunset.jpg|34|67|image/jpg|/mybundle/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_44d8c928664d7c5a67377c6ec58425ce.jpg|",
+		" Resized5: images/sunset.jpg|456|789|image/jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_456x789_resize_q75_box.jpg|",
 	}
 
 	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), imgExpect...)

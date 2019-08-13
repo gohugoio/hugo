@@ -89,6 +89,7 @@ func (c *Client) match(pattern string, firstOnly bool) (resource.Resources, erro
 			meta := info.Meta()
 			r, err := c.rs.New(resources.ResourceSourceDescriptor{
 				LazyPublish: true,
+				FileInfo:    info,
 				OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
 					return meta.Open()
 				},
