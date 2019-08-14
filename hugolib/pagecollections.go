@@ -27,7 +27,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/cache"
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources/page"
 )
 
@@ -285,11 +284,6 @@ func (c *PageCollections) getPageNew(context page.Page, ref string) (page.Page, 
 		// Many people will have "post/foo.md" in their content files.
 		p, err := c.getFromCache("/" + ref)
 		if err == nil && p != nil {
-			if context != nil {
-				// TODO(bep) remove this case and the message below when the storm has passed
-				err := wrapErr(errors.Errorf(`make non-relative ref/relref page reference(s) in page %q absolute, e.g. {{< ref "/blog/my-post.md" >}}`, context.Path()), context)
-				helpers.DistinctWarnLog.Println(err)
-			}
 			return p, nil
 		}
 		if err != nil {
