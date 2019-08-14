@@ -85,13 +85,13 @@ func (n *newCmd) newContent(cmd *cobra.Command, args []string) error {
 
 	var kind string
 
-	createPath, kind = newContentPathSection(c.hugo, createPath)
+	createPath, kind = newContentPathSection(c.hugo(), createPath)
 
 	if n.contentType != "" {
 		kind = n.contentType
 	}
 
-	return create.NewContent(c.hugo, kind, createPath)
+	return create.NewContent(c.hugo(), kind, createPath)
 }
 
 func mkdir(x ...string) {

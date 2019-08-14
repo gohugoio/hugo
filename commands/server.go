@@ -244,7 +244,7 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	for _, s := range c.hugo.Sites {
+	for _, s := range c.hugo().Sites {
 		s.RegisterMediaTypes()
 	}
 
@@ -303,9 +303,9 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 		publishDir = filepath.Join(publishDir, root)
 	}
 
-	absPublishDir := f.c.hugo.PathSpec.AbsPathify(publishDir)
+	absPublishDir := f.c.hugo().PathSpec.AbsPathify(publishDir)
 
-	jww.FEEDBACK.Printf("Environment: %q", f.c.hugo.Deps.Site.Hugo().Environment)
+	jww.FEEDBACK.Printf("Environment: %q", f.c.hugo().Deps.Site.Hugo().Environment)
 
 	if i == 0 {
 		if f.s.renderToDisk {
@@ -398,7 +398,7 @@ func removeErrorPrefixFromLog(content string) string {
 }
 func (c *commandeer) serve(s *serverCmd) error {
 
-	isMultiHost := c.hugo.IsMultihost()
+	isMultiHost := c.hugo().IsMultihost()
 
 	var (
 		baseURLs []string
@@ -406,17 +406,17 @@ func (c *commandeer) serve(s *serverCmd) error {
 	)
 
 	if isMultiHost {
-		for _, s := range c.hugo.Sites {
+		for _, s := range c.hugo().Sites {
 			baseURLs = append(baseURLs, s.BaseURL.String())
 			roots = append(roots, s.Language().Lang)
 		}
 	} else {
-		s := c.hugo.Sites[0]
+		s := c.hugo().Sites[0]
 		baseURLs = []string{s.BaseURL.String()}
 		roots = []string{""}
 	}
 
-	templ, err := c.hugo.TextTmpl.Parse("__default_server_error", buildErrorTemplate)
+	templ, err := c.hugo().TextTmpl.Parse("__default_server_error", buildErrorTemplate)
 	if err != nil {
 		return err
 	}

@@ -92,7 +92,7 @@ func Execute(args []string) Response {
 
 	if c == cmd && hugoCmd.c != nil {
 		// Root command executed
-		resp.Result = hugoCmd.c.hugo
+		resp.Result = hugoCmd.c.hugo()
 	}
 
 	if err == nil {
@@ -338,16 +338,16 @@ func (c *commandeer) fullBuild() error {
 		}
 	}
 
-	for _, s := range c.hugo.Sites {
+	for _, s := range c.hugo().Sites {
 		s.ProcessingStats.Static = langCount[s.Language().Lang]
 	}
 
 	if c.h.gc {
-		count, err := c.hugo.GC()
+		count, err := c.hugo().GC()
 		if err != nil {
 			return err
 		}
-		for _, s := range c.hugo.Sites {
+		for _, s := range c.hugo().Sites {
 			// We have no way of knowing what site the garbage belonged to.
 			s.ProcessingStats.Cleaned = uint64(count)
 		}
@@ -483,7 +483,7 @@ func (c *commandeer) build() error {
 	// TODO(bep) Feedback?
 	if !c.h.quiet {
 		fmt.Println()
-		c.hugo.PrintProcessingStats(os.Stdout)
+		c.hugo().PrintProcessingStats(os.Stdout)
 		fmt.Println()
 
 		if createCounter, ok := c.destinationFs.(hugofs.DuplicatesReporter); ok {
@@ -539,7 +539,7 @@ func (c *commandeer) serverBuild() error {
 	// TODO(bep) Feedback?
 	if !c.h.quiet {
 		fmt.Println()
-		c.hugo.PrintProcessingStats(os.Stdout)
+		c.hugo().PrintProcessingStats(os.Stdout)
 		fmt.Println()
 	}
 
@@ -558,7 +558,7 @@ func (c *commandeer) doWithPublishDirs(f func(sourceFs *filesystems.SourceFilesy
 
 	langCount := make(map[string]uint64)
 
-	staticFilesystems := c.hugo.BaseFs.SourceFilesystems.Static
+	staticFilesystems := c.hugo().BaseFs.SourceFilesystems.Static
 
 	if len(staticFilesystems) == 0 {
 		c.logger.INFO.Println("No static directories found to sync")
@@ -610,7 +610,7 @@ func chmodFilter(dst, src os.FileInfo) bool {
 }
 
 func (c *commandeer) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint64, error) {
-	publishDir := c.hugo.PathSpec.PublishDir
+	publishDir := c.hugo().PathSpec.PublishDir
 	// If root, remove the second '/'
 	if publishDir == "//" {
 		publishDir = helpers.FilePathSeparator
@@ -655,7 +655,7 @@ func (c *commandeer) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint6
 }
 
 func (c *commandeer) firstPathSpec() *helpers.PathSpec {
-	return c.hugo.Sites[0].PathSpec
+	return c.hugo().Sites[0].PathSpec
 }
 
 func (c *commandeer) timeTrack(start time.Time, name string) {
@@ -689,7 +689,7 @@ func (c *commandeer) getDirList() ([]string, error) {
 
 	}
 
-	watchDirs := c.hugo.PathSpec.BaseFs.WatchDirs()
+	watchDirs := c.hugo().PathSpec.BaseFs.WatchDirs()
 	for _, watchDir := range watchDirs {
 
 		w := hugofs.NewWalkway(hugofs.WalkwayConfig{Logger: c.logger, Info: watchDir, WalkFn: walkFn})
@@ -704,7 +704,7 @@ func (c *commandeer) getDirList() ([]string, error) {
 }
 
 func (c *commandeer) buildSites() (err error) {
-	return c.hugo.Build(hugolib.BuildCfg{})
+	return c.hugo().Build(hugolib.BuildCfg{})
 }
 
 func (c *commandeer) handleBuildErr(err error, msg string) {
@@ -726,16 +726,16 @@ func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 
 		// Make sure we always render the home pages
 		for _, l := range c.languages {
-			langPath := c.hugo.PathSpec.GetLangSubDir(l.Lang)
+			langPath := c.hugo().PathSpec.GetLangSubDir(l.Lang)
 			if langPath != "" {
 				langPath = langPath + "/"
 			}
-			home := c.hugo.PathSpec.PrependBasePath("/"+langPath, false)
+			home := c.hugo().PathSpec.PrependBasePath("/"+langPath, false)
 			visited[home] = true
 		}
 
 	}
-	return c.hugo.Build(hugolib.BuildCfg{RecentlyVisited: visited}, events...)
+	return c.hugo().Build(hugolib.BuildCfg{RecentlyVisited: visited}, events...)
 }
 
 func (c *commandeer) partialReRender(urls ...string) error {
@@ -744,7 +744,7 @@ func (c *commandeer) partialReRender(urls ...string) error {
 	for _, url := range urls {
 		visited[url] = true
 	}
-	return c.hugo.Build(hugolib.BuildCfg{RecentlyVisited: visited, PartialReRender: true})
+	return c.hugo().Build(hugolib.BuildCfg{RecentlyVisited: visited, PartialReRender: true})
 }
 
 func (c *commandeer) fullRebuild(changeType string) {
@@ -775,7 +775,7 @@ func (c *commandeer) fullRebuild(changeType string) {
 
 		defer c.timeTrack(time.Now(), "Total")
 
-		c.commandeerHugoState = &commandeerHugoState{}
+		c.commandeerHugoState = newCommandeerHugoState()
 		err := c.loadConfig(true, true)
 		if err != nil {
 			// Set the processing on pause until the state is recovered.
@@ -951,7 +951,7 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 	filtered := []fsnotify.Event{}
 	for _, ev := range evs {
 		// Check the most specific first, i.e. files.
-		contentMapped := c.hugo.ContentChanges.GetSymbolicLinkMappings(ev.Name)
+		contentMapped := c.hugo().ContentChanges.GetSymbolicLinkMappings(ev.Name)
 		if len(contentMapped) > 0 {
 			for _, mapped := range contentMapped {
 				filtered = append(filtered, fsnotify.Event{Name: mapped, Op: ev.Op})
@@ -963,7 +963,7 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 
 		dir, name := filepath.Split(ev.Name)
 
-		contentMapped = c.hugo.ContentChanges.GetSymbolicLinkMappings(dir)
+		contentMapped = c.hugo().ContentChanges.GetSymbolicLinkMappings(dir)
 
 		if len(contentMapped) == 0 {
 			filtered = append(filtered, ev)
@@ -997,7 +997,7 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 		if istemp {
 			continue
 		}
-		if c.hugo.Deps.SourceSpec.IgnoreFile(ev.Name) {
+		if c.hugo().Deps.SourceSpec.IgnoreFile(ev.Name) {
 			continue
 		}
 		// Sometimes during rm -rf operations a '"": REMOVE' is triggered. Just ignore these
@@ -1073,7 +1073,7 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 			// force refresh when more than one file
 			if len(staticEvents) == 1 {
 				ev := staticEvents[0]
-				path := c.hugo.BaseFs.SourceFilesystems.MakeStaticPathRelative(ev.Name)
+				path := c.hugo().BaseFs.SourceFilesystems.MakeStaticPathRelative(ev.Name)
 				path = c.firstPathSpec().RelURL(helpers.ToSlashTrimLeading(path), false)
 				livereload.RefreshPath(path)
 			} else {
@@ -1119,7 +1119,7 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 
 				if navigate {
 					if onePageName != "" {
-						p = c.hugo.GetContentPage(onePageName)
+						p = c.hugo().GetContentPage(onePageName)
 					}
 				}
 

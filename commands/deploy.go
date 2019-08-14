@@ -58,7 +58,7 @@ documentation.
 			if err != nil {
 				return err
 			}
-			deployer, err := deploy.New(comm.Cfg, comm.hugo.PathSpec.PublishFs)
+			deployer, err := deploy.New(comm.Cfg, comm.hugo().PathSpec.PublishFs)
 			if err != nil {
 				return err
 			}
