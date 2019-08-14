@@ -1,12 +1,12 @@
 
 ---
 date: 2019-08-14
-title: "0.57.0"
-description: "0.57.0"
+title: "Hugo 0.57: The Cascading Edition"
+description: "Hugo 0.57 brings cascading front matter, alphabetical sorting, resource loading from Assets with wildcards. And it's faster."
 categories: ["Releases"]
 ---
 
-	Hugo 0.57 brings **Cascading Front Matter**, **Alphabetical Sorting**, **Resources Loading from Assets with Wildcards**. And more.
+Hugo 0.57 brings **Cascading Front Matter**, **Alphabetical Sorting**, **Resources Loading from Assets with Wildcards**. And more.
 
 **Cascading Front Matter**: We have added a new and powerful `cascade` keyword to Hugo's front matter. This can be added to any index node in `_index.md`. Any values in `cascade` will be merged into itself and all the descendants.
 
