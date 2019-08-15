@@ -52,8 +52,9 @@ import (
 
 type commandeerHugoState struct {
 	*deps.DepsCfg
-	hugo     *hugolib.HugoSites
-	fsCreate sync.Once
+	hugoSites *hugolib.HugoSites
+	fsCreate  sync.Once
+	created   chan struct{}
 }
 
 type commandeer struct {
@@ -95,6 +96,17 @@ type commandeer struct {
 
 	// Any error from the last build.
 	buildErr error
+}
+
+func newCommandeerHugoState() *commandeerHugoState {
+	return &commandeerHugoState{
+		created: make(chan struct{}),
+	}
+}
+
+func (c *commandeerHugoState) hugo() *hugolib.HugoSites {
+	<-c.created
+	return c.hugoSites
 }
 
 func (c *commandeer) errCount() int {
@@ -154,7 +166,7 @@ func newCommandeer(mustHaveConfigFile, running bool, h *hugoBuilderCommon, f fla
 	c := &commandeer{
 		h:                   h,
 		ftch:                f,
-		commandeerHugoState: &commandeerHugoState{},
+		commandeerHugoState: newCommandeerHugoState(),
 		doWithCommandeer:    doWithCommandeer,
 		visitedURLs:         types.NewEvictingStringQueue(10),
 		debounce:            rebuildDebouncer,
@@ -373,13 +385,15 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 
 		err = c.initFs(fs)
 		if err != nil {
+			close(c.created)
 			return
 		}
 
 		var h *hugolib.HugoSites
 
 		h, err = hugolib.NewHugoSites(*c.DepsCfg)
-		c.hugo = h
+		c.hugoSites = h
+		close(c.created)
 
 	})
 

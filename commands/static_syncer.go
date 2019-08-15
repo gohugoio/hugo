@@ -33,14 +33,14 @@ func newStaticSyncer(c *commandeer) (*staticSyncer, error) {
 }
 
 func (s *staticSyncer) isStatic(filename string) bool {
-	return s.c.hugo.BaseFs.SourceFilesystems.IsStatic(filename)
+	return s.c.hugo().BaseFs.SourceFilesystems.IsStatic(filename)
 }
 
 func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 	c := s.c
 
 	syncFn := func(sourceFs *filesystems.SourceFilesystem) (uint64, error) {
-		publishDir := c.hugo.PathSpec.PublishDir
+		publishDir := c.hugo().PathSpec.PublishDir
 		// If root, remove the second '/'
 		if publishDir == "//" {
 			publishDir = helpers.FilePathSeparator

@@ -63,7 +63,7 @@ func (n *newThemeCmd) newTheme(cmd *cobra.Command, args []string) error {
 		return newUserError("theme name needs to be provided")
 	}
 
-	createpath := c.hugo.PathSpec.AbsPathify(filepath.Join(c.Cfg.GetString("themesDir"), args[0]))
+	createpath := c.hugo().PathSpec.AbsPathify(filepath.Join(c.Cfg.GetString("themesDir"), args[0]))
 	jww.FEEDBACK.Println("Creating theme at", createpath)
 
 	cfg := c.DepsCfg
