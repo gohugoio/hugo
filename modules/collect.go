@@ -95,12 +95,13 @@ func (h *Client) collect(tidy bool) (ModulesConfig, *collector) {
 		return ModulesConfig{}, c
 	}
 
-	if !c.skipTidy && tidy {
+	// https://github.com/gohugoio/hugo/issues/6115
+	/*if !c.skipTidy && tidy {
 		if err := h.tidy(c.modules, true); err != nil {
 			c.err = err
 			return ModulesConfig{}, c
 		}
-	}
+	}*/
 
 	return ModulesConfig{
 		AllModules:        c.modules,
