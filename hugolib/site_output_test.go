@@ -575,3 +575,53 @@ Output Formats: {{ len .OutputFormats }};{{ range .OutputFormats }}{{ .Name }};{
 	)
 
 }
+
+func TestSiteWithPageNoOutputs(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t)
+	b.WithConfigFile("toml", `
+baseURL = "https://example.com"
+
+[outputFormats.o1]
+mediaType = "text/html"
+
+
+
+`)
+	b.WithContent("outputs-empty.md", `---
+title: "Empty Outputs"
+outputs: []
+---
+
+Word1. Word2.
+
+`,
+		"outputs-string.md", `---
+title: "Outputs String"
+outputs: "o1"
+---
+
+Word1. Word2.
+
+`)
+
+	b.WithTemplates("index.html", `
+{{ range .Site.RegularPages }}
+WordCount: {{ .WordCount }}
+{{ end }}
+`)
+
+	b.WithTemplates("_default/single.html", `HTML: {{ .Content }}`)
+	b.WithTemplates("_default/single.o1.html", `O1: {{ .Content }}`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent(
+		"public/index.html",
+		" WordCount: 2")
+
+	b.AssertFileContent("public/outputs-empty/index.html", "HTML:", "Word1. Word2.")
+	b.AssertFileContent("public/outputs-string/index.html", "O1:", "Word1. Word2.")
+
+}
