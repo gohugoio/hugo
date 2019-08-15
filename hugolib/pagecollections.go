@@ -441,7 +441,7 @@ func (c *PageCollections) createWorkAllPages() error {
 
 		if parentBucket != nil {
 
-			if !mainSectionsFound && strings.Count(s, "/") == 1 {
+			if !mainSectionsFound && strings.Count(s, "/") == 1 && bucket.owner.IsSection() {
 				// Root section
 				rootBuckets = append(rootBuckets, bucket)
 			}
