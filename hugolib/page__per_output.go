@@ -67,6 +67,10 @@ func newPageContentOutput(p *pageState) func(f output.Format) (*pageContentOutpu
 		}
 
 		initContent := func() (err error) {
+			if p.cmap == nil {
+				// Nothing to do.
+				return nil
+			}
 			defer func() {
 				// See https://github.com/gohugoio/hugo/issues/6210
 				if r := recover(); r != nil {
