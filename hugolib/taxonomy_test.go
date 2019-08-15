@@ -352,3 +352,33 @@ categories: ["regular"]
 	b.Assert(dra, qt.IsNil)
 
 }
+
+// See https://github.com/gohugoio/hugo/issues/6222
+// We need to revisit this once we figure out what to do with the
+// draft etc _index pages, but for now we need to avoid the crash.
+func TestTaxonomiesIndexDraft(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t)
+	b.WithContent(
+		"categories/_index.md", `---
+title: "The Categories"
+draft: true
+---
+
+This is the invisible content.
+
+`)
+
+	b.WithTemplates("index.html", `
+{{ range .Site.Pages }}
+{{ .RelPermalink }}|{{ .Title }}|{{ .WordCount }}|{{ .Content }}|
+{{ end }}
+`)
+
+	b.Build(BuildCfg{})
+
+	// We publish the index page, but the content will be empty.
+	b.AssertFileContent("public/index.html", " /categories/|The Categories|0||")
+
+}
