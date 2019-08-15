@@ -20,6 +20,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/spf13/viper"
+
 	"github.com/markbates/inflect"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -362,6 +364,61 @@ func TestShouldNotWriteZeroLengthFilesToDestination(t *testing.T) {
 	th := newTestHelper(s.Cfg, s.Fs, t)
 
 	th.assertFileNotExist(filepath.Join("public", "index.html"))
+}
+
+func TestMainSections(t *testing.T) {
+	c := qt.New(t)
+	for _, paramSet := range []bool{false, true} {
+		c.Run(fmt.Sprintf("param-%t", paramSet), func(c *qt.C) {
+			v := viper.New()
+			if paramSet {
+				v.Set("params", map[string]interface{}{
+					"mainSections": []string{"a1", "a2"},
+				})
+			}
+
+			b := newTestSitesBuilder(c).WithViper(v)
+
+			for i := 0; i < 20; i++ {
+				b.WithContent(fmt.Sprintf("page%d.md", i), `---
+title: "Page"
+---
+`)
+			}
+
+			for i := 0; i < 5; i++ {
+				b.WithContent(fmt.Sprintf("blog/page%d.md", i), `---
+title: "Page"
+tags: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
+---
+`)
+			}
+
+			for i := 0; i < 3; i++ {
+				b.WithContent(fmt.Sprintf("docs/page%d.md", i), `---
+title: "Page"
+---
+`)
+			}
+
+			b.WithTemplates("index.html", `
+mainSections: {{ .Site.Params.mainSections }}
+
+{{ range (where .Site.RegularPages "Type" "in" .Site.Params.mainSections) }}
+Main section page: {{ .RelPermalink }}
+{{ end }}
+`)
+
+			b.Build(BuildCfg{})
+
+			if paramSet {
+				b.AssertFileContent("public/index.html", "mainSections: [a1 a2]")
+			} else {
+				b.AssertFileContent("public/index.html", "mainSections: [blog]", "Main section page: /blog/page3/")
+			}
+
+		})
+	}
 }
 
 // Issue #1176
