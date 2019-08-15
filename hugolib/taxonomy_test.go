@@ -320,3 +320,35 @@ Content.
 	b.AssertFileContent("public/tags/index.html", `<li><a href="http://example.com/tags/rocks-i-say/">Rocks I say!</a> 10</li>`)
 
 }
+
+// Issue 6213
+func TestTaxonomiesNotForDrafts(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t)
+	b.WithContent("draft.md", `---
+title: "Draft"
+draft: true
+categories: ["drafts"]
+---
+
+`,
+		"regular.md", `---
+title: "Not Draft"
+categories: ["regular"]
+---
+
+`)
+
+	b.Build(BuildCfg{})
+	s := b.H.Sites[0]
+
+	b.Assert(b.CheckExists("public/categories/regular/index.html"), qt.Equals, true)
+	b.Assert(b.CheckExists("public/categories/drafts/index.html"), qt.Equals, false)
+
+	reg, _ := s.getPageNew(nil, "categories/regular")
+	dra, _ := s.getPageNew(nil, "categories/draft")
+	b.Assert(reg, qt.Not(qt.IsNil))
+	b.Assert(dra, qt.IsNil)
+
+}

@@ -466,14 +466,6 @@ func (c *PageCollections) createWorkAllPages() error {
 			}
 		}
 
-		tmp := bucket.pages[:0]
-		for _, x := range bucket.pages {
-			if c.pagesMap.s.shouldBuild(x) {
-				tmp = append(tmp, x)
-			}
-		}
-		bucket.pages = tmp
-
 		if bucket.isEmpty() {
 			if bucket.owner.IsSection() && bucket.owner.File().IsZero() {
 				// Check for any nested section.

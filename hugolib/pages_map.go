@@ -100,6 +100,17 @@ func (m *pagesMap) initPageMetaFor(prefix string, bucket *pagesMapBucket) error 
 				}
 			}
 		}
+
+		// Now that the metadata is initialized (with dates, draft set etc.)
+		// we can remove the pages that we for some reason should not include
+		// in this build.
+		tmp := bucket.pages[:0]
+		for _, x := range bucket.pages {
+			if m.s.shouldBuild(x) {
+				tmp = append(tmp, x)
+			}
+		}
+		bucket.pages = tmp
 	}
 
 	return nil
