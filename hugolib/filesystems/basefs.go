@@ -243,11 +243,11 @@ func (d *SourceFilesystem) MakePathRelative(filename string) string {
 		currentPath := meta.Filename()
 
 		if strings.HasPrefix(filename, currentPath) {
-			if path := meta.Path(); path != "" {
-				currentPath = strings.TrimRight(strings.TrimSuffix(currentPath, path), filePathSeparator)
+			rel := strings.TrimPrefix(filename, currentPath)
+			if mp := meta.Path(); mp != "" {
+				rel = filepath.Join(mp, rel)
 			}
-
-			return strings.TrimPrefix(filename, currentPath)
+			return strings.TrimPrefix(rel, filePathSeparator)
 		}
 	}
 	return ""
