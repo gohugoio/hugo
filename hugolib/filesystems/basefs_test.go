@@ -360,14 +360,19 @@ func TestMakePathRelative(t *testing.T) {
 	workDir := "mywork"
 	v.Set("workingDir", workDir)
 
-	c.Assert(fs.Source.MkdirAll(filepath.Join(workDir, "dist"), 0777), qt.IsNil)
-	c.Assert(fs.Source.MkdirAll(filepath.Join(workDir, "static"), 0777), qt.IsNil)
+	c.Assert(fs.Source.MkdirAll(filepath.Join(workDir, "dist", "d1"), 0777), qt.IsNil)
+	c.Assert(fs.Source.MkdirAll(filepath.Join(workDir, "static", "d2"), 0777), qt.IsNil)
+	c.Assert(fs.Source.MkdirAll(filepath.Join(workDir, "dust", "d2"), 0777), qt.IsNil)
 
 	moduleCfg := map[string]interface{}{
 		"mounts": []interface{}{
 			map[string]interface{}{
 				"source": "dist",
-				"target": "static/dist",
+				"target": "static/mydist",
+			},
+			map[string]interface{}{
+				"source": "dust",
+				"target": "static/foo/bar",
 			},
 			map[string]interface{}{
 				"source": "static",
@@ -388,8 +393,10 @@ func TestMakePathRelative(t *testing.T) {
 	sfs := bfs.Static[""]
 	c.Assert(sfs, qt.Not(qt.IsNil))
 
-	c.Assert(sfs.MakePathRelative(filepath.Join(workDir, "static", "foo.txt")), qt.Equals, filepath.FromSlash("/foo.txt"))
-	c.Assert(sfs.MakePathRelative(filepath.Join(workDir, "dist", "foo.txt")), qt.Equals, filepath.FromSlash("/dist/foo.txt"))
+	c.Assert(sfs.MakePathRelative(filepath.Join(workDir, "dist", "d1", "foo.txt")), qt.Equals, filepath.FromSlash("mydist/d1/foo.txt"))
+	c.Assert(sfs.MakePathRelative(filepath.Join(workDir, "static", "d2", "foo.txt")), qt.Equals, filepath.FromSlash("d2/foo.txt"))
+	c.Assert(sfs.MakePathRelative(filepath.Join(workDir, "dust", "d3", "foo.txt")), qt.Equals, filepath.FromSlash("foo/bar/d3/foo.txt"))
+
 }
 
 func checkFileCount(fs afero.Fs, dirname string, c *qt.C, expected int) {
