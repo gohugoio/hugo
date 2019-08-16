@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"fmt"
+	"io/ioutil"
 	"path"
 	"path/filepath"
 	"strconv"
@@ -115,6 +116,33 @@ Some content.
 			func(s *sitesBuilder) {
 				s.AssertFileContent("public/page3/index.html", "/page3/|Permalink: https://example.com/page3/")
 				s.AssertFileContent("public/tags/ta3/index.html", "|ta3|")
+			},
+		},
+		{"Markdown", func(b testing.TB) *sitesBuilder {
+			sb := newTestSitesBuilder(b).WithConfigFile("toml", `
+title = "What is Markdown"
+baseURL = "https://example.com"
+
+`)
+			data, err := ioutil.ReadFile(filepath.FromSlash("testdata/what-is-markdown.md"))
+			sb.Assert(err, qt.IsNil)
+			datastr := string(data)
+			getContent := func(i int) string {
+				return fmt.Sprintf(`---
+title: "Page %d"
+---
+
+`, i) + datastr
+
+			}
+			for i := 1; i <= 100; i++ {
+				sb.WithContent(fmt.Sprintf("content/page%d.md", i), getContent(i))
+			}
+
+			return sb
+		},
+			func(s *sitesBuilder) {
+				s.Assert(s.CheckExists("public/page8/index.html"), qt.Equals, true)
 			},
 		},
 		{"Canonify URLs", func(b testing.TB) *sitesBuilder {
