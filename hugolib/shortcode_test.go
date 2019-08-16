@@ -18,6 +18,9 @@ import (
 	"path/filepath"
 	"reflect"
 
+	"github.com/gohugoio/hugo/markup/asciidoc"
+	"github.com/gohugoio/hugo/markup/rst"
+
 	"github.com/spf13/viper"
 
 	"github.com/gohugoio/hugo/parser/pageparser"
@@ -27,7 +30,6 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/spf13/cast"
 
@@ -538,6 +540,19 @@ title: "Foo"
 			"<h1>Hugo!</h1>"},
 	}
 
+	temp := tests[:0]
+	for _, test := range tests {
+		if strings.HasSuffix(test.contentPath, ".ad") && !asciidoc.Supports() {
+			t.Log("Skip Asciidoc test case as no Asciidoc present.")
+			continue
+		} else if strings.HasSuffix(test.contentPath, ".rst") && !rst.Supports() {
+			t.Log("Skip Rst test case as no rst2html present.")
+			continue
+		}
+		temp = append(temp, test)
+	}
+	tests = temp
+
 	sources := make([][2]string, len(tests))
 
 	for i, test := range tests {
@@ -578,11 +593,6 @@ title: "Foo"
 		test := test
 		t.Run(fmt.Sprintf("test=%d;contentPath=%s", i, test.contentPath), func(t *testing.T) {
 			t.Parallel()
-			if strings.HasSuffix(test.contentPath, ".ad") && !helpers.HasAsciidoc() {
-				t.Skip("Skip Asciidoc test case as no Asciidoc present.")
-			} else if strings.HasSuffix(test.contentPath, ".rst") && !helpers.HasRst() {
-				t.Skip("Skip Rst test case as no rst2html present.")
-			}
 
 			th := newTestHelper(s.Cfg, s.Fs, t)
 

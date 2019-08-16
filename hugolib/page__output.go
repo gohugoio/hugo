@@ -45,8 +45,10 @@ func newPageOutput(
 		paginatorProvider = pag
 	}
 
-	var contentProvider page.ContentProvider = page.NopPage
-	var tableOfContentsProvider page.TableOfContentsProvider = page.NopPage
+	var (
+		contentProvider         page.ContentProvider         = page.NopPage
+		tableOfContentsProvider page.TableOfContentsProvider = page.NopPage
+	)
 
 	if cp != nil {
 		contentProvider = cp

@@ -23,6 +23,8 @@ import (
 	"sync"
 	"unicode/utf8"
 
+	"github.com/gohugoio/hugo/markup/converter"
+
 	"github.com/gohugoio/hugo/lazy"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
@@ -97,7 +99,12 @@ func newPageContentOutput(p *pageState) func(f output.Format) (*pageContentOutpu
 
 			if p.renderable {
 				if !isHTML {
-					cp.workContent = cp.renderContent(p, cp.workContent)
+					r, err := cp.renderContent(cp.workContent)
+					if err != nil {
+						return err
+					}
+					cp.workContent = r.Bytes()
+
 					tmpContent, tmpTableOfContents := helpers.ExtractTOC(cp.workContent)
 					cp.tableOfContents = helpers.BytesToHTML(tmpTableOfContents)
 					cp.workContent = tmpContent
@@ -140,13 +147,16 @@ func newPageContentOutput(p *pageState) func(f output.Format) (*pageContentOutpu
 						}
 					}
 				} else if cp.p.m.summary != "" {
-					html := cp.p.s.ContentSpec.RenderBytes(&helpers.RenderingContext{
-						Content: []byte(cp.p.m.summary), RenderTOC: false, PageFmt: cp.p.m.markup,
-						Cfg:        p.Language(),
-						BaseFs:     p.s.BaseFs,
-						DocumentID: p.File().UniqueID(), DocumentName: p.File().Path(),
-						Config: cp.p.getRenderingConfig()})
-					html = cp.p.s.ContentSpec.TrimShortHTML(html)
+					b, err := cp.p.getContentConverter().Convert(
+						converter.RenderContext{
+							Src: []byte(cp.p.m.summary),
+						},
+					)
+
+					if err != nil {
+						return err
+					}
+					html := cp.p.s.ContentSpec.TrimShortHTML(b.Bytes())
 					cp.summary = helpers.BytesToHTML(html)
 				}
 			}
@@ -311,13 +321,12 @@ func (p *pageContentOutput) setAutoSummary() error {
 
 }
 
-func (cp *pageContentOutput) renderContent(p page.Page, content []byte) []byte {
-	return cp.p.s.ContentSpec.RenderBytes(&helpers.RenderingContext{
-		Content: content, RenderTOC: true, PageFmt: cp.p.m.markup,
-		Cfg:        p.Language(),
-		BaseFs:     cp.p.s.BaseFs,
-		DocumentID: p.File().UniqueID(), DocumentName: p.File().Path(),
-		Config: cp.p.getRenderingConfig()})
+func (cp *pageContentOutput) renderContent(content []byte) (converter.Result, error) {
+	return cp.p.getContentConverter().Convert(
+		converter.RenderContext{
+			Src:       content,
+			RenderTOC: true,
+		})
 }
 
 func (p *pageContentOutput) setWordCounts(isCJKLanguage bool) {

@@ -29,6 +29,7 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/langs"
+	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 )
 
@@ -894,7 +895,7 @@ func ToTstXIs(slice interface{}) []TstXI {
 func newDeps(cfg config.Provider) *deps.Deps {
 	l := langs.NewLanguage("en", cfg)
 	l.Set("i18nDir", "i18n")
-	cs, err := helpers.NewContentSpec(l)
+	cs, err := helpers.NewContentSpec(l, loggers.NewErrorLogger(), afero.NewMemMapFs())
 	if err != nil {
 		panic(err)
 	}

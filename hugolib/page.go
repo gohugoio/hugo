@@ -23,6 +23,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/gohugoio/hugo/markup/converter"
+
 	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -65,7 +67,7 @@ var (
 type pageContext interface {
 	posOffset(offset int) text.Position
 	wrapError(err error) error
-	getRenderingConfig() *helpers.BlackFriday
+	getContentConverter() converter.Converter
 }
 
 // wrapErr adds some context to the given error if possible.
@@ -299,13 +301,6 @@ func (p *pageState) Translations() page.Pages {
 	return p.translations
 }
 
-func (p *pageState) getRenderingConfig() *helpers.BlackFriday {
-	if p.m.renderingConfig == nil {
-		return p.s.ContentSpec.BlackFriday
-	}
-	return p.m.renderingConfig
-}
-
 func (ps *pageState) initCommonProviders(pp pagePaths) error {
 	if ps.IsPage() {
 		ps.posNextPrev = &nextPrev{init: ps.s.init.prevNext}
@@ -514,6 +509,10 @@ func (p *pageState) wrapError(err error) error {
 		herrors.SimpleLineMatcher)
 
 	return err
+}
+
+func (p *pageState) getContentConverter() converter.Converter {
+	return p.m.contentConverter
 }
 
 func (p *pageState) addResources(r ...resource.Resource) {

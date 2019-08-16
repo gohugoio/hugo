@@ -28,6 +28,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/markup/converter"
+
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/gohugoio/hugo/common/maps"
@@ -758,17 +760,23 @@ func (s *siteRefLinker) refLink(ref string, source interface{}, relative bool, o
 	}
 
 	if refURL.Fragment != "" {
+		_ = target
 		link = link + "#" + refURL.Fragment
 
-		if pctx, ok := target.(pageContext); ok && !target.File().IsZero() && !pctx.getRenderingConfig().PlainIDAnchors {
+		if pctx, ok := target.(pageContext); ok {
 			if refURL.Path != "" {
-				link = link + ":" + target.File().UniqueID()
+				if di, ok := pctx.getContentConverter().(converter.DocumentInfo); ok {
+					link = link + di.AnchorSuffix()
+				}
 			}
-		} else if pctx, ok := p.(pageContext); ok && !p.File().IsZero() && !pctx.getRenderingConfig().PlainIDAnchors {
-			link = link + ":" + p.File().UniqueID()
+		} else if pctx, ok := p.(pageContext); ok {
+			if di, ok := pctx.getContentConverter().(converter.DocumentInfo); ok {
+				link = link + di.AnchorSuffix()
+			}
 		}
 
 	}
+
 	return link, nil
 }
 

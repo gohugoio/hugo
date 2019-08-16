@@ -18,6 +18,10 @@ import (
 	"html/template"
 	"os"
 
+	"github.com/gohugoio/hugo/markup/rst"
+
+	"github.com/gohugoio/hugo/markup/asciidoc"
+
 	"github.com/gohugoio/hugo/config"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -378,8 +382,8 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 	}{
 		{"md", func() bool { return true }},
 		{"mmark", func() bool { return true }},
-		{"ad", func() bool { return helpers.HasAsciidoc() }},
-		{"rst", func() bool { return helpers.HasRst() }},
+		{"ad", func() bool { return asciidoc.Supports() }},
+		{"rst", func() bool { return rst.Supports() }},
 	}
 
 	for _, e := range engines {

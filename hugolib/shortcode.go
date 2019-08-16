@@ -21,6 +21,8 @@ import (
 	"html/template"
 	"path"
 
+	"github.com/gohugoio/hugo/markup/converter"
+
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/pkg/errors"
 
@@ -43,7 +45,6 @@ import (
 	"github.com/gohugoio/hugo/output"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/tpl"
 )
 
@@ -347,13 +348,19 @@ func renderShortcode(
 		// Pre Hugo 0.55 this was the behaviour even for the outer-most
 		// shortcode.
 		if sc.doMarkup && (level > 0 || sc.info.Config.Version == 1) {
-			newInner := s.ContentSpec.RenderBytes(&helpers.RenderingContext{
-				Content:      []byte(inner),
-				PageFmt:      p.m.markup,
-				Cfg:          p.Language(),
-				DocumentID:   p.File().UniqueID(),
-				DocumentName: p.File().Path(),
-				Config:       p.getRenderingConfig()})
+			var err error
+
+			b, err := p.getContentConverter().Convert(
+				converter.RenderContext{
+					Src: []byte(inner),
+				},
+			)
+
+			if err != nil {
+				return "", false, err
+			}
+
+			newInner := b.Bytes()
 
 			// If the type is “” (unknown) or “markdown”, we assume the markdown
 			// generation has been performed. Given the input: `a line`, markdown

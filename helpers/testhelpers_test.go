@@ -1,6 +1,8 @@
 package helpers
 
 import (
+	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -56,7 +58,7 @@ func newTestCfg() *viper.Viper {
 
 func newTestContentSpec() *ContentSpec {
 	v := viper.New()
-	spec, err := NewContentSpec(v)
+	spec, err := NewContentSpec(v, loggers.NewErrorLogger(), afero.NewMemMapFs())
 	if err != nil {
 		panic(err)
 	}

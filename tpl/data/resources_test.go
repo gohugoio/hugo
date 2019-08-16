@@ -195,7 +195,7 @@ func newDeps(cfg config.Provider) *deps.Deps {
 	}
 	cfg.Set("allModules", modules.Modules{mod})
 
-	cs, err := helpers.NewContentSpec(cfg)
+	cs, err := helpers.NewContentSpec(cfg, loggers.NewErrorLogger(), afero.NewMemMapFs())
 	if err != nil {
 		panic(err)
 	}

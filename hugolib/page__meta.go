@@ -21,6 +21,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/markup/converter"
+
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/gohugoio/hugo/common/hugo"
@@ -29,7 +31,6 @@ import (
 
 	"github.com/gohugoio/hugo/source"
 	"github.com/markbates/inflect"
-	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/maps"
@@ -123,7 +124,7 @@ type pageMeta struct {
 
 	s *Site
 
-	renderingConfig *helpers.BlackFriday
+	contentConverter converter.Converter
 }
 
 func (p *pageMeta) Aliases() []string {
@@ -598,7 +599,7 @@ func (p *pageMeta) applyDefaultValues() error {
 			p.markup = helpers.GuessType(p.File().Ext())
 		}
 		if p.markup == "" {
-			p.markup = "unknown"
+			p.markup = "markdown"
 		}
 	}
 
@@ -637,17 +638,28 @@ func (p *pageMeta) applyDefaultValues() error {
 		}
 	}
 
-	bfParam := getParamToLower(p, "blackfriday")
-	if bfParam != nil {
-		p.renderingConfig = p.s.ContentSpec.BlackFriday
-
-		// Create a copy so we can modify it.
-		bf := *p.s.ContentSpec.BlackFriday
-		p.renderingConfig = &bf
-		pageParam := cast.ToStringMap(bfParam)
-		if err := mapstructure.Decode(pageParam, &p.renderingConfig); err != nil {
-			return errors.WithMessage(err, "failed to decode rendering config")
+	if !p.f.IsZero() && p.markup != "html" {
+		var renderingConfigOverrides map[string]interface{}
+		bfParam := getParamToLower(p, "blackfriday")
+		if bfParam != nil {
+			renderingConfigOverrides = cast.ToStringMap(bfParam)
 		}
+
+		cp := p.s.ContentSpec.Converters.Get(p.markup)
+		if cp == nil {
+			return errors.Errorf("no content renderer found for markup %q", p.markup)
+		}
+
+		cpp, err := cp.New(converter.DocumentContext{
+			DocumentID:      p.f.UniqueID(),
+			DocumentName:    p.f.Path(),
+			ConfigOverrides: renderingConfigOverrides,
+		})
+
+		if err != nil {
+			return err
+		}
+		p.contentConverter = cpp
 	}
 
 	return nil

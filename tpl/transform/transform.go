@@ -97,19 +97,16 @@ func (ns *Namespace) Markdownify(s interface{}) (template.HTML, error) {
 		return "", err
 	}
 
-	m := ns.deps.ContentSpec.RenderBytes(
-		&helpers.RenderingContext{
-			Cfg:     ns.deps.Cfg,
-			Content: []byte(ss),
-			PageFmt: "markdown",
-			Config:  ns.deps.ContentSpec.BlackFriday,
-		},
-	)
+	b, err := ns.deps.ContentSpec.RenderMarkdown([]byte(ss))
+
+	if err != nil {
+		return "", err
+	}
 
 	// Strip if this is a short inline type of text.
-	m = ns.deps.ContentSpec.TrimShortHTML(m)
+	b = ns.deps.ContentSpec.TrimShortHTML(b)
 
-	return helpers.BytesToHTML(m), nil
+	return helpers.BytesToHTML(b), nil
 }
 
 // Plainify returns a copy of s with all HTML tags removed.

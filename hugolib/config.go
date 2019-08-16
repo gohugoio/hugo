@@ -564,11 +564,6 @@ func (configLoader) mergeStringMapKeepLeft(rootKey, key string, v1, v2 config.Pr
 
 func loadDefaultSettingsFor(v *viper.Viper) error {
 
-	c, err := helpers.NewContentSpec(v)
-	if err != nil {
-		return err
-	}
-
 	v.RegisterAlias("indexes", "taxonomies")
 
 	/*
@@ -616,7 +611,6 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 	v.SetDefault("paginate", 10)
 	v.SetDefault("paginatePath", "page")
 	v.SetDefault("summaryLength", 70)
-	v.SetDefault("blackfriday", c.BlackFriday)
 	v.SetDefault("rssLimit", -1)
 	v.SetDefault("sectionPagesMenu", "")
 	v.SetDefault("disablePathToLower", false)

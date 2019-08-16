@@ -223,7 +223,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		return nil, err
 	}
 
-	contentSpec, err := helpers.NewContentSpec(cfg.Language)
+	contentSpec, err := helpers.NewContentSpec(cfg.Language, logger, ps.BaseFs.Content.Fs)
 	if err != nil {
 		return nil, err
 	}
@@ -277,7 +277,7 @@ func (d Deps) ForLanguage(cfg DepsCfg, onCreated func(d *Deps) error) (*Deps, er
 		return nil, err
 	}
 
-	d.ContentSpec, err = helpers.NewContentSpec(l)
+	d.ContentSpec, err = helpers.NewContentSpec(l, d.Log, d.BaseFs.Content.Fs)
 	if err != nil {
 		return nil, err
 	}

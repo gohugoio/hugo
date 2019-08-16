@@ -17,6 +17,9 @@ import (
 	"html/template"
 	"testing"
 
+	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/spf13/afero"
+
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
@@ -239,7 +242,7 @@ func newDeps(cfg config.Provider) *deps.Deps {
 
 	l := langs.NewLanguage("en", cfg)
 
-	cs, err := helpers.NewContentSpec(l)
+	cs, err := helpers.NewContentSpec(l, loggers.NewErrorLogger(), afero.NewMemMapFs())
 	if err != nil {
 		panic(err)
 	}

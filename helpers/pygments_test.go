@@ -45,7 +45,7 @@ func TestParsePygmentsArgs(t *testing.T) {
 		v := viper.New()
 		v.Set("pygmentsStyle", this.pygmentsStyle)
 		v.Set("pygmentsUseClasses", this.pygmentsUseClasses)
-		spec, err := NewContentSpec(v)
+		spec, err := NewContentSpec(v, nil, nil)
 		c.Assert(err, qt.IsNil)
 
 		result1, err := spec.createPygmentsOptionsString(this.in)
@@ -94,7 +94,7 @@ func TestParseDefaultPygmentsArgs(t *testing.T) {
 			v.Set("pygmentsUseClasses", b)
 		}
 
-		spec, err := NewContentSpec(v)
+		spec, err := NewContentSpec(v, nil, nil)
 		c.Assert(err, qt.IsNil)
 
 		result, err := spec.createPygmentsOptionsString(this.in)
@@ -138,7 +138,7 @@ func TestChromaHTMLHighlight(t *testing.T) {
 
 	v := viper.New()
 	v.Set("pygmentsUseClasses", true)
-	spec, err := NewContentSpec(v)
+	spec, err := NewContentSpec(v, nil, nil)
 	c.Assert(err, qt.IsNil)
 
 	result, err := spec.Highlight(`echo "Hello"`, "bash", "")
@@ -206,7 +206,7 @@ func TestChromaHTMLFormatterFromOptions(t *testing.T) {
 			v.Set("pygmentsUseClasses", b)
 		}
 
-		spec, err := NewContentSpec(v)
+		spec, err := NewContentSpec(v, nil, nil)
 		c.Assert(err, qt.IsNil)
 
 		opts, err := spec.parsePygmentsOpts(this.in)
@@ -288,7 +288,7 @@ func GetTitleFunc(style string) func(s string) string {
 }
 `
 
-	spec, err := NewContentSpec(v)
+	spec, err := NewContentSpec(v, nil, nil)
 	c.Assert(err, qt.IsNil)
 
 	for i := 0; i < b.N; i++ {
