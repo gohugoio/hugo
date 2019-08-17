@@ -88,7 +88,7 @@ func (p *pagePaginator) Paginator(options ...interface{}) (*page.Pager, error) {
 			// changing in the wild, we make this a special case.
 			pages = p.source.s.RegularPages()
 		} else {
-			pages = p.source.Pages()
+			pages = p.source.RegularPages()
 		}
 		paginator, err := page.Paginate(pd, pages, pagerSize)
 		if err != nil {
