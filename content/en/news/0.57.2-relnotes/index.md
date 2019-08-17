@@ -9,9 +9,9 @@ images:
 
 ---
 
-Hugo 0.57.0 had some well intended breaking changes. And while they made a lot of sense, one of them made a little too much noise.
+Hugo 0.57.0 had some well-intended breaking changes. And while they made a lot of sense, one of them made a little too much noise.
 
-This release reverts the behaviour for `.Pages` on the home page to how it behaved in 0.56, but adds a `WARNING` telling you what to do to prepare for Hugo 0.58.
+This release reverts the behavior for `.Pages` on the home page to how it behaved in 0.56, but adds a `WARNING` telling you what to do to prepare for Hugo 0.58.
 
 In short, `.Page` home will from 0.58  only return its immediate children (sections and regular pages).
 
@@ -22,7 +22,6 @@ In this release it returns `.Site.RegularPages`. So to prepare for Hugo 0.58 you
 {{- if .IsHome -}}{{ $pctx = .Site }}{{- end -}}
 {{- $pages := $pctx.RegularPages -}}
 ```
-
 
 * tpl: Use RegularPages for RSS template [88d69936](https://github.com/gohugoio/hugo/commit/88d69936122f82fffc02850516bdb37be3d0892b) [@bep](https://github.com/bep) [#6238](https://github.com/gohugoio/hugo/issues/6238)
 * hugolib: Don't use the global warning logger [ea681603](https://github.com/gohugoio/hugo/commit/ea6816030081b2cffa6c0ae9ca5429a2c6fe2fa5) [@bep](https://github.com/bep) [#6238](https://github.com/gohugoio/hugo/issues/6238)
