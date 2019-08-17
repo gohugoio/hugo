@@ -177,7 +177,7 @@ func (p *pageState) Pages() page.Pages {
 		case page.KindHome:
 			// See https://github.com/gohugoio/hugo/issues/6238
 			// Note: When making the change below, also remember RegularPages.
-			helpers.DistinctWarnLog.Println(`In the next Hugo version (0.58.0) we will change how $home.Pages behaves. If you want to list all regular pages, replace .Pages or .Data.Pages with .Site.RegularPages in your home page template.`)
+			p.s.DistinctWarningLog.Println(`In the next Hugo version (0.58.0) we will change how $home.Pages behaves. If you want to list all regular pages, replace .Pages or .Data.Pages with .Site.RegularPages in your home page template.`)
 			pages = p.s.RegularPages()
 		case page.KindSection:
 			pages = p.getPagesAndSections()
