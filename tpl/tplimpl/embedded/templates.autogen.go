@@ -19,8 +19,9 @@ package embedded
 // EmbeddedTemplates represents all embedded templates.
 var EmbeddedTemplates = [][2]string{
 	{`_default/robots.txt`, `User-agent: *`},
-	{`_default/rss.xml`, `{{- $pages := "" -}}
-{{- if .IsHome -}}{{- $pages = .Site.RegularPages -}}{{- else -}}{{- $pages = .Pages -}}{{- end -}}
+	{`_default/rss.xml`, `{{- $pctx := . -}}
+{{- if .IsHome -}}{{ $pctx = .Site }}{{- end -}}
+{{- $pages := $pctx.RegularPages -}}
 {{- $limit := .Site.Config.Services.RSS.Limit -}}
 {{- if ge $limit 1 -}}
 {{- $pages = $pages | first $limit -}}
