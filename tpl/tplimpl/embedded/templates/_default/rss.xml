@@ -1,5 +1,5 @@
-{{- $pages := .Pages -}}
-{{- if .IsHome -}}{{- $pages = .Site.RegularPages -}}{{- end -}}
+{{- $pages := "" -}}
+{{- if .IsHome -}}{{- $pages = .Site.RegularPages -}}{{- else -}}{{- $pages = .Pages -}}{{- end -}}
 {{- $limit := .Site.Config.Services.RSS.Limit -}}
 {{- if ge $limit 1 -}}
 {{- $pages = $pages | first $limit -}}
