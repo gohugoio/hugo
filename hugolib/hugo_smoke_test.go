@@ -193,7 +193,7 @@ Some **Markdown** in JSON shortcode.
 	b.AssertFileContent("public/index.html",
 		"home|In English",
 		"Site params: Rules",
-		"Pages: Pages(6)|Data Pages: Pages(6)",
+		"Pages: Pages(18)|Data Pages: Pages(18)",
 		"Paginator: 1",
 		"First Site: In English",
 		"RelPermalink: /",
