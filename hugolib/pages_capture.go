@@ -370,6 +370,11 @@ func (c *pagesCollector) addToBundle(info hugofs.FileMetaInfo, btyp bundleDirTyp
 	lang := c.getLang(info)
 	bundle := getBundle(lang)
 	isBundleHeader := c.isBundleHeader(info)
+	if bundle != nil && isBundleHeader {
+		// index.md file inside a bundle, see issue 6208.
+		info.Meta()["classifier"] = files.ContentClassContent
+		isBundleHeader = false
+	}
 	classifier := info.Meta().Classifier()
 	isContent := classifier == files.ContentClassContent
 	if bundle == nil {
