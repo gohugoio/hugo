@@ -1176,3 +1176,45 @@ Num Pages: {{ len .Site.Pages }}
 	)
 
 }
+
+// #6208
+func TestBundleIndexInSubFolder(t *testing.T) {
+	config := `
+baseURL = "https://example.com"
+
+`
+
+	const pageContent = `---
+title: %q
+---
+`
+	createPage := func(s string) string {
+		return fmt.Sprintf(pageContent, s)
+	}
+
+	b := newTestSitesBuilder(t).WithConfigFile("toml", config)
+	b.WithLogger(loggers.NewWarningLogger())
+
+	b.WithTemplates("_default/single.html", `{{ range .Resources }}
+{{ .ResourceType }}|{{ .Title }}|
+{{ end }}
+
+
+`)
+
+	b.WithContent("bundle/index.md", createPage("bundle index"))
+	b.WithContent("bundle/p1.md", createPage("bundle p1"))
+	b.WithContent("bundle/sub/p2.md", createPage("bundle sub p2"))
+	b.WithContent("bundle/sub/index.md", createPage("bundle sub index"))
+	b.WithContent("bundle/sub/data.json", "data")
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/bundle/index.html", `
+        json|sub/data.json|
+        page|bundle p1|
+        page|bundle sub index|
+        page|bundle sub p2|
+`)
+
+}
