@@ -23,7 +23,6 @@ In this release it returns `.Site.RegularPages`. So to prepare for Hugo 0.58 you
 {{- $pages := $pctx.RegularPages -}}
 ```
 
-This is a bug-fix release with a couple of important fixes.
 
 * tpl: Use RegularPages for RSS template [88d69936](https://github.com/gohugoio/hugo/commit/88d69936122f82fffc02850516bdb37be3d0892b) [@bep](https://github.com/bep) [#6238](https://github.com/gohugoio/hugo/issues/6238)
 * hugolib: Don't use the global warning logger [ea681603](https://github.com/gohugoio/hugo/commit/ea6816030081b2cffa6c0ae9ca5429a2c6fe2fa5) [@bep](https://github.com/bep) [#6238](https://github.com/gohugoio/hugo/issues/6238)
