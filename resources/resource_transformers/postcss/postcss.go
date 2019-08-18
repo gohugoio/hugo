@@ -17,6 +17,7 @@ import (
 	"io"
 	"path/filepath"
 
+	"github.com/gohugoio/hugo/resources/internal"
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -98,8 +99,8 @@ type postcssTransformation struct {
 	rs      *resources.Spec
 }
 
-func (t *postcssTransformation) Key() resources.ResourceTransformationKey {
-	return resources.NewResourceTransformationKey("postcss", t.options)
+func (t *postcssTransformation) Key() internal.ResourceTransformationKey {
+	return internal.NewResourceTransformationKey("postcss", t.options)
 }
 
 // Transform shells out to postcss-cli to do the heavy lifting.

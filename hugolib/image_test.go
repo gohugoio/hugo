@@ -61,13 +61,16 @@ title: "My bundle"
 {{ $b := $img2.Resize "345x678" }}
 {{ $b2 := $b.Resize "34x67" }}
 {{ $c := $img3.Resize "456x789" }}
+{{ $cf := $c | fingerprint }}
 
 {{ $images := slice $r $r2 $b $b2 $c }}
+
 
 {{ range $i, $r := $images }}
 {{ printf "Resized%d:" (add $i  1) }} {{ $r.Name }}|{{ $r.Width }}|{{ $r.Height }}|{{ $r.MediaType }}|{{ $r.RelPermalink }}|
 {{ end }}
 
+ß
 `)
 
 		return b

@@ -14,11 +14,15 @@
 package resources
 
 import (
+	"fmt"
 	"image"
 	"io"
 	"path/filepath"
 	"strings"
 	"sync"
+
+	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/resources/images"
 
 	"github.com/gohugoio/hugo/common/hugio"
 
@@ -32,7 +36,7 @@ type imageCache struct {
 	fileCache *filecache.Cache
 
 	mu    sync.RWMutex
-	store map[string]*Image
+	store map[string]baseResource
 }
 
 func (c *imageCache) isInCache(key string) bool {
@@ -66,18 +70,22 @@ func (c *imageCache) normalizeKey(key string) string {
 func (c *imageCache) clear() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	c.store = make(map[string]*Image)
+	c.store = make(map[string]baseResource)
 }
 
 func (c *imageCache) getOrCreate(
-	parent *Image, conf imageConfig, createImage func() (*Image, image.Image, error)) (*Image, error) {
+	parent *imageResource, conf images.ImageConfig,
+	createImage func() (baseResource, interface{}, error)) (baseResource, error) {
 
 	relTarget := parent.relTargetPathFromConfig(conf)
 	key := parent.relTargetPathForRel(relTarget.path(), false, false, false)
 
+	var img baseResource
+	var found bool
+
 	// First check the in-memory store, then the disk.
 	c.mu.RLock()
-	img, found := c.store[key]
+	img, found = c.store[key]
 	c.mu.RUnlock()
 
 	if found {
@@ -88,11 +96,18 @@ func (c *imageCache) getOrCreate(
 	// read clones the parent to its new name and copies
 	// the content to the destinations.
 	read := func(info filecache.ItemInfo, r io.Reader) error {
-		img = parent.clone()
-		img.relTargetDirFile.file = relTarget.file
-		img.sourceFilename = info.Name
-		// Make sure it's always loaded by sourceFilename.
-		img.openReadSeekerCloser = nil
+		if conf.Action == "trace" {
+			// trace produces a SVG
+			img = parent.baseResource.Clone().(baseResource)
+			img.setMediaType(media.SVGType)
+
+		} else {
+			img = parent.clone(nil)
+		}
+
+		rp := img.getResourcePaths()
+		rp.relTargetDirFile.file = relTarget.file
+		img.setSourceFilename(info.Name)
 
 		w, err := img.openDestinationsForWriting()
 		if err != nil {
@@ -111,14 +126,16 @@ func (c *imageCache) getOrCreate(
 
 	// create creates the image and encodes it to w (cache) and to its destinations.
 	create := func(info filecache.ItemInfo, w io.WriteCloser) (err error) {
-		var conv image.Image
+		var conv interface{}
 		img, conv, err = createImage()
 		if err != nil {
 			w.Close()
 			return
 		}
-		img.relTargetDirFile.file = relTarget.file
-		img.sourceFilename = info.Name
+
+		rp := img.getResourcePaths()
+		rp.relTargetDirFile.file = relTarget.file
+		img.setSourceFilename(info.Name)
 
 		destinations, err := img.openDestinationsForWriting()
 		if err != nil {
@@ -131,7 +148,15 @@ func (c *imageCache) getOrCreate(
 		}
 		defer w.Close()
 
-		return img.encodeTo(conf, conv, w)
+		switch v := conv.(type) {
+		case string:
+			_, err := fmt.Fprint(w, v)
+			return err
+		case image.Image:
+			return img.(*imageResource).EncodeTo(conf, v, w)
+		default:
+			panic(fmt.Sprintf("unknown type %T", conv))
+		}
 	}
 
 	// Now look in the file cache.
@@ -147,7 +172,7 @@ func (c *imageCache) getOrCreate(
 	}
 
 	// The file is now stored in this cache.
-	img.sourceFs = c.fileCache.Fs
+	img.setSourceFs(c.fileCache.Fs)
 
 	c.mu.Lock()
 	if img2, found := c.store[key]; found {
@@ -162,5 +187,5 @@ func (c *imageCache) getOrCreate(
 }
 
 func newImageCache(fileCache *filecache.Cache, ps *helpers.PathSpec) *imageCache {
-	return &imageCache{fileCache: fileCache, pathSpec: ps, store: make(map[string]*Image)}
+	return &imageCache{fileCache: fileCache, pathSpec: ps, store: make(map[string]baseResource)}
 }

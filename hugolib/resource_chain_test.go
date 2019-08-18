@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"io"
 	"os"
 	"path/filepath"
 	"testing"
@@ -165,6 +166,69 @@ T1: {{ $r.Content }}
 
 	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), `T1: moo{color:#ccc}boo{color:green}`)
 
+}
+
+func TestResourceChainBasic(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t)
+	b.WithTemplatesAdded("index.html", `
+{{ $hello := "<h1>     Hello World!   </h1>" | resources.FromString "hello.html" | fingerprint "sha512" | minify  | fingerprint }}
+
+HELLO: {{ $hello.Name }}|{{ $hello.RelPermalink }}|{{ $hello.Content | safeHTML }}
+
+{{ $img := resources.Get "images/sunset.jpg" }}
+{{ $fit := $img.Fit "200x200" }}
+{{ $fit2 := $fit.Fit "100x200" }}
+{{ $trace := $img.Trace }}
+{{ $img = $img | fingerprint }}
+SUNSET: {{ $img.Name }}|{{ $img.RelPermalink }}|{{ $img.Width }}|{{ len $img.Content }}
+FIT: {{ $fit.Name }}|{{ $fit.RelPermalink }}|{{ $fit.Width }}
+TRACE:{{ $trace.Name }}|{{ $trace.RelPermalink }}|{{ $trace.MediaType | safeHTML }}|{{ len $trace.Content }}
+`)
+
+	fs := b.Fs.Source
+
+	imageDir := filepath.Join("assets", "images")
+	b.Assert(os.MkdirAll(imageDir, 0777), qt.IsNil)
+	src, err := os.Open("testdata/sunset.jpg")
+	b.Assert(err, qt.IsNil)
+	out, err := fs.Create(filepath.Join(imageDir, "sunset.jpg"))
+	b.Assert(err, qt.IsNil)
+	_, err = io.Copy(out, src)
+	b.Assert(err, qt.IsNil)
+	out.Close()
+
+	b.Running()
+
+	for i := 0; i < 2; i++ {
+
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/index.html",
+			`
+SUNSET: images/sunset.jpg|/images/sunset.jpg|900|90587
+FIT: images/sunset.jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x200_fit_q75_box.jpg|200
+TRACE:images/sunset.jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_trace_0_7369627590199747767.svg|image/svg+xml|152118
+        
+`)
+		b.AssertFileContent("public/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_trace_0_7369627590199747767.svg",
+			`<g fill="#fff" stroke="none">`)
+
+		b.EditFiles("page1.md", `
+---
+title: "Page 1 edit"
+summary: "Edited summary"
+---
+
+Edited content.
+
+`)
+
+		b.Assert(b.Fs.Destination.Remove("public"), qt.IsNil)
+		b.H.ResourceSpec.ClearCaches()
+
+	}
 }
 
 func TestResourceChain(t *testing.T) {

@@ -17,6 +17,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/gohugoio/hugo/media"
+
 	"github.com/gohugoio/hugo/hugofs/glob"
 	"github.com/gohugoio/hugo/resources/resource"
 
@@ -30,12 +32,14 @@ import (
 
 var (
 	_ metaAssigner = (*genericResource)(nil)
+	_ metaAssigner = (*imageResource)(nil)
 )
 
 // metaAssigner allows updating metadata in resources that supports it.
 type metaAssigner interface {
 	setTitle(title string)
 	setName(name string)
+	setMediaType(m media.Type)
 	updateParams(params map[string]interface{})
 }
 

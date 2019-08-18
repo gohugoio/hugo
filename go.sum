@@ -85,6 +85,8 @@ github.com/danwakefield/fnmatch v0.0.0-20160403171240-cbb64ac3d964/go.mod h1:Xd9
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/dennwc/gotrace v1.0.1 h1:gxIeWD/4uUCJu2FHoaANFXxjToiQOiUfHq96H+F6l4M=
+github.com/dennwc/gotrace v1.0.1/go.mod h1:1YPW1YlUOHmaRKV/g3ahcaQSXQCzIhEY2FYyzk0CA3A=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/dgryski/go-sip13 v0.0.0-20181026042036-e10d5fee7954/go.mod h1:vAd38F8PWV+bWy6jNmig1y/TA+kYO4g3RSRF0IAv0no=
 github.com/dimchansky/utfbom v1.1.0/go.mod h1:rO41eb7gLfo8SF1jd9F8HplJm1Fewwi4mQvIirEdv+8=
@@ -197,6 +199,8 @@ github.com/magiconair/properties v1.8.1 h1:ZC2Vc7/ZFkGmsVC9KvOjumD+G5lXy2RtTKyzR
 github.com/magiconair/properties v1.8.1/go.mod h1:PppfXfuXeibc/6YijjN8zIbojt8czPbwD3XqdrwzmxQ=
 github.com/markbates/inflect v0.0.0-20171215194931-a12c3aec81a6 h1:LZhVjIISSbj8qLf2qDPP0D8z0uvOWAW5C85ly5mJW6c=
 github.com/markbates/inflect v0.0.0-20171215194931-a12c3aec81a6/go.mod h1:oTeZL2KHA7CUX6X+fovmK9OvIOFuqu0TwdQrZjLTh88=
+github.com/masyagin1998/segmentator v0.0.0-20180604062743-4e82b2a59e1f h1:nB4TRH8sdS1F4VAinwTnDMMWBr3lZIQ9kvAbUjP0G+Y=
+github.com/masyagin1998/segmentator v0.0.0-20180604062743-4e82b2a59e1f/go.mod h1:untu3ezYpAg5gRIAcO3zP75GprwOb0ovYIzqRmP7Iy8=
 github.com/matryer/try v0.0.0-20161228173917-9ac251b645a2/go.mod h1:0KeJpeMD6o+O4hW7qJOT7vyQPKrWmj26uf5wMc/IiIs=
 github.com/mattn/go-colorable v0.0.9/go.mod h1:9vuHe8Xs5qXnSaW/c/ABM9alt+Vo+STaOChaDxuIBZU=
 github.com/mattn/go-isatty v0.0.4 h1:bnP0vzxcAdeI1zdubAl5PjU6zsERjGZb7raWodagDYs=

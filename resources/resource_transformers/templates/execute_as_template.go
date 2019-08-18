@@ -17,6 +17,7 @@ package templates
 import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources"
+	"github.com/gohugoio/hugo/resources/internal"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/pkg/errors"
@@ -47,8 +48,8 @@ type executeAsTemplateTransform struct {
 	data         interface{}
 }
 
-func (t *executeAsTemplateTransform) Key() resources.ResourceTransformationKey {
-	return resources.NewResourceTransformationKey("execute-as-template", t.targetPath)
+func (t *executeAsTemplateTransform) Key() internal.ResourceTransformationKey {
+	return internal.NewResourceTransformationKey("execute-as-template", t.targetPath)
 }
 
 func (t *executeAsTemplateTransform) Transform(ctx *resources.ResourceTransformationCtx) error {

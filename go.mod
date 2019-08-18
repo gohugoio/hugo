@@ -12,6 +12,7 @@ require (
 	github.com/bep/debounce v1.2.0
 	github.com/bep/gitmap v1.1.0
 	github.com/bep/go-tocss v0.6.0
+	github.com/dennwc/gotrace v1.0.1
 	github.com/disintegration/imaging v1.6.0
 	github.com/dustin/go-humanize v1.0.0
 	github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385
@@ -27,6 +28,7 @@ require (
 	github.com/magefile/mage v1.4.0
 	github.com/magiconair/properties v1.8.1 // indirect
 	github.com/markbates/inflect v1.0.0
+	github.com/masyagin1998/segmentator v0.0.0-20180604062743-4e82b2a59e1f
 	github.com/mattn/go-isatty v0.0.8
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/miekg/mmark v1.3.6

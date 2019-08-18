@@ -16,9 +16,9 @@ package resources
 import (
 	"bytes"
 	"path"
-	"strconv"
 	"strings"
 
+	"github.com/gohugoio/hugo/resources/internal"
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/collections"
@@ -26,7 +26,6 @@ import (
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources/resource"
-	"github.com/mitchellh/hashstructure"
 
 	"fmt"
 	"io"
@@ -49,11 +48,23 @@ func (s *Spec) Transform(r resource.Resource, t ResourceTransformation) (resourc
 		return nil, errors.New("got nil Resource in transformation. Make sure you check with 'with' or 'if' when you get a resource, e.g. with resources.Get.")
 	}
 
-	return &transformedResource{
+	if transformer, ok := r.(Transformer); ok {
+		return transformer.Transform(t)
+	}
+
+	return nil, errors.Errorf("transform not supported for type %T", r)
+
+	// TODO1
+	// Something ala: return r.(ResourceTransformer).Apply(foo)
+	// Which clones r
+	tr := &transformedResource{
 		Resource:                    r,
 		transformation:              t,
 		transformedResourceMetadata: transformedResourceMetadata{MetaData: make(map[string]interface{})},
-		cache:                       s.ResourceCache}, nil
+		cache:                       s.ResourceCache}
+
+	return tr, nil
+
 }
 
 type ResourceTransformationCtx struct {
@@ -122,48 +133,10 @@ func (ctx *ResourceTransformationCtx) PublishSourceMap(content string) error {
 	return err
 }
 
-// ResourceTransformationKey are provided by the different transformation implementations.
-// It identifies the transformation (name) and its configuration (elements).
-// We combine this in a chain with the rest of the transformations
-// with the target filename and a content hash of the origin to use as cache key.
-type ResourceTransformationKey struct {
-	name     string
-	elements []interface{}
-}
-
-// NewResourceTransformationKey creates a new ResourceTransformationKey from the transformation
-// name and elements. We will create a 64 bit FNV hash from the elements, which when combined
-// with the other key elements should be unique for all practical applications.
-func NewResourceTransformationKey(name string, elements ...interface{}) ResourceTransformationKey {
-	return ResourceTransformationKey{name: name, elements: elements}
-}
-
-// Do not change this without good reasons.
-func (k ResourceTransformationKey) key() string {
-	if len(k.elements) == 0 {
-		return k.name
-	}
-
-	sb := bp.GetBuffer()
-	defer bp.PutBuffer(sb)
-
-	sb.WriteString(k.name)
-	for _, element := range k.elements {
-		hash, err := hashstructure.Hash(element, nil)
-		if err != nil {
-			panic(err)
-		}
-		sb.WriteString("_")
-		sb.WriteString(strconv.FormatUint(hash, 10))
-	}
-
-	return sb.String()
-}
-
 // ResourceTransformation is the interface that a resource transformation step
 // needs to implement.
 type ResourceTransformation interface {
-	Key() ResourceTransformationKey
+	Key() internal.ResourceTransformationKey
 	Transform(ctx *ResourceTransformationCtx) error
 }
 
@@ -291,209 +264,213 @@ func (r *transformedResource) initContent() error {
 	return err
 }
 
+// TODO1
+func (r *genericResource) openPublishFileForWriting(relTargetPath string) (io.WriteCloser, error) {
+	return helpers.OpenFilesForWriting(r.spec.BaseFs.PublishFs, r.relTargetPathsFor(relTargetPath)...)
+}
+
 func (r *transformedResource) openPublishFileForWriting(relTargetPath string) (io.WriteCloser, error) {
 	return helpers.OpenFilesForWriting(r.cache.rs.PublishFs, r.linker.relTargetPathsFor(relTargetPath)...)
 }
 
-func (r *transformedResource) transform(setContent, publish bool) (err error) {
+type resourceTransformation struct {
+	init            sync.Once
+	transformations []ResourceTransformation
+}
 
-	// This can be the last resource in a chain.
-	// Rewind and create a processing chain.
-	var chain []resource.Resource
-	current := r
-	for {
-		rr := current.Resource
-		chain = append(chain[:0], append([]resource.Resource{rr}, chain[0:]...)...)
-		if tr, ok := rr.(*transformedResource); ok {
-			current = tr
-		} else {
-			break
+func (t *resourceTransformation) String() string {
+	if t == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("RT: %d", len(t.transformations))
+}
+
+func (t *resourceTransformation) Add(transformation ResourceTransformation) {
+	t.transformations = append(t.transformations, transformation)
+}
+
+func (t resourceTransformation) Clone() *resourceTransformation {
+	transformations := make([]ResourceTransformation, len(t.transformations))
+	copy(transformations, t.transformations)
+	t.transformations = transformations
+
+	return &t
+}
+
+func (t *resourceTransformation) Apply(r *genericResource) error {
+	var transformErr error
+	t.init.Do(func() {
+
+		setContent := true // TODO1
+		publish := true
+		cache := r.spec.ResourceCache
+
+		// Files with a suffix will be stored in cache (both on disk and in memory)
+		// partitioned by their suffix.
+		var key string
+		for _, tr := range t.transformations {
+			key = key + "_" + tr.Key().Value()
 		}
-	}
 
-	// Append the current transformer at the end
-	chain = append(chain, r)
+		base := ResourceCacheKey(r.TargetPath())
 
-	first := chain[0]
+		key = cache.cleanKey(base) + "_" + helpers.MD5String(key)
 
-	// Files with a suffix will be stored in cache (both on disk and in memory)
-	// partitioned by their suffix. There will be other files below /other.
-	// This partition is also how we determine what to delete on server reloads.
-	var key, base string
-	for _, element := range chain {
-		switch v := element.(type) {
-		case *transformedResource:
-			key = key + "_" + v.transformation.Key().key()
-		case permalinker:
-			r.linker = v
-			p := v.TargetPath()
-			if p == "" {
-				panic("target path needed for key creation")
-			}
-			base = ResourceCacheKey(p)
-		default:
-			return fmt.Errorf("transformation not supported for type %T", element)
+		// Acquire a write lock for the named transformation.
+		cache.nlocker.Lock(key)
+
+		defer cache.nlocker.Unlock(key)
+		defer cache.set(key, r)
+
+		b1 := bp.GetBuffer()
+		b2 := bp.GetBuffer()
+		defer bp.PutBuffer(b1)
+		defer bp.PutBuffer(b2)
+
+		tctx := &ResourceTransformationCtx{
+			Data:                  make(map[string]interface{}),
+			OpenResourcePublisher: nil, // TODO1
 		}
-	}
 
-	key = r.cache.cleanKey(base) + "_" + helpers.MD5String(key)
+		tctx.InMediaType = r.MediaType()
+		tctx.OutMediaType = r.MediaType()
 
-	cached, found := r.cache.get(key)
-	if found {
-		r.transferTransformedValues(cached.(*transformedResource))
-		return
-	}
+		var contentrc hugio.ReadSeekCloser
+		contentrc, transformErr = contentReadSeekerCloser(r)
+		if transformErr != nil {
+			return
+		}
+		defer contentrc.Close()
 
-	// Acquire a write lock for the named transformation.
-	r.cache.nlocker.Lock(key)
-	// Check the cache again.
-	cached, found = r.cache.get(key)
-	if found {
-		r.transferTransformedValues(cached.(*transformedResource))
-		r.cache.nlocker.Unlock(key)
-		return
-	}
+		tctx.From = contentrc
+		tctx.To = b1
 
-	defer r.cache.nlocker.Unlock(key)
-	defer r.cache.set(key, r)
-
-	b1 := bp.GetBuffer()
-	b2 := bp.GetBuffer()
-	defer bp.PutBuffer(b1)
-	defer bp.PutBuffer(b2)
-
-	tctx := &ResourceTransformationCtx{
-		Data:                  r.transformedResourceMetadata.MetaData,
-		OpenResourcePublisher: r.openPublishFileForWriting,
-	}
-
-	tctx.InMediaType = first.MediaType()
-	tctx.OutMediaType = first.MediaType()
-
-	contentrc, err := contentReadSeekerCloser(first)
-	if err != nil {
-		return err
-	}
-	defer contentrc.Close()
-
-	tctx.From = contentrc
-	tctx.To = b1
-
-	if r.linker != nil {
-		tctx.InPath = r.linker.TargetPath()
+		tctx.InPath = r.TargetPath()
 		tctx.SourcePath = tctx.InPath
-	}
 
-	counter := 0
+		counter := 0
 
-	var transformedContentr io.Reader
+		var transformedContentr io.Reader
 
-	for _, element := range chain {
-		tr, ok := element.(*transformedResource)
-		if !ok {
-			continue
-		}
-		counter++
-		if counter != 1 {
-			tctx.InMediaType = tctx.OutMediaType
-		}
-		if counter%2 == 0 {
-			tctx.From = b1
-			b2.Reset()
-			tctx.To = b2
-		} else {
-			if counter != 1 {
-				// The first reader is the file.
-				tctx.From = b2
+		for i, tr := range t.transformations {
+			if i != 0 {
+				tctx.InMediaType = tctx.OutMediaType
 			}
-			b1.Reset()
-			tctx.To = b1
-		}
 
-		if err := tr.transformation.Transform(tctx); err != nil {
-
-			if err == herrors.ErrFeatureNotAvailable {
-				// This transformation is not available in this
-				// Hugo installation (scss not compiled in, PostCSS not available etc.)
-				// If a prepared bundle for this transformation chain is available, use that.
-				f := r.tryTransformedFileCache(key)
-				if f == nil {
-					errMsg := err.Error()
-					if tr.transformation.Key().name == "postcss" {
-						errMsg = "PostCSS not found; install with \"npm install postcss-cli\". See https://gohugo.io/hugo-pipes/postcss/"
+			if i > 0 {
+				hasWrites := tctx.To.(*bytes.Buffer).Len() > 0
+				if hasWrites {
+					counter++
+					// Switch the buffers
+					if counter%2 == 0 {
+						tctx.From = b2
+						b1.Reset()
+						tctx.To = b1
+					} else {
+						tctx.From = b1
+						b2.Reset()
+						tctx.To = b2
 					}
-					return fmt.Errorf("%s: failed to transform %q (%s): %s", strings.ToUpper(tr.transformation.Key().name), tctx.InPath, tctx.InMediaType.Type(), errMsg)
 				}
-				transformedContentr = f
-				defer f.Close()
-
-				// The reader above is all we need.
-				break
 			}
 
-			// Abort.
-			return err
+			if transformErr = tr.Transform(tctx); transformErr != nil {
+
+				if transformErr == herrors.ErrFeatureNotAvailable {
+					// This transformation is not available in this
+					// Hugo installation (scss not compiled in, PostCSS not available etc.)
+					// If a prepared bundle for this transformation chain is available, use that.
+					// TODO1
+					f := r.tryTransformedFileCache(key)
+					if f == nil {
+						errMsg := transformErr.Error()
+						if tr.Key().Name == "postcss" {
+							errMsg = "PostCSS not found; install with \"npm install postcss-cli\". See https://gohugo.io/hugo-pipes/postcss/"
+						}
+						transformErr = fmt.Errorf("%s: failed to transform %q (%s): %s", strings.ToUpper(tr.Key().Name), tctx.InPath, tctx.InMediaType.Type(), errMsg)
+						return
+					}
+					transformedContentr = f
+					defer f.Close()
+
+					// The reader above is all we need.
+					break
+				}
+
+				// Abort.
+				return
+			}
+
+			if tctx.OutPath != "" {
+				tctx.InPath = tctx.OutPath
+				tctx.OutPath = ""
+			}
 		}
 
-		if tctx.OutPath != "" {
-			tctx.InPath = tctx.OutPath
-			tctx.OutPath = ""
+		// TODO1 transformedContentr?
+		// TODO1 optimize for no writes + test
+		if transformedContentr == nil {
+			r.setTransformedValues(tctx)
+			//r.Target = tctx.InPath
+			//r.MediaTypeV = tctx.OutMediaType.Type()
 		}
-	}
 
-	if transformedContentr == nil {
-		r.Target = tctx.InPath
-		r.MediaTypeV = tctx.OutMediaType.Type()
-	}
+		var publishwriters []io.WriteCloser
 
-	var publishwriters []io.WriteCloser
+		if publish {
+			var publicw io.WriteCloser
+			publicw, transformErr = r.openPublishFileForWriting(r.TargetPath())
+			if transformErr != nil {
+				return
+			}
+			defer publicw.Close()
 
-	if publish {
-		publicw, err := r.openPublishFileForWriting(r.Target)
-		if err != nil {
-			r.transformErr = err
-			return err
+			publishwriters = append(publishwriters, publicw)
 		}
-		defer publicw.Close()
 
-		publishwriters = append(publishwriters, publicw)
-	}
+		if transformedContentr == nil {
+			// Also write it to the cache
+			// TODO1
+			/*fi, metaw, err := cache.writeMeta(key, r.transformedResourceMetadata)
+			if err != nil {
+				return err
+			}*/
+			//			r.sourceFilename = fi.Name
 
-	if transformedContentr == nil {
-		// Also write it to the cache
-		fi, metaw, err := r.cache.writeMeta(key, r.transformedResourceMetadata)
-		if err != nil {
-			return err
+			//	publishwriters = append(publishwriters, metaw)
+
+			if counter > 0 {
+				transformedContentr = tctx.To.(*bytes.Buffer)
+			} else {
+				transformedContentr = contentrc
+			}
 		}
-		r.sourceFilename = fi.Name
 
-		publishwriters = append(publishwriters, metaw)
+		// Also write it to memory
+		var contentmemw *bytes.Buffer
 
-		if counter > 0 {
-			transformedContentr = tctx.To.(*bytes.Buffer)
-		} else {
-			transformedContentr = contentrc
+		if setContent {
+			contentmemw = bp.GetBuffer()
+			defer bp.PutBuffer(contentmemw)
+			publishwriters = append(publishwriters, hugio.ToWriteCloser(contentmemw))
 		}
-	}
 
-	// Also write it to memory
-	var contentmemw *bytes.Buffer
+		publishw := hugio.NewMultiWriteCloser(publishwriters...)
+		_, transformErr = io.Copy(publishw, transformedContentr)
+		publishw.Close()
 
-	if setContent {
-		contentmemw = bp.GetBuffer()
-		defer bp.PutBuffer(contentmemw)
-		publishwriters = append(publishwriters, hugio.ToWriteCloser(contentmemw))
-	}
+		// TODO1
+		if setContent {
+			r.contentInit.Do(func() {
+				r.content = contentmemw.String()
+			})
+		}
 
-	publishw := hugio.NewMultiWriteCloser(publishwriters...)
-	_, r.transformErr = io.Copy(publishw, transformedContentr)
-	publishw.Close()
+	})
+	return transformErr
+}
 
-	if setContent {
-		r.contentInit.Do(func() {
-			r.content = contentmemw.String()
-		})
-	}
+func (r *transformedResource) transform(setContent, publish bool) (err error) {
 
 	return nil
 }

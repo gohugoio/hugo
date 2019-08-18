@@ -14,26 +14,24 @@
 package resources
 
 import (
-	"errors"
 	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
-	"image/jpeg"
-	"io"
 	"os"
-	"strconv"
 	"strings"
-	"sync"
+
+	"github.com/spf13/cast"
+
+	"github.com/gohugoio/hugo/media"
 
 	"github.com/gohugoio/hugo/resources/resource"
 
 	_errors "github.com/pkg/errors"
 
 	"github.com/disintegration/imaging"
-	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/mitchellh/mapstructure"
+	"github.com/gohugoio/hugo/resources/images"
 
 	// Blind import for image.Decode
 	_ "image/gif"
@@ -44,168 +42,90 @@ import (
 )
 
 var (
-	_ resource.Resource = (*Image)(nil)
-	_ resource.Source   = (*Image)(nil)
-	_ resource.Cloner   = (*Image)(nil)
+	_ resource.Image  = (*imageResource)(nil)
+	_ resource.Source = (*imageResource)(nil)
+	_ resource.Cloner = (*imageResource)(nil)
+	_ Transformer     = (*imageResource)(nil)
 )
 
-// Imaging contains default image processing configuration. This will be fetched
-// from site (or language) config.
-type Imaging struct {
-	// Default image quality setting (1-100). Only used for JPEG images.
-	Quality int
+// ImageResource represents an image resource.
+type imageResource struct {
+	*images.Image
 
-	// Resample filter used. See https://github.com/disintegration/imaging
-	ResampleFilter string
-
-	// The anchor used in Fill. Default is "smart", i.e. Smart Crop.
-	Anchor string
+	baseResource
 }
 
-const (
-	defaultJPEGQuality    = 75
-	defaultResampleFilter = "box"
-)
+func (i *imageResource) Transform(t ResourceTransformation) (resource.Resource, error) {
+	ic := i.Clone()
 
-var (
-	imageFormats = map[string]imaging.Format{
-		".jpg":  imaging.JPEG,
-		".jpeg": imaging.JPEG,
-		".png":  imaging.PNG,
-		".tif":  imaging.TIFF,
-		".tiff": imaging.TIFF,
-		".bmp":  imaging.BMP,
-		".gif":  imaging.GIF,
-	}
-
-	// Add or increment if changes to an image format's processing requires
-	// re-generation.
-	imageFormatsVersions = map[imaging.Format]int{
-		imaging.PNG: 2, // Floyd Steinberg dithering
-	}
-
-	// Increment to mark all processed images as stale. Only use when absolutely needed.
-	// See the finer grained smartCropVersionNumber and imageFormatsVersions.
-	mainImageVersionNumber = 0
-)
-
-var anchorPositions = map[string]imaging.Anchor{
-	strings.ToLower("Center"):      imaging.Center,
-	strings.ToLower("TopLeft"):     imaging.TopLeft,
-	strings.ToLower("Top"):         imaging.Top,
-	strings.ToLower("TopRight"):    imaging.TopRight,
-	strings.ToLower("Left"):        imaging.Left,
-	strings.ToLower("Right"):       imaging.Right,
-	strings.ToLower("BottomLeft"):  imaging.BottomLeft,
-	strings.ToLower("Bottom"):      imaging.Bottom,
-	strings.ToLower("BottomRight"): imaging.BottomRight,
+	return ic, nil
 }
 
-var imageFilters = map[string]imaging.ResampleFilter{
-	strings.ToLower("NearestNeighbor"):   imaging.NearestNeighbor,
-	strings.ToLower("Box"):               imaging.Box,
-	strings.ToLower("Linear"):            imaging.Linear,
-	strings.ToLower("Hermite"):           imaging.Hermite,
-	strings.ToLower("MitchellNetravali"): imaging.MitchellNetravali,
-	strings.ToLower("CatmullRom"):        imaging.CatmullRom,
-	strings.ToLower("BSpline"):           imaging.BSpline,
-	strings.ToLower("Gaussian"):          imaging.Gaussian,
-	strings.ToLower("Lanczos"):           imaging.Lanczos,
-	strings.ToLower("Hann"):              imaging.Hann,
-	strings.ToLower("Hamming"):           imaging.Hamming,
-	strings.ToLower("Blackman"):          imaging.Blackman,
-	strings.ToLower("Bartlett"):          imaging.Bartlett,
-	strings.ToLower("Welch"):             imaging.Welch,
-	strings.ToLower("Cosine"):            imaging.Cosine,
+// CloneWithNewBase implements the Cloner interface.
+func (i *imageResource) CloneWithNewBase(base string) resource.Resource {
+	gr := i.baseResource.CloneWithNewBase(base).(baseResource)
+	return &imageResource{
+		Image:        i.WithSpec(gr),
+		baseResource: gr}
 }
 
-// Image represents an image resource.
-type Image struct {
-	config       image.Config
-	configInit   sync.Once
-	configLoaded bool
-
-	imaging *Imaging
-
-	format imaging.Format
-
-	*genericResource
-}
-
-// Width returns i's width.
-func (i *Image) Width() int {
-	i.initConfig()
-	return i.config.Width
-}
-
-// Height returns i's height.
-func (i *Image) Height() int {
-	i.initConfig()
-	return i.config.Height
-}
-
-// WithNewBase implements the Cloner interface.
-func (i *Image) WithNewBase(base string) resource.Resource {
-	return &Image{
-		imaging:         i.imaging,
-		format:          i.format,
-		genericResource: i.genericResource.WithNewBase(base).(*genericResource)}
+func (i *imageResource) Clone() resource.Resource {
+	gr := i.baseResource.Clone().(baseResource)
+	return &imageResource{
+		Image:        i.WithSpec(gr),
+		baseResource: gr}
 }
 
 // Resize resizes the image to the specified width and height using the specified resampling
 // filter and returns the transformed image. If one of width or height is 0, the image aspect
 // ratio is preserved.
-func (i *Image) Resize(spec string) (*Image, error) {
-	return i.doWithImageConfig("resize", spec, func(src image.Image, conf imageConfig) (image.Image, error) {
-		return imaging.Resize(src, conf.Width, conf.Height, conf.Filter), nil
+func (i *imageResource) Resize(spec string) (resource.Image, error) {
+	return i.doWithImageConfig("resize", spec, func(src image.Image, conf images.ImageConfig) (image.Image, error) {
+		return i.Proc.Resize(src, conf)
 	})
 }
 
 // Fit scales down the image using the specified resample filter to fit the specified
 // maximum width and height.
-func (i *Image) Fit(spec string) (*Image, error) {
-	return i.doWithImageConfig("fit", spec, func(src image.Image, conf imageConfig) (image.Image, error) {
-		return imaging.Fit(src, conf.Width, conf.Height, conf.Filter), nil
+func (i *imageResource) Fit(spec string) (resource.Image, error) {
+	return i.doWithImageConfig("fit", spec, func(src image.Image, conf images.ImageConfig) (image.Image, error) {
+		return i.Proc.Fit(src, conf)
 	})
 }
 
 // Fill scales the image to the smallest possible size that will cover the specified dimensions,
 // crops the resized image to the specified dimensions using the given anchor point.
 // Space delimited config: 200x300 TopLeft
-func (i *Image) Fill(spec string) (*Image, error) {
-	return i.doWithImageConfig("fill", spec, func(src image.Image, conf imageConfig) (image.Image, error) {
-		if conf.AnchorStr == smartCropIdentifier {
-			return smartCrop(src, conf.Width, conf.Height, conf.Anchor, conf.Filter)
-		}
-		return imaging.Fill(src, conf.Width, conf.Height, conf.Anchor, conf.Filter), nil
+func (i *imageResource) Fill(spec string) (resource.Image, error) {
+	return i.doWithImageConfig("fill", spec, func(src image.Image, conf images.ImageConfig) (image.Image, error) {
+		return i.Proc.Fill(src, conf)
 	})
 }
 
-// Holds configuration to create a new image from an existing one, resize etc.
-type imageConfig struct {
-	Action string
+func (i *imageResource) Trace(opts ...interface{}) (resource.Resource, error) {
+	var optsm map[string]interface{}
+	if len(opts) > 0 {
+		optsm = cast.ToStringMap(opts[0])
+	}
+	o, err := i.Proc.DecodeTraceOptions(optsm)
+	if err != nil {
+		return nil, err
+	}
 
-	// Quality ranges from 1 to 100 inclusive, higher is better.
-	// This is only relevant for JPEG images.
-	// Default is 75.
-	Quality int
+	conf := images.ImageConfig{
+		Action:       "trace",
+		TraceOptions: o,
+	}
 
-	// Rotate rotates an image by the given angle counter-clockwise.
-	// The rotation will be performed first.
-	Rotate int
+	return i.doWithImageConfigBase(conf, func(src image.Image, conf images.ImageConfig) (interface{}, error) {
+		s, err := i.Proc.Trace(src, o)
+		return s, err
+	})
 
-	Width  int
-	Height int
-
-	Filter    imaging.ResampleFilter
-	FilterStr string
-
-	Anchor    imaging.Anchor
-	AnchorStr string
 }
 
-func (i *Image) isJPEG() bool {
-	name := strings.ToLower(i.relTargetDirFile.file)
+func (i *imageResource) isJPEG() bool {
+	name := strings.ToLower(i.getResourcePaths().relTargetDirFile.file)
 	return strings.HasSuffix(name, ".jpg") || strings.HasSuffix(name, ".jpeg")
 }
 
@@ -218,42 +138,50 @@ const imageProcWorkers = 1
 
 var imageProcSem = make(chan bool, imageProcWorkers)
 
-func (i *Image) doWithImageConfig(action, spec string, f func(src image.Image, conf imageConfig) (image.Image, error)) (*Image, error) {
-	conf, err := parseImageConfig(spec)
+func (i *imageResource) doWithImageConfig(action, spec string, f func(src image.Image, conf images.ImageConfig) (image.Image, error)) (resource.Image, error) {
+	conf, err := i.decodeImageConfig(action, spec)
 	if err != nil {
 		return nil, err
 	}
-	conf.Action = action
+	r, err := i.doWithImageConfigBase(conf, func(src image.Image, conf images.ImageConfig) (interface{}, error) {
+		v, err := f(src, conf)
+		if err != nil {
+			return nil, err
+		}
+		return v.(image.Image), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return r.(resource.Image), nil
+}
+
+func (i *imageResource) decodeImageConfig(action, spec string) (images.ImageConfig, error) {
+	conf, err := images.DecodeImageConfig(action, spec, i.Proc.Cfg)
+	if err != nil {
+		return conf, err
+	}
+
+	iconf := i.Proc.Cfg
 
 	if conf.Quality <= 0 && i.isJPEG() {
 		// We need a quality setting for all JPEGs
-		conf.Quality = i.imaging.Quality
+		conf.Quality = iconf.Quality
 	}
 
-	if conf.FilterStr == "" {
-		conf.FilterStr = i.imaging.ResampleFilter
-		conf.Filter = imageFilters[conf.FilterStr]
-	}
+	return conf, nil
+}
 
-	if conf.AnchorStr == "" {
-		conf.AnchorStr = i.imaging.Anchor
-		if !strings.EqualFold(conf.AnchorStr, smartCropIdentifier) {
-			conf.Anchor = anchorPositions[conf.AnchorStr]
-		}
-	}
+func (i *imageResource) doWithImageConfigBase(conf images.ImageConfig, f func(src image.Image, conf images.ImageConfig) (interface{}, error)) (resource.Resource, error) {
 
-	return i.spec.imageCache.getOrCreate(i, conf, func() (*Image, image.Image, error) {
+	return i.getSpec().imageCache.getOrCreate(i, conf, func() (baseResource, interface{}, error) {
 		imageProcSem <- true
 		defer func() {
 			<-imageProcSem
 		}()
 
-		ci := i.clone()
-
-		errOp := action
-		errPath := i.sourceFilename
-
-		ci.setBasePath(conf)
+		errOp := conf.Action
+		errPath := i.getSourceFilename()
 
 		src, err := i.decodeSource()
 		if err != nil {
@@ -265,12 +193,32 @@ func (i *Image) doWithImageConfig(action, spec string, f func(src image.Image, c
 			src = imaging.Rotate(src, float64(conf.Rotate), color.Transparent)
 		}
 
-		converted, err := f(src, conf)
+		convertedv, err := f(src, conf)
 		if err != nil {
-			return ci, nil, &os.PathError{Op: errOp, Path: errPath, Err: err}
+			return nil, nil, &os.PathError{Op: errOp, Path: errPath, Err: err}
 		}
 
-		if i.format == imaging.PNG {
+		if convertedv == nil {
+			panic("converted is nil")
+		}
+
+		if s, ok := convertedv.(string); ok {
+			// SVG TODO1
+			ci := i.baseResource.Clone().(baseResource)
+			ci.setMediaType(media.SVGType)
+			/*ci.setOpenReadSeekerCloser(
+				func() (hugio.ReadSeekCloser, error) {
+					return hugio.NewReadSeekerNoOpCloserFromString(s), nil
+				},
+			)*/
+			//oldname := ci.getResourcePaths().relTargetDirFile.file
+			//ci.getResourcePaths().relTargetDirFile.file = oldname + ".svg"
+			return ci, s, nil
+		}
+
+		converted := convertedv.(image.Image)
+
+		if i.Format == imaging.PNG {
 			// Apply the colour palette from the source
 			if paletted, ok := src.(*image.Paletted); ok {
 				tmp := image.NewPaletted(converted.Bounds(), paletted.Palette)
@@ -279,177 +227,15 @@ func (i *Image) doWithImageConfig(action, spec string, f func(src image.Image, c
 			}
 		}
 
-		b := converted.Bounds()
-		ci.config = image.Config{Width: b.Max.X, Height: b.Max.Y}
-		ci.configLoaded = true
+		ci := i.clone(converted)
+		ci.setBasePath(conf)
 
 		return ci, converted, nil
 	})
 
 }
 
-func (i imageConfig) key(format imaging.Format) string {
-	k := strconv.Itoa(i.Width) + "x" + strconv.Itoa(i.Height)
-	if i.Action != "" {
-		k += "_" + i.Action
-	}
-	if i.Quality > 0 {
-		k += "_q" + strconv.Itoa(i.Quality)
-	}
-	if i.Rotate != 0 {
-		k += "_r" + strconv.Itoa(i.Rotate)
-	}
-	anchor := i.AnchorStr
-	if anchor == smartCropIdentifier {
-		anchor = anchor + strconv.Itoa(smartCropVersionNumber)
-	}
-
-	k += "_" + i.FilterStr
-
-	if strings.EqualFold(i.Action, "fill") {
-		k += "_" + anchor
-	}
-
-	if v, ok := imageFormatsVersions[format]; ok {
-		k += "_" + strconv.Itoa(v)
-	}
-
-	if mainImageVersionNumber > 0 {
-		k += "_" + strconv.Itoa(mainImageVersionNumber)
-	}
-
-	return k
-}
-
-func newImageConfig(width, height, quality, rotate int, filter, anchor string) imageConfig {
-	var c imageConfig
-
-	c.Width = width
-	c.Height = height
-	c.Quality = quality
-	c.Rotate = rotate
-
-	if filter != "" {
-		filter = strings.ToLower(filter)
-		if v, ok := imageFilters[filter]; ok {
-			c.Filter = v
-			c.FilterStr = filter
-		}
-	}
-
-	if anchor != "" {
-		anchor = strings.ToLower(anchor)
-		if v, ok := anchorPositions[anchor]; ok {
-			c.Anchor = v
-			c.AnchorStr = anchor
-		}
-	}
-
-	return c
-}
-
-func parseImageConfig(config string) (imageConfig, error) {
-	var (
-		c   imageConfig
-		err error
-	)
-
-	if config == "" {
-		return c, errors.New("image config cannot be empty")
-	}
-
-	parts := strings.Fields(config)
-	for _, part := range parts {
-		part = strings.ToLower(part)
-
-		if part == smartCropIdentifier {
-			c.AnchorStr = smartCropIdentifier
-		} else if pos, ok := anchorPositions[part]; ok {
-			c.Anchor = pos
-			c.AnchorStr = part
-		} else if filter, ok := imageFilters[part]; ok {
-			c.Filter = filter
-			c.FilterStr = part
-		} else if part[0] == 'q' {
-			c.Quality, err = strconv.Atoi(part[1:])
-			if err != nil {
-				return c, err
-			}
-			if c.Quality < 1 || c.Quality > 100 {
-				return c, errors.New("quality ranges from 1 to 100 inclusive")
-			}
-		} else if part[0] == 'r' {
-			c.Rotate, err = strconv.Atoi(part[1:])
-			if err != nil {
-				return c, err
-			}
-		} else if strings.Contains(part, "x") {
-			widthHeight := strings.Split(part, "x")
-			if len(widthHeight) <= 2 {
-				first := widthHeight[0]
-				if first != "" {
-					c.Width, err = strconv.Atoi(first)
-					if err != nil {
-						return c, err
-					}
-				}
-
-				if len(widthHeight) == 2 {
-					second := widthHeight[1]
-					if second != "" {
-						c.Height, err = strconv.Atoi(second)
-						if err != nil {
-							return c, err
-						}
-					}
-				}
-			} else {
-				return c, errors.New("invalid image dimensions")
-			}
-
-		}
-	}
-
-	if c.Width == 0 && c.Height == 0 {
-		return c, errors.New("must provide Width or Height")
-	}
-
-	return c, nil
-}
-
-func (i *Image) initConfig() error {
-	var err error
-	i.configInit.Do(func() {
-		if i.configLoaded {
-			return
-		}
-
-		var (
-			f      hugio.ReadSeekCloser
-			config image.Config
-		)
-
-		f, err = i.ReadSeekCloser()
-		if err != nil {
-			return
-		}
-		defer f.Close()
-
-		config, _, err = image.DecodeConfig(f)
-		if err != nil {
-			return
-		}
-		i.config = config
-	})
-
-	if err != nil {
-		return _errors.Wrap(err, "failed to load image config")
-	}
-
-	return nil
-}
-
-func (i *Image) decodeSource() (image.Image, error) {
+func (i *imageResource) decodeSource() (image.Image, error) {
 	f, err := i.ReadSeekCloser()
 	if err != nil {
 		return nil, _errors.Wrap(err, "failed to open image for decode")
@@ -459,80 +245,39 @@ func (i *Image) decodeSource() (image.Image, error) {
 	return img, err
 }
 
-// returns an opened file or nil if nothing to write.
-func (i *Image) openDestinationsForWriting() (io.WriteCloser, error) {
-	targetFilenames := i.targetFilenames()
-	var changedFilenames []string
+func (i *imageResource) clone(img image.Image) *imageResource {
+	spec := i.baseResource.Clone().(baseResource)
 
-	// Fast path:
-	// This is a processed version of the original;
-	// check if it already existis at the destination.
-	for _, targetFilename := range targetFilenames {
-		if _, err := i.spec.BaseFs.PublishFs.Stat(targetFilename); err == nil {
-			continue
-		}
-		changedFilenames = append(changedFilenames, targetFilename)
+	var image *images.Image
+	if img != nil {
+		image = i.WithImage(img)
+	} else {
+		image = i.WithSpec(spec)
 	}
 
-	if len(changedFilenames) == 0 {
-		return nil, nil
-	}
-
-	return helpers.OpenFilesForWriting(i.spec.BaseFs.PublishFs, changedFilenames...)
-
-}
-
-func (i *Image) encodeTo(conf imageConfig, img image.Image, w io.Writer) error {
-	switch i.format {
-	case imaging.JPEG:
-
-		var rgba *image.RGBA
-		quality := conf.Quality
-
-		if nrgba, ok := img.(*image.NRGBA); ok {
-			if nrgba.Opaque() {
-				rgba = &image.RGBA{
-					Pix:    nrgba.Pix,
-					Stride: nrgba.Stride,
-					Rect:   nrgba.Rect,
-				}
-			}
-		}
-		if rgba != nil {
-			return jpeg.Encode(w, rgba, &jpeg.Options{Quality: quality})
-		}
-		return jpeg.Encode(w, img, &jpeg.Options{Quality: quality})
-	default:
-		return imaging.Encode(w, img, i.format)
+	return &imageResource{
+		Image:        image,
+		baseResource: spec,
 	}
 }
 
-func (i *Image) clone() *Image {
-	g := *i.genericResource
-	g.resourceContent = &resourceContent{}
-	if g.publishOnce != nil {
-		g.publishOnce = &publishOnce{logger: g.publishOnce.logger}
+func (i *imageResource) setBasePath(conf images.ImageConfig) {
+	i.getResourcePaths().relTargetDirFile = i.relTargetPathFromConfig(conf)
+}
+
+func (i *imageResource) relTargetPathFromConfig(conf images.ImageConfig) dirFile {
+	p1, p2 := helpers.FileAndExt(i.getResourcePaths().relTargetDirFile.file)
+	if conf.Action == "trace" {
+		p2 = ".svg"
 	}
 
-	return &Image{
-		imaging:         i.imaging,
-		format:          i.format,
-		genericResource: &g}
-}
-
-func (i *Image) setBasePath(conf imageConfig) {
-	i.relTargetDirFile = i.relTargetPathFromConfig(conf)
-}
-
-func (i *Image) relTargetPathFromConfig(conf imageConfig) dirFile {
-	p1, p2 := helpers.FileAndExt(i.relTargetDirFile.file)
-
-	idStr := fmt.Sprintf("_hu%s_%d", i.hash, i.osFileInfo.Size())
+	h, _ := i.hash()
+	idStr := fmt.Sprintf("_hu%s_%d", h, i.size())
 
 	// Do not change for no good reason.
 	const md5Threshold = 100
 
-	key := conf.key(i.format)
+	key := conf.Key(i.Format)
 
 	// It is useful to have the key in clear text, but when nesting transforms, it
 	// can easily be too long to read, and maybe even too long
@@ -554,43 +299,8 @@ func (i *Image) relTargetPathFromConfig(conf imageConfig) dirFile {
 	}
 
 	return dirFile{
-		dir:  i.relTargetDirFile.dir,
+		dir:  i.getResourcePaths().relTargetDirFile.dir,
 		file: fmt.Sprintf("%s%s_%s%s", p1, idStr, key, p2),
 	}
 
-}
-
-func decodeImaging(m map[string]interface{}) (Imaging, error) {
-	var i Imaging
-	if err := mapstructure.WeakDecode(m, &i); err != nil {
-		return i, err
-	}
-
-	if i.Quality == 0 {
-		i.Quality = defaultJPEGQuality
-	} else if i.Quality < 0 || i.Quality > 100 {
-		return i, errors.New("JPEG quality must be a number between 1 and 100")
-	}
-
-	if i.Anchor == "" || strings.EqualFold(i.Anchor, smartCropIdentifier) {
-		i.Anchor = smartCropIdentifier
-	} else {
-		i.Anchor = strings.ToLower(i.Anchor)
-		if _, found := anchorPositions[i.Anchor]; !found {
-			return i, errors.New("invalid anchor value in imaging config")
-		}
-	}
-
-	if i.ResampleFilter == "" {
-		i.ResampleFilter = defaultResampleFilter
-	} else {
-		filter := strings.ToLower(i.ResampleFilter)
-		_, found := imageFilters[filter]
-		if !found {
-			return i, fmt.Errorf("%q is not a valid resample filter", filter)
-		}
-		i.ResampleFilter = filter
-	}
-
-	return i, nil
 }

@@ -17,20 +17,16 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"mime"
 	"os"
 	"path"
 	"path/filepath"
-	"strings"
 	"sync"
 
 	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/source"
 
-	"github.com/gohugoio/hugo/output"
-	"github.com/gohugoio/hugo/tpl"
 	"github.com/pkg/errors"
 
-	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/loggers"
@@ -40,7 +36,6 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/source"
 )
 
 var (
@@ -53,77 +48,11 @@ var (
 	_ permalinker                      = (*genericResource)(nil)
 	_ collections.Slicer               = (*genericResource)(nil)
 	_ resource.Identifier              = (*genericResource)(nil)
+	_ fileInfo                         = (*genericResource)(nil)
+	_ Transformer                      = (*genericResource)(nil)
 )
 
 var noData = make(map[string]interface{})
-
-type permalinker interface {
-	relPermalinkFor(target string) string
-	permalinkFor(target string) string
-	relTargetPathsFor(target string) []string
-	relTargetPaths() []string
-	TargetPath() string
-}
-
-type Spec struct {
-	*helpers.PathSpec
-
-	MediaTypes    media.Types
-	OutputFormats output.Formats
-
-	Logger *loggers.Logger
-
-	TextTemplates tpl.TemplateParseFinder
-
-	Permalinks page.PermalinkExpander
-
-	// Holds default filter settings etc.
-	imaging *Imaging
-
-	imageCache    *imageCache
-	ResourceCache *ResourceCache
-	FileCaches    filecache.Caches
-}
-
-func NewSpec(
-	s *helpers.PathSpec,
-	fileCaches filecache.Caches,
-	logger *loggers.Logger,
-	outputFormats output.Formats,
-	mimeTypes media.Types) (*Spec, error) {
-
-	imaging, err := decodeImaging(s.Cfg.GetStringMap("imaging"))
-	if err != nil {
-		return nil, err
-	}
-
-	if logger == nil {
-		logger = loggers.NewErrorLogger()
-	}
-
-	permalinks, err := page.NewPermalinkExpander(s)
-	if err != nil {
-		return nil, err
-	}
-
-	rs := &Spec{PathSpec: s,
-		Logger:        logger,
-		imaging:       &imaging,
-		MediaTypes:    mimeTypes,
-		OutputFormats: outputFormats,
-		Permalinks:    permalinks,
-		FileCaches:    fileCaches,
-		imageCache: newImageCache(
-			fileCaches.ImageCache(),
-
-			s,
-		)}
-
-	rs.ResourceCache = newResourceCache(rs)
-
-	return rs, nil
-
-}
 
 type ResourceSourceDescriptor struct {
 	// TargetPaths is a callback to fetch paths's relative to its owner.
@@ -161,266 +90,34 @@ func (r ResourceSourceDescriptor) Filename() string {
 	return r.SourceFilename
 }
 
-func (r *Spec) New(fd ResourceSourceDescriptor) (resource.Resource, error) {
-	return r.newResourceFor(fd)
+type Transformer interface {
+	Transform(ResourceTransformation) (resource.Resource, error)
 }
 
-func (r *Spec) newResourceFor(fd ResourceSourceDescriptor) (resource.Resource, error) {
-	if fd.OpenReadSeekCloser == nil {
-		if fd.SourceFile != nil && fd.SourceFilename != "" {
-			return nil, errors.New("both SourceFile and AbsSourceFilename provided")
-		} else if fd.SourceFile == nil && fd.SourceFilename == "" {
-			return nil, errors.New("either SourceFile or AbsSourceFilename must be provided")
-		}
-	}
+type baseResource interface {
+	fileInfo
+	metaAssigner
 
-	if fd.RelTargetFilename == "" {
-		fd.RelTargetFilename = fd.Filename()
-	}
+	resource.Cloner
+	resource.ContentProvider
 
-	if len(fd.TargetBasePaths) == 0 {
-		// If not set, we publish the same resource to all hosts.
-		fd.TargetBasePaths = r.MultihostTargetBasePaths
-	}
+	resource.Resource
+	resource.Source
+	ReadSeekCloser() (hugio.ReadSeekCloser, error)
 
-	return r.newResource(fd.Fs, fd)
-}
+	// Internal
 
-func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (resource.Resource, error) {
-	fi := fd.FileInfo
-	var sourceFilename string
+	getResourcePaths() *resourcePathDescriptor
+	getSpec() *Spec
+	getTargetFilenames() []string
+	openDestinationsForWriting() (io.WriteCloser, error)
 
-	if fd.OpenReadSeekCloser != nil {
-	} else if fd.SourceFilename != "" {
-		var err error
-		fi, err = sourceFs.Stat(fd.SourceFilename)
-		if err != nil {
-			if os.IsNotExist(err) {
-				return nil, nil
-			}
-			return nil, err
-		}
-		sourceFilename = fd.SourceFilename
-	} else {
-		sourceFilename = fd.SourceFile.Filename()
-	}
+	addTransformation(t ResourceTransformation)
 
-	if fd.RelTargetFilename == "" {
-		fd.RelTargetFilename = sourceFilename
-	}
-
-	ext := strings.ToLower(filepath.Ext(fd.RelTargetFilename))
-	mimeType, found := r.MediaTypes.GetFirstBySuffix(strings.TrimPrefix(ext, "."))
-	// TODO(bep) we need to handle these ambigous types better, but in this context
-	// we most likely want the application/xml type.
-	if mimeType.Suffix() == "xml" && mimeType.SubType == "rss" {
-		mimeType, found = r.MediaTypes.GetByType("application/xml")
-	}
-
-	if !found {
-		// A fallback. Note that mime.TypeByExtension is slow by Hugo standards,
-		// so we should configure media types to avoid this lookup for most
-		// situations.
-		mimeStr := mime.TypeByExtension(ext)
-		if mimeStr != "" {
-			mimeType, _ = media.FromStringAndExt(mimeStr, ext)
-		}
-	}
-
-	gr := r.newGenericResourceWithBase(
-		sourceFs,
-		fd.LazyPublish,
-		fd.OpenReadSeekCloser,
-		fd.TargetBasePaths,
-		fd.TargetPaths,
-		fi,
-		sourceFilename,
-		fd.RelTargetFilename,
-		mimeType)
-
-	if mimeType.MainType == "image" {
-		imgFormat, ok := imageFormats[ext]
-		if !ok {
-			// This allows SVG etc. to be used as resources. They will not have the methods of the Image, but
-			// that would not (currently) have worked.
-			return gr, nil
-		}
-
-		if err := gr.initHash(); err != nil {
-			return nil, err
-		}
-
-		return &Image{
-			format:          imgFormat,
-			imaging:         r.imaging,
-			genericResource: gr}, nil
-	}
-	return gr, nil
-
-}
-
-// TODO(bep) unify
-func (r *Spec) IsInImageCache(key string) bool {
-	// This is used for cache pruning. We currently only have images, but we could
-	// imagine expanding on this.
-	return r.imageCache.isInCache(key)
-}
-
-func (r *Spec) DeleteCacheByPrefix(prefix string) {
-	r.imageCache.deleteByPrefix(prefix)
-}
-
-func (r *Spec) ClearCaches() {
-	r.imageCache.clear()
-	r.ResourceCache.clear()
-}
-
-func (r *Spec) CacheStats() string {
-	r.imageCache.mu.RLock()
-	defer r.imageCache.mu.RUnlock()
-
-	s := fmt.Sprintf("Cache entries: %d", len(r.imageCache.store))
-
-	count := 0
-	for k := range r.imageCache.store {
-		if count > 5 {
-			break
-		}
-		s += "\n" + k
-		count++
-	}
-
-	return s
-}
-
-type dirFile struct {
-	// This is the directory component with Unix-style slashes.
-	dir string
-	// This is the file component.
-	file string
-}
-
-func (d dirFile) path() string {
-	return path.Join(d.dir, d.file)
-}
-
-type resourcePathDescriptor struct {
-	// The relative target directory and filename.
-	relTargetDirFile dirFile
-
-	// Callback used to construct a target path relative to its owner.
-	targetPathBuilder func() page.TargetPaths
-
-	// This will normally be the same as above, but this will only apply to publishing
-	// of resources. It may be mulltiple values when in multihost mode.
-	baseTargetPathDirs []string
-
-	// baseOffset is set when the output format's path has a offset, e.g. for AMP.
-	baseOffset string
-}
-
-type resourceContent struct {
-	content     string
-	contentInit sync.Once
-}
-
-type resourceHash struct {
-	hash     string
-	hashInit sync.Once
-}
-
-type publishOnce struct {
-	publisherInit sync.Once
-	publisherErr  error
-	logger        *loggers.Logger
-}
-
-func (l *publishOnce) publish(s resource.Source) error {
-	l.publisherInit.Do(func() {
-		l.publisherErr = s.Publish()
-		if l.publisherErr != nil {
-			l.logger.ERROR.Printf("failed to publish Resource: %s", l.publisherErr)
-		}
-	})
-	return l.publisherErr
-}
-
-// genericResource represents a generic linkable resource.
-type genericResource struct {
-	commonResource
-	resourcePathDescriptor
-
-	title  string
-	name   string
-	params map[string]interface{}
-
-	// Absolute filename to the source, including any content folder path.
-	// Note that this is absolute in relation to the filesystem it is stored in.
-	// It can be a base path filesystem, and then this filename will not match
-	// the path to the file on the real filesystem.
-	sourceFilename string
-
-	// Will be set if this resource is backed by something other than a file.
-	openReadSeekerCloser resource.OpenReadSeekCloser
-
-	// A hash of the source content. Is only calculated in caching situations.
-	*resourceHash
-
-	// This may be set to tell us to look in another filesystem for this resource.
-	// We, by default, use the sourceFs filesystem in the spec below.
-	sourceFs afero.Fs
-
-	spec *Spec
-
-	resourceType string
-	mediaType    media.Type
-
-	osFileInfo os.FileInfo
-
-	// We create copies of this struct, so this needs to be a pointer.
-	*resourceContent
-
-	// May be set to signal lazy/delayed publishing.
-	*publishOnce
+	relTargetPathForRel(rel string, addBaseTargetPath, isAbs, isURL bool) string
 }
 
 type commonResource struct {
-}
-
-func (l *genericResource) Data() interface{} {
-	return noData
-}
-
-func (l *genericResource) Content() (interface{}, error) {
-	if err := l.initContent(); err != nil {
-		return nil, err
-	}
-
-	return l.content, nil
-}
-
-func (l *genericResource) ReadSeekCloser() (hugio.ReadSeekCloser, error) {
-	if l.openReadSeekerCloser != nil {
-		return l.openReadSeekerCloser()
-	}
-
-	f, err := l.getSourceFs().Open(l.sourceFilename)
-	if err != nil {
-		return nil, err
-	}
-	return f, nil
-
-}
-
-func (l *genericResource) MediaType() media.Type {
-	return l.mediaType
-}
-
-// Implement the Cloner interface.
-func (l genericResource) WithNewBase(base string) resource.Resource {
-	l.baseOffset = base
-	l.resourceContent = &resourceContent{}
-	return &l
 }
 
 // Slice is not meant to be used externally. It's a bridge function
@@ -437,6 +134,8 @@ func (commonResource) Slice(in interface{}) (interface{}, error) {
 				return nil, fmt.Errorf("type %T is not a Resource", v)
 			}
 			groups[i] = g
+			{
+			}
 		}
 		return groups, nil
 	default:
@@ -444,27 +143,149 @@ func (commonResource) Slice(in interface{}) (interface{}, error) {
 	}
 }
 
-func (l *genericResource) initHash() error {
-	var err error
-	l.hashInit.Do(func() {
-		var hash string
-		var f hugio.ReadSeekCloser
-		f, err = l.ReadSeekCloser()
-		if err != nil {
-			err = errors.Wrap(err, "failed to open source file")
-			return
-		}
-		defer f.Close()
+type dirFile struct {
+	// This is the directory component with Unix-style slashes.
+	dir string
+	// This is the file component.
+	file string
+}
 
-		hash, err = helpers.MD5FromFileFast(f)
-		if err != nil {
-			return
-		}
-		l.hash = hash
+func (d dirFile) path() string {
+	return path.Join(d.dir, d.file)
+}
 
-	})
+type fileInfo interface {
+	getSourceFilename() string
+	setSourceFilename(string)
+	setOpenReadSeekerCloser(r resource.OpenReadSeekCloser)
+	getSourceFs() afero.Fs
+	setSourceFs(afero.Fs)
+	hash() (string, error)
+	size() int
+}
 
+// genericResource represents a generic linkable resource.
+type genericResource struct {
+	commonResource
+
+	transformation *resourceTransformation
+
+	*resourcePathDescriptor
+	*resourceFileInfo
+	*resourceContent
+	*publishOnce
+
+	spec *Spec
+
+	title  string
+	name   string
+	params map[string]interface{}
+
+	resourceType string
+	mediaType    media.Type
+}
+
+func (l *genericResource) Clone() resource.Resource {
+	return l.clone()
+}
+
+// Implement the Cloner interface.
+func (l genericResource) CloneWithNewBase(base string) resource.Resource {
+	lc := l.clone()
+	lc.baseOffset = base
+	return lc
+}
+
+func (l *genericResource) Content() (interface{}, error) {
+	if err := l.initContent(); err != nil {
+		return nil, err
+	}
+
+	return l.content, nil
+}
+
+func (l *genericResource) Data() interface{} {
+	return noData
+}
+
+func (l *genericResource) Key() string {
+	return l.relTargetDirFile.path()
+}
+
+func (l *genericResource) MediaType() media.Type {
+	return l.mediaType
+}
+
+func (l *genericResource) Name() string {
+	return l.name
+}
+
+func (l *genericResource) Params() map[string]interface{} {
+	return l.params
+}
+
+func (l *genericResource) Permalink() string {
+	l.publishIfNeeded()
+	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(l.relTargetDirFile.path(), true), l.spec.BaseURL.HostURL())
+}
+
+func (l *genericResource) Publish() error {
+	fr, err := l.ReadSeekCloser()
+	if err != nil {
+		return err
+	}
+	defer fr.Close()
+
+	fw, err := helpers.OpenFilesForWriting(l.spec.BaseFs.PublishFs, l.getTargetFilenames()...)
+	if err != nil {
+		return err
+	}
+	defer fw.Close()
+
+	_, err = io.Copy(fw, fr)
 	return err
+}
+
+func (l *genericResource) RelPermalink() string {
+	l.publishIfNeeded()
+	return l.relPermalinkFor(l.relTargetDirFile.path())
+}
+
+func (l *genericResource) ResourceType() string {
+	return l.resourceType
+}
+
+func (l *genericResource) String() string {
+	return fmt.Sprintf("Resource(%s: %s)", l.resourceType, l.name)
+}
+
+// Path is stored with Unix style slashes.
+func (l *genericResource) TargetPath() string {
+	return l.relTargetDirFile.path()
+}
+
+func (l *genericResource) Title() string {
+	return l.title
+}
+
+func (r *genericResource) Transform(t ResourceTransformation) (resource.Resource, error) {
+	rt := r.clone()
+	rt.addTransformation(t)
+	return rt, nil
+}
+
+func (l *genericResource) createBasePath(rel string, isURL bool) string {
+	if l.targetPathBuilder == nil {
+		return rel
+	}
+	tp := l.targetPathBuilder()
+
+	if isURL {
+		return path.Join(tp.SubResourceBaseLink, rel)
+	}
+
+	// TODO(bep) path
+	return path.Join(filepath.ToSlash(tp.SubResourceBaseTarget), rel)
 }
 
 func (l *genericResource) initContent() error {
@@ -490,94 +311,128 @@ func (l *genericResource) initContent() error {
 	return err
 }
 
-func (l *genericResource) getSourceFs() afero.Fs {
-	return l.sourceFs
+func (l *genericResource) setName(name string) {
+	l.name = name
 }
 
-func (l *genericResource) publishIfNeeded() {
-	if l.publishOnce != nil {
-		l.publishOnce.publish(l)
+func (l *genericResource) setMediaType(m media.Type) {
+	l.mediaType = m
+}
+
+func (l *genericResource) getResourcePaths() *resourcePathDescriptor {
+	return l.resourcePathDescriptor
+}
+
+func (l *genericResource) getSpec() *Spec {
+	return l.spec
+}
+
+func (l *genericResource) getTargetFilenames() []string {
+	paths := l.relTargetPaths()
+	for i, p := range paths {
+		paths[i] = filepath.Clean(p)
 	}
-}
-
-func (l *genericResource) Permalink() string {
-	l.publishIfNeeded()
-	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(l.relTargetDirFile.path(), true), l.spec.BaseURL.HostURL())
-}
-
-func (l *genericResource) RelPermalink() string {
-	l.publishIfNeeded()
-	return l.relPermalinkFor(l.relTargetDirFile.path())
-}
-
-func (l *genericResource) Key() string {
-	return l.relTargetDirFile.path()
-}
-
-func (l *genericResource) relPermalinkFor(target string) string {
-	return l.relPermalinkForRel(target, false)
-
-}
-func (l *genericResource) permalinkFor(target string) string {
-	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(target, true), l.spec.BaseURL.HostURL())
-
-}
-func (l *genericResource) relTargetPathsFor(target string) []string {
-	return l.relTargetPathsForRel(target)
-}
-
-func (l *genericResource) relTargetPaths() []string {
-	return l.relTargetPathsForRel(l.TargetPath())
-}
-
-func (l *genericResource) Name() string {
-	return l.name
-}
-
-func (l *genericResource) Title() string {
-	return l.title
-}
-
-func (l *genericResource) Params() map[string]interface{} {
-	return l.params
+	return paths
 }
 
 func (l *genericResource) setTitle(title string) {
 	l.title = title
 }
 
-func (l *genericResource) setName(name string) {
-	l.name = name
-}
-
-func (l *genericResource) updateParams(params map[string]interface{}) {
-	if l.params == nil {
-		l.params = params
+func (r *genericResource) initTransform() {
+	if r.transformation == nil {
+		// Nothing to do
 		return
 	}
 
-	// Sets the params not already set
-	for k, v := range params {
-		if _, found := l.params[k]; !found {
-			l.params[k] = v
-		}
+	if err := r.transformation.Apply(r); err != nil {
+		r.logger.ERROR.Println(err)
 	}
+}
+
+func (r *genericResource) tryTransformedFileCache(key string) io.ReadCloser {
+	fi, f, _, found := r.spec.ResourceCache.getFromFile(key)
+	if !found {
+		return nil
+	}
+	// TODO1
+	//r.transformedResourceMetadata = meta
+	r.sourceFilename = fi.Name
+
+	return f
+}
+
+func (r *genericResource) setTransformedValues(ctx *ResourceTransformationCtx) {
+	fpath, fname := path.Split(ctx.InPath)
+	r.mediaType = ctx.OutMediaType
+	r.resourcePathDescriptor.relTargetDirFile = dirFile{dir: fpath, file: fname}
+}
+
+func (r *genericResource) addTransformation(t ResourceTransformation) {
+	if r.transformation == nil {
+		r.transformation = &resourceTransformation{}
+	}
+	r.transformation.Add(t)
+}
+
+func (l genericResource) clone() *genericResource {
+	gi := *l.resourceFileInfo
+	rp := *l.resourcePathDescriptor
+	l.resourceFileInfo = &gi
+	l.resourcePathDescriptor = &rp
+	l.resourceContent = &resourceContent{}
+	// TODO1
+	if l.publishOnce != nil {
+		l.publishOnce = &publishOnce{logger: l.publishOnce.logger}
+	}
+	if l.transformation != nil {
+		l.transformation = l.transformation.Clone()
+	}
+	return &l
+}
+
+// returns an opened file or nil if nothing to write.
+func (l *genericResource) openDestinationsForWriting() (io.WriteCloser, error) {
+	targetFilenames := l.getTargetFilenames()
+	var changedFilenames []string
+
+	// Fast path:
+	// This is a processed version of the original;
+	// check if it already existis at the destination.
+	for _, targetFilename := range targetFilenames {
+		if _, err := l.getSpec().BaseFs.PublishFs.Stat(targetFilename); err == nil {
+			continue
+		}
+		changedFilenames = append(changedFilenames, targetFilename)
+	}
+
+	if len(changedFilenames) == 0 {
+		return nil, nil
+	}
+
+	return helpers.OpenFilesForWriting(l.getSpec().BaseFs.PublishFs, changedFilenames...)
+
+}
+
+func (l *genericResource) permalinkFor(target string) string {
+	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(target, true), l.spec.BaseURL.HostURL())
+
+}
+
+func (l *genericResource) publishIfNeeded() {
+	l.initTransform()
+	if l.publishOnce != nil {
+		l.publishOnce.publish(l)
+	}
+}
+
+func (l *genericResource) relPermalinkFor(target string) string {
+	return l.relPermalinkForRel(target, false)
+
 }
 
 func (l *genericResource) relPermalinkForRel(rel string, isAbs bool) string {
 	return l.spec.PathSpec.URLizeFilename(l.relTargetPathForRel(rel, false, isAbs, true))
-}
-
-func (l *genericResource) relTargetPathsForRel(rel string) []string {
-	if len(l.baseTargetPathDirs) == 0 {
-		return []string{l.relTargetPathForRelAndBasePath(rel, "", false, false)}
-	}
-
-	var targetPaths = make([]string, len(l.baseTargetPathDirs))
-	for i, dir := range l.baseTargetPathDirs {
-		targetPaths[i] = l.relTargetPathForRelAndBasePath(rel, dir, false, false)
-	}
-	return targetPaths
 }
 
 func (l *genericResource) relTargetPathForRel(rel string, addBaseTargetPath, isAbs, isURL bool) string {
@@ -590,20 +445,6 @@ func (l *genericResource) relTargetPathForRel(rel string, addBaseTargetPath, isA
 	}
 
 	return l.relTargetPathForRelAndBasePath(rel, basePath, isAbs, isURL)
-}
-
-func (l *genericResource) createBasePath(rel string, isURL bool) string {
-	if l.targetPathBuilder == nil {
-		return rel
-	}
-	tp := l.targetPathBuilder()
-
-	if isURL {
-		return path.Join(tp.SubResourceBaseLink, rel)
-	}
-
-	// TODO(bep) path
-	return path.Join(filepath.ToSlash(tp.SubResourceBaseTarget), rel)
 }
 
 func (l *genericResource) relTargetPathForRelAndBasePath(rel, basePath string, isAbs, isURL bool) string {
@@ -631,117 +472,171 @@ func (l *genericResource) relTargetPathForRelAndBasePath(rel, basePath string, i
 	return rel
 }
 
-func (l *genericResource) ResourceType() string {
-	return l.resourceType
+func (l *genericResource) relTargetPaths() []string {
+	return l.relTargetPathsForRel(l.TargetPath())
 }
 
-func (l *genericResource) String() string {
-	return fmt.Sprintf("Resource(%s: %s)", l.resourceType, l.name)
+func (l *genericResource) relTargetPathsFor(target string) []string {
+	return l.relTargetPathsForRel(target)
 }
 
-func (l *genericResource) Publish() error {
-	fr, err := l.ReadSeekCloser()
+func (l *genericResource) relTargetPathsForRel(rel string) []string {
+	if len(l.baseTargetPathDirs) == 0 {
+		return []string{l.relTargetPathForRelAndBasePath(rel, "", false, false)}
+	}
+
+	var targetPaths = make([]string, len(l.baseTargetPathDirs))
+	for i, dir := range l.baseTargetPathDirs {
+		targetPaths[i] = l.relTargetPathForRelAndBasePath(rel, dir, false, false)
+	}
+	return targetPaths
+}
+
+func (l *genericResource) updateParams(params map[string]interface{}) {
+	if l.params == nil {
+		l.params = params
+		return
+	}
+
+	// Sets the params not already set
+	for k, v := range params {
+		if _, found := l.params[k]; !found {
+			l.params[k] = v
+		}
+	}
+}
+
+type permalinker interface {
+	TargetPath() string
+	permalinkFor(target string) string
+	relPermalinkFor(target string) string
+	relTargetPaths() []string
+	relTargetPathsFor(target string) []string
+}
+
+type publishOnce struct {
+	publisherInit sync.Once
+	publisherErr  error
+	logger        *loggers.Logger
+}
+
+func (l *publishOnce) publish(s resource.Source) error {
+	l.publisherInit.Do(func() {
+		l.publisherErr = s.Publish()
+		if l.publisherErr != nil {
+			l.logger.ERROR.Printf("failed to publish Resource: %s", l.publisherErr)
+		}
+	})
+	return l.publisherErr
+}
+
+type resourceContent struct {
+	content     string
+	contentInit sync.Once
+}
+
+type resourceFileInfo struct {
+	// Will be set if this resource is backed by something other than a file.
+	openReadSeekerCloser resource.OpenReadSeekCloser
+
+	// This may be set to tell us to look in another filesystem for this resource.
+	// We, by default, use the sourceFs filesystem in the spec below.
+	sourceFs afero.Fs
+
+	// Absolute filename to the source, including any content folder path.
+	// Note that this is absolute in relation to the filesystem it is stored in.
+	// It can be a base path filesystem, and then this filename will not match
+	// the path to the file on the real filesystem.
+	sourceFilename string
+
+	fi os.FileInfo
+
+	// A hash of the source content. Is only calculated in caching situations.
+	h *resourceHash
+}
+
+func (fi *resourceFileInfo) ReadSeekCloser() (hugio.ReadSeekCloser, error) {
+	if fi.openReadSeekerCloser != nil {
+		return fi.openReadSeekerCloser()
+	}
+
+	f, err := fi.getSourceFs().Open(fi.getSourceFilename())
 	if err != nil {
-		return err
+		return nil, err
 	}
-	defer fr.Close()
-
-	fw, err := helpers.OpenFilesForWriting(l.spec.BaseFs.PublishFs, l.targetFilenames()...)
-	if err != nil {
-		return err
-	}
-	defer fw.Close()
-
-	_, err = io.Copy(fw, fr)
-	return err
+	return f, nil
 }
 
-// Path is stored with Unix style slashes.
-func (l *genericResource) TargetPath() string {
-	return l.relTargetDirFile.path()
+func (fi *resourceFileInfo) getSourceFilename() string {
+	return fi.sourceFilename
 }
 
-func (l *genericResource) targetFilenames() []string {
-	paths := l.relTargetPaths()
-	for i, p := range paths {
-		paths[i] = filepath.Clean(p)
-	}
-	return paths
+func (fi *resourceFileInfo) setSourceFilename(s string) {
+	// Make sure it's always loaded by sourceFilename.
+	fi.openReadSeekerCloser = nil
+	fi.sourceFilename = s
 }
 
-// TODO(bep) clean up below
-func (r *Spec) newGenericResource(sourceFs afero.Fs,
-	targetPathBuilder func() page.TargetPaths,
-	osFileInfo os.FileInfo,
-	sourceFilename,
-	baseFilename string,
-	mediaType media.Type) *genericResource {
-	return r.newGenericResourceWithBase(
-		sourceFs,
-		false,
-		nil,
-		nil,
-		targetPathBuilder,
-		osFileInfo,
-		sourceFilename,
-		baseFilename,
-		mediaType,
-	)
+func (fi *resourceFileInfo) setOpenReadSeekerCloser(r resource.OpenReadSeekCloser) {
+	fi.openReadSeekerCloser = r
+}
+
+func (fi *resourceFileInfo) getSourceFs() afero.Fs {
+	return fi.sourceFs
+}
+
+func (fi *resourceFileInfo) setSourceFs(fs afero.Fs) {
+	fi.sourceFs = fs
+}
+
+func (fi *resourceFileInfo) hash() (string, error) {
+	var err error
+	fi.h.init.Do(func() {
+		var hash string
+		var f hugio.ReadSeekCloser
+		f, err = fi.ReadSeekCloser()
+		if err != nil {
+			err = errors.Wrap(err, "failed to open source file")
+			return
+		}
+		defer f.Close()
+
+		hash, err = helpers.MD5FromFileFast(f)
+		if err != nil {
+			return
+		}
+		fi.h.value = hash
+
+	})
+
+	return fi.h.value, err
 
 }
 
-func (r *Spec) newGenericResourceWithBase(
-	sourceFs afero.Fs,
-	lazyPublish bool,
-	openReadSeekerCloser resource.OpenReadSeekCloser,
-	targetPathBaseDirs []string,
-	targetPathBuilder func() page.TargetPaths,
-	osFileInfo os.FileInfo,
-	sourceFilename,
-	baseFilename string,
-	mediaType media.Type) *genericResource {
-
-	if osFileInfo != nil && osFileInfo.IsDir() {
-		panic(fmt.Sprintf("dirs not supported resource types: %v", osFileInfo))
+func (fi *resourceFileInfo) size() int {
+	if fi.fi == nil {
+		return 0
 	}
 
-	// This value is used both to construct URLs and file paths, but start
-	// with a Unix-styled path.
-	baseFilename = helpers.ToSlashTrimLeading(baseFilename)
-	fpath, fname := path.Split(baseFilename)
+	return int(fi.fi.Size())
+}
 
-	var resourceType string
-	if mediaType.MainType == "image" {
-		resourceType = mediaType.MainType
-	} else {
-		resourceType = mediaType.SubType
-	}
+type resourceHash struct {
+	value string
+	init  sync.Once
+}
 
-	pathDescriptor := resourcePathDescriptor{
-		baseTargetPathDirs: helpers.UniqueStringsReuse(targetPathBaseDirs),
-		targetPathBuilder:  targetPathBuilder,
-		relTargetDirFile:   dirFile{dir: fpath, file: fname},
-	}
+type resourcePathDescriptor struct {
+	// The relative target directory and filename.
+	relTargetDirFile dirFile
 
-	var po *publishOnce
-	if lazyPublish {
-		po = &publishOnce{logger: r.Logger}
-	}
+	// Callback used to construct a target path relative to its owner.
+	targetPathBuilder func() page.TargetPaths
 
-	return &genericResource{
-		openReadSeekerCloser:   openReadSeekerCloser,
-		publishOnce:            po,
-		resourcePathDescriptor: pathDescriptor,
-		sourceFs:               sourceFs,
-		osFileInfo:             osFileInfo,
-		sourceFilename:         sourceFilename,
-		mediaType:              mediaType,
-		resourceType:           resourceType,
-		spec:                   r,
-		params:                 make(map[string]interface{}),
-		name:                   baseFilename,
-		title:                  baseFilename,
-		resourceContent:        &resourceContent{},
-		resourceHash:           &resourceHash{},
-	}
+	// This will normally be the same as above, but this will only apply to publishing
+	// of resources. It may be mulltiple values when in multihost mode.
+	baseTargetPathDirs []string
+
+	// baseOffset is set when the output format's path has a offset, e.g. for AMP.
+	baseOffset string
 }

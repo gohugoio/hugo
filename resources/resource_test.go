@@ -79,7 +79,7 @@ func TestNewResourceFromFilename(t *testing.T) {
 	c.Assert(r, qt.Not(qt.IsNil))
 	c.Assert(r.ResourceType(), qt.Equals, "json")
 
-	cloned := r.(resource.Cloner).WithNewBase("aceof")
+	cloned := r.(resource.Cloner).CloneWithNewBase("aceof")
 	c.Assert(cloned.ResourceType(), qt.Equals, r.ResourceType())
 	c.Assert(cloned.RelPermalink(), qt.Equals, "/aceof/a/b/data.json")
 }
@@ -99,8 +99,8 @@ func TestNewResourceFromFilenameSubPathInBaseURL(t *testing.T) {
 	c.Assert(r.ResourceType(), qt.Equals, "image")
 	c.Assert(r.RelPermalink(), qt.Equals, "/docs/a/b/logo.png")
 	c.Assert(r.Permalink(), qt.Equals, "https://example.com/docs/a/b/logo.png")
-	img := r.(*Image)
-	c.Assert(img.targetFilenames()[0], qt.Equals, filepath.FromSlash("/a/b/logo.png"))
+	img := r.(*imageResource)
+	c.Assert(img.getTargetFilenames()[0], qt.Equals, filepath.FromSlash("/a/b/logo.png"))
 
 }
 

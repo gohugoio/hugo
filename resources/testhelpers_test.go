@@ -117,19 +117,25 @@ func newTestResourceOsFs(c *qt.C) *Spec {
 
 }
 
-func fetchSunset(c *qt.C) *Image {
+func fetchSunset(c *qt.C) *imageResource {
 	return fetchImage(c, "sunset.jpg")
 }
 
-func fetchImage(c *qt.C, name string) *Image {
+func fetchImage(c *qt.C, name string) *imageResource {
 	spec := newTestResourceSpec(c)
 	return fetchImageForSpec(spec, c, name)
 }
 
-func fetchImageForSpec(spec *Spec, c *qt.C, name string) *Image {
+func fetchImageForSpec(spec *Spec, c *qt.C, name string) *imageResource {
 	r := fetchResourceForSpec(spec, c, name)
-	c.Assert(r, hqt.IsSameType, &Image{})
-	return r.(*Image)
+	c.Assert(r, hqt.IsSameType, &imageResource{})
+
+	img := r.(*imageResource)
+
+	c.Assert(img, qt.Not(qt.IsNil))
+	c.Assert(img.getSpec(), qt.Not(qt.IsNil))
+
+	return img
 }
 
 func fetchResourceForSpec(spec *Spec, c *qt.C, name string) resource.ContentResource {

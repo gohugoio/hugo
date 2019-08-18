@@ -52,6 +52,7 @@ func FprintStackTrace(w io.Writer, err error) {
 //     defer herrors.Recover()
 func Recover(args ...interface{}) {
 	if r := recover(); r != nil {
+		fmt.Println("ERR:", r)
 		args = append(args, "stacktrace from panic: \n"+string(debug.Stack()), "\n")
 		fmt.Println(args...)
 	}

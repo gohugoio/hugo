@@ -16,6 +16,7 @@ package minifier
 import (
 	"github.com/gohugoio/hugo/minifiers"
 	"github.com/gohugoio/hugo/resources"
+	"github.com/gohugoio/hugo/resources/internal"
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
@@ -37,8 +38,8 @@ type minifyTransformation struct {
 	m  minifiers.Client
 }
 
-func (t *minifyTransformation) Key() resources.ResourceTransformationKey {
-	return resources.NewResourceTransformationKey("minify")
+func (t *minifyTransformation) Key() internal.ResourceTransformationKey {
+	return internal.NewResourceTransformationKey("minify")
 }
 
 func (t *minifyTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {

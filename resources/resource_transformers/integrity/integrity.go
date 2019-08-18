@@ -23,6 +23,8 @@ import (
 	"html/template"
 	"io"
 
+	"github.com/gohugoio/hugo/resources/internal"
+
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/resources"
@@ -46,8 +48,8 @@ type fingerprintTransformation struct {
 	algo string
 }
 
-func (t *fingerprintTransformation) Key() resources.ResourceTransformationKey {
-	return resources.NewResourceTransformationKey("fingerprint", t.algo)
+func (t *fingerprintTransformation) Key() internal.ResourceTransformationKey {
+	return internal.NewResourceTransformationKey("fingerprint", t.algo)
 }
 
 // Transform creates a MD5 hash of the Resource content and inserts that hash before
