@@ -23,6 +23,8 @@ import (
 	"html/template"
 	"io"
 
+	"github.com/gohugoio/hugo/resources/internal"
+
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/resources"
@@ -46,8 +48,8 @@ type fingerprintTransformation struct {
 	algo string
 }
 
-func (t *fingerprintTransformation) Key() resources.ResourceTransformationKey {
-	return resources.NewResourceTransformationKey("fingerprint", t.algo)
+func (t *fingerprintTransformation) Key() internal.ResourceTransformationKey {
+	return internal.NewResourceTransformationKey("fingerprint", t.algo)
 }
 
 // Transform creates a MD5 hash of the Resource content and inserts that hash before
@@ -59,7 +61,17 @@ func (t *fingerprintTransformation) Transform(ctx *resources.ResourceTransformat
 		return err
 	}
 
-	io.Copy(io.MultiWriter(h, ctx.To), ctx.From)
+	var w io.Writer
+	if rc, ok := ctx.From.(io.ReadSeeker); ok {
+		// This transformation does not change the content, so try to
+		// avoid writing to To if we can.
+		defer rc.Seek(0, 0)
+		w = h
+	} else {
+		w = io.MultiWriter(h, ctx.To)
+	}
+
+	io.Copy(w, ctx.From)
 	d, err := digest(h)
 	if err != nil {
 		return err
@@ -91,15 +103,12 @@ func newHash(algo string) (hash.Hash, error) {
 // the base64-encoded Subresource Integrity hash, so you will have to stay away from
 // md5 if you plan to use both.
 // See https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
-func (c *Client) Fingerprint(res resource.Resource, algo string) (resource.Resource, error) {
+func (c *Client) Fingerprint(res resources.ResourceTransformer, algo string) (resource.Resource, error) {
 	if algo == "" {
 		algo = defaultHashAlgo
 	}
 
-	return c.rs.Transform(
-		res,
-		&fingerprintTransformation{algo: algo},
-	)
+	return res.Transform(&fingerprintTransformation{algo: algo})
 }
 
 func integrity(algo string, sum []byte) template.HTMLAttr {

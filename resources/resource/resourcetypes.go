@@ -23,7 +23,7 @@ import (
 // Cloner is an internal template and not meant for use in the templates. It
 // may change without notice.
 type Cloner interface {
-	WithNewBase(base string) Resource
+	Clone() Resource
 }
 
 // Resource represents a linkable resource, i.e. a content page, image etc.
@@ -33,6 +33,20 @@ type Resource interface {
 	ResourceMetaProvider
 	ResourceParamsProvider
 	ResourceDataProvider
+}
+
+// Image represents an image resource.
+type Image interface {
+	Resource
+	ImageOps
+}
+
+type ImageOps interface {
+	Height() int
+	Width() int
+	Fill(spec string) (Image, error)
+	Fit(spec string) (Image, error)
+	Resize(spec string) (Image, error)
 }
 
 type ResourceTypesProvider interface {
@@ -117,6 +131,10 @@ type OpenReadSeekCloser func() (hugio.ReadSeekCloser, error)
 // ReadSeekCloserResource is a Resource that supports loading its content.
 type ReadSeekCloserResource interface {
 	MediaType() media.Type
+	ReadSeekCloserProvider
+}
+
+type ReadSeekCloserProvider interface {
 	ReadSeekCloser() (hugio.ReadSeekCloser, error)
 }
 

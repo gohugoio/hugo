@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"io"
 	"os"
 	"path/filepath"
 	"testing"
@@ -165,6 +166,64 @@ T1: {{ $r.Content }}
 
 	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), `T1: moo{color:#ccc}boo{color:green}`)
 
+}
+
+func TestResourceChainBasic(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t)
+	b.WithTemplatesAdded("index.html", `
+{{ $hello := "<h1>     Hello World!   </h1>" | resources.FromString "hello.html" | fingerprint "sha512" | minify  | fingerprint }}
+
+HELLO: {{ $hello.Name }}|{{ $hello.RelPermalink }}|{{ $hello.Content | safeHTML }}
+
+{{ $img := resources.Get "images/sunset.jpg" }}
+{{ $fit := $img.Fit "200x200" }}
+{{ $fit2 := $fit.Fit "100x200" }}
+{{ $img = $img | fingerprint }}
+SUNSET: {{ $img.Name }}|{{ $img.RelPermalink }}|{{ $img.Width }}|{{ len $img.Content }}
+FIT: {{ $fit.Name }}|{{ $fit.RelPermalink }}|{{ $fit.Width }}
+`)
+
+	fs := b.Fs.Source
+
+	imageDir := filepath.Join("assets", "images")
+	b.Assert(os.MkdirAll(imageDir, 0777), qt.IsNil)
+	src, err := os.Open("testdata/sunset.jpg")
+	b.Assert(err, qt.IsNil)
+	out, err := fs.Create(filepath.Join(imageDir, "sunset.jpg"))
+	b.Assert(err, qt.IsNil)
+	_, err = io.Copy(out, src)
+	b.Assert(err, qt.IsNil)
+	out.Close()
+
+	b.Running()
+
+	for i := 0; i < 2; i++ {
+
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/index.html",
+			`
+SUNSET: images/sunset.jpg|/images/sunset.a9bf1d944e19c0f382e0d8f51de690f7d0bc8fa97390c4242a86c3e5c0737e71.jpg|900|90587
+FIT: images/sunset.jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x200_fit_q75_box.jpg|200
+
+`)
+
+		b.EditFiles("page1.md", `
+---
+title: "Page 1 edit"
+summary: "Edited summary"
+---
+
+Edited content.
+
+`)
+
+		b.Assert(b.Fs.Destination.Remove("public"), qt.IsNil)
+		b.H.ResourceSpec.ClearCaches()
+
+	}
 }
 
 func TestResourceChain(t *testing.T) {
@@ -353,9 +412,11 @@ Publish 2: {{ $cssPublish2.Permalink }}
 				"Publish 1: body{color:blue} /external1.min.css",
 				"Publish 2: http://example.com/external2.min.css",
 			)
-			c.Assert(b.CheckExists("public/external2.min.css"), qt.Equals, true)
-			c.Assert(b.CheckExists("public/external1.min.css"), qt.Equals, true)
-			c.Assert(b.CheckExists("public/inline.min.css"), qt.Equals, false)
+			b.Assert(b.CheckExists("public/external2.css"), qt.Equals, false)
+			b.Assert(b.CheckExists("public/external1.css"), qt.Equals, false)
+			b.Assert(b.CheckExists("public/external2.min.css"), qt.Equals, true)
+			b.Assert(b.CheckExists("public/external1.min.css"), qt.Equals, true)
+			b.Assert(b.CheckExists("public/inline.min.css"), qt.Equals, false)
 		}},
 
 		{"unmarshal", func() bool { return true }, func(b *sitesBuilder) {

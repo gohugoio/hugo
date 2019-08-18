@@ -18,6 +18,7 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugolib/filesystems"
 	"github.com/gohugoio/hugo/resources"
+	"github.com/gohugoio/hugo/resources/internal"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/spf13/afero"
 
@@ -68,7 +69,7 @@ type options struct {
 	to scss.Options
 }
 
-func (c *Client) ToCSS(res resource.Resource, opts Options) (resource.Resource, error) {
+func (c *Client) ToCSS(res resources.ResourceTransformer, opts Options) (resource.Resource, error) {
 	internalOptions := options{
 		from: opts,
 	}
@@ -83,10 +84,7 @@ func (c *Client) ToCSS(res resource.Resource, opts Options) (resource.Resource, 
 		internalOptions.to.Precision = 8
 	}
 
-	return c.rs.Transform(
-		res,
-		&toCSSTransformation{c: c, options: internalOptions},
-	)
+	return res.Transform(&toCSSTransformation{c: c, options: internalOptions})
 }
 
 type toCSSTransformation struct {
@@ -94,8 +92,8 @@ type toCSSTransformation struct {
 	options options
 }
 
-func (t *toCSSTransformation) Key() resources.ResourceTransformationKey {
-	return resources.NewResourceTransformationKey("tocss", t.options.from)
+func (t *toCSSTransformation) Key() internal.ResourceTransformationKey {
+	return internal.NewResourceTransformationKey("tocss", t.options.from)
 }
 
 func DecodeOptions(m map[string]interface{}) (opts Options, err error) {

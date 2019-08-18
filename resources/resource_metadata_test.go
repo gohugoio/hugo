@@ -24,7 +24,7 @@ import (
 
 func TestAssignMetadata(t *testing.T) {
 	c := qt.New(t)
-	spec := newTestResourceSpec(c)
+	spec := newTestResourceSpec(specDescriptor{c: c})
 
 	var foo1, foo2, foo3, logo1, logo2, logo3 resource.Resource
 	var resources resource.Resources

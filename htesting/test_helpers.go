@@ -14,8 +14,10 @@
 package htesting
 
 import (
+	"math/rand"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/spf13/afero"
 )
@@ -36,4 +38,21 @@ func CreateTempDir(fs afero.Fs, prefix string) (string, func(), error) {
 		tempDir = "/private" + tempDir
 	}
 	return tempDir, func() { fs.RemoveAll(tempDir) }, nil
+}
+
+// BailOut panics with a stack trace after the given duration. Useful for
+// hanging tests.
+func BailOut(after time.Duration) {
+	time.AfterFunc(after, func() {
+		buf := make([]byte, 1<<16)
+		runtime.Stack(buf, true)
+		panic(string(buf))
+	})
+
+}
+
+var rnd = rand.New(rand.NewSource(time.Now().UnixNano()))
+
+func RandIntn(n int) int {
+	return rnd.Intn(n)
 }

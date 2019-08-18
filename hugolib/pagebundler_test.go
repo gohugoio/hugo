@@ -42,8 +42,7 @@ import (
 )
 
 func TestPageBundlerSiteRegular(t *testing.T) {
-	t.Parallel()
-
+	c := qt.New(t)
 	baseBaseURL := "https://example.com"
 
 	for _, baseURLPath := range []string{"", "/hugo"} {
@@ -55,15 +54,14 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 				}
 				ugly := ugly
 				canonify := canonify
-				t.Run(fmt.Sprintf("ugly=%t,canonify=%t,path=%s", ugly, canonify, baseURLPathId),
-					func(t *testing.T) {
-						t.Parallel()
+				c.Run(fmt.Sprintf("ugly=%t,canonify=%t,path=%s", ugly, canonify, baseURLPathId),
+					func(c *qt.C) {
+						c.Parallel()
 						baseURL := baseBaseURL + baseURLPath
 						relURLBase := baseURLPath
 						if canonify {
 							relURLBase = ""
 						}
-						c := qt.New(t)
 						fs, cfg := newTestBundleSources(t)
 						cfg.Set("baseURL", baseURL)
 						cfg.Set("canonifyURLs", canonify)

@@ -4,8 +4,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/gohugoio/hugo/htesting/hqt"
-
 	"image"
 	"io"
 	"io/ioutil"
@@ -28,8 +26,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-func newTestResourceSpec(c *qt.C) *Spec {
-	return newTestResourceSpecForBaseURL(c, "https://example.com/")
+type specDescriptor struct {
+	baseURL string
+	c       *qt.C
+	fs      afero.Fs
 }
 
 func createTestCfg() *viper.Viper {
@@ -54,7 +54,20 @@ func createTestCfg() *viper.Viper {
 
 }
 
-func newTestResourceSpecForBaseURL(c *qt.C, baseURL string) *Spec {
+func newTestResourceSpec(desc specDescriptor) *Spec {
+
+	baseURL := desc.baseURL
+	if baseURL == "" {
+		baseURL = "https://example.com/"
+	}
+
+	afs := desc.fs
+	if afs == nil {
+		afs = afero.NewMemMapFs()
+	}
+
+	c := desc.c
+
 	cfg := createTestCfg()
 	cfg.Set("baseURL", baseURL)
 
@@ -66,7 +79,8 @@ func newTestResourceSpecForBaseURL(c *qt.C, baseURL string) *Spec {
 
 	cfg.Set("imaging", imagingCfg)
 
-	fs := hugofs.NewMem(cfg)
+	fs := hugofs.NewFrom(afs, cfg)
+	fs.Destination = hugofs.NewCreateCountingFs(fs.Destination)
 
 	s, err := helpers.NewPathSpec(fs, cfg, nil)
 	c.Assert(err, qt.IsNil)
@@ -117,19 +131,23 @@ func newTestResourceOsFs(c *qt.C) *Spec {
 
 }
 
-func fetchSunset(c *qt.C) *Image {
+func fetchSunset(c *qt.C) resource.Image {
 	return fetchImage(c, "sunset.jpg")
 }
 
-func fetchImage(c *qt.C, name string) *Image {
-	spec := newTestResourceSpec(c)
+func fetchImage(c *qt.C, name string) resource.Image {
+	spec := newTestResourceSpec(specDescriptor{c: c})
 	return fetchImageForSpec(spec, c, name)
 }
-
-func fetchImageForSpec(spec *Spec, c *qt.C, name string) *Image {
+func fetchImageForSpec(spec *Spec, c *qt.C, name string) resource.Image {
 	r := fetchResourceForSpec(spec, c, name)
-	c.Assert(r, hqt.IsSameType, &Image{})
-	return r.(*Image)
+
+	img := r.(resource.Image)
+
+	c.Assert(img, qt.Not(qt.IsNil))
+	c.Assert(img.(specProvider).getSpec(), qt.Not(qt.IsNil))
+
+	return img
 }
 
 func fetchResourceForSpec(spec *Spec, c *qt.C, name string) resource.ContentResource {

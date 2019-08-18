@@ -281,7 +281,7 @@ func (c *ResourceCache) DeletePartitions(partitions ...string) {
 
 	for k := range c.cache {
 		clear := false
-		for p, _ := range partitionsSet {
+		for p := range partitionsSet {
 			if strings.Contains(k, p) {
 				// There will be some false positive, but that's fine.
 				clear = true

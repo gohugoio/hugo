@@ -536,6 +536,7 @@ func (s *sitesBuilder) changeEvents() []fsnotify.Event {
 }
 
 func (s *sitesBuilder) build(cfg BuildCfg, shouldFail bool) *sitesBuilder {
+	s.Helper()
 	defer func() {
 		s.changedFiles = nil
 	}()

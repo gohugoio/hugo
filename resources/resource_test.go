@@ -32,7 +32,7 @@ import (
 
 func TestGenericResource(t *testing.T) {
 	c := qt.New(t)
-	spec := newTestResourceSpec(c)
+	spec := newTestResourceSpec(specDescriptor{c: c})
 
 	r := spec.newGenericResource(nil, nil, nil, "/a/foo.css", "foo.css", media.CSSType)
 
@@ -44,7 +44,7 @@ func TestGenericResource(t *testing.T) {
 
 func TestGenericResourceWithLinkFacory(t *testing.T) {
 	c := qt.New(t)
-	spec := newTestResourceSpec(c)
+	spec := newTestResourceSpec(specDescriptor{c: c})
 
 	factory := newTargetPaths("/foo")
 
@@ -58,7 +58,7 @@ func TestGenericResourceWithLinkFacory(t *testing.T) {
 
 func TestNewResourceFromFilename(t *testing.T) {
 	c := qt.New(t)
-	spec := newTestResourceSpec(c)
+	spec := newTestResourceSpec(specDescriptor{c: c})
 
 	writeSource(t, spec.Fs, "content/a/b/logo.png", "image")
 	writeSource(t, spec.Fs, "content/a/b/data.json", "json")
@@ -79,14 +79,11 @@ func TestNewResourceFromFilename(t *testing.T) {
 	c.Assert(r, qt.Not(qt.IsNil))
 	c.Assert(r.ResourceType(), qt.Equals, "json")
 
-	cloned := r.(resource.Cloner).WithNewBase("aceof")
-	c.Assert(cloned.ResourceType(), qt.Equals, r.ResourceType())
-	c.Assert(cloned.RelPermalink(), qt.Equals, "/aceof/a/b/data.json")
 }
 
 func TestNewResourceFromFilenameSubPathInBaseURL(t *testing.T) {
 	c := qt.New(t)
-	spec := newTestResourceSpecForBaseURL(c, "https://example.com/docs")
+	spec := newTestResourceSpec(specDescriptor{c: c, baseURL: "https://example.com/docs"})
 
 	writeSource(t, spec.Fs, "content/a/b/logo.png", "image")
 	bfs := afero.NewBasePathFs(spec.Fs.Source, "content")
@@ -99,8 +96,6 @@ func TestNewResourceFromFilenameSubPathInBaseURL(t *testing.T) {
 	c.Assert(r.ResourceType(), qt.Equals, "image")
 	c.Assert(r.RelPermalink(), qt.Equals, "/docs/a/b/logo.png")
 	c.Assert(r.Permalink(), qt.Equals, "https://example.com/docs/a/b/logo.png")
-	img := r.(*Image)
-	c.Assert(img.targetFilenames()[0], qt.Equals, filepath.FromSlash("/a/b/logo.png"))
 
 }
 
@@ -108,7 +103,7 @@ var pngType, _ = media.FromStringAndExt("image/png", "png")
 
 func TestResourcesByType(t *testing.T) {
 	c := qt.New(t)
-	spec := newTestResourceSpec(c)
+	spec := newTestResourceSpec(specDescriptor{c: c})
 	resources := resource.Resources{
 		spec.newGenericResource(nil, nil, nil, "/a/foo1.css", "foo1.css", media.CSSType),
 		spec.newGenericResource(nil, nil, nil, "/a/logo.png", "logo.css", pngType),
@@ -122,7 +117,7 @@ func TestResourcesByType(t *testing.T) {
 
 func TestResourcesGetByPrefix(t *testing.T) {
 	c := qt.New(t)
-	spec := newTestResourceSpec(c)
+	spec := newTestResourceSpec(specDescriptor{c: c})
 	resources := resource.Resources{
 		spec.newGenericResource(nil, nil, nil, "/a/foo1.css", "foo1.css", media.CSSType),
 		spec.newGenericResource(nil, nil, nil, "/a/logo1.png", "logo1.png", pngType),
@@ -151,7 +146,7 @@ func TestResourcesGetByPrefix(t *testing.T) {
 
 func TestResourcesGetMatch(t *testing.T) {
 	c := qt.New(t)
-	spec := newTestResourceSpec(c)
+	spec := newTestResourceSpec(specDescriptor{c: c})
 	resources := resource.Resources{
 		spec.newGenericResource(nil, nil, nil, "/a/foo1.css", "foo1.css", media.CSSType),
 		spec.newGenericResource(nil, nil, nil, "/a/logo1.png", "logo1.png", pngType),
@@ -213,7 +208,7 @@ func BenchmarkResourcesMatch(b *testing.B) {
 // my own curiosity.
 func BenchmarkResourcesMatchA100(b *testing.B) {
 	c := qt.New(b)
-	spec := newTestResourceSpec(c)
+	spec := newTestResourceSpec(specDescriptor{c: c})
 	a100 := strings.Repeat("a", 100)
 	pattern := "a*a*a*a*a*a*a*a*b"
 
@@ -228,7 +223,7 @@ func BenchmarkResourcesMatchA100(b *testing.B) {
 
 func benchResources(b *testing.B) resource.Resources {
 	c := qt.New(b)
-	spec := newTestResourceSpec(c)
+	spec := newTestResourceSpec(specDescriptor{c: c})
 	var resources resource.Resources
 
 	for i := 0; i < 30; i++ {
@@ -252,7 +247,7 @@ func benchResources(b *testing.B) resource.Resources {
 
 func BenchmarkAssignMetadata(b *testing.B) {
 	c := qt.New(b)
-	spec := newTestResourceSpec(c)
+	spec := newTestResourceSpec(specDescriptor{c: c})
 
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()

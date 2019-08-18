@@ -29,8 +29,14 @@ import (
 )
 
 var (
-	_ metaAssigner = (*genericResource)(nil)
+	_ metaAssigner         = (*genericResource)(nil)
+	_ metaAssigner         = (*imageResource)(nil)
+	_ metaAssignerProvider = (*resourceAdapter)(nil)
 )
+
+type metaAssignerProvider interface {
+	getMetaAssigner() metaAssigner
+}
 
 // metaAssigner allows updating metadata in resources that supports it.
 type metaAssigner interface {
@@ -50,8 +56,15 @@ func AssignMetadata(metadata []map[string]interface{}, resources ...resource.Res
 	counters := make(map[string]int)
 
 	for _, r := range resources {
-		if _, ok := r.(metaAssigner); !ok {
-			continue
+		var ma metaAssigner
+		mp, ok := r.(metaAssignerProvider)
+		if ok {
+			ma = mp.getMetaAssigner()
+		} else {
+			ma, ok = r.(metaAssigner)
+			if !ok {
+				continue
+			}
 		}
 
 		var (
@@ -61,7 +74,6 @@ func AssignMetadata(metadata []map[string]interface{}, resources ...resource.Res
 			resourceSrcKey                      = strings.ToLower(r.Name())
 		)
 
-		ma := r.(metaAssigner)
 		for _, meta := range metadata {
 			src, found := meta["src"]
 			if !found {
