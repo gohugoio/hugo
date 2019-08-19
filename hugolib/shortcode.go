@@ -473,9 +473,10 @@ Loop:
 				pt.Backup()
 				nested, err := s.extractShortcode(nestedOrdinal, nextLevel, pt)
 				nestedOrdinal++
-				if nested.name != "" {
+				if nested != nil && nested.name != "" {
 					s.nameSet[nested.name] = true
 				}
+
 				if err == nil {
 					sc.inner = append(sc.inner, nested)
 				} else {
