@@ -15,7 +15,6 @@ package images
 
 import (
 	"bytes"
-	"fmt"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -247,6 +246,14 @@ func (p *ImageProcessor) Trace(src image.Image, opts TraceOptions) (string, erro
 		return (v * 100) / 255
 	}
 
+	// Pixel Classification/threshold functions.
+	tm := map[string]func(segments segmentator.Image) int{
+		"otsu": func(segments segmentator.Image) int {
+			return segmentator.FGPCOtsuThresholding2(segments)
+		},
+	}
+
+	// Edge detection functions.
 	sm := map[string]segmentFunc{
 		"luma": segmentFunc{
 			filter: func(segments segmentator.Image) error {
@@ -262,51 +269,69 @@ func (p *ImageProcessor) Trace(src image.Image, opts TraceOptions) (string, erro
 			},
 			value: pickAll,
 		},
-		"sobel": segmentFunc{
+		"sobel": segmentFunc{ // Remove
 			filter: func(segments segmentator.Image) error {
-				return segmentator.FGEDSobel(segments, segmentator.GX)
+				return segmentator.FGEDSobel(segments, segmentator.GXGY)
 			},
 			value: pickFirst,
 		},
 		"previtt": segmentFunc{
 			filter: func(segments segmentator.Image) error {
-				return segmentator.FGEDPrevitt(segments, segmentator.GX)
+				return segmentator.FGEDPrevitt(segments, segmentator.GXGY)
+			},
+			value: pickFirst,
+		},
+		"roberts": segmentFunc{ // Keep
+			filter: func(segments segmentator.Image) error {
+				return segmentator.FGEDRoberts(segments, segmentator.GXGY)
+			},
+			value: pickFirst,
+		},
+		"scharr": segmentFunc{ // Remove
+			filter: func(segments segmentator.Image) error {
+				return segmentator.FGEDScharr(segments, segmentator.GXGY)
+			},
+			value: pickFirst,
+		},
+		"laplacian": segmentFunc{ // Remove
+			filter: func(segments segmentator.Image) error {
+				return segmentator.FGEDLaplacian4(segments)
 			},
 			value: pickFirst,
 		},
 	}
 
-	segmentf, found := sm[opts.Filter]
-	if !found {
-		segmentf = sm["luma"]
-	}
+	var thresholdFunc func(x, y int, c color.Color) bool
 
-	if err := segmentf.filter(segments); err != nil {
-		return "", nil
-	}
-
-	counter := 0
-	max := 0
-	min := 0
-
-	bm := gotrace.NewBitmapFromImage(src, func(x, y int, c color.Color) bool {
-		p := segments.Pixels[y][x]
-		v := segmentf.value(p)
-
-		if v > max {
-			max = v
+	thresholdf, found := tm[opts.Filter]
+	if found {
+		threshold := thresholdf(segments)
+		thresholdFunc = func(x, y int, c color.Color) bool {
+			p := segments.Pixels[y][x]
+			v := p.R
+			return v >= threshold
 		}
 
-		if counter == 0 || v < min {
-			min = v
+	} else {
+
+		segmentf, found := sm[opts.Filter]
+		if !found {
+			segmentf = sm["luma"]
 		}
 
-		counter++
+		if err := segmentf.filter(segments); err != nil {
+			return "", nil
+		}
 
-		return v >= opts.Low && v <= opts.High
-	})
+		thresholdFunc = func(x, y int, c color.Color) bool {
+			p := segments.Pixels[y][x]
+			v := segmentf.value(p)
 
-	fmt.Println("Min:", min, "Max:", max)
+			return v >= opts.Low && v <= opts.High
+		}
+	}
+
+	bm := gotrace.NewBitmapFromImage(src, thresholdFunc)
 
 	paths, err := gotrace.Trace(bm, &opts.TraceParams)
 	if err != nil {
