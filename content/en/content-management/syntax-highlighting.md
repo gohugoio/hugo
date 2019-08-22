@@ -120,7 +120,7 @@ You can generate one with Hugo:
 hugo gen chromastyles --style=monokai > syntax.css
 ```
 
-Run `hugo gen chromastyles -h` for more options. See https://help.farbox.com/pygments.html for a gallery of available styles.
+Run `hugo gen chromastyles -h` for more options. See https://xyproto.github.io/splash/docs/ for a gallery of available styles.
 
 
 ## Highlight Shortcode
