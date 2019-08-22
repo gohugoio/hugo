@@ -46,7 +46,7 @@ Without any additional configuration, the following will just work:
 .
 └── content
     └── about
-    |   └── _index.md  // <- https://example.com/about/
+    |   └── index.md  // <- https://example.com/about/
     ├── posts
     |   ├── firstpost.md   // <- https://example.com/posts/firstpost/
     |   ├── happy
