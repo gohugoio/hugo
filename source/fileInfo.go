@@ -239,11 +239,11 @@ func (sp *SourceSpec) NewFileInfo(fi hugofs.FileMetaInfo) (*FileInfo, error) {
 	relPath := m.Path()
 	isLeafBundle := m.Classifier() == files.ContentClassLeaf
 
-	if relPath == "" || strings.Contains(relPath, "TODO") {
+	if relPath == "" {
 		return nil, errors.Errorf("no Path provided by %v (%T)", m, m.Fs())
 	}
 
-	if filename == "" || strings.Contains(filename, "TODO") {
+	if filename == "" {
 		return nil, errors.Errorf("no Filename provided by %v (%T)", m, m.Fs())
 	}
 
