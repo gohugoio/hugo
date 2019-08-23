@@ -54,7 +54,7 @@ func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
 	err = mapstructure.WeakDecode(m, &opts)
 
 	if !opts.NoMap {
-		// There was for a long time a disrepency between documentation and
+		// There was for a long time a discrepancy between documentation and
 		// implementation for the noMap property, so we need to support both
 		// camel and snake case.
 		opts.NoMap = cast.ToBool(m["no-map"])
