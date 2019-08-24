@@ -636,7 +636,7 @@ func (c *commandeer) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint6
 		c.logger.INFO.Println("removing all files from destination that don't exist in static dirs")
 
 		syncer.DeleteFilter = func(f os.FileInfo) bool {
-			return f.IsDir() && strings.HasPrefix(f.Name(), ".")
+			return (f.IsDir() && strings.HasPrefix(f.Name(), ".")) || (!f.IsDir() && f.Name() == ".git")
 		}
 	}
 	c.logger.INFO.Println("syncing static files to", publishDir)
