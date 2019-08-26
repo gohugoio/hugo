@@ -21,6 +21,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/disintegration/gift"
 	"github.com/spf13/afero"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
@@ -170,6 +171,10 @@ func (r *resourceAdapter) Fill(spec string) (resource.Image, error) {
 
 func (r *resourceAdapter) Fit(spec string) (resource.Image, error) {
 	return r.getImageOps().Fit(spec)
+}
+
+func (r *resourceAdapter) Filter(filters ...gift.Filter) (resource.Image, error) {
+	return r.getImageOps().Filter(filters...)
 }
 
 func (r *resourceAdapter) Height() int {

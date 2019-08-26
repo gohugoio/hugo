@@ -14,6 +14,7 @@
 package resource
 
 import (
+	"github.com/disintegration/gift"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/media"
 
@@ -47,6 +48,7 @@ type ImageOps interface {
 	Fill(spec string) (Image, error)
 	Fit(spec string) (Image, error)
 	Resize(spec string) (Image, error)
+	Filter(filters ...gift.Filter) (Image, error)
 }
 
 type ResourceTypesProvider interface {

@@ -1,4 +1,4 @@
-// Copyright 2017 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,9 +15,15 @@
 package images
 
 import (
-	"errors"
 	"image"
 	"sync"
+
+	"github.com/disintegration/gift"
+
+	"github.com/pkg/errors"
+
+	"github.com/gohugoio/hugo/resources/images"
+	"github.com/gohugoio/hugo/resources/resource"
 
 	// Importing image codecs for image.DecodeConfig
 	_ "image/gif"
@@ -34,13 +40,15 @@ import (
 // New returns a new instance of the images-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
 	return &Namespace{
-		cache: map[string]image.Config{},
-		deps:  deps,
+		Filters: &images.Filters{},
+		cache:   map[string]image.Config{},
+		deps:    deps,
 	}
 }
 
 // Namespace provides template functions for the "images" namespace.
 type Namespace struct {
+	*images.Filters
 	cacheMu sync.RWMutex
 	cache   map[string]image.Config
 
@@ -84,4 +92,19 @@ func (ns *Namespace) Config(path interface{}) (image.Config, error) {
 	ns.cacheMu.Unlock()
 
 	return config, nil
+}
+
+func (ns *Namespace) Filter(args ...interface{}) (resource.Image, error) {
+	if len(args) < 2 {
+		return nil, errors.New("must provide an image and one or more filters")
+	}
+
+	img := args[len(args)-1].(resource.Image)
+	filtersv := args[:len(args)-1]
+	filters := make([]gift.Filter, len(filtersv))
+	for i, f := range filtersv {
+		filters[i] = f.(gift.Filter)
+	}
+
+	return img.Filter(filters...)
 }

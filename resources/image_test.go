@@ -16,14 +16,20 @@ package resources
 import (
 	"fmt"
 	"math/rand"
+	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"sync"
 	"testing"
 
-	"github.com/gohugoio/hugo/media"
-	"github.com/gohugoio/hugo/resources/resource"
+	"github.com/disintegration/gift"
 
+	"github.com/gohugoio/hugo/helpers"
+
+	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/resources/images"
+	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/google/go-cmp/cmp"
 
 	"github.com/gohugoio/hugo/htesting/hqt"
@@ -34,6 +40,9 @@ import (
 var eq = qt.CmpEquals(
 	cmp.Comparer(func(p1, p2 *resourceAdapter) bool {
 		return p1.resourceAdapterInner == p2.resourceAdapterInner
+	}),
+	cmp.Comparer(func(p1, p2 os.FileInfo) bool {
+		return p1.Name() == p2.Name() && p1.Size() == p2.Size() && p1.IsDir() == p2.IsDir()
 	}),
 	cmp.Comparer(func(p1, p2 *genericResource) bool { return p1 == p2 }),
 	cmp.Comparer(func(m1, m2 media.Type) bool {
@@ -94,7 +103,7 @@ func TestImageTransformBasic(t *testing.T) {
 	fittedAgain, err = fittedAgain.Fit("10x20")
 	c.Assert(err, qt.IsNil)
 	c.Assert(fittedAgain.RelPermalink(), qt.Equals, "/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_3f65ba24dc2b7fba0f56d7f104519157.jpg")
-	assertWidthHeight(fittedAgain, 10, 6)
+	assertWidthHeight(fittedAgain, 10, 7)
 
 	filled, err := image.Fill("200x100 bottomLeft")
 	c.Assert(err, qt.IsNil)
@@ -155,7 +164,10 @@ func TestImagePermalinkPublishOrder(t *testing.T) {
 
 		t.Run(name, func(t *testing.T) {
 			c := qt.New(t)
-			spec := newTestResourceOsFs(c)
+			spec, workDir := newTestResourceOsFs(c)
+			defer func() {
+				os.Remove(workDir)
+			}()
 
 			check1 := func(img resource.Image) {
 				resizedLink := "/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_100x50_resize_q75_box.jpg"
@@ -192,7 +204,10 @@ func TestImageTransformConcurrent(t *testing.T) {
 
 	c := qt.New(t)
 
-	spec := newTestResourceOsFs(c)
+	spec, workDir := newTestResourceOsFs(c)
+	defer func() {
+		os.Remove(workDir)
+	}()
 
 	image := fetchImageForSpec(spec, c, "sunset.jpg")
 
@@ -315,6 +330,133 @@ func TestSVGImageContent(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	c.Assert(content, hqt.IsSameType, "")
 	c.Assert(content.(string), qt.Contains, `<svg height="100" width="100">`)
+}
+
+func TestImageOperationsGolden(t *testing.T) {
+	c := qt.New(t)
+	c.Parallel()
+
+	devMode := false
+
+	testImages := []string{"sunset.jpg", "gohugoio8.png", "gohugoio24.png"}
+
+	spec, workDir := newTestResourceOsFs(c)
+	defer func() {
+		if !devMode {
+			os.Remove(workDir)
+		}
+	}()
+
+	if devMode {
+		fmt.Println(workDir)
+	}
+
+	for _, img := range testImages {
+
+		orig := fetchImageForSpec(spec, c, img)
+		for _, resizeSpec := range []string{"200x100", "600x", "200x r90 q50 Box"} {
+			resized, err := orig.Resize(resizeSpec)
+			c.Assert(err, qt.IsNil)
+			rel := resized.RelPermalink()
+			c.Log("resize", rel)
+			c.Assert(rel, qt.Not(qt.Equals), "")
+		}
+
+		for _, fillSpec := range []string{"300x200 Gaussian Smart", "100x100 Center", "300x100 TopLeft NearestNeighbor", "400x200 BottomLeft"} {
+			resized, err := orig.Fill(fillSpec)
+			c.Assert(err, qt.IsNil)
+			rel := resized.RelPermalink()
+			c.Log("fill", rel)
+			c.Assert(rel, qt.Not(qt.Equals), "")
+		}
+
+		for _, fitSpec := range []string{"300x200 Linear"} {
+			resized, err := orig.Fit(fitSpec)
+			c.Assert(err, qt.IsNil)
+			rel := resized.RelPermalink()
+			c.Log("fit", rel)
+			c.Assert(rel, qt.Not(qt.Equals), "")
+		}
+
+		f := &images.Filters{}
+
+		filters := []gift.Filter{
+			f.Grayscale(),
+			f.GaussianBlur(6),
+			f.Saturation(50),
+			f.Sepia(100),
+			f.Brightness(30),
+			f.ColorBalance(10, -10, -10),
+			f.Colorize(240, 50, 100),
+			f.Gamma(1.5),
+			f.UnsharpMask(1, 1, 0),
+			f.Sigmoid(0.5, 7),
+			f.Pixelate(5),
+			f.Invert(),
+			f.Hue(22),
+			f.Contrast(32.5),
+		}
+
+		resized, err := orig.Fill("400x200 center")
+
+		for _, filter := range filters {
+			resized, err := resized.Filter(filter)
+			c.Assert(err, qt.IsNil)
+			rel := resized.RelPermalink()
+			c.Logf("filter: %v %s", filter, rel)
+			c.Assert(rel, qt.Not(qt.Equals), "")
+		}
+
+		resized, err = resized.Filter(filters[0:4]...)
+		c.Assert(err, qt.IsNil)
+		rel := resized.RelPermalink()
+		c.Log("filter all", rel)
+		c.Assert(rel, qt.Not(qt.Equals), "")
+	}
+
+	if devMode {
+		return
+	}
+
+	dir1 := filepath.Join(workDir, "resources/_gen/images/a")
+	dir2 := filepath.FromSlash("testdata/golden")
+
+	// The two dirs above should now be the same.
+	d1, err := os.Open(dir1)
+	c.Assert(err, qt.IsNil)
+	d2, err := os.Open(dir2)
+	c.Assert(err, qt.IsNil)
+
+	dirinfos1, err := d1.Readdir(-1)
+	c.Assert(err, qt.IsNil)
+	dirinfos2, err := d2.Readdir(-1)
+
+	c.Assert(err, qt.IsNil)
+	c.Assert(len(dirinfos1), qt.Equals, len(dirinfos2))
+
+	for i, fi1 := range dirinfos1 {
+		if regexp.MustCompile("gauss").MatchString(fi1.Name()) {
+			continue
+		}
+		fi2 := dirinfos2[i]
+		c.Assert(fi1.Name(), qt.Equals, fi2.Name())
+		c.Assert(fi1, eq, fi2)
+		f1, err := os.Open(filepath.Join(dir1, fi1.Name()))
+		c.Assert(err, qt.IsNil)
+		f2, err := os.Open(filepath.Join(dir2, fi2.Name()))
+		c.Assert(err, qt.IsNil)
+
+		hash1, err := helpers.MD5FromReader(f1)
+		c.Assert(err, qt.IsNil)
+		hash2, err := helpers.MD5FromReader(f2)
+		c.Assert(err, qt.IsNil)
+
+		f1.Close()
+		f2.Close()
+
+		c.Assert(hash1, qt.Equals, hash2)
+	}
+
 }
 
 func BenchmarkResizeParallel(b *testing.B) {

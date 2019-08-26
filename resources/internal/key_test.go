@@ -32,5 +32,12 @@ func TestResourceTransformationKey(t *testing.T) {
 	key := NewResourceTransformationKey("testing",
 		testStruct{Name: "test", V1: int64(10), V2: int32(20), V3: 30, V4: uint64(40)})
 	c := qt.New(t)
-	c.Assert("testing_518996646957295636", qt.Equals, key.Value())
+	c.Assert(key.Value(), qt.Equals, "testing_518996646957295636")
+}
+
+func TestHashString(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(HashString("a", "b"), qt.Equals, "2712570657419664240")
+	c.Assert(HashString("ab"), qt.Equals, "590647783936702392")
 }

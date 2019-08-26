@@ -19,7 +19,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/disintegration/imaging"
+	"github.com/disintegration/gift"
+
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -29,61 +30,59 @@ const (
 )
 
 var (
-	imageFormats = map[string]imaging.Format{
-		".jpg":  imaging.JPEG,
-		".jpeg": imaging.JPEG,
-		".png":  imaging.PNG,
-		".tif":  imaging.TIFF,
-		".tiff": imaging.TIFF,
-		".bmp":  imaging.BMP,
-		".gif":  imaging.GIF,
+	imageFormats = map[string]Format{
+		".jpg":  JPEG,
+		".jpeg": JPEG,
+		".png":  PNG,
+		".tif":  TIFF,
+		".tiff": TIFF,
+		".bmp":  BMP,
+		".gif":  GIF,
 	}
 
 	// Add or increment if changes to an image format's processing requires
 	// re-generation.
-	imageFormatsVersions = map[imaging.Format]int{
-		imaging.PNG: 2, // Floyd Steinberg dithering
+	imageFormatsVersions = map[Format]int{
+		PNG: 2, // Floyd Steinberg dithering
 	}
 
 	// Increment to mark all processed images as stale. Only use when absolutely needed.
 	// See the finer grained smartCropVersionNumber and imageFormatsVersions.
 	mainImageVersionNumber = 0
-
-	// Increment to mark all traced SVGs as stale.
-	traceVersionNumber = 0
 )
 
-var anchorPositions = map[string]imaging.Anchor{
-	strings.ToLower("Center"):      imaging.Center,
-	strings.ToLower("TopLeft"):     imaging.TopLeft,
-	strings.ToLower("Top"):         imaging.Top,
-	strings.ToLower("TopRight"):    imaging.TopRight,
-	strings.ToLower("Left"):        imaging.Left,
-	strings.ToLower("Right"):       imaging.Right,
-	strings.ToLower("BottomLeft"):  imaging.BottomLeft,
-	strings.ToLower("Bottom"):      imaging.Bottom,
-	strings.ToLower("BottomRight"): imaging.BottomRight,
+var anchorPositions = map[string]gift.Anchor{
+	strings.ToLower("Center"):      gift.CenterAnchor,
+	strings.ToLower("TopLeft"):     gift.TopLeftAnchor,
+	strings.ToLower("Top"):         gift.TopAnchor,
+	strings.ToLower("TopRight"):    gift.TopRightAnchor,
+	strings.ToLower("Left"):        gift.LeftAnchor,
+	strings.ToLower("Right"):       gift.RightAnchor,
+	strings.ToLower("BottomLeft"):  gift.BottomLeftAnchor,
+	strings.ToLower("Bottom"):      gift.BottomAnchor,
+	strings.ToLower("BottomRight"): gift.BottomRightAnchor,
 }
 
-var imageFilters = map[string]imaging.ResampleFilter{
-	strings.ToLower("NearestNeighbor"):   imaging.NearestNeighbor,
-	strings.ToLower("Box"):               imaging.Box,
-	strings.ToLower("Linear"):            imaging.Linear,
-	strings.ToLower("Hermite"):           imaging.Hermite,
-	strings.ToLower("MitchellNetravali"): imaging.MitchellNetravali,
-	strings.ToLower("CatmullRom"):        imaging.CatmullRom,
-	strings.ToLower("BSpline"):           imaging.BSpline,
-	strings.ToLower("Gaussian"):          imaging.Gaussian,
-	strings.ToLower("Lanczos"):           imaging.Lanczos,
-	strings.ToLower("Hann"):              imaging.Hann,
-	strings.ToLower("Hamming"):           imaging.Hamming,
-	strings.ToLower("Blackman"):          imaging.Blackman,
-	strings.ToLower("Bartlett"):          imaging.Bartlett,
-	strings.ToLower("Welch"):             imaging.Welch,
-	strings.ToLower("Cosine"):            imaging.Cosine,
+var imageFilters = map[string]gift.Resampling{
+
+	strings.ToLower("NearestNeighbor"):   gift.NearestNeighborResampling,
+	strings.ToLower("Box"):               gift.BoxResampling,
+	strings.ToLower("Linear"):            gift.LinearResampling,
+	strings.ToLower("Hermite"):           hermiteResampling,
+	strings.ToLower("MitchellNetravali"): mitchellNetravaliResampling,
+	strings.ToLower("CatmullRom"):        catmullRomResampling,
+	strings.ToLower("BSpline"):           bSplineResampling,
+	strings.ToLower("Gaussian"):          gaussianResampling,
+	strings.ToLower("Lanczos"):           gift.LanczosResampling,
+	strings.ToLower("Hann"):              hannResampling,
+	strings.ToLower("Hamming"):           hammingResampling,
+	strings.ToLower("Blackman"):          blackmanResampling,
+	strings.ToLower("Bartlett"):          bartlettResampling,
+	strings.ToLower("Welch"):             welchResampling,
+	strings.ToLower("Cosine"):            cosineResampling,
 }
 
-func ImageFormatFromExt(ext string) (imaging.Format, bool) {
+func ImageFormatFromExt(ext string) (Format, bool) {
 	f, found := imageFormats[ext]
 	return f, found
 }
@@ -100,8 +99,8 @@ func DecodeConfig(m map[string]interface{}) (Imaging, error) {
 		return i, errors.New("JPEG quality must be a number between 1 and 100")
 	}
 
-	if i.Anchor == "" || strings.EqualFold(i.Anchor, SmartCropIdentifier) {
-		i.Anchor = SmartCropIdentifier
+	if i.Anchor == "" || strings.EqualFold(i.Anchor, smartCropIdentifier) {
+		i.Anchor = smartCropIdentifier
 	} else {
 		i.Anchor = strings.ToLower(i.Anchor)
 		if _, found := anchorPositions[i.Anchor]; !found {
@@ -139,8 +138,8 @@ func DecodeImageConfig(action, config string, defaults Imaging) (ImageConfig, er
 	for _, part := range parts {
 		part = strings.ToLower(part)
 
-		if part == SmartCropIdentifier {
-			c.AnchorStr = SmartCropIdentifier
+		if part == smartCropIdentifier {
+			c.AnchorStr = smartCropIdentifier
 		} else if pos, ok := anchorPositions[part]; ok {
 			c.Anchor = pos
 			c.AnchorStr = part
@@ -198,7 +197,7 @@ func DecodeImageConfig(action, config string, defaults Imaging) (ImageConfig, er
 
 	if c.AnchorStr == "" {
 		c.AnchorStr = defaults.Anchor
-		if !strings.EqualFold(c.AnchorStr, SmartCropIdentifier) {
+		if !strings.EqualFold(c.AnchorStr, smartCropIdentifier) {
 			c.Anchor = anchorPositions[c.AnchorStr]
 		}
 	}
@@ -209,6 +208,9 @@ func DecodeImageConfig(action, config string, defaults Imaging) (ImageConfig, er
 // ImageConfig holds configuration to create a new image from an existing one, resize etc.
 type ImageConfig struct {
 	Action string
+
+	// If set, this will be used as the key in filenames etc.
+	Key string
 
 	// Quality ranges from 1 to 100 inclusive, higher is better.
 	// This is only relevant for JPEG images.
@@ -222,14 +224,18 @@ type ImageConfig struct {
 	Width  int
 	Height int
 
-	Filter    imaging.ResampleFilter
+	Filter    gift.Resampling
 	FilterStr string
 
-	Anchor    imaging.Anchor
+	Anchor    gift.Anchor
 	AnchorStr string
 }
 
-func (i ImageConfig) Key(format imaging.Format) string {
+func (i ImageConfig) GetKey(format Format) string {
+	if i.Key != "" {
+		return i.Action + "_" + i.Key
+	}
+
 	k := strconv.Itoa(i.Width) + "x" + strconv.Itoa(i.Height)
 	if i.Action != "" {
 		k += "_" + i.Action
@@ -241,7 +247,7 @@ func (i ImageConfig) Key(format imaging.Format) string {
 		k += "_r" + strconv.Itoa(i.Rotate)
 	}
 	anchor := i.AnchorStr
-	if anchor == SmartCropIdentifier {
+	if anchor == smartCropIdentifier {
 		anchor = anchor + strconv.Itoa(smartCropVersionNumber)
 	}
 
@@ -268,9 +274,9 @@ type Imaging struct {
 	// Default image quality setting (1-100). Only used for JPEG images.
 	Quality int
 
-	// Resample filter used. See https://github.com/disintegration/imaging
+	// Resample filter to use in resize operations..
 	ResampleFilter string
 
-	// The anchor used in Fill. Default is "smart", i.e. Smart Crop.
+	// The anchor to use in Fill. Default is "smart", i.e. Smart Crop.
 	Anchor string
 }

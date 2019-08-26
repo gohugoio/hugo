@@ -16,18 +16,19 @@ package resources
 import (
 	"fmt"
 	"image"
-	"image/color"
 	"image/draw"
 	_ "image/gif"
 	_ "image/png"
 	"os"
 	"strings"
 
+	"github.com/gohugoio/hugo/resources/internal"
+
 	"github.com/gohugoio/hugo/resources/resource"
 
 	_errors "github.com/pkg/errors"
 
-	"github.com/disintegration/imaging"
+	"github.com/disintegration/gift"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources/images"
 
@@ -82,16 +83,26 @@ func (i *imageResource) cloneWithUpdates(u *transformationUpdate) (baseResource,
 // filter and returns the transformed image. If one of width or height is 0, the image aspect
 // ratio is preserved.
 func (i *imageResource) Resize(spec string) (resource.Image, error) {
-	return i.doWithImageConfig("resize", spec, func(src image.Image, conf images.ImageConfig) (image.Image, error) {
-		return i.Proc.Resize(src, conf)
+	conf, err := i.decodeImageConfig("resize", spec)
+	if err != nil {
+		return nil, err
+	}
+
+	return i.doWithImageConfig(conf, func(src image.Image) (image.Image, error) {
+		return i.Proc.ApplyFiltersFromConfig(src, conf)
 	})
 }
 
 // Fit scales down the image using the specified resample filter to fit the specified
 // maximum width and height.
 func (i *imageResource) Fit(spec string) (resource.Image, error) {
-	return i.doWithImageConfig("fit", spec, func(src image.Image, conf images.ImageConfig) (image.Image, error) {
-		return i.Proc.Fit(src, conf)
+	conf, err := i.decodeImageConfig("fit", spec)
+	if err != nil {
+		return nil, err
+	}
+
+	return i.doWithImageConfig(conf, func(src image.Image) (image.Image, error) {
+		return i.Proc.ApplyFiltersFromConfig(src, conf)
 	})
 }
 
@@ -99,8 +110,22 @@ func (i *imageResource) Fit(spec string) (resource.Image, error) {
 // crops the resized image to the specified dimensions using the given anchor point.
 // Space delimited config: 200x300 TopLeft
 func (i *imageResource) Fill(spec string) (resource.Image, error) {
-	return i.doWithImageConfig("fill", spec, func(src image.Image, conf images.ImageConfig) (image.Image, error) {
-		return i.Proc.Fill(src, conf)
+	conf, err := i.decodeImageConfig("fill", spec)
+	if err != nil {
+		return nil, err
+	}
+
+	return i.doWithImageConfig(conf, func(src image.Image) (image.Image, error) {
+		return i.Proc.ApplyFiltersFromConfig(src, conf)
+	})
+}
+
+func (i *imageResource) Filter(filters ...gift.Filter) (resource.Image, error) {
+	conf := i.Proc.GetDefaultImageConfig("filter")
+	conf.Key = internal.HashString(filters)
+
+	return i.doWithImageConfig(conf, func(src image.Image) (image.Image, error) {
+		return i.Proc.Filter(src, filters...)
 	})
 }
 
@@ -118,19 +143,14 @@ const imageProcWorkers = 1
 
 var imageProcSem = make(chan bool, imageProcWorkers)
 
-func (i *imageResource) doWithImageConfig(action, spec string, f func(src image.Image, conf images.ImageConfig) (image.Image, error)) (resource.Image, error) {
-	conf, err := i.decodeImageConfig(action, spec)
-	if err != nil {
-		return nil, err
-	}
-
+func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src image.Image) (image.Image, error)) (resource.Image, error) {
 	return i.getSpec().imageCache.getOrCreate(i, conf, func() (*imageResource, image.Image, error) {
 		imageProcSem <- true
 		defer func() {
 			<-imageProcSem
 		}()
 
-		errOp := action
+		errOp := conf.Action
 		errPath := i.getSourceFilename()
 
 		src, err := i.decodeSource()
@@ -138,17 +158,12 @@ func (i *imageResource) doWithImageConfig(action, spec string, f func(src image.
 			return nil, nil, &os.PathError{Op: errOp, Path: errPath, Err: err}
 		}
 
-		if conf.Rotate != 0 {
-			// Rotate it before any scaling to get the dimensions correct.
-			src = imaging.Rotate(src, float64(conf.Rotate), color.Transparent)
-		}
-
-		converted, err := f(src, conf)
+		converted, err := f(src)
 		if err != nil {
 			return nil, nil, &os.PathError{Op: errOp, Path: errPath, Err: err}
 		}
 
-		if i.Format == imaging.PNG {
+		if i.Format == images.PNG {
 			// Apply the colour palette from the source
 			if paletted, ok := src.(*image.Paletted); ok {
 				tmp := image.NewPaletted(converted.Bounds(), paletted.Palette)
@@ -222,7 +237,7 @@ func (i *imageResource) relTargetPathFromConfig(conf images.ImageConfig) dirFile
 	// Do not change for no good reason.
 	const md5Threshold = 100
 
-	key := conf.Key(i.Format)
+	key := conf.GetKey(i.Format)
 
 	// It is useful to have the key in clear text, but when nesting transforms, it
 	// can easily be too long to read, and maybe even too long

@@ -16,36 +16,38 @@ package images
 import (
 	"image"
 
-	"github.com/disintegration/imaging"
+	"github.com/disintegration/gift"
+
 	"github.com/muesli/smartcrop"
 )
 
 const (
 	// Do not change.
-	// TODO(bep) image unexport
-	SmartCropIdentifier = "smart"
+	smartCropIdentifier = "smart"
 
 	// This is just a increment, starting on 1. If Smart Crop improves its cropping, we
 	// need a way to trigger a re-generation of the crops in the wild, so increment this.
 	smartCropVersionNumber = 1
 )
 
-func newSmartCropAnalyzer(filter imaging.ResampleFilter) smartcrop.Analyzer {
-	return smartcrop.NewAnalyzer(imagingResizer{filter: filter})
+func (p *ImageProcessor) newSmartCropAnalyzer(filter gift.Resampling) smartcrop.Analyzer {
+	return smartcrop.NewAnalyzer(imagingResizer{p: p, filter: filter})
 }
 
 // Needed by smartcrop
 type imagingResizer struct {
-	filter imaging.ResampleFilter
+	p      *ImageProcessor
+	filter gift.Resampling
 }
 
 func (r imagingResizer) Resize(img image.Image, width, height uint) image.Image {
-	return imaging.Resize(img, int(width), int(height), r.filter)
+	result, _ := r.p.Filter(img, gift.Resize(int(width), int(height), r.filter))
+	return result
 }
 
-func smartCrop(img image.Image, width, height int, anchor imaging.Anchor, filter imaging.ResampleFilter) (*image.NRGBA, error) {
+func (p *ImageProcessor) smartCrop(img image.Image, width, height int, filter gift.Resampling) (image.Rectangle, error) {
 	if width <= 0 || height <= 0 {
-		return &image.NRGBA{}, nil
+		return image.Rectangle{}, nil
 	}
 
 	srcBounds := img.Bounds()
@@ -53,23 +55,20 @@ func smartCrop(img image.Image, width, height int, anchor imaging.Anchor, filter
 	srcH := srcBounds.Dy()
 
 	if srcW <= 0 || srcH <= 0 {
-		return &image.NRGBA{}, nil
+		return image.Rectangle{}, nil
 	}
 
 	if srcW == width && srcH == height {
-		return imaging.Clone(img), nil
+		return srcBounds, nil
 	}
 
-	smart := newSmartCropAnalyzer(filter)
+	smart := p.newSmartCropAnalyzer(filter)
 
 	rect, err := smart.FindBestCrop(img, width, height)
 	if err != nil {
-		return nil, err
+		return image.Rectangle{}, err
 	}
 
-	b := img.Bounds().Intersect(rect)
+	return img.Bounds().Intersect(rect), nil
 
-	cropped := imaging.Crop(img, b)
-
-	return imaging.Resize(cropped, width, height, filter), nil
 }

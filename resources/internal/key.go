@@ -16,8 +16,6 @@ package internal
 import (
 	"strconv"
 
-	bp "github.com/gohugoio/hugo/bufferpool"
-
 	"github.com/mitchellh/hashstructure"
 )
 
@@ -44,18 +42,23 @@ func (k ResourceTransformationKey) Value() string {
 		return k.Name
 	}
 
-	sb := bp.GetBuffer()
-	defer bp.PutBuffer(sb)
+	return k.Name + "_" + HashString(k.elements...)
 
-	sb.WriteString(k.Name)
-	for _, element := range k.elements {
-		hash, err := hashstructure.Hash(element, nil)
-		if err != nil {
-			panic(err)
-		}
-		sb.WriteString("_")
-		sb.WriteString(strconv.FormatUint(hash, 10))
+}
+
+// HashString returns a hash from the given elements.
+// It will panic if the hash cannot be calculated.
+func HashString(elements ...interface{}) string {
+	var o interface{}
+	if len(elements) == 1 {
+		o = elements[0]
+	} else {
+		o = elements
 	}
 
-	return sb.String()
+	hash, err := hashstructure.Hash(o, nil)
+	if err != nil {
+		panic(err)
+	}
+	return strconv.FormatUint(hash, 10)
 }

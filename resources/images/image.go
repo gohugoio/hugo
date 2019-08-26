@@ -15,16 +15,22 @@ package images
 
 import (
 	"image"
+	"image/color"
+	"image/gif"
 	"image/jpeg"
+	"image/png"
 	"io"
 	"sync"
 
-	"github.com/disintegration/imaging"
+	"github.com/disintegration/gift"
+	"golang.org/x/image/bmp"
+	"golang.org/x/image/tiff"
+
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/pkg/errors"
 )
 
-func NewImage(f imaging.Format, proc *ImageProcessor, img image.Image, s Spec) *Image {
+func NewImage(f Format, proc *ImageProcessor, img image.Image, s Spec) *Image {
 	if img != nil {
 		return &Image{
 			Format: f,
@@ -40,7 +46,7 @@ func NewImage(f imaging.Format, proc *ImageProcessor, img image.Image, s Spec) *
 }
 
 type Image struct {
-	Format imaging.Format
+	Format Format
 
 	Proc *ImageProcessor
 
@@ -51,7 +57,7 @@ type Image struct {
 
 func (i *Image) EncodeTo(conf ImageConfig, img image.Image, w io.Writer) error {
 	switch i.Format {
-	case imaging.JPEG:
+	case JPEG:
 
 		var rgba *image.RGBA
 		quality := conf.Quality
@@ -69,9 +75,23 @@ func (i *Image) EncodeTo(conf ImageConfig, img image.Image, w io.Writer) error {
 			return jpeg.Encode(w, rgba, &jpeg.Options{Quality: quality})
 		}
 		return jpeg.Encode(w, img, &jpeg.Options{Quality: quality})
+	case PNG:
+		encoder := png.Encoder{CompressionLevel: png.DefaultCompression}
+		return encoder.Encode(w, img)
+
+	case GIF:
+		return gif.Encode(w, img, &gif.Options{
+			NumColors: 256,
+		})
+	case TIFF:
+		return tiff.Encode(w, img, &tiff.Options{Compression: tiff.Deflate, Predictor: true})
+
+	case BMP:
+		return bmp.Encode(w, img)
 	default:
-		return imaging.Encode(w, img, i.Format)
+		return errors.New("format not supported")
 	}
+
 }
 
 // Height returns i's height.
@@ -138,25 +158,69 @@ type ImageProcessor struct {
 	Cfg Imaging
 }
 
-func (p *ImageProcessor) Fill(src image.Image, conf ImageConfig) (image.Image, error) {
-	if conf.AnchorStr == SmartCropIdentifier {
-		return smartCrop(src, conf.Width, conf.Height, conf.Anchor, conf.Filter)
+func (p *ImageProcessor) ApplyFiltersFromConfig(src image.Image, conf ImageConfig) (image.Image, error) {
+	var filters []gift.Filter
+
+	if conf.Rotate != 0 {
+		// Apply any rotation before any resize.
+		filters = append(filters, gift.Rotate(float32(conf.Rotate), color.Transparent, gift.NearestNeighborInterpolation))
 	}
-	return imaging.Fill(src, conf.Width, conf.Height, conf.Anchor, conf.Filter), nil
+
+	switch conf.Action {
+	case "resize":
+		filters = append(filters, gift.Resize(conf.Width, conf.Height, conf.Filter))
+	case "fill":
+		if conf.AnchorStr == smartCropIdentifier {
+			bounds, err := p.smartCrop(src, conf.Width, conf.Height, conf.Filter)
+			if err != nil {
+				return nil, err
+			}
+
+			// First crop it, then resize it.
+			filters = append(filters, gift.Crop(bounds))
+			filters = append(filters, gift.Resize(conf.Width, conf.Height, conf.Filter))
+
+		} else {
+			filters = append(filters, gift.ResizeToFill(conf.Width, conf.Height, conf.Filter, conf.Anchor))
+		}
+	case "fit":
+		filters = append(filters, gift.ResizeToFit(conf.Width, conf.Height, conf.Filter))
+	default:
+		return nil, errors.Errorf("unsupported action: %q", conf.Action)
+	}
+
+	return p.Filter(src, filters...)
 }
 
-func (p *ImageProcessor) Fit(src image.Image, conf ImageConfig) (image.Image, error) {
-	return imaging.Fit(src, conf.Width, conf.Height, conf.Filter), nil
+func (p *ImageProcessor) Filter(src image.Image, filters ...gift.Filter) (image.Image, error) {
+	g := gift.New(filters...)
+	dst := image.NewRGBA(g.Bounds(src.Bounds()))
+	g.Draw(dst, src)
+	return dst, nil
 }
 
-func (p *ImageProcessor) Resize(src image.Image, conf ImageConfig) (image.Image, error) {
-	return imaging.Resize(src, conf.Width, conf.Height, conf.Filter), nil
+func (p *ImageProcessor) GetDefaultImageConfig(action string) ImageConfig {
+	return ImageConfig{
+		Action:  action,
+		Quality: p.Cfg.Quality,
+	}
 }
 
 type Spec interface {
 	// Loads the image source.
 	ReadSeekCloser() (hugio.ReadSeekCloser, error)
 }
+
+// Format is an image file format.
+type Format int
+
+const (
+	JPEG Format = iota + 1
+	PNG
+	GIF
+	TIFF
+	BMP
+)
 
 type imageConfig struct {
 	config       image.Config

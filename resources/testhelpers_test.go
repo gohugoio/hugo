@@ -102,11 +102,13 @@ func newTargetPaths(link string) func() page.TargetPaths {
 	}
 }
 
-func newTestResourceOsFs(c *qt.C) *Spec {
+func newTestResourceOsFs(c *qt.C) (*Spec, string) {
 	cfg := createTestCfg()
 	cfg.Set("baseURL", "https://example.com")
 
-	workDir, _ := ioutil.TempDir("", "hugores")
+	workDir, err := ioutil.TempDir("", "hugores")
+	c.Assert(err, qt.IsNil)
+	c.Assert(workDir, qt.Not(qt.Equals), "")
 
 	if runtime.GOOS == "darwin" && !strings.HasPrefix(workDir, "/private") {
 		// To get the entry folder in line with the rest. This its a little bit
@@ -127,7 +129,8 @@ func newTestResourceOsFs(c *qt.C) *Spec {
 
 	spec, err := NewSpec(s, filecaches, nil, output.DefaultFormats, media.DefaultTypes)
 	c.Assert(err, qt.IsNil)
-	return spec
+
+	return spec, workDir
 
 }
 
@@ -139,6 +142,7 @@ func fetchImage(c *qt.C, name string) resource.Image {
 	spec := newTestResourceSpec(specDescriptor{c: c})
 	return fetchImageForSpec(spec, c, name)
 }
+
 func fetchImageForSpec(spec *Spec, c *qt.C, name string) resource.Image {
 	r := fetchResourceForSpec(spec, c, name)
 
@@ -153,8 +157,9 @@ func fetchImageForSpec(spec *Spec, c *qt.C, name string) resource.Image {
 func fetchResourceForSpec(spec *Spec, c *qt.C, name string) resource.ContentResource {
 	src, err := os.Open(filepath.FromSlash("testdata/" + name))
 	c.Assert(err, qt.IsNil)
-
-	out, err := helpers.OpenFileForWriting(spec.Fs.Source, name)
+	workDir := spec.WorkingDir
+	targetFilename := filepath.Join(workDir, name)
+	out, err := helpers.OpenFileForWriting(spec.Fs.Source, targetFilename)
 	c.Assert(err, qt.IsNil)
 	_, err = io.Copy(out, src)
 	out.Close()
@@ -163,8 +168,9 @@ func fetchResourceForSpec(spec *Spec, c *qt.C, name string) resource.ContentReso
 
 	factory := newTargetPaths("/a")
 
-	r, err := spec.New(ResourceSourceDescriptor{Fs: spec.Fs.Source, TargetPaths: factory, LazyPublish: true, SourceFilename: name})
+	r, err := spec.New(ResourceSourceDescriptor{Fs: spec.Fs.Source, TargetPaths: factory, LazyPublish: true, RelTargetFilename: name, SourceFilename: targetFilename})
 	c.Assert(err, qt.IsNil)
+	c.Assert(r, qt.Not(qt.IsNil))
 
 	return r.(resource.ContentResource)
 }
