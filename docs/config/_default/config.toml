@@ -4,7 +4,7 @@ defaultContentLanguage = "en"
 enableEmoji = true
 # Set the unicode character used for the "return" link in page footnotes.
 footnotereturnlinkcontents = "↩"
-languageCode = "en-us"
+languageCode = "en-US"
 metaDataFormat = "yaml"
 title = "Hugo"
 theme = "gohugoioTheme"

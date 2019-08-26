@@ -46,7 +46,7 @@ By default, Hugo will create an unlimited number of RSS entries. You can limit t
 The following values will also be included in the RSS output if specified in your site’s configuration:
 
 ```toml
-languageCode = "en-us"
+languageCode = "en-US"
 copyright = "This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License."
 
 [author]

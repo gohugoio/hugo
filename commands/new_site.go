@@ -131,7 +131,7 @@ func createConfig(fs *hugofs.Fs, inpath string, kind string) (err error) {
 	in := map[string]string{
 		"baseURL":      "http://example.org/",
 		"title":        "My New Hugo Site",
-		"languageCode": "en-us",
+		"languageCode": "en-US",
 	}
 
 	var buf bytes.Buffer
