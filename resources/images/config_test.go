@@ -64,6 +64,16 @@ func TestDecodeConfig(t *testing.T) {
 	})
 	c.Assert(err, qt.IsNil)
 	c.Assert(imaging.Anchor, qt.Equals, "smart")
+
+	imaging, err = DecodeConfig(map[string]interface{}{
+		"exif": map[string]interface{}{
+			"disableLatLong": true,
+		},
+	})
+	c.Assert(err, qt.IsNil)
+	c.Assert(imaging.Exif.DisableLatLong, qt.Equals, true)
+	c.Assert(imaging.Exif.ExcludeFields, qt.Equals, "GPS|Exif|Exposure[M|P|B]|Contrast|Resolution|Sharp|JPEG|Metering|Sensing|Saturation|ColorSpace|Flash|WhiteBalance")
+
 }
 
 func TestDecodeImageConfig(t *testing.T) {

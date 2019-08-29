@@ -22,6 +22,7 @@ import (
 	"sync"
 
 	"github.com/disintegration/gift"
+	"github.com/gohugoio/hugo/resources/images/exif"
 	"github.com/spf13/afero"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
@@ -179,6 +180,10 @@ func (r *resourceAdapter) Filter(filters ...gift.Filter) (resource.Image, error)
 
 func (r *resourceAdapter) Height() int {
 	return r.getImageOps().Height()
+}
+
+func (r *resourceAdapter) Exif() (*exif.Exif, error) {
+	return r.getImageOps().Exif()
 }
 
 func (r *resourceAdapter) Key() string {

@@ -21,6 +21,9 @@ import (
 	_ "image/png"
 	"os"
 	"strings"
+	"sync"
+
+	"github.com/gohugoio/hugo/resources/images/exif"
 
 	"github.com/gohugoio/hugo/resources/internal"
 
@@ -48,12 +51,56 @@ var (
 type imageResource struct {
 	*images.Image
 
+	// When a image is processed in a chain, this holds the reference to the
+	// original (first).
+	root *imageResource
+
+	exifInit    sync.Once
+	exifInitErr error
+	exif        *exif.Exif
+
 	baseResource
+}
+
+// ImageData contains image related data, typically Exif.
+type ImageData map[string]interface{}
+
+func (i *imageResource) Exif() (*exif.Exif, error) {
+	return i.root.getExif()
+}
+
+func (i *imageResource) getExif() (*exif.Exif, error) {
+
+	i.exifInit.Do(func() {
+		supportsExif := i.Format == images.JPEG || i.Format == images.TIFF
+		if !supportsExif {
+			return
+		}
+
+		f, err := i.root.ReadSeekCloser()
+		if err != nil {
+			i.exifInitErr = err
+			return
+		}
+		defer f.Close()
+
+		x, err := i.getSpec().imaging.DecodeExif(f)
+		if err != nil {
+			i.exifInitErr = err
+			return
+		}
+
+		i.exif = x
+
+	})
+
+	return i.exif, i.exifInitErr
 }
 
 func (i *imageResource) Clone() resource.Resource {
 	gr := i.baseResource.Clone().(baseResource)
 	return &imageResource{
+		root:         i.root,
 		Image:        i.WithSpec(gr),
 		baseResource: gr,
 	}
@@ -74,6 +121,7 @@ func (i *imageResource) cloneWithUpdates(u *transformationUpdate) (baseResource,
 	}
 
 	return &imageResource{
+		root:         i.root,
 		Image:        img,
 		baseResource: base,
 	}, nil
@@ -217,6 +265,7 @@ func (i *imageResource) clone(img image.Image) *imageResource {
 
 	return &imageResource{
 		Image:        image,
+		root:         i.root,
 		baseResource: spec,
 	}
 }

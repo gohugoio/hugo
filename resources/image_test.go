@@ -332,6 +332,32 @@ func TestSVGImageContent(t *testing.T) {
 	c.Assert(content.(string), qt.Contains, `<svg height="100" width="100">`)
 }
 
+func TestImageExif(t *testing.T) {
+	c := qt.New(t)
+	image := fetchImage(c, "sunset.jpg")
+
+	x, err := image.Exif()
+	c.Assert(err, qt.IsNil)
+	c.Assert(x, qt.Not(qt.IsNil))
+
+	c.Assert(x.Date.Format("2006-01-02"), qt.Equals, "2017-10-27")
+
+	// Malaga: https://goo.gl/taazZy
+	c.Assert(x.Lat, qt.Equals, float64(36.59744166666667))
+	c.Assert(x.Long, qt.Equals, float64(-4.50846))
+
+	v, found := x.Values["LensModel"]
+	c.Assert(found, qt.Equals, true)
+	lensModel, ok := v.(string)
+	c.Assert(ok, qt.Equals, true)
+	c.Assert(lensModel, qt.Equals, "smc PENTAX-DA* 16-50mm F2.8 ED AL [IF] SDM")
+
+	resized, _ := image.Resize("300x200")
+	x2, _ := resized.Exif()
+	c.Assert(x2, qt.Equals, x)
+
+}
+
 func TestImageOperationsGolden(t *testing.T) {
 	c := qt.New(t)
 	c.Parallel()

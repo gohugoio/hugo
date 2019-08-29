@@ -41,6 +41,7 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/rogpeppe/go-internal v1.3.0
 	github.com/russross/blackfriday v1.5.3-0.20190124082335-a477dd164691
+	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 	github.com/sanity-io/litter v1.1.0
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/cast v1.3.0

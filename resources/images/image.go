@@ -22,6 +22,8 @@ import (
 	"io"
 	"sync"
 
+	"github.com/gohugoio/hugo/resources/images/exif"
+
 	"github.com/disintegration/gift"
 	"golang.org/x/image/bmp"
 	"golang.org/x/image/tiff"
@@ -154,8 +156,33 @@ func (i *Image) initConfig() error {
 	return nil
 }
 
+func NewImageProcessor(cfg Imaging) (*ImageProcessor, error) {
+	e := cfg.Exif
+	exifDecoder, err := exif.NewDecoder(
+		exif.WithDateDisabled(e.DisableDate),
+		exif.WithLatLongDisabled(e.DisableLatLong),
+		exif.ExcludeFields(e.ExcludeFields),
+		exif.IncludeFields(e.IncludeFields),
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &ImageProcessor{
+		Cfg:         cfg,
+		exifDecoder: exifDecoder,
+	}, nil
+
+}
+
 type ImageProcessor struct {
-	Cfg Imaging
+	Cfg         Imaging
+	exifDecoder *exif.Decoder
+}
+
+func (p *ImageProcessor) DecodeExif(r io.Reader) (*exif.Exif, error) {
+	return p.exifDecoder.Decode(r)
 }
 
 func (p *ImageProcessor) ApplyFiltersFromConfig(src image.Image, conf ImageConfig) (image.Image, error) {

@@ -47,7 +47,10 @@ func NewSpec(
 		return nil, err
 	}
 
-	imaging := &images.ImageProcessor{Cfg: imgConfig}
+	imaging, err := images.NewImageProcessor(imgConfig)
+	if err != nil {
+		return nil, err
+	}
 
 	if logger == nil {
 		logger = loggers.NewErrorLogger()
@@ -273,6 +276,7 @@ func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (reso
 				Image:        images.NewImage(imgFormat, r.imaging, nil, gr),
 				baseResource: gr,
 			}
+			ir.root = ir
 			return newResourceAdapter(gr.spec, fd.LazyPublish, ir), nil
 		}
 
