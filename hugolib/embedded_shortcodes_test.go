@@ -173,17 +173,17 @@ func TestShortcodeYoutube(t *testing.T) {
 	}{
 		{
 			`{{< youtube w7Ft2ymGmfc >}}`,
-			"(?s)\n<div style=\".*?\">.*?<iframe src=\"//www.youtube.com/embed/w7Ft2ymGmfc\" style=\".*?\" allowfullscreen title=\"YouTube Video\">.*?</iframe>.*?</div>\n",
+			"(?s)\n<div style=\".*?\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\" style=\".*?\" allowfullscreen title=\"YouTube Video\">.*?</iframe>.*?</div>\n",
 		},
 		// set class
 		{
 			`{{< youtube w7Ft2ymGmfc video>}}`,
-			"(?s)\n<div class=\"video\">.*?<iframe src=\"//www.youtube.com/embed/w7Ft2ymGmfc\" allowfullscreen title=\"YouTube Video\">.*?</iframe>.*?</div>\n",
+			"(?s)\n<div class=\"video\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\" allowfullscreen title=\"YouTube Video\">.*?</iframe>.*?</div>\n",
 		},
 		// set class and autoplay (using named params)
 		{
 			`{{< youtube id="w7Ft2ymGmfc" class="video" autoplay="true" >}}`,
-			"(?s)\n<div class=\"video\">.*?<iframe src=\"//www.youtube.com/embed/w7Ft2ymGmfc\\?autoplay=1\".*?allowfullscreen title=\"YouTube Video\">.*?</iframe>.*?</div>",
+			"(?s)\n<div class=\"video\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\\?autoplay=1\".*?allowfullscreen title=\"YouTube Video\">.*?</iframe>.*?</div>",
 		},
 	} {
 		var (
@@ -212,17 +212,17 @@ func TestShortcodeVimeo(t *testing.T) {
 	}{
 		{
 			`{{< vimeo 146022717 >}}`,
-			"(?s)\n<div style=\".*?\">.*?<iframe src=\"//player.vimeo.com/video/146022717\" style=\".*?\" webkitallowfullscreen mozallowfullscreen allowfullscreen>.*?</iframe>.*?</div>\n",
+			"(?s)\n<div style=\".*?\">.*?<iframe src=\"https://player.vimeo.com/video/146022717\" style=\".*?\" webkitallowfullscreen mozallowfullscreen allowfullscreen>.*?</iframe>.*?</div>\n",
 		},
 		// set class
 		{
 			`{{< vimeo 146022717 video >}}`,
-			"(?s)\n<div class=\"video\">.*?<iframe src=\"//player.vimeo.com/video/146022717\" webkitallowfullscreen mozallowfullscreen allowfullscreen>.*?</iframe>.*?</div>\n",
+			"(?s)\n<div class=\"video\">.*?<iframe src=\"https://player.vimeo.com/video/146022717\" webkitallowfullscreen mozallowfullscreen allowfullscreen>.*?</iframe>.*?</div>\n",
 		},
 		// set class (using named params)
 		{
 			`{{< vimeo id="146022717" class="video" >}}`,
-			"(?s)^<div class=\"video\">.*?<iframe src=\"//player.vimeo.com/video/146022717\" webkitallowfullscreen mozallowfullscreen allowfullscreen>.*?</iframe>.*?</div>",
+			"(?s)^<div class=\"video\">.*?<iframe src=\"https://player.vimeo.com/video/146022717\" webkitallowfullscreen mozallowfullscreen allowfullscreen>.*?</iframe>.*?</div>",
 		},
 	} {
 		var (
