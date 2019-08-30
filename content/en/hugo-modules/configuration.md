@@ -93,7 +93,7 @@ disable
 {{% note %}}
 When the `mounts` config was introduced in Hugo 0.56.0, we were careful to preserve the existing `staticDir` and similar configuration to make sure all existing sites just continued to work.
 
-But you should not have both. So you if you add a `mounts` section you should make it complete and remove the old `staticDir` etc. settings.
+But you should not have both. So if you add a `mounts` section you should make it complete and remove the old `staticDir` etc. settings.
 {{% /note %}}
 
 {{< code-toggle file="config">}}
