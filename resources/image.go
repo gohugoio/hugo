@@ -62,9 +62,6 @@ type imageResource struct {
 	baseResource
 }
 
-// ImageData contains image related data, typically Exif.
-type ImageData map[string]interface{}
-
 func (i *imageResource) Exif() (*exif.Exif, error) {
 	return i.root.getExif()
 }
