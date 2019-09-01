@@ -15,6 +15,7 @@ package resources
 
 import (
 	"fmt"
+	"math/big"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -22,6 +23,7 @@ import (
 	"strconv"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/spf13/afero"
 
@@ -49,6 +51,14 @@ var eq = qt.CmpEquals(
 	cmp.Comparer(func(p1, p2 *genericResource) bool { return p1 == p2 }),
 	cmp.Comparer(func(m1, m2 media.Type) bool {
 		return m1.Type() == m2.Type()
+	}),
+	cmp.Comparer(
+		func(v1, v2 *big.Rat) bool {
+			return v1.RatString() == v2.RatString()
+		},
+	),
+	cmp.Comparer(func(v1, v2 time.Time) bool {
+		return v1.Unix() == v2.Unix()
 	}),
 )
 
@@ -336,27 +346,35 @@ func TestSVGImageContent(t *testing.T) {
 
 func TestImageExif(t *testing.T) {
 	c := qt.New(t)
-	image := fetchImage(c, "sunset.jpg")
+	fs := afero.NewMemMapFs()
+	spec := newTestResourceSpec(specDescriptor{fs: fs, c: c})
+	image := fetchResourceForSpec(spec, c, "sunset.jpg").(resource.Image)
 
-	x, err := image.Exif()
-	c.Assert(err, qt.IsNil)
-	c.Assert(x, qt.Not(qt.IsNil))
+	getAndCheckExif := func(c *qt.C, image resource.Image) {
+		x, err := image.Exif()
+		c.Assert(err, qt.IsNil)
+		c.Assert(x, qt.Not(qt.IsNil))
 
-	c.Assert(x.Date.Format("2006-01-02"), qt.Equals, "2017-10-27")
+		c.Assert(x.Date.Format("2006-01-02"), qt.Equals, "2017-10-27")
 
-	// Malaga: https://goo.gl/taazZy
-	c.Assert(x.Lat, qt.Equals, float64(36.59744166666667))
-	c.Assert(x.Long, qt.Equals, float64(-4.50846))
+		// Malaga: https://goo.gl/taazZy
+		c.Assert(x.Lat, qt.Equals, float64(36.59744166666667))
+		c.Assert(x.Long, qt.Equals, float64(-4.50846))
 
-	v, found := x.Values["LensModel"]
-	c.Assert(found, qt.Equals, true)
-	lensModel, ok := v.(string)
-	c.Assert(ok, qt.Equals, true)
-	c.Assert(lensModel, qt.Equals, "smc PENTAX-DA* 16-50mm F2.8 ED AL [IF] SDM")
+		v, found := x.Tags["LensModel"]
+		c.Assert(found, qt.Equals, true)
+		lensModel, ok := v.(string)
+		c.Assert(ok, qt.Equals, true)
+		c.Assert(lensModel, qt.Equals, "smc PENTAX-DA* 16-50mm F2.8 ED AL [IF] SDM")
+		resized, _ := image.Resize("300x200")
+		x2, _ := resized.Exif()
+		c.Assert(x2, eq, x)
+	}
 
-	resized, _ := image.Resize("300x200")
-	x2, _ := resized.Exif()
-	c.Assert(x2, qt.Equals, x)
+	getAndCheckExif(c, image)
+	image = fetchResourceForSpec(spec, c, "sunset.jpg").(resource.Image)
+	// This will read from file cache.
+	getAndCheckExif(c, image)
 
 }
 

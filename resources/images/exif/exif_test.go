@@ -14,12 +14,15 @@
 package exif
 
 import (
+	"encoding/json"
+	"math/big"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/gohugoio/hugo/htesting/hqt"
+	"github.com/google/go-cmp/cmp"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -40,15 +43,23 @@ func TestExif(t *testing.T) {
 	c.Assert(x.Lat, qt.Equals, float64(36.59744166666667))
 	c.Assert(x.Long, qt.Equals, float64(-4.50846))
 
-	v, found := x.Values["LensModel"]
+	v, found := x.Tags["LensModel"]
 	c.Assert(found, qt.Equals, true)
 	lensModel, ok := v.(string)
 	c.Assert(ok, qt.Equals, true)
 	c.Assert(lensModel, qt.Equals, "smc PENTAX-DA* 16-50mm F2.8 ED AL [IF] SDM")
 
-	v, found = x.Values["DateTime"]
+	v, found = x.Tags["DateTime"]
 	c.Assert(found, qt.Equals, true)
 	c.Assert(v, hqt.IsSameType, time.Time{})
+
+	// Verify that it survives a round-trip to JSON and back.
+	data, err := json.Marshal(x)
+	c.Assert(err, qt.IsNil)
+	x2 := &Exif{}
+	err = json.Unmarshal(data, x2)
+
+	c.Assert(x2, eq, x)
 
 }
 
@@ -81,3 +92,14 @@ func BenchmarkDecodeExif(b *testing.B) {
 		f.Seek(0, 0)
 	}
 }
+
+var eq = qt.CmpEquals(
+	cmp.Comparer(
+		func(v1, v2 *big.Rat) bool {
+			return v1.RatString() == v2.RatString()
+		},
+	),
+	cmp.Comparer(func(v1, v2 time.Time) bool {
+		return v1.Unix() == v2.Unix()
+	}),
+)

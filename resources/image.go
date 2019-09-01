@@ -14,15 +14,20 @@
 package resources
 
 import (
+	"encoding/json"
 	"fmt"
 	"image"
 	"image/draw"
 	_ "image/gif"
 	_ "image/png"
+	"io"
+	"io/ioutil"
 	"os"
+	"path"
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/resources/images/exif"
 
 	"github.com/gohugoio/hugo/resources/internal"
@@ -55,11 +60,15 @@ type imageResource struct {
 	// original (first).
 	root *imageResource
 
-	exifInit    sync.Once
-	exifInitErr error
-	exif        *exif.Exif
+	metaInit    sync.Once
+	metaInitErr error
+	meta        *imageMeta
 
 	baseResource
+}
+
+type imageMeta struct {
+	Exif *exif.Exif
 }
 
 func (i *imageResource) Exif() (*exif.Exif, error) {
@@ -68,30 +77,64 @@ func (i *imageResource) Exif() (*exif.Exif, error) {
 
 func (i *imageResource) getExif() (*exif.Exif, error) {
 
-	i.exifInit.Do(func() {
+	i.metaInit.Do(func() {
+
 		supportsExif := i.Format == images.JPEG || i.Format == images.TIFF
 		if !supportsExif {
 			return
+
 		}
 
-		f, err := i.root.ReadSeekCloser()
-		if err != nil {
-			i.exifInitErr = err
-			return
-		}
-		defer f.Close()
+		key := i.getImageMetaCacheTargetPath()
 
-		x, err := i.getSpec().imaging.DecodeExif(f)
-		if err != nil {
-			i.exifInitErr = err
-			return
+		read := func(info filecache.ItemInfo, r io.Reader) error {
+			meta := &imageMeta{}
+			data, err := ioutil.ReadAll(r)
+			if err != nil {
+				return err
+			}
+
+			if err = json.Unmarshal(data, &meta); err != nil {
+				return err
+			}
+
+			i.meta = meta
+
+			return nil
 		}
 
-		i.exif = x
+		create := func(info filecache.ItemInfo, w io.WriteCloser) (err error) {
+
+			f, err := i.root.ReadSeekCloser()
+			if err != nil {
+				i.metaInitErr = err
+				return
+			}
+			defer f.Close()
+
+			x, err := i.getSpec().imaging.DecodeExif(f)
+			if err != nil {
+				i.metaInitErr = err
+				return
+			}
+
+			i.meta = &imageMeta{Exif: x}
+
+			// Also write it to cache
+			enc := json.NewEncoder(w)
+			return enc.Encode(i.meta)
+
+		}
+
+		_, i.metaInitErr = i.getSpec().imageCache.fileCache.ReadOrCreate(key, read, create)
 
 	})
 
-	return i.exif, i.exifInitErr
+	if i.metaInitErr != nil {
+		return nil, i.metaInitErr
+	}
+
+	return i.meta.Exif, nil
 }
 
 func (i *imageResource) Clone() resource.Resource {
@@ -269,6 +312,17 @@ func (i *imageResource) clone(img image.Image) *imageResource {
 
 func (i *imageResource) setBasePath(conf images.ImageConfig) {
 	i.getResourcePaths().relTargetDirFile = i.relTargetPathFromConfig(conf)
+}
+
+func (i *imageResource) getImageMetaCacheTargetPath() string {
+	const imageMetaVersionNumber = 1 // Increment to invalidate the meta cache
+
+	cfg := i.getSpec().imaging.Cfg
+	df := i.getResourcePaths().relTargetDirFile
+	p1, _ := helpers.FileAndExt(df.file)
+	h, _ := i.hash()
+	idStr := internal.HashString(h, i.size(), imageMetaVersionNumber, cfg)
+	return path.Join(df.dir, fmt.Sprintf("%s%s.json", p1, idStr))
 }
 
 func (i *imageResource) relTargetPathFromConfig(conf images.ImageConfig) dirFile {
