@@ -24,6 +24,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/bep/tmc"
+
 	_exif "github.com/rwcarlsen/goexif/exif"
 	"github.com/rwcarlsen/goexif/tiff"
 )
@@ -31,10 +33,10 @@ import (
 const exifTimeLayout = "2006:01:02 15:04:05"
 
 type Exif struct {
-	Lat    float64
-	Long   float64
-	Date   time.Time
-	Values map[string]interface{}
+	Lat  float64
+	Long float64
+	Date time.Time
+	Tags Tags
 }
 
 type Decoder struct {
@@ -139,7 +141,7 @@ func (d *Decoder) Decode(r io.Reader) (ex *Exif, err error) {
 		return
 	}
 
-	ex = &Exif{Lat: lat, Long: long, Date: tm, Values: walker.vals}
+	ex = &Exif{Lat: lat, Long: long, Date: tm, Tags: walker.vals}
 
 	return
 }
@@ -239,4 +241,31 @@ func nullString(in []byte) string {
 	}
 
 	return ""
+}
+
+var tcodec *tmc.Codec
+
+func init() {
+	var err error
+	tcodec, err = tmc.New()
+	if err != nil {
+		panic(err)
+	}
+}
+
+type Tags map[string]interface{}
+
+func (v *Tags) UnmarshalJSON(b []byte) error {
+	vv := make(map[string]interface{})
+	if err := tcodec.Unmarshal(b, &vv); err != nil {
+		return err
+	}
+
+	*v = vv
+
+	return nil
+}
+
+func (v Tags) MarshalJSON() ([]byte, error) {
+	return tcodec.Marshal(v)
 }
