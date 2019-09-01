@@ -187,9 +187,6 @@ logFile ("")
 menu
 : See [Add Non-content Entries to a Menu](/content-management/menus/#add-non-content-entries-to-a-menu).
 
-metaDataFormat ("toml")
-: Front matter meta-data format. Valid values: `"toml"`, `"yaml"`, or `"json"`.
-
 module
 : Module config see [Module Config](/hugo-modules/configuration/).
 
