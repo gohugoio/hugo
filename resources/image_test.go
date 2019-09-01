@@ -23,6 +23,8 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/spf13/afero"
+
 	"github.com/disintegration/gift"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -355,6 +357,71 @@ func TestImageExif(t *testing.T) {
 	resized, _ := image.Resize("300x200")
 	x2, _ := resized.Exif()
 	c.Assert(x2, qt.Equals, x)
+
+}
+
+func BenchmarkImageExif(b *testing.B) {
+
+	getImages := func(c *qt.C, b *testing.B, fs afero.Fs) []resource.Image {
+		spec := newTestResourceSpec(specDescriptor{fs: fs, c: c})
+		images := make([]resource.Image, b.N)
+		for i := 0; i < b.N; i++ {
+			images[i] = fetchImageForSpec(spec, c, "sunset.jpg")
+		}
+		return images
+	}
+
+	getAndCheckExif := func(c *qt.C, image resource.Image) {
+		x, err := image.Exif()
+		c.Assert(err, qt.IsNil)
+		c.Assert(x, qt.Not(qt.IsNil))
+		c.Assert(x.Long, qt.Equals, float64(-4.50846))
+
+	}
+
+	b.Run("Cold cache", func(b *testing.B) {
+		b.StopTimer()
+		c := qt.New(b)
+		images := getImages(c, b, afero.NewMemMapFs())
+
+		b.StartTimer()
+		for i := 0; i < b.N; i++ {
+			getAndCheckExif(c, images[i])
+		}
+
+	})
+
+	b.Run("Cold cache, 10", func(b *testing.B) {
+		b.StopTimer()
+		c := qt.New(b)
+		images := getImages(c, b, afero.NewMemMapFs())
+
+		b.StartTimer()
+		for i := 0; i < b.N; i++ {
+			for j := 0; j < 10; j++ {
+				getAndCheckExif(c, images[i])
+			}
+		}
+
+	})
+
+	b.Run("Warm cache", func(b *testing.B) {
+		b.StopTimer()
+		c := qt.New(b)
+		fs := afero.NewMemMapFs()
+		images := getImages(c, b, fs)
+		for i := 0; i < b.N; i++ {
+			getAndCheckExif(c, images[i])
+		}
+
+		images = getImages(c, b, fs)
+
+		b.StartTimer()
+		for i := 0; i < b.N; i++ {
+			getAndCheckExif(c, images[i])
+		}
+
+	})
 
 }
 
