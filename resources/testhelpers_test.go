@@ -154,10 +154,14 @@ func fetchImageForSpec(spec *Spec, c *qt.C, name string) resource.Image {
 	return img
 }
 
-func fetchResourceForSpec(spec *Spec, c *qt.C, name string) resource.ContentResource {
+func fetchResourceForSpec(spec *Spec, c *qt.C, name string, targetPathAddends ...string) resource.ContentResource {
 	src, err := os.Open(filepath.FromSlash("testdata/" + name))
 	c.Assert(err, qt.IsNil)
 	workDir := spec.WorkingDir
+	if len(targetPathAddends) > 0 {
+		addends := strings.Join(targetPathAddends, "_")
+		name = addends + "_" + name
+	}
 	targetFilename := filepath.Join(workDir, name)
 	out, err := helpers.OpenFileForWriting(spec.Fs.Source, targetFilename)
 	c.Assert(err, qt.IsNil)

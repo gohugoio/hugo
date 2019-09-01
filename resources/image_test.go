@@ -366,7 +366,7 @@ func BenchmarkImageExif(b *testing.B) {
 		spec := newTestResourceSpec(specDescriptor{fs: fs, c: c})
 		images := make([]resource.Image, b.N)
 		for i := 0; i < b.N; i++ {
-			images[i] = fetchImageForSpec(spec, c, "sunset.jpg")
+			images[i] = fetchResourceForSpec(spec, c, "sunset.jpg", strconv.Itoa(i)).(resource.Image)
 		}
 		return images
 	}
