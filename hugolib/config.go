@@ -585,7 +585,6 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 
 	v.SetDefault("cleanDestinationDir", false)
 	v.SetDefault("watch", false)
-	v.SetDefault("metaDataFormat", "toml")
 	v.SetDefault("resourceDir", "resources")
 	v.SetDefault("publishDir", "public")
 	v.SetDefault("themesDir", "themes")
