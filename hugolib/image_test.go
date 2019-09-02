@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"image/jpeg"
 	"io"
 	"os"
 	"path/filepath"
@@ -61,8 +62,9 @@ title: "My bundle"
 {{ $b := $img2.Resize "345x678" }}
 {{ $b2 := $b.Resize "34x67" }}
 {{ $c := $img3.Resize "456x789" }}
+{{ $fingerprinted := $img1.Resize "350x" | fingerprint }}
 
-{{ $images := slice $r $r2 $b $b2 $c }}
+{{ $images := slice $r $r2 $b $b2 $c $fingerprinted }}
 
 {{ range $i, $r := $images }}
 {{ printf "Resized%d:" (add $i  1) }} {{ $r.Name }}|{{ $r.Width }}|{{ $r.Height }}|{{ $r.MediaType }}|{{ $r.RelPermalink }}|
@@ -98,20 +100,33 @@ title: "My bundle"
 	b := newBuilder()
 	b.Build(BuildCfg{})
 
-	imgExpect := []string{
-		"Resized1: images/sunset.jpg|123|234|image/jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_123x234_resize_q75_box.jpg|",
-		"Resized2: images/sunset.jpg|12|23|image/jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_ada4bb1a57f77a63306e3bd67286248e.jpg|",
-		"Resized3: sunset.jpg|345|678|image/jpg|/mybundle/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_345x678_resize_q75_box.jpg|",
-		"Resized4: sunset.jpg|34|67|image/jpg|/mybundle/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_44d8c928664d7c5a67377c6ec58425ce.jpg|",
-		" Resized5: images/sunset.jpg|456|789|image/jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_456x789_resize_q75_box.jpg|",
+	assertImage := func(width, height int, filename string) {
+		filename = filepath.Join(workDir, "public", filename)
+		f, err := b.Fs.Destination.Open(filename)
+		c.Assert(err, qt.IsNil)
+		defer f.Close()
+		cfg, err := jpeg.DecodeConfig(f)
+		c.Assert(cfg.Width, qt.Equals, width)
+		c.Assert(cfg.Height, qt.Equals, height)
 	}
 
-	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), imgExpect...)
+	imgExpect := `
+Resized1: images/sunset.jpg|123|234|image/jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_123x234_resize_q75_box.jpg|
+Resized2: images/sunset.jpg|12|23|image/jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_ada4bb1a57f77a63306e3bd67286248e.jpg|
+Resized3: sunset.jpg|345|678|image/jpg|/mybundle/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_345x678_resize_q75_box.jpg|
+Resized4: sunset.jpg|34|67|image/jpg|/mybundle/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_44d8c928664d7c5a67377c6ec58425ce.jpg|
+Resized5: images/sunset.jpg|456|789|image/jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_456x789_resize_q75_box.jpg|
+Resized6: images/sunset.jpg|350|219|image/jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_350x0_resize_q75_box.a86fe88d894e5db613f6aa8a80538fefc25b20fa24ba0d782c057adcef616f56.jpg|
+
+`
+
+	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), imgExpect)
+	assertImage(350, 219, "images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_350x0_resize_q75_box.a86fe88d894e5db613f6aa8a80538fefc25b20fa24ba0d782c057adcef616f56.jpg")
 
 	// Build it again to make sure we read images from file cache.
 	b = newBuilder()
 	b.Build(BuildCfg{})
 
-	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), imgExpect...)
+	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), imgExpect)
 
 }
