@@ -146,9 +146,7 @@ func (p *pageState) RegularPages() page.Pages {
 
 		switch p.Kind() {
 		case page.KindPage:
-		case page.KindHome:
-			pages = p.s.RegularPages()
-		case page.KindSection, page.KindTaxonomyTerm:
+		case page.KindSection, page.KindHome, page.KindTaxonomyTerm:
 			pages = p.getPages()
 		case page.KindTaxonomy:
 			all := p.Pages()
@@ -174,12 +172,7 @@ func (p *pageState) Pages() page.Pages {
 
 		switch p.Kind() {
 		case page.KindPage:
-		case page.KindHome:
-			// See https://github.com/gohugoio/hugo/issues/6238
-			// Note: When making the change below, also remember RegularPages.
-			p.s.DistinctWarningLog.Println(`In the next Hugo version (0.58.0) we will change how $home.Pages behaves. If you want to list all regular pages, replace .Pages or .Data.Pages with .Site.RegularPages in your home page template.`)
-			pages = p.s.RegularPages()
-		case page.KindSection:
+		case page.KindSection, page.KindHome:
 			pages = p.getPagesAndSections()
 		case page.KindTaxonomy:
 			termInfo := p.bucket
