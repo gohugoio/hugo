@@ -66,6 +66,8 @@ func newTestResourceSpec(desc specDescriptor) *Spec {
 		afs = afero.NewMemMapFs()
 	}
 
+	afs = hugofs.NewBaseFileDecorator(afs)
+
 	c := desc.c
 
 	cfg := createTestCfg()
@@ -118,7 +120,7 @@ func newTestResourceOsFs(c *qt.C) (*Spec, string) {
 
 	cfg.Set("workingDir", workDir)
 
-	fs := hugofs.NewFrom(hugofs.Os, cfg)
+	fs := hugofs.NewFrom(hugofs.NewBaseFileDecorator(hugofs.Os), cfg)
 	fs.Destination = &afero.MemMapFs{}
 
 	s, err := helpers.NewPathSpec(fs, cfg, nil)

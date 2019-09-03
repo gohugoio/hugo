@@ -22,6 +22,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/hugofs"
+
 	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/hugo/cache/filecache"
@@ -194,8 +196,13 @@ func (r *Spec) newGenericResourceWithBase(
 		relTargetDirFile:   dirFile{dir: fpath, file: fname},
 	}
 
+	var fim hugofs.FileMetaInfo
+	if osFileInfo != nil {
+		fim = osFileInfo.(hugofs.FileMetaInfo)
+	}
+
 	gfi := &resourceFileInfo{
-		fi:                   osFileInfo,
+		fi:                   fim,
 		openReadSeekerCloser: openReadSeekerCloser,
 		sourceFs:             sourceFs,
 		sourceFilename:       sourceFilename,

@@ -1,6 +1,7 @@
 package hugolib
 
 import (
+	"image/jpeg"
 	"io"
 	"path/filepath"
 	"runtime"
@@ -334,7 +335,7 @@ func (s *sitesBuilder) WithSunset(in string) {
 	src, err := os.Open(filepath.FromSlash("testdata/sunset.jpg"))
 	s.Assert(err, qt.IsNil)
 
-	out, err := s.Fs.Source.Create(filepath.FromSlash(in))
+	out, err := s.Fs.Source.Create(filepath.FromSlash(filepath.Join(s.workingDir, in)))
 	s.Assert(err, qt.IsNil)
 
 	_, err = io.Copy(out, src)
@@ -667,6 +668,16 @@ func (s *sitesBuilder) AssertFileContent(filename string, matches ...string) {
 			}
 		}
 	}
+}
+
+func (s *sitesBuilder) AssertImage(width, height int, filename string) {
+	filename = filepath.Join(s.workingDir, filename)
+	f, err := s.Fs.Destination.Open(filename)
+	s.Assert(err, qt.IsNil)
+	defer f.Close()
+	cfg, err := jpeg.DecodeConfig(f)
+	s.Assert(cfg.Width, qt.Equals, width)
+	s.Assert(cfg.Height, qt.Equals, height)
 }
 
 func (s *sitesBuilder) FileContent(filename string) string {

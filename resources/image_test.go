@@ -18,6 +18,7 @@ import (
 	"math/big"
 	"math/rand"
 	"os"
+	"path"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -90,17 +91,16 @@ func TestImageTransformBasic(t *testing.T) {
 	resized0x, err := image.Resize("x200")
 	c.Assert(err, qt.IsNil)
 	assertWidthHeight(resized0x, 320, 200)
-	assertFileCache(c, fileCache, resized0x.RelPermalink(), 320, 200)
+	assertFileCache(c, fileCache, path.Base(resized0x.RelPermalink()), 320, 200)
 
 	resizedx0, err := image.Resize("200x")
 	c.Assert(err, qt.IsNil)
 	assertWidthHeight(resizedx0, 200, 125)
-	assertFileCache(c, fileCache, resizedx0.RelPermalink(), 200, 125)
+	assertFileCache(c, fileCache, path.Base(resizedx0.RelPermalink()), 200, 125)
 
 	resizedAndRotated, err := image.Resize("x200 r90")
 	c.Assert(err, qt.IsNil)
 	assertWidthHeight(resizedAndRotated, 125, 200)
-	assertFileCache(c, fileCache, resizedAndRotated.RelPermalink(), 125, 200)
 
 	assertWidthHeight(resized, 300, 200)
 	c.Assert(resized.RelPermalink(), qt.Equals, "/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_300x200_resize_q68_linear.jpg")
@@ -121,19 +121,16 @@ func TestImageTransformBasic(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	c.Assert(filled.RelPermalink(), qt.Equals, "/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x100_fill_q68_linear_bottomleft.jpg")
 	assertWidthHeight(filled, 200, 100)
-	assertFileCache(c, fileCache, filled.RelPermalink(), 200, 100)
 
 	smart, err := image.Fill("200x100 smart")
 	c.Assert(err, qt.IsNil)
 	c.Assert(smart.RelPermalink(), qt.Equals, fmt.Sprintf("/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x100_fill_q68_linear_smart%d.jpg", 1))
 	assertWidthHeight(smart, 200, 100)
-	assertFileCache(c, fileCache, smart.RelPermalink(), 200, 100)
 
 	// Check cache
 	filledAgain, err := image.Fill("200x100 bottomLeft")
 	c.Assert(err, qt.IsNil)
 	c.Assert(filled, eq, filledAgain)
-	assertFileCache(c, fileCache, filledAgain.RelPermalink(), 200, 100)
 }
 
 // https://github.com/gohugoio/hugo/issues/4261
@@ -294,7 +291,6 @@ func TestImageResizeInSubPath(t *testing.T) {
 	c := qt.New(t)
 
 	image := fetchImage(c, "sub/gohugoio2.png")
-	fileCache := image.(specProvider).getSpec().FileCaches.ImageCache().Fs
 
 	c.Assert(image.MediaType(), eq, media.PNGType)
 	c.Assert(image.RelPermalink(), qt.Equals, "/a/sub/gohugoio2.png")
@@ -306,7 +302,6 @@ func TestImageResizeInSubPath(t *testing.T) {
 	c.Assert(resized.RelPermalink(), qt.Equals, "/a/sub/gohugoio2_hu0e1b9e4a4be4d6f86c7b37b9ccce3fbc_73886_101x101_resize_linear_2.png")
 	c.Assert(resized.Width(), qt.Equals, 101)
 
-	assertFileCache(c, fileCache, resized.RelPermalink(), 101, 101)
 	publishedImageFilename := filepath.Clean(resized.RelPermalink())
 
 	spec := image.(specProvider).getSpec()
@@ -321,7 +316,6 @@ func TestImageResizeInSubPath(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	c.Assert(resizedAgain.RelPermalink(), qt.Equals, "/a/sub/gohugoio2_hu0e1b9e4a4be4d6f86c7b37b9ccce3fbc_73886_101x101_resize_linear_2.png")
 	c.Assert(resizedAgain.Width(), qt.Equals, 101)
-	assertFileCache(c, fileCache, resizedAgain.RelPermalink(), 101, 101)
 	assertImageFile(c, image.(specProvider).getSpec().BaseFs.PublishFs, publishedImageFilename, 101, 101)
 }
 
@@ -529,7 +523,7 @@ func TestImageOperationsGolden(t *testing.T) {
 		return
 	}
 
-	dir1 := filepath.Join(workDir, "resources/_gen/images/a")
+	dir1 := filepath.Join(workDir, "resources/_gen/images")
 	dir2 := filepath.FromSlash("testdata/golden")
 
 	// The two dirs above should now be the same.

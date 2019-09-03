@@ -24,6 +24,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"sync"
 
@@ -319,10 +320,13 @@ func (i *imageResource) getImageMetaCacheTargetPath() string {
 
 	cfg := i.getSpec().imaging.Cfg
 	df := i.getResourcePaths().relTargetDirFile
+	if fi := i.getFileInfo(); fi != nil {
+		df.dir = filepath.Dir(fi.Meta().Path())
+	}
 	p1, _ := helpers.FileAndExt(df.file)
 	h, _ := i.hash()
 	idStr := internal.HashString(h, i.size(), imageMetaVersionNumber, cfg)
-	return path.Join(df.dir, fmt.Sprintf("%s%s.json", p1, idStr))
+	return path.Join(df.dir, fmt.Sprintf("%s_%s.json", p1, idStr))
 }
 
 func (i *imageResource) relTargetPathFromConfig(conf images.ImageConfig) dirFile {
