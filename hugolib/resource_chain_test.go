@@ -168,6 +168,54 @@ T1: {{ $r.Content }}
 
 }
 
+// https://github.com/gohugoio/hugo/issues/6274
+func TestSCSSWithIncludePathsSass(t *testing.T) {
+	if !scss.Supports() {
+		t.Skip("Skip SCSS")
+	}
+	c := qt.New(t)
+	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-scss-includepaths")
+	c.Assert(err, qt.IsNil)
+	defer clean()
+
+	v := viper.New()
+	v.Set("workingDir", workDir)
+	v.Set("theme", "mytheme")
+	b := newTestSitesBuilder(t).WithLogger(loggers.NewErrorLogger())
+	// Need to use OS fs for this.
+	b.Fs = hugofs.NewDefault(v)
+	b.WithWorkingDir(workDir)
+	b.WithViper(v)
+
+	hulmaDir := filepath.Join(workDir, "node_modules", "hulma")
+	scssDir := filepath.Join(workDir, "themes/mytheme/assets", "scss")
+	c.Assert(os.MkdirAll(hulmaDir, 0777), qt.IsNil)
+	c.Assert(os.MkdirAll(scssDir, 0777), qt.IsNil)
+
+	b.WithSourceFile(filepath.Join(scssDir, "main.scss"), `
+@import "hulma/hulma";
+
+`)
+
+	b.WithSourceFile(filepath.Join(hulmaDir, "hulma.sass"), `
+$hulma: #ccc;
+
+foo
+  color: $hulma;
+
+`)
+
+	b.WithTemplatesAdded("index.html", `
+ {{ $scssOptions := (dict "targetPath" "css/styles.css" "enableSourceMap" false "includePaths" (slice "node_modules")) }}
+{{ $r := resources.Get "scss/main.scss" |  toCSS $scssOptions  | minify  }}
+T1: {{ $r.Content }}
+`)
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), `T1: foo{color:#ccc}`)
+
+}
+
 func TestResourceChainBasic(t *testing.T) {
 	t.Parallel()
 
