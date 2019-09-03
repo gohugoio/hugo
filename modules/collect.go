@@ -250,8 +250,7 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import, disabled bool
 		}
 
 		if moduleDir == "" {
-
-			if c.GoModulesFilename != "" && c.isProbablyModule(modulePath) {
+			if c.GoModulesFilename != "" && isProbablyModule(modulePath) {
 				// Try to "go get" it and reload the module configuration.
 				if err := c.Get(modulePath); err != nil {
 					return nil, err
@@ -299,10 +298,6 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import, disabled bool
 
 	if mod == nil {
 		ma.path = modulePath
-	}
-
-	if err := ma.validateAndApplyDefaults(c.fs); err != nil {
-		return nil, err
 	}
 
 	if !moduleImport.IgnoreConfig {

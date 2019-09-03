@@ -235,6 +235,17 @@ type Config struct {
 	Private string
 }
 
+// hasModuleImport reports whether the project config have one or more
+// modules imports, e.g. github.com/bep/myshortcodes.
+func (c Config) hasModuleImport() bool {
+	for _, imp := range c.Imports {
+		if isProbablyModule(imp.Path) {
+			return true
+		}
+	}
+	return false
+}
+
 // HugoVersion holds Hugo binary version requirements for a module.
 type HugoVersion struct {
 	// The minimum Hugo version that this module works with.

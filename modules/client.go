@@ -279,12 +279,12 @@ func (c *Client) Init(path string) error {
 	return nil
 }
 
-func (c *Client) isProbablyModule(path string) bool {
+func isProbablyModule(path string) bool {
 	return module.CheckPath(path) == nil
 }
 
 func (c *Client) listGoMods() (goModules, error) {
-	if c.GoModulesFilename == "" {
+	if c.GoModulesFilename == "" || !c.moduleConfig.hasModuleImport() {
 		return nil, nil
 	}
 
