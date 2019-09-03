@@ -18,7 +18,6 @@ package modules
 
 import (
 	"github.com/gohugoio/hugo/config"
-	"github.com/spf13/afero"
 )
 
 var _ Module = (*moduleAdapter)(nil)
@@ -172,25 +171,4 @@ func (m *moduleAdapter) Watch() bool {
 	}
 
 	return false
-}
-
-func (m *moduleAdapter) validateAndApplyDefaults(fs afero.Fs) error {
-
-	/*if len(m.modImport.Mounts) == 0 {
-		// Create default mount points for every component folder that
-		// exists in the module.
-		for _, componentFolder := range files.ComponentFolders {
-			sourceDir := filepath.Join(dir, componentFolder)
-			_, err := fs.Stat(sourceDir)
-			if err == nil {
-				m.modImport.Mounts = append(m.modImport.Mounts, Mount{
-					Source: componentFolder,
-					Target: componentFolder,
-				})
-			}
-		}
-	}*/
-
-	return nil
-
 }

@@ -541,3 +541,28 @@ title: "My Page"
 
 	b.AssertFileContent("public/mypage/index.html", "Permalink: https://example.org/mypage/")
 }
+
+// https://github.com/gohugoio/hugo/issues/6299
+func TestSiteWithGoModButNoModules(t *testing.T) {
+	t.Parallel()
+
+	c := qt.New(t)
+	// We need to use the OS fs for this.
+	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-no-mod")
+	c.Assert(err, qt.IsNil)
+
+	cfg := viper.New()
+	cfg.Set("workingDir", workDir)
+	fs := hugofs.NewFrom(hugofs.Os, cfg)
+
+	defer clean()
+
+	b := newTestSitesBuilder(t)
+	b.Fs = fs
+
+	b.WithWorkingDir(workDir).WithViper(cfg)
+
+	b.WithSourceFile("go.mod", "")
+	b.Build(BuildCfg{})
+
+}
