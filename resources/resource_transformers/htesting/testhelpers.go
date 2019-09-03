@@ -39,7 +39,7 @@ func NewTestResourceSpec() (*resources.Spec, error) {
 
 	cfg.Set("imaging", imagingCfg)
 
-	fs := hugofs.NewMem(cfg)
+	fs := hugofs.NewFrom(hugofs.NewBaseFileDecorator(afero.NewMemMapFs()), cfg)
 
 	s, err := helpers.NewPathSpec(fs, cfg, nil)
 	if err != nil {

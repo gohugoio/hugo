@@ -73,11 +73,18 @@ func (c *imageCache) getOrCreate(
 	parent *imageResource, conf images.ImageConfig,
 	createImage func() (*imageResource, image.Image, error)) (*resourceAdapter, error) {
 	relTarget := parent.relTargetPathFromConfig(conf)
-	key := parent.relTargetPathForRel(relTarget.path(), false, false, false)
+	memKey := parent.relTargetPathForRel(relTarget.path(), false, false, false)
+
+	// For the file cache we want to generate and store it once if possible.
+	fileKeyPath := relTarget
+	if fi := parent.root.getFileInfo(); fi != nil {
+		fileKeyPath.dir = filepath.ToSlash(filepath.Dir(fi.Meta().Path()))
+	}
+	fileKey := fileKeyPath.path()
 
 	// First check the in-memory store, then the disk.
 	c.mu.RLock()
-	cachedImage, found := c.store[key]
+	cachedImage, found := c.store[memKey]
 	c.mu.RUnlock()
 
 	if found {
@@ -133,7 +140,7 @@ func (c *imageCache) getOrCreate(
 	//  but the count of processed image variations for this site.
 	c.pathSpec.ProcessingStats.Incr(&c.pathSpec.ProcessingStats.ProcessedImages)
 
-	_, err := c.fileCache.ReadOrCreate(key, read, create)
+	_, err := c.fileCache.ReadOrCreate(fileKey, read, create)
 	if err != nil {
 		return nil, err
 	}
@@ -142,13 +149,13 @@ func (c *imageCache) getOrCreate(
 	img.setSourceFs(c.fileCache.Fs)
 
 	c.mu.Lock()
-	if cachedImage, found = c.store[key]; found {
+	if cachedImage, found = c.store[memKey]; found {
 		c.mu.Unlock()
 		return cachedImage, nil
 	}
 
 	imgAdapter := newResourceAdapter(parent.getSpec(), true, img)
-	c.store[key] = imgAdapter
+	c.store[memKey] = imgAdapter
 	c.mu.Unlock()
 
 	return imgAdapter, nil

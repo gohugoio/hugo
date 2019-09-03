@@ -22,6 +22,8 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/gohugoio/hugo/hugofs"
+
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/source"
 
@@ -172,6 +174,7 @@ type fileInfo interface {
 	getSourceFilename() string
 	setSourceFilename(string)
 	setSourceFs(afero.Fs)
+	getFileInfo() hugofs.FileMetaInfo
 	hash() (string, error)
 	size() int
 }
@@ -537,7 +540,7 @@ type resourceFileInfo struct {
 	// the path to the file on the real filesystem.
 	sourceFilename string
 
-	fi os.FileInfo
+	fi hugofs.FileMetaInfo
 
 	// A hash of the source content. Is only calculated in caching situations.
 	h *resourceHash
@@ -553,6 +556,10 @@ func (fi *resourceFileInfo) ReadSeekCloser() (hugio.ReadSeekCloser, error) {
 		return nil, err
 	}
 	return f, nil
+}
+
+func (fi *resourceFileInfo) getFileInfo() hugofs.FileMetaInfo {
+	return fi.fi
 }
 
 func (fi *resourceFileInfo) getSourceFilename() string {

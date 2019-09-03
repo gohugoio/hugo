@@ -14,7 +14,6 @@
 package hugolib
 
 import (
-	"image/jpeg"
 	"io"
 	"os"
 	"path/filepath"
@@ -100,16 +99,6 @@ title: "My bundle"
 	b := newBuilder()
 	b.Build(BuildCfg{})
 
-	assertImage := func(width, height int, filename string) {
-		filename = filepath.Join(workDir, "public", filename)
-		f, err := b.Fs.Destination.Open(filename)
-		c.Assert(err, qt.IsNil)
-		defer f.Close()
-		cfg, err := jpeg.DecodeConfig(f)
-		c.Assert(cfg.Width, qt.Equals, width)
-		c.Assert(cfg.Height, qt.Equals, height)
-	}
-
 	imgExpect := `
 Resized1: images/sunset.jpg|123|234|image/jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_123x234_resize_q75_box.jpg|
 Resized2: images/sunset.jpg|12|23|image/jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_ada4bb1a57f77a63306e3bd67286248e.jpg|
@@ -121,12 +110,85 @@ Resized6: images/sunset.jpg|350|219|image/jpg|/images/sunset_hu59e56ffff1bc1d8d1
 `
 
 	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), imgExpect)
-	assertImage(350, 219, "images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_350x0_resize_q75_box.a86fe88d894e5db613f6aa8a80538fefc25b20fa24ba0d782c057adcef616f56.jpg")
+	b.AssertImage(350, 219, "public/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_350x0_resize_q75_box.a86fe88d894e5db613f6aa8a80538fefc25b20fa24ba0d782c057adcef616f56.jpg")
 
 	// Build it again to make sure we read images from file cache.
 	b = newBuilder()
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), imgExpect)
+
+}
+
+func TestImageResizeMultilingual(t *testing.T) {
+
+	b := newTestSitesBuilder(t).WithConfigFile("toml", `
+baseURL="https://example.org"
+defaultContentLanguage = "en"
+
+[languages]
+[languages.en]
+title = "Title in English"
+languageName = "English"
+weight = 1
+[languages.nn]
+languageName = "Nynorsk"
+weight = 2
+title = "Tittel på nynorsk"
+[languages.nb]
+languageName = "Bokmål"
+weight = 3
+title = "Tittel på bokmål"
+[languages.fr]
+languageName = "French"
+weight = 4
+title = "French Title"
+
+`)
+
+	pageContent := `---
+title: "Page"
+---
+`
+
+	b.WithContent("bundle/index.md", pageContent)
+	b.WithContent("bundle/index.nn.md", pageContent)
+	b.WithContent("bundle/index.fr.md", pageContent)
+	b.WithSunset("content/bundle/sunset.jpg")
+	b.WithSunset("assets/images/sunset.jpg")
+	b.WithTemplates("index.html", `
+{{ with (.Site.GetPage "bundle" ) }}
+{{ $sunset := .Resources.GetMatch "sunset*" }}
+{{ if $sunset }}
+{{ $resized := $sunset.Resize "200x200" }}
+SUNSET FOR: {{ $.Site.Language.Lang }}: {{ $resized.RelPermalink }}/{{ $resized.Width }}/Lat: {{ $resized.Exif.Lat }}
+{{ end }}
+{{ else }}
+No bundle for {{ $.Site.Language.Lang }}
+{{ end }}
+
+{{ $sunset2 := resources.Get "images/sunset.jpg" }}
+{{ $resized2 := $sunset2.Resize "123x234" }}
+SUNSET2: {{ $resized2.RelPermalink }}/{{ $resized2.Width }}/Lat: {{ $resized2.Exif.Lat }}
+
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", "SUNSET FOR: en: /bundle/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x200_resize_q75_box.jpg/200/Lat: 36.59744166666667")
+	b.AssertFileContent("public/fr/index.html", "SUNSET FOR: fr: /fr/bundle/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x200_resize_q75_box.jpg/200/Lat: 36.59744166666667")
+	b.AssertFileContent("public/index.html", " SUNSET2: /images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_123x234_resize_q75_box.jpg/123/Lat: 36.59744166666667")
+	b.AssertFileContent("public/nn/index.html", " SUNSET2: /images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_123x234_resize_q75_box.jpg/123/Lat: 36.59744166666667")
+
+	b.AssertImage(200, 200, "public/fr/bundle/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x200_resize_q75_box.jpg")
+	b.AssertImage(200, 200, "public/bundle/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x200_resize_q75_box.jpg")
+
+	// Check the file cache
+	b.AssertImage(200, 200, "resources/_gen/images/bundle/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x200_resize_q75_box.jpg")
+	b.AssertFileContent("resources/_gen/images/bundle/sunset_17701188623491591036.json",
+		"DateTimeDigitized|time.Time", "PENTAX")
+	b.AssertImage(123, 234, "resources/_gen/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_123x234_resize_q75_box.jpg")
+	b.AssertFileContent("resources/_gen/images/sunset_17701188623491591036.json",
+		"DateTimeDigitized|time.Time", "PENTAX")
 
 }
