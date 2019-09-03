@@ -145,6 +145,10 @@ func TestCompare(t *testing.T) {
 
 	n := New(false)
 
+	twoEq := func(a, b interface{}) bool {
+		return n.Eq(a, b)
+	}
+
 	for _, test := range []struct {
 		tstCompareType
 		funcUnderTest func(a, b interface{}) bool
@@ -153,7 +157,7 @@ func TestCompare(t *testing.T) {
 		{tstLt, n.Lt},
 		{tstGe, n.Ge},
 		{tstLe, n.Le},
-		{tstEq, n.Eq},
+		{tstEq, twoEq},
 		{tstNe, n.Ne},
 	} {
 		doTestCompare(t, test.tstCompareType, test.funcUnderTest)
@@ -234,6 +238,28 @@ func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b inte
 		if !success {
 			t.Fatalf("[%d][%s] %v compared to %v: %t", i, path.Base(runtime.FuncForPC(reflect.ValueOf(funcUnderTest).Pointer()).Name()), test.left, test.right, result)
 		}
+	}
+}
+
+func TestEqualExtend(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New(false)
+
+	for _, test := range []struct {
+		first  interface{}
+		others []interface{}
+		expect bool
+	}{
+		{1, []interface{}{1, 2}, true},
+		{1, []interface{}{2, 1}, true},
+		{1, []interface{}{2, 3}, false},
+	} {
+
+		result := ns.Eq(test.first, test.others...)
+
+		c.Assert(result, qt.Equals, test.expect)
 	}
 }
 

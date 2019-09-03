@@ -90,17 +90,13 @@ func (*Namespace) Default(dflt interface{}, given ...interface{}) (interface{}, 
 	return dflt, nil
 }
 
-// Eq returns the boolean truth of arg1 == arg2.
-func (ns *Namespace) Eq(x, y interface{}) bool {
-	if ns.caseInsensitive {
+// Eq returns the boolean truth of arg1 == arg2 || arg1 == arg3 || arg1 == arg4.
+func (n *Namespace) Eq(first interface{}, others ...interface{}) bool {
+	if n.caseInsensitive {
 		panic("caseInsensitive not implemented for Eq")
 	}
-	if e, ok := x.(compare.Eqer); ok {
-		return e.Eq(y)
-	}
-
-	if e, ok := y.(compare.Eqer); ok {
-		return e.Eq(x)
+	if len(others) == 0 {
+		panic("missing arguments for comparison")
 	}
 
 	normalize := func(v interface{}) interface{} {
@@ -119,9 +115,24 @@ func (ns *Namespace) Eq(x, y interface{}) bool {
 			return v
 		}
 	}
-	x = normalize(x)
-	y = normalize(y)
-	return reflect.DeepEqual(x, y)
+
+	normFirst := normalize(first)
+	for _, other := range others {
+		if e, ok := first.(compare.Eqer); ok {
+			return e.Eq(other)
+		}
+
+		if e, ok := other.(compare.Eqer); ok {
+			return e.Eq(first)
+		}
+
+		other = normalize(other)
+		if reflect.DeepEqual(normFirst, other) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // Ne returns the boolean truth of arg1 != arg2.
