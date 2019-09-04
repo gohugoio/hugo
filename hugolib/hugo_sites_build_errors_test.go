@@ -3,8 +3,6 @@ package hugolib
 import (
 	"fmt"
 	"path/filepath"
-	"regexp"
-	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -212,14 +210,9 @@ func TestSiteBuildErrors(t *testing.T) {
 
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				a.c.Assert(err, qt.Not(qt.IsNil))
-				// This is fixed in latest Go source
-				if regexp.MustCompile("devel|12").MatchString(runtime.Version()) {
-					fe := a.getFileError(err)
-					a.c.Assert(fe.Position().LineNumber, qt.Equals, 5)
-					a.c.Assert(fe.Position().ColumnNumber, qt.Equals, 21)
-				} else {
-					a.c.Assert(err.Error(), qt.Contains, `execute of template failed: panic in Execute`)
-				}
+				fe := a.getFileError(err)
+				a.c.Assert(fe.Position().LineNumber, qt.Equals, 5)
+				a.c.Assert(fe.Position().ColumnNumber, qt.Equals, 21)
 			},
 		},
 	}
