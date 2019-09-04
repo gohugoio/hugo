@@ -28,7 +28,7 @@ import (
 
 // We have many tests for the different resize operations etc. in the resource package,
 // this is an integration test.
-func TestImageResize(t *testing.T) {
+func TestImageOps(t *testing.T) {
 	c := qt.New(t)
 	// Make this a real as possible.
 	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "image-resize")
@@ -69,6 +69,22 @@ title: "My bundle"
 {{ printf "Resized%d:" (add $i  1) }} {{ $r.Name }}|{{ $r.Width }}|{{ $r.Height }}|{{ $r.MediaType }}|{{ $r.RelPermalink }}|
 {{ end }}
 
+{{ $blurryGrayscale1 := $r | images.Filter images.Grayscale (images.GaussianBlur 8) }}
+BG1: {{ $blurryGrayscale1.RelPermalink }}/{{ $blurryGrayscale1.Width }}
+{{ $blurryGrayscale2 := $r.Filter images.Grayscale (images.GaussianBlur 8) }}
+BG2: {{ $blurryGrayscale2.RelPermalink }}/{{ $blurryGrayscale2.Width }}
+{{ $blurryGrayscale2_2 := $r.Filter images.Grayscale (images.GaussianBlur 8) }}
+BG2_2: {{ $blurryGrayscale2_2.RelPermalink }}/{{ $blurryGrayscale2_2.Width }}
+
+{{ $filters := slice images.Grayscale (images.GaussianBlur 9) }}
+{{ $blurryGrayscale3 := $r | images.Filter $filters }}
+BG3: {{ $blurryGrayscale3.RelPermalink }}/{{ $blurryGrayscale3.Width }}
+
+{{ $blurryGrayscale4 := $r.Filter $filters }}
+BG4: {{ $blurryGrayscale4.RelPermalink }}/{{ $blurryGrayscale4.Width }}
+
+
+
 `)
 
 		return b
@@ -106,7 +122,10 @@ Resized3: sunset.jpg|345|678|image/jpg|/mybundle/sunset_hu59e56ffff1bc1d8d122b14
 Resized4: sunset.jpg|34|67|image/jpg|/mybundle/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_44d8c928664d7c5a67377c6ec58425ce.jpg|
 Resized5: images/sunset.jpg|456|789|image/jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_456x789_resize_q75_box.jpg|
 Resized6: images/sunset.jpg|350|219|image/jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_350x0_resize_q75_box.a86fe88d894e5db613f6aa8a80538fefc25b20fa24ba0d782c057adcef616f56.jpg|
-
+BG1: /images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_2ae8bb993431ec1aec40fe59927b46b4.jpg/123
+BG2: /images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_2ae8bb993431ec1aec40fe59927b46b4.jpg/123
+BG3: /images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_ed7740a90b82802261c2fbdb98bc8082.jpg/123
+BG4: /images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_ed7740a90b82802261c2fbdb98bc8082.jpg/123
 `
 
 	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), imgExpect)
@@ -170,6 +189,7 @@ No bundle for {{ $.Site.Language.Lang }}
 {{ $sunset2 := resources.Get "images/sunset.jpg" }}
 {{ $resized2 := $sunset2.Resize "123x234" }}
 SUNSET2: {{ $resized2.RelPermalink }}/{{ $resized2.Width }}/Lat: {{ $resized2.Exif.Lat }}
+
 
 `)
 

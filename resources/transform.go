@@ -21,7 +21,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/disintegration/gift"
 	"github.com/gohugoio/hugo/resources/images/exif"
 	"github.com/spf13/afero"
 
@@ -174,7 +173,7 @@ func (r *resourceAdapter) Fit(spec string) (resource.Image, error) {
 	return r.getImageOps().Fit(spec)
 }
 
-func (r *resourceAdapter) Filter(filters ...gift.Filter) (resource.Image, error) {
+func (r *resourceAdapter) Filter(filters ...interface{}) (resource.Image, error) {
 	return r.getImageOps().Filter(filters...)
 }
 

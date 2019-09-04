@@ -28,6 +28,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/disintegration/gift"
+
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/resources/images/exif"
 
@@ -37,7 +39,6 @@ import (
 
 	_errors "github.com/pkg/errors"
 
-	"github.com/disintegration/gift"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources/images"
 
@@ -209,12 +210,19 @@ func (i *imageResource) Fill(spec string) (resource.Image, error) {
 	})
 }
 
-func (i *imageResource) Filter(filters ...gift.Filter) (resource.Image, error) {
+func (i *imageResource) Filter(filters ...interface{}) (resource.Image, error) {
 	conf := i.Proc.GetDefaultImageConfig("filter")
-	conf.Key = internal.HashString(filters)
+
+	var gfilters []gift.Filter
+
+	for _, f := range filters {
+		gfilters = append(gfilters, images.ToFilters(f)...)
+	}
+
+	conf.Key = internal.HashString(gfilters)
 
 	return i.doWithImageConfig(conf, func(src image.Image) (image.Image, error) {
-		return i.Proc.Filter(src, filters...)
+		return i.Proc.Filter(src, gfilters...)
 	})
 }
 
@@ -331,9 +339,6 @@ func (i *imageResource) getImageMetaCacheTargetPath() string {
 
 func (i *imageResource) relTargetPathFromConfig(conf images.ImageConfig) dirFile {
 	p1, p2 := helpers.FileAndExt(i.getResourcePaths().relTargetDirFile.file)
-	if conf.Action == "trace" {
-		p2 = ".svg"
-	}
 
 	h, _ := i.hash()
 	idStr := fmt.Sprintf("_hu%s_%d", h, i.size())

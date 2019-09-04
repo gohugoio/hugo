@@ -18,8 +18,6 @@ import (
 	"image"
 	"sync"
 
-	"github.com/disintegration/gift"
-
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/resources/images"
@@ -101,10 +99,6 @@ func (ns *Namespace) Filter(args ...interface{}) (resource.Image, error) {
 
 	img := args[len(args)-1].(resource.Image)
 	filtersv := args[:len(args)-1]
-	filters := make([]gift.Filter, len(filtersv))
-	for i, f := range filtersv {
-		filters[i] = f.(gift.Filter)
-	}
 
-	return img.Filter(filters...)
+	return img.Filter(filtersv...)
 }

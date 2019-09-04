@@ -14,7 +14,6 @@
 package resource
 
 import (
-	"github.com/disintegration/gift"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/images/exif"
@@ -49,7 +48,7 @@ type ImageOps interface {
 	Fill(spec string) (Image, error)
 	Fit(spec string) (Image, error)
 	Resize(spec string) (Image, error)
-	Filter(filters ...gift.Filter) (Image, error)
+	Filter(filters ...interface{}) (Image, error)
 	Exif() (*exif.Exif, error)
 }
 

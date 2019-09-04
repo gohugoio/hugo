@@ -14,6 +14,7 @@
 package images
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"image/gif"
@@ -258,4 +259,21 @@ type imageConfig struct {
 func imageConfigFromImage(img image.Image) image.Config {
 	b := img.Bounds()
 	return image.Config{Width: b.Max.X, Height: b.Max.Y}
+}
+
+func ToFilters(in interface{}) []gift.Filter {
+	switch v := in.(type) {
+	case []gift.Filter:
+		return v
+	case []filter:
+		vv := make([]gift.Filter, len(v))
+		for i, f := range v {
+			vv[i] = f
+		}
+		return vv
+	case gift.Filter:
+		return []gift.Filter{v}
+	default:
+		panic(fmt.Sprintf("%T is not an image filter", in))
+	}
 }

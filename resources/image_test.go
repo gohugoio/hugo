@@ -512,7 +512,7 @@ func TestImageOperationsGolden(t *testing.T) {
 			c.Assert(rel, qt.Not(qt.Equals), "")
 		}
 
-		resized, err = resized.Filter(filters[0:4]...)
+		resized, err = resized.Filter(filters[0:4])
 		c.Assert(err, qt.IsNil)
 		rel := resized.RelPermalink()
 		c.Log("filter all", rel)
