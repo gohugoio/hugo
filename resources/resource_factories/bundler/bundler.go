@@ -15,7 +15,6 @@
 package bundler
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"path"
@@ -43,6 +42,19 @@ type multiReadSeekCloser struct {
 	sources []hugio.ReadSeekCloser
 }
 
+func toReaders(sources []hugio.ReadSeekCloser) []io.Reader {
+	readers := make([]io.Reader, len(sources))
+	for i, r := range sources {
+		readers[i] = r
+	}
+	return readers
+}
+
+func newMultiReadSeekCloser(sources ...hugio.ReadSeekCloser) *multiReadSeekCloser {
+	mr := io.MultiReader(toReaders(sources)...)
+	return &multiReadSeekCloser{mr, sources}
+}
+
 func (r *multiReadSeekCloser) Read(p []byte) (n int, err error) {
 	return r.mr.Read(p)
 }
@@ -54,6 +66,9 @@ func (r *multiReadSeekCloser) Seek(offset int64, whence int) (newOffset int64, e
 			return
 		}
 	}
+
+	r.mr = io.MultiReader(toReaders(r.sources)...)
+
 	return
 }
 
@@ -98,31 +113,24 @@ func (c *Client) Concat(targetPath string, r resource.Resources) (resource.Resou
 				rcsources = append(rcsources, rc)
 			}
 
-			var readers []io.Reader
-
 			// Arbitrary JavaScript files require a barrier between them to be safely concatenated together.
 			// Without this, the last line of one file can affect the first line of the next file and change how both files are interpreted.
 			if resolvedm.MainType == media.JavascriptType.MainType && resolvedm.SubType == media.JavascriptType.SubType {
-				readers = make([]io.Reader, 2*len(rcsources)-1)
+				readers := make([]hugio.ReadSeekCloser, 2*len(rcsources)-1)
 				j := 0
 				for i := 0; i < len(rcsources); i++ {
 					if i > 0 {
-						readers[j] = bytes.NewBufferString("\n;\n")
+						readers[j] = hugio.NewReadSeekerNoOpCloserFromString("\n;\n")
 						j++
 					}
 					readers[j] = rcsources[i]
 					j++
 				}
-			} else {
-				readers = make([]io.Reader, len(rcsources))
-				for i := 0; i < len(rcsources); i++ {
-					readers[i] = rcsources[i]
-				}
+				return newMultiReadSeekCloser(readers...), nil
 			}
 
-			mr := io.MultiReader(readers...)
+			return newMultiReadSeekCloser(rcsources...), nil
 
-			return &multiReadSeekCloser{mr: mr, sources: rcsources}, nil
 		}
 
 		composite, err := c.rs.New(
