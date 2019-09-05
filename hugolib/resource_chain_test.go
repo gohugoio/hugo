@@ -284,7 +284,7 @@ Edited content.
 	}
 }
 
-func TestResourceChain(t *testing.T) {
+func TestResourceChains(t *testing.T) {
 	t.Parallel()
 
 	c := qt.New(t)
@@ -389,6 +389,23 @@ T3: Content: {{ $combinedJs.Content }}|{{ $combinedJs.RelPermalink }}
 ;
 (function F {})()`)
 		}},
+
+		{"concat and fingerprint", func() bool { return true }, func(b *sitesBuilder) {
+			b.WithTemplates("home.html", `
+{{ $a := "A" | resources.FromString "a.txt"}}
+{{ $b := "B" | resources.FromString "b.txt"}}
+{{ $c := "C" | resources.FromString "c.txt"}}
+{{ $combined := slice $a $b $c | resources.Concat "bundle/concat.txt" }}
+{{ $fingerprinted := $combined | fingerprint }}
+Fingerprinted: {{ $fingerprinted.RelPermalink }}
+`)
+		}, func(b *sitesBuilder) {
+
+			b.AssertFileContent("public/index.html", "Fingerprinted: /bundle/concat.b5d4045c3f466fa91fe2cc6abe79232a1a57cdf104f7a26e716e0a1e2789df78.txt")
+			b.AssertFileContent("public/bundle/concat.b5d4045c3f466fa91fe2cc6abe79232a1a57cdf104f7a26e716e0a1e2789df78.txt", "ABC")
+
+		}},
+
 		{"fromstring", func() bool { return true }, func(b *sitesBuilder) {
 			b.WithTemplates("home.html", `
 {{ $r := "Hugo Rocks!" | resources.FromString "rocks/hugo.txt" }}
