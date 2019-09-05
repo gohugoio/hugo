@@ -115,7 +115,7 @@ You can then render your custom Disqus partial template as follows:
 ```
 
 ## Open Graph
-An internal template for the [Open Graph protocol](http://ogp.me/), metadata that enables a page to become a rich object in a social graph.
+An internal template for the [Open Graph protocol](https://ogp.me), metadata that enables a page to become a rich object in a social graph.
 This format is used for Facebook and some other sites.
 
 ### Configure Open Graph
