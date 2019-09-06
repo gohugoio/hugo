@@ -233,19 +233,26 @@ func (l *genericResource) Permalink() string {
 }
 
 func (l *genericResource) Publish() error {
-	fr, err := l.ReadSeekCloser()
-	if err != nil {
-		return err
-	}
-	defer fr.Close()
+	var err error
+	l.publishInit.Do(func() {
+		var fr hugio.ReadSeekCloser
+		fr, err = l.ReadSeekCloser()
+		if err != nil {
+			return
+		}
+		defer fr.Close()
 
-	fw, err := helpers.OpenFilesForWriting(l.spec.BaseFs.PublishFs, l.getTargetFilenames()...)
-	if err != nil {
-		return err
-	}
-	defer fw.Close()
+		var fw io.WriteCloser
+		fw, err = helpers.OpenFilesForWriting(l.spec.BaseFs.PublishFs, l.getTargetFilenames()...)
+		if err != nil {
+			return
+		}
+		defer fw.Close()
 
-	_, err = io.Copy(fw, fr)
+		_, err = io.Copy(fw, fr)
+
+	})
+
 	return err
 }
 
@@ -400,26 +407,34 @@ func (l genericResource) clone() *genericResource {
 	return &l
 }
 
-// returns an opened file or nil if nothing to write.
-func (l *genericResource) openDestinationsForWriting() (io.WriteCloser, error) {
-	targetFilenames := l.getTargetFilenames()
-	var changedFilenames []string
+// returns an opened file or nil if nothing to write (it may already be published).
+func (l *genericResource) openDestinationsForWriting() (w io.WriteCloser, err error) {
 
-	// Fast path:
-	// This is a processed version of the original;
-	// check if it already existis at the destination.
-	for _, targetFilename := range targetFilenames {
-		if _, err := l.getSpec().BaseFs.PublishFs.Stat(targetFilename); err == nil {
-			continue
+	l.publishInit.Do(func() {
+		targetFilenames := l.getTargetFilenames()
+		var changedFilenames []string
+
+		// Fast path:
+		// This is a processed version of the original;
+		// check if it already existis at the destination.
+		for _, targetFilename := range targetFilenames {
+			if _, err := l.getSpec().BaseFs.PublishFs.Stat(targetFilename); err == nil {
+				continue
+			}
+
+			changedFilenames = append(changedFilenames, targetFilename)
 		}
-		changedFilenames = append(changedFilenames, targetFilename)
-	}
 
-	if len(changedFilenames) == 0 {
-		return nil, nil
-	}
+		if len(changedFilenames) == 0 {
+			return
+		}
 
-	return helpers.OpenFilesForWriting(l.getSpec().BaseFs.PublishFs, changedFilenames...)
+		w, err = helpers.OpenFilesForWriting(l.getSpec().BaseFs.PublishFs, changedFilenames...)
+
+	})
+
+	return
+
 }
 
 func (r *genericResource) openPublishFileForWriting(relTargetPath string) (io.WriteCloser, error) {
@@ -524,6 +539,8 @@ type permalinker interface {
 type resourceContent struct {
 	content     string
 	contentInit sync.Once
+
+	publishInit sync.Once
 }
 
 type resourceFileInfo struct {
