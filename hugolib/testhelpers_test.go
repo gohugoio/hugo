@@ -486,6 +486,8 @@ func (s *sitesBuilder) CreateSitesE() error {
 		return errors.Wrap(err, "failed to load config")
 	}
 
+	s.Fs.Destination = hugofs.NewCreateCountingFs(s.Fs.Destination)
+
 	depsCfg := s.depsCfg
 	depsCfg.Fs = s.Fs
 	depsCfg.Cfg = s.Cfg
@@ -678,6 +680,12 @@ func (s *sitesBuilder) AssertImage(width, height int, filename string) {
 	cfg, err := jpeg.DecodeConfig(f)
 	s.Assert(cfg.Width, qt.Equals, width)
 	s.Assert(cfg.Height, qt.Equals, height)
+}
+
+func (s *sitesBuilder) AssertNoDuplicateWrites() {
+	s.Helper()
+	d := s.Fs.Destination.(hugofs.DuplicatesReporter)
+	s.Assert(d.ReportDuplicates(), qt.Equals, "")
 }
 
 func (s *sitesBuilder) FileContent(filename string) string {

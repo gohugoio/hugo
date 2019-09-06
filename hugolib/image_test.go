@@ -211,4 +211,7 @@ SUNSET2: {{ $resized2.RelPermalink }}/{{ $resized2.Width }}/Lat: {{ $resized2.Ex
 	b.AssertFileContent("resources/_gen/images/sunset_17701188623491591036.json",
 		"DateTimeDigitized|time.Time", "PENTAX")
 
+	// TODO(bep) add this as a default assertion after Build()?
+	b.AssertNoDuplicateWrites()
+
 }
