@@ -837,15 +837,16 @@ type contentChangeMap struct {
 	symContent   map[string]map[string]bool
 }
 
-func (m *contentChangeMap) add(filename string, tp bundleDirType) {
+func (m *contentChangeMap) add(dirname string, tp bundleDirType) {
 	m.mu.Lock()
-	dir := filepath.Dir(filename) + helpers.FilePathSeparator
-	dir = strings.TrimPrefix(dir, ".")
+	if !strings.HasSuffix(dirname, helpers.FilePathSeparator) {
+		dirname += helpers.FilePathSeparator
+	}
 	switch tp {
 	case bundleBranch:
-		m.branchBundles[dir] = true
+		m.branchBundles[dirname] = true
 	case bundleLeaf:
-		m.leafBundles.Insert(dir, true)
+		m.leafBundles.Insert(dirname, true)
 	default:
 		panic("invalid bundle type")
 	}
