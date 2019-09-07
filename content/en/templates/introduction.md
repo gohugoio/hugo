@@ -533,7 +533,7 @@ The templating engine will strip the content within the HTML comment, but will f
 
 ## Hugo Parameters
 
-Hugo provides the option of passing values to your template layer through your [site configuration][config] (i.e. for site-wide values) or through the metadata of each specific piece of content (i.e. the [front matter][]). You can define any values of any type and use them however you want in your templates, as long as the values are supported by the front matter format specified via `metaDataFormat` in your configuration file.
+Hugo provides the option of passing values to your template layer through your [site configuration][config] (i.e. for site-wide values) or through the metadata of each specific piece of content (i.e. the [front matter][]). You can define any values of any type and use them however you want in your templates, as long as the values are supported by the [front matter format]({{< ref "front-matter.md#front-matter-formats" >}}).
 
 ## Use Content (`Page`) Parameters
 
