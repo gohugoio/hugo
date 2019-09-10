@@ -19,6 +19,8 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/gohugoio/hugo/hugofs/files"
+
 	"github.com/gohugoio/hugo/modules"
 
 	"github.com/bep/gitmap"
@@ -133,7 +135,7 @@ func (p *testPage) BaseFileName() string {
 	panic("not implemented")
 }
 
-func (p *testPage) BundleType() string {
+func (p *testPage) BundleType() files.ContentClass {
 	panic("not implemented")
 }
 

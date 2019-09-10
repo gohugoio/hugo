@@ -23,8 +23,8 @@ import (
 
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/maps"
-
 	"github.com/gohugoio/hugo/compare"
+	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/gohugoio/hugo/navigation"
 	"github.com/gohugoio/hugo/related"
@@ -133,7 +133,7 @@ type PageMetaProvider interface {
 
 	// BundleType returns the bundle type: "leaf", "branch" or an empty string if it is none.
 	// See https://gohugo.io/content-management/page-bundles/
-	BundleType() string
+	BundleType() files.ContentClass
 
 	// A configured description.
 	Description() string

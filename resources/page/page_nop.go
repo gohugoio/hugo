@@ -19,6 +19,8 @@ import (
 	"html/template"
 	"time"
 
+	"github.com/gohugoio/hugo/hugofs/files"
+
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/bep/gitmap"
@@ -83,7 +85,7 @@ func (p *nopPage) BaseFileName() string {
 	return ""
 }
 
-func (p *nopPage) BundleType() string {
+func (p *nopPage) BundleType() files.ContentClass {
 	return ""
 }
 

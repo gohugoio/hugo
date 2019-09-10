@@ -49,14 +49,20 @@ func IsContentExt(ext string) bool {
 	return contentFileExtensionsSet[ext]
 }
 
+type ContentClass string
+
 const (
-	ContentClassLeaf    = "leaf"
-	ContentClassBranch  = "branch"
-	ContentClassFile    = "zfile" // Sort below
-	ContentClassContent = "zcontent"
+	ContentClassLeaf    ContentClass = "leaf"
+	ContentClassBranch  ContentClass = "branch"
+	ContentClassFile    ContentClass = "zfile" // Sort below
+	ContentClassContent ContentClass = "zcontent"
 )
 
-func ClassifyContentFile(filename string) string {
+func (c ContentClass) IsBundle() bool {
+	return c == ContentClassLeaf || c == ContentClassBranch
+}
+
+func ClassifyContentFile(filename string) ContentClass {
 	if !IsContentFile(filename) {
 		return ContentClassFile
 	}

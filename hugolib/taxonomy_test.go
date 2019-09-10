@@ -50,7 +50,7 @@ YAML frontmatter with tags and categories taxonomy.`
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
 	st := make([]string, 0)
-	for _, t := range s.Taxonomies["tags"].ByCount() {
+	for _, t := range s.Taxonomies()["tags"].ByCount() {
 		st = append(st, t.Page().Title()+":"+t.Name)
 	}
 
@@ -166,9 +166,10 @@ permalinkeds:
 	}
 
 	for taxonomy, count := range taxonomyTermPageCounts {
+		msg := qt.Commentf(taxonomy)
 		term := s.getPage(page.KindTaxonomyTerm, taxonomy)
-		b.Assert(term, qt.Not(qt.IsNil))
-		b.Assert(len(term.Pages()), qt.Equals, count, qt.Commentf(taxonomy))
+		b.Assert(term, qt.Not(qt.IsNil), msg)
+		b.Assert(len(term.Pages()), qt.Equals, count, msg)
 
 		for _, p := range term.Pages() {
 			b.Assert(p.Kind(), qt.Equals, page.KindTaxonomy)
@@ -258,8 +259,18 @@ title: "This is S3s"
 
 	s := b.H.Sites[0]
 
-	ta := s.findPagesByKind(page.KindTaxonomy)
-	te := s.findPagesByKind(page.KindTaxonomyTerm)
+	filterbyKind := func(kind string) page.Pages {
+		var pages page.Pages
+		for _, p := range s.Pages() {
+			if p.Kind() == kind {
+				pages = append(pages, p)
+			}
+		}
+		return pages
+	}
+
+	ta := filterbyKind(page.KindTaxonomy)
+	te := filterbyKind(page.KindTaxonomyTerm)
 
 	b.Assert(len(te), qt.Equals, 4)
 	b.Assert(len(ta), qt.Equals, 7)
@@ -353,9 +364,6 @@ categories: ["regular"]
 
 }
 
-// See https://github.com/gohugoio/hugo/issues/6222
-// We need to revisit this once we figure out what to do with the
-// draft etc _index pages, but for now we need to avoid the crash.
 func TestTaxonomiesIndexDraft(t *testing.T) {
 	t.Parallel()
 
@@ -366,9 +374,18 @@ title: "The Categories"
 draft: true
 ---
 
-This is the invisible content.
+Content.
 
-`)
+`,
+		"page.md", `---
+title: "The Page"
+categories: ["cool"]
+---
+
+Content.
+
+`,
+	)
 
 	b.WithTemplates("index.html", `
 {{ range .Site.Pages }}
@@ -378,7 +395,145 @@ This is the invisible content.
 
 	b.Build(BuildCfg{})
 
-	// We publish the index page, but the content will be empty.
-	b.AssertFileContent("public/index.html", " /categories/|The Categories|0||")
+	b.AssertFileContentFn("public/index.html", func(s string) bool {
+		return !strings.Contains(s, "categories")
+	})
+
+}
+
+// https://github.com/gohugoio/hugo/issues/6173
+func TestTaxonomiesWithBundledResources(t *testing.T) {
+	b := newTestSitesBuilder(t)
+	b.WithTemplates("_default/list.html", `
+List {{ .Title }}:
+{{ range .Resources }}
+Resource: {{ .RelPermalink }}|{{ .MediaType }}
+{{ end }}
+	`)
+
+	b.WithContent("p1.md", `---
+title: Page
+categories: ["funny"]
+---
+	`,
+		"categories/_index.md", "---\ntitle: Categories Page\n---",
+		"categories/data.json", "Category data",
+		"categories/funny/_index.md", "---\ntitle: Funnny Category\n---",
+		"categories/funny/funnydata.json", "Category funny data",
+	)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/categories/index.html", `Resource: /categories/data.json|application/json`)
+	b.AssertFileContent("public/categories/funny/index.html", `Resource: /categories/funny/funnydata.json|application/json`)
+
+}
+
+func TestTaxonomiesRemoveOne(t *testing.T) {
+	b := newTestSitesBuilder(t).Running()
+	b.WithTemplates("index.html", `
+	{{ $cats := .Site.Taxonomies.categories.cats }}
+	{{ if $cats }}
+	Len cats: {{ len $cats }}
+	{{ range $cats }}
+        Cats:|{{ .Page.RelPermalink }}|
+    {{ end }}
+    {{ end }}
+    {{ $funny := .Site.Taxonomies.categories.funny }}
+    {{ if $funny }}
+	Len funny: {{ len $funny }}
+    {{ range $funny }}
+        Funny:|{{ .Page.RelPermalink }}|
+    {{ end }}
+    {{ end }}
+	`)
+
+	b.WithContent("p1.md", `---
+title: Page
+categories: ["funny", "cats"]
+---
+	`, "p2.md", `---
+title: Page2
+categories: ["funny", "cats"]
+---
+	`,
+	)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", `
+Len cats: 2
+Len funny: 2
+Cats:|/p1/|
+Cats:|/p2/|
+Funny:|/p1/|
+Funny:|/p2/|`)
+
+	// Remove one category from one of the pages.
+	b.EditFiles("content/p1.md", `---
+title: Page
+categories: ["funny"]
+---
+	`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", `
+Len cats: 1
+Len funny: 2
+Cats:|/p2/|
+Funny:|/p1/|
+Funny:|/p2/|`)
+
+}
+
+//https://github.com/gohugoio/hugo/issues/6590
+func TestTaxonomiesListPages(t *testing.T) {
+	b := newTestSitesBuilder(t)
+	b.WithTemplates("_default/list.html", `
+	
+{{ template "print-taxo" "categories.cats" }}
+{{ template "print-taxo" "categories.funny" }}
+
+{{ define "print-taxo" }}
+{{ $node := index site.Taxonomies (split $ ".") }}
+{{ if $node }}
+Len {{ $ }}: {{ len $node }}
+{{ range $node }}
+    {{ $ }}:|{{ .Page.RelPermalink }}|
+{{ end }}
+{{ else }}
+{{ $ }} not found.
+{{ end }}
+{{ end }}
+	`)
+
+	b.WithContent("_index.md", `---
+title: Home
+categories: ["funny", "cats"]
+---
+	`, "blog/p1.md", `---
+title: Page1
+categories: ["funny"]
+---
+	`, "blog/_index.md", `---
+title: Blog Section
+categories: ["cats"]
+---
+	`,
+	)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", `
+    
+Len categories.cats: 2
+categories.cats:|/blog/|
+categories.cats:|/|
+
+Len categories.funny: 2
+categories.funny:|/|
+categories.funny:|/blog/p1/|
+`)
 
 }

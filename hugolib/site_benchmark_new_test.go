@@ -379,6 +379,29 @@ func TestBenchmarkSiteNew(b *testing.T) {
 	}
 }
 
+func TestBenchmarkSiteDeepContentEdit(t *testing.T) {
+	b := getBenchmarkSiteDeepContent(t).Running()
+	b.Build(BuildCfg{})
+
+	p := b.H.Sites[0].RegularPages()[12]
+
+	b.EditFiles(p.File().Filename(), fmt.Sprintf(`---
+title: %s
+---
+
+Edited!!`, p.Title()))
+
+	counters := &testCounters{}
+
+	b.Build(BuildCfg{testCounters: counters})
+
+	// We currently rebuild all the language versions of the same content file.
+	// We could probably optimize that case, but it's not trivial.
+	b.Assert(int(counters.contentRenderCounter), qt.Equals, 4)
+	b.AssertFileContent("public"+p.RelPermalink()+"index.html", "Edited!!")
+
+}
+
 func BenchmarkSiteNew(b *testing.B) {
 	rnd := rand.New(rand.NewSource(32))
 	benchmarks := getBenchmarkSiteNewTestCases()

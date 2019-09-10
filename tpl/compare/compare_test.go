@@ -63,6 +63,8 @@ func (t tstEqerType1) String() string {
 	return string(t)
 }
 
+type stringType string
+
 type tstCompareType int
 
 const (
@@ -390,6 +392,15 @@ func TestLessThanExtend(t *testing.T) {
 }
 
 func TestCase(t *testing.T) {
+	c := qt.New(t)
+	n := New(false)
+
+	c.Assert(n.Eq("az", "az"), qt.Equals, true)
+	c.Assert(n.Eq("az", stringType("az")), qt.Equals, true)
+
+}
+
+func TestStringType(t *testing.T) {
 	c := qt.New(t)
 	n := New(true)
 

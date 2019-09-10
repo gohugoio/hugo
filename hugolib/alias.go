@@ -17,7 +17,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"html/template"
 	"io"
 	"path"
 	"path/filepath"
@@ -31,8 +30,6 @@ import (
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/tpl"
 )
-
-var defaultAliasTemplates *template.Template
 
 type aliasHandler struct {
 	t         tpl.TemplateHandler

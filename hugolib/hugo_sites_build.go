@@ -19,10 +19,7 @@ import (
 	"fmt"
 	"runtime/trace"
 
-	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/output"
-	"golang.org/x/sync/errgroup"
-	"golang.org/x/sync/semaphore"
 
 	"github.com/pkg/errors"
 
@@ -246,41 +243,7 @@ func (h *HugoSites) assemble(bcfg *BuildCfg) error {
 		return nil
 	}
 
-	numWorkers := config.GetNumWorkerMultiplier()
-	sem := semaphore.NewWeighted(int64(numWorkers))
-	g, ctx := errgroup.WithContext(context.Background())
-
-	for _, s := range h.Sites {
-		s := s
-		g.Go(func() error {
-			err := sem.Acquire(ctx, 1)
-			if err != nil {
-				return err
-			}
-			defer sem.Release(1)
-
-			if err := s.assemblePagesMap(s); err != nil {
-				return err
-			}
-
-			if err := s.pagesMap.assemblePageMeta(); err != nil {
-				return err
-			}
-
-			if err := s.pagesMap.assembleTaxonomies(s); err != nil {
-				return err
-			}
-
-			if err := s.createWorkAllPages(); err != nil {
-				return err
-			}
-
-			return nil
-
-		})
-	}
-
-	if err := g.Wait(); err != nil {
+	if err := h.content.AssemblePages(); err != nil {
 		return err
 	}
 
@@ -301,8 +264,12 @@ func (h *HugoSites) render(config *BuildCfg) error {
 
 	if !config.PartialReRender {
 		h.renderFormats = output.Formats{}
-		for _, s := range h.Sites {
+		h.withSite(func(s *Site) error {
 			s.initRenderFormats()
+			return nil
+		})
+
+		for _, s := range h.Sites {
 			h.renderFormats = append(h.renderFormats, s.renderFormats...)
 		}
 	}

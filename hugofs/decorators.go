@@ -80,7 +80,8 @@ func DecorateBasePathFs(base *afero.BasePathFs) afero.Fs {
 
 // NewBaseFileDecorator decorates the given Fs to provide the real filename
 // and an Opener func.
-func NewBaseFileDecorator(fs afero.Fs) afero.Fs {
+func NewBaseFileDecorator(fs afero.Fs, callbacks ...func(fi FileMetaInfo)) afero.Fs {
+
 	ffs := &baseFileDecoratorFs{Fs: fs}
 
 	decorator := func(fi os.FileInfo, filename string) (os.FileInfo, error) {
@@ -120,7 +121,14 @@ func NewBaseFileDecorator(fs afero.Fs) afero.Fs {
 			return ffs.open(filename)
 		}
 
-		return decorateFileInfo(fi, ffs, opener, filename, "", meta), nil
+		fim := decorateFileInfo(fi, ffs, opener, filename, "", meta)
+
+		for _, cb := range callbacks {
+			cb(fim)
+		}
+
+		return fim, nil
+
 	}
 
 	ffs.decorate = decorator

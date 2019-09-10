@@ -23,7 +23,6 @@ var (
 
 	// This is all the kinds we can expect to find in .Site.Pages.
 	allKindsInPages = []string{page.KindPage, page.KindHome, page.KindSection, page.KindTaxonomy, page.KindTaxonomyTerm}
-	allKinds        = append(allKindsInPages, []string{kindRSS, kindSitemap, kindRobotsTXT, kind404}...)
 )
 
 const (

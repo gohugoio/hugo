@@ -556,6 +556,7 @@ func (b *sourceFilesystemsBuilder) createModFs(
 			From:      mount.Target,
 			To:        filename,
 			ToBasedir: base,
+			Module:    md.Module.Path(),
 			Meta: hugofs.FileMeta{
 				"watch":       md.Watch(),
 				"mountWeight": mountWeight,

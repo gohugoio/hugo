@@ -61,7 +61,10 @@ type pageMeta struct {
 	// a fixed pageOutput.
 	standalone bool
 
-	bundleType string
+	draft       bool // Only published when running with -D flag
+	buildConfig pagemeta.BuildConfig
+
+	bundleType files.ContentClass
 
 	// Params contains configuration defined in the params section of page frontmatter.
 	params map[string]interface{}
@@ -85,21 +88,12 @@ type pageMeta struct {
 
 	aliases []string
 
-	draft bool
-
 	description string
 	keywords    []string
 
 	urlPaths pagemeta.URLPath
 
 	resource.Dates
-
-	// This is enabled if it is a leaf bundle (the "index.md" type) and it is marked as headless in front matter.
-	// Being headless means that
-	// 1. The page itself is not rendered to disk
-	// 2. It is not available in .Site.Pages etc.
-	// 3. But you can get it via .Site.GetPage
-	headless bool
 
 	// Set if this page is bundled inside another.
 	bundled bool
@@ -160,7 +154,7 @@ func (p *pageMeta) Authors() page.AuthorList {
 	return al
 }
 
-func (p *pageMeta) BundleType() string {
+func (p *pageMeta) BundleType() files.ContentClass {
 	return p.bundleType
 }
 
@@ -309,40 +303,53 @@ func (p *pageMeta) Weight() int {
 	return p.weight
 }
 
-func (pm *pageMeta) setMetadata(bucket *pagesMapBucket, p *pageState, frontmatter map[string]interface{}) error {
-	if frontmatter == nil && bucket.cascade == nil {
-		return errors.New("missing frontmatter data")
+func (pm *pageMeta) mergeBucketCascades(b1, b2 *pagesMapBucket) {
+	if b1.cascade == nil {
+		b1.cascade = make(map[string]interface{})
 	}
+	if b2 != nil && b2.cascade != nil {
+		for k, v := range b2.cascade {
+			if _, found := b1.cascade[k]; !found {
+				b1.cascade[k] = v
+			}
+		}
+	}
+}
 
+func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, frontmatter map[string]interface{}) error {
 	pm.params = make(maps.Params)
+
+	if frontmatter == nil && (parentBucket == nil || parentBucket.cascade == nil) {
+		return nil
+	}
 
 	if frontmatter != nil {
 		// Needed for case insensitive fetching of params values
 		maps.ToLower(frontmatter)
-		if p.IsNode() {
+		if p.bucket != nil {
 			// Check for any cascade define on itself.
 			if cv, found := frontmatter["cascade"]; found {
-				cvm := maps.ToStringMap(cv)
-				if bucket.cascade == nil {
-					bucket.cascade = cvm
-				} else {
-					for k, v := range cvm {
-						bucket.cascade[k] = v
-					}
-				}
-			}
-		}
-
-		if bucket != nil && bucket.cascade != nil {
-			for k, v := range bucket.cascade {
-				if _, found := frontmatter[k]; !found {
-					frontmatter[k] = v
-				}
+				p.bucket.cascade = maps.ToStringMap(cv)
 			}
 		}
 	} else {
 		frontmatter = make(map[string]interface{})
-		for k, v := range bucket.cascade {
+	}
+
+	var cascade map[string]interface{}
+
+	if p.bucket != nil {
+		if parentBucket != nil {
+			// Merge missing keys from parent into this.
+			pm.mergeBucketCascades(p.bucket, parentBucket)
+		}
+		cascade = p.bucket.cascade
+	} else if parentBucket != nil {
+		cascade = parentBucket.cascade
+	}
+
+	for k, v := range cascade {
+		if _, found := frontmatter[k]; !found {
 			frontmatter[k] = v
 		}
 	}
@@ -377,6 +384,11 @@ func (pm *pageMeta) setMetadata(bucket *pagesMapBucket, p *pageState, frontmatte
 	err := pm.s.frontmatterHandler.HandleDates(descriptor)
 	if err != nil {
 		p.s.Log.ERROR.Printf("Failed to handle dates for page %q: %s", p.pathOrTitle(), err)
+	}
+
+	pm.buildConfig, err = pagemeta.DecodeBuildConfig(frontmatter["_build"])
+	if err != nil {
+		return err
 	}
 
 	var sitemapSet bool
@@ -439,12 +451,15 @@ func (pm *pageMeta) setMetadata(bucket *pagesMapBucket, p *pageState, frontmatte
 			pm.keywords = cast.ToStringSlice(v)
 			pm.params[loki] = pm.keywords
 		case "headless":
-			// For now, only the leaf bundles ("index.md") can be headless (i.e. produce no output).
-			// We may expand on this in the future, but that gets more complex pretty fast.
-			if p.File().TranslationBaseName() == "index" {
-				pm.headless = cast.ToBool(v)
+			// Legacy setting for leaf bundles.
+			// This is since Hugo 0.63 handled in a more general way for all
+			// pages.
+			isHeadless := cast.ToBool(v)
+			pm.params[loki] = isHeadless
+			if p.File().TranslationBaseName() == "index" && isHeadless {
+				pm.buildConfig.List = false
+				pm.buildConfig.Render = false
 			}
-			pm.params[loki] = pm.headless
 		case "outputs":
 			o := cast.ToStringSlice(v)
 			if len(o) > 0 {
@@ -594,7 +609,23 @@ func (pm *pageMeta) setMetadata(bucket *pagesMapBucket, p *pageState, frontmatte
 	return nil
 }
 
-func (p *pageMeta) applyDefaultValues(ps *pageState) error {
+func (p *pageMeta) noList() bool {
+	return !p.buildConfig.List
+}
+
+func (p *pageMeta) noRender() bool {
+	return !p.buildConfig.Render
+}
+
+func (p *pageMeta) applyDefaultValues(n *contentNode) error {
+	if p.buildConfig.IsZero() {
+		p.buildConfig, _ = pagemeta.DecodeBuildConfig(nil)
+	}
+
+	if !p.s.isEnabled(p.Kind()) {
+		(&p.buildConfig).Disable()
+	}
+
 	if p.markup == "" {
 		if !p.File().IsZero() {
 			// Fall back to file extension
@@ -610,13 +641,21 @@ func (p *pageMeta) applyDefaultValues(ps *pageState) error {
 		case page.KindHome:
 			p.title = p.s.Info.title
 		case page.KindSection:
-			sectionName := helpers.FirstUpper(p.sections[0])
+			var sectionName string
+			if n != nil {
+				sectionName = n.rootSection()
+			} else {
+				sectionName = p.sections[0]
+			}
+
+			sectionName = helpers.FirstUpper(sectionName)
 			if p.s.Cfg.GetBool("pluralizeListTitles") {
 				p.title = inflect.Pluralize(sectionName)
 			} else {
 				p.title = sectionName
 			}
 		case page.KindTaxonomy:
+			// TODO(bep) improve
 			key := p.sections[len(p.sections)-1]
 			p.title = strings.Replace(p.s.titleFunc(key), "-", " ", -1)
 		case page.KindTaxonomyTerm:
@@ -653,7 +692,7 @@ func (p *pageMeta) applyDefaultValues(ps *pageState) error {
 			markup = "markdown"
 		}
 
-		cp, err := p.newContentConverter(ps, markup, renderingConfigOverrides)
+		cp, err := p.newContentConverter(n.p, markup, renderingConfigOverrides)
 		if err != nil {
 			return err
 		}
@@ -665,6 +704,9 @@ func (p *pageMeta) applyDefaultValues(ps *pageState) error {
 }
 
 func (p *pageMeta) newContentConverter(ps *pageState, markup string, renderingConfigOverrides map[string]interface{}) (converter.Converter, error) {
+	if ps == nil {
+		panic("no Page provided")
+	}
 	cp := p.s.ContentSpec.Converters.Get(markup)
 	if cp == nil {
 		return nil, errors.Errorf("no content renderer found for markup %q", p.markup)

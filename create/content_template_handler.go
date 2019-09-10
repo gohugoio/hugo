@@ -110,7 +110,7 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, name, kind, targetPath, archety
 		Date: time.Now().Format(time.RFC3339),
 		Name: name,
 		File: f,
-		Site: &s.Info,
+		Site: s.Info,
 	}
 
 	if archetypeFilename == "" {

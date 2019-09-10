@@ -437,36 +437,6 @@ func NormalizeHugoFlags(f *pflag.FlagSet, name string) pflag.NormalizedName {
 	return pflag.NormalizedName(name)
 }
 
-// DiffStringSlices returns the difference between two string slices.
-// Useful in tests.
-// See:
-// http://stackoverflow.com/questions/19374219/how-to-find-the-difference-between-two-slices-of-strings-in-golang
-func DiffStringSlices(slice1 []string, slice2 []string) []string {
-	diffStr := []string{}
-	m := map[string]int{}
-
-	for _, s1Val := range slice1 {
-		m[s1Val] = 1
-	}
-	for _, s2Val := range slice2 {
-		m[s2Val] = m[s2Val] + 1
-	}
-
-	for mKey, mVal := range m {
-		if mVal == 1 {
-			diffStr = append(diffStr, mKey)
-		}
-	}
-
-	return diffStr
-}
-
-// DiffStrings splits the strings into fields and runs it into DiffStringSlices.
-// Useful for tests.
-func DiffStrings(s1, s2 string) []string {
-	return DiffStringSlices(strings.Fields(s1), strings.Fields(s2))
-}
-
 // PrintFs prints the given filesystem to the given writer starting from the given path.
 // This is useful for debugging.
 func PrintFs(fs afero.Fs, path string, w io.Writer) {

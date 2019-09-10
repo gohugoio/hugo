@@ -23,23 +23,34 @@ import (
 )
 
 func createDefaultOutputFormats(allFormats output.Formats, cfg config.Provider) map[string]output.Formats {
-	rssOut, _ := allFormats.GetByName(output.RSSFormat.Name)
+	rssOut, rssFound := allFormats.GetByName(output.RSSFormat.Name)
 	htmlOut, _ := allFormats.GetByName(output.HTMLFormat.Name)
 	robotsOut, _ := allFormats.GetByName(output.RobotsTxtFormat.Name)
 	sitemapOut, _ := allFormats.GetByName(output.SitemapFormat.Name)
 
-	return map[string]output.Formats{
+	defaultListTypes := output.Formats{htmlOut}
+	if rssFound {
+		defaultListTypes = append(defaultListTypes, rssOut)
+	}
+
+	m := map[string]output.Formats{
 		page.KindPage:         {htmlOut},
-		page.KindHome:         {htmlOut, rssOut},
-		page.KindSection:      {htmlOut, rssOut},
-		page.KindTaxonomy:     {htmlOut, rssOut},
-		page.KindTaxonomyTerm: {htmlOut, rssOut},
+		page.KindHome:         defaultListTypes,
+		page.KindSection:      defaultListTypes,
+		page.KindTaxonomy:     defaultListTypes,
+		page.KindTaxonomyTerm: defaultListTypes,
 		// Below are for consistency. They are currently not used during rendering.
-		kindRSS:       {rssOut},
 		kindSitemap:   {sitemapOut},
 		kindRobotsTXT: {robotsOut},
 		kind404:       {htmlOut},
 	}
+
+	// May be disabled
+	if rssFound {
+		m[kindRSS] = output.Formats{rssOut}
+	}
+
+	return m
 
 }
 

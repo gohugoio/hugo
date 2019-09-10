@@ -9,6 +9,7 @@ import (
 	"time"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/fortytw2/leaktest"
@@ -276,8 +277,8 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	c.Assert(len(doc4.Translations()), qt.Equals, 0)
 
 	// Taxonomies and their URLs
-	c.Assert(len(enSite.Taxonomies), qt.Equals, 1)
-	tags := enSite.Taxonomies["tags"]
+	c.Assert(len(enSite.Taxonomies()), qt.Equals, 1)
+	tags := enSite.Taxonomies()["tags"]
 	c.Assert(len(tags), qt.Equals, 2)
 	c.Assert(doc1en, qt.Equals, tags["tag1"][0].Page)
 
@@ -357,8 +358,8 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	b.AssertFileContent("public/fr/sitemap.xml", "http://example.com/blog/fr/sect/doc1/")
 
 	// Check taxonomies
-	enTags := enSite.Taxonomies["tags"]
-	frTags := frSite.Taxonomies["plaques"]
+	enTags := enSite.Taxonomies()["tags"]
+	frTags := frSite.Taxonomies()["plaques"]
 	c.Assert(len(enTags), qt.Equals, 2, qt.Commentf("Tags in en: %v", enTags))
 	c.Assert(len(frTags), qt.Equals, 2, qt.Commentf("Tags in fr: %v", frTags))
 	c.Assert(enTags["tag1"], qt.Not(qt.IsNil))
@@ -706,7 +707,7 @@ func checkContent(s *sitesBuilder, filename string, matches ...string) {
 	content := readDestination(s.T, s.Fs, filename)
 	for _, match := range matches {
 		if !strings.Contains(content, match) {
-			s.Fatalf("No match for %q in content for %s\n%q", match, filename, content)
+			s.Fatalf("No match for\n%q\nin content for %s\n%q\nDiff:\n%s", match, filename, content, htesting.DiffStrings(content, match))
 		}
 	}
 }

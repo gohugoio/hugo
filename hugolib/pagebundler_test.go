@@ -20,6 +20,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/hugofs/files"
+
 	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -101,7 +103,7 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 						c.Assert(len(s.RegularPages()), qt.Equals, 8)
 
 						singlePage := s.getPage(page.KindPage, "a/1.md")
-						c.Assert(singlePage.BundleType(), qt.Equals, "")
+						c.Assert(singlePage.BundleType(), qt.Equals, files.ContentClass(""))
 
 						c.Assert(singlePage, qt.Not(qt.IsNil))
 						c.Assert(s.getPage("page", "a/1"), qt.Equals, singlePage)
@@ -148,12 +150,12 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 
 						leafBundle1 := s.getPage(page.KindPage, "b/my-bundle/index.md")
 						c.Assert(leafBundle1, qt.Not(qt.IsNil))
-						c.Assert(leafBundle1.BundleType(), qt.Equals, "leaf")
+						c.Assert(leafBundle1.BundleType(), qt.Equals, files.ContentClassLeaf)
 						c.Assert(leafBundle1.Section(), qt.Equals, "b")
 						sectionB := s.getPage(page.KindSection, "b")
 						c.Assert(sectionB, qt.Not(qt.IsNil))
 						home, _ := s.Info.Home()
-						c.Assert(home.BundleType(), qt.Equals, "branch")
+						c.Assert(home.BundleType(), qt.Equals, files.ContentClassBranch)
 
 						// This is a root bundle and should live in the "home section"
 						// See https://github.com/gohugoio/hugo/issues/4332
@@ -387,12 +389,10 @@ func TestMultilingualDisableLanguage(t *testing.T) {
 	c.Assert(len(s.Pages()), qt.Equals, 16)
 	// No nn pages
 	c.Assert(len(s.AllPages()), qt.Equals, 16)
-	for _, p := range s.rawAllPages {
+	s.pageMap.withEveryBundlePage(func(p *pageState) bool {
 		c.Assert(p.Language().Lang != "nn", qt.Equals, true)
-	}
-	for _, p := range s.AllPages() {
-		c.Assert(p.Language().Lang != "nn", qt.Equals, true)
-	}
+		return false
+	})
 
 }
 
@@ -549,7 +549,6 @@ HEADLESS {{< myShort >}}
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 1)
-	c.Assert(len(s.headlessPages), qt.Equals, 1)
 
 	regular := s.getPage(page.KindPage, "a/index")
 	c.Assert(regular.RelPermalink(), qt.Equals, "/s1/")
@@ -1147,18 +1146,15 @@ baseURL = "https://example.org"
 defaultContentLanguage = "en"
 defaultContentLanguageInSubDir = true
 disableKinds = ["taxonomyTerm", "taxonomy"]
-
 [languages]
 [languages.nn]
 languageName = "Nynorsk"
 weight = 2
 title = "Tittel på Nynorsk"
-
 [languages.en]
 title = "Title in English"
 languageName = "English"
 weight = 1
-
 `
 
 	pageContent := func(id string) string {

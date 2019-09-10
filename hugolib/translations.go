@@ -21,7 +21,8 @@ func pagesToTranslationsMap(sites []*Site) map[string]page.Pages {
 	out := make(map[string]page.Pages)
 
 	for _, s := range sites {
-		for _, p := range s.workAllPages {
+		s.pageMap.pageTrees.Walk(func(ss string, n *contentNode) bool {
+			p := n.p
 			// TranslationKey is implemented for all page types.
 			base := p.TranslationKey()
 
@@ -32,7 +33,9 @@ func pagesToTranslationsMap(sites []*Site) map[string]page.Pages {
 
 			pageTranslations = append(pageTranslations, p)
 			out[base] = pageTranslations
-		}
+
+			return false
+		})
 	}
 
 	return out
@@ -40,14 +43,15 @@ func pagesToTranslationsMap(sites []*Site) map[string]page.Pages {
 
 func assignTranslationsToPages(allTranslations map[string]page.Pages, sites []*Site) {
 	for _, s := range sites {
-		for _, p := range s.workAllPages {
+		s.pageMap.pageTrees.Walk(func(ss string, n *contentNode) bool {
+			p := n.p
 			base := p.TranslationKey()
 			translations, found := allTranslations[base]
 			if !found {
-				continue
+				return false
 			}
-
 			p.setTranslations(translations)
-		}
+			return false
+		})
 	}
 }

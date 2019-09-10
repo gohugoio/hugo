@@ -185,7 +185,7 @@ func (fs *FilterFs) Open(name string) (afero.File, error) {
 }
 
 func (fs *FilterFs) OpenFile(name string, flag int, perm os.FileMode) (afero.File, error) {
-	panic("not implemented")
+	return fs.fs.Open(name)
 }
 
 func (fs *FilterFs) ReadDir(name string) ([]os.FileInfo, error) {

@@ -26,17 +26,39 @@ import (
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
+type treeRefProvider interface {
+	getTreeRef() *contentTreeRef
+}
+
+func (p *pageCommon) getTreeRef() *contentTreeRef {
+	return p.treeRef
+}
+
+type nextPrevProvider interface {
+	getNextPrev() *nextPrev
+}
+
+func (p *pageCommon) getNextPrev() *nextPrev {
+	return p.posNextPrev
+}
+
+type nextPrevInSectionProvider interface {
+	getNextPrevInSection() *nextPrev
+}
+
+func (p *pageCommon) getNextPrevInSection() *nextPrev {
+	return p.posNextPrevSection
+}
+
 type pageCommon struct {
 	s *Site
 	m *pageMeta
 
-	bucket *pagesMapBucket
+	bucket  *pagesMapBucket
+	treeRef *contentTreeRef
 
 	// Laziliy initialized dependencies.
 	init *lazy.Init
-
-	metaInit   sync.Once
-	metaInitFn func(bucket *pagesMapBucket) error
 
 	// All of these represents the common parts of a page.Page
 	maps.Scratcher
