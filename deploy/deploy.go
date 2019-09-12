@@ -38,7 +38,6 @@ import (
 	"golang.org/x/text/unicode/norm"
 
 	"gocloud.dev/blob"
-	_ "gocloud.dev/blob/azureblob" // import
 	_ "gocloud.dev/blob/fileblob"  // import
 	_ "gocloud.dev/blob/gcsblob"   // import
 	_ "gocloud.dev/blob/s3blob"    // import
