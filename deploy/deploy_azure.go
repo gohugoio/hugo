@@ -16,6 +16,6 @@
 package deploy
 
 import (
-	"gocloud.dev/blob"
+	_ "gocloud.dev/blob"
 	_ "gocloud.dev/blob/azureblob" // import
 )
