@@ -213,7 +213,7 @@ func (l *genericResource) Data() interface{} {
 }
 
 func (l *genericResource) Key() string {
-	return l.relTargetDirFile.path()
+	return l.RelPermalink()
 }
 
 func (l *genericResource) MediaType() media.Type {

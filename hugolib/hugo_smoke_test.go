@@ -301,3 +301,33 @@ The content.
 
 	b.CreateSites().Build(BuildCfg{})
 }
+
+func TestBundleMany(t *testing.T) {
+
+	b := newTestSitesBuilder(t).WithSimpleConfigFile()
+	for i := 1; i <= 50; i++ {
+		b.WithContent(fmt.Sprintf("bundle%d/index.md", i), fmt.Sprintf(`
+---
+title: "Page %d"
+---
+		
+`, i))
+		b.WithSourceFile(fmt.Sprintf("content/bundle%d/data.yaml", i), fmt.Sprintf(`
+data: v%d		
+`, i))
+	}
+
+	b.WithTemplatesAdded("_default/single.html", `
+{{ $yaml := .Resources.GetMatch "*.yaml" }}
+{{ $data := $yaml | transform.Unmarshal }}
+data content: {{ $yaml.Content | safeHTML }}
+data unmarshaled: {{ $data.data }}
+`)
+
+	b.CreateSites().Build(BuildCfg{})
+
+	for i := 1; i <= 50; i++ {
+		b.AssertFileContent(fmt.Sprintf("public/bundle%d/data.yaml", i), fmt.Sprintf("data: v%d", i))
+		b.AssertFileContent(fmt.Sprintf("public/bundle%d/index.html", i), fmt.Sprintf("data unmarshaled: v%d", i))
+	}
+}
