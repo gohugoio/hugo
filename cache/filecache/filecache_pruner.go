@@ -31,11 +31,14 @@ func (c Caches) Prune() (int, error) {
 
 		count, err := cache.Prune(false)
 
+		counter += count
+
 		if err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
 			return counter, errors.Wrapf(err, "failed to prune cache %q", k)
 		}
-
-		counter += count
 
 	}
 
@@ -68,7 +71,11 @@ func (c *Cache) Prune(force bool) (int, error) {
 			_, err = f.Readdirnames(1)
 			if err == io.EOF {
 				// Empty dir.
-				return c.Fs.Remove(name)
+				err = c.Fs.Remove(name)
+			}
+
+			if err != nil && !os.IsNotExist(err) {
+				return err
 			}
 
 			return nil
@@ -87,7 +94,11 @@ func (c *Cache) Prune(force bool) (int, error) {
 			if err == nil {
 				counter++
 			}
-			return err
+
+			if err != nil && !os.IsNotExist(err) {
+				return err
+			}
+
 		}
 
 		return nil
