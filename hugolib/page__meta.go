@@ -27,8 +27,8 @@ import (
 
 	"github.com/gohugoio/hugo/related"
 
+	inflect "github.com/gobuffalo/flect"
 	"github.com/gohugoio/hugo/source"
-	"github.com/markbates/inflect"
 	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
 

@@ -22,7 +22,7 @@ import (
 
 	"github.com/spf13/viper"
 
-	"github.com/markbates/inflect"
+	inflect "github.com/gobuffalo/flect"
 
 	"github.com/gohugoio/hugo/helpers"
 

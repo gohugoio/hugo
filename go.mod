@@ -27,7 +27,7 @@ require (
 	github.com/kyokomi/emoji v1.5.1
 	github.com/magefile/mage v1.4.0
 	github.com/magiconair/properties v1.8.1 // indirect
-	github.com/markbates/inflect v1.0.0
+	github.com/gobuffalo/flect v0.1.6
 	github.com/mattn/go-isatty v0.0.8
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/miekg/mmark v1.3.6
@@ -68,6 +68,6 @@ require (
 	gopkg.in/yaml.v2 v2.2.2
 )
 
-replace github.com/markbates/inflect => github.com/markbates/inflect v0.0.0-20171215194931-a12c3aec81a6
+replace github.com/markbates/inflect => github.com/gobuffalo/flect v0.1.6
 
 go 1.12
