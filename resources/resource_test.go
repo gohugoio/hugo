@@ -52,7 +52,7 @@ func TestGenericResourceWithLinkFacory(t *testing.T) {
 
 	c.Assert(r.Permalink(), qt.Equals, "https://example.com/foo/foo.css")
 	c.Assert(r.RelPermalink(), qt.Equals, "/foo/foo.css")
-	c.Assert(r.Key(), qt.Equals, "foo.css")
+	c.Assert(r.Key(), qt.Equals, "/foo/foo.css")
 	c.Assert(r.ResourceType(), qt.Equals, "css")
 }
 
