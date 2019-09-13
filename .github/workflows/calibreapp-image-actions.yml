@@ -1,5 +1,5 @@
 name: Compress images
-on: pull_request
+on: never
 jobs:
   build:
     name: calibreapp/image-actions
