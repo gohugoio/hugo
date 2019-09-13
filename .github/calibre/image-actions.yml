@@ -1,0 +1,6 @@
+jpeg:
+  quality: 80
+png:
+  quality: 80
+ignorePaths:
+  - "resources/**"
