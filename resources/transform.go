@@ -304,7 +304,7 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 		key = key + "_" + tr.Key().Value()
 	}
 
-	base := ResourceCacheKey(r.target.TargetPath())
+	base := ResourceCacheKey(r.target.Key())
 
 	key = cache.cleanKey(base) + "_" + helpers.MD5String(key)
 
@@ -537,6 +537,7 @@ type transformableResource interface {
 
 	resource.ContentProvider
 	resource.Resource
+	resource.Identifier
 }
 
 type transformationUpdate struct {
