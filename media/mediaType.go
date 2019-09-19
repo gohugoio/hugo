@@ -140,8 +140,11 @@ var (
 	YAMLType       = Type{MainType: "application", SubType: "yaml", Suffixes: []string{"yaml", "yml"}, Delimiter: defaultDelimiter}
 
 	// Common image types
-	PNGType = Type{MainType: "image", SubType: "png", Suffixes: []string{"png"}, Delimiter: defaultDelimiter}
-	JPGType = Type{MainType: "image", SubType: "jpg", Suffixes: []string{"jpg", "jpeg"}, Delimiter: defaultDelimiter}
+	PNGType  = Type{MainType: "image", SubType: "png", Suffixes: []string{"png"}, Delimiter: defaultDelimiter}
+	JPGType  = Type{MainType: "image", SubType: "jpg", Suffixes: []string{"jpg", "jpeg"}, Delimiter: defaultDelimiter}
+	GIFType  = Type{MainType: "image", SubType: "gif", Suffixes: []string{"gif"}, Delimiter: defaultDelimiter}
+	TIFFType = Type{MainType: "image", SubType: "tiff", Suffixes: []string{"tif", "tiff"}, Delimiter: defaultDelimiter}
+	BMPType  = Type{MainType: "image", SubType: "bmp", Suffixes: []string{"bmp"}, Delimiter: defaultDelimiter}
 
 	OctetType = Type{MainType: "application", SubType: "octet-stream"}
 )

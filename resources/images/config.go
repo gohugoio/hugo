@@ -187,7 +187,8 @@ func DecodeImageConfig(action, config string, defaults Imaging) (ImageConfig, er
 			} else {
 				return c, errors.New("invalid image dimensions")
 			}
-
+		} else if f, ok := ImageFormatFromExt("." + part); ok {
+			c.TargetFormat = f
 		}
 	}
 
@@ -212,6 +213,9 @@ func DecodeImageConfig(action, config string, defaults Imaging) (ImageConfig, er
 
 // ImageConfig holds configuration to create a new image from an existing one, resize etc.
 type ImageConfig struct {
+	// This defines the output format of the output image. It defaults to the source format
+	TargetFormat Format
+
 	Action string
 
 	// If set, this will be used as the key in filenames etc.

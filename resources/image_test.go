@@ -133,6 +133,46 @@ func TestImageTransformBasic(t *testing.T) {
 	c.Assert(filled, eq, filledAgain)
 }
 
+func TestImageTransformFormat(t *testing.T) {
+	c := qt.New(t)
+
+	image := fetchSunset(c)
+
+	fileCache := image.(specProvider).getSpec().FileCaches.ImageCache().Fs
+
+	assertExtWidthHeight := func(img resource.Image, ext string, w, h int) {
+		c.Helper()
+		c.Assert(img, qt.Not(qt.IsNil))
+		c.Assert(helpers.Ext(img.RelPermalink()), qt.Equals, ext)
+		c.Assert(img.Width(), qt.Equals, w)
+		c.Assert(img.Height(), qt.Equals, h)
+	}
+
+	c.Assert(image.RelPermalink(), qt.Equals, "/a/sunset.jpg")
+	c.Assert(image.ResourceType(), qt.Equals, "image")
+	assertExtWidthHeight(image, ".jpg", 900, 562)
+
+	imagePng, err := image.Resize("450x png")
+	c.Assert(err, qt.IsNil)
+	c.Assert(imagePng.RelPermalink(), qt.Equals, "/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_450x0_resize_linear.png")
+	c.Assert(imagePng.ResourceType(), qt.Equals, "image")
+	assertExtWidthHeight(imagePng, ".png", 450, 281)
+	c.Assert(imagePng.Name(), qt.Equals, "sunset.jpg")
+	c.Assert(imagePng.MediaType().String(), qt.Equals, "image/png")
+
+	assertFileCache(c, fileCache, path.Base(imagePng.RelPermalink()), 450, 281)
+
+	imageGif, err := image.Resize("225x gif")
+	c.Assert(err, qt.IsNil)
+	c.Assert(imageGif.RelPermalink(), qt.Equals, "/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_225x0_resize_linear.gif")
+	c.Assert(imageGif.ResourceType(), qt.Equals, "image")
+	assertExtWidthHeight(imageGif, ".gif", 225, 141)
+	c.Assert(imageGif.Name(), qt.Equals, "sunset.jpg")
+	c.Assert(imageGif.MediaType().String(), qt.Equals, "image/gif")
+
+	assertFileCache(c, fileCache, path.Base(imageGif.RelPermalink()), 225, 141)
+}
+
 // https://github.com/gohugoio/hugo/issues/4261
 func TestImageTransformLongFilename(t *testing.T) {
 	c := qt.New(t)

@@ -220,6 +220,10 @@ func (l *genericResource) MediaType() media.Type {
 	return l.mediaType
 }
 
+func (l *genericResource) setMediaType(mediaType media.Type) {
+	l.mediaType = mediaType
+}
+
 func (l *genericResource) Name() string {
 	return l.name
 }
