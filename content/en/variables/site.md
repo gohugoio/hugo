@@ -43,9 +43,6 @@ The following is a list of site-level (aka "global") variables. Many of these va
 .Site.DisqusShortname
 : a string representing the shortname of the Disqus shortcode as defined in the site configuration.
 
-.Site.Files
-: all source files for the Hugo website.
-
 .Site.GoogleAnalytics
 : a string representing your tracking code for Google Analytics as defined in the site configuration.
 
