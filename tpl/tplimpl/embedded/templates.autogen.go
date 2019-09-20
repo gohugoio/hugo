@@ -380,7 +380,7 @@ if (!doNotTrack) {
 	<div class="card-header">
     <a href="{{ $item.author_url | safeURL }}" class="card-link">{{ $item.author_name }}</a>
   </div>
-	<a href="{{ $mediaURL }}" target="_blank"><img class="card-img-top img-fluid" src="{{ $item.thumbnail_url }}" width="{{ $item.thumbnail_width }}"  height="{{ $item.thumbnail_height }}" alt="Instagram Image"></a>
+	<a href="{{ $mediaURL }}" rel="noopener" target="_blank"><img class="card-img-top img-fluid" src="{{ $item.thumbnail_url }}" width="{{ $item.thumbnail_width }}"  height="{{ $item.thumbnail_height }}" alt="Instagram Image"></a>
 	<div class="card-body">
 		{{ if not $hideCaption }}<p class="card-text"><a href="{{ $item.author_url | safeURL }}" class="card-link">{{ $item.author_name }}</a> {{ $item.title}}</p>{{ end }}
 		<a href="{{ $item.author_url | safeURL }}" class="card-link">View More on Instagram</a>
@@ -486,7 +486,7 @@ if (!doNotTrack) {
 {{ $secondClass := "s_video_simple" }}
 <div class="{{ $secondClass }} {{ $class }}">
 {{- with $item }}
-<a href="{{ .provider_url }}{{ .video_id }}" target="_blank">
+<a href="{{ .provider_url }}{{ .video_id }}" rel="noopener" target="_blank">
 {{ $thumb := .thumbnail_url }}
 {{ $original := $thumb | replaceRE "(_.*\\.)" "." }}
 <img src="{{ $thumb }}" srcset="{{ $thumb }} 1x, {{ $original }} 2x" alt="{{ .title }}">
