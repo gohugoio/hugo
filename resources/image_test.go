@@ -170,7 +170,15 @@ func TestImageTransformFormat(t *testing.T) {
 	c.Assert(imageGif.Name(), qt.Equals, "sunset.jpg")
 	c.Assert(imageGif.MediaType().String(), qt.Equals, "image/gif")
 
-	assertFileCache(c, fileCache, path.Base(imageGif.RelPermalink()), 225, 141)
+	imageWebp, err := image.Resize("225x webp q42")
+	c.Assert(err, qt.IsNil)
+	c.Assert(imageWebp.RelPermalink(), qt.Equals, "/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_225x0_resize_q42_linear.webp")
+	c.Assert(imageWebp.ResourceType(), qt.Equals, "image")
+	assertExtWidthHeight(imageWebp, ".webp", 225, 141)
+	c.Assert(imageWebp.Name(), qt.Equals, "sunset.jpg")
+	c.Assert(imageWebp.MediaType().String(), qt.Equals, "image/webp")
+
+	assertFileCache(c, fileCache, path.Base(imageWebp.RelPermalink()), 225, 141)
 }
 
 // https://github.com/gohugoio/hugo/issues/4261
@@ -376,6 +384,20 @@ func TestSVGImageContent(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	c.Assert(content, hqt.IsSameType, "")
 	c.Assert(content.(string), qt.Contains, `<svg height="100" width="100">`)
+}
+
+func TestWEBPImage(t *testing.T) {
+	c := qt.New(t)
+	spec := newTestResourceSpec(specDescriptor{c: c})
+	webp := fetchResourceForSpec(spec, c, "sunset.webp")
+	c.Assert(webp, qt.Not(qt.IsNil))
+
+	c.Assert(webp.MediaType().String(), qt.Equals, media.WEBPType.String())
+
+	img, ok := webp.(*resourceAdapter)
+	c.Assert(ok, qt.Equals, true)
+	c.Assert(img.Width(), qt.Equals, 900)
+	c.Assert(img.Height(), qt.Equals, 562)
 }
 
 func TestImageExif(t *testing.T) {

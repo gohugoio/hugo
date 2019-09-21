@@ -145,6 +145,7 @@ var (
 	GIFType  = Type{MainType: "image", SubType: "gif", Suffixes: []string{"gif"}, Delimiter: defaultDelimiter}
 	TIFFType = Type{MainType: "image", SubType: "tiff", Suffixes: []string{"tif", "tiff"}, Delimiter: defaultDelimiter}
 	BMPType  = Type{MainType: "image", SubType: "bmp", Suffixes: []string{"bmp"}, Delimiter: defaultDelimiter}
+	WEBPType = Type{MainType: "image", SubType: "webp", Suffixes: []string{"webp"}, Delimiter: defaultDelimiter}
 
 	OctetType = Type{MainType: "application", SubType: "octet-stream"}
 )

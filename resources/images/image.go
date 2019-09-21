@@ -26,9 +26,13 @@ import (
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/images/exif"
 
+	webp_chai "github.com/chai2010/webp"
 	"github.com/disintegration/gift"
 	"golang.org/x/image/bmp"
 	"golang.org/x/image/tiff"
+
+	// blind import to enable decoding webp images
+	_ "golang.org/x/image/webp"
 
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/pkg/errors"
@@ -92,6 +96,14 @@ func (i *Image) EncodeTo(conf ImageConfig, img image.Image, w io.Writer) error {
 
 	case BMP:
 		return bmp.Encode(w, img)
+
+	case WEBP:
+		return webp_chai.Encode(w, img, &webp_chai.Options{
+			Lossless: false,
+			Quality:  float32(conf.Quality),
+			Exact:    true,
+		})
+
 	default:
 		return errors.New("format not supported")
 	}
@@ -249,11 +261,12 @@ const (
 	GIF
 	TIFF
 	BMP
+	WEBP
 )
 
 // RequiresDefaultQuality returns if the default quality needs to be applied to images of this format
 func (f Format) RequiresDefaultQuality() bool {
-	return f == JPEG
+	return f == JPEG || f == WEBP
 }
 
 // DefaultExtension returns the default file extension of this format, starting with a dot.
@@ -275,6 +288,8 @@ func (f Format) MediaType() media.Type {
 		return media.TIFFType
 	case BMP:
 		return media.BMPType
+	case WEBP:
+		return media.WEBPType
 	default:
 		panic(fmt.Sprintf("%d is not a valid image format", f))
 	}

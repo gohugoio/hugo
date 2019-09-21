@@ -13,6 +13,7 @@ require (
 	github.com/bep/gitmap v1.1.1
 	github.com/bep/go-tocss v0.6.0
 	github.com/bep/tmc v0.5.0
+	github.com/chai2010/webp v1.1.0
 	github.com/disintegration/gift v1.2.1
 	github.com/dustin/go-humanize v1.0.0
 	github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385
