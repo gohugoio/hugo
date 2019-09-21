@@ -43,8 +43,6 @@ import (
 	"github.com/gohugoio/hugo/resources/images"
 
 	// Blind import for image.Decode
-
-	// Blind import for image.Decode
 	_ "golang.org/x/image/webp"
 )
 
@@ -220,15 +218,11 @@ func (i *imageResource) Filter(filters ...interface{}) (resource.Image, error) {
 	}
 
 	conf.Key = internal.HashString(gfilters)
+	conf.TargetFormat = i.Format
 
 	return i.doWithImageConfig(conf, func(src image.Image) (image.Image, error) {
 		return i.Proc.Filter(src, gfilters...)
 	})
-}
-
-func (i *imageResource) isJPEG() bool {
-	name := strings.ToLower(i.getResourcePaths().relTargetDirFile.file)
-	return strings.HasSuffix(name, ".jpg") || strings.HasSuffix(name, ".jpeg")
 }
 
 // Serialize image processing. The imaging library spins up its own set of Go routines,
@@ -260,7 +254,7 @@ func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src im
 			return nil, nil, &os.PathError{Op: errOp, Path: errPath, Err: err}
 		}
 
-		if i.Format == images.PNG {
+		if conf.TargetFormat == images.PNG {
 			// Apply the colour palette from the source
 			if paletted, ok := src.(*image.Paletted); ok {
 				tmp := image.NewPaletted(converted.Bounds(), paletted.Palette)
@@ -271,6 +265,8 @@ func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src im
 
 		ci := i.clone(converted)
 		ci.setBasePath(conf)
+		ci.Format = conf.TargetFormat
+		ci.setMediaType(conf.TargetFormat.MediaType())
 
 		return ci, converted, nil
 	})
@@ -282,11 +278,14 @@ func (i *imageResource) decodeImageConfig(action, spec string) (images.ImageConf
 		return conf, err
 	}
 
-	iconf := i.Proc.Cfg
+	// default to the source format
+	if conf.TargetFormat == 0 {
+		conf.TargetFormat = i.Format
+	}
 
-	if conf.Quality <= 0 && i.isJPEG() {
+	if conf.Quality <= 0 && conf.TargetFormat.RequiresDefaultQuality() {
 		// We need a quality setting for all JPEGs
-		conf.Quality = iconf.Quality
+		conf.Quality = i.Proc.Cfg.Quality
 	}
 
 	return conf, nil
@@ -339,6 +338,9 @@ func (i *imageResource) getImageMetaCacheTargetPath() string {
 
 func (i *imageResource) relTargetPathFromConfig(conf images.ImageConfig) dirFile {
 	p1, p2 := helpers.FileAndExt(i.getResourcePaths().relTargetDirFile.file)
+	if conf.TargetFormat != i.Format {
+		p2 = conf.TargetFormat.DefaultExtension()
+	}
 
 	h, _ := i.hash()
 	idStr := fmt.Sprintf("_hu%s_%d", h, i.size())

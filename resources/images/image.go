@@ -23,6 +23,7 @@ import (
 	"io"
 	"sync"
 
+	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/images/exif"
 
 	"github.com/disintegration/gift"
@@ -59,7 +60,7 @@ type Image struct {
 }
 
 func (i *Image) EncodeTo(conf ImageConfig, img image.Image, w io.Writer) error {
-	switch i.Format {
+	switch conf.TargetFormat {
 	case JPEG:
 
 		var rgba *image.RGBA
@@ -249,6 +250,35 @@ const (
 	TIFF
 	BMP
 )
+
+// RequiresDefaultQuality returns if the default quality needs to be applied to images of this format
+func (f Format) RequiresDefaultQuality() bool {
+	return f == JPEG
+}
+
+// DefaultExtension returns the default file extension of this format, starting with a dot.
+// For example: .jpg for JPEG
+func (f Format) DefaultExtension() string {
+	return f.MediaType().FullSuffix()
+}
+
+// MediaType returns the media type of this image, e.g. image/jpeg for JPEG
+func (f Format) MediaType() media.Type {
+	switch f {
+	case JPEG:
+		return media.JPGType
+	case PNG:
+		return media.PNGType
+	case GIF:
+		return media.GIFType
+	case TIFF:
+		return media.TIFFType
+	case BMP:
+		return media.BMPType
+	default:
+		panic(fmt.Sprintf("%d is not a valid image format", f))
+	}
+}
 
 type imageConfig struct {
 	config       image.Config
