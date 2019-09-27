@@ -64,7 +64,7 @@ Also see the [CLI Doc](/commands/hugo_mod_get/).
 One way to do local development of a module imported in a project is to add a replace directive to a local directory with the source in `go.mod`:
 
 ```bash
-github.com/bep/hugotestmods/mypartials => /Users/bep/hugotestmods/mypartials
+replace github.com/bep/hugotestmods/mypartials => /Users/bep/hugotestmods/mypartials
 ```
 
 If you have the `hugo server` running, the configuration will be reloaded and `/Users/bep/hugotestmods/mypartials` put on the watch list. 
