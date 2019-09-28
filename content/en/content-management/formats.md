@@ -128,7 +128,7 @@ This is not an introduction into actually using MathJax to render typeset mathem
 
 ### Enable MathJax
 
-The first step is to enable MathJax on pages that you would like to have typeset math. There are multiple ways to do this (adventurous readers can consult the [Loading and Configuring](https://docs.mathjax.org/en/latest/configuration.html) section of the MathJax documentation for additional methods of including MathJax), but the easiest way is to use the secure MathJax CDN by include a `<script>` tag for the officially recommended secure CDN ([cdn.js.com](https://cdnjs.com)):
+The first step is to enable MathJax on pages that you would like to have typeset math. There are multiple ways to do this (adventurous readers can consult the [Loading and Configuring](https://docs.mathjax.org/en/latest/web/configuration.html) section of the MathJax documentation for additional methods of including MathJax), but the easiest way is to use the secure MathJax CDN by include a `<script>` tag for the officially recommended secure CDN ([cdn.js.com](https://cdnjs.com)):
 
 {{< code file="add-mathjax-to-page.html" >}}
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
