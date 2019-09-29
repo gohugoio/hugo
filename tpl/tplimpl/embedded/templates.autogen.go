@@ -422,7 +422,7 @@ if (!doNotTrack) {
 {{- if $pc.Simple -}}
 {{ template "_internal/shortcodes/twitter_simple.html" . }}
 {{- else -}}
-{{- $url := printf "https://api.twitter.com/1/statuses/oembed.json?id=%s&dnt=%t" (index .Params 0) $pc.EnableDNT -}}
+{{- $url := printf "https://api.twitter.com/1/statuses/oembed.json?id=%v&dnt=%t" (index .Params 0) $pc.EnableDNT -}}
 {{- $json := getJSON $url -}}
 {{ $json.html | safeHTML }}
 {{- end -}}

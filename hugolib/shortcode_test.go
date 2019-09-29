@@ -34,11 +34,12 @@ import (
 )
 
 func CheckShortCodeMatch(t *testing.T, input, expected string, withTemplate func(templ tpl.TemplateHandler) error) {
+	t.Helper()
 	CheckShortCodeMatchAndError(t, input, expected, withTemplate, false)
 }
 
 func CheckShortCodeMatchAndError(t *testing.T, input, expected string, withTemplate func(templ tpl.TemplateHandler) error, expectError bool) {
-
+	t.Helper()
 	cfg, fs := newTestCfg()
 	c := qt.New(t)
 
@@ -1156,5 +1157,41 @@ title: "Hugo Rocks!"
 	builder.AssertFileContent("public/page/index.html",
 		"hello: hello",
 		"test/hello: test/hello",
+	)
+}
+
+func TestShortcodeTypedParams(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	builder := newTestSitesBuilder(t).WithSimpleConfigFile()
+
+	builder.WithContent("page.md", `---
+title: "Hugo Rocks!"
+---
+
+# doc
+
+types positional: {{< hello true false 33 3.14 >}}
+types named: {{< hello b1=true b2=false i1=33 f1=3.14 >}}
+types string: {{< hello "true" trues "33" "3.14" >}}
+
+
+`).WithTemplatesAdded(
+		"layouts/shortcodes/hello.html",
+		`{{ range $i, $v := .Params }}
+-  {{ printf "%v: %v (%T)" $i $v $v }}
+{{ end }}
+{{ $b1 := .Get "b1" }}
+Get: {{ printf "%v (%T)" $b1 $b1 | safeHTML }}
+`).Build(BuildCfg{})
+
+	s := builder.H.Sites[0]
+	c.Assert(len(s.RegularPages()), qt.Equals, 1)
+
+	builder.AssertFileContent("public/page/index.html",
+		"types positional: - 0: true (bool) - 1: false (bool) - 2: 33 (int) - 3: 3.14 (float64)",
+		"types named: - b1: true (bool) - b2: false (bool) - f1: 3.14 (float64) - i1: 33 (int) Get: true (bool) ",
+		"types string: - 0: true (string) - 1: trues (string) - 2: 33 (string) - 3: 3.14 (string) ",
 	)
 }

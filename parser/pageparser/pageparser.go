@@ -80,7 +80,7 @@ func (t *Iterator) Input() []byte {
 	return t.l.Input()
 }
 
-var errIndexOutOfBounds = Item{tError, 0, []byte("no more tokens")}
+var errIndexOutOfBounds = Item{tError, 0, []byte("no more tokens"), true}
 
 // Current will repeatably return the current item.
 func (t *Iterator) Current() Item {
