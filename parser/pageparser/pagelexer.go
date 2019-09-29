@@ -142,7 +142,13 @@ func (l *pageLexer) backup() {
 
 // sends an item back to the client.
 func (l *pageLexer) emit(t ItemType) {
-	l.items = append(l.items, Item{t, l.start, l.input[l.start:l.pos]})
+	l.items = append(l.items, Item{t, l.start, l.input[l.start:l.pos], false})
+	l.start = l.pos
+}
+
+// sends a string item back to the client.
+func (l *pageLexer) emitString(t ItemType) {
+	l.items = append(l.items, Item{t, l.start, l.input[l.start:l.pos], true})
 	l.start = l.pos
 }
 
@@ -151,14 +157,14 @@ func (l *pageLexer) isEOF() bool {
 }
 
 // special case, do not send '\\' back to client
-func (l *pageLexer) ignoreEscapesAndEmit(t ItemType) {
+func (l *pageLexer) ignoreEscapesAndEmit(t ItemType, isString bool) {
 	val := bytes.Map(func(r rune) rune {
 		if r == '\\' {
 			return -1
 		}
 		return r
 	}, l.input[l.start:l.pos])
-	l.items = append(l.items, Item{t, l.start, val})
+	l.items = append(l.items, Item{t, l.start, val, isString})
 	l.start = l.pos
 }
 
@@ -176,7 +182,7 @@ var lf = []byte("\n")
 
 // nil terminates the parser
 func (l *pageLexer) errorf(format string, args ...interface{}) stateFunc {
-	l.items = append(l.items, Item{tError, l.start, []byte(fmt.Sprintf(format, args...))})
+	l.items = append(l.items, Item{tError, l.start, []byte(fmt.Sprintf(format, args...)), true})
 	return nil
 }
 
@@ -196,6 +202,16 @@ func (l *pageLexer) consumeToNextLine() {
 	for {
 		r := l.next()
 		if r == eof || isEndOfLine(r) {
+			return
+		}
+	}
+}
+
+func (l *pageLexer) consumeToSpace() {
+	for {
+		r := l.next()
+		if r == eof || unicode.IsSpace(r) {
+			l.backup()
 			return
 		}
 	}

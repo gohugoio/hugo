@@ -27,7 +27,7 @@ type lexerTest struct {
 }
 
 func nti(tp ItemType, val string) Item {
-	return Item{tp, 0, []byte(val)}
+	return Item{tp, 0, []byte(val), false}
 }
 
 var (
@@ -119,6 +119,7 @@ func equal(i1, i2 []Item) bool {
 		if i1[k].Type != i2[k].Type {
 			return false
 		}
+
 		if !reflect.DeepEqual(i1[k].Val, i2[k].Val) {
 			return false
 		}

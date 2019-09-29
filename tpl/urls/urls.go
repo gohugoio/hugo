@@ -126,7 +126,13 @@ func (ns *Namespace) refArgsToMap(args interface{}) (map[string]interface{}, err
 		s  string
 		of string
 	)
-	switch v := args.(type) {
+
+	v := args
+	if _, ok := v.([]interface{}); ok {
+		v = cast.ToStringSlice(v)
+	}
+
+	switch v := v.(type) {
 	case map[string]interface{}:
 		return v, nil
 	case map[string]string:
@@ -152,6 +158,7 @@ func (ns *Namespace) refArgsToMap(args interface{}) (map[string]interface{}, err
 		}
 
 	}
+
 	return map[string]interface{}{
 		"path":         s,
 		"outputFormat": of,

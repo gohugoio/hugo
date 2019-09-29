@@ -151,14 +151,7 @@ func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
 		}
 	}
 
-	switch x.Kind() {
-	case reflect.String:
-		return x.String()
-	case reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8, reflect.Int:
-		return x.Int()
-	default:
-		return x
-	}
+	return x.Interface()
 
 }
 
@@ -219,17 +212,17 @@ func (sc shortcode) String() string {
 	// for testing (mostly), so any change here will break tests!
 	var params interface{}
 	switch v := sc.params.(type) {
-	case map[string]string:
+	case map[string]interface{}:
 		// sort the keys so test assertions won't fail
 		var keys []string
 		for k := range v {
 			keys = append(keys, k)
 		}
 		sort.Strings(keys)
-		var tmp = make([]string, len(keys))
+		var tmp = make(map[string]interface{})
 
-		for i, k := range keys {
-			tmp[i] = k + ":" + v[k]
+		for _, k := range keys {
+			tmp[k] = v[k]
 		}
 		params = tmp
 
@@ -539,12 +532,12 @@ Loop:
 			} else if pt.Peek().IsShortcodeParamVal() {
 				// named params
 				if sc.params == nil {
-					params := make(map[string]string)
-					params[currItem.ValStr()] = pt.Next().ValStr()
+					params := make(map[string]interface{})
+					params[currItem.ValStr()] = pt.Next().ValTyped()
 					sc.params = params
 				} else {
-					if params, ok := sc.params.(map[string]string); ok {
-						params[currItem.ValStr()] = pt.Next().ValStr()
+					if params, ok := sc.params.(map[string]interface{}); ok {
+						params[currItem.ValStr()] = pt.Next().ValTyped()
 					} else {
 						return sc, errShortCodeIllegalState
 					}
@@ -553,12 +546,12 @@ Loop:
 			} else {
 				// positional params
 				if sc.params == nil {
-					var params []string
-					params = append(params, currItem.ValStr())
+					var params []interface{}
+					params = append(params, currItem.ValTyped())
 					sc.params = params
 				} else {
-					if params, ok := sc.params.([]string); ok {
-						params = append(params, currItem.ValStr())
+					if params, ok := sc.params.([]interface{}); ok {
+						params = append(params, currItem.ValTyped())
 						sc.params = params
 					} else {
 						return sc, errShortCodeIllegalState

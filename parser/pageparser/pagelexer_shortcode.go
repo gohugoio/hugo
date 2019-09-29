@@ -112,7 +112,7 @@ func lexShortcodeParam(l *pageLexer, escapedQuoteStart bool) stateFunc {
 			break
 		}
 
-		if !isAlphaNumericOrHyphen(r) {
+		if !isAlphaNumericOrHyphen(r) && r != '.' { // Floats have period
 			l.backup()
 			break
 		}
@@ -135,6 +135,12 @@ func lexShortcodeParam(l *pageLexer, escapedQuoteStart bool) stateFunc {
 	l.emit(tScParam)
 	return lexInsideShortcode
 
+}
+
+func lexShortcodeParamVal(l *pageLexer) stateFunc {
+	l.consumeToSpace()
+	l.emit(tScParamVal)
+	return lexInsideShortcode
 }
 
 func lexShortcodeQuotedParamVal(l *pageLexer, escapedQuotedValuesAllowed bool, typ ItemType) stateFunc {
@@ -176,9 +182,9 @@ Loop:
 	}
 
 	if escapedInnerQuoteFound {
-		l.ignoreEscapesAndEmit(typ)
+		l.ignoreEscapesAndEmit(typ, true)
 	} else {
-		l.emit(typ)
+		l.emitString(typ)
 	}
 
 	r := l.next()
@@ -273,8 +279,13 @@ func lexInsideShortcode(l *pageLexer) stateFunc {
 	case isSpace(r), isEndOfLine(r):
 		l.ignore()
 	case r == '=':
+		l.consumeSpace()
 		l.ignore()
-		return lexShortcodeQuotedParamVal(l, l.peek() != '\\', tScParamVal)
+		peek := l.peek()
+		if peek == '"' || peek == '\\' {
+			return lexShortcodeQuotedParamVal(l, peek != '\\', tScParamVal)
+		}
+		return lexShortcodeParamVal
 	case r == '/':
 		if l.currShortcodeName == "" {
 			return l.errorf("got closing shortcode, but none is open")
