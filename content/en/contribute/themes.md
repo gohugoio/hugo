@@ -22,6 +22,8 @@ toc: true
 
 A collection of all themes created by the Hugo community, including screenshots and demos, can be found at [www.themes.gohugo.io]. Every theme in this list will automatically be added to the theme site.
 
+Another great site for Hugo themes is [jamstackthemes.dev/](https://jamstackthemes.dev/ssg/hugo/).
+
 
 ### Add Your Theme to the Repo
 
