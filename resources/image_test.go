@@ -15,6 +15,7 @@ package resources
 
 import (
 	"fmt"
+	"io/ioutil"
 	"math/big"
 	"math/rand"
 	"os"
@@ -567,15 +568,9 @@ func TestImageOperationsGolden(t *testing.T) {
 	dir2 := filepath.FromSlash("testdata/golden")
 
 	// The two dirs above should now be the same.
-	d1, err := os.Open(dir1)
+	dirinfos1, err := ioutil.ReadDir(dir1)
 	c.Assert(err, qt.IsNil)
-	d2, err := os.Open(dir2)
-	c.Assert(err, qt.IsNil)
-
-	dirinfos1, err := d1.Readdir(-1)
-	c.Assert(err, qt.IsNil)
-	dirinfos2, err := d2.Readdir(-1)
-
+	dirinfos2, err := ioutil.ReadDir(dir2)
 	c.Assert(err, qt.IsNil)
 	c.Assert(len(dirinfos1), qt.Equals, len(dirinfos2))
 
