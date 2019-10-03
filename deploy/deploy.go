@@ -249,11 +249,20 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 		jww.FEEDBACK.Println("Success!")
 	}
 
-	if d.invalidateCDN && d.target.CloudFrontDistributionID != "" {
-		jww.FEEDBACK.Println("Invalidating CloudFront CDN...")
-		if err := InvalidateCloudFront(ctx, d.target.CloudFrontDistributionID); err != nil {
-			jww.FEEDBACK.Printf("Failed to invalidate CloudFront CDN: %v\n", err)
-			return err
+	if d.invalidateCDN {
+		if d.target.CloudFrontDistributionID != "" {
+			jww.FEEDBACK.Println("Invalidating CloudFront CDN...")
+			if err := InvalidateCloudFront(ctx, d.target.CloudFrontDistributionID); err != nil {
+				jww.FEEDBACK.Printf("Failed to invalidate CloudFront CDN: %v\n", err)
+				return err
+			}
+		}
+		if d.target.GoogleCloudCDNOrigin != "" {
+			jww.FEEDBACK.Println("Invalidating Google Cloud CDN...")
+			if err := InvalidateGoogleCloudCDN(ctx, d.target.GoogleCloudCDNOrigin); err != nil {
+				jww.FEEDBACK.Printf("Failed to invalidate Google Cloud CDN: %v\n", err)
+				return err
+			}
 		}
 		jww.FEEDBACK.Println("Success!")
 	}

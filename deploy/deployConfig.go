@@ -37,6 +37,10 @@ type target struct {
 	URL  string
 
 	CloudFrontDistributionID string
+
+	// GoogleCloudCDNOrigin specifies the Google Cloud project and CDN origin to
+	// invalidate when deploying this target.  It is specified as <project>/<origin>.
+	GoogleCloudCDNOrigin string
 }
 
 // matcher represents configuration to be applied to files whose paths match
