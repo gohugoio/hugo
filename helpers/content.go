@@ -27,6 +27,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/hugolib/filesystems"
 	"github.com/niklasfasching/go-org/org"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
@@ -34,6 +35,7 @@ import (
 	"github.com/miekg/mmark"
 	"github.com/mitchellh/mapstructure"
 	"github.com/russross/blackfriday"
+	"github.com/spf13/afero"
 	jww "github.com/spf13/jwalterweatherman"
 
 	"strings"
@@ -466,6 +468,7 @@ func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 // for a given content rendering.
 // By creating you must set the Config, otherwise it will panic.
 type RenderingContext struct {
+	BaseFs       *filesystems.BaseFs
 	Content      []byte
 	PageFmt      string
 	DocumentID   string
@@ -752,6 +755,9 @@ func getPandocContent(ctx *RenderingContext) []byte {
 func orgRender(ctx *RenderingContext, c ContentSpec) []byte {
 	config := org.New()
 	config.Log = jww.WARN
+	config.ReadFile = func(filename string) ([]byte, error) {
+		return afero.ReadFile(ctx.BaseFs.Content.Fs, filename)
+	}
 	writer := org.NewHTMLWriter()
 	writer.HighlightCodeBlock = func(source, lang string) string {
 		highlightedSource, err := c.Highlight(source, lang, "")

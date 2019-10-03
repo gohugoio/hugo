@@ -143,6 +143,7 @@ func newPageContentOutput(p *pageState) func(f output.Format) (*pageContentOutpu
 					html := cp.p.s.ContentSpec.RenderBytes(&helpers.RenderingContext{
 						Content: []byte(cp.p.m.summary), RenderTOC: false, PageFmt: cp.p.m.markup,
 						Cfg:        p.Language(),
+						BaseFs:     p.s.BaseFs,
 						DocumentID: p.File().UniqueID(), DocumentName: p.File().Path(),
 						Config: cp.p.getRenderingConfig()})
 					html = cp.p.s.ContentSpec.TrimShortHTML(html)
@@ -314,6 +315,7 @@ func (cp *pageContentOutput) renderContent(p page.Page, content []byte) []byte {
 	return cp.p.s.ContentSpec.RenderBytes(&helpers.RenderingContext{
 		Content: content, RenderTOC: true, PageFmt: cp.p.m.markup,
 		Cfg:        p.Language(),
+		BaseFs:     cp.p.s.BaseFs,
 		DocumentID: p.File().UniqueID(), DocumentName: p.File().Path(),
 		Config: cp.p.getRenderingConfig()})
 }
