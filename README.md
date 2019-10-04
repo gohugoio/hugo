@@ -112,6 +112,6 @@ For a complete guide to contributing code to Hugo, see the [Contribution Guide](
 [Go]: https://golang.org/
 [Hugo Documentation]: https://gohugo.io/overview/introduction/
 
-Tying with hugo ented and complied on Ubuntu 18.04 
+Tying with hugo ented and complied on Ubuntu 18.04, there is a common requirement of hugo extended to try hugo themes.
 
 
