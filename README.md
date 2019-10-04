@@ -1,4 +1,5 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/e0dbbfc7-34f1-4393-a679-c16e80162705/deploy-status)](https://app.netlify.com/sites/gohugoio/deploys)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://gohugo.io/contribute/documentation/)
 
 # Hugo Docs
 
