@@ -122,7 +122,7 @@ But you should not have both. So if you add a `mounts` section you should make i
 {{< /code-toggle >}}
 
 source
-: The source direcory of the mount. For the main project, this can be either project-relative or absolute and even a symbolic link. For other modules it must be project-relative.
+: The source directory of the mount. For the main project, this can be either project-relative or absolute and even a symbolic link. For other modules it must be project-relative.
 
 target
 : Where it should be mounted into Hugo's virtual filesystem. It must start with one of Hugo's component folders: `static`, `content`, `layouts`, `data`, `assets`, `i18n`, or `archetypes`. E.g. `content/blog`.
