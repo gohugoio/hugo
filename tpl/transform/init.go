@@ -32,7 +32,7 @@ func init() {
 		ns.AddMethodMapping(ctx.Emojify,
 			[]string{"emojify"},
 			[][2]string{
-				{`{{ "I :heart: Hugo" | emojify }}`, `I ❤️ Hugo`},
+				{`{{ "I :heart: Hugo" | emojify }}`, `I ❤ Hugo`},
 			},
 		)
 
