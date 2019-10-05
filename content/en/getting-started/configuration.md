@@ -50,19 +50,19 @@ In addition to using a single site config file, one can use the `configDir` dire
 
 
 ```
-config
-├── _default
-│   ├── config.toml
-│   ├── languages.toml
-│   ├── menus.en.toml
-│   ├── menus.zh.toml
-│   └── params.toml
-├── staging
-│   ├── config.toml
-│   └── params.toml
-└── production
-    ├── config.toml
-    └── params.toml
+├── config
+│   ├── _default
+│   │   ├── config.toml
+│   │   ├── languages.toml
+│   │   ├── menus.en.toml
+│   │   ├── menus.zh.toml
+│   │   └── params.toml
+│   ├── production
+│   │   ├── config.toml
+│   │   └── params.toml
+│   └── staging
+│       ├── config.toml
+│       └── params.toml
 ```
 
 Considering the structure above, when running `hugo --environment staging`, Hugo will use every settings from `config/_default` and merge `staging`'s on top of those.
