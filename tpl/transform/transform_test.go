@@ -40,7 +40,7 @@ func TestEmojify(t *testing.T) {
 		expect interface{}
 	}{
 		{":notamoji:", template.HTML(":notamoji:")},
-		{"I :heart: Hugo", template.HTML("I ❤️ Hugo")},
+		{"I :heart: Hugo", template.HTML("I ❤ Hugo")},
 		// errors
 		{tstNoStringer{}, false},
 	} {
