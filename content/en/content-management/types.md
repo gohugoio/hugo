@@ -67,7 +67,7 @@ If you have multiple content files in your `events` directory that are of the `s
 {{% /note %}}
 
 {{% warning %}}
-With the "everything is a page" data model introduced in v0.18 (see [Content Organization](/content-management/organization/)), you can use `_index.md` in content directories to add both content and front matter to [list pages](/templates/lists/). However, `type` and `layout` declared in the front matter of `_index.md` are *not* currently respected at build time as of v0.19. This is a known issue [(#3005)](https://github.com/gohugoio/hugo/issues/3005).
+With the "everything is a page" data model introduced in v0.18 (see [Content Organization](/content-management/organization/)), you can use `_index.md` in content directories to add both content and front matter to [list pages](/templates/lists/).
 {{% /warning %}}
 
 ### Create Views
