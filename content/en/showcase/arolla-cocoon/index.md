@@ -4,7 +4,6 @@ title: Cocoon & Cosy
 date: 2018-08-10
 description: "Showcase: \"Emergency setup a dedicated site in an afternoon.\""
 siteURL: https://www.cocoon-arolla.com
-siteSource: https://github.com/divinerites/cocoon
 byline: "[Didier Divinerites](https://github.com/divinerites)"
 
 ---
@@ -13,7 +12,7 @@ Swiss [Arolla campsite](http://www.camping-arolla.com/) runs the highest campsit
 
 But they just launch a brand new offer (luxury tents with bed and fire oven), and we couldn't wait for the proper new website for having this promoted: we needed the website up and running within 24h!
 
-So we decided to quickly launch a dedicated [independent web site](https://www.cocoon-arolla.com) using all the powefull tools included with [gohugo.io](https://gohugo.io) and some things we already knew & used:
+So we decided to quickly launch a dedicated [independent web site](https://www.cocoon-arolla.com) using all the powerful tools included with [gohugo.io](https://gohugo.io) and some things we already knew & used:
 
 - Choose a spectacular landing theme in the rich [Hugo Themes](https://themes.gohugo.io/) collection : [Airspace Theme](https://themes.gohugo.io/airspace-hugo/) by Themefisher.
 - Replace the main images.
@@ -22,7 +21,7 @@ So we decided to quickly launch a dedicated [independent web site](https://www.c
 - Replace the Google Maps widget by the [OpenStreetMap](http://www.openstreetmap.org/) equivalent
 - Use a [Zotabox](http://www.zotabox.com) contact form.
 - Write the content in French & in English directly on the content pages, describe their services, add fun facts and true testimonies.
-- Setup a GPRD compliant site with the new Hugo options.
+- Setup a GDPR compliant site with the new Hugo options.
 - Use [Netlify](https://www.netlify.com) for publishing it in a breeze.
 
 The first version was up in 4 hours, and the polished 2 languages version was published on Netlify the next day.
