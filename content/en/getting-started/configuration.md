@@ -167,7 +167,7 @@ languages
 : See [Configure Languages](/content-management/multilingual/#configure-languages).
 
 languageCode ("")
-: The site's language code.
+: The site's language code. It is used in the default [RSS template](/templates/rss/#configure-rss) and can be useful for [multi-lingual sites](/content-management/multilingual/#configure-multilingual-multihost).
 
 languageName ("")
 : The site's language name.
