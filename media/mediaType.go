@@ -94,10 +94,9 @@ func (m Type) Type() string {
 	// image/svg+xml
 	// text/css
 	if m.mimeSuffix != "" {
-		return fmt.Sprintf("%s/%s+%s", m.MainType, m.SubType, m.mimeSuffix)
+		return m.MainType + "/" + m.SubType + "+" + m.mimeSuffix
 	}
-	return fmt.Sprintf("%s/%s", m.MainType, m.SubType)
-
+	return m.MainType + "/" + m.SubType
 }
 
 func (m Type) String() string {
