@@ -15,6 +15,7 @@ package resources
 
 import (
 	"fmt"
+	"image"
 	"io/ioutil"
 	"math/big"
 	"math/rand"
@@ -22,6 +23,7 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strconv"
 	"sync"
 	"testing"
@@ -478,6 +480,47 @@ func BenchmarkImageExif(b *testing.B) {
 
 }
 
+// usesFMA indicates whether "fused multiply and add" (FMA) instruction is
+// used.  The command "grep FMADD go/test/codegen/floats.go" can help keep
+// the FMA-using architecture list updated.
+var usesFMA = runtime.GOARCH == "s390x" ||
+	runtime.GOARCH == "ppc64" ||
+	runtime.GOARCH == "ppc64le" ||
+	runtime.GOARCH == "arm64"
+
+// goldenEqual compares two NRGBA images.  It is used in golden tests only.
+// A small tolerance is allowed on architectures using "fused multiply and add"
+// (FMA) instruction to accommodate for floating-point rounding differences
+// with control golden images that were generated on amd64 architecture.
+// See https://golang.org/ref/spec#Floating_point_operators
+// and https://github.com/gohugoio/hugo/issues/6387 for more information.
+//
+// Borrowed from https://github.com/disintegration/gift/blob/a999ff8d5226e5ab14b64a94fca07c4ac3f357cf/gift_test.go#L598-L625
+// Copyright (c) 2014-2019 Grigory Dryapak
+// Licensed under the MIT License.
+func goldenEqual(img1, img2 *image.NRGBA) bool {
+	maxDiff := 0
+	if usesFMA {
+		maxDiff = 1
+	}
+	if !img1.Rect.Eq(img2.Rect) {
+		return false
+	}
+	if len(img1.Pix) != len(img2.Pix) {
+		return false
+	}
+	for i := 0; i < len(img1.Pix); i++ {
+		diff := int(img1.Pix[i]) - int(img2.Pix[i])
+		if diff < 0 {
+			diff = -diff
+		}
+		if diff > maxDiff {
+			return false
+		}
+	}
+	return true
+}
+
 func TestImageOperationsGolden(t *testing.T) {
 	c := qt.New(t)
 	c.Parallel()
@@ -580,21 +623,51 @@ func TestImageOperationsGolden(t *testing.T) {
 		}
 		fi2 := dirinfos2[i]
 		c.Assert(fi1.Name(), qt.Equals, fi2.Name())
-		c.Assert(fi1, eq, fi2)
+
 		f1, err := os.Open(filepath.Join(dir1, fi1.Name()))
 		c.Assert(err, qt.IsNil)
 		f2, err := os.Open(filepath.Join(dir2, fi2.Name()))
 		c.Assert(err, qt.IsNil)
 
-		hash1, err := helpers.MD5FromReader(f1)
+		img1, _, err := image.Decode(f1)
 		c.Assert(err, qt.IsNil)
-		hash2, err := helpers.MD5FromReader(f2)
+		img2, _, err := image.Decode(f2)
 		c.Assert(err, qt.IsNil)
+
+		nrgba1 := image.NewNRGBA(img1.Bounds())
+		gift.New().Draw(nrgba1, img1)
+		nrgba2 := image.NewNRGBA(img2.Bounds())
+		gift.New().Draw(nrgba2, img2)
+
+		if !goldenEqual(nrgba1, nrgba2) {
+			switch fi1.Name() {
+			case "gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_4c320010919da2d8b63ed24818b4d8e1.png",
+				"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_9d4c2220235b3c2d9fa6506be571560f.png",
+				"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_c74bb417b961e09cf1aac2130b7b9b85.png":
+				c.Log("expectedly differs from golden due to dithering:", fi1.Name())
+			default:
+				t.Errorf("resulting image differs from golden: %s", fi1.Name())
+			}
+		}
+
+		if !usesFMA {
+			c.Assert(fi1, eq, fi2)
+
+			_, err = f1.Seek(0, 0)
+			c.Assert(err, qt.IsNil)
+			_, err = f2.Seek(0, 0)
+			c.Assert(err, qt.IsNil)
+
+			hash1, err := helpers.MD5FromReader(f1)
+			c.Assert(err, qt.IsNil)
+			hash2, err := helpers.MD5FromReader(f2)
+			c.Assert(err, qt.IsNil)
+
+			c.Assert(hash1, qt.Equals, hash2)
+		}
 
 		f1.Close()
 		f2.Close()
-
-		c.Assert(hash1, qt.Equals, hash2)
 	}
 
 }
