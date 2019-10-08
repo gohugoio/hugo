@@ -23,3 +23,5 @@ aliases: []
 ```
 {{ .Title | markdownify }}
 ```
+
+Note that if the content being processed is a single line of text, `markdownify` will not add any HTML tags. Multiple lines of text seperated by new lines will be wrapped in `<p>` tags. 
