@@ -2,32 +2,44 @@
 # Twitter:      https://twitter.com/gohugoio
 # Website:      https://gohugo.io/
 
-FROM golang:1.11-stretch AS build
+FROM golang:1.13-alpine AS build
 
+# Optionally set HUGO_BUILD_TAGS to "extended" when building like so:
+#   docker build --build-arg HUGO_BUILD_TAGS=extended .
+ARG HUGO_BUILD_TAGS
 
-WORKDIR /go/src/github.com/gohugoio/hugo
-RUN apt-get install \
-    git gcc g++ binutils
-COPY . /go/src/github.com/gohugoio/hugo/
-ENV GO111MODULE=on
-RUN go get -d .
-
-ARG CGO=0
+ARG CGO=1
 ENV CGO_ENABLED=${CGO}
 ENV GOOS=linux
+ENV GO111MODULE=on
 
-# default non-existent build tag so -tags always has an arg
-ARG BUILD_TAGS="99notag"
-RUN go install -ldflags '-w -extldflags "-static"' -tags ${BUILD_TAGS}
+WORKDIR /go/src/github.com/gohugoio/hugo
+
+COPY . /go/src/github.com/gohugoio/hugo/
+
+# gcc/g++ are required to build SASS libraries for extended version
+RUN apk update && \
+    apk add --no-cache gcc g++ musl-dev && \
+    go get github.com/magefile/mage
+
+RUN mage hugo && mage install
 
 # ---
 
-FROM alpine:3.9
-RUN apk add --no-cache ca-certificates
-COPY --from=build /go/bin/hugo /hugo
-ARG  WORKDIR="/site"
-WORKDIR ${WORKDIR}
-VOLUME  ${WORKDIR}
-EXPOSE  1313
-ENTRYPOINT [ "/hugo" ]
-CMD [ "--help" ]
+FROM alpine:3.10
+
+COPY --from=build /go/bin/hugo /usr/bin/hugo
+
+# libc6-compat & libstdc++ are required for extended SASS libraries
+# ca-certificates are required to fetch outside resources (like Twitter oEmbeds)
+RUN apk update && \
+    apk add --no-cache ca-certificates libc6-compat libstdc++
+
+VOLUME /site
+WORKDIR /site
+
+# Expose port for live server
+EXPOSE 1313
+
+ENTRYPOINT ["hugo"]
+CMD ["--help"]
