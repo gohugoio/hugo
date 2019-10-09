@@ -187,7 +187,7 @@ It's possible to set some options for Markdown rendering in a content's front ma
 * [JSON Spec][json]
 
 [variables]: /variables/
-[aliases]: /content-management/urls/#aliases/
+[aliases]: /content-management/urls/#aliases
 [archetype]: /content-management/archetypes/
 [bylinktitle]: /templates/lists/#by-link-title
 [config]: /getting-started/configuration/ "Hugo documentation for site configuration"

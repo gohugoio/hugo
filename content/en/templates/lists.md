@@ -549,8 +549,8 @@ See the documentation on [`where` function][wherefunction] and
 [sections]: /content-management/sections/
 [sectiontemps]: /templates/section-templates/
 [sitevars]: /variables/site/
-[taxlists]: /templates/taxonomy-templates/#taxonomy-list-templates/
-[taxterms]: /templates/taxonomy-templates/#taxonomy-terms-templates/
+[taxlists]: /templates/taxonomy-templates/#taxonomy-list-templates
+[taxterms]: /templates/taxonomy-templates/#taxonomy-terms-templates
 [taxvars]: /variables/taxonomy/
 [views]: /templates/views/
 [wherefunction]: /functions/where/
