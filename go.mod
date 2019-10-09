@@ -52,7 +52,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/pflag v1.0.3
 	github.com/spf13/viper v1.4.0
-	github.com/tdewolff/minify/v2 v2.3.7
+	github.com/tdewolff/minify/v2 v2.5.2
 	github.com/yosssi/ace v0.0.5
 	go.opencensus.io v0.22.0 // indirect
 	gocloud.dev v0.15.0
