@@ -129,6 +129,10 @@ func (f FileMeta) IsSymlink() bool {
 	return f.GetBool(metaKeyIsSymlink)
 }
 
+func (f FileMeta) String() string {
+	return f.Filename()
+}
+
 func (f FileMeta) Watch() bool {
 	if v, found := f["watch"]; found {
 		return v.(bool)
