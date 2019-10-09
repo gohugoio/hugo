@@ -342,8 +342,8 @@ Min HTML: {{ ( resources.Get "mydata/html1.html" | resources.Minify ).Content | 
 			b.AssertFileContent("public/index.html", `Min JS: var x;x=5;document.getElementById(&#34;demo&#34;).innerHTML=x*10;`)
 			b.AssertFileContent("public/index.html", `Min JSON: {"employees":[{"firstName":"John","lastName":"Doe"},{"firstName":"Anna","lastName":"Smith"},{"firstName":"Peter","lastName":"Jones"}]}`)
 			b.AssertFileContent("public/index.html", `Min XML: <hello><world>Hugo Rocks!</<world></hello>`)
-			b.AssertFileContent("public/index.html", `Min SVG: <svg height="100" width="100"><path d="M5 10 20 40z"/></svg>`)
-			b.AssertFileContent("public/index.html", `Min SVG again: <svg height="100" width="100"><path d="M5 10 20 40z"/></svg>`)
+			b.AssertFileContent("public/index.html", `Min SVG: <svg height="100" width="100"><path d="M1e2 1e2H3e2 2e2z"/></svg>`)
+			b.AssertFileContent("public/index.html", `Min SVG again: <svg height="100" width="100"><path d="M1e2 1e2H3e2 2e2z"/></svg>`)
 			b.AssertFileContent("public/index.html", `Min HTML: <html><a href=#>Cool</a></html>`)
 		}},
 
@@ -580,7 +580,7 @@ document.getElementById("demo").innerHTML = x * 10;
 
 			b.WithSourceFile(filepath.Join("assets", "mydata", "svg1.svg"), `
 <svg height="100" width="100">
-  <line x1="5" y1="10" x2="20" y2="40"/>
+  <path d="M 100 100 L 300 100 L 200 100 z"/>
 </svg> 
 `)
 
