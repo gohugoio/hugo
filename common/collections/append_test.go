@@ -14,6 +14,7 @@
 package collections
 
 import (
+	"html/template"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -31,6 +32,7 @@ func TestAppend(t *testing.T) {
 		{[]string{"a", "b"}, []interface{}{"c"}, []string{"a", "b", "c"}},
 		{[]string{"a", "b"}, []interface{}{"c", "d", "e"}, []string{"a", "b", "c", "d", "e"}},
 		{[]string{"a", "b"}, []interface{}{[]string{"c", "d", "e"}}, []string{"a", "b", "c", "d", "e"}},
+		{[]string{"a"}, []interface{}{"b", template.HTML("c")}, []interface{}{"a", "b", template.HTML("c")}},
 		{nil, []interface{}{"a", "b"}, []string{"a", "b"}},
 		{nil, []interface{}{nil}, []interface{}{nil}},
 		{[]interface{}{}, []interface{}{[]string{"c", "d", "e"}}, []string{"c", "d", "e"}},
