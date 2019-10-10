@@ -753,7 +753,11 @@ func (th testHelper) assertFileContentRegexp(filename string, matches ...string)
 	for _, match := range matches {
 		match = th.replaceDefaultContentLanguageValue(match)
 		r := regexp.MustCompile(match)
-		th.Assert(r.MatchString(content), qt.Equals, true)
+		matches := r.MatchString(content)
+		if !matches {
+			fmt.Println(content)
+		}
+		th.Assert(matches, qt.Equals, true)
 	}
 }
 
