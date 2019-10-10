@@ -204,6 +204,12 @@ func TestGetJSON(t *testing.T) {
 	}
 }
 
+func TestJoinURL(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	c.Assert(joinURL([]interface{}{"https://foo?id=", 32}), qt.Equals, "https://foo?id=32")
+}
+
 func TestParseCSV(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
