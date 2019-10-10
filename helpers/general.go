@@ -283,6 +283,13 @@ type DistinctLogger struct {
 	m      map[string]bool
 }
 
+func (l *DistinctLogger) Reset() {
+	l.Lock()
+	defer l.Unlock()
+
+	l.m = make(map[string]bool)
+}
+
 // Println will log the string returned from fmt.Sprintln given the arguments,
 // but not if it has been logged before.
 func (l *DistinctLogger) Println(v ...interface{}) {
@@ -347,11 +354,11 @@ var (
 	DistinctFeedbackLog = NewDistinctFeedbackLogger()
 )
 
-// InitLoggers sets up the global distinct loggers.
+// InitLoggers resets the global distinct loggers.
 func InitLoggers() {
-	DistinctErrorLog = NewDistinctErrorLogger()
-	DistinctWarnLog = NewDistinctWarnLogger()
-	DistinctFeedbackLog = NewDistinctFeedbackLogger()
+	DistinctErrorLog.Reset()
+	DistinctWarnLog.Reset()
+	DistinctFeedbackLog.Reset()
 }
 
 // Deprecated informs about a deprecation, but only once for a given set of arguments' values.
