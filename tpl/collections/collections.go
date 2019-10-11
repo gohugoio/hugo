@@ -17,7 +17,6 @@ package collections
 
 import (
 	"fmt"
-	"html/template"
 	"math/rand"
 	"net/url"
 	"reflect"
@@ -84,9 +83,9 @@ func (ns *Namespace) After(index interface{}, seq interface{}) (interface{}, err
 	return seqv.Slice(indexv, seqv.Len()).Interface(), nil
 }
 
-// Delimit takes a given sequence and returns a delimited HTML string.
+// Delimit takes a given sequence and returns a delimited string.
 // If last is passed to the function, it will be used as the final delimiter.
-func (ns *Namespace) Delimit(seq, delimiter interface{}, last ...interface{}) (template.HTML, error) {
+func (ns *Namespace) Delimit(seq, delimiter interface{}, last ...interface{}) (string, error) {
 	d, err := cast.ToStringE(delimiter)
 	if err != nil {
 		return "", err
@@ -139,7 +138,7 @@ func (ns *Namespace) Delimit(seq, delimiter interface{}, last ...interface{}) (t
 		return "", fmt.Errorf("can't iterate over %v", seq)
 	}
 
-	return template.HTML(str), nil
+	return str, nil
 }
 
 // Dictionary creates a map[string]interface{} from the given parameters by

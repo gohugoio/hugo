@@ -16,7 +16,6 @@ package collections
 import (
 	"errors"
 	"fmt"
-	"html/template"
 	"math/rand"
 	"reflect"
 	"testing"
@@ -135,7 +134,7 @@ func TestDelimit(t *testing.T) {
 		seq       interface{}
 		delimiter interface{}
 		last      interface{}
-		expect    template.HTML
+		expect    string
 	}{
 		{[]string{"class1", "class2", "class3"}, " ", nil, "class1 class2 class3"},
 		{[]int{1, 2, 3, 4, 5}, ",", nil, "1,2,3,4,5"},
@@ -164,7 +163,7 @@ func TestDelimit(t *testing.T) {
 	} {
 		errMsg := qt.Commentf("[%d] %v", i, test)
 
-		var result template.HTML
+		var result string
 		var err error
 
 		if test.last == nil {
