@@ -99,7 +99,7 @@ func (wp WeightedPages) Pages() Pages {
 // this weighted page set.
 func (wp WeightedPages) Next(cur Page) Page {
 	for x, c := range wp {
-		if c.Page == cur {
+		if c.Page.Eq(cur) {
 			if x == 0 {
 				return nil
 			}
@@ -113,7 +113,7 @@ func (wp WeightedPages) Next(cur Page) Page {
 // this weighted page set.
 func (wp WeightedPages) Prev(cur Page) Page {
 	for x, c := range wp {
-		if c.Page == cur {
+		if c.Page.Eq(cur) {
 			if x < len(wp)-1 {
 				return wp[x+1].Page
 			}

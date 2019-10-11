@@ -46,59 +46,78 @@ func (by pageBy) Sort(pages Pages) {
 	sort.Stable(ps)
 }
 
-// DefaultPageSort is the default sort func for pages in Hugo:
-// Order by Weight, Date, LinkTitle and then full file path.
-var DefaultPageSort = func(p1, p2 Page) bool {
-	if p1.Weight() == p2.Weight() {
-		if p1.Date().Unix() == p2.Date().Unix() {
-			c := compare.Strings(p1.LinkTitle(), p2.LinkTitle())
-			if c == 0 {
-				if p1.File().IsZero() || p2.File().IsZero() {
-					return p1.File().IsZero()
-				}
-				return compare.LessStrings(p1.File().Filename(), p2.File().Filename())
-			}
-			return c < 0
-		}
-		return p1.Date().Unix() > p2.Date().Unix()
-	}
+var (
 
-	if p2.Weight() == 0 {
-		return true
-	}
-
-	if p1.Weight() == 0 {
-		return false
-	}
-
-	return p1.Weight() < p2.Weight()
-}
-
-var languagePageSort = func(p1, p2 Page) bool {
-
-	if p1.Language().Weight == p2.Language().Weight {
-		if p1.Date().Unix() == p2.Date().Unix() {
-			c := compare.Strings(p1.LinkTitle(), p2.LinkTitle())
-			if c == 0 {
-				if !p1.File().IsZero() && !p2.File().IsZero() {
+	// DefaultPageSort is the default sort func for pages in Hugo:
+	// Order by Weight, Date, LinkTitle and then full file path.
+	DefaultPageSort = func(p1, p2 Page) bool {
+		if p1.Weight() == p2.Weight() {
+			if p1.Date().Unix() == p2.Date().Unix() {
+				c := compare.Strings(p1.LinkTitle(), p2.LinkTitle())
+				if c == 0 {
+					if p1.File().IsZero() || p2.File().IsZero() {
+						return p1.File().IsZero()
+					}
 					return compare.LessStrings(p1.File().Filename(), p2.File().Filename())
 				}
+				return c < 0
 			}
-			return c < 0
+			return p1.Date().Unix() > p2.Date().Unix()
 		}
-		return p1.Date().Unix() > p2.Date().Unix()
+
+		if p2.Weight() == 0 {
+			return true
+		}
+
+		if p1.Weight() == 0 {
+			return false
+		}
+
+		return p1.Weight() < p2.Weight()
 	}
 
-	if p2.Language().Weight == 0 {
-		return true
+	lessPageLanguage = func(p1, p2 Page) bool {
+
+		if p1.Language().Weight == p2.Language().Weight {
+			if p1.Date().Unix() == p2.Date().Unix() {
+				c := compare.Strings(p1.LinkTitle(), p2.LinkTitle())
+				if c == 0 {
+					if !p1.File().IsZero() && !p2.File().IsZero() {
+						return compare.LessStrings(p1.File().Filename(), p2.File().Filename())
+					}
+				}
+				return c < 0
+			}
+			return p1.Date().Unix() > p2.Date().Unix()
+		}
+
+		if p2.Language().Weight == 0 {
+			return true
+		}
+
+		if p1.Language().Weight == 0 {
+			return false
+		}
+
+		return p1.Language().Weight < p2.Language().Weight
 	}
 
-	if p1.Language().Weight == 0 {
-		return false
+	lessPageTitle = func(p1, p2 Page) bool {
+		return compare.LessStrings(p1.Title(), p2.Title())
 	}
 
-	return p1.Language().Weight < p2.Language().Weight
-}
+	lessPageLinkTitle = func(p1, p2 Page) bool {
+		return compare.LessStrings(p1.LinkTitle(), p2.LinkTitle())
+	}
+
+	lessPageDate = func(p1, p2 Page) bool {
+		return p1.Date().Unix() < p2.Date().Unix()
+	}
+
+	lessPagePubDate = func(p1, p2 Page) bool {
+		return p1.PublishDate().Unix() < p2.PublishDate().Unix()
+	}
+)
 
 func (ps *pageSorter) Len() int      { return len(ps.pages) }
 func (ps *pageSorter) Swap(i, j int) { ps.pages[i], ps.pages[j] = ps.pages[j], ps.pages[i] }
@@ -139,11 +158,7 @@ func (p Pages) ByTitle() Pages {
 
 	const key = "pageSort.ByTitle"
 
-	title := func(p1, p2 Page) bool {
-		return compare.LessStrings(p1.Title(), p2.Title())
-	}
-
-	pages, _ := spc.get(key, pageBy(title).Sort, p)
+	pages, _ := spc.get(key, pageBy(lessPageTitle).Sort, p)
 	return pages
 }
 
@@ -156,11 +171,7 @@ func (p Pages) ByLinkTitle() Pages {
 
 	const key = "pageSort.ByLinkTitle"
 
-	linkTitle := func(p1, p2 Page) bool {
-		return compare.LessStrings(p1.LinkTitle(), p2.LinkTitle())
-	}
-
-	pages, _ := spc.get(key, pageBy(linkTitle).Sort, p)
+	pages, _ := spc.get(key, pageBy(lessPageLinkTitle).Sort, p)
 
 	return pages
 }
@@ -174,11 +185,7 @@ func (p Pages) ByDate() Pages {
 
 	const key = "pageSort.ByDate"
 
-	date := func(p1, p2 Page) bool {
-		return p1.Date().Unix() < p2.Date().Unix()
-	}
-
-	pages, _ := spc.get(key, pageBy(date).Sort, p)
+	pages, _ := spc.get(key, pageBy(lessPageDate).Sort, p)
 
 	return pages
 }
@@ -192,11 +199,7 @@ func (p Pages) ByPublishDate() Pages {
 
 	const key = "pageSort.ByPublishDate"
 
-	pubDate := func(p1, p2 Page) bool {
-		return p1.PublishDate().Unix() < p2.PublishDate().Unix()
-	}
-
-	pages, _ := spc.get(key, pageBy(pubDate).Sort, p)
+	pages, _ := spc.get(key, pageBy(lessPagePubDate).Sort, p)
 
 	return pages
 }
@@ -276,14 +279,14 @@ func (p Pages) ByLanguage() Pages {
 
 	const key = "pageSort.ByLanguage"
 
-	pages, _ := spc.get(key, pageBy(languagePageSort).Sort, p)
+	pages, _ := spc.get(key, pageBy(lessPageLanguage).Sort, p)
 
 	return pages
 }
 
 // SortByLanguage sorts the pages by language.
 func SortByLanguage(pages Pages) {
-	pageBy(languagePageSort).Sort(pages)
+	pageBy(lessPageLanguage).Sort(pages)
 }
 
 // Reverse reverses the order in Pages and returns a copy.
