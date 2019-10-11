@@ -38,18 +38,20 @@ func TestPrev(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 	pages := preparePageGroupTestPages(t)
-	c.Assert(pages[4], qt.Equals, pages.Prev(pages[0]))
-	c.Assert(pages[0], qt.Equals, pages.Prev(pages[1]))
-	c.Assert(pages[3], qt.Equals, pages.Prev(pages[4]))
+
+	c.Assert(pages.Prev(pages[3]), qt.Equals, pages[4])
+	c.Assert(pages.Prev(pages[1]), qt.Equals, pages[2])
+	c.Assert(pages.Prev(pages[4]), qt.IsNil)
 }
 
 func TestNext(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 	pages := preparePageGroupTestPages(t)
-	c.Assert(pages[1], qt.Equals, pages.Next(pages[0]))
-	c.Assert(pages[2], qt.Equals, pages.Next(pages[1]))
-	c.Assert(pages[0], qt.Equals, pages.Next(pages[4]))
+
+	c.Assert(pages.Next(pages[0]), qt.IsNil)
+	c.Assert(pages.Next(pages[1]), qt.Equals, pages[0])
+	c.Assert(pages.Next(pages[4]), qt.Equals, pages[3])
 }
 
 func prepareWeightedPagesPrevNext(t *testing.T) WeightedPages {
@@ -72,16 +74,20 @@ func TestWeightedPagesPrev(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 	w := prepareWeightedPagesPrevNext(t)
-	c.Assert(w[4].Page, qt.Equals, w.Prev(w[0].Page))
-	c.Assert(w[0].Page, qt.Equals, w.Prev(w[1].Page))
-	c.Assert(w[3].Page, qt.Equals, w.Prev(w[4].Page))
+
+	c.Assert(w.Prev(w[0].Page), qt.Equals, w[1].Page)
+	c.Assert(w.Prev(w[1].Page), qt.Equals, w[2].Page)
+	c.Assert(w.Prev(w[4].Page), qt.IsNil)
+
 }
 
 func TestWeightedPagesNext(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 	w := prepareWeightedPagesPrevNext(t)
-	c.Assert(w[1].Page, qt.Equals, w.Next(w[0].Page))
-	c.Assert(w[2].Page, qt.Equals, w.Next(w[1].Page))
-	c.Assert(w[0].Page, qt.Equals, w.Next(w[4].Page))
+
+	c.Assert(w.Next(w[0].Page), qt.IsNil)
+	c.Assert(w.Next(w[1].Page), qt.Equals, w[0].Page)
+	c.Assert(w.Next(w[4].Page), qt.Equals, w[3].Page)
+
 }

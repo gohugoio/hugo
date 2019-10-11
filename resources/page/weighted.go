@@ -95,13 +95,13 @@ func (wp WeightedPages) Pages() Pages {
 	return pages
 }
 
-// Prev returns the previous Page relative to the given Page in
+// Next returns the next Page relative to the given Page in
 // this weighted page set.
-func (wp WeightedPages) Prev(cur Page) Page {
+func (wp WeightedPages) Next(cur Page) Page {
 	for x, c := range wp {
 		if c.Page == cur {
 			if x == 0 {
-				return wp[len(wp)-1].Page
+				return nil
 			}
 			return wp[x-1].Page
 		}
@@ -109,15 +109,15 @@ func (wp WeightedPages) Prev(cur Page) Page {
 	return nil
 }
 
-// Next returns the next Page relative to the given Page in
+// Prev returns the previous Page relative to the given Page in
 // this weighted page set.
-func (wp WeightedPages) Next(cur Page) Page {
+func (wp WeightedPages) Prev(cur Page) Page {
 	for x, c := range wp {
 		if c.Page == cur {
 			if x < len(wp)-1 {
 				return wp[x+1].Page
 			}
-			return wp[0].Page
+			return nil
 		}
 	}
 	return nil
