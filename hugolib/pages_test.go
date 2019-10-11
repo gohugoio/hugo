@@ -63,7 +63,7 @@ func BenchmarkPagesPrevNext(b *testing.B) {
 		Variant{"Pages.Shuffled.Prev", shufflePages, func(p page.Page, pages page.Pages) { pages.Prev(p) }},
 		Variant{"Pages.ByTitle.Next", func(pages page.Pages) page.Pages { return pages.ByTitle() }, func(p page.Page, pages page.Pages) { pages.Next(p) }},
 	} {
-		for _, numPages := range []int{100, 300, 900, 5000} {
+		for _, numPages := range []int{300, 5000} {
 			b.Run(fmt.Sprintf("%s-pages-%d", variant.name, numPages), func(b *testing.B) {
 				b.StopTimer()
 				builder := newPagesPrevNextTestSite(b, numPages)

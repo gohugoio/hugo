@@ -310,6 +310,9 @@ func (p *testPage) Len() int {
 
 func (p *testPage) LinkTitle() string {
 	if p.linkTitle == "" {
+		if p.title == "" {
+			return p.path
+		}
 		return p.title
 	}
 	return p.linkTitle
