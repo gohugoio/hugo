@@ -60,7 +60,7 @@ func (ns *Namespace) After(index interface{}, seq interface{}) (interface{}, err
 		return nil, err
 	}
 
-	if indexv < 1 {
+	if indexv < 0 {
 		return nil, errors.New("can't return negative/empty count of items from sequence")
 	}
 
