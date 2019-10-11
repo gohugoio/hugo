@@ -378,7 +378,7 @@ func (ns *Namespace) Last(limit interface{}, seq interface{}) (interface{}, erro
 		return nil, err
 	}
 
-	if limitv < 1 {
+	if limitv < 0 {
 		return nil, errors.New("can't return negative/empty count of items from sequence")
 	}
 
