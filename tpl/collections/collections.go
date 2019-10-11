@@ -61,7 +61,7 @@ func (ns *Namespace) After(index interface{}, seq interface{}) (interface{}, err
 	}
 
 	if indexv < 0 {
-		return nil, errors.New("can't return negative/empty count of items from sequence")
+		return nil, errors.New("sequence bounds out of range [" + cast.ToString(indexv) + ":]")
 	}
 
 	seqv := reflect.ValueOf(seq)
@@ -219,7 +219,7 @@ func (ns *Namespace) First(limit interface{}, seq interface{}) (interface{}, err
 	}
 
 	if limitv < 0 {
-		return nil, errors.New("can't return negative count of items from sequence")
+		return nil, errors.New("sequence length must be non-negative")
 	}
 
 	seqv := reflect.ValueOf(seq)
@@ -379,7 +379,7 @@ func (ns *Namespace) Last(limit interface{}, seq interface{}) (interface{}, erro
 	}
 
 	if limitv < 0 {
-		return nil, errors.New("can't return negative/empty count of items from sequence")
+		return nil, errors.New("sequence length must be non-negative")
 	}
 
 	seqv := reflect.ValueOf(seq)
