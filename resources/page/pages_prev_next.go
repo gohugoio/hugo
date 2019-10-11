@@ -13,13 +13,12 @@
 
 package page
 
-// Prev returns the previous page reletive to the given
-func (p Pages) Prev(cur Page) Page {
+// Next returns the next page reletive to the given
+func (p Pages) Next(cur Page) Page {
 	for x, c := range p {
 		if c.Eq(cur) {
 			if x == 0 {
-				// TODO(bep) consider return nil here to get it line with the other Prevs
-				return p[len(p)-1]
+				return nil
 			}
 			return p[x-1]
 		}
@@ -27,15 +26,14 @@ func (p Pages) Prev(cur Page) Page {
 	return nil
 }
 
-// Next returns the next page reletive to the given
-func (p Pages) Next(cur Page) Page {
+// Prev returns the previous page reletive to the given
+func (p Pages) Prev(cur Page) Page {
 	for x, c := range p {
 		if c.Eq(cur) {
 			if x < len(p)-1 {
 				return p[x+1]
 			}
-			// TODO(bep) consider return nil here to get it line with the other Nexts
-			return p[0]
+			return nil
 		}
 	}
 	return nil
