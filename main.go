@@ -15,12 +15,17 @@ package main
 
 import (
 	"os"
+	"strings"
 
 	"github.com/gohugoio/hugo/commands"
 )
 
 func main() {
-	resp := commands.Execute(os.Args[1:])
+
+	hugoflags := os.Getenv("HUGOFLAGS")
+	hugoargs := strings.Split(hugoflags, " ")
+
+	resp := commands.Execute(append(hugoargs, os.Args[1:]...))
 
 	if resp.Err != nil {
 		if resp.IsUserError() {
