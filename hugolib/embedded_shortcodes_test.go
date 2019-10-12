@@ -212,17 +212,27 @@ func TestShortcodeVimeo(t *testing.T) {
 	}{
 		{
 			`{{< vimeo 146022717 >}}`,
-			"(?s)\n<div style=\".*?\">.*?<iframe src=\"https://player.vimeo.com/video/146022717\" style=\".*?\" webkitallowfullscreen mozallowfullscreen allowfullscreen>.*?</iframe>.*?</div>\n",
+			"(?s)\n<div style=\".*?\">.*?<iframe src=\"https://player.vimeo.com/video/146022717\" style=\".*?\" title=\"vimeo video\" webkitallowfullscreen mozallowfullscreen allowfullscreen>.*?</iframe>.*?</div>\n",
 		},
 		// set class
 		{
 			`{{< vimeo 146022717 video >}}`,
-			"(?s)\n<div class=\"video\">.*?<iframe src=\"https://player.vimeo.com/video/146022717\" webkitallowfullscreen mozallowfullscreen allowfullscreen>.*?</iframe>.*?</div>\n",
+			"(?s)\n<div class=\"video\">.*?<iframe src=\"https://player.vimeo.com/video/146022717\" title=\"vimeo video\" webkitallowfullscreen mozallowfullscreen allowfullscreen>.*?</iframe>.*?</div>\n",
+		},
+		// set vimeo title
+		{
+			`{{< vimeo 146022717 video my-title >}}`,
+			"(?s)\n<div class=\"video\">.*?<iframe src=\"https://player.vimeo.com/video/146022717\" title=\"my-title\" webkitallowfullscreen mozallowfullscreen allowfullscreen>.*?</iframe>.*?</div>\n",
 		},
 		// set class (using named params)
 		{
 			`{{< vimeo id="146022717" class="video" >}}`,
-			"(?s)^<div class=\"video\">.*?<iframe src=\"https://player.vimeo.com/video/146022717\" webkitallowfullscreen mozallowfullscreen allowfullscreen>.*?</iframe>.*?</div>",
+			"(?s)^<div class=\"video\">.*?<iframe src=\"https://player.vimeo.com/video/146022717\" title=\"vimeo video\" webkitallowfullscreen mozallowfullscreen allowfullscreen>.*?</iframe>.*?</div>",
+		},
+		// set vimeo title (using named params)
+		{
+			`{{< vimeo id="146022717" class="video" title="my vimeo video" >}}`,
+			"(?s)^<div class=\"video\">.*?<iframe src=\"https://player.vimeo.com/video/146022717\" title=\"my vimeo video\" webkitallowfullscreen mozallowfullscreen allowfullscreen>.*?</iframe>.*?</div>",
 		},
 	} {
 		var (
