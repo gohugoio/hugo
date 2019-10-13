@@ -14,9 +14,12 @@
 package commands
 
 import (
+	"runtime"
+
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
+	"gopkg.in/yaml.v2"
 )
 
 var _ cmder = (*versionCmd)(nil)
@@ -32,7 +35,25 @@ func newVersionCmd() *versionCmd {
 			Short: "Print the version number of Hugo",
 			Long:  `All software has versions. This is Hugo's.`,
 			RunE: func(cmd *cobra.Command, args []string) error {
-				printHugoVersion()
+				versionOut := yaml.MapSlice{
+					yaml.MapItem{
+						Key:   "Program",
+						Value: "Hugo Static Site Generator",
+					},
+					yaml.MapItem{
+						Key:   "OS/Arch",
+						Value: runtime.GOOS + "/" + runtime.GOARCH,
+					},
+					yaml.MapItem{
+						Key:   "Version",
+						Value: hugo.CurrentVersion.String(),
+					},
+				}
+				output, err := yaml.Marshal(versionOut)
+				if err != nil {
+					return err
+				}
+				jww.FEEDBACK.Print(string(output))
 				return nil
 			},
 		}),

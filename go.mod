@@ -26,7 +26,7 @@ require (
 	github.com/gorilla/websocket v1.4.0
 	github.com/jdkato/prose v1.1.0
 	github.com/kyokomi/emoji v2.1.0+incompatible
-	github.com/magefile/mage v1.4.0
+	github.com/magefile/mage v1.9.0
 	github.com/magiconair/properties v1.8.1 // indirect
 	github.com/markbates/inflect v1.0.0
 	github.com/mattn/go-isatty v0.0.8

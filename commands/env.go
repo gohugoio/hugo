@@ -16,6 +16,7 @@ package commands
 import (
 	"runtime"
 
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -32,11 +33,11 @@ func newEnvCmd() *envCmd {
 		Short: "Print Hugo version and environment info",
 		Long:  `Print Hugo version and environment info. This is useful in Hugo bug reports.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			printHugoVersion()
+			jww.FEEDBACK.Printf("HUGOPROGRAM=%q\n", "Hugo Static Site Generator")
+			jww.FEEDBACK.Printf("HUGOVERSION=%q\n", hugo.CurrentVersion.String())
 			jww.FEEDBACK.Printf("GOOS=%q\n", runtime.GOOS)
 			jww.FEEDBACK.Printf("GOARCH=%q\n", runtime.GOARCH)
 			jww.FEEDBACK.Printf("GOVERSION=%q\n", runtime.Version())
-
 			return nil
 		},
 	}),
