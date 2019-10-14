@@ -6,5 +6,7 @@
     <title>{{ .Title }} - {{ .Site.BaseURL }}</title>
     <link rel="canonical" href="{{ .Permalink }}">
     {{ partial "header.includes.html" . }}
-    {{ if .RSSLink }}<link href="{{ .RSSLink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />{{ end }}
+    {{ with .OutputFormats.Get "RSS" -}}
+    {{ printf "<link href=%q rel=\"alternate\" type=%q title=%q />" .Permalink .MediaType .Title | safeHTML }}
+    {{- end }}
 </head>
