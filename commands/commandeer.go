@@ -313,6 +313,8 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 			return err
 		}
 
+	} else if mustHaveConfigFile && len(configFiles) == 0 {
+		return hugolib.ErrNoConfigFile
 	}
 
 	c.configFiles = configFiles
