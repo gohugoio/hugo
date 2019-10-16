@@ -145,6 +145,14 @@ var (
 	TIFFType = Type{MainType: "image", SubType: "tiff", Suffixes: []string{"tif", "tiff"}, Delimiter: defaultDelimiter}
 	BMPType  = Type{MainType: "image", SubType: "bmp", Suffixes: []string{"bmp"}, Delimiter: defaultDelimiter}
 
+	// Common video types
+	AVIType  = Type{MainType: "video", SubType: "x-msvideo", Suffixes: []string{"avi"}, Delimiter: defaultDelimiter}
+	MPEGType = Type{MainType: "video", SubType: "mpeg", Suffixes: []string{"mpg", "mpeg"}, Delimiter: defaultDelimiter}
+	MP4Type  = Type{MainType: "video", SubType: "mp4", Suffixes: []string{"mp4"}, Delimiter: defaultDelimiter}
+	OGGType  = Type{MainType: "video", SubType: "ogg", Suffixes: []string{"ogv"}, Delimiter: defaultDelimiter}
+	WEBMType = Type{MainType: "video", SubType: "webm", Suffixes: []string{"webm"}, Delimiter: defaultDelimiter}
+	GPPType  = Type{MainType: "video", SubType: "3gpp", Suffixes: []string{"3gpp", "3gp"}, Delimiter: defaultDelimiter}
+
 	OctetType = Type{MainType: "application", SubType: "octet-stream"}
 )
 
@@ -167,6 +175,12 @@ var DefaultTypes = Types{
 	TOMLType,
 	PNGType,
 	JPGType,
+	AVIType,
+	MPEGType,
+	MP4Type,
+	OGGType,
+	WEBMType,
+	GPPType,
 }
 
 func init() {
