@@ -214,6 +214,12 @@ pluralizeListTitles (true)
 publishDir ("public")
 : The directory to where Hugo will write the final static site (the HTML files etc.).
 
+pygmentsOptions ("")
+:  A comma separated list of options for syntax highlighting. See the [Syntax Highlighting Options](/content-management/syntax-highlighting/#options) for the full list of available options.
+
+pygmentsCodeFences (false)
+: Enables syntax highlighting in [code fences with a language tag](/content-management/syntax-highlighting/#highlight-in-code-fences) in markdown.
+
 pygmentsCodeFencesGuessSyntax (false)
 : Enable syntax guessing for code fences without specified language.
 
@@ -222,6 +228,9 @@ pygmentsStyle ("monokai")
 
 pygmentsUseClasses (false)
 : Enable using external CSS for syntax highlighting.
+
+pygmentsUseClassic (false)
+: Enable using Pygments instead of the much faster Chroma for syntax highlighting.
 
 related
 : See [Related Content](/content-management/related/#configure-related-content).

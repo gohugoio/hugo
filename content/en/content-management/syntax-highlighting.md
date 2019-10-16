@@ -68,7 +68,7 @@ To make the transition from Pygments to Chroma seamless, they share a common set
 pygmentsOptions
 :  A comma separated list of options. See below for a full list.
 
-pygmentsCodefences
+pygmentsCodeFences
 : Set to true to enable syntax highlighting in code fences with a language tag in markdown (see below for an example).
 
 pygmentsStyle
@@ -83,7 +83,7 @@ pygmentsStyle
 pygmentsUseClasses
 : Set to `true` to use CSS classes to format your highlighted code. See [Generate Syntax Highlighter CSS](#generate-syntax-highlighter-css).
 
-pygmentsCodefencesGuessSyntax
+pygmentsCodeFencesGuessSyntax
 : Set to `true` to try to do syntax highlighting on code fenced blocks in markdown without a language tag.
 
 pygmentsUseClassic
