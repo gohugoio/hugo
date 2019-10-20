@@ -17,7 +17,7 @@ aliases: [/overview/introduction/]
 toc: false
 ---
 
-If this is your first time using Hugo and you've [already installed Hugo on your machine][installed], we recommend the [quick start][].
+If this is your first time using Hugo and you've [already installed Hugo on your machine][installed], we recommend the [quick start][]. You can also use external [books and tutorials](/tools/books-and-tutorials/) to get started and learn Hugo.
 
 [installed]: /getting-started/installing/
 [quick start]: /getting-started/quick-start/
