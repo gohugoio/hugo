@@ -17,6 +17,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"image"
+	"image/color"
 	"image/draw"
 	_ "image/gif"
 	_ "image/png"
@@ -254,10 +255,32 @@ func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src im
 			return nil, nil, &os.PathError{Op: errOp, Path: errPath, Err: err}
 		}
 
+		hasAlpha := !images.IsOpaque(converted)
+		shouldFill := conf.BgColor != nil && hasAlpha
+		shouldFill = shouldFill || (!conf.TargetFormat.SupportsTransparency() && hasAlpha)
+		var bgColor color.Color
+
+		if shouldFill {
+			bgColor = conf.BgColor
+			if bgColor == nil {
+				bgColor = i.Proc.Cfg.BgColor
+			}
+			tmp := image.NewRGBA(converted.Bounds())
+			draw.Draw(tmp, tmp.Bounds(), image.NewUniform(bgColor), image.Point{}, draw.Src)
+			draw.Draw(tmp, tmp.Bounds(), converted, converted.Bounds().Min, draw.Over)
+			converted = tmp
+		}
+
 		if conf.TargetFormat == images.PNG {
 			// Apply the colour palette from the source
 			if paletted, ok := src.(*image.Paletted); ok {
-				tmp := image.NewPaletted(converted.Bounds(), paletted.Palette)
+				palette := paletted.Palette
+				if bgColor != nil && len(palette) < 256 {
+					palette = images.AddColorToPalette(bgColor, palette)
+				} else if bgColor != nil {
+					images.ReplaceColorInPalette(bgColor, palette)
+				}
+				tmp := image.NewPaletted(converted.Bounds(), palette)
 				draw.FloydSteinberg.Draw(tmp, tmp.Bounds(), converted, converted.Bounds().Min)
 				converted = tmp
 			}
@@ -273,7 +296,7 @@ func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src im
 }
 
 func (i *imageResource) decodeImageConfig(action, spec string) (images.ImageConfig, error) {
-	conf, err := images.DecodeImageConfig(action, spec, i.Proc.Cfg)
+	conf, err := images.DecodeImageConfig(action, spec, i.Proc.Cfg.Cfg)
 	if err != nil {
 		return conf, err
 	}
@@ -285,7 +308,14 @@ func (i *imageResource) decodeImageConfig(action, spec string) (images.ImageConf
 
 	if conf.Quality <= 0 && conf.TargetFormat.RequiresDefaultQuality() {
 		// We need a quality setting for all JPEGs
-		conf.Quality = i.Proc.Cfg.Quality
+		conf.Quality = i.Proc.Cfg.Cfg.Quality
+	}
+
+	if conf.BgColor == nil && conf.TargetFormat != i.Format {
+		if i.Format.SupportsTransparency() && !conf.TargetFormat.SupportsTransparency() {
+			conf.BgColor = i.Proc.Cfg.BgColor
+			conf.BgColorStr = i.Proc.Cfg.Cfg.BgColor
+		}
 	}
 
 	return conf, nil
@@ -325,7 +355,7 @@ func (i *imageResource) setBasePath(conf images.ImageConfig) {
 func (i *imageResource) getImageMetaCacheTargetPath() string {
 	const imageMetaVersionNumber = 1 // Increment to invalidate the meta cache
 
-	cfg := i.getSpec().imaging.Cfg
+	cfg := i.getSpec().imaging.Cfg.Cfg
 	df := i.getResourcePaths().relTargetDirFile
 	if fi := i.getFileInfo(); fi != nil {
 		df.dir = filepath.Dir(fi.Meta().Path())

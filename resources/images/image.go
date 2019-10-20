@@ -51,11 +51,8 @@ func NewImage(f Format, proc *ImageProcessor, img image.Image, s Spec) *Image {
 
 type Image struct {
 	Format Format
-
-	Proc *ImageProcessor
-
-	Spec Spec
-
+	Proc   *ImageProcessor
+	Spec   Spec
 	*imageConfig
 }
 
@@ -158,8 +155,8 @@ func (i *Image) initConfig() error {
 	return nil
 }
 
-func NewImageProcessor(cfg Imaging) (*ImageProcessor, error) {
-	e := cfg.Exif
+func NewImageProcessor(cfg ImagingConfig) (*ImageProcessor, error) {
+	e := cfg.Cfg.Exif
 	exifDecoder, err := exif.NewDecoder(
 		exif.WithDateDisabled(e.DisableDate),
 		exif.WithLatLongDisabled(e.DisableLatLong),
@@ -179,7 +176,7 @@ func NewImageProcessor(cfg Imaging) (*ImageProcessor, error) {
 }
 
 type ImageProcessor struct {
-	Cfg         Imaging
+	Cfg         ImagingConfig
 	exifDecoder *exif.Decoder
 }
 
@@ -218,7 +215,12 @@ func (p *ImageProcessor) ApplyFiltersFromConfig(src image.Image, conf ImageConfi
 		return nil, errors.Errorf("unsupported action: %q", conf.Action)
 	}
 
-	return p.Filter(src, filters...)
+	img, err := p.Filter(src, filters...)
+	if err != nil {
+		return nil, err
+	}
+
+	return img, nil
 }
 
 func (p *ImageProcessor) Filter(src image.Image, filters ...gift.Filter) (image.Image, error) {
@@ -231,7 +233,7 @@ func (p *ImageProcessor) Filter(src image.Image, filters ...gift.Filter) (image.
 func (p *ImageProcessor) GetDefaultImageConfig(action string) ImageConfig {
 	return ImageConfig{
 		Action:  action,
-		Quality: p.Cfg.Quality,
+		Quality: p.Cfg.Cfg.Quality,
 	}
 }
 
@@ -254,6 +256,11 @@ const (
 // RequiresDefaultQuality returns if the default quality needs to be applied to images of this format
 func (f Format) RequiresDefaultQuality() bool {
 	return f == JPEG
+}
+
+// SupportsTransparency reports whether it supports transparency in any form.
+func (f Format) SupportsTransparency() bool {
+	return f != JPEG
 }
 
 // DefaultExtension returns the default file extension of this format, starting with a dot.
@@ -306,4 +313,16 @@ func ToFilters(in interface{}) []gift.Filter {
 	default:
 		panic(fmt.Sprintf("%T is not an image filter", in))
 	}
+}
+
+// IsOpaque returns false if the image has alpha channel and there is at least 1
+// pixel that is not (fully) opaque.
+func IsOpaque(img image.Image) bool {
+	if oim, ok := img.(interface {
+		Opaque() bool
+	}); ok {
+		return oim.Opaque()
+	}
+
+	return false
 }

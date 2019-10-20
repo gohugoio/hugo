@@ -22,7 +22,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"regexp"
 	"runtime"
 	"strconv"
 	"sync"
@@ -540,6 +539,18 @@ func TestImageOperationsGolden(t *testing.T) {
 		fmt.Println(workDir)
 	}
 
+	// Test PNGs with alpha channel.
+	for _, img := range []string{"gopher-hero8.png", "gradient-circle.png"} {
+		orig := fetchImageForSpec(spec, c, img)
+		for _, resizeSpec := range []string{"200x #e3e615", "200x jpg #e3e615"} {
+			resized, err := orig.Resize(resizeSpec)
+			c.Assert(err, qt.IsNil)
+			rel := resized.RelPermalink()
+			c.Log("resize", rel)
+			c.Assert(rel, qt.Not(qt.Equals), "")
+		}
+	}
+
 	for _, img := range testImages {
 
 		orig := fetchImageForSpec(spec, c, img)
@@ -618,9 +629,6 @@ func TestImageOperationsGolden(t *testing.T) {
 	c.Assert(len(dirinfos1), qt.Equals, len(dirinfos2))
 
 	for i, fi1 := range dirinfos1 {
-		if regexp.MustCompile("gauss").MatchString(fi1.Name()) {
-			continue
-		}
 		fi2 := dirinfos2[i]
 		c.Assert(fi1.Name(), qt.Equals, fi2.Name())
 
