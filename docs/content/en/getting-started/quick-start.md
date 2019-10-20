@@ -22,6 +22,8 @@ toc: true
 This quick start uses `macOS` in the examples. For instructions about how to install Hugo on other operating systems, see [install](/getting-started/installing).
 
 It is recommended to have [Git installed](https://git-scm.com/downloads) to run this tutorial.
+
+For other approaches learning Hugo like book or a video tutorial refer to the [external learning resources](/getting-started/external-learning-resources/) page.
 {{% /note %}}
 
 

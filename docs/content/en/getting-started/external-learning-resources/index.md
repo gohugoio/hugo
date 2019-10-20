@@ -1,17 +1,17 @@
 ---
-title: Books and Tutorials
-linktitle: Books and Tutorials
-description: A list of tutorials and books on Hugo created by the community.
+title: External Learning Resources
+linktitle: External Learning Resources
+description: A list of tutorials and books on Hugo.
 date: 2019-10-20
 publishdate: 2019-10-20
 lastmod: 2019-10-20
 keywords: [books,tutorials,learning,usage]
 menu:
   docs:
-    parent: "tools"
-    weight: 10
-weight: 10
-sections_weight: 10
+    parent: "getting-started"
+    weight: 70
+weight: 70
+sections_weight: 70
 draft: false
 toc: false
 ---
