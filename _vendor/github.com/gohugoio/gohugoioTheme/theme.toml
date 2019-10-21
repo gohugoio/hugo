@@ -1,0 +1,15 @@
+# theme.toml template for a Hugo theme
+# See https://github.com/gohugoio/hugoThemes#themetoml for an example
+
+name = "Hugo Theme"
+license = "MIT"
+licenselink = "https://github.com/gohugoio/gohugoioTheme/blob/master/license.md"
+description = ""
+homepage = "https://github.com/gohugoio/gohugoioTheme"
+tags = ["website"]
+features = ["", ""]
+min_version = 0.38
+
+[author]
+  name = "Bud Parr"
+  homepage = "https://github.com/budparr"
