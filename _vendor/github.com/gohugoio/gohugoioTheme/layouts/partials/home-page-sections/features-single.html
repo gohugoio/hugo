@@ -1,0 +1,32 @@
+{{ if .Params.sections }}
+  {{ range .Params.sections }}
+  {{ $.Scratch.Add "i" 1 }}{{ $i := $.Scratch.Get "i" }}
+
+    <section class="w-100  ph4 ph5-ns pv4 pv6-ns mid-gray {{ .color_classes }}">
+      <div class="flex-ns flex-wrap center mw9">
+
+        <div class="w-100 w-50-l {{ if modBool $i 2 }}order-1{{ else }}order-0{{ end }}">
+          <div class="w-90-ns center">
+            <img src="{{ .image }}" alt="image depicting an example of {{ .heading }}" class="img shadow-5">
+          </div>
+        </div>
+
+        <div class="w-100 w-50-l">
+          <div class="w-80-ns center tc">
+            <h3 class="f1 fw4 black ma0 pt4 lh-title pt0-l">{{ .heading }}</h3>
+            <p class="f3 lh-copy">
+              {{ .copy }}
+            </p>
+              <p class="f4 lh-copy nested-linksTK">
+                <a href="{{ .link | absURL }}" class="link black dim">
+                  {{ .cta }} {{ partial "svg/link-ext.svg" (dict "fill" "#333" "size" "14") }}
+                </a>
+              </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  {{ end }}
+{{ end }}

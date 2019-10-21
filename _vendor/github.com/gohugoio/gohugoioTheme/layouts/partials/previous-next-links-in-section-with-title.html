@@ -1,0 +1,14 @@
+{{ if or .PrevInSection .NextInSection }}
+{{/* this div holds these a tags as a unit for flex-box display */}}
+	<div date-pref class="white">
+		{{if .NextInSection}}
+			<a href="{{.NextInSection.Permalink }}" class="br2 db f6 ph2 pv2 bg-light-gray white" title="{{ .NextInSection.Title }} ">{{ partial "svg/ic_chevron_left_black_24px.svg" (dict "fill" "#fff" "size" "12px") }} {{.NextInSection.Title}}</a>
+		{{end}}
+
+		{{if .PrevInSection}}
+			<a href="{{ .PrevInSection.Permalink }}" class="br2 db f6 pr1 mt3 bg-light-gray ph2 pv2 white" title="{{ .PrevInSection.Title }}">
+			{{.PrevInSection.Title}} {{ partial "svg/ic_chevron_right_black_24px.svg" (dict "fill" "#fff" "size" "12px") }}
+			</a>
+		{{end}}
+	</div>
+{{ end }}

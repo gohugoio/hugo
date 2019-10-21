@@ -1,0 +1,37 @@
+{{ $currentPage := . }}
+{{ $.Scratch.Add "listlinkClasses" "f6 link primary-color-dark  hover-white db brand-font  ma0 w-100 pv3 ph4" }}
+
+<!-- TODO: Not getting ismenucurrent -->
+
+<ul class="list dib ph0 ma0 scrolling-touch tc">
+  {{ range .Site.Menus.main }}
+    <li  class="tl-l dib ma0 hover-bg-black w-100{{ if .HasChildren }} dont-display-child-until-click{{end}}">
+
+      {{ if .HasChildren }}
+        <a href="#{{ .Name | urlize }}" class="ttu {{ $.Scratch.Get "listlinkClasses" }}{{if $currentPage.IsMenuCurrent   "main" . }} o-50{{end}}">
+          {{ .Name }}
+          <!-- <img src="/images/ic_keyboard_arrow_down_white_24px.svg" alt="" class="static v-mid f6 ma0 pa0"> -->
+        </a>
+        <ul id="{{ .Name | urlize}}" class="list pa0 ma0">
+          <li class="ma0 pl3 brand-font">
+            <a href="{{.URL}}" class="{{ $.Scratch.Get "listlinkClasses" }}{{if $currentPage.IsMenuCurrent "main" . }} o-50{{end}}">
+              {{ .Name }} Overview
+            </a>
+          </li>
+          {{ range .Children }}
+            <li class="ma0 pl3 brand-font{{if $currentPage.IsMenuCurrent "main" . }} o-50{{end}}">
+              <a href="{{.URL}}" class="{{ $.Scratch.Get "listlinkClasses" }}">
+                {{ .Name }}
+              </a>
+            </li>
+          {{ end }}
+        </ul>
+      {{ else }}
+        <a href="{{.URL}}" class="ttu {{ $.Scratch.Get "listlinkClasses" }}{{if $currentPage.IsMenuCurrent "main" . }} bg-primary-color{{end}}">
+          {{ .Name }}
+        </a>
+      {{end}}
+
+    </li>
+  {{end}}
+</ul>
