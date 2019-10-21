@@ -107,7 +107,7 @@ You can find a list of all template variables to access the profile information 
 
 ### Link Social Network Accounts
 
-As aforementioned, Hugo is able to generate links to profiles of the most popular social networks. The following social networks with their corrersponding identifiers are supported:  `github`, `facebook`, `twitter`, `pinterest`, `instagram`, `youtube` and `linkedin`.
+As aforementioned, Hugo is able to generate links to profiles of the most popular social networks. The following social networks with their corresponding identifiers are supported:  `github`, `facebook`, `twitter`, `pinterest`, `instagram`, `youtube` and `linkedin`.
 
 This is can be done with the `.Social.URL` function. Its only parameter is the name of the social network as they are defined in the profile (e.g. `facebook`, `twitter`). Custom variables like `website` remain as they are.
 
