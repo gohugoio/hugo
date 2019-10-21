@@ -1,0 +1,3 @@
+##### Hello World!
+
+Testing one, **two**, *three*. Don't delete this sample file used in the [templates](/templates/) section of the Hugo docs.

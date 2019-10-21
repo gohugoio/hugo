@@ -1,0 +1,11 @@
+<div class="video-wrapper" data-streaming="youtube" data-videoid="{{.Get "id"}}" >
+	<i class="icon-video-play-button shortcode"></i>
+	{{if (.Get "thumbnail")}}
+	<div style="background-image:url(/images/thumbnails/{{.Get "thumbnail"}})" alt="YouTube Thumbnail" class="video-thumbnail"></div>
+	{{else}}
+	<div style="background-image:url(//img.youtube.com/vi/{{.Get "id"}}/0.jpg)" alt="YouTube Thumbnail" class="video-thumbnail"></div>
+	{{end}}
+</div>
+{{ if (.Get "description") }}
+<div class="video-description">{{ .Get "description" | markdownify }}</div>
+{{ end }}

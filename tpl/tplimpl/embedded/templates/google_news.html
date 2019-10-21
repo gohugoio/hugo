@@ -1,3 +1,0 @@
-{{ if .IsPage }}{{ with .Params.news_keywords }}
-  <meta name="news_keywords" content="{{ range $i, $kw := first 10 . }}{{ if $i }},{{ end }}{{ $kw }}{{ end }}" />
-{{ end }}{{ end }}

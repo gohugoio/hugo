@@ -1,0 +1,154 @@
+[[docs]]
+  name = "About Hugo"
+  weight = 1
+  identifier = "about"
+  url = "/about/"
+
+[[docs]]
+  name = "Getting Started"
+  weight = 5
+  identifier = "getting-started"
+  url = "/getting-started/"
+
+[[docs]]
+  name = "Hugo Modules"
+  weight = 15
+  identifier = "modules"
+  post = "break"
+  url = "/hugo-modules/"
+
+# Core Menus
+
+[[docs]]
+  name = "Content Management"
+  weight = 20
+  identifier = "content-management"
+  post = "expanded"
+  url = "/content-management/"
+
+[[docs]]
+  name = "Templates"
+  weight = 25
+  identifier = "templates"
+
+  url = "/templates/"
+
+[[docs]]
+  name = "Functions"
+  weight = 30
+  identifier = "functions"
+  url = "/functions/"
+
+[[docs]]
+  name = "Variables"
+  weight = 35
+  identifier = "variables"
+  url = "/variables/"
+[[docs]]
+  name = "Hugo Pipes"
+  weight = 36
+  identifier = "pipes"
+  url = "/hugo-pipes/"
+[[docs]]
+  name = "CLI"
+  weight = 40
+  post = "break"
+  identifier = "commands"
+  url = "/commands/"
+
+
+
+# LOW LEVEL ITEMS
+
+
+[[docs]]
+  name = "Troubleshooting"
+  weight = 60
+  identifier = "troubleshooting"
+  url = "/troubleshooting/"
+
+[[docs]]
+  name = "Tools"
+  weight = 70
+  identifier = "tools"
+  url = "/tools/"
+
+[[docs]]
+  name = "Hosting & Deployment"
+  weight = 80
+  identifier = "hosting-and-deployment"
+  url = "/hosting-and-deployment/"
+
+[[docs]]
+  name = "Contribute"
+  weight = 100
+  post = "break"
+  identifier = "contribute"
+  url = "/contribute/"
+
+#[[docs]]
+#  name = "Tags"
+#  weight = 120
+#  identifier = "tags"
+#  url = "/tags/"
+
+
+# [[docs]]
+#   name = "Categories"
+#   weight = 140
+#   identifier = "categories"
+#   url = "/categories/"
+
+######## QUICKLINKS
+
+  [[quicklinks]]
+    name = "Fundamentals"
+    weight = 1
+    identifier = "fundamentals"
+    url = "/tags/fundamentals/"
+
+
+
+
+######## GLOBAL ITEMS TO BE SHARED WITH THE HUGO SITES
+
+[[global]]
+    name = "News"
+    weight = 1
+    identifier = "news"
+    url = "/news/"
+
+  [[global]]
+    name = "Docs"
+    weight = 5
+    identifier = "docs"
+    url = "/documentation/"
+
+  [[global]]
+    name = "Themes"
+    weight = 10
+    identifier = "themes"
+    url = "https://themes.gohugo.io/"
+
+    [[global]]
+      name = "Showcase"
+      weight = 20
+      identifier = "showcase"
+      url = "/showcase/"
+
+  # Anything with a weight > 100 gets an external icon
+  [[global]]
+    name = "Community"
+    weight = 150
+    icon = true
+    identifier = "community"
+    post = "external"
+    url = "https://discourse.gohugo.io/"
+
+
+  [[global]]
+    name = "GitHub"
+    weight = 200
+    identifier = "github"
+    post = "external"
+    url = "https://github.com/gohugoio/hugo"

@@ -1,4 +1,0 @@
-baseURL = "http://blog.hugoexample.com/"
-languageCode = "en-us"
-title = "Hugo Example Blog"
-canonifyURLs = true
