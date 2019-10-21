@@ -22,7 +22,7 @@ Another useful addon is the `$pages.Next` and `$pages.Prev` methods on the core 
 {{with .Site.RegularPages.Next . }}{{.RelPermalink}}{{end}}
 ```
 
-See [Pages Methods](https://gohugo.io/variables/pages/) for more information.
+See [Pages Methods](https://gohugo.io/variables/page/) for more information.
 
 
 This release represents **45 contributions by 13 contributors** to the main Hugo code base. [@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@anthonyfok](https://github.com/anthonyfok), [@BaibhaVatsa](https://github.com/BaibhaVatsa), and [@XhmikosR](https://github.com/XhmikosR) for their ongoing contributions.
