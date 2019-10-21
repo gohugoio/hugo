@@ -1,12 +1,12 @@
 
 ---
 date: 2019-10-21
-title: "0.59.0"
-description: "0.59.0"
+title: "Hugo 0.59.0"
+description: "Set image target format and background color, and more ..."
 categories: ["Releases"]
 ---
 
-	The timing of this release is motivated by getting the copies of the docs repositories in synch, now fully "Hugo Modularized". But it also comes with some very nice additions:
+The timing of this release is motivated by getting the copies of the docs repositories in synch, now fully "Hugo Modularized". But it also comes with some very nice additions:
 
 It is now possible to set the target format and the background fill color when processing images, e.g.:
 
