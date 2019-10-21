@@ -1,0 +1,46 @@
+{{ define "main" }}
+<div class="w-100 ph4 ph5-ns pb5 pb6-ns pt1 pt3-ns ">
+  <article class="cf pa3 pa4-m pa4-l nested-copy-line-height nested-img">
+    <h1 class="primary-color-dark">
+      {{ .Title }}
+    </h1>
+    <div class="nested-copy-line-height">
+      {{ .Content }}
+    </div>
+  </article>
+    <section class="flex-ns flex-wrap justify-between w-100 v-top">
+      {{ range (.Paginate (.Pages | shuffle ) 20).Pages  }}
+        {{template "showcase_items" .}}
+      {{ end }}
+    </section>
+  <div class="nested-list-reset nested-links">
+    {{/* pagination.html: https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/template_embedded.go#L117 */}}
+    {{ template "_internal/pagination.html" . }}
+  </div>
+  <div class="dib f3 mt4">The Showcase articles are copyright the content authors. Any open source license will be attached.</div>
+</div>
+{{ end }}
+
+
+{{define "showcase_items"}}
+  <a href="{{.Permalink}}" class="b--moon-gray ba bg-animate bg-white db flex-auto-ns hover-bg-near-white mb3 mr3 w-100 w-30-l" style="max-width: 1024px;">
+    <div class="flex flex-column black h-100 mb2 pa3 pa4-l">
+      {{ $img := (.Resources.ByType "image").GetMatch "*featured*" }}
+      {{ with $img }}
+      {{ $big := .Fill "1024x512 top" }}
+      {{ $small := $big.Resize "512x" }}
+      <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYwMCIgaGVpZ2h0PSI5MDAiIHZpZXdCb3g9IjAgMCAxNjAwIDkwMCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj48dGl0bGU+UmVjdGFuZ2xlPC90aXRsZT48ZGVzYz5DcmVhdGVkIHdpdGggU2tldGNoLjwvZGVzYz48ZyBpZD0iUGFnZS0xIiBzdHJva2U9Im5vbmUiIHN0cm9rZS13aWR0aD0iMSIgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cmVjdCBpZD0iUmVjdGFuZ2xlIiB4PSIwIiB5PSIwIiB3aWR0aD0iMTYwMCIgaGVpZ2h0PSI5MDAiLz48L2c+PC9zdmc+" 
+          data-sizes="auto" 
+          data-srcset="{{ $small.RelPermalink }} 1x,
+          {{ $big.RelPermalink }} 2x" data-bg="{{ $small.RelPermalink }}" class="grow img lazyload" style="display: block;  width: 100%; height: auto;" />
+      {{end}}
+      <div style="margin-top:auto;">{{/* the margin aligns to the bottom */}}
+        <h2 class="dib f3 mt4">
+          {{- .Title -}}
+        </h2>
+      </div>
+    </div>
+  </a>
+
+
+{{end}}

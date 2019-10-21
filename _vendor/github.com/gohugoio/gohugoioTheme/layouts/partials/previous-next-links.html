@@ -1,0 +1,25 @@
+{{if .Prev }}
+  <a href="{{ .Prev.Permalink }}" class="db-l f4 f3-ns link primary-color hover-black fw8 mr4">
+    <span class="v-mid dib">{{ partial "svg/ic_chevron_left_black_24px.svg" (dict "size" "30px") }}</span> {{ .Prev.Title }}
+  </a>
+{{end}}
+
+{{if .Next }}
+  <a href="{{.Next.Permalink }}" class="db-l f4 f3-ns link primary-color hover-black fw8">
+    {{ .Next.Title }} <span class="v-mid dib">{{ partial "svg/ic_chevron_right_black_24px.svg" (dict "size" "30px") }}</span>
+  </a>
+{{end}}
+
+
+<script>
+  document.body.onkeyup = function(e){
+    if (!(e.ctrlKey || e.shiftKey || e.altKey || e.metaKey)) {
+    {{- if .Prev }}
+      if (e.keyCode == '37') { window.location = '{{ .Prev.Permalink }}'; }
+    {{- end }}
+    {{- if .Next }}
+      if (e.keyCode == '39') { window.location = '{{ .Next.Permalink }}'; }
+    {{- end }}
+    }
+  };
+</script>
