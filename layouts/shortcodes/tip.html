@@ -1,0 +1,9 @@
+{{ $_hugo_config := `{ "version": 1 }` }}
+<aside class="admonition tip">
+	<div class="tip-icon">
+		{{partial "svg/exclamation.svg" .}}
+	</div>
+	<!-- <h2 id="{{if .Get 0}}{{.Get 0 | urlize}}{{else}}tip{{end}}">{{if .Get 0}}{{.Get 0 | markdownify}}{{else}}Tip{{end}}</h2> -->
+	<!-- <h3>Tip</h3> -->
+	<div class="admonition-content">{{- .Inner -}}</div>
+</aside>
