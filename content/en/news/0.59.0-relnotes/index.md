@@ -22,6 +22,12 @@ Another useful addon is the `$pages.Next` and `$pages.Prev` methods on the core 
 {{with .Site.RegularPages.Next . }}{{.RelPermalink}}{{end}}
 ```
 
+The above is a functionally equivalent (but slightly slower) variant of:
+
+```
+{{with .Next }}{{.RelPermalink}}{{end}}
+```
+
 See [Pages Methods](https://gohugo.io/variables/pages/) for more information.
 
 
