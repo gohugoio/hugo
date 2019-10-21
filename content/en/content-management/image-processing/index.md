@@ -133,6 +133,8 @@ You can set the background color to use with a 3 or 6 digit hex code starting wi
 
 For color codes, see https://www.google.com/search?q=color+picker
 
+**Note** that you also set a default background color to use, see [Image Processing Config](#image-processing-config).
+
 ### JPEG Quality
 Only relevant for JPEG images, values 1 to 100 inclusive, higher is better. Default is 75.
 
