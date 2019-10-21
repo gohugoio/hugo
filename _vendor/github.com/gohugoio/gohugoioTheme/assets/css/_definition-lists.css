@@ -1,0 +1,9 @@
+
+dl dt {
+  font-weight: bold;
+  font-size: 1.125rem;
+}
+dd {
+  margin: .5em 0 2em 0;
+  padding: 0;
+}

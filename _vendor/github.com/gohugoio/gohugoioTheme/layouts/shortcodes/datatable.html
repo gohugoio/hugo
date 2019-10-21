@@ -1,0 +1,18 @@
+<table class="utils-table">
+<thead>
+	<tr>
+		<td class="col-title">Title</td>
+		<td class="col-author">Author</td>
+		<td class="col-date">Date</td>
+	</tr>
+</thead>
+<tbody>
+	{{ range $ind, $art := $.Site.Data.articles.article }}
+	<tr>
+		<td><a href="{{$art.url}}" target="_blank">{{$art.title | markdownify }}</a></td>
+		<td>{{ $art.author | markdownify }}</td>
+		<td>{{ $art.date }}</td>
+	</tr>
+	{{ end }}
+</tbody>
+</table>

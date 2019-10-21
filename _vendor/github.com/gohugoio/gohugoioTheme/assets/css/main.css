@@ -1,0 +1,39 @@
+/*Base Styles*/
+@import '_tachyons';
+
+/* purgecss start ignore */
+@import '_anchorforid';
+@import '_animation';
+@import '_documentation-styles';
+
+@import 'docsearch.js/dist/cdn/docsearch.min';
+@import '_carousel';
+@import '_code';
+@import '_tabs';
+@import '_color-scheme';
+@import '_columns';
+@import '_content';
+@import '_content-tables';
+@import '_definition-lists';
+@import '_fluid-type';
+@import '_font-family';
+@import '_hugo-internal-template-styling';
+@import '_no-js';
+@import '_social-icons';
+@import '_stickyheader';
+
+@import '_svg';
+@import '_chroma';
+@import '_variables';
+
+.nested-blockquote blockquote {
+  border-left: 4px solid var(--primary-color);
+  padding-left: 1em;
+  /*margin: 0;*/
+}
+
+
+.mw-90 {
+  max-width:90%;
+}
+/* purgecss end ignore */
