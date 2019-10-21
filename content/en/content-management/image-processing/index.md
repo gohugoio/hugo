@@ -2,7 +2,6 @@
 title: "Image Processing"
 description: "Image Page resources can be resized and cropped."
 date: 2018-01-24T13:10:00-05:00
-lastmod: 2018-01-26T15:59:07-05:00
 linktitle: "Image Processing"
 categories: ["content management"]
 keywords: [resources,images]
@@ -122,31 +121,42 @@ See [Image Processing Config](#image-processing-config) for how to configure wha
 
 In addition to the dimensions (e.g. `600x400`), Hugo supports a set of additional image options.
 
+### Background Color
 
-JPEG Quality
-: Only relevant for JPEG images, values 1 to 100 inclusive, higher is better. Default is 75.
+The background color to fill into the transparency layer. This is mostly useful when converting to a format that does not support transparency, e.g. `JPEG`.
+
+You can set the background color to use with a 3 or 6 digit hex code starting with `#`.
+
+```go
+{{ $image.Resize "600x jpg #b31280" }}
+```
+
+For color codes, see https://www.google.com/search?q=color+picker
+
+### JPEG Quality
+Only relevant for JPEG images, values 1 to 100 inclusive, higher is better. Default is 75.
 
 ```go
 {{ $image.Resize "600x q50" }}
 ```
 
-Rotate
-: Rotates an image by the given angle counter-clockwise. The rotation will be performed first to get the dimensions correct. The main use of this is to be able to manually correct for [EXIF orientation](https://github.com/golang/go/issues/4341) of JPEG images.
+### Rotate
+Rotates an image by the given angle counter-clockwise. The rotation will be performed first to get the dimensions correct. The main use of this is to be able to manually correct for [EXIF orientation](https://github.com/golang/go/issues/4341) of JPEG images.
 
 ```go
 {{ $image.Resize "600x r90" }}
 ```
 
-Anchor
-: Only relevant for the `Fill` method. This is useful for thumbnail generation where the main motive is located in, say, the left corner. 
+###  Anchor
+Only relevant for the `Fill` method. This is useful for thumbnail generation where the main motive is located in, say, the left corner. 
 Valid are `Center`, `TopLeft`, `Top`, `TopRight`, `Left`, `Right`, `BottomLeft`, `Bottom`, `BottomRight`.
 
 ```go
 {{ $image.Fill "300x200 BottomLeft" }}
 ```
 
-Resample Filter
-: Filter used in resizing. Default is `Box`, a simple and fast resampling filter appropriate for downscaling. 
+### Resample Filter
+Filter used in resizing. Default is `Box`, a simple and fast resampling filter appropriate for downscaling. 
 
 Examples are: `Box`, `NearestNeighbor`, `Linear`, `Gaussian`.
 
@@ -154,6 +164,16 @@ See https://github.com/disintegration/imaging for more. If you want to trade qua
 
 ```go
 {{ $image.Resize "600x400 Gaussian" }}
+```
+
+### Target Format
+
+By default the images is encoded in the source format, but you can set the target format as an option.
+
+Valid values are `jpg`, `png`, `tif`, `bmp`, and `gif`.
+
+```go
+{{ $image.Resize "600x jpg" }}
 ```
 
 ## Image Processing Examples
@@ -210,6 +230,13 @@ quality = 75
 # Valid values are Smart, Center, TopLeft, Top, TopRight, Left, Right, BottomLeft, Bottom, BottomRight
 anchor = "smart"
 
+# Default background color. 
+# Hugo will preserve transparency for target formats that supports it,
+# but will fall back to this color for JPEG.
+# Expects a standard HEX color string with 3 or 6 digits.
+# See https://www.google.com/search?q=color+picker
+bgColor = "#ffffff"
+
 [imaging.exif]
  # Regexp matching the fields you want to Exclude from the (massive) set of Exif info
 # available. As we cache this info to disk, this is for performance and
@@ -219,17 +246,18 @@ anchor = "smart"
 # default set.
 includeFields = ""
 
- # Regexp matching the Exif fields you want to exclude. This may be easier to use
+# Regexp matching the Exif fields you want to exclude. This may be easier to use
 # than IncludeFields above, depending on what you want.
 excludeFields = ""
 
- # Hugo extracts the "photo taken" date/time into .Date by default.
+# Hugo extracts the "photo taken" date/time into .Date by default.
 # Set this to true to turn it off.
 disableDate = false
 
- # Hugo extracts the "photo taken where" (GPS latitude and longitude) into
+# Hugo extracts the "photo taken where" (GPS latitude and longitude) into
 # .Long and .Lat. Set this to true to turn it off.
 disableLatLong = false
+
 
 ```
 

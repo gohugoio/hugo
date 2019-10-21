@@ -4211,7 +4211,7 @@
           "Examples": [
             [
               "{{ \"I :heart: Hugo\" | emojify }}",
-              "I ❤️ Hugo"
+              "I ❤ Hugo"
             ]
           ]
         },
