@@ -1,0 +1,41 @@
+.prose ul, .prose ol {
+  margin-bottom: 2em;
+}
+.prose ul li, .prose  ol li {
+  margin-bottom: .5em;
+}
+.prose li:hover {
+  background-color: var(--light-gray)
+}
+.prose ::selection {
+  background: var(--primary-color); /* WebKit/Blink Browsers */
+  color: white;
+}
+
+
+body {
+
+line-height: 1.45;
+
+}
+
+p {margin-bottom: 1.3em;}
+
+h1, h2, h3, h4 {
+margin: 1.414em 0 0.5em;
+
+line-height: 1.2;
+}
+
+h1 {
+margin-top: 0;
+font-size: 2.441em;
+}
+
+h2 {font-size: 1.953em;}
+
+h3 {font-size: 1.563em;}
+
+h4 {font-size: 1.25em;}
+
+small, .font_small {font-size: 0.8em;}

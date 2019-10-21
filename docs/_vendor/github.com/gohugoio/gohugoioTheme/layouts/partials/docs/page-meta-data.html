@@ -1,0 +1,6 @@
+<h6 class="f4 dark-gray mb2">
+  <a href="{{ .Permalink }}" class="hide-child link primary-color">
+  <span class="nl3 child">{{ partial "svg/link-permalink.svg" (dict "size" "14px") }}</span>
+    “{{ .Title }}”
+  </a> was last updated: {{ .Lastmod.Format "January 2, 2006" }}{{ with .GitInfo }}: <a class="hide-child link primary-color" href="{{$.Site.Params.ghrepo}}commit/{{ .Hash }}">{{ .Subject }} ({{ .AbbreviatedHash }})</a>{{end }}
+</h6>

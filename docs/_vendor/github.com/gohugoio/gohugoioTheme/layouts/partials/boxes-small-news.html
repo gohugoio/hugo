@@ -1,0 +1,18 @@
+<section class="relative w-100 bg-black white">
+  <div class="flex flex-wrap w-90-l center center mw9">
+    <!-- <a href="/news/" class="link accent-color tr-ns f6 w-100 w-50-m w-10-l bg-animate hover-bg-accent-color hover-white pv3 pv4-l ph3 ph4-l dib">
+      Latest News:
+    </a> -->
+    {{ range first 4 ( sort (where .Site.RegularPages "Section" "news") "Date" "desc" ) }}
+      <!-- only show 2 boxes on mobile -->
+      {{ $.Scratch.Add "i" 1 }}{{ $i := $.Scratch.Get "i" }}
+      <a href="{{ .RelPermalink }}" class="link lh-copy light-gray f6 w-100 w-50-m w-25-l bg-animate hover-bg-accent-color hover-white pv3 pv4-ns ph3 ph4-ns{{ if ge $i 3 }} dn dib-l{{ else }} dib{{ end }}">
+        <span class="f6 gray pb1 db">
+          {{ .Date.Format "January 2, 2006" }}
+        </span>
+        {{ .Params.description | markdownify | truncate 100 "…"}}
+      </a>
+    {{ end }}
+
+  </div>
+</section>

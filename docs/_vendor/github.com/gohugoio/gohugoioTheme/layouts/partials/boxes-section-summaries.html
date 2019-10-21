@@ -1,0 +1,35 @@
+<div class="relative {{ .classes }} weight-{{ .context.Weight }}">
+
+  <div class="bg-white mb2 pa3 pa4-l gray">
+    {{ if eq .context.Section "news" }}
+      <date class="f6 db" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">
+        {{ .context.Date.Format "January 2, 2006" }}
+      </date>
+    {{ end }}
+
+    <h1 class="near-black f3">
+      <a href="{{ .context.RelPermalink }}" class="link primary-color dim">
+      {{- if eq .context.Section "functions" -}}
+        {{ .context.LinkTitle }}
+      {{- else -}}
+        {{ .context.Title }}
+      {{- end -}}
+      </a>
+    </h1>
+
+    <div class="lh-copy links">
+      {{ if .context.Params.description  }}
+          {{ .context.Params.description | markdownify }}
+        {{ else }}
+          {{ .context.Summary  }}
+      {{ end }}
+
+        <a href="{{ .context.RelPermalink }}" class="f6 mt2 db link primary-color dim">
+          Read More &raquo;
+        </a>
+
+    </div>
+
+
+  </div>
+</div>
