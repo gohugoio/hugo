@@ -82,7 +82,7 @@ func (h highlighters) chromaHighlight(code, lang, optsStr string) (string, error
 
 	err = chromaHighlight(b, code, lang, style, f)
 	if err != nil {
-		jww.ERROR.Print(err.Error())
+		jww.ERROR.Printf("Highlight failed: %s\nLang: %q\nCode: \n%s", err, lang, code)
 		return code, err
 	}
 
