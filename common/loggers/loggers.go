@@ -15,11 +15,13 @@ package loggers
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"os"
 	"regexp"
+	"runtime"
 
 	"github.com/gohugoio/hugo/common/terminal"
 
@@ -142,6 +144,26 @@ func getLogWriters(outHandle, logHandle io.Writer) (io.Writer, io.Writer) {
 
 }
 
+type fatalLogWriter int
+
+func (s fatalLogWriter) Write(p []byte) (n int, err error) {
+	trace := make([]byte, 1500)
+	runtime.Stack(trace, true)
+	fmt.Printf("\n===========\n\n%s\n", trace)
+	os.Exit(-1)
+
+	return 0, nil
+}
+
+var fatalLogListener = func(t jww.Threshold) io.Writer {
+	if t != jww.LevelError {
+		// Only interested in ERROR
+		return nil
+	}
+
+	return new(fatalLogWriter)
+}
+
 func newLogger(stdoutThreshold, logThreshold jww.Threshold, outHandle, logHandle io.Writer, saveErrors bool) *Logger {
 	errorCounter := &jww.Counter{}
 	warnCounter := &jww.Counter{}
@@ -156,7 +178,6 @@ func newLogger(stdoutThreshold, logThreshold jww.Threshold, outHandle, logHandle
 				// Only interested in ERROR
 				return nil
 			}
-
 			return errorBuff
 		}
 
