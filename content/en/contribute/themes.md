@@ -20,13 +20,13 @@ wip: true
 toc: true
 ---
 
-A collection of all themes created by the Hugo community, including screenshots and demos, can be found at [www.themes.gohugo.io]. Every theme in this list will automatically be added to the theme site.
+A collection of all themes created by the Hugo community, including screenshots and demos, can be found at [themes.gohugo.io]. Every theme in this list will automatically be added to the theme site.
 
 Another great site for Hugo themes is [jamstackthemes.dev/](https://jamstackthemes.dev/ssg/hugo/).
 
 
 ### Add Your Theme to the Repo
 
-In order to add your Hugo theme to [www.themes.gohugo.io] please [open up a new issue in the theme repository](https://github.com/gohugoio/hugoThemes/issues/new?template=theme-submission.md). **Please make sure that you've read the theme submission guidelines in the [README](https://github.com/gohugoio/hugoThemes/blob/master/README.md#adding-a-theme-to-the-list) of the hugoThemes repository.** 
+In order to add your Hugo theme to [themes.gohugo.io] please [open up a new issue in the theme repository](https://github.com/gohugoio/hugoThemes/issues/new?template=theme-submission.md). **Please make sure that you've read the theme submission guidelines in the [README](https://github.com/gohugoio/hugoThemes/blob/master/README.md#adding-a-theme-to-the-list) of the hugoThemes repository.** 
 
-[www.themes.gohugo.io]: https://themes.gohugo.io/
+[themes.gohugo.io]: https://themes.gohugo.io/
