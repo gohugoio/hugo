@@ -651,7 +651,8 @@ func TestImageOperationsGolden(t *testing.T) {
 			switch fi1.Name() {
 			case "gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_4c320010919da2d8b63ed24818b4d8e1.png",
 				"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_9d4c2220235b3c2d9fa6506be571560f.png",
-				"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_c74bb417b961e09cf1aac2130b7b9b85.png":
+				"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_c74bb417b961e09cf1aac2130b7b9b85.png",
+				"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_300x200_fill_gaussian_smart1_2.png":
 				c.Log("expectedly differs from golden due to dithering:", fi1.Name())
 			default:
 				t.Errorf("resulting image differs from golden: %s", fi1.Name())
