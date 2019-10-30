@@ -37,6 +37,7 @@ import (
 	"github.com/russross/blackfriday"
 	"github.com/spf13/afero"
 	jww "github.com/spf13/jwalterweatherman"
+	"github.com/yuin/goldmark"
 
 	"strings"
 )
@@ -52,7 +53,9 @@ var (
 
 // ContentSpec provides functionality to render markdown content.
 type ContentSpec struct {
-	BlackFriday                *BlackFriday
+	BlackFriday *BlackFriday
+	Goldmark    *Goldmark
+
 	footnoteAnchorPrefix       string
 	footnoteReturnLinkContents string
 	// SummaryLength is the length of the summary that Hugo extracts from a content.
@@ -72,8 +75,10 @@ type ContentSpec struct {
 // with the appropriate fields from the given config.Provider.
 func NewContentSpec(cfg config.Provider) (*ContentSpec, error) {
 	bf := newBlackfriday(cfg.GetStringMap("blackfriday"))
+	gm := newGoldmark(cfg.GetStringMap("goldmark"))
 	spec := &ContentSpec{
 		BlackFriday:                bf,
+		Goldmark:                   gm,
 		footnoteAnchorPrefix:       cfg.GetString("footnoteAnchorPrefix"),
 		footnoteReturnLinkContents: cfg.GetString("footnoteReturnLinkContents"),
 		summaryLength:              cfg.GetInt("summaryLength"),
@@ -165,6 +170,18 @@ func newBlackfriday(config map[string]interface{}) *BlackFriday {
 	}
 
 	return combinedConfig
+}
+
+// Goldmark provides a structure for recording goldmark Options.
+type Goldmark struct {
+	Options []goldmark.Option
+}
+
+func newGoldmark(config map[string]interface{}) *Goldmark {
+	// TODO(evankanderson): Convert string flags into goldmark Options
+	// (see https://godoc.org/github.com/yuin/goldmark/extension#pkg-variables)
+	// for some example options.
+	return &Goldmark{}
 }
 
 var blackfridayExtensionMap = map[string]int{
@@ -425,6 +442,15 @@ func (c ContentSpec) mmarkRender(ctx *RenderingContext) []byte {
 		getMmarkExtensions(ctx)).Bytes()
 }
 
+func (c ContentSpec) goldmarkRender(ctx *RenderingContext) ([]byte, error) {
+	gm := goldmark.New()
+	b := new(bytes.Buffer)
+
+	err := gm.Convert(ctx.Content, b)
+
+	return b.Bytes(), err
+}
+
 // ExtractTOC extracts Table of Contents from content.
 func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 	if !bytes.Contains(content, []byte("<nav>")) {
@@ -489,6 +515,12 @@ func (c ContentSpec) RenderBytes(ctx *RenderingContext) []byte {
 		return getAsciidocContent(ctx)
 	case "mmark":
 		return c.mmarkRender(ctx)
+	case "goldmark":
+		b, err := c.goldmarkRender(ctx)
+		if err != nil {
+			panic(fmt.Sprintf("Failed to render source: %v", err))
+		}
+		return b
 	case "rst":
 		return getRstContent(ctx)
 	case "org":

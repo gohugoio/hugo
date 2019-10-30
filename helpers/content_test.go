@@ -429,6 +429,18 @@ func TestMmarkRender(t *testing.T) {
 	}
 }
 
+func TestGoldmarkRender(t *testing.T) {
+	c := newTestContentSpec()
+	ctx := &RenderingContext{Cfg: c.Cfg, PageFmt: "goldmark"}
+	ctx.Content = []byte("# TestContent\n\nand more")
+	got := c.RenderBytes(ctx)
+	want := []byte("<h1>TestContent</h1>\n<p>and more</p>\n")
+	// TODO(evankanderson): use go-cmp
+	if !bytes.Equal(got, want) {
+		t.Errorf("Expected %q to render as %q, got %q", ctx.Content, want, got)
+	}
+}
+
 func TestExtractTOCNormalContent(t *testing.T) {
 	content := []byte("<nav>\n<ul>\nTOC<li><a href=\"#")
 
