@@ -176,7 +176,7 @@ For theme specific configuration options, see the [theme site](https://github.co
 It is simple. Just call:
 
 ```
-hugo
+hugo -D
 ```
 
 Output will be in `./public/` directory by default (`-d`/`--destination` flag to change it, or set `publishdir` in the config file).
