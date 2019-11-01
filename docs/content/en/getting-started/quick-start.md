@@ -154,7 +154,7 @@ Open up `config.toml` in a text editor:
 
 ```
 baseURL = "https://example.org/"
-languageCode = "en-us"
+languageCode = "en-US"
 title = "My New Hugo Site"
 theme = "ananke"
 ```

@@ -290,7 +290,7 @@ func (i *importCmd) createConfigFromJekyll(fs afero.Fs, inpath string, kind meta
 	in := map[string]interface{}{
 		"baseURL":            baseURL,
 		"title":              title,
-		"languageCode":       "en-us",
+		"languageCode":       "en-US",
 		"disablePathToLower": true,
 	}
 

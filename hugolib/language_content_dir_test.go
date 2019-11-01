@@ -326,7 +326,7 @@ func TestLanguageRootSectionsMismatch(t *testing.T) {
 
 	config := `
 baseURL: "https://example.org/"
-languageCode: "en-us"
+languageCode: "en-US"
 title: "My New Hugo Site"
 theme: "mytheme"
 
