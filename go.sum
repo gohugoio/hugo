@@ -40,8 +40,6 @@ github.com/Shopify/toxiproxy v2.1.4+incompatible/go.mod h1:OXgGpZ6Cli1/URJOF1DMx
 github.com/akavel/rsrc v0.8.0/go.mod h1:uLoCtb9J+EyAqh+26kdrTgmzRBFPGOolLWKpdxkKq+c=
 github.com/alecthomas/assert v0.0.0-20170929043011-405dbfeb8e38 h1:smF2tmSOzy2Mm+0dGI2AIUHY+w0BUc+4tn40djz7+6U=
 github.com/alecthomas/assert v0.0.0-20170929043011-405dbfeb8e38/go.mod h1:r7bzyVFMNntcxPZXK3/+KdruV1H5KSlyVY0gc+NgInI=
-github.com/alecthomas/chroma v0.6.7 h1:1hKci+AyKOxJrugR9veaocu9DQGR2/GecI72BpaO0Rg=
-github.com/alecthomas/chroma v0.6.7/go.mod h1:zVlgtbRS7BJDrDY9SB238RmpoCBCYFlLmcfZ3durxTk=
 github.com/alecthomas/chroma v0.6.8 h1:TW4JJaIdbAbMyUtGEd6BukFlOKYvVQz3vVhLBEUNwMU=
 github.com/alecthomas/chroma v0.6.8/go.mod h1:o9ohftueRi7H5be3+Q2cQCNa/YnLBFUNx40ZJfGVFKA=
 github.com/alecthomas/colour v0.0.0-20160524082231-60882d9e2721 h1:JHZL0hZKJ1VENNfmXvHbgYlbUOvpzYzvy2aZU5gXVeo=
@@ -154,6 +152,8 @@ github.com/google/go-cmp v0.3.0 h1:crn/baboCvb5fXaQ0IJ1SGTsTVrWpDsCWC8EGETZijY=
 github.com/google/go-cmp v0.3.0/go.mod h1:8QqcDgzrUqlUb/G2PQTWiueGozuR1884gddMywk6iLU=
 github.com/google/go-cmp v0.3.1 h1:Xye71clBPdm5HgqGwUkwhbynsUJZhDbS20FvLhQ2izg=
 github.com/google/go-cmp v0.3.1/go.mod h1:8QqcDgzrUqlUb/G2PQTWiueGozuR1884gddMywk6iLU=
+github.com/google/go-cmp v0.3.2-0.20191028172631-481baca67f93 h1:VvBteXw2zOXEgm0o3PgONTWf+bhUGsCaiNn3pbkU9LA=
+github.com/google/go-cmp v0.3.2-0.20191028172631-481baca67f93/go.mod h1:8QqcDgzrUqlUb/G2PQTWiueGozuR1884gddMywk6iLU=
 github.com/google/martian v2.1.0+incompatible h1:/CP5g8u/VJHijgedC/Legn3BAbAaWPgecwXBIDzw5no=
 github.com/google/martian v2.1.0+incompatible/go.mod h1:9I4somxYTbIHy5NJKHRl3wXiIaQGbYVAs8BPL6v8lEs=
 github.com/google/martian v2.1.1-0.20190517191504-25dcb96d9e51+incompatible h1:xmapqc1AyLoB+ddYT6r04bD9lIjlOqGaREovi0SzFaE=
