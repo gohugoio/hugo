@@ -134,7 +134,11 @@ func Check() {
 		return
 	}
 
-	mg.Deps(Test386)
+	if runtime.GOARCH == "amd64" {
+		mg.Deps(Test386)
+	} else {
+		fmt.Printf("Skip Test386 on %s\n", runtime.GOARCH)
+	}
 
 	mg.Deps(Fmt, Vet)
 
