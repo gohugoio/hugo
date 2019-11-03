@@ -15,6 +15,7 @@ package minifiers
 
 import (
 	"bytes"
+	"encoding/json"
 	"strings"
 	"testing"
 
@@ -68,6 +69,44 @@ func TestNew(t *testing.T) {
 
 		c.Assert(m.Minify(test.tp, &b, strings.NewReader(test.rawString)), qt.IsNil)
 		c.Assert(b.String(), qt.Equals, test.expectedMinString)
+	}
+
+}
+
+func TestJSONRoundTrip(t *testing.T) {
+	c := qt.New(t)
+	m := New(media.DefaultTypes, output.DefaultFormats)
+
+	for _, test := range []string{`{
+    "glossary": {
+        "title": "example glossary",
+		"GlossDiv": {
+            "title": "S",
+			"GlossList": {
+                "GlossEntry": {
+                    "ID": "SGML",
+					"SortAs": "SGML",
+					"GlossTerm": "Standard Generalized Markup Language",
+					"Acronym": "SGML",
+					"Abbrev": "ISO 8879:1986",
+					"GlossDef": {
+                        "para": "A meta-markup language, used to create markup languages such as DocBook.",
+						"GlossSeeAlso": ["GML", "XML"]
+                    },
+					"GlossSee": "markup"
+                }
+            }
+        }
+    }
+}`} {
+
+		var b bytes.Buffer
+		m1 := make(map[string]interface{})
+		m2 := make(map[string]interface{})
+		c.Assert(json.Unmarshal([]byte(test), &m1), qt.IsNil)
+		c.Assert(m.Minify(media.JSONType, &b, strings.NewReader(test)), qt.IsNil)
+		c.Assert(json.Unmarshal(b.Bytes(), &m2), qt.IsNil)
+		c.Assert(m1, qt.DeepEquals, m2)
 	}
 
 }
