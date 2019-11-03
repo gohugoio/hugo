@@ -29,6 +29,7 @@ os:
 jobs:
   allow_failures:
     - go: master
+    - arch: arm64
   fast_finish: true
   exclude:
     - os: windows
