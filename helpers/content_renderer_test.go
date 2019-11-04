@@ -23,7 +23,7 @@ import (
 )
 
 // Renders a codeblock using Blackfriday
-func (c ContentSpec) render(input string) string {
+func (c *ContentSpec) render(input string) string {
 	ctx := &RenderingContext{Cfg: c.Cfg, Config: c.BlackFriday}
 	render := c.getHTMLRenderer(0, ctx)
 
@@ -33,7 +33,7 @@ func (c ContentSpec) render(input string) string {
 }
 
 // Renders a codeblock using Mmark
-func (c ContentSpec) renderWithMmark(input string) string {
+func (c *ContentSpec) renderWithMmark(input string) string {
 	ctx := &RenderingContext{Cfg: c.Cfg, Config: c.BlackFriday}
 	render := c.getMmarkHTMLRenderer(0, ctx)
 
