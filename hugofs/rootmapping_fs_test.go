@@ -209,7 +209,7 @@ func TestRootMappingFsMount(t *testing.T) {
 	blog, err := rfs.Stat(filepath.FromSlash("content/blog"))
 	c.Assert(err, qt.IsNil)
 	blogm := blog.(FileMetaInfo).Meta()
-	c.Assert(blogm.Lang(), qt.Equals, "sv") // Last match
+	c.Assert(blogm.Lang(), qt.Equals, "no") // First match
 
 	f, err := blogm.Open()
 	c.Assert(err, qt.IsNil)

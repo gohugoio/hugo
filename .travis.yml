@@ -1,27 +1,60 @@
 language: go
-sudo: false
-dist: xenial
+
+dist: bionic
+
 env:
   global:
-  - GOPROXY="https://proxy.golang.org"
-  - HUGO_BUILD_TAGS="extended"
+    - CACHE_NAME=${TRAVIS_ARCH}
+    - GO111MODULE=on
+    - GOPROXY=https://proxy.golang.org
+    - HUGO_BUILD_TAGS=extended
+
 git:
   depth: false
+
 go:
   - "1.12.10"
   - "1.13.1"
-  - tip
+  - master
+
+arch:
+  - amd64
+  - arm64
+
 os:
   - linux
   - osx
   - windows
-matrix:
+
+jobs:
   allow_failures:
-    - go: tip
+    - go: master
+    - arch: arm64
   fast_finish: true
   exclude:
-  - os: windows
-    go: tip
+    - os: windows
+      go: master
+    - arch: arm64
+      os: osx
+    - arch: arm64
+      os: windows
+
+cache:
+  directories:
+    - $HOME/gopath/pkg/mod
+    - $HOME/.cache/go-build
+    - $HOME/Library/Caches/go-build
+    - $HOME/AppData/Local/go-build
+
+before_install:
+  - df -h
+    # https://travis-ci.community/t/go-cant-find-gcc-with-go1-11-1-on-windows/293/5
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then
+        choco install mingw -y;
+        export PATH=/c/tools/mingw64/bin:"$PATH";
+    fi
+  - gem install asciidoctor
+  - type asciidoctor
 
 install:
   - mkdir -p $HOME/src
@@ -29,18 +62,16 @@ install:
   - export TRAVIS_BUILD_DIR=$HOME/src/hugo
   - cd $HOME/src/hugo
   - go get github.com/magefile/mage
+
 script:
   - go mod download || true
   - mage -v test
-  - mage -v check
+  - if [ "$TRAVIS_ARCH" = "amd64" ]; then
+        mage -v check;
+    else
+        mage -v check || true;
+    fi
   - mage -v hugo
   - ./hugo -s docs/
   - ./hugo --renderToMemory -s docs/
   - df -h
-
-before_install:
-  - df -h
-    # https://travis-ci.community/t/go-cant-find-gcc-with-go1-11-1-on-windows/293/5
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then choco install mingw -y; export PATH=/c/tools/mingw64/bin:"$PATH"; fi
-  - gem install asciidoctor
-  - type asciidoctor

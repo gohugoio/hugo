@@ -2,7 +2,7 @@
 title: Template Debugging
 # linktitle: Template Debugging
 description: You can use Go templates' `printf` function to debug your Hugo  templates. These snippets provide a quick and easy visualization of the variables available to you in different contexts.
-godocref: http://golang.org/pkg/fmt/
+godocref: https://golang.org/pkg/fmt/
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -21,7 +21,7 @@ toc: false
 
 Here are some snippets you can add to your template to answer some common questions.
 
-These snippets use the `printf` function available in all Go templates.  This function is an alias to the Go function, [fmt.Printf](http://golang.org/pkg/fmt/).
+These snippets use the `printf` function available in all Go templates.  This function is an alias to the Go function, [fmt.Printf](https://golang.org/pkg/fmt/).
 
 ## What Variables are Available in this Context?
 
@@ -56,10 +56,6 @@ When developing a [homepage][], what does one of the pages you're looping throug
     {{ printf "%#v" . }}
 {{ end }}
 ```
-
-{{% note "`.Pages` on the Homepage" %}}
-`.Pages` on the homepage is equivalent to `.Site.RegularPages`.
-{{% /note %}}
 
 ## Why Am I Showing No Defined Variables?
 

@@ -5,7 +5,7 @@ require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/PuerkitoBio/purell v1.1.0
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
-	github.com/alecthomas/chroma v0.6.7
+	github.com/alecthomas/chroma v0.6.9
 	github.com/alecthomas/repr v0.0.0-20181024024818-d37bc2a10ba1 // indirect
 	github.com/armon/go-radix v1.0.0
 	github.com/aws/aws-sdk-go v1.19.40
@@ -18,11 +18,11 @@ require (
 	github.com/dustin/go-humanize v1.0.0
 	github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385
 	github.com/fortytw2/leaktest v1.3.0
-	github.com/frankban/quicktest v1.4.1
+	github.com/frankban/quicktest v1.6.0
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/gobwas/glob v0.2.3
 	github.com/gohugoio/testmodBuilder/mods v0.0.0-20190520184928-c56af20f2e95
-	github.com/google/go-cmp v0.3.1
+	github.com/google/go-cmp v0.3.2-0.20191028172631-481baca67f93
 	github.com/gorilla/websocket v1.4.0
 	github.com/jdkato/prose v1.1.0
 	github.com/kyokomi/emoji v2.1.0+incompatible

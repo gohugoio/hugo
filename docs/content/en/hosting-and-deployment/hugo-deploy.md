@@ -11,24 +11,25 @@ authors: [Robert van Gent]
 menu:
   docs:
     parent: "hosting-and-deployment"
-    weight: 10
-weight: 10
-sections_weight: 10
+    weight: 2
+weight: 2
+sections_weight: 2
 draft: false
 aliases: []
 toc: true
 ---
 
-You can use the "hugo deploy" command to upload your site directly to a Google Compute Storage (GCS) bucket, an AWS S3 bucket, and/or an Azure Storage bucket.
+You can use the "hugo deploy" command to upload your site directly to a Google Cloud Storage (GCS) bucket, an AWS S3 bucket, and/or an Azure Storage bucket.
 
 ## Assumptions
 
 * You have completed the [Quick Start][] or have a Hugo website you are ready to deploy and share with the world.
-* You have an account with the service provider ([Google Cloud][], [AWS][], or [Azure][]) that you want to deploy to.
-* You have authenticated locally.
+* You have an account with the service provider ([Google Cloud](https://cloud.google.com/), [AWS](https://aws.amazon.com), or [Azure](https://azure.microsoft.com)) that you want to deploy to.
+* You have authenticated.
   * Google Cloud: [Install the CLI](https://cloud.google.com/sdk) and run [`gcloud auth login`](https://cloud.google.com/sdk/gcloud/reference/auth/login).
   * AWS: [Install the CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html) and run [`aws configure`](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html).
   * Azure: [Install the CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) and run [`az login`](https://docs.microsoft.com/en-us/cli/azure/authenticate-azure-cli).
+  * NOTE: Each service supports alternatives for authentication, including using environment variables. See [here](https://gocloud.dev/howto/blob/#services) for more details.
 
 ## Create a bucket to deploy to
 
@@ -65,11 +66,19 @@ order = [".jpg$", ".gif$"]
 # An arbitrary name for this target.
 name = "mydeployment"
 # The Go Cloud Development Kit URL to deploy to. Examples:
-  # URL = "gs://<Bucket Name>"  # For GCS; see https://gocloud.dev/howto/blob/open-bucket/#gcs.
-  # URL = "s3://<Bucket Name>?region=<AWS region>"  # For S3; see https://gocloud.dev/howto/blob/open-bucket/#s3.
-  # URL = "azblob://$web"  # For Azure Storage; see https://gocloud.dev/howto/blob/open-bucket/#azure.
+# GCS; see https://gocloud.dev/howto/blob/#gcs
+# URL = "gs://<Bucket Name>"
+
+# S3; see https://gocloud.dev/howto/blob/#s3
+# For S3-compatible endpoints, see https://gocloud.dev/howto/blob/#s3-compatible
+# URL = "s3://<Bucket Name>?region=<AWS region>"
+
+# Azure Blob Storage; see https://gocloud.dev/howto/blob/#azure
+# URL = "azblob://$web"
+
 # You can use a "prefix=" query parameter to target a subfolder of the bucket:
-  # URL = "gs://<Bucket Name>?prefix=a/subfolder/"
+# URL = "gs://<Bucket Name>?prefix=a/subfolder/"
+
 # If you are using a CloudFront CDN, deploy will invalidate the cache as needed.
 cloudFrontDistributionID = <ID>
 

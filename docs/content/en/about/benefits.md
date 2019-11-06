@@ -36,7 +36,7 @@ This has many benefits. The most noticeable is performance. HTTP servers are *ve
 
 
 ["An Introduction to Static Site Generators", David Walsh]: https://davidwalsh.name/introduction-static-site-generators
-["Static Site Generators", O'Reilly]: http://www.oreilly.com/web-platform/free/files/static-site-generators.pdf
+["Static Site Generators", O'Reilly]: https://www.oreilly.com/web-platform/free/files/static-site-generators.pdf
 ["Top 10 Static Website Generators", Netlify blog]: https://www.netlify.com/blog/2016/05/02/top-ten-static-website-generators/
 [hugovwordpress]: https://gettingthingstech.com/hugo-vs.-wordpress-page-load-speed-comparison-hugo-leaves-wordpress-in-its-dust/
 [StaticGen: Top Open-Source Static Site Generators (GitHub Stars)]: https://www.staticgen.com/

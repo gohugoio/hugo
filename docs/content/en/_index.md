@@ -34,7 +34,7 @@ features:
 sections:
   - heading: "300+ Themes"
     cta: Check out the Hugo themes.
-    link: http://themes.gohugo.io/
+    link: https://themes.gohugo.io/
     color_classes: bg-accent-color white
     image: /images/homepage-screenshot-hugo-themes.jpg
     copy: "Hugo provides a robust theming system that is easy to implement but capable of producing even the most complicated websites."

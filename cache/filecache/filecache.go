@@ -15,6 +15,7 @@ package filecache
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"io/ioutil"
 	"os"
@@ -30,6 +31,9 @@ import (
 	"github.com/BurntSushi/locker"
 	"github.com/spf13/afero"
 )
+
+// ErrFatal can be used to signal an unrecoverable error.
+var ErrFatal = errors.New("fatal filecache error")
 
 const (
 	filecacheRootDirname = "filecache"
@@ -137,7 +141,13 @@ func (c *Cache) ReadOrCreate(id string,
 	if r := c.getOrRemove(id); r != nil {
 		err = read(info, r)
 		defer r.Close()
-		return
+		if err == nil || err == ErrFatal {
+			// See https://github.com/gohugoio/hugo/issues/6401
+			// To recover from file corruption we handle read errors
+			// as the cache item was not found.
+			// Any file permission issue will also fail in the next step.
+			return
+		}
 	}
 
 	f, err := helpers.OpenFileForWriting(c.Fs, id)

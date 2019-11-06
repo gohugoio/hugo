@@ -205,10 +205,11 @@ SUNSET2: {{ $resized2.RelPermalink }}/{{ $resized2.Width }}/Lat: {{ $resized2.Ex
 
 	// Check the file cache
 	b.AssertImage(200, 200, "resources/_gen/images/bundle/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x200_resize_q75_box.jpg")
-	b.AssertFileContent("resources/_gen/images/bundle/sunset_17701188623491591036.json",
+
+	b.AssertFileContent("resources/_gen/images/bundle/sunset_7645215769587362592.json",
 		"DateTimeDigitized|time.Time", "PENTAX")
 	b.AssertImage(123, 234, "resources/_gen/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_123x234_resize_q75_box.jpg")
-	b.AssertFileContent("resources/_gen/images/sunset_17701188623491591036.json",
+	b.AssertFileContent("resources/_gen/images/sunset_7645215769587362592.json",
 		"DateTimeDigitized|time.Time", "PENTAX")
 
 	// TODO(bep) add this as a default assertion after Build()?

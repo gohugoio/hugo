@@ -29,17 +29,19 @@ func TestDecodeConfig(t *testing.T) {
 		"anchor":         "topLeft",
 	}
 
-	imaging, err := DecodeConfig(m)
+	imagingConfig, err := DecodeConfig(m)
 
 	c.Assert(err, qt.IsNil)
+	imaging := imagingConfig.Cfg
 	c.Assert(imaging.Quality, qt.Equals, 42)
 	c.Assert(imaging.ResampleFilter, qt.Equals, "nearestneighbor")
 	c.Assert(imaging.Anchor, qt.Equals, "topleft")
 
 	m = map[string]interface{}{}
 
-	imaging, err = DecodeConfig(m)
+	imagingConfig, err = DecodeConfig(m)
 	c.Assert(err, qt.IsNil)
+	imaging = imagingConfig.Cfg
 	c.Assert(imaging.Quality, qt.Equals, defaultJPEGQuality)
 	c.Assert(imaging.ResampleFilter, qt.Equals, "box")
 	c.Assert(imaging.Anchor, qt.Equals, "smart")
@@ -59,18 +61,20 @@ func TestDecodeConfig(t *testing.T) {
 	})
 	c.Assert(err, qt.Not(qt.IsNil))
 
-	imaging, err = DecodeConfig(map[string]interface{}{
+	imagingConfig, err = DecodeConfig(map[string]interface{}{
 		"anchor": "Smart",
 	})
+	imaging = imagingConfig.Cfg
 	c.Assert(err, qt.IsNil)
 	c.Assert(imaging.Anchor, qt.Equals, "smart")
 
-	imaging, err = DecodeConfig(map[string]interface{}{
+	imagingConfig, err = DecodeConfig(map[string]interface{}{
 		"exif": map[string]interface{}{
 			"disableLatLong": true,
 		},
 	})
 	c.Assert(err, qt.IsNil)
+	imaging = imagingConfig.Cfg
 	c.Assert(imaging.Exif.DisableLatLong, qt.Equals, true)
 	c.Assert(imaging.Exif.ExcludeFields, qt.Equals, "GPS|Exif|Exposure[M|P|B]|Contrast|Resolution|Sharp|JPEG|Metering|Sensing|Saturation|ColorSpace|Flash|WhiteBalance")
 
@@ -81,11 +85,12 @@ func TestDecodeImageConfig(t *testing.T) {
 		in     string
 		expect interface{}
 	}{
-		{"300x400", newImageConfig(300, 400, 0, 0, "", "")},
-		{"100x200 bottomRight", newImageConfig(100, 200, 0, 0, "", "BottomRight")},
-		{"10x20 topleft Lanczos", newImageConfig(10, 20, 0, 0, "Lanczos", "topleft")},
-		{"linear left 10x r180", newImageConfig(10, 0, 0, 180, "linear", "left")},
-		{"x20 riGht Cosine q95", newImageConfig(0, 20, 95, 0, "cosine", "right")},
+		{"300x400", newImageConfig(300, 400, 0, 0, "", "", "")},
+		{"300x400 #fff", newImageConfig(300, 400, 0, 0, "", "", "fff")},
+		{"100x200 bottomRight", newImageConfig(100, 200, 0, 0, "", "BottomRight", "")},
+		{"10x20 topleft Lanczos", newImageConfig(10, 20, 0, 0, "Lanczos", "topleft", "")},
+		{"linear left 10x r180", newImageConfig(10, 0, 0, 180, "linear", "left", "")},
+		{"x20 riGht Cosine q95", newImageConfig(0, 20, 95, 0, "cosine", "right", "")},
 
 		{"", false},
 		{"foo", false},
@@ -107,13 +112,15 @@ func TestDecodeImageConfig(t *testing.T) {
 	}
 }
 
-func newImageConfig(width, height, quality, rotate int, filter, anchor string) ImageConfig {
+func newImageConfig(width, height, quality, rotate int, filter, anchor, bgColor string) ImageConfig {
 	var c ImageConfig
 	c.Action = "resize"
 	c.Width = width
 	c.Height = height
 	c.Quality = quality
 	c.Rotate = rotate
+	c.BgColorStr = bgColor
+	c.BgColor, _ = hexStringToColor(bgColor)
 
 	if filter != "" {
 		filter = strings.ToLower(filter)

@@ -14,6 +14,7 @@
 package filecache
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -241,6 +242,55 @@ dir = "/cache/c"
 
 	}
 	wg.Wait()
+}
+
+func TestFileCacheReadOrCreateErrorInRead(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	var result string
+
+	rf := func(failLevel int) func(info ItemInfo, r io.Reader) error {
+
+		return func(info ItemInfo, r io.Reader) error {
+			if failLevel > 0 {
+				if failLevel > 1 {
+					return ErrFatal
+				}
+				return errors.New("fail")
+			}
+
+			b, _ := ioutil.ReadAll(r)
+			result = string(b)
+
+			return nil
+		}
+	}
+
+	bf := func(s string) func(info ItemInfo, w io.WriteCloser) error {
+		return func(info ItemInfo, w io.WriteCloser) error {
+			defer w.Close()
+			result = s
+			_, err := w.Write([]byte(s))
+			return err
+		}
+	}
+
+	cache := NewCache(afero.NewMemMapFs(), 100*time.Hour, "")
+
+	const id = "a32"
+
+	_, err := cache.ReadOrCreate(id, rf(0), bf("v1"))
+	c.Assert(err, qt.IsNil)
+	c.Assert(result, qt.Equals, "v1")
+	_, err = cache.ReadOrCreate(id, rf(0), bf("v2"))
+	c.Assert(err, qt.IsNil)
+	c.Assert(result, qt.Equals, "v1")
+	_, err = cache.ReadOrCreate(id, rf(1), bf("v3"))
+	c.Assert(err, qt.IsNil)
+	c.Assert(result, qt.Equals, "v3")
+	_, err = cache.ReadOrCreate(id, rf(2), bf("v3"))
+	c.Assert(err, qt.Equals, ErrFatal)
 }
 
 func TestCleanID(t *testing.T) {

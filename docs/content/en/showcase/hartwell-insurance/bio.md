@@ -3,4 +3,4 @@ Hartwell Insurance is an insurance company set up solely to service the Broker c
 
 By combining **Hugo**, **Service Worker** and **Netlify**, we were able to achieve incredible global site performance.
 
-The site was built by [Tomango](http://www.tomango.co.uk)
+The site was built by [Tomango](https://www.tomango.co.uk)

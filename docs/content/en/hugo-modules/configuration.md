@@ -90,6 +90,12 @@ disable
 
 ## Module Config: mounts
 
+{{% note %}}
+When the `mounts` config was introduced in Hugo 0.56.0, we were careful to preserve the existing `staticDir` and similar configuration to make sure all existing sites just continued to work.
+
+But you should not have both. So if you add a `mounts` section you should make it complete and remove the old `staticDir` etc. settings.
+{{% /note %}}
+
 {{< code-toggle file="config">}}
 [module]
 [[module.mounts]]
@@ -116,7 +122,7 @@ disable
 {{< /code-toggle >}}
 
 source
-: The source direcory of the mount. For the main project, this can be either project-relative or absolute and even a symbolic link. For other modules it must be project-relative.
+: The source directory of the mount. For the main project, this can be either project-relative or absolute and even a symbolic link. For other modules it must be project-relative.
 
 target
 : Where it should be mounted into Hugo's virtual filesystem. It must start with one of Hugo's component folders: `static`, `content`, `layouts`, `data`, `assets`, `i18n`, or `archetypes`. E.g. `content/blog`.

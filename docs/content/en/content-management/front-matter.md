@@ -64,6 +64,9 @@ aliases
 audio
 : an array of paths to audio files related to the page; used by the `opengraph` [internal template](/templates/internal) to populate `og:audio`.
 
+cascade
+: a map of Front Matter keys whose values are passed down to the page's descendents unless overwritten by self or a closer ancestor's cascade. See [Front Matter Cascade](#front-matter-cascade) for details.
+
 date
 : the datetime assigned to this page. This is usually fetched from the `date` field in front matter, but this behaviour is configurable.
 
@@ -152,6 +155,22 @@ include_toc: true
 show_comments: false
 {{</ code-toggle >}}
 
+## Front Matter Cascade
+
+Any node or section can pass down to descendents a set of Front Matter values as long as defined underneath the reserved `cascade` Front Matter key.
+
+### Example
+```yaml
+# content/blog/_index.md
+title: Blog
+cascade:
+  banner: images/typewriter.jpg
+```
+
+With the above example the Blog section page and its descendents will return `images/typewriter.jpg` when `.Params.banner` is invoked unless:
+
+- Said descendent has its own `banner` value set 
+- Or a closer ancestor node has its own `cascade.banner` value set.
 
 ## Order Content Through Front Matter
 
@@ -168,7 +187,7 @@ It's possible to set some options for Markdown rendering in a content's front ma
 * [JSON Spec][json]
 
 [variables]: /variables/
-[aliases]: /content-management/urls/#aliases/
+[aliases]: /content-management/urls/#aliases
 [archetype]: /content-management/archetypes/
 [bylinktitle]: /templates/lists/#by-link-title
 [config]: /getting-started/configuration/ "Hugo documentation for site configuration"
@@ -188,4 +207,4 @@ It's possible to set some options for Markdown rendering in a content's front ma
 [toml]: https://github.com/toml-lang/toml "Specification for TOML, Tom's Obvious Minimal Language"
 [urls]: /content-management/urls/
 [variables]: /variables/
-[yaml]: http://yaml.org/spec/ "Specification for YAML, YAML Ain't Markup Language"
+[yaml]: https://yaml.org/spec/ "Specification for YAML, YAML Ain't Markup Language"

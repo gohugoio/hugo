@@ -54,21 +54,22 @@ There are a few alternatives to commenting on static sites for those who do not 
 * [Static Man](https://staticman.net/)
 * [Talkyard](https://www.talkyard.io/blog-comments) (Open source, & serverless hosting)
 * [txtpen](https://txtpen.github.io/hn/)
-* [IntenseDebate](http://intensedebate.com/)
+* [IntenseDebate](https://intensedebate.com/)
 * [Graph Comment][]
-* [Muut](http://muut.com/)
-* [isso](http://posativ.org/isso/) (Self-hosted, Python)
+* [Muut](https://muut.com/)
+* [isso](https://posativ.org/isso/) (Self-hosted, Python)
     * [Tutorial on Implementing Isso with Hugo][issotutorial]
 * [Utterances](https://utteranc.es/) (Open source, Github comments widget built on Github issues)
 * [Remark](https://github.com/umputun/remark) (Open source, Golang, Easy to run docker)
 * [Commento](https://commento.io/) (Open Source, available as a service, local install, or docker image)
+* [JustComments](https://just-comments.com) (Open Source, available as a service, can be self-hosted)
 
 <!-- I don't think this is worth including in the documentation since it seems that Steve is no longer supporting or developing this project. rdwatters - 2017-02-29.-->
 <!-- * [Kaiju](https://github.com/spf13/kaiju) -->
 
 <!-- ## Kaiju
 
-[Kaiju](https://github.com/spf13/kaiju) is an open-source project started by [spf13](http://spf13.com/) (Hugo’s author) to bring easy and fast real time discussions to the web.
+[Kaiju](https://github.com/spf13/kaiju) is an open-source project started by [spf13](https://spf13.com/) (Hugo’s author) to bring easy and fast real time discussions to the web.
 
 Written using Go, Socket.io, and [MongoDB][], Kaiju is very fast and easy to deploy.
 

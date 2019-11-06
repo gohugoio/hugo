@@ -41,7 +41,7 @@ The idea of a list page comes from the [hierarchical mental model of the web][me
 
 ### Default Templates
 
-Since section lists and taxonomy lists (N.B., *not* [taxonomy terms lists][taxterms]) are both *lists* with regards to their templates, both have the same terminating default of `_default/list.html` or `themes/<THEME>/layouts/_default/list.html` in their lookup order. In addition, both [section lists][sectiontemps] and [taxonomy lists][taxlists] have their own default list templates in `_default`:
+Since section lists and taxonomy lists (N.B., *not* [taxonomy terms lists][taxterms]) are both *lists* with regards to their templates, both have the same terminating default of `_default/list.html` or `themes/<THEME>/layouts/_default/list.html` in their lookup order. In addition, both [section lists][sectiontemps] and [taxonomy lists][taxlists] have their own default list templates in `_default`.
 
 See [Template Lookup Order](/templates/lookup-order/) for the complete reference.
 
@@ -549,8 +549,8 @@ See the documentation on [`where` function][wherefunction] and
 [sections]: /content-management/sections/
 [sectiontemps]: /templates/section-templates/
 [sitevars]: /variables/site/
-[taxlists]: /templates/taxonomy-templates/#taxonomy-list-templates/
-[taxterms]: /templates/taxonomy-templates/#taxonomy-terms-templates/
+[taxlists]: /templates/taxonomy-templates/#taxonomy-list-templates
+[taxterms]: /templates/taxonomy-templates/#taxonomy-terms-templates
 [taxvars]: /variables/taxonomy/
 [views]: /templates/views/
 [wherefunction]: /functions/where/

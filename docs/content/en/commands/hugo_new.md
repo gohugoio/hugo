@@ -26,7 +26,7 @@ hugo new [path] [flags]
 ### Options
 
 ```
-  -b, --baseURL string         hostname (and path) to the root, e.g. http://spf13.com/
+  -b, --baseURL string         hostname (and path) to the root, e.g. https://spf13.com/
   -D, --buildDrafts            include content marked as draft
   -E, --buildExpired           include expired content
   -F, --buildFuture            include content with publishdate in the future

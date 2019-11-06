@@ -31,7 +31,7 @@ hugo server [flags]
 
 ```
       --appendPort             append port to baseURL (default true)
-  -b, --baseURL string         hostname (and path) to the root, e.g. http://spf13.com/
+  -b, --baseURL string         hostname (and path) to the root, e.g. https://spf13.com/
       --bind string            interface to which the server will bind (default "127.0.0.1")
   -D, --buildDrafts            include content marked as draft
   -E, --buildExpired           include expired content

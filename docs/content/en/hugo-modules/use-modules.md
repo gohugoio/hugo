@@ -64,7 +64,7 @@ Also see the [CLI Doc](/commands/hugo_mod_get/).
 One way to do local development of a module imported in a project is to add a replace directive to a local directory with the source in `go.mod`:
 
 ```bash
-github.com/bep/hugotestmods/mypartials => /Users/bep/hugotestmods/mypartials
+replace github.com/bep/hugotestmods/mypartials => /Users/bep/hugotestmods/mypartials
 ```
 
 If you have the `hugo server` running, the configuration will be reloaded and `/Users/bep/hugotestmods/mypartials` put on the watch list. 
@@ -100,7 +100,7 @@ Note that:
 
 * You can run `hugo mod vendor` on any level in the module tree.
 * Vendoring will not store modules stored in your `themes` folder.
-* Most commands accept a `--ignoreVendor` flag, which will then run as if the none of the `_vendor` folders in the module tree did not exist.
+* Most commands accept a `--ignoreVendor` flag, which will then run as if the none of the `_vendor` folders in the module tree existed.
 
 Also see the [CLI Doc](/commands/hugo_mod_vendor/).
 

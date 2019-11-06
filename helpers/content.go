@@ -354,7 +354,7 @@ func getMarkdownExtensions(ctx *RenderingContext) int {
 	return flags
 }
 
-func (c ContentSpec) markdownRender(ctx *RenderingContext) []byte {
+func (c *ContentSpec) markdownRender(ctx *RenderingContext) []byte {
 	if ctx.RenderTOC {
 		return blackfriday.Markdown(ctx.Content,
 			c.getHTMLRenderer(blackfriday.HTML_TOC, ctx),
@@ -420,7 +420,7 @@ func getMmarkExtensions(ctx *RenderingContext) int {
 	return flags
 }
 
-func (c ContentSpec) mmarkRender(ctx *RenderingContext) []byte {
+func (c *ContentSpec) mmarkRender(ctx *RenderingContext) []byte {
 	return mmark.Parse(ctx.Content, c.getMmarkHTMLRenderer(0, ctx),
 		getMmarkExtensions(ctx)).Bytes()
 }
@@ -479,7 +479,7 @@ type RenderingContext struct {
 }
 
 // RenderBytes renders a []byte.
-func (c ContentSpec) RenderBytes(ctx *RenderingContext) []byte {
+func (c *ContentSpec) RenderBytes(ctx *RenderingContext) []byte {
 	switch ctx.PageFmt {
 	default:
 		return c.markdownRender(ctx)
@@ -752,7 +752,7 @@ func getPandocContent(ctx *RenderingContext) []byte {
 	return externallyRenderContent(ctx, path, args)
 }
 
-func orgRender(ctx *RenderingContext, c ContentSpec) []byte {
+func orgRender(ctx *RenderingContext, c *ContentSpec) []byte {
 	config := org.New()
 	config.Log = jww.WARN
 	config.ReadFile = func(filename string) ([]byte, error) {

@@ -143,7 +143,7 @@ Note that the variant parameters are not made available to the underlying partia
 
 ### Example `header.html`
 
-The following `header.html` partial template is used for [spf13.com](http://spf13.com/):
+The following `header.html` partial template is used for [spf13.com](https://spf13.com/):
 
 {{< code file="layouts/partials/header.html" download="header.html" >}}
 <!DOCTYPE html>
@@ -169,14 +169,14 @@ The `header.html` example partial was built before the introduction of block tem
 
 ### Example `footer.html`
 
-The following `footer.html` partial template is used for [spf13.com](http://spf13.com/):
+The following `footer.html` partial template is used for [spf13.com](https://spf13.com/):
 
 {{< code file="layouts/partials/footer.html" download="footer.html" >}}
 <footer>
   <div>
     <p>
     &copy; 2013-14 Steve Francia.
-    <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons Attribution">Some rights reserved</a>;
+    <a href="https://creativecommons.org/licenses/by/3.0/" title="Creative Commons Attribution">Some rights reserved</a>;
     please attribute properly and link back. Hosted by <a href="http://servergrove.com">ServerGrove</a>.
     </p>
   </div>

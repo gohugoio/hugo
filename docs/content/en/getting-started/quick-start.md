@@ -88,7 +88,7 @@ echo 'theme = "ananke"' >> config.toml
 
 ## Step 4: Add Some Content
 
-You can manually create content files (for example as `content/<CATEGORY>/<FILE>.<FORMAT>`) and provide metadata in them, however you can use `new` commend to do few things for you (like add title and date):
+You can manually create content files (for example as `content/<CATEGORY>/<FILE>.<FORMAT>`) and provide metadata in them, however you can use the `new` command to do few things for you (like add title and date):
 
 ```
 hugo new posts/my-first-post.md
@@ -182,3 +182,7 @@ hugo
 ```
 
 Output will be in `./public/` directory by default (`-d`/`--destination` flag to change it, or set `publishdir` in the config file).
+
+{{% note %}}
+Drafts do not get deployed; once you finish a post, update the header of the post to say `draft: false`. More info [here](/getting-started/usage/#draft-future-and-expired-content).
+{{% /note %}}

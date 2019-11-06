@@ -50,19 +50,19 @@ In addition to using a single site config file, one can use the `configDir` dire
 
 
 ```
-config
-├── _default
-│   ├── config.toml
-│   ├── languages.toml
-│   ├── menus.en.toml
-│   ├── menus.zh.toml
-│   └── params.toml
-├── staging
-│   ├── config.toml
-│   └── params.toml
-└── production
-    ├── config.toml
-    └── params.toml
+├── config
+│   ├── _default
+│   │   ├── config.toml
+│   │   ├── languages.toml
+│   │   ├── menus.en.toml
+│   │   ├── menus.zh.toml
+│   │   └── params.toml
+│   ├── production
+│   │   ├── config.toml
+│   │   └── params.toml
+│   └── staging
+│       ├── config.toml
+│       └── params.toml
 ```
 
 Considering the structure above, when running `hugo --environment staging`, Hugo will use every settings from `config/_default` and merge `staging`'s on top of those.
@@ -82,7 +82,7 @@ assetDir ("assets")
 : The directory where Hugo finds asset files used in [Hugo Pipes](/hugo-pipes/). {{% module-mounts-note %}}
 
 baseURL
-: Hostname (and path) to the root, e.g. http://bep.is/
+: Hostname (and path) to the root, e.g. https://bep.is/
 
 blackfriday
 : See [Configure Blackfriday](/getting-started/configuration/#configure-blackfriday)
@@ -167,7 +167,7 @@ languages
 : See [Configure Languages](/content-management/multilingual/#configure-languages).
 
 languageCode ("")
-: The site's language code.
+: The site's language code. It is used in the default [RSS template](/templates/rss/#configure-rss) and can be useful for [multi-lingual sites](/content-management/multilingual/#configure-multilingual-multihost).
 
 languageName ("")
 : The site's language name.
@@ -186,9 +186,6 @@ logFile ("")
 
 menu
 : See [Add Non-content Entries to a Menu](/content-management/menus/#add-non-content-entries-to-a-menu).
-
-metaDataFormat ("toml")
-: Front matter meta-data format. Valid values: `"toml"`, `"yaml"`, or `"json"`.
 
 module
 : Module config see [Module Config](/hugo-modules/configuration/).
@@ -217,6 +214,12 @@ pluralizeListTitles (true)
 publishDir ("public")
 : The directory to where Hugo will write the final static site (the HTML files etc.).
 
+pygmentsOptions ("")
+:  A comma separated list of options for syntax highlighting. See the [Syntax Highlighting Options](/content-management/syntax-highlighting/#options) for the full list of available options.
+
+pygmentsCodeFences (false)
+: Enables syntax highlighting in [code fences with a language tag](/content-management/syntax-highlighting/#highlight-in-code-fences) in markdown.
+
 pygmentsCodeFencesGuessSyntax (false)
 : Enable syntax guessing for code fences without specified language.
 
@@ -225,6 +228,9 @@ pygmentsStyle ("monokai")
 
 pygmentsUseClasses (false)
 : Enable using external CSS for syntax highlighting.
+
+pygmentsUseClassic (false)
+: Enable using Pygments instead of the much faster Chroma for syntax highlighting.
 
 related
 : See [Related Content](/content-management/related/#configure-related-content).
@@ -351,6 +357,8 @@ This is really useful if you use a service such as Netlify to deploy your site. 
 
 {{% note "Setting Environment Variables" %}}
 Names must be prefixed with `HUGO_` and the configuration key must be set in uppercase when setting operating system environment variables.
+
+To set config params, prefix the name with `HUGO_PARAMS_`
 {{% /note %}}
 
 {{< todo >}}

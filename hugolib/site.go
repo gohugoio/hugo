@@ -719,12 +719,12 @@ func (s *siteRefLinker) refLink(ref string, source interface{}, relative bool, o
 	var link string
 
 	if refURL.Path != "" {
-		target, err := s.s.getPageNew(p, refURL.Path)
+		var err error
+		target, err = s.s.getPageNew(p, refURL.Path)
 		var pos text.Position
 		if err != nil || target == nil {
 			if p, ok := source.(text.Positioner); ok {
 				pos = p.Position()
-
 			}
 		}
 
@@ -758,8 +758,8 @@ func (s *siteRefLinker) refLink(ref string, source interface{}, relative bool, o
 	}
 
 	if refURL.Fragment != "" {
-		_ = target
 		link = link + "#" + refURL.Fragment
+
 		if pctx, ok := target.(pageContext); ok && !target.File().IsZero() && !pctx.getRenderingConfig().PlainIDAnchors {
 			if refURL.Path != "" {
 				link = link + ":" + target.File().UniqueID()

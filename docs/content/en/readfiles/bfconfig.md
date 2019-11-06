@@ -24,7 +24,7 @@
 : default: **`true`**<br>
     Blackfriday flag: **`HTML_SMARTYPANTS_FRACTIONS`** <br>
     Purpose: <code>false</code> disables smart fractions.<br>
-    Example: `5/12` renders to <sup>5</sup>&frasl;<sub>12</sub>(<code>&lt;sup&gt;5&lt;/sup&gt;&amp;frasl;&lt;sub&gt;12&lt;/sub&gt;</code>).<br> <strong>Caveat:</strong> Even with <code>fractions = false</code>, Blackfriday still converts `1/2`, `1/4`, and `3/4` respectively to ½ (<code>&amp;frac12;</code>), ¼ (<code>&amp;frac14;</code>) and ¾ (<code>&amp;frac34;</code>), but only these three.</small>
+    Example: `5/12` renders to <sup>5</sup>&frasl;<sub>12</sub>(<code>&lt;sup&gt;5&lt;/sup&gt;&amp;frasl;&lt;sub&gt;12&lt;/sub&gt;</code>).<br> <small><strong>Caveat:</strong> Even with <code>fractions = false</code>, Blackfriday still converts `1/2`, `1/4`, and `3/4` respectively to ½ (<code>&amp;frac12;</code>), ¼ (<code>&amp;frac14;</code>) and ¾ (<code>&amp;frac34;</code>), but only these three.</small>
 
 `smartDashes`
 : default: **`true`** <br>

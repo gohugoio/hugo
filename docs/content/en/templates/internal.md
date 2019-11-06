@@ -102,8 +102,8 @@ You can create the following `layouts/partials/disqus.html`:
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
 })();
 </script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 {{< /code >}}
 
 The `if` statement skips the initialization of the Disqus comment injection when you are running on `localhost`.
@@ -115,7 +115,7 @@ You can then render your custom Disqus partial template as follows:
 ```
 
 ## Open Graph
-An internal template for the [Open Graph protocol](http://ogp.me/), metadata that enables a page to become a rich object in a social graph.
+An internal template for the [Open Graph protocol](https://ogp.me/), metadata that enables a page to become a rich object in a social graph.
 This format is used for Facebook and some other sites.
 
 ### Configure Open Graph

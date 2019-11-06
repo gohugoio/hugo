@@ -196,12 +196,12 @@ func (fs *RootMappingFs) doLstat(name string, allowMultiple bool) ([]FileMetaInf
 		fis  []FileMetaInfo
 		dirs []FileMetaInfo
 		b    bool
-		fi   os.FileInfo
 		root RootMapping
 		err  error
 	)
 
 	for _, root = range roots {
+		var fi os.FileInfo
 		fi, b, err = fs.statRoot(root, name)
 		if err != nil {
 			if os.IsNotExist(err) {
@@ -233,12 +233,16 @@ func (fs *RootMappingFs) doLstat(name string, allowMultiple bool) ([]FileMetaInf
 		return fis, dirs, b, nil
 	}
 
+	if len(fis) == 0 {
+		return nil, nil, false, os.ErrNotExist
+	}
+
 	// Open it in this composite filesystem.
 	opener := func() (afero.File, error) {
 		return fs.Open(name)
 	}
 
-	return []FileMetaInfo{decorateFileInfo(fi, fs, opener, "", "", root.Meta)}, nil, b, nil
+	return []FileMetaInfo{decorateFileInfo(fis[0], fs, opener, "", "", root.Meta)}, nil, b, nil
 
 }
 

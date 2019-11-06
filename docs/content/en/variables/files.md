@@ -47,6 +47,6 @@ The `.File` object contains the following fields:
 : the language associated with the given file if Hugo's [Multilingual features][multilingual] are enabled (e.g., `en`)
 
 .File.Dir
-: given the path `content/posts/dir1/dir2/`, the relative directory path of the content file will be returned (e.g., `posts/dir1/dir2/`)
+: given the path `content/posts/dir1/dir2/`, the relative directory path of the content file will be returned (e.g., `posts/dir1/dir2/`). Note that the path separator (`\` or `/`) could be dependent on the operating system.
 
 [Multilingual]: /content-management/multilingual/

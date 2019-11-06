@@ -2,10 +2,9 @@
 title: "Image Processing"
 description: "Image Page resources can be resized and cropped."
 date: 2018-01-24T13:10:00-05:00
-lastmod: 2018-01-26T15:59:07-05:00
 linktitle: "Image Processing"
 categories: ["content management"]
-keywords: [bundle,content,resources,images]
+keywords: [resources,images]
 weight: 4004
 draft: false
 toc: true
@@ -19,9 +18,7 @@ menu:
 
 The `image` is a [Page Resource]({{< relref "/content-management/page-resources" >}}), and the processing methods listed below does not work on images inside your `/static` folder.
 
-
 To get all images in a [Page Bundle]({{< relref "/content-management/organization#page-bundles" >}}):
-
 
 ```go-html-template
 {{ with .Resources.ByType "image" }}
@@ -32,10 +29,11 @@ To get all images in a [Page Bundle]({{< relref "/content-management/organizatio
 ## Image Processing Methods
 
 
-The `image` resource implements the methods `Resize`, `Fit` and `Fill`, each returning the transformed image using the specified dimensions and processing options.
+The `image` resource implements the methods `Resize`, `Fit` and `Fill`, each returning the transformed image using the specified dimensions and processing options. The `image` resource also, since Hugo 0.58, implements the method `Exif` and `Filter`.
 
-Resize
-: Resizes the image to the specified width and height.
+### Resize
+
+Resizes the image to the specified width and height.
 
 ```go
 // Resize to a width of 600px and preserve ratio
@@ -48,55 +46,119 @@ Resize
 {{ $image := $resource.Resize "600x400" }}
 ```
 
-Fit
-: Scale down the image to fit the given dimensions while maintaining aspect ratio. Both height and width are required.
+### Fit
+Scale down the image to fit the given dimensions while maintaining aspect ratio. Both height and width are required.
 
 ```go
 {{ $image := $resource.Fit "600x400" }} 
 ```
 
-Fill
-: Resize and crop the image to match the given dimensions. Both height and width are required.
+### Fill
+Resize and crop the image to match the given dimensions. Both height and width are required.
 
 ```go
 {{ $image := $resource.Fill "600x400" }} 
 ```
 
+### Filter
 
-{{% note %}}
-Image operations in Hugo currently **do not preserve EXIF data** as this is not supported by Go's [image package](https://github.com/golang/go/search?q=exif&type=Issues&utf8=%E2%9C%93). This will be improved on in the future.
-{{% /note %}}
+Apply one or more filters to your image. See [Image Filters](/functions/images/#image-filters) for a full list.
+
+```go-html-template
+{{ $img = $img.Filter (images.GaussianBlur 6) (images.Pixelate 8) }}
+```
+
+The above can also be written in a more functional style using pipes:
+
+```go-html-template
+{{ $img = $img | images.Filter (images.GaussianBlur 6) (images.Pixelate 8) }}
+```
+
+The filters will be applied in the given order. 
+
+Sometimes it can be useful to create the filter chain once and then reuse it:
+
+```go-html-template
+{{ $filters := slice  (images.GaussianBlur 6) (images.Pixelate 8) }}
+{{ $img1 = $img1.Filter $filters }}
+{{ $img2 = $img2.Filter $filters }}
+```
+
+### Exif
+
+Provides an [Exif](https://en.wikipedia.org/wiki/Exif) object with metadata about the image.
+
+Note that this is only suported for JPG and TIFF images, so it's recommended to wrap the access with a `with`, e.g.:
+
+```go-html-template
+{{ with $img.Exif }}
+Date: {{ .Date }}
+Lat/Long: {{ .Lat}}/{{ .Long }}
+Tags: 
+{{ range $k, $v := .Tags }}
+TAG: {{ $k }}: {{ $v }}
+{{ end }}
+```
+
+#### Exif fields
+
+Data
+: "photo taken" date/time
+
+Lat
+: "photo taken where", GPS latitude
+
+Long
+: "photo taken where", GPS longitude
+
+See [Image Processing Config](#image-processing-config) for how to configure what gets included in Exif.
+
+
+
 
 
 ## Image Processing Options
 
 In addition to the dimensions (e.g. `600x400`), Hugo supports a set of additional image options.
 
+### Background Color
 
-JPEG Quality
-: Only relevant for JPEG images, values 1 to 100 inclusive, higher is better. Default is 75.
+The background color to fill into the transparency layer. This is mostly useful when converting to a format that does not support transparency, e.g. `JPEG`.
+
+You can set the background color to use with a 3 or 6 digit hex code starting with `#`.
+
+```go
+{{ $image.Resize "600x jpg #b31280" }}
+```
+
+For color codes, see https://www.google.com/search?q=color+picker
+
+**Note** that you also set a default background color to use, see [Image Processing Config](#image-processing-config).
+
+### JPEG Quality
+Only relevant for JPEG images, values 1 to 100 inclusive, higher is better. Default is 75.
 
 ```go
 {{ $image.Resize "600x q50" }}
 ```
 
-Rotate
-: Rotates an image by the given angle counter-clockwise. The rotation will be performed first to get the dimensions correct. The main use of this is to be able to manually correct for [EXIF orientation](https://github.com/golang/go/issues/4341) of JPEG images.
+### Rotate
+Rotates an image by the given angle counter-clockwise. The rotation will be performed first to get the dimensions correct. The main use of this is to be able to manually correct for [EXIF orientation](https://github.com/golang/go/issues/4341) of JPEG images.
 
 ```go
 {{ $image.Resize "600x r90" }}
 ```
 
-Anchor
-: Only relevant for the `Fill` method. This is useful for thumbnail generation where the main motive is located in, say, the left corner. 
+###  Anchor
+Only relevant for the `Fill` method. This is useful for thumbnail generation where the main motive is located in, say, the left corner. 
 Valid are `Center`, `TopLeft`, `Top`, `TopRight`, `Left`, `Right`, `BottomLeft`, `Bottom`, `BottomRight`.
 
 ```go
 {{ $image.Fill "300x200 BottomLeft" }}
 ```
 
-Resample Filter
-: Filter used in resizing. Default is `Box`, a simple and fast resampling filter appropriate for downscaling. 
+### Resample Filter
+Filter used in resizing. Default is `Box`, a simple and fast resampling filter appropriate for downscaling. 
 
 Examples are: `Box`, `NearestNeighbor`, `Linear`, `Gaussian`.
 
@@ -104,6 +166,16 @@ See https://github.com/disintegration/imaging for more. If you want to trade qua
 
 ```go
 {{ $image.Resize "600x400 Gaussian" }}
+```
+
+### Target Format
+
+By default the images is encoded in the source format, but you can set the target format as an option.
+
+Valid values are `jpg`, `png`, `tif`, `bmp`, and `gif`.
+
+```go
+{{ $image.Resize "600x jpg" }}
 ```
 
 ## Image Processing Examples
@@ -160,9 +232,36 @@ quality = 75
 # Valid values are Smart, Center, TopLeft, Top, TopRight, Left, Right, BottomLeft, Bottom, BottomRight
 anchor = "smart"
 
-```
+# Default background color. 
+# Hugo will preserve transparency for target formats that supports it,
+# but will fall back to this color for JPEG.
+# Expects a standard HEX color string with 3 or 6 digits.
+# See https://www.google.com/search?q=color+picker
+bgColor = "#ffffff"
 
-All of the above settings can also be set per image procecssing.
+[imaging.exif]
+ # Regexp matching the fields you want to Exclude from the (massive) set of Exif info
+# available. As we cache this info to disk, this is for performance and
+# disk space reasons more than anything.
+# If you want it all, put ".*" in this config setting.
+# Note that if neither this or ExcludeFields is set, Hugo will return a small
+# default set.
+includeFields = ""
+
+# Regexp matching the Exif fields you want to exclude. This may be easier to use
+# than IncludeFields above, depending on what you want.
+excludeFields = ""
+
+# Hugo extracts the "photo taken" date/time into .Date by default.
+# Set this to true to turn it off.
+disableDate = false
+
+# Hugo extracts the "photo taken where" (GPS latitude and longitude) into
+# .Long and .Lat. Set this to true to turn it off.
+disableLatLong = false
+
+
+```
 
 ## Smart Cropping of Images
 

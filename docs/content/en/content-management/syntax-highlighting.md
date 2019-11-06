@@ -44,7 +44,7 @@ Gives this:
 //
 // - "Go" (strings.Title)
 // - "AP" (see https://www.apstylebook.com/)
-// - "Chicago" (see http://www.chicagomanualofstyle.org/home.html)
+// - "Chicago" (see https://www.chicagomanualofstyle.org/home.html)
 //
 // If an unknown or empty style is provided, AP style is what you get.
 func GetTitleFunc(style string) func(s string) string {
@@ -68,7 +68,7 @@ To make the transition from Pygments to Chroma seamless, they share a common set
 pygmentsOptions
 :  A comma separated list of options. See below for a full list.
 
-pygmentsCodefences
+pygmentsCodeFences
 : Set to true to enable syntax highlighting in code fences with a language tag in markdown (see below for an example).
 
 pygmentsStyle
@@ -83,7 +83,7 @@ pygmentsStyle
 pygmentsUseClasses
 : Set to `true` to use CSS classes to format your highlighted code. See [Generate Syntax Highlighter CSS](#generate-syntax-highlighter-css).
 
-pygmentsCodefencesGuessSyntax
+pygmentsCodeFencesGuessSyntax
 : Set to `true` to try to do syntax highlighting on code fenced blocks in markdown without a language tag.
 
 pygmentsUseClassic
@@ -120,7 +120,7 @@ You can generate one with Hugo:
 hugo gen chromastyles --style=monokai > syntax.css
 ```
 
-Run `hugo gen chromastyles -h` for more options. See https://help.farbox.com/pygments.html for a gallery of available styles.
+Run `hugo gen chromastyles -h` for more options. See https://xyproto.github.io/splash/docs/ for a gallery of available styles.
 
 
 ## Highlight Shortcode
@@ -190,10 +190,10 @@ On Debian and Ubuntu systems, you may also install Pygments by running `sudo apt
 
 
 
-[Prism]: http://prismjs.com
-[prismdownload]: http://prismjs.com/download.html
-[Highlight.js]: http://highlightjs.org/
-[Rainbow]: http://craig.is/making/rainbows
-[Syntax Highlighter]: http://alexgorbatchev.com/SyntaxHighlighter/
+[Prism]: https://prismjs.com
+[prismdownload]: https://prismjs.com/download.html
+[Highlight.js]: https://highlightjs.org/
+[Rainbow]: https://craig.is/making/rainbows
+[Syntax Highlighter]: https://alexgorbatchev.com/SyntaxHighlighter/
 [Google Prettify]: https://github.com/google/code-prettify
-[Yandex]: http://yandex.ru/
+[Yandex]: https://yandex.ru/

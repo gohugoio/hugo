@@ -66,7 +66,7 @@ toc: true
 [Extremely fast]: https://github.com/bep/hugo-benchmark
 [front matter]: /content-management/front-matter/
 [functions]: /functions/
-[Go]: http://golang.org/pkg/html/template/
+[Go]: https://golang.org/pkg/html/template/
 [Google Analytics]: https://google-analytics.com/
 [homepage]: /templates/homepage/
 [hostanywhere]: /hosting-and-deployment/
