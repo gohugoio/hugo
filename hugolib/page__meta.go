@@ -565,7 +565,7 @@ func (pm *pageMeta) setMetadata(bucket *pagesMapBucket, p *pageState, frontmatte
 		pm.sitemap = p.s.siteCfg.sitemap
 	}
 
-	pm.markup = helpers.GuessType(pm.markup)
+	pm.markup = p.s.ContentSpec.ResolveMarkup(pm.markup)
 
 	if draft != nil && published != nil {
 		pm.draft = *draft
@@ -596,7 +596,7 @@ func (p *pageMeta) applyDefaultValues() error {
 	if p.markup == "" {
 		if !p.File().IsZero() {
 			// Fall back to file extension
-			p.markup = helpers.GuessType(p.File().Ext())
+			p.markup = p.s.ContentSpec.ResolveMarkup(p.File().Ext())
 		}
 		if p.markup == "" {
 			p.markup = "markdown"
@@ -638,14 +638,20 @@ func (p *pageMeta) applyDefaultValues() error {
 		}
 	}
 
-	if !p.f.IsZero() && p.markup != "html" {
+	if !p.f.IsZero() {
 		var renderingConfigOverrides map[string]interface{}
 		bfParam := getParamToLower(p, "blackfriday")
 		if bfParam != nil {
 			renderingConfigOverrides = maps.ToStringMap(bfParam)
 		}
 
-		cp := p.s.ContentSpec.Converters.Get(p.markup)
+		markup := p.markup
+		if markup == "html" {
+			// Only used for shortcode inner content.
+			markup = "markdown"
+		}
+
+		cp := p.s.ContentSpec.Converters.Get(markup)
 		if cp == nil {
 			return errors.Errorf("no content renderer found for markup %q", p.markup)
 		}

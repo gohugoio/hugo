@@ -15,33 +15,28 @@
 package mmark
 
 import (
-	"github.com/gohugoio/hugo/markup/internal"
-
+	"github.com/gohugoio/hugo/markup/blackfriday/blackfriday_config"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/miekg/mmark"
 )
 
 // Provider is the package entry point.
-var Provider converter.NewProvider = provider{}
+var Provider converter.ProviderProvider = provider{}
 
 type provider struct {
 }
 
 func (p provider) New(cfg converter.ProviderConfig) (converter.Provider, error) {
-	defaultBlackFriday, err := internal.NewBlackfriday(cfg)
-	if err != nil {
-		return nil, err
-	}
-
+	defaultBlackFriday := cfg.MarkupConfig.BlackFriday
 	defaultExtensions := getMmarkExtensions(defaultBlackFriday)
 
-	var n converter.NewConverter = func(ctx converter.DocumentContext) (converter.Converter, error) {
+	return converter.NewProvider("mmark", func(ctx converter.DocumentContext) (converter.Converter, error) {
 		b := defaultBlackFriday
 		extensions := defaultExtensions
 
 		if ctx.ConfigOverrides != nil {
 			var err error
-			b, err = internal.UpdateBlackFriday(b, ctx.ConfigOverrides)
+			b, err = blackfriday_config.UpdateConfig(b, ctx.ConfigOverrides)
 			if err != nil {
 				return nil, err
 			}
@@ -54,16 +49,14 @@ func (p provider) New(cfg converter.ProviderConfig) (converter.Provider, error) 
 			extensions: extensions,
 			cfg:        cfg,
 		}, nil
-	}
-
-	return n, nil
+	}), nil
 
 }
 
 type mmarkConverter struct {
 	ctx        converter.DocumentContext
 	extensions int
-	b          *internal.BlackFriday
+	b          blackfriday_config.Config
 	cfg        converter.ProviderConfig
 }
 
@@ -74,7 +67,7 @@ func (c *mmarkConverter) Convert(ctx converter.RenderContext) (converter.Result,
 
 func getHTMLRenderer(
 	ctx converter.DocumentContext,
-	cfg *internal.BlackFriday,
+	cfg blackfriday_config.Config,
 	pcfg converter.ProviderConfig) mmark.Renderer {
 
 	var (
@@ -97,15 +90,14 @@ func getHTMLRenderer(
 	htmlFlags |= mmark.HTML_FOOTNOTE_RETURN_LINKS
 
 	return &mmarkRenderer{
-		Config:    cfg,
-		Cfg:       pcfg.Cfg,
-		highlight: pcfg.Highlight,
-		Renderer:  mmark.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
+		BlackfridayConfig: cfg,
+		Config:            pcfg,
+		Renderer:          mmark.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
 	}
 
 }
 
-func getMmarkExtensions(cfg *internal.BlackFriday) int {
+func getMmarkExtensions(cfg blackfriday_config.Config) int {
 	flags := 0
 	flags |= mmark.EXTENSION_TABLES
 	flags |= mmark.EXTENSION_FENCED_CODE

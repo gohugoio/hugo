@@ -184,11 +184,14 @@ log (false)
 logFile ("")
 : Log File path (if set, logging enabled automatically).
 
+markup
+: See [Configure Markup](/getting-started/configuration-markup).{{< new-in "0.60.0" >}}
+
 menu
 : See [Add Non-content Entries to a Menu](/content-management/menus/#add-non-content-entries-to-a-menu).
 
 module
-: Module config see [Module Config](/hugo-modules/configuration/).
+: Module config see [Module Config](/hugo-modules/configuration/).{{< new-in "0.56.0" >}}
 
 newContentEditor ("")
 : The editor to use when creating new content.
@@ -214,26 +217,8 @@ pluralizeListTitles (true)
 publishDir ("public")
 : The directory to where Hugo will write the final static site (the HTML files etc.).
 
-pygmentsOptions ("")
-:  A comma separated list of options for syntax highlighting. See the [Syntax Highlighting Options](/content-management/syntax-highlighting/#options) for the full list of available options.
-
-pygmentsCodeFences (false)
-: Enables syntax highlighting in [code fences with a language tag](/content-management/syntax-highlighting/#highlight-in-code-fences) in markdown.
-
-pygmentsCodeFencesGuessSyntax (false)
-: Enable syntax guessing for code fences without specified language.
-
-pygmentsStyle ("monokai")
-: Color-theme or style for syntax highlighting. See [Pygments Color Themes](https://help.farbox.com/pygments.html).
-
-pygmentsUseClasses (false)
-: Enable using external CSS for syntax highlighting.
-
-pygmentsUseClassic (false)
-: Enable using Pygments instead of the much faster Chroma for syntax highlighting.
-
 related
-: See [Related Content](/content-management/related/#configure-related-content).
+: See [Related Content](/content-management/related/#configure-related-content).{{< new-in "0.27" >}}
 
 relativeURLs (false)
 : Enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.
@@ -435,29 +420,6 @@ The above will try first to extract the value for `.Date` from the filename, the
 
 `:git`
 : This is the Git author date for the last revision of this content file. This will only be set if `--enableGitInfo` is set or `enableGitInfo = true` is set in site config.
-
-## Configure Blackfriday
-
-[Blackfriday](https://github.com/russross/blackfriday) is Hugo's built-in Markdown rendering engine.
-
-Hugo typically configures Blackfriday with sane default values that should fit most use cases reasonably well.
-
-However, if you have specific needs with respect to Markdown, Hugo exposes some of its Blackfriday behavior options for you to alter. The following table lists these Hugo options, paired with the corresponding flags from Blackfriday's source code ( [html.go](https://github.com/russross/blackfriday/blob/master/html.go) and [markdown.go](https://github.com/russross/blackfriday/blob/master/markdown.go)).
-
-{{< readfile file="/content/en/readfiles/bfconfig.md" markdown="true" >}}
-
-{{% note %}}
-1. Blackfriday flags are *case sensitive* as of Hugo v0.15.
-2. Blackfriday flags must be grouped under the `blackfriday` key and can be set on both the site level *and* the page level. Any setting on a page will override its respective site setting.
-{{% /note %}}
-
-{{< code-toggle file="config" >}}
-[blackfriday]
-  angledQuotes = true
-  fractions = false
-  plainIDAnchors = true
-  extensions = ["hardLineBreak"]
-{{< /code-toggle >}}
 
 ## Configure Additional Output Formats
 

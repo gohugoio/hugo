@@ -326,7 +326,7 @@ func normalizeContent(c string) string {
 
 func checkPageTOC(t *testing.T, page page.Page, toc string) {
 	if page.TableOfContents() != template.HTML(toc) {
-		t.Fatalf("Page TableOfContents is: %q.\nExpected %q", page.TableOfContents(), toc)
+		t.Fatalf("Page TableOfContents is:\n%q.\nExpected %q", page.TableOfContents(), toc)
 	}
 }
 
@@ -442,6 +442,7 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 	t.Parallel()
 	cfg, fs := newTestCfg()
+
 	c := qt.New(t)
 
 	writeSource(t, fs, filepath.Join("content", "simple.md"), simplePageWithSummaryDelimiterAndMarkdownThatCrossesBorder)
@@ -453,12 +454,12 @@ func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 	p := s.RegularPages()[0]
 
 	if p.Summary() != template.HTML(
-		"<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a href=\"#fn:1\">1</a></sup></p>") {
+		"<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup id=\"fnref:1\"><a href=\"#fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup></p>") {
 		t.Fatalf("Got summary:\n%q", p.Summary())
 	}
 
 	cnt := content(p)
-	if cnt != "<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a href=\"#fn:1\">1</a></sup></p>\n\n<div class=\"footnotes\">\n\n<hr />\n\n<ol>\n<li id=\"fn:1\">Many people say so.\n <a class=\"footnote-return\" href=\"#fnref:1\"><sup>[return]</sup></a></li>\n</ol>\n</div>" {
+	if cnt != "<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup id=\"fnref:1\"><a href=\"#fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup></p>\n<section class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"fn:1\" role=\"doc-endnote\">\n<p>Many people say so.</p>\n</li>\n</ol>\n</section>" {
 		t.Fatalf("Got content:\n%q", cnt)
 	}
 }
@@ -673,23 +674,13 @@ func TestPageWithShortCodeInSummary(t *testing.T) {
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithShortcodeInSummary)
 }
 
-func TestPageWithEmbeddedScriptTag(t *testing.T) {
-	t.Parallel()
-	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
-		p := pages[0]
-		if ext == "ad" || ext == "rst" {
-			// TOD(bep)
-			return
-		}
-		checkPageContent(t, p, "<script type='text/javascript'>alert('the script tags are still there, right?');</script>\n", ext)
-	}
-
-	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithEmbeddedScript)
-}
-
 func TestPageWithAdditionalExtension(t *testing.T) {
 	t.Parallel()
 	cfg, fs := newTestCfg()
+	cfg.Set("markup", map[string]interface{}{
+		"defaultMarkdownHandler": "blackfriday", // TODO(bep)
+	})
+
 	c := qt.New(t)
 
 	writeSource(t, fs, filepath.Join("content", "simple.md"), simplePageWithAdditionalExtension)
@@ -716,8 +707,8 @@ func TestTableOfContents(t *testing.T) {
 
 	p := s.RegularPages()[0]
 
-	checkPageContent(t, p, "\n\n<p>For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.</p>\n\n<h2 id=\"aa\">AA</h2>\n\n<p>I have no idea, of course, how long it took me to reach the limit of the plain,\nbut at last I entered the foothills, following a pretty little canyon upward\ntoward the mountains. Beside me frolicked a laughing brooklet, hurrying upon\nits noisy way down to the silent sea. In its quieter pools I discovered many\nsmall fish, of four-or five-pound weight I should imagine. In appearance,\nexcept as to size and color, they were not unlike the whale of our own seas. As\nI watched them playing about I discovered, not only that they suckled their\nyoung, but that at intervals they rose to the surface to breathe as well as to\nfeed upon certain grasses and a strange, scarlet lichen which grew upon the\nrocks just above the water line.</p>\n\n<h3 id=\"aaa\">AAA</h3>\n\n<p>I remember I felt an extraordinary persuasion that I was being played with,\nthat presently, when I was upon the very verge of safety, this mysterious\ndeath&ndash;as swift as the passage of light&ndash;would leap after me from the pit about\nthe cylinder and strike me down. ## BB</p>\n\n<h3 id=\"bbb\">BBB</h3>\n\n<p>&ldquo;You&rsquo;re a great Granser,&rdquo; he cried delightedly, &ldquo;always making believe them little marks mean something.&rdquo;</p>\n")
-	checkPageTOC(t, p, "<nav id=\"TableOfContents\">\n<ul>\n<li>\n<ul>\n<li><a href=\"#aa\">AA</a>\n<ul>\n<li><a href=\"#aaa\">AAA</a></li>\n<li><a href=\"#bbb\">BBB</a></li>\n</ul></li>\n</ul></li>\n</ul>\n</nav>")
+	checkPageContent(t, p, "<p>For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.</p><h2 id=\"aa\">AA</h2> <p>I have no idea, of course, how long it took me to reach the limit of the plain, but at last I entered the foothills, following a pretty little canyon upward toward the mountains. Beside me frolicked a laughing brooklet, hurrying upon its noisy way down to the silent sea. In its quieter pools I discovered many small fish, of four-or five-pound weight I should imagine. In appearance, except as to size and color, they were not unlike the whale of our own seas. As I watched them playing about I discovered, not only that they suckled their young, but that at intervals they rose to the surface to breathe as well as to feed upon certain grasses and a strange, scarlet lichen which grew upon the rocks just above the water line.</p><h3 id=\"aaa\">AAA</h3> <p>I remember I felt an extraordinary persuasion that I was being played with, that presently, when I was upon the very verge of safety, this mysterious death&ndash;as swift as the passage of light&ndash;would leap after me from the pit about the cylinder and strike me down. ## BB</p><h3 id=\"bbb\">BBB</h3> <p>&ldquo;You're a great Granser,&rdquo; he cried delightedly, &ldquo;always making believe them little marks mean something.&rdquo;</p>")
+	checkPageTOC(t, p, "<nav id=\"TableOfContents\">\n  <ul>\n    <li><a href=\"#aa\">AA</a>\n      <ul>\n        <li><a href=\"#aaa\">AAA</a></li>\n        <li><a href=\"#bbb\">BBB</a></li>\n      </ul>\n    </li>\n  </ul>\n</nav>")
 }
 
 func TestPageWithMoreTag(t *testing.T) {
@@ -1518,12 +1509,12 @@ Summary: In Chinese, 好 means good.
 
 	b.AssertFileContent("public/p1/index.html", "WordCount: 510\nFuzzyWordCount: 600\nReadingTime: 3\nLen Plain: 2550\nLen PlainWords: 510\nTruncated: false\nLen Summary: 2549\nLen Content: 2557")
 
-	b.AssertFileContent("public/p2/index.html", "WordCount: 314\nFuzzyWordCount: 400\nReadingTime: 2\nLen Plain: 1569\nLen PlainWords: 314\nTruncated: true\nLen Summary: 25\nLen Content: 1583")
+	b.AssertFileContent("public/p2/index.html", "WordCount: 314\nFuzzyWordCount: 400\nReadingTime: 2\nLen Plain: 1569\nLen PlainWords: 314\nTruncated: true\nLen Summary: 25\nLen Content: 1582")
 
-	b.AssertFileContent("public/p3/index.html", "WordCount: 206\nFuzzyWordCount: 300\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 43\nLen Content: 652")
-	b.AssertFileContent("public/p4/index.html", "WordCount: 7\nFuzzyWordCount: 100\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 43\nLen Content: 652")
-	b.AssertFileContent("public/p5/index.html", "WordCount: 206\nFuzzyWordCount: 300\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 229\nLen Content: 653")
-	b.AssertFileContent("public/p6/index.html", "WordCount: 7\nFuzzyWordCount: 100\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: false\nLen Summary: 637\nLen Content: 653")
+	b.AssertFileContent("public/p3/index.html", "WordCount: 206\nFuzzyWordCount: 300\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 43\nLen Content: 651")
+	b.AssertFileContent("public/p4/index.html", "WordCount: 7\nFuzzyWordCount: 100\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 43\nLen Content: 651")
+	b.AssertFileContent("public/p5/index.html", "WordCount: 206\nFuzzyWordCount: 300\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 229\nLen Content: 652")
+	b.AssertFileContent("public/p6/index.html", "WordCount: 7\nFuzzyWordCount: 100\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: false\nLen Summary: 637\nLen Content: 652")
 
 }
 
@@ -1610,4 +1601,133 @@ author = "Jo Nesbø"
 		"Author page string: Jo Nesbø|",
 		"Author site config:  Kurt Vonnegut")
 
+}
+
+func TestGoldmark(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t).WithConfigFile("toml", `
+baseURL = "https://example.org"
+
+[markup]
+defaultMarkdownHandler="goldmark"
+[markup.goldmark]
+[markup.goldmark.renderer]
+unsafe = false
+[markup.highlight]
+noClasses=false
+
+
+`)
+	b.WithTemplatesAdded("_default/single.html", `
+Title: {{ .Title }}
+ToC: {{ .TableOfContents }}
+Content: {{ .Content }}
+
+`, "shortcodes/t.html", `T-SHORT`, "shortcodes/s.html", `## Code
+{{ .Inner }}
+`)
+
+	content := `
++++
+title = "A Page!"
++++
+
+## Shortcode {{% t %}} in header
+
+## Code Fense in Shortcode
+
+{{% s %}}
+$$$bash {hl_lines=[1]}
+SHORT
+$$$
+{{% /s %}}
+
+## Code Fence
+
+$$$bash {hl_lines=[1]}
+MARKDOWN
+$$$
+
+`
+	content = strings.ReplaceAll(content, "$$$", "```")
+
+	b.WithContent("page.md", content)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/page/index.html",
+		`<nav id="TableOfContents">`,
+		`<li><a href="#shortcode-tshort-in-header">Shortcode T-SHORT in header</a></li>`,
+		`<code class="language-bash" data-lang="bash"><span class="hl">SHORT`,
+		`<code class="language-bash" data-lang="bash"><span class="hl">MARKDOWN`)
+}
+
+func TestBlackfridayDefault(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t).WithConfigFile("toml", `
+baseURL = "https://example.org"
+
+[markup]
+defaultMarkdownHandler="blackfriday"
+[markup.highlight]
+noClasses=false
+[markup.goldmark]
+[markup.goldmark.renderer]
+unsafe=true
+
+
+`)
+	// Use the new attribute syntax to make sure it's not Goldmark.
+	b.WithTemplatesAdded("_default/single.html", `
+Title: {{ .Title }}
+Content: {{ .Content }}
+
+`, "shortcodes/s.html", `## Code
+{{ .Inner }}
+`)
+
+	content := `
++++
+title = "A Page!"
++++
+
+
+## Code Fense in Shortcode
+
+{{% s %}}
+S:
+{{% s %}}
+$$$bash {hl_lines=[1]}
+SHORT
+$$$
+{{% /s %}}
+{{% /s %}}
+
+## Code Fence
+
+$$$bash {hl_lines=[1]}
+MARKDOWN
+$$$
+
+`
+	content = strings.ReplaceAll(content, "$$$", "```")
+
+	for i, ext := range []string{"md", "html"} {
+		b.WithContent(fmt.Sprintf("page%d.%s", i+1, ext), content)
+
+	}
+
+	b.Build(BuildCfg{})
+
+	// Blackfriday does not support this extended attribute syntax.
+	b.AssertFileContent("public/page1/index.html",
+		`<pre><code class="language-bash {hl_lines=[1]}" data-lang="bash {hl_lines=[1]}">SHORT</code></pre>`,
+		`<pre><code class="language-bash {hl_lines=[1]}" data-lang="bash {hl_lines=[1]}">MARKDOWN`,
+	)
+
+	b.AssertFileContent("public/page2/index.html",
+		`<pre><code class="language-bash {hl_lines=[1]}" data-lang="bash {hl_lines=[1]}">SHORT`,
+	)
 }

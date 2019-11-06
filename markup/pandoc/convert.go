@@ -23,19 +23,18 @@ import (
 )
 
 // Provider is the package entry point.
-var Provider converter.NewProvider = provider{}
+var Provider converter.ProviderProvider = provider{}
 
 type provider struct {
 }
 
 func (p provider) New(cfg converter.ProviderConfig) (converter.Provider, error) {
-	var n converter.NewConverter = func(ctx converter.DocumentContext) (converter.Converter, error) {
+	return converter.NewProvider("pandoc", func(ctx converter.DocumentContext) (converter.Converter, error) {
 		return &pandocConverter{
 			ctx: ctx,
 			cfg: cfg,
 		}, nil
-	}
-	return n, nil
+	}), nil
 
 }
 

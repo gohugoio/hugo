@@ -77,7 +77,7 @@ func newPageContentOutput(p *pageState) func(f output.Format) (*pageContentOutpu
 				// See https://github.com/gohugoio/hugo/issues/6210
 				if r := recover(); r != nil {
 					err = fmt.Errorf("%s", r)
-					p.s.Log.ERROR.Println("[BUG] Got panic:\n", string(debug.Stack()))
+					p.s.Log.ERROR.Printf("[BUG] Got panic:\n%s\n%s", r, string(debug.Stack()))
 				}
 			}()
 
@@ -103,11 +103,14 @@ func newPageContentOutput(p *pageState) func(f output.Format) (*pageContentOutpu
 					if err != nil {
 						return err
 					}
+					cp.convertedResult = r
 					cp.workContent = r.Bytes()
 
-					tmpContent, tmpTableOfContents := helpers.ExtractTOC(cp.workContent)
-					cp.tableOfContents = helpers.BytesToHTML(tmpTableOfContents)
-					cp.workContent = tmpContent
+					if _, ok := r.(converter.TableOfContentsProvider); !ok {
+						tmpContent, tmpTableOfContents := helpers.ExtractTOC(cp.workContent)
+						cp.tableOfContents = helpers.BytesToHTML(tmpTableOfContents)
+						cp.workContent = tmpContent
+					}
 				}
 
 				if cp.placeholdersEnabled {
@@ -223,7 +226,8 @@ type pageContentOutput struct {
 
 	// Content state
 
-	workContent []byte
+	workContent     []byte
+	convertedResult converter.Result
 
 	// Temporary storage of placeholders mapped to their content.
 	// These are shortcodes etc. Some of these will need to be replaced
@@ -284,6 +288,10 @@ func (p *pageContentOutput) Summary() template.HTML {
 
 func (p *pageContentOutput) TableOfContents() template.HTML {
 	p.p.s.initInit(p.initMain, p.p)
+	if tocProvider, ok := p.convertedResult.(converter.TableOfContentsProvider); ok {
+		cfg := p.p.s.ContentSpec.Converters.GetMarkupConfig()
+		return template.HTML(tocProvider.TableOfContents().ToHTML(cfg.TableOfContents.StartLevel, cfg.TableOfContents.EndLevel))
+	}
 	return p.tableOfContents
 }
 

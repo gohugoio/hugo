@@ -743,7 +743,7 @@ func (th testHelper) assertFileContent(filename string, matches ...string) {
 	content := readDestination(th, th.Fs, filename)
 	for _, match := range matches {
 		match = th.replaceDefaultContentLanguageValue(match)
-		th.Assert(strings.Contains(content, match), qt.Equals, true, qt.Commentf(content))
+		th.Assert(strings.Contains(content, match), qt.Equals, true, qt.Commentf(match+" not in: \n"+content))
 	}
 }
 
@@ -755,7 +755,7 @@ func (th testHelper) assertFileContentRegexp(filename string, matches ...string)
 		r := regexp.MustCompile(match)
 		matches := r.MatchString(content)
 		if !matches {
-			fmt.Println(content)
+			fmt.Println(match+":\n", content)
 		}
 		th.Assert(matches, qt.Equals, true)
 	}

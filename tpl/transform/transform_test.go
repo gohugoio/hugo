@@ -204,7 +204,7 @@ And then some.
 	result, err := ns.Markdownify(text)
 	c.Assert(err, qt.IsNil)
 	c.Assert(result, qt.Equals, template.HTML(
-		"<p>#First</p>\n\n<p>This is some <em>bold</em> text.</p>\n\n<h2 id=\"second\">Second</h2>\n\n<p>This is some more text.</p>\n\n<p>And then some.</p>\n"))
+		"<p>#First</p>\n<p>This is some <em>bold</em> text.</p>\n<h2 id=\"second\">Second</h2>\n<p>This is some more text.</p>\n<p>And then some.</p>\n"))
 
 }
 

@@ -65,7 +65,7 @@ func (ns *Namespace) Highlight(s interface{}, lang, opts string) (template.HTML,
 		return "", err
 	}
 
-	highlighted, _ := ns.deps.ContentSpec.Highlight(ss, lang, opts)
+	highlighted, _ := ns.deps.ContentSpec.Converters.Highlight(ss, lang, opts)
 	return template.HTML(highlighted), nil
 }
 

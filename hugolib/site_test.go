@@ -231,12 +231,12 @@ THE END.`, refShortcode),
 		// Issue #1753: Should not add a trailing newline after shortcode.
 		{
 			filepath.FromSlash("sect/doc3.md"),
-			fmt.Sprintf(`**Ref 1:**{{< %s "sect/doc3.md" >}}.`, refShortcode),
+			fmt.Sprintf(`**Ref 1:** {{< %s "sect/doc3.md" >}}.`, refShortcode),
 		},
 		// Issue #3703
 		{
 			filepath.FromSlash("sect/doc4.md"),
-			fmt.Sprintf(`**Ref 1:**{{< %s "%s" >}}.`, refShortcode, doc3Slashed),
+			fmt.Sprintf(`**Ref 1:** {{< %s "%s" >}}.`, refShortcode, doc3Slashed),
 		},
 	}
 
@@ -267,9 +267,9 @@ THE END.`, refShortcode),
 		expected string
 	}{
 		{filepath.FromSlash(fmt.Sprintf("public/sect/doc1%s", expectedPathSuffix)), fmt.Sprintf("<p>Ref 2: %s/sect/doc2%s</p>\n", expectedBase, expectedURLSuffix)},
-		{filepath.FromSlash(fmt.Sprintf("public/sect/doc2%s", expectedPathSuffix)), fmt.Sprintf("<p><strong>Ref 1:</strong></p>\n\n%s/sect/doc1%s\n\n<p>THE END.</p>\n", expectedBase, expectedURLSuffix)},
-		{filepath.FromSlash(fmt.Sprintf("public/sect/doc3%s", expectedPathSuffix)), fmt.Sprintf("<p><strong>Ref 1:</strong>%s/sect/doc3%s.</p>\n", expectedBase, expectedURLSuffix)},
-		{filepath.FromSlash(fmt.Sprintf("public/sect/doc4%s", expectedPathSuffix)), fmt.Sprintf("<p><strong>Ref 1:</strong>%s/sect/doc3%s.</p>\n", expectedBase, expectedURLSuffix)},
+		{filepath.FromSlash(fmt.Sprintf("public/sect/doc2%s", expectedPathSuffix)), fmt.Sprintf("<p><strong>Ref 1:</strong></p>\n%s/sect/doc1%s\n<p>THE END.</p>\n", expectedBase, expectedURLSuffix)},
+		{filepath.FromSlash(fmt.Sprintf("public/sect/doc3%s", expectedPathSuffix)), fmt.Sprintf("<p><strong>Ref 1:</strong> %s/sect/doc3%s.</p>\n", expectedBase, expectedURLSuffix)},
+		{filepath.FromSlash(fmt.Sprintf("public/sect/doc4%s", expectedPathSuffix)), fmt.Sprintf("<p><strong>Ref 1:</strong> %s/sect/doc3%s.</p>\n", expectedBase, expectedURLSuffix)},
 	}
 
 	for _, test := range tests {
@@ -330,12 +330,12 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 		expected string
 	}{
 		{filepath.FromSlash("public/index.html"), "Home Sweet Home."},
-		{filepath.FromSlash(expectedPagePath), "\n\n<h1 id=\"title\">title</h1>\n\n<p>some <em>content</em></p>\n"},
+		{filepath.FromSlash(expectedPagePath), "<h1 id=\"title\">title</h1>\n<p>some <em>content</em></p>\n"},
 		{filepath.FromSlash("public/404.html"), "Page Not Found."},
 		{filepath.FromSlash("public/index.xml"), "<root>RSS</root>"},
 		{filepath.FromSlash("public/sitemap.xml"), "<root>SITEMAP</root>"},
 		// Issue #1923
-		{filepath.FromSlash("public/ugly.html"), "\n\n<h1 id=\"title\">title</h1>\n\n<p>doc2 <em>content</em></p>\n"},
+		{filepath.FromSlash("public/ugly.html"), "<h1 id=\"title\">title</h1>\n<p>doc2 <em>content</em></p>\n"},
 	}
 
 	for _, p := range s.RegularPages() {
@@ -540,14 +540,14 @@ func TestSkipRender(t *testing.T) {
 		doc      string
 		expected string
 	}{
-		{filepath.FromSlash("public/sect/doc1.html"), "\n\n<h1 id=\"title\">title</h1>\n\n<p>some <em>content</em></p>\n"},
+		{filepath.FromSlash("public/sect/doc1.html"), "<h1 id=\"title\">title</h1>\n<p>some <em>content</em></p>\n"},
 		{filepath.FromSlash("public/sect/doc2.html"), "<!doctype html><html><body>more content</body></html>"},
-		{filepath.FromSlash("public/sect/doc3.html"), "\n\n<h1 id=\"doc3\">doc3</h1>\n\n<p><em>some</em> content</p>\n"},
-		{filepath.FromSlash("public/sect/doc4.html"), "\n\n<h1 id=\"doc4\">doc4</h1>\n\n<p><em>some content</em></p>\n"},
+		{filepath.FromSlash("public/sect/doc3.html"), "<h1 id=\"doc3\">doc3</h1>\n<p><em>some</em> content</p>\n"},
+		{filepath.FromSlash("public/sect/doc4.html"), "<h1 id=\"doc4\">doc4</h1>\n<p><em>some content</em></p>\n"},
 		{filepath.FromSlash("public/sect/doc5.html"), "<!doctype html><html><head><script src=\"script.js\"></script></head><body>body5</body></html>"},
 		{filepath.FromSlash("public/sect/doc6.html"), "<!doctype html><html><head><script src=\"http://auth/bub/script.js\"></script></head><body>body5</body></html>"},
 		{filepath.FromSlash("public/doc7.html"), "<html><body>doc7 content</body></html>"},
-		{filepath.FromSlash("public/sect/doc8.html"), "\n\n<h1 id=\"title\">title</h1>\n\n<p>some <em>content</em></p>\n"},
+		{filepath.FromSlash("public/sect/doc8.html"), "<h1 id=\"title\">title</h1>\n<p>some <em>content</em></p>\n"},
 		{filepath.FromSlash("public/doc9.html"), "<html><body>doc9: SHORT</body></html>"},
 	}
 

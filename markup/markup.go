@@ -16,6 +16,12 @@ package markup
 import (
 	"strings"
 
+	"github.com/gohugoio/hugo/markup/highlight"
+
+	"github.com/gohugoio/hugo/markup/markup_config"
+
+	"github.com/gohugoio/hugo/markup/goldmark"
+
 	"github.com/gohugoio/hugo/markup/org"
 
 	"github.com/gohugoio/hugo/markup/asciidoc"
@@ -29,39 +35,71 @@ import (
 func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, error) {
 	converters := make(map[string]converter.Provider)
 
-	add := func(p converter.NewProvider, aliases ...string) error {
+	markupConfig, err := markup_config.Decode(cfg.Cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	if cfg.Highlight == nil {
+		h := highlight.New(markupConfig.Highlight)
+		cfg.Highlight = func(code, lang, optsStr string) (string, error) {
+			return h.Highlight(code, lang, optsStr)
+		}
+	}
+
+	cfg.MarkupConfig = markupConfig
+
+	add := func(p converter.ProviderProvider, aliases ...string) error {
 		c, err := p.New(cfg)
 		if err != nil {
 			return err
 		}
+
+		name := c.Name()
+
+		aliases = append(aliases, name)
+
+		if strings.EqualFold(name, cfg.MarkupConfig.DefaultMarkdownHandler) {
+			aliases = append(aliases, "markdown")
+		}
+
 		addConverter(converters, c, aliases...)
 		return nil
 	}
 
-	if err := add(blackfriday.Provider, "md", "markdown", "blackfriday"); err != nil {
+	if err := add(goldmark.Provider); err != nil {
 		return nil, err
 	}
-	if err := add(mmark.Provider, "mmark"); err != nil {
+	if err := add(blackfriday.Provider); err != nil {
 		return nil, err
 	}
-	if err := add(asciidoc.Provider, "asciidoc"); err != nil {
+	if err := add(mmark.Provider); err != nil {
 		return nil, err
 	}
-	if err := add(rst.Provider, "rst"); err != nil {
+	if err := add(asciidoc.Provider, "ad", "adoc"); err != nil {
 		return nil, err
 	}
-	if err := add(pandoc.Provider, "pandoc"); err != nil {
+	if err := add(rst.Provider); err != nil {
 		return nil, err
 	}
-	if err := add(org.Provider, "org"); err != nil {
+	if err := add(pandoc.Provider, "pdc"); err != nil {
+		return nil, err
+	}
+	if err := add(org.Provider); err != nil {
 		return nil, err
 	}
 
-	return &converterRegistry{converters: converters}, nil
+	return &converterRegistry{
+		config:     cfg,
+		converters: converters,
+	}, nil
 }
 
 type ConverterProvider interface {
 	Get(name string) converter.Provider
+	//Default() converter.Provider
+	GetMarkupConfig() markup_config.Config
+	Highlight(code, lang, optsStr string) (string, error)
 }
 
 type converterRegistry struct {
@@ -70,10 +108,20 @@ type converterRegistry struct {
 	// may be registered multiple times.
 	// All names are lower case.
 	converters map[string]converter.Provider
+
+	config converter.ProviderConfig
 }
 
 func (r *converterRegistry) Get(name string) converter.Provider {
 	return r.converters[strings.ToLower(name)]
+}
+
+func (r *converterRegistry) Highlight(code, lang, optsStr string) (string, error) {
+	return r.config.Highlight(code, lang, optsStr)
+}
+
+func (r *converterRegistry) GetMarkupConfig() markup_config.Config {
+	return r.config.MarkupConfig
 }
 
 func addConverter(m map[string]converter.Provider, c converter.Provider, aliases ...string) {

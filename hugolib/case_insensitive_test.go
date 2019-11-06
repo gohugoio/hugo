@@ -208,7 +208,6 @@ Page2: {{ $page2.Params.ColoR }}
 		"Partial Site Global: green|yellow",
 		"Page Title: Side 1",
 		"Site Title: Nynorsk title",
-		"&laquo;Hi&raquo;", // angled quotes
 		"Page2: black ",
 	)
 

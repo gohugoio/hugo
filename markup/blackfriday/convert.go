@@ -15,36 +15,27 @@
 package blackfriday
 
 import (
+	"github.com/gohugoio/hugo/markup/blackfriday/blackfriday_config"
 	"github.com/gohugoio/hugo/markup/converter"
-	"github.com/gohugoio/hugo/markup/internal"
 	"github.com/russross/blackfriday"
 )
 
 // Provider is the package entry point.
-var Provider converter.NewProvider = provider{}
+var Provider converter.ProviderProvider = provider{}
 
 type provider struct {
 }
 
 func (p provider) New(cfg converter.ProviderConfig) (converter.Provider, error) {
-	defaultBlackFriday, err := internal.NewBlackfriday(cfg)
-	if err != nil {
-		return nil, err
-	}
+	defaultExtensions := getMarkdownExtensions(cfg.MarkupConfig.BlackFriday)
 
-	defaultExtensions := getMarkdownExtensions(defaultBlackFriday)
-
-	pygmentsCodeFences := cfg.Cfg.GetBool("pygmentsCodeFences")
-	pygmentsCodeFencesGuessSyntax := cfg.Cfg.GetBool("pygmentsCodeFencesGuessSyntax")
-	pygmentsOptions := cfg.Cfg.GetString("pygmentsOptions")
-
-	var n converter.NewConverter = func(ctx converter.DocumentContext) (converter.Converter, error) {
-		b := defaultBlackFriday
+	return converter.NewProvider("blackfriday", func(ctx converter.DocumentContext) (converter.Converter, error) {
+		b := cfg.MarkupConfig.BlackFriday
 		extensions := defaultExtensions
 
 		if ctx.ConfigOverrides != nil {
 			var err error
-			b, err = internal.UpdateBlackFriday(b, ctx.ConfigOverrides)
+			b, err = blackfriday_config.UpdateConfig(b, ctx.ConfigOverrides)
 			if err != nil {
 				return nil, err
 			}
@@ -56,27 +47,16 @@ func (p provider) New(cfg converter.ProviderConfig) (converter.Provider, error) 
 			bf:         b,
 			extensions: extensions,
 			cfg:        cfg,
-
-			pygmentsCodeFences:            pygmentsCodeFences,
-			pygmentsCodeFencesGuessSyntax: pygmentsCodeFencesGuessSyntax,
-			pygmentsOptions:               pygmentsOptions,
 		}, nil
-	}
-
-	return n, nil
+	}), nil
 
 }
 
 type blackfridayConverter struct {
 	ctx        converter.DocumentContext
-	bf         *internal.BlackFriday
+	bf         blackfriday_config.Config
 	extensions int
-
-	pygmentsCodeFences            bool
-	pygmentsCodeFencesGuessSyntax bool
-	pygmentsOptions               string
-
-	cfg converter.ProviderConfig
+	cfg        converter.ProviderConfig
 }
 
 func (c *blackfridayConverter) AnchorSuffix() string {
@@ -90,7 +70,6 @@ func (c *blackfridayConverter) Convert(ctx converter.RenderContext) (converter.R
 	r := c.getHTMLRenderer(ctx.RenderTOC)
 
 	return converter.Bytes(blackfriday.Markdown(ctx.Src, r, c.extensions)), nil
-
 }
 
 func (c *blackfridayConverter) getHTMLRenderer(renderTOC bool) blackfriday.Renderer {
@@ -114,7 +93,7 @@ func (c *blackfridayConverter) getHTMLRenderer(renderTOC bool) blackfriday.Rende
 	}
 }
 
-func getFlags(renderTOC bool, cfg *internal.BlackFriday) int {
+func getFlags(renderTOC bool, cfg blackfriday_config.Config) int {
 
 	var flags int
 
@@ -168,7 +147,7 @@ func getFlags(renderTOC bool, cfg *internal.BlackFriday) int {
 	return flags
 }
 
-func getMarkdownExtensions(cfg *internal.BlackFriday) int {
+func getMarkdownExtensions(cfg blackfriday_config.Config) int {
 	// Default Blackfriday common extensions
 	commonExtensions := 0 |
 		blackfriday.EXTENSION_NO_INTRA_EMPHASIS |

@@ -18,19 +18,15 @@ import (
 
 	"github.com/spf13/viper"
 
-	"github.com/gohugoio/hugo/markup/internal"
-
 	"github.com/gohugoio/hugo/markup/converter"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/markup/blackfriday/blackfriday_config"
 	"github.com/russross/blackfriday"
 )
 
 func TestGetMarkdownExtensionsMasksAreRemovedFromExtensions(t *testing.T) {
-	c := qt.New(t)
-	b, err := internal.NewBlackfriday(converter.ProviderConfig{Cfg: viper.New()})
-	c.Assert(err, qt.IsNil)
-
+	b := blackfriday_config.Default
 	b.Extensions = []string{"headerId"}
 	b.ExtensionsMask = []string{"noIntraEmphasis"}
 
@@ -45,9 +41,7 @@ func TestGetMarkdownExtensionsByDefaultAllExtensionsAreEnabled(t *testing.T) {
 		testFlag int
 	}
 
-	c := qt.New(t)
-	b, err := internal.NewBlackfriday(converter.ProviderConfig{Cfg: viper.New()})
-	c.Assert(err, qt.IsNil)
+	b := blackfriday_config.Default
 
 	b.Extensions = []string{""}
 	b.ExtensionsMask = []string{""}
@@ -79,9 +73,7 @@ func TestGetMarkdownExtensionsByDefaultAllExtensionsAreEnabled(t *testing.T) {
 }
 
 func TestGetMarkdownExtensionsAddingFlagsThroughRenderingContext(t *testing.T) {
-	c := qt.New(t)
-	b, err := internal.NewBlackfriday(converter.ProviderConfig{Cfg: viper.New()})
-	c.Assert(err, qt.IsNil)
+	b := blackfriday_config.Default
 
 	b.Extensions = []string{"definitionLists"}
 	b.ExtensionsMask = []string{""}
@@ -93,10 +85,7 @@ func TestGetMarkdownExtensionsAddingFlagsThroughRenderingContext(t *testing.T) {
 }
 
 func TestGetFlags(t *testing.T) {
-	c := qt.New(t)
-	cfg := converter.ProviderConfig{Cfg: viper.New()}
-	b, err := internal.NewBlackfriday(cfg)
-	c.Assert(err, qt.IsNil)
+	b := blackfriday_config.Default
 	flags := getFlags(false, b)
 	if flags&blackfriday.HTML_USE_XHTML != blackfriday.HTML_USE_XHTML {
 		t.Errorf("Test flag: %d was not found amongs set flags:%d; Result: %d", blackfriday.HTML_USE_XHTML, flags, flags&blackfriday.HTML_USE_XHTML)
@@ -105,9 +94,8 @@ func TestGetFlags(t *testing.T) {
 
 func TestGetAllFlags(t *testing.T) {
 	c := qt.New(t)
-	cfg := converter.ProviderConfig{Cfg: viper.New()}
-	b, err := internal.NewBlackfriday(cfg)
-	c.Assert(err, qt.IsNil)
+
+	b := blackfriday_config.Default
 
 	type data struct {
 		testFlag int
@@ -145,9 +133,8 @@ func TestGetAllFlags(t *testing.T) {
 	for _, d := range allFlags {
 		expectedFlags |= d.testFlag
 	}
-	if expectedFlags != actualFlags {
-		t.Errorf("Expected flags (%d) did not equal actual (%d) flags.", expectedFlags, actualFlags)
-	}
+
+	c.Assert(actualFlags, qt.Equals, expectedFlags)
 }
 
 func TestConvert(t *testing.T) {

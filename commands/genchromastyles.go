@@ -68,7 +68,7 @@ func (g *genChromaStyles) generate() error {
 	if err != nil {
 		return err
 	}
-	formatter := html.New(html.WithClasses())
+	formatter := html.New(html.WithClasses(true))
 	formatter.WriteCSS(os.Stdout, style)
 	return nil
 }

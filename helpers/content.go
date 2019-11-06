@@ -32,7 +32,6 @@ import (
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/config"
 	"github.com/spf13/afero"
-	jww "github.com/spf13/jwalterweatherman"
 
 	"strings"
 )
@@ -58,9 +57,6 @@ type ContentSpec struct {
 	BuildExpired bool
 	BuildDrafts  bool
 
-	Highlight            func(code, lang, optsStr string) (string, error)
-	defatultPygmentsOpts map[string]string
-
 	Cfg config.Provider
 }
 
@@ -77,36 +73,10 @@ func NewContentSpec(cfg config.Provider, logger *loggers.Logger, contentFs afero
 		Cfg: cfg,
 	}
 
-	// Highlighting setup
-	options, err := parseDefaultPygmentsOpts(cfg)
-	if err != nil {
-		return nil, err
-	}
-	spec.defatultPygmentsOpts = options
-
-	// Use the Pygmentize on path if present
-	useClassic := false
-	h := newHiglighters(spec)
-
-	if cfg.GetBool("pygmentsUseClassic") {
-		if !hasPygments() {
-			jww.WARN.Println("Highlighting with pygmentsUseClassic set requires Pygments to be installed and in the path")
-		} else {
-			useClassic = true
-		}
-	}
-
-	if useClassic {
-		spec.Highlight = h.pygmentsHighlight
-	} else {
-		spec.Highlight = h.chromaHighlight
-	}
-
 	converterProvider, err := markup.NewConverterProvider(converter.ProviderConfig{
 		Cfg:       cfg,
 		ContentFs: contentFs,
 		Logger:    logger,
-		Highlight: spec.Highlight,
 	})
 	if err != nil {
 		return nil, err
@@ -218,6 +188,21 @@ func (c *ContentSpec) RenderMarkdown(src []byte) ([]byte, error) {
 		return nil, err
 	}
 	return b.Bytes(), nil
+}
+
+func (c *ContentSpec) ResolveMarkup(in string) string {
+	in = strings.ToLower(in)
+	switch in {
+	case "md", "markdown", "mdown":
+		return "markdown"
+	case "html", "htm":
+		return "html"
+	default:
+		if conv := c.Converters.Get(in); conv != nil {
+			return conv.Name()
+		}
+	}
+	return ""
 }
 
 // TotalWords counts instance of one or more consecutive white space

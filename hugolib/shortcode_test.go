@@ -44,6 +44,11 @@ func CheckShortCodeMatch(t *testing.T, input, expected string, withTemplate func
 func CheckShortCodeMatchAndError(t *testing.T, input, expected string, withTemplate func(templ tpl.TemplateHandler) error, expectError bool) {
 	t.Helper()
 	cfg, fs := newTestCfg()
+
+	cfg.Set("markup", map[string]interface{}{
+		"defaultMarkdownHandler": "blackfriday", // TODO(bep)
+	})
+
 	c := qt.New(t)
 
 	// Need some front matter, see https://github.com/gohugoio/hugo/issues/2337
@@ -584,6 +589,9 @@ title: "Foo"
 
 	cfg.Set("pygmentsUseClasses", true)
 	cfg.Set("pygmentsCodefences", true)
+	cfg.Set("markup", map[string]interface{}{
+		"defaultMarkdownHandler": "blackfriday", // TODO(bep)
+	})
 
 	writeSourcesToSource(t, "content", fs, sources...)
 
@@ -597,6 +605,7 @@ title: "Foo"
 			th := newTestHelper(s.Cfg, s.Fs, t)
 
 			expected := cast.ToStringSlice(test.expected)
+
 			th.assertFileContent(filepath.FromSlash(test.outFile), expected...)
 		})
 
@@ -1244,6 +1253,9 @@ func TestShortcodeRef(t *testing.T) {
 			v.Set("baseURL", "https://example.org")
 			v.Set("blackfriday", map[string]interface{}{
 				"plainIDAnchors": plainIDAnchors,
+			})
+			v.Set("markup", map[string]interface{}{
+				"defaultMarkdownHandler": "blackfriday", // TODO(bep)
 			})
 
 			builder := newTestSitesBuilder(t).WithViper(v)

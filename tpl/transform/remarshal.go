@@ -18,32 +18,41 @@ import (
 // change without notice if it serves a purpose in the docs.
 // Format is one of json, yaml or toml.
 func (ns *Namespace) Remarshal(format string, data interface{}) (string, error) {
-	from, err := cast.ToStringE(data)
-	if err != nil {
-		return "", err
-	}
+	var meta map[string]interface{}
 
-	from = strings.TrimSpace(from)
 	format = strings.TrimSpace(strings.ToLower(format))
-
-	if from == "" {
-		return "", nil
-	}
 
 	mark, err := toFormatMark(format)
 	if err != nil {
 		return "", err
 	}
 
-	fromFormat := metadecoders.Default.FormatFromContentString(from)
-	if fromFormat == "" {
-		return "", errors.New("failed to detect format from content")
+	if m, ok := data.(map[string]interface{}); ok {
+		meta = m
+	} else {
+		from, err := cast.ToStringE(data)
+		if err != nil {
+			return "", err
+		}
+
+		from = strings.TrimSpace(from)
+		if from == "" {
+			return "", nil
+		}
+
+		fromFormat := metadecoders.Default.FormatFromContentString(from)
+		if fromFormat == "" {
+			return "", errors.New("failed to detect format from content")
+		}
+
+		meta, err = metadecoders.Default.UnmarshalToMap([]byte(from), fromFormat)
+		if err != nil {
+			return "", err
+		}
 	}
 
-	meta, err := metadecoders.Default.UnmarshalToMap([]byte(from), fromFormat)
-	if err != nil {
-		return "", err
-	}
+	// Make it so 1.0 float64 prints as 1 etc.
+	applyMarshalTypes(meta)
 
 	var result bytes.Buffer
 	if err := parser.InterfaceToConfig(meta, mark, &result); err != nil {
@@ -51,6 +60,23 @@ func (ns *Namespace) Remarshal(format string, data interface{}) (string, error) 
 	}
 
 	return result.String(), nil
+}
+
+// The unmarshal/marshal dance is extremely type lossy, and we need
+// to make sure that integer types prints as "43" and not "43.0" in
+// all formats, hence this hack.
+func applyMarshalTypes(m map[string]interface{}) {
+	for k, v := range m {
+		switch t := v.(type) {
+		case map[string]interface{}:
+			applyMarshalTypes(t)
+		case float64:
+			i := int64(t)
+			if t == float64(i) {
+				m[k] = i
+			}
+		}
+	}
 }
 
 func toFormatMark(format string) (metadecoders.Format, error) {

@@ -17,26 +17,24 @@ import (
 	"bytes"
 	"strings"
 
+	"github.com/gohugoio/hugo/markup/blackfriday/blackfriday_config"
+	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/miekg/mmark"
-
-	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/markup/internal"
 )
 
 // hugoHTMLRenderer wraps a blackfriday.Renderer, typically a blackfriday.Html
 // adding some custom behaviour.
 type mmarkRenderer struct {
-	Cfg       config.Provider
-	Config    *internal.BlackFriday
-	highlight func(code, lang, optsStr string) (string, error)
+	Config            converter.ProviderConfig
+	BlackfridayConfig blackfriday_config.Config
 	mmark.Renderer
 }
 
 // BlockCode renders a given text as a block of code.
 func (r *mmarkRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string, caption []byte, subfigure bool, callouts bool) {
-	if r.Cfg.GetBool("pygmentsCodeFences") && (lang != "" || r.Cfg.GetBool("pygmentsCodeFencesGuessSyntax")) {
+	if r.Config.MarkupConfig.Highlight.CodeFences {
 		str := strings.Trim(string(text), "\n\r")
-		highlighted, _ := r.highlight(str, lang, "")
+		highlighted, _ := r.Config.Highlight(str, lang, "")
 		out.WriteString(highlighted)
 	} else {
 		r.Renderer.BlockCode(out, text, lang, caption, subfigure, callouts)

@@ -20,19 +20,14 @@ import (
 
 	"github.com/gohugoio/hugo/common/loggers"
 
-	"github.com/miekg/mmark"
-
-	"github.com/gohugoio/hugo/markup/internal"
-
-	"github.com/gohugoio/hugo/markup/converter"
-
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/markup/blackfriday/blackfriday_config"
+	"github.com/gohugoio/hugo/markup/converter"
+	"github.com/miekg/mmark"
 )
 
 func TestGetMmarkExtensions(t *testing.T) {
-	c := qt.New(t)
-	b, err := internal.NewBlackfriday(converter.ProviderConfig{Cfg: viper.New()})
-	c.Assert(err, qt.IsNil)
+	b := blackfriday_config.Default
 
 	//TODO: This is doing the same just with different marks...
 	type data struct {

@@ -16,33 +16,51 @@ package converter
 import (
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/markup/markup_config"
+	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/spf13/afero"
 )
 
 // ProviderConfig configures a new Provider.
 type ProviderConfig struct {
+	MarkupConfig markup_config.Config
+
 	Cfg       config.Provider // Site config
 	ContentFs afero.Fs
 	Logger    *loggers.Logger
 	Highlight func(code, lang, optsStr string) (string, error)
 }
 
-// NewProvider creates converter providers.
-type NewProvider interface {
+// ProviderProvider creates converter providers.
+type ProviderProvider interface {
 	New(cfg ProviderConfig) (Provider, error)
 }
 
 // Provider creates converters.
 type Provider interface {
 	New(ctx DocumentContext) (Converter, error)
+	Name() string
 }
 
-// NewConverter is an adapter that can be used as a ConverterProvider.
-type NewConverter func(ctx DocumentContext) (Converter, error)
+// NewProvider creates a new Provider with the given name.
+func NewProvider(name string, create func(ctx DocumentContext) (Converter, error)) Provider {
+	return newConverter{
+		name:   name,
+		create: create,
+	}
+}
 
-// New creates a new Converter for the given ctx.
-func (n NewConverter) New(ctx DocumentContext) (Converter, error) {
-	return n(ctx)
+type newConverter struct {
+	name   string
+	create func(ctx DocumentContext) (Converter, error)
+}
+
+func (n newConverter) New(ctx DocumentContext) (Converter, error) {
+	return n.create(ctx)
+}
+
+func (n newConverter) Name() string {
+	return n.name
 }
 
 // Converter wraps the Convert method that converts some markup into
@@ -59,6 +77,11 @@ type Result interface {
 // DocumentInfo holds additional information provided by some converters.
 type DocumentInfo interface {
 	AnchorSuffix() string
+}
+
+// TableOfContentsProvider provides the content as a ToC structure.
+type TableOfContentsProvider interface {
+	TableOfContents() tableofcontents.Root
 }
 
 // Bytes holds a byte slice and implements the Result interface.

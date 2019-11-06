@@ -44,11 +44,6 @@ import (
 // FilePathSeparator as defined by os.Separator.
 const FilePathSeparator = string(filepath.Separator)
 
-// Strips carriage returns from third-party / external processes (useful for Windows)
-func normalizeExternalHelperLineFeeds(content []byte) []byte {
-	return bytes.Replace(content, []byte("\r"), []byte(""), -1)
-}
-
 // FindAvailablePort returns an available and valid TCP port.
 func FindAvailablePort() (*net.TCPAddr, error) {
 	l, err := net.Listen("tcp", ":0")
@@ -72,28 +67,6 @@ func InStringArray(arr []string, el string) bool {
 		}
 	}
 	return false
-}
-
-// GuessType attempts to guess the type of file from a given string.
-func GuessType(in string) string {
-	switch strings.ToLower(in) {
-	case "md", "markdown", "mdown":
-		return "markdown"
-	case "asciidoc", "adoc", "ad":
-		return "asciidoc"
-	case "mmark":
-		return "mmark"
-	case "rst":
-		return "rst"
-	case "pandoc", "pdc":
-		return "pandoc"
-	case "html", "htm":
-		return "html"
-	case "org":
-		return "org"
-	}
-
-	return ""
 }
 
 // FirstUpper returns a string with the first character as upper case.

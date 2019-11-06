@@ -29,13 +29,23 @@ func TestConverterRegistry(t *testing.T) {
 	r, err := NewConverterProvider(converter.ProviderConfig{Cfg: viper.New()})
 
 	c.Assert(err, qt.IsNil)
+	c.Assert("goldmark", qt.Equals, r.GetMarkupConfig().DefaultMarkdownHandler)
+
+	checkName := func(name string) {
+		p := r.Get(name)
+		c.Assert(p, qt.Not(qt.IsNil))
+		c.Assert(p.Name(), qt.Equals, name)
+	}
 
 	c.Assert(r.Get("foo"), qt.IsNil)
-	c.Assert(r.Get("markdown"), qt.Not(qt.IsNil))
-	c.Assert(r.Get("mmark"), qt.Not(qt.IsNil))
-	c.Assert(r.Get("asciidoc"), qt.Not(qt.IsNil))
-	c.Assert(r.Get("rst"), qt.Not(qt.IsNil))
-	c.Assert(r.Get("pandoc"), qt.Not(qt.IsNil))
-	c.Assert(r.Get("org"), qt.Not(qt.IsNil))
+	c.Assert(r.Get("markdown").Name(), qt.Equals, "goldmark")
+
+	checkName("goldmark")
+	checkName("mmark")
+	checkName("asciidoc")
+	checkName("rst")
+	checkName("pandoc")
+	checkName("org")
+	checkName("blackfriday")
 
 }

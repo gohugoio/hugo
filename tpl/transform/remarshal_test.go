@@ -156,11 +156,11 @@ Hugo = "Rules"
 
 func TestTestRemarshalError(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	v := viper.New()
 	v.Set("contentDir", "content")
 	ns := New(newDeps(v))
-	c := qt.New(t)
 
 	_, err := ns.Remarshal("asdf", "asdf")
 	c.Assert(err, qt.Not(qt.IsNil))
@@ -168,4 +168,20 @@ func TestTestRemarshalError(t *testing.T) {
 	_, err = ns.Remarshal("json", "asdf")
 	c.Assert(err, qt.Not(qt.IsNil))
 
+}
+
+func TestTestRemarshalMapInput(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	v := viper.New()
+	v.Set("contentDir", "content")
+	ns := New(newDeps(v))
+
+	input := map[string]interface{}{
+		"hello": "world",
+	}
+
+	output, err := ns.Remarshal("toml", input)
+	c.Assert(err, qt.IsNil)
+	c.Assert(output, qt.Equals, "hello = \"world\"\n")
 }

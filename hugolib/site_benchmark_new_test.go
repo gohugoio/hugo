@@ -181,7 +181,7 @@ pygmentsCodeFences = true
 			return sb
 		},
 			func(s *sitesBuilder) {
-				s.AssertFileContent("public/page8/index.html", `<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">echo <span style="color:#e6db74">&#34;Hugo Rocks!&#34;</span></code></pre></div>`)
+				s.AssertFileContent("public/page8/index.html", `<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">echo <span style="color:#e6db74">&#34;Hugo Rocks!&#34;</span>`)
 			},
 		},
 		{"Deep content tree", func(b testing.TB) *sitesBuilder {
