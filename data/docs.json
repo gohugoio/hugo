@@ -2,6 +2,13 @@
   "chroma": {
     "lexers": [
       {
+        "Name": "ABAP",
+        "Aliases": [
+          "ABAP",
+          "abap"
+        ]
+      },
+      {
         "Name": "ABNF",
         "Aliases": [
           "abnf"
@@ -132,6 +139,13 @@
           "cmd",
           "dosbatch",
           "winbatch"
+        ]
+      },
+      {
+        "Name": "BibTeX",
+        "Aliases": [
+          "bib",
+          "bibtex"
         ]
       },
       {
@@ -405,7 +419,8 @@
         "Aliases": [
           "forth",
           "frt",
-          "fs"
+          "fs",
+          "fth"
         ]
       },
       {
@@ -580,9 +595,24 @@
         ]
       },
       {
+        "Name": "Igor",
+        "Aliases": [
+          "igor",
+          "igorpro",
+          "ipf"
+        ]
+      },
+      {
         "Name": "Io",
         "Aliases": [
           "io"
+        ]
+      },
+      {
+        "Name": "J",
+        "Aliases": [
+          "ijs",
+          "j"
         ]
       },
       {
@@ -1342,6 +1372,63 @@
       }
     ]
   },
+  "config": {
+    "markup": {
+      "defaultMarkdownHandler": "goldmark",
+      "highlight": {
+        "style": "monokai",
+        "codeFences": true,
+        "noClasses": true,
+        "lineNos": false,
+        "lineNumbersInTable": true,
+        "lineNoStart": 1,
+        "hl_Lines": "",
+        "tabWidth": 4
+      },
+      "tableOfContents": {
+        "startLevel": 2,
+        "endLevel": 3
+      },
+      "goldmark": {
+        "renderer": {
+          "hardWraps": false,
+          "xHTML": false,
+          "unsafe": false
+        },
+        "parser": {
+          "autoHeadingID": true,
+          "attribute": true
+        },
+        "extensions": {
+          "typographer": true,
+          "footnote": true,
+          "definitionList": true,
+          "table": true,
+          "strikethrough": true,
+          "linkify": true,
+          "taskList": true
+        }
+      },
+      "blackFriday": {
+        "smartypants": true,
+        "smartypantsQuotesNBSP": false,
+        "angledQuotes": false,
+        "fractions": true,
+        "hrefTargetBlank": false,
+        "nofollowLinks": false,
+        "noreferrerLinks": false,
+        "smartDashes": true,
+        "latexDashes": true,
+        "taskLists": true,
+        "plainIDAnchors": true,
+        "extensions": null,
+        "extensionsMask": null,
+        "skipHTML": false,
+        "footnoteAnchorPrefix": "",
+        "footnoteReturnLinkContents": ""
+      }
+    }
+  },
   "media": {
     "types": [
       {
@@ -1512,6 +1599,68 @@
         "delimiter": ".",
         "suffixes": [
           "scss"
+        ]
+      },
+      {
+        "type": "video/3gpp",
+        "string": "video/3gpp",
+        "mainType": "video",
+        "subType": "3gpp",
+        "delimiter": ".",
+        "suffixes": [
+          "3gpp",
+          "3gp"
+        ]
+      },
+      {
+        "type": "video/mp4",
+        "string": "video/mp4",
+        "mainType": "video",
+        "subType": "mp4",
+        "delimiter": ".",
+        "suffixes": [
+          "mp4"
+        ]
+      },
+      {
+        "type": "video/mpeg",
+        "string": "video/mpeg",
+        "mainType": "video",
+        "subType": "mpeg",
+        "delimiter": ".",
+        "suffixes": [
+          "mpg",
+          "mpeg"
+        ]
+      },
+      {
+        "type": "video/ogg",
+        "string": "video/ogg",
+        "mainType": "video",
+        "subType": "ogg",
+        "delimiter": ".",
+        "suffixes": [
+          "ogv"
+        ]
+      },
+      {
+        "type": "video/webm",
+        "string": "video/webm",
+        "mainType": "video",
+        "subType": "webm",
+        "delimiter": ".",
+        "suffixes": [
+          "webm"
+        ]
+      },
+      {
+        "type": "video/x-msvideo",
+        "string": "video/x-msvideo",
+        "mainType": "video",
+        "subType": "x-msvideo",
+        "delimiter": ".",
+        "suffixes": [
+          "avi"
         ]
       }
     ]
@@ -2290,10 +2439,10 @@
           ]
         },
         "Eq": {
-          "Description": "Eq returns the boolean truth of arg1 == arg2.",
+          "Description": "Eq returns the boolean truth of arg1 == arg2 || arg1 == arg3 || arg1 == arg4.",
           "Args": [
-            "x",
-            "y"
+            "first",
+            "others"
           ],
           "Aliases": [
             "eq"
@@ -2454,7 +2603,7 @@
           ]
         },
         "Dictionary": {
-          "Description": "Dictionary creates a map[string]interface{} from the given parameters by\nwalking the parameters and treating them as key-value pairs.  The number\nof parameters must be even.",
+          "Description": "Dictionary creates a map[string]interface{} from the given parameters by\nwalking the parameters and treating them as key-value pairs.  The number\nof parameters must be even.\nThe keys can be string slices, which will create the needed nested structure.",
           "Args": [
             "values"
           ],
@@ -2521,7 +2670,7 @@
           "Description": "Index returns the result of indexing its first argument by the following\narguments. Thus \"index x 1 2 3\" is, in Go syntax, x[1][2][3]. Each\nindexed item must be a map, slice, or array.\n\nCopied from Go stdlib src/text/template/funcs.go.\n\nWe deviate from the stdlib due to https://github.com/golang/go/issues/14751.\n\nTODO(moorereason): merge upstream changes.",
           "Args": [
             "item",
-            "indices"
+            "args"
           ],
           "Aliases": [
             "index"
@@ -2629,6 +2778,12 @@
               "\u003ca href=\"https://www.google.com?page=3\u0026amp;q=test\"\u003eSearch\u003c/a\u003e"
             ]
           ]
+        },
+        "Reverse": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
         },
         "Seq": {
           "Description": "Seq creates a sequence of integers.  It's named and used as GNU's seq.\n\nExamples:\n    3 =\u003e 1, 2, 3\n    1 2 4 =\u003e 1, 3\n    -3 =\u003e -1, -2, -3\n    1 4 =\u003e 1, 2, 3, 4\n    1 -2 =\u003e 1, 0, -1, -2",

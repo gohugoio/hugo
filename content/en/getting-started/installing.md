@@ -502,12 +502,6 @@ OpenBSD provides a package for Hugo via `pkg_add`:
 
 Upgrading Hugo is as easy as downloading and replacing the executable you’ve placed in your `PATH` or run `brew upgrade hugo` if using Homebrew.
 
-## Install Pygments (Optional)
-
-The Hugo executable has one *optional* external dependency for source code highlighting ([Pygments][pygments]).
-
-If you want to have source code highlighting using the [highlight shortcode][], you need to install the Python-based Pygments program. The procedure is outlined on the [Pygments homepage][pygments].
-
 ## Next Steps
 
 Now that you've installed Hugo, read the [Quick Start guide][quickstart] and explore the rest of the documentation. If you have questions, ask the Hugo community directly by visiting the [Hugo Discussion Forum][forum].
