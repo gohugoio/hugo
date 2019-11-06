@@ -16,8 +16,9 @@ package hugolib
 import (
 	"fmt"
 	"path/filepath"
-
 	"reflect"
+
+	"github.com/spf13/viper"
 
 	"github.com/gohugoio/hugo/parser/pageparser"
 	"github.com/gohugoio/hugo/resources/page"
@@ -1194,4 +1195,66 @@ Get: {{ printf "%v (%T)" $b1 $b1 | safeHTML }}
 		"types named: - b1: true (bool) - b2: false (bool) - f1: 3.14 (float64) - i1: 33 (int) Get: true (bool) ",
 		"types string: - 0: true (string) - 1: trues (string) - 2: 33 (string) - 3: 3.14 (string) ",
 	)
+}
+
+func TestShortcodeRef(t *testing.T) {
+	for _, plainIDAnchors := range []bool{false, true} {
+		plainIDAnchors := plainIDAnchors
+		t.Run(fmt.Sprintf("plainIDAnchors=%t", plainIDAnchors), func(t *testing.T) {
+			t.Parallel()
+
+			v := viper.New()
+			v.Set("baseURL", "https://example.org")
+			v.Set("blackfriday", map[string]interface{}{
+				"plainIDAnchors": plainIDAnchors,
+			})
+
+			builder := newTestSitesBuilder(t).WithViper(v)
+
+			for i := 1; i <= 2; i++ {
+				builder.WithContent(fmt.Sprintf("page%d.md", i), `---
+title: "Hugo Rocks!"
+---
+
+
+
+[Page 1]({{< ref "page1.md" >}})
+[Page 1 with anchor]({{< relref "page1.md#doc" >}})
+[Page 2]({{< ref "page2.md" >}})
+[Page 2 with anchor]({{< relref "page2.md#doc" >}})
+
+
+## Doc
+
+
+`)
+			}
+
+			builder.Build(BuildCfg{})
+
+			if plainIDAnchors {
+				builder.AssertFileContent("public/page2/index.html",
+					`
+<a href="/page1/#doc">Page 1 with anchor</a>
+<a href="https://example.org/page2/">Page 2</a>
+<a href="/page2/#doc">Page 2 with anchor</a></p>
+
+<h2 id="doc">Doc</h2>
+`,
+				)
+			} else {
+				builder.AssertFileContent("public/page2/index.html",
+					`
+<p><a href="https://example.org/page1/">Page 1</a>
+<a href="/page1/#doc:45ca767ba77bc1445a0acab74f80812f">Page 1 with anchor</a>
+<a href="https://example.org/page2/">Page 2</a>
+<a href="/page2/#doc:8e3cdf52fa21e33270c99433820e46bd">Page 2 with anchor</a></p>
+<h2 id="doc:8e3cdf52fa21e33270c99433820e46bd">Doc</h2>
+`,
+				)
+			}
+
+		})
+	}
+
 }
