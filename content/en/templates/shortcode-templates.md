@@ -299,10 +299,6 @@ The rendered output of the HTML example code block will be as follows:
 </pre></div>
 {{< /code >}}
 
-{{% note %}}
-The preceding shortcode makes use of a Hugo-specific template function called `highlight`, which uses [Pygments](http://pygments.org) to add syntax highlighting to the example HTML code block. See the [developer tools page on syntax highlighting](/tools/syntax-highlighting/) for more information.
-{{% /note %}}
-
 ### Nested Shortcode: Image Gallery
 
 Hugo's [`.Parent` shortcode variable][parent] returns a boolean value depending on whether the shortcode in question is called within the context of a *parent* shortcode. This provides an inheritance model for common shortcode parameters.
