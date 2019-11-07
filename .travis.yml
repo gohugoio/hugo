@@ -69,7 +69,7 @@ script:
   - if [ "$TRAVIS_ARCH" = "amd64" ]; then
         mage -v check;
     else
-        mage -v check || true;
+        HUGO_TIMEOUT=30000 mage -v check;
     fi
   - mage -v hugo
   - ./hugo -s docs/
