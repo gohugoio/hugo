@@ -47,8 +47,10 @@ func NewPermalinkExpander(ps *helpers.PathSpec) (PermalinkExpander, error) {
 	p.knownPermalinkAttributes = map[string]pageToPermaAttribute{
 		"year":        p.pageToPermalinkDate,
 		"month":       p.pageToPermalinkDate,
+		"monthnopad":  p.pageToPermalinkDate,
 		"monthname":   p.pageToPermalinkDate,
 		"day":         p.pageToPermalinkDate,
+		"daynopad":    p.pageToPermalinkDate,
 		"weekday":     p.pageToPermalinkDate,
 		"weekdayname": p.pageToPermalinkDate,
 		"yearday":     p.pageToPermalinkDate,
@@ -203,10 +205,14 @@ func (l PermalinkExpander) pageToPermalinkDate(p Page, dateField string) (string
 		return strconv.Itoa(p.Date().Year()), nil
 	case "month":
 		return fmt.Sprintf("%02d", int(p.Date().Month())), nil
+	case "monthnopad":
+		return fmt.Sprintf("%d", int(p.Date().Month())), nil
 	case "monthname":
 		return p.Date().Month().String(), nil
 	case "day":
 		return fmt.Sprintf("%02d", p.Date().Day()), nil
+	case "daynopad":
+		return fmt.Sprintf("%d", p.Date().Day()), nil
 	case "weekday":
 		return strconv.Itoa(int(p.Date().Weekday())), nil
 	case "weekdayname":

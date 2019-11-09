@@ -48,13 +48,19 @@ The following is a list of values that can be used in a `permalink` definition i
 : the 4-digit year
 
 `:month`
-: the 2-digit month
+: the 2-digit month (zero padded)
+
+`:monthnopad`
+: the 2-digit month with no zero padding
 
 `:monthname`
 : the name of the month
 
 `:day`
-: the 2-digit day
+: the 2-digit day (zero padded)
+
+`:daynopad`
+: the 2-digit day with no zero padding
 
 `:weekday`
 : the 1-digit day of the week (Sunday = 0)
