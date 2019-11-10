@@ -490,14 +490,15 @@ func (c *PageCollections) createWorkAllPages() error {
 		}
 
 		if !bucket.view {
+			for _, p := range bucket.headlessPages {
+				ps := p.(*pageState)
+				ps.parent = bucket.owner
+				c.headlessPages = append(c.headlessPages, ps)
+			}
 			for _, p := range bucket.pages {
 				ps := p.(*pageState)
 				ps.parent = bucket.owner
-				if ps.m.headless {
-					c.headlessPages = append(c.headlessPages, ps)
-				} else {
-					c.workAllPages = append(c.workAllPages, ps)
-				}
+				c.workAllPages = append(c.workAllPages, ps)
 
 				if homeDates != nil {
 					homeDates.UpdateDateAndLastmodIfAfter(ps)

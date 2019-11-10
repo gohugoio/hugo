@@ -107,7 +107,12 @@ func (m *pagesMap) initPageMetaFor(prefix string, bucket *pagesMapBucket) error 
 		tmp := bucket.pages[:0]
 		for _, x := range bucket.pages {
 			if m.s.shouldBuild(x) {
-				tmp = append(tmp, x)
+				if x.(*pageState).m.headless {
+					bucket.headlessPages = append(bucket.headlessPages, x)
+				} else {
+					tmp = append(tmp, x)
+				}
+
 			}
 		}
 		bucket.pages = tmp
@@ -410,8 +415,9 @@ type pagesMapBucket struct {
 	parent         *pagesMapBucket
 	bucketSections []*pagesMapBucket
 
-	pagesInit sync.Once
-	pages     page.Pages
+	pagesInit     sync.Once
+	pages         page.Pages
+	headlessPages page.Pages
 
 	pagesAndSectionsInit sync.Once
 	pagesAndSections     page.Pages
