@@ -579,6 +579,12 @@ HEADLESS {{< myShort >}}
 	// But the bundled resources needs to be published
 	th.assertFileContent(filepath.FromSlash(workDir+"/public/s2/l1.png"), "PNG")
 
+	// No headless bundles here, please.
+	// https://github.com/gohugoio/hugo/issues/6492
+	c.Assert(s.RegularPages(), qt.HasLen, 1)
+	c.Assert(s.home.RegularPages(), qt.HasLen, 1)
+	c.Assert(s.home.Pages(), qt.HasLen, 1)
+
 }
 
 func TestMultiSiteBundles(t *testing.T) {
