@@ -20,6 +20,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 
@@ -36,6 +37,24 @@ type PermalinkExpander struct {
 	expanders map[string]func(Page) (string, error)
 
 	ps *helpers.PathSpec
+}
+
+// Time for checking date formats. Every field is different than the
+// Go reference time for date formatting. This ensures that formatting this date
+// with a Go time format always has a different output than the format itself.
+var referenceTime = time.Date(2019, time.November, 9, 23, 1, 42, 1, time.UTC)
+
+// Return the callback for the given permalink attribute and a boolean indicating if the attribute is valid or not.
+func (p PermalinkExpander) callback(attr string) (pageToPermaAttribute, bool) {
+	if callback, ok := p.knownPermalinkAttributes[attr]; ok {
+		return callback, true
+	}
+
+	if referenceTime.Format(attr) != attr {
+		return p.pageToPermalinkDate, true
+	}
+
+	return nil, false
 }
 
 // NewPermalinkExpander creates a new PermalinkExpander configured by the given
@@ -109,7 +128,7 @@ func (l PermalinkExpander) parse(patterns map[string]string) (map[string]func(Pa
 			replacement := m[0]
 			attr := replacement[1:]
 			replacements[i] = replacement
-			callback, ok := l.knownPermalinkAttributes[attr]
+			callback, ok := l.callback(attr)
 
 			if !ok {
 				return nil, &permalinkExpandError{pattern: pattern, err: errPermalinkAttributeUnknown}
@@ -173,8 +192,8 @@ func (l PermalinkExpander) validate(pp string) bool {
 		}
 
 		for _, match := range matches {
-			k := strings.ToLower(match[0][1:])
-			if _, ok := l.knownPermalinkAttributes[k]; !ok {
+			k := match[0][1:]
+			if _, ok := l.callback(k); !ok {
 				return false
 			}
 		}
@@ -214,9 +233,8 @@ func (l PermalinkExpander) pageToPermalinkDate(p Page, dateField string) (string
 	case "yearday":
 		return strconv.Itoa(p.Date().YearDay()), nil
 	}
-	//TODO: support classic strftime escapes too
-	// (and pass those through despite not being in the map)
-	panic("coding error: should not be here")
+
+	return p.Date().Format(dateField), nil
 }
 
 // pageToPermalinkTitle returns the URL-safe form of the title
