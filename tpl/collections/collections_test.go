@@ -182,7 +182,6 @@ func TestDelimit(t *testing.T) {
 }
 
 func TestDictionary(t *testing.T) {
-	t.Parallel()
 	c := qt.New(t)
 
 	ns := New(&deps.Deps{})
@@ -192,22 +191,30 @@ func TestDictionary(t *testing.T) {
 		expect interface{}
 	}{
 		{[]interface{}{"a", "b"}, map[string]interface{}{"a": "b"}},
+		{[]interface{}{[]string{"a", "b"}, "c"}, map[string]interface{}{"a": map[string]interface{}{"b": "c"}}},
+		{[]interface{}{[]string{"a", "b"}, "c", []string{"a", "b2"}, "c2", "b", "c"},
+			map[string]interface{}{"a": map[string]interface{}{"b": "c", "b2": "c2"}, "b": "c"}},
 		{[]interface{}{"a", 12, "b", []int{4}}, map[string]interface{}{"a": 12, "b": []int{4}}},
 		// errors
 		{[]interface{}{5, "b"}, false},
 		{[]interface{}{"a", "b", "c"}, false},
 	} {
-		errMsg := qt.Commentf("[%d] %v", i, test.values)
+		i := i
+		test := test
+		c.Run(fmt.Sprint(i), func(c *qt.C) {
+			c.Parallel()
+			errMsg := qt.Commentf("[%d] %v", i, test.values)
 
-		result, err := ns.Dictionary(test.values...)
+			result, err := ns.Dictionary(test.values...)
 
-		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
-			continue
-		}
+			if b, ok := test.expect.(bool); ok && !b {
+				c.Assert(err, qt.Not(qt.IsNil), errMsg)
+				return
+			}
 
-		c.Assert(err, qt.IsNil, errMsg)
-		c.Assert(result, qt.DeepEquals, test.expect, errMsg)
+			c.Assert(err, qt.IsNil, errMsg)
+			c.Assert(result, qt.DeepEquals, test.expect, qt.Commentf(fmt.Sprint(result)))
+		})
 	}
 }
 
