@@ -81,7 +81,7 @@ func (n *newSiteCmd) doNewSite(fs *hugofs.Fs, basepath string, force bool) error
 
 		switch {
 		case !isEmpty && !force:
-			return errors.New(basepath + " already exists and is not empty")
+			return errors.New(basepath + " already exists and is not empty. See --force.")
 
 		case !isEmpty && force:
 			all := append(dirs, filepath.Join(basepath, "config."+n.configFormat))
