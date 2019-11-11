@@ -14,6 +14,7 @@
 package collections
 
 import (
+	"fmt"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -40,22 +41,26 @@ func TestIndex(t *testing.T) {
 		{map[string]map[string]string{"a": {"b": "c"}}, []interface{}{"a", "b"}, "c", false},
 		{[]map[string]map[string]string{{"a": {"b": "c"}}}, []interface{}{0, "a", "b"}, "c", false},
 		{map[string]map[string]interface{}{"a": {"b": []string{"c", "d"}}}, []interface{}{"a", "b", 1}, "d", false},
+		{map[string]map[string]string{"a": {"b": "c"}}, []interface{}{[]string{"a", "b"}}, "c", false},
+
 		// errors
 		{nil, nil, nil, true},
 		{[]int{0, 1}, []interface{}{"1"}, nil, true},
 		{[]int{0, 1}, []interface{}{nil}, nil, true},
 		{tstNoStringer{}, []interface{}{0}, nil, true},
 	} {
-		errMsg := qt.Commentf("[%d] %v", i, test)
 
-		result, err := ns.Index(test.item, test.indices...)
+		c.Run(fmt.Sprint(i), func(c *qt.C) {
+			errMsg := qt.Commentf("[%d] %v", i, test)
 
-		if test.isErr {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
-			continue
-		}
+			result, err := ns.Index(test.item, test.indices...)
 
-		c.Assert(err, qt.IsNil, errMsg)
-		c.Assert(result, qt.DeepEquals, test.expect, errMsg)
+			if test.isErr {
+				c.Assert(err, qt.Not(qt.IsNil), errMsg)
+				return
+			}
+			c.Assert(err, qt.IsNil, errMsg)
+			c.Assert(result, qt.DeepEquals, test.expect, errMsg)
+		})
 	}
 }
