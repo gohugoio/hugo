@@ -417,6 +417,29 @@ func (ns *Namespace) Querify(params ...interface{}) (string, error) {
 	return qs.Encode(), nil
 }
 
+// Reverse creates a copy of slice and reverses it.
+func (ns *Namespace) Reverse(slice interface{}) (interface{}, error) {
+	if slice == nil {
+		return nil, nil
+	}
+	v := reflect.ValueOf(slice)
+
+	switch v.Kind() {
+	case reflect.Slice:
+	default:
+		return nil, errors.New("argument must be a slice")
+	}
+
+	sliceCopy := reflect.MakeSlice(v.Type(), v.Len(), v.Len())
+
+	for i := v.Len() - 1; i >= 0; i-- {
+		element := sliceCopy.Index(i)
+		element.Set(v.Index(v.Len() - 1 - i))
+	}
+
+	return sliceCopy.Interface(), nil
+}
+
 // Seq creates a sequence of integers.  It's named and used as GNU's seq.
 //
 // Examples:

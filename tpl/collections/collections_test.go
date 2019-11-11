@@ -211,6 +211,25 @@ func TestDictionary(t *testing.T) {
 	}
 }
 
+func TestReverse(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	ns := New(&deps.Deps{})
+
+	s := []string{"a", "b", "c"}
+	reversed, err := ns.Reverse(s)
+	c.Assert(err, qt.IsNil)
+	c.Assert(reversed, qt.DeepEquals, []string{"c", "b", "a"}, qt.Commentf(fmt.Sprint(reversed)))
+	c.Assert(s, qt.DeepEquals, []string{"a", "b", "c"})
+
+	reversed, err = ns.Reverse(nil)
+	c.Assert(err, qt.IsNil)
+	c.Assert(reversed, qt.IsNil)
+	_, err = ns.Reverse(43)
+	c.Assert(err, qt.Not(qt.IsNil))
+
+}
+
 func TestEchoParam(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
