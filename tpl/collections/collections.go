@@ -145,22 +145,41 @@ func (ns *Namespace) Delimit(seq, delimiter interface{}, last ...interface{}) (t
 // Dictionary creates a map[string]interface{} from the given parameters by
 // walking the parameters and treating them as key-value pairs.  The number
 // of parameters must be even.
+// The keys can be string slices, which will create the needed nested structure.
 func (ns *Namespace) Dictionary(values ...interface{}) (map[string]interface{}, error) {
 	if len(values)%2 != 0 {
 		return nil, errors.New("invalid dictionary call")
 	}
 
-	dict := make(map[string]interface{}, len(values)/2)
+	root := make(map[string]interface{})
 
 	for i := 0; i < len(values); i += 2 {
-		key, ok := values[i].(string)
-		if !ok {
-			return nil, errors.New("dictionary keys must be strings")
+		dict := root
+		var key string
+		switch v := values[i].(type) {
+		case string:
+			key = v
+		case []string:
+			for i := 0; i < len(v)-1; i++ {
+				key = v[i]
+				var m map[string]interface{}
+				v, found := dict[key]
+				if found {
+					m = v.(map[string]interface{})
+				} else {
+					m = make(map[string]interface{})
+					dict[key] = m
+				}
+				dict = m
+			}
+			key = v[len(v)-1]
+		default:
+			return nil, errors.New("invalid dictionary key")
 		}
 		dict[key] = values[i+1]
 	}
 
-	return dict, nil
+	return root, nil
 }
 
 // EchoParam returns a given value if it is set; otherwise, it returns an
