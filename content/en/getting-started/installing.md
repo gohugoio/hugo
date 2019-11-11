@@ -72,6 +72,12 @@ If you are on a Windows machine and use [Chocolatey][] for package management, y
 choco install hugo -confirm
 {{< /code >}}
 
+Or if you need the “extended” Sass/SCSS version:
+
+{{< code file="install-extended-with-chocolatey.ps1" >}}
+choco install hugo-extended -confirm
+{{< /code >}}
+
 ### Scoop (Windows)
 
 If you are on a Windows machine and use [Scoop][] for package management, you can install Hugo with the following one-liner:

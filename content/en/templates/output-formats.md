@@ -26,7 +26,7 @@ A [media type][] (also known as *MIME type* and *content type*) is a two-part id
 
 This is the full set of built-in media types in Hugo:
 
-{{< datatable "media" "types" "type" "suffix" >}}
+{{< datatable "media" "types" "type" "suffixes" >}}
 
 **Note:**
 

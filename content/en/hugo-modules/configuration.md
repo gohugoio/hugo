@@ -32,7 +32,7 @@ noProxy
 private
 : Comma separated glob list matching paths that should be treated as private.
 
-Note that the above terms maps directly to their counterparts in Go Modules. Some of these setting may be natural to set as OS environvent variables. To set the proxy server to use, as an example:
+Note that the above terms maps directly to their counterparts in Go Modules. Some of these setting may be natural to set as OS environment variables. To set the proxy server to use, as an example:
 
 ```
 env HUGO_MODULE_PROXY=https://proxy.example.org hugo

@@ -404,7 +404,7 @@ Last but not least you should accept the contributor license agreement (CLA). A 
 
 We use the [Travis CI loop](https://travis-ci.org/gohugoio/hugo) (Linux and OS&nbsp;X) and [AppVeyor](https://ci.appveyor.com/project/gohugoio/hugo/branch/master) (Windows) to compile Hugo with your additions. This should ensure that everything works as expected before merging your pull request. This in most cases only relevant if you made changes to the codebase of Hugo.
 
-![Automic builds and their status](/images/contribute/development/ci-errors.png)
+![Automatic builds and their status](/images/contribute/development/ci-errors.png)
 
 Above you can see that Travis wasn't able to compile the changes in this pull request. Click on "Details" and try to investigate why the build failed. But it doesn't have to be your fault. Mostly, the `master` branch that we used as foundation for your pull request should build without problems.
 
