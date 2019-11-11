@@ -55,7 +55,7 @@ Returns a collection of pages related to a given one restricted to a list of ind
 #### .RelatedTo KEYVALS [KEYVALS2 ...]
 Returns a collection of pages related together by a set of indices and their match.
 
-In order to build those set and pass them as argument, one must use the `keyVals` function where the first argument would be the `indice` and the consective ones its potential `matches`.
+In order to build those set and pass them as argument, one must use the `keyVals` function where the first argument would be the `indice` and the consecutive ones its potential `matches`.
 
 ```
 {{ $related := .Site.RegularPages.RelatedTo ( keyVals "tags" "hugo" "rocks")  ( keyVals "date" .Date ) }}

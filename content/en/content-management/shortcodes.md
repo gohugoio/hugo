@@ -5,7 +5,7 @@ description: Shortcodes are simple snippets inside your content files calling bu
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-03-31
+lastmod: 2019-11-07
 menu:
   docs:
     parent: "content-management"
@@ -103,7 +103,7 @@ title
 : Image title.
 
 caption
-: Image caption.
+: Image caption.  Markdown within the value of `caption` will be rendered.
 
 class
 : `class` attribute of the HTML `figure` tag.
@@ -115,7 +115,7 @@ width
 : `width` attribute of the image.
 
 attr
-: Image attribution text.
+: Image attribution text. Markdown within the value of `attr` will be rendered.
 
 attrlink
 : If the attribution text needs to be hyperlinked, URL of the destination.

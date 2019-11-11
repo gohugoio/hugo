@@ -11,7 +11,7 @@ menu:
   docs:
     parent: "functions"
 keywords: []
-signature: ["index COLLECTION INDEX", "index COLLECTION KEY"]
+signature: ["index COLLECTION INDEXES", "index COLLECTION KEYS"]
 workson: []
 hugoversion:
 relatedfuncs: []
@@ -20,13 +20,25 @@ aliases: [/functions/index/]
 needsexample: true
 ---
 
-From the Godocs:
+The `index` functions returns the result of indexing its first argument by the following arguments. Each indexed item must be a map or a slice, e.g.:
 
-> Returns the result of indexing its first argument by the following arguments. Thus "index x 1 2 3" is, in Go syntax, x[1][2][3]. Each indexed item must be a map, slice, or array.
+```go-text-template
+{{ $slice := slice "a" "b" "c" }}
+{{ index $slice 1 }} => b
+{{ $map := dict "a" 100 "b" 200 }}
+{{ index $map "b" }} => 200
+```
 
-In Go templates, you can't access array, slice, or map elements directly the same way you would in Go. For example, `$.Site.Data.authors[.Params.authorkey]` isn't supported syntax.
+The function takes multiple indices as arguments, and this can be used to get nested values, e.g.:
 
-Instead, you have to use `index`, a function that handles the lookup for you.
+```go-text-template
+{{ $map := dict "a" 100 "b" 200 "c" (slice 10 20 30) }}
+{{ index $map "c" 1 }} => 20
+{{ $map := dict "a" 100 "b" 200 "c" (dict "d" 10 "e" 20) }}
+{{ index $map "c" "e" }} => 20
+```
+
+
 
 ## Example: Load Data from a Path Based on Front Matter Params
 
