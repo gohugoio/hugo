@@ -365,9 +365,9 @@ To set config params, prefix the name with `HUGO_PARAMS_`
 Test and document setting params via JSON env var.
 {{< /todo >}}
 
-## Ignore Files When Rendering
+## Ignore Content Files When Rendering
 
-The following statement inside `./config.toml` will cause Hugo to ignore files ending with `.foo` and `.boo` when rendering:
+The following statement inside `./config.toml` will cause Hugo to ignore content files ending with `.foo` and `.boo` when rendering:
 
 ```
 ignoreFiles = [ "\\.foo$", "\\.boo$" ]
