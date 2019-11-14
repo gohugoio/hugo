@@ -1171,6 +1171,33 @@ title: "Hugo Rocks!"
 	)
 }
 
+// https://github.com/gohugoio/hugo/issues/6504
+func TestShortcodeEmoji(t *testing.T) {
+	t.Parallel()
+
+	v := viper.New()
+	v.Set("enableEmoji", true)
+
+	builder := newTestSitesBuilder(t).WithViper(v)
+
+	builder.WithContent("page.md", `---
+title: "Hugo Rocks!"
+---
+
+# doc
+
+{{< event >}}10:30-11:00 My :smile: Event {{< /event >}}
+
+
+`).WithTemplatesAdded(
+		"layouts/shortcodes/event.html", `<div>{{ "\u29BE" }} {{ .Inner }} </div>`)
+
+	builder.Build(BuildCfg{})
+	builder.AssertFileContent("public/page/index.html",
+		"⦾ 10:30-11:00 My 😄 Event",
+	)
+}
+
 func TestShortcodeTypedParams(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)

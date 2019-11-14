@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/gohugoio/hugo/helpers"
+
 	"html/template"
 	"path"
 
@@ -517,6 +519,15 @@ Loop:
 			return sc, nil
 		case currItem.IsText():
 			sc.inner = append(sc.inner, currItem.ValStr())
+		case currItem.Type == pageparser.TypeEmoji:
+			// TODO(bep) avoid the duplication of these "text cases", to prevent
+			// more of #6504 in the future.
+			val := currItem.ValStr()
+			if emoji := helpers.Emoji(val); emoji != nil {
+				sc.inner = append(sc.inner, string(emoji))
+			} else {
+				sc.inner = append(sc.inner, val)
+			}
 		case currItem.IsShortcodeName():
 
 			sc.name = currItem.ValStr()
