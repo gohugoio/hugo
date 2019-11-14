@@ -191,6 +191,11 @@ func (c *collector) initModules() error {
 	c.collected = &collected{
 		seen:     make(map[string]bool),
 		vendored: make(map[string]vendoredModule),
+		gomods:   goModules{},
+	}
+
+	if !c.ccfg.IgnoreVendor && c.isVendored(c.ccfg.WorkingDir) {
+		return nil
 	}
 
 	// We may fail later if we don't find the mods.
@@ -463,6 +468,7 @@ func (c *collector) applyThemeConfig(tc *moduleAdapter) error {
 }
 
 func (c *collector) collect() {
+
 	if err := c.initModules(); err != nil {
 		c.err = err
 		return
@@ -478,6 +484,11 @@ func (c *collector) collect() {
 	// Add the project mod on top.
 	c.modules = append(Modules{projectMod}, c.modules...)
 
+}
+
+func (c *collector) isVendored(dir string) bool {
+	_, err := c.fs.Stat(filepath.Join(dir, vendord, vendorModulesFilename))
+	return err == nil
 }
 
 func (c *collector) collectModulesTXT(owner Module) error {

@@ -78,9 +78,9 @@ github.com/gohugoio/hugoTestModules1_darwin/modh2_2@v1.4.0 github.com/gohugoio/h
 	c.Assert(client.Vendor(), qt.IsNil)
 	graphb.Reset()
 	c.Assert(client.Graph(&graphb), qt.IsNil)
-	expectVendored := `github.com/gohugoio/tests/hugo-modules-basic-test github.com/gohugoio/hugoTestModules1_darwin/modh2_2@v1.4.0+vendor
-github.com/gohugoio/tests/hugo-modules-basic-test github.com/gohugoio/hugoTestModules1_darwin/modh2_2_1v@v1.3.0+vendor
-github.com/gohugoio/tests/hugo-modules-basic-test github.com/gohugoio/hugoTestModules1_darwin/modh2_2_2@v1.3.0+vendor
+	expectVendored := `project github.com/gohugoio/hugoTestModules1_darwin/modh2_2@v1.4.0+vendor
+project github.com/gohugoio/hugoTestModules1_darwin/modh2_2_1v@v1.3.0+vendor
+project github.com/gohugoio/hugoTestModules1_darwin/modh2_2_2@v1.3.0+vendor
 `
 	c.Assert(graphb.String(), qt.Equals, expectVendored)
 
