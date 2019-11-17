@@ -47,19 +47,22 @@ This is [Relative](/all-is-relative).
 See my [About](/about/) page for details. 
 `
 
-	pageContent := func(size int) string {
+	pageContentForMarkdown := func(size int, markdown string) string {
 		return `---
 title: "My Page"
 ---
 
 My page content.
 
-` + strings.Repeat(markdownSnippets, size)
+` + strings.Repeat(markdown, size)
+	}
+
+	pageContent := func(size int) string {
+		return pageContentForMarkdown(size, markdownSnippets)
 	}
 
 	config := `
 baseURL = "https://example.com"
-
 `
 
 	benchmarks := []siteBenchmarkTestcase{
@@ -160,6 +163,25 @@ canonifyURLs = true
 		},
 			func(s *sitesBuilder) {
 				s.AssertFileContent("public/page8/index.html", "https://example.com/about/")
+			},
+		},
+		{"Code Fences", func(b testing.TB) *sitesBuilder {
+			sb := newTestSitesBuilder(b).WithConfigFile("toml", `
+title = "Code"
+baseURL = "https://example.com"
+pygmentsCodeFences = true
+
+`)
+			markdown := "\n```bash\n" + `echo "Hugo Rocks!"` + "\n```\n\n"
+
+			for i := 1; i <= 100; i++ {
+				sb.WithContent(fmt.Sprintf("content/page%d.md", i), pageContentForMarkdown(i, markdown))
+			}
+
+			return sb
+		},
+			func(s *sitesBuilder) {
+				s.AssertFileContent("public/page8/index.html", `<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">echo <span style="color:#e6db74">&#34;Hugo Rocks!&#34;</span></code></pre></div>`)
 			},
 		},
 		{"Deep content tree", func(b testing.TB) *sitesBuilder {
