@@ -138,7 +138,7 @@ A default content type is determined by a piece of content's section. `section` 
 
 A content's `slug` is either `name.extension` or `name/`. The value for `slug` is determined by
 
-* the name of the content file (e.g., `lollapalooza.md`) OR
+* the `title` of the content, normalized for use in a URL (for example, `New Post` becomes `new-post` and `Old/New.` becomes `old/new.`) OR
 * front matter overrides
 
 ### `path`
@@ -163,17 +163,13 @@ There are times where you may need more control over your content. In these case
 
 The following items are defined in this order for a specific reason: items explained further down in the list will override earlier items, and not all of these items can be defined in front matter:
 
-### `filename`
-
-This isn't in the front matter, but is the actual name of the file minus the extension. This will be the name of the file in the destination (e.g., `content/posts/my-post.md` becomes `example.com/posts/my-post/`).
-
 ### `slug`
 
-When defined in the front matter, the `slug` can take the place of the filename for the destination.
+When defined in the front matter, the `slug` can take the place of the normalized `title` for the destination.
 
 {{< code file="content/posts/old-post.md" >}}
 ---
-title: New Post
+title: My Post
 slug: "new-post"
 ---
 {{< /code >}}
