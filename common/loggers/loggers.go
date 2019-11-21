@@ -22,6 +22,7 @@ import (
 	"os"
 	"regexp"
 	"runtime"
+	"time"
 
 	"github.com/gohugoio/hugo/common/terminal"
 
@@ -41,11 +42,33 @@ func init() {
 // Logger wraps a *loggers.Logger and some other related logging state.
 type Logger struct {
 	*jww.Notepad
+
+	// The writer that represents stdout.
+	// Will be ioutil.Discard when in quiet mode.
+	Out io.Writer
+
 	ErrorCounter *jww.Counter
 	WarnCounter  *jww.Counter
 
 	// This is only set in server mode.
 	errors *bytes.Buffer
+}
+
+// PrintTimerIfDelayed prints a time statement to the FEEDBACK logger
+// if considerable time is spent.
+func (l *Logger) PrintTimerIfDelayed(start time.Time, name string) {
+	elapsed := time.Since(start)
+	milli := int(1000 * elapsed.Seconds())
+	if milli < 500 {
+		return
+	}
+	l.FEEDBACK.Printf("%s in %v ms", name, milli)
+}
+
+func (l *Logger) PrintTimer(start time.Time, name string) {
+	elapsed := time.Since(start)
+	milli := int(1000 * elapsed.Seconds())
+	l.FEEDBACK.Printf("%s in %v ms", name, milli)
 }
 
 func (l *Logger) Errors() string {
@@ -186,6 +209,7 @@ func newLogger(stdoutThreshold, logThreshold jww.Threshold, outHandle, logHandle
 
 	return &Logger{
 		Notepad:      jww.NewNotepad(stdoutThreshold, logThreshold, outHandle, logHandle, "", log.Ldate|log.Ltime, listeners...),
+		Out:          outHandle,
 		ErrorCounter: errorCounter,
 		WarnCounter:  warnCounter,
 		errors:       errorBuff,

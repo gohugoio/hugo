@@ -14,7 +14,9 @@
 package commands
 
 import (
+	"fmt"
 	"os"
+	"time"
 
 	"github.com/gohugoio/hugo/hugolib/paths"
 
@@ -146,6 +148,7 @@ built with love by spf13 and friends in Go.
 
 Complete documentation is available at http://gohugo.io/.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			defer cc.timeTrack(time.Now(), "Total")
 			cfgInit := func(c *commandeer) error {
 				if cc.buildWatch {
 					c.Set("disableLiveReload", true)
@@ -214,6 +217,14 @@ type hugoBuilderCommon struct {
 	cfgFile string
 	cfgDir  string
 	logFile string
+}
+
+func (cc *hugoBuilderCommon) timeTrack(start time.Time, name string) {
+	if cc.quiet {
+		return
+	}
+	elapsed := time.Since(start)
+	fmt.Printf("%s in %v ms\n", name, int(1000*elapsed.Seconds()))
 }
 
 func (cc *hugoBuilderCommon) getConfigDir(baseDir string) string {
