@@ -60,3 +60,13 @@ func (ns *Namespace) Jsonify(v interface{}) (template.HTML, error) {
 
 	return template.HTML(b), nil
 }
+
+// JsonifyPretty encodes a given object to JSON.
+func (ns *Namespace) JsonifyPretty(v interface{}) (template.HTML, error) {
+	b, err := json.MarshalIndent(v, "", "    ")
+	if err != nil {
+		return "", err
+	}
+
+	return template.HTML(b), nil
+}

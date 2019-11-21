@@ -51,6 +51,16 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.JsonifyPretty,
+			[]string{"jsonifyPretty"},
+			[][2]string{
+				{`{{ (slice "a" "b") | jsonifyPretty }}`, `[
+					"a",
+					"b"
+				]`},
+			},
+		)
+
 		return ns
 
 	}
