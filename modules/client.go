@@ -25,6 +25,8 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"golang.org/x/sync/errgroup"
+
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -288,32 +290,43 @@ func (c *Client) listGoMods() (goModules, error) {
 		return nil, nil
 	}
 
-	out := ioutil.Discard
-	err := c.runGo(context.Background(), out, "mod", "download")
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to download modules")
-	}
+	g, _ := errgroup.WithContext(context.Background())
 
-	b := &bytes.Buffer{}
-	err = c.runGo(context.Background(), b, "list", "-m", "-json", "all")
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to list modules")
-	}
+	g.Go(func() error {
+		out := ioutil.Discard
+		err := c.runGo(context.Background(), out, "mod", "download")
+		if err != nil {
+			return errors.Wrap(err, "failed to download modules")
+		}
+		return nil
+	})
 
 	var modules goModules
 
-	dec := json.NewDecoder(b)
-	for {
-		m := &goModule{}
-		if err := dec.Decode(m); err != nil {
-			if err == io.EOF {
-				break
-			}
-			return nil, errors.Wrap(err, "failed to decode modules list")
+	g.Go(func() error {
+		b := &bytes.Buffer{}
+		err := c.runGo(context.Background(), b, "list", "-m", "-json", "all")
+		if err != nil {
+			return errors.Wrap(err, "failed to list modules")
 		}
 
-		modules = append(modules, m)
-	}
+		dec := json.NewDecoder(b)
+		for {
+			m := &goModule{}
+			if err := dec.Decode(m); err != nil {
+				if err == io.EOF {
+					break
+				}
+				return errors.Wrap(err, "failed to decode modules list")
+			}
+
+			modules = append(modules, m)
+		}
+
+		return nil
+	})
+
+	err := g.Wait()
 
 	return modules, err
 
