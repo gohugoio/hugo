@@ -259,7 +259,7 @@ func (c *Client) Vendor() error {
 
 // Get runs "go get" with the supplied arguments.
 func (c *Client) Get(args ...string) error {
-	if err := c.runGo(context.Background(), os.Stdout, append([]string{"get"}, args...)...); err != nil {
+	if err := c.runGo(context.Background(), c.logger.Out, append([]string{"get"}, args...)...); err != nil {
 		errors.Wrapf(err, "failed to get %q", args)
 	}
 	return nil
@@ -269,7 +269,7 @@ func (c *Client) Get(args ...string) error {
 // If path is empty, Go will try to guess.
 // If this succeeds, this project will be marked as Go Module.
 func (c *Client) Init(path string) error {
-	err := c.runGo(context.Background(), os.Stdout, "mod", "init", path)
+	err := c.runGo(context.Background(), c.logger.Out, "mod", "init", path)
 	if err != nil {
 		return errors.Wrap(err, "failed to init modules")
 	}
@@ -409,6 +409,8 @@ func (c *Client) runGo(
 	if c.goBinaryStatus != 0 {
 		return nil
 	}
+
+	//defer c.logger.PrintTimer(time.Now(), fmt.Sprint(args))
 
 	stderr := new(bytes.Buffer)
 	cmd := exec.CommandContext(ctx, "go", args...)

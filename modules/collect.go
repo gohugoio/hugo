@@ -19,6 +19,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gohugoio/hugo/common/loggers"
 
@@ -468,7 +469,7 @@ func (c *collector) applyThemeConfig(tc *moduleAdapter) error {
 }
 
 func (c *collector) collect() {
-
+	defer c.logger.PrintTimerIfDelayed(time.Now(), "hugo: collected modules")
 	if err := c.initModules(); err != nil {
 		c.err = err
 		return

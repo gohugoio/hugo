@@ -134,9 +134,13 @@ func (c *commandeer) createLogger(cfg config.Provider, running bool) (*loggers.L
 		logHandle       = ioutil.Discard
 		logThreshold    = jww.LevelWarn
 		logFile         = cfg.GetString("logFile")
-		outHandle       = os.Stdout
+		outHandle       = ioutil.Discard
 		stdoutThreshold = jww.LevelWarn
 	)
+
+	if !c.h.quiet {
+		outHandle = os.Stdout
+	}
 
 	if c.h.verboseLog || c.h.logging || (c.h.logFile != "") {
 		var err error
@@ -463,8 +467,6 @@ func (c *commandeer) initProfiling() (func(), error) {
 }
 
 func (c *commandeer) build() error {
-	defer c.timeTrack(time.Now(), "Total")
-
 	stopProfiling, err := c.initProfiling()
 	if err != nil {
 		return err
@@ -519,7 +521,7 @@ func (c *commandeer) build() error {
 }
 
 func (c *commandeer) serverBuild() error {
-	defer c.timeTrack(time.Now(), "Total")
+	defer c.timeTrack(time.Now(), "Built")
 
 	stopProfiling, err := c.initProfiling()
 	if err != nil {
@@ -659,9 +661,6 @@ func (c *commandeer) firstPathSpec() *helpers.PathSpec {
 }
 
 func (c *commandeer) timeTrack(start time.Time, name string) {
-	if c.h.quiet {
-		return
-	}
 	elapsed := time.Since(start)
 	c.logger.FEEDBACK.Printf("%s in %v ms", name, int(1000*elapsed.Seconds()))
 }
@@ -773,7 +772,7 @@ func (c *commandeer) fullRebuild(changeType string) {
 			time.Sleep(2 * time.Second)
 		}()
 
-		defer c.timeTrack(time.Now(), "Total")
+		defer c.timeTrack(time.Now(), "Rebuilt")
 
 		c.commandeerHugoState = newCommandeerHugoState()
 		err := c.loadConfig(true, true)

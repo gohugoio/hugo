@@ -163,6 +163,11 @@ func newCommandeer(mustHaveConfigFile, running bool, h *hugoBuilderCommon, f fla
 		rebuildDebouncer = debounce.New(4 * time.Second)
 	}
 
+	out := ioutil.Discard
+	if !h.quiet {
+		out = os.Stdout
+	}
+
 	c := &commandeer{
 		h:                   h,
 		ftch:                f,
@@ -172,7 +177,7 @@ func newCommandeer(mustHaveConfigFile, running bool, h *hugoBuilderCommon, f fla
 		debounce:            rebuildDebouncer,
 		fullRebuildSem:      semaphore.NewWeighted(1),
 		// This will be replaced later, but we need something to log to before the configuration is read.
-		logger: loggers.NewLogger(jww.LevelError, jww.LevelError, os.Stdout, ioutil.Discard, running),
+		logger: loggers.NewLogger(jww.LevelError, jww.LevelError, out, ioutil.Discard, running),
 	}
 
 	return c, c.loadConfig(mustHaveConfigFile, running)
@@ -296,6 +301,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 	config, configFiles, err := hugolib.LoadConfig(
 		hugolib.ConfigSourceDescriptor{
 			Fs:           sourceFs,
+			Logger:       c.logger,
 			Path:         configPath,
 			WorkingDir:   dir,
 			Filename:     c.h.cfgFile,
