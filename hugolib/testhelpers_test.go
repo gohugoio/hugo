@@ -743,7 +743,7 @@ func (th testHelper) assertFileContent(filename string, matches ...string) {
 	content := readDestination(th, th.Fs, filename)
 	for _, match := range matches {
 		match = th.replaceDefaultContentLanguageValue(match)
-		th.Assert(strings.Contains(content, match), qt.Equals, true)
+		th.Assert(strings.Contains(content, match), qt.Equals, true, qt.Commentf(content))
 	}
 }
 

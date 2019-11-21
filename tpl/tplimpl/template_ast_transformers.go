@@ -508,8 +508,7 @@ func (d decl) resolveVariables(idents []string) ([]string, bool) {
 		}
 
 		if !d.isKeyword(replacement) {
-			// This can not be .Site.Params etc.
-			return nil, false
+			continue
 		}
 
 		replacement = strings.TrimPrefix(replacement, ".")

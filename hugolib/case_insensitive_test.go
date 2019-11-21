@@ -179,6 +179,10 @@ Site Title: {{ .Site.Title }}
 Site Lang Mood: {{ .Site.Language.Params.MOoD }}
 Page Colors: {{ .Params.COLOR }}|{{ .Params.Colors.Blue }}
 Site Colors: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}
+{{ $page2 := .Site.GetPage "/sect2/page2" }}
+{{ if $page2 }}
+Page2: {{ $page2.Params.ColoR }} 
+{{ end }}
 {{ .Content }}
 {{ partial "partial.html" . }}
 `)
@@ -207,6 +211,7 @@ Site Colors: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}
 		"Page Title: Side 1",
 		"Site Title: Nynorsk title",
 		"&laquo;Hi&raquo;", // angled quotes
+		"Page2: black ",
 	)
 
 	th.assertFileContent(filepath.Join("public", "en", "sect1", "page1", "index.html"),

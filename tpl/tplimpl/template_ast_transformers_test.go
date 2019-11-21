@@ -26,6 +26,19 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
+type paramsHolder struct {
+	params map[string]interface{}
+	page   *paramsHolder
+}
+
+func (p paramsHolder) Params() map[string]interface{} {
+	return p.params
+}
+
+func (p paramsHolder) GetPage(arg string) *paramsHolder {
+	return p.page
+}
+
 var (
 	testFuncs = map[string]interface{}{
 		"getif":  func(v interface{}) interface{} { return v },
@@ -37,16 +50,22 @@ var (
 				"ByWeight": fmt.Sprintf("%v:%v:%v", seq, key, args),
 			}, nil
 		},
-		"site": func() interface{} {
-			return map[string]interface{}{
-				"Params": map[string]interface{}{
+		"site": func() paramsHolder {
+			return paramsHolder{
+				params: map[string]interface{}{
 					"lower": "global-site",
+				},
+				page: &paramsHolder{
+					params: map[string]interface{}{
+						"lower": "page",
+					},
 				},
 			}
 		},
 	}
 
 	paramsData = map[string]interface{}{
+
 		"NotParam": "Hi There",
 		"Slice":    []int{1, 3},
 		"Params": map[string]interface{}{
@@ -78,6 +97,16 @@ var (
 			"Data": map[string]interface{}{
 				"Params": map[string]interface{}{
 					"NOLOW": "P3H",
+				},
+			},
+		},
+		"Site2": paramsHolder{
+			params: map[string]interface{}{
+				"lower": "global-site",
+			},
+			page: &paramsHolder{
+				params: map[string]interface{}{
+					"lower": "page",
 				},
 			},
 		},
@@ -170,6 +199,11 @@ PARAMS SITE GLOBAL1: {{ site.Params.LOwER }}
 {{ $site := site }}
 PARAMS SITE GLOBAL2: {{ $lower }}
 PARAMS SITE GLOBAL3: {{ $site.Params.LOWER }}
+
+{{ $p := $site.GetPage "foo" }}
+PARAMS GETPAGE: {{ $p.Params.LOWER }}
+{{ $p := .Site2.GetPage "foo" }}
+PARAMS GETPAGE2: {{ $p.Params.LOWER }}
 `
 )
 
@@ -247,6 +281,10 @@ func TestParamsKeysToLower(t *testing.T) {
 	c.Assert(result, qt.Contains, "PARAMS SITE GLOBAL1: global-site")
 	c.Assert(result, qt.Contains, "PARAMS SITE GLOBAL2: global-site")
 	c.Assert(result, qt.Contains, "PARAMS SITE GLOBAL3: global-site")
+
+	//
+	c.Assert(result, qt.Contains, "PARAMS GETPAGE: page")
+	c.Assert(result, qt.Contains, "PARAMS GETPAGE2: page")
 
 }
 
