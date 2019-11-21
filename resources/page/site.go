@@ -17,6 +17,8 @@ import (
 	"html/template"
 	"time"
 
+	"github.com/gohugoio/hugo/common/maps"
+
 	"github.com/gohugoio/hugo/config"
 
 	"github.com/gohugoio/hugo/common/hugo"
@@ -39,7 +41,7 @@ type Site interface {
 	Taxonomies() interface{}
 	LastChange() time.Time
 	Menus() navigation.Menus
-	Params() map[string]interface{}
+	Params() maps.Params
 	Data() map[string]interface{}
 }
 
@@ -107,7 +109,7 @@ func (t testSite) BaseURL() template.URL {
 	return ""
 }
 
-func (t testSite) Params() map[string]interface{} {
+func (t testSite) Params() maps.Params {
 	return nil
 }
 

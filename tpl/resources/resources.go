@@ -19,11 +19,11 @@ import (
 	"fmt"
 	"path/filepath"
 
-	_errors "github.com/pkg/errors"
-
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
+	_errors "github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/resources/resource_factories/bundler"
 	"github.com/gohugoio/hugo/resources/resource_factories/create"
@@ -301,7 +301,7 @@ func (ns *Namespace) resolveArgs(args []interface{}) (resources.ResourceTransfor
 		return nil, nil, fmt.Errorf("type %T not supported in Resource transformations", args[0])
 	}
 
-	m, err := cast.ToStringMapE(args[0])
+	m, err := maps.ToStringMapE(args[0])
 	if err != nil {
 		return nil, nil, _errors.Wrap(err, "invalid options type")
 	}

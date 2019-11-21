@@ -370,7 +370,7 @@ func (p *testPage) Param(key interface{}) (interface{}, error) {
 	return resource.Param(p, nil, key)
 }
 
-func (p *testPage) Params() map[string]interface{} {
+func (p *testPage) Params() maps.Params {
 	return p.params
 }
 

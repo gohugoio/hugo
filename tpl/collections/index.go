@@ -17,6 +17,10 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+
+	"github.com/spf13/cast"
+
+	"github.com/gohugoio/hugo/common/maps"
 )
 
 // Index returns the result of indexing its first argument by the following
@@ -32,6 +36,11 @@ func (ns *Namespace) Index(item interface{}, args ...interface{}) (interface{}, 
 	v := reflect.ValueOf(item)
 	if !v.IsValid() {
 		return nil, errors.New("index of untyped nil")
+	}
+
+	lowerm, ok := item.(maps.Params)
+	if ok {
+		return lowerm.Get(cast.ToStringSlice(args)...), nil
 	}
 
 	var indices []interface{}
@@ -79,6 +88,7 @@ func (ns *Namespace) Index(item interface{}, args ...interface{}) (interface{}, 
 			if err != nil {
 				return nil, err
 			}
+
 			if x := v.MapIndex(index); x.IsValid() {
 				v = x
 			} else {

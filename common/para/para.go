@@ -37,8 +37,8 @@ type Runner interface {
 
 type errGroupRunner struct {
 	*errgroup.Group
-	w *Workers
-	ctx  context.Context
+	w   *Workers
+	ctx context.Context
 }
 
 func (g *errGroupRunner) Run(fn func() error) {
@@ -68,6 +68,6 @@ func (w *Workers) Start(ctx context.Context) (Runner, context.Context) {
 	return &errGroupRunner{
 		Group: g,
 		ctx:   ctx,
-		w:  w,
+		w:     w,
 	}, ctx
 }

@@ -61,7 +61,7 @@ angledQuotes = false
 hrefTargetBlank = false
 [Languages.en.Colors]
 BLUE = "blues"
-yellow = "golden"
+Yellow = "golden"
 `
 	caseMixingPage1En = `
 ---
@@ -137,18 +137,6 @@ func TestCaseInsensitiveConfigurationVariations(t *testing.T) {
 
 	c := qt.New(t)
 
-	// See issues 2615, 1129, 2590 and maybe some others
-	// Also see 2598
-	//
-	// Viper is now, at least for the Hugo part, case insensitive
-	// So we need tests for all of it, with needed adjustments on the Hugo side.
-	// Not sure what that will be. Let us see.
-
-	// So all the below with case variations:
-	// config: regular fields, blackfriday config, param with nested map
-	// language: new and overridden values, in regular fields and nested paramsmap
-	// page frontmatter: regular fields, blackfriday config, param with nested map
-
 	mm := afero.NewMemMapFs()
 
 	caseMixingTestsWriteCommonSources(t, mm)
@@ -168,8 +156,18 @@ Block Page Colors: {{ .Params.COLOR }}|{{ .Params.Colors.Blue }}
 {{ define "main"}}
 Page Colors: {{ .Params.CoLOR }}|{{ .Params.Colors.Blue }}
 Site Colors: {{ .Site.Params.COlOR }}|{{ .Site.Params.COLORS.YELLOW }}
+{{ template "index-color" (dict "name" "Page" "params" .Params) }}
+{{ template "index-color" (dict "name" "Site" "params" .Site.Params) }}
+
 {{ .Content }}
 {{ partial "partial.html" . }}
+{{ end }}
+{{ define "index-color" }}
+{{ $yellow := index .params "COLoRS" "yELLOW" }}
+{{ $colors := index .params "COLoRS" }}
+{{ $yellow2 := index $colors "yEllow" }}
+index1|{{ .name }}: {{ $yellow }}|
+index2|{{ .name }}: {{ $yellow2 }}|
 {{ end }}
 `)
 
@@ -177,8 +175,8 @@ Site Colors: {{ .Site.Params.COlOR }}|{{ .Site.Params.COLORS.YELLOW }}
 Page Title: {{ .Title }}
 Site Title: {{ .Site.Title }}
 Site Lang Mood: {{ .Site.Language.Params.MOoD }}
-Page Colors: {{ .Params.COLOR }}|{{ .Params.Colors.Blue }}
-Site Colors: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}
+Page Colors: {{ .Params.COLOR }}|{{ .Params.Colors.Blue }}|{{ index .Params "ColOR" }}
+Site Colors: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}|{{ index .Site.Params "ColOR" }}
 {{ $page2 := .Site.GetPage "/sect2/page2" }}
 {{ if $page2 }}
 Page2: {{ $page2.Params.ColoR }} 
@@ -200,8 +198,8 @@ Page2: {{ $page2.Params.ColoR }}
 	}
 
 	th.assertFileContent(filepath.Join("public", "nn", "sect1", "page1", "index.html"),
-		"Page Colors: red|heavenly",
-		"Site Colors: green|yellow",
+		"Page Colors: red|heavenly|red",
+		"Site Colors: green|yellow|green",
 		"Site Lang Mood: Happy",
 		"Shortcode Page: red|heavenly",
 		"Shortcode Site: green|yellow",
@@ -230,6 +228,10 @@ Page2: {{ $page2.Params.ColoR }}
 		"Block Page Colors: black|sky",
 		"Partial Page: black|sky",
 		"Partial Site: green|yellow",
+		"index1|Page: flower|",
+		"index1|Site: yellow|",
+		"index2|Page: flower|",
+		"index2|Site: yellow|",
 	)
 }
 

@@ -300,7 +300,7 @@ func (p *nopPage) Param(key interface{}) (interface{}, error) {
 	return nil, nil
 }
 
-func (p *nopPage) Params() map[string]interface{} {
+func (p *nopPage) Params() maps.Params {
 	return nil
 }
 

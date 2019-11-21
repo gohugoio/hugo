@@ -14,6 +14,8 @@
 package navigation
 
 import (
+	"github.com/gohugoio/hugo/common/maps"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/cast"
 )
@@ -73,7 +75,7 @@ func PageMenusFromPage(p Page) (PageMenus, error) {
 	}
 
 	// Could be a structured menu entry
-	menus, err := cast.ToStringMapE(ms)
+	menus, err := maps.ToStringMapE(ms)
 	if err != nil {
 		return pm, errors.Wrapf(err, "unable to process menus for %q", p.LinkTitle())
 	}
@@ -81,7 +83,7 @@ func PageMenusFromPage(p Page) (PageMenus, error) {
 	for name, menu := range menus {
 		menuEntry := MenuEntry{Page: p, Name: p.LinkTitle(), Weight: p.Weight(), Menu: name}
 		if menu != nil {
-			ime, err := cast.ToStringMapE(menu)
+			ime, err := maps.ToStringMapE(menu)
 			if err != nil {
 				return pm, errors.Wrapf(err, "unable to process menus for %q", p.LinkTitle())
 			}

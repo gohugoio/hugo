@@ -15,6 +15,7 @@ package para
 
 import (
 	"context"
+	"runtime"
 	"sort"
 	"sync"
 	"sync/atomic"
@@ -25,6 +26,9 @@ import (
 )
 
 func TestPara(t *testing.T) {
+	if runtime.NumCPU() < 4 {
+		t.Skipf("skip para test, CPU count is %d", runtime.NumCPU())
+	}
 
 	c := qt.New(t)
 

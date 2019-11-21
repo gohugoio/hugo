@@ -28,6 +28,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/resources/resource"
+
 	"github.com/gohugoio/hugo/markup/converter"
 
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -581,7 +583,7 @@ func (s *SiteInfo) Taxonomies() interface{} {
 	return s.s.Taxonomies
 }
 
-func (s *SiteInfo) Params() map[string]interface{} {
+func (s *SiteInfo) Params() maps.Params {
 	return s.s.Language().Params()
 }
 
@@ -654,14 +656,9 @@ type SiteSocial map[string]string
 
 // Param is a convenience method to do lookups in SiteInfo's Params map.
 //
-// This method is also implemented on Page and Node.
+// This method is also implemented on Page.
 func (s *SiteInfo) Param(key interface{}) (interface{}, error) {
-	keyStr, err := cast.ToStringE(key)
-	if err != nil {
-		return nil, err
-	}
-	keyStr = strings.ToLower(keyStr)
-	return s.Params()[keyStr], nil
+	return resource.Param(s, nil, key)
 }
 
 func (s *SiteInfo) IsMultiLingual() bool {
@@ -1272,7 +1269,7 @@ func (s *Site) getMenusFromConfig() navigation.Menus {
 					s.Log.DEBUG.Printf("found menu: %q, in site config\n", name)
 
 					menuEntry := navigation.MenuEntry{Menu: name}
-					ime, err := cast.ToStringMapE(entry)
+					ime, err := maps.ToStringMapE(entry)
 					if err != nil {
 						s.Log.ERROR.Printf("unable to process menus in site config\n")
 						s.Log.ERROR.Println(err)

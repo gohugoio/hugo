@@ -30,9 +30,9 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
-
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -228,7 +228,7 @@ func (l *genericResource) Name() string {
 	return l.name
 }
 
-func (l *genericResource) Params() map[string]interface{} {
+func (l *genericResource) Params() maps.Params {
 	return l.params
 }
 

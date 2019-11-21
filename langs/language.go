@@ -177,7 +177,7 @@ func (l *Language) GetInt(key string) int { return cast.ToInt(l.Get(key)) }
 
 // GetStringMap returns the value associated with the key as a map of interfaces.
 func (l *Language) GetStringMap(key string) map[string]interface{} {
-	return cast.ToStringMap(l.Get(key))
+	return maps.ToStringMap(l.Get(key))
 }
 
 // GetStringMapString returns the value associated with the key as a map of strings.

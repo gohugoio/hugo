@@ -20,6 +20,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/common/maps"
+
 	radix "github.com/armon/go-radix"
 	"github.com/spf13/cast"
 
@@ -359,7 +361,7 @@ func (m *pagesMap) cleanKey(key string) string {
 
 func (m *pagesMap) mergeCascades(b1, b2 *pagesMapBucket) {
 	if b1.cascade == nil {
-		b1.cascade = make(map[string]interface{})
+		b1.cascade = make(maps.Params)
 	}
 	if b2 != nil && b2.cascade != nil {
 		for k, v := range b2.cascade {

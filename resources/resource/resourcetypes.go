@@ -14,6 +14,7 @@
 package resource
 
 import (
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/images/exif"
@@ -85,7 +86,7 @@ type ResourceMetaProvider interface {
 
 type ResourceParamsProvider interface {
 	// Params set in front matter for this resource.
-	Params() map[string]interface{}
+	Params() maps.Params
 }
 
 type ResourceDataProvider interface {

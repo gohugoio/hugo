@@ -1573,7 +1573,8 @@ baseURL = "https://example.org"
 {{ $withStringParam := .Site.GetPage "withstringparam" }}
 
 Author page: {{ $withParam.Param "author.name" }}
-Author page string: {{ $withStringParam.Param "author.name" }}|
+Author name page string: {{ $withStringParam.Param "author.name" }}|
+Author page string: {{ $withStringParam.Param "author" }}|
 Author site config:  {{ $noParam.Param "author.name" }}
 
 `,
@@ -1603,8 +1604,10 @@ author = "Jo Nesbø"
 `)
 	b.Build(BuildCfg{})
 
-	b.AssertFileContent("public/index.html", "Author page: Ernest Miller Hemingway")
-	b.AssertFileContent("public/index.html", "Author page string: |")
-	b.AssertFileContent("public/index.html", "Author site config:  Kurt Vonnegut")
+	b.AssertFileContent("public/index.html",
+		"Author page: Ernest Miller Hemingway",
+		"Author name page string: Kurt Vonnegut|",
+		"Author page string: Jo Nesbø|",
+		"Author site config:  Kurt Vonnegut")
 
 }

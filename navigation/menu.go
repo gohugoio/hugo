@@ -14,6 +14,7 @@
 package navigation
 
 import (
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/compare"
 
@@ -59,7 +60,7 @@ type Page interface {
 	Section() string
 	Weight() int
 	IsPage() bool
-	Params() map[string]interface{}
+	Params() maps.Params
 }
 
 // Menu is a collection of menu entries.

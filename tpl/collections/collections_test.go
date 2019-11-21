@@ -22,6 +22,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/common/maps"
+
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
@@ -889,6 +891,15 @@ func (x TstX) String() string {
 type TstX struct {
 	A, B       string
 	unexported string
+}
+
+type TstParams struct {
+	params maps.Params
+}
+
+func (x TstParams) Params() maps.Params {
+	return x.params
+
 }
 
 type TstXIHolder struct {

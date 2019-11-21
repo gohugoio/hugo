@@ -19,11 +19,10 @@ import (
 	texttemplate "text/template"
 	"text/template/parse"
 
-	"github.com/pkg/errors"
-
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/mitchellh/mapstructure"
-	"github.com/spf13/cast"
+	"github.com/pkg/errors"
 )
 
 // decl keeps track of the variable mappings, i.e. $mysite => .Site etc.
@@ -315,7 +314,7 @@ func (c *templateContext) collectConfig(n *parse.PipeNode) {
 
 	if s, ok := cmd.Args[0].(*parse.StringNode); ok {
 		errMsg := "failed to decode $_hugo_config in template"
-		m, err := cast.ToStringMapE(s.Text)
+		m, err := maps.ToStringMapE(s.Text)
 		if err != nil {
 			c.err = errors.Wrap(err, errMsg)
 			return

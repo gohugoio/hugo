@@ -35,7 +35,7 @@ func TestGetNestedParam(t *testing.T) {
 
 	c := qt.New(t)
 
-	must := func(keyStr, separator string, candidates ...map[string]interface{}) interface{} {
+	must := func(keyStr, separator string, candidates ...Params) interface{} {
 		v, err := GetNestedParam(keyStr, separator, candidates...)
 		c.Assert(err, qt.IsNil)
 		return v

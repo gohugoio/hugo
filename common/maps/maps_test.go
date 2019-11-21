@@ -14,6 +14,7 @@
 package maps
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -21,7 +22,6 @@ import (
 )
 
 func TestToLower(t *testing.T) {
-
 	tests := []struct {
 		input    map[string]interface{}
 		expected map[string]interface{}
@@ -30,7 +30,7 @@ func TestToLower(t *testing.T) {
 			map[string]interface{}{
 				"abC": 32,
 			},
-			map[string]interface{}{
+			Params{
 				"abc": 32,
 			},
 		},
@@ -48,16 +48,16 @@ func TestToLower(t *testing.T) {
 					"J": 25,
 				},
 			},
-			map[string]interface{}{
+			Params{
 				"abc": 32,
-				"def": map[string]interface{}{
+				"def": Params{
 					"23": "A value",
-					"24": map[string]interface{}{
+					"24": Params{
 						"abcde": "A value",
 						"efghi": "Another value",
 					},
 				},
-				"ghi": map[string]interface{}{
+				"ghi": Params{
 					"j": 25,
 				},
 			},
@@ -65,11 +65,13 @@ func TestToLower(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		// ToLower modifies input.
-		ToLower(test.input)
-		if !reflect.DeepEqual(test.expected, test.input) {
-			t.Errorf("[%d] Expected\n%#v, got\n%#v\n", i, test.expected, test.input)
-		}
+		t.Run(fmt.Sprint(i), func(t *testing.T) {
+			// ToLower modifies input.
+			ToLower(test.input)
+			if !reflect.DeepEqual(test.expected, test.input) {
+				t.Errorf("[%d] Expected\n%#v, got\n%#v\n", i, test.expected, test.input)
+			}
+		})
 	}
 }
 

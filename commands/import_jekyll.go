@@ -30,12 +30,12 @@ import (
 
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/parser"
 	"github.com/spf13/afero"
-	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -420,7 +420,7 @@ func convertJekyllPost(s *hugolib.Site, path, relPath, targetDir string, draft b
 }
 
 func convertJekyllMetaData(m interface{}, postName string, postDate time.Time, draft bool) (interface{}, error) {
-	metadata, err := cast.ToStringMapE(m)
+	metadata, err := maps.ToStringMapE(m)
 	if err != nil {
 		return nil, err
 	}
@@ -472,7 +472,7 @@ func convertJekyllMetaData(m interface{}, postName string, postDate time.Time, d
 }
 
 func convertJekyllContent(m interface{}, content string) string {
-	metadata, _ := cast.ToStringMapE(m)
+	metadata, _ := maps.ToStringMapE(m)
 
 	lines := strings.Split(content, "\n")
 	var resultLines []string

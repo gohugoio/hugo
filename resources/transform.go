@@ -26,11 +26,11 @@ import (
 
 	bp "github.com/gohugoio/hugo/bufferpool"
 
-	"github.com/gohugoio/hugo/resources/internal"
-
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/resources/internal"
 	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/media"
@@ -200,7 +200,7 @@ func (r *resourceAdapter) Name() string {
 	return r.target.Name()
 }
 
-func (r *resourceAdapter) Params() map[string]interface{} {
+func (r *resourceAdapter) Params() maps.Params {
 	r.init(false, false)
 	return r.target.Params()
 }

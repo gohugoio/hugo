@@ -18,6 +18,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/gohugoio/hugo/common/maps"
+
 	"github.com/gohugoio/hugo/deps"
 )
 
@@ -99,6 +101,20 @@ func TestSort(t *testing.T) {
 			"TstRp",
 			"asc",
 			[]*TstX{{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"}, {A: "g", B: "h"}, {A: "i", B: "j"}},
+		},
+		// Lower case Params, slice
+		{
+			[]TstParams{{params: maps.Params{"color": "indigo"}}, {params: maps.Params{"color": "blue"}}, {params: maps.Params{"color": "green"}}},
+			".Params.COLOR",
+			"asc",
+			[]TstParams{{params: maps.Params{"color": "blue"}}, {params: maps.Params{"color": "green"}}, {params: maps.Params{"color": "indigo"}}},
+		},
+		// Lower case Params, map
+		{
+			map[string]TstParams{"1": {params: maps.Params{"color": "indigo"}}, "2": {params: maps.Params{"color": "blue"}}, "3": {params: maps.Params{"color": "green"}}},
+			".Params.CoLoR",
+			"asc",
+			[]TstParams{{params: maps.Params{"color": "blue"}}, {params: maps.Params{"color": "green"}}, {params: maps.Params{"color": "indigo"}}},
 		},
 		// test map sorting by struct's method
 		{

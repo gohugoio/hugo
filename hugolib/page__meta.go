@@ -228,7 +228,7 @@ func (p *pageMeta) Param(key interface{}) (interface{}, error) {
 	return resource.Param(p, p.s.Info.Params(), key)
 }
 
-func (p *pageMeta) Params() map[string]interface{} {
+func (p *pageMeta) Params() maps.Params {
 	return p.params
 }
 
@@ -312,7 +312,7 @@ func (pm *pageMeta) setMetadata(bucket *pagesMapBucket, p *pageState, frontmatte
 		return errors.New("missing frontmatter data")
 	}
 
-	pm.params = make(map[string]interface{})
+	pm.params = make(maps.Params)
 
 	if frontmatter != nil {
 		// Needed for case insensitive fetching of params values
@@ -320,7 +320,7 @@ func (pm *pageMeta) setMetadata(bucket *pagesMapBucket, p *pageState, frontmatte
 		if p.IsNode() {
 			// Check for any cascade define on itself.
 			if cv, found := frontmatter["cascade"]; found {
-				cvm := cast.ToStringMap(cv)
+				cvm := maps.ToStringMap(cv)
 				if bucket.cascade == nil {
 					bucket.cascade = cvm
 				} else {
@@ -479,7 +479,7 @@ func (pm *pageMeta) setMetadata(bucket *pagesMapBucket, p *pageState, frontmatte
 			}
 			pm.params[loki] = pm.aliases
 		case "sitemap":
-			p.m.sitemap = config.DecodeSitemap(p.s.siteCfg.sitemap, cast.ToStringMap(v))
+			p.m.sitemap = config.DecodeSitemap(p.s.siteCfg.sitemap, maps.ToStringMap(v))
 			pm.params[loki] = p.m.sitemap
 			sitemapSet = true
 		case "iscjklanguage":
@@ -495,7 +495,7 @@ func (pm *pageMeta) setMetadata(bucket *pagesMapBucket, p *pageState, frontmatte
 			switch vv := v.(type) {
 			case []map[interface{}]interface{}:
 				for _, vvv := range vv {
-					resources = append(resources, cast.ToStringMap(vvv))
+					resources = append(resources, maps.ToStringMap(vvv))
 				}
 			case []map[string]interface{}:
 				resources = append(resources, vv...)
@@ -503,7 +503,7 @@ func (pm *pageMeta) setMetadata(bucket *pagesMapBucket, p *pageState, frontmatte
 				for _, vvv := range vv {
 					switch vvvv := vvv.(type) {
 					case map[interface{}]interface{}:
-						resources = append(resources, cast.ToStringMap(vvvv))
+						resources = append(resources, maps.ToStringMap(vvvv))
 					case map[string]interface{}:
 						resources = append(resources, vvvv)
 					}
@@ -642,7 +642,7 @@ func (p *pageMeta) applyDefaultValues() error {
 		var renderingConfigOverrides map[string]interface{}
 		bfParam := getParamToLower(p, "blackfriday")
 		if bfParam != nil {
-			renderingConfigOverrides = cast.ToStringMap(bfParam)
+			renderingConfigOverrides = maps.ToStringMap(bfParam)
 		}
 
 		cp := p.s.ContentSpec.Converters.Get(p.markup)
@@ -705,14 +705,9 @@ func getParam(m resource.ResourceParamsProvider, key string, stringToLower bool)
 			return helpers.SliceToLower(val)
 		}
 		return v
-	case map[string]interface{}: // JSON and TOML
-		return v
-	case map[interface{}]interface{}: // YAML
+	default:
 		return v
 	}
-
-	//p.s.Log.ERROR.Printf("GetParam(\"%s\"): Unknown type %s\n", key, reflect.TypeOf(v))
-	return nil
 }
 
 func getParamToLower(m resource.ResourceParamsProvider, key string) interface{} {
