@@ -22,7 +22,6 @@ import (
 	"github.com/alecthomas/chroma/formatters/html"
 	"github.com/alecthomas/chroma/lexers"
 	"github.com/alecthomas/chroma/styles"
-
 	hl "github.com/gohugoio/hugo/markup/highlight/temphighlighting"
 )
 
@@ -76,14 +75,15 @@ func highlight(code, lang string, cfg Config) (string, error) {
 
 	formatter := html.New(options...)
 
-	fmt.Fprintf(w, `<div class="highlight">`)
+	fmt.Fprint(w, `<div class="highlight">`)
 	if err := formatter.Format(w, style, iterator); err != nil {
 		return "", err
 	}
-	fmt.Fprintf(w, `</div>`)
+	fmt.Fprint(w, `</div>`)
 
 	return w.String(), nil
 }
+
 func GetCodeBlockOptions() func(ctx hl.CodeBlockContext) []html.Option {
 	return func(ctx hl.CodeBlockContext) []html.Option {
 		var language string
@@ -99,6 +99,7 @@ func GetCodeBlockOptions() func(ctx hl.CodeBlockContext) []html.Option {
 func getPreWrapper(language string) preWrapper {
 	return preWrapper{language: language}
 }
+
 func getHtmlPreWrapper(language string) html.Option {
 	return html.WithPreWrapper(getPreWrapper(language))
 }
@@ -121,8 +122,8 @@ func (p preWrapper) Start(code bool, styleAttr string) string {
 func WriteCodeTag(w io.Writer, language string) {
 	fmt.Fprint(w, "<code")
 	if language != "" {
-		fmt.Fprintf(w, " class=\"language-"+language+"\"")
-		fmt.Fprintf(w, " data-lang=\""+language+"\"")
+		fmt.Fprint(w, ` class="language-`+language+`"`)
+		fmt.Fprint(w, ` data-lang="`+language+`"`)
 	}
 	fmt.Fprint(w, ">")
 }

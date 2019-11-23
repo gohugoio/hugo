@@ -8,29 +8,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/yuin/goldmark/util"
-
 	chromahtml "github.com/alecthomas/chroma/formatters/html"
 	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/util"
 )
-
-type preWrapper struct {
-	language string
-}
-
-func (p preWrapper) Start(code bool, styleAttr string) string {
-	w := &strings.Builder{}
-	fmt.Fprintf(w, "<pre%s><code", styleAttr)
-	if p.language != "" {
-		fmt.Fprintf(w, " class=\"language-"+p.language)
-	}
-	fmt.Fprint(w, ">")
-	return w.String()
-}
-
-func (p preWrapper) End(code bool) string {
-	return "</code></pre>"
-}
 
 func TestHighlighting(t *testing.T) {
 	var css bytes.Buffer
@@ -156,7 +137,6 @@ Title
 /* GenericSubheading */ .chroma .gu { color: #75715e }`) {
 		t.Error("failed to render CSS")
 	}
-
 }
 
 func TestHighlighting2(t *testing.T) {
@@ -240,9 +220,7 @@ func TestHighlightingHlLines(t *testing.T) {
 		{`hl_lines=["2-3",5],linenostart=5`, []int{2, 3, 5}},
 		{`hl_lines=["2-3"]`, []int{2, 3}},
 	} {
-
 		t.Run(fmt.Sprint(i), func(t *testing.T) {
-
 			var buffer bytes.Buffer
 			codeBlock := fmt.Sprintf(`bash {%s}
 LINE1
@@ -269,11 +247,9 @@ LINE8
 			}
 		})
 	}
-
 }
 
 func TestHighlightingLinenos(t *testing.T) {
-
 	outputLineNumbersInTable := `<div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <span class="lnt">1
@@ -297,7 +273,6 @@ LINE1
 		{`linenos=foo`, false, false, `<span class="ln">1</span>LINE1`},
 		{`linenos=table`, false, false, outputLineNumbersInTable},
 	} {
-
 		t.Run(fmt.Sprint(i), func(t *testing.T) {
 			markdown := goldmark.New(
 				goldmark.WithExtensions(
@@ -328,8 +303,6 @@ LINE1
 			if s != test.expect {
 				t.Fatal("got\n", s, "\nexpected\n", test.expect)
 			}
-
 		})
 	}
-
 }
