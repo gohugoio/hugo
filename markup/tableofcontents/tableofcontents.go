@@ -17,8 +17,10 @@ import (
 	"strings"
 )
 
+// Headers holds the top level (h1) headers.
 type Headers []Header
 
+// Header holds the data about a header and its children.
 type Header struct {
 	ID   string
 	Text string
@@ -26,14 +28,18 @@ type Header struct {
 	Headers Headers
 }
 
+// IsZero is true when no ID or Text is set.
 func (h Header) IsZero() bool {
 	return h.ID == "" && h.Text == ""
 }
 
+// Root implements AddAt, which can be used to build the
+// data structure for the ToC.
 type Root struct {
 	Headers Headers
 }
 
+// AddAt adds the header into the given location.
 func (toc *Root) AddAt(h Header, y, x int) {
 	for i := len(toc.Headers); i <= y; i++ {
 		toc.Headers = append(toc.Headers, Header{})
@@ -55,6 +61,7 @@ func (toc *Root) AddAt(h Header, y, x int) {
 	header.Headers = append(header.Headers, h)
 }
 
+// ToHTML renders the ToC as HTML.
 func (toc Root) ToHTML(startLevel, stopLevel int) string {
 	b := &tocBuilder{
 		s:          strings.Builder{},
@@ -75,19 +82,19 @@ type tocBuilder struct {
 }
 
 func (b *tocBuilder) Build() {
-	b.buildHeaders2(b.h)
+	b.writeNav(b.h)
 }
 
-func (b *tocBuilder) buildHeaders2(h Headers) {
+func (b *tocBuilder) writeNav(h Headers) {
 	b.s.WriteString("<nav id=\"TableOfContents\">")
-	b.buildHeaders(1, 0, b.h)
+	b.writeHeaders(1, 0, b.h)
 	b.s.WriteString("</nav>")
 }
 
-func (b *tocBuilder) buildHeaders(level, indent int, h Headers) {
+func (b *tocBuilder) writeHeaders(level, indent int, h Headers) {
 	if level < b.startLevel {
 		for _, h := range h {
-			b.buildHeaders(level+1, indent, h.Headers)
+			b.writeHeaders(level+1, indent, h.Headers)
 		}
 		return
 	}
@@ -105,7 +112,7 @@ func (b *tocBuilder) buildHeaders(level, indent int, h Headers) {
 	}
 
 	for _, h := range h {
-		b.buildHeader(level+1, indent+2, h)
+		b.writeHeader(level+1, indent+2, h)
 	}
 
 	if hasChildren {
@@ -116,13 +123,13 @@ func (b *tocBuilder) buildHeaders(level, indent int, h Headers) {
 	}
 
 }
-func (b *tocBuilder) buildHeader(level, indent int, h Header) {
+func (b *tocBuilder) writeHeader(level, indent int, h Header) {
 	b.indent(indent)
 	b.s.WriteString("<li>")
 	if !h.IsZero() {
 		b.s.WriteString("<a href=\"#" + h.ID + "\">" + h.Text + "</a>")
 	}
-	b.buildHeaders(level, indent, h.Headers)
+	b.writeHeaders(level, indent, h.Headers)
 	b.s.WriteString("</li>\n")
 }
 
@@ -132,6 +139,7 @@ func (b *tocBuilder) indent(n int) {
 	}
 }
 
+// DefaultConfig is the default ToC configuration.
 var DefaultConfig = Config{
 	StartLevel: 2,
 	EndLevel:   3,
