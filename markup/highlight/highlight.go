@@ -22,7 +22,7 @@ import (
 	"github.com/alecthomas/chroma/formatters/html"
 	"github.com/alecthomas/chroma/lexers"
 	"github.com/alecthomas/chroma/styles"
-	hl "github.com/gohugoio/hugo/markup/highlight/temphighlighting"
+	hl "github.com/yuin/goldmark-highlighting"
 )
 
 func New(cfg Config) Highlighter {

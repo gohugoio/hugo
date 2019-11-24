@@ -55,6 +55,7 @@ require (
 	github.com/tdewolff/minify/v2 v2.5.2
 	github.com/yosssi/ace v0.0.5
 	github.com/yuin/goldmark v1.1.5
+	github.com/yuin/goldmark-highlighting v0.0.0-20191124122839-ede94e40cc3a
 	go.opencensus.io v0.22.0 // indirect
 	gocloud.dev v0.15.0
 	golang.org/x/image v0.0.0-20190523035834-f03afa92d3ff
