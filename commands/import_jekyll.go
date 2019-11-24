@@ -105,7 +105,7 @@ func (i *importCmd) importFromJekyll(cmd *cobra.Command, args []string) error {
 		return errors.New("abort: jekyll root contains neither posts nor drafts")
 	}
 
-	site, err := i.createSiteFromJekyll(jekyllRoot, targetDir, jekyllPostDirs, forceImport)
+	err = i.createSiteFromJekyll(jekyllRoot, targetDir, jekyllPostDirs, forceImport)
 
 	if err != nil {
 		return newUserError(err)
@@ -142,7 +142,7 @@ func (i *importCmd) importFromJekyll(cmd *cobra.Command, args []string) error {
 		}
 
 		fileCount++
-		return convertJekyllPost(site, path, relPath, targetDir, draft)
+		return convertJekyllPost(path, relPath, targetDir, draft)
 	}
 
 	for jekyllPostDir, hasAnyPostInDir := range jekyllPostDirs {
@@ -200,22 +200,22 @@ func (i *importCmd) retrieveJekyllPostDir(fs afero.Fs, dir string) (bool, bool) 
 	return false, true
 }
 
-func (i *importCmd) createSiteFromJekyll(jekyllRoot, targetDir string, jekyllPostDirs map[string]bool, force bool) (*hugolib.Site, error) {
+func (i *importCmd) createSiteFromJekyll(jekyllRoot, targetDir string, jekyllPostDirs map[string]bool, force bool) error {
 	s, err := hugolib.NewSiteDefaultLang()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	fs := s.Fs.Source
 	if exists, _ := helpers.Exists(targetDir, fs); exists {
 		if isDir, _ := helpers.IsDir(targetDir, fs); !isDir {
-			return nil, errors.New("target path \"" + targetDir + "\" exists but is not a directory")
+			return errors.New("target path \"" + targetDir + "\" exists but is not a directory")
 		}
 
 		isEmpty, _ := helpers.IsEmpty(targetDir, fs)
 
 		if !isEmpty && !force {
-			return nil, errors.New("target path \"" + targetDir + "\" exists and is not empty")
+			return errors.New("target path \"" + targetDir + "\" exists and is not empty")
 		}
 	}
 
@@ -232,7 +232,7 @@ func (i *importCmd) createSiteFromJekyll(jekyllRoot, targetDir string, jekyllPos
 
 	i.copyJekyllFilesAndFolders(jekyllRoot, filepath.Join(targetDir, "static"), jekyllPostDirs)
 
-	return s, nil
+	return nil
 }
 
 func (i *importCmd) loadJekyllConfig(fs afero.Fs, jekyllRoot string) map[string]interface{} {
@@ -375,7 +375,7 @@ func parseJekyllFilename(filename string) (time.Time, string, error) {
 	return postDate, postName, nil
 }
 
-func convertJekyllPost(s *hugolib.Site, path, relPath, targetDir string, draft bool) error {
+func convertJekyllPost(path, relPath, targetDir string, draft bool) error {
 	jww.TRACE.Println("Converting", path)
 
 	filename := filepath.Base(path)
@@ -409,7 +409,11 @@ func convertJekyllPost(s *hugolib.Site, path, relPath, targetDir string, draft b
 		return err
 	}
 
-	content := convertJekyllContent(newmetadata, string(pf.content))
+	content, err := convertJekyllContent(newmetadata, string(pf.content))
+	if err != nil {
+		jww.ERROR.Println("Converting Jekyll error:", path)
+		return err
+	}
 
 	fs := hugofs.Os
 	if err := helpers.WriteToDisk(targetFile, strings.NewReader(content), fs); err != nil {
@@ -471,7 +475,7 @@ func convertJekyllMetaData(m interface{}, postName string, postDate time.Time, d
 	return metadata, nil
 }
 
-func convertJekyllContent(m interface{}, content string) string {
+func convertJekyllContent(m interface{}, content string) (string, error) {
 	metadata, _ := maps.ToStringMapE(m)
 
 	lines := strings.Split(content, "\n")
@@ -515,7 +519,16 @@ func convertJekyllContent(m interface{}, content string) string {
 		content = replace.re.ReplaceAllStringFunc(content, replace.replace)
 	}
 
-	return content
+	var buf bytes.Buffer
+	if len(metadata) != 0 {
+		err := parser.InterfaceToFrontMatter(m, metadecoders.YAML, &buf)
+		if err != nil {
+			return "", err
+		}
+	}
+	buf.WriteString(content)
+
+	return buf.String(), nil
 }
 
 func replaceHighlightTag(match string) string {
