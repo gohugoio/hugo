@@ -33,6 +33,11 @@ func TestConvert(t *testing.T) {
 
 	// Smoke test of the default configuration.
 	content := `
+## Links
+
+https://github.com/gohugoio/hugo/issues/6528
+[Live Demo here!](https://docuapi.netlify.com/)
+
 ## Code Fences
 
 §§§bash
@@ -107,6 +112,9 @@ description
 	c.Assert(err, qt.IsNil)
 
 	got := string(b.Bytes())
+
+	// Links
+	c.Assert(got, qt.Contains, `<a href="https://docuapi.netlify.com/">Live Demo here!</a>`)
 
 	// Header IDs
 	c.Assert(got, qt.Contains, `<h2 id="custom">Custom ID</h2>`, qt.Commentf(got))
