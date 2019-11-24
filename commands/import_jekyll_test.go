@@ -91,11 +91,12 @@ func TestConvertJekyllContent(t *testing.T) {
 		expect   string
 	}{
 		{map[interface{}]interface{}{},
-			`Test content\n<!-- more -->\npart2 content`, `Test content\n<!--more-->\npart2 content`},
+			"Test content\r\n<!-- more -->\npart2 content", "Test content\n<!--more-->\npart2 content"},
 		{map[interface{}]interface{}{},
-			`Test content\n<!-- More -->\npart2 content`, `Test content\n<!--more-->\npart2 content`},
+			"Test content\n<!-- More -->\npart2 content", "Test content\n<!--more-->\npart2 content"},
 		{map[interface{}]interface{}{"excerpt_separator": "<!--sep-->"},
-			`Test content\n<!--sep-->\npart2 content`, `Test content\n<!--more-->\npart2 content`},
+			"Test content\n<!--sep-->\npart2 content",
+			"---\nexcerpt_separator: <!--sep-->\n---\nTest content\n<!--more-->\npart2 content"},
 		{map[interface{}]interface{}{}, "{% raw %}text{% endraw %}", "text"},
 		{map[interface{}]interface{}{}, "{%raw%} text2 {%endraw %}", "text2"},
 		{map[interface{}]interface{}{},
@@ -124,10 +125,13 @@ func TestConvertJekyllContent(t *testing.T) {
 		{map[interface{}]interface{}{},
 			"{% img right /placekitten/300/500 'Place Kitten #4' 'An image of a very cute kitten' %}",
 			"{{< figure class=\"right\" src=\"/placekitten/300/500\" title=\"Place Kitten #4\" alt=\"An image of a very cute kitten\" >}}"},
+		{map[interface{}]interface{}{"category": "book", "layout": "post", "Date": "2015-10-01 12:13:11"},
+			"somecontent",
+			"---\nDate: \"2015-10-01 12:13:11\"\ncategory: book\nlayout: post\n---\nsomecontent"},
 	}
-
 	for _, data := range testDataList {
-		result := convertJekyllContent(data.metadata, data.content)
-		c.Assert(data.expect, qt.Equals, result)
+		result, err := convertJekyllContent(data.metadata, data.content)
+		c.Assert(result, qt.Equals, data.expect)
+		c.Assert(err, qt.IsNil)
 	}
 }
