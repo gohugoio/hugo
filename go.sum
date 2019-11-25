@@ -40,8 +40,6 @@ github.com/Shopify/toxiproxy v2.1.4+incompatible/go.mod h1:OXgGpZ6Cli1/URJOF1DMx
 github.com/akavel/rsrc v0.8.0/go.mod h1:uLoCtb9J+EyAqh+26kdrTgmzRBFPGOolLWKpdxkKq+c=
 github.com/alecthomas/assert v0.0.0-20170929043011-405dbfeb8e38 h1:smF2tmSOzy2Mm+0dGI2AIUHY+w0BUc+4tn40djz7+6U=
 github.com/alecthomas/assert v0.0.0-20170929043011-405dbfeb8e38/go.mod h1:r7bzyVFMNntcxPZXK3/+KdruV1H5KSlyVY0gc+NgInI=
-github.com/alecthomas/chroma v0.6.10-0.20191121231300-5921c52787e3 h1:7QpewsuR2wMuqAR9SADf+Cb043SlnmlA7LtDJGDx7UQ=
-github.com/alecthomas/chroma v0.6.10-0.20191121231300-5921c52787e3/go.mod h1:1U/PfCsTALWWYHDnsIQkxEBM0+6LLe0v8+RSVMOwxeY=
 github.com/alecthomas/chroma v0.7.0 h1:z+0HgTUmkpRDRz0SRSdMaqOLfJV4F+N1FPDZUZIDUzw=
 github.com/alecthomas/chroma v0.7.0/go.mod h1:1U/PfCsTALWWYHDnsIQkxEBM0+6LLe0v8+RSVMOwxeY=
 github.com/alecthomas/colour v0.0.0-20160524082231-60882d9e2721 h1:JHZL0hZKJ1VENNfmXvHbgYlbUOvpzYzvy2aZU5gXVeo=
@@ -349,10 +347,10 @@ github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=
 github.com/yosssi/ace v0.0.5 h1:tUkIP/BLdKqrlrPwcmH0shwEEhTRHoGnc1wFIWmaBUA=
 github.com/yosssi/ace v0.0.5/go.mod h1:ALfIzm2vT7t5ZE7uoIZqF3TQ7SAOyupFZnkrF5id+K0=
-github.com/yuin/goldmark v1.1.4 h1:Fj9vOhXMWRBITkIfa8OG/5j6PTKPkyPHxZbT1bvmjV8=
-github.com/yuin/goldmark v1.1.4/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.5 h1:JJy3EDke+PMI2WcFIU6SdaeiP6FgRGK5NKAiPZHiOoE=
 github.com/yuin/goldmark v1.1.5/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
+github.com/yuin/goldmark v1.1.7 h1:XiwWADvxJeIM1JbXqthrEhDc19hTMui+o+QaY1hGXlk=
+github.com/yuin/goldmark v1.1.7/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark-highlighting v0.0.0-20191124122839-ede94e40cc3a h1:L7FTUnbc0WEBqGWgjbx4sPNAOX1/q5W/3KCD6g8XkKo=
 github.com/yuin/goldmark-highlighting v0.0.0-20191124122839-ede94e40cc3a/go.mod h1:1gshkGdH4gcrIH5MGSScGH42rOOCO+4Ks6acjAkA9C0=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
