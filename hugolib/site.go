@@ -181,11 +181,12 @@ func (init *siteInit) Reset() {
 	init.menus.Reset()
 }
 
-func (s *Site) initInit(init *lazy.Init, pctx pageContext) {
+func (s *Site) initInit(init *lazy.Init, pctx pageContext) bool {
 	_, err := init.Do()
 	if err != nil {
 		s.h.FatalError(pctx.wrapError(err))
 	}
+	return err == nil
 }
 
 func (s *Site) prepareInits() {
@@ -410,10 +411,23 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		return nil, err
 	}
 
+	timeout := 30 * time.Second
+	if cfg.Language.IsSet("timeout") {
+		switch v := cfg.Language.Get("timeout").(type) {
+		case int:
+			timeout = time.Duration(v) * time.Millisecond
+		case string:
+			d, err := time.ParseDuration(v)
+			if err == nil {
+				timeout = d
+			}
+		}
+	}
+
 	siteConfig := siteConfigHolder{
 		sitemap:          config.DecodeSitemap(config.Sitemap{Priority: -1, Filename: "sitemap.xml"}, cfg.Language.GetStringMap("sitemap")),
 		taxonomiesConfig: taxonomies,
-		timeout:          time.Duration(cfg.Language.GetInt("timeout")) * time.Millisecond,
+		timeout:          timeout,
 		hasCJKLanguage:   cfg.Language.GetBool("hasCJKLanguage"),
 		enableEmoji:      cfg.Language.Cfg.GetBool("enableEmoji"),
 	}

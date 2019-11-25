@@ -129,7 +129,7 @@ func (c *Cache) WriteCloser(id string) (ItemInfo, io.WriteCloser, error) {
 // If not found a new file is created and passed to create, which should close
 // it when done.
 func (c *Cache) ReadOrCreate(id string,
-	read func(info ItemInfo, r io.Reader) error,
+	read func(info ItemInfo, r io.ReadSeeker) error,
 	create func(info ItemInfo, w io.WriteCloser) error) (info ItemInfo, err error) {
 	id = cleanID(id)
 
