@@ -159,31 +159,19 @@ func testGoFlags() string {
 // Note that we don't run with the extended tag. Currently not supported in 32 bit.
 func Test386() error {
 	env := map[string]string{"GOARCH": "386", "GOFLAGS": testGoFlags()}
-	output, err := sh.OutputWith(env, goexe, "test", "./...")
-	if err != nil {
-		fmt.Printf(output)
-	}
-	return err
+	return runCmd(env, goexe, "test", "./...")
 }
 
 // Run tests
 func Test() error {
 	env := map[string]string{"GOFLAGS": testGoFlags()}
-	output, err := sh.OutputWith(env, goexe, "test", "./...", "-tags", buildTags())
-	if err != nil {
-		fmt.Printf(output)
-	}
-	return err
+	return runCmd(env, goexe, "test", "./...", "-tags", buildTags())
 }
 
 // Run tests with race detector
 func TestRace() error {
 	env := map[string]string{"GOFLAGS": testGoFlags()}
-	output, err := sh.OutputWith(env, goexe, "test", "-race", "./...", "-tags", buildTags())
-	if err != nil {
-		fmt.Printf(output)
-	}
-	return err
+	return runCmd(env, goexe, "test", "-race", "./...", "-tags", buildTags())
 }
 
 // Run gofmt linter
@@ -317,6 +305,18 @@ func TestCoverHTML() error {
 		return err
 	}
 	return sh.Run(goexe, "tool", "cover", "-html="+coverAll)
+}
+
+func runCmd(env map[string]string, cmd string, args ...string) error {
+	if mg.Verbose() {
+		return sh.RunWith(env, cmd, args...)
+	}
+	output, err := sh.OutputWith(env, cmd, args...)
+	if err != nil {
+		fmt.Fprint(os.Stderr, output)
+	}
+
+	return err
 }
 
 func isGoLatest() bool {
