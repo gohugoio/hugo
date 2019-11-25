@@ -134,10 +134,10 @@ func Check() {
 		return
 	}
 
-	if runtime.GOARCH == "amd64" {
+	if runtime.GOARCH == "amd64" && runtime.GOOS != "darwin" {
 		mg.Deps(Test386)
 	} else {
-		fmt.Printf("Skip Test386 on %s\n", runtime.GOARCH)
+		fmt.Printf("Skip Test386 on %s and/or %s\n", runtime.GOARCH, runtime.GOOS)
 	}
 
 	mg.Deps(Fmt, Vet)
@@ -159,19 +159,31 @@ func testGoFlags() string {
 // Note that we don't run with the extended tag. Currently not supported in 32 bit.
 func Test386() error {
 	env := map[string]string{"GOARCH": "386", "GOFLAGS": testGoFlags()}
-	return sh.RunWith(env, goexe, "test", "./...")
+	output, err := sh.OutputWith(env, goexe, "test", "./...")
+	if err != nil {
+		fmt.Printf(output)
+	}
+	return err
 }
 
 // Run tests
 func Test() error {
 	env := map[string]string{"GOFLAGS": testGoFlags()}
-	return sh.RunWith(env, goexe, "test", "./...", "-tags", buildTags())
+	output, err := sh.OutputWith(env, goexe, "test", "./...", "-tags", buildTags())
+	if err != nil {
+		fmt.Printf(output)
+	}
+	return err
 }
 
 // Run tests with race detector
 func TestRace() error {
 	env := map[string]string{"GOFLAGS": testGoFlags()}
-	return sh.RunWith(env, goexe, "test", "-race", "./...", "-tags", buildTags())
+	output, err := sh.OutputWith(env, goexe, "test", "-race", "./...", "-tags", buildTags())
+	if err != nil {
+		fmt.Printf(output)
+	}
+	return err
 }
 
 // Run gofmt linter
