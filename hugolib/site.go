@@ -791,30 +791,6 @@ func (s *siteRefLinker) refLink(ref string, source interface{}, relative bool, o
 	return link, nil
 }
 
-// Ref will give an absolute URL to ref in the given Page.
-func (s *SiteInfo) Ref(ref string, page page.Page, options ...string) (string, error) {
-	// Remove in Hugo 0.54
-	helpers.Deprecated(".Site.Ref", "Use .Site.GetPage", true)
-	outputFormat := ""
-	if len(options) > 0 {
-		outputFormat = options[0]
-	}
-
-	return s.s.refLink(ref, page, false, outputFormat)
-}
-
-// RelRef will give an relative URL to ref in the given Page.
-func (s *SiteInfo) RelRef(ref string, page page.Page, options ...string) (string, error) {
-	// Remove in Hugo 0.54
-	helpers.Deprecated(".Site.RelRef", "Use .Site.GetPage", true)
-	outputFormat := ""
-	if len(options) > 0 {
-		outputFormat = options[0]
-	}
-
-	return s.s.refLink(ref, page, true, outputFormat)
-}
-
 func (s *Site) running() bool {
 	return s.h != nil && s.h.running
 }
