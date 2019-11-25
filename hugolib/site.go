@@ -571,8 +571,8 @@ func (s *SiteInfo) AllRegularPages() page.Pages {
 }
 
 func (s *SiteInfo) Permalinks() map[string]string {
-	// Remove in 0.57
-	helpers.Deprecated(".Site.Permalinks", "", false)
+	// Remove in 0.61
+	helpers.Deprecated(".Site.Permalinks", "", true)
 	return s.permalinks
 }
 
