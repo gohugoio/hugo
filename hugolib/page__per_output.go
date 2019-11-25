@@ -180,7 +180,7 @@ func newPageContentOutput(p *pageState) func(f output.Format) (*pageContentOutpu
 		needTimeout := !p.renderable || p.shortcodeState.hasShortcodes()
 
 		if needTimeout {
-			cp.initMain = parent.BranchdWithTimeout(p.s.siteCfg.timeout, func(ctx context.Context) (interface{}, error) {
+			cp.initMain = parent.BranchWithTimeout(p.s.siteCfg.timeout, func(ctx context.Context) (interface{}, error) {
 				return nil, initContent()
 			})
 		} else {
@@ -249,8 +249,10 @@ type pageContentOutput struct {
 }
 
 func (p *pageContentOutput) Content() (interface{}, error) {
-	p.p.s.initInit(p.initMain, p.p)
-	return p.content, nil
+	if p.p.s.initInit(p.initMain, p.p) {
+		return p.content, nil
+	}
+	return nil, nil
 }
 
 func (p *pageContentOutput) FuzzyWordCount() int {

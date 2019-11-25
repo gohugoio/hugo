@@ -96,11 +96,17 @@ func (c *imageCache) getOrCreate(
 	// These funcs are protected by a named lock.
 	// read clones the parent to its new name and copies
 	// the content to the destinations.
-	read := func(info filecache.ItemInfo, r io.Reader) error {
+	read := func(info filecache.ItemInfo, r io.ReadSeeker) error {
 		img = parent.clone(nil)
 		rp := img.getResourcePaths()
 		rp.relTargetDirFile.file = relTarget.file
 		img.setSourceFilename(info.Name)
+
+		if err := img.InitConfig(r); err != nil {
+			return err
+		}
+
+		r.Seek(0, 0)
 
 		w, err := img.openDestinationsForWriting()
 		if err != nil {
@@ -114,6 +120,7 @@ func (c *imageCache) getOrCreate(
 
 		defer w.Close()
 		_, err = io.Copy(w, r)
+
 		return err
 	}
 

@@ -88,7 +88,7 @@ func (i *imageResource) getExif() (*exif.Exif, error) {
 
 		key := i.getImageMetaCacheTargetPath()
 
-		read := func(info filecache.ItemInfo, r io.Reader) error {
+		read := func(info filecache.ItemInfo, r io.ReadSeeker) error {
 			meta := &imageMeta{}
 			data, err := ioutil.ReadAll(r)
 			if err != nil {

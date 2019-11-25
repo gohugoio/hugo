@@ -64,7 +64,7 @@ func (ini *Init) Branch(initFn func() (interface{}, error)) *Init {
 }
 
 // BranchdWithTimeout is same as Branch, but with a timeout.
-func (ini *Init) BranchdWithTimeout(timeout time.Duration, f func(ctx context.Context) (interface{}, error)) *Init {
+func (ini *Init) BranchWithTimeout(timeout time.Duration, f func(ctx context.Context) (interface{}, error)) *Init {
 	return ini.Branch(func() (interface{}, error) {
 		return ini.withTimeout(timeout, f)
 	})

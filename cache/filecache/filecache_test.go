@@ -250,9 +250,9 @@ func TestFileCacheReadOrCreateErrorInRead(t *testing.T) {
 
 	var result string
 
-	rf := func(failLevel int) func(info ItemInfo, r io.Reader) error {
+	rf := func(failLevel int) func(info ItemInfo, r io.ReadSeeker) error {
 
-		return func(info ItemInfo, r io.Reader) error {
+		return func(info ItemInfo, r io.ReadSeeker) error {
 			if failLevel > 0 {
 				if failLevel > 1 {
 					return ErrFatal
