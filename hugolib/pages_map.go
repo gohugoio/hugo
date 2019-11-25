@@ -442,7 +442,7 @@ func (b *pagesMapBucket) getPages() page.Pages {
 func (b *pagesMapBucket) getPagesAndSections() page.Pages {
 	b.pagesAndSectionsInit.Do(func() {
 		var pas page.Pages
-		pas = append(pas, b.pages...)
+		pas = append(pas, b.getPages()...)
 		for _, p := range b.bucketSections {
 			pas = append(pas, p.owner)
 		}
