@@ -248,6 +248,11 @@ func (cc *hugoBuilderCommon) getEnvironment(isServer bool) string {
 		return v
 	}
 
+	//  Used by Netlify and Forestry
+	if v, found := os.LookupEnv("HUGO_ENV"); found {
+		return v
+	}
+
 	if isServer {
 		return hugo.EnvironmentDevelopment
 	}
