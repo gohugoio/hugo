@@ -165,7 +165,7 @@ func generateDeprecatedWrappers(c *codegen.Inspector) error {
 			}
 		}
 
-		return fmt.Sprintf("helpers.Deprecated(%q, %q, %q, false)", "Page", "."+name, alternative)
+		return fmt.Sprintf("helpers.Deprecated(%q, %q, false)", "Page."+name, alternative)
 	}
 
 	var buff bytes.Buffer

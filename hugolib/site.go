@@ -572,7 +572,7 @@ func (s *SiteInfo) AllRegularPages() page.Pages {
 
 func (s *SiteInfo) Permalinks() map[string]string {
 	// Remove in 0.57
-	helpers.Deprecated("Site", ".Permalinks", "", false)
+	helpers.Deprecated(".Site.Permalinks", "", false)
 	return s.permalinks
 }
 
@@ -794,7 +794,7 @@ func (s *siteRefLinker) refLink(ref string, source interface{}, relative bool, o
 // Ref will give an absolute URL to ref in the given Page.
 func (s *SiteInfo) Ref(ref string, page page.Page, options ...string) (string, error) {
 	// Remove in Hugo 0.54
-	helpers.Deprecated("Site", ".Ref", "Use .Site.GetPage", true)
+	helpers.Deprecated(".Site.Ref", "Use .Site.GetPage", true)
 	outputFormat := ""
 	if len(options) > 0 {
 		outputFormat = options[0]
@@ -806,7 +806,7 @@ func (s *SiteInfo) Ref(ref string, page page.Page, options ...string) (string, e
 // RelRef will give an relative URL to ref in the given Page.
 func (s *SiteInfo) RelRef(ref string, page page.Page, options ...string) (string, error) {
 	// Remove in Hugo 0.54
-	helpers.Deprecated("Site", ".RelRef", "Use .Site.GetPage", true)
+	helpers.Deprecated(".Site.RelRef", "Use .Site.GetPage", true)
 	outputFormat := ""
 	if len(options) > 0 {
 		outputFormat = options[0]

@@ -252,8 +252,8 @@ type LogPrinter interface {
 // DistinctLogger ignores duplicate log statements.
 type DistinctLogger struct {
 	sync.RWMutex
-	logger LogPrinter
-	m      map[string]bool
+	getLogger func() LogPrinter
+	m         map[string]bool
 }
 
 func (l *DistinctLogger) Reset() {
@@ -289,7 +289,7 @@ func (l *DistinctLogger) print(logStatement string) {
 
 	l.Lock()
 	if !l.m[logStatement] {
-		l.logger.Println(logStatement)
+		l.getLogger().Println(logStatement)
 		l.m[logStatement] = true
 	}
 	l.Unlock()
@@ -297,23 +297,23 @@ func (l *DistinctLogger) print(logStatement string) {
 
 // NewDistinctErrorLogger creates a new DistinctLogger that logs ERRORs
 func NewDistinctErrorLogger() *DistinctLogger {
-	return &DistinctLogger{m: make(map[string]bool), logger: jww.ERROR}
+	return &DistinctLogger{m: make(map[string]bool), getLogger: func() LogPrinter { return jww.ERROR }}
 }
 
 // NewDistinctLogger creates a new DistinctLogger that logs to the provided logger.
 func NewDistinctLogger(logger LogPrinter) *DistinctLogger {
-	return &DistinctLogger{m: make(map[string]bool), logger: logger}
+	return &DistinctLogger{m: make(map[string]bool), getLogger: func() LogPrinter { return logger }}
 }
 
 // NewDistinctWarnLogger creates a new DistinctLogger that logs WARNs
 func NewDistinctWarnLogger() *DistinctLogger {
-	return &DistinctLogger{m: make(map[string]bool), logger: jww.WARN}
+	return &DistinctLogger{m: make(map[string]bool), getLogger: func() LogPrinter { return jww.WARN }}
 }
 
 // NewDistinctFeedbackLogger creates a new DistinctLogger that can be used
 // to give feedback to the user while not spamming with duplicates.
 func NewDistinctFeedbackLogger() *DistinctLogger {
-	return &DistinctLogger{m: make(map[string]bool), logger: jww.FEEDBACK}
+	return &DistinctLogger{m: make(map[string]bool), getLogger: func() LogPrinter { return jww.FEEDBACK }}
 }
 
 var (
@@ -339,16 +339,12 @@ func InitLoggers() {
 // point at the next Hugo release.
 // The idea is two remove an item in two Hugo releases to give users and theme authors
 // plenty of time to fix their templates.
-func Deprecated(object, item, alternative string, err bool) {
-	if !strings.HasSuffix(alternative, ".") {
-		alternative += "."
-	}
-
+func Deprecated(item, alternative string, err bool) {
 	if err {
-		DistinctErrorLog.Printf("%s's %s is deprecated and will be removed in Hugo %s. %s", object, item, hugo.CurrentVersion.Next().ReleaseVersion(), alternative)
+		DistinctErrorLog.Printf("%s is deprecated and will be removed in Hugo %s. %s", item, hugo.CurrentVersion.Next().ReleaseVersion(), alternative)
 
 	} else {
-		DistinctWarnLog.Printf("%s's %s is deprecated and will be removed in a future release. %s", object, item, alternative)
+		DistinctWarnLog.Printf("%s is deprecated and will be removed in a future release. %s", item, alternative)
 	}
 }
 
