@@ -106,7 +106,7 @@ The Hugo project welcomes all contributors and contributions regardless of skill
 If you are interested in helping with the project, we will help you with your contribution.
 Hugo is a very active project with many contributions happening daily.
 
-Because we want to create the best possible product for our users and the best contribution experience for our developers,
+We want to create the best possible product for our users and the best contribution experience for our developers,
 we have a set of guidelines which ensure that all contributions are acceptable.
 The guidelines are not intended as a filter or barrier to participation.
 If you are unfamiliar with the contribution process, the Hugo team will help you and teach you how to bring your contribution in accordance with the guidelines.
