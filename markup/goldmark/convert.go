@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"fmt"
 	"path/filepath"
+	"runtime/debug"
 
 	"github.com/pkg/errors"
 
@@ -158,8 +159,8 @@ func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (result convert
 			name := fmt.Sprintf("goldmark_%s.txt", c.ctx.DocumentID)
 			filename := filepath.Join(dir, name)
 			afero.WriteFile(hugofs.Os, filename, ctx.Src, 07555)
+			fmt.Print(string(debug.Stack()))
 			err = errors.Errorf("[BUG] goldmark: %s: create an issue on GitHub attaching the file in: %s", r, filename)
-
 		}
 	}()
 
