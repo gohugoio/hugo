@@ -64,7 +64,7 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 						if canonify {
 							relURLBase = ""
 						}
-						fs, cfg := newTestBundleSources(t)
+						fs, cfg := newTestBundleSources(c)
 						cfg.Set("baseURL", baseURL)
 						cfg.Set("canonifyURLs", canonify)
 
@@ -92,7 +92,7 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 
 						cfg.Set("uglyURLs", ugly)
 
-						b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{Logger: loggers.NewErrorLogger(), Fs: fs, Cfg: cfg}).WithNothingAdded()
+						b := newTestSitesBuilderFromDepsCfg(c, deps.DepsCfg{Logger: loggers.NewErrorLogger(), Fs: fs, Cfg: cfg}).WithNothingAdded()
 
 						b.Build(BuildCfg{})
 
@@ -672,7 +672,7 @@ Single content.
 
 }
 
-func newTestBundleSources(t *testing.T) (*hugofs.Fs, *viper.Viper) {
+func newTestBundleSources(t testing.TB) (*hugofs.Fs, *viper.Viper) {
 	cfg, fs := newTestCfgBasic()
 	c := qt.New(t)
 
