@@ -185,9 +185,18 @@ if (!doNotTrack) {
 <meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}" />
 <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}" />
 <meta property="og:url" content="{{ .Permalink }}" />
-{{ with $.Param "images" }}{{ range first 6 . }}
+{{ with $.Params.images }}{{ range first 6 . -}}
 <meta property="og:image" content="{{ . | absURL }}" />
-{{ end }}{{ end }}
+{{ end }}{{ else -}}
+{{- $images := $.Resources.ByType "image" -}}
+{{- $featured := $images.GetMatch "*feature*" -}}
+{{- if not $featured }}{{ $featured = $images.GetMatch "{*cover*,*thumbnail*}" }}{{ end -}}
+{{- with $featured -}}
+<meta property="og:image" content="{{ $featured.Permalink }}"/>
+{{ else -}}
+{{- with $.Site.Params.images -}}
+<meta property="og:image" content="{{ index . 0 | absURL }}"/>
+{{ end }}{{ end }}{{ end }}
 
 {{- $iso8601 := "2006-01-02T15:04:05-07:00" -}}
 {{- if .IsPage }}
@@ -196,8 +205,7 @@ if (!doNotTrack) {
 {{ end }}
 {{- if not .Lastmod.IsZero }}<meta property="article:modified_time" {{ .Lastmod.Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />{{ end }}
 {{- else }}
-{{- if not .Date.IsZero }}
-<meta property="og:updated_time" {{ .Date.Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />
+{{- if not .Date.IsZero }}<meta property="og:updated_time" {{ .Date.Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />
 {{- end }}
 {{- end }}{{/* .IsPage */}}
 
@@ -509,7 +517,7 @@ if (!doNotTrack) {
 {{ else -}}
 {{- $images := $.Resources.ByType "image" -}}
 {{- $featured := $images.GetMatch "*feature*" -}}
-{{- $featured := cond (ne $featured nil) $featured ($images.GetMatch "{*cover*,*thumbnail*}") -}}
+{{- if not $featured }}{{ $featured = $images.GetMatch "{*cover*,*thumbnail*}" }}{{ end -}}
 {{- with $featured -}}
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="{{ $featured.Permalink }}"/>
