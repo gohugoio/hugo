@@ -1445,5 +1445,17 @@ weight: 2002
 PNG Data
 `)
 
+	i18nContent := func(id, value string) string {
+		return fmt.Sprintf(`
+[%s]
+other = %q
+`, id, value)
+	}
+
+	b.WithSourceFile("i18n/en.toml", i18nContent("hello", "Hello"))
+	b.WithSourceFile("i18n/fr.toml", i18nContent("hello", "Bonjour"))
+	b.WithSourceFile("i18n/nb.toml", i18nContent("hello", "Hallo"))
+	b.WithSourceFile("i18n/nn.toml", i18nContent("hello", "Hallo"))
+
 	return &multiSiteTestBuilder{sitesBuilder: b, configFormat: configFormat, config: config, configData: configData}
 }

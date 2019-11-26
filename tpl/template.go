@@ -50,8 +50,6 @@ type TemplateHandler interface {
 	AddLateTemplate(name, tpl string) error
 	LoadTemplates(prefix string) error
 
-	NewTextTemplate() TemplateParseFinder
-
 	MarkReady() error
 	RebuildClone()
 }

@@ -418,8 +418,7 @@ Fingerprinted: {{ $fingerprinted.RelPermalink }}
 
 		}},
 		{"execute-as-template", func() bool {
-			// TODO(bep) eventually remove
-			return isGo111()
+			return true
 		}, func(b *sitesBuilder) {
 			b.WithTemplates("home.html", `
 {{ $var := "Hugo Page" }}
@@ -667,4 +666,31 @@ JSON: {{ $json.RelPermalink }}: {{ $json.Content }}
 	b.AssertFileContent("public/index.html",
 		"JSON: /jsons/data1.json: json1 content",
 		"JSONS: 2", "/jsons/data1.json: json1 content")
+}
+
+func TestExecuteAsTemplateWithLanguage(t *testing.T) {
+	b := newMultiSiteTestDefaultBuilder(t)
+	indexContent := `
+Lang: {{ site.Language.Lang }}
+{{ $templ := "{{T \"hello\"}}" | resources.FromString "f1.html" }}
+{{ $helloResource := $templ | resources.ExecuteAsTemplate (print "f%s.html" .Lang) . }}
+Hello1: {{T "hello"}}
+Hello2: {{ $helloResource.Content }}
+LangURL: {{ relLangURL "foo" }}
+`
+	b.WithTemplatesAdded("index.html", indexContent)
+	b.WithTemplatesAdded("index.fr.html", indexContent)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/en/index.html", `
+Hello1: Hello
+Hello2: Hello
+`)
+
+	b.AssertFileContent("public/fr/index.html", `
+Hello1: Bonjour
+Hello2: Bonjour
+`)
+
 }

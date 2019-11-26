@@ -98,8 +98,6 @@ type templateHandler struct {
 	text *textTemplates
 	html *htmlTemplates
 
-	extTextTemplates []*textTemplate
-
 	amberFuncMap template.FuncMap
 
 	errors []*templateErr
@@ -153,15 +151,7 @@ func (t *templateHandler) addShortcodeVariant(name string, info tpl.Info, templ 
 	}
 }
 
-// NewTextTemplate provides a text template parser that has all the Hugo
-// template funcs etc. built-in.
-func (t *templateHandler) NewTextTemplate() tpl.TemplateParseFinder {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
-	tt := &textTemplate{t: texttemplate.New("")}
-	t.extTextTemplates = append(t.extTextTemplates, tt)
-
+func (t *templateHandler) wrapTextTemplate(tt *textTemplate) tpl.TemplateParseFinder {
 	return struct {
 		tpl.TemplateParser
 		tpl.TemplateLookup
@@ -283,8 +273,11 @@ func (t *templateHandler) clone(d *deps.Deps) *templateHandler {
 		shortcodes:   make(map[string]*shortcodeTemplates),
 		templateInfo: t.templateInfo,
 		html:         &htmlTemplates{t: template.Must(t.html.t.Clone()), overlays: make(map[string]*template.Template), templatesCommon: t.html.templatesCommon},
-		text:         &textTemplates{textTemplate: &textTemplate{t: texttemplate.Must(t.text.t.Clone())}, overlays: make(map[string]*texttemplate.Template), templatesCommon: t.text.templatesCommon},
-		errors:       make([]*templateErr, 0),
+		text: &textTemplates{
+			textTemplate: &textTemplate{t: texttemplate.Must(t.text.t.Clone())},
+			standalone:   &textTemplate{t: texttemplate.New("")},
+			overlays:     make(map[string]*texttemplate.Template), templatesCommon: t.text.templatesCommon},
+		errors: make([]*templateErr, 0),
 	}
 
 	for k, v := range t.shortcodes {
@@ -302,6 +295,7 @@ func (t *templateHandler) clone(d *deps.Deps) *templateHandler {
 	}
 
 	d.Tmpl = c
+	d.TextTmpl = c.wrapTextTemplate(c.text.standalone)
 
 	c.initFuncs()
 
@@ -339,6 +333,7 @@ func newTemplateAdapter(deps *deps.Deps) *templateHandler {
 	}
 	textT := &textTemplates{
 		textTemplate:    &textTemplate{t: texttemplate.New("")},
+		standalone:      &textTemplate{t: texttemplate.New("")},
 		overlays:        make(map[string]*texttemplate.Template),
 		templatesCommon: common,
 	}
@@ -431,6 +426,7 @@ func (t *textTemplates) setTemplateFuncster(f *templateFuncster) {
 type textTemplates struct {
 	*templatesCommon
 	*textTemplate
+	standalone *textTemplate
 	clone      *texttemplate.Template
 	cloneClone *texttemplate.Template
 
@@ -468,6 +464,7 @@ func (t *textTemplates) lookup(name string) *texttemplate.Template {
 func (t *templateHandler) setFuncs(funcMap map[string]interface{}) {
 	t.html.setFuncs(funcMap)
 	t.text.setFuncs(funcMap)
+	t.setFuncMapInTemplate(t.text.standalone.t, funcMap)
 }
 
 // SetFuncs replaces the funcs in the func maps with new definitions.
@@ -779,10 +776,6 @@ func (t *templateHandler) initFuncs() {
 		for _, variant := range v.variants {
 			t.setFuncMapInTemplate(variant.templ, funcMap)
 		}
-	}
-
-	for _, extText := range t.extTextTemplates {
-		extText.t.Funcs(funcMap)
 	}
 
 	// Amber is HTML only.
