@@ -148,7 +148,19 @@ func (m *pagesMap) addBucketFor(key string, p *pageState, meta map[string]interf
 
 	disabled := !m.s.isEnabled(p.Kind())
 
-	bucket := &pagesMapBucket{owner: p, view: isView, meta: meta, disabled: disabled}
+	var cascade map[string]interface{}
+	if p.bucket != nil {
+		cascade = p.bucket.cascade
+	}
+
+	bucket := &pagesMapBucket{
+		owner:    p,
+		view:     isView,
+		cascade:  cascade,
+		meta:     meta,
+		disabled: disabled,
+	}
+
 	p.bucket = bucket
 
 	m.r.Insert(key, bucket)

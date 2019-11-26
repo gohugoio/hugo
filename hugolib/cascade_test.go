@@ -100,6 +100,50 @@ func TestCascade(t *testing.T) {
 
 }
 
+func TestCascadeEdit(t *testing.T) {
+	p1Content := `---
+title: P1
+---
+`
+	b := newTestSitesBuilder(t).Running()
+	b.WithTemplatesAdded("_default/single.html", `Banner: {{ .Params.banner }}|Layout: {{ .Layout }}|Type: {{ .Type }}|Content: {{ .Content }}`)
+	b.WithContent("post/_index.md", `
+---
+title: Post
+cascade:
+  banner: post.jpg
+  layout: postlayout
+  type: posttype
+---
+`)
+
+	b.WithContent("post/dir/_index.md", `
+---
+title: Dir
+---
+`, "post/dir/p1.md", p1Content)
+	b.Build(BuildCfg{})
+
+	assert := func() {
+		b.Helper()
+		b.AssertFileContent("public/post/dir/p1/index.html",
+			`Banner: post.jpg|`,
+			`Layout: postlayout`,
+			`Type: posttype`,
+		)
+	}
+
+	assert()
+
+	b.EditFiles("content/post/dir/p1.md", p1Content+"\ncontent edit")
+	b.Build(BuildCfg{})
+
+	assert()
+	b.AssertFileContent("public/post/dir/p1/index.html",
+		`content edit`,
+	)
+}
+
 func newCascadeTestBuilder(t testing.TB, langs []string) *sitesBuilder {
 	p := func(m map[string]interface{}) string {
 		var yamlStr string
