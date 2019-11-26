@@ -321,6 +321,8 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 	rootPage := s.getPage(page.KindPage, "mypage.md")
 	c.Assert(rootPage, qt.Not(qt.IsNil))
 	c.Assert(rootPage.Parent().IsHome(), qt.Equals, true)
+	// https://github.com/gohugoio/hugo/issues/6365
+	c.Assert(rootPage.Sections(), qt.HasLen, 0)
 
 	// Add a odd test for this as this looks a little bit off, but I'm not in the mood
 	// to think too hard a out this right now. It works, but people will have to spell

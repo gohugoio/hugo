@@ -176,8 +176,6 @@ func (m *pagesMap) addPage(p *pageState) {
 	}
 
 	bucket = v.(*pagesMapBucket)
-	p.bucket = bucket
-
 	bucket.pages = append(bucket.pages, p)
 }
 
