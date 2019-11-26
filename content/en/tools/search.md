@@ -18,7 +18,7 @@ aliases: []
 toc: true
 ---
 
-A static website with a dynamic search function? Yes. As alternatives to embeddable scripts from Google or other search engines, you can provide your visitors a custom search by indexing your content files directly.
+A static website with a dynamic search function? Yes, Hugo provides an alternative to embeddable scripts from Google or other search engines for static websites. Hugo allows you to provide your visitors with a custom search function by indexing your content files directly.
 
 * [GitHub Gist for Hugo Workflow](https://gist.github.com/sebz/efddfc8fdcb6b480f567). This gist contains a simple workflow to create a search index for your static website. It uses a simple Grunt script to index all your content files and [lunr.js](https://lunrjs.com/) to serve the search results.
 * [hugo-elasticsearch](https://www.npmjs.com/package/hugo-elasticsearch). Generate [Elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html) indexes for Hugo static sites by parsing front matter. Hugo-Elasticsearch will generate a newline delimited JSON (NDJSON) file that can be bulk uploaded into Elasticsearch using any one of the available [clients](https://www.elastic.co/guide/en/elasticsearch/client/index.html).
