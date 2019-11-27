@@ -74,11 +74,9 @@ func GetTitleFunc(style string) func(s string) string {
   case "go":
     return strings.Title
   case "chicago":
-    tc := transform.NewTitleConverter(transform.ChicagoStyle)
-    return tc.Title
+    return transform.NewTitleConverter(transform.ChicagoStyle)
   default:
-    tc := transform.NewTitleConverter(transform.APStyle)
-    return tc.Title
+    return transform.NewTitleConverter(transform.APStyle)
   }
 }
 {{< / highlight >}}
@@ -117,11 +115,9 @@ func GetTitleFunc(style string) func(s string) string {
   case "go":
     return strings.Title
   case "chicago":
-    tc := transform.NewTitleConverter(transform.ChicagoStyle)
-    return tc.Title
+    return transform.NewTitleConverter(transform.ChicagoStyle)
   default:
-    tc := transform.NewTitleConverter(transform.APStyle)
-    return tc.Title
+    return transform.NewTitleConverter(transform.APStyle)
   }
 }
 ```
