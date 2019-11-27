@@ -94,6 +94,7 @@ Highlighting in code fences is enabled by default.{{< new-in "0.60.0" >}}
 ````
 ```go {linenos=table,hl_lines=[8,"15-17"],linenostart=199}
 // ... code
+```
 ````
 
 
