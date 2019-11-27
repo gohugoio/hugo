@@ -56,3 +56,65 @@ Disqus:
 	// Disqus
 	b.AssertFileContent("public/index.html", "\"disqus_shortname\" + '.disqus.com/embed.js';")
 }
+
+func TestInternalTemplatesImage(t *testing.T) {
+	config := `
+baseURL = "https://example.org"
+
+[params]
+images=["siteimg1.jpg", "siteimg2.jpg"]
+
+`
+	b := newTestSitesBuilder(t).WithConfigFile("toml", config)
+
+	b.WithContent("mybundle/index.md", `---
+title: My Bundle
+---
+`)
+
+	b.WithContent("mypage.md", `---
+title: My Page
+images: ["pageimg1.jpg", "pageimg2.jpg"]
+---
+`)
+
+	b.WithContent("mysite.md", `---
+title: My Site
+---
+`)
+
+	b.WithTemplatesAdded("_default/single.html", `
+
+{{ template "_internal/twitter_cards.html" . }}
+{{ template "_internal/opengraph.html" . }}
+{{ template "_internal/schema.html" . }}
+
+`)
+
+	b.WithSunset("content/mybundle/featured-sunset.jpg")
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/mybundle/index.html", `
+<meta name="twitter:image" content="https://example.org/mybundle/featured-sunset.jpg"/>
+<meta name="twitter:title" content="My Bundle"/>
+<meta property="og:title" content="My Bundle" />
+<meta property="og:url" content="https://example.org/mybundle/" />
+<meta property="og:image" content="https://example.org/mybundle/featured-sunset.jpg"/>
+<meta itemprop="name" content="My Bundle">
+<meta itemprop="image" content="https://example.org/mybundle/featured-sunset.jpg">
+
+`)
+	b.AssertFileContent("public/mypage/index.html", `
+<meta name="twitter:image" content="https://example.org/pageimg1.jpg"/>
+<meta property="og:image" content="https://example.org/pageimg1.jpg" />
+<meta property="og:image" content="https://example.org/pageimg2.jpg" />
+<meta itemprop="image" content="https://example.org/pageimg1.jpg">
+<meta itemprop="image" content="https://example.org/pageimg2.jpg">        
+`)
+	b.AssertFileContent("public/mysite/index.html", `
+<meta name="twitter:image" content="https://example.org/siteimg1.jpg"/>
+<meta property="og:image" content="https://example.org/siteimg1.jpg"/>
+<meta itemprop="image" content="https://example.org/siteimg1.jpg"/>
+`)
+
+}
