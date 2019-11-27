@@ -15,6 +15,7 @@
 package blackfriday
 
 import (
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/blackfriday/blackfriday_config"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/russross/blackfriday"
@@ -70,6 +71,10 @@ func (c *blackfridayConverter) Convert(ctx converter.RenderContext) (converter.R
 	r := c.getHTMLRenderer(ctx.RenderTOC)
 
 	return converter.Bytes(blackfriday.Markdown(ctx.Src, r, c.extensions)), nil
+}
+
+func (c *blackfridayConverter) Supports(feature identity.Identity) bool {
+	return false
 }
 
 func (c *blackfridayConverter) getHTMLRenderer(renderTOC bool) blackfriday.Renderer {

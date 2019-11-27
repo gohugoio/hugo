@@ -17,6 +17,8 @@ package org
 import (
 	"bytes"
 
+	"github.com/gohugoio/hugo/identity"
+
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/niklasfasching/go-org/org"
 	"github.com/spf13/afero"
@@ -65,4 +67,8 @@ func (c *orgConverter) Convert(ctx converter.RenderContext) (converter.Result, e
 		return converter.Bytes(ctx.Src), nil
 	}
 	return converter.Bytes([]byte(html)), nil
+}
+
+func (c *orgConverter) Supports(feature identity.Identity) bool {
+	return false
 }

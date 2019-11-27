@@ -71,7 +71,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 
 	if conf.whatChanged == nil {
 		// Assume everything has changed
-		conf.whatChanged = &whatChanged{source: true, other: true}
+		conf.whatChanged = &whatChanged{source: true}
 	}
 
 	var prepareErr error

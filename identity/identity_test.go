@@ -11,38 +11,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tpl
+package identity
 
 import (
-	"github.com/gohugoio/hugo/identity"
+	"testing"
+
+	qt "github.com/frankban/quicktest"
 )
 
-// Increments on breaking changes.
-const TemplateVersion = 2
+func TestIdentityManager(t *testing.T) {
+	c := qt.New(t)
 
-// Info holds some info extracted from a parsed template.
-type Info struct {
+	id1 := testIdentity{name: "id1"}
+	im := NewIdentityManager(id1)
 
-	// Set for shortcode templates with any {{ .Inner }}
-	IsInner bool
-
-	// Set for partials with a return statement.
-	HasReturn bool
-
-	// Config extracted from template.
-	Config Config
-
-	identity.Manager
+	c.Assert(im.Search(id1).GetIdentity(), qt.Equals, id1)
+	c.Assert(im.Search(testIdentity{name: "notfound"}), qt.Equals, nil)
 }
 
-func (info Info) IsZero() bool {
-	return info.Config.Version == 0
+type testIdentity struct {
+	name string
 }
 
-type Config struct {
-	Version int
+func (id testIdentity) GetIdentity() Identity {
+	return id
 }
 
-var DefaultConfig = Config{
-	Version: TemplateVersion,
+func (id testIdentity) Name() string {
+	return id.name
 }

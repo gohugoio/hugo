@@ -11,38 +11,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tpl
+package hooks
 
 import (
+	"io"
+
 	"github.com/gohugoio/hugo/identity"
 )
 
-// Increments on breaking changes.
-const TemplateVersion = 2
-
-// Info holds some info extracted from a parsed template.
-type Info struct {
-
-	// Set for shortcode templates with any {{ .Inner }}
-	IsInner bool
-
-	// Set for partials with a return statement.
-	HasReturn bool
-
-	// Config extracted from template.
-	Config Config
-
-	identity.Manager
+type LinkContext interface {
+	Page() interface{}
+	Destination() string
+	Title() string
+	Text() string
 }
 
-func (info Info) IsZero() bool {
-	return info.Config.Version == 0
+type Render struct {
+	LinkRenderer  LinkRenderer
+	ImageRenderer LinkRenderer
 }
 
-type Config struct {
-	Version int
+func (h *Render) GetChildIdentities() identity.Identities {
+	var ids identity.Identities
+	if h.LinkRenderer != nil {
+		ids = append(ids, h.LinkRenderer)
+	}
+	return ids
+
 }
 
-var DefaultConfig = Config{
-	Version: TemplateVersion,
+type LinkRenderer interface {
+	Render(w io.Writer, ctx LinkContext) error
+	identity.Provider
 }

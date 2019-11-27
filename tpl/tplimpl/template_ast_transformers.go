@@ -47,10 +47,11 @@ const (
 )
 
 type templateContext struct {
-	decl     decl
-	visited  map[string]bool
-	notFound map[string]bool
-	lookupFn func(name string) *parse.Tree
+	decl             decl
+	visited          map[string]bool
+	templateNotFound map[string]bool
+	identityNotFound map[string]bool
+	lookupFn         func(name string) *templateInfoTree
 
 	// The last error encountered.
 	err error
@@ -67,7 +68,7 @@ type templateContext struct {
 	returnNode *parse.CommandNode
 }
 
-func (c templateContext) getIfNotVisited(name string) *parse.Tree {
+func (c templateContext) getIfNotVisited(name string) *templateInfoTree {
 	if c.visited[name] {
 		return nil
 	}
@@ -77,60 +78,98 @@ func (c templateContext) getIfNotVisited(name string) *parse.Tree {
 		// This may be a inline template defined outside of this file
 		// and not yet parsed. Unusual, but it happens.
 		// Store the name to try again later.
-		c.notFound[name] = true
+		c.templateNotFound[name] = true
 	}
 
 	return templ
 }
 
-func newTemplateContext(lookupFn func(name string) *parse.Tree) *templateContext {
+func newTemplateContext(info tpl.Info, lookupFn func(name string) *templateInfoTree) *templateContext {
+	if info.Manager == nil {
+		panic("identity manager not set")
+	}
 	return &templateContext{
-		Info:     tpl.Info{Config: tpl.DefaultConfig},
-		lookupFn: lookupFn,
-		decl:     make(map[string]string),
-		visited:  make(map[string]bool),
-		notFound: make(map[string]bool)}
+		Info:             info,
+		lookupFn:         lookupFn,
+		decl:             make(map[string]string),
+		visited:          make(map[string]bool),
+		templateNotFound: make(map[string]bool),
+		identityNotFound: make(map[string]bool),
+	}
 }
 
-func createParseTreeLookup(templ *template.Template) func(nn string) *parse.Tree {
-	return func(nn string) *parse.Tree {
+func createParseTreeLookup(templ *template.Template) func(nn string) *templateInfoTree {
+	return createParseTreeLookupFor(templ, func(name string) tpl.Info { return newTemplateInfo(name) })
+
+}
+
+func createParseTreeLookupFor(templ *template.Template, infoFn func(name string) tpl.Info) func(nn string) *templateInfoTree {
+	return func(nn string) *templateInfoTree {
 		tt := templ.Lookup(nn)
 		if tt != nil {
-			return tt.Tree
+			return &templateInfoTree{
+				tree: tt.Tree,
+				info: infoFn(nn),
+			}
 		}
 		return nil
 	}
 }
 
-func applyTemplateTransformersToHMLTTemplate(typ templateType, templ *template.Template) (*templateContext, error) {
-	return applyTemplateTransformers(typ, templ.Tree, createParseTreeLookup(templ))
+func (t *templateHandler) createParseTreeLookup(templ *template.Template) func(nn string) *templateInfoTree {
+	return createParseTreeLookupFor(templ, func(name string) tpl.Info { return t.templateInfo[name] })
 }
 
-func applyTemplateTransformersToTextTemplate(typ templateType, templ *texttemplate.Template) (*templateContext, error) {
-	return applyTemplateTransformers(typ, templ.Tree,
-		func(nn string) *parse.Tree {
+func (t *templateHandler) applyTemplateTransformersToHMLTTemplate(typ templateType, templ *template.Template) (*templateContext, error) {
+	ti := &templateInfoTree{
+		tree: templ.Tree,
+		info: t.getOrCreateTemplateInfo(templ.Name()),
+	}
+	return applyTemplateTransformers(typ, ti, t.createParseTreeLookup(templ))
+}
+
+func (t *templateHandler) applyTemplateTransformersToTextTemplate(typ templateType, templ *texttemplate.Template) (*templateContext, error) {
+	ti := &templateInfoTree{
+		tree: templ.Tree,
+		info: t.getOrCreateTemplateInfo(templ.Name()),
+	}
+
+	return applyTemplateTransformers(typ, ti,
+		func(nn string) *templateInfoTree {
 			tt := templ.Lookup(nn)
 			if tt != nil {
-				return tt.Tree
+				return &templateInfoTree{
+					tree: tt.Tree,
+					info: t.getOrCreateTemplateInfo(nn),
+				}
 			}
 			return nil
 		})
 }
 
-func applyTemplateTransformers(typ templateType, templ *parse.Tree, lookupFn func(name string) *parse.Tree) (*templateContext, error) {
+type templateInfoTree struct {
+	info tpl.Info
+	tree *parse.Tree
+}
+
+func applyTemplateTransformers(
+	typ templateType,
+	templ *templateInfoTree,
+	lookupFn func(name string) *templateInfoTree) (*templateContext, error) {
+
 	if templ == nil {
 		return nil, errors.New("expected template, but none provided")
 	}
 
-	c := newTemplateContext(lookupFn)
+	c := newTemplateContext(templ.info, lookupFn)
 	c.typ = typ
 
-	_, err := c.applyTransformations(templ.Root)
+	_, err := c.applyTransformations(templ.tree.Root)
 
 	if err == nil && c.returnNode != nil {
 		// This is a partial with a return statement.
 		c.Info.HasReturn = true
-		templ.Root = c.wrapInPartialReturnWrapper(templ.Root)
+		templ.tree.Root = c.wrapInPartialReturnWrapper(templ.tree.Root)
 	}
 
 	return c, err
@@ -213,7 +252,7 @@ func (c *templateContext) applyTransformations(n parse.Node) (bool, error) {
 	case *parse.TemplateNode:
 		subTempl := c.getIfNotVisited(x.Name)
 		if subTempl != nil {
-			c.applyTransformationsToNodes(subTempl.Root)
+			c.applyTransformationsToNodes(subTempl.tree.Root)
 		}
 	case *parse.PipeNode:
 		c.collectConfig(x)
@@ -230,6 +269,26 @@ func (c *templateContext) applyTransformations(n parse.Node) (bool, error) {
 		}
 
 	case *parse.CommandNode:
+		if len(x.Args) > 1 {
+			if id, ok := x.Args[0].(*parse.IdentifierNode); ok {
+				if id.Ident == "partial" {
+					partialName := strings.Trim(x.Args[1].String(), "\"")
+					if !strings.Contains(partialName, ".") {
+						partialName += ".html"
+					}
+					// TODO1 add a test for case
+					partialName = "partials/" + partialName
+					info := c.lookupFn(partialName)
+					if info != nil {
+						c.Info.Add(info.info)
+					} else {
+						// Delay for later
+						c.identityNotFound[partialName] = true
+					}
+				}
+			}
+		}
+
 		c.collectInner(x)
 		keep := c.collectReturnNode(x)
 

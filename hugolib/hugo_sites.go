@@ -20,6 +20,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/identity"
+
 	radix "github.com/armon/go-radix"
 
 	"github.com/gohugoio/hugo/output"
@@ -411,7 +413,6 @@ func applyDeps(cfg deps.DepsCfg, sites ...*Site) error {
 			}
 			d.OutputFormatsConfig = s.outputFormatsConfig
 		}
-
 	}
 
 	return nil
@@ -806,12 +807,55 @@ func (h *HugoSites) findPagesByKindIn(kind string, inPages page.Pages) page.Page
 	return h.Sites[0].findPagesByKindIn(kind, inPages)
 }
 
-func (h *HugoSites) findPagesByShortcode(shortcode string) page.Pages {
-	var pages page.Pages
-	for _, s := range h.Sites {
-		pages = append(pages, s.findPagesByShortcode(shortcode)...)
+func (h *HugoSites) resetPageStateFromEvents(ids identity.Identities) {
+	idset := ids.ToIdentitySet()
+	hasIdentify := func(v interface{}) bool {
+		if id, ok := v.(identity.Provider); ok {
+			if idset[id.GetIdentity()] {
+				return true
+			}
+		}
+		if idp, ok := v.(identity.IdentitiesProvider); ok {
+			for id, _ := range idp.GetIdentities() {
+				if idset[id.GetIdentity()] {
+					return true
+				}
+			}
+		}
+		return false
 	}
-	return pages
+
+	for _, s := range h.Sites {
+	PAGES:
+		for _, p := range s.rawAllPages {
+		OUTPUTS:
+			for _, po := range p.pageOutputs {
+				if c := po.cp; c != nil {
+					if converted := c.convertedResult; converted != nil {
+						if hasIdentify(converted) {
+							c.Reset()
+							p.forceRender = true
+							continue OUTPUTS
+						}
+					}
+				}
+			}
+
+			for _, s := range p.shortcodeState.shortcodes {
+				for _, id := range ids {
+					if s.info.Search(id.GetIdentity()) != nil {
+						for _, po := range p.pageOutputs {
+							if po.cp != nil {
+								po.cp.Reset()
+							}
+						}
+						p.forceRender = true
+						continue PAGES
+					}
+				}
+			}
+		}
+	}
 }
 
 // Used in partial reloading to determine if the change is in a bundle.

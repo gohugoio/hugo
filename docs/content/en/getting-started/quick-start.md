@@ -24,7 +24,10 @@ This quick start uses `macOS` in the examples. For instructions about how to ins
 It is recommended to have [Git](https://git-scm.com/downloads) installed to run this tutorial.
 {{% /note %}}
 
+![Drag Racing](/images/Dragster.jpg "image title")
 
+
+![Drag Racing](/images/Dragster2.jpg "image title")
 
 ## Step 1: Install Hugo
 

@@ -40,6 +40,9 @@ import (
 
 // TODO(bep) this fails when testmodBuilder is also building ...
 func TestHugoModules(t *testing.T) {
+	if !isCI() {
+		t.Skip("skip (relative) long running modules test when running locally")
+	}
 	t.Parallel()
 
 	if hugo.GoMinorVersion() < 12 {

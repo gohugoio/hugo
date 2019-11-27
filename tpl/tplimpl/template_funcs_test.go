@@ -101,6 +101,7 @@ func TestTemplateFuncsExamples(t *testing.T) {
 	depsCfg.Fs = fs
 	d, err := deps.New(depsCfg)
 	c.Assert(err, qt.IsNil)
+	c.Assert(err, qt.IsNil)
 
 	var data struct {
 		Title   string

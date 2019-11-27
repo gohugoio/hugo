@@ -282,6 +282,10 @@ func (d Deps) ForLanguage(cfg DepsCfg, onCreated func(d *Deps) error) (*Deps, er
 		return nil, err
 	}
 
+	if err != nil {
+		return nil, err
+	}
+
 	d.Site = cfg.Site
 
 	// The resource cache is global so reuse.

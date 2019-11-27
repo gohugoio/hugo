@@ -23,7 +23,13 @@ You can put any file type into your `/content` directories, but Hugo uses the `m
 * [Shortcodes](/content-management/shortcodes/) processed
 * Layout applied
 
-## List of content formats
+{{< deleteme >}}
+
+
+## List of content formats.
+
+
+
 
 The current list of content formats in Hugo:
 

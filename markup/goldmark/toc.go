@@ -17,86 +17,79 @@ import (
 	"bytes"
 
 	"github.com/gohugoio/hugo/markup/tableofcontents"
-
-	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/text"
-	"github.com/yuin/goldmark/util"
 )
 
 var (
-	tocResultKey = parser.NewContextKey()
-	tocEnableKey = parser.NewContextKey()
+	tocResultKey     = parser.NewContextKey()
+	renderContextKey = parser.NewContextKey()
 )
 
-type tocTransformer struct {
+// TODO1 revert the content spec changes
+
+type tocAstHook struct {
+	reader text.Reader
+	pc     parser.Context
+
+	// ToC state
+	toc         tableofcontents.Root
+	header      tableofcontents.Header
+	level       int
+	row         int
+	inHeading   bool
+	headingText bytes.Buffer
 }
 
-func (t *tocTransformer) Transform(n *ast.Document, reader text.Reader, pc parser.Context) {
-	if b, ok := pc.Get(tocEnableKey).(bool); !ok || !b {
-		return
+func newTocAstHook(reader text.Reader, pc parser.Context) *tocAstHook {
+	return &tocAstHook{
+		reader: reader,
+		pc:     pc,
+		row:    -1,
 	}
+}
 
-	var (
-		toc         tableofcontents.Root
-		header      tableofcontents.Header
-		level       int
-		row         = -1
-		inHeading   bool
-		headingText bytes.Buffer
-	)
-
-	ast.Walk(n, func(n ast.Node, entering bool) (ast.WalkStatus, error) {
-		s := ast.WalkStatus(ast.WalkContinue)
-		if n.Kind() == ast.KindHeading {
-			if inHeading && !entering {
-				header.Text = headingText.String()
-				headingText.Reset()
-				toc.AddAt(header, row, level-1)
-				header = tableofcontents.Header{}
-				inHeading = false
-				return s, nil
-			}
-
-			inHeading = true
-		}
-
-		if !(inHeading && entering) {
+func (h *tocAstHook) Visit(n ast.Node, entering bool) (ast.WalkStatus, error) {
+	s := ast.WalkStatus(ast.WalkContinue)
+	if n.Kind() == ast.KindHeading {
+		if h.inHeading && !entering {
+			h.header.Text = h.headingText.String()
+			h.headingText.Reset()
+			h.toc.AddAt(h.header, h.row, h.level-1)
+			h.header = tableofcontents.Header{}
+			h.inHeading = false
 			return s, nil
 		}
 
-		switch n.Kind() {
-		case ast.KindHeading:
-			heading := n.(*ast.Heading)
-			level = heading.Level
+		h.inHeading = true
+	}
 
-			if level == 1 || row == -1 {
-				row++
-			}
+	if !(h.inHeading && entering) {
+		return s, nil
+	}
 
-			id, found := heading.AttributeString("id")
-			if found {
-				header.ID = string(id.([]byte))
-			}
-		case ast.KindText:
-			textNode := n.(*ast.Text)
-			headingText.Write(textNode.Text(reader.Source()))
+	switch n.Kind() {
+	case ast.KindHeading:
+		heading := n.(*ast.Heading)
+		h.level = heading.Level
+
+		if h.level == 1 || h.row == -1 {
+			h.row++
 		}
 
-		return s, nil
-	})
+		id, found := heading.AttributeString("id")
+		if found {
+			h.header.ID = string(id.([]byte))
+		}
+	case ast.KindText:
+		textNode := n.(*ast.Text)
+		h.headingText.Write(textNode.Text(h.reader.Source()))
+	}
 
-	pc.Set(tocResultKey, toc)
+	return s, nil
 }
 
-type tocExtension struct {
-}
-
-func newTocExtension() goldmark.Extender {
-	return &tocExtension{}
-}
-
-func (e *tocExtension) Extend(m goldmark.Markdown) {
-	m.Parser().AddOptions(parser.WithASTTransformers(util.Prioritized(&tocTransformer{}, 10)))
+func (h *tocAstHook) Done() {
+	h.pc.Set(tocResultKey, h.toc)
 }

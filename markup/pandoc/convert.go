@@ -17,6 +17,7 @@ package pandoc
 import (
 	"os/exec"
 
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/internal"
 
 	"github.com/gohugoio/hugo/markup/converter"
@@ -45,6 +46,10 @@ type pandocConverter struct {
 
 func (c *pandocConverter) Convert(ctx converter.RenderContext) (converter.Result, error) {
 	return converter.Bytes(c.getPandocContent(ctx.Src, c.ctx)), nil
+}
+
+func (c *pandocConverter) Supports(feature identity.Identity) bool {
+	return false
 }
 
 // getPandocContent calls pandoc as an external helper to convert pandoc markdown to HTML.

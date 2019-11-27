@@ -37,6 +37,12 @@ type LayoutDescriptor struct {
 	Layout  string
 	// LayoutOverride indicates what we should only look for the above layout.
 	LayoutOverride bool
+
+	RenderingHook bool
+}
+
+func (d LayoutDescriptor) isList() bool {
+	return !d.RenderingHook && d.Kind != "page"
 }
 
 // LayoutHandler calculates the layout template to use to render a given output type.
@@ -89,7 +95,7 @@ type layoutBuilder struct {
 
 func (l *layoutBuilder) addLayoutVariations(vars ...string) {
 	for _, layoutVar := range vars {
-		if l.d.LayoutOverride && layoutVar != l.d.Layout {
+		if !l.d.RenderingHook && l.d.LayoutOverride && layoutVar != l.d.Layout {
 			continue
 		}
 		l.layoutVariations = append(l.layoutVariations, layoutVar)
@@ -99,6 +105,9 @@ func (l *layoutBuilder) addLayoutVariations(vars ...string) {
 func (l *layoutBuilder) addTypeVariations(vars ...string) {
 	for _, typeVar := range vars {
 		if !reservedSections[typeVar] {
+			if l.d.RenderingHook {
+				typeVar = typeVar + renderingHookRoot
+			}
 			l.typeVariations = append(l.typeVariations, typeVar)
 		}
 	}
@@ -115,16 +124,25 @@ func (l *layoutBuilder) addKind() {
 	l.addTypeVariations(l.d.Kind)
 }
 
+const renderingHookRoot = "/_markup"
+
 func resolvePageTemplate(d LayoutDescriptor, f Format) []string {
 
 	b := &layoutBuilder{d: d, f: f}
 
-	if d.Layout != "" {
-		b.addLayoutVariations(d.Layout)
-	}
-
-	if d.Type != "" {
-		b.addTypeVariations(d.Type)
+	if d.RenderingHook {
+		if d.Type != "" {
+			b.addTypeVariations(d.Type)
+		}
+		b.addLayoutVariations(d.Kind)
+		b.addSectionType()
+	} else {
+		if d.Layout != "" {
+			b.addLayoutVariations(d.Layout)
+		}
+		if d.Type != "" {
+			b.addTypeVariations(d.Type)
+		}
 	}
 
 	switch d.Kind {
@@ -159,7 +177,7 @@ func resolvePageTemplate(d LayoutDescriptor, f Format) []string {
 	}
 
 	isRSS := f.Name == RSSFormat.Name
-	if isRSS {
+	if !d.RenderingHook && isRSS {
 		// The historic and common rss.xml case
 		b.addLayoutVariations("")
 	}
@@ -167,14 +185,14 @@ func resolvePageTemplate(d LayoutDescriptor, f Format) []string {
 	// All have _default in their lookup path
 	b.addTypeVariations("_default")
 
-	if d.Kind != "page" {
+	if d.isList() {
 		// Add the common list type
 		b.addLayoutVariations("list")
 	}
 
 	layouts := b.resolveVariations()
 
-	if isRSS {
+	if !d.RenderingHook && isRSS {
 		layouts = append(layouts, "_internal/_default/rss.xml")
 	}
 

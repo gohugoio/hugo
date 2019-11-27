@@ -21,9 +21,17 @@ import (
 
 	"github.com/gohugoio/hugo/tpl"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/spf13/cast"
 
 	qt "github.com/frankban/quicktest"
+)
+
+var eq = qt.CmpEquals(
+	cmp.Comparer(func(i1, i2 tpl.Info) bool {
+		return cmp.Equal(i1, i2, cmpopts.IgnoreFields(tpl.Info{}, "Manager"))
+	}),
 )
 
 type paramsHolder struct {
@@ -218,7 +226,7 @@ func TestParamsKeysToLower(t *testing.T) {
 
 	c.Assert(err, qt.IsNil)
 
-	ctx := newTemplateContext(createParseTreeLookup(templ))
+	ctx := newTemplateContext(newTemplateInfo("test"), createParseTreeLookup(templ))
 
 	c.Assert(ctx.decl.indexOfReplacementStart([]string{}), qt.Equals, -1)
 
@@ -307,7 +315,7 @@ func BenchmarkTemplateParamsKeysToLower(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		c := newTemplateContext(createParseTreeLookup(templates[i]))
+		c := newTemplateContext(newTemplateInfo("test"), createParseTreeLookup(templates[i]))
 		c.applyTransformations(templ.Tree.Root)
 	}
 }
@@ -347,7 +355,7 @@ Pretty First3: {{ $__amber_4.COLORS.PRETTY.FIRST}}
 
 	c.Assert(err, qt.IsNil)
 
-	ctx := newTemplateContext(createParseTreeLookup(templ))
+	ctx := newTemplateContext(newTemplateInfo("test"), createParseTreeLookup(templ))
 
 	ctx.applyTransformations(templ.Tree.Root)
 
@@ -392,7 +400,7 @@ P2: {{ .Params.LOWER }}
 	c.Assert(err, qt.IsNil)
 	overlayTpl = overlayTpl.Lookup(overlayTpl.Name())
 
-	ctx := newTemplateContext(createParseTreeLookup(overlayTpl))
+	ctx := newTemplateContext(newTemplateInfo("test"), createParseTreeLookup(overlayTpl))
 
 	ctx.applyTransformations(overlayTpl.Tree.Root)
 
@@ -414,7 +422,7 @@ func TestTransformRecursiveTemplate(t *testing.T) {
 {{ define "menu-nodes" }}
 {{ template "menu-node" }}
 {{ end }}
-{{ define "menu-node" }}
+{{ define "menu-nßode" }}
 {{ template "menu-node" }}
 {{ end }}
 {{ template "menu-nodes" }}
@@ -423,7 +431,10 @@ func TestTransformRecursiveTemplate(t *testing.T) {
 	templ, err := template.New("foo").Parse(recursive)
 	c.Assert(err, qt.IsNil)
 
-	ctx := newTemplateContext(createParseTreeLookup(templ))
+	ctx := newTemplateContext(
+		newTemplateInfo("test"),
+		createParseTreeLookup(templ),
+	)
 	ctx.applyTransformations(templ.Tree.Root)
 
 }
@@ -540,11 +551,12 @@ func TestCollectInfo(t *testing.T) {
 			templ, err := template.New("foo").Funcs(funcs).Parse(test.tplString)
 			c.Assert(err, qt.IsNil)
 
-			ctx := newTemplateContext(createParseTreeLookup(templ))
+			ctx := newTemplateContext(
+				newTemplateInfo("test"), createParseTreeLookup(templ))
 			ctx.typ = templateShortcode
 			ctx.applyTransformations(templ.Tree.Root)
 
-			c.Assert(ctx.Info, qt.Equals, test.expected)
+			c.Assert(ctx.Info, eq, test.expected)
 		})
 	}
 
@@ -582,7 +594,7 @@ func TestPartialReturn(t *testing.T) {
 			templ, err := template.New("foo").Funcs(funcs).Parse(test.tplString)
 			c.Assert(err, qt.IsNil)
 
-			_, err = applyTemplateTransformers(templatePartial, templ.Tree, createParseTreeLookup(templ))
+			_, err = applyTemplateTransformers(templatePartial, &templateInfoTree{tree: templ.Tree, info: newTemplateInfo("test")}, createParseTreeLookup(templ))
 
 			// Just check that it doesn't fail in this test. We have functional tests
 			// in hugoblib.

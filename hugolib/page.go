@@ -23,6 +23,10 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/gohugoio/hugo/tpl"
+
+	"github.com/gohugoio/hugo/identity"
+
 	"github.com/gohugoio/hugo/markup/converter"
 
 	"github.com/gohugoio/hugo/common/maps"
@@ -46,6 +50,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/text"
+	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -59,7 +64,11 @@ var (
 
 var (
 	pageTypesProvider = resource.NewResourceTypesProvider(media.OctetType, pageResourceType)
-	nopPageOutput     = &pageOutput{pagePerOutputProviders: nopPagePerOutput}
+	nopPageOutput     = &pageOutput{
+		pagePerOutputProviders:  nopPagePerOutput,
+		ContentProvider:         page.NopPage,
+		TableOfContentsProvider: page.NopPage,
+	}
 )
 
 // pageContext provides contextual information about this page, for error
@@ -315,6 +324,98 @@ func (ps *pageState) initCommonProviders(pp pagePaths) error {
 	ps.SitesProvider = &ps.s.Info
 
 	return nil
+}
+
+func (ps *pageState) initOutputFormats() error {
+
+	if len(ps.pageOutputs) == 0 {
+		return nil
+	}
+
+	c := ps.getContentConverter()
+	if c == nil || !c.Supports(converter.FeatureRenderHooks) {
+		return nil
+	}
+
+	templSet := make(map[identity.Identity]bool)
+	canReuse := true
+
+	for _, o := range ps.pageOutputs {
+		if !o.render || o.cp == nil {
+			continue
+		}
+		h, err := ps.createRenderHooks(o.f)
+		if err != nil {
+			return err
+		}
+		if h == nil {
+			continue
+		}
+		if canReuse {
+			for _, r := range []hooks.LinkRenderer{h.LinkRenderer, h.ImageRenderer} {
+				if !canReuse {
+					break
+				}
+				if r != nil {
+					if len(templSet) != 0 {
+						// There may be a template per output format.
+						// In that case we need to re-render.
+						canReuse = templSet[r.GetIdentity()]
+					}
+					templSet[r.GetIdentity()] = true
+				}
+			}
+		}
+		o.cp.renderHooks = h
+		o.cp.renderHooksHaveVariants = !canReuse
+	}
+
+	return nil
+}
+
+func (p *pageState) createRenderHooks(f output.Format) (*hooks.Render, error) {
+
+	layoutDescriptor := p.getLayoutDescriptor()
+	layoutDescriptor.RenderingHook = true
+	layoutDescriptor.LayoutOverride = false
+
+	layoutDescriptor.Kind = "render-link"
+	linkLayouts, err := p.s.layoutHandler.For(layoutDescriptor, f)
+	if err != nil {
+		return nil, err
+	}
+
+	layoutDescriptor.Kind = "render-image"
+	imageLayouts, err := p.s.layoutHandler.For(layoutDescriptor, f)
+	if err != nil {
+		return nil, err
+	}
+
+	if linkLayouts == nil && imageLayouts == nil {
+		return nil, nil
+	}
+
+	var linkRenderer hooks.LinkRenderer
+	var imageRenderer hooks.LinkRenderer
+
+	if templ, found := p.s.lookupTemplate(linkLayouts...); found {
+		linkRenderer = contentLinkRenderer{
+			Provider: templ.(tpl.TemplateInfoProvider).TemplateInfo(),
+			templ:    templ,
+		}
+	}
+
+	if templ, found := p.s.lookupTemplate(imageLayouts...); found {
+		imageRenderer = contentLinkRenderer{
+			Provider: templ.(tpl.TemplateInfoProvider).TemplateInfo(),
+			templ:    templ,
+		}
+	}
+
+	return &hooks.Render{
+		LinkRenderer:  linkRenderer,
+		ImageRenderer: imageRenderer,
+	}, nil
 }
 
 func (p *pageState) getLayoutDescriptor() output.LayoutDescriptor {

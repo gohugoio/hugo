@@ -23,6 +23,8 @@ import (
 	"sync"
 	"unicode/utf8"
 
+	"github.com/gohugoio/hugo/markup/converter/hooks"
+
 	"github.com/gohugoio/hugo/markup/converter"
 
 	"github.com/gohugoio/hugo/lazy"
@@ -58,14 +60,14 @@ var (
 	}
 )
 
-func newPageContentOutput(p *pageState) func(f output.Format) (*pageContentOutput, error) {
+func newPageContentOutput(p *pageState) func(po *pageOutput) (*pageContentOutput, error) {
 
 	parent := p.init
 
-	return func(f output.Format) (*pageContentOutput, error) {
+	return func(po *pageOutput) (*pageContentOutput, error) {
 		cp := &pageContentOutput{
 			p: p,
-			f: f,
+			f: po.f,
 		}
 
 		initContent := func() (err error) {
@@ -83,13 +85,22 @@ func newPageContentOutput(p *pageState) func(f output.Format) (*pageContentOutpu
 
 			var hasVariants bool
 
+			f := po.f
 			cp.contentPlaceholders, hasVariants, err = p.shortcodeState.renderShortcodesForPage(p, f)
 			if err != nil {
 				return err
 			}
 
-			if p.render && !hasVariants {
-				// We can reuse this for the other output formats
+			enableReuse := po.render && !hasVariants
+			enableReuse = enableReuse && !cp.renderHooksHaveVariants
+
+			if enableReuse {
+				// Reuse this for the other output formats.
+				// We may improve on this, but we really want to avoid re-rendering the content
+				// to all output formats.
+				// The current rule is that if you need output format-aware shortcodes or
+				// content rendering hooks, create a output format-specific template, e.g.
+				// myshortcode.amp.html.
 				cp.enableReuse()
 			}
 
@@ -178,6 +189,7 @@ func newPageContentOutput(p *pageState) func(f output.Format) (*pageContentOutpu
 		// Recursive loops can only happen in content files with template code (shortcodes etc.)
 		// Avoid creating new goroutines if we don't have to.
 		needTimeout := !p.renderable || p.shortcodeState.hasShortcodes()
+		needTimeout = needTimeout || cp.renderHooks != nil
 
 		if needTimeout {
 			cp.initMain = parent.BranchWithTimeout(p.s.siteCfg.timeout, func(ctx context.Context) (interface{}, error) {
@@ -211,7 +223,7 @@ func newPageContentOutput(p *pageState) func(f output.Format) (*pageContentOutpu
 type pageContentOutput struct {
 	f output.Format
 
-	// If we can safely reuse this for other output formats.
+	// If we can reuse this for other output formats.
 	reuse     bool
 	reuseInit sync.Once
 
@@ -223,6 +235,11 @@ type pageContentOutput struct {
 
 	placeholdersEnabled     bool
 	placeholdersEnabledInit sync.Once
+
+	// May be nil.
+	renderHooks *hooks.Render
+	// Set if there are more than one output format variant
+	renderHooksHaveVariants bool
 
 	// Content state
 
@@ -246,6 +263,12 @@ type pageContentOutput struct {
 	fuzzyWordCount int
 	wordCount      int
 	readingTime    int
+}
+
+func (p *pageContentOutput) Reset() {
+	p.p.initOutputFormats()
+	p.initMain.Reset()
+	p.initPlain.Reset()
 }
 
 func (p *pageContentOutput) Content() (interface{}, error) {
@@ -332,10 +355,12 @@ func (p *pageContentOutput) setAutoSummary() error {
 }
 
 func (cp *pageContentOutput) renderContent(content []byte) (converter.Result, error) {
-	return cp.p.getContentConverter().Convert(
+	c := cp.p.getContentConverter()
+	return c.Convert(
 		converter.RenderContext{
-			Src:       content,
-			RenderTOC: true,
+			Src:         content,
+			RenderTOC:   true,
+			RenderHooks: cp.renderHooks,
 		})
 }
 
@@ -392,9 +417,7 @@ func (p *pageContentOutput) enableReuse() {
 // these will be shifted out when rendering a given output format.
 type pagePerOutputProviders interface {
 	targetPather
-	page.ContentProvider
 	page.PaginatorProvider
-	page.TableOfContentsProvider
 	resource.ResourceLinksProvider
 }
 

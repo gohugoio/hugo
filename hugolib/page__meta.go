@@ -592,7 +592,7 @@ func (pm *pageMeta) setMetadata(bucket *pagesMapBucket, p *pageState, frontmatte
 	return nil
 }
 
-func (p *pageMeta) applyDefaultValues() error {
+func (p *pageMeta) applyDefaultValues(ps *pageState) error {
 	if p.markup == "" {
 		if !p.File().IsZero() {
 			// Fall back to file extension
@@ -656,15 +656,19 @@ func (p *pageMeta) applyDefaultValues() error {
 			return errors.Errorf("no content renderer found for markup %q", p.markup)
 		}
 
-		cpp, err := cp.New(converter.DocumentContext{
-			DocumentID:      p.f.UniqueID(),
-			DocumentName:    p.f.Path(),
-			ConfigOverrides: renderingConfigOverrides,
-		})
+		cpp, err := cp.New(
+			converter.DocumentContext{
+				Document:        newPageForRenderHook(ps),
+				DocumentID:      p.f.UniqueID(),
+				DocumentName:    p.f.Path(),
+				ConfigOverrides: renderingConfigOverrides,
+			},
+		)
 
 		if err != nil {
 			return err
 		}
+
 		p.contentConverter = cpp
 	}
 

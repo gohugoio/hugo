@@ -95,12 +95,6 @@ More text here.
 Some more text
 `
 
-	simplePageWithEmbeddedScript = `---
-title: Simple
----
-<script type='text/javascript'>alert('the script tags are still there, right?');</script>
-`
-
 	simplePageWithSummaryDelimiterSameLine = `---
 title: Simple
 ---
@@ -325,6 +319,7 @@ func normalizeContent(c string) string {
 }
 
 func checkPageTOC(t *testing.T, page page.Page, toc string) {
+	t.Helper()
 	if page.TableOfContents() != template.HTML(toc) {
 		t.Fatalf("Page TableOfContents is:\n%q.\nExpected %q", page.TableOfContents(), toc)
 	}
