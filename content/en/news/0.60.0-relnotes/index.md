@@ -12,12 +12,12 @@ Please read the [Notes Section](#notes) and the updated documentation. We sugges
 
 Also, if you have lots of inline HTML in your Markdown files, you may have to enable the `unsafe` mode:
 
-{{< code-toggle file="config" />}}
+{{< code-toggle file="config" >}}
 markup:
   goldmark:
     renderer:
       unsafe: true
-{{< /code >}}
+{{< /code-toggle >}}
 
 This release represents **62 contributions by 10 contributors** to the main Hugo code base. [@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@anthonyfok](https://github.com/anthonyfok), [@max-arnold](https://github.com/max-arnold), and [@trimbo](https://github.com/trimbo) for their ongoing contributions.
 And a big thanks to [@digitalcraftsman](https://github.com/digitalcraftsman) and [@onedrawingperday](https://github.com/onedrawingperday) for their relentless work on keeping the themes site in pristine condition and to [@kaushalmodi](https://github.com/kaushalmodi) and [@davidsneighbour](https://github.com/davidsneighbour) for great work on the documentation site.
