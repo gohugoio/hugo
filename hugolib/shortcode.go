@@ -23,8 +23,6 @@ import (
 	"html/template"
 	"path"
 
-	"github.com/gohugoio/hugo/markup/converter"
-
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/pkg/errors"
 
@@ -198,7 +196,7 @@ type shortcode struct {
 }
 
 func (s shortcode) insertPlaceholder() bool {
-	return !s.doMarkup || s.info.Config.Version == 1
+	return !s.doMarkup || s.info.ParseInfo().Config.Version == 1
 }
 
 func (s shortcode) innerString() string {
@@ -349,14 +347,9 @@ func renderShortcode(
 
 		// Pre Hugo 0.55 this was the behaviour even for the outer-most
 		// shortcode.
-		if sc.doMarkup && (level > 0 || sc.info.Config.Version == 1) {
+		if sc.doMarkup && (level > 0 || sc.info.ParseInfo().Config.Version == 1) {
 			var err error
-
-			b, err := p.getContentConverter().Convert(
-				converter.RenderContext{
-					Src: []byte(inner),
-				},
-			)
+			b, err := p.pageOutput.cp.renderContent([]byte(inner), false)
 
 			if err != nil {
 				return "", false, err
@@ -494,13 +487,13 @@ Loop:
 		case currItem.IsRightShortcodeDelim():
 			// we trust the template on this:
 			// if there's no inner, we're done
-			if !sc.isInline && !sc.info.IsInner {
+			if !sc.isInline && !sc.info.ParseInfo().IsInner {
 				return sc, nil
 			}
 
 		case currItem.IsShortcodeClose():
 			next := pt.Peek()
-			if !sc.isInline && !sc.info.IsInner {
+			if !sc.isInline && !sc.info.ParseInfo().IsInner {
 				if next.IsError() {
 					// return that error, more specific
 					continue
@@ -540,7 +533,7 @@ Loop:
 				return nil, _errors.Errorf("template for shortcode %q not found", sc.name)
 			}
 
-			sc.info = tmpl.(tpl.TemplateInfoProvider).TemplateInfo()
+			sc.info = tmpl.(tpl.Info)
 		case currItem.IsInlineShortcodeName():
 			sc.name = currItem.ValStr()
 			sc.isInline = true

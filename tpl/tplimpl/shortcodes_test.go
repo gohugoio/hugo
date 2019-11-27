@@ -53,10 +53,10 @@ func TestShortcodesTemplate(t *testing.T) {
 			name2    string
 			expected int
 		}{
-			{"Same suffix", "figure.html", "figure.html", 3},
-			{"Same suffix and output format", "figure.html.html", "figure.html.html", 3},
-			{"Same suffix, output format and language", "figure.no.html.html", "figure.no.html.html", 3},
-			{"No suffix", "figure", "figure", 3},
+			{"Same suffix", "figure.html", "figure.html", 6},
+			{"Same suffix and output format", "figure.html.html", "figure.html.html", 6},
+			{"Same suffix, output format and language", "figure.no.html.html", "figure.no.html.html", 6},
+			{"No suffix", "figure", "figure", 6},
 			{"Different output format", "figure.amp.html", "figure.html.html", -1},
 			{"One with output format, one without", "figure.amp.html", "figure.html", -1},
 		}

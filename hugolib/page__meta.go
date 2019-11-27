@@ -592,7 +592,7 @@ func (pm *pageMeta) setMetadata(bucket *pagesMapBucket, p *pageState, frontmatte
 	return nil
 }
 
-func (p *pageMeta) applyDefaultValues() error {
+func (p *pageMeta) applyDefaultValues(ps *pageState) error {
 	if p.markup == "" {
 		if !p.File().IsZero() {
 			// Fall back to file extension
@@ -651,25 +651,37 @@ func (p *pageMeta) applyDefaultValues() error {
 			markup = "markdown"
 		}
 
-		cp := p.s.ContentSpec.Converters.Get(markup)
-		if cp == nil {
-			return errors.Errorf("no content renderer found for markup %q", p.markup)
-		}
-
-		cpp, err := cp.New(converter.DocumentContext{
-			DocumentID:      p.f.UniqueID(),
-			DocumentName:    p.f.Path(),
-			ConfigOverrides: renderingConfigOverrides,
-		})
-
+		cp, err := p.newContentConverter(ps, markup, renderingConfigOverrides)
 		if err != nil {
 			return err
 		}
-		p.contentConverter = cpp
+		p.contentConverter = cp
 	}
 
 	return nil
 
+}
+
+func (p *pageMeta) newContentConverter(ps *pageState, markup string, renderingConfigOverrides map[string]interface{}) (converter.Converter, error) {
+	cp := p.s.ContentSpec.Converters.Get(markup)
+	if cp == nil {
+		return nil, errors.Errorf("no content renderer found for markup %q", p.markup)
+	}
+
+	cpp, err := cp.New(
+		converter.DocumentContext{
+			Document:        newPageForRenderHook(ps),
+			DocumentID:      p.f.UniqueID(),
+			DocumentName:    p.f.Path(),
+			ConfigOverrides: renderingConfigOverrides,
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return cpp, nil
 }
 
 // The output formats this page will be rendered to.

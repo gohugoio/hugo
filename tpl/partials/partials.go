@@ -116,9 +116,9 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 		return "", fmt.Errorf("partial %q not found", name)
 	}
 
-	var info tpl.Info
-	if ip, ok := templ.(tpl.TemplateInfoProvider); ok {
-		info = ip.TemplateInfo()
+	var info tpl.ParseInfo
+	if ip, ok := templ.(tpl.Info); ok {
+		info = ip.ParseInfo()
 	}
 
 	var w io.Writer

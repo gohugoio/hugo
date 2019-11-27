@@ -30,8 +30,7 @@ var (
 type pageContent struct {
 	renderable bool
 	selfLayout string
-
-	truncated bool
+	truncated  bool
 
 	cmap *pageContentMap
 

@@ -126,10 +126,28 @@ type SourceFilesystems struct {
 	StaticDirs []hugofs.FileMetaInfo
 }
 
+// FileSystems returns the FileSystems relevant for the change detection
+// in server mode.
+// Note: This does currently not return any static fs.
+func (s *SourceFilesystems) FileSystems() []*SourceFilesystem {
+	return []*SourceFilesystem{
+		s.Content,
+		s.Data,
+		s.I18n,
+		s.Layouts,
+		s.Archetypes,
+		// TODO(bep) static
+	}
+
+}
+
 // A SourceFilesystem holds the filesystem for a given source type in Hugo (data,
 // i18n, layouts, static) and additional metadata to be able to use that filesystem
 // in server mode.
 type SourceFilesystem struct {
+	// Name matches one in files.ComponentFolders
+	Name string
+
 	// This is a virtual composite filesystem. It expects path relative to a context.
 	Fs afero.Fs
 
@@ -275,6 +293,19 @@ func (d *SourceFilesystem) Contains(filename string) bool {
 	return false
 }
 
+// Path returns the relative path to the given filename if it is a member of
+// of the current filesystem, an empty string if not.
+func (d *SourceFilesystem) Path(filename string) string {
+	for _, dir := range d.Dirs {
+		meta := dir.Meta()
+		if strings.HasPrefix(filename, meta.Filename()) {
+			p := strings.TrimPrefix(strings.TrimPrefix(filename, meta.Filename()), filePathSeparator)
+			return p
+		}
+	}
+	return ""
+}
+
 // RealDirs gets a list of absolute paths to directories starting from the given
 // path.
 func (d *SourceFilesystem) RealDirs(from string) []string {
@@ -349,12 +380,14 @@ func newSourceFilesystemsBuilder(p *paths.Paths, logger *loggers.Logger, b *Base
 	return &sourceFilesystemsBuilder{p: p, logger: logger, sourceFs: sourceFs, theBigFs: b.theBigFs, result: &SourceFilesystems{}}
 }
 
-func (b *sourceFilesystemsBuilder) newSourceFilesystem(fs afero.Fs, dirs []hugofs.FileMetaInfo) *SourceFilesystem {
+func (b *sourceFilesystemsBuilder) newSourceFilesystem(name string, fs afero.Fs, dirs []hugofs.FileMetaInfo) *SourceFilesystem {
 	return &SourceFilesystem{
+		Name: name,
 		Fs:   fs,
 		Dirs: dirs,
 	}
 }
+
 func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 
 	if b.theBigFs == nil {
@@ -369,12 +402,12 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 
 	createView := func(componentID string) *SourceFilesystem {
 		if b.theBigFs == nil || b.theBigFs.overlayMounts == nil {
-			return b.newSourceFilesystem(hugofs.NoOpFs, nil)
+			return b.newSourceFilesystem(componentID, hugofs.NoOpFs, nil)
 		}
 
 		dirs := b.theBigFs.overlayDirs[componentID]
 
-		return b.newSourceFilesystem(afero.NewBasePathFs(b.theBigFs.overlayMounts, componentID), dirs)
+		return b.newSourceFilesystem(componentID, afero.NewBasePathFs(b.theBigFs.overlayMounts, componentID), dirs)
 
 	}
 
@@ -392,14 +425,14 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 		return nil, err
 	}
 
-	b.result.Data = b.newSourceFilesystem(dataFs, dataDirs)
+	b.result.Data = b.newSourceFilesystem(files.ComponentFolderData, dataFs, dataDirs)
 
 	i18nDirs := b.theBigFs.overlayDirs[files.ComponentFolderI18n]
 	i18nFs, err := hugofs.NewSliceFs(i18nDirs...)
 	if err != nil {
 		return nil, err
 	}
-	b.result.I18n = b.newSourceFilesystem(i18nFs, i18nDirs)
+	b.result.I18n = b.newSourceFilesystem(files.ComponentFolderI18n, i18nFs, i18nDirs)
 
 	contentDirs := b.theBigFs.overlayDirs[files.ComponentFolderContent]
 	contentBfs := afero.NewBasePathFs(b.theBigFs.overlayMountsContent, files.ComponentFolderContent)
@@ -409,7 +442,7 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 		return nil, errors.Wrap(err, "create content filesystem")
 	}
 
-	b.result.Content = b.newSourceFilesystem(contentFs, contentDirs)
+	b.result.Content = b.newSourceFilesystem(files.ComponentFolderContent, contentFs, contentDirs)
 
 	b.result.Work = afero.NewReadOnlyFs(b.theBigFs.overlayFull)
 
@@ -421,13 +454,13 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 	if b.theBigFs.staticPerLanguage != nil {
 		// Multihost mode
 		for k, v := range b.theBigFs.staticPerLanguage {
-			sfs := b.newSourceFilesystem(v, b.result.StaticDirs)
+			sfs := b.newSourceFilesystem(files.ComponentFolderStatic, v, b.result.StaticDirs)
 			sfs.PublishFolder = k
 			ms[k] = sfs
 		}
 	} else {
 		bfs := afero.NewBasePathFs(b.theBigFs.overlayMountsStatic, files.ComponentFolderStatic)
-		ms[""] = b.newSourceFilesystem(bfs, b.result.StaticDirs)
+		ms[""] = b.newSourceFilesystem(files.ComponentFolderStatic, bfs, b.result.StaticDirs)
 	}
 
 	return b.result, nil

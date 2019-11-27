@@ -14,13 +14,13 @@
 package hugolib
 
 import (
+	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
 func newPageOutput(
-	cp *pageContentOutput, // may be nil
 	ps *pageState,
 	pp pagePaths,
 	f output.Format,
@@ -45,36 +45,23 @@ func newPageOutput(
 		paginatorProvider = pag
 	}
 
-	var (
-		contentProvider         page.ContentProvider         = page.NopPage
-		tableOfContentsProvider page.TableOfContentsProvider = page.NopPage
-	)
-
-	if cp != nil {
-		contentProvider = cp
-		tableOfContentsProvider = cp
-	}
-
 	providers := struct {
-		page.ContentProvider
-		page.TableOfContentsProvider
 		page.PaginatorProvider
 		resource.ResourceLinksProvider
 		targetPather
 	}{
-		contentProvider,
-		tableOfContentsProvider,
 		paginatorProvider,
 		linksProvider,
 		targetPathsProvider,
 	}
 
 	po := &pageOutput{
-		f:                      f,
-		cp:                     cp,
-		pagePerOutputProviders: providers,
-		render:                 render,
-		paginator:              pag,
+		f:                       f,
+		pagePerOutputProviders:  providers,
+		ContentProvider:         page.NopPage,
+		TableOfContentsProvider: page.NopPage,
+		render:                  render,
+		paginator:               pag,
 	}
 
 	return po
@@ -94,16 +81,54 @@ type pageOutput struct {
 	// used in template(s).
 	paginator *pagePaginator
 
-	// This interface provides the functionality that is specific for this
+	// These interface provides the functionality that is specific for this
 	// output format.
 	pagePerOutputProviders
+	page.ContentProvider
+	page.TableOfContentsProvider
 
-	// This may be nil.
+	// May be nil.
 	cp *pageContentOutput
+}
+
+func (o *pageOutput) initRenderHooks() error {
+	if o.cp == nil {
+		return nil
+	}
+
+	ps := o.cp.p
+
+	c := ps.getContentConverter()
+	if c == nil || !c.Supports(converter.FeatureRenderHooks) {
+		return nil
+	}
+
+	h, err := ps.createRenderHooks(o.f)
+	if err != nil {
+		return err
+	}
+	if h == nil {
+		return nil
+	}
+
+	o.cp.renderHooks = h
+
+	return nil
+
+}
+
+func (p *pageOutput) initContentProvider(cp *pageContentOutput) {
+	if cp == nil {
+		return
+	}
+	p.ContentProvider = cp
+	p.TableOfContentsProvider = cp
+	p.cp = cp
 }
 
 func (p *pageOutput) enablePlaceholders() {
 	if p.cp != nil {
 		p.cp.enablePlaceholders()
 	}
+
 }

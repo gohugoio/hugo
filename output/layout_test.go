@@ -111,6 +111,9 @@ func TestLayout(t *testing.T) {
 			[]string{"section/shortcodes.amp.html"}, 12},
 		{"Reserved section, partials", LayoutDescriptor{Kind: "section", Section: "partials", Type: "partials"}, "", ampType,
 			[]string{"section/partials.amp.html"}, 12},
+		// We may add type support ... later.
+		{"Content hook", LayoutDescriptor{Kind: "render-link", RenderingHook: true, Layout: "mylayout", Section: "blog"}, "", ampType,
+			[]string{"_default/_markup/render-link.amp.html", "_default/_markup/render-link.html"}, 2},
 	} {
 		c.Run(this.name, func(c *qt.C) {
 			l := NewLayoutHandler()

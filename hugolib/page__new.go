@@ -112,7 +112,7 @@ func newPageFromMeta(meta map[string]interface{}, metaProvider *pageMeta) (*page
 			}
 		}
 
-		if err := metaProvider.applyDefaultValues(); err != nil {
+		if err := metaProvider.applyDefaultValues(ps); err != nil {
 			return err
 		}
 
@@ -134,7 +134,7 @@ func newPageFromMeta(meta map[string]interface{}, metaProvider *pageMeta) (*page
 		}
 
 		makeOut := func(f output.Format, render bool) *pageOutput {
-			return newPageOutput(nil, ps, pp, f, render)
+			return newPageOutput(ps, pp, f, render)
 		}
 
 		if ps.m.standalone {
@@ -234,7 +234,7 @@ func newPageWithContent(f *fileInfo, s *Site, bundled bool, content resource.Ope
 			return ps.wrapError(err)
 		}
 
-		if err := metaProvider.applyDefaultValues(); err != nil {
+		if err := metaProvider.applyDefaultValues(ps); err != nil {
 			return err
 		}
 
@@ -242,10 +242,6 @@ func newPageWithContent(f *fileInfo, s *Site, bundled bool, content resource.Ope
 	}
 
 	ps.init.Add(func() (interface{}, error) {
-		reuseContent := ps.renderable && !ps.shortcodeState.hasShortcodes()
-
-		// Creates what's needed for each output format.
-		contentPerOutput := newPageContentOutput(ps)
 
 		pp, err := newPagePaths(s, ps, metaProvider)
 		if err != nil {
@@ -264,18 +260,18 @@ func newPageWithContent(f *fileInfo, s *Site, bundled bool, content resource.Ope
 			}
 
 			_, render := outputFormatsForPage.GetByName(f.Name)
-			var contentProvider *pageContentOutput
-			if reuseContent && i > 0 {
-				contentProvider = ps.pageOutputs[0].cp
-			} else {
-				var err error
-				contentProvider, err = contentPerOutput(f)
+			po := newPageOutput(ps, pp, f, render)
+
+			// Create a content provider for the first,
+			// we may be able to reuse it.
+			if i == 0 {
+				contentProvider, err := newPageContentOutput(ps, po)
 				if err != nil {
 					return nil, err
 				}
+				po.initContentProvider(contentProvider)
 			}
 
-			po := newPageOutput(contentProvider, ps, pp, f, render)
 			ps.pageOutputs[i] = po
 			created[f.Name] = po
 		}

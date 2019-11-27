@@ -11,28 +11,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hugolib
+package identity
 
 import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/resources/page"
 )
 
-func TestUnwrapPage(t *testing.T) {
+func TestIdentityManager(t *testing.T) {
 	c := qt.New(t)
 
-	p := &pageState{}
+	id1 := testIdentity{name: "id1"}
+	im := NewManager(id1)
 
-	c.Assert(mustUnwrap(newPageForShortcode(p)), qt.Equals, p)
-	c.Assert(mustUnwrap(newPageForRenderHook(p)), qt.Equals, p)
+	c.Assert(im.Search(id1).GetIdentity(), qt.Equals, id1)
+	c.Assert(im.Search(testIdentity{name: "notfound"}), qt.Equals, nil)
 }
 
-func mustUnwrap(v interface{}) page.Page {
-	p, err := unwrapPage(v)
-	if err != nil {
-		panic(err)
-	}
-	return p
+type testIdentity struct {
+	name string
+}
+
+func (id testIdentity) GetIdentity() Identity {
+	return id
+}
+
+func (id testIdentity) Name() string {
+	return id.name
 }

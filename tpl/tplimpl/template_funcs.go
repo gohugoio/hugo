@@ -19,6 +19,8 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/gohugoio/hugo/tpl"
+
 	"github.com/gohugoio/hugo/common/maps"
 
 	template "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
@@ -62,14 +64,14 @@ type templateExecHelper struct {
 	funcs map[string]reflect.Value
 }
 
-func (t *templateExecHelper) GetFunc(name string) (reflect.Value, bool) {
+func (t *templateExecHelper) GetFunc(tmpl texttemplate.Preparer, name string) (reflect.Value, bool) {
 	if fn, found := t.funcs[name]; found {
 		return fn, true
 	}
 	return zero, false
 }
 
-func (t *templateExecHelper) GetMapValue(receiver, key reflect.Value) (reflect.Value, bool) {
+func (t *templateExecHelper) GetMapValue(tmpl texttemplate.Preparer, receiver, key reflect.Value) (reflect.Value, bool) {
 	if params, ok := receiver.Interface().(maps.Params); ok {
 		// Case insensitive.
 		keystr := strings.ToLower(key.String())
@@ -83,6 +85,22 @@ func (t *templateExecHelper) GetMapValue(receiver, key reflect.Value) (reflect.V
 	v := receiver.MapIndex(key)
 
 	return v, v.IsValid()
+}
+
+func (t *templateExecHelper) GetMethod(tmpl texttemplate.Preparer, receiver reflect.Value, name string) (method reflect.Value, firstArg reflect.Value) {
+	// This is a hot path and receiver.MethodByName really shows up in the benchmarks.
+	// Page.Render is the only method with a WithTemplateInfo as of now, so let's just
+	// check that for now.
+	// TODO(bep) find a more flexible, but still fast, way.
+	if name == "Render" {
+		if info, ok := tmpl.(tpl.Info); ok {
+			if m := receiver.MethodByName(name + "WithTemplateInfo"); m.IsValid() {
+				return m, reflect.ValueOf(info)
+			}
+		}
+	}
+
+	return receiver.MethodByName(name), zero
 }
 
 func newTemplateExecuter(d *deps.Deps) (texttemplate.Executer, map[string]reflect.Value) {
@@ -120,9 +138,7 @@ func createFuncMap(d *deps.Deps) map[string]interface{} {
 				}
 				funcMap[alias] = mm.Method
 			}
-
 		}
-
 	}
 
 	if d.OverloadedTemplateFuncs != nil {

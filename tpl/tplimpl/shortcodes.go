@@ -83,10 +83,12 @@ func (s *shortcodeTemplates) fromVariantsSlice(variants []string) (shortcodeVari
 func (s *shortcodeTemplates) compareVariants(a, b []string) int {
 
 	weight := 0
+	k := len(a)
 	for i, av := range a {
 		bv := b[i]
 		if av == bv {
-			weight++
+			// Add more weight to the left side (language...).
+			weight = weight + k - i
 		} else {
 			weight--
 		}
