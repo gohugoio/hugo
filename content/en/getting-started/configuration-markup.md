@@ -74,3 +74,62 @@ endLevel
 
 ordered
 : Whether or not to generate an ordered list instead of an unordered list.
+
+
+## Markdown Render Hooks
+
+{{< new-in "0.62.0" >}}
+
+Note that this is only supported with the [Goldmark](#goldmark) renderer.
+
+These Render Hooks allow custom templates to render links and images from markdown.
+
+You can do this by creating templates with base names `render-link` and/or `render-image` inside `layouts/_default`.
+
+You can define [Output Format](/templates/output-formats) specific templates if needed.[^1] Your `layouts` folder may then look like this:
+
+```bash
+layouts
+└── _default
+    └── markup
+        ├── render-image.html
+        ├── render-image.rss.xml
+        └── render-link.html
+```
+
+Some use cases for the above:
+
+* Resolve link references using `.GetPage`. This would make links more portable as you could translate `./my-post.md` (and similar constructs that would work on GitHub) into `/blog/2019/01/01/my-post/` etc.
+* Add `target=blank` to external links.
+* Resolve (look in the page bundle, inside `/assets` etc.) and [transform](/content-management/image-processing) images.
+
+
+[^1]: It's currently only possible to have one set of render hook templates, e.g. not per `Type` or `Section`. We may consider that in a future version.
+
+### Render Hook Templates
+
+Both `render-link` and `render-image` templates will receive this context:
+
+Page
+: The [Page](/variables/page/) being rendered.
+
+Destination
+: The URL.
+
+Title
+: The title attribute.
+
+Text
+: The link text.
+
+A Markdown example for a inline-style link with title:
+
+```md
+[Text](https://www.gohugo.io "Title")
+```
+
+A very simple template example given the above:
+
+{{< code file="layouts/_default/render-link.html" >}}
+<a href="{{ .Destination | safeURL }}"{{ with .Title}}title="{{ . }}"{{ end }}>{{ .Text }}{{ with .Page }} (in page {{ .Title }}){{ end }}"</a>
+{{< /code >}}
