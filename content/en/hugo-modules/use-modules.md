@@ -16,9 +16,9 @@ aliases: [/themes/usage/,/themes/installing/,/installing-and-using-themes/]
 toc: true
 ---
 
-## Prerequisites
+## Prerequisite
 
-{{% gomodules-info %}}
+{{< gomodules-info >}}
 
 
 
