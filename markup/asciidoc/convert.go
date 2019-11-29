@@ -17,6 +17,7 @@ package asciidoc
 
 import (
 	"os/exec"
+	"path/filepath"
 
 	"github.com/gohugoio/hugo/markup/internal"
 
@@ -64,7 +65,8 @@ func (a *asciidocConverter) getAsciidocContent(src []byte, ctx converter.Documen
 	}
 
 	a.cfg.Logger.INFO.Println("Rendering", ctx.DocumentName, "with", path, "...")
-	args := []string{"--no-header-footer", "--safe"}
+	folderName := filepath.Dir(filepath.Join(a.cfg.Cfg.GetString("contentDir"), ctx.DocumentName))
+	args := []string{"--no-header-footer", "--safe", "--base-dir", folderName}
 	if isAsciidoctor {
 		// asciidoctor-specific arg to show stack traces on errors
 		args = append(args, "--trace")
