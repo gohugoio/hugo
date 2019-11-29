@@ -413,11 +413,11 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 
 	timeout := 30 * time.Second
 	if cfg.Language.IsSet("timeout") {
-		switch v := cfg.Language.Get("timeout").(type) {
-		case int64:
-			timeout = time.Duration(v) * time.Millisecond
-		case string:
-			d, err := time.ParseDuration(v)
+		v := cfg.Language.Get("timeout")
+		if n := cast.ToInt(v); n > 0 {
+			timeout = time.Duration(n) * time.Millisecond
+		} else {
+			d, err := time.ParseDuration(cast.ToString(v))
 			if err == nil {
 				timeout = d
 			}

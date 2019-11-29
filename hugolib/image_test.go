@@ -36,7 +36,7 @@ func TestImageOps(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	defer clean()
 
-	newBuilder := func(timeout string) *sitesBuilder {
+	newBuilder := func(timeout interface{}) *sitesBuilder {
 
 		v := viper.New()
 		v.Set("workingDir", workDir)
@@ -152,7 +152,7 @@ IMG SHORTCODE: /images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_129x239_r
 		c.Assert(err, qt.Not(qt.IsNil))
 	}
 
-	b = newBuilder("30s")
+	b = newBuilder(29000)
 	b.Build(BuildCfg{})
 
 	assertImages()
