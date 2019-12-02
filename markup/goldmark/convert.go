@@ -198,6 +198,7 @@ func newHighlighting(cfg highlight.Config) goldmark.Extender {
 
 	e := hl.NewHighlighting(
 		hl.WithStyle(cfg.Style),
+		hl.WithGuessLanguage(cfg.GuessSyntax),
 		hl.WithCodeBlockOptions(highlight.GetCodeBlockOptions()),
 		hl.WithFormatOptions(
 			cfg.ToHTMLOptions()...,

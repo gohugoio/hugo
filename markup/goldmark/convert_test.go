@@ -224,4 +224,25 @@ LINE5
 		result = convertForConfig(c, cfg, lines, "bash {linenos=table}")
 		c.Assert(result, qt.Contains, "<span class=\"lnt\">1\n</span>")
 	})
+
+	c.Run("No language", func(c *qt.C) {
+		cfg := highlight.DefaultConfig
+		cfg.NoClasses = false
+		cfg.LineNos = true
+		cfg.LineNumbersInTable = false
+
+		result := convertForConfig(c, cfg, lines, "")
+		c.Assert(result, qt.Contains, "<pre><code>LINE1\n")
+	})
+
+	c.Run("No language, guess syntax", func(c *qt.C) {
+		cfg := highlight.DefaultConfig
+		cfg.NoClasses = false
+		cfg.GuessSyntax = true
+		cfg.LineNos = true
+		cfg.LineNumbersInTable = false
+
+		result := convertForConfig(c, cfg, lines, "")
+		c.Assert(result, qt.Contains, "<span class=\"ln\">2</span>LINE2\n<")
+	})
 }

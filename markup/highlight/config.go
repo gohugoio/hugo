@@ -58,6 +58,8 @@ type Config struct {
 
 	// TabWidth sets the number of characters for a tab. Defaults to 4.
 	TabWidth int
+
+	GuessSyntax bool
 }
 
 func (cfg Config) ToHTMLOptions() []html.Option {
@@ -102,6 +104,10 @@ func ApplyLegacyConfig(cfg config.Provider, conf *Config) error {
 
 	if conf.CodeFences == DefaultConfig.CodeFences && cfg.IsSet("pygmentsCodeFences") {
 		conf.CodeFences = cfg.GetBool("pygmentsCodeFences")
+	}
+
+	if conf.GuessSyntax == DefaultConfig.GuessSyntax && cfg.IsSet("pygmentsCodefencesGuessSyntax") {
+		conf.GuessSyntax = cfg.GetBool("pygmentsCodefencesGuessSyntax")
 	}
 
 	if cfg.IsSet("pygmentsOptions") {

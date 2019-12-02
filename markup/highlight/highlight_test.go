@@ -84,4 +84,26 @@ LINE5
 		result, _ = h.Highlight(lines, "bash", "linenos=table")
 		c.Assert(result, qt.Contains, "<span class=\"lnt\">1\n</span>")
 	})
+
+	c.Run("No language", func(c *qt.C) {
+		cfg := DefaultConfig
+		cfg.NoClasses = false
+		cfg.LineNos = true
+		h := New(cfg)
+
+		result, _ := h.Highlight(lines, "", "")
+		c.Assert(result, qt.Equals, "<pre><code>LINE1\nLINE2\nLINE3\nLINE4\nLINE5\n</code></pre>")
+	})
+
+	c.Run("No language, guess syntax", func(c *qt.C) {
+		cfg := DefaultConfig
+		cfg.NoClasses = false
+		cfg.GuessSyntax = true
+		cfg.LineNos = true
+		cfg.LineNumbersInTable = false
+		h := New(cfg)
+
+		result, _ := h.Highlight(lines, "", "")
+		c.Assert(result, qt.Contains, "<span class=\"ln\">2</span>LINE2\n<")
+	})
 }

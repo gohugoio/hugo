@@ -52,6 +52,14 @@ func highlight(code, lang string, cfg Config) (string, error) {
 		lexer = lexers.Get(lang)
 	}
 
+	if lexer == nil && cfg.GuessSyntax {
+		lexer = lexers.Analyse(code)
+		if lexer == nil {
+			lexer = lexers.Fallback
+		}
+		lang = strings.ToLower(lexer.Config().Name)
+	}
+
 	if lexer == nil {
 		wrapper := getPreWrapper(lang)
 		fmt.Fprint(w, wrapper.Start(true, ""))
