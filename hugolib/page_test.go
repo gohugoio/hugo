@@ -1658,7 +1658,7 @@ $$$
 
 	b.AssertFileContent("public/page/index.html",
 		`<nav id="TableOfContents">`,
-		`<li><a href="#shortcode-tshort-in-header">Shortcode T-SHORT in header</a></li>`,
+		`<li><a href="#shortcode-t-short-in-header">Shortcode T-SHORT in header</a></li>`,
 		`<code class="language-bash" data-lang="bash"><span class="hl">SHORT`,
 		`<code class="language-bash" data-lang="bash"><span class="hl">MARKDOWN`)
 }

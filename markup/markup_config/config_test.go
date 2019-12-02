@@ -55,7 +55,7 @@ func TestConfig(t *testing.T) {
 		v.Set("footnoteAnchorPrefix", "myprefix")
 		v.Set("footnoteReturnLinkContents", "myreturn")
 		v.Set("pygmentsStyle", "hugo")
-
+		v.Set("pygmentsCodefencesGuessSyntax", true)
 		conf, err := Decode(v)
 
 		c.Assert(err, qt.IsNil)
@@ -64,6 +64,7 @@ func TestConfig(t *testing.T) {
 		c.Assert(conf.BlackFriday.FootnoteReturnLinkContents, qt.Equals, "myreturn")
 		c.Assert(conf.Highlight.Style, qt.Equals, "hugo")
 		c.Assert(conf.Highlight.CodeFences, qt.Equals, true)
+		c.Assert(conf.Highlight.GuessSyntax, qt.Equals, true)
 	})
 
 }
