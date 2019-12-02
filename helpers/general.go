@@ -23,10 +23,13 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"unicode"
 	"unicode/utf8"
+
+	"github.com/mitchellh/hashstructure"
 
 	"github.com/gohugoio/hugo/hugofs"
 
@@ -481,4 +484,21 @@ func PrintFs(fs afero.Fs, path string, w io.Writer) {
 		fmt.Fprintf(w, "    %q %q\t\t%v\n", path, filename, meta)
 		return nil
 	})
+}
+
+// HashString returns a hash from the given elements.
+// It will panic if the hash cannot be calculated.
+func HashString(elements ...interface{}) string {
+	var o interface{}
+	if len(elements) == 1 {
+		o = elements[0]
+	} else {
+		o = elements
+	}
+
+	hash, err := hashstructure.Hash(o, nil)
+	if err != nil {
+		panic(err)
+	}
+	return strconv.FormatUint(hash, 10)
 }

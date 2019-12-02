@@ -16,7 +16,7 @@ package images
 import (
 	"testing"
 
-	"github.com/gohugoio/hugo/resources/internal"
+	"github.com/gohugoio/hugo/helpers"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -26,9 +26,9 @@ func TestFilterHash(t *testing.T) {
 
 	f := &Filters{}
 
-	c.Assert(internal.HashString(f.Grayscale()), qt.Equals, internal.HashString(f.Grayscale()))
-	c.Assert(internal.HashString(f.Grayscale()), qt.Not(qt.Equals), internal.HashString(f.Invert()))
-	c.Assert(internal.HashString(f.Gamma(32)), qt.Not(qt.Equals), internal.HashString(f.Gamma(33)))
-	c.Assert(internal.HashString(f.Gamma(32)), qt.Equals, internal.HashString(f.Gamma(32)))
+	c.Assert(helpers.HashString(f.Grayscale()), qt.Equals, helpers.HashString(f.Grayscale()))
+	c.Assert(helpers.HashString(f.Grayscale()), qt.Not(qt.Equals), helpers.HashString(f.Invert()))
+	c.Assert(helpers.HashString(f.Gamma(32)), qt.Not(qt.Equals), helpers.HashString(f.Gamma(33)))
+	c.Assert(helpers.HashString(f.Gamma(32)), qt.Equals, helpers.HashString(f.Gamma(32)))
 
 }
