@@ -34,8 +34,6 @@ import (
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/resources/images/exif"
 
-	"github.com/gohugoio/hugo/resources/internal"
-
 	"github.com/gohugoio/hugo/resources/resource"
 
 	_errors "github.com/pkg/errors"
@@ -218,7 +216,7 @@ func (i *imageResource) Filter(filters ...interface{}) (resource.Image, error) {
 		gfilters = append(gfilters, images.ToFilters(f)...)
 	}
 
-	conf.Key = internal.HashString(gfilters)
+	conf.Key = helpers.HashString(gfilters)
 	conf.TargetFormat = i.Format
 
 	return i.doWithImageConfig(conf, func(src image.Image) (image.Image, error) {
@@ -362,7 +360,7 @@ func (i *imageResource) getImageMetaCacheTargetPath() string {
 	}
 	p1, _ := helpers.FileAndExt(df.file)
 	h, _ := i.hash()
-	idStr := internal.HashString(h, i.size(), imageMetaVersionNumber, cfg)
+	idStr := helpers.HashString(h, i.size(), imageMetaVersionNumber, cfg)
 	return path.Join(df.dir, fmt.Sprintf("%s_%s.json", p1, idStr))
 }
 
