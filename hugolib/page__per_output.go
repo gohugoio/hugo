@@ -110,7 +110,7 @@ func newPageContentOutput(p *pageState) func(po *pageOutput) (*pageContentOutput
 
 			if p.renderable {
 				if !isHTML {
-					r, err := cp.renderContent(cp.workContent)
+					r, err := cp.renderContent(cp.workContent, true)
 					if err != nil {
 						return err
 					}
@@ -161,12 +161,7 @@ func newPageContentOutput(p *pageState) func(po *pageOutput) (*pageContentOutput
 						}
 					}
 				} else if cp.p.m.summary != "" {
-					b, err := cp.p.getContentConverter().Convert(
-						converter.RenderContext{
-							Src: []byte(cp.p.m.summary),
-						},
-					)
-
+					b, err := cp.renderContent([]byte(cp.p.m.summary), false)
 					if err != nil {
 						return err
 					}
@@ -354,12 +349,12 @@ func (p *pageContentOutput) setAutoSummary() error {
 
 }
 
-func (cp *pageContentOutput) renderContent(content []byte) (converter.Result, error) {
+func (cp *pageContentOutput) renderContent(content []byte, renderTOC bool) (converter.Result, error) {
 	c := cp.p.getContentConverter()
 	return c.Convert(
 		converter.RenderContext{
 			Src:         content,
-			RenderTOC:   true,
+			RenderTOC:   renderTOC,
 			RenderHooks: cp.renderHooks,
 		})
 }

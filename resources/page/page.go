@@ -201,9 +201,10 @@ type PageMetaProvider interface {
 	Weight() int
 }
 
-// PageRenderProvider provides a way for a Page to render itself.
+// PageRenderProvider provides a way for a Page to render content.
 type PageRenderProvider interface {
-	Render(layout ...string) template.HTML
+	Render(layout ...string) (template.HTML, error)
+	RenderString(s interface{}) (template.HTML, error) // TODO1 inline option?
 }
 
 // PageWithoutContent is the Page without any of the content methods.

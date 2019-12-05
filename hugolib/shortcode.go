@@ -23,8 +23,6 @@ import (
 	"html/template"
 	"path"
 
-	"github.com/gohugoio/hugo/markup/converter"
-
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/pkg/errors"
 
@@ -351,12 +349,7 @@ func renderShortcode(
 		// shortcode.
 		if sc.doMarkup && (level > 0 || sc.info.Config.Version == 1) {
 			var err error
-
-			b, err := p.getContentConverter().Convert(
-				converter.RenderContext{
-					Src: []byte(inner),
-				},
-			)
+			b, err := p.pageOutput.cp.renderContent([]byte(inner), false)
 
 			if err != nil {
 				return "", false, err

@@ -23,6 +23,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/spf13/cast"
+
 	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/identity"
@@ -565,11 +567,27 @@ func (p *pageState) AlternativeOutputFormats() page.OutputFormats {
 	return o
 }
 
-func (p *pageState) Render(layout ...string) template.HTML {
+func (p *pageState) RenderString(in interface{}) (template.HTML, error) {
+	s, err := cast.ToStringE(in)
+	if err != nil {
+		return "", p.wrapError(err)
+	}
+
+	b, err := p.pageOutput.cp.renderContent([]byte(s), false)
+	if err != nil {
+		return "", p.wrapError(err)
+	}
+
+	if str, ok := b.(fmt.Stringer); ok {
+		return template.HTML(str.String()), nil
+	}
+	return template.HTML(b.Bytes()), nil
+}
+
+func (p *pageState) Render(layout ...string) (template.HTML, error) {
 	l, err := p.getLayouts(layout...)
 	if err != nil {
-		p.s.SendError(p.wrapError(errors.Errorf(".Render: failed to resolve layout %v", layout)))
-		return ""
+		return "", p.wrapError(errors.Errorf("failed to resolve layout %v", layout))
 	}
 
 	for _, layout := range l {
@@ -583,14 +601,13 @@ func (p *pageState) Render(layout ...string) template.HTML {
 		if templ != nil {
 			res, err := executeToString(templ, p)
 			if err != nil {
-				p.s.SendError(p.wrapError(errors.Wrapf(err, ".Render: failed to execute template %q v", layout)))
-				return ""
+				return "", p.wrapError(errors.Wrapf(err, "failed to execute template %q v", layout))
 			}
-			return template.HTML(res)
+			return template.HTML(res), nil
 		}
 	}
 
-	return ""
+	return "", nil
 
 }
 

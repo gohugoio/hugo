@@ -31,6 +31,12 @@ workingDir="/mywork"
 {{ .Inner | markdownify }}
 </div>
 `)
+	b.WithTemplatesAdded("shortcodes/myshortcode5.html", `
+<div class="foo">
+{{ .Inner | .Page.RenderString }}
+</div>
+`)
+
 	b.WithTemplatesAdded("partials/mypartial1.html", `PARTIAL1`)
 	b.WithTemplatesAdded("partials/mypartial2.html", `PARTIAL2  {{ partial "mypartial3.html" }}`)
 	b.WithTemplatesAdded("partials/mypartial3.html", `PARTIAL3`)
@@ -96,6 +102,12 @@ title: Cool Page With Markdownify
 Inner Link: [Inner Link](https://www.google.com "Google's Homepage")
 {{< /myshortcode4 >}}
 
+`, "blog/p6.md", `---
+title: With RenderString
+---
+
+{{< myshortcode5 >}}Inner Link: [Inner Link](https://www.google.com "Google's Homepage"){{< /myshortcode5 >}}
+
 `)
 	b.Build(BuildCfg{})
 	b.AssertFileContent("public/blog/p1/index.html", `
@@ -110,6 +122,8 @@ SHORT3|
 	b.AssertFileContent("public/blog/p4/index.html", `<p>IMAGE: Cool Page With Image||/images/Dragster.jpg|Title: image title|Text: Drag Racing|END</p>`)
 	// The regular markdownify func currently gets regular links.
 	b.AssertFileContent("public/blog/p5/index.html", "Inner Link: <a href=\"https://www.google.com\" title=\"Google's Homepage\">Inner Link</a>\n</div>")
+
+	b.AssertFileContent("public/blog/p6/index.html", "<div class=\"foo\">\n<p>Inner Link: With RenderString|https://www.google.com|Title: Google's Homepage|Text: Inner Link|END</p>\n\n</div>")
 
 	b.EditFiles(
 		"layouts/_default/_markup/render-link.html", `EDITED: {{ .Destination | safeURL }}|`,
@@ -126,5 +140,6 @@ SHORT3|
 	b.AssertFileContent("public/blog/p3/index.html", `PARTIAL3_EDITED`)
 	b.AssertFileContent("public/docs/docs1/index.html", `DOCS EDITED: https://www.google.com|</p>`)
 	b.AssertFileContent("public/blog/p4/index.html", `IMAGE EDITED: /images/Dragster.jpg|`)
+	b.AssertFileContent("public/blog/p6/index.html", "FOO")
 
 }
