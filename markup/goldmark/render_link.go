@@ -49,6 +49,10 @@ func (ctx linkContext) Destination() string {
 	return ctx.destination
 }
 
+func (ctx linkContext) Resolved() bool {
+	return false
+}
+
 func (ctx linkContext) Page() interface{} {
 	return ctx.page
 }

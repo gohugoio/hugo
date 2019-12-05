@@ -151,14 +151,14 @@ var _ identity.IdentitiesProvider = (*converterResult)(nil)
 type converterResult struct {
 	converter.Result
 	toc tableofcontents.Root
-	ids identity.IdentitiesSet
+	ids identity.Identities
 }
 
 func (c converterResult) TableOfContents() tableofcontents.Root {
 	return c.toc
 }
 
-func (c converterResult) GetIdentities() identity.IdentitiesSet {
+func (c converterResult) GetIdentities() identity.Identities {
 	return c.ids
 }
 
@@ -176,7 +176,7 @@ type renderContextData interface {
 type renderContextDataHolder struct {
 	rctx converter.RenderContext
 	dctx converter.DocumentContext
-	ids  map[identity.Identity]bool
+	ids  identity.Manager
 }
 
 func (ctx *renderContextDataHolder) RenderContext() converter.RenderContext {
@@ -188,10 +188,10 @@ func (ctx *renderContextDataHolder) DocumentContext() converter.DocumentContext 
 }
 
 func (ctx *renderContextDataHolder) AddIdentity(id identity.Identity) {
-	if _, found := ctx.ids[id]; !found {
-		ctx.ids[id] = true
-	}
+	ctx.ids.Add(id)
 }
+
+var goldmarkConverterIdentity = identity.KeyValueIdentity{Key: "goldmark", Value: "converter"}
 
 func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (result converter.Result, err error) {
 	defer func() {
@@ -218,7 +218,7 @@ func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (result convert
 	rcx := &renderContextDataHolder{
 		rctx: ctx,
 		dctx: c.ctx,
-		ids:  make(map[identity.Identity]bool),
+		ids:  identity.NewIdentityManager(goldmarkConverterIdentity),
 	}
 
 	w := renderContext{
@@ -232,7 +232,7 @@ func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (result convert
 
 	return converterResult{
 		Result: buf,
-		ids:    rcx.ids,
+		ids:    rcx.ids.GetIdentities(),
 		toc:    pctx.TableOfContents(),
 	}, nil
 

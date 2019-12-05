@@ -807,43 +807,28 @@ func (h *HugoSites) findPagesByKindIn(kind string, inPages page.Pages) page.Page
 	return h.Sites[0].findPagesByKindIn(kind, inPages)
 }
 
-func (h *HugoSites) resetPageStateFromEvents(ids identity.Identities) {
-	idset := ids.ToIdentitySet()
-	hasIdentify := func(v interface{}) bool {
-		if id, ok := v.(identity.Provider); ok {
-			if idset[id.GetIdentity()] {
-				return true
-			}
-		}
-		if idp, ok := v.(identity.IdentitiesProvider); ok {
-			for id, _ := range idp.GetIdentities() {
-				if idset[id.GetIdentity()] {
-					return true
-				}
-			}
-		}
-		return false
-	}
+func (h *HugoSites) resetPageStateFromEvents(idset identity.Identities) {
 
 	for _, s := range h.Sites {
 	PAGES:
 		for _, p := range s.rawAllPages {
 		OUTPUTS:
 			for _, po := range p.pageOutputs {
-				if c := po.cp; c != nil {
-					if converted := c.convertedResult; converted != nil {
-						if hasIdentify(converted) {
-							c.Reset()
-							p.forceRender = true
-							continue OUTPUTS
-						}
+				if po.cp == nil {
+					continue
+				}
+				for id, _ := range idset {
+					if po.cp.dependencyTracker.Search(id) != nil {
+						po.cp.Reset()
+						p.forceRender = true
+						continue OUTPUTS
 					}
 				}
 			}
 
 			for _, s := range p.shortcodeState.shortcodes {
-				for _, id := range ids {
-					if s.info.Search(id.GetIdentity()) != nil {
+				for id, _ := range idset {
+					if s.info.Search(id) != nil {
 						for _, po := range p.pageOutputs {
 							if po.cp != nil {
 								po.cp.Reset()

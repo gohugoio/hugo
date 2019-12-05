@@ -894,7 +894,7 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 	events = s.filterFileEvents(events)
 	events = s.translateFileEvents(events)
 
-	var changeIdentities identity.Identities
+	changeIdentities := make(identity.Identities)
 
 	s.Log.DEBUG.Printf("Rebuild for events %q", events)
 
@@ -922,7 +922,7 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 	for _, ev := range events {
 		id, found := s.eventToIdentity(ev)
 		if found {
-			changeIdentities = append(changeIdentities, id)
+			changeIdentities[id] = id
 
 			if assetsFilename := s.BaseFs.Assets.MakePathRelative(ev.Name); assetsFilename != "" {
 				cachePartitions = append(cachePartitions, resources.ResourceKeyPartitions(assetsFilename)...)

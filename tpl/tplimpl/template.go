@@ -200,10 +200,18 @@ func (t *templateHandler) Lookup(name string) (tpl.Template, bool) {
 
 }
 
+func (t *templateHandler) getTemplateInfo(name string) (tpl.Info, bool) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	info, found := t.templateInfo[name]
+	return info, found
+
+}
+
 func (t *templateHandler) applyTemplateInfo(templ tpl.Template, found bool) (tpl.Template, bool) {
 	if adapter, ok := templ.(*tpl.TemplateAdapter); ok {
 		if adapter.Info.IsZero() {
-			if info, found := t.templateInfo[templ.Name()]; found {
+			if info, found := t.getTemplateInfo(templ.Name()); found {
 				adapter.Info = info
 			}
 		}
@@ -618,6 +626,9 @@ func (t *templateHandler) addTemplate(name, tpl string) error {
 }
 
 func (t *templateHandler) getOrCreateTemplateInfo(name string) tpl.Info {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
 	info, found := t.templateInfo[name]
 	if found {
 		return info

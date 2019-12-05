@@ -23,6 +23,8 @@ import (
 	"sync"
 	"unicode/utf8"
 
+	"github.com/gohugoio/hugo/identity"
+
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 
 	"github.com/gohugoio/hugo/markup/converter"
@@ -60,14 +62,22 @@ var (
 	}
 )
 
+var pageContentOutputDependenciesID = identity.KeyValueIdentity{Key: "pageOutput", Value: "dependencies"}
+
 func newPageContentOutput(p *pageState) func(po *pageOutput) (*pageContentOutput, error) {
 
 	parent := p.init
 
 	return func(po *pageOutput) (*pageContentOutput, error) {
+		var dependencyTracker identity.Manager
+		if p.s.running() {
+			dependencyTracker = identity.NewIdentityManager(pageContentOutputDependenciesID)
+		}
+
 		cp := &pageContentOutput{
-			p: p,
-			f: po.f,
+			dependencyTracker: dependencyTracker,
+			p:                 p,
+			f:                 po.f,
 		}
 
 		initContent := func() (err error) {
@@ -114,7 +124,8 @@ func newPageContentOutput(p *pageState) func(po *pageOutput) (*pageContentOutput
 					if err != nil {
 						return err
 					}
-					cp.convertedResult = r
+
+					cp.convertedResult = r // TODO1 avoid storing this
 					cp.workContent = r.Bytes()
 
 					if _, ok := r.(converter.TableOfContentsProvider); !ok {
@@ -238,8 +249,9 @@ type pageContentOutput struct {
 
 	// Content state
 
-	workContent     []byte
-	convertedResult converter.Result
+	workContent       []byte
+	convertedResult   converter.Result
+	dependencyTracker identity.Manager // Set in server mode.
 
 	// Temporary storage of placeholders mapped to their content.
 	// These are shortcodes etc. Some of these will need to be replaced
@@ -260,7 +272,16 @@ type pageContentOutput struct {
 	readingTime    int
 }
 
+func (p *pageContentOutput) trackDependency(id identity.Provider) {
+	if p.dependencyTracker != nil {
+		p.dependencyTracker.Add(id)
+	}
+}
+
 func (p *pageContentOutput) Reset() {
+	if p.dependencyTracker != nil {
+		p.dependencyTracker.Reset()
+	}
 	p.p.initOutputFormats()
 	p.initMain.Reset()
 	p.initPlain.Reset()
@@ -351,12 +372,23 @@ func (p *pageContentOutput) setAutoSummary() error {
 
 func (cp *pageContentOutput) renderContent(content []byte, renderTOC bool) (converter.Result, error) {
 	c := cp.p.getContentConverter()
-	return c.Convert(
+	r, err := c.Convert(
 		converter.RenderContext{
 			Src:         content,
 			RenderTOC:   renderTOC,
 			RenderHooks: cp.renderHooks,
 		})
+
+	if err == nil {
+		if ids, ok := r.(identity.IdentitiesProvider); ok {
+			for _, v := range ids.GetIdentities() {
+				cp.trackDependency(v)
+			}
+		}
+	}
+
+	return r, err
+
 }
 
 func (p *pageContentOutput) setWordCounts(isCJKLanguage bool) {

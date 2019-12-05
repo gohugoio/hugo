@@ -105,8 +105,8 @@ type DocumentContext struct {
 
 // RenderContext holds contextual information about the content to render.
 type RenderContext struct {
-	Src            []byte
-	RenderTOC      bool
+	Src         []byte
+	RenderTOC   bool
 	RenderHooks *hooks.Render
 }
 

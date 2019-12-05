@@ -6,62 +6,42 @@ import (
 	"sync"
 )
 
-// NewIdentityManager creates a new Manager starting at root.
-func NewIdentityManager(root Provider) Manager {
+// NewIdentityManager creates a new Manager starting at id.
+func NewIdentityManager(id Provider) Manager {
 	return &identityManager{
-		Provider: root,
-		children: make(Identities, 0),
+		Provider: id,
+		ids:      Identities{id.GetIdentity(): id},
 	}
 }
 
 // NewPathIdentity creates a new Identity with the two identifiers
 // type and path.
-func NewPathIdentity(typ, path string) PathIdentity {
-	path = strings.TrimPrefix(filepath.ToSlash(path), "/")
-	return PathIdentity{Type: typ, Path: path}
+func NewPathIdentity(typ, pat string) PathIdentity {
+	pat = strings.TrimPrefix(filepath.ToSlash(pat), "/")
+	return PathIdentity{Type: typ, Path: pat}
 }
 
 // Identities stores identity providers.
-type Identities []Provider
-
-// A set of identities.
-type IdentitiesSet map[Identity]bool
-
-// ToIdentitySet creates a set of these Identities.
-func (ids Identities) ToIdentitySet() map[Identity]bool {
-	m := make(map[Identity]bool)
-	for _, id := range ids {
-		m[id.GetIdentity()] = true
-	}
-	return m
-}
+type Identities map[Identity]Provider
 
 func (ids Identities) search(id Identity) Provider {
+	if v, found := ids[id]; found {
+		return v
+	}
 	for _, v := range ids {
-		vid := v.GetIdentity()
-
-		if vid == id {
-			return v
-		}
-
-		if idsp, ok := v.(ChildIdentitiesProvider); ok {
-			if nested := idsp.GetChildIdentities().search(id); nested != nil {
+		switch t := v.(type) {
+		case IdentitiesProvider:
+			if nested := t.GetIdentities().search(id); nested != nil {
 				return nested
 			}
 		}
 	}
-
 	return nil
 }
 
-// IdentitiesProvider provides Identities as a set.
+// IdentitiesProvider provides all Identities.
 type IdentitiesProvider interface {
-	GetIdentities() IdentitiesSet
-}
-
-// ChildIdentitiesProvider provides child Identities.
-type ChildIdentitiesProvider interface {
-	GetChildIdentities() Identities
+	GetIdentities() Identities
 }
 
 // Identity represents an thing that can provide an identify. This can be
@@ -73,10 +53,11 @@ type Identity interface {
 
 // Manager manages identities, and is itself a Provider of Identity.
 type Manager interface {
-	ChildIdentitiesProvider
+	IdentitiesProvider
 	Provider
 	Add(ids ...Provider)
 	Search(id Identity) Provider
+	Reset()
 }
 
 // A PathIdentity is a common identity identified by a type and a path, e.g. "layouts" and "_default/single.html".
@@ -95,34 +76,56 @@ func (id PathIdentity) Name() string {
 	return id.Path
 }
 
+// A KeyValueIdentity a general purpose identity.
+type KeyValueIdentity struct {
+	Key   string
+	Value string
+}
+
+// GetIdentity returns itself.
+func (id KeyValueIdentity) GetIdentity() Identity {
+	return id
+}
+
+// Name returns the Key.
+func (id KeyValueIdentity) Name() string {
+	return id.Key
+}
+
 // Provider provides the hashable Identity.
 type Provider interface {
 	GetIdentity() Identity
 }
 
 type identityManager struct {
-	sync.RWMutex
+	sync.Mutex
 	Provider
-	children Identities
+	ids Identities
 }
 
 func (im *identityManager) Add(ids ...Provider) {
 	im.Lock()
-	im.children = append(im.children, ids...)
+	for _, id := range ids {
+		im.ids[id.GetIdentity()] = id
+	}
 	im.Unlock()
 }
 
-func (im *identityManager) GetChildIdentities() Identities {
-	return im.children
+func (im *identityManager) Reset() {
+	im.Lock()
+	id := im.GetIdentity()
+	im.ids = Identities{id.GetIdentity(): id}
+	im.Unlock()
+}
+
+func (im *identityManager) GetIdentities() Identities {
+	im.Lock()
+	defer im.Unlock()
+	return im.ids
 }
 
 func (im *identityManager) Search(id Identity) Provider {
-	im.RLock()
-	defer im.RUnlock()
-	if id == im.GetIdentity() {
-		return im
-	}
-	v := im.children.search(id)
-
-	return v
+	im.Lock()
+	defer im.Unlock()
+	return im.ids.search(id.GetIdentity())
 }

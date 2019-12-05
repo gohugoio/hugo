@@ -24,20 +24,12 @@ type LinkContext interface {
 	Destination() string
 	Title() string
 	Text() string
+	Resolved() bool // TODO1 consider
 }
 
 type Render struct {
 	LinkRenderer  LinkRenderer
 	ImageRenderer LinkRenderer
-}
-
-func (h *Render) GetChildIdentities() identity.Identities {
-	var ids identity.Identities
-	if h.LinkRenderer != nil {
-		ids = append(ids, h.LinkRenderer)
-	}
-	return ids
-
 }
 
 type LinkRenderer interface {

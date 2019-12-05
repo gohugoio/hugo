@@ -567,6 +567,7 @@ func (p *pageState) AlternativeOutputFormats() page.OutputFormats {
 	return o
 }
 
+// TODO1 option: map: display: inline/block (default inline)
 func (p *pageState) RenderString(in interface{}) (template.HTML, error) {
 	s, err := cast.ToStringE(in)
 	if err != nil {
