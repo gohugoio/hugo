@@ -104,7 +104,7 @@ type Site struct {
 	Sections Taxonomy
 	Info     SiteInfo
 
-	layoutHandler *output.LayoutHandler
+	templateLookupHandler *tpl.TemplateLookupHandler
 
 	language *langs.Language
 
@@ -323,7 +323,7 @@ func (s *Site) isEnabled(kind string) bool {
 // reset returns a new Site prepared for rebuild.
 func (s *Site) reset() *Site {
 	return &Site{Deps: s.Deps,
-		layoutHandler:          output.NewLayoutHandler(),
+		templateLookupHandler:  tpl.NewTemplateLookupHandler(),
 		disabledKinds:          s.disabledKinds,
 		titleFunc:              s.titleFunc,
 		relatedDocsHandler:     s.relatedDocsHandler.Clone(),
@@ -438,7 +438,7 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 
 	s := &Site{
 		PageCollections:        c,
-		layoutHandler:          output.NewLayoutHandler(),
+		templateLookupHandler:  tpl.NewTemplateLookupHandler(),
 		language:               cfg.Language,
 		disabledKinds:          disabledKinds,
 		titleFunc:              titleFunc,

@@ -380,15 +380,16 @@ func (p *pageState) createRenderHooks(f output.Format) (*hooks.Render, error) {
 	layoutDescriptor := p.getLayoutDescriptor()
 	layoutDescriptor.RenderingHook = true
 	layoutDescriptor.LayoutOverride = false
+	layoutDescriptor.Layout = ""
 
 	layoutDescriptor.Kind = "render-link"
-	linkLayouts, err := p.s.layoutHandler.For(layoutDescriptor, f)
+	linkLayouts, err := p.s.templateLookupHandler.LayoutHandler.For(layoutDescriptor, f)
 	if err != nil {
 		return nil, err
 	}
 
 	layoutDescriptor.Kind = "render-image"
-	imageLayouts, err := p.s.layoutHandler.For(layoutDescriptor, f)
+	imageLayouts, err := p.s.templateLookupHandler.LayoutHandler.For(layoutDescriptor, f)
 	if err != nil {
 		return nil, err
 	}
@@ -466,7 +467,7 @@ func (p *pageState) getLayouts(layouts ...string) ([]string, error) {
 		layoutDescriptor.LayoutOverride = true
 	}
 
-	return p.s.layoutHandler.For(layoutDescriptor, f)
+	return p.s.templateLookupHandler.LayoutHandler.For(layoutDescriptor, f)
 }
 
 // This is serialized

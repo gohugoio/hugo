@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gohugoio/hugo/output"
@@ -303,4 +304,54 @@ type TemplateFuncsGetter interface {
 // The interface is named so it's not used in regular application code.
 type TemplateTestMocker interface {
 	SetFuncs(funcMap map[string]interface{})
+}
+
+type TemplateLookupHandler struct {
+	mu            sync.RWMutex
+	cache         map[layoutCacheKey]Template
+	LayoutHandler *output.LayoutHandler
+}
+
+func NewTemplateLookupHandler() *TemplateLookupHandler {
+	return &TemplateLookupHandler{
+		LayoutHandler: output.NewLayoutHandler(),
+		cache:         make(map[layoutCacheKey]Template),
+	}
+}
+
+func (t *TemplateLookupHandler) GetOrLookup(d output.LayoutDescriptor, f output.Format, lookup func(name string) (Template, bool)) (templ Template, found bool, err error) {
+	key := layoutCacheKey{d: d, f: f.Name}
+
+	t.mu.RLock()
+	templ, found = t.cache[key]
+	t.mu.RUnlock()
+
+	if found {
+		return
+	}
+
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
+	var layouts []string
+	layouts, err = t.LayoutHandler.For(d, f)
+	if err != nil {
+		return
+	}
+
+	for _, l := range layouts {
+		templ, found = lookup(l)
+		if found {
+			t.cache[key] = templ
+		}
+		return
+	}
+
+	return
+
+}
+
+type layoutCacheKey struct {
+	d output.LayoutDescriptor
+	f string
 }
