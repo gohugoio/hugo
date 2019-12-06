@@ -15,6 +15,7 @@ package tplimpl
 
 import (
 	"html/template"
+	"regexp"
 	"strings"
 	texttemplate "text/template"
 	"text/template/parse"
@@ -229,6 +230,8 @@ func (c *templateContext) wrapWithGetIf(p *parse.PipeNode) {
 
 }
 
+var partialRe = regexp.MustCompile(`^partial(Cached)?$|^partials\.Include(Cached)?$`)
+
 // applyTransformations do 3 things:
 // 1) Make all .Params.CamelCase and similar into lowercase.
 // 2) Wraps every with and if pipe in getif
@@ -270,21 +273,28 @@ func (c *templateContext) applyTransformations(n parse.Node) (bool, error) {
 
 	case *parse.CommandNode:
 		if len(x.Args) > 1 {
-			if id, ok := x.Args[0].(*parse.IdentifierNode); ok {
-				if id.Ident == "partial" {
-					partialName := strings.Trim(x.Args[1].String(), "\"")
-					if !strings.Contains(partialName, ".") {
-						partialName += ".html"
-					}
-					// TODO1 add a test for case
-					partialName = "partials/" + partialName
-					info := c.lookupFn(partialName)
-					if info != nil {
-						c.Info.Add(info.info)
-					} else {
-						// Delay for later
-						c.identityNotFound[partialName] = true
-					}
+			first := x.Args[0]
+			var id string
+			switch v := first.(type) {
+			case *parse.IdentifierNode:
+				id = v.Ident
+			case *parse.ChainNode:
+				id = v.String()
+			}
+
+			if partialRe.MatchString(id) {
+				partialName := strings.Trim(x.Args[1].String(), "\"")
+				if !strings.Contains(partialName, ".") {
+					partialName += ".html"
+				}
+				// TODO1 add a test for case
+				partialName = "partials/" + partialName
+				info := c.lookupFn(partialName)
+				if info != nil {
+					c.Info.Add(info.info)
+				} else {
+					// Delay for later
+					c.identityNotFound[partialName] = true
 				}
 			}
 		}

@@ -18,6 +18,10 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/gohugoio/hugo/tpl"
+
+	qt "github.com/frankban/quicktest"
+
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
 
@@ -330,4 +334,34 @@ Partial cached3: {{ partialCached "p1" "input3" $key2 }}
  Partial cached2: partial: input1
  Partial cached3: partial: input3
 `)
+}
+
+func TestTemplateDependencies(t *testing.T) {
+	b := newTestSitesBuilder(t)
+
+	b.WithTemplates("index.html", `
+{{ partial "p1.html" }}
+{{ partialCached "p2.html" "foo" }}
+{{ partials.Include "p3.html" }}
+{{ partials.IncludeCached "p4.html" "foo" }}
+`,
+		"partials/p1.html", `p1`,
+		"partials/p2.html", `p2`,
+		"partials/p3.html", `p3`,
+		"partials/p4.html", `p4`,
+	)
+
+	b.WithContent("p1.md", "")
+
+	b.Build(BuildCfg{})
+
+	s := b.H.Sites[0]
+
+	templ, found := s.lookupTemplate("index.html")
+	b.Assert(found, qt.Equals, true)
+
+	ids := templ.(tpl.TemplateInfoProvider).TemplateInfo().GetIdentities()
+
+	b.Assert(ids, qt.HasLen, 23)
+
 }
