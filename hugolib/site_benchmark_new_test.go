@@ -127,6 +127,36 @@ title = "What is Markdown"
 baseURL = "https://example.com"
 
 `)
+
+			data, err := ioutil.ReadFile(filepath.FromSlash("testdata/what-is-markdown.md"))
+			sb.Assert(err, qt.IsNil)
+			datastr := string(data)
+			getContent := func(i int) string {
+				return fmt.Sprintf(`---
+title: "Page %d"
+---
+
+`, i) + datastr
+
+			}
+			for i := 1; i <= 100; i++ {
+				sb.WithContent(fmt.Sprintf("content/page%d.md", i), getContent(i))
+			}
+
+			return sb
+		},
+			func(s *sitesBuilder) {
+				s.Assert(s.CheckExists("public/page8/index.html"), qt.Equals, true)
+			},
+		},
+		{"Markdown with custom link handler", func(b testing.TB) *sitesBuilder {
+			sb := newTestSitesBuilder(b).WithConfigFile("toml", `
+title = "What is Markdown"
+baseURL = "https://example.com"
+
+`)
+
+			sb.WithTemplatesAdded("_default/_markup/render-link.html", `<a href="{{ .Destination | safeURL }}#custom">CUSTOM LINK</a>`)
 			data, err := ioutil.ReadFile(filepath.FromSlash("testdata/what-is-markdown.md"))
 			sb.Assert(err, qt.IsNil)
 			datastr := string(data)
