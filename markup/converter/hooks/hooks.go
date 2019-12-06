@@ -32,6 +32,26 @@ type Render struct {
 	ImageRenderer LinkRenderer
 }
 
+func (r *Render) Eq(other interface{}) bool {
+	ro, ok := other.(*Render)
+	if !ok {
+		return false
+	}
+	if r == nil || ro == nil {
+		return r == nil
+	}
+
+	if r.ImageRenderer.GetIdentity() != ro.ImageRenderer.GetIdentity() {
+		return false
+	}
+
+	if r.LinkRenderer.GetIdentity() != ro.LinkRenderer.GetIdentity() {
+		return false
+	}
+
+	return true
+}
+
 type LinkRenderer interface {
 	Render(w io.Writer, ctx LinkContext) error
 	identity.Provider

@@ -93,6 +93,10 @@ func newPageContentOutput(p *pageState) func(po *pageOutput) (*pageContentOutput
 				}
 			}()
 
+			if err := po.initRenderHooks(); err != nil {
+				return err
+			}
+
 			var hasVariants bool
 
 			f := po.f
@@ -245,7 +249,7 @@ type pageContentOutput struct {
 	// May be nil.
 	renderHooks *hooks.Render
 	// Set if there are more than one output format variant
-	renderHooksHaveVariants bool
+	renderHooksHaveVariants bool // TODO1 reimplement this in another way
 
 	// Content state
 

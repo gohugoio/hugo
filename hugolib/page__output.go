@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -88,6 +89,32 @@ type pageOutput struct {
 
 	// May be nil.
 	cp *pageContentOutput
+}
+
+func (o *pageOutput) initRenderHooks() error {
+	if !o.render || o.cp == nil {
+		return nil
+	}
+
+	ps := o.cp.p
+
+	c := ps.getContentConverter()
+	if c == nil || !c.Supports(converter.FeatureRenderHooks) {
+		return nil
+	}
+
+	h, err := ps.createRenderHooks(o.f)
+	if err != nil {
+		return err
+	}
+	if h == nil {
+		return nil
+	}
+
+	o.cp.renderHooks = h
+
+	return nil
+
 }
 
 func (p *pageOutput) initContentProvider(cp *pageContentOutput) {

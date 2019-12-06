@@ -246,6 +246,7 @@ func newPageWithContent(f *fileInfo, s *Site, bundled bool, content resource.Ope
 	}
 
 	ps.init.Add(func() (interface{}, error) {
+		// TODO1
 		reuseContent := ps.renderable && !ps.shortcodeState.hasShortcodes()
 
 		// Creates what's needed for each output format.

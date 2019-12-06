@@ -328,9 +328,14 @@ func (ps *pageState) initCommonProviders(pp pagePaths) error {
 	return nil
 }
 
+// TODO1 remove
 func (ps *pageState) initOutputFormats() error {
 
 	if len(ps.pageOutputs) == 0 {
+		return nil
+	}
+
+	if true {
 		return nil
 	}
 
