@@ -528,6 +528,7 @@ func (t *htmlTemplates) addTemplateIn(tt *template.Template, name, tpl string) (
 
 	for k := range c.templateNotFound {
 		t.transformNotFound[k] = true
+		t.identityNotFound[k] = append(t.identityNotFound[k], c.Info)
 	}
 
 	for k := range c.identityNotFound {
@@ -695,7 +696,7 @@ func (t *templateHandler) postTransform() error {
 
 		for k, v := range s.identityNotFound {
 			templ := s.lookup(k)
-			if templ != nil {
+			if templ != nil && templ.info.Manager != nil {
 				id := templ.info.GetIdentity()
 				for _, im := range v {
 					im.Add(id)

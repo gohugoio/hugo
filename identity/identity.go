@@ -17,7 +17,7 @@ func NewIdentityManager(id Provider) Manager {
 // NewPathIdentity creates a new Identity with the two identifiers
 // type and path.
 func NewPathIdentity(typ, pat string) PathIdentity {
-	pat = strings.TrimPrefix(filepath.ToSlash(pat), "/")
+	pat = strings.ToLower(strings.TrimPrefix(filepath.ToSlash(pat), "/"))
 	return PathIdentity{Type: typ, Path: pat}
 }
 

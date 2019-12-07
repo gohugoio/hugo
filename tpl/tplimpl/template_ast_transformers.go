@@ -80,8 +80,11 @@ func (c templateContext) getIfNotVisited(name string) *templateInfoTree {
 		// and not yet parsed. Unusual, but it happens.
 		// Store the name to try again later.
 		c.templateNotFound[name] = true
+	} else {
+		if templ.info.Manager != nil {
+			c.Info.Add(templ.info)
+		}
 	}
-
 	return templ
 }
 
@@ -287,7 +290,6 @@ func (c *templateContext) applyTransformations(n parse.Node) (bool, error) {
 				if !strings.Contains(partialName, ".") {
 					partialName += ".html"
 				}
-				// TODO1 add a test for case
 				partialName = "partials/" + partialName
 				info := c.lookupFn(partialName)
 				if info != nil {

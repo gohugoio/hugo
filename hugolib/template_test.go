@@ -340,18 +340,34 @@ func TestTemplateDependencies(t *testing.T) {
 	b := newTestSitesBuilder(t)
 
 	b.WithTemplates("index.html", `
-{{ partial "p1.html" }}
+{{ $p := site.GetPage "p1" }}
+{{ partial "p1.html"  $p }}
 {{ partialCached "p2.html" "foo" }}
-{{ partials.Include "p3.html" }}
+{{ partials.Include "p3.html" "data" }}
 {{ partials.IncludeCached "p4.html" "foo" }}
+{{ $p := partial "p5" }}
+{{ partial "sub/p6.html" }}
+{{ partial "P7.html" }}
+{{ template "_default/foo.html" }}
+
 `,
-		"partials/p1.html", `p1`,
+		"partials/p1.html", `ps: {{ .Render "li" }}`,
 		"partials/p2.html", `p2`,
 		"partials/p3.html", `p3`,
 		"partials/p4.html", `p4`,
+		"partials/p5.html", `p5`,
+		"partials/sub/p6.html", `p6`,
+		"partials/P7.html", `p7`,
+		"_default/foo.html", `foo`,
+		"_default/li.html", `li`,
 	)
 
-	b.WithContent("p1.md", "")
+	b.WithContent("p1.md", `---
+title: P1
+---
+
+
+`)
 
 	b.Build(BuildCfg{})
 
@@ -362,6 +378,9 @@ func TestTemplateDependencies(t *testing.T) {
 
 	ids := templ.(tpl.TemplateInfoProvider).TemplateInfo().GetIdentities()
 
-	b.Assert(ids, qt.HasLen, 23)
+	//b.AssertFileContent("public/index.html", `FOO`)
+	// TODO1 .Render...
+
+	b.Assert(ids, qt.HasLen, 9)
 
 }
