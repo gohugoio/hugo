@@ -87,6 +87,13 @@ func init() {
 			[][2]string{},
 		)
 
+		ns.AddMethodMapping(ctx.invokeDot,
+			[]string{"invokeDot"},
+			[][2]string{},
+		)
+
+		//
+
 		ns.AddMethodMapping(ctx.Not,
 			[]string{"not"},
 			[][2]string{},

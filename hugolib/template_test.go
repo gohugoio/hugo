@@ -340,9 +340,10 @@ func TestTemplateDependencies(t *testing.T) {
 	b := newTestSitesBuilder(t)
 
 	b.WithTemplates("index.html", `
+{{ $m := dict "Render" "foo" }}
 {{ $p := site.GetPage "p1" }}
 {{ partial "p1.html"  $p }}
-{{ partialCached "p2.html" "foo" }}
+{{ partialCached "p2.html" $m }}
 {{ partials.Include "p3.html" "data" }}
 {{ partials.IncludeCached "p4.html" "foo" }}
 {{ $p := partial "p5" }}
@@ -351,8 +352,8 @@ func TestTemplateDependencies(t *testing.T) {
 {{ template "_default/foo.html" }}
 
 `,
-		"partials/p1.html", `ps: {{ .Render "li" }}`,
-		"partials/p2.html", `p2`,
+		"partials/p1.html", `p1: {{ .Render "li" }}{{ .Render }}`,
+		"partials/p2.html", `p2: {{ .Render }} `,
 		"partials/p3.html", `p3`,
 		"partials/p4.html", `p4`,
 		"partials/p5.html", `p5`,

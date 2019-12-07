@@ -181,16 +181,31 @@ func applyTemplateTransformers(
 
 const (
 	partialReturnWrapperTempl = `{{ $_hugo_dot := $ }}{{ $ := .Arg }}{{ with .Arg }}{{ $_hugo_dot.Set ("PLACEHOLDER") }}{{ end }}`
+	dotContextWrapperTempl    = `{{ invokeDot . "NAME" "ARGS" }}`
 )
 
-var partialReturnWrapper *parse.ListNode
+var (
+	partialReturnWrapper *parse.ListNode
+	dotContextWrapper    *parse.CommandNode
+)
 
 func init() {
-	templ, err := texttemplate.New("").Parse(partialReturnWrapperTempl)
+	tt := texttemplate.New("").Funcs(texttemplate.FuncMap{
+		"invokeDot": func() interface{} { return "foo" },
+	})
+
+	templ, err := tt.Parse(partialReturnWrapperTempl)
 	if err != nil {
 		panic(err)
 	}
 	partialReturnWrapper = templ.Tree.Root
+
+	templ, err = tt.Parse(dotContextWrapperTempl)
+	if err != nil {
+		panic(err)
+	}
+	action := templ.Tree.Root.Nodes[0].(*parse.ActionNode)
+	dotContextWrapper = action.Pipe.Cmds[0]
 }
 
 func (c *templateContext) wrapInPartialReturnWrapper(n *parse.ListNode) *parse.ListNode {
@@ -205,6 +220,28 @@ func (c *templateContext) wrapInPartialReturnWrapper(n *parse.ListNode) *parse.L
 	withNode.List.Nodes = append(n.Nodes, retn)
 
 	return wrapper
+
+}
+
+func (c *templateContext) wrapDot(n *parse.CommandNode) bool {
+	field, ok := n.Args[0].(*parse.FieldNode)
+	if !ok {
+		return false
+	}
+
+	wrapper := dotContextWrapper.Copy().(*parse.CommandNode)
+
+	sn := wrapper.Args[2].(*parse.StringNode)
+	fields := field.String()
+	sn.Quoted = "\"" + fields + "\""
+	sn.Text = fields
+
+	args := wrapper.Args[:3]
+	if len(n.Args) > 2 {
+		args = append(args, n.Args[1:]...)
+	}
+	n.Args = args
+	return true
 
 }
 
@@ -275,7 +312,8 @@ func (c *templateContext) applyTransformations(n parse.Node) (bool, error) {
 		}
 
 	case *parse.CommandNode:
-		if len(x.Args) > 1 {
+		if c.wrapDot(x) {
+		} else if len(x.Args) > 1 {
 			first := x.Args[0]
 			var id string
 			switch v := first.(type) {

@@ -17,6 +17,7 @@
 package compare
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/gohugoio/hugo/common/hreflect"
@@ -35,6 +36,11 @@ func (*Namespace) getIf(arg reflect.Value) reflect.Value {
 		return arg
 	}
 	return reflect.ValueOf("")
+}
+
+func (*Namespace) invokeDot(args ...interface{}) interface{} {
+	fmt.Println("invokeDot:", args)
+	return "FOO"
 }
 
 // And computes the Boolean AND of its arguments, returning
