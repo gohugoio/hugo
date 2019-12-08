@@ -28,6 +28,7 @@ import (
 
 // decl keeps track of the variable mappings, i.e. $mysite => .Site etc.
 type decl map[string]string
+type decln map[string]*parse.CommandNode
 
 const (
 	paramsIdentifier = "Params"
@@ -49,6 +50,7 @@ const (
 
 type templateContext struct {
 	decl             decl
+	decln            decln // TODO1 remove
 	visited          map[string]bool
 	templateNotFound map[string]bool
 	identityNotFound map[string]bool
@@ -96,6 +98,7 @@ func newTemplateContext(info tpl.Info, lookupFn func(name string) *templateInfoT
 		Info:             info,
 		lookupFn:         lookupFn,
 		decl:             make(map[string]string),
+		decln:            make(map[string]*parse.CommandNode),
 		visited:          make(map[string]bool),
 		templateNotFound: make(map[string]bool),
 		identityNotFound: make(map[string]bool),
@@ -223,9 +226,15 @@ func (c *templateContext) wrapInPartialReturnWrapper(n *parse.ListNode) *parse.L
 
 }
 
-func (c *templateContext) wrapDot(cmd *parse.CommandNode) {
+var ignoreFuncsRe = regexp.MustCompile("invokeDot|html")
+
+func (c *templateContext) wrapDot(d bool, cmd *parse.CommandNode) {
+	var dotNode parse.Node
+	doDebug := d || strings.Contains(cmd.String(), "blue")
 	var fields string
+
 	firstWord := cmd.Args[0]
+
 	switch a := firstWord.(type) {
 	case *parse.FieldNode:
 		fields = a.String()
@@ -233,7 +242,7 @@ func (c *templateContext) wrapDot(cmd *parse.CommandNode) {
 	case *parse.ChainNode:
 		if pipe, ok := a.Node.(*parse.PipeNode); ok {
 			for _, cmd := range pipe.Cmds {
-				c.wrapDot(cmd)
+				c.wrapDot(doDebug, cmd)
 			}
 
 		}
@@ -242,27 +251,24 @@ func (c *templateContext) wrapDot(cmd *parse.CommandNode) {
 	//return s.evalChainNode(dot, n, cmd.Args, final)
 	case *parse.IdentifierNode:
 		// Must be a function.
-		if a.Ident == "invokeDot" {
+		if ignoreFuncsRe.MatchString(a.Ident) {
 			return
 		}
 		fields = a.Ident
 		//return s.evalFunction(dot, n, cmd, cmd.Args, final)
 	case *parse.PipeNode:
-		// Parenthesized pipeline. The arguments are all inside the pipeline; final must be absent.
 		for _, cmd := range a.Cmds {
-			c.wrapDot(cmd)
+			c.wrapDot(doDebug, cmd)
 		}
 		//s.notAFunction(cmd.Args, final)
 		//return s.evalPipeline(dot, n)
 		return
 	case *parse.VariableNode:
-		//v, found := c.decl[a.Ident[0]]
-		//		fmt.Println("VARIABLE", a.Ident[0], "=>", a.Ident[1:], "=>", v, found)
-		//		if found {
-		//			fmt.Printf("VAR %T\n", v)
-		//		}
-		//return s.evalVariableNode(dot, n, cmd.Args, final)
-		return
+		// $x.Field has $x as the first ident, Field as the second.
+		fields = "." + strings.Join(a.Ident[1:], ".")
+		a.Ident = a.Ident[:1]
+		dotNode = a
+
 	default:
 		//fmt.Printf("UNKNOWN: %T\n", firstWord)
 		return
@@ -271,6 +277,9 @@ func (c *templateContext) wrapDot(cmd *parse.CommandNode) {
 	wrapper := dotContextWrapper.Copy().(*parse.CommandNode)
 
 	sn := wrapper.Args[2].(*parse.StringNode)
+	if dotNode != nil {
+		wrapper.Args[1] = dotNode
+	}
 
 	sn.Quoted = "\"" + fields + "\""
 	sn.Text = fields
@@ -343,6 +352,7 @@ func (c *templateContext) applyTransformations(n parse.Node) (bool, error) {
 		if len(x.Decl) == 1 && len(x.Cmds) == 1 {
 			// maps $site => .Site etc.
 			c.decl[x.Decl[0].Ident[0]] = x.Cmds[0].String()
+			c.decln[x.Decl[0].Ident[0]] = x.Cmds[0]
 		}
 
 		for i, cmd := range x.Cmds {
@@ -353,7 +363,7 @@ func (c *templateContext) applyTransformations(n parse.Node) (bool, error) {
 		}
 
 	case *parse.CommandNode:
-		c.wrapDot(x)
+		c.wrapDot(false, x)
 		if false || len(x.Args) > 1 {
 			first := x.Args[0]
 			var id string

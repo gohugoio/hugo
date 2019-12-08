@@ -71,14 +71,36 @@ func (i *Invoker) InvokeMethod(receiver interface{}, path []string, args ...inte
 
 }
 
-func argsToValues(args []interface{}) []reflect.Value {
+func argsToValues(args []interface{}, typ reflect.Type) []reflect.Value {
 	if len(args) == 0 {
 		return nil
 	}
-	argsv := make([]reflect.Value, len(args))
-	for i, v := range args {
-		argsv[i] = reflect.ValueOf(v)
+
+	toArg := func(typ reflect.Type, v interface{}) reflect.Value {
+		if typ == reflectValueType {
+			return reflect.ValueOf(reflect.ValueOf(v))
+		} else {
+			return reflect.ValueOf(v)
+		}
 	}
+
+	numFixed := len(args)
+	if typ.IsVariadic() {
+		numFixed = typ.NumIn() - 1
+	}
+
+	argsv := make([]reflect.Value, len(args))
+	i := 0
+	for ; i < numFixed && i < len(args); i++ {
+		argsv[i] = toArg(typ.In(i), args[i])
+	}
+	if typ.IsVariadic() {
+		argType := typ.In(typ.NumIn() - 1).Elem()
+		for ; i < len(args); i++ {
+			argsv[i] = toArg(argType, args[i])
+		}
+	}
+
 	return argsv
 }
 
@@ -123,7 +145,7 @@ func (i *Invoker) invoke(receiver reflect.Value, path []string, args []interface
 			} else if numArgs != mt.NumIn() {
 				return err("methods %s takes %d arguments, got %d", name, mt.NumIn(), numArgs)
 			}
-			argsv = argsToValues(args)
+			argsv = argsToValues(args, mt)
 		}
 
 		result := fn.Call(argsv)

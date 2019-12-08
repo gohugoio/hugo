@@ -36,6 +36,8 @@ weight=2
 {{ $params := .Site.Params }}
 {{ $colors := $params.Colors }}
 {{ $blue := $colors.Blue }}
+
+Params: {{ $colors }}
 Site en: {{ site.Language.Lang }}|{{ .Site.Language.Lang }}|Blue: {{ $blue }}`,
 		"index.nn.html", `Site nn: {{ site.Language.Lang }}|{{ .Site.Language.Lang }}`)
 	b.WithContent("p1.md", "asdf")

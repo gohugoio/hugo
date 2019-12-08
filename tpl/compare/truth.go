@@ -20,6 +20,8 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/herrors"
+
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/common/hreflect"
@@ -41,6 +43,7 @@ func (*Namespace) getIf(arg reflect.Value) reflect.Value {
 }
 
 func (ns *Namespace) invokeDot(in ...interface{}) (interface{}, error) {
+	defer herrors.Recover()
 
 	dot := in[0]
 
