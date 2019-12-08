@@ -24,7 +24,7 @@ import (
 	"github.com/spf13/cast"
 )
 
-var sortComp = compare.New(true)
+var sortComp = compare.New(nil, true)
 
 // Sort returns a sorted sequence.
 func (ns *Namespace) Sort(seq interface{}, args ...interface{}) (interface{}, error) {

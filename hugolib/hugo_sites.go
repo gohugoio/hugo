@@ -380,6 +380,7 @@ func applyDeps(cfg deps.DepsCfg, sites ...*Site) error {
 			}
 			s.siteConfigConfig = siteConfig
 			s.siteRefLinker, err = newSiteRefLinker(s.language, s)
+
 			return err
 		}
 

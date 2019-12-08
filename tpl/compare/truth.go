@@ -40,16 +40,28 @@ func (*Namespace) getIf(arg reflect.Value) reflect.Value {
 	return reflect.ValueOf("")
 }
 
-func (*Namespace) invokeDot(in ...interface{}) (interface{}, error) {
+func (ns *Namespace) invokeDot(in ...interface{}) (interface{}, error) {
+
 	dot := in[0]
-	path := strings.Split(cast.ToString(in[1])[1:], ".")
+
+	path := strings.Split(cast.ToString(in[1]), ".")
+	if path[0] == "" {
+		path = path[1:]
+	} else {
+		// A function.
+		dot = nil
+	}
 
 	var args []interface{}
 	if len(in) > 2 {
 		args = in[2:]
 	}
 
-	return hreflect.Invoke(dot, path, args...)
+	if dot == nil {
+		return ns.invoker.InvokeFunction(path, args...)
+	}
+
+	return ns.invoker.InvokeMethod(dot, path, args...)
 }
 
 // And computes the Boolean AND of its arguments, returning

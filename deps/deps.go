@@ -40,6 +40,8 @@ type Deps struct {
 	// The templates to use. This will usually implement the full tpl.TemplateHandler.
 	Tmpl tpl.TemplateFinder `json:"-"`
 
+	TemplateFuncs map[string]interface{} `json:"-"`
+
 	// We use this to parse and execute ad-hoc text templates.
 	TextTmpl tpl.TemplateParseFinder `json:"-"`
 
@@ -76,7 +78,7 @@ type Deps struct {
 	// All the output formats available for the current site.
 	OutputFormatsConfig output.Formats
 
-	templateProvider ResourceProvider
+	TemplateProvider ResourceProvider
 	WithTemplate     func(templ tpl.TemplateHandler) error `json:"-"`
 
 	translationProvider ResourceProvider
@@ -162,7 +164,7 @@ func (d *Deps) LoadResources() error {
 		return errors.Wrap(err, "loading translations")
 	}
 
-	if err := d.templateProvider.Update(d); err != nil {
+	if err := d.TemplateProvider.Update(d); err != nil {
 		return errors.Wrap(err, "loading templates")
 	}
 
@@ -243,7 +245,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		Log:                 logger,
 		DistinctErrorLog:    distinctErrorLogger,
 		DistinctWarningLog:  distinctWarnLogger,
-		templateProvider:    cfg.TemplateProvider,
+		TemplateProvider:    cfg.TemplateProvider,
 		translationProvider: cfg.TranslationProvider,
 		WithTemplate:        cfg.WithTemplate,
 		PathSpec:            ps,
@@ -310,7 +312,7 @@ func (d Deps) ForLanguage(cfg DepsCfg, onCreated func(d *Deps) error) (*Deps, er
 		return nil, err
 	}
 
-	if err := d.templateProvider.Clone(&d); err != nil {
+	if err := d.TemplateProvider.Clone(&d); err != nil {
 		return nil, err
 	}
 

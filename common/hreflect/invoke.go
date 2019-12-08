@@ -30,9 +30,35 @@ var (
 	reflectValueType = reflect.TypeOf((*reflect.Value)(nil)).Elem()
 )
 
-func Invoke(dot interface{}, path []string, args ...interface{}) (interface{}, error) {
-	v := reflect.ValueOf(dot)
-	result, err := invoke(v, path, args)
+type Invoker struct {
+	funcs func(name string) interface{}
+}
+
+func NewInvoker(funcs func(name string) interface{}) *Invoker {
+	return &Invoker{funcs: funcs}
+}
+
+func (i *Invoker) InvokeFunction(path []string, args ...interface{}) (interface{}, error) {
+	name := path[0]
+	f := i.funcs(name)
+	if f == nil {
+		return err("function with name %s not found", name)
+	}
+	result, err := i.invoke(reflect.ValueOf(f), path, args)
+	if err != nil {
+		return nil, err
+	}
+
+	if !result.IsValid() {
+		return nil, nil
+	}
+
+	return result.Interface(), nil
+}
+
+func (i *Invoker) InvokeMethod(receiver interface{}, path []string, args ...interface{}) (interface{}, error) {
+	v := reflect.ValueOf(receiver)
+	result, err := i.invoke(v, path, args)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +72,6 @@ func Invoke(dot interface{}, path []string, args ...interface{}) (interface{}, e
 }
 
 func argsToValues(args []interface{}) []reflect.Value {
-	// TODO1 varargs
 	if len(args) == 0 {
 		return nil
 	}
@@ -57,11 +82,12 @@ func argsToValues(args []interface{}) []reflect.Value {
 	return argsv
 }
 
-func invoke(receiver reflect.Value, path []string, args []interface{}) (reflect.Value, error) {
+func (i *Invoker) invoke(receiver reflect.Value, path []string, args []interface{}) (reflect.Value, error) {
 	if len(path) == 0 {
 		return receiver, nil
 	}
 	name := path[0]
+
 	nextPath := 1
 	typ := receiver.Type()
 	receiver, isNil := indirect(receiver)
@@ -77,7 +103,6 @@ func invoke(receiver reflect.Value, path []string, args []interface{}) (reflect.
 	var fn reflect.Value
 	if typ.Kind() == reflect.Func {
 		fn = receiver
-		nextPath--
 	} else {
 		fn = ptr.MethodByName(name)
 	}
@@ -108,15 +133,15 @@ func invoke(receiver reflect.Value, path []string, args []interface{}) (reflect.
 			}
 		}
 
-		return invoke(result[0], path[nextPath:], args)
+		return i.invoke(result[0], path[nextPath:], args)
 	}
 
 	switch receiver.Kind() {
 	case reflect.Struct:
 		if f := receiver.FieldByName(name); f.IsValid() {
-			return invoke(f, path[1:], args)
+			return i.invoke(f, path[1:], args)
 		} else {
-			return err("no method or field with name %s found", name)
+			return err("no field with name %s found", name)
 		}
 	case reflect.Map:
 		if p, ok := receiver.Interface().(maps.Params); ok {
@@ -128,7 +153,7 @@ func invoke(receiver reflect.Value, path []string, args []interface{}) (reflect.
 		if !v.IsValid() {
 			return reflect.Value{}, nil
 		}
-		return invoke(v, path[1:], args)
+		return i.invoke(v, path[1:], args)
 	}
 	return receiver, nil
 }

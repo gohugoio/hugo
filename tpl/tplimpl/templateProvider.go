@@ -25,10 +25,11 @@ var DefaultTemplateProvider *TemplateProvider
 
 // Update updates the Hugo Template System in the provided Deps
 // with all the additional features, templates & functions.
-func (*TemplateProvider) Update(deps *deps.Deps) error {
+func (p *TemplateProvider) Update(deps *deps.Deps) error {
 	newTmpl := newTemplateAdapter(deps)
 	deps.Tmpl = newTmpl
 	deps.TextTmpl = newTmpl.wrapTextTemplate(newTmpl.text.standalone)
+	deps.TemplateFuncs = p.CreateFuncMap(deps)
 
 	newTmpl.initFuncs()
 
@@ -49,10 +50,12 @@ func (*TemplateProvider) Update(deps *deps.Deps) error {
 }
 
 // Clone clones.
-func (*TemplateProvider) Clone(d *deps.Deps) error {
+func (p *TemplateProvider) Clone(d *deps.Deps) error {
 
 	t := d.Tmpl.(*templateHandler)
 	clone := t.clone(d)
+
+	d.TemplateFuncs = p.CreateFuncMap(d)
 
 	return clone.MarkReady()
 

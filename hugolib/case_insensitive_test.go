@@ -259,7 +259,12 @@ func TestCaseInsensitiveConfigurationForAllTemplateEngines(t *testing.T) {
 		{"html", noOp},
 		{"ace", noOp},
 	} {
-		doTestCaseInsensitiveConfigurationForTemplateEngine(t, config.suffix, config.templateFixer)
+
+		config := config
+		t.Run(config.suffix, func(t *testing.T) {
+			t.Parallel()
+			doTestCaseInsensitiveConfigurationForTemplateEngine(t, config.suffix, config.templateFixer)
+		})
 
 	}
 

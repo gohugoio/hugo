@@ -49,7 +49,8 @@ import (
 	_ "github.com/gohugoio/hugo/tpl/urls"
 )
 
-func createFuncMap(d *deps.Deps) map[string]interface{} {
+func (*TemplateProvider) CreateFuncMap(in interface{}) map[string]interface{} {
+	d := in.(*deps.Deps)
 	funcMap := template.FuncMap{}
 
 	// Merge the namespace funcs

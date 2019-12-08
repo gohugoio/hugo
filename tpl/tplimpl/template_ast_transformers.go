@@ -223,27 +223,66 @@ func (c *templateContext) wrapInPartialReturnWrapper(n *parse.ListNode) *parse.L
 
 }
 
-func (c *templateContext) wrapDot(n *parse.CommandNode) bool {
-	field, ok := n.Args[0].(*parse.FieldNode)
-	if !ok {
-		return false
+func (c *templateContext) wrapDot(cmd *parse.CommandNode) {
+	var fields string
+	firstWord := cmd.Args[0]
+	switch a := firstWord.(type) {
+	case *parse.FieldNode:
+		fields = a.String()
+		//return s.evalFieldNode(dot, n, cmd.Args, final)
+	case *parse.ChainNode:
+		if pipe, ok := a.Node.(*parse.PipeNode); ok {
+			for _, cmd := range pipe.Cmds {
+				c.wrapDot(cmd)
+			}
+
+		}
+		return // TODO1
+	//	fields = a.String()
+	//return s.evalChainNode(dot, n, cmd.Args, final)
+	case *parse.IdentifierNode:
+		// Must be a function.
+		if a.Ident == "invokeDot" {
+			return
+		}
+		fields = a.Ident
+		//return s.evalFunction(dot, n, cmd, cmd.Args, final)
+	case *parse.PipeNode:
+		// Parenthesized pipeline. The arguments are all inside the pipeline; final must be absent.
+		for _, cmd := range a.Cmds {
+			c.wrapDot(cmd)
+		}
+		//s.notAFunction(cmd.Args, final)
+		//return s.evalPipeline(dot, n)
+		return
+	case *parse.VariableNode:
+		//v, found := c.decl[a.Ident[0]]
+		//		fmt.Println("VARIABLE", a.Ident[0], "=>", a.Ident[1:], "=>", v, found)
+		//		if found {
+		//			fmt.Printf("VAR %T\n", v)
+		//		}
+		//return s.evalVariableNode(dot, n, cmd.Args, final)
+		return
+	default:
+		//fmt.Printf("UNKNOWN: %T\n", firstWord)
+		return
 	}
 
 	wrapper := dotContextWrapper.Copy().(*parse.CommandNode)
 
 	sn := wrapper.Args[2].(*parse.StringNode)
-	fields := field.String()
+
 	sn.Quoted = "\"" + fields + "\""
 	sn.Text = fields
 
 	args := wrapper.Args[:3]
-	if len(n.Args) > 1 {
-		args = append(args, n.Args[1:]...)
+	if len(cmd.Args) > 1 {
+		args = append(args, cmd.Args[1:]...)
 	}
 
-	n.Args = args
+	cmd.Args = args
 
-	return true
+	return
 
 }
 
@@ -314,8 +353,8 @@ func (c *templateContext) applyTransformations(n parse.Node) (bool, error) {
 		}
 
 	case *parse.CommandNode:
-		if c.wrapDot(x) {
-		} else if len(x.Args) > 1 {
+		c.wrapDot(x)
+		if false || len(x.Args) > 1 {
 			first := x.Args[0]
 			var id string
 			switch v := first.(type) {

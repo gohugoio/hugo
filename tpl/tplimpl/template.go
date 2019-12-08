@@ -818,7 +818,7 @@ func (t *templateHandler) initFuncs() {
 
 	// Both template types will get their own funcster instance, which
 	// in the current case contains the same set of funcs.
-	funcMap := createFuncMap(t.Deps)
+	funcMap := DefaultTemplateProvider.CreateFuncMap(t.Deps)
 	for _, funcsterHolder := range []templateFuncsterSetter{t.html, t.text} {
 		funcster := newTemplateFuncster(t.Deps)
 

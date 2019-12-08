@@ -20,18 +20,37 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gohugoio/hugo/deps"
+
+	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/compare"
 
 	"github.com/gohugoio/hugo/common/types"
 )
 
 // New returns a new instance of the compare-namespaced template functions.
-func New(caseInsensitive bool) *Namespace {
-	return &Namespace{caseInsensitive: caseInsensitive}
+func New(deps *deps.Deps, caseInsensitive bool) *Namespace {
+	var funcs func(name string) interface{}
+	var invoker *hreflect.Invoker
+	if deps != nil {
+		funcs = func(name string) interface{} {
+			funcm := deps.TemplateFuncs
+			if fn, ok := funcm[name]; ok {
+				return fn
+			}
+			return nil
+		}
+		invoker = hreflect.NewInvoker(funcs)
+
+	}
+
+	return &Namespace{caseInsensitive: caseInsensitive, invoker: invoker}
 }
 
 // Namespace provides template functions for the "compare" namespace.
 type Namespace struct {
+	invoker *hreflect.Invoker
+
 	// Enable to do case insensitive string compares.
 	caseInsensitive bool
 }

@@ -22,7 +22,7 @@ const name = "compare"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		ctx := New(false)
+		ctx := New(d, false)
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,

@@ -15,6 +15,36 @@ package hugolib
 
 import "testing"
 
+func TestTempT(t *testing.T) {
+	config := `
+baseURL="https://example.org"
+defaultContentLanguageInSubDir=true
+
+[params]
+[params.COLORS]
+BLUE="nice"
+
+[languages]
+[languages.en]
+weight=1
+[languages.nn]
+weight=2
+`
+	b := newTestSitesBuilder(t).WithConfigFile("toml", config)
+	b.WithTemplates(
+		"index.html", `
+{{ $params := .Site.Params }}
+{{ $colors := $params.Colors }}
+{{ $blue := $colors.Blue }}
+Site en: {{ site.Language.Lang }}|{{ .Site.Language.Lang }}|Blue: {{ $blue }}`,
+		"index.nn.html", `Site nn: {{ site.Language.Lang }}|{{ .Site.Language.Lang }}`)
+	b.WithContent("p1.md", "asdf")
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/nn/index.html", "Site nn: nn|nn")
+	b.AssertFileContent("public/en/index.html", "Blue: nice")
+
+}
 func TestRenderHooks(t *testing.T) {
 	// TODO1 markdownify
 	config := `
