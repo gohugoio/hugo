@@ -35,6 +35,7 @@ func IsTruthful(in interface{}) bool {
 }
 
 var zeroType = reflect.TypeOf((*types.Zeroer)(nil)).Elem()
+var zero reflect.Value
 
 // IsTruthfulValue returns whether the given value has a meaningful truth value.
 // This is based on template.IsTrue in Go's stdlib, but also considers
@@ -79,7 +80,8 @@ func IsTruthfulValue(val reflect.Value) (truth bool) {
 	return
 }
 
-// Based on: https://github.com/golang/go/blob/178a2c42254166cffed1b25fb1d3c7a5727cada6/src/text/template/exec.go#L931
+// Indirect funcs below borrowed from Go:
+// https://github.com/golang/go/blob/178a2c42254166cffed1b25fb1d3c7a5727cada6/src/text/template/exec.go#L931
 func indirectInterface(v reflect.Value) reflect.Value {
 	if v.Kind() != reflect.Interface {
 		return v
@@ -88,4 +90,13 @@ func indirectInterface(v reflect.Value) reflect.Value {
 		return reflect.Value{}
 	}
 	return v.Elem()
+}
+
+func indirect(v reflect.Value) (rv reflect.Value, isNil bool) {
+	for ; v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface; v = v.Elem() {
+		if v.IsNil() {
+			return v, true
+		}
+	}
+	return v, false
 }

@@ -237,10 +237,12 @@ func (c *templateContext) wrapDot(n *parse.CommandNode) bool {
 	sn.Text = fields
 
 	args := wrapper.Args[:3]
-	if len(n.Args) > 2 {
+	if len(n.Args) > 1 {
 		args = append(args, n.Args[1:]...)
 	}
+
 	n.Args = args
+
 	return true
 
 }
@@ -370,6 +372,9 @@ func (c *templateContext) applyTransformationsToNodes(nodes ...parse.Node) {
 }
 
 func (c *templateContext) updateIdentsIfNeeded(idents []string) {
+	if true {
+		return // TODO1 remove all this .Params stuff.
+	}
 	index := c.decl.indexOfReplacementStart(idents)
 
 	if index == -1 {

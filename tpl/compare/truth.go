@@ -17,8 +17,10 @@
 package compare
 
 import (
-	"fmt"
 	"reflect"
+	"strings"
+
+	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/common/hreflect"
 )
@@ -38,9 +40,16 @@ func (*Namespace) getIf(arg reflect.Value) reflect.Value {
 	return reflect.ValueOf("")
 }
 
-func (*Namespace) invokeDot(args ...interface{}) interface{} {
-	fmt.Println("invokeDot:", args)
-	return "FOO"
+func (*Namespace) invokeDot(in ...interface{}) (interface{}, error) {
+	dot := in[0]
+	path := strings.Split(cast.ToString(in[1])[1:], ".")
+
+	var args []interface{}
+	if len(in) > 2 {
+		args = in[2:]
+	}
+
+	return hreflect.Invoke(dot, path, args...)
 }
 
 // And computes the Boolean AND of its arguments, returning

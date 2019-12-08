@@ -592,7 +592,6 @@ func (p *pageState) RenderString(in interface{}) (template.HTML, error) {
 }
 
 func (p *pageState) Render(layout ...string) (template.HTML, error) {
-	fmt.Println("RENDER:", layout)
 	l, err := p.getLayouts(layout...)
 	if err != nil {
 		return "", p.wrapError(errors.Errorf("failed to resolve layout %v", layout))
