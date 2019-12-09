@@ -14,6 +14,8 @@
 package tplimpl
 
 import (
+	"reflect"
+
 	"github.com/gohugoio/hugo/deps"
 )
 
@@ -29,7 +31,12 @@ func (p *TemplateProvider) Update(deps *deps.Deps) error {
 	newTmpl := newTemplateAdapter(deps)
 	deps.Tmpl = newTmpl
 	deps.TextTmpl = newTmpl.wrapTextTemplate(newTmpl.text.standalone)
-	deps.TemplateFuncs = p.CreateFuncMap(deps)
+	funcs := p.CreateFuncMap(deps)
+	funcsv := make(map[string]reflect.Value)
+	for k, v := range funcs {
+		funcsv[k] = reflect.ValueOf(v)
+	}
+	deps.TemplateFuncs = funcsv
 
 	newTmpl.initFuncs()
 
@@ -55,7 +62,13 @@ func (p *TemplateProvider) Clone(d *deps.Deps) error {
 	t := d.Tmpl.(*templateHandler)
 	clone := t.clone(d)
 
-	d.TemplateFuncs = p.CreateFuncMap(d)
+	funcs := p.CreateFuncMap(d)
+	funcsv := make(map[string]reflect.Value)
+	for k, v := range funcs {
+		funcsv[k] = reflect.ValueOf(v)
+	}
+
+	d.TemplateFuncs = funcsv
 
 	return clone.MarkReady()
 

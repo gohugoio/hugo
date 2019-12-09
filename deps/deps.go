@@ -1,6 +1,7 @@
 package deps
 
 import (
+	"reflect"
 	"sync"
 	"time"
 
@@ -40,7 +41,7 @@ type Deps struct {
 	// The templates to use. This will usually implement the full tpl.TemplateHandler.
 	Tmpl tpl.TemplateFinder `json:"-"`
 
-	TemplateFuncs map[string]interface{} `json:"-"`
+	TemplateFuncs map[string]reflect.Value `json:"-"`
 
 	// We use this to parse and execute ad-hoc text templates.
 	TextTmpl tpl.TemplateParseFinder `json:"-"`

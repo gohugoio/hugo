@@ -30,15 +30,14 @@ import (
 
 // New returns a new instance of the compare-namespaced template functions.
 func New(deps *deps.Deps, caseInsensitive bool) *Namespace {
-	var funcs func(name string) interface{}
 	var invoker *hreflect.Invoker
 	if deps != nil {
-		funcs = func(name string) interface{} {
+		funcs := func(name string) reflect.Value {
 			funcm := deps.TemplateFuncs
 			if fn, ok := funcm[name]; ok {
 				return fn
 			}
-			return nil
+			return reflect.Value{}
 		}
 		invoker = hreflect.NewInvoker(funcs)
 

@@ -31,20 +31,20 @@ var (
 )
 
 type Invoker struct {
-	funcs func(name string) interface{}
+	funcs func(name string) reflect.Value
 }
 
-func NewInvoker(funcs func(name string) interface{}) *Invoker {
+func NewInvoker(funcs func(name string) reflect.Value) *Invoker {
 	return &Invoker{funcs: funcs}
 }
 
 func (i *Invoker) InvokeFunction(path []string, args ...interface{}) (interface{}, error) {
 	name := path[0]
 	f := i.funcs(name) // TODO1 store them as reflect.Value
-	if f == nil {
+	if f == zero {
 		return err("function with name %s not found", name)
 	}
-	result, err := i.invoke(reflect.ValueOf(f), path, args)
+	result, err := i.invoke(f, path, args)
 	if err != nil {
 		return nil, err
 	}
