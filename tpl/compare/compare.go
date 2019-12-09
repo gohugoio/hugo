@@ -30,7 +30,7 @@ import (
 
 // New returns a new instance of the compare-namespaced template functions.
 func New(deps *deps.Deps, caseInsensitive bool) *Namespace {
-	var invoker *hreflect.Invoker
+	var invoker *hreflect.InvokeManager
 	if deps != nil {
 		funcs := func(name string) reflect.Value {
 			funcm := deps.TemplateFuncs
@@ -48,7 +48,7 @@ func New(deps *deps.Deps, caseInsensitive bool) *Namespace {
 
 // Namespace provides template functions for the "compare" namespace.
 type Namespace struct {
-	invoker *hreflect.Invoker
+	invoker *hreflect.InvokeManager
 
 	// Enable to do case insensitive string compares.
 	caseInsensitive bool

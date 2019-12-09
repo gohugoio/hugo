@@ -17,6 +17,7 @@ package hreflect
 
 import (
 	"fmt"
+	"html/template"
 	"reflect"
 
 	"github.com/gohugoio/hugo/common/maps"
@@ -30,15 +31,20 @@ var (
 	reflectValueType = reflect.TypeOf((*reflect.Value)(nil)).Elem()
 )
 
-type Invoker struct {
-	funcs func(name string) reflect.Value
+type Invoker interface {
+	Invoke(name string, args ...interface{}) (interface{}, error, bool)
 }
 
-func NewInvoker(funcs func(name string) reflect.Value) *Invoker {
-	return &Invoker{funcs: funcs}
+type InvokeManager struct {
+	invoker Invoker
+	funcs   func(name string) reflect.Value
 }
 
-func (i *Invoker) InvokeFunction(path []string, args ...interface{}) (interface{}, error) {
+func NewInvoker(funcs func(name string) reflect.Value) *InvokeManager {
+	return &InvokeManager{funcs: funcs}
+}
+
+func (i *InvokeManager) InvokeFunction(path []string, args ...interface{}) (interface{}, error) {
 	name := path[0]
 	f := i.funcs(name) // TODO1 store them as reflect.Value
 	if f == zero {
@@ -64,8 +70,49 @@ func (i *Invoker) InvokeFunction(path []string, args ...interface{}) (interface{
 	return result.Interface(), nil
 }
 
-func (i *Invoker) InvokeMethod(receiver interface{}, path []string, args ...interface{}) (interface{}, error) {
+type titler interface {
+	Title() string
+	IsHome() bool
+	IsTranslated() bool
+	Permalink() string
+	Kind() string
+	Summary() template.HTML
+
+	// RelPermalink represents the host relative link to this resource.
+	RelPermalink() string
+	Content() (interface{}, error)
+}
+
+func (i *InvokeManager) InvokeMethod(receiver interface{}, path []string, args ...interface{}) (interface{}, error) {
 	var v reflect.Value
+
+	if len(path) == 1 {
+		if p, ok := receiver.(titler); ok {
+			name := path[0]
+
+			switch name {
+			case "Title":
+				return p.Title(), nil
+			case "Permalink":
+				return p.Permalink(), nil
+			case "Kind":
+				return p.Kind(), nil
+			case "RelPermalink":
+				return p.RelPermalink(), nil
+			case "IsTranslated":
+				return p.IsTranslated(), nil
+			case "IsHome":
+				return p.IsHome(), nil
+			case "Content":
+				return p.Content()
+			case "Summary":
+				return p.Summary(), nil
+			default:
+				//fmt.Println("::", name)
+			}
+
+		}
+	}
 
 	if rv, ok := receiver.(reflect.Value); ok {
 		v = rv
@@ -125,7 +172,7 @@ func argsToValues(args []interface{}, typ reflect.Type) []reflect.Value {
 	return argsv
 }
 
-func (i *Invoker) invoke(receiver reflect.Value, path []string, args []interface{}) (reflect.Value, error) {
+func (i *InvokeManager) invoke(receiver reflect.Value, path []string, args []interface{}) (reflect.Value, error) {
 	if len(path) == 0 {
 		return receiver, nil
 	}
@@ -201,7 +248,7 @@ func (i *Invoker) invoke(receiver reflect.Value, path []string, args []interface
 	return receiver, nil
 }
 
-func (i *Invoker) call(fun reflect.Value, args []reflect.Value) (val reflect.Value, err error) {
+func (i *InvokeManager) call(fun reflect.Value, args []reflect.Value) (val reflect.Value, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			if e, ok := r.(error); ok {
