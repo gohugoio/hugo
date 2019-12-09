@@ -36,6 +36,7 @@ weight=2
 {{ $params := .Site.Params }}
 {{ $colors := $params.Colors }}
 {{ $blue := $colors.Blue }}
+Len: {{ len $params.Colors }}
 
 Params: {{ $colors }}
 Site en: {{ site.Language.Lang }}|{{ .Site.Language.Lang }}|Blue: {{ $blue }}`,

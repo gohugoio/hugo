@@ -14,6 +14,7 @@
 package tplimpl
 
 import (
+	"fmt"
 	"html/template"
 	"regexp"
 	"strings"
@@ -226,8 +227,13 @@ func (c *templateContext) wrapInPartialReturnWrapper(n *parse.ListNode) *parse.L
 
 }
 
-var ignoreFuncsRe = regexp.MustCompile("invokeDot|html")
+var (
+	ignoreFuncsRe  = regexp.MustCompile("invokeDot|html")
+	goBuiltInFuncs = regexp.MustCompile("len")
+)
 
+// TODO1 somehow inject (wrap dot?) a receiver object that can be
+// set in .Execute. To avoid global funcs.
 func (c *templateContext) wrapDot(d bool, cmd *parse.CommandNode) {
 	var dotNode parse.Node
 	doDebug := d || strings.Contains(cmd.String(), "blue")
@@ -254,8 +260,11 @@ func (c *templateContext) wrapDot(d bool, cmd *parse.CommandNode) {
 		if ignoreFuncsRe.MatchString(a.Ident) {
 			return
 		}
+		if goBuiltInFuncs.MatchString(a.Ident) {
+			fmt.Println(a.Ident, "==>", cmd.Args[1:])
+			return
+		}
 		fields = a.Ident
-		//return s.evalFunction(dot, n, cmd, cmd.Args, final)
 	case *parse.PipeNode:
 		for _, cmd := range a.Cmds {
 			c.wrapDot(doDebug, cmd)
