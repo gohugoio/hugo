@@ -26,20 +26,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-// decl keeps track of the variable mappings, i.e. $mysite => .Site etc.
-type decl map[string]string
-type decln map[string]*parse.CommandNode
-
-const (
-	paramsIdentifier = "Params"
-)
-
-// Containers that may contain Params that we will not touch.
-var reservedContainers = map[string]bool{
-	// Aka .Site.Data.Params which must stay case sensitive.
-	"Data": true,
-}
-
 type templateType int
 
 const (
@@ -49,8 +35,6 @@ const (
 )
 
 type templateContext struct {
-	decl             decl
-	decln            decln // TODO1 remove
 	visited          map[string]bool
 	templateNotFound map[string]bool
 	identityNotFound map[string]bool
@@ -97,8 +81,6 @@ func newTemplateContext(info tpl.Info, lookupFn func(name string) *templateInfoT
 	return &templateContext{
 		Info:             info,
 		lookupFn:         lookupFn,
-		decl:             make(map[string]string),
-		decln:            make(map[string]*parse.CommandNode),
 		visited:          make(map[string]bool),
 		templateNotFound: make(map[string]bool),
 		identityNotFound: make(map[string]bool),
@@ -390,12 +372,6 @@ func (c *templateContext) applyTransformations(n parse.Node) (bool, error) {
 		}
 	case *parse.PipeNode:
 		c.collectConfig(x)
-		if len(x.Decl) == 1 && len(x.Cmds) == 1 {
-			// maps $site => .Site etc.
-			c.decl[x.Decl[0].Ident[0]] = x.Cmds[0].String()
-			c.decln[x.Decl[0].Ident[0]] = x.Cmds[0]
-		}
-
 		for i, cmd := range x.Cmds {
 			keep, _ := c.applyTransformations(cmd)
 			if !keep {
@@ -436,17 +412,8 @@ func (c *templateContext) applyTransformations(n parse.Node) (bool, error) {
 
 		for _, elem := range x.Args {
 			switch an := elem.(type) {
-			case *parse.FieldNode:
-				c.updateIdentsIfNeeded(an.Ident)
-			case *parse.VariableNode:
-				c.updateIdentsIfNeeded(an.Ident)
 			case *parse.PipeNode:
 				c.applyTransformations(an)
-			case *parse.ChainNode:
-				// site.Params...
-				if len(an.Field) > 1 && an.Field[0] == paramsIdentifier {
-					c.updateIdentsIfNeeded(an.Field)
-				}
 			}
 		}
 		return keep, c.err
@@ -459,22 +426,6 @@ func (c *templateContext) applyTransformationsToNodes(nodes ...parse.Node) {
 	for _, node := range nodes {
 		c.applyTransformations(node)
 	}
-}
-
-func (c *templateContext) updateIdentsIfNeeded(idents []string) {
-	if true {
-		return // TODO1 remove all this .Params stuff.
-	}
-	index := c.decl.indexOfReplacementStart(idents)
-
-	if index == -1 {
-		return
-	}
-
-	for i := index; i < len(idents); i++ {
-		idents[i] = strings.ToLower(idents[i])
-	}
-
 }
 
 func (c *templateContext) hasIdent(idents []string, ident string) bool {
@@ -577,161 +528,4 @@ func (c *templateContext) collectReturnNode(n *parse.CommandNode) bool {
 
 	return false
 
-}
-
-// indexOfReplacementStart will return the index of where to start doing replacement,
-// -1 if none needed.
-func (d decl) indexOfReplacementStart(idents []string) int {
-
-	l := len(idents)
-
-	if l == 0 {
-		return -1
-	}
-
-	if l == 1 {
-		first := idents[0]
-		if first == "" || first == paramsIdentifier || first[0] == '$' {
-			// This can not be a Params.x
-			return -1
-		}
-	}
-
-	var lookFurther bool
-	var needsVarExpansion bool
-	for _, ident := range idents {
-		if ident[0] == '$' {
-			lookFurther = true
-			needsVarExpansion = true
-			break
-		} else if ident == paramsIdentifier {
-			lookFurther = true
-			break
-		}
-	}
-
-	if !lookFurther {
-		return -1
-	}
-
-	var resolvedIdents []string
-
-	if !needsVarExpansion {
-		resolvedIdents = idents
-	} else {
-		var ok bool
-		resolvedIdents, ok = d.resolveVariables(idents)
-		if !ok {
-			return -1
-		}
-	}
-
-	var paramFound bool
-	for i, ident := range resolvedIdents {
-		if ident == paramsIdentifier {
-			if i > 0 {
-				container := resolvedIdents[i-1]
-				if reservedContainers[container] {
-					// .Data.Params.someKey
-					return -1
-				}
-			}
-
-			paramFound = true
-			break
-		}
-	}
-
-	if !paramFound {
-		return -1
-	}
-
-	var paramSeen bool
-	idx := -1
-	for i, ident := range idents {
-		if ident == "" || ident[0] == '$' {
-			continue
-		}
-
-		if ident == paramsIdentifier {
-			paramSeen = true
-			idx = -1
-
-		} else {
-			if paramSeen {
-				return i
-			}
-			if idx == -1 {
-				idx = i
-			}
-		}
-	}
-	return idx
-
-}
-
-func (d decl) resolveVariables(idents []string) ([]string, bool) {
-	var (
-		replacements []string
-		replaced     []string
-	)
-
-	// An Ident can start out as one of
-	// [Params] [$blue] [$colors.Blue]
-	// We need to resolve the variables, so
-	// $blue => [Params Colors Blue]
-	// etc.
-	replacements = []string{idents[0]}
-
-	// Loop until there are no more $vars to resolve.
-	for i := 0; i < len(replacements); i++ {
-
-		if i > 20 {
-			// bail out
-			return nil, false
-		}
-
-		potentialVar := replacements[i]
-
-		if potentialVar == "$" {
-			continue
-		}
-
-		if potentialVar == "" || potentialVar[0] != '$' {
-			// leave it as is
-			replaced = append(replaced, strings.Split(potentialVar, ".")...)
-			continue
-		}
-
-		replacement, ok := d[potentialVar]
-
-		if !ok {
-			// Temporary range vars. We do not care about those.
-			return nil, false
-		}
-
-		if !d.isKeyword(replacement) {
-			continue
-		}
-
-		replacement = strings.TrimPrefix(replacement, ".")
-
-		if replacement == "" {
-			continue
-		}
-
-		if replacement[0] == '$' {
-			// Needs further expansion
-			replacements = append(replacements, strings.Split(replacement, ".")...)
-		} else {
-			replaced = append(replaced, strings.Split(replacement, ".")...)
-		}
-	}
-
-	return append(replaced, idents[1:]...), true
-
-}
-
-func (d decl) isKeyword(s string) bool {
-	return !strings.ContainsAny(s, " -\"")
 }
