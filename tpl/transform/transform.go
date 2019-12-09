@@ -90,6 +90,18 @@ func (ns *Namespace) HTMLUnescape(s interface{}) (string, error) {
 	return html.UnescapeString(ss), nil
 }
 
+// Inline strips the surrouding paragraph tags from s.
+func (ns *Namespace) Inline(s interface{}) (template.HTML, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", err
+	}
+
+	b := ns.deps.ContentSpec.TrimShortHTML([]byte(ss))
+
+	return helpers.BytesToHTML(b), nil
+}
+
 // Markdownify renders a given input from Markdown to HTML.
 func (ns *Namespace) Markdownify(s interface{}) (template.HTML, error) {
 	ss, err := cast.ToStringE(s)
@@ -98,13 +110,9 @@ func (ns *Namespace) Markdownify(s interface{}) (template.HTML, error) {
 	}
 
 	b, err := ns.deps.ContentSpec.RenderMarkdown([]byte(ss))
-
 	if err != nil {
 		return "", err
 	}
-
-	// Strip if this is a short inline type of text.
-	b = ns.deps.ContentSpec.TrimShortHTML(b)
 
 	return helpers.BytesToHTML(b), nil
 }

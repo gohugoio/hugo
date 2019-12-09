@@ -152,6 +152,42 @@ func TestHTMLUnescape(t *testing.T) {
 	}
 }
 
+func TestInline(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	v := viper.New()
+	v.Set("contentDir", "content")
+	ns := New(newDeps(v))
+
+	for _, test := range []struct {
+		s      interface{}
+		expect interface{}
+	}{
+		{"", template.HTML("")},
+		{"Plain text", template.HTML("Plain text")},
+		{"  \t\n Whitespace text\n\n", template.HTML("Whitespace text")},
+		{"<p>Simple paragraph</p>", template.HTML("Simple paragraph")},
+		{"\n  \n \t  <p> \t Whitespace\nHTML  \n\t </p>\n\t", template.HTML("Whitespace\nHTML")},
+		{"<p>Multiple</p><p>paragraphs</p>", template.HTML("<p>Multiple</p><p>paragraphs</p>")},
+		{"<p>Nested<p>paragraphs</p></p>", template.HTML("<p>Nested<p>paragraphs</p></p>")},
+		{"<p>Hello <strong>World!</strong></p>\n", template.HTML("Hello <strong>World!</strong>")},
+		{[]byte("<p>Hello Bytes <strong>World!</strong></p>\n"), template.HTML("Hello Bytes <strong>World!</strong>")},
+		{tstNoStringer{}, false},
+	} {
+
+		result, err := ns.Inline(test.s)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}
+
 func TestMarkdownify(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
@@ -164,8 +200,8 @@ func TestMarkdownify(t *testing.T) {
 		s      interface{}
 		expect interface{}
 	}{
-		{"Hello **World!**", template.HTML("Hello <strong>World!</strong>")},
-		{[]byte("Hello Bytes **World!**"), template.HTML("Hello Bytes <strong>World!</strong>")},
+		{"Hello **World!**", template.HTML("<p>Hello <strong>World!</strong></p>\n")},
+		{[]byte("Hello Bytes **World!**"), template.HTML("<p>Hello Bytes <strong>World!</strong></p>\n")},
 		{tstNoStringer{}, false},
 	} {
 
@@ -205,7 +241,6 @@ And then some.
 	c.Assert(err, qt.IsNil)
 	c.Assert(result, qt.Equals, template.HTML(
 		"<p>#First</p>\n<p>This is some <em>bold</em> text.</p>\n<h2 id=\"second\">Second</h2>\n<p>This is some more text.</p>\n<p>And then some.</p>\n"))
-
 }
 
 func TestPlainify(t *testing.T) {

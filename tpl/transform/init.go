@@ -46,13 +46,16 @@ func init() {
 			[][2]string{
 				{
 					`{{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>" | safeHTML}}`,
-					`Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;`},
+					`Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;`,
+				},
 				{
 					`{{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>"}}`,
-					`Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;`},
+					`Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;`,
+				},
 				{
 					`{{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>" | htmlUnescape | safeHTML }}`,
-					`Cathal Garvey & The Sunshine Band <cathal@foo.bar>`},
+					`Cathal Garvey & The Sunshine Band <cathal@foo.bar>`,
+				},
 			},
 		)
 
@@ -61,23 +64,34 @@ func init() {
 			[][2]string{
 				{
 					`{{ htmlUnescape "Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;" | safeHTML}}`,
-					`Cathal Garvey & The Sunshine Band <cathal@foo.bar>`},
+					`Cathal Garvey & The Sunshine Band <cathal@foo.bar>`,
+				},
 				{
 					`{{"Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;" | htmlUnescape | htmlUnescape | safeHTML}}`,
-					`Cathal Garvey & The Sunshine Band <cathal@foo.bar>`},
+					`Cathal Garvey & The Sunshine Band <cathal@foo.bar>`,
+				},
 				{
 					`{{"Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;" | htmlUnescape | htmlUnescape }}`,
-					`Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;`},
+					`Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;`,
+				},
 				{
 					`{{ htmlUnescape "Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;" | htmlEscape | safeHTML }}`,
-					`Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;`},
+					`Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;`,
+				},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Inline,
+			[]string{"inline"},
+			[][2]string{
+				{`{{ .Title | markdownify | inline }}`, `<strong>BatMan</strong>`},
 			},
 		)
 
 		ns.AddMethodMapping(ctx.Markdownify,
 			[]string{"markdownify"},
 			[][2]string{
-				{`{{ .Title | markdownify}}`, `<strong>BatMan</strong>`},
+				{`{{ .Title | markdownify }}`, "<p><strong>BatMan</strong></p>\n"},
 			},
 		)
 
@@ -104,7 +118,6 @@ func init() {
 		)
 
 		return ns
-
 	}
 
 	internal.AddTemplateFuncsNamespace(f)

@@ -56,7 +56,8 @@ func init() {
 			[][2]string{
 				{
 					`{{ findRE "[G|g]o" "Hugo is a static side generator written in Go." "1" }}`,
-					`[go]`},
+					`[go]`,
+				},
 			},
 		)
 
@@ -80,7 +81,8 @@ func init() {
 			[][2]string{
 				{
 					`{{ replace "Batman and Robin" "Robin" "Catwoman" }}`,
-					`Batman and Catwoman`},
+					`Batman and Catwoman`,
+				},
 			},
 		)
 
@@ -166,7 +168,7 @@ func init() {
 			[]string{"truncate"},
 			[][2]string{
 				{`{{ "this is a very long text" | truncate 10 " ..." }}`, `this is a ...`},
-				{`{{ "With [Markdown](/markdown) inside." | markdownify | truncate 14 }}`, `With <a href="/markdown">Markdown …</a>`},
+				{`{{ "With [Markdown](/markdown) inside." | markdownify | inline | truncate 14 }}`, `With <a href="/markdown">Markdown …</a>`},
 			},
 		)
 
@@ -185,7 +187,6 @@ func init() {
 		)
 
 		return ns
-
 	}
 
 	internal.AddTemplateFuncsNamespace(f)
