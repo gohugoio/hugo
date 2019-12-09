@@ -360,7 +360,7 @@ if (!doNotTrack) {
                 {{- with .Get "attrlink" }}
                     <a href="{{ . }}">
                 {{- end -}}
-                {{- .Get "attr" | markdownify | inline  -}}
+                {{- .Get "attr" | markdownify | inline -}}
                 {{- if .Get "attrlink" }}</a>{{ end }}</p>
             {{- end }}
         </figcaption>
