@@ -604,3 +604,48 @@ func TestPartialReturn(t *testing.T) {
 	}
 
 }
+
+const transformBemchMarkTemplate = `
+
+{{ Echo "foo" }}
+
+`
+
+func TestBench(t *testing.T) {
+	c := qt.New(t)
+
+	templ, err := template.New("foo").Funcs(testFuncs).Parse(transformBemchMarkTemplate)
+	c.Assert(err, qt.IsNil)
+
+	ctx := newTemplateContext(newTemplateInfo("test"), createParseTreeLookup(templ))
+	ctx.applyTransformations(templ.Tree.Root)
+
+	s := templ.Tree.Root.String()
+
+	fmt.Println(s)
+
+}
+func BenchmarkTemplateTransform(b *testing.B) {
+	templ, err := template.New("foo").Funcs(testFuncs).Parse(transformBemchMarkTemplate)
+
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	templates := make([]*template.Template, b.N)
+
+	for i := 0; i < b.N; i++ {
+		templates[i], err = templ.Clone()
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		c := newTemplateContext(
+			newTemplateInfo("test"), createParseTreeLookup(templates[i]))
+		c.applyTransformations(templ.Tree.Root)
+	}
+}
