@@ -15,7 +15,7 @@ package hugolib
 
 import "testing"
 
-func TestTempT(t *testing.T) {
+func TestAbba(t *testing.T) {
 	config := `
 baseURL="https://example.org"
 defaultContentLanguageInSubDir=true
@@ -23,6 +23,7 @@ defaultContentLanguageInSubDir=true
 [params]
 [params.COLORS]
 BLUE="nice"
+Yellow="bright"
 
 [languages]
 [languages.en]
@@ -34,18 +35,23 @@ weight=2
 	b.WithTemplates(
 		"index.html", `
 {{ $params := .Site.Params }}
-{{ $colors := $params.Colors }}
-{{ $blue := $colors.Blue }}
-Len: {{ len $params.Colors }}
 
-Params: {{ $colors }}
-Site en: {{ site.Language.Lang }}|{{ .Site.Language.Lang }}|Blue: {{ $blue }}`,
+Len: {{ len $params.Colors }}
+Upper: {{ $params.Colors.Blue | upper }}
+
+{{ range $k, $v := $params.Colors }}
+Range: {{ $k }}: {{ $v }}
+{{ end }}
+
+
+
+Site en: {{ site.Language.Lang }}|{{ .Site.Language.Lang }}|Blue: `,
 		"index.nn.html", `Site nn: {{ site.Language.Lang }}|{{ .Site.Language.Lang }}`)
 	b.WithContent("p1.md", "asdf")
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent("public/nn/index.html", "Site nn: nn|nn")
-	b.AssertFileContent("public/en/index.html", "Blue: nice")
+	b.AssertFileContent("public/en/index.html", "Len: 2")
 
 }
 func TestRenderHooks(t *testing.T) {

@@ -485,7 +485,7 @@ func (t *templateHandler) setFuncs(funcMap map[string]interface{}) {
 }
 
 // SetFuncs replaces the funcs in the func maps with new definitions.
-// This is only used in tests.
+// This is only used in tests. 
 func (t *templateHandler) SetFuncs(funcMap map[string]interface{}) {
 	t.setFuncs(funcMap)
 }

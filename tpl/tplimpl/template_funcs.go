@@ -69,7 +69,13 @@ func (*TemplateProvider) CreateFuncMap(in interface{}) map[string]interface{} {
 			}
 
 		}
+	}
 
+	// Add the Go internal funcs that's not overloaded above.
+	for k, v := range internal.Builtins {
+		if _, exists := funcMap[k]; !exists {
+			funcMap[k] = v
+		}
 	}
 
 	return funcMap

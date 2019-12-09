@@ -40,7 +40,7 @@ func NewInvoker(funcs func(name string) interface{}) *Invoker {
 
 func (i *Invoker) InvokeFunction(path []string, args ...interface{}) (interface{}, error) {
 	name := path[0]
-	f := i.funcs(name)
+	f := i.funcs(name) // TODO1 store them as reflect.Value
 	if f == nil {
 		return err("function with name %s not found", name)
 	}
@@ -53,11 +53,26 @@ func (i *Invoker) InvokeFunction(path []string, args ...interface{}) (interface{
 		return nil, nil
 	}
 
+	if result.Type() == reflectValueType {
+		result = result.Interface().(reflect.Value)
+	}
+
+	if !result.IsValid() {
+		return nil, nil
+	}
+
 	return result.Interface(), nil
 }
 
 func (i *Invoker) InvokeMethod(receiver interface{}, path []string, args ...interface{}) (interface{}, error) {
-	v := reflect.ValueOf(receiver)
+	var v reflect.Value
+
+	if rv, ok := receiver.(reflect.Value); ok {
+		v = rv
+	} else {
+		v = reflect.ValueOf(receiver)
+	}
+
 	result, err := i.invoke(v, path, args)
 	if err != nil {
 		return nil, err
@@ -65,6 +80,10 @@ func (i *Invoker) InvokeMethod(receiver interface{}, path []string, args ...inte
 
 	if !result.IsValid() {
 		return nil, nil
+	}
+
+	if result.Type() == reflectValueType {
+		result = result.Interface().(reflect.Value)
 	}
 
 	return result.Interface(), nil
@@ -77,7 +96,9 @@ func argsToValues(args []interface{}, typ reflect.Type) []reflect.Value {
 	}
 
 	toArg := func(typ reflect.Type, v interface{}) reflect.Value {
-		if typ == reflectValueType {
+		if v == nil {
+			return reflect.New(typ).Elem()
+		} else if typ == reflectValueType {
 			return reflect.ValueOf(reflect.ValueOf(v))
 		} else {
 			return reflect.ValueOf(v)
@@ -136,26 +157,26 @@ func (i *Invoker) invoke(receiver reflect.Value, path []string, args []interface
 		}
 
 		var argsv []reflect.Value
+
+		// Pass arguments to the last element in the chain.
 		if len(path) == 1 {
 			numArgs := len(args)
 			if mt.IsVariadic() {
 				if numArgs < (mt.NumIn() - 1) {
-					return err("methods %s expects at leas %d arguments, got %d", name, mt.NumIn()-1, numArgs)
+					return err("method %s expects at leas %d arguments, got %d", name, mt.NumIn()-1, numArgs)
 				}
 			} else if numArgs != mt.NumIn() {
-				return err("methods %s takes %d arguments, got %d", name, mt.NumIn(), numArgs)
+				return err("method %s takes %d arguments, got %d", name, mt.NumIn(), numArgs)
 			}
 			argsv = argsToValues(args, mt)
 		}
 
-		result := fn.Call(argsv)
-		if mt.NumOut() == 2 {
-			if !result[1].IsZero() {
-				return reflect.Value{}, result[1].Interface().(error)
-			}
+		result, err := i.call(fn, argsv)
+		if err != nil {
+			return zero, err
 		}
 
-		return i.invoke(result[0], path[nextPath:], args)
+		return i.invoke(result, path[nextPath:], args)
 	}
 
 	switch receiver.Kind() {
@@ -178,6 +199,23 @@ func (i *Invoker) invoke(receiver reflect.Value, path []string, args []interface
 		return i.invoke(v, path[1:], args)
 	}
 	return receiver, nil
+}
+
+func (i *Invoker) call(fun reflect.Value, args []reflect.Value) (val reflect.Value, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			if e, ok := r.(error); ok {
+				err = e
+			} else {
+				err = fmt.Errorf("%v", r)
+			}
+		}
+	}()
+	ret := fun.Call(args)
+	if len(ret) == 2 && !ret[1].IsNil() {
+		return ret[0], ret[1].Interface().(error)
+	}
+	return ret[0], nil
 }
 
 func err(s string, args ...interface{}) (reflect.Value, error) {

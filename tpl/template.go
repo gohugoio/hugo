@@ -184,7 +184,10 @@ func (t *TemplateAdapter) extractIdentifiers(line string) []string {
 	return identifiers
 }
 
+var tplErrCleaner = strings.NewReplacer("invokeDot . ", "", "error calling invokeDot:", "")
+
 func (t *TemplateAdapter) addFileContext(name string, inerr error) error {
+	inerr = errors.New(tplErrCleaner.Replace(inerr.Error()))
 	if strings.HasPrefix(t.Name(), "_internal") {
 		return inerr
 	}
@@ -268,7 +271,7 @@ func (t *TemplateAdapter) ExecuteToString(data interface{}) (string, error) {
 	b := bp.GetBuffer()
 	defer bp.PutBuffer(b)
 	if err := t.Execute(b, data); err != nil {
-		return "", err
+		return "", err //TODO1
 	}
 	return b.String(), nil
 }

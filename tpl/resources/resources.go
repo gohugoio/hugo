@@ -181,7 +181,7 @@ func (ns *Namespace) ExecuteAsTemplate(args ...interface{}) (resource.Resource, 
 		return nil, fmt.Errorf("type %T not supported in Resource transformations", args[2])
 	}
 
-	return ns.templatesClient.ExecuteAsTemplate(r, targetPath, data)
+	return ns.templatesClient.ExecuteAsTemplate(r, targetPath, data) // TODO1
 }
 
 // Fingerprint transforms the given Resource with a MD5 hash of the content in

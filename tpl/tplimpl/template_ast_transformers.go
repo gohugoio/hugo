@@ -14,7 +14,6 @@
 package tplimpl
 
 import (
-	"fmt"
 	"html/template"
 	"regexp"
 	"strings"
@@ -186,11 +185,13 @@ func applyTemplateTransformers(
 const (
 	partialReturnWrapperTempl = `{{ $_hugo_dot := $ }}{{ $ := .Arg }}{{ with .Arg }}{{ $_hugo_dot.Set ("PLACEHOLDER") }}{{ end }}`
 	dotContextWrapperTempl    = `{{ invokeDot . "NAME" "ARGS" }}`
+	pipeWrapperTempl          = `{{ ("ARGS") }}`
 )
 
 var (
 	partialReturnWrapper *parse.ListNode
 	dotContextWrapper    *parse.CommandNode
+	pipeWrapper          *parse.PipeNode
 )
 
 func init() {
@@ -210,6 +211,12 @@ func init() {
 	}
 	action := templ.Tree.Root.Nodes[0].(*parse.ActionNode)
 	dotContextWrapper = action.Pipe.Cmds[0]
+
+	templ, err = tt.Parse(pipeWrapperTempl)
+	if err != nil {
+		panic(err)
+	}
+	pipeWrapper = templ.Tree.Root.Nodes[0].(*parse.ActionNode).Pipe
 }
 
 func (c *templateContext) wrapInPartialReturnWrapper(n *parse.ListNode) *parse.ListNode {
@@ -228,58 +235,80 @@ func (c *templateContext) wrapInPartialReturnWrapper(n *parse.ListNode) *parse.L
 }
 
 var (
-	ignoreFuncsRe  = regexp.MustCompile("invokeDot|html")
-	goBuiltInFuncs = regexp.MustCompile("len")
+	ignoreFuncsRe = regexp.MustCompile("invokeDot|return|html")
 )
+
+func (c *templateContext) wrapInPipe(n parse.Node) *parse.PipeNode {
+	pipe := pipeWrapper.Copy().(*parse.PipeNode)
+	pipe.Cmds[0].Args = []parse.Node{n}
+	return pipe
+}
+
+func (c *templateContext) wrapDotIfNeeded(n parse.Node) parse.Node {
+	switch node := n.(type) {
+	case *parse.ChainNode:
+		if pipe, ok := node.Node.(*parse.PipeNode); ok {
+			for _, cmd := range pipe.Cmds {
+				c.wrapDot(cmd)
+			}
+		}
+	case *parse.IdentifierNode:
+		// A function.
+		if ignoreFuncsRe.MatchString(node.Ident) {
+			return n
+		}
+
+	case *parse.PipeNode:
+		for _, cmd := range node.Cmds {
+			c.wrapDot(cmd)
+		}
+		return n
+	case *parse.VariableNode:
+		if len(node.Ident) < 2 {
+			return n
+		}
+		return c.wrapInPipe(n)
+	default:
+	}
+
+	return n
+}
 
 // TODO1 somehow inject (wrap dot?) a receiver object that can be
 // set in .Execute. To avoid global funcs.
-func (c *templateContext) wrapDot(d bool, cmd *parse.CommandNode) {
+func (c *templateContext) wrapDot(cmd *parse.CommandNode) {
 	var dotNode parse.Node
-	doDebug := d || strings.Contains(cmd.String(), "blue")
 	var fields string
 
 	firstWord := cmd.Args[0]
 
+	c.wrapDotIfNeeded(firstWord)
+
 	switch a := firstWord.(type) {
 	case *parse.FieldNode:
 		fields = a.String()
-		//return s.evalFieldNode(dot, n, cmd.Args, final)
 	case *parse.ChainNode:
-		if pipe, ok := a.Node.(*parse.PipeNode); ok {
-			for _, cmd := range pipe.Cmds {
-				c.wrapDot(doDebug, cmd)
-			}
-
-		}
 		return // TODO1
 	//	fields = a.String()
-	//return s.evalChainNode(dot, n, cmd.Args, final)
 	case *parse.IdentifierNode:
 		// Must be a function.
 		if ignoreFuncsRe.MatchString(a.Ident) {
 			return
 		}
-		if goBuiltInFuncs.MatchString(a.Ident) {
-			fmt.Println(a.Ident, "==>", cmd.Args[1:])
-			return
-		}
 		fields = a.Ident
 	case *parse.PipeNode:
-		for _, cmd := range a.Cmds {
-			c.wrapDot(doDebug, cmd)
-		}
-		//s.notAFunction(cmd.Args, final)
-		//return s.evalPipeline(dot, n)
 		return
 	case *parse.VariableNode:
+		if len(a.Ident) < 2 {
+			return
+		}
+
 		// $x.Field has $x as the first ident, Field as the second.
 		fields = "." + strings.Join(a.Ident[1:], ".")
 		a.Ident = a.Ident[:1]
 		dotNode = a
 
 	default:
-		//fmt.Printf("UNKNOWN: %T\n", firstWord)
 		return
 	}
 
@@ -295,6 +324,9 @@ func (c *templateContext) wrapDot(d bool, cmd *parse.CommandNode) {
 
 	args := wrapper.Args[:3]
 	if len(cmd.Args) > 1 {
+		for i, n := range cmd.Args[1:] {
+			cmd.Args[i+1] = c.wrapDotIfNeeded(n)
+		}
 		args = append(args, cmd.Args[1:]...)
 	}
 
@@ -372,7 +404,8 @@ func (c *templateContext) applyTransformations(n parse.Node) (bool, error) {
 		}
 
 	case *parse.CommandNode:
-		c.wrapDot(false, x)
+		c.collectInner(x)
+		c.wrapDot(x)
 		if false || len(x.Args) > 1 {
 			first := x.Args[0]
 			var id string
@@ -399,7 +432,6 @@ func (c *templateContext) applyTransformations(n parse.Node) (bool, error) {
 			}
 		}
 
-		c.collectInner(x)
 		keep := c.collectReturnNode(x)
 
 		for _, elem := range x.Args {

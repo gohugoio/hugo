@@ -22,9 +22,10 @@ This is a partial fork of https://github.com/golang/go/tree/master/src/text/temp
 get to the internal template funcs in Go.
 
 The file below is imported as-is from
-https://github.com/golang/go/blob/94e9a5e19b831504eca2b7202b78d1a48c4be547/src/text/template/funcs.go
 
-And removed one func, and exported the builtinFuncs var.
+https://raw.githubusercontent.com/golang/go/go1.13.5/src/text/template/funcs.go
+
+And removed one func, and exported the Builtins var.
 
 */
 
@@ -41,7 +42,7 @@ And removed one func, and exported the builtinFuncs var.
 // type can return interface{} or reflect.Value.
 type FuncMap map[string]interface{}
 
-var builtins = FuncMap{
+var Builtins = FuncMap{
 	"and":      and,
 	"call":     call,
 	"html":     HTMLEscaper,
@@ -65,7 +66,7 @@ var builtins = FuncMap{
 	"ne": ne, // !=
 }
 
-var BuiltinFuncs = createValueFuncs(builtins)
+var builtinFuncs = createValueFuncs(Builtins)
 
 // createValueFuncs turns a FuncMap into a map[string]reflect.Value
 func createValueFuncs(funcMap FuncMap) map[string]reflect.Value {
@@ -438,18 +439,19 @@ func basicKind(v reflect.Value) (kind, error) {
 // eq evaluates the comparison a == b || a == c || ...
 func eq(arg1 reflect.Value, arg2 ...reflect.Value) (bool, error) {
 	v1 := indirectInterface(arg1)
-	if v1 != zero {
-		if t1 := v1.Type(); !t1.Comparable() {
-			return false, fmt.Errorf("uncomparable type %s: %v", t1, v1)
-		}
+	k1, err := basicKind(v1)
+	if err != nil {
+		return false, err
 	}
 	if len(arg2) == 0 {
 		return false, errNoComparison
 	}
-	k1, _ := basicKind(v1)
 	for _, arg := range arg2 {
 		v2 := indirectInterface(arg)
-		k2, _ := basicKind(v2)
+		k2, err := basicKind(v2)
+		if err != nil {
+			return false, err
+		}
 		truth := false
 		if k1 != k2 {
 			// Special case: Can compare integer values regardless of type's sign.
@@ -476,14 +478,7 @@ func eq(arg1 reflect.Value, arg2 ...reflect.Value) (bool, error) {
 			case uintKind:
 				truth = v1.Uint() == v2.Uint()
 			default:
-				if v2 == zero {
-					truth = v1 == v2
-				} else {
-					if t2 := v2.Type(); !t2.Comparable() {
-						return false, fmt.Errorf("uncomparable type %s: %v", t2, v2)
-					}
-					truth = v1.Interface() == v2.Interface()
-				}
+				panic("invalid kind")
 			}
 		}
 		if truth {
@@ -639,8 +634,6 @@ var (
 	jsQuot      = []byte(`\"`)
 	jsLt        = []byte(`\x3C`)
 	jsGt        = []byte(`\x3E`)
-	jsAmp       = []byte(`\x26`)
-	jsEq        = []byte(`\x3D`)
 )
 
 // JSEscape writes to w the escaped JavaScript equivalent of the plain text data b.
@@ -669,10 +662,6 @@ func JSEscape(w io.Writer, b []byte) {
 				w.Write(jsLt)
 			case '>':
 				w.Write(jsGt)
-			case '&':
-				w.Write(jsAmp)
-			case '=':
-				w.Write(jsEq)
 			default:
 				w.Write(jsLowUni)
 				t, b := c>>4, c&0x0f
@@ -707,7 +696,7 @@ func JSEscapeString(s string) string {
 
 func jsIsSpecial(r rune) bool {
 	switch r {
-	case '\\', '\'', '"', '<', '>', '&', '=':
+	case '\\', '\'', '"', '<', '>':
 		return true
 	}
 	return r < ' ' || utf8.RuneSelf <= r
