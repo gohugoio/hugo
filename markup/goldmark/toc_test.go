@@ -32,7 +32,7 @@ func TestToc(t *testing.T) {
 	content := `
 # Header 1
 
-## First h2
+## First h2---now with typography!
 
 Some text.
 
@@ -61,7 +61,7 @@ And then some.
 	got := b.(converter.TableOfContentsProvider).TableOfContents().ToHTML(2, 3)
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
   <ul>
-    <li><a href="#first-h2">First h2</a>
+    <li><a href="#first-h2---now-with-typography">First h2&mdash;now with typography!</a>
       <ul>
         <li><a href="#h3">H3</a></li>
       </ul>
