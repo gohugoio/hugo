@@ -47,7 +47,7 @@ A collection of textile samples lay spread out on the table - Samsa was a travel
 
 Hugo will take this Markdown and create a table of contents from `## Introduction`, `## My Heading`, and `### My Subheading` and then store it in the [page variable][pagevars]`.TableOfContents`.
 
-The built-in `.TableOfContents` variables outputs a `<nav id="TableOfContents">` element with a child `<ul>`, whose child `<li>` elements begin with any `<h1>`'s (i.e., `#` in markdown) inside your content.'
+The built-in `.TableOfContents` variables outputs a `<nav id="TableOfContents">` element with a child `<ul>`, whose child `<li>` elements begin with appropriate HTML headings. See [the available settings](/getting-started/configuration-markup/#table-of-contents) to configure what heading levels you want to include in TOC.
 
 {{% note "Table of contents not available for MMark" %}}
 Hugo documents created in the [MMark](/content-management/formats/#mmark) Markdown dialect do not currently display TOCs. TOCs are, however, compatible with all other supported Markdown formats.
