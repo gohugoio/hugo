@@ -42,10 +42,10 @@ import (
 func TestHugoModules(t *testing.T) {
 	t.Parallel()
 
-	if hugo.GoMinorVersion() < 12 {
+	if !isCI() || hugo.GoMinorVersion() < 12 {
 		// https://github.com/golang/go/issues/26794
 		// There were some concurrent issues with Go modules in < Go 12.
-		t.Skip("skip this for Go <= 1.11 due to a bug in Go's stdlib")
+		t.Skip("skip this on local host and for Go <= 1.11 due to a bug in Go's stdlib")
 	}
 
 	if testing.Short() {

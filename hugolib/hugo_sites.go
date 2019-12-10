@@ -426,8 +426,8 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 	return newHugoSites(cfg, sites...)
 }
 
-func (s *Site) withSiteTemplates(withTemplates ...func(templ tpl.TemplateHandler) error) func(templ tpl.TemplateHandler) error {
-	return func(templ tpl.TemplateHandler) error {
+func (s *Site) withSiteTemplates(withTemplates ...func(templ tpl.TemplateManager) error) func(templ tpl.TemplateManager) error {
+	return func(templ tpl.TemplateManager) error {
 		if err := templ.LoadTemplates(""); err != nil {
 			return err
 		}

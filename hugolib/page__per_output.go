@@ -411,10 +411,10 @@ func (t targetPathsHolder) targetPaths() page.TargetPaths {
 	return t.paths
 }
 
-func executeToString(templ tpl.Template, data interface{}) (string, error) {
+func executeToString(h tpl.TemplateHandler, templ tpl.Template, data interface{}) (string, error) {
 	b := bp.GetBuffer()
 	defer bp.PutBuffer(b)
-	if err := templ.Execute(b, data); err != nil {
+	if err := h.Execute(templ, b, data); err != nil {
 		return "", err
 	}
 	return b.String(), nil

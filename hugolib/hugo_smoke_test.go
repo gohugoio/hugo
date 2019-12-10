@@ -21,6 +21,27 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
+// The most basic build test.
+func TestHello(t *testing.T) {
+	t.Parallel()
+	b := newTestSitesBuilder(t)
+	b.WithConfigFile("toml", `
+baseURL="https://example.org"
+disableKinds = ["taxonomy", "taxonomyTerm", "section", "page"]
+`)
+	b.WithContent("p1", `
+---
+title: Page
+---
+
+`)
+	b.WithTemplates("index.html", `Site: {{ .Site.Language.Lang | upper }}`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", `Site: EN`)
+}
+
 func TestSmoke(t *testing.T) {
 	t.Parallel()
 

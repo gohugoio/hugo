@@ -480,7 +480,7 @@ func (p *pageState) Render(layout ...string) template.HTML {
 			templ, _ = p.s.Tmpl.Lookup(layout + ".html")
 		}
 		if templ != nil {
-			res, err := executeToString(templ, p)
+			res, err := executeToString(p.s.Tmpl, templ, p)
 			if err != nil {
 				p.s.SendError(p.wrapError(errors.Wrapf(err, ".Render: failed to execute template %q v", layout)))
 				return ""

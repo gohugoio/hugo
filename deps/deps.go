@@ -37,8 +37,8 @@ type Deps struct {
 	// Used to log warnings that may repeat itself many times.
 	DistinctWarningLog *helpers.DistinctLogger
 
-	// The templates to use. This will usually implement the full tpl.TemplateHandler.
-	Tmpl tpl.TemplateFinder `json:"-"`
+	// The templates to use. This will usually implement the full tpl.TemplateManager.
+	Tmpl tpl.TemplateHandler `json:"-"`
 
 	// We use this to parse and execute ad-hoc text templates.
 	TextTmpl tpl.TemplateParseFinder `json:"-"`
@@ -77,7 +77,10 @@ type Deps struct {
 	OutputFormatsConfig output.Formats
 
 	templateProvider ResourceProvider
-	WithTemplate     func(templ tpl.TemplateHandler) error `json:"-"`
+	WithTemplate     func(templ tpl.TemplateManager) error `json:"-"`
+
+	// Used in tests
+	OverloadedTemplateFuncs map[string]interface{}
 
 	translationProvider ResourceProvider
 
@@ -151,8 +154,8 @@ type ResourceProvider interface {
 }
 
 // TemplateHandler returns the used tpl.TemplateFinder as tpl.TemplateHandler.
-func (d *Deps) TemplateHandler() tpl.TemplateHandler {
-	return d.Tmpl.(tpl.TemplateHandler)
+func (d *Deps) TemplateHandler() tpl.TemplateManager {
+	return d.Tmpl.(tpl.TemplateManager)
 }
 
 // LoadResources loads translations and templates.
@@ -239,24 +242,25 @@ func New(cfg DepsCfg) (*Deps, error) {
 	distinctWarnLogger := helpers.NewDistinctLogger(logger.WARN)
 
 	d := &Deps{
-		Fs:                  fs,
-		Log:                 logger,
-		DistinctErrorLog:    distinctErrorLogger,
-		DistinctWarningLog:  distinctWarnLogger,
-		templateProvider:    cfg.TemplateProvider,
-		translationProvider: cfg.TranslationProvider,
-		WithTemplate:        cfg.WithTemplate,
-		PathSpec:            ps,
-		ContentSpec:         contentSpec,
-		SourceSpec:          sp,
-		ResourceSpec:        resourceSpec,
-		Cfg:                 cfg.Language,
-		Language:            cfg.Language,
-		Site:                cfg.Site,
-		FileCaches:          fileCaches,
-		BuildStartListeners: &Listeners{},
-		Timeout:             time.Duration(timeoutms) * time.Millisecond,
-		globalErrHandler:    &globalErrHandler{},
+		Fs:                      fs,
+		Log:                     logger,
+		DistinctErrorLog:        distinctErrorLogger,
+		DistinctWarningLog:      distinctWarnLogger,
+		templateProvider:        cfg.TemplateProvider,
+		translationProvider:     cfg.TranslationProvider,
+		WithTemplate:            cfg.WithTemplate,
+		OverloadedTemplateFuncs: cfg.OverloadedTemplateFuncs,
+		PathSpec:                ps,
+		ContentSpec:             contentSpec,
+		SourceSpec:              sp,
+		ResourceSpec:            resourceSpec,
+		Cfg:                     cfg.Language,
+		Language:                cfg.Language,
+		Site:                    cfg.Site,
+		FileCaches:              fileCaches,
+		BuildStartListeners:     &Listeners{},
+		Timeout:                 time.Duration(timeoutms) * time.Millisecond,
+		globalErrHandler:        &globalErrHandler{},
 	}
 
 	if cfg.Cfg.GetBool("templateMetrics") {
@@ -344,7 +348,9 @@ type DepsCfg struct {
 
 	// Template handling.
 	TemplateProvider ResourceProvider
-	WithTemplate     func(templ tpl.TemplateHandler) error
+	WithTemplate     func(templ tpl.TemplateManager) error
+	// Used in tests
+	OverloadedTemplateFuncs map[string]interface{}
 
 	// i18n handling.
 	TranslationProvider ResourceProvider

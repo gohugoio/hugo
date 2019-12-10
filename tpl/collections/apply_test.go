@@ -14,6 +14,8 @@
 package collections
 
 import (
+	"io"
+	"reflect"
 	"testing"
 
 	"fmt"
@@ -33,10 +35,17 @@ func (templateFinder) LookupVariant(name string, variants tpl.TemplateVariants) 
 	return nil, false, false
 }
 
-func (templateFinder) GetFuncs() map[string]interface{} {
-	return map[string]interface{}{
-		"print": fmt.Sprint,
+func (templateFinder) Execute(t tpl.Template, wr io.Writer, data interface{}) error {
+	return nil
+}
+
+func (templateFinder) GetFunc(name string) (reflect.Value, bool) {
+	if name == "dobedobedo" {
+		return reflect.Value{}, false
 	}
+
+	return reflect.ValueOf(fmt.Sprint), true
+
 }
 
 func TestApply(t *testing.T) {

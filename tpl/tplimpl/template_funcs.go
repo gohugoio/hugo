@@ -16,7 +16,13 @@
 package tplimpl
 
 import (
-	"html/template"
+	"reflect"
+	"strings"
+
+	"github.com/gohugoio/hugo/common/maps"
+
+	template "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
+	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 
 	"github.com/gohugoio/hugo/deps"
 
@@ -49,7 +55,55 @@ import (
 	_ "github.com/gohugoio/hugo/tpl/urls"
 )
 
+var _ texttemplate.ExecHelper = (*templateExecHelper)(nil)
+var zero reflect.Value
+
+type templateExecHelper struct {
+	funcs map[string]reflect.Value
+}
+
+func (t *templateExecHelper) GetFunc(name string) (reflect.Value, bool) {
+	if fn, found := t.funcs[name]; found {
+		return fn, true
+	}
+	return zero, false
+}
+
+func (t *templateExecHelper) GetMapValue(receiver, key reflect.Value) (reflect.Value, bool) {
+	if params, ok := receiver.Interface().(maps.Params); ok {
+		// Case insensitive.
+		keystr := strings.ToLower(key.String())
+		v, found := params[keystr]
+		if !found {
+			return zero, false
+		}
+		return reflect.ValueOf(v), true
+	}
+
+	v := receiver.MapIndex(key)
+
+	return v, v.IsValid()
+}
+
+func newTemplateExecuter(d *deps.Deps) (texttemplate.Executer, map[string]reflect.Value) {
+	funcs := createFuncMap(d)
+	funcsv := make(map[string]reflect.Value)
+
+	for k, v := range funcs {
+		funcsv[k] = reflect.ValueOf(v)
+	}
+
+	exeHelper := &templateExecHelper{
+		funcs: funcsv,
+	}
+
+	return texttemplate.NewExecuter(
+		exeHelper,
+	), funcsv
+}
+
 func createFuncMap(d *deps.Deps) map[string]interface{} {
+
 	funcMap := template.FuncMap{}
 
 	// Merge the namespace funcs
@@ -71,10 +125,12 @@ func createFuncMap(d *deps.Deps) map[string]interface{} {
 
 	}
 
+	if d.OverloadedTemplateFuncs != nil {
+		for k, v := range d.OverloadedTemplateFuncs {
+			funcMap[k] = v
+		}
+	}
+
 	return funcMap
 
-}
-func (t *templateFuncster) initFuncMap(funcMap template.FuncMap) {
-	t.funcMap = funcMap
-	t.Tmpl.(*templateHandler).setFuncs(funcMap)
 }

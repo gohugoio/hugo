@@ -474,7 +474,7 @@ func NewSite(cfg deps.DepsCfg) (*Site, error) {
 // The site will have a template system loaded and ready to use.
 // Note: This is mainly used in single site tests.
 // TODO(bep) test refactor -- remove
-func NewSiteDefaultLang(withTemplate ...func(templ tpl.TemplateHandler) error) (*Site, error) {
+func NewSiteDefaultLang(withTemplate ...func(templ tpl.TemplateManager) error) (*Site, error) {
 	v := viper.New()
 	if err := loadDefaultSettingsFor(v); err != nil {
 		return nil, err
@@ -486,7 +486,7 @@ func NewSiteDefaultLang(withTemplate ...func(templ tpl.TemplateHandler) error) (
 // The site will have a template system loaded and ready to use.
 // Note: This is mainly used in single site tests.
 // TODO(bep) test refactor -- remove
-func NewEnglishSite(withTemplate ...func(templ tpl.TemplateHandler) error) (*Site, error) {
+func NewEnglishSite(withTemplate ...func(templ tpl.TemplateManager) error) (*Site, error) {
 	v := viper.New()
 	if err := loadDefaultSettingsFor(v); err != nil {
 		return nil, err
@@ -495,8 +495,8 @@ func NewEnglishSite(withTemplate ...func(templ tpl.TemplateHandler) error) (*Sit
 }
 
 // newSiteForLang creates a new site in the given language.
-func newSiteForLang(lang *langs.Language, withTemplate ...func(templ tpl.TemplateHandler) error) (*Site, error) {
-	withTemplates := func(templ tpl.TemplateHandler) error {
+func newSiteForLang(lang *langs.Language, withTemplate ...func(templ tpl.TemplateManager) error) (*Site, error) {
+	withTemplates := func(templ tpl.TemplateManager) error {
 		for _, wt := range withTemplate {
 			if err := wt(templ); err != nil {
 				return err
@@ -1589,7 +1589,7 @@ func (s *Site) renderForLayouts(name, outputFormat string, d interface{}, w io.W
 		return nil
 	}
 
-	if err = templ.Execute(w, d); err != nil {
+	if err = s.Tmpl.Execute(templ, w, d); err != nil {
 		return _errors.Wrapf(err, "render of %q failed", name)
 	}
 	return

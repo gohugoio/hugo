@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"html/template"
 	"io"
@@ -31,27 +32,15 @@ import (
 	"github.com/gohugoio/hugo/tpl"
 )
 
-const (
-	alias      = "<!DOCTYPE html><html><head><title>{{ .Permalink }}</title><link rel=\"canonical\" href=\"{{ .Permalink }}\"/><meta name=\"robots\" content=\"noindex\"><meta charset=\"utf-8\" /><meta http-equiv=\"refresh\" content=\"0; url={{ .Permalink }}\" /></head></html>"
-	aliasXHtml = "<!DOCTYPE html><html xmlns=\"http://www.w3.org/1999/xhtml\"><head><title>{{ .Permalink }}</title><link rel=\"canonical\" href=\"{{ .Permalink }}\"/><meta name=\"robots\" content=\"noindex\"><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" /><meta http-equiv=\"refresh\" content=\"0; url={{ .Permalink }}\" /></head></html>"
-)
-
 var defaultAliasTemplates *template.Template
 
-func init() {
-	//TODO(bep) consolidate
-	defaultAliasTemplates = template.New("")
-	template.Must(defaultAliasTemplates.New("alias").Parse(alias))
-	template.Must(defaultAliasTemplates.New("alias-xhtml").Parse(aliasXHtml))
-}
-
 type aliasHandler struct {
-	t         tpl.TemplateFinder
+	t         tpl.TemplateHandler
 	log       *loggers.Logger
 	allowRoot bool
 }
 
-func newAliasHandler(t tpl.TemplateFinder, l *loggers.Logger, allowRoot bool) aliasHandler {
+func newAliasHandler(t tpl.TemplateHandler, l *loggers.Logger, allowRoot bool) aliasHandler {
 	return aliasHandler{t, l, allowRoot}
 }
 
@@ -60,33 +49,27 @@ type aliasPage struct {
 	page.Page
 }
 
-func (a aliasHandler) renderAlias(isXHTML bool, permalink string, p page.Page) (io.Reader, error) {
-	t := "alias"
-	if isXHTML {
-		t = "alias-xhtml"
-	}
+func (a aliasHandler) renderAlias(permalink string, p page.Page) (io.Reader, error) {
 
 	var templ tpl.Template
 	var found bool
 
-	if a.t != nil {
-		templ, found = a.t.Lookup("alias.html")
-	}
-
+	templ, found = a.t.Lookup("alias.html")
 	if !found {
-		def := defaultAliasTemplates.Lookup(t)
-		if def != nil {
-			templ = &tpl.TemplateAdapter{Template: def}
+		// TODO(bep) consolidate
+		templ, found = a.t.Lookup("_internal/alias.html")
+		if !found {
+			return nil, errors.New("no alias template found")
 		}
-
 	}
+
 	data := aliasPage{
 		permalink,
 		p,
 	}
 
 	buffer := new(bytes.Buffer)
-	err := templ.Execute(buffer, data)
+	err := a.t.Execute(templ, buffer, data)
 	if err != nil {
 		return nil, err
 	}
@@ -100,8 +83,6 @@ func (s *Site) writeDestAlias(path, permalink string, outputFormat output.Format
 func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, outputFormat output.Format, p page.Page) (err error) {
 	handler := newAliasHandler(s.Tmpl, s.Log, allowRoot)
 
-	isXHTML := strings.HasSuffix(path, ".xhtml")
-
 	s.Log.DEBUG.Println("creating alias:", path, "redirecting to", permalink)
 
 	targetPath, err := handler.targetPathAlias(path)
@@ -109,7 +90,7 @@ func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, outputFo
 		return err
 	}
 
-	aliasContent, err := handler.renderAlias(isXHTML, permalink, p)
+	aliasContent, err := handler.renderAlias(permalink, p)
 	if err != nil {
 		return err
 	}

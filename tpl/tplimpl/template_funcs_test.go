@@ -119,7 +119,7 @@ func TestTemplateFuncsExamples(t *testing.T) {
 		for _, mm := range ns.MethodMappings {
 			for i, example := range mm.Examples {
 				in, expected := example[0], example[1]
-				d.WithTemplate = func(templ tpl.TemplateHandler) error {
+				d.WithTemplate = func(templ tpl.TemplateManager) error {
 					c.Assert(templ.AddTemplate("test", in), qt.IsNil)
 					c.Assert(templ.AddTemplate("partials/header.html", "<title>Hugo Rocks!</title>"), qt.IsNil)
 					return nil
@@ -128,7 +128,7 @@ func TestTemplateFuncsExamples(t *testing.T) {
 
 				var b bytes.Buffer
 				templ, _ := d.Tmpl.Lookup("test")
-				c.Assert(templ.Execute(&b, &data), qt.IsNil)
+				c.Assert(d.Tmpl.Execute(templ, &b, &data), qt.IsNil)
 				if b.String() != expected {
 					t.Fatalf("%s[%d]: got %q expected %q", ns.Name, i, b.String(), expected)
 				}
@@ -154,7 +154,7 @@ func TestPartialCached(t *testing.T) {
 
 	config := newDepsConfig(v)
 
-	config.WithTemplate = func(templ tpl.TemplateHandler) error {
+	config.WithTemplate = func(templ tpl.TemplateManager) error {
 		err := templ.AddTemplate("partials/"+name, partial)
 		if err != nil {
 			return err
@@ -208,7 +208,7 @@ func BenchmarkPartialCached(b *testing.B) {
 func doBenchmarkPartial(b *testing.B, f func(ns *partials.Namespace) error) {
 	c := qt.New(b)
 	config := newDepsConfig(viper.New())
-	config.WithTemplate = func(templ tpl.TemplateHandler) error {
+	config.WithTemplate = func(templ tpl.TemplateManager) error {
 		err := templ.AddTemplate("partials/bench1", `{{ shuffle (seq 1 10) }}`)
 		if err != nil {
 			return err

@@ -57,6 +57,8 @@ var (
 		`"internal/fmtsort"`, `"github.com/gohugoio/hugo/tpl/internal/go_templates/fmtsort"`,
 		// Rename types and function that we want to overload.
 		"type state struct", "type stateOld struct",
+		"func (s *state) evalFunction", "func (s *state) evalFunctionOld",
+		"func (s *state) evalField(", "func (s *state) evalFieldOld(",
 	)
 
 	htmlTemplateReplacers = strings.NewReplacer(

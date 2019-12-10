@@ -15,6 +15,12 @@ package tplimpl
 
 import (
 	"fmt"
+	"io"
+	"reflect"
+	"regexp"
+	"time"
+
+	"github.com/gohugoio/hugo/common/herrors"
 
 	"strings"
 
@@ -45,278 +51,33 @@ const (
 )
 
 var (
-	_ tpl.TemplateHandler       = (*templateHandler)(nil)
-	_ tpl.TemplateDebugger      = (*templateHandler)(nil)
-	_ tpl.TemplateFuncsGetter   = (*templateHandler)(nil)
-	_ tpl.TemplateTestMocker    = (*templateHandler)(nil)
-	_ tpl.TemplateFinder        = (*htmlTemplates)(nil)
-	_ tpl.TemplateFinder        = (*textTemplates)(nil)
-	_ templateLoader            = (*htmlTemplates)(nil)
-	_ templateLoader            = (*textTemplates)(nil)
-	_ templateFuncsterTemplater = (*htmlTemplates)(nil)
-	_ templateFuncsterTemplater = (*textTemplates)(nil)
+	_ tpl.TemplateManager    = (*templateHandler)(nil)
+	_ tpl.TemplateHandler    = (*templateHandler)(nil)
+	_ tpl.TemplateDebugger   = (*templateHandler)(nil)
+	_ tpl.TemplateFuncGetter = (*templateHandler)(nil)
+	_ tpl.TemplateFinder     = (*htmlTemplates)(nil)
+	_ tpl.TemplateFinder     = (*textTemplates)(nil)
+	_ templateLoader         = (*htmlTemplates)(nil)
+	_ templateLoader         = (*textTemplates)(nil)
 )
-
-type templateErr struct {
-	name string
-	err  error
-}
-
-type templateLoader interface {
-	handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (templateInfo, error)) error
-	addTemplate(name, tpl string) (*templateContext, error)
-	addLateTemplate(name, tpl string) error
-}
-
-type templateFuncsterTemplater interface {
-	templateFuncsterSetter
-	tpl.TemplateFinder
-	setFuncs(funcMap map[string]interface{})
-}
-
-type templateFuncsterSetter interface {
-	setTemplateFuncster(f *templateFuncster)
-}
-
-// templateHandler holds the templates in play.
-// It implements the templateLoader and tpl.TemplateHandler interfaces.
-type templateHandler struct {
-	mu sync.Mutex
-
-	// shortcodes maps shortcode name to template variants
-	// (language, output format etc.) of that shortcode.
-	shortcodes map[string]*shortcodeTemplates
-
-	// templateInfo maps template name to some additional information about that template.
-	// Note that for shortcodes that same information is embedded in the
-	// shortcodeTemplates type.
-	templateInfo map[string]tpl.Info
-
-	// text holds all the pure text templates.
-	text *textTemplates
-	html *htmlTemplates
-
-	errors []*templateErr
-
-	// This is the filesystem to load the templates from. All the templates are
-	// stored in the root of this filesystem.
-	layoutsFs afero.Fs
-
-	*deps.Deps
-}
 
 const (
 	shortcodesPathPrefix = "shortcodes/"
 	internalPathPrefix   = "_internal/"
 )
 
-// resolves _internal/shortcodes/param.html => param.html etc.
-func templateBaseName(typ templateType, name string) string {
-	name = strings.TrimPrefix(name, internalPathPrefix)
-	switch typ {
-	case templateShortcode:
-		return strings.TrimPrefix(name, shortcodesPathPrefix)
-	default:
-		panic("not implemented")
-	}
+// The identifiers may be truncated in the log, e.g.
+// "executing "main" at <$scaled.SRelPermalin...>: can't evaluate field SRelPermalink in type *resource.Image"
+var identifiersRe = regexp.MustCompile(`at \<(.*?)(\.{3})?\>:`)
 
+var embeddedTemplatesAliases = map[string][]string{
+	"shortcodes/twitter.html": {"shortcodes/tweet.html"},
 }
 
-func (t *templateHandler) addShortcodeVariant(name string, info tpl.Info, templ tpl.Template) {
-	base := templateBaseName(templateShortcode, name)
-
-	shortcodename, variants := templateNameAndVariants(base)
-
-	templs, found := t.shortcodes[shortcodename]
-	if !found {
-		templs = &shortcodeTemplates{}
-		t.shortcodes[shortcodename] = templs
-	}
-
-	sv := shortcodeVariant{variants: variants, info: info, templ: templ}
-
-	i := templs.indexOf(variants)
-
-	if i != -1 {
-		// Only replace if it's an override of an internal template.
-		if !isInternal(name) {
-			templs.variants[i] = sv
-		}
-	} else {
-		templs.variants = append(templs.variants, sv)
-	}
-}
-
-func (t *templateHandler) wrapTextTemplate(tt *textTemplate) tpl.TemplateParseFinder {
-	return struct {
-		tpl.TemplateParser
-		tpl.TemplateLookup
-		tpl.TemplateLookupVariant
-	}{
-		tt,
-		tt,
-		new(nopLookupVariant),
-	}
-
-}
-
-type nopLookupVariant int
-
-func (l nopLookupVariant) LookupVariant(name string, variants tpl.TemplateVariants) (tpl.Template, bool, bool) {
-	return nil, false, false
-}
-
-func (t *templateHandler) Debug() {
-	fmt.Println("HTML templates:\n", t.html.t.DefinedTemplates())
-	fmt.Println("\n\nText templates:\n", t.text.t.DefinedTemplates())
-}
-
-// Lookup tries to find a template with the given name in both template
-// collections: First HTML, then the plain text template collection.
-func (t *templateHandler) Lookup(name string) (tpl.Template, bool) {
-
-	if strings.HasPrefix(name, textTmplNamePrefix) {
-		// The caller has explicitly asked for a text template, so only look
-		// in the text template collection.
-		// The templates are stored without the prefix identificator.
-		name = strings.TrimPrefix(name, textTmplNamePrefix)
-
-		return t.applyTemplateInfo(t.text.Lookup(name))
-	}
-
-	// Look in both
-	if te, found := t.html.Lookup(name); found {
-		return t.applyTemplateInfo(te, true)
-	}
-
-	return t.applyTemplateInfo(t.text.Lookup(name))
-
-}
-
-func (t *templateHandler) applyTemplateInfo(templ tpl.Template, found bool) (tpl.Template, bool) {
-	if adapter, ok := templ.(*tpl.TemplateAdapter); ok {
-		if adapter.Info.IsZero() {
-			if info, found := t.templateInfo[templ.Name()]; found {
-				adapter.Info = info
-			}
-		}
-	}
-
-	return templ, found
-}
-
-// This currently only applies to shortcodes and what we get here is the
-// shortcode name.
-func (t *templateHandler) LookupVariant(name string, variants tpl.TemplateVariants) (tpl.Template, bool, bool) {
-	name = templateBaseName(templateShortcode, name)
-	s, found := t.shortcodes[name]
-	if !found {
-		return nil, false, false
-	}
-
-	sv, found := s.fromVariants(variants)
-	if !found {
-		return nil, false, false
-	}
-
-	more := len(s.variants) > 1
-
-	return &tpl.TemplateAdapter{
-		Template:             sv.templ,
-		Info:                 sv.info,
-		Metrics:              t.Deps.Metrics,
-		Fs:                   t.layoutsFs,
-		NameBaseTemplateName: t.html.nameBaseTemplateName}, true, more
-
-}
-
-func (t *textTemplates) LookupVariant(name string, variants tpl.TemplateVariants) (tpl.Template, bool, bool) {
-	return t.handler.LookupVariant(name, variants)
-}
-
-func (t *htmlTemplates) LookupVariant(name string, variants tpl.TemplateVariants) (tpl.Template, bool, bool) {
-	return t.handler.LookupVariant(name, variants)
-}
-
-func (t *templateHandler) lookupTemplate(in interface{}) tpl.Template {
-	switch templ := in.(type) {
-	case *texttemplate.Template:
-		return t.text.lookup(templ.Name())
-	case *template.Template:
-		return t.html.lookup(templ.Name())
-	}
-
-	panic(fmt.Sprintf("%T is not a template", in))
-}
-
-func (t *templateHandler) setFuncMapInTemplate(in interface{}, funcs map[string]interface{}) {
-	switch templ := in.(type) {
-	case *texttemplate.Template:
-		templ.Funcs(funcs)
-		return
-	case *template.Template:
-		templ.Funcs(funcs)
-		return
-	}
-
-	panic(fmt.Sprintf("%T is not a template", in))
-}
-
-func (t *templateHandler) clone(d *deps.Deps) *templateHandler {
-	c := &templateHandler{
-		Deps:         d,
-		layoutsFs:    d.BaseFs.Layouts.Fs,
-		shortcodes:   make(map[string]*shortcodeTemplates),
-		templateInfo: t.templateInfo,
-		html:         &htmlTemplates{t: template.Must(t.html.t.Clone()), overlays: make(map[string]*template.Template), templatesCommon: t.html.templatesCommon},
-		text: &textTemplates{
-			textTemplate: &textTemplate{t: texttemplate.Must(t.text.t.Clone())},
-			standalone:   &textTemplate{t: texttemplate.New("")},
-			overlays:     make(map[string]*texttemplate.Template), templatesCommon: t.text.templatesCommon},
-		errors: make([]*templateErr, 0),
-	}
-
-	for k, v := range t.shortcodes {
-		other := *v
-		variantsc := make([]shortcodeVariant, len(v.variants))
-		for i, variant := range v.variants {
-			variantsc[i] = shortcodeVariant{
-				info:     variant.info,
-				variants: variant.variants,
-				templ:    c.lookupTemplate(variant.templ),
-			}
-		}
-		other.variants = variantsc
-		c.shortcodes[k] = &other
-	}
-
-	d.Tmpl = c
-	d.TextTmpl = c.wrapTextTemplate(c.text.standalone)
-
-	c.initFuncs()
-
-	for k, v := range t.html.overlays {
-		vc := template.Must(v.Clone())
-		// The extra lookup is a workaround, see
-		// * https://github.com/golang/go/issues/16101
-		// * https://github.com/gohugoio/hugo/issues/2549
-		vc = vc.Lookup(vc.Name())
-		vc.Funcs(c.html.funcster.funcMap)
-		c.html.overlays[k] = vc
-	}
-
-	for k, v := range t.text.overlays {
-		vc := texttemplate.Must(v.Clone())
-		vc = vc.Lookup(vc.Name())
-		vc.Funcs(texttemplate.FuncMap(c.text.funcster.funcMap))
-		c.text.overlays[k] = vc
-	}
-
-	return c
-
-}
+const baseFileBase = "baseof"
 
 func newTemplateAdapter(deps *deps.Deps) *templateHandler {
+
 	common := &templatesCommon{
 		nameBaseTemplateName: make(map[string]string),
 		transformNotFound:    make(map[string]bool),
@@ -327,20 +88,23 @@ func newTemplateAdapter(deps *deps.Deps) *templateHandler {
 		overlays:        make(map[string]*template.Template),
 		templatesCommon: common,
 	}
+
 	textT := &textTemplates{
 		textTemplate:    &textTemplate{t: texttemplate.New("")},
 		standalone:      &textTemplate{t: texttemplate.New("")},
 		overlays:        make(map[string]*texttemplate.Template),
 		templatesCommon: common,
 	}
+
 	h := &templateHandler{
-		Deps:         deps,
-		layoutsFs:    deps.BaseFs.Layouts.Fs,
-		shortcodes:   make(map[string]*shortcodeTemplates),
-		templateInfo: make(map[string]tpl.Info),
-		html:         htmlT,
-		text:         textT,
-		errors:       make([]*templateErr, 0),
+		Deps:      deps,
+		layoutsFs: deps.BaseFs.Layouts.Fs,
+		templateHandlerCommon: &templateHandlerCommon{
+			shortcodes:   make(map[string]*shortcodeTemplates),
+			templateInfo: make(map[string]tpl.Info),
+			html:         htmlT,
+			text:         textT,
+		},
 	}
 
 	common.handler = h
@@ -349,21 +113,7 @@ func newTemplateAdapter(deps *deps.Deps) *templateHandler {
 
 }
 
-// Shared by both HTML and text templates.
-type templatesCommon struct {
-	handler  *templateHandler
-	funcster *templateFuncster
-
-	// Used to get proper filenames in errors
-	nameBaseTemplateName map[string]string
-
-	// Holds names of the templates not found during the first AST transformation
-	// pass.
-	transformNotFound map[string]bool
-}
 type htmlTemplates struct {
-	mu sync.RWMutex
-
 	*templatesCommon
 
 	t *template.Template
@@ -380,119 +130,29 @@ type htmlTemplates struct {
 	overlays map[string]*template.Template
 }
 
-func (t *htmlTemplates) setTemplateFuncster(f *templateFuncster) {
-	t.funcster = f
-}
-
 func (t *htmlTemplates) Lookup(name string) (tpl.Template, bool) {
 	templ := t.lookup(name)
 	if templ == nil {
 		return nil, false
 	}
 
-	return &tpl.TemplateAdapter{Template: templ, Metrics: t.funcster.Deps.Metrics, Fs: t.handler.layoutsFs, NameBaseTemplateName: t.nameBaseTemplateName}, true
+	return templ, true
 }
 
-func (t *htmlTemplates) lookup(name string) *template.Template {
-	t.mu.RLock()
-	defer t.mu.RUnlock()
-
-	// Need to check in the overlay registry first as it will also be found below.
-	if t.overlays != nil {
-		if templ, ok := t.overlays[name]; ok {
-			return templ
-		}
-	}
-
-	if templ := t.t.Lookup(name); templ != nil {
-		return templ
-	}
-
-	if t.clone != nil {
-		return t.clone.Lookup(name)
-	}
-
-	return nil
+func (t *htmlTemplates) LookupVariant(name string, variants tpl.TemplateVariants) (tpl.Template, bool, bool) {
+	return t.handler.LookupVariant(name, variants)
 }
 
-func (t *textTemplates) setTemplateFuncster(f *templateFuncster) {
-	t.funcster = f
+func (t *htmlTemplates) addLateTemplate(name, tpl string) error {
+	_, err := t.addTemplateIn(t.clone, name, tpl)
+	return err
 }
 
-type textTemplates struct {
-	*templatesCommon
-	*textTemplate
-	standalone *textTemplate
-	clone      *texttemplate.Template
-	cloneClone *texttemplate.Template
-
-	overlays map[string]*texttemplate.Template
-}
-
-func (t *textTemplates) Lookup(name string) (tpl.Template, bool) {
-	templ := t.lookup(name)
-	if templ == nil {
-		return nil, false
-	}
-	return &tpl.TemplateAdapter{Template: templ, Metrics: t.funcster.Deps.Metrics, Fs: t.handler.layoutsFs, NameBaseTemplateName: t.nameBaseTemplateName}, true
-}
-
-func (t *textTemplates) lookup(name string) *texttemplate.Template {
-
-	// Need to check in the overlay registry first as it will also be found below.
-	if t.overlays != nil {
-		if templ, ok := t.overlays[name]; ok {
-			return templ
-		}
-	}
-
-	if templ := t.t.Lookup(name); templ != nil {
-		return templ
-	}
-
-	if t.clone != nil {
-		return t.clone.Lookup(name)
-	}
-
-	return nil
-}
-
-func (t *templateHandler) setFuncs(funcMap map[string]interface{}) {
-	t.html.setFuncs(funcMap)
-	t.text.setFuncs(funcMap)
-	t.setFuncMapInTemplate(t.text.standalone.t, funcMap)
-}
-
-// SetFuncs replaces the funcs in the func maps with new definitions.
-// This is only used in tests.
-func (t *templateHandler) SetFuncs(funcMap map[string]interface{}) {
-	t.setFuncs(funcMap)
-}
-
-func (t *templateHandler) GetFuncs() map[string]interface{} {
-	return t.html.funcster.funcMap
-}
-
-func (t *htmlTemplates) setFuncs(funcMap map[string]interface{}) {
-	t.t.Funcs(funcMap)
-}
-
-func (t *textTemplates) setFuncs(funcMap map[string]interface{}) {
-	t.t.Funcs(funcMap)
-}
-
-// LoadTemplates loads the templates from the layouts filesystem.
-// A prefix can be given to indicate a template namespace to load the templates
-// into, i.e. "_internal" etc.
-func (t *templateHandler) LoadTemplates(prefix string) error {
-	return t.loadTemplates(prefix)
-
+func (t *htmlTemplates) addTemplate(name, tpl string) (*templateContext, error) {
+	return t.addTemplateIn(t.t, name, tpl)
 }
 
 func (t *htmlTemplates) addTemplateIn(tt *template.Template, name, tpl string) (*templateContext, error) {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
 	templ, err := tt.New(name).Parse(tpl)
 	if err != nil {
 		return nil, err
@@ -516,276 +176,6 @@ func (t *htmlTemplates) addTemplateIn(tt *template.Template, name, tpl string) (
 	}
 
 	return c, nil
-}
-
-func (t *htmlTemplates) addTemplate(name, tpl string) (*templateContext, error) {
-	return t.addTemplateIn(t.t, name, tpl)
-}
-
-func (t *htmlTemplates) addLateTemplate(name, tpl string) error {
-	_, err := t.addTemplateIn(t.clone, name, tpl)
-	return err
-}
-
-type textTemplate struct {
-	mu sync.RWMutex
-	t  *texttemplate.Template
-}
-
-func (t *textTemplate) Parse(name, tpl string) (tpl.Template, error) {
-	return t.parseIn(t.t, name, tpl)
-}
-
-func (t *textTemplate) Lookup(name string) (tpl.Template, bool) {
-	t.mu.RLock()
-	defer t.mu.RUnlock()
-
-	tpl := t.t.Lookup(name)
-	return tpl, tpl != nil
-}
-
-func (t *textTemplate) parseIn(tt *texttemplate.Template, name, tpl string) (*texttemplate.Template, error) {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
-	templ, err := tt.New(name).Parse(tpl)
-	if err != nil {
-		return nil, err
-	}
-
-	if _, err := applyTemplateTransformersToTextTemplate(templateUndefined, templ); err != nil {
-		return nil, err
-	}
-	return templ, nil
-}
-
-func (t *textTemplates) addTemplateIn(tt *texttemplate.Template, name, tpl string) (*templateContext, error) {
-	name = strings.TrimPrefix(name, textTmplNamePrefix)
-	templ, err := t.parseIn(tt, name, tpl)
-	if err != nil {
-		return nil, err
-	}
-
-	typ := resolveTemplateType(name)
-
-	c, err := applyTemplateTransformersToTextTemplate(typ, templ)
-	if err != nil {
-		return nil, err
-	}
-
-	for k := range c.notFound {
-		t.transformNotFound[k] = true
-	}
-
-	if typ == templateShortcode {
-		t.handler.addShortcodeVariant(name, c.Info, templ)
-	} else {
-		t.handler.templateInfo[name] = c.Info
-	}
-
-	return c, nil
-}
-
-func (t *textTemplates) addTemplate(name, tpl string) (*templateContext, error) {
-	return t.addTemplateIn(t.t, name, tpl)
-}
-
-func (t *textTemplates) addLateTemplate(name, tpl string) error {
-	_, err := t.addTemplateIn(t.clone, name, tpl)
-	return err
-}
-
-func (t *templateHandler) addTemplate(name, tpl string) error {
-	return t.AddTemplate(name, tpl)
-}
-
-func (t *templateHandler) postTransform() error {
-	if len(t.html.transformNotFound) == 0 && len(t.text.transformNotFound) == 0 {
-		return nil
-	}
-
-	defer func() {
-		t.text.transformNotFound = make(map[string]bool)
-		t.html.transformNotFound = make(map[string]bool)
-	}()
-
-	for _, s := range []struct {
-		lookup            func(name string) *parse.Tree
-		transformNotFound map[string]bool
-	}{
-		// html templates
-		{func(name string) *parse.Tree {
-			templ := t.html.lookup(name)
-			if templ == nil {
-				return nil
-			}
-			return templ.Tree
-		}, t.html.transformNotFound},
-		// text templates
-		{func(name string) *parse.Tree {
-			templT := t.text.lookup(name)
-			if templT == nil {
-				return nil
-			}
-			return templT.Tree
-		}, t.text.transformNotFound},
-	} {
-		for name := range s.transformNotFound {
-			templ := s.lookup(name)
-			if templ != nil {
-				_, err := applyTemplateTransformers(templateUndefined, templ, s.lookup)
-				if err != nil {
-					return err
-				}
-			}
-		}
-	}
-
-	return nil
-}
-
-func (t *templateHandler) addLateTemplate(name, tpl string) error {
-	return t.AddLateTemplate(name, tpl)
-}
-
-// AddLateTemplate is used to add a template late, i.e. after the
-// regular templates have started its execution.
-func (t *templateHandler) AddLateTemplate(name, tpl string) error {
-	h := t.getTemplateHandler(name)
-	if err := h.addLateTemplate(name, tpl); err != nil {
-		return err
-	}
-	return nil
-}
-
-// AddTemplate parses and adds a template to the collection.
-// Templates with name prefixed with "_text" will be handled as plain
-// text templates.
-// TODO(bep) clean up these addTemplate variants
-func (t *templateHandler) AddTemplate(name, tpl string) error {
-	h := t.getTemplateHandler(name)
-	_, err := h.addTemplate(name, tpl)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// MarkReady marks the templates as "ready for execution". No changes allowed
-// after this is set.
-// TODO(bep) if this proves to be resource heavy, we could detect
-// earlier if we really need this, or make it lazy.
-func (t *templateHandler) MarkReady() error {
-	if err := t.postTransform(); err != nil {
-		return err
-	}
-
-	if t.html.clone == nil {
-		t.html.clone = template.Must(t.html.t.Clone())
-		t.html.cloneClone = template.Must(t.html.clone.Clone())
-	}
-	if t.text.clone == nil {
-		t.text.clone = texttemplate.Must(t.text.t.Clone())
-		t.text.cloneClone = texttemplate.Must(t.text.clone.Clone())
-	}
-
-	return nil
-}
-
-// RebuildClone rebuilds the cloned templates. Used for live-reloads.
-func (t *templateHandler) RebuildClone() {
-	if t.html != nil && t.html.cloneClone != nil {
-		t.html.clone = template.Must(t.html.cloneClone.Clone())
-	}
-	if t.text != nil && t.text.cloneClone != nil {
-		t.text.clone = texttemplate.Must(t.text.cloneClone.Clone())
-	}
-}
-
-func (t *templateHandler) loadTemplates(prefix string) error {
-
-	walker := func(path string, fi hugofs.FileMetaInfo, err error) error {
-		if err != nil || fi.IsDir() {
-			return err
-		}
-
-		if isDotFile(path) || isBackupFile(path) || isBaseTemplate(path) {
-			return nil
-		}
-
-		workingDir := t.PathSpec.WorkingDir
-
-		descriptor := output.TemplateLookupDescriptor{
-			WorkingDir:    workingDir,
-			RelPath:       path,
-			Prefix:        prefix,
-			OutputFormats: t.OutputFormatsConfig,
-			FileExists: func(filename string) (bool, error) {
-				return helpers.Exists(filename, t.Layouts.Fs)
-			},
-			ContainsAny: func(filename string, subslices [][]byte) (bool, error) {
-				return helpers.FileContainsAny(filename, subslices, t.Layouts.Fs)
-			},
-		}
-
-		tplID, err := output.CreateTemplateNames(descriptor)
-		if err != nil {
-			t.Log.ERROR.Printf("Failed to resolve template in path %q: %s", path, err)
-			return nil
-		}
-
-		if err := t.addTemplateFile(tplID.Name, tplID.MasterFilename, tplID.OverlayFilename); err != nil {
-			return err
-		}
-
-		return nil
-	}
-
-	if err := helpers.SymbolicWalk(t.Layouts.Fs, "", walker); err != nil {
-		if !os.IsNotExist(err) {
-			return err
-		}
-		return nil
-	}
-
-	return nil
-
-}
-
-func (t *templateHandler) initFuncs() {
-
-	// Both template types will get their own funcster instance, which
-	// in the current case contains the same set of funcs.
-	funcMap := createFuncMap(t.Deps)
-	for _, funcsterHolder := range []templateFuncsterSetter{t.html, t.text} {
-		funcster := newTemplateFuncster(t.Deps)
-
-		// The URL funcs in the funcMap is somewhat language dependent,
-		// so we need to wait until the language and site config is loaded.
-		funcster.initFuncMap(funcMap)
-
-		funcsterHolder.setTemplateFuncster(funcster)
-
-	}
-
-	for _, v := range t.shortcodes {
-		for _, variant := range v.variants {
-			t.setFuncMapInTemplate(variant.templ, funcMap)
-		}
-	}
-
-}
-
-func (t *templateHandler) getTemplateHandler(name string) templateLoader {
-	if strings.HasPrefix(name, textTmplNamePrefix) {
-		return t.text
-	}
-	return t.html
-}
-
-func (t *templateHandler) handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (templateInfo, error)) error {
-	h := t.getTemplateHandler(name)
-	return h.handleMaster(name, overlayFilename, masterFilename, onMissing)
 }
 
 func (t *htmlTemplates) handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (templateInfo, error)) error {
@@ -829,59 +219,292 @@ func (t *htmlTemplates) handleMaster(name, overlayFilename, masterFilename strin
 
 }
 
-func (t *textTemplates) handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (templateInfo, error)) error {
-
-	name = strings.TrimPrefix(name, textTmplNamePrefix)
-	masterTpl := t.lookup(masterFilename)
-
-	if masterTpl == nil {
-		templ, err := onMissing(masterFilename)
-		if err != nil {
-			return err
+func (t *htmlTemplates) lookup(name string) *template.Template {
+	// Need to check in the overlay registry first as it will also be found below.
+	if t.overlays != nil {
+		if templ, ok := t.overlays[name]; ok {
+			return templ
 		}
-
-		masterTpl, err = t.t.New(masterFilename).Parse(templ.template)
-		if err != nil {
-			return errors.Wrapf(err, "failed to parse %q:", templ.filename)
-		}
-		t.nameBaseTemplateName[masterFilename] = templ.filename
 	}
 
-	templ, err := onMissing(overlayFilename)
+	if templ := t.t.Lookup(name); templ != nil {
+		return templ
+	}
+
+	if t.clone != nil {
+		return t.clone.Lookup(name)
+	}
+
+	return nil
+}
+
+func (t htmlTemplates) withNewHandler(h *templateHandler) *htmlTemplates {
+	t.templatesCommon = t.templatesCommon.withNewHandler(h)
+	return &t
+}
+
+type nopLookupVariant int
+
+func (l nopLookupVariant) LookupVariant(name string, variants tpl.TemplateVariants) (tpl.Template, bool, bool) {
+	return nil, false, false
+}
+
+// templateHandler holds the templates in play.
+// It implements the templateLoader and tpl.TemplateHandler interfaces.
+// There is one templateHandler created per Site.
+type templateHandler struct {
+	executor texttemplate.Executer
+	funcs    map[string]reflect.Value
+
+	// This is the filesystem to load the templates from. All the templates are
+	// stored in the root of this filesystem.
+	layoutsFs afero.Fs
+
+	*deps.Deps
+
+	*templateHandlerCommon
+}
+
+// AddLateTemplate is used to add a template late, i.e. after the
+// regular templates have started its execution.
+func (t *templateHandler) AddLateTemplate(name, tpl string) error {
+	h := t.getTemplateHandler(name)
+	if err := h.addLateTemplate(name, tpl); err != nil {
+		return err
+	}
+	return nil
+}
+
+// AddTemplate parses and adds a template to the collection.
+// Templates with name prefixed with "_text" will be handled as plain
+// text templates.
+// TODO(bep) clean up these addTemplate variants
+func (t *templateHandler) AddTemplate(name, tpl string) error {
+	h := t.getTemplateHandler(name)
+	_, err := h.addTemplate(name, tpl)
 	if err != nil {
 		return err
 	}
+	return nil
+}
 
-	overlayTpl, err := texttemplate.Must(masterTpl.Clone()).Parse(templ.template)
-	if err != nil {
-		return errors.Wrapf(err, "failed to parse %q:", templ.filename)
+func (t *templateHandler) Debug() {
+	fmt.Println("HTML templates:\n", t.html.t.DefinedTemplates())
+	fmt.Println("\n\nText templates:\n", t.text.t.DefinedTemplates())
+}
+
+func (t *templateHandler) Execute(templ tpl.Template, wr io.Writer, data interface{}) error {
+	if t.Metrics != nil {
+		defer t.Metrics.MeasureSince(templ.Name(), time.Now())
 	}
 
-	overlayTpl = overlayTpl.Lookup(overlayTpl.Name())
-	if _, err := applyTemplateTransformersToTextTemplate(templateUndefined, overlayTpl); err != nil {
-		return err
+	execErr := t.executor.Execute(templ, wr, data)
+	if execErr != nil {
+		execErr = t.addFileContext(templ.Name(), execErr)
 	}
-	t.overlays[name] = overlayTpl
-	t.nameBaseTemplateName[name] = templ.filename
 
-	return err
+	return execErr
 
 }
 
-func removeLeadingBOM(s string) string {
-	const bom = '\ufeff'
+func (t *templateHandler) GetFunc(name string) (reflect.Value, bool) {
+	v, found := t.funcs[name]
+	return v, found
 
-	for i, r := range s {
-		if i == 0 && r != bom {
-			return s
-		}
-		if i > 0 {
-			return s[i:]
-		}
+}
+
+// LoadTemplates loads the templates from the layouts filesystem.
+// A prefix can be given to indicate a template namespace to load the templates
+// into, i.e. "_internal" etc.
+func (t *templateHandler) LoadTemplates(prefix string) error {
+	return t.loadTemplates(prefix)
+
+}
+
+// Lookup tries to find a template with the given name in both template
+// collections: First HTML, then the plain text template collection.
+func (t *templateHandler) Lookup(name string) (tpl.Template, bool) {
+	if strings.HasPrefix(name, textTmplNamePrefix) {
+		// The caller has explicitly asked for a text template, so only look
+		// in the text template collection.
+		// The templates are stored without the prefix identificator.
+		name = strings.TrimPrefix(name, textTmplNamePrefix)
+
+		return t.applyTemplateInfo(t.text.Lookup(name))
 	}
 
-	return s
+	// Look in both
+	if te, found := t.html.Lookup(name); found {
+		return t.applyTemplateInfo(te, true)
+	}
 
+	return t.applyTemplateInfo(t.text.Lookup(name))
+
+}
+
+// This currently only applies to shortcodes and what we get here is the
+// shortcode name.
+func (t *templateHandler) LookupVariant(name string, variants tpl.TemplateVariants) (tpl.Template, bool, bool) {
+	name = templateBaseName(templateShortcode, name)
+	s, found := t.shortcodes[name]
+	if !found {
+		return nil, false, false
+	}
+
+	sv, found := s.fromVariants(variants)
+	if !found {
+		return nil, false, false
+	}
+
+	more := len(s.variants) > 1
+
+	return &tpl.TemplateInfo{
+		Template: sv.templ,
+		Info:     sv.info,
+	}, true, more
+
+}
+
+// MarkReady marks the templates as "ready for execution". No changes allowed
+// after this is set.
+// TODO(bep) if this proves to be resource heavy, we could detect
+// earlier if we really need this, or make it lazy.
+func (t *templateHandler) MarkReady() error {
+	if err := t.postTransform(); err != nil {
+		return err
+	}
+
+	if t.html.clone == nil {
+		t.html.clone = template.Must(t.html.t.Clone())
+		t.html.cloneClone = template.Must(t.html.clone.Clone())
+	}
+	if t.text.clone == nil {
+		t.text.clone = texttemplate.Must(t.text.t.Clone())
+		t.text.cloneClone = texttemplate.Must(t.text.clone.Clone())
+	}
+
+	return nil
+}
+
+// RebuildClone rebuilds the cloned templates. Used for live-reloads.
+func (t *templateHandler) RebuildClone() {
+	if t.html != nil && t.html.cloneClone != nil {
+		t.html.clone = template.Must(t.html.cloneClone.Clone())
+	}
+	if t.text != nil && t.text.cloneClone != nil {
+		t.text.clone = texttemplate.Must(t.text.cloneClone.Clone())
+	}
+}
+
+func (h *templateHandler) initTemplateExecuter() {
+	exec, funcs := newTemplateExecuter(h.Deps)
+	h.executor = exec
+	h.funcs = funcs
+	funcMap := make(map[string]interface{})
+	for k, v := range funcs {
+		funcMap[k] = v.Interface()
+	}
+
+	// Note that these funcs are not the ones getting called
+	// on execution, but they are needed at parse time.
+	h.text.textTemplate.t.Funcs(funcMap)
+	h.text.standalone.t.Funcs(funcMap)
+	h.html.t.Funcs(funcMap)
+}
+
+func (t *templateHandler) getTemplateHandler(name string) templateLoader {
+	if strings.HasPrefix(name, textTmplNamePrefix) {
+		return t.text
+	}
+	return t.html
+}
+
+func (t *templateHandler) addFileContext(name string, inerr error) error {
+	if strings.HasPrefix(name, "_internal") {
+		return inerr
+	}
+
+	f, realFilename, err := t.fileAndFilename(name)
+	if err != nil {
+		return inerr
+
+	}
+	defer f.Close()
+
+	master, hasMaster := t.html.nameBaseTemplateName[name]
+
+	ferr := errors.Wrap(inerr, "execute of template failed")
+
+	// Since this can be a composite of multiple template files (single.html + baseof.html etc.)
+	// we potentially need to look in both -- and cannot rely on line number alone.
+	lineMatcher := func(m herrors.LineMatcher) bool {
+		if m.Position.LineNumber != m.LineNumber {
+			return false
+		}
+		if !hasMaster {
+			return true
+		}
+
+		identifiers := t.extractIdentifiers(m.Error.Error())
+
+		for _, id := range identifiers {
+			if strings.Contains(m.Line, id) {
+				return true
+			}
+		}
+		return false
+	}
+
+	fe, ok := herrors.WithFileContext(ferr, realFilename, f, lineMatcher)
+	if ok || !hasMaster {
+		return fe
+	}
+
+	// Try the base template if relevant
+	f, realFilename, err = t.fileAndFilename(master)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	fe, ok = herrors.WithFileContext(ferr, realFilename, f, lineMatcher)
+
+	if !ok {
+		// Return the most specific.
+		return ferr
+
+	}
+	return fe
+
+}
+
+func (t *templateHandler) addInternalTemplate(name, tpl string) error {
+	return t.AddTemplate("_internal/"+name, tpl)
+}
+
+func (t *templateHandler) addShortcodeVariant(name string, info tpl.Info, templ tpl.Template) {
+	base := templateBaseName(templateShortcode, name)
+
+	shortcodename, variants := templateNameAndVariants(base)
+
+	templs, found := t.shortcodes[shortcodename]
+	if !found {
+		templs = &shortcodeTemplates{}
+		t.shortcodes[shortcodename] = templs
+	}
+
+	sv := shortcodeVariant{variants: variants, info: info, templ: templ}
+
+	i := templs.indexOf(variants)
+
+	if i != -1 {
+		// Only replace if it's an override of an internal template.
+		if !isInternal(name) {
+			templs.variants[i] = sv
+		}
+	} else {
+		templs.variants = append(templs.variants, sv)
+	}
 }
 
 func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) error {
@@ -937,8 +560,77 @@ func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) e
 	}
 }
 
-var embeddedTemplatesAliases = map[string][]string{
-	"shortcodes/twitter.html": {"shortcodes/tweet.html"},
+func (t *templateHandler) applyTemplateInfo(templ tpl.Template, found bool) (tpl.Template, bool) {
+	if adapter, ok := templ.(*tpl.TemplateInfo); ok {
+		if adapter.Info.IsZero() {
+			if info, found := t.templateInfo[templ.Name()]; found {
+				adapter.Info = info
+			}
+		}
+	} else if templ != nil {
+		if info, found := t.templateInfo[templ.Name()]; found {
+			return &tpl.TemplateInfo{
+				Template: templ,
+				Info:     info,
+			}, true
+		}
+	}
+
+	return templ, found
+}
+
+func (t *templateHandler) checkState() {
+	if t.html.clone != nil || t.text.clone != nil {
+		panic("template is cloned and cannot be modfified")
+	}
+}
+
+func (t *templateHandler) clone(d *deps.Deps) *templateHandler {
+	c := &templateHandler{
+		Deps:      d,
+		layoutsFs: d.BaseFs.Layouts.Fs,
+	}
+
+	c.templateHandlerCommon = t.templateHandlerCommon.withNewHandler(c)
+	d.Tmpl = c
+	d.TextTmpl = c.wrapTextTemplate(c.text.standalone)
+	c.executor, c.funcs = newTemplateExecuter(d)
+
+	return c
+
+}
+
+func (t *templateHandler) extractIdentifiers(line string) []string {
+	m := identifiersRe.FindAllStringSubmatch(line, -1)
+	identifiers := make([]string, len(m))
+	for i := 0; i < len(m); i++ {
+		identifiers[i] = m[i][1]
+	}
+	return identifiers
+}
+
+func (t *templateHandler) fileAndFilename(name string) (afero.File, string, error) {
+	fs := t.layoutsFs
+	filename := filepath.FromSlash(name)
+
+	fi, err := fs.Stat(filename)
+	if err != nil {
+		return nil, "", err
+	}
+	fim := fi.(hugofs.FileMetaInfo)
+	meta := fim.Meta()
+
+	f, err := meta.Open()
+	if err != nil {
+		return nil, "", errors.Wrapf(err, "failed to open template file %q:", filename)
+	}
+
+	return f, meta.Filename(), nil
+}
+
+func (t *templateHandler) handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (templateInfo, error)) error {
+	h := t.getTemplateHandler(name)
+	return h.handleMaster(name, overlayFilename, masterFilename, onMissing)
 }
 
 func (t *templateHandler) loadEmbedded() error {
@@ -961,26 +653,348 @@ func (t *templateHandler) loadEmbedded() error {
 
 }
 
-func (t *templateHandler) addInternalTemplate(name, tpl string) error {
-	return t.AddTemplate("_internal/"+name, tpl)
-}
+func (t *templateHandler) loadTemplates(prefix string) error {
 
-func (t *templateHandler) checkState() {
-	if t.html.clone != nil || t.text.clone != nil {
-		panic("template is cloned and cannot be modfified")
+	walker := func(path string, fi hugofs.FileMetaInfo, err error) error {
+		if err != nil || fi.IsDir() {
+			return err
+		}
+
+		if isDotFile(path) || isBackupFile(path) || isBaseTemplate(path) {
+			return nil
+		}
+
+		workingDir := t.PathSpec.WorkingDir
+
+		descriptor := output.TemplateLookupDescriptor{
+			WorkingDir:    workingDir,
+			RelPath:       path,
+			Prefix:        prefix,
+			OutputFormats: t.OutputFormatsConfig,
+			FileExists: func(filename string) (bool, error) {
+				return helpers.Exists(filename, t.Layouts.Fs)
+			},
+			ContainsAny: func(filename string, subslices [][]byte) (bool, error) {
+				return helpers.FileContainsAny(filename, subslices, t.Layouts.Fs)
+			},
+		}
+
+		tplID, err := output.CreateTemplateNames(descriptor)
+		if err != nil {
+			t.Log.ERROR.Printf("Failed to resolve template in path %q: %s", path, err)
+			return nil
+		}
+
+		if err := t.addTemplateFile(tplID.Name, tplID.MasterFilename, tplID.OverlayFilename); err != nil {
+			return err
+		}
+
+		return nil
 	}
+
+	if err := helpers.SymbolicWalk(t.Layouts.Fs, "", walker); err != nil {
+		if !os.IsNotExist(err) {
+			return err
+		}
+		return nil
+	}
+
+	return nil
+
 }
 
-func isDotFile(path string) bool {
-	return filepath.Base(path)[0] == '.'
+func (t *templateHandler) postTransform() error {
+	if len(t.html.transformNotFound) == 0 && len(t.text.transformNotFound) == 0 {
+		return nil
+	}
+
+	defer func() {
+		t.text.transformNotFound = make(map[string]bool)
+		t.html.transformNotFound = make(map[string]bool)
+	}()
+
+	for _, s := range []struct {
+		lookup            func(name string) *parse.Tree
+		transformNotFound map[string]bool
+	}{
+		// html templates
+		{func(name string) *parse.Tree {
+			templ := t.html.lookup(name)
+			if templ == nil {
+				return nil
+			}
+			return templ.Tree
+		}, t.html.transformNotFound},
+		// text templates
+		{func(name string) *parse.Tree {
+			templT := t.text.lookup(name)
+			if templT == nil {
+				return nil
+			}
+			return templT.Tree
+		}, t.text.transformNotFound},
+	} {
+		for name := range s.transformNotFound {
+			templ := s.lookup(name)
+			if templ != nil {
+				_, err := applyTemplateTransformers(templateUndefined, templ, s.lookup)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+func (t *templateHandler) wrapTextTemplate(tt *textTemplate) tpl.TemplateParseFinder {
+	return struct {
+		tpl.TemplateParser
+		tpl.TemplateLookup
+		tpl.TemplateLookupVariant
+	}{
+		tt,
+		tt,
+		new(nopLookupVariant),
+	}
+
+}
+
+type templateHandlerCommon struct {
+	// shortcodes maps shortcode name to template variants
+	// (language, output format etc.) of that shortcode.
+	shortcodes map[string]*shortcodeTemplates
+
+	// templateInfo maps template name to some additional information about that template.
+	// Note that for shortcodes that same information is embedded in the
+	// shortcodeTemplates type.
+	templateInfo map[string]tpl.Info
+
+	// text holds all the pure text templates.
+	text *textTemplates
+	html *htmlTemplates
+}
+
+func (t templateHandlerCommon) withNewHandler(h *templateHandler) *templateHandlerCommon {
+	t.text = t.text.withNewHandler(h)
+	t.html = t.html.withNewHandler(h)
+	return &t
+}
+
+type templateLoader interface {
+	addLateTemplate(name, tpl string) error
+	addTemplate(name, tpl string) (*templateContext, error)
+	handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (templateInfo, error)) error
+}
+
+// Shared by both HTML and text templates.
+type templatesCommon struct {
+	handler *templateHandler
+
+	// Used to get proper filenames in errors
+	nameBaseTemplateName map[string]string
+
+	// Holds names of the templates not found during the first AST transformation
+	// pass.
+	transformNotFound map[string]bool
+}
+
+func (t templatesCommon) withNewHandler(h *templateHandler) *templatesCommon {
+	t.handler = h
+	return &t
+}
+
+type textTemplate struct {
+	mu sync.RWMutex
+	t  *texttemplate.Template
+}
+
+func (t *textTemplate) Lookup(name string) (tpl.Template, bool) {
+	t.mu.RLock()
+	defer t.mu.RUnlock()
+
+	tpl := t.t.Lookup(name)
+	return tpl, tpl != nil
+}
+
+func (t *textTemplate) Parse(name, tpl string) (tpl.Template, error) {
+	return t.parseIn(t.t, name, tpl)
+}
+
+func (t *textTemplate) parseIn(tt *texttemplate.Template, name, tpl string) (*texttemplate.Template, error) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
+	templ, err := tt.New(name).Parse(tpl)
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err := applyTemplateTransformersToTextTemplate(templateUndefined, templ); err != nil {
+		return nil, err
+	}
+	return templ, nil
+}
+
+type textTemplates struct {
+	*templatesCommon
+	*textTemplate
+	standalone *textTemplate
+	clone      *texttemplate.Template
+	cloneClone *texttemplate.Template
+
+	overlays map[string]*texttemplate.Template
+}
+
+func (t *textTemplates) Lookup(name string) (tpl.Template, bool) {
+	templ := t.lookup(name)
+	if templ == nil {
+		return nil, false
+	}
+	return templ, true
+}
+
+func (t *textTemplates) LookupVariant(name string, variants tpl.TemplateVariants) (tpl.Template, bool, bool) {
+	return t.handler.LookupVariant(name, variants)
+}
+
+func (t *textTemplates) addLateTemplate(name, tpl string) error {
+	_, err := t.addTemplateIn(t.clone, name, tpl)
+	return err
+}
+
+func (t *textTemplates) addTemplate(name, tpl string) (*templateContext, error) {
+	return t.addTemplateIn(t.t, name, tpl)
+}
+
+func (t *textTemplates) addTemplateIn(tt *texttemplate.Template, name, tpl string) (*templateContext, error) {
+	name = strings.TrimPrefix(name, textTmplNamePrefix)
+	templ, err := t.parseIn(tt, name, tpl)
+	if err != nil {
+		return nil, err
+	}
+
+	typ := resolveTemplateType(name)
+
+	c, err := applyTemplateTransformersToTextTemplate(typ, templ)
+	if err != nil {
+		return nil, err
+	}
+
+	for k := range c.notFound {
+		t.transformNotFound[k] = true
+	}
+
+	if typ == templateShortcode {
+		t.handler.addShortcodeVariant(name, c.Info, templ)
+	} else {
+		t.handler.templateInfo[name] = c.Info
+	}
+
+	return c, nil
+}
+
+func (t *textTemplates) handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (templateInfo, error)) error {
+
+	name = strings.TrimPrefix(name, textTmplNamePrefix)
+	masterTpl := t.lookup(masterFilename)
+
+	if masterTpl == nil {
+		templ, err := onMissing(masterFilename)
+		if err != nil {
+			return err
+		}
+
+		masterTpl, err = t.t.New(masterFilename).Parse(templ.template)
+		if err != nil {
+			return errors.Wrapf(err, "failed to parse %q:", templ.filename)
+		}
+		t.nameBaseTemplateName[masterFilename] = templ.filename
+	}
+
+	templ, err := onMissing(overlayFilename)
+	if err != nil {
+		return err
+	}
+
+	overlayTpl, err := texttemplate.Must(masterTpl.Clone()).Parse(templ.template)
+	if err != nil {
+		return errors.Wrapf(err, "failed to parse %q:", templ.filename)
+	}
+
+	overlayTpl = overlayTpl.Lookup(overlayTpl.Name())
+	if _, err := applyTemplateTransformersToTextTemplate(templateUndefined, overlayTpl); err != nil {
+		return err
+	}
+	t.overlays[name] = overlayTpl
+	t.nameBaseTemplateName[name] = templ.filename
+
+	return err
+
+}
+
+func (t *textTemplates) lookup(name string) *texttemplate.Template {
+
+	// Need to check in the overlay registry first as it will also be found below.
+	if t.overlays != nil {
+		if templ, ok := t.overlays[name]; ok {
+			return templ
+		}
+	}
+
+	if templ := t.t.Lookup(name); templ != nil {
+		return templ
+	}
+
+	if t.clone != nil {
+		return t.clone.Lookup(name)
+	}
+
+	return nil
+}
+
+func (t textTemplates) withNewHandler(h *templateHandler) *textTemplates {
+	t.templatesCommon = t.templatesCommon.withNewHandler(h)
+	return &t
 }
 
 func isBackupFile(path string) bool {
 	return path[len(path)-1] == '~'
 }
 
-const baseFileBase = "baseof"
-
 func isBaseTemplate(path string) bool {
 	return strings.Contains(filepath.Base(path), baseFileBase)
+}
+
+func isDotFile(path string) bool {
+	return filepath.Base(path)[0] == '.'
+}
+
+func removeLeadingBOM(s string) string {
+	const bom = '\ufeff'
+
+	for i, r := range s {
+		if i == 0 && r != bom {
+			return s
+		}
+		if i > 0 {
+			return s[i:]
+		}
+	}
+
+	return s
+
+}
+
+// resolves _internal/shortcodes/param.html => param.html etc.
+func templateBaseName(typ templateType, name string) string {
+	name = strings.TrimPrefix(name, internalPathPrefix)
+	switch typ {
+	case templateShortcode:
+		return strings.TrimPrefix(name, shortcodesPathPrefix)
+	default:
+		panic("not implemented")
+	}
+
 }

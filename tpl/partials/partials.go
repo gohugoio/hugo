@@ -139,7 +139,7 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 		w = b
 	}
 
-	if err := templ.Execute(w, context); err != nil {
+	if err := ns.deps.Tmpl.Execute(templ, w, context); err != nil {
 		return "", err
 	}
 

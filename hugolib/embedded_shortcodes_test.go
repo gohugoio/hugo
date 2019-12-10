@@ -27,7 +27,6 @@ import (
 	"github.com/gohugoio/hugo/deps"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/tpl"
 )
 
 const (
@@ -334,18 +333,13 @@ func TestShortcodeTweet(t *testing.T) {
 
 		cfg.Set("privacy", this.privacy)
 
-		withTemplate := func(templ tpl.TemplateHandler) error {
-			templ.(tpl.TemplateTestMocker).SetFuncs(tweetFuncMap)
-			return nil
-		}
-
 		writeSource(t, fs, filepath.Join("content", "simple.md"), fmt.Sprintf(`---
 title: Shorty
 ---
 %s`, this.in))
 		writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), `{{ .Content }}`)
 
-		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg, WithTemplate: withTemplate}, BuildCfg{})
+		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg, OverloadedTemplateFuncs: tweetFuncMap}, BuildCfg{})
 
 		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), this.expected)
 
@@ -389,18 +383,13 @@ func TestShortcodeInstagram(t *testing.T) {
 			th      = newTestHelper(cfg, fs, t)
 		)
 
-		withTemplate := func(templ tpl.TemplateHandler) error {
-			templ.(tpl.TemplateTestMocker).SetFuncs(instagramFuncMap)
-			return nil
-		}
-
 		writeSource(t, fs, filepath.Join("content", "simple.md"), fmt.Sprintf(`---
 title: Shorty
 ---
 %s`, this.in))
 		writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), `{{ .Content | safeHTML }}`)
 
-		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg, WithTemplate: withTemplate}, BuildCfg{})
+		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg, OverloadedTemplateFuncs: instagramFuncMap}, BuildCfg{})
 
 		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), this.expected)
 
