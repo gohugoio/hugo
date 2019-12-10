@@ -14,10 +14,12 @@
 package tplimpl
 
 import (
-	"html/template"
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
+
 	"strings"
-	texttemplate "text/template"
-	"text/template/parse"
+
+	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/tpl"

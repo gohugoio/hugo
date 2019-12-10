@@ -15,16 +15,17 @@ package tplimpl
 
 import (
 	"fmt"
-	"html/template"
+
 	"strings"
-	texttemplate "text/template"
-	"text/template/parse"
+
+	template "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
+
+	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/tpl/tplimpl/embedded"
 	"github.com/pkg/errors"
-
-	"github.com/eknkc/amber"
 
 	"os"
 
@@ -55,9 +56,6 @@ var (
 	_ templateFuncsterTemplater = (*htmlTemplates)(nil)
 	_ templateFuncsterTemplater = (*textTemplates)(nil)
 )
-
-// Protecting  global map access (Amber)
-var amberMu sync.Mutex
 
 type templateErr struct {
 	name string
@@ -97,8 +95,6 @@ type templateHandler struct {
 	// text holds all the pure text templates.
 	text *textTemplates
 	html *htmlTemplates
-
-	amberFuncMap template.FuncMap
 
 	errors []*templateErr
 
@@ -778,23 +774,6 @@ func (t *templateHandler) initFuncs() {
 		}
 	}
 
-	// Amber is HTML only.
-	t.amberFuncMap = template.FuncMap{}
-
-	amberMu.Lock()
-	for k, v := range amber.FuncMap {
-		t.amberFuncMap[k] = v
-	}
-
-	for k, v := range t.html.funcster.funcMap {
-		t.amberFuncMap[k] = v
-		// Hacky, but we need to make sure that the func names are in the global map.
-		amber.FuncMap[k] = func() string {
-			panic("should never be invoked")
-		}
-	}
-	amberMu.Unlock()
-
 }
 
 func (t *templateHandler) getTemplateHandler(name string) templateLoader {
@@ -933,54 +912,11 @@ func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) e
 	ext := filepath.Ext(path)
 	switch ext {
 	case ".amber":
-		//	Only HTML support for Amber
-		withoutExt := strings.TrimSuffix(name, filepath.Ext(name))
-		templateName := withoutExt + ".html"
-		b, err := afero.ReadFile(t.Layouts.Fs, path)
-
-		if err != nil {
-			return err
-		}
-
-		amberMu.Lock()
-		templ, err := t.compileAmberWithTemplate(b, path, t.html.t.New(templateName))
-		amberMu.Unlock()
-		if err != nil {
-			return err
-		}
-
-		typ := resolveTemplateType(name)
-
-		c, err := applyTemplateTransformersToHMLTTemplate(typ, templ)
-		if err != nil {
-			return err
-		}
-
-		if typ == templateShortcode {
-			t.addShortcodeVariant(templateName, c.Info, templ)
-		} else {
-			t.templateInfo[name] = c.Info
-		}
-
+		helpers.Deprecated("Amber templates are no longer supported.", "Use Go templates or a Hugo version <= 0.60.", true)
 		return nil
-
 	case ".ace":
-		//	Only HTML support for Ace
-		var innerContent, baseContent []byte
-		innerContent, err := afero.ReadFile(t.Layouts.Fs, path)
-
-		if err != nil {
-			return err
-		}
-
-		if baseTemplatePath != "" {
-			baseContent, err = afero.ReadFile(t.Layouts.Fs, baseTemplatePath)
-			if err != nil {
-				return err
-			}
-		}
-
-		return t.addAceTemplate(name, baseTemplatePath, path, baseContent, innerContent)
+		helpers.Deprecated("ACE templates are no longer supported.", "Use Go templates or a Hugo version <= 0.60.", true)
+		return nil
 	default:
 
 		if baseTemplatePath != "" {

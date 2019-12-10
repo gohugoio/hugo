@@ -24,7 +24,8 @@ import (
 	"reflect"
 	"strings"
 	"sync"
-	texttemplate "text/template"
+
+	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 
 	"github.com/gohugoio/hugo/helpers"
 

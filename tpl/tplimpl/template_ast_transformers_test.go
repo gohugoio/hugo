@@ -15,7 +15,8 @@ package tplimpl
 import (
 	"bytes"
 	"fmt"
-	"html/template"
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
+
 	"testing"
 	"time"
 

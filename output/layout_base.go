@@ -26,8 +26,7 @@ const (
 )
 
 var (
-	aceTemplateInnerMarkers = [][]byte{[]byte("= content")}
-	goTemplateInnerMarkers  = [][]byte{[]byte("{{define"), []byte("{{ define"), []byte("{{- define"), []byte("{{-define")}
+	goTemplateInnerMarkers = [][]byte{[]byte("{{define"), []byte("{{ define"), []byte("{{- define"), []byte("{{-define")}
 )
 
 // TemplateNames represents a template naming scheme.
@@ -110,8 +109,8 @@ func CreateTemplateNames(d TemplateLookupDescriptor) (TemplateNames, error) {
 		id.Name = "_text/" + id.Name
 	}
 
-	// Ace and Go templates may have both a base and inner template.
-	if ext == "amber" || isShorthCodeOrPartial(name) {
+	// Go templates may have both a base and inner template.
+	if isShorthCodeOrPartial(name) {
 		// No base template support
 		return id, nil
 	}
@@ -126,10 +125,6 @@ func CreateTemplateNames(d TemplateLookupDescriptor) (TemplateNames, error) {
 		baseFilename = fmt.Sprintf("%s.%s.%s", baseFileBase, outFormat, ext)
 	} else {
 		baseFilename = fmt.Sprintf("%s.%s", baseFileBase, ext)
-	}
-
-	if ext == "ace" {
-		innerMarkers = aceTemplateInnerMarkers
 	}
 
 	// This may be a view that shouldn't have base template
@@ -152,7 +147,7 @@ func CreateTemplateNames(d TemplateLookupDescriptor) (TemplateNames, error) {
 		pathsToCheck := createPathsToCheck(pathDir, baseFilename, currBaseFilename)
 
 		// We may have language code and/or "terms" in the template name. We want the most specific,
-		// but need to fall back to the baseof.html or baseof.ace if needed.
+		// but need to fall back to the baseof.html if needed.
 		// E.g. list-baseof.en.html and list-baseof.terms.en.html
 		// See #3893, #3856.
 		baseBaseFilename, currBaseBaseFilename := helpers.Filename(baseFilename), helpers.Filename(currBaseFilename)

@@ -15,6 +15,8 @@ package tpl
 
 import (
 	"fmt"
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
+
 	"io"
 	"path/filepath"
 	"regexp"
@@ -29,9 +31,8 @@ import (
 
 	"github.com/spf13/afero"
 
-	"html/template"
-	texttemplate "text/template"
-	"text/template/parse"
+	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/metrics"

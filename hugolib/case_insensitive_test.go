@@ -16,7 +16,6 @@ package hugolib
 import (
 	"fmt"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -234,6 +233,7 @@ Page2: {{ $page2.Params.ColoR }}
 	)
 }
 
+// TODO1
 func TestCaseInsensitiveConfigurationForAllTemplateEngines(t *testing.T) {
 	t.Parallel()
 
@@ -241,23 +241,13 @@ func TestCaseInsensitiveConfigurationForAllTemplateEngines(t *testing.T) {
 		return s
 	}
 
-	amberFixer := func(s string) string {
-		fixed := strings.Replace(s, "{{ .Site.Params", "{{ Site.Params", -1)
-		fixed = strings.Replace(fixed, "{{ .Params", "{{ Params", -1)
-		fixed = strings.Replace(fixed, ".Content", "Content", -1)
-		fixed = strings.Replace(fixed, "{{", "#{", -1)
-		fixed = strings.Replace(fixed, "}}", "}", -1)
-
-		return fixed
-	}
-
 	for _, config := range []struct {
 		suffix        string
 		templateFixer func(s string) string
 	}{
-		{"amber", amberFixer},
+		//{"amber", amberFixer},
 		{"html", noOp},
-		{"ace", noOp},
+		//{"ace", noOp},
 	} {
 		doTestCaseInsensitiveConfigurationForTemplateEngine(t, config.suffix, config.templateFixer)
 

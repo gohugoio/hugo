@@ -15,6 +15,7 @@ package strings
 
 import (
 	"html/template"
+
 	"testing"
 
 	qt "github.com/frankban/quicktest"

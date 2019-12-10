@@ -18,34 +18,22 @@ import (
 	"path/filepath"
 	"testing"
 
-	"strings"
-
 	"github.com/gohugoio/hugo/deps"
 )
 
+// TODO1
 func TestAllTemplateEngines(t *testing.T) {
 	noOp := func(s string) string {
 		return s
-	}
-
-	amberFixer := func(s string) string {
-		fixed := strings.Replace(s, "{{ .Title", "{{ Title", -1)
-		fixed = strings.Replace(fixed, ".Content", "Content", -1)
-		fixed = strings.Replace(fixed, ".IsNamedParams", "IsNamedParams", -1)
-		fixed = strings.Replace(fixed, "{{", "#{", -1)
-		fixed = strings.Replace(fixed, "}}", "}", -1)
-		fixed = strings.Replace(fixed, `title "hello world"`, `title("hello world")`, -1)
-
-		return fixed
 	}
 
 	for _, config := range []struct {
 		suffix        string
 		templateFixer func(s string) string
 	}{
-		{"amber", amberFixer},
+		//{"amber", amberFixer},
 		{"html", noOp},
-		{"ace", noOp},
+		//{"ace", noOp},
 	} {
 		config := config
 		t.Run(config.suffix,
