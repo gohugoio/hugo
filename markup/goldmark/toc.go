@@ -79,9 +79,8 @@ func (t *tocTransformer) Transform(n *ast.Document, reader text.Reader, pc parse
 			if found {
 				header.ID = string(id.([]byte))
 			}
-		case ast.KindText:
-			textNode := n.(*ast.Text)
-			headingText.Write(textNode.Text(reader.Source()))
+		case ast.KindText, ast.KindString:
+			headingText.Write(n.Text(reader.Source()))
 		}
 
 		return s, nil
