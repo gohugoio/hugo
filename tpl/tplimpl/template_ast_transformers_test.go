@@ -407,7 +407,9 @@ func TestPartialReturn(t *testing.T) {
 
 const transformBemchMarkTemplate = `
 
+{{ $params := "foo" }}
 {{ Echo "foo" }}
+{{ Echo $params.Foo }}
 
 `
 

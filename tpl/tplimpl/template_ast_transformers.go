@@ -14,6 +14,7 @@
 package tplimpl
 
 import (
+	"fmt"
 	"html/template"
 	"regexp"
 	"strings"
@@ -168,11 +169,13 @@ const (
 	partialReturnWrapperTempl = `{{ $_hugo_dot := $ }}{{ $ := .Arg }}{{ with .Arg }}{{ $_hugo_dot.Set ("PLACEHOLDER") }}{{ end }}`
 	dotContextWrapperTempl    = `{{ invokeDot . "NAME" "ARGS" }}`
 	pipeWrapperTempl          = `{{ ("ARGS") }}`
+	// Consder creating these with the current template
 )
 
 var (
 	partialReturnWrapper *parse.ListNode
 	dotContextWrapper    *parse.CommandNode
+	dotContextFunc       *parse.IdentifierNode
 	pipeWrapper          *parse.PipeNode
 )
 
@@ -193,6 +196,7 @@ func init() {
 	}
 	action := templ.Tree.Root.Nodes[0].(*parse.ActionNode)
 	dotContextWrapper = action.Pipe.Cmds[0]
+	dotContextFunc = dotContextWrapper.Args[0].(*parse.IdentifierNode)
 
 	templ, err = tt.Parse(pipeWrapperTempl)
 	if err != nil {
@@ -223,6 +227,7 @@ var (
 func (c *templateContext) wrapInPipe(n parse.Node) *parse.PipeNode {
 	pipe := pipeWrapper.Copy().(*parse.PipeNode)
 	pipe.Cmds[0].Args = []parse.Node{n}
+
 	return pipe
 }
 
@@ -236,10 +241,6 @@ func (c *templateContext) wrapDotIfNeeded(n parse.Node) parse.Node {
 		}
 	case *parse.IdentifierNode:
 		// A function.
-		if ignoreFuncsRe.MatchString(node.Ident) {
-			return n
-		}
-
 	case *parse.PipeNode:
 		for _, cmd := range node.Cmds {
 			c.wrapDot(cmd)
@@ -249,7 +250,11 @@ func (c *templateContext) wrapDotIfNeeded(n parse.Node) parse.Node {
 		if len(node.Ident) < 2 {
 			return n
 		}
-		return c.wrapInPipe(n)
+		fmt.Println(">>>N", node)
+		n = c.wrapInPipe(n)
+		fmt.Println(">>>", n)
+		n = c.wrapDotIfNeeded(n)
+		fmt.Println(">>>2", n)
 	default:
 	}
 
@@ -264,8 +269,6 @@ func (c *templateContext) wrapDot(cmd *parse.CommandNode) {
 
 	firstWord := cmd.Args[0]
 
-	c.wrapDotIfNeeded(firstWord)
-
 	switch a := firstWord.(type) {
 	case *parse.FieldNode:
 		fields = a.String()
@@ -273,11 +276,19 @@ func (c *templateContext) wrapDot(cmd *parse.CommandNode) {
 		return // TODO1
 	//	fields = a.String()
 	case *parse.IdentifierNode:
-		// Must be a function.
+		// A function.
 		if ignoreFuncsRe.MatchString(a.Ident) {
 			return
 		}
-		fields = a.Ident
+		args := make([]parse.Node, len(cmd.Args)+1)
+		args[0] = dotContextFunc
+		for i := 1; i < len(args); i++ {
+			args[i] = cmd.Args[i-1]
+			c.wrapDotIfNeeded(args[i])
+		}
+		cmd.Args = args
+		//fmt.Println("wrapDot", fields)
+		return
 	case *parse.PipeNode:
 		return
 	case *parse.VariableNode:
