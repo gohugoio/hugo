@@ -16,11 +16,14 @@ package tplimpl
 import (
 	"html/template"
 
+	"github.com/gohugoio/hugo/helpers"
+
 	"github.com/eknkc/amber"
 	"github.com/spf13/afero"
 )
 
 func (t *templateHandler) compileAmberWithTemplate(b []byte, path string, templ *template.Template) (*template.Template, error) {
+	helpers.Deprecated("Amber", "See https://github.com/gohugoio/hugo/issues/6609", false)
 	c := amber.New()
 	c.Options.VirtualFilesystem = afero.NewHttpFs(t.layoutsFs)
 

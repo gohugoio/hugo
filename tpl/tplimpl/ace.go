@@ -18,10 +18,13 @@ import (
 
 	"strings"
 
+	"github.com/gohugoio/hugo/helpers"
+
 	"github.com/yosssi/ace"
 )
 
 func (t *templateHandler) addAceTemplate(name, basePath, innerPath string, baseContent, innerContent []byte) error {
+	helpers.Deprecated("Ace", "See https://github.com/gohugoio/hugo/issues/6609", false)
 	t.checkState()
 	var base, inner *ace.File
 	withoutExt := name[:len(name)-len(filepath.Ext(innerPath))]
