@@ -860,6 +860,15 @@ func (c *commandeer) printChangeDetected(typ string) {
 		msg += " of " + typ
 	}
 	msg += " detected, rebuilding site."
+	watchDirs, err := c.getDirList()
+	if err != nil {
+		return err
+	}
+
+	baseWatchDir := c.Cfg.GetString("workingDir")
+	rootWatchDirs := getRootWatchDirsStr(baseWatchDir, watchDirs)
+
+	c.logger.FEEDBACK.Printf("Changes in %s%s{%s}\n", baseWatchDir, helpers.FilePathSeparator, rootWatchDirs)
 
 	c.logger.FEEDBACK.Println(msg)
 	const layout = "2006-01-02 15:04:05.000 -0700"
