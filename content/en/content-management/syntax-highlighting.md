@@ -74,11 +74,9 @@ func GetTitleFunc(style string) func(s string) string {
   case "go":
     return strings.Title
   case "chicago":
-    tc := transform.NewTitleConverter(transform.ChicagoStyle)
-    return tc.Title
+    return transform.NewTitleConverter(transform.ChicagoStyle)
   default:
-    tc := transform.NewTitleConverter(transform.APStyle)
-    return tc.Title
+    return transform.NewTitleConverter(transform.APStyle)
   }
 }
 {{< / highlight >}}
@@ -94,13 +92,9 @@ See [Highlight](/functions/highlight/).
 Highlighting in code fences is enabled by default.{{< new-in "0.60.0" >}}
 
 ````
-```go-html-template{hl_lines=[3,"5-6"],linenos=true}
-```
-````
-
-````
 ```go {linenos=table,hl_lines=[8,"15-17"],linenostart=199}
 // ... code
+```
 ````
 
 
@@ -122,11 +116,9 @@ func GetTitleFunc(style string) func(s string) string {
   case "go":
     return strings.Title
   case "chicago":
-    tc := transform.NewTitleConverter(transform.ChicagoStyle)
-    return tc.Title
+    return transform.NewTitleConverter(transform.ChicagoStyle)
   default:
-    tc := transform.NewTitleConverter(transform.APStyle)
-    return tc.Title
+    return transform.NewTitleConverter(transform.APStyle)
   }
 }
 ```

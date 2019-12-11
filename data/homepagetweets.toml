@@ -1,4 +1,11 @@
 [[tweet]]
+name = "Heinrich Hartmann"
+twitter_handle = "@heinrichhartman"
+quote = "Working with @GoHugoIO is such a joy. Having worked with #Jekyll in the past, the near instant preview is a big win! Did not expect this to make such a huge difference."
+link = "https://twitter.com/heinrichhartman/status/1199736512264462341"
+date = 2019-11-12T00:00:00Z
+
+[[tweet]]
 name = "Joshua Steven‏‏"
 twitter_handle = "@jscarto"
 quote = "Can't overstate how much I enjoy <a href='https://twitter.com/gohugoio' target='_blank'>@GoHugoIO</a>. My site is relatively small, but *18 ms* to build the whole thing made template development and proofing a breeze."

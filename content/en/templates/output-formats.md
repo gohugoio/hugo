@@ -4,7 +4,7 @@ linktitle: Custom Output Formats
 description: Hugo can output content in multiple formats, including calendar events, e-book formats, Google AMP, and JSON search indexes, or any custom text format.
 date: 2017-03-22
 publishdate: 2017-03-22
-lastmod: 2017-03-22
+lastmod: 2019-12-11
 categories: [templates]
 keywords: ["amp","outputs","rss"]
 menu:
@@ -31,7 +31,7 @@ This is the full set of built-in media types in Hugo:
 **Note:**
 
 * It is possible to add custom media types or change the defaults; e.g., if you want to change the suffix for `text/html` to `asp`.
-* The `Suffix` is the value that will be used for URLs and filenames for that media type in Hugo.
+* `Suffixes` are the values that will be used for URLs and filenames for that media type in Hugo.
 * The `Type` is the identifier that must be used when defining new/custom `Output Formats` (see below).
 * The full set of media types will be registered in Hugo's built-in development server to make sure they are recognized by the browser.
 
@@ -40,9 +40,9 @@ To add or modify a media type, define it in a `mediaTypes` section in your [site
 {{< code-toggle file="config" >}}
 [mediaTypes]
   [mediaTypes."text/enriched"]
-  suffix = "enr"
+  suffixes = ["enr"]
   [mediaTypes."text/html"]
-  suffix = "asp"
+  suffixes = ["asp"]
 {{</ code-toggle >}}
 
 The above example adds one new media type, `text/enriched`, and changes the suffix for the built-in `text/html` media type.
@@ -52,7 +52,7 @@ The above example adds one new media type, `text/enriched`, and changes the suff
 ```toml
 [mediaTypes]
 [mediaTypes."text/html"]
-suffix = "htm"
+suffixes = ["htm"]
 
 # Redefine HTML to update its media type.
 [outputFormats]
@@ -221,7 +221,7 @@ From content files, you can use the [`ref` or `relref` shortcodes](/content-mana
 A new output format needs a corresponding template in order to render anything useful.
 
 {{% note %}}
-The key distinction for Hugo versions 0.20 and newer is that Hugo looks at an output format's `Name` and MediaType's `Suffix` when choosing the template used to render a given `Page`.
+The key distinction for Hugo versions 0.20 and newer is that Hugo looks at an output format's `Name` and MediaType's `Suffixes` when choosing the template used to render a given `Page`.
 {{% /note %}}
 
 The following table shows examples of different output formats, the suffix used, and Hugo's respective template [lookup order][]. All of the examples in the table can:
