@@ -292,7 +292,7 @@ func (p *pageContentOutput) TableOfContents() template.HTML {
 	p.p.s.initInit(p.initMain, p.p)
 	if tocProvider, ok := p.convertedResult.(converter.TableOfContentsProvider); ok {
 		cfg := p.p.s.ContentSpec.Converters.GetMarkupConfig()
-		return template.HTML(tocProvider.TableOfContents().ToHTML(cfg.TableOfContents.StartLevel, cfg.TableOfContents.EndLevel))
+		return template.HTML(tocProvider.TableOfContents().ToHTML(cfg.TableOfContents.StartLevel, cfg.TableOfContents.EndLevel, cfg.TableOfContents.Ordered))
 	}
 	return p.tableOfContents
 }
