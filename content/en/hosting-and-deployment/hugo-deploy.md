@@ -90,14 +90,14 @@ cloudFrontDistributionID = <ID>
 # Samples:
 
 [[deployment.matchers]]
-#  Cache static assets for 20 years.
+#  Cache static assets for 1 year.
 pattern = "^.+\\.(js|css|svg|ttf)$"
-cacheControl = "max-age=630720000, no-transform, public"
+cacheControl = "max-age=31536000, no-transform, public"
 gzip = true
 
 [[deployment.matchers]]
 pattern = "^.+\\.(png|jpg)$"
-cacheControl = "max-age=630720000, no-transform, public"
+cacheControl = "max-age=31536000, no-transform, public"
 gzip = false
 
 [[deployment.matchers]]
