@@ -88,14 +88,14 @@ func (t *Template) executeWithState(state *state, value reflect.Value) (err erro
 	return
 }
 
-// Below are modifed structs etc.
+// Below are modifed structs etc. The changes are marked with "Added for Hugo."
 
 // state represents the state of an execution. It's not part of the
 // template so that multiple executions of the same template
 // can execute in parallel.
 type state struct {
 	tmpl   *Template
-	helper ExecHelper
+	helper ExecHelper // Added for Hugo.
 	wr     io.Writer
 	node   parse.Node // current node, for errors
 	vars   []variable // push-down stack of variable values.
@@ -109,6 +109,7 @@ func (s *state) evalFunction(dot reflect.Value, node *parse.IdentifierNode, cmd 
 	var function reflect.Value
 	var ok bool
 	if s.helper != nil {
+		// Added for Hugo.
 		function, ok = s.helper.GetFunc(name)
 	}
 
@@ -175,6 +176,7 @@ func (s *state) evalField(dot reflect.Value, fieldName string, node parse.Node, 
 			}
 			var result reflect.Value
 			if s.helper != nil {
+				// Added for Hugo.
 				result, _ = s.helper.GetMapValue(receiver, nameVal)
 			} else {
 				result = receiver.MapIndex(nameVal)
