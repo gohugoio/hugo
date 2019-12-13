@@ -16,7 +16,6 @@ require (
 	github.com/disintegration/gift v1.2.1
 	github.com/dlclark/regexp2 v1.2.0 // indirect
 	github.com/dustin/go-humanize v1.0.0
-	github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/frankban/quicktest v1.6.0
 	github.com/fsnotify/fsnotify v1.4.7
@@ -52,10 +51,9 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/pflag v1.0.3
 	github.com/spf13/viper v1.4.0
-	github.com/tdewolff/minify/v2 v2.5.2
-	github.com/yosssi/ace v0.0.5
-	github.com/yuin/goldmark v1.1.7
-	github.com/yuin/goldmark-highlighting v0.0.0-20191124122839-ede94e40cc3a
+	github.com/tdewolff/minify/v2 v2.6.1
+	github.com/yuin/goldmark v1.1.14
+	github.com/yuin/goldmark-highlighting v0.0.0-20191202084645-78f32c8dd6d5
 	go.opencensus.io v0.22.0 // indirect
 	gocloud.dev v0.15.0
 	golang.org/x/image v0.0.0-20190523035834-f03afa92d3ff

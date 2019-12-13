@@ -459,7 +459,7 @@ func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 	}
 
 	cnt := content(p)
-	if cnt != "<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup id=\"fnref:1\"><a href=\"#fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup></p>\n<section class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"fn:1\" role=\"doc-endnote\">\n<p>Many people say so.</p>\n</li>\n</ol>\n</section>" {
+	if cnt != "<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup id=\"fnref:1\"><a href=\"#fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup></p>\n<section class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"fn:1\" role=\"doc-endnote\">\n<p>Many people say so. <a href=\"#fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</section>" {
 		t.Fatalf("Got content:\n%q", cnt)
 	}
 }
@@ -1658,7 +1658,7 @@ $$$
 
 	b.AssertFileContent("public/page/index.html",
 		`<nav id="TableOfContents">`,
-		`<li><a href="#shortcode-tshort-in-header">Shortcode T-SHORT in header</a></li>`,
+		`<li><a href="#shortcode-t-short-in-header">Shortcode T-SHORT in header</a></li>`,
 		`<code class="language-bash" data-lang="bash"><span class="hl">SHORT`,
 		`<code class="language-bash" data-lang="bash"><span class="hl">MARKDOWN`)
 }

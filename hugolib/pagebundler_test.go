@@ -587,6 +587,43 @@ HEADLESS {{< myShort >}}
 
 }
 
+func TestPageBundlerHeadlessIssue6552(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t)
+	b.WithContent("headless/h1/index.md", `
+---
+title: My Headless Bundle1
+headless: true
+---
+`, "headless/h1/p1.md", `
+---
+title: P1
+---
+`, "headless/h2/index.md", `
+---
+title: My Headless Bundle2
+headless: true
+---
+`)
+
+	b.WithTemplatesAdded("index.html", `
+{{ $headless1 := .Site.GetPage "headless/h1" }}
+{{ $headless2 := .Site.GetPage "headless/h2" }}
+
+HEADLESS1: {{ $headless1.Title }}|{{ $headless1.RelPermalink }}|{{ len $headless1.Resources }}|
+HEADLESS2: {{ $headless2.Title }}{{ $headless2.RelPermalink }}|{{ len $headless2.Resources }}|
+
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", `
+HEADLESS1: My Headless Bundle1||1|
+HEADLESS2: My Headless Bundle2|0|
+`)
+}
+
 func TestMultiSiteBundles(t *testing.T) {
 	c := qt.New(t)
 	b := newTestSitesBuilder(t)

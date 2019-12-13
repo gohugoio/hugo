@@ -308,3 +308,26 @@ complex: 80: {{ partial "complex.tpl" 38 }}
 	)
 
 }
+
+func TestPartialCached(t *testing.T) {
+	b := newTestSitesBuilder(t)
+
+	b.WithTemplatesAdded(
+		"index.html", `
+{{ $key1 := (dict "a" "av" ) }}
+{{ $key2 := (dict "a" "av2" ) }}
+Partial cached1: {{ partialCached "p1" "input1" $key1 }}
+Partial cached2: {{ partialCached "p1" "input2" $key1 }}
+Partial cached3: {{ partialCached "p1" "input3" $key2 }}
+`,
+		"partials/p1.html", `partial: {{ . }}`,
+	)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", `
+ Partial cached1: partial: input1
+ Partial cached2: partial: input1
+ Partial cached3: partial: input3
+`)
+}

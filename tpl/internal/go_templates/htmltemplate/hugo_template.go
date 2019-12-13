@@ -1,4 +1,4 @@
-// Copyright 2017 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,34 +11,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tplimpl
+package template
 
 import (
-	"html/template"
-
-	"github.com/eknkc/amber"
-	"github.com/spf13/afero"
+	template "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 )
 
-func (t *templateHandler) compileAmberWithTemplate(b []byte, path string, templ *template.Template) (*template.Template, error) {
-	c := amber.New()
-	c.Options.VirtualFilesystem = afero.NewHttpFs(t.layoutsFs)
+/*
 
-	if err := c.ParseData(b, path); err != nil {
+This files contains the Hugo related addons. All the other files in this
+package is auto generated.
+
+*/
+
+// Prepare returns a template ready for execution.
+func (t *Template) Prepare() (*template.Template, error) {
+	if err := t.escape(); err != nil {
 		return nil, err
 	}
-
-	data, err := c.CompileString()
-
-	if err != nil {
-		return nil, err
-	}
-
-	tpl, err := templ.Funcs(t.amberFuncMap).Parse(data)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return tpl, nil
+	return t.text, nil
 }

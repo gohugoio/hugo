@@ -29,8 +29,8 @@ func (*TemplateProvider) Update(deps *deps.Deps) error {
 	newTmpl := newTemplateAdapter(deps)
 	deps.Tmpl = newTmpl
 	deps.TextTmpl = newTmpl.wrapTextTemplate(newTmpl.text.standalone)
-
-	newTmpl.initFuncs()
+	// These needs to be there at parse time.
+	newTmpl.initTemplateExecuter()
 
 	if err := newTmpl.loadEmbedded(); err != nil {
 		return err

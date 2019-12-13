@@ -24,7 +24,7 @@ import (
 func TestTemplateInfoShortcode(t *testing.T) {
 	c := qt.New(t)
 	d := newD(c)
-	h := d.Tmpl.(tpl.TemplateHandler)
+	h := d.Tmpl.(tpl.TemplateManager)
 
 	c.Assert(h.AddTemplate("shortcodes/mytemplate.html", `
 {{ .Inner }}

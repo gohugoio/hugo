@@ -61,11 +61,6 @@ func (s *shortcodeTemplates) fromVariants(variants tpl.TemplateVariants) (shortc
 	})
 }
 
-// Get the most specific template given a full name, e.g  gtag.no.amp.html.
-func (s *shortcodeTemplates) fromName(name string) (shortcodeVariant, bool) {
-	return s.fromVariantsSlice(templateVariants(name))
-}
-
 func (s *shortcodeTemplates) fromVariantsSlice(variants []string) (shortcodeVariant, bool) {
 	var (
 		bestMatch       shortcodeVariant

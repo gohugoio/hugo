@@ -16,13 +16,18 @@
 package partials
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"io"
 	"io/ioutil"
+	"reflect"
 	"strings"
 	"sync"
-	texttemplate "text/template"
+
+	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
+
+	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/hugo/tpl"
 
@@ -34,21 +39,26 @@ import (
 // NOTE: It's currently unused.
 var TestTemplateProvider deps.ResourceProvider
 
+type partialCacheKey struct {
+	name    string
+	variant interface{}
+}
+
 // partialCache represents a cache of partials protected by a mutex.
 type partialCache struct {
 	sync.RWMutex
-	p map[string]interface{}
+	p map[partialCacheKey]interface{}
 }
 
 func (p *partialCache) clear() {
 	p.Lock()
 	defer p.Unlock()
-	p.p = make(map[string]interface{})
+	p.p = make(map[partialCacheKey]interface{})
 }
 
 // New returns a new instance of the templates-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
-	cache := &partialCache{p: make(map[string]interface{})}
+	cache := &partialCache{p: make(map[partialCacheKey]interface{})}
 	deps.BuildStartListeners.Add(
 		func() {
 			cache.clear()
@@ -129,7 +139,7 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 		w = b
 	}
 
-	if err := templ.Execute(w, context); err != nil {
+	if err := ns.deps.Tmpl.Execute(templ, w, context); err != nil {
 		return "", err
 	}
 
@@ -151,21 +161,56 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 
 }
 
-// IncludeCached executes and caches partial templates.  An optional variant
-// string parameter (a string slice actually, but be only use a variadic
-// argument to make it optional) can be passed so that a given partial can have
-// multiple uses. The cache is created with name+variant as the key.
-func (ns *Namespace) IncludeCached(name string, context interface{}, variant ...string) (interface{}, error) {
-	key := name
-	if len(variant) > 0 {
-		for i := 0; i < len(variant); i++ {
-			key += variant[i]
-		}
+// IncludeCached executes and caches partial templates.  The cache is created with name+variants as the key.
+func (ns *Namespace) IncludeCached(name string, context interface{}, variants ...interface{}) (interface{}, error) {
+	key, err := createKey(name, variants...)
+	if err != nil {
+		return nil, err
 	}
-	return ns.getOrCreate(key, name, context)
+
+	result, err := ns.getOrCreate(key, context)
+	if err == errUnHashable {
+		// Try one more
+		key.variant = helpers.HashString(key.variant)
+		result, err = ns.getOrCreate(key, context)
+	}
+
+	return result, err
 }
 
-func (ns *Namespace) getOrCreate(key, name string, context interface{}) (interface{}, error) {
+func createKey(name string, variants ...interface{}) (partialCacheKey, error) {
+	var variant interface{}
+
+	if len(variants) > 1 {
+		variant = helpers.HashString(variants...)
+	} else if len(variants) == 1 {
+		variant = variants[0]
+		t := reflect.TypeOf(variant)
+		switch t.Kind() {
+		// This isn't an exhaustive list of unhashable types.
+		// There may be structs with slices,
+		// but that should be very rare. We do recover from that situation
+		// below.
+		case reflect.Slice, reflect.Array, reflect.Map:
+			variant = helpers.HashString(variant)
+		}
+	}
+
+	return partialCacheKey{name: name, variant: variant}, nil
+}
+
+var errUnHashable = errors.New("unhashable")
+
+func (ns *Namespace) getOrCreate(key partialCacheKey, context interface{}) (result interface{}, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = r.(error)
+			if strings.Contains(err.Error(), "unhashable type") {
+				ns.cachedPartials.RUnlock()
+				err = errUnHashable
+			}
+		}
+	}()
 
 	ns.cachedPartials.RLock()
 	p, ok := ns.cachedPartials.p[key]
@@ -175,7 +220,7 @@ func (ns *Namespace) getOrCreate(key, name string, context interface{}) (interfa
 		return p, nil
 	}
 
-	p, err := ns.Include(name, context)
+	p, err = ns.Include(key.name, context)
 	if err != nil {
 		return nil, err
 	}

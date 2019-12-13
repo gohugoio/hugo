@@ -671,7 +671,7 @@ END
 
 	b.CreateSites().Build(BuildCfg{})
 
-	contentMatchers := []string{"<h2 id=\"another-header\">Another header</h2>", "<h2 id=\"another-header99\">Another header</h2>", "<p>The End.</p>"}
+	contentMatchers := []string{"<h2 id=\"another-header\">Another header</h2>", "<h2 id=\"another-header-99\">Another header</h2>", "<p>The End.</p>"}
 
 	for i := 1; i <= numPages; i++ {
 		if i%3 != 0 {
@@ -691,13 +691,13 @@ END
 		checkContent(b, fmt.Sprintf("public/%s/page%d/index.json", section, i), contentMatchers...)
 	}
 
-	checkContent(b, "public/s1/index.html", "P: s1/_index.md\nList: 10|List Content: 8033\n\n\nL1: 500 L2: 5\n\nRender 0: View: 8033\n\nRender 1: View: 8033\n\nRender 2: View: 8033\n\nRender 3: View: 8033\n\nRender 4: View: 8033\n\nEND\n")
-	checkContent(b, "public/s2/index.html", "P: s2/_index.md\nList: 10|List Content: 8033", "Render 4: View: 8033\n\nEND")
-	checkContent(b, "public/index.html", "P: _index.md\nList: 10|List Content: 8033", "4: View: 8033\n\nEND")
+	checkContent(b, "public/s1/index.html", "P: s1/_index.md\nList: 10|List Content: 8132\n\n\nL1: 500 L2: 5\n\nRender 0: View: 8132\n\nRender 1: View: 8132\n\nRender 2: View: 8132\n\nRender 3: View: 8132\n\nRender 4: View: 8132\n\nEND\n")
+	checkContent(b, "public/s2/index.html", "P: s2/_index.md\nList: 10|List Content: 8132", "Render 4: View: 8132\n\nEND")
+	checkContent(b, "public/index.html", "P: _index.md\nList: 10|List Content: 8132", "4: View: 8132\n\nEND")
 
 	// Check paginated pages
 	for i := 2; i <= 9; i++ {
-		checkContent(b, fmt.Sprintf("public/page/%d/index.html", i), fmt.Sprintf("Page: %d", i), "Content: 8033\n\n\nL1: 500 L2: 5\n\nRender 0: View: 8033", "Render 4: View: 8033\n\nEND")
+		checkContent(b, fmt.Sprintf("public/page/%d/index.html", i), fmt.Sprintf("Page: %d", i), "Content: 8132\n\n\nL1: 500 L2: 5\n\nRender 0: View: 8132", "Render 4: View: 8132\n\nEND")
 	}
 }
 

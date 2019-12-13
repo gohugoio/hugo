@@ -16,6 +16,7 @@ package langs
 import (
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
@@ -56,7 +57,9 @@ type Language struct {
 
 	// These are params declared in the [params] section of the language merged with the
 	// site's params, the most specific (language) wins on duplicate keys.
-	params map[string]interface{}
+	params    map[string]interface{}
+	paramsMu  sync.Mutex
+	paramsSet bool
 
 	// These are config values, i.e. the settings declared outside of the [params] section of the language.
 	// This is the map Hugo looks in when looking for configuration values (baseURL etc.).
@@ -123,7 +126,15 @@ func (l Languages) Less(i, j int) bool {
 func (l Languages) Swap(i, j int) { l[i], l[j] = l[j], l[i] }
 
 // Params retunrs language-specific params merged with the global params.
-func (l *Language) Params() map[string]interface{} {
+func (l *Language) Params() maps.Params {
+	// TODO(bep) this construct should not be needed. Create the
+	// language params in one go.
+	l.paramsMu.Lock()
+	defer l.paramsMu.Unlock()
+	if !l.paramsSet {
+		maps.ToLower(l.params)
+		l.paramsSet = true
+	}
 	return l.params
 }
 
@@ -163,7 +174,12 @@ func (l Languages) IsMultihost() bool {
 // SetParam sets a param with the given key and value.
 // SetParam is case-insensitive.
 func (l *Language) SetParam(k string, v interface{}) {
-	l.params[strings.ToLower(k)] = v
+	l.paramsMu.Lock()
+	defer l.paramsMu.Unlock()
+	if l.paramsSet {
+		panic("params cannot be changed once set")
+	}
+	l.params[k] = v
 }
 
 // GetBool returns the value associated with the key as a boolean.

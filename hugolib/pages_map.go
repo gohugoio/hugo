@@ -439,7 +439,7 @@ type pagesMapBucket struct {
 }
 
 func (b *pagesMapBucket) isEmpty() bool {
-	return len(b.pages) == 0 && len(b.bucketSections) == 0
+	return len(b.pages) == 0 && len(b.headlessPages) == 0 && len(b.bucketSections) == 0
 }
 
 func (b *pagesMapBucket) getPages() page.Pages {

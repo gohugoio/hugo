@@ -18,6 +18,7 @@ package collections
 import (
 	"fmt"
 	"html/template"
+
 	"math/rand"
 	"net/url"
 	"reflect"

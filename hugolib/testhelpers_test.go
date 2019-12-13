@@ -845,9 +845,9 @@ func newTestSitesFromConfig(t testing.TB, afs afero.Fs, tomlConfig string, layou
 	return th, h
 }
 
-func createWithTemplateFromNameValues(additionalTemplates ...string) func(templ tpl.TemplateHandler) error {
+func createWithTemplateFromNameValues(additionalTemplates ...string) func(templ tpl.TemplateManager) error {
 
-	return func(templ tpl.TemplateHandler) error {
+	return func(templ tpl.TemplateManager) error {
 		for i := 0; i < len(additionalTemplates); i += 2 {
 			err := templ.AddTemplate(additionalTemplates[i], additionalTemplates[i+1])
 			if err != nil {

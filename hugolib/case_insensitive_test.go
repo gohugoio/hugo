@@ -14,9 +14,7 @@
 package hugolib
 
 import (
-	"fmt"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -232,86 +230,4 @@ Page2: {{ $page2.Params.ColoR }}
 		"index2|Page: flower|",
 		"index2|Site: yellow|",
 	)
-}
-
-func TestCaseInsensitiveConfigurationForAllTemplateEngines(t *testing.T) {
-	t.Parallel()
-
-	noOp := func(s string) string {
-		return s
-	}
-
-	amberFixer := func(s string) string {
-		fixed := strings.Replace(s, "{{ .Site.Params", "{{ Site.Params", -1)
-		fixed = strings.Replace(fixed, "{{ .Params", "{{ Params", -1)
-		fixed = strings.Replace(fixed, ".Content", "Content", -1)
-		fixed = strings.Replace(fixed, "{{", "#{", -1)
-		fixed = strings.Replace(fixed, "}}", "}", -1)
-
-		return fixed
-	}
-
-	for _, config := range []struct {
-		suffix        string
-		templateFixer func(s string) string
-	}{
-		{"amber", amberFixer},
-		{"html", noOp},
-		{"ace", noOp},
-	} {
-		doTestCaseInsensitiveConfigurationForTemplateEngine(t, config.suffix, config.templateFixer)
-
-	}
-
-}
-
-func doTestCaseInsensitiveConfigurationForTemplateEngine(t *testing.T, suffix string, templateFixer func(s string) string) {
-	c := qt.New(t)
-	mm := afero.NewMemMapFs()
-
-	caseMixingTestsWriteCommonSources(t, mm)
-
-	cfg, err := LoadConfigDefault(mm)
-	c.Assert(err, qt.IsNil)
-
-	fs := hugofs.NewFrom(mm, cfg)
-
-	th := newTestHelper(cfg, fs, t)
-
-	t.Log("Testing", suffix)
-
-	templTemplate := `
-p
-	|
-	| Page Colors: {{ .Params.CoLOR }}|{{ .Params.Colors.Blue }}
-	| Site Colors: {{ .Site.Params.COlOR }}|{{ .Site.Params.COLORS.YELLOW }}
-	| {{ .Content }}
-
-`
-
-	templ := templateFixer(templTemplate)
-
-	t.Log(templ)
-
-	writeSource(t, fs, filepath.Join("layouts", "_default", fmt.Sprintf("single.%s", suffix)), templ)
-
-	sites, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
-
-	if err != nil {
-		t.Fatalf("Failed to create sites: %s", err)
-	}
-
-	err = sites.Build(BuildCfg{})
-
-	if err != nil {
-		t.Fatalf("Failed to build sites: %s", err)
-	}
-
-	th.assertFileContent(filepath.Join("public", "nn", "sect1", "page1", "index.html"),
-		"Page Colors: red|heavenly",
-		"Site Colors: green|yellow",
-		"Shortcode Page: red|heavenly",
-		"Shortcode Site: green|yellow",
-	)
-
 }

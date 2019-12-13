@@ -71,3 +71,6 @@ startLevel
 
 endLevel
 : The heading level, inclusive, to stop render the table of contents.
+
+ordered
+: Whether or not to generate an ordered list instead of an unordered list.

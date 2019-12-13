@@ -62,12 +62,13 @@ func (toc *Root) AddAt(h Header, y, x int) {
 }
 
 // ToHTML renders the ToC as HTML.
-func (toc Root) ToHTML(startLevel, stopLevel int) string {
+func (toc Root) ToHTML(startLevel, stopLevel int, ordered bool) string {
 	b := &tocBuilder{
 		s:          strings.Builder{},
 		h:          toc.Headers,
 		startLevel: startLevel,
 		stopLevel:  stopLevel,
+		ordered:    ordered,
 	}
 	b.Build()
 	return b.s.String()
@@ -79,6 +80,7 @@ type tocBuilder struct {
 
 	startLevel int
 	stopLevel  int
+	ordered    bool
 }
 
 func (b *tocBuilder) Build() {
@@ -108,7 +110,11 @@ func (b *tocBuilder) writeHeaders(level, indent int, h Headers) {
 	if hasChildren {
 		b.s.WriteString("\n")
 		b.indent(indent + 1)
-		b.s.WriteString("<ul>\n")
+		if b.ordered {
+			b.s.WriteString("<ol>\n")
+		} else {
+			b.s.WriteString("<ul>\n")
+		}
 	}
 
 	for _, h := range h {
@@ -117,7 +123,11 @@ func (b *tocBuilder) writeHeaders(level, indent int, h Headers) {
 
 	if hasChildren {
 		b.indent(indent + 1)
-		b.s.WriteString("</ul>")
+		if b.ordered {
+			b.s.WriteString("</ol>")
+		} else {
+			b.s.WriteString("</ul>")
+		}
 		b.s.WriteString("\n")
 		b.indent(indent)
 	}
@@ -143,6 +153,7 @@ func (b *tocBuilder) indent(n int) {
 var DefaultConfig = Config{
 	StartLevel: 2,
 	EndLevel:   3,
+	Ordered:    false,
 }
 
 type Config struct {
@@ -153,4 +164,7 @@ type Config struct {
 	// Heading end level, inclusive, to include in the table of contents.
 	// Default is 3, a value of -1 will include everything.
 	EndLevel int
+
+	// Whether to produce a ordered list or not.
+	Ordered bool
 }

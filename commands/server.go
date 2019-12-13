@@ -16,6 +16,7 @@ package commands
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/url"
@@ -33,7 +34,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/livereload"
-	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
@@ -287,7 +287,7 @@ func getRootWatchDirsStr(baseDir string, watchDirs []string) string {
 type fileServer struct {
 	baseURLs      []string
 	roots         []string
-	errorTemplate tpl.Template
+	errorTemplate func(err interface{}) (io.Reader, error)
 	c             *commandeer
 	s             *serverCmd
 }
@@ -335,8 +335,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 				err := f.c.getErrorWithContext()
 				if err != nil {
 					w.WriteHeader(500)
-					var b bytes.Buffer
-					err := f.errorTemplate.Execute(&b, err)
+					r, err := f.errorTemplate(err)
 					if err != nil {
 						f.c.logger.ERROR.Println(err)
 					}
@@ -344,7 +343,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 					if !f.c.paused {
 						port = f.c.Cfg.GetInt("liveReloadPort")
 					}
-					fmt.Fprint(w, injectLiveReloadScript(&b, port))
+					fmt.Fprint(w, injectLiveReloadScript(r, port))
 
 					return
 				}
@@ -422,11 +421,15 @@ func (c *commandeer) serve(s *serverCmd) error {
 	}
 
 	srv := &fileServer{
-		baseURLs:      baseURLs,
-		roots:         roots,
-		c:             c,
-		s:             s,
-		errorTemplate: templ,
+		baseURLs: baseURLs,
+		roots:    roots,
+		c:        c,
+		s:        s,
+		errorTemplate: func(ctx interface{}) (io.Reader, error) {
+			b := &bytes.Buffer{}
+			err := c.hugo().Tmpl.Execute(templ, b, ctx)
+			return b, err
+		},
 	}
 
 	doLiveReload := !c.Cfg.GetBool("disableLiveReload")

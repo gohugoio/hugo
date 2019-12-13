@@ -393,7 +393,7 @@ func renderShortcode(
 
 	}
 
-	result, err := renderShortcodeWithPage(tmpl, data)
+	result, err := renderShortcodeWithPage(s.Tmpl, tmpl, data)
 
 	if err != nil && sc.isInline {
 		fe := herrors.ToFileError("html", err)
@@ -634,11 +634,11 @@ func replaceShortcodeTokens(source []byte, replacements map[string]string) ([]by
 	return source, nil
 }
 
-func renderShortcodeWithPage(tmpl tpl.Template, data *ShortcodeWithPage) (string, error) {
+func renderShortcodeWithPage(h tpl.TemplateHandler, tmpl tpl.Template, data *ShortcodeWithPage) (string, error) {
 	buffer := bp.GetBuffer()
 	defer bp.PutBuffer(buffer)
 
-	err := tmpl.Execute(buffer, data)
+	err := h.Execute(tmpl, buffer, data)
 	if err != nil {
 		return "", _errors.Wrap(err, "failed to process shortcode")
 	}

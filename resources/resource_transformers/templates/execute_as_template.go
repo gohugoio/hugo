@@ -27,25 +27,27 @@ import (
 type Client struct {
 	rs *resources.Spec
 
-	textTemplate tpl.TemplateParseFinder
+	templateHandler tpl.TemplateHandler
+	textTemplate    tpl.TemplateParseFinder
 }
 
 // New creates a new Client with the given specification.
-func New(rs *resources.Spec, textTemplate tpl.TemplateParseFinder) *Client {
+func New(rs *resources.Spec, h tpl.TemplateHandler, textTemplate tpl.TemplateParseFinder) *Client {
 	if rs == nil {
 		panic("must provice a resource Spec")
 	}
 	if textTemplate == nil {
 		panic("must provide a textTemplate")
 	}
-	return &Client{rs: rs, textTemplate: textTemplate}
+	return &Client{rs: rs, templateHandler: h, textTemplate: textTemplate}
 }
 
 type executeAsTemplateTransform struct {
-	rs           *resources.Spec
-	textTemplate tpl.TemplateParseFinder
-	targetPath   string
-	data         interface{}
+	rs              *resources.Spec
+	textTemplate    tpl.TemplateParseFinder
+	templateHandler tpl.TemplateHandler
+	targetPath      string
+	data            interface{}
 }
 
 func (t *executeAsTemplateTransform) Key() internal.ResourceTransformationKey {
@@ -61,14 +63,15 @@ func (t *executeAsTemplateTransform) Transform(ctx *resources.ResourceTransforma
 
 	ctx.OutPath = t.targetPath
 
-	return templ.Execute(ctx.To, t.data)
+	return t.templateHandler.Execute(templ, ctx.To, t.data)
 }
 
 func (c *Client) ExecuteAsTemplate(res resources.ResourceTransformer, targetPath string, data interface{}) (resource.Resource, error) {
 	return res.Transform(&executeAsTemplateTransform{
-		rs:           c.rs,
-		targetPath:   helpers.ToSlashTrimLeading(targetPath),
-		textTemplate: c.textTemplate,
-		data:         data,
+		rs:              c.rs,
+		targetPath:      helpers.ToSlashTrimLeading(targetPath),
+		templateHandler: c.templateHandler,
+		textTemplate:    c.textTemplate,
+		data:            data,
 	})
 }

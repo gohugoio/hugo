@@ -292,7 +292,7 @@ func (p *pageContentOutput) TableOfContents() template.HTML {
 	p.p.s.initInit(p.initMain, p.p)
 	if tocProvider, ok := p.convertedResult.(converter.TableOfContentsProvider); ok {
 		cfg := p.p.s.ContentSpec.Converters.GetMarkupConfig()
-		return template.HTML(tocProvider.TableOfContents().ToHTML(cfg.TableOfContents.StartLevel, cfg.TableOfContents.EndLevel))
+		return template.HTML(tocProvider.TableOfContents().ToHTML(cfg.TableOfContents.StartLevel, cfg.TableOfContents.EndLevel, cfg.TableOfContents.Ordered))
 	}
 	return p.tableOfContents
 }
@@ -411,10 +411,10 @@ func (t targetPathsHolder) targetPaths() page.TargetPaths {
 	return t.paths
 }
 
-func executeToString(templ tpl.Template, data interface{}) (string, error) {
+func executeToString(h tpl.TemplateHandler, templ tpl.Template, data interface{}) (string, error) {
 	b := bp.GetBuffer()
 	defer bp.PutBuffer(b)
-	if err := templ.Execute(b, data); err != nil {
+	if err := h.Execute(templ, b, data); err != nil {
 		return "", err
 	}
 	return b.String(), nil
