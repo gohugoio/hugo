@@ -64,15 +64,43 @@ func (a *asciidocConverter) getAsciidocContent(src []byte, ctx converter.Documen
 		isAsciidoctor = true
 	}
 
-	a.cfg.Logger.INFO.Println("Rendering", ctx.DocumentName, "with", path, "...")
-	folderName := filepath.Dir(filepath.Join(a.cfg.Cfg.GetString("contentDir"), ctx.DocumentName))
-	args := []string{"--no-header-footer", "--safe", "--base-dir", folderName}
+	var args []string
 	if isAsciidoctor {
-		// asciidoctor-specific arg to show stack traces on errors
-		args = append(args, "--trace")
+		args = a.getAsciidoctorArgs(ctx)
+	} else {
+		args = []string{"--no-header-footer", "--safe"}
 	}
-	args = append(args, "-")
+	if args[len(args)-1] != "-" {
+		args = append(args, "-")
+	}
+
+	a.cfg.Logger.INFO.Println("Rendering", ctx.DocumentName, "with", path, "using asciidoc args=", args, "...")
+
 	return internal.ExternallyRenderContent(a.cfg, ctx, src, path, args)
+}
+
+func (a *asciidocConverter) getAsciidoctorArgs(ctx converter.DocumentContext) []string {
+	asciidoctorargs := a.cfg.Cfg.GetStringSlice("asciidoctorargs")
+
+	args := asciidoctorargs
+	if asciidoctorargs == nil {
+		// Default asciidoctor-specific args
+		args = []string{"--no-header-footer", "--safe", "--trace"}
+	}
+
+	asciidoctorcurrentcontent := a.cfg.Cfg.GetBool("asciidoctorcurrentcontent")
+	if asciidoctorcurrentcontent {
+		contentDir := a.cfg.Cfg.GetString("contentDir")
+		destinationDir := a.cfg.Cfg.GetString("destination")
+		outDir, err := filepath.Abs(filepath.Dir(filepath.Join(destinationDir, ctx.DocumentName)))
+		if err != nil {
+			a.cfg.Logger.ERROR.Println("asciidoctor outDir", err)
+		}
+		folderName := filepath.Dir(filepath.Join(contentDir, ctx.DocumentName))
+		args = append(args, "--base-dir", folderName, "-a", "outdir="+outDir)
+	}
+
+	return args
 }
 
 func getAsciidocExecPath() string {

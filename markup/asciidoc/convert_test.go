@@ -20,15 +20,108 @@ import (
 
 	"github.com/gohugoio/hugo/markup/converter"
 
+	"github.com/spf13/viper"
+
 	qt "github.com/frankban/quicktest"
 )
+
+func TestAsciidoctorDefaultArgs(t *testing.T) {
+	c := qt.New(t)
+	p, err := Provider.New(converter.ProviderConfig{Logger: loggers.NewErrorLogger(), Cfg: viper.New()})
+	c.Assert(err, qt.IsNil)
+	conv, err := p.New(converter.DocumentContext{})
+	c.Assert(err, qt.IsNil)
+
+	ac := conv.(*asciidocConverter)
+
+	c.Assert(ac, qt.Not(qt.IsNil))
+	args := ac.getAsciidoctorArgs(converter.DocumentContext{})
+
+	c.Assert(args[0], qt.Equals, "--no-header-footer")
+	c.Assert(args[1], qt.Equals, "--safe")
+	c.Assert(args[2], qt.Equals, "--trace")
+}
+
+func TestAsciidoctorDiagramArgs(t *testing.T) {
+	c := qt.New(t)
+	cfg := viper.New()
+	cfg.Set("asciidoctorArgs", []string{"--no-header-footer", "-r", "asciidoctor-html5s", "-b", "html5s", "-r", "asciidoctor-diagram"})
+	p, err := Provider.New(converter.ProviderConfig{Logger: loggers.NewErrorLogger(), Cfg: cfg})
+	c.Assert(err, qt.IsNil)
+	conv, err := p.New(converter.DocumentContext{})
+	c.Assert(err, qt.IsNil)
+
+	ac := conv.(*asciidocConverter)
+
+	c.Assert(ac, qt.Not(qt.IsNil))
+	args := ac.getAsciidoctorArgs(converter.DocumentContext{})
+	c.Assert(len(args), qt.Equals, 7)
+	c.Assert(args[0], qt.Equals, "--no-header-footer")
+	c.Assert(args[1], qt.Equals, "-r")
+	c.Assert(args[2], qt.Equals, "asciidoctor-html5s")
+	c.Assert(args[3], qt.Equals, "-b")
+	c.Assert(args[4], qt.Equals, "html5s")
+	c.Assert(args[5], qt.Equals, "-r")
+	c.Assert(args[6], qt.Equals, "asciidoctor-diagram")
+}
+
+func TestAsciidoctorCurrentContent(t *testing.T) {
+	c := qt.New(t)
+	cfg := viper.New()
+	cfg.Set("asciidoctorCurrentContent", true)
+	p, err := Provider.New(converter.ProviderConfig{Logger: loggers.NewErrorLogger(), Cfg: cfg})
+	c.Assert(err, qt.IsNil)
+	conv, err := p.New(converter.DocumentContext{})
+	c.Assert(err, qt.IsNil)
+
+	ac := conv.(*asciidocConverter)
+
+	c.Assert(ac, qt.Not(qt.IsNil))
+	args := ac.getAsciidoctorArgs(converter.DocumentContext{})
+	c.Assert(len(args), qt.Equals, 7)
+	c.Assert(args[0], qt.Equals, "--no-header-footer")
+	c.Assert(args[1], qt.Equals, "--safe")
+	c.Assert(args[2], qt.Equals, "--trace")
+	c.Assert(args[3], qt.Equals, "--base-dir")
+	c.Assert(args[4], qt.Equals, ".")
+	c.Assert(args[5], qt.Equals, "-a")
+	c.Assert(args[6], qt.Equals, "outdir=.")
+}
+
+func TestAsciidoctorCurrentContentAndArgs(t *testing.T) {
+	c := qt.New(t)
+	cfg := viper.New()
+	cfg.Set("asciidoctorArgs", []string{"--no-header-footer", "-r", "asciidoctor-html5s", "-b", "html5s", "-r", "asciidoctor-diagram"})
+	cfg.Set("asciidoctorCurrentContent", true)
+	p, err := Provider.New(converter.ProviderConfig{Logger: loggers.NewErrorLogger(), Cfg: cfg})
+	c.Assert(err, qt.IsNil)
+	conv, err := p.New(converter.DocumentContext{})
+	c.Assert(err, qt.IsNil)
+
+	ac := conv.(*asciidocConverter)
+
+	c.Assert(ac, qt.Not(qt.IsNil))
+	args := ac.getAsciidoctorArgs(converter.DocumentContext{})
+	c.Assert(len(args), qt.Equals, 11)
+	c.Assert(args[0], qt.Equals, "--no-header-footer")
+	c.Assert(args[1], qt.Equals, "-r")
+	c.Assert(args[2], qt.Equals, "asciidoctor-html5s")
+	c.Assert(args[3], qt.Equals, "-b")
+	c.Assert(args[4], qt.Equals, "html5s")
+	c.Assert(args[5], qt.Equals, "-r")
+	c.Assert(args[6], qt.Equals, "asciidoctor-diagram")
+	c.Assert(args[7], qt.Equals, "--base-dir")
+	c.Assert(args[8], qt.Equals, ".")
+	c.Assert(args[9], qt.Equals, "-a")
+	c.Assert(args[10], qt.Contains, "outdir=")
+}
 
 func TestConvert(t *testing.T) {
 	if !Supports() {
 		t.Skip("asciidoc/asciidoctor not installed")
 	}
 	c := qt.New(t)
-	p, err := Provider.New(converter.ProviderConfig{Logger: loggers.NewErrorLogger()})
+	p, err := Provider.New(converter.ProviderConfig{Logger: loggers.NewErrorLogger(), Cfg: viper.New()})
 	c.Assert(err, qt.IsNil)
 	conv, err := p.New(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)
