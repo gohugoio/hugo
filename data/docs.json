@@ -1387,8 +1387,7 @@
       },
       "tableOfContents": {
         "startLevel": 2,
-        "endLevel": 3,
-        "ordered": false
+        "endLevel": 3
       },
       "goldmark": {
         "renderer": {
