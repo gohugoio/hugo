@@ -90,14 +90,13 @@ func (a *asciidocConverter) getAsciidoctorArgs(ctx converter.DocumentContext) []
 
 	asciidoctorcurrentcontent := a.cfg.Cfg.GetBool("asciidoctorcurrentcontent")
 	if asciidoctorcurrentcontent {
-		contentDir := a.cfg.Cfg.GetString("contentDir")
+		contentDir := filepath.Dir(ctx.FileName)
 		destinationDir := a.cfg.Cfg.GetString("destination")
 		outDir, err := filepath.Abs(filepath.Dir(filepath.Join(destinationDir, ctx.DocumentName)))
 		if err != nil {
 			a.cfg.Logger.ERROR.Println("asciidoctor outDir", err)
 		}
-		folderName := filepath.Dir(filepath.Join(contentDir, ctx.DocumentName))
-		args = append(args, "--base-dir", folderName, "-a", "outdir="+outDir)
+		args = append(args, "--base-dir", contentDir, "-a", "outdir="+outDir)
 	}
 
 	return args

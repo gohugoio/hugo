@@ -23,6 +23,8 @@ import (
 	"github.com/spf13/viper"
 
 	qt "github.com/frankban/quicktest"
+
+	"path/filepath"
 )
 
 func TestAsciidoctorDefaultArgs(t *testing.T) {
@@ -71,21 +73,22 @@ func TestAsciidoctorCurrentContent(t *testing.T) {
 	cfg.Set("asciidoctorCurrentContent", true)
 	p, err := Provider.New(converter.ProviderConfig{Logger: loggers.NewErrorLogger(), Cfg: cfg})
 	c.Assert(err, qt.IsNil)
-	conv, err := p.New(converter.DocumentContext{})
+	ctx := converter.DocumentContext{FileName: "/tmp/hugo_asciidoc_ddd/docs/chapter2/index.adoc", DocumentName: "chapter2/index.adoc"}
+	conv, err := p.New(ctx)
 	c.Assert(err, qt.IsNil)
 
 	ac := conv.(*asciidocConverter)
 
 	c.Assert(ac, qt.Not(qt.IsNil))
-	args := ac.getAsciidoctorArgs(converter.DocumentContext{})
+	args := ac.getAsciidoctorArgs(ctx)
 	c.Assert(len(args), qt.Equals, 7)
 	c.Assert(args[0], qt.Equals, "--no-header-footer")
 	c.Assert(args[1], qt.Equals, "--safe")
 	c.Assert(args[2], qt.Equals, "--trace")
 	c.Assert(args[3], qt.Equals, "--base-dir")
-	c.Assert(args[4], qt.Equals, ".")
+	c.Assert(filepath.ToSlash(args[4]), qt.Matches, "/tmp/hugo_asciidoc_ddd/docs/chapter2")
 	c.Assert(args[5], qt.Equals, "-a")
-	c.Assert(args[6], qt.Equals, "outdir=.")
+	c.Assert(args[6], qt.Matches, `outdir=.*[/\\]{1,2}asciidoc[/\\]{1,2}chapter2`)
 }
 
 func TestAsciidoctorCurrentContentAndArgs(t *testing.T) {

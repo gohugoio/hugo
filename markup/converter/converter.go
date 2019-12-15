@@ -96,6 +96,7 @@ func (b Bytes) Bytes() []byte {
 type DocumentContext struct {
 	DocumentID      string
 	DocumentName    string
+	FileName        string
 	ConfigOverrides map[string]interface{}
 }
 
