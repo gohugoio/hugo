@@ -98,11 +98,12 @@ Tags:
 {{ range $k, $v := .Tags }}
 TAG: {{ $k }}: {{ $v }}
 {{ end }}
+{{ end }}
 ```
 
 #### Exif fields
 
-Data
+Date
 : "photo taken" date/time
 
 Lat

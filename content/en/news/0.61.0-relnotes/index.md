@@ -1,12 +1,12 @@
 
 ---
 date: 2019-12-11
-title: "0.61.0"
-description: "0.61.0"
+title: "40K GitHub Stars Edition"
+description: "40K stars on GitHub is a good enough reason to release a new version of Hugo!"
 categories: ["Releases"]
 ---
 
-	This is the [40K GitHub Stars Edition](https://github.com/gohugoio/hugo/stargazers). It's mostly a bug fix release, and an important note is the deprecation of Amber and Ace as template engines. See [#6609](https://github.com/gohugoio/hugo/issues/6609) for more information.
+This is the [40K GitHub Stars Edition](https://github.com/gohugoio/hugo/stargazers). It's mostly a bug fix release, and an important note is the deprecation of Amber and Ace as template engines. See [#6609](https://github.com/gohugoio/hugo/issues/6609) for more information.
 
 This release represents **10 contributions by 3 contributors** to the main Hugo code base.
 

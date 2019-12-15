@@ -4,9 +4,6 @@ date: 2019-11-29
 title: "Hugo 0.60.1: A couple of Bug Fixes"
 description: "This version fixes a couple of bugs introduced in 0.60.0."
 categories: ["Releases"]
-images:
-- images/blog/hugo-bug-poster.png
-
 ---
 
 	
