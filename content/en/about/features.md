@@ -52,7 +52,7 @@ toc: true
 * Integrated [Google Analytics][] support
 * Automatic [RSS][] creation
 * Support for [Go][], [Amber], and [Ace][] HTML templates
-* [Syntax highlighting][] powered by [Chroma][] (partly compatible with Pygments)
+* [Syntax highlighting][] powered by [Chroma][]
 
 
 [Ace]: /templates/alternatives/
