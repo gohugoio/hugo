@@ -16,6 +16,7 @@ package publisher
 import (
 	"errors"
 	"io"
+	"net/url"
 	"sync/atomic"
 
 	"github.com/gohugoio/hugo/resources"
@@ -51,8 +52,8 @@ type Descriptor struct {
 	StatCounter *uint64
 
 	// Configuration that trigger pre-processing.
-	// LiveReload script will be injected if this is > 0
-	LiveReloadPort int
+	// LiveReload script will be injected if this is != nil
+	LiveReloadBaseURL *url.URL
 
 	// Enable to inject the Hugo generated tag in the header. Is currently only
 	// injected on the home page for HTML type of output formats.
@@ -166,8 +167,8 @@ func (p DestinationPublisher) createTransformerChain(f Descriptor) transform.Cha
 	}
 
 	if isHTML {
-		if f.LiveReloadPort > 0 {
-			transformers = append(transformers, livereloadinject.New(f.LiveReloadPort))
+		if f.LiveReloadBaseURL != nil {
+			transformers = append(transformers, livereloadinject.New(*f.LiveReloadBaseURL))
 		}
 
 		// This is only injected on the home page.

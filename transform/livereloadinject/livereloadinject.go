@@ -16,6 +16,8 @@ package livereloadinject
 import (
 	"bytes"
 	"fmt"
+	"net/url"
+	"strings"
 
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/transform"
@@ -35,7 +37,7 @@ var tags = []tag{
 
 // New creates a function that can be used
 // to inject a script tag for the livereload JavaScript in a HTML document.
-func New(port int) transform.Transformer {
+func New(baseURL url.URL) transform.Transformer {
 	return func(ft transform.FromTo) error {
 		b := ft.From().Bytes()
 		var idx = -1
@@ -51,6 +53,20 @@ func New(port int) transform.Transformer {
 			}
 		}
 
+		if !strings.HasSuffix(baseURL.Path, "/") {
+			baseURL.Path += "/"
+		}
+
+		src := baseURL.Path + "livereload.js?mindelay=10&v=2"
+
+		src += "&port=" + baseURL.Port()
+
+		path := baseURL.Path + "livereload"
+		if strings.HasPrefix(path, "/") {
+			path = path[1:]
+		}
+		src += "&path=" + path
+
 		c := make([]byte, len(b))
 		copy(c, b)
 
@@ -59,7 +75,7 @@ func New(port int) transform.Transformer {
 			return err
 		}
 
-		script := []byte(fmt.Sprintf(`<script src="/livereload.js?port=%d&mindelay=10&v=2" data-no-instant defer></script>`, port))
+		script := []byte(fmt.Sprintf(`<script src="%s" data-no-instant defer></script>`, src))
 
 		i := idx
 		if match.appendScript {
