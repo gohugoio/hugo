@@ -1,14 +1,23 @@
 
 ---
 date: 2019-11-27
-title: "0.60.0"
-description: "0.60.0"
+title: "Now CommonMark Compliant!"
+description: "Goldmark -- CommonMark compliant,  GitHub flavored, fast and flexible -- is the new default library for Markdown in Hugo."
 categories: ["Releases"]
 ---
 
-	[Goldmark](https://github.com/yuin/goldmark/) by [@yuin](https://github.com/yuin) is now the new default library used for Markdown in Hugo. It's CommonMark compliant and  GitHub flavored, and both fast and flexible. Blackfriday, the old default, has served us well, but there have been formatting and portability issues that were hard to work around. The "CommonMark compliant" part is the main selling feature of Goldmark, but with that you also get attribute syntax on headers and code blocks (for code blocks you can turn on/off line numbers and highlight line ranges), strikethrough support and an improved and configurable implementation of `TableOfContents`. See [Markup Configuration](https://gohugo.io/getting-started/configuration-markup/) for an overview of extensions.
+[Goldmark](https://github.com/yuin/goldmark/) by [@yuin](https://github.com/yuin) is now the new default library used for Markdown in Hugo. It's CommonMark compliant and  GitHub flavored, and both fast and flexible. Blackfriday, the old default, has served us well, but there have been formatting and portability issues that were hard to work around. The "CommonMark compliant" part is the main selling feature of Goldmark, but with that you also get attribute syntax on headers and code blocks (for code blocks you can turn on/off line numbers and highlight line ranges), strikethrough support and an improved and configurable implementation of `TableOfContents`. See [Markup Configuration](https://gohugo.io/getting-started/configuration-markup/) for an overview of extensions.
 
 Please read the [Notes Section](#notes) and the updated documentation. We suggest you start with [List of content formats in Hugo](https://gohugo.io/content-management/formats/#list-of-content-formats). Goldmark is better, but the feature set is not fully comparable and it may be more stricter in some areas (there are 17 rules for how a [headline](https://spec.commonmark.org/0.29/#emphasis-and-strong-emphasis) should look like); if you have any problems you cannot work around, see [Configure Markup](https://gohugo.io/getting-started/configuration-markup/#configure-markup) for a way to change the default Markdown handler.
+
+Also, if you have lots of inline HTML in your Markdown files, you may have to enable the `unsafe` mode:
+
+{{< code-toggle file="config" >}}
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+{{< /code-toggle >}}
 
 This release represents **62 contributions by 10 contributors** to the main Hugo code base. [@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@anthonyfok](https://github.com/anthonyfok), [@max-arnold](https://github.com/max-arnold), and [@trimbo](https://github.com/trimbo) for their ongoing contributions.
 And a big thanks to [@digitalcraftsman](https://github.com/digitalcraftsman) and [@onedrawingperday](https://github.com/onedrawingperday) for their relentless work on keeping the themes site in pristine condition and to [@kaushalmodi](https://github.com/kaushalmodi) and [@davidsneighbour](https://github.com/davidsneighbour) for great work on the documentation site.

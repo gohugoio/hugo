@@ -29,11 +29,15 @@ Please don't use the GitHub issue tracker to ask questions.
 ## Reporting Issues
 
 If you believe you have found a defect in Hugo or its documentation, use
-the GitHub [issue tracker](https://github.com/gohugoio/hugo/issues) to report
+the GitHub issue tracker to report
 the problem to the Hugo maintainers. If you're not sure if it's a bug or not,
 start by asking in the [discussion forum](https://discourse.gohugo.io).
 When reporting the issue, please provide the version of Hugo in use (`hugo
 version`) and your operating system.
+
+- [Hugo Issues · gohugoio/hugo](https://github.com/gohugoio/hugo/issues)
+- [Hugo Documentation Issues · gohugoio/hugoDocs](https://github.com/gohugoio/hugoDocs/issues)
+- [Hugo Website Theme Issues · gohugoio/hugoThemesSite](https://github.com/gohugoio/hugoThemesSite/issues)
 
 ## Code Contribution
 
