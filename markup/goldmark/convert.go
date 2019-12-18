@@ -15,9 +15,9 @@
 package goldmark
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
+	"math/bits"
 	"path/filepath"
 	"runtime/debug"
 
@@ -162,8 +162,27 @@ func (c converterResult) GetIdentities() identity.Identities {
 	return c.ids
 }
 
+type bufWriter struct {
+	*bytes.Buffer
+}
+
+const maxInt = 1<<(bits.UintSize-1) - 1
+
+func (b *bufWriter) Available() int {
+	return maxInt
+}
+
+func (b *bufWriter) Buffered() int {
+	return b.Len()
+}
+
+func (b *bufWriter) Flush() error {
+	return nil
+}
+
 type renderContext struct {
-	util.BufWriter
+	*bufWriter
+	pos int
 	renderContextData
 }
 
@@ -205,7 +224,7 @@ func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (result convert
 		}
 	}()
 
-	buf := &bytes.Buffer{}
+	buf := &bufWriter{Buffer: &bytes.Buffer{}}
 	result = buf
 	pctx := newParserContext(ctx)
 	reader := text.NewReader(ctx.Src)
@@ -221,8 +240,8 @@ func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (result convert
 		ids:  identity.NewManager(converterIdentity),
 	}
 
-	w := renderContext{
-		BufWriter:         bufio.NewWriter(buf),
+	w := &renderContext{
+		bufWriter:         buf,
 		renderContextData: rcx,
 	}
 

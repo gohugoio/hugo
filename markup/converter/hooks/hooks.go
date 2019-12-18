@@ -24,6 +24,7 @@ type LinkContext interface {
 	Destination() string
 	Title() string
 	Text() string
+	PlainText() string
 }
 
 type Render struct {
