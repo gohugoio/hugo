@@ -13,12 +13,9 @@
 package tplimpl
 
 import (
-	"strings"
-
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"testing"
-	"time"
 
 	template "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
 	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
@@ -72,74 +69,6 @@ type T struct {
 }
 
 func (T) Method0() {
-}
-
-func TestInsertIsZeroFunc(t *testing.T) {
-	t.Parallel()
-
-	c := qt.New(t)
-
-	var (
-		ctx = map[string]interface{}{
-			"True":     true,
-			"Now":      time.Now(),
-			"TimeZero": time.Time{},
-			"T":        &T{NonEmptyInterfaceTypedNil: (*T)(nil)},
-		}
-
-		templ1 = `
-{{ if .True }}.True: TRUE{{ else }}.True: FALSE{{ end }}
-{{ if .TimeZero }}.TimeZero1: TRUE{{ else }}.TimeZero1: FALSE{{ end }}
-{{ if (.TimeZero) }}.TimeZero2: TRUE{{ else }}.TimeZero2: FALSE{{ end }}
-{{ if not .TimeZero }}.TimeZero3: TRUE{{ else }}.TimeZero3: FALSE{{ end }}
-{{ if .Now }}.Now: TRUE{{ else }}.Now: FALSE{{ end }}
-{{ with .TimeZero }}.TimeZero1 with: {{ . }}{{ else }}.TimeZero1 with: FALSE{{ end }}
-{{ template "mytemplate" . }}
-{{ if .T.NonEmptyInterfaceTypedNil }}.NonEmptyInterfaceTypedNil: TRUE{{ else }}.NonEmptyInterfaceTypedNil: FALSE{{ end }}
-{{ template "other-file-template" . }}
-{{ define "mytemplate" }}
-{{ if .TimeZero }}.TimeZero1: mytemplate: TRUE{{ else }}.TimeZero1: mytemplate: FALSE{{ end }}
-{{ end }}
-`
-
-		// https://github.com/gohugoio/hugo/issues/5865
-		templ2 = `{{ define "other-file-template" }}
-{{ if .TimeZero }}.TimeZero1: other-file-template: TRUE{{ else }}.TimeZero1: other-file-template: FALSE{{ end }}
-{{ end }}		
-`
-	)
-
-	d := newD(c)
-	h := d.Tmpl.(*templateHandler)
-
-	// HTML templates
-	c.Assert(h.AddTemplate("mytemplate.html", templ1), qt.IsNil)
-	c.Assert(h.AddTemplate("othertemplate.html", templ2), qt.IsNil)
-
-	// Text templates
-	c.Assert(h.AddTemplate("_text/mytexttemplate.txt", templ1), qt.IsNil)
-	c.Assert(h.AddTemplate("_text/myothertexttemplate.txt", templ2), qt.IsNil)
-
-	c.Assert(h.markReady(), qt.IsNil)
-
-	for _, name := range []string{"mytemplate.html", "mytexttemplate.txt"} {
-		var sb strings.Builder
-		tt, _ := d.Tmpl.Lookup(name)
-		err := h.Execute(tt, &sb, ctx)
-		c.Assert(err, qt.IsNil)
-		result := sb.String()
-
-		c.Assert(result, qt.Contains, ".True: TRUE")
-		c.Assert(result, qt.Contains, ".TimeZero1: FALSE")
-		c.Assert(result, qt.Contains, ".TimeZero2: FALSE")
-		c.Assert(result, qt.Contains, ".TimeZero3: TRUE")
-		c.Assert(result, qt.Contains, ".Now: TRUE")
-		c.Assert(result, qt.Contains, "TimeZero1 with: FALSE")
-		c.Assert(result, qt.Contains, ".TimeZero1: mytemplate: FALSE")
-		c.Assert(result, qt.Contains, ".TimeZero1: other-file-template: FALSE")
-		c.Assert(result, qt.Contains, ".NonEmptyInterfaceTypedNil: FALSE")
-	}
-
 }
 
 func TestCollectInfo(t *testing.T) {

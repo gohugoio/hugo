@@ -17,6 +17,8 @@ import (
 	"io"
 	"reflect"
 
+	"github.com/gohugoio/hugo/common/hreflect"
+
 	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 )
 
@@ -300,4 +302,8 @@ func (s *state) evalCall(dot, fun reflect.Value, node parse.Node, name string, a
 		v = v.Interface().(reflect.Value)
 	}
 	return v
+}
+
+func isTrue(val reflect.Value) (truth, ok bool) {
+	return hreflect.IsTruthfulValue(val), true
 }
