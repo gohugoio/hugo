@@ -337,6 +337,34 @@ Partial cached3: {{ partialCached "p1" "input3" $key2 }}
 `)
 }
 
+// https://github.com/gohugoio/hugo/issues/6615
+func TestTemplateTruth(t *testing.T) {
+	b := newTestSitesBuilder(t)
+	b.WithTemplatesAdded("index.html", `
+{{ $p := index site.RegularPages 0 }}
+{{ $zero := $p.ExpiryDate }}
+{{ $notZero := time.Now }}
+
+if: Zero: {{ if $zero }}FAIL{{ else }}OK{{ end }}
+if: Not Zero: {{ if $notZero }}OK{{ else }}Fail{{ end }}
+not: Zero: {{ if not $zero }}OK{{ else }}FAIL{{ end }}
+not: Not Zero: {{ if not $notZero }}FAIL{{ else }}OK{{ end }}
+
+with: Zero {{ with $zero }}FAIL{{ else }}OK{{ end }}
+
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", `
+if: Zero: OK
+if: Not Zero: OK
+not: Zero: OK
+not: Not Zero: OK
+with: Zero OK
+`)
+}
+
 func TestTemplateDependencies(t *testing.T) {
 	b := newTestSitesBuilder(t).Running()
 

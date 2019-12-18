@@ -195,36 +195,9 @@ func (c *templateContext) wrapInPartialReturnWrapper(n *parse.ListNode) *parse.L
 
 }
 
-// The truth logic in Go's template package is broken for certain values
-// for the if and with keywords. This works around that problem by wrapping
-// the node passed to if/with in a getif conditional.
-// getif works slightly different than the Go built-in in that it also
-// considers any IsZero methods on the values (as in time.Time).
-// See https://github.com/gohugoio/hugo/issues/5738
-// TODO(bep) get rid of this.
-func (c *templateContext) wrapWithGetIf(p *parse.PipeNode) {
-	if len(p.Cmds) == 0 {
-		return
-	}
-
-	// getif will return an empty string if not evaluated as truthful,
-	// which is when we need the value in the with clause.
-	firstArg := parse.NewIdentifier("getif")
-	secondArg := p.CopyPipe()
-	newCmd := p.Cmds[0].Copy().(*parse.CommandNode)
-
-	// secondArg is a PipeNode and will behave as it was wrapped in parens, e.g:
-	// {{ getif (len .Params | eq 2) }}
-	newCmd.Args = []parse.Node{firstArg, secondArg}
-
-	p.Cmds = []*parse.CommandNode{newCmd}
-
-}
-
-// applyTransformations do 3 things:
-// 1) Wraps every with and if pipe in getif
-// 2) Parses partial return statement.
-// 3) Tracks template (partial) dependencies and some other info.
+// applyTransformations do 2 things:
+// 1) Parses partial return statement.
+// 2) Tracks template (partial) dependencies and some other info.
 func (c *templateContext) applyTransformations(n parse.Node) (bool, error) {
 	switch x := n.(type) {
 	case *parse.ListNode:
@@ -235,10 +208,8 @@ func (c *templateContext) applyTransformations(n parse.Node) (bool, error) {
 		c.applyTransformationsToNodes(x.Pipe)
 	case *parse.IfNode:
 		c.applyTransformationsToNodes(x.Pipe, x.List, x.ElseList)
-		c.wrapWithGetIf(x.Pipe)
 	case *parse.WithNode:
 		c.applyTransformationsToNodes(x.Pipe, x.List, x.ElseList)
-		c.wrapWithGetIf(x.Pipe)
 	case *parse.RangeNode:
 		c.applyTransformationsToNodes(x.Pipe, x.List, x.ElseList)
 	case *parse.TemplateNode:
