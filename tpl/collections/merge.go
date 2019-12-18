@@ -40,7 +40,7 @@ func (ns *Namespace) Merge(src, dst interface{}) (interface{}, error) {
 		return nil, errors.Errorf("source must be a map, got %T", src)
 	}
 
-	if vsrc.Type() != vdst.Type() {
+	if vsrc.Type().Key() != vdst.Type().Key() {
 		return nil, errors.Errorf("incompatible map types, got %T to %T", src, dst)
 	}
 

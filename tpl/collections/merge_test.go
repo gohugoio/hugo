@@ -21,6 +21,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/common/maps"
+
 	"github.com/gohugoio/hugo/parser"
 
 	"github.com/gohugoio/hugo/parser/metadecoders"
@@ -57,6 +59,18 @@ func TestMerge(t *testing.T) {
 			map[string]interface{}{"a": 1, "b": map[string]interface{}{"d": 1, "e": 2}},
 			map[string]interface{}{"a": 42, "c": 3, "b": map[string]interface{}{"d": 55, "e": 66, "f": 3}},
 			map[string]interface{}{"a": 1, "b": map[string]interface{}{"d": 1, "e": 2, "f": 3}, "c": 3}, false},
+		{
+			// https://github.com/gohugoio/hugo/issues/6633
+			"params dst",
+			maps.Params{"a": 1, "b": 2},
+			map[string]interface{}{"a": 42, "c": 3},
+			maps.Params{"a": int(1), "b": int(2), "c": int(3)}, false},
+		{
+			// https://github.com/gohugoio/hugo/issues/6633
+			"params src",
+			map[string]interface{}{"a": 1, "c": 2},
+			maps.Params{"a": 42, "c": 3},
+			map[string]interface{}{"a": int(1), "c": int(2)}, false},
 		{"src nil", simpleMap, nil, simpleMap, false},
 		// Error cases.
 		{"dst not a map", "not a map", nil, nil, true},
