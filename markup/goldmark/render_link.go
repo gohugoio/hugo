@@ -43,6 +43,7 @@ type linkContext struct {
 	destination string
 	title       string
 	text        string
+	plainText   string
 }
 
 func (ctx linkContext) Destination() string {
@@ -59,6 +60,10 @@ func (ctx linkContext) Page() interface{} {
 
 func (ctx linkContext) Text() string {
 	return ctx.text
+}
+
+func (ctx linkContext) PlainText() string {
+	return ctx.plainText
 }
 
 func (ctx linkContext) Title() string {
@@ -146,13 +151,16 @@ func (r *linkRenderer) renderImage(w util.BufWriter, source []byte, node ast.Nod
 		return ast.WalkContinue, nil
 	}
 
+	text := string(n.Text(source))
+
 	err := h.ImageRenderer.Render(
 		w,
 		linkContext{
 			page:        ctx.DocumentContext().Document,
 			destination: string(n.Destination),
 			title:       string(n.Title),
-			text:        string(n.Text(source)),
+			text:        text,
+			plainText:   text,
 		},
 	)
 
@@ -166,7 +174,7 @@ func (r *linkRenderer) renderLink(w util.BufWriter, source []byte, node ast.Node
 	n := node.(*ast.Link)
 	var h *hooks.Render
 
-	ctx, ok := w.(renderContextData)
+	ctx, ok := w.(*renderContext)
 	if ok {
 		h = ctx.RenderContext().RenderHooks
 		ok = h != nil && h.LinkRenderer != nil
@@ -176,9 +184,14 @@ func (r *linkRenderer) renderLink(w util.BufWriter, source []byte, node ast.Node
 		return r.renderDefaultLink(w, source, node, entering)
 	}
 
-	if !entering {
+	if entering {
+		// Store the current pos so we can capture the rendered text.
+		ctx.pos = ctx.Buffer.Len()
 		return ast.WalkContinue, nil
 	}
+
+	text := ctx.Buffer.Bytes()[ctx.pos:]
+	ctx.Buffer.Truncate(ctx.pos)
 
 	err := h.LinkRenderer.Render(
 		w,
@@ -186,14 +199,14 @@ func (r *linkRenderer) renderLink(w util.BufWriter, source []byte, node ast.Node
 			page:        ctx.DocumentContext().Document,
 			destination: string(n.Destination),
 			title:       string(n.Title),
-			text:        string(n.Text(source)),
+			text:        string(text),
+			plainText:   string(n.Text(source)),
 		},
 	)
 
 	ctx.AddIdentity(h.LinkRenderer.GetIdentity())
 
-	// Do not render the inner text.
-	return ast.WalkSkipChildren, err
+	return ast.WalkContinue, err
 
 }
 

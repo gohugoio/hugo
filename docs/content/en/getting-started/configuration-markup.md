@@ -117,7 +117,10 @@ Title
 : The title attribute.
 
 Text
-: The link text.
+: The rendered (HTML) link text.
+
+PlainText
+: The plain variant of the above.
 
 A Markdown example for a inline-style link with title:
 
