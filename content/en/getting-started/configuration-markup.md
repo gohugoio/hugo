@@ -86,7 +86,7 @@ These Render Hooks allow custom templates to render links and images from markdo
 
 You can do this by creating templates with base names `render-link` and/or `render-image` inside `layouts/_default`.
 
-You can define [Output Format](/templates/output-formats) specific templates if needed.[^1] Your `layouts` folder may then look like this:
+You can define [Output Format](/templates/output-formats) specific templates if needed.[^hooktemplate] Your `layouts` folder may then look like this:
 
 ```bash
 layouts
@@ -101,10 +101,7 @@ Some use cases for the above:
 
 * Resolve link references using `.GetPage`. This would make links more portable as you could translate `./my-post.md` (and similar constructs that would work on GitHub) into `/blog/2019/01/01/my-post/` etc.
 * Add `target=blank` to external links.
-* Resolve (look in the page bundle, inside `/assets` etc.) and [transform](/content-management/image-processing) images.
-
-
-[^1]: It's currently only possible to have one set of render hook templates, e.g. not per `Type` or `Section`. We may consider that in a future version.
+* Resolve 
 
 ### Render Hook Templates
 
@@ -133,3 +130,8 @@ A very simple template example given the above:
 {{< code file="layouts/_default/render-link.html" >}}
 <a href="{{ .Destination | safeURL }}"{{ with .Title}}title="{{ . }}"{{ end }}>{{ .Text }}{{ with .Page }} (in page {{ .Title }}){{ end }}"</a>
 {{< /code >}}
+
+(look in the page bundle, inside `/assets` etc.) and [transform](/content-management/image-processing) images.
+
+[^hooktemplate]: It's currently only possible to have one set of render hook templates, e.g. not per `Type` or `Section`. We may consider that in a future version.
+
