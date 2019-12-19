@@ -217,6 +217,16 @@ P3: <p>P3. xml-link: https://www.example.org|</p>
 func TestRenderLinkWithMarkupInText(t *testing.T) {
 
 	b := newTestSitesBuilder(t)
+	b.WithConfigFile("toml", `
+
+baseURL="https://example.org"
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+    
+`)
 
 	b.WithTemplates("index.html", `
 {{ $p := site.GetPage "p1.md" }}
@@ -224,6 +234,7 @@ P1: {{ $p.Content }}
 
 	`,
 		"_default/_markup/render-link.html", `html-link: {{ .Destination | safeURL }}|Text: {{ .Text | safeHTML }}|Plain: {{ .PlainText | safeHTML }}`,
+		"_default/_markup/render-image.html", `html-image: {{ .Destination | safeURL }}|Text: {{ .Text | safeHTML }}|Plain: {{ .PlainText | safeHTML }}`,
 	)
 
 	b.WithContent("p1.md", `---
@@ -233,6 +244,11 @@ title: "p1"
 START: [**should be bold**](https://gohugo.io)END
 
 Some regular **markup**.
+
+Image:
+
+![Hello<br> Goodbye](image.jpg)END
+
 `)
 
 	b.Build(BuildCfg{})
@@ -240,6 +256,7 @@ Some regular **markup**.
 	b.AssertFileContent("public/index.html", `
   P1: <p>START: html-link: https://gohugo.io|Text: <strong>should be bold</strong>|Plain: should be boldEND</p>
 <p>Some regular <strong>markup</strong>.</p>
+<p>html-image: image.jpg|Text: Hello<br> Goodbye|Plain: Hello GoodbyeEND</p>
 `)
 
 }
@@ -255,6 +272,7 @@ func TestRenderString(t *testing.T) {
 RSTART:{{ "**Bold Markdown**" | $p.RenderString }}:REND
 RSTART:{{  "**Bold Block Markdown**" | $p.RenderString  $optBlock }}:REND
 RSTART:{{  "/italic org mode/" | $p.RenderString  $optOrg }}:REND
+
 
 `)
 

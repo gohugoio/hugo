@@ -137,7 +137,7 @@ func (r *linkRenderer) renderImage(w util.BufWriter, source []byte, node ast.Nod
 	n := node.(*ast.Image)
 	var h *hooks.Render
 
-	ctx, ok := w.(renderContextData)
+	ctx, ok := w.(*renderContext)
 	if ok {
 		h = ctx.RenderContext().RenderHooks
 		ok = h != nil && h.ImageRenderer != nil
@@ -147,11 +147,14 @@ func (r *linkRenderer) renderImage(w util.BufWriter, source []byte, node ast.Nod
 		return r.renderDefaultImage(w, source, node, entering)
 	}
 
-	if !entering {
+	if entering {
+		// Store the current pos so we can capture the rendered text.
+		ctx.pos = ctx.Buffer.Len()
 		return ast.WalkContinue, nil
 	}
 
-	text := string(n.Text(source))
+	text := ctx.Buffer.Bytes()[ctx.pos:]
+	ctx.Buffer.Truncate(ctx.pos)
 
 	err := h.ImageRenderer.Render(
 		w,
@@ -159,14 +162,14 @@ func (r *linkRenderer) renderImage(w util.BufWriter, source []byte, node ast.Nod
 			page:        ctx.DocumentContext().Document,
 			destination: string(n.Destination),
 			title:       string(n.Title),
-			text:        text,
-			plainText:   text,
+			text:        string(text),
+			plainText:   string(n.Text(source)),
 		},
 	)
 
 	ctx.AddIdentity(h.ImageRenderer.GetIdentity())
 
-	return ast.WalkSkipChildren, err
+	return ast.WalkContinue, err
 
 }
 
