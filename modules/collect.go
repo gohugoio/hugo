@@ -250,6 +250,19 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import, disabled bool
 		}
 	}
 
+	if disabled {
+		// We want to avoid downloading big content modules etc. when
+		// not in use, but we need to keep track of disabled modules to
+		// avoid getting them removed from go.mod etc.
+		return &moduleAdapter{
+			path:     modulePath,
+			disabled: true,
+			vendor:   vendored,
+			version:  version,
+			owner:    realOwner,
+		}, nil
+	}
+
 	if moduleDir == "" {
 		mod = c.gomods.GetByPath(modulePath)
 		if mod != nil {
@@ -294,11 +307,10 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import, disabled bool
 	}
 
 	ma := &moduleAdapter{
-		dir:      moduleDir,
-		vendor:   vendored,
-		disabled: disabled,
-		gomod:    mod,
-		version:  version,
+		dir:     moduleDir,
+		vendor:  vendored,
+		gomod:   mod,
+		version: version,
 		// This may be the owner of the _vendor dir
 		owner: realOwner,
 	}
@@ -317,7 +329,6 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import, disabled bool
 		return nil, err
 	}
 
-	c.modules = append(c.modules, ma)
 	return ma, nil
 
 }
@@ -341,6 +352,7 @@ func (c *collector) addAndRecurse(owner *moduleAdapter, disabled bool) error {
 			if tc == nil {
 				continue
 			}
+			c.modules = append(c.modules, tc)
 			if err := c.addAndRecurse(tc, disabled); err != nil {
 				return err
 			}

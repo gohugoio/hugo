@@ -20,7 +20,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -288,14 +287,8 @@ func (c *Client) listGoMods() (goModules, error) {
 		return nil, nil
 	}
 
-	out := ioutil.Discard
-	err := c.runGo(context.Background(), out, "mod", "download")
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to download modules")
-	}
-
 	b := &bytes.Buffer{}
-	err = c.runGo(context.Background(), b, "list", "-m", "-json", "all")
+	err := c.runGo(context.Background(), b, "list", "-m", "-json", "all")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to list modules")
 	}
