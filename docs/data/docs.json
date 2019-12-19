@@ -1501,10 +1501,10 @@
         ]
       },
       {
-        "type": "image/jpg",
-        "string": "image/jpg",
+        "type": "image/jpeg",
+        "string": "image/jpeg",
         "mainType": "image",
-        "subType": "jpg",
+        "subType": "jpeg",
         "delimiter": ".",
         "suffixes": [
           "jpg",

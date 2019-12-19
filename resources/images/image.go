@@ -275,7 +275,7 @@ func (f Format) DefaultExtension() string {
 func (f Format) MediaType() media.Type {
 	switch f {
 	case JPEG:
-		return media.JPGType
+		return media.JPEGType
 	case PNG:
 		return media.PNGType
 	case GIF:
