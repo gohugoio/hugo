@@ -140,7 +140,7 @@ var (
 
 	// Common image types
 	PNGType  = Type{MainType: "image", SubType: "png", Suffixes: []string{"png"}, Delimiter: defaultDelimiter}
-	JPGType  = Type{MainType: "image", SubType: "jpg", Suffixes: []string{"jpg", "jpeg"}, Delimiter: defaultDelimiter}
+	JPEGType = Type{MainType: "image", SubType: "jpeg", Suffixes: []string{"jpg", "jpeg"}, Delimiter: defaultDelimiter}
 	GIFType  = Type{MainType: "image", SubType: "gif", Suffixes: []string{"gif"}, Delimiter: defaultDelimiter}
 	TIFFType = Type{MainType: "image", SubType: "tiff", Suffixes: []string{"tif", "tiff"}, Delimiter: defaultDelimiter}
 	BMPType  = Type{MainType: "image", SubType: "bmp", Suffixes: []string{"bmp"}, Delimiter: defaultDelimiter}
@@ -174,7 +174,7 @@ var DefaultTypes = Types{
 	YAMLType,
 	TOMLType,
 	PNGType,
-	JPGType,
+	JPEGType,
 	AVIType,
 	MPEGType,
 	MP4Type,

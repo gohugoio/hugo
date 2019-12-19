@@ -17,7 +17,7 @@ menu:
 ## Properties
 
 ResourceType
-: The main type of the resource. For example, a file of MIME type `image/jpg` has the ResourceType `image`.
+: The main type of the resource. For example, a file of MIME type `image/jpeg` has the ResourceType `image`.
 
 Name
 : Default value is the filename (relative to the owning page). Can be set in front matter.
@@ -35,7 +35,7 @@ Content
 : The content of the resource itself. For most resources, this returns a string with the contents of the file. This can be used to inline some resources, such as `<script>{{ (.Resources.GetMatch "myscript.js").Content | safeJS }}</script>` or `<img src="{{ (.Resources.GetMatch "mylogo.png").Content | base64Encode }}">`.
 
 MediaType
-: The MIME type of the resource, such as `image/jpg`.
+: The MIME type of the resource, such as `image/jpeg`.
 
 MediaType.MainType
 : The main type of the resource's MIME type. For example, a file of MIME type `application/pdf` has for MainType `application`.
