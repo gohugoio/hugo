@@ -1383,11 +1383,13 @@
         "lineNumbersInTable": true,
         "lineNoStart": 1,
         "hl_Lines": "",
-        "tabWidth": 4
+        "tabWidth": 4,
+        "guessSyntax": false
       },
       "tableOfContents": {
         "startLevel": 2,
-        "endLevel": 3
+        "endLevel": 3,
+        "ordered": false
       },
       "goldmark": {
         "renderer": {
@@ -2390,17 +2392,6 @@
         }
       },
       "compare": {
-        "And": {
-          "Description": "And computes the Boolean AND of its arguments, returning\nthe first false argument it encounters, or the last argument.",
-          "Args": [
-            "arg0",
-            "args"
-          ],
-          "Aliases": [
-            "and"
-          ],
-          "Examples": []
-        },
         "Conditional": {
           "Description": "Conditional can be used as a ternary operator.\nIt returns a if condition, else b.",
           "Args": [
@@ -2511,27 +2502,6 @@
           ],
           "Aliases": [
             "ne"
-          ],
-          "Examples": []
-        },
-        "Not": {
-          "Description": "Not returns the Boolean negation of its argument.",
-          "Args": [
-            "arg"
-          ],
-          "Aliases": [
-            "not"
-          ],
-          "Examples": []
-        },
-        "Or": {
-          "Description": "Or computes the Boolean OR of its arguments, returning\nthe first true argument it encounters, or the last argument.",
-          "Args": [
-            "arg0",
-            "args"
-          ],
-          "Aliases": [
-            "or"
           ],
           "Examples": []
         }
@@ -3542,11 +3512,11 @@
           ]
         },
         "IncludeCached": {
-          "Description": "IncludeCached executes and caches partial templates.  An optional variant\nstring parameter (a string slice actually, but be only use a variadic\nargument to make it optional) can be passed so that a given partial can have\nmultiple uses. The cache is created with name+variant as the key.",
+          "Description": "IncludeCached executes and caches partial templates.  The cache is created with name+variants as the key.",
           "Args": [
             "name",
             "context",
-            "variant"
+            "variants"
           ],
           "Aliases": [
             "partialCached"
