@@ -56,3 +56,9 @@ The `GitInfo` object contains the following fields:
 If the `.GitInfo` feature is enabled, `.Lastmod` (on `Page`) is fetched from Git i.e. `.GitInfo.AuthorDate`. This behaviour can be changed by adding your own [front matter configuration for dates](/getting-started/configuration/#configure-front-matter).
 
 [configuration]: /getting-started/configuration/
+
+## Using contentDir instead of workingDir
+
+If your content directory is under a submodule, you can add `useContentDirGitInfo` to `true` to your [site's configuration file][configuration].
+Hugo will then get its content metadata from the content repository (instead of the repository in the working directory).
+
