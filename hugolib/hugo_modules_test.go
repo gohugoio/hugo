@@ -569,3 +569,57 @@ func TestSiteWithGoModButNoModules(t *testing.T) {
 	b.Build(BuildCfg{})
 
 }
+
+// https://github.com/gohugoio/hugo/issues/6622
+func TestModuleAbsMount(t *testing.T) {
+	t.Parallel()
+
+	c := qt.New(t)
+	// We need to use the OS fs for this.
+	workDir, clean1, err := htesting.CreateTempDir(hugofs.Os, "hugo-project")
+	c.Assert(err, qt.IsNil)
+	absContentDir, clean2, err := htesting.CreateTempDir(hugofs.Os, "hugo-content")
+	c.Assert(err, qt.IsNil)
+
+	cfg := viper.New()
+	cfg.Set("workingDir", workDir)
+	fs := hugofs.NewFrom(hugofs.Os, cfg)
+
+	config := fmt.Sprintf(`
+workingDir=%q
+
+[module]
+  [[module.mounts]]
+    source = %q
+    target = "content"
+    
+`, workDir, absContentDir)
+
+	defer clean1()
+	defer clean2()
+
+	b := newTestSitesBuilder(t)
+	b.Fs = fs
+
+	contentFilename := filepath.Join(absContentDir, "p1.md")
+	afero.WriteFile(hugofs.Os, contentFilename, []byte(`
+---
+title: Abs
+---
+
+Content.
+`), 0777)
+
+	b.WithWorkingDir(workDir).WithConfigFile("toml", config)
+	b.WithContent("dummy.md", "")
+
+	b.WithTemplatesAdded("index.html", `
+{{ $p1 := site.GetPage "p1" }}
+P1: {{ $p1.Title }}|{{ $p1.RelPermalink }}|Filename: {{ $p1.File.Filename }}
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", "P1: Abs|/p1/", "Filename: "+contentFilename)
+
+}

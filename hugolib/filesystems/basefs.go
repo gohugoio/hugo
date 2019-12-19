@@ -531,6 +531,9 @@ func (b *sourceFilesystemsBuilder) createModFs(
 	)
 
 	absPathify := func(path string) string {
+		if filepath.IsAbs(path) {
+			return path
+		}
 		return paths.AbsPathify(md.dir, path)
 	}
 
