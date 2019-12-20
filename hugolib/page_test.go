@@ -1644,6 +1644,11 @@ $$$bash {hl_lines=[1]}
 MARKDOWN
 $$$
 
+Link with URL as text
+
+[https://google.com](https://google.com)
+
+
 `
 	content = strings.ReplaceAll(content, "$$$", "```")
 
@@ -1652,10 +1657,12 @@ $$$
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent("public/page/index.html",
-		`<nav id="TableOfContents">`,
-		`<li><a href="#shortcode-t-short-in-header">Shortcode T-SHORT in header</a></li>`,
-		`<code class="language-bash" data-lang="bash"><span class="hl">SHORT`,
-		`<code class="language-bash" data-lang="bash"><span class="hl">MARKDOWN`)
+		`<nav id="TableOfContents">
+<li><a href="#shortcode-t-short-in-header">Shortcode T-SHORT in header</a></li>
+<code class="language-bash" data-lang="bash"><span class="hl">SHORT
+<code class="language-bash" data-lang="bash"><span class="hl">MARKDOWN
+<p><a href="https://google.com">https://google.com</a></p>
+`)
 }
 
 func TestBlackfridayDefault(t *testing.T) {
