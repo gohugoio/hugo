@@ -564,6 +564,9 @@ type BuildCfg struct {
 	// we should skip most of the processing.
 	PartialReRender bool
 
+	// Set in server mode when the last build failed for some reason.
+	ErrRecovery bool
+
 	// Recently visited URLs. This is used for partial re-rendering.
 	RecentlyVisited map[string]bool
 }
@@ -807,8 +810,20 @@ func (h *HugoSites) findPagesByKindIn(kind string, inPages page.Pages) page.Page
 	return h.Sites[0].findPagesByKindIn(kind, inPages)
 }
 
-func (h *HugoSites) resetPageStateFromEvents(idset identity.Identities) {
+func (h *HugoSites) resetPageState() {
+	for _, s := range h.Sites {
+		for _, p := range s.rawAllPages {
+			for _, po := range p.pageOutputs {
+				if po.cp == nil {
+					continue
+				}
+				po.cp.Reset()
+			}
+		}
+	}
+}
 
+func (h *HugoSites) resetPageStateFromEvents(idset identity.Identities) {
 	for _, s := range h.Sites {
 	PAGES:
 		for _, p := range s.rawAllPages {
@@ -820,7 +835,6 @@ func (h *HugoSites) resetPageStateFromEvents(idset identity.Identities) {
 				for id, _ := range idset {
 					if po.cp.dependencyTracker.Search(id) != nil {
 						po.cp.Reset()
-						p.forceRender = true
 						continue OUTPUTS
 					}
 				}
@@ -834,7 +848,6 @@ func (h *HugoSites) resetPageStateFromEvents(idset identity.Identities) {
 								po.cp.Reset()
 							}
 						}
-						p.forceRender = true
 						continue PAGES
 					}
 				}

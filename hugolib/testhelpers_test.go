@@ -68,6 +68,7 @@ type sitesBuilder struct {
 
 	// Used to test partial rebuilds.
 	changedFiles []string
+	removedFiles []string
 
 	// Aka the Hugo server mode.
 	running bool
@@ -386,16 +387,22 @@ func (s *sitesBuilder) WithI18nAdded(filenameContent ...string) *sitesBuilder {
 }
 
 func (s *sitesBuilder) EditFiles(filenameContent ...string) *sitesBuilder {
-	var changedFiles []string
 	for i := 0; i < len(filenameContent); i += 2 {
 		filename, content := filepath.FromSlash(filenameContent[i]), filenameContent[i+1]
 		absFilename := s.absFilename(filename)
-		changedFiles = append(changedFiles, absFilename)
+		s.changedFiles = append(s.changedFiles, absFilename)
 		writeSource(s.T, s.Fs, absFilename, content)
 
 	}
-	s.changedFiles = changedFiles
+	return s
+}
 
+func (s *sitesBuilder) RemoveFiles(filenames ...string) *sitesBuilder {
+	for _, filename := range filenames {
+		absFilename := s.absFilename(filename)
+		s.removedFiles = append(s.removedFiles, absFilename)
+		s.Assert(s.Fs.Source.Remove(absFilename), qt.IsNil)
+	}
 	return s
 }
 
@@ -523,17 +530,20 @@ func (s *sitesBuilder) BuildFail(cfg BuildCfg) *sitesBuilder {
 }
 
 func (s *sitesBuilder) changeEvents() []fsnotify.Event {
-	if len(s.changedFiles) == 0 {
-		return nil
-	}
 
-	events := make([]fsnotify.Event, len(s.changedFiles))
-	// TODO(bep) remove?
-	for i, v := range s.changedFiles {
-		events[i] = fsnotify.Event{
+	var events []fsnotify.Event
+
+	for _, v := range s.changedFiles {
+		events = append(events, fsnotify.Event{
 			Name: v,
 			Op:   fsnotify.Write,
-		}
+		})
+	}
+	for _, v := range s.removedFiles {
+		events = append(events, fsnotify.Event{
+			Name: v,
+			Op:   fsnotify.Remove,
+		})
 	}
 
 	return events

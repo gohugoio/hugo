@@ -158,6 +158,60 @@ SHORT3|
 
 }
 
+func TestRenderHooksDeleteTemplate(t *testing.T) {
+	config := `
+baseURL="https://example.org"
+workingDir="/mywork"
+`
+	b := newTestSitesBuilder(t).WithWorkingDir("/mywork").WithConfigFile("toml", config).Running()
+	b.WithTemplatesAdded("_default/single.html", `{{ .Content }}`)
+	b.WithTemplatesAdded("_default/_markup/render-link.html", `html-render-link`)
+
+	b.WithContent("p1.md", `---
+title: P1
+---
+[First Link](https://www.google.com "Google's Homepage")
+
+`)
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/p1/index.html", `<p>html-render-link</p>`)
+
+	b.RemoveFiles(
+		"layouts/_default/_markup/render-link.html",
+	)
+
+	b.Build(BuildCfg{})
+	b.AssertFileContent("public/p1/index.html", `<p><a href="https://www.google.com" title="Google's Homepage">First Link</a></p>`)
+
+}
+
+func TestRenderHookAddTemplate(t *testing.T) {
+	config := `
+baseURL="https://example.org"
+workingDir="/mywork"
+`
+	b := newTestSitesBuilder(t).WithWorkingDir("/mywork").WithConfigFile("toml", config).Running()
+	b.WithTemplatesAdded("_default/single.html", `{{ .Content }}`)
+
+	b.WithContent("p1.md", `---
+title: P1
+---
+[First Link](https://www.google.com "Google's Homepage")
+
+`)
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/p1/index.html", `<p><a href="https://www.google.com" title="Google's Homepage">First Link</a></p>`)
+
+	b.EditFiles("layouts/_default/_markup/render-link.html", `html-render-link`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/p1/index.html", `<p>html-render-link</p>`)
+
+}
+
 func TestRenderHooksRSS(t *testing.T) {
 
 	b := newTestSitesBuilder(t)

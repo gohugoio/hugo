@@ -909,6 +909,7 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 		contentFilesChanged []string
 
 		tmplChanged bool
+		tmplAdded   bool
 		dataChanged bool
 		i18nChanged bool
 
@@ -934,8 +935,16 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 				logger.Println("Source changed", ev)
 				sourceChanged = append(sourceChanged, ev)
 			case files.ComponentFolderLayouts:
-				logger.Println("Template changed", ev)
 				tmplChanged = true
+				if _, found := s.Tmpl.Lookup(id.Path); !found {
+					tmplAdded = true
+				}
+				if tmplAdded {
+					logger.Println("Template added", ev)
+				} else {
+					logger.Println("Template changed", ev)
+				}
+
 			case files.ComponentFolderData:
 				logger.Println("Data changed", ev)
 				dataChanged = true
@@ -1021,7 +1030,11 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 		sourceFilesChanged[ev.Name] = true
 	}
 
-	h.resetPageStateFromEvents(changeIdentities)
+	if config.ErrRecovery || tmplAdded {
+		h.resetPageState()
+	} else {
+		h.resetPageStateFromEvents(changeIdentities)
+	}
 
 	if len(sourceReallyChanged) > 0 || len(contentFilesChanged) > 0 {
 		var filenamesChanged []string

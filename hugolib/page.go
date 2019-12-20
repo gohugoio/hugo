@@ -629,9 +629,12 @@ func (p *pageState) Render(layout ...string) (template.HTML, error) {
 
 }
 
-// wrapError adds some more context to the given error if possible
+// wrapError adds some more context to the given error if possible/needed
 func (p *pageState) wrapError(err error) error {
-
+	if _, ok := err.(*herrors.ErrorWithFileContext); ok {
+		// Preserve the first file context.
+		return err
+	}
 	var filename string
 	if !p.File().IsZero() {
 		filename = p.File().Filename()

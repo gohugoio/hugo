@@ -334,6 +334,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 				// First check the error state
 				err := f.c.getErrorWithContext()
 				if err != nil {
+					f.c.wasError = true
 					w.WriteHeader(500)
 					r, err := f.errorTemplate(err)
 					if err != nil {
