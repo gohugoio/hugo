@@ -3053,6 +3053,22 @@
               "works!\n"
             ]
           ]
+        },
+        "Warnf": {
+          "Description": "Warnf formats according to a format specifier and logs a WARNING.\nIt returns an empty string.",
+          "Args": [
+            "format",
+            "a"
+          ],
+          "Aliases": [
+            "warnf"
+          ],
+          "Examples": [
+            [
+              "{{ warnf \"%s.\" \"warning\" }}",
+              ""
+            ]
+          ]
         }
       },
       "hugo": {
