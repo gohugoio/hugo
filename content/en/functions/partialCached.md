@@ -42,4 +42,4 @@ If you need to pass additional parameters to create unique variants, you can pas
 {{ partialCached "footer.html" . .Params.country .Params.province }}
 ```
 
-Note that the variant parameters are not made available to the underlying partial template. They are only use to create a unique cache key.
+Note that the variant parameters are not made available to the underlying partial template. They are only use to create a unique cache key. Since Hugo `0.61.0` you can use any object as cache key(s), not just strings.
