@@ -23,12 +23,16 @@ import (
 
 // New returns a new instance of the fmt-namespaced template functions.
 func New(d *deps.Deps) *Namespace {
-	return &Namespace{helpers.NewDistinctLogger(d.Log.ERROR)}
+	return &Namespace{
+		errorLogger: helpers.NewDistinctLogger(d.Log.ERROR),
+		warnLogger:  helpers.NewDistinctLogger(d.Log.WARN),
+	}
 }
 
 // Namespace provides template functions for the "fmt" namespace.
 type Namespace struct {
 	errorLogger *helpers.DistinctLogger
+	warnLogger  *helpers.DistinctLogger
 }
 
 // Print returns string representation of the passed arguments.
@@ -52,4 +56,11 @@ func (ns *Namespace) Println(a ...interface{}) string {
 func (ns *Namespace) Errorf(format string, a ...interface{}) string {
 	ns.errorLogger.Printf(format, a...)
 	return _fmt.Sprintf(format, a...)
+}
+
+// Warnf formats according to a format specifier and logs a WARNING.
+// It returns an empty string.
+func (ns *Namespace) Warnf(format string, a ...interface{}) string {
+	ns.warnLogger.Printf(format, a...)
+	return ""
 }

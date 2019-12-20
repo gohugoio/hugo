@@ -57,6 +57,12 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Warnf,
+			[]string{"warnf"},
+			[][2]string{
+				{`{{ warnf "%s." "warning" }}`, ``},
+			},
+		)
 		return ns
 	}
 
