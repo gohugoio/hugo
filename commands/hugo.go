@@ -718,6 +718,9 @@ func (c *commandeer) handleBuildErr(err error, msg string) {
 
 func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 	defer c.timeTrack(time.Now(), "Total")
+	defer func() {
+		c.wasError = false
+	}()
 
 	c.buildErr = nil
 	visited := c.visitedURLs.PeekAllSet()
@@ -734,16 +737,19 @@ func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 		}
 
 	}
-	return c.hugo().Build(hugolib.BuildCfg{RecentlyVisited: visited}, events...)
+	return c.hugo().Build(hugolib.BuildCfg{RecentlyVisited: visited, ErrRecovery: c.wasError}, events...)
 }
 
 func (c *commandeer) partialReRender(urls ...string) error {
+	defer func() {
+		c.wasError = false
+	}()
 	c.buildErr = nil
 	visited := make(map[string]bool)
 	for _, url := range urls {
 		visited[url] = true
 	}
-	return c.hugo().Build(hugolib.BuildCfg{RecentlyVisited: visited, PartialReRender: true})
+	return c.hugo().Build(hugolib.BuildCfg{RecentlyVisited: visited, PartialReRender: true, ErrRecovery: c.wasError})
 }
 
 func (c *commandeer) fullRebuild(changeType string) {

@@ -88,6 +88,7 @@ type commandeer struct {
 	doLiveReload        bool
 	fastRenderMode      bool
 	showErrorInBrowser  bool
+	wasError            bool
 
 	configured bool
 	paused     bool
