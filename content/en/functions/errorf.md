@@ -14,14 +14,14 @@ workson: []
 hugoversion:
 relatedfuncs: [printf]
 deprecated: false
-aliases: []
+aliases: [/functions/errorf]
 ---
 
 `errorf` or `warnf` will evaluate a format string, then output the result to the ERROR or WARNING log (and only once per error message to avoid flooding the log).
 
 Any ERROR will also cause the build to fail (the `hugo` command will `exit -1`).
 
-Note that the WARNING will only be printed to the console.
+Both functions return an empty string, so the messages are only printed to the console.
 
 ```
 {{ errorf "Failed to handle page %q" .Path }}
