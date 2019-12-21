@@ -51,11 +51,11 @@ func (ns *Namespace) Println(a ...interface{}) string {
 	return _fmt.Sprintln(a...)
 }
 
-// Errorf formats according to a format specifier and returns the string as a
-// value that satisfies error.
+// Errorf formats according to a format specifier and logs an ERROR.
+// It returns an empty string.
 func (ns *Namespace) Errorf(format string, a ...interface{}) string {
 	ns.errorLogger.Printf(format, a...)
-	return _fmt.Sprintf(format, a...)
+	return ""
 }
 
 // Warnf formats according to a format specifier and logs a WARNING.

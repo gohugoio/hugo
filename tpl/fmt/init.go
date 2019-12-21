@@ -53,7 +53,7 @@ func init() {
 		ns.AddMethodMapping(ctx.Errorf,
 			[]string{"errorf"},
 			[][2]string{
-				{`{{ errorf "%s." "failed" }}`, `failed.`},
+				{`{{ errorf "%s." "failed" }}`, ``},
 			},
 		)
 
