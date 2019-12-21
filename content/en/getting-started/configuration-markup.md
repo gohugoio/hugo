@@ -86,7 +86,7 @@ These Render Hooks allow custom templates to render links and images from markdo
 
 You can do this by creating templates with base names `render-link` and/or `render-image` inside `layouts/_default`.
 
-You can define [Output Format](/templates/output-formats) specific templates if needed.[^hooktemplate] Your `layouts` folder may then look like this:
+You can define [Output Format](/templates/output-formats) and [language](/content-management/multilingual/) nspecific templates if needed.[^hooktemplate] Your `layouts` folder may look like this:
 
 ```bash
 layouts
@@ -99,9 +99,9 @@ layouts
 
 Some use cases for the above:
 
-* Resolve link references using `.GetPage`. This would make links more portable as you could translate `./my-post.md` (and similar constructs that would work on GitHub) into `/blog/2019/01/01/my-post/` etc.
-* Add `target=blank` to external links.
-* Resolve 
+* Resolve link references using `.GetPage`. This would make links portable as you could translate `./my-post.md` (and similar constructs that would work on GitHub) into `/blog/2019/01/01/my-post/` etc.
+* Add `target=_blank` to external links.
+* Resolve and [process](/content-management/image-processing/) images.
 
 ### Render Hook Templates
 
