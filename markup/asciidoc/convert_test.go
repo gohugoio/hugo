@@ -70,7 +70,7 @@ func TestAsciidoctorCurrentContent(t *testing.T) {
 	p, err := Provider.New(converter.ProviderConfig{Logger: loggers.NewErrorLogger(), Cfg: cfg})
 	c.Assert(err, qt.IsNil)
 
-	ctx := converter.DocumentContext{FileName: "/tmp/hugo_asciidoc_ddd/docs/chapter2/index.adoc", DocumentName: "chapter2/index.adoc"}
+	ctx := converter.DocumentContext{Filename: "/tmp/hugo_asciidoc_ddd/docs/chapter2/index.adoc", DocumentName: "chapter2/index.adoc"}
 	conv, err := p.New(ctx)
 	c.Assert(err, qt.IsNil)
 

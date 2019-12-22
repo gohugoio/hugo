@@ -659,7 +659,7 @@ func (p *pageMeta) applyDefaultValues() error {
 		cpp, err := cp.New(converter.DocumentContext{
 			DocumentID:      p.f.UniqueID(),
 			DocumentName:    p.f.Path(),
-			FileName:        p.f.Filename(),
+			Filename:        p.f.Filename(),
 			ConfigOverrides: renderingConfigOverrides,
 		})
 

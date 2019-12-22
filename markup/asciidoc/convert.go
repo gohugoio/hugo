@@ -86,7 +86,7 @@ func (a *asciidocConverter) getAsciidoctorArgs(ctx converter.DocumentContext) []
 	currentContent := a.config.CurrentContent
 
 	if currentContent {
-		contentDir := filepath.Dir(ctx.FileName)
+		contentDir := filepath.Dir(ctx.Filename)
 		destinationDir := a.cfg.Cfg.GetString("destination")
 		outDir, err := filepath.Abs(filepath.Dir(filepath.Join(destinationDir, ctx.DocumentName)))
 		if err != nil {
