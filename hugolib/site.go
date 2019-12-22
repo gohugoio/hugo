@@ -1589,7 +1589,7 @@ func (s *Site) renderForLayouts(name, outputFormat string, d interface{}, w io.W
 			log = s.Log.INFO
 		}
 
-		errMsg := "You should create a template file which matches Hugo Layouts Lookup Rules for this combination."
+		errMsg := "You should create a template file which matches one of these paths in a \"templates\" directory."
 		var args []interface{}
 		msg := "found no layout file for"
 		if outputFormat != "" {
@@ -1601,7 +1601,8 @@ func (s *Site) renderForLayouts(name, outputFormat string, d interface{}, w io.W
 			args = append(args, name)
 		}
 
-		msg += ": " + errMsg
+		msg += " in these paths: %v: " + errMsg
+		args = append(args, layouts)
 
 		log.Printf(msg, args...)
 
