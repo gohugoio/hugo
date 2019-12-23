@@ -25,7 +25,7 @@ Hugo now has:
 ## Notes
 
 * Ace and Amber support is now removed from Hugo. See [#6609](https://github.com/gohugoio/hugo/issues/6609) for more information.
-* The `markdownify` template function does not, yet, support render hooks. We recommend you look at the new and more powerful [.RenderString](https://gohugo.io/renderstring/) method on `Page`.
+* The `markdownify` template function does not, yet, support render hooks. We recommend you look at the new and more powerful [.RenderString](https://gohugo.io/functions/renderstring/) method on `Page`.
 * If you have output format specific behaviour in a template used from a content file, you must create a output format specific template, e.g. `myshortcode.amp.html`. This also applies to the new rendering hooks introduced in this release. This has been the intended behaviour all the time, but a failing test (now fixed) shows that the implementation of this has not been as strict as specified, hence this note.
 * The `errorf` does not return any value anymore. This means that the ERROR will just be printed to the console. We have also added a `warnf` template func.
 
