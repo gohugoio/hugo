@@ -84,7 +84,7 @@ Note that this is only supported with the [Goldmark](#goldmark) renderer.
 
 These Render Hooks allow custom templates to render links and images from markdown.
 
-You can do this by creating templates with base names `render-link` and/or `render-image` inside `layouts/_default`.
+You can do this by creating templates with base names `render-link` and/or `render-image` inside `layouts/_default/_markup`.
 
 You can define [Output Format](/templates/output-formats) and [language](/content-management/multilingual/) specific templates if needed.[^hooktemplate] Your `layouts` folder may look like this:
 
