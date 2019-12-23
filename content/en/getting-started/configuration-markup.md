@@ -131,7 +131,7 @@ A Markdown example for a inline-style link with title:
 A very simple template example given the above:
 
 {{< code file="layouts/_default/_markup/render-link.html" >}}
-<a href="{{ .Destination | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}>{{ .Text }}{{ with .Page }} (in page {{ .Title }}){{ end }}"</a>
+<a href="{{ .Destination | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}>{{ .Text }}{{ with .Page }} (in page {{ .Title }}){{ end }}</a>
 {{< /code >}}
 
 (look in the page bundle, inside `/assets` etc.) and [transform](/content-management/image-processing) images.
