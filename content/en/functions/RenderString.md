@@ -34,4 +34,4 @@ Some examples:
 ```
 
 
-**Note** that this method is more powerful than the similar [markdownify](functions/markdownify/) function as it also supports [Render Hooks](/getting-started/configuration-markup/#markdown-render-hooks) and it has options to render other markup formats.
+**Note** that this method is more powerful than the similar [markdownify](functions/markdownify/) function as it can render to other markup formats and supports both [Render Hooks](/getting-started/configuration-markup/#markdown-render-hooks) and [shortcodes](https://gohugo.io/content-management/shortcodes/#readout).
