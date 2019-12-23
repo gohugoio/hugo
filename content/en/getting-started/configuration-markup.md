@@ -131,10 +131,8 @@ A Markdown example for a inline-style link with title:
 A very simple template example given the above:
 
 {{< code file="layouts/_default/_markup/render-link.html" >}}
-<a href="{{ .Destination | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}>{{ .Text }}{{ with .Page }} (in page {{ .Title }}){{ end }}</a>
+<a href="{{ .Destination | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}{{ if strings.HasPrefix .Destination “http” }} target="_blank"{{ end }}>{{ .Text }}</a>
 {{< /code >}}
-
-(look in the page bundle, inside `/assets` etc.) and [transform](/content-management/image-processing) images.
 
 [^hooktemplate]: It's currently only possible to have one set of render hook templates, e.g. not per `Type` or `Section`. We may consider that in a future version.
 
