@@ -91,7 +91,7 @@ You can define [Output Format](/templates/output-formats) and [language](/conten
 ```bash
 layouts
 └── _default
-    └── markup
+    └── _markup
         ├── render-image.html
         ├── render-image.rss.xml
         └── render-link.html
@@ -130,7 +130,7 @@ A Markdown example for a inline-style link with title:
 
 A very simple template example given the above:
 
-{{< code file="layouts/_default/render-link.html" >}}
+{{< code file="layouts/_default/_markup/render-link.html" >}}
 <a href="{{ .Destination | safeURL }}"{{ with .Title}}title="{{ . }}"{{ end }}>{{ .Text }}{{ with .Page }} (in page {{ .Title }}){{ end }}"</a>
 {{< /code >}}
 
