@@ -446,7 +446,11 @@ func (p *testPage) RelRefFrom(argsm map[string]interface{}, source interface{}) 
 	return "", nil
 }
 
-func (p *testPage) Render(layout ...string) template.HTML {
+func (p *testPage) Render(layout ...string) (template.HTML, error) {
+	panic("not implemented")
+}
+
+func (p *testPage) RenderString(args ...interface{}) (template.HTML, error) {
 	panic("not implemented")
 }
 

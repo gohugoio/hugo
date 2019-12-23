@@ -27,10 +27,18 @@ type TestStruct struct {
 	M map[string]string
 }
 
+func (t TestStruct) Hello1(arg string) string {
+	return arg
+}
+
+func (t TestStruct) Hello2(arg1, arg2 string) string {
+	return arg1 + " " + arg2
+}
+
 type execHelper struct {
 }
 
-func (e *execHelper) GetFunc(name string) (reflect.Value, bool) {
+func (e *execHelper) GetFunc(tmpl Preparer, name string) (reflect.Value, bool) {
 	if name == "print" {
 		return zero, false
 	}
@@ -39,9 +47,17 @@ func (e *execHelper) GetFunc(name string) (reflect.Value, bool) {
 	}), true
 }
 
-func (e *execHelper) GetMapValue(m, key reflect.Value) (reflect.Value, bool) {
+func (e *execHelper) GetMapValue(tmpl Preparer, m, key reflect.Value) (reflect.Value, bool) {
 	key = reflect.ValueOf(strings.ToLower(key.String()))
 	return m.MapIndex(key), true
+}
+
+func (e *execHelper) GetMethod(tmpl Preparer, receiver reflect.Value, name string) (method reflect.Value, firstArg reflect.Value) {
+	if name != "Hello1" {
+		return zero, zero
+	}
+	m := receiver.MethodByName("Hello2")
+	return m, reflect.ValueOf("v2")
 }
 
 func TestTemplateExecutor(t *testing.T) {
@@ -51,6 +67,7 @@ func TestTemplateExecutor(t *testing.T) {
 {{ print "foo" }}
 {{ printf "hugo" }}
 Map: {{ .M.A }}
+Method: {{ .Hello1 "v1" }}
 
 `)
 
@@ -67,5 +84,6 @@ Map: {{ .M.A }}
 	c.Assert(got, qt.Contains, "foo")
 	c.Assert(got, qt.Contains, "hello hugo")
 	c.Assert(got, qt.Contains, "Map: av")
+	c.Assert(got, qt.Contains, "Method: v2 v1")
 
 }

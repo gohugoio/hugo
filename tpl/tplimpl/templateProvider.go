@@ -44,16 +44,13 @@ func (*TemplateProvider) Update(deps *deps.Deps) error {
 
 	}
 
-	return newTmpl.MarkReady()
+	return newTmpl.markReady()
 
 }
 
 // Clone clones.
 func (*TemplateProvider) Clone(d *deps.Deps) error {
-
 	t := d.Tmpl.(*templateHandler)
-	clone := t.clone(d)
-
-	return clone.MarkReady()
-
+	t.clone(d)
+	return nil
 }

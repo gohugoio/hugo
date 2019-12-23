@@ -371,8 +371,12 @@ func (p *nopPage) RelRef(argsm map[string]interface{}) (string, error) {
 	return "", nil
 }
 
-func (p *nopPage) Render(layout ...string) template.HTML {
-	return ""
+func (p *nopPage) Render(layout ...string) (template.HTML, error) {
+	return "", nil
+}
+
+func (p *nopPage) RenderString(args ...interface{}) (template.HTML, error) {
+	return "", nil
 }
 
 func (p *nopPage) ResourceType() string {

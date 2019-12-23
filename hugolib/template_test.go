@@ -18,8 +18,12 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/gohugoio/hugo/identity"
+
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/spf13/viper"
 )
@@ -320,6 +324,7 @@ Partial cached1: {{ partialCached "p1" "input1" $key1 }}
 Partial cached2: {{ partialCached "p1" "input2" $key1 }}
 Partial cached3: {{ partialCached "p1" "input3" $key2 }}
 `,
+
 		"partials/p1.html", `partial: {{ . }}`,
 	)
 
@@ -330,4 +335,114 @@ Partial cached3: {{ partialCached "p1" "input3" $key2 }}
  Partial cached2: partial: input1
  Partial cached3: partial: input3
 `)
+}
+
+// https://github.com/gohugoio/hugo/issues/6615
+func TestTemplateTruth(t *testing.T) {
+	b := newTestSitesBuilder(t)
+	b.WithTemplatesAdded("index.html", `
+{{ $p := index site.RegularPages 0 }}
+{{ $zero := $p.ExpiryDate }}
+{{ $notZero := time.Now }}
+
+if: Zero: {{ if $zero }}FAIL{{ else }}OK{{ end }}
+if: Not Zero: {{ if $notZero }}OK{{ else }}Fail{{ end }}
+not: Zero: {{ if not $zero }}OK{{ else }}FAIL{{ end }}
+not: Not Zero: {{ if not $notZero }}FAIL{{ else }}OK{{ end }}
+
+with: Zero {{ with $zero }}FAIL{{ else }}OK{{ end }}
+
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", `
+if: Zero: OK
+if: Not Zero: OK
+not: Zero: OK
+not: Not Zero: OK
+with: Zero OK
+`)
+}
+
+func TestTemplateDependencies(t *testing.T) {
+	b := newTestSitesBuilder(t).Running()
+
+	b.WithTemplates("index.html", `
+{{ $p := site.GetPage "p1" }}
+{{ partial "p1.html"  $p }}
+{{ partialCached "p2.html" "foo" }}
+{{ partials.Include "p3.html" "data" }}
+{{ partials.IncludeCached "p4.html" "foo" }}
+{{ $p := partial "p5" }}
+{{ partial "sub/p6.html" }}
+{{ partial "P7.html" }}
+{{ template "_default/foo.html" }}
+Partial nested: {{ partial "p10" }}
+
+`,
+		"partials/p1.html", `ps: {{ .Render "li" }}`,
+		"partials/p2.html", `p2`,
+		"partials/p3.html", `p3`,
+		"partials/p4.html", `p4`,
+		"partials/p5.html", `p5`,
+		"partials/sub/p6.html", `p6`,
+		"partials/P7.html", `p7`,
+		"partials/p8.html", `p8 {{ partial "p9.html" }}`,
+		"partials/p9.html", `p9`,
+		"partials/p10.html", `p10 {{ partial "p11.html" }}`,
+		"partials/p11.html", `p11`,
+		"_default/foo.html", `foo`,
+		"_default/li.html", `li {{ partial "p8.html" }}`,
+	)
+
+	b.WithContent("p1.md", `---
+title: P1
+---
+
+
+`)
+
+	b.Build(BuildCfg{})
+
+	s := b.H.Sites[0]
+
+	templ, found := s.lookupTemplate("index.html")
+	b.Assert(found, qt.Equals, true)
+
+	idset := make(map[identity.Identity]bool)
+	collectIdentities(idset, templ.(tpl.Info))
+	b.Assert(idset, qt.HasLen, 10)
+
+}
+
+func collectIdentities(set map[identity.Identity]bool, provider identity.Provider) {
+	if ids, ok := provider.(identity.IdentitiesProvider); ok {
+		for _, id := range ids.GetIdentities() {
+			collectIdentities(set, id)
+		}
+	} else {
+		set[provider.GetIdentity()] = true
+	}
+}
+
+func printRecursiveIdentities(level int, id identity.Provider) {
+	if level == 0 {
+		fmt.Println(id.GetIdentity(), "===>")
+	}
+	if ids, ok := id.(identity.IdentitiesProvider); ok {
+		level++
+		for _, id := range ids.GetIdentities() {
+			printRecursiveIdentities(level, id)
+		}
+	} else {
+		ident(level)
+		fmt.Println("ID", id)
+	}
+}
+
+func ident(n int) {
+	for i := 0; i < n; i++ {
+		fmt.Print("  ")
+	}
 }

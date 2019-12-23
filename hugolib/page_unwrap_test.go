@@ -26,6 +26,7 @@ func TestUnwrapPage(t *testing.T) {
 	p := &pageState{}
 
 	c.Assert(mustUnwrap(newPageForShortcode(p)), qt.Equals, p)
+	c.Assert(mustUnwrap(newPageForRenderHook(p)), qt.Equals, p)
 }
 
 func mustUnwrap(v interface{}) page.Page {

@@ -17,8 +17,11 @@ package goldmark
 import (
 	"bytes"
 	"fmt"
+	"math/bits"
 	"path/filepath"
 	"runtime/debug"
+
+	"github.com/gohugoio/hugo/identity"
 
 	"github.com/pkg/errors"
 
@@ -26,10 +29,8 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs"
 
-	"github.com/alecthomas/chroma/styles"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/highlight"
-	"github.com/gohugoio/hugo/markup/markup_config"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/yuin/goldmark"
 	hl "github.com/yuin/goldmark-highlighting"
@@ -48,7 +49,7 @@ type provide struct {
 }
 
 func (p provide) New(cfg converter.ProviderConfig) (converter.Provider, error) {
-	md := newMarkdown(cfg.MarkupConfig)
+	md := newMarkdown(cfg)
 	return converter.NewProvider("goldmark", func(ctx converter.DocumentContext) (converter.Converter, error) {
 		return &goldmarkConverter{
 			ctx: ctx,
@@ -64,11 +65,13 @@ type goldmarkConverter struct {
 	cfg converter.ProviderConfig
 }
 
-func newMarkdown(mcfg markup_config.Config) goldmark.Markdown {
-	cfg := mcfg.Goldmark
+func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
+	mcfg := pcfg.MarkupConfig
+	cfg := pcfg.MarkupConfig.Goldmark
 
 	var (
 		extensions = []goldmark.Extender{
+			newLinks(),
 			newTocExtension(),
 		}
 		rendererOptions []renderer.Option
@@ -143,14 +146,71 @@ func newMarkdown(mcfg markup_config.Config) goldmark.Markdown {
 
 }
 
+var _ identity.IdentitiesProvider = (*converterResult)(nil)
+
 type converterResult struct {
 	converter.Result
 	toc tableofcontents.Root
+	ids identity.Identities
 }
 
 func (c converterResult) TableOfContents() tableofcontents.Root {
 	return c.toc
 }
+
+func (c converterResult) GetIdentities() identity.Identities {
+	return c.ids
+}
+
+type bufWriter struct {
+	*bytes.Buffer
+}
+
+const maxInt = 1<<(bits.UintSize-1) - 1
+
+func (b *bufWriter) Available() int {
+	return maxInt
+}
+
+func (b *bufWriter) Buffered() int {
+	return b.Len()
+}
+
+func (b *bufWriter) Flush() error {
+	return nil
+}
+
+type renderContext struct {
+	*bufWriter
+	pos int
+	renderContextData
+}
+
+type renderContextData interface {
+	RenderContext() converter.RenderContext
+	DocumentContext() converter.DocumentContext
+	AddIdentity(id identity.Identity)
+}
+
+type renderContextDataHolder struct {
+	rctx converter.RenderContext
+	dctx converter.DocumentContext
+	ids  identity.Manager
+}
+
+func (ctx *renderContextDataHolder) RenderContext() converter.RenderContext {
+	return ctx.rctx
+}
+
+func (ctx *renderContextDataHolder) DocumentContext() converter.DocumentContext {
+	return ctx.dctx
+}
+
+func (ctx *renderContextDataHolder) AddIdentity(id identity.Identity) {
+	ctx.ids.Add(id)
+}
+
+var converterIdentity = identity.KeyValueIdentity{Key: "goldmark", Value: "converter"}
 
 func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (result converter.Result, err error) {
 	defer func() {
@@ -164,11 +224,9 @@ func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (result convert
 		}
 	}()
 
-	buf := &bytes.Buffer{}
+	buf := &bufWriter{Buffer: &bytes.Buffer{}}
 	result = buf
-	pctx := parser.NewContext()
-	pctx.Set(tocEnableKey, ctx.RenderTOC)
-
+	pctx := newParserContext(ctx)
 	reader := text.NewReader(ctx.Src)
 
 	doc := c.md.Parser().Parse(
@@ -176,27 +234,58 @@ func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (result convert
 		parser.WithContext(pctx),
 	)
 
-	if err := c.md.Renderer().Render(buf, ctx.Src, doc); err != nil {
+	rcx := &renderContextDataHolder{
+		rctx: ctx,
+		dctx: c.ctx,
+		ids:  identity.NewManager(converterIdentity),
+	}
+
+	w := &renderContext{
+		bufWriter:         buf,
+		renderContextData: rcx,
+	}
+
+	if err := c.md.Renderer().Render(w, ctx.Src, doc); err != nil {
 		return nil, err
 	}
 
-	if toc, ok := pctx.Get(tocResultKey).(tableofcontents.Root); ok {
-		return converterResult{
-			Result: buf,
-			toc:    toc,
-		}, nil
-	}
+	return converterResult{
+		Result: buf,
+		ids:    rcx.ids.GetIdentities(),
+		toc:    pctx.TableOfContents(),
+	}, nil
 
-	return buf, nil
+}
+
+var featureSet = map[identity.Identity]bool{
+	converter.FeatureRenderHooks: true,
+}
+
+func (c *goldmarkConverter) Supports(feature identity.Identity) bool {
+	return featureSet[feature.GetIdentity()]
+}
+
+func newParserContext(rctx converter.RenderContext) *parserContext {
+	ctx := parser.NewContext()
+	ctx.Set(tocEnableKey, rctx.RenderTOC)
+	return &parserContext{
+		Context: ctx,
+	}
+}
+
+type parserContext struct {
+	parser.Context
+}
+
+func (p *parserContext) TableOfContents() tableofcontents.Root {
+	if v := p.Get(tocResultKey); v != nil {
+		return v.(tableofcontents.Root)
+	}
+	return tableofcontents.Root{}
 }
 
 func newHighlighting(cfg highlight.Config) goldmark.Extender {
-	style := styles.Get(cfg.Style)
-	if style == nil {
-		style = styles.Fallback
-	}
-
-	e := hl.NewHighlighting(
+	return hl.NewHighlighting(
 		hl.WithStyle(cfg.Style),
 		hl.WithGuessLanguage(cfg.GuessSyntax),
 		hl.WithCodeBlockOptions(highlight.GetCodeBlockOptions()),
@@ -230,6 +319,4 @@ func newHighlighting(cfg highlight.Config) goldmark.Extender {
 
 		}),
 	)
-
-	return e
 }

@@ -36,7 +36,7 @@ require (
 	github.com/muesli/smartcrop v0.0.0-20180228075044-f6ebaa786a12
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/nicksnyder/go-i18n v1.10.0
-	github.com/niklasfasching/go-org v0.1.6
+	github.com/niklasfasching/go-org v0.1.9
 	github.com/olekukonko/tablewriter v0.0.0-20180506121414-d4647c9c7a84
 	github.com/pelletier/go-toml v1.4.0 // indirect
 	github.com/pkg/errors v0.8.1
@@ -52,7 +52,7 @@ require (
 	github.com/spf13/pflag v1.0.3
 	github.com/spf13/viper v1.4.0
 	github.com/tdewolff/minify/v2 v2.6.1
-	github.com/yuin/goldmark v1.1.14
+	github.com/yuin/goldmark v1.1.18
 	github.com/yuin/goldmark-highlighting v0.0.0-20191202084645-78f32c8dd6d5
 	go.opencensus.io v0.22.0 // indirect
 	gocloud.dev v0.15.0

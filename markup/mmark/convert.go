@@ -15,6 +15,7 @@
 package mmark
 
 import (
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/blackfriday/blackfriday_config"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/miekg/mmark"
@@ -63,6 +64,10 @@ type mmarkConverter struct {
 func (c *mmarkConverter) Convert(ctx converter.RenderContext) (converter.Result, error) {
 	r := getHTMLRenderer(c.ctx, c.b, c.cfg)
 	return mmark.Parse(ctx.Src, r, c.extensions), nil
+}
+
+func (c *mmarkConverter) Supports(feature identity.Identity) bool {
+	return false
 }
 
 func getHTMLRenderer(

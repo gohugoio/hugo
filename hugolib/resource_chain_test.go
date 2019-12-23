@@ -87,9 +87,9 @@ func TestSCSSWithThemeOverrides(t *testing.T) {
 		t.Skip("Skip SCSS")
 	}
 	c := qt.New(t)
-	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-scss-include")
+	workDir, clean1, err := htesting.CreateTempDir(hugofs.Os, "hugo-scss-include")
 	c.Assert(err, qt.IsNil)
-	defer clean()
+	defer clean1()
 
 	theme := "mytheme"
 	themesDir := filepath.Join(workDir, "themes")
@@ -174,9 +174,9 @@ func TestSCSSWithIncludePathsSass(t *testing.T) {
 		t.Skip("Skip SCSS")
 	}
 	c := qt.New(t)
-	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-scss-includepaths")
+	workDir, clean1, err := htesting.CreateTempDir(hugofs.Os, "hugo-scss-includepaths")
 	c.Assert(err, qt.IsNil)
-	defer clean()
+	defer clean1()
 
 	v := viper.New()
 	v.Set("workingDir", workDir)

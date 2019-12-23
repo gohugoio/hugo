@@ -811,6 +811,7 @@ Short Thumb Width: {{ $thumb.Width }}
 	writeSource(t, fs, filepath.Join(workDir, "layouts", "_default", "single.html"), singleLayout)
 	writeSource(t, fs, filepath.Join(workDir, "layouts", "_default", "list.html"), listLayout)
 	writeSource(t, fs, filepath.Join(workDir, "layouts", "shortcodes", "myShort.html"), myShort)
+	writeSource(t, fs, filepath.Join(workDir, "layouts", "shortcodes", "myShort.customo"), myShort)
 
 	writeSource(t, fs, filepath.Join(workDir, "base", "_index.md"), pageContent)
 	writeSource(t, fs, filepath.Join(workDir, "base", "_1.md"), pageContent)

@@ -18,9 +18,10 @@ package asciidoc
 import (
 	"os/exec"
 	"path/filepath"
+	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/markup/internal"
 
 	"github.com/gohugoio/hugo/markup/converter"
-	"github.com/gohugoio/hugo/markup/internal"
 )
 
 // Provider is the package entry point.
@@ -48,6 +49,10 @@ type asciidocConverter struct {
 
 func (a *asciidocConverter) Convert(ctx converter.RenderContext) (converter.Result, error) {
 	return converter.Bytes(a.getAsciidocContent(ctx.Src, a.ctx)), nil
+}
+
+func (c *asciidocConverter) Supports(feature identity.Identity) bool {
+	return false
 }
 
 // getAsciidocContent calls asciidoctor or asciidoc as an external helper

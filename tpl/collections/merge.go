@@ -17,6 +17,8 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/maps"
+
 	"github.com/gohugoio/hugo/common/hreflect"
 
 	"github.com/pkg/errors"
@@ -40,7 +42,7 @@ func (ns *Namespace) Merge(src, dst interface{}) (interface{}, error) {
 		return nil, errors.Errorf("source must be a map, got %T", src)
 	}
 
-	if vsrc.Type() != vdst.Type() {
+	if vsrc.Type().Key() != vdst.Type().Key() {
 		return nil, errors.Errorf("incompatible map types, got %T to %T", src, dst)
 	}
 
@@ -68,6 +70,9 @@ func mergeMap(dst, src reflect.Value) reflect.Value {
 
 	out := reflect.MakeMap(dst.Type())
 
+	// If the destination is Params, we must lower case all keys.
+	_, lowerCase := dst.Interface().(maps.Params)
+
 	// Copy the destination map.
 	for _, key := range dst.MapKeys() {
 		v := dst.MapIndex(key)
@@ -81,15 +86,18 @@ func mergeMap(dst, src reflect.Value) reflect.Value {
 		dv, found := caseInsensitiveLookup(dst, key)
 
 		if found {
-			// If both are the same map type, merge.
+			// If both are the same map key type, merge.
 			dve := dv.Elem()
 			if dve.Kind() == reflect.Map {
 				sve := sv.Elem()
-				if dve.Type() == sve.Type() {
+				if dve.Type().Key() == sve.Type().Key() {
 					out.SetMapIndex(key, mergeMap(dve, sve))
 				}
 			}
 		} else {
+			if lowerCase && key.Kind() == reflect.String {
+				key = reflect.ValueOf(strings.ToLower(key.String()))
+			}
 			out.SetMapIndex(key, sv)
 		}
 	}

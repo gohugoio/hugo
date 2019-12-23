@@ -23,6 +23,12 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/mitchellh/mapstructure"
+
+	"github.com/gohugoio/hugo/tpl"
+
+	"github.com/gohugoio/hugo/identity"
+
 	"github.com/gohugoio/hugo/markup/converter"
 
 	"github.com/gohugoio/hugo/common/maps"
@@ -43,9 +49,11 @@ import (
 
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/source"
+	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/text"
+	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -59,7 +67,11 @@ var (
 
 var (
 	pageTypesProvider = resource.NewResourceTypesProvider(media.OctetType, pageResourceType)
-	nopPageOutput     = &pageOutput{pagePerOutputProviders: nopPagePerOutput}
+	nopPageOutput     = &pageOutput{
+		pagePerOutputProviders:  nopPagePerOutput,
+		ContentProvider:         page.NopPage,
+		TableOfContentsProvider: page.NopPage,
+	}
 )
 
 // pageContext provides contextual information about this page, for error
@@ -317,6 +329,54 @@ func (ps *pageState) initCommonProviders(pp pagePaths) error {
 	return nil
 }
 
+func (p *pageState) createRenderHooks(f output.Format) (*hooks.Render, error) {
+
+	layoutDescriptor := p.getLayoutDescriptor()
+	layoutDescriptor.RenderingHook = true
+	layoutDescriptor.LayoutOverride = false
+	layoutDescriptor.Layout = ""
+
+	layoutDescriptor.Kind = "render-link"
+	linkLayouts, err := p.s.layoutHandler.For(layoutDescriptor, f)
+	if err != nil {
+		return nil, err
+	}
+
+	layoutDescriptor.Kind = "render-image"
+	imageLayouts, err := p.s.layoutHandler.For(layoutDescriptor, f)
+	if err != nil {
+		return nil, err
+	}
+
+	if linkLayouts == nil && imageLayouts == nil {
+		return nil, nil
+	}
+
+	var linkRenderer hooks.LinkRenderer
+	var imageRenderer hooks.LinkRenderer
+
+	if templ, found := p.s.lookupTemplate(linkLayouts...); found {
+		linkRenderer = contentLinkRenderer{
+			templateHandler: p.s.Tmpl,
+			Provider:        templ.(tpl.Info),
+			templ:           templ,
+		}
+	}
+
+	if templ, found := p.s.lookupTemplate(imageLayouts...); found {
+		imageRenderer = contentLinkRenderer{
+			templateHandler: p.s.Tmpl,
+			Provider:        templ.(tpl.Info),
+			templ:           templ,
+		}
+	}
+
+	return &hooks.Render{
+		LinkRenderer:  linkRenderer,
+		ImageRenderer: imageRenderer,
+	}, nil
+}
+
 func (p *pageState) getLayoutDescriptor() output.LayoutDescriptor {
 	p.layoutDescriptorInit.Do(func() {
 		var section string
@@ -464,11 +524,86 @@ func (p *pageState) AlternativeOutputFormats() page.OutputFormats {
 	return o
 }
 
-func (p *pageState) Render(layout ...string) template.HTML {
+type renderStringOpts struct {
+	Display string
+	Markup  string
+}
+
+var defualtRenderStringOpts = renderStringOpts{
+	Display: "inline",
+	Markup:  "", // Will inherit the page's value when not set.
+}
+
+func (p *pageState) RenderString(args ...interface{}) (template.HTML, error) {
+	if len(args) < 1 || len(args) > 2 {
+		return "", errors.New("want 1 or 2 arguments")
+	}
+
+	var s string
+	opts := defualtRenderStringOpts
+	sidx := 1
+
+	if len(args) == 1 {
+		sidx = 0
+	} else {
+		m, ok := args[0].(map[string]interface{})
+		if !ok {
+			return "", errors.New("first argument must be a map")
+		}
+
+		if err := mapstructure.WeakDecode(m, &opts); err != nil {
+			return "", errors.WithMessage(err, "failed to decode options")
+		}
+	}
+
+	var err error
+	s, err = cast.ToStringE(args[sidx])
+	if err != nil {
+		return "", err
+	}
+
+	conv := p.getContentConverter()
+	if opts.Markup != "" && opts.Markup != p.m.markup {
+		var err error
+		// TODO(bep) consider cache
+		conv, err = p.m.newContentConverter(p, opts.Markup, nil)
+		if err != nil {
+			return "", p.wrapError(err)
+		}
+	}
+
+	c, err := p.pageOutput.cp.renderContentWithConverter(conv, []byte(s), false)
+	if err != nil {
+		return "", p.wrapError(err)
+	}
+
+	b := c.Bytes()
+
+	if opts.Display == "inline" {
+		// We may have to rethink this in the future when we get other
+		// renderers.
+		b = p.s.ContentSpec.TrimShortHTML(b)
+	}
+
+	return template.HTML(string(b)), nil
+}
+
+func (p *pageState) addDependency(dep identity.Provider) {
+	if !p.s.running() || p.pageOutput.cp == nil {
+		return
+	}
+	p.pageOutput.cp.dependencyTracker.Add(dep)
+}
+
+func (p *pageState) RenderWithTemplateInfo(info tpl.Info, layout ...string) (template.HTML, error) {
+	p.addDependency(info)
+	return p.Render(layout...)
+}
+
+func (p *pageState) Render(layout ...string) (template.HTML, error) {
 	l, err := p.getLayouts(layout...)
 	if err != nil {
-		p.s.SendError(p.wrapError(errors.Errorf(".Render: failed to resolve layout %v", layout)))
-		return ""
+		return "", p.wrapError(errors.Errorf("failed to resolve layout %v", layout))
 	}
 
 	for _, layout := range l {
@@ -479,23 +614,27 @@ func (p *pageState) Render(layout ...string) template.HTML {
 			// We default to good old HTML.
 			templ, _ = p.s.Tmpl.Lookup(layout + ".html")
 		}
+
 		if templ != nil {
+			p.addDependency(templ.(tpl.Info))
 			res, err := executeToString(p.s.Tmpl, templ, p)
 			if err != nil {
-				p.s.SendError(p.wrapError(errors.Wrapf(err, ".Render: failed to execute template %q v", layout)))
-				return ""
+				return "", p.wrapError(errors.Wrapf(err, "failed to execute template %q v", layout))
 			}
-			return template.HTML(res)
+			return template.HTML(res), nil
 		}
 	}
 
-	return ""
+	return "", nil
 
 }
 
-// wrapError adds some more context to the given error if possible
+// wrapError adds some more context to the given error if possible/needed
 func (p *pageState) wrapError(err error) error {
-
+	if _, ok := err.(*herrors.ErrorWithFileContext); ok {
+		// Preserve the first file context.
+		return err
+	}
 	var filename string
 	if !p.File().IsZero() {
 		filename = p.File().Filename()
@@ -745,15 +884,33 @@ func (p *pageState) shiftToOutputFormat(isRenderingSite bool, idx int) error {
 		p.pageOutput.paginator.reset()
 	}
 
-	if idx > 0 {
-		// Check if we can reuse content from one of the previous formats.
-		for i := idx - 1; i >= 0; i-- {
-			po := p.pageOutputs[i]
-			if po.cp != nil && po.cp.reuse {
-				p.pageOutput.cp = po.cp
-				break
+	if isRenderingSite {
+		cp := p.pageOutput.cp
+		if cp == nil {
+
+			// Look for content to reuse.
+			for i := 0; i < len(p.pageOutputs); i++ {
+				if i == idx {
+					continue
+				}
+				po := p.pageOutputs[i]
+
+				if po.cp != nil && po.cp.reuse {
+					cp = po.cp
+					break
+				}
 			}
 		}
+
+		if cp == nil {
+			var err error
+			cp, err = newPageContentOutput(p, p.pageOutput)
+			if err != nil {
+				return err
+			}
+		}
+		p.pageOutput.initContentProvider(cp)
+		p.pageOutput.cp = cp
 	}
 
 	for _, r := range p.Resources().ByType(pageResourceType) {

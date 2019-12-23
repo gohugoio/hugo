@@ -19,6 +19,7 @@ import (
 	"os/exec"
 	"runtime"
 
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/internal"
 
 	"github.com/gohugoio/hugo/markup/converter"
@@ -46,6 +47,10 @@ type rstConverter struct {
 
 func (c *rstConverter) Convert(ctx converter.RenderContext) (converter.Result, error) {
 	return converter.Bytes(c.getRstContent(ctx.Src, c.ctx)), nil
+}
+
+func (c *rstConverter) Supports(feature identity.Identity) bool {
+	return false
 }
 
 // getRstContent calls the Python script rst2html as an external helper

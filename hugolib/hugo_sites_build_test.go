@@ -1459,3 +1459,19 @@ other = %q
 
 	return &multiSiteTestBuilder{sitesBuilder: b, configFormat: configFormat, config: config, configData: configData}
 }
+
+func TestRebuildOnAssetChange(t *testing.T) {
+	b := newTestSitesBuilder(t).Running()
+	b.WithTemplatesAdded("index.html", `
+{{ (resources.Get "data.json").Content }}
+`)
+	b.WithSourceFile("assets/data.json", "orig data")
+
+	b.Build(BuildCfg{})
+	b.AssertFileContent("public/index.html", `orig data`)
+
+	b.EditFiles("assets/data.json", "changed data")
+
+	b.Build(BuildCfg{})
+	b.AssertFileContent("public/index.html", `changed data`)
+}

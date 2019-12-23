@@ -16,6 +16,8 @@ package converter
 import (
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/markup_config"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/spf13/afero"
@@ -67,6 +69,7 @@ func (n newConverter) Name() string {
 // another format, e.g. Markdown to HTML.
 type Converter interface {
 	Convert(ctx RenderContext) (Result, error)
+	Supports(feature identity.Identity) bool
 }
 
 // Result represents the minimum returned from Convert.
@@ -94,6 +97,7 @@ func (b Bytes) Bytes() []byte {
 
 // DocumentContext holds contextual information about the document to convert.
 type DocumentContext struct {
+	Document        interface{} // May be nil. Usually a page.Page
 	DocumentID      string
 	DocumentName    string
 	Filename        string
@@ -102,6 +106,11 @@ type DocumentContext struct {
 
 // RenderContext holds contextual information about the content to render.
 type RenderContext struct {
-	Src       []byte
-	RenderTOC bool
+	Src         []byte
+	RenderTOC   bool
+	RenderHooks *hooks.Render
 }
+
+var (
+	FeatureRenderHooks = identity.NewPathIdentity("markup", "renderingHooks")
+)

@@ -54,3 +54,22 @@ func (p *pageForShortcode) TableOfContents() template.HTML {
 	p.p.enablePlaceholders()
 	return p.toc
 }
+
+// This is what is sent into the content render hooks (link, image).
+type pageForRenderHooks struct {
+	page.PageWithoutContent
+	page.TableOfContentsProvider
+	page.ContentProvider
+}
+
+func newPageForRenderHook(p *pageState) page.Page {
+	return &pageForRenderHooks{
+		PageWithoutContent:      p,
+		ContentProvider:         page.NopPage,
+		TableOfContentsProvider: page.NopPage,
+	}
+}
+
+func (p *pageForRenderHooks) page() page.Page {
+	return p.PageWithoutContent.(page.Page)
+}

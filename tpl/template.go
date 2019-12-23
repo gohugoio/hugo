@@ -24,8 +24,6 @@ import (
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 )
 
-var _ TemplateInfoProvider = (*TemplateInfo)(nil)
-
 // TemplateManager manages the collection of templates.
 type TemplateManager interface {
 	TemplateHandler
@@ -34,7 +32,6 @@ type TemplateManager interface {
 	AddLateTemplate(name, tpl string) error
 	LoadTemplates(prefix string) error
 
-	MarkReady() error
 	RebuildClone()
 }
 
@@ -80,11 +77,6 @@ type Template interface {
 	Prepare() (*texttemplate.Template, error)
 }
 
-// TemplateInfoProvider provides some contextual information about a template.
-type TemplateInfoProvider interface {
-	TemplateInfo() Info
-}
-
 // TemplateParser is used to parse ad-hoc templates, e.g. in the Resource chain.
 type TemplateParser interface {
 	Parse(name, tpl string) (Template, error)
@@ -101,10 +93,31 @@ type TemplateDebugger interface {
 	Debug()
 }
 
-// TemplateInfo wraps a Template with some additional information.
-type TemplateInfo struct {
+// templateInfo wraps a Template with some additional information.
+type templateInfo struct {
 	Template
-	Info Info
+	Info
+}
+
+// templateInfo wraps a Template with some additional information.
+type templateInfoManager struct {
+	Template
+	InfoManager
+}
+
+// WithInfo wraps the info in a template.
+func WithInfo(templ Template, info Info) Template {
+	if manager, ok := info.(InfoManager); ok {
+		return &templateInfoManager{
+			Template:    templ,
+			InfoManager: manager,
+		}
+	}
+
+	return &templateInfo{
+		Template: templ,
+		Info:     info,
+	}
 }
 
 var baseOfRe = regexp.MustCompile("template: (.*?):")
@@ -115,10 +128,6 @@ func extractBaseOf(err string) string {
 		return m[1]
 	}
 	return ""
-}
-
-func (t *TemplateInfo) TemplateInfo() Info {
-	return t.Info
 }
 
 // TemplateFuncGetter allows to find a template func by name.

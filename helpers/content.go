@@ -25,13 +25,14 @@ import (
 
 	"github.com/gohugoio/hugo/common/loggers"
 
+	"github.com/spf13/afero"
+
 	"github.com/gohugoio/hugo/markup/converter"
 
 	"github.com/gohugoio/hugo/markup"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/config"
-	"github.com/spf13/afero"
 
 	"strings"
 )
@@ -78,6 +79,7 @@ func NewContentSpec(cfg config.Provider, logger *loggers.Logger, contentFs afero
 		ContentFs: contentFs,
 		Logger:    logger,
 	})
+
 	if err != nil {
 		return nil, err
 	}

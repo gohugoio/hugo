@@ -20,6 +20,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/identity"
+
 	radix "github.com/armon/go-radix"
 
 	"github.com/gohugoio/hugo/output"
@@ -411,7 +413,6 @@ func applyDeps(cfg deps.DepsCfg, sites ...*Site) error {
 			}
 			d.OutputFormatsConfig = s.outputFormatsConfig
 		}
-
 	}
 
 	return nil
@@ -562,6 +563,9 @@ type BuildCfg struct {
 	// This is a partial re-render of some selected pages. This means
 	// we should skip most of the processing.
 	PartialReRender bool
+
+	// Set in server mode when the last build failed for some reason.
+	ErrRecovery bool
 
 	// Recently visited URLs. This is used for partial re-rendering.
 	RecentlyVisited map[string]bool
@@ -806,12 +810,50 @@ func (h *HugoSites) findPagesByKindIn(kind string, inPages page.Pages) page.Page
 	return h.Sites[0].findPagesByKindIn(kind, inPages)
 }
 
-func (h *HugoSites) findPagesByShortcode(shortcode string) page.Pages {
-	var pages page.Pages
+func (h *HugoSites) resetPageState() {
 	for _, s := range h.Sites {
-		pages = append(pages, s.findPagesByShortcode(shortcode)...)
+		for _, p := range s.rawAllPages {
+			for _, po := range p.pageOutputs {
+				if po.cp == nil {
+					continue
+				}
+				po.cp.Reset()
+			}
+		}
 	}
-	return pages
+}
+
+func (h *HugoSites) resetPageStateFromEvents(idset identity.Identities) {
+	for _, s := range h.Sites {
+	PAGES:
+		for _, p := range s.rawAllPages {
+		OUTPUTS:
+			for _, po := range p.pageOutputs {
+				if po.cp == nil {
+					continue
+				}
+				for id, _ := range idset {
+					if po.cp.dependencyTracker.Search(id) != nil {
+						po.cp.Reset()
+						continue OUTPUTS
+					}
+				}
+			}
+
+			for _, s := range p.shortcodeState.shortcodes {
+				for id, _ := range idset {
+					if idm, ok := s.info.(identity.Manager); ok && idm.Search(id) != nil {
+						for _, po := range p.pageOutputs {
+							if po.cp != nil {
+								po.cp.Reset()
+							}
+						}
+						continue PAGES
+					}
+				}
+			}
+		}
+	}
 }
 
 // Used in partial reloading to determine if the change is in a bundle.

@@ -379,8 +379,13 @@ title: "Shortcodes Galore!"
 		if s == nil {
 			return "<nil>"
 		}
+
+		var version int
+		if s.info != nil {
+			version = s.info.ParseInfo().Config.Version
+		}
 		return strReplacer.Replace(fmt.Sprintf("%s;inline:%t;closing:%t;inner:%v;params:%v;ordinal:%d;markup:%t;version:%d;pos:%d",
-			s.name, s.isInline, s.isClosing, s.inner, s.params, s.ordinal, s.doMarkup, s.info.Config.Version, s.pos))
+			s.name, s.isInline, s.isClosing, s.inner, s.params, s.ordinal, s.doMarkup, version, s.pos))
 	}
 
 	regexpCheck := func(re string) func(c *qt.C, shortcode *shortcode, err error) {

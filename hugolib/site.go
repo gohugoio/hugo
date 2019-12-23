@@ -28,6 +28,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/resources"
+
+	"github.com/gohugoio/hugo/identity"
+
+	"github.com/gohugoio/hugo/markup/converter/hooks"
+
 	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/markup/converter"
@@ -60,7 +66,6 @@ import (
 	"github.com/gohugoio/hugo/navigation"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/related"
-	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
 	"github.com/gohugoio/hugo/source"
 	"github.com/gohugoio/hugo/tpl"
@@ -801,7 +806,6 @@ func (s *Site) multilingual() *Multilingual {
 
 type whatChanged struct {
 	source bool
-	other  bool
 	files  map[string]bool
 }
 
@@ -888,9 +892,10 @@ func (s *Site) translateFileEvents(events []fsnotify.Event) []fsnotify.Event {
 // It returns whetever the content source was changed.
 // TODO(bep) clean up/rewrite this method.
 func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) error, events []fsnotify.Event) error {
-
 	events = s.filterFileEvents(events)
 	events = s.translateFileEvents(events)
+
+	changeIdentities := make(identity.Identities)
 
 	s.Log.DEBUG.Printf("Rebuild for events %q", events)
 
@@ -902,11 +907,13 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 		sourceChanged       = []fsnotify.Event{}
 		sourceReallyChanged = []fsnotify.Event{}
 		contentFilesChanged []string
-		tmplChanged         = []fsnotify.Event{}
-		dataChanged         = []fsnotify.Event{}
-		i18nChanged         = []fsnotify.Event{}
-		shortcodesChanged   = make(map[string]bool)
-		sourceFilesChanged  = make(map[string]bool)
+
+		tmplChanged bool
+		tmplAdded   bool
+		dataChanged bool
+		i18nChanged bool
+
+		sourceFilesChanged = make(map[string]bool)
 
 		// prevent spamming the log on changes
 		logger = helpers.NewDistinctFeedbackLogger()
@@ -919,33 +926,38 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 			cachePartitions = append(cachePartitions, resources.ResourceKeyPartitions(assetsFilename)...)
 		}
 
-		if s.isContentDirEvent(ev) {
-			logger.Println("Source changed", ev)
-			sourceChanged = append(sourceChanged, ev)
-		}
-		if s.isLayoutDirEvent(ev) {
-			logger.Println("Template changed", ev)
-			tmplChanged = append(tmplChanged, ev)
+		id, found := s.eventToIdentity(ev)
+		if found {
+			changeIdentities[id] = id
 
-			if strings.Contains(ev.Name, "shortcodes") {
-				shortcode := filepath.Base(ev.Name)
-				shortcode = strings.TrimSuffix(shortcode, filepath.Ext(shortcode))
-				shortcodesChanged[shortcode] = true
+			switch id.Type {
+			case files.ComponentFolderContent:
+				logger.Println("Source changed", ev)
+				sourceChanged = append(sourceChanged, ev)
+			case files.ComponentFolderLayouts:
+				tmplChanged = true
+				if _, found := s.Tmpl.Lookup(id.Path); !found {
+					tmplAdded = true
+				}
+				if tmplAdded {
+					logger.Println("Template added", ev)
+				} else {
+					logger.Println("Template changed", ev)
+				}
+
+			case files.ComponentFolderData:
+				logger.Println("Data changed", ev)
+				dataChanged = true
+			case files.ComponentFolderI18n:
+				logger.Println("i18n changed", ev)
+				i18nChanged = true
+
 			}
-		}
-		if s.isDataDirEvent(ev) {
-			logger.Println("Data changed", ev)
-			dataChanged = append(dataChanged, ev)
-		}
-		if s.isI18nEvent(ev) {
-			logger.Println("i18n changed", ev)
-			i18nChanged = append(dataChanged, ev)
 		}
 	}
 
 	changed := &whatChanged{
-		source: len(sourceChanged) > 0 || len(shortcodesChanged) > 0,
-		other:  len(tmplChanged) > 0 || len(i18nChanged) > 0 || len(dataChanged) > 0,
+		source: len(sourceChanged) > 0,
 		files:  sourceFilesChanged,
 	}
 
@@ -960,7 +972,7 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 		s.ResourceSpec.ResourceCache.DeletePartitions(cachePartitions...)
 	}
 
-	if len(tmplChanged) > 0 || len(i18nChanged) > 0 {
+	if tmplChanged || i18nChanged {
 		sites := s.h.Sites
 		first := sites[0]
 
@@ -989,7 +1001,7 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 		}
 	}
 
-	if len(dataChanged) > 0 {
+	if dataChanged {
 		s.h.init.data.Reset()
 	}
 
@@ -1018,17 +1030,10 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 		sourceFilesChanged[ev.Name] = true
 	}
 
-	for shortcode := range shortcodesChanged {
-		// There are certain scenarios that, when a shortcode changes,
-		// it isn't sufficient to just rerender the already parsed shortcode.
-		// One example is if the user adds a new shortcode to the content file first,
-		// and then creates the shortcode on the file system.
-		// To handle these scenarios, we must do a full reprocessing of the
-		// pages that keeps a reference to the changed shortcode.
-		pagesWithShortcode := h.findPagesByShortcode(shortcode)
-		for _, p := range pagesWithShortcode {
-			contentFilesChanged = append(contentFilesChanged, p.File().Filename())
-		}
+	if config.ErrRecovery || tmplAdded {
+		h.resetPageState()
+	} else {
+		h.resetPageStateFromEvents(changeIdentities)
 	}
 
 	if len(sourceReallyChanged) > 0 || len(contentFilesChanged) > 0 {
@@ -1218,20 +1223,14 @@ func (s *Site) initializeSiteInfo() error {
 	return nil
 }
 
-func (s *Site) isI18nEvent(e fsnotify.Event) bool {
-	return s.BaseFs.SourceFilesystems.IsI18n(e.Name)
-}
+func (s *Site) eventToIdentity(e fsnotify.Event) (identity.PathIdentity, bool) {
+	for _, fs := range s.BaseFs.SourceFilesystems.FileSystems() {
+		if p := fs.Path(e.Name); p != "" {
+			return identity.NewPathIdentity(fs.Name, p), true
+		}
+	}
 
-func (s *Site) isDataDirEvent(e fsnotify.Event) bool {
-	return s.BaseFs.SourceFilesystems.IsData(e.Name)
-}
-
-func (s *Site) isLayoutDirEvent(e fsnotify.Event) bool {
-	return s.BaseFs.SourceFilesystems.IsLayout(e.Name)
-}
-
-func (s *Site) isContentDirEvent(e fsnotify.Event) bool {
-	return s.BaseFs.IsContent(e.Name)
+	return identity.PathIdentity{}, false
 }
 
 func (s *Site) readAndProcessContent(filenames ...string) error {
@@ -1560,6 +1559,26 @@ func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath s
 var infoOnMissingLayout = map[string]bool{
 	// The 404 layout is very much optional in Hugo, but we do look for it.
 	"404": true,
+}
+
+type contentLinkRenderer struct {
+	templateHandler tpl.TemplateHandler
+	identity.Provider
+	templ tpl.Template
+}
+
+func (r contentLinkRenderer) Render(w io.Writer, ctx hooks.LinkContext) error {
+	return r.templateHandler.Execute(r.templ, w, ctx)
+}
+
+func (s *Site) lookupTemplate(layouts ...string) (tpl.Template, bool) {
+	for _, l := range layouts {
+		if templ, found := s.Tmpl.Lookup(l); found {
+			return templ, true
+		}
+	}
+
+	return nil, false
 }
 
 func (s *Site) renderForLayouts(name, outputFormat string, d interface{}, w io.Writer, layouts ...string) (err error) {

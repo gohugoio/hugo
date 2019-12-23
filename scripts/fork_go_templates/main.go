@@ -59,6 +59,8 @@ var (
 		"type state struct", "type stateOld struct",
 		"func (s *state) evalFunction", "func (s *state) evalFunctionOld",
 		"func (s *state) evalField(", "func (s *state) evalFieldOld(",
+		"func (s *state) evalCall(", "func (s *state) evalCallOld(",
+		"func isTrue(val reflect.Value) (truth, ok bool) {", "func isTrueOld(val reflect.Value) (truth, ok bool) {",
 	)
 
 	htmlTemplateReplacers = strings.NewReplacer(

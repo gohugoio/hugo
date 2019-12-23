@@ -548,7 +548,7 @@ func (c *collector) loadModules() error {
 	return nil
 }
 
-func (c *collector) normalizeMounts(owner Module, mounts []Mount) ([]Mount, error) {
+func (c *collector) normalizeMounts(owner *moduleAdapter, mounts []Mount) ([]Mount, error) {
 	var out []Mount
 	dir := owner.Dir()
 
@@ -562,8 +562,16 @@ func (c *collector) normalizeMounts(owner Module, mounts []Mount) ([]Mount, erro
 		mnt.Source = filepath.Clean(mnt.Source)
 		mnt.Target = filepath.Clean(mnt.Target)
 
+		var sourceDir string
+
+		if owner.projectMod && filepath.IsAbs(mnt.Source) {
+			// Abs paths in the main project is allowed.
+			sourceDir = mnt.Source
+		} else {
+			sourceDir = filepath.Join(dir, mnt.Source)
+		}
+
 		// Verify that Source exists
-		sourceDir := filepath.Join(dir, mnt.Source)
 		_, err := c.fs.Stat(sourceDir)
 		if err != nil {
 			continue
