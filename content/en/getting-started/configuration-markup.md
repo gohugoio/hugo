@@ -86,7 +86,7 @@ These Render Hooks allow custom templates to render links and images from markdo
 
 You can do this by creating templates with base names `render-link` and/or `render-image` inside `layouts/_default`.
 
-You can define [Output Format](/templates/output-formats) and [language](/content-management/multilingual/) nspecific templates if needed.[^hooktemplate] Your `layouts` folder may look like this:
+You can define [Output Format](/templates/output-formats) and [language](/content-management/multilingual/) specific templates if needed.[^hooktemplate] Your `layouts` folder may look like this:
 
 ```bash
 layouts
