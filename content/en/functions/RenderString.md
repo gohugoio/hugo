@@ -15,6 +15,8 @@ signature: [".RenderString MARKUP"]
 
 `.RenderString` is a method on `Page` that renders some markup to HTML using the content renderer defined for that page (if not set in the options).
 
+*Note* that this method does not parse and render shortcodes.
+
 The method takes an optional map argument with these options:
 
 display ("inline")
