@@ -86,7 +86,7 @@ These Render Hooks allow custom templates to render links and images from markdo
 
 You can do this by creating templates with base names `render-link` and/or `render-image` inside `layouts/_default/_markup`.
 
-You can define [Output Format](/templates/output-formats) and [language](/content-management/multilingual/) specific templates if needed.[^hooktemplate] Your `layouts` folder may look like this:
+You can define [Output-Format-](/templates/output-formats) and [language-](/content-management/multilingual/)specific templates if needed.[^hooktemplate] Your `layouts` folder may look like this:
 
 ```bash
 layouts
@@ -122,7 +122,7 @@ Text
 PlainText
 : The plain variant of the above.
 
-A Markdown example for a inline-style link with title:
+A Markdown example for an inline-style link with title:
 
 ```md
 [Text](https://www.gohugo.io "Title")
