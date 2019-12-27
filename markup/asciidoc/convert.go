@@ -16,10 +16,10 @@
 package asciidoc
 
 import (
-	"os/exec"
-	"path/filepath"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/internal"
+	"os/exec"
+	"path/filepath"
 
 	"github.com/gohugoio/hugo/markup/converter"
 )
