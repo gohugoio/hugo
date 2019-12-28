@@ -196,7 +196,16 @@ type shortcode struct {
 }
 
 func (s shortcode) insertPlaceholder() bool {
-	return !s.doMarkup || s.info.ParseInfo().Config.Version == 1
+	return !s.doMarkup || s.configVersion() == 1
+}
+
+func (s shortcode) configVersion() int {
+	if s.info == nil {
+		// Not set for inline shortcodes.
+		return 2
+	}
+
+	return s.info.ParseInfo().Config.Version
 }
 
 func (s shortcode) innerString() string {
@@ -347,7 +356,7 @@ func renderShortcode(
 
 		// Pre Hugo 0.55 this was the behaviour even for the outer-most
 		// shortcode.
-		if sc.doMarkup && (level > 0 || sc.info.ParseInfo().Config.Version == 1) {
+		if sc.doMarkup && (level > 0 || sc.configVersion() == 1) {
 			var err error
 			b, err := p.pageOutput.cp.renderContent([]byte(inner), false)
 
