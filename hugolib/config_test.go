@@ -524,3 +524,41 @@ resamplefilter = "CatmullRom"
 	c.Assert(cfg.Get("intSlice"), qt.DeepEquals, []interface{}{5, 8, 9})
 
 }
+
+func TestRecursiveMerging(t *testing.T) {
+
+	c := qt.New(t)
+
+	left := map[string]interface{}{
+		"foo": "test",
+		"bar": 12,
+		"baz": map[string]interface{}{
+			"foo": "nested",
+			"bar": nil,
+		},
+	}
+
+	right := map[string]interface{}{
+		"foo": "not applied",
+		"qux": "applied",
+		"baz": map[string]interface{}{
+			"foo": "ignored",
+			"bar": "untouched",
+			"baz": "is set",
+		},
+	}
+
+	result := map[string]interface{}{
+		"foo": "test",
+		"bar": 12,
+		"qux": "applied",
+		"baz": map[string]interface{}{
+			"foo": "nested",
+			"bar": nil,
+			"baz": "is set",
+		},
+	}
+
+	mergeStringMapRecursively(left, right)
+	c.Assert(left, qt.DeepEquals, result)
+}

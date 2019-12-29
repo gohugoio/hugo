@@ -539,6 +539,35 @@ func (l configLoader) applyThemeConfig(v1 *viper.Viper, theme modules.Module) er
 
 }
 
+// Helper function for mergeStringMapKeepLeft
+// If both sides of the configuration map are maps, merge rather than replace
+// contents.
+func mergeStringMapRecursively(l, r map[string]interface{}) {
+	var isMap bool
+	var lMap, rMap map[string]interface{}
+	for key, val := range r {
+		if _, found := l[key]; !found {
+			l[key] = val
+		} else {
+			rMap, isMap = val.(map[string]interface{})
+			if !isMap {
+				rMap, isMap = val.(maps.Params)
+			}
+
+			if isMap {
+				lMap, isMap = l[key].(map[string]interface{})
+				if !isMap {
+					lMap, isMap = l[key].(maps.Params)
+				}
+
+				if isMap {
+					mergeStringMapRecursively(lMap, rMap)
+				}
+			}
+		}
+	}
+}
+
 func (configLoader) mergeStringMapKeepLeft(rootKey, key string, v1, v2 config.Provider) {
 	if !v2.IsSet(key) {
 		return
@@ -558,6 +587,10 @@ func (configLoader) mergeStringMapKeepLeft(rootKey, key string, v1, v2 config.Pr
 				continue
 			}
 			m1[k] = v
+		} else if m1v, isMap := m1[k].(map[string]interface{}); isMap {
+			if m2v, isMap := v.(map[string]interface{}); isMap {
+				mergeStringMapRecursively(m1v, m2v)
+			}
 		}
 	}
 }
