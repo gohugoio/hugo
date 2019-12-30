@@ -35,7 +35,7 @@ var filepathSeparator = string(filepath.Separator)
 func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 	rootMapToReal := radix.New()
 
-	for _, rm := range rms {
+	for i, rm := range rms {
 		(&rm).clean()
 
 		fromBase := files.ResolveComponentFolder(rm.From)
@@ -47,16 +47,32 @@ func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 			panic(fmt.Sprintf("invalid root mapping; from/to: %s/%s", rm.From, rm.To))
 		}
 
-		_, err := fs.Stat(rm.To)
+		fi, err := fs.Stat(rm.To)
 		if err != nil {
 			if os.IsNotExist(err) {
 				continue
 			}
 			return nil, err
 		}
-
 		// Extract "blog" from "content/blog"
 		rm.path = strings.TrimPrefix(strings.TrimPrefix(rm.From, fromBase), filepathSeparator)
+		if rm.Meta != nil {
+			rm.Meta[metaKeyIsFileMount] = !fi.IsDir()
+			rm.Meta[metaKeyMountRoot] = rm.path
+			if rm.ToBasedir != "" {
+				pathFile := strings.TrimPrefix(strings.TrimPrefix(rm.To, rm.ToBasedir), filepathSeparator)
+				rm.Meta[metaKeyPathFile] = pathFile
+			}
+		}
+
+		meta := copyFileMeta(rm.Meta)
+
+		if !fi.IsDir() {
+			_, name := filepath.Split(rm.From)
+			meta[metaKeyName] = name
+		}
+
+		rm.fi = NewFileMetaInfo(fi, meta)
 
 		key := rm.rootKey()
 		var mappings []RootMapping
@@ -67,6 +83,8 @@ func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 		}
 		mappings = append(mappings, rm)
 		rootMapToReal.Insert(key, mappings)
+
+		rms[i] = rm
 	}
 
 	rfs := &RootMappingFs{Fs: fs,
@@ -91,11 +109,14 @@ func NewRootMappingFsFromFromTo(fs afero.Fs, fromTo ...string) (*RootMappingFs, 
 }
 
 type RootMapping struct {
-	From string
-	To   string
+	From      string   // The virtual mount.
+	To        string   // The source directory or file.
+	ToBasedir string   // The base of To. May be empty if an absolute path was provided.
+	Meta      FileMeta // File metadata (lang etc.)
 
-	path string   // The virtual mount point, e.g. "blog".
-	Meta FileMeta // File metadata (lang etc.)
+	fi   FileMetaInfo
+	path string // The virtual mount point, e.g. "blog".
+
 }
 
 func (rm *RootMapping) clean() {
@@ -148,6 +169,11 @@ func (fs *RootMappingFs) Dirs(base string) ([]FileMetaInfo, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "RootMappingFs.Dirs")
 		}
+
+		if !fi.IsDir() {
+			mergeFileMeta(r.Meta, fi.(FileMetaInfo).Meta())
+		}
+
 		fss[i] = fi.(FileMetaInfo)
 	}
 
@@ -168,7 +194,6 @@ func (fs *RootMappingFs) virtualDirOpener(name string, isRoot bool) func() (afer
 }
 
 func (fs *RootMappingFs) doLstat(name string, allowMultiple bool) ([]FileMetaInfo, []FileMetaInfo, bool, error) {
-
 	if fs.isRoot(name) {
 		return []FileMetaInfo{newDirNameOnlyFileInfo(name, true, fs.virtualDirOpener(name, true))}, nil, false, nil
 	}
@@ -210,10 +235,12 @@ func (fs *RootMappingFs) doLstat(name string, allowMultiple bool) ([]FileMetaInf
 			return nil, nil, false, err
 		}
 		fim := fi.(FileMetaInfo)
+
 		fis = append(fis, fim)
 	}
 
 	for _, root = range rootsInDir {
+
 		fi, _, err := fs.statRoot(root, "")
 		if err != nil {
 			if os.IsNotExist(err) {
@@ -500,9 +527,9 @@ func (f *rootMappingFile) Name() string {
 
 func (f *rootMappingFile) Readdir(count int) ([]os.FileInfo, error) {
 	if f.File == nil {
-		dirsn := make([]os.FileInfo, 0)
+		filesn := make([]os.FileInfo, 0)
 		roots := f.fs.getRootsWithPrefix(f.name)
-		seen := make(map[string]bool)
+		seen := make(map[string]bool) // Do not return duplicate directories
 
 		j := 0
 		for _, rm := range roots {
@@ -510,13 +537,16 @@ func (f *rootMappingFile) Readdir(count int) ([]os.FileInfo, error) {
 				break
 			}
 
-			opener := func() (afero.File, error) {
-				return f.fs.Open(rm.From)
+			if !rm.fi.IsDir() {
+				// A single file mount
+				filesn = append(filesn, rm.fi)
+				continue
 			}
 
-			name := rm.From
+			from := rm.From
+			name := from
 			if !f.isRoot {
-				_, name = filepath.Split(rm.From)
+				_, name = filepath.Split(from)
 			}
 
 			if seen[name] {
@@ -524,16 +554,21 @@ func (f *rootMappingFile) Readdir(count int) ([]os.FileInfo, error) {
 			}
 			seen[name] = true
 
+			opener := func() (afero.File, error) {
+				return f.fs.Open(from)
+			}
+
 			j++
 
 			fi := newDirNameOnlyFileInfo(name, false, opener)
+
 			if rm.Meta != nil {
 				mergeFileMeta(rm.Meta, fi.Meta())
 			}
 
-			dirsn = append(dirsn, fi)
+			filesn = append(filesn, fi)
 		}
-		return dirsn, nil
+		return filesn, nil
 	}
 
 	if f.File == nil {

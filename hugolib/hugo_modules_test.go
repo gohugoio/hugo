@@ -545,6 +545,85 @@ title: "My Page"
 	b.AssertFileContent("public/mypage/index.html", "Permalink: https://example.org/mypage/")
 }
 
+// https://github.com/gohugoio/hugo/issues/6684
+func TestMountsContentFile(t *testing.T) {
+	c := qt.New(t)
+	workingDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-modules-content-file")
+	c.Assert(err, qt.IsNil)
+	defer clean()
+
+	configTemplate := `
+baseURL = "https://example.com"
+title = "My Modular Site"
+workingDir = %q
+
+[module]
+  [[module.mounts]]
+    source = "README.md"
+    target = "content/_index.md"
+  [[module.mounts]]
+    source = "mycontent"
+    target = "content/blog"
+
+`
+
+	config := fmt.Sprintf(configTemplate, workingDir)
+
+	b := newTestSitesBuilder(t).Running()
+
+	b.Fs = hugofs.NewDefault(viper.New())
+
+	b.WithWorkingDir(workingDir).WithConfigFile("toml", config)
+	b.WithTemplatesAdded("index.html", `
+{{ .Title }}
+{{ .Content }}
+
+{{ $readme := .Site.GetPage "/README.md" }}
+{{ with $readme }}README: {{ .Title }}|Filename: {{ path.Join .File.Filename }}|Path: {{ path.Join .File.Path }}|FilePath: {{ path.Join .File.FileInfo.Meta.PathFile }}|{{ end }}
+
+
+{{ $mypage := .Site.GetPage "/blog/mypage.md" }}
+{{ with $mypage }}MYPAGE: {{ .Title }}|Path: {{ path.Join .File.Path }}|FilePath: {{ path.Join .File.FileInfo.Meta.PathFile }}|{{ end }}
+
+`)
+
+	os.Mkdir(filepath.Join(workingDir, "mycontent"), 0777)
+
+	b.WithSourceFile("README.md", `---
+title: "Readme Title"
+---
+
+Readme Content.
+`,
+		filepath.Join("mycontent", "mypage.md"), `
+---
+title: "My Page"
+---
+
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", `
+README: Readme Title
+/README.md|Path: _index.md|FilePath: README.md
+Readme Content.
+MYPAGE: My Page|Path: blog/mypage.md|FilePath: mycontent/mypage.md|
+`)
+	b.AssertFileContent("public/blog/mypage/index.html", "Single: My Page")
+
+	b.EditFiles("README.md", `---
+title: "Readme Edit"
+---
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", `
+Readme Edit
+`)
+}
+
 // https://github.com/gohugoio/hugo/issues/6299
 func TestSiteWithGoModButNoModules(t *testing.T) {
 	t.Parallel()

@@ -895,7 +895,7 @@ func (m *contentChangeMap) add(dirname string, tp bundleDirType) {
 	m.mu.Unlock()
 }
 
-func (m *contentChangeMap) resolveAndRemove(filename string) (string, string, bundleDirType) {
+func (m *contentChangeMap) resolveAndRemove(filename string) (string, bundleDirType) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -908,22 +908,22 @@ func (m *contentChangeMap) resolveAndRemove(filename string) (string, string, bu
 
 	if _, found := m.branchBundles[dir]; found {
 		delete(m.branchBundles, dir)
-		return dir, dir, bundleBranch
+		return dir, bundleBranch
 	}
 
 	if key, _, found := m.leafBundles.LongestPrefix(dir); found {
 		m.leafBundles.Delete(key)
 		dir = string(key)
-		return dir, dir, bundleLeaf
+		return dir, bundleLeaf
 	}
 
 	fileTp, isContent := classifyBundledFile(name)
 	if isContent && fileTp != bundleNot {
 		// A new bundle.
-		return dir, dir, fileTp
+		return dir, fileTp
 	}
 
-	return dir, filename, bundleNot
+	return dir, bundleNot
 
 }
 

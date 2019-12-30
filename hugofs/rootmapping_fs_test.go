@@ -186,20 +186,39 @@ func TestRootMappingFsMount(t *testing.T) {
 	c.Assert(afero.WriteFile(fs, filepath.Join("themes/a/myenblogcontent", testfile), []byte("some en content"), 0755), qt.IsNil)
 	c.Assert(afero.WriteFile(fs, filepath.Join("themes/a/mysvblogcontent", testfile), []byte("some sv content"), 0755), qt.IsNil)
 	c.Assert(afero.WriteFile(fs, filepath.Join("themes/a/mysvblogcontent", "other.txt"), []byte("some sv content"), 0755), qt.IsNil)
+	c.Assert(afero.WriteFile(fs, filepath.Join("themes/a/singlefiles", "no.txt"), []byte("no text"), 0755), qt.IsNil)
+	c.Assert(afero.WriteFile(fs, filepath.Join("themes/a/singlefiles", "sv.txt"), []byte("sv text"), 0755), qt.IsNil)
 
 	bfs := afero.NewBasePathFs(fs, "themes/a").(*afero.BasePathFs)
 	rm := []RootMapping{
-		RootMapping{From: "content/blog",
+		// Directories
+		RootMapping{
+			From: "content/blog",
 			To:   "mynoblogcontent",
 			Meta: FileMeta{"lang": "no"},
 		},
-		RootMapping{From: "content/blog",
+		RootMapping{
+			From: "content/blog",
 			To:   "myenblogcontent",
 			Meta: FileMeta{"lang": "en"},
 		},
-		RootMapping{From: "content/blog",
+		RootMapping{
+			From: "content/blog",
 			To:   "mysvblogcontent",
 			Meta: FileMeta{"lang": "sv"},
+		},
+		// Files
+		RootMapping{
+			From:      "content/singles/p1.md",
+			To:        "singlefiles/no.txt",
+			ToBasedir: "singlefiles",
+			Meta:      FileMeta{"lang": "no"},
+		},
+		RootMapping{
+			From:      "content/singles/p1.md",
+			To:        "singlefiles/sv.txt",
+			ToBasedir: "singlefiles",
+			Meta:      FileMeta{"lang": "sv"},
 		},
 	}
 
@@ -208,6 +227,7 @@ func TestRootMappingFsMount(t *testing.T) {
 
 	blog, err := rfs.Stat(filepath.FromSlash("content/blog"))
 	c.Assert(err, qt.IsNil)
+	c.Assert(blog.IsDir(), qt.Equals, true)
 	blogm := blog.(FileMetaInfo).Meta()
 	c.Assert(blogm.Lang(), qt.Equals, "no") // First match
 
@@ -236,6 +256,25 @@ func TestRootMappingFsMount(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	c.Assert(string(b), qt.Equals, "some no content")
 
+	// Check file mappings
+	single, err := rfs.Stat(filepath.FromSlash("content/singles/p1.md"))
+	c.Assert(err, qt.IsNil)
+	c.Assert(single.IsDir(), qt.Equals, false)
+	singlem := single.(FileMetaInfo).Meta()
+	c.Assert(singlem.Lang(), qt.Equals, "no") // First match
+
+	singlesDir, err := rfs.Open(filepath.FromSlash("content/singles"))
+	c.Assert(err, qt.IsNil)
+	defer singlesDir.Close()
+	singles, err := singlesDir.Readdir(-1)
+	c.Assert(err, qt.IsNil)
+	c.Assert(singles, qt.HasLen, 2)
+	for i, lang := range []string{"no", "sv"} {
+		fi := singles[i].(FileMetaInfo)
+		c.Assert(fi.Meta().PathFile(), qt.Equals, lang+".txt")
+		c.Assert(fi.Meta().Lang(), qt.Equals, lang)
+		c.Assert(fi.Name(), qt.Equals, "p1.md")
+	}
 }
 
 func TestRootMappingFsMountOverlap(t *testing.T) {
