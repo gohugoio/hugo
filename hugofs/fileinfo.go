@@ -35,6 +35,9 @@ import (
 
 const (
 	metaKeyFilename                   = "filename"
+	metaKeyPathFile                   = "pathFile"    // Path of filename relative to a root.
+	metaKeyIsFileMount                = "isFileMount" // Whether the source mount was a file.
+	metaKeyMountRoot                  = "mountRoot"
 	metaKeyOriginalFilename           = "originalFilename"
 	metaKeyName                       = "name"
 	metaKeyPath                       = "path"
@@ -108,8 +111,32 @@ func (f FileMeta) Lang() string {
 	return f.stringV(metaKeyLang)
 }
 
+// Path returns the relative file path to where this file is mounted.
 func (f FileMeta) Path() string {
 	return f.stringV(metaKeyPath)
+}
+
+// PathFile returns the relative file path for the file source. This
+// will in most cases be the same as Path.
+func (f FileMeta) PathFile() string {
+	pf := f.stringV(metaKeyPathFile)
+	if f.isFileMount() {
+		return pf
+	}
+	mountRoot := f.mountRoot()
+	if mountRoot == pf {
+		return f.Path()
+	}
+
+	return pf + (strings.TrimPrefix(f.Path(), mountRoot))
+}
+
+func (f FileMeta) mountRoot() string {
+	return f.stringV(metaKeyMountRoot)
+}
+
+func (f FileMeta) isFileMount() bool {
+	return f.GetBool(metaKeyIsFileMount)
 }
 
 func (f FileMeta) Weight() int {
@@ -127,10 +154,6 @@ func (f FileMeta) IsOrdered() bool {
 // IsSymlink returns whether this comes from a symlinked file or directory.
 func (f FileMeta) IsSymlink() bool {
 	return f.GetBool(metaKeyIsSymlink)
-}
-
-func (f FileMeta) String() string {
-	return f.Filename()
 }
 
 func (f FileMeta) Watch() bool {
@@ -208,6 +231,14 @@ func NewFileMetaInfo(fi os.FileInfo, m FileMeta) FileMetaInfo {
 		mergeFileMeta(fim.Meta(), m)
 	}
 	return &fileInfoMeta{FileInfo: fi, m: m}
+}
+
+func copyFileMeta(m FileMeta) FileMeta {
+	c := make(FileMeta)
+	for k, v := range m {
+		c[k] = v
+	}
+	return c
 }
 
 // Merge metadata, last entry wins.

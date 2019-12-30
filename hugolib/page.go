@@ -946,6 +946,24 @@ func (p *pageState) sourceRef() string {
 	return ""
 }
 
+func (p *pageState) sourceRefs() []string {
+	refs := []string{p.sourceRef()}
+
+	if !p.File().IsZero() {
+		meta := p.File().FileInfo().Meta()
+		path := meta.PathFile()
+
+		if path != "" {
+			ref := "/" + path
+			if ref != refs[0] {
+				refs = append(refs, ref)
+			}
+
+		}
+	}
+	return refs
+}
+
 type pageStatePages []*pageState
 
 // Implement sorting.

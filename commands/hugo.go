@@ -667,7 +667,7 @@ func (c *commandeer) timeTrack(start time.Time, name string) {
 
 // getDirList provides NewWatcher() with a list of directories to watch for changes.
 func (c *commandeer) getDirList() ([]string, error) {
-	var dirnames []string
+	var filenames []string
 
 	walkFn := func(path string, fi hugofs.FileMetaInfo, err error) error {
 		if err != nil {
@@ -681,25 +681,29 @@ func (c *commandeer) getDirList() ([]string, error) {
 				return filepath.SkipDir
 			}
 
-			dirnames = append(dirnames, fi.Meta().Filename())
+			filenames = append(filenames, fi.Meta().Filename())
 		}
 
 		return nil
 
 	}
 
-	watchDirs := c.hugo().PathSpec.BaseFs.WatchDirs()
-	for _, watchDir := range watchDirs {
+	watchFiles := c.hugo().PathSpec.BaseFs.WatchDirs()
+	for _, fi := range watchFiles {
+		if !fi.IsDir() {
+			filenames = append(filenames, fi.Meta().Filename())
+			continue
+		}
 
-		w := hugofs.NewWalkway(hugofs.WalkwayConfig{Logger: c.logger, Info: watchDir, WalkFn: walkFn})
+		w := hugofs.NewWalkway(hugofs.WalkwayConfig{Logger: c.logger, Info: fi, WalkFn: walkFn})
 		if err := w.Walk(); err != nil {
 			c.logger.ERROR.Println("walker: ", err)
 		}
 	}
 
-	dirnames = helpers.UniqueStringsSorted(dirnames)
+	filenames = helpers.UniqueStringsSorted(filenames)
 
-	return dirnames, nil
+	return filenames, nil
 }
 
 func (c *commandeer) buildSites() (err error) {
