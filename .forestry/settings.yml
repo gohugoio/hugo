@@ -19,6 +19,8 @@ build:
   - HUGO_ENV=staging
   - HUGO_VERSION=0.59.1
   preview_output_directory: public
+  install_dependencies_command: git submodule add https://github.com/cboettig/hugo-now-ui
+    themes/hugo-now-ui
   preview_docker_image: forestryio/hugo:latest
   mount_path: "/srv"
   working_dir: "/srv"
