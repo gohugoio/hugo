@@ -1,0 +1,106 @@
+.dropdown-menu{
+    border: 0;
+    box-shadow: 0px 10px 50px 0px rgba(0, 0, 0, 0.2);
+    border-radius: $border-radius-extra-small;
+    @include transition($fast-transition-time, $transition-linear);
+    font-size: $font-size-base;
+
+    &.dropdown-menu-right{
+        &:before{
+            left:auto;
+            right: 10px;
+        }
+    }
+
+    &:before{
+        display: inline-block;
+        position: absolute;
+        width: 0;
+        height: 0;
+        vertical-align: middle;
+        content: "";
+        top: -5px;
+        left: 10px;
+        right: auto;
+        color: $white-color;
+        border-bottom: .4em solid;
+        border-right: .4em solid transparent;
+        border-left: .4em solid transparent;
+    }
+
+    .dropdown-item{
+        font-size: $font-size-small;
+        padding-top: $padding-base-vertical;
+        padding-bottom: $padding-base-vertical;
+        @include transition($fast-transition-time, $transition-linear);
+
+        &:hover,
+        &:focus{
+            background-color: $opacity-gray-3;
+        }
+    }
+
+    .dropdown-divider{
+        background-color: $opacity-gray-5;
+    }
+
+    .dropdown-header:not([href]):not([tabindex]){
+        color: $default-color-opacity;
+        font-size: $font-size-mini;
+        text-transform: uppercase;
+        font-weight: $font-weight-bold;
+    }
+
+    &.dropdown-primary{
+        @include dropdown-colors(darken($primary-color, 3%),$opacity-8,$white-color, $opacity-2);
+    }
+
+    &.dropdown-info{
+        @include dropdown-colors(darken($info-color, 3%),$opacity-8,$white-color, $opacity-2);
+    }
+
+    &.dropdown-danger{
+        @include dropdown-colors(darken($danger-color, 3%),$opacity-8,$white-color, $opacity-2);
+    }
+
+    &.dropdown-success{
+        @include dropdown-colors(darken($success-color, 3%),$opacity-8,$white-color, $opacity-2);
+    }
+
+    &.dropdown-warning{
+        @include dropdown-colors(darken($warning-color, 3%),$opacity-8,$white-color, $opacity-2);
+    }
+
+    .dropdown &{
+        @include transform-translate-y(-25px);
+        visibility: hidden;
+        display: block;
+        @include opacity(0);
+    }
+
+    .dropdown.show &,
+    &.open{
+        @include opacity(1);
+        visibility: visible;
+        @include transform-translate-y(0px);
+    }
+
+    .navbar .dropdown.show &{
+        @include transform-translate-y(7px);
+    }
+}
+
+.button-dropdown{
+    padding-right: $padding-base-horizontal;
+    cursor: pointer;
+
+    & .dropdown-toggle{
+        padding-top: $padding-base-vertical;
+        padding-bottom: $padding-base-vertical;
+        display: block;
+
+        &:after{
+            display: none;
+        }
+    }
+}

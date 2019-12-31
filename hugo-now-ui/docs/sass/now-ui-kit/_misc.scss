@@ -1,0 +1,63 @@
+body{
+    color: $black-color;
+    font-size: $font-size-base;
+    font-family: $sans-serif-family;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+}
+
+.main{
+    position: relative;
+    background: $white-color;
+}
+/* Animations */
+.nav-pills .nav-link,
+.nav-item .nav-link,
+.navbar,
+.nav-tabs .nav-link{
+    @include transition($general-transition-time, $transition-ease);
+}
+
+//transition for dropdown caret
+.dropdown-toggle:after,
+.bootstrap-switch-label:before{
+    @include transition($fast-transition-time, $transition-ease);
+}
+
+.dropdown-toggle[aria-expanded="true"]:after{
+    @include rotate-180();
+}
+
+.button-bar{
+    display: block;
+    position: relative;
+    width: 22px;
+    height: 1px;
+    border-radius: 1px;
+    background: $white-bg;
+
+    & + .button-bar{
+        margin-top: 7px;
+    }
+
+    &:nth-child(2){
+        width: 17px;
+    }
+}
+
+.open{
+    @include transform-translate-y(0);
+    @include opacity(1);
+    visibility: visible;
+}
+
+.separator{
+    height: 2px;
+    width: 44px;
+    background-color: $default-color;
+    margin: 20px auto;
+
+    &.separator-primary{
+        background-color: $primary-color;
+    }
+}

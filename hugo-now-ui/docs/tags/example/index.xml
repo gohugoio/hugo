@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>example on Now UI Kit</title>
+    <link>/hugo-now-ui/tags/example/</link>
+    <description>Recent content in example on Now UI Kit</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 29 Nov 2017 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/hugo-now-ui/tags/example/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>example post</title>
+      <link>/hugo-now-ui/2017/11/29/example-post/</link>
+      <pubDate>Wed, 29 Nov 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/hugo-now-ui/2017/11/29/example-post/</guid>
+      <description>Awesome blog post</description>
+    </item>
+    
+  </channel>
+</rss>

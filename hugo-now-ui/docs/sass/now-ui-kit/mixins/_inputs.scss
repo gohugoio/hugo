@@ -1,0 +1,205 @@
+@mixin input-size($padding-vertical, $padding-horizontal){
+    padding: $padding-vertical $padding-horizontal;
+}
+
+@mixin form-control-placeholder($color, $opacity){
+   .form-control::-moz-placeholder{
+       color: $color;
+       @include opacity(1);
+   }
+   .form-control:-moz-placeholder{
+       color: $color;
+       @include opacity(1);
+   }
+   .form-control::-webkit-input-placeholder{
+       color: $color;
+       @include opacity(1);
+   }
+   .form-control:-ms-input-placeholder{
+       color: $color;
+       @include opacity(1);
+   }
+}
+
+@mixin light-form(){
+    border-radius: 0;
+    border:0;
+    padding: 0;
+    background-color: transparent;
+
+}
+
+
+@mixin input-lg-padding($padding-vertical, $padding-horizontal) {
+    .form-group.form-group-no-border.input-lg,
+    .input-group.form-group-no-border.input-lg{
+        .input-group-addon{
+            padding: $padding-vertical 0 $padding-vertical $padding-horizontal;
+        }
+
+        .form-control{
+            padding: $padding-vertical $padding-horizontal;
+
+            & + .input-group-addon{
+                padding: $padding-vertical $padding-horizontal $padding-vertical 0;
+            }
+        }
+    }
+
+    .form-group.input-lg,
+    .input-group.input-lg{
+        .form-control{
+            padding: $padding-vertical - 1 $padding-horizontal - 1;
+
+            & + .input-group-addon{
+                padding: $padding-vertical - 1 $padding-horizontal - 1 $padding-vertical - 1 0;
+            }
+        }
+
+        .input-group-addon{
+            padding: $padding-vertical - 1 0 $padding-vertical $padding-horizontal - 1;
+
+            & + .form-control{
+                padding: $padding-vertical  $padding-horizontal - 1 $padding-vertical $padding-horizontal - 3;
+            }
+        }
+    }
+}
+
+
+
+@mixin input-base-padding($padding-vertical, $padding-horizontal) {
+    .form-group.form-group-no-border,
+    .input-group.form-group-no-border{
+        .form-control{
+            padding: $padding-vertical $padding-horizontal;
+
+            & + .input-group-addon{
+                padding: $padding-vertical $padding-horizontal $padding-vertical 0;
+            }
+        }
+
+        .input-group-addon{
+            padding: $padding-vertical 0 $padding-vertical $padding-horizontal;
+        }
+    }
+
+    .form-group,
+    .input-group{
+        .form-control{
+            padding: $padding-vertical - 1 $padding-horizontal - 1 $padding-vertical - 1 $padding-horizontal - 1;
+
+            & + .input-group-addon{
+                padding: $padding-vertical - 1 $padding-horizontal - 1 $padding-vertical - 1 0;
+            }
+        }
+
+        .input-group-addon{
+            padding: $padding-vertical - 1 0 $padding-vertical - 1 $padding-horizontal - 1;
+
+            & + .form-control,
+            & ~ .form-control{
+                padding:$padding-vertical - 1 $padding-horizontal $padding-vertical $padding-horizontal - 3;
+            }
+        }
+    }
+}
+
+
+//color1 = $opacity-5
+//color2 = $opacity-8
+//color3 = $white-color
+//color4 = $transparent-bg
+//color5 = $opacity-1
+//color6 = $opacity-2
+
+
+@mixin input-coloured-bg($color1, $color2, $color3, $color4, $color5, $color6) {
+    @include form-control-placeholder(darken($color2, 8%), 1);
+
+    .form-control{
+        border-color: $color1;
+        color: $color2;
+
+        &:focus{
+            border-color: $color3;
+            background-color: $color4;
+            color: $color3;
+        }
+    }
+
+    .has-success,
+    .has-danger{
+        &:after{
+            color: $color3;
+        }
+    }
+
+    .has-danger{
+        .form-control{
+            background-color: $color4;
+        }
+    }
+
+    .input-group-addon{
+        background-color: $color4;
+        border-color: $color1;
+        color: $color2;
+    }
+
+    .input-group-focus{
+        .input-group-addon{
+            background-color: $color4;
+            border-color: $color3;
+            color: $color3;
+        }
+    }
+
+    .form-group.form-group-no-border,
+    .input-group.form-group-no-border{
+        .form-control{
+            background-color: $color5;
+            color: $color2;
+
+            &:focus,
+            &:active,
+            &:active{
+                background-color: $color6;
+                color: $color3;
+            }
+        }
+
+        .form-control + .input-group-addon{
+            background-color: $color5;
+
+            &:focus,
+            &:active,
+            &:active{
+                background-color: $color6;
+                color: $color3;
+            }
+        }
+
+        .form-control{
+            &:focus{
+                & + .input-group-addon{
+                    background-color: $color6;
+                    color: $color3;
+                }
+            }
+        }
+
+        .input-group-addon{
+            background-color: $color5;
+            border: none;
+            color: $color2;
+        }
+
+        &.input-group-focus{
+            .input-group-addon{
+                background-color: $color6;
+                color: $color3;
+            }
+        }
+    }
+}

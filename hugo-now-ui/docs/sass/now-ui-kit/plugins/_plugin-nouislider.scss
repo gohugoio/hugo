@@ -1,0 +1,351 @@
+/*! nouislider - 9.1.0 - 2016-12-10 16:00:32 */
+
+
+/* Functional styling;
+ * These styles are required for noUiSlider to function.
+ * You don't need to change these rules to apply your design.
+ */
+.noUi-target,
+.noUi-target * {
+-webkit-touch-callout: none;
+-webkit-tap-highlight-color: rgba(0,0,0,0);
+-webkit-user-select: none;
+-ms-touch-action: none;
+	touch-action: none;
+-ms-user-select: none;
+-moz-user-select: none;
+	user-select: none;
+-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+.noUi-target {
+	position: relative;
+	direction: ltr;
+}
+.noUi-base {
+	width: 100%;
+	height: 100%;
+	position: relative;
+	z-index: 1; /* Fix 401 */
+}
+.noUi-connect {
+	position: absolute;
+	right: 0;
+	top: 0;
+	left: 0;
+	bottom: 0;
+}
+.noUi-origin {
+	position: absolute;
+	height: 0;
+	width: 0;
+}
+.noUi-handle {
+	position: relative;
+	z-index: 1;
+}
+.noUi-state-tap .noUi-connect,
+.noUi-state-tap .noUi-origin {
+-webkit-transition: top 0.3s, right 0.3s, bottom 0.3s, left 0.3s;
+	transition: top 0.3s, right 0.3s, bottom 0.3s, left 0.3s;
+}
+.noUi-state-drag * {
+	cursor: inherit !important;
+}
+
+/* Painting and performance;
+ * Browsers can paint handles in their own layer.
+ */
+.noUi-base,
+.noUi-handle {
+	-webkit-transform: translate3d(0,0,0);
+	transform: translate3d(0,0,0);
+}
+
+/* Slider size and handle placement;
+ */
+.noUi-horizontal {
+	height: 1px;
+}
+.noUi-horizontal .noUi-handle {
+    border-radius: 50%;
+	background-color: $white-color;
+	box-shadow: 0 1px 13px 0 rgba(0, 0, 0, 0.2);
+	height:15px;
+	width:15px;
+	cursor:pointer;
+    margin-left: -10px;
+    margin-top: -7px;
+}
+.noUi-vertical {
+	width: 18px;
+}
+.noUi-vertical .noUi-handle {
+	width: 28px;
+	height: 34px;
+	left: -6px;
+	top: -17px;
+}
+
+/* Styling;
+ */
+.noUi-target {
+	background-color: rgba(182, 182, 182, .3);
+	border-radius: 3px;
+}
+.noUi-connect {
+	background: $default-color;
+    border-radius: 3px;
+-webkit-transition: background 450ms;
+	transition: background 450ms;
+}
+
+/* Handles and cursors;
+ */
+.noUi-draggable {
+	cursor: ew-resize;
+}
+.noUi-vertical .noUi-draggable {
+	cursor: ns-resize;
+}
+.noUi-handle {
+	// border: 1px solid #D9D9D9;
+	border-radius: 3px;
+	background: #FFF;
+	cursor: default;
+	box-shadow: inset 0 0 1px #FFF,
+				inset 0 1px 7px #EBEBEB,
+				0 3px 6px -3px #BBB;
+	-webkit-transition: $general-transition-time $transition-ease;
+    -moz-transition: $general-transition-time $transition-ease;
+    -ms-transition: $general-transition-time $transition-ease;
+    -o-transform: $general-transition-time $transition-ease;
+    transition: $general-transition-time $transition-ease;
+}
+.noUi-active {
+	-webkit-transform: scale3d(1.5,1.5,1);
+    -moz-transform: scale3d(1.5,1.5,1);
+    -ms-transform: scale3d(1.5,1.5,1);
+    -o-transform: scale3d(1.5,1.5,1);
+    transform: scale3d(1.5,1.5,1);
+}
+
+/* Disabled state;
+ */
+
+[disabled] .noUi-connect {
+	background: #B8B8B8;
+}
+[disabled].noUi-target,
+[disabled].noUi-handle,
+[disabled] .noUi-handle {
+	cursor: not-allowed;
+}
+
+/* Base;
+ *
+ */
+.noUi-pips,
+.noUi-pips * {
+-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+.noUi-pips {
+	position: absolute;
+	color: #999;
+}
+
+/* Values;
+ *
+ */
+.noUi-value {
+	position: absolute;
+	text-align: center;
+}
+.noUi-value-sub {
+	color: #ccc;
+	font-size: 10px;
+}
+
+/* Markings;
+ *
+ */
+.noUi-marker {
+	position: absolute;
+	background: #CCC;
+}
+.noUi-marker-sub {
+	background: #AAA;
+}
+.noUi-marker-large {
+	background: #AAA;
+}
+
+/* Horizontal layout;
+ *
+ */
+.noUi-pips-horizontal {
+	padding: 10px 0;
+	height: 80px;
+	top: 100%;
+	left: 0;
+	width: 100%;
+}
+.noUi-value-horizontal {
+	-webkit-transform: translate3d(-50%,50%,0);
+	transform: translate3d(-50%,50%,0);
+}
+
+.noUi-marker-horizontal.noUi-marker {
+	margin-left: -1px;
+	width: 2px;
+	height: 5px;
+}
+.noUi-marker-horizontal.noUi-marker-sub {
+	height: 10px;
+}
+.noUi-marker-horizontal.noUi-marker-large {
+	height: 15px;
+}
+
+/* Vertical layout;
+ *
+ */
+.noUi-pips-vertical {
+	padding: 0 10px;
+	height: 100%;
+	top: 0;
+	left: 100%;
+}
+.noUi-value-vertical {
+	-webkit-transform: translate3d(0,50%,0);
+	transform: translate3d(0,50%,0);
+	padding-left: 25px;
+}
+
+.noUi-marker-vertical.noUi-marker {
+	width: 5px;
+	height: 2px;
+	margin-top: -1px;
+}
+.noUi-marker-vertical.noUi-marker-sub {
+	width: 10px;
+}
+.noUi-marker-vertical.noUi-marker-large {
+	width: 15px;
+}
+
+.noUi-tooltip {
+	display: block;
+	position: absolute;
+	border: 1px solid #D9D9D9;
+	border-radius: 3px;
+	background: #fff;
+	color: #000;
+	padding: 5px;
+	text-align: center;
+}
+.noUi-horizontal .noUi-tooltip {
+-webkit-transform: translate(-50%, 0);
+    transform: translate(-50%, 0);
+    left: 50%;
+    bottom: 120%;
+}
+.noUi-vertical .noUi-tooltip {
+-webkit-transform: translate(0, -50%);
+    transform: translate(0, -50%);
+    top: 50%;
+    right: 120%;
+}
+
+
+.slider {
+
+	&.slider-neutral{
+		& .noUi-connect,
+        &.noUi-connect{
+            background-color: $white-color;
+        }
+
+		&.noUi-target{
+			background-color: rgba(255,255,255, .3);
+		}
+
+		& .noUi-handle{
+			background-color: $white-color;
+		}
+	}
+
+	&.slider-primary{
+		& .noUi-connect,
+        &.noUi-connect{
+            background-color: $primary-color;
+        }
+
+		&.noUi-target{
+			background-color: $primary-color-opacity;
+		}
+
+		& .noUi-handle{
+			background-color: $brand-primary;
+		}
+	}
+
+    &.slider-info{
+        & .noUi-connect,
+        &.noUi-connect{
+            background-color: $brand-info;
+        }
+
+		&.noUi-target{
+			background-color: $info-color-opacity;
+		}
+
+		& .noUi-handle{
+			background-color: $brand-info;
+		}
+    }
+    &.slider-success{
+        & .noUi-connect,
+        &.noUi-connect{
+            background-color: $brand-success;
+        }
+
+        &.noUi-target{
+			background-color: $success-color-opacity;
+		}
+
+		& .noUi-handle{
+			background-color: $brand-success;
+		}
+    }
+    &.slider-warning{
+        & .noUi-connect,
+        &.noUi-connect{
+            background-color: $brand-warning;
+        }
+
+        &.noUi-target{
+			background-color: $warning-color-opacity;
+		}
+
+		& .noUi-handle{
+			background-color: $brand-warning;
+		}
+    }
+    &.slider-danger{
+        & .noUi-connect,
+        &.noUi-connect{
+            background-color: $brand-danger;
+        }
+
+        &.noUi-target{
+			background-color: $danger-color-opacity;
+		}
+
+		& .noUi-handle{
+			background-color: $brand-danger;
+		}
+    }
+
+}

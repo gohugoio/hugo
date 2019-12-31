@@ -1,0 +1,98 @@
+.card{
+    border: 0;
+    border-radius: $border-radius-small;
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    margin-bottom: 20px;
+    box-shadow: 0px 5px 25px 0px rgba(0, 0, 0, 0.2);
+
+    .card-body{
+        min-height: 190px;
+    }
+
+    &[data-background-color="orange"]{
+        background-color: $primary-color;
+    }
+
+    &[data-background-color="red"]{
+        background-color: $danger-color;
+    }
+
+    &[data-background-color="yellow"]{
+        background-color: $warning-color;
+    }
+
+    &[data-background-color="blue"]{
+        background-color: $info-color;
+    }
+
+    &[data-background-color="green"]{
+        background-color: $success-color;
+    }
+}
+
+.card-signup{
+    max-width: 350px;
+    margin: 0 auto;
+
+    .header{
+        margin-left: 20px;
+        margin-right: 20px;
+        padding: 30px 0;
+    }
+    .text-divider{
+        margin-top: 30px;
+        margin-bottom: 0px;
+        text-align: center;
+    }
+    .card-body{
+        padding-top: 0px;
+        padding-bottom: 0px;
+        min-height: auto;
+    }
+
+    .checkbox{
+        margin-top: 20px;
+
+        label{
+            margin-left: 17px;
+        }
+        .checkbox-material{
+            padding-right: 12px;
+        }
+    }
+
+    .social-line{
+        margin-top: 20px;
+        text-align: center;
+
+        .btn.btn-icon ,
+        .btn.btn-icon .btn-icon -mini{
+            margin-left: 5px;
+            margin-right: 5px;
+            box-shadow: 0px 5px 50px 0px rgba(0, 0, 0, 0.2);
+        }
+    }
+
+    .footer{
+        margin-bottom: 10px;
+        margin-top: 24px;
+    }
+}
+
+.card-plain{
+    background: transparent;
+    box-shadow: none;
+
+    .header{
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .content{
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
