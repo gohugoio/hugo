@@ -1,0 +1,131 @@
+.nav-pills{
+
+    .nav-item {
+        .nav-link{
+            padding: 0 15.5px;
+            text-align: center;
+            height: 60px;
+            width: 60px;
+            font-weight: $font-weight-normal;
+            color: $dark-gray;
+            margin-right: 19px;
+            background-color: $opacity-gray-3;
+            border-radius: $btn-round-radius;
+
+            &:hover{
+                background-color: $opacity-gray-3;
+            }
+
+            &.active{
+                &,
+                &:focus,
+                &:hover{
+                    background-color: $dark-gray;
+                    color: $white-color;
+                    box-shadow: 0px 5px 35px 0px rgba(0, 0, 0, 0.3);
+                }
+            }
+
+            &.disabled,
+            &:disabled,
+            &[disabled]{
+                opacity: .5;
+            }
+        }
+
+        i{
+            display: block;
+            font-size: 20px;
+            line-height: 60px;
+        }
+    }
+
+    &.nav-pills-neutral{
+        .nav-item {
+            .nav-link{
+                background-color: $opacity-2;
+                color: $white-color;
+
+                &.active{
+                    &,
+                    &:focus,
+                    &:hover{
+                        background-color: $white-color;
+                        color: $primary-color;
+                    }
+                }
+            }
+        }
+    }
+
+    &.nav-pills-primary{
+        .nav-item {
+            .nav-link.active{
+                &,
+                &:focus,
+                &:hover{
+                    background-color: $brand-primary;
+                }
+            }
+        }
+    }
+
+    &.nav-pills-info{
+        .nav-item {
+            .nav-link.active{
+                &,
+                &:focus,
+                &:hover{
+                    background-color: $brand-info;
+                }
+            }
+        }
+    }
+
+    &.nav-pills-success{
+        .nav-item {
+            .nav-link.active{
+                &,
+                &:focus,
+                &:hover{
+                    background-color: $brand-success;
+                }
+            }
+        }
+    }
+
+    &.nav-pills-warning{
+        .nav-item {
+            .nav-link.active{
+                &,
+                &:focus,
+                &:hover{
+                    background-color: $brand-warning;
+                }
+            }
+        }
+    }
+
+    &.nav-pills-danger{
+        .nav-item {
+            .nav-link.active{
+                &,
+                &:focus,
+                &:hover{
+                    background-color: $brand-danger;
+                }
+            }
+        }
+    }
+}
+.tab-space{
+    padding: 20px 0 50px 0px;
+}
+
+.nav-align-center{
+    text-align: center;
+
+    .nav-pills{
+        display: inline-flex;
+    }
+}

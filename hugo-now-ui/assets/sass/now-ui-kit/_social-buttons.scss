@@ -1,0 +1,39 @@
+.btn-twitter{
+    color: $social-twitter;
+
+    &:hover,
+    &:focus,
+    &:active{
+        color: $social-twitter-state-color;
+    }
+}
+
+.btn-facebook{
+    color: $social-facebook;
+
+    &:hover,
+    &:focus,
+    &:active{
+        color: $social-facebook-state-color;
+    }
+}
+
+.btn-google{
+    color: $social-google;
+
+    &:hover,
+    &:focus,
+    &:active{
+        color: $social-google-state-color;
+    }
+}
+
+.btn-linkedin{
+    color: $social-linkedin;
+
+    &:hover,
+    &:focus,
+    &:active{
+        color: $social-linkedin-state-color;
+    }
+}

@@ -1,0 +1,158 @@
+.btn,
+.navbar .navbar-nav > a.btn{
+    border-width: $border-thick;
+    font-weight: $font-weight-normal;
+    font-size: $font-size-small;
+    line-height: $line-height;
+    margin: 5px 1px;
+    border: none;
+    border-radius: $border-radius-small;
+    padding: $padding-btn-vertical $padding-btn-horizontal;
+    cursor: pointer;
+
+    @include btn-styles($default-color, $default-states-color);
+
+    &:hover,
+    &:focus{
+        @include opacity(1);
+        outline: 0 !important;
+    }
+    &:active,
+    &.active,
+    .open > &.dropdown-toggle {
+         @include box-shadow(none);
+         outline: 0 !important;
+    }
+
+    &.btn-icon {
+        // see above for color variations
+        height: $btn-icon-size-regular;
+        min-width: $btn-icon-size-regular;
+        width: $btn-icon-size-regular;
+        padding: 0;
+        font-size: $btn-icon-font-size-regular;
+        overflow: hidden;
+        position: relative;
+        line-height: normal;
+
+        &.btn-simple{
+            padding: 0;
+        }
+
+        &.btn-sm{
+            height: $btn-icon-size-small;
+            min-width: $btn-icon-size-small;
+            width: $btn-icon-size-small;
+
+            i.fa,
+            i.now-ui-icons{
+                font-size: $btn-icon-font-size-small;
+            }
+        }
+
+        &.btn-lg{
+            height: $btn-icon-size-lg;
+            min-width: $btn-icon-size-lg;
+            width: $btn-icon-size-lg;
+
+            i.now-ui-icons,
+            i.fa{
+                font-size: $btn-icon-font-size-lg;
+            }
+        }
+
+        &:not(.btn-footer) i.now-ui-icons,
+        &:not(.btn-footer) i.fa{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-12px, -12px);
+            line-height: 1.5626rem;
+            width: 25px;
+        }
+
+    }
+
+    &:not(.btn-icon) .now-ui-icons{
+        position: relative;
+        top: 1px;
+    }
+}
+
+// Apply the mixin to the buttons
+// .btn-default { @include btn-styles($default-color, $default-states-color); }
+.btn-primary { @include btn-styles($primary-color, $primary-states-color); }
+.btn-success { @include btn-styles($success-color, $success-states-color); }
+.btn-info    { @include btn-styles($info-color, $info-states-color); }
+.btn-warning { @include btn-styles($warning-color, $warning-states-color); }
+.btn-danger  { @include btn-styles($danger-color, $danger-states-color); }
+.btn-neutral { @include btn-styles($white-color, $white-color); }
+
+.btn{
+     &:disabled,
+     &[disabled],
+     &.disabled{
+        @include opacity(.5);
+    }
+}
+.btn-round{
+    border-width: $border-thin;
+    border-radius: $btn-round-radius !important;
+    padding: $padding-btn-vertical  $padding-round-horizontal;
+
+    &.btn-simple{
+        padding: $padding-btn-vertical - 1  $padding-round-horizontal - 1;
+    }
+}
+.btn-simple{
+    border: $border;
+    border-color: $default-color;
+    padding: $padding-btn-vertical - 1 $padding-round-horizontal - 1;
+    background-color: $transparent-bg;
+}
+
+.btn-simple,
+.btn-link{
+    &.disabled,
+    &:disabled,
+    &[disabled],
+    fieldset[disabled] & {
+        &,
+        &:hover,
+        &:focus,
+        &.focus,
+        &:active,
+        &.active {
+            background-color: $transparent-bg;
+        }
+    }
+}
+
+.btn-lg{
+   @include btn-size($padding-large-vertical, $padding-large-horizontal, $font-size-large, $border-radius-large);
+}
+.btn-sm{
+    @include btn-size($padding-small-vertical, $padding-small-horizontal, $font-size-base, $border-radius-small);
+}
+
+.btn-link{
+    border: $none;
+    padding: $padding-base-vertical $padding-base-horizontal;
+    background-color: $transparent-bg;
+}
+
+.btn-wd {
+    min-width: 140px;
+}
+.btn-group.select{
+    width: 100%;
+}
+.btn-group.select .btn{
+    text-align: left;
+}
+.btn-group.select .caret{
+    position: absolute;
+    top: 50%;
+    margin-top: -1px;
+    right: 8px;
+}
