@@ -1,0 +1,41 @@
+{{ $slides := ( $.Page.Resources.Match "slide*" ) }}
+
+
+    {{ with .Get "title" }}
+        <h4>{{ . }}</h4>
+    {{ end }}
+    <div class="row justify-content-center">
+      <div class="col">
+        <div id="carouselIndicators" class="carousel slide" data-ride="carousel">
+          <ol class="carousel-indicators">
+            {{ range $key, $value := $slides }}
+              {{ $active := "" }}
+              {{ if eq $key 0 }}
+                {{ $active := "active" }}
+              {{ end }}
+              <li data-target="#carouselIndicators" data-slide-to="{{ $key }}" class="{{ $active }}"></li>
+            {{ end }}
+          </ol>
+          <div class="carousel-inner" role="listbox">
+          {{ range $key, $value := $slides }}
+            {{ $active := "" }}
+            {{ if eq $key 0 }}
+              {{ $active := "active" }}
+            {{ end }}
+              <div class="carousel-item {{ $active}} ">
+                  <img class="d-block" src="{{ .RelPermalink }}" alt="{{ .Name }}">
+                <div class="carousel-caption d-none d-md-block">
+                  <h5>{{ .Title }} </h5>
+                </div>
+              </div>
+            {{ end }}
+          </div>
+          <a class="carousel-control-prev" href="#carouselIndicators" role="button" data-slide="prev">
+            <i class="now-ui-icons arrows-1_minimal-left"></i>
+          </a>
+          <a class="carousel-control-next" href="#carouselIndicators" role="button" data-slide="next">
+            <i class="now-ui-icons arrows-1_minimal-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>

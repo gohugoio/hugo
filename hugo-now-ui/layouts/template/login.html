@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  {{partial "head" . }}
+<body class="login-page sidebar-collapse">
+    {{ partial "nav" . }}
+    <div class="page-header" filter-color="{{.Params.tint}}">
+        <div class="page-header-image" 
+             style="background-image: url('{{ (.Param "background")  | (default "img/header.jpg" | absURL) }}');">
+        </div>
+        <div class="container">
+          
+          {{ .Content }}
+          
+           
+        </div>
+    {{ partial "footer" . }}
+    </div>
+</body>
+ {{partial "javascript" . }}
+</html>
