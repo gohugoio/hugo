@@ -1,0 +1,256 @@
+// style for the landing page
+.index-page{
+    .page-header{
+        height: 125vh;
+
+        .container{
+            > .content-center{
+                top: 37%;
+            }
+        }
+
+        .category-absolute{
+            position: absolute;
+            top: 100vh;
+            margin-top: -60px;
+            padding: 0 15px;
+            width: 100%;
+            color: rgba(255,255,255,.5);
+        }
+    }
+}
+.landing-page{
+
+    .header{
+        height: 100vh;
+        position: relative;
+
+        .container{
+            padding-top: 26vh;
+            color: #FFFFFF;
+            z-index: 2;
+            position: relative;
+        }
+
+        .share{
+            margin-top: 150px;
+        }
+        h1{
+            font-weight: 600;
+        }
+        .title{
+            color: $white-color;
+        }
+    }
+
+    .section-team{
+        .team .team-player img{
+            max-width: 100px;
+        }
+
+        .team-player{
+            margin-bottom: 15px;
+        }
+    }
+
+    .section-contact-us{
+        .title{
+            margin-bottom: 15px;
+        }
+
+        .description{
+            margin-bottom: 30px;
+        }
+
+        .input-group,
+        .send-button,
+        .textarea-container{
+            padding: 0 40px;
+        }
+
+        .textarea-container{
+            margin: 40px 0;
+        }
+
+        a.btn{
+            margin-top: 35px;
+        }
+    }
+}
+
+// style for the profile page
+.profile-page{
+
+    .page-header{
+        min-height: 550px;
+    }
+
+    .profile-container{
+        color: #FFFFFF;
+    }
+    .photo-container{
+        width: 123px;
+        height: 123px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin: 0 auto;
+        box-shadow: 0px 10px 25px 0px rgba(0, 0, 0, 0.3);
+    }
+
+    .title{
+        text-align: center;
+        margin-top: 30px;
+    }
+
+    .description,
+    .category{
+        text-align: center;
+    }
+
+    h5.description{
+        max-width: 700px;
+        margin: 20px auto 75px;
+    }
+
+    .nav-align-center{
+        margin-top: 30px;
+    }
+
+    .content{
+        max-width: 450px;
+        margin: 0 auto;
+
+        .social-description{
+            display: inline-block;
+            max-width: 150px;
+            width: 145px;
+            text-align: center;
+            margin: 15px 0 0px;
+
+            h2{
+                margin-bottom: 15px;
+            }
+        }
+    }
+
+    .button-container{
+        text-align: center;
+        margin-top: -106px;
+    }
+
+    .collections{
+        img{
+            margin-bottom: 30px;
+        }
+    }
+
+    .gallery{
+        margin-top: 45px;
+        padding-bottom: 50px;
+    }
+}
+
+.section-full-page{
+
+    &:after,
+    &:before{
+        display: block;
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 2;
+    }
+
+    &:before{
+        background-color: rgba(0,0,0,.5);
+    }
+
+    &[filter-color="purple"],
+    &[filter-color="primary"]{
+        &:after{
+            @include linear-gradient(rgba($light-gray,.26), rgba($primary-color,.95));
+
+        }
+
+    }
+
+    &[data-image]:after{
+        opacity: .5;
+    }
+
+    > .content,
+    > .footer{
+        position: relative;
+        z-index: 4;
+    }
+
+    > .content{
+        min-height: calc(100vh - 80px);
+    }
+
+    .full-page-background{
+        position: absolute;
+        z-index: 1;
+        height: 100%;
+        width: 100%;
+        display: block;
+        top: 0;
+        left: 0;
+        background-size: cover;
+        background-position: center center;
+
+    }
+
+    .footer nav > ul a:not(.btn),
+    .footer,
+    .footer .copyright a{
+        color: $white-color;
+    }
+
+}
+
+.login-page{
+
+    .card-login{
+        border-radius: $border-radius-large;
+        padding-bottom: $padding-base-horizontal;
+        max-width: 320px;
+
+        .btn-wd{
+            min-width: 180px;
+        }
+
+        .logo-container{
+            width: 65px;
+            margin: 0 auto;
+            margin-bottom: 55px;
+
+            img{
+                width: 100%;
+            }
+        }
+
+        .input-group:last-child{
+            margin-bottom: 40px;
+        }
+
+        &.card-plain{
+            @include input-coloured-bg($opacity-5, $white-color, $white-color, $transparent-bg, $opacity-1, $opacity-2);
+
+            .input-group-addon,
+            .form-group.form-group-no-border .input-group-addon,
+            .input-group.form-group-no-border .input-group-addon{
+                color: $opacity-8;
+            }
+        }
+    }
+
+    .link{
+        font-size: 10px;
+        color: $white-color;
+        text-decoration: none;
+    }
+}

@@ -1,0 +1,226 @@
+@mixin navbar-responsive() {
+    .navbar{
+        .navbar-nav{
+            margin-top: 53px;
+
+            .nav-link{
+                padding-top: 0.75rem;
+                padding-bottom: .75rem;
+            }
+
+            &.navbar-logo{
+                top: 0;
+                height: 53px;
+            }
+        }
+
+        .dropdown.show .dropdown-menu,
+        .dropdown .dropdown-menu{
+            background-color: transparent;
+            border: 0;
+            transition: none;
+            -webkit-box-shadow: none;
+            box-shadow: none;
+            width: auto;
+            margin: 0 1rem;
+            margin-bottom: 15px;
+            padding-top: 0;
+            height: 150px;
+            overflow-y: scroll;
+
+            &:before{
+                display: none;
+            }
+        }
+
+        .dropdown{
+            .dropdown-item{
+                padding-left: 2.5rem;
+            }
+
+            .dropdown-menu{
+               display: none;
+           }
+
+           &.show .dropdown-menu{
+               display: block;
+           }
+        }
+
+        .dropdown-menu .dropdown-item:focus,
+        .dropdown-menu .dropdown-item:hover{
+            color: $white-color;
+        }
+
+        .navbar-translate{
+            width: 100%;
+            position: relative;
+            display: flex;
+            -ms-flex-pack: justify!important;
+            justify-content: space-between!important;
+            -ms-flex-align: center;
+            align-items: center;
+            @include transform-translate-x(0px);
+            @include transition (0.50s, cubic-bezier(0.685, 0.0473, 0.346, 1));
+        }
+
+        .navbar-toggler-bar{
+            display: block;
+            position: relative;
+            width: 22px;
+            height: 1px;
+            border-radius: 1px;
+            background: $white-bg;
+
+            & + .navbar-toggler-bar{
+                margin-top: 7px;
+            }
+
+            &.bar2{
+                width: 17px;
+                transition: width .2s linear;
+            }
+        }
+
+        &.bg-white:not(.navbar-transparent) .navbar-toggler-bar{
+            background: $default-color;
+        }
+
+        & .toggled .navbar-toggler-bar{
+            width: 24px;
+
+            & + .navbar-toggler-bar{
+                margin-top: 5px;
+            }
+        }
+
+    }
+
+    .bar1,
+    .bar2,
+    .bar3 {
+      outline: 1px solid transparent;
+    }
+    .bar1 {
+      top: 0px;
+      @include bar-animation($topbar-back);
+    }
+    .bar2 {
+      opacity: 1;
+    }
+    .bar3 {
+      bottom: 0px;
+      @include bar-animation($bottombar-back);
+    }
+    .toggled .bar1 {
+      top: 6px;
+      @include bar-animation($topbar-x);
+    }
+    .toggled .bar2 {
+      opacity: 0;
+    }
+    .toggled .bar3 {
+      bottom: 6px;
+      @include bar-animation($bottombar-x);
+    }
+
+    @include topbar-x-rotation();
+    @include topbar-back-rotation();
+    @include bottombar-x-rotation();
+    @include bottombar-back-rotation();
+
+    @-webkit-keyframes fadeIn {
+      0% {opacity: 0;}
+      100% {opacity: 1;}
+    }
+    @-moz-keyframes fadeIn {
+      0% {opacity: 0;}
+      100% {opacity: 1;}
+    }
+    @keyframes fadeIn {
+      0% {opacity: 0;}
+      100% {opacity: 1;}
+    }
+}
+
+@mixin navbar-collapse() {
+    .navbar-collapse{
+        position: fixed;
+        display: block;
+        top: 0;
+        height: 100% !important;
+        width: 300px;
+        right: 0;
+        z-index: 1032;
+        visibility: visible;
+        background-color: #999;
+        overflow-y: visible;
+        border-top: none;
+        text-align: left;
+
+        max-height: none !important;
+
+        @include transform-translate-x(300px);
+        @include transition (0.50s, cubic-bezier(0.685, 0.0473, 0.346, 1));
+
+        &:before{
+            background: $brand-primary; /* For browsers that do not support gradients */
+            background: -webkit-linear-gradient($brand-primary 0%, #000 80%); /* For Safari 5.1 to 6.0 */
+            background: -o-linear-gradient($brand-primary 0%, #000 80%); /* For Opera 11.1 to 12.0 */
+            background: -moz-linear-gradient($brand-primary 0%, #000 80%); /* For Firefox 3.6 to 15 */
+            background: linear-gradient($brand-primary 0%, #000 80%); /* Standard syntax (must be last) */
+            @include opacity(.76);
+
+            display: block;
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .navbar-nav:not(.navbar-logo){
+            .nav-link {
+                margin: 0 1rem;
+                margin-top: 0.3125rem;
+
+                &:not(.btn){
+                    color: $white-color;
+                }
+            }
+        }
+
+        .dropdown-menu .dropdown-item{
+            color: $white-color;
+        }
+    }
+
+    @include navbar-responsive();
+
+
+    [class*="navbar-expand-"] .navbar-collapse{
+        width: 300px;
+    }
+
+    .wrapper{
+        @include transition (0.50s, cubic-bezier(0.685, 0.0473, 0.346, 1));
+    }
+
+    #bodyClick{
+        height: 100%;
+        width: 100%;
+        position: fixed;
+        opacity: 1;
+        top: 0;
+        left: auto;
+        right: 300px;
+        content: "";
+        z-index: 9999;
+        overflow-x: hidden;
+        background-color: transparent;
+        @include transition (0.50s, cubic-bezier(0.685, 0.0473, 0.346, 1));
+    }
+
+}

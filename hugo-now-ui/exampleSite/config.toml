@@ -1,0 +1,94 @@
+theme = "hugo-now-ui"
+baseurl = "hugo-now-ui"
+languageCode = "en-us"
+title = "Now UI Kit"
+googleAnalytics = ""
+disqusShortname = ""
+ignoreFiles = ["\\.Rmd$", "_files$", "_cache$"]
+#enableGitInfo = true
+publishDir = "../docs"
+themesDir = "../.."
+
+[permalinks]
+    post = "/:year/:month/:day/:slug/"
+
+[[menu.main]]
+    name = "Components"
+    url = "/components/"
+    pre = "<i class='now-ui-icons design_app'></i>"
+    weight = 1
+[[menu.main]]
+    name = "Landing"
+    url = "/landing/"
+    pre = "<i class='now-ui-icons business_bank'></i>"
+    weight = 1
+[[menu.main]]
+    name = "Profile"
+    url = "/profile/"
+    pre = "<i class='now-ui-icons users_single-02'></i>"
+    weight = 2
+[[menu.main]]
+    name = "Signup"
+    pre = "<i class='now-ui-icons clothes_tie-bow'></i>"
+    url = "/login/"
+    weight = 3
+[[menu.main]]
+    name = "Dropdown"
+    pre = "<i class='now-ui-icons ui-1_settings-gear-63'></i>"
+    url = "#"
+    weight = 4
+    identifier = "dropdown"
+[[menu.main]]
+    name = "Template"
+    pre = "<i class='now-ui-icons files_paper'></i>"
+    url = "/template/"
+    weight = 1
+    parent = "dropdown"
+[[menu.main]]
+    name = "Posts"
+    pre = "<i class='now-ui-icons ui-1_calendar-60'></i>"
+    url = "/post/"
+    weight = 2
+    parent = "dropdown"
+[[menu.main]]
+    name = "Tags"
+    pre = "<i class='now-ui-icons shopping_tag-content'></i>"
+    url = "/tags/"
+    weight = 2
+    parent = "dropdown"    
+    
+[[menu.footer]]
+    identifier = "twitter"
+    pre = "<i class='fa fa-twitter'></i>"
+    url = "https://twitter.com/cboettig"
+    weight = 1
+[[menu.footer]]
+    identifier = "github"
+    pre = "<i class='fa fa-github'></i>"
+    url = "https://github.com/cboettig"
+    weight = 2
+[[menu.footer]]
+    identifier = "copyright"
+    name = "MIT"
+    pre = "<i class='fa fa-balance-scale'></i>"
+    url = "https://spdx.org/licenses/MIT"
+    weight = 3
+
+
+[params]
+    background = "/img/bg11.jpg"
+    tint = "orange"
+    custom_css = ["css/highlight.min.css"]
+    custom_js = []
+    date_format = "Mon, Jan 2, 2006"
+    description = "A website built through Hugo and blogdown."
+
+    # options for highlight.js (version, additional languages, and theme)
+    highlightjsVersion = "9.10.0"
+    highlightCDN = "//cdn.bootcss.com"
+    highlightjsLang = ["r", "yaml"]
+    highlightjsTheme = "github"
+
+
+    
+

@@ -1,0 +1,29 @@
+@mixin popover-color($color, $text-color) {
+    background-color: $color;
+
+    .popover-body{
+        color: $text-color;
+    }
+
+
+    &.bs-popover-right .arrow:after{
+        border-right-color:$color;
+    }
+
+    &.bs-popover-top .arrow:after{
+        border-top-color:$color;
+    }
+
+    &.bs-popover-bottom .arrow:after{
+        border-bottom-color:$color;
+    }
+
+    &.bs-popover-left .arrow:after{
+        border-left-color:$color;
+    }
+
+    .popover-header{
+        color: $text-color;
+        opacity: .6;
+    }
+}

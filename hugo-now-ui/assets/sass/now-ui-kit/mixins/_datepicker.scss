@@ -1,0 +1,121 @@
+@mixin datepicker-colors($color) {
+    background-color: $color;
+
+    th,
+    .day div,
+    table tr td span{
+        color: $white-color;
+    }
+
+    &:after{
+        border-bottom-color: $color;
+    }
+
+    &.datepicker-orient-top:after{
+        border-top-color: $color;
+    }
+
+    .dow{
+        color: $datepicker-color-days;
+    }
+
+    table tr td.old div,
+    table tr td.new div,
+    table tr td span.old,
+    table tr td span.new{
+       color: $datepicker-color-old-new-days;
+    }
+
+    table tr td span:hover,
+    table tr td span.focused{
+        background:$opacity-1;
+    }
+
+    .datepicker-switch:hover,
+    .prev:hover,
+    .next:hover,
+    tfoot tr th:hover {
+      background: $opacity-2;
+    }
+
+    table tr td.active div,
+    table tr td.active:hover div,
+    table tr td.active.disabled div,
+    table tr td.active.disabled:hover div {
+
+      background-color: $white-color;
+      color: $color;
+    }
+
+    table tr td.day:hover div,
+    table tr td.day.focused div {
+      background: $opacity-2;
+    }
+
+    table tr td.active:hover div,
+    table tr td.active:hover:hover div,
+    table tr td.active.disabled:hover div,
+    table tr td.active.disabled:hover:hover div,
+    table tr td.active:active div,
+    table tr td.active:hover:active div,
+    table tr td.active.disabled:active div,
+    table tr td.active.disabled:hover:active div,
+    table tr td.active.active div,
+    table tr td.active:hover.active div,
+    table tr td.active.disabled.active div,
+    table tr td.active.disabled:hover.active div,
+    table tr td.active.disabled div,
+    table tr td.active:hover.disabled div,
+    table tr td.active.disabled.disabled div,
+    table tr td.active.disabled:hover.disabled div,
+    table tr td.active[disabled] div,
+    table tr td.active:hover[disabled] div,
+    table tr td.active.disabled[disabled] div,
+    table tr td.active.disabled:hover[disabled] div,
+    table tr td span.active:hover,
+    table tr td span.active:hover:hover,
+    table tr td span.active.disabled:hover,
+    table tr td span.active.disabled:hover:hover,
+    table tr td span.active:active,
+    table tr td span.active:hover:active,
+    table tr td span.active.disabled:active,
+    table tr td span.active.disabled:hover:active,
+    table tr td span.active.active,
+    table tr td span.active:hover.active,
+    table tr td span.active.disabled.active,
+    table tr td span.active.disabled:hover.active,
+    table tr td span.active.disabled,
+    table tr td span.active:hover.disabled,
+    table tr td span.active.disabled.disabled,
+    table tr td span.active.disabled:hover.disabled,
+    table tr td span.active[disabled],
+    table tr td span.active:hover[disabled],
+    table tr td span.active.disabled[disabled],
+    table tr td span.active.disabled:hover[disabled]{
+      background-color: $white-color;
+    }
+
+    table tr td span.active:hover,
+    table tr td span.active:hover:hover,
+    table tr td span.active.disabled:hover,
+    table tr td span.active.disabled:hover:hover,
+    table tr td span.active:active,
+    table tr td span.active:hover:active,
+    table tr td span.active.disabled:active,
+    table tr td span.active.disabled:hover:active,
+    table tr td span.active.active,
+    table tr td span.active:hover.active,
+    table tr td span.active.disabled.active,
+    table tr td span.active.disabled:hover.active,
+    table tr td span.active.disabled,
+    table tr td span.active:hover.disabled,
+    table tr td span.active.disabled.disabled,
+    table tr td span.active.disabled:hover.disabled,
+    table tr td span.active[disabled],
+    table tr td span.active:hover[disabled],
+    table tr td span.active.disabled[disabled],
+    table tr td span.active.disabled:hover[disabled]{
+        color: $color;
+    }
+
+}

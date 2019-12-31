@@ -1,0 +1,173 @@
+//
+// Modals
+// Now Ui Kit Design element Dialogs
+// --------------------------------------------------
+.modal-content {
+
+  border-radius: $border-radius-small;
+  border: none;
+  box-shadow: 0px 10px 50px 0px rgba(0, 0, 0, 0.5);
+  // Modal header
+  // Top section of the modal w/ title and dismiss
+  .modal-header {
+    border-bottom: none;
+    padding-top:    24px;
+    padding-right:  24px;
+    padding-bottom: 0;
+    padding-left:   24px;
+
+    & button{
+        position: absolute;
+        right: 27px;
+        top: 30px;
+        outline: 0;
+    }
+    .title{
+        margin-top: 5px;
+        margin-bottom: 0;
+    }
+  }
+  // Modal body
+  // Where all modal content resides (sibling of .modal-header and .modal-footer)
+  .modal-body {
+    padding-top:    24px;
+    padding-right:  24px;
+    padding-bottom: 16px;
+    padding-left:   24px;
+    line-height: 1.9;
+  }
+  // Footer (for actions)
+  .modal-footer {
+    border-top: none;
+    padding-right: 24px;
+    padding-bottom: 16px;
+    padding-left: 24px;
+    -webkit-justify-content: space-between; /* Safari 6.1+ */
+    justify-content: space-between;
+
+    button {
+      margin: 0;
+      padding-left: 16px;
+      padding-right: 16px;
+      width: auto;
+      &.pull-left {
+        padding-left: 5px;
+        padding-right: 5px;
+        position: relative;
+        left: -5px;
+      }
+    }
+
+  }
+  .modal-body + .modal-footer {
+    padding-top: 0;
+  }
+}
+.modal-backdrop {
+  background: rgba(0,0,0,0.3);
+}
+
+.modal{
+
+    &.modal-mini{
+        p{
+            text-align: center;
+        }
+
+        .modal-dialog{
+            max-width: 255px;
+            margin: 0 auto;
+        }
+
+        .modal-profile{
+            width: 70px;
+            height: 70px;
+            background-color: $white-color;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 5.9;
+            box-shadow: 0px 5px 50px 0px rgba(0, 0, 0, 0.3);
+
+            i{
+                color: $primary-color;
+                font-size: 21px;
+            }
+
+            &[class*="modal-profile-"]{
+                i{
+                    color: $white-color;
+                }
+            }
+
+            &.modal-profile-primary{
+                background-color: $primary-color;
+            }
+
+            &.modal-profile-danger{
+                background-color: $danger-color;
+            }
+
+            &.modal-profile-warning{
+                background-color: $warning-color;
+            }
+
+            &.modal-profile-success{
+                background-color: $success-color;
+            }
+
+            &.modal-profile-info{
+                background-color: $info-color;
+            }
+        }
+
+        .modal-footer{
+            button{
+                text-transform: uppercase;
+
+                &:first-child{
+                    opacity: .5;
+                }
+            }
+        }
+    }
+
+    &.modal-default{
+        @include modal-colors($white-color, $black-color);
+    }
+
+    &.modal-primary{
+        @include modal-colors($primary-color, $white-color);
+    }
+
+    &.modal-danger{
+        @include modal-colors($danger-color, $white-color);
+    }
+
+    &.modal-warning{
+        @include modal-colors($warning-color, $white-color);
+    }
+
+    &.modal-success{
+        @include modal-colors($success-color, $white-color);
+    }
+
+    &.modal-info{
+        @include modal-colors($info-color, $white-color);
+    }
+
+    &.show.modal-mini .modal-dialog{
+        -webkit-transform: translate(0,30%);
+        -o-transform: translate(0,30%);
+        transform: translate(0,30%);
+    }
+
+    .modal-header .close{
+        color: $danger-color;
+        text-shadow: none;
+
+        &:hover,
+        &:focus{
+            opacity: 1;
+        }
+    }
+}

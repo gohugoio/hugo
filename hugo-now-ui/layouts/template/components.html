@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en">
+  {{partial "head" . }}
+<body class="profile-page sidebar-collapse">
+    {{ partial "nav" . }}
+    <div class="wrapper">
+      {{ .Content }}
+      {{ partial "footer" . }}
+    </div>
+</body>
+  {{partial "javascript" . }}
+</html>

@@ -1,0 +1,392 @@
+@media screen and (max-width: 991px){
+    .sidebar-collapse{
+        @include navbar-collapse();
+
+        &.menu-on-left{
+            .navbar-collapse{
+                right: auto;
+                left: 0;
+                @include transform-translate-x(-300px);
+            }
+        }
+
+        .nav-open &{
+            .navbar-collapse{
+                @include transform-translate-x(0px);
+            }
+
+            .wrapper{
+                @include transform-translate-x(-150px);
+            }
+
+            .navbar-translate{
+                @include transform-translate-x(-300px);
+            }
+
+            &.menu-on-left{
+                .navbar-collapse{
+                    @include transform-translate-x(0px);
+                }
+
+                .navbar-translate{
+                    @include transform-translate-x(300px);
+                }
+
+                .wrapper{
+                    @include transform-translate-x(150px);
+                }
+
+                #bodyClick{
+                    right: auto;
+                    left: 300px;
+                }
+            }
+        }
+    }
+
+    .bootstrap-collapse{
+        .navbar .navbar-collapse{
+            background: none !important;
+        }
+        @include navbar-responsive();
+    }
+
+    .profile-photo .profile-photo-small{
+        margin-left: -2px;
+    }
+
+    .button-dropdown{
+        display: none;
+    }
+
+    .section-nucleo-icons .container .row > [class*="col-"]:first-child{
+        text-align: center;
+    }
+
+    .footer{
+        .copyright{
+            text-align: right;
+        }
+    }
+
+    .section-nucleo-icons .icons-container{
+        margin-top: 65px;
+    }
+
+    .navbar-nav{
+        .nav-link{
+            i.fa,
+            i.now-ui-icons{
+                opacity: .5;
+            }
+        }
+    }
+
+    .section-images{
+        height: 500px;
+        max-height: 500px;
+
+        .hero-images-container{
+            max-width: 500px;
+        }
+
+        .hero-images-container-1{
+            right: 10%;
+            top: 68%;
+            max-width: 269px;
+        }
+
+        .hero-images-container-2{
+            right: 5%;
+            max-width: 135px;
+            top: 93%;
+        }
+    }
+}
+
+@media screen and (min-width: 992px){
+    .burger-menu{
+        @include navbar-collapse();
+
+        .nav-open & .navbar-collapse{
+            @include transform-translate-x(0px);
+        }
+
+        .navbar-collapse {
+            display: block !important;
+
+            .navbar-nav {
+                margin-top: 53px;
+                height: 100%;
+                z-index: 2;
+                position: relative;
+                display: -webkit-box;
+                display: -webkit-flex;
+                display: -ms-flexbox;
+                display: flex;
+                -webkit-box-orient: vertical;
+                -webkit-box-direction: normal;
+                -webkit-flex-direction: column;
+                -ms-flex-direction: column;
+                flex-direction: column;
+
+                .nav-item{
+                    margin: 0;
+                }
+            }
+        }
+
+        &.menu-on-left .navbar-collapse{
+            right: auto;
+            left: 0;
+            @include transform-translate-x(-300px);
+        }
+
+        [class*="navbar-expand-"]{
+            .navbar-nav .dropdown-menu{
+                position: static;
+                float: none;
+            }
+
+            .navbar-toggler{
+                display: inline-block;
+            }
+        }
+
+        .section-navbars .navbar-collapse{
+            display: none !important;
+        }
+
+        .nav-open &{
+            &.menu-on-left .navbar .navbar-translate{
+                @include transform-translate-x(300px);
+            }
+
+            .navbar .navbar-translate{
+                @include transform-translate-x(-300px);
+            }
+
+            &.menu-on-left .navbar-collapse{
+                @include transform-translate-x(0px);
+            }
+
+            &.menu-on-left #bodyClick{
+                right: auto;
+                left: 300px;
+            }
+        }
+
+        &.menu-on-left .navbar-brand{
+            float: right;
+            margin-right: 0;
+            margin-left: 1rem;
+        }
+    }
+
+    .navbar-nav{
+        .nav-link{
+            &.profile-photo{
+                padding: 0;
+                margin: 7px $padding-base-horizontal;
+            }
+
+            &.btn:not(.btn-sm){
+                margin: 0;
+            }
+        }
+
+        .nav-item:not(:last-child){
+            margin-right: 5px;
+        }
+
+    }
+
+    .section-nucleo-icons .icons-container{
+        margin: 0 0 0 auto;
+    }
+
+    .dropdown-menu .dropdown-item{
+        color: inherit;
+    }
+
+    .footer{
+        .copyright{
+            float: right;
+        }
+    }
+}
+
+@media screen and (min-width: 768px){
+    .image-container{
+        &.image-right{
+            top: 80px;
+            margin-left: - 100px;
+            margin-bottom: 130px;
+        }
+
+        &.image-left{
+            margin-right: -100px;
+        }
+    }
+}
+
+@media screen and (max-width: 768px){
+    .image-container{
+        &.image-left{
+            margin-bottom: 220px;
+
+            p.blockquote{
+                margin: 0 auto;
+                position: relative;
+                right: 0;
+            }
+        }
+    }
+
+    .nav-tabs{
+        display: inline-block;
+        width: 100%;
+        padding-left: 100px;
+        padding-right: 100px;
+        text-align: center;
+
+        .nav-item > .nav-link{
+            margin-bottom: 5px;
+        }
+    }
+
+    .landing-page .section-story-overview .image-container:nth-child(2){
+        margin-left: 0;
+        margin-bottom: 30px;
+    }
+}
+
+@media screen and (max-width: 576px){
+    .navbar[class*='navbar-expand-'] .container{
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .footer{
+        .copyright{
+            text-align: center;
+        }
+    }
+
+    .section-nucleo-icons{
+        .icons-container{
+            i{
+                font-size: 30px;
+
+                &:nth-child(6){
+                    font-size: 48px;
+                }
+            }
+        }
+    }
+
+    .page-header{
+        .container h6.category-absolute{
+            width: 90%;
+        }
+    }
+}
+
+@media screen and (min-width: 991px) and (max-width: 1200px){
+    .section-images{
+        .hero-images-container-1{
+            right: 9%;
+            max-width: 370px;
+        }
+
+        .hero-images-container-2{
+            right: 2%;
+            max-width: 216px;
+        }
+    }
+}
+
+@media screen and (max-width: 768px){
+    .section-images{
+        height: 300px;
+        max-height: 300px;
+
+        .hero-images-container{
+            max-width: 380px;
+        }
+
+        .hero-images-container-1{
+            right: 7%;
+            top: 87%;
+            max-width: 210px;
+        }
+
+        .hero-images-container-2{
+            right: 1%;
+            max-width: 133px;
+            top: 99%;
+        }
+    }
+}
+
+@media screen and (max-width: 517px) {
+    .alert .alert-icon{
+        margin-top: 10px;
+    }
+}
+
+@media screen and (min-width: 1200px) {
+    .section-images{
+        .hero-images-container-1{
+            top: 51%;
+            right: 21%;
+        }
+
+        .hero-images-container-2{
+            top: 66%;
+            right: 14%;
+        }
+    }
+}
+
+// Ipad responsive portrait mode
+@media only screen
+and (min-device-width : 768px)
+and (max-device-width : 1024px)
+and ( orientation : portrait){
+    .section-images .hero-images-container,
+    .section-images .hero-images-container-1,
+    .section-images .hero-images-container-2{
+        margin-top: -15vh;
+        margin-left: 80px;
+    }
+
+    .section-images .hero-images-container{
+        max-width: 300px;
+    }
+
+    .section-images .hero-images-container-1{
+        right: 28%;
+        top: 40%;
+    }
+
+    .section-images .hero-images-container-2{
+        right: 21%;
+        top: 55%;
+    }
+
+    .index-page .category-absolute{
+        top: 90vh;
+    }
+}
+
+@media screen and (max-width: 580px) {
+    .alert{
+        button.close{
+            position: absolute;
+            right: 11px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+    }
+}

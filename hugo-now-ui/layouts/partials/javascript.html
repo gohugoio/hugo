@@ -1,0 +1,60 @@
+<!--   Core JS Files   -->
+<script src="{{ "js/core/jquery.3.2.1.min.js" | relURL }}" type="text/javascript"></script>
+<script src="{{ "js/core/popper.min.js" | relURL }}" type="text/javascript"></script>
+<script src="{{ "js/core/bootstrap.min.js" | relURL }}" type="text/javascript"></script>
+<!--  Plugin for Switches, full documentation here: http://www.jque.re/plugins/version3/bootstrap.switch/ -->
+<script src="{{ "js/plugins/bootstrap-switch.js"| relURL }}"></script>
+<!--  Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ -->
+<script src="{{ "js/plugins/nouislider.min.js" | relURL }}" type="text/javascript"></script>
+<!--  Plugin for the DatePicker, full documentation here: https://github.com/uxsolutions/bootstrap-datepicker -->
+<script src="{{"js/plugins/bootstrap-datepicker.js" | relURL }}" type="text/javascript"></script>
+<!-- Control Center for Now Ui Kit: parallax effects, scripts for the example pages etc -->
+<script src="{{"js/now-ui-kit.js?v=1.1.0" | relURL }}" type="text/javascript"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        // the body of this function is in assets/js/now-ui-kit.js
+        nowuiKit.initSliders();
+    });
+
+    function scrollToDownload() {
+
+        if ($('.section-download').length != 0) {
+            $("html, body").animate({
+                scrollTop: $('.section-download').offset().top
+            }, 1000);
+        }
+    }
+</script>
+
+    {{ range .Site.Params.custom_js }}
+    <script src="{{ "/js/" | relURL }}{{ . }}"></script>
+    {{ end }}
+    
+    
+      <!-- Code highlighting -->
+    {{ if  not .Params.nocode }}
+      {{ $v := .Site.Params.highlight_version | default "9.9.0" }}
+      <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/{{ $v }}/highlight.min.js"></script>
+
+      {{ range .Site.Params.highlight_languages }}
+      <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/{{ $v }}/languages/{{ . }}.min.js"></script>
+      {{ end }}
+
+      {{ range .Params.highlight_languages }}
+      {{/* Do not double-include languages that are in both .Site.Params and .Params.
+           If Hugo ever grows a "union" function for set union, this range clause can be merged with the one above. */}}
+        {{ if not (in $.Site.Params.highlight_languages .) }}
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/{{ $v }}/languages/{{ . }}.min.js"></script>
+        {{ end }}
+      {{ end }}
+      <script>hljs.initHighlightingOnLoad();</script>
+    {{ end }}
+
+    <!-- LaTeX math rendering -->
+    {{ if not .Params.nomath }}
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+    </script>
+    <script async src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML"></script>
+    {{ end }}
+    

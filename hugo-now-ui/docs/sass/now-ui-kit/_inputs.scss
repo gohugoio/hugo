@@ -1,0 +1,264 @@
+@include form-control-placeholder($medium-gray, 1);
+
+.form-control {
+    background-color: $transparent-bg;
+    border: 1px solid $light-gray;
+    border-radius: $btn-round-radius;
+    color: $black-color;
+    line-height: normal;
+    font-size: $font-size-small;
+    @include transition-input-focus-color();
+    @include box-shadow(none);
+
+    .has-success &{
+        border-color: $light-gray;
+    }
+
+    &:focus{
+        border: 1px solid $primary-color;
+        @include box-shadow(none);
+        outline: 0 !important;
+        color: $black-color;
+
+        & + .input-group-addon,
+        & ~ .input-group-addon{
+            border: 1px solid $primary-color;
+            border-left: none;
+            background-color: $transparent-bg;
+        }
+    }
+
+    .has-success &,
+    .has-error &,
+    .has-success &:focus,
+    .has-error &:focus{
+        @include box-shadow(none);
+    }
+
+    .has-success &:focus{
+        border-color: lighten($success-color, 5%);
+    }
+
+
+    .has-danger &,
+    .has-success &{
+        &.form-control-success,
+        &.form-control-danger{
+            background-image: none;
+        }
+    }
+
+    .has-danger &{
+        border-color: lighten($danger-color, 30%);
+        color: $danger-color;
+        background-color: rgba(222,222,222, .1);
+
+        &:focus{
+            background-color: $white-color;
+        }
+    }
+
+    & + .form-control-feedback{
+        border-radius: $border-radius-large;
+        font-size: $font-size-base;
+        margin-top: 0;
+        position: absolute;
+        left: 18px;
+        bottom: -20px;
+        vertical-align: middle;
+    }
+
+    .open &{
+        border-radius: $border-radius-large $border-radius-large 0 0;
+        border-bottom-color: transparent;
+    }
+
+    & + .input-group-addon{
+        background-color: $white-bg;
+    }
+}
+
+.has-success,
+.has-danger{
+    &:after{
+        font-family: 'Nucleo Outline';
+        content: "\ea22";
+        display: inline-block;
+        position: absolute;
+        right: 15px;
+        bottom: 10px;
+        color: $success-color;
+        font-size: 11px;
+    }
+
+    &.input-lg{
+        &:after{
+            font-size: 13px;
+            top: 13px;
+        }
+    }
+}
+
+.has-danger{
+    &:after{
+        content: "\ea53";
+        color: $danger-color;
+    }
+}
+
+@include input-lg-padding($padding-large-vertical, $padding-input-horizontal);
+@include input-base-padding($padding-input-vertical, $padding-input-horizontal);
+
+.form-group.form-group-no-border,
+.input-group.form-group-no-border{
+    .form-control,
+    .form-control + .input-group-addon{
+        background-color: $opacity-gray-3;
+        border: medium none;
+        &:focus,
+        &:active,
+        &:active{
+            border: medium none;
+            background-color: $opacity-gray-5;
+        }
+    }
+
+    .form-control{
+        &:focus{
+            & + .input-group-addon{
+                background-color: $opacity-gray-5;
+            }
+        }
+    }
+
+    .input-group-addon{
+        background-color: $opacity-gray-3;
+        border: none;
+    }
+}
+
+.has-error{
+    .form-control-feedback, .control-label{
+        color: $danger-color;
+    }
+}
+.has-success{
+    .form-control-feedback, .control-label{
+        color: $success-color;
+    }
+}
+
+.input-group-addon {
+    background-color: $white-bg;
+    border: 1px solid $light-gray;
+    border-radius: $btn-round-radius;
+    color: $dark-background;
+    padding: $padding-base-vertical - 1 0 $padding-base-vertical - 1 $padding-base-horizontal - 1;
+
+    @include transition-input-focus-color();
+
+    .has-success &,
+    .has-danger &{
+        background-color: $white-color;
+    }
+    .has-danger .form-control:focus + &{
+        color: $danger-color;
+    }
+    .has-success .form-control:focus + &{
+        color: $success-color;
+    }
+
+    & + .form-control,
+    & ~ .form-control{
+        @include input-size($padding-base-vertical - 1, $padding-base-horizontal);
+        padding-left: 18px;
+    }
+
+    i{
+        width: 17px;
+    }
+}
+
+.input-group-focus{
+    .input-group-addon{
+        background-color: $white-bg;
+        border-color: $primary-color;
+    }
+
+    &.form-group-no-border{
+        .input-group-addon{
+            background-color: $opacity-gray-5;
+        }
+    }
+}
+
+.input-group,
+.form-group{
+    margin-bottom: 10px;
+}
+.input-group[disabled]{
+    .input-group-addon{
+        background-color: $light-gray;
+    }
+}
+.input-group .form-control:first-child,
+.input-group-addon:first-child,
+.input-group-btn:first-child > .dropdown-toggle,
+.input-group-btn:last-child > .btn:not(:last-child):not(.dropdown-toggle) {
+    border-right: 0 none;
+}
+.input-group .form-control:last-child,
+.input-group-addon:last-child,
+.input-group-btn:last-child > .dropdown-toggle,
+.input-group-btn:first-child > .btn:not(:first-child) {
+    border-left: 0 none;
+}
+.form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
+    background-color: $light-gray;
+    color: $default-color;
+    cursor: not-allowed;
+}
+
+.input-group-btn .btn{
+    border-width: $border-thin;
+    padding: $padding-btn-vertical  $padding-base-horizontal;
+}
+.input-group-btn .btn-default:not(.btn-fill){
+    border-color: $medium-gray;
+}
+
+.input-group-btn:last-child > .btn{
+    margin-left: 0;
+}
+textarea.form-control{
+    max-width: 100%;
+    padding: 10px 10px 0 0;
+    resize: none;
+    border: none;
+    border-bottom: 1px solid $light-gray;
+    border-radius: 0;
+    line-height: 2;
+
+    &:focus,
+    &:active{
+        border-left: none;
+        border-top: none;
+        border-right: none;
+    }
+}
+
+.has-success,
+.has-danger{
+
+    &.form-group .form-control,
+    &.form-group.form-group-no-border .form-control{
+        padding-right: $padding-input-horizontal + 21;
+    }
+}
+
+.form-group{
+    position:relative;
+}
+.form-group.has-error, .form-group.has-danger{
+    margin-bottom: 20px;
+}

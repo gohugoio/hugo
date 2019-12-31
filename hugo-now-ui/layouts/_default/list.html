@@ -1,0 +1,69 @@
+{{ define "body" }}
+{{ $paginator := .Paginate (where .Site.RegularPages "Type" "in" .Site.Params.mainSections) }}
+              
+<!-- Optional Header Image -->
+{{ if .Params.header.image }}
+<div class="article-header">
+  <img src="{{ .Params.header.image | absURL }}" class="article-banner" itemprop="image">
+  {{ with .Params.header.caption }}<span class="article-header-caption">{{ . | markdownify | emojify }}</span>{{ end }}
+</div>
+{{end}}
+
+  {{ with .Title }}<h1>{{ . }}</h1>{{ end }}
+   <!-- List pages can get Content and yaml metadata from an _index.md -->
+  {{ with .Content }}<div class="article-style" itemprop="articleBody">{{ . }}</div>{{ end }}
+
+  <div class="container justify-content-center">
+    <div class="row">
+    {{ range .Paginator.Pages }}
+                        <div class="col-md-6 col-lg-6 col-xl-6 ml-auto mr-auto">
+                              <div class="card">
+                                <ul class="nav justify-content-center" role="tablist" data-background-color="{{ .Param "tint" | default "orange" }}">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" href="{{ .RelPermalink }}" role="tab">
+                                        <i class="now-ui-icons files_paper"></i> <strong>{{ .Title }}</strong>
+                                        </a>
+                                    </li>
+                                    <a class="nav-link active" href="{{ .RelPermalink }}" role="tab">
+                                    <li class="nav-item"><i class="now-ui-icons ui-1_calendar-60"></i>  {{.Date.Format "2006-01-02" }}
+                                    </a>
+                                    </li> 
+                                </ul>
+                                <div class="card-body">
+                                    <!-- Tab panes -->
+                                 {{if .Params.image }}  <img src="{{ .Params.image  | absURL }}"  class="rounded" height="100px"/>    {{ end }}
+                                 {{.Summary}}
+                                 {{ if .Truncated }}
+                                  <div>
+                                    <a href="{{ .RelPermalink }}">Read More…</a>
+                                  </div>
+                                 {{ end }}
+
+                                </div>
+                            </div>
+                    </div>
+            
+    {{ end }}
+    </div>
+  </div>
+
+
+{{ if or (.Paginator.HasPrev) (.Paginator.HasNext) }}
+<nav>
+  <ul class="pager">
+    {{ if .Paginator.HasPrev }}
+    <li><a href="{{ .Paginator.Prev.URL | relURL }}">&laquo; Previous</a></li>
+    {{ end }}
+    {{ if .Paginator.HasNext }}
+    <li><a href="{{ .Paginator.Next.URL | relURL }}">Next &raquo;</a></li>
+    {{ end }}
+  </ul>
+</nav>
+{{ end }}
+
+  <br />  
+{{end}}
+
+
+
+
