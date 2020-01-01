@@ -26,8 +26,6 @@ It is recommended to have [Git installed](https://git-scm.com/downloads) to run 
 For other approaches learning Hugo like book or a video tutorial refer to the [external learning resources](/getting-started/external-learning-resources/) page.
 {{% /note %}}
 
-
-
 ## Step 1: Install Hugo
 
 {{% note %}}
@@ -44,9 +42,7 @@ To verify your new install:
 hugo version
 ```
 
-
 {{< asciicast ItACREbFgvJ0HjnSNeTknxWy9 >}}
-
 
 ## Step 2: Create a New Site
 
@@ -58,7 +54,6 @@ The above will create a new Hugo site in a folder named `quickstart`.
 
 {{< asciicast 3mf1JGaN0AX0Z7j5kLGl3hSh8 >}}
 
-
 ## Step 3: Add a Theme
 
 See [themes.gohugo.io](https://themes.gohugo.io/) for a list of themes to consider. This quickstart uses the beautiful [Ananke theme](https://themes.gohugo.io/gohugo-theme-ananke/).
@@ -67,30 +62,24 @@ First, download the theme from Github and add it to your site's `theme` director
 
 ```bash
 cd quickstart
-
-# Download the theme
 git init
 git submodule add https://github.com/budparr/gohugo-theme-ananke.git themes/ananke
-# Note for non-git users:
-#   - If you do not have git installed, you can download the archive of the latest
-#     version of this theme from:
-#       https://github.com/budparr/gohugo-theme-ananke/archive/master.zip
-#   - Extract that .zip file to get a "gohugo-theme-ananke-master" directory.
-#   - Rename that directory to "ananke", and move it into the "themes/" directory.
-# End of note for non-git users.
 ```
+
+*Note for non-git users:*
+   - If you do not have git installed, you can download the archive of the latest
+     version of this theme from:
+       https://github.com/budparr/gohugo-theme-ananke/archive/master.zip
+   - Extract that .zip file to get a "gohugo-theme-ananke-master" directory.
+   - Rename that directory to "ananke", and move it into the "themes/" directory.
 
 Then, add the theme to the site configuration:
 
 ```bash
-# Edit your config.toml configuration file
-# and add the Ananke theme.
 echo 'theme = "ananke"' >> config.toml
 ```
 
-
 {{< asciicast 7naKerRYUGVPj8kiDmdh5k5h9 >}}
-
 
 ## Step 4: Add Some Content
 
@@ -113,14 +102,11 @@ draft: true
 
 ```
 
-
 ## Step 5: Start the Hugo server
 
 Now, start the Hugo server with [drafts](/getting-started/usage/#draft-future-and-expired-content) enabled:
 
 {{< asciicast BvJBsF6egk9c163bMsObhuNXj >}}
-
-
 
 ```
 ▶ hugo server -D
@@ -146,11 +132,9 @@ Web Server is available at http://localhost:1313/ (bind address 127.0.0.1)
 Press Ctrl+C to stop
 ```
 
-
 **Navigate to your new site at [http://localhost:1313/](http://localhost:1313/).**
 
 Feel free to edit or add new content and simply refresh in browser to see changes quickly (You might need to force refresh in webbrowser, something like Ctrl-R usually works).
-
 
 ## Step 6: Customize the Theme
 
@@ -173,11 +157,9 @@ Replace the `title` above with something more personal. Also, if you already hav
 **Tip:** Make the changes to the site configuration or any other file in your site while the Hugo server is running, and you will see the changes in the browser right away, though you may need to [clear your cache](https://kb.iu.edu/d/ahic).
 {{% /note %}}
 
-
 For theme specific configuration options, see the [theme site](https://github.com/budparr/gohugo-theme-ananke).
 
 **For further theme customization, see [Customize a Theme](/themes/customizing/).**
-
 
 ### Step 7: Build static pages
 
