@@ -63,6 +63,8 @@ The above will create a new Hugo site in a folder named `quickstart`.
 
 See [themes.gohugo.io](https://themes.gohugo.io/) for a list of themes to consider. This quickstart uses the beautiful [Ananke theme](https://themes.gohugo.io/gohugo-theme-ananke/).
 
+First, download the theme from Github and add it to your site's `theme` directory:
+
 ```bash
 cd quickstart
 
@@ -76,7 +78,11 @@ git submodule add https://github.com/budparr/gohugo-theme-ananke.git themes/anan
 #   - Extract that .zip file to get a "gohugo-theme-ananke-master" directory.
 #   - Rename that directory to "ananke", and move it into the "themes/" directory.
 # End of note for non-git users.
+```
 
+Then, add the theme to the site configuration:
+
+```bash
 # Edit your config.toml configuration file
 # and add the Ananke theme.
 echo 'theme = "ananke"' >> config.toml
