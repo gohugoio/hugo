@@ -4,7 +4,7 @@ linktitle: Host on Render
 description: Host your Hugo site for free with Render's global CDN, fully-managed SSL and auto deploys from GitHub.
 date: 2019-06-06
 publishdate: 2019-06-06
-lastmod: 2019-12-23
+lastmod: 2020-01-01
 categories: [hosting and deployment]
 keywords: [render,hosting,deployment]
 authors: [Anurag Goel]
@@ -52,7 +52,7 @@ You can set up a Hugo site on Render in two quick steps:
   Field                | Value
   -------------------  |  -------------------
  **Environment**       | `Static Site`
- **Build Command**     | `hugo --gc --minify` (or our own build command)
+ **Build Command**     | `hugo --gc --minify` (or your own build command)
  **Publish Directory** | `public` (or your own output directory)
 
 That's it! Your site will be live on your Render URL (which looks like `yoursite.onrender.com`) as soon as the build is done.
