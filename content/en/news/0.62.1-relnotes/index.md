@@ -1,4 +1,3 @@
-
 ---
 date: 2020-01-01
 title: "Hugo 0.62.1: A couple of Bug Fixes"
@@ -6,7 +5,6 @@ description: "This version fixes a couple of bugs introduced in 0.62.0."
 categories: ["Releases"]
 images:
 - images/blog/hugo-bug-poster.png
-
 ---
 
 This release is mainly motivated by getting [this demo site](https://github.com/bep/portable-hugo-links) up and running. It demonstrates truly portable Markdown links and images, whether browsed on GitHub or deployed as a Hugo site.
