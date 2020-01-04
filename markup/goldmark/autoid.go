@@ -48,9 +48,9 @@ func sanitizeAnchorNameWithHook(b []byte, asciiOnly bool, hook func(buf *bytes.B
 		r, size := utf8.DecodeRune(b)
 		switch {
 		case asciiOnly && size != 1:
-		case isSpace(r):
-			buf.WriteString("-")
-		case r == '-' || isAlphaNumeric(r):
+		case r == '-' || isSpace(r):
+			buf.WriteRune('-')
+		case isAlphaNumeric(r):
 			buf.WriteRune(unicode.ToLower(r))
 		default:
 		}
