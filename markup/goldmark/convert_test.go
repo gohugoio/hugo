@@ -28,6 +28,23 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
+func convert(c *qt.C, mconf markup_config.Config, content string) converter.Result {
+
+	p, err := Provider.New(
+		converter.ProviderConfig{
+			MarkupConfig: mconf,
+			Logger:       loggers.NewErrorLogger(),
+		},
+	)
+	c.Assert(err, qt.IsNil)
+	conv, err := p.New(converter.DocumentContext{DocumentID: "thedoc"})
+	c.Assert(err, qt.IsNil)
+	b, err := conv.Convert(converter.RenderContext{RenderTOC: true, Src: []byte(content)})
+	c.Assert(err, qt.IsNil)
+
+	return b
+}
+
 func TestConvert(t *testing.T) {
 	c := qt.New(t)
 
@@ -92,29 +109,23 @@ description
 : the description for the content.
 
 
+## 神真美好
+
+## 神真美好
+
+## 神真美好
+
 [^1]: And that's the footnote.
 
 `
 
 	// Code fences
 	content = strings.Replace(content, "§§§", "```", -1)
-
 	mconf := markup_config.Default
 	mconf.Highlight.NoClasses = false
 	mconf.Goldmark.Renderer.Unsafe = true
 
-	p, err := Provider.New(
-		converter.ProviderConfig{
-			MarkupConfig: mconf,
-			Logger:       loggers.NewErrorLogger(),
-		},
-	)
-	c.Assert(err, qt.IsNil)
-	conv, err := p.New(converter.DocumentContext{DocumentID: "thedoc"})
-	c.Assert(err, qt.IsNil)
-	b, err := conv.Convert(converter.RenderContext{RenderTOC: true, Src: []byte(content)})
-	c.Assert(err, qt.IsNil)
-
+	b := convert(c, mconf, content)
 	got := string(b.Bytes())
 
 	// Links
@@ -123,6 +134,9 @@ description
 	// Header IDs
 	c.Assert(got, qt.Contains, `<h2 id="custom">Custom ID</h2>`, qt.Commentf(got))
 	c.Assert(got, qt.Contains, `<h2 id="auto-id">Auto ID</h2>`, qt.Commentf(got))
+	c.Assert(got, qt.Contains, `<h2 id="神真美好">神真美好</h2>`, qt.Commentf(got))
+	c.Assert(got, qt.Contains, `<h2 id="神真美好-1">神真美好</h2>`, qt.Commentf(got))
+	c.Assert(got, qt.Contains, `<h2 id="神真美好-2">神真美好</h2>`, qt.Commentf(got))
 
 	// Code fences
 	c.Assert(got, qt.Contains, "<div class=\"highlight\"><pre class=\"chroma\"><code class=\"language-bash\" data-lang=\"bash\">LINE1\n</code></pre></div>")
@@ -146,6 +160,20 @@ description
 	tocHTML := toc.TableOfContents().ToHTML(1, 2, false)
 	c.Assert(tocHTML, qt.Contains, "TableOfContents")
 
+}
+
+func TestConvertAutoIDAsciiOnly(t *testing.T) {
+	c := qt.New(t)
+
+	content := `
+## God is Good: 神真美好
+`
+	mconf := markup_config.Default
+	mconf.Goldmark.Parser.AutoHeadingIDAsciiOnly = true
+	b := convert(c, mconf, content)
+	got := string(b.Bytes())
+
+	c.Assert(got, qt.Contains, "<h2 id=\"god-is-good-\">")
 }
 
 func TestCodeFence(t *testing.T) {

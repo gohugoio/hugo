@@ -60,6 +60,10 @@ type blackfridayConverter struct {
 	cfg        converter.ProviderConfig
 }
 
+func (c *blackfridayConverter) SanitizeAnchorName(s string) string {
+	return blackfriday.SanitizedAnchorName(s)
+}
+
 func (c *blackfridayConverter) AnchorSuffix() string {
 	if c.bf.PlainIDAnchors {
 		return ""
@@ -204,5 +208,6 @@ var blackfridayExtensionMap = map[string]int{
 }
 
 var (
-	_ converter.DocumentInfo = (*blackfridayConverter)(nil)
+	_ converter.DocumentInfo        = (*blackfridayConverter)(nil)
+	_ converter.AnchorNameSanitizer = (*blackfridayConverter)(nil)
 )

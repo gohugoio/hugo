@@ -69,6 +69,10 @@ type Parser struct {
 	// auto generated heading ids.
 	AutoHeadingID bool
 
+	// When AutoHeadingID is enabled this will generate IDs with Ascii
+	// characters only.
+	AutoHeadingIDAsciiOnly bool
+
 	// Enables custom attributes.
 	Attribute bool
 }

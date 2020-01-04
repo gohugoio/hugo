@@ -48,8 +48,9 @@ var (
 
 // ContentSpec provides functionality to render markdown content.
 type ContentSpec struct {
-	Converters       markup.ConverterProvider
-	MardownConverter converter.Converter // Markdown converter with no document context
+	Converters          markup.ConverterProvider
+	MardownConverter    converter.Converter // Markdown converter with no document context
+	anchorNameSanitizer converter.AnchorNameSanitizer
 
 	// SummaryLength is the length of the summary that Hugo extracts from a content.
 	summaryLength int
@@ -91,6 +92,17 @@ func NewContentSpec(cfg config.Provider, logger *loggers.Logger, contentFs afero
 		return nil, err
 	}
 	spec.MardownConverter = conv
+	if as, ok := conv.(converter.AnchorNameSanitizer); ok {
+		spec.anchorNameSanitizer = as
+	} else {
+		// Use Goldmark's sanitizer
+		p := converterProvider.Get("goldmark")
+		conv, err := p.New(converter.DocumentContext{})
+		if err != nil {
+			return nil, err
+		}
+		spec.anchorNameSanitizer = conv.(converter.AnchorNameSanitizer)
+	}
 
 	return spec, nil
 }
@@ -190,6 +202,10 @@ func (c *ContentSpec) RenderMarkdown(src []byte) ([]byte, error) {
 		return nil, err
 	}
 	return b.Bytes(), nil
+}
+
+func (c *ContentSpec) SanitizeAnchorName(s string) string {
+	return c.anchorNameSanitizer.SanitizeAnchorName(s)
 }
 
 func (c *ContentSpec) ResolveMarkup(in string) string {

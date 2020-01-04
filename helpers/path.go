@@ -24,6 +24,8 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/gohugoio/hugo/common/text"
+
 	"github.com/gohugoio/hugo/config"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -31,9 +33,6 @@ import (
 	"github.com/gohugoio/hugo/common/hugio"
 	_errors "github.com/pkg/errors"
 	"github.com/spf13/afero"
-	"golang.org/x/text/runes"
-	"golang.org/x/text/transform"
-	"golang.org/x/text/unicode/norm"
 )
 
 var (
@@ -134,6 +133,10 @@ func ishex(c rune) bool {
 // are also removed.
 // Spaces will be replaced with a single hyphen, and sequential hyphens will be reduced to one.
 func (p *PathSpec) UnicodeSanitize(s string) string {
+	if p.RemovePathAccents {
+		s = text.RemoveAccentsString(s)
+	}
+
 	source := []rune(s)
 	target := make([]rune, 0, len(source))
 	var prependHyphen bool
@@ -154,17 +157,7 @@ func (p *PathSpec) UnicodeSanitize(s string) string {
 		}
 	}
 
-	var result string
-
-	if p.RemovePathAccents {
-		// remove accents - see https://blog.golang.org/normalization
-		t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
-		result, _, _ = transform.String(t, string(target))
-	} else {
-		result = string(target)
-	}
-
-	return result
+	return string(target)
 }
 
 // ReplaceExtension takes a path and an extension, strips the old extension

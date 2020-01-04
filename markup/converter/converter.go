@@ -87,6 +87,11 @@ type TableOfContentsProvider interface {
 	TableOfContents() tableofcontents.Root
 }
 
+// AnchorNameSanitizer tells how a converter sanitizes anchor names.
+type AnchorNameSanitizer interface {
+	SanitizeAnchorName(s string) string
+}
+
 // Bytes holds a byte slice and implements the Result interface.
 type Bytes []byte
 

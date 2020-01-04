@@ -25,7 +25,6 @@ import (
 	"github.com/gohugoio/hugo/common/urls"
 	"github.com/gohugoio/hugo/deps"
 	_errors "github.com/pkg/errors"
-	"github.com/russross/blackfriday"
 	"github.com/spf13/cast"
 )
 
@@ -90,7 +89,7 @@ func (ns *Namespace) Anchorize(a interface{}) (string, error) {
 	if err != nil {
 		return "", nil
 	}
-	return blackfriday.SanitizedAnchorName(s), nil
+	return ns.deps.ContentSpec.SanitizeAnchorName(s), nil
 }
 
 // Ref returns the absolute URL path to a given content item.
