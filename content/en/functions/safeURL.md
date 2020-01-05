@@ -50,7 +50,7 @@ This partial would produce the following HTML output:
 </ul>
 {{< /output >}}
 
-The odd output can be remedied by adding ` | safeURL` to our `.Title` page variable:
+The odd output can be remedied by adding ` | safeURL` to our `.URL` page variable:
 
 {{< code file="layouts/partials/correct-url-sidebar-menu.html" copy="false" >}}
 <!-- This unordered list may be part of a sidebar menu -->

@@ -15,6 +15,8 @@ signature: [".RenderString MARKUP"]
 
 `.RenderString` is a method on `Page` that renders some markup to HTML using the content renderer defined for that page (if not set in the options).
 
+*Note* that this method does not parse and render shortcodes.
+
 The method takes an optional map argument with these options:
 
 display ("inline")
@@ -34,4 +36,4 @@ Some examples:
 ```
 
 
-**Note** that this method is more powerful than the similar [markdownify](functions/markdownify/) function as it also supports [Render Hooks](/getting-started/configuration-markup/#markdown-render-hooks) and it has options to render other markup formats.
+**Note** that this method is more powerful than the similar [markdownify](/functions/markdownify/) function as it also supports [Render Hooks](/getting-started/configuration-markup/#markdown-render-hooks) and it has options to render other markup formats.
