@@ -267,7 +267,14 @@ func (c *PageCollections) getPageNew(context page.Page, ref string) (page.Page, 
 
 	} else if context != nil {
 		// Try the page-relative path.
-		ppath := path.Join("/", strings.ToLower(context.SectionsPath()), ref)
+		var dir string
+		if !context.File().IsZero() {
+			dir = filepath.ToSlash(context.File().Dir())
+		} else {
+			dir = context.SectionsPath()
+		}
+		ppath := path.Join("/", strings.ToLower(dir), ref)
+
 		p, err := c.getFromCache(ppath)
 		if err == nil && p != nil {
 			return p, nil

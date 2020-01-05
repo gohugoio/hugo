@@ -954,7 +954,7 @@ func (p *pageState) sourceRefs() []string {
 		path := meta.PathFile()
 
 		if path != "" {
-			ref := "/" + path
+			ref := "/" + filepath.ToSlash(path)
 			if ref != refs[0] {
 				refs = append(refs, ref)
 			}

@@ -585,9 +585,19 @@ workingDir = %q
 {{ $mypage := .Site.GetPage "/blog/mypage.md" }}
 {{ with $mypage }}MYPAGE: {{ .Title }}|Path: {{ path.Join .File.Path }}|FilePath: {{ path.Join .File.FileInfo.Meta.PathFile }}|{{ end }}
 
+`, "_default/_markup/render-link.html", `
+{{ $link := .Destination }}
+{{ $isRemote := strings.HasPrefix $link "http" }}
+{{- if not $isRemote -}}
+{{ $url := urls.Parse .Destination }}
+{{ $fragment := "" }}
+{{- with $url.Fragment }}{{ $fragment = printf "#%s" . }}{{ end -}}
+{{- with .Page.GetPage $url.Path }}{{ $link = printf "%s%s" .Permalink $fragment }}{{ end }}{{ end -}}
+<a href="{{ $link | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}{{ if $isRemote }} target="_blank"{{ end }}>{{ .Text | safeHTML }}</a>
 `)
 
 	os.Mkdir(filepath.Join(workingDir, "mycontent"), 0777)
+	os.Mkdir(filepath.Join(workingDir, "mycontent", "mybundle"), 0777)
 
 	b.WithSourceFile("README.md", `---
 title: "Readme Title"
@@ -600,6 +610,23 @@ Readme Content.
 title: "My Page"
 ---
 
+
+* [Relative Link From Page](mybundle)
+* [Relative Link From Page, filename](mybundle/index.md)
+* [Link using original path](/mycontent/mybundle/index.md)
+
+
+`, filepath.Join("mycontent", "mybundle", "index.md"), `
+---
+title: "My Bundle"
+---
+
+* [Dot Relative Link From Bundle](../mypage.md)
+* [Link using original path](/mycontent/mypage.md)
+* [Link to Home](/)
+* [Link to Home, README.md](/README.md)
+* [Link to Home, _index.md](/_index.md)
+
 `)
 
 	b.Build(BuildCfg{})
@@ -610,7 +637,19 @@ README: Readme Title
 Readme Content.
 MYPAGE: My Page|Path: blog/mypage.md|FilePath: mycontent/mypage.md|
 `)
-	b.AssertFileContent("public/blog/mypage/index.html", "Single: My Page")
+	b.AssertFileContent("public/blog/mypage/index.html", `
+<a href="https://example.com/blog/mybundle/">Relative Link From Page</a>
+<a href="https://example.com/blog/mybundle/">Relative Link From Page, filename</a>
+<a href="https://example.com/blog/mybundle/">Link using original path</a>
+
+`)
+	b.AssertFileContent("public/blog/mybundle/index.html", `
+<a href="https://example.com/blog/mypage/">Dot Relative Link From Bundle</a>
+<a href="https://example.com/blog/mypage/">Link using original path</a>
+<a href="https://example.com/">Link to Home</a>
+<a href="https://example.com/">Link to Home, README.md</a>
+<a href="https://example.com/">Link to Home, _index.md</a>
+`)
 
 	b.EditFiles("README.md", `---
 title: "Readme Edit"
@@ -622,6 +661,7 @@ title: "Readme Edit"
 	b.AssertFileContent("public/index.html", `
 Readme Edit
 `)
+
 }
 
 // https://github.com/gohugoio/hugo/issues/6299
