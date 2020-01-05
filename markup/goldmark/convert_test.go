@@ -178,6 +178,21 @@ func TestConvertAutoIDAsciiOnly(t *testing.T) {
 	c.Assert(got, qt.Contains, "<h2 id=\"god-is-good-\">")
 }
 
+func TestConvertAutoIDBlackfriday(t *testing.T) {
+	c := qt.New(t)
+
+	content := `
+## Let's try this, shall we?
+
+`
+	mconf := markup_config.Default
+	mconf.Goldmark.Parser.AutoHeadingIDType = goldmark_config.AutoHeadingIDTypeBlackfriday
+	b := convert(c, mconf, content)
+	got := string(b.Bytes())
+
+	c.Assert(got, qt.Contains, "<h2 id=\"let-s-try-this-shall-we\">")
+}
+
 func TestCodeFence(t *testing.T) {
 	c := qt.New(t)
 

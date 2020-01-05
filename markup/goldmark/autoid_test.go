@@ -17,6 +17,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
+
 	qt "github.com/frankban/quicktest"
 )
 
@@ -69,9 +71,9 @@ under_score
 		expect := expectlines[i]
 		c.Run(input, func(c *qt.C) {
 			b := []byte(input)
-			got := string(sanitizeAnchorName(b, false))
+			got := string(sanitizeAnchorName(b, goldmark_config.AutoHeadingIDTypeGitHub))
 			c.Assert(got, qt.Equals, expect)
-			c.Assert(sanitizeAnchorNameString(input, false), qt.Equals, expect)
+			c.Assert(sanitizeAnchorNameString(input, goldmark_config.AutoHeadingIDTypeGitHub), qt.Equals, expect)
 			c.Assert(string(b), qt.Equals, input)
 		})
 	}
@@ -80,16 +82,21 @@ under_score
 func TestSanitizeAnchorNameAsciiOnly(t *testing.T) {
 	c := qt.New(t)
 
-	c.Assert(sanitizeAnchorNameString("god is神真美好 good", true), qt.Equals, "god-is-good")
-	c.Assert(sanitizeAnchorNameString("Resumé", true), qt.Equals, "resume")
+	c.Assert(sanitizeAnchorNameString("god is神真美好 good", goldmark_config.AutoHeadingIDTypeGitHubAscii), qt.Equals, "god-is-good")
+	c.Assert(sanitizeAnchorNameString("Resumé", goldmark_config.AutoHeadingIDTypeGitHubAscii), qt.Equals, "resume")
 
+}
+
+func TestSanitizeAnchorNameBlackfriday(t *testing.T) {
+	c := qt.New(t)
+	c.Assert(sanitizeAnchorNameString("Let's try this, shall we?", goldmark_config.AutoHeadingIDTypeBlackfriday), qt.Equals, "let-s-try-this-shall-we")
 }
 
 func BenchmarkSanitizeAnchorName(b *testing.B) {
 	input := []byte("God is good: 神真美好")
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		result := sanitizeAnchorName(input, false)
+		result := sanitizeAnchorName(input, goldmark_config.AutoHeadingIDTypeGitHub)
 		if len(result) != 24 {
 			b.Fatalf("got %d", len(result))
 
@@ -101,8 +108,20 @@ func BenchmarkSanitizeAnchorNameAsciiOnly(b *testing.B) {
 	input := []byte("God is good: 神真美好")
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		result := sanitizeAnchorName(input, true)
+		result := sanitizeAnchorName(input, goldmark_config.AutoHeadingIDTypeGitHubAscii)
 		if len(result) != 12 {
+			b.Fatalf("got %d", len(result))
+
+		}
+	}
+}
+
+func BenchmarkSanitizeAnchorNameBlackfriday(b *testing.B) {
+	input := []byte("God is good: 神真美好")
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		result := sanitizeAnchorName(input, goldmark_config.AutoHeadingIDTypeBlackfriday)
+		if len(result) != 24 {
 			b.Fatalf("got %d", len(result))
 
 		}
@@ -113,7 +132,7 @@ func BenchmarkSanitizeAnchorNameString(b *testing.B) {
 	input := "God is good: 神真美好"
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		result := sanitizeAnchorNameString(input, false)
+		result := sanitizeAnchorNameString(input, goldmark_config.AutoHeadingIDTypeGitHub)
 		if len(result) != 24 {
 			b.Fatalf("got %d", len(result))
 		}

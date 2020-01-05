@@ -17,6 +17,7 @@ package goldmark_config
 const (
 	AutoHeadingIDTypeGitHub      = "github"
 	AutoHeadingIDTypeGitHubAscii = "github-ascii"
+	AutoHeadingIDTypeBlackfriday = "blackfriday"
 )
 
 // DefaultConfig holds the default Goldmark configuration.

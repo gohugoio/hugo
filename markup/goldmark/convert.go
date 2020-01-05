@@ -29,7 +29,6 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/markup/converter"
-	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
 	"github.com/gohugoio/hugo/markup/highlight"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/yuin/goldmark"
@@ -57,7 +56,7 @@ func (p provide) New(cfg converter.ProviderConfig) (converter.Provider, error) {
 			cfg: cfg,
 			md:  md,
 			sanitizeAnchorName: func(s string) string {
-				return sanitizeAnchorNameString(s, cfg.MarkupConfig.Goldmark.Parser.AutoHeadingIDType == goldmark_config.AutoHeadingIDTypeGitHub)
+				return sanitizeAnchorNameString(s, cfg.MarkupConfig.Goldmark.Parser.AutoHeadingIDType)
 			},
 		}, nil
 	}), nil

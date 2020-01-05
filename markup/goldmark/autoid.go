@@ -19,6 +19,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/gohugoio/hugo/markup/blackfriday"
+
 	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
 
 	"github.com/gohugoio/hugo/common/text"
@@ -30,34 +32,41 @@ import (
 	bp "github.com/gohugoio/hugo/bufferpool"
 )
 
-func sanitizeAnchorNameString(s string, asciiOnly bool) string {
-	return string(sanitizeAnchorName([]byte(s), asciiOnly))
+func sanitizeAnchorNameString(s string, idType string) string {
+	return string(sanitizeAnchorName([]byte(s), idType))
 }
 
-func sanitizeAnchorName(b []byte, asciiOnly bool) []byte {
-	return sanitizeAnchorNameWithHook(b, asciiOnly, nil)
+func sanitizeAnchorName(b []byte, idType string) []byte {
+	return sanitizeAnchorNameWithHook(b, idType, nil)
 }
 
-func sanitizeAnchorNameWithHook(b []byte, asciiOnly bool, hook func(buf *bytes.Buffer)) []byte {
+func sanitizeAnchorNameWithHook(b []byte, idType string, hook func(buf *bytes.Buffer)) []byte {
 	buf := bp.GetBuffer()
 
-	if asciiOnly {
-		// Normalize it to preserve accents if possible.
-		b = text.RemoveAccents(b)
-	}
+	if idType == goldmark_config.AutoHeadingIDTypeBlackfriday {
+		// TODO(bep) make it more efficient.
+		buf.WriteString(blackfriday.SanitizedAnchorName(string(b)))
+	} else {
+		asciiOnly := idType == goldmark_config.AutoHeadingIDTypeGitHubAscii
 
-	for len(b) > 0 {
-		r, size := utf8.DecodeRune(b)
-		switch {
-		case asciiOnly && size != 1:
-		case r == '-' || isSpace(r):
-			buf.WriteRune('-')
-		case isAlphaNumeric(r):
-			buf.WriteRune(unicode.ToLower(r))
-		default:
+		if asciiOnly {
+			// Normalize it to preserve accents if possible.
+			b = text.RemoveAccents(b)
 		}
 
-		b = b[size:]
+		for len(b) > 0 {
+			r, size := utf8.DecodeRune(b)
+			switch {
+			case asciiOnly && size != 1:
+			case r == '-' || isSpace(r):
+				buf.WriteRune('-')
+			case isAlphaNumeric(r):
+				buf.WriteRune(unicode.ToLower(r))
+			default:
+			}
+
+			b = b[size:]
+		}
 	}
 
 	if hook != nil {
@@ -83,19 +92,19 @@ func isSpace(r rune) bool {
 var _ parser.IDs = (*idFactory)(nil)
 
 type idFactory struct {
-	asciiOnly bool
-	vals      map[string]struct{}
+	idType string
+	vals   map[string]struct{}
 }
 
 func newIDFactory(idType string) *idFactory {
 	return &idFactory{
-		vals:      make(map[string]struct{}),
-		asciiOnly: idType == goldmark_config.AutoHeadingIDTypeGitHubAscii,
+		vals:   make(map[string]struct{}),
+		idType: idType,
 	}
 }
 
 func (ids *idFactory) Generate(value []byte, kind ast.NodeKind) []byte {
-	return sanitizeAnchorNameWithHook(value, ids.asciiOnly, func(buf *bytes.Buffer) {
+	return sanitizeAnchorNameWithHook(value, ids.idType, func(buf *bytes.Buffer) {
 		if buf.Len() == 0 {
 			if kind == ast.KindHeading {
 				buf.WriteString("heading")

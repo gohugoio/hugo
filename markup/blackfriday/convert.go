@@ -15,6 +15,8 @@
 package blackfriday
 
 import (
+	"unicode"
+
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/blackfriday/blackfriday_config"
 	"github.com/gohugoio/hugo/markup/converter"
@@ -61,7 +63,27 @@ type blackfridayConverter struct {
 }
 
 func (c *blackfridayConverter) SanitizeAnchorName(s string) string {
-	return blackfriday.SanitizedAnchorName(s)
+	return SanitizedAnchorName(s)
+}
+
+// SanitizedAnchorName is how Blackfriday sanitizes anchor names.
+// Implementation borrowed from https://github.com/russross/blackfriday/blob/a477dd1646916742841ed20379f941cfa6c5bb6f/block.go#L1464
+func SanitizedAnchorName(text string) string {
+	var anchorName []rune
+	futureDash := false
+	for _, r := range text {
+		switch {
+		case unicode.IsLetter(r) || unicode.IsNumber(r):
+			if futureDash && len(anchorName) > 0 {
+				anchorName = append(anchorName, '-')
+			}
+			futureDash = false
+			anchorName = append(anchorName, unicode.ToLower(r))
+		default:
+			futureDash = true
+		}
+	}
+	return string(anchorName)
 }
 
 func (c *blackfridayConverter) AnchorSuffix() string {
