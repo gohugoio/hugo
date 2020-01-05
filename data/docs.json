@@ -1399,6 +1399,7 @@
         },
         "parser": {
           "autoHeadingID": true,
+          "autoHeadingIDType": "github",
           "attribute": true
         },
         "extensions": {
@@ -2993,7 +2994,7 @@
       },
       "fmt": {
         "Errorf": {
-          "Description": "Errorf formats according to a format specifier and returns the string as a\nvalue that satisfies error.",
+          "Description": "Errorf formats according to a format specifier and logs an ERROR.\nIt returns an empty string.",
           "Args": [
             "format",
             "a"
@@ -3004,7 +3005,7 @@
           "Examples": [
             [
               "{{ errorf \"%s.\" \"failed\" }}",
-              "failed."
+              ""
             ]
           ]
         },
