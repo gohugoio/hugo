@@ -40,6 +40,8 @@ Many   spaces  here
 Forward/slash
 Backward\slash
 Under_score
+Nonbreaking Space
+Tab	Space
 `
 
 	expect := `
@@ -56,6 +58,8 @@ many---spaces--here
 forwardslash
 backwardslash
 under_score
+nonbreakingspace
+tabspace
 `
 
 	tests, expect = strings.TrimSpace(tests), strings.TrimSpace(expect)

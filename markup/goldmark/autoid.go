@@ -58,7 +58,7 @@ func sanitizeAnchorNameWithHook(b []byte, idType string, hook func(buf *bytes.Bu
 			r, size := utf8.DecodeRune(b)
 			switch {
 			case asciiOnly && size != 1:
-			case r == '-' || isSpace(r):
+			case r == '-' || r == ' ':
 				buf.WriteRune('-')
 			case isAlphaNumeric(r):
 				buf.WriteRune(unicode.ToLower(r))
@@ -83,10 +83,6 @@ func sanitizeAnchorNameWithHook(b []byte, idType string, hook func(buf *bytes.Bu
 
 func isAlphaNumeric(r rune) bool {
 	return r == '_' || unicode.IsLetter(r) || unicode.IsDigit(r)
-}
-
-func isSpace(r rune) bool {
-	return r == ' ' || r == '\t'
 }
 
 var _ parser.IDs = (*idFactory)(nil)
