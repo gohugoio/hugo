@@ -466,6 +466,7 @@ func (s *sitesBuilder) CreateSitesE() error {
 			for _, dir := range []string{
 				"content/sect",
 				"layouts/_default",
+				"layouts/_default/_markup",
 				"layouts/partials",
 				"layouts/shortcodes",
 				"data",
