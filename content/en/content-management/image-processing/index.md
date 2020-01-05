@@ -16,7 +16,7 @@ menu:
 
 ## The Image Page Resource
 
-The `image` is a [Page Resource]({{< relref "/content-management/page-resources" >}}), and the processing methods listed below does not work on images inside your `/static` folder.
+The `image` is a [Page Resource]({{< relref "/content-management/page-resources" >}}), and the processing methods listed below do not work on images inside your `/static` folder.
 
 To get all images in a [Page Bundle]({{< relref "/content-management/organization#page-bundles" >}}):
 
@@ -88,7 +88,7 @@ Sometimes it can be useful to create the filter chain once and then reuse it:
 
 Provides an [Exif](https://en.wikipedia.org/wiki/Exif) object with metadata about the image.
 
-Note that this is only suported for JPG and TIFF images, so it's recommended to wrap the access with a `with`, e.g.:
+Note that this is only suported for JPEG and TIFF images, so it's recommended to wrap the access with a `with`, e.g.:
 
 ```go-html-template
 {{ with $img.Exif }}

@@ -1,7 +1,6 @@
 ---
-title: errorf
-linktitle: errorf
-description: Log ERROR and fail the build from the templates.
+title: errorf and warnf
+description: Log ERROR or WARNING from the templates.
 date: 2017-09-30
 publishdate: 2017-09-30
 lastmod: 2017-09-30
@@ -15,15 +14,21 @@ workson: []
 hugoversion:
 relatedfuncs: [printf]
 deprecated: false
-aliases: []
+aliases: [/functions/errorf]
 ---
 
-`errorf` will evaluate a format string, then output the result to the ERROR log (and only once per error message to avoid flooding the log).
+`errorf` or `warnf` will evaluate a format string, then output the result to the ERROR or WARNING log (and only once per error message to avoid flooding the log).
 
-This will also cause the build to fail (the `hugo` command will `exit -1`).
+Any ERROR will also cause the build to fail (the `hugo` command will `exit -1`).
+
+Both functions return an empty string, so the messages are only printed to the console.
 
 ```
 {{ errorf "Failed to handle page %q" .Path }}
 ```
 
-Note that `errorf` supports all the formatting verbs of the [fmt](https://golang.org/pkg/fmt/) package.
+```
+{{ warnf "You should update the shortcodes in %q" .Path }}
+```
+
+Note that `errorf` and `warnf` support all the formatting verbs of the [fmt](https://golang.org/pkg/fmt/) package.
