@@ -17,6 +17,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
+
 	"github.com/gohugoio/hugo/markup/highlight"
 
 	"github.com/gohugoio/hugo/markup/markup_config"
@@ -169,7 +171,7 @@ func TestConvertAutoIDAsciiOnly(t *testing.T) {
 ## God is Good: 神真美好
 `
 	mconf := markup_config.Default
-	mconf.Goldmark.Parser.AutoHeadingIDAsciiOnly = true
+	mconf.Goldmark.Parser.AutoHeadingIDType = goldmark_config.AutoHeadingIDTypeGitHubAscii
 	b := convert(c, mconf, content)
 	got := string(b.Bytes())
 

@@ -14,6 +14,11 @@
 // Package goldmark_config holds Goldmark related configuration.
 package goldmark_config
 
+const (
+	AutoHeadingIDTypeGitHub      = "github"
+	AutoHeadingIDTypeGitHubAscii = "github-ascii"
+)
+
 // DefaultConfig holds the default Goldmark configuration.
 var Default = Config{
 	Extensions: Extensions{
@@ -29,8 +34,9 @@ var Default = Config{
 		Unsafe: false,
 	},
 	Parser: Parser{
-		AutoHeadingID: true,
-		Attribute:     true,
+		AutoHeadingID:     true,
+		AutoHeadingIDType: AutoHeadingIDTypeGitHub,
+		Attribute:         true,
 	},
 }
 
@@ -69,9 +75,10 @@ type Parser struct {
 	// auto generated heading ids.
 	AutoHeadingID bool
 
-	// When AutoHeadingID is enabled this will generate IDs with Ascii
-	// characters only.
-	AutoHeadingIDAsciiOnly bool
+	// The strategy to use when generating heading IDs.
+	// Available options are "github", "github-ascii".
+	// Default is "github", which will create GitHub-compatible anchor names.
+	AutoHeadingIDType string
 
 	// Enables custom attributes.
 	Attribute bool

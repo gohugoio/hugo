@@ -19,6 +19,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
+
 	"github.com/gohugoio/hugo/common/text"
 
 	"github.com/yuin/goldmark/ast"
@@ -85,10 +87,10 @@ type idFactory struct {
 	vals      map[string]struct{}
 }
 
-func newIDFactory(asciiOnly bool) *idFactory {
+func newIDFactory(idType string) *idFactory {
 	return &idFactory{
 		vals:      make(map[string]struct{}),
-		asciiOnly: asciiOnly,
+		asciiOnly: idType == goldmark_config.AutoHeadingIDTypeGitHubAscii,
 	}
 }
 
