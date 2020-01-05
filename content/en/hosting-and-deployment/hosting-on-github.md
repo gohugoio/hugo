@@ -58,7 +58,7 @@ This is a much simpler setup as your Hugo files and generated content are publis
 5. Once you are happy with the results:
     * Press <kbd>Ctrl</kbd>+<kbd>C</kbd> to kill the server
     * Before proceeding run `rm -rf public` to completely remove the `public` directory 
-6. `git submodule add -b master git@github.com:<USERNAME>/<USERNAME>.github.io.git public`. This creates a git [submodule][]. Now when you run the `hugo` command to build your site to `public`, the created `public` directory will have a different remote origin (i.e. hosted GitHub repository).
+6. `git submodule add -b master https://github.com/<USERNAME>/<USERNAME>.github.io.git public`. This creates a git [submodule][]. Now when you run the `hugo` command to build your site to `public`, the created `public` directory will have a different remote origin (i.e. hosted GitHub repository).
 
 ### Put it Into a Script
 
