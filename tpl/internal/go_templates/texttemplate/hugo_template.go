@@ -29,6 +29,9 @@ package is auto generated.
 
 */
 
+// Export it so we can populate Hugo's func map with it, which makes it faster.
+var GoFuncs = builtinFuncs
+
 // Preparer prepares the template before execution.
 type Preparer interface {
 	Prepare() (*Template, error)

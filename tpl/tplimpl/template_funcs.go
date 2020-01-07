@@ -108,7 +108,25 @@ func newTemplateExecuter(d *deps.Deps) (texttemplate.Executer, map[string]reflec
 	funcsv := make(map[string]reflect.Value)
 
 	for k, v := range funcs {
-		funcsv[k] = reflect.ValueOf(v)
+		vv := reflect.ValueOf(v)
+		funcsv[k] = vv
+	}
+
+	// Duplicate Go's internal funcs here for faster lookups.
+	for k, v := range template.GoFuncs {
+		if _, exists := funcsv[k]; !exists {
+			vv, ok := v.(reflect.Value)
+			if !ok {
+				vv = reflect.ValueOf(v)
+			}
+			funcsv[k] = vv
+		}
+	}
+
+	for k, v := range texttemplate.GoFuncs {
+		if _, exists := funcsv[k]; !exists {
+			funcsv[k] = v
+		}
 	}
 
 	exeHelper := &templateExecHelper{
