@@ -72,8 +72,8 @@ func New(mediaTypes media.Types, outputFormats output.Formats) Client {
 	}
 
 	cssMin := &css.Minifier{
-		Decimals: -1,
-		KeepCSS2: true,
+		Precision: 0,
+		KeepCSS2:  true,
 	}
 
 	// We use the Type definition of the media types defined in the site if found.
