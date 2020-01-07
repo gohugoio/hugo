@@ -270,6 +270,80 @@ contentDir="content/sv"
 
 			},
 		},
+		{"Many HTML templates", func(b testing.TB) *sitesBuilder {
+
+			pageTemplateTemplate := `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{{ if not .IsPage }}{{ .Title }}{{ else }}{{ printf "Site: %s" site.Title }}{{ end }}</title>
+    <style>
+     body {
+       margin: 3rem;
+     }
+    </style>
+  </head>
+  <body>
+    <div class="page">{{ .Content }}</div>
+    <ul>
+    {{ with .Pages }}
+    {{ range . }}
+    <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }} {{ if not .IsNode }} (Page){{ end }}</a></li>
+    {{ end }}
+    {{ end }}
+    </ul>
+  </body>
+</html>
+`
+
+			sb := newTestSitesBuilder(b).WithConfigFile("toml", `
+baseURL = "https://example.com"
+
+[languages]
+[languages.en]
+weight=1
+contentDir="content/en"
+[languages.fr]
+weight=2
+contentDir="content/fr"
+[languages.no]
+weight=3
+contentDir="content/no"
+[languages.sv]
+weight=4
+contentDir="content/sv"
+			
+`)
+
+			createContent := func(dir, name string) {
+				sb.WithContent(filepath.Join("content", dir, name), pageContent(1))
+			}
+
+			for _, lang := range []string{"en", "fr", "no", "sv"} {
+				sb.WithTemplatesAdded(fmt.Sprintf("_default/single.%s.html", lang), pageTemplateTemplate)
+				sb.WithTemplatesAdded(fmt.Sprintf("_default/list.%s.html", lang), pageTemplateTemplate)
+
+				for level := 1; level <= 5; level++ {
+					sectionDir := path.Join(lang, strings.Repeat("section/", level))
+					createContent(sectionDir, "_index.md")
+					for i := 1; i <= 3; i++ {
+						leafBundleDir := path.Join(sectionDir, fmt.Sprintf("bundle%d", i))
+						createContent(leafBundleDir, "index.md")
+					}
+				}
+			}
+
+			return sb
+		},
+			func(s *sitesBuilder) {
+				s.CheckExists("public/blog/mybundle/index.html")
+				s.Assert(len(s.H.Sites), qt.Equals, 4)
+				s.Assert(len(s.H.Sites[0].RegularPages()), qt.Equals, len(s.H.Sites[1].RegularPages()))
+				s.Assert(len(s.H.Sites[0].RegularPages()), qt.Equals, 15)
+
+			},
+		},
 	}
 
 	return benchmarks
