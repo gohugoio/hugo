@@ -550,4 +550,5 @@ if (!doNotTrack) {
 <meta name="twitter:creator" content="@{{ . }}"/>
 {{ end -}}
 {{ end -}}`},
+	{`webmonetization.html`, `<meta name="monetization" content='{{ $.Site.Params.monetization }}'>`},
 }

@@ -197,6 +197,27 @@ To add Twitter card metadata, include the following line between the `<head>` ta
 {{ template "_internal/twitter_cards.html" . }}
 ```
 
+## Web Monetization
+
+An internal template to enable [web monetization](https://webmonetization.org/). It allows the creator of the website to receive micropayments from readers. 
+
+### Configure Web Monetization
+
+Provide your [payment pointer](https://paymentpointers.org/) under the params section in your configuration file:
+
+{{< code-toggle file="config" >}}
+[params]
+  monetization = "$twitter.xrptipbot.com/sabinebertram_"
+{{</ code-toggle >}}
+
+### Use the Web Monetization Template
+
+You can then include the Web Monetization internal template:
+
+```
+{{ template "_internal/webmonetization.html" . }}
+```
+
 ## The Internal Templates
 
 * `_internal/disqus.html`
@@ -206,7 +227,7 @@ To add Twitter card metadata, include the following line between the `<head>` ta
 * `_internal/opengraph.html`
 * `_internal/pagination.html`
 * `_internal/schema.html`
-* `_internal/twitter_cards.html`
+* `_internal/webmonetization.html`
 
 [disqus]: https://disqus.com
 [disqussignup]: https://disqus.com/profile/signup/
