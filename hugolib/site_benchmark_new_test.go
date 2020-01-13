@@ -15,7 +15,7 @@ package hugolib
 
 import (
 	"fmt"
-	"io/ioutil"
+	"math/rand"
 	"path"
 	"path/filepath"
 	"strconv"
@@ -121,63 +121,6 @@ Some content.
 				s.AssertFileContent("public/tags/ta3/index.html", "|ta3|")
 			},
 		},
-		{"Markdown", func(b testing.TB) *sitesBuilder {
-			sb := newTestSitesBuilder(b).WithConfigFile("toml", `
-title = "What is Markdown"
-baseURL = "https://example.com"
-
-`)
-
-			data, err := ioutil.ReadFile(filepath.FromSlash("testdata/what-is-markdown.md"))
-			sb.Assert(err, qt.IsNil)
-			datastr := string(data)
-			getContent := func(i int) string {
-				return fmt.Sprintf(`---
-title: "Page %d"
----
-
-`, i) + datastr
-
-			}
-			for i := 1; i <= 100; i++ {
-				sb.WithContent(fmt.Sprintf("content/page%d.md", i), getContent(i))
-			}
-
-			return sb
-		},
-			func(s *sitesBuilder) {
-				s.Assert(s.CheckExists("public/page8/index.html"), qt.Equals, true)
-			},
-		},
-		{"Markdown with custom link handler", func(b testing.TB) *sitesBuilder {
-			sb := newTestSitesBuilder(b).WithConfigFile("toml", `
-title = "What is Markdown"
-baseURL = "https://example.com"
-
-`)
-
-			sb.WithTemplatesAdded("_default/_markup/render-link.html", `<a href="{{ .Destination | safeURL }}#custom">CUSTOM LINK</a>`)
-			data, err := ioutil.ReadFile(filepath.FromSlash("testdata/what-is-markdown.md"))
-			sb.Assert(err, qt.IsNil)
-			datastr := string(data)
-			getContent := func(i int) string {
-				return fmt.Sprintf(`---
-title: "Page %d"
----
-
-`, i) + datastr
-
-			}
-			for i := 1; i <= 100; i++ {
-				sb.WithContent(fmt.Sprintf("content/page%d.md", i), getContent(i))
-			}
-
-			return sb
-		},
-			func(s *sitesBuilder) {
-				s.Assert(s.CheckExists("public/page8/index.html"), qt.Equals, true)
-			},
-		},
 		{"Canonify URLs", func(b testing.TB) *sitesBuilder {
 			sb := newTestSitesBuilder(b).WithConfigFile("toml", `
 title = "Canon"
@@ -195,25 +138,7 @@ canonifyURLs = true
 				s.AssertFileContent("public/page8/index.html", "https://example.com/about/")
 			},
 		},
-		{"Code Fences", func(b testing.TB) *sitesBuilder {
-			sb := newTestSitesBuilder(b).WithConfigFile("toml", `
-title = "Code"
-baseURL = "https://example.com"
-pygmentsCodeFences = true
 
-`)
-			markdown := "\n```bash\n" + `echo "Hugo Rocks!"` + "\n```\n\n"
-
-			for i := 1; i <= 100; i++ {
-				sb.WithContent(fmt.Sprintf("content/page%d.md", i), pageContentForMarkdown(i, markdown))
-			}
-
-			return sb
-		},
-			func(s *sitesBuilder) {
-				s.AssertFileContent("public/page8/index.html", `<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">echo <span style="color:#e6db74">&#34;Hugo Rocks!&#34;</span>`)
-			},
-		},
 		{"Deep content tree", func(b testing.TB) *sitesBuilder {
 
 			sb := newTestSitesBuilder(b).WithConfigFile("toml", `
@@ -341,6 +266,79 @@ contentDir="content/sv"
 				s.Assert(len(s.H.Sites), qt.Equals, 4)
 				s.Assert(len(s.H.Sites[0].RegularPages()), qt.Equals, len(s.H.Sites[1].RegularPages()))
 				s.Assert(len(s.H.Sites[0].RegularPages()), qt.Equals, 15)
+
+			},
+		},
+		{"Page collections", func(b testing.TB) *sitesBuilder {
+
+			pageTemplateTemplate := `
+{{ if .IsNode }}
+{{ len .Paginator.Pages }}
+{{ end }}
+{{ len .Sections }}
+{{ len .Pages }}
+{{ len .RegularPages }}
+{{ len site.RegularPages }}
+{{ len site.Pages }}
+
+`
+
+			sb := newTestSitesBuilder(b).WithConfigFile("toml", `
+baseURL = "https://example.com"
+
+[languages]
+[languages.en]
+weight=1
+contentDir="content/en"
+[languages.fr]
+weight=2
+contentDir="content/fr"
+[languages.no]
+weight=3
+contentDir="content/no"
+[languages.sv]
+weight=4
+contentDir="content/sv"
+			
+`)
+
+			sb.WithTemplatesAdded("index.html", pageTemplateTemplate)
+			sb.WithTemplatesAdded("_default/single.html", pageTemplateTemplate)
+			sb.WithTemplatesAdded("_default/list.html", pageTemplateTemplate)
+
+			createContent := func(dir, name string) {
+				sb.WithContent(filepath.Join("content", dir, name), pageContent(1))
+			}
+
+			createBundledFiles := func(dir string) {
+				sb.WithContent(filepath.Join("content", dir, "data.json"), `{ "hello": "world" }`)
+				for i := 1; i <= 3; i++ {
+					sb.WithContent(filepath.Join("content", dir, fmt.Sprintf("page%d.md", i)), pageContent(1))
+				}
+			}
+
+			r := rand.New(rand.NewSource(99))
+
+			for _, lang := range []string{"en", "fr", "no", "sv"} {
+				for level := 1; level <= r.Intn(5)+1; level++ {
+					sectionDir := path.Join(lang, strings.Repeat("section/", level))
+					createContent(sectionDir, "_index.md")
+					createBundledFiles(sectionDir)
+					for i := 1; i <= r.Intn(20)+1; i++ {
+						leafBundleDir := path.Join(sectionDir, fmt.Sprintf("bundle%d", i))
+						createContent(leafBundleDir, "index.md")
+						createBundledFiles(path.Join(leafBundleDir, "assets1"))
+						createBundledFiles(path.Join(leafBundleDir, "assets1", "assets2"))
+					}
+				}
+			}
+
+			return sb
+		},
+			func(s *sitesBuilder) {
+				s.CheckExists("public/blog/mybundle/index.html")
+				s.Assert(len(s.H.Sites), qt.Equals, 4)
+				s.Assert(len(s.H.Sites[0].RegularPages()), qt.Equals, 26)
 
 			},
 		},
