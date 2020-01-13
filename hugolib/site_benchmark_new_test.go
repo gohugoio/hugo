@@ -278,9 +278,13 @@ contentDir="content/sv"
 {{ len .Sections }}
 {{ len .Pages }}
 {{ len .RegularPages }}
+{{ len .Resources }}
 {{ len site.RegularPages }}
 {{ len site.Pages }}
-
+{{ with .NextInSection }}Next in section: {{ .RelPermalink }}{{ end }}
+{{ with .PrevInSection }}Prev in section: {{ .RelPermalink }}{{ end }}
+{{ with .Next }}Next: {{ .RelPermalink }}{{ end }}
+{{ with .Prev }}Prev: {{ .RelPermalink }}{{ end }}
 `
 
 			sb := newTestSitesBuilder(b).WithConfigFile("toml", `
