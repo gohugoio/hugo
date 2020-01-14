@@ -20,6 +20,7 @@ require (
 	github.com/frankban/quicktest v1.7.2
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/gobwas/glob v0.2.3
+	github.com/gohugoio/testmodBuilder v0.0.0-20190924072732-02465a37be06 // indirect
 	github.com/gohugoio/testmodBuilder/mods v0.0.0-20190520184928-c56af20f2e95
 	github.com/google/go-cmp v0.3.2-0.20191028172631-481baca67f93
 	github.com/gorilla/websocket v1.4.1

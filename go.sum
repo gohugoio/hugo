@@ -139,6 +139,8 @@ github.com/gobwas/glob v0.2.3/go.mod h1:d3Ez4x06l9bZtSvzIay5+Yzi0fmZzPgnTbPcKjJA
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/gogo/protobuf v1.2.0/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/gogo/protobuf v1.2.1/go.mod h1:hp+jE20tsWTFYpLwKvXlhS1hjn+gTNwPg2I6zVXpSg4=
+github.com/gohugoio/testmodBuilder v0.0.0-20190924072732-02465a37be06 h1:Uw5n7z0crpX45DB8qSmxIXV6xHdq3uq7MGgjVYq+72c=
+github.com/gohugoio/testmodBuilder v0.0.0-20190924072732-02465a37be06/go.mod h1:+j/PH2NEFcMbYAtJbYNF1w7BA75HtP9TmtcUeNJfE3E=
 github.com/gohugoio/testmodBuilder/mods v0.0.0-20190520184928-c56af20f2e95 h1:sgew0XCnZwnzpWxTt3V8LLiCO7OQi3C6dycaE67wfkU=
 github.com/gohugoio/testmodBuilder/mods v0.0.0-20190520184928-c56af20f2e95/go.mod h1:bOlVlCa1/RajcHpXkrUXPSHB/Re1UnlXxD1Qp8SKOd8=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b h1:VKtxabqXZkF25pY9ekfRL6a582T4P37/31XEstQ5p58=
