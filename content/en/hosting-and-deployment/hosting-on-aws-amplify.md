@@ -42,4 +42,31 @@ AWS Amplify is a combination of client library, CLI toolchain, and a Console for
 
 1. Review your changes and then choose **Save and deploy**. The Amplify Console will pull code from your repository, build changes to the backend and frontend, and deploy your build artifacts at `https://master.unique-id.amplifyapp.com`. Bonus: Screenshots of your app on different devices to find layout issues.
 
+## Using a Newer Version of Hugo
+
+If you need to use a different, perhaps newer, version of Hugo than the version currently supported by AWS Amplify, you can modify your build commands to include the downloading of Hugo itself.  Here's an example of a build definition that includes the downloading of Hugo.  Note that in ths example the "extended" version of Hugo is being used wich includes support for SASS/SCSS.
+
+```
+version: 0.1
+frontend:
+  phases:
+    # IMPORTANT - Please verify your build commands
+    build:
+      commands:
+        - wget https://github.com/gohugoio/hugo/releases/download/v0.62.2/hugo_extended_0.62.2_Linux-64bit.tar.gz
+        - tar -xf hugo_extended_0.62.2_Linux-64bit.tar.gz
+        - mv hugo /usr/bin/hugo 
+        - rm -rf hugo_extended_0.62.2_Linux-64bit.tar.gz
+        - hugo version
+        - hugo
+  artifacts:
+    # IMPORTANT - Please verify your build output directory
+    baseDirectory: public
+    files:
+      - '**/*'
+  cache:
+    paths: []
+    
+```
+
 [Quick Start]: /getting-started/quick-start/
