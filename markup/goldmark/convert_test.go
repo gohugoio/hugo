@@ -97,6 +97,7 @@ LINE1
 * Straight double "quotes" and single 'quotes' into “curly” quote HTML entities
 * Dashes (“--” and “---”) into en- and em-dash entities
 * Three consecutive dots (“...”) into an ellipsis entity
+* Apostrophes are also converted: "That was back in the '90s, that's a long time ago"
 
 ## Footnotes
 
@@ -153,6 +154,7 @@ description
 	c.Assert(got, qt.Contains, `Straight double &ldquo;quotes&rdquo; and single &lsquo;quotes&rsquo;`)
 	c.Assert(got, qt.Contains, `Dashes (“&ndash;” and “&mdash;”) `)
 	c.Assert(got, qt.Contains, `Three consecutive dots (“&hellip;”)`)
+	c.Assert(got, qt.Contains, `&ldquo;That was back in the &rsquo;90s, that&rsquo;s a long time ago&rdquo;`)
 	c.Assert(got, qt.Contains, `footnote.<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>`)
 	c.Assert(got, qt.Contains, `<section class="footnotes" role="doc-endnotes">`)
 	c.Assert(got, qt.Contains, `<dt>date</dt>`)
