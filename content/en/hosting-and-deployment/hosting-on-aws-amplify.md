@@ -44,7 +44,7 @@ AWS Amplify is a combination of client library, CLI toolchain, and a Console for
 
 ## Using a Newer Version of Hugo
 
-If you need to use a different, perhaps newer, version of Hugo than the version currently supported by AWS Amplify, you can modify your build commands to include the downloading of Hugo itself.  Here's an example of a build definition that includes the downloading of Hugo.  Note that in ths example the "extended" version of Hugo is being used wich includes support for SASS/SCSS.
+If you need to use a different, perhaps newer, version of Hugo than the version currently supported by AWS Amplify, you can modify your build commands to include the downloading of Hugo itself.  Here's an example of a build definition that includes the downloading of Hugo.  Note that in ths example the "extended" version of Hugo is being used which includes support for SASS/SCSS.
 
 ```
 version: 0.1
