@@ -25,32 +25,17 @@ var DefaultTemplateProvider *TemplateProvider
 
 // Update updates the Hugo Template System in the provided Deps
 // with all the additional features, templates & functions.
-func (*TemplateProvider) Update(deps *deps.Deps) error {
-	newTmpl := newTemplateAdapter(deps)
-	deps.Tmpl = newTmpl
-	deps.TextTmpl = newTmpl.wrapTextTemplate(newTmpl.text.standalone)
-	// These needs to be there at parse time.
-	newTmpl.initTemplateExecuter()
-
-	if err := newTmpl.loadEmbedded(); err != nil {
+func (*TemplateProvider) Update(d *deps.Deps) error {
+	tmpl, err := newTemplateExec(d)
+	if err != nil {
 		return err
 	}
-
-	if deps.WithTemplate != nil {
-		err := deps.WithTemplate(newTmpl)
-		if err != nil {
-			return err
-		}
-
-	}
-
-	return newTmpl.markReady()
-
+	return tmpl.postTransform()
 }
 
 // Clone clones.
 func (*TemplateProvider) Clone(d *deps.Deps) error {
-	t := d.Tmpl.(*templateHandler)
-	t.clone(d)
+	t := d.Tmpl().(*templateExec)
+	d.SetTmpl(t.Clone(d))
 	return nil
 }

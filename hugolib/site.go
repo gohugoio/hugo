@@ -105,8 +105,6 @@ type Site struct {
 	Sections Taxonomy
 	Info     SiteInfo
 
-	layoutHandler *output.LayoutHandler
-
 	language *langs.Language
 
 	siteCfg siteConfigHolder
@@ -324,7 +322,6 @@ func (s *Site) isEnabled(kind string) bool {
 // reset returns a new Site prepared for rebuild.
 func (s *Site) reset() *Site {
 	return &Site{Deps: s.Deps,
-		layoutHandler:          output.NewLayoutHandler(),
 		disabledKinds:          s.disabledKinds,
 		titleFunc:              s.titleFunc,
 		relatedDocsHandler:     s.relatedDocsHandler.Clone(),
@@ -439,7 +436,6 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 
 	s := &Site{
 		PageCollections:        c,
-		layoutHandler:          output.NewLayoutHandler(),
 		language:               cfg.Language,
 		disabledKinds:          disabledKinds,
 		titleFunc:              titleFunc,
@@ -936,7 +932,7 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 				sourceChanged = append(sourceChanged, ev)
 			case files.ComponentFolderLayouts:
 				tmplChanged = true
-				if _, found := s.Tmpl.Lookup(id.Path); !found {
+				if !s.Tmpl().HasTemplate(id.Path) {
 					tmplAdded = true
 				}
 				if tmplAdded {
@@ -1030,7 +1026,7 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 		sourceFilesChanged[ev.Name] = true
 	}
 
-	if config.ErrRecovery || tmplAdded {
+	if config.ErrRecovery || tmplAdded || dataChanged {
 		h.resetPageState()
 	} else {
 		h.resetPageStateFromEvents(changeIdentities)
@@ -1226,10 +1222,9 @@ func (s *Site) initializeSiteInfo() error {
 func (s *Site) eventToIdentity(e fsnotify.Event) (identity.PathIdentity, bool) {
 	for _, fs := range s.BaseFs.SourceFilesystems.FileSystems() {
 		if p := fs.Path(e.Name); p != "" {
-			return identity.NewPathIdentity(fs.Name, p), true
+			return identity.NewPathIdentity(fs.Name, filepath.ToSlash(p)), true
 		}
 	}
-
 	return identity.PathIdentity{}, false
 }
 
@@ -1464,12 +1459,22 @@ func (s *Site) permalink(link string) string {
 
 }
 
-func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath string, d interface{}, layouts ...string) error {
+func (s *Site) lookupLayouts(layouts ...string) tpl.Template {
+	for _, l := range layouts {
+		if templ, found := s.Tmpl().Lookup(l); found {
+			return templ
+		}
+	}
+
+	return nil
+}
+
+func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath string, d interface{}, templ tpl.Template) error {
 	s.Log.DEBUG.Printf("Render XML for %q to %q", name, targetPath)
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 
-	if err := s.renderForLayouts(name, "", d, renderBuffer, layouts...); err != nil {
+	if err := s.renderForTemplate(name, "", d, renderBuffer, templ); err != nil {
 		return err
 	}
 
@@ -1498,13 +1503,13 @@ func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath st
 
 }
 
-func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath string, p *pageState, layouts ...string) error {
+func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath string, p *pageState, templ tpl.Template) error {
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 
 	of := p.outputFormat()
 
-	if err := s.renderForLayouts(p.Kind(), of.Name, p, renderBuffer, layouts...); err != nil {
+	if err := s.renderForTemplate(p.Kind(), of.Name, p, renderBuffer, templ); err != nil {
 		return err
 	}
 
@@ -1571,56 +1576,26 @@ func (r contentLinkRenderer) Render(w io.Writer, ctx hooks.LinkContext) error {
 	return r.templateHandler.Execute(r.templ, w, ctx)
 }
 
-func (s *Site) lookupTemplate(layouts ...string) (tpl.Template, bool) {
-	for _, l := range layouts {
-		if templ, found := s.Tmpl.Lookup(l); found {
-			return templ, true
-		}
-	}
-
-	return nil, false
-}
-
-func (s *Site) renderForLayouts(name, outputFormat string, d interface{}, w io.Writer, layouts ...string) (err error) {
-	templ := s.findFirstTemplate(layouts...)
+func (s *Site) renderForTemplate(name, outputFormat string, d interface{}, w io.Writer, templ tpl.Template) (err error) {
 	if templ == nil {
-		log := s.Log.WARN
-		if infoOnMissingLayout[name] {
-			log = s.Log.INFO
-		}
-
-		errMsg := "You should create a template file which matches Hugo Layouts Lookup Rules for this combination."
-		var args []interface{}
-		msg := "found no layout file for"
-		if outputFormat != "" {
-			msg += " %q"
-			args = append(args, outputFormat)
-		}
-		if name != "" {
-			msg += " for %q"
-			args = append(args, name)
-		}
-
-		msg += ": " + errMsg
-
-		log.Printf(msg, args...)
-
+		s.logMissingLayout(name, "", outputFormat)
 		return nil
 	}
 
-	if err = s.Tmpl.Execute(templ, w, d); err != nil {
+	if err = s.Tmpl().Execute(templ, w, d); err != nil {
 		return _errors.Wrapf(err, "render of %q failed", name)
 	}
 	return
 }
 
-func (s *Site) findFirstTemplate(layouts ...string) tpl.Template {
-	for _, layout := range layouts {
-		if templ, found := s.Tmpl.Lookup(layout); found {
-			return templ
+func (s *Site) lookupTemplate(layouts ...string) (tpl.Template, bool) {
+	for _, l := range layouts {
+		if templ, found := s.Tmpl().Lookup(l); found {
+			return templ, true
 		}
 	}
-	return nil
+
+	return nil, false
 }
 
 func (s *Site) publish(statCounter *uint64, path string, r io.Reader) (err error) {

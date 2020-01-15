@@ -716,7 +716,7 @@ func (c *commandeer) handleBuildErr(err error, msg string) {
 	c.logger.ERROR.Print(msg + ":\n\n")
 	c.logger.ERROR.Println(helpers.FirstUpper(err.Error()))
 	if !c.h.quiet && c.h.verbose {
-		herrors.PrintStackTrace(err)
+		herrors.PrintStackTraceFromErr(err)
 	}
 }
 

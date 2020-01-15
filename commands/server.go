@@ -416,7 +416,7 @@ func (c *commandeer) serve(s *serverCmd) error {
 		roots = []string{""}
 	}
 
-	templ, err := c.hugo().TextTmpl.Parse("__default_server_error", buildErrorTemplate)
+	templ, err := c.hugo().TextTmpl().Parse("__default_server_error", buildErrorTemplate)
 	if err != nil {
 		return err
 	}
@@ -428,7 +428,7 @@ func (c *commandeer) serve(s *serverCmd) error {
 		s:        s,
 		errorTemplate: func(ctx interface{}) (io.Reader, error) {
 			b := &bytes.Buffer{}
-			err := c.hugo().Tmpl.Execute(templ, b, ctx)
+			err := c.hugo().Tmpl().Execute(templ, b, ctx)
 			return b, err
 		},
 	}

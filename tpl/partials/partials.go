@@ -105,11 +105,11 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 	}
 
 	n := "partials/" + name
-	templ, found := ns.deps.Tmpl.Lookup(n)
+	templ, found := ns.deps.Tmpl().Lookup(n)
 
 	if !found {
 		// For legacy reasons.
-		templ, found = ns.deps.Tmpl.Lookup(n + ".html")
+		templ, found = ns.deps.Tmpl().Lookup(n + ".html")
 	}
 
 	if !found {
@@ -139,7 +139,7 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 		w = b
 	}
 
-	if err := ns.deps.Tmpl.Execute(templ, w, context); err != nil {
+	if err := ns.deps.Tmpl().Execute(templ, w, context); err != nil {
 		return "", err
 	}
 

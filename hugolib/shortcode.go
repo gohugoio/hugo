@@ -303,7 +303,7 @@ func renderShortcode(
 			templStr := sc.innerString()
 
 			var err error
-			tmpl, err = s.TextTmpl.Parse(templName, templStr)
+			tmpl, err = s.TextTmpl().Parse(templName, templStr)
 			if err != nil {
 				fe := herrors.ToFileError("html", err)
 				l1, l2 := p.posOffset(sc.pos).LineNumber, fe.Position().LineNumber
@@ -314,14 +314,14 @@ func renderShortcode(
 		} else {
 			// Re-use of shortcode defined earlier in the same page.
 			var found bool
-			tmpl, found = s.TextTmpl.Lookup(templName)
+			tmpl, found = s.TextTmpl().Lookup(templName)
 			if !found {
 				return "", false, _errors.Errorf("no earlier definition of shortcode %q found", sc.name)
 			}
 		}
 	} else {
 		var found, more bool
-		tmpl, found, more = s.Tmpl.LookupVariant(sc.name, tplVariants)
+		tmpl, found, more = s.Tmpl().LookupVariant(sc.name, tplVariants)
 		if !found {
 			s.Log.ERROR.Printf("Unable to locate template for shortcode %q in page %q", sc.name, p.File().Path())
 			return "", false, nil
@@ -395,7 +395,7 @@ func renderShortcode(
 
 	}
 
-	result, err := renderShortcodeWithPage(s.Tmpl, tmpl, data)
+	result, err := renderShortcodeWithPage(s.Tmpl(), tmpl, data)
 
 	if err != nil && sc.isInline {
 		fe := herrors.ToFileError("html", err)
@@ -537,7 +537,7 @@ Loop:
 			// Check if the template expects inner content.
 			// We pick the first template for an arbitrary output format
 			// if more than one. It is "all inner or no inner".
-			tmpl, found, _ := s.s.Tmpl.LookupVariant(sc.name, tpl.TemplateVariants{})
+			tmpl, found, _ := s.s.Tmpl().LookupVariant(sc.name, tpl.TemplateVariants{})
 			if !found {
 				return nil, _errors.Errorf("template for shortcode %q not found", sc.name)
 			}

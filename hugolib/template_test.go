@@ -244,6 +244,178 @@ Page Content
 
 }
 
+func TestTemplateLateTemplates(t *testing.T) {
+	t.Parallel()
+	b := newTestSitesBuilder(t).WithSimpleConfigFile().Running()
+
+	numPages := 500 // To get some parallelism
+	homeTempl := `
+Len RegularPages: {{ len site.RegularPages }}
+{{ range site.RegularPages }}
+Link: {{ .RelPermalink }} Len Content: {{ len .Content }}
+{{ end }}
+`
+	pageTemplate := `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ .RelPermalink }}</title>
+  <meta name="description" content="The HTML5 Herald">
+  <meta name="author" content="SitePoint">
+  <link rel="stylesheet" href="css/styles.css?v=1.0">
+</head>
+<body>
+  <h1>{{ .RelPermalink }}</h1>
+  <p>Shortcode: {{< shortcode >}}</p>
+  <p>Partial: {{ partial "mypartial.html" . }}</p>
+  <script src="js/scripts.js"></script>
+</body>
+</html>
+`
+
+	b.WithTemplatesAdded(
+		"index.html", homeTempl,
+		"partials/mypartial.html", `this my partial`,
+	)
+
+	// Make sure we get some parallelism.
+	for i := 0; i < numPages; i++ {
+		b.WithContent(fmt.Sprintf("page%d.html", i+1), pageTemplate)
+	}
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", fmt.Sprintf(`
+Len RegularPages: %d
+Link: /page3/ Len Content: 0
+Link: /page22/ Len Content: 0
+`, numPages))
+
+	for i := 0; i < numPages; i++ {
+		b.AssertFileContent(fmt.Sprintf("public/page%d/index.html", i+1),
+			fmt.Sprintf(`<title>/page%d/</title>`, i+1),
+			`<p>Shortcode: Shortcode: Hello</p>`,
+			"<p>Partial: this my partial</p>",
+		)
+	}
+
+	b.EditFiles(
+		"layouts/partials/mypartial.html", `this my changed partial`,
+		"layouts/index.html", (homeTempl + "CHANGED"),
+	)
+	for i := 0; i < 5; i++ {
+		b.EditFiles(fmt.Sprintf("content/page%d.html", i+1), pageTemplate+"CHANGED")
+	}
+
+	b.Build(BuildCfg{})
+	b.AssertFileContent("public/index.html", fmt.Sprintf(`
+Len RegularPages: %d
+Link: /page3/ Len Content: 0
+Link: /page2/ Len Content: 0
+CHANGED
+`, numPages))
+	for i := 0; i < 5; i++ {
+		b.AssertFileContent(fmt.Sprintf("public/page%d/index.html", i+1),
+			fmt.Sprintf(`<title>/page%d/</title>`, i+1),
+			`<p>Shortcode: Shortcode: Hello</p>`,
+			"<p>Partial: this my changed partial</p>",
+			"CHANGED",
+		)
+	}
+
+}
+
+func TestTemplateManyBaseTemplates(t *testing.T) {
+	t.Parallel()
+	b := newTestSitesBuilder(t).WithSimpleConfigFile()
+
+	numPages := 100 // To get some parallelism
+
+	pageTemplate := `---
+title: "Page %d"
+layout: "layout%d"
+---
+
+Content.
+`
+
+	singleTemplate := `
+{{ define "main" }}%d{{ end }}
+`
+	baseTemplate := `
+Base %d: {{ block "main" . }}FOO{{ end }}
+`
+
+	for i := 0; i < numPages; i++ {
+		id := i + 1
+		b.WithContent(fmt.Sprintf("page%d.md", id), fmt.Sprintf(pageTemplate, id, id))
+		b.WithTemplates(fmt.Sprintf("_default/layout%d.html", id), fmt.Sprintf(singleTemplate, id))
+		b.WithTemplates(fmt.Sprintf("_default/layout%d-baseof.html", id), fmt.Sprintf(baseTemplate, id))
+	}
+
+	b.Build(BuildCfg{})
+	for i := 0; i < numPages; i++ {
+		id := i + 1
+		b.AssertFileContent(fmt.Sprintf("public/page%d/index.html", id), fmt.Sprintf(`Base %d: %d`, id, id))
+	}
+
+}
+
+func TestTemplateLookupSite(t *testing.T) {
+	t.Run("basic", func(t *testing.T) {
+		t.Parallel()
+		b := newTestSitesBuilder(t).WithSimpleConfigFile()
+		b.WithTemplates(
+			"_default/single.html", `Single: {{ .Title }}`,
+			"_default/list.html", `List: {{ .Title }}`,
+		)
+
+		createContent := func(title string) string {
+			return fmt.Sprintf(`---
+title: %s
+---`, title)
+		}
+
+		b.WithContent(
+			"_index.md", createContent("Home Sweet Home"),
+			"p1.md", createContent("P1"))
+
+		b.CreateSites().Build(BuildCfg{})
+		b.AssertFileContent("public/index.html", `List: Home Sweet Home`)
+		b.AssertFileContent("public/p1/index.html", `Single: P1`)
+	})
+
+	t.Run("baseof", func(t *testing.T) {
+		t.Parallel()
+		b := newTestSitesBuilder(t).WithDefaultMultiSiteConfig()
+
+		b.WithTemplatesAdded(
+			"index.html", `{{ define "main" }}Main Home En{{ end }}`,
+			"index.fr.html", `{{ define "main" }}Main Home Fr{{ end }}`,
+			"baseof.html", `Baseof en: {{ block "main" . }}main block{{ end }}`,
+			"baseof.fr.html", `Baseof fr: {{ block "main" . }}main block{{ end }}`,
+			"mysection/baseof.html", `Baseof mysection: {{ block "main" .  }}mysection block{{ end }}`,
+			"_default/single.html", `{{ define "main" }}Main Default Single{{ end }}`,
+			"_default/list.html", `{{ define "main" }}Main Default List{{ end }}`,
+		)
+
+		b.WithContent("mysection/p1.md", `---
+title: My Page
+---
+
+`)
+
+		b.CreateSites().Build(BuildCfg{})
+
+		b.AssertFileContent("public/en/index.html", `Baseof en: Main Home En`)
+		b.AssertFileContent("public/fr/index.html", `Baseof fr: Main Home Fr`)
+		b.AssertFileContent("public/en/mysection/index.html", `Baseof mysection: Main Default List`)
+		b.AssertFileContent("public/en/mysection/p1/index.html", `Baseof mysection: Main Default Single`)
+
+	})
+
+}
+
 func TestTemplateFuncs(t *testing.T) {
 
 	b := newTestSitesBuilder(t).WithDefaultMultiSiteConfig()

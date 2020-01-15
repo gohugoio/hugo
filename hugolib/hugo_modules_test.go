@@ -340,6 +340,8 @@ b = "B param"
 }
 
 func TestModulesIncompatible(t *testing.T) {
+	t.Parallel()
+
 	b := newTestSitesBuilder(t).WithWorkingDir("/site").WithConfigFile("toml", `
 baseURL="https://example.org"
 
@@ -518,6 +520,7 @@ weight = 2
 }
 
 func TestMountsProject(t *testing.T) {
+	t.Parallel()
 
 	config := `
 
@@ -547,6 +550,7 @@ title: "My Page"
 
 // https://github.com/gohugoio/hugo/issues/6684
 func TestMountsContentFile(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	workingDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-modules-content-file")
 	c.Assert(err, qt.IsNil)

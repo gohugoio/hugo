@@ -127,8 +127,8 @@ func TestTemplateFuncsExamples(t *testing.T) {
 				c.Assert(d.LoadResources(), qt.IsNil)
 
 				var b bytes.Buffer
-				templ, _ := d.Tmpl.Lookup("test")
-				c.Assert(d.Tmpl.Execute(templ, &b, &data), qt.IsNil)
+				templ, _ := d.Tmpl().Lookup("test")
+				c.Assert(d.Tmpl().Execute(templ, &b, &data), qt.IsNil)
 				if b.String() != expected {
 					t.Fatalf("%s[%d]: got %q expected %q", ns.Name, i, b.String(), expected)
 				}

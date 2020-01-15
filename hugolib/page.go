@@ -337,37 +337,33 @@ func (p *pageState) createRenderHooks(f output.Format) (*hooks.Render, error) {
 	layoutDescriptor.Layout = ""
 
 	layoutDescriptor.Kind = "render-link"
-	linkLayouts, err := p.s.layoutHandler.For(layoutDescriptor, f)
+	linkTempl, linkTemplFound, err := p.s.Tmpl().LookupLayout(layoutDescriptor, f)
 	if err != nil {
 		return nil, err
 	}
 
 	layoutDescriptor.Kind = "render-image"
-	imageLayouts, err := p.s.layoutHandler.For(layoutDescriptor, f)
+	imgTempl, imgTemplFound, err := p.s.Tmpl().LookupLayout(layoutDescriptor, f)
 	if err != nil {
 		return nil, err
-	}
-
-	if linkLayouts == nil && imageLayouts == nil {
-		return nil, nil
 	}
 
 	var linkRenderer hooks.LinkRenderer
 	var imageRenderer hooks.LinkRenderer
 
-	if templ, found := p.s.lookupTemplate(linkLayouts...); found {
+	if linkTemplFound {
 		linkRenderer = contentLinkRenderer{
-			templateHandler: p.s.Tmpl,
-			Provider:        templ.(tpl.Info),
-			templ:           templ,
+			templateHandler: p.s.Tmpl(),
+			Provider:        linkTempl.(tpl.Info),
+			templ:           linkTempl,
 		}
 	}
 
-	if templ, found := p.s.lookupTemplate(imageLayouts...); found {
+	if imgTemplFound {
 		imageRenderer = contentLinkRenderer{
-			templateHandler: p.s.Tmpl,
-			Provider:        templ.(tpl.Info),
-			templ:           templ,
+			templateHandler: p.s.Tmpl(),
+			Provider:        imgTempl.(tpl.Info),
+			templ:           imgTempl,
 		}
 	}
 
@@ -406,24 +402,25 @@ func (p *pageState) getLayoutDescriptor() output.LayoutDescriptor {
 
 }
 
-func (p *pageState) getLayouts(layouts ...string) ([]string, error) {
+func (p *pageState) resolveTemplate(layouts ...string) (tpl.Template, bool, error) {
 	f := p.outputFormat()
 
 	if len(layouts) == 0 {
 		selfLayout := p.selfLayoutForOutput(f)
 		if selfLayout != "" {
-			return []string{selfLayout}, nil
+			templ, found := p.s.Tmpl().Lookup(selfLayout)
+			return templ, found, nil
 		}
 	}
 
-	layoutDescriptor := p.getLayoutDescriptor()
+	d := p.getLayoutDescriptor()
 
 	if len(layouts) > 0 {
-		layoutDescriptor.Layout = layouts[0]
-		layoutDescriptor.LayoutOverride = true
+		d.Layout = layouts[0]
+		d.LayoutOverride = true
 	}
 
-	return p.s.layoutHandler.For(layoutDescriptor, f)
+	return p.s.Tmpl().LookupLayout(d, f)
 }
 
 // This is serialized
@@ -601,31 +598,21 @@ func (p *pageState) RenderWithTemplateInfo(info tpl.Info, layout ...string) (tem
 }
 
 func (p *pageState) Render(layout ...string) (template.HTML, error) {
-	l, err := p.getLayouts(layout...)
+	templ, found, err := p.resolveTemplate(layout...)
 	if err != nil {
-		return "", p.wrapError(errors.Errorf("failed to resolve layout %v", layout))
+		return "", p.wrapError(err)
 	}
 
-	for _, layout := range l {
-		templ, found := p.s.Tmpl.Lookup(layout)
-		if !found {
-			// This is legacy from when we had only one output format and
-			// HTML templates only. Some have references to layouts without suffix.
-			// We default to good old HTML.
-			templ, _ = p.s.Tmpl.Lookup(layout + ".html")
-		}
-
-		if templ != nil {
-			p.addDependency(templ.(tpl.Info))
-			res, err := executeToString(p.s.Tmpl, templ, p)
-			if err != nil {
-				return "", p.wrapError(errors.Wrapf(err, "failed to execute template %q v", layout))
-			}
-			return template.HTML(res), nil
-		}
+	if !found {
+		return "", nil
 	}
 
-	return "", nil
+	p.addDependency(templ.(tpl.Info))
+	res, err := executeToString(p.s.Tmpl(), templ, p)
+	if err != nil {
+		return "", p.wrapError(errors.Wrapf(err, "failed to execute template %q v", layout))
+	}
+	return template.HTML(res), nil
 
 }
 
@@ -689,6 +676,7 @@ Loop:
 			// This is HTML without front matter. It can still have shortcodes.
 			p.selfLayout = "__" + p.File().Filename()
 			p.renderable = false
+			p.s.BuildFlags.HasLateTemplate.CAS(false, true)
 			rn.AddBytes(it)
 		case it.IsFrontMatter():
 			f := metadecoders.FormatFromFrontMatterType(it.Type)

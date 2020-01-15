@@ -429,7 +429,7 @@ func (s *sitesBuilder) writeFilePairs(folder string, filenameContent []string) *
 
 func (s *sitesBuilder) CreateSites() *sitesBuilder {
 	if err := s.CreateSitesE(); err != nil {
-		herrors.PrintStackTrace(err)
+		herrors.PrintStackTraceFromErr(err)
 		s.Fatalf("Failed to create sites: %s", err)
 	}
 
@@ -569,7 +569,7 @@ func (s *sitesBuilder) build(cfg BuildCfg, shouldFail bool) *sitesBuilder {
 		}
 	}
 	if err != nil && !shouldFail {
-		herrors.PrintStackTrace(err)
+		herrors.PrintStackTraceFromErr(err)
 		s.Fatalf("Build failed: %s", err)
 	} else if err == nil && shouldFail {
 		s.Fatalf("Expected error")
@@ -690,6 +690,7 @@ func (s *sitesBuilder) AssertImage(width, height int, filename string) {
 	s.Assert(err, qt.IsNil)
 	defer f.Close()
 	cfg, err := jpeg.DecodeConfig(f)
+	s.Assert(err, qt.IsNil)
 	s.Assert(cfg.Width, qt.Equals, width)
 	s.Assert(cfg.Height, qt.Equals, height)
 }

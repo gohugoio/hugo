@@ -189,9 +189,10 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 				html := cp.p.s.ContentSpec.TrimShortHTML(b.Bytes())
 				cp.summary = helpers.BytesToHTML(html)
 			}
-		}
 
-		cp.content = helpers.BytesToHTML(cp.workContent)
+			cp.content = helpers.BytesToHTML(cp.workContent)
+
+		}
 
 		if !p.renderable {
 			err := cp.addSelfTemplate()
@@ -427,7 +428,7 @@ func (p *pageContentOutput) setWordCounts(isCJKLanguage bool) {
 
 func (p *pageContentOutput) addSelfTemplate() error {
 	self := p.p.selfLayoutForOutput(p.f)
-	err := p.p.s.TemplateHandler().AddLateTemplate(self, string(p.content))
+	err := p.p.s.Tmpl().(tpl.TemplateManager).AddLateTemplate(self, string(p.workContent))
 	if err != nil {
 		return err
 	}

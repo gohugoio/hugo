@@ -106,7 +106,7 @@ func applyFnToThis(fn, this reflect.Value, args ...interface{}) (reflect.Value, 
 
 func (ns *Namespace) lookupFunc(fname string) (reflect.Value, bool) {
 	if !strings.ContainsRune(fname, '.') {
-		templ := ns.deps.Tmpl.(tpl.TemplateFuncGetter)
+		templ := ns.deps.Tmpl().(tpl.TemplateFuncGetter)
 		return templ.GetFunc(fname)
 	}
 

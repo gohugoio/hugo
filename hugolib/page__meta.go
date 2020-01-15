@@ -296,11 +296,7 @@ func (p *pageMeta) Type() string {
 		return p.contentType
 	}
 
-	if x := p.Section(); x != "" {
-		return x
-	}
-
-	return "page"
+	return p.Section()
 }
 
 func (p *pageMeta) Weight() int {

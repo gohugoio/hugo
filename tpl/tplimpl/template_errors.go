@@ -20,7 +20,9 @@ import (
 )
 
 type templateInfo struct {
+	name     string
 	template string
+	isText   bool // HTML or plain text template.
 
 	// Used to create some error context in error situations
 	fs afero.Fs
@@ -30,6 +32,10 @@ type templateInfo struct {
 
 	// The real filename (if possible). Used for logging.
 	realFilename string
+}
+
+func (t templateInfo) resolveType() templateType {
+	return resolveTemplateType(t.name)
 }
 
 func (info templateInfo) errWithFileContext(what string, err error) error {

@@ -13,7 +13,9 @@
 
 package hugolib
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestRenderHooks(t *testing.T) {
 	config := `

@@ -133,7 +133,7 @@ func (c *commandeer) getErrorWithContext() interface{} {
 
 	if c.h.verbose {
 		var b bytes.Buffer
-		herrors.FprintStackTrace(&b, c.buildErr)
+		herrors.FprintStackTraceFromErr(&b, c.buildErr)
 		m["StackTrace"] = b.String()
 	}
 

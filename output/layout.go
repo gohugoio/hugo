@@ -39,6 +39,7 @@ type LayoutDescriptor struct {
 	LayoutOverride bool
 
 	RenderingHook bool
+	Baseof        bool
 }
 
 func (d LayoutDescriptor) isList() bool {
@@ -76,7 +77,6 @@ func (l *LayoutHandler) For(d LayoutDescriptor, f Format) ([]string, error) {
 
 	layouts := resolvePageTemplate(d, f)
 
-	layouts = prependTextPrefixIfNeeded(f, layouts...)
 	layouts = helpers.UniqueStringsReuse(layouts)
 
 	l.mu.Lock()
@@ -95,7 +95,11 @@ type layoutBuilder struct {
 
 func (l *layoutBuilder) addLayoutVariations(vars ...string) {
 	for _, layoutVar := range vars {
-		if !l.d.RenderingHook && l.d.LayoutOverride && layoutVar != l.d.Layout {
+		if l.d.Baseof && layoutVar != "baseof" {
+			l.layoutVariations = append(l.layoutVariations, layoutVar+"-baseof")
+			continue
+		}
+		if !l.d.RenderingHook && !l.d.Baseof && l.d.LayoutOverride && layoutVar != l.d.Layout {
 			continue
 		}
 		l.layoutVariations = append(l.layoutVariations, layoutVar)
@@ -173,7 +177,7 @@ func resolvePageTemplate(d LayoutDescriptor, f Format) []string {
 	}
 
 	isRSS := f.Name == RSSFormat.Name
-	if !d.RenderingHook && isRSS {
+	if !d.RenderingHook && !d.Baseof && isRSS {
 		// The historic and common rss.xml case
 		b.addLayoutVariations("")
 	}
@@ -186,9 +190,13 @@ func resolvePageTemplate(d LayoutDescriptor, f Format) []string {
 		b.addLayoutVariations("list")
 	}
 
+	if d.Baseof {
+		b.addLayoutVariations("baseof")
+	}
+
 	layouts := b.resolveVariations()
 
-	if !d.RenderingHook && isRSS {
+	if !d.RenderingHook && !d.Baseof && isRSS {
 		layouts = append(layouts, "_internal/_default/rss.xml")
 	}
 
@@ -264,20 +272,6 @@ func filterDotLess(layouts []string) []string {
 	}
 
 	return filteredLayouts
-}
-
-func prependTextPrefixIfNeeded(f Format, layouts ...string) []string {
-	if !f.IsPlainText {
-		return layouts
-	}
-
-	newLayouts := make([]string, len(layouts))
-
-	for i, l := range layouts {
-		newLayouts[i] = "_text/" + l
-	}
-
-	return newLayouts
 }
 
 func replaceKeyValues(s string, oldNew ...string) string {

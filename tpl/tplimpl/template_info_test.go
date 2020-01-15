@@ -24,14 +24,15 @@ import (
 func TestTemplateInfoShortcode(t *testing.T) {
 	c := qt.New(t)
 	d := newD(c)
-	h := d.Tmpl.(*templateHandler)
+	h := d.Tmpl().(*templateExec)
 
 	c.Assert(h.AddTemplate("shortcodes/mytemplate.html", `
 {{ .Inner }}
 `), qt.IsNil)
 
-	c.Assert(h.markReady(), qt.IsNil)
-	tt, found, _ := d.Tmpl.LookupVariant("mytemplate", tpl.TemplateVariants{})
+	c.Assert(h.postTransform(), qt.IsNil)
+
+	tt, found, _ := d.Tmpl().LookupVariant("mytemplate", tpl.TemplateVariants{})
 
 	c.Assert(found, qt.Equals, true)
 	tti, ok := tt.(tpl.Info)

@@ -55,6 +55,7 @@ require (
 	github.com/yuin/goldmark v1.1.21
 	github.com/yuin/goldmark-highlighting v0.0.0-20191202084645-78f32c8dd6d5
 	go.opencensus.io v0.22.0 // indirect
+	go.uber.org/atomic v1.4.0
 	gocloud.dev v0.15.0
 	golang.org/x/image v0.0.0-20191214001246-9130b4cfad52
 	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553 // indirect

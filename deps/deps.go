@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"go.uber.org/atomic"
 
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/common/loggers"
@@ -38,10 +39,10 @@ type Deps struct {
 	DistinctWarningLog *helpers.DistinctLogger
 
 	// The templates to use. This will usually implement the full tpl.TemplateManager.
-	Tmpl tpl.TemplateHandler `json:"-"`
+	tmpl tpl.TemplateHandler
 
 	// We use this to parse and execute ad-hoc text templates.
-	TextTmpl tpl.TemplateParseFinder `json:"-"`
+	textTmpl tpl.TemplateParseFinder
 
 	// The file systems to use.
 	Fs *hugofs.Fs `json:"-"`
@@ -91,6 +92,9 @@ type Deps struct {
 
 	// BuildStartListeners will be notified before a build starts.
 	BuildStartListeners *Listeners
+
+	// Atomic flags set during a build.
+	BuildFlags BuildFlags
 
 	*globalErrHandler
 }
@@ -153,9 +157,20 @@ type ResourceProvider interface {
 	Clone(deps *Deps) error
 }
 
-// TemplateHandler returns the used tpl.TemplateFinder as tpl.TemplateHandler.
-func (d *Deps) TemplateHandler() tpl.TemplateManager {
-	return d.Tmpl.(tpl.TemplateManager)
+func (d *Deps) Tmpl() tpl.TemplateHandler {
+	return d.tmpl
+}
+
+func (d *Deps) TextTmpl() tpl.TemplateParseFinder {
+	return d.textTmpl
+}
+
+func (d *Deps) SetTmpl(tmpl tpl.TemplateHandler) {
+	d.tmpl = tmpl
+}
+
+func (d *Deps) SetTextTmpl(tmpl tpl.TemplateParseFinder) {
+	d.textTmpl = tmpl
 }
 
 // LoadResources loads translations and templates.
@@ -315,6 +330,7 @@ func (d Deps) ForLanguage(cfg DepsCfg, onCreated func(d *Deps) error) (*Deps, er
 	}
 
 	d.BuildStartListeners = &Listeners{}
+	d.BuildFlags = BuildFlags{}
 
 	return &d, nil
 
@@ -357,4 +373,15 @@ type DepsCfg struct {
 
 	// Whether we are in running (server) mode
 	Running bool
+}
+
+// BuildFlags are flags that may be turned on during a build.
+type BuildFlags struct {
+	HasLateTemplate atomic.Bool
+}
+
+func NewBuildFlags() BuildFlags {
+	return BuildFlags{
+		//HasLateTemplate: atomic.NewBool(false),
+	}
 }

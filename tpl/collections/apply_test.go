@@ -22,6 +22,7 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/tpl"
 )
 
@@ -31,8 +32,16 @@ func (templateFinder) Lookup(name string) (tpl.Template, bool) {
 	return nil, false
 }
 
+func (templateFinder) HasTemplate(name string) bool {
+	return false
+}
+
 func (templateFinder) LookupVariant(name string, variants tpl.TemplateVariants) (tpl.Template, bool, bool) {
 	return nil, false, false
+}
+
+func (templateFinder) LookupLayout(d output.LayoutDescriptor, f output.Format) (tpl.Template, bool, error) {
+	return nil, false, nil
 }
 
 func (templateFinder) Execute(t tpl.Template, wr io.Writer, data interface{}) error {
@@ -51,8 +60,9 @@ func (templateFinder) GetFunc(name string) (reflect.Value, bool) {
 func TestApply(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
-
-	ns := New(&deps.Deps{Tmpl: new(templateFinder)})
+	d := &deps.Deps{}
+	d.SetTmpl(new(templateFinder))
+	ns := New(d)
 
 	strings := []interface{}{"a\n", "b\n"}
 
