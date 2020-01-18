@@ -191,6 +191,26 @@ func (l *baseFileDecoratorFile) Readdir(c int) (ofi []os.FileInfo, err error) {
 	for _, dirname := range dirnames {
 		filename := dirname
 
+		ext := filepath.Ext(filename)
+		baseName := filepath.Base(filename)
+		istemp := strings.HasSuffix(ext, "~") ||
+			(ext == ".swp") || // vim
+			(ext == ".swx") || // vim
+			(ext == ".tmp") || // generic temp file
+			(ext == ".DS_Store") || // OSX Thumbnail
+			baseName == "4913" || // vim
+			strings.HasPrefix(ext, ".goutputstream") || // gnome
+			strings.HasSuffix(ext, "jb_old___") || // intelliJ
+			strings.HasSuffix(ext, "jb_tmp___") || // intelliJ
+			strings.HasSuffix(ext, "jb_bak___") || // intelliJ
+			strings.HasPrefix(ext, ".sb-") || // byword
+			strings.HasPrefix(baseName, ".#") || // emacs
+			strings.HasPrefix(baseName, "#") // emacs
+
+		if istemp {
+			continue
+		}
+
 		if l.Name() != "" && l.Name() != filepathSeparator {
 			filename = filepath.Join(l.Name(), dirname)
 		}

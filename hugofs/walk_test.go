@@ -47,6 +47,34 @@ func TestWalk(t *testing.T) {
 	c.Assert(names, qt.DeepEquals, []string{"a.txt", "b.txt", "c.txt"})
 }
 
+func TestWalkIgnoreTemp(t *testing.T) {
+	c := qt.New(t)
+
+	fs := NewBaseFileDecorator(afero.NewMemMapFs())
+
+	afero.WriteFile(fs, "b.txt", []byte("content"), 0777)
+	afero.WriteFile(fs, "c.txt", []byte("content"), 0777)
+	afero.WriteFile(fs, "a.txt", []byte("content"), 0777)
+	afero.WriteFile(fs, "4913.txt", []byte("content"), 0777)
+	afero.WriteFile(fs, "a.txt.swp", []byte("ignoreme"), 0777)
+	afero.WriteFile(fs, "a.txt.swx", []byte("ignoreme"), 0777)
+	afero.WriteFile(fs, "a.txt.tmp", []byte("ignoreme"), 0777)
+	afero.WriteFile(fs, "a.DS_Store", []byte("ignoreme"), 0777)
+	afero.WriteFile(fs, "4913", []byte("ignoreme"), 0777)
+	afero.WriteFile(fs, ".goutputstream", []byte("ignoreme"), 0777)
+	afero.WriteFile(fs, "a.jb_old___", []byte("ignoreme"), 0777)
+	afero.WriteFile(fs, "a.jb_tmp___", []byte("ignoreme"), 0777)
+	afero.WriteFile(fs, "a.jb_bak___", []byte("ignoreme"), 0777)
+	afero.WriteFile(fs, "a.txt.sb-", []byte("ignoreme"), 0777)
+	afero.WriteFile(fs, ".#a.txt", []byte("ignoreme"), 0777)
+	afero.WriteFile(fs, "#a.txt", []byte("ignoreme"), 0777)
+
+	names, err := collectFilenames(fs, "", "")
+
+	c.Assert(err, qt.IsNil)
+	c.Assert(names, qt.DeepEquals, []string{"4913.txt", "a.txt", "b.txt", "c.txt"})
+}
+
 func TestWalkRootMappingFs(t *testing.T) {
 	c := qt.New(t)
 	fs := NewBaseFileDecorator(afero.NewMemMapFs())
