@@ -165,7 +165,7 @@ Loop:
 				openBacktickFound = true
 				l.ignore()
 			}
-		case r == eof, r == '\n':
+		case r == eof:
 			return l.errorf("unterminated raw string in shortcode parameter-argument: '%s'", l.current())
 		}
 	}

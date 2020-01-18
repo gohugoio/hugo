@@ -89,6 +89,12 @@ var shortCodeLexerTests = []lexerTest{
 		tstLeftNoMD, tstSC1, nti(tScParam, "-ziL-.%QigdO-4"), tstRightNoMD, tstEOF}},
 	{"raw string", `{{< sc1` + "`" + "Hello World" + "`" + ` >}}`, []Item{
 		tstLeftNoMD, tstSC1, nti(tScParam, "Hello World"), tstRightNoMD, tstEOF}},
+	{"raw string with newline", `{{< sc1` + "`" + `Hello 
+	World` + "`" + ` >}}`, []Item{
+		tstLeftNoMD, tstSC1, nti(tScParam, `Hello 
+	World`), tstRightNoMD, tstEOF}},
+	{"raw string with escape character", `{{< sc1` + "`" + `Hello \b World` + "`" + ` >}}`, []Item{
+		tstLeftNoMD, tstSC1, nti(tScParam, `Hello \b World`), tstRightNoMD, tstEOF}},
 	{"two params", `{{< sc1 param1   param2 >}}`, []Item{
 		tstLeftNoMD, tstSC1, tstParam1, tstParam2, tstRightNoMD, tstEOF}},
 	// issue #934
