@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
     {{ partial "meta.html" . }}
 
@@ -7,6 +8,6 @@
     <link rel="canonical" href="{{ .Permalink }}">
     {{ partial "header.includes.html" . }}
     {{ with .OutputFormats.Get "RSS" -}}
-    {{ printf "<link href=%q rel=\"alternate\" type=%q title=%q />" .Permalink .MediaType .Title | safeHTML }}
+    {{ printf "<link href=%q rel=\"alternate\" type=%q title=%q />" .Permalink .MediaType $.Site.Title | safeHTML }}
     {{- end }}
 </head>
