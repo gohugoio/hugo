@@ -149,16 +149,36 @@ func TestCompare(t *testing.T) {
 		return n.Eq(a, b)
 	}
 
+	twoGt := func(a, b interface{}) bool {
+		return n.Gt(a, b)
+	}
+
+	twoLt := func(a, b interface{}) bool {
+		return n.Lt(a, b)
+	}
+
+	twoGe := func(a, b interface{}) bool {
+		return n.Ge(a, b)
+	}
+
+	twoLe := func(a, b interface{}) bool {
+		return n.Le(a, b)
+	}
+
+	twoNe := func(a, b interface{}) bool {
+		return n.Ne(a, b)
+	}
+
 	for _, test := range []struct {
 		tstCompareType
 		funcUnderTest func(a, b interface{}) bool
 	}{
-		{tstGt, n.Gt},
-		{tstLt, n.Lt},
-		{tstGe, n.Ge},
-		{tstLe, n.Le},
+		{tstGt, twoGt},
+		{tstLt, twoLt},
+		{tstGe, twoGe},
+		{tstLe, twoLe},
 		{tstEq, twoEq},
-		{tstNe, n.Ne},
+		{tstNe, twoNe},
 	} {
 		doTestCompare(t, test.tstCompareType, test.funcUnderTest)
 	}
@@ -259,6 +279,109 @@ func TestEqualExtend(t *testing.T) {
 
 		result := ns.Eq(test.first, test.others...)
 
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}
+
+func TestNotEqualExtend(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New(false)
+
+	for _, test := range []struct {
+		first  interface{}
+		others []interface{}
+		expect bool
+	}{
+		{1, []interface{}{2, 3}, true},
+		{1, []interface{}{2, 1}, false},
+		{1, []interface{}{1, 2}, false},
+	} {
+		result := ns.Ne(test.first, test.others...)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}
+
+func TestGreaterEqualExtend(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New(false)
+
+	for _, test := range []struct {
+		first  interface{}
+		others []interface{}
+		expect bool
+	}{
+		{5, []interface{}{2, 3}, true},
+		{5, []interface{}{5, 5}, true},
+		{3, []interface{}{4, 2}, false},
+		{3, []interface{}{2, 4}, false},
+	} {
+		result := ns.Ge(test.first, test.others...)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}
+
+func TestGreaterThanExtend(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New(false)
+
+	for _, test := range []struct {
+		first  interface{}
+		others []interface{}
+		expect bool
+	}{
+		{5, []interface{}{2, 3}, true},
+		{5, []interface{}{5, 4}, false},
+		{3, []interface{}{4, 2}, false},
+	} {
+		result := ns.Gt(test.first, test.others...)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}
+
+func TestLessEqualExtend(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New(false)
+
+	for _, test := range []struct {
+		first  interface{}
+		others []interface{}
+		expect bool
+	}{
+		{1, []interface{}{2, 3}, true},
+		{1, []interface{}{1, 2}, true},
+		{2, []interface{}{1, 2}, false},
+		{3, []interface{}{2, 4}, false},
+	} {
+		result := ns.Le(test.first, test.others...)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}
+
+func TestLessThanExtend(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New(false)
+
+	for _, test := range []struct {
+		first  interface{}
+		others []interface{}
+		expect bool
+	}{
+		{1, []interface{}{2, 3}, true},
+		{1, []interface{}{1, 2}, false},
+		{2, []interface{}{1, 2}, false},
+		{3, []interface{}{2, 4}, false},
+	} {
+		result := ns.Lt(test.first, test.others...)
 		c.Assert(result, qt.Equals, test.expect)
 	}
 }
