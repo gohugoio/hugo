@@ -135,33 +135,58 @@ func (n *Namespace) Eq(first interface{}, others ...interface{}) bool {
 	return false
 }
 
-// Ne returns the boolean truth of arg1 != arg2.
-func (n *Namespace) Ne(x, y interface{}) bool {
-	return !n.Eq(x, y)
+// Ne returns the boolean truth of arg1 != arg2 && arg1 != arg3 && arg1 != arg4.
+func (n *Namespace) Ne(first interface{}, others ...interface{}) bool {
+	for _, other := range others {
+		if n.Eq(first, other) {
+			return false
+		}
+	}
+	return true
 }
 
-// Ge returns the boolean truth of arg1 >= arg2.
-func (n *Namespace) Ge(a, b interface{}) bool {
-	left, right := n.compareGet(a, b)
-	return left >= right
+// Ge returns the boolean truth of arg1 >= arg2 && arg1 >= arg3 && arg1 >= arg4.
+func (n *Namespace) Ge(first interface{}, others ...interface{}) bool {
+	for _, other := range others {
+		left, right := n.compareGet(first, other)
+		if !(left >= right) {
+			return false
+		}
+	}
+	return true
 }
 
-// Gt returns the boolean truth of arg1 > arg2.
-func (n *Namespace) Gt(a, b interface{}) bool {
-	left, right := n.compareGet(a, b)
-	return left > right
+// Gt returns the boolean truth of arg1 > arg2 && arg1 > arg3 && arg1 > arg4.
+func (n *Namespace) Gt(first interface{}, others ...interface{}) bool {
+	for _, other := range others {
+		left, right := n.compareGet(first, other)
+		if !(left > right) {
+			return false
+		}
+	}
+	return true
 }
 
-// Le returns the boolean truth of arg1 <= arg2.
-func (n *Namespace) Le(a, b interface{}) bool {
-	left, right := n.compareGet(a, b)
-	return left <= right
+// Le returns the boolean truth of arg1 <= arg2 && arg1 <= arg3 && arg1 <= arg4.
+func (n *Namespace) Le(first interface{}, others ...interface{}) bool {
+	for _, other := range others {
+		left, right := n.compareGet(first, other)
+		if !(left <= right) {
+			return false
+		}
+	}
+	return true
 }
 
-// Lt returns the boolean truth of arg1 < arg2.
-func (n *Namespace) Lt(a, b interface{}) bool {
-	left, right := n.compareGet(a, b)
-	return left < right
+// Lt returns the boolean truth of arg1 < arg2 && arg1 < arg3 && arg1 < arg4.
+func (n *Namespace) Lt(first interface{}, others ...interface{}) bool {
+	for _, other := range others {
+		left, right := n.compareGet(first, other)
+		if !(left < right) {
+			return false
+		}
+	}
+	return true
 }
 
 // Conditional can be used as a ternary operator.
