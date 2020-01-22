@@ -66,6 +66,8 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		h.Metrics.Reset()
 	}
 
+	h.testCounters = config.testCounters
+
 	// Need a pointer as this may be modified.
 	conf := &config
 

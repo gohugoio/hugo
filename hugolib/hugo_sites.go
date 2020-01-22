@@ -19,6 +19,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"sync/atomic"
 
 	"github.com/gohugoio/hugo/identity"
 
@@ -82,6 +83,19 @@ type HugoSites struct {
 	init *hugoSitesInit
 
 	*fatalErrorHandler
+	*testCounters
+}
+
+// Only used in tests.
+type testCounters struct {
+	contentRenderCounter uint64
+}
+
+func (h *testCounters) IncrContentRender() {
+	if h == nil {
+		return
+	}
+	atomic.AddUint64(&h.contentRenderCounter, 1)
 }
 
 type fatalErrorHandler struct {
@@ -579,6 +593,8 @@ type BuildCfg struct {
 
 	// Recently visited URLs. This is used for partial re-rendering.
 	RecentlyVisited map[string]bool
+
+	testCounters *testCounters
 }
 
 // shouldRender is used in the Fast Render Mode to determine if we need to re-render

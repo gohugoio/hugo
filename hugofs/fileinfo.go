@@ -34,9 +34,9 @@ import (
 )
 
 const (
-	metaKeyFilename                   = "filename"
-	metaKeyPathFile                   = "pathFile"    // Path of filename relative to a root.
-	metaKeyIsFileMount                = "isFileMount" // Whether the source mount was a file.
+	metaKeyFilename = "filename"
+
+	metaKeyBaseDir                    = "baseDir" // Abs base directory of source file.
 	metaKeyMountRoot                  = "mountRoot"
 	metaKeyOriginalFilename           = "originalFilename"
 	metaKeyName                       = "name"
@@ -116,27 +116,17 @@ func (f FileMeta) Path() string {
 	return f.stringV(metaKeyPath)
 }
 
-// PathFile returns the relative file path for the file source. This
-// will in most cases be the same as Path.
+// PathFile returns the relative file path for the file source.
 func (f FileMeta) PathFile() string {
-	pf := f.stringV(metaKeyPathFile)
-	if f.isFileMount() {
-		return pf
+	base := f.stringV(metaKeyBaseDir)
+	if base == "" {
+		return ""
 	}
-	mountRoot := f.mountRoot()
-	if mountRoot == pf {
-		return f.Path()
-	}
-
-	return pf + (strings.TrimPrefix(f.Path(), mountRoot))
+	return strings.TrimPrefix(strings.TrimPrefix(f.Filename(), base), filepathSeparator)
 }
 
-func (f FileMeta) mountRoot() string {
+func (f FileMeta) MountRoot() string {
 	return f.stringV(metaKeyMountRoot)
-}
-
-func (f FileMeta) isFileMount() bool {
-	return f.GetBool(metaKeyIsFileMount)
 }
 
 func (f FileMeta) Weight() int {

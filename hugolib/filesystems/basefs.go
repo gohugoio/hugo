@@ -295,21 +295,16 @@ func (d *SourceFilesystem) Contains(filename string) bool {
 	return false
 }
 
-// Path returns the relative path to the given filename if it is a member of
+// Path returns the mount relative path to the given filename if it is a member of
 // of the current filesystem, an empty string if not.
 func (d *SourceFilesystem) Path(filename string) string {
 	for _, dir := range d.Dirs {
 		meta := dir.Meta()
-		if !dir.IsDir() {
-			if filename == meta.Filename() {
-				return meta.PathFile()
-			}
-			continue
-		}
-
 		if strings.HasPrefix(filename, meta.Filename()) {
 			p := strings.TrimPrefix(strings.TrimPrefix(filename, meta.Filename()), filePathSeparator)
-			p = path.Join(meta.PathFile(), p)
+			if mountRoot := meta.MountRoot(); mountRoot != "" {
+				return filepath.Join(mountRoot, p)
+			}
 			return p
 		}
 	}

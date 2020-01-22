@@ -271,7 +271,7 @@ func TestRootMappingFsMount(t *testing.T) {
 	c.Assert(singles, qt.HasLen, 2)
 	for i, lang := range []string{"no", "sv"} {
 		fi := singles[i].(FileMetaInfo)
-		c.Assert(fi.Meta().PathFile(), qt.Equals, lang+".txt")
+		c.Assert(fi.Meta().PathFile(), qt.Equals, filepath.FromSlash("themes/a/singlefiles/"+lang+".txt"))
 		c.Assert(fi.Meta().Lang(), qt.Equals, lang)
 		c.Assert(fi.Name(), qt.Equals, "p1.md")
 	}
