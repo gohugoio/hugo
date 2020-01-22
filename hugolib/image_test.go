@@ -18,6 +18,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/htesting"
@@ -147,7 +148,7 @@ IMG SHORTCODE: /images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_129x239_r
 	}
 
 	err = b.BuildE(BuildCfg{})
-	if runtime.GOOS != "windows" {
+	if runtime.GOOS != "windows" && !strings.Contains(runtime.GOARCH, "arm") {
 		// TODO(bep)
 		c.Assert(err, qt.Not(qt.IsNil))
 	}
