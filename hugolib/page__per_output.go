@@ -80,6 +80,8 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 	}
 
 	initContent := func() (err error) {
+		p.s.h.IncrContentRender()
+
 		if p.cmap == nil {
 			// Nothing to do.
 			return nil

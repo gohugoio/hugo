@@ -57,12 +57,8 @@ func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 		// Extract "blog" from "content/blog"
 		rm.path = strings.TrimPrefix(strings.TrimPrefix(rm.From, fromBase), filepathSeparator)
 		if rm.Meta != nil {
-			rm.Meta[metaKeyIsFileMount] = !fi.IsDir()
+			rm.Meta[metaKeyBaseDir] = rm.ToBasedir
 			rm.Meta[metaKeyMountRoot] = rm.path
-			if rm.ToBasedir != "" {
-				pathFile := strings.TrimPrefix(strings.TrimPrefix(rm.To, rm.ToBasedir), filepathSeparator)
-				rm.Meta[metaKeyPathFile] = pathFile
-			}
 		}
 
 		meta := copyFileMeta(rm.Meta)

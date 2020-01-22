@@ -668,6 +668,126 @@ Readme Edit
 
 }
 
+func TestMountsPaths(t *testing.T) {
+	c := qt.New(t)
+
+	type test struct {
+		b          *sitesBuilder
+		clean      func()
+		workingDir string
+	}
+
+	prepare := func(c *qt.C, mounts string) test {
+		workingDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-mounts-paths")
+		c.Assert(err, qt.IsNil)
+
+		configTemplate := `
+baseURL = "https://example.com"
+title = "My Modular Site"
+workingDir = %q
+
+%s
+
+`
+		config := fmt.Sprintf(configTemplate, workingDir, mounts)
+		config = strings.Replace(config, "WORKING_DIR", workingDir, -1)
+
+		b := newTestSitesBuilder(c).Running()
+
+		b.Fs = hugofs.NewDefault(viper.New())
+
+		os.MkdirAll(filepath.Join(workingDir, "content", "blog"), 0777)
+
+		b.WithWorkingDir(workingDir).WithConfigFile("toml", config)
+
+		return test{
+			b:          b,
+			clean:      clean,
+			workingDir: workingDir,
+		}
+
+	}
+
+	c.Run("Default", func(c *qt.C) {
+		mounts := ``
+
+		test := prepare(c, mounts)
+		b := test.b
+		defer test.clean()
+
+		b.WithContent("blog/p1.md", `---
+title: P1
+---`)
+
+		b.Build(BuildCfg{})
+
+		p := b.GetPage("blog/p1.md")
+		f := p.File().FileInfo().Meta()
+		b.Assert(filepath.ToSlash(f.Path()), qt.Equals, "blog/p1.md")
+		b.Assert(filepath.ToSlash(f.PathFile()), qt.Equals, "content/blog/p1.md")
+
+		b.Assert(b.H.BaseFs.Layouts.Path(filepath.Join(test.workingDir, "layouts", "_default", "single.html")), qt.Equals, filepath.FromSlash("_default/single.html"))
+
+	})
+
+	c.Run("Mounts", func(c *qt.C) {
+		absDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-mounts-paths-abs")
+		c.Assert(err, qt.IsNil)
+		defer clean()
+
+		mounts := `[module]
+  [[module.mounts]]
+    source = "README.md"
+    target = "content/_index.md"
+  [[module.mounts]]
+    source = "mycontent"
+    target = "content/blog"
+   [[module.mounts]]
+    source = "subdir/mypartials"
+    target = "layouts/partials"
+   [[module.mounts]]
+    source = %q
+    target = "layouts/shortcodes"
+`
+		mounts = fmt.Sprintf(mounts, filepath.Join(absDir, "/abs/myshortcodes"))
+
+		test := prepare(c, mounts)
+		b := test.b
+		defer test.clean()
+
+		subContentDir := filepath.Join(test.workingDir, "mycontent", "sub")
+		os.MkdirAll(subContentDir, 0777)
+		myPartialsDir := filepath.Join(test.workingDir, "subdir", "mypartials")
+		os.MkdirAll(myPartialsDir, 0777)
+
+		absShortcodesDir := filepath.Join(absDir, "abs", "myshortcodes")
+		os.MkdirAll(absShortcodesDir, 0777)
+
+		b.WithSourceFile("README.md", "---\ntitle: Readme\n---")
+		b.WithSourceFile("mycontent/sub/p1.md", "---\ntitle: P1\n---")
+
+		b.WithSourceFile(filepath.Join(absShortcodesDir, "myshort.html"), "MYSHORT")
+		b.WithSourceFile(filepath.Join(myPartialsDir, "mypartial.html"), "MYPARTIAL")
+
+		b.Build(BuildCfg{})
+
+		p1_1 := b.GetPage("/blog/sub/p1.md")
+		p1_2 := b.GetPage("/mycontent/sub/p1.md")
+		b.Assert(p1_1, qt.Not(qt.IsNil))
+		b.Assert(p1_2, qt.Equals, p1_1)
+
+		f := p1_1.File().FileInfo().Meta()
+		b.Assert(filepath.ToSlash(f.Path()), qt.Equals, "blog/sub/p1.md")
+		b.Assert(filepath.ToSlash(f.PathFile()), qt.Equals, "mycontent/sub/p1.md")
+		b.Assert(b.H.BaseFs.Layouts.Path(filepath.Join(myPartialsDir, "mypartial.html")), qt.Equals, filepath.FromSlash("partials/mypartial.html"))
+		b.Assert(b.H.BaseFs.Layouts.Path(filepath.Join(absShortcodesDir, "myshort.html")), qt.Equals, filepath.FromSlash("shortcodes/myshort.html"))
+		b.Assert(b.H.BaseFs.Content.Path(filepath.Join(subContentDir, "p1.md")), qt.Equals, filepath.FromSlash("blog/sub/p1.md"))
+		b.Assert(b.H.BaseFs.Content.Path(filepath.Join(test.workingDir, "README.md")), qt.Equals, filepath.FromSlash("_index.md"))
+
+	})
+
+}
+
 // https://github.com/gohugoio/hugo/issues/6299
 func TestSiteWithGoModButNoModules(t *testing.T) {
 	t.Parallel()

@@ -14,7 +14,10 @@
 package hugolib
 
 import (
+	"fmt"
 	"testing"
+
+	qt "github.com/frankban/quicktest"
 )
 
 func TestRenderHooks(t *testing.T) {
@@ -118,7 +121,20 @@ title: With RenderString
 {{< myshortcode5 >}}Inner Link: [Inner Link](https://www.gohugo.io "Hugo's Homepage"){{< /myshortcode5 >}}
 
 `)
-	b.Build(BuildCfg{})
+
+	for i := 1; i <= 30; i++ {
+		// Add some content with no shortcodes or links, i.e no templates needed.
+		b.WithContent(fmt.Sprintf("blog/notempl%d.md", i), `---
+title: No Template
+---
+
+## Content
+`)
+	}
+	counters := &testCounters{}
+	b.Build(BuildCfg{testCounters: counters})
+	b.Assert(int(counters.contentRenderCounter), qt.Equals, 50)
+
 	b.AssertFileContent("public/blog/p1/index.html", `
 <p>Cool Page|https://www.google.com|Title: Google's Homepage|Text: First Link|END</p>
 Text: Second
@@ -149,7 +165,11 @@ SHORT3|
 		"layouts/shortcodes/myshortcode3.html", `SHORT3_EDITED|`,
 	)
 
-	b.Build(BuildCfg{})
+	counters = &testCounters{}
+	b.Build(BuildCfg{testCounters: counters})
+	// Make sure that only content using the changed templates are re-rendered.
+	b.Assert(int(counters.contentRenderCounter), qt.Equals, 7)
+
 	b.AssertFileContent("public/customview/p1/index.html", `.Render: myrender: Custom View|P4: PARTIAL4_EDITED`)
 	b.AssertFileContent("public/blog/p1/index.html", `<p>EDITED: https://www.google.com|</p>`, "SHORT3_EDITED|")
 	b.AssertFileContent("public/blog/p2/index.html", `PARTIAL1_EDITED`)
