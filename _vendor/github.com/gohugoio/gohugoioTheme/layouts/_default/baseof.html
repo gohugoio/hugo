@@ -27,7 +27,7 @@
     {{ $isDev := eq hugo.Environment "development" }}
     {{ $stylesheet := resources.Get "output/css/app.css"  }}
     {{ if not $isDev }}
-    {{ $stylesheet = $stylesheet | fingerprint }}
+    {{ $stylesheet = $stylesheet | minify | fingerprint }}
     {{ end }}
     {{ with $stylesheet }}
       {{ if $isDev }}
