@@ -94,7 +94,7 @@ type Deps struct {
 	BuildStartListeners *Listeners
 
 	// Atomic flags set during a build.
-	BuildFlags BuildFlags
+	BuildFlags *BuildFlags
 
 	*globalErrHandler
 }
@@ -274,6 +274,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		Site:                    cfg.Site,
 		FileCaches:              fileCaches,
 		BuildStartListeners:     &Listeners{},
+		BuildFlags:              &BuildFlags{},
 		Timeout:                 time.Duration(timeoutms) * time.Millisecond,
 		globalErrHandler:        &globalErrHandler{},
 	}
@@ -330,7 +331,6 @@ func (d Deps) ForLanguage(cfg DepsCfg, onCreated func(d *Deps) error) (*Deps, er
 	}
 
 	d.BuildStartListeners = &Listeners{}
-	d.BuildFlags = BuildFlags{}
 
 	return &d, nil
 
