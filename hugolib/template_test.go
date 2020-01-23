@@ -361,6 +361,43 @@ Base %d: {{ block "main" . }}FOO{{ end }}
 
 }
 
+// https://github.com/gohugoio/hugo/issues/6790
+func TestTemplateNoBasePlease(t *testing.T) {
+	t.Parallel()
+	b := newTestSitesBuilder(t).WithSimpleConfigFile()
+
+	b.WithTemplates("_default/list.html", `
+	{{ define "main" }}
+	  Bonjour
+	{{ end }}
+
+	{{ printf "list" }}
+
+
+	`)
+
+	b.WithTemplates(
+		"_default/single.html", `
+{{ printf "single" }}
+{{ define "main" }}
+  Bonjour
+{{ end }}
+
+
+`)
+
+	b.WithContent("blog/p1.md", `---
+title: The Page
+---
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/blog/p1/index.html", `single`)
+	b.AssertFileContent("public/blog/index.html", `list`)
+
+}
+
 func TestTemplateLookupSite(t *testing.T) {
 	t.Run("basic", func(t *testing.T) {
 		t.Parallel()

@@ -72,7 +72,14 @@ var (
 	_ tpl.Info     = (*templateState)(nil)
 )
 
-var defineRe = regexp.MustCompile(`{{-?\s?define`)
+// A template needing a base template is a template with only define sections,
+// but we check only for the start.
+// If a base template does not exist, we will handle that when it's used.
+var baseTemplateDefineRe = regexp.MustCompile(`^\s*{{-?\s*define`)
+
+func needsBaseTemplate(templ string) bool {
+	return baseTemplateDefineRe.MatchString(templ)
+}
 
 func newIdentity(name string) identity.Manager {
 	return identity.NewManager(identity.NewPathIdentity(files.ComponentFolderLayouts, name))
@@ -379,20 +386,19 @@ func (t *templateHandler) findLayout(d output.LayoutDescriptor, f output.Format)
 			}
 		}
 
-		if !found {
-			return nil, false, errors.Errorf("no baseof layout found for %q:", name)
-		}
-
 		templ, err := t.applyBaseTemplate(overlay, base)
 		if err != nil {
 			return nil, false, err
 		}
 
 		ts := newTemplateState(templ, overlay)
-		ts.baseInfo = base
 
-		// Add the base identity to detect changes
-		ts.Add(identity.NewPathIdentity(files.ComponentFolderLayouts, base.name))
+		if found {
+			ts.baseInfo = base
+
+			// Add the base identity to detect changes
+			ts.Add(identity.NewPathIdentity(files.ComponentFolderLayouts, base.name))
+		}
 
 		t.applyTemplateTransformers(t.main, ts)
 
@@ -537,13 +543,13 @@ func (t *templateHandler) addTemplateFile(name, path string) error {
 		return err
 	}
 
-	if isBaseTemplate(name) {
+	if isBaseTemplatePath(name) {
 		// Store it for later.
 		t.baseof[name] = tinfo
 		return nil
 	}
 
-	needsBaseof := !t.noBaseNeeded(name) && defineRe.MatchString(tinfo.template)
+	needsBaseof := !t.noBaseNeeded(name) && baseTemplateDefineRe.MatchString(tinfo.template)
 	if needsBaseof {
 		t.needsBaseof[name] = tinfo
 		return nil
@@ -565,10 +571,18 @@ func (t *templateHandler) addTemplateTo(info templateInfo, to *templateNamespace
 
 func (t *templateHandler) applyBaseTemplate(overlay, base templateInfo) (tpl.Template, error) {
 	if overlay.isText {
-		templ, err := t.main.prototypeTextClone.New(overlay.name).Parse(base.template)
-		if err != nil {
-			return nil, base.errWithFileContext("parse failed", err)
+		var (
+			templ = t.main.prototypeTextClone.New(overlay.name)
+			err   error
+		)
+
+		if !base.IsZero() {
+			templ, err = templ.Parse(base.template)
+			if err != nil {
+				return nil, base.errWithFileContext("parse failed", err)
+			}
 		}
+
 		templ, err = templ.Parse(overlay.template)
 		if err != nil {
 			return nil, overlay.errWithFileContext("parse failed", err)
@@ -576,9 +590,16 @@ func (t *templateHandler) applyBaseTemplate(overlay, base templateInfo) (tpl.Tem
 		return templ, nil
 	}
 
-	templ, err := t.main.prototypeHTMLClone.New(overlay.name).Parse(base.template)
-	if err != nil {
-		return nil, base.errWithFileContext("parse failed", err)
+	var (
+		templ = t.main.prototypeHTMLClone.New(overlay.name)
+		err   error
+	)
+
+	if !base.IsZero() {
+		templ, err = templ.Parse(base.template)
+		if err != nil {
+			return nil, base.errWithFileContext("parse failed", err)
+		}
 	}
 
 	templ, err = htmltemplate.Must(templ.Clone()).Parse(overlay.template)
@@ -890,7 +911,7 @@ func isBackupFile(path string) bool {
 	return path[len(path)-1] == '~'
 }
 
-func isBaseTemplate(path string) bool {
+func isBaseTemplatePath(path string) bool {
 	return strings.Contains(filepath.Base(path), baseFileBase)
 }
 
