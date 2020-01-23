@@ -25,37 +25,9 @@ The `block` keyword allows you to define the outer shell of your pages' one or m
 
 ## Base Template Lookup Order
 
-The [lookup order][lookup] for base templates is as follows:
+{{< new-in "0.63.0" >}} Since Hugo v0.63, the base template lookup order closely follows that of the template is applies to (e.g. `_default/list.html`).
 
-1. `/layouts/section/<TYPE>-baseof.html`
-2. `/themes/<THEME>/layouts/section/<TYPE>-baseof.html`
-3. `/layouts/<TYPE>/baseof.html`
-4. `/themes/<THEME>/layouts/<TYPE>/baseof.html`
-5. `/layouts/section/baseof.html`
-6. `/themes/<THEME>/layouts/section/baseof.html`
-7. `/layouts/_default/<TYPE>-baseof.html`
-8. `/themes/<THEME>/layouts/_default/<TYPE>-baseof.html`
-9. `/layouts/_default/baseof.html`
-10. `/themes/<THEME>/layouts/_default/baseof.html`
-
-Variables are denoted by capitalized text set within `<>`. Note that Hugo's default behavior is for `type` to inherit from `section` unless otherwise specified.
-
-### Example Base Template Lookup Order
-
-As an example, let's assume your site is using a theme called "mytheme" when rendering the section list for a `posts` section. Hugo picks `layout/section/posts.html` as the template for [rendering the section][]. The `{{define}}` block in this template tells Hugo that the template is an extension of a base template.
-
-Here is the lookup order for the `posts` base template:
-
-1. `/layouts/section/posts-baseof.html`
-2. `/themes/mytheme/layouts/section/posts-baseof.html`
-3. `/layouts/posts/baseof.html`
-4. `/themes/mytheme/layouts/posts/baseof.html`
-5. `/layouts/section/baseof.html`
-6. `/themes/mytheme/layouts/section/baseof.html`
-7. `/layouts/_default/posts-baseof.html`
-8. `/themes/mytheme/layouts/_default/posts-baseof.html`
-9. `/layouts/_default/baseof.html`
-10. `/themes/mytheme/layouts/_default/baseof.html`
+See [Template Lookup Order](/templates/lookup-order/) for details and examples.
 
 ## Define the Base Template
 
