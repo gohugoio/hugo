@@ -1,12 +1,12 @@
 
 ---
 date: 2020-01-23
-title: "0.63.0"
-description: "0.63.0"
+title: "Improved base templates, and faster!"
+description: "In Hugo 0.63 we have improved the base template lookup logic, and this simplification also made Hugo faster …"
 categories: ["Releases"]
 ---
 
-	Hugo `0.53` is, in general, **considerably faster and more memory effective** (see the site-building benchmarks below comparing it to `v0.52`). Not that we are particularly concerned about Hugo's build speed. We leave that to others. But we would hate if it got slower, so we have a comprehensive benchmark suite. And when we needed to simplify the template handling code to solve a concurrency issue, it also became more effective. And as a bonus, we also finally got the [base template lookup order](https://gohugo.io/templates/base/#base-template-lookup-order) that you really, really wanted!
+Hugo `0.63` is, in general, **considerably faster and more memory effective** (see the site-building benchmarks below comparing it to `v0.62`). Not that we are particularly concerned about Hugo's build speed. We leave that to others. But we would hate if it got slower, so we have a comprehensive benchmark suite. And when we needed to simplify the template handling code to solve a concurrency issue, it also became more effective. And as a bonus, we also finally got the [base template lookup order](https://gohugo.io/templates/base/#base-template-lookup-order) that you really, really wanted!
 
 ```bash
 name                              old time/op    new time/op    delta
