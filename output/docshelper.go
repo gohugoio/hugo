@@ -44,12 +44,16 @@ func createLayoutExamples() interface{} {
 	}{
 		// Taxonomy output.LayoutDescriptor={categories category taxonomy en  false Type Section
 		{"Single page in \"posts\" section", LayoutDescriptor{Kind: "page", Type: "posts"}, HTMLFormat},
+		{"Base template for single page in \"posts\" section", LayoutDescriptor{Baseof: true, Kind: "page", Type: "posts"}, HTMLFormat},
 		{"Single page in \"posts\" section with layout set", LayoutDescriptor{Kind: "page", Type: "posts", Layout: demoLayout}, HTMLFormat},
+		{"Base template for single page in \"posts\" section with layout set", LayoutDescriptor{Baseof: true, Kind: "page", Type: "posts", Layout: demoLayout}, HTMLFormat},
 		{"AMP single page", LayoutDescriptor{Kind: "page", Type: "posts"}, AMPFormat},
 		{"AMP single page, French language", LayoutDescriptor{Kind: "page", Type: "posts", Lang: "fr"}, AMPFormat},
 		// All section or typeless pages gets "page" as type
 		{"Home page", LayoutDescriptor{Kind: "home", Type: "page"}, HTMLFormat},
+		{"Base template for home page", LayoutDescriptor{Baseof: true, Kind: "home", Type: "page"}, HTMLFormat},
 		{"Home page with type set", LayoutDescriptor{Kind: "home", Type: demoType}, HTMLFormat},
+		{"Base template for home page with type set", LayoutDescriptor{Baseof: true, Kind: "home", Type: demoType}, HTMLFormat},
 		{"Home page with layout set", LayoutDescriptor{Kind: "home", Type: "page", Layout: demoLayout}, HTMLFormat},
 		{`AMP home, French language"`, LayoutDescriptor{Kind: "home", Type: "page", Lang: "fr"}, AMPFormat},
 		{"JSON home", LayoutDescriptor{Kind: "home", Type: "page"}, JSONFormat},
