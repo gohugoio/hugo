@@ -275,6 +275,9 @@ func TestEqualExtend(t *testing.T) {
 		{1, []interface{}{1, 2}, true},
 		{1, []interface{}{2, 1}, true},
 		{1, []interface{}{2, 3}, false},
+		{tstEqerType1("a"), []interface{}{tstEqerType1("a"), tstEqerType1("b")}, true},
+		{tstEqerType1("a"), []interface{}{tstEqerType1("b"), tstEqerType1("a")}, true},
+		{tstEqerType1("a"), []interface{}{tstEqerType1("b"), tstEqerType1("c")}, false},
 	} {
 
 		result := ns.Eq(test.first, test.others...)

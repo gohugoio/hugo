@@ -119,11 +119,17 @@ func (n *Namespace) Eq(first interface{}, others ...interface{}) bool {
 	normFirst := normalize(first)
 	for _, other := range others {
 		if e, ok := first.(compare.Eqer); ok {
-			return e.Eq(other)
+			if e.Eq(other) {
+				return true
+			}
+			continue
 		}
 
 		if e, ok := other.(compare.Eqer); ok {
-			return e.Eq(first)
+			if e.Eq(first) {
+				return true
+			}
+			continue
 		}
 
 		other = normalize(other)
