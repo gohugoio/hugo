@@ -1922,6 +1922,22 @@
         ]
       },
       {
+        "Example": "Base template for single page in \"posts\" section",
+        "Kind": "page",
+        "OutputFormat": "HTML",
+        "Suffix": "html",
+        "Template Lookup Order": [
+          "layouts/posts/single-baseof.html.html",
+          "layouts/posts/baseof.html.html",
+          "layouts/posts/single-baseof.html",
+          "layouts/posts/baseof.html",
+          "layouts/_default/single-baseof.html.html",
+          "layouts/_default/baseof.html.html",
+          "layouts/_default/single-baseof.html",
+          "layouts/_default/baseof.html"
+        ]
+      },
+      {
         "Example": "Single page in \"posts\" section with layout set",
         "Kind": "page",
         "OutputFormat": "HTML",
@@ -1935,6 +1951,26 @@
           "layouts/_default/single.html.html",
           "layouts/_default/demolayout.html",
           "layouts/_default/single.html"
+        ]
+      },
+      {
+        "Example": "Base template for single page in \"posts\" section with layout set",
+        "Kind": "page",
+        "OutputFormat": "HTML",
+        "Suffix": "html",
+        "Template Lookup Order": [
+          "layouts/posts/demolayout-baseof.html.html",
+          "layouts/posts/single-baseof.html.html",
+          "layouts/posts/baseof.html.html",
+          "layouts/posts/demolayout-baseof.html",
+          "layouts/posts/single-baseof.html",
+          "layouts/posts/baseof.html",
+          "layouts/_default/demolayout-baseof.html.html",
+          "layouts/_default/single-baseof.html.html",
+          "layouts/_default/baseof.html.html",
+          "layouts/_default/demolayout-baseof.html",
+          "layouts/_default/single-baseof.html",
+          "layouts/_default/baseof.html"
         ]
       },
       {
@@ -1986,6 +2022,30 @@
         ]
       },
       {
+        "Example": "Base template for home page",
+        "Kind": "home",
+        "OutputFormat": "HTML",
+        "Suffix": "html",
+        "Template Lookup Order": [
+          "layouts/index-baseof.html.html",
+          "layouts/home-baseof.html.html",
+          "layouts/list-baseof.html.html",
+          "layouts/baseof.html.html",
+          "layouts/index-baseof.html",
+          "layouts/home-baseof.html",
+          "layouts/list-baseof.html",
+          "layouts/baseof.html",
+          "layouts/_default/index-baseof.html.html",
+          "layouts/_default/home-baseof.html.html",
+          "layouts/_default/list-baseof.html.html",
+          "layouts/_default/baseof.html.html",
+          "layouts/_default/index-baseof.html",
+          "layouts/_default/home-baseof.html",
+          "layouts/_default/list-baseof.html",
+          "layouts/_default/baseof.html"
+        ]
+      },
+      {
         "Example": "Home page with type set",
         "Kind": "home",
         "OutputFormat": "HTML",
@@ -2009,6 +2069,38 @@
           "layouts/_default/index.html",
           "layouts/_default/home.html",
           "layouts/_default/list.html"
+        ]
+      },
+      {
+        "Example": "Base template for home page with type set",
+        "Kind": "home",
+        "OutputFormat": "HTML",
+        "Suffix": "html",
+        "Template Lookup Order": [
+          "layouts/demotype/index-baseof.html.html",
+          "layouts/demotype/home-baseof.html.html",
+          "layouts/demotype/list-baseof.html.html",
+          "layouts/demotype/baseof.html.html",
+          "layouts/demotype/index-baseof.html",
+          "layouts/demotype/home-baseof.html",
+          "layouts/demotype/list-baseof.html",
+          "layouts/demotype/baseof.html",
+          "layouts/index-baseof.html.html",
+          "layouts/home-baseof.html.html",
+          "layouts/list-baseof.html.html",
+          "layouts/baseof.html.html",
+          "layouts/index-baseof.html",
+          "layouts/home-baseof.html",
+          "layouts/list-baseof.html",
+          "layouts/baseof.html",
+          "layouts/_default/index-baseof.html.html",
+          "layouts/_default/home-baseof.html.html",
+          "layouts/_default/list-baseof.html.html",
+          "layouts/_default/baseof.html.html",
+          "layouts/_default/index-baseof.html",
+          "layouts/_default/home-baseof.html",
+          "layouts/_default/list-baseof.html",
+          "layouts/_default/baseof.html"
         ]
       },
       {
