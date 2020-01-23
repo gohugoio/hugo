@@ -677,6 +677,12 @@
         ]
       },
       {
+        "Name": "MLIR",
+        "Aliases": [
+          "mlir"
+        ]
+      },
+      {
         "Name": "Mako",
         "Aliases": [
           "mako",
@@ -1114,6 +1120,14 @@
         ]
       },
       {
+        "Name": "Standard ML",
+        "Aliases": [
+          "fun",
+          "sig",
+          "sml"
+        ]
+      },
+      {
         "Name": "Swift",
         "Aliases": [
           "swift"
@@ -1131,6 +1145,13 @@
         "Name": "TOML",
         "Aliases": [
           "toml"
+        ]
+      },
+      {
+        "Name": "TableGen",
+        "Aliases": [
+          "tablegen",
+          "td"
         ]
       },
       {
@@ -1901,6 +1922,22 @@
         ]
       },
       {
+        "Example": "Base template for single page in \"posts\" section",
+        "Kind": "page",
+        "OutputFormat": "HTML",
+        "Suffix": "html",
+        "Template Lookup Order": [
+          "layouts/posts/single-baseof.html.html",
+          "layouts/posts/baseof.html.html",
+          "layouts/posts/single-baseof.html",
+          "layouts/posts/baseof.html",
+          "layouts/_default/single-baseof.html.html",
+          "layouts/_default/baseof.html.html",
+          "layouts/_default/single-baseof.html",
+          "layouts/_default/baseof.html"
+        ]
+      },
+      {
         "Example": "Single page in \"posts\" section with layout set",
         "Kind": "page",
         "OutputFormat": "HTML",
@@ -1914,6 +1951,26 @@
           "layouts/_default/single.html.html",
           "layouts/_default/demolayout.html",
           "layouts/_default/single.html"
+        ]
+      },
+      {
+        "Example": "Base template for single page in \"posts\" section with layout set",
+        "Kind": "page",
+        "OutputFormat": "HTML",
+        "Suffix": "html",
+        "Template Lookup Order": [
+          "layouts/posts/demolayout-baseof.html.html",
+          "layouts/posts/single-baseof.html.html",
+          "layouts/posts/baseof.html.html",
+          "layouts/posts/demolayout-baseof.html",
+          "layouts/posts/single-baseof.html",
+          "layouts/posts/baseof.html",
+          "layouts/_default/demolayout-baseof.html.html",
+          "layouts/_default/single-baseof.html.html",
+          "layouts/_default/baseof.html.html",
+          "layouts/_default/demolayout-baseof.html",
+          "layouts/_default/single-baseof.html",
+          "layouts/_default/baseof.html"
         ]
       },
       {
@@ -1965,6 +2022,30 @@
         ]
       },
       {
+        "Example": "Base template for home page",
+        "Kind": "home",
+        "OutputFormat": "HTML",
+        "Suffix": "html",
+        "Template Lookup Order": [
+          "layouts/index-baseof.html.html",
+          "layouts/home-baseof.html.html",
+          "layouts/list-baseof.html.html",
+          "layouts/baseof.html.html",
+          "layouts/index-baseof.html",
+          "layouts/home-baseof.html",
+          "layouts/list-baseof.html",
+          "layouts/baseof.html",
+          "layouts/_default/index-baseof.html.html",
+          "layouts/_default/home-baseof.html.html",
+          "layouts/_default/list-baseof.html.html",
+          "layouts/_default/baseof.html.html",
+          "layouts/_default/index-baseof.html",
+          "layouts/_default/home-baseof.html",
+          "layouts/_default/list-baseof.html",
+          "layouts/_default/baseof.html"
+        ]
+      },
+      {
         "Example": "Home page with type set",
         "Kind": "home",
         "OutputFormat": "HTML",
@@ -1988,6 +2069,38 @@
           "layouts/_default/index.html",
           "layouts/_default/home.html",
           "layouts/_default/list.html"
+        ]
+      },
+      {
+        "Example": "Base template for home page with type set",
+        "Kind": "home",
+        "OutputFormat": "HTML",
+        "Suffix": "html",
+        "Template Lookup Order": [
+          "layouts/demotype/index-baseof.html.html",
+          "layouts/demotype/home-baseof.html.html",
+          "layouts/demotype/list-baseof.html.html",
+          "layouts/demotype/baseof.html.html",
+          "layouts/demotype/index-baseof.html",
+          "layouts/demotype/home-baseof.html",
+          "layouts/demotype/list-baseof.html",
+          "layouts/demotype/baseof.html",
+          "layouts/index-baseof.html.html",
+          "layouts/home-baseof.html.html",
+          "layouts/list-baseof.html.html",
+          "layouts/baseof.html.html",
+          "layouts/index-baseof.html",
+          "layouts/home-baseof.html",
+          "layouts/list-baseof.html",
+          "layouts/baseof.html",
+          "layouts/_default/index-baseof.html.html",
+          "layouts/_default/home-baseof.html.html",
+          "layouts/_default/list-baseof.html.html",
+          "layouts/_default/baseof.html.html",
+          "layouts/_default/index-baseof.html",
+          "layouts/_default/home-baseof.html",
+          "layouts/_default/list-baseof.html",
+          "layouts/_default/baseof.html"
         ]
       },
       {
@@ -2447,10 +2560,10 @@
           ]
         },
         "Ge": {
-          "Description": "Ge returns the boolean truth of arg1 \u003e= arg2.",
+          "Description": "Ge returns the boolean truth of arg1 \u003e= arg2 \u0026\u0026 arg1 \u003e= arg3 \u0026\u0026 arg1 \u003e= arg4.",
           "Args": [
-            "a",
-            "b"
+            "first",
+            "others"
           ],
           "Aliases": [
             "ge"
@@ -2463,10 +2576,10 @@
           ]
         },
         "Gt": {
-          "Description": "Gt returns the boolean truth of arg1 \u003e arg2.",
+          "Description": "Gt returns the boolean truth of arg1 \u003e arg2 \u0026\u0026 arg1 \u003e arg3 \u0026\u0026 arg1 \u003e arg4.",
           "Args": [
-            "a",
-            "b"
+            "first",
+            "others"
           ],
           "Aliases": [
             "gt"
@@ -2474,10 +2587,10 @@
           "Examples": []
         },
         "Le": {
-          "Description": "Le returns the boolean truth of arg1 \u003c= arg2.",
+          "Description": "Le returns the boolean truth of arg1 \u003c= arg2 \u0026\u0026 arg1 \u003c= arg3 \u0026\u0026 arg1 \u003c= arg4.",
           "Args": [
-            "a",
-            "b"
+            "first",
+            "others"
           ],
           "Aliases": [
             "le"
@@ -2485,10 +2598,10 @@
           "Examples": []
         },
         "Lt": {
-          "Description": "Lt returns the boolean truth of arg1 \u003c arg2.",
+          "Description": "Lt returns the boolean truth of arg1 \u003c arg2 \u0026\u0026 arg1 \u003c arg3 \u0026\u0026 arg1 \u003c arg4.",
           "Args": [
-            "a",
-            "b"
+            "first",
+            "others"
           ],
           "Aliases": [
             "lt"
@@ -2496,10 +2609,10 @@
           "Examples": []
         },
         "Ne": {
-          "Description": "Ne returns the boolean truth of arg1 != arg2.",
+          "Description": "Ne returns the boolean truth of arg1 != arg2 \u0026\u0026 arg1 != arg3 \u0026\u0026 arg1 != arg4.",
           "Args": [
-            "x",
-            "y"
+            "first",
+            "others"
           ],
           "Aliases": [
             "ne"
