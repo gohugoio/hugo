@@ -6,6 +6,8 @@ description: "In Hugo 0.63 we have improved the base template lookup logic, and 
 categories: ["Releases"]
 ---
 
+**Note:** There is already a [patch release](/news/0.63.1-relnotes/) with some fixes.
+
 Hugo `0.63` is, in general, **considerably faster and more memory effective** (see the site-building benchmarks below comparing it to `v0.62`). Not that we are particularly concerned about Hugo's build speed. We leave that to others. But we would hate if it got slower, so we have a comprehensive benchmark suite. And when we needed to simplify the template handling code to solve a concurrency issue, it also became more effective. And as a bonus, we also finally got the [base template lookup order](https://gohugo.io/templates/base/#base-template-lookup-order) that you really, really wanted!
 
 ```bash
@@ -56,6 +58,7 @@ Hugo now has:
 * `.Type` on-page now returns an empty string if not set in the front matter or if `.Section` returns empty. See [#6760](https://github.com/gohugoio/hugo/issues/6760).
 * Baseof template (e.g. `baseof.html`) lookup order is completely revised/expanded. See [base template lookup order](https://gohugo.io/templates/base/#base-template-lookup-order). We now do template resolution at execution time following the same rules as the template it applies to (e.g. `_default/single.html`). This is an obvious improvement and your site should work as before.
 * Shortcode params now supports params with raw string literals (strings surrounded with \`\`) that supports newlines.
+* Note: In a base template (e.g. `baseof.html`), the first template block must be a `define`.
 
 ## Enhancements
 
