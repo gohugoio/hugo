@@ -333,6 +333,12 @@ func checkPageSummary(t *testing.T, page page.Page, summary string, msg ...inter
 	}
 }
 
+func checkPageType(t *testing.T, page page.Page, pageType string) {
+	if page.Type() != pageType {
+		t.Fatalf("Page type is: %s.  Expected: %s", page.Type(), pageType)
+	}
+}
+
 func checkPageDate(t *testing.T, page page.Page, time time.Time) {
 	if page.Date() != time {
 		t.Fatalf("Page date is: %s.  Expected: %s", page.Date(), time)
@@ -536,6 +542,7 @@ func TestCreateNewPage(t *testing.T) {
 		checkPageTitle(t, p, "Simple")
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Simple Page</p>\n"))
 		checkPageSummary(t, p, "Simple Page")
+		checkPageType(t, p, "page")
 	}
 
 	settings := map[string]interface{}{
@@ -555,6 +562,7 @@ func TestPageSummary(t *testing.T) {
 			checkPageContent(t, p, normalizeExpected(ext, "<p><a href=\"https://lipsum.com/\">Lorem ipsum</a> dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\n\n<p>Additional text.</p>\n\n<p>Further text.</p>\n"), ext)
 			checkPageSummary(t, p, normalizeExpected(ext, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Additional text."), ext)
 		}
+		checkPageType(t, p, "page")
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithoutSummaryDelimiter)
@@ -567,6 +575,7 @@ func TestPageWithDelimiter(t *testing.T) {
 		checkPageTitle(t, p, "Simple")
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Next Line</p>\n\n<p>Some more text</p>\n"), ext)
 		checkPageSummary(t, p, normalizeExpected(ext, "<p>Summary Next Line</p>"), ext)
+		checkPageType(t, p, "page")
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithSummaryDelimiter)
@@ -582,6 +591,7 @@ func TestPageWithSummaryParameter(t *testing.T) {
 		if ext != "ad" && ext != "rst" {
 			checkPageSummary(t, p, normalizeExpected(ext, "Page with summary parameter and <a href=\"http://www.example.com/\">a link</a>"), ext)
 		}
+		checkPageType(t, p, "page")
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithSummaryParameter)
@@ -653,6 +663,7 @@ func TestPageWithShortCodeInSummary(t *testing.T) {
 		checkPageTitle(t, p, "Simple")
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Next Line. <figure> <img src=\"/not/real\"/> </figure> . More text here.</p><p>Some more text</p>"))
 		checkPageSummary(t, p, "Summary Next Line.  . More text here. Some more text")
+		checkPageType(t, p, "page")
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithShortcodeInSummary)
@@ -702,6 +713,8 @@ func TestPageWithMoreTag(t *testing.T) {
 		checkPageTitle(t, p, "Simple")
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Same Line</p>\n\n<p>Some more text</p>\n"))
 		checkPageSummary(t, p, normalizeExpected(ext, "<p>Summary Same Line</p>"))
+		checkPageType(t, p, "page")
+
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithSummaryDelimiterSameLine)
