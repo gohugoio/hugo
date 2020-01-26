@@ -68,12 +68,13 @@ func TestCascade(t *testing.T) {
         42|taxonomy|tags/blue|blue|home.png|tags|HTML-|
         42|section|sect3|Cascade Home|home.png|sect3|HTML-|
         42|taxonomyTerm|tags|Cascade Home|home.png|tags|HTML-|
-        42|page|p2.md|Cascade Home|home.png||HTML-|
+        42|page|bundle1/index.md|Cascade Home|home.png|page|HTML-|
+        42|page|p2.md|Cascade Home|home.png|page|HTML-|
         42|page|sect2/p2.md|Cascade Home|home.png|sect2|HTML-|
         42|page|sect3/p1.md|Cascade Home|home.png|sect3|HTML-|
         42|taxonomy|tags/green|green|home.png|tags|HTML-|
-        42|home|_index.md|Home|home.png||HTML-|
-        42|page|p1.md|p1|home.png||HTML-|
+        42|home|_index.md|Home|home.png|page|HTML-|
+        42|page|p1.md|p1|home.png|page|HTML-|
         42|section|sect1/_index.md|Sect1|sect1.png|stype|HTML-|
         42|section|sect1/s1_2/_index.md|Sect1_2|sect1.png|stype|HTML-|
         42|page|sect1/s1_2/p1.md|Sect1_2_p1|sect1.png|stype|HTML-|
