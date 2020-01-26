@@ -251,7 +251,17 @@ func (s *Site) render404() error {
 		return err
 	}
 
-	templ := s.lookupLayouts("404.html")
+	var d output.LayoutDescriptor
+	d.Kind = kind404
+
+	templ, found, err := s.Tmpl().LookupLayout(d, output.HTMLFormat)
+	if err != nil {
+		return err
+	}
+	if !found {
+		return nil
+	}
+
 	targetPath := p.targetPaths().TargetFilename
 
 	if targetPath == "" {
