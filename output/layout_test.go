@@ -123,7 +123,11 @@ func TestLayout(t *testing.T) {
 			[]string{"section/shortcodes.amp.html"}, 12},
 		{"Reserved section, partials", LayoutDescriptor{Kind: "section", Section: "partials", Type: "partials"}, "", ampType,
 			[]string{"section/partials.amp.html"}, 12},
-
+		// This is currently always HTML only
+		{"404, HTML", LayoutDescriptor{Kind: "404"}, "", htmlFormat,
+			[]string{"404.html.html", "404.html"}, 2},
+		{"404, HTML baseof", LayoutDescriptor{Kind: "404", Baseof: true}, "", htmlFormat,
+			[]string{"404-baseof.html.html", "baseof.html.html", "404-baseof.html", "baseof.html", "_default/404-baseof.html.html", "_default/baseof.html.html", "_default/404-baseof.html", "_default/baseof.html"}, 8},
 		// We may add type support ... later.
 		{"Content hook", LayoutDescriptor{Kind: "render-link", RenderingHook: true, Layout: "mylayout", Section: "blog"}, "", ampType,
 			[]string{"_default/_markup/render-link.amp.html", "_default/_markup/render-link.html"}, 2},
@@ -134,7 +138,7 @@ func TestLayout(t *testing.T) {
 			layouts, err := l.For(this.d, this.tp)
 
 			c.Assert(err, qt.IsNil)
-			c.Assert(layouts, qt.Not(qt.IsNil))
+			c.Assert(layouts, qt.Not(qt.IsNil), qt.Commentf(this.d.Kind))
 			c.Assert(len(layouts) >= len(this.expect), qt.Equals, true, qt.Commentf("%d vs %d", len(layouts), len(this.expect)))
 			// Not checking the complete list for now ...
 			got := layouts[:len(this.expect)]

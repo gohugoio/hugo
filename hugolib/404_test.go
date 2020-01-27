@@ -35,14 +35,18 @@ func Test404WithBase(t *testing.T) {
 	t.Parallel()
 
 	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile().WithTemplatesAdded("404.html", `{{ define "main" }}
+	b.WithSimpleConfigFile().WithTemplates("404.html", `{{ define "main" }}
 Page not found
-{{ end }}`)
+{{ end }}`,
+		"baseof.html", `Base: {{ block "main" . }}{{ end }}`).WithContent("page.md", ``)
+
 	b.Build(BuildCfg{})
 
 	// Note: We currently have only 1 404 page. One might think that we should have
 	// multiple, to follow the Custom Output scheme, but I don't see how that would work
 	// right now.
-	b.AssertFileContent("public/404.html", `Page not found`)
+	b.AssertFileContent("public/404.html", `
+Base:
+Page not found`)
 
 }

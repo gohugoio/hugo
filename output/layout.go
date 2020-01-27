@@ -43,7 +43,7 @@ type LayoutDescriptor struct {
 }
 
 func (d LayoutDescriptor) isList() bool {
-	return !d.RenderingHook && d.Kind != "page"
+	return !d.RenderingHook && d.Kind != "page" && d.Kind != "404"
 }
 
 // LayoutHandler calculates the layout template to use to render a given output type.
@@ -173,7 +173,9 @@ func resolvePageTemplate(d LayoutDescriptor, f Format) []string {
 		b.addTypeVariations("taxonomy")
 		b.addSectionType()
 		b.addLayoutVariations("terms")
-
+	case "404":
+		b.addLayoutVariations("404")
+		b.addTypeVariations("")
 	}
 
 	isRSS := f.Name == RSSFormat.Name
@@ -182,8 +184,10 @@ func resolvePageTemplate(d LayoutDescriptor, f Format) []string {
 		b.addLayoutVariations("")
 	}
 
-	// All have _default in their lookup path
-	b.addTypeVariations("_default")
+	if d.Baseof || d.Kind != "404" {
+		// Most have _default in their lookup path
+		b.addTypeVariations("_default")
+	}
 
 	if d.isList() {
 		// Add the common list type
