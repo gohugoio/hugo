@@ -1,0 +1,12 @@
+name: Compress images
+on: pull_request
+jobs:
+  build:
+    name: calibreapp/image-actions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: calibreapp/image-actions
+        uses: docker://calibreapp/github-image-actions
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
