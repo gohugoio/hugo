@@ -52,7 +52,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.6.1
 	github.com/tdewolff/minify/v2 v2.6.1
-	github.com/yuin/goldmark v1.1.21
+	github.com/yuin/goldmark v1.1.22
 	github.com/yuin/goldmark-highlighting v0.0.0-20191202084645-78f32c8dd6d5
 	go.opencensus.io v0.22.0 // indirect
 	go.uber.org/atomic v1.4.0
