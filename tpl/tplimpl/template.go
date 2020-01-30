@@ -22,6 +22,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/gohugoio/hugo/common/types"
 
@@ -72,13 +74,40 @@ var (
 	_ tpl.Info     = (*templateState)(nil)
 )
 
-// A template needing a base template is a template with only define sections,
-// but we check only for the start.
-// If a base template does not exist, we will handle that when it's used.
-var baseTemplateDefineRe = regexp.MustCompile(`^\s*{{-?\s*define`)
+var baseTemplateDefineRe = regexp.MustCompile(`^{{-?\s*define`)
 
+// needsBaseTemplate returns true if the first non-comment template block is a
+// define block.
+// If a base template does not exist, we will handle that when it's used.
 func needsBaseTemplate(templ string) bool {
-	return baseTemplateDefineRe.MatchString(templ)
+	idx := -1
+	inComment := false
+	for i := 0; i < len(templ); {
+		if !inComment && strings.HasPrefix(templ[i:], "{{/*") {
+			inComment = true
+			i += 4
+		} else if inComment && strings.HasPrefix(templ[i:], "*/}}") {
+			inComment = false
+			i += 4
+		} else {
+			r, size := utf8.DecodeRuneInString(templ[i:])
+			if !inComment {
+				if strings.HasPrefix(templ[i:], "{{") {
+					idx = i
+					break
+				} else if !unicode.IsSpace(r) {
+					break
+				}
+			}
+			i += size
+		}
+	}
+
+	if idx == -1 {
+		return false
+	}
+
+	return baseTemplateDefineRe.MatchString(templ[idx:])
 }
 
 func newIdentity(name string) identity.Manager {
@@ -549,7 +578,7 @@ func (t *templateHandler) addTemplateFile(name, path string) error {
 		return nil
 	}
 
-	needsBaseof := !t.noBaseNeeded(name) && baseTemplateDefineRe.MatchString(tinfo.template)
+	needsBaseof := !t.noBaseNeeded(name) && needsBaseTemplate(tinfo.template)
 	if needsBaseof {
 		t.needsBaseof[name] = tinfo
 		return nil

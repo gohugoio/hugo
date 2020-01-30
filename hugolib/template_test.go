@@ -398,6 +398,27 @@ title: The Page
 
 }
 
+// https://github.com/gohugoio/hugo/issues/6816
+func TestTemplateBaseWithComment(t *testing.T) {
+	t.Parallel()
+	b := newTestSitesBuilder(t).WithSimpleConfigFile()
+	b.WithTemplatesAdded(
+		"baseof.html", `Base: {{ block "main" . }}{{ end }}`,
+		"index.html", `
+	{{/*  A comment */}}
+	{{ define "main" }}
+	  Bonjour
+	{{ end }}
+
+
+	`)
+
+	b.Build(BuildCfg{})
+	b.AssertFileContent("public/index.html", `Base:
+Bonjour`)
+
+}
+
 func TestTemplateLookupSite(t *testing.T) {
 	t.Run("basic", func(t *testing.T) {
 		t.Parallel()
