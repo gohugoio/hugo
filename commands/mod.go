@@ -77,6 +77,7 @@ Run "go help get" for more information. All flags available for "go get" is also
 ` + commonUsage,
 			RunE: func(cmd *cobra.Command, args []string) error {
 				return c.withModsClient(false, func(c *modules.Client) error {
+
 					// We currently just pass on the flags we get to Go and
 					// need to do the flag handling manually.
 					if len(args) == 1 && args[0] == "-h" {
