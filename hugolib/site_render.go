@@ -205,12 +205,14 @@ func (s *Site) renderPaginator(p *pageState, templ tpl.Template) error {
 		panic(fmt.Sprintf("invalid paginator state for %q", p.pathOrTitle()))
 	}
 
-	// Write alias for page 1
-	d.Addends = fmt.Sprintf("/%s/%d", paginatePath, 1)
-	targetPaths := page.CreateTargetPaths(d)
+	if f.IsHTML {
+		// Write alias for page 1
+		d.Addends = fmt.Sprintf("/%s/%d", paginatePath, 1)
+		targetPaths := page.CreateTargetPaths(d)
 
-	if err := s.writeDestAlias(targetPaths.TargetFilename, p.Permalink(), f, nil); err != nil {
-		return err
+		if err := s.writeDestAlias(targetPaths.TargetFilename, p.Permalink(), f, nil); err != nil {
+			return err
+		}
 	}
 
 	// Render pages for the rest
