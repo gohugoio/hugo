@@ -47,12 +47,12 @@ func (b *commandsBuilder) addAll() *commandsBuilder {
 		b.newServerCmd(),
 		newVersionCmd(),
 		newEnvCmd(),
-		newConfigCmd(),
+		b.newConfigCmd(),
 		newCheckCmd(),
-		newDeployCmd(),
-		newConvertCmd(),
+		b.newDeployCmd(),
+		b.newConvertCmd(),
 		b.newNewCmd(),
-		newListCmd(),
+		b.newListCmd(),
 		newImportCmd(),
 		newGenCmd(),
 		createReleaser(),
@@ -108,6 +108,12 @@ func newBaseCmd(cmd *cobra.Command) *baseCmd {
 func (b *commandsBuilder) newBuilderCmd(cmd *cobra.Command) *baseBuilderCmd {
 	bcmd := &baseBuilderCmd{commandsBuilder: b, baseCmd: &baseCmd{cmd: cmd}}
 	bcmd.hugoBuilderCommon.handleFlags(cmd)
+	return bcmd
+}
+
+func (b *commandsBuilder) newBuilderBasicCmd(cmd *cobra.Command) *baseBuilderCmd {
+	bcmd := &baseBuilderCmd{commandsBuilder: b, baseCmd: &baseCmd{cmd: cmd}}
+	bcmd.hugoBuilderCommon.handleCommonBuilderFlags(cmd)
 	return bcmd
 }
 
