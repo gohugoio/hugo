@@ -110,7 +110,7 @@ baseURL = "https://yoursite.example.com/"
 
 [params]
   description = "Tesla's Awesome Hugo Site"
-  author = "Nikola Tesla"
+  famousPerson = "Nikola Tesla"
 {{</ code-toggle >}}
 
 You can use `.Site.Params` in a [partial template](/templates/partials/) to call the default site description:
