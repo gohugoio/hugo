@@ -46,13 +46,18 @@ var EmbeddedTemplates = [][2]string{
       <title>{{ .Title }}</title>
       <link>{{ .Permalink }}</link>
       <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
-      {{ with .Site.Author.email }}<author>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</author>{{end}}
+      {{- $page_auth := cond (reflect.IsMap .Params.author) .Params.author (dict) }}
+      {{- $auth_src := cond (isset $page_auth "email") $page_auth .Site.Author }}
+      {{- $author_email := index $auth_src "email" }}
+      {{- $author_name := index $auth_src "name" }}
+      {{ with $author_email }}<author>{{.}}{{ with $author_name }} ({{.}}){{end}}</author>{{end}}
       <guid>{{ .Permalink }}</guid>
       <description>{{ .Summary | html }}</description>
     </item>
     {{ end }}
   </channel>
-</rss>`},
+</rss>
+`},
 	{`_default/sitemap.xml`, `{{ printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
@@ -229,13 +234,15 @@ if (!doNotTrack) {
 {{ end }}{{ end }}
 
 {{- if .IsPage }}
-{{- range .Site.Authors }}{{ with .Social.facebook }}
-<meta property="article:author" content="https://www.facebook.com/{{ . }}" />{{ end }}{{ with .Site.Social.facebook }}
+{{- $site_authors := .Site.Params.Authors | default (slice .Site.Author) -}}
+{{- $author_list := .Params.authors | default $site_authors -}}
+{{- range $author_list }}{{ with .Social.facebook | default .social.facebook }}
+<meta property="article:author" content="https://www.facebook.com/{{ . }}" />{{ end }}{{ end }}{{ with .Site.Social.facebook }}
 <meta property="article:publisher" content="https://www.facebook.com/{{ . }}" />{{ end }}
 <meta property="article:section" content="{{ .Section }}" />
 {{- with .Params.tags }}{{ range first 6 . }}
 <meta property="article:tag" content="{{ . }}" />{{ end }}{{ end }}
-{{- end }}{{ end }}
+{{- end }}
 
 {{- /* Facebook Page Admin ID for Domain Insights */}}
 {{- with .Site.Social.facebook_admin }}<meta property="fb:admins" content="{{ . }}" />{{ end }}
@@ -544,10 +551,13 @@ if (!doNotTrack) {
 <meta name="twitter:description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end -}}"/>
 {{ with .Site.Social.twitter -}}
 <meta name="twitter:site" content="@{{ . }}"/>
-{{ end -}}
-{{ range .Site.Authors }}
-{{ with .twitter -}}
+{{ end }}
+{{ $site_authors := .Site.Params.Authors | default (slice .Site.Author) -}}
+{{- $author_list := .Params.authors | default $site_authors -}}
+{{ range $author_list }}
+{{- with .Social.twitter | default .social.twitter -}}
 <meta name="twitter:creator" content="@{{ . }}"/>
 {{ end -}}
-{{ end -}}`},
+{{ end -}}
+`},
 }
