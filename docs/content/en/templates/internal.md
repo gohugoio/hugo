@@ -214,8 +214,8 @@ title = "Post title"
 description = "Text about this post"
 images = ["post-cover.png"]
 authors = [
-        { name: "Article Author 1", Social = { twitter = "auth1tw" } },
-        { name: "Article Author 2", Social = { twitter = "auth2tw" } },
+        { name = "Article Author 1", Social = { twitter = "auth1tw" } },
+        { name = "Article Author 2", Social = { twitter = "auth2tw" } },
     ]
 {{</ code-toggle >}}
 
