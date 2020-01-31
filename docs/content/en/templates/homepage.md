@@ -54,8 +54,7 @@ The following is an example of a homepage template that uses [partial][partials]
         {{.Content}}
       </div>
       <div>
-        <!-- Note that .Pages is the same as .Site.RegularPages on the homepage template. -->
-        {{ range first 10 .Pages }}
+        {{ range first 10 .Site.RegularPages }}
             {{ .Render "summary"}}
         {{ end }}
       </div>
