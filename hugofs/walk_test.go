@@ -176,6 +176,27 @@ func collectFilenames(fs afero.Fs, base, root string) ([]string, error) {
 
 }
 
+func collectFileinfos(fs afero.Fs, base, root string) ([]FileMetaInfo, error) {
+	var fis []FileMetaInfo
+
+	walkFn := func(path string, info FileMetaInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		fis = append(fis, info)
+
+		return nil
+	}
+
+	w := NewWalkway(WalkwayConfig{Fs: fs, BasePath: base, Root: root, WalkFn: walkFn})
+
+	err := w.Walk()
+
+	return fis, err
+
+}
+
 func BenchmarkWalk(b *testing.B) {
 	c := qt.New(b)
 	fs := NewBaseFileDecorator(afero.NewMemMapFs())

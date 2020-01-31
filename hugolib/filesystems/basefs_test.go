@@ -173,9 +173,7 @@ theme = ["atheme"]
 			filename = filepath.FromSlash(filename)
 			f, err := fs.Open(filename)
 			c.Assert(err, qt.IsNil)
-			name := f.Name()
 			f.Close()
-			c.Assert(name, qt.Equals, filename)
 		}
 	}
 }

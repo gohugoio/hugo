@@ -38,6 +38,47 @@ import (
 	"github.com/spf13/viper"
 )
 
+// https://github.com/gohugoio/hugo/issues/6730
+func TestHugoModulesTargetInSubFolder(t *testing.T) {
+	config := `
+baseURL="https://example.org"
+workingDir = %q
+
+[module]
+[[module.imports]]
+path="github.com/gohugoio/hugoTestModule2"
+  [[module.imports.mounts]]
+    source = "templates/hooks"
+    target = "layouts/_default/_markup"
+    
+`
+
+	b := newTestSitesBuilder(t)
+	workingDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-modules-target-in-subfolder-test")
+	b.Assert(err, qt.IsNil)
+	defer clean()
+	b.Fs = hugofs.NewDefault(viper.New())
+	b.WithWorkingDir(workingDir).WithConfigFile("toml", fmt.Sprintf(config, workingDir))
+	b.WithTemplates("_default/single.html", `{{ .Content }}`)
+	b.WithContent("p1.md", `---
+title: "Page"
+---
+
+[A link](https://bep.is)
+
+`)
+	b.WithSourceFile("go.mod", `
+module github.com/gohugoio/tests/testHugoModules
+
+
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/p1/index.html", `<p>Page|https://bep.is|Title: |Text: A link|END</p>`)
+
+}
+
 // TODO(bep) this fails when testmodBuilder is also building ...
 func TestHugoModules(t *testing.T) {
 	if !isCI() {
@@ -588,6 +629,9 @@ workingDir = %q
 
 {{ $mypage := .Site.GetPage "/blog/mypage.md" }}
 {{ with $mypage }}MYPAGE: {{ .Title }}|Path: {{ path.Join .File.Path }}|FilePath: {{ path.Join .File.FileInfo.Meta.PathFile }}|{{ end }}
+{{ $mybundle := .Site.GetPage "/blog/mybundle" }}
+{{ with $mybundle }}MYBUNDLE: {{ .Title }}|Path: {{ path.Join .File.Path }}|FilePath: {{ path.Join .File.FileInfo.Meta.PathFile }}|{{ end }}
+
 
 `, "_default/_markup/render-link.html", `
 {{ $link := .Destination }}
@@ -640,6 +684,7 @@ README: Readme Title
 /README.md|Path: _index.md|FilePath: README.md
 Readme Content.
 MYPAGE: My Page|Path: blog/mypage.md|FilePath: mycontent/mypage.md|
+MYBUNDLE: My Bundle|Path: blog/mybundle/index.md|FilePath: mycontent/mybundle/index.md|
 `)
 	b.AssertFileContent("public/blog/mypage/index.html", `
 <a href="https://example.com/blog/mybundle/">Relative Link From Page</a>
