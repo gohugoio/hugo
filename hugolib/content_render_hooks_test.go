@@ -80,6 +80,8 @@ layout: mylayout
 
 [Some Text](https://www.google.com "Google's Homepage")
 
+,[No Whitespace Please](https://gohugo.io),
+
 
 
 `, "blog/p3.md", `---
@@ -143,7 +145,10 @@ SHORT3|
 `)
 
 	b.AssertFileContent("public/customview/p1/index.html", `.Render: myrender: Custom View|P4: PARTIAL4`)
-	b.AssertFileContent("public/blog/p2/index.html", `PARTIAL`)
+	b.AssertFileContent("public/blog/p2/index.html",
+		`PARTIAL
+,Cool Page2|https://gohugo.io|Title: |Text: No Whitespace Please|END,`,
+	)
 	b.AssertFileContent("public/blog/p3/index.html", `PARTIAL3`)
 	// We may add type template support later, keep this for then. b.AssertFileContent("public/docs/docs1/index.html", `Link docs section: Docs 1|END`)
 	b.AssertFileContent("public/blog/p4/index.html", `<p>IMAGE: Cool Page With Image||/images/Dragster.jpg|Title: image title|Text: Drag Racing|END</p>`)
