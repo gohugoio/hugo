@@ -127,8 +127,22 @@ Hugo's Open Graph template is configured using a mix of configuration variables 
   title = "My cool site"
   images = ["site-feature-image.jpg"]
   description = "Text about my cool site"
+[[params.Authors]]
+  name = "Multi Author Mode, Author Uno"
+[params.Authors.Social]
+  facebook = "authoruno_facebook"
+[[params.Authors]]
+  name = "Multi Author Mode, Author Dos"
+[params.Authors.Social]
+  facebook = "authordos_facebook"
+[Author]
+  name = "Single Author Mode, Author Name"
+  [Author.Social]
+    facebook = "singleauthor_facebook"
 [taxonomies]
   series = "series"
+[Social]
+  facebook = "website_facebook_page"
 {{</ code-toggle >}}
 
 {{< code-toggle file="content/blog/my-post" >}}
@@ -136,6 +150,10 @@ title = "Post title"
 description = "Text about this post"
 date = "2006-01-02"
 images = ["post-cover.png"]
+authors = [
+        { name: "Article Author 1", Social = { facebook = "auth1fb" } },
+        { name: "Article Author 2", Social = { facebook = "auth2fb" } },
+    ]
 audio = []
 videos = []
 series = []
@@ -151,6 +169,8 @@ Various optional metadata can also be set:
 - `audio` and `videos` are URL arrays like `images` for the audio and video metadata tags, respectively.
 - The first 6 `tags` on the page are used for the tags metadata.
 - The `series` taxonomy is used to specify related "see also" pages by placing them in the same series.
+- `author` gets set for each page author, if page authors are set, or site authors otherwise.
+- `publisher` is set to the `.Site.Social.facebook` value, and could correspond to a Facebook page for your website
 
 If using YouTube this will produce a og:video tag like `<meta property="og:video" content="url">`. If using a YouTube link make sure this is in **https://www.youtube.com/v/NlXVWtgLNjY** not __https://www.youtube.com/watch?v=NlXVWtgLNjY__
 
@@ -175,12 +195,28 @@ Hugo's Twitter Card template is configured using a mix of configuration variable
 [params]
   images = ["site-feature-image.jpg"]
   description = "Text about my cool site"
+[[params.Authors]]
+  name = "Multi Author Mode, Author Uno"
+[params.Authors.Social]
+  twitter = "authoruno_twitter"
+[[params.Authors]]
+  name = "Multi Author Mode, Author Dos"
+[params.Authors.Social]
+  twitter = "authordos_twitter"
+[Author]
+  name = "Single Author Mode, Author Name"
+  [Author.Social]
+    twitter = "singleauthor_twitter"
 {{</ code-toggle >}}
 
 {{< code-toggle file="content/blog/my-post" >}}
 title = "Post title"
 description = "Text about this post"
 images = ["post-cover.png"]
+authors = [
+        { name: "Article Author 1", Social = { twitter = "auth1tw" } },
+        { name: "Article Author 2", Social = { twitter = "auth2tw" } },
+    ]
 {{</ code-toggle >}}
 
 If `images` aren't specified in the page front-matter, then hugo searches for [image page resources](/content-management/image-processing/) with `feature`, `cover`, or `thumbnail` in their name.

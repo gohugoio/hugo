@@ -45,13 +45,15 @@
 {{ end }}{{ end }}
 
 {{- if .IsPage }}
-{{- range .Site.Authors }}{{ with .Social.facebook }}
-<meta property="article:author" content="https://www.facebook.com/{{ . }}" />{{ end }}{{ with .Site.Social.facebook }}
+{{- $site_authors := .Site.Params.Authors | default (slice .Site.Author) -}}
+{{- $author_list := .Params.authors | default $site_authors -}}
+{{- range $author_list }}{{ with .Social.facebook | default .social.facebook }}
+<meta property="article:author" content="https://www.facebook.com/{{ . }}" />{{ end }}{{ end }}{{ with .Site.Social.facebook }}
 <meta property="article:publisher" content="https://www.facebook.com/{{ . }}" />{{ end }}
 <meta property="article:section" content="{{ .Section }}" />
 {{- with .Params.tags }}{{ range first 6 . }}
 <meta property="article:tag" content="{{ . }}" />{{ end }}{{ end }}
-{{- end }}{{ end }}
+{{- end }}
 
 {{- /* Facebook Page Admin ID for Domain Insights */}}
 {{- with .Site.Social.facebook_admin }}<meta property="fb:admins" content="{{ . }}" />{{ end }}
