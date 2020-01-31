@@ -49,8 +49,23 @@ The following values will also be included in the RSS output if specified in you
 languageCode = "en-us"
 copyright = "This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License."
 
-[author]
+[Author]
     name = "My Name Here"
+    email = "myemailaddress@example.com
+```
+
+To include an author's name, you must have the `email` key set.
+
+Additionally, an author specified in a page's front matter will be used for the corresponding RSS item.  Again, to include the author's name you must have the `email` key set.  An example page front matter is below.
+
+```yaml
+---
+title: "My Page"
+description: "All about my page"
+author:
+  name: "My Name Here"
+  email: "myemailaddress@example.com"
+---
 ```
 
 ## The Embedded rss.xml
