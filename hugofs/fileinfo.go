@@ -18,6 +18,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"strings"
 	"time"
 
@@ -271,13 +272,21 @@ func (fi *dirNameOnlyFileInfo) Sys() interface{} {
 	return nil
 }
 
-func newDirNameOnlyFileInfo(name string, isOrdered bool, fileOpener func() (afero.File, error)) FileMetaInfo {
+func newDirNameOnlyFileInfo(name string, meta FileMeta, isOrdered bool, fileOpener func() (afero.File, error)) FileMetaInfo {
 	name = normalizeFilename(name)
 	_, base := filepath.Split(name)
-	return NewFileMetaInfo(&dirNameOnlyFileInfo{name: base}, FileMeta{
-		metaKeyFilename:  name,
-		metaKeyIsOrdered: isOrdered,
-		metaKeyOpener:    fileOpener})
+
+	m := copyFileMeta(meta)
+	if _, found := m[metaKeyFilename]; !found {
+		m.setIfNotZero(metaKeyFilename, name)
+	}
+	m[metaKeyOpener] = fileOpener
+	m[metaKeyIsOrdered] = isOrdered
+
+	return NewFileMetaInfo(
+		&dirNameOnlyFileInfo{name: base},
+		m,
+	)
 }
 
 func decorateFileInfo(
@@ -338,4 +347,19 @@ func fileInfosToNames(fis []os.FileInfo) []string {
 		names[i] = d.Name()
 	}
 	return names
+}
+
+func fromSlash(filenames []string) []string {
+	for i, name := range filenames {
+		filenames[i] = filepath.FromSlash(name)
+	}
+	return filenames
+}
+
+func sortFileInfos(fis []os.FileInfo) {
+	sort.Slice(fis, func(i, j int) bool {
+		fimi, fimj := fis[i].(FileMetaInfo), fis[j].(FileMetaInfo)
+		return fimi.Meta().Filename() < fimj.Meta().Filename()
+
+	})
 }

@@ -27,15 +27,18 @@ import (
 	"github.com/spf13/afero"
 )
 
-var filepathSeparator = string(filepath.Separator)
+var (
+	filepathSeparator = string(filepath.Separator)
+)
 
 // NewRootMappingFs creates a new RootMappingFs on top of the provided with
-// of root mappings with some optional metadata about the root.
+// root mappings with some optional metadata about the root.
 // Note that From represents a virtual root that maps to the actual filename in To.
 func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 	rootMapToReal := radix.New()
+	var virtualRoots []RootMapping
 
-	for i, rm := range rms {
+	for _, rm := range rms {
 		(&rm).clean()
 
 		fromBase := files.ResolveComponentFolder(rm.From)
@@ -56,10 +59,12 @@ func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 		}
 		// Extract "blog" from "content/blog"
 		rm.path = strings.TrimPrefix(strings.TrimPrefix(rm.From, fromBase), filepathSeparator)
-		if rm.Meta != nil {
-			rm.Meta[metaKeyBaseDir] = rm.ToBasedir
-			rm.Meta[metaKeyMountRoot] = rm.path
+		if rm.Meta == nil {
+			rm.Meta = make(FileMeta)
 		}
+
+		rm.Meta[metaKeyBaseDir] = rm.ToBasedir
+		rm.Meta[metaKeyMountRoot] = rm.path
 
 		meta := copyFileMeta(rm.Meta)
 
@@ -70,7 +75,7 @@ func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 
 		rm.fi = NewFileMetaInfo(fi, meta)
 
-		key := rm.rootKey()
+		key := filepathSeparator + rm.From
 		var mappings []RootMapping
 		v, found := rootMapToReal.Get(key)
 		if found {
@@ -80,30 +85,38 @@ func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 		mappings = append(mappings, rm)
 		rootMapToReal.Insert(key, mappings)
 
-		rms[i] = rm
+		virtualRoots = append(virtualRoots, rm)
 	}
 
-	rfs := &RootMappingFs{Fs: fs,
-		virtualRoots:  rms,
-		rootMapToReal: rootMapToReal}
+	rootMapToReal.Insert(filepathSeparator, virtualRoots)
+
+	rfs := &RootMappingFs{
+		Fs:            fs,
+		rootMapToReal: rootMapToReal,
+	}
 
 	return rfs, nil
 }
 
-// NewRootMappingFsFromFromTo is a convenicence variant of NewRootMappingFs taking
-// From and To as string pairs.
-func NewRootMappingFsFromFromTo(fs afero.Fs, fromTo ...string) (*RootMappingFs, error) {
+func newRootMappingFsFromFromTo(
+	baseDir string,
+	fs afero.Fs,
+	fromTo ...string,
+) (*RootMappingFs, error) {
+
 	rms := make([]RootMapping, len(fromTo)/2)
 	for i, j := 0, 0; j < len(fromTo); i, j = i+1, j+2 {
 		rms[i] = RootMapping{
-			From: fromTo[j],
-			To:   fromTo[j+1],
+			From:      fromTo[j],
+			To:        fromTo[j+1],
+			ToBasedir: baseDir,
 		}
 	}
 
 	return NewRootMappingFs(fs, rms...)
 }
 
+// RootMapping describes a virtual file or directory mount.
 type RootMapping struct {
 	From      string   // The virtual mount.
 	To        string   // The source directory or file.
@@ -127,21 +140,16 @@ func (r RootMapping) filename(name string) string {
 	return filepath.Join(r.To, strings.TrimPrefix(name, r.From))
 }
 
-func (r RootMapping) rootKey() string {
-	return r.From
-}
-
 // A RootMappingFs maps several roots into one. Note that the root of this filesystem
 // is directories only, and they will be returned in Readdir and Readdirnames
 // in the order given.
 type RootMappingFs struct {
 	afero.Fs
 	rootMapToReal *radix.Tree
-	virtualRoots  []RootMapping
-	filter        func(r RootMapping) bool
 }
 
 func (fs *RootMappingFs) Dirs(base string) ([]FileMetaInfo, error) {
+	base = filepathSeparator + fs.cleanName(base)
 	roots := fs.getRootsWithPrefix(base)
 
 	if roots == nil {
@@ -176,138 +184,46 @@ func (fs *RootMappingFs) Dirs(base string) ([]FileMetaInfo, error) {
 	return fss, nil
 }
 
+// Filter creates a copy of this filesystem with only mappings matching a filter.
+func (fs RootMappingFs) Filter(f func(m RootMapping) bool) *RootMappingFs {
+	rootMapToReal := radix.New()
+	fs.rootMapToReal.Walk(func(b string, v interface{}) bool {
+		rms := v.([]RootMapping)
+		var nrms []RootMapping
+		for _, rm := range rms {
+			if f(rm) {
+				nrms = append(nrms, rm)
+			}
+		}
+		if len(nrms) != 0 {
+			rootMapToReal.Insert(b, nrms)
+		}
+		return false
+	})
+
+	fs.rootMapToReal = rootMapToReal
+
+	return &fs
+}
+
 // LstatIfPossible returns the os.FileInfo structure describing a given file.
 func (fs *RootMappingFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {
-	fis, _, b, err := fs.doLstat(name, false)
+	fis, err := fs.doLstat(name)
 	if err != nil {
-		return nil, b, err
+		return nil, false, err
 	}
-	return fis[0], b, nil
+	return fis[0], false, nil
 }
 
-func (fs *RootMappingFs) virtualDirOpener(name string, isRoot bool) func() (afero.File, error) {
-	return func() (afero.File, error) { return &rootMappingFile{name: name, isRoot: isRoot, fs: fs}, nil }
-}
-
-func (fs *RootMappingFs) doLstat(name string, allowMultiple bool) ([]FileMetaInfo, []FileMetaInfo, bool, error) {
-	if fs.isRoot(name) {
-		return []FileMetaInfo{newDirNameOnlyFileInfo(name, true, fs.virtualDirOpener(name, true))}, nil, false, nil
-	}
-
-	roots := fs.getRoots(name)
-	rootsWithPrefix := fs.getRootsWithPrefix(name)
-	hasRootMappingsBelow := len(rootsWithPrefix) != 0
-
-	if len(roots) == 0 {
-		if hasRootMappingsBelow {
-			// No exact matches, but we have root mappings below name,
-			// let's make it look like a directory.
-			return []FileMetaInfo{newDirNameOnlyFileInfo(name, true, fs.virtualDirOpener(name, false))}, nil, false, nil
-		}
-
-		return nil, nil, false, os.ErrNotExist
-	}
-
-	// We may have a mapping for both static and static/subdir.
-	// These will not show in any Readdir so append them
-	// manually.
-	rootsInDir := fs.filterRootsBelow(rootsWithPrefix, name)
-
-	var (
-		fis  []FileMetaInfo
-		dirs []FileMetaInfo
-		b    bool
-		root RootMapping
-		err  error
-	)
-
-	for _, root = range roots {
-		var fi os.FileInfo
-		fi, b, err = fs.statRoot(root, name)
-		if err != nil {
-			if os.IsNotExist(err) {
-				continue
-			}
-			return nil, nil, false, err
-		}
-		fim := fi.(FileMetaInfo)
-
-		fis = append(fis, fim)
-	}
-
-	for _, root = range rootsInDir {
-
-		fi, _, err := fs.statRoot(root, "")
-		if err != nil {
-			if os.IsNotExist(err) {
-				continue
-			}
-			return nil, nil, false, err
-		}
-		fim := fi.(FileMetaInfo)
-		dirs = append(dirs, fim)
-	}
-
-	if len(fis) == 0 && len(dirs) == 0 {
-		return nil, nil, false, os.ErrNotExist
-	}
-
-	if allowMultiple || len(fis) == 1 {
-		return fis, dirs, b, nil
-	}
-
-	if len(fis) == 0 {
-		return nil, nil, false, os.ErrNotExist
-	}
-
-	// Open it in this composite filesystem.
-	opener := func() (afero.File, error) {
-		return fs.Open(name)
-	}
-
-	return []FileMetaInfo{decorateFileInfo(fis[0], fs, opener, "", "", root.Meta)}, nil, b, nil
-
-}
-
-// Open opens the namedrootMappingFile file for reading.
+// Open opens the named file for reading.
 func (fs *RootMappingFs) Open(name string) (afero.File, error) {
-	if fs.isRoot(name) {
-		return &rootMappingFile{name: name, fs: fs, isRoot: true}, nil
-	}
+	fis, err := fs.doLstat(name)
 
-	fis, dirs, _, err := fs.doLstat(name, true)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(fis) == 1 {
-		fi := fis[0]
-		meta := fi.(FileMetaInfo).Meta()
-		f, err := meta.Open()
-		if err != nil {
-			return nil, err
-		}
-
-		f = &rootMappingFile{File: f, fs: fs, name: name, meta: meta}
-
-		if len(dirs) > 0 {
-			return &readDirDirsAppender{File: f, dirs: dirs}, nil
-		}
-
-		return f, nil
-	}
-
-	f, err := fs.newUnionFile(fis...)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(dirs) > 0 {
-		return &readDirDirsAppender{File: f, dirs: dirs}, nil
-	}
-
-	return f, nil
-
+	return fs.newUnionFile(fis...)
 }
 
 // Stat returns the os.FileInfo structure describing a given file.  If there is
@@ -318,80 +234,51 @@ func (fs *RootMappingFs) Stat(name string) (os.FileInfo, error) {
 
 }
 
-// Filter creates a copy of this filesystem with the applied filter.
-func (fs RootMappingFs) Filter(f func(m RootMapping) bool) *RootMappingFs {
-	fs.filter = f
-	return &fs
+func (fs *RootMappingFs) hasPrefix(prefix string) bool {
+	hasPrefix := false
+	fs.rootMapToReal.WalkPrefix(prefix, func(b string, v interface{}) bool {
+		hasPrefix = true
+		return true
+	})
+
+	return hasPrefix
 }
 
-func (fs *RootMappingFs) isRoot(name string) bool {
-	return name == "" || name == filepathSeparator
-
-}
-
-func (fs *RootMappingFs) getRoots(name string) []RootMapping {
-	name = filepath.Clean(name)
-	_, v, found := fs.rootMapToReal.LongestPrefix(name)
+func (fs *RootMappingFs) getRoot(key string) []RootMapping {
+	v, found := fs.rootMapToReal.Get(key)
 	if !found {
 		return nil
 	}
 
-	rm := v.([]RootMapping)
-
-	return fs.applyFilterToRoots(rm)
+	return v.([]RootMapping)
 }
 
-func (fs *RootMappingFs) applyFilterToRoots(rm []RootMapping) []RootMapping {
-	if fs.filter == nil {
-		return rm
+func (fs *RootMappingFs) getRoots(key string) (string, []RootMapping) {
+	s, v, found := fs.rootMapToReal.LongestPrefix(key)
+	if !found || (s == filepathSeparator && key != filepathSeparator) {
+		return "", nil
 	}
+	return s, v.([]RootMapping)
 
-	var filtered []RootMapping
-	for _, m := range rm {
-		if fs.filter(m) {
-			filtered = append(filtered, m)
-		}
-	}
+}
 
-	return filtered
+func (fs *RootMappingFs) debug() {
+	fmt.Println("debug():")
+	fs.rootMapToReal.Walk(func(s string, v interface{}) bool {
+		fmt.Println("Key", s)
+		return false
+	})
+
 }
 
 func (fs *RootMappingFs) getRootsWithPrefix(prefix string) []RootMapping {
-	if fs.isRoot(prefix) {
-		return fs.virtualRoots
-	}
-	prefix = filepath.Clean(prefix)
 	var roots []RootMapping
-
 	fs.rootMapToReal.WalkPrefix(prefix, func(b string, v interface{}) bool {
 		roots = append(roots, v.([]RootMapping)...)
 		return false
 	})
 
-	return fs.applyFilterToRoots(roots)
-}
-
-// Filter out the mappings inside the name directory.
-func (fs *RootMappingFs) filterRootsBelow(roots []RootMapping, name string) []RootMapping {
-	if len(roots) == 0 {
-		return nil
-	}
-
-	sepCount := strings.Count(name, filepathSeparator)
-	var filtered []RootMapping
-	for _, x := range roots {
-		if name == x.From {
-			continue
-		}
-
-		if strings.Count(x.From, filepathSeparator)-sepCount != 1 {
-			continue
-		}
-
-		filtered = append(filtered, x)
-
-	}
-	return filtered
+	return roots
 }
 
 func (fs *RootMappingFs) newUnionFile(fis ...FileMetaInfo) (afero.File, error) {
@@ -400,6 +287,10 @@ func (fs *RootMappingFs) newUnionFile(fis ...FileMetaInfo) (afero.File, error) {
 	if err != nil {
 		return nil, err
 	}
+	if len(fis) == 1 {
+		return f, nil
+	}
+
 	rf := &rootMappingFile{File: f, fs: fs, name: meta.Name(), meta: meta}
 	if len(fis) == 1 {
 		return rf, err
@@ -439,75 +330,215 @@ func (fs *RootMappingFs) newUnionFile(fis ...FileMetaInfo) (afero.File, error) {
 
 }
 
-func (fs *RootMappingFs) statRoot(root RootMapping, name string) (os.FileInfo, bool, error) {
+func (fs *RootMappingFs) cleanName(name string) string {
+	return strings.Trim(filepath.Clean(name), filepathSeparator)
+}
+
+func (fs *RootMappingFs) collectDirEntries(prefix string) ([]os.FileInfo, error) {
+	prefix = filepathSeparator + fs.cleanName(prefix)
+
+	var fis []os.FileInfo
+
+	seen := make(map[string]bool) // Prevent duplicate directories
+	level := strings.Count(prefix, filepathSeparator)
+
+	// First add any real files/directories.
+	rms := fs.getRoot(prefix)
+	for _, rm := range rms {
+		f, err := rm.fi.Meta().Open()
+		if err != nil {
+			return nil, err
+		}
+		direntries, err := f.Readdir(-1)
+		if err != nil {
+			f.Close()
+			return nil, err
+		}
+
+		for _, fi := range direntries {
+			meta := fi.(FileMetaInfo).Meta()
+			mergeFileMeta(rm.Meta, meta)
+			if fi.IsDir() {
+				name := fi.Name()
+				if seen[name] {
+					continue
+				}
+				seen[name] = true
+				opener := func() (afero.File, error) {
+					return fs.Open(filepath.Join(rm.From, name))
+				}
+				fi = newDirNameOnlyFileInfo(name, meta, false, opener)
+			}
+
+			fis = append(fis, fi)
+		}
+
+		f.Close()
+	}
+
+	// Next add any file mounts inside the given directory.
+	prefixInside := prefix + filepathSeparator
+	fs.rootMapToReal.WalkPrefix(prefixInside, func(s string, v interface{}) bool {
+
+		if (strings.Count(s, filepathSeparator) - level) != 1 {
+			// This directory is not part of the current, but we
+			// need to include the first name part to make it
+			// navigable.
+			path := strings.TrimPrefix(s, prefixInside)
+			parts := strings.Split(path, filepathSeparator)
+			name := parts[0]
+
+			if seen[name] {
+				return false
+			}
+			seen[name] = true
+			opener := func() (afero.File, error) {
+				return fs.Open(path)
+			}
+
+			fi := newDirNameOnlyFileInfo(name, nil, false, opener)
+			fis = append(fis, fi)
+
+			return false
+		}
+
+		rms := v.([]RootMapping)
+		for _, rm := range rms {
+			if !rm.fi.IsDir() {
+				// A single file mount
+				fis = append(fis, rm.fi)
+				continue
+			}
+			name := filepath.Base(rm.From)
+			if seen[name] {
+				continue
+			}
+			seen[name] = true
+
+			opener := func() (afero.File, error) {
+				return fs.Open(rm.From)
+			}
+
+			fi := newDirNameOnlyFileInfo(name, rm.Meta, false, opener)
+
+			fis = append(fis, fi)
+
+		}
+
+		return false
+	})
+
+	return fis, nil
+}
+
+func (fs *RootMappingFs) doLstat(name string) ([]FileMetaInfo, error) {
+	name = fs.cleanName(name)
+	key := filepathSeparator + name
+
+	roots := fs.getRoot(key)
+
+	if roots == nil {
+		if fs.hasPrefix(key) {
+			// We have directories mounted below this.
+			// Make it look like a directory.
+			return []FileMetaInfo{newDirNameOnlyFileInfo(name, nil, true, fs.virtualDirOpener(name))}, nil
+		}
+
+		// Find any real files or directories with this key.
+		_, roots := fs.getRoots(key)
+		if roots == nil {
+			return nil, os.ErrNotExist
+		}
+
+		var err error
+		var fis []FileMetaInfo
+
+		for _, rm := range roots {
+			var fi FileMetaInfo
+			fi, _, err = fs.statRoot(rm, name)
+			if err == nil {
+				fis = append(fis, fi)
+			}
+		}
+
+		if fis != nil {
+			return fis, nil
+		}
+
+		if err == nil {
+			err = os.ErrNotExist
+		}
+
+		return nil, err
+	}
+
+	fileCount := 0
+	for _, root := range roots {
+		if !root.fi.IsDir() {
+			fileCount++
+		}
+		if fileCount > 1 {
+			break
+		}
+	}
+
+	if fileCount == 0 {
+		// Dir only.
+		return []FileMetaInfo{newDirNameOnlyFileInfo(name, roots[0].Meta, true, fs.virtualDirOpener(name))}, nil
+	}
+
+	if fileCount > 1 {
+		// Not supported by this filesystem.
+		return nil, errors.Errorf("found multiple files with name %q, use .Readdir or the source filesystem directly", name)
+
+	}
+
+	return []FileMetaInfo{roots[0].fi}, nil
+
+}
+
+func (fs *RootMappingFs) statRoot(root RootMapping, name string) (FileMetaInfo, bool, error) {
 	filename := root.filename(name)
 
-	var b bool
-	var fi os.FileInfo
-	var err error
-
-	if ls, ok := fs.Fs.(afero.Lstater); ok {
-		fi, b, err = ls.LstatIfPossible(filename)
-		if err != nil {
-			return nil, b, err
-		}
-
-	} else {
-		fi, err = fs.Fs.Stat(filename)
-		if err != nil {
-			return nil, b, err
-		}
+	fi, b, err := lstatIfPossible(fs.Fs, filename)
+	if err != nil {
+		return nil, b, err
 	}
 
-	// Opens the real directory/file.
-	opener := func() (afero.File, error) {
-		return fs.Fs.Open(filename)
-	}
-
+	var opener func() (afero.File, error)
 	if fi.IsDir() {
-		if name == "" {
-			name = root.From
+		// Make sure metadata gets applied in Readdir.
+		opener = fs.realDirOpener(filename, root.Meta)
+	} else {
+		// Opens the real file directly.
+		opener = func() (afero.File, error) {
+			return fs.Fs.Open(filename)
 		}
-		_, name = filepath.Split(name)
-		fi = newDirNameOnlyFileInfo(name, false, opener)
 	}
 
 	return decorateFileInfo(fi, fs.Fs, opener, "", "", root.Meta), b, nil
 
 }
 
+func (fs *RootMappingFs) virtualDirOpener(name string) func() (afero.File, error) {
+	return func() (afero.File, error) { return &rootMappingFile{name: name, fs: fs}, nil }
+}
+
+func (fs *RootMappingFs) realDirOpener(name string, meta FileMeta) func() (afero.File, error) {
+	return func() (afero.File, error) {
+		f, err := fs.Fs.Open(name)
+		if err != nil {
+			return nil, err
+		}
+		return &rootMappingFile{name: name, meta: meta, fs: fs, File: f}, nil
+	}
+}
+
 type rootMappingFile struct {
 	afero.File
-	fs     *RootMappingFs
-	name   string
-	meta   FileMeta
-	isRoot bool
-}
-
-type readDirDirsAppender struct {
-	afero.File
-	dirs []FileMetaInfo
-}
-
-func (f *readDirDirsAppender) Readdir(count int) ([]os.FileInfo, error) {
-	fis, err := f.File.Readdir(count)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, dir := range f.dirs {
-		fis = append(fis, dir)
-	}
-	return fis, nil
-
-}
-
-func (f *readDirDirsAppender) Readdirnames(count int) ([]string, error) {
-	fis, err := f.Readdir(count)
-	if err != nil {
-		return nil, err
-	}
-	return fileInfosToNames(fis), nil
+	fs   *RootMappingFs
+	name string
+	meta FileMeta
 }
 
 func (f *rootMappingFile) Close() error {
@@ -522,65 +553,18 @@ func (f *rootMappingFile) Name() string {
 }
 
 func (f *rootMappingFile) Readdir(count int) ([]os.FileInfo, error) {
-	if f.File == nil {
-		filesn := make([]os.FileInfo, 0)
-		roots := f.fs.getRootsWithPrefix(f.name)
-		seen := make(map[string]bool) // Do not return duplicate directories
-
-		j := 0
-		for _, rm := range roots {
-			if count != -1 && j >= count {
-				break
-			}
-
-			if !rm.fi.IsDir() {
-				// A single file mount
-				filesn = append(filesn, rm.fi)
-				continue
-			}
-
-			from := rm.From
-			name := from
-			if !f.isRoot {
-				_, name = filepath.Split(from)
-			}
-
-			if seen[name] {
-				continue
-			}
-			seen[name] = true
-
-			opener := func() (afero.File, error) {
-				return f.fs.Open(from)
-			}
-
-			j++
-
-			fi := newDirNameOnlyFileInfo(name, false, opener)
-
-			if rm.Meta != nil {
-				mergeFileMeta(rm.Meta, fi.Meta())
-			}
-
-			filesn = append(filesn, fi)
+	if f.File != nil {
+		fis, err := f.File.Readdir(count)
+		if err != nil {
+			return nil, err
 		}
-		return filesn, nil
-	}
 
-	if f.File == nil {
-		panic(fmt.Sprintf("no File for %q", f.name))
+		for i, fi := range fis {
+			fis[i] = decorateFileInfo(fi, f.fs, nil, "", "", f.meta)
+		}
+		return fis, nil
 	}
-
-	fis, err := f.File.Readdir(count)
-	if err != nil {
-		return nil, err
-	}
-
-	for i, fi := range fis {
-		fis[i] = decorateFileInfo(fi, f.fs, nil, "", "", f.meta)
-	}
-
-	return fis, nil
+	return f.fs.collectDirEntries(f.name)
 }
 
 func (f *rootMappingFile) Readdirnames(count int) ([]string, error) {
