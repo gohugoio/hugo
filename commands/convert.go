@@ -44,27 +44,25 @@ var (
 )
 
 type convertCmd struct {
-	hugoBuilderCommon
-
 	outputDir string
 	unsafe    bool
 
-	*baseCmd
+	*baseBuilderCmd
 }
 
-func newConvertCmd() *convertCmd {
+func (b *commandsBuilder) newConvertCmd() *convertCmd {
 	cc := &convertCmd{}
 
-	cc.baseCmd = newBaseCmd(&cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "convert",
 		Short: "Convert your content to different formats",
 		Long: `Convert your content (e.g. front matter) to different formats.
 
 See convert's subcommands toJSON, toTOML and toYAML for more information.`,
 		RunE: nil,
-	})
+	}
 
-	cc.cmd.AddCommand(
+	cmd.AddCommand(
 		&cobra.Command{
 			Use:   "toJSON",
 			Short: "Convert front matter to JSON",
@@ -94,10 +92,10 @@ to use YAML for the front matter.`,
 		},
 	)
 
-	cc.cmd.PersistentFlags().StringVarP(&cc.outputDir, "output", "o", "", "filesystem path to write files to")
-	cc.cmd.PersistentFlags().StringVarP(&cc.source, "source", "s", "", "filesystem path to read files relative from")
-	cc.cmd.PersistentFlags().BoolVar(&cc.unsafe, "unsafe", false, "enable less safe operations, please backup first")
-	cc.cmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
+	cmd.PersistentFlags().StringVarP(&cc.outputDir, "output", "o", "", "filesystem path to write files to")
+	cmd.PersistentFlags().BoolVar(&cc.unsafe, "unsafe", false, "enable less safe operations, please backup first")
+
+	cc.baseBuilderCmd = b.newBuilderBasicCmd(cmd)
 
 	return cc
 }

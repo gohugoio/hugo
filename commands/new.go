@@ -55,8 +55,8 @@ Ensure you run this within the root directory of your site.`,
 	cmd.Flags().StringVarP(&cc.contentType, "kind", "k", "", "content type to create")
 	cmd.Flags().StringVar(&cc.contentEditor, "editor", "", "edit new content with this editor, if provided")
 
-	cmd.AddCommand(newNewSiteCmd().getCommand())
-	cmd.AddCommand(newNewThemeCmd().getCommand())
+	cmd.AddCommand(b.newNewSiteCmd().getCommand())
+	cmd.AddCommand(b.newNewThemeCmd().getCommand())
 
 	cmd.RunE = cc.newContent
 

@@ -29,8 +29,7 @@ import (
 var _ cmder = (*listCmd)(nil)
 
 type listCmd struct {
-	hugoBuilderCommon
-	*baseCmd
+	*baseBuilderCmd
 }
 
 func (lc *listCmd) buildSites(config map[string]interface{}) (*hugolib.HugoSites, error) {
@@ -59,19 +58,19 @@ func (lc *listCmd) buildSites(config map[string]interface{}) (*hugolib.HugoSites
 	return sites, nil
 }
 
-func newListCmd() *listCmd {
+func (b *commandsBuilder) newListCmd() *listCmd {
 	cc := &listCmd{}
 
-	cc.baseCmd = newBaseCmd(&cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "Listing out various types of content",
 		Long: `Listing out various types of content.
 
 List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 		RunE: nil,
-	})
+	}
 
-	cc.cmd.AddCommand(
+	cmd.AddCommand(
 		&cobra.Command{
 			Use:   "drafts",
 			Short: "List all drafts",
@@ -202,8 +201,7 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 		},
 	)
 
-	cc.cmd.PersistentFlags().StringVarP(&cc.source, "source", "s", "", "filesystem path to read files relative from")
-	cc.cmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
+	cc.baseBuilderCmd = b.newBuilderBasicCmd(cmd)
 
 	return cc
 }

@@ -15,6 +15,7 @@ package commands
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"reflect"
 	"regexp"
@@ -27,27 +28,23 @@ import (
 	"github.com/gohugoio/hugo/modules"
 
 	"github.com/spf13/cobra"
-	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 )
 
 var _ cmder = (*configCmd)(nil)
 
 type configCmd struct {
-	hugoBuilderCommon
-	*baseCmd
+	*baseBuilderCmd
 }
 
-func newConfigCmd() *configCmd {
+func (b *commandsBuilder) newConfigCmd() *configCmd {
 	cc := &configCmd{}
-	cc.baseCmd = newBaseCmd(&cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "config",
 		Short: "Print the site configuration",
 		Long:  `Print the site configuration, both default and custom settings.`,
 		RunE:  cc.printConfig,
-	})
-
-	cc.cmd.PersistentFlags().StringVarP(&cc.source, "source", "s", "", "filesystem path to read files relative from")
+	}
 
 	printMountsCmd := &cobra.Command{
 		Use:   "mounts",
@@ -55,7 +52,9 @@ func newConfigCmd() *configCmd {
 		RunE:  cc.printMounts,
 	}
 
-	cc.cmd.AddCommand(printMountsCmd)
+	cmd.AddCommand(printMountsCmd)
+
+	cc.baseBuilderCmd = b.newBuilderBasicCmd(cmd)
 
 	return cc
 }
@@ -105,9 +104,9 @@ func (c *configCmd) printConfig(cmd *cobra.Command, args []string) error {
 	for _, k := range keys {
 		kv := reflect.ValueOf(allSettings[k])
 		if kv.Kind() == reflect.String {
-			jww.FEEDBACK.Printf("%s%s\"%+v\"\n", k, separator, allSettings[k])
+			fmt.Printf("%s%s\"%+v\"\n", k, separator, allSettings[k])
 		} else {
-			jww.FEEDBACK.Printf("%s%s%+v\n", k, separator, allSettings[k])
+			fmt.Printf("%s%s%+v\n", k, separator, allSettings[k])
 		}
 	}
 

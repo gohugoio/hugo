@@ -10,31 +10,27 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/spf13/cobra"
 )
 
-func captureStdout(f func() (*cobra.Command, error)) (string, error) {
+func captureStdout(f func() error) (string, error) {
 	old := os.Stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
 
-	_, err := f()
-
-	if err != nil {
-		return "", err
-	}
+	err := f()
 
 	w.Close()
 	os.Stdout = old
 
 	var buf bytes.Buffer
 	io.Copy(&buf, r)
-	return buf.String(), nil
+	return buf.String(), err
 }
 
 func TestListAll(t *testing.T) {
 	c := qt.New(t)
-	dir, err := createSimpleTestSite(t, testSiteConfig{})
+	dir, clean, err := createSimpleTestSite(t, testSiteConfig{})
+	defer clean()
 
 	c.Assert(err, qt.IsNil)
 
@@ -47,7 +43,10 @@ func TestListAll(t *testing.T) {
 
 	cmd.SetArgs([]string{"-s=" + dir, "list", "all"})
 
-	out, err := captureStdout(cmd.ExecuteC)
+	out, err := captureStdout(func() error {
+		_, err := cmd.ExecuteC()
+		return err
+	})
 	c.Assert(err, qt.IsNil)
 
 	r := csv.NewReader(strings.NewReader(out))

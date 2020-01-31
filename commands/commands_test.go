@@ -20,6 +20,12 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/gohugoio/hugo/htesting"
+
+	"github.com/spf13/afero"
+
+	"github.com/gohugoio/hugo/hugofs"
+
 	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/spf13/cobra"
@@ -32,18 +38,117 @@ func TestExecute(t *testing.T) {
 
 	c := qt.New(t)
 
-	dir, err := createSimpleTestSite(t, testSiteConfig{})
+	createSite := func(c *qt.C) (string, func()) {
+		dir, clean, err := createSimpleTestSite(t, testSiteConfig{})
+		c.Assert(err, qt.IsNil)
+		return dir, clean
+	}
+
+	c.Run("hugo", func(c *qt.C) {
+		dir, clean := createSite(c)
+		defer clean()
+		resp := Execute([]string{"-s=" + dir})
+		c.Assert(resp.Err, qt.IsNil)
+		result := resp.Result
+		c.Assert(len(result.Sites) == 1, qt.Equals, true)
+		c.Assert(len(result.Sites[0].RegularPages()) == 1, qt.Equals, true)
+		c.Assert(result.Sites[0].Info.Params()["myparam"], qt.Equals, "paramproduction")
+	})
+
+	c.Run("hugo, set environment", func(c *qt.C) {
+		dir, clean := createSite(c)
+		defer clean()
+		resp := Execute([]string{"-s=" + dir, "-e=staging"})
+		c.Assert(resp.Err, qt.IsNil)
+		result := resp.Result
+		c.Assert(result.Sites[0].Info.Params()["myparam"], qt.Equals, "paramstaging")
+	})
+
+	c.Run("convert toJSON", func(c *qt.C) {
+		dir, clean := createSite(c)
+		output := filepath.Join(dir, "myjson")
+		defer clean()
+		resp := Execute([]string{"convert", "toJSON", "-s=" + dir, "-e=staging", "-o=" + output})
+		c.Assert(resp.Err, qt.IsNil)
+		converted := readFileFrom(c, filepath.Join(output, "content", "p1.md"))
+		c.Assert(converted, qt.Equals, "{\n   \"title\": \"P1\",\n   \"weight\": 1\n}\n\nContent\n\n", qt.Commentf(converted))
+	})
+
+	c.Run("config, set environment", func(c *qt.C) {
+		dir, clean := createSite(c)
+		defer clean()
+		out, err := captureStdout(func() error {
+			resp := Execute([]string{"config", "-s=" + dir, "-e=staging"})
+			return resp.Err
+		})
+		c.Assert(err, qt.IsNil)
+		c.Assert(out, qt.Contains, "params = map[myparam:paramstaging]", qt.Commentf(out))
+	})
+
+	c.Run("deploy, environment set", func(c *qt.C) {
+		dir, clean := createSite(c)
+		defer clean()
+		resp := Execute([]string{"deploy", "-s=" + dir, "-e=staging", "--target=mydeployment", "--dryRun"})
+		c.Assert(resp.Err, qt.Not(qt.IsNil))
+		c.Assert(resp.Err.Error(), qt.Contains, `no provider registered for "hugocloud"`)
+	})
+
+	c.Run("list", func(c *qt.C) {
+		dir, clean := createSite(c)
+		defer clean()
+		out, err := captureStdout(func() error {
+			resp := Execute([]string{"list", "all", "-s=" + dir, "-e=staging"})
+			return resp.Err
+		})
+		c.Assert(err, qt.IsNil)
+		c.Assert(out, qt.Contains, "p1.md")
+	})
+
+	c.Run("new theme", func(c *qt.C) {
+		dir, clean := createSite(c)
+		defer clean()
+		themesDir := filepath.Join(dir, "mythemes")
+		resp := Execute([]string{"new", "theme", "mytheme", "-s=" + dir, "-e=staging", "--themesDir=" + themesDir})
+		c.Assert(resp.Err, qt.IsNil)
+		themeTOML := readFileFrom(c, filepath.Join(themesDir, "mytheme", "theme.toml"))
+		c.Assert(themeTOML, qt.Contains, "name = \"Mytheme\"")
+	})
+
+	c.Run("new site", func(c *qt.C) {
+		dir, clean := createSite(c)
+		defer clean()
+		siteDir := filepath.Join(dir, "mysite")
+		resp := Execute([]string{"new", "site", siteDir, "-e=staging"})
+		c.Assert(resp.Err, qt.IsNil)
+		config := readFileFrom(c, filepath.Join(siteDir, "config.toml"))
+		c.Assert(config, qt.Contains, "baseURL = \"http://example.org/\"")
+		checkNewSiteInited(c, siteDir)
+	})
+
+}
+
+func checkNewSiteInited(c *qt.C, basepath string) {
+	paths := []string{
+		filepath.Join(basepath, "layouts"),
+		filepath.Join(basepath, "content"),
+		filepath.Join(basepath, "archetypes"),
+		filepath.Join(basepath, "static"),
+		filepath.Join(basepath, "data"),
+		filepath.Join(basepath, "config.toml"),
+	}
+
+	for _, path := range paths {
+		_, err := os.Stat(path)
+		c.Assert(err, qt.IsNil)
+	}
+}
+
+func readFileFrom(c *qt.C, filename string) string {
+	c.Helper()
+	filename = filepath.Clean(filename)
+	b, err := afero.ReadFile(hugofs.Os, filename)
 	c.Assert(err, qt.IsNil)
-
-	defer func() {
-		os.RemoveAll(dir)
-	}()
-
-	resp := Execute([]string{"-s=" + dir})
-	c.Assert(resp.Err, qt.IsNil)
-	result := resp.Result
-	c.Assert(len(result.Sites) == 1, qt.Equals, true)
-	c.Assert(len(result.Sites[0].RegularPages()) == 1, qt.Equals, true)
+	return string(b)
 }
 
 func TestCommandsPersistentFlags(t *testing.T) {
@@ -146,16 +251,14 @@ func TestCommandsExecute(t *testing.T) {
 
 	c := qt.New(t)
 
-	dir, err := createSimpleTestSite(t, testSiteConfig{})
+	dir, clean, err := createSimpleTestSite(t, testSiteConfig{})
 	c.Assert(err, qt.IsNil)
 
-	dirOut, err := ioutil.TempDir("", "hugo-cli-out")
+	dirOut, clean2, err := htesting.CreateTempDir(hugofs.Os, "hugo-cli-out")
 	c.Assert(err, qt.IsNil)
 
-	defer func() {
-		os.RemoveAll(dir)
-		os.RemoveAll(dirOut)
-	}()
+	defer clean()
+	defer clean2()
 
 	sourceFlag := fmt.Sprintf("-s=%s", dir)
 
@@ -222,16 +325,17 @@ type testSiteConfig struct {
 	contentDir string
 }
 
-func createSimpleTestSite(t *testing.T, cfg testSiteConfig) (string, error) {
-	d, e := ioutil.TempDir("", "hugo-cli")
+func createSimpleTestSite(t *testing.T, cfg testSiteConfig) (string, func(), error) {
+	d, clean, e := htesting.CreateTempDir(hugofs.Os, "hugo-cli")
 	if e != nil {
-		return "", e
+		return "", nil, e
 	}
 
 	cfgStr := `
 
 baseURL = "https://example.org"
 title = "Hugo Commands"
+
 
 `
 
@@ -244,8 +348,19 @@ title = "Hugo Commands"
 		contentDir = cfg.contentDir
 	}
 
+	os.MkdirAll(filepath.Join(d, "public"), 0777)
+
 	// Just the basic. These are for CLI tests, not site testing.
 	writeFile(t, filepath.Join(d, "config.toml"), cfgStr)
+	writeFile(t, filepath.Join(d, "config", "staging", "params.toml"), `myparam="paramstaging"`)
+	writeFile(t, filepath.Join(d, "config", "staging", "deployment.toml"), `
+[[targets]]
+name = "mydeployment"
+URL = "hugocloud://hugotestbucket"
+`)
+
+	writeFile(t, filepath.Join(d, "config", "testing", "params.toml"), `myparam="paramtesting"`)
+	writeFile(t, filepath.Join(d, "config", "production", "params.toml"), `myparam="paramproduction"`)
 
 	writeFile(t, filepath.Join(d, contentDir, "p1.md"), `
 ---
@@ -270,7 +385,7 @@ Environment: {{ hugo.Environment }}
 
 `)
 
-	return d, nil
+	return d, clean, nil
 
 }
 

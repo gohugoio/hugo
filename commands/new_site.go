@@ -37,11 +37,11 @@ var _ cmder = (*newSiteCmd)(nil)
 type newSiteCmd struct {
 	configFormat string
 
-	*baseCmd
+	*baseBuilderCmd
 }
 
-func newNewSiteCmd() *newSiteCmd {
-	ccmd := &newSiteCmd{}
+func (b *commandsBuilder) newNewSiteCmd() *newSiteCmd {
+	cc := &newSiteCmd{}
 
 	cmd := &cobra.Command{
 		Use:   "site [path]",
@@ -49,15 +49,15 @@ func newNewSiteCmd() *newSiteCmd {
 		Long: `Create a new site in the provided directory.
 The new site will have the correct structure, but no content or theme yet.
 Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
-		RunE: ccmd.newSite,
+		RunE: cc.newSite,
 	}
 
-	cmd.Flags().StringVarP(&ccmd.configFormat, "format", "f", "toml", "config & frontmatter format")
+	cmd.Flags().StringVarP(&cc.configFormat, "format", "f", "toml", "config & frontmatter format")
 	cmd.Flags().Bool("force", false, "init inside non-empty directory")
 
-	ccmd.baseCmd = newBaseCmd(cmd)
+	cc.baseBuilderCmd = b.newBuilderBasicCmd(cmd)
 
-	return ccmd
+	return cc
 
 }
 
