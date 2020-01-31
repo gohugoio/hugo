@@ -59,7 +59,7 @@ func New(port int) transform.Transformer {
 			return err
 		}
 
-		script := []byte(fmt.Sprintf(`<script data-no-instant>document.write('<script src="/livereload.js?port=%d&mindelay=10&v=2"></' + 'script>')</script>`, port))
+		script := []byte(fmt.Sprintf(`<script src="/livereload.js?port=%d&mindelay=10&v=2" data-no-instant></script>`, port))
 
 		i := idx
 		if match.appendScript {
