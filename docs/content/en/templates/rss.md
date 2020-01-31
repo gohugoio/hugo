@@ -63,8 +63,8 @@ Additionally, an author specified in a page's front matter will be used for the 
 title: "My Page"
 description: "All about my page"
 author:
-  name: "My Name Here"
-  email: "myemailaddress@example.com"
+    name: "My Name Here"
+    email: "myemailaddress@example.com"
 ---
 ```
 
