@@ -151,8 +151,8 @@ description = "Text about this post"
 date = "2006-01-02"
 images = ["post-cover.png"]
 authors = [
-        { name: "Article Author 1", Social = { facebook = "auth1fb" } },
-        { name: "Article Author 2", Social = { facebook = "auth2fb" } },
+        { name = "Article Author 1", Social = { facebook = "auth1fb" } },
+        { name = "Article Author 2", Social = { facebook = "auth2fb" } },
     ]
 audio = []
 videos = []
