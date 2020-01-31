@@ -320,12 +320,17 @@ permalinks:
   posts: /:year/:month/:title/
 params:
   Subtitle: "Hugo is Absurdly Fast!"
-  AuthorName: "Jon Doe"
   GitHubUser: "spf13"
   ListOfFoo:
     - "foo1"
     - "foo2"
   SidebarRecentLimit: 5
+Author:
+  name: "Jon Doe"
+  email: "jondoe@example.com"
+  Social:
+    facebook: jondoe_example
+    twitter: jondoe_example
 {{< /code-toggle >}}
 
 ## Configure with Environment Variables

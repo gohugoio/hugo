@@ -30,12 +30,13 @@ permalinks:
   posts: /:year/:month/:title/
 params:
   Subtitle: "Hugo is Absurdly Fast!"
-  AuthorName: "Jon Doe"
   GitHubUser: "spf13"
   ListOfFoo:
     - "foo1"
     - "foo2"
   SidebarRecentLimit: 5
+Author:
+  name: "Jon Doe"
 {{< /code-toggle >}}
 
 ## Another Config Toggler!
