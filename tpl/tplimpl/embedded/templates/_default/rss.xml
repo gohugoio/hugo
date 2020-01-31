@@ -25,8 +25,11 @@
       <title>{{ .Title }}</title>
       <link>{{ .Permalink }}</link>
       <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
-      {{- $author := .Params.author | default .Site.Author }}
-      {{ with $author.email }}<author>{{.}}{{ with $author.name }} ({{.}}){{end}}</author>{{end}}
+      {{- $page_auth := cond (reflect.IsMap .Params.author) .Params.author (dict) }}
+      {{- $auth_src := cond (isset $page_auth "email") $page_auth .Site.Author }}
+      {{- $author_email := index $auth_src "email" }}
+      {{- $author_name := index $auth_src "name" }}
+      {{ with $author_email }}<author>{{.}}{{ with $author_name }} ({{.}}){{end}}</author>{{end}}
       <guid>{{ .Permalink }}</guid>
       <description>{{ .Summary | html }}</description>
     </item>
