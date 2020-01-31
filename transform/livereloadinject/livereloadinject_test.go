@@ -25,7 +25,7 @@ import (
 func TestLiveReloadInject(t *testing.T) {
 	c := qt.New(t)
 
-	expectBase := `<script src="/livereload.js?port=1313&mindelay=10&v=2" data-no-instant></script>`
+	expectBase := `<script src="/livereload.js?port=1313&mindelay=10&v=2" data-no-instant defer></script>`
 	apply := func(s string) string {
 		out := new(bytes.Buffer)
 		in := strings.NewReader(s)
