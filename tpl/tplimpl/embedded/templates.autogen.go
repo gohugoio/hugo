@@ -236,7 +236,10 @@ if (!doNotTrack) {
 {{- if .IsPage }}
 {{- $site_authors := .Site.Params.Authors | default (slice .Site.Author) -}}
 {{- $author_list := .Params.authors | default $site_authors -}}
-{{- range $author_list }}{{ with .Social.facebook | default .social.facebook }}
+{{- range $author_list }}
+{{- $social_map := cond (reflect.IsMap .Social) .Social (cond (reflect.IsMap .social) .social (dict)) }}
+{{- $social_facebook := index $social_map "facebook" }}
+{{- with $social_facebook }}
 <meta property="article:author" content="https://www.facebook.com/{{ . }}" />{{ end }}{{ end }}{{ with .Site.Social.facebook }}
 <meta property="article:publisher" content="https://www.facebook.com/{{ . }}" />{{ end }}
 <meta property="article:section" content="{{ .Section }}" />
@@ -555,7 +558,9 @@ if (!doNotTrack) {
 {{ $site_authors := .Site.Params.Authors | default (slice .Site.Author) -}}
 {{- $author_list := .Params.authors | default $site_authors -}}
 {{ range $author_list }}
-{{- with .Social.twitter | default .social.twitter -}}
+{{- $social_map := cond (reflect.IsMap .Social) .Social (cond (reflect.IsMap .social) .social (dict)) }}
+{{- $social_twitter := index $social_map "twitter" }}
+{{- with $social_twitter -}}
 <meta name="twitter:creator" content="@{{ . }}"/>
 {{ end -}}
 {{ end -}}
