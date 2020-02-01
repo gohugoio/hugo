@@ -30,6 +30,7 @@ var Default = Config{
 		Strikethrough:  true,
 		Linkify:        true,
 		TaskList:       true,
+		KaTeX:          false,
 	},
 	Renderer: Renderer{
 		Unsafe: false,
@@ -58,6 +59,8 @@ type Extensions struct {
 	Strikethrough bool
 	Linkify       bool
 	TaskList      bool
+
+	KaTeX bool
 }
 
 type Renderer struct {
