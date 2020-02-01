@@ -25,7 +25,9 @@
 {{ $site_authors := .Site.Params.Authors | default (slice .Site.Author) -}}
 {{- $author_list := .Params.authors | default $site_authors -}}
 {{ range $author_list }}
-{{- with .Social.twitter | default .social.twitter -}}
+{{- $social_map := cond (reflect.IsMap .Social) .Social (cond (reflect.IsMap .social) .social (dict)) }}
+{{- $social_twitter := index $social_map "twitter" }}
+{{- with $social_twitter -}}
 <meta name="twitter:creator" content="@{{ . }}"/>
 {{ end -}}
 {{ end -}}
