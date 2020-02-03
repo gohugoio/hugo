@@ -24,8 +24,7 @@ var _ cmder = (*deployCmd)(nil)
 
 // deployCmd supports deploying sites to Cloud providers.
 type deployCmd struct {
-	hugoBuilderCommon
-	*baseCmd
+	*baseBuilderCmd
 }
 
 // TODO: In addition to the "deploy" command, consider adding a "--deploy"
@@ -38,10 +37,10 @@ type deployCmd struct {
 // run "hugo && hugo deploy" again and again and upload new stuff every time. Is
 // this intended?
 
-func newDeployCmd() *deployCmd {
+func (b *commandsBuilder) newDeployCmd() *deployCmd {
 	cc := &deployCmd{}
 
-	cc.baseCmd = newBaseCmd(&cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "deploy",
 		Short: "Deploy your site to a Cloud provider.",
 		Long: `Deploy your site to a Cloud provider.
@@ -64,14 +63,16 @@ documentation.
 			}
 			return deployer.Deploy(context.Background())
 		},
-	})
+	}
 
-	cc.cmd.Flags().String("target", "", "target deployment from deployments section in config file; defaults to the first one")
-	cc.cmd.Flags().Bool("confirm", false, "ask for confirmation before making changes to the target")
-	cc.cmd.Flags().Bool("dryRun", false, "dry run")
-	cc.cmd.Flags().Bool("force", false, "force upload of all files")
-	cc.cmd.Flags().Bool("invalidateCDN", true, "invalidate the CDN cache listed in the deployment target")
-	cc.cmd.Flags().Int("maxDeletes", 256, "maximum # of files to delete, or -1 to disable")
+	cmd.Flags().String("target", "", "target deployment from deployments section in config file; defaults to the first one")
+	cmd.Flags().Bool("confirm", false, "ask for confirmation before making changes to the target")
+	cmd.Flags().Bool("dryRun", false, "dry run")
+	cmd.Flags().Bool("force", false, "force upload of all files")
+	cmd.Flags().Bool("invalidateCDN", true, "invalidate the CDN cache listed in the deployment target")
+	cmd.Flags().Int("maxDeletes", 256, "maximum # of files to delete, or -1 to disable")
+
+	cc.baseBuilderCmd = b.newBuilderBasicCmd(cmd)
 
 	return cc
 }

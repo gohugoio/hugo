@@ -15,11 +15,14 @@
 package herrors
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
 	"os"
+	"runtime"
 	"runtime/debug"
+	"strconv"
 
 	_errors "github.com/pkg/errors"
 )
@@ -33,18 +36,25 @@ type stackTracer interface {
 	StackTrace() _errors.StackTrace
 }
 
-// PrintStackTrace prints the error's stack trace to stdoud.
-func PrintStackTrace(err error) {
-	FprintStackTrace(os.Stdout, err)
+// PrintStackTraceFromErr prints the error's stack trace to stdoud.
+func PrintStackTraceFromErr(err error) {
+	FprintStackTraceFromErr(os.Stdout, err)
 }
 
-// FprintStackTrace prints the error's stack trace to w.
-func FprintStackTrace(w io.Writer, err error) {
+// FprintStackTraceFromErr prints the error's stack trace to w.
+func FprintStackTraceFromErr(w io.Writer, err error) {
 	if err, ok := err.(stackTracer); ok {
 		for _, f := range err.StackTrace() {
 			fmt.Fprintf(w, "%+s:%d\n", f, f)
 		}
 	}
+}
+
+// PrintStackTrace prints the current stacktrace to w.
+func PrintStackTrace(w io.Writer) {
+	buf := make([]byte, 1<<16)
+	runtime.Stack(buf, true)
+	fmt.Fprintf(w, "%s", buf)
 }
 
 // Recover is a helper function that can be used to capture panics.
@@ -56,7 +66,16 @@ func Recover(args ...interface{}) {
 		args = append(args, "stacktrace from panic: \n"+string(debug.Stack()), "\n")
 		fmt.Println(args...)
 	}
+}
 
+// Get the current goroutine id. Used only for debugging.
+func GetGID() uint64 {
+	b := make([]byte, 64)
+	b = b[:runtime.Stack(b, false)]
+	b = bytes.TrimPrefix(b, []byte("goroutine "))
+	b = b[:bytes.IndexByte(b, ' ')]
+	n, _ := strconv.ParseUint(string(b), 10, 64)
+	return n
 }
 
 // ErrFeatureNotAvailable denotes that a feature is unavailable.

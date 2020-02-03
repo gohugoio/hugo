@@ -27,7 +27,7 @@ func (t testSiteBuildErrorAsserter) getFileError(err error) *herrors.ErrorWithFi
 
 func (t testSiteBuildErrorAsserter) assertLineNumber(lineNumber int, err error) {
 	fe := t.getFileError(err)
-	t.c.Assert(fe.Position().LineNumber, qt.Equals, lineNumber)
+	t.c.Assert(fe.Position().LineNumber, qt.Equals, lineNumber, qt.Commentf(err.Error()))
 }
 
 func (t testSiteBuildErrorAsserter) assertErrorMessage(e1, e2 string) {
@@ -65,7 +65,8 @@ func TestSiteBuildErrors(t *testing.T) {
 			fileFixer: func(content string) string {
 				return strings.Replace(content, ".Title }}", ".Title }", 1)
 			},
-			assertCreateError: func(a testSiteBuildErrorAsserter, err error) {
+			// Base templates gets parsed at build time.
+			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				a.assertLineNumber(4, err)
 			},
 		},
@@ -90,7 +91,7 @@ func TestSiteBuildErrors(t *testing.T) {
 				a.c.Assert(fe.Position().LineNumber, qt.Equals, 5)
 				a.c.Assert(fe.Position().ColumnNumber, qt.Equals, 1)
 				a.c.Assert(fe.ChromaLexer, qt.Equals, "go-html-template")
-				a.assertErrorMessage("\"layouts/_default/single.html:5:1\": parse failed: template: _default/single.html:5: unexpected \"}\" in operand", fe.Error())
+				a.assertErrorMessage("\"layouts/foo/single.html:5:1\": parse failed: template: foo/single.html:5: unexpected \"}\" in operand", fe.Error())
 
 			},
 		},
@@ -256,6 +257,13 @@ SINGLE L3:
 SINGLE L4:
 SINGLE L5: {{ .Title }} {{ .Content }}
 {{ end }}
+`))
+
+			b.WithTemplatesAdded("layouts/foo/single.html", f(single, `
+SINGLE L2:
+SINGLE L3:
+SINGLE L4:
+SINGLE L5: {{ .Title }} {{ .Content }}
 `))
 
 			b.WithContent("myyaml.md", f(yamlcontent, `---

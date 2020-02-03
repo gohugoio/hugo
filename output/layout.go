@@ -39,10 +39,11 @@ type LayoutDescriptor struct {
 	LayoutOverride bool
 
 	RenderingHook bool
+	Baseof        bool
 }
 
 func (d LayoutDescriptor) isList() bool {
-	return !d.RenderingHook && d.Kind != "page"
+	return !d.RenderingHook && d.Kind != "page" && d.Kind != "404"
 }
 
 // LayoutHandler calculates the layout template to use to render a given output type.
@@ -76,7 +77,6 @@ func (l *LayoutHandler) For(d LayoutDescriptor, f Format) ([]string, error) {
 
 	layouts := resolvePageTemplate(d, f)
 
-	layouts = prependTextPrefixIfNeeded(f, layouts...)
 	layouts = helpers.UniqueStringsReuse(layouts)
 
 	l.mu.Lock()
@@ -95,7 +95,11 @@ type layoutBuilder struct {
 
 func (l *layoutBuilder) addLayoutVariations(vars ...string) {
 	for _, layoutVar := range vars {
-		if !l.d.RenderingHook && l.d.LayoutOverride && layoutVar != l.d.Layout {
+		if l.d.Baseof && layoutVar != "baseof" {
+			l.layoutVariations = append(l.layoutVariations, layoutVar+"-baseof")
+			continue
+		}
+		if !l.d.RenderingHook && !l.d.Baseof && l.d.LayoutOverride && layoutVar != l.d.Layout {
 			continue
 		}
 		l.layoutVariations = append(l.layoutVariations, layoutVar)
@@ -169,26 +173,34 @@ func resolvePageTemplate(d LayoutDescriptor, f Format) []string {
 		b.addTypeVariations("taxonomy")
 		b.addSectionType()
 		b.addLayoutVariations("terms")
-
+	case "404":
+		b.addLayoutVariations("404")
+		b.addTypeVariations("")
 	}
 
 	isRSS := f.Name == RSSFormat.Name
-	if !d.RenderingHook && isRSS {
+	if !d.RenderingHook && !d.Baseof && isRSS {
 		// The historic and common rss.xml case
 		b.addLayoutVariations("")
 	}
 
-	// All have _default in their lookup path
-	b.addTypeVariations("_default")
+	if d.Baseof || d.Kind != "404" {
+		// Most have _default in their lookup path
+		b.addTypeVariations("_default")
+	}
 
 	if d.isList() {
 		// Add the common list type
 		b.addLayoutVariations("list")
 	}
 
+	if d.Baseof {
+		b.addLayoutVariations("baseof")
+	}
+
 	layouts := b.resolveVariations()
 
-	if !d.RenderingHook && isRSS {
+	if !d.RenderingHook && !d.Baseof && isRSS {
 		layouts = append(layouts, "_internal/_default/rss.xml")
 	}
 
@@ -264,20 +276,6 @@ func filterDotLess(layouts []string) []string {
 	}
 
 	return filteredLayouts
-}
-
-func prependTextPrefixIfNeeded(f Format, layouts ...string) []string {
-	if !f.IsPlainText {
-		return layouts
-	}
-
-	newLayouts := make([]string, len(layouts))
-
-	for i, l := range layouts {
-		newLayouts[i] = "_text/" + l
-	}
-
-	return newLayouts
 }
 
 func replaceKeyValues(s string, oldNew ...string) string {

@@ -16,7 +16,7 @@ menu:
 
 ## The Image Page Resource
 
-The `image` is a [Page Resource]({{< relref "/content-management/page-resources" >}}), and the processing methods listed below does not work on images inside your `/static` folder.
+The `image` is a [Page Resource]({{< relref "/content-management/page-resources" >}}), and the processing methods listed below do not work on images inside your `/static` folder.
 
 To get all images in a [Page Bundle]({{< relref "/content-management/organization#page-bundles" >}}):
 

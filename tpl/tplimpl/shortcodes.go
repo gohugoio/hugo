@@ -32,8 +32,7 @@ type shortcodeVariant struct {
 	// A slice of length numTemplateVariants.
 	variants []string
 
-	info  tpl.Info
-	templ tpl.Template
+	ts *templateState
 }
 
 type shortcodeTemplates struct {

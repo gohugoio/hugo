@@ -225,15 +225,12 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 	}
 
 	_, modulesConfigFiles, err := l.collectModules(modulesConfig, v, collectHook)
-	if err != nil {
-		return v, configFiles, err
-	}
 
-	if len(modulesConfigFiles) > 0 {
+	if err == nil && len(modulesConfigFiles) > 0 {
 		configFiles = append(configFiles, modulesConfigFiles...)
 	}
 
-	return v, configFiles, nil
+	return v, configFiles, err
 
 }
 
@@ -465,9 +462,6 @@ func (l configLoader) collectModules(modConfig modules.Config, v1 *viper.Viper, 
 	v1.Set("modulesClient", modulesClient)
 
 	moduleConfig, err := modulesClient.Collect()
-	if err != nil {
-		return nil, nil, err
-	}
 
 	// Avoid recreating these later.
 	v1.Set("allModules", moduleConfig.ActiveModules)
@@ -478,7 +472,7 @@ func (l configLoader) collectModules(modConfig modules.Config, v1 *viper.Viper, 
 		configFilenames = append(configFilenames, moduleConfig.GoModulesFilename)
 	}
 
-	return moduleConfig.ActiveModules, configFilenames, nil
+	return moduleConfig.ActiveModules, configFilenames, err
 
 }
 

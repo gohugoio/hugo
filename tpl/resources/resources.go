@@ -45,6 +45,7 @@ func New(deps *deps.Deps) (*Namespace, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &Namespace{
 		deps:            deps,
 		scssClient:      scssClient,
@@ -53,7 +54,7 @@ func New(deps *deps.Deps) (*Namespace, error) {
 		integrityClient: integrity.New(deps.ResourceSpec),
 		minifyClient:    minifier.New(deps.ResourceSpec),
 		postcssClient:   postcss.New(deps.ResourceSpec),
-		templatesClient: templates.New(deps.ResourceSpec, deps.Tmpl, deps.TextTmpl),
+		templatesClient: templates.New(deps.ResourceSpec, deps),
 	}, nil
 }
 

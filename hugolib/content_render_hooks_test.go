@@ -13,7 +13,12 @@
 
 package hugolib
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+
+	qt "github.com/frankban/quicktest"
+)
 
 func TestRenderHooks(t *testing.T) {
 	config := `
@@ -75,6 +80,8 @@ layout: mylayout
 
 [Some Text](https://www.google.com "Google's Homepage")
 
+,[No Whitespace Please](https://gohugo.io),
+
 
 
 `, "blog/p3.md", `---
@@ -116,7 +123,20 @@ title: With RenderString
 {{< myshortcode5 >}}Inner Link: [Inner Link](https://www.gohugo.io "Hugo's Homepage"){{< /myshortcode5 >}}
 
 `)
-	b.Build(BuildCfg{})
+
+	for i := 1; i <= 30; i++ {
+		// Add some content with no shortcodes or links, i.e no templates needed.
+		b.WithContent(fmt.Sprintf("blog/notempl%d.md", i), `---
+title: No Template
+---
+
+## Content
+`)
+	}
+	counters := &testCounters{}
+	b.Build(BuildCfg{testCounters: counters})
+	b.Assert(int(counters.contentRenderCounter), qt.Equals, 50)
+
 	b.AssertFileContent("public/blog/p1/index.html", `
 <p>Cool Page|https://www.google.com|Title: Google's Homepage|Text: First Link|END</p>
 Text: Second
@@ -125,7 +145,10 @@ SHORT3|
 `)
 
 	b.AssertFileContent("public/customview/p1/index.html", `.Render: myrender: Custom View|P4: PARTIAL4`)
-	b.AssertFileContent("public/blog/p2/index.html", `PARTIAL`)
+	b.AssertFileContent("public/blog/p2/index.html",
+		`PARTIAL
+,Cool Page2|https://gohugo.io|Title: |Text: No Whitespace Please|END,`,
+	)
 	b.AssertFileContent("public/blog/p3/index.html", `PARTIAL3`)
 	// We may add type template support later, keep this for then. b.AssertFileContent("public/docs/docs1/index.html", `Link docs section: Docs 1|END`)
 	b.AssertFileContent("public/blog/p4/index.html", `<p>IMAGE: Cool Page With Image||/images/Dragster.jpg|Title: image title|Text: Drag Racing|END</p>`)
@@ -147,7 +170,11 @@ SHORT3|
 		"layouts/shortcodes/myshortcode3.html", `SHORT3_EDITED|`,
 	)
 
-	b.Build(BuildCfg{})
+	counters = &testCounters{}
+	b.Build(BuildCfg{testCounters: counters})
+	// Make sure that only content using the changed templates are re-rendered.
+	b.Assert(int(counters.contentRenderCounter), qt.Equals, 7)
+
 	b.AssertFileContent("public/customview/p1/index.html", `.Render: myrender: Custom View|P4: PARTIAL4_EDITED`)
 	b.AssertFileContent("public/blog/p1/index.html", `<p>EDITED: https://www.google.com|</p>`, "SHORT3_EDITED|")
 	b.AssertFileContent("public/blog/p2/index.html", `PARTIAL1_EDITED`)

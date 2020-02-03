@@ -14,7 +14,6 @@
 package commands
 
 import (
-	"os"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -37,12 +36,9 @@ title = "Hugo Commands"
 contentDir = "thisdoesnotexist"
 
 `
-	dir, err := createSimpleTestSite(t, testSiteConfig{configTOML: cfgStr, contentDir: contentDir})
+	dir, clean, err := createSimpleTestSite(t, testSiteConfig{configTOML: cfgStr, contentDir: contentDir})
 	c.Assert(err, qt.IsNil)
-
-	defer func() {
-		os.RemoveAll(dir)
-	}()
+	defer clean()
 
 	cmd.SetArgs([]string{"-s=" + dir, "-c=" + contentDir})
 

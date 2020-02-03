@@ -151,12 +151,11 @@ func newPageCollectionsFromPages(pages pageStatePages) *PageCollections {
 		for _, pageCollection := range []pageStatePages{c.workAllPages, c.headlessPages} {
 			for _, p := range pageCollection {
 				if p.IsPage() {
-					sourceRef := p.sourceRef()
-					if sourceRef != "" {
-						// index the canonical ref
-						// e.g. /section/article.md
-						add(sourceRef, p)
+					sourceRefs := p.sourceRefs()
+					for _, ref := range sourceRefs {
+						add(ref, p)
 					}
+					sourceRef := sourceRefs[0]
 
 					// Ref/Relref supports this potentially ambiguous lookup.
 					add(p.File().LogicalName(), p)
@@ -177,11 +176,9 @@ func newPageCollectionsFromPages(pages pageStatePages) *PageCollections {
 					pathWithNoExtensions := path.Join(dir, translationBaseName)
 					add(pathWithNoExtensions, p)
 				} else {
-					// index the canonical, unambiguous ref for any backing file
-					// e.g. /section/_index.md
-					sourceRef := p.sourceRef()
-					if sourceRef != "" {
-						add(sourceRef, p)
+					sourceRefs := p.sourceRefs()
+					for _, ref := range sourceRefs {
+						add(ref, p)
 					}
 
 					ref := p.SectionsPath()
@@ -270,7 +267,14 @@ func (c *PageCollections) getPageNew(context page.Page, ref string) (page.Page, 
 
 	} else if context != nil {
 		// Try the page-relative path.
-		ppath := path.Join("/", strings.ToLower(context.SectionsPath()), ref)
+		var dir string
+		if !context.File().IsZero() {
+			dir = filepath.ToSlash(context.File().Dir())
+		} else {
+			dir = context.SectionsPath()
+		}
+		ppath := path.Join("/", strings.ToLower(dir), ref)
+
 		p, err := c.getFromCache(ppath)
 		if err == nil && p != nil {
 			return p, nil

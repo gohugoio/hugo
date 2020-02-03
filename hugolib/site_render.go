@@ -19,6 +19,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/tpl"
+
 	"github.com/gohugoio/hugo/config"
 
 	"github.com/gohugoio/hugo/output"
@@ -136,33 +138,62 @@ func pageRenderer(
 			continue
 		}
 
-		layouts, err := p.getLayouts()
+		templ, found, err := p.resolveTemplate()
 		if err != nil {
-			s.Log.ERROR.Printf("Failed to resolve layout for output %q for page %q: %s", f.Name, p, err)
+			s.SendError(p.errorf(err, "failed to resolve template"))
+			continue
+		}
+
+		if !found {
+			s.logMissingLayout("", p.Kind(), f.Name)
 			continue
 		}
 
 		targetPath := p.targetPaths().TargetFilename
 
-		if targetPath == "" {
-			s.Log.ERROR.Printf("Failed to create target path for output %q for page %q: %s", f.Name, p, err)
-			continue
-		}
-
-		if err := s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, "page "+p.Title(), targetPath, p, layouts...); err != nil {
+		if err := s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, "page "+p.Title(), targetPath, p, templ); err != nil {
 			results <- err
 		}
 
 		if p.paginator != nil && p.paginator.current != nil {
-			if err := s.renderPaginator(p, layouts); err != nil {
+			if err := s.renderPaginator(p, templ); err != nil {
 				results <- err
 			}
 		}
 	}
 }
 
+func (s *Site) logMissingLayout(name, kind, outputFormat string) {
+	log := s.Log.WARN
+	if name != "" && infoOnMissingLayout[name] {
+		log = s.Log.INFO
+	}
+
+	errMsg := "You should create a template file which matches Hugo Layouts Lookup Rules for this combination."
+	var args []interface{}
+	msg := "found no layout file for"
+	if outputFormat != "" {
+		msg += " %q"
+		args = append(args, outputFormat)
+	}
+
+	if kind != "" {
+		msg += " for kind %q"
+		args = append(args, kind)
+	}
+
+	if name != "" {
+		msg += " for %q"
+		args = append(args, name)
+	}
+
+	msg += ": " + errMsg
+
+	log.Printf(msg, args...)
+}
+
 // renderPaginator must be run after the owning Page has been rendered.
-func (s *Site) renderPaginator(p *pageState, layouts []string) error {
+func (s *Site) renderPaginator(p *pageState, templ tpl.Template) error {
 
 	paginatePath := s.Cfg.GetString("paginatePath")
 
@@ -174,12 +205,14 @@ func (s *Site) renderPaginator(p *pageState, layouts []string) error {
 		panic(fmt.Sprintf("invalid paginator state for %q", p.pathOrTitle()))
 	}
 
-	// Write alias for page 1
-	d.Addends = fmt.Sprintf("/%s/%d", paginatePath, 1)
-	targetPaths := page.CreateTargetPaths(d)
+	if f.IsHTML {
+		// Write alias for page 1
+		d.Addends = fmt.Sprintf("/%s/%d", paginatePath, 1)
+		targetPaths := page.CreateTargetPaths(d)
 
-	if err := s.writeDestAlias(targetPaths.TargetFilename, p.Permalink(), f, nil); err != nil {
-		return err
+		if err := s.writeDestAlias(targetPaths.TargetFilename, p.Permalink(), f, nil); err != nil {
+			return err
+		}
 	}
 
 	// Render pages for the rest
@@ -192,7 +225,7 @@ func (s *Site) renderPaginator(p *pageState, layouts []string) error {
 		if err := s.renderAndWritePage(
 			&s.PathSpec.ProcessingStats.PaginatorPages,
 			p.Title(),
-			targetPaths.TargetFilename, p, layouts...); err != nil {
+			targetPaths.TargetFilename, p, templ); err != nil {
 			return err
 		}
 
@@ -220,7 +253,16 @@ func (s *Site) render404() error {
 		return err
 	}
 
-	nfLayouts := []string{"404.html"}
+	var d output.LayoutDescriptor
+	d.Kind = kind404
+
+	templ, found, err := s.Tmpl().LookupLayout(d, output.HTMLFormat)
+	if err != nil {
+		return err
+	}
+	if !found {
+		return nil
+	}
 
 	targetPath := p.targetPaths().TargetFilename
 
@@ -228,7 +270,7 @@ func (s *Site) render404() error {
 		return errors.New("failed to create targetPath for 404 page")
 	}
 
-	return s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, "404 page", targetPath, p, nfLayouts...)
+	return s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, "404 page", targetPath, p, templ)
 }
 
 func (s *Site) renderSitemap() error {
@@ -255,9 +297,9 @@ func (s *Site) renderSitemap() error {
 		return errors.New("failed to create targetPath for sitemap")
 	}
 
-	smLayouts := []string{"sitemap.xml", "_default/sitemap.xml", "_internal/_default/sitemap.xml"}
+	templ := s.lookupLayouts("sitemap.xml", "_default/sitemap.xml", "_internal/_default/sitemap.xml")
 
-	return s.renderAndWriteXML(&s.PathSpec.ProcessingStats.Sitemaps, "sitemap", targetPath, p, smLayouts...)
+	return s.renderAndWriteXML(&s.PathSpec.ProcessingStats.Sitemaps, "sitemap", targetPath, p, templ)
 }
 
 func (s *Site) renderRobotsTXT() error {
@@ -282,9 +324,9 @@ func (s *Site) renderRobotsTXT() error {
 		return err
 	}
 
-	rLayouts := []string{"robots.txt", "_default/robots.txt", "_internal/_default/robots.txt"}
+	templ := s.lookupLayouts("robots.txt", "_default/robots.txt", "_internal/_default/robots.txt")
 
-	return s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, "Robots Txt", p.targetPaths().TargetFilename, p, rLayouts...)
+	return s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, "Robots Txt", p.targetPaths().TargetFilename, p, templ)
 
 }
 

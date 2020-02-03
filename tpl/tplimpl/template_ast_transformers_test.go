@@ -13,15 +13,11 @@
 package tplimpl
 
 import (
-	"github.com/gohugoio/hugo/hugofs/files"
-
 	"testing"
 
 	template "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
-	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/tpl"
 )
 
@@ -33,7 +29,7 @@ func TestTransformRecursiveTemplate(t *testing.T) {
 {{ define "menu-nodes" }}
 {{ template "menu-node" }}
 {{ end }}
-{{ define "menu-nßode" }}
+{{ define "menu-node" }}
 {{ template "menu-node" }}
 {{ end }}
 {{ template "menu-nodes" }}
@@ -41,34 +37,44 @@ func TestTransformRecursiveTemplate(t *testing.T) {
 
 	templ, err := template.New("foo").Parse(recursive)
 	c.Assert(err, qt.IsNil)
-	parseInfo := tpl.DefaultParseInfo
+	ts := newTestTemplate(templ)
 
 	ctx := newTemplateContext(
-		newTemplateInfo("test").(identity.Manager),
-		&parseInfo,
-		createGetTemplateInfoTree(templ.Tree),
+		ts,
+		newTestTemplateLookup(ts),
 	)
 	ctx.applyTransformations(templ.Tree.Root)
 
 }
 
-func createGetTemplateInfoTree(tree *parse.Tree) func(name string) *templateInfoTree {
-	return func(name string) *templateInfoTree {
-		return &templateInfoTree{
-			tree: tree,
+func newTestTemplate(templ tpl.Template) *templateState {
+	return newTemplateState(
+		templ,
+		templateInfo{
+			name: templ.Name(),
+		},
+	)
+}
+
+func newTestTemplateLookup(in *templateState) func(name string) *templateState {
+	m := make(map[string]*templateState)
+	return func(name string) *templateState {
+		if in.Name() == name {
+			return in
 		}
+
+		if ts, found := m[name]; found {
+			return ts
+		}
+
+		if templ, found := findTemplateIn(name, in); found {
+			ts := newTestTemplate(templ)
+			m[name] = ts
+			return ts
+		}
+
+		return nil
 	}
-}
-
-type I interface {
-	Method0()
-}
-
-type T struct {
-	NonEmptyInterfaceTypedNil I
-}
-
-func (T) Method0() {
 }
 
 func TestCollectInfo(t *testing.T) {
@@ -98,13 +104,14 @@ func TestCollectInfo(t *testing.T) {
 
 			templ, err := template.New("foo").Funcs(funcs).Parse(test.tplString)
 			c.Assert(err, qt.IsNil)
-			parseInfo := tpl.DefaultParseInfo
-
+			ts := newTestTemplate(templ)
+			ts.typ = templateShortcode
 			ctx := newTemplateContext(
-				newTemplateInfo("test").(identity.Manager), &parseInfo, createGetTemplateInfoTree(templ.Tree))
-			ctx.typ = templateShortcode
+				ts,
+				newTestTemplateLookup(ts),
+			)
 			ctx.applyTransformations(templ.Tree.Root)
-			c.Assert(ctx.parseInfo, qt.DeepEquals, &test.expected)
+			c.Assert(ctx.t.parseInfo, qt.DeepEquals, test.expected)
 		})
 	}
 
@@ -141,11 +148,13 @@ func TestPartialReturn(t *testing.T) {
 
 			templ, err := template.New("foo").Funcs(funcs).Parse(test.tplString)
 			c.Assert(err, qt.IsNil)
+			ts := newTestTemplate(templ)
+			ctx := newTemplateContext(
+				ts,
+				newTestTemplateLookup(ts),
+			)
 
-			_, err = applyTemplateTransformers(
-				templatePartial,
-				&templateInfoTree{tree: templ.Tree, info: tpl.DefaultParseInfo},
-				createGetTemplateInfoTree(templ.Tree))
+			_, err = ctx.applyTransformations(templ.Tree.Root)
 
 			// Just check that it doesn't fail in this test. We have functional tests
 			// in hugoblib.
@@ -154,11 +163,4 @@ func TestPartialReturn(t *testing.T) {
 		})
 	}
 
-}
-
-func newTemplateInfo(name string) tpl.Info {
-	return tpl.NewInfo(
-		identity.NewManager(identity.NewPathIdentity(files.ComponentFolderLayouts, name)),
-		tpl.DefaultParseInfo,
-	)
 }

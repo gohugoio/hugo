@@ -129,9 +129,9 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, name, kind, targetPath, archety
 	archetypeTemplate = []byte(archetypeShortcodeReplacementsPre.Replace(string(archetypeTemplate)))
 
 	// Reuse the Hugo template setup to get the template funcs properly set up.
-	templateHandler := s.Deps.Tmpl.(tpl.TemplateManager)
-	templateName := "_text/" + helpers.Filename(archetypeFilename)
-	if err := templateHandler.AddTemplate(templateName, string(archetypeTemplate)); err != nil {
+	templateHandler := s.Deps.Tmpl().(tpl.TemplateManager)
+	templateName := helpers.Filename(archetypeFilename)
+	if err := templateHandler.AddTemplate("_text/"+templateName, string(archetypeTemplate)); err != nil {
 		return nil, errors.Wrapf(err, "Failed to parse archetype file %q:", archetypeFilename)
 	}
 

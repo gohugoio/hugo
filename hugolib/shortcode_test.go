@@ -1101,6 +1101,7 @@ SECOND:{{< myshort.inline "second" />}}:END
 NEW INLINE:  {{< n1.inline "5" >}}W1: {{ seq (.Get 0) }}{{< /n1.inline >}}:END:
 INLINE IN INNER: {{< outer >}}{{< n2.inline >}}W2: {{ seq 4 }}{{< /n2.inline >}}{{< /outer >}}:END:
 REUSED INLINE IN INNER: {{< outer >}}{{< n1.inline "3" />}}{{< /outer >}}:END:
+## MARKDOWN DELIMITER: {{% mymarkdown.inline %}}**Hugo Rocks!**{{% /mymarkdown.inline %}}
 `
 
 				b.WithContent("page-md-shortcode.md", `---
@@ -1116,10 +1117,12 @@ title: "Hugo Home"
 
 				b.WithTemplatesAdded("layouts/_default/single.html", `
 CONTENT:{{ .Content }}
+TOC: {{ .TableOfContents }}
 `)
 
 				b.WithTemplatesAdded("layouts/index.html", `
 CONTENT:{{ .Content }}
+TOC: {{ .TableOfContents }}
 `)
 
 				b.WithTemplatesAdded("layouts/shortcodes/outer.html", `Inner: {{ .Inner }}`)
@@ -1133,6 +1136,7 @@ CONTENT:{{ .Content }}
 					"NEW INLINE:  W1: [1 2 3 4 5]",
 					"INLINE IN INNER: Inner: W2: [1 2 3 4]",
 					"REUSED INLINE IN INNER: Inner: W1: [1 2 3]",
+					`<li><a href="#markdown-delimiter-hugo-rocks">MARKDOWN DELIMITER: Hugo Rocks!</a></li>`,
 				}
 
 				if enableInlineShortcodes {

@@ -291,16 +291,18 @@ func (p *pageMeta) Title() string {
 	return p.title
 }
 
+const defaultContentType = "page"
+
 func (p *pageMeta) Type() string {
 	if p.contentType != "" {
 		return p.contentType
 	}
 
-	if x := p.Section(); x != "" {
-		return x
+	if sect := p.Section(); sect != "" {
+		return sect
 	}
 
-	return "page"
+	return defaultContentType
 }
 
 func (p *pageMeta) Weight() int {

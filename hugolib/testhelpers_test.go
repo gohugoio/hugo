@@ -224,6 +224,9 @@ func (s *sitesBuilder) WithSourceFile(filenameContent ...string) *sitesBuilder {
 
 func (s *sitesBuilder) absFilename(filename string) string {
 	filename = filepath.FromSlash(filename)
+	if filepath.IsAbs(filename) {
+		return filename
+	}
 	if s.workingDir != "" && !strings.HasPrefix(filename, s.workingDir) {
 		filename = filepath.Join(s.workingDir, filename)
 	}
@@ -429,7 +432,7 @@ func (s *sitesBuilder) writeFilePairs(folder string, filenameContent []string) *
 
 func (s *sitesBuilder) CreateSites() *sitesBuilder {
 	if err := s.CreateSitesE(); err != nil {
-		herrors.PrintStackTrace(err)
+		herrors.PrintStackTraceFromErr(err)
 		s.Fatalf("Failed to create sites: %s", err)
 	}
 
@@ -466,6 +469,7 @@ func (s *sitesBuilder) CreateSitesE() error {
 			for _, dir := range []string{
 				"content/sect",
 				"layouts/_default",
+				"layouts/_default/_markup",
 				"layouts/partials",
 				"layouts/shortcodes",
 				"data",
@@ -568,7 +572,7 @@ func (s *sitesBuilder) build(cfg BuildCfg, shouldFail bool) *sitesBuilder {
 		}
 	}
 	if err != nil && !shouldFail {
-		herrors.PrintStackTrace(err)
+		herrors.PrintStackTraceFromErr(err)
 		s.Fatalf("Build failed: %s", err)
 	} else if err == nil && shouldFail {
 		s.Fatalf("Expected error")
@@ -689,6 +693,7 @@ func (s *sitesBuilder) AssertImage(width, height int, filename string) {
 	s.Assert(err, qt.IsNil)
 	defer f.Close()
 	cfg, err := jpeg.DecodeConfig(f)
+	s.Assert(err, qt.IsNil)
 	s.Assert(cfg.Width, qt.Equals, width)
 	s.Assert(cfg.Height, qt.Equals, height)
 }
@@ -732,6 +737,12 @@ func (s *sitesBuilder) AssertFileContentRe(filename string, matches ...string) {
 
 func (s *sitesBuilder) CheckExists(filename string) bool {
 	return destinationExists(s.Fs, filepath.Clean(filename))
+}
+
+func (s *sitesBuilder) GetPage(ref string) page.Page {
+	p, err := s.H.Sites[0].getPageNew(nil, ref)
+	s.Assert(err, qt.IsNil)
+	return p
 }
 
 func newTestHelper(cfg config.Provider, fs *hugofs.Fs, t testing.TB) testHelper {

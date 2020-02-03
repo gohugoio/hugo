@@ -20,8 +20,6 @@ import (
 
 	"golang.org/x/sync/semaphore"
 
-	"github.com/gohugoio/hugo/modules"
-
 	"io/ioutil"
 
 	"github.com/gohugoio/hugo/common/herrors"
@@ -133,7 +131,7 @@ func (c *commandeer) getErrorWithContext() interface{} {
 
 	if c.h.verbose {
 		var b bytes.Buffer
-		herrors.FprintStackTrace(&b, c.buildErr)
+		herrors.FprintStackTraceFromErr(&b, c.buildErr)
 		m["StackTrace"] = b.String()
 	}
 
@@ -312,14 +310,8 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		doWithCommandeer,
 		doWithConfig)
 
-	if err != nil {
-		if mustHaveConfigFile {
-			return err
-		}
-		if err != hugolib.ErrNoConfigFile && !modules.IsNotExist(err) {
-			return err
-		}
-
+	if err != nil && mustHaveConfigFile {
+		return err
 	} else if mustHaveConfigFile && len(configFiles) == 0 {
 		return hugolib.ErrNoConfigFile
 	}

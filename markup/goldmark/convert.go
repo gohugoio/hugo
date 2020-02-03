@@ -28,7 +28,6 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/hugofs"
-
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/highlight"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
@@ -50,19 +49,33 @@ type provide struct {
 
 func (p provide) New(cfg converter.ProviderConfig) (converter.Provider, error) {
 	md := newMarkdown(cfg)
+
 	return converter.NewProvider("goldmark", func(ctx converter.DocumentContext) (converter.Converter, error) {
 		return &goldmarkConverter{
 			ctx: ctx,
 			cfg: cfg,
 			md:  md,
+			sanitizeAnchorName: func(s string) string {
+				return sanitizeAnchorNameString(s, cfg.MarkupConfig.Goldmark.Parser.AutoHeadingIDType)
+			},
 		}, nil
 	}), nil
 }
+
+var (
+	_ converter.AnchorNameSanitizer = (*goldmarkConverter)(nil)
+)
 
 type goldmarkConverter struct {
 	md  goldmark.Markdown
 	ctx converter.DocumentContext
 	cfg converter.ProviderConfig
+
+	sanitizeAnchorName func(s string) string
+}
+
+func (c *goldmarkConverter) SanitizeAnchorName(s string) string {
+	return c.sanitizeAnchorName(s)
 }
 
 func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
@@ -226,7 +239,7 @@ func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (result convert
 
 	buf := &bufWriter{Buffer: &bytes.Buffer{}}
 	result = buf
-	pctx := newParserContext(ctx)
+	pctx := c.newParserContext(ctx)
 	reader := text.NewReader(ctx.Src)
 
 	doc := c.md.Parser().Parse(
@@ -265,8 +278,8 @@ func (c *goldmarkConverter) Supports(feature identity.Identity) bool {
 	return featureSet[feature.GetIdentity()]
 }
 
-func newParserContext(rctx converter.RenderContext) *parserContext {
-	ctx := parser.NewContext()
+func (c *goldmarkConverter) newParserContext(rctx converter.RenderContext) *parserContext {
+	ctx := parser.NewContext(parser.WithIDs(newIDFactory(c.cfg.MarkupConfig.Goldmark.Parser.AutoHeadingIDType)))
 	ctx.Set(tocEnableKey, rctx.RenderTOC)
 	return &parserContext{
 		Context: ctx,

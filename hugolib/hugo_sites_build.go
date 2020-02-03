@@ -66,6 +66,8 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		h.Metrics.Reset()
 	}
 
+	h.testCounters = config.testCounters
+
 	// Need a pointer as this may be modified.
 	conf := &config
 
@@ -291,6 +293,10 @@ func (h *HugoSites) assemble(bcfg *BuildCfg) error {
 }
 
 func (h *HugoSites) render(config *BuildCfg) error {
+	if _, err := h.init.layouts.Do(); err != nil {
+		return err
+	}
+
 	siteRenderContext := &siteRenderContext{cfg: config, multihost: h.multihost}
 
 	if !config.PartialReRender {
@@ -312,11 +318,6 @@ func (h *HugoSites) render(config *BuildCfg) error {
 			case <-h.Done():
 				return nil
 			default:
-				// For the non-renderable pages, we use the content iself as
-				// template and we may have to re-parse and execute it for
-				// each output format.
-				h.TemplateHandler().RebuildClone()
-
 				for _, s2 := range h.Sites {
 					// We render site by site, but since the content is lazily rendered
 					// and a site can "borrow" content from other sites, every site

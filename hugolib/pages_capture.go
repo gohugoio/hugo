@@ -116,7 +116,7 @@ func (c *pagesCollector) Collect() error {
 	} else {
 		dirs := make(map[contentDirKey]bool)
 		for _, filename := range c.filenames {
-			dir, filename, btype := c.tracker.resolveAndRemove(filename)
+			dir, btype := c.tracker.resolveAndRemove(filename)
 			dirs[contentDirKey{dir, filename, btype}] = true
 		}
 
@@ -127,7 +127,7 @@ func (c *pagesCollector) Collect() error {
 			default:
 				// We always start from a directory.
 				collectErr = c.collectDir(dir.dirname, true, func(fim hugofs.FileMetaInfo) bool {
-					return strings.HasSuffix(dir.filename, fim.Meta().Path())
+					return dir.filename == fim.Meta().Filename()
 				})
 			}
 
@@ -211,6 +211,7 @@ func (c *pagesCollector) collectDir(dirname string, partial bool, inFilter func(
 		for _, fi := range readdir {
 			if filter(fi) {
 				filtered = append(filtered, fi)
+
 				if c.tracker != nil {
 					// Track symlinks.
 					c.tracker.addSymbolicLinkMapping(fi)

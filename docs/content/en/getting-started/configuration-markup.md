@@ -38,6 +38,9 @@ unsafe
 typographer
 : This extension substitutes punctuations with typographic entities like [smartypants](https://daringfireball.net/projects/smartypants/).
 
+autoHeadingIDType ("github") {{< new-in "0.62.2" >}}
+: The strategy used for creating auto IDs (anchor names). Available types are `github`, `github-ascii` and `blackfriday`. `github` produces GitHub-compatible IDs, `github-ascii` will drop any non-Ascii characters after accent normalization, and `blackfriday` will make the IDs work as with [Blackfriday](#blackfriday), the default Markdown engine before Hugo 0.60. Note that if Goldmark is your default Markdown engine, this is also the strategy used in the [anchorize](/functions/anchorize/) template func.
+
 ### Blackfriday
 
 
@@ -84,14 +87,14 @@ Note that this is only supported with the [Goldmark](#goldmark) renderer.
 
 These Render Hooks allow custom templates to render links and images from markdown.
 
-You can do this by creating templates with base names `render-link` and/or `render-image` inside `layouts/_default`.
+You can do this by creating templates with base names `render-link` and/or `render-image` inside `layouts/_default/_markup`.
 
-You can define [Output Format](/templates/output-formats) and [language](/content-management/multilingual/) nspecific templates if needed.[^hooktemplate] Your `layouts` folder may look like this:
+You can define [Output-Format-](/templates/output-formats) and [language-](/content-management/multilingual/)specific templates if needed.[^hooktemplate] Your `layouts` folder may look like this:
 
 ```bash
 layouts
 └── _default
-    └── markup
+    └── _markup
         ├── render-image.html
         ├── render-image.rss.xml
         └── render-link.html
@@ -122,7 +125,7 @@ Text
 PlainText
 : The plain variant of the above.
 
-A Markdown example for a inline-style link with title:
+A Markdown example for an inline-style link with title:
 
 ```md
 [Text](https://www.gohugo.io "Title")
@@ -130,11 +133,9 @@ A Markdown example for a inline-style link with title:
 
 A very simple template example given the above:
 
-{{< code file="layouts/_default/render-link.html" >}}
-<a href="{{ .Destination | safeURL }}"{{ with .Title}}title="{{ . }}"{{ end }}>{{ .Text }}{{ with .Page }} (in page {{ .Title }}){{ end }}"</a>
+{{< code file="layouts/_default/_markup/render-link.html" >}}
+<a href="{{ .Destination | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}{{ if strings.HasPrefix .Destination "http" }} target="_blank"{{ end }}>{{ .Text }}</a>
 {{< /code >}}
-
-(look in the page bundle, inside `/assets` etc.) and [transform](/content-management/image-processing) images.
 
 [^hooktemplate]: It's currently only possible to have one set of render hook templates, e.g. not per `Type` or `Section`. We may consider that in a future version.
 

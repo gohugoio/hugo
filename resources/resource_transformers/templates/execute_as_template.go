@@ -26,28 +26,25 @@ import (
 // Client contains methods to perform template processing of Resource objects.
 type Client struct {
 	rs *resources.Spec
-
-	templateHandler tpl.TemplateHandler
-	textTemplate    tpl.TemplateParseFinder
+	t  tpl.TemplatesProvider
 }
 
 // New creates a new Client with the given specification.
-func New(rs *resources.Spec, h tpl.TemplateHandler, textTemplate tpl.TemplateParseFinder) *Client {
+func New(rs *resources.Spec, t tpl.TemplatesProvider) *Client {
 	if rs == nil {
 		panic("must provice a resource Spec")
 	}
-	if textTemplate == nil {
-		panic("must provide a textTemplate")
+	if t == nil {
+		panic("must provide a template provider")
 	}
-	return &Client{rs: rs, templateHandler: h, textTemplate: textTemplate}
+	return &Client{rs: rs, t: t}
 }
 
 type executeAsTemplateTransform struct {
-	rs              *resources.Spec
-	textTemplate    tpl.TemplateParseFinder
-	templateHandler tpl.TemplateHandler
-	targetPath      string
-	data            interface{}
+	rs         *resources.Spec
+	t          tpl.TemplatesProvider
+	targetPath string
+	data       interface{}
 }
 
 func (t *executeAsTemplateTransform) Key() internal.ResourceTransformationKey {
@@ -56,22 +53,21 @@ func (t *executeAsTemplateTransform) Key() internal.ResourceTransformationKey {
 
 func (t *executeAsTemplateTransform) Transform(ctx *resources.ResourceTransformationCtx) error {
 	tplStr := helpers.ReaderToString(ctx.From)
-	templ, err := t.textTemplate.Parse(ctx.InPath, tplStr)
+	templ, err := t.t.TextTmpl().Parse(ctx.InPath, tplStr)
 	if err != nil {
 		return errors.Wrapf(err, "failed to parse Resource %q as Template:", ctx.InPath)
 	}
 
 	ctx.OutPath = t.targetPath
 
-	return t.templateHandler.Execute(templ, ctx.To, t.data)
+	return t.t.Tmpl().Execute(templ, ctx.To, t.data)
 }
 
 func (c *Client) ExecuteAsTemplate(res resources.ResourceTransformer, targetPath string, data interface{}) (resource.Resource, error) {
 	return res.Transform(&executeAsTemplateTransform{
-		rs:              c.rs,
-		targetPath:      helpers.ToSlashTrimLeading(targetPath),
-		templateHandler: c.templateHandler,
-		textTemplate:    c.textTemplate,
-		data:            data,
+		rs:         c.rs,
+		targetPath: helpers.ToSlashTrimLeading(targetPath),
+		t:          c.t,
+		data:       data,
 	})
 }

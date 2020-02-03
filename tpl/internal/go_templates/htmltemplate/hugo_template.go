@@ -24,6 +24,9 @@ package is auto generated.
 
 */
 
+// Export it so we can populate Hugo's func map with it, which makes it faster.
+var GoFuncs = funcMap
+
 // Prepare returns a template ready for execution.
 func (t *Template) Prepare() (*template.Template, error) {
 	if err := t.escape(); err != nil {

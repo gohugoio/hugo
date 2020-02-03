@@ -259,6 +259,28 @@ func (c *Client) Vendor() error {
 
 // Get runs "go get" with the supplied arguments.
 func (c *Client) Get(args ...string) error {
+	if len(args) == 0 || (len(args) == 1 && args[0] == "-u") {
+		update := len(args) != 0
+
+		// We need to be explicit about the modules to get.
+		for _, m := range c.moduleConfig.Imports {
+			var args []string
+			if update {
+				args = []string{"-u"}
+			}
+			args = append(args, m.Path)
+			if err := c.get(args...); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}
+
+	return c.get(args...)
+}
+
+func (c *Client) get(args ...string) error {
 	if err := c.runGo(context.Background(), c.logger.Out, append([]string{"get"}, args...)...); err != nil {
 		errors.Wrapf(err, "failed to get %q", args)
 	}
@@ -424,6 +446,11 @@ func (c *Client) runGo(
 		if ee, ok := err.(*exec.Error); ok && ee.Err == exec.ErrNotFound {
 			c.goBinaryStatus = goBinaryStatusNotFound
 			return nil
+		}
+
+		if strings.Contains(stderr.String(), "invalid version: unknown revision") {
+			// See https://github.com/gohugoio/hugo/issues/6825
+			c.logger.FEEDBACK.Println(`hugo: you need to manually edit go.mod to resolve the unknown revision.`)
 		}
 
 		_, ok := err.(*exec.ExitError)

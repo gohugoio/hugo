@@ -68,6 +68,7 @@ func TestCascade(t *testing.T) {
         42|taxonomy|tags/blue|blue|home.png|tags|HTML-|
         42|section|sect3|Cascade Home|home.png|sect3|HTML-|
         42|taxonomyTerm|tags|Cascade Home|home.png|tags|HTML-|
+        42|page|bundle1/index.md|Cascade Home|home.png|page|HTML-|
         42|page|p2.md|Cascade Home|home.png|page|HTML-|
         42|page|sect2/p2.md|Cascade Home|home.png|sect2|HTML-|
         42|page|sect3/p1.md|Cascade Home|home.png|sect3|HTML-|

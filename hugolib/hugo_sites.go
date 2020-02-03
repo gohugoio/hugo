@@ -19,6 +19,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"sync/atomic"
 
 	"github.com/gohugoio/hugo/identity"
 
@@ -82,6 +83,19 @@ type HugoSites struct {
 	init *hugoSitesInit
 
 	*fatalErrorHandler
+	*testCounters
+}
+
+// Only used in tests.
+type testCounters struct {
+	contentRenderCounter uint64
+}
+
+func (h *testCounters) IncrContentRender() {
+	if h == nil {
+		return
+	}
+	atomic.AddUint64(&h.contentRenderCounter, 1)
 }
 
 type fatalErrorHandler struct {
@@ -121,6 +135,9 @@ type hugoSitesInit struct {
 	// Loads the data from all of the /data folders.
 	data *lazy.Init
 
+	// Performs late initialization (before render) of the templates.
+	layouts *lazy.Init
+
 	// Loads the Git info for all the pages if enabled.
 	gitInfo *lazy.Init
 
@@ -130,6 +147,7 @@ type hugoSitesInit struct {
 
 func (h *hugoSitesInit) Reset() {
 	h.data.Reset()
+	h.layouts.Reset()
 	h.gitInfo.Reset()
 	h.translations.Reset()
 }
@@ -271,6 +289,7 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 		Sites:        sites,
 		init: &hugoSitesInit{
 			data:         lazy.New(),
+			layouts:      lazy.New(),
 			gitInfo:      lazy.New(),
 			translations: lazy.New(),
 		},
@@ -285,6 +304,15 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 		err := h.loadData(h.PathSpec.BaseFs.Data.Dirs)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to load data")
+		}
+		return nil, nil
+	})
+
+	h.init.layouts.Add(func() (interface{}, error) {
+		for _, s := range h.Sites {
+			if err := s.Tmpl().(tpl.TemplateManager).MarkReady(); err != nil {
+				return nil, err
+			}
 		}
 		return nil, nil
 	})
@@ -429,10 +457,6 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 
 func (s *Site) withSiteTemplates(withTemplates ...func(templ tpl.TemplateManager) error) func(templ tpl.TemplateManager) error {
 	return func(templ tpl.TemplateManager) error {
-		if err := templ.LoadTemplates(""); err != nil {
-			return err
-		}
-
 		for _, wt := range withTemplates {
 			if wt == nil {
 				continue
@@ -569,6 +593,8 @@ type BuildCfg struct {
 
 	// Recently visited URLs. This is used for partial re-rendering.
 	RecentlyVisited map[string]bool
+
+	testCounters *testCounters
 }
 
 // shouldRender is used in the Fast Render Mode to determine if we need to re-render
@@ -619,10 +645,10 @@ func (h *HugoSites) renderCrossSitesArtifacts() error {
 
 	s := h.Sites[0]
 
-	smLayouts := []string{"sitemapindex.xml", "_default/sitemapindex.xml", "_internal/_default/sitemapindex.xml"}
+	templ := s.lookupLayouts("sitemapindex.xml", "_default/sitemapindex.xml", "_internal/_default/sitemapindex.xml")
 
 	return s.renderAndWriteXML(&s.PathSpec.ProcessingStats.Sitemaps, "sitemapindex",
-		s.siteCfg.sitemap.Filename, h.toSiteInfos(), smLayouts...)
+		s.siteCfg.sitemap.Filename, h.toSiteInfos(), templ)
 }
 
 func (h *HugoSites) removePageByFilename(filename string) {
@@ -832,7 +858,7 @@ func (h *HugoSites) resetPageStateFromEvents(idset identity.Identities) {
 				if po.cp == nil {
 					continue
 				}
-				for id, _ := range idset {
+				for id := range idset {
 					if po.cp.dependencyTracker.Search(id) != nil {
 						po.cp.Reset()
 						continue OUTPUTS
@@ -841,7 +867,7 @@ func (h *HugoSites) resetPageStateFromEvents(idset identity.Identities) {
 			}
 
 			for _, s := range p.shortcodeState.shortcodes {
-				for id, _ := range idset {
+				for id := range idset {
 					if idm, ok := s.info.(identity.Manager); ok && idm.Search(id) != nil {
 						for _, po := range p.pageOutputs {
 							if po.cp != nil {
@@ -895,7 +921,7 @@ func (m *contentChangeMap) add(dirname string, tp bundleDirType) {
 	m.mu.Unlock()
 }
 
-func (m *contentChangeMap) resolveAndRemove(filename string) (string, string, bundleDirType) {
+func (m *contentChangeMap) resolveAndRemove(filename string) (string, bundleDirType) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -908,22 +934,22 @@ func (m *contentChangeMap) resolveAndRemove(filename string) (string, string, bu
 
 	if _, found := m.branchBundles[dir]; found {
 		delete(m.branchBundles, dir)
-		return dir, dir, bundleBranch
+		return dir, bundleBranch
 	}
 
 	if key, _, found := m.leafBundles.LongestPrefix(dir); found {
 		m.leafBundles.Delete(key)
 		dir = string(key)
-		return dir, dir, bundleLeaf
+		return dir, bundleLeaf
 	}
 
 	fileTp, isContent := classifyBundledFile(name)
 	if isContent && fileTp != bundleNot {
 		// A new bundle.
-		return dir, dir, fileTp
+		return dir, fileTp
 	}
 
-	return dir, filename, bundleNot
+	return dir, bundleNot
 
 }
 

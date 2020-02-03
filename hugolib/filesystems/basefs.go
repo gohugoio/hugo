@@ -18,6 +18,7 @@ package filesystems
 import (
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -55,6 +56,8 @@ type BaseFs struct {
 	theBigFs *filesystemsCollector
 }
 
+// TODO(bep) we can get regular files in here and that is fine, but
+// we need to clean up the naming.
 func (fs *BaseFs) WatchDirs() []hugofs.FileMetaInfo {
 	var dirs []hugofs.FileMetaInfo
 	for _, dir := range fs.AllDirs() {
@@ -62,7 +65,6 @@ func (fs *BaseFs) WatchDirs() []hugofs.FileMetaInfo {
 			dirs = append(dirs, dir)
 		}
 	}
-
 	return dirs
 }
 
@@ -90,7 +92,7 @@ func (b *BaseFs) RelContentDir(filename string) string {
 	for _, dir := range b.SourceFilesystems.Content.Dirs {
 		dirname := dir.Meta().Filename()
 		if strings.HasPrefix(filename, dirname) {
-			rel := strings.TrimPrefix(filename, dirname)
+			rel := path.Join(dir.Meta().Path(), strings.TrimPrefix(filename, dirname))
 			return strings.TrimPrefix(rel, filePathSeparator)
 		}
 	}
@@ -293,13 +295,16 @@ func (d *SourceFilesystem) Contains(filename string) bool {
 	return false
 }
 
-// Path returns the relative path to the given filename if it is a member of
+// Path returns the mount relative path to the given filename if it is a member of
 // of the current filesystem, an empty string if not.
 func (d *SourceFilesystem) Path(filename string) string {
 	for _, dir := range d.Dirs {
 		meta := dir.Meta()
 		if strings.HasPrefix(filename, meta.Filename()) {
 			p := strings.TrimPrefix(strings.TrimPrefix(filename, meta.Filename()), filePathSeparator)
+			if mountRoot := meta.MountRoot(); mountRoot != "" {
+				return filepath.Join(mountRoot, p)
+			}
 			return p
 		}
 	}
@@ -530,11 +535,11 @@ func (b *sourceFilesystemsBuilder) createModFs(
 		fromToStatic  []hugofs.RootMapping
 	)
 
-	absPathify := func(path string) string {
+	absPathify := func(path string) (string, string) {
 		if filepath.IsAbs(path) {
-			return path
+			return "", path
 		}
-		return paths.AbsPathify(md.dir, path)
+		return md.dir, paths.AbsPathify(md.dir, path)
 	}
 
 	for _, mount := range md.Mounts() {
@@ -544,9 +549,12 @@ func (b *sourceFilesystemsBuilder) createModFs(
 			mountWeight++
 		}
 
+		base, filename := absPathify(mount.Source)
+
 		rm := hugofs.RootMapping{
-			From: mount.Target,
-			To:   absPathify(mount.Source),
+			From:      mount.Target,
+			To:        filename,
+			ToBasedir: base,
 			Meta: hugofs.FileMeta{
 				"watch":       md.Watch(),
 				"mountWeight": mountWeight,
@@ -621,7 +629,8 @@ func (b *sourceFilesystemsBuilder) createModFs(
 		if md.isMainProject {
 			return b.p.AbsResourcesDir
 		}
-		return absPathify(files.FolderResources)
+		_, filename := absPathify(files.FolderResources)
+		return filename
 	}
 
 	if collector.overlayMounts == nil {

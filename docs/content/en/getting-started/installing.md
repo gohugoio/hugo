@@ -461,7 +461,7 @@ Hugo installed via Snap can write only inside the user’s `$HOME` directory---a
 
     sudo apt-get install hugo
 
-This installs the "extended" Sass/SCSS version.
+What this installs depends on your Debian/Ubuntu version. On Ubuntu bionic (18.04), this installs the non-extended version without Sass/SCSS support. On Ubuntu disco (19.04), this installs the extended version with Sass/SCSS support.
 
 This option is not recommended because the Hugo in Linux package managers for Debian and Ubuntu is usually a few versions behind as described [here](https://github.com/gcushen/hugo-academic/issues/703)
 

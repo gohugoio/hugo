@@ -52,10 +52,9 @@ If it is of some complexity, the contributor is expected to maintain and support
 
 It is recommended to open up a discussion on the [Hugo Forum](https://discourse.gohugo.io/) to get feedback on your idea before you begin. If you are submitting a complex feature, create a small design proposal on the [Hugo issue tracker](https://github.com/gohugoio/hugo/issues) before you start.
 
+Note that we do not accept new features that needs [CGO](https://github.com/golang/go/wiki/cgo). We have one exeption to tuat rule and that is LibSASS.
 
 **Bug fixes are, of course, always welcome.**
-
-
 
 ## Submitting Patches
 

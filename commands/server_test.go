@@ -34,7 +34,8 @@ func TestServer(t *testing.T) {
 		t.Skip("Skip server test on appveyor")
 	}
 	c := qt.New(t)
-	dir, err := createSimpleTestSite(t, testSiteConfig{})
+	dir, clean, err := createSimpleTestSite(t, testSiteConfig{})
+	defer clean()
 	c.Assert(err, qt.IsNil)
 
 	// Let us hope that this port is available on all systems ...

@@ -4,7 +4,7 @@ linktitle: Host on Render
 description: Host your Hugo site for free with Render's global CDN, fully-managed SSL and auto deploys from GitHub.
 date: 2019-06-06
 publishdate: 2019-06-06
-lastmod: 2019-06-21
+lastmod: 2020-01-01
 categories: [hosting and deployment]
 keywords: [render,hosting,deployment]
 authors: [Anurag Goel]
@@ -25,7 +25,7 @@ toc: true
 
 Static sites are **completely free** on Render and include the following:
 
-- Continuous, automatic builds & deploys from GitHub.
+- Continuous, automatic builds & deploys from [GitHub](https://render.com/docs/github) and [GitLab](https://render.com/docs/gitlab).
 - Automatic SSL certificates through [Let's Encrypt](https://letsencrypt.org).
 - Instant cache invalidation with a lightning fast, global CDN.
 - Unlimited collaborators.
@@ -38,7 +38,7 @@ Static sites are **completely free** on Render and include the following:
 
 ## Assumptions
 
-* You have an account with GitHub.
+* You have an account with GitHub or GitLab.
 * You have completed the [Quick Start][] or have a Hugo website you are ready to deploy and share with the world.
 * You have a Render account. You can sign up at https://render.com/register.
 
@@ -46,20 +46,20 @@ Static sites are **completely free** on Render and include the following:
 
 You can set up a Hugo site on Render in two quick steps:
 
-1. Create a new **Web Service** on Render, and give Render permission to access your GitHub repo.
+1. Create a new **Web Service** on Render, and give Render permission to access your GitHub/Gitlab repo.
 2. Use the following values during creation:
 
   Field                | Value
   -------------------  |  -------------------
  **Environment**       | `Static Site`
- **Build Command**     | `hugo --gc --minify` (or our own build command)
+ **Build Command**     | `hugo --gc --minify` (or your own build command)
  **Publish Directory** | `public` (or your own output directory)
 
 That's it! Your site will be live on your Render URL (which looks like `yoursite.onrender.com`) as soon as the build is done.
 
 ## Continuous Deploys
 
-Now that Render is connected to your repo, it will **automatically build and publish your site** any time you push to GitHub.
+Now that Render is connected to your repo, it will **automatically build and publish your site** any time you push to your GitHub/Gitlab.
 
 You can choose to disable auto deploys under the **Settings** section for your site and deploy it manually from the Render dashboard.
 
