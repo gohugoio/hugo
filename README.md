@@ -54,7 +54,7 @@ Use the [installation instructions in the Hugo documentation](https://gohugo.io/
 #### Prerequisite Tools
 
 * [Git](https://git-scm.com/)
-* [Go (at least Go 1.11)](https://golang.org/dl/)
+* [Go (we test it with the last 2 major versions)](https://golang.org/dl/)
 
 #### Fetch from GitHub
 
