@@ -64,10 +64,6 @@ There are a few alternatives to commenting on static sites for those who do not 
 * [JustComments](https://just-comments.com) (Open Source, available as a service, can be self-hosted)
 
 
-Written using Go, Socket.io, and [MongoDB][], Kaiju is very fast and easy to deploy.
-
-It is in early development but shows promise. If you have interest, please help by contributing via pull request, [opening an issue in the Kaiju GitHub repository][kaijuissue], or [Tweeting about it][tweet]. Every bit helps. -->
-
 [configuration]: /getting-started/configuration/
 [disquspartial]: /templates/partials/#disqus
 [disqussetup]: https://disqus.com/profile/signup/
