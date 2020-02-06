@@ -32,7 +32,7 @@ Some examples:
 {{ $optOrg := dict "markup" "org" }}
 {{ "**Bold Markdown**" | $p.RenderString }}
 {{  "**Bold Block Markdown**" | $p.RenderString  $optBlock }}
-{{  "/italic org mode/" | $p.RenderString  $optOrg }}:REND
+{{  "/italic org mode/" | $p.RenderString  $optOrg }}
 ```
 
 

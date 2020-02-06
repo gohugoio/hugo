@@ -85,7 +85,7 @@ baseURL
 : Hostname (and path) to the root, e.g. https://bep.is/
 
 blackfriday
-: See [Configure Blackfriday](/getting-started/configuration/#configure-blackfriday)
+: See [Configure Blackfriday](/getting-started/configuration-markup#blackfriday)
 
 buildDrafts (false)
 : Include drafts when building.
