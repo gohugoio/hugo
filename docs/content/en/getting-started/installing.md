@@ -54,15 +54,15 @@ brew install hugo
 
 For more detailed explanations, read the installation guides that follow for installing on macOS and Windows.
 
-### Linuxbrew (Linux)
+### Homebrew (Linux)
 
-If you are on Linux and using [Linuxbrew][linuxbrew], you can install Hugo with the following one-liner:
+If you are using [Homebrew][linuxbrew] on Linux, you can install Hugo with the following one-liner:
 
 {{< code file="install-with-linuxbrew.sh" >}}
 brew install hugo
 {{< /code >}}
 
-Installation guides for Linuxbrew are available on their [website][linuxbrew].
+Installation guides for Homebrew on Linux are available on their [website][linuxbrew].
 
 ### Chocolatey (Windows)
 
@@ -518,7 +518,7 @@ Now that you've installed Hugo, read the [Quick Start guide][quickstart] and exp
 [highlight shortcode]: /content-management/shortcodes/#highlight
 [installgit]: https://git-scm.com/
 [installgo]: https://golang.org/dl/
-[linuxbrew]: https://linuxbrew.sh/
+[linuxbrew]: https://docs.brew.sh/Homebrew-on-Linux
 [Path Editor]: https://patheditor2.codeplex.com/
 [pygments]: http://pygments.org
 [quickstart]: /getting-started/quick-start/

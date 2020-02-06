@@ -125,16 +125,30 @@ Text
 PlainText
 : The plain variant of the above.
 
-A Markdown example for an inline-style link with title:
+#### Link with title Markdown example :
 
 ```md
 [Text](https://www.gohugo.io "Title")
 ```
 
-A very simple template example given the above:
+Here is a code example for how the render-link.html template could look:
 
 {{< code file="layouts/_default/_markup/render-link.html" >}}
 <a href="{{ .Destination | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}{{ if strings.HasPrefix .Destination "http" }} target="_blank"{{ end }}>{{ .Text }}</a>
+{{< /code >}}
+
+#### Image Markdown example:
+
+```md
+![Text](https://d33wubrfki0l68.cloudfront.net/c38c7334cc3f23585738e40334284fddcaf03d5e/2e17c/images/hugo-logo-wide.svg "Title")
+```
+
+Here is a code example for how the render-image.html template could look:
+
+{{< code file="layouts/_default/_markup/render-image.html" >}}
+<p class="md__image">
+  <img src="{{ .Destination | safeURL }}" alt="{{ .Text }}" {{ with .Title}} title="{{ . }}"{{ end }} />
+</p>
 {{< /code >}}
 
 [^hooktemplate]: It's currently only possible to have one set of render hook templates, e.g. not per `Type` or `Section`. We may consider that in a future version.

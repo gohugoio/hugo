@@ -9,9 +9,9 @@ images:
 
 ---
 
-	
+The main driving force behind these patch releases in the new year has been getting a good story with [portable links](https://github.com/bep/portable-hugo-links/) between GitHub and Hugo, using the new render hooks introduced in [Hugo 0.62.0](https://gohugo.io/news/0.62.0-relnotes/). And all was mostly well until a Hugo user asked about anchor links. Which is, when you look into it, a slightly sad Markdown story. They have been [talking about anchors in Markdown](https://talk.commonmark.org/t/anchors-in-markdown/247) over at the CommonMark forum for the last six years, but it has come to nothing. The current situation is that some Markdown engines support the `{#anchorName}` attribute syntax (Hugo's Goldmark does, GitHub does not) and for those that support auto-generation of IDs, the implementation often varies. And this makes for poor portability.
 
-This is a bug-fix release with a couple of important fixes.
+To improve this, Hugo has now reverse-engineered GitHub's implementation and made that the default strategy for generation or header IDs. We understand that this isn't everyone's cup of tea, so you can [configure the behaviour](https://gohugo.io/getting-started/configuration-markup#goldmark) to be one of `github`, `github-ascii` (some client-libraries have Unicode issues) or `blackfriday` (which will match how it behaved before Hugo 0.60).
 
 * hugolib: Fix relative .Page.GetPage from bundle [196a9df5](https://github.com/gohugoio/hugo/commit/196a9df585c4744e3280f37c1c24e469fce14b8c) [@bep](https://github.com/bep) [#6705](https://github.com/gohugoio/hugo/issues/6705)
 * markup/goldmark: Adjust auto ID space handling [9b6e6146](https://github.com/gohugoio/hugo/commit/9b6e61464b09ffe3423fb8d7c72bddb7a9ed5b98) [@bep](https://github.com/bep) [#6710](https://github.com/gohugoio/hugo/issues/6710)

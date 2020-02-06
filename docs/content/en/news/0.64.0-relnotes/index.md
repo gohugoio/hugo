@@ -1,12 +1,12 @@
 
 ---
 date: 2020-02-04
-title: "0.64.0"
-description: "0.64.0"
+title: "Mostly bugfixes …"
+description: "Hugo 0.64.0 is the version you really really want …"
 categories: ["Releases"]
 ---
 
-	Hugo **0.64.0** is mostly a bugfix-release, but well worth the download. The main reason this release comes so soon after the previous is my (me being [@bep](https://github.com/bep)) ongoing work on getting solid support for third-party libraries in [Hugo Modules](https://gohugo.io/hugo-modules/). In particular, this release makes the Hugo server's live-reload work with [Turbolinks](https://github.com/bep/hugo-alpine-test/blob/27927832630be588eab0be2197cc8c0cb5725540/config.toml#L11) and similar. Also worth mentioning is that `hugo mod get -u` (without any path) now correctly updates every module imported in `config.toml` even with Go 1.13.
+Hugo **0.64.0** is mostly a bugfix-release, but well worth the download. The main reason this release comes so soon after the previous is my (me being [@bep](https://github.com/bep)) ongoing work on getting solid support for third-party libraries in [Hugo Modules](https://gohugo.io/hugo-modules/). In particular, this release makes the Hugo server's live-reload work with [Turbolinks](https://github.com/bep/hugo-alpine-test/blob/27927832630be588eab0be2197cc8c0cb5725540/config.toml#L11) and similar. Also worth mentioning is that `hugo mod get -u` (without any path) now correctly updates every module imported in `config.toml` even with Go 1.13.
 
 This release represents **16 contributions by 2 contributors** to the main Hugo code base.
 Many have also been busy writing and fixing the documentation in [hugoDocs](https://github.com/gohugoio/hugoDocs), 
