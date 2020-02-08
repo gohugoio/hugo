@@ -14,16 +14,15 @@
 package scss
 
 import (
-	"github.com/bep/go-tocss/scss"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugolib/filesystems"
 	"github.com/gohugoio/hugo/resources"
-	"github.com/gohugoio/hugo/resources/internal"
-	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/spf13/afero"
 
 	"github.com/mitchellh/mapstructure"
 )
+
+const transformationName = "tocss"
 
 type Client struct {
 	rs     *resources.Spec
@@ -59,41 +58,6 @@ type Options struct {
 
 	// When enabled, Hugo will generate a source map.
 	EnableSourceMap bool
-}
-
-type options struct {
-	// The options we receive from the end user.
-	from Options
-
-	// The options we send to the SCSS library.
-	to scss.Options
-}
-
-func (c *Client) ToCSS(res resources.ResourceTransformer, opts Options) (resource.Resource, error) {
-	internalOptions := options{
-		from: opts,
-	}
-
-	// Transfer values from client.
-	internalOptions.to.Precision = opts.Precision
-	internalOptions.to.OutputStyle = scss.OutputStyleFromString(opts.OutputStyle)
-
-	if internalOptions.to.Precision == 0 {
-		// bootstrap-sass requires 8 digits precision. The libsass default is 5.
-		// https://github.com/twbs/bootstrap-sass/blob/master/README.md#sass-number-precision
-		internalOptions.to.Precision = 8
-	}
-
-	return res.Transform(&toCSSTransformation{c: c, options: internalOptions})
-}
-
-type toCSSTransformation struct {
-	c       *Client
-	options options
-}
-
-func (t *toCSSTransformation) Key() internal.ResourceTransformationKey {
-	return internal.NewResourceTransformationKey("tocss", t.options.from)
 }
 
 func DecodeOptions(m map[string]interface{}) (opts Options, err error) {

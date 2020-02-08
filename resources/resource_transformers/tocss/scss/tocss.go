@@ -22,9 +22,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/bep/go-tocss/scss"
-	"github.com/bep/go-tocss/scss/libsass"
-	"github.com/bep/go-tocss/tocss"
+	"github.com/bep/golibsass/libsass"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/media"
@@ -67,6 +65,7 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	// We add the entry directories for both project and themes to the include paths list, but
 	// that only work for overrides on the top level.
 	options.to.ImportResolver = func(url string, prev string) (newUrl string, body string, resolved bool) {
+
 		// We get URL paths from LibSASS, but we need file paths.
 		url = filepath.FromSlash(url)
 		prev = filepath.FromSlash(prev)
@@ -74,6 +73,7 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		var basePath string
 		urlDir := filepath.Dir(url)
 		var prevDir string
+
 		if prev == "stdin" {
 			prevDir = baseDir
 		} else {
@@ -121,18 +121,18 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 
 	if options.from.EnableSourceMap {
 
-		options.to.SourceMapFilename = outName + ".map"
-		options.to.SourceMapRoot = t.c.rs.WorkingDir
+		options.to.SourceMapOptions.Filename = outName + ".map"
+		options.to.SourceMapOptions.Root = t.c.rs.WorkingDir
 
 		// Setting this to the relative input filename will get the source map
 		// more correct for the main entry path (main.scss typically), but
 		// it will mess up the import mappings. As a workaround, we do a replacement
 		// in the source map itself (see below).
 		//options.InputPath = inputPath
-		options.to.OutputPath = outName
-		options.to.SourceMapContents = true
-		options.to.OmitSourceMapURL = false
-		options.to.EnableEmbeddedSourceMap = false
+		options.to.SourceMapOptions.OutputPath = outName
+		options.to.SourceMapOptions.Contents = true
+		options.to.SourceMapOptions.OmitURL = false
+		options.to.SourceMapOptions.EnableEmbedded = false
 	}
 
 	res, err := t.c.toCSS(options.to, ctx.To, ctx.From)
@@ -161,18 +161,21 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	return nil
 }
 
-func (c *Client) toCSS(options scss.Options, dst io.Writer, src io.Reader) (tocss.Result, error) {
-	var res tocss.Result
+func (c *Client) toCSS(options libsass.Options, dst io.Writer, src io.Reader) (libsass.Result, error) {
+	var res libsass.Result
 
 	transpiler, err := libsass.New(options)
 	if err != nil {
 		return res, err
 	}
 
-	res, err = transpiler.Execute(dst, src)
+	in := helpers.ReaderToString(src)
+	res, err = transpiler.Execute(in)
 	if err != nil {
 		return res, errors.Wrap(err, "SCSS processing failed")
 	}
 
-	return res, nil
+	_, err = io.WriteString(dst, res.CSS)
+
+	return res, err
 }
