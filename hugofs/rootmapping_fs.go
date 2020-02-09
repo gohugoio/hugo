@@ -367,7 +367,7 @@ func (fs *RootMappingFs) collectDirEntries(prefix string) ([]os.FileInfo, error)
 				opener := func() (afero.File, error) {
 					return fs.Open(filepath.Join(rm.From, name))
 				}
-				fi = newDirNameOnlyFileInfo(name, meta, false, opener)
+				fi = newDirNameOnlyFileInfo(name, meta, opener)
 			}
 
 			fis = append(fis, fi)
@@ -396,7 +396,7 @@ func (fs *RootMappingFs) collectDirEntries(prefix string) ([]os.FileInfo, error)
 				return fs.Open(path)
 			}
 
-			fi := newDirNameOnlyFileInfo(name, nil, false, opener)
+			fi := newDirNameOnlyFileInfo(name, nil, opener)
 			fis = append(fis, fi)
 
 			return false
@@ -419,7 +419,7 @@ func (fs *RootMappingFs) collectDirEntries(prefix string) ([]os.FileInfo, error)
 				return fs.Open(rm.From)
 			}
 
-			fi := newDirNameOnlyFileInfo(name, rm.Meta, false, opener)
+			fi := newDirNameOnlyFileInfo(name, rm.Meta, opener)
 
 			fis = append(fis, fi)
 
@@ -441,7 +441,7 @@ func (fs *RootMappingFs) doLstat(name string) ([]FileMetaInfo, error) {
 		if fs.hasPrefix(key) {
 			// We have directories mounted below this.
 			// Make it look like a directory.
-			return []FileMetaInfo{newDirNameOnlyFileInfo(name, nil, true, fs.virtualDirOpener(name))}, nil
+			return []FileMetaInfo{newDirNameOnlyFileInfo(name, nil, fs.virtualDirOpener(name))}, nil
 		}
 
 		// Find any real files or directories with this key.
@@ -484,7 +484,7 @@ func (fs *RootMappingFs) doLstat(name string) ([]FileMetaInfo, error) {
 
 	if fileCount == 0 {
 		// Dir only.
-		return []FileMetaInfo{newDirNameOnlyFileInfo(name, roots[0].Meta, true, fs.virtualDirOpener(name))}, nil
+		return []FileMetaInfo{newDirNameOnlyFileInfo(name, roots[0].Meta, fs.virtualDirOpener(name))}, nil
 	}
 
 	if fileCount > 1 {

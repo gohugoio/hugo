@@ -272,7 +272,7 @@ func (fi *dirNameOnlyFileInfo) Sys() interface{} {
 	return nil
 }
 
-func newDirNameOnlyFileInfo(name string, meta FileMeta, isOrdered bool, fileOpener func() (afero.File, error)) FileMetaInfo {
+func newDirNameOnlyFileInfo(name string, meta FileMeta, fileOpener func() (afero.File, error)) FileMetaInfo {
 	name = normalizeFilename(name)
 	_, base := filepath.Split(name)
 
@@ -281,7 +281,7 @@ func newDirNameOnlyFileInfo(name string, meta FileMeta, isOrdered bool, fileOpen
 		m.setIfNotZero(metaKeyFilename, name)
 	}
 	m[metaKeyOpener] = fileOpener
-	m[metaKeyIsOrdered] = isOrdered
+	m[metaKeyIsOrdered] = false
 
 	return NewFileMetaInfo(
 		&dirNameOnlyFileInfo{name: base},
