@@ -71,13 +71,13 @@ The Asciidoctor community offers a wide set of tools for the AsciiDoc format tha
 
 Referencing chapters e.g. by [include](https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#include-files) 
 keyword or rendering [asciidoctor-diagram](https://asciidoctor.org/docs/asciidoctor-diagram/) requires Hugo to set the
-helper args `--base-dir` and `outdir=`. These will be added if enabled by setting `currentContent = true`. All Asciidoctor 
+helper args `--base-dir` and `outdir=`. These will be added if enabled by setting `workingFolderCurrent = true`. All Asciidoctor 
 args can be customized in Hugo. E.g.
 
 ```
-[asciidoctor]
+[markup.asciidocext]
     args = ["--no-header-footer", "-r", "asciidoctor-html5s", "-b", "html5s", "-r", "asciidoctor-diagram"]
-    currentContent = true
+    workingFolderCurrent = true
 ```
 
 In a complex Asciidoctor environment it is sometimes helpful to debug the exact call to your external helper with all 

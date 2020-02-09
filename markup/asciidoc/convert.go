@@ -32,19 +32,16 @@ type provider struct {
 
 func (p provider) New(cfg converter.ProviderConfig) (converter.Provider, error) {
 	return converter.NewProvider("asciidoc", func(ctx converter.DocumentContext) (converter.Converter, error) {
-		config, _ := DecodeConfig(cfg.Cfg)
 		return &asciidocConverter{
-			ctx:    ctx,
-			cfg:    cfg,
-			config: config,
+			ctx: ctx,
+			cfg: cfg,
 		}, nil
 	}), nil
 }
 
 type asciidocConverter struct {
-	ctx    converter.DocumentContext
-	cfg    converter.ProviderConfig
-	config Config
+	ctx converter.DocumentContext
+	cfg converter.ProviderConfig
 }
 
 func (a *asciidocConverter) Convert(ctx converter.RenderContext) (converter.Result, error) {
@@ -77,7 +74,7 @@ func (a *asciidocConverter) getAsciidocContent(src []byte, ctx converter.Documen
 	} else {
 		args = []string{"--no-header-footer", "--safe"}
 	}
-	if args[len(args)-1] != "-" {
+	if len(args) > 0 && args[len(args)-1] != "-" {
 		args = append(args, "-")
 	}
 
@@ -87,10 +84,10 @@ func (a *asciidocConverter) getAsciidocContent(src []byte, ctx converter.Documen
 }
 
 func (a *asciidocConverter) getAsciidoctorArgs(ctx converter.DocumentContext) []string {
-	args := a.config.Args
-	currentContent := a.config.CurrentContent
+	args := a.cfg.MarkupConfig.AsciidocExt.Args
+	workingFolderCurrent := a.cfg.MarkupConfig.AsciidocExt.WorkingFolderCurrent
 
-	if currentContent {
+	if workingFolderCurrent {
 		contentDir := filepath.Dir(ctx.Filename)
 		destinationDir := a.cfg.Cfg.GetString("destination")
 		outDir, err := filepath.Abs(filepath.Dir(filepath.Join(destinationDir, ctx.DocumentName)))

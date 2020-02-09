@@ -14,24 +14,30 @@
 package asciidoc
 
 import (
+	"github.com/gohugoio/hugo/markup/markup_config"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/markup/converter"
 
 	"github.com/spf13/viper"
 
 	qt "github.com/frankban/quicktest"
-
-	"path/filepath"
 )
 
 func TestAsciidoctorDefaultArgs(t *testing.T) {
 	c := qt.New(t)
-	cfg, _ := config.FromConfigString("", "toml")
-	p, err := Provider.New(converter.ProviderConfig{Logger: loggers.NewErrorLogger(), Cfg: cfg})
+	cfg := viper.New()
+	mconf := markup_config.Default
+	p, err := Provider.New(
+		converter.ProviderConfig{
+			Cfg:          cfg,
+			MarkupConfig: mconf,
+			Logger:       loggers.NewErrorLogger(),
+		},
+	)
 	c.Assert(err, qt.IsNil)
 
 	conv, err := p.New(converter.DocumentContext{})
@@ -48,8 +54,15 @@ func TestAsciidoctorDefaultArgs(t *testing.T) {
 func TestAsciidoctorDiagramArgs(t *testing.T) {
 	c := qt.New(t)
 	cfg := viper.New()
-	cfg.Set("asciidoctor.Args", []string{"--no-header-footer", "-r", "asciidoctor-html5s", "-b", "html5s", "-r", "asciidoctor-diagram"})
-	p, err := Provider.New(converter.ProviderConfig{Logger: loggers.NewErrorLogger(), Cfg: cfg})
+	mconf := markup_config.Default
+	mconf.AsciidocExt.Args = []string{"--no-header-footer", "-r", "asciidoctor-html5s", "-b", "html5s", "-r", "asciidoctor-diagram"}
+	p, err := Provider.New(
+		converter.ProviderConfig{
+			Cfg:          cfg,
+			MarkupConfig: mconf,
+			Logger:       loggers.NewErrorLogger(),
+		},
+	)
 	c.Assert(err, qt.IsNil)
 
 	conv, err := p.New(converter.DocumentContext{})
@@ -63,11 +76,18 @@ func TestAsciidoctorDiagramArgs(t *testing.T) {
 	c.Assert(strings.Join(args, " "), qt.Equals, "--no-header-footer -r asciidoctor-html5s -b html5s -r asciidoctor-diagram")
 }
 
-func TestAsciidoctorCurrentContent(t *testing.T) {
+func TestAsciidoctorWorkingFolderCurrent(t *testing.T) {
 	c := qt.New(t)
 	cfg := viper.New()
-	cfg.Set("asciidoctor.CurrentContent", true)
-	p, err := Provider.New(converter.ProviderConfig{Logger: loggers.NewErrorLogger(), Cfg: cfg})
+	mconf := markup_config.Default
+	mconf.AsciidocExt.WorkingFolderCurrent = true
+	p, err := Provider.New(
+		converter.ProviderConfig{
+			Cfg:          cfg,
+			MarkupConfig: mconf,
+			Logger:       loggers.NewErrorLogger(),
+		},
+	)
 	c.Assert(err, qt.IsNil)
 
 	ctx := converter.DocumentContext{Filename: "/tmp/hugo_asciidoc_ddd/docs/chapter2/index.adoc", DocumentName: "chapter2/index.adoc"}
@@ -88,12 +108,19 @@ func TestAsciidoctorCurrentContent(t *testing.T) {
 	c.Assert(args[6], qt.Matches, `outdir=.*[/\\]{1,2}asciidoc[/\\]{1,2}chapter2`)
 }
 
-func TestAsciidoctorCurrentContentAndArgs(t *testing.T) {
+func TestAsciidoctorWorkingFolderCurrentAndArgs(t *testing.T) {
 	c := qt.New(t)
 	cfg := viper.New()
-	cfg.Set("asciidoctor.Args", []string{"--no-header-footer", "-r", "asciidoctor-html5s", "-b", "html5s", "-r", "asciidoctor-diagram"})
-	cfg.Set("asciidoctor.CurrentContent", true)
-	p, err := Provider.New(converter.ProviderConfig{Logger: loggers.NewErrorLogger(), Cfg: cfg})
+	mconf := markup_config.Default
+	mconf.AsciidocExt.Args = []string{"--no-header-footer", "-r", "asciidoctor-html5s", "-b", "html5s", "-r", "asciidoctor-diagram"}
+	mconf.AsciidocExt.WorkingFolderCurrent = true
+	p, err := Provider.New(
+		converter.ProviderConfig{
+			Cfg:          cfg,
+			MarkupConfig: mconf,
+			Logger:       loggers.NewErrorLogger(),
+		},
+	)
 	c.Assert(err, qt.IsNil)
 
 	conv, err := p.New(converter.DocumentContext{})
@@ -122,7 +149,13 @@ func TestConvert(t *testing.T) {
 		t.Skip("asciidoc/asciidoctor not installed")
 	}
 	c := qt.New(t)
-	p, err := Provider.New(converter.ProviderConfig{Logger: loggers.NewErrorLogger(), Cfg: viper.New()})
+	mconf := markup_config.Default
+	p, err := Provider.New(
+		converter.ProviderConfig{
+			MarkupConfig: mconf,
+			Logger:       loggers.NewErrorLogger(),
+		},
+	)
 	c.Assert(err, qt.IsNil)
 
 	conv, err := p.New(converter.DocumentContext{})

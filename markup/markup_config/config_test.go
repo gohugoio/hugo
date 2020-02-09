@@ -14,6 +14,8 @@
 package markup_config
 
 import (
+	"github.com/gohugoio/hugo/config"
+	"strings"
 	"testing"
 
 	"github.com/spf13/viper"
@@ -34,6 +36,10 @@ func TestConfig(t *testing.T) {
 					"unsafe": true,
 				},
 			},
+			"asciidocext": map[string]interface{}{
+				"workingFolderCurrent": true,
+				"args":                 []string{"--no-header-footer", "-r", "asciidoctor-html5s", "-b", "html5s", "-r", "asciidoctor-diagram"},
+			},
 		})
 
 		conf, err := Decode(v)
@@ -41,7 +47,8 @@ func TestConfig(t *testing.T) {
 		c.Assert(err, qt.IsNil)
 		c.Assert(conf.Goldmark.Renderer.Unsafe, qt.Equals, true)
 		c.Assert(conf.BlackFriday.Fractions, qt.Equals, true)
-
+		c.Assert(conf.AsciidocExt.WorkingFolderCurrent, qt.Equals, true)
+		c.Assert(strings.Join(conf.AsciidocExt.Args, " "), qt.Equals, "--no-header-footer -r asciidoctor-html5s -b html5s -r asciidoctor-diagram")
 	})
 
 	c.Run("legacy", func(c *qt.C) {
@@ -67,4 +74,16 @@ func TestConfig(t *testing.T) {
 		c.Assert(conf.Highlight.GuessSyntax, qt.Equals, true)
 	})
 
+}
+
+func TestAsciidocDefaultConfig(t *testing.T) {
+	c := qt.New(t)
+	cfg, err := config.FromConfigString("", "toml")
+	c.Assert(err, qt.IsNil)
+
+	acfg, err := Decode(cfg)
+	c.Assert(err, qt.IsNil)
+
+	c.Assert(acfg.AsciidocExt.WorkingFolderCurrent, qt.Equals, false)
+	c.Assert(strings.Join(acfg.AsciidocExt.Args, " "), qt.Equals, "--no-header-footer --safe --trace")
 }
