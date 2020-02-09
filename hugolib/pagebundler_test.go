@@ -1336,3 +1336,35 @@ bundle min min key: {{ $jsonMinMin.Key }}
 
 	}
 }
+
+func TestPageBundlerHome(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-bundler-home")
+	c.Assert(err, qt.IsNil)
+
+	cfg := viper.New()
+	cfg.Set("workingDir", workDir)
+	fs := hugofs.NewFrom(hugofs.Os, cfg)
+
+	os.MkdirAll(filepath.Join(workDir, "content"), 0777)
+
+	defer clean()
+
+	b := newTestSitesBuilder(t)
+	b.Fs = fs
+
+	b.WithWorkingDir(workDir).WithViper(cfg)
+
+	b.WithContent("_index.md", "---\ntitle: Home\n---\n![Alt text](image.jpg)")
+	b.WithSourceFile("content/data.json", "DATA")
+
+	b.WithTemplates("index.html", `Title: {{ .Title }}|First Resource: {{ index .Resources 0 }}|Content: {{ .Content }}`)
+	b.WithTemplates("_default/_markup/render-image.html", `Hook Len Page Resources {{ len .Page.Resources }}`)
+
+	b.Build(BuildCfg{})
+	b.AssertFileContent("public/index.html", `
+Title: Home|First Resource: data.json|Content: <p>Hook Len Page Resources 1</p>
+`)
+}
