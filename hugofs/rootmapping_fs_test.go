@@ -365,12 +365,18 @@ func TestRootMappingFsOs(t *testing.T) {
 
 	c.Assert(afero.WriteFile(fs, filepath.Join(d, "f2t", testfile), []byte("some content"), 0755), qt.IsNil)
 
+	// https://github.com/gohugoio/hugo/issues/6854
+	mystaticDir := filepath.Join(d, "mystatic", "a", "b", "c")
+	c.Assert(fs.MkdirAll(mystaticDir, 0755), qt.IsNil)
+	c.Assert(afero.WriteFile(fs, filepath.Join(mystaticDir, "ms-1.txt"), []byte("some content"), 0755), qt.IsNil)
+
 	rfs, err := newRootMappingFsFromFromTo(
 		d,
 		fs,
 		"static/bf1", filepath.Join(d, "f1t"),
 		"static/cf2", filepath.Join(d, "f2t"),
 		"static/af3", filepath.Join(d, "f3t"),
+		"static", filepath.Join(d, "mystatic"),
 		"static/a/b/c", filepath.Join(d, "d1", "d2", "d3"),
 		"layouts", filepath.Join(d, "d1"),
 	)
@@ -400,13 +406,13 @@ func TestRootMappingFsOs(t *testing.T) {
 	}
 
 	c.Assert(getDirnames("static/a/b"), qt.DeepEquals, []string{"c"})
-	c.Assert(getDirnames("static/a/b/c"), qt.DeepEquals, []string{"d4", "f-1.txt", "f-2.txt", "f-3.txt"})
+	c.Assert(getDirnames("static/a/b/c"), qt.DeepEquals, []string{"d4", "f-1.txt", "f-2.txt", "f-3.txt", "ms-1.txt"})
 	c.Assert(getDirnames("static/a/b/c/d4"), qt.DeepEquals, []string{"d4-1", "d4-2", "d4-3", "d5"})
 
 	all, err := collectFilenames(rfs, "static", "static")
 	c.Assert(err, qt.IsNil)
 
-	c.Assert(all, qt.DeepEquals, []string{"a/b/c/f-1.txt", "a/b/c/f-2.txt", "a/b/c/f-3.txt", "cf2/myfile.txt"})
+	c.Assert(all, qt.DeepEquals, []string{"a/b/c/f-1.txt", "a/b/c/f-2.txt", "a/b/c/f-3.txt", "a/b/c/ms-1.txt", "cf2/myfile.txt"})
 
 	fis, err := collectFileinfos(rfs, "static", "static")
 	c.Assert(err, qt.IsNil)
@@ -423,7 +429,7 @@ func TestRootMappingFsOs(t *testing.T) {
 	sortFileInfos(fileInfos)
 	i := 0
 	for _, fi := range fileInfos {
-		if fi.IsDir() {
+		if fi.IsDir() || fi.Name() == "ms-1.txt" {
 			continue
 		}
 		i++
@@ -436,4 +442,48 @@ func TestRootMappingFsOs(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	_, err = rfs.Stat(filepath.FromSlash("layouts/d2/d3"))
 	c.Assert(err, qt.IsNil)
+}
+
+func TestRootMappingFsOsBase(t *testing.T) {
+	c := qt.New(t)
+	fs := NewBaseFileDecorator(afero.NewOsFs())
+
+	d, clean, err := htesting.CreateTempDir(fs, "hugo-root-mapping-os-base")
+	c.Assert(err, qt.IsNil)
+	defer clean()
+
+	// Deep structure
+	deepDir := filepath.Join(d, "d1", "d2", "d3", "d4", "d5")
+	c.Assert(fs.MkdirAll(deepDir, 0755), qt.IsNil)
+	for i := 1; i <= 3; i++ {
+		c.Assert(fs.MkdirAll(filepath.Join(d, "d1", "d2", "d3", "d4", fmt.Sprintf("d4-%d", i)), 0755), qt.IsNil)
+		c.Assert(afero.WriteFile(fs, filepath.Join(d, "d1", "d2", "d3", fmt.Sprintf("f-%d.txt", i)), []byte("some content"), 0755), qt.IsNil)
+	}
+
+	mystaticDir := filepath.Join(d, "mystatic", "a", "b", "c")
+	c.Assert(fs.MkdirAll(mystaticDir, 0755), qt.IsNil)
+	c.Assert(afero.WriteFile(fs, filepath.Join(mystaticDir, "ms-1.txt"), []byte("some content"), 0755), qt.IsNil)
+
+	bfs := afero.NewBasePathFs(fs, d)
+
+	rfs, err := newRootMappingFsFromFromTo(
+		"",
+		bfs,
+		"static", "mystatic",
+		"static/a/b/c", filepath.Join("d1", "d2", "d3"),
+	)
+
+	getDirnames := func(dirname string) []string {
+		dirname = filepath.FromSlash(dirname)
+		f, err := rfs.Open(dirname)
+		c.Assert(err, qt.IsNil)
+		defer f.Close()
+		dirnames, err := f.Readdirnames(-1)
+		c.Assert(err, qt.IsNil)
+		sort.Strings(dirnames)
+		return dirnames
+	}
+
+	c.Assert(getDirnames("static/a/b/c"), qt.DeepEquals, []string{"d4", "f-1.txt", "f-2.txt", "f-3.txt", "ms-1.txt"})
+
 }

@@ -50,6 +50,7 @@ const (
 	metaKeyOpener                     = "opener"
 	metaKeyIsOrdered                  = "isOrdered"
 	metaKeyIsSymlink                  = "isSymlink"
+	metaKeyJoinStat                   = "joinStat"
 	metaKeySkipDir                    = "skipDir"
 	metaKeyClassifier                 = "classifier"
 	metaKeyTranslationBaseName        = "translationBaseName"
@@ -175,6 +176,14 @@ func (f FileMeta) Open() (afero.File, error) {
 		return nil, errors.New("file opener not found")
 	}
 	return v.(func() (afero.File, error))()
+}
+
+func (f FileMeta) JoinStat(name string) (FileMetaInfo, error) {
+	v, found := f[metaKeyJoinStat]
+	if !found {
+		return nil, os.ErrNotExist
+	}
+	return v.(func(name string) (FileMetaInfo, error))(name)
 }
 
 func (f FileMeta) stringV(key string) string {

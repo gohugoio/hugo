@@ -128,6 +128,11 @@ type RootMapping struct {
 
 }
 
+type keyRootMappings struct {
+	key   string
+	roots []RootMapping
+}
+
 func (rm *RootMapping) clean() {
 	rm.From = strings.Trim(filepath.Clean(rm.From), filepathSeparator)
 	rm.To = filepath.Clean(rm.To)
@@ -281,6 +286,21 @@ func (fs *RootMappingFs) getRootsWithPrefix(prefix string) []RootMapping {
 	return roots
 }
 
+func (fs *RootMappingFs) getAncestors(prefix string) []keyRootMappings {
+	var roots []keyRootMappings
+	fs.rootMapToReal.WalkPath(prefix, func(s string, v interface{}) bool {
+		if strings.HasPrefix(prefix, s+filepathSeparator) {
+			roots = append(roots, keyRootMappings{
+				key:   s,
+				roots: v.([]RootMapping),
+			})
+		}
+		return false
+	})
+
+	return roots
+}
+
 func (fs *RootMappingFs) newUnionFile(fis ...FileMetaInfo) (afero.File, error) {
 	meta := fis[0].Meta()
 	f, err := meta.Open()
@@ -342,17 +362,15 @@ func (fs *RootMappingFs) collectDirEntries(prefix string) ([]os.FileInfo, error)
 	seen := make(map[string]bool) // Prevent duplicate directories
 	level := strings.Count(prefix, filepathSeparator)
 
-	// First add any real files/directories.
-	rms := fs.getRoot(prefix)
-	for _, rm := range rms {
-		f, err := rm.fi.Meta().Open()
+	collectDir := func(rm RootMapping, fi FileMetaInfo) error {
+		f, err := fi.Meta().Open()
 		if err != nil {
-			return nil, err
+			return err
 		}
 		direntries, err := f.Readdir(-1)
 		if err != nil {
 			f.Close()
-			return nil, err
+			return err
 		}
 
 		for _, fi := range direntries {
@@ -374,6 +392,16 @@ func (fs *RootMappingFs) collectDirEntries(prefix string) ([]os.FileInfo, error)
 		}
 
 		f.Close()
+
+		return nil
+	}
+
+	// First add any real files/directories.
+	rms := fs.getRoot(prefix)
+	for _, rm := range rms {
+		if err := collectDir(rm, rm.fi); err != nil {
+			return nil, err
+		}
 	}
 
 	// Next add any file mounts inside the given directory.
@@ -427,6 +455,22 @@ func (fs *RootMappingFs) collectDirEntries(prefix string) ([]os.FileInfo, error)
 
 		return false
 	})
+
+	// Finally add any ancestor dirs with files in this directory.
+	ancestors := fs.getAncestors(prefix)
+	for _, root := range ancestors {
+		subdir := strings.TrimPrefix(prefix, root.key)
+		for _, rm := range root.roots {
+			if rm.fi.IsDir() {
+				fi, err := rm.fi.Meta().JoinStat(subdir)
+				if err == nil {
+					if err := collectDir(rm, fi); err != nil {
+						return nil, err
+					}
+				}
+			}
+		}
+	}
 
 	return fis, nil
 }
