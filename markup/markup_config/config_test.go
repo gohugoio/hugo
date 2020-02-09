@@ -14,7 +14,6 @@
 package markup_config
 
 import (
-	"github.com/gohugoio/hugo/config"
 	"strings"
 	"testing"
 
@@ -78,12 +77,14 @@ func TestConfig(t *testing.T) {
 
 func TestAsciidocDefaultConfig(t *testing.T) {
 	c := qt.New(t)
-	cfg, err := config.FromConfigString("", "toml")
-	c.Assert(err, qt.IsNil)
 
-	acfg, err := Decode(cfg)
-	c.Assert(err, qt.IsNil)
+	c.Run("Decode", func(c *qt.C) {
+		c.Parallel()
+		v := viper.New()
+		conf, err := Decode(v)
 
-	c.Assert(acfg.AsciidocExt.WorkingFolderCurrent, qt.Equals, false)
-	c.Assert(strings.Join(acfg.AsciidocExt.Args, " "), qt.Equals, "--no-header-footer --safe --trace")
+		c.Assert(err, qt.IsNil)
+		c.Assert(conf.AsciidocExt.WorkingFolderCurrent, qt.Equals, false)
+		c.Assert(strings.Join(conf.AsciidocExt.Args, " "), qt.Equals, "--no-header-footer --safe --trace")
+	})
 }
