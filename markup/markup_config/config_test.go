@@ -74,17 +74,3 @@ func TestConfig(t *testing.T) {
 	})
 
 }
-
-func TestAsciidocDefaultConfig(t *testing.T) {
-	c := qt.New(t)
-
-	c.Run("Decode", func(c *qt.C) {
-		c.Parallel()
-		v := viper.New()
-		conf, err := Decode(v)
-
-		c.Assert(err, qt.IsNil)
-		c.Assert(conf.AsciidocExt.WorkingFolderCurrent, qt.Equals, false)
-		c.Assert(strings.Join(conf.AsciidocExt.Args, " "), qt.Equals, "--no-header-footer --safe --trace")
-	})
-}
