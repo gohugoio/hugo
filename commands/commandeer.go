@@ -284,7 +284,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		return nil
 	}
 
-	setCfgAndInit := func(cfg config.Provider) error {
+	cfgSetAndInit := func(cfg config.Provider) error {
 		c.Cfg = cfg
 		if c.cfgInit == nil {
 			return nil
@@ -307,7 +307,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 			AbsConfigDir: c.h.getConfigDir(dir),
 			Environ:      os.Environ(),
 			Environment:  environment},
-		setCfgAndInit,
+		cfgSetAndInit,
 		doWithConfig)
 
 	if err != nil && mustHaveConfigFile {
