@@ -34,6 +34,9 @@ jobs:
           done
 
           echo "apply develop changes, push to tag ${upstream_tag}"
+          git commit -m "[auto] apply custom changes from develop"
+          git diff v0.64.1 --stat
+
           git tag $upstream_tag -f
           git push --tags -f
         else
