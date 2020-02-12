@@ -13,6 +13,7 @@ jobs:
     - run: |
         set -e
         git fetch --unshallow
+        git fetch upstream --unshallow
         git remote add upstream https://github.com/gohugoio/hugo.git
         origin_tag=`git describe --abbrev=0`
         echo "origin tag: ${origin_tag}"
