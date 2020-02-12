@@ -1,6 +1,6 @@
 name: Publish Docker Image
 on:
-  create:
+  push:
     tags:
       - v*
 jobs:
