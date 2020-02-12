@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Publish to Registry
-        uses: elgohr/Publish-Docker-Github-Action@master
+        uses: HurricanKai/Publish-Docker-Github-Action@master
         with:
           name: l1990790120/hugo
           username: ${{ secrets.DOCKER_USERNAME }}
