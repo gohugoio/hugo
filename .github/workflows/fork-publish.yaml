@@ -13,7 +13,7 @@ jobs:
     - run: |
         git remote add upstream https://github.com/gohugoio/hugo.git
 
-        git fetch upstream
+        git fetch upstream --tags
         git fetch --unshallow
 
         origin_tag=`git describe --abbrev=0`
