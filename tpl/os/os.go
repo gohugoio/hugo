@@ -70,7 +70,7 @@ func readFile(fs afero.Fs, filename string) (string, error) {
 	}
 
 	if info, err := fs.Stat(filename); err == nil {
-		if info.Size() > 1000000 {
+		if info.Size() > 100000000 {
 			return "", fmt.Errorf("file %q is too big", filename)
 		}
 	} else {
