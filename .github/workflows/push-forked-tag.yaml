@@ -33,12 +33,11 @@ jobs:
               git commit --allow-empty -m "[auto] apply custom changes from develop"
           done
 
-
           echo "apply develop changes, push to tag ${upstream_tag}"
           git diff ${upstream_tag} --stat
 
-          git tag "${upstream_tag}-p"
-          git push --tags
+          git tag -f "${upstream_tag}-p"
+          git push -f --tags
         env:
           GITHUB_EMAIL: ${{ secrets.GITHUB_EMAIL }}
           GITHUB_USER: ${{ secrets.GITHUB_USER }}
