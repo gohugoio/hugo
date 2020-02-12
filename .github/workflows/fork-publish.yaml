@@ -12,18 +12,16 @@ jobs:
     - uses: actions/checkout@v2
     - run: |
         git remote add upstream https://github.com/gohugoio/hugo.git
-
-        git fetch upstream --tags
         git fetch --unshallow
-
         origin_tag=`git describe --abbrev=0`
         echo "origin tag: ${origin_tag}"
+
+        git fetch upstream --tags
         upstream_tag=`git ls-remote --exit-code --sort taggerdate --refs --tags upstream | tail -n 1 | sed 's/.*\///'`
         echo "upstream tag: ${upstream_tag}"
 
         if [ "$upstream_tag" != "$origin_tag" ]
         then
-          git fetch upstream
           git push --tags
 
           git checkout tags/${upstream_tag}
