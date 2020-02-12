@@ -29,6 +29,7 @@ jobs:
           do
               git cherry-pick $commit 
           done
+          echo "did this happen?"
           git tag $upstream_tag
           git push --tags -f
         else
