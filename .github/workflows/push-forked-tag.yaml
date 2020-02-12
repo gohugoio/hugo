@@ -4,44 +4,44 @@ on:
     branches:
       - develop
   schedule:
-    - cron:  '0 0 * * FRI'
+    - cron: "0 0 * * FRI"
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - run: |
-        git remote add upstream https://github.com/gohugoio/hugo.git
-        git config --global user.email "${GITHUB_EMAIL}"
-        git config --global user.name "${GITHUB_USER}"        
+      - uses: actions/checkout@v2
+      - run: |
+          git remote add upstream https://github.com/gohugoio/hugo.git
+          git config --global user.email "${GITHUB_EMAIL}"
+          git config --global user.name "${GITHUB_USER}"        
 
-        git fetch --unshallow --quiet
-        origin_tag=`git describe --abbrev=0`
-        echo "origin tag: ${origin_tag}"
+          git fetch --unshallow --quiet
+          origin_tag=`git describe --abbrev=0`
+          echo "origin tag: ${origin_tag}"
 
-        git fetch upstream --tags --quiet
-        upstream_tag=`git ls-remote --exit-code --sort taggerdate --refs --tags upstream | tail -n 1 | sed 's/.*\///'`
-        echo "upstream tag: ${upstream_tag}"
+          git fetch upstream --tags --quiet
+          upstream_tag=`git ls-remote --exit-code --sort taggerdate --refs --tags upstream | tail -n 1 | sed 's/.*\///'`
+          echo "upstream tag: ${upstream_tag}"
 
-        if [ "$upstream_tag" != "$origin_tag" ]
-        then
-          echo "check out to ${upstream_tag}"
-          git checkout tags/${upstream_tag} -b local
+          if [ "$upstream_tag" != "$origin_tag" ]
+          then
+            echo "check out to ${upstream_tag}"
+            git checkout tags/${upstream_tag} -b local
 
-          for commit in $(git log develop --reverse --author="lulu" --pretty=%H);
-          do
-              git cherry-pick $commit --strategy-option theirs
-              git commit --allow-empty -m "[auto] apply custom changes from develop"
-          done
+            for commit in $(git log develop --reverse --author="lulu" --pretty=%H);
+            do
+                git cherry-pick $commit --strategy-option theirs
+                git commit --allow-empty -m "[auto] apply custom changes from develop"
+            done
 
-          echo "apply develop changes, push to tag ${upstream_tag}"
-          git diff ${upstream_tag} --stat
+            echo "apply develop changes, push to tag ${upstream_tag}"
+            git diff ${upstream_tag} --stat
 
-          git tag "${upstream_tag}-p"
-          git push --tags
-        else
-          echo "do nothing, has latest version ${origin_tag}"
-        fi
-      env: # Or as an environment variable
-        GITHUB_EMAIL: ${{ secrets.GITHUB_EMAIL }}
-        GITHUB_USER: ${{ secrets.GITHUB_USER }}
+            git tag "${upstream_tag}-p"
+            git push --tags
+          else
+            echo "do nothing, has latest version ${origin_tag}"
+          fi
+        env: # Or as an environment variable
+          GITHUB_EMAIL: ${{ secrets.GITHUB_EMAIL }}
+          GITHUB_USER: ${{ secrets.GITHUB_USER }}
