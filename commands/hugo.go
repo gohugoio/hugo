@@ -118,9 +118,9 @@ func Execute(args []string) Response {
 func initializeConfig(mustHaveConfigFile, running bool,
 	h *hugoBuilderCommon,
 	f flagsToConfigHandler,
-	doWithCommandeer func(c *commandeer) error) (*commandeer, error) {
+	cfgInit func(c *commandeer) error) (*commandeer, error) {
 
-	c, err := newCommandeer(mustHaveConfigFile, running, h, f, doWithCommandeer)
+	c, err := newCommandeer(mustHaveConfigFile, running, h, f, cfgInit)
 	if err != nil {
 		return nil, err
 	}
