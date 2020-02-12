@@ -12,6 +12,9 @@ jobs:
     - uses: actions/checkout@v2
     - run: |
         git remote add upstream https://github.com/gohugoio/hugo.git
+        git config --global user.email "${GITHUB_EMAIL}"
+        git config --global user.name "${GITHUB_USER}"        
+
         git fetch --unshallow --quiet
         origin_tag=`git describe --abbrev=0`
         echo "origin tag: ${origin_tag}"
@@ -34,6 +37,9 @@ jobs:
         else
           echo "do nothing, has latest version ${origin_tag}"
         fi
+      env: # Or as an environment variable
+        GITHUB_EMAIL: ${{ secrets.GITHUB_EMAIL }}
+        GITHUB_USER: ${{ secrets.GITHUB_USER }}
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@master
       if: contains(github.ref, 'refs/tags/v')
