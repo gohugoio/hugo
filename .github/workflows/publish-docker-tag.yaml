@@ -3,6 +3,9 @@ on:
   create:
     tags:
       - "*-p"
+  push:
+    tags:
+      - "*-p"
 jobs:
   build:
     runs-on: ubuntu-latest
