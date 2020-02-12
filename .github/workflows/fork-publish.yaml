@@ -9,7 +9,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Check Upstream Updates
       run: |
         git remote add upstream https://github.com/gohugoio/hugo.git
