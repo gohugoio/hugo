@@ -2,10 +2,10 @@ name: Publish Docker Image
 on:
   create:
     tags:
-      - "*-p"
+      - "v*-p"
   push:
     tags:
-      - "*-p"
+      - "v*-p"
 jobs:
   build:
     runs-on: ubuntu-latest
