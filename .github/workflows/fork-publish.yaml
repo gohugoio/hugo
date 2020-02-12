@@ -9,6 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@master
     - name: Check Upstream Updates
       run: |
         git remote add upstream https://github.com/gohugoio/hugo.git 
@@ -30,7 +31,6 @@ jobs:
           echo "do nothing, has latest version ${origin_tag}"
         fi
     - name: Publish to Registry
-    - uses: actions/checkout@master
       uses: elgohr/Publish-Docker-Github-Action@master
       if: contains(github.ref, 'refs/tags/v')
       with:
