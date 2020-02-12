@@ -23,25 +23,22 @@ jobs:
           upstream_tag=`git ls-remote --exit-code --sort taggerdate --refs --tags upstream | tail -n 1 | sed 's/.*\///'`
           echo "upstream tag: ${upstream_tag}"
 
-          if [ "$upstream_tag" != "$origin_tag" ]
-          then
-            echo "check out to ${upstream_tag}"
-            git checkout tags/${upstream_tag} -b local
 
-            for commit in $(git log develop --reverse --author="lulu" --pretty=%H);
-            do
-                git cherry-pick $commit --strategy-option theirs
-                git commit --allow-empty -m "[auto] apply custom changes from develop"
-            done
+          echo "check out to ${upstream_tag}"
+          git checkout tags/${upstream_tag} -b local
 
-            echo "apply develop changes, push to tag ${upstream_tag}"
-            git diff ${upstream_tag} --stat
+          for commit in $(git log develop --reverse --author="lulu" --pretty=%H);
+          do
+              git cherry-pick $commit --strategy-option theirs
+              git commit --allow-empty -m "[auto] apply custom changes from develop"
+          done
 
-            git tag "${upstream_tag}-p"
-            git push --tags
-          else
-            echo "do nothing, has latest version ${origin_tag}"
-          fi
+
+          echo "apply develop changes, push to tag ${upstream_tag}"
+          git diff ${upstream_tag} --stat
+
+          git tag "${upstream_tag}-p"
+          git push --tags
         env:
           GITHUB_EMAIL: ${{ secrets.GITHUB_EMAIL }}
           GITHUB_USER: ${{ secrets.GITHUB_USER }}
