@@ -1,8 +1,5 @@
 name: Publish Docker Image
 on:
-  create:
-    tags:
-      - v*-p
   push:
     tags:
       - v*-p
