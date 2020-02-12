@@ -1,0 +1,18 @@
+name: Publish Docker
+on:
+  push:
+    branches:
+      - develop
+  schedule:
+    - cron:  '0 0 * * FRI'      
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Publish to Registry
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: l1990790120/hugo
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
