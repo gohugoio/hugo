@@ -7,7 +7,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v1
       - name: Publish to Registry
         uses: HurricanKai/Publish-Docker-Github-Action@master
         with:
