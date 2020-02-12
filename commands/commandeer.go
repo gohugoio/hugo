@@ -171,7 +171,7 @@ func newCommandeer(mustHaveConfigFile, running bool, h *hugoBuilderCommon, f fla
 		h:                   h,
 		ftch:                f,
 		commandeerHugoState: newCommandeerHugoState(),
-		cfgInit:    cfgInit,
+		cfgInit:             cfgInit,
 		visitedURLs:         types.NewEvictingStringQueue(10),
 		debounce:            rebuildDebouncer,
 		fullRebuildSem:      semaphore.NewWeighted(1),
