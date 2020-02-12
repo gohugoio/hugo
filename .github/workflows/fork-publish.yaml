@@ -12,9 +12,11 @@ jobs:
     - uses: actions/checkout@master
     - name: Check Upstream Updates
       run: |
-        git remote add upstream https://github.com/gohugoio/hugo.git 
-        upstream_tag=`git ls-remote --sort taggerdate --refs --tags upstream | tail -n 1 | sed 's/.*\///'`
-        origin_tag=`git describe --abbrev=0`
+      git remote add upstream https://github.com/gohugoio/hugo.git
+      origin_tag=`git describe --abbrev=0`
+      echo "origin tag: ${origin_tag}"
+      upstream_tag=`git ls-remote --sort taggerdate --refs --tags upstream | tail -n 1 | sed 's/.*\///'`
+      echo "upstream tag: ${upstream_tag}"
         if [ $upstream_tag -ne $origin_tag ]
         then
           git fetch upstream
