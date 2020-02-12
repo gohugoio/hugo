@@ -11,7 +11,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: |
-        git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+        git fetch --prune --unshallow
         git remote add upstream https://github.com/gohugoio/hugo.git
         origin_tag=`git describe --abbrev=0`
         echo "origin tag: ${origin_tag}"
