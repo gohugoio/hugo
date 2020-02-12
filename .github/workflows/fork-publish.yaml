@@ -23,15 +23,15 @@ jobs:
         if [ "$upstream_tag" != "$origin_tag" ]
         then
           git push --tags
+          echo "did this happen?"
 
-          git checkout tags/${upstream_tag}
+          git checkout local ${upstream_tag}
           for commit in $(git log --reverse --author="lulu" --pretty=%H);
           do
               git cherry-pick $commit 
           done
 
           echo "did this happen?"
-
           git tag $upstream_tag
           git push --tags -f
         else
