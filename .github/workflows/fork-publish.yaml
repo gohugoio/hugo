@@ -31,12 +31,12 @@ jobs:
           for commit in $(git log develop --reverse --author="lulu" --pretty=%H);
           do
               git cherry-pick $commit --strategy-option theirs
-              git commit --allow-empty
+              git commit --allow-empty -m "apply develop change"
           done
 
           echo "apply develop changes, push to tag ${upstream_tag}"
           git commit -m "[auto] apply custom changes from develop"
-          git diff v0.64.1 --stat
+          git diff ${upstream_tag} --stat
 
           git tag $upstream_tag -f
           git push --tags -f
