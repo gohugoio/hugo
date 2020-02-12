@@ -25,7 +25,8 @@ jobs:
 
         if [ "$upstream_tag" != "$origin_tag" ]
         then
-          git branch local ${upstream_tag}
+          git checkout tags/${upstream_tag} -b local
+
           for commit in $(git log --reverse --author="lulu" --pretty=%H);
           do
               git cherry-pick $commit --strategy-option theirs
