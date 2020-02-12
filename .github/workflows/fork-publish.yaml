@@ -25,7 +25,7 @@ jobs:
           git push --tags
           echo "did this happen?"
 
-          git checkout local ${upstream_tag}
+          git branch local ${upstream_tag}
           for commit in $(git log --reverse --author="lulu" --pretty=%H);
           do
               git cherry-pick $commit 
