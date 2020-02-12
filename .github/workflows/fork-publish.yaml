@@ -25,6 +25,7 @@ jobs:
 
         if [ "$upstream_tag" != "$origin_tag" ]
         then
+          echo "check out to ${upstream_tag}"
           git checkout tags/${upstream_tag} -b local
 
           for commit in $(git log --reverse --author="lulu" --pretty=%H);
@@ -32,8 +33,8 @@ jobs:
               git cherry-pick $commit --strategy-option theirs
           done
 
-          echo "did this happen?"
-          git tag $upstream_tag
+          echo "apply develop changes, push to tag ${upstream_tag}"
+          git tag $upstream_tag -f
           git push --tags -f
         else
           echo "do nothing, has latest version ${origin_tag}"
