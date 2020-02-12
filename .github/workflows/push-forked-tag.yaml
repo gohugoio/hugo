@@ -37,7 +37,7 @@ jobs:
           echo "apply develop changes, push to tag ${upstream_tag}"
           git diff ${upstream_tag} --stat
 
-          git tag $upstream_tag -f
+          git tag "${upstream_tag}-p" -f
           git push --tags -f
         else
           echo "do nothing, has latest version ${origin_tag}"
