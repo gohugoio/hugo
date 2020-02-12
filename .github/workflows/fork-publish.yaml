@@ -28,9 +28,10 @@ jobs:
           echo "check out to ${upstream_tag}"
           git checkout tags/${upstream_tag} -b local
 
-          for commit in $(git log --reverse --author="lulu" --pretty=%H);
+          for commit in $(git log develop --reverse --author="lulu" --pretty=%H);
           do
               git cherry-pick $commit --strategy-option theirs
+              git commit --allow-empty
           done
 
           echo "apply develop changes, push to tag ${upstream_tag}"
