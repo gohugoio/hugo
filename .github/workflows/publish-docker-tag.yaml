@@ -10,7 +10,6 @@ jobs:
     - uses: actions/checkout@v2
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@master
-      if: contains(github.ref, 'refs/tags/v')
       with:
         name: l1990790120/hugo
         username: ${{ secrets.DOCKER_USERNAME }}
