@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout and Apply Custom Change to Latest Tag
-      - uses: actions/checkout@v2
+        uses: actions/checkout@v2
         with:
           token: ${{ secrets.GITHUB_ACTION_WORKAROUND_TOKEN }}
         run: |
