@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           token: ${{ secrets.GITHUB_ACTION_WORKAROUND_TOKEN }}
-        run: |
+        - run: |
           git remote add upstream https://github.com/gohugoio/hugo.git
           git config --global user.email "${GITHUB_EMAIL}"
           git config --global user.name "${GITHUB_USER}"        
