@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - with:
-        token: ${{ secrets.GITHUB_ACTION_WORKAROUND_TOKEN }}
+        with:
+          token: ${{ secrets.GITHUB_ACTION_WORKAROUND_TOKEN }}
         run: |
           git remote add upstream https://github.com/gohugoio/hugo.git
           git config --global user.email "${GITHUB_EMAIL}"
