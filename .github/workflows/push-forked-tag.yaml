@@ -9,11 +9,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout and Apply Custom Change to Latest Tag
       - uses: actions/checkout@v2
       - with:
-          token: ${{ secrets.GITHUB_ACTION_WORKAROUND_TOKEN }}
-      - run: |
+        token: ${{ secrets.GITHUB_ACTION_WORKAROUND_TOKEN }}
+      - name: Checkout and Apply Custom Change to Latest Tag
+        run: |
           git remote add upstream https://github.com/gohugoio/hugo.git
           git config --global user.email "${GITHUB_EMAIL}"
           git config --global user.name "${GITHUB_USER}"        
