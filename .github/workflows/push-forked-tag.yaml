@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        # this is necessary because of limitation mentioned in
+        # https://github.community/t5/GitHub-Actions/Triggering-a-new-workflow-from-another-workflow/td-p/31676
         with:
           token: ${{ secrets.GITHUB_ACTION_WORKAROUND_TOKEN }}
       - run: |
@@ -25,8 +27,7 @@ jobs:
           upstream_tag=`git ls-remote --exit-code --sort taggerdate --refs --tags upstream | tail -n 1 | sed 's/.*\///'`
           echo "upstream tag: ${upstream_tag}"
 
-
-          echo "check out to ${upstream_tag}"ㄥ
+          echo "check out to ${upstream_tag}"
           git checkout tags/${upstream_tag} -b local
 
           for commit in $(git log develop --reverse --author="lulu" --pretty=%H);
