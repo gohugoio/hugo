@@ -40,6 +40,6 @@ jobs:
 
           git tag -f "${upstream_tag}-p"
           git push -f --tags
-      env:
-        GITHUB_EMAIL: ${{ secrets.GITHUB_EMAIL }}
-        GITHUB_USER: ${{ secrets.GITHUB_USER }}
+        env:
+          GITHUB_EMAIL: ${{ secrets.GITHUB_EMAIL }}
+          GITHUB_USER: ${{ secrets.GITHUB_USER }}
