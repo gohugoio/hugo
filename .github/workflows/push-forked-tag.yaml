@@ -12,34 +12,34 @@ jobs:
       - uses: actions/checkout@v2
         with:
           token: ${{ secrets.GITHUB_ACTION_WORKAROUND_TOKEN }}
-        - run: |
-          git remote add upstream https://github.com/gohugoio/hugo.git
-          git config --global user.email "${GITHUB_EMAIL}"
-          git config --global user.name "${GITHUB_USER}"        
+      - run: |
+        git remote add upstream https://github.com/gohugoio/hugo.git
+        git config --global user.email "${GITHUB_EMAIL}"
+        git config --global user.name "${GITHUB_USER}"        
 
-          git fetch --unshallow --quiet
-          origin_tag=`git describe --abbrev=0`
-          echo "origin tag: ${origin_tag}"
+        git fetch --unshallow --quiet
+        origin_tag=`git describe --abbrev=0`
+        echo "origin tag: ${origin_tag}"
 
-          git fetch upstream --tags --quiet
-          upstream_tag=`git ls-remote --exit-code --sort taggerdate --refs --tags upstream | tail -n 1 | sed 's/.*\///'`
-          echo "upstream tag: ${upstream_tag}"
+        git fetch upstream --tags --quiet
+        upstream_tag=`git ls-remote --exit-code --sort taggerdate --refs --tags upstream | tail -n 1 | sed 's/.*\///'`
+        echo "upstream tag: ${upstream_tag}"
 
 
-          echo "check out to ${upstream_tag}"
-          git checkout tags/${upstream_tag} -b local
+        echo "check out to ${upstream_tag}"ㄥ
+        git checkout tags/${upstream_tag} -b local
 
-          for commit in $(git log develop --reverse --author="lulu" --pretty=%H);
-          do
-              git cherry-pick $commit --strategy-option theirs
-              git commit --allow-empty -m "[auto] apply custom changes from develop"
-          done
+        for commit in $(git log develop --reverse --author="lulu" --pretty=%H);
+        do
+            git cherry-pick $commit --strategy-option theirs
+            git commit --allow-empty -m "[auto] apply custom changes from develop"
+        done
 
-          echo "apply develop changes, push to tag ${upstream_tag}"
-          git diff ${upstream_tag} --stat
+        echo "apply develop changes, push to tag ${upstream_tag}"
+        git diff ${upstream_tag} --stat
 
-          git tag -f "${upstream_tag}-p"
-          git push -f --tags
-        env:
-          GITHUB_EMAIL: ${{ secrets.GITHUB_EMAIL }}
-          GITHUB_USER: ${{ secrets.GITHUB_USER }}
+        git tag -f "${upstream_tag}-p"
+        git push -f --tags
+      env:
+        GITHUB_EMAIL: ${{ secrets.GITHUB_EMAIL }}
+        GITHUB_USER: ${{ secrets.GITHUB_USER }}
