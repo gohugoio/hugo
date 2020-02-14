@@ -73,6 +73,7 @@ github.com/bep/gitmap v1.1.1 h1:Nf8ySnC3I7/xPjuWeCwzukUFv185iTUQ6nOvLy9gCJA=
 github.com/bep/gitmap v1.1.1/go.mod h1:g9VRETxFUXNWzMiuxOwcudo6DfZkW9jOsOW0Ft4kYaY=
 github.com/bep/golibsass v0.4.0 h1:B2jsNZuRgpsyzv0I5iubJYApDhib87RzjTcRhVOjg78=
 github.com/bep/golibsass v0.4.0/go.mod h1:DL87K8Un/+pWUS75ggYv41bliGiolxzDKWJAq3eJ1MA=
+github.com/bep/golibsass v0.5.0/go.mod h1:DL87K8Un/+pWUS75ggYv41bliGiolxzDKWJAq3eJ1MA=
 github.com/bep/tmc v0.5.1 h1:CsQnSC6MsomH64gw0cT5f+EwQDcvZz4AazKunFwTpuI=
 github.com/bep/tmc v0.5.1/go.mod h1:tGYHN8fS85aJPhDLgXETVKp+PR382OvFi2+q2GkGsq0=
 github.com/census-instrumentation/opencensus-proto v0.2.0/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
