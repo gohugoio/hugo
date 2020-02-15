@@ -64,7 +64,8 @@ install:
   - go get github.com/magefile/mage
 
 script:
-  - go mod download || true
+  - go mod download
+  - go mod verify
   - mage -v test
   - if [ "$TRAVIS_ARCH" = "amd64" ]; then
         mage -v check;
