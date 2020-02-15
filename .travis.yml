@@ -65,6 +65,7 @@ install:
 
 script:
   - go mod download || true
+  - go mod verify
   - mage -v test
   - if [ "$TRAVIS_ARCH" = "amd64" ]; then
         mage -v check;
