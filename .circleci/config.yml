@@ -17,6 +17,7 @@ jobs:
                 cd hugo
                 go mod download
                 sleep 5
+                go mod verify
                 go test -p 1 ./...
       - persist_to_workspace:
           root: .
