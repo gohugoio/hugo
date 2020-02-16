@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	gohtml "html"
 
 	"github.com/alecthomas/chroma"
 	"github.com/alecthomas/chroma/formatters/html"
@@ -63,7 +64,7 @@ func highlight(code, lang string, cfg Config) (string, error) {
 	if lexer == nil {
 		wrapper := getPreWrapper(lang)
 		fmt.Fprint(w, wrapper.Start(true, ""))
-		fmt.Fprint(w, code)
+		fmt.Fprint(w, gohtml.EscapeString(code))
 		fmt.Fprint(w, wrapper.End(true))
 		return w.String(), nil
 	}
@@ -72,6 +73,7 @@ func highlight(code, lang string, cfg Config) (string, error) {
 	if style == nil {
 		style = styles.Fallback
 	}
+	lexer = chroma.Coalesce(lexer)
 
 	iterator, err := lexer.Tokenise(nil, code)
 	if err != nil {
