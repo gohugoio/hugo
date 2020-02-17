@@ -49,7 +49,6 @@ User-Agent: foo
 
 	})
 
-
 	c.Run("Highlight lines, default config", func(c *qt.C) {
 		cfg := DefaultConfig
 		cfg.NoClasses = false
@@ -120,7 +119,7 @@ User-Agent: foo
 		cfg.NoClasses = false
 		h := New(cfg)
 
-		result, _ := h.Highlight("Escaping less-than in code block? <fail>" , "", "")
+		result, _ := h.Highlight("Escaping less-than in code block? <fail>", "", "")
 		c.Assert(result, qt.Contains, "&lt;fail&gt;")
 	})
 

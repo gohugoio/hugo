@@ -15,9 +15,9 @@ package highlight
 
 import (
 	"fmt"
+	gohtml "html"
 	"io"
 	"strings"
-	gohtml "html"
 
 	"github.com/alecthomas/chroma"
 	"github.com/alecthomas/chroma/formatters/html"
