@@ -22,6 +22,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/resources/page"
+
 	qt "github.com/frankban/quicktest"
 )
 
@@ -370,26 +372,68 @@ func TestBenchmarkSiteNew(b *testing.T) {
 	}
 }
 
-// TODO(bep) eventually remove the old (too complicated setup).
 func BenchmarkSiteNew(b *testing.B) {
+	rnd := rand.New(rand.NewSource(32))
 	benchmarks := getBenchmarkSiteNewTestCases()
-
-	for _, bm := range benchmarks {
-		b.Run(bm.name, func(b *testing.B) {
-			sites := make([]*sitesBuilder, b.N)
-			for i := 0; i < b.N; i++ {
-				sites[i] = bm.create(b)
+	for _, edit := range []bool{true, false} {
+		for _, bm := range benchmarks {
+			name := bm.name
+			if edit {
+				name += "/Edit"
 			}
-
-			b.ResetTimer()
-			for i := 0; i < b.N; i++ {
-				s := sites[i]
-				err := s.BuildE(BuildCfg{})
-				if err != nil {
-					b.Fatal(err)
+			b.Run(name, func(b *testing.B) {
+				sites := make([]*sitesBuilder, b.N)
+				for i := 0; i < b.N; i++ {
+					sites[i] = bm.create(b)
+					if edit {
+						sites[i].Running()
+					}
 				}
-				bm.check(s)
-			}
-		})
+
+				b.ResetTimer()
+				for i := 0; i < b.N; i++ {
+					if edit {
+						b.StopTimer()
+					}
+					s := sites[i]
+					err := s.BuildE(BuildCfg{})
+					if err != nil {
+						b.Fatal(err)
+					}
+					bm.check(s)
+
+					if edit {
+						if edit {
+							b.StartTimer()
+						}
+						// Edit a random page in a random language.
+						pages := s.H.Sites[rnd.Intn(len(s.H.Sites))].Pages()
+						var p page.Page
+						count := 0
+						for {
+							count++
+							if count > 100 {
+								panic("infinite loop")
+							}
+							p = pages[rnd.Intn(len(pages))]
+							if !p.File().IsZero() {
+								break
+							}
+						}
+
+						s.EditFiles(p.File().Filename(), fmt.Sprintf(`---
+title: %s
+---
+
+Edited!!`, p.Title()))
+
+						err := s.BuildE(BuildCfg{})
+						if err != nil {
+							b.Fatal(err)
+						}
+					}
+				}
+			})
+		}
 	}
 }
