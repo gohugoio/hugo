@@ -33,9 +33,69 @@ type siteBenchmarkTestcase struct {
 	check  func(s *sitesBuilder)
 }
 
-func getBenchmarkSiteNewTestCases() []siteBenchmarkTestcase {
+func getBenchmarkSiteDeepContent(b testing.TB) *sitesBuilder {
+	pageContent := func(size int) string {
+		return getBenchmarkTestDataPageContentForMarkdown(size, benchmarkMarkdownSnippets)
+	}
 
-	const markdownSnippets = `
+	sb := newTestSitesBuilder(b).WithConfigFile("toml", `
+baseURL = "https://example.com"
+
+[languages]
+[languages.en]
+weight=1
+contentDir="content/en"
+[languages.fr]
+weight=2
+contentDir="content/fr"
+[languages.no]
+weight=3
+contentDir="content/no"
+[languages.sv]
+weight=4
+contentDir="content/sv"
+			
+`)
+
+	createContent := func(dir, name string) {
+		sb.WithContent(filepath.Join("content", dir, name), pageContent(1))
+	}
+
+	createBundledFiles := func(dir string) {
+		sb.WithContent(filepath.Join("content", dir, "data.json"), `{ "hello": "world" }`)
+		for i := 1; i <= 3; i++ {
+			sb.WithContent(filepath.Join("content", dir, fmt.Sprintf("page%d.md", i)), pageContent(1))
+		}
+	}
+
+	for _, lang := range []string{"en", "fr", "no", "sv"} {
+		for level := 1; level <= 5; level++ {
+			sectionDir := path.Join(lang, strings.Repeat("section/", level))
+			createContent(sectionDir, "_index.md")
+			createBundledFiles(sectionDir)
+			for i := 1; i <= 3; i++ {
+				leafBundleDir := path.Join(sectionDir, fmt.Sprintf("bundle%d", i))
+				createContent(leafBundleDir, "index.md")
+				createBundledFiles(path.Join(leafBundleDir, "assets1"))
+				createBundledFiles(path.Join(leafBundleDir, "assets1", "assets2"))
+			}
+		}
+	}
+
+	return sb
+}
+
+func getBenchmarkTestDataPageContentForMarkdown(size int, markdown string) string {
+	return `---
+title: "My Page"
+---
+
+My page content.
+
+` + strings.Repeat(markdown, size)
+}
+
+const benchmarkMarkdownSnippets = `
 
 ## Links
 
@@ -49,18 +109,10 @@ This is [Relative](/all-is-relative).
 See my [About](/about/) page for details. 
 `
 
-	pageContentForMarkdown := func(size int, markdown string) string {
-		return `---
-title: "My Page"
----
-
-My page content.
-
-` + strings.Repeat(markdown, size)
-	}
+func getBenchmarkSiteNewTestCases() []siteBenchmarkTestcase {
 
 	pageContent := func(size int) string {
-		return pageContentForMarkdown(size, markdownSnippets)
+		return getBenchmarkTestDataPageContentForMarkdown(size, benchmarkMarkdownSnippets)
 	}
 
 	config := `
@@ -142,52 +194,7 @@ canonifyURLs = true
 		},
 
 		{"Deep content tree", func(b testing.TB) *sitesBuilder {
-
-			sb := newTestSitesBuilder(b).WithConfigFile("toml", `
-baseURL = "https://example.com"
-
-[languages]
-[languages.en]
-weight=1
-contentDir="content/en"
-[languages.fr]
-weight=2
-contentDir="content/fr"
-[languages.no]
-weight=3
-contentDir="content/no"
-[languages.sv]
-weight=4
-contentDir="content/sv"
-			
-`)
-
-			createContent := func(dir, name string) {
-				sb.WithContent(filepath.Join("content", dir, name), pageContent(1))
-			}
-
-			createBundledFiles := func(dir string) {
-				sb.WithContent(filepath.Join("content", dir, "data.json"), `{ "hello": "world" }`)
-				for i := 1; i <= 3; i++ {
-					sb.WithContent(filepath.Join("content", dir, fmt.Sprintf("page%d.md", i)), pageContent(1))
-				}
-			}
-
-			for _, lang := range []string{"en", "fr", "no", "sv"} {
-				for level := 1; level <= 5; level++ {
-					sectionDir := path.Join(lang, strings.Repeat("section/", level))
-					createContent(sectionDir, "_index.md")
-					createBundledFiles(sectionDir)
-					for i := 1; i <= 3; i++ {
-						leafBundleDir := path.Join(sectionDir, fmt.Sprintf("bundle%d", i))
-						createContent(leafBundleDir, "index.md")
-						createBundledFiles(path.Join(leafBundleDir, "assets1"))
-						createBundledFiles(path.Join(leafBundleDir, "assets1", "assets2"))
-					}
-				}
-			}
-
-			return sb
+			return getBenchmarkSiteDeepContent(b)
 		},
 			func(s *sitesBuilder) {
 				s.CheckExists("public/blog/mybundle/index.html")
