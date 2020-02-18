@@ -35,7 +35,7 @@ type siteBenchmarkTestcase struct {
 
 func getBenchmarkSiteDeepContent(b testing.TB) *sitesBuilder {
 	pageContent := func(size int) string {
-		return getBenchmarkTestDataPageContentForMarkdown(size, benchmarkMarkdownSnippets)
+		return getBenchmarkTestDataPageContentForMarkdown(size, "", benchmarkMarkdownSnippets)
 	}
 
 	sb := newTestSitesBuilder(b).WithConfigFile("toml", `
@@ -85,14 +85,22 @@ contentDir="content/sv"
 	return sb
 }
 
-func getBenchmarkTestDataPageContentForMarkdown(size int, markdown string) string {
-	return `---
+func getBenchmarkTestDataPageContentForMarkdown(size int, category, markdown string) string {
+	base := `---
 title: "My Page"
+%s
 ---
 
 My page content.
+`
 
-` + strings.Repeat(markdown, size)
+	var categoryKey string
+	if category != "" {
+		categoryKey = fmt.Sprintf("categories: [%s]", category)
+	}
+	base = fmt.Sprintf(base, categoryKey)
+
+	return base + strings.Repeat(markdown, size)
 }
 
 const benchmarkMarkdownSnippets = `
@@ -111,8 +119,12 @@ See my [About](/about/) page for details.
 
 func getBenchmarkSiteNewTestCases() []siteBenchmarkTestcase {
 
+	pageContentWithCategory := func(size int, category string) string {
+		return getBenchmarkTestDataPageContentForMarkdown(size, category, benchmarkMarkdownSnippets)
+	}
+
 	pageContent := func(size int) string {
-		return getBenchmarkTestDataPageContentForMarkdown(size, benchmarkMarkdownSnippets)
+		return getBenchmarkTestDataPageContentForMarkdown(size, "", benchmarkMarkdownSnippets)
 	}
 
 	config := `
@@ -315,12 +327,22 @@ contentDir="content/sv"
 			
 `)
 
-			sb.WithTemplatesAdded("index.html", pageTemplateTemplate)
-			sb.WithTemplatesAdded("_default/single.html", pageTemplateTemplate)
-			sb.WithTemplatesAdded("_default/list.html", pageTemplateTemplate)
+			sb.WithTemplates("index.html", pageTemplateTemplate)
+			sb.WithTemplates("_default/single.html", pageTemplateTemplate)
+			sb.WithTemplates("_default/list.html", pageTemplateTemplate)
+
+			r := rand.New(rand.NewSource(99))
 
 			createContent := func(dir, name string) {
-				sb.WithContent(filepath.Join("content", dir, name), pageContent(1))
+				var content string
+				if strings.Contains(name, "_index") {
+					content = pageContent(1)
+
+				} else {
+					content = pageContentWithCategory(1, fmt.Sprintf("category%d", r.Intn(5)+1))
+				}
+
+				sb.WithContent(filepath.Join("content", dir, name), content)
 			}
 
 			createBundledFiles := func(dir string) {
@@ -329,8 +351,6 @@ contentDir="content/sv"
 					sb.WithContent(filepath.Join("content", dir, fmt.Sprintf("page%d.md", i)), pageContent(1))
 				}
 			}
-
-			r := rand.New(rand.NewSource(99))
 
 			for _, lang := range []string{"en", "fr", "no", "sv"} {
 				for level := 1; level <= r.Intn(5)+1; level++ {
