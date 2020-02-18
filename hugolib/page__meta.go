@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gohugoio/hugo/markup/converter"
@@ -118,7 +119,9 @@ type pageMeta struct {
 
 	s *Site
 
-	contentConverter converter.Converter
+	renderingConfigOverrides map[string]interface{}
+	contentConverterInit     sync.Once
+	contentConverter         converter.Converter
 }
 
 func (p *pageMeta) Aliases() []string {
@@ -686,17 +689,8 @@ func (p *pageMeta) applyDefaultValues(n *contentNode) error {
 			renderingConfigOverrides = maps.ToStringMap(bfParam)
 		}
 
-		markup := p.markup
-		if markup == "html" {
-			// Only used for shortcode inner content.
-			markup = "markdown"
-		}
+		p.renderingConfigOverrides = renderingConfigOverrides
 
-		cp, err := p.newContentConverter(n.p, markup, renderingConfigOverrides)
-		if err != nil {
-			return err
-		}
-		p.contentConverter = cp
 	}
 
 	return nil
@@ -709,7 +703,7 @@ func (p *pageMeta) newContentConverter(ps *pageState, markup string, renderingCo
 	}
 	cp := p.s.ContentSpec.Converters.Get(markup)
 	if cp == nil {
-		return nil, errors.Errorf("no content renderer found for markup %q", p.markup)
+		return converter.NopConverter, errors.Errorf("no content renderer found for markup %q", p.markup)
 	}
 
 	cpp, err := cp.New(
@@ -722,7 +716,7 @@ func (p *pageMeta) newContentConverter(ps *pageState, markup string, renderingCo
 	)
 
 	if err != nil {
-		return nil, err
+		return converter.NopConverter, err
 	}
 
 	return cpp, nil

@@ -14,6 +14,8 @@
 package converter
 
 import (
+	"bytes"
+
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/identity"
@@ -63,6 +65,18 @@ func (n newConverter) New(ctx DocumentContext) (Converter, error) {
 
 func (n newConverter) Name() string {
 	return n.name
+}
+
+var NopConverter = new(nopConverter)
+
+type nopConverter int
+
+func (nopConverter) Convert(ctx RenderContext) (Result, error) {
+	return &bytes.Buffer{}, nil
+}
+
+func (nopConverter) Supports(feature identity.Identity) bool {
+	return false
 }
 
 // Converter wraps the Convert method that converts some markup into

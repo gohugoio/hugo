@@ -631,6 +631,20 @@ func (p *pageState) wrapError(err error) error {
 }
 
 func (p *pageState) getContentConverter() converter.Converter {
+	var err error
+	p.m.contentConverterInit.Do(func() {
+		markup := p.m.markup
+		if markup == "html" {
+			// Only used for shortcode inner content.
+			markup = "markdown"
+		}
+		p.m.contentConverter, err = p.m.newContentConverter(p, markup, p.m.renderingConfigOverrides)
+
+	})
+
+	if err != nil {
+		p.s.Log.ERROR.Println("Failed to create content converter:", err)
+	}
 	return p.m.contentConverter
 }
 
