@@ -14,7 +14,6 @@ require (
 	github.com/bep/golibsass v0.5.0
 	github.com/bep/tmc v0.5.1
 	github.com/disintegration/gift v1.2.1
-	github.com/dlclark/regexp2 v1.2.0 // indirect
 	github.com/dustin/go-humanize v1.0.0
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/frankban/quicktest v1.7.2
@@ -52,7 +51,7 @@ require (
 	github.com/spf13/viper v1.6.1
 	github.com/tdewolff/minify/v2 v2.6.1
 	github.com/yuin/goldmark v1.1.22
-	github.com/yuin/goldmark-highlighting v0.0.0-20191202084645-78f32c8dd6d5
+	github.com/yuin/goldmark-highlighting v0.0.0-20200218065240-d1af22c1126f
 	go.opencensus.io v0.22.0 // indirect
 	go.uber.org/atomic v1.4.0
 	gocloud.dev v0.15.0
