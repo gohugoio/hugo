@@ -22,10 +22,10 @@ var EmbeddedTemplates = [][2]string{
 	{`_default/rss.xml`, `{{- $pctx := . -}}
 {{- if .IsHome -}}{{ $pctx = .Site }}{{- end -}}
 {{- $pages := slice -}}
-{{- if eq $.Kind "taxonomyTerm" -}}
-{{- $pages = $pctx.Pages -}}
-{{- else -}}
+{{- if or $.IsHome $.IsSection -}}
 {{- $pages = $pctx.RegularPages -}}
+{{- else -}}
+{{- $pages = $pctx.Pages -}}
 {{- end -}}
 {{- $limit := .Site.Config.Services.RSS.Limit -}}
 {{- if ge $limit 1 -}}
