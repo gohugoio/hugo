@@ -264,6 +264,13 @@ func (c *Client) Get(args ...string) error {
 
 		// We need to be explicit about the modules to get.
 		for _, m := range c.moduleConfig.Imports {
+			if !isProbablyModule(m.Path) {
+				// Skip themes/components stored below /themes etc.
+				// There may be false positives in the above, but those
+				// should be rare, and they will fail below with an
+				// "cannot find module providing ..." message.
+				continue
+			}
 			var args []string
 			if update {
 				args = []string{"-u"}
