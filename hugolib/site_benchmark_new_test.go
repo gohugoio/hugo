@@ -387,6 +387,8 @@ func BenchmarkSiteNew(b *testing.B) {
 			name := bm.name
 			if edit {
 				name = "Edit_" + name
+			} else {
+				name = "Regular_" + name
 			}
 			b.Run(name, func(b *testing.B) {
 				sites := make([]*sitesBuilder, b.N)
