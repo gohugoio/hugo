@@ -14,7 +14,10 @@
 package commands
 
 import (
+	"errors"
+	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/gohugoio/hugo/modules"
 	"github.com/spf13/cobra"
@@ -72,17 +75,65 @@ Install a specific version:
 Install the latest versions of all module dependencies:
 
     hugo mod get -u
+    hugo mod get -u ./... (recursive)
 
 Run "go help get" for more information. All flags available for "go get" is also relevant here.
 ` + commonUsage,
 			RunE: func(cmd *cobra.Command, args []string) error {
-				return c.withModsClient(false, func(c *modules.Client) error {
+				// We currently just pass on the flags we get to Go and
+				// need to do the flag handling manually.
+				if len(args) == 1 && args[0] == "-h" {
+					return cmd.Help()
+				}
 
-					// We currently just pass on the flags we get to Go and
-					// need to do the flag handling manually.
-					if len(args) == 1 && args[0] == "-h" {
-						return cmd.Help()
+				var lastArg string
+				if len(args) != 0 {
+					lastArg = args[len(args)-1]
+				}
+
+				if lastArg == "./..." {
+					args = args[:len(args)-1]
+					// Do a recursive update.
+					dirname, err := os.Getwd()
+					if err != nil {
+						return err
 					}
+
+					// Sanity check. We do recursive walking and want to avoid
+					// accidents.
+					if len(dirname) < 5 {
+						return errors.New("must not be run from the file system root")
+					}
+
+					filepath.Walk(dirname, func(path string, info os.FileInfo, err error) error {
+						if info.IsDir() {
+							return nil
+						}
+
+						if info.Name() == "go.mod" {
+							// Found a module.
+							dir := filepath.Dir(path)
+							fmt.Println("Update module in", dir)
+							c.source = dir
+							err := c.withModsClient(false, func(c *modules.Client) error {
+								if len(args) == 1 && args[0] == "-h" {
+									return cmd.Help()
+								}
+								return c.Get(args...)
+							})
+							if err != nil {
+								return err
+							}
+
+						}
+
+						return nil
+					})
+
+					return nil
+				}
+
+				return c.withModsClient(false, func(c *modules.Client) error {
 					return c.Get(args...)
 				})
 			},
