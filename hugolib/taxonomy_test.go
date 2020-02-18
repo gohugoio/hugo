@@ -538,14 +538,28 @@ categories.funny:|/blog/p1/|
 
 }
 
-func TestTaxonomiesParent(t *testing.T) {
+func TestTaxonomiesPageCollections(t *testing.T) {
 	t.Parallel()
 
 	b := newTestSitesBuilder(t)
-	b.WithContent("p.md", `---
-title: "Page"
+	b.WithContent("p1.md", `---
+title: "Page1"
+categories: ["funny", "cats"]
+---
+`, "p2.md", `---
+title: "Page2"
 categories: ["funny"]
 ---
+`)
+
+	b.WithTemplatesAdded("index.html", `
+{{ $categories := site.GetPage "categories" }}
+{{ $funny := site.GetPage "categories/funny" }}
+{{ $cats := site.GetPage "categories/cats" }}
+
+Categories Pages: {{ range $categories.Pages}}{{.RelPermalink }}|{{ end }}:END
+Funny Pages: {{ range $funny.Pages}}{{.RelPermalink }}|{{ end }}:END
+Cats Pages: {{ range $cats.Pages}}{{.RelPermalink }}|{{ end }}:END
 
 `)
 
@@ -560,7 +574,13 @@ categories: ["funny"]
 	b.Assert(cat.Parent().IsHome(), qt.Equals, true)
 	b.Assert(funny.Parent(), qt.Equals, cat)
 
-	b.AssertFileContent("public/categories/funny/index.xml", `<link>http://example.com/p/</link>`)
+	b.AssertFileContent("public/index.html", `
+Categories Pages: /categories/cats/|/categories/funny/|:END
+Funny Pages: /p1/|/p2/|:END
+Cats Pages: /p1/|:END
+`)
+
+	b.AssertFileContent("public/categories/funny/index.xml", `<link>http://example.com/p1/</link>`)
 	b.AssertFileContent("public/categories/index.xml", `<link>http://example.com/categories/funny/</link>`)
 
 }

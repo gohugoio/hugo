@@ -186,10 +186,7 @@ func (p *pageState) Pages() page.Pages {
 		case page.KindSection, page.KindHome:
 			pages = p.getPagesAndSections()
 		case page.KindTaxonomy:
-			b := p.treeRef.n
-			viewInfo := b.viewInfo
-			taxonomy := p.s.Taxonomies()[viewInfo.name.plural].Get(viewInfo.termKey)
-			pages = taxonomy.Pages()
+			pages = p.bucket.getTaxonomyEntries()
 		case page.KindTaxonomyTerm:
 			pages = p.bucket.getTaxonomies()
 		default:
