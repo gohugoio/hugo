@@ -537,3 +537,30 @@ categories.funny:|/blog/p1/|
 `)
 
 }
+
+func TestTaxonomiesParent(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t)
+	b.WithContent("p.md", `---
+title: "Page"
+categories: ["funny"]
+---
+
+`)
+
+	b.Build(BuildCfg{})
+
+	cat := b.GetPage("categories")
+	funny := b.GetPage("categories/funny")
+
+	b.Assert(cat, qt.Not(qt.IsNil))
+	b.Assert(funny, qt.Not(qt.IsNil))
+
+	b.Assert(cat.Parent().IsHome(), qt.Equals, true)
+	b.Assert(funny.Parent(), qt.Equals, cat)
+
+	b.AssertFileContent("public/categories/funny/index.xml", `<link>http://example.com/p/</link>`)
+	// TODO https://github.com/gohugoio/hugo/issues/6909	b.AssertFileContent("public/categories/index.xml", `<link>http://example.com/categories/funny/</link>`)
+
+}

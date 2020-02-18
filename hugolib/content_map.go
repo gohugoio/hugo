@@ -533,6 +533,7 @@ func (m *contentMap) getPage(section, name string) *contentNode {
 
 func (m *contentMap) getSection(s string) (string, *contentNode) {
 	k, v, found := m.sections.LongestPrefix(path.Dir(s))
+
 	if found {
 		return k, v.(*contentNode)
 	}
@@ -919,6 +920,9 @@ func (c *contentTreeRef) isSection() bool {
 }
 
 func (c *contentTreeRef) getSection() (string, *contentNode) {
+	if c.t == c.m.taxonomies {
+		return c.m.getTaxonomyParent(c.key)
+	}
 	return c.m.getSection(c.key)
 }
 
