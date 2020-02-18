@@ -386,7 +386,7 @@ func BenchmarkSiteNew(b *testing.B) {
 		for _, bm := range benchmarks {
 			name := bm.name
 			if edit {
-				name += "/Edit"
+				name = "Edit_" + name
 			}
 			b.Run(name, func(b *testing.B) {
 				sites := make([]*sitesBuilder, b.N)
