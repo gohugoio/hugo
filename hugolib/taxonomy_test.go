@@ -561,6 +561,6 @@ categories: ["funny"]
 	b.Assert(funny.Parent(), qt.Equals, cat)
 
 	b.AssertFileContent("public/categories/funny/index.xml", `<link>http://example.com/p/</link>`)
-	// TODO https://github.com/gohugoio/hugo/issues/6909	b.AssertFileContent("public/categories/index.xml", `<link>http://example.com/categories/funny/</link>`)
+	b.AssertFileContent("public/categories/index.xml", `<link>http://example.com/categories/funny/</link>`)
 
 }

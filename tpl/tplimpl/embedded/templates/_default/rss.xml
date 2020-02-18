@@ -1,6 +1,11 @@
 {{- $pctx := . -}}
 {{- if .IsHome -}}{{ $pctx = .Site }}{{- end -}}
-{{- $pages := $pctx.RegularPages -}}
+{{- $pages := slice -}}
+{{- if eq $.Kind "taxonomyTerm" -}}
+{{- $pages = $pctx.Pages -}}
+{{- else -}}
+{{- $pages = $pctx.RegularPages -}}
+{{- end -}}
 {{- $limit := .Site.Config.Services.RSS.Limit -}}
 {{- if ge $limit 1 -}}
 {{- $pages = $pages | first $limit -}}
