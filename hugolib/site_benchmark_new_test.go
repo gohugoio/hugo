@@ -375,6 +375,56 @@ contentDir="content/sv"
 
 			},
 		},
+		{"List terms", func(b testing.TB) *sitesBuilder {
+
+			pageTemplateTemplate := `
+{{ $taxo := "categories" }}
+<ul>
+    {{ range .Param $taxo }}
+        {{ $name := . }}
+        {{ with $.Site.GetPage (printf "/%s/%s" $taxo ($name | urlize)) }}
+            <li><a href="{{ .Permalink }}">{{ $name }}</a></li>
+        {{ end }}
+    {{ end }}
+</ul>
+`
+
+			sb := newTestSitesBuilder(b).WithConfigFile("toml", `
+baseURL = "https://example.com"
+`)
+
+			sb.WithTemplates("_default/single.html", pageTemplateTemplate)
+
+			r := rand.New(rand.NewSource(99))
+
+			createContent := func(dir, name string) {
+				var content string
+				if strings.Contains(name, "_index") {
+					content = pageContent(1)
+				} else {
+					content = pageContentWithCategory(1, fmt.Sprintf("category%d", r.Intn(5)+1))
+					sb.WithContent(filepath.Join("content", dir, name), content)
+				}
+			}
+
+			for level := 1; level <= r.Intn(5)+1; level++ {
+				sectionDir := path.Join(strings.Repeat("section/", level))
+				createContent(sectionDir, "_index.md")
+				for i := 1; i <= r.Intn(33); i++ {
+					leafBundleDir := path.Join(sectionDir, fmt.Sprintf("bundle%d", i))
+					createContent(leafBundleDir, "index.md")
+				}
+			}
+
+			return sb
+		},
+			func(s *sitesBuilder) {
+				s.AssertFileContent("public/section/bundle8/index.html", ` <li><a href="https://example.com/categories/category1/">category1</a></li>`)
+				s.Assert(len(s.H.Sites), qt.Equals, 1)
+				s.Assert(len(s.H.Sites[0].RegularPages()), qt.Equals, 35)
+
+			},
+		},
 	}
 
 	return benchmarks
