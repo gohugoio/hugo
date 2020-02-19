@@ -49,7 +49,7 @@ Alternatively, you can use the new [Jekyll import command](/commands/hugo_import
 - [wordpress-to-hugo-exporter](https://github.com/SchumacherFM/wordpress-to-hugo-exporter) - A one-click WordPress plugin that converts all posts, pages, taxonomies, metadata, and settings to Markdown and YAML which can be dropped into Hugo. (Note: If you have trouble using this plugin, you can [export your site for Jekyll](https://wordpress.org/plugins/jekyll-exporter/) and use Hugo's built in Jekyll converter listed above.)
 - [exitwp-for-hugo](https://github.com/wooni005/exitwp-for-hugo) - A python script which works with the xml export from Wordpress and converts Wordpress pages and posts to Markdown and YAML for hugo.
 - [blog2md](https://github.com/palaniraja/blog2md) - Works with [exported xml](https://en.support.wordpress.com/export/) file of your free YOUR-TLD.wordpress.com website. It also saves approved comments to `YOUR-POST-NAME-comments.md` file along with posts.
-- [wordhugopress](https://github.com/nantipov/wordhugopress) - A Java utility, exports the entire Wordpress site from the database and resource (e.g. images) files stored locally or remotelly. Supports merging of the multiple Wordpress sites into a single Hugo one.
+- [wordhugopress](https://github.com/nantipov/wordhugopress) - A small utility written in Java, exports the entire WordPress site from the database and resource (e.g. images) files stored locally or remotelly. Therefore, migration from the backup files is possible. Supports merging of the multiple WordPress sites into a single Hugo one.
 
 ## Medium
 
