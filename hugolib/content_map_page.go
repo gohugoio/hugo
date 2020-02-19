@@ -599,7 +599,7 @@ func (m *pageMap) attachPageToViews(s string, b *contentNode) {
 
 			if s == "/" {
 				// To avoid getting an empty key.
-				s = "home"
+				s = page.KindHome
 			}
 			key := cleanTreeKey(path.Join(viewName.plural, termKey, s))
 			m.taxonomyEntries.Insert(key, bv)
