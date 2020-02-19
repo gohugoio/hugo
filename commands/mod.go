@@ -29,7 +29,28 @@ type modCmd struct {
 	*baseBuilderCmd
 }
 
+func (c *modCmd) newVerifyCmd() *cobra.Command {
+	var clean bool
+
+	verifyCmd := &cobra.Command{
+		Use:   "verify",
+		Short: "Verify dependencies.",
+		Long: `Verify checks that the dependencies of the current module, which are stored in a local downloaded source cache, have not been modified since being downloaded.
+`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return c.withModsClient(true, func(c *modules.Client) error {
+				return c.Verify(clean)
+			})
+		},
+	}
+
+	verifyCmd.Flags().BoolVarP(&clean, "clean", "", false, "delete module cache for dependencies that fail verification")
+
+	return verifyCmd
+}
+
 func (b *commandsBuilder) newModCmd() *modCmd {
+
 	c := &modCmd{}
 
 	const commonUsage = `
@@ -184,6 +205,7 @@ If a module is vendored, that is where Hugo will look for it's dependencies.
 				})
 			},
 		},
+		c.newVerifyCmd(),
 		&cobra.Command{
 			Use:   "tidy",
 			Short: "Remove unused entries in go.mod and go.sum.",

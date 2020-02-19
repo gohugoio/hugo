@@ -24,6 +24,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
+
+	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/hugofs/files"
 
@@ -306,6 +309,38 @@ func (c *Client) Init(path string) error {
 	c.GoModulesFilename = filepath.Join(c.ccfg.WorkingDir, goModFilename)
 
 	return nil
+}
+
+var verifyErrorDirRe = regexp.MustCompile(`dir has been modified \((.*?)\)`)
+
+// Verify checks that the dependencies of the current module,
+// which are stored in a local downloaded source cache, have not been
+// modified since being downloaded.
+func (c *Client) Verify(clean bool) error {
+	// TODO1 add path to mod clean
+	err := c.runVerify()
+
+	if err != nil {
+		if clean {
+			m := verifyErrorDirRe.FindAllStringSubmatch(err.Error(), -1)
+			if m != nil {
+				for i := 0; i < len(m); i++ {
+					c, err := hugofs.MakeReadableAndRemoveAllModulePkgDir(c.fs, m[i][1])
+					if err != nil {
+						return err
+					}
+					fmt.Println("Cleaned", c)
+				}
+			}
+			// Try to verify it again.
+			err = c.runVerify()
+		}
+	}
+	return err
+}
+
+func (c *Client) runVerify() error {
+	return c.runGo(context.Background(), ioutil.Discard, "mod", "verify")
 }
 
 func isProbablyModule(path string) bool {
