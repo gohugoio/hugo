@@ -222,6 +222,10 @@ func (p *testPage) GetParam(key string) interface{} {
 	panic("not implemented")
 }
 
+func (p *testPage) GetTerms(taxonomy string) Pages {
+	panic("not implemented")
+}
+
 func (p *testPage) GetRelatedDocsHandler() *RelatedDocsHandler {
 	return relatedDocsHandler
 }

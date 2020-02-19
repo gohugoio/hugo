@@ -542,25 +542,41 @@ func TestTaxonomiesPageCollections(t *testing.T) {
 	t.Parallel()
 
 	b := newTestSitesBuilder(t)
-	b.WithContent("p1.md", `---
+	b.WithContent(
+		"_index.md", `---
+title: "Home Sweet Home"
+categories: [ "dogs", "gorillas"]
+---
+`,
+		"section/_index.md", `---
+title: "Section"
+categories: [ "cats", "dogs", "birds"]
+---
+`,
+		"section/p1.md", `---
 title: "Page1"
 categories: ["funny", "cats"]
 ---
-`, "p2.md", `---
+`, "section/p2.md", `---
 title: "Page2"
 categories: ["funny"]
 ---
 `)
 
 	b.WithTemplatesAdded("index.html", `
+{{ $home := site.Home }}
+{{ $section := site.GetPage "section" }}
 {{ $categories := site.GetPage "categories" }}
 {{ $funny := site.GetPage "categories/funny" }}
 {{ $cats := site.GetPage "categories/cats" }}
+{{ $p1 := site.GetPage "section/p1" }}
 
 Categories Pages: {{ range $categories.Pages}}{{.RelPermalink }}|{{ end }}:END
 Funny Pages: {{ range $funny.Pages}}{{.RelPermalink }}|{{ end }}:END
 Cats Pages: {{ range $cats.Pages}}{{.RelPermalink }}|{{ end }}:END
-
+P1 Terms: {{ range $p1.GetTerms "categories" }}{{.RelPermalink }}|{{ end }}:END
+Section Terms: {{ range $section.GetTerms "categories" }}{{.RelPermalink }}|{{ end }}:END
+Home Terms: {{ range $home.GetTerms "categories" }}{{.RelPermalink }}|{{ end }}:END
 `)
 
 	b.Build(BuildCfg{})
@@ -575,12 +591,15 @@ Cats Pages: {{ range $cats.Pages}}{{.RelPermalink }}|{{ end }}:END
 	b.Assert(funny.Parent(), qt.Equals, cat)
 
 	b.AssertFileContent("public/index.html", `
-Categories Pages: /categories/cats/|/categories/funny/|:END
-Funny Pages: /p1/|/p2/|:END
-Cats Pages: /p1/|:END
+ Categories Pages: /categories/birds/|/categories/cats/|/categories/dogs/|/categories/funny/|/categories/gorillas/|:END
+ Funny Pages: /section/p1/|/section/p2/|:END
+ Cats Pages: /section/p1/|/section/|:END
+ P1 Terms: /categories/cats/|/categories/funny/|:END
+ Section Terms: /categories/birds/|/categories/cats/|/categories/dogs/|:END
+ Home Terms: /categories/dogs/|/categories/gorillas/|:END
 `)
 
-	b.AssertFileContent("public/categories/funny/index.xml", `<link>http://example.com/p1/</link>`)
+	b.AssertFileContent("public/categories/funny/index.xml", `<link>http://example.com/section/p1/</link>`)
 	b.AssertFileContent("public/categories/index.xml", `<link>http://example.com/categories/funny/</link>`)
 
 }

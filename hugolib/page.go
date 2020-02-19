@@ -131,6 +131,34 @@ func (p *pageState) GitInfo() *gitmap.GitInfo {
 	return p.gitInfo
 }
 
+// GetTerms gets the terms defined on this page in the given taxonomy.
+func (p *pageState) GetTerms(taxonomy string) page.Pages {
+	taxonomy = strings.ToLower(taxonomy)
+	m := p.s.pageMap
+	prefix := cleanTreeKey(taxonomy)
+
+	var self string
+	if p.IsHome() {
+		// TODO(bep) make this less magical, see taxonomyEntries.Insert.
+		self = "/" + page.KindHome
+	} else {
+		self = p.treeRef.key
+	}
+
+	var pas page.Pages
+
+	m.taxonomies.WalkPrefixListable(prefix, func(s string, n *contentNode) bool {
+		if _, found := m.taxonomyEntries.Get(s + self); found {
+			pas = append(pas, n.p)
+		}
+		return false
+	})
+
+	page.SortByDefault(pas)
+
+	return pas
+}
+
 func (p *pageState) MarshalJSON() ([]byte, error) {
 	return page.MarshalPageToJSON(p)
 }

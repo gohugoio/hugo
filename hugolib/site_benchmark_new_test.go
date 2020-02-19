@@ -378,14 +378,10 @@ contentDir="content/sv"
 		{"List terms", func(b testing.TB) *sitesBuilder {
 
 			pageTemplateTemplate := `
-{{ $taxo := "categories" }}
 <ul>
-    {{ range .Param $taxo }}
-        {{ $name := . }}
-        {{ with $.Site.GetPage (printf "/%s/%s" $taxo ($name | urlize)) }}
-            <li><a href="{{ .Permalink }}">{{ $name }}</a></li>
-        {{ end }}
-    {{ end }}
+    {{ range (.GetTerms "categories") }}
+        <li><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
+   {{ end }}
 </ul>
 `
 

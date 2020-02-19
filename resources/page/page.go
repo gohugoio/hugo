@@ -252,6 +252,10 @@ type PageWithoutContent interface {
 	maps.Scratcher
 	RelatedKeywordsProvider
 
+	// GetTerms gets the terms of a given taxonomy,
+	// e.g. GetTerms("categories")
+	GetTerms(taxonomy string) Pages
+
 	DeprecatedWarningPageMethods
 }
 

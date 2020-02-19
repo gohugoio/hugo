@@ -174,6 +174,10 @@ func (p *nopPage) GetParam(key string) interface{} {
 	return nil
 }
 
+func (p *nopPage) GetTerms(taxonomy string) Pages {
+	return nil
+}
+
 func (p *nopPage) GitInfo() *gitmap.GitInfo {
 	return nil
 }
