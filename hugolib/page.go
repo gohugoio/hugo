@@ -258,7 +258,9 @@ func (p *pageState) sortResources() {
 			return page.DefaultPageSort(p1, p2)
 		}
 
-		return ri.RelPermalink() < rj.RelPermalink()
+		// Make sure not to use RelPermalink or any of the other methods that
+		// trigger lazy publishing.
+		return ri.Name() < rj.Name()
 	})
 }
 

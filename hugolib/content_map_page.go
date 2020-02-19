@@ -262,6 +262,7 @@ func (m *pageMap) newResource(fim hugofs.FileMetaInfo, owner *pageState) (resour
 			FileInfo:           fim,
 			RelTargetFilename:  target,
 			TargetBasePaths:    targetBasePaths,
+			LazyPublish:        !owner.m.buildConfig.PublishResources,
 		})
 }
 

@@ -32,6 +32,7 @@ disableKinds = [%q]
 `, disableKind)
 
 		b := newTestSitesBuilder(c)
+		b.WithTemplatesAdded("_default/single.html", `single`)
 		b.WithConfigFile("toml", config).WithContent("sect/page.md", `
 ---
 title: Page
@@ -280,4 +281,33 @@ home = [ "HTML", "RSS" ]
 	// but we should make sure to not break existing sites.
 	b.Assert(b.CheckExists("public/index.xml"), qt.Equals, false)
 
+}
+
+func TestBundleNoPublishResources(t *testing.T) {
+	b := newTestSitesBuilder(t)
+	b.WithTemplates("index.html", `
+{{ $bundle := site.GetPage "section/bundle-false" }}
+{{ $data1 := $bundle.Resources.GetMatch "data1*" }}
+Data1: {{ $data1.RelPermalink }}
+
+`)
+
+	b.WithContent("section/bundle-false/index.md", `---\ntitle: BundleFalse
+_build:
+  publishResources: false
+---`,
+		"section/bundle-false/data1.json", "Some data1",
+		"section/bundle-false/data2.json", "Some data2",
+	)
+
+	b.WithContent("section/bundle-true/index.md", `---\ntitle: BundleTrue
+---`,
+		"section/bundle-true/data3.json", "Some data 3",
+	)
+
+	b.Build(BuildCfg{})
+	b.AssertFileContent("public/index.html", `Data1: /section/bundle-false/data1.json`)
+	b.AssertFileContent("public/section/bundle-false/data1.json", `Some data1`)
+	b.Assert(b.CheckExists("public/section/bundle-false/data2.json"), qt.Equals, false)
+	b.AssertFileContent("public/section/bundle-true/data3.json", `Some data 3`)
 }
