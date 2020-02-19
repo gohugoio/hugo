@@ -432,7 +432,8 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		return nil, err
 	}
 
-	if disabledKinds[kindRSS] {
+	rssDisabled := disabledKinds[kindRSS]
+	if rssDisabled {
 		// Legacy
 		tmp := siteOutputFormatsConfig[:0]
 		for _, x := range siteOutputFormatsConfig {
@@ -443,7 +444,7 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		siteOutputFormatsConfig = tmp
 	}
 
-	outputFormats, err := createSiteOutputFormats(siteOutputFormatsConfig, cfg.Language)
+	outputFormats, err := createSiteOutputFormats(siteOutputFormatsConfig, cfg.Language, rssDisabled)
 	if err != nil {
 		return nil, err
 	}

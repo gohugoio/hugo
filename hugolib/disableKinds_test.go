@@ -266,3 +266,18 @@ headless: true
 		b.Assert(resource.RelPermalink(), qt.Equals, "/blog/sect/no-publishresources/data.json")
 	})
 }
+
+// https://github.com/gohugoio/hugo/issues/6897#issuecomment-587947078
+func TestDisableRSSWithRSSInCustomOutputs(t *testing.T) {
+	b := newTestSitesBuilder(t).WithConfigFile("toml", `
+disableKinds = ["taxonomy", "taxonomyTerm", "RSS"]
+[outputs]
+home = [ "HTML", "RSS" ]
+`).Build(BuildCfg{})
+
+	// The config above is a little conflicting, but it exists in the real world.
+	// In Hugo 0.65 we consolidated the code paths and made RSS a pure output format,
+	// but we should make sure to not break existing sites.
+	b.Assert(b.CheckExists("public/index.xml"), qt.Equals, false)
+
+}

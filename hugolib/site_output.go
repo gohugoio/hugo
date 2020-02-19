@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/output"
@@ -54,7 +55,7 @@ func createDefaultOutputFormats(allFormats output.Formats, cfg config.Provider) 
 
 }
 
-func createSiteOutputFormats(allFormats output.Formats, cfg config.Provider) (map[string]output.Formats, error) {
+func createSiteOutputFormats(allFormats output.Formats, cfg config.Provider, rssDisabled bool) (map[string]output.Formats, error) {
 	defaultOutputFormats := createDefaultOutputFormats(allFormats, cfg)
 
 	if !cfg.IsSet("outputs") {
@@ -82,6 +83,12 @@ func createSiteOutputFormats(allFormats output.Formats, cfg config.Provider) (ma
 		for _, format := range vals {
 			f, found := allFormats.GetByName(format)
 			if !found {
+				if rssDisabled && strings.EqualFold(format, "RSS") {
+					// This is legacy behaviour. We used to have both
+					// a RSS page kind and output format.
+					continue
+
+				}
 				return nil, fmt.Errorf("failed to resolve output format %q from site config", format)
 			}
 			formats = append(formats, f)
