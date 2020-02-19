@@ -252,11 +252,11 @@ Would load the template found at `/layouts/shortcodes/vimeo.html`:
 {{< code file="/layouts/shortcodes/vimeo.html" >}}
 {{ if .IsNamedParams }}
   <div class="{{ if .Get "class" }}{{ .Get "class" }}{{ else }}vimeo-container{{ end }}">
-    <iframe src="//player.vimeo.com/video/{{ .Get "id" }}" allowfullscreen></iframe>
+    <iframe src="https://player.vimeo.com/video/{{ .Get "id" }}" allowfullscreen></iframe>
   </div>
 {{ else }}
   <div class="{{ if len .Params | eq 2 }}{{ .Get 1 }}{{ else }}vimeo-container{{ end }}">
-    <iframe src="//player.vimeo.com/video/{{ .Get 0 }}" allowfullscreen></iframe>
+    <iframe src="https://player.vimeo.com/video/{{ .Get 0 }}" allowfullscreen></iframe>
   </div>
 {{ end }}
 {{< /code >}}
@@ -265,10 +265,10 @@ Would be rendered as:
 
 {{< code file="vimeo-iframes.html" copy="false" >}}
 <div class="vimeo-container">
-  <iframe src="//player.vimeo.com/video/49718712" allowfullscreen></iframe>
+  <iframe src="https://player.vimeo.com/video/49718712" allowfullscreen></iframe>
 </div>
 <div class="flex-video">
-  <iframe src="//player.vimeo.com/video/49718712" allowfullscreen></iframe>
+  <iframe src="https://player.vimeo.com/video/49718712" allowfullscreen></iframe>
 </div>
 {{< /code >}}
 
