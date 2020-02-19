@@ -15,6 +15,7 @@
 package hugofs
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -97,7 +98,7 @@ func isWrite(flag int) bool {
 func MakeReadableAndRemoveAllModulePkgDir(fs afero.Fs, dir string) (int, error) {
 	// Safe guard
 	if !strings.Contains(dir, "pkg") {
-		panic("invalid dir")
+		panic(fmt.Sprint("invalid dir:", dir))
 	}
 
 	counter := 0

@@ -26,6 +26,9 @@ import (
 	"path/filepath"
 	"regexp"
 
+	"github.com/gobwas/glob"
+	hglob "github.com/gohugoio/hugo/hugofs/glob"
+
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -334,6 +337,38 @@ func (c *Client) Verify(clean bool) error {
 			}
 			// Try to verify it again.
 			err = c.runVerify()
+		}
+	}
+	return err
+}
+
+func (c *Client) Clean(pattern string) error {
+	mods, err := c.listGoMods()
+	if err != nil {
+		return err
+	}
+
+	var g glob.Glob
+
+	if pattern != "" {
+		var err error
+		g, err = hglob.GetGlob(pattern)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, m := range mods {
+		if m.Replace != nil || m.Main {
+			continue
+		}
+
+		if g != nil && !g.Match(m.Path) {
+			continue
+		}
+		_, err = hugofs.MakeReadableAndRemoveAllModulePkgDir(c.fs, m.Dir)
+		if err == nil {
+			c.logger.FEEDBACK.Printf("hugo: cleaned module cache for %q", m.Path)
 		}
 	}
 	return err

@@ -49,6 +49,30 @@ func (c *modCmd) newVerifyCmd() *cobra.Command {
 	return verifyCmd
 }
 
+func (c *modCmd) newCleanCmd() *cobra.Command {
+	var pattern string
+	cmd := &cobra.Command{
+		Use:   "clean",
+		Short: "Delete the Hugo Module cache for the current project.",
+		Long: `Delete the Hugo Module cache for the current project.
+
+Note that after you run this command, all of your dependencies will be re-downloaded next time you run "hugo".
+
+Also note that if you configure a positive maxAge for the "modules" file cache, it will also be cleaned as part of "hugo --gc".
+ 
+`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return c.withModsClient(true, func(c *modules.Client) error {
+				return c.Clean(pattern)
+			})
+		},
+	}
+
+	cmd.Flags().StringVarP(&pattern, "pattern", "", "", `pattern matching module paths to clean (all if not set), e.g. "**hugo*"`)
+
+	return cmd
+}
+
 func (b *commandsBuilder) newModCmd() *modCmd {
 
 	c := &modCmd{}
@@ -215,27 +239,7 @@ If a module is vendored, that is where Hugo will look for it's dependencies.
 				})
 			},
 		},
-		&cobra.Command{
-			Use:   "clean",
-			Short: "Delete the entire Hugo Module cache.",
-			Long: `Delete the entire Hugo Module cache.
-
-Note that after you run this command, all of your dependencies will be re-downloaded next time you run "hugo".
-
-Also note that if you configure a positive maxAge for the "modules" file cache, it will also be cleaned as part of "hugo --gc".
- 
-`,
-			RunE: func(cmd *cobra.Command, args []string) error {
-				com, err := c.initConfig(true)
-				if err != nil {
-					return err
-				}
-
-				_, err = com.hugo().FileCaches.ModulesCache().Prune(true)
-				return err
-
-			},
-		},
+		c.newCleanCmd(),
 	)
 
 	c.baseBuilderCmd = b.newBuilderCmd(cmd)
