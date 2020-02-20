@@ -596,6 +596,7 @@ func (m *contentMap) deleteBundleMatching(matches func(b *contentNode) bool) {
 
 // Deletes any empty root section that's not backed by a content file.
 func (m *contentMap) deleteOrphanSections() {
+	var sectionsToDelete []string
 
 	m.sections.Walk(func(s string, v interface{}) bool {
 		n := v.(*contentNode)
@@ -612,11 +613,15 @@ func (m *contentMap) deleteOrphanSections() {
 		prefixBundle := s + cmBranchSeparator
 
 		if !(m.sections.hasPrefix(s+"/") || m.pages.hasPrefix(prefixBundle) || m.resources.hasPrefix(prefixBundle)) {
-			m.sections.Delete(s)
+			sectionsToDelete = append(sectionsToDelete, s)
 		}
 
 		return false
 	})
+
+	for _, s := range sectionsToDelete {
+		m.sections.Delete(s)
+	}
 }
 
 func (m *contentMap) deletePage(s string) {
