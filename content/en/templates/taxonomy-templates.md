@@ -216,6 +216,18 @@ Because we are leveraging the front matter system to define taxonomies for conte
 
 ### Example: List Tags in a Single Page Template
 
+{{< new-in "0.65.0" >}}
+
+```go-html-template
+<ul>
+    {{ range (.GetTerms "tags") }}
+        <li><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
+   {{ end }}
+</ul>
+```
+
+Before Hugo 0.65.0 you needed to do something like this:
+
 ```go-html-template
 {{ $taxo := "tags" }} <!-- Use the plural form here -->
 <ul id="{{ $taxo }}">
