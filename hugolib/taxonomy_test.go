@@ -577,6 +577,9 @@ Cats Pages: {{ range $cats.Pages}}{{.RelPermalink }}|{{ end }}:END
 P1 Terms: {{ range $p1.GetTerms "categories" }}{{.RelPermalink }}|{{ end }}:END
 Section Terms: {{ range $section.GetTerms "categories" }}{{.RelPermalink }}|{{ end }}:END
 Home Terms: {{ range $home.GetTerms "categories" }}{{.RelPermalink }}|{{ end }}:END
+Category Paginator {{ range $categories.Paginator.Pages }}{{ .RelPermalink }}|{{ end }}:END
+Cats Paginator {{ range $cats.Paginator.Pages }}{{ .RelPermalink }}|{{ end }}:END
+
 `)
 
 	b.Build(BuildCfg{})
@@ -591,12 +594,14 @@ Home Terms: {{ range $home.GetTerms "categories" }}{{.RelPermalink }}|{{ end }}:
 	b.Assert(funny.Parent(), qt.Equals, cat)
 
 	b.AssertFileContent("public/index.html", `
- Categories Pages: /categories/birds/|/categories/cats/|/categories/dogs/|/categories/funny/|/categories/gorillas/|:END
- Funny Pages: /section/p1/|/section/p2/|:END
- Cats Pages: /section/p1/|/section/|:END
- P1 Terms: /categories/cats/|/categories/funny/|:END
- Section Terms: /categories/birds/|/categories/cats/|/categories/dogs/|:END
- Home Terms: /categories/dogs/|/categories/gorillas/|:END
+Categories Pages: /categories/birds/|/categories/cats/|/categories/dogs/|/categories/funny/|/categories/gorillas/|:END
+Funny Pages: /section/p1/|/section/p2/|:END
+Cats Pages: /section/p1/|/section/|:END
+P1 Terms: /categories/cats/|/categories/funny/|:END
+Section Terms: /categories/birds/|/categories/cats/|/categories/dogs/|:END
+Home Terms: /categories/dogs/|/categories/gorillas/|:END
+Cats Paginator /section/p1/|/section/|:END
+Category Paginator /categories/birds/|/categories/cats/|/categories/dogs/|/categories/funny/|/categories/gorillas/|:END
 `)
 
 	b.AssertFileContent("public/categories/funny/index.xml", `<link>http://example.com/section/p1/</link>`)
