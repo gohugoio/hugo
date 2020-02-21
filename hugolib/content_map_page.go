@@ -177,42 +177,40 @@ func (m *pageMap) newPageFromContentNode(n *contentNode, parentBucket *pagesMapB
 
 		outputFormatsForPage := ps.m.outputFormats()
 
-		if !ps.m.noRender() {
-			// Prepare output formats for all sites.
-			ps.pageOutputs = make([]*pageOutput, len(ps.s.h.renderFormats))
-			created := make(map[string]*pageOutput)
+		// Prepare output formats for all sites.
+		// We do this even if this page does not get rendered on
+		// its own. It may be referenced via .Site.GetPage and
+		// it will then need an output format.
+		ps.pageOutputs = make([]*pageOutput, len(ps.s.h.renderFormats))
+		created := make(map[string]*pageOutput)
+		shouldRenderPage := !ps.m.noRender()
 
-			for i, f := range ps.s.h.renderFormats {
-				if po, found := created[f.Name]; found {
-					ps.pageOutputs[i] = po
-					continue
-				}
-
-				_, render := outputFormatsForPage.GetByName(f.Name)
-				po := newPageOutput(ps, pp, f, render)
-
-				// Create a content provider for the first,
-				// we may be able to reuse it.
-				if i == 0 {
-					contentProvider, err := newPageContentOutput(ps, po)
-					if err != nil {
-						return nil, err
-					}
-					po.initContentProvider(contentProvider)
-				}
-
+		for i, f := range ps.s.h.renderFormats {
+			if po, found := created[f.Name]; found {
 				ps.pageOutputs[i] = po
-				created[f.Name] = po
+				continue
 			}
-		} else if ps.m.buildConfig.PublishResources {
-			// We need one output format for potential resources to publish.
-			po := newPageOutput(ps, pp, outputFormatsForPage[0], false)
-			contentProvider, err := newPageContentOutput(ps, po)
-			if err != nil {
-				return nil, err
+
+			render := shouldRenderPage
+			if render {
+				_, render = outputFormatsForPage.GetByName(f.Name)
 			}
-			po.initContentProvider(contentProvider)
-			ps.pageOutputs = []*pageOutput{po}
+
+			po := newPageOutput(ps, pp, f, render)
+
+			// Create a content provider for the first,
+			// we may be able to reuse it.
+			if i == 0 {
+				contentProvider, err := newPageContentOutput(ps, po)
+				if err != nil {
+					return nil, err
+				}
+				po.initContentProvider(contentProvider)
+			}
+
+			ps.pageOutputs[i] = po
+			created[f.Name] = po
+
 		}
 
 		if err := ps.initCommonProviders(pp); err != nil {

@@ -137,26 +137,30 @@ func newPageFromMeta(
 			return newPageOutput(ps, pp, f, render)
 		}
 
+		shouldRenderPage := !ps.m.noRender()
+
 		if ps.m.standalone {
-			ps.pageOutput = makeOut(ps.m.outputFormats()[0], !ps.m.noRender())
+			ps.pageOutput = makeOut(ps.m.outputFormats()[0], shouldRenderPage)
 		} else {
 			outputFormatsForPage := ps.m.outputFormats()
 
-			if !ps.m.noRender() {
-				ps.pageOutputs = make([]*pageOutput, len(ps.s.h.renderFormats))
-				created := make(map[string]*pageOutput)
-				for i, f := range ps.s.h.renderFormats {
-					po, found := created[f.Name]
-					if !found {
-						_, shouldRender := outputFormatsForPage.GetByName(f.Name)
-						po = makeOut(f, shouldRender)
-						created[f.Name] = po
+			// Prepare output formats for all sites.
+			// We do this even if this page does not get rendered on
+			// its own. It may be referenced via .Site.GetPage and
+			// it will then need an output format.
+			ps.pageOutputs = make([]*pageOutput, len(ps.s.h.renderFormats))
+			created := make(map[string]*pageOutput)
+			for i, f := range ps.s.h.renderFormats {
+				po, found := created[f.Name]
+				if !found {
+					render := shouldRenderPage
+					if render {
+						_, render = outputFormatsForPage.GetByName(f.Name)
 					}
-					ps.pageOutputs[i] = po
+					po = makeOut(f, render)
+					created[f.Name] = po
 				}
-			} else {
-				// We need one output format for potential resources to publish.
-				ps.pageOutputs = []*pageOutput{makeOut(outputFormatsForPage[0], false)}
+				ps.pageOutputs[i] = po
 			}
 		}
 

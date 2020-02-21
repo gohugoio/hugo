@@ -723,6 +723,7 @@ Loop:
 			if err := meta.setMetadata(bucket, p, m); err != nil {
 				return err
 			}
+
 			frontMatterSet = true
 
 			next := iter.Peek()

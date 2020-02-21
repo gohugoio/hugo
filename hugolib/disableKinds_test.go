@@ -311,3 +311,37 @@ _build:
 	b.Assert(b.CheckExists("public/section/bundle-false/data2.json"), qt.Equals, false)
 	b.AssertFileContent("public/section/bundle-true/data3.json", `Some data 3`)
 }
+
+func TestNoRenderAndNoPublishResources(t *testing.T) {
+	noRenderPage := `
+---
+title: %s
+_build:
+    render: false
+    publishResources: false
+---
+`
+	b := newTestSitesBuilder(t)
+	b.WithTemplatesAdded("index.html", `
+{{ $page := site.GetPage "sect/no-render" }}
+{{ $sect := site.GetPage "sect-no-render" }}
+
+Page: {{ $page.Title }}|RelPermalink: {{ $page.RelPermalink }}|Outputs: {{ len $page.OutputFormats }}
+Section: {{ $sect.Title }}|RelPermalink: {{ $sect.RelPermalink }}|Outputs: {{ len $sect.OutputFormats }}
+
+
+`)
+	b.WithContent("sect-no-render/_index.md", fmt.Sprintf(noRenderPage, "MySection"))
+	b.WithContent("sect/no-render.md", fmt.Sprintf(noRenderPage, "MyPage"))
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", `
+Page: MyPage|RelPermalink: |Outputs: 0
+Section: MySection|RelPermalink: |Outputs: 0
+`)
+
+	b.Assert(b.CheckExists("public/sect/no-render/index.html"), qt.Equals, false)
+	b.Assert(b.CheckExists("public/sect-no-render/index.html"), qt.Equals, false)
+
+}

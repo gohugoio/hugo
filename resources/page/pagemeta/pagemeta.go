@@ -39,7 +39,7 @@ type BuildConfig struct {
 	List bool
 
 	// Whether to render it.
-	Render bool
+	 Render bool
 
 	// Whether to publish its resources. These will still be published on demand,
 	// but enabling this can be useful if the originals (e.g. images) are
