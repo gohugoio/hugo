@@ -17,6 +17,6 @@ package hugo
 // This should be the only one.
 var CurrentVersion = Version{
 	Number:     0.65,
-	PatchLevel: 1,
+	PatchLevel: 2,
 	Suffix:     "",
 }
