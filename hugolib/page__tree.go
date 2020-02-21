@@ -121,11 +121,13 @@ func (pt pageTree) Parent() page.Page {
 		return nil
 	}
 
-	if pt.p.Kind() == page.KindTaxonomyTerm {
+	tree := p.getTreeRef()
+
+	if pt.p.Kind() == page.KindTaxonomyTerm || tree == nil {
 		return pt.p.s.home
 	}
 
-	_, b := p.getTreeRef().getSection()
+	_, b := tree.getSection()
 	if b == nil {
 		return nil
 	}
