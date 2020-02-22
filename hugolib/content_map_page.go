@@ -806,6 +806,9 @@ func (b *pagesMapBucket) getPagesAndSections() page.Pages {
 
 func (b *pagesMapBucket) getSections() page.Pages {
 	b.sectionsInit.Do(func() {
+		if b.owner.treeRef == nil {
+			return
+		}
 		b.sections = b.owner.treeRef.collectSections()
 	})
 
