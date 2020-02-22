@@ -15,6 +15,7 @@
 package goldmark
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/markup/markup_config"
@@ -71,6 +72,62 @@ And then some.
         <li><a href="#second-h3">Second H3</a></li>
       </ul>
     </li>
+  </ul>
+</nav>`, qt.Commentf(got))
+}
+
+func TestEscapeToc(t *testing.T) {
+	c := qt.New(t)
+
+	defaultConfig := markup_config.Default
+
+	safeConfig := defaultConfig
+	unsafeConfig := defaultConfig
+
+	safeConfig.Goldmark.Renderer.Unsafe = false
+	unsafeConfig.Goldmark.Renderer.Unsafe = true
+
+	safeP, _ := Provider.New(
+		converter.ProviderConfig{
+			MarkupConfig: safeConfig,
+			Logger:       loggers.NewErrorLogger(),
+		})
+	unsafeP, _ := Provider.New(
+		converter.ProviderConfig{
+			MarkupConfig: unsafeConfig,
+			Logger:       loggers.NewErrorLogger(),
+		})
+	safeConv, _ := safeP.New(converter.DocumentContext{})
+	unsafeConv, _ := unsafeP.New(converter.DocumentContext{})
+
+	content := strings.Join([]string{
+		"# A < B & C > D",
+		"# A < B & C > D <div>foo</div>",
+		"# *EMPHASIS*",
+		"# `echo codeblock`",
+	}, "\n")
+	// content := ""
+	b, err := safeConv.Convert(converter.RenderContext{Src: []byte(content), RenderTOC: true})
+	c.Assert(err, qt.IsNil)
+	got := b.(converter.TableOfContentsProvider).TableOfContents().ToHTML(1, 2, false)
+	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
+  <ul>
+    <li><a href="#a--b--c--d">A &lt; B &amp; C &gt; D</a></li>
+    <li><a href="#a--b--c--d-divfoodiv">A &lt; B &amp; C &gt; D <!-- raw HTML omitted -->foo<!-- raw HTML omitted --></a></li>
+    <li><a href="#emphasis"><em>EMPHASIS</em></a></li>
+    <li><a href="#echo-codeblock"><code>echo codeblock</code></a></li>
+  </ul>
+</nav>`, qt.Commentf(got))
+
+	b, err = unsafeConv.Convert(converter.RenderContext{Src: []byte(content), RenderTOC: true})
+	c.Assert(err, qt.IsNil)
+	got = b.(converter.TableOfContentsProvider).TableOfContents().ToHTML(1, 2, false)
+	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
+  <ul>
+    <li><a href="#a--b--c--d">A &lt; B &amp; C &gt; D</a></li>
+    <li><a href="#a--b--c--d-divfoodiv">A &lt; B &amp; C &gt; D <div>foo</div></a></li>
+    <li><a href="#emphasis"><em>EMPHASIS</em></a></li>
+    <li><a href="#echo-codeblock"><code>echo codeblock</code></a></li>
   </ul>
 </nav>`, qt.Commentf(got))
 }
