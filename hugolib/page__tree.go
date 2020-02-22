@@ -37,6 +37,15 @@ func (pt pageTree) IsAncestor(other interface{}) (bool, error) {
 
 	ref1, ref2 := pt.p.getTreeRef(), tp.getTreeRef()
 
+	if ref1 == nil || ref2 == nil {
+		if ref1 == nil {
+			// A 404 or other similar standalone page.
+			return false, nil
+		}
+
+		return ref1.n.p.IsHome(), nil
+	}
+
 	if !ref1.isSection() {
 		return false, nil
 	}
@@ -66,6 +75,15 @@ func (pt pageTree) IsDescendant(other interface{}) (bool, error) {
 
 	ref1, ref2 := pt.p.getTreeRef(), tp.getTreeRef()
 
+	if ref1 == nil || ref2 == nil {
+		if ref2 == nil {
+			// A 404 or other similar standalone page.
+			return false, nil
+		}
+
+		return ref2.n.p.IsHome(), nil
+	}
+
 	if !ref2.isSection() {
 		return false, nil
 	}
@@ -76,6 +94,9 @@ func (pt pageTree) IsDescendant(other interface{}) (bool, error) {
 
 func (pt pageTree) FirstSection() page.Page {
 	ref := pt.p.getTreeRef()
+	if ref == nil {
+		return pt.p.s.home
+	}
 	key := ref.key
 	if !ref.isSection() {
 		key = path.Dir(key)
@@ -98,6 +119,14 @@ func (pt pageTree) InSection(other interface{}) (bool, error) {
 	}
 
 	ref1, ref2 := pt.p.getTreeRef(), tp.getTreeRef()
+
+	if ref1 == nil || ref2 == nil {
+		if ref1 == nil {
+			// A 404 or other similar standalone page.
+			return false, nil
+		}
+		return ref1.n.p.IsHome(), nil
+	}
 
 	s1, _ := ref1.getCurrentSection()
 	s2, _ := ref2.getCurrentSection()
@@ -123,7 +152,7 @@ func (pt pageTree) Parent() page.Page {
 
 	tree := p.getTreeRef()
 
-	if pt.p.Kind() == page.KindTaxonomyTerm || tree == nil {
+	if tree == nil || pt.p.Kind() == page.KindTaxonomyTerm {
 		return pt.p.s.home
 	}
 
