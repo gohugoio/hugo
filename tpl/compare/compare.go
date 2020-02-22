@@ -111,6 +111,8 @@ func (n *Namespace) Eq(first interface{}, others ...interface{}) bool {
 			return vv.Float()
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 			return vv.Uint()
+		case reflect.String:
+			return vv.String()
 		default:
 			return v
 		}

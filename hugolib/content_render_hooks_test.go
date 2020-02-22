@@ -372,3 +372,30 @@ RSTART:<em>italic org mode</em>:REND
 `)
 
 }
+
+// https://github.com/gohugoio/hugo/issues/6882
+func TestRenderStringOnListPage(t *testing.T) {
+	renderStringTempl := `
+{{ .RenderString "**Hello**" }}
+`
+	b := newTestSitesBuilder(t)
+	b.WithContent("mysection/p1.md", `FOO`)
+	b.WithTemplates(
+		"index.html", renderStringTempl,
+		"_default/list.html", renderStringTempl,
+		"_default/single.html", renderStringTempl,
+	)
+
+	b.Build(BuildCfg{})
+
+	for _, filename := range []string{
+		"index.html",
+		"mysection/index.html",
+		"categories/index.html",
+		"tags/index.html",
+		"mysection/p1/index.html",
+	} {
+		b.AssertFileContent("public/"+filename, `<strong>Hello</strong>`)
+	}
+
+}

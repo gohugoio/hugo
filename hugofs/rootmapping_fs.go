@@ -65,6 +65,7 @@ func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 
 		rm.Meta[metaKeyBaseDir] = rm.ToBasedir
 		rm.Meta[metaKeyMountRoot] = rm.path
+		rm.Meta[metaKeyModule] = rm.Module
 
 		meta := copyFileMeta(rm.Meta)
 
@@ -121,6 +122,7 @@ type RootMapping struct {
 	From      string   // The virtual mount.
 	To        string   // The source directory or file.
 	ToBasedir string   // The base of To. May be empty if an absolute path was provided.
+	Module    string   // The module path/ID.
 	Meta      FileMeta // File metadata (lang etc.)
 
 	fi   FileMetaInfo

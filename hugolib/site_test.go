@@ -905,16 +905,16 @@ func TestWeightedTaxonomies(t *testing.T) {
 	writeSourcesToSource(t, "content", fs, sources...)
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-	if s.Taxonomies["tags"]["a"][0].Page.Title() != "foo" {
-		t.Errorf("Pages in unexpected order, 'foo' expected first, got '%v'", s.Taxonomies["tags"]["a"][0].Page.Title())
+	if s.Taxonomies()["tags"]["a"][0].Page.Title() != "foo" {
+		t.Errorf("Pages in unexpected order, 'foo' expected first, got '%v'", s.Taxonomies()["tags"]["a"][0].Page.Title())
 	}
 
-	if s.Taxonomies["categories"]["d"][0].Page.Title() != "bar" {
-		t.Errorf("Pages in unexpected order, 'bar' expected first, got '%v'", s.Taxonomies["categories"]["d"][0].Page.Title())
+	if s.Taxonomies()["categories"]["d"][0].Page.Title() != "bar" {
+		t.Errorf("Pages in unexpected order, 'bar' expected first, got '%v'", s.Taxonomies()["categories"]["d"][0].Page.Title())
 	}
 
-	if s.Taxonomies["categories"]["e"][0].Page.Title() != "bza" {
-		t.Errorf("Pages in unexpected order, 'bza' expected first, got '%v'", s.Taxonomies["categories"]["e"][0].Page.Title())
+	if s.Taxonomies()["categories"]["e"][0].Page.Title() != "bza" {
+		t.Errorf("Pages in unexpected order, 'bza' expected first, got '%v'", s.Taxonomies()["categories"]["e"][0].Page.Title())
 	}
 }
 
@@ -1008,10 +1008,13 @@ func TestRefLinking(t *testing.T) {
 		//test empty link, as well as fragment only link
 		{"", "", true, ""},
 	} {
-		checkLinkCase(site, test.link, currentPage, test.relative, test.outputFormat, test.expected, t, i)
 
-		//make sure fragment links are also handled
-		checkLinkCase(site, test.link+"#intro", currentPage, test.relative, test.outputFormat, test.expected+"#intro", t, i)
+		t.Run(fmt.Sprint(i), func(t *testing.T) {
+			checkLinkCase(site, test.link, currentPage, test.relative, test.outputFormat, test.expected, t, i)
+
+			//make sure fragment links are also handled
+			checkLinkCase(site, test.link+"#intro", currentPage, test.relative, test.outputFormat, test.expected+"#intro", t, i)
+		})
 	}
 
 	// TODO: and then the failure cases.

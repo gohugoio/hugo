@@ -21,13 +21,42 @@ func Test404(t *testing.T) {
 	t.Parallel()
 
 	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile().WithTemplatesAdded("404.html", "<html><body>Not Found!</body></html>")
+	b.WithSimpleConfigFile().WithTemplatesAdded(
+		"404.html",
+		`
+{{ $home := site.Home }}
+404: 
+Parent: {{ .Parent.Kind }}
+IsAncestor: {{ .IsAncestor $home }}/{{ $home.IsAncestor . }}
+IsDescendant: {{ .IsDescendant $home }}/{{ $home.IsDescendant . }}
+CurrentSection: {{ .CurrentSection.Kind }}|
+FirstSection: {{ .FirstSection.Kind }}|
+InSection: {{ .InSection $home.Section }}|{{ $home.InSection . }}
+Sections: {{ len .Sections }}|
+Page: {{ .Page.RelPermalink }}|
+Data: {{ len .Data }}|
+
+`,
+	)
 	b.Build(BuildCfg{})
 
 	// Note: We currently have only 1 404 page. One might think that we should have
 	// multiple, to follow the Custom Output scheme, but I don't see how that would work
 	// right now.
-	b.AssertFileContent("public/404.html", "Not Found")
+	b.AssertFileContent("public/404.html", `
+
+  404:
+Parent: home
+IsAncestor: false/true
+IsDescendant: true/false
+CurrentSection: home|
+FirstSection: home|
+InSection: false|true
+Sections: 0|
+Page: /404.html|
+Data: 1|
+        
+`)
 
 }
 

@@ -46,6 +46,15 @@ Some examples:
 ```bash
 hugo mod get -u
 ```
+
+### Update All Modules Recursively
+
+{{< new-in "0.65.0" >}}
+
+```bash
+hugo mod get -u ./...
+```
+
 ### Update One Module
 
 ```bash

@@ -598,6 +598,7 @@ func TestImageOperationsGolden(t *testing.T) {
 		}
 
 		resized, err := orig.Fill("400x200 center")
+		c.Assert(err, qt.IsNil)
 
 		for _, filter := range filters {
 			resized, err := resized.Filter(filter)

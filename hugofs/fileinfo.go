@@ -39,6 +39,7 @@ const (
 
 	metaKeyBaseDir                    = "baseDir" // Abs base directory of source file.
 	metaKeyMountRoot                  = "mountRoot"
+	metaKeyModule                     = "module"
 	metaKeyOriginalFilename           = "originalFilename"
 	metaKeyName                       = "name"
 	metaKeyPath                       = "path"
@@ -100,10 +101,10 @@ func (f FileMeta) Name() string {
 	return f.stringV(metaKeyName)
 }
 
-func (f FileMeta) Classifier() string {
-	c := f.stringV(metaKeyClassifier)
-	if c != "" {
-		return c
+func (f FileMeta) Classifier() files.ContentClass {
+	c, found := f[metaKeyClassifier]
+	if found {
+		return c.(files.ContentClass)
 	}
 
 	return files.ContentClassFile // For sorting
@@ -129,6 +130,10 @@ func (f FileMeta) PathFile() string {
 
 func (f FileMeta) MountRoot() string {
 	return f.stringV(metaKeyMountRoot)
+}
+
+func (f FileMeta) Module() string {
+	return f.stringV(metaKeyModule)
 }
 
 func (f FileMeta) Weight() int {

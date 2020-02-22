@@ -481,7 +481,7 @@ categories: ["cool stuff"]
 	s := b.H.Sites[0]
 
 	checkDate := func(t time.Time, msg string) {
-		b.Assert(t.Year(), qt.Equals, 2017)
+		b.Assert(t.Year(), qt.Equals, 2017, qt.Commentf(msg))
 	}
 
 	checkDated := func(d resource.Dated, msg string) {
@@ -524,7 +524,7 @@ date: 2018-01-15
 	b.Assert(len(b.H.Sites), qt.Equals, 1)
 	s := b.H.Sites[0]
 
-	b.Assert(s.getPage("/").Date().Year(), qt.Equals, 2017)
+	b.Assert(s.getPage("/").Date().Year(), qt.Equals, 2018)
 	b.Assert(s.getPage("/no-index").Date().Year(), qt.Equals, 2017)
 	b.Assert(s.getPage("/with-index-no-date").Date().IsZero(), qt.Equals, true)
 	b.Assert(s.getPage("/with-index-date").Date().Year(), qt.Equals, 2018)

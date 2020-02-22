@@ -26,6 +26,8 @@ import (
 	"time"
 	"unicode"
 
+	"github.com/gohugoio/hugo/parser/pageparser"
+
 	"github.com/gohugoio/hugo/common/hugio"
 
 	"github.com/gohugoio/hugo/parser/metadecoders"
@@ -397,19 +399,19 @@ func convertJekyllPost(path, relPath, targetDir string, draft bool) error {
 		return err
 	}
 
-	pf, err := parseContentFile(bytes.NewReader(contentBytes))
+	pf, err := pageparser.ParseFrontMatterAndContent(bytes.NewReader(contentBytes))
 	if err != nil {
 		jww.ERROR.Println("Parse file error:", path)
 		return err
 	}
 
-	newmetadata, err := convertJekyllMetaData(pf.frontMatter, postName, postDate, draft)
+	newmetadata, err := convertJekyllMetaData(pf.FrontMatter, postName, postDate, draft)
 	if err != nil {
 		jww.ERROR.Println("Convert metadata error:", path)
 		return err
 	}
 
-	content, err := convertJekyllContent(newmetadata, string(pf.content))
+	content, err := convertJekyllContent(newmetadata, string(pf.Content))
 	if err != nil {
 		jww.ERROR.Println("Converting Jekyll error:", path)
 		return err

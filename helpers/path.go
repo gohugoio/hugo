@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -243,11 +244,17 @@ func FileAndExtNoDelimiter(in string) (string, string) {
 	return file, strings.TrimPrefix(ext, ".")
 }
 
-// Filename takes a path, strips out the extension,
+// Filename takes a file path, strips out the extension,
 // and returns the name of the file.
 func Filename(in string) (name string) {
 	name, _ = fileAndExt(in, fpb)
 	return
+}
+
+// PathNoExt takes a path, strips out the extension,
+// and returns the name of the file.
+func PathNoExt(in string) string {
+	return strings.TrimSuffix(in, path.Ext(in))
 }
 
 // FileAndExt returns the filename and any extension of a file path as

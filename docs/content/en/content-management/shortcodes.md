@@ -51,6 +51,17 @@ Here are two examples of paired shortcodes:
 
 The examples above use two different delimiters, the difference being the `%` character in the first and the `<>` characters in the second.
 
+### Shortcodes with raw string parameters
+
+{{< new-in "0.64.1" >}}
+
+You can pass multiple lines as parameters to a shortcode by using raw string literals:
+
+```
+{{</*  myshortcode `This is some <b>HTML</b>,
+and a new line with a "quouted string".` */>}}
+```
+
 ### Shortcodes with Markdown
 
 In Hugo `0.55` we changed how the `%` delimiter works. Shortcodes using the `%` as the outer-most delimiter will now be fully rendered when sent to the content renderer (e.g. Blackfriday for Markdown), meaning they can be part of the generated table of contents, footnotes, etc.

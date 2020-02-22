@@ -15,11 +15,23 @@ package hqt
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
+	"strings"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/google/go-cmp/cmp"
+	"github.com/spf13/cast"
 )
+
+// IsSameString asserts that two strings are equal. The two strings
+// are normalized (whitespace removed) before doing a ==.
+// Also note that two strings can be the same even if they're of different
+// types.
+var IsSameString qt.Checker = &stringChecker{
+	argNames: []string{"got", "want"},
+}
 
 // IsSameType asserts that got is the same type as want.
 var IsSameType qt.Checker = &typeChecker{
@@ -45,6 +57,36 @@ func (c *typeChecker) Check(got interface{}, args []interface{}, note func(key s
 		return errors.New("values are not of same type")
 	}
 	return nil
+}
+
+type stringChecker struct {
+	argNames
+}
+
+// Check implements Checker.Check by checking that got and args[0] represents the same normalized text (whitespace etc. trimmed).
+func (c *stringChecker) Check(got interface{}, args []interface{}, note func(key string, value interface{})) (err error) {
+	s1, s2 := cast.ToString(got), cast.ToString(args[0])
+
+	if s1 == s2 {
+		return nil
+	}
+
+	s1, s2 = normalizeString(s1), normalizeString(s2)
+
+	if s1 == s2 {
+		return nil
+	}
+
+	return fmt.Errorf("values are not the same text: %s", htesting.DiffStrings(s1, s2))
+}
+
+func normalizeString(s string) string {
+	lines := strings.Split(strings.TrimSpace(s), "\n")
+	for i, line := range lines {
+		lines[i] = strings.TrimSpace(line)
+	}
+
+	return strings.Join(lines, "\n")
 }
 
 // DeepAllowUnexported creates an option to allow compare of unexported types

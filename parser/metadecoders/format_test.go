@@ -18,8 +18,6 @@ import (
 
 	"github.com/gohugoio/hugo/media"
 
-	"github.com/gohugoio/hugo/parser/pageparser"
-
 	qt "github.com/frankban/quicktest"
 )
 
@@ -54,22 +52,6 @@ func TestFormatFromMediaType(t *testing.T) {
 		{media.CalendarType, ""},
 	} {
 		c.Assert(FormatFromMediaType(test.m), qt.Equals, test.expect)
-	}
-}
-
-func TestFormatFromFrontMatterType(t *testing.T) {
-	c := qt.New(t)
-	for _, test := range []struct {
-		typ    pageparser.ItemType
-		expect Format
-	}{
-		{pageparser.TypeFrontMatterJSON, JSON},
-		{pageparser.TypeFrontMatterTOML, TOML},
-		{pageparser.TypeFrontMatterYAML, YAML},
-		{pageparser.TypeFrontMatterORG, ORG},
-		{pageparser.TypeIgnore, ""},
-	} {
-		c.Assert(FormatFromFrontMatterType(test.typ), qt.Equals, test.expect)
 	}
 }
 

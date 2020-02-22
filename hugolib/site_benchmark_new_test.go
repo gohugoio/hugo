@@ -35,7 +35,7 @@ type siteBenchmarkTestcase struct {
 
 func getBenchmarkSiteDeepContent(b testing.TB) *sitesBuilder {
 	pageContent := func(size int) string {
-		return getBenchmarkTestDataPageContentForMarkdown(size, benchmarkMarkdownSnippets)
+		return getBenchmarkTestDataPageContentForMarkdown(size, "", benchmarkMarkdownSnippets)
 	}
 
 	sb := newTestSitesBuilder(b).WithConfigFile("toml", `
@@ -85,14 +85,22 @@ contentDir="content/sv"
 	return sb
 }
 
-func getBenchmarkTestDataPageContentForMarkdown(size int, markdown string) string {
-	return `---
+func getBenchmarkTestDataPageContentForMarkdown(size int, category, markdown string) string {
+	base := `---
 title: "My Page"
+%s
 ---
 
 My page content.
+`
 
-` + strings.Repeat(markdown, size)
+	var categoryKey string
+	if category != "" {
+		categoryKey = fmt.Sprintf("categories: [%s]", category)
+	}
+	base = fmt.Sprintf(base, categoryKey)
+
+	return base + strings.Repeat(markdown, size)
 }
 
 const benchmarkMarkdownSnippets = `
@@ -111,8 +119,12 @@ See my [About](/about/) page for details.
 
 func getBenchmarkSiteNewTestCases() []siteBenchmarkTestcase {
 
+	pageContentWithCategory := func(size int, category string) string {
+		return getBenchmarkTestDataPageContentForMarkdown(size, category, benchmarkMarkdownSnippets)
+	}
+
 	pageContent := func(size int) string {
-		return getBenchmarkTestDataPageContentForMarkdown(size, benchmarkMarkdownSnippets)
+		return getBenchmarkTestDataPageContentForMarkdown(size, "", benchmarkMarkdownSnippets)
 	}
 
 	config := `
@@ -315,12 +327,22 @@ contentDir="content/sv"
 			
 `)
 
-			sb.WithTemplatesAdded("index.html", pageTemplateTemplate)
-			sb.WithTemplatesAdded("_default/single.html", pageTemplateTemplate)
-			sb.WithTemplatesAdded("_default/list.html", pageTemplateTemplate)
+			sb.WithTemplates("index.html", pageTemplateTemplate)
+			sb.WithTemplates("_default/single.html", pageTemplateTemplate)
+			sb.WithTemplates("_default/list.html", pageTemplateTemplate)
+
+			r := rand.New(rand.NewSource(99))
 
 			createContent := func(dir, name string) {
-				sb.WithContent(filepath.Join("content", dir, name), pageContent(1))
+				var content string
+				if strings.Contains(name, "_index") {
+					content = pageContent(1)
+
+				} else {
+					content = pageContentWithCategory(1, fmt.Sprintf("category%d", r.Intn(5)+1))
+				}
+
+				sb.WithContent(filepath.Join("content", dir, name), content)
 			}
 
 			createBundledFiles := func(dir string) {
@@ -329,8 +351,6 @@ contentDir="content/sv"
 					sb.WithContent(filepath.Join("content", dir, fmt.Sprintf("page%d.md", i)), pageContent(1))
 				}
 			}
-
-			r := rand.New(rand.NewSource(99))
 
 			for _, lang := range []string{"en", "fr", "no", "sv"} {
 				for level := 1; level <= r.Intn(5)+1; level++ {
@@ -352,6 +372,52 @@ contentDir="content/sv"
 				s.CheckExists("public/blog/mybundle/index.html")
 				s.Assert(len(s.H.Sites), qt.Equals, 4)
 				s.Assert(len(s.H.Sites[0].RegularPages()), qt.Equals, 26)
+
+			},
+		},
+		{"List terms", func(b testing.TB) *sitesBuilder {
+
+			pageTemplateTemplate := `
+<ul>
+    {{ range (.GetTerms "categories") }}
+        <li><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
+   {{ end }}
+</ul>
+`
+
+			sb := newTestSitesBuilder(b).WithConfigFile("toml", `
+baseURL = "https://example.com"
+`)
+
+			sb.WithTemplates("_default/single.html", pageTemplateTemplate)
+
+			r := rand.New(rand.NewSource(99))
+
+			createContent := func(dir, name string) {
+				var content string
+				if strings.Contains(name, "_index") {
+					content = pageContent(1)
+				} else {
+					content = pageContentWithCategory(1, fmt.Sprintf("category%d", r.Intn(5)+1))
+					sb.WithContent(filepath.Join("content", dir, name), content)
+				}
+			}
+
+			for level := 1; level <= r.Intn(5)+1; level++ {
+				sectionDir := path.Join(strings.Repeat("section/", level))
+				createContent(sectionDir, "_index.md")
+				for i := 1; i <= r.Intn(33); i++ {
+					leafBundleDir := path.Join(sectionDir, fmt.Sprintf("bundle%d", i))
+					createContent(leafBundleDir, "index.md")
+				}
+			}
+
+			return sb
+		},
+			func(s *sitesBuilder) {
+				s.AssertFileContent("public/section/bundle8/index.html", ` <li><a href="https://example.com/categories/category1/">category1</a></li>`)
+				s.Assert(len(s.H.Sites), qt.Equals, 1)
+				s.Assert(len(s.H.Sites[0].RegularPages()), qt.Equals, 35)
 
 			},
 		},
@@ -379,6 +445,29 @@ func TestBenchmarkSiteNew(b *testing.T) {
 	}
 }
 
+func TestBenchmarkSiteDeepContentEdit(t *testing.T) {
+	b := getBenchmarkSiteDeepContent(t).Running()
+	b.Build(BuildCfg{})
+
+	p := b.H.Sites[0].RegularPages()[12]
+
+	b.EditFiles(p.File().Filename(), fmt.Sprintf(`---
+title: %s
+---
+
+Edited!!`, p.Title()))
+
+	counters := &testCounters{}
+
+	b.Build(BuildCfg{testCounters: counters})
+
+	// We currently rebuild all the language versions of the same content file.
+	// We could probably optimize that case, but it's not trivial.
+	b.Assert(int(counters.contentRenderCounter), qt.Equals, 4)
+	b.AssertFileContent("public"+p.RelPermalink()+"index.html", "Edited!!")
+
+}
+
 func BenchmarkSiteNew(b *testing.B) {
 	rnd := rand.New(rand.NewSource(32))
 	benchmarks := getBenchmarkSiteNewTestCases()
@@ -386,7 +475,9 @@ func BenchmarkSiteNew(b *testing.B) {
 		for _, bm := range benchmarks {
 			name := bm.name
 			if edit {
-				name += "/Edit"
+				name = "Edit_" + name
+			} else {
+				name = "Regular_" + name
 			}
 			b.Run(name, func(b *testing.B) {
 				sites := make([]*sitesBuilder, b.N)

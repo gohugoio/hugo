@@ -32,7 +32,7 @@ func newPageOutput(
 	ft, found := pp.targetPaths[f.Name]
 	if !found {
 		// Link to the main output format
-		ft = pp.targetPaths[pp.OutputFormats()[0].Format.Name]
+		ft = pp.targetPaths[pp.firstOutputFormat.Format.Name]
 	}
 	targetPathsProvider = ft
 	linksProvider = ft

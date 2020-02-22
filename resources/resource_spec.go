@@ -129,15 +129,8 @@ func (r *Spec) ClearCaches() {
 	r.ResourceCache.clear()
 }
 
-func (r *Spec) DeleteCacheByPrefix(prefix string) {
-	r.imageCache.deleteByPrefix(prefix)
-}
-
-// TODO(bep) unify
-func (r *Spec) IsInImageCache(key string) bool {
-	// This is used for cache pruning. We currently only have images, but we could
-	// imagine expanding on this.
-	return r.imageCache.isInCache(key)
+func (r *Spec) DeleteBySubstring(s string) {
+	r.imageCache.deleteIfContains(s)
 }
 
 func (s *Spec) String() string {
