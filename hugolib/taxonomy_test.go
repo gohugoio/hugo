@@ -401,6 +401,50 @@ Content.
 
 }
 
+// https://github.com/gohugoio/hugo/issues/6927
+func TestTaxonomiesHomeDraft(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t)
+	b.WithContent(
+		"_index.md", `---
+title: "Home"
+draft: true
+---
+
+Content.
+
+`,
+		"posts/_index.md", `---
+title: "Posts"
+draft: true
+---
+
+Content.
+
+`,
+		"posts/page.md", `---
+title: "The Page"
+categories: ["cool"]
+---
+
+Content.
+
+`,
+	)
+
+	b.WithTemplates("index.html", `
+NO HOME FOR YOU
+`)
+
+	b.Build(BuildCfg{})
+
+	b.Assert(b.CheckExists("public/index.html"), qt.Equals, false)
+	b.Assert(b.CheckExists("public/categories/index.html"), qt.Equals, false)
+	b.Assert(b.CheckExists("public/posts/index.html"), qt.Equals, false)
+
+}
+
 // https://github.com/gohugoio/hugo/issues/6173
 func TestTaxonomiesWithBundledResources(t *testing.T) {
 	b := newTestSitesBuilder(t)
