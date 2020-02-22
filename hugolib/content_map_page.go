@@ -719,6 +719,12 @@ func (m *pageMaps) AssemblePages() error {
 			return err
 		}
 
+		if pm.s.home == nil {
+			// Home is disabled, everything is.
+			pm.bundleTrees.DeletePrefix("")
+			return nil
+		}
+
 		if err := pm.assembleTaxonomies(); err != nil {
 			return err
 		}
