@@ -1136,7 +1136,7 @@ TOC: {{ .TableOfContents }}
 					"NEW INLINE:  W1: [1 2 3 4 5]",
 					"INLINE IN INNER: Inner: W2: [1 2 3 4]",
 					"REUSED INLINE IN INNER: Inner: W1: [1 2 3]",
-					`<li><a href="#markdown-delimiter-hugo-rocks">MARKDOWN DELIMITER: Hugo Rocks!</a></li>`,
+					`<li><a href="#markdown-delimiter-hugo-rocks">MARKDOWN DELIMITER: <strong>Hugo Rocks!</strong></a></li>`,
 				}
 
 				if enableInlineShortcodes {
