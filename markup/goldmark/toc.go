@@ -84,7 +84,6 @@ func (t *tocTransformer) Transform(n *ast.Document, reader text.Reader, pc parse
 		case
 			ast.KindCodeSpan,
 			ast.KindLink,
-			// ast.KindAutoLink, // AutoLink is handled as Text in TOC
 			ast.KindImage,
 			ast.KindEmphasis:
 			err := t.r.Render(&headingText, reader.Source(), n)
@@ -94,6 +93,7 @@ func (t *tocTransformer) Transform(n *ast.Document, reader text.Reader, pc parse
 
 			return ast.WalkSkipChildren, nil
 		case
+			ast.KindAutoLink,
 			ast.KindRawHTML,
 			ast.KindText,
 			ast.KindString:
