@@ -59,7 +59,7 @@ You can pass multiple lines as parameters to a shortcode by using raw string lit
 
 ```
 {{</*  myshortcode `This is some <b>HTML</b>,
-and a new line with a "quouted string".` */>}}
+and a new line with a "quoted string".` */>}}
 ```
 
 ### Shortcodes with Markdown
