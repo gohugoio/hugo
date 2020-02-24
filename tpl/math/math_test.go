@@ -153,6 +153,51 @@ func TestLog(t *testing.T) {
 		c.Assert(err, qt.IsNil)
 		c.Assert(result, qt.Equals, test.expect)
 	}
+
+	// Separate test for Log(-1) -- returns NaN
+	result, err := ns.Log(-1)
+	c.Assert(err, qt.IsNil)
+	c.Assert(result, qt.Satisfies, math.IsNaN)
+}
+
+func TestSqrt(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New()
+
+	for _, test := range []struct {
+		a      interface{}
+		expect interface{}
+	}{
+		{81, float64(9)},
+		{0.25, float64(0.5)},
+		{0, float64(0)},
+		{"abc", false},
+	} {
+
+		result, err := ns.Sqrt(test.a)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		// we compare only 4 digits behind point if its a real float
+		// otherwise we usually get different float values on the last positions
+		if result != math.Inf(-1) {
+			result = float64(int(result*10000)) / 10000
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+
+	// Separate test for Sqrt(-1) -- returns NaN
+	result, err := ns.Sqrt(-1)
+	c.Assert(err, qt.IsNil)
+	c.Assert(result, qt.Satisfies, math.IsNaN)
+
 }
 
 func TestMod(t *testing.T) {
