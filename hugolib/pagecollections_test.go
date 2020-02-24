@@ -244,3 +244,24 @@ func TestGetPage(t *testing.T) {
 	}
 
 }
+
+func TestGetPageRel(t *testing.T) {
+
+	b := newTestSitesBuilder(t)
+	b.WithContent("section1/p1.md", "---\ntitle: p1\n---")
+	b.WithContent("section1/sub/p2.md", "---\ntitle: p2\n---")
+	b.WithContent("section2/p2.md", "---\ntitle: p2\n---")
+
+	b.WithTemplates("index.html", `
+{{ $s1 := site.GetPage "section1" }}
+
+{{ $p1 := $s1.GetPage "p1" }}
+{{ $p2 := $s1.GetPage "p2" }}
+
+P1: {{ $p1 }}
+P2: {{ $p2 }}
+`)
+
+	b.Build(BuildCfg{})
+
+}
