@@ -4,7 +4,7 @@ description: Hugo provides nine mathematical operators in templates.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
+lastmod: 2020-02-23
 keywords: [math, operators]
 categories: [functions]
 menu:
@@ -36,3 +36,6 @@ aliases: []
 | `math.Ceil`  | Returns the least integer value greater than or equal to the given number.  | `{{math.Ceil 2.1}}` &rarr; `3`   |
 | `math.Floor` | Returns the greatest integer value less than or equal to the given number.  | `{{math.Floor 1.9}}` &rarr; `1`  |
 | `math.Round` | Returns the nearest integer, rounding half away from zero.                  | `{{math.Round 1.5}}` &rarr; `2`  |
+| `math.Log`   | Returns the natural logarithm of the given number.                          | `{{math.Log 42}}` &rarr; `3.737` |
+| `math.Sqrt`  | Returns the square root of the given number.                                | `{{math.Sqrt 81}}` &rarr; `9`    |
+
