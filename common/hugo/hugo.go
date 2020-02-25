@@ -54,6 +54,10 @@ func (i Info) Generator() template.HTML {
 	return template.HTML(fmt.Sprintf(`<meta name="generator" content="Hugo %s" />`, CurrentVersion.String()))
 }
 
+func (i Info) IsProduction() bool {
+	return i.Environment == EnvironmentProduction
+}
+
 // NewInfo creates a new Hugo Info object.
 func NewInfo(environment string) Info {
 	if environment == "" {
