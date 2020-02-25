@@ -33,7 +33,7 @@ hugo.Version
 `hugo` returns an instance that contains the following functions:
 
 hugo.Environment
-: the current running environment as defined through the `--environment` cli tag.
+: the current running environment as defined through the `--environment` cli tag
 
 hugo.CommitHash
 : the git commit hash of the current Hugo binary e.g. `0e8bed9ccffba0df554728b46c5bbf6d78ae5247`
@@ -41,7 +41,8 @@ hugo.CommitHash
 hugo.BuildDate
 : the compile date of the current Hugo binary formatted with RFC 3339 e.g. `2002-10-02T10:00:00-05:00`
 
-
+hugo.IsProduction
+: returns true if `hugo.Environment` is set to the production environment
 
 {{% note "Use the Hugo Generator Tag" %}}
 We highly recommend using `hugo.Generator` in your website's `<head>`. `hugo.Generator` is included by default in all themes hosted on [themes.gohugo.io](https://themes.gohugo.io). The generator tag allows the Hugo team to track the usage and popularity of Hugo.
