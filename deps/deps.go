@@ -2,6 +2,7 @@ package deps
 
 import (
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/pkg/errors"
@@ -92,8 +93,9 @@ type Deps struct {
 	// BuildStartListeners will be notified before a build starts.
 	BuildStartListeners *Listeners
 
-	// Atomic flags set during a build.
-	BuildFlags *BuildFlags
+	// Atomic values set during a build.
+	// This is common/global for all sites.
+	BuildState *BuildState
 
 	*globalErrHandler
 }
@@ -236,8 +238,9 @@ func New(cfg DepsCfg) (*Deps, error) {
 	}
 
 	errorHandler := &globalErrHandler{}
+	buildState := &BuildState{}
 
-	resourceSpec, err := resources.NewSpec(ps, fileCaches, logger, errorHandler, cfg.OutputFormats, cfg.MediaTypes)
+	resourceSpec, err := resources.NewSpec(ps, fileCaches, buildState, logger, errorHandler, cfg.OutputFormats, cfg.MediaTypes)
 	if err != nil {
 		return nil, err
 	}
@@ -275,7 +278,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		Site:                    cfg.Site,
 		FileCaches:              fileCaches,
 		BuildStartListeners:     &Listeners{},
-		BuildFlags:              &BuildFlags{},
+		BuildState:              buildState,
 		Timeout:                 time.Duration(timeoutms) * time.Millisecond,
 		globalErrHandler:        errorHandler,
 	}
@@ -308,7 +311,7 @@ func (d Deps) ForLanguage(cfg DepsCfg, onCreated func(d *Deps) error) (*Deps, er
 	// The resource cache is global so reuse.
 	// TODO(bep) clean up these inits.
 	resourceCache := d.ResourceSpec.ResourceCache
-	d.ResourceSpec, err = resources.NewSpec(d.PathSpec, d.ResourceSpec.FileCaches, d.Log, d.globalErrHandler, cfg.OutputFormats, cfg.MediaTypes)
+	d.ResourceSpec, err = resources.NewSpec(d.PathSpec, d.ResourceSpec.FileCaches, d.BuildState, d.Log, d.globalErrHandler, cfg.OutputFormats, cfg.MediaTypes)
 	if err != nil {
 		return nil, err
 	}
@@ -376,10 +379,15 @@ type DepsCfg struct {
 	Running bool
 }
 
-// BuildFlags are flags that may be turned on during a build.
-type BuildFlags struct {
+// BuildState are flags that may be turned on during a build.
+type BuildState struct {
+	counter uint64
 }
 
-func NewBuildFlags() BuildFlags {
-	return BuildFlags{}
+func (b *BuildState) Incr() int {
+	return int(atomic.AddUint64(&b.counter, uint64(1)))
+}
+
+func NewBuildState() BuildState {
+	return BuildState{}
 }

@@ -14,13 +14,16 @@
 package hugolib
 
 import (
+	"fmt"
 	"io"
+	"math/rand"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/gohugoio/hugo/common/herrors"
 
@@ -350,6 +353,80 @@ Edited content.
 		b.H.ResourceSpec.ClearCaches()
 
 	}
+}
+
+func TestResourceChainPostProcess(t *testing.T) {
+	t.Parallel()
+
+	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	b := newTestSitesBuilder(t)
+	b.WithContent("page1.md", "---\ntitle: Page1\n---")
+	b.WithContent("page2.md", "---\ntitle: Page2\n---")
+
+	b.WithTemplates(
+		"_default/single.html", `{{ $hello := "<h1>     Hello World!   </h1>" | resources.FromString "hello.html" | minify  | fingerprint "md5" | resources.PostProcess }}
+HELLO: {{ $hello.RelPermalink }}	
+`,
+		"index.html", `Start.
+{{ $hello := "<h1>     Hello World!   </h1>" | resources.FromString "hello.html" | minify  | fingerprint "md5" | resources.PostProcess }}
+
+HELLO: {{ $hello.RelPermalink }}|Integrity: {{ $hello.Data.Integrity }}|MediaType: {{ $hello.MediaType.Type }}
+HELLO2: Name: {{ $hello.Name }}|Content: {{ $hello.Content }}|Title: {{ $hello.Title }}|ResourceType: {{ $hello.ResourceType }}
+
+`+strings.Repeat("a b", rnd.Intn(10)+1)+`
+
+
+End.`)
+
+	b.Running()
+	b.Build(BuildCfg{})
+	b.AssertFileContent("public/index.html",
+		`Start.
+HELLO: /hello.min.a2d1cb24f24b322a7dad520414c523e9.html|Integrity: md5-otHLJPJLMip9rVIEFMUj6Q==|MediaType: text/html
+HELLO2: Name: hello.html|Content: <h1>Hello World!</h1>|Title: hello.html|ResourceType: html
+End.`)
+
+	b.AssertFileContent("public/page1/index.html", `HELLO: /hello.min.a2d1cb24f24b322a7dad520414c523e9.html`)
+	b.AssertFileContent("public/page2/index.html", `HELLO: /hello.min.a2d1cb24f24b322a7dad520414c523e9.html`)
+
+}
+
+func BenchmarkResourceChainPostProcess(b *testing.B) {
+
+	for i := 0; i < b.N; i++ {
+		b.StopTimer()
+		s := newTestSitesBuilder(b)
+		for i := 0; i < 300; i++ {
+			s.WithContent(fmt.Sprintf("page%d.md", i+1), "---\ntitle: Page\n---")
+		}
+		s.WithTemplates("_default/single.html", `Start.
+Some text.
+
+
+{{ $hello1 := "<h1>     Hello World 2!   </h1>" | resources.FromString "hello.html" | minify  | fingerprint "md5" | resources.PostProcess }}
+{{ $hello2 := "<h1>     Hello World 2!   </h1>" | resources.FromString (printf "%s.html" .Path) | minify  | fingerprint "md5" | resources.PostProcess }}
+
+Some more text.
+
+HELLO: {{ $hello1.RelPermalink }}|Integrity: {{ $hello1.Data.Integrity }}|MediaType: {{ $hello1.MediaType.Type }}
+
+Some more text.
+
+HELLO2: Name: {{ $hello2.Name }}|Content: {{ $hello2.Content }}|Title: {{ $hello2.Title }}|ResourceType: {{ $hello2.ResourceType }}
+
+Some more text.
+
+HELLO2_2: Name: {{ $hello2.Name }}|Content: {{ $hello2.Content }}|Title: {{ $hello2.Title }}|ResourceType: {{ $hello2.ResourceType }}
+
+End.
+`)
+
+		b.StartTimer()
+		s.Build(BuildCfg{})
+
+	}
+
 }
 
 func TestResourceChains(t *testing.T) {
@@ -769,7 +846,6 @@ func TestResourceChainPostCSS(t *testing.T) {
 	}
 
 	if runtime.GOOS == "windows" {
-		// TODO(bep)
 		t.Skip("skip npm test on Windows")
 	}
 

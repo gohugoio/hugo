@@ -17,7 +17,17 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"os"
 	"runtime/trace"
+	"strings"
+
+	"github.com/gohugoio/hugo/common/para"
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/resources/postpub"
+
+	"github.com/spf13/afero"
+
+	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/output"
 
@@ -136,6 +146,10 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		if err != nil {
 			h.SendError(err)
 		}
+	}
+
+	if err := h.postProcess(); err != nil {
+		h.SendError(err)
 	}
 
 	if h.Metrics != nil {
@@ -320,4 +334,91 @@ func (h *HugoSites) render(config *BuildCfg) error {
 	}
 
 	return nil
+}
+
+func (h *HugoSites) postProcess() error {
+	var toPostProcess []resource.OriginProvider
+	for _, s := range h.Sites {
+		for _, v := range s.ResourceSpec.PostProcessResources {
+			toPostProcess = append(toPostProcess, v)
+		}
+	}
+
+	if len(toPostProcess) == 0 {
+		return nil
+	}
+
+	workers := para.New(config.GetNumWorkerMultiplier())
+	g, _ := workers.Start(context.Background())
+
+	handleFile := func(filename string) error {
+
+		content, err := afero.ReadFile(h.BaseFs.PublishFs, filename)
+		if err != nil {
+			return err
+		}
+
+		k := 0
+		changed := false
+
+		for {
+			l := bytes.Index(content[k:], []byte(postpub.PostProcessPrefix))
+			if l == -1 {
+				break
+			}
+			m := bytes.Index(content[k+l:], []byte(postpub.PostProcessSuffix)) + len(postpub.PostProcessSuffix)
+
+			low, high := k+l, k+l+m
+
+			field := content[low:high]
+
+			forward := l + m
+
+			for i, r := range toPostProcess {
+				if r == nil {
+					panic(fmt.Sprintf("resource %d to post process is nil", i+1))
+				}
+				v, ok := r.GetFieldString(string(field))
+				if ok {
+					content = append(content[:low], append([]byte(v), content[high:]...)...)
+					changed = true
+					forward = len(v)
+					break
+				}
+			}
+
+			k += forward
+		}
+
+		if changed {
+			return afero.WriteFile(h.BaseFs.PublishFs, filename, content, 0666)
+		}
+
+		return nil
+
+	}
+
+	_ = afero.Walk(h.BaseFs.PublishFs, "", func(path string, info os.FileInfo, err error) error {
+		if info == nil || info.IsDir() {
+			return nil
+		}
+
+		if !strings.HasSuffix(path, "html") {
+			return nil
+		}
+
+		g.Run(func() error {
+			return handleFile(path)
+		})
+
+		return nil
+	})
+
+	// Prepare for a new build.
+	for _, s := range h.Sites {
+		s.ResourceSpec.PostProcessResources = make(map[string]postpub.PostPublishedResource)
+	}
+
+	return g.Wait()
+
 }

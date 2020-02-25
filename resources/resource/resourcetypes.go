@@ -28,9 +28,17 @@ type Cloner interface {
 	Clone() Resource
 }
 
+// OriginProvider provides the original Resource if this is wrapped.
+// This is an internal Hugo interface and not meant for use in the templates.
+type OriginProvider interface {
+	Origin() Resource
+	GetFieldString(pattern string) (string, bool)
+}
+
 // Resource represents a linkable resource, i.e. a content page, image etc.
 type Resource interface {
-	ResourceTypesProvider
+	ResourceTypeProvider
+	MediaTypeProvider
 	ResourceLinksProvider
 	ResourceMetaProvider
 	ResourceParamsProvider
@@ -53,14 +61,21 @@ type ImageOps interface {
 	Exif() (*exif.Exif, error)
 }
 
-type ResourceTypesProvider interface {
-	// MediaType is this resource's MIME type.
-	MediaType() media.Type
-
+type ResourceTypeProvider interface {
 	// ResourceType is the resource type. For most file types, this is the main
 	// part of the MIME type, e.g. "image", "application", "text" etc.
 	// For content pages, this value is "page".
 	ResourceType() string
+}
+
+type ResourceTypesProvider interface {
+	ResourceTypeProvider
+	MediaTypeProvider
+}
+
+type MediaTypeProvider interface {
+	// MediaType is this resource's MIME type.
+	MediaType() media.Type
 }
 
 type ResourceLinksProvider interface {

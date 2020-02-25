@@ -21,14 +21,16 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/gohugoio/hugo/common/herrors"
 
 	"github.com/gohugoio/hugo/config"
-
-	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/identity"
 
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/resources/postpub"
 
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/common/loggers"
@@ -44,6 +46,7 @@ import (
 func NewSpec(
 	s *helpers.PathSpec,
 	fileCaches filecache.Caches,
+	incr identity.Incrementer,
 	logger *loggers.Logger,
 	errorHandler herrors.ErrorSender,
 	outputFormats output.Formats,
@@ -59,6 +62,10 @@ func NewSpec(
 		return nil, err
 	}
 
+	if incr == nil {
+		incr = &identity.IncrementByOne{}
+	}
+
 	if logger == nil {
 		logger = loggers.NewErrorLogger()
 	}
@@ -68,15 +75,18 @@ func NewSpec(
 		return nil, err
 	}
 
-	rs := &Spec{PathSpec: s,
-		Logger:        logger,
-		ErrorSender:   errorHandler,
-		imaging:       imaging,
-		MediaTypes:    mimeTypes,
-		OutputFormats: outputFormats,
-		Permalinks:    permalinks,
-		BuildConfig:   config.DecodeBuild(s.Cfg),
-		FileCaches:    fileCaches,
+	rs := &Spec{
+		PathSpec:             s,
+		Logger:               logger,
+		ErrorSender:          errorHandler,
+		imaging:              imaging,
+		incr:                 incr,
+		MediaTypes:           mimeTypes,
+		OutputFormats:        outputFormats,
+		Permalinks:           permalinks,
+		BuildConfig:          config.DecodeBuild(s.Cfg),
+		FileCaches:           fileCaches,
+		PostProcessResources: make(map[string]postpub.PostPublishedResource),
 		imageCache: newImageCache(
 			fileCaches.ImageCache(),
 
@@ -106,9 +116,13 @@ type Spec struct {
 	// Holds default filter settings etc.
 	imaging *images.ImageProcessor
 
+	incr          identity.Incrementer
 	imageCache    *imageCache
 	ResourceCache *ResourceCache
 	FileCaches    filecache.Caches
+
+	postProcessMu        sync.RWMutex
+	PostProcessResources map[string]postpub.PostPublishedResource
 }
 
 func (r *Spec) New(fd ResourceSourceDescriptor) (resource.Resource, error) {

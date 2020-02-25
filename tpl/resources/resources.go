@@ -19,6 +19,8 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/gohugoio/hugo/resources/postpub"
+
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/resources"
@@ -271,6 +273,10 @@ func (ns *Namespace) PostCSS(args ...interface{}) (resource.Resource, error) {
 	}
 
 	return ns.postcssClient.Process(r, options)
+}
+
+func (ns *Namespace) PostProcess(r resource.Resource) (postpub.PostPublishedResource, error) {
+	return ns.deps.ResourceSpec.PostProcess(r)
 }
 
 // We allow string or a map as the first argument in some cases.

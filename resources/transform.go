@@ -296,9 +296,7 @@ func (r *resourceAdapter) publish() {
 
 }
 
-func (r *resourceAdapter) transform(publish, setContent bool) error {
-	cache := r.spec.ResourceCache
-
+func (r *resourceAdapter) TransformationKey() string {
 	// Files with a suffix will be stored in cache (both on disk and in memory)
 	// partitioned by their suffix.
 	var key string
@@ -307,8 +305,13 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 	}
 
 	base := ResourceCacheKey(r.target.Key())
+	return r.spec.ResourceCache.cleanKey(base) + "_" + helpers.MD5String(key)
+}
 
-	key = cache.cleanKey(base) + "_" + helpers.MD5String(key)
+func (r *resourceAdapter) transform(publish, setContent bool) error {
+	cache := r.spec.ResourceCache
+
+	key := r.TransformationKey()
 
 	cached, found := cache.get(key)
 

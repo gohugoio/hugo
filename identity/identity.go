@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 )
 
 // NewIdentityManager creates a new Manager starting at id.
@@ -138,4 +139,19 @@ func (im *identityManager) Search(id Identity) Provider {
 	im.Lock()
 	defer im.Unlock()
 	return im.ids.search(0, id.GetIdentity())
+}
+
+// Incrementer increments and returns the value.
+// Typically used for IDs.
+type Incrementer interface {
+	Incr() int
+}
+
+// IncrementByOne implements Incrementer adding 1 every time Incr is called.
+type IncrementByOne struct {
+	counter uint64
+}
+
+func (c *IncrementByOne) Incr() int {
+	return int(atomic.AddUint64(&c.counter, uint64(1)))
 }

@@ -345,7 +345,7 @@ func NewBase(p *paths.Paths, logger *loggers.Logger, options ...func(*BaseFs) er
 		logger = loggers.NewWarningLogger()
 	}
 
-	publishFs := afero.NewBasePathFs(fs.Destination, p.AbsPublishDir)
+	publishFs := hugofs.NewBaseFileDecorator(afero.NewBasePathFs(fs.Destination, p.AbsPublishDir))
 
 	b := &BaseFs{
 		PublishFs: publishFs,

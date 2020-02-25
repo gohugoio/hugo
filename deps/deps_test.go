@@ -15,8 +15,18 @@ package deps
 
 import (
 	"testing"
+
+	qt "github.com/frankban/quicktest"
 )
 
 func TestBuildFlags(t *testing.T) {
+
+	c := qt.New(t)
+	var bf BuildState
+	bf.Incr()
+	bf.Incr()
+	bf.Incr()
+
+	c.Assert(bf.Incr(), qt.Equals, 4)
 
 }

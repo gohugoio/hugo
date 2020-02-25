@@ -86,7 +86,8 @@ type pageCommon struct {
 	resource.ResourceDataProvider
 	resource.ResourceMetaProvider
 	resource.ResourceParamsProvider
-	resource.ResourceTypesProvider
+	resource.ResourceTypeProvider
+	resource.MediaTypeProvider
 	resource.TranslationKeyProvider
 	compare.Eqer
 
