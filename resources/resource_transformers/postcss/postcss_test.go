@@ -37,3 +37,21 @@ func TestDecodeOptions(t *testing.T) {
 	c.Assert(opts2.NoMap, qt.Equals, true)
 
 }
+
+func TestShouldImport(t *testing.T) {
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		input  string
+		expect bool
+	}{
+		{input: `@import "navigation.css";`, expect: true},
+		{input: `@import "navigation.css"; /* Using a string */`, expect: true},
+		{input: `@import "navigation.css"`, expect: true},
+		{input: `@import 'navigation.css';`, expect: true},
+		{input: `@import url("navigation.css");`, expect: false},
+		{input: `@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,400i,800,800i&display=swap');`, expect: false},
+	} {
+		c.Assert(shouldImport(test.input), qt.Equals, test.expect)
+	}
+}

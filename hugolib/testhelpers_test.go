@@ -1039,3 +1039,18 @@ func skipSymlink(t *testing.T) {
 	}
 
 }
+
+func captureStderr(f func() error) (string, error) {
+	old := os.Stderr
+	r, w, _ := os.Pipe()
+	os.Stderr = w
+
+	err := f()
+
+	w.Close()
+	os.Stderr = old
+
+	var buf bytes.Buffer
+	io.Copy(&buf, r)
+	return buf.String(), err
+}

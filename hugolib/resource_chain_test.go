@@ -16,7 +16,10 @@ package hugolib
 import (
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/htesting"
@@ -692,5 +695,124 @@ Hello2: Hello
 Hello1: Bonjour
 Hello2: Bonjour
 `)
+
+}
+
+func TestResourceChainPostCSS(t *testing.T) {
+	if !isCI() {
+		t.Skip("skip (relative) long running modules test when running locally")
+	}
+
+	if runtime.GOOS == "windows" {
+		// TODO(bep)
+		t.Skip("skip npm test on Windows")
+	}
+
+	wd, _ := os.Getwd()
+	defer func() {
+		os.Chdir(wd)
+	}()
+
+	c := qt.New(t)
+
+	packageJSON := `{
+  "scripts": {},
+  "dependencies": {
+    "tailwindcss": "^1.2"
+  },
+  "devDependencies": {
+    "postcss-cli": "^7.1.0"
+  }
+}
+`
+
+	postcssConfig := `
+console.error("Hugo Environment:", process.env.HUGO_ENVIRONMENT );
+
+module.exports = {
+  plugins: [
+    require('tailwindcss')
+  ]
+}
+`
+
+	tailwindCss := `
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "components/all.css";
+
+h1 {
+    @apply text-2xl font-bold;
+}
+  
+`
+
+	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-test-postcss")
+	c.Assert(err, qt.IsNil)
+	defer clean()
+
+	v := viper.New()
+	v.Set("workingDir", workDir)
+	v.Set("disableKinds", []string{"taxonomyTerm", "taxonomy", "page"})
+	b := newTestSitesBuilder(t).WithLogger(loggers.NewWarningLogger())
+	// Need to use OS fs for this.
+	b.Fs = hugofs.NewDefault(v)
+	b.WithWorkingDir(workDir)
+	b.WithViper(v)
+
+	cssDir := filepath.Join(workDir, "assets", "css", "components")
+	b.Assert(os.MkdirAll(cssDir, 0777), qt.IsNil)
+
+	b.WithContent("p1.md", "")
+	b.WithTemplates("index.html", `
+{{ $options := dict "inlineImports" true }}
+{{ $styles := resources.Get "css/styles.css" | resources.PostCSS $options }}
+Styles RelPermalink: {{ $styles.RelPermalink }}
+{{ $cssContent := $styles.Content }}
+Styles Content: Len: {{ len $styles.Content }}|
+
+`)
+	b.WithSourceFile("assets/css/styles.css", tailwindCss)
+	b.WithSourceFile("assets/css/components/all.css", `
+@import "a.css";
+@import "b.css";
+`, "assets/css/components/a.css", `
+class-in-a {
+	color: blue;
+}
+`, "assets/css/components/b.css", `
+@import "a.css";
+
+class-in-b {
+	color: blue;
+}
+`)
+
+	b.WithSourceFile("package.json", packageJSON)
+	b.WithSourceFile("postcss.config.js", postcssConfig)
+
+	b.Assert(os.Chdir(workDir), qt.IsNil)
+	_, err = exec.Command("npm", "install").CombinedOutput()
+	b.Assert(err, qt.IsNil)
+
+	out, _ := captureStderr(func() error {
+		b.Build(BuildCfg{})
+		return nil
+	})
+
+	// Make sure Node sees this.
+	b.Assert(out, qt.Contains, "Hugo Environment: production")
+
+	b.AssertFileContent("public/index.html", `
+Styles RelPermalink: /css/styles.css
+Styles Content: Len: 770878|
+`)
+
+	content := b.FileContent("public/css/styles.css")
+
+	b.Assert(strings.Contains(content, "class-in-a"), qt.Equals, true)
+	b.Assert(strings.Contains(content, "class-in-b"), qt.Equals, true)
 
 }
