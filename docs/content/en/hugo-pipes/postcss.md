@@ -39,6 +39,12 @@ config [string]
 noMap [bool]
 : Default is `true`. Disable the default inline sourcemaps
 
+inlineImports [bool] {{< new-in "0.66.0" >}}
+: Default is `false`. Enable inlining of @import statements. It does so recursively, but will only import a file once.
+URL imports (e.g. `@import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');`) and imports with media queries will be ignored.
+Note that this import routine does not care about the CSS spec, so you can have @import anywhere in the file.
+Hugo will look for imports relative to the module mount and will respect theme overrides.
+
 _If no configuration file is used:_
 
 use [string]
@@ -55,4 +61,21 @@ syntax [string]
 
 ```go-html-template
 {{ $style := resources.Get "css/main.css" | resources.PostCSS (dict "config" "customPostCSS.js" "noMap" true) }}
+```
+
+## Check Hugo Environment from postcss.config.js
+
+{{< new-in "0.66.0" >}}
+
+The current Hugo environment name (set by `--environment` or in config or OS environment) is available in the Node context, which allows constructs like this:
+
+```js
+module.exports = {
+  plugins: [
+    require('autoprefixer'),
+    ...process.env.HUGO_ENVIRONMENT === 'production'
+      ? [purgecss]
+      : []
+  ]
+}
 ```

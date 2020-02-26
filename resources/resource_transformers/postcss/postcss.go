@@ -14,8 +14,18 @@
 package postcss
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"io"
+	"io/ioutil"
+	"path"
 	"path/filepath"
+	"regexp"
+	"strings"
+
+	"github.com/gohugoio/hugo/config"
+
+	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/resources/internal"
 	"github.com/spf13/cast"
@@ -33,6 +43,8 @@ import (
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
+const importIdentifier = "@import"
+
 // Some of the options from https://github.com/postcss/postcss-cli
 type Options struct {
 
@@ -40,6 +52,14 @@ type Options struct {
 	Config string
 
 	NoMap bool // Disable the default inline sourcemaps
+
+	// Enable inlining of @import statements.
+	// Does so recursively, but currently once only per file;
+	// that is, it's not possible to import the same file in
+	// different scopes (root, media query...)
+	// Note that this import routine does not care about the CSS spec,
+	// so you can have @import anywhere in the file.
+	InlineImports bool
 
 	// Options for when not using a config file
 	Use         string // List of postcss plugins to use
@@ -168,15 +188,28 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 
 	cmd.Stdout = ctx.To
 	cmd.Stderr = os.Stderr
+	// TODO(bep) somehow generalize this to other external helpers that may need this.
+	env := os.Environ()
+	config.SetEnvVars(&env, "HUGO_ENVIRONMENT", t.rs.Cfg.GetString("environment"))
+	cmd.Env = env
 
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return err
 	}
 
+	src := ctx.From
+	if t.options.InlineImports {
+		var err error
+		src, err = t.inlineImports(ctx)
+		if err != nil {
+			return err
+		}
+	}
+
 	go func() {
 		defer stdin.Close()
-		io.Copy(stdin, ctx.From)
+		io.Copy(stdin, src)
 	}()
 
 	err = cmd.Run()
@@ -187,7 +220,108 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	return nil
 }
 
+func (t *postcssTransformation) inlineImports(ctx *resources.ResourceTransformationCtx) (io.Reader, error) {
+
+	const importIdentifier = "@import"
+
+	// Set of content hashes.
+	contentSeen := make(map[string]bool)
+
+	content, err := ioutil.ReadAll(ctx.From)
+	if err != nil {
+		return nil, err
+	}
+
+	contents := string(content)
+
+	newContent, err := t.importRecursive(contentSeen, contents, ctx.InPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return strings.NewReader(newContent), nil
+
+}
+
+func (t *postcssTransformation) importRecursive(
+	contentSeen map[string]bool,
+	content string,
+	inPath string) (string, error) {
+
+	basePath := path.Dir(inPath)
+
+	var replacements []string
+	lines := strings.Split(content, "\n")
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if shouldImport(line) {
+			path := strings.Trim(strings.TrimPrefix(line, importIdentifier), " \"';")
+			filename := filepath.Join(basePath, path)
+			importContent, hash := t.contentHash(filename)
+			if importContent == nil {
+				t.rs.Logger.WARN.Printf("postcss: Failed to resolve CSS @import in %q for path %q", inPath, filename)
+				continue
+			}
+
+			if contentSeen[hash] {
+				// Just replace the line with an empty string.
+				replacements = append(replacements, []string{line, ""}...)
+				continue
+			}
+
+			contentSeen[hash] = true
+
+			// Handle recursive imports.
+			nested, err := t.importRecursive(contentSeen, string(importContent), filepath.ToSlash(filename))
+			if err != nil {
+				return "", err
+			}
+			importContent = []byte(nested)
+
+			replacements = append(replacements, []string{line, string(importContent)}...)
+		}
+	}
+
+	if len(replacements) > 0 {
+		repl := strings.NewReplacer(replacements...)
+		content = repl.Replace(content)
+	}
+
+	return content, nil
+}
+
+func (t *postcssTransformation) contentHash(filename string) ([]byte, string) {
+	b, err := afero.ReadFile(t.rs.Assets.Fs, filename)
+	if err != nil {
+		return nil, ""
+	}
+	h := sha256.New()
+	h.Write(b)
+	return b, hex.EncodeToString(h.Sum(nil))
+}
+
 // Process transforms the given Resource with the PostCSS processor.
 func (c *Client) Process(res resources.ResourceTransformer, options Options) (resource.Resource, error) {
 	return res.Transform(&postcssTransformation{rs: c.rs, options: options})
+}
+
+var shouldImportRe = regexp.MustCompile(`^@import ["'].*["'];?\s*(/\*.*\*/)?$`)
+
+// See https://www.w3schools.com/cssref/pr_import_rule.asp
+// We currently only support simple file imports, no urls, no media queries.
+// So this is OK:
+//     @import "navigation.css";
+// This is not:
+//     @import url("navigation.css");
+//     @import "mobstyle.css" screen and (max-width: 768px);
+func shouldImport(s string) bool {
+	if !strings.HasPrefix(s, importIdentifier) {
+		return false
+	}
+	if strings.Contains(s, "url(") {
+		return false
+	}
+
+	return shouldImportRe.MatchString(s)
 }
