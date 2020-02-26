@@ -31,6 +31,7 @@ import (
 	"sync"
 
 	"github.com/dustin/go-humanize"
+	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/config"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -125,7 +126,11 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 	}
 
 	// Load local files from the source directory.
-	local, err := walkLocal(d.localFs, d.matchers)
+	var include, exclude glob.Glob
+	if d.target != nil {
+		include, exclude = d.target.includeGlob, d.target.excludeGlob
+	}
+	local, err := walkLocal(d.localFs, d.matchers, include, exclude)
 	if err != nil {
 		return err
 	}
@@ -437,7 +442,7 @@ func (lf *localFile) MD5() []byte {
 
 // walkLocal walks the source directory and returns a flat list of files,
 // using localFile.SlashPath as the map keys.
-func walkLocal(fs afero.Fs, matchers []*matcher) (map[string]*localFile, error) {
+func walkLocal(fs afero.Fs, matchers []*matcher, include, exclude glob.Glob) (map[string]*localFile, error) {
 	retval := map[string]*localFile{}
 	err := afero.Walk(fs, "", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -459,6 +464,16 @@ func walkLocal(fs afero.Fs, matchers []*matcher) (map[string]*localFile, error) 
 		// When a file system is HFS+, its filepath is in NFD form.
 		if runtime.GOOS == "darwin" {
 			path = norm.NFC.String(path)
+		}
+
+		// Check include/exclude matchers.
+		if include != nil && !include.Match(path) {
+			jww.INFO.Printf("  dropping %q due to include\n", path)
+			return nil
+		}
+		if exclude != nil && exclude.Match(path) {
+			jww.INFO.Printf("  dropping %q due to exclude\n", path)
+			return nil
 		}
 
 		// Find the first matching matcher (if any).

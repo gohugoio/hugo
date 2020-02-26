@@ -82,8 +82,13 @@ name = "mydeployment"
 # If you are using a CloudFront CDN, deploy will invalidate the cache as needed.
 cloudFrontDistributionID = <ID>
 
-
-# ... add more [[deployment.targets]] sections ...
+# Optionally, you can include or exclude specific files.
+# See https://godoc.org/github.com/gobwas/glob#Glob for the glob pattern syntax.
+# If non-empty, the pattern is matched against the local path.
+# If exclude is non-empty, and a file's path matches it, that file is dropped.
+# If include is non-empty, and a file's path does not match it, that file is dropped.
+# include = "**.html" # would only include files with ".html" suffix
+# exclude = "**.{jpg, png}" # would exclude files with ".jpg" or ".png" suffix
 
 
 # [[deployment.matchers]] configure behavior for files that match the Pattern.

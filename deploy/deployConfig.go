@@ -17,7 +17,9 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/config"
+	hglob "github.com/gohugoio/hugo/hugofs/glob"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -41,6 +43,32 @@ type target struct {
 	// GoogleCloudCDNOrigin specifies the Google Cloud project and CDN origin to
 	// invalidate when deploying this target.  It is specified as <project>/<origin>.
 	GoogleCloudCDNOrigin string
+
+	// Optional patterns of files to include/exclude for this target.
+	// Parsed using github.com/gobwas/glob.
+	Include string
+	Exclude string
+
+	// Parsed versions of Include/Exclude.
+	includeGlob glob.Glob
+	excludeGlob glob.Glob
+}
+
+func (tgt *target) parseIncludeExclude() error {
+	var err error
+	if tgt.Include != "" {
+		tgt.includeGlob, err = hglob.GetGlob(tgt.Include)
+		if err != nil {
+			return fmt.Errorf("invalid deployment.target.include %q: %v", tgt.Include, err)
+		}
+	}
+	if tgt.Exclude != "" {
+		tgt.excludeGlob, err = hglob.GetGlob(tgt.Exclude)
+		if err != nil {
+			return fmt.Errorf("invalid deployment.target.exclude %q: %v", tgt.Exclude, err)
+		}
+	}
+	return nil
 }
 
 // matcher represents configuration to be applied to files whose paths match
@@ -86,6 +114,11 @@ func decodeConfig(cfg config.Provider) (deployConfig, error) {
 	}
 	if err := mapstructure.WeakDecode(cfg.GetStringMap(deploymentConfigKey), &dcfg); err != nil {
 		return dcfg, err
+	}
+	for _, tgt := range dcfg.Targets {
+		if err := tgt.parseIncludeExclude(); err != nil {
+			return dcfg, err
+		}
 	}
 	var err error
 	for _, m := range dcfg.Matchers {
