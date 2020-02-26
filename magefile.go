@@ -320,7 +320,7 @@ func runCmd(env map[string]string, cmd string, args ...string) error {
 }
 
 func isGoLatest() bool {
-	return strings.Contains(runtime.Version(), "1.13")
+	return strings.Contains(runtime.Version(), "1.14")
 }
 
 func isCI() bool {
