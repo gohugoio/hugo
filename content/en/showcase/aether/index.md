@@ -2,8 +2,7 @@
 
 title: Aether
 date: 2020-02-26
-
-description: "Aether is a peer-to-peer network that hosts self-moderating online-communities."
+description: "Showcase: \"Hugo is not just a static site generator for us, it's the core framework at the heart of our entire web front-end.\""
 
 # The URL to the site on the internet.
 siteURL: https://getaether.net
@@ -15,7 +14,7 @@ byline: "[Burak Nehbit](https://twitter.com/nehbit), Maintainer, Aether"
 
 To say that this website, our main online presence, needed to do a lot would be an understatement.
 
-Our site is home to both *Aether* and *Aether Pro*, our **knowledgebase for each product**, a **server for static assets that we use in our emails**, the **interactive sign-up flows**, **payments client**, **downloads provider**, and even a **mechanism for delivering auto-update notifications** to our native clients. We are using a single Hugo site for all these — it's not a static site for us, it's the core framework at the heart of our *entire* web front-end.
+Our site is home to both *Aether* and *Aether Pro*, our **knowledgebase for each product**, a **server for static assets that we use in our emails**, the **interactive sign-up flows**, **payments client**, **downloads provider**, and even a **mechanism for delivering auto-update notifications** to our native clients. We are using a single Hugo site for all these — it's not a static site generator for us, it's the core framework at the heart of our *entire* web front-end.
 
 Not only that, this had to work with one developer crunched for time who spends most of his time working on two separate apps across 3 desktop platforms — someone whose main job is very far from building static websites. We only had scraps of time to design and build this Hugo site, make it performant and scalable, and Hugo did a phenomenal job delivering on that promise.
 
