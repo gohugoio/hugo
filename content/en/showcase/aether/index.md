@@ -1,7 +1,7 @@
 ---
 
 title: Aether
-date: 2020-02-25
+date: 2020-02-26
 
 description: "Aether is a peer-to-peer network that hosts self-moderating online-communities."
 
