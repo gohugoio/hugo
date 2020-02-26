@@ -467,17 +467,17 @@ func walkLocal(fs afero.Fs, matchers []*matcher, include, exclude glob.Glob) (ma
 		}
 
 		// Check include/exclude matchers.
-		if include != nil && !include.Match(path) {
-			jww.INFO.Printf("  dropping %q due to include\n", path)
+		slashpath := filepath.ToSlash(path)
+		if include != nil && !include.Match(slashpath) {
+			jww.INFO.Printf("  dropping %q due to include\n", slashpath)
 			return nil
 		}
-		if exclude != nil && exclude.Match(path) {
-			jww.INFO.Printf("  dropping %q due to exclude\n", path)
+		if exclude != nil && exclude.Match(slashpath) {
+			jww.INFO.Printf("  dropping %q due to exclude\n", slashpath)
 			return nil
 		}
 
 		// Find the first matching matcher (if any).
-		slashpath := filepath.ToSlash(path)
 		var m *matcher
 		for _, cur := range matchers {
 			if cur.Matches(slashpath) {
