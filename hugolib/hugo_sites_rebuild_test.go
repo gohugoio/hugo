@@ -15,6 +15,8 @@ package hugolib
 
 import (
 	"testing"
+
+	qt "github.com/frankban/quicktest"
 )
 
 func TestSitesRebuild(t *testing.T) {
@@ -139,6 +141,29 @@ Data Inline: Rocks!
 		b.AssertFileContent("public/index.html", `
 Data: Rules!
 Data Inline: Rules!`)
+
+	})
+
+	// https://github.com/gohugoio/hugo/issues/6968
+	t.Run("Edit single.html with base", func(t *testing.T) {
+		b := newTestSitesBuilder(t).Running()
+
+		b.WithTemplates(
+			"_default/single.html", `{{ define "main" }}Single{{ end }}`,
+			"_default/baseof.html", `Base: {{ block "main"  .}}Block{{ end }}`,
+		)
+
+		b.WithContent("p1.md", "---\ntitle: Page\n---")
+
+		b.Build(BuildCfg{})
+
+		b.EditFiles("layouts/_default/single.html", `Single Edit: {{ define "main" }}Single{{ end }}`)
+
+		counters := &testCounters{}
+
+		b.Build(BuildCfg{testCounters: counters})
+
+		b.Assert(int(counters.contentRenderCounter), qt.Equals, 0)
 
 	})
 
