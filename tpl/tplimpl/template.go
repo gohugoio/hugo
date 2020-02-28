@@ -383,9 +383,15 @@ func (t *templateHandler) LookupVariant(name string, variants tpl.TemplateVarian
 }
 
 func (t *templateHandler) HasTemplate(name string) bool {
+
 	if _, found := t.baseof[name]; found {
 		return true
 	}
+
+	if _, found := t.needsBaseof[name]; found {
+		return true
+	}
+
 	_, found := t.Lookup(name)
 	return found
 }
