@@ -443,7 +443,8 @@ func (s *sitesBuilder) writeFilePairs(folder string, files []filenameContent) *s
 	// our tests running with the in memory filesystem.
 	// That file system is backed by a map so not sure how this helps, but some
 	// randomness in tests doesn't hurt.
-	s.rnd.Shuffle(len(files), func(i, j int) { files[i], files[j] = files[j], files[i] })
+	// TODO(bep) this turns out to be more confusing than helpful.
+	//s.rnd.Shuffle(len(files), func(i, j int) { files[i], files[j] = files[j], files[i] })
 
 	for _, fc := range files {
 		target := folder

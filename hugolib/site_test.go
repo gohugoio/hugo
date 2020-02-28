@@ -940,6 +940,8 @@ func setupLinkingMockSite(t *testing.T) *Site {
 		{filepath.FromSlash("level2/level3/common.png"), ""},
 
 		{filepath.FromSlash("level2/level3/embedded.dot.md"), ""},
+
+		{filepath.FromSlash("leafbundle/index.md"), ""},
 	}
 
 	cfg, fs := newTestCfg()
@@ -1025,4 +1027,19 @@ func checkLinkCase(site *Site, link string, currentPage page.Page, relative bool
 	if out, err := site.refLink(link, currentPage, relative, outputFormat); err != nil || out != expected {
 		t.Fatalf("[%d] Expected %q from %q to resolve to %q, got %q - error: %s", i, link, currentPage.Path(), expected, out, err)
 	}
+}
+
+// https://github.com/gohugoio/hugo/issues/6952
+func TestRefBundle(t *testing.T) {
+	b := newTestSitesBuilder(t)
+	b.WithContent(
+		"post/b1/index.md", "---\ntitle: pb1\n---\nRef: {{< ref \"b2\" >}}",
+		"post/b2/index.md", "---\ntitle: pb2\n---\n",
+	)
+	b.WithTemplates("index.html", `Home`)
+	b.WithTemplates("_default/single.html", `Content: {{ .Content }}`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/post/b1/index.html", `Content: <p>Ref: http://example.com/post/b2/</p>`)
 }

@@ -20,7 +20,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/gohugoio/hugo/helpers"
 
@@ -207,13 +207,12 @@ func (c *PageCollections) getSectionOrPage(ref string) (*contentNode, string) {
 }
 
 func (c *PageCollections) getContentNode(context page.Page, isReflink bool, ref string) (*contentNode, error) {
-	defer herrors.Recover()
 	ref = filepath.ToSlash(strings.ToLower(strings.TrimSpace(ref)))
 	if ref == "" {
 		ref = "/"
 	}
 	inRef := ref
-
+	navUp := strings.HasPrefix(ref, "..")
 	var doSimpleLookup bool
 	if isReflink || context == nil {
 		// For Ref/Reflink and .Site.GetPage do simple name lookups for the potentially ambigous myarticle.md and /myarticle.md,
@@ -227,7 +226,16 @@ func (c *PageCollections) getContentNode(context page.Page, isReflink bool, ref 
 		if context.File().IsZero() {
 			base = context.SectionsPath()
 		} else {
-			base = filepath.ToSlash(filepath.Dir(context.File().FileInfo().Meta().Path()))
+			meta := context.File().FileInfo().Meta()
+			base = filepath.ToSlash(filepath.Dir(meta.Path()))
+			if meta.Classifier() == files.ContentClassLeaf {
+				// Bundles are stored in subfolders e.g. blog/mybundle/index.md,
+				// so if the user has not explicitly asked to go up,
+				// look on the "blog" level.
+				if !navUp {
+					base = path.Dir(base)
+				}
+			}
 		}
 		ref = path.Join("/", strings.ToLower(base), ref)
 	}
