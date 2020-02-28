@@ -777,7 +777,6 @@ func (s siteRefLinker) logNotFound(ref, what string, p page.Page, position text.
 }
 
 func (s *siteRefLinker) refLink(ref string, source interface{}, relative bool, outputFormat string) (string, error) {
-
 	p, err := unwrapPage(source)
 	if err != nil {
 		return "", err
