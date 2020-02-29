@@ -100,6 +100,5 @@ func init() {
 		return docs
 
 	}
-	// TODO(bep) merge maps
 	docshelper.AddDocProvider("config", docsProvider)
 }

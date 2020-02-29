@@ -20,17 +20,12 @@ import (
 	"io"
 	"regexp"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/transform"
 
 	"github.com/gohugoio/hugo/media"
 	"github.com/tdewolff/minify/v2"
-	"github.com/tdewolff/minify/v2/css"
-	"github.com/tdewolff/minify/v2/html"
-	"github.com/tdewolff/minify/v2/js"
-	"github.com/tdewolff/minify/v2/json"
-	"github.com/tdewolff/minify/v2/svg"
-	"github.com/tdewolff/minify/v2/xml"
 )
 
 // Client wraps a minifier.
@@ -62,39 +57,44 @@ func (m Client) Minify(mediatype media.Type, dst io.Writer, src io.Reader) error
 // New creates a new Client with the provided MIME types as the mapping foundation.
 // The HTML minifier is also registered for additional HTML types (AMP etc.) in the
 // provided list of output formats.
-func New(mediaTypes media.Types, outputFormats output.Formats) Client {
-	m := minify.New()
-	htmlMin := &html.Minifier{
-		KeepDocumentTags:        true,
-		KeepConditionalComments: true,
-		KeepEndTags:             true,
-		KeepDefaultAttrVals:     true,
-	}
+func New(mediaTypes media.Types, outputFormats output.Formats, cfg config.Provider) (Client, error) {
+	conf, err := decodeConfig(cfg)
 
-	cssMin := &css.Minifier{
-		Decimals: -1,
-		KeepCSS2: true,
+	m := minify.New()
+	if err != nil {
+		return Client{m: m}, err
 	}
 
 	// We use the Type definition of the media types defined in the site if found.
-	addMinifier(m, mediaTypes, "css", cssMin)
-	addMinifierFunc(m, mediaTypes, "js", js.Minify)
-	m.AddFuncRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), js.Minify)
-	m.AddFuncRegexp(regexp.MustCompile(`^(application|text)/(x-|ld\+)?json$`), json.Minify)
-	addMinifierFunc(m, mediaTypes, "json", json.Minify)
-	addMinifierFunc(m, mediaTypes, "svg", svg.Minify)
-	addMinifierFunc(m, mediaTypes, "xml", xml.Minify)
+	if conf.EnableCSS {
+		addMinifier(m, mediaTypes, "css", &conf.Tdewolff.CSS)
+	}
+	if conf.EnableJS {
+		addMinifier(m, mediaTypes, "js", &conf.Tdewolff.JS)
+		m.AddRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), &conf.Tdewolff.JS)
+	}
+	if conf.EnableJSON {
+		addMinifier(m, mediaTypes, "json", &conf.Tdewolff.JSON)
+		m.AddRegexp(regexp.MustCompile(`^(application|text)/(x-|ld\+)?json$`), &conf.Tdewolff.JSON)
+	}
+	if conf.EnableSVG {
+		addMinifier(m, mediaTypes, "svg", &conf.Tdewolff.SVG)
+	}
+	if conf.EnableXML {
+		addMinifier(m, mediaTypes, "xml", &conf.Tdewolff.XML)
+	}
 
 	// HTML
-	addMinifier(m, mediaTypes, "html", htmlMin)
-	for _, of := range outputFormats {
-		if of.IsHTML {
-			m.Add(of.MediaType.Type(), htmlMin)
+	if conf.EnableHTML {
+		addMinifier(m, mediaTypes, "html", &conf.Tdewolff.HTML)
+		for _, of := range outputFormats {
+			if of.IsHTML {
+				m.Add(of.MediaType.Type(), &conf.Tdewolff.HTML)
+			}
 		}
 	}
 
-	return Client{m: m}
-
+	return Client{m: m}, nil
 }
 
 func addMinifier(m *minify.M, mt media.Types, suffix string, min minify.Minifier) {

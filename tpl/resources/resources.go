@@ -46,13 +46,18 @@ func New(deps *deps.Deps) (*Namespace, error) {
 		return nil, err
 	}
 
+	minifyClient, err := minifier.New(deps.ResourceSpec)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Namespace{
 		deps:            deps,
 		scssClient:      scssClient,
 		createClient:    create.New(deps.ResourceSpec),
 		bundlerClient:   bundler.New(deps.ResourceSpec),
 		integrityClient: integrity.New(deps.ResourceSpec),
-		minifyClient:    minifier.New(deps.ResourceSpec),
+		minifyClient:    minifyClient,
 		postcssClient:   postcss.New(deps.ResourceSpec),
 		templatesClient: templates.New(deps.ResourceSpec, deps),
 	}, nil
