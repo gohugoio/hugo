@@ -18,6 +18,7 @@ import (
 	"io"
 	"sync/atomic"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/media"
 
 	"github.com/gohugoio/hugo/minifiers"
@@ -73,13 +74,17 @@ type DestinationPublisher struct {
 }
 
 // NewDestinationPublisher creates a new DestinationPublisher.
-func NewDestinationPublisher(fs afero.Fs, outputFormats output.Formats, mediaTypes media.Types, minify bool) DestinationPublisher {
-	pub := DestinationPublisher{fs: fs}
+func NewDestinationPublisher(fs afero.Fs, outputFormats output.Formats, mediaTypes media.Types, cfg config.Provider) (pub DestinationPublisher, err error) {
+	pub = DestinationPublisher{fs: fs}
+	minify := cfg.GetBool("minify")
 	if minify {
-		pub.min = minifiers.New(mediaTypes, outputFormats)
+		pub.min, err = minifiers.New(mediaTypes, outputFormats, cfg)
+		if err != nil {
+			return
+		}
 		pub.minify = true
 	}
-	return pub
+	return
 }
 
 // Publish applies any relevant transformations and writes the file

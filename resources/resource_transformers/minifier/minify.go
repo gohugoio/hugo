@@ -29,8 +29,12 @@ type Client struct {
 
 // New creates a new Client given a specification. Note that it is the media types
 // configured for the site that is used to match files to the correct minifier.
-func New(rs *resources.Spec) *Client {
-	return &Client{rs: rs, m: minifiers.New(rs.MediaTypes, rs.OutputFormats)}
+func New(rs *resources.Spec) (*Client, error) {
+	m, err := minifiers.New(rs.MediaTypes, rs.OutputFormats, rs.Cfg)
+	if err != nil {
+		return nil, err
+	}
+	return &Client{rs: rs, m: m}, nil
 }
 
 type minifyTransformation struct {

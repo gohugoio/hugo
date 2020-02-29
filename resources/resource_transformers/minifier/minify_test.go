@@ -27,7 +27,7 @@ func TestTransform(t *testing.T) {
 
 	spec, err := htesting.NewTestResourceSpec()
 	c.Assert(err, qt.IsNil)
-	client := New(spec)
+	client, _ := New(spec)
 
 	r, err := htesting.NewResourceTransformerForSpec(spec, "hugo.html", "<h1>   Hugo Rocks!   </h1>")
 	c.Assert(err, qt.IsNil)
