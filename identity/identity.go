@@ -24,14 +24,24 @@ func NewPathIdentity(typ, pat string) PathIdentity {
 // Identities stores identity providers.
 type Identities map[Identity]Provider
 
-func (ids Identities) search(id Identity) Provider {
-	if v, found := ids[id]; found {
+func (ids Identities) search(depth int, id Identity) Provider {
+
+	if v, found := ids[id.GetIdentity()]; found {
 		return v
 	}
+
+	depth++
+
+	// There may be infinite recursion in templates.
+	if depth > 100 {
+		// Bail out.
+		return nil
+	}
+
 	for _, v := range ids {
 		switch t := v.(type) {
 		case IdentitiesProvider:
-			if nested := t.GetIdentities().search(id); nested != nil {
+			if nested := t.GetIdentities().search(depth, id); nested != nil {
 				return nested
 			}
 		}
@@ -127,5 +137,5 @@ func (im *identityManager) GetIdentities() Identities {
 func (im *identityManager) Search(id Identity) Provider {
 	im.Lock()
 	defer im.Unlock()
-	return im.ids.search(id.GetIdentity())
+	return im.ids.search(0, id.GetIdentity())
 }
