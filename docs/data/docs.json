@@ -1451,6 +1451,35 @@
         "footnoteAnchorPrefix": "",
         "footnoteReturnLinkContents": ""
       }
+    },
+    "minifiers": {
+      "tdewolff": {
+        "enableHtml": true,
+        "enableCss": true,
+        "enableJs": true,
+        "enableJson": true,
+        "enableSvg": true,
+        "enableXml": true,
+        "html": {
+          "keepConditionalComments": true,
+          "keepDefaultAttrVals": true,
+          "keepDocumentTags": true,
+          "keepEndTags": true,
+          "keepWhitespace": false
+        },
+        "css": {
+          "decimals": -1,
+          "keepCSS2": true
+        },
+        "js": {},
+        "json": {},
+        "svg": {
+          "decimals": -1
+        },
+        "xml": {
+          "keepWhitespace": false
+        }
+      }
     }
   },
   "media": {
@@ -3192,6 +3221,12 @@
           "Aliases": null,
           "Examples": null
         },
+        "IsProduction": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "Version": {
           "Description": "",
           "Args": null,
@@ -3541,6 +3576,19 @@
             [
               "{{math.Round 1.5}}",
               "2"
+            ]
+          ]
+        },
+        "Sqrt": {
+          "Description": "Sqrt returns the square root of a number.\nNOTE: will return for NaN for negative values of a",
+          "Args": [
+            "a"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{math.Sqrt 81}}",
+              "9"
             ]
           ]
         },

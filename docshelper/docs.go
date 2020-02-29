@@ -24,7 +24,11 @@ var DocProviders = make(map[string]DocProvider)
 
 // AddDocProvider adds or updates the DocProvider for a given name.
 func AddDocProvider(name string, provider DocProvider) {
-	DocProviders[name] = provider
+	if prev, ok := DocProviders[name]; !ok {
+		DocProviders[name] = provider
+	} else {
+		DocProviders[name] = merge(prev, provider)
+	}
 }
 
 // DocProvider is used to save arbitrary JSON data
@@ -34,4 +38,14 @@ type DocProvider func() map[string]interface{}
 // MarshalJSON returns a JSON representation of the DocProvider.
 func (d DocProvider) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent(d(), "", "  ")
+}
+
+func merge(a, b DocProvider) DocProvider {
+	next := a()
+	for k, v := range b() {
+		next[k] = v
+	}
+	return func() map[string]interface{} {
+		return next
+	}
 }
