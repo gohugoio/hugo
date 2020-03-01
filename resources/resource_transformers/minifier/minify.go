@@ -14,6 +14,8 @@
 package minifier
 
 import (
+	"fmt"
+
 	"github.com/gohugoio/hugo/minifiers"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/internal"
@@ -48,7 +50,7 @@ func (t *minifyTransformation) Key() internal.ResourceTransformationKey {
 
 func (t *minifyTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
 	if err := t.m.Minify(ctx.InMediaType, ctx.To, ctx.From); err != nil {
-		return err
+		return fmt.Errorf("%s: %s", err, ctx.InMediaType)
 	}
 	ctx.AddOutPathIdentifier(".min")
 	return nil
