@@ -79,8 +79,8 @@ func TestConfiguredMinify(t *testing.T) {
 	c := qt.New(t)
 	v := viper.New()
 	v.Set("minifiers", map[string]interface{}{
+		"enablexml": false,
 		"tdewolff": map[string]interface{}{
-			"enablexml": false,
 			"html": map[string]interface{}{
 				"keepwhitespace": true,
 			},

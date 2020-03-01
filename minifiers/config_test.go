@@ -27,8 +27,8 @@ func TestConfig(t *testing.T) {
 	v := viper.New()
 
 	v.Set("minifiers", map[string]interface{}{
+		"enablexml": false,
 		"tdewolff": map[string]interface{}{
-			"enablexml": false,
 			"html": map[string]interface{}{
 				"keepwhitespace": false,
 			},
@@ -47,6 +47,6 @@ func TestConfig(t *testing.T) {
 	c.Assert(conf.Tdewolff.CSS.KeepCSS2, qt.Equals, true)
 
 	// `enable` flags
-	c.Assert(conf.Tdewolff.EnableHTML, qt.Equals, true)
-	c.Assert(conf.Tdewolff.EnableXML, qt.Equals, false)
+	c.Assert(conf.EnableHTML, qt.Equals, true)
+	c.Assert(conf.EnableXML, qt.Equals, false)
 }

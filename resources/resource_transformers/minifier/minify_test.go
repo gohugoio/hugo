@@ -46,7 +46,7 @@ func TestNoMinifier(t *testing.T) {
 	c := qt.New(t)
 
 	spec, _ := htesting.NewTestResourceSpec()
-	spec.Cfg.Set("minifiers.tdewolff.enableXML", false)
+	spec.Cfg.Set("minifiers.enableXML", false)
 	client, _ := New(spec)
 
 	r, err := htesting.NewResourceTransformerForSpec(spec, "hugo.xml", "<title>   Hugo Rocks!   </title>")

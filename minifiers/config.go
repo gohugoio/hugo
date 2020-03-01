@@ -28,13 +28,6 @@ import (
 )
 
 var defaultTdewolffConfig = tdewolffConfig{
-	EnableHTML: true,
-	EnableCSS:  true,
-	EnableJS:   true,
-	EnableJSON: true,
-	EnableSVG:  true,
-	EnableXML:  true,
-
 	HTML: html.Minifier{
 		KeepDocumentTags:        true,
 		KeepConditionalComments: true,
@@ -60,13 +53,6 @@ var defaultTdewolffConfig = tdewolffConfig{
 }
 
 type tdewolffConfig struct {
-	EnableHTML bool
-	EnableCSS  bool
-	EnableJS   bool
-	EnableJSON bool
-	EnableSVG  bool
-	EnableXML  bool
-
 	HTML html.Minifier
 	CSS  css.Minifier
 	JS   js.Minifier
@@ -76,10 +62,24 @@ type tdewolffConfig struct {
 }
 
 type minifiersConfig struct {
+	EnableHTML bool
+	EnableCSS  bool
+	EnableJS   bool
+	EnableJSON bool
+	EnableSVG  bool
+	EnableXML  bool
+
 	Tdewolff tdewolffConfig
 }
 
 var defaultConfig = minifiersConfig{
+	EnableHTML: true,
+	EnableCSS:  true,
+	EnableJS:   true,
+	EnableJSON: true,
+	EnableSVG:  true,
+	EnableXML:  true,
+
 	Tdewolff: defaultTdewolffConfig,
 }
 
