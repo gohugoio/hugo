@@ -1453,33 +1453,32 @@
       }
     },
     "minifiers": {
-      "enableHtml": true,
-      "enableCss": true,
-      "enableJs": true,
-      "enableJson": true,
-      "enableSvg": true,
-      "enableXml": true,
-      "html": {
-        "keepConditionalComments": true,
-        "keepDefaultAttrVals": true,
-        "keepDocumentTags": true,
-        "keepEndTags": true,
-        "keepQuotes": false,
-        "keepWhitespace": false
-      },
-      "css": {
-        "keepCSS2": true,
-        "decimals": 0,
-        "precision": 0
-      },
-      "js": {},
-      "json": {},
-      "svg": {
-        "decimals": 0,
-        "precision": 0
-      },
-      "xml": {
-        "keepWhitespace": false
+      "tdewolff": {
+        "enableHtml": true,
+        "enableCss": true,
+        "enableJs": true,
+        "enableJson": true,
+        "enableSvg": true,
+        "enableXml": true,
+        "html": {
+          "keepConditionalComments": true,
+          "keepDefaultAttrVals": true,
+          "keepDocumentTags": true,
+          "keepEndTags": true,
+          "keepWhitespace": false
+        },
+        "css": {
+          "decimals": -1,
+          "keepCSS2": true
+        },
+        "js": {},
+        "json": {},
+        "svg": {
+          "decimals": -1
+        },
+        "xml": {
+          "keepWhitespace": false
+        }
       }
     }
   },
