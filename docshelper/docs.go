@@ -45,7 +45,7 @@ func merge(a, b DocProvider) DocProvider {
 	for k, v := range b() {
 		next[k] = v
 	}
-	return func () map[string]interface{} {
+	return func() map[string]interface{} {
 		return next
 	}
 }
