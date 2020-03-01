@@ -41,12 +41,12 @@ func TestConfig(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 
 	// explicitly set value
-	c.Assert(conf.Tdewolff.Html.KeepWhitespace, qt.Equals, false)
+	c.Assert(conf.Tdewolff.HTML.KeepWhitespace, qt.Equals, false)
 	// default value
-	c.Assert(conf.Tdewolff.Html.KeepEndTags, qt.Equals, true)
-	c.Assert(conf.Tdewolff.Css.KeepCSS2, qt.Equals, true)
+	c.Assert(conf.Tdewolff.HTML.KeepEndTags, qt.Equals, true)
+	c.Assert(conf.Tdewolff.CSS.KeepCSS2, qt.Equals, true)
 
 	// `enable` flags
-	c.Assert(conf.Tdewolff.EnableHtml, qt.Equals, true)
-	c.Assert(conf.Tdewolff.EnableXml, qt.Equals, false)
+	c.Assert(conf.Tdewolff.EnableHTML, qt.Equals, true)
+	c.Assert(conf.Tdewolff.EnableXML, qt.Equals, false)
 }

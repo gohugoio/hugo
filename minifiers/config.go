@@ -28,14 +28,14 @@ import (
 )
 
 var defaultTdewolffConfig = tdewolffConfig{
-	EnableHtml: true,
-	EnableCss:  true,
-	EnableJs:   true,
-	EnableJson: true,
-	EnableSvg:  true,
-	EnableXml:  true,
+	EnableHTML: true,
+	EnableCSS:  true,
+	EnableJS:   true,
+	EnableJSON: true,
+	EnableSVG:  true,
+	EnableXML:  true,
 
-	Html: html.Minifier{
+	HTML: html.Minifier{
 		KeepDocumentTags:        true,
 		KeepConditionalComments: true,
 		KeepEndTags:             true,
@@ -43,36 +43,36 @@ var defaultTdewolffConfig = tdewolffConfig{
 		KeepWhitespace:          false,
 		// KeepQuotes:              false, >= v2.6.2
 	},
-	Css: css.Minifier{
+	CSS: css.Minifier{
 		Decimals: -1, // will be deprecated
 		// Precision: 0,  // use Precision with >= v2.7.0
 		KeepCSS2: true,
 	},
-	Js:   js.Minifier{},
-	Json: json.Minifier{},
-	Svg: svg.Minifier{
+	JS:   js.Minifier{},
+	JSON: json.Minifier{},
+	SVG: svg.Minifier{
 		Decimals: -1, // will be deprecated
 		// Precision: 0,  // use Precision with >= v2.7.0
 	},
-	Xml: xml.Minifier{
+	XML: xml.Minifier{
 		KeepWhitespace: false,
 	},
 }
 
 type tdewolffConfig struct {
-	EnableHtml bool
-	EnableCss  bool
-	EnableJs   bool
-	EnableJson bool
-	EnableSvg  bool
-	EnableXml  bool
+	EnableHTML bool
+	EnableCSS  bool
+	EnableJS   bool
+	EnableJSON bool
+	EnableSVG  bool
+	EnableXML  bool
 
-	Html html.Minifier
-	Css  css.Minifier
-	Js   js.Minifier
-	Json json.Minifier
-	Svg  svg.Minifier
-	Xml  xml.Minifier
+	HTML html.Minifier
+	CSS  css.Minifier
+	JS   js.Minifier
+	JSON json.Minifier
+	SVG  svg.Minifier
+	XML  xml.Minifier
 }
 
 type minifiersConfig struct {

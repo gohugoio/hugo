@@ -68,30 +68,30 @@ func New(mediaTypes media.Types, outputFormats output.Formats, cfg config.Provid
 	conf := minifiersConf.Tdewolff
 
 	// We use the Type definition of the media types defined in the site if found.
-	if conf.EnableCss {
-		addMinifier(m, mediaTypes, "css", &conf.Css)
+	if conf.EnableCSS {
+		addMinifier(m, mediaTypes, "css", &conf.CSS)
 	}
-	if conf.EnableJs {
-		addMinifier(m, mediaTypes, "js", &conf.Js)
-		m.AddRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), &conf.Js)
+	if conf.EnableJS {
+		addMinifier(m, mediaTypes, "js", &conf.JS)
+		m.AddRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), &conf.JS)
 	}
-	if conf.EnableJson {
-		addMinifier(m, mediaTypes, "json", &conf.Json)
-		m.AddRegexp(regexp.MustCompile(`^(application|text)/(x-|ld\+)?json$`), &conf.Json)
+	if conf.EnableJSON {
+		addMinifier(m, mediaTypes, "json", &conf.JSON)
+		m.AddRegexp(regexp.MustCompile(`^(application|text)/(x-|ld\+)?json$`), &conf.JSON)
 	}
-	if conf.EnableSvg {
-		addMinifier(m, mediaTypes, "svg", &conf.Svg)
+	if conf.EnableSVG {
+		addMinifier(m, mediaTypes, "svg", &conf.SVG)
 	}
-	if conf.EnableXml {
-		addMinifier(m, mediaTypes, "xml", &conf.Xml)
+	if conf.EnableXML {
+		addMinifier(m, mediaTypes, "xml", &conf.XML)
 	}
 
 	// HTML
-	if conf.EnableHtml {
-		addMinifier(m, mediaTypes, "html", &conf.Html)
+	if conf.EnableHTML {
+		addMinifier(m, mediaTypes, "html", &conf.HTML)
 		for _, of := range outputFormats {
 			if of.IsHTML {
-				m.Add(of.MediaType.Type(), &conf.Html)
+				m.Add(of.MediaType.Type(), &conf.HTML)
 			}
 		}
 	}
