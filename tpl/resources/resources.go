@@ -299,6 +299,9 @@ func (ns *Namespace) resolveArgs(args []interface{}) (resources.ResourceTransfor
 
 	r, ok := args[1].(resources.ResourceTransformer)
 	if !ok {
+		if _, ok := args[1].(map[string]interface{}); !ok {
+			return nil, nil, fmt.Errorf("no Resource provided in transformation")
+		}
 		return nil, nil, fmt.Errorf("type %T not supported in Resource transformations", args[0])
 	}
 
