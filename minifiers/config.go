@@ -41,16 +41,18 @@ var DefaultConfig = minifiersConfig{
 		KeepEndTags:             true,
 		KeepDefaultAttrVals:     true,
 		KeepWhitespace:          false,
-		KeepQuotes:              false,
+		// KeepQuotes:              false, >= v2.6.2
 	},
 	Css: css.Minifier{
-		Precision: 0,
-		KeepCSS2:  true,
+		Decimals: -1, // will be deprecated
+		// Precision: 0,  // use Precision with >= v2.7.0
+		KeepCSS2: true,
 	},
 	Js:   js.Minifier{},
 	Json: json.Minifier{},
 	Svg: svg.Minifier{
-		Precision: 0,
+		Decimals: -1, // will be deprecated
+		// Precision: 0,  // use Precision with >= v2.7.0
 	},
 	Xml: xml.Minifier{
 		KeepWhitespace: false,

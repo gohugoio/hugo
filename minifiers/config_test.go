@@ -40,7 +40,7 @@ func TestConfig(t *testing.T) {
 	c.Assert(conf.Html.KeepWhitespace, qt.Equals, false)
 	// default value
 	c.Assert(conf.Html.KeepEndTags, qt.Equals, true)
-	c.Assert(conf.Css.Precision, qt.Equals, 0)
+	c.Assert(conf.Css.KeepCSS2, qt.Equals, true)
 
 	// `enable` flags
 	c.Assert(conf.EnableHtml, qt.Equals, true)
