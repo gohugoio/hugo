@@ -58,12 +58,14 @@ func (m Client) Minify(mediatype media.Type, dst io.Writer, src io.Reader) error
 // The HTML minifier is also registered for additional HTML types (AMP etc.) in the
 // provided list of output formats.
 func New(mediaTypes media.Types, outputFormats output.Formats, cfg config.Provider) (Client, error) {
-	conf, err := decodeConfig(cfg)
+	minifiersConf, err := decodeConfig(cfg)
 
 	m := minify.New()
 	if err != nil {
 		return Client{m: m}, err
 	}
+
+	conf := minifiersConf.Tdewolff
 
 	// We use the Type definition of the media types defined in the site if found.
 	if conf.EnableCss {

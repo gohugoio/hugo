@@ -27,7 +27,7 @@ import (
 	"github.com/tdewolff/minify/v2/xml"
 )
 
-var DefaultConfig = minifiersConfig{
+var defaultTdewolffConfig = tdewolffConfig{
 	EnableHtml: true,
 	EnableCss:  true,
 	EnableJs:   true,
@@ -59,7 +59,7 @@ var DefaultConfig = minifiersConfig{
 	},
 }
 
-type minifiersConfig struct {
+type tdewolffConfig struct {
 	EnableHtml bool
 	EnableCss  bool
 	EnableJs   bool
@@ -75,8 +75,16 @@ type minifiersConfig struct {
 	Xml  xml.Minifier
 }
 
+type minifiersConfig struct {
+	Tdewolff tdewolffConfig
+}
+
+var defaultConfig = minifiersConfig{
+	Tdewolff: defaultTdewolffConfig,
+}
+
 func decodeConfig(cfg config.Provider) (conf minifiersConfig, err error) {
-	conf = DefaultConfig
+	conf = defaultConfig
 
 	m := cfg.GetStringMap("minifiers")
 	if m == nil {
@@ -95,7 +103,7 @@ func decodeConfig(cfg config.Provider) (conf minifiersConfig, err error) {
 func init() {
 	docsProvider := func() map[string]interface{} {
 		docs := make(map[string]interface{})
-		docs["minifiers"] = parser.LowerCaseCamelJSONMarshaller{Value: DefaultConfig}
+		docs["minifiers"] = parser.LowerCaseCamelJSONMarshaller{Value: defaultConfig}
 		return docs
 
 	}

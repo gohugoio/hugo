@@ -14,6 +14,7 @@
 package minifiers
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/spf13/viper"
@@ -26,23 +27,26 @@ func TestConfig(t *testing.T) {
 	v := viper.New()
 
 	v.Set("minifiers", map[string]interface{}{
-		"enablexml": false,
-		"html": map[string]interface{}{
-			"keepwhitespace": false,
+		"tdewolff": map[string]interface{}{
+			"enablexml": false,
+			"html": map[string]interface{}{
+				"keepwhitespace": false,
+			},
 		},
 	})
 
 	conf, err := decodeConfig(v)
+	fmt.Println(conf)
 
 	c.Assert(err, qt.IsNil)
 
 	// explicitly set value
-	c.Assert(conf.Html.KeepWhitespace, qt.Equals, false)
+	c.Assert(conf.Tdewolff.Html.KeepWhitespace, qt.Equals, false)
 	// default value
-	c.Assert(conf.Html.KeepEndTags, qt.Equals, true)
-	c.Assert(conf.Css.KeepCSS2, qt.Equals, true)
+	c.Assert(conf.Tdewolff.Html.KeepEndTags, qt.Equals, true)
+	c.Assert(conf.Tdewolff.Css.KeepCSS2, qt.Equals, true)
 
 	// `enable` flags
-	c.Assert(conf.EnableHtml, qt.Equals, true)
-	c.Assert(conf.EnableXml, qt.Equals, false)
+	c.Assert(conf.Tdewolff.EnableHtml, qt.Equals, true)
+	c.Assert(conf.Tdewolff.EnableXml, qt.Equals, false)
 }
