@@ -158,7 +158,10 @@ func (c *pagesCollector) isCascadingEdit(dir contentDirKey) (bool, string) {
 func (c *pagesCollector) Collect() (collectErr error) {
 	c.proc.Start(context.Background())
 	defer func() {
-		collectErr = c.proc.Wait()
+		err := c.proc.Wait()
+		if collectErr == nil {
+			collectErr = err
+		}
 	}()
 
 	if len(c.filenames) == 0 {
