@@ -345,6 +345,9 @@ func TestIn(t *testing.T) {
 		// Structs
 		{pagesVals{p3v, p2v, p3v, p2v}, p2v, true},
 		{pagesVals{p3v, p2v, p3v, p2v}, p4v, false},
+		// template.HTML
+		{template.HTML("this substring should be found"), "substring", true},
+		{template.HTML("this substring should not be found"), "subseastring", false},
 	} {
 
 		errMsg := qt.Commentf("[%d] %v", i, test)

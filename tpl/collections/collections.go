@@ -292,12 +292,17 @@ func (ns *Namespace) In(l interface{}, v interface{}) (bool, error) {
 				return true, nil
 			}
 		}
-	case reflect.String:
-		if vv.Type() == lv.Type() && strings.Contains(lv.String(), vv.String()) {
-			return true, nil
-		}
 	}
-	return false, nil
+	ss, err := cast.ToStringE(l)
+	if err != nil {
+		return false, nil
+	}
+
+	su, err := cast.ToStringE(v)
+	if err != nil {
+		return false, nil
+	}
+	return strings.Contains(ss, su), nil
 }
 
 // Intersect returns the common elements in the given sets, l1 and l2.  l1 and
