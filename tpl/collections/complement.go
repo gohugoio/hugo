@@ -44,9 +44,6 @@ func (ns *Namespace) Complement(seqs ...interface{}) (interface{}, error) {
 		sl := reflect.MakeSlice(v.Type(), 0, 0)
 		for i := 0; i < v.Len(); i++ {
 			ev, _ := indirectInterface(v.Index(i))
-			if !ev.Type().Comparable() {
-				return nil, errors.New("elements in complement must be comparable")
-			}
 			if _, found := aset[normalize(ev)]; !found {
 				sl = reflect.Append(sl, ev)
 			}

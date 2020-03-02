@@ -18,6 +18,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/mitchellh/hashstructure"
 	"github.com/pkg/errors"
 )
 
@@ -42,18 +43,25 @@ func numberToFloat(v reflect.Value) (float64, error) {
 	}
 }
 
-// normalizes different numeric types to make them comparable.
+// normalizes different numeric types if isNumber
+// or get the hash values if not Comparable (such as map or struct)
+// to make them comparable
 func normalize(v reflect.Value) interface{} {
 	k := v.Kind()
 
 	switch {
+	case !v.Type().Comparable():
+		h, err := hashstructure.Hash(v.Interface(), nil)
+		if err != nil {
+			panic(err)
+		}
+		return h
 	case isNumber(k):
 		f, err := numberToFloat(v)
 		if err == nil {
 			return f
 		}
 	}
-
 	return v.Interface()
 }
 
