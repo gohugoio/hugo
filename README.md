@@ -66,6 +66,7 @@ cd $HOME/src
 git clone https://github.com/gohugoio/hugo.git
 cd hugo
 go install
+go build
 ```
 
 **If you are a Windows user, substitute the `$HOME` environment variable above with `%USERPROFILE%`.**
