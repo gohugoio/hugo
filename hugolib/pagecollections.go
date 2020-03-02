@@ -305,7 +305,7 @@ func (c *PageCollections) getContentNode(context page.Page, isReflink bool, ref 
 	}
 
 	// Ref/relref supports this potentially ambigous lookup.
-	return getByName(name)
+	return getByName(path.Base(name))
 
 }
 

@@ -1030,11 +1030,13 @@ func checkLinkCase(site *Site, link string, currentPage page.Page, relative bool
 }
 
 // https://github.com/gohugoio/hugo/issues/6952
-func TestRefBundle(t *testing.T) {
+func TestRefIssues(t *testing.T) {
 	b := newTestSitesBuilder(t)
 	b.WithContent(
 		"post/b1/index.md", "---\ntitle: pb1\n---\nRef: {{< ref \"b2\" >}}",
 		"post/b2/index.md", "---\ntitle: pb2\n---\n",
+		"post/nested-a/content-a.md", "---\ntitle: ca\n---\n{{< ref \"content-b\" >}}",
+		"post/nested-b/content-b.md", "---\ntitle: ca\n---\n",
 	)
 	b.WithTemplates("index.html", `Home`)
 	b.WithTemplates("_default/single.html", `Content: {{ .Content }}`)
@@ -1042,4 +1044,6 @@ func TestRefBundle(t *testing.T) {
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent("public/post/b1/index.html", `Content: <p>Ref: http://example.com/post/b2/</p>`)
+	b.AssertFileContent("public/post/nested-a/content-a/index.html", `Content: http://example.com/post/nested-b/content-b/`)
+
 }
