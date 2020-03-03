@@ -87,6 +87,9 @@ baseURL
 blackfriday
 : See [Configure Blackfriday](/getting-started/configuration-markup#blackfriday)
 
+build
+: See [Configure Build](#configure-build)
+
 buildDrafts (false)
 : Include drafts when building.
 
@@ -287,6 +290,21 @@ which shows output like
 enableemoji: true
 ```
 {{% /note %}}
+
+## Configure Build
+
+{{< new-in "0.66.0" >}}
+
+The `build` configuration section contains global build-realated configuration options.
+
+{{< code-toggle file="config">}}
+[build]
+useResourceCacheWhen="fallback"
+{{< /code-toggle >}}
+
+
+useResourceCacheWhen
+: When to use the cached resources in `/resources/_gen` for PostCSS and ToCSS. Valid values are `never`, `always` and `fallback`. The last value means that the cache will be tried if PostCSS/extended version is not available.
 
 ## Configure Title Case
 
