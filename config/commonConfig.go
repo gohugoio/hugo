@@ -14,9 +14,55 @@
 package config
 
 import (
+	"strings"
+
+	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cast"
 	jww "github.com/spf13/jwalterweatherman"
 )
+
+var DefaultBuild = Build{
+	UseResourceCacheWhen: "fallback",
+}
+
+// Build holds some build related condfiguration.
+type Build struct {
+	UseResourceCacheWhen string // never, fallback, always. Default is fallback
+}
+
+func (b Build) UseResourceCache(err error) bool {
+	if b.UseResourceCacheWhen == "never" {
+		return false
+	}
+
+	if b.UseResourceCacheWhen == "fallback" {
+		return err == herrors.ErrFeatureNotAvailable
+	}
+
+	return true
+}
+
+func DecodeBuild(cfg Provider) Build {
+	m := cfg.GetStringMap("build")
+	b := DefaultBuild
+	if m == nil {
+		return b
+	}
+
+	err := mapstructure.WeakDecode(m, &b)
+	if err != nil {
+		return DefaultBuild
+	}
+
+	b.UseResourceCacheWhen = strings.ToLower(b.UseResourceCacheWhen)
+	when := b.UseResourceCacheWhen
+	if when != "never" && when != "always" && when != "fallback" {
+		b.UseResourceCacheWhen = "fallback"
+	}
+
+	return b
+}
 
 // Sitemap configures the sitemap to be generated.
 type Sitemap struct {

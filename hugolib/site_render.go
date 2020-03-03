@@ -59,7 +59,6 @@ func (s siteRenderContext) renderSingletonPages() bool {
 // renderPages renders pages each corresponding to a markdown file.
 // TODO(bep np doc
 func (s *Site) renderPages(ctx *siteRenderContext) error {
-
 	numWorkers := config.GetNumWorkerMultiplier()
 
 	results := make(chan error)

@@ -22,6 +22,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/config"
+
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -69,6 +71,7 @@ func NewSpec(
 		MediaTypes:    mimeTypes,
 		OutputFormats: outputFormats,
 		Permalinks:    permalinks,
+		BuildConfig:   config.DecodeBuild(s.Cfg),
 		FileCaches:    fileCaches,
 		imageCache: newImageCache(
 			fileCaches.ImageCache(),
@@ -92,7 +95,8 @@ type Spec struct {
 
 	TextTemplates tpl.TemplateParseFinder
 
-	Permalinks page.PermalinkExpander
+	Permalinks  page.PermalinkExpander
+	BuildConfig config.Build
 
 	// Holds default filter settings etc.
 	imaging *images.ImageProcessor

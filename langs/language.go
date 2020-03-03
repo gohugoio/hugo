@@ -36,6 +36,7 @@ var globalOnlySettings = map[string]bool{
 	strings.ToLower("multilingual"):                   true,
 	strings.ToLower("assetDir"):                       true,
 	strings.ToLower("resourceDir"):                    true,
+	strings.ToLower("build"):                          true,
 }
 
 // Language manages specific-language configuration.

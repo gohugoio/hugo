@@ -753,20 +753,17 @@ h1 {
 	c.Assert(err, qt.IsNil)
 	defer clean()
 
-	v := viper.New()
-	v.Set("workingDir", workDir)
-	v.Set("disableKinds", []string{"taxonomyTerm", "taxonomy", "page"})
-	b := newTestSitesBuilder(t).WithLogger(loggers.NewWarningLogger())
-	// Need to use OS fs for this.
-	b.Fs = hugofs.NewDefault(v)
-	b.WithWorkingDir(workDir)
-	b.WithViper(v)
+	newTestBuilder := func(v *viper.Viper) *sitesBuilder {
+		v.Set("workingDir", workDir)
+		v.Set("disableKinds", []string{"taxonomyTerm", "taxonomy", "page"})
+		b := newTestSitesBuilder(t).WithLogger(loggers.NewWarningLogger())
+		// Need to use OS fs for this.
+		b.Fs = hugofs.NewDefault(v)
+		b.WithWorkingDir(workDir)
+		b.WithViper(v)
 
-	cssDir := filepath.Join(workDir, "assets", "css", "components")
-	b.Assert(os.MkdirAll(cssDir, 0777), qt.IsNil)
-
-	b.WithContent("p1.md", "")
-	b.WithTemplates("index.html", `
+		b.WithContent("p1.md", "")
+		b.WithTemplates("index.html", `
 {{ $options := dict "inlineImports" true }}
 {{ $styles := resources.Get "css/styles.css" | resources.PostCSS $options }}
 Styles RelPermalink: {{ $styles.RelPermalink }}
@@ -774,6 +771,15 @@ Styles RelPermalink: {{ $styles.RelPermalink }}
 Styles Content: Len: {{ len $styles.Content }}|
 
 `)
+
+		return b
+	}
+
+	b := newTestBuilder(viper.New())
+
+	cssDir := filepath.Join(workDir, "assets", "css", "components")
+	b.Assert(os.MkdirAll(cssDir, 0777), qt.IsNil)
+
 	b.WithSourceFile("assets/css/styles.css", tailwindCss)
 	b.WithSourceFile("assets/css/components/all.css", `
 @import "a.css";
@@ -810,9 +816,52 @@ Styles RelPermalink: /css/styles.css
 Styles Content: Len: 770878|
 `)
 
-	content := b.FileContent("public/css/styles.css")
+	assertCss := func(b *sitesBuilder) {
+		content := b.FileContent("public/css/styles.css")
 
-	b.Assert(strings.Contains(content, "class-in-a"), qt.Equals, true)
-	b.Assert(strings.Contains(content, "class-in-b"), qt.Equals, true)
+		b.Assert(strings.Contains(content, "class-in-a"), qt.Equals, true)
+		b.Assert(strings.Contains(content, "class-in-b"), qt.Equals, true)
+
+	}
+
+	assertCss(b)
+
+	build := func(s string, shouldFail bool) {
+		b.Assert(os.RemoveAll(filepath.Join(workDir, "public")), qt.IsNil)
+
+		v := viper.New()
+		v.Set("build", map[string]interface{}{
+			"useResourceCacheWhen": s,
+		})
+
+		b = newTestBuilder(v)
+
+		b.Assert(os.RemoveAll(filepath.Join(workDir, "public")), qt.IsNil)
+		b.Assert(os.RemoveAll(filepath.Join(workDir, "node_modules")), qt.IsNil)
+
+		if shouldFail {
+			b.BuildFail(BuildCfg{})
+		} else {
+			b.Build(BuildCfg{})
+			assertCss(b)
+		}
+	}
+
+	build("always", false)
+	build("fallback", false)
+
+	// Remove PostCSS
+	b.Assert(os.RemoveAll(filepath.Join(workDir, "node_modules")), qt.IsNil)
+
+	build("always", false)
+	build("fallback", false)
+	build("never", true)
+
+	// Remove cache
+	b.Assert(os.RemoveAll(filepath.Join(workDir, "resources")), qt.IsNil)
+
+	build("always", true)
+	build("fallback", true)
+	build("never", true)
 
 }
