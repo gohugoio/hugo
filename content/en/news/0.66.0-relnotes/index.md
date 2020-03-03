@@ -13,7 +13,7 @@ This relase adds [inline `@import`](http://localhost:1313/hugo-pipes/postcss/#op
   useResourceCacheWhen = "always"
 ```
 
-The above will tell Hugo to _always_ used the cached build resources inside `resources/_gen` for the build steps requiring a non-standard dependency (PostCSS and SCSS/SASS). Valid values are `never`, `always` and `fallback` (default).
+The above will tell Hugo to _always_ use the cached build resources inside `resources/_gen` for the build steps requiring a non-standard dependency (PostCSS and SCSS/SASS). Valid values are `never`, `always` and `fallback` (default).
 
 
 This release represents **27 contributions by 8 contributors** to the main Hugo code base.[@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@anthonyfok](https://github.com/anthonyfok), [@carlmjohnson](https://github.com/carlmjohnson), and [@sams96](https://github.com/sams96) for their ongoing contributions.
