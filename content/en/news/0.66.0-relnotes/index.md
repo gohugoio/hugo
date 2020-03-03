@@ -1,12 +1,12 @@
 
 ---
 date: 2020-03-03
-title: "0.66.0"
-description: "0.66.0"
+title: "Hugo 0.66.0: PostCSS Edition"
+description: "Native inline, recursive import support in PostCSS/Tailwind, \"dependency-less\" builds, and more …"
 categories: ["Releases"]
 ---
 
-	This relase adds [inline `@import`](http://localhost:1313/hugo-pipes/postcss/#options) support to `resources.PostCSS`, with imports relative to Hugo's virtual, composable file system. Another useful addition is the new `build` [configuration section](http://localhost:1313/getting-started/configuration/#configure-build). As an example in `config.toml`:
+This relase adds [inline `@import`](http://localhost:1313/hugo-pipes/postcss/#options) support to `resources.PostCSS`, with imports relative to Hugo's virtual, composable file system. Another useful addition is the new `build` [configuration section](http://localhost:1313/getting-started/configuration/#configure-build). As an example in `config.toml`:
 
 ```toml
 [build]
