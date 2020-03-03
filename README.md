@@ -124,34 +124,27 @@ Hugo stands on the shoulder of many great open source libraries, in lexical orde
 
  | Dependency  | License |
  | :------------- | :------------- |
- | [github.com/BurntSushi/locker](https://github.com/BurntSushi/locker) | The Unlicense |
- | [github.com/BurntSushi/toml](https://github.com/BurntSushi/toml) | MIT License |
- | [github.com/PuerkitoBio/purell](https://github.com/PuerkitoBio/purell) | BSD 3-Clause "New" or "Revised" License |
- | [github.com/PuerkitoBio/urlesc](https://github.com/PuerkitoBio/urlesc) | BSD 3-Clause "New" or "Revised" License |
  | [github.com/alecthomas/chroma](https://github.com/alecthomas/chroma) | MIT License |
- | [github.com/alecthomas/repr](https://github.com/alecthomas/repr) | MIT License |
  | [github.com/armon/go-radix](https://github.com/armon/go-radix) | MIT License |
  | [github.com/aws/aws-sdk-go](https://github.com/aws/aws-sdk-go) | Apache License 2.0 |
  | [github.com/bep/debounce](https://github.com/bep/debounce) | MIT License |
  | [github.com/bep/gitmap](https://github.com/bep/gitmap) | MIT License |
  | [github.com/bep/golibsass](https://github.com/bep/golibsass) | MIT License |
  | [github.com/bep/tmc](https://github.com/bep/tmc) | MIT License |
+ | [github.com/BurntSushi/locker](https://github.com/BurntSushi/locker) | The Unlicense |
+ | [github.com/BurntSushi/toml](https://github.com/BurntSushi/toml) | MIT License |
  | [github.com/cpuguy83/go-md2man](https://github.com/cpuguy83/go-md2man) | MIT License |
  | [github.com/danwakefield/fnmatch](https://github.com/danwakefield/fnmatch) | BSD 2-Clause "Simplified" License |
  | [github.com/disintegration/gift](https://github.com/disintegration/gift) | MIT License |
  | [github.com/dustin/go-humanize](https://github.com/dustin/go-humanize) | MIT License |
- | [github.com/fortytw2/leaktest](https://github.com/fortytw2/leaktest) | BSD 3-Clause "New" or "Revised" License |
- | [github.com/frankban/quicktest](https://github.com/frankban/quicktest) | MIT License |
  | [github.com/fsnotify/fsnotify](https://github.com/fsnotify/fsnotify) | BSD 3-Clause "New" or "Revised" License |
  | [github.com/gobwas/glob](https://github.com/gobwas/glob) | MIT License |
- | [github.com/google/go-cmp](https://github.com/google/go-cmp) | BSD 3-Clause "New" or "Revised" License |
  | [github.com/gorilla/websocket](https://github.com/gorilla/websocket) | BSD 2-Clause "Simplified" License |
  | [github.com/hashicorp/golang-lru](https://github.com/hashicorp/golang-lru) | Mozilla Public License 2.0 |
  | [github.com/hashicorp/hcl](https://github.com/hashicorp/hcl) | Mozilla Public License 2.0 |
  | [github.com/jdkato/prose](https://github.com/jdkato/prose) | MIT License |
  | [github.com/kr/pretty](https://github.com/kr/pretty) | MIT License |
  | [github.com/kyokomi/emoji](https://github.com/kyokomi/emoji) | MIT License |
- | [github.com/magefile/mage](https://github.com/magefile/mage) | Apache License 2.0 |
  | [github.com/magiconair/properties](https://github.com/magiconair/properties) | BSD 2-Clause "Simplified" License |
  | [github.com/markbates/inflect](https://github.com/markbates/inflect) | MIT License |
  | [github.com/mattn/go-isatty](https://github.com/mattn/go-isatty) | MIT License |
@@ -160,16 +153,16 @@ Hugo stands on the shoulder of many great open source libraries, in lexical orde
  | [github.com/mitchellh/hashstructure](https://github.com/mitchellh/hashstructure) | MIT License |
  | [github.com/mitchellh/mapstructure](https://github.com/mitchellh/mapstructure) | MIT License |
  | [github.com/muesli/smartcrop](https://github.com/muesli/smartcrop) | MIT License |
- | [github.com/nfnt/resize](https://github.com/nfnt/resize) | ISC License |
  | [github.com/nicksnyder/go-i18n](https://github.com/nicksnyder/go-i18n) | MIT License |
  | [github.com/niklasfasching/go-org](https://github.com/niklasfasching/go-org) | MIT License |
  | [github.com/olekukonko/tablewriter](https://github.com/olekukonko/tablewriter) | MIT License |
  | [github.com/pelletier/go-toml](https://github.com/pelletier/go-toml) | MIT License |
  | [github.com/pkg/errors](https://github.com/pkg/errors) | BSD 2-Clause "Simplified" License |
+ | [github.com/PuerkitoBio/purell](https://github.com/PuerkitoBio/purell) | BSD 3-Clause "New" or "Revised" License |
+ | [github.com/PuerkitoBio/urlesc](https://github.com/PuerkitoBio/urlesc) | BSD 3-Clause "New" or "Revised" License |
  | [github.com/rogpeppe/go-internal](https://github.com/rogpeppe/go-internal) | BSD 3-Clause "New" or "Revised" License |
  | [github.com/russross/blackfriday](https://github.com/russross/blackfriday)  | Simplified BSD License |
  | [github.com/rwcarlsen/goexif](https://github.com/rwcarlsen/goexif) | BSD 2-Clause "Simplified" License |
- | [github.com/sanity-io/litter](https://github.com/sanity-io/litter) | MIT License |
  | [github.com/spf13/afero](https://github.com/spf13/afero) | Apache License 2.0 |
  | [github.com/spf13/cast](https://github.com/spf13/cast) | MIT License |
  | [github.com/spf13/cobra](https://github.com/spf13/cobra) | Apache License 2.0 |
@@ -192,8 +185,6 @@ Hugo stands on the shoulder of many great open source libraries, in lexical orde
  | [golang.org/x/text](https://golang.org/x/text) | BSD 3-Clause "New" or "Revised" License |
  | [golang.org/x/xerrors](https://golang.org/x/xerrors) | BSD 3-Clause "New" or "Revised" License |
  | [google.golang.org/api](https://google.golang.org/api) | BSD 3-Clause "New" or "Revised" License |
- | [google.golang.org/appengine](https://google.golang.org/appengine) | Apache License 2.0 |
  | [google.golang.org/genproto](https://google.golang.org/genproto) | Apache License 2.0 |
- | [gopkg.in/check.v1](https://gopkg.in/check.v1) | BSD 2-Clause "Simplified" License |
  | [gopkg.in/ini.v1](https://gopkg.in/ini.v1) | Apache License 2.0 |
  | [gopkg.in/yaml.v2](https://gopkg.in/yaml.v2) | Apache License 2.0 |
