@@ -16,10 +16,16 @@ package hugolib
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"runtime/trace"
 	"strings"
+
+	"github.com/gohugoio/hugo/publisher"
+
+	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/common/para"
 	"github.com/gohugoio/hugo/config"
@@ -146,10 +152,10 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		if err != nil {
 			h.SendError(err)
 		}
-	}
 
-	if err := h.postProcess(); err != nil {
-		h.SendError(err)
+		if err = h.postProcess(); err != nil {
+			h.SendError(err)
+		}
 	}
 
 	if h.Metrics != nil {
@@ -337,6 +343,12 @@ func (h *HugoSites) render(config *BuildCfg) error {
 }
 
 func (h *HugoSites) postProcess() error {
+	// Make sure to write any build stats to disk first so it's available
+	// to the post processors.
+	if err := h.writeBuildStats(); err != nil {
+		return err
+	}
+
 	var toPostProcess []resource.OriginProvider
 	for _, s := range h.Sites {
 		for _, v := range s.ResourceSpec.PostProcessResources {
@@ -420,5 +432,49 @@ func (h *HugoSites) postProcess() error {
 	}
 
 	return g.Wait()
+
+}
+
+type publishStats struct {
+	CSSClasses string `json:"cssClasses"`
+}
+
+func (h *HugoSites) writeBuildStats() error {
+	if !h.ResourceSpec.BuildConfig.WriteStats {
+		return nil
+	}
+
+	htmlElements := &publisher.HTMLElements{}
+	for _, s := range h.Sites {
+		stats := s.publisher.PublishStats()
+		htmlElements.Merge(stats.HTMLElements)
+	}
+
+	htmlElements.Sort()
+
+	stats := publisher.PublishStats{
+		HTMLElements: *htmlElements,
+	}
+
+	js, err := json.MarshalIndent(stats, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	filename := filepath.Join(h.WorkingDir, "hugo_stats.json")
+
+	// Make sure it's always written to the OS fs.
+	if err := afero.WriteFile(hugofs.Os, filename, js, 0666); err != nil {
+		return err
+	}
+
+	// Write to the destination, too, if a mem fs is in play.
+	if h.Fs.Source != hugofs.Os {
+		if err := afero.WriteFile(h.Fs.Destination, filename, js, 0666); err != nil {
+			return err
+		}
+	}
+
+	return nil
 
 }

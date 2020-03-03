@@ -980,3 +980,47 @@ func TestRefIssues(t *testing.T) {
 	b.AssertFileContent("public/post/nested-a/content-a/index.html", `Content: http://example.com/post/nested-b/content-b/`)
 
 }
+
+func TestClassCollector(t *testing.T) {
+	b := newTestSitesBuilder(t)
+	b.WithConfigFile("toml", `
+
+[build]
+  writeStats = true
+
+`)
+
+	b.WithTemplates("index.html", `
+	
+<div id="el1" class="a b c">Foo</div>
+
+Some text.
+
+<div class="c d e" id="el2">Foo</div>
+`)
+
+	b.WithContent("p1.md", "")
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("hugo_stats.json", `
+{
+          "htmlElements": {
+            "tags": [
+              "div"
+            ],
+            "classes": [
+              "a",
+              "b",
+              "c",
+              "d",
+              "e"
+            ],
+            "ids": [
+              "el1",
+              "el2"
+            ]
+          }
+        }
+`)
+}

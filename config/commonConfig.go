@@ -29,11 +29,16 @@ import (
 
 var DefaultBuild = Build{
 	UseResourceCacheWhen: "fallback",
+	WriteStats:           false,
 }
 
 // Build holds some build related condfiguration.
 type Build struct {
 	UseResourceCacheWhen string // never, fallback, always. Default is fallback
+
+	// When enabled, will collect and write a hugo_stats.json with some build
+	// related aggregated data (e.g. CSS class names).
+	WriteStats bool
 }
 
 func (b Build) UseResourceCache(err error) bool {

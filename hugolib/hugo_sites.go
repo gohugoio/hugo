@@ -408,7 +408,11 @@ func applyDeps(cfg deps.DepsCfg, sites ...*Site) error {
 			s.Deps = d
 
 			// Set up the main publishing chain.
-			pub, err := publisher.NewDestinationPublisher(d.PathSpec.BaseFs.PublishFs, s.outputFormatsConfig, s.mediaTypesConfig, cfg.Cfg)
+			pub, err := publisher.NewDestinationPublisher(
+				d.ResourceSpec,
+				s.outputFormatsConfig,
+				s.mediaTypesConfig,
+			)
 
 			if err != nil {
 				return err
