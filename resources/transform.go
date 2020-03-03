@@ -21,12 +21,13 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/pkg/errors"
+
 	"github.com/gohugoio/hugo/resources/images/exif"
 	"github.com/spf13/afero"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
 
-	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/helpers"
@@ -369,8 +370,9 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 			tctx.InMediaType = tctx.OutMediaType
 		}
 
+		mayBeCachedOnDisk := transformationsToCacheOnDisk[tr.Key().Name]
 		if !writeToFileCache {
-			writeToFileCache = transformationsToCacheOnDisk[tr.Key().Name]
+			writeToFileCache = mayBeCachedOnDisk
 		}
 
 		if i > 0 {
@@ -390,29 +392,44 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 			}
 		}
 
-		if err = tr.Transform(tctx); err != nil {
-			if writeToFileCache && err == herrors.ErrFeatureNotAvailable {
+		notAvailableErr := func(err error) error {
+			errMsg := err.Error()
+			if tr.Key().Name == "postcss" {
 				// This transformation is not available in this
-				// Hugo installation (scss not compiled in, PostCSS not available etc.)
-				// If a prepared bundle for this transformation chain is available, use that.
-				f := r.target.tryTransformedFileCache(key, updates)
-				if f == nil {
-					errMsg := err.Error()
-					if tr.Key().Name == "postcss" {
-						errMsg = "PostCSS not found; install with \"npm install postcss-cli\". See https://gohugo.io/hugo-pipes/postcss/"
-					}
-					return fmt.Errorf("%s: failed to transform %q (%s): %s", strings.ToUpper(tr.Key().Name), tctx.InPath, tctx.InMediaType.Type(), errMsg)
-				}
-				transformedContentr = f
-				updates.sourceFs = cache.fileCache.Fs
-				defer f.Close()
-
-				// The reader above is all we need.
-				break
+				// Most likely because PostCSS is not installed.
+				errMsg += ". Check your PostCSS installation; install with \"npm install postcss-cli\". See https://gohugo.io/hugo-pipes/postcss/"
+			} else if tr.Key().Name == "tocss" {
+				errMsg += ". Check your Hugo installation; you need the extended version to build SCSS/SASS."
 			}
+			return fmt.Errorf("%s: failed to transform %q (%s): %s", strings.ToUpper(tr.Key().Name), tctx.InPath, tctx.InMediaType.Type(), errMsg)
 
-			// Abort.
-			return err
+		}
+
+		var tryFileCache bool
+
+		if mayBeCachedOnDisk && r.spec.BuildConfig.UseResourceCache(nil) {
+			tryFileCache = true
+		} else {
+			err = tr.Transform(tctx)
+			if mayBeCachedOnDisk {
+				tryFileCache = r.spec.BuildConfig.UseResourceCache(err)
+			}
+			if err != nil && !tryFileCache {
+				return notAvailableErr(err)
+			}
+		}
+
+		if tryFileCache {
+			f := r.target.tryTransformedFileCache(key, updates)
+			if f == nil {
+				return notAvailableErr(errors.Errorf("resource %q not found in file cache", key))
+			}
+			transformedContentr = f
+			updates.sourceFs = cache.fileCache.Fs
+			defer f.Close()
+
+			// The reader above is all we need.
+			break
 		}
 
 		if tctx.OutPath != "" {
