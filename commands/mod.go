@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 
 	"github.com/gohugoio/hugo/modules"
 	"github.com/spf13/cobra"
@@ -49,8 +50,11 @@ func (c *modCmd) newVerifyCmd() *cobra.Command {
 	return verifyCmd
 }
 
+var moduleNotFoundRe = regexp.MustCompile("module.*not found")
+
 func (c *modCmd) newCleanCmd() *cobra.Command {
 	var pattern string
+	var all bool
 	cmd := &cobra.Command{
 		Use:   "clean",
 		Short: "Delete the Hugo Module cache for the current project.",
@@ -62,6 +66,16 @@ Also note that if you configure a positive maxAge for the "modules" file cache, 
  
 `,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if all {
+				com, err := c.initConfig(false)
+
+				if err != nil && !moduleNotFoundRe.MatchString(err.Error()) {
+					return err
+				}
+
+				_, err = com.hugo().FileCaches.ModulesCache().Prune(true)
+				return err
+			}
 			return c.withModsClient(true, func(c *modules.Client) error {
 				return c.Clean(pattern)
 			})
@@ -69,6 +83,7 @@ Also note that if you configure a positive maxAge for the "modules" file cache, 
 	}
 
 	cmd.Flags().StringVarP(&pattern, "pattern", "", "", `pattern matching module paths to clean (all if not set), e.g. "**hugo*"`)
+	cmd.Flags().BoolVarP(&all, "all", "", false, "clean entire module cache")
 
 	return cmd
 }
