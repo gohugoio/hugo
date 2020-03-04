@@ -300,11 +300,18 @@ The `build` configuration section contains global build-realated configuration o
 {{< code-toggle file="config">}}
 [build]
 useResourceCacheWhen="fallback"
+[build.page]
+render = true
+list = true
+publishResources = true
 {{< /code-toggle >}}
 
 
 useResourceCacheWhen
 : When to use the cached resources in `/resources/_gen` for PostCSS and ToCSS. Valid values are `never`, `always` and `fallback`. The last value means that the cache will be tried if PostCSS/extended version is not available.
+
+build.page
+: Sets the default values for how a given page should be published. You can set this for specific pages using the `_build` front matter keyword. {{< new-in "0.66.1" >}}
 
 ## Configure Title Case
 

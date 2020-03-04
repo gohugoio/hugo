@@ -389,7 +389,7 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 		p.s.Log.ERROR.Printf("Failed to handle dates for page %q: %s", p.pathOrTitle(), err)
 	}
 
-	pm.buildConfig, err = pagemeta.DecodeBuildConfig(frontmatter["_build"])
+	pm.buildConfig, err = pagemeta.DecodeBuildConfig(pm.s.ResourceSpec.BuildConfig.Page, frontmatter["_build"])
 	if err != nil {
 		return err
 	}
@@ -622,7 +622,7 @@ func (p *pageMeta) noRender() bool {
 
 func (p *pageMeta) applyDefaultValues(n *contentNode) error {
 	if p.buildConfig.IsZero() {
-		p.buildConfig, _ = pagemeta.DecodeBuildConfig(nil)
+		p.buildConfig, _ = pagemeta.DecodeBuildConfig(p.s.ResourceSpec.BuildConfig.Page, nil)
 	}
 
 	if !p.s.isEnabled(p.Kind()) {

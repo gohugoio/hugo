@@ -13,7 +13,10 @@
 package hugolib
 
 import (
+	"os"
 	"testing"
+
+	"github.com/spf13/afero"
 
 	"fmt"
 
@@ -344,4 +347,24 @@ Section: MySection|RelPermalink: |Outputs: 0
 	b.Assert(b.CheckExists("public/sect/no-render/index.html"), qt.Equals, false)
 	b.Assert(b.CheckExists("public/sect-no-render/index.html"), qt.Equals, false)
 
+}
+
+func TestBuildConfigDefaultsFromConfig(t *testing.T) {
+	b := newTestSitesBuilder(t)
+
+	b.WithConfigFile("toml", `
+baseURL="https://example.com"
+
+[build]
+[build.page]
+render = false
+list = true
+publishResources = false
+`)
+
+	b.Build(BuildCfg{})
+
+	_, err := afero.ReadDir(b.H.Fs.Destination, "public")
+	b.Assert(os.IsNotExist(err), qt.Equals, true)
+	b.Assert(len(b.H.Sites[0].Pages()), qt.Equals, 9)
 }

@@ -14,6 +14,7 @@
 package pagemeta
 
 import (
+	"github.com/gohugoio/hugo/config"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -24,28 +25,10 @@ type URLPath struct {
 	Section   string
 }
 
-var defaultBuildConfig = BuildConfig{
-	List:             true,
-	Render:           true,
-	PublishResources: true,
-	set:              true,
-}
-
 // BuildConfig holds configuration options about how to handle a Page in Hugo's
 // build process.
 type BuildConfig struct {
-	// Whether to add it to any of the page collections.
-	// Note that the page can still be found with .Site.GetPage.
-	List bool
-
-	// Whether to render it.
-	Render bool
-
-	// Whether to publish its resources. These will still be published on demand,
-	// but enabling this can be useful if the originals (e.g. images) are
-	// never used.
-	PublishResources bool
-
+	config.Page
 	set bool // BuildCfg is non-zero if this is set to true.
 }
 
@@ -61,11 +44,16 @@ func (b BuildConfig) IsZero() bool {
 	return !b.set
 }
 
-func DecodeBuildConfig(m interface{}) (BuildConfig, error) {
-	b := defaultBuildConfig
+func DecodeBuildConfig(defaults config.Page, m interface{}) (BuildConfig, error) {
+	b := BuildConfig{
+		Page: defaults,
+		set:  true,
+	}
+
 	if m == nil {
 		return b, nil
 	}
+
 	err := mapstructure.WeakDecode(m, &b)
 	return b, err
 }

@@ -24,11 +24,31 @@ import (
 
 var DefaultBuild = Build{
 	UseResourceCacheWhen: "fallback",
+	Page: Page{
+		Render:           true,
+		List:             true,
+		PublishResources: true,
+	},
 }
 
 // Build holds some build related condfiguration.
 type Build struct {
 	UseResourceCacheWhen string // never, fallback, always. Default is fallback
+	Page
+}
+
+type Page struct {
+	// Whether to add it to any of the page collections.
+	// Note that the page can still be found with .Site.GetPage.
+	List bool
+
+	// Whether to render it.
+	Render bool
+
+	// Whether to publish its resources. These will still be published on demand,
+	// but enabling this can be useful if the originals (e.g. images) are
+	// never used.
+	PublishResources bool
 }
 
 func (b Build) UseResourceCache(err error) bool {
