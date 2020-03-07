@@ -16,6 +16,7 @@ package data
 import (
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"path/filepath"
 	"time"
 
@@ -107,7 +108,11 @@ func getLocal(url string, fs afero.Fs, cfg config.Provider) ([]byte, error) {
 func (ns *Namespace) getResource(cache *filecache.Cache, unmarshal func(b []byte) (bool, error), req *http.Request) error {
 	switch req.URL.Scheme {
 	case "":
-		b, err := getLocal(req.URL.String(), ns.deps.Fs.Source, ns.deps.Cfg)
+		url, err := url.QueryUnescape(req.URL.String())
+		if err != nil {
+			return err
+		}
+		b, err := getLocal(url, ns.deps.Fs.Source, ns.deps.Cfg)
 		if err != nil {
 			return err
 		}

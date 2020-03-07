@@ -157,6 +157,11 @@ func TestGetJSON(t *testing.T) {
 			"",
 			false,
 		},
+		{
+			`pass/üńīçøðê-url.json`,
+			`{"gomeetup":["Sydney","San Francisco","Stockholm"]}`,
+			map[string]interface{}{"gomeetup": []interface{}{"Sydney", "San Francisco", "Stockholm"}},
+		},
 	} {
 
 		msg := qt.Commentf("Test %d", i)
