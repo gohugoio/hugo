@@ -5,7 +5,7 @@ require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/PuerkitoBio/purell v1.1.1
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
-	github.com/alecthomas/chroma v0.7.1
+	github.com/alecthomas/chroma v0.7.2-0.20200305040604-4f3623dce67a
 	github.com/alecthomas/repr v0.0.0-20181024024818-d37bc2a10ba1 // indirect
 	github.com/armon/go-radix v1.0.0
 	github.com/aws/aws-sdk-go v1.27.1
@@ -50,8 +50,8 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.6.1
 	github.com/tdewolff/minify/v2 v2.6.1
-	github.com/yuin/goldmark v1.1.22
-	github.com/yuin/goldmark-highlighting v0.0.0-20200218065240-d1af22c1126f
+	github.com/yuin/goldmark v1.1.24
+	github.com/yuin/goldmark-highlighting v0.0.0-20200307114337-60d527fdb691
 	go.opencensus.io v0.22.0 // indirect
 	go.uber.org/atomic v1.4.0
 	gocloud.dev v0.15.0
