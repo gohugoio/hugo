@@ -355,6 +355,10 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 				w.Header().Set("Pragma", "no-cache")
 			}
 
+			for _, header := range f.c.serverConfig.Match(r.RequestURI) {
+				w.Header().Set(header.Key, header.Value)
+			}
+
 			if f.c.fastRenderMode && f.c.buildErr == nil {
 				p := r.RequestURI
 				if strings.HasSuffix(p, "/") || strings.HasSuffix(p, "html") || strings.HasSuffix(p, "htm") {

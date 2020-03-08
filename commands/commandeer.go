@@ -18,6 +18,8 @@ import (
 	"errors"
 	"sync"
 
+	hconfig "github.com/gohugoio/hugo/config"
+
 	"golang.org/x/sync/semaphore"
 
 	"io/ioutil"
@@ -58,7 +60,8 @@ type commandeerHugoState struct {
 type commandeer struct {
 	*commandeerHugoState
 
-	logger *loggers.Logger
+	logger       *loggers.Logger
+	serverConfig *config.Server
 
 	// Currently only set when in "fast render mode". But it seems to
 	// be fast enough that we could maybe just add it for all server modes.
@@ -343,6 +346,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 
 	cfg.Logger = logger
 	c.logger = logger
+	c.serverConfig = hconfig.DecodeServer(cfg.Cfg)
 
 	createMemFs := config.GetBool("renderToMemory")
 
