@@ -720,6 +720,88 @@ func TestIncludeExclude(t *testing.T) {
 	}
 }
 
+// TestIncludeExcludeRemoteDelete verifies deleted local files that don't match include/exclude patterns
+// are not deleted on the remote.
+func TestIncludeExcludeRemoteDelete(t *testing.T) {
+	ctx := context.Background()
+
+	tests := []struct {
+		Include string
+		Exclude string
+		Want    deploySummary
+	}{
+		{
+			Want: deploySummary{NumLocal: 3, NumRemote: 5, NumUploads: 0, NumDeletes: 2},
+		},
+		{
+			Include: "**aaa",
+			Want:    deploySummary{NumLocal: 2, NumRemote: 3, NumUploads: 0, NumDeletes: 1},
+		},
+		{
+			Include: "subdir/**",
+			Want:    deploySummary{NumLocal: 1, NumRemote: 2, NumUploads: 0, NumDeletes: 1},
+		},
+		{
+			Exclude: "**bbb",
+			Want:    deploySummary{NumLocal: 2, NumRemote: 3, NumUploads: 0, NumDeletes: 1},
+		},
+		{
+			Exclude: "bbb",
+			Want:    deploySummary{NumLocal: 3, NumRemote: 4, NumUploads: 0, NumDeletes: 1},
+		},
+	}
+	for _, test := range tests {
+		t.Run(fmt.Sprintf("include %q exclude %q", test.Include, test.Exclude), func(t *testing.T) {
+			fsTests, cleanup, err := initFsTests()
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer cleanup()
+			fsTest := fsTests[1] // just do file-based test
+
+			local, err := initLocalFs(ctx, fsTest.fs)
+			if err != nil {
+				t.Fatal(err)
+			}
+			deployer := &Deployer{
+				localFs:    fsTest.fs,
+				maxDeletes: -1,
+				bucket:     fsTest.bucket,
+			}
+
+			// Initial sync to get the files on the remote
+			if err := deployer.Deploy(ctx); err != nil {
+				t.Errorf("deploy: failed: %v", err)
+			}
+
+			// Delete two files, [1] and [2].
+			if err := fsTest.fs.Remove(local[1].Name); err != nil {
+				t.Fatal(err)
+			}
+			if err := fsTest.fs.Remove(local[2].Name); err != nil {
+				t.Fatal(err)
+			}
+
+			// Second sync
+			tgt := &target{
+				Include: test.Include,
+				Exclude: test.Exclude,
+			}
+			if err := tgt.parseIncludeExclude(); err != nil {
+				t.Error(err)
+			}
+			deployer.target = tgt
+			if err := deployer.Deploy(ctx); err != nil {
+				t.Errorf("deploy: failed: %v", err)
+			}
+
+			if !cmp.Equal(deployer.summary, test.Want) {
+				t.Errorf("deploy: got %v, want %v", deployer.summary, test.Want)
+			}
+		})
+	}
+}
+
 // TestCompression verifies that gzip compression works correctly.
 // In particular, MD5 hashes must be of the compressed content.
 func TestCompression(t *testing.T) {
