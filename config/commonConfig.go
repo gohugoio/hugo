@@ -14,8 +14,13 @@
 package config
 
 import (
+	"sort"
 	"strings"
+	"sync"
 
+	"github.com/gohugoio/hugo/common/types"
+
+	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cast"
@@ -87,4 +92,58 @@ func DecodeSitemap(prototype Sitemap, input map[string]interface{}) Sitemap {
 	}
 
 	return prototype
+}
+
+// Config for the dev server.
+type Server struct {
+	Headers []Headers
+
+	compiledInit sync.Once
+	compiled     []glob.Glob
+}
+
+func (s *Server) Match(pattern string) []types.KeyValueStr {
+	s.compiledInit.Do(func() {
+		for _, h := range s.Headers {
+			s.compiled = append(s.compiled, glob.MustCompile(h.For))
+		}
+	})
+
+	if s.compiled == nil {
+		return nil
+	}
+
+	var matches []types.KeyValueStr
+
+	for i, g := range s.compiled {
+		if g.Match(pattern) {
+			h := s.Headers[i]
+			for k, v := range h.Values {
+				matches = append(matches, types.KeyValueStr{Key: k, Value: cast.ToString(v)})
+			}
+		}
+	}
+
+	sort.Slice(matches, func(i, j int) bool {
+		return matches[i].Key < matches[j].Key
+	})
+
+	return matches
+
+}
+
+type Headers struct {
+	For    string
+	Values map[string]interface{}
+}
+
+func DecodeServer(cfg Provider) *Server {
+	m := cfg.GetStringMap("server")
+	s := &Server{}
+	if m == nil {
+		return s
+	}
+
+	_ = mapstructure.WeakDecode(m, s)
+	return s
 }

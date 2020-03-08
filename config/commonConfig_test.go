@@ -18,6 +18,7 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/types"
 
 	qt "github.com/frankban/quicktest"
 
@@ -56,5 +57,28 @@ func TestBuild(t *testing.T) {
 	c.Assert(b.UseResourceCache(herrors.ErrFeatureNotAvailable), qt.Equals, false)
 	c.Assert(b.UseResourceCache(errors.New("err")), qt.Equals, false)
 	c.Assert(b.UseResourceCache(nil), qt.Equals, false)
+
+}
+
+func TestServer(t *testing.T) {
+	c := qt.New(t)
+
+	cfg, err := FromConfigString(`[[server.headers]]
+for = "/*.jpg"
+
+[server.headers.values]
+X-Frame-Options = "DENY"
+X-XSS-Protection = "1; mode=block"
+X-Content-Type-Options = "nosniff"
+`, "toml")
+
+	c.Assert(err, qt.IsNil)
+
+	s := DecodeServer(cfg)
+
+	c.Assert(s.Match("/foo.jpg"), qt.DeepEquals, []types.KeyValueStr{
+		{Key: "X-Content-Type-Options", Value: "nosniff"},
+		{Key: "X-Frame-Options", Value: "DENY"},
+		{Key: "X-XSS-Protection", Value: "1; mode=block"}})
 
 }
