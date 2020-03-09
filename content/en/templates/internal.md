@@ -184,7 +184,7 @@ images = ["post-cover.png"]
 {{</ code-toggle >}}
 
 If `images` aren't specified in the page front-matter, then hugo searches for [image page resources](/content-management/image-processing/) with `feature`, `cover`, or `thumbnail` in their name.
-If no image resources with those names are found, the images defined in the [site config](getting-started/configuration/) are used instead.
+If no image resources with those names are found, the images defined in the [site config](/getting-started/configuration/) are used instead.
 If no images are found at all, then an image-less Twitter `summary` card is used instead of `summary_large_image`.
 
 Hugo uses the page title and description for the card's title and description fields. The page summary is used if no description is given.

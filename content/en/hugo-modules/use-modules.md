@@ -124,7 +124,7 @@ Also see the [CLI Doc](/commands/hugo_mod_clean/).
 
 Run `hugo mod clean` to delete the entire modules cache.
 
-Note that you can also configure the `modules` cache with a `maxAge`, see [File Caches](/configuration/#configure-file-caches).
+Note that you can also configure the `modules` cache with a `maxAge`, see [File Caches](/hugo-modules/configuration/#configure-file-caches).
 
 
 

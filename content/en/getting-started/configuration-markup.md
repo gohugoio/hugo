@@ -134,7 +134,7 @@ PlainText
 Here is a code example for how the render-link.html template could look:
 
 {{< code file="layouts/_default/_markup/render-link.html" >}}
-<a href="{{ .Destination | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}{{ if strings.HasPrefix .Destination "http" }} target="_blank"{{ end }}>{{ .Text }}</a>
+<a href="{{ .Destination | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}{{ if strings.HasPrefix .Destination "http" }} target="_blank"{{ end }}>{{ .Text | safeHTML }}</a>
 {{< /code >}}
 
 #### Image Markdown example:
