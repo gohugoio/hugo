@@ -1,12 +1,12 @@
 
 ---
 date: 2020-02-20
-title: "0.65.0"
-description: "0.65.0"
+title: "0.65.0: Hugo Reloaded!"
+description: "Draft, expire, resource bundling, and fine grained publishing control for any page. And it's faster."
 categories: ["Releases"]
 ---
 
-	**Hugo 0.65** generalizes how a page is packaged and published to be applicable to **any page**. This should solve some of the most common issues we see people ask and talk about on the [issue tracker](https://github.com/gohugoio/hugo/issues) and on the [forum](https://discourse.gohugo.io/).
+**Hugo 0.65** generalizes how a page is packaged and published to be applicable to **any page**. This should solve some of the most common issues we see people ask and talk about on the [issue tracker](https://github.com/gohugoio/hugo/issues) and on the [forum](https://discourse.gohugo.io/).
 
 ## Release Highlights
 
@@ -38,6 +38,16 @@ _build:
 Note that all front matter keywords can be set in the [cascade](https://gohugo.io/content-management/front-matter#front-matter-cascade) on a branch node, which would be especially useful for `_build`.
 
 We have also upgraded to the latest LibSass (v3.6.3). Nothing remarkable functional new here, but it makes Hugo ready for the upcoming [Dart Backport](https://github.com/sass/libsass/pull/2918).
+
+And finally, we have added a `GetTerms` method on `Page`, making  listing the terms defined on this page in the given taxonomy much simpler:
+
+```go-html-template
+<ul>
+    {{ range (.GetTerms "tags") }}
+        <li><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
+   {{ end }}
+</ul>
+```
 
 ### New in Hugo Modules
 

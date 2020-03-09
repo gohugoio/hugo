@@ -101,6 +101,17 @@ TAG: {{ $k }}: {{ $v }}
 {{ end }}
 ```
 
+Or individually access EXIF data with dot access, e.g.:
+
+```go-html-template
+{{ with $img.Exif }}
+Date: {{ .Date }}
+Lat/Long: {{ .Lat }}/{{ .Long }}
+Aperture: {{ .Tags.ApertureValue }}
+Focal Length: {{ .Tags.FocalLength }}
+{{ end }}
+```
+
 #### Exif fields
 
 Date
