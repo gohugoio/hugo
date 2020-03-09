@@ -1,14 +1,14 @@
 
 ---
 date: 2020-03-09
-title: "0.67.0"
-description: "0.67.0"
+title: "Hugo 0.67.0: Custom HTTP headers"
+description: "This version brings Custom HTTP headers to the development server and exclude/include filters in Hugo Deploy."
 categories: ["Releases"]
 ---
 
-	The two main items in Hugo 0.67.0 is custom HTTP header support in `hugo server` and incldue/exclude filters for [Hugo Deploy](https://gohugo.io/hosting-and-deployment/hugo-deploy/#readout).
+The two main items in Hugo 0.67.0 is custom HTTP header support in `hugo server` and incldue/exclude filters for [Hugo Deploy](https://gohugo.io/hosting-and-deployment/hugo-deploy/#readout).
 
-Being able to [configure HTTP headers]https://gohugo.io/getting-started/configuration/#configure-server) in your development server means that you can now verify how your site behaves with the intended Content Security Policy settings etc., e.g.:
+Being able to [configure HTTP headers](https://gohugo.io/getting-started/configuration/#configure-server) in your development server means that you can now verify how your site behaves with the intended Content Security Policy settings etc., e.g.:
 
 ```toml
 [server]
@@ -23,7 +23,7 @@ Referrer-Policy = "strict-origin-when-cross-origin"
 Content-Security-Policy = "script-src localhost:1313"
 ```
 
-**Note:** This release also changes how raw HTML files inside /content is processed to be inline with the documentation. See [#7030](https://github.com/gohugoio/hugo/issues/7030).
+**Note:** This release also changes how raw HTML files inside /content is processed to be in line with the documentation. See [#7030](https://github.com/gohugoio/hugo/issues/7030).
 
 This release represents **7 contributions by 4 contributors** to the main Hugo code base.[@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@satotake](https://github.com/satotake), [@sams96](https://github.com/sams96), and [@davidejones](https://github.com/davidejones) for their ongoing contributions.
 And a big thanks to [@digitalcraftsman](https://github.com/digitalcraftsman) and [@onedrawingperday](https://github.com/onedrawingperday) for their relentless work on keeping the themes site in pristine condition and to [@davidsneighbour](https://github.com/davidsneighbour) and [@kaushalmodi](https://github.com/kaushalmodi) for all the great work on the documentation site.
