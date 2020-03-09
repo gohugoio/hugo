@@ -28,7 +28,6 @@ var (
 
 // The content related items on a Page.
 type pageContent struct {
-	renderable bool
 	selfLayout string
 	truncated  bool
 
@@ -52,7 +51,7 @@ func (p pageContent) contentToRender(renderedShortcodes map[string]string) []byt
 		case pageContentReplacement:
 			c = append(c, v.val...)
 		case *shortcode:
-			if !p.renderable || !v.insertPlaceholder() {
+			if !v.insertPlaceholder() {
 				// Insert the rendered shortcode.
 				renderedShortcode, found := renderedShortcodes[v.placeholder]
 				if !found {

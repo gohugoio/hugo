@@ -42,21 +42,14 @@ LOOP:
 			if r == '<' {
 				l.backup()
 				if l.hasPrefix(htmlCommentStart) {
-					// This may be commented out front mattter, which should
+					// This may be commented out front matter, which should
 					// still be read.
 					l.consumeToNextLine()
 					l.isInHTMLComment = true
 					l.emit(TypeIgnore)
 					continue LOOP
 				} else {
-					if l.pos > l.start {
-						l.emit(tText)
-					}
-					l.next()
-					// This is the start of a plain HTML document with no
-					// front matter. I still can contain shortcodes, so we
-					// have to keep looking.
-					l.emit(TypeHTMLStart)
+					return l.errorf("plain HTML documents not supported")
 				}
 			}
 			break LOOP

@@ -66,7 +66,7 @@ func NewLanguageFs(langs map[string]int, fs afero.Fs) (afero.Fs, error) {
 				metaKeyOrdinal:                    langs[lang],
 				metaKeyTranslationBaseName:        translationBaseName,
 				metaKeyTranslationBaseNameWithExt: translationBaseNameWithExt,
-				metaKeyClassifier:                 files.ClassifyContentFile(fi.Name()),
+				metaKeyClassifier:                 files.ClassifyContentFile(fi.Name(), meta.GetOpener()),
 			})
 
 			fis[i] = fim
