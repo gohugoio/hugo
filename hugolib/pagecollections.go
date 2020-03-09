@@ -206,6 +206,22 @@ func (c *PageCollections) getSectionOrPage(ref string) (*contentNode, string) {
 
 }
 
+// For Ref/Reflink and .Site.GetPage do simple name lookups for the potentially ambigous myarticle.md and /myarticle.md,
+// but not when we get ./myarticle*, section/myarticle.
+func shouldDoSimpleLookup(ref string) bool {
+	if ref[0] == '.' {
+		return false
+	}
+
+	slashCount := strings.Count(ref, "/")
+
+	if slashCount > 1 {
+		return false
+	}
+
+	return slashCount == 0 || ref[0] == '/'
+}
+
 func (c *PageCollections) getContentNode(context page.Page, isReflink bool, ref string) (*contentNode, error) {
 	ref = filepath.ToSlash(strings.ToLower(strings.TrimSpace(ref)))
 	if ref == "" {
@@ -215,9 +231,7 @@ func (c *PageCollections) getContentNode(context page.Page, isReflink bool, ref 
 	navUp := strings.HasPrefix(ref, "..")
 	var doSimpleLookup bool
 	if isReflink || context == nil {
-		// For Ref/Reflink and .Site.GetPage do simple name lookups for the potentially ambigous myarticle.md and /myarticle.md,
-		// but not when we get ./myarticle*, section/myarticle.
-		doSimpleLookup = ref[0] != '.' || ref[0] == '/' && strings.Count(ref, "/") == 1
+		doSimpleLookup = shouldDoSimpleLookup(ref)
 	}
 
 	if context != nil && !strings.HasPrefix(ref, "/") {
