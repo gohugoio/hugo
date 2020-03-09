@@ -271,18 +271,13 @@ func (ns *Namespace) In(l interface{}, v interface{}) (bool, error) {
 	lv := reflect.ValueOf(l)
 	vv := reflect.ValueOf(v)
 
-	if !vv.Type().Comparable() {
-		return false, errors.Errorf("value to check must be comparable: %T", v)
-	}
-
-	// Normalize numeric types to float64 etc.
 	vvk := normalize(vv)
 
 	switch lv.Kind() {
 	case reflect.Array, reflect.Slice:
 		for i := 0; i < lv.Len(); i++ {
 			lvv, isNil := indirectInterface(lv.Index(i))
-			if isNil || !lvv.Type().Comparable() {
+			if isNil {
 				continue
 			}
 
@@ -713,6 +708,7 @@ func (ns *Namespace) Uniq(seq interface{}) (interface{}, error) {
 	switch v.Kind() {
 	case reflect.Slice:
 		slice = reflect.MakeSlice(v.Type(), 0, 0)
+
 	case reflect.Array:
 		slice = reflect.MakeSlice(reflect.SliceOf(v.Type().Elem()), 0, 0)
 	default:
@@ -720,12 +716,12 @@ func (ns *Namespace) Uniq(seq interface{}) (interface{}, error) {
 	}
 
 	seen := make(map[interface{}]bool)
+
 	for i := 0; i < v.Len(); i++ {
 		ev, _ := indirectInterface(v.Index(i))
-		if !ev.Type().Comparable() {
-			return nil, errors.New("elements must be comparable")
-		}
+
 		key := normalize(ev)
+
 		if _, found := seen[key]; !found {
 			slice = reflect.Append(slice, ev)
 			seen[key] = true
