@@ -54,7 +54,7 @@ func BenchmarkContentMap(b *testing.B) {
 				// real flow, so simulate this here.
 				meta["lang"] = lang
 				meta["path"] = meta.Filename()
-				meta["classifier"] = files.ClassifyContentFile(fi.Name())
+				meta["classifier"] = files.ClassifyContentFile(fi.Name(), meta.GetOpener())
 
 			})
 	}
@@ -115,7 +115,7 @@ func TestContentMap(t *testing.T) {
 				// real flow, so simulate this here.
 				meta["lang"] = lang
 				meta["path"] = meta.Filename()
-				meta["classifier"] = files.ClassifyContentFile(fi.Name())
+				meta["classifier"] = files.ClassifyContentFile(fi.Name(), meta.GetOpener())
 				meta["translationBaseName"] = helpers.Filename(fi.Name())
 
 			})

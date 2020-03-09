@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"go.uber.org/atomic"
 
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/common/loggers"
@@ -377,11 +376,8 @@ type DepsCfg struct {
 
 // BuildFlags are flags that may be turned on during a build.
 type BuildFlags struct {
-	HasLateTemplate atomic.Bool
 }
 
 func NewBuildFlags() BuildFlags {
-	return BuildFlags{
-		//HasLateTemplate: atomic.NewBool(false),
-	}
+	return BuildFlags{}
 }

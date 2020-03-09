@@ -29,7 +29,6 @@ type TemplateManager interface {
 	TemplateHandler
 	TemplateFuncGetter
 	AddTemplate(name, tpl string) error
-	AddLateTemplate(name, tpl string) error
 	MarkReady() error
 }
 

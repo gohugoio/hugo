@@ -449,12 +449,6 @@ func (p *pageState) initOutputFormat(isRenderingSite bool, idx int) error {
 		return err
 	}
 
-	if !p.renderable {
-		if _, err := p.Content(); err != nil {
-			return err
-		}
-	}
-
 	return nil
 
 }
@@ -679,8 +673,6 @@ func (p *pageState) mapContent(bucket *pagesMapBucket, meta *pageMeta) error {
 
 	s := p.shortcodeState
 
-	p.renderable = true
-
 	rn := &pageContentMap{
 		items: make([]interface{}, 0, 20),
 	}
@@ -703,12 +695,6 @@ Loop:
 
 		switch {
 		case it.Type == pageparser.TypeIgnore:
-		case it.Type == pageparser.TypeHTMLStart:
-			// This is HTML without front matter. It can still have shortcodes.
-			p.selfLayout = "__" + p.File().Filename()
-			p.renderable = false
-			p.s.BuildFlags.HasLateTemplate.CAS(false, true)
-			rn.AddBytes(it)
 		case it.IsFrontMatter():
 			f := pageparser.FormatFromFrontMatterType(it.Type)
 			m, err := metadecoders.Default.UnmarshalToMap(it.Val, f)

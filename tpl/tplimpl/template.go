@@ -251,21 +251,8 @@ func (t *templateExec) MarkReady() error {
 		}
 	})
 
-	if err != nil {
-		return err
-	}
+	return err
 
-	if t.Deps.BuildFlags.HasLateTemplate.Load() {
-		// This costs memory, so try to avoid it if we don't have to.
-		// The late templates are used to handle HTML in files in /content
-		// without front matter.
-		t.readyLateInit.Do(func() {
-			t.late = t.main.Clone(true)
-			t.late.createPrototypes()
-		})
-	}
-
-	return nil
 }
 
 type templateHandler struct {
@@ -273,10 +260,7 @@ type templateHandler struct {
 	needsBaseof map[string]templateInfo
 	baseof      map[string]templateInfo
 
-	late *templateNamespace // Templates added after main has started executing.
-
-	readyInit     sync.Once
-	readyLateInit sync.Once
+	readyInit sync.Once
 
 	// This is the filesystem to load the templates from. All the templates are
 	// stored in the root of this filesystem.
@@ -309,14 +293,6 @@ type templateHandler struct {
 	templateInfo map[string]tpl.Info
 }
 
-// AddLateTemplate is used to add a template after the
-// regular templates have started its execution.
-// These are currently "pure HTML content files".
-func (t *templateHandler) AddLateTemplate(name, tpl string) error {
-	_, err := t.late.parse(t.newTemplateInfo(name, tpl))
-	return err
-}
-
 // AddTemplate parses and adds a template to the collection.
 // Templates with name prefixed with "_text" will be handled as plain
 // text templates.
@@ -332,10 +308,6 @@ func (t *templateHandler) Lookup(name string) (tpl.Template, bool) {
 	templ, found := t.main.Lookup(name)
 	if found {
 		return templ, true
-	}
-
-	if t.late != nil {
-		return t.late.Lookup(name)
 	}
 
 	return nil, false

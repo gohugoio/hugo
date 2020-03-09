@@ -15,7 +15,6 @@ package hugolib
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -23,8 +22,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/markbates/inflect"
-
-	"github.com/gohugoio/hugo/helpers"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
@@ -500,70 +497,6 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 		th.assertFileContent(filepath.Join("public", test.doc), test.expected)
 	}
 
-}
-
-func TestSkipRender(t *testing.T) {
-	t.Parallel()
-	sources := [][2]string{
-		{filepath.FromSlash("sect/doc1.html"), "---\nmarkup: markdown\n---\n# title\nsome *content*"},
-		{filepath.FromSlash("sect/doc2.html"), "<!doctype html><html><body>more content</body></html>"},
-		{filepath.FromSlash("sect/doc3.md"), "# doc3\n*some* content"},
-		{filepath.FromSlash("sect/doc4.md"), "---\ntitle: doc4\n---\n# doc4\n*some content*"},
-		{filepath.FromSlash("sect/doc5.html"), "<!doctype html><html>{{ template \"head\" }}<body>body5</body></html>"},
-		{filepath.FromSlash("sect/doc6.html"), "<!doctype html><html>{{ template \"head_abs\" }}<body>body5</body></html>"},
-		{filepath.FromSlash("doc7.html"), "<html><body>doc7 content</body></html>"},
-		{filepath.FromSlash("sect/doc8.html"), "---\nmarkup: md\n---\n# title\nsome *content*"},
-		// Issue #3021
-		{filepath.FromSlash("doc9.html"), "<html><body>doc9: {{< myshortcode >}}</body></html>"},
-	}
-
-	cfg, fs := newTestCfg()
-
-	cfg.Set("verbose", true)
-	cfg.Set("canonifyURLs", true)
-	cfg.Set("uglyURLs", true)
-	cfg.Set("baseURL", "http://auth/bub")
-
-	for _, src := range sources {
-		writeSource(t, fs, filepath.Join("content", src[0]), src[1])
-
-	}
-
-	writeSource(t, fs, filepath.Join("layouts", "_default/single.html"), "{{.Content}}")
-	writeSource(t, fs, filepath.Join("layouts", "head"), "<head><script src=\"script.js\"></script></head>")
-	writeSource(t, fs, filepath.Join("layouts", "head_abs"), "<head><script src=\"/script.js\"></script></head>")
-	writeSource(t, fs, filepath.Join("layouts", "shortcodes", "myshortcode.html"), "SHORT")
-
-	buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
-
-	tests := []struct {
-		doc      string
-		expected string
-	}{
-		{filepath.FromSlash("public/sect/doc1.html"), "<h1 id=\"title\">title</h1>\n<p>some <em>content</em></p>\n"},
-		{filepath.FromSlash("public/sect/doc2.html"), "<!doctype html><html><body>more content</body></html>"},
-		{filepath.FromSlash("public/sect/doc3.html"), "<h1 id=\"doc3\">doc3</h1>\n<p><em>some</em> content</p>\n"},
-		{filepath.FromSlash("public/sect/doc4.html"), "<h1 id=\"doc4\">doc4</h1>\n<p><em>some content</em></p>\n"},
-		{filepath.FromSlash("public/sect/doc5.html"), "<!doctype html><html><head><script src=\"script.js\"></script></head><body>body5</body></html>"},
-		{filepath.FromSlash("public/sect/doc6.html"), "<!doctype html><html><head><script src=\"http://auth/bub/script.js\"></script></head><body>body5</body></html>"},
-		{filepath.FromSlash("public/doc7.html"), "<html><body>doc7 content</body></html>"},
-		{filepath.FromSlash("public/sect/doc8.html"), "<h1 id=\"title\">title</h1>\n<p>some <em>content</em></p>\n"},
-		{filepath.FromSlash("public/doc9.html"), "<html><body>doc9: SHORT</body></html>"},
-	}
-
-	for _, test := range tests {
-		file, err := fs.Destination.Open(test.doc)
-		if err != nil {
-			helpers.PrintFs(fs.Destination, "public", os.Stdout)
-			t.Fatalf("Did not find %s in target.", test.doc)
-		}
-
-		content := helpers.ReaderToString(file)
-
-		if content != test.expected {
-			t.Errorf("%s content expected:\n%q\ngot:\n%q", test.doc, test.expected, content)
-		}
-	}
 }
 
 func TestAbsURLify(t *testing.T) {

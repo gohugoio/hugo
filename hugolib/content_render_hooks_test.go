@@ -135,7 +135,7 @@ title: No Template
 	}
 	counters := &testCounters{}
 	b.Build(BuildCfg{testCounters: counters})
-	b.Assert(int(counters.contentRenderCounter), qt.Equals, 50)
+	b.Assert(int(counters.contentRenderCounter), qt.Equals, 43)
 
 	b.AssertFileContent("public/blog/p1/index.html", `
 <p>Cool Page|https://www.google.com|Title: Google's Homepage|Text: First Link|END</p>
