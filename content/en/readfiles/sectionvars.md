@@ -5,13 +5,13 @@
 : The page's first section below root, e.g. `/docs`, `/blog` etc.
 
 .InSection $anotherPage
-: Whether the given page is in the current section. Note that this will always return false for pages that are not either regular, home or section pages.
+: Whether the given page is in the current section.
 
 .IsAncestor $anotherPage
-: Whether the current page is an ancestor of the given page. Note that this method is not relevant for taxonomy lists and taxonomy terms pages.
+: Whether the current page is an ancestor of the given page.
 
 .IsDescendant $anotherPage
-: Whether the current page is a descendant of the given page. Note that this method is not relevant for taxonomy lists and taxonomy terms pages.
+: Whether the current page is a descendant of the given page.
 
 .Parent
 : A section's parent section or a page's section.
