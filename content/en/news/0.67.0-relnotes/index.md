@@ -6,7 +6,7 @@ description: "This version brings Custom HTTP headers to the development server 
 categories: ["Releases"]
 ---
 
-The two main items in Hugo 0.67.0 is custom HTTP header support in `hugo server` and incldue/exclude filters for [Hugo Deploy](https://gohugo.io/hosting-and-deployment/hugo-deploy/#readout).
+The two main items in Hugo 0.67.0 is custom HTTP header support in `hugo server` and include/exclude filters for [Hugo Deploy](https://gohugo.io/hosting-and-deployment/hugo-deploy/#readout).
 
 Being able to [configure HTTP headers](https://gohugo.io/getting-started/configuration/#configure-server) in your development server means that you can now verify how your site behaves with the intended Content Security Policy settings etc., e.g.:
 
