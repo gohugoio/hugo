@@ -49,12 +49,15 @@ func TestNoMinifier(t *testing.T) {
 	spec.Cfg.Set("minifiers.enableXML", false)
 	client, _ := New(spec)
 
-	r, err := htesting.NewResourceTransformerForSpec(spec, "hugo.xml", "<title>   Hugo Rocks!   </title>")
+	original := "<title>   Hugo Rocks!   </title>"
+	r, err := htesting.NewResourceTransformerForSpec(spec, "hugo.xml", original)
 	c.Assert(err, qt.IsNil)
 
 	transformed, err := client.Minify(r)
 	c.Assert(err, qt.IsNil)
 
-	_, err = transformed.(resource.ContentProvider).Content()
-	c.Assert(err, qt.ErrorMatches, "minifier does not exist for mimetype: application/xml")
+	content, err := transformed.(resource.ContentProvider).Content()
+	// error should be ignored because general users cannot control codes under `theme`s
+	c.Assert(err, qt.IsNil)
+	c.Assert(content, qt.Equals, original)
 }
