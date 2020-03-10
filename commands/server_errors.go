@@ -30,8 +30,7 @@ var buildErrorTemplate = `<!doctype html>
 		body {
 			font-family: "Muli",avenir, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 			font-size: 16px;
-			background-color: black;
-			color: rgba(255, 255, 255, 0.9);
+			background-color: #2f1e2e;
 		}
 		main {
 			margin: auto;
@@ -43,7 +42,7 @@ var buildErrorTemplate = `<!doctype html>
 			padding: 1rem 0;
 		}
 		.stack {
-			margin-top: 6rem;
+			margin-top: 4rem;
 		}
 		pre {
 			white-space: pre-wrap;      
@@ -54,10 +53,7 @@ var buildErrorTemplate = `<!doctype html>
 		}
 		.highlight {
 			overflow-x: auto;
-			padding: 0.75rem;
 			margin-bottom: 1rem;
-			background-color: #272822;
-			border: 1px solid black;
 		}
 		a {
 			color: #0594cb;
@@ -70,14 +66,14 @@ var buildErrorTemplate = `<!doctype html>
 	</head>
 	<body>
 		<main>
-			{{ highlight .Error "apl" "noclasses=true,style=monokai" }}
+			{{ highlight .Error "apl" "linenos=false,noclasses=true,style=paraiso-dark" }}
 			{{ with .File }}
-			{{ $params := printf "noclasses=true,style=monokai,linenos=table,hl_lines=%d,linenostart=%d" (add .LinesPos 1) (sub .Position.LineNumber .LinesPos) }}
+			{{ $params := printf "noclasses=true,style=paraiso-dark,linenos=table,hl_lines=%d,linenostart=%d" (add .LinesPos 1) (sub .Position.LineNumber .LinesPos) }}
 			{{ $lexer := .ChromaLexer | default "go-html-template" }}
 			{{  highlight (delimit .Lines "\n") $lexer $params }}
 			{{ end }}
 			{{ with .StackTrace }}
-			{{ highlight . "apl" "noclasses=true,style=monokai" }}
+			{{ highlight . "apl" "noclasses=true,style=paraiso-dark" }}
 			{{ end }}
 			<p class="version">{{ .Version }}</p>
 			<a href="">Reload Page</a>

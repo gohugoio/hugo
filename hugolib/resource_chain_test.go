@@ -22,6 +22,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/common/herrors"
+
 	"github.com/gohugoio/hugo/htesting"
 
 	"github.com/spf13/viper"
@@ -717,11 +719,10 @@ func TestResourceChainPostCSS(t *testing.T) {
 
 	packageJSON := `{
   "scripts": {},
-  "dependencies": {
-    "tailwindcss": "^1.2"
-  },
+
   "devDependencies": {
-    "postcss-cli": "^7.1.0"
+    "postcss-cli": "^7.1.0",
+    "tailwindcss": "^1.2"
   }
 }
 `
@@ -826,7 +827,7 @@ Styles Content: Len: 770878|
 
 	assertCss(b)
 
-	build := func(s string, shouldFail bool) {
+	build := func(s string, shouldFail bool) error {
 		b.Assert(os.RemoveAll(filepath.Join(workDir, "public")), qt.IsNil)
 
 		v := viper.New()
@@ -837,18 +838,36 @@ Styles Content: Len: 770878|
 		b = newTestBuilder(v)
 
 		b.Assert(os.RemoveAll(filepath.Join(workDir, "public")), qt.IsNil)
-		b.Assert(os.RemoveAll(filepath.Join(workDir, "node_modules")), qt.IsNil)
 
+		err := b.BuildE(BuildCfg{})
 		if shouldFail {
-			b.BuildFail(BuildCfg{})
+			b.Assert(err, qt.Not(qt.IsNil))
 		} else {
-			b.Build(BuildCfg{})
+			b.Assert(err, qt.IsNil)
 			assertCss(b)
 		}
+
+		return err
 	}
 
 	build("always", false)
 	build("fallback", false)
+
+	// Introduce a syntax error in an import
+	b.WithSourceFile("assets/css/components/b.css", `@import "a.css";
+
+class-in-b {
+	@apply asdf;
+}
+`)
+
+	err = build("newer", true)
+
+	err = herrors.UnwrapErrorWithFileContext(err)
+	fe, ok := err.(*herrors.ErrorWithFileContext)
+	b.Assert(ok, qt.Equals, true)
+	b.Assert(fe.Position().LineNumber, qt.Equals, 4)
+	b.Assert(fe.Error(), qt.Contains, filepath.Join(workDir, "assets/css/components/b.css:4:1"))
 
 	// Remove PostCSS
 	b.Assert(os.RemoveAll(filepath.Join(workDir, "node_modules")), qt.IsNil)

@@ -28,6 +28,7 @@ import (
 
 	bp "github.com/gohugoio/hugo/bufferpool"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/helpers"
@@ -392,16 +393,24 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 			}
 		}
 
-		notAvailableErr := func(err error) error {
-			errMsg := err.Error()
-			if tr.Key().Name == "postcss" {
-				// This transformation is not available in this
-				// Most likely because PostCSS is not installed.
-				errMsg += ". Check your PostCSS installation; install with \"npm install postcss-cli\". See https://gohugo.io/hugo-pipes/postcss/"
-			} else if tr.Key().Name == "tocss" {
-				errMsg += ". Check your Hugo installation; you need the extended version to build SCSS/SASS."
+		newErr := func(err error) error {
+
+			msg := fmt.Sprintf("%s: failed to transform %q (%s)", strings.ToUpper(tr.Key().Name), tctx.InPath, tctx.InMediaType.Type())
+
+			if err == herrors.ErrFeatureNotAvailable {
+				var errMsg string
+				if tr.Key().Name == "postcss" {
+					// This transformation is not available in this
+					// Most likely because PostCSS is not installed.
+					errMsg = ". Check your PostCSS installation; install with \"npm install postcss-cli\". See https://gohugo.io/hugo-pipes/postcss/"
+				} else if tr.Key().Name == "tocss" {
+					errMsg = ". Check your Hugo installation; you need the extended version to build SCSS/SASS."
+				}
+
+				return errors.New(msg + errMsg)
 			}
-			return fmt.Errorf("%s: failed to transform %q (%s): %s", strings.ToUpper(tr.Key().Name), tctx.InPath, tctx.InMediaType.Type(), errMsg)
+
+			return errors.Wrap(err, msg)
 
 		}
 
@@ -411,18 +420,22 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 			tryFileCache = true
 		} else {
 			err = tr.Transform(tctx)
+			if err != nil && err != herrors.ErrFeatureNotAvailable {
+				return newErr(err)
+			}
+
 			if mayBeCachedOnDisk {
 				tryFileCache = r.spec.BuildConfig.UseResourceCache(err)
 			}
 			if err != nil && !tryFileCache {
-				return notAvailableErr(err)
+				return newErr(err)
 			}
 		}
 
 		if tryFileCache {
 			f := r.target.tryTransformedFileCache(key, updates)
 			if f == nil {
-				return notAvailableErr(errors.Errorf("resource %q not found in file cache", key))
+				return newErr(errors.Errorf("resource %q not found in file cache", key))
 			}
 			transformedContentr = f
 			updates.sourceFs = cache.fileCache.Fs
@@ -525,7 +538,11 @@ func (r *resourceAdapter) initTransform(publish, setContent bool) {
 
 		r.transformationsErr = r.transform(publish, setContent)
 		if r.transformationsErr != nil {
-			r.spec.Logger.ERROR.Printf("Transformation failed: %s", r.transformationsErr)
+			if r.spec.ErrorSender != nil {
+				r.spec.ErrorSender.SendError(r.transformationsErr)
+			} else {
+				r.spec.Logger.ERROR.Printf("Transformation failed: %s", r.transformationsErr)
+			}
 		}
 	})
 

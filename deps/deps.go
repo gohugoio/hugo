@@ -235,7 +235,9 @@ func New(cfg DepsCfg) (*Deps, error) {
 		return nil, errors.WithMessage(err, "failed to create file caches from configuration")
 	}
 
-	resourceSpec, err := resources.NewSpec(ps, fileCaches, logger, cfg.OutputFormats, cfg.MediaTypes)
+	errorHandler := &globalErrHandler{}
+
+	resourceSpec, err := resources.NewSpec(ps, fileCaches, logger, errorHandler, cfg.OutputFormats, cfg.MediaTypes)
 	if err != nil {
 		return nil, err
 	}
@@ -275,7 +277,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		BuildStartListeners:     &Listeners{},
 		BuildFlags:              &BuildFlags{},
 		Timeout:                 time.Duration(timeoutms) * time.Millisecond,
-		globalErrHandler:        &globalErrHandler{},
+		globalErrHandler:        errorHandler,
 	}
 
 	if cfg.Cfg.GetBool("templateMetrics") {
@@ -306,7 +308,7 @@ func (d Deps) ForLanguage(cfg DepsCfg, onCreated func(d *Deps) error) (*Deps, er
 	// The resource cache is global so reuse.
 	// TODO(bep) clean up these inits.
 	resourceCache := d.ResourceSpec.ResourceCache
-	d.ResourceSpec, err = resources.NewSpec(d.PathSpec, d.ResourceSpec.FileCaches, d.Log, cfg.OutputFormats, cfg.MediaTypes)
+	d.ResourceSpec, err = resources.NewSpec(d.PathSpec, d.ResourceSpec.FileCaches, d.Log, d.globalErrHandler, cfg.OutputFormats, cfg.MediaTypes)
 	if err != nil {
 		return nil, err
 	}

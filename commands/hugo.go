@@ -722,9 +722,6 @@ func (c *commandeer) handleBuildErr(err error, msg string) {
 
 func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 	defer c.timeTrack(time.Now(), "Total")
-	defer func() {
-		c.wasError = false
-	}()
 
 	c.buildErr = nil
 	visited := c.visitedURLs.PeekAllSet()
@@ -885,6 +882,10 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 	staticSyncer *staticSyncer,
 	evs []fsnotify.Event,
 	configSet map[string]bool) {
+
+	defer func() {
+		c.wasError = false
+	}()
 
 	var isHandled bool
 
@@ -1080,10 +1081,11 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 			// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
 
 			// force refresh when more than one file
-			if len(staticEvents) == 1 {
+			if !c.wasError && len(staticEvents) == 1 {
 				ev := staticEvents[0]
 				path := c.hugo().BaseFs.SourceFilesystems.MakeStaticPathRelative(ev.Name)
 				path = c.firstPathSpec().RelURL(helpers.ToSlashTrimLeading(path), false)
+
 				livereload.RefreshPath(path)
 			} else {
 				livereload.ForceRefresh()
@@ -1107,6 +1109,10 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 
 		if doLiveReload {
 			if len(partitionedEvents.ContentEvents) == 0 && len(partitionedEvents.AssetEvents) > 0 {
+				if c.wasError {
+					livereload.ForceRefresh()
+					return
+				}
 				changed := c.changeDetector.changed()
 				if c.changeDetector != nil && len(changed) == 0 {
 					// Nothing has changed.

@@ -340,6 +340,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 					if err != nil {
 						f.c.logger.ERROR.Println(err)
 					}
+
 					port = 1313
 					if !f.c.paused {
 						port = f.c.Cfg.GetInt("liveReloadPort")
