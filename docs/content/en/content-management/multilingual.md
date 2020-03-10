@@ -47,6 +47,13 @@ weight = 2
 linkedin = "https://linkedin.com/fr/whoever"
 [languages.fr.params.navigation]
 help  = "Aide"
+
+[languages.ar]
+title = "مدونتي"
+weight = 2
+languagedirection = "rtl"
+[languages.ar.params]
+linkedin = "https://linkedin.com/ar/whoever" 
 {{< /code-toggle >}}
 
 Anything not defined in a `languages` block will fall back to the global value for that key (e.g., `copyright` for the English `en` language). This also works for `params`, as demonstrated with `help` above: You will get the value `Aide` in French and `Help` in all the languages without this parameter set.
