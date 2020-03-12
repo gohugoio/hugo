@@ -13,7 +13,11 @@
 
 package types
 
-import "github.com/spf13/cast"
+import (
+	"html/template"
+
+	"github.com/spf13/cast"
+)
 
 // ToStringSlicePreserveString converts v to a string slice.
 // If v is a string, it will be wrapped in a string slice.
@@ -25,4 +29,40 @@ func ToStringSlicePreserveString(v interface{}) []string {
 		return []string{sds}
 	}
 	return cast.ToStringSlice(v)
+}
+
+// TypeToString converts v to a string if it's a valid string type.
+// Note that this will not try to convert numeric values etc.,
+// use ToString for that.
+func TypeToString(v interface{}) (string, bool) {
+	switch s := v.(type) {
+	case string:
+		return s, true
+	case template.HTML:
+		return string(s), true
+	case template.CSS:
+		return string(s), true
+	case template.HTMLAttr:
+		return string(s), true
+	case template.JS:
+		return string(s), true
+	case template.JSStr:
+		return string(s), true
+	case template.URL:
+		return string(s), true
+	case template.Srcset:
+		return string(s), true
+	}
+
+	return "", false
+}
+
+// ToString converts v to a string.
+func ToString(v interface{}) string {
+	if s, ok := TypeToString(v); ok {
+		return s
+	}
+
+	return cast.ToString(v)
+
 }
