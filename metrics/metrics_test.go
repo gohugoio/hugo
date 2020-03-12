@@ -14,6 +14,7 @@
 package metrics
 
 import (
+	"html/template"
 	"strings"
 	"testing"
 
@@ -39,13 +40,23 @@ func TestSimilarPercentage(t *testing.T) {
 	c.Assert(howSimilar("The Hugo", "The Hugo Rules"), qt.Equals, 66)
 	c.Assert(howSimilar("Totally different", "Not Same"), qt.Equals, 0)
 	c.Assert(howSimilar(sentence, sentenceReversed), qt.Equals, 14)
+	c.Assert(howSimilar(template.HTML("Hugo Rules"), template.HTML("Hugo Rules")), qt.Equals, 100)
+	c.Assert(howSimilar(map[string]interface{}{"a": 32, "b": 33}, map[string]interface{}{"a": 32, "b": 33}), qt.Equals, 100)
+	c.Assert(howSimilar(map[string]interface{}{"a": 32, "b": 33}, map[string]interface{}{"a": 32, "b": 34}), qt.Equals, 0)
 
+}
+
+type testStruct struct {
+	Name string
 }
 
 func TestSimilarPercentageNonString(t *testing.T) {
 	c := qt.New(t)
 	c.Assert(howSimilar(page.NopPage, page.NopPage), qt.Equals, 100)
 	c.Assert(howSimilar(page.Pages{}, page.Pages{}), qt.Equals, 90)
+	c.Assert(howSimilar(testStruct{Name: "A"}, testStruct{Name: "B"}), qt.Equals, 0)
+	c.Assert(howSimilar(testStruct{Name: "A"}, testStruct{Name: "A"}), qt.Equals, 100)
+
 }
 
 func BenchmarkHowSimilar(b *testing.B) {
