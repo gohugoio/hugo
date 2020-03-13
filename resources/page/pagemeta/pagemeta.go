@@ -58,7 +58,7 @@ func (b *BuildConfig) Disable() {
 }
 
 func (b BuildConfig) IsZero() bool {
-	return !b.set
+	return b == BuildConfig{}
 }
 
 func DecodeBuildConfig(m interface{}) (BuildConfig, error) {
