@@ -126,7 +126,7 @@ type DocumentContext struct {
 type RenderContext struct {
 	Src         []byte
 	RenderTOC   bool
-	RenderHooks *hooks.Render
+	RenderHooks *hooks.Renderers
 }
 
 var (

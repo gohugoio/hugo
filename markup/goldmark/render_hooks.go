@@ -23,10 +23,10 @@ import (
 	"github.com/yuin/goldmark/util"
 )
 
-var _ renderer.SetOptioner = (*linkRenderer)(nil)
+var _ renderer.SetOptioner = (*hookedRenderer)(nil)
 
 func newLinkRenderer() renderer.NodeRenderer {
-	r := &linkRenderer{
+	r := &hookedRenderer{
 		Config: html.Config{
 			Writer: html.DefaultWriter,
 		},
@@ -70,23 +70,64 @@ func (ctx linkContext) Title() string {
 	return ctx.title
 }
 
-type linkRenderer struct {
+type headingContext struct {
+	page      interface{}
+	level     int
+	anchor    string
+	text      string
+	plainText string
+}
+
+func (ctx headingContext) Page() interface{} {
+	return ctx.page
+}
+
+func (ctx headingContext) Level() int {
+	return ctx.level
+}
+
+func (ctx headingContext) Anchor() string {
+	return ctx.anchor
+}
+
+func (ctx headingContext) Text() string {
+	return ctx.text
+}
+
+func (ctx headingContext) PlainText() string {
+	return ctx.plainText
+}
+
+type hookedRenderer struct {
 	html.Config
 }
 
-func (r *linkRenderer) SetOption(name renderer.OptionName, value interface{}) {
+func (r *hookedRenderer) SetOption(name renderer.OptionName, value interface{}) {
 	r.Config.SetOption(name, value)
 }
 
 // RegisterFuncs implements NodeRenderer.RegisterFuncs.
-func (r *linkRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
+func (r *hookedRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
 	reg.Register(ast.KindLink, r.renderLink)
 	reg.Register(ast.KindImage, r.renderImage)
+	reg.Register(ast.KindHeading, r.renderHeading)
+}
+
+// https://github.com/yuin/goldmark/blob/b611cd333a492416b56aa8d94b04a67bf0096ab2/renderer/html/html.go#L404
+func (r *hookedRenderer) RenderAttributes(w util.BufWriter, node ast.Node) {
+
+	for _, attr := range node.Attributes() {
+		_, _ = w.WriteString(" ")
+		_, _ = w.Write(attr.Name)
+		_, _ = w.WriteString(`="`)
+		_, _ = w.Write(util.EscapeHTML(attr.Value.([]byte)))
+		_ = w.WriteByte('"')
+	}
 }
 
 // Fall back to the default Goldmark render funcs. Method below borrowed from:
 // https://github.com/yuin/goldmark/blob/b611cd333a492416b56aa8d94b04a67bf0096ab2/renderer/html/html.go#L404
-func (r *linkRenderer) renderDefaultImage(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *hookedRenderer) renderDefaultImage(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	if !entering {
 		return ast.WalkContinue, nil
 	}
@@ -111,31 +152,9 @@ func (r *linkRenderer) renderDefaultImage(w util.BufWriter, source []byte, node 
 	return ast.WalkSkipChildren, nil
 }
 
-// Fall back to the default Goldmark render funcs. Method below borrowed from:
-// https://github.com/yuin/goldmark/blob/b611cd333a492416b56aa8d94b04a67bf0096ab2/renderer/html/html.go#L404
-func (r *linkRenderer) renderDefaultLink(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
-	n := node.(*ast.Link)
-	if entering {
-		_, _ = w.WriteString("<a href=\"")
-		if r.Unsafe || !html.IsDangerousURL(n.Destination) {
-			_, _ = w.Write(util.EscapeHTML(util.URLEscape(n.Destination, true)))
-		}
-		_ = w.WriteByte('"')
-		if n.Title != nil {
-			_, _ = w.WriteString(` title="`)
-			r.Writer.Write(w, n.Title)
-			_ = w.WriteByte('"')
-		}
-		_ = w.WriteByte('>')
-	} else {
-		_, _ = w.WriteString("</a>")
-	}
-	return ast.WalkContinue, nil
-}
-
-func (r *linkRenderer) renderImage(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.Image)
-	var h *hooks.Render
+	var h *hooks.Renderers
 
 	ctx, ok := w.(*renderContext)
 	if ok {
@@ -156,7 +175,7 @@ func (r *linkRenderer) renderImage(w util.BufWriter, source []byte, node ast.Nod
 	text := ctx.Buffer.Bytes()[ctx.pos:]
 	ctx.Buffer.Truncate(ctx.pos)
 
-	err := h.ImageRenderer.Render(
+	err := h.ImageRenderer.RenderLink(
 		w,
 		linkContext{
 			page:        ctx.DocumentContext().Document,
@@ -173,9 +192,31 @@ func (r *linkRenderer) renderImage(w util.BufWriter, source []byte, node ast.Nod
 
 }
 
-func (r *linkRenderer) renderLink(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+// Fall back to the default Goldmark render funcs. Method below borrowed from:
+// https://github.com/yuin/goldmark/blob/b611cd333a492416b56aa8d94b04a67bf0096ab2/renderer/html/html.go#L404
+func (r *hookedRenderer) renderDefaultLink(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.Link)
-	var h *hooks.Render
+	if entering {
+		_, _ = w.WriteString("<a href=\"")
+		if r.Unsafe || !html.IsDangerousURL(n.Destination) {
+			_, _ = w.Write(util.EscapeHTML(util.URLEscape(n.Destination, true)))
+		}
+		_ = w.WriteByte('"')
+		if n.Title != nil {
+			_, _ = w.WriteString(` title="`)
+			r.Writer.Write(w, n.Title)
+			_ = w.WriteByte('"')
+		}
+		_ = w.WriteByte('>')
+	} else {
+		_, _ = w.WriteString("</a>")
+	}
+	return ast.WalkContinue, nil
+}
+
+func (r *hookedRenderer) renderLink(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*ast.Link)
+	var h *hooks.Renderers
 
 	ctx, ok := w.(*renderContext)
 	if ok {
@@ -196,7 +237,7 @@ func (r *linkRenderer) renderLink(w util.BufWriter, source []byte, node ast.Node
 	text := ctx.Buffer.Bytes()[ctx.pos:]
 	ctx.Buffer.Truncate(ctx.pos)
 
-	err := h.LinkRenderer.Render(
+	err := h.LinkRenderer.RenderLink(
 		w,
 		linkContext{
 			page:        ctx.DocumentContext().Document,
@@ -210,7 +251,66 @@ func (r *linkRenderer) renderLink(w util.BufWriter, source []byte, node ast.Node
 	ctx.AddIdentity(h.LinkRenderer.GetIdentity())
 
 	return ast.WalkContinue, err
+}
 
+func (r *hookedRenderer) renderDefaultHeading(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*ast.Heading)
+	if entering {
+		_, _ = w.WriteString("<h")
+		_ = w.WriteByte("0123456"[n.Level])
+		if n.Attributes() != nil {
+			r.RenderAttributes(w, node)
+		}
+		_ = w.WriteByte('>')
+	} else {
+		_, _ = w.WriteString("</h")
+		_ = w.WriteByte("0123456"[n.Level])
+		_, _ = w.WriteString(">\n")
+	}
+	return ast.WalkContinue, nil
+}
+
+func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*ast.Heading)
+	var h *hooks.Renderers
+
+	ctx, ok := w.(*renderContext)
+	if ok {
+		h = ctx.RenderContext().RenderHooks
+		ok = h != nil && h.HeadingRenderer != nil
+	}
+
+	if !ok {
+		return r.renderDefaultHeading(w, source, node, entering)
+	}
+
+	if entering {
+		// Store the current pos so we can capture the rendered text.
+		ctx.pos = ctx.Buffer.Len()
+		return ast.WalkContinue, nil
+	}
+
+	text := ctx.Buffer.Bytes()[ctx.pos:]
+	ctx.Buffer.Truncate(ctx.pos)
+	// All ast.Heading nodes are guaranteed to have an attribute called "id"
+	// that is an array of bytes that encode a valid string.
+	anchori, _ := n.AttributeString("id")
+	anchor := anchori.([]byte)
+
+	err := h.HeadingRenderer.RenderHeading(
+		w,
+		headingContext{
+			page:      ctx.DocumentContext().Document,
+			level:     n.Level,
+			anchor:    string(anchor),
+			text:      string(text),
+			plainText: string(n.Text(source)),
+		},
+	)
+
+	ctx.AddIdentity(h.HeadingRenderer.GetIdentity())
+
+	return ast.WalkContinue, err
 }
 
 type links struct {

@@ -375,48 +375,54 @@ func (ps *pageState) initCommonProviders(pp pagePaths) error {
 	return nil
 }
 
-func (p *pageState) createRenderHooks(f output.Format) (*hooks.Render, error) {
-
+func (p *pageState) createRenderHooks(f output.Format) (*hooks.Renderers, error) {
 	layoutDescriptor := p.getLayoutDescriptor()
 	layoutDescriptor.RenderingHook = true
 	layoutDescriptor.LayoutOverride = false
 	layoutDescriptor.Layout = ""
 
+	var renderers hooks.Renderers
+
 	layoutDescriptor.Kind = "render-link"
-	linkTempl, linkTemplFound, err := p.s.Tmpl().LookupLayout(layoutDescriptor, f)
+	templ, templFound, err := p.s.Tmpl().LookupLayout(layoutDescriptor, f)
 	if err != nil {
 		return nil, err
+	}
+	if templFound {
+		renderers.LinkRenderer = hookRenderer{
+			templateHandler: p.s.Tmpl(),
+			Provider:        templ.(tpl.Info),
+			templ:           templ,
+		}
 	}
 
 	layoutDescriptor.Kind = "render-image"
-	imgTempl, imgTemplFound, err := p.s.Tmpl().LookupLayout(layoutDescriptor, f)
+	templ, templFound, err = p.s.Tmpl().LookupLayout(layoutDescriptor, f)
 	if err != nil {
 		return nil, err
 	}
-
-	var linkRenderer hooks.LinkRenderer
-	var imageRenderer hooks.LinkRenderer
-
-	if linkTemplFound {
-		linkRenderer = contentLinkRenderer{
+	if templFound {
+		renderers.ImageRenderer = hookRenderer{
 			templateHandler: p.s.Tmpl(),
-			Provider:        linkTempl.(tpl.Info),
-			templ:           linkTempl,
+			Provider:        templ.(tpl.Info),
+			templ:           templ,
 		}
 	}
 
-	if imgTemplFound {
-		imageRenderer = contentLinkRenderer{
+	layoutDescriptor.Kind = "render-heading"
+	templ, templFound, err = p.s.Tmpl().LookupLayout(layoutDescriptor, f)
+	if err != nil {
+		return nil, err
+	}
+	if templFound {
+		renderers.HeadingRenderer = hookRenderer{
 			templateHandler: p.s.Tmpl(),
-			Provider:        imgTempl.(tpl.Info),
-			templ:           imgTempl,
+			Provider:        templ.(tpl.Info),
+			templ:           templ,
 		}
 	}
 
-	return &hooks.Render{
-		LinkRenderer:  linkRenderer,
-		ImageRenderer: imageRenderer,
-	}, nil
+	return &renderers, nil
 }
 
 func (p *pageState) getLayoutDescriptor() output.LayoutDescriptor {

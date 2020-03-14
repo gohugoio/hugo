@@ -1650,14 +1650,20 @@ var infoOnMissingLayout = map[string]bool{
 	"404": true,
 }
 
-type contentLinkRenderer struct {
+// hookRenderer is the canonical implementation of all hooks.ITEMRenderer,
+// where ITEM is the thing being hooked.
+type hookRenderer struct {
 	templateHandler tpl.TemplateHandler
 	identity.Provider
 	templ tpl.Template
 }
 
-func (r contentLinkRenderer) Render(w io.Writer, ctx hooks.LinkContext) error {
-	return r.templateHandler.Execute(r.templ, w, ctx)
+func (hr hookRenderer) RenderLink(w io.Writer, ctx hooks.LinkContext) error {
+	return hr.templateHandler.Execute(hr.templ, w, ctx)
+}
+
+func (hr hookRenderer) RenderHeading(w io.Writer, ctx hooks.HeadingContext) error {
+	return hr.templateHandler.Execute(hr.templ, w, ctx)
 }
 
 func (s *Site) renderForTemplate(name, outputFormat string, d interface{}, w io.Writer, templ tpl.Template) (err error) {
