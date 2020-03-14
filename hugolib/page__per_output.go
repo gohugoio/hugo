@@ -245,7 +245,7 @@ type pageContentOutput struct {
 	placeholdersEnabledInit sync.Once
 
 	// May be nil.
-	renderHooks *hooks.Render
+	renderHooks *hooks.Renderers
 	// Set if there are more than one output format variant
 	renderHooksHaveVariants bool // TODO(bep) reimplement this in another way, consolidate with shortcodes
 

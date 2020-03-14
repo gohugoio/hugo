@@ -27,13 +27,41 @@ type LinkContext interface {
 	PlainText() string
 }
 
-type Render struct {
-	LinkRenderer  LinkRenderer
-	ImageRenderer LinkRenderer
+type LinkRenderer interface {
+	RenderLink(w io.Writer, ctx LinkContext) error
+	identity.Provider
 }
 
-func (r *Render) Eq(other interface{}) bool {
-	ro, ok := other.(*Render)
+// HeadingContext contains accessors to all attributes that a HeadingRenderer
+// can use to render a heading.
+type HeadingContext interface {
+	// Page is the page containing the heading.
+	Page() interface{}
+	// Level is the level of the header (i.e. 1 for top-level, 2 for sub-level, etc.).
+	Level() int
+	// Anchor is the HTML id assigned to the heading.
+	Anchor() string
+	// Text is the rendered (HTML) heading text, excluding the heading marker.
+	Text() string
+	// PlainText is the unrendered version of Text.
+	PlainText() string
+}
+
+// HeadingRenderer describes a uniquely identifiable rendering hook.
+type HeadingRenderer interface {
+	// Render writes the renderered content to w using the data in w.
+	RenderHeading(w io.Writer, ctx HeadingContext) error
+	identity.Provider
+}
+
+type Renderers struct {
+	LinkRenderer    LinkRenderer
+	ImageRenderer   LinkRenderer
+	HeadingRenderer HeadingRenderer
+}
+
+func (r *Renderers) Eq(other interface{}) bool {
+	ro, ok := other.(*Renderers)
 	if !ok {
 		return false
 	}
@@ -49,10 +77,9 @@ func (r *Render) Eq(other interface{}) bool {
 		return false
 	}
 
-	return true
-}
+	if r.HeadingRenderer.GetIdentity() != ro.HeadingRenderer.GetIdentity() {
+		return false
+	}
 
-type LinkRenderer interface {
-	Render(w io.Writer, ctx LinkContext) error
-	identity.Provider
+	return true
 }
