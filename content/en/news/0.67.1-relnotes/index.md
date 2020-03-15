@@ -2,7 +2,7 @@
 ---
 date: 2020-03-15
 title: "Hugo 0.67.1: A couple of Bug Fixes"
-description: "This version fixes a couple of bugs introduced in 0.67.0."
+description: "This version comes with some useful bug fixes."
 categories: ["Releases"]
 images:
 - images/blog/hugo-bug-poster.png
@@ -11,7 +11,7 @@ images:
 
 	
 
-This is a bug-fix release with a couple of important fixes.
+Some minor fixes:
 
 * metrics: Fix --templateMetricsHints [5eadc4c0](https://github.com/gohugoio/hugo/commit/5eadc4c0a8e5c51e72670591c4b7877e79c15e3c) [@bep](https://github.com/bep) [#7048](https://github.com/gohugoio/hugo/issues/7048)
 * resources: Add data context to the key in ExecuteAsTemplate [18cb21ff](https://github.com/gohugoio/hugo/commit/18cb21ff2e4a60e7094908e4d6113a9d5a086316) [@bep](https://github.com/bep) [#7046](https://github.com/gohugoio/hugo/issues/7046)
