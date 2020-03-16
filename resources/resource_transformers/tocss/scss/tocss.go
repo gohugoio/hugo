@@ -65,7 +65,6 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	// We add the entry directories for both project and themes to the include paths list, but
 	// that only work for overrides on the top level.
 	options.to.ImportResolver = func(url string, prev string) (newUrl string, body string, resolved bool) {
-
 		// We get URL paths from LibSASS, but we need file paths.
 		url = filepath.FromSlash(url)
 		prev = filepath.FromSlash(prev)
@@ -170,12 +169,26 @@ func (c *Client) toCSS(options libsass.Options, dst io.Writer, src io.Reader) (l
 	}
 
 	in := helpers.ReaderToString(src)
+
+	// See https://github.com/gohugoio/hugo/issues/7059
+	// We need to preserver the regular CSS imports. This is by far
+	// a perfect solution, and only works for the main entry file, but
+	// that should cover many use cases, e.g. using SCSS as a preprocessor
+	// for Tailwind.
+	var importsReplaced bool
+	in, importsReplaced = replaceRegularImportsIn(in)
+
 	res, err = transpiler.Execute(in)
 	if err != nil {
 		return res, errors.Wrap(err, "SCSS processing failed")
 	}
 
-	_, err = io.WriteString(dst, res.CSS)
+	out := res.CSS
+	if importsReplaced {
+		out = replaceRegularImportsOut(out)
+	}
+
+	_, err = io.WriteString(dst, out)
 
 	return res, err
 }
