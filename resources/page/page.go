@@ -64,6 +64,10 @@ type ChildCareProvider interface {
 	// use RegularPages.
 	RegularPages() Pages
 
+	// RegularPagesRecursive returns all regular pages below the current
+	// section.
+	RegularPagesRecursive() Pages
+
 	Resources() resource.Resources
 }
 

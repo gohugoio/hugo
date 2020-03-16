@@ -364,6 +364,10 @@ func (p *testPage) RegularPages() Pages {
 	panic("not implemented")
 }
 
+func (p *testPage) RegularPagesRecursive() Pages {
+	panic("not implemented")
+}
+
 func (p *testPage) Paginate(seq interface{}, options ...interface{}) (*Pager, error) {
 	return nil, nil
 }

@@ -171,12 +171,38 @@ func (p *pageState) getPages() page.Pages {
 	return b.getPages()
 }
 
+func (p *pageState) getPagesRecursive() page.Pages {
+	b := p.bucket
+	if b == nil {
+		return nil
+	}
+	return b.getPagesRecursive()
+}
+
 func (p *pageState) getPagesAndSections() page.Pages {
 	b := p.bucket
 	if b == nil {
 		return nil
 	}
 	return b.getPagesAndSections()
+}
+
+func (p *pageState) RegularPagesRecursive() page.Pages {
+	p.regularPagesRecursiveInit.Do(func() {
+		var pages page.Pages
+		switch p.Kind() {
+		case page.KindSection:
+			pages = p.getPagesRecursive()
+		default:
+			pages = p.RegularPages()
+		}
+		p.regularPagesRecursive = pages
+	})
+	return p.regularPagesRecursive
+}
+
+func (p *pageState) PagesRecursive() page.Pages {
+	return nil
 }
 
 func (p *pageState) RegularPages() page.Pages {

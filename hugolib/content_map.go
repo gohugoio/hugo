@@ -941,6 +941,19 @@ func (c *contentTreeRef) collectPages() page.Pages {
 	return pas
 }
 
+func (c *contentTreeRef) collectPagesRecursive() page.Pages {
+	var pas page.Pages
+	c.m.collectPages(c.key+cmBranchSeparator, func(c *contentNode) {
+		pas = append(pas, c.p)
+	})
+	c.m.collectPages(c.key+"/", func(c *contentNode) {
+		pas = append(pas, c.p)
+	})
+	page.SortByDefault(pas)
+
+	return pas
+}
+
 func (c *contentTreeRef) collectPagesAndSections() page.Pages {
 	var pas page.Pages
 	c.m.collectPagesAndSections(c.key, func(c *contentNode) {
