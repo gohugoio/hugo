@@ -139,6 +139,8 @@ type pagePages struct {
 	pagesInit sync.Once
 	pages     page.Pages
 
-	regularPagesInit sync.Once
-	regularPages     page.Pages
+	regularPagesInit          sync.Once
+	regularPages              page.Pages
+	regularPagesRecursiveInit sync.Once
+	regularPagesRecursive     page.Pages
 }

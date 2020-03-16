@@ -803,6 +803,12 @@ func (b *pagesMapBucket) getPages() page.Pages {
 	return b.pages
 }
 
+func (b *pagesMapBucket) getPagesRecursive() page.Pages {
+	pages := b.owner.treeRef.collectPagesRecursive()
+	page.SortByDefault(pages)
+	return pages
+}
+
 func (b *pagesMapBucket) getPagesAndSections() page.Pages {
 	b.pagesAndSectionsInit.Do(func() {
 		b.pagesAndSections = b.owner.treeRef.collectPagesAndSections()

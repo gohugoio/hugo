@@ -383,3 +383,42 @@ func TestShouldDoSimpleLookup(t *testing.T) {
 	c.Assert(shouldDoSimpleLookup("docs/foo.md"), qt.Equals, false)
 
 }
+
+func TestRegularPagesRecursive(t *testing.T) {
+	b := newTestSitesBuilder(t)
+
+	b.WithConfigFile("yaml", `
+baseURL: "http://example.org/"
+title: "My New Hugo Site"
+
+`)
+
+	b.WithContent(
+		"docs/1.md", "\n---title: docs1\n---",
+		"docs/sect1/_index.md", "\n---title: docs_sect1\n---",
+		"docs/sect1/ps1.md", "\n---title: docs_sect1_ps1\n---",
+		"docs/sect1/ps2.md", "\n---title: docs_sect1_ps2\n---",
+		"docs/sect1/sect1_s2/_index.md", "\n---title: docs_sect1_s2\n---",
+		"docs/sect1/sect1_s2/ps2_1.md", "\n---title: docs_sect1_s2_1\n---",
+		"docs/sect2/_index.md", "\n---title: docs_sect2\n---",
+		"docs/sect2/ps1.md", "\n---title: docs_sect2_ps1\n---",
+		"docs/sect2/ps2.md", "\n---title: docs_sect2_ps2\n---",
+		"news/1.md", "\n---title: news1\n---",
+	)
+
+	b.WithTemplates("index.html", `
+{{ $sect1 := site.GetPage "sect1" }}
+
+Sect1 RegularPagesRecursive: {{ range $sect1.RegularPagesRecursive }}{{ .Kind }}:{{ .RelPermalink}}|{{ end }}|End.
+
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", `
+Sect1 RegularPagesRecursive: page:/docs/sect1/ps1/|page:/docs/sect1/ps2/|page:/docs/sect1/sect1_s2/ps2_1/||End.
+
+
+`)
+
+}

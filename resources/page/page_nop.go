@@ -294,6 +294,10 @@ func (p *nopPage) RegularPages() Pages {
 	return nil
 }
 
+func (p *nopPage) RegularPagesRecursive() Pages {
+	return nil
+}
+
 func (p *nopPage) Paginate(seq interface{}, options ...interface{}) (*Pager, error) {
 	return nil, nil
 }
