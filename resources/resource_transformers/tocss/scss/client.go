@@ -14,6 +14,8 @@
 package scss
 
 import (
+	"regexp"
+
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugolib/filesystems"
 	"github.com/gohugoio/hugo/resources"
@@ -71,4 +73,18 @@ func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
 	}
 
 	return
+}
+
+var (
+	regularCSSImportTo   = regexp.MustCompile(`.*(@import "(.*.css)";).*`)
+	regularCSSImportFrom = regexp.MustCompile(`.*(\/\* HUGO_IMPORT_START (.*) HUGO_IMPORT_END \*\/).*`)
+)
+
+func replaceRegularImportsIn(s string) (string, bool) {
+	replaced := regularCSSImportTo.ReplaceAllString(s, "/* HUGO_IMPORT_START $2 HUGO_IMPORT_END */")
+	return replaced, s != replaced
+}
+
+func replaceRegularImportsOut(s string) string {
+	return regularCSSImportFrom.ReplaceAllString(s, "@import \"$2\";")
 }

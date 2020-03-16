@@ -87,6 +87,69 @@ T1: {{ $r.Content }}
 
 }
 
+func TestSCSSWithRegularCSSImport(t *testing.T) {
+	if !scss.Supports() {
+		t.Skip("Skip SCSS")
+	}
+	c := qt.New(t)
+	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-scss-include")
+	c.Assert(err, qt.IsNil)
+	defer clean()
+
+	v := viper.New()
+	v.Set("workingDir", workDir)
+	b := newTestSitesBuilder(t).WithLogger(loggers.NewErrorLogger())
+	// Need to use OS fs for this.
+	b.Fs = hugofs.NewDefault(v)
+	b.WithWorkingDir(workDir)
+	b.WithViper(v)
+
+	scssDir := filepath.Join(workDir, "assets", "scss")
+	c.Assert(os.MkdirAll(filepath.Join(workDir, "content", "sect"), 0777), qt.IsNil)
+	c.Assert(os.MkdirAll(filepath.Join(workDir, "data"), 0777), qt.IsNil)
+	c.Assert(os.MkdirAll(filepath.Join(workDir, "i18n"), 0777), qt.IsNil)
+	c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "shortcodes"), 0777), qt.IsNil)
+	c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "_default"), 0777), qt.IsNil)
+	c.Assert(os.MkdirAll(filepath.Join(scssDir), 0777), qt.IsNil)
+
+	b.WithSourceFile(filepath.Join(scssDir, "_moo.scss"), `
+$moolor: #fff;
+
+moo {
+  color: $moolor;
+}
+`)
+
+	b.WithSourceFile(filepath.Join(scssDir, "main.scss"), `
+@import "moo";
+@import "regular.css";
+@import "moo";
+@import "another.css";
+
+/* foo */
+`)
+
+	b.WithTemplatesAdded("index.html", `
+{{ $r := resources.Get "scss/main.scss" |  toCSS  }}
+T1: {{ $r.Content | safeHTML }}
+`)
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), `
+ T1: moo {
+ color: #fff; }
+
+@import "regular.css";
+moo {
+ color: #fff; }
+
+@import "another.css";
+/* foo */
+        
+`)
+
+}
+
 func TestSCSSWithThemeOverrides(t *testing.T) {
 	if !scss.Supports() {
 		t.Skip("Skip SCSS")
