@@ -76,7 +76,7 @@ func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
 }
 
 var (
-	regularCSSImportTo   = regexp.MustCompile(`.*(@import "(.*.css)";).*`)
+	regularCSSImportTo   = regexp.MustCompile(`.*(@import "(.*\.css)";).*`)
 	regularCSSImportFrom = regexp.MustCompile(`.*(\/\* HUGO_IMPORT_START (.*) HUGO_IMPORT_END \*\/).*`)
 )
 

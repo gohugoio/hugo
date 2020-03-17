@@ -28,6 +28,7 @@ func TestReplaceRegularCSSImports(t *testing.T) {
 @import "regular.css";
 @import "moo";
 @import "another.css";
+@import "foo.scss";
 
 /* foo */`
 
@@ -37,7 +38,7 @@ func TestReplaceRegularCSSImports(t *testing.T) {
 
 	res, replaced := replaceRegularImportsIn(scssWithImport)
 	c.Assert(replaced, qt.Equals, true)
-	c.Assert(res, qt.Equals, "\n\t\n@import \"moo\";\n/* HUGO_IMPORT_START regular.css HUGO_IMPORT_END */\n@import \"moo\";\n/* HUGO_IMPORT_START another.css HUGO_IMPORT_END */\n\n/* foo */")
+	c.Assert(res, qt.Equals, "\n\t\n@import \"moo\";\n/* HUGO_IMPORT_START regular.css HUGO_IMPORT_END */\n@import \"moo\";\n/* HUGO_IMPORT_START another.css HUGO_IMPORT_END */\n@import \"foo.scss\";\n\n/* foo */")
 
 	res2, replaced2 := replaceRegularImportsIn(scssWithoutImport)
 	c.Assert(replaced2, qt.Equals, false)
