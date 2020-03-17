@@ -141,7 +141,7 @@ func (p *pageState) GetTerms(taxonomy string) page.Pages {
 	if p.IsHome() {
 		// TODO(bep) make this less magical, see taxonomyEntries.Insert.
 		self = "/" + page.KindHome
-	} else {
+	} else if p.treeRef != nil {
 		self = p.treeRef.key
 	}
 
