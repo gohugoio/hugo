@@ -160,12 +160,14 @@ show_comments: false
 Any node or section can pass down to descendents a set of Front Matter values as long as defined underneath the reserved `cascade` Front Matter key.
 
 ### Example
-```yaml
-# content/blog/_index.md
+
+In `content/blog/_index.md`
+
+{{< code-toggle copy="false" >}}
 title: Blog
 cascade:
   banner: images/typewriter.jpg
-```
+{{</ code-toggle >}}
 
 With the above example the Blog section page and its descendents will return `images/typewriter.jpg` when `.Params.banner` is invoked unless:
 
