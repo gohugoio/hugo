@@ -625,7 +625,9 @@ Category Paginator {{ range $categories.Paginator.Pages }}{{ .RelPermalink }}|{{
 Cats Paginator {{ range $cats.Paginator.Pages }}{{ .RelPermalink }}|{{ end }}:END
 
 `)
-
+	b.WithTemplatesAdded("404.html", `
+404 Terms: {{ range .GetTerms "categories" }}{{.RelPermalink }}|{{ end }}:END
+	`)
 	b.Build(BuildCfg{})
 
 	cat := b.GetPage("categories")
@@ -647,7 +649,7 @@ Home Terms: /categories/dogs/|/categories/gorillas/|:END
 Cats Paginator /section/p1/|/section/|:END
 Category Paginator /categories/birds/|/categories/cats/|/categories/dogs/|/categories/funny/|/categories/gorillas/|:END
 `)
-
+	b.AssertFileContent("public/404.html", "\n404 Terms: :END\n\t")
 	b.AssertFileContent("public/categories/funny/index.xml", `<link>http://example.com/section/p1/</link>`)
 	b.AssertFileContent("public/categories/index.xml", `<link>http://example.com/categories/funny/</link>`)
 
