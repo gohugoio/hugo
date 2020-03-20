@@ -54,7 +54,7 @@ In the configuration file for your site, add a `[deployment]` section with one
 or more `[[deployment.targets]]` section, one for each deployment target. Here's
 a detailed example:
 
-```
+```toml
 [deployment]
 # By default, files are uploaded in an arbitrary order.
 # Files that match the regular expressions in the "Order" list
@@ -116,7 +116,8 @@ gzip = true
 ## Deploy
 
 To deploy to a target:
-```
+
+```bash
 hugo deploy [--target=<target name>, defaults to first target]
 ```
 

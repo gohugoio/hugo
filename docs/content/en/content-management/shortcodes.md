@@ -333,7 +333,7 @@ Using the preceding `tweet` example, the following simulates the displayed exper
 
 ### `vimeo`
 
-Adding a video from [Vimeo][] is equivalent to the YouTube shortcode above.
+Adding a video from [Vimeo][] is equivalent to the [YouTube Input shortcode][].
 
 ```
 https://vimeo.com/channels/staffpicks/146022717
@@ -431,3 +431,4 @@ To learn more about creating custom shortcodes, see the [shortcode template docu
 [templatessection]: /templates/
 [Vimeo]: https://vimeo.com/
 [YouTube Videos]: https://www.youtube.com/
+[YouTube Input shortcode]: #youtube
