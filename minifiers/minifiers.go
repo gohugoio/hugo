@@ -30,6 +30,9 @@ import (
 
 // Client wraps a minifier.
 type Client struct {
+	// Whether output minification is enabled (HTML in /public)
+	MinifyOutput bool
+
 	m *minify.M
 }
 
@@ -62,30 +65,30 @@ func New(mediaTypes media.Types, outputFormats output.Formats, cfg config.Provid
 
 	m := minify.New()
 	if err != nil {
-		return Client{m: m}, err
+		return Client{}, err
 	}
 
 	// We use the Type definition of the media types defined in the site if found.
-	if conf.EnableCSS {
+	if !conf.DisableCSS {
 		addMinifier(m, mediaTypes, "css", &conf.Tdewolff.CSS)
 	}
-	if conf.EnableJS {
+	if !conf.DisableJS {
 		addMinifier(m, mediaTypes, "js", &conf.Tdewolff.JS)
 		m.AddRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), &conf.Tdewolff.JS)
 	}
-	if conf.EnableJSON {
+	if !conf.DisableJSON {
 		addMinifier(m, mediaTypes, "json", &conf.Tdewolff.JSON)
 		m.AddRegexp(regexp.MustCompile(`^(application|text)/(x-|ld\+)?json$`), &conf.Tdewolff.JSON)
 	}
-	if conf.EnableSVG {
+	if !conf.DisableSVG {
 		addMinifier(m, mediaTypes, "svg", &conf.Tdewolff.SVG)
 	}
-	if conf.EnableXML {
+	if !conf.DisableXML {
 		addMinifier(m, mediaTypes, "xml", &conf.Tdewolff.XML)
 	}
 
 	// HTML
-	if conf.EnableHTML {
+	if !conf.DisableHTML {
 		addMinifier(m, mediaTypes, "html", &conf.Tdewolff.HTML)
 		for _, of := range outputFormats {
 			if of.IsHTML {
@@ -94,7 +97,7 @@ func New(mediaTypes media.Types, outputFormats output.Formats, cfg config.Provid
 		}
 	}
 
-	return Client{m: m}, nil
+	return Client{m: m, MinifyOutput: conf.MinifyOutput}, nil
 }
 
 func addMinifier(m *minify.M, mt media.Types, suffix string, min minify.Minifier) {

@@ -231,11 +231,6 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"duplicateTargetPaths",
 	}
 
-	// Will set a value even if it is the default.
-	flagKeysForced := []string{
-		"minify",
-	}
-
 	for _, key := range persFlagKeys {
 		setValueFromFlag(cmd.PersistentFlags(), key, cfg, "", false)
 	}
@@ -243,9 +238,7 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		setValueFromFlag(cmd.Flags(), key, cfg, "", false)
 	}
 
-	for _, key := range flagKeysForced {
-		setValueFromFlag(cmd.Flags(), key, cfg, "", true)
-	}
+	setValueFromFlag(cmd.Flags(), "minify", cfg, "minifyOutput", true)
 
 	// Set some "config aliases"
 	setValueFromFlag(cmd.Flags(), "destination", cfg, "publishDir", false)

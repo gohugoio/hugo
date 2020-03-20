@@ -14,6 +14,7 @@
 package minifiers
 
 import (
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/docshelper"
 	"github.com/gohugoio/hugo/parser"
@@ -61,35 +62,42 @@ type tdewolffConfig struct {
 	XML  xml.Minifier
 }
 
-type minifiersConfig struct {
-	EnableHTML bool
-	EnableCSS  bool
-	EnableJS   bool
-	EnableJSON bool
-	EnableSVG  bool
-	EnableXML  bool
+type minifyConfig struct {
+	// Whether to minify the published output (the HTML written to /public).
+	MinifyOutput bool
+
+	DisableHTML bool
+	DisableCSS  bool
+	DisableJS   bool
+	DisableJSON bool
+	DisableSVG  bool
+	DisableXML  bool
 
 	Tdewolff tdewolffConfig
 }
 
-var defaultConfig = minifiersConfig{
-	EnableHTML: true,
-	EnableCSS:  true,
-	EnableJS:   true,
-	EnableJSON: true,
-	EnableSVG:  true,
-	EnableXML:  true,
-
+var defaultConfig = minifyConfig{
 	Tdewolff: defaultTdewolffConfig,
 }
 
-func decodeConfig(cfg config.Provider) (conf minifiersConfig, err error) {
+func decodeConfig(cfg config.Provider) (conf minifyConfig, err error) {
 	conf = defaultConfig
 
-	m := cfg.GetStringMap("minifiers")
-	if m == nil {
+	// May be set by CLI.
+	conf.MinifyOutput = cfg.GetBool("minifyOutput")
+
+	v := cfg.Get("minify")
+	if v == nil {
 		return
 	}
+
+	// Legacy.
+	if b, ok := v.(bool); ok {
+		conf.MinifyOutput = b
+		return
+	}
+
+	m := maps.ToStringMap(v)
 
 	err = mapstructure.WeakDecode(m, &conf)
 
@@ -101,11 +109,8 @@ func decodeConfig(cfg config.Provider) (conf minifiersConfig, err error) {
 }
 
 func init() {
-	docsProvider := func() map[string]interface{} {
-		docs := make(map[string]interface{})
-		docs["minifiers"] = parser.LowerCaseCamelJSONMarshaller{Value: defaultConfig}
-		return docs
-
+	docsProvider := func() docshelper.DocProvider {
+		return docshelper.DocProvider{"config": map[string]interface{}{"minify": parser.LowerCaseCamelJSONMarshaller{Value: defaultConfig}}}
 	}
-	docshelper.AddDocProvider("config", docsProvider)
+	docshelper.AddDocProviderFunc(docsProvider)
 }

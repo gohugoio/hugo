@@ -68,21 +68,16 @@ type Descriptor struct {
 // DestinationPublisher is the default and currently only publisher in Hugo. This
 // publisher prepares and publishes an item to the defined destination, e.g. /public.
 type DestinationPublisher struct {
-	fs     afero.Fs
-	minify bool
-	min    minifiers.Client
+	fs  afero.Fs
+	min minifiers.Client
 }
 
 // NewDestinationPublisher creates a new DestinationPublisher.
 func NewDestinationPublisher(fs afero.Fs, outputFormats output.Formats, mediaTypes media.Types, cfg config.Provider) (pub DestinationPublisher, err error) {
 	pub = DestinationPublisher{fs: fs}
-	minify := cfg.GetBool("minify")
-	if minify {
-		pub.min, err = minifiers.New(mediaTypes, outputFormats, cfg)
-		if err != nil {
-			return
-		}
-		pub.minify = true
+	pub.min, err = minifiers.New(mediaTypes, outputFormats, cfg)
+	if err != nil {
+		return
 	}
 	return
 }
@@ -155,7 +150,7 @@ func (p DestinationPublisher) createTransformerChain(f Descriptor) transform.Cha
 
 	}
 
-	if p.minify {
+	if p.min.MinifyOutput {
 		minifyTransformer := p.min.Transformer(f.OutputFormat.MediaType)
 		if minifyTransformer != nil {
 			transformers = append(transformers, minifyTransformer)

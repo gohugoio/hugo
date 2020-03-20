@@ -1415,7 +1415,7 @@
       "goldmark": {
         "renderer": {
           "hardWraps": false,
-          "xHTML": false,
+          "xhtml": false,
           "unsafe": false
         },
         "parser": {
@@ -1452,14 +1452,15 @@
         "footnoteReturnLinkContents": ""
       }
     },
-    "minifiers": {
+    "minify": {
+      "minifyOutput": false,
+      "disableHTML": false,
+      "disableCSS": false,
+      "disableJS": false,
+      "disableJSON": false,
+      "disableSVG": false,
+      "disableXML": false,
       "tdewolff": {
-        "enableHtml": true,
-        "enableCss": true,
-        "enableJs": true,
-        "enableJson": true,
-        "enableSvg": true,
-        "enableXml": true,
         "html": {
           "keepConditionalComments": true,
           "keepDefaultAttrVals": true,
