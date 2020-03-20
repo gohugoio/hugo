@@ -66,7 +66,26 @@ title: Headless
 headless: true
 ---
 
-`)
+
+`, "headless-local/_index.md", `
+---
+title: Headless Local Lists
+cascade:
+    _build:
+        render: false
+        list: local
+        publishResources: false
+---
+
+`, "headless-local/headless-local-page.md", "---\ntitle: Headless Local Page\n---",
+			"headless-local/sub/_index.md", `
+---
+title: Headless Local Lists Sub
+---
+
+`, "headless-local/sub/headless-local-sub-page.md", "---\ntitle: Headless Local Sub Page\n---",
+		)
+
 		b.WithSourceFile("content/sect/headlessbundle/data.json", "DATA")
 		b.WithSourceFile("content/sect/no-publishresources/data.json", "DATA")
 
@@ -93,8 +112,11 @@ headless: true
 		return nil
 	}
 
-	getPageInPagePages := func(p page.Page, ref string) page.Page {
-		for _, pages := range []page.Pages{p.Pages(), p.RegularPages(), p.Sections()} {
+	getPageInPagePages := func(p page.Page, ref string, pageCollections ...page.Pages) page.Page {
+		if len(pageCollections) == 0 {
+			pageCollections = []page.Pages{p.Pages(), p.RegularPages(), p.RegularPagesRecursive(), p.Sections()}
+		}
+		for _, pages := range pageCollections {
 			for _, p := range pages {
 				if ref == p.(*pageState).sourceRef() {
 					return p
@@ -238,6 +260,33 @@ headless: true
 		sect := getPage(b, "/sect")
 		b.Assert(getPageInPagePages(sect, ref), qt.IsNil)
 
+	})
+
+	c.Run("Build config, local list", func(c *qt.C) {
+		b := newSitesBuilder(c, disableKind)
+		b.Build(BuildCfg{})
+		ref := "/headless-local"
+		sect := getPage(b, ref)
+		b.Assert(sect, qt.Not(qt.IsNil))
+		b.Assert(getPageInSitePages(b, ref), qt.IsNil)
+		b.Assert(getPageInSitePages(b, ref+"/headless-local-page"), qt.IsNil)
+		for i, p := range sect.RegularPages() {
+			fmt.Println("REG", i, p.(*pageState).sourceRef())
+		}
+
+		localPageRef := ref + "/headless-local-page.md"
+
+		b.Assert(getPageInPagePages(sect, localPageRef, sect.RegularPages()), qt.Not(qt.IsNil))
+		b.Assert(getPageInPagePages(sect, localPageRef, sect.RegularPagesRecursive()), qt.Not(qt.IsNil))
+		b.Assert(getPageInPagePages(sect, localPageRef, sect.Pages()), qt.Not(qt.IsNil))
+
+		ref = "/headless-local/sub"
+
+		sect = getPage(b, ref)
+		b.Assert(sect, qt.Not(qt.IsNil))
+
+		localPageRef = ref + "/headless-local-sub-page.md"
+		b.Assert(getPageInPagePages(sect, localPageRef), qt.Not(qt.IsNil))
 	})
 
 	c.Run("Build config, no render", func(c *qt.C) {

@@ -1021,7 +1021,7 @@ func printStringIndexes(s string) {
 }
 
 func isCI() bool {
-	return os.Getenv("CI") != "" && os.Getenv("CIRCLE_BRANCH") == ""
+	return (os.Getenv("CI") != "" || os.Getenv("CI_LOCAL") != "") && os.Getenv("CIRCLE_BRANCH") == ""
 }
 
 // See https://github.com/golang/go/issues/19280

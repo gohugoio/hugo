@@ -789,6 +789,12 @@ func (t contentTrees) DeletePrefix(prefix string) int {
 
 type contentTreeNodeCallback func(s string, n *contentNode) bool
 
+func newContentTreeFilter(fn func(n *contentNode) bool) contentTreeNodeCallback {
+	return func(s string, n *contentNode) bool {
+		return fn(n)
+	}
+}
+
 var (
 	contentTreeNoListFilter = func(s string, n *contentNode) bool {
 		if n.p == nil {
@@ -805,43 +811,36 @@ var (
 	}
 )
 
-func (c *contentTree) WalkPrefixListable(prefix string, fn contentTreeNodeCallback) {
-	c.WalkPrefixFilter(prefix, contentTreeNoListFilter, fn)
-}
+func (c *contentTree) WalkQuery(query pageMapQuery, walkFn contentTreeNodeCallback) {
+	filter := query.Filter
+	if filter == nil {
+		filter = contentTreeNoListFilter
+	}
+	if query.Prefix != "" {
+		c.WalkPrefix(query.Prefix, func(s string, v interface{}) bool {
+			n := v.(*contentNode)
+			if filter != nil && filter(s, n) {
+				return false
+			}
+			return walkFn(s, n)
+		})
 
-func (c *contentTree) WalkPrefixFilter(prefix string, filter, walkFn contentTreeNodeCallback) {
-	c.WalkPrefix(prefix, func(s string, v interface{}) bool {
-		n := v.(*contentNode)
-		if filter(s, n) {
-			return false
-		}
-		return walkFn(s, n)
-	})
-}
+		return
+	}
 
-func (c *contentTree) WalkListable(fn contentTreeNodeCallback) {
-	c.WalkFilter(contentTreeNoListFilter, fn)
-}
-
-func (c *contentTree) WalkFilter(filter, walkFn contentTreeNodeCallback) {
 	c.Walk(func(s string, v interface{}) bool {
 		n := v.(*contentNode)
-		if filter(s, n) {
+		if filter != nil && filter(s, n) {
 			return false
 		}
 		return walkFn(s, n)
 	})
-}
-
-func (c contentTrees) WalkListable(fn contentTreeNodeCallback) {
-	for _, tree := range c {
-		tree.WalkListable(fn)
-	}
 }
 
 func (c contentTrees) WalkRenderable(fn contentTreeNodeCallback) {
+	query := pageMapQuery{Filter: contentTreeNoRenderFilter}
 	for _, tree := range c {
-		tree.WalkFilter(contentTreeNoRenderFilter, fn)
+		tree.WalkQuery(query, fn)
 	}
 }
 
@@ -931,44 +930,73 @@ func (c *contentTreeRef) getSection() (string, *contentNode) {
 	return c.m.getSection(c.key)
 }
 
-func (c *contentTreeRef) collectPages() page.Pages {
+func (c *contentTreeRef) getPages() page.Pages {
 	var pas page.Pages
-	c.m.collectPages(c.key+cmBranchSeparator, func(c *contentNode) {
-		pas = append(pas, c.p)
-	})
+	c.m.collectPages(
+		pageMapQuery{
+			Prefix: c.key + cmBranchSeparator,
+			Filter: c.n.p.m.getListFilter(true),
+		},
+		func(c *contentNode) {
+			pas = append(pas, c.p)
+		},
+	)
 	page.SortByDefault(pas)
 
 	return pas
 }
 
-func (c *contentTreeRef) collectPagesRecursive() page.Pages {
+func (c *contentTreeRef) getPagesRecursive() page.Pages {
 	var pas page.Pages
-	c.m.collectPages(c.key+cmBranchSeparator, func(c *contentNode) {
+
+	query := pageMapQuery{
+		Filter: c.n.p.m.getListFilter(true),
+	}
+
+	query.Prefix = c.key + cmBranchSeparator
+	c.m.collectPages(query, func(c *contentNode) {
 		pas = append(pas, c.p)
 	})
-	c.m.collectPages(c.key+"/", func(c *contentNode) {
+
+	query.Prefix = c.key + "/"
+	c.m.collectPages(query, func(c *contentNode) {
 		pas = append(pas, c.p)
 	})
+
 	page.SortByDefault(pas)
 
 	return pas
 }
 
-func (c *contentTreeRef) collectPagesAndSections() page.Pages {
+func (c *contentTreeRef) getPagesAndSections() page.Pages {
 	var pas page.Pages
-	c.m.collectPagesAndSections(c.key, func(c *contentNode) {
+
+	query := pageMapQuery{
+		Filter: c.n.p.m.getListFilter(true),
+		Prefix: c.key,
+	}
+
+	c.m.collectPagesAndSections(query, func(c *contentNode) {
 		pas = append(pas, c.p)
 	})
+
 	page.SortByDefault(pas)
 
 	return pas
 }
 
-func (c *contentTreeRef) collectSections() page.Pages {
+func (c *contentTreeRef) getSections() page.Pages {
 	var pas page.Pages
-	c.m.collectSections(c.key, func(c *contentNode) {
+
+	query := pageMapQuery{
+		Filter: c.n.p.m.getListFilter(true),
+		Prefix: c.key,
+	}
+
+	c.m.collectSections(query, func(c *contentNode) {
 		pas = append(pas, c.p)
 	})
+
 	page.SortByDefault(pas)
 
 	return pas
