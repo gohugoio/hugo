@@ -10,15 +10,16 @@ import (
 
 // This is is just some helpers used to create some JSON used in the Hugo docs.
 func init() {
-	docsProvider := func() map[string]interface{} {
-		docs := make(map[string]interface{})
-
-		docs["formats"] = DefaultFormats
-		docs["layouts"] = createLayoutExamples()
-		return docs
+	docsProvider := func() docshelper.DocProvider {
+		return docshelper.DocProvider{
+			"output": map[string]interface{}{
+				"formats": DefaultFormats,
+				"layouts": createLayoutExamples(),
+			},
+		}
 	}
 
-	docshelper.AddDocProvider("output", docsProvider)
+	docshelper.AddDocProviderFunc(docsProvider)
 }
 
 func createLayoutExamples() interface{} {

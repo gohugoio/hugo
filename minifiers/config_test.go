@@ -14,7 +14,6 @@
 package minifiers
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/spf13/viper"
@@ -26,8 +25,8 @@ func TestConfig(t *testing.T) {
 	c := qt.New(t)
 	v := viper.New()
 
-	v.Set("minifiers", map[string]interface{}{
-		"enablexml": false,
+	v.Set("minify", map[string]interface{}{
+		"disablexml": true,
 		"tdewolff": map[string]interface{}{
 			"html": map[string]interface{}{
 				"keepwhitespace": false,
@@ -36,9 +35,10 @@ func TestConfig(t *testing.T) {
 	})
 
 	conf, err := decodeConfig(v)
-	fmt.Println(conf)
 
 	c.Assert(err, qt.IsNil)
+
+	c.Assert(conf.MinifyOutput, qt.Equals, false)
 
 	// explicitly set value
 	c.Assert(conf.Tdewolff.HTML.KeepWhitespace, qt.Equals, false)
@@ -47,6 +47,19 @@ func TestConfig(t *testing.T) {
 	c.Assert(conf.Tdewolff.CSS.KeepCSS2, qt.Equals, true)
 
 	// `enable` flags
-	c.Assert(conf.EnableHTML, qt.Equals, true)
-	c.Assert(conf.EnableXML, qt.Equals, false)
+	c.Assert(conf.DisableHTML, qt.Equals, false)
+	c.Assert(conf.DisableXML, qt.Equals, true)
+}
+
+func TestConfigLegacy(t *testing.T) {
+	c := qt.New(t)
+	v := viper.New()
+
+	// This was a bool < Hugo v0.58.
+	v.Set("minify", true)
+
+	conf, err := decodeConfig(v)
+	c.Assert(err, qt.IsNil)
+	c.Assert(conf.MinifyOutput, qt.Equals, true)
+
 }

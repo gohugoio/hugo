@@ -947,3 +947,33 @@ class-in-b {
 	build("never", true)
 
 }
+
+func TestResourceMinifyDisabled(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t).WithConfigFile("toml", `
+baseURL = "https://example.org"
+
+[minify]
+disableXML=true
+
+
+`)
+
+	b.WithContent("page.md", "")
+
+	b.WithSourceFile(
+		"assets/xml/data.xml", "<root>   <foo> asdfasdf </foo> </root>",
+	)
+
+	b.WithTemplates("index.html", `
+{{ $xml := resources.Get "xml/data.xml" | minify | fingerprint }}
+XML: {{ $xml.Content | safeHTML }}|{{ $xml.RelPermalink }}
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", `
+XML: <root>   <foo> asdfasdf </foo> </root>|/xml/data.min.3be4fddd19aaebb18c48dd6645215b822df74701957d6d36e59f203f9c30fd9f.xml
+`)
+}

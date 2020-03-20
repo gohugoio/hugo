@@ -12,8 +12,7 @@ import (
 // This is is just some helpers used to create some JSON used in the Hugo docs.
 func init() {
 
-	docsProvider := func() map[string]interface{} {
-		docs := make(map[string]interface{})
+	docsProvider := func() docshelper.DocProvider {
 
 		var chromaLexers []interface{}
 
@@ -48,11 +47,11 @@ func init() {
 
 			chromaLexers = append(chromaLexers, lexerEntry)
 
-			docs["lexers"] = chromaLexers
 		}
-		return docs
+
+		return docshelper.DocProvider{"chroma": map[string]interface{}{"lexers": chromaLexers}}
 
 	}
 
-	docshelper.AddDocProvider("chroma", docsProvider)
+	docshelper.AddDocProviderFunc(docsProvider)
 }

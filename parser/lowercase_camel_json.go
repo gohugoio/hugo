@@ -14,6 +14,7 @@
 package parser
 
 import (
+	"bytes"
 	"encoding/json"
 	"regexp"
 	"unicode"
@@ -35,6 +36,12 @@ func (c LowerCaseCamelJSONMarshaller) MarshalJSON() ([]byte, error) {
 	converted := keyMatchRegex.ReplaceAllFunc(
 		marshalled,
 		func(match []byte) []byte {
+
+			// Attributes on the form XML, JSON etc.
+			if bytes.Equal(match, bytes.ToUpper(match)) {
+				return bytes.ToLower(match)
+			}
+
 			// Empty keys are valid JSON, only lowercase if we do not have an
 			// empty key.
 			if len(match) > 2 {

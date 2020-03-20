@@ -24,8 +24,7 @@ import (
 
 // This file provides documentation support and is randomly put into this package.
 func init() {
-	docsProvider := func() map[string]interface{} {
-		docs := make(map[string]interface{})
+	docsProvider := func() docshelper.DocProvider {
 		d := &deps.Deps{
 			Cfg:                 viper.New(),
 			Log:                 loggers.NewErrorLogger(),
@@ -41,11 +40,11 @@ func init() {
 
 		}
 
-		docs["funcs"] = namespaces
-		return docs
+		return docshelper.DocProvider{"tpl": map[string]interface{}{"funcs": namespaces}}
+
 	}
 
-	docshelper.AddDocProvider("tpl", docsProvider)
+	docshelper.AddDocProviderFunc(docsProvider)
 }
 
 func newTestConfig() *viper.Viper {
