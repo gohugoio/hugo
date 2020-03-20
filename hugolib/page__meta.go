@@ -460,7 +460,7 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 			isHeadless := cast.ToBool(v)
 			pm.params[loki] = isHeadless
 			if p.File().TranslationBaseName() == "index" && isHeadless {
-				pm.buildConfig.List = false
+				pm.buildConfig.List = pagemeta.Never
 				pm.buildConfig.Render = false
 			}
 		case "outputs":
@@ -613,7 +613,28 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 }
 
 func (p *pageMeta) noList() bool {
-	return !p.buildConfig.List
+	return !p.buildConfig.ShouldList()
+}
+
+func (p *pageMeta) getListFilter(local bool) contentTreeNodeCallback {
+
+	return newContentTreeFilter(func(n *contentNode) bool {
+		if n == nil {
+			return true
+		}
+
+		var shouldList bool
+		switch n.p.m.buildConfig.List {
+		case pagemeta.Always:
+			shouldList = true
+		case pagemeta.Never:
+			shouldList = false
+		case pagemeta.ListLocally:
+			shouldList = local
+		}
+
+		return !shouldList
+	})
 }
 
 func (p *pageMeta) noRender() bool {

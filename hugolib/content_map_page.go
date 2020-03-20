@@ -606,36 +606,47 @@ func (m *pageMap) attachPageToViews(s string, b *contentNode) {
 	}
 }
 
-func (m *pageMap) collectPages(prefix string, fn func(c *contentNode)) error {
-	m.pages.WalkPrefixListable(prefix, func(s string, n *contentNode) bool {
+type pageMapQuery struct {
+	Prefix string
+	Filter contentTreeNodeCallback
+}
+
+func (m *pageMap) collectPages(query pageMapQuery, fn func(c *contentNode)) error {
+	if query.Filter == nil {
+		query.Filter = contentTreeNoListFilter
+	}
+
+	m.pages.WalkQuery(query, func(s string, n *contentNode) bool {
 		fn(n)
 		return false
 	})
-	return nil
-}
-
-func (m *pageMap) collectPagesAndSections(prefix string, fn func(c *contentNode)) error {
-	if err := m.collectSections(prefix, fn); err != nil {
-		return err
-	}
-
-	if err := m.collectPages(prefix+cmBranchSeparator, fn); err != nil {
-		return err
-	}
 
 	return nil
 }
 
-func (m *pageMap) collectSections(prefix string, fn func(c *contentNode)) error {
+func (m *pageMap) collectPagesAndSections(query pageMapQuery, fn func(c *contentNode)) error {
+	if err := m.collectSections(query, fn); err != nil {
+		return err
+	}
+
+	query.Prefix = query.Prefix + cmBranchSeparator
+	if err := m.collectPages(query, fn); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *pageMap) collectSections(query pageMapQuery, fn func(c *contentNode)) error {
 	var level int
-	isHome := prefix == "/"
+	isHome := query.Prefix == "/"
 
 	if !isHome {
-		level = strings.Count(prefix, "/")
+		level = strings.Count(query.Prefix, "/")
 	}
 
-	return m.collectSectionsFn(prefix, func(s string, c *contentNode) bool {
-		if s == prefix {
+	return m.collectSectionsFn(query, func(s string, c *contentNode) bool {
+		if s == query.Prefix {
 			return false
 		}
 
@@ -649,27 +660,28 @@ func (m *pageMap) collectSections(prefix string, fn func(c *contentNode)) error 
 	})
 }
 
-func (m *pageMap) collectSectionsFn(prefix string, fn func(s string, c *contentNode) bool) error {
-	if !strings.HasSuffix(prefix, "/") {
-		prefix += "/"
+func (m *pageMap) collectSectionsFn(query pageMapQuery, fn func(s string, c *contentNode) bool) error {
+
+	if !strings.HasSuffix(query.Prefix, "/") {
+		query.Prefix += "/"
 	}
 
-	m.sections.WalkPrefixListable(prefix, func(s string, n *contentNode) bool {
+	m.sections.WalkQuery(query, func(s string, n *contentNode) bool {
 		return fn(s, n)
 	})
 
 	return nil
 }
 
-func (m *pageMap) collectSectionsRecursiveIncludingSelf(prefix string, fn func(c *contentNode)) error {
-	return m.collectSectionsFn(prefix, func(s string, c *contentNode) bool {
+func (m *pageMap) collectSectionsRecursiveIncludingSelf(query pageMapQuery, fn func(c *contentNode)) error {
+	return m.collectSectionsFn(query, func(s string, c *contentNode) bool {
 		fn(c)
 		return false
 	})
 }
 
 func (m *pageMap) collectTaxonomies(prefix string, fn func(c *contentNode)) error {
-	m.taxonomies.WalkPrefixListable(prefix, func(s string, n *contentNode) bool {
+	m.taxonomies.WalkQuery(pageMapQuery{Prefix: prefix}, func(s string, n *contentNode) bool {
 		fn(n)
 		return false
 	})
@@ -797,21 +809,21 @@ type pagesMapBucket struct {
 
 func (b *pagesMapBucket) getPages() page.Pages {
 	b.pagesInit.Do(func() {
-		b.pages = b.owner.treeRef.collectPages()
+		b.pages = b.owner.treeRef.getPages()
 		page.SortByDefault(b.pages)
 	})
 	return b.pages
 }
 
 func (b *pagesMapBucket) getPagesRecursive() page.Pages {
-	pages := b.owner.treeRef.collectPagesRecursive()
+	pages := b.owner.treeRef.getPagesRecursive()
 	page.SortByDefault(pages)
 	return pages
 }
 
 func (b *pagesMapBucket) getPagesAndSections() page.Pages {
 	b.pagesAndSectionsInit.Do(func() {
-		b.pagesAndSections = b.owner.treeRef.collectPagesAndSections()
+		b.pagesAndSections = b.owner.treeRef.getPagesAndSections()
 	})
 	return b.pagesAndSections
 }
@@ -821,7 +833,7 @@ func (b *pagesMapBucket) getSections() page.Pages {
 		if b.owner.treeRef == nil {
 			return
 		}
-		b.sections = b.owner.treeRef.collectSections()
+		b.sections = b.owner.treeRef.getSections()
 	})
 
 	return b.sections

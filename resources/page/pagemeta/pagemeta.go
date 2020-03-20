@@ -24,8 +24,14 @@ type URLPath struct {
 	Section   string
 }
 
+const (
+	Never       = "never"
+	Always      = "always"
+	ListLocally = "local"
+)
+
 var defaultBuildConfig = BuildConfig{
-	List:             true,
+	List:             Always,
 	Render:           true,
 	PublishResources: true,
 	set:              true,
@@ -35,8 +41,12 @@ var defaultBuildConfig = BuildConfig{
 // build process.
 type BuildConfig struct {
 	// Whether to add it to any of the page collections.
-	// Note that the page can still be found with .Site.GetPage.
-	List bool
+	// Note that the page can always be found with .Site.GetPage.
+	// Valid values: never, always, local.
+	// Setting it to 'local' means they will be available via the local
+	// page collections, e.g. $section.Pages.
+	// Note: before 0.57.2 this was a bool, so we accept those too.
+	List string
 
 	// Whether to render it.
 	Render bool
@@ -51,7 +61,7 @@ type BuildConfig struct {
 
 // Disable sets all options to their off value.
 func (b *BuildConfig) Disable() {
-	b.List = false
+	b.List = Never
 	b.Render = false
 	b.PublishResources = false
 	b.set = true
@@ -61,11 +71,29 @@ func (b BuildConfig) IsZero() bool {
 	return !b.set
 }
 
+func (b *BuildConfig) ShouldList() bool {
+	return b.List == Always || b.List == ListLocally
+}
+
 func DecodeBuildConfig(m interface{}) (BuildConfig, error) {
 	b := defaultBuildConfig
 	if m == nil {
 		return b, nil
 	}
+
 	err := mapstructure.WeakDecode(m, &b)
+
+	// In 0.67.1 we changed the list attribute from a bool to a string (enum).
+	// Bool values will become 0 or 1.
+	switch b.List {
+	case "0":
+		b.List = Never
+	case "1":
+		b.List = Always
+	case Always, Never, ListLocally:
+	default:
+		b.List = Always
+	}
+
 	return b, err
 }

@@ -147,7 +147,7 @@ func (p *pageState) GetTerms(taxonomy string) page.Pages {
 
 	var pas page.Pages
 
-	m.taxonomies.WalkPrefixListable(prefix, func(s string, n *contentNode) bool {
+	m.taxonomies.WalkQuery(pageMapQuery{Prefix: prefix}, func(s string, n *contentNode) bool {
 		if _, found := m.taxonomyEntries.Get(s + self); found {
 			pas = append(pas, n.p)
 		}
