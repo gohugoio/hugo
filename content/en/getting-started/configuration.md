@@ -306,6 +306,44 @@ useResourceCacheWhen="fallback"
 useResourceCacheWhen
 : When to use the cached resources in `/resources/_gen` for PostCSS and ToCSS. Valid values are `never`, `always` and `fallback`. The last value means that the cache will be tried if PostCSS/extended version is not available.
 
+## Configure Server
+
+{{< new-in "0.67.0" >}}
+
+This is only relevant when running `hugo server`, and it allows to set HTTP headers during development, wihch allows you to test out your Content Security Policy and similar. The configuration format matches [Netlify's](https://docs.netlify.com/routing/headers/#syntax-for-the-netlify-configuration-file) with slighly more powerful [Glob matching](https://github.com/gobwas/glob):
+
+
+{{< code-toggle file="config">}}
+[server]
+[[server.headers]]
+for = "/**.html"
+
+[server.headers.values]
+X-Frame-Options = "DENY"
+X-XSS-Protection = "1; mode=block"
+X-Content-Type-Options = "nosniff"
+Referrer-Policy = "strict-origin-when-cross-origin"
+Content-Security-Policy = "script-src localhost:1313"
+{{< /code-toggle >}}
+
+Since this is is "devlopment only", it may make sense to put it below the `development` environment:
+
+
+{{< code-toggle file="config/development/server">}}
+[[headers]]
+for = "/**.html"
+
+[headers.values]
+X-Frame-Options = "DENY"
+X-XSS-Protection = "1; mode=block"
+X-Content-Type-Options = "nosniff"
+Referrer-Policy = "strict-origin-when-cross-origin"
+Content-Security-Policy = "script-src localhost:1313"
+{{< /code-toggle >}}
+
+
+
+
 ## Configure Title Case
 
 Set `titleCaseStyle` to specify the title style used by the [title](/functions/title/) template function and the automatic section titles in Hugo. It defaults to [AP Stylebook](https://www.apstylebook.com/) for title casing, but you can also set it to `Chicago` or `Go` (every word starts with a capital letter).

@@ -305,9 +305,6 @@ Make the directory containing the source your working directory and then fetch H
 mkdir -p src/github.com/gohugoio
 ln -sf $(pwd) src/github.com/gohugoio/hugo
 
-# set the build path for Go
-export GOPATH=$(pwd)
-
 go get
 ```
 
