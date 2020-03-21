@@ -21,7 +21,7 @@ They are stored in a reserved Front Matter object named `_build` with the follow
 ```yaml
 _build:
   render: true
-  list: true
+  list: always
   publishResources: true
 ```
 
@@ -29,6 +29,20 @@ _build:
 If true, the page will be treated as a published page, holding its dedicated output files (`index.html`, etc...) and permalink.
 
 #### list
+
+Note that we extended this property from a boolean to an enum in Hugo 0.58.0.
+
+Valid values are:
+
+never
+: The page will not be incldued in any page collection.
+
+always (default)
+: The page will be included in all page collections, e.g. `site.RegularPages`, `$page.Pages`.
+
+local
+: The page will be included in any _local_ page collection, e.g. `$page.RegularPages`, `$page.Pages`. One use case for this would be to create fully navigable, but headless content sections. {{< new-in "0.58.0" >}}
+
 If true, the page will be treated as part of the project's collections and, when appropriate, returned by Hugo's listing methods (`.Pages`, `.RegularPages` etc...).
 
 #### publishResources
