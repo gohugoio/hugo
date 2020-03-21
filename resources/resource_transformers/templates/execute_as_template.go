@@ -48,7 +48,7 @@ type executeAsTemplateTransform struct {
 }
 
 func (t *executeAsTemplateTransform) Key() internal.ResourceTransformationKey {
-	return internal.NewResourceTransformationKey("execute-as-template", t.targetPath, t.data)
+	return internal.NewResourceTransformationKey("execute-as-template", t.targetPath)
 }
 
 func (t *executeAsTemplateTransform) Transform(ctx *resources.ResourceTransformationCtx) error {
