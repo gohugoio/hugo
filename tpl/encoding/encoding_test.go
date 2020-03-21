@@ -83,17 +83,22 @@ func TestJsonify(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
+		indent []interface{}
 		v      interface{}
 		expect interface{}
 	}{
-		{[]string{"a", "b"}, template.HTML(`["a","b"]`)},
-		{tstNoStringer{}, template.HTML("{}")},
-		{nil, template.HTML("null")},
+		{nil, []string{"a", "b"}, template.HTML(`["a","b"]`)},
+		{[]interface{}{"  "}, []string{"a", "b"}, template.HTML("[\n  \"a\",\n  \"b\"\n]")},
+		{nil, tstNoStringer{}, template.HTML("{}")},
+		{nil, nil, template.HTML("null")},
 		// errors
-		{math.NaN(), false},
+		{nil, math.NaN(), false},
+		{[]interface{}{tstNoStringer{}}, []string{"a", "b"}, false},
 	} {
 
-		result, err := ns.Jsonify(test.v)
+		args := append(test.indent, test.v)
+
+		result, err := ns.Jsonify(args...)
 
 		if b, ok := test.expect.(bool); ok && !b {
 			c.Assert(err, qt.Not(qt.IsNil))

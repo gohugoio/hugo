@@ -48,11 +48,11 @@ func init() {
 			[]string{"jsonify"},
 			[][2]string{
 				{`{{ (slice "A" "B" "C") | jsonify }}`, `["A","B","C"]`},
+				{`{{ (slice "A" "B" "C") | jsonify "  "}}`, "[\n  \"A\",\n  \"B\",\n  \"C\"\n]"},
 			},
 		)
 
 		return ns
-
 	}
 
 	internal.AddTemplateFuncsNamespace(f)

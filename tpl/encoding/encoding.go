@@ -17,6 +17,7 @@ package encoding
 import (
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"html/template"
 
 	"github.com/spf13/cast"
@@ -51,9 +52,32 @@ func (ns *Namespace) Base64Encode(content interface{}) (string, error) {
 	return base64.StdEncoding.EncodeToString([]byte(conv)), nil
 }
 
-// Jsonify encodes a given object to JSON.
-func (ns *Namespace) Jsonify(v interface{}) (template.HTML, error) {
-	b, err := json.Marshal(v)
+// Jsonify encodes a given object to JSON.  To pretty print the JSON, pass an
+// optional first argument of the indent string, such as "  ".
+func (ns *Namespace) Jsonify(args ...interface{}) (template.HTML, error) {
+	var (
+		b   []byte
+		err error
+	)
+
+	switch len(args) {
+	case 0:
+		return "", nil
+	case 1:
+		b, err = json.Marshal(args[0])
+	case 2:
+		var indent string
+
+		indent, err = cast.ToStringE(args[0])
+		if err != nil {
+			break
+		}
+
+		b, err = json.MarshalIndent(args[1], "", indent)
+	default:
+		err = errors.New("too many arguments to jsonify")
+	}
+
 	if err != nil {
 		return "", err
 	}
