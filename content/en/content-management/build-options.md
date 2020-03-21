@@ -43,8 +43,6 @@ always (default)
 local
 : The page will be included in any _local_ page collection, e.g. `$page.RegularPages`, `$page.Pages`. One use case for this would be to create fully navigable, but headless content sections. {{< new-in "0.58.0" >}}
 
-If true, the page will be treated as part of the project's collections and, when appropriate, returned by Hugo's listing methods (`.Pages`, `.RegularPages` etc...).
-
 #### publishResources
 
 If set to true the [Bundle's Resources]({{< relref "content-management/page-bundles" >}}) will be published. 
