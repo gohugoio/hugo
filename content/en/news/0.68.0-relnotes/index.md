@@ -1,8 +1,8 @@
 
 ---
 date: 2020-03-21
-title: "0.68.0"
-description: "0.68.0"
+title: "The Version You Really, Really Want!"
+description: "Hugo 0.68.0 brings minify configuration and fully navigable headless sections."
 categories: ["Releases"]
 ---
 
