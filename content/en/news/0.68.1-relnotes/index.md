@@ -1,7 +1,7 @@
 
 ---
 date: 2020-03-22
-title: "Hugo 0.68.1: 1 but fix"
+title: "Hugo 0.68.1: 1 bug fix"
 description: "This release reverts a change in resources.ExecuteAsTemplate that broke some theme demos."
 categories: ["Releases"]
 images:
