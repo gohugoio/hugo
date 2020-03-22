@@ -797,6 +797,10 @@ type pagesMapBucket struct {
 
 	owner *pageState // The branch node
 
+	*pagesMapBucketPages
+}
+
+type pagesMapBucketPages struct {
 	pagesInit sync.Once
 	pages     page.Pages
 

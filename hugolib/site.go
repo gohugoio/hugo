@@ -1492,6 +1492,9 @@ func (s *Site) resetBuildState(sourceChanged bool) {
 		s.PageCollections = newPageCollections(s.pageMap)
 		s.pageMap.withEveryBundlePage(func(p *pageState) bool {
 			p.pagePages = &pagePages{}
+			if p.bucket != nil {
+				p.bucket.pagesMapBucketPages = &pagesMapBucketPages{}
+			}
 			p.parent = nil
 			p.Scratcher = maps.NewScratcher()
 			return false
