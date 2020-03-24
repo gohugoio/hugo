@@ -304,7 +304,7 @@ func (m *pageMap) createListAllPages() page.Pages {
 		if n.p == nil {
 			panic(fmt.Sprintf("BUG: page not set for %q", s))
 		}
-		if contentTreeNoListFilter(s, n) {
+		if contentTreeNoListAlwaysFilter(s, n) {
 			return false
 		}
 		pages = append(pages, n.p)
@@ -613,7 +613,7 @@ type pageMapQuery struct {
 
 func (m *pageMap) collectPages(query pageMapQuery, fn func(c *contentNode)) error {
 	if query.Filter == nil {
-		query.Filter = contentTreeNoListFilter
+		query.Filter = contentTreeNoListAlwaysFilter
 	}
 
 	m.pages.WalkQuery(query, func(s string, n *contentNode) bool {

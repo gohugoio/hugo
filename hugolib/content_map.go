@@ -796,11 +796,11 @@ func newContentTreeFilter(fn func(n *contentNode) bool) contentTreeNodeCallback 
 }
 
 var (
-	contentTreeNoListFilter = func(s string, n *contentNode) bool {
+	contentTreeNoListAlwaysFilter = func(s string, n *contentNode) bool {
 		if n.p == nil {
 			return true
 		}
-		return n.p.m.noList()
+		return n.p.m.noListAlways()
 	}
 
 	contentTreeNoRenderFilter = func(s string, n *contentNode) bool {
@@ -814,7 +814,7 @@ var (
 func (c *contentTree) WalkQuery(query pageMapQuery, walkFn contentTreeNodeCallback) {
 	filter := query.Filter
 	if filter == nil {
-		filter = contentTreeNoListFilter
+		filter = contentTreeNoListAlwaysFilter
 	}
 	if query.Prefix != "" {
 		c.WalkPrefix(query.Prefix, func(s string, v interface{}) bool {
