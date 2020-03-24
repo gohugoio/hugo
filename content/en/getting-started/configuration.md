@@ -313,7 +313,7 @@ useResourceCacheWhen
 
 {{< new-in "0.67.0" >}}
 
-This is only relevant when running `hugo server`, and it allows to set HTTP headers during development, wihch allows you to test out your Content Security Policy and similar. The configuration format matches [Netlify's](https://docs.netlify.com/routing/headers/#syntax-for-the-netlify-configuration-file) with slighly more powerful [Glob matching](https://github.com/gobwas/glob):
+This is only relevant when running `hugo server`, and it allows to set HTTP headers during development, which allows you to test out your Content Security Policy and similar. The configuration format matches [Netlify's](https://docs.netlify.com/routing/headers/#syntax-for-the-netlify-configuration-file) with slighly more powerful [Glob matching](https://github.com/gobwas/glob):
 
 
 {{< code-toggle file="config">}}
