@@ -38,6 +38,10 @@ func getBenchmarkSiteDeepContent(b testing.TB) *sitesBuilder {
 		return getBenchmarkTestDataPageContentForMarkdown(size, "", benchmarkMarkdownSnippets)
 	}
 
+	htmlContent := func(size int) string {
+		return getBenchmarkTestDataPageContentForHtml(size, "", benchmarkHtmlSnippets)
+	}
+
 	sb := newTestSitesBuilder(b).WithConfigFile("toml", `
 baseURL = "https://example.com"
 
@@ -64,7 +68,7 @@ contentDir="content/sv"
 	createBundledFiles := func(dir string) {
 		sb.WithContent(filepath.Join("content", dir, "data.json"), `{ "hello": "world" }`)
 		for i := 1; i <= 3; i++ {
-			sb.WithContent(filepath.Join("content", dir, fmt.Sprintf("page%d.md", i)), pageContent(1))
+			sb.WithContent(filepath.Join("content", dir, fmt.Sprintf("page%d.html", i)), htmlContent(1))
 		}
 	}
 
@@ -117,6 +121,37 @@ This is [Relative](/all-is-relative).
 See my [About](/about/) page for details. 
 `
 
+func getBenchmarkTestDataPageContentForHtml(size int, category, html string) string {
+	base := `---
+title: "My Page"
+%s
+---
+<html>
+<body>
+<p>My page content.</p>
+`
+
+	var categoryKey string
+	if category != "" {
+		categoryKey = fmt.Sprintf("categories: [%s]", category)
+	}
+	base = fmt.Sprintf(base, categoryKey)
+
+	return base + strings.Repeat(html, size) + "\n</html>"
+}
+
+const benchmarkHtmlSnippets = `
+<h2>Links</h2>
+
+<p>This is <a href="http://example.com" title="Title">an example</a> inline link.</p>
+
+<p><a href="http://example.net/">This link</a> has no title attribute.</p>
+
+<p>This is <a href="/all-is-relative">Relative</a>.</p>
+
+See my <a href="/about/">About</a> page for details.</p>
+`
+
 func getBenchmarkSiteNewTestCases() []siteBenchmarkTestcase {
 
 	pageContentWithCategory := func(size int, category string) string {
@@ -124,7 +159,7 @@ func getBenchmarkSiteNewTestCases() []siteBenchmarkTestcase {
 	}
 
 	pageContent := func(size int) string {
-		return getBenchmarkTestDataPageContentForMarkdown(size, "", benchmarkMarkdownSnippets)
+		return pageContentWithCategory(size, "")
 	}
 
 	config := `
