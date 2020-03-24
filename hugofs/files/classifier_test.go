@@ -14,11 +14,12 @@
 package files
 
 import (
+	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/spf13/afero"
 )
 
 func TestIsContentFile(t *testing.T) {
@@ -31,15 +32,39 @@ func TestIsContentFile(t *testing.T) {
 	c.Assert(IsContentExt("json"), qt.Equals, false)
 }
 
+// newFs returns a filesystem with the specified files at the specified filepaths.
+func newFs(t *testing.T, files map[string]string) afero.Fs {
+	fs := afero.NewMemMapFs()
+
+	for filename, content := range files {
+		err := afero.WriteFile(fs, filename, []byte(content), os.ModePerm)
+		if err != nil {
+			t.Fatalf("Failed to create file %q: %v", filename, err)
+		}
+	}
+
+	return fs
+}
+
 func TestIsHTMLContent(t *testing.T) {
 	c := qt.New(t)
 
-	c.Assert(isHTMLContent(strings.NewReader("   <html>")), qt.Equals, true)
-	c.Assert(isHTMLContent(strings.NewReader("   <!--\n---")), qt.Equals, false)
-	c.Assert(isHTMLContent(strings.NewReader("   <!--")), qt.Equals, true)
-	c.Assert(isHTMLContent(strings.NewReader("   ---<")), qt.Equals, false)
-	c.Assert(isHTMLContent(strings.NewReader(" foo  <")), qt.Equals, false)
+	opener := func(t *testing.T, s string) func() (afero.File, error) {
+		fs := newFs(t, map[string]string{"temp": s})
+		return func() (afero.File, error) {
+			return fs.Open("/temp")
+		}
+	}
 
+	c.Assert(hasFrontMatter(opener(t, "   <html>")), qt.Equals, false)
+	c.Assert(hasFrontMatter(opener(t, "   <!--\n---")), qt.Equals, false)
+	c.Assert(hasFrontMatter(opener(t, "   <!--")), qt.Equals, false)
+	c.Assert(hasFrontMatter(opener(t, "   ---<")), qt.Equals, false)
+	c.Assert(hasFrontMatter(opener(t, " foo  <")), qt.Equals, false)
+
+	c.Assert(hasFrontMatter(opener(t, "---\ntitle: dummy\n---")), qt.Equals, false)
+	c.Assert(hasFrontMatter(opener(t, "+++\ntitle= \"dummy\"\n+++")), qt.Equals, false)
+	c.Assert(hasFrontMatter(opener(t, "{\n\"title\": \"dummy\"\n}")), qt.Equals, false)
 }
 
 func TestComponentFolders(t *testing.T) {
@@ -58,4 +83,57 @@ func TestComponentFolders(t *testing.T) {
 	c.Assert(IsComponentFolder("foo"), qt.Equals, false)
 	c.Assert(IsComponentFolder(""), qt.Equals, false)
 
+}
+
+func TestClassifyContentFile(t *testing.T) {
+	c := qt.New(t)
+
+	tests := []struct {
+		filename string
+		content  string
+		class    ContentClass
+	}{
+		{
+			filename: "_index.md",
+			content:  "---\ntitle:Top\n---",
+			class:    ContentClassBranch,
+		}, {
+			filename: "sub/_index.md",
+			content:  "---\ntitle:Other\n---",
+			class:    ContentClassBranch,
+		}, {
+			filename: "blog/post/index.md",
+			content:  "---\ntitle:Today\n---\n<html></html>",
+			class:    ContentClassLeaf,
+		}, {
+			filename: "blog/post/yesterday.md",
+			content:  "---\ntitle:Yesterday\n---",
+			class:    ContentClassContent,
+		}, {
+			filename: "blog/post/static/index.html",
+			content:  "<html></html>",
+			class:    ContentClassFile,
+		}, {
+			filename: "blog/post/static/image.png",
+			content:  "",
+			class:    ContentClassFile,
+		},
+	}
+
+	fsMap := make(map[string]string, len(tests))
+	for _, test := range tests {
+		fsMap[test.filename] = test.content
+	}
+	fs := newFs(t, fsMap)
+
+	opener := func(s string) func() (afero.File, error) {
+		return func() (afero.File, error) { return fs.Open(s) }
+	}
+
+	for _, test := range tests {
+		t.Run(test.filename, func(t *testing.T) {
+			got := ClassifyContentFile(filepath.Base(test.filename), opener(test.filename))
+			c.Check(got, qt.Equals, test.class, qt.Commentf("%q", test.filename))
+		})
+	}
 }

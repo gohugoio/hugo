@@ -14,15 +14,13 @@
 package files
 
 import (
-	"bufio"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
-	"unicode"
 
+	"github.com/gohugoio/hugo/parser/pageparser"
 	"github.com/spf13/afero"
 )
 
@@ -89,23 +87,16 @@ func ClassifyContentFile(filename string, open func() (afero.File, error)) Conte
 	if IsHTMLFile(filename) {
 		// We need to look inside the file. If the first non-whitespace
 		// character is a "<", then we treat it as a regular file.
-		// Eearlier we created pages for these files, but that had all sorts
+		// Earlier we created pages for these files, but that had all sorts
 		// of troubles, and isn't what it says in the documentation.
 		// See https://github.com/gohugoio/hugo/issues/7030
 		if open == nil {
 			panic(fmt.Sprintf("no file opener provided for %q", filename))
 		}
 
-		f, err := open()
-		if err != nil {
+		if !hasFrontMatter(open) {
 			return ContentClassFile
 		}
-		ishtml := isHTMLContent(f)
-		f.Close()
-		if ishtml {
-			return ContentClassFile
-		}
-
 	}
 
 	if strings.HasPrefix(filename, "_index.") {
@@ -119,36 +110,18 @@ func ClassifyContentFile(filename string, open func() (afero.File, error)) Conte
 	return ContentClassContent
 }
 
-var htmlComment = []rune{'<', '!', '-', '-'}
-
-func isHTMLContent(r io.Reader) bool {
-	br := bufio.NewReader(r)
-	i := 0
-	for {
-		c, _, err := br.ReadRune()
-		if err != nil {
-			break
-		}
-
-		if i > 0 {
-			if i >= len(htmlComment) {
-				return false
-			}
-
-			if c != htmlComment[i] {
-				return true
-			}
-
-			i++
-			continue
-		}
-
-		if !unicode.IsSpace(c) {
-			if i == 0 && c != '<' {
-				return false
-			}
-			i++
-		}
+func hasFrontMatter(open func() (afero.File, error)) bool {
+	r, err := open()
+	if err != nil {
+		return false
+	}
+	defer r.Close()
+	cfm, err := pageparser.ParseFrontMatterAndContent(r)
+	if err != nil {
+		return false
+	}
+	if len(cfm.FrontMatter) == 0 {
+		return false
 	}
 	return true
 }

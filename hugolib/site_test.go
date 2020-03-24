@@ -447,11 +447,11 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 	}
 
 	sources := [][2]string{
-		{filepath.FromSlash("sect/doc1.html"), "doc1"},
+		{filepath.FromSlash("sect/doc1.html"), "---\ntitle: doc\n---\ndoc1"},
 		// Add one more page to sect to make sure sect is picked in mainSections
-		{filepath.FromSlash("sect/sect.html"), "sect"},
-		{filepath.FromSlash("Fish and Chips/doc2.html"), "doc2"},
-		{filepath.FromSlash("ラーメン/doc3.html"), "doc3"},
+		{filepath.FromSlash("sect/sect.md"), "sect"},
+		{filepath.FromSlash("Fish and Chips/doc2.html"), "---\ntitle: Fish and Chips\n---\ndoc2"},
+		{filepath.FromSlash("ラーメン/doc3.html"), "---\ntitle: ラーメン\n---\ndoc3"},
 	}
 
 	cfg, fs := newTestCfg()
