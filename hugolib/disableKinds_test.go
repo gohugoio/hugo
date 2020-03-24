@@ -269,10 +269,9 @@ title: Headless Local Lists Sub
 		sect := getPage(b, ref)
 		b.Assert(sect, qt.Not(qt.IsNil))
 		b.Assert(getPageInSitePages(b, ref), qt.IsNil)
-		b.Assert(getPageInSitePages(b, ref+"/headless-local-page"), qt.IsNil)
-		for i, p := range sect.RegularPages() {
-			fmt.Println("REG", i, p.(*pageState).sourceRef())
-		}
+
+		b.Assert(getPageInSitePages(b, "/headless-local/_index.md"), qt.IsNil)
+		b.Assert(getPageInSitePages(b, "/headless-local/headless-local-page.md"), qt.IsNil)
 
 		localPageRef := ref + "/headless-local-page.md"
 

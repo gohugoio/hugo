@@ -612,8 +612,8 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 	return nil
 }
 
-func (p *pageMeta) noList() bool {
-	return !p.buildConfig.ShouldList()
+func (p *pageMeta) noListAlways() bool {
+	return p.buildConfig.List != pagemeta.Always
 }
 
 func (p *pageMeta) getListFilter(local bool) contentTreeNodeCallback {

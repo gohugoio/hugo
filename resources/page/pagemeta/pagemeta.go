@@ -71,10 +71,6 @@ func (b BuildConfig) IsZero() bool {
 	return !b.set
 }
 
-func (b *BuildConfig) ShouldList() bool {
-	return b.List == Always || b.List == ListLocally
-}
-
 func DecodeBuildConfig(m interface{}) (BuildConfig, error) {
 	b := defaultBuildConfig
 	if m == nil {
