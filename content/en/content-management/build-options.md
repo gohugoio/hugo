@@ -35,7 +35,7 @@ Note that we extended this property from a boolean to an enum in Hugo 0.58.0.
 Valid values are:
 
 never
-: The page will not be incldued in any page collection.
+: The page will not be included in any page collection.
 
 always (default)
 : The page will be included in all page collections, e.g. `site.RegularPages`, `$page.Pages`.
