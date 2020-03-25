@@ -67,8 +67,8 @@ contentDir="content/sv"
 
 	createBundledFiles := func(dir string) {
 		sb.WithContent(filepath.Join("content", dir, "data.json"), `{ "hello": "world" }`)
-		for i := 1; i <= 3; i++ {
-			sb.WithContent(filepath.Join("content", dir, fmt.Sprintf("page%d.html", i)), htmlContent(1))
+		for i := 1; i <= 5; i++ {
+			sb.WithContent(filepath.Join("content", dir, fmt.Sprintf("page%d.html", i)), htmlContent(i*6))
 		}
 	}
 
@@ -247,7 +247,7 @@ canonifyURLs = true
 				s.CheckExists("public/blog/mybundle/index.html")
 				s.Assert(len(s.H.Sites), qt.Equals, 4)
 				s.Assert(len(s.H.Sites[0].RegularPages()), qt.Equals, len(s.H.Sites[1].RegularPages()))
-				s.Assert(len(s.H.Sites[0].RegularPages()), qt.Equals, 30)
+				s.Assert(len(s.H.Sites[0].RegularPages()), qt.Equals, 40)
 
 			},
 		},
@@ -498,7 +498,7 @@ Edited!!`, p.Title()))
 
 	// We currently rebuild all the language versions of the same content file.
 	// We could probably optimize that case, but it's not trivial.
-	b.Assert(int(counters.contentRenderCounter), qt.Equals, 4)
+	b.Assert(int(counters.contentRenderCounter), qt.Equals, 24)
 	b.AssertFileContent("public"+p.RelPermalink()+"index.html", "Edited!!")
 
 }
