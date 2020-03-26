@@ -371,6 +371,8 @@ Home Content.
 	b.WithContent("blog/draftsection/sub/page.md", createPage(13))
 	b.WithContent("docs/page6.md", createPage(11))
 	b.WithContent("tags/_index.md", createPage(32))
+	b.WithContent("overlap/_index.md", createPage(33))
+	b.WithContent("overlap2/_index.md", createPage(34))
 
 	b.WithTemplatesAdded("layouts/index.html", `
 Num Regular: {{ len .Site.RegularPages }}
@@ -385,6 +387,9 @@ Pag Num Pages: {{ len .Paginator.Pages }}
 {{ $page2 := .Site.GetPage "blog/page2" }}
 {{ $page4 := .Site.GetPage "blog/subsection/page4" }}
 {{ $bundle := .Site.GetPage "blog/bundle" }}
+{{ $overlap1 := .Site.GetPage "overlap" }}
+{{ $overlap2 := .Site.GetPage "overlap2" }}
+
 Home: {{ template "print-page" $home }}
 Blog Section: {{ template "print-page" $blog }}
 Blog Sub Section: {{ template "print-page" $blogSub }}
@@ -392,6 +397,10 @@ Page: {{ template "print-page" $page }}
 Bundle: {{ template "print-page" $bundle }}
 IsDescendant: true: {{ $page.IsDescendant $blog }} true: {{ $blogSub.IsDescendant $blog }} true: {{ $blog.IsDescendant $home }} false: {{ $home.IsDescendant $blog }}
 IsAncestor: true: {{ $blog.IsAncestor $page }} true: {{ $home.IsAncestor $blog }} true: {{ $blog.IsAncestor $blogSub }} true: {{ $home.IsAncestor $page }} false: {{ $page.IsAncestor $blog }} false: {{ $blog.IsAncestor $home }}  false: {{ $blogSub.IsAncestor $blog }}
+IsDescendant overlap1: false: {{ $overlap1.IsDescendant $overlap2 }}
+IsDescendant overlap2: false: {{ $overlap2.IsDescendant $overlap1 }}
+IsAncestor overlap1: false: {{ $overlap1.IsAncestor $overlap2 }}
+IsAncestor overlap2: false: {{ $overlap2.IsAncestor $overlap1 }}
 FirstSection: {{ $blogSub.FirstSection.RelPermalink }} {{ $blog.FirstSection.RelPermalink }} {{ $home.FirstSection.RelPermalink }} {{ $page.FirstSection.RelPermalink }}
 InSection: true: {{ $page.InSection $blog }} false: {{ $page.InSection $blogSub }} 
 Next: {{ $page2.Next.RelPermalink }}
@@ -431,14 +440,18 @@ Draft5: {{ if (.Site.GetPage "blog/draftsection/sub/page") }}FOUND{{ end }}|
         Bundle: Page 12|/blog/bundle/|0001-01-01|Current Section: blog|Resources: json: /blog/bundle/data.json|page: |
         IsDescendant: true: true true: true true: true false: false
         IsAncestor: true: true true: true true: true true: true false: false false: false  false: false
+        IsDescendant overlap1: false: false
+        IsDescendant overlap2: false: false
+        IsAncestor overlap1: false: false
+        IsAncestor overlap2: false: false
         FirstSection: /blog/ /blog/ / /blog/
         InSection: true: true false: false 
         Next: /blog/page3/
         NextInSection: /blog/page3/
         Pages: /blog/page3/|/blog/subsection/|/blog/page2/|/blog/page1/|/blog/bundle/|
         Sections: /blog/|/docs/|
-        Categories: /categories/funny/; funny; 9|
-        Category Terms:  taxonomyTerm: /categories/funny/; funny; 9|
+        Categories: /categories/funny/; funny; 11|
+        Category Terms:  taxonomyTerm: /categories/funny/; funny; 11|
  		Category Funny:  taxonomy; funny: /blog/subsection/page4/;|/blog/page3/;|/blog/subsection/;|/blog/page2/;|/blog/page1/;|/blog/subsection/page5/;|/docs/page6/;|/blog/bundle/;|;|
  		Pag Num Pages: 7
         Pag Blog Num Pages: 4
