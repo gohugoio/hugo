@@ -37,6 +37,10 @@ func (pt pageTree) IsAncestor(other interface{}) (bool, error) {
 
 	ref1, ref2 := pt.p.getTreeRef(), tp.getTreeRef()
 
+	if ref1 != nil && ref1.key == "/" {
+		return true, nil
+	}
+
 	if ref1 == nil || ref2 == nil {
 		if ref1 == nil {
 			// A 404 or other similar standalone page.
@@ -50,7 +54,12 @@ func (pt pageTree) IsAncestor(other interface{}) (bool, error) {
 		return false, nil
 	}
 
-	return strings.HasPrefix(ref2.key, ref1.key), nil
+	if ref2.isSection() {
+		return strings.HasPrefix(ref2.key, ref1.key+"/"), nil
+	}
+
+	return strings.HasPrefix(ref2.key, ref1.key+cmBranchSeparator), nil
+
 }
 
 func (pt pageTree) CurrentSection() page.Page {
@@ -75,6 +84,10 @@ func (pt pageTree) IsDescendant(other interface{}) (bool, error) {
 
 	ref1, ref2 := pt.p.getTreeRef(), tp.getTreeRef()
 
+	if ref2 != nil && ref2.key == "/" {
+		return true, nil
+	}
+
 	if ref1 == nil || ref2 == nil {
 		if ref2 == nil {
 			// A 404 or other similar standalone page.
@@ -88,7 +101,11 @@ func (pt pageTree) IsDescendant(other interface{}) (bool, error) {
 		return false, nil
 	}
 
-	return strings.HasPrefix(ref1.key, ref2.key), nil
+	if ref1.isSection() {
+		return strings.HasPrefix(ref1.key, ref2.key+"/"), nil
+	}
+
+	return strings.HasPrefix(ref1.key, ref2.key+cmBranchSeparator), nil
 
 }
 
