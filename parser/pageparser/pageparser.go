@@ -20,7 +20,6 @@ package pageparser
 import (
 	"bytes"
 	"io"
-	"io/ioutil"
 
 	"github.com/gohugoio/hugo/parser/metadecoders"
 	"github.com/pkg/errors"
@@ -40,7 +39,7 @@ var _ Result = (*pageLexer)(nil)
 // TODO(bep) now that we have improved the "lazy order" init, it *may* be
 // some potential saving in doing a buffered approach where the first pass does
 // the frontmatter only.
-func Parse(r io.Reader, cfg Config) (Result, error) {
+func Parse(r io.ReadSeeker, cfg Config) (Result, error) {
 	return parseSection(r, cfg, lexIntroSection)
 }
 
@@ -52,7 +51,7 @@ type ContentFrontMatter struct {
 
 // ParseFrontMatterAndContent is a convenience method to extract front matter
 // and content from a content page.
-func ParseFrontMatterAndContent(r io.Reader) (ContentFrontMatter, error) {
+func ParseFrontMatterAndContent(r io.ReadSeeker) (ContentFrontMatter, error) {
 	var cf ContentFrontMatter
 
 	psr, err := Parse(r, Config{})
@@ -100,12 +99,26 @@ func FormatFromFrontMatterType(typ ItemType) metadecoders.Format {
 }
 
 // ParseMain parses starting with the main section. Used in tests.
-func ParseMain(r io.Reader, cfg Config) (Result, error) {
+func ParseMain(r io.ReadSeeker, cfg Config) (Result, error) {
 	return parseSection(r, cfg, lexMainSection)
 }
 
-func parseSection(r io.Reader, cfg Config, start stateFunc) (Result, error) {
-	b, err := ioutil.ReadAll(r)
+func parseSection(r io.ReadSeeker, cfg Config, start stateFunc) (Result, error) {
+	off, err := r.Seek(0, io.SeekCurrent)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to seek in file")
+	}
+	size, err := r.Seek(0, io.SeekEnd)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to determine length of file")
+	}
+	b := make([]byte, int(size))
+	_, err = r.Seek(off, io.SeekStart)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to reset to initial position")
+	}
+	_, err = io.ReadAtLeast(r, b, int(size))
+
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read page content")
 	}
