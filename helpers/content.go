@@ -44,6 +44,7 @@ var (
 	openingPTag        = []byte("<p>")
 	closingPTag        = []byte("</p>")
 	paragraphIndicator = []byte("<p")
+	closingIndicator   = []byte("</")
 )
 
 // ContentSpec provides functionality to render markdown content.
@@ -315,9 +316,13 @@ func (c *ContentSpec) TruncateWordsToWholeSentence(s string) (string, bool) {
 // where said tags are the only <p> tags in the input and enclose the content
 // of the input (whitespace excluded).
 func (c *ContentSpec) TrimShortHTML(input []byte) []byte {
-	first := bytes.Index(input, paragraphIndicator)
-	last := bytes.LastIndex(input, paragraphIndicator)
-	if first == last {
+	firstOpeningP := bytes.Index(input, paragraphIndicator)
+	lastOpeningP := bytes.LastIndex(input, paragraphIndicator)
+
+	lastClosingP := bytes.LastIndex(input, closingPTag)
+	lastClosing := bytes.LastIndex(input, closingIndicator)
+
+	if firstOpeningP == lastOpeningP && lastClosingP == lastClosing {
 		input = bytes.TrimSpace(input)
 		input = bytes.TrimPrefix(input, openingPTag)
 		input = bytes.TrimSuffix(input, closingPTag)
