@@ -114,7 +114,7 @@ You can also put the returned value of the `where` clauses into a variable:
 
 ## Use `where` with `first`
 
-Using `first` and [`where`][wherefunction] together can be very
+Using `first` and `where` together can be very
 powerful. Below snippet gets a list of posts only from [**main
 sections**](#mainsections), sorts it using the [default
 ordering](/templates/lists/) for lists (i.e., `weight => date`), and
