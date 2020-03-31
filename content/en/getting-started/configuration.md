@@ -515,7 +515,7 @@ dir = ":cacheDir/modules"
 maxAge = -1
 ```
 
-You can override any of these cache setting in your own `config.toml`.
+You can override any of these cache settings in your own `config.toml`.
 
 ### The keywords explained
 
