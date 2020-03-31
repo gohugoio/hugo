@@ -193,6 +193,9 @@ markup
 menu
 : See [Add Non-content Entries to a Menu](/content-management/menus/#add-non-content-entries-to-a-menu).
 
+minify
+: See [Configure Minify](#configure-minify)
+
 module
 : Module config see [Module Config](/hugo-modules/configuration/).{{< new-in "0.56.0" >}}
 
@@ -481,6 +484,14 @@ The above will try first to extract the value for `.Date` from the filename, the
 
 Hugo v0.20 introduced the ability to render your content to multiple output formats (e.g., to JSON, AMP html, or CSV). See [Output Formats][] for information on how to add these values to your Hugo project's configuration file.
 
+## Configure Minify
+
+{{< new-in "0.68.0" >}}
+
+Default configuration:
+
+{{< code-toggle config="minify" />}}
+
 ## Configure File Caches
 
 Since Hugo 0.52 you can configure more than just the `cacheDir`. This is the default configuration:
@@ -504,7 +515,7 @@ dir = ":cacheDir/modules"
 maxAge = -1
 ```
 
-You can override any of these cache setting in your own `config.toml`.
+You can override any of these cache settings in your own `config.toml`.
 
 ### The keywords explained
 

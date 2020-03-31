@@ -51,14 +51,14 @@ Disqus has its own [internal template](https://gohugo.io/templates/internal/#dis
 
 There are a few alternatives to commenting on static sites for those who do not want to use Disqus:
 
-* [Static Man](https://staticman.net/)
+* [Staticman](https://staticman.net/)
 * [Talkyard](https://www.talkyard.io/blog-comments) (Open source, & serverless hosting)
 * [IntenseDebate](https://intensedebate.com/)
 * [Graph Comment][]
 * [Muut](https://muut.com/)
 * [isso](https://posativ.org/isso/) (Self-hosted, Python)
     * [Tutorial on Implementing Isso with Hugo][issotutorial]
-* [Utterances](https://utteranc.es/) (Open source, Github comments widget built on Github issues)
+* [Utterances](https://utteranc.es/) (Open source, GitHub comments widget built on GitHub issues)
 * [Remark](https://github.com/umputun/remark) (Open source, Golang, Easy to run docker)
 * [Commento](https://commento.io/) (Open Source, available as a service, local install, or docker image)
 * [JustComments](https://just-comments.com) (Open Source, available as a service, can be self-hosted)
