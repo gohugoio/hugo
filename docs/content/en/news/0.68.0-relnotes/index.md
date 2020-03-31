@@ -1,8 +1,8 @@
 
 ---
 date: 2020-03-21
-title: "0.68.0"
-description: "0.68.0"
+title: "Minify config and more!"
+description: "Hugo 0.68.0 brings minify configuration and fully navigable headless sections."
 categories: ["Releases"]
 ---
 

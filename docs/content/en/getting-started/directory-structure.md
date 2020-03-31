@@ -71,6 +71,9 @@ used by Hugo when generating your website. You can write these files in YAML, JS
 From **Hugo 0.31** you can have multiple static directories.
 {{% /note %}}
 
+resources
+: Caches some files to speed up generation. Can be also used by template authors to distribute built SASS files, so you don't have to have the preprocessor installed. Note: resources directory is not created by default.
+
 
 [archetypes]: /content-management/archetypes/
 [configuration directives]: /getting-started/configuration/#all-variables-yaml
