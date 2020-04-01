@@ -102,10 +102,13 @@ func (ns *Namespace) NumFmt(precision, number interface{}, options ...interface{
 		}
 	}
 
+	exp := math.Pow(10.0, float64(prec))
+	r := math.Round(n*exp) / exp
+
 	// Logic from MIT Licensed github.com/go-playground/locales/
 	// Original Copyright (c) 2016 Go Playground
 
-	s := strconv.FormatFloat(math.Abs(n), 'f', prec, 64)
+	s := strconv.FormatFloat(math.Abs(r), 'f', prec, 64)
 	L := len(s) + 2 + len(s[:len(s)-1-prec])/3
 
 	var count int
