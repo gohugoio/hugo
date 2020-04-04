@@ -10,7 +10,7 @@ require (
 	github.com/armon/go-radix v1.0.0
 	github.com/aws/aws-sdk-go v1.27.1
 	github.com/bep/debounce v1.2.0
-	github.com/bep/gitmap v1.1.1
+	github.com/bep/gitmap v1.1.2
 	github.com/bep/golibsass v0.5.0
 	github.com/bep/tmc v0.5.1
 	github.com/disintegration/gift v1.2.1
@@ -53,7 +53,6 @@ require (
 	github.com/yuin/goldmark v1.1.25
 	github.com/yuin/goldmark-highlighting v0.0.0-20200218065240-d1af22c1126f
 	go.opencensus.io v0.22.0 // indirect
-	go.uber.org/atomic v1.4.0
 	gocloud.dev v0.15.0
 	golang.org/x/image v0.0.0-20191214001246-9130b4cfad52
 	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553 // indirect
