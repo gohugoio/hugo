@@ -10,7 +10,7 @@ require (
 	github.com/armon/go-radix v1.0.0
 	github.com/aws/aws-sdk-go v1.27.1
 	github.com/bep/debounce v1.2.0
-	github.com/bep/gitmap v1.1.1
+	github.com/bep/gitmap v1.1.2
 	github.com/bep/golibsass v0.5.0
 	github.com/bep/tmc v0.5.1
 	github.com/disintegration/gift v1.2.1
