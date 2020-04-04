@@ -411,8 +411,7 @@ func (s *shortcodeHandler) hasShortcodes() bool {
 	return s != nil && len(s.shortcodes) > 0
 }
 
-func (s *shortcodeHandler) renderShortcodesForPage(p *pageState, f output.Format) (map[string]string, bool, error) {
-
+func (s *shortcodeHandler) prerenderShortcodesForPage(p *pageState, f output.Format) (map[string]string, bool, error) {
 	rendered := make(map[string]string)
 
 	tplVariants := tpl.TemplateVariants{
@@ -423,17 +422,50 @@ func (s *shortcodeHandler) renderShortcodesForPage(p *pageState, f output.Format
 	var hasVariants bool
 
 	for _, v := range s.shortcodes {
-		s, more, err := renderShortcode(0, s.s, tplVariants, v, nil, p)
-		if err != nil {
-			err = p.parseError(_errors.Wrapf(err, "failed to render shortcode %q", v.name), p.source.parsed.Input(), v.pos)
-			return nil, false, err
-		}
-		hasVariants = hasVariants || more
-		rendered[v.placeholder] = s
+		if !v.insertPlaceholder() {
+			s, more, err := renderShortcode(0, s.s, tplVariants, v, nil, p)
+			if err != nil {
+				err = p.parseError(_errors.Wrapf(err, "failed to render shortcode %q", v.name), p.source.parsed.Input(), v.pos)
+				return nil, false, err
+			}
+			hasVariants = hasVariants || more
+			rendered[v.placeholder] = s
 
+		} else {
+			if !v.isInline {
+				_, found, more := s.s.Tmpl().LookupVariant(v.name, tplVariants)
+				if !found {
+					err := fmt.Errorf("Unable to locate template for shortcode %q in page %q", v.name, p.File().Path())
+					return nil, false, err
+				}
+				hasVariants = hasVariants || more
+			}
+			rendered[v.placeholder] = ""
+		}
 	}
 
 	return rendered, hasVariants, nil
+}
+
+// rendering after preparation of ToC
+func (s *shortcodeHandler) postrenderShortcodesForPage(p *pageState, f output.Format, rendered map[string]string) error {
+	tplVariants := tpl.TemplateVariants{
+		Language:     p.Language().Lang,
+		OutputFormat: f,
+	}
+
+	for _, v := range s.shortcodes {
+		if v.insertPlaceholder() {
+			s, _, err := renderShortcode(0, s.s, tplVariants, v, nil, p)
+			if err != nil {
+				err = p.parseError(_errors.Wrapf(err, "failed to render shortcode %q", v.name), p.source.parsed.Input(), v.pos)
+				return err
+			}
+			rendered[v.placeholder] = s
+		}
+	}
+
+	return nil
 }
 
 var errShortCodeIllegalState = errors.New("Illegal shortcode state")
@@ -592,7 +624,6 @@ Loop:
 // Replace prefixed shortcode tokens with the real content.
 // Note: This function will rewrite the input slice.
 func replaceShortcodeTokens(source []byte, replacements map[string]string) ([]byte, error) {
-
 	if len(replacements) == 0 {
 		return source, nil
 	}

@@ -14,6 +14,7 @@
 package tableofcontents
 
 import (
+	"html/template"
 	"strings"
 )
 
@@ -26,6 +27,11 @@ type Header struct {
 	Text string
 
 	Headers Headers
+}
+
+// HTML is produces safe, escaped HTML output of Text
+func (h Header) HTML() template.HTML {
+	return template.HTML(h.Text)
 }
 
 // IsZero is true when no ID or Text is set.

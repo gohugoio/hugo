@@ -35,6 +35,7 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/langs"
+	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/related"
 
@@ -522,6 +523,10 @@ func (p *testPage) Summary() template.HTML {
 }
 
 func (p *testPage) TableOfContents() template.HTML {
+	panic("not implemented")
+}
+
+func (p *testPage) TableOfContentsCollection() tableofcontents.Headers {
 	panic("not implemented")
 }
 

@@ -35,6 +35,7 @@ import (
 	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -101,12 +102,13 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 		var hasShortcodeVariants bool
 
 		f := po.f
-		cp.contentPlaceholders, hasShortcodeVariants, err = p.shortcodeState.renderShortcodesForPage(p, f)
+		cp.contentPlaceholders, hasShortcodeVariants, err = p.shortcodeState.prerenderShortcodesForPage(p, f)
 		if err != nil {
 			return err
 		}
 
 		enableReuse := !(hasShortcodeVariants || cp.renderHooksHaveVariants)
+		// enableReuse := !(hasShortcodeVariants || cp.renderHooksHaveVariants || hasShortcodeVariants2)
 
 		if enableReuse {
 			// Reuse this for the other output formats.
@@ -132,18 +134,26 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 
 			if tocProvider, ok := r.(converter.TableOfContentsProvider); ok {
 				cfg := p.s.ContentSpec.Converters.GetMarkupConfig()
+				toc := tocProvider.TableOfContents()
 				cp.tableOfContents = template.HTML(
-					tocProvider.TableOfContents().ToHTML(
+					toc.ToHTML(
 						cfg.TableOfContents.StartLevel,
 						cfg.TableOfContents.EndLevel,
 						cfg.TableOfContents.Ordered,
 					),
 				)
+				cp.tableOfContentsHeaders = toc.Headers
 			} else {
 				tmpContent, tmpTableOfContents := helpers.ExtractTOC(cp.workContent)
 				cp.tableOfContents = helpers.BytesToHTML(tmpTableOfContents)
 				cp.workContent = tmpContent
 			}
+		}
+
+		err = p.shortcodeState.postrenderShortcodesForPage(p, f, cp.contentPlaceholders)
+
+		if err != nil {
+			return err
 		}
 
 		if cp.placeholdersEnabled {
@@ -153,7 +163,9 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 		}
 
 		if p.cmap.hasNonMarkdownShortcode || cp.placeholdersEnabled {
+
 			// There are one or more replacement tokens to be replaced.
+
 			cp.workContent, err = replaceShortcodeTokens(cp.workContent, cp.contentPlaceholders)
 			if err != nil {
 				return err
@@ -260,9 +272,10 @@ type pageContentOutput struct {
 	contentPlaceholders map[string]string
 
 	// Content sections
-	content         template.HTML
-	summary         template.HTML
-	tableOfContents template.HTML
+	content                template.HTML
+	summary                template.HTML
+	tableOfContents        template.HTML
+	tableOfContentsHeaders tableofcontents.Headers
 
 	truncated bool
 
@@ -330,6 +343,11 @@ func (p *pageContentOutput) Summary() template.HTML {
 func (p *pageContentOutput) TableOfContents() template.HTML {
 	p.p.s.initInit(p.initMain, p.p)
 	return p.tableOfContents
+}
+
+func (p *pageContentOutput) TableOfContentsCollection() tableofcontents.Headers {
+	p.p.s.initInit(p.initMain, p.p)
+	return p.tableOfContentsHeaders
 }
 
 func (p *pageContentOutput) Truncated() bool {
