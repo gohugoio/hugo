@@ -26,7 +26,6 @@ import (
 	"github.com/gohugoio/hugo/compare"
 	"github.com/gohugoio/hugo/hugofs/files"
 
-	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/gohugoio/hugo/navigation"
 	"github.com/gohugoio/hugo/related"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -83,6 +82,7 @@ type ContentProvider interface {
 	WordCount() int
 	ReadingTime() int
 	Len() int
+	ContentData() ContentData
 }
 
 // FileProvider provides the source file.
@@ -312,7 +312,6 @@ type SitesProvider interface {
 // TableOfContentsProvider provides the table of contents for a Page.
 type TableOfContentsProvider interface {
 	TableOfContents() template.HTML
-	TableOfContentsCollection() tableofcontents.Headers
 }
 
 // TranslationsProvider provides access to any translations.

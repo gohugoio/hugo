@@ -149,12 +149,12 @@ func TestShortcodeRelated(t *testing.T) {
 	CheckShortCodeMatch(t, "{{< a >}}", "0", wt)
 }
 
-func TestShortcodeTableOfContentsCollection(t *testing.T) {
+func TestShortcodeTableOfContentsInContentData(t *testing.T) {
 	t.Parallel()
 	wt := func(tem tpl.TemplateManager) error {
 		tem.AddTemplate(
 			"_internal/shortcodes/toc.html",
-			`{{ range $h1 := .Page.TableOfContentsCollection }}{{ $h1.ID }}{{ $h1.HTML }}{{ end }}`,
+			`{{ range $h1 := .Page.ContentData.TableOfContents }}{{ $h1.ID }}{{ $h1.HTML }}{{ end }}`,
 		)
 		return nil
 	}

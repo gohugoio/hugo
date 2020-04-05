@@ -526,7 +526,7 @@ func (p *testPage) TableOfContents() template.HTML {
 	panic("not implemented")
 }
 
-func (p *testPage) TableOfContentsCollection() tableofcontents.Headers {
+func (p *testPage) ContentData() ContentData {
 	panic("not implemented")
 }
 

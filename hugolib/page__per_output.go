@@ -35,7 +35,6 @@ import (
 	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -142,7 +141,7 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 						cfg.TableOfContents.Ordered,
 					),
 				)
-				cp.tableOfContentsHeaders = toc.Headers
+				cp.contentData.TableOfContents = toc.Headers
 			} else {
 				tmpContent, tmpTableOfContents := helpers.ExtractTOC(cp.workContent)
 				cp.tableOfContents = helpers.BytesToHTML(tmpTableOfContents)
@@ -272,10 +271,10 @@ type pageContentOutput struct {
 	contentPlaceholders map[string]string
 
 	// Content sections
-	content                template.HTML
-	summary                template.HTML
-	tableOfContents        template.HTML
-	tableOfContentsHeaders tableofcontents.Headers
+	content         template.HTML
+	summary         template.HTML
+	tableOfContents template.HTML
+	contentData     page.ContentData
 
 	truncated bool
 
@@ -345,9 +344,9 @@ func (p *pageContentOutput) TableOfContents() template.HTML {
 	return p.tableOfContents
 }
 
-func (p *pageContentOutput) TableOfContentsCollection() tableofcontents.Headers {
+func (p *pageContentOutput) ContentData() page.ContentData {
 	p.p.s.initInit(p.initMain, p.p)
-	return p.tableOfContentsHeaders
+	return p.contentData
 }
 
 func (p *pageContentOutput) Truncated() bool {

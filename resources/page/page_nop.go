@@ -32,7 +32,6 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/langs"
-	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/related"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -96,6 +95,10 @@ func (p *nopPage) Content() (interface{}, error) {
 
 func (p *nopPage) ContentBaseName() string {
 	return ""
+}
+
+func (p *nopPage) ContentData() ContentData {
+	return ContentData{}
 }
 
 func (p *nopPage) CurrentSection() Page {
@@ -444,10 +447,6 @@ func (p *nopPage) Summary() template.HTML {
 
 func (p *nopPage) TableOfContents() template.HTML {
 	return ""
-}
-
-func (p *nopPage) TableOfContentsCollection() tableofcontents.Headers {
-	return []tableofcontents.Header{}
 }
 
 func (p *nopPage) Title() string {

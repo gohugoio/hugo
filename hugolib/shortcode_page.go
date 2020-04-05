@@ -16,7 +16,6 @@ package hugolib
 import (
 	"html/template"
 
-	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/gohugoio/hugo/resources/page"
 )
 
@@ -56,8 +55,8 @@ func (p *pageForShortcode) TableOfContents() template.HTML {
 	return p.toc
 }
 
-func (p *pageForShortcode) TableOfContentsCollection() tableofcontents.Headers {
-	return p.p.cp.tableOfContentsHeaders
+func (p *pageForShortcode) ContentData() page.ContentData {
+	return p.p.cp.contentData
 }
 
 // This is what is sent into the content render hooks (link, image).
