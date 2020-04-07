@@ -58,6 +58,11 @@ func (i Info) IsProduction() bool {
 	return i.Environment == EnvironmentProduction
 }
 
+// IsExtended returns boolean true if current version of Hugo is 'Extended'.
+func (i Info) IsExtended() bool {
+	return IsExtended
+}
+
 // NewInfo creates a new Hugo Info object.
 func NewInfo(environment string) Info {
 	if environment == "" {
