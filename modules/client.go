@@ -194,6 +194,9 @@ func (c *Client) Vendor() error {
 	if err := c.rmVendorDir(vendorDir); err != nil {
 		return err
 	}
+	if err := c.fs.MkdirAll(vendorDir, 0755); err != nil {
+		return err
+	}
 
 	// Write the modules list to modules.txt.
 	//
@@ -228,8 +231,27 @@ func (c *Client) Vendor() error {
 		dir := t.Dir()
 
 		for _, mount := range t.Mounts() {
-			if err := hugio.CopyDir(c.fs, filepath.Join(dir, mount.Source), filepath.Join(vendorDir, t.Path(), mount.Source), nil); err != nil {
-				return errors.Wrap(err, "failed to copy module to vendor dir")
+			sourceFilename := filepath.Join(dir, mount.Source)
+			targetFilename := filepath.Join(vendorDir, t.Path(), mount.Source)
+			fi, err := c.fs.Stat(sourceFilename)
+			if err != nil {
+				return errors.Wrap(err, "failed to vendor module")
+			}
+
+			if fi.IsDir() {
+				if err := hugio.CopyDir(c.fs, sourceFilename, targetFilename, nil); err != nil {
+					return errors.Wrap(err, "failed to copy module to vendor dir")
+				}
+			} else {
+				targetDir := filepath.Dir(targetFilename)
+
+				if err := c.fs.MkdirAll(targetDir, 0755); err != nil {
+					return errors.Wrap(err, "failed to make target dir")
+				}
+
+				if err := hugio.CopyFile(c.fs, sourceFilename, targetFilename); err != nil {
+					return errors.Wrap(err, "failed to copy module file to vendor")
+				}
 			}
 		}
 
