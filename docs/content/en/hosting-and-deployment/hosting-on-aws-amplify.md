@@ -44,29 +44,14 @@ AWS Amplify is a combination of client library, CLI toolchain, and a Console for
 
 ## Using a Newer Version of Hugo
 
-If you need to use a different, perhaps newer, version of Hugo than the version currently supported by AWS Amplify, you can modify your build commands to include the downloading of Hugo itself.  Here's an example of a build definition that includes the downloading of Hugo.  Note that in ths example the "extended" version of Hugo is being used which includes support for SASS/SCSS.
+If you need to use a different, perhaps newer, version of Hugo than the version currently supported by AWS Amplify:
 
-```
-version: 0.1
-frontend:
-  phases:
-    # IMPORTANT - Please verify your build commands
-    build:
-      commands:
-        - wget https://github.com/gohugoio/hugo/releases/download/v0.62.2/hugo_extended_0.62.2_Linux-64bit.tar.gz
-        - tar -xf hugo_extended_0.62.2_Linux-64bit.tar.gz
-        - mv hugo /usr/bin/hugo 
-        - rm -rf hugo_extended_0.62.2_Linux-64bit.tar.gz
-        - hugo version
-        - hugo
-  artifacts:
-    # IMPORTANT - Please verify your build output directory
-    baseDirectory: public
-    files:
-      - '**/*'
-  cache:
-    paths: []
-    
-```
+1. Visit the [AWS Amplify Console](https://console.aws.amazon.com/amplify/home), and click the app you would like to modify
+1. In the side navigation bar, Under App Settings, click **Build settings**
+1. On the Build settings page, near the bottom, there is a section called **Build image settings**. Click **Edit**
+1. Under **Live package updates**, click **Add package version override**
+1. From the selection, click **Hugo** and ensure the version field says `latest`
+1. Click **Save** to save the changes.
+
 
 [Quick Start]: /getting-started/quick-start/
