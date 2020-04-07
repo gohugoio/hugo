@@ -161,7 +161,7 @@ Assuming a `baseURL` of `example.com`, the contents of the auto-generated alias 
   <head>
     <title>https://example.com/posts/my-intended-url</title>
     <link rel="canonical" href="https://example.com/posts/my-intended-url"/>
-    <meta name="robots" content="noindex">
+    <meta name="robots" content="noindex" />
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <meta http-equiv="refresh" content="0; url=https://example.com/posts/my-intended-url"/>
   </head>
