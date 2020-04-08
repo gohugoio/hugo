@@ -107,7 +107,6 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 		}
 
 		enableReuse := !(hasShortcodeVariants || cp.renderHooksHaveVariants)
-		// enableReuse := !(hasShortcodeVariants || cp.renderHooksHaveVariants || hasShortcodeVariants2)
 
 		if enableReuse {
 			// Reuse this for the other output formats.

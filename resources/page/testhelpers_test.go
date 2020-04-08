@@ -35,7 +35,6 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/langs"
-	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/related"
 
