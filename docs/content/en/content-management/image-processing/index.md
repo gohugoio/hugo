@@ -193,11 +193,15 @@ See https://github.com/disintegration/imaging for more. If you want to trade qua
 
 By default the images is encoded in the source format, but you can set the target format as an option.
 
-Valid values are `jpg`, `png`, `tif`, `bmp`, and `gif`.
+Valid values are `jpg`, `png`, `tif`, `bmp`, `gif`, `webp`.
 
 ```go
 {{ $image.Resize "600x jpg" }}
 ```
+
+{{% note %}}
+The target format WebP (`webp`) requires the `cwebp` binary ([can be obtained here](https://developers.google.com/speed/webp)) to be installed either in `PATH`, available via `LIBWEBP_HOME` or in the current working directory.
+{{% /note %}}
 
 ## Image Processing Examples
 

@@ -40,6 +40,7 @@ var (
 		".tiff": TIFF,
 		".bmp":  BMP,
 		".gif":  GIF,
+		".webp": WEBP,
 	}
 
 	// Add or increment if changes to an image format's processing requires

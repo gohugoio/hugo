@@ -25,6 +25,7 @@ import (
 
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/images/exif"
+	"github.com/gohugoio/hugo/resources/images/webp"
 
 	"github.com/disintegration/gift"
 	"golang.org/x/image/bmp"
@@ -89,6 +90,10 @@ func (i *Image) EncodeTo(conf ImageConfig, img image.Image, w io.Writer) error {
 
 	case BMP:
 		return bmp.Encode(w, img)
+
+	case WEBP:
+		return webp.Encode(w, img, &webp.Options{Quality: conf.Quality})
+
 	default:
 		return errors.New("format not supported")
 	}
@@ -253,6 +258,7 @@ const (
 	GIF
 	TIFF
 	BMP
+	WEBP
 )
 
 // RequiresDefaultQuality returns if the default quality needs to be applied to images of this format
@@ -284,6 +290,8 @@ func (f Format) MediaType() media.Type {
 		return media.TIFFType
 	case BMP:
 		return media.BMPType
+	case WEBP:
+		return media.WEBPType
 	default:
 		panic(fmt.Sprintf("%d is not a valid image format", f))
 	}
