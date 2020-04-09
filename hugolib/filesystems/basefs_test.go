@@ -398,7 +398,7 @@ func TestMakePathRelative(t *testing.T) {
 }
 
 func checkFileCount(fs afero.Fs, dirname string, c *qt.C, expected int) {
-	count, _, err := countFileaAndGetFilenames(fs, dirname)
+	count, _, err := countFilesAndGetFilenames(fs, dirname)
 	c.Assert(err, qt.IsNil)
 	c.Assert(count, qt.Equals, expected)
 }
@@ -415,7 +415,7 @@ func checkFileContent(fs afero.Fs, filename string, c *qt.C, expected ...string)
 	}
 }
 
-func countFileaAndGetFilenames(fs afero.Fs, dirname string) (int, []string, error) {
+func countFilesAndGetFilenames(fs afero.Fs, dirname string) (int, []string, error) {
 	if fs == nil {
 		return 0, nil, errors.New("no fs")
 	}
