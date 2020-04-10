@@ -3120,9 +3120,9 @@
           ]
         },
         "Jsonify": {
-          "Description": "Jsonify encodes a given object to JSON.",
+          "Description": "Jsonify encodes a given object to JSON.  To pretty print the JSON, pass a map\nor dictionary of options as the first argument.  Supported options are\n\"prefix\" and \"indent\".  Each JSON element in the output will begin on a new\nline beginning with prefix followed by one or more copies of indent according\nto the indentation nesting.",
           "Args": [
-            "v"
+            "args"
           ],
           "Aliases": [
             "jsonify"
@@ -3131,6 +3131,10 @@
             [
               "{{ (slice \"A\" \"B\" \"C\") | jsonify }}",
               "[\"A\",\"B\",\"C\"]"
+            ],
+            [
+              "{{ (slice \"A\" \"B\" \"C\") | jsonify (dict \"indent\" \"  \") }}",
+              "[\n  \"A\",\n  \"B\",\n  \"C\"\n]"
             ]
           ]
         }
@@ -3866,6 +3870,12 @@
           ],
           "Examples": []
         },
+        "PostProcess": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "ToCSS": {
           "Description": "ToCSS converts the given Resource to CSS. You can optional provide an Options\nobject or a target path (string) as first argument.",
           "Args": [
@@ -4515,7 +4525,7 @@
           "Examples": [
             [
               "{{ \"I :heart: Hugo\" | emojify }}",
-              "I ❤ Hugo"
+              "I ❤️ Hugo"
             ]
           ]
         },
