@@ -329,7 +329,7 @@ Referrer-Policy = "strict-origin-when-cross-origin"
 Content-Security-Policy = "script-src localhost:1313"
 {{< /code-toggle >}}
 
-Since this is is "devlopment only", it may make sense to put it below the `development` environment:
+Since this is is "development only", it may make sense to put it below the `development` environment:
 
 
 {{< code-toggle file="config/development/server">}}
