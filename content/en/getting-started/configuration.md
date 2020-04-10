@@ -303,11 +303,15 @@ The `build` configuration section contains global build-realated configuration o
 {{< code-toggle file="config">}}
 [build]
 useResourceCacheWhen="fallback"
+writeStats = false
 {{< /code-toggle >}}
 
 
 useResourceCacheWhen
 : When to use the cached resources in `/resources/_gen` for PostCSS and ToCSS. Valid values are `never`, `always` and `fallback`. The last value means that the cache will be tried if PostCSS/extended version is not available.
+
+writeStats {{< new-in "0.69.0" >}}
+: When enabled, a file named `hugo_stats.json` will be written to your project root with some aggregated data about the build, e.g. list of HTML entities published to be used to do [CSS pruning](/hugo-pipes/postprocess/#css-purging-with-postcss). If you're only using this for the production build, you should consider placing it below [config/production](/getting-started/configuration/#configuration-directory). It's also worth mentioning that, due to the nature of the partial server builds, new HTML entities will be added when you add or change them while the server is running, but the old values will not be removed until you restart the server or run a regular `hugo` build.
 
 ## Configure Server
 
