@@ -86,6 +86,12 @@ If you are on a Windows machine and use [Scoop][] for package management, you ca
 scoop install hugo
 ```
 
+Or install the extended version with:
+
+```bash
+scoop install hugo-extended
+```
+
 ### Source
 
 #### Prerequisite Tools
