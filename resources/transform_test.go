@@ -323,7 +323,7 @@ func TestTransform(t *testing.T) {
 
 		transformations := make([]ResourceTransformation, count)
 		for i := 0; i < count; i++ {
-			transformations[i] = createContentReplacer(fmt.Sprintf("t%d", i), fmt.Sprint(i), string(i+65))
+			transformations[i] = createContentReplacer(fmt.Sprintf("t%d", i), fmt.Sprint(i), string(rune(i+65)))
 		}
 
 		var countstr strings.Builder

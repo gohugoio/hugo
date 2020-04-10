@@ -36,6 +36,7 @@ import (
 
 	"github.com/gohugoio/hugo/resources/resource"
 
+	"github.com/pkg/errors"
 	_errors "github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -234,7 +235,7 @@ const imageProcWorkers = 1
 var imageProcSem = make(chan bool, imageProcWorkers)
 
 func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src image.Image) (image.Image, error)) (resource.Image, error) {
-	return i.getSpec().imageCache.getOrCreate(i, conf, func() (*imageResource, image.Image, error) {
+	img, err := i.getSpec().imageCache.getOrCreate(i, conf, func() (*imageResource, image.Image, error) {
 		imageProcSem <- true
 		defer func() {
 			<-imageProcSem
@@ -291,6 +292,13 @@ func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src im
 
 		return ci, converted, nil
 	})
+
+	if err != nil {
+		if i.root != nil && i.root.getFileInfo() != nil {
+			return nil, errors.Wrapf(err, "image %q", i.root.getFileInfo().Meta().Filename())
+		}
+	}
+	return img, nil
 }
 
 func (i *imageResource) decodeImageConfig(action, spec string) (images.ImageConfig, error) {

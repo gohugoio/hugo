@@ -36,14 +36,16 @@ var globalOnlySettings = map[string]bool{
 	strings.ToLower("multilingual"):                   true,
 	strings.ToLower("assetDir"):                       true,
 	strings.ToLower("resourceDir"):                    true,
+	strings.ToLower("build"):                          true,
 }
 
 // Language manages specific-language configuration.
 type Language struct {
-	Lang         string
-	LanguageName string
-	Title        string
-	Weight       int
+	Lang              string
+	LanguageName      string
+	LanguageDirection string
+	Title             string
+	Weight            int
 
 	Disabled bool
 

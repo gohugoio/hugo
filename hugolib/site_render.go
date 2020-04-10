@@ -59,7 +59,6 @@ func (s siteRenderContext) renderSingletonPages() bool {
 // renderPages renders pages each corresponding to a markdown file.
 // TODO(bep np doc
 func (s *Site) renderPages(ctx *siteRenderContext) error {
-
 	numWorkers := config.GetNumWorkerMultiplier()
 
 	results := make(chan error)
@@ -77,22 +76,17 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 
 	cfg := ctx.cfg
 
-	if !cfg.PartialReRender && ctx.outIdx == 0 && len(s.headlessPages) > 0 {
-		wg.Add(1)
-		go headlessPagesPublisher(s, wg)
-	}
-
-L:
-	for _, page := range s.workAllPages {
-		if cfg.shouldRender(page) {
+	s.pageMap.pageTrees.Walk(func(ss string, n *contentNode) bool {
+		if cfg.shouldRender(n.p) {
 			select {
 			case <-s.h.Done():
-				break L
+				return true
 			default:
-				pages <- page
+				pages <- n.p
 			}
 		}
-	}
+		return false
+	})
 
 	close(pages)
 
@@ -107,15 +101,6 @@ L:
 	return nil
 }
 
-func headlessPagesPublisher(s *Site, wg *sync.WaitGroup) {
-	defer wg.Done()
-	for _, p := range s.headlessPages {
-		if err := p.renderResources(); err != nil {
-			s.SendError(p.errorf(err, "failed to render page resources"))
-		}
-	}
-}
-
 func pageRenderer(
 	ctx *siteRenderContext,
 	s *Site,
@@ -126,15 +111,15 @@ func pageRenderer(
 	defer wg.Done()
 
 	for p := range pages {
-		f := p.outputFormat()
-
-		// TODO(bep) get rid of this odd construct. RSS is an output format.
-		if f.Name == "RSS" && !s.isEnabled(kindRSS) {
-			continue
+		if p.m.buildConfig.PublishResources {
+			if err := p.renderResources(); err != nil {
+				s.SendError(p.errorf(err, "failed to render page resources"))
+				continue
+			}
 		}
 
-		if err := p.renderResources(); err != nil {
-			s.SendError(p.errorf(err, "failed to render page resources"))
+		if !p.render {
+			// Nothing more to do for this page.
 			continue
 		}
 
@@ -145,7 +130,7 @@ func pageRenderer(
 		}
 
 		if !found {
-			s.logMissingLayout("", p.Kind(), f.Name)
+			s.logMissingLayout("", p.Kind(), p.f.Name)
 			continue
 		}
 
@@ -235,10 +220,6 @@ func (s *Site) renderPaginator(p *pageState, templ tpl.Template) error {
 }
 
 func (s *Site) render404() error {
-	if !s.isEnabled(kind404) {
-		return nil
-	}
-
 	p, err := newPageStandalone(&pageMeta{
 		s:    s,
 		kind: kind404,
@@ -251,6 +232,10 @@ func (s *Site) render404() error {
 
 	if err != nil {
 		return err
+	}
+
+	if !p.render {
+		return nil
 	}
 
 	var d output.LayoutDescriptor
@@ -274,10 +259,6 @@ func (s *Site) render404() error {
 }
 
 func (s *Site) renderSitemap() error {
-	if !s.isEnabled(kindSitemap) {
-		return nil
-	}
-
 	p, err := newPageStandalone(&pageMeta{
 		s:    s,
 		kind: kindSitemap,
@@ -289,6 +270,10 @@ func (s *Site) renderSitemap() error {
 
 	if err != nil {
 		return err
+	}
+
+	if !p.render {
+		return nil
 	}
 
 	targetPath := p.targetPaths().TargetFilename
@@ -303,10 +288,6 @@ func (s *Site) renderSitemap() error {
 }
 
 func (s *Site) renderRobotsTXT() error {
-	if !s.isEnabled(kindRobotsTXT) {
-		return nil
-	}
-
 	if !s.Cfg.GetBool("enableRobotsTXT") {
 		return nil
 	}
@@ -324,6 +305,10 @@ func (s *Site) renderRobotsTXT() error {
 		return err
 	}
 
+	if !p.render {
+		return nil
+	}
+
 	templ := s.lookupLayouts("robots.txt", "_default/robots.txt", "_internal/_default/robots.txt")
 
 	return s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, "Robots Txt", p.targetPaths().TargetFilename, p, templ)
@@ -332,15 +317,16 @@ func (s *Site) renderRobotsTXT() error {
 
 // renderAliases renders shell pages that simply have a redirect in the header.
 func (s *Site) renderAliases() error {
-	for _, p := range s.workAllPages {
-
+	var err error
+	s.pageMap.pageTrees.WalkRenderable(func(ss string, n *contentNode) bool {
+		p := n.p
 		if len(p.Aliases()) == 0 {
-			continue
+			return false
 		}
 
 		for _, of := range p.OutputFormats() {
 			if !of.Format.IsHTML {
-				continue
+				return false
 			}
 
 			plink := of.Permalink()
@@ -372,14 +358,16 @@ func (s *Site) renderAliases() error {
 					a = path.Join(lang, a)
 				}
 
-				if err := s.writeDestAlias(a, plink, f, p); err != nil {
-					return err
+				err = s.writeDestAlias(a, plink, f, p)
+				if err != nil {
+					return true
 				}
 			}
 		}
-	}
+		return false
+	})
 
-	return nil
+	return err
 }
 
 // renderMainLanguageRedirect creates a redirect to the main language home,

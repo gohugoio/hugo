@@ -16,8 +16,9 @@ package transform
 import (
 	"testing"
 
+	"github.com/gohugoio/hugo/htesting"
+
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/viper"
 )
 
@@ -99,7 +100,7 @@ title: Test Metadata
 
 			converted, err := ns.Remarshal(v1.format, v2.data)
 			c.Assert(err, qt.IsNil, fromTo)
-			diff := helpers.DiffStrings(v1.data, converted)
+			diff := htesting.DiffStrings(v1.data, converted)
 			if len(diff) > 0 {
 				t.Errorf("[%s] Expected \n%v\ngot\n%v\ndiff:\n%v", fromTo, v1.data, converted, diff)
 			}
@@ -147,7 +148,7 @@ Hugo = "Rules"
 			c.Assert(err, qt.IsNil, fromTo)
 		}
 
-		diff := helpers.DiffStrings(expected, converted)
+		diff := htesting.DiffStrings(expected, converted)
 		if len(diff) > 0 {
 			t.Fatalf("[%s] Expected \n%v\ngot\n%v\ndiff:\n%v\n", fromTo, expected, converted, diff)
 		}

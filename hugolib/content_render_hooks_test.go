@@ -135,7 +135,7 @@ title: No Template
 	}
 	counters := &testCounters{}
 	b.Build(BuildCfg{testCounters: counters})
-	b.Assert(int(counters.contentRenderCounter), qt.Equals, 50)
+	b.Assert(int(counters.contentRenderCounter), qt.Equals, 43)
 
 	b.AssertFileContent("public/blog/p1/index.html", `
 <p>Cool Page|https://www.google.com|Title: Google's Homepage|Text: First Link|END</p>
@@ -370,5 +370,32 @@ RSTART:<strong>Bold Markdown</strong>:REND
 RSTART:<p><strong>Bold Block Markdown</strong></p>
 RSTART:<em>italic org mode</em>:REND
 `)
+
+}
+
+// https://github.com/gohugoio/hugo/issues/6882
+func TestRenderStringOnListPage(t *testing.T) {
+	renderStringTempl := `
+{{ .RenderString "**Hello**" }}
+`
+	b := newTestSitesBuilder(t)
+	b.WithContent("mysection/p1.md", `FOO`)
+	b.WithTemplates(
+		"index.html", renderStringTempl,
+		"_default/list.html", renderStringTempl,
+		"_default/single.html", renderStringTempl,
+	)
+
+	b.Build(BuildCfg{})
+
+	for _, filename := range []string{
+		"index.html",
+		"mysection/index.html",
+		"categories/index.html",
+		"tags/index.html",
+		"mysection/p1/index.html",
+	} {
+		b.AssertFileContent("public/"+filename, `<strong>Hello</strong>`)
+	}
 
 }

@@ -16,9 +16,10 @@ package commands
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"strings"
 	"time"
+
+	"github.com/gohugoio/hugo/parser/pageparser"
 
 	"github.com/gohugoio/hugo/resources/page"
 
@@ -28,7 +29,6 @@ import (
 
 	"github.com/gohugoio/hugo/parser"
 	"github.com/gohugoio/hugo/parser/metadecoders"
-	"github.com/gohugoio/hugo/parser/pageparser"
 
 	"github.com/pkg/errors"
 
@@ -157,7 +157,7 @@ func (cc *convertCmd) convertAndSavePage(p page.Page, site *hugolib.Site, target
 		return nil
 	}
 
-	pf, err := parseContentFile(file)
+	pf, err := pageparser.ParseFrontMatterAndContent(file)
 	if err != nil {
 		site.Log.ERROR.Println(errMsg)
 		file.Close()
@@ -167,23 +167,23 @@ func (cc *convertCmd) convertAndSavePage(p page.Page, site *hugolib.Site, target
 	file.Close()
 
 	// better handling of dates in formats that don't have support for them
-	if pf.frontMatterFormat == metadecoders.JSON || pf.frontMatterFormat == metadecoders.YAML || pf.frontMatterFormat == metadecoders.TOML {
-		for k, v := range pf.frontMatter {
+	if pf.FrontMatterFormat == metadecoders.JSON || pf.FrontMatterFormat == metadecoders.YAML || pf.FrontMatterFormat == metadecoders.TOML {
+		for k, v := range pf.FrontMatter {
 			switch vv := v.(type) {
 			case time.Time:
-				pf.frontMatter[k] = vv.Format(time.RFC3339)
+				pf.FrontMatter[k] = vv.Format(time.RFC3339)
 			}
 		}
 	}
 
 	var newContent bytes.Buffer
-	err = parser.InterfaceToFrontMatter(pf.frontMatter, targetFormat, &newContent)
+	err = parser.InterfaceToFrontMatter(pf.FrontMatter, targetFormat, &newContent)
 	if err != nil {
 		site.Log.ERROR.Println(errMsg)
 		return err
 	}
 
-	newContent.Write(pf.content)
+	newContent.Write(pf.Content)
 
 	newFilename := p.File().Filename()
 
@@ -209,40 +209,4 @@ type parsedFile struct {
 
 	// Everything after Front Matter
 	content []byte
-}
-
-func parseContentFile(r io.Reader) (parsedFile, error) {
-	var pf parsedFile
-
-	psr, err := pageparser.Parse(r, pageparser.Config{})
-	if err != nil {
-		return pf, err
-	}
-
-	iter := psr.Iterator()
-
-	walkFn := func(item pageparser.Item) bool {
-		if pf.frontMatterSource != nil {
-			// The rest is content.
-			pf.content = psr.Input()[item.Pos:]
-			// Done
-			return false
-		} else if item.IsFrontMatter() {
-			pf.frontMatterFormat = metadecoders.FormatFromFrontMatterType(item.Type)
-			pf.frontMatterSource = item.Val
-		}
-		return true
-
-	}
-
-	iter.PeekWalk(walkFn)
-
-	metadata, err := metadecoders.Default.UnmarshalToMap(pf.frontMatterSource, pf.frontMatterFormat)
-	if err != nil {
-		return pf, err
-	}
-	pf.frontMatter = metadata
-
-	return pf, nil
-
 }

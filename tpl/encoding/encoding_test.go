@@ -1,4 +1,4 @@
-// Copyright 2017 The Hugo Authors. All rights reserved.
+// Copyright 2020 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -83,17 +83,29 @@ func TestJsonify(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
+		opts   interface{}
 		v      interface{}
 		expect interface{}
 	}{
-		{[]string{"a", "b"}, template.HTML(`["a","b"]`)},
-		{tstNoStringer{}, template.HTML("{}")},
-		{nil, template.HTML("null")},
+		{nil, []string{"a", "b"}, template.HTML(`["a","b"]`)},
+		{map[string]string{"indent": "<i>"}, []string{"a", "b"}, template.HTML("[\n<i>\"a\",\n<i>\"b\"\n]")},
+		{map[string]string{"prefix": "<p>"}, []string{"a", "b"}, template.HTML("[\n<p>\"a\",\n<p>\"b\"\n<p>]")},
+		{map[string]string{"prefix": "<p>", "indent": "<i>"}, []string{"a", "b"}, template.HTML("[\n<p><i>\"a\",\n<p><i>\"b\"\n<p>]")},
+		{nil, tstNoStringer{}, template.HTML("{}")},
+		{nil, nil, template.HTML("null")},
 		// errors
-		{math.NaN(), false},
+		{nil, math.NaN(), false},
+		{tstNoStringer{}, []string{"a", "b"}, false},
 	} {
+		args := []interface{}{}
 
-		result, err := ns.Jsonify(test.v)
+		if test.opts != nil {
+			args = append(args, test.opts)
+		}
+
+		args = append(args, test.v)
+
+		result, err := ns.Jsonify(args...)
 
 		if b, ok := test.expect.(bool); ok && !b {
 			c.Assert(err, qt.Not(qt.IsNil))

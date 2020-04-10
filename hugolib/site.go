@@ -100,10 +100,10 @@ type Site struct {
 
 	*PageCollections
 
-	Taxonomies TaxonomyList
+	taxonomies TaxonomyList
 
 	Sections Taxonomy
-	Info     SiteInfo
+	Info     *SiteInfo
 
 	language *langs.Language
 
@@ -163,9 +163,28 @@ type Site struct {
 	init *siteInit
 }
 
+func (s *Site) Taxonomies() TaxonomyList {
+	s.init.taxonomies.Do()
+	return s.taxonomies
+}
+
+type taxonomiesConfig map[string]string
+
+func (t taxonomiesConfig) Values() []viewName {
+	var vals []viewName
+	for k, v := range t {
+		vals = append(vals, viewName{singular: k, plural: v})
+	}
+	sort.Slice(vals, func(i, j int) bool {
+		return vals[i].plural < vals[j].plural
+	})
+
+	return vals
+}
+
 type siteConfigHolder struct {
 	sitemap          config.Sitemap
-	taxonomiesConfig map[string]string
+	taxonomiesConfig taxonomiesConfig
 	timeout          time.Duration
 	hasCJKLanguage   bool
 	enableEmoji      bool
@@ -176,12 +195,14 @@ type siteInit struct {
 	prevNext          *lazy.Init
 	prevNextInSection *lazy.Init
 	menus             *lazy.Init
+	taxonomies        *lazy.Init
 }
 
 func (init *siteInit) Reset() {
 	init.prevNext.Reset()
 	init.prevNextInSection.Reset()
 	init.menus.Reset()
+	init.taxonomies.Reset()
 }
 
 func (s *Site) initInit(init *lazy.Init, pctx pageContext) bool {
@@ -198,64 +219,86 @@ func (s *Site) prepareInits() {
 	var init lazy.Init
 
 	s.init.prevNext = init.Branch(func() (interface{}, error) {
-		regularPages := s.findWorkPagesByKind(page.KindPage)
+		regularPages := s.RegularPages()
 		for i, p := range regularPages {
-			if p.posNextPrev == nil {
+			np, ok := p.(nextPrevProvider)
+			if !ok {
 				continue
 			}
-			p.posNextPrev.nextPage = nil
-			p.posNextPrev.prevPage = nil
+
+			pos := np.getNextPrev()
+			if pos == nil {
+				continue
+			}
+
+			pos.nextPage = nil
+			pos.prevPage = nil
 
 			if i > 0 {
-				p.posNextPrev.nextPage = regularPages[i-1]
+				pos.nextPage = regularPages[i-1]
 			}
 
 			if i < len(regularPages)-1 {
-				p.posNextPrev.prevPage = regularPages[i+1]
+				pos.prevPage = regularPages[i+1]
 			}
 		}
 		return nil, nil
 	})
 
 	s.init.prevNextInSection = init.Branch(func() (interface{}, error) {
-		var rootSection []int
-		// TODO(bep) cm attach this to the bucket.
-		for i, p1 := range s.workAllPages {
-			if p1.IsPage() && p1.Section() == "" {
-				rootSection = append(rootSection, i)
-			}
-			if p1.IsSection() {
-				sectionPages := p1.RegularPages()
-				for i, p2 := range sectionPages {
-					p2s := p2.(*pageState)
-					if p2s.posNextPrevSection == nil {
-						continue
-					}
 
-					p2s.posNextPrevSection.nextPage = nil
-					p2s.posNextPrevSection.prevPage = nil
+		var sections page.Pages
+		s.home.treeRef.m.collectSectionsRecursiveIncludingSelf(pageMapQuery{Prefix: s.home.treeRef.key}, func(n *contentNode) {
+			sections = append(sections, n.p)
+		})
 
-					if i > 0 {
-						p2s.posNextPrevSection.nextPage = sectionPages[i-1]
-					}
+		setNextPrev := func(pas page.Pages) {
+			for i, p := range pas {
+				np, ok := p.(nextPrevInSectionProvider)
+				if !ok {
+					continue
+				}
 
-					if i < len(sectionPages)-1 {
-						p2s.posNextPrevSection.prevPage = sectionPages[i+1]
-					}
+				pos := np.getNextPrevInSection()
+				if pos == nil {
+					continue
+				}
+
+				pos.nextPage = nil
+				pos.prevPage = nil
+
+				if i > 0 {
+					pos.nextPage = pas[i-1]
+				}
+
+				if i < len(pas)-1 {
+					pos.prevPage = pas[i+1]
 				}
 			}
 		}
 
-		for i, j := range rootSection {
-			p := s.workAllPages[j]
-			if i > 0 {
-				p.posNextPrevSection.nextPage = s.workAllPages[rootSection[i-1]]
-			}
+		for _, sect := range sections {
+			treeRef := sect.(treeRefProvider).getTreeRef()
 
-			if i < len(rootSection)-1 {
-				p.posNextPrevSection.prevPage = s.workAllPages[rootSection[i+1]]
-			}
+			var pas page.Pages
+			treeRef.m.collectPages(pageMapQuery{Prefix: treeRef.key + cmBranchSeparator}, func(c *contentNode) {
+				pas = append(pas, c.p)
+			})
+			page.SortByDefault(pas)
+
+			setNextPrev(pas)
 		}
+
+		// The root section only goes one level down.
+		treeRef := s.home.getTreeRef()
+
+		var pas page.Pages
+		treeRef.m.collectPages(pageMapQuery{Prefix: treeRef.key + cmBranchSeparator}, func(c *contentNode) {
+			pas = append(pas, c.p)
+		})
+		page.SortByDefault(pas)
+
+		setNextPrev(pas)
 
 		return nil, nil
 	})
@@ -263,6 +306,11 @@ func (s *Site) prepareInits() {
 	s.init.menus = init.Branch(func() (interface{}, error) {
 		s.assembleMenus()
 		return nil, nil
+	})
+
+	s.init.taxonomies = init.Branch(func() (interface{}, error) {
+		err := s.pageMap.assembleTaxonomies()
+		return nil, err
 	})
 
 }
@@ -279,14 +327,15 @@ func (s *Site) Menus() navigation.Menus {
 func (s *Site) initRenderFormats() {
 	formatSet := make(map[string]bool)
 	formats := output.Formats{}
-	for _, p := range s.workAllPages {
-		for _, f := range p.m.configuredOutputFormats {
+	s.pageMap.pageTrees.WalkRenderable(func(s string, n *contentNode) bool {
+		for _, f := range n.p.m.configuredOutputFormats {
 			if !formatSet[f.Name] {
 				formats = append(formats, f)
 				formatSet[f.Name] = true
 			}
 		}
-	}
+		return false
+	})
 
 	// Add the per kind configured output formats
 	for _, kind := range allKindsInPages {
@@ -345,8 +394,6 @@ func (s *Site) reset() *Site {
 
 // newSite creates a new site with the given configuration.
 func newSite(cfg deps.DepsCfg) (*Site, error) {
-	c := newPageCollections()
-
 	if cfg.Language == nil {
 		cfg.Language = langs.NewDefaultLanguage(cfg.Cfg)
 	}
@@ -385,7 +432,19 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		return nil, err
 	}
 
-	outputFormats, err := createSiteOutputFormats(siteOutputFormatsConfig, cfg.Language)
+	rssDisabled := disabledKinds[kindRSS]
+	if rssDisabled {
+		// Legacy
+		tmp := siteOutputFormatsConfig[:0]
+		for _, x := range siteOutputFormatsConfig {
+			if !strings.EqualFold(x.Name, "rss") {
+				tmp = append(tmp, x)
+			}
+		}
+		siteOutputFormatsConfig = tmp
+	}
+
+	outputFormats, err := createSiteOutputFormats(siteOutputFormatsConfig, cfg.Language, rssDisabled)
 	if err != nil {
 		return nil, err
 	}
@@ -435,18 +494,23 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 	}
 
 	s := &Site{
-		PageCollections:        c,
-		language:               cfg.Language,
-		disabledKinds:          disabledKinds,
-		titleFunc:              titleFunc,
-		relatedDocsHandler:     page.NewRelatedDocsHandler(relatedContentConfig),
-		outputFormats:          outputFormats,
-		rc:                     &siteRenderingContext{output.HTMLFormat},
-		outputFormatsConfig:    siteOutputFormatsConfig,
-		mediaTypesConfig:       siteMediaTypesConfig,
-		frontmatterHandler:     frontMatterHandler,
+
+		language:      cfg.Language,
+		disabledKinds: disabledKinds,
+
+		outputFormats:       outputFormats,
+		outputFormatsConfig: siteOutputFormatsConfig,
+		mediaTypesConfig:    siteMediaTypesConfig,
+
 		enableInlineShortcodes: cfg.Language.GetBool("enableInlineShortcodes"),
 		siteCfg:                siteConfig,
+
+		titleFunc: titleFunc,
+
+		rc: &siteRenderingContext{output.HTMLFormat},
+
+		frontmatterHandler: frontMatterHandler,
+		relatedDocsHandler: page.NewRelatedDocsHandler(relatedContentConfig),
 	}
 
 	s.prepareInits()
@@ -595,7 +659,7 @@ func (s *SiteInfo) Menus() navigation.Menus {
 
 // TODO(bep) type
 func (s *SiteInfo) Taxonomies() interface{} {
-	return s.s.Taxonomies
+	return s.s.Taxonomies()
 }
 
 func (s *SiteInfo) Params() maps.Params {
@@ -713,7 +777,6 @@ func (s siteRefLinker) logNotFound(ref, what string, p page.Page, position text.
 }
 
 func (s *siteRefLinker) refLink(ref string, source interface{}, relative bool, outputFormat string) (string, error) {
-
 	p, err := unwrapPage(source)
 	if err != nil {
 		return "", err
@@ -734,7 +797,7 @@ func (s *siteRefLinker) refLink(ref string, source interface{}, relative bool, o
 
 	if refURL.Path != "" {
 		var err error
-		target, err = s.s.getPageNew(p, refURL.Path)
+		target, err = s.s.getPageRef(p, refURL.Path)
 		var pos text.Position
 		if err != nil || target == nil {
 			if p, ok := source.(text.Positioner); ok {
@@ -988,7 +1051,7 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 				OutputFormats: site.outputFormatsConfig,
 			}
 			site.Deps, err = first.Deps.ForLanguage(depsCfg, func(d *deps.Deps) error {
-				d.Site = &site.Info
+				d.Site = site.Info
 				return nil
 			})
 			if err != nil {
@@ -1189,7 +1252,7 @@ func (s *Site) initializeSiteInfo() error {
 		}
 	}
 
-	s.Info = SiteInfo{
+	s.Info = &SiteInfo{
 		title:                          lang.GetString("title"),
 		Author:                         lang.GetStringMap("author"),
 		Social:                         lang.GetStringMapString("social"),
@@ -1231,11 +1294,17 @@ func (s *Site) eventToIdentity(e fsnotify.Event) (identity.PathIdentity, bool) {
 func (s *Site) readAndProcessContent(filenames ...string) error {
 	sourceSpec := source.NewSourceSpec(s.PathSpec, s.BaseFs.Content.Fs)
 
-	proc := newPagesProcessor(s.h, sourceSpec, len(filenames) > 0)
+	proc := newPagesProcessor(s.h, sourceSpec)
 
-	c := newPagesCollector(sourceSpec, s.Log, s.h.ContentChanges, proc, filenames...)
+	c := newPagesCollector(sourceSpec, s.h.content, s.Log, s.h.ContentChanges, proc, filenames...)
 
-	return c.Collect()
+	if err := c.Collect(); err != nil {
+		return err
+	}
+
+	s.h.content = newPageMaps(s.h)
+
+	return nil
 }
 
 func (s *Site) getMenusFromConfig() navigation.Menus {
@@ -1309,35 +1378,45 @@ func (s *Site) assembleMenus() {
 	sectionPagesMenu := s.Info.sectionPagesMenu
 
 	if sectionPagesMenu != "" {
-		for _, p := range s.workAllPages {
-			if p.Kind() == page.KindSection {
-				// From Hugo 0.22 we have nested sections, but until we get a
-				// feel of how that would work in this setting, let us keep
-				// this menu for the top level only.
-				id := p.Section()
-				if _, ok := flat[twoD{sectionPagesMenu, id}]; ok {
-					continue
-				}
-
-				me := navigation.MenuEntry{Identifier: id,
-					Name:   p.LinkTitle(),
-					Weight: p.Weight(),
-					Page:   p}
-				flat[twoD{sectionPagesMenu, me.KeyName()}] = &me
+		s.pageMap.sections.Walk(func(s string, v interface{}) bool {
+			p := v.(*contentNode).p
+			if p.IsHome() {
+				return false
 			}
-		}
+			// From Hugo 0.22 we have nested sections, but until we get a
+			// feel of how that would work in this setting, let us keep
+			// this menu for the top level only.
+			id := p.Section()
+			if _, ok := flat[twoD{sectionPagesMenu, id}]; ok {
+				return false
+			}
+
+			me := navigation.MenuEntry{Identifier: id,
+				Name:   p.LinkTitle(),
+				Weight: p.Weight(),
+				Page:   p}
+			flat[twoD{sectionPagesMenu, me.KeyName()}] = &me
+
+			return false
+		})
+
 	}
 
 	// Add menu entries provided by pages
-	for _, p := range s.workAllPages {
+	s.pageMap.pageTrees.WalkRenderable(func(ss string, n *contentNode) bool {
+		p := n.p
+
 		for name, me := range p.pageMenus.menus() {
 			if _, ok := flat[twoD{name, me.KeyName()}]; ok {
-				s.SendError(p.wrapError(errors.Errorf("duplicate menu entry with identifier %q in menu %q", me.KeyName(), name)))
+				err := p.wrapError(errors.Errorf("duplicate menu entry with identifier %q in menu %q", me.KeyName(), name))
+				s.Log.WARN.Println(err)
 				continue
 			}
 			flat[twoD{name, me.KeyName()}] = me
 		}
-	}
+
+		return false
+	})
 
 	// Create Children Menus First
 	for _, e := range flat {
@@ -1410,15 +1489,20 @@ func (s *Site) resetBuildState(sourceChanged bool) {
 	s.init.Reset()
 
 	if sourceChanged {
-		s.PageCollections = newPageCollectionsFromPages(s.rawAllPages)
-		for _, p := range s.rawAllPages {
+		s.PageCollections = newPageCollections(s.pageMap)
+		s.pageMap.withEveryBundlePage(func(p *pageState) bool {
 			p.pagePages = &pagePages{}
+			if p.bucket != nil {
+				p.bucket.pagesMapBucketPages = &pagesMapBucketPages{}
+			}
 			p.parent = nil
 			p.Scratcher = maps.NewScratcher()
-		}
+			return false
+		})
 	} else {
-		s.pagesMap.withEveryPage(func(p *pageState) {
+		s.pageMap.withEveryBundlePage(func(p *pageState) bool {
 			p.Scratcher = maps.NewScratcher()
+			return false
 		})
 	}
 }
@@ -1613,6 +1697,7 @@ func (s *Site) kindFromFileInfoOrSections(fi *fileInfo, sections []string) strin
 		return s.kindFromSections(sections)
 
 	}
+
 	return page.KindPage
 }
 
@@ -1640,26 +1725,21 @@ func (s *Site) kindFromSectionPath(sectionPath string) string {
 	return page.KindSection
 }
 
-func (s *Site) newTaxonomyPage(title string, sections ...string) *pageState {
-	p, err := newPageFromMeta(
-		map[string]interface{}{"title": title},
-		&pageMeta{
-			s:        s,
-			kind:     page.KindTaxonomy,
-			sections: sections,
-		})
+func (s *Site) newPage(
+	n *contentNode,
+	parentbBucket *pagesMapBucket,
+	kind, title string,
+	sections ...string) *pageState {
 
-	if err != nil {
-		panic(err)
+	m := map[string]interface{}{}
+	if title != "" {
+		m["title"] = title
 	}
 
-	return p
-
-}
-
-func (s *Site) newPage(kind string, sections ...string) *pageState {
 	p, err := newPageFromMeta(
-		map[string]interface{}{},
+		n,
+		parentbBucket,
+		m,
 		&pageMeta{
 			s:        s,
 			kind:     kind,

@@ -408,7 +408,7 @@ func renderShortcode(
 }
 
 func (s *shortcodeHandler) hasShortcodes() bool {
-	return len(s.shortcodes) > 0
+	return s != nil && len(s.shortcodes) > 0
 }
 
 func (s *shortcodeHandler) renderShortcodesForPage(p *pageState, f output.Format) (map[string]string, bool, error) {

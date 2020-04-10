@@ -90,7 +90,7 @@ func newTestResourceSpec(desc specDescriptor) *Spec {
 	filecaches, err := filecache.NewCaches(s)
 	c.Assert(err, qt.IsNil)
 
-	spec, err := NewSpec(s, filecaches, nil, output.DefaultFormats, media.DefaultTypes)
+	spec, err := NewSpec(s, filecaches, nil, nil, nil, output.DefaultFormats, media.DefaultTypes)
 	c.Assert(err, qt.IsNil)
 	return spec
 }
@@ -129,7 +129,7 @@ func newTestResourceOsFs(c *qt.C) (*Spec, string) {
 	filecaches, err := filecache.NewCaches(s)
 	c.Assert(err, qt.IsNil)
 
-	spec, err := NewSpec(s, filecaches, nil, output.DefaultFormats, media.DefaultTypes)
+	spec, err := NewSpec(s, filecaches, nil, nil, nil, output.DefaultFormats, media.DefaultTypes)
 	c.Assert(err, qt.IsNil)
 
 	return spec, workDir

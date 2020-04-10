@@ -1415,7 +1415,7 @@
       "goldmark": {
         "renderer": {
           "hardWraps": false,
-          "xHTML": false,
+          "xhtml": false,
           "unsafe": false
         },
         "parser": {
@@ -1450,6 +1450,36 @@
         "skipHTML": false,
         "footnoteAnchorPrefix": "",
         "footnoteReturnLinkContents": ""
+      }
+    },
+    "minify": {
+      "minifyOutput": false,
+      "disableHTML": false,
+      "disableCSS": false,
+      "disableJS": false,
+      "disableJSON": false,
+      "disableSVG": false,
+      "disableXML": false,
+      "tdewolff": {
+        "html": {
+          "keepConditionalComments": true,
+          "keepDefaultAttrVals": true,
+          "keepDocumentTags": true,
+          "keepEndTags": true,
+          "keepWhitespace": false
+        },
+        "css": {
+          "decimals": -1,
+          "keepCSS2": true
+        },
+        "js": {},
+        "json": {},
+        "svg": {
+          "decimals": -1
+        },
+        "xml": {
+          "keepWhitespace": false
+        }
       }
     }
   },
@@ -3090,9 +3120,9 @@
           ]
         },
         "Jsonify": {
-          "Description": "Jsonify encodes a given object to JSON.",
+          "Description": "Jsonify encodes a given object to JSON.  To pretty print the JSON, pass a map\nor dictionary of options as the first argument.  Supported options are\n\"prefix\" and \"indent\".  Each JSON element in the output will begin on a new\nline beginning with prefix followed by one or more copies of indent according\nto the indentation nesting.",
           "Args": [
-            "v"
+            "args"
           ],
           "Aliases": [
             "jsonify"
@@ -3101,6 +3131,10 @@
             [
               "{{ (slice \"A\" \"B\" \"C\") | jsonify }}",
               "[\"A\",\"B\",\"C\"]"
+            ],
+            [
+              "{{ (slice \"A\" \"B\" \"C\") | jsonify (dict \"indent\" \"  \") }}",
+              "[\n  \"A\",\n  \"B\",\n  \"C\"\n]"
             ]
           ]
         }
@@ -3187,6 +3221,12 @@
       },
       "hugo": {
         "Generator": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "IsProduction": {
           "Description": "",
           "Args": null,
           "Aliases": null,
@@ -3544,6 +3584,19 @@
             ]
           ]
         },
+        "Sqrt": {
+          "Description": "Sqrt returns the square root of a number.\nNOTE: will return for NaN for negative values of a",
+          "Args": [
+            "a"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{math.Sqrt 81}}",
+              "9"
+            ]
+          ]
+        },
         "Sub": {
           "Description": "Sub subtracts two numbers.",
           "Args": [
@@ -3816,6 +3869,12 @@
             "postCSS"
           ],
           "Examples": []
+        },
+        "PostProcess": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
         },
         "ToCSS": {
           "Description": "ToCSS converts the given Resource to CSS. You can optional provide an Options\nobject or a target path (string) as first argument.",
@@ -4466,7 +4525,7 @@
           "Examples": [
             [
               "{{ \"I :heart: Hugo\" | emojify }}",
-              "I ❤ Hugo"
+              "I ❤️ Hugo"
             ]
           ]
         },

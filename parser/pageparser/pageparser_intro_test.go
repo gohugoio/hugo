@@ -38,7 +38,6 @@ var (
 	tstFrontMatterJSON     = nti(TypeFrontMatterJSON, tstJSON+"\r\n")
 	tstSomeText            = nti(tText, "\nSome text.\n")
 	tstSummaryDivider      = nti(TypeLeadSummaryDivider, "<!--more-->\n")
-	tstHtmlStart           = nti(TypeHTMLStart, "<")
 	tstNewline             = nti(tText, "\n")
 
 	tstORG = `
@@ -55,8 +54,8 @@ var crLfReplacer = strings.NewReplacer("\r", "#", "\n", "$")
 var frontMatterTests = []lexerTest{
 	{"empty", "", []Item{tstEOF}},
 	{"Byte order mark", "\ufeff\nSome text.\n", []Item{nti(TypeIgnore, "\ufeff"), tstSomeText, tstEOF}},
-	{"HTML Document", `  <html>  `, []Item{nti(tText, "  "), tstHtmlStart, nti(tText, "html>  "), tstEOF}},
-	{"HTML Document with shortcode", `<html>{{< sc1 >}}</html>`, []Item{tstHtmlStart, nti(tText, "html>"), tstLeftNoMD, tstSC1, tstRightNoMD, nti(tText, "</html>"), tstEOF}},
+	{"HTML Document", `  <html>  `, []Item{nti(tError, "plain HTML documents not supported")}},
+	{"HTML Document with shortcode", `<html>{{< sc1 >}}</html>`, []Item{nti(tError, "plain HTML documents not supported")}},
 	{"No front matter", "\nSome text.\n", []Item{tstSomeText, tstEOF}},
 	{"YAML front matter", "---\nfoo: \"bar\"\n---\n\nSome text.\n", []Item{tstFrontMatterYAML, tstSomeText, tstEOF}},
 	{"YAML empty front matter", "---\n---\n\nSome text.\n", []Item{nti(TypeFrontMatterYAML, ""), tstSomeText, tstEOF}},

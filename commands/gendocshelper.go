@@ -64,7 +64,7 @@ func (g *genDocsHelper) generate() error {
 	enc := json.NewEncoder(f)
 	enc.SetIndent("", "  ")
 
-	if err := enc.Encode(docshelper.DocProviders); err != nil {
+	if err := enc.Encode(docshelper.GetDocProvider()); err != nil {
 		return err
 	}
 

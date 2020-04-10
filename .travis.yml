@@ -11,10 +11,9 @@ env:
 
 git:
   depth: false
-
 go:
-  - "1.12.16"
-  - "1.13.7"
+  - "1.13.9"
+  - "1.14.1"
   - master
 
 arch:
@@ -64,7 +63,8 @@ install:
   - go get github.com/magefile/mage
 
 script:
-  - go mod download || true
+  - go mod download
+  - go mod verify
   - mage -v test
   - if [ "$TRAVIS_ARCH" = "amd64" ]; then
         mage -v check;

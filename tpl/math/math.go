@@ -72,6 +72,18 @@ func (ns *Namespace) Log(a interface{}) (float64, error) {
 	return math.Log(af), nil
 }
 
+// Sqrt returns the square root of a number.
+// NOTE: will return for NaN for negative values of a
+func (ns *Namespace) Sqrt(a interface{}) (float64, error) {
+	af, err := cast.ToFloat64E(a)
+
+	if err != nil {
+		return 0, errors.New("Sqrt operator can't be used with non integer or float value")
+	}
+
+	return math.Sqrt(af), nil
+}
+
 // Mod returns a % b.
 func (ns *Namespace) Mod(a, b interface{}) (int64, error) {
 	ai, erra := cast.ToInt64E(a)

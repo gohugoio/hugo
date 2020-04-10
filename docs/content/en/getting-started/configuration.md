@@ -85,7 +85,10 @@ baseURL
 : Hostname (and path) to the root, e.g. https://bep.is/
 
 blackfriday
-: See [Configure Blackfriday](/getting-started/configuration/#configure-blackfriday)
+: See [Configure Blackfriday](/getting-started/configuration-markup#blackfriday)
+
+build
+: See [Configure Build](#configure-build)
 
 buildDrafts (false)
 : Include drafts when building.
@@ -135,7 +138,7 @@ enableEmoji (false)
 enableGitInfo (false)
 : Enable `.GitInfo` object for each page (if the Hugo site is versioned by Git). This will then update the `Lastmod` parameter for each page using the last git commit date for that content file.
 
-enableInlineShortcodes
+enableInlineShortcodes (false)
 : Enable inline shortcode support. See [Inline Shortcodes](/templates/shortcode-templates/#inline-shortcodes).
 
 enableMissingTranslationPlaceholders (false)
@@ -189,6 +192,9 @@ markup
 
 menu
 : See [Add Non-content Entries to a Menu](/content-management/menus/#add-non-content-entries-to-a-menu).
+
+minify
+: See [Configure Minify](#configure-minify)
 
 module
 : Module config see [Module Config](/hugo-modules/configuration/).{{< new-in "0.56.0" >}}
@@ -287,6 +293,59 @@ which shows output like
 enableemoji: true
 ```
 {{% /note %}}
+
+## Configure Build
+
+{{< new-in "0.66.0" >}}
+
+The `build` configuration section contains global build-realated configuration options.
+
+{{< code-toggle file="config">}}
+[build]
+useResourceCacheWhen="fallback"
+{{< /code-toggle >}}
+
+
+useResourceCacheWhen
+: When to use the cached resources in `/resources/_gen` for PostCSS and ToCSS. Valid values are `never`, `always` and `fallback`. The last value means that the cache will be tried if PostCSS/extended version is not available.
+
+## Configure Server
+
+{{< new-in "0.67.0" >}}
+
+This is only relevant when running `hugo server`, and it allows to set HTTP headers during development, which allows you to test out your Content Security Policy and similar. The configuration format matches [Netlify's](https://docs.netlify.com/routing/headers/#syntax-for-the-netlify-configuration-file) with slighly more powerful [Glob matching](https://github.com/gobwas/glob):
+
+
+{{< code-toggle file="config">}}
+[server]
+[[server.headers]]
+for = "/**.html"
+
+[server.headers.values]
+X-Frame-Options = "DENY"
+X-XSS-Protection = "1; mode=block"
+X-Content-Type-Options = "nosniff"
+Referrer-Policy = "strict-origin-when-cross-origin"
+Content-Security-Policy = "script-src localhost:1313"
+{{< /code-toggle >}}
+
+Since this is is "development only", it may make sense to put it below the `development` environment:
+
+
+{{< code-toggle file="config/development/server">}}
+[[headers]]
+for = "/**.html"
+
+[headers.values]
+X-Frame-Options = "DENY"
+X-XSS-Protection = "1; mode=block"
+X-Content-Type-Options = "nosniff"
+Referrer-Policy = "strict-origin-when-cross-origin"
+Content-Security-Policy = "script-src localhost:1313"
+{{< /code-toggle >}}
+
+
+
 
 ## Configure Title Case
 
@@ -425,6 +484,14 @@ The above will try first to extract the value for `.Date` from the filename, the
 
 Hugo v0.20 introduced the ability to render your content to multiple output formats (e.g., to JSON, AMP html, or CSV). See [Output Formats][] for information on how to add these values to your Hugo project's configuration file.
 
+## Configure Minify
+
+{{< new-in "0.68.0" >}}
+
+Default configuration:
+
+{{< code-toggle config="minify" />}}
+
 ## Configure File Caches
 
 Since Hugo 0.52 you can configure more than just the `cacheDir`. This is the default configuration:
@@ -448,7 +515,7 @@ dir = ":cacheDir/modules"
 maxAge = -1
 ```
 
-You can override any of these cache setting in your own `config.toml`.
+You can override any of these cache settings in your own `config.toml`.
 
 ### The keywords explained
 

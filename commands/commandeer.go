@@ -18,6 +18,8 @@ import (
 	"errors"
 	"sync"
 
+	hconfig "github.com/gohugoio/hugo/config"
+
 	"golang.org/x/sync/semaphore"
 
 	"io/ioutil"
@@ -58,7 +60,8 @@ type commandeerHugoState struct {
 type commandeer struct {
 	*commandeerHugoState
 
-	logger *loggers.Logger
+	logger       *loggers.Logger
+	serverConfig *config.Server
 
 	// Currently only set when in "fast render mode". But it seems to
 	// be fast enough that we could maybe just add it for all server modes.
@@ -72,7 +75,7 @@ type commandeer struct {
 
 	visitedURLs *types.EvictingStringQueue
 
-	doWithCommandeer func(c *commandeer) error
+	cfgInit func(c *commandeer) error
 
 	// We watch these for changes.
 	configFiles []string
@@ -152,7 +155,7 @@ func (c *commandeer) initFs(fs *hugofs.Fs) error {
 	return nil
 }
 
-func newCommandeer(mustHaveConfigFile, running bool, h *hugoBuilderCommon, f flagsToConfigHandler, doWithCommandeer func(c *commandeer) error, subCmdVs ...*cobra.Command) (*commandeer, error) {
+func newCommandeer(mustHaveConfigFile, running bool, h *hugoBuilderCommon, f flagsToConfigHandler, cfgInit func(c *commandeer) error, subCmdVs ...*cobra.Command) (*commandeer, error) {
 
 	var rebuildDebouncer func(f func())
 	if running {
@@ -171,7 +174,7 @@ func newCommandeer(mustHaveConfigFile, running bool, h *hugoBuilderCommon, f fla
 		h:                   h,
 		ftch:                f,
 		commandeerHugoState: newCommandeerHugoState(),
-		doWithCommandeer:    doWithCommandeer,
+		cfgInit:             cfgInit,
 		visitedURLs:         types.NewEvictingStringQueue(10),
 		debounce:            rebuildDebouncer,
 		fullRebuildSem:      semaphore.NewWeighted(1),
@@ -284,12 +287,12 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		return nil
 	}
 
-	doWithCommandeer := func(cfg config.Provider) error {
+	cfgSetAndInit := func(cfg config.Provider) error {
 		c.Cfg = cfg
-		if c.doWithCommandeer == nil {
+		if c.cfgInit == nil {
 			return nil
 		}
-		err := c.doWithCommandeer(c)
+		err := c.cfgInit(c)
 		return err
 	}
 
@@ -307,7 +310,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 			AbsConfigDir: c.h.getConfigDir(dir),
 			Environ:      os.Environ(),
 			Environment:  environment},
-		doWithCommandeer,
+		cfgSetAndInit,
 		doWithConfig)
 
 	if err != nil && mustHaveConfigFile {
@@ -330,8 +333,8 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 
 	// This is potentially double work, but we need to do this one more time now
 	// that all the languages have been configured.
-	if c.doWithCommandeer != nil {
-		if err := c.doWithCommandeer(c); err != nil {
+	if c.cfgInit != nil {
+		if err := c.cfgInit(c); err != nil {
 			return err
 		}
 	}
@@ -343,6 +346,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 
 	cfg.Logger = logger
 	c.logger = logger
+	c.serverConfig = hconfig.DecodeServer(cfg.Cfg)
 
 	createMemFs := config.GetBool("renderToMemory")
 

@@ -173,7 +173,7 @@ When defined in the front matter, the `slug` can take the place of the filename 
 
 {{< code file="content/posts/old-post.md" >}}
 ---
-title: New Post
+title: A new post with the filename old-post.md
 slug: "new-post"
 ---
 {{< /code >}}

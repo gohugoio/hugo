@@ -14,10 +14,16 @@
 package files
 
 import (
+	"bufio"
+	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+	"unicode"
+
+	"github.com/spf13/afero"
 )
 
 var (
@@ -32,6 +38,11 @@ var (
 		"pandoc", "pdc"}
 
 	contentFileExtensionsSet map[string]bool
+
+	htmlFileExtensions = []string{
+		"html", "htm"}
+
+	htmlFileExtensionsSet map[string]bool
 )
 
 func init() {
@@ -39,27 +50,64 @@ func init() {
 	for _, ext := range contentFileExtensions {
 		contentFileExtensionsSet[ext] = true
 	}
+	htmlFileExtensionsSet = make(map[string]bool)
+	for _, ext := range htmlFileExtensions {
+		htmlFileExtensionsSet[ext] = true
+	}
 }
 
 func IsContentFile(filename string) bool {
 	return contentFileExtensionsSet[strings.TrimPrefix(filepath.Ext(filename), ".")]
 }
 
+func IsHTMLFile(filename string) bool {
+	return htmlFileExtensionsSet[strings.TrimPrefix(filepath.Ext(filename), ".")]
+}
+
 func IsContentExt(ext string) bool {
 	return contentFileExtensionsSet[ext]
 }
 
+type ContentClass string
+
 const (
-	ContentClassLeaf    = "leaf"
-	ContentClassBranch  = "branch"
-	ContentClassFile    = "zfile" // Sort below
-	ContentClassContent = "zcontent"
+	ContentClassLeaf    ContentClass = "leaf"
+	ContentClassBranch  ContentClass = "branch"
+	ContentClassFile    ContentClass = "zfile" // Sort below
+	ContentClassContent ContentClass = "zcontent"
 )
 
-func ClassifyContentFile(filename string) string {
+func (c ContentClass) IsBundle() bool {
+	return c == ContentClassLeaf || c == ContentClassBranch
+}
+
+func ClassifyContentFile(filename string, open func() (afero.File, error)) ContentClass {
 	if !IsContentFile(filename) {
 		return ContentClassFile
 	}
+
+	if IsHTMLFile(filename) {
+		// We need to look inside the file. If the first non-whitespace
+		// character is a "<", then we treat it as a regular file.
+		// Eearlier we created pages for these files, but that had all sorts
+		// of troubles, and isn't what it says in the documentation.
+		// See https://github.com/gohugoio/hugo/issues/7030
+		if open == nil {
+			panic(fmt.Sprintf("no file opener provided for %q", filename))
+		}
+
+		f, err := open()
+		if err != nil {
+			return ContentClassFile
+		}
+		ishtml := isHTMLContent(f)
+		f.Close()
+		if ishtml {
+			return ContentClassFile
+		}
+
+	}
+
 	if strings.HasPrefix(filename, "_index.") {
 		return ContentClassBranch
 	}
@@ -69,6 +117,40 @@ func ClassifyContentFile(filename string) string {
 	}
 
 	return ContentClassContent
+}
+
+var htmlComment = []rune{'<', '!', '-', '-'}
+
+func isHTMLContent(r io.Reader) bool {
+	br := bufio.NewReader(r)
+	i := 0
+	for {
+		c, _, err := br.ReadRune()
+		if err != nil {
+			break
+		}
+
+		if i > 0 {
+			if i >= len(htmlComment) {
+				return false
+			}
+
+			if c != htmlComment[i] {
+				return true
+			}
+
+			i++
+			continue
+		}
+
+		if !unicode.IsSpace(c) {
+			if i == 0 && c != '<' {
+				return false
+			}
+			i++
+		}
+	}
+	return true
 }
 
 const (

@@ -124,7 +124,6 @@ func (w *Walkway) Walk() error {
 			if w.checkErr(w.root, err) {
 				return nil
 			}
-
 			return w.walkFn(w.root, nil, errors.Wrapf(err, "walk: %q", w.root))
 		}
 		fi = info.(FileMetaInfo)
@@ -154,6 +153,15 @@ func (w *Walkway) checkErr(filename string, err error) bool {
 		logUnsupportedSymlink(filename, w.logger)
 		return true
 	}
+
+	if os.IsNotExist(err) {
+		// The file may be removed in process.
+		// This may be a ERROR situation, but it is not possible
+		// to determine as a general case.
+		w.logger.WARN.Printf("File %q not found, skipping.", filename)
+		return true
+	}
+
 	return false
 }
 

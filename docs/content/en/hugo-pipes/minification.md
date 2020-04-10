@@ -23,3 +23,5 @@ Any resource of the aforementioned types can be minifed using `resources.Minify`
 {{ $css := resources.Get "css/main.css" }}
 {{ $style := $css | resources.Minify }}
 ```
+
+Note that you can also minify the final HTML output to `/public` by running `hugo --minify`.

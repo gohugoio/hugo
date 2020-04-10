@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/output"
@@ -23,27 +24,38 @@ import (
 )
 
 func createDefaultOutputFormats(allFormats output.Formats, cfg config.Provider) map[string]output.Formats {
-	rssOut, _ := allFormats.GetByName(output.RSSFormat.Name)
+	rssOut, rssFound := allFormats.GetByName(output.RSSFormat.Name)
 	htmlOut, _ := allFormats.GetByName(output.HTMLFormat.Name)
 	robotsOut, _ := allFormats.GetByName(output.RobotsTxtFormat.Name)
 	sitemapOut, _ := allFormats.GetByName(output.SitemapFormat.Name)
 
-	return map[string]output.Formats{
+	defaultListTypes := output.Formats{htmlOut}
+	if rssFound {
+		defaultListTypes = append(defaultListTypes, rssOut)
+	}
+
+	m := map[string]output.Formats{
 		page.KindPage:         {htmlOut},
-		page.KindHome:         {htmlOut, rssOut},
-		page.KindSection:      {htmlOut, rssOut},
-		page.KindTaxonomy:     {htmlOut, rssOut},
-		page.KindTaxonomyTerm: {htmlOut, rssOut},
+		page.KindHome:         defaultListTypes,
+		page.KindSection:      defaultListTypes,
+		page.KindTaxonomy:     defaultListTypes,
+		page.KindTaxonomyTerm: defaultListTypes,
 		// Below are for consistency. They are currently not used during rendering.
-		kindRSS:       {rssOut},
 		kindSitemap:   {sitemapOut},
 		kindRobotsTXT: {robotsOut},
 		kind404:       {htmlOut},
 	}
 
+	// May be disabled
+	if rssFound {
+		m[kindRSS] = output.Formats{rssOut}
+	}
+
+	return m
+
 }
 
-func createSiteOutputFormats(allFormats output.Formats, cfg config.Provider) (map[string]output.Formats, error) {
+func createSiteOutputFormats(allFormats output.Formats, cfg config.Provider, rssDisabled bool) (map[string]output.Formats, error) {
 	defaultOutputFormats := createDefaultOutputFormats(allFormats, cfg)
 
 	if !cfg.IsSet("outputs") {
@@ -71,6 +83,12 @@ func createSiteOutputFormats(allFormats output.Formats, cfg config.Provider) (ma
 		for _, format := range vals {
 			f, found := allFormats.GetByName(format)
 			if !found {
+				if rssDisabled && strings.EqualFold(format, "RSS") {
+					// This is legacy behaviour. We used to have both
+					// a RSS page kind and output format.
+					continue
+
+				}
 				return nil, fmt.Errorf("failed to resolve output format %q from site config", format)
 			}
 			formats = append(formats, f)

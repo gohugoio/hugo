@@ -137,6 +137,7 @@ func TestNoSymlinkFs(t *testing.T) {
 			c.Assert(err, qt.IsNil)
 			// There is at least one unsported symlink inside workDir
 			_, err = f.Readdir(-1)
+			c.Assert(err, qt.IsNil)
 			f.Close()
 			c.Assert(logger.WarnCounter.Count(), qt.Equals, uint64(1))
 

@@ -303,7 +303,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			c := qt.New(t)
 			sections := strings.Split(test.sections, ",")
 			p := s.getPage(page.KindSection, sections...)
-			c.Assert(p, qt.Not(qt.IsNil))
+			c.Assert(p, qt.Not(qt.IsNil), qt.Commentf(fmt.Sprint(sections)))
 
 			if p.Pages() != nil {
 				c.Assert(p.Data().(page.Data).Pages(), deepEqualsPages, p.Pages())

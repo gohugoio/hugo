@@ -51,29 +51,18 @@ Disqus has its own [internal template](https://gohugo.io/templates/internal/#dis
 
 There are a few alternatives to commenting on static sites for those who do not want to use Disqus:
 
-* [Static Man](https://staticman.net/)
+* [Staticman](https://staticman.net/)
 * [Talkyard](https://www.talkyard.io/blog-comments) (Open source, & serverless hosting)
-* [txtpen](https://txtpen.github.io/hn/)
 * [IntenseDebate](https://intensedebate.com/)
 * [Graph Comment][]
 * [Muut](https://muut.com/)
 * [isso](https://posativ.org/isso/) (Self-hosted, Python)
     * [Tutorial on Implementing Isso with Hugo][issotutorial]
-* [Utterances](https://utteranc.es/) (Open source, Github comments widget built on Github issues)
+* [Utterances](https://utteranc.es/) (Open source, GitHub comments widget built on GitHub issues)
 * [Remark](https://github.com/umputun/remark) (Open source, Golang, Easy to run docker)
 * [Commento](https://commento.io/) (Open Source, available as a service, local install, or docker image)
 * [JustComments](https://just-comments.com) (Open Source, available as a service, can be self-hosted)
 
-<!-- I don't think this is worth including in the documentation since it seems that Steve is no longer supporting or developing this project. rdwatters - 2017-02-29.-->
-<!-- * [Kaiju](https://github.com/spf13/kaiju) -->
-
-<!-- ## Kaiju
-
-[Kaiju](https://github.com/spf13/kaiju) is an open-source project started by [spf13](https://spf13.com/) (Hugo’s author) to bring easy and fast real time discussions to the web.
-
-Written using Go, Socket.io, and [MongoDB][], Kaiju is very fast and easy to deploy.
-
-It is in early development but shows promise. If you have interest, please help by contributing via pull request, [opening an issue in the Kaiju GitHub repository][kaijuissue], or [Tweeting about it][tweet]. Every bit helps. -->
 
 [configuration]: /getting-started/configuration/
 [disquspartial]: /templates/partials/#disqus

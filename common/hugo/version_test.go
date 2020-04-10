@@ -84,5 +84,6 @@ func TestParseHugoVersion(t *testing.T) {
 func TestGoMinorVersion(t *testing.T) {
 	c := qt.New(t)
 	c.Assert(goMinorVersion("go1.12.5"), qt.Equals, 12)
+	c.Assert(goMinorVersion("go1.14rc1"), qt.Equals, 14)
 	c.Assert(GoMinorVersion() >= 11, qt.Equals, true)
 }

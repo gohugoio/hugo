@@ -3,3 +3,17 @@ github.com/gohugoio/gohugoioTheme v0.0.0-20191014144142-1f3a01deed7b h1:PWNjl46f
 github.com/gohugoio/gohugoioTheme v0.0.0-20191014144142-1f3a01deed7b/go.mod h1:kpw3SS48xZvLQGEXKu8u5XHgXkPvL8DX3oGa07+z8Bs=
 github.com/gohugoio/gohugoioTheme v0.0.0-20191021162625-2e7250ca437d h1:D3DcaYkuJbotdWNNAQpQl37txX4HQ6R5uMHoxVmTw0w=
 github.com/gohugoio/gohugoioTheme v0.0.0-20191021162625-2e7250ca437d/go.mod h1:kpw3SS48xZvLQGEXKu8u5XHgXkPvL8DX3oGa07+z8Bs=
+github.com/gohugoio/gohugoioTheme v0.0.0-20200123151337-9475fd449324 h1:UZwHDYtGY0uOKIvcm2LWd+xfFxD3X5L222LIJdI5RE4=
+github.com/gohugoio/gohugoioTheme v0.0.0-20200123151337-9475fd449324/go.mod h1:kpw3SS48xZvLQGEXKu8u5XHgXkPvL8DX3oGa07+z8Bs=
+github.com/gohugoio/gohugoioTheme v0.0.0-20200123204146-589b4c309025 h1:ScYFARz+bHX1rEr1donVknhRdxGY/cwqK1hHvWEfrlc=
+github.com/gohugoio/gohugoioTheme v0.0.0-20200123204146-589b4c309025/go.mod h1:kpw3SS48xZvLQGEXKu8u5XHgXkPvL8DX3oGa07+z8Bs=
+github.com/gohugoio/gohugoioTheme v0.0.0-20200123205007-5d6620a0db26 h1:acXfduibbWxji9tW0WkLHbjcXFsnd5uIwXe0WfwOazg=
+github.com/gohugoio/gohugoioTheme v0.0.0-20200123205007-5d6620a0db26/go.mod h1:kpw3SS48xZvLQGEXKu8u5XHgXkPvL8DX3oGa07+z8Bs=
+github.com/gohugoio/gohugoioTheme v0.0.0-20200128164921-1d0bc5482051 h1:cS14MnUGS6xwWYfPNshimm8HdMCZiYBxWkCD0VnvgVw=
+github.com/gohugoio/gohugoioTheme v0.0.0-20200128164921-1d0bc5482051/go.mod h1:kpw3SS48xZvLQGEXKu8u5XHgXkPvL8DX3oGa07+z8Bs=
+github.com/gohugoio/gohugoioTheme v0.0.0-20200327225449-368f4cbef8d7 h1:cZ+ahAjSetbFv3aDJ9ipDbKyqaVlmkbSZ5cULgBTh+w=
+github.com/gohugoio/gohugoioTheme v0.0.0-20200327225449-368f4cbef8d7/go.mod h1:kpw3SS48xZvLQGEXKu8u5XHgXkPvL8DX3oGa07+z8Bs=
+github.com/gohugoio/gohugoioTheme v0.0.0-20200327231942-7f80b3d02bfa h1:kG+O/wT9UXomzp5eQiUuFVZ0l7YylAW6EVPLyjMxi/c=
+github.com/gohugoio/gohugoioTheme v0.0.0-20200327231942-7f80b3d02bfa/go.mod h1:kpw3SS48xZvLQGEXKu8u5XHgXkPvL8DX3oGa07+z8Bs=
+github.com/gohugoio/gohugoioTheme v0.0.0-20200328100657-2bfd5f8c6aee h1:PJZhCwnuVLyafDWNPSHk9iJvk6gEIvPRnycy7Pq3peA=
+github.com/gohugoio/gohugoioTheme v0.0.0-20200328100657-2bfd5f8c6aee/go.mod h1:kpw3SS48xZvLQGEXKu8u5XHgXkPvL8DX3oGa07+z8Bs=

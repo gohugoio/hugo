@@ -20,9 +20,13 @@ import (
 )
 
 func TestBuildFlags(t *testing.T) {
+
 	c := qt.New(t)
-	var bf BuildFlags
-	c.Assert(bf.HasLateTemplate.Load(), qt.Equals, false)
-	bf.HasLateTemplate.Store(true)
-	c.Assert(bf.HasLateTemplate.Load(), qt.Equals, true)
+	var bf BuildState
+	bf.Incr()
+	bf.Incr()
+	bf.Incr()
+
+	c.Assert(bf.Incr(), qt.Equals, 4)
+
 }

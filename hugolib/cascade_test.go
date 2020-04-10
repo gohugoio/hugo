@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"fmt"
 	"path"
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -60,29 +61,33 @@ func TestCascade(t *testing.T) {
 		b.Build(BuildCfg{})
 
 		b.AssertFileContent("public/index.html", `
-        12|taxonomy|categories/cool/_index.md|Cascade Category|cat.png|categories|HTML-|
-        12|taxonomy|categories/catsect1|catsect1|cat.png|categories|HTML-|
-        12|taxonomy|categories/funny|funny|cat.png|categories|HTML-|
-        12|taxonomyTerm|categories/_index.md|My Categories|cat.png|categories|HTML-|
-        32|taxonomy|categories/sad/_index.md|Cascade Category|sad.png|categories|HTML-|
-        42|taxonomy|tags/blue|blue|home.png|tags|HTML-|
-        42|section|sect3|Cascade Home|home.png|sect3|HTML-|
-        42|taxonomyTerm|tags|Cascade Home|home.png|tags|HTML-|
-        42|page|bundle1/index.md|Cascade Home|home.png|page|HTML-|
-        42|page|p2.md|Cascade Home|home.png|page|HTML-|
-        42|page|sect2/p2.md|Cascade Home|home.png|sect2|HTML-|
-        42|page|sect3/p1.md|Cascade Home|home.png|sect3|HTML-|
-        42|taxonomy|tags/green|green|home.png|tags|HTML-|
-        42|home|_index.md|Home|home.png|page|HTML-|
-        42|page|p1.md|p1|home.png|page|HTML-|
-        42|section|sect1/_index.md|Sect1|sect1.png|stype|HTML-|
-        42|section|sect1/s1_2/_index.md|Sect1_2|sect1.png|stype|HTML-|
-        42|page|sect1/s1_2/p1.md|Sect1_2_p1|sect1.png|stype|HTML-|
-        42|page|sect1/s1_2/p2.md|Sect1_2_p2|sect1.png|stype|HTML-|
-        42|section|sect2/_index.md|Sect2|home.png|sect2|HTML-|
-        42|page|sect2/p1.md|Sect2_p1|home.png|sect2|HTML-|
-        52|page|sect4/p1.md|Cascade Home|home.png|sect4|RSS-|
-        52|section|sect4/_index.md|Sect4|home.png|sect4|RSS-|
+12|taxonomy|categories/cool/_index.md|Cascade Category|cat.png|categories|HTML-|
+12|taxonomy|categories/catsect1|catsect1|cat.png|categories|HTML-|
+12|taxonomy|categories/funny|funny|cat.png|categories|HTML-|
+12|taxonomyTerm|categories/_index.md|My Categories|cat.png|categories|HTML-|
+32|taxonomy|categories/sad/_index.md|Cascade Category|sad.png|categories|HTML-|
+42|taxonomy|tags/blue|blue|home.png|tags|HTML-|
+42|taxonomyTerm|tags|Cascade Home|home.png|tags|HTML-|
+42|section|sectnocontent|Cascade Home|home.png|sectnocontent|HTML-|
+42|section|sect3|Cascade Home|home.png|sect3|HTML-|
+42|page|bundle1/index.md|Cascade Home|home.png|page|HTML-|
+42|page|p2.md|Cascade Home|home.png|page|HTML-|
+42|page|sect2/p2.md|Cascade Home|home.png|sect2|HTML-|
+42|page|sect3/nofrontmatter.md|Cascade Home|home.png|sect3|HTML-|
+42|page|sect3/p1.md|Cascade Home|home.png|sect3|HTML-|
+42|page|sectnocontent/p1.md|Cascade Home|home.png|sectnocontent|HTML-|
+42|section|sectnofrontmatter/_index.md|Cascade Home|home.png|sectnofrontmatter|HTML-|
+42|taxonomy|tags/green|green|home.png|tags|HTML-|
+42|home|_index.md|Home|home.png|page|HTML-|
+42|page|p1.md|p1|home.png|page|HTML-|
+42|section|sect1/_index.md|Sect1|sect1.png|stype|HTML-|
+42|section|sect1/s1_2/_index.md|Sect1_2|sect1.png|stype|HTML-|
+42|page|sect1/s1_2/p1.md|Sect1_2_p1|sect1.png|stype|HTML-|
+42|page|sect1/s1_2/p2.md|Sect1_2_p2|sect1.png|stype|HTML-|
+42|section|sect2/_index.md|Sect2|home.png|sect2|HTML-|
+42|page|sect2/p1.md|Sect2_p1|home.png|sect2|HTML-|
+52|page|sect4/p1.md|Cascade Home|home.png|sect4|RSS-|
+52|section|sect4/_index.md|Sect4|home.png|sect4|RSS-|
 `)
 
 		// Check that type set in cascade gets the correct layout.
@@ -106,43 +111,131 @@ func TestCascadeEdit(t *testing.T) {
 title: P1
 ---
 `
-	b := newTestSitesBuilder(t).Running()
-	b.WithTemplatesAdded("_default/single.html", `Banner: {{ .Params.banner }}|Layout: {{ .Layout }}|Type: {{ .Type }}|Content: {{ .Content }}`)
-	b.WithContent("post/_index.md", `
+
+	indexContentNoCascade := `
 ---
-title: Post
+title: Home
+---
+`
+
+	indexContentCascade := `
+---
+title: Section
 cascade:
   banner: post.jpg
   layout: postlayout
   type: posttype
 ---
-`)
+`
 
-	b.WithContent("post/dir/_index.md", `
----
-title: Dir
----
-`, "post/dir/p1.md", p1Content)
-	b.Build(BuildCfg{})
+	layout := `Banner: {{ .Params.banner }}|Layout: {{ .Layout }}|Type: {{ .Type }}|Content: {{ .Content }}`
 
-	assert := func() {
-		b.Helper()
-		b.AssertFileContent("public/post/dir/p1/index.html",
-			`Banner: post.jpg|`,
-			`Layout: postlayout`,
-			`Type: posttype`,
-		)
+	newSite := func(t *testing.T, cascade bool) *sitesBuilder {
+		b := newTestSitesBuilder(t).Running()
+		b.WithTemplates("_default/single.html", layout)
+		b.WithTemplates("_default/list.html", layout)
+		if cascade {
+			b.WithContent("post/_index.md", indexContentCascade)
+		} else {
+			b.WithContent("post/_index.md", indexContentNoCascade)
+		}
+		b.WithContent("post/dir/p1.md", p1Content)
+
+		return b
 	}
 
-	assert()
+	t.Run("Edit descendant", func(t *testing.T) {
+		t.Parallel()
 
-	b.EditFiles("content/post/dir/p1.md", p1Content+"\ncontent edit")
-	b.Build(BuildCfg{})
+		b := newSite(t, true)
+		b.Build(BuildCfg{})
 
-	assert()
-	b.AssertFileContent("public/post/dir/p1/index.html",
-		`content edit`,
-	)
+		assert := func() {
+			b.Helper()
+			b.AssertFileContent("public/post/dir/p1/index.html",
+				`Banner: post.jpg|`,
+				`Layout: postlayout`,
+				`Type: posttype`,
+			)
+		}
+
+		assert()
+
+		b.EditFiles("content/post/dir/p1.md", p1Content+"\ncontent edit")
+		b.Build(BuildCfg{})
+
+		assert()
+		b.AssertFileContent("public/post/dir/p1/index.html",
+			`content edit
+Banner: post.jpg`,
+		)
+	})
+
+	t.Run("Edit ancestor", func(t *testing.T) {
+		t.Parallel()
+
+		b := newSite(t, true)
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/post/dir/p1/index.html", `Banner: post.jpg|Layout: postlayout|Type: posttype|Content:`)
+
+		b.EditFiles("content/post/_index.md", strings.Replace(indexContentCascade, "post.jpg", "edit.jpg", 1))
+
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/post/index.html", `Banner: edit.jpg|Layout: postlayout|Type: posttype|`)
+		b.AssertFileContent("public/post/dir/p1/index.html", `Banner: edit.jpg|Layout: postlayout|Type: posttype|`)
+	})
+
+	t.Run("Edit ancestor, add cascade", func(t *testing.T) {
+		t.Parallel()
+
+		b := newSite(t, true)
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/post/dir/p1/index.html", `Banner: post.jpg`)
+
+		b.EditFiles("content/post/_index.md", indexContentCascade)
+
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/post/index.html", `Banner: post.jpg|Layout: postlayout|Type: posttype|`)
+		b.AssertFileContent("public/post/dir/p1/index.html", `Banner: post.jpg|Layout: postlayout|`)
+	})
+
+	t.Run("Edit ancestor, remove cascade", func(t *testing.T) {
+		t.Parallel()
+
+		b := newSite(t, false)
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/post/dir/p1/index.html", `Banner: |Layout: |`)
+
+		b.EditFiles("content/post/_index.md", indexContentNoCascade)
+
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/post/index.html", `Banner: |Layout: |Type: post|`)
+		b.AssertFileContent("public/post/dir/p1/index.html", `Banner: |Layout: |`)
+	})
+
+	t.Run("Edit ancestor, content only", func(t *testing.T) {
+		t.Parallel()
+
+		b := newSite(t, true)
+		b.Build(BuildCfg{})
+
+		b.EditFiles("content/post/_index.md", indexContentCascade+"\ncontent edit")
+
+		counters := &testCounters{}
+		b.Build(BuildCfg{testCounters: counters})
+		// As we only changed the content, not the cascade front matter, make
+		// only the home page is re-rendered.
+		b.Assert(int(counters.contentRenderCounter), qt.Equals, 1)
+
+		b.AssertFileContent("public/post/index.html", `Banner: post.jpg|Layout: postlayout|Type: posttype|Content: <p>content edit</p>`)
+		b.AssertFileContent("public/post/dir/p1/index.html", `Banner: post.jpg|Layout: postlayout|`)
+	})
 }
 
 func newCascadeTestBuilder(t testing.TB, langs []string) *sitesBuilder {
@@ -247,6 +340,12 @@ defaultContentLanguageInSubDir = false
 			}),
 			"sect2/p2.md", p(map[string]interface{}{}),
 			"sect3/p1.md", p(map[string]interface{}{}),
+
+			// No front matter, see #6855
+			"sect3/nofrontmatter.md", `**Hello**`,
+			"sectnocontent/p1.md", `**Hello**`,
+			"sectnofrontmatter/_index.md", `**Hello**`,
+
 			"sect4/_index.md", p(map[string]interface{}{
 				"title": "Sect4",
 				"cascade": map[string]interface{}{

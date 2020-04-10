@@ -345,6 +345,12 @@ func TestIn(t *testing.T) {
 		// Structs
 		{pagesVals{p3v, p2v, p3v, p2v}, p2v, true},
 		{pagesVals{p3v, p2v, p3v, p2v}, p4v, false},
+		// template.HTML
+		{template.HTML("this substring should be found"), "substring", true},
+		{template.HTML("this substring should not be found"), "subseastring", false},
+		// Uncomparable, use hashstructure
+		{[]string{"a", "b"}, []string{"a", "b"}, false},
+		{[][]string{{"a", "b"}}, []string{"a", "b"}, true},
 	} {
 
 		errMsg := qt.Commentf("[%d] %v", i, test)
@@ -353,10 +359,6 @@ func TestIn(t *testing.T) {
 		c.Assert(err, qt.IsNil)
 		c.Assert(result, qt.Equals, test.expect, errMsg)
 	}
-
-	// Slices are not comparable
-	_, err := ns.In([]string{"a", "b"}, []string{"a", "b"})
-	c.Assert(err, qt.Not(qt.IsNil))
 }
 
 type testPage struct {
@@ -832,9 +834,14 @@ func TestUniq(t *testing.T) {
 		// Structs
 		{pagesVals{p3v, p2v, p3v, p2v}, pagesVals{p3v, p2v}, false},
 
+		// not Comparable(), use hashstruscture
+		{[]map[string]int{
+			{"K1": 1}, {"K2": 2}, {"K1": 1}, {"K2": 1},
+		}, []map[string]int{
+			{"K1": 1}, {"K2": 2}, {"K2": 1},
+		}, false},
+
 		// should fail
-		// uncomparable types
-		{[]map[string]int{{"K1": 1}}, []map[string]int{{"K2": 2}, {"K2": 2}}, true},
 		{1, 1, true},
 		{"foo", "fo", true},
 	} {

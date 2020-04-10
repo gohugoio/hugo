@@ -151,7 +151,7 @@ go install
 ```
 
 
-Hugo relies on [mage](github.com/magefile/mage) for some convenient build and test targets. If you don't already have it, get it:
+Hugo relies on [mage](https://github.com/magefile/mage) for some convenient build and test targets. If you don't already have it, get it:
 
 ```
 go get github.com/magefile/mage

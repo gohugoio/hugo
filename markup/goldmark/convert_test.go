@@ -149,7 +149,7 @@ description
 	c.Assert(got, qt.Contains, `Autolink: <a href="https://gohugo.io/">https://gohugo.io/</a>`)
 	c.Assert(got, qt.Contains, `Strikethrough:<del>Hi</del> Hello, world`)
 	c.Assert(got, qt.Contains, `<th>foo</th>`)
-	c.Assert(got, qt.Contains, `<li><input disabled="" type="checkbox">Push my commits to GitHub</li>`)
+	c.Assert(got, qt.Contains, `<li><input disabled="" type="checkbox"> Push my commits to GitHub</li>`)
 
 	c.Assert(got, qt.Contains, `Straight double &ldquo;quotes&rdquo; and single &lsquo;quotes&rsquo;`)
 	c.Assert(got, qt.Contains, `Dashes (“&ndash;” and “&mdash;”) `)

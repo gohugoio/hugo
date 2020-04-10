@@ -99,12 +99,8 @@ var Default = Config{
 }
 
 func init() {
-	docsProvider := func() map[string]interface{} {
-		docs := make(map[string]interface{})
-		docs["markup"] = parser.LowerCaseCamelJSONMarshaller{Value: Default}
-		return docs
-
+	docsProvider := func() docshelper.DocProvider {
+		return docshelper.DocProvider{"config": map[string]interface{}{"markup": parser.LowerCaseCamelJSONMarshaller{Value: Default}}}
 	}
-	// TODO(bep) merge maps
-	docshelper.AddDocProvider("config", docsProvider)
+	docshelper.AddDocProviderFunc(docsProvider)
 }

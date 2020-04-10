@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package errors contains common Hugo errors and error related utilities.
+// Package herrors contains common Hugo errors and error related utilities.
 package herrors
 
 import (

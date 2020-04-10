@@ -13,188 +13,383 @@
 package hugolib
 
 import (
-	"strings"
 	"testing"
 
 	"fmt"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/resources/page"
-
-	"github.com/gohugoio/hugo/helpers"
 )
 
-func TestDisableKindsNoneDisabled(t *testing.T) {
-	t.Parallel()
-	doTestDisableKinds(t)
-}
+func TestDisable(t *testing.T) {
+	c := qt.New(t)
 
-func TestDisableKindsSomeDisabled(t *testing.T) {
-	t.Parallel()
-	doTestDisableKinds(t, page.KindSection, kind404)
-}
-
-func TestDisableKindsOneDisabled(t *testing.T) {
-	t.Parallel()
-	for _, kind := range allKinds {
-		if kind == page.KindPage {
-			// Turning off regular page generation have some side-effects
-			// not handled by the assertions below (no sections), so
-			// skip that for now.
-			continue
-		}
-		doTestDisableKinds(t, kind)
-	}
-}
-
-func TestDisableKindsAllDisabled(t *testing.T) {
-	t.Parallel()
-	doTestDisableKinds(t, allKinds...)
-}
-
-func doTestDisableKinds(t *testing.T, disabled ...string) {
-	siteConfigTemplate := `
+	newSitesBuilder := func(c *qt.C, disableKind string) *sitesBuilder {
+		config := fmt.Sprintf(`
 baseURL = "http://example.com/blog"
 enableRobotsTXT = true
-disableKinds = %s
+disableKinds = [%q]
+`, disableKind)
 
-paginate = 1
-defaultContentLanguage = "en"
-
-[Taxonomies]
-tag = "tags"
-category = "categories"
-`
-
-	pageTemplate := `---
-title: "%s"
-tags:
-%s
-categories:
-- Hugo
+		b := newTestSitesBuilder(c)
+		b.WithTemplatesAdded("_default/single.html", `single`)
+		b.WithConfigFile("toml", config).WithContent("sect/page.md", `
 ---
-# Doc
-`
+title: Page
+categories: ["mycat"]
+tags: ["mytag"]
+---
 
-	disabledStr := "[]"
+`, "sect/no-list.md", `
+---
+title: No List
+_build:
+  list: false
+---
 
-	if len(disabled) > 0 {
-		disabledStr = strings.Replace(fmt.Sprintf("%#v", disabled), "[]string{", "[", -1)
-		disabledStr = strings.Replace(disabledStr, "}", "]", -1)
+`, "sect/no-render.md", `
+---
+title: No List
+_build:
+  render: false
+---
+`, "sect/no-publishresources/index.md", `
+---
+title: No Publish Resources
+_build:
+  publishResources: false
+---
+
+`, "sect/headlessbundle/index.md", `
+---
+title: Headless
+headless: true
+---
+
+
+`, "headless-local/_index.md", `
+---
+title: Headless Local Lists
+cascade:
+    _build:
+        render: false
+        list: local
+        publishResources: false
+---
+
+`, "headless-local/headless-local-page.md", "---\ntitle: Headless Local Page\n---",
+			"headless-local/sub/_index.md", `
+---
+title: Headless Local Lists Sub
+---
+
+`, "headless-local/sub/headless-local-sub-page.md", "---\ntitle: Headless Local Sub Page\n---",
+		)
+
+		b.WithSourceFile("content/sect/headlessbundle/data.json", "DATA")
+		b.WithSourceFile("content/sect/no-publishresources/data.json", "DATA")
+
+		return b
+
 	}
 
-	siteConfig := fmt.Sprintf(siteConfigTemplate, disabledStr)
+	getPage := func(b *sitesBuilder, ref string) page.Page {
+		b.Helper()
+		p, err := b.H.Sites[0].getPageNew(nil, ref)
+		b.Assert(err, qt.IsNil)
+		return p
+	}
 
-	b := newTestSitesBuilder(t).WithConfigFile("toml", siteConfig)
+	getPageInSitePages := func(b *sitesBuilder, ref string) page.Page {
+		b.Helper()
+		for _, pages := range []page.Pages{b.H.Sites[0].Pages(), b.H.Sites[0].RegularPages()} {
+			for _, p := range pages {
+				if ref == p.(*pageState).sourceRef() {
+					return p
+				}
+			}
+		}
+		return nil
+	}
 
-	b.WithTemplates(
-		"index.html", "Home|{{ .Title }}|{{ .Content }}",
-		"_default/single.html", "Single|{{ .Title }}|{{ .Content }}",
-		"_default/list.html", "List|{{ .Title }}|{{ .Content }}",
-		"_default/terms.html", "Terms List|{{ .Title }}|{{ .Content }}",
-		"layouts/404.html", "Page Not Found",
+	getPageInPagePages := func(p page.Page, ref string, pageCollections ...page.Pages) page.Page {
+		if len(pageCollections) == 0 {
+			pageCollections = []page.Pages{p.Pages(), p.RegularPages(), p.RegularPagesRecursive(), p.Sections()}
+		}
+		for _, pages := range pageCollections {
+			for _, p := range pages {
+				if ref == p.(*pageState).sourceRef() {
+					return p
+				}
+			}
+		}
+		return nil
+	}
+
+	disableKind := page.KindPage
+	c.Run("Disable "+disableKind, func(c *qt.C) {
+		b := newSitesBuilder(c, disableKind)
+		b.Build(BuildCfg{})
+		s := b.H.Sites[0]
+		b.Assert(getPage(b, "/sect/page.md"), qt.IsNil)
+		b.Assert(b.CheckExists("public/sect/page/index.html"), qt.Equals, false)
+		b.Assert(getPageInSitePages(b, "/sect/page.md"), qt.IsNil)
+		b.Assert(getPageInPagePages(getPage(b, "/"), "/sect/page.md"), qt.IsNil)
+
+		// Also check the side effects
+		b.Assert(b.CheckExists("public/categories/mycat/index.html"), qt.Equals, false)
+		b.Assert(len(s.Taxonomies()["categories"]), qt.Equals, 0)
+	})
+
+	disableKind = page.KindTaxonomy
+	c.Run("Disable "+disableKind, func(c *qt.C) {
+		b := newSitesBuilder(c, disableKind)
+		b.Build(BuildCfg{})
+		s := b.H.Sites[0]
+		b.Assert(b.CheckExists("public/categories/index.html"), qt.Equals, true)
+		b.Assert(b.CheckExists("public/categories/mycat/index.html"), qt.Equals, false)
+		b.Assert(len(s.Taxonomies()["categories"]), qt.Equals, 0)
+		b.Assert(getPage(b, "/categories"), qt.Not(qt.IsNil))
+		b.Assert(getPage(b, "/categories/mycat"), qt.IsNil)
+	})
+
+	disableKind = page.KindTaxonomyTerm
+	c.Run("Disable "+disableKind, func(c *qt.C) {
+		b := newSitesBuilder(c, disableKind)
+		b.Build(BuildCfg{})
+		s := b.H.Sites[0]
+		b.Assert(b.CheckExists("public/categories/mycat/index.html"), qt.Equals, true)
+		b.Assert(b.CheckExists("public/categories/index.html"), qt.Equals, false)
+		b.Assert(len(s.Taxonomies()["categories"]), qt.Equals, 1)
+		b.Assert(getPage(b, "/categories/mycat"), qt.Not(qt.IsNil))
+		categories := getPage(b, "/categories")
+		b.Assert(categories, qt.Not(qt.IsNil))
+		b.Assert(categories.RelPermalink(), qt.Equals, "")
+		b.Assert(getPageInSitePages(b, "/categories"), qt.IsNil)
+		b.Assert(getPageInPagePages(getPage(b, "/"), "/categories"), qt.IsNil)
+	})
+
+	disableKind = page.KindHome
+	c.Run("Disable "+disableKind, func(c *qt.C) {
+		b := newSitesBuilder(c, disableKind)
+		b.Build(BuildCfg{})
+		b.Assert(b.CheckExists("public/index.html"), qt.Equals, false)
+		home := getPage(b, "/")
+		b.Assert(home, qt.Not(qt.IsNil))
+		b.Assert(home.RelPermalink(), qt.Equals, "")
+		b.Assert(getPageInSitePages(b, "/"), qt.IsNil)
+		b.Assert(getPageInPagePages(home, "/"), qt.IsNil)
+		b.Assert(getPage(b, "/sect/page.md"), qt.Not(qt.IsNil))
+	})
+
+	disableKind = page.KindSection
+	c.Run("Disable "+disableKind, func(c *qt.C) {
+		b := newSitesBuilder(c, disableKind)
+		b.Build(BuildCfg{})
+		b.Assert(b.CheckExists("public/sect/index.html"), qt.Equals, false)
+		sect := getPage(b, "/sect")
+		b.Assert(sect, qt.Not(qt.IsNil))
+		b.Assert(sect.RelPermalink(), qt.Equals, "")
+		b.Assert(getPageInSitePages(b, "/sect"), qt.IsNil)
+		home := getPage(b, "/")
+		b.Assert(getPageInPagePages(home, "/sect"), qt.IsNil)
+		b.Assert(home.OutputFormats(), qt.HasLen, 2)
+		page := getPage(b, "/sect/page.md")
+		b.Assert(page, qt.Not(qt.IsNil))
+		b.Assert(page.CurrentSection(), qt.Equals, sect)
+		b.Assert(getPageInPagePages(sect, "/sect/page.md"), qt.Not(qt.IsNil))
+		b.AssertFileContent("public/sitemap.xml", "sitemap")
+		b.AssertFileContent("public/index.xml", "rss")
+
+	})
+
+	disableKind = kindRSS
+	c.Run("Disable "+disableKind, func(c *qt.C) {
+		b := newSitesBuilder(c, disableKind)
+		b.Build(BuildCfg{})
+		b.Assert(b.CheckExists("public/index.xml"), qt.Equals, false)
+		home := getPage(b, "/")
+		b.Assert(home.OutputFormats(), qt.HasLen, 1)
+	})
+
+	disableKind = kindSitemap
+	c.Run("Disable "+disableKind, func(c *qt.C) {
+		b := newSitesBuilder(c, disableKind)
+		b.Build(BuildCfg{})
+		b.Assert(b.CheckExists("public/sitemap.xml"), qt.Equals, false)
+	})
+
+	disableKind = kind404
+	c.Run("Disable "+disableKind, func(c *qt.C) {
+		b := newSitesBuilder(c, disableKind)
+		b.Build(BuildCfg{})
+		b.Assert(b.CheckExists("public/404.html"), qt.Equals, false)
+	})
+
+	disableKind = kindRobotsTXT
+	c.Run("Disable "+disableKind, func(c *qt.C) {
+		b := newSitesBuilder(c, disableKind)
+		b.WithTemplatesAdded("robots.txt", "myrobots")
+		b.Build(BuildCfg{})
+		b.Assert(b.CheckExists("public/robots.txt"), qt.Equals, false)
+	})
+
+	c.Run("Headless bundle", func(c *qt.C) {
+		b := newSitesBuilder(c, disableKind)
+		b.Build(BuildCfg{})
+		b.Assert(b.CheckExists("public/sect/headlessbundle/index.html"), qt.Equals, false)
+		b.Assert(b.CheckExists("public/sect/headlessbundle/data.json"), qt.Equals, true)
+		bundle := getPage(b, "/sect/headlessbundle/index.md")
+		b.Assert(bundle, qt.Not(qt.IsNil))
+		b.Assert(bundle.RelPermalink(), qt.Equals, "")
+		resource := bundle.Resources()[0]
+		b.Assert(resource.RelPermalink(), qt.Equals, "/blog/sect/headlessbundle/data.json")
+		b.Assert(bundle.OutputFormats(), qt.HasLen, 0)
+		b.Assert(bundle.AlternativeOutputFormats(), qt.HasLen, 0)
+	})
+
+	c.Run("Build config, no list", func(c *qt.C) {
+		b := newSitesBuilder(c, disableKind)
+		b.Build(BuildCfg{})
+		ref := "/sect/no-list.md"
+		b.Assert(b.CheckExists("public/sect/no-list/index.html"), qt.Equals, true)
+		p := getPage(b, ref)
+		b.Assert(p, qt.Not(qt.IsNil))
+		b.Assert(p.RelPermalink(), qt.Equals, "/blog/sect/no-list/")
+		b.Assert(getPageInSitePages(b, ref), qt.IsNil)
+		sect := getPage(b, "/sect")
+		b.Assert(getPageInPagePages(sect, ref), qt.IsNil)
+
+	})
+
+	c.Run("Build config, local list", func(c *qt.C) {
+		b := newSitesBuilder(c, disableKind)
+		b.Build(BuildCfg{})
+		ref := "/headless-local"
+		sect := getPage(b, ref)
+		b.Assert(sect, qt.Not(qt.IsNil))
+		b.Assert(getPageInSitePages(b, ref), qt.IsNil)
+
+		b.Assert(getPageInSitePages(b, "/headless-local/_index.md"), qt.IsNil)
+		b.Assert(getPageInSitePages(b, "/headless-local/headless-local-page.md"), qt.IsNil)
+
+		localPageRef := ref + "/headless-local-page.md"
+
+		b.Assert(getPageInPagePages(sect, localPageRef, sect.RegularPages()), qt.Not(qt.IsNil))
+		b.Assert(getPageInPagePages(sect, localPageRef, sect.RegularPagesRecursive()), qt.Not(qt.IsNil))
+		b.Assert(getPageInPagePages(sect, localPageRef, sect.Pages()), qt.Not(qt.IsNil))
+
+		ref = "/headless-local/sub"
+
+		sect = getPage(b, ref)
+		b.Assert(sect, qt.Not(qt.IsNil))
+
+		localPageRef = ref + "/headless-local-sub-page.md"
+		b.Assert(getPageInPagePages(sect, localPageRef), qt.Not(qt.IsNil))
+	})
+
+	c.Run("Build config, no render", func(c *qt.C) {
+		b := newSitesBuilder(c, disableKind)
+		b.Build(BuildCfg{})
+		ref := "/sect/no-render.md"
+		b.Assert(b.CheckExists("public/sect/no-render/index.html"), qt.Equals, false)
+		p := getPage(b, ref)
+		b.Assert(p, qt.Not(qt.IsNil))
+		b.Assert(p.RelPermalink(), qt.Equals, "")
+		b.Assert(p.OutputFormats(), qt.HasLen, 0)
+		b.Assert(getPageInSitePages(b, ref), qt.Not(qt.IsNil))
+		sect := getPage(b, "/sect")
+		b.Assert(getPageInPagePages(sect, ref), qt.Not(qt.IsNil))
+	})
+
+	c.Run("Build config, no publish resources", func(c *qt.C) {
+		b := newSitesBuilder(c, disableKind)
+		b.Build(BuildCfg{})
+		b.Assert(b.CheckExists("public/sect/no-publishresources/index.html"), qt.Equals, true)
+		b.Assert(b.CheckExists("public/sect/no-publishresources/data.json"), qt.Equals, false)
+		bundle := getPage(b, "/sect/no-publishresources/index.md")
+		b.Assert(bundle, qt.Not(qt.IsNil))
+		b.Assert(bundle.RelPermalink(), qt.Equals, "/blog/sect/no-publishresources/")
+		b.Assert(bundle.Resources(), qt.HasLen, 1)
+		resource := bundle.Resources()[0]
+		b.Assert(resource.RelPermalink(), qt.Equals, "/blog/sect/no-publishresources/data.json")
+	})
+}
+
+// https://github.com/gohugoio/hugo/issues/6897#issuecomment-587947078
+func TestDisableRSSWithRSSInCustomOutputs(t *testing.T) {
+	b := newTestSitesBuilder(t).WithConfigFile("toml", `
+disableKinds = ["taxonomy", "taxonomyTerm", "RSS"]
+[outputs]
+home = [ "HTML", "RSS" ]
+`).Build(BuildCfg{})
+
+	// The config above is a little conflicting, but it exists in the real world.
+	// In Hugo 0.65 we consolidated the code paths and made RSS a pure output format,
+	// but we should make sure to not break existing sites.
+	b.Assert(b.CheckExists("public/index.xml"), qt.Equals, false)
+
+}
+
+func TestBundleNoPublishResources(t *testing.T) {
+	b := newTestSitesBuilder(t)
+	b.WithTemplates("index.html", `
+{{ $bundle := site.GetPage "section/bundle-false" }}
+{{ $data1 := $bundle.Resources.GetMatch "data1*" }}
+Data1: {{ $data1.RelPermalink }}
+
+`)
+
+	b.WithContent("section/bundle-false/index.md", `---\ntitle: BundleFalse
+_build:
+  publishResources: false
+---`,
+		"section/bundle-false/data1.json", "Some data1",
+		"section/bundle-false/data2.json", "Some data2",
 	)
 
-	b.WithContent(
-		"sect/p1.md", fmt.Sprintf(pageTemplate, "P1", "- tag1"),
-		"categories/_index.md", newTestPage("Category Terms", "2017-01-01", 10),
-		"tags/tag1/_index.md", newTestPage("Tag1 List", "2017-01-01", 10),
+	b.WithContent("section/bundle-true/index.md", `---\ntitle: BundleTrue
+---`,
+		"section/bundle-true/data3.json", "Some data 3",
 	)
 
 	b.Build(BuildCfg{})
-	h := b.H
-
-	assertDisabledKinds(b, h.Sites[0], disabled...)
-
+	b.AssertFileContent("public/index.html", `Data1: /section/bundle-false/data1.json`)
+	b.AssertFileContent("public/section/bundle-false/data1.json", `Some data1`)
+	b.Assert(b.CheckExists("public/section/bundle-false/data2.json"), qt.Equals, false)
+	b.AssertFileContent("public/section/bundle-true/data3.json", `Some data 3`)
 }
 
-func assertDisabledKinds(b *sitesBuilder, s *Site, disabled ...string) {
-	assertDisabledKind(b,
-		func(isDisabled bool) bool {
-			if isDisabled {
-				return len(s.RegularPages()) == 0
-			}
-			return len(s.RegularPages()) > 0
-		}, disabled, page.KindPage, "public/sect/p1/index.html", "Single|P1")
-	assertDisabledKind(b,
-		func(isDisabled bool) bool {
-			p := s.getPage(page.KindHome)
-			if isDisabled {
-				return p == nil
-			}
-			return p != nil
-		}, disabled, page.KindHome, "public/index.html", "Home")
-	assertDisabledKind(b,
-		func(isDisabled bool) bool {
-			p := s.getPage(page.KindSection, "sect")
-			if isDisabled {
-				return p == nil
-			}
-			return p != nil
-		}, disabled, page.KindSection, "public/sect/index.html", "Sects")
-	assertDisabledKind(b,
-		func(isDisabled bool) bool {
-			p := s.getPage(page.KindTaxonomy, "tags", "tag1")
+func TestNoRenderAndNoPublishResources(t *testing.T) {
+	noRenderPage := `
+---
+title: %s
+_build:
+    render: false
+    publishResources: false
+---
+`
+	b := newTestSitesBuilder(t)
+	b.WithTemplatesAdded("index.html", `
+{{ $page := site.GetPage "sect/no-render" }}
+{{ $sect := site.GetPage "sect-no-render" }}
 
-			if isDisabled {
-				return p == nil
-			}
-			return p != nil
+Page: {{ $page.Title }}|RelPermalink: {{ $page.RelPermalink }}|Outputs: {{ len $page.OutputFormats }}
+Section: {{ $sect.Title }}|RelPermalink: {{ $sect.RelPermalink }}|Outputs: {{ len $sect.OutputFormats }}
 
-		}, disabled, page.KindTaxonomy, "public/tags/tag1/index.html", "Tag1")
-	assertDisabledKind(b,
-		func(isDisabled bool) bool {
-			p := s.getPage(page.KindTaxonomyTerm, "tags")
-			if isDisabled {
-				return p == nil
-			}
-			return p != nil
 
-		}, disabled, page.KindTaxonomyTerm, "public/tags/index.html", "Tags")
-	assertDisabledKind(b,
-		func(isDisabled bool) bool {
-			p := s.getPage(page.KindTaxonomyTerm, "categories")
+`)
+	b.WithContent("sect-no-render/_index.md", fmt.Sprintf(noRenderPage, "MySection"))
+	b.WithContent("sect/no-render.md", fmt.Sprintf(noRenderPage, "MyPage"))
 
-			if isDisabled {
-				return p == nil
-			}
-			return p != nil
+	b.Build(BuildCfg{})
 
-		}, disabled, page.KindTaxonomyTerm, "public/categories/index.html", "Category Terms")
-	assertDisabledKind(b,
-		func(isDisabled bool) bool {
-			p := s.getPage(page.KindTaxonomy, "categories", "hugo")
-			if isDisabled {
-				return p == nil
-			}
-			return p != nil
+	b.AssertFileContent("public/index.html", `
+Page: MyPage|RelPermalink: |Outputs: 0
+Section: MySection|RelPermalink: |Outputs: 0
+`)
 
-		}, disabled, page.KindTaxonomy, "public/categories/hugo/index.html", "Hugo")
-	// The below have no page in any collection.
-	assertDisabledKind(b, func(isDisabled bool) bool { return true }, disabled, kindRSS, "public/index.xml", "<link>")
-	assertDisabledKind(b, func(isDisabled bool) bool { return true }, disabled, kindSitemap, "public/sitemap.xml", "sitemap")
-	assertDisabledKind(b, func(isDisabled bool) bool { return true }, disabled, kindRobotsTXT, "public/robots.txt", "User-agent")
-	assertDisabledKind(b, func(isDisabled bool) bool { return true }, disabled, kind404, "public/404.html", "Page Not Found")
-}
+	b.Assert(b.CheckExists("public/sect/no-render/index.html"), qt.Equals, false)
+	b.Assert(b.CheckExists("public/sect-no-render/index.html"), qt.Equals, false)
 
-func assertDisabledKind(b *sitesBuilder, kindAssert func(bool) bool, disabled []string, kind, path, matcher string) {
-	isDisabled := stringSliceContains(kind, disabled...)
-	b.Assert(kindAssert(isDisabled), qt.Equals, true)
-
-	if kind == kindRSS && !isDisabled {
-		// If the home page is also disabled, there is not RSS to look for.
-		if stringSliceContains(page.KindHome, disabled...) {
-			isDisabled = true
-		}
-	}
-
-	if isDisabled {
-		// Path should not exist
-		fileExists, err := helpers.Exists(path, b.Fs.Destination)
-		b.Assert(err, qt.IsNil)
-		b.Assert(fileExists, qt.Equals, false)
-
-	} else {
-		b.AssertFileContent(path, matcher)
-	}
 }

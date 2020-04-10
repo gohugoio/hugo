@@ -79,14 +79,31 @@ func DecorateBasePathFs(base *afero.BasePathFs) afero.Fs {
 }
 
 // NewBaseFileDecorator decorates the given Fs to provide the real filename
-// and an Opener func. If
-func NewBaseFileDecorator(fs afero.Fs) afero.Fs {
+// and an Opener func.
+func NewBaseFileDecorator(fs afero.Fs, callbacks ...func(fi FileMetaInfo)) afero.Fs {
 
 	ffs := &baseFileDecoratorFs{Fs: fs}
 
 	decorator := func(fi os.FileInfo, filename string) (os.FileInfo, error) {
 		// Store away the original in case it's a symlink.
 		meta := FileMeta{metaKeyName: fi.Name()}
+		if fi.IsDir() {
+			meta[metaKeyJoinStat] = func(name string) (FileMetaInfo, error) {
+				joinedFilename := filepath.Join(filename, name)
+				fi, _, err := lstatIfPossible(fs, joinedFilename)
+				if err != nil {
+					return nil, err
+				}
+
+				fi, err = ffs.decorate(fi, joinedFilename)
+				if err != nil {
+					return nil, err
+				}
+
+				return fi.(FileMetaInfo), nil
+			}
+		}
+
 		isSymlink := isSymlink(fi)
 		if isSymlink {
 			meta[metaKeyOriginalFilename] = filename
@@ -102,10 +119,16 @@ func NewBaseFileDecorator(fs afero.Fs) afero.Fs {
 
 		opener := func() (afero.File, error) {
 			return ffs.open(filename)
-
 		}
 
-		return decorateFileInfo(fi, ffs, opener, filename, "", meta), nil
+		fim := decorateFileInfo(fi, ffs, opener, filename, "", meta)
+
+		for _, cb := range callbacks {
+			cb(fim)
+		}
+
+		return fim, nil
+
 	}
 
 	ffs.decorate = decorator

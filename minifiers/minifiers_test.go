@@ -23,11 +23,13 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/output"
+	"github.com/spf13/viper"
 )
 
 func TestNew(t *testing.T) {
 	c := qt.New(t)
-	m := New(media.DefaultTypes, output.DefaultFormats)
+	v := viper.New()
+	m, _ := New(media.DefaultTypes, output.DefaultFormats, v)
 
 	var rawJS string
 	var minJS string
@@ -73,9 +75,44 @@ func TestNew(t *testing.T) {
 
 }
 
+func TestConfigureMinify(t *testing.T) {
+	c := qt.New(t)
+	v := viper.New()
+	v.Set("minify", map[string]interface{}{
+		"disablexml": true,
+		"tdewolff": map[string]interface{}{
+			"html": map[string]interface{}{
+				"keepwhitespace": true,
+			},
+		},
+	})
+	m, _ := New(media.DefaultTypes, output.DefaultFormats, v)
+
+	for _, test := range []struct {
+		tp                media.Type
+		rawString         string
+		expectedMinString string
+		errorExpected     bool
+	}{
+		{media.HTMLType, "<hello> Hugo! </hello>", "<hello> Hugo! </hello>", false}, // configured minifier
+		{media.CSSType, " body { color: blue; }  ", "body{color:blue}", false},      // default minifier
+		{media.XMLType, " <hello>  Hugo!   </hello>  ", "", true},                   // disable Xml minificatin
+	} {
+		var b bytes.Buffer
+		if !test.errorExpected {
+			c.Assert(m.Minify(test.tp, &b, strings.NewReader(test.rawString)), qt.IsNil)
+			c.Assert(b.String(), qt.Equals, test.expectedMinString)
+		} else {
+			err := m.Minify(test.tp, &b, strings.NewReader(test.rawString))
+			c.Assert(err, qt.ErrorMatches, "minifier does not exist for mimetype")
+		}
+	}
+}
+
 func TestJSONRoundTrip(t *testing.T) {
 	c := qt.New(t)
-	m := New(media.DefaultTypes, output.DefaultFormats)
+	v := viper.New()
+	m, _ := New(media.DefaultTypes, output.DefaultFormats, v)
 
 	for _, test := range []string{`{
     "glossary": {
@@ -113,7 +150,8 @@ func TestJSONRoundTrip(t *testing.T) {
 
 func TestBugs(t *testing.T) {
 	c := qt.New(t)
-	m := New(media.DefaultTypes, output.DefaultFormats)
+	v := viper.New()
+	m, _ := New(media.DefaultTypes, output.DefaultFormats, v)
 
 	for _, test := range []struct {
 		tp                media.Type

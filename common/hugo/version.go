@@ -15,7 +15,7 @@ package hugo
 
 import (
 	"fmt"
-	"strconv"
+	"io"
 
 	"runtime"
 	"strings"
@@ -245,7 +245,15 @@ func goMinorVersion(version string) int {
 	if strings.HasPrefix(version, "devel") {
 		return 9999 // magic
 	}
-	i, _ := strconv.Atoi(strings.Split(version, ".")[1])
-	return i
-
+	var major, minor int
+	var trailing string
+	n, err := fmt.Sscanf(version, "go%d.%d%s", &major, &minor, &trailing)
+	if n == 2 && err == io.EOF {
+		// Means there were no trailing characters (i.e., not an alpha/beta)
+		err = nil
+	}
+	if err != nil {
+		return 0
+	}
+	return minor
 }

@@ -37,7 +37,3 @@ A more practical example is to fill in the missing translations from the other l
 {{ $pages = $pages | lang.Merge .Site.RegularPages }}
 {{ end }}
  ```
-
-{{% note %}}
-Note that the slightly ugly `.Scratch` construct will not be needed once this is fixed: https://github.com/golang/go/issues/10608
-{{% /note %}}

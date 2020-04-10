@@ -14,7 +14,11 @@
 package commands
 
 import (
+	"errors"
+	"fmt"
 	"os"
+	"path/filepath"
+	"regexp"
 
 	"github.com/gohugoio/hugo/modules"
 	"github.com/spf13/cobra"
@@ -26,7 +30,66 @@ type modCmd struct {
 	*baseBuilderCmd
 }
 
+func (c *modCmd) newVerifyCmd() *cobra.Command {
+	var clean bool
+
+	verifyCmd := &cobra.Command{
+		Use:   "verify",
+		Short: "Verify dependencies.",
+		Long: `Verify checks that the dependencies of the current module, which are stored in a local downloaded source cache, have not been modified since being downloaded.
+`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return c.withModsClient(true, func(c *modules.Client) error {
+				return c.Verify(clean)
+			})
+		},
+	}
+
+	verifyCmd.Flags().BoolVarP(&clean, "clean", "", false, "delete module cache for dependencies that fail verification")
+
+	return verifyCmd
+}
+
+var moduleNotFoundRe = regexp.MustCompile("module.*not found")
+
+func (c *modCmd) newCleanCmd() *cobra.Command {
+	var pattern string
+	var all bool
+	cmd := &cobra.Command{
+		Use:   "clean",
+		Short: "Delete the Hugo Module cache for the current project.",
+		Long: `Delete the Hugo Module cache for the current project.
+
+Note that after you run this command, all of your dependencies will be re-downloaded next time you run "hugo".
+
+Also note that if you configure a positive maxAge for the "modules" file cache, it will also be cleaned as part of "hugo --gc".
+ 
+`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if all {
+				com, err := c.initConfig(false)
+
+				if err != nil && !moduleNotFoundRe.MatchString(err.Error()) {
+					return err
+				}
+
+				_, err = com.hugo().FileCaches.ModulesCache().Prune(true)
+				return err
+			}
+			return c.withModsClient(true, func(c *modules.Client) error {
+				return c.Clean(pattern)
+			})
+		},
+	}
+
+	cmd.Flags().StringVarP(&pattern, "pattern", "", "", `pattern matching module paths to clean (all if not set), e.g. "**hugo*"`)
+	cmd.Flags().BoolVarP(&all, "all", "", false, "clean entire module cache")
+
+	return cmd
+}
+
 func (b *commandsBuilder) newModCmd() *modCmd {
+
 	c := &modCmd{}
 
 	const commonUsage = `
@@ -72,17 +135,65 @@ Install a specific version:
 Install the latest versions of all module dependencies:
 
     hugo mod get -u
+    hugo mod get -u ./... (recursive)
 
 Run "go help get" for more information. All flags available for "go get" is also relevant here.
 ` + commonUsage,
 			RunE: func(cmd *cobra.Command, args []string) error {
-				return c.withModsClient(false, func(c *modules.Client) error {
+				// We currently just pass on the flags we get to Go and
+				// need to do the flag handling manually.
+				if len(args) == 1 && args[0] == "-h" {
+					return cmd.Help()
+				}
 
-					// We currently just pass on the flags we get to Go and
-					// need to do the flag handling manually.
-					if len(args) == 1 && args[0] == "-h" {
-						return cmd.Help()
+				var lastArg string
+				if len(args) != 0 {
+					lastArg = args[len(args)-1]
+				}
+
+				if lastArg == "./..." {
+					args = args[:len(args)-1]
+					// Do a recursive update.
+					dirname, err := os.Getwd()
+					if err != nil {
+						return err
 					}
+
+					// Sanity check. We do recursive walking and want to avoid
+					// accidents.
+					if len(dirname) < 5 {
+						return errors.New("must not be run from the file system root")
+					}
+
+					filepath.Walk(dirname, func(path string, info os.FileInfo, err error) error {
+						if info.IsDir() {
+							return nil
+						}
+
+						if info.Name() == "go.mod" {
+							// Found a module.
+							dir := filepath.Dir(path)
+							fmt.Println("Update module in", dir)
+							c.source = dir
+							err := c.withModsClient(false, func(c *modules.Client) error {
+								if len(args) == 1 && args[0] == "-h" {
+									return cmd.Help()
+								}
+								return c.Get(args...)
+							})
+							if err != nil {
+								return err
+							}
+
+						}
+
+						return nil
+					})
+
+					return nil
+				}
+
+				return c.withModsClient(false, func(c *modules.Client) error {
 					return c.Get(args...)
 				})
 			},
@@ -133,6 +244,7 @@ If a module is vendored, that is where Hugo will look for it's dependencies.
 				})
 			},
 		},
+		c.newVerifyCmd(),
 		&cobra.Command{
 			Use:   "tidy",
 			Short: "Remove unused entries in go.mod and go.sum.",
@@ -142,27 +254,7 @@ If a module is vendored, that is where Hugo will look for it's dependencies.
 				})
 			},
 		},
-		&cobra.Command{
-			Use:   "clean",
-			Short: "Delete the entire Hugo Module cache.",
-			Long: `Delete the entire Hugo Module cache.
-
-Note that after you run this command, all of your dependencies will be re-downloaded next time you run "hugo".
-
-Also note that if you configure a positive maxAge for the "modules" file cache, it will also be cleaned as part of "hugo --gc".
- 
-`,
-			RunE: func(cmd *cobra.Command, args []string) error {
-				com, err := c.initConfig(true)
-				if err != nil {
-					return err
-				}
-
-				_, err = com.hugo().FileCaches.ModulesCache().Prune(true)
-				return err
-
-			},
-		},
+		c.newCleanCmd(),
 	)
 
 	c.baseBuilderCmd = b.newBuilderCmd(cmd)

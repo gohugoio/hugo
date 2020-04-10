@@ -48,10 +48,8 @@ func (ns *Namespace) SymDiff(s2, s1 interface{}) (interface{}, error) {
 
 			for i := 0; i < v.Len(); i++ {
 				ev, _ := indirectInterface(v.Index(i))
-				if !ev.Type().Comparable() {
-					return nil, errors.New("symdiff: elements must be comparable")
-				}
 				key := normalize(ev)
+
 				// Append if the key is not in their intersection.
 				if ids1[key] != ids2[key] {
 					v, err := convertValue(ev, sliceElemType)

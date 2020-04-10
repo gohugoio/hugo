@@ -31,6 +31,7 @@ import (
 	"sync"
 
 	"github.com/dustin/go-humanize"
+	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/config"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -125,7 +126,11 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 	}
 
 	// Load local files from the source directory.
-	local, err := walkLocal(d.localFs, d.matchers)
+	var include, exclude glob.Glob
+	if d.target != nil {
+		include, exclude = d.target.includeGlob, d.target.excludeGlob
+	}
+	local, err := walkLocal(d.localFs, d.matchers, include, exclude)
 	if err != nil {
 		return err
 	}
@@ -133,7 +138,7 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 	d.summary.NumLocal = len(local)
 
 	// Load remote files from the target.
-	remote, err := walkRemote(ctx, bucket)
+	remote, err := walkRemote(ctx, bucket, include, exclude)
 	if err != nil {
 		return err
 	}
@@ -437,7 +442,7 @@ func (lf *localFile) MD5() []byte {
 
 // walkLocal walks the source directory and returns a flat list of files,
 // using localFile.SlashPath as the map keys.
-func walkLocal(fs afero.Fs, matchers []*matcher) (map[string]*localFile, error) {
+func walkLocal(fs afero.Fs, matchers []*matcher, include, exclude glob.Glob) (map[string]*localFile, error) {
 	retval := map[string]*localFile{}
 	err := afero.Walk(fs, "", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -461,8 +466,18 @@ func walkLocal(fs afero.Fs, matchers []*matcher) (map[string]*localFile, error) 
 			path = norm.NFC.String(path)
 		}
 
-		// Find the first matching matcher (if any).
+		// Check include/exclude matchers.
 		slashpath := filepath.ToSlash(path)
+		if include != nil && !include.Match(slashpath) {
+			jww.INFO.Printf("  dropping %q due to include\n", slashpath)
+			return nil
+		}
+		if exclude != nil && exclude.Match(slashpath) {
+			jww.INFO.Printf("  dropping %q due to exclude\n", slashpath)
+			return nil
+		}
+
+		// Find the first matching matcher (if any).
 		var m *matcher
 		for _, cur := range matchers {
 			if cur.Matches(slashpath) {
@@ -484,7 +499,7 @@ func walkLocal(fs afero.Fs, matchers []*matcher) (map[string]*localFile, error) 
 }
 
 // walkRemote walks the target bucket and returns a flat list.
-func walkRemote(ctx context.Context, bucket *blob.Bucket) (map[string]*blob.ListObject, error) {
+func walkRemote(ctx context.Context, bucket *blob.Bucket, include, exclude glob.Glob) (map[string]*blob.ListObject, error) {
 	retval := map[string]*blob.ListObject{}
 	iter := bucket.List(nil)
 	for {
@@ -494,6 +509,15 @@ func walkRemote(ctx context.Context, bucket *blob.Bucket) (map[string]*blob.List
 		}
 		if err != nil {
 			return nil, err
+		}
+		// Check include/exclude matchers.
+		if include != nil && !include.Match(obj.Key) {
+			jww.INFO.Printf("  remote dropping %q due to include\n", obj.Key)
+			continue
+		}
+		if exclude != nil && exclude.Match(obj.Key) {
+			jww.INFO.Printf("  remote dropping %q due to exclude\n", obj.Key)
+			continue
 		}
 		// If the remote didn't give us an MD5, compute one.
 		// This can happen for some providers (e.g., fileblob, which uses the

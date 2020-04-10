@@ -14,8 +14,10 @@
 package hugolib
 
 import (
+	"path"
+	"strings"
+
 	"github.com/gohugoio/hugo/common/types"
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources/page"
 )
 
@@ -28,17 +30,36 @@ func (pt pageTree) IsAncestor(other interface{}) (bool, error) {
 		return false, nil
 	}
 
-	pp, err := unwrapPage(other)
-	if err != nil || pp == nil {
-		return false, err
-	}
-
-	if pt.p.Kind() == page.KindPage && len(pt.p.SectionsEntries()) == len(pp.SectionsEntries()) {
-		// A regular page is never its section's ancestor.
+	tp, ok := other.(treeRefProvider)
+	if !ok {
 		return false, nil
 	}
 
-	return helpers.HasStringsPrefix(pp.SectionsEntries(), pt.p.SectionsEntries()), nil
+	ref1, ref2 := pt.p.getTreeRef(), tp.getTreeRef()
+
+	if ref1 != nil && ref1.key == "/" {
+		return true, nil
+	}
+
+	if ref1 == nil || ref2 == nil {
+		if ref1 == nil {
+			// A 404 or other similar standalone page.
+			return false, nil
+		}
+
+		return ref1.n.p.IsHome(), nil
+	}
+
+	if !ref1.isSection() {
+		return false, nil
+	}
+
+	if ref2.isSection() {
+		return strings.HasPrefix(ref2.key, ref1.key+"/"), nil
+	}
+
+	return strings.HasPrefix(ref2.key, ref1.key+cmBranchSeparator), nil
+
 }
 
 func (pt pageTree) CurrentSection() page.Page {
@@ -55,35 +76,53 @@ func (pt pageTree) IsDescendant(other interface{}) (bool, error) {
 	if pt.p == nil {
 		return false, nil
 	}
-	pp, err := unwrapPage(other)
-	if err != nil || pp == nil {
-		return false, err
-	}
 
-	if pp.Kind() == page.KindPage && len(pt.p.SectionsEntries()) == len(pp.SectionsEntries()) {
-		// A regular page is never its section's descendant.
+	tp, ok := other.(treeRefProvider)
+	if !ok {
 		return false, nil
 	}
-	return helpers.HasStringsPrefix(pt.p.SectionsEntries(), pp.SectionsEntries()), nil
+
+	ref1, ref2 := pt.p.getTreeRef(), tp.getTreeRef()
+
+	if ref2 != nil && ref2.key == "/" {
+		return true, nil
+	}
+
+	if ref1 == nil || ref2 == nil {
+		if ref2 == nil {
+			// A 404 or other similar standalone page.
+			return false, nil
+		}
+
+		return ref2.n.p.IsHome(), nil
+	}
+
+	if !ref2.isSection() {
+		return false, nil
+	}
+
+	if ref1.isSection() {
+		return strings.HasPrefix(ref1.key, ref2.key+"/"), nil
+	}
+
+	return strings.HasPrefix(ref1.key, ref2.key+cmBranchSeparator), nil
+
 }
 
 func (pt pageTree) FirstSection() page.Page {
-	p := pt.p
-
-	parent := p.Parent()
-
-	if types.IsNil(parent) || parent.IsHome() {
-		return p
+	ref := pt.p.getTreeRef()
+	if ref == nil {
+		return pt.p.s.home
 	}
-
-	for {
-		current := parent
-		parent = parent.Parent()
-		if types.IsNil(parent) || parent.IsHome() {
-			return current
-		}
+	key := ref.key
+	if !ref.isSection() {
+		key = path.Dir(key)
 	}
-
+	_, b := ref.m.getFirstSection(key)
+	if b == nil {
+		return nil
+	}
+	return b.p
 }
 
 func (pt pageTree) InSection(other interface{}) (bool, error) {
@@ -91,16 +130,25 @@ func (pt pageTree) InSection(other interface{}) (bool, error) {
 		return false, nil
 	}
 
-	pp, err := unwrapPage(other)
-	if err != nil {
-		return false, err
-	}
-
-	if pp == nil {
+	tp, ok := other.(treeRefProvider)
+	if !ok {
 		return false, nil
 	}
 
-	return pp.CurrentSection().Eq(pt.p.CurrentSection()), nil
+	ref1, ref2 := pt.p.getTreeRef(), tp.getTreeRef()
+
+	if ref1 == nil || ref2 == nil {
+		if ref1 == nil {
+			// A 404 or other similar standalone page.
+			return false, nil
+		}
+		return ref1.n.p.IsHome(), nil
+	}
+
+	s1, _ := ref1.getCurrentSection()
+	s2, _ := ref2.getCurrentSection()
+
+	return s1 == s2, nil
 
 }
 
@@ -109,15 +157,28 @@ func (pt pageTree) Page() page.Page {
 }
 
 func (pt pageTree) Parent() page.Page {
-	if pt.p.parent != nil {
-		return pt.p.parent
+	p := pt.p
+
+	if p.parent != nil {
+		return p.parent
 	}
 
-	if pt.p.bucket == nil || pt.p.bucket.parent == nil {
+	if pt.p.IsHome() {
 		return nil
 	}
 
-	return pt.p.bucket.parent.owner
+	tree := p.getTreeRef()
+
+	if tree == nil || pt.p.Kind() == page.KindTaxonomyTerm {
+		return pt.p.s.home
+	}
+
+	_, b := tree.getSection()
+	if b == nil {
+		return nil
+	}
+
+	return b.p
 }
 
 func (pt pageTree) Sections() page.Pages {

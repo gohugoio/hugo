@@ -15,7 +15,9 @@
 package hugofs
 
 import (
+	"fmt"
 	"os"
+	"strings"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/spf13/afero"
@@ -87,4 +89,28 @@ func getWorkingDirFs(base afero.Fs, cfg config.Provider) *afero.BasePathFs {
 
 func isWrite(flag int) bool {
 	return flag&os.O_RDWR != 0 || flag&os.O_WRONLY != 0
+}
+
+// MakeReadableAndRemoveAllModulePkgDir makes any subdir in dir readable and then
+// removes the root.
+// TODO(bep) move this to a more suitable place.
+//
+func MakeReadableAndRemoveAllModulePkgDir(fs afero.Fs, dir string) (int, error) {
+	// Safe guard
+	if !strings.Contains(dir, "pkg") {
+		panic(fmt.Sprint("invalid dir:", dir))
+	}
+
+	counter := 0
+	afero.Walk(fs, dir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return nil
+		}
+		if info.IsDir() {
+			counter++
+			fs.Chmod(path, 0777)
+		}
+		return nil
+	})
+	return counter, fs.RemoveAll(dir)
 }

@@ -16,6 +16,7 @@ package hugolib
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/identity"
@@ -241,87 +242,6 @@ Page Content
 	b.CreateSites().Build(BuildCfg{})
 
 	b.AssertFileContent("public/page/index.html", "Base: Hi!?")
-
-}
-
-func TestTemplateLateTemplates(t *testing.T) {
-	t.Parallel()
-	b := newTestSitesBuilder(t).WithSimpleConfigFile().Running()
-
-	numPages := 500 // To get some parallelism
-	homeTempl := `
-Len RegularPages: {{ len site.RegularPages }}
-{{ range site.RegularPages }}
-Link: {{ .RelPermalink }} Len Content: {{ len .Content }}
-{{ end }}
-`
-	pageTemplate := `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>{{ .RelPermalink }}</title>
-  <meta name="description" content="The HTML5 Herald">
-  <meta name="author" content="SitePoint">
-  <link rel="stylesheet" href="css/styles.css?v=1.0">
-</head>
-<body>
-  <h1>{{ .RelPermalink }}</h1>
-  <p>Shortcode: {{< shortcode >}}</p>
-  <p>Partial: {{ partial "mypartial.html" . }}</p>
-  <script src="js/scripts.js"></script>
-</body>
-</html>
-`
-
-	b.WithTemplatesAdded(
-		"index.html", homeTempl,
-		"partials/mypartial.html", `this my partial`,
-	)
-
-	// Make sure we get some parallelism.
-	for i := 0; i < numPages; i++ {
-		b.WithContent(fmt.Sprintf("page%d.html", i+1), pageTemplate)
-	}
-
-	b.Build(BuildCfg{})
-
-	b.AssertFileContent("public/index.html", fmt.Sprintf(`
-Len RegularPages: %d
-Link: /page3/ Len Content: 0
-Link: /page22/ Len Content: 0
-`, numPages))
-
-	for i := 0; i < numPages; i++ {
-		b.AssertFileContent(fmt.Sprintf("public/page%d/index.html", i+1),
-			fmt.Sprintf(`<title>/page%d/</title>`, i+1),
-			`<p>Shortcode: Shortcode: Hello</p>`,
-			"<p>Partial: this my partial</p>",
-		)
-	}
-
-	b.EditFiles(
-		"layouts/partials/mypartial.html", `this my changed partial`,
-		"layouts/index.html", (homeTempl + "CHANGED"),
-	)
-	for i := 0; i < 5; i++ {
-		b.EditFiles(fmt.Sprintf("content/page%d.html", i+1), pageTemplate+"CHANGED")
-	}
-
-	b.Build(BuildCfg{})
-	b.AssertFileContent("public/index.html", fmt.Sprintf(`
-Len RegularPages: %d
-Link: /page3/ Len Content: 0
-Link: /page2/ Len Content: 0
-CHANGED
-`, numPages))
-	for i := 0; i < 5; i++ {
-		b.AssertFileContent(fmt.Sprintf("public/page%d/index.html", i+1),
-			fmt.Sprintf(`<title>/page%d/</title>`, i+1),
-			`<p>Shortcode: Shortcode: Hello</p>`,
-			"<p>Partial: this my changed partial</p>",
-			"CHANGED",
-		)
-	}
 
 }
 
@@ -656,23 +576,6 @@ func collectIdentities(set map[identity.Identity]bool, provider identity.Provide
 	}
 }
 
-func printRecursiveIdentities(level int, id identity.Provider) {
-	if level == 0 {
-		fmt.Println(id.GetIdentity(), "===>")
-	}
-	if ids, ok := id.(identity.IdentitiesProvider); ok {
-		level++
-		for _, id := range ids.GetIdentities() {
-			printRecursiveIdentities(level, id)
-		}
-	} else {
-		ident(level)
-		fmt.Println("ID", id)
-	}
-}
-
-func ident(n int) {
-	for i := 0; i < n; i++ {
-		fmt.Print("  ")
-	}
+func ident(level int) string {
+	return strings.Repeat(" ", level)
 }
