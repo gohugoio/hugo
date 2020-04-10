@@ -84,7 +84,9 @@ func (a *asciidocConverter) getAsciidocContent(src []byte, ctx converter.Documen
 }
 
 func (a *asciidocConverter) getAsciidoctorArgs(ctx converter.DocumentContext) []string {
-	args := a.cfg.MarkupConfig.AsciidocExt.Args
+	args := make([]string, len(a.cfg.MarkupConfig.AsciidocExt.Args))
+	copy(args, a.cfg.MarkupConfig.AsciidocExt.Args)
+
 	workingFolderCurrent := a.cfg.MarkupConfig.AsciidocExt.WorkingFolderCurrent
 
 	if workingFolderCurrent {
