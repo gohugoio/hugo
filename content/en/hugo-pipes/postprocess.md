@@ -18,7 +18,7 @@ A prime use case for this is [CSS purging with PostCSS](#css-purging-with-postcs
 
 There are currently two limitations to this:
 
-1. This only works for `*.html` files.
+1. This only works in `*.html` templates (i.e. templates that produces HTML files).
 2. You cannot manipulate the values returned from the resource's methods. E.g. the `upper` in this example will not work as expected:
    
     ```go-html-template
