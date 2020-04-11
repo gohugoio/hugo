@@ -54,7 +54,7 @@ This is a much simpler setup as your Hugo files and generated content are publis
 1. Create a `<YOUR-PROJECT>` (e.g. `blog`) repository on GitHub. This repository will contain Hugo's content and other source files.
 2. Create a `<USERNAME>.github.io` GitHub repository. This is the repository that will contain the fully rendered version of your Hugo website.
 3. `git clone <YOUR-PROJECT-URL> && cd <YOUR-PROJECT>`
-4. Paste your existing Hugo project into a new local `<YOUR-PROJECT>` repository. Make sure your website works locally (`hugo server` or `hugo server -t <YOURTHEME>`) and open your browser to <http://localhost:1313>.
+4. Paste your existing Hugo project into the new local `<YOUR-PROJECT>` repository. Make sure your website works locally (`hugo server` or `hugo server -t <YOURTHEME>`) and open your browser to <http://localhost:1313>.
 5. Once you are happy with the results:
     * Press <kbd>Ctrl</kbd>+<kbd>C</kbd> to kill the server
     * Before proceeding run `rm -rf public` to completely remove the `public` directory 
