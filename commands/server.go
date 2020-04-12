@@ -361,7 +361,8 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 			}
 
 			if f.c.fastRenderMode && f.c.buildErr == nil {
-				p := r.RequestURI
+
+				p := strings.TrimSuffix(r.RequestURI, "?"+r.URL.RawQuery)
 				if strings.HasSuffix(p, "/") || strings.HasSuffix(p, "html") || strings.HasSuffix(p, "htm") {
 					if !f.c.visitedURLs.Contains(p) {
 						// If not already on stack, re-render that single page.
