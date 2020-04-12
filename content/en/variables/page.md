@@ -179,8 +179,8 @@ http://remarkjs.com)
 .Type
 : the [content type](/content-management/types/) of the content (e.g., `posts`).
 
-.UniqueID
-: the MD5-checksum of the content file's path.
+.UniqueID (deprecated)
+: the MD5-checksum of the content file's path. This variable is deprecated and will be removed, use `.File.UniqueID` instead.
 
 .Weight
 : assigned weight (in the front matter) to this content, used in sorting.
