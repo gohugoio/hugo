@@ -18,6 +18,7 @@ package scss
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"path"
 	"path/filepath"
 	"strings"
@@ -102,10 +103,11 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 
 		for _, namePattern := range namePatterns {
 			filenameToCheck := filepath.Join(basePath, fmt.Sprintf(namePattern, name))
-			fi, err := t.c.sfs.Fs.Stat(filenameToCheck)
+			f, err := t.c.sfs.Fs.Open(filenameToCheck)
 			if err == nil {
-				if fim, ok := fi.(hugofs.FileMetaInfo); ok {
-					return fim.Meta().Filename(), "", true
+				body, err := ioutil.ReadAll(f)
+				if err == nil {
+					return "", string(body), true
 				}
 			}
 		}
