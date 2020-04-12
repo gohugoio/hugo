@@ -47,7 +47,7 @@ Some of the formats in the table above needs external helpers installed on your 
 
 Hugo passes reasonable default arguments to these external helpers by default:
 
-- `asciidoc`: `--no-header-footer --safe -`
+- `asciidoc`: `--no-header-footer --safe -` use environment variable **HUGO_ASCIIDOCTOR_ARGS** to override the default arguments.
 - `asciidoctor`: `--no-header-footer --safe --trace -`
 - `rst2html`: `--leave-comments --initial-header-level=2`
 - `pandoc`: `--mathjax`

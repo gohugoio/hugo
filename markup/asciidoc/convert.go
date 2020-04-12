@@ -16,7 +16,9 @@
 package asciidoc
 
 import (
+	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/internal"
@@ -75,6 +77,14 @@ func (a *asciidocConverter) getAsciidocContent(src []byte, ctx converter.Documen
 		args = append(args, "--trace")
 	}
 	args = append(args, "-")
+	if asciidoctorArgs := os.Getenv("HUGO_ASCIIDOCTOR_ARGS"); asciidoctorArgs != "" {
+		args = args[:0]
+		for _, str := range strings.Split(asciidoctorArgs, " ") {
+			if str != "" {
+				args = append(args, str)
+			}
+		}
+	}
 	return internal.ExternallyRenderContent(a.cfg, ctx, src, path, args)
 }
 
