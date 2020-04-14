@@ -298,7 +298,7 @@ enableemoji: true
 
 {{< new-in "0.66.0" >}}
 
-The `build` configuration section contains global build-realated configuration options.
+The `build` configuration section contains global build-related configuration options.
 
 {{< code-toggle file="config">}}
 [build]
