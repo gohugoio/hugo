@@ -16,10 +16,11 @@
 package asciidoc
 
 import (
-	"github.com/gohugoio/hugo/identity"
-	"github.com/gohugoio/hugo/markup/internal"
 	"os/exec"
 	"path/filepath"
+
+	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/markup/internal"
 
 	"github.com/gohugoio/hugo/markup/converter"
 )
@@ -92,6 +93,12 @@ func (a *asciidocConverter) getAsciidoctorArgs(ctx converter.DocumentContext) []
 	if workingFolderCurrent {
 		contentDir := filepath.Dir(ctx.Filename)
 		destinationDir := a.cfg.Cfg.GetString("destination")
+
+		a.cfg.Logger.INFO.Println("destinationDir", destinationDir)
+		if destinationDir == "" {
+			a.cfg.Logger.ERROR.Println("markup.asciidocext.workingFolderCurrent requires hugo command option --destination to be set")
+		}
+
 		outDir, err := filepath.Abs(filepath.Dir(filepath.Join(destinationDir, ctx.DocumentName)))
 		if err != nil {
 			a.cfg.Logger.ERROR.Println("asciidoctor outDir", err)

@@ -80,6 +80,8 @@ args can be customized in Hugo. E.g.
     workingFolderCurrent = true
 ```
 
+External asciidoctor requires Hugo rendering to disk to a specific destination folder. It is required to run Hugo with the command option `--destination`!
+
 In a complex Asciidoctor environment it is sometimes helpful to debug the exact call to your external helper with all 
 parameters. Run Hugo with `-v`. You will get an output like
 
