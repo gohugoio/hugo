@@ -30,6 +30,7 @@ import (
 var DefaultBuild = Build{
 	UseResourceCacheWhen: "fallback",
 	WriteStats:           false,
+	NginxAliases:         false,
 }
 
 // Build holds some build related condfiguration.
@@ -39,6 +40,7 @@ type Build struct {
 	// When enabled, will collect and write a hugo_stats.json with some build
 	// related aggregated data (e.g. CSS class names).
 	WriteStats bool
+	NginxAliases bool
 }
 
 func (b Build) UseResourceCache(err error) bool {

@@ -349,6 +349,10 @@ func (h *HugoSites) postProcess() error {
 		return err
 	}
 
+	if err := h.writeNginxAliasesConfig(); err != nil {
+		return err
+	}
+
 	var toPostProcess []resource.OriginProvider
 	for _, s := range h.Sites {
 		for _, v := range s.ResourceSpec.PostProcessResources {
@@ -437,6 +441,49 @@ func (h *HugoSites) postProcess() error {
 
 type publishStats struct {
 	CSSClasses string `json:"cssClasses"`
+}
+
+// This function is intended to generate a nginx configuration
+// containing all aliases config as nginx rules
+//
+// ex:
+//
+// redirect /source /dest permanent;
+//
+func (h *HugoSites) writeNginxAliasesConfig() error {
+
+	if !h.ResourceSpec.BuildConfig.NginxAliases {
+		return nil
+	}
+
+	// Generate aliases list
+	aliases := &publisher.ServerAliases{}
+	for _, s := range h.Sites {
+		for _, p := range s.PageCollections.AllPages() {
+			siteAliases := s.publisher.GeneateServerAliases(p)
+			aliases.AliasElements = append(aliases.AliasElements, siteAliases.AliasElements...)
+		}
+	}
+
+	// Get generated nginx config for aliases
+	var nginx_config []byte = aliases.Format("nginx")
+
+	// Write to config file
+	filename := filepath.Join(h.WorkingDir, "nginx.conf")
+
+	// Make sure it's always written to the OS fs.
+	if err := afero.WriteFile(hugofs.Os, filename, nginx_config, 0664); err != nil {
+		return err
+	}
+
+	// Write to the destination, too, if a mem fs is in play.
+	if h.Fs.Source != hugofs.Os {
+		if err := afero.WriteFile(h.Fs.Destination, filename, nginx_config, 0664); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (h *HugoSites) writeBuildStats() error {

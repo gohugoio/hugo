@@ -19,6 +19,7 @@ import (
 	"sync/atomic"
 
 	"github.com/gohugoio/hugo/resources"
+	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/gohugoio/hugo/media"
 
@@ -140,6 +141,23 @@ func (p DestinationPublisher) PublishStats() PublishStats {
 	}
 }
 
+// Return a ServerAliases struct
+func (p DestinationPublisher) GeneateServerAliases(page page.Page) ServerAliases {
+	var aliases []AliasElement
+
+	for _, alias := range page.Aliases() {
+		aliases = append(aliases, AliasElement{
+			source: alias,
+			destination: page.RelPermalink(),
+			redirectionType: "302",
+		})
+	}
+
+	return ServerAliases{
+		AliasElements: aliases,
+	}
+}
+
 type PublishStats struct {
 	HTMLElements HTMLElements `json:"htmlElements"`
 }
@@ -148,6 +166,7 @@ type PublishStats struct {
 type Publisher interface {
 	Publish(d Descriptor) error
 	PublishStats() PublishStats
+	GeneateServerAliases(page page.Page) ServerAliases 
 }
 
 // XML transformer := transform.New(urlreplacers.NewAbsURLInXMLTransformer(path))

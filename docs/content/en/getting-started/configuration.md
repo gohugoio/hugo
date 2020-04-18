@@ -309,6 +309,12 @@ useResourceCacheWhen="fallback"
 useResourceCacheWhen
 : When to use the cached resources in `/resources/_gen` for PostCSS and ToCSS. Valid values are `never`, `always` and `fallback`. The last value means that the cache will be tried if PostCSS/extended version is not available.
 
+{{< new-in "-dev" >}}
+nginxAliases
+: If set to true a `nginx.conf` file will be generated in the root
+project containing all configurated aliases as nginx redirection configuration.
+This file can be include in you nginx virtual host configuration.
+
 ## Configure Server
 
 {{< new-in "0.67.0" >}}
