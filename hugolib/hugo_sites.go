@@ -987,6 +987,7 @@ func (m *contentChangeMap) add(dirname string, tp bundleDirType) {
 	case bundleLeaf:
 		m.leafBundles.Insert(dirname, true)
 	default:
+		m.mu.Unlock()
 		panic("invalid bundle type")
 	}
 	m.mu.Unlock()
