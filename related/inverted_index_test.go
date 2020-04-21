@@ -201,6 +201,21 @@ func TestSearch(t *testing.T) {
 
 }
 
+func TestToKeywordsToLower(t *testing.T) {
+	c := qt.New(t)
+	slice := []string{"A", "B", "C"}
+	config := IndexConfig{ToLower: true}
+	keywords, err := config.ToKeywords(slice)
+	c.Assert(err, qt.IsNil)
+	c.Assert(slice, qt.DeepEquals, []string{"A", "B", "C"})
+	c.Assert(keywords, qt.DeepEquals, []Keyword{
+		StringKeyword("a"),
+		StringKeyword("b"),
+		StringKeyword("c"),
+	})
+
+}
+
 func BenchmarkRelatedNewIndex(b *testing.B) {
 
 	pages := make([]*testDoc, 100)

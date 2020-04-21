@@ -274,9 +274,12 @@ func (cfg IndexConfig) ToKeywords(v interface{}) ([]Keyword, error) {
 		keywords = append(keywords, StringKeyword(vv))
 	case []string:
 		if toLower {
-			for i := 0; i < len(vv); i++ {
-				vv[i] = strings.ToLower(vv[i])
+			vc := make([]string, len(vv))
+			copy(vc, vv)
+			for i := 0; i < len(vc); i++ {
+				vc[i] = strings.ToLower(vc[i])
 			}
+			vv = vc
 		}
 		keywords = append(keywords, StringsToKeywords(vv...)...)
 	case time.Time:
