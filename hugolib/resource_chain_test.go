@@ -860,8 +860,8 @@ func TestResourceChainPostCSS(t *testing.T) {
   "scripts": {},
 
   "devDependencies": {
-    "postcss-cli": "^7.1.0",
-    "tailwindcss": "^1.2"
+    "postcss-cli": "7.1.0",
+    "tailwindcss": "1.2.0"
   }
 }
 `
