@@ -14,10 +14,15 @@
 package hugolib
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/gohugoio/hugo/publisher"
 
 	"github.com/spf13/viper"
 
@@ -982,39 +987,64 @@ func TestRefIssues(t *testing.T) {
 }
 
 func TestClassCollector(t *testing.T) {
-	b := newTestSitesBuilder(t)
-	b.WithConfigFile("toml", `
+
+	for _, minify := range []bool{false, true} {
+		t.Run(fmt.Sprintf("minify-%t", minify), func(t *testing.T) {
+			statsFilename := "hugo_stats.json"
+			defer os.Remove(statsFilename)
+
+			b := newTestSitesBuilder(t)
+			b.WithConfigFile("toml", fmt.Sprintf(`
+			
+			
+minify = %t
 
 [build]
   writeStats = true
 
-`)
+`, minify))
 
-	b.WithTemplates("index.html", `
+			b.WithTemplates("index.html", `
 	
 <div id="el1" class="a b c">Foo</div>
 
 Some text.
 
 <div class="c d e" id="el2">Foo</div>
+
+<span class=z>FOO</span>
+
+ <a class="text-base hover:text-gradient inline-block px-3 pb-1 rounded lowercase" href="{{ .RelPermalink }}">{{ .Title }}</a>
+
+
 `)
 
-	b.WithContent("p1.md", "")
+			b.WithContent("p1.md", "")
 
-	b.Build(BuildCfg{})
+			b.Build(BuildCfg{})
 
-	b.AssertFileContent("hugo_stats.json", `
-{
+			b.AssertFileContent("hugo_stats.json", `
+ {
           "htmlElements": {
             "tags": [
-              "div"
+              "a",
+              "div",
+              "span"
             ],
             "classes": [
               "a",
               "b",
               "c",
               "d",
-              "e"
+              "e",
+              "hover:text-gradient",
+              "inline-block",
+              "lowercase",
+              "pb-1",
+              "px-3",
+              "rounded",
+              "text-base",
+              "z"
             ],
             "ids": [
               "el1",
@@ -1023,4 +1053,78 @@ Some text.
           }
         }
 `)
+
+		})
+
+	}
+}
+
+func TestClassCollectorStress(t *testing.T) {
+	statsFilename := "hugo_stats.json"
+	defer os.Remove(statsFilename)
+
+	b := newTestSitesBuilder(t)
+	b.WithConfigFile("toml", `
+	
+disableKinds = ["home", "section", "taxonomy", "taxonomyTerm" ]
+
+[languages]
+[languages.en]
+[languages.nb]
+[languages.no]
+[languages.sv]
+
+
+[build]
+  writeStats = true
+
+`)
+
+	b.WithTemplates("_default/single.html", `
+<div class="c d e" id="el2">Foo</div>
+
+Some text.
+
+{{ $n := index (shuffle (seq 1 20)) 0 }}
+
+{{ "<span class=_a>Foo</span>" | strings.Repeat $n | safeHTML }}
+
+<div class="{{ .Title }}">
+ABC.
+</div>
+
+<div class="f"></div>
+
+{{ $n := index (shuffle (seq 1 5)) 0 }}
+
+{{ "<hr class=p-3>" | safeHTML }}
+
+`)
+
+	for _, lang := range []string{"en", "nb", "no", "sv"} {
+
+		for i := 100; i <= 999; i++ {
+			b.WithContent(fmt.Sprintf("p%d.%s.md", i, lang), fmt.Sprintf("---\ntitle: p%s%d\n---", lang, i))
+		}
+	}
+
+	b.Build(BuildCfg{})
+
+	contentMem := b.FileContent(statsFilename)
+	cb, err := ioutil.ReadFile(statsFilename)
+	b.Assert(err, qt.IsNil)
+	contentFile := string(cb)
+
+	for _, content := range []string{contentMem, contentFile} {
+
+		stats := &publisher.PublishStats{}
+		b.Assert(json.Unmarshal([]byte(content), stats), qt.IsNil)
+
+		els := stats.HTMLElements
+
+		b.Assert(els.Classes, qt.HasLen, 3606) // (4 * 900) + 4 +2
+		b.Assert(els.Tags, qt.HasLen, 8)
+		b.Assert(els.IDs, qt.HasLen, 1)
+	}
+
 }

@@ -87,11 +87,6 @@ func (w *cssClassCollectorWriter) Write(p []byte) (n int, err error) {
 		if w.isCollecting {
 			for ; i < len(p); i++ {
 				b := p[i]
-				if !w.inQuote && b == '/' {
-					// End element, we don't care about those.
-					w.endCollecting(true)
-					break
-				}
 				w.toggleIfQuote(b)
 				if !w.inQuote && b == '>' {
 					w.endCollecting(false)

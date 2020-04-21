@@ -51,6 +51,8 @@ func TestClassCollector(t *testing.T) {
 		{"duplicates", `<div class="b a b"></div>`, f("div", "a b", "")},
 		{"single quote", `<body class='b a'></body>`, f("body", "a b", "")},
 		{"no quote", `<body class=b id=myelement></body>`, f("body", "b", "myelement")},
+		// https://github.com/gohugoio/hugo/issues/7161
+		{"minified a href", `<a class="b a" href=/></a>`, f("a", "a b", "")},
 
 		{"AlpineJS bind 1", `<body>
 			<div x-bind:class="{
