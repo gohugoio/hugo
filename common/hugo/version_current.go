@@ -16,7 +16,7 @@ package hugo
 // CurrentVersion represents the current build version.
 // This should be the only one.
 var CurrentVersion = Version{
-	Number:     0.69,
-	PatchLevel: 1,
-	Suffix:     "",
+	Number:     0.70,
+	PatchLevel: 0,
+	Suffix:     "-DEV",
 }
