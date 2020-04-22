@@ -534,17 +534,17 @@ See the documentation on [`where` function][wherefunction] and
 [`first` function][firstfunction] for further details.
 
 [base]: /templates/base/
-[bepsays]: http://bepsays.com/en/2016/12/19/hugo-018/
+[bepsays]: https://bepsays.com/en/2016/12/19/hugo-018/
 [directorystructure]: /getting-started/directory-structure/
 [`Format` function]: /functions/format/
 [front matter]: /content-management/front-matter/
 [getpage]: /functions/getpage/
 [homepage]: /templates/homepage/
 [homepage]: /templates/homepage/
-[mentalmodel]: http://webstyleguide.com/wsg3/3-information-architecture/3-site-structure.html
+[mentalmodel]: https://webstyleguide.com/wsg3/3-information-architecture/3-site-structure.html
 [pagevars]: /variables/page/
 [partials]: /templates/partials/
-[RSS 2.0]: http://cyber.law.harvard.edu/rss/rss.html "RSS 2.0 Specification"
+[RSS 2.0]: https://cyber.harvard.edu/rss/rss.html "RSS 2.0 Specification"
 [rss]: /templates/rss/
 [sections]: /content-management/sections/
 [sectiontemps]: /templates/section-templates/

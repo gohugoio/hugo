@@ -34,7 +34,7 @@ The current list of content formats in Hugo:
 |MMark|mmark|Mmark is deprecated and will be removed in a future release.|
 |Emacs Org-Mode|org|See [go-org](https://github.com/niklasfasching/go-org).|
 |Asciidoc|asciidoc, adoc, ad|Needs Asciidoc or [Asciidoctor][ascii] installed.|
-|RST|rst|Needs [RST](http://docutils.sourceforge.net/rst.html) installed.|
+|RST|rst|Needs [RST](https://docutils.sourceforge.io/rst.html) installed.|
 |Pandoc|pandoc, pdc|Needs [Pandoc](https://www.pandoc.org/) installed.|
 |HTML|html, htm|To be treated as a content file, with layout, shortcodes etc., it must have front matter. If not, it will be copied as-is.|
 
@@ -88,7 +88,7 @@ Markdown syntax is simple enough to learn in a single sitting. The following are
 [mmark]: https://github.com/mmarkdown/mmark
 [org]: https://orgmode.org/
 [pandoc]: https://www.pandoc.org/
-[Pygments]: http://pygments.org/
-[rest]: http://docutils.sourceforge.net/rst.html
+[Pygments]: https://pygments.org/
+[rest]: https://docutils.sourceforge.io/rst.html
 [sc]: /content-management/shortcodes/
 [sct]: /templates/shortcode-templates/

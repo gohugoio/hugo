@@ -131,7 +131,7 @@ See also `.ExpiryDate`, `.Date`, `.PublishDate`, and [`.GitInfo`][gitinfo].
 
 .RawContent
 : raw markdown content without the front matter. Useful with [remarkjs.com](
-http://remarkjs.com)
+https://remarkjs.com)
 
 .ReadingTime
 : the estimated time, in minutes, it takes to read the content.
