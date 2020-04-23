@@ -54,8 +54,8 @@ func (pt pageTree) IsAncestor(other interface{}) (bool, error) {
 		return false, nil
 	}
 
-	if ref2.isSection() {
-		return strings.HasPrefix(ref2.key, ref1.key+"/"), nil
+	if strings.HasPrefix(ref2.key, ref1.key+"/") {
+		return true, nil
 	}
 
 	return strings.HasPrefix(ref2.key, ref1.key+cmBranchSeparator), nil
@@ -101,8 +101,8 @@ func (pt pageTree) IsDescendant(other interface{}) (bool, error) {
 		return false, nil
 	}
 
-	if ref1.isSection() {
-		return strings.HasPrefix(ref1.key, ref2.key+"/"), nil
+	if strings.HasPrefix(ref1.key, ref2.key+"/") {
+		return true, nil
 	}
 
 	return strings.HasPrefix(ref1.key, ref2.key+cmBranchSeparator), nil
