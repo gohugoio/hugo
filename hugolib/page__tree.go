@@ -54,6 +54,10 @@ func (pt pageTree) IsAncestor(other interface{}) (bool, error) {
 		return false, nil
 	}
 
+	if ref1.key == ref2.key {
+		return true, nil
+	}
+
 	if strings.HasPrefix(ref2.key, ref1.key+"/") {
 		return true, nil
 	}
@@ -99,6 +103,10 @@ func (pt pageTree) IsDescendant(other interface{}) (bool, error) {
 
 	if !ref2.isSection() {
 		return false, nil
+	}
+
+	if ref1.key == ref2.key {
+		return true, nil
 	}
 
 	if strings.HasPrefix(ref1.key, ref2.key+"/") {
