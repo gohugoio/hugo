@@ -50,8 +50,8 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.6.1
 	github.com/tdewolff/minify/v2 v2.6.1
-	github.com/yuin/goldmark v1.1.28
-	github.com/yuin/goldmark-highlighting v0.0.0-20200218065240-d1af22c1126f
+	github.com/yuin/goldmark v1.1.30
+	github.com/yuin/goldmark-highlighting v0.0.0-20200307114337-60d527fdb691
 	go.opencensus.io v0.22.0 // indirect
 	gocloud.dev v0.15.0
 	golang.org/x/image v0.0.0-20191214001246-9130b4cfad52
