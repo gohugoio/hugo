@@ -16,6 +16,7 @@ package markup_config
 import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/docshelper"
+	"github.com/gohugoio/hugo/markup/asciidocext/asciidocext_config"
 	"github.com/gohugoio/hugo/markup/blackfriday/blackfriday_config"
 	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
 	"github.com/gohugoio/hugo/markup/highlight"
@@ -36,6 +37,8 @@ type Config struct {
 	// Content renderers
 	Goldmark    goldmark_config.Config
 	BlackFriday blackfriday_config.Config
+
+	AsciidocExt asciidocext_config.Config
 }
 
 func Decode(cfg config.Provider) (conf Config, err error) {
