@@ -42,7 +42,7 @@ To create a Project Pages site, choose a method from the *Project Pages* section
 
 ## GitHub User or Organization Pages
 
-As mentioned [the GitHub Pages documentation][ghorgs], you can host a user/organization page in addition to project pages. Here are the key differences in GitHub Pages websites for Users and Organizations:
+As mentioned in the [GitHub Pages documentation][ghorgs], you can host a user/organization page in addition to project pages. Here are the key differences in GitHub Pages websites for Users and Organizations:
 
 1. You must use a `<USERNAME>.github.io` to host your **generated** content
 2. Content from the `master` branch will be used to publish your GitHub Pages site
