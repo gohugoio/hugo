@@ -14,9 +14,10 @@
 package publisher
 
 import (
+	"regexp"
+
 	"github.com/gohugoio/hugo/helpers"
 	"golang.org/x/net/html"
-	yaml "gopkg.in/yaml.v2"
 
 	"bytes"
 	"sort"
@@ -196,7 +197,10 @@ func isQuote(b byte) bool {
 	return b == '"' || b == '\''
 }
 
-var htmlJsonFixer = strings.NewReplacer(", ", "\n")
+var (
+	htmlJsonFixer = strings.NewReplacer(", ", "\n")
+	jsonAttrRe    = regexp.MustCompile(`'?(.*?)'?:.*`)
+)
 
 func parseHTMLElement(elStr string) (el htmlElement) {
 	elStr = strings.TrimSpace(elStr)
@@ -225,27 +229,15 @@ func parseHTMLElement(elStr string) (el htmlElement) {
 						val := strings.TrimSpace(a.Val)
 						if strings.Contains(key, "class") && strings.HasPrefix(val, "{") {
 							// This looks like a Vue or AlpineJS class binding.
-							// Try to unmarshal it as YAML and pull the keys.
-							// This may look odd, as the source is (probably) JS (JSON), but the YAML
-							// parser is much more lenient with simple JS input, it seems.
-							m := make(map[string]interface{})
 							val = htmlJsonFixer.Replace(strings.Trim(val, "{}"))
-							// Remove leading space to make it look like YAML.
 							lines := strings.Split(val, "\n")
 							for i, l := range lines {
 								lines[i] = strings.TrimSpace(l)
 							}
 							val = strings.Join(lines, "\n")
-							err := yaml.Unmarshal([]byte(val), &m)
-							if err == nil {
-								for k := range m {
-									el.Classes = append(el.Classes, strings.Fields(k)...)
-								}
-							} else {
-								// Just insert the raw values. This is used for CSS class pruning
-								// so, it's important not to leave out values that may be a CSS class.
-								el.Classes = append(el.Classes, strings.Fields(val)...)
-							}
+							val = jsonAttrRe.ReplaceAllString(val, "$1")
+							el.Classes = append(el.Classes, strings.Fields(val)...)
+
 						}
 					}
 				}
