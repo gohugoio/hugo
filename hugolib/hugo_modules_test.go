@@ -40,6 +40,10 @@ import (
 
 // https://github.com/gohugoio/hugo/issues/6730
 func TestHugoModulesTargetInSubFolder(t *testing.T) {
+	if !isCI() {
+		// TODO(bep) investigate why this fails when running in LiteIDE (it works from the shell).
+		t.Skip("skip (relative) long running modules test when running locally")
+	}
 	config := `
 baseURL="https://example.org"
 workingDir = %q
