@@ -60,8 +60,8 @@ func init() {
 			[][2]string{},
 		)
 
-		ns.AddMethodMapping(ctx.TranspileJS,
-			[]string{"transpileJS"},
+		ns.AddMethodMapping(ctx.Babel,
+			[]string{"babel"},
 			[][2]string{},
 		)
 
