@@ -25,9 +25,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/common/hugo"
 
-	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/gohugoio/hugo/resources/internal"
 	"github.com/spf13/afero"
@@ -202,10 +202,7 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 
 	cmd.Stdout = ctx.To
 	cmd.Stderr = io.MultiWriter(os.Stderr, &errBuf)
-	// TODO(bep) somehow generalize this to other external helpers that may need this.
-	env := os.Environ()
-	config.SetEnvVars(&env, "HUGO_ENVIRONMENT", t.rs.Cfg.GetString("environment"))
-	cmd.Env = env
+	cmd.Env = hugo.GetExecEnviron(t.rs.Cfg)
 
 	stdin, err := cmd.StdinPipe()
 	if err != nil {

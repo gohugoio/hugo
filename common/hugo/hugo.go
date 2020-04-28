@@ -16,6 +16,9 @@ package hugo
 import (
 	"fmt"
 	"html/template"
+	"os"
+
+	"github.com/gohugoio/hugo/config"
 )
 
 const (
@@ -68,4 +71,10 @@ func NewInfo(environment string) Info {
 		BuildDate:   buildDate,
 		Environment: environment,
 	}
+}
+
+func GetExecEnviron(cfg config.Provider) []string {
+	env := os.Environ()
+	config.SetEnvVars(&env, "HUGO_ENVIRONMENT", cfg.GetString("environment"))
+	return env
 }

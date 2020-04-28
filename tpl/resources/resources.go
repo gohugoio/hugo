@@ -29,12 +29,12 @@ import (
 
 	"github.com/gohugoio/hugo/resources/resource_factories/bundler"
 	"github.com/gohugoio/hugo/resources/resource_factories/create"
+	"github.com/gohugoio/hugo/resources/resource_transformers/babel"
 	"github.com/gohugoio/hugo/resources/resource_transformers/integrity"
 	"github.com/gohugoio/hugo/resources/resource_transformers/minifier"
 	"github.com/gohugoio/hugo/resources/resource_transformers/postcss"
 	"github.com/gohugoio/hugo/resources/resource_transformers/templates"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/scss"
-	"github.com/gohugoio/hugo/resources/resource_transformers/transpilejs"
 	"github.com/spf13/cast"
 )
 
@@ -55,15 +55,15 @@ func New(deps *deps.Deps) (*Namespace, error) {
 	}
 
 	return &Namespace{
-		deps:              deps,
-		scssClient:        scssClient,
-		createClient:      create.New(deps.ResourceSpec),
-		bundlerClient:     bundler.New(deps.ResourceSpec),
-		integrityClient:   integrity.New(deps.ResourceSpec),
-		minifyClient:      minifyClient,
-		postcssClient:     postcss.New(deps.ResourceSpec),
-		templatesClient:   templates.New(deps.ResourceSpec, deps),
-		transpileJSClient: transpilejs.New(deps.ResourceSpec),
+		deps:            deps,
+		scssClient:      scssClient,
+		createClient:    create.New(deps.ResourceSpec),
+		bundlerClient:   bundler.New(deps.ResourceSpec),
+		integrityClient: integrity.New(deps.ResourceSpec),
+		minifyClient:    minifyClient,
+		postcssClient:   postcss.New(deps.ResourceSpec),
+		templatesClient: templates.New(deps.ResourceSpec, deps),
+		babelClient:     babel.New(deps.ResourceSpec),
 	}, nil
 }
 
@@ -71,14 +71,14 @@ func New(deps *deps.Deps) (*Namespace, error) {
 type Namespace struct {
 	deps *deps.Deps
 
-	createClient      *create.Client
-	bundlerClient     *bundler.Client
-	scssClient        *scss.Client
-	integrityClient   *integrity.Client
-	minifyClient      *minifier.Client
-	postcssClient     *postcss.Client
-	transpileJSClient *transpilejs.Client
-	templatesClient   *templates.Client
+	createClient    *create.Client
+	bundlerClient   *bundler.Client
+	scssClient      *scss.Client
+	integrityClient *integrity.Client
+	minifyClient    *minifier.Client
+	postcssClient   *postcss.Client
+	babelClient     *babel.Client
+	templatesClient *templates.Client
 }
 
 // Get locates the filename given in Hugo's assets filesystem
@@ -283,22 +283,22 @@ func (ns *Namespace) PostProcess(r resource.Resource) (postpub.PostPublishedReso
 
 }
 
-// TranspileJS processes the given Resource with Babel.
-func (ns *Namespace) TranspileJS(args ...interface{}) (resource.Resource, error) {
+// Babel processes the given Resource with Babel.
+func (ns *Namespace) Babel(args ...interface{}) (resource.Resource, error) {
 	r, m, err := ns.resolveArgs(args)
 	if err != nil {
 		return nil, err
 	}
-	var options transpilejs.Options
+	var options babel.Options
 	if m != nil {
-		options, err = transpilejs.DecodeOptions(m)
+		options, err = babel.DecodeOptions(m)
 
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	return ns.transpileJSClient.Process(r, options)
+	return ns.babelClient.Process(r, options)
 
 }
 
