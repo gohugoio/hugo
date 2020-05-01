@@ -218,6 +218,9 @@ func TestSort(t *testing.T) {
 				map[interface{}]interface{}{"Title": "Foo", "Weight": 10},
 			},
 		},
+		// test boolean values
+		{[]bool{false, true, false}, "value", "asc", []bool{false, false, true}},
+		{[]bool{false, true, false}, "value", "desc", []bool{true, false, false}},
 		// test error cases
 		{(*[]TstX)(nil), nil, "asc", false},
 		{TstX{A: "a", B: "b"}, nil, "asc", false},
