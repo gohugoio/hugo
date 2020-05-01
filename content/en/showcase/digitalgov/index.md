@@ -6,10 +6,9 @@ siteURL: https://digital.gov/
 siteSource: https://github.com/gsa/digitalgov.gov
 ---
 
-For over a decade, Digital.gov has provided guidance, training, and community support to the people who are responsible for delivering digital services in government. Essentially, it is a place where people can find examples of problems being solved in government, and get links to the tools and resources they need.
+For over a decade, Digital.gov has provided guidance, training, and community support to the people who are responsible for delivering digital services in the U.S. government. Essentially, it is a place where people can find examples of problems being solved in government, and get links to the tools and resources they need.
 
 Through collaboration in our communities of practice, Digital.gov is a window into the people who work in technology in government and the challenges they face making digital services stronger and more effective. [Read more about our site »](https://digital.gov/2019/12/19/a-new-digitalgov/)
-
 
 Digital.gov is built using the [U.S. Web Design System](https://designsystem.digital.gov/) (USWDS) and have followed the [design principles](https://designsystem.digital.gov/maturity-model/) in building out our new site:
 
@@ -20,7 +19,6 @@ Digital.gov is built using the [U.S. Web Design System](https://designsystem.dig
 -   **Listen**  — We actively collect user feedback and web metrics. We use the  [Digital Analytics Program](https://digital.gov/services/dap/)  (DAP) and analyze the data to discover actionable insights. We make small, incremental changes to continuously improve our website by listening to readers and learning from what we hear.
 
 _More on the [USWDS maturity model »](https://designsystem.digital.gov/maturity-model/)_
-
 
 ## Open Tools
 
@@ -49,11 +47,11 @@ Take a look:
   Sitemaps         |    1
   Cleaned          |    0
 
-Built in 32.427 secons
+Built in 32.427 seconds
 
 ```
 
-In addition to HUGO, we are proudly using a number of other tools and services, all built by government are free to use:
+In addition to Hugo, we are proudly using a number of other tools and services, all built by government are free to use:
 
 -   [Federalist](https://federalist.18f.gov/)
 -   [Search.gov](https://www.search.gov/)  — A free, hosted search platform for federal websites.
