@@ -166,6 +166,31 @@ func TestSort(t *testing.T) {
 			"asc",
 			[]map[string]mid{{"foo": mid{Tst: TstX{A: "a", B: "b"}}}, {"foo": mid{Tst: TstX{A: "c", B: "d"}}}, {"foo": mid{Tst: TstX{A: "e", B: "f"}}}},
 		},
+		// test same value sorting
+		{
+			[]map[string]TstX{{"foo": TstX{A: "a", B: "f"}}, {"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "a", B: "d"}}},
+			"foo.A",
+			"asc",
+			[]map[string]TstX{{"foo": TstX{A: "a", B: "f"}}, {"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "a", B: "d"}}},
+		},
+		{
+			[]map[string]TstX{{"foo": TstX{A: "b", B: "f"}}, {"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "a", B: "d"}}},
+			"foo.A",
+			"asc",
+			[]map[string]TstX{{"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "a", B: "d"}}, {"foo": TstX{A: "b", B: "f"}}},
+		},
+		{
+			[]map[string]TstX{{"foo": TstX{A: "a", B: "f"}}, {"foo": TstX{A: "b", B: "b"}}, {"foo": TstX{A: "a", B: "d"}}},
+			"foo.A",
+			"asc",
+			[]map[string]TstX{{"foo": TstX{A: "a", B: "f"}}, {"foo": TstX{A: "a", B: "d"}}, {"foo": TstX{A: "b", B: "b"}}},
+		},
+		{
+			[]map[string]TstX{{"foo": TstX{A: "a", B: "f"}}, {"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "b", B: "d"}}},
+			"foo.A",
+			"asc",
+			[]map[string]TstX{{"foo": TstX{A: "a", B: "f"}}, {"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "b", B: "d"}}},
+		},
 		// test map sorting by dot chaining key argument
 		{
 			map[string]map[string]TstX{"1": {"foo": TstX{A: "e", B: "f"}}, "2": {"foo": TstX{A: "a", B: "b"}}, "3": {"foo": TstX{A: "c", B: "d"}}},
