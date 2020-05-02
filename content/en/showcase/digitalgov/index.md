@@ -1,7 +1,7 @@
 ---
 title: Digital.gov
 date: 2020-05-01
-description: "Showcase: \"Seeing Hugo in action is a whole different world of awesome.\""
+description: "Showcase: \"Guidance on building better digital services in government.\""
 siteURL: https://digital.gov/
 siteSource: https://github.com/gsa/digitalgov.gov
 ---
