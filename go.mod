@@ -49,7 +49,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.6.1
-	github.com/tdewolff/minify/v2 v2.6.1
+	github.com/tdewolff/minify/v2 v2.6.2
 	github.com/yuin/goldmark v1.1.30
 	github.com/yuin/goldmark-highlighting v0.0.0-20200307114337-60d527fdb691
 	go.opencensus.io v0.22.0 // indirect
