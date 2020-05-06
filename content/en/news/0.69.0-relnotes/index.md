@@ -1,12 +1,12 @@
 
 ---
 date: 2020-04-10
-title: "0.69.0"
-description: "0.69.0"
+title: "Post Build Resource Transformations"
+description: "Hugo 0.69.0 allows you to delay resource processing to after the build, the prime use case being removal of unused CSS."
 categories: ["Releases"]
 ---
 
-	It's Eeaster, a time for mysteries and puzzles. And at first glance, this Hugo release looks a little mysterious. The core of if is a mind-twister:
+**It's Eeaster, a time for mysteries and puzzles.** And at first glance, this Hugo release looks a little mysterious. The core of if is a mind-twister:
 
 ```go-html-template
 {{ $css := resources.Get "css/main.css" }}

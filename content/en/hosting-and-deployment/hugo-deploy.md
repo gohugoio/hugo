@@ -19,7 +19,7 @@ aliases: []
 toc: true
 ---
 
-You can use the "hugo deploy" command to upload your site directly to a Google Cloud Storage (GCS) bucket, an AWS S3 bucket, and/or an Azure Storage bucket.
+You can use the "hugo deploy" command to upload your site directly to a Google Cloud Storage (GCS) bucket, an AWS S3 bucket, and/or an Azure Storage container.
 
 ## Assumptions
 
@@ -46,7 +46,7 @@ Follow the [AWS instructions for how to create a bucket](https://docs.aws.amazon
 
 ### Azure Storage
 
-Follow the [Azure instructions for how to create a bucket](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-portal).
+Follow the [Azure instructions for how to create a storage container](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-portal).
 
 ## Configure the deployment
 

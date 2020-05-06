@@ -8,7 +8,7 @@ byline: "[Didier Divinerites](https://github.com/divinerites)"
 
 ---
 
-Swiss [Arolla campsite](http://www.camping-arolla.com/) runs the highest campsite in Europe and I'm completely re-doing their actuel Website with Hugo.
+Swiss [Arolla campsite](https://www.camping-arolla.com) runs the highest campsite in Europe and I'm completely re-doing their actuel Website with Hugo.
 
 But they just launch a brand new offer (luxury tents with bed and fire oven), and we couldn't wait for the proper new website for having this promoted: we needed the website up and running within 24h!
 
@@ -18,8 +18,8 @@ So we decided to quickly launch a dedicated [independent web site](https://www.c
 - Replace the main images.
 - Add a [hugo-easy-gallery / photoswipe](https://github.com/liwenyip/hugo-easy-gallery) on the main page with attractive images.
 - Add the promo video with a simple *vimeo* shortcode.
-- Replace the Google Maps widget by the [OpenStreetMap](http://www.openstreetmap.org/) equivalent
-- Use a [Zotabox](http://www.zotabox.com) contact form.
+- Replace the Google Maps widget by the [OpenStreetMap](https://www.openstreetmap.org/) equivalent
+- Use a [Zotabox](https://www.zotabox.com) contact form.
 - Write the content in French & in English directly on the content pages, describe their services, add fun facts and true testimonies.
 - Setup a GDPR compliant site with the new Hugo options.
 - Use [Netlify](https://www.netlify.com) for publishing it in a breeze.

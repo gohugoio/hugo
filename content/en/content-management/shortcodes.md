@@ -423,7 +423,7 @@ To learn more about creating custom shortcodes, see the [shortcode template docu
 [Instagram]: https://www.instagram.com/
 [pagevariables]: /variables/page/
 [partials]: /templates/partials/
-[Pygments]: http://pygments.org/
+[Pygments]: https://pygments.org/
 [quickstart]: /getting-started/quick-start/
 [sctemps]: /templates/shortcode-templates/
 [scvars]: /variables/shortcodes/
