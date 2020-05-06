@@ -35,7 +35,7 @@ var defaultTdewolffConfig = tdewolffConfig{
 		KeepEndTags:             true,
 		KeepDefaultAttrVals:     true,
 		KeepWhitespace:          false,
-		// KeepQuotes:              false, >= v2.6.2
+		KeepQuotes:              false,
 	},
 	CSS: css.Minifier{
 		Decimals: -1, // will be deprecated
