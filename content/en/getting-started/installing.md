@@ -86,6 +86,12 @@ If you are on a Windows machine and use [Scoop][] for package management, you ca
 scoop install hugo
 ```
 
+Or install the extended version with:
+
+```bash
+scoop install hugo-extended
+```
+
 ### Source
 
 #### Prerequisite Tools
@@ -517,7 +523,7 @@ Now that you've installed Hugo, read the [Quick Start guide][quickstart] and exp
 [installgo]: https://golang.org/dl/
 [linuxbrew]: https://docs.brew.sh/Homebrew-on-Linux
 [Path Editor]: https://patheditor2.codeplex.com/
-[pygments]: http://pygments.org
+[pygments]: https://pygments.org
 [quickstart]: /getting-started/quick-start/
 [redhatforum]: https://discourse.gohugo.io/t/solved-fedora-copr-repository-out-of-service/2491
 [releases]: https://github.com/gohugoio/hugo/releases

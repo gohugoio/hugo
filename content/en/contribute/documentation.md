@@ -229,7 +229,7 @@ Which will render as follows in the Hugo docs:
 > Without the threat of punishment, there is no joy in flight. - [Kobo Abe][abe]
 
 {{% note "Blockquotes `!=` Admonitions" %}}
-Previous versions of Hugo documentation used blockquotes to draw attention to text. This is *not* the [intended semantic use of `<blockquote>`](http://html5doctor.com/cite-and-blockquote-reloaded/). Use blockquotes when quoting. To note or warn your user of specific information, use the admonition shortcodes that follow.
+Previous versions of Hugo documentation used blockquotes to draw attention to text. This is *not* the [intended semantic use of `<blockquote>`](https://html5doctor.com/cite-and-blockquote-reloaded/). Use blockquotes when quoting. To note or warn your user of specific information, use the admonition shortcodes that follow.
 {{% /note %}}
 
 ## Admonitions
@@ -330,5 +330,5 @@ Similar to [contributing to Hugo development](/contribute/development/), the Hug
 [ghforking]: https://help.github.com/articles/fork-a-repo/
 [hugodev]: /contribute/development/
 [shortcodeparams]: content-management/shortcodes/#shortcodes-without-markdown
-[sourceforge]: http://docutils.sourceforge.net/docs/ref/rst/directives.html#admonitions
+[sourceforge]: https://docutils.sourceforge.io/docs/ref/rst/directives.html#admonitions
 [templating function]: /functions/
