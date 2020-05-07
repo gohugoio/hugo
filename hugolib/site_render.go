@@ -154,7 +154,7 @@ func (s *Site) logMissingLayout(name, kind, outputFormat string) {
 		log = s.Log.INFO
 	}
 
-	errMsg := "You should create a template file which matches Hugo Layouts Lookup Rules for this combination."
+	errMsg := "You should create a template file which matches Hugo Layouts Lookup Rules (https://gohugo.io/templates/lookup-order/#hugo-layouts-lookup-rules) for this combination."
 	var args []interface{}
 	msg := "found no layout file for"
 	if outputFormat != "" {
