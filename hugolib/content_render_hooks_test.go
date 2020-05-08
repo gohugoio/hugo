@@ -49,6 +49,7 @@ Inner Block: {{ .Inner | .Page.RenderString (dict "display" "block" ) }}
 	b.WithTemplatesAdded("_default/_markup/render-link.html", `{{ with .Page }}{{ .Title }}{{ end }}|{{ .Destination | safeURL }}|Title: {{ .Title | safeHTML }}|Text: {{ .Text | safeHTML }}|END`)
 	b.WithTemplatesAdded("docs/_markup/render-link.html", `Link docs section: {{ .Text | safeHTML }}|END`)
 	b.WithTemplatesAdded("_default/_markup/render-image.html", `IMAGE: {{ .Page.Title }}||{{ .Destination | safeURL }}|Title: {{ .Title | safeHTML }}|Text: {{ .Text | safeHTML }}|END`)
+	b.WithTemplatesAdded("_default/_markup/render-heading.html", `HEADING: {{ .Page.Title }}||Level: {{ .Level }}|Anchor: {{ .Anchor | safeURL }}|Text: {{ .Text | safeHTML }}|END`)
 
 	b.WithContent("customview/p1.md", `---
 title: Custom View
@@ -122,6 +123,16 @@ title: With RenderString
 
 {{< myshortcode5 >}}Inner Link: [Inner Link](https://www.gohugo.io "Hugo's Homepage"){{< /myshortcode5 >}}
 
+`, "blog/p7.md", `---
+title: With Headings
+---
+
+# Heading Level 1
+some text
+
+## Heading Level 2
+
+### Heading Level 3
 `)
 
 	for i := 1; i <= 30; i++ {
@@ -135,7 +146,7 @@ title: No Template
 	}
 	counters := &testCounters{}
 	b.Build(BuildCfg{testCounters: counters})
-	b.Assert(int(counters.contentRenderCounter), qt.Equals, 43)
+	b.Assert(int(counters.contentRenderCounter), qt.Equals, 44)
 
 	b.AssertFileContent("public/blog/p1/index.html", `
 <p>Cool Page|https://www.google.com|Title: Google's Homepage|Text: First Link|END</p>
@@ -182,7 +193,7 @@ SHORT3|
 	// We may add type template support later, keep this for then. b.AssertFileContent("public/docs/docs1/index.html", `DOCS EDITED: https://www.google.com|</p>`)
 	b.AssertFileContent("public/blog/p4/index.html", `IMAGE EDITED: /images/Dragster.jpg|`)
 	b.AssertFileContent("public/blog/p6/index.html", "<p>Inner Link: EDITED: https://www.gohugo.io|</p>")
-
+	b.AssertFileContent("public/blog/p7/index.html", "HEADING: With Headings||Level: 1|Anchor: heading-level-1|Text: Heading Level 1|END<p>some text</p>\nHEADING: With Headings||Level: 2|Anchor: heading-level-2|Text: Heading Level 2|ENDHEADING: With Headings||Level: 3|Anchor: heading-level-3|Text: Heading Level 3|END")
 }
 
 func TestRenderHooksDeleteTemplate(t *testing.T) {
