@@ -5,7 +5,7 @@ require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/PuerkitoBio/purell v1.1.1
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
-	github.com/alecthomas/chroma v0.7.2
+	github.com/alecthomas/chroma v0.7.3
 	github.com/alecthomas/repr v0.0.0-20181024024818-d37bc2a10ba1 // indirect
 	github.com/armon/go-radix v1.0.0
 	github.com/aws/aws-sdk-go v1.27.1
@@ -27,7 +27,7 @@ require (
 	github.com/kyokomi/emoji v2.2.1+incompatible
 	github.com/magefile/mage v1.9.0
 	github.com/markbates/inflect v1.0.0
-	github.com/mattn/go-isatty v0.0.11
+	github.com/mattn/go-isatty v0.0.12
 	github.com/miekg/mmark v1.3.6
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/mitchellh/mapstructure v1.1.2
@@ -37,7 +37,7 @@ require (
 	github.com/niklasfasching/go-org v1.1.0
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/pelletier/go-toml v1.6.0 // indirect
-	github.com/pkg/errors v0.8.1
+	github.com/pkg/errors v0.9.1
 	github.com/rogpeppe/go-internal v1.5.1
 	github.com/russross/blackfriday v1.5.3-0.20200218234912-41c5fccfd6f6
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
@@ -58,7 +58,6 @@ require (
 	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553
 	golang.org/x/oauth2 v0.0.0-20190523182746-aaccbc9213b0 // indirect
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
-	golang.org/x/sys v0.0.0-20200107144601-ef85f5a75ddf // indirect
 	golang.org/x/text v0.3.2
 	golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7 // indirect
 	google.golang.org/api v0.5.0
