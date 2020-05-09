@@ -30,6 +30,7 @@ import (
 	"github.com/gohugoio/hugo/resources/resource_factories/bundler"
 	"github.com/gohugoio/hugo/resources/resource_factories/create"
 	"github.com/gohugoio/hugo/resources/resource_transformers/babel"
+	"github.com/gohugoio/hugo/resources/resource_transformers/coffee"
 	"github.com/gohugoio/hugo/resources/resource_transformers/integrity"
 	"github.com/gohugoio/hugo/resources/resource_transformers/minifier"
 	"github.com/gohugoio/hugo/resources/resource_transformers/postcss"
@@ -64,6 +65,7 @@ func New(deps *deps.Deps) (*Namespace, error) {
 		postcssClient:   postcss.New(deps.ResourceSpec),
 		templatesClient: templates.New(deps.ResourceSpec, deps),
 		babelClient:     babel.New(deps.ResourceSpec),
+		coffeeClient:    coffee.New(deps.ResourceSpec),
 	}, nil
 }
 
@@ -78,6 +80,7 @@ type Namespace struct {
 	minifyClient    *minifier.Client
 	postcssClient   *postcss.Client
 	babelClient     *babel.Client
+	coffeeClient    *coffee.Client
 	templatesClient *templates.Client
 }
 
@@ -300,6 +303,23 @@ func (ns *Namespace) Babel(args ...interface{}) (resource.Resource, error) {
 
 	return ns.babelClient.Process(r, options)
 
+}
+
+// Coffee processes the given Resource with CoffeeScript.
+func (ns *Namespace) Coffee(args ...interface{}) (resource.Resource, error) {
+	r, m, err := ns.resolveArgs(args)
+	if err != nil {
+		return nil, err
+	}
+	var options coffee.Options
+	if m != nil {
+		options, err = coffee.DecodeOptions(m)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return ns.coffeeClient.Process(r, options)
 }
 
 // We allow string or a map as the first argument in some cases.

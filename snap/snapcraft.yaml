@@ -71,6 +71,7 @@ parts:
         - "@babel/cli"
         - "@babel/core"
         - postcss-cli
+        - coffeescript
     filesets:
       node:
         - bin/node
@@ -80,10 +81,14 @@ parts:
       babel:
         - bin/babel
         - lib/node_modules/@babel/cli/*
+      coffee:
+        - bin/coffee.js
+        - lib/node_modules/coffeescript/bin/*
     prime:
       - $node
       - $postcss
       - $babel
+      - $coffee
 
   pygments:
     plugin: python

@@ -65,6 +65,11 @@ func init() {
 			[][2]string{},
 		)
 
+		ns.AddMethodMapping(ctx.Coffee,
+			[]string{"coffee"},
+			[][2]string{},
+		)
+
 		return ns
 
 	}
