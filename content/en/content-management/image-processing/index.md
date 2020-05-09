@@ -18,13 +18,22 @@ menu:
 
 The `image` is a [Page Resource]({{< relref "/content-management/page-resources" >}}), and the processing methods listed below do not work on images inside your `/static` folder.
 
-To get all images in a [Page Bundle]({{< relref "/content-management/organization#page-bundles" >}}):
+To print all images paths in a [Page Bundle]({{< relref "/content-management/organization#page-bundles" >}}):
 
 ```go-html-template
 {{ with .Resources.ByType "image" }}
+{{ range . }}
+{{ .RelPermalink }}
+{{ end }}
 {{ end }}
 
 ```
+
+## The Image Resource
+
+The `image` resource can also be retrieved from a [global resource]({{< relref "/hugo-pipes/introduction#from-file-to-resource" >}})
+
+{{- $image := resources.Get "images/logo.jpg" -}}
 
 ## Image Processing Methods
 
