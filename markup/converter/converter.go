@@ -119,6 +119,7 @@ type DocumentContext struct {
 	Document        interface{} // May be nil. Usually a page.Page
 	DocumentID      string
 	DocumentName    string
+	Filename        string
 	ConfigOverrides map[string]interface{}
 }
 

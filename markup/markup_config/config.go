@@ -94,6 +94,8 @@ var Default = Config{
 
 	Goldmark:    goldmark_config.Default,
 	BlackFriday: blackfriday_config.Default,
+
+	AsciidocExt: asciidocext_config.Default,
 }
 
 func init() {

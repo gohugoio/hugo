@@ -15,15 +15,19 @@
 package asciidocext_config
 
 // DefaultConfig holds the default asciidoc configuration.
+// These values are asciidoctor cli defaults (see https://asciidoctor.org/docs/user-manual/)
 var (
 	Default = Config{
-		Backend:          "html5",
-		DocType:          "article",
-		Extensions:       []string{},
-		NoHeaderOrFooter: true,
-		SafeMode:         "safe",
-		SectionNumbers:   false,
-		Verbose:          false,
+		Backend:              "html5",
+		DocType:              "article",
+		Extensions:           []string{},
+		NoHeaderOrFooter:     true,
+		SafeMode:             "unsafe",
+		SectionNumbers:       false,
+		Verbose:              true,
+		Trace:                false,
+		FailureLevel:         "fatal",
+		WorkingFolderCurrent: false,
 	}
 
 	ExtensionsWhitelist = map[string]bool{
@@ -43,6 +47,11 @@ var (
 		"secure": true,
 	}
 
+	FailureLevelWhitelist = map[string]bool{
+		"fatal": true,
+		"warn":  true,
+	}
+
 	BackendWhitelist = map[string]bool{
 		"html5":     true,
 		"html5s":    true,
@@ -55,11 +64,14 @@ var (
 
 // Config configures asciidoc.
 type Config struct {
-	Backend          string
-	DocType          string
-	Extensions       []string
-	NoHeaderOrFooter bool
-	SafeMode         string
-	SectionNumbers   bool
-	Verbose          bool
+	Backend              string
+	DocType              string
+	Extensions           []string
+	NoHeaderOrFooter     bool
+	SafeMode             string
+	SectionNumbers       bool
+	Verbose              bool
+	Trace                bool
+	FailureLevel         string
+	WorkingFolderCurrent bool
 }
