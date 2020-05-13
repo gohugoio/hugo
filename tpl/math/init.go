@@ -92,6 +92,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Pow,
+			[]string{"pow"},
+			[][2]string{
+				{"{{math.Pow 2 3}}", "8"},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Round,
 			nil,
 			[][2]string{
