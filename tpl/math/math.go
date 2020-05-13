@@ -115,6 +115,18 @@ func (ns *Namespace) Mul(a, b interface{}) (interface{}, error) {
 	return _math.DoArithmetic(a, b, '*')
 }
 
+// Pow returns a raised to the power of b.
+func (ns *Namespace) Pow(a, b interface{}) (float64, error) {
+	af, erra := cast.ToFloat64E(a)
+	bf, errb := cast.ToFloat64E(b)
+
+	if erra != nil || errb != nil {
+		return 0, errors.New("Pow operator can't be used with non-float value")
+	}
+
+	return math.Pow(af, bf), nil
+}
+
 // Round returns the nearest integer, rounding half away from zero.
 func (ns *Namespace) Round(x interface{}) (float64, error) {
 	xf, err := cast.ToFloat64E(x)

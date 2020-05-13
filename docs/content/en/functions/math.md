@@ -38,4 +38,4 @@ aliases: []
 | `math.Round` | Returns the nearest integer, rounding half away from zero.                  | `{{math.Round 1.5}}` &rarr; `2`  |
 | `math.Log`   | Returns the natural logarithm of the given number.                          | `{{math.Log 42}}` &rarr; `3.737` |
 | `math.Sqrt`  | Returns the square root of the given number.                                | `{{math.Sqrt 81}}` &rarr; `9`    |
-
+| `math.Pow`   | Returns the first number raised to the power of the second number.          | `{{math.Pow 2 3}}` &rarr; `8`    |

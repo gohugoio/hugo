@@ -318,3 +318,43 @@ func TestRound(t *testing.T) {
 		c.Assert(result, qt.Equals, test.expect)
 	}
 }
+
+func TestPow(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New()
+
+	for _, test := range []struct {
+		a      interface{}
+		b      interface{}
+		expect interface{}
+	}{
+		{0, 0, float64(1)},
+		{2, 0, float64(1)},
+		{2, 3, float64(8)},
+		{-2, 3, float64(-8)},
+		{2, -3, float64(0.125)},
+		{-2, -3, float64(-0.125)},
+		{0.2, 3, float64(0.008)},
+		{2, 0.3, float64(1.2311)},
+		{0.2, 0.3, float64(0.617)},
+		{"aaa", "3", false},
+		{"2", "aaa", false},
+	} {
+
+		result, err := ns.Pow(test.a, test.b)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		// we compare only 4 digits behind point if its a real float
+		// otherwise we usually get different float values on the last positions
+		result = float64(int(result*10000)) / 10000
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}
