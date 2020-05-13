@@ -440,6 +440,21 @@ func (lf *localFile) MD5() []byte {
 	return lf.md5
 }
 
+// knownHiddenDirectory checks if the specified name is a well known
+// hidden directory.
+func knownHiddenDirectory(name string) bool {
+	var knownDirectories = []string{
+		".well-known",
+	}
+
+	for _, dir := range knownDirectories {
+		if name == dir {
+			return true
+		}
+	}
+	return false
+}
+
 // walkLocal walks the source directory and returns a flat list of files,
 // using localFile.SlashPath as the map keys.
 func walkLocal(fs afero.Fs, matchers []*matcher, include, exclude glob.Glob) (map[string]*localFile, error) {
@@ -451,7 +466,10 @@ func walkLocal(fs afero.Fs, matchers []*matcher, include, exclude glob.Glob) (ma
 		if info.IsDir() {
 			// Skip hidden directories.
 			if path != "" && strings.HasPrefix(info.Name(), ".") {
-				return filepath.SkipDir
+				// Except for specific hidden directories
+				if !knownHiddenDirectory(info.Name()) {
+					return filepath.SkipDir
+				}
 			}
 			return nil
 		}

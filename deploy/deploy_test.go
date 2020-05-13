@@ -207,6 +207,65 @@ func TestFindDiffs(t *testing.T) {
 	}
 }
 
+func TestWalkLocal(t *testing.T) {
+	tests := map[string]struct {
+		Given  []string
+		Expect []string
+	}{
+		"Empty": {
+			Given:  []string{},
+			Expect: []string{},
+		},
+		"Normal": {
+			Given:  []string{"file.txt", "normal_dir/file.txt"},
+			Expect: []string{"file.txt", "normal_dir/file.txt"},
+		},
+		"Hidden": {
+			Given:  []string{"file.txt", ".hidden_dir/file.txt", "normal_dir/file.txt"},
+			Expect: []string{"file.txt", "normal_dir/file.txt"},
+		},
+		"Well Known": {
+			Given:  []string{"file.txt", ".hidden_dir/file.txt", ".well-known/file.txt"},
+			Expect: []string{"file.txt", ".well-known/file.txt"},
+		},
+	}
+
+	for desc, tc := range tests {
+		t.Run(desc, func(t *testing.T) {
+			fs := afero.NewMemMapFs()
+			for _, name := range tc.Given {
+				dir, _ := path.Split(name)
+				if dir != "" {
+					if err := fs.MkdirAll(dir, 0755); err != nil {
+						t.Fatal(err)
+					}
+				}
+				if fd, err := fs.Create(name); err != nil {
+					t.Fatal(err)
+				} else {
+					fd.Close()
+				}
+			}
+			if got, err := walkLocal(fs, nil, nil, nil); err != nil {
+				t.Fatal(err)
+			} else {
+				expect := map[string]interface{}{}
+				for _, path := range tc.Expect {
+					if _, ok := got[path]; !ok {
+						t.Errorf("expected %q in results, but was not found", path)
+					}
+					expect[path] = nil
+				}
+				for path := range got {
+					if _, ok := expect[path]; !ok {
+						t.Errorf("got %q in results unexpectedly", path)
+					}
+				}
+			}
+		})
+	}
+}
+
 func TestLocalFile(t *testing.T) {
 	const (
 		content = "hello world!"
