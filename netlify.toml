@@ -29,3 +29,31 @@ HUGO_VERSION = "0.70.0"
 [context.next.environment]
 HUGO_ENABLEGITINFO = "true"
 
+[[redirects]]
+  from = "/wp-login.php"
+  to = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+
+[[redirects]]
+  from = "//blog/wp-includes/wlwmanifest.xml"
+  to = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+
+[[redirects]]
+  from = "//cms/wp-includes/wlwmanifest.xml"
+  to = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+
+[[redirects]]
+  from = "//wp-includes/wlwmanifest.xml"
+  to = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+
+[[redirects]]
+  from = "//wordpress/wp-includes/wlwmanifest.xml"
+  to = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+
+[[redirects]]
+  from = "//site/wp-includes/wlwmanifest.xml"
+  to = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+
+[[redirects]]
+  from = "//wp/wp-includes/wlwmanifest.xml"
+  to = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+
