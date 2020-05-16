@@ -113,7 +113,7 @@ func TestAsciidoctorWorkingFolderCurrent(t *testing.T) {
 	c.Assert(args[4], qt.Equals, "--no-header-footer")
 }
 
-func TestAsciidoctorWorkingFolderCurrentAndArgs(t *testing.T) {
+func TestAsciidoctorWorkingFolderCurrentAndExtensions(t *testing.T) {
 	c := qt.New(t)
 	cfg := viper.New()
 	mconf := markup_config.Default
@@ -149,6 +149,36 @@ func TestAsciidoctorWorkingFolderCurrentAndArgs(t *testing.T) {
 	c.Assert(args[8], qt.Equals, "-a")
 	c.Assert(args[9], qt.Contains, "outdir=")
 	c.Assert(args[10], qt.Equals, "--no-header-footer")
+}
+
+func TestAsciidoctorAttributes(t *testing.T) {
+	c := qt.New(t)
+	cfg := viper.New()
+	mconf := markup_config.Default
+	mconf.AsciidocExt.Attributes = map[string]string{"my-base-url": "https://gohugo.io/", "my-attribute-name": "my value"}
+	p, err := Provider.New(
+		converter.ProviderConfig{
+			Cfg:          cfg,
+			MarkupConfig: mconf,
+			Logger:       loggers.NewErrorLogger(),
+		},
+	)
+	c.Assert(err, qt.IsNil)
+
+	conv, err := p.New(converter.DocumentContext{})
+	c.Assert(err, qt.IsNil)
+
+	ac := conv.(*asciidocConverter)
+	c.Assert(ac, qt.Not(qt.IsNil))
+
+	args := ac.parseArgs(converter.DocumentContext{})
+	c.Assert(len(args), qt.Equals, 5)
+	c.Assert(args[0], qt.Equals, "-a")
+	c.Assert(args[1], qt.Equals, "my-base-url=https://gohugo.io/")
+	c.Assert(args[2], qt.Equals, "-a")
+	c.Assert(args[3], qt.Equals, "my-attribute-name=my value")
+	c.Assert(args[4], qt.Equals, "--no-header-footer")
+
 }
 
 func TestConvert(t *testing.T) {

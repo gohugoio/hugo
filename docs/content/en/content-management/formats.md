@@ -66,20 +66,36 @@ remains of course. Please continue with the implementation Asciidoctor.
 ### External Helper Asciidoctor
 
 The Asciidoctor community offers a wide set of tools for the AsciiDoc format that can be installed additionally to Hugo. 
-[See the Asciidoctor docs for installation instructions](https://asciidoctor.org/docs/install-toolchain/).
+[See the Asciidoctor docs for installation instructions](https://asciidoctor.org/docs/install-toolchain/). Make sure that also all
+optional extensions like `asciidoctor-diagram` or `asciidoctor-html5s` are installed if required.
 
-Referencing chapters e.g. by [include](https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#include-files) 
-keyword or rendering [asciidoctor-diagram](https://asciidoctor.org/docs/asciidoctor-diagram/) requires Hugo to set the
-helper args `--base-dir` and `outdir=`. These will be added if enabled by setting `workingFolderCurrent = true`. All Asciidoctor 
-args can be customized in Hugo. E.g.
+Asciidoctor parameters can be customized in Hugo:
+
+Parameter | Default | Comment
+--- | --- | --- 
+backend | `html5` | Don't change this unless you know what you are doing.
+doctype | `article` | Document type (article, book or manpage).
+extensions | | Possible extensions are `asciidoctor-html5s`, `asciidoctor-diagram`,	`asciidoctor-interdoc-reftext`, `asciidoctor-katex`, `asciidoctor-latex`, `asciidoctor-question`, `asciidoctor-rouge`.
+attributes | | Variables to be referenced in your `adoc` file. This is a list of variable name/value maps. See [Asciidoctor#attributes](https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#attributes-and-substitutions).
+noheaderorfooter | true | Output an embeddable document, which excludes the header, the footer, and everything outside the body of the document. Don't change this unless you know what you are doing. 
+safemode | `unsafe` | Safe mode level `unsafe`, `safe`, `server` or `secure`. Don't change this unless you know what you are doing.
+sectionnumbers | `false` | Auto-number section titles.
+verbose | `true` | Verbosely print processing information and configuration file checks to stderr.
+trace | `false` | Include backtrace information on errors.
+failurelevel | `fatal` | The minimum logging level that triggers a non-zero exit code (failure).
+workingfoldercurrent | `false` | Set the working folder to the rendered `adoc` file, so [include](https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#include-files) will work with relative paths. This setting uses the `asciidoctor` cli parameter `--base-dir` and attribute `outdir=`. For rendering [asciidoctor-diagram](https://asciidoctor.org/docs/asciidoctor-diagram/)  `workingfoldercurrent` must be set to `true`.
 
 ```
 [markup.asciidocext]
-    args = ["--no-header-footer", "-r", "asciidoctor-html5s", "-b", "html5s", "-r", "asciidoctor-diagram"]
+    extensions = ["asciidoctor-html5s", "asciidoctor-diagram"]
     workingFolderCurrent = true
+    trace = true
+    [markup.asciidocext.attributes]
+        my-base-url = "https://example.com/"
+        my-attribute-name = "my value"
 ```
 
-External asciidoctor requires Hugo rendering to disk to a specific destination folder. It is required to run Hugo with the command option `--destination`!
+Important: External `asciidoctor` requires Hugo rendering to _disk_ to a specific destination folder. It is required to run Hugo with the command option `--destination`!
 
 In a complex Asciidoctor environment it is sometimes helpful to debug the exact call to your external helper with all 
 parameters. Run Hugo with `-v`. You will get an output like

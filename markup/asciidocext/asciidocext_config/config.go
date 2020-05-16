@@ -21,6 +21,7 @@ var (
 		Backend:              "html5",
 		DocType:              "article",
 		Extensions:           []string{},
+		Attributes:           map[string]string{},
 		NoHeaderOrFooter:     true,
 		SafeMode:             "unsafe",
 		SectionNumbers:       false,
@@ -60,6 +61,10 @@ var (
 		"docbook45": true,
 		"manpage":   true,
 	}
+
+	AttributeBlacklist = map[string]bool{
+		"outdir": true,
+	}
 )
 
 // Config configures asciidoc.
@@ -67,6 +72,7 @@ type Config struct {
 	Backend              string
 	DocType              string
 	Extensions           []string
+	Attributes           map[string]string
 	NoHeaderOrFooter     bool
 	SafeMode             string
 	SectionNumbers       bool
