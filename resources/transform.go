@@ -408,6 +408,8 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 					errMsg = ". Check your PostCSS installation; install with \"npm install postcss-cli\". See https://gohugo.io/hugo-pipes/postcss/"
 				} else if tr.Key().Name == "tocss" {
 					errMsg = ". Check your Hugo installation; you need the extended version to build SCSS/SASS."
+				} else if tr.Key().Name == "babel" {
+					errMsg = ". You need to install Babel, see https://gohugo.io/hugo-pipes/babel/"
 				}
 
 				return errors.New(msg + errMsg)
