@@ -98,8 +98,8 @@ func (t *babelTransformation) Key() internal.ResourceTransformationKey {
 // npm install -g @babel/preset-env
 // Instead of installing globally, you can also install everything as a dev-dependency (--save-dev instead of -g)
 func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
-	const localBabelPath = "node_modules/@babel/cli/bin/"
-	const binaryName = "babel.js"
+	const localBabelPath = "node_modules/.bin/"
+	const binaryName = "babel"
 
 	// Try first in the project's node_modules.
 	csiBinPath := filepath.Join(t.rs.WorkingDir, localBabelPath, binaryName)
