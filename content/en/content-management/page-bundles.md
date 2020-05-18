@@ -73,6 +73,14 @@ my-post
 : This leaf bundle has the `index.md`, two other content
     Markdown files and two image files.
 
+image1
+: This image is a page resource of `my-post`
+    and only available in `my-post/index.md` resources.
+
+image2
+: This image is a page resource of `my-post`
+    and only available in `my-post/index.md` resources.
+
 my-other-post
 : This leaf bundle has only the `index.md`.
 
