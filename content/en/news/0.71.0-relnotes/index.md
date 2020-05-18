@@ -6,7 +6,7 @@ description: "Render hooks for headings, update to Go 1.14.3, several bug fixes 
 categories: ["Releases"]
 ---
 
-Hugo 0.71 brings Markdown render hooks for headings, a set of bug fixes and more.
+Hugo 0.71 brings [Markdown render hooks for headings](https://gohugo.io/getting-started/configuration-markup#markdown-render-hooks), a set of bug fixes and more.
 
 This release represents **12 contributions by 7 contributors** to the main Hugo code base. [@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@anthonyfok](https://github.com/anthonyfok), [@apexskier](https://github.com/apexskier), and [@johnweldon](https://github.com/johnweldon) for their ongoing contributions.
 
