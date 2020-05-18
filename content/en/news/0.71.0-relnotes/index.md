@@ -8,7 +8,8 @@ categories: ["Releases"]
 
 Hugo 0.71 brings Markdown render hooks for headings, a set of bug fixes and then some.
 
-This release represents **12 contributions by 7 contributors** to the main Hugo code base.[@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@anthonyfok](https://github.com/anthonyfok), [@apexskier](https://github.com/apexskier), and [@johnweldon](https://github.com/johnweldon) for their ongoing contributions.
+This release represents **12 contributions by 7 contributors** to the main Hugo code base. [@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@anthonyfok](https://github.com/anthonyfok), [@apexskier](https://github.com/apexskier), and [@johnweldon](https://github.com/johnweldon) for their ongoing contributions.
+
 And a big thanks to [@digitalcraftsman](https://github.com/digitalcraftsman) and [@onedrawingperday](https://github.com/onedrawingperday) for their relentless work on keeping the themes site in pristine condition and to [@davidsneighbour](https://github.com/davidsneighbour) and [@kaushalmodi](https://github.com/kaushalmodi) for all the great work on the documentation site.
 
 Many have also been busy writing and fixing the documentation in [hugoDocs](https://github.com/gohugoio/hugoDocs), 
