@@ -14,6 +14,10 @@ menu:
     weight: 31
 ---
 
+Page resources are available for [page bundles]({{< relref "/content-management/page-bundles" >}}) only,
+i.e. a directory with either a `index.md`, or `_index.md` file at its root. Resources are only attached to
+the lowest page they are bundled with, and simple which names does not contain `index.md` are not attached any resource.
+
 ## Properties
 
 ResourceType

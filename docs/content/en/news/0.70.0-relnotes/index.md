@@ -1,12 +1,12 @@
 
 ---
 date: 2020-05-06
-title: "0.70.0"
-description: "0.70.0"
+title: "JavaScript Transpiler"
+description: "Hugo 0.70.0 adds a new pipe function that uses Babel to transpile JavaScript."
 categories: ["Releases"]
 ---
 
-	This is a small release, and the main new feature is that you can now use [Babel](https://gohugo.io/hugo-pipes/babel/) to transpile JavaScript.
+This is a small release, and the main new feature is that you can now use [Babel](https://gohugo.io/hugo-pipes/babel/) to transpile JavaScript.
 
 This release represents **22 contributions by 12 contributors** to the main Hugo code base.[@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@BurtonQin](https://github.com/BurtonQin), [@tekezo](https://github.com/tekezo), and [@sensimevanidus](https://github.com/sensimevanidus) for their ongoing contributions.
 And a big thanks to [@digitalcraftsman](https://github.com/digitalcraftsman) and [@onedrawingperday](https://github.com/onedrawingperday) for their relentless work on keeping the themes site in pristine condition and to [@davidsneighbour](https://github.com/davidsneighbour) and [@kaushalmodi](https://github.com/kaushalmodi) for all the great work on the documentation site.
