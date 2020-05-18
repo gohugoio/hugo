@@ -179,7 +179,7 @@ func newCommandeer(mustHaveConfigFile, running bool, h *hugoBuilderCommon, f fla
 		debounce:            rebuildDebouncer,
 		fullRebuildSem:      semaphore.NewWeighted(1),
 		// This will be replaced later, but we need something to log to before the configuration is read.
-		logger: loggers.NewLogger(jww.LevelError, jww.LevelError, out, ioutil.Discard, running),
+		logger: loggers.NewLogger(jww.LevelWarn, jww.LevelError, out, ioutil.Discard, running),
 	}
 
 	return c, c.loadConfig(mustHaveConfigFile, running)
