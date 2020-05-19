@@ -43,10 +43,9 @@ Highlighting is carried out via the [built-in shortcode](/content-management/sho
 
 Options:
 
-* `linenos`: Valid values are `true`, `false`, `table`, `inline`. `table` will give copy-and-paste friendly code blocks) turns on line numbers.
-* Setting `linenos` to `false` will turn off linenumbers if it's configured to be on in site config.{{< new-in "0.60.0" >}}
-* `hl_lines` lists a set of line numbers or line number ranges to be highlighted.
-* `linenostart=199` starts the line number count from 199.
+* `linenos`: configure line numbers. Valid values are `true`, `false`, `table`, or `inline`. `false` will turn off line numbers if it's configured to be on in site config. {{< new-in "0.60.0" >}} `table` will give copy-and-paste friendly code blocks.
+* `hl_lines`: lists a set of line numbers or line number ranges to be highlighted.
+* `linenostart=199`: starts the line number count from 199.
 
 ### Example: Highlight Shortcode
 
