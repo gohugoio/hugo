@@ -169,18 +169,20 @@ func (c *PageCollections) getPageNew(context page.Page, ref string) (page.Page, 
 func (c *PageCollections) getSectionOrPage(ref string) (*contentNode, string) {
 	var n *contentNode
 
-	s, v, found := c.pageMap.sections.LongestPrefix(ref)
+	pref := helpers.AddTrailingSlash(ref)
+	s, v, found := c.pageMap.sections.LongestPrefix(pref)
 
 	if found {
 		n = v.(*contentNode)
 	}
 
-	if found && s == ref {
+	if found && s == pref {
 		// A section
 		return n, ""
 	}
 
 	m := c.pageMap
+
 	filename := strings.TrimPrefix(strings.TrimPrefix(ref, s), "/")
 	langSuffix := "." + m.s.Lang()
 
@@ -224,9 +226,11 @@ func shouldDoSimpleLookup(ref string) bool {
 
 func (c *PageCollections) getContentNode(context page.Page, isReflink bool, ref string) (*contentNode, error) {
 	ref = filepath.ToSlash(strings.ToLower(strings.TrimSpace(ref)))
+
 	if ref == "" {
 		ref = "/"
 	}
+
 	inRef := ref
 	navUp := strings.HasPrefix(ref, "..")
 	var doSimpleLookup bool
@@ -275,9 +279,11 @@ func (c *PageCollections) getContentNode(context page.Page, isReflink bool, ref 
 	}
 
 	// Check if it's a taxonomy node
-	s, v, found := m.taxonomies.LongestPrefix(ref)
+	pref := helpers.AddTrailingSlash(ref)
+	s, v, found := m.taxonomies.LongestPrefix(pref)
+
 	if found {
-		if !m.onSameLevel(ref, s) {
+		if !m.onSameLevel(pref, s) {
 			return nil, nil
 		}
 		return v.(*contentNode), nil

@@ -665,3 +665,12 @@ func FileContainsAny(filename string, subslices [][]byte, fs afero.Fs) (bool, er
 func Exists(path string, fs afero.Fs) (bool, error) {
 	return afero.Exists(fs, path)
 }
+
+// AddTrailingSlash adds a trailing Unix styled slash (/) if not already
+// there.
+func AddTrailingSlash(path string) string {
+	if !strings.HasSuffix(path, "/") {
+		path += "/"
+	}
+	return path
+}

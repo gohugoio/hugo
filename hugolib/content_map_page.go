@@ -70,7 +70,7 @@ func (m *pageMap) createMissingTaxonomyNodes() error {
 	m.taxonomyEntries.Walk(func(s string, v interface{}) bool {
 		n := v.(*contentNode)
 		vi := n.viewInfo
-		k := cleanTreeKey(vi.name.plural + "/" + vi.termKey)
+		k := cleanSectionTreeKey(vi.name.plural + "/" + vi.termKey)
 
 		if _, found := m.taxonomies.Get(k); !found {
 			vic := &contentBundleViewInfo{
@@ -266,6 +266,7 @@ func (m *pageMap) newResource(fim hugofs.FileMetaInfo, owner *pageState) (resour
 
 func (m *pageMap) createSiteTaxonomies() error {
 	m.s.taxonomies = make(TaxonomyList)
+	var walkErr error
 	m.taxonomies.Walk(func(s string, v interface{}) bool {
 		n := v.(*contentNode)
 		t := n.viewInfo
@@ -276,7 +277,11 @@ func (m *pageMap) createSiteTaxonomies() error {
 			m.s.taxonomies[viewName.plural] = make(Taxonomy)
 		} else {
 			taxonomy := m.s.taxonomies[viewName.plural]
-			m.taxonomyEntries.WalkPrefix(s+"/", func(ss string, v interface{}) bool {
+			if taxonomy == nil {
+				walkErr = errors.Errorf("missing taxonomy: %s", viewName.plural)
+				return true
+			}
+			m.taxonomyEntries.WalkPrefix(s, func(ss string, v interface{}) bool {
 				b2 := v.(*contentNode)
 				info := b2.viewInfo
 				taxonomy.add(info.termKey, page.NewWeightedPage(info.weight, info.ref.p, n.p))
@@ -294,7 +299,7 @@ func (m *pageMap) createSiteTaxonomies() error {
 		}
 	}
 
-	return nil
+	return walkErr
 }
 
 func (m *pageMap) createListAllPages() page.Pages {
@@ -426,7 +431,6 @@ func (m *pageMap) assembleSections() error {
 
 	m.sections.Walk(func(s string, v interface{}) bool {
 		n := v.(*contentNode)
-
 		var shouldBuild bool
 
 		defer func() {
@@ -596,11 +600,12 @@ func (m *pageMap) attachPageToViews(s string, b *contentNode) {
 				},
 			}
 
-			if s == "/" {
-				// To avoid getting an empty key.
-				s = page.KindHome
+			var key string
+			if strings.HasSuffix(s, "/") {
+				key = cleanSectionTreeKey(path.Join(viewName.plural, termKey, s))
+			} else {
+				key = cleanTreeKey(path.Join(viewName.plural, termKey, s))
 			}
-			key := cleanTreeKey(path.Join(viewName.plural, termKey, s))
 			m.taxonomyEntries.Insert(key, bv)
 		}
 	}
@@ -638,19 +643,10 @@ func (m *pageMap) collectPagesAndSections(query pageMapQuery, fn func(c *content
 }
 
 func (m *pageMap) collectSections(query pageMapQuery, fn func(c *contentNode)) error {
-	var level int
-	isHome := query.Prefix == "/"
-
-	if !isHome {
-		level = strings.Count(query.Prefix, "/")
-	}
+	level := strings.Count(query.Prefix, "/")
 
 	return m.collectSectionsFn(query, func(s string, c *contentNode) bool {
-		if s == query.Prefix {
-			return false
-		}
-
-		if (strings.Count(s, "/") - level) != 1 {
+		if strings.Count(s, "/") != level+1 {
 			return false
 		}
 
@@ -745,10 +741,11 @@ func (m *pageMaps) AssemblePages() error {
 			return err
 		}
 
-		a := (&sectionWalker{m: pm.contentMap}).applyAggregates()
+		sw := &sectionWalker{m: pm.contentMap}
+		a := sw.applyAggregates()
 		_, mainSectionsSet := pm.s.s.Info.Params()["mainsections"]
 		if !mainSectionsSet && a.mainSection != "" {
-			mainSections := []string{a.mainSection}
+			mainSections := []string{strings.TrimRight(a.mainSection, "/")}
 			pm.s.s.Info.Params()["mainSections"] = mainSections
 			pm.s.s.Info.Params()["mainsections"] = mainSections
 		}
@@ -847,7 +844,7 @@ func (b *pagesMapBucket) getTaxonomies() page.Pages {
 	b.sectionsInit.Do(func() {
 		var pas page.Pages
 		ref := b.owner.treeRef
-		ref.m.collectTaxonomies(ref.key+"/", func(c *contentNode) {
+		ref.m.collectTaxonomies(ref.key, func(c *contentNode) {
 			pas = append(pas, c.p)
 		})
 		page.SortByDefault(pas)
@@ -888,8 +885,12 @@ type sectionAggregateHandler struct {
 	s string
 }
 
+func (h *sectionAggregateHandler) String() string {
+	return fmt.Sprintf("%s/%s - %d - %s", h.sectionAggregate.datesAll, h.sectionAggregate.datesSection, h.sectionPageCount, h.s)
+}
+
 func (h *sectionAggregateHandler) isRootSection() bool {
-	return h.s != "/" && strings.Count(h.s, "/") == 1
+	return h.s != "/" && strings.Count(h.s, "/") == 2
 }
 
 func (h *sectionAggregateHandler) handleNested(v sectionWalkHandler) error {
@@ -963,11 +964,13 @@ func (w *sectionWalker) applyAggregates() *sectionAggregateHandler {
 func (w *sectionWalker) walkLevel(prefix string, createVisitor func() sectionWalkHandler) sectionWalkHandler {
 
 	level := strings.Count(prefix, "/")
+
 	visitor := createVisitor()
 
-	w.m.taxonomies.WalkPrefix(prefix, func(s string, v interface{}) bool {
+	w.m.taxonomies.WalkBelow(prefix, func(s string, v interface{}) bool {
 		currentLevel := strings.Count(s, "/")
-		if currentLevel > level {
+
+		if currentLevel > level+1 {
 			return false
 		}
 
@@ -977,8 +980,8 @@ func (w *sectionWalker) walkLevel(prefix string, createVisitor func() sectionWal
 			return true
 		}
 
-		if currentLevel == 1 {
-			nested := w.walkLevel(s+"/", createVisitor)
+		if currentLevel == 2 {
+			nested := w.walkLevel(s, createVisitor)
 			if w.err = visitor.handleNested(nested); w.err != nil {
 				return true
 			}
@@ -995,9 +998,9 @@ func (w *sectionWalker) walkLevel(prefix string, createVisitor func() sectionWal
 		return w.err != nil
 	})
 
-	w.m.sections.WalkPrefix(prefix, func(s string, v interface{}) bool {
+	w.m.sections.WalkBelow(prefix, func(s string, v interface{}) bool {
 		currentLevel := strings.Count(s, "/")
-		if currentLevel > level {
+		if currentLevel > level+1 {
 			return false
 		}
 
@@ -1016,11 +1019,9 @@ func (w *sectionWalker) walkLevel(prefix string, createVisitor func() sectionWal
 			return true
 		}
 
-		if s != "/" {
-			nested := w.walkLevel(s+"/", createVisitor)
-			if w.err = visitor.handleNested(nested); w.err != nil {
-				return true
-			}
+		nested := w.walkLevel(s, createVisitor)
+		if w.err = visitor.handleNested(nested); w.err != nil {
+			return true
 		}
 
 		w.err = visitor.handleSectionPost()

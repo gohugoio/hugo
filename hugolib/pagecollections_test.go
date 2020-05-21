@@ -211,6 +211,9 @@ func TestGetPage(t *testing.T) {
 	writeSource(t, fs, filepath.Join("content", "sect3", "b1", "index.md"), pc("b1 bundle"))
 	writeSource(t, fs, filepath.Join("content", "sect3", "index", "index.md"), pc("index bundle"))
 
+	writeSource(t, fs, filepath.Join("content", "section_bundle_overlap", "_index.md"), pc("index overlap section"))
+	writeSource(t, fs, filepath.Join("content", "section_bundle_overlap_bundle", "index.md"), pc("index overlap bundle"))
+
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
 	sec3, err := s.getPageNew(nil, "/sect3")
@@ -282,6 +285,9 @@ func TestGetPage(t *testing.T) {
 		// Bundle variants
 		{"Bundle regular", page.KindPage, nil, []string{"sect3/b1", "sect3/b1/index.md", "sect3/b1/index.en.md"}, "b1 bundle"},
 		{"Bundle index name", page.KindPage, nil, []string{"sect3/index/index.md", "sect3/index"}, "index bundle"},
+
+		// https://github.com/gohugoio/hugo/issues/7301
+		{"Section and bundle overlap", page.KindPage, nil, []string{"section_bundle_overlap_bundle"}, "index overlap bundle"},
 	}
 
 	for _, test := range tests {

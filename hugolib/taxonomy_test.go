@@ -637,6 +637,7 @@ Cats Paginator {{ range $cats.Paginator.Pages }}{{ .RelPermalink }}|{{ end }}:EN
 	b.Assert(funny, qt.Not(qt.IsNil))
 
 	b.Assert(cat.Parent().IsHome(), qt.Equals, true)
+	b.Assert(funny.Kind(), qt.Equals, "taxonomy")
 	b.Assert(funny.Parent(), qt.Equals, cat)
 
 	b.AssertFileContent("public/index.html", `

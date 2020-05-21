@@ -77,7 +77,7 @@ func (c *stringChecker) Check(got interface{}, args []interface{}, note func(key
 		return nil
 	}
 
-	return fmt.Errorf("values are not the same text: %s", htesting.DiffStrings(s1, s2))
+	return fmt.Errorf("values are not the same text: %s", strings.Join(htesting.DiffStrings(s1, s2), " | "))
 }
 
 func normalizeString(s string) string {
