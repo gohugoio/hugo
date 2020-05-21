@@ -155,19 +155,19 @@ func TestContentMap(t *testing.T) {
 
 		expect := `
           Tree 0:
-              	/blog__hb_/a__hl_
-              	/blog__hb_/b/c__hl_
+              	/blog/__hb_a__hl_
+              	/blog/__hb_b/c__hl_
               Tree 1:
-              	/blog
+              	/blog/
               Tree 2:
-              	/blog__hb_/a__hl_b/data.json
-              	/blog__hb_/a__hl_logo.png
-              	/blog__hl_sectiondata.json
-              en/pages/blog__hb_/a__hl_|f:blog/a/index.md
+              	/blog/__hb_a__hl_b/data.json
+              	/blog/__hb_a__hl_logo.png
+              	/blog/__hl_sectiondata.json
+              en/pages/blog/__hb_a__hl_|f:blog/a/index.md
               	 - R: blog/a/b/data.json
               	 - R: blog/a/logo.png
-              en/pages/blog__hb_/b/c__hl_|f:blog/b/c/index.md
-              en/sections/blog|f:blog/_index.md
+              en/pages/blog/__hb_b/c__hl_|f:blog/b/c/index.md
+              en/sections/blog/|f:blog/_index.md
               	 - P: blog/a/index.md
               	 - P: blog/b/c/index.md
               	 - R: blog/sectiondata.json
@@ -194,24 +194,24 @@ func TestContentMap(t *testing.T) {
 
 		expect = `
 			 Tree 0:
-              	/blog__hb_/a__hl_
-              	/blog__hb_/b/c__hl_
+              	/blog/__hb_a__hl_
+              	/blog/__hb_b/c__hl_
               Tree 1:
-              	/blog
+              	/blog/
               Tree 2:
-              	/blog__hb_/a__hl_b/data.json
-              	/blog__hb_/a__hl_b/data2.json
-              	/blog__hb_/a__hl_logo.png
-              	/blog__hb_/b/c__hl_d/data3.json
-              	/blog__hl_sectiondata.json
-              	/blog__hl_sectiondata2.json
-              en/pages/blog__hb_/a__hl_|f:blog/a/index.md
+              	/blog/__hb_a__hl_b/data.json
+              	/blog/__hb_a__hl_b/data2.json
+              	/blog/__hb_a__hl_logo.png
+              	/blog/__hb_b/c__hl_d/data3.json
+              	/blog/__hl_sectiondata.json
+              	/blog/__hl_sectiondata2.json
+              en/pages/blog/__hb_a__hl_|f:blog/a/index.md
               	 - R: blog/a/b/data.json
               	 - R: blog/a/b/data2.json
               	 - R: blog/a/logo.png
-              en/pages/blog__hb_/b/c__hl_|f:blog/b/c/index.md
+              en/pages/blog/__hb_b/c__hl_|f:blog/b/c/index.md
               	 - R: blog/b/c/d/data3.json
-              en/sections/blog|f:blog/_index.md
+              en/sections/blog/|f:blog/_index.md
               	 - P: blog/a/index.md
               	 - P: blog/b/c/index.md
               	 - R: blog/sectiondata.json
@@ -226,26 +226,26 @@ func TestContentMap(t *testing.T) {
 
 		c.Assert(m.testDump(), hqt.IsSameString, `
 		 Tree 0:
-              	/blog__hb_/a__hl_
-              	/blog__hb_/b/c__hl_
-              	/blog__hb_/b__hl_
+              	/blog/__hb_a__hl_
+              	/blog/__hb_b/c__hl_
+              	/blog/__hb_b__hl_
               Tree 1:
-              	/blog
+              	/blog/
               Tree 2:
-              	/blog__hb_/a__hl_b/data.json
-              	/blog__hb_/a__hl_b/data2.json
-              	/blog__hb_/a__hl_logo.png
-              	/blog__hb_/b/c__hl_d/data3.json
-              	/blog__hl_sectiondata.json
-              	/blog__hl_sectiondata2.json
-              en/pages/blog__hb_/a__hl_|f:blog/a/index.md
+              	/blog/__hb_a__hl_b/data.json
+              	/blog/__hb_a__hl_b/data2.json
+              	/blog/__hb_a__hl_logo.png
+              	/blog/__hb_b/c__hl_d/data3.json
+              	/blog/__hl_sectiondata.json
+              	/blog/__hl_sectiondata2.json
+              en/pages/blog/__hb_a__hl_|f:blog/a/index.md
               	 - R: blog/a/b/data.json
               	 - R: blog/a/b/data2.json
               	 - R: blog/a/logo.png
-              en/pages/blog__hb_/b/c__hl_|f:blog/b/c/index.md
+              en/pages/blog/__hb_b/c__hl_|f:blog/b/c/index.md
               	 - R: blog/b/c/d/data3.json
-              en/pages/blog__hb_/b__hl_|f:blog/b.md
-              en/sections/blog|f:blog/_index.md
+              en/pages/blog/__hb_b__hl_|f:blog/b.md
+              en/sections/blog/|f:blog/_index.md
               	 - P: blog/a/index.md
               	 - P: blog/b/c/index.md
               	 - P: blog/b.md
@@ -280,19 +280,19 @@ func TestContentMap(t *testing.T) {
 		c.Assert(got, hqt.IsSameString, `
 			
 			 Tree 0:
-              	/__hb_/bundle__hl_
-              	/blog__hb_/a__hl_
-              	/blog__hb_/page__hl_
+              	/__hb_bundle__hl_
+              	/blog/__hb_a__hl_
+              	/blog/__hb_page__hl_
               Tree 1:
               	/
-              	/blog
+              	/blog/
               Tree 2:
-              en/pages/__hb_/bundle__hl_|f:bundle/index.md
-              en/pages/blog__hb_/a__hl_|f:blog/a/index.md
-              en/pages/blog__hb_/page__hl_|f:blog/page.md
+              en/pages/__hb_bundle__hl_|f:bundle/index.md
+              en/pages/blog/__hb_a__hl_|f:blog/a/index.md
+              en/pages/blog/__hb_page__hl_|f:blog/page.md
               en/sections/
               	 - P: bundle/index.md
-              en/sections/blog
+              en/sections/blog/
               	 - P: blog/a/index.md
               	 - P: blog/page.md
             
