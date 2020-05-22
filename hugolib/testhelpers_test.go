@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"strconv"
 	"testing"
 	"time"
@@ -978,6 +979,15 @@ func content(c resource.ContentProvider) string {
 		panic(err)
 	}
 	return ccs
+}
+
+func pagesToString(pages ...page.Page) string {
+	var paths []string
+	for _, p := range pages {
+		paths = append(paths, p.Path())
+	}
+	sort.Strings(paths)
+	return strings.Join(paths, "|")
 }
 
 func dumpPages(pages ...page.Page) {
