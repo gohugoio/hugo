@@ -119,7 +119,7 @@ func (a *asciidocConverter) parseArgs(ctx converter.DocumentContext) []string {
 		var err error
 
 		file := filepath.Base(ctx.Filename)
-		if file == "_index.adoc" || file == "index.adoc" {
+		if a.cfg.Cfg.GetBool("uglyUrls") || file == "_index.adoc" || file == "index.adoc" {
 			outDir, err = filepath.Abs(filepath.Dir(filepath.Join(destinationDir, ctx.DocumentName)))
 
 		} else {
