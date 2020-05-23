@@ -566,6 +566,24 @@ title: P1
 
 }
 
+func TestTemplateGoIssues(t *testing.T) {
+	b := newTestSitesBuilder(t)
+
+	b.WithTemplatesAdded(
+		"index.html", `
+{{ $title := "a & b" }}
+<script type="application/ld+json">{"@type":"WebPage","headline":"{{$title}}"}</script>
+`,
+	)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", `
+<script type="application/ld+json">{"@type":"WebPage","headline":"a \u0026 b"}</script>
+
+`)
+}
+
 func collectIdentities(set map[identity.Identity]bool, provider identity.Provider) {
 	if ids, ok := provider.(identity.IdentitiesProvider); ok {
 		for _, id := range ids.GetIdentities() {

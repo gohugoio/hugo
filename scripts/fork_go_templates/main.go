@@ -17,7 +17,7 @@ import (
 
 func main() {
 	// TODO(bep) git checkout tag
-	// The current is built with Go version 9341fe073e6f7742c9d61982084874560dac2014 / go1.13.5
+	// The current is built with Go version b68fa57c599720d33a2d735782969ce95eabf794 / go1.15dev
 	fmt.Println("Forking ...")
 	defer fmt.Println("Done ...")
 
@@ -55,12 +55,18 @@ var (
 	textTemplateReplacers = strings.NewReplacer(
 		`"text/template/`, `"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/`,
 		`"internal/fmtsort"`, `"github.com/gohugoio/hugo/tpl/internal/go_templates/fmtsort"`,
+		`"internal/testenv"`, `"github.com/gohugoio/hugo/tpl/internal/go_templates/testenv"`,
+		"TestLinkerGC", "_TestLinkerGC",
 		// Rename types and function that we want to overload.
 		"type state struct", "type stateOld struct",
 		"func (s *state) evalFunction", "func (s *state) evalFunctionOld",
 		"func (s *state) evalField(", "func (s *state) evalFieldOld(",
 		"func (s *state) evalCall(", "func (s *state) evalCallOld(",
 		"func isTrue(val reflect.Value) (truth, ok bool) {", "func isTrueOld(val reflect.Value) (truth, ok bool) {",
+	)
+
+	testEnvReplacers = strings.NewReplacer(
+		`"internal/cfg"`, `"github.com/gohugoio/hugo/tpl/internal/go_templates/cfg"`,
 	)
 
 	htmlTemplateReplacers = strings.NewReplacer(
@@ -115,6 +121,13 @@ var goPackages = []goPackage{
 		}},
 	goPackage{srcPkg: "internal/fmtsort", dstPkg: "fmtsort", rewriter: func(name string) {
 		rewrite(name, `"internal/fmtsort" -> "github.com/gohugoio/hugo/tpl/internal/go_templates/fmtsort"`)
+	}},
+	goPackage{srcPkg: "internal/testenv", dstPkg: "testenv",
+		replacer: func(name, content string) string { return testEnvReplacers.Replace(content) }, rewriter: func(name string) {
+			rewrite(name, `"internal/testenv" -> "github.com/gohugoio/hugo/tpl/internal/go_templates/testenv"`)
+		}},
+	goPackage{srcPkg: "internal/cfg", dstPkg: "cfg", rewriter: func(name string) {
+		rewrite(name, `"internal/cfg" -> "github.com/gohugoio/hugo/tpl/internal/go_templates/cfg"`)
 	}},
 }
 
