@@ -50,10 +50,6 @@ func (pt pageTree) IsAncestor(other interface{}) (bool, error) {
 		return ref1.n.p.IsHome(), nil
 	}
 
-	if !ref1.isSection() {
-		return false, nil
-	}
-
 	if ref1.key == ref2.key {
 		return true, nil
 	}
@@ -99,10 +95,6 @@ func (pt pageTree) IsDescendant(other interface{}) (bool, error) {
 		}
 
 		return ref2.n.p.IsHome(), nil
-	}
-
-	if !ref2.isSection() {
-		return false, nil
 	}
 
 	if ref1.key == ref2.key {
