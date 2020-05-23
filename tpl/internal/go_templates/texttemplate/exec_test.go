@@ -354,6 +354,12 @@ var execTests = []execTest{
 	{"field on interface", "{{.foo}}", "<no value>", nil, true},
 	{"field on parenthesized interface", "{{(.).foo}}", "<no value>", nil, true},
 
+	// Issue 31810: Parenthesized first element of pipeline with arguments.
+	// See also TestIssue31810.
+	{"unparenthesized non-function", "{{1 2}}", "", nil, false},
+	{"parenthesized non-function", "{{(1) 2}}", "", nil, false},
+	{"parenthesized non-function with no args", "{{(1)}}", "1", nil, true}, // This is fine.
+
 	// Method calls.
 	{".Method0", "-{{.Method0}}-", "-M0-", tVal, true},
 	{".Method1(1234)", "-{{.Method1 1234}}-", "-1234-", tVal, true},
@@ -498,6 +504,7 @@ var execTests = []execTest{
 	{"map MUI64S", "{{index .MUI64S 3}}", "ui643", tVal, true},
 	{"map MI8S", "{{index .MI8S 3}}", "i83", tVal, true},
 	{"map MUI8S", "{{index .MUI8S 2}}", "u82", tVal, true},
+	{"index of an interface field", "{{index .Empty3 0}}", "7", tVal, true},
 
 	// Slicing.
 	{"slice[:]", "{{slice .SI}}", "[3 4 5]", tVal, true},
@@ -523,12 +530,14 @@ var execTests = []execTest{
 	{"string[1:2]", "{{slice .S 1 2}}", "y", tVal, true},
 	{"out of range", "{{slice .S 1 5}}", "", tVal, false},
 	{"3-index slice of string", "{{slice .S 1 2 2}}", "", tVal, false},
+	{"slice of an interface field", "{{slice .Empty3 0 1}}", "[7]", tVal, true},
 
 	// Len.
 	{"slice", "{{len .SI}}", "3", tVal, true},
 	{"map", "{{len .MSI }}", "3", tVal, true},
 	{"len of int", "{{len 3}}", "", tVal, false},
 	{"len of nothing", "{{len .Empty0}}", "", tVal, false},
+	{"len of an interface field", "{{len .Empty3}}", "2", tVal, true},
 
 	// With.
 	{"with true", "{{with true}}{{.}}{{end}}", "true", tVal, true},
@@ -665,6 +674,12 @@ var execTests = []execTest{
 	{"bug17c", "{{len .NonEmptyInterfacePtS}}", "2", tVal, true},
 	{"bug17d", "{{index .NonEmptyInterfacePtS 0}}", "a", tVal, true},
 	{"bug17e", "{{range .NonEmptyInterfacePtS}}-{{.}}-{{end}}", "-a--b-", tVal, true},
+
+	// More variadic function corner cases. Some runes would get evaluated
+	// as constant floats instead of ints. Issue 34483.
+	{"bug18a", "{{eq . '.'}}", "true", '.', true},
+	{"bug18b", "{{eq . 'e'}}", "true", 'e', true},
+	{"bug18c", "{{eq . 'P'}}", "true", 'P', true},
 }
 
 func zeroArgs() string {
@@ -898,7 +913,9 @@ func TestJSEscaping(t *testing.T) {
 		{`Go "jump" \`, `Go \"jump\" \\`},
 		{`Yukihiro says "今日は世界"`, `Yukihiro says \"今日は世界\"`},
 		{"unprintable \uFDFF", `unprintable \uFDFF`},
-		{`<html>`, `\x3Chtml\x3E`},
+		{`<html>`, `\u003Chtml\u003E`},
+		{`no = in attributes`, `no \u003D in attributes`},
+		{`&#x27; does not become HTML entity`, `\u0026#x27; does not become HTML entity`},
 	}
 	for _, tc := range testCases {
 		s := JSEscapeString(tc.in)
@@ -1158,19 +1175,41 @@ var cmpTests = []cmpTest{
 	{"ge .Uthree .NegOne", "true", true},
 	{"eq (index `x` 0) 'x'", "true", true}, // The example that triggered this rule.
 	{"eq (index `x` 0) 'y'", "false", true},
+	{"eq .V1 .V2", "true", true},
+	{"eq .Ptr .Ptr", "true", true},
+	{"eq .Ptr .NilPtr", "false", true},
+	{"eq .NilPtr .NilPtr", "true", true},
+	{"eq .Iface1 .Iface1", "true", true},
+	{"eq .Iface1 .Iface2", "false", true},
+	{"eq .Iface2 .Iface2", "true", true},
 	// Errors
-	{"eq `xy` 1", "", false},    // Different types.
-	{"eq 2 2.0", "", false},     // Different types.
-	{"lt true true", "", false}, // Unordered types.
-	{"lt 1+0i 1+0i", "", false}, // Unordered types.
+	{"eq `xy` 1", "", false},       // Different types.
+	{"eq 2 2.0", "", false},        // Different types.
+	{"lt true true", "", false},    // Unordered types.
+	{"lt 1+0i 1+0i", "", false},    // Unordered types.
+	{"eq .Ptr 1", "", false},       // Incompatible types.
+	{"eq .Ptr .NegOne", "", false}, // Incompatible types.
+	{"eq .Map .Map", "", false},    // Uncomparable types.
+	{"eq .Map .V1", "", false},     // Uncomparable types.
 }
 
 func TestComparison(t *testing.T) {
 	b := new(bytes.Buffer)
 	var cmpStruct = struct {
-		Uthree, Ufour uint
-		NegOne, Three int
-	}{3, 4, -1, 3}
+		Uthree, Ufour  uint
+		NegOne, Three  int
+		Ptr, NilPtr    *int
+		Map            map[int]int
+		V1, V2         V
+		Iface1, Iface2 fmt.Stringer
+	}{
+		Uthree: 3,
+		Ufour:  4,
+		NegOne: -1,
+		Three:  3,
+		Ptr:    new(int),
+		Iface1: b,
+	}
 	for _, test := range cmpTests {
 		text := fmt.Sprintf("{{if %s}}true{{else}}false{{end}}", test.expr)
 		tmpl, err := New("empty").Parse(text)
@@ -1620,5 +1659,43 @@ func TestExecutePanicDuringCall(t *testing.T) {
 			}
 			t.Errorf("%s: expected error:\n%s\ngot:\n%s", tc.name, tc.wantErr, err)
 		}
+	}
+}
+
+// Issue 31810. Check that a parenthesized first argument behaves properly.
+func TestIssue31810(t *testing.T) {
+	// A simple value with no arguments is fine.
+	var b bytes.Buffer
+	const text = "{{ (.)  }}"
+	tmpl, err := New("").Parse(text)
+	if err != nil {
+		t.Error(err)
+	}
+	err = tmpl.Execute(&b, "result")
+	if err != nil {
+		t.Error(err)
+	}
+	if b.String() != "result" {
+		t.Errorf("%s got %q, expected %q", text, b.String(), "result")
+	}
+
+	// Even a plain function fails - need to use call.
+	f := func() string { return "result" }
+	b.Reset()
+	err = tmpl.Execute(&b, f)
+	if err == nil {
+		t.Error("expected error with no call, got none")
+	}
+
+	// Works if the function is explicitly called.
+	const textCall = "{{ (call .)  }}"
+	tmpl, err = New("").Parse(textCall)
+	b.Reset()
+	err = tmpl.Execute(&b, f)
+	if err != nil {
+		t.Error(err)
+	}
+	if b.String() != "result" {
+		t.Errorf("%s got %q, expected %q", textCall, b.String(), "result")
 	}
 }
