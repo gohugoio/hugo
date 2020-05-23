@@ -171,12 +171,17 @@ func TestAsciidoctorAttributes(t *testing.T) {
 	ac := conv.(*asciidocConverter)
 	c.Assert(ac, qt.Not(qt.IsNil))
 
+	expectedValues := map[string]bool{
+		"my-base-url=https://gohugo.io/": true,
+		"my-attribute-name=my value":     true,
+	}
+
 	args := ac.parseArgs(converter.DocumentContext{})
 	c.Assert(len(args), qt.Equals, 5)
 	c.Assert(args[0], qt.Equals, "-a")
-	c.Assert(args[1], qt.Equals, "my-base-url=https://gohugo.io/")
+	c.Assert(expectedValues[args[1]], qt.Equals, true)
 	c.Assert(args[2], qt.Equals, "-a")
-	c.Assert(args[3], qt.Equals, "my-attribute-name=my value")
+	c.Assert(expectedValues[args[3]], qt.Equals, true)
 	c.Assert(args[4], qt.Equals, "--no-header-footer")
 
 }
