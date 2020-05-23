@@ -655,3 +655,55 @@ Category Paginator /categories/birds/|/categories/cats/|/categories/dogs/|/categ
 	b.AssertFileContent("public/categories/index.xml", `<link>http://example.com/categories/funny/</link>`)
 
 }
+
+func TestTaxonomiesDirectoryOverlaps(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t).WithContent(
+		"abc/_index.md", "---\ntitle: \"abc\"\nabcdefgs: [abc]\n---",
+		"abc/p1.md", "---\ntitle: \"abc-p\"\n---",
+		"abcdefgh/_index.md", "---\ntitle: \"abcdefgh\"\n---",
+		"abcdefgh/p1.md", "---\ntitle: \"abcdefgh-p\"\n---",
+		"abcdefghijk/index.md", "---\ntitle: \"abcdefghijk\"\n---",
+	)
+
+	b.WithConfigFile("toml", `
+baseURL = "https://example.org"
+
+[taxonomies]
+  abcdef = "abcdefs"
+  abcdefg = "abcdefgs"
+  abcdefghi = "abcdefghis"
+`)
+
+	b.WithTemplatesAdded("index.html", `
+{{ range site.Pages }}Page: {{ template "print-page" . }}
+{{ end }}
+{{ $abc := site.GetPage "abcdefgs/abc" }}
+{{ $abcdefgs := site.GetPage "abcdefgs" }}
+abc: {{ template "print-page" $abc }}|IsAncestor: {{ $abc.IsAncestor $abcdefgs }}|IsDescendant: {{ $abc.IsDescendant $abcdefgs }}
+abcdefgs: {{ template "print-page" $abcdefgs }}|IsAncestor: {{ $abcdefgs.IsAncestor $abc }}|IsDescendant: {{ $abcdefgs.IsDescendant $abc }}
+
+{{ define "print-page" }}{{ .RelPermalink }}|{{ .Title }}|{{.Kind }}|Parent: {{ with .Parent }}{{ .RelPermalink }}{{ end }}|CurrentSection: {{ .CurrentSection.RelPermalink}}|FirstSection: {{ .FirstSection.RelPermalink }}{{ end }}
+
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", `
+    Page: /||home|Parent: |CurrentSection: /|
+    Page: /abc/|abc|section|Parent: /|CurrentSection: /abc/|
+    Page: /abc/p1/|abc-p|page|Parent: /abc/|CurrentSection: /abc/|
+    Page: /abcdefgh/|abcdefgh|section|Parent: /|CurrentSection: /abcdefgh/|
+    Page: /abcdefgh/p1/|abcdefgh-p|page|Parent: /abcdefgh/|CurrentSection: /abcdefgh/|
+    Page: /abcdefghijk/|abcdefghijk|page|Parent: /|CurrentSection: /|
+    Page: /abcdefghis/|Abcdefghis|taxonomyTerm|Parent: /|CurrentSection: /|
+    Page: /abcdefgs/|Abcdefgs|taxonomyTerm|Parent: /|CurrentSection: /|
+    Page: /abcdefs/|Abcdefs|taxonomyTerm|Parent: /|CurrentSection: /|
+    abc: /abcdefgs/abc/|abc|taxonomy|Parent: /abcdefgs/|CurrentSection: /abcdefgs/|
+    abcdefgs: /abcdefgs/|Abcdefgs|taxonomyTerm|Parent: /|CurrentSection: /|
+    abc: /abcdefgs/abc/|abc|taxonomy|Parent: /abcdefgs/|CurrentSection: /abcdefgs/|FirstSection: /|IsAncestor: false|IsDescendant: true
+    abcdefgs: /abcdefgs/|Abcdefgs|taxonomyTerm|Parent: /|CurrentSection: /|FirstSection: /|IsAncestor: true|IsDescendant: false
+`)
+
+}
