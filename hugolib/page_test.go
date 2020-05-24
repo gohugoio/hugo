@@ -504,30 +504,54 @@ func TestPageDatesSections(t *testing.T) {
 title: Page
 date: 2017-01-15
 ---
-`)
-	b.WithSimpleConfigFile().WithContent("with-index-no-date/_index.md", `---
+`, "with-index-no-date/_index.md", `---
 title: No Date
 ---
 
-`)
+`,
+		// https://github.com/gohugoio/hugo/issues/5854
+		"with-index-date/_index.md", `---
+title: Date
+date: 2018-01-15
+---
 
-	// https://github.com/gohugoio/hugo/issues/5854
-	b.WithSimpleConfigFile().WithContent("with-index-date/_index.md", `---
+`, "with-index-date/p1.md", `---
+title: Date
+date: 2018-01-15
+---
+
+`, "with-index-date/p1.md", `---
 title: Date
 date: 2018-01-15
 ---
 
 `)
 
+	for i := 1; i <= 20; i++ {
+		b.WithContent(fmt.Sprintf("main-section/p%d.md", i), `---
+title: Date
+date: 2012-01-12
+---
+
+`)
+	}
+
 	b.CreateSites().Build(BuildCfg{})
 
 	b.Assert(len(b.H.Sites), qt.Equals, 1)
 	s := b.H.Sites[0]
 
-	b.Assert(s.getPage("/").Date().Year(), qt.Equals, 2018)
-	b.Assert(s.getPage("/no-index").Date().Year(), qt.Equals, 2017)
+	checkDate := func(p page.Page, year int) {
+		b.Assert(p.Date().Year(), qt.Equals, year)
+		b.Assert(p.Lastmod().Year(), qt.Equals, year)
+	}
+
+	checkDate(s.getPage("/"), 2018)
+	checkDate(s.getPage("/no-index"), 2017)
 	b.Assert(s.getPage("/with-index-no-date").Date().IsZero(), qt.Equals, true)
-	b.Assert(s.getPage("/with-index-date").Date().Year(), qt.Equals, 2018)
+	checkDate(s.getPage("/with-index-date"), 2018)
+
+	b.Assert(s.Site.LastChange().Year(), qt.Equals, 2018)
 }
 
 func TestCreateNewPage(t *testing.T) {
