@@ -77,6 +77,7 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 		dependencyTracker: dependencyTracker,
 		p:                 p,
 		f:                 po.f,
+		renderHooks:       &renderHooks{},
 	}
 
 	initContent := func() (err error) {
@@ -227,6 +228,11 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 
 }
 
+type renderHooks struct {
+	hooks *hooks.Renderers
+	init  sync.Once
+}
+
 // pageContentOutput represents the Page content for a given output format.
 type pageContentOutput struct {
 	f output.Format
@@ -244,8 +250,8 @@ type pageContentOutput struct {
 	placeholdersEnabled     bool
 	placeholdersEnabledInit sync.Once
 
-	// May be nil.
-	renderHooks *hooks.Renderers
+	renderHooks *renderHooks
+
 	// Set if there are more than one output format variant
 	renderHooksHaveVariants bool // TODO(bep) reimplement this in another way, consolidate with shortcodes
 
@@ -285,6 +291,7 @@ func (p *pageContentOutput) Reset() {
 	}
 	p.initMain.Reset()
 	p.initPlain.Reset()
+	p.renderHooks = &renderHooks{}
 }
 
 func (p *pageContentOutput) Content() (interface{}, error) {
@@ -377,7 +384,7 @@ func (cp *pageContentOutput) renderContentWithConverter(c converter.Converter, c
 		converter.RenderContext{
 			Src:         content,
 			RenderTOC:   renderTOC,
-			RenderHooks: cp.renderHooks,
+			RenderHooks: cp.renderHooks.hooks,
 		})
 
 	if err == nil {

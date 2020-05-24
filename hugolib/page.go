@@ -604,6 +604,10 @@ func (p *pageState) RenderString(args ...interface{}) (template.HTML, error) {
 		return "", err
 	}
 
+	if err = p.pageOutput.initRenderHooks(); err != nil {
+		return "", err
+	}
+
 	conv := p.getContentConverter()
 	if opts.Markup != "" && opts.Markup != p.m.markup {
 		var err error

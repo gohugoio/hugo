@@ -364,9 +364,10 @@ func TestRenderString(t *testing.T) {
 RSTART:{{ "**Bold Markdown**" | $p.RenderString }}:REND
 RSTART:{{  "**Bold Block Markdown**" | $p.RenderString  $optBlock }}:REND
 RSTART:{{  "/italic org mode/" | $p.RenderString  $optOrg }}:REND
+RSTART:{{ "## Header2" | $p.RenderString }}:REND
 
 
-`)
+`, "_default/_markup/render-heading.html", "Hook Heading: {{ .Level }}")
 
 	b.WithContent("p1.md", `---
 title: "p1"
@@ -380,6 +381,7 @@ title: "p1"
 RSTART:<strong>Bold Markdown</strong>:REND
 RSTART:<p><strong>Bold Block Markdown</strong></p>
 RSTART:<em>italic org mode</em>:REND
+RSTART:Hook Heading: 2:REND
 `)
 
 }

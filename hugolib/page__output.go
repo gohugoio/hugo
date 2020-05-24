@@ -96,24 +96,28 @@ func (o *pageOutput) initRenderHooks() error {
 		return nil
 	}
 
-	ps := o.cp.p
+	var initErr error
 
-	c := ps.getContentConverter()
-	if c == nil || !c.Supports(converter.FeatureRenderHooks) {
-		return nil
-	}
+	o.cp.renderHooks.init.Do(func() {
+		ps := o.cp.p
 
-	h, err := ps.createRenderHooks(o.f)
-	if err != nil {
-		return err
-	}
-	if h == nil {
-		return nil
-	}
+		c := ps.getContentConverter()
+		if c == nil || !c.Supports(converter.FeatureRenderHooks) {
+			return
+		}
 
-	o.cp.renderHooks = h
+		h, err := ps.createRenderHooks(o.f)
+		if err != nil {
+			initErr = err
+		}
+		if h == nil {
+			return
+		}
 
-	return nil
+		o.cp.renderHooks.hooks = h
+	})
+
+	return initErr
 
 }
 
