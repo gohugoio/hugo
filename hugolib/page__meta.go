@@ -727,11 +727,16 @@ func (p *pageMeta) newContentConverter(ps *pageState, markup string, renderingCo
 		return converter.NopConverter, errors.Errorf("no content renderer found for markup %q", p.markup)
 	}
 
+	var id string
+	if !p.f.IsZero() {
+		id = p.f.UniqueID()
+	}
+
 	cpp, err := cp.New(
 		converter.DocumentContext{
 			Document:        newPageForRenderHook(ps),
-			DocumentID:      p.f.UniqueID(),
-			DocumentName:    p.f.Path(),
+			DocumentID:      id,
+			DocumentName:    p.Path(),
 			ConfigOverrides: renderingConfigOverrides,
 		},
 	)
