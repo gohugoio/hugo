@@ -116,7 +116,13 @@ func (w *cssClassCollectorWriter) Write(p []byte) (n int, err error) {
 
 					w.buff.Reset()
 
+					if strings.HasPrefix(s, "</") {
+						continue
+					}
+
+					s, tagName := w.insertStandinHTMLElement(s)
 					el := parseHTMLElement(s)
+					el.Tag = tagName
 
 					w.collector.mu.Lock()
 					w.collector.elementSet[s] = true
@@ -130,6 +136,20 @@ func (w *cssClassCollectorWriter) Write(p []byte) (n int, err error) {
 	}
 
 	return
+}
+
+// The net/html parser does not handle single table elemnts as input, e.g. tbody.
+// We only care about the element/class/ids, so just store away the original tag name
+// and pretend it's a <div>.
+func (c *cssClassCollectorWriter) insertStandinHTMLElement(el string) (string, string) {
+	tag := el[1:]
+	spacei := strings.Index(tag, " ")
+	if spacei != -1 {
+		tag = tag[:spacei]
+	}
+	newv := strings.Replace(el, tag, "div", 1)
+	return newv, strings.ToLower(tag)
+
 }
 
 func (c *cssClassCollectorWriter) endCollecting(drop bool) {

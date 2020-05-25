@@ -1123,7 +1123,7 @@ ABC.
 		els := stats.HTMLElements
 
 		b.Assert(els.Classes, qt.HasLen, 3606) // (4 * 900) + 4 +2
-		b.Assert(els.Tags, qt.HasLen, 8)
+		b.Assert(els.Tags, qt.HasLen, 9)
 		b.Assert(els.IDs, qt.HasLen, 1)
 	}
 
