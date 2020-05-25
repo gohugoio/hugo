@@ -51,6 +51,12 @@ func TestClassCollector(t *testing.T) {
 		{"duplicates", `<div class="b a b"></div>`, f("div", "a b", "")},
 		{"single quote", `<body class='b a'></body>`, f("body", "a b", "")},
 		{"no quote", `<body class=b id=myelement></body>`, f("body", "b", "myelement")},
+		{"thead", `
+		https://github.com/gohugoio/hugo/issues/7318
+<table class="cl1">
+    <thead class="cl2"><tr class="cl3"><td class="cl4"></td></tr></thead>
+    <tbody class="cl5"><tr class="cl6"><td class="cl7"></td></tr></tbody>
+</table>`, f("table tbody td thead tr", "cl1 cl2 cl3 cl4 cl5 cl6 cl7", "")},
 		// https://github.com/gohugoio/hugo/issues/7161
 		{"minified a href", `<a class="b a" href=/></a>`, f("a", "a b", "")},
 
