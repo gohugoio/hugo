@@ -1,5 +1,4 @@
 name: hugo
-base: core
 version: "0.72.0-DEV"
 summary: Fast and Flexible Static Site Generator
 description: |
@@ -8,7 +7,6 @@ description: |
   with content and templates and renders them into a full HTML website.
 confinement: strict
 grade: devel # "devel" or "stable"
-license: Apache-2.0
 
 apps:
   hugo:
@@ -68,10 +66,11 @@ parts:
       ls -l $SNAPCRAFT_PART_INSTALL/bin/hugo
 
   node:
-    plugin: nodejs
+    plugin: x-nodejs
     node-packages:
-        - postcss-cli
         - "@babel/cli"
+        - "@babel/core"
+        - postcss-cli
     filesets:
       node:
         - bin/node
@@ -79,7 +78,7 @@ parts:
         - bin/postcss
         - lib/node_modules/postcss-cli/*
       babel:
-        - bin/babel.js
+        - bin/babel
         - lib/node_modules/@babel/cli/*
     prime:
       - $node
