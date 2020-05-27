@@ -24,8 +24,11 @@ the current _list_ page:
 
 `.RegularPages`
 : Collection of only _regular_ pages under the
-    current _list_ page.
+    current _list_ page. This **excludes** regular pages in nested sections/_list_ pages (those are subdirectories with an `_index.md` file.
 
+`.RegularPagesRecursive`
+{{< new-in "0.68.0" >}}
+: Collection of **all** _regular_ pages under a _list_ page. This **includes** regular pages in nested sections/_list_ pages.
 
 Note
 : From the scope of _regular_ pages, `.Pages` and
