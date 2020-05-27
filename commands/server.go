@@ -292,6 +292,18 @@ type fileServer struct {
 	s             *serverCmd
 }
 
+func (f *fileServer) rewriteRequest(r *http.Request, toPath string) *http.Request {
+	r2 := new(http.Request)
+	*r2 = *r
+	r2.URL = new(url.URL)
+	*r2.URL = *r.URL
+	r2.URL.Path = toPath
+	r2.Header.Set("X-Rewrite-Original-URI", r.URL.RequestURI())
+
+	return r2
+
+}
+
 func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, error) {
 	baseURL := f.baseURLs[i]
 	root := f.roots[i]
@@ -356,8 +368,23 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 				w.Header().Set("Pragma", "no-cache")
 			}
 
-			for _, header := range f.c.serverConfig.Match(r.RequestURI) {
+			for _, header := range f.c.serverConfig.MatchHeaders(r.RequestURI) {
 				w.Header().Set(header.Key, header.Value)
+			}
+
+			if redirect := f.c.serverConfig.MatchRedirect(r.RequestURI); !redirect.IsZero() {
+				// This matches Netlify's behaviour and is needed for SPA behaviour.
+				// See https://docs.netlify.com/routing/redirects/rewrites-proxies/
+				if redirect.Status == 200 {
+					if r2 := f.rewriteRequest(r, strings.TrimPrefix(redirect.To, u.Path)); r2 != nil {
+						r = r2
+					}
+				} else {
+					w.Header().Set("Content-Type", "")
+					http.Redirect(w, r, redirect.To, redirect.Status)
+					return
+				}
+
 			}
 
 			if f.c.fastRenderMode && f.c.buildErr == nil {
@@ -379,6 +406,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 
 				}
 			}
+
 			h.ServeHTTP(w, r)
 		})
 	}

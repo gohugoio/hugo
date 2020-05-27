@@ -346,7 +346,10 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 
 	cfg.Logger = logger
 	c.logger = logger
-	c.serverConfig = hconfig.DecodeServer(cfg.Cfg)
+	c.serverConfig, err = hconfig.DecodeServer(cfg.Cfg)
+	if err != nil {
+		return err
+	}
 
 	createMemFs := config.GetBool("renderToMemory")
 
