@@ -14,6 +14,8 @@
 package config
 
 import (
+	"github.com/pkg/errors"
+
 	"sort"
 	"strings"
 	"sync"
@@ -101,26 +103,36 @@ func DecodeSitemap(prototype Sitemap, input map[string]interface{}) Sitemap {
 
 // Config for the dev server.
 type Server struct {
-	Headers []Headers
+	Headers   []Headers
+	Redirects []Redirect
 
-	compiledInit sync.Once
-	compiled     []glob.Glob
+	compiledInit      sync.Once
+	compiledHeaders   []glob.Glob
+	compiledRedirects []glob.Glob
 }
 
-func (s *Server) Match(pattern string) []types.KeyValueStr {
+func (s *Server) init() {
+
 	s.compiledInit.Do(func() {
 		for _, h := range s.Headers {
-			s.compiled = append(s.compiled, glob.MustCompile(h.For))
+			s.compiledHeaders = append(s.compiledHeaders, glob.MustCompile(h.For))
+		}
+		for _, r := range s.Redirects {
+			s.compiledRedirects = append(s.compiledRedirects, glob.MustCompile(r.From))
 		}
 	})
+}
 
-	if s.compiled == nil {
+func (s *Server) MatchHeaders(pattern string) []types.KeyValueStr {
+	s.init()
+
+	if s.compiledHeaders == nil {
 		return nil
 	}
 
 	var matches []types.KeyValueStr
 
-	for i, g := range s.compiled {
+	for i, g := range s.compiledHeaders {
 		if g.Match(pattern) {
 			h := s.Headers[i]
 			for k, v := range h.Values {
@@ -137,18 +149,67 @@ func (s *Server) Match(pattern string) []types.KeyValueStr {
 
 }
 
+func (s *Server) MatchRedirect(pattern string) Redirect {
+	s.init()
+
+	if s.compiledRedirects == nil {
+		return Redirect{}
+	}
+
+	pattern = strings.TrimSuffix(pattern, "index.html")
+
+	for i, g := range s.compiledRedirects {
+		redir := s.Redirects[i]
+
+		// No redirect to self.
+		if redir.To == pattern {
+			return Redirect{}
+		}
+
+		if g.Match(pattern) {
+			return redir
+		}
+	}
+
+	return Redirect{}
+
+}
+
 type Headers struct {
 	For    string
 	Values map[string]interface{}
 }
 
-func DecodeServer(cfg Provider) *Server {
+type Redirect struct {
+	From   string
+	To     string
+	Status int
+}
+
+func (r Redirect) IsZero() bool {
+	return r.From == ""
+}
+
+func DecodeServer(cfg Provider) (*Server, error) {
 	m := cfg.GetStringMap("server")
 	s := &Server{}
 	if m == nil {
-		return s
+		return s, nil
 	}
 
 	_ = mapstructure.WeakDecode(m, s)
-	return s
+
+	for i, redir := range s.Redirects {
+		// Get it in line with the Hugo server.
+		redir.To = strings.TrimSuffix(redir.To, "index.html")
+		if !strings.HasPrefix(redir.To, "https") && !strings.HasSuffix(redir.To, "/") {
+			// There are some tricky infinite loop situations when dealing
+			// when the target does not have a trailing slash.
+			// This can certainly be handled better, but not time for that now.
+			return nil, errors.Errorf("unspported redirect to value %q in server config; currently this must be either a remote destination or a local folder, e.g. \"/blog/\" or \"/blog/index.html\"", redir.To)
+		}
+		s.Redirects[i] = redir
+	}
+
+	return s, nil
 }
