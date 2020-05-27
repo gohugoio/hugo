@@ -444,7 +444,7 @@ Directory of C:\hugo\sites\example.com
 
 ### Snap Package
 
-In any of the [Linux distributions that support snaps][snaps], you may install install the "extended" Sass/SCSS version with this command:
+In any of the [Linux distributions that support snaps][snaps], you may install the "extended" Sass/SCSS version with this command:
 
     snap install hugo --channel=extended
 
