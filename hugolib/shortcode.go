@@ -502,12 +502,7 @@ Loop:
 
 		case currItem.IsShortcodeClose():
 			next := pt.Peek()
-			if !sc.isInline && !sc.info.ParseInfo().IsInner {
-				if next.IsError() {
-					// return that error, more specific
-					continue
-				}
-
+			if !sc.isInline && !sc.info.ParseInfo().IsInner && next.IsError() {
 				return sc, fail(_errors.Errorf("shortcode %q has no .Inner, yet a closing tag was provided", next.Val), next)
 			}
 			if next.IsRightShortcodeDelim() {
