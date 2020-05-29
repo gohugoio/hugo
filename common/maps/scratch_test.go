@@ -47,6 +47,9 @@ func TestScratchAdd(t *testing.T) {
 	scratch.Add("scratch", scratch)
 	_, err := scratch.Add("scratch", scratch)
 
+	m := scratch.Values()
+	c.Assert(m, qt.HasLen, 5)
+
 	if err == nil {
 		t.Errorf("Expected error from invalid arithmetic")
 	}
