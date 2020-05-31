@@ -29,7 +29,7 @@ RSS pages are of the type `Page` and have all the [page variables](/variables/pa
 
 ### Section RSS
 
-A [section’s][section] RSS will be rendered at `/<SECTION>/index.xml` (e.g., https://spf13.com/project/index.xml).
+A [section’s][section] RSS will be rendered at `/<SECTION>/index.xml` (e.g., [https://spf13.com/project/index.xml](https://spf13.com/project/index.xml)).
 
 Hugo provides the ability for you to define any RSS type you wish and can have different RSS files for each section and taxonomy.
 

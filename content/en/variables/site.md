@@ -20,6 +20,10 @@ toc: true
 
 The following is a list of site-level (aka "global") variables. Many of these variables are defined in your site's [configuration file][config], whereas others are built into Hugo's core for convenient usage in your templates.
 
+## Get the Site object from a partial
+
+All the methods below, e.g. `.Site.RegularPages` can also be reached via the global `site` function, e.g. `site.RegularPages`, which can be handy in partials where the `Page` object isn't easily available. {{< new-in "0.53.0" >}}.
+
 ## Site Variables List
 
 .Site.AllPages
