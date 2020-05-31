@@ -180,7 +180,10 @@ Rotates an image by the given angle counter-clockwise. The rotation will be perf
 ### Anchor
 
 Only relevant for the `Fill` method. This is useful for thumbnail generation where the main motive is located in, say, the left corner.
-Valid are `Center`, `TopLeft`, `Top`, `TopRight`, `Left`, `Right`, `BottomLeft`, `Bottom`, `BottomRight`.
+
+Valid values are `Smart`, `Center`, `TopLeft`, `Top`, `TopRight`, `Left`, `Right`, `BottomLeft`, `Bottom`, `BottomRight`.
+
+Default value is `Smart`, which uses [Smartcrop](https://github.com/muesli/smartcrop) to determine the best crop.
 
 ```go
 {{ $image.Fill "300x200 BottomLeft" }}

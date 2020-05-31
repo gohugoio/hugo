@@ -1,14 +1,15 @@
 
 ---
 date: 2020-05-18
-title: "0.71.0"
-description: "0.71.0"
+title: "Markdown Render Hooks for Headings"
+description: "Render hooks for headings, update to Go 1.14.3, several bug fixes etc."
 categories: ["Releases"]
 ---
 
-	Hugo 0.71 brings Markdown render hooks for headings, but the main reason why this release comes sooner rather than later is to get out a release built on Go 1.14.3 which comes with a fix for [this bug](https://github.com/golang/go/issues/37833) that caused Hugo to sometimes spin up with 100% CPU on MacOS.
+Hugo 0.71 brings [Markdown render hooks for headings](https://gohugo.io/getting-started/configuration-markup#markdown-render-hooks), a set of bug fixes and more.
 
-This release represents **12 contributions by 7 contributors** to the main Hugo code base.[@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@anthonyfok](https://github.com/anthonyfok), [@apexskier](https://github.com/apexskier), and [@johnweldon](https://github.com/johnweldon) for their ongoing contributions.
+This release represents **12 contributions by 7 contributors** to the main Hugo code base. [@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@anthonyfok](https://github.com/anthonyfok), [@apexskier](https://github.com/apexskier), and [@johnweldon](https://github.com/johnweldon) for their ongoing contributions.
+
 And a big thanks to [@digitalcraftsman](https://github.com/digitalcraftsman) and [@onedrawingperday](https://github.com/onedrawingperday) for their relentless work on keeping the themes site in pristine condition and to [@davidsneighbour](https://github.com/davidsneighbour) and [@kaushalmodi](https://github.com/kaushalmodi) for all the great work on the documentation site.
 
 Many have also been busy writing and fixing the documentation in [hugoDocs](https://github.com/gohugoio/hugoDocs), 
