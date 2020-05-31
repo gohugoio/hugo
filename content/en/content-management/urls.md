@@ -38,6 +38,13 @@ permalinks:
 
 Only the content under `posts/` will have the new URL structure. For example, the file `content/posts/sample-entry.md` with `date: 2017-02-27T19:20:00-05:00` in its front matter will render to `public/2017/02/sample-entry/index.html` at build time and therefore be reachable at `https://example.com/2017/02/sample-entry/`.
 
+To configure the `permalinks` option for pages in the "root" section, use **/** as the key:
+
+{{< code-toggle file="config" copy="false" >}}
+permalinks:
+  /: /:year/:month/:filename/
+{{< /code-toggle >}}
+
 If the standard date-based permalink configuration does not meet your needs, you can also format URL segments using [Go time formatting directives](https://golang.org/pkg/time/#Time.Format). For example, a URL structure with two digit years and month and day digits without zero padding can be accomplished with:
 
 {{< code-toggle file="config" copy="false" >}}

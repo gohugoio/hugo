@@ -85,9 +85,13 @@ ordered
 
 Note that this is only supported with the [Goldmark](#goldmark) renderer.
 
-These Render Hooks allow custom templates to render links and images from markdown.
+Render Hooks allow custom templates to override markdown rendering functionality. You can do this by creating templates with base names `render-{feature}` in `layouts/_default/_markup`.
 
-You can do this by creating templates with base names `render-link` and/or `render-image` inside `layouts/_default/_markup`.
+The features currently supported are:
+
+* `image`
+* `link`
+* `heading` {{< new-in "0.71.0" >}}
 
 You can define [Output-Format-](/templates/output-formats) and [language-](/content-management/multilingual/)specific templates if needed.[^hooktemplate] Your `layouts` folder may look like this:
 
@@ -105,10 +109,11 @@ Some use cases for the above:
 * Resolve link references using `.GetPage`. This would make links portable as you could translate `./my-post.md` (and similar constructs that would work on GitHub) into `/blog/2019/01/01/my-post/` etc.
 * Add `target=_blank` to external links.
 * Resolve and [process](/content-management/image-processing/) images.
+* Add [header links](https://remysharp.com/2014/08/08/automatic-permalinks-for-blog-posts).
 
 ### Render Hook Templates
 
-Both `render-link` and `render-image` templates will receive this context:
+The `render-link` and `render-image` templates will receive this context:
 
 Page
 : The [Page](/variables/page/) being rendered.
@@ -125,7 +130,24 @@ Text
 PlainText
 : The plain variant of the above.
 
-#### Link with title Markdown example :
+The `render-heading` template will receive this context:
+
+Page
+: The [Page](/variables/page/) being rendered.
+
+Level
+: The header level (1--6)
+
+Anchor
+: An auto-generated html id unique to the header within the page
+
+Text
+: The rendered (HTML) text.
+
+PlainText
+: The plain variant of the above.
+
+#### Link with title Markdown example:
 
 ```md
 [Text](https://www.gohugo.io "Title")
@@ -151,5 +173,24 @@ Here is a code example for how the render-image.html template could look:
 </p>
 {{< /code >}}
 
-[^hooktemplate]: It's currently only possible to have one set of render hook templates, e.g. not per `Type` or `Section`. We may consider that in a future version.
+#### Heading link example
 
+Given this template file
+
+{{< code file="layouts/_default/_markup/render-heading.html" >}}
+<h{{ .Level }} id="{{ .Anchor | safeURL }}">{{ .Text | safeHTML }} <a href="#{{ .Anchor | safeURL }}">¶</a></h{{ .Level }}>
+{{< /code >}}
+
+And this markdown
+
+```md
+### Section A
+```
+
+The rendered html will be
+
+```html
+<h3 id="section-a">Section A <a href="#section-a">¶</a></h3>
+```
+
+[^hooktemplate]: It's currently only possible to have one set of render hook templates, e.g. not per `Type` or `Section`. We may consider that in a future version.
