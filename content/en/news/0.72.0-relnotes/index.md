@@ -1,12 +1,12 @@
 
 ---
 date: 2020-05-31
-title: "0.72.0"
-description: "0.72.0"
+title: URL rewrites in dev server
+description: "Hugo 072.0 comes with dev server redirects and URL rewrites, Goldmark typography extension fixes, Scratch.Add."
 categories: ["Releases"]
 ---
 
-	This is a rather small release, its probably main motivation being the fixes in Goldmark's [Typographer extension](https://github.com/gohugoio/hugo/commit/432885c499849efb29d3e50196f377fe0e908333).
+This is a rather small release, its probably main motivation being the fixes in Goldmark's [Typographer extension](https://github.com/gohugoio/hugo/commit/432885c499849efb29d3e50196f377fe0e908333).
 
 This release also adds [redirect and URL rewrite support](https://gohugo.io/getting-started/configuration/#configure-server) to the development server, with mostly Netlify-compatible configuration syntax. This is especially useful if you're building a [SPA](https://en.wikipedia.org/wiki/Single-page_application) with client-side routing.
 
