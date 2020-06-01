@@ -33,7 +33,7 @@ hugo mod init github.com/gohugoio/myShortcodes
 Also see the [CLI Doc](/commands/hugo_mod_init/).
 
 ## Use a Module for a Theme
-The easiest way to use a for a theme is to import it in the config. 
+The easiest way to use a Module for a theme is to import it in the config.
 
 1. Initialize the hugo module system: `hugo mod init github.com/<your_user>/<your_project>`
 2. Import the theme in your `config.toml`: 
