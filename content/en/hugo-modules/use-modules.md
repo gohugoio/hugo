@@ -36,7 +36,7 @@ Also see the [CLI Doc](/commands/hugo_mod_init/).
 The easiest way to use a Module for a theme is to import it in the config.
 
 1. Initialize the hugo module system: `hugo mod init github.com/<your_user>/<your_project>`
-2. Import the theme in your `config.toml`: 
+2. Import the theme in your `config.toml`:
 
 ```toml
 [module]
@@ -87,7 +87,7 @@ One way to do local development of a module imported in a project is to add a re
 replace github.com/bep/hugotestmods/mypartials => /Users/bep/hugotestmods/mypartials
 ```
 
-If you have the `hugo server` running, the configuration will be reloaded and `/Users/bep/hugotestmods/mypartials` put on the watch list. 
+If you have the `hugo server` running, the configuration will be reloaded and `/Users/bep/hugotestmods/mypartials` put on the watch list.
 
 
 ## Print Dependency Graph
@@ -114,7 +114,7 @@ Also see the [CLI Doc](/commands/hugo_mod_graph/).
 
 ## Vendor Your Modules
 
-`hugo mod vendor` will write all the module depencies to a `_vendor` folder, which will then be used for all subsequent builds.
+`hugo mod vendor` will write all the module dependencies to a `_vendor` folder, which will then be used for all subsequent builds.
 
 Note that:
 

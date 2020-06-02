@@ -58,7 +58,7 @@ Any of the above can be omitted.
 min
 : The minimum Hugo version supported, e.g. `0.55.0`
 
-max 
+max
 : The maximum Hugo version supported, e.g. `0.55.0`
 
 extended
@@ -73,7 +73,7 @@ extended
   ignoreConfig = false
   disable = false
 [[module.imports]]
-  path = "my-shortcodes"  
+  path = "my-shortcodes"
 {{< /code-toggle >}}
 
 path

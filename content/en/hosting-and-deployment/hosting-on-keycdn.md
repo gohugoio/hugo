@@ -24,13 +24,13 @@ draft: false
 
 ## Create a KeyCDN Pull Zone
 
-The first step will be to login to your KeyCDN account and create a new zone. Name this whatever you like and select the [Pull Zone](https://www.keycdn.com/support/create-a-pull-zone/) option. As for the origin URL, your site will be running on [GitLab Pages](https://docs.gitlab.com/ee/user/project/pages/getting_started_part_one.html) with a URL of `https://youruser.gitlab.io/reponame/`. Use this as the Origin URL. 
+The first step will be to login to your KeyCDN account and create a new zone. Name this whatever you like and select the [Pull Zone](https://www.keycdn.com/support/create-a-pull-zone/) option. As for the origin URL, your site will be running on [GitLab Pages](https://docs.gitlab.com/ee/user/project/pages/getting_started_part_one.html) with a URL of `https://youruser.gitlab.io/reponame/`. Use this as the Origin URL.
 
-![Screenshot of KeyCDN's pull zone creation page](/images/hosting-and-deployment/hosting-on-keycdn/keycdn-pull-zone.png) 
+![Screenshot of KeyCDN's pull zone creation page](/images/hosting-and-deployment/hosting-on-keycdn/keycdn-pull-zone.png)
 
-While the origin location doesn’t exist yet, you will need to use your new Zone URL address (or [Zonealias](https://www.keycdn.com/support/create-a-zonealias/)) in the `.gitlab-ci.yml` file that will be uploaded to your GitLab project. 
+While the origin location doesn’t exist yet, you will need to use your new Zone URL address (or [Zone Alias](https://www.keycdn.com/support/create-a-zone-alias/)) in the `.gitlab-ci.yml` file that will be uploaded to your GitLab project.
 
-Ensure that you use your Zone URL or Zonealias as the `BASEURL` variable in the example below. This will be the user-visible website address.
+Ensure that you use your Zone URL or Zone alias as the `BASEURL` variable in the example below. This will be the user-visible website address.
 
 ## Configure Your .gitlab-ci.yml File
 
