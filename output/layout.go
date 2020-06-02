@@ -134,15 +134,16 @@ func resolvePageTemplate(d LayoutDescriptor, f Format) []string {
 
 	b := &layoutBuilder{d: d, f: f}
 
+	if !d.RenderingHook && d.Layout != "" {
+		b.addLayoutVariations(d.Layout)
+	}
+	if d.Type != "" {
+		b.addTypeVariations(d.Type)
+	}
+
 	if d.RenderingHook {
 		b.addLayoutVariations(d.Kind)
-	} else {
-		if d.Layout != "" {
-			b.addLayoutVariations(d.Layout)
-		}
-		if d.Type != "" {
-			b.addTypeVariations(d.Type)
-		}
+		b.addSectionType()
 	}
 
 	switch d.Kind {

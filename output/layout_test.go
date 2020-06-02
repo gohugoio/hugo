@@ -128,9 +128,8 @@ func TestLayout(t *testing.T) {
 			[]string{"404.html.html", "404.html"}, 2},
 		{"404, HTML baseof", LayoutDescriptor{Kind: "404", Baseof: true}, "", htmlFormat,
 			[]string{"404-baseof.html.html", "baseof.html.html", "404-baseof.html", "baseof.html", "_default/404-baseof.html.html", "_default/baseof.html.html", "_default/404-baseof.html", "_default/baseof.html"}, 8},
-		// We may add type support ... later.
 		{"Content hook", LayoutDescriptor{Kind: "render-link", RenderingHook: true, Layout: "mylayout", Section: "blog"}, "", ampType,
-			[]string{"_default/_markup/render-link.amp.html", "_default/_markup/render-link.html"}, 2},
+			[]string{"blog/_markup/render-link.amp.html", "blog/_markup/render-link.html", "_default/_markup/render-link.amp.html", "_default/_markup/render-link.html"}, 4},
 	} {
 		c.Run(this.name, func(c *qt.C) {
 			l := NewLayoutHandler()
