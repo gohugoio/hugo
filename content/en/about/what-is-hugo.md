@@ -51,7 +51,7 @@ Hugo is for people building a blog, a company site, a portfolio site, documentat
 [GitHub Pages]: https://pages.github.com/
 [GitLab Pages]: https://about.gitlab.com/features/pages/
 [Go language]: https://golang.org/
-[GoDaddy]: https://www.godaddy.com/ "Godaddy.com Hosting"
+[GoDaddy]: https://www.godaddy.com/ "GoDaddy.com Hosting"
 [Google Cloud Storage]: https://cloud.google.com/storage/
 [Heroku]: https://www.heroku.com/
 [Jekyll]: https://jekyllrb.com/

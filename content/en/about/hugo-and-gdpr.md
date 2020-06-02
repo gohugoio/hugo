@@ -1,5 +1,3 @@
-
-
 ---
 title: Hugo and the  General Data Protection Regulation (GDPR)
 linktitle: Hugo and GDPR

@@ -63,7 +63,7 @@ When working with front matter `Params` in [single page templates][singles], omi
 
 `defaultContentLanguage` sets the project's default language. If not set, the default language will be `en`.
 
-If the default language needs to be rendererd below its own language code (`/en`) like the others, set `defaultContentLanguageInSubdir: true`.
+If the default language needs to be rendered below its own language code (`/en`) like the others, set `defaultContentLanguageInSubdir: true`.
 
 Only the obvious non-global options can be overridden per language. Examples of global options are `baseURL`, `buildDrafts`, etc.
 
@@ -125,7 +125,7 @@ public
 
 **All URLs (i.e `.Permalink` etc.) will be generated from that root. So the English home page above will have its `.Permalink` set to `https://example.com/`.**
 
-When you run `hugo server` we will start multiple HTTP servers. You will typlically see something like this in the console:
+When you run `hugo server` we will start multiple HTTP servers. You will typically see something like this in the console:
 
 ```bash
 Web Server is available at 127.0.0.1:1313 (bind address 127.0.0.1)
