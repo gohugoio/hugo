@@ -20,7 +20,7 @@ There are currently two limitations to this:
 
 1. This only works in `*.html` templates (i.e. templates that produces HTML files).
 2. You cannot manipulate the values returned from the resource's methods. E.g. the `upper` in this example will not work as expected:
-   
+
     ```go-html-template
     {{ $css := resources.Get "css/main.css" }}
     {{ $css = $css | resources.PostCSS | minify | fingerprint | resources.PostProcess }}

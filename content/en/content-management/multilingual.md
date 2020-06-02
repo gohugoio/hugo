@@ -204,7 +204,7 @@ languages:
 
 The value of `contentDir` can be any valid path -- even absolute path references. The only restriction is that the content directories cannot overlap.
 
-Considering the following example in conjunction with the configuration above: 
+Considering the following example in conjunction with the configuration above:
 
 1. `/content/english/about.md`
 2. `/content/french/about.md`

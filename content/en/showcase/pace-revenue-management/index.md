@@ -15,7 +15,7 @@ siteURL: https://www.paceup.com/
 
 ---
 
-From the beginning, at Pace, we were focused on solving customer needs and didn't want to over-engineer our marketing or sales. At the same time we didn't want to lock ourselves into a Wordpress, Squarespace or the like.
+From the beginning, at Pace, we were focused on solving customer needs and didn't want to over-engineer our marketing or sales. At the same time we didn't want to lock ourselves into a WordPress, Squarespace or the like.
 
 The ideal was a fast, simple, static site builder. When we came across Hugo we were blown away. Being a European company we wanted to be multi-lingual from the get-go and allow multiple team-members to collaborate and own their content. We also felt that a tech-company in 2018 should be capable of hosting its own blog in a simple way.
 

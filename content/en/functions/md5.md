@@ -20,7 +20,6 @@ aliases: []
 ---
 
 
-
 ```
 {{ md5 "Hello world, gophers!" }}
 <!-- returns the string "b3029f756f98f79e7f1b7f1d1f0dd53b" -->

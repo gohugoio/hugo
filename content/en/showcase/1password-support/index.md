@@ -18,7 +18,7 @@ Finding a tool that will make your customers, writers, designers, _and_ DevOps t
 **Hugo is static**. We're a security company, so we swear by static sites and use them wherever possible. We feel much safer pointing customers at HTML files than at a complicated server which needs to be hardened.
 
 **Hugo is Go**. We love the Go programming language at 1Password, and we were delighted to learn that Hugo used the same Go template syntax that our designers and front-end developers had already mastered.
- 
+
 **Hugo is FAST**. Our previous static site generator took nearly a minute to compile our (then much smaller) site. Developers might be used to this, but it wasn't cutting it for writers who wanted to see live previews of their work. Hugo did the same job in milliseconds, and to this day compiles 400 pages in five languages in the blink of an eye.
 
 **Hugo is flexible**. Thanks to Hugo's content and layout system, we were able to preserve our existing file and folder structure and port our entire production site in a few days. We could then create new content types that weren't possible before, like these snazzy [showcases](https://support.1password.com/explore/extension/).

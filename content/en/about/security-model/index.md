@@ -1,6 +1,6 @@
 ---
 title: Hugo's Security Model
-description: A summary of Hugo's security model. 
+description: A summary of Hugo's security model.
 date: 2019-10-01
 layout: single
 keywords: ["Security", "Privacy"]
@@ -19,7 +19,7 @@ toc: true
 
 Hugo produces static output, so once built, the runtime is the browser (assuming the output is HTML) and any server (API) that you integrate with.
 
-But when developing and building your site, the runtime is the `hugo` executable. Securing a runtime can be [a real challenge](https://blog.logrocket.com/how-to-protect-your-node-js-applications-from-malicious-dependencies-5f2e60ea08f9/). 
+But when developing and building your site, the runtime is the `hugo` executable. Securing a runtime can be [a real challenge](https://blog.logrocket.com/how-to-protect-your-node-js-applications-from-malicious-dependencies-5f2e60ea08f9/).
 
 **Hugo's main approach is that of sandboxing:**
 
