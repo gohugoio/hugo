@@ -50,6 +50,7 @@ Inner Block: {{ .Inner | .Page.RenderString (dict "display" "block" ) }}
 	b.WithTemplatesAdded("docs/_markup/render-link.html", `Link docs section: {{ .Text | safeHTML }}|END`)
 	b.WithTemplatesAdded("_default/_markup/render-image.html", `IMAGE: {{ .Page.Title }}||{{ .Destination | safeURL }}|Title: {{ .Title | safeHTML }}|Text: {{ .Text | safeHTML }}|END`)
 	b.WithTemplatesAdded("_default/_markup/render-heading.html", `HEADING: {{ .Page.Title }}||Level: {{ .Level }}|Anchor: {{ .Anchor | safeURL }}|Text: {{ .Text | safeHTML }}|END`)
+	b.WithTemplatesAdded("docs/_markup/render-heading.html", `Docs Level: {{ .Level }}|END`)
 
 	b.WithContent("customview/p1.md", `---
 title: Custom View
@@ -133,7 +134,15 @@ some text
 ## Heading Level 2
 
 ### Heading Level 3
-`)
+`,
+		"docs/p8.md", `---
+title: Doc With Heading
+---
+
+# Docs lvl 1
+
+`,
+	)
 
 	for i := 1; i <= 30; i++ {
 		// Add some content with no shortcodes or links, i.e no templates needed.
@@ -146,7 +155,7 @@ title: No Template
 	}
 	counters := &testCounters{}
 	b.Build(BuildCfg{testCounters: counters})
-	b.Assert(int(counters.contentRenderCounter), qt.Equals, 44)
+	b.Assert(int(counters.contentRenderCounter), qt.Equals, 45)
 
 	b.AssertFileContent("public/blog/p1/index.html", `
 <p>Cool Page|https://www.google.com|Title: Google's Homepage|Text: First Link|END</p>
@@ -194,6 +203,10 @@ SHORT3|
 	b.AssertFileContent("public/blog/p4/index.html", `IMAGE EDITED: /images/Dragster.jpg|`)
 	b.AssertFileContent("public/blog/p6/index.html", "<p>Inner Link: EDITED: https://www.gohugo.io|</p>")
 	b.AssertFileContent("public/blog/p7/index.html", "HEADING: With Headings||Level: 1|Anchor: heading-level-1|Text: Heading Level 1|END<p>some text</p>\nHEADING: With Headings||Level: 2|Anchor: heading-level-2|Text: Heading Level 2|ENDHEADING: With Headings||Level: 3|Anchor: heading-level-3|Text: Heading Level 3|END")
+
+	// https://github.com/gohugoio/hugo/issues/7349
+	b.AssertFileContent("public/docs/p8/index.html", "Docs Level: 1")
+
 }
 
 func TestRenderHooksDeleteTemplate(t *testing.T) {
