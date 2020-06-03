@@ -177,7 +177,7 @@ The following `footer.html` partial template is used for [spf13.com](https://spf
     <p>
     &copy; 2013-14 Steve Francia.
     <a href="https://creativecommons.org/licenses/by/3.0/" title="Creative Commons Attribution">Some rights reserved</a>;
-    please attribute properly and link back. Hosted by <a href="http://servergrove.com">ServerGrove</a>.
+    please attribute properly and link back. Hosted by <a href="https://servergrove.com">ServerGrove</a>.
     </p>
   </div>
 </footer>
