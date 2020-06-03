@@ -374,16 +374,6 @@ Set `titleCaseStyle` to specify the title style used by the [title](/functions/t
 HUGO_NUMWORKERMULTIPLIER
 : Can be set to increase or reduce the number of workers used in parallel processing in Hugo. If not set, the number of logical CPUs will be used.
 
-## Configuration Lookup Order
-
-Similar to the template [lookup order][], Hugo has a default set of rules for searching for a configuration file in the root of your website's source directory as a default behavior:
-
-1. `./config.toml`
-2. `./config.yaml`
-3. `./config.json`
-
-In your `config` file, you can direct Hugo as to how you want your website rendered, control your website's menus, and arbitrarily define site-wide parameters specific to your project.
-
 
 ## Example Configuration
 
@@ -426,6 +416,18 @@ To set config params, prefix the name with `HUGO_PARAMS_`
 {{< todo >}}
 Test and document setting params via JSON env var.
 {{< /todo >}}
+
+## Configuration Lookup Order
+
+Similar to the template [lookup order][], Hugo has a default set of rules for searching for a configuration file in the root of your website's source directory as a default behavior:
+
+1. `Commandline arguments`
+2. `Environment variables`
+3. `./config.toml`
+4. `./config.yaml`
+5. `./config.json`
+
+In your `config` file, you can direct Hugo as to how you want your website rendered, control your website's menus, and arbitrarily define site-wide parameters specific to your project.
 
 ## Ignore Content Files When Rendering
 
