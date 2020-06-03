@@ -22,5 +22,5 @@ aliases: []
 In the result `&` becomes `&amp;` and so on. It escapes only: `<`, `>`, `&`, `'` and `"`.
 
 ```
-{{ htmlEscape "Hugo & Caddy > Wordpress & Apache" }} → "Hugo &amp; Caddy &gt; Wordpress &amp; Apache"
+{{ htmlEscape "Hugo & Caddy > WordPress & Apache" }} → "Hugo &amp; Caddy &gt; WordPress &amp; Apache"
 ```
