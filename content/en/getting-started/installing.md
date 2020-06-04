@@ -44,6 +44,10 @@ Download the appropriate version for your platform from [Hugo Releases][releases
 
 Ideally, you should install it somewhere in your `PATH` for easy use. `/usr/local/bin` is the most probable location.
 
+### Docker
+
+We currently do not official Hugo images for Docker, but we do recommend these up to date distributions: https://hub.docker.com/r/klakegg/hugo/
+
 ### Homebrew (macOS)
 
 If you are on macOS and using [Homebrew][brew], you can install Hugo with the following one-liner:
