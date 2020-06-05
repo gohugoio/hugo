@@ -368,15 +368,19 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 				w.Header().Set("Pragma", "no-cache")
 			}
 
-			for _, header := range f.c.serverConfig.MatchHeaders(r.RequestURI) {
+			// Ignore any query params for the operations below.
+			requestURI := strings.TrimSuffix(r.RequestURI, "?"+r.URL.RawQuery)
+
+			for _, header := range f.c.serverConfig.MatchHeaders(requestURI) {
 				w.Header().Set(header.Key, header.Value)
 			}
 
-			if redirect := f.c.serverConfig.MatchRedirect(r.RequestURI); !redirect.IsZero() {
+			if redirect := f.c.serverConfig.MatchRedirect(requestURI); !redirect.IsZero() {
 				// This matches Netlify's behaviour and is needed for SPA behaviour.
 				// See https://docs.netlify.com/routing/redirects/rewrites-proxies/
 				if redirect.Status == 200 {
 					if r2 := f.rewriteRequest(r, strings.TrimPrefix(redirect.To, u.Path)); r2 != nil {
+						requestURI = redirect.To
 						r = r2
 					}
 				} else {
@@ -389,20 +393,19 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 
 			if f.c.fastRenderMode && f.c.buildErr == nil {
 
-				p := strings.TrimSuffix(r.RequestURI, "?"+r.URL.RawQuery)
-				if strings.HasSuffix(p, "/") || strings.HasSuffix(p, "html") || strings.HasSuffix(p, "htm") {
-					if !f.c.visitedURLs.Contains(p) {
+				if strings.HasSuffix(requestURI, "/") || strings.HasSuffix(requestURI, "html") || strings.HasSuffix(requestURI, "htm") {
+					if !f.c.visitedURLs.Contains(requestURI) {
 						// If not already on stack, re-render that single page.
-						if err := f.c.partialReRender(p); err != nil {
-							f.c.handleBuildErr(err, fmt.Sprintf("Failed to render %q", p))
+						if err := f.c.partialReRender(requestURI); err != nil {
+							f.c.handleBuildErr(err, fmt.Sprintf("Failed to render %q", requestURI))
 							if f.c.showErrorInBrowser {
-								http.Redirect(w, r, p, http.StatusMovedPermanently)
+								http.Redirect(w, r, requestURI, http.StatusMovedPermanently)
 								return
 							}
 						}
 					}
 
-					f.c.visitedURLs.Add(p)
+					f.c.visitedURLs.Add(requestURI)
 
 				}
 			}
