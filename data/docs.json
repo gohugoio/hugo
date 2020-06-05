@@ -3059,6 +3059,23 @@
               "6ec43b78da9669f50e4e422575c54bf87536954ccd58280219c393f2ce352b46"
             ]
           ]
+        },
+        "HMAC": {
+          "Description": "HMAC hashes the concatenation of a message and a secret key with the given hash function and returns its checksum.",
+          "Args": [
+            "hash function",
+            "message",
+            "key"
+          ],
+          "Aliases": [
+            "hmac"
+          ],
+          "Examples": [
+            [
+              "{{ hmac \"sha256\" \"Hello Gopher!\" \"Hello world, gophers!\" }}",
+              "32aea97d5688891fb35175c5518012323a3079994b909dd6f1bc481e4d0e7ce9"
+            ]
+          ]
         }
       },
       "data": {
