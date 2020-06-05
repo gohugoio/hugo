@@ -112,7 +112,7 @@ Single content files in each of your sections are going to be rendered as [singl
 content/posts/my-first-hugo-post.md
 ```
 
-At the time Hugo builds your site, the content will be output to the following destination:
+When Hugo builds your site, the content will be outputted to the following destination:
 
 ```
 
