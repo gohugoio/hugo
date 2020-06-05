@@ -15,10 +15,14 @@
 package crypto
 
 import (
+	"crypto/hmac"
 	"crypto/md5"
 	"crypto/sha1"
 	"crypto/sha256"
+	"crypto/sha512"
 	"encoding/hex"
+	"fmt"
+	"hash"
 
 	"github.com/spf13/cast"
 )
@@ -62,4 +66,44 @@ func (ns *Namespace) SHA256(in interface{}) (string, error) {
 
 	hash := sha256.Sum256([]byte(conv))
 	return hex.EncodeToString(hash[:]), nil
+}
+
+// HMAC returns a cryptographic hash that uses a key to sign a message.
+func (ns *Namespace) HMAC(h interface{}, k interface{}, m interface{}) (string, error) {
+	ha, err := cast.ToStringE(h)
+	if err != nil {
+		return "", err
+	}
+
+	var hash func() hash.Hash
+	switch ha {
+	case "md5":
+		hash = md5.New
+	case "sha1":
+		hash = sha1.New
+	case "sha256":
+		hash = sha256.New
+	case "sha512":
+		hash = sha512.New
+	default:
+		return "", fmt.Errorf("hmac: %s is not a supported hash function", ha)
+	}
+
+	msg, err := cast.ToStringE(m)
+	if err != nil {
+		return "", err
+	}
+
+	key, err := cast.ToStringE(k)
+	if err != nil {
+		return "", err
+	}
+
+	mac := hmac.New(hash, []byte(key))
+	_, err = mac.Write([]byte(msg))
+	if err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(mac.Sum(nil)[:]), nil
 }
