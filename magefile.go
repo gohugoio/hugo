@@ -66,6 +66,7 @@ func flagEnv() map[string]string {
 	}
 }
 
+// Generate autogen packages
 func Generate() error {
 	generatorPackages := []string{
 		"tpl/tplimpl/embedded/generate",
@@ -99,6 +100,11 @@ func Generate() error {
 	}
 
 	return nil
+}
+
+// Generate docs helper
+func GenDocsHelper() error {
+	return runCmd(flagEnv(), goexe, "run", "-tags", buildTags(), "main.go", "gen", "docshelper")
 }
 
 // Build hugo without git info
@@ -334,5 +340,4 @@ func buildTags() string {
 		return envtags
 	}
 	return "none"
-
 }
