@@ -507,6 +507,40 @@ The rendering of the main navigation works as usual. `.Site.Menus` will just con
 </ul>
 ```
 
+### Dynamically localizing menus with i18n
+While customizing menus per language is useful, if you have a log of languages your config file can become hard to maintain. 
+
+If your menus are the same in all languages, and the only thing that changes is the actual translation, you can use the menu `.Identifier` as a translation key for the name of the the menu:
+
+{{< code-toggle file="config" >}}
+[[menu.main]]
+name = "About me"
+url = "about"
+weight = 1
+identifier = "about"
+{{< /code-toggle >}}
+
+You now need to specify the translations for the menu keys in the i18n files:
+
+{{< code file="i18n/pt.toml" >}}
+[about]
+other="Sobre mim"
+{{< /code >}}
+
+And do the appropriate changes in the menu code to use the `i18n` tag with the `.Identifier` as a key. You will also note that here we are using a `default` to fall back to `.Name`, in case the `.Identifier` key is also not present in the language specified in the `defaultContentLanguage` configuration.
+
+{{< code file="layouts/partials/menu.html" >}}
+<ul>
+    {{- $currentPage := . -}}
+    {{ range .Site.Menus.main -}}
+    <li class="{{ if $currentPage.IsMenuCurrent "main" . }}active{{ end }}">
+        <a href="{{ .URL | absLangURL }}">{{ i18n .Identifier | default .Name}}</a>
+    </li>
+    {{- end }}
+</ul>
+{{< /code >}}
+                
+
 ## Missing Translations
 
 If a string does not have a translation for the current language, Hugo will use the value from the default language. If no default value is set, an empty string will be shown.
