@@ -508,7 +508,7 @@ The rendering of the main navigation works as usual. `.Site.Menus` will just con
 ```
 
 ### Dynamically localizing menus with i18n
-While customizing menus per language is useful, if you have a log of languages your config file can become hard to maintain. 
+While customizing menus per language is useful, your config file can become hard to maintain if you have a lot of languages
 
 If your menus are the same in all languages, and the only thing that changes is the actual translation, you can use the menu `.Identifier` as a translation key for the name of the the menu:
 
