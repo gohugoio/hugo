@@ -386,11 +386,19 @@ Copy the YouTube video ID that follows `v=` in the video's URL and pass it to th
 {{</* youtube w7Ft2ymGmfc */>}}
 {{< /code >}}
 
-Furthermore, you can automatically start playback of the embedded video by setting the `autoplay` parameter to `true`. Remember that you can't mix named and unnamed parameters, so you'll need to assign the yet unnamed video id to the parameter `id`:
+#### Additional Playback Options
+
+You can automatically start playback of the embedded video by setting the `autoplay` parameter to `true`. Remember that you can't mix named and unnamed parameters, so you'll need to assign the yet unnamed video id to the parameter `id`:
 
 
 {{< code file="example-youtube-input-with-autoplay.md" >}}
 {{</* youtube id="w7Ft2ymGmfc" autoplay="true" */>}}
+{{< /code >}}
+
+You're also able set the embed's start and end timestamps using the `start` and `end` parameters. Values should be in seconds from the start of the video. In the below example, the embedded video will play from the 90-second mark until the 6-minute mark:
+
+{{< code file="example-youtube-input-with-start-end.md" >}}
+{{</* youtube id="w7Ft2ymGmfc" start=90 end=360 */>}}
 {{< /code >}}
 
 #### Example `youtube` Output
@@ -398,12 +406,12 @@ Furthermore, you can automatically start playback of the embedded video by setti
 Using the preceding `youtube` example, the following HTML will be added to your rendered website's markup:
 
 {{< code file="example-youtube-output.html" >}}
-{{< youtube id="w7Ft2ymGmfc" autoplay="true" >}}
+{{< youtube id="w7Ft2ymGmfc" start=90 end=360 >}}
 {{< /code >}}
 
 #### Example `youtube` Display
 
-Using the preceding `youtube` example (without `autoplay="true"`), the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup. The video is also include in the [Quick Start of the Hugo documentation][quickstart].
+Using the first `youtube` example above (i.e. without `autoplay="true"`, or `start` and `end` set), the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup. The video is also include in the [Quick Start of the Hugo documentation][quickstart].
 
 {{< youtube w7Ft2ymGmfc >}}
 

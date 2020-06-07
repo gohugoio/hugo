@@ -184,6 +184,21 @@ func TestShortcodeYoutube(t *testing.T) {
 			`{{< youtube id="w7Ft2ymGmfc" class="video" autoplay="true" >}}`,
 			"(?s)\n<div class=\"video\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\\?autoplay=1\".*?allowfullscreen title=\"YouTube Video\">.*?</iframe>.*?</div>",
 		},
+		// set start (using named params, as string)
+		{
+			`{{< youtube id="w7Ft2ymGmfc" start="5" >}}`,
+			"(?s)\n<div style=\".*?\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\\?start=5\" style=\".*?\" allowfullscreen title=\"YouTube Video\">.*?</iframe>.*?</div>\n",
+		},
+		// set class, start and end (using named params, start and end are ints)
+		{
+			`{{< youtube id="w7Ft2ymGmfc" class="video" start=5 end=10 >}}`,
+			"(?s)\n<div class=\"video\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\\?start=5&amp;end=10\".*?allowfullscreen title=\"YouTube Video\">.*?</iframe>.*?</div>",
+		},
+		// // set class, start, autoplay, and end (using named params)
+		{
+			`{{< youtube id="w7Ft2ymGmfc" class="video" start=5 end=10 autoplay="true" >}}`,
+			"(?s)\n<div class=\"video\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\\?autoplay=1&amp;start=5&amp;end=10\".*?allowfullscreen title=\"YouTube Video\">.*?</iframe>.*?</div>",
+		},
 	} {
 		var (
 			cfg, fs = newTestCfg()
