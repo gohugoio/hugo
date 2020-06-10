@@ -98,7 +98,7 @@ Sometimes it can be useful to create the filter chain once and then reuse it:
 
 Provides an [Exif](https://en.wikipedia.org/wiki/Exif) object with metadata about the image.
 
-Note that this is only suported for JPEG and TIFF images, so it's recommended to wrap the access with a `with`, e.g.:
+Note that this is only supported for JPEG and TIFF images, so it's recommended to wrap the access with a `with`, e.g.:
 
 ```go-html-template
 {{ with $img.Exif }}
