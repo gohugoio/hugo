@@ -493,7 +493,7 @@ func (fs *RootMappingFs) doLstat(name string) ([]FileMetaInfo, error) {
 		// Find any real files or directories with this key.
 		_, roots := fs.getRoots(key)
 		if roots == nil {
-			return nil, os.ErrNotExist
+			return nil, &os.PathError{Op: "LStat", Path: name, Err: os.ErrNotExist}
 		}
 
 		var err error
@@ -512,7 +512,7 @@ func (fs *RootMappingFs) doLstat(name string) ([]FileMetaInfo, error) {
 		}
 
 		if err == nil {
-			err = os.ErrNotExist
+			err = &os.PathError{Op: "LStat", Path: name, Err: err}
 		}
 
 		return nil, err
