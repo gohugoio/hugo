@@ -2,7 +2,7 @@
 ---
 date: 2020-05-31
 title: URL rewrites in dev server
-description: "Hugo 072.0 comes with dev server redirects and URL rewrites, Goldmark typography extension fixes, Scratch.Values."
+description: "Hugo 0.72.0 comes with dev server redirects and URL rewrites, Goldmark typography extension fixes, Scratch.Values."
 categories: ["Releases"]
 ---
 
