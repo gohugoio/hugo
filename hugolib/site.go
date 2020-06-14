@@ -1540,7 +1540,21 @@ func (s *SiteInfo) GetPage(ref ...string) (page.Page, error) {
 
 func (s *Site) permalink(link string) string {
 	return s.PathSpec.PermalinkForBaseURL(link, s.PathSpec.BaseURL.String())
+}
 
+func (s *Site) absURLPath(targetPath string) string {
+	var path string
+	if s.Info.relativeURLs {
+		path = helpers.GetDottedRelativePath(targetPath)
+	} else {
+		url := s.PathSpec.BaseURL.String()
+		if !strings.HasSuffix(url, "/") {
+			url += "/"
+		}
+		path = url
+	}
+
+	return path
 }
 
 func (s *Site) lookupLayouts(layouts ...string) tpl.Template {
@@ -1562,17 +1576,6 @@ func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath st
 		return err
 	}
 
-	var path string
-	if s.Info.relativeURLs {
-		path = helpers.GetDottedRelativePath(targetPath)
-	} else {
-		s := s.PathSpec.BaseURL.String()
-		if !strings.HasSuffix(s, "/") {
-			s += "/"
-		}
-		path = s
-	}
-
 	pd := publisher.Descriptor{
 		Src:         renderBuffer,
 		TargetPath:  targetPath,
@@ -1580,14 +1583,14 @@ func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath st
 		// For the minification part of XML,
 		// we currently only use the MIME type.
 		OutputFormat: output.RSSFormat,
-		AbsURLPath:   path,
+		AbsURLPath:   s.absURLPath(targetPath),
 	}
 
 	return s.publisher.Publish(pd)
-
 }
 
 func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath string, p *pageState, templ tpl.Template) error {
+	s.Log.DEBUG.Printf("Render %s to %q", name, targetPath)
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 
@@ -1604,18 +1607,6 @@ func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath s
 	isHTML := of.IsHTML
 	isRSS := of.Name == "RSS"
 
-	var path string
-
-	if s.Info.relativeURLs {
-		path = helpers.GetDottedRelativePath(targetPath)
-	} else if isRSS || s.Info.canonifyURLs {
-		url := s.PathSpec.BaseURL.String()
-		if !strings.HasSuffix(url, "/") {
-			url += "/"
-		}
-		path = url
-	}
-
 	pd := publisher.Descriptor{
 		Src:          renderBuffer,
 		TargetPath:   targetPath,
@@ -1625,10 +1616,10 @@ func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath s
 
 	if isRSS {
 		// Always canonify URLs in RSS
-		pd.AbsURLPath = path
+		pd.AbsURLPath = s.absURLPath(targetPath)
 	} else if isHTML {
 		if s.Info.relativeURLs || s.Info.canonifyURLs {
-			pd.AbsURLPath = path
+			pd.AbsURLPath = s.absURLPath(targetPath)
 		}
 
 		if s.running() && s.Cfg.GetBool("watch") && !s.Cfg.GetBool("disableLiveReload") {
