@@ -496,19 +496,26 @@ Loop:
 		case currItem.IsRightShortcodeDelim():
 			// we trust the template on this:
 			// if there's no inner, we're done
-			if !sc.isInline && !sc.info.ParseInfo().IsInner {
-				return sc, nil
+			if !sc.isInline {
+				if sc.info == nil {
+					// This should not happen.
+					return sc, fail(errors.New("BUG: template info not set"), currItem)
+				}
+				if !sc.info.ParseInfo().IsInner {
+					return sc, nil
+				}
 			}
 
 		case currItem.IsShortcodeClose():
 			next := pt.Peek()
-			if !sc.isInline && !sc.info.ParseInfo().IsInner {
-				if next.IsError() {
-					// return that error, more specific
-					continue
+			if !sc.isInline {
+				if sc.info == nil || !sc.info.ParseInfo().IsInner {
+					if next.IsError() {
+						// return that error, more specific
+						continue
+					}
+					return sc, fail(_errors.Errorf("shortcode %q has no .Inner, yet a closing tag was provided", next.Val), next)
 				}
-
-				return sc, fail(_errors.Errorf("shortcode %q has no .Inner, yet a closing tag was provided", next.Val), next)
 			}
 			if next.IsRightShortcodeDelim() {
 				// self-closing
