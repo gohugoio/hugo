@@ -46,12 +46,15 @@ func TestAlias(t *testing.T) {
 	c := qt.New(t)
 
 	tests := []struct {
-		urlPrefix string
-		settings  map[string]interface{}
+		fileSuffix string
+		urlPrefix  string
+		urlSuffix  string
+		settings   map[string]interface{}
 	}{
-		{"http://example.com", map[string]interface{}{"baseURL": "http://example.com"}},
-		{"http://example.com", map[string]interface{}{"baseURL": "http://example.com", "canonifyURLs": true}},
-		{"../..", map[string]interface{}{"relativeURLs": true}},
+		{"/index.html", "http://example.com", "/", map[string]interface{}{"baseURL": "http://example.com"}},
+		{"/index.html", "http://example.com", "/", map[string]interface{}{"baseURL": "http://example.com", "canonifyURLs": true}},
+		{"/index.html", "../..", "/", map[string]interface{}{"relativeURLs": true}},
+		{".html", "", ".html", map[string]interface{}{"uglyURLs": true}},
 	}
 
 	for _, test := range tests {
@@ -63,10 +66,10 @@ func TestAlias(t *testing.T) {
 		c.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 1)
 
 		// the real page
-		b.AssertFileContent("public/blog/page/index.html", "For some moments the old man")
+		b.AssertFileContent("public/blog/page"+test.fileSuffix, "For some moments the old man")
 		// the alias redirectors
-		b.AssertFileContent("public/foo/bar/index.html", "<meta http-equiv=\"refresh\" content=\"0; url="+test.urlPrefix+"/blog/page/\" />")
-		b.AssertFileContent("public/blog/rel/index.html", "<meta http-equiv=\"refresh\" content=\"0; url="+test.urlPrefix+"/blog/page/\" />")
+		b.AssertFileContent("public/foo/bar"+test.fileSuffix, "<meta http-equiv=\"refresh\" content=\"0; url="+test.urlPrefix+"/blog/page"+test.urlSuffix+"\" />")
+		b.AssertFileContent("public/blog/rel"+test.fileSuffix, "<meta http-equiv=\"refresh\" content=\"0; url="+test.urlPrefix+"/blog/page"+test.urlSuffix+"\" />")
 	}
 }
 

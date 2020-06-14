@@ -338,17 +338,16 @@ func (s *Site) renderAliases() error {
 				if isRelative {
 					// Make alias relative, where "." will be on the
 					// same directory level as the current page.
-					// TODO(bep) ugly URLs doesn't seem to be supported in
-					// aliases, I'm not sure why not.
-					basePath := of.RelPermalink()
-					if strings.HasSuffix(basePath, "/") {
-						basePath = path.Join(basePath, "..")
-					}
+					basePath := path.Join(of.RelPermalink(), "..")
 					a = path.Join(basePath, a)
 
-				} else if f.Path != "" {
+				} else {
 					// Make sure AMP and similar doesn't clash with regular aliases.
 					a = path.Join(f.Path, a)
+				}
+
+				if s.UglyURLs && !strings.HasSuffix(a, ".html") {
+					a += ".html"
 				}
 
 				lang := p.Language().Lang
