@@ -45,18 +45,29 @@ func TestAlias(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile().WithContent("blog/page.md", pageWithAlias)
-	b.CreateSites().Build(BuildCfg{})
+	tests := []struct {
+		urlPrefix string
+		settings  map[string]interface{}
+	}{
+		{"http://example.com", map[string]interface{}{"baseURL": "http://example.com"}},
+		{"http://example.com", map[string]interface{}{"baseURL": "http://example.com", "canonifyURLs": true}},
+		{"../..", map[string]interface{}{"relativeURLs": true}},
+	}
 
-	c.Assert(len(b.H.Sites), qt.Equals, 1)
-	c.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 1)
+	for _, test := range tests {
+		b := newTestSitesBuilder(t)
+		b.WithSimpleConfigFileAndSettings(test.settings).WithContent("blog/page.md", pageWithAlias)
+		b.CreateSites().Build(BuildCfg{})
 
-	// the real page
-	b.AssertFileContent("public/blog/page/index.html", "For some moments the old man")
-	// the alias redirectors
-	b.AssertFileContent("public/foo/bar/index.html", "<meta http-equiv=\"refresh\" content=\"0; ")
-	b.AssertFileContent("public/blog/rel/index.html", "<meta http-equiv=\"refresh\" content=\"0; ")
+		c.Assert(len(b.H.Sites), qt.Equals, 1)
+		c.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 1)
+
+		// the real page
+		b.AssertFileContent("public/blog/page/index.html", "For some moments the old man")
+		// the alias redirectors
+		b.AssertFileContent("public/foo/bar/index.html", "<meta http-equiv=\"refresh\" content=\"0; url="+test.urlPrefix+"/blog/page/\" />")
+		b.AssertFileContent("public/blog/rel/index.html", "<meta http-equiv=\"refresh\" content=\"0; url="+test.urlPrefix+"/blog/page/\" />")
+	}
 }
 
 func TestAliasMultipleOutputFormats(t *testing.T) {

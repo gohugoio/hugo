@@ -99,8 +99,11 @@ func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, outputFo
 		OutputFormat: outputFormat,
 	}
 
-	return s.publisher.Publish(pd)
+	if s.Info.relativeURLs || s.Info.canonifyURLs {
+		pd.AbsURLPath = s.absURLPath(targetPath)
+	}
 
+	return s.publisher.Publish(pd)
 }
 
 func (a aliasHandler) targetPathAlias(src string) (string, error) {

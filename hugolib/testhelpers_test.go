@@ -277,9 +277,14 @@ func (s *sitesBuilder) WithSimpleConfigFile() *sitesBuilder {
 
 func (s *sitesBuilder) WithSimpleConfigFileAndBaseURL(baseURL string) *sitesBuilder {
 	s.T.Helper()
-	config := fmt.Sprintf("baseURL = %q", baseURL)
+	return s.WithSimpleConfigFileAndSettings(map[string]interface{}{"baseURL": baseURL})
+}
 
-	config = config + commonConfigSections
+func (s *sitesBuilder) WithSimpleConfigFileAndSettings(settings interface{}) *sitesBuilder {
+	s.T.Helper()
+	var buf bytes.Buffer
+	parser.InterfaceToConfig(settings, metadecoders.TOML, &buf)
+	config := buf.String() + commonConfigSections
 	return s.WithConfigFile("toml", config)
 }
 
