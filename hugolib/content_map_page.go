@@ -579,7 +579,6 @@ func (m *pageMap) attachPageToViews(s string, b *contentNode) {
 		if vals == nil {
 			continue
 		}
-
 		w := getParamToLower(b.p, viewName.plural+"_weight")
 		weight, err := cast.ToIntE(w)
 		if err != nil {
@@ -587,11 +586,12 @@ func (m *pageMap) attachPageToViews(s string, b *contentNode) {
 			// weight will equal zero, so let the flow continue
 		}
 
-		for _, v := range vals {
+		for i, v := range vals {
 			termKey := m.s.getTaxonomyKey(v)
 
 			bv := &contentNode{
 				viewInfo: &contentBundleViewInfo{
+					ordinal:    i,
 					name:       viewName,
 					termKey:    termKey,
 					termOrigin: v,

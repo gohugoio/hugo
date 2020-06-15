@@ -264,6 +264,7 @@ func (b *cmInsertKeyBuilder) newTopLevel() {
 }
 
 type contentBundleViewInfo struct {
+	ordinal    int
 	name       viewName
 	termKey    string
 	termOrigin string

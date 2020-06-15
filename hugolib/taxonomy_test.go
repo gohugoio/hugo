@@ -644,12 +644,12 @@ Cats Paginator {{ range $cats.Paginator.Pages }}{{ .RelPermalink }}|{{ end }}:EN
 Categories Pages: /categories/birds/|/categories/cats/|/categories/dogs/|/categories/funny/|/categories/gorillas/|:END
 Funny Pages: /section/p1/|/section/p2/|:END
 Cats Pages: /section/p1/|/section/|:END
-P1 Terms: /categories/cats/|/categories/funny/|:END
-Section Terms: /categories/birds/|/categories/cats/|/categories/dogs/|:END
+P1 Terms: /categories/funny/|/categories/cats/|:END
+Section Terms: /categories/cats/|/categories/dogs/|/categories/birds/|:END
 Home Terms: /categories/dogs/|/categories/gorillas/|:END
 Cats Paginator /section/p1/|/section/|:END
-Category Paginator /categories/birds/|/categories/cats/|/categories/dogs/|/categories/funny/|/categories/gorillas/|:END
-`)
+Category Paginator /categories/birds/|/categories/cats/|/categories/dogs/|/categories/funny/|/categories/gorillas/|:END`,
+	)
 	b.AssertFileContent("public/404.html", "\n404 Terms: :END\n\t")
 	b.AssertFileContent("public/categories/funny/index.xml", `<link>http://example.com/section/p1/</link>`)
 	b.AssertFileContent("public/categories/index.xml", `<link>http://example.com/categories/funny/</link>`)

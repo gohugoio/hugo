@@ -16,6 +16,8 @@ package page
 import (
 	"sort"
 
+	"github.com/gohugoio/hugo/common/collections"
+
 	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/compare"
@@ -37,6 +39,19 @@ type pageSorter struct {
 // pageBy is a closure used in the Sort.Less method.
 type pageBy func(p1, p2 Page) bool
 
+func getOrdinals(p1, p2 Page) (int, int) {
+	p1o, ok1 := p1.(collections.Order)
+	if !ok1 {
+		return -1, -1
+	}
+	p2o, ok2 := p2.(collections.Order)
+	if !ok2 {
+		return -1, -1
+	}
+
+	return p1o.Ordinal(), p2o.Ordinal()
+}
+
 // Sort stable sorts the pages given the receiver's sort order.
 func (by pageBy) Sort(pages Pages) {
 	ps := &pageSorter{
@@ -49,8 +64,12 @@ func (by pageBy) Sort(pages Pages) {
 var (
 
 	// DefaultPageSort is the default sort func for pages in Hugo:
-	// Order by Weight, Date, LinkTitle and then full file path.
+	// Order by Ordinal, Weight, Date, LinkTitle and then full file path.
 	DefaultPageSort = func(p1, p2 Page) bool {
+		o1, o2 := getOrdinals(p1, p2)
+		if o1 != o2 && o1 != -1 && o2 != -1 {
+			return o1 < o2
+		}
 		if p1.Weight() == p2.Weight() {
 			if p1.Date().Unix() == p2.Date().Unix() {
 				c := compare.Strings(p1.LinkTitle(), p2.LinkTitle())
