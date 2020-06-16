@@ -1296,13 +1296,11 @@ func (s *Site) readAndProcessContent(filenames ...string) error {
 
 	proc := newPagesProcessor(s.h, sourceSpec)
 
-	c := newPagesCollector(sourceSpec, s.h.content, s.Log, s.h.ContentChanges, proc, filenames...)
+	c := newPagesCollector(sourceSpec, s.h.getContentMaps(), s.Log, s.h.ContentChanges, proc, filenames...)
 
 	if err := c.Collect(); err != nil {
 		return err
 	}
-
-	s.h.content = newPageMaps(s.h)
 
 	return nil
 }

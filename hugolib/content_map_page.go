@@ -47,7 +47,6 @@ func newPageMaps(h *HugoSites) *pageMaps {
 		workers: para.New(h.numWorkers),
 		pmaps:   mps,
 	}
-
 }
 
 type pageMap struct {
