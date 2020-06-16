@@ -626,7 +626,7 @@ baseURL = "http://example.com/blog"
 
 paginate = 1
 
-disableKinds = ["section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404"]
+disableKinds = ["section", "term", "taxonomy", "RSS", "sitemap", "robotsTXT", "404"]
 
 [outputs]
 home = [ "HTML", "AMP", "Calendar" ]

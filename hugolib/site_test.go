@@ -1066,7 +1066,7 @@ func TestClassCollectorStress(t *testing.T) {
 	b := newTestSitesBuilder(t)
 	b.WithConfigFile("toml", `
 	
-disableKinds = ["home", "section", "taxonomy", "taxonomyTerm" ]
+disableKinds = ["home", "section", "term", "taxonomy" ]
 
 [languages]
 [languages.en]

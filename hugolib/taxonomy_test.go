@@ -167,16 +167,16 @@ permalinkeds:
 
 	for taxonomy, count := range taxonomyTermPageCounts {
 		msg := qt.Commentf(taxonomy)
-		term := s.getPage(page.KindTaxonomyTerm, taxonomy)
+		term := s.getPage(page.KindTaxonomy, taxonomy)
 		b.Assert(term, qt.Not(qt.IsNil), msg)
 		b.Assert(len(term.Pages()), qt.Equals, count, msg)
 
 		for _, p := range term.Pages() {
-			b.Assert(p.Kind(), qt.Equals, page.KindTaxonomy)
+			b.Assert(p.Kind(), qt.Equals, page.KindTerm)
 		}
 	}
 
-	cat1 := s.getPage(page.KindTaxonomy, "categories", "cat1")
+	cat1 := s.getPage(page.KindTerm, "categories", "cat1")
 	b.Assert(cat1, qt.Not(qt.IsNil))
 	if uglyURLs {
 		b.Assert(cat1.RelPermalink(), qt.Equals, "/blog/categories/cat1.html")
@@ -184,8 +184,8 @@ permalinkeds:
 		b.Assert(cat1.RelPermalink(), qt.Equals, "/blog/categories/cat1/")
 	}
 
-	pl1 := s.getPage(page.KindTaxonomy, "permalinkeds", "pl1")
-	permalinkeds := s.getPage(page.KindTaxonomyTerm, "permalinkeds")
+	pl1 := s.getPage(page.KindTerm, "permalinkeds", "pl1")
+	permalinkeds := s.getPage(page.KindTaxonomy, "permalinkeds")
 	b.Assert(pl1, qt.Not(qt.IsNil))
 	b.Assert(permalinkeds, qt.Not(qt.IsNil))
 	if uglyURLs {
@@ -196,7 +196,7 @@ permalinkeds:
 		b.Assert(permalinkeds.RelPermalink(), qt.Equals, "/blog/permalinkeds/")
 	}
 
-	helloWorld := s.getPage(page.KindTaxonomy, "others", "hello-hugo-world")
+	helloWorld := s.getPage(page.KindTerm, "others", "hello-hugo-world")
 	b.Assert(helloWorld, qt.Not(qt.IsNil))
 	b.Assert(helloWorld.Title(), qt.Equals, "Hello Hugo world")
 
@@ -269,8 +269,8 @@ title: "This is S3s"
 		return pages
 	}
 
-	ta := filterbyKind(page.KindTaxonomy)
-	te := filterbyKind(page.KindTaxonomyTerm)
+	ta := filterbyKind(page.KindTerm)
+	te := filterbyKind(page.KindTaxonomy)
 
 	b.Assert(len(te), qt.Equals, 4)
 	b.Assert(len(ta), qt.Equals, 7)
@@ -637,7 +637,7 @@ Cats Paginator {{ range $cats.Paginator.Pages }}{{ .RelPermalink }}|{{ end }}:EN
 	b.Assert(funny, qt.Not(qt.IsNil))
 
 	b.Assert(cat.Parent().IsHome(), qt.Equals, true)
-	b.Assert(funny.Kind(), qt.Equals, "taxonomy")
+	b.Assert(funny.Kind(), qt.Equals, "term")
 	b.Assert(funny.Parent(), qt.Equals, cat)
 
 	b.AssertFileContent("public/index.html", `
@@ -697,13 +697,13 @@ abcdefgs: {{ template "print-page" $abcdefgs }}|IsAncestor: {{ $abcdefgs.IsAnces
     Page: /abcdefgh/|abcdefgh|section|Parent: /|CurrentSection: /abcdefgh/|
     Page: /abcdefgh/p1/|abcdefgh-p|page|Parent: /abcdefgh/|CurrentSection: /abcdefgh/|
     Page: /abcdefghijk/|abcdefghijk|page|Parent: /|CurrentSection: /|
-    Page: /abcdefghis/|Abcdefghis|taxonomyTerm|Parent: /|CurrentSection: /|
-    Page: /abcdefgs/|Abcdefgs|taxonomyTerm|Parent: /|CurrentSection: /|
-    Page: /abcdefs/|Abcdefs|taxonomyTerm|Parent: /|CurrentSection: /|
-    abc: /abcdefgs/abc/|abc|taxonomy|Parent: /abcdefgs/|CurrentSection: /abcdefgs/|
-    abcdefgs: /abcdefgs/|Abcdefgs|taxonomyTerm|Parent: /|CurrentSection: /|
-    abc: /abcdefgs/abc/|abc|taxonomy|Parent: /abcdefgs/|CurrentSection: /abcdefgs/|FirstSection: /|IsAncestor: false|IsDescendant: true
-    abcdefgs: /abcdefgs/|Abcdefgs|taxonomyTerm|Parent: /|CurrentSection: /|FirstSection: /|IsAncestor: true|IsDescendant: false
+    Page: /abcdefghis/|Abcdefghis|taxonomy|Parent: /|CurrentSection: /|
+    Page: /abcdefgs/|Abcdefgs|taxonomy|Parent: /|CurrentSection: /|
+    Page: /abcdefs/|Abcdefs|taxonomy|Parent: /|CurrentSection: /|
+    abc: /abcdefgs/abc/|abc|term|Parent: /abcdefgs/|CurrentSection: /abcdefgs/|
+    abcdefgs: /abcdefgs/|Abcdefgs|taxonomy|Parent: /|CurrentSection: /|
+    abc: /abcdefgs/abc/|abc|term|Parent: /abcdefgs/|CurrentSection: /abcdefgs/|FirstSection: /|IsAncestor: false|IsDescendant: true
+    abcdefgs: /abcdefgs/|Abcdefgs|taxonomy|Parent: /|CurrentSection: /|FirstSection: /|IsAncestor: true|IsDescendant: false
 `)
 
 }

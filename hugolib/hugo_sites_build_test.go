@@ -339,14 +339,14 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 
 	nnSite := sites[2]
 	c.Assert(nnSite.language.Lang, qt.Equals, "nn")
-	taxNn := nnSite.getPage(page.KindTaxonomyTerm, "lag")
+	taxNn := nnSite.getPage(page.KindTaxonomy, "lag")
 	c.Assert(taxNn, qt.Not(qt.IsNil))
 	c.Assert(len(taxNn.Translations()), qt.Equals, 1)
 	c.Assert(taxNn.Translations()[0].Language().Lang, qt.Equals, "nb")
 
-	taxTermNn := nnSite.getPage(page.KindTaxonomy, "lag", "sogndal")
+	taxTermNn := nnSite.getPage(page.KindTerm, "lag", "sogndal")
 	c.Assert(taxTermNn, qt.Not(qt.IsNil))
-	c.Assert(nnSite.getPage(page.KindTaxonomy, "LAG", "SOGNDAL"), qt.Equals, taxTermNn)
+	c.Assert(nnSite.getPage(page.KindTerm, "LAG", "SOGNDAL"), qt.Equals, taxTermNn)
 	c.Assert(len(taxTermNn.Translations()), qt.Equals, 1)
 	c.Assert(taxTermNn.Translations()[0].Language().Lang, qt.Equals, "nb")
 

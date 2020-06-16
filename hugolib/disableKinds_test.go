@@ -28,6 +28,7 @@ func TestDisable(t *testing.T) {
 		config := fmt.Sprintf(`
 baseURL = "http://example.com/blog"
 enableRobotsTXT = true
+ignoreErrors = ["error-disable-taxonomy"]
 disableKinds = [%q]
 `, disableKind)
 
@@ -141,7 +142,7 @@ title: Headless Local Lists Sub
 		b.Assert(len(s.Taxonomies()["categories"]), qt.Equals, 0)
 	})
 
-	disableKind = page.KindTaxonomy
+	disableKind = page.KindTerm
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
@@ -153,7 +154,7 @@ title: Headless Local Lists Sub
 		b.Assert(getPage(b, "/categories/mycat"), qt.IsNil)
 	})
 
-	disableKind = page.KindTaxonomyTerm
+	disableKind = page.KindTaxonomy
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
@@ -319,7 +320,7 @@ title: Headless Local Lists Sub
 // https://github.com/gohugoio/hugo/issues/6897#issuecomment-587947078
 func TestDisableRSSWithRSSInCustomOutputs(t *testing.T) {
 	b := newTestSitesBuilder(t).WithConfigFile("toml", `
-disableKinds = ["taxonomy", "taxonomyTerm", "RSS"]
+disableKinds = ["term", "taxonomy", "RSS"]
 [outputs]
 home = [ "HTML", "RSS" ]
 `).Build(BuildCfg{})

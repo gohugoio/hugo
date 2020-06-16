@@ -88,10 +88,10 @@ func TestLayout(t *testing.T) {
 			[]string{"sect1/sect1-baseof.amp.html", "sect1/section-baseof.amp.html", "sect1/list-baseof.amp.html", "sect1/baseof.amp.html", "sect1/sect1-baseof.html", "sect1/section-baseof.html", "sect1/list-baseof.html", "sect1/baseof.html"}, 24},
 		{"Section with layout", LayoutDescriptor{Kind: "section", Section: "sect1", Layout: "mylayout"}, "", ampType,
 			[]string{"sect1/mylayout.amp.html", "sect1/sect1.amp.html", "sect1/section.amp.html", "sect1/list.amp.html", "sect1/mylayout.html", "sect1/sect1.html"}, 24},
-		{"Taxonomy", LayoutDescriptor{Kind: "taxonomy", Section: "tag"}, "", ampType,
-			[]string{"taxonomy/tag.amp.html", "taxonomy/taxonomy.amp.html", "taxonomy/list.amp.html", "taxonomy/tag.html", "taxonomy/taxonomy.html"}, 18},
-		{"Taxonomy term", LayoutDescriptor{Kind: "taxonomyTerm", Section: "categories"}, "", ampType,
-			[]string{"taxonomy/categories.terms.amp.html", "taxonomy/terms.amp.html", "taxonomy/list.amp.html", "taxonomy/categories.terms.html", "taxonomy/terms.html"}, 18},
+		{"Term", LayoutDescriptor{Kind: "term", Section: "tags"}, "", ampType,
+			[]string{"term/term.amp.html", "term/tags.amp.html", "term/taxonomy.amp.html", "term/list.amp.html", "term/term.html", "term/tags.html", "term/taxonomy.html", "term/list.html", "taxonomy/term.amp.html", "taxonomy/tags.amp.html", "taxonomy/taxonomy.amp.html", "taxonomy/list.amp.html", "taxonomy/term.html", "taxonomy/tags.html", "taxonomy/taxonomy.html", "taxonomy/list.html", "tags/term.amp.html", "tags/tags.amp.html", "tags/taxonomy.amp.html", "tags/list.amp.html", "tags/term.html", "tags/tags.html", "tags/taxonomy.html", "tags/list.html", "_default/term.amp.html", "_default/tags.amp.html", "_default/taxonomy.amp.html", "_default/list.amp.html", "_default/term.html", "_default/tags.html", "_default/taxonomy.html", "_default/list.html"}, 32},
+		{"Taxonomy", LayoutDescriptor{Kind: "taxonomy", Section: "categories"}, "", ampType,
+			[]string{"categories/categories.terms.amp.html", "categories/terms.amp.html", "categories/taxonomy.amp.html", "categories/list.amp.html", "categories/categories.terms.html", "categories/terms.html", "categories/taxonomy.html", "categories/list.html", "taxonomy/categories.terms.amp.html", "taxonomy/terms.amp.html", "taxonomy/taxonomy.amp.html", "taxonomy/list.amp.html", "taxonomy/categories.terms.html", "taxonomy/terms.html", "taxonomy/taxonomy.html", "taxonomy/list.html", "_default/categories.terms.amp.html", "_default/terms.amp.html", "_default/taxonomy.amp.html", "_default/list.amp.html", "_default/categories.terms.html", "_default/terms.html", "_default/taxonomy.html", "_default/list.html"}, 24},
 		{"Page", LayoutDescriptor{Kind: "page"}, "", ampType,
 			[]string{"_default/single.amp.html", "_default/single.html"}, 2},
 		{"Page, baseof", LayoutDescriptor{Kind: "page", Baseof: true}, "", ampType,
@@ -111,10 +111,10 @@ func TestLayout(t *testing.T) {
 			[]string{"index-baseof.rss.xml", "home-baseof.rss.xml", "list-baseof.rss.xml", "baseof.rss.xml"}, 16},
 		{"RSS Section", LayoutDescriptor{Kind: "section", Section: "sect1"}, "", RSSFormat,
 			[]string{"sect1/sect1.rss.xml", "sect1/section.rss.xml", "sect1/rss.xml", "sect1/list.rss.xml", "sect1/sect1.xml", "sect1/section.xml"}, 22},
+		{"RSS Term", LayoutDescriptor{Kind: "term", Section: "tag"}, "", RSSFormat,
+			[]string{"term/term.rss.xml", "term/tag.rss.xml", "term/taxonomy.rss.xml", "term/rss.xml", "term/list.rss.xml", "term/term.xml", "term/tag.xml", "term/taxonomy.xml", "term/list.xml"}, 37},
 		{"RSS Taxonomy", LayoutDescriptor{Kind: "taxonomy", Section: "tag"}, "", RSSFormat,
-			[]string{"taxonomy/tag.rss.xml", "taxonomy/taxonomy.rss.xml", "taxonomy/rss.xml", "taxonomy/list.rss.xml", "taxonomy/tag.xml", "taxonomy/taxonomy.xml"}, 22},
-		{"RSS Taxonomy term", LayoutDescriptor{Kind: "taxonomyTerm", Section: "tag"}, "", RSSFormat,
-			[]string{"taxonomy/tag.terms.rss.xml", "taxonomy/terms.rss.xml", "taxonomy/rss.xml", "taxonomy/list.rss.xml", "taxonomy/tag.terms.xml"}, 22},
+			[]string{"tag/tag.terms.rss.xml", "tag/terms.rss.xml", "tag/taxonomy.rss.xml", "tag/rss.xml", "tag/list.rss.xml", "tag/tag.terms.xml", "tag/terms.xml", "tag/taxonomy.xml", "tag/list.xml", "taxonomy/tag.terms.rss.xml", "taxonomy/terms.rss.xml", "taxonomy/taxonomy.rss.xml", "taxonomy/rss.xml", "taxonomy/list.rss.xml", "taxonomy/tag.terms.xml", "taxonomy/terms.xml", "taxonomy/taxonomy.xml", "taxonomy/list.xml", "_default/tag.terms.rss.xml", "_default/terms.rss.xml", "_default/taxonomy.rss.xml", "_default/rss.xml", "_default/list.rss.xml", "_default/tag.terms.xml", "_default/terms.xml", "_default/taxonomy.xml", "_default/list.xml", "_internal/_default/rss.xml"}, 28},
 		{"Home plain text", LayoutDescriptor{Kind: "home"}, "", JSONFormat,
 			[]string{"index.json.json", "home.json.json"}, 12},
 		{"Page plain text", LayoutDescriptor{Kind: "page"}, "", JSONFormat,
@@ -157,7 +157,7 @@ func TestLayout(t *testing.T) {
 
 func BenchmarkLayout(b *testing.B) {
 	c := qt.New(b)
-	descriptor := LayoutDescriptor{Kind: "taxonomyTerm", Section: "categories"}
+	descriptor := LayoutDescriptor{Kind: "taxonomy", Section: "categories"}
 	l := NewLayoutHandler()
 
 	for i := 0; i < b.N; i++ {

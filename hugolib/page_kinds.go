@@ -22,7 +22,7 @@ import (
 var (
 
 	// This is all the kinds we can expect to find in .Site.Pages.
-	allKindsInPages = []string{page.KindPage, page.KindHome, page.KindSection, page.KindTaxonomy, page.KindTaxonomyTerm}
+	allKindsInPages = []string{page.KindPage, page.KindHome, page.KindSection, page.KindTerm, page.KindTaxonomy}
 )
 
 const (

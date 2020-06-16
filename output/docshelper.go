@@ -60,14 +60,14 @@ func createLayoutExamples() interface{} {
 		{"JSON home", LayoutDescriptor{Kind: "home", Type: "page"}, JSONFormat},
 		{"RSS home", LayoutDescriptor{Kind: "home", Type: "page"}, RSSFormat},
 		{"RSS section posts", LayoutDescriptor{Kind: "section", Type: "posts"}, RSSFormat},
-		{"Taxonomy list in categories", LayoutDescriptor{Kind: "taxonomy", Type: "categories", Section: "category"}, RSSFormat},
-		{"Taxonomy terms in categories", LayoutDescriptor{Kind: "taxonomyTerm", Type: "categories", Section: "category"}, RSSFormat},
+		{"Taxonomy in categories", LayoutDescriptor{Kind: "taxonomy", Type: "categories", Section: "category"}, RSSFormat},
+		{"Term in categories", LayoutDescriptor{Kind: "term", Type: "categories", Section: "category"}, RSSFormat},
 		{"Section list for \"posts\" section", LayoutDescriptor{Kind: "section", Type: "posts", Section: "posts"}, HTMLFormat},
 		{"Section list for \"posts\" section with type set to \"blog\"", LayoutDescriptor{Kind: "section", Type: "blog", Section: "posts"}, HTMLFormat},
 		{"Section list for \"posts\" section with layout set to \"demoLayout\"", LayoutDescriptor{Kind: "section", Layout: demoLayout, Section: "posts"}, HTMLFormat},
 
 		{"Taxonomy list in categories", LayoutDescriptor{Kind: "taxonomy", Type: "categories", Section: "category"}, HTMLFormat},
-		{"Taxonomy term in categories", LayoutDescriptor{Kind: "taxonomyTerm", Type: "categories", Section: "category"}, HTMLFormat},
+		{"Taxonomy term in categories", LayoutDescriptor{Kind: "term", Type: "categories", Section: "category"}, HTMLFormat},
 	} {
 
 		l := NewLayoutHandler()

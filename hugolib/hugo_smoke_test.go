@@ -27,7 +27,7 @@ func TestHello(t *testing.T) {
 	b := newTestSitesBuilder(t)
 	b.WithConfigFile("toml", `
 baseURL="https://example.org"
-disableKinds = ["taxonomy", "taxonomyTerm", "section", "page"]
+disableKinds = ["term", "taxonomy", "section", "page"]
 `)
 	b.WithContent("p1", `
 ---

@@ -49,7 +49,7 @@ baseURL = "http://example.com/blog"
 paginate = 1
 defaultContentLanguage = "en"
 
-disableKinds = ["section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404"]
+disableKinds = ["section", "term", "taxonomy", "RSS", "sitemap", "robotsTXT", "404"]
 
 [Taxonomies]
 tag = "tags"
@@ -226,7 +226,7 @@ baseURL = "http://example.com/blog"
 paginate = 1
 defaultContentLanguage = "en"
 
-disableKinds = ["page", "section", "taxonomy", "taxonomyTerm", "sitemap", "robotsTXT", "404"]
+disableKinds = ["page", "section", "term", "taxonomy", "sitemap", "robotsTXT", "404"]
 
 [outputFormats]
 [outputFormats.RSS]
@@ -263,7 +263,7 @@ baseURL = "http://example.com/blog"
 paginate = 1
 defaultContentLanguage = "en"
 
-disableKinds = ["page", "section", "taxonomy", "taxonomyTerm", "sitemap", "robotsTXT", "404"]
+disableKinds = ["page", "section", "term", "taxonomy", "sitemap", "robotsTXT", "404"]
 
 [mediaTypes]
 [mediaTypes."text/nodot"]
@@ -341,14 +341,14 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 		cfg := viper.New()
 		cfg.Set("outputs", outputsConfig)
 
-		outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg, false)
+		outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
 		c.Assert(err, qt.IsNil)
 		c.Assert(outputs[page.KindSection], deepEqualsOutputFormats, output.Formats{output.JSONFormat})
 		c.Assert(outputs[page.KindHome], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.JSONFormat})
 
 		// Defaults
+		c.Assert(outputs[page.KindTerm], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.RSSFormat})
 		c.Assert(outputs[page.KindTaxonomy], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.RSSFormat})
-		c.Assert(outputs[page.KindTaxonomyTerm], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.RSSFormat})
 		c.Assert(outputs[page.KindPage], deepEqualsOutputFormats, output.Formats{output.HTMLFormat})
 
 		// These aren't (currently) in use when rendering in Hugo,
@@ -367,13 +367,15 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 		cfg := viper.New()
 
 		outputsConfig := map[string]interface{}{
+			// Note that we in Hugo 0.53.0 renamed this Kind to "taxonomy",
+			// but keep this test to test the legacy mapping.
 			"taxonomyterm": []string{"JSON"},
 		}
 		cfg.Set("outputs", outputsConfig)
 
-		outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg, false)
+		outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
 		c.Assert(err, qt.IsNil)
-		c.Assert(outputs[page.KindTaxonomyTerm], deepEqualsOutputFormats, output.Formats{output.JSONFormat})
+		c.Assert(outputs[page.KindTaxonomy], deepEqualsOutputFormats, output.Formats{output.JSONFormat})
 
 	})
 
@@ -389,7 +391,7 @@ func TestCreateSiteOutputFormatsInvalidConfig(t *testing.T) {
 	cfg := viper.New()
 	cfg.Set("outputs", outputsConfig)
 
-	_, err := createSiteOutputFormats(output.DefaultFormats, cfg, false)
+	_, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
 	c.Assert(err, qt.Not(qt.IsNil))
 }
 
@@ -403,7 +405,7 @@ func TestCreateSiteOutputFormatsEmptyConfig(t *testing.T) {
 	cfg := viper.New()
 	cfg.Set("outputs", outputsConfig)
 
-	outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg, false)
+	outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
 	c.Assert(err, qt.IsNil)
 	c.Assert(outputs[page.KindHome], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.RSSFormat})
 }
@@ -423,7 +425,7 @@ func TestCreateSiteOutputFormatsCustomFormats(t *testing.T) {
 		customHTML = output.Format{Name: "HTML", BaseName: "customHTML"}
 	)
 
-	outputs, err := createSiteOutputFormats(output.Formats{customRSS, customHTML}, cfg, false)
+	outputs, err := createSiteOutputFormats(output.Formats{customRSS, customHTML}, cfg.GetStringMap("outputs"), false)
 	c.Assert(err, qt.IsNil)
 	c.Assert(outputs[page.KindHome], deepEqualsOutputFormats, output.Formats{customHTML, customRSS})
 }

@@ -451,8 +451,8 @@ Draft5: {{ if (.Site.GetPage "blog/draftsection/sub/page") }}FOUND{{ end }}|
         Pages: /blog/page3/|/blog/subsection/|/blog/page2/|/blog/page1/|/blog/bundle/|
         Sections: /blog/|/docs/|
         Categories: /categories/funny/; funny; 11|
-        Category Terms:  taxonomyTerm: /categories/funny/; funny; 11|
- 		Category Funny:  taxonomy; funny: /blog/subsection/page4/;|/blog/page3/;|/blog/subsection/;|/blog/page2/;|/blog/page1/;|/blog/subsection/page5/;|/docs/page6/;|/blog/bundle/;|;|
+        Category Terms:  taxonomy: /categories/funny/; funny; 11|
+ 		Category Funny:  term; funny: /blog/subsection/page4/;|/blog/page3/;|/blog/subsection/;|/blog/page2/;|/blog/page1/;|/blog/subsection/page5/;|/docs/page6/;|/blog/bundle/;|;|
  		Pag Num Pages: 7
         Pag Blog Num Pages: 4
         Blog Num RegularPages: 4

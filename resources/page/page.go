@@ -151,7 +151,7 @@ type PageMetaProvider interface {
 	// Configured keywords.
 	Keywords() []string
 
-	// The Page Kind. One of page, home, section, taxonomy, taxonomyTerm.
+	// The Page Kind. One of page, home, section, taxonomy, term.
 	Kind() string
 
 	// The configured layout to use to render this page. Typically set in front matter.
