@@ -20,7 +20,7 @@ deprecated: false
 draft: false
 aliases: []
 ---
-  
+
 `hugo` returns an instance that contains the following functions:
 
 hugo.Generator
@@ -29,7 +29,7 @@ hugo.Generator
 hugo.Version
 : the current version of the Hugo binary you are using e.g. `0.63.2`
 
-  
+
 `hugo` returns an instance that contains the following functions:
 
 hugo.Environment

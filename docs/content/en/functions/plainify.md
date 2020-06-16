@@ -14,7 +14,7 @@ keywords: [strings]
 signature: ["plainify INPUT"]
 workson: []
 hugoversion:
-relatedfuncs: [jsonify,]
+relatedfuncs: [jsonify]
 deprecated: false
 aliases: []
 ---
@@ -25,7 +25,4 @@ aliases: []
 
 See also the `.PlainWords`, `.Plain`, and `.RawContent` [page variables][pagevars].
 
-
 [pagevars]: /variables/page/
-
-

@@ -15,7 +15,6 @@ Delete the Hugo Module cache for the current project.
 Note that after you run this command, all of your dependencies will be re-downloaded next time you run "hugo".
 
 Also note that if you configure a positive maxAge for the "modules" file cache, it will also be cleaned as part of "hugo --gc".
- 
 
 
 ```

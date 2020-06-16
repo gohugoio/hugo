@@ -33,9 +33,9 @@ The `.File` object contains the following fields:
 .File.TranslationBaseName
 : the filename without extension or optional language identifier (e.g., `foo`)
 
-.File.ContentBaseName 
+.File.ContentBaseName
 : is a either TranslationBaseName or name of containing folder if file is a leaf bundle.
-  
+
 .File.BaseFileName
 : the filename without extension (e.g., `foo.en`)
 

@@ -15,7 +15,7 @@ Hugo addresses all these needs, coupled with [Forestry.io](https://forestry.io/)
 
 
 ## What we liked
-- The **multilingual** content support, especially simpel to setup.
+- The **multilingual** content support, especially simple to setup.
 - The **multiple environments** support (develop, staging, test, production, ...).
 - Although a hard start with the Go language, the power of the **Hugo's templating**.
 - The **partial layouts**, including the `internals` (e.g. social metas).

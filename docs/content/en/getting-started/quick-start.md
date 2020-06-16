@@ -58,7 +58,7 @@ The above will create a new Hugo site in a folder named `quickstart`.
 
 See [themes.gohugo.io](https://themes.gohugo.io/) for a list of themes to consider. This quickstart uses the beautiful [Ananke theme](https://themes.gohugo.io/gohugo-theme-ananke/).
 
-First, download the theme from Github and add it to your site's `theme` directory:
+First, download the theme from GitHub and add it to your site's `theme` directory:
 
 ```bash
 cd quickstart
@@ -83,7 +83,7 @@ echo 'theme = "ananke"' >> config.toml
 
 ## Step 4: Add Some Content
 
-You can manually create content files (for example as `content/<CATEGORY>/<FILE>.<FORMAT>`) and provide metadata in them, however you can use the `new` command to do few things for you (like add title and date):
+You can manually create content files (for example as `content/<CATEGORY>/<FILE>.<FORMAT>`) and provide metadata in them, however you can use the `new` command to do a few things for you (like add title and date):
 
 ```
 hugo new posts/my-first-post.md

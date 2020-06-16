@@ -15,7 +15,7 @@ We would really appreciate if you could:
 
 1. Fork https://github.com/gohugoio/hugoDocs
 2. Run `hugo new showcase/your-site` (this requires >= Hugo 0.49). This will use the archetype bundle in the [docs repo](https://github.com/gohugoio/hugoDocs/tree/master/archetypes).
-3. Follow the instructions in the newly created page bundle. 
+3. Follow the instructions in the newly created page bundle.
 3. Create a new pull request in https://github.com/gohugoio/hugoDocs/pulls
 
 

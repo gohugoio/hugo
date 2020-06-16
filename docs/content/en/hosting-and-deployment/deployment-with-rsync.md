@@ -58,7 +58,7 @@ Next, execute this command to generate a new keypair called `rsa_id`:
 
 You'll be prompted for a passphrase, which is an extra layer of protection. Enter the passphrase you'd like to use, and then enter it again when prompted, or leave it blank if you don't want to have a passphrase. Not using a passphrase will let you transfer files non-interactively, as you won't be prompted for a password when you log in, but it is slightly less secure.
 
-To make logging in easier, add a definition for your web host to the file  `~/.ssh/config` with the following command, replacing `HOST` with the IP address or hostname of your web host, and `USER` with the username you use to log in to your web host when transfering files:
+To make logging in easier, add a definition for your web host to the file  `~/.ssh/config` with the following command, replacing `HOST` with the IP address or hostname of your web host, and `USER` with the username you use to log in to your web host when transferring files:
 
 ```
 ~/.ssh/$ cat >> config <<EOF
