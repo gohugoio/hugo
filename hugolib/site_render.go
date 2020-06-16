@@ -338,7 +338,7 @@ func (s *Site) renderAliases() error {
 				if isRelative {
 					// Make alias relative, where "." will be on the
 					// same directory level as the current page.
-					basePath := path.Join(of.RelPermalink(), "..")
+					basePath := path.Join(p.targetPaths().SubResourceBaseLink, "..")
 					a = path.Join(basePath, a)
 
 				} else {

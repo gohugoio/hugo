@@ -52,6 +52,7 @@ func TestAlias(t *testing.T) {
 		settings   map[string]interface{}
 	}{
 		{"/index.html", "http://example.com", "/", map[string]interface{}{"baseURL": "http://example.com"}},
+		{"/index.html", "http://example.com/some/path", "/", map[string]interface{}{"baseURL": "http://example.com/some/path"}},
 		{"/index.html", "http://example.com", "/", map[string]interface{}{"baseURL": "http://example.com", "canonifyURLs": true}},
 		{"/index.html", "../..", "/", map[string]interface{}{"relativeURLs": true}},
 		{".html", "", ".html", map[string]interface{}{"uglyURLs": true}},
