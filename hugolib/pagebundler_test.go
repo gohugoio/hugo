@@ -1145,7 +1145,7 @@ func TestPageBundlerPartialTranslations(t *testing.T) {
 baseURL = "https://example.org"
 defaultContentLanguage = "en"
 defaultContentLanguageInSubDir = true
-disableKinds = ["taxonomyTerm", "taxonomy"]
+disableKinds = ["taxonomy", "term"]
 [languages]
 [languages.nn]
 languageName = "Nynorsk"

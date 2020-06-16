@@ -61,13 +61,13 @@ func TestCascade(t *testing.T) {
 		b.Build(BuildCfg{})
 
 		b.AssertFileContent("public/index.html", `
-12|taxonomy|categories/cool/_index.md|Cascade Category|cat.png|categories|HTML-|
-12|taxonomy|categories/catsect1|catsect1|cat.png|categories|HTML-|
-12|taxonomy|categories/funny|funny|cat.png|categories|HTML-|
-12|taxonomyTerm|categories/_index.md|My Categories|cat.png|categories|HTML-|
-32|taxonomy|categories/sad/_index.md|Cascade Category|sad.png|categories|HTML-|
-42|taxonomy|tags/blue|blue|home.png|tags|HTML-|
-42|taxonomyTerm|tags|Cascade Home|home.png|tags|HTML-|
+12|term|categories/cool/_index.md|Cascade Category|cat.png|categories|HTML-|
+12|term|categories/catsect1|catsect1|cat.png|categories|HTML-|
+12|term|categories/funny|funny|cat.png|categories|HTML-|
+12|taxonomy|categories/_index.md|My Categories|cat.png|categories|HTML-|
+32|term|categories/sad/_index.md|Cascade Category|sad.png|categories|HTML-|
+42|term|tags/blue|blue|home.png|tags|HTML-|
+42|taxonomy|tags|Cascade Home|home.png|tags|HTML-|
 42|section|sectnocontent|Cascade Home|home.png|sectnocontent|HTML-|
 42|section|sect3|Cascade Home|home.png|sect3|HTML-|
 42|page|bundle1/index.md|Cascade Home|home.png|page|HTML-|
@@ -77,7 +77,7 @@ func TestCascade(t *testing.T) {
 42|page|sect3/p1.md|Cascade Home|home.png|sect3|HTML-|
 42|page|sectnocontent/p1.md|Cascade Home|home.png|sectnocontent|HTML-|
 42|section|sectnofrontmatter/_index.md|Cascade Home|home.png|sectnofrontmatter|HTML-|
-42|taxonomy|tags/green|green|home.png|tags|HTML-|
+42|term|tags/green|green|home.png|tags|HTML-|
 42|home|_index.md|Home|home.png|page|HTML-|
 42|page|p1.md|p1|home.png|page|HTML-|
 42|section|sect1/_index.md|Sect1|sect1.png|stype|HTML-|

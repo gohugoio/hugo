@@ -895,7 +895,7 @@ h1 {
 
 	newTestBuilder := func(v *viper.Viper) *sitesBuilder {
 		v.Set("workingDir", workDir)
-		v.Set("disableKinds", []string{"taxonomyTerm", "taxonomy", "page"})
+		v.Set("disableKinds", []string{"taxonomy", "term", "page"})
 		b := newTestSitesBuilder(t).WithLogger(loggers.NewWarningLogger())
 		// Need to use OS fs for this.
 		b.Fs = hugofs.NewDefault(v)

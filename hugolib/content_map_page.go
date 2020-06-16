@@ -106,7 +106,7 @@ func (m *pageMap) newPageFromContentNode(n *contentNode, parentBucket *pagesMapB
 	sections := s.sectionsFromFile(f)
 
 	kind := s.kindFromFileInfoOrSections(f, sections)
-	if kind == page.KindTaxonomy {
+	if kind == page.KindTerm {
 		s.PathSpec.MakePathsSanitized(sections)
 	}
 
@@ -535,7 +535,7 @@ func (m *pageMap) assembleTaxonomies() error {
 			}
 		} else {
 			title := ""
-			if kind == page.KindTaxonomy {
+			if kind == page.KindTerm {
 				title = n.viewInfo.term()
 			}
 			n.p = m.s.newPage(n, parent.p.bucket, kind, title, sections...)

@@ -28,6 +28,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/constants"
+
+	"github.com/gohugoio/hugo/common/loggers"
+
 	"github.com/gohugoio/hugo/resources"
 
 	"github.com/gohugoio/hugo/identity"
@@ -397,10 +401,32 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 	if cfg.Language == nil {
 		cfg.Language = langs.NewDefaultLanguage(cfg.Cfg)
 	}
+	if cfg.Logger == nil {
+		panic("logger must be set")
+	}
+
+	ignoreErrors := cast.ToStringSlice(cfg.Language.Get("ignoreErrors"))
+	ignorableLogger := loggers.NewIgnorableLogger(cfg.Logger, ignoreErrors...)
 
 	disabledKinds := make(map[string]bool)
 	for _, disabled := range cast.ToStringSlice(cfg.Language.Get("disableKinds")) {
 		disabledKinds[disabled] = true
+	}
+
+	if disabledKinds["taxonomyTerm"] {
+		// Correct from the value it had before Hugo 0.73.0.
+		if disabledKinds[page.KindTaxonomy] {
+			disabledKinds[page.KindTerm] = true
+		} else {
+			disabledKinds[page.KindTaxonomy] = true
+		}
+
+		delete(disabledKinds, "taxonomyTerm")
+	} else if disabledKinds[page.KindTaxonomy] && !disabledKinds[page.KindTerm] {
+		// This is a potentially ambigous situation. It may be correct.
+		ignorableLogger.Errorf(constants.ErrIDAmbigousDisableKindTaxonomy, `You have the value 'taxonomy' in the disabledKinds list. In Hugo 0.73.0 we fixed these to be what most people expect (taxonomy and term).
+But this also means that your site configuration may not do what you expect. If it is correct, you can suppress this message by following the instructions below.`)
+
 	}
 
 	var (
@@ -444,7 +470,30 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		siteOutputFormatsConfig = tmp
 	}
 
-	outputFormats, err := createSiteOutputFormats(siteOutputFormatsConfig, cfg.Language, rssDisabled)
+	var siteOutputs map[string]interface{}
+	if cfg.Language.IsSet("outputs") {
+		siteOutputs = cfg.Language.GetStringMap("outputs")
+
+		// Check and correct taxonomy kinds vs pre Hugo 0.73.0.
+		v1, hasTaxonomyTerm := siteOutputs["taxonomyterm"]
+		v2, hasTaxonomy := siteOutputs[page.KindTaxonomy]
+		_, hasTerm := siteOutputs[page.KindTerm]
+		if hasTaxonomy && hasTaxonomyTerm {
+			siteOutputs[page.KindTaxonomy] = v1
+			siteOutputs[page.KindTerm] = v2
+			delete(siteOutputs, "taxonomyTerm")
+		} else if hasTaxonomy && !hasTerm {
+			// This is a potentially ambigous situation. It may be correct.
+			ignorableLogger.Errorf(constants.ErrIDAmbigousOutputKindTaxonomy, `You have configured output formats for 'taxonomy' in your site configuration. In Hugo 0.73.0 we fixed these to be what most people expect (taxonomy and term).
+But this also means that your site configuration may not do what you expect. If it is correct, you can suppress this message by following the instructions below.`)
+		}
+		if !hasTaxonomy && hasTaxonomyTerm {
+			siteOutputs[page.KindTaxonomy] = v1
+			delete(siteOutputs, "taxonomyterm")
+		}
+	}
+
+	outputFormats, err := createSiteOutputFormats(siteOutputFormatsConfig, siteOutputs, rssDisabled)
 	if err != nil {
 		return nil, err
 	}
@@ -1708,11 +1757,11 @@ func (s *Site) kindFromSections(sections []string) string {
 func (s *Site) kindFromSectionPath(sectionPath string) string {
 	for _, plural := range s.siteCfg.taxonomiesConfig {
 		if plural == sectionPath {
-			return page.KindTaxonomyTerm
+			return page.KindTaxonomy
 		}
 
 		if strings.HasPrefix(sectionPath, plural) {
-			return page.KindTaxonomy
+			return page.KindTerm
 		}
 
 	}

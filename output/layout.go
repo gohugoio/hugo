@@ -160,20 +160,22 @@ func resolvePageTemplate(d LayoutDescriptor, f Format) []string {
 		}
 		b.addSectionType()
 		b.addKind()
-	case "taxonomy":
+	case "term":
+		b.addKind()
 		if d.Section != "" {
 			b.addLayoutVariations(d.Section)
 		}
-		b.addKind()
+		b.addLayoutVariations("taxonomy")
+		b.addTypeVariations("taxonomy")
 		b.addSectionType()
-
-	case "taxonomyTerm":
+	case "taxonomy":
 		if d.Section != "" {
 			b.addLayoutVariations(d.Section + ".terms")
 		}
-		b.addTypeVariations("taxonomy")
 		b.addSectionType()
 		b.addLayoutVariations("terms")
+		// For legacy reasons this is deliberately put last.
+		b.addKind()
 	case "404":
 		b.addLayoutVariations("404")
 		b.addTypeVariations("")

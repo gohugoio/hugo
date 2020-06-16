@@ -27,9 +27,9 @@ func TestKind(t *testing.T) {
 	c.Assert(KindHome, qt.Equals, "home")
 	c.Assert(KindSection, qt.Equals, "section")
 	c.Assert(KindTaxonomy, qt.Equals, "taxonomy")
-	c.Assert(KindTaxonomyTerm, qt.Equals, "taxonomyTerm")
+	c.Assert(KindTerm, qt.Equals, "term")
 
-	c.Assert(GetKind("TAXONOMYTERM"), qt.Equals, KindTaxonomyTerm)
+	c.Assert(GetKind("TAXONOMYTERM"), qt.Equals, KindTaxonomy)
 	c.Assert(GetKind("Taxonomy"), qt.Equals, KindTaxonomy)
 	c.Assert(GetKind("Page"), qt.Equals, KindPage)
 	c.Assert(GetKind("Home"), qt.Equals, KindHome)

@@ -171,7 +171,7 @@ func (pt pageTree) Parent() page.Page {
 
 	tree := p.getTreeRef()
 
-	if tree == nil || pt.p.Kind() == page.KindTaxonomyTerm {
+	if tree == nil || pt.p.Kind() == page.KindTaxonomy {
 		return pt.p.s.home
 	}
 

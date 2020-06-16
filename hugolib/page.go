@@ -212,9 +212,9 @@ func (p *pageState) RegularPages() page.Pages {
 
 		switch p.Kind() {
 		case page.KindPage:
-		case page.KindSection, page.KindHome, page.KindTaxonomyTerm:
+		case page.KindSection, page.KindHome, page.KindTaxonomy:
 			pages = p.getPages()
-		case page.KindTaxonomy:
+		case page.KindTerm:
 			all := p.Pages()
 			for _, p := range all {
 				if p.IsPage() {
@@ -240,9 +240,9 @@ func (p *pageState) Pages() page.Pages {
 		case page.KindPage:
 		case page.KindSection, page.KindHome:
 			pages = p.getPagesAndSections()
-		case page.KindTaxonomy:
+		case page.KindTerm:
 			pages = p.bucket.getTaxonomyEntries()
-		case page.KindTaxonomyTerm:
+		case page.KindTaxonomy:
 			pages = p.bucket.getTaxonomies()
 		default:
 			pages = p.s.Pages()
@@ -436,7 +436,7 @@ func (p *pageState) getLayoutDescriptor() output.LayoutDescriptor {
 			if len(sections) > 0 {
 				section = sections[0]
 			}
-		case page.KindTaxonomyTerm, page.KindTaxonomy:
+		case page.KindTaxonomy, page.KindTerm:
 			b := p.getTreeRef().n
 			section = b.viewInfo.name.singular
 		default:

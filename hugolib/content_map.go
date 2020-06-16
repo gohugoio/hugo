@@ -274,13 +274,13 @@ type contentBundleViewInfo struct {
 
 func (c *contentBundleViewInfo) kind() string {
 	if c.termKey != "" {
-		return page.KindTaxonomy
+		return page.KindTerm
 	}
-	return page.KindTaxonomyTerm
+	return page.KindTaxonomy
 }
 
 func (c *contentBundleViewInfo) sections() []string {
-	if c.kind() == page.KindTaxonomyTerm {
+	if c.kind() == page.KindTaxonomy {
 		return []string{c.name.plural}
 	}
 

@@ -52,7 +52,7 @@ type pageMeta struct {
 	// in the different page collections. This can, as an example, be used
 	// to to filter regular pages, find sections etc.
 	// Kind will, for the pages available to the templates, be one of:
-	// page, home, section, taxonomy and taxonomyTerm.
+	// page, home, section, taxonomy and term.
 	// It is of string type to make it easy to reason about in
 	// the templates.
 	kind string
@@ -678,11 +678,11 @@ func (p *pageMeta) applyDefaultValues(n *contentNode) error {
 			} else {
 				p.title = sectionName
 			}
-		case page.KindTaxonomy:
+		case page.KindTerm:
 			// TODO(bep) improve
 			key := p.sections[len(p.sections)-1]
 			p.title = strings.Replace(p.s.titleFunc(key), "-", " ", -1)
-		case page.KindTaxonomyTerm:
+		case page.KindTaxonomy:
 			p.title = p.s.titleFunc(p.sections[0])
 		case kind404:
 			p.title = "404 Page not found"

@@ -443,8 +443,8 @@ func applyDeps(cfg deps.DepsCfg, sites ...*Site) error {
 				contentMap: newContentMap(contentMapConfig{
 					lang:                 s.Lang(),
 					taxonomyConfig:       s.siteCfg.taxonomiesConfig.Values(),
-					taxonomyDisabled:     !s.isEnabled(page.KindTaxonomy),
-					taxonomyTermDisabled: !s.isEnabled(page.KindTaxonomyTerm),
+					taxonomyDisabled:     !s.isEnabled(page.KindTerm),
+					taxonomyTermDisabled: !s.isEnabled(page.KindTaxonomy),
 					pageDisabled:         !s.isEnabled(page.KindPage),
 				}),
 				s: s,
@@ -493,6 +493,9 @@ func applyDeps(cfg deps.DepsCfg, sites ...*Site) error {
 
 // NewHugoSites creates HugoSites from the given config.
 func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
+	if cfg.Logger == nil {
+		cfg.Logger = loggers.NewErrorLogger()
+	}
 	sites, err := createSitesFromConfig(cfg)
 	if err != nil {
 		return nil, errors.Wrap(err, "from config")

@@ -82,7 +82,7 @@ class Car {
 
 	v := viper.New()
 	v.Set("workingDir", workDir)
-	v.Set("disableKinds", []string{"taxonomyTerm", "taxonomy", "page"})
+	v.Set("disableKinds", []string{"taxonomy", "term", "page"})
 	b := newTestSitesBuilder(t).WithLogger(loggers.NewWarningLogger())
 
 	// Need to use OS fs for this.

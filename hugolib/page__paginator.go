@@ -89,7 +89,7 @@ func (p *pagePaginator) Paginator(options ...interface{}) (*page.Pager, error) {
 			// section. To avoid the default paginators for the home page
 			// changing in the wild, we make this a special case.
 			pages = p.source.s.RegularPages()
-		case page.KindTaxonomy, page.KindTaxonomyTerm:
+		case page.KindTerm, page.KindTaxonomy:
 			pages = p.source.Pages()
 		default:
 			pages = p.source.RegularPages()

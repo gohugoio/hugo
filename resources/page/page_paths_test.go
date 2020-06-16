@@ -58,12 +58,12 @@ func TestPageTargetPath(t *testing.T) {
 						Sections: []string{"sect1"},
 						BaseName: "_index",
 						Type:     output.HTMLFormat}, TargetPaths{TargetFilename: "/sect1/index.html", SubResourceBaseTarget: "/sect1", Link: "/sect1/"}},
-					{"HTML taxonomy list", TargetPathDescriptor{
-						Kind:     KindTaxonomy,
+					{"HTML taxonomy term", TargetPathDescriptor{
+						Kind:     KindTerm,
 						Sections: []string{"tags", "hugo"},
 						BaseName: "_index",
 						Type:     output.HTMLFormat}, TargetPaths{TargetFilename: "/tags/hugo/index.html", SubResourceBaseTarget: "/tags/hugo", Link: "/tags/hugo/"}},
-					{"HTML taxonomy term", TargetPathDescriptor{
+					{"HTML taxonomy", TargetPathDescriptor{
 						Kind:     KindTaxonomy,
 						Sections: []string{"tags"},
 						BaseName: "_index",
@@ -143,8 +143,8 @@ func TestPageTargetPath(t *testing.T) {
 							Type:     output.HTMLFormat,
 							Addends:  "page/3"}, TargetPaths{TargetFilename: "/page/3/index.html", SubResourceBaseTarget: "/page/3", Link: "/page/3/"}},
 					{
-						"Paginated Taxonomy list", TargetPathDescriptor{
-							Kind:     KindTaxonomy,
+						"Paginated Taxonomy terms list", TargetPathDescriptor{
+							Kind:     KindTerm,
 							BaseName: "_index",
 							Sections: []string{"tags", "hugo"},
 							Type:     output.HTMLFormat,

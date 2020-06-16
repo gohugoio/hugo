@@ -279,8 +279,8 @@ func TestGetPage(t *testing.T) {
 		{"Abs, ignore context, page deep", "NoPage", sec3, []string{"/subsect/deep.md"}, ""},
 
 		// Taxonomies
-		{"Taxonomy term", page.KindTaxonomyTerm, nil, []string{"categories"}, "Categories"},
-		{"Taxonomy", page.KindTaxonomy, nil, []string{"categories/hugo", "categories/Hugo"}, "Hugo"},
+		{"Taxonomy term", page.KindTaxonomy, nil, []string{"categories"}, "Categories"},
+		{"Taxonomy", page.KindTerm, nil, []string{"categories/hugo", "categories/Hugo"}, "Hugo"},
 
 		// Bundle variants
 		{"Bundle regular", page.KindPage, nil, []string{"sect3/b1", "sect3/b1/index.md", "sect3/b1/index.en.md"}, "b1 bundle"},
