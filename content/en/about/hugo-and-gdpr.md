@@ -1,5 +1,3 @@
-
-
 ---
 title: Hugo and the  General Data Protection Regulation (GDPR)
 linktitle: Hugo and GDPR
@@ -98,7 +96,7 @@ useSessionStorage
 simple
 : If simple mode is enabled, a static and no-JS version of the Instagram image card will be built. Note that this only supports image cards and the image itself will be fetched from Instagram's servers.
 
-**Note:** If you use the _simple mode_ for Instagram and a site styled with Bootstrap 4, you may want to disable the inlines styles provided by Hugo:
+**Note:** If you use the _simple mode_ for Instagram and a site styled with Bootstrap 4, you may want to disable the inline styles provided by Hugo:
 
  {{< code-toggle file="config">}}
 [services]

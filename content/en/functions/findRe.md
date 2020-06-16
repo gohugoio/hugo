@@ -18,8 +18,7 @@ deprecated: false
 aliases: []
 ---
 
-
-By default all matches will be included. The number of matches can be limitted with an optional third parameter.
+By default all matches will be included. The number of matches can be limited with an optional third parameter.
 
 The example below returns a list of all second level headers (`<h2>`) in the content:
 
@@ -39,7 +38,6 @@ Hugo uses Go's [Regular Expression package](https://golang.org/pkg/regexp/), whi
 
 If you are just learning RegEx, or at least Go's flavor, you can practice pattern matching in the browser at <https://regex101.com/>.
 {{% /note %}}
-
 
 [partials]: /templates/partials/
 [`plainify`]: /functions/plainify/

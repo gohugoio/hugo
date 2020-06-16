@@ -22,7 +22,7 @@ toc: true
 See [Template Lookup Order](/templates/lookup-order/) for the complete reference.
 
 {{% note "Hugo Ships with an RSS Template" %}}
-Hugo ships with its own [RSS 2.0 template](#the-embedded-rss-xml). The embedded template will be sufficient for most use cases.
+Hugo ships with its own [RSS 2.0 template](#the-embedded-rssxml). The embedded template will be sufficient for most use cases.
 {{% /note %}}
 
 RSS pages are of the type `Page` and have all the [page variables](/variables/page/) available to use in the templates.

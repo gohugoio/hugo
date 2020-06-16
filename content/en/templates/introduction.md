@@ -357,7 +357,7 @@ The following two examples are functionally the same:
 
 ### Example 2: `index`
 
-The following accesses the page parameter called "disqus_url" and escapes the HTML. This example also uses the [`index` function][index], which is built into Go Templates:
+The following accesses the page parameter called "disqus_url" and escapes the HTML. This example also uses the [`index` function](/functions/index-function/), which is built into Go Templates:
 
 ```go-html-template
 {{ index .Params "disqus_url" | html }}

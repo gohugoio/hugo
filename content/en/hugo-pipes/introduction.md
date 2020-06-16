@@ -14,7 +14,7 @@ weight: 01
 sections_weight: 01
 draft: false
 aliases: [/assets/]
---- 
+---
 
 ### Asset directory
 

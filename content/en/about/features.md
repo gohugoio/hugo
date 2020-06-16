@@ -44,7 +44,7 @@ toc: true
 * Automatic and user defined [content summaries][]
 * [Shortcodes][] to enable rich content inside of Markdown
 * ["Minutes to Read"][pagevars] functionality
-* ["Wordcount"][pagevars] functionality
+* ["WordCount"][pagevars] functionality
 
 ## Additional Features
 
