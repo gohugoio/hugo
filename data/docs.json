@@ -481,6 +481,17 @@
         ]
       },
       {
+        "Name": "Gherkin",
+        "Aliases": [
+          "Cucumber",
+          "FEATURE",
+          "Gherkin",
+          "cucumber",
+          "feature",
+          "gherkin"
+        ]
+      },
+      {
         "Name": "Gnuplot",
         "Aliases": [
           "gnuplot",
@@ -526,6 +537,12 @@
         "Name": "HCL",
         "Aliases": [
           "hcl"
+        ]
+      },
+      {
+        "Name": "HLB",
+        "Aliases": [
+          "hlb"
         ]
       },
       {
@@ -999,6 +1016,15 @@
         ]
       },
       {
+        "Name": "ReasonML",
+        "Aliases": [
+          "re",
+          "reason",
+          "reasonml",
+          "rei"
+        ]
+      },
+      {
         "Name": "Rexx",
         "Aliases": [
           "arexx",
@@ -1025,6 +1051,13 @@
           "in",
           "rs",
           "rust"
+        ]
+      },
+      {
+        "Name": "SAS",
+        "Aliases": [
+          "SAS",
+          "sas"
         ]
       },
       {
@@ -1250,7 +1283,6 @@
         "Name": "TypoScript",
         "Aliases": [
           "ts",
-          "txt",
           "typoscript"
         ]
       },
@@ -1322,6 +1354,12 @@
         "Aliases": [
           "yaml",
           "yml"
+        ]
+      },
+      {
+        "Name": "YANG",
+        "Aliases": [
+          "yang"
         ]
       },
       {
@@ -1466,6 +1504,7 @@
           "keepDefaultAttrVals": true,
           "keepDocumentTags": true,
           "keepEndTags": true,
+          "keepQuotes": false,
           "keepWhitespace": false
         },
         "css": {
@@ -2257,75 +2296,100 @@
         ]
       },
       {
-        "Example": "Taxonomy list in categories",
+        "Example": "Taxonomy in categories",
         "Kind": "taxonomy",
         "OutputFormat": "RSS",
         "Suffix": "xml",
         "Template Lookup Order": [
-          "layouts/categories/category.rss.xml",
+          "layouts/categories/category.terms.rss.xml",
+          "layouts/categories/terms.rss.xml",
           "layouts/categories/taxonomy.rss.xml",
           "layouts/categories/rss.xml",
           "layouts/categories/list.rss.xml",
-          "layouts/categories/category.xml",
+          "layouts/categories/category.terms.xml",
+          "layouts/categories/terms.xml",
           "layouts/categories/taxonomy.xml",
           "layouts/categories/list.xml",
-          "layouts/taxonomy/category.rss.xml",
-          "layouts/taxonomy/taxonomy.rss.xml",
-          "layouts/taxonomy/rss.xml",
-          "layouts/taxonomy/list.rss.xml",
-          "layouts/taxonomy/category.xml",
-          "layouts/taxonomy/taxonomy.xml",
-          "layouts/taxonomy/list.xml",
-          "layouts/category/category.rss.xml",
+          "layouts/category/category.terms.rss.xml",
+          "layouts/category/terms.rss.xml",
           "layouts/category/taxonomy.rss.xml",
           "layouts/category/rss.xml",
           "layouts/category/list.rss.xml",
-          "layouts/category/category.xml",
+          "layouts/category/category.terms.xml",
+          "layouts/category/terms.xml",
           "layouts/category/taxonomy.xml",
           "layouts/category/list.xml",
-          "layouts/_default/category.rss.xml",
+          "layouts/taxonomy/category.terms.rss.xml",
+          "layouts/taxonomy/terms.rss.xml",
+          "layouts/taxonomy/taxonomy.rss.xml",
+          "layouts/taxonomy/rss.xml",
+          "layouts/taxonomy/list.rss.xml",
+          "layouts/taxonomy/category.terms.xml",
+          "layouts/taxonomy/terms.xml",
+          "layouts/taxonomy/taxonomy.xml",
+          "layouts/taxonomy/list.xml",
+          "layouts/_default/category.terms.rss.xml",
+          "layouts/_default/terms.rss.xml",
           "layouts/_default/taxonomy.rss.xml",
           "layouts/_default/rss.xml",
           "layouts/_default/list.rss.xml",
-          "layouts/_default/category.xml",
+          "layouts/_default/category.terms.xml",
+          "layouts/_default/terms.xml",
           "layouts/_default/taxonomy.xml",
           "layouts/_default/list.xml",
           "layouts/_internal/_default/rss.xml"
         ]
       },
       {
-        "Example": "Taxonomy terms in categories",
-        "Kind": "taxonomyTerm",
+        "Example": "Term in categories",
+        "Kind": "term",
         "OutputFormat": "RSS",
         "Suffix": "xml",
         "Template Lookup Order": [
-          "layouts/categories/category.terms.rss.xml",
-          "layouts/categories/terms.rss.xml",
+          "layouts/categories/term.rss.xml",
+          "layouts/categories/category.rss.xml",
+          "layouts/categories/taxonomy.rss.xml",
           "layouts/categories/rss.xml",
           "layouts/categories/list.rss.xml",
-          "layouts/categories/category.terms.xml",
-          "layouts/categories/terms.xml",
+          "layouts/categories/term.xml",
+          "layouts/categories/category.xml",
+          "layouts/categories/taxonomy.xml",
           "layouts/categories/list.xml",
-          "layouts/taxonomy/category.terms.rss.xml",
-          "layouts/taxonomy/terms.rss.xml",
+          "layouts/term/term.rss.xml",
+          "layouts/term/category.rss.xml",
+          "layouts/term/taxonomy.rss.xml",
+          "layouts/term/rss.xml",
+          "layouts/term/list.rss.xml",
+          "layouts/term/term.xml",
+          "layouts/term/category.xml",
+          "layouts/term/taxonomy.xml",
+          "layouts/term/list.xml",
+          "layouts/taxonomy/term.rss.xml",
+          "layouts/taxonomy/category.rss.xml",
+          "layouts/taxonomy/taxonomy.rss.xml",
           "layouts/taxonomy/rss.xml",
           "layouts/taxonomy/list.rss.xml",
-          "layouts/taxonomy/category.terms.xml",
-          "layouts/taxonomy/terms.xml",
+          "layouts/taxonomy/term.xml",
+          "layouts/taxonomy/category.xml",
+          "layouts/taxonomy/taxonomy.xml",
           "layouts/taxonomy/list.xml",
-          "layouts/category/category.terms.rss.xml",
-          "layouts/category/terms.rss.xml",
+          "layouts/category/term.rss.xml",
+          "layouts/category/category.rss.xml",
+          "layouts/category/taxonomy.rss.xml",
           "layouts/category/rss.xml",
           "layouts/category/list.rss.xml",
-          "layouts/category/category.terms.xml",
-          "layouts/category/terms.xml",
+          "layouts/category/term.xml",
+          "layouts/category/category.xml",
+          "layouts/category/taxonomy.xml",
           "layouts/category/list.xml",
-          "layouts/_default/category.terms.rss.xml",
-          "layouts/_default/terms.rss.xml",
+          "layouts/_default/term.rss.xml",
+          "layouts/_default/category.rss.xml",
+          "layouts/_default/taxonomy.rss.xml",
           "layouts/_default/rss.xml",
           "layouts/_default/list.rss.xml",
-          "layouts/_default/category.terms.xml",
-          "layouts/_default/terms.xml",
+          "layouts/_default/term.xml",
+          "layouts/_default/category.xml",
+          "layouts/_default/taxonomy.xml",
           "layouts/_default/list.xml",
           "layouts/_internal/_default/rss.xml"
         ]
@@ -2426,61 +2490,85 @@
         "OutputFormat": "HTML",
         "Suffix": "html",
         "Template Lookup Order": [
-          "layouts/categories/category.html.html",
+          "layouts/categories/category.terms.html.html",
+          "layouts/categories/terms.html.html",
           "layouts/categories/taxonomy.html.html",
           "layouts/categories/list.html.html",
-          "layouts/categories/category.html",
+          "layouts/categories/category.terms.html",
+          "layouts/categories/terms.html",
           "layouts/categories/taxonomy.html",
           "layouts/categories/list.html",
-          "layouts/taxonomy/category.html.html",
-          "layouts/taxonomy/taxonomy.html.html",
-          "layouts/taxonomy/list.html.html",
-          "layouts/taxonomy/category.html",
-          "layouts/taxonomy/taxonomy.html",
-          "layouts/taxonomy/list.html",
-          "layouts/category/category.html.html",
+          "layouts/category/category.terms.html.html",
+          "layouts/category/terms.html.html",
           "layouts/category/taxonomy.html.html",
           "layouts/category/list.html.html",
-          "layouts/category/category.html",
+          "layouts/category/category.terms.html",
+          "layouts/category/terms.html",
           "layouts/category/taxonomy.html",
           "layouts/category/list.html",
-          "layouts/_default/category.html.html",
+          "layouts/taxonomy/category.terms.html.html",
+          "layouts/taxonomy/terms.html.html",
+          "layouts/taxonomy/taxonomy.html.html",
+          "layouts/taxonomy/list.html.html",
+          "layouts/taxonomy/category.terms.html",
+          "layouts/taxonomy/terms.html",
+          "layouts/taxonomy/taxonomy.html",
+          "layouts/taxonomy/list.html",
+          "layouts/_default/category.terms.html.html",
+          "layouts/_default/terms.html.html",
           "layouts/_default/taxonomy.html.html",
           "layouts/_default/list.html.html",
-          "layouts/_default/category.html",
+          "layouts/_default/category.terms.html",
+          "layouts/_default/terms.html",
           "layouts/_default/taxonomy.html",
           "layouts/_default/list.html"
         ]
       },
       {
         "Example": "Taxonomy term in categories",
-        "Kind": "taxonomyTerm",
+        "Kind": "term",
         "OutputFormat": "HTML",
         "Suffix": "html",
         "Template Lookup Order": [
-          "layouts/categories/category.terms.html.html",
-          "layouts/categories/terms.html.html",
+          "layouts/categories/term.html.html",
+          "layouts/categories/category.html.html",
+          "layouts/categories/taxonomy.html.html",
           "layouts/categories/list.html.html",
-          "layouts/categories/category.terms.html",
-          "layouts/categories/terms.html",
+          "layouts/categories/term.html",
+          "layouts/categories/category.html",
+          "layouts/categories/taxonomy.html",
           "layouts/categories/list.html",
-          "layouts/taxonomy/category.terms.html.html",
-          "layouts/taxonomy/terms.html.html",
+          "layouts/term/term.html.html",
+          "layouts/term/category.html.html",
+          "layouts/term/taxonomy.html.html",
+          "layouts/term/list.html.html",
+          "layouts/term/term.html",
+          "layouts/term/category.html",
+          "layouts/term/taxonomy.html",
+          "layouts/term/list.html",
+          "layouts/taxonomy/term.html.html",
+          "layouts/taxonomy/category.html.html",
+          "layouts/taxonomy/taxonomy.html.html",
           "layouts/taxonomy/list.html.html",
-          "layouts/taxonomy/category.terms.html",
-          "layouts/taxonomy/terms.html",
+          "layouts/taxonomy/term.html",
+          "layouts/taxonomy/category.html",
+          "layouts/taxonomy/taxonomy.html",
           "layouts/taxonomy/list.html",
-          "layouts/category/category.terms.html.html",
-          "layouts/category/terms.html.html",
+          "layouts/category/term.html.html",
+          "layouts/category/category.html.html",
+          "layouts/category/taxonomy.html.html",
           "layouts/category/list.html.html",
-          "layouts/category/category.terms.html",
-          "layouts/category/terms.html",
+          "layouts/category/term.html",
+          "layouts/category/category.html",
+          "layouts/category/taxonomy.html",
           "layouts/category/list.html",
-          "layouts/_default/category.terms.html.html",
-          "layouts/_default/terms.html.html",
+          "layouts/_default/term.html.html",
+          "layouts/_default/category.html.html",
+          "layouts/_default/taxonomy.html.html",
           "layouts/_default/list.html.html",
-          "layouts/_default/category.terms.html",
-          "layouts/_default/terms.html",
+          "layouts/_default/term.html",
+          "layouts/_default/category.html",
+          "layouts/_default/taxonomy.html",
           "layouts/_default/list.html"
         ]
       }
@@ -3011,6 +3099,23 @@
         }
       },
       "crypto": {
+        "HMAC": {
+          "Description": "HMAC returns a cryptographic hash that uses a key to sign a message.",
+          "Args": [
+            "h",
+            "k",
+            "m"
+          ],
+          "Aliases": [
+            "hmac"
+          ],
+          "Examples": [
+            [
+              "{{ hmac \"sha256\" \"Secret key\" \"Hello world, gophers!\" }}",
+              "b6d11b6c53830b9d87036272ca9fe9d19306b8f9d8aa07b15da27d89e6e34f40"
+            ]
+          ]
+        },
         "MD5": {
           "Description": "MD5 hashes the given input and returns its MD5 checksum.",
           "Args": [
@@ -3057,23 +3162,6 @@
             [
               "{{ sha256 \"Hello world, gophers!\" }}",
               "6ec43b78da9669f50e4e422575c54bf87536954ccd58280219c393f2ce352b46"
-            ]
-          ]
-        },
-        "HMAC": {
-          "Description": "HMAC hashes the concatenation of a message and a secret key with the given hash function and returns its checksum.",
-          "Args": [
-            "hash function",
-            "message",
-            "key"
-          ],
-          "Aliases": [
-            "hmac"
-          ],
-          "Examples": [
-            [
-              "{{ hmac \"sha256\" \"Hello Gopher!\" \"Hello world, gophers!\" }}",
-              "32aea97d5688891fb35175c5518012323a3079994b909dd6f1bc481e4d0e7ce9"
             ]
           ]
         }
@@ -3588,6 +3676,22 @@
             ]
           ]
         },
+        "Pow": {
+          "Description": "Pow returns a raised to the power of b.",
+          "Args": [
+            "a",
+            "b"
+          ],
+          "Aliases": [
+            "pow"
+          ],
+          "Examples": [
+            [
+              "{{math.Pow 2 3}}",
+              "8"
+            ]
+          ]
+        },
         "Round": {
           "Description": "Round returns the nearest integer, rounding half away from zero.",
           "Args": [
@@ -3819,6 +3923,16 @@
         }
       },
       "resources": {
+        "Babel": {
+          "Description": "Babel processes the given Resource with Babel.",
+          "Args": [
+            "args"
+          ],
+          "Aliases": [
+            "babel"
+          ],
+          "Examples": []
+        },
         "Concat": {
           "Description": "",
           "Args": null,
