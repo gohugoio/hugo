@@ -349,6 +349,20 @@ Content-Security-Policy = "script-src localhost:1313"
 {{< /code-toggle >}}
 
 
+{{< new-in "0.72.0" >}}
+
+You can also specify simple redirects rules for the server. The syntax is again similar to Netlify's. 
+
+Note that a `status` code of 200 will trigger a [URL rewrite](https://docs.netlify.com/routing/redirects/rewrites-proxies/), which is what you want in SPA situations, e.g:
+
+{{< code-toggle file="config/development/server">}}
+[[redirects]]
+from = "/myspa/**"
+to = "/myspa/"
+status = 200
+{{< /code-toggle >}}
+
+
 
 
 ## Configure Title Case

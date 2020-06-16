@@ -8,7 +8,7 @@ byline: "[Didier Divinerites](https://github.com/divinerites)"
 
 ---
 
-Swiss [Arolla campsite](https://www.camping-arolla.com) runs the highest campsite in Europe and I'm completely re-doing their actuel Website with Hugo.
+Swiss [Arolla campsite](https://www.camping-arolla.com) runs the highest campsite in Europe and I'm completely re-doing their actual Website with Hugo.
 
 But they just launch a brand new offer (luxury tents with bed and fire oven), and we couldn't wait for the proper new website for having this promoted: we needed the website up and running within 24h!
 

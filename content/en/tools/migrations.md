@@ -42,19 +42,19 @@ Alternatively, you can use the new [Jekyll import command](/commands/hugo_import
 
 ## DokuWiki
 
-- [dokuwiki-to-hugo](https://github.com/wgroeneveld/dokuwiki-to-hugo) - Migrates your dokuwiki source pages from [DokuWiki syntax](https://www.dokuwiki.org/wiki:syntax) to Hugo Markdown syntax. Includes extra's like the TODO plugin. Written with extensibility in mind using python 3. Also generates a TOML header for each page. Designed to copypaste the wiki directory into your /content directory.
+- [dokuwiki-to-hugo](https://github.com/wgroeneveld/dokuwiki-to-hugo) - Migrates your DokuWiki source pages from [DokuWiki syntax](https://www.dokuwiki.org/wiki:syntax) to Hugo Markdown syntax. Includes extra's like the TODO plugin. Written with extensibility in mind using python 3. Also generates a TOML header for each page. Designed to copypaste the wiki directory into your /content directory.
 
 ## WordPress
 
 - [wordpress-to-hugo-exporter](https://github.com/SchumacherFM/wordpress-to-hugo-exporter) - A one-click WordPress plugin that converts all posts, pages, taxonomies, metadata, and settings to Markdown and YAML which can be dropped into Hugo. (Note: If you have trouble using this plugin, you can [export your site for Jekyll](https://wordpress.org/plugins/jekyll-exporter/) and use Hugo's built in Jekyll converter listed above.)
-- [exitwp-for-hugo](https://github.com/wooni005/exitwp-for-hugo) - A python script which works with the xml export from Wordpress and converts Wordpress pages and posts to Markdown and YAML for hugo.
+- [exitwp-for-hugo](https://github.com/wooni005/exitwp-for-hugo) - A python script which works with the xml export from WordPress and converts WordPress pages and posts to Markdown and YAML for hugo.
 - [blog2md](https://github.com/palaniraja/blog2md) - Works with [exported xml](https://en.support.wordpress.com/export/) file of your free YOUR-TLD.wordpress.com website. It also saves approved comments to `YOUR-POST-NAME-comments.md` file along with posts.
-- [wordhugopress](https://github.com/nantipov/wordhugopress) - A small utility written in Java, exports the entire WordPress site from the database and resource (e.g. images) files stored locally or remotelly. Therefore, migration from the backup files is possible. Supports merging of the multiple WordPress sites into a single Hugo one.
+- [wordhugopress](https://github.com/nantipov/wordhugopress) - A small utility written in Java, exports the entire WordPress site from the database and resource (e.g. images) files stored locally or remotely. Therefore, migration from the backup files is possible. Supports merging of the multiple WordPress sites into a single Hugo one.
 
 ## Medium
 
 - [medium2md](https://github.com/gautamdhameja/medium-2-md) - A simple Medium to Hugo exporter able to import stories in one command, including Front Matter.
-- [medium-to-hugo](https://github.com/bgadrian/medium-to-hugo) - CLI tool written in Go to export medium posts into a Hugo compatible Markdown format. Tags and images are included. All images will be downloaded locally and linked appropriately. 
+- [medium-to-hugo](https://github.com/bgadrian/medium-to-hugo) - CLI tool written in Go to export medium posts into a Hugo compatible Markdown format. Tags and images are included. All images will be downloaded locally and linked appropriately.
 
 ## Tumblr
 
@@ -74,7 +74,7 @@ Alternatively, you can use the new [Jekyll import command](/commands/hugo_import
 
 - [blogimport](https://github.com/natefinch/blogimport) - A tool to import from Blogger posts to Hugo.
 - [blogger-to-hugo](https://bitbucket.org/petraszd/blogger-to-hugo) - Another tool to import Blogger posts to Hugo. It also downloads embedded images so they will be stored locally.
-- [blog2md](https://github.com/palaniraja/blog2md) - Works with [exported xml](https://support.google.com/blogger/answer/41387?hl=en) file of your YOUR-TLD.blogspot.com website. It also saves comments to `YOUR-POST-NAME-comments.md` file along with posts. 
+- [blog2md](https://github.com/palaniraja/blog2md) - Works with [exported xml](https://support.google.com/blogger/answer/41387?hl=en) file of your YOUR-TLD.blogspot.com website. It also saves comments to `YOUR-POST-NAME-comments.md` file along with posts.
 - [BloggerToHugo](https://github.com/huanlin/blogger-to-hugo) - Yet another tool to import Blogger posts to Hugo. For Windows platform only, and .NET Framework 4.5 is required. See README.md before using this tool.
 
 ## Contentful
@@ -84,4 +84,4 @@ Alternatively, you can use the new [Jekyll import command](/commands/hugo_import
 
 ## BlogML
 
-- [BlogML2Hugo](https://github.com/jijiechen/BlogML2Hugo) - A tool that helps you convert BlogML xml file to Hugo markdown files. Users need to take care of links to attachments and images by themselves. This helps the blogs that export BlogML files (e.g. BlogEngine.NET) tramsform to hugo sites easily.
+- [BlogML2Hugo](https://github.com/jijiechen/BlogML2Hugo) - A tool that helps you convert BlogML xml file to Hugo markdown files. Users need to take care of links to attachments and images by themselves. This helps the blogs that export BlogML files (e.g. BlogEngine.NET) transform to hugo sites easily.

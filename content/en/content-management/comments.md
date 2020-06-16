@@ -56,7 +56,7 @@ There are a few alternatives to commenting on static sites for those who do not 
 * [IntenseDebate](https://intensedebate.com/)
 * [Graph Comment][]
 * [Muut](https://muut.com/)
-* [isso](https://posativ.org/isso/) (Self-hosted, Python)
+* [Isso](https://posativ.org/isso/) (Self-hosted, Python)
     * [Tutorial on Implementing Isso with Hugo][issotutorial]
 * [Utterances](https://utteranc.es/) (Open source, GitHub comments widget built on GitHub issues)
 * [Remark](https://github.com/umputun/remark) (Open source, Golang, Easy to run docker)

@@ -57,7 +57,7 @@ This is a much simpler setup as your Hugo files and generated content are publis
 4. Paste your existing Hugo project into the new local `<YOUR-PROJECT>` repository. Make sure your website works locally (`hugo server` or `hugo server -t <YOURTHEME>`) and open your browser to <http://localhost:1313>.
 5. Once you are happy with the results:
     * Press <kbd>Ctrl</kbd>+<kbd>C</kbd> to kill the server
-    * Before proceeding run `rm -rf public` to completely remove the `public` directory 
+    * Before proceeding run `rm -rf public` to completely remove the `public` directory
 6. `git submodule add -b master https://github.com/<USERNAME>/<USERNAME>.github.io.git public`. This creates a git [submodule][]. Now when you run the `hugo` command to build your site to `public`, the created `public` directory will have a different remote origin (i.e. hosted GitHub repository).
 
 ### Put it Into a Script

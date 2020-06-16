@@ -16,7 +16,7 @@ draft: false
 ---
 
 
-Any resource of the aforementioned types can be minifed using `resources.Minify` which takes for argument the resource object.
+Any resource of the aforementioned types can be minified using `resources.Minify` which takes for argument the resource object.
 
 
 ```go-html-template
