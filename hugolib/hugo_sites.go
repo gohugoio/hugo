@@ -78,7 +78,8 @@ type HugoSites struct {
 	// As loaded from the /data dirs
 	data map[string]interface{}
 
-	content *pageMaps
+	contentInit sync.Once
+	content     *pageMaps
 
 	// Keeps track of bundle directories and symlinks to enable partial rebuilding.
 	ContentChanges *contentChangeMap
@@ -90,6 +91,13 @@ type HugoSites struct {
 
 	*fatalErrorHandler
 	*testCounters
+}
+
+func (h *HugoSites) getContentMaps() *pageMaps {
+	h.contentInit.Do(func() {
+		h.content = newPageMaps(h)
+	})
+	return h.content
 }
 
 // Only used in tests.
@@ -253,7 +261,7 @@ func (h *HugoSites) PrintProcessingStats(w io.Writer) {
 func (h *HugoSites) GetContentPage(filename string) page.Page {
 	var p page.Page
 
-	h.content.walkBundles(func(b *contentNode) bool {
+	h.getContentMaps().walkBundles(func(b *contentNode) bool {
 		if b.p == nil || b.fi == nil {
 			return false
 		}
@@ -706,7 +714,7 @@ func (h *HugoSites) renderCrossSitesArtifacts() error {
 }
 
 func (h *HugoSites) removePageByFilename(filename string) {
-	h.content.withMaps(func(m *pageMap) error {
+	h.getContentMaps().withMaps(func(m *pageMap) error {
 		m.deleteBundleMatching(func(b *contentNode) bool {
 			if b.p == nil {
 				return false
@@ -897,7 +905,7 @@ func (h *HugoSites) findPagesByKindIn(kind string, inPages page.Pages) page.Page
 }
 
 func (h *HugoSites) resetPageState() {
-	h.content.walkBundles(func(n *contentNode) bool {
+	h.getContentMaps().walkBundles(func(n *contentNode) bool {
 		if n.p == nil {
 			return false
 		}
@@ -914,7 +922,7 @@ func (h *HugoSites) resetPageState() {
 }
 
 func (h *HugoSites) resetPageStateFromEvents(idset identity.Identities) {
-	h.content.walkBundles(func(n *contentNode) bool {
+	h.getContentMaps().walkBundles(func(n *contentNode) bool {
 		if n.p == nil {
 			return false
 		}
