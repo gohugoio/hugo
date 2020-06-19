@@ -424,7 +424,7 @@ In the above example, you may want `{{.Title}}` to point the `title` field you h
 ### By Publish Date
 
 {{< code file="layouts/partials/by-page-publish-date.html" >}}
-<!-- Groups content by month according to the "publishdate" field in front matter -->
+<!-- Groups content by month according to the "publishDate" field in front matter -->
 {{ range .Pages.GroupByPublishDate "2006-01" }}
 <h3>{{ .Key }}</h3>
 <ul>
@@ -432,6 +432,41 @@ In the above example, you may want `{{.Title}}` to point the `title` field you h
     <li>
     <a href="{{ .Permalink }}">{{ .Title }}</a>
     <div class="meta">{{ .PublishDate.Format "Mon, Jan 2, 2006" }}</div>
+    </li>
+    {{ end }}
+</ul>
+{{ end }}
+{{< /code >}}
+
+
+### By Lastmod
+
+{{< code file="layouts/partials/by-page-lastmod.html" >}}
+<!-- Groups content by month according to the "lastMod" field in front matter -->
+{{ range .Pages.GroupByLastmod "2006-01" }}
+<h3>{{ .Key }}</h3>
+<ul>
+    {{ range .Pages }}
+    <li>
+    <a href="{{ .Permalink }}">{{ .Title }}</a>
+    <div class="meta">{{ .Lastmod.Format "Mon, Jan 2, 2006" }}</div>
+    </li>
+    {{ end }}
+</ul>
+{{ end }}
+{{< /code >}}
+
+### By Expiry Date
+
+{{< code file="layouts/partials/by-page-expiry-date.html" >}}
+<!-- Groups content by month according to the "expiryDate" field in front matter -->
+{{ range .Pages.GroupByExpiryDate "2006-01" }}
+<h3>{{ .Key }}</h3>
+<ul>
+    {{ range .Pages }}
+    <li>
+    <a href="{{ .Permalink }}">{{ .Title }}</a>
+    <div class="meta">{{ .ExpiryDate.Format "Mon, Jan 2, 2006" }}</div>
     </li>
     {{ end }}
 </ul>
