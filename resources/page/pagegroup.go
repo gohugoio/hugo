@@ -284,6 +284,20 @@ func (p Pages) GroupByExpiryDate(format string, order ...string) (PagesGroup, er
 	return p.groupByDateField(sorter, formatter, order...)
 }
 
+// GroupByLastmod groups by the given page's Lastmod value in
+// the given format and with the given order.
+// Valid values for order is asc, desc, rev and reverse.
+// For valid format strings, see https://golang.org/pkg/time/#Time.Format
+func (p Pages) GroupByLastmod(format string, order ...string) (PagesGroup, error) {
+	sorter := func(p Pages) Pages {
+		return p.ByLastmod()
+	}
+	formatter := func(p Page) string {
+		return p.Lastmod().Format(format)
+	}
+	return p.groupByDateField(sorter, formatter, order...)
+}
+
 // GroupByParamDate groups by a date set as a param on the page in
 // the given format and with the given order.
 // Valid values for order is asc, desc, rev and reverse.
