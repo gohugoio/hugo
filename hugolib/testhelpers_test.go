@@ -726,6 +726,12 @@ func (s *sitesBuilder) AssertFileContent(filename string, matches ...string) {
 	}
 }
 
+func (s *sitesBuilder) AssertFileDoesNotExist(filename string) {
+	if s.CheckExists(filename) {
+		s.Fatalf("File %q exists but must not exist.", filename)
+	}
+}
+
 func (s *sitesBuilder) AssertImage(width, height int, filename string) {
 	filename = filepath.Join(s.workingDir, filename)
 	f, err := s.Fs.Destination.Open(filename)

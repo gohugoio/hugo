@@ -1209,8 +1209,10 @@ func (s *Site) render(ctx *siteRenderContext) (err error) {
 			return
 		}
 
-		if err = s.renderRobotsTXT(); err != nil {
-			return
+		if ctx.multihost {
+			if err = s.renderRobotsTXT(); err != nil {
+				return
+			}
 		}
 
 		if err = s.render404(); err != nil {

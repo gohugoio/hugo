@@ -255,8 +255,10 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	b.AssertFileContent("public/fr/404.html", "404|fr|404 Page not found")
 
 	// Check robots.txt
-	b.AssertFileContent("public/en/robots.txt", "robots|en|")
-	b.AssertFileContent("public/nn/robots.txt", "robots|nn|")
+	// the domain root is the public directory, so the robots.txt has to be created there and not in the language directories
+	b.AssertFileContent("public/robots.txt", "robots")
+	b.AssertFileDoesNotExist("public/en/robots.txt")
+	b.AssertFileDoesNotExist("public/nn/robots.txt")
 
 	b.AssertFileContent("public/en/sect/doc1-slug/index.html", "Permalink: http://example.com/blog/en/sect/doc1-slug/")
 	b.AssertFileContent("public/en/sect/doc2/index.html", "Permalink: http://example.com/blog/en/sect/doc2/")
