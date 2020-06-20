@@ -49,6 +49,7 @@ import (
 
 	"github.com/gohugoio/hugo/langs/i18n"
 	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/resources/page/pagemeta"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/gohugoio/hugo/tpl/tplimpl"
 )
@@ -690,7 +691,7 @@ func (cfg *BuildCfg) shouldRender(p *pageState) bool {
 	return false
 }
 
-func (h *HugoSites) renderCrossSitesArtifacts() error {
+func (h *HugoSites) renderCrossSitesSitemap() error {
 
 	if !h.multilingual.enabled() || h.IsMultihost() {
 		return nil
@@ -714,6 +715,38 @@ func (h *HugoSites) renderCrossSitesArtifacts() error {
 
 	return s.renderAndWriteXML(&s.PathSpec.ProcessingStats.Sitemaps, "sitemapindex",
 		s.siteCfg.sitemap.Filename, h.toSiteInfos(), templ)
+}
+
+func (h *HugoSites) renderCrossSitesRobotsTXT() error {
+	if h.multihost {
+		return nil
+	}
+	if !h.Cfg.GetBool("enableRobotsTXT") {
+		return nil
+	}
+
+	s := h.Sites[0]
+
+	p, err := newPageStandalone(&pageMeta{
+		s:    s,
+		kind: kindRobotsTXT,
+		urlPaths: pagemeta.URLPath{
+			URL: "robots.txt",
+		},
+	},
+		output.RobotsTxtFormat)
+
+	if err != nil {
+		return err
+	}
+
+	if !p.render {
+		return nil
+	}
+
+	templ := s.lookupLayouts("robots.txt", "_default/robots.txt", "_internal/_default/robots.txt")
+
+	return s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, "Robots Txt", "robots.txt", p, templ)
 }
 
 func (h *HugoSites) removePageByFilename(filename string) {
