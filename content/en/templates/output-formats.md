@@ -137,8 +137,8 @@ Formats are set based on that.
 | `page`         | HTML                   |
 | `home`         | HTML, RSS              |
 | `section`      | HTML, RSS              |
-| `taxonomyTerm` | HTML, RSS              |
-| `taxonomy`     | HTML, RSS              |
+| `taxonomy` | HTML, RSS              |
+| `term`     | HTML, RSS              |
 
 ### Customizing Output Formats
 
@@ -156,10 +156,14 @@ Example from site config file:
 
 
 Note that in the above examples, the *output formats* for `section`,
-`taxonomyTerm` and `taxonomy` will stay at their default value `["HTML",
+`taxonomy` and `term` will stay at their default value `["HTML",
 "RSS"]`.
 
-* The `outputs` definition is per [`Page` `Kind`][page_kinds] (`page`, `home`, `section`, `taxonomy`, or `taxonomyTerm`).
+{{< new-in "0.73.0" >}} We have fixed the before confusing page kinds used for taxonomies (see the listing below) to be in line with the terms used when we talk about taxonomies. We have been careful to avoid site breakage, and you should get an ERROR in the console if you need to adjust your `outputs` section.
+
+{{% page-kinds %}}
+
+* The `outputs` definition is per [`Page` `Kind`][page_kinds] (`page`, `home`, `section`, `taxonomy`, or `term`).
 * The names (e.g. `HTML`, `AMP`) used must match the `Name` of a defined *Output Format*.
   * These names are case insensitive.
 * These can be overridden per `Page` in the front matter of content files.

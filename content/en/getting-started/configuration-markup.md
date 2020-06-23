@@ -87,6 +87,8 @@ Note that this is only supported with the [Goldmark](#goldmark) renderer.
 
 Render Hooks allow custom templates to override markdown rendering functionality. You can do this by creating templates with base names `render-{feature}` in `layouts/_default/_markup`.
 
+You can also create type/section specific hooks in `layouts/[type/section]/_markup`, e.g.: `layouts/blog/_markup`.{{< new-in "0.71.0" >}}
+
 The features currently supported are:
 
 * `image`
