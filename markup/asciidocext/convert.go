@@ -81,12 +81,12 @@ func (a *asciidocConverter) parseArgs(ctx converter.DocumentContext) []string {
 	var cfg = a.cfg.MarkupConfig.AsciidocExt
 	args := []string{}
 
-	if asciidocext_config.BackendWhitelist[cfg.Backend] && cfg.Backend != asciidocext_config.Default.Backend {
+	if asciidocext_config.AllowedBackend[cfg.Backend] && cfg.Backend != asciidocext_config.Default.Backend {
 		args = append(args, "-b", cfg.Backend)
 	}
 
 	for _, extension := range cfg.Extensions {
-		if !asciidocext_config.ExtensionsWhitelist[extension] {
+		if !asciidocext_config.AllowedExtensions[extension] {
 			a.cfg.Logger.ERROR.Println("Unsupported asciidoctor extension was passed in. Extension `" + extension + "` ignored.")
 			continue
 		}
@@ -95,7 +95,7 @@ func (a *asciidocConverter) parseArgs(ctx converter.DocumentContext) []string {
 	}
 
 	for attributeKey, attributeValue := range cfg.Attributes {
-		if asciidocext_config.AttributeBlacklist[attributeKey] {
+		if asciidocext_config.DisallowedAttributes[attributeKey] {
 			a.cfg.Logger.ERROR.Println("Unsupported asciidoctor attribute was passed in. Attribute `" + attributeKey + "` ignored.")
 			continue
 		}
@@ -159,11 +159,11 @@ func (a *asciidocConverter) parseArgs(ctx converter.DocumentContext) []string {
 		args = append(args, "--trace")
 	}
 
-	if asciidocext_config.FailureLevelWhitelist[cfg.FailureLevel] && cfg.FailureLevel != asciidocext_config.Default.FailureLevel {
+	if asciidocext_config.AllowedFailureLevel[cfg.FailureLevel] && cfg.FailureLevel != asciidocext_config.Default.FailureLevel {
 		args = append(args, "--failure-level", cfg.FailureLevel)
 	}
 
-	if asciidocext_config.SafeModeWhitelist[cfg.SafeMode] && cfg.SafeMode != asciidocext_config.Default.SafeMode {
+	if asciidocext_config.AllowedSafeMode[cfg.SafeMode] && cfg.SafeMode != asciidocext_config.Default.SafeMode {
 		args = append(args, "--safe-mode", cfg.SafeMode)
 	}
 

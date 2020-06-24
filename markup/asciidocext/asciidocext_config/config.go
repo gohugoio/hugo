@@ -31,7 +31,7 @@ var (
 		WorkingFolderCurrent: false,
 	}
 
-	ExtensionsWhitelist = map[string]bool{
+	AllowedExtensions = map[string]bool{
 		"asciidoctor-html5s":           true,
 		"asciidoctor-diagram":          true,
 		"asciidoctor-interdoc-reftext": true,
@@ -41,19 +41,19 @@ var (
 		"asciidoctor-rouge":            true,
 	}
 
-	SafeModeWhitelist = map[string]bool{
+	AllowedSafeMode = map[string]bool{
 		"unsafe": true,
 		"safe":   true,
 		"server": true,
 		"secure": true,
 	}
 
-	FailureLevelWhitelist = map[string]bool{
+	AllowedFailureLevel = map[string]bool{
 		"fatal": true,
 		"warn":  true,
 	}
 
-	BackendWhitelist = map[string]bool{
+	AllowedBackend = map[string]bool{
 		"html5":     true,
 		"html5s":    true,
 		"xhtml5":    true,
@@ -62,7 +62,7 @@ var (
 		"manpage":   true,
 	}
 
-	AttributeBlacklist = map[string]bool{
+	DisallowedAttributes = map[string]bool{
 		"outdir": true,
 	}
 )
