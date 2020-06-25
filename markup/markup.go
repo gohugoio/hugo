@@ -24,7 +24,7 @@ import (
 
 	"github.com/gohugoio/hugo/markup/org"
 
-	"github.com/gohugoio/hugo/markup/asciidoc"
+	"github.com/gohugoio/hugo/markup/asciidocext"
 	"github.com/gohugoio/hugo/markup/blackfriday"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/mmark"
@@ -76,7 +76,7 @@ func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, erro
 	if err := add(mmark.Provider); err != nil {
 		return nil, err
 	}
-	if err := add(asciidoc.Provider, "ad", "adoc"); err != nil {
+	if err := add(asciidocext.Provider, "ad", "adoc"); err != nil {
 		return nil, err
 	}
 	if err := add(rst.Provider); err != nil {

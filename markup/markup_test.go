@@ -42,7 +42,7 @@ func TestConverterRegistry(t *testing.T) {
 
 	checkName("goldmark")
 	checkName("mmark")
-	checkName("asciidoc")
+	checkName("asciidocext")
 	checkName("rst")
 	checkName("pandoc")
 	checkName("org")

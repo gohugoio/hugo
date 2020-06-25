@@ -34,6 +34,11 @@ func TestConfig(t *testing.T) {
 					"unsafe": true,
 				},
 			},
+			"asciidocext": map[string]interface{}{
+				"workingFolderCurrent": true,
+				"safeMode":             "save",
+				"extensions":           []string{"asciidoctor-html5s"},
+			},
 		})
 
 		conf, err := Decode(v)
@@ -42,6 +47,8 @@ func TestConfig(t *testing.T) {
 		c.Assert(conf.Goldmark.Renderer.Unsafe, qt.Equals, true)
 		c.Assert(conf.BlackFriday.Fractions, qt.Equals, true)
 
+		c.Assert(conf.AsciidocExt.WorkingFolderCurrent, qt.Equals, true)
+		c.Assert(conf.AsciidocExt.Extensions[0], qt.Equals, "asciidoctor-html5s")
 	})
 
 	c.Run("legacy", func(c *qt.C) {
