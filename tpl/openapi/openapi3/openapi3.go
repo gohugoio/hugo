@@ -21,7 +21,7 @@ import (
 	"github.com/pkg/errors"
 
 	kopenapi3 "github.com/getkin/kin-openapi/openapi3"
-	"github.com/gohugoio/hugo/cache/namedmemcache"
+	"github.com/gohugoio/hugo/cache/memcache"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/parser/metadecoders"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -29,22 +29,15 @@ import (
 
 // New returns a new instance of the openapi3-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
-	// TODO1 consolidate when merging that "other branch" -- but be aware of the keys.
-	cache := namedmemcache.New()
-	deps.BuildStartListeners.Add(
-		func() {
-			cache.Clear()
-		})
-
 	return &Namespace{
-		cache: cache,
+		cache: deps.MemCache.GetOrCreatePartition("tpl/openapi3", memcache.ClearOnChange),
 		deps:  deps,
 	}
 }
 
 // Namespace provides template functions for the "openapi3".
 type Namespace struct {
-	cache *namedmemcache.Cache
+	cache memcache.Getter
 	deps  *deps.Deps
 }
 
@@ -54,21 +47,22 @@ func (ns *Namespace) Unmarshal(r resource.UnmarshableResource) (*kopenapi3.Swagg
 		return nil, errors.New("no Key set in Resource")
 	}
 
-	v, err := ns.cache.GetOrCreate(key, func() (interface{}, error) {
+	v, err := ns.cache.GetOrCreate(key, func() memcache.Entry {
 		f := metadecoders.FormatFromMediaType(r.MediaType())
 		if f == "" {
-			return nil, errors.Errorf("MIME %q not supported", r.MediaType())
+			return memcache.Entry{Err: errors.Errorf("MIME %q not supported", r.MediaType())}
 		}
 
 		reader, err := r.ReadSeekCloser()
 		if err != nil {
-			return nil, err
+			return memcache.Entry{Err: err}
 		}
+
 		defer reader.Close()
 
 		b, err := ioutil.ReadAll(reader)
 		if err != nil {
-			return nil, err
+			return memcache.Entry{Err: err}
 		}
 
 		s := &kopenapi3.Swagger{}
@@ -79,12 +73,19 @@ func (ns *Namespace) Unmarshal(r resource.UnmarshableResource) (*kopenapi3.Swagg
 			err = metadecoders.Default.UnmarshalTo(b, f, s)
 		}
 		if err != nil {
-			return nil, err
+			return memcache.Entry{Err: err}
 		}
 
 		err = kopenapi3.NewSwaggerLoader().ResolveRefsIn(s, nil)
 
-		return s, err
+		return memcache.Entry{
+			Value:     s,
+			Err:       err,
+			ClearWhen: memcache.ClearOnChange,
+			StaleFunc: func() bool {
+				return resource.IsStaleAny(r)
+			},
+		}
 	})
 	if err != nil {
 		return nil, err

@@ -2,6 +2,7 @@ package hugolib
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -10,6 +11,7 @@ import (
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/scss"
 
 	"github.com/fortytw2/leaktest"
 	"github.com/fsnotify/fsnotify"
@@ -413,14 +415,17 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 
 func TestMultiSitesRebuild(t *testing.T) {
 	// t.Parallel() not supported, see https://github.com/fortytw2/leaktest/issues/4
-	// This leaktest seems to be a little bit shaky on Travis.
-	if !isCI() {
-		defer leaktest.CheckTimeout(t, 10*time.Second)()
-	}
 
 	c := qt.New(t)
 
 	b := newMultiSiteTestDefaultBuilder(t).Running().CreateSites().Build(BuildCfg{})
+
+	defer b.H.Stop()
+
+	// This leaktest seems to be a little bit shaky on Travis.
+	if !isCI() {
+		defer leaktest.CheckTimeout(t, 10*time.Second)()
+	}
 
 	sites := b.H.Sites
 	fs := b.Fs
@@ -1465,4 +1470,110 @@ func TestRebuildOnAssetChange(t *testing.T) {
 
 	b.Build(BuildCfg{})
 	b.AssertFileContent("public/index.html", `changed data`)
+}
+
+func TestCacheOnRebuild(t *testing.T) {
+	c := qt.New(t)
+
+	const jsonSample = `{  
+    "employee": {  
+        "name":       "Hugo",   
+        "salary":      56000,   
+        "married":    false  
+    }  
+}`
+
+	createSitesBuilder := func(t testing.TB, prepare func(b *sitesBuilder)) *sitesBuilder {
+		b := newTestSitesBuilder(t).Running()
+		prepare(b)
+		b.Build(BuildCfg{})
+		return b
+
+	}
+
+	c.Run("Page Resource minified", func(c *qt.C) {
+
+		b := createSitesBuilder(c, func(b *sitesBuilder) {
+			b.WithContent("mysection/mybundle/index.md", "---title: MyBundle\n---",
+				"mysection/mybundle/data.json", jsonSample)
+
+			b.WithTemplatesAdded("index.html", `
+{{ $p := site.GetPage "mysection/mybundle" }}
+{{ $json := $p.Resources.GetMatch "data.json" }}
+{{ $min := $json | minify | fingerprint }}
+JSON: {{ $min.RelPermalink }}|{{ $min.Content }}
+
+`)
+
+		})
+
+		b.AssertFileContent("public/index.html", `
+JSON: /mysection/mybundle/data.min.6394a5ec9f369469f6af29777270e5c6d73001969af6d2cb9c8ad6137e1bb00b.json|
+Hugo`)
+
+		newJSON := strings.ReplaceAll(jsonSample, "Hugo", "Fred")
+		b.EditFiles("content/mysection/mybundle/data.json", newJSON)
+
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/index.html", `JSON: /mysection/mybundle/data.min.5b0c00adca0f2d7cdd68d3088700a413b4bb2bfdeaa3199cc8e151da8b1ec527.json|{
+Fred`)
+
+	})
+
+	c.Run("transform.Unmarshal with temporary Resource", func(c *qt.C) {
+		templ := `
+				{{ $m := "a: 1" | resources.FromString "a.yaml"  | transform.Unmarshal }}
+				NM: {{ $m }}
+				
+			`
+		b := createSitesBuilder(c, func(b *sitesBuilder) {
+			b.WithTemplatesAdded("index.html", templ)
+		})
+
+		b.AssertFileContent("public/index.html", `NM: map[a:1]`)
+
+		templ = strings.ReplaceAll(templ, "a: 1", "a: 2")
+		templ = strings.ReplaceAll(templ, "NM:", "NM2:")
+		b.EditFiles("layouts/index.html", templ)
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/index.html", `NM2: map[a:2]`)
+
+	})
+
+	c.Run("SCSS with multiple roots", func(c *qt.C) {
+		if !scss.Supports() {
+			c.Skip("Skip SCSS")
+		}
+
+		b, workDir, clean := newTestSitesBuilderWithOSFs(c, "scss-multiroot")
+		defer clean()
+		b.Running()
+
+		assetsDir := filepath.Join(workDir, "assets")
+		c.Assert(os.MkdirAll(filepath.Join(assetsDir, "root1"), 0777), qt.IsNil)
+		c.Assert(os.MkdirAll(filepath.Join(assetsDir, "root2"), 0777), qt.IsNil)
+
+		b.WithTemplatesAdded("index.html", `
+{{ $css := resources.Get "root2/main.scss" | toCSS }}
+CSS: {{ $css.Content | safeHTML }}
+`)
+
+		b.WithSourceFile(filepath.Join(assetsDir, "root1/_vars.scss"), `$base-color: blue;`)
+		b.WithSourceFile(filepath.Join(assetsDir, "root2/main.scss"), `@import "../root1/_vars";
+	
+body { color: $base-color; }
+`)
+
+		b.Build(BuildCfg{})
+		b.AssertFileContent("public/index.html", `color: blue;`)
+
+		b.EditFiles(filepath.Join(assetsDir, "root1/_vars.scss"), `$base-color: red;`)
+
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/index.html", `color: red;`)
+	})
+
 }

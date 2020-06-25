@@ -34,7 +34,7 @@ func TestGenericResource(t *testing.T) {
 	c := qt.New(t)
 	spec := newTestResourceSpec(specDescriptor{c: c})
 
-	r := spec.newGenericResource(nil, nil, nil, "/a/foo.css", "foo.css", media.CSSType)
+	r := newGenericResource(spec, nil, nil, nil, "/a/foo.css", "foo.css", media.CSSType)
 
 	c.Assert(r.Permalink(), qt.Equals, "https://example.com/foo.css")
 	c.Assert(r.RelPermalink(), qt.Equals, "/foo.css")
@@ -47,12 +47,17 @@ func TestGenericResourceWithLinkFactory(t *testing.T) {
 
 	factory := newTargetPaths("/foo")
 
-	r := spec.newGenericResource(nil, factory, nil, "/a/foo.css", "foo.css", media.CSSType)
+	r := newGenericResource(spec, nil, factory, nil, "/a/foo.css", "foo.css", media.CSSType)
 
 	c.Assert(r.Permalink(), qt.Equals, "https://example.com/foo/foo.css")
 	c.Assert(r.RelPermalink(), qt.Equals, "/foo/foo.css")
+<<<<<<< HEAD
 	c.Assert(r.Key(), qt.Equals, "/foo/foo.css")
 	c.Assert(r.ResourceType(), qt.Equals, "text")
+=======
+	c.Assert(r.Key(), qt.Equals, "foo/foo.css")
+	c.Assert(r.ResourceType(), qt.Equals, "css")
+>>>>>>> Add central LRU cache that adjusts to available memory
 }
 
 func TestNewResourceFromFilename(t *testing.T) {
@@ -102,11 +107,18 @@ func TestResourcesByType(t *testing.T) {
 	c := qt.New(t)
 	spec := newTestResourceSpec(specDescriptor{c: c})
 	resources := resource.Resources{
+<<<<<<< HEAD
 		spec.newGenericResource(nil, nil, nil, "/a/foo1.css", "foo1.css", media.CSSType),
 		spec.newGenericResource(nil, nil, nil, "/a/logo.png", "logo.css", pngType),
 		spec.newGenericResource(nil, nil, nil, "/a/foo2.css", "foo2.css", media.CSSType),
 		spec.newGenericResource(nil, nil, nil, "/a/foo3.css", "foo3.css", media.CSSType),
 	}
+=======
+		newGenericResource(spec, nil, nil, nil, "/a/foo1.css", "foo1.css", media.CSSType),
+		newGenericResource(spec, nil, nil, nil, "/a/logo.png", "logo.css", pngType),
+		newGenericResource(spec, nil, nil, nil, "/a/foo2.css", "foo2.css", media.CSSType),
+		newGenericResource(spec, nil, nil, nil, "/a/foo3.css", "foo3.css", media.CSSType)}
+>>>>>>> Add central LRU cache that adjusts to available memory
 
 	c.Assert(len(resources.ByType("text")), qt.Equals, 3)
 	c.Assert(len(resources.ByType("image")), qt.Equals, 1)
@@ -116,12 +128,20 @@ func TestResourcesGetByPrefix(t *testing.T) {
 	c := qt.New(t)
 	spec := newTestResourceSpec(specDescriptor{c: c})
 	resources := resource.Resources{
+<<<<<<< HEAD
 		spec.newGenericResource(nil, nil, nil, "/a/foo1.css", "foo1.css", media.CSSType),
 		spec.newGenericResource(nil, nil, nil, "/a/logo1.png", "logo1.png", pngType),
 		spec.newGenericResource(nil, nil, nil, "/b/Logo2.png", "Logo2.png", pngType),
 		spec.newGenericResource(nil, nil, nil, "/b/foo2.css", "foo2.css", media.CSSType),
 		spec.newGenericResource(nil, nil, nil, "/b/foo3.css", "foo3.css", media.CSSType),
 	}
+=======
+		newGenericResource(spec, nil, nil, nil, "/a/foo1.css", "foo1.css", media.CSSType),
+		newGenericResource(spec, nil, nil, nil, "/a/logo1.png", "logo1.png", pngType),
+		newGenericResource(spec, nil, nil, nil, "/b/Logo2.png", "Logo2.png", pngType),
+		newGenericResource(spec, nil, nil, nil, "/b/foo2.css", "foo2.css", media.CSSType),
+		newGenericResource(spec, nil, nil, nil, "/b/foo3.css", "foo3.css", media.CSSType)}
+>>>>>>> Add central LRU cache that adjusts to available memory
 
 	c.Assert(resources.GetMatch("asdf*"), qt.IsNil)
 	c.Assert(resources.GetMatch("logo*").RelPermalink(), qt.Equals, "/logo1.png")
@@ -145,14 +165,14 @@ func TestResourcesGetMatch(t *testing.T) {
 	c := qt.New(t)
 	spec := newTestResourceSpec(specDescriptor{c: c})
 	resources := resource.Resources{
-		spec.newGenericResource(nil, nil, nil, "/a/foo1.css", "foo1.css", media.CSSType),
-		spec.newGenericResource(nil, nil, nil, "/a/logo1.png", "logo1.png", pngType),
-		spec.newGenericResource(nil, nil, nil, "/b/Logo2.png", "Logo2.png", pngType),
-		spec.newGenericResource(nil, nil, nil, "/b/foo2.css", "foo2.css", media.CSSType),
-		spec.newGenericResource(nil, nil, nil, "/b/foo3.css", "foo3.css", media.CSSType),
-		spec.newGenericResource(nil, nil, nil, "/b/c/foo4.css", "c/foo4.css", media.CSSType),
-		spec.newGenericResource(nil, nil, nil, "/b/c/foo5.css", "c/foo5.css", media.CSSType),
-		spec.newGenericResource(nil, nil, nil, "/b/c/d/foo6.css", "c/d/foo6.css", media.CSSType),
+		newGenericResource(spec, nil, nil, nil, "/a/foo1.css", "foo1.css", media.CSSType),
+		newGenericResource(spec, nil, nil, nil, "/a/logo1.png", "logo1.png", pngType),
+		newGenericResource(spec, nil, nil, nil, "/b/Logo2.png", "Logo2.png", pngType),
+		newGenericResource(spec, nil, nil, nil, "/b/foo2.css", "foo2.css", media.CSSType),
+		newGenericResource(spec, nil, nil, nil, "/b/foo3.css", "foo3.css", media.CSSType),
+		newGenericResource(spec, nil, nil, nil, "/b/c/foo4.css", "c/foo4.css", media.CSSType),
+		newGenericResource(spec, nil, nil, nil, "/b/c/foo5.css", "c/foo5.css", media.CSSType),
+		newGenericResource(spec, nil, nil, nil, "/b/c/d/foo6.css", "c/d/foo6.css", media.CSSType),
 	}
 
 	c.Assert(resources.GetMatch("logo*").RelPermalink(), qt.Equals, "/logo1.png")
@@ -208,7 +228,7 @@ func BenchmarkResourcesMatchA100(b *testing.B) {
 	a100 := strings.Repeat("a", 100)
 	pattern := "a*a*a*a*a*a*a*a*b"
 
-	resources := resource.Resources{spec.newGenericResource(nil, nil, nil, "/a/"+a100, a100, media.CSSType)}
+	resources := resource.Resources{newGenericResource(spec, nil, nil, nil, "/a/"+a100, a100, media.CSSType)}
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -223,17 +243,17 @@ func benchResources(b *testing.B) resource.Resources {
 
 	for i := 0; i < 30; i++ {
 		name := fmt.Sprintf("abcde%d_%d.css", i%5, i)
-		resources = append(resources, spec.newGenericResource(nil, nil, nil, "/a/"+name, name, media.CSSType))
+		resources = append(resources, newGenericResource(spec, nil, nil, nil, "/a/"+name, name, media.CSSType))
 	}
 
 	for i := 0; i < 30; i++ {
 		name := fmt.Sprintf("efghi%d_%d.css", i%5, i)
-		resources = append(resources, spec.newGenericResource(nil, nil, nil, "/a/"+name, name, media.CSSType))
+		resources = append(resources, newGenericResource(spec, nil, nil, nil, "/a/"+name, name, media.CSSType))
 	}
 
 	for i := 0; i < 30; i++ {
 		name := fmt.Sprintf("jklmn%d_%d.css", i%5, i)
-		resources = append(resources, spec.newGenericResource(nil, nil, nil, "/b/sub/"+name, "sub/"+name, media.CSSType))
+		resources = append(resources, newGenericResource(spec, nil, nil, nil, "/b/sub/"+name, "sub/"+name, media.CSSType))
 	}
 
 	return resources
@@ -260,7 +280,7 @@ func BenchmarkAssignMetadata(b *testing.B) {
 		}
 		for i := 0; i < 20; i++ {
 			name := fmt.Sprintf("foo%d_%d.css", i%5, i)
-			resources = append(resources, spec.newGenericResource(nil, nil, nil, "/a/"+name, name, media.CSSType))
+			resources = append(resources, newGenericResource(spec, nil, nil, nil, "/a/"+name, name, media.CSSType))
 		}
 		b.StartTimer()
 

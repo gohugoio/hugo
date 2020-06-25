@@ -23,6 +23,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/cache/memcache"
 	"github.com/gohugoio/hugo/resources/jsconfig"
 
 	"github.com/gohugoio/hugo/common/herrors"
@@ -48,11 +49,13 @@ import (
 func NewSpec(
 	s *helpers.PathSpec,
 	fileCaches filecache.Caches,
+	memCache *memcache.Cache,
 	incr identity.Incrementer,
 	logger loggers.Logger,
 	errorHandler herrors.ErrorSender,
 	outputFormats output.Formats,
 	mimeTypes media.Types) (*Spec, error) {
+
 	imgConfig, err := images.DecodeConfig(s.Cfg.GetStringMap("imaging"))
 	if err != nil {
 		return nil, err
@@ -93,14 +96,14 @@ func NewSpec(
 		},
 		imageCache: newImageCache(
 			fileCaches.ImageCache(),
-
+			memCache,
 			s,
-		),
-	}
+		)}
 
-	rs.ResourceCache = newResourceCache(rs)
+	rs.ResourceCache = newResourceCache(rs, memCache)
 
 	return rs, nil
+
 }
 
 type Spec struct {
@@ -140,56 +143,11 @@ func (r *Spec) New(fd ResourceSourceDescriptor) (resource.Resource, error) {
 	return r.newResourceFor(fd)
 }
 
-func (r *Spec) CacheStats() string {
-	r.imageCache.mu.RLock()
-	defer r.imageCache.mu.RUnlock()
-
-	s := fmt.Sprintf("Cache entries: %d", len(r.imageCache.store))
-
-	count := 0
-	for k := range r.imageCache.store {
-		if count > 5 {
-			break
-		}
-		s += "\n" + k
-		count++
-	}
-
-	return s
-}
-
-func (r *Spec) ClearCaches() {
-	r.imageCache.clear()
-	r.ResourceCache.clear()
-}
-
-func (r *Spec) DeleteBySubstring(s string) {
-	r.imageCache.deleteIfContains(s)
-}
-
 func (s *Spec) String() string {
 	return "spec"
 }
 
 // TODO(bep) clean up below
-func (r *Spec) newGenericResource(sourceFs afero.Fs,
-	targetPathBuilder func() page.TargetPaths,
-	osFileInfo os.FileInfo,
-	sourceFilename,
-	baseFilename string,
-	mediaType media.Type) *genericResource {
-	return r.newGenericResourceWithBase(
-		sourceFs,
-		nil,
-		nil,
-		targetPathBuilder,
-		osFileInfo,
-		sourceFilename,
-		baseFilename,
-		mediaType,
-	)
-}
-
 func (r *Spec) newGenericResourceWithBase(
 	sourceFs afero.Fs,
 	openReadSeekerCloser resource.OpenReadSeekCloser,
@@ -199,6 +157,7 @@ func (r *Spec) newGenericResourceWithBase(
 	sourceFilename,
 	baseFilename string,
 	mediaType media.Type) *genericResource {
+
 	if osFileInfo != nil && osFileInfo.IsDir() {
 		panic(fmt.Sprintf("dirs not supported resource types: %v", osFileInfo))
 	}
@@ -208,7 +167,12 @@ func (r *Spec) newGenericResourceWithBase(
 	baseFilename = helpers.ToSlashTrimLeading(baseFilename)
 	fpath, fname := path.Split(baseFilename)
 
-	resourceType := mediaType.MainType
+	var resourceType string
+	if mediaType.MainType == "image" {
+		resourceType = mediaType.MainType
+	} else {
+		resourceType = mediaType.SubType
+	}
 
 	pathDescriptor := &resourcePathDescriptor{
 		baseTargetPathDirs: helpers.UniqueStringsReuse(targetPathBaseDirs),
@@ -242,6 +206,7 @@ func (r *Spec) newGenericResourceWithBase(
 	}
 
 	return g
+
 }
 
 func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (resource.Resource, error) {
@@ -269,7 +234,7 @@ func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (reso
 
 	ext := strings.ToLower(filepath.Ext(fd.RelTargetFilename))
 	mimeType, found := r.MediaTypes.GetFirstBySuffix(strings.TrimPrefix(ext, "."))
-	// TODO(bep) we need to handle these ambiguous types better, but in this context
+	// TODO(bep) we need to handle these ambigous types better, but in this context
 	// we most likely want the application/xml type.
 	if mimeType.Suffix() == "xml" && mimeType.SubType == "rss" {
 		mimeType, found = r.MediaTypes.GetByType("application/xml")
@@ -309,6 +274,7 @@ func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (reso
 	}
 
 	return newResourceAdapter(gr.spec, fd.LazyPublish, gr), nil
+
 }
 
 func (r *Spec) newResourceFor(fd ResourceSourceDescriptor) (resource.Resource, error) {

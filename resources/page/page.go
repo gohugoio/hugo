@@ -18,8 +18,6 @@ package page
 import (
 	"html/template"
 
-	"github.com/gohugoio/hugo/identity"
-
 	"github.com/bep/gitmap"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/tpl"
@@ -265,9 +263,6 @@ type PageWithoutContent interface {
 	// GetTerms gets the terms of a given taxonomy,
 	// e.g. GetTerms("categories")
 	GetTerms(taxonomy string) Pages
-
-	// Used in change/dependency tracking.
-	identity.Provider
 
 	DeprecatedWarningPageMethods
 }

@@ -21,6 +21,8 @@ import (
 	"path/filepath"
 	"reflect"
 
+	"github.com/gohugoio/hugo/identity"
+
 	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/gohugoio/hugo/parser/pageparser"
@@ -43,14 +45,15 @@ func newPagesCollector(
 	contentMap *pageMaps,
 	logger loggers.Logger,
 	contentTracker *contentChangeMap,
-	proc pagesCollectorProcessorProvider, filenames ...string) *pagesCollector {
+	proc pagesCollectorProcessorProvider, ids identity.PathIdentities) *pagesCollector {
+
 	return &pagesCollector{
 		fs:         sp.SourceFs,
 		contentMap: contentMap,
 		proc:       proc,
 		sp:         sp,
 		logger:     logger,
-		filenames:  filenames,
+		ids:        ids,
 		tracker:    contentTracker,
 	}
 }
@@ -86,7 +89,8 @@ type pagesCollector struct {
 	contentMap *pageMaps
 
 	// Ordered list (bundle headers first) used in partial builds.
-	filenames []string
+	// TODO1 check order
+	ids identity.PathIdentities
 
 	// Content files tracker used in partial builds.
 	tracker *contentChangeMap
@@ -167,7 +171,7 @@ func (c *pagesCollector) Collect() (collectErr error) {
 		}
 	}()
 
-	if len(c.filenames) == 0 {
+	if c.ids == nil {
 		// Collect everything.
 		collectErr = c.collectDir("", false, nil)
 	} else {
@@ -175,16 +179,12 @@ func (c *pagesCollector) Collect() (collectErr error) {
 			pm.cfg.isRebuild = true
 		}
 		dirs := make(map[contentDirKey]bool)
-		for _, filename := range c.filenames {
-			dir, btype := c.tracker.resolveAndRemove(filename)
-			dirs[contentDirKey{dir, filename, btype}] = true
+		for _, id := range c.ids {
+			dir, btype := c.tracker.resolveAndRemove(id.Filename())
+			dirs[contentDirKey{dir, id.Filename(), btype}] = true
 		}
 
 		for dir := range dirs {
-			for _, pm := range c.contentMap.pmaps {
-				pm.s.ResourceSpec.DeleteBySubstring(dir.dirname)
-			}
-
 			switch dir.tp {
 			case bundleLeaf:
 				collectErr = c.collectDir(dir.dirname, true, nil)

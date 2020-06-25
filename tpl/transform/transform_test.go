@@ -15,6 +15,9 @@ package transform
 
 import (
 	"html/template"
+
+	"github.com/gohugoio/hugo/cache/memcache"
+
 	"testing"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -249,6 +252,7 @@ func newDeps(cfg config.Provider) *deps.Deps {
 	return &deps.Deps{
 		Cfg:         cfg,
 		Fs:          hugofs.NewMem(l),
+		MemCache:    memcache.New(memcache.Config{}),
 		ContentSpec: cs,
 	}
 }

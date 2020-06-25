@@ -386,8 +386,17 @@ Set `titleCaseStyle` to specify the title style used by the [title](/functions/t
 
 ## Configuration Environment Variables
 
+### Control Parallel Processing
+
 HUGO_NUMWORKERMULTIPLIER
 : Can be set to increase or reduce the number of workers used in parallel processing in Hugo. If not set, the number of logical CPUs will be used.
+
+### Control Memory Usage
+
+HUGO_MEMORYLIMIT {{< new-in "0.77.0" >}}
+: A value in Gigabytes (e.g. "1.5") to control the upper memory limit for Hugo's memory use. If not set, it will set aside a quarter of the total system memory.
+Note that this does not represent a hard promise that Hugo will not use more memory than configured, but we will try our best. You may need to tune this setting depending on your site and/or system.
+
 
 ## Configuration Lookup Order
 

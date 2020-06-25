@@ -22,6 +22,9 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/gohugoio/hugo/cache/memcache"
+	"github.com/gohugoio/hugo/identity"
+
 	"github.com/gohugoio/hugo/resources/internal"
 
 	"github.com/gohugoio/hugo/common/herrors"
@@ -172,8 +175,6 @@ func (commonResource) Slice(in interface{}) (interface{}, error) {
 				return nil, fmt.Errorf("type %T is not a Resource", v)
 			}
 			groups[i] = g
-			{
-			}
 		}
 		return groups, nil
 	default:
@@ -197,8 +198,25 @@ type fileInfo interface {
 	setSourceFilename(string)
 	setSourceFs(afero.Fs)
 	getFileInfo() hugofs.FileMetaInfo
-	hash() (string, error)
 	size() int
+	hashProvider
+}
+
+type hashProvider interface {
+	hash() string
+}
+type staler struct {
+	stale bool
+}
+
+func (s *staler) MarkStale() {
+	s.stale = true
+
+}
+
+func (s *staler) IsStale() bool {
+	return s.stale
+
 }
 
 // genericResource represents a generic linkable resource.
@@ -218,6 +236,11 @@ type genericResource struct {
 	mediaType    media.Type
 }
 
+func (l *genericResource) IsNotDependent(other identity.Provider) bool {
+	// TODO1
+	return false
+}
+
 func (l *genericResource) Clone() resource.Resource {
 	return l.clone()
 }
@@ -235,7 +258,39 @@ func (l *genericResource) Data() interface{} {
 }
 
 func (l *genericResource) Key() string {
-	return l.RelPermalink()
+	// TODO1 consider repeating the section in the path segment.
+
+	if l.fi != nil {
+		// Create a key that at least shares the base folder with the source,
+		// to facilitate effective cache busting on changes.
+		meta := l.fi.Meta()
+		p := meta.Path()
+		if p != "" {
+			d, _ := filepath.Split(p)
+			p = path.Join(d, l.relTargetDirFile.file)
+			key := memcache.CleanKey(p)
+			key = memcache.InsertKeyPathElements(key, meta.Component(), meta.Lang())
+
+			return key
+		}
+	}
+
+	return memcache.CleanKey(l.RelPermalink())
+
+}
+
+func (l *genericResource) GetIdentity() identity.Identity {
+	var component string // TODO1
+	path := l.TargetPath()
+	var filename, lang string
+	if l.fi != nil {
+		m := l.fi.Meta()
+		filename = m.Filename()
+		path = m.Path()
+		component = m.Component()
+		lang = m.Lang()
+	}
+	return identity.NewPathIdentity(component, path, filename, lang)
 }
 
 func (l *genericResource) MediaType() media.Type {
@@ -416,6 +471,7 @@ func (rc *genericResource) cloneWithUpdates(u *transformationUpdate) (baseResour
 	}
 
 	fpath, fname := path.Split(u.targetPath)
+
 	r.resourcePathDescriptor.relTargetDirFile = dirFile{dir: fpath, file: fname}
 
 	r.mergeData(u.data)
@@ -619,26 +675,25 @@ func (fi *resourceFileInfo) setSourceFs(fs afero.Fs) {
 	fi.sourceFs = fs
 }
 
-func (fi *resourceFileInfo) hash() (string, error) {
+func (fi *resourceFileInfo) hash() string {
 	var err error
 	fi.h.init.Do(func() {
 		var hash string
 		var f hugio.ReadSeekCloser
 		f, err = fi.ReadSeekCloser()
 		if err != nil {
-			err = errors.Wrap(err, "failed to open source file")
-			return
+			panic(fmt.Sprintf("failed to open source file: %s", err))
 		}
 		defer f.Close()
 
 		hash, err = helpers.MD5FromFileFast(f)
 		if err != nil {
-			return
+			panic(err)
 		}
 		fi.h.value = hash
 	})
 
-	return fi.h.value, err
+	return fi.h.value
 }
 
 func (fi *resourceFileInfo) size() int {

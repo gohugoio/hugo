@@ -76,6 +76,9 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 	cfg := ctx.cfg
 
 	s.pageMap.pageTrees.Walk(func(ss string, n *contentNode) bool {
+		if n.p == nil {
+			panic(fmt.Sprintf("Walk: p is nil for %s", ss))
+		}
 		if cfg.shouldRender(n.p) {
 			select {
 			case <-s.h.Done():

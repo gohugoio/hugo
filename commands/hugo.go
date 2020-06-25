@@ -417,8 +417,14 @@ func (c *commandeer) initMemTicker() func() {
 	quit := make(chan struct{})
 	printMem := func() {
 		var m runtime.MemStats
+		var cacheDropped int
+		h := c.hugo()
+		if h != nil && h.MemCache != nil {
+			cacheDropped = h.MemCache.GetDropped()
+		}
+
 		runtime.ReadMemStats(&m)
-		fmt.Printf("\n\nAlloc = %v\nTotalAlloc = %v\nSys = %v\nNumGC = %v\n\n", formatByteCount(m.Alloc), formatByteCount(m.TotalAlloc), formatByteCount(m.Sys), m.NumGC)
+		fmt.Printf("\n\nAlloc = %v\nTotalAlloc = %v\nSys = %v\nNumGC = %v\nMemCacheDropped = %d\nConfiguredMemoryLimit = %v\n\n", helpers.FormatByteCount(m.Alloc), helpers.FormatByteCount(m.TotalAlloc), helpers.FormatByteCount(m.Sys), m.NumGC, cacheDropped, helpers.FormatByteCount(config.GetMemoryLimit()))
 	}
 
 	go func() {
@@ -1187,18 +1193,4 @@ func pickOneWriteOrCreatePath(events []fsnotify.Event) string {
 	}
 
 	return name
-}
-
-func formatByteCount(b uint64) string {
-	const unit = 1000
-	if b < unit {
-		return fmt.Sprintf("%d B", b)
-	}
-	div, exp := int64(unit), 0
-	for n := b / unit; n >= unit; n /= unit {
-		div *= unit
-		exp++
-	}
-	return fmt.Sprintf("%.1f %cB",
-		float64(b)/float64(div), "kMGTPE"[exp])
 }

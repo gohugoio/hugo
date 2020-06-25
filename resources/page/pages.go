@@ -25,6 +25,7 @@ import (
 var (
 	_ resource.ResourcesConverter = Pages{}
 	_ compare.ProbablyEqer        = Pages{}
+	_ resource.StaleInfo          = Pages{}
 )
 
 // Pages is a slice of pages. This is the most common list type in Hugo.
@@ -32,6 +33,16 @@ type Pages []Page
 
 func (ps Pages) String() string {
 	return fmt.Sprintf("Pages(%d)", len(ps))
+}
+
+// Pages is stale if any of the the pages are stale.
+func (ps Pages) IsStale() bool {
+	for _, p := range ps {
+		if p.(resource.StaleInfo).IsStale() {
+			return true
+		}
+	}
+	return false
 }
 
 // Used in tests.

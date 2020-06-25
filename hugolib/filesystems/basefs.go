@@ -21,8 +21,11 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
+
+	"github.com/gohugoio/hugo/identity"
 
 	"github.com/gohugoio/hugo/common/loggers"
 
@@ -255,6 +258,20 @@ func (s SourceFilesystems) IsAsset(filename string) bool {
 	return s.Assets.Contains(filename)
 }
 
+// CollectPathIdentities collects paths relative to their component root.
+func (s SourceFilesystems) CollectPathIdentities(filename string) identity.PathIdentities {
+	var identities identity.PathIdentities
+
+	for _, fs := range []*SourceFilesystem{s.Assets, s.Content, s.Data, s.I18n, s.Layouts} {
+		fs.withEachRelativePath(filename, func(rel string, meta hugofs.FileMeta) {
+			identities = append(identities, identity.NewPathIdentity(fs.Name, rel, filepath.Join(meta.Filename(), rel), meta.Lang()))
+		})
+
+	}
+	return identities
+
+}
+
 // IsI18n returns true if the given filename is a member of the i18n filesystem.
 func (s SourceFilesystems) IsI18n(filename string) bool {
 	return s.I18n.Contains(filename)
@@ -264,7 +281,7 @@ func (s SourceFilesystems) IsI18n(filename string) bool {
 // It will return an empty string if the filename is not a member of a static filesystem.
 func (s SourceFilesystems) MakeStaticPathRelative(filename string) string {
 	for _, staticFs := range s.Static {
-		rel, _ := staticFs.MakePathRelative(filename)
+		rel := staticFs.MakePathRelative(filename)
 		if rel != "" {
 			return rel
 		}
@@ -272,21 +289,45 @@ func (s SourceFilesystems) MakeStaticPathRelative(filename string) string {
 	return ""
 }
 
-// MakePathRelative creates a relative path from the given filename.
-func (d *SourceFilesystem) MakePathRelative(filename string) (string, bool) {
+// It will return an empty string if the filename is not a member of this filesystem.
+// TODO(bep) there may be multiple, see https://github.com/gohugoio/hugo/issues/7563
+// See collectRelativePaths
+func (d *SourceFilesystem) MakePathRelative(filename string) string {
+	paths := d.collectRelativePaths(filename)
+	if paths == nil {
+		return ""
+	}
+	return paths[0]
+
+}
+
+func (d *SourceFilesystem) collectRelativePaths(filename string) []string {
+	var paths []string
+	d.withEachRelativePath(filename, func(rel string, meta hugofs.FileMeta) {
+		paths = append(paths, rel)
+	})
+
+	return paths
+}
+
+func (d *SourceFilesystem) withEachRelativePath(filename string, cb func(rel string, meta hugofs.FileMeta)) {
 	for _, dir := range d.Dirs {
 		meta := dir.(hugofs.FileMetaInfo).Meta()
 		currentPath := meta.Filename()
-
-		if strings.HasPrefix(filename, currentPath) {
-			rel := strings.TrimPrefix(filename, currentPath)
-			if mp := meta.Path(); mp != "" {
-				rel = filepath.Join(mp, rel)
-			}
-			return strings.TrimPrefix(rel, filePathSeparator), true
+		if rel := relFilename(currentPath, filename); rel != "" {
+			cb(rel, meta)
 		}
 	}
-	return "", false
+}
+
+func relFilename(dirname, filename string) string {
+	if !strings.HasSuffix(dirname, filePathSeparator) {
+		dirname += filePathSeparator
+	}
+	if !strings.HasPrefix(filename, dirname) {
+		return ""
+	}
+	return strings.TrimPrefix(filename, dirname)
 }
 
 func (d *SourceFilesystem) RealFilename(rel string) string {
@@ -754,4 +795,22 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(collector *filesystemsCollect
 	}
 
 	return b.createOverlayFs(collector, mounts[1:])
+}
+
+func uniqueStringsSorted(s []string) []string {
+	if len(s) == 0 {
+		return nil
+	}
+	ss := sort.StringSlice(s)
+	ss.Sort()
+	i := 0
+	for j := 1; j < len(s); j++ {
+		if !ss.Less(i, j) {
+			continue
+		}
+		i++
+		s[i] = s[j]
+	}
+
+	return s[:i+1]
 }

@@ -62,6 +62,7 @@ func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 		rm.Meta[metaKeyBaseDir] = rm.ToBasedir
 		rm.Meta[metaKeyMountRoot] = rm.path
 		rm.Meta[metaKeyModule] = rm.Module
+		rm.Meta[metaKeyComponent] = fromBase
 
 		meta := copyFileMeta(rm.Meta)
 

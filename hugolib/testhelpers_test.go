@@ -90,7 +90,8 @@ type sitesBuilder struct {
 	// Consider this in relation to using the BaseFs.PublishFs to all publishing.
 	workingDir string
 
-	addNothing bool
+	addNothing   bool
+	addNoContent bool
 	// Base data/content
 	contentFilePairs  []filenameContent
 	templateFilePairs []filenameContent
@@ -126,6 +127,21 @@ func newTestSitesBuilder(t testing.TB) *sitesBuilder {
 	}
 }
 
+func newTestSitesBuilderWithOSFs(t testing.TB, testname string) (*sitesBuilder, string, func()) {
+	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, testname)
+	if err != nil {
+		t.Fatal(err)
+	}
+	v := viper.New()
+	v.Set("workingDir", workDir)
+	b := newTestSitesBuilder(t).WithLogger(loggers.NewErrorLogger())
+	b.Fs = hugofs.NewDefault(v)
+	b.WithWorkingDir(workDir)
+	b.WithViper(v)
+
+	return b, workDir, clean
+}
+
 func newTestSitesBuilderFromDepsCfg(t testing.TB, d deps.DepsCfg) *sitesBuilder {
 	c := qt.New(t)
 
@@ -150,6 +166,11 @@ func (s *sitesBuilder) Running() *sitesBuilder {
 
 func (s *sitesBuilder) WithNothingAdded() *sitesBuilder {
 	s.addNothing = true
+	return s
+}
+
+func (s *sitesBuilder) WithNoContentAdded() *sitesBuilder {
+	s.addNoContent = true
 	return s
 }
 
@@ -499,6 +520,7 @@ func (s *sitesBuilder) LoadConfig() error {
 }
 
 func (s *sitesBuilder) CreateSitesE() error {
+
 	if !s.addNothing {
 		if _, ok := s.Fs.Source.(*afero.OsFs); ok {
 			for _, dir := range []string{
@@ -526,7 +548,6 @@ func (s *sitesBuilder) CreateSitesE() error {
 		s.writeFilePairs("data", s.dataFilePairs)
 		s.writeFilePairs("content", s.contentFilePairs)
 		s.writeFilePairs("layouts", s.templateFilePairs)
-
 	}
 
 	if err := s.LoadConfig(); err != nil {
@@ -672,7 +693,7 @@ hello:
 		}
 	)
 
-	if len(s.contentFilePairs) == 0 {
+	if len(s.contentFilePairs) == 0 && !s.addNoContent {
 		s.writeFilePairs("content", s.createFilenameContent(defaultContent))
 	}
 

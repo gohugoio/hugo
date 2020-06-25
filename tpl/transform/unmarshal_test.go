@@ -140,7 +140,7 @@ a;b;c`, mime: media.CSVType}, map[string]interface{}{"DElimiter": ";", "Comment"
 		{tstNoStringer{}, nil, false},
 	} {
 
-		ns.cache.Clear()
+		ns.deps.MemCache.Clear()
 
 		var args []interface{}
 

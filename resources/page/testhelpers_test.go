@@ -266,6 +266,10 @@ func (p *testPage) IsDescendant(other interface{}) (bool, error) {
 	panic("not implemented")
 }
 
+func (p *testPage) IsNotDependent(other identity.Provider) bool {
+	return false
+}
+
 func (p *testPage) IsDraft() bool {
 	return false
 }

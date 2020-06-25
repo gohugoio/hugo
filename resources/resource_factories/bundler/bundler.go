@@ -17,8 +17,9 @@ package bundler
 import (
 	"fmt"
 	"io"
-	"path"
 	"path/filepath"
+
+	"github.com/gohugoio/hugo/cache/memcache"
 
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/media"
@@ -81,8 +82,7 @@ func (r *multiReadSeekCloser) Close() error {
 
 // Concat concatenates the list of Resource objects.
 func (c *Client) Concat(targetPath string, r resource.Resources) (resource.Resource, error) {
-	// The CACHE_OTHER will make sure this will be re-created and published on rebuilds.
-	return c.rs.ResourceCache.GetOrCreate(path.Join(resources.CACHE_OTHER, targetPath), func() (resource.Resource, error) {
+	return c.rs.ResourceCache.GetOrCreate(targetPath, memcache.ClearOnRebuild, func() (resource.Resource, error) {
 		var resolvedm media.Type
 
 		// The given set of resources must be of the same Media Type.

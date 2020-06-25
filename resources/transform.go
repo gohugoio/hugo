@@ -19,8 +19,12 @@ import (
 	"image"
 	"io"
 	"path"
+	"path/filepath"
 	"strings"
 	"sync"
+
+	"github.com/gohugoio/hugo/cache/memcache"
+	"github.com/gohugoio/hugo/identity"
 
 	"github.com/pkg/errors"
 
@@ -43,6 +47,8 @@ var (
 	_ resource.ContentResource        = (*resourceAdapter)(nil)
 	_ resource.ReadSeekCloserResource = (*resourceAdapter)(nil)
 	_ resource.Resource               = (*resourceAdapter)(nil)
+	_ resource.Staler                 = (*resourceAdapterInner)(nil)
+	_ identity.IsNotDependentProvider = (*resourceAdapterInner)(nil)
 	_ resource.Source                 = (*resourceAdapter)(nil)
 	_ resource.Identifier             = (*resourceAdapter)(nil)
 	_ resource.ResourceMetaProvider   = (*resourceAdapter)(nil)
@@ -61,10 +67,15 @@ func newResourceAdapter(spec *Spec, lazyPublish bool, target transformableResour
 	if lazyPublish {
 		po = &publishOnce{}
 	}
+
+	s := &staler{}
+
 	return &resourceAdapter{
 		resourceTransformations: &resourceTransformations{},
+		Staler:                  s,
 		resourceAdapterInner: &resourceAdapterInner{
 			spec:        spec,
+			Staler:      s,
 			publishOnce: po,
 			target:      target,
 		},
@@ -109,6 +120,12 @@ type ResourceTransformationCtx struct {
 	// This is used to publish additional artifacts, e.g. source maps.
 	// We may improve this.
 	OpenResourcePublisher func(relTargetPath string) (io.WriteCloser, error)
+
+	// Must return true if other is certainly not a dependency in this
+	// transformation (e.g. an import), else false.
+	// This is used in cache invalidation, so, if in doubt,
+	// return false.
+	IsNotDependentFunc func(other identity.Identity) bool
 }
 
 // AddOutPathIdentifier transforming InPath to OutPath adding an identifier,
@@ -151,8 +168,13 @@ type publishOnce struct {
 
 type resourceAdapter struct {
 	commonResource
+
 	*resourceTransformations
 	*resourceAdapterInner
+
+	// This state is carried over into any clone of this adapter
+	// (when passed through a Hugo pipe).
+	resource.Staler
 }
 
 func (r *resourceAdapter) Content() (interface{}, error) {
@@ -189,8 +211,16 @@ func (r *resourceAdapter) Exif() *exif.Exif {
 }
 
 func (r *resourceAdapter) Key() string {
+	return r.TransformationKey()
+}
+
+func (r *resourceAdapter) IsNotDependent(other identity.Provider) bool {
+	panic("TODO1: resourceAdapter")
+}
+
+func (r *resourceAdapter) GetIdentity() identity.Identity {
 	r.init(false, false)
-	return r.target.(resource.Identifier).Key()
+	return r.target.GetIdentity()
 }
 
 func (r *resourceAdapter) MediaType() media.Type {
@@ -254,6 +284,7 @@ func (r resourceAdapter) Transform(t ...ResourceTransformation) (ResourceTransfo
 
 	r.resourceAdapterInner = &resourceAdapterInner{
 		spec:        r.spec,
+		Staler:      r.Staler,
 		publishOnce: &publishOnce{},
 		target:      r.target,
 	}
@@ -301,6 +332,57 @@ func (r *resourceAdapter) publish() {
 }
 
 func (r *resourceAdapter) TransformationKey() string {
+	r.transformationsKeyInit.Do(func() {
+		if len(r.transformations) == 0 {
+			r.transformationsKey = r.target.Key()
+			return
+		}
+
+		var adder string
+		for _, tr := range r.transformations {
+			adder = adder + "_" + tr.Key().Value()
+		}
+
+		key := r.target.Key()
+		adder = "_" + helpers.MD5String(adder)
+
+		// Preserve any file extension if possible.
+		dotIdx := strings.LastIndex(key, ".")
+		if dotIdx == -1 {
+			key += adder
+		} else {
+			key = key[:dotIdx] + adder + key[dotIdx:]
+		}
+
+		key = memcache.CleanKey(key)
+		r.transformationsKey = key
+	})
+
+	return r.transformationsKey
+}
+
+// We changed the format of the resource cache keys in Hugo v0.77.
+// To reduce the nois, especially on the theme site, we fall back to reading
+// files on the old format.
+// TODO(bep) eventually remove.
+func (r *resourceAdapter) transformationKeyV074() string {
+	cleanKey := func(key string) string {
+		return strings.TrimPrefix(path.Clean(strings.ToLower(key)), "/")
+	}
+
+	resourceKeyPartition := func(filename string) string {
+		ext := strings.TrimPrefix(path.Ext(filepath.ToSlash(filename)), ".")
+		if ext == "" {
+			ext = "other"
+		}
+		return ext
+	}
+
+	resourceCacheKey := func(filename string) string {
+		filename = filepath.ToSlash(filename)
+		return path.Join(resourceKeyPartition(filename), filename)
+	}
+
 	// Files with a suffix will be stored in cache (both on disk and in memory)
 	// partitioned by their suffix.
 	var key string
@@ -308,35 +390,34 @@ func (r *resourceAdapter) TransformationKey() string {
 		key = key + "_" + tr.Key().Value()
 	}
 
-	base := ResourceCacheKey(r.target.Key())
-	return r.spec.ResourceCache.cleanKey(base) + "_" + helpers.MD5String(key)
+	base := resourceCacheKey(r.target.RelPermalink())
+	return cleanKey(base) + "_" + helpers.MD5String(key)
+
 }
 
-func (r *resourceAdapter) transform(publish, setContent bool) error {
-	cache := r.spec.ResourceCache
-
+func (r *resourceAdapter) getOrTransform(publish, setContent bool) error {
 	key := r.TransformationKey()
+	res, err := r.spec.ResourceCache.cache.GetOrCreate(key, func() memcache.Entry {
+		r, err := r.transform(key, publish, setContent)
+		return memcache.Entry{
+			Value:     r,
+			Err:       err,
+			ClearWhen: memcache.ClearOnChange,
+		}
+	})
 
-	cached, found := cache.get(key)
-
-	if found {
-		r.resourceAdapterInner = cached.(*resourceAdapterInner)
-		return nil
+	if err != nil {
+		return err
 	}
 
-	// Acquire a write lock for the named transformation.
-	cache.nlocker.Lock(key)
-	// Check the cache again.
-	cached, found = cache.get(key)
-	if found {
-		r.resourceAdapterInner = cached.(*resourceAdapterInner)
-		cache.nlocker.Unlock(key)
-		return nil
-	}
+	r.resourceAdapterInner = res.(*resourceAdapterInner)
 
-	defer cache.nlocker.Unlock(key)
-	defer cache.set(key, r.resourceAdapterInner)
+	return nil
 
+}
+
+func (r *resourceAdapter) transform(key string, publish, setContent bool) (*resourceAdapterInner, error) {
+	cache := r.spec.ResourceCache
 	b1 := bp.GetBuffer()
 	b2 := bp.GetBuffer()
 	defer bp.PutBuffer(b1)
@@ -357,7 +438,7 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 
 	contentrc, err := contentReadSeekerCloser(r.target)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	defer contentrc.Close()
@@ -428,21 +509,25 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 		} else {
 			err = tr.Transform(tctx)
 			if err != nil && err != herrors.ErrFeatureNotAvailable {
-				return newErr(err)
+				return nil, newErr(err)
 			}
 
 			if mayBeCachedOnDisk {
 				tryFileCache = r.spec.BuildConfig.UseResourceCache(err)
 			}
 			if err != nil && !tryFileCache {
-				return newErr(err)
+				return nil, newErr(err)
 			}
 		}
 
 		if tryFileCache {
 			f := r.target.tryTransformedFileCache(key, updates)
 			if f == nil {
-				return newErr(errors.Errorf("resource %q not found in file cache", key))
+				keyOldFormat := r.transformationKeyV074()
+				f = r.target.tryTransformedFileCache(keyOldFormat, updates)
+				if f == nil {
+					return nil, newErr(errors.Errorf("resource %q not found in file cache", key))
+				}
 			}
 			transformedContentr = f
 			updates.sourceFs = cache.fileCache.Fs
@@ -467,7 +552,7 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 	if publish {
 		publicw, err := r.target.openPublishFileForWriting(updates.targetPath)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		publishwriters = append(publishwriters, publicw)
 	}
@@ -477,7 +562,7 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 			// Also write it to the cache
 			fi, metaw, err := cache.writeMeta(key, updates.toTransformedResourceMetadata())
 			if err != nil {
-				return err
+				return nil, err
 			}
 			updates.sourceFilename = &fi.Name
 			updates.sourceFs = cache.fileCache.Fs
@@ -508,7 +593,7 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 	publishw := hugio.NewMultiWriteCloser(publishwriters...)
 	_, err = io.Copy(publishw, transformedContentr)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	publishw.Close()
 
@@ -519,11 +604,12 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 
 	newTarget, err := r.target.cloneWithUpdates(updates)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	r.target = newTarget
+	r.resourceAdapterInner.isNotDependentFunc = tctx.IsNotDependentFunc
 
-	return nil
+	return r.resourceAdapterInner, nil
 }
 
 func (r *resourceAdapter) init(publish, setContent bool) {
@@ -543,7 +629,7 @@ func (r *resourceAdapter) initTransform(publish, setContent bool) {
 			r.publishOnce = nil
 		}
 
-		r.transformationsErr = r.transform(publish, setContent)
+		r.transformationsErr = r.getOrTransform(publish, setContent)
 		if r.transformationsErr != nil {
 			if r.spec.ErrorSender != nil {
 				r.spec.ErrorSender.SendError(r.transformationsErr)
@@ -561,16 +647,33 @@ func (r *resourceAdapter) initTransform(publish, setContent bool) {
 type resourceAdapterInner struct {
 	target transformableResource
 
+	resource.Staler
+	isNotDependentFunc func(other identity.Identity) bool
+
 	spec *Spec
 
 	// Handles publishing (to /public) if needed.
 	*publishOnce
 }
 
+func (r *resourceAdapterInner) ResourceTarget() resource.Resource {
+	return r.target
+}
+
+func (r *resourceAdapterInner) IsNotDependent(other identity.Provider) bool {
+	isNot := false
+	if r.isNotDependentFunc != nil && r.IsNotDependent(other) {
+		isNot = true
+	}
+	return isNot || r.target.IsNotDependent(other)
+}
+
 type resourceTransformations struct {
-	transformationsInit sync.Once
-	transformationsErr  error
-	transformations     []ResourceTransformation
+	transformationsInit    sync.Once
+	transformationsErr     error
+	transformationsKeyInit sync.Once
+	transformationsKey     string
+	transformations        []ResourceTransformation
 }
 
 type transformableResource interface {
@@ -605,7 +708,6 @@ func (u *transformationUpdate) toTransformedResourceMetadata() transformedResour
 }
 
 func (u *transformationUpdate) updateFromCtx(ctx *ResourceTransformationCtx) {
-	u.targetPath = ctx.OutPath
 	u.mediaType = ctx.OutMediaType
 	u.data = ctx.Data
 	u.targetPath = ctx.InPath

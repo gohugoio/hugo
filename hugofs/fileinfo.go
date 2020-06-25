@@ -41,6 +41,7 @@ const (
 	metaKeyBaseDir                    = "baseDir" // Abs base directory of source file.
 	metaKeyMountRoot                  = "mountRoot"
 	metaKeyModule                     = "module"
+	metaKeyComponent                  = "component"
 	metaKeyOriginalFilename           = "originalFilename"
 	metaKeyName                       = "name"
 	metaKeyPath                       = "path"
@@ -136,6 +137,10 @@ func (f FileMeta) SourceRoot() string {
 
 func (f FileMeta) MountRoot() string {
 	return f.stringV(metaKeyMountRoot)
+}
+
+func (f FileMeta) Component() string {
+	return f.stringV(metaKeyComponent)
 }
 
 func (f FileMeta) Module() string {

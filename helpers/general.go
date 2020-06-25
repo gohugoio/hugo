@@ -61,6 +61,24 @@ func FindAvailablePort() (*net.TCPAddr, error) {
 	return nil, err
 }
 
+// FormatByteCount pretty formats b.
+func FormatByteCount(bc uint64) string {
+	const (
+		Gigabyte = 1 << 30
+		Megabyte = 1 << 20
+		Kilobyte = 1 << 10
+	)
+	switch {
+	case bc > Gigabyte || -bc > Gigabyte:
+		return fmt.Sprintf("%.2f GB", float64(bc)/Gigabyte)
+	case bc > Megabyte || -bc > Megabyte:
+		return fmt.Sprintf("%.2f MB", float64(bc)/Megabyte)
+	case bc > Kilobyte || -bc > Kilobyte:
+		return fmt.Sprintf("%.2f KB", float64(bc)/Kilobyte)
+	}
+	return fmt.Sprintf("%d B", bc)
+}
+
 // InStringArray checks if a string is an element of a slice of strings
 // and returns a boolean value.
 func InStringArray(arr []string, el string) bool {

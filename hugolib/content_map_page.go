@@ -250,6 +250,13 @@ func (m *pageMap) newResource(fim hugofs.FileMetaInfo, owner *pageState) (resour
 	}
 
 	target := strings.TrimPrefix(meta.Path(), owner.File().Dir())
+	tbase := meta.TranslationBaseNameWithExt()
+	if tbase != "" {
+		dir, base := filepath.Split(target)
+		if base != tbase {
+			target = filepath.Join(dir, tbase)
+		}
+	}
 
 	return owner.s.ResourceSpec.New(
 		resources.ResourceSourceDescriptor{
@@ -332,6 +339,7 @@ func (m *pageMap) assemblePages() error {
 	}
 
 	m.pages.Walk(func(s string, v interface{}) bool {
+
 		n := v.(*contentNode)
 
 		var shouldBuild bool
@@ -416,6 +424,7 @@ func (m *pageMap) assembleResources(s string, p *pageState, parentBucket *pagesM
 		}
 
 		p.resources = append(p.resources, r)
+
 		return false
 	})
 
@@ -703,6 +712,7 @@ func (m *pageMaps) deleteSection(s string) {
 }
 
 func (m *pageMaps) AssemblePages() error {
+
 	return m.withMaps(func(pm *pageMap) error {
 		if err := pm.CreateMissingNodes(); err != nil {
 			return err

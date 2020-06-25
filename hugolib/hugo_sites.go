@@ -691,8 +691,13 @@ func (cfg *BuildCfg) shouldRender(p *pageState) bool {
 		return true
 	}
 
-	if cfg.whatChanged != nil && !p.File().IsZero() {
-		return cfg.whatChanged.files[p.File().Filename()]
+	if cfg.whatChanged != nil {
+		pid := p.GetIdentity()
+		for _, p := range cfg.whatChanged.files {
+			if p.ProbablyEq(pid) {
+				return true
+			}
+		}
 	}
 
 	return false
@@ -943,12 +948,18 @@ func (h *HugoSites) findPagesByKindIn(kind string, inPages page.Pages) page.Page
 	return h.Sites[0].findPagesByKindIn(kind, inPages)
 }
 
-func (h *HugoSites) resetPageState() {
+func (h *HugoSites) resetPageState(ids identity.PathIdentitySet) {
 	h.getContentMaps().walkBundles(func(n *contentNode) bool {
 		if n.p == nil {
 			return false
 		}
 		p := n.p
+		if p.IsStale() {
+			// We cannot just re-render the content, it needs a full rebuild.
+			ids[p.GetIdentity().(identity.PathIdentity)] = true
+			return false
+		}
+
 		for _, po := range p.pageOutputs {
 			if po.cp == nil {
 				continue
@@ -958,21 +969,51 @@ func (h *HugoSites) resetPageState() {
 
 		return false
 	})
+
 }
 
-func (h *HugoSites) resetPageStateFromEvents(idset identity.Identities) {
+func (h *HugoSites) resetPageStateFromEvents(ids identity.PathIdentitySet) {
 	h.getContentMaps().walkBundles(func(n *contentNode) bool {
 		if n.p == nil {
 			return false
 		}
 		p := n.p
+		if p.IsStale() {
+			// We cannot just re-render the content, it needs a full rebuild.
+			ids[p.GetIdentity().(identity.PathIdentity)] = true
+			// Remove any resources from the ID set, as they will be processed
+			// with its owner.
+			for _, r := range p.Resources() {
+				delete(ids, r.GetIdentity().(identity.PathIdentity))
+			}
+			return false
+		}
+
+		if ids == nil {
+			return false
+		}
+
+		pid := p.GetIdentity()
+		for id, _ := range ids {
+			if id == pid {
+				continue
+			}
+			for _, r := range p.Resources() {
+				if r.GetIdentity() == id {
+					// Replace the resource with the owning page in the set.
+					delete(ids, id)
+					ids[pid.(identity.PathIdentity)] = true
+				}
+			}
+		}
+
 	OUTPUTS:
 		for _, po := range p.pageOutputs {
 			if po.cp == nil {
 				continue
 			}
-			for id := range idset {
-				if po.cp.dependencyTracker.Search(id) != nil {
+			for id, _ := range ids {
+				if po.cp.dependencyTracker.SearchProbablyDependent(id) != nil {
 					po.cp.Reset()
 					continue OUTPUTS
 				}
@@ -986,8 +1027,8 @@ func (h *HugoSites) resetPageStateFromEvents(idset identity.Identities) {
 		for _, s := range p.shortcodeState.shortcodes {
 			for _, templ := range s.templs {
 				sid := templ.(identity.Manager)
-				for id := range idset {
-					if sid.Search(id) != nil {
+				for id, _ := range ids {
+					if sid.SearchProbablyDependent(id) != nil {
 						for _, po := range p.pageOutputs {
 							if po.cp != nil {
 								po.cp.Reset()
@@ -1000,6 +1041,7 @@ func (h *HugoSites) resetPageStateFromEvents(idset identity.Identities) {
 		}
 		return false
 	})
+
 }
 
 // Used in partial reloading to determine if the change is in a bundle.

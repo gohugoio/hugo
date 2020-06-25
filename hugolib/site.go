@@ -29,11 +29,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/cache/memcache"
+
 	"github.com/gohugoio/hugo/common/constants"
 
 	"github.com/gohugoio/hugo/common/loggers"
-
-	"github.com/gohugoio/hugo/resources"
 
 	"github.com/gohugoio/hugo/identity"
 
@@ -251,6 +251,7 @@ func (s *Site) prepareInits() {
 	})
 
 	s.init.prevNextInSection = init.Branch(func() (interface{}, error) {
+
 		var sections page.Pages
 		s.home.treeRef.m.collectSectionsRecursiveIncludingSelf(pageMapQuery{Prefix: s.home.treeRef.key}, func(n *contentNode) {
 			sections = append(sections, n.p)
@@ -316,6 +317,7 @@ func (s *Site) prepareInits() {
 		err := s.pageMap.assembleTaxonomies()
 		return nil, err
 	})
+
 }
 
 type siteRenderingContext struct {
@@ -373,8 +375,7 @@ func (s *Site) isEnabled(kind string) bool {
 
 // reset returns a new Site prepared for rebuild.
 func (s *Site) reset() *Site {
-	return &Site{
-		Deps:                   s.Deps,
+	return &Site{Deps: s.Deps,
 		disabledKinds:          s.disabledKinds,
 		titleFunc:              s.titleFunc,
 		relatedDocsHandler:     s.relatedDocsHandler.Clone(),
@@ -393,6 +394,7 @@ func (s *Site) reset() *Site {
 		PageCollections:        s.PageCollections,
 		siteCfg:                s.siteCfg,
 	}
+
 }
 
 // newSite creates a new site with the given configuration.
@@ -425,6 +427,7 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		// This is a potentially ambigous situation. It may be correct.
 		ignorableLogger.Errorsf(constants.ErrIDAmbigousDisableKindTaxonomy, `You have the value 'taxonomy' in the disabledKinds list. In Hugo 0.73.0 we fixed these to be what most people expect (taxonomy and term).
 But this also means that your site configuration may not do what you expect. If it is correct, you can suppress this message by following the instructions below.`)
+
 	}
 
 	var (
@@ -563,6 +566,7 @@ But this also means that your site configuration may not do what you expect. If 
 	s.prepareInits()
 
 	return s, nil
+
 }
 
 // NewSite creates a new site with the given dependency configuration.
@@ -619,6 +623,7 @@ func newSiteForLang(lang *langs.Language, withTemplate ...func(templ tpl.Templat
 	cfg := deps.DepsCfg{WithTemplate: withTemplates, Cfg: lang}
 
 	return NewSiteForCfg(cfg)
+
 }
 
 // NewSiteForCfg creates a new site for the given configuration.
@@ -630,6 +635,7 @@ func NewSiteForCfg(cfg deps.DepsCfg) (*Site, error) {
 		return nil, err
 	}
 	return h.Sites[0], nil
+
 }
 
 type SiteInfo struct {
@@ -663,10 +669,12 @@ type SiteInfo struct {
 
 func (s *SiteInfo) Pages() page.Pages {
 	return s.s.Pages()
+
 }
 
 func (s *SiteInfo) RegularPages() page.Pages {
 	return s.s.RegularPages()
+
 }
 
 func (s *SiteInfo) AllPages() page.Pages {
@@ -753,6 +761,7 @@ func (s *SiteInfo) ServerPort() int {
 // GoogleAnalytics is kept here for historic reasons.
 func (s *SiteInfo) GoogleAnalytics() string {
 	return s.Config().Services.GoogleAnalytics.ID
+
 }
 
 // DisqusShortname is kept here for historic reasons.
@@ -906,7 +915,7 @@ func (s *Site) multilingual() *Multilingual {
 
 type whatChanged struct {
 	source bool
-	files  map[string]bool
+	files  identity.PathIdentities
 }
 
 // RegisterMediaTypes will register the Site's media types in the mime
@@ -956,7 +965,7 @@ func (s *Site) translateFileEvents(events []fsnotify.Event) []fsnotify.Event {
 	eventMap := make(map[string][]fsnotify.Event)
 
 	// We often get a Remove etc. followed by a Create, a Create followed by a Write.
-	// Remove the superfluous events to mage the update logic simpler.
+	// Remove the superflous events to mage the update logic simpler.
 	for _, ev := range events {
 		eventMap[ev.Name] = append(eventMap[ev.Name], ev)
 	}
@@ -999,107 +1008,103 @@ var (
 )
 
 // reBuild partially rebuilds a site given the filesystem events.
-// It returns whatever the content source was changed.
+// It returns whetever the content source was changed.
 // TODO(bep) clean up/rewrite this method.
 func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) error, events []fsnotify.Event) error {
 	events = s.filterFileEvents(events)
 	events = s.translateFileEvents(events)
 
-	changeIdentities := make(identity.Identities)
-
 	s.Log.Debug().Printf("Rebuild for events %q", events)
 
 	h := s.h
 
-	// First we need to determine what changed
-
 	var (
-		sourceChanged       = []fsnotify.Event{}
-		sourceReallyChanged = []fsnotify.Event{}
-		contentFilesChanged []string
-
 		tmplChanged bool
 		tmplAdded   bool
 		dataChanged bool
 		i18nChanged bool
 
-		sourceFilesChanged = make(map[string]bool)
-
 		// prevent spamming the log on changes
 		logger = helpers.NewDistinctFeedbackLogger()
 	)
 
-	var cachePartitions []string
-	// Special case
-	// TODO(bep) I have a ongoing branch where I have redone the cache. Consider this there.
-	var (
-		evictCSSRe *regexp.Regexp
-		evictJSRe  *regexp.Regexp
-	)
-
+	// Paths relative to their component folder.
+	pathSet := make(identity.PathIdentitySet)
 	for _, ev := range events {
-		if assetsFilename, _ := s.BaseFs.Assets.MakePathRelative(ev.Name); assetsFilename != "" {
-			cachePartitions = append(cachePartitions, resources.ResourceKeyPartitions(assetsFilename)...)
-			if evictCSSRe == nil {
-				if cssFileRe.MatchString(assetsFilename) || cssConfigRe.MatchString(assetsFilename) {
-					evictCSSRe = cssFileRe
-				}
-			}
-			if evictJSRe == nil && jsFileRe.MatchString(assetsFilename) {
-				evictJSRe = jsFileRe
+		removed := false
+
+		if ev.Op&fsnotify.Remove == fsnotify.Remove {
+			removed = true
+		}
+
+		// Some editors (Vim) sometimes issue only a Rename operation when writing an existing file
+		// Sometimes a rename operation means that file has been renamed other times it means
+		// it's been updated
+		if ev.Op&fsnotify.Rename == fsnotify.Rename {
+			// If the file is still on disk, it's only been updated, if it's not, it's been moved
+			if ex, err := afero.Exists(s.Fs.Source, ev.Name); !ex || err != nil {
+				removed = true
 			}
 		}
 
-		id, found := s.eventToIdentity(ev)
-		if found {
-			changeIdentities[id] = id
+		if removed && files.IsContentFile(ev.Name) {
+			h.removePageByFilename(ev.Name)
+		}
 
-			switch id.Type {
-			case files.ComponentFolderContent:
-				logger.Println("Source changed", ev)
-				sourceChanged = append(sourceChanged, ev)
-			case files.ComponentFolderLayouts:
-				tmplChanged = true
-				if !s.Tmpl().HasTemplate(id.Path) {
-					tmplAdded = true
-				}
-				if tmplAdded {
-					logger.Println("Template added", ev)
-				} else {
-					logger.Println("Template changed", ev)
-				}
+		paths := s.BaseFs.CollectPathIdentities(ev.Name)
 
-			case files.ComponentFolderData:
-				logger.Println("Data changed", ev)
-				dataChanged = true
-			case files.ComponentFolderI18n:
-				logger.Println("i18n changed", ev)
-				i18nChanged = true
-
+		if paths != nil {
+			for _, p := range paths {
+				pathSet[p] = true
 			}
 		}
 	}
 
+	for id, _ := range pathSet {
+		switch id.Type() {
+		case files.ComponentFolderContent:
+			logger.Println("Source changed", id.Filename())
+		case files.ComponentFolderLayouts:
+			tmplChanged = true
+			if !s.Tmpl().HasTemplate(id.Path()) {
+				tmplAdded = true
+			}
+			if tmplAdded {
+				logger.Println("Template added", id.Filename())
+			} else {
+				logger.Println("Template changed", id.Filename())
+			}
+
+		case files.ComponentFolderData:
+			logger.Println("Data changed", id.Filename())
+			dataChanged = true
+		case files.ComponentFolderI18n:
+			logger.Println("i18n changed", id.Filename())
+			i18nChanged = true
+		}
+
+	}
+
+	h.MemCache.ClearOn(memcache.ClearOnRebuild, pathSet.ToIdentityProviders()...)
+
+	if config.ErrRecovery || tmplAdded || dataChanged {
+		h.resetPageState(pathSet)
+	} else {
+		h.resetPageStateFromEvents(pathSet)
+	}
+
+	resourceFiles := pathSet.ToPathIdentities().Sort()
+	contentFiles := resourceFiles.ByType(files.ComponentFolderContent)
+
 	changed := &whatChanged{
-		source: len(sourceChanged) > 0,
-		files:  sourceFilesChanged,
+		source: contentFiles != nil, // TODO1 resources?,
+		files:  contentFiles,
 	}
 
 	config.whatChanged = changed
 
 	if err := init(config); err != nil {
 		return err
-	}
-
-	// These in memory resource caches will be rebuilt on demand.
-	for _, s := range s.h.Sites {
-		s.ResourceSpec.ResourceCache.DeletePartitions(cachePartitions...)
-		if evictCSSRe != nil {
-			s.ResourceSpec.ResourceCache.DeleteMatches(evictCSSRe)
-		}
-		if evictJSRe != nil {
-			s.ResourceSpec.ResourceCache.DeleteMatches(evictJSRe)
-		}
 	}
 
 	if tmplChanged || i18nChanged {
@@ -1135,55 +1140,14 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 		s.h.init.data.Reset()
 	}
 
-	for _, ev := range sourceChanged {
-		removed := false
-
-		if ev.Op&fsnotify.Remove == fsnotify.Remove {
-			removed = true
-		}
-
-		// Some editors (Vim) sometimes issue only a Rename operation when writing an existing file
-		// Sometimes a rename operation means that file has been renamed other times it means
-		// it's been updated
-		if ev.Op&fsnotify.Rename == fsnotify.Rename {
-			// If the file is still on disk, it's only been updated, if it's not, it's been moved
-			if ex, err := afero.Exists(s.Fs.Source, ev.Name); !ex || err != nil {
-				removed = true
-			}
-		}
-
-		if removed && files.IsContentFile(ev.Name) {
-			h.removePageByFilename(ev.Name)
-		}
-
-		sourceReallyChanged = append(sourceReallyChanged, ev)
-		sourceFilesChanged[ev.Name] = true
-	}
-
-	if config.ErrRecovery || tmplAdded || dataChanged {
-		h.resetPageState()
-	} else {
-		h.resetPageStateFromEvents(changeIdentities)
-	}
-
-	if len(sourceReallyChanged) > 0 || len(contentFilesChanged) > 0 {
-		var filenamesChanged []string
-		for _, e := range sourceReallyChanged {
-			filenamesChanged = append(filenamesChanged, e.Name)
-		}
-		if len(contentFilesChanged) > 0 {
-			filenamesChanged = append(filenamesChanged, contentFilesChanged...)
-		}
-
-		filenamesChanged = helpers.UniqueStringsReuse(filenamesChanged)
-
-		if err := s.readAndProcessContent(filenamesChanged...); err != nil {
+	if contentFiles != nil {
+		if err := s.readAndProcessContent(contentFiles); err != nil {
 			return err
 		}
-
 	}
 
 	return nil
+
 }
 
 func (s *Site) process(config BuildCfg) (err error) {
@@ -1191,14 +1155,16 @@ func (s *Site) process(config BuildCfg) (err error) {
 		err = errors.Wrap(err, "initialize")
 		return
 	}
-	if err = s.readAndProcessContent(); err != nil {
+	if err = s.readAndProcessContent(nil); err != nil {
 		err = errors.Wrap(err, "readAndProcessContent")
 		return
 	}
 	return err
+
 }
 
 func (s *Site) render(ctx *siteRenderContext) (err error) {
+
 	if err := page.Clear(); err != nil {
 		return err
 	}
@@ -1216,6 +1182,7 @@ func (s *Site) render(ctx *siteRenderContext) (err error) {
 				return
 			}
 		}
+
 	}
 
 	if err = s.renderPages(ctx); err != nil {
@@ -1296,7 +1263,7 @@ func (s *Site) initializeSiteInfo() error {
 		languagePrefix = "/" + lang.Lang
 	}
 
-	uglyURLs := func(p page.Page) bool {
+	var uglyURLs = func(p page.Page) bool {
 		return false
 	}
 
@@ -1351,21 +1318,12 @@ func (s *Site) initializeSiteInfo() error {
 	return nil
 }
 
-func (s *Site) eventToIdentity(e fsnotify.Event) (identity.PathIdentity, bool) {
-	for _, fs := range s.BaseFs.SourceFilesystems.FileSystems() {
-		if p := fs.Path(e.Name); p != "" {
-			return identity.NewPathIdentity(fs.Name, filepath.ToSlash(p)), true
-		}
-	}
-	return identity.PathIdentity{}, false
-}
-
-func (s *Site) readAndProcessContent(filenames ...string) error {
+func (s *Site) readAndProcessContent(ids identity.PathIdentities) error {
 	sourceSpec := source.NewSourceSpec(s.PathSpec, s.BaseFs.Content.Fs)
 
 	proc := newPagesProcessor(s.h, sourceSpec)
 
-	c := newPagesCollector(sourceSpec, s.h.getContentMaps(), s.Log, s.h.ContentChanges, proc, filenames...)
+	c := newPagesCollector(sourceSpec, s.h.getContentMaps(), s.Log, s.h.ContentChanges, proc, ids)
 
 	if err := c.Collect(); err != nil {
 		return err
@@ -1375,6 +1333,7 @@ func (s *Site) readAndProcessContent(filenames ...string) error {
 }
 
 func (s *Site) getMenusFromConfig() navigation.Menus {
+
 	ret := navigation.Menus{}
 
 	if menus := s.language.GetStringMap("menus"); menus != nil {
@@ -1411,6 +1370,7 @@ func (s *Site) getMenusFromConfig() navigation.Menus {
 }
 
 func (s *SiteInfo) createNodeMenuEntryURL(in string) string {
+
 	if !strings.HasPrefix(in, "/") {
 		return in
 	}
@@ -1456,16 +1416,15 @@ func (s *Site) assembleMenus() {
 				return false
 			}
 
-			me := navigation.MenuEntry{
-				Identifier: id,
-				Name:       p.LinkTitle(),
-				Weight:     p.Weight(),
-				Page:       p,
-			}
+			me := navigation.MenuEntry{Identifier: id,
+				Name:   p.LinkTitle(),
+				Weight: p.Weight(),
+				Page:   p}
 			flat[twoD{sectionPagesMenu, me.KeyName()}] = &me
 
 			return false
 		})
+
 	}
 
 	// Add menu entries provided by pages
@@ -1513,7 +1472,7 @@ func (s *Site) assembleMenus() {
 	}
 }
 
-// get any language code to prefix the target file path with.
+// get any lanaguagecode to prefix the target file path with.
 func (s *Site) getLanguageTargetPathLang(alwaysInSubDir bool) string {
 	if s.h.IsMultihost() {
 		return s.Language().Lang
@@ -1524,6 +1483,7 @@ func (s *Site) getLanguageTargetPathLang(alwaysInSubDir bool) string {
 
 // get any lanaguagecode to prefix the relative permalink with.
 func (s *Site) getLanguagePermalinkLang(alwaysInSubDir bool) string {
+
 	if !s.Info.IsMultiLingual() || s.h.IsMultihost() {
 		return ""
 	}
@@ -1726,7 +1686,7 @@ var infoOnMissingLayout = map[string]bool{
 // where ITEM is the thing being hooked.
 type hookRenderer struct {
 	templateHandler tpl.TemplateHandler
-	identity.SearchProvider
+	identity.Provider
 	templ tpl.Template
 }
 
@@ -1785,6 +1745,7 @@ func (s *Site) kindFromSections(sections []string) string {
 	}
 
 	return s.kindFromSectionPath(path.Join(sections...))
+
 }
 
 func (s *Site) kindFromSectionPath(sectionPath string) string {
@@ -1807,6 +1768,7 @@ func (s *Site) newPage(
 	parentbBucket *pagesMapBucket,
 	kind, title string,
 	sections ...string) *pageState {
+
 	m := map[string]interface{}{}
 	if title != "" {
 		m["title"] = title
@@ -1821,6 +1783,7 @@ func (s *Site) newPage(
 			kind:     kind,
 			sections: sections,
 		})
+
 	if err != nil {
 		panic(err)
 	}

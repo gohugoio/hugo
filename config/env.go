@@ -17,6 +17,9 @@ import (
 	"os"
 	"runtime"
 	"strconv"
+
+	"github.com/pbnjay/memory"
+
 	"strings"
 )
 
@@ -31,6 +34,38 @@ func GetNumWorkerMultiplier() int {
 		}
 	}
 	return runtime.NumCPU()
+}
+
+const (
+	gigabyte = 1 << 30
+)
+
+// GetMemoryLimit returns the upper memory limit in bytes for Hugo's in-memory caches.
+// Note that this does not represent "all of the memory" that Hugo will use,
+// so it needs to be set to a lower number than the available system memory.
+// It will read from the HUGO_MEMORYLIMIT (in Gigabytes) environment variable.
+// If that is not set, it will set aside a quarter of the total system memory.
+func GetMemoryLimit() uint64 {
+	if mem := os.Getenv("HUGO_MEMORYLIMIT"); mem != "" {
+		if v := stringToGibabyte(mem); v > 0 {
+			return v
+		}
+
+	}
+
+	m := memory.TotalMemory()
+	if m != 0 {
+		return uint64(m / 4)
+	}
+
+	return 2 * gigabyte
+}
+
+func stringToGibabyte(f string) uint64 {
+	if v, err := strconv.ParseFloat(f, 32); err == nil && v > 0 {
+		return uint64(v * gigabyte)
+	}
+	return 0
 }
 
 // SetEnvVars sets vars on the form key=value in the oldVars slice.

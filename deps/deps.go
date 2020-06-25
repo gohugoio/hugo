@@ -5,6 +5,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/gohugoio/hugo/cache/memcache"
+
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/cache/filecache"
@@ -63,8 +65,11 @@ type Deps struct {
 	// The configuration to use
 	Cfg config.Provider `json:"-"`
 
-	// The file cache to use.
+	// The file caches to use.
 	FileCaches filecache.Caches
+
+	// The memory cache to use.
+	MemCache *memcache.Cache
 
 	// The translation func to use
 	Translate func(translationID string, templateData interface{}) string `json:"-"`
@@ -162,6 +167,13 @@ type ResourceProvider interface {
 	Clone(deps *Deps) error
 }
 
+// Stop stops all running caches etc.
+func (d *Deps) Stop() {
+	if d.MemCache != nil {
+		d.MemCache.Stop()
+	}
+}
+
 func (d *Deps) Tmpl() tpl.TemplateHandler {
 	return d.tmpl
 }
@@ -239,11 +251,12 @@ func New(cfg DepsCfg) (*Deps, error) {
 	if err != nil {
 		return nil, errors.WithMessage(err, "failed to create file caches from configuration")
 	}
+	memCache := memcache.New(memcache.Config{Running: cfg.Running})
 
 	errorHandler := &globalErrHandler{}
 	buildState := &BuildState{}
 
-	resourceSpec, err := resources.NewSpec(ps, fileCaches, buildState, logger, errorHandler, cfg.OutputFormats, cfg.MediaTypes)
+	resourceSpec, err := resources.NewSpec(ps, fileCaches, memCache, buildState, logger, errorHandler, cfg.OutputFormats, cfg.MediaTypes)
 	if err != nil {
 		return nil, err
 	}
@@ -283,6 +296,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		Language:                cfg.Language,
 		Site:                    cfg.Site,
 		FileCaches:              fileCaches,
+		MemCache:                memCache,
 		BuildStartListeners:     &Listeners{},
 		BuildState:              buildState,
 		Running:                 cfg.Running,
@@ -319,7 +333,7 @@ func (d Deps) ForLanguage(cfg DepsCfg, onCreated func(d *Deps) error) (*Deps, er
 	// TODO(bep) clean up these inits.
 	resourceCache := d.ResourceSpec.ResourceCache
 	postBuildAssets := d.ResourceSpec.PostBuildAssets
-	d.ResourceSpec, err = resources.NewSpec(d.PathSpec, d.ResourceSpec.FileCaches, d.BuildState, d.Log, d.globalErrHandler, cfg.OutputFormats, cfg.MediaTypes)
+	d.ResourceSpec, err = resources.NewSpec(d.PathSpec, d.ResourceSpec.FileCaches, d.MemCache, d.BuildState, d.Log, d.globalErrHandler, cfg.OutputFormats, cfg.MediaTypes)
 	if err != nil {
 		return nil, err
 	}

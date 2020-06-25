@@ -28,6 +28,7 @@ require (
 	github.com/google/go-cmp v0.5.3
 	github.com/gorilla/websocket v1.4.2
 	github.com/jdkato/prose v1.2.0
+	github.com/karlseguin/ccache/v2 v2.0.7-0.20200816131247-1189f7f993b5
 	github.com/kylelemons/godebug v1.1.0
 	github.com/kyokomi/emoji v2.2.4+incompatible
 	github.com/magefile/mage v1.10.0
@@ -41,6 +42,7 @@ require (
 	github.com/nicksnyder/go-i18n/v2 v2.1.1
 	github.com/niklasfasching/go-org v1.3.2
 	github.com/olekukonko/tablewriter v0.0.4
+	github.com/pbnjay/memory v0.0.0-20190104145345-974d429e7ae4
 	github.com/pelletier/go-toml v1.8.1
 	github.com/pkg/errors v0.9.1
 	github.com/rogpeppe/go-internal v1.6.2

@@ -56,7 +56,7 @@ func TestPagesCapture(t *testing.T) {
 	t.Run("Collect", func(t *testing.T) {
 		c := qt.New(t)
 		proc := &testPagesCollectorProcessor{}
-		coll := newPagesCollector(sourceSpec, nil, loggers.NewErrorLogger(), nil, proc)
+		coll := newPagesCollector(sourceSpec, nil, loggers.NewErrorLogger(), nil, proc, nil)
 		c.Assert(coll.Collect(), qt.IsNil)
 		c.Assert(len(proc.items), qt.Equals, 4)
 	})

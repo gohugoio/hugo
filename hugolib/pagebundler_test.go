@@ -342,7 +342,7 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 				b.AssertFileContent("public/en/bc/data1.json", "data1")
 				b.AssertFileContent("public/en/bc/data2.json", "data2")
 				b.AssertFileContent("public/en/bc/logo-bc.png", "logo")
-				b.AssertFileContent("public/nn/bc/data1.nn.json", "data1.nn")
+				b.AssertFileContent("public/nn/bc/data1.json", "data1.nn")
 				b.AssertFileContent("public/nn/bc/data2.json", "data2")
 				b.AssertFileContent("public/nn/bc/logo-bc.png", "logo")
 			})
@@ -1301,7 +1301,7 @@ bundle min min key: {{ $jsonMinMin.Key }}
 
 			b.AssertFileContent(index,
 				fmt.Sprintf("bundle min min min: /bundle%d/data.min.min.min.json", i),
-				fmt.Sprintf("bundle min min key: /bundle%d/data.min.min.json", i),
+				fmt.Sprintf("bundle min min key: bundle%d/content/en/data_c9a5f8c93697691d6f8a298931d285f7.json", i),
 			)
 			b.Assert(b.CheckExists(fmt.Sprintf("public/bundle%d/data.min.min.min.json", i)), qt.Equals, true)
 			b.Assert(b.CheckExists(fmt.Sprintf("public/bundle%d/data.min.json", i)), qt.Equals, false)

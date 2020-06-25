@@ -246,9 +246,6 @@ func (r *hookedRenderer) renderLink(w util.BufWriter, source []byte, node ast.No
 		},
 	)
 
-	// TODO(bep) I have a working branch that fixes these rather confusing identity types,
-	// but for now it's important that it's not .GetIdentity() that's added here,
-	// to make sure we search the entire chain on changes.
 	ctx.AddIdentity(h.LinkRenderer)
 
 	return ast.WalkContinue, err

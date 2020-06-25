@@ -19,6 +19,8 @@ import (
 	"github.com/bep/gitmap"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/compare"
+	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/lazy"
 	"github.com/gohugoio/hugo/navigation"
 	"github.com/gohugoio/hugo/output"
@@ -48,6 +50,28 @@ type nextPrevInSectionProvider interface {
 
 func (p *pageCommon) getNextPrevInSection() *nextPrev {
 	return p.posNextPrevSection
+}
+
+func (p *pageCommon) GetIdentity() identity.Identity {
+	p.idInit.Do(func() {
+		var filename string
+		if !p.File().IsZero() {
+			filename = p.File().Filename()
+		}
+		p.id = identity.NewPathIdentity(files.ComponentFolderContent, p.Path(), filename, p.Lang())
+	})
+
+	return p.id
+}
+
+// IsStale returns whether the Page is stale and needs a full rebuild.
+func (p *pageCommon) IsStale() bool {
+	// TODO1 MarkStale
+	return p.resources.IsStale()
+}
+
+func (l *pageCommon) IsNotDependent(other identity.Provider) bool {
+	panic("TODO1: pageState")
 }
 
 type pageCommon struct {
@@ -125,9 +149,12 @@ type pageCommon struct {
 	translations    page.Pages
 	allTranslations page.Pages
 
-	// Calculated an cached translation mapping key
+	// Calculated and cached translation mapping key
 	translationKey     string
 	translationKeyInit sync.Once
+
+	id     identity.Identity
+	idInit sync.Once
 
 	// Will only be set for bundled pages.
 	parent *pageState

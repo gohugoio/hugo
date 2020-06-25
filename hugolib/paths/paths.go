@@ -53,6 +53,8 @@ type Paths struct {
 
 	PublishDir string
 
+	IsMultiHost bool
+
 	// When in multihost mode, this returns a list of base paths below PublishDir
 	// for each language.
 	MultihostTargetBasePaths []string
@@ -140,7 +142,8 @@ func New(fs *hugofs.Fs, cfg config.Provider) (*Paths, error) {
 	}
 
 	var multihostTargetBasePaths []string
-	if languages.IsMultihost() {
+	isMultiHost := languages.IsMultihost()
+	if isMultiHost {
 		for _, l := range languages {
 			multihostTargetBasePaths = append(multihostTargetBasePaths, l.Lang)
 		}
@@ -169,6 +172,7 @@ func New(fs *hugofs.Fs, cfg config.Provider) (*Paths, error) {
 		Language:                 language,
 		Languages:                languages,
 		LanguagesDefaultFirst:    languagesDefaultFirst,
+		IsMultiHost:              isMultiHost,
 		MultihostTargetBasePaths: multihostTargetBasePaths,
 
 		PaginatePath: cfg.GetString("paginatePath"),

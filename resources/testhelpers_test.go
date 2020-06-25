@@ -1,6 +1,11 @@
 package resources
 
 import (
+	"path/filepath"
+	"testing"
+
+	"github.com/gohugoio/hugo/cache/memcache"
+
 	"image"
 	"io"
 	"io/ioutil"
@@ -87,7 +92,9 @@ func newTestResourceSpec(desc specDescriptor) *Spec {
 	filecaches, err := filecache.NewCaches(s)
 	c.Assert(err, qt.IsNil)
 
-	spec, err := NewSpec(s, filecaches, nil, nil, nil, output.DefaultFormats, media.DefaultTypes)
+	mc := memcache.New(memcache.Config{})
+
+	spec, err := NewSpec(s, filecaches, mc, nil, nil, nil, output.DefaultFormats, media.DefaultTypes)
 	c.Assert(err, qt.IsNil)
 	return spec
 }
@@ -126,7 +133,7 @@ func newTestResourceOsFs(c *qt.C) (*Spec, string) {
 	filecaches, err := filecache.NewCaches(s)
 	c.Assert(err, qt.IsNil)
 
-	spec, err := NewSpec(s, filecaches, nil, nil, nil, output.DefaultFormats, media.DefaultTypes)
+	spec, err := NewSpec(s, filecaches, memcache.New(memcache.Config{}), nil, nil, nil, output.DefaultFormats, media.DefaultTypes)
 	c.Assert(err, qt.IsNil)
 
 	return spec, workDir
@@ -202,4 +209,23 @@ func writeToFs(t testing.TB, fs afero.Fs, filename, content string) {
 	if err := afero.WriteFile(fs, filepath.FromSlash(filename), []byte(content), 0755); err != nil {
 		t.Fatalf("Failed to write file: %s", err)
 	}
+}
+
+func newGenericResource(r *Spec, sourceFs afero.Fs,
+	targetPathBuilder func() page.TargetPaths,
+	osFileInfo os.FileInfo,
+	sourceFilename,
+	baseFilename string,
+	mediaType media.Type) *genericResource {
+	return r.newGenericResourceWithBase(
+		sourceFs,
+		nil,
+		nil,
+		targetPathBuilder,
+		osFileInfo,
+		sourceFilename,
+		baseFilename,
+		mediaType,
+	)
+
 }

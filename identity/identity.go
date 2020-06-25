@@ -1,10 +1,24 @@
+// Copyright 2020 The Hugo Authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Package provides ways to identify values in Hugo. Used for dependency tracking etc.
 package identity
 
 import (
-	"path/filepath"
-	"strings"
 	"sync"
 	"sync/atomic"
+
+	"github.com/gohugoio/hugo/compare"
 )
 
 // NewIdentityManager creates a new Manager starting at id.
@@ -15,17 +29,28 @@ func NewManager(id Provider) Manager {
 	}
 }
 
-// NewPathIdentity creates a new Identity with the two identifiers
-// type and path.
-func NewPathIdentity(typ, pat string) PathIdentity {
-	pat = strings.ToLower(strings.TrimPrefix(filepath.ToSlash(pat), "/"))
-	return PathIdentity{Type: typ, Path: pat}
-}
-
 // Identities stores identity providers.
 type Identities map[Identity]Provider
 
-func (ids Identities) search(depth int, id Identity) Provider {
+func (ids Identities) isNotNotDependent(p1, p2 Provider) (Provider, bool) {
+
+	// Let both p1 and p2 vote on this:
+	if !p1.IsNotDependent(p2) {
+		return p1, true
+	}
+
+	if !p2.IsNotDependent(p1) {
+		return p1, true
+	}
+
+	// There may false positives in the above, but we should know be
+	// sure about p1 and p2 not being dependent on each other.
+	return nil, false
+
+}
+func (ids Identities) search(depth int, probableMatch bool, id Provider) Provider {
+
+	// TODO(bep): .Base()
 	if v, found := ids[id.GetIdentity()]; found {
 		return v
 	}
@@ -39,9 +64,19 @@ func (ids Identities) search(depth int, id Identity) Provider {
 	}
 
 	for _, v := range ids {
+		if probableMatch {
+			if p, ok := ids.isNotNotDependent(v, id); ok {
+
+				// It is not not dependent, which may be a false positive,
+				// but that is OK in this case.
+				return p
+
+			}
+		}
+
 		switch t := v.(type) {
 		case IdentitiesProvider:
-			if nested := t.GetIdentities().search(depth, id); nested != nil {
+			if nested := t.GetIdentities().search(depth, probableMatch, id); nested != nil {
 				return nested
 			}
 		}
@@ -54,41 +89,34 @@ type IdentitiesProvider interface {
 	GetIdentities() Identities
 }
 
+/*
+
+- manager.Search(id/manager)
+
+*/
+type Provider interface {
+	GetIdentity() Identity
+	IsNotDependentProvider
+}
+
 // Identity represents an thing that can provide an identify. This can be
 // any Go type, but the Identity returned by GetIdentify must be hashable.
 type Identity interface {
-	Provider
+	//Provider
+	compare.ProbablyEqer
+	compare.Eqer
+	Base() interface{}
 	Name() string
 }
 
 // Manager manages identities, and is itself a Provider of Identity.
 type Manager interface {
-	SearchProvider
-	Add(ids ...Provider)
-	Reset()
-}
-
-// SearchProvider provides access to the chained set of identities.
-type SearchProvider interface {
-	Provider
 	IdentitiesProvider
-	Search(id Identity) Provider
-}
-
-// A PathIdentity is a common identity identified by a type and a path, e.g. "layouts" and "_default/single.html".
-type PathIdentity struct {
-	Type string
-	Path string
-}
-
-// GetIdentity returns itself.
-func (id PathIdentity) GetIdentity() Identity {
-	return id
-}
-
-// Name returns the Path.
-func (id PathIdentity) Name() string {
-	return id.Path
+	Provider
+	Add(ids ...Provider)
+	Search(id Provider) Provider
+	SearchProbablyDependent(id Provider) Provider
+	Reset()
 }
 
 // A KeyValueIdentity a general purpose identity.
@@ -102,18 +130,35 @@ func (id KeyValueIdentity) GetIdentity() Identity {
 	return id
 }
 
+func (id KeyValueIdentity) IsNotDependent(other Provider) bool {
+	return id != other
+}
+
+func (id KeyValueIdentity) Base() interface{} {
+	return id
+}
+
 // Name returns the Key.
 func (id KeyValueIdentity) Name() string {
 	return id.Key
 }
 
-// Provider provides the hashable Identity.
-type Provider interface {
-	GetIdentity() Identity
+func (id KeyValueIdentity) Eq(other interface{}) bool {
+	return id == other
+}
+
+func (id KeyValueIdentity) ProbablyEq(other interface{}) bool {
+	return id == other
+}
+
+// IsNotDependentProvider provides a method to determin if the other
+// Provider is not dependent on this one.
+type IsNotDependentProvider interface {
+	IsNotDependent(other Provider) bool
 }
 
 type identityManager struct {
-	sync.Mutex
+	sync.RWMutex
 	Provider
 	ids Identities
 }
@@ -128,8 +173,7 @@ func (im *identityManager) Add(ids ...Provider) {
 
 func (im *identityManager) Reset() {
 	im.Lock()
-	id := im.GetIdentity()
-	im.ids = Identities{id.GetIdentity(): id}
+	im.ids = Identities{im.GetIdentity(): im}
 	im.Unlock()
 }
 
@@ -141,10 +185,21 @@ func (im *identityManager) GetIdentities() Identities {
 	return im.ids
 }
 
-func (im *identityManager) Search(id Identity) Provider {
+func (im *identityManager) IsNotDependent(other Provider) bool {
+	got := im.SearchProbablyDependent(other)
+	return got == nil
+}
+
+func (im *identityManager) Search(id Provider) Provider {
 	im.Lock()
 	defer im.Unlock()
-	return im.ids.search(0, id.GetIdentity())
+	return im.ids.search(0, false, id)
+}
+
+func (im *identityManager) SearchProbablyDependent(id Provider) Provider {
+	im.Lock()
+	defer im.Unlock()
+	return im.ids.search(0, true, id)
 }
 
 // Incrementer increments and returns the value.

@@ -18,7 +18,8 @@ package create
 import (
 	"path"
 	"path/filepath"
-	"strings"
+
+	"github.com/gohugoio/hugo/cache/memcache"
 
 	"github.com/gohugoio/hugo/hugofs/glob"
 
@@ -43,13 +44,13 @@ func New(rs *resources.Spec) *Client {
 // Get creates a new Resource by opening the given filename in the assets filesystem.
 func (c *Client) Get(filename string) (resource.Resource, error) {
 	filename = filepath.Clean(filename)
-	return c.rs.ResourceCache.GetOrCreate(resources.ResourceCacheKey(filename), func() (resource.Resource, error) {
+	return c.rs.ResourceCache.GetOrCreate(memcache.CleanKey(filename), memcache.ClearOnChange, func() (resource.Resource, error) {
 		return c.rs.New(resources.ResourceSourceDescriptor{
 			Fs:             c.rs.BaseFs.Assets.Fs,
 			LazyPublish:    true,
-			SourceFilename: filename,
-		})
+			SourceFilename: filename})
 	})
+
 }
 
 // Match gets the resources matching the given pattern from the assets filesystem.
@@ -74,13 +75,7 @@ func (c *Client) match(pattern string, firstOnly bool) (resource.Resources, erro
 		name = "__match"
 	}
 
-	pattern = glob.NormalizePath(pattern)
-	partitions := glob.FilterGlobParts(strings.Split(pattern, "/"))
-	if len(partitions) == 0 {
-		partitions = []string{resources.CACHE_OTHER}
-	}
-	key := path.Join(name, path.Join(partitions...))
-	key = path.Join(key, pattern)
+	key := path.Join(name, glob.NormalizePath(pattern))
 
 	return c.rs.ResourceCache.GetOrCreateResources(key, func() (resource.Resources, error) {
 		var res resource.Resources
@@ -93,8 +88,8 @@ func (c *Client) match(pattern string, firstOnly bool) (resource.Resources, erro
 				OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
 					return meta.Open()
 				},
-				RelTargetFilename: meta.Path(),
-			})
+				RelTargetFilename: meta.Path()})
+
 			if err != nil {
 				return true, err
 			}
@@ -102,6 +97,7 @@ func (c *Client) match(pattern string, firstOnly bool) (resource.Resources, erro
 			res = append(res, r)
 
 			return firstOnly, nil
+
 		}
 
 		if err := hugofs.Glob(c.rs.BaseFs.Assets.Fs, pattern, handle); err != nil {
@@ -109,12 +105,13 @@ func (c *Client) match(pattern string, firstOnly bool) (resource.Resources, erro
 		}
 
 		return res, nil
+
 	})
 }
 
 // FromString creates a new Resource from a string with the given relative target path.
 func (c *Client) FromString(targetPath, content string) (resource.Resource, error) {
-	return c.rs.ResourceCache.GetOrCreate(path.Join(resources.CACHE_OTHER, targetPath), func() (resource.Resource, error) {
+	r, err := c.rs.ResourceCache.GetOrCreate(memcache.CleanKey(targetPath), memcache.ClearOnRebuild, func() (resource.Resource, error) {
 		return c.rs.New(
 			resources.ResourceSourceDescriptor{
 				Fs:          c.rs.FileCaches.AssetsCache().Fs,
@@ -122,7 +119,13 @@ func (c *Client) FromString(targetPath, content string) (resource.Resource, erro
 				OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
 					return hugio.NewReadSeekerNoOpCloserFromString(content), nil
 				},
-				RelTargetFilename: filepath.Clean(targetPath),
-			})
+				RelTargetFilename: filepath.Clean(targetPath)})
+
 	})
+
+	if err == nil {
+		r.(resource.Staler).MarkStale()
+	}
+	return r, err
+
 }

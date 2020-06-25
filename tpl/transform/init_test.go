@@ -16,6 +16,8 @@ package transform
 import (
 	"testing"
 
+	"github.com/gohugoio/hugo/cache/memcache"
+
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/htesting/hqt"
@@ -28,7 +30,9 @@ func TestInit(t *testing.T) {
 	var ns *internal.TemplateFuncsNamespace
 
 	for _, nsf := range internal.TemplateFuncsNamespaceRegistry {
-		ns = nsf(&deps.Deps{})
+		ns = nsf(&deps.Deps{
+			MemCache: memcache.New(memcache.Config{}),
+		})
 		if ns.Name == name {
 			found = true
 			break

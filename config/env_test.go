@@ -29,4 +29,6 @@ func TestSetEnvVars(t *testing.T) {
 	key, val := SplitEnvVar("HUGO=rocks")
 	c.Assert(key, qt.Equals, "HUGO")
 	c.Assert(val, qt.Equals, "rocks")
+
+	c.Assert(stringToGibabyte("1.0"), qt.Equals, uint64(1073741824))
 }

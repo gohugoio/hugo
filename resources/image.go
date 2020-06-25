@@ -29,6 +29,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/identity"
+
 	"github.com/disintegration/gift"
 
 	"github.com/gohugoio/hugo/cache/filecache"
@@ -133,6 +135,10 @@ func (i *imageResource) getExif() *exif.Exif {
 	}
 
 	return i.meta.Exif
+}
+
+func (i *imageResource) IsNotDependent(other identity.Provider) bool {
+	return false
 }
 
 func (i *imageResource) Clone() resource.Resource {
@@ -366,7 +372,7 @@ func (i *imageResource) getImageMetaCacheTargetPath() string {
 		df.dir = filepath.Dir(fi.Meta().Path())
 	}
 	p1, _ := helpers.FileAndExt(df.file)
-	h, _ := i.hash()
+	h := i.hash()
 	idStr := helpers.HashString(h, i.size(), imageMetaVersionNumber, cfg)
 	return path.Join(df.dir, fmt.Sprintf("%s_%s.json", p1, idStr))
 }
@@ -377,7 +383,7 @@ func (i *imageResource) relTargetPathFromConfig(conf images.ImageConfig) dirFile
 		p2 = conf.TargetFormat.DefaultExtension()
 	}
 
-	h, _ := i.hash()
+	h := i.hash()
 	idStr := fmt.Sprintf("_hu%s_%d", h, i.size())
 
 	// Do not change for no good reason.

@@ -111,7 +111,7 @@ func needsBaseTemplate(templ string) bool {
 }
 
 func newIdentity(name string) identity.Manager {
-	return identity.NewManager(identity.NewPathIdentity(files.ComponentFolderLayouts, name))
+	return identity.NewManager(identity.NewPathIdentity(files.ComponentFolderLayouts, name, "", ""))
 }
 
 func newStandaloneTextTemplate(funcs map[string]interface{}) tpl.TemplateParseFinder {
@@ -410,7 +410,7 @@ func (t *templateHandler) findLayout(d output.LayoutDescriptor, f output.Format)
 			ts.baseInfo = base
 
 			// Add the base identity to detect changes
-			ts.Add(identity.NewPathIdentity(files.ComponentFolderLayouts, base.name))
+			ts.Add(identity.NewPathIdentity(files.ComponentFolderLayouts, base.name, "", ""))
 		}
 
 		t.applyTemplateTransformers(t.main, ts)

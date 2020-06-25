@@ -218,6 +218,10 @@ func (p *nopPage) IsDraft() bool {
 	return false
 }
 
+func (p *nopPage) IsNotDependent(other identity.Provider) bool {
+	return false
+}
+
 func (p *nopPage) IsHome() bool {
 	return false
 }
@@ -495,5 +499,5 @@ func (p *nopPage) WordCount() int {
 }
 
 func (p *nopPage) GetIdentity() identity.Identity {
-	return identity.NewPathIdentity("content", "foo/bar.md")
+	return identity.NewPathIdentity("content", "foo/bar.md", "", "t")
 }

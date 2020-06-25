@@ -140,10 +140,6 @@ func (p *pageState) Eq(other interface{}) bool {
 	return p == pp
 }
 
-func (p *pageState) GetIdentity() identity.Identity {
-	return identity.NewPathIdentity(files.ComponentFolderContent, filepath.FromSlash(p.Path()))
-}
-
 func (p *pageState) GitInfo() *gitmap.GitInfo {
 	return p.gitInfo
 }
@@ -243,6 +239,7 @@ func (p *pageState) RegularPages() page.Pages {
 		}
 
 		p.regularPages = pages
+
 	})
 
 	return p.regularPages
@@ -357,9 +354,11 @@ func (p *pageState) TranslationKey() string {
 		} else if p.IsNode() {
 			p.translationKey = path.Join(p.Kind(), p.SectionsPath())
 		}
+
 	})
 
 	return p.translationKey
+
 }
 
 // AllTranslations returns all translations, including the current Page.
@@ -406,7 +405,7 @@ func (p *pageState) createRenderHooks(f output.Format) (*hooks.Renderers, error)
 	if templFound {
 		renderers.LinkRenderer = hookRenderer{
 			templateHandler: p.s.Tmpl(),
-			SearchProvider:  templ.(identity.SearchProvider),
+			Provider:        templ.(tpl.Info),
 			templ:           templ,
 		}
 	}
@@ -419,7 +418,7 @@ func (p *pageState) createRenderHooks(f output.Format) (*hooks.Renderers, error)
 	if templFound {
 		renderers.ImageRenderer = hookRenderer{
 			templateHandler: p.s.Tmpl(),
-			SearchProvider:  templ.(identity.SearchProvider),
+			Provider:        templ.(tpl.Info),
 			templ:           templ,
 		}
 	}
@@ -432,7 +431,7 @@ func (p *pageState) createRenderHooks(f output.Format) (*hooks.Renderers, error)
 	if templFound {
 		renderers.HeadingRenderer = hookRenderer{
 			templateHandler: p.s.Tmpl(),
-			SearchProvider:  templ.(identity.SearchProvider),
+			Provider:        templ.(tpl.Info),
 			templ:           templ,
 		}
 	}
@@ -466,6 +465,7 @@ func (p *pageState) getLayoutDescriptor() output.LayoutDescriptor {
 	})
 
 	return p.layoutDescriptor
+
 }
 
 func (p *pageState) resolveTemplate(layouts ...string) (tpl.Template, bool, error) {
@@ -496,6 +496,7 @@ func (p *pageState) initOutputFormat(isRenderingSite bool, idx int) error {
 	}
 
 	return nil
+
 }
 
 // Must be run after the site section tree etc. is built and ready.
@@ -541,6 +542,7 @@ func (p *pageState) renderResources() (err error) {
 		for _, i := range toBeDeleted {
 			p.deleteResource(i)
 		}
+
 	})
 
 	return
@@ -584,7 +586,7 @@ type renderStringOpts struct {
 	Markup  string
 }
 
-var defaultRenderStringOpts = renderStringOpts{
+var defualtRenderStringOpts = renderStringOpts{
 	Display: "inline",
 	Markup:  "", // Will inherit the page's value when not set.
 }
@@ -595,7 +597,7 @@ func (p *pageState) RenderString(args ...interface{}) (template.HTML, error) {
 	}
 
 	var s string
-	opts := defaultRenderStringOpts
+	opts := defualtRenderStringOpts
 	sidx := 1
 
 	if len(args) == 1 {
@@ -675,6 +677,7 @@ func (p *pageState) Render(layout ...string) (template.HTML, error) {
 		return "", p.wrapError(errors.Wrapf(err, "failed to execute template %q v", layout))
 	}
 	return template.HTML(res), nil
+
 }
 
 // wrapError adds some more context to the given error if possible/needed
@@ -707,6 +710,7 @@ func (p *pageState) getContentConverter() converter.Converter {
 			markup = "markdown"
 		}
 		p.m.contentConverter, err = p.m.newContentConverter(p, markup, p.m.renderingConfigOverrides)
+
 	})
 
 	if err != nil {
@@ -716,6 +720,7 @@ func (p *pageState) getContentConverter() converter.Converter {
 }
 
 func (p *pageState) mapContent(bucket *pagesMapBucket, meta *pageMeta) error {
+
 	s := p.shortcodeState
 
 	rn := &pageContentMap{
@@ -884,6 +889,7 @@ func (p *pageState) parseError(err error, input []byte, offset int) error {
 	}
 	pos := p.posFromInput(input, offset)
 	return herrors.NewFileError("md", -1, pos.LineNumber, pos.ColumnNumber, err)
+
 }
 
 func (p *pageState) pathOrTitle() string {
@@ -945,6 +951,7 @@ func (p *pageState) shiftToOutputFormat(isRenderingSite bool, idx int) error {
 	if isRenderingSite {
 		cp := p.pageOutput.cp
 		if cp == nil {
+
 			// Look for content to reuse.
 			for i := 0; i < len(p.pageOutputs); i++ {
 				if i == idx {
@@ -978,7 +985,7 @@ func (p *pageState) shiftToOutputFormat(isRenderingSite bool, idx int) error {
 //
 // For pages that have a source file, it is returns the path to this file as an
 // absolute path rooted in this site's content dir.
-// For pages that do not (sections without content page etc.), it returns the
+// For pages that do not (sections witout content page etc.), it returns the
 // virtual path, consistent with where you would add a source file.
 func (p *pageState) sourceRef() string {
 	if !p.File().IsZero() {

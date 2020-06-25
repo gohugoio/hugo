@@ -351,7 +351,7 @@ Edited content.
 `)
 
 		b.Assert(b.Fs.Destination.Remove("public"), qt.IsNil)
-		b.H.ResourceSpec.ClearCaches()
+		b.H.MemCache.Clear()
 
 	}
 }

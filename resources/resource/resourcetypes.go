@@ -17,6 +17,7 @@ import (
 	"image"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/images/exif"
@@ -45,6 +46,7 @@ type Resource interface {
 	ResourceMetaProvider
 	ResourceParamsProvider
 	ResourceDataProvider
+	identity.Provider
 }
 
 // Image represents an image resource.
@@ -182,6 +184,36 @@ type TranslationKeyProvider interface {
 type UnmarshableResource interface {
 	ReadSeekCloserResource
 	Identifier
+}
+
+// Staler controls stale state of a Resource. A stale resource should be discarded.
+type Staler interface {
+	MarkStale()
+	StaleInfo
+}
+
+// StaleInfo tells if a resource is marked as stale.
+type StaleInfo interface {
+	IsStale() bool
+}
+
+// IsStaleAny reports whether any of the os is marked as stale.
+func IsStaleAny(os ...interface{}) bool {
+	for _, o := range os {
+		if s, ok := o.(StaleInfo); ok && s.IsStale() {
+			return true
+		}
+	}
+	return false
+}
+
+// MarkStale will mark any of the oses as stale, if possible.
+func MarkStale(os ...interface{}) {
+	for _, o := range os {
+		if s, ok := o.(Staler); ok {
+			s.MarkStale()
+		}
+	}
 }
 
 type resourceTypesHolder struct {

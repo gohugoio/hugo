@@ -16,6 +16,8 @@ package htesting
 import (
 	"path/filepath"
 
+	"github.com/gohugoio/hugo/cache/memcache"
+
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
@@ -51,7 +53,7 @@ func NewTestResourceSpec() (*resources.Spec, error) {
 		return nil, err
 	}
 
-	spec, err := resources.NewSpec(s, filecaches, nil, nil, nil, output.DefaultFormats, media.DefaultTypes)
+	spec, err := resources.NewSpec(s, filecaches, memcache.New(memcache.Config{}), nil, nil, nil, output.DefaultFormats, media.DefaultTypes)
 	return spec, err
 }
 

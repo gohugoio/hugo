@@ -353,7 +353,7 @@ var verifyErrorDirRe = regexp.MustCompile(`dir has been modified \((.*?)\)`)
 // which are stored in a local downloaded source cache, have not been
 // modified since being downloaded.
 func (c *Client) Verify(clean bool) error {
-	// TODO1 add path to mod clean
+	// TODO(bep) add path to mod clean
 	err := c.runVerify()
 	if err != nil {
 		if clean {

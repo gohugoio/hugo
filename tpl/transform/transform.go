@@ -18,7 +18,7 @@ import (
 	"html"
 	"html/template"
 
-	"github.com/gohugoio/hugo/cache/namedmemcache"
+	"github.com/gohugoio/hugo/cache/memcache"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -27,22 +27,19 @@ import (
 
 // New returns a new instance of the transform-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
-	cache := namedmemcache.New()
-	deps.BuildStartListeners.Add(
-		func() {
-			cache.Clear()
-		})
-
+	if deps.MemCache == nil {
+		panic("must provide MemCache")
+	}
 	return &Namespace{
-		cache: cache,
 		deps:  deps,
+		cache: deps.MemCache.GetOrCreatePartition("tpl/transform", memcache.ClearOnChange),
 	}
 }
 
 // Namespace provides template functions for the "transform" namespace.
 type Namespace struct {
-	cache *namedmemcache.Cache
 	deps  *deps.Deps
+	cache memcache.Getter
 }
 
 // Emojify returns a copy of s with all emoji codes replaced with actual emojis.

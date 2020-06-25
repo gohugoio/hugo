@@ -141,8 +141,8 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 		isStdin := args.Importer == stdinImporter
 		var relDir string
 		if !isStdin {
-			rel, found := fs.MakePathRelative(args.Importer)
-			if !found {
+			rel := fs.MakePathRelative(args.Importer)
+			if rel == "" {
 				// Not in any of the /assets folders.
 				// This is an import from a node_modules, let
 				// ESBuild resolve this.

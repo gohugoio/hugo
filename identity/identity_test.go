@@ -18,23 +18,50 @@ import (
 	"math/rand"
 	"strconv"
 	"testing"
-
-	qt "github.com/frankban/quicktest"
 )
 
 func TestIdentityManager(t *testing.T) {
 	c := qt.New(t)
 
 	id1 := testIdentity{name: "id1"}
-	im := NewManager(id1)
 
-	c.Assert(im.Search(id1).GetIdentity(), qt.Equals, id1)
-	c.Assert(im.Search(testIdentity{name: "notfound"}), qt.Equals, nil)
+	newM := func() Manager {
+		m := NewManager(id1)
+		m.Add(testIdentity{name: "id2"})
+
+		return m
+	}
+
+	c.Run("Search", func(c *qt.C) {
+		im := newM()
+		c.Assert(im.Search(id1).GetIdentity(), qt.Equals, id1)
+		c.Assert(im.Search(testIdentity{name: "notfound"}), qt.Equals, nil)
+	})
+
+	c.Run("IsNotDependent", func(c *qt.C) {
+		im := newM()
+		c.Assert(im.IsNotDependent(testIdentity{name: "notfound"}), qt.Equals, true)
+		c.Assert(im.IsNotDependent(testIdentity{name: "id1"}), qt.Equals, false)
+		c.Assert(im.IsNotDependent(testIdentity{name: "id2"}), qt.Equals, false)
+	})
+}
+
+func TestKeyValueIdentity(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(KeyValueIdentity{Key: "a", Value: "b"}.Eq(KeyValueIdentity{Key: "a", Value: "b"}), qt.Equals, true)
+	c.Assert(KeyValueIdentity{Key: "a", Value: "b"}.Eq(KeyValueIdentity{Key: "a", Value: "c"}), qt.Equals, false)
+	c.Assert(KeyValueIdentity{Key: "a", Value: "b"}.Eq(KeyValueIdentity{Key: "c", Value: "b"}), qt.Equals, false)
+
+	c.Assert(KeyValueIdentity{Key: "a", Value: "b"}.ProbablyEq(KeyValueIdentity{Key: "a", Value: "b"}), qt.Equals, true)
+	c.Assert(KeyValueIdentity{Key: "a", Value: "b"}.ProbablyEq(KeyValueIdentity{Key: "a", Value: "c"}), qt.Equals, false)
+	c.Assert(KeyValueIdentity{Key: "a", Value: "b"}.ProbablyEq(KeyValueIdentity{Key: "c", Value: "b"}), qt.Equals, false)
 }
 
 func BenchmarkIdentityManager(b *testing.B) {
-	createIds := func(num int) []Identity {
-		ids := make([]Identity, num)
+
+	createIds := func(num int) []Provider {
+		ids := make([]Provider, num)
 		for i := 0; i < num; i++ {
 			ids[i] = testIdentity{name: fmt.Sprintf("id%d", i)}
 		}
@@ -80,10 +107,25 @@ type testIdentity struct {
 	name string
 }
 
+func (id testIdentity) IsNotDependent(other Provider) bool {
+	return id != other.GetIdentity()
+}
+
 func (id testIdentity) GetIdentity() Identity {
+	return id
+}
+
+func (id testIdentity) Base() interface{} {
 	return id
 }
 
 func (id testIdentity) Name() string {
 	return id.name
+}
+
+func (id testIdentity) Eq(other interface{}) bool {
+	return false
+}
+func (id testIdentity) ProbablyEq(other interface{}) bool {
+	return false
 }

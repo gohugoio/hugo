@@ -271,7 +271,7 @@ var featureSet = map[identity.Identity]bool{
 }
 
 func (c *goldmarkConverter) Supports(feature identity.Identity) bool {
-	return featureSet[feature.GetIdentity()]
+	return featureSet[feature]
 }
 
 func (c *goldmarkConverter) newParserContext(rctx converter.RenderContext) *parserContext {
