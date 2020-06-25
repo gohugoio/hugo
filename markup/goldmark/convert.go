@@ -22,6 +22,7 @@ import (
 	"runtime/debug"
 
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/markup/converter/hooks"
 
 	"github.com/pkg/errors"
 
@@ -195,8 +196,29 @@ func (b *bufWriter) Flush() error {
 
 type renderContext struct {
 	*bufWriter
-	pos int
+	pos       []int
+	footnotes []hooks.FootnoteContext
 	renderContextData
+}
+
+func (ctx *renderContext) pushPosition(pos int) {
+	ctx.pos = append(ctx.pos, pos)
+}
+
+func (ctx *renderContext) popPosition() int {
+	popped := ctx.pos[len(ctx.pos)-1]
+	ctx.pos = ctx.pos[:len(ctx.pos)-1]
+	return popped
+}
+
+func (ctx *renderContext) pushFootnote(footnote hooks.FootnoteContext) {
+	ctx.footnotes = append(ctx.footnotes, footnote)
+}
+
+func (ctx *renderContext) flushFootnotes() []hooks.FootnoteContext {
+	footnotes := ctx.footnotes
+	ctx.footnotes = nil
+	return footnotes
 }
 
 type renderContextData interface {

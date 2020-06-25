@@ -1706,6 +1706,14 @@ func (hr hookRenderer) RenderHeading(w io.Writer, ctx hooks.HeadingContext) erro
 	return hr.templateHandler.Execute(hr.templ, w, ctx)
 }
 
+func (hr hookRenderer) RenderFootnoteLink(w io.Writer, ctx hooks.FootnoteLinkContext) error {
+	return hr.templateHandler.Execute(hr.templ, w, ctx)
+}
+
+func (hr hookRenderer) RenderFootnotes(w io.Writer, ctx hooks.FootnotesContext) error {
+	return hr.templateHandler.Execute(hr.templ, w, ctx)
+}
+
 func (s *Site) renderForTemplate(name, outputFormat string, d interface{}, w io.Writer, templ tpl.Template) (err error) {
 	if templ == nil {
 		s.logMissingLayout(name, "", outputFormat)

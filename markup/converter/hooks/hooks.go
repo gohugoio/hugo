@@ -54,10 +54,40 @@ type HeadingRenderer interface {
 	identity.Provider
 }
 
+type FootnoteLinkContext interface {
+	Page() interface{}
+	Index() int
+}
+
+type FootnoteLinkRenderer interface {
+	RenderFootnoteLink(w io.Writer, ctx FootnoteLinkContext) error
+	identity.Provider
+}
+
+type FootnotesContext interface {
+	Page() interface{}
+	Footnotes() []FootnoteContext
+}
+
+type FootnoteContext interface {
+	Page() interface{}
+	Ref() string
+	Index() int
+	Text() string
+	PlainText() string
+}
+
+type FootnotesRenderer interface {
+	RenderFootnotes(w io.Writer, ctx FootnotesContext) error
+	identity.Provider
+}
+
 type Renderers struct {
-	LinkRenderer    LinkRenderer
-	ImageRenderer   LinkRenderer
-	HeadingRenderer HeadingRenderer
+	LinkRenderer         LinkRenderer
+	ImageRenderer        LinkRenderer
+	HeadingRenderer      HeadingRenderer
+	FootnoteLinkRenderer FootnoteLinkRenderer
+	FootnotesRenderer    FootnotesRenderer
 }
 
 func (r *Renderers) Eq(other interface{}) bool {

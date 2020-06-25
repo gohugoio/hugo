@@ -14,10 +14,13 @@
 package goldmark
 
 import (
+	"strconv"
+
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/ast"
+	extast "github.com/yuin/goldmark/extension/ast"
 	"github.com/yuin/goldmark/renderer"
 	"github.com/yuin/goldmark/renderer/html"
 	"github.com/yuin/goldmark/util"
@@ -98,6 +101,60 @@ func (ctx headingContext) PlainText() string {
 	return ctx.plainText
 }
 
+type footnoteLinkContext struct {
+	page  interface{}
+	index int
+}
+
+func (ctx footnoteLinkContext) Page() interface{} {
+	return ctx.page
+}
+
+func (ctx footnoteLinkContext) Index() int {
+	return ctx.index
+}
+
+type footnoteContext struct {
+	page      interface{}
+	ref       string
+	index     int
+	text      string
+	plainText string
+}
+
+func (ctx footnoteContext) Page() interface{} {
+	return ctx.page
+}
+
+func (ctx footnoteContext) Ref() string {
+	return ctx.ref
+}
+
+func (ctx footnoteContext) Index() int {
+	return ctx.index
+}
+
+func (ctx footnoteContext) Text() string {
+	return ctx.text
+}
+
+func (ctx footnoteContext) PlainText() string {
+	return ctx.plainText
+}
+
+type footnotesContext struct {
+	page      interface{}
+	footnotes []hooks.FootnoteContext
+}
+
+func (ctx footnotesContext) Page() interface{} {
+	return ctx.page
+}
+
+func (ctx footnotesContext) Footnotes() []hooks.FootnoteContext {
+	return ctx.footnotes
+}
+
 type hookedRenderer struct {
 	html.Config
 }
@@ -111,6 +168,10 @@ func (r *hookedRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) 
 	reg.Register(ast.KindLink, r.renderLink)
 	reg.Register(ast.KindImage, r.renderImage)
 	reg.Register(ast.KindHeading, r.renderHeading)
+	reg.Register(extast.KindFootnoteLink, r.renderFootnoteLink)
+	reg.Register(extast.KindFootnoteBackLink, r.renderFootnoteBackLink)
+	reg.Register(extast.KindFootnote, r.renderFootnote)
+	reg.Register(extast.KindFootnoteList, r.renderFootnoteList)
 }
 
 // https://github.com/yuin/goldmark/blob/b611cd333a492416b56aa8d94b04a67bf0096ab2/renderer/html/html.go#L404
@@ -168,12 +229,13 @@ func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.N
 
 	if entering {
 		// Store the current pos so we can capture the rendered text.
-		ctx.pos = ctx.Buffer.Len()
+		ctx.pushPosition(ctx.Buffer.Len())
 		return ast.WalkContinue, nil
 	}
 
-	text := ctx.Buffer.Bytes()[ctx.pos:]
-	ctx.Buffer.Truncate(ctx.pos)
+	pos := ctx.popPosition()
+	text := ctx.Buffer.Bytes()[pos:]
+	ctx.Buffer.Truncate(pos)
 
 	err := h.ImageRenderer.RenderLink(
 		w,
@@ -230,12 +292,13 @@ func (r *hookedRenderer) renderLink(w util.BufWriter, source []byte, node ast.No
 
 	if entering {
 		// Store the current pos so we can capture the rendered text.
-		ctx.pos = ctx.Buffer.Len()
+		ctx.pushPosition(ctx.Buffer.Len())
 		return ast.WalkContinue, nil
 	}
 
-	text := ctx.Buffer.Bytes()[ctx.pos:]
-	ctx.Buffer.Truncate(ctx.pos)
+	pos := ctx.popPosition()
+	text := ctx.Buffer.Bytes()[pos:]
+	ctx.Buffer.Truncate(pos)
 
 	err := h.LinkRenderer.RenderLink(
 		w,
@@ -286,12 +349,13 @@ func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast
 
 	if entering {
 		// Store the current pos so we can capture the rendered text.
-		ctx.pos = ctx.Buffer.Len()
+		ctx.pushPosition(ctx.Buffer.Len())
 		return ast.WalkContinue, nil
 	}
 
-	text := ctx.Buffer.Bytes()[ctx.pos:]
-	ctx.Buffer.Truncate(ctx.pos)
+	pos := ctx.popPosition()
+	text := ctx.Buffer.Bytes()[pos:]
+	ctx.Buffer.Truncate(pos)
 	// All ast.Heading nodes are guaranteed to have an attribute called "id"
 	// that is an array of bytes that encode a valid string.
 	anchori, _ := n.AttributeString("id")
@@ -309,6 +373,203 @@ func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast
 	)
 
 	ctx.AddIdentity(h.HeadingRenderer.GetIdentity())
+
+	return ast.WalkContinue, err
+}
+
+// Fall back to the default Goldmark render funcs. Method below borrowed from:
+// https://github.com/yuin/goldmark/blob/64d4e16bf4548242453a87665afd78954f1aae3e/extension/footnote.go#L242
+func (r *hookedRenderer) renderDefaultFootnoteLink(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	if entering {
+		n := node.(*extast.FootnoteLink)
+		is := strconv.Itoa(n.Index)
+		_, _ = w.WriteString(`<sup id="fnref:`)
+		_, _ = w.WriteString(is)
+		_, _ = w.WriteString(`"><a href="#fn:`)
+		_, _ = w.WriteString(is)
+		_, _ = w.WriteString(`" class="footnote-ref" role="doc-noteref">`)
+		_, _ = w.WriteString(is)
+		_, _ = w.WriteString(`</a></sup>`)
+	}
+	return ast.WalkContinue, nil
+}
+
+func (r *hookedRenderer) renderFootnoteLink(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*extast.FootnoteLink)
+	var h *hooks.Renderers
+
+	ctx, ok := w.(*renderContext)
+	if ok {
+		h = ctx.RenderContext().RenderHooks
+		ok = h != nil && h.FootnoteLinkRenderer != nil
+	}
+
+	if !ok {
+		return r.renderDefaultFootnoteLink(w, source, node, entering)
+	}
+
+	if entering {
+		ctx.pushPosition(ctx.Buffer.Len())
+		return ast.WalkContinue, nil
+	}
+
+	pos := ctx.popPosition()
+	ctx.Buffer.Truncate(pos)
+
+	err := h.FootnoteLinkRenderer.RenderFootnoteLink(
+		w,
+		footnoteLinkContext{
+			page:  ctx.DocumentContext().Document,
+			index: n.Index,
+		},
+	)
+
+	ctx.AddIdentity(h.FootnoteLinkRenderer.GetIdentity())
+
+	return ast.WalkContinue, err
+}
+
+// Fall back to the default Goldmark render funcs. Method below borrowed from:
+// https://github.com/yuin/goldmark/blob/64d4e16bf4548242453a87665afd78954f1aae3e/extension/footnote.go#L257
+func (r *hookedRenderer) renderDefaultFootnoteBackLink(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	if entering {
+		n := node.(*extast.FootnoteBackLink)
+		is := strconv.Itoa(n.Index)
+		_, _ = w.WriteString(` <a href="#fnref:`)
+		_, _ = w.WriteString(is)
+		_, _ = w.WriteString(`" class="footnote-backref" role="doc-backlink">`)
+		_, _ = w.WriteString("&#x21a9;&#xfe0e;")
+		_, _ = w.WriteString(`</a>`)
+	}
+	return ast.WalkContinue, nil
+}
+
+func (r *hookedRenderer) renderFootnoteBackLink(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	var h *hooks.Renderers
+
+	ctx, ok := w.(*renderContext)
+	if ok {
+		h = ctx.RenderContext().RenderHooks
+		ok = h != nil && h.FootnotesRenderer != nil
+	}
+
+	if !ok {
+		return r.renderDefaultFootnoteBackLink(w, source, node, entering)
+	}
+
+	return ast.WalkContinue, nil
+}
+
+// Fall back to the default Goldmark render funcs. Method below borrowed from:
+// https://github.com/yuin/goldmark/blob/64d4e16bf4548242453a87665afd78954f1aae3e/extension/footnote.go#L270
+func (r *hookedRenderer) renderDefaultFootnote(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*extast.Footnote)
+	is := strconv.Itoa(n.Index)
+	if entering {
+		_, _ = w.WriteString(`<li id="fn:`)
+		_, _ = w.WriteString(is)
+		_, _ = w.WriteString(`" role="doc-endnote"`)
+		if node.Attributes() != nil {
+			html.RenderAttributes(w, node, html.ListItemAttributeFilter)
+		}
+		_, _ = w.WriteString(">\n")
+	} else {
+		_, _ = w.WriteString("</li>\n")
+	}
+	return ast.WalkContinue, nil
+}
+
+func (r *hookedRenderer) renderFootnote(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*extast.Footnote)
+	var h *hooks.Renderers
+
+	ctx, ok := w.(*renderContext)
+	if ok {
+		h = ctx.RenderContext().RenderHooks
+		ok = h != nil && h.FootnotesRenderer != nil
+	}
+
+	if !ok {
+		return r.renderDefaultFootnote(w, source, node, entering)
+	}
+
+	if entering {
+		// Store the current pos so we can capture the rendered text.
+		ctx.pushPosition(ctx.Buffer.Len())
+		return ast.WalkContinue, nil
+	}
+
+	pos := ctx.popPosition()
+	text := ctx.Buffer.Bytes()[pos:]
+	ctx.Buffer.Truncate(pos)
+
+	ctx.pushFootnote(footnoteContext{
+		page:      ctx.DocumentContext().Document,
+		ref:       string(n.Ref),
+		index:     n.Index,
+		text:      string(text),
+		plainText: string(n.Text(source)),
+	})
+
+	return ast.WalkContinue, nil
+}
+
+// Fall back to the default Goldmark render funcs. Method below borrowed from:
+// https://github.com/yuin/goldmark/blob/64d4e16bf4548242453a87665afd78954f1aae3e/extension/footnote.go#L287
+func (r *hookedRenderer) renderDefaultFootnoteList(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	tag := "section"
+	if r.Config.XHTML {
+		tag = "div"
+	}
+	if entering {
+		_, _ = w.WriteString("<")
+		_, _ = w.WriteString(tag)
+		_, _ = w.WriteString(` class="footnotes" role="doc-endnotes"`)
+		if node.Attributes() != nil {
+			html.RenderAttributes(w, node, html.GlobalAttributeFilter)
+		}
+		_ = w.WriteByte('>')
+		if r.Config.XHTML {
+			_, _ = w.WriteString("\n<hr />\n")
+		} else {
+			_, _ = w.WriteString("\n<hr>\n")
+		}
+		_, _ = w.WriteString("<ol>\n")
+	} else {
+		_, _ = w.WriteString("</ol>\n")
+		_, _ = w.WriteString("</")
+		_, _ = w.WriteString(tag)
+		_, _ = w.WriteString(">\n")
+	}
+	return ast.WalkContinue, nil
+}
+
+func (r *hookedRenderer) renderFootnoteList(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	var h *hooks.Renderers
+
+	ctx, ok := w.(*renderContext)
+	if ok {
+		h = ctx.RenderContext().RenderHooks
+		ok = h != nil && h.FootnotesRenderer != nil
+	}
+
+	if !ok {
+		return r.renderDefaultFootnoteList(w, source, node, entering)
+	}
+
+	if entering {
+		return ast.WalkContinue, nil
+	}
+
+	err := h.FootnotesRenderer.RenderFootnotes(
+		w,
+		footnotesContext{
+			page:      ctx.DocumentContext().Document,
+			footnotes: ctx.flushFootnotes(),
+		},
+	)
+
+	ctx.AddIdentity(h.FootnotesRenderer.GetIdentity())
 
 	return ast.WalkContinue, err
 }

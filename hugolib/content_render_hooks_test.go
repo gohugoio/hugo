@@ -50,6 +50,8 @@ Inner Block: {{ .Inner | .Page.RenderString (dict "display" "block" ) }}
 	b.WithTemplatesAdded("docs/_markup/render-link.html", `Link docs section: {{ .Text | safeHTML }}|END`)
 	b.WithTemplatesAdded("_default/_markup/render-image.html", `IMAGE: {{ .Page.Title }}||{{ .Destination | safeURL }}|Title: {{ .Title | safeHTML }}|Text: {{ .Text | safeHTML }}|END`)
 	b.WithTemplatesAdded("_default/_markup/render-heading.html", `HEADING: {{ .Page.Title }}||Level: {{ .Level }}|Anchor: {{ .Anchor | safeURL }}|Text: {{ .Text | safeHTML }}|END`)
+	b.WithTemplatesAdded("_default/_markup/render-footnote-link.html", `<sup id="fnref:{{ .Page.Title | urlize }}-{{ .Index }}"><a href="#fn:{{ .Page.Title | urlize }}-{{ .Index }}" class="footnote-ref" role="doc-noteref">{{ if (eq 1 .Index) }}*{{ else }}†{{ end }}</a></sup>`)
+	b.WithTemplatesAdded("_default/_markup/render-footnotes.html", `<h3>Footnotes for {{ .Page.Title }}</h3><ol>{{ range .Footnotes }}<li id="fn:{{ .Page.Title | urlize }}-{{ .Index }}">{{ if (eq 1 .Index) }}*{{ else }}†{{ end }} [{{ .Ref }}] {{ .Text | safeHTML }}</li>{{ end }}</ol>`)
 	b.WithTemplatesAdded("docs/_markup/render-heading.html", `Docs Level: {{ .Level }}|END`)
 
 	b.WithContent("customview/p1.md", `---
@@ -141,6 +143,18 @@ title: Doc With Heading
 
 # Docs lvl 1
 
+`, "blog/p9.md", `---
+title: Cool Page With Footnotes
+---
+
+This page has footnotes[^1]. Footnotes have been proven to be pretty cool[^textfn].
+
+[^1]: A footnote is an aside that appears out of flow.
+
+    That's the [second](https://example.com) paragraph.
+
+[^textfn]: _Anmerkung et al._ (1967)
+
 `,
 	)
 
@@ -155,7 +169,7 @@ title: No Template
 	}
 	counters := &testCounters{}
 	b.Build(BuildCfg{testCounters: counters})
-	b.Assert(int(counters.contentRenderCounter), qt.Equals, 45)
+	b.Assert(int(counters.contentRenderCounter), qt.Equals, 46)
 
 	b.AssertFileContent("public/blog/p1/index.html", `
 <p>Cool Page|https://www.google.com|Title: Google's Homepage|Text: First Link|END</p>
@@ -193,7 +207,7 @@ SHORT3|
 	counters = &testCounters{}
 	b.Build(BuildCfg{testCounters: counters})
 	// Make sure that only content using the changed templates are re-rendered.
-	b.Assert(int(counters.contentRenderCounter), qt.Equals, 7)
+	b.Assert(int(counters.contentRenderCounter), qt.Equals, 8)
 
 	b.AssertFileContent("public/customview/p1/index.html", `.Render: myrender: Custom View|P4: PARTIAL4_EDITED`)
 	b.AssertFileContent("public/blog/p1/index.html", `<p>EDITED: https://www.google.com|</p>`, "SHORT3_EDITED|")
@@ -207,6 +221,12 @@ SHORT3|
 	// https://github.com/gohugoio/hugo/issues/7349
 	b.AssertFileContent("public/docs/p8/index.html", "Docs Level: 1")
 
+	b.AssertFileContent("public/blog/p9/index.html",
+		`<p>This page has footnotes<sup id="fnref:cool-page-with-footnotes-1"><a href="#fn:cool-page-with-footnotes-1" class="footnote-ref" role="doc-noteref">*</a></sup>. Footnotes have been proven to be pretty cool<sup id="fnref:cool-page-with-footnotes-2"><a href="#fn:cool-page-with-footnotes-2" class="footnote-ref" role="doc-noteref">†</a></sup>.</p>`,
+		`<h3>Footnotes for Cool Page With Footnotes</h3><ol><li id="fn:cool-page-with-footnotes-1">* [1] <p>A footnote is an aside that appears out of flow.</p>`,
+		`<p>That&rsquo;s the EDITED: https://example.com| paragraph.</p>`,
+		`</li><li id="fn:cool-page-with-footnotes-2">† [textfn] <p><em>Anmerkung et al.</em> (1967)</p>`,
+		`</li></ol>`)
 }
 
 func TestRenderHooksDeleteTemplate(t *testing.T) {
@@ -340,6 +360,8 @@ P1: {{ $p.Content }}
 	`,
 		"_default/_markup/render-link.html", `html-link: {{ .Destination | safeURL }}|Text: {{ .Text | safeHTML }}|Plain: {{ .PlainText | safeHTML }}`,
 		"_default/_markup/render-image.html", `html-image: {{ .Destination | safeURL }}|Text: {{ .Text | safeHTML }}|Plain: {{ .PlainText | safeHTML }}`,
+		"_default/_markup/render-footnote-link.html", `{{ .Index }}`,
+		"_default/_markup/render-footnotes.html", `footnotes: {{ range .Footnotes }}{{ .Index }}: Text: {{ .Text | safeHTML }}|Plain: {{ .PlainText | safeHTML }} ||| {{ end }}`,
 	)
 
 	b.WithContent("p1.md", `---
@@ -348,11 +370,17 @@ title: "p1"
 
 START: [**should be bold**](https://gohugo.io)END
 
-Some regular **markup**.
+Some regular **markup**[^foo].
 
-Image:
+Image[^bar]:
 
 ![Hello<br> Goodbye](image.jpg)END
+
+[^foo]: This is a test
+
+    With a second line
+
+[^bar]: _and something emphasized_
 
 `)
 
@@ -360,8 +388,13 @@ Image:
 
 	b.AssertFileContent("public/index.html", `
   P1: <p>START: html-link: https://gohugo.io|Text: <strong>should be bold</strong>|Plain: should be boldEND</p>
-<p>Some regular <strong>markup</strong>.</p>
+<p>Some regular <strong>markup</strong>1.</p>
+<p>Image2:</p>
 <p>html-image: image.jpg|Text: Hello<br> Goodbye|Plain: Hello GoodbyeEND</p>
+footnotes: 1: Text: <p>This is a test</p>
+<p>With a second line</p>
+|Plain: This is a testWith a second line ||| 2: Text: <p><em>and something emphasized</em></p>
+|Plain: and something emphasized |||
 `)
 
 }

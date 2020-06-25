@@ -94,6 +94,7 @@ The features currently supported are:
 * `image`
 * `link`
 * `heading` {{< new-in "0.71.0" >}}
+* `footnote-link` and `footnotes`
 
 You can define [Output-Format-](/templates/output-formats) and [language-](/content-management/multilingual/)specific templates if needed.[^hooktemplate] Your `layouts` folder may look like this:
 
@@ -149,6 +150,39 @@ Text
 PlainText
 : The plain variant of the above.
 
+The `render-footnote-link` template will receive this context:
+
+Page
+: The [Page](/variables/page/) being rendered.
+
+Index
+: The footnote numeric index (indicating which number footnote it is in order)
+
+The `render-footnotes` template will receive this context:
+
+Page
+: The [Page](/variables/page/) being rendered.
+
+Footnotes
+: An array of footnote contexts (in ascending order)
+
+Footnote contexts:
+
+Page
+: The [Page](/variables/page/) being rendered.
+
+Ref
+: The internal name used in the markdown file to connect a footnote to it's content
+
+Index
+: The footnote numeric index
+
+Text
+: The rendered (HTML) text.
+
+PlainText
+: The plain variant of the above.
+
 #### Link with title Markdown example:
 
 ```md
@@ -193,6 +227,54 @@ The rendered html will be
 
 ```html
 <h3 id="section-a">Section A <a href="#section-a">¶</a></h3>
+```
+
+#### Footnote example
+
+Given these template files
+
+{{< code file="layouts/_default/_markup/render-footnote-link.html" >}}
+<sup id="fnref:{{ .Page.Title | urlize }}-{{ .Index }}"><a href="#fn:{{ .Page.Title | urlize }}-{{ .Index }}">{{ if (eq 1 .Index) }}*{{ else }}†{{ end }}</a></sup>
+{{< /code >}}
+
+{{< code file="layouts/_default/_markup/render-footnotes.html" >}}
+<ol>
+    {{ range .Footnotes }}
+    <li id="fn:{{ .Page.Title | urlize }}-{{ .Index }}">
+        {{ if (eq 1 .Index) }}*{{ else }}†{{ end }} (ref: {{ .Ref }}) {{ .Text | safeHTML }}
+    </li>
+    {{ end }}
+</ol>
+{{< /code >}}
+
+And this markdown
+
+```md
+---
+title: Example
+---
+This page has footnotes[^1]. Footnotes have been proven to be pretty cool[^cool].
+
+[^1]: A footnote is an aside that appears out of flow.
+
+    They can have multiple paragraphs too!
+
+[^cool]: _Anmerkung et al._ (1967)
+```
+
+The rendered html will be
+
+```html
+<p>This page has footnotes<sup id="fnref:example-1"><a href="#fn:example-1">*</a></sup>. Footnotes have been proven to be pretty cool<sup id="fnref:example-2"><a href="#fn:example-2">†</a></sup>.</p>
+
+<ol>
+    <li id="fn:example-1">
+        * (ref: 1) <p>A footnote is an aside that appears out of flow.</p><p>They can have multiple paragraphs too!</p>
+    </li>
+    <li id="fn:example-2">
+        † (ref: cool) <p><em>_Anmerkung et al.</em> (1967)</p>
+    </li>
+</ol>
 ```
 
 [^hooktemplate]: It's currently only possible to have one set of render hook templates, e.g. not per `Type` or `Section`. We may consider that in a future version.

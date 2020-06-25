@@ -423,6 +423,32 @@ func (p *pageState) createRenderHooks(f output.Format) (*hooks.Renderers, error)
 		}
 	}
 
+	layoutDescriptor.Kind = "render-footnote-link"
+	templ, templFound, err = p.s.Tmpl().LookupLayout(layoutDescriptor, f)
+	if err != nil {
+		return nil, err
+	}
+	if templFound {
+		renderers.FootnoteLinkRenderer = hookRenderer{
+			templateHandler: p.s.Tmpl(),
+			Provider:        templ.(tpl.Info),
+			templ:           templ,
+		}
+	}
+
+	layoutDescriptor.Kind = "render-footnotes"
+	templ, templFound, err = p.s.Tmpl().LookupLayout(layoutDescriptor, f)
+	if err != nil {
+		return nil, err
+	}
+	if templFound {
+		renderers.FootnotesRenderer = hookRenderer{
+			templateHandler: p.s.Tmpl(),
+			Provider:        templ.(tpl.Info),
+			templ:           templ,
+		}
+	}
+
 	return &renderers, nil
 }
 
