@@ -82,6 +82,7 @@ func (r Response) IsUserError() bool {
 // Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
 // The args are usually filled with os.Args[1:].
 func Execute(args []string) Response {
+
 	hugoCmd := newCommandsBuilder().addAll().build()
 	cmd := hugoCmd.getCommand()
 	cmd.SetArgs(args)
@@ -427,7 +428,37 @@ func (c *commandeer) initMutexProfile() (func(), error) {
 
 }
 
+func (c *commandeer) initMemTicker() func() {
+	memticker := time.NewTicker(5 * time.Second)
+	quit := make(chan struct{})
+	printMem := func() {
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+		fmt.Printf("\n\nAlloc = %v\nTotalAlloc = %v\nSys = %v\nNumGC = %v\n\n", formatByteCount(m.Alloc), formatByteCount(m.TotalAlloc), formatByteCount(m.Sys), m.NumGC)
+
+	}
+
+	go func() {
+		for {
+			select {
+			case <-memticker.C:
+				printMem()
+			case <-quit:
+				memticker.Stop()
+				printMem()
+				return
+			}
+
+		}
+	}()
+
+	return func() {
+		close(quit)
+	}
+}
+
 func (c *commandeer) initProfiling() (func(), error) {
+
 	stopCPUProf, err := c.initCPUProfile()
 	if err != nil {
 		return nil, err
@@ -443,6 +474,11 @@ func (c *commandeer) initProfiling() (func(), error) {
 		return nil, err
 	}
 
+	var stopMemTicker func()
+	if c.h.printm {
+		stopMemTicker = c.initMemTicker()
+	}
+
 	return func() {
 		c.initMemProfile()
 
@@ -455,6 +491,10 @@ func (c *commandeer) initProfiling() (func(), error) {
 
 		if stopTraceProf != nil {
 			stopTraceProf()
+		}
+
+		if stopMemTicker != nil {
+			stopMemTicker()
 		}
 	}, nil
 }
@@ -1174,4 +1214,18 @@ func pickOneWriteOrCreatePath(events []fsnotify.Event) string {
 	}
 
 	return name
+}
+
+func formatByteCount(b uint64) string {
+	const unit = 1000
+	if b < unit {
+		return fmt.Sprintf("%d B", b)
+	}
+	div, exp := int64(unit), 0
+	for n := b / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.1f %cB",
+		float64(b)/float64(div), "kMGTPE"[exp])
 }
