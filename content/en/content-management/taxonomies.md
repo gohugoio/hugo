@@ -194,13 +194,13 @@ Currently taxonomies only support the [default `weight => date` ordering of list
 
 ## Add custom metadata a Taxonomy or Term
 
-If you need to add custom metadata to your taxonomy terms, you will need to create a page for that term at `/content/<TAXONOMY>/<TERM>/_index.md` and add your metadata in it's front matter. Continuing with our 'Actors' example, let's say you want to add a wikipedia page link to each actor. Your terms pages would be something like this:
+If you need to add custom metadata to your taxonomy terms, you will need to create a page for that term at `/content/<TAXONOMY>/<TERM>/_index.md` and add your metadata in it's front matter. Continuing with our 'Actors' example, let's say you want to add a Wikipedia page link to each actor. Your terms pages would be something like this:
 
 {{< code file="/content/actors/bruce-willis/_index.md" >}}
-  ---
-  title: "Bruce Willis"
-  wikipedia: "https://en.wikipedia.org/wiki/Bruce_Willis"
-  ---
+---
+title: "Bruce Willis"
+wikipedia: "https://en.wikipedia.org/wiki/Bruce_Willis"
+---
 {{< /code >}}
 
 
