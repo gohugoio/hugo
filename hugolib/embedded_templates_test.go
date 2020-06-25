@@ -15,47 +15,7 @@ package hugolib
 
 import (
 	"testing"
-
-	qt "github.com/frankban/quicktest"
 )
-
-// Just some simple test of the embedded templates to avoid
-// https://github.com/gohugoio/hugo/issues/4757 and similar.
-// TODO(bep) fix me https://github.com/gohugoio/hugo/issues/5926
-func _TestEmbeddedTemplates(t *testing.T) {
-	t.Parallel()
-
-	c := qt.New(t)
-	c.Assert(true, qt.Equals, true)
-
-	home := []string{"index.html", `
-GA:
-{{ template "_internal/google_analytics.html" . }}
-
-GA async:
-
-{{ template "_internal/google_analytics_async.html" . }}
-
-Disqus:
-
-{{ template "_internal/disqus.html" . }}
-
-`}
-
-	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile().WithTemplatesAdded(home...)
-
-	b.Build(BuildCfg{})
-
-	// Gheck GA regular and async
-	b.AssertFileContent("public/index.html",
-		"'anonymizeIp', true",
-		"'script','https://www.google-analytics.com/analytics.js','ga');\n\tga('create', 'ga_id', 'auto')",
-		"<script async src='https://www.google-analytics.com/analytics.js'>")
-
-	// Disqus
-	b.AssertFileContent("public/index.html", "\"disqus_shortname\" + '.disqus.com/embed.js';")
-}
 
 func TestInternalTemplatesImage(t *testing.T) {
 	config := `
