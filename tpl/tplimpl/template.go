@@ -721,6 +721,12 @@ func (t *templateHandler) noBaseNeeded(name string) bool {
 
 func (t *templateHandler) postTransform() error {
 	for _, v := range t.main.templates {
+		// Workaround for https://github.com/gohugoio/hugo/issues/5926
+		// Prepare() (*Template, error)
+		_, err := v.Template.(templPreparer).Prepare()
+		if err != nil {
+			return err
+		}
 		if v.typ == templateShortcode {
 			t.addShortcodeVariant(v)
 		}
@@ -819,6 +825,10 @@ func (t *templateNamespace) newTemplateLookup(in *templateState) func(name strin
 		return nil
 
 	}
+}
+
+type templPreparer interface {
+	Prepare() (*texttemplate.Template, error)
 }
 
 func (t *templateNamespace) parse(info templateInfo) (*templateState, error) {
