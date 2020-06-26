@@ -18,6 +18,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/herrors"
@@ -203,6 +204,14 @@ func (d Decoder) unmarshalCSV(data []byte, v interface{}) error {
 
 }
 
+func parseORGDate(s string) string {
+	r := regexp.MustCompile(`[<\[](\d{4}-\d{2}-\d{2}) .*[>\]]`)
+	if m := r.FindStringSubmatch(s); m != nil {
+		return m[1]
+	}
+	return s
+}
+
 func (d Decoder) unmarshalORG(data []byte, v interface{}) error {
 	config := org.New()
 	config.Log = jww.WARN
@@ -218,6 +227,8 @@ func (d Decoder) unmarshalORG(data []byte, v interface{}) error {
 		} else if k == "tags" || k == "categories" || k == "aliases" {
 			jww.WARN.Printf("Please use '#+%s[]:' notation, automatic conversion is deprecated.", k)
 			frontMatter[k] = strings.Fields(v)
+		} else if k == "date" {
+			frontMatter[k] = parseORGDate(v)
 		} else {
 			frontMatter[k] = v
 		}
