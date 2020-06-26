@@ -31,5 +31,5 @@ func TestConvert(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	b, err := conv.Convert(converter.RenderContext{Src: []byte("testContent")})
 	c.Assert(err, qt.IsNil)
-	c.Assert(string(b.Bytes()), qt.Equals, "<p>\ntestContent\n</p>\n")
+	c.Assert(string(b.Bytes()), qt.Equals, "<p>testContent</p>\n")
 }
