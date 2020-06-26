@@ -728,8 +728,10 @@ func (p *pageMeta) newContentConverter(ps *pageState, markup string, renderingCo
 	}
 
 	var id string
+	var filename string
 	if !p.f.IsZero() {
 		id = p.f.UniqueID()
+		filename = p.f.Filename()
 	}
 
 	cpp, err := cp.New(
@@ -737,7 +739,7 @@ func (p *pageMeta) newContentConverter(ps *pageState, markup string, renderingCo
 			Document:        newPageForRenderHook(ps),
 			DocumentID:      id,
 			DocumentName:    p.Path(),
-			Filename:        p.f.Filename(),
+			Filename:        filename,
 			ConfigOverrides: renderingConfigOverrides,
 		},
 	)
