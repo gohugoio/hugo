@@ -69,6 +69,7 @@ func TestUnmarshalToInterface(t *testing.T) {
 		{`[ "Brecker", "Blake", "Redman" ]`, JSON, []interface{}{"Brecker", "Blake", "Redman"}},
 		{`{ "a": "b" }`, JSON, expect},
 		{`#+a: b`, ORG, expect},
+		{`#+DATE: <2020-06-26 Fri>`, ORG, map[string]interface{}{"date": "2020-06-26"}},
 		{`a = "b"`, TOML, expect},
 		{`a: "b"`, YAML, expect},
 		{`a,b,c`, CSV, [][]string{{"a", "b", "c"}}},
