@@ -25,6 +25,7 @@ require (
 	github.com/jdkato/prose v1.1.1
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/kyokomi/emoji v2.2.1+incompatible
+	github.com/litao91/goldmark-mathjax v0.0.0-20191101121019-011def32b12f
 	github.com/magefile/mage v1.9.0
 	github.com/markbates/inflect v1.0.0
 	github.com/mattn/go-isatty v0.0.12
