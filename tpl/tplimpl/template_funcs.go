@@ -44,6 +44,7 @@ import (
 	_ "github.com/gohugoio/hugo/tpl/inflect"
 	_ "github.com/gohugoio/hugo/tpl/lang"
 	_ "github.com/gohugoio/hugo/tpl/math"
+	_ "github.com/gohugoio/hugo/tpl/openapi/openapi3"
 	_ "github.com/gohugoio/hugo/tpl/os"
 	_ "github.com/gohugoio/hugo/tpl/partials"
 	_ "github.com/gohugoio/hugo/tpl/path"
