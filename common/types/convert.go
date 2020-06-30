@@ -14,6 +14,7 @@
 package types
 
 import (
+	"encoding/json"
 	"html/template"
 
 	"github.com/spf13/cast"
@@ -59,10 +60,20 @@ func TypeToString(v interface{}) (string, bool) {
 
 // ToString converts v to a string.
 func ToString(v interface{}) string {
+	s, _ := ToStringE(v)
+	return s
+}
+
+// ToStringE converts v to a string.
+func ToStringE(v interface{}) (string, error) {
 	if s, ok := TypeToString(v); ok {
-		return s
+		return s, nil
 	}
 
-	return cast.ToString(v)
-
+	switch s := v.(type) {
+	case json.RawMessage:
+		return string(s), nil
+	default:
+		return cast.ToStringE(v)
+	}
 }

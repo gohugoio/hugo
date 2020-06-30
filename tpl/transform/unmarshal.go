@@ -17,17 +17,20 @@ import (
 	"io/ioutil"
 	"strings"
 
+	"github.com/gohugoio/hugo/resources/resource"
+
+	"github.com/gohugoio/hugo/common/types"
+
 	"github.com/mitchellh/mapstructure"
 
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/parser/metadecoders"
-	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/pkg/errors"
 
 	"github.com/spf13/cast"
 )
 
-// Unmarshal unmarshals the data given, which can be either a string
+// Unmarshal unmarshals the data given, which can be either a string, json.RawMessage
 // or a Resource. Supported formats are JSON, TOML, YAML, and CSV.
 // You can optionally provide an options map as the first argument.
 func (ns *Namespace) Unmarshal(args ...interface{}) (interface{}, error) {
@@ -55,7 +58,7 @@ func (ns *Namespace) Unmarshal(args ...interface{}) (interface{}, error) {
 		}
 	}
 
-	if r, ok := data.(unmarshableResource); ok {
+	if r, ok := data.(resource.UnmarshableResource); ok {
 		key := r.Key()
 
 		if key == "" {
@@ -87,7 +90,7 @@ func (ns *Namespace) Unmarshal(args ...interface{}) (interface{}, error) {
 		})
 	}
 
-	dataStr, err := cast.ToStringE(data)
+	dataStr, err := types.ToStringE(data)
 	if err != nil {
 		return nil, errors.Errorf("type %T not supported", data)
 	}
@@ -102,12 +105,6 @@ func (ns *Namespace) Unmarshal(args ...interface{}) (interface{}, error) {
 
 		return decoder.Unmarshal([]byte(dataStr), f)
 	})
-}
-
-// All the relevant resources implements this interface.
-type unmarshableResource interface {
-	resource.ReadSeekCloserResource
-	resource.Identifier
 }
 
 func decodeDecoder(m map[string]interface{}) (metadecoders.Decoder, error) {

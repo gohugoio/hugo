@@ -63,7 +63,7 @@ func (d Decoder) UnmarshalToMap(data []byte, f Format) (map[string]interface{}, 
 		return m, nil
 	}
 
-	err := d.unmarshal(data, f, &m)
+	err := d.UnmarshalTo(data, f, &m)
 
 	return m, err
 }
@@ -122,13 +122,13 @@ func (d Decoder) Unmarshal(data []byte, f Format) (interface{}, error) {
 
 	}
 	var v interface{}
-	err := d.unmarshal(data, f, &v)
+	err := d.UnmarshalTo(data, f, &v)
 
 	return v, err
 }
 
-// unmarshal unmarshals data in format f into v.
-func (d Decoder) unmarshal(data []byte, f Format, v interface{}) error {
+// UnmarshalTo unmarshals data in format f into v.
+func (d Decoder) UnmarshalTo(data []byte, f Format, v interface{}) error {
 
 	var err error
 
@@ -156,15 +156,17 @@ func (d Decoder) unmarshal(data []byte, f Format, v interface{}) error {
 		case *interface{}:
 			ptr = *v.(*interface{})
 		default:
-			return errors.Errorf("unknown type %T in YAML unmarshal", v)
+			// Not a map.
 		}
 
-		if mm, changed := stringifyMapKeys(ptr); changed {
-			switch v.(type) {
-			case *map[string]interface{}:
-				*v.(*map[string]interface{}) = mm.(map[string]interface{})
-			case *interface{}:
-				*v.(*interface{}) = mm
+		if ptr != nil {
+			if mm, changed := stringifyMapKeys(ptr); changed {
+				switch v.(type) {
+				case *map[string]interface{}:
+					*v.(*map[string]interface{}) = mm.(map[string]interface{})
+				case *interface{}:
+					*v.(*interface{}) = mm
+				}
 			}
 		}
 	case CSV:

@@ -20,11 +20,11 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/media"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/spf13/viper"
 )
 

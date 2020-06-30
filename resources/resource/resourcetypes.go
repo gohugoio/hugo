@@ -173,6 +173,12 @@ type TranslationKeyProvider interface {
 	TranslationKey() string
 }
 
+// UnmarshableResource represents a Resource that can be unmarshaled to some other format.
+type UnmarshableResource interface {
+	ReadSeekCloserResource
+	Identifier
+}
+
 type resourceTypesHolder struct {
 	mediaType    media.Type
 	resourceType string
