@@ -65,6 +65,11 @@ func init() {
 			[][2]string{},
 		)
 
+		ns.AddMethodMapping(ctx.Rollup,
+			[]string{"rollup"},
+			[][2]string{},
+		)
+
 		return ns
 
 	}

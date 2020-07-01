@@ -33,6 +33,7 @@ import (
 	"github.com/gohugoio/hugo/resources/resource_transformers/integrity"
 	"github.com/gohugoio/hugo/resources/resource_transformers/minifier"
 	"github.com/gohugoio/hugo/resources/resource_transformers/postcss"
+	"github.com/gohugoio/hugo/resources/resource_transformers/rollup"
 	"github.com/gohugoio/hugo/resources/resource_transformers/templates"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/scss"
 	"github.com/spf13/cast"
@@ -64,6 +65,7 @@ func New(deps *deps.Deps) (*Namespace, error) {
 		postcssClient:   postcss.New(deps.ResourceSpec),
 		templatesClient: templates.New(deps.ResourceSpec, deps),
 		babelClient:     babel.New(deps.ResourceSpec),
+		rollupClient:    rollup.New(deps.ResourceSpec),
 	}, nil
 }
 
@@ -78,6 +80,7 @@ type Namespace struct {
 	minifyClient    *minifier.Client
 	postcssClient   *postcss.Client
 	babelClient     *babel.Client
+	rollupClient    *rollup.Client
 	templatesClient *templates.Client
 }
 
@@ -299,6 +302,25 @@ func (ns *Namespace) Babel(args ...interface{}) (resource.Resource, error) {
 	}
 
 	return ns.babelClient.Process(r, options)
+
+}
+
+// Rollup processes the given Resource with Rollup.
+func (ns *Namespace) Rollup(args ...interface{}) (resource.Resource, error) {
+	r, m, err := ns.resolveArgs(args)
+	if err != nil {
+		return nil, err
+	}
+	var options rollup.Options
+	if m != nil {
+		options, err = rollup.DecodeOptions(m)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return ns.rollupClient.Process(r, options)
 
 }
 

@@ -410,6 +410,8 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 					errMsg = ". Check your Hugo installation; you need the extended version to build SCSS/SASS."
 				} else if tr.Key().Name == "babel" {
 					errMsg = ". You need to install Babel, see https://gohugo.io/hugo-pipes/babel/"
+				} else if tr.Key().Name == "rollup" {
+					errMsg = ". You need to install Rollup, see https://gohugo.io/hugo-pipes/rollup/"
 				}
 
 				return errors.New(msg + errMsg)
