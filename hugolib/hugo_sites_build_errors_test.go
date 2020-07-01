@@ -65,8 +65,7 @@ func TestSiteBuildErrors(t *testing.T) {
 			fileFixer: func(content string) string {
 				return strings.Replace(content, ".Title }}", ".Title }", 1)
 			},
-			// Base templates gets parsed at build time.
-			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
+			assertCreateError: func(a testSiteBuildErrorAsserter, err error) {
 				a.assertLineNumber(4, err)
 			},
 		},
@@ -91,7 +90,7 @@ func TestSiteBuildErrors(t *testing.T) {
 				a.c.Assert(fe.Position().LineNumber, qt.Equals, 5)
 				a.c.Assert(fe.Position().ColumnNumber, qt.Equals, 1)
 				a.c.Assert(fe.ChromaLexer, qt.Equals, "go-html-template")
-				a.assertErrorMessage("\"layouts/foo/single.html:5:1\": parse failed: template: foo/single.html:5: unexpected \"}\" in operand", fe.Error())
+				a.assertErrorMessage("\"layouts/_default/single.html:5:1\": parse failed: template: _default/single.html.___b:5: unexpected \"}\" in operand", fe.Error())
 
 			},
 		},
