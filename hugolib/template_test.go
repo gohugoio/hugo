@@ -597,3 +597,83 @@ func collectIdentities(set map[identity.Identity]bool, provider identity.Provide
 func ident(level int) string {
 	return strings.Repeat(" ", level)
 }
+
+func TestPartialInline(t *testing.T) {
+
+	b := newTestSitesBuilder(t)
+
+	b.WithContent("p1.md", "")
+
+	b.WithTemplates(
+		"index.html", `
+
+{{ $p1 := partial "p1" . }}
+{{ $p2 := partial "p2" . }}
+
+P1: {{ $p1 }}
+P2: {{ $p2 }}
+
+{{ define "partials/p1" }}Inline: p1{{ end }}
+
+{{ define "partials/p2" }}
+{{ $value := 32 }}
+{{ return $value }}
+{{ end }}
+
+
+`,
+	)
+
+	b.CreateSites().Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html",
+		`
+P1: Inline: p1
+P2: 32`,
+	)
+
+}
+
+func TestPartialInlineBase(t *testing.T) {
+
+	b := newTestSitesBuilder(t)
+
+	b.WithContent("p1.md", "")
+
+	b.WithTemplates(
+		"baseof.html", `{{ $p3 := partial "p3" . }}P3: {{ $p3 }}
+{{ block "main" . }}{{ end }}{{ define "partials/p3" }}Inline: p3{{ end }}`,
+		"index.html", `
+{{ define "main" }}
+
+{{ $p1 := partial "p1" . }}
+{{ $p2 := partial "p2" . }}
+
+P1: {{ $p1 }}
+P2: {{ $p2 }}
+
+{{ end }}
+
+
+{{ define "partials/p1" }}Inline: p1{{ end }}
+
+{{ define "partials/p2" }}
+{{ $value := 32 }}
+{{ return $value }}
+{{ end }}
+
+
+`,
+	)
+
+	b.CreateSites().Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html",
+		`
+P1: Inline: p1
+P2: 32
+P3: Inline: p3
+`,
+	)
+
+}

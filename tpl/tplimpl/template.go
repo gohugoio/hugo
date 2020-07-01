@@ -553,12 +553,24 @@ func (t *templateHandler) addTemplateFile(name, path string) error {
 	if isBaseTemplatePath(name) {
 		// Store it for later.
 		t.baseof[name] = tinfo
+		// Also parse and add it on its own to make sure we reach the inline partials.
+		tinfo.name = name + ".___b"
+		_, err := t.addTemplateTo(tinfo, t.main)
+		if err != nil {
+			return tinfo.errWithFileContext("parse failed", err)
+		}
 		return nil
 	}
 
 	needsBaseof := !t.noBaseNeeded(name) && needsBaseTemplate(tinfo.template)
 	if needsBaseof {
 		t.needsBaseof[name] = tinfo
+		// Also parse and add it on its own to make sure we reach the inline partials.
+		tinfo.name = name + ".___b"
+		_, err := t.addTemplateTo(tinfo, t.main)
+		if err != nil {
+			return tinfo.errWithFileContext("parse failed", err)
+		}
 		return nil
 	}
 
@@ -720,9 +732,50 @@ func (t *templateHandler) noBaseNeeded(name string) bool {
 }
 
 func (t *templateHandler) postTransform() error {
+	defineCheckedHTML := false
+	defineCheckedText := false
+
 	for _, v := range t.main.templates {
 		if v.typ == templateShortcode {
 			t.addShortcodeVariant(v)
+		}
+
+		if defineCheckedHTML && defineCheckedText {
+			continue
+		}
+
+		isText := isText(v.Template)
+		if isText {
+			if defineCheckedText {
+				continue
+			}
+			defineCheckedText = true
+		} else {
+			if defineCheckedHTML {
+				continue
+			}
+			defineCheckedHTML = true
+		}
+
+		templs := templates(v.Template)
+		for _, templ := range templs {
+			if templ.Name() == "" || !strings.HasPrefix(templ.Name(), "partials/") {
+				continue
+			}
+
+			ts := newTemplateState(templ, templateInfo{name: templ.Name()})
+			ts.typ = templatePartial
+
+			if _, found := t.main.templates[templ.Name()]; !found {
+				// This is a template defined inline.
+
+				_, err := applyTemplateTransformers(ts, t.main.newTemplateLookup(ts))
+				if err != nil {
+					return err
+				}
+				t.main.templates[templ.Name()] = ts
+
+			}
 		}
 	}
 
@@ -872,8 +925,13 @@ func (t *templateState) ParseInfo() tpl.ParseInfo {
 }
 
 func (t *templateState) isText() bool {
-	_, isText := t.Template.(*texttemplate.Template)
+	return isText(t.Template)
+}
+
+func isText(templ tpl.Template) bool {
+	_, isText := templ.(*texttemplate.Template)
 	return isText
+
 }
 
 type templateStateMap struct {
@@ -959,4 +1017,23 @@ func unwrap(templ tpl.Template) tpl.Template {
 		return ts.Template
 	}
 	return templ
+}
+
+func templates(in tpl.Template) []tpl.Template {
+	var templs []tpl.Template
+	in = unwrap(in)
+	if textt, ok := in.(*texttemplate.Template); ok {
+		for _, t := range textt.Templates() {
+			templs = append(templs, t)
+		}
+	}
+
+	if htmlt, ok := in.(*htmltemplate.Template); ok {
+		for _, t := range htmlt.Templates() {
+			templs = append(templs, t)
+		}
+	}
+
+	return templs
+
 }
