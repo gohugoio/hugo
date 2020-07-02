@@ -42,6 +42,7 @@ import (
 	_ "github.com/gohugoio/hugo/tpl/hugo"
 	_ "github.com/gohugoio/hugo/tpl/images"
 	_ "github.com/gohugoio/hugo/tpl/inflect"
+	_ "github.com/gohugoio/hugo/tpl/js"
 	_ "github.com/gohugoio/hugo/tpl/lang"
 	_ "github.com/gohugoio/hugo/tpl/math"
 	_ "github.com/gohugoio/hugo/tpl/openapi/openapi3"
