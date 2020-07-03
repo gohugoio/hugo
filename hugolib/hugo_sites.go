@@ -981,14 +981,17 @@ func (h *HugoSites) resetPageStateFromEvents(idset identity.Identities) {
 		}
 
 		for _, s := range p.shortcodeState.shortcodes {
-			for id := range idset {
-				if idm, ok := s.info.(identity.Manager); ok && idm.Search(id) != nil {
-					for _, po := range p.pageOutputs {
-						if po.cp != nil {
-							po.cp.Reset()
+			for _, templ := range s.templs {
+				sid := templ.(identity.Manager)
+				for id := range idset {
+					if sid.Search(id) != nil {
+						for _, po := range p.pageOutputs {
+							if po.cp != nil {
+								po.cp.Reset()
+							}
 						}
+						return false
 					}
-					return false
 				}
 			}
 		}

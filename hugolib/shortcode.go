@@ -176,7 +176,8 @@ type shortcode struct {
 	ordinal   int
 	err       error
 
-	info tpl.Info
+	info   tpl.Info       // One of the output formats (arbitrary)
+	templs []tpl.Template // All output formats
 
 	// If set, the rendered shortcode is sent as part of the surrounding content
 	// to Blackfriday and similar.
@@ -541,15 +542,14 @@ Loop:
 
 			sc.name = currItem.ValStr()
 
-			// Check if the template expects inner content.
-			// We pick the first template for an arbitrary output format
-			// if more than one. It is "all inner or no inner".
-			tmpl, found, _ := s.s.Tmpl().LookupVariant(sc.name, tpl.TemplateVariants{})
-			if !found {
+			// Used to check if the template expects inner content.
+			templs := s.s.Tmpl().LookupVariants(sc.name)
+			if templs == nil {
 				return nil, _errors.Errorf("template for shortcode %q not found", sc.name)
 			}
 
-			sc.info = tmpl.(tpl.Info)
+			sc.info = templs[0].(tpl.Info)
+			sc.templs = templs
 		case currItem.IsInlineShortcodeName():
 			sc.name = currItem.ValStr()
 			sc.isInline = true
