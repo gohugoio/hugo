@@ -51,6 +51,13 @@ func init() {
 			[][2]string{},
 		)
 
+		ns.AddMethodMapping(ctx.Count,
+			nil,
+			[][2]string{
+				{`{{"aabab" | strings.Count "a" }}`, `3`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.FindRE,
 			[]string{"findRE"},
 			[][2]string{

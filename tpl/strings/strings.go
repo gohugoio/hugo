@@ -18,6 +18,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"strings"
 
 	_strings "strings"
 	"unicode/utf8"
@@ -88,6 +89,20 @@ func (ns *Namespace) CountWords(s interface{}) (int, error) {
 	}
 
 	return counter, nil
+}
+
+// Count counts the number of non-overlapping instances of substr in s.
+// If substr is an empty string, Count returns 1 + the number of Unicode code points in s.
+func (ns *Namespace) Count(substr, s interface{}) (int, error) {
+	substrs, err := cast.ToStringE(substr)
+	if err != nil {
+		return 0, _errors.Wrap(err, "Failed to convert substr to string")
+	}
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return 0, _errors.Wrap(err, "Failed to convert s to string")
+	}
+	return strings.Count(ss, substrs), nil
 }
 
 // Chomp returns a copy of s with all trailing newline characters removed.
