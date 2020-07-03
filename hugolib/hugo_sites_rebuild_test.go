@@ -26,6 +26,7 @@ baseURL = "https://example.com"
 title = "Rebuild this"
 contentDir = "content"
 enableInlineShortcodes = true
+timeout = "5s"
 
 
 `
@@ -213,6 +214,46 @@ prender: {{ $p.Title }}|{{ $p.Content }}
 
 		b.AssertFileContent("public/index.html", `
 Render /prender/: Baseof:Single Main: Page 1|Mypartial1: Mypartial1|Mypartial3: Mypartial3 Edited:END
+`)
+
+	})
+
+	t.Run("Edit RSS shortcode", func(t *testing.T) {
+		b := createSiteBuilder(t)
+
+		b.WithContent("output.md", `---
+title: Output
+outputs: ["HTML", "AMP"]
+layout: output
+---
+
+Content for Output.
+
+{{< output >}}
+
+`)
+
+		b.WithTemplates(
+			"layouts/_default/output.html", `Output HTML: {{ .RelPermalink }}|{{ .Content }}`,
+			"layouts/_default/output.amp.html", `Output AMP: {{ .RelPermalink }}|{{ .Content }}`,
+			"layouts/shortcodes/output.html", `Output Shortcode HTML`,
+			"layouts/shortcodes/output.amp.html", `Output Shortcode AMP`)
+
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/output/index.html", `
+Output Shortcode HTML
+`)
+		b.AssertFileContent("public/amp/output/index.html", `
+Output Shortcode AMP
+`)
+
+		b.EditFiles("layouts/shortcodes/output.amp.html", `Output Shortcode AMP Edited`)
+
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/amp/output/index.html", `
+Output Shortcode AMP Edited
 `)
 
 	})

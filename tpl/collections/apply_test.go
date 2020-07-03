@@ -40,6 +40,10 @@ func (templateFinder) LookupVariant(name string, variants tpl.TemplateVariants) 
 	return nil, false, false
 }
 
+func (templateFinder) LookupVariants(name string) []tpl.Template {
+	return nil
+}
+
 func (templateFinder) LookupLayout(d output.LayoutDescriptor, f output.Format) (tpl.Template, bool, error) {
 	return nil, false, nil
 }

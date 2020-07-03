@@ -68,6 +68,7 @@ type TemplateLookupVariant interface {
 	// We are currently only interested in output formats, so we should improve
 	// this for speed.
 	LookupVariant(name string, variants TemplateVariants) (Template, bool, bool)
+	LookupVariants(name string) []Template
 }
 
 // Template is the common interface between text/template and html/template.

@@ -354,6 +354,23 @@ func (t *templateHandler) LookupVariant(name string, variants tpl.TemplateVarian
 
 }
 
+// LookupVariants returns all variants of name, nil if none found.
+func (t *templateHandler) LookupVariants(name string) []tpl.Template {
+	name = templateBaseName(templateShortcode, name)
+	s, found := t.shortcodes[name]
+	if !found {
+		return nil
+	}
+
+	variants := make([]tpl.Template, len(s.variants))
+	for i := 0; i < len(variants); i++ {
+		variants[i] = s.variants[i].ts
+	}
+
+	return variants
+
+}
+
 func (t *templateHandler) HasTemplate(name string) bool {
 
 	if _, found := t.baseof[name]; found {
@@ -963,6 +980,10 @@ func (t *textTemplateWrapperWithLock) Lookup(name string) (tpl.Template, bool) {
 }
 
 func (t *textTemplateWrapperWithLock) LookupVariant(name string, variants tpl.TemplateVariants) (tpl.Template, bool, bool) {
+	panic("not supported")
+}
+
+func (t *textTemplateWrapperWithLock) LookupVariants(name string) []tpl.Template {
 	panic("not supported")
 }
 
