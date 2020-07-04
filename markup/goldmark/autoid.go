@@ -54,6 +54,8 @@ func sanitizeAnchorNameWithHook(b []byte, idType string, hook func(buf *bytes.Bu
 			b = text.RemoveAccents(b)
 		}
 
+		b = bytes.TrimSpace(b)
+
 		for len(b) > 0 {
 			r, size := utf8.DecodeRune(b)
 			switch {

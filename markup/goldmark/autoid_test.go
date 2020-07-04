@@ -66,6 +66,9 @@ tabspace
 
 	testlines, expectlines := strings.Split(tests, "\n"), strings.Split(expect, "\n")
 
+	testlines = append(testlines, "Trailing Space ")
+	expectlines = append(expectlines, "trailing-space")
+
 	if len(testlines) != len(expectlines) {
 		panic("test setup failed")
 	}
