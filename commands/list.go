@@ -15,6 +15,7 @@ package commands
 
 import (
 	"encoding/csv"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -142,6 +143,44 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 						})
 						if err != nil {
 							return newSystemError("Error writing expired posts to stdout", err)
+						}
+					}
+				}
+
+				return nil
+			},
+		},
+		&cobra.Command{
+			Use:   "taxonomies",
+			Short: "List all taxonomies",
+			Long:  `List all of the taxonomies in your content directory, or all values for a specific taxonomy.`,
+			RunE: func(cmd *cobra.Command, args []string) error {
+				sites, err := cc.buildSites(map[string]interface{}{
+					"buildExpired": true,
+					"buildDrafts":  true,
+					"buildFuture":  true,
+				})
+
+				if err != nil {
+					return newSystemError("Error building sites", err)
+				}
+
+				if len(args) == 0 {
+					for _, s := range sites.Sites {
+						for key := range s.Info.Taxonomies().(hugolib.TaxonomyList) {
+							fmt.Println(key)
+						}
+					}
+				} else {
+					for _, argumentTaxonomy := range args {
+						for _, s := range sites.Sites {
+							for taxonomyTerm, v := range s.Taxonomies() {
+								if taxonomyTerm == argumentTaxonomy {
+									for taxonmyValue := range v {
+										fmt.Println(taxonmyValue)
+									}
+								}
+							}
 						}
 					}
 				}

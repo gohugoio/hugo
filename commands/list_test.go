@@ -69,3 +69,71 @@ func TestListAll(t *testing.T) {
 		"false", "https://example.org/p1/",
 	})
 }
+
+func TestListTaxonomies(t *testing.T) {
+	c := qt.New(t)
+
+	cfgStr := `
+baseURL = "https://example.org"
+title = "Hugo Commands"
+
+[taxonomies]
+tag = "tags"
+category = "categories"
+foo = "foos"
+`
+	dir, clean, err := createSimpleTestSite(t, testSiteConfig{configTOML: cfgStr})
+	defer clean()
+
+	c.Assert(err, qt.IsNil)
+
+	hugoCmd := newCommandsBuilder().addAll().build()
+	cmd := hugoCmd.getCommand()
+
+	defer func() {
+		os.RemoveAll(dir)
+	}()
+
+	cmd.SetArgs([]string{"-s=" + dir, "list", "taxonomies"})
+
+	out, err := captureStdout(func() error {
+		_, err := cmd.ExecuteC()
+		return err
+	})
+	c.Assert(err, qt.IsNil)
+	c.Assert(out, qt.Contains, "foos")
+	c.Assert(out, qt.Contains, "tags")
+	c.Assert(out, qt.Contains, "categories")
+}
+
+func TestListSpecificTaxonomies(t *testing.T) {
+	c := qt.New(t)
+
+	cfgStr := `
+baseURL = "https://example.org"
+title = "Hugo Commands"
+
+[taxonomies]
+tag = "tags"
+`
+	dir, clean, err := createSimpleTestSite(t, testSiteConfig{configTOML: cfgStr})
+	defer clean()
+
+	c.Assert(err, qt.IsNil)
+
+	hugoCmd := newCommandsBuilder().addAll().build()
+	cmd := hugoCmd.getCommand()
+
+	defer func() {
+		os.RemoveAll(dir)
+	}()
+
+	cmd.SetArgs([]string{"-s=" + dir, "list", "taxonomies", "tags"})
+
+	out, err := captureStdout(func() error {
+		_, err := cmd.ExecuteC()
+		return err
+	})
+	c.Assert(err, qt.IsNil)
+	c.Assert(out, qt.Matches, "")
+}
