@@ -121,6 +121,12 @@ func (p *PathSpec) URLEscape(uri string) string {
 		panic(err)
 	}
 	x := parsedURI.String()
+	if p.DisablePathUnicodeEscaping {
+		x, err = url.PathUnescape(x)
+		if err != nil {
+			panic(err)
+		}
+	}
 	return x
 }
 

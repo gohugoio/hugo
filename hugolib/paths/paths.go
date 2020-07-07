@@ -57,10 +57,11 @@ type Paths struct {
 	// for each language.
 	MultihostTargetBasePaths []string
 
-	DisablePathToLower bool
-	RemovePathAccents  bool
-	UglyURLs           bool
-	CanonifyURLs       bool
+	DisablePathToLower         bool
+	DisablePathUnicodeEscaping bool
+	RemovePathAccents          bool
+	UglyURLs                   bool
+	CanonifyURLs               bool
 
 	Language              *langs.Language
 	Languages             langs.Languages
@@ -153,10 +154,11 @@ func New(fs *hugofs.Fs, cfg config.Provider) (*Paths, error) {
 		Cfg:     cfg,
 		BaseURL: baseURL,
 
-		DisablePathToLower: cfg.GetBool("disablePathToLower"),
-		RemovePathAccents:  cfg.GetBool("removePathAccents"),
-		UglyURLs:           cfg.GetBool("uglyURLs"),
-		CanonifyURLs:       cfg.GetBool("canonifyURLs"),
+		DisablePathToLower:         cfg.GetBool("disablePathToLower"),
+		DisablePathUnicodeEscaping: cfg.GetBool("disablePathUnicodeEscaping"),
+		RemovePathAccents:          cfg.GetBool("removePathAccents"),
+		UglyURLs:                   cfg.GetBool("uglyURLs"),
+		CanonifyURLs:               cfg.GetBool("canonifyURLs"),
 
 		ThemesDir:  cfg.GetString("themesDir"),
 		WorkingDir: workingDir,
