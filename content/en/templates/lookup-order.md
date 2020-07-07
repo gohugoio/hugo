@@ -41,7 +41,7 @@ Type
 : Is value of `type` if set in front matter, else it is the name of the root section (e.g. "blog"). It will always have a value, so if not set, the value is "page". 
 
 Section
-: Is relevant for `section`, `taxonomy` and `taxonomyTerm` types.
+: Is relevant for `section`, `taxonomy` and `term` types.
 
 {{% note %}}
 **Tip:** The examples below looks long and complex. That is the flexibility talking. Most Hugo sites contain just a handful of templates:
@@ -72,13 +72,13 @@ In Hugo, layouts can live in either the project's or the themes' layout folders,
 
 {{< datatable-filtered "output" "layouts" "Kind == section" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}
 
-## Examples: Layout Lookup for Taxonomy List Pages
+## Examples: Layout Lookup for Taxonomy Pages
 
 {{< datatable-filtered "output" "layouts" "Kind == taxonomy" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}
 
-## Examples: Layout Lookup for Taxonomy Terms Pages
+## Examples: Layout Lookup for Term Pages
 
-{{< datatable-filtered "output" "layouts" "Kind == taxonomyTerm" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}
+{{< datatable-filtered "output" "layouts" "Kind == term" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}
 
 
 
