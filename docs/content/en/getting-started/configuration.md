@@ -514,7 +514,7 @@ Default configuration:
 
 Since Hugo 0.52 you can configure more than just the `cacheDir`. This is the default configuration:
 
-```toml
+{{< code-toggle >}}
 [caches]
 [caches.getjson]
 dir = ":cacheDir/:project"
@@ -531,7 +531,7 @@ maxAge = -1
 [caches.modules]
 dir = ":cacheDir/modules"
 maxAge = -1
-```
+{{< /code-toggle >}}
 
 You can override any of these cache settings in your own `config.toml`.
 

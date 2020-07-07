@@ -46,7 +46,7 @@ Ideally, you should install it somewhere in your `PATH` for easy use. `/usr/loca
 
 ### Docker
 
-We currently do not official Hugo images for Docker, but we do recommend these up to date distributions: https://hub.docker.com/r/klakegg/hugo/
+We currently do not offer official Hugo images for Docker, but we do recommend these up to date distributions: https://hub.docker.com/r/klakegg/hugo/
 
 ### Homebrew (macOS)
 
