@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2020 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,62 +11,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package resources
+package js
 
 import (
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/tpl/internal"
 )
 
-const name = "resources"
+const name = "js"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		ctx, err := New(d)
-		if err != nil {
-			// TODO(bep) no panic.
-			panic(err)
-		}
+		ctx := New(d)
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
 			Context: func(args ...interface{}) interface{} { return ctx },
 		}
 
-		ns.AddMethodMapping(ctx.Get,
-			nil,
-			[][2]string{},
-		)
-
-		// Add aliases for the most common transformations.
-
-		ns.AddMethodMapping(ctx.Fingerprint,
-			[]string{"fingerprint"},
-			[][2]string{},
-		)
-
-		ns.AddMethodMapping(ctx.Minify,
-			[]string{"minify"},
-			[][2]string{},
-		)
-
-		ns.AddMethodMapping(ctx.ToCSS,
-			[]string{"toCSS"},
-			[][2]string{},
-		)
-
-		ns.AddMethodMapping(ctx.PostCSS,
-			[]string{"postCSS"},
-			[][2]string{},
-		)
-
-		ns.AddMethodMapping(ctx.Babel,
-			[]string{"babel"},
-			[][2]string{},
-		)
-
 		return ns
-
 	}
 
 	internal.AddTemplateFuncsNamespace(f)
