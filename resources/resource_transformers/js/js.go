@@ -32,6 +32,7 @@ type Options struct {
 	Minify    bool
 	Externals []string
 	Target    string
+	Loader    string
 	Defines   map[string]string
 }
 
@@ -83,6 +84,32 @@ func (t *jsTransformation) Transform(ctx *resources.ResourceTransformationCtx) e
 		return fmt.Errorf("invalid target: %q", t.options.Target)
 	}
 
+	var loader api.Loader
+	switch t.options.Loader {
+	case "", "js":
+		loader = api.LoaderJS
+	case "jsx":
+		loader = api.LoaderJSX
+	case "ts":
+		loader = api.LoaderTS
+	case "tsx":
+		loader = api.LoaderTSX
+	case "json":
+		loader = api.LoaderJSON
+	case "text":
+		loader = api.LoaderText
+	case "base64":
+		loader = api.LoaderBase64
+	case "dataURL":
+		loader = api.LoaderDataURL
+	case "file":
+		loader = api.LoaderFile
+	case "binary":
+		loader = api.LoaderBinary
+	default:
+		return fmt.Errorf("invalid loader: %q", t.options.Loader)
+	}
+
 	src, err := ioutil.ReadAll(ctx.From)
 	if err != nil {
 		return err
@@ -109,6 +136,7 @@ func (t *jsTransformation) Transform(ctx *resources.ResourceTransformationCtx) e
 			Contents:   string(src),
 			Sourcefile: sfile,
 			ResolveDir: sdir,
+			Loader:     loader,
 		},
 	}
 	result := api.Build(buildOptions)
