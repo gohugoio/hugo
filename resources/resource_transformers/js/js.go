@@ -15,12 +15,9 @@ package js
 
 import (
 	"fmt"
-	"io"
 	"io/ioutil"
-	"os"
 	"path"
 
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugolib/filesystems"
 	"github.com/gohugoio/hugo/resources/internal"
 
@@ -86,21 +83,17 @@ func (t *jsTransformation) Transform(ctx *resources.ResourceTransformationCtx) e
 		return fmt.Errorf("invalid target: %q", t.options.Target)
 	}
 
-	// Write to a temporary intermediate file.
-	sfile, sext := helpers.FileAndExt(ctx.SourcePath)
-	sdir := t.sfs.RealFilename(path.Dir(ctx.SourcePath))
-	tmpFile, err := ioutil.TempFile(sdir, ".#"+sfile+".*"+sext)
+	src, err := ioutil.ReadAll(ctx.From)
 	if err != nil {
 		return err
 	}
-	defer os.Remove(tmpFile.Name())
-	io.Copy(tmpFile, ctx.From)
-	tmpFile.Close()
+
+	sdir, sfile := path.Split(ctx.SourcePath)
+	sdir = t.sfs.RealFilename(sdir)
 
 	buildOptions := api.BuildOptions{
-		EntryPoints: []string{tmpFile.Name()},
-		Outfile:     "",
-		Bundle:      true,
+		Outfile: "",
+		Bundle:  true,
 
 		Target: target,
 
@@ -111,6 +104,12 @@ func (t *jsTransformation) Transform(ctx *resources.ResourceTransformationCtx) e
 		Defines: t.options.Defines,
 
 		Externals: t.options.Externals,
+
+		Stdin: &api.StdinOptions{
+			Contents:   string(src),
+			Sourcefile: sfile,
+			ResolveDir: sdir,
+		},
 	}
 	result := api.Build(buildOptions)
 	if len(result.Errors) > 0 {
