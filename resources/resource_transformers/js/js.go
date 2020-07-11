@@ -29,11 +29,14 @@ import (
 )
 
 type Options struct {
-	Minify    bool
-	Externals []string
-	Target    string
-	Loader    string
-	Defines   map[string]string
+	Minify      bool
+	Externals   []string
+	Target      string
+	Loader      string
+	Defines     map[string]string
+	JSXFactory  string
+	JSXFragment string
+	TSConfig    string
 }
 
 func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
@@ -131,6 +134,11 @@ func (t *jsTransformation) Transform(ctx *resources.ResourceTransformationCtx) e
 		Defines: t.options.Defines,
 
 		Externals: t.options.Externals,
+
+		JSXFactory:  t.options.JSXFactory,
+		JSXFragment: t.options.JSXFragment,
+
+		Tsconfig: t.options.TSConfig,
 
 		Stdin: &api.StdinOptions{
 			Contents:   string(src),
