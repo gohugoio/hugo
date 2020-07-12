@@ -17,8 +17,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path"
+	"strings"
 
+	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugolib/filesystems"
+	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/internal"
 
 	"github.com/mitchellh/mapstructure"
@@ -28,15 +31,46 @@ import (
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
+const defaultTarget = "esnext"
+
 type Options struct {
+	// If not set, the source path will be used as the base target path.
+	// Note that the target path's extension may change if the target MIME type
+	// is different, e.g. when the source is TypeScript.
+	TargetPath string
+
+	// Whether to minify to output.
+	Minify bool
+
+	// The language target.
+	// One of: es2015, es2016, es2017, es2018, es2019, es2020 or esnext.
+	// Default is esnext.
+	Target string
+
+	// External dependencies, e.g. "react".
+	Externals []string `hash:"set"`
+
+	// What to use instead of React.createElement.
+	JSXFactory string
+
+	// What to use instead of React.Fragment.
+	JSXFragment string
+}
+
+type internalOptions struct {
+	TargetPath  string
 	Minify      bool
-	Externals   []string
 	Target      string
-	Loader      string
-	Defines     map[string]string
 	JSXFactory  string
 	JSXFragment string
-	TSConfig    string
+
+	Externals []string `hash:"set"`
+
+	// These are currently not exposed in the public Options struct,
+	// but added here to make the options hash as stable as possible for
+	// whenever we do.
+	Defines  map[string]string
+	TSConfig string
 }
 
 func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
@@ -44,6 +78,13 @@ func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
 		return
 	}
 	err = mapstructure.WeakDecode(m, &opts)
+
+	if opts.TargetPath != "" {
+		opts.TargetPath = helpers.ToSlashTrimLeading(opts.TargetPath)
+	}
+
+	opts.Target = strings.ToLower(opts.Target)
+
 	return
 }
 
@@ -57,7 +98,7 @@ func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) *Client {
 }
 
 type buildTransformation struct {
-	options Options
+	options internalOptions
 	rs      *resources.Spec
 	sfs     *filesystems.SourceFilesystem
 }
@@ -67,9 +108,17 @@ func (t *buildTransformation) Key() internal.ResourceTransformationKey {
 }
 
 func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
+	ctx.OutMediaType = media.JavascriptType
+
+	if t.options.TargetPath != "" {
+		ctx.OutPath = t.options.TargetPath
+	} else {
+		ctx.ReplaceOutPathExtension(".js")
+	}
+
 	var target api.Target
 	switch t.options.Target {
-	case "", "esnext":
+	case defaultTarget:
 		target = api.ESNext
 	case "es6", "es2015":
 		target = api.ES2015
@@ -88,29 +137,20 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	}
 
 	var loader api.Loader
-	switch t.options.Loader {
-	case "", "js":
+	switch ctx.InMediaType.SubType {
+	// TODO(bep) ESBuild support a set of other loaders, but I currently fail
+	// to see the relevance. That may change as we start using this.
+	case media.JavascriptType.SubType:
 		loader = api.LoaderJS
-	case "jsx":
-		loader = api.LoaderJSX
-	case "ts":
+	case media.TypeScriptType.SubType:
 		loader = api.LoaderTS
-	case "tsx":
+	case media.TSXType.SubType:
 		loader = api.LoaderTSX
-	case "json":
-		loader = api.LoaderJSON
-	case "text":
-		loader = api.LoaderText
-	case "base64":
-		loader = api.LoaderBase64
-	case "dataURL":
-		loader = api.LoaderDataURL
-	case "file":
-		loader = api.LoaderFile
-	case "binary":
-		loader = api.LoaderBinary
+	case media.JSXType.SubType:
+		loader = api.LoaderJSX
 	default:
-		return fmt.Errorf("invalid loader: %q", t.options.Loader)
+		return fmt.Errorf("unsupported Media Type: %q", ctx.InMediaType)
+
 	}
 
 	src, err := ioutil.ReadAll(ctx.From)
@@ -159,8 +199,23 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	return nil
 }
 
-func (c *Client) Process(res resources.ResourceTransformer, options Options) (resource.Resource, error) {
+func (c *Client) Process(res resources.ResourceTransformer, opts Options) (resource.Resource, error) {
 	return res.Transform(
-		&buildTransformation{rs: c.rs, sfs: c.sfs, options: options},
+		&buildTransformation{rs: c.rs, sfs: c.sfs, options: toInternalOptions(opts)},
 	)
+}
+
+func toInternalOptions(opts Options) internalOptions {
+	target := opts.Target
+	if target == "" {
+		target = defaultTarget
+	}
+	return internalOptions{
+		TargetPath:  opts.TargetPath,
+		Minify:      opts.Minify,
+		Target:      target,
+		Externals:   opts.Externals,
+		JSXFactory:  opts.JSXFactory,
+		JSXFragment: opts.JSXFragment,
+	}
 }

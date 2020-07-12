@@ -40,6 +40,9 @@ func TestDefaultTypes(t *testing.T) {
 		{CSVType, "text", "csv", "csv", "text/csv", "text/csv"},
 		{HTMLType, "text", "html", "html", "text/html", "text/html"},
 		{JavascriptType, "application", "javascript", "js", "application/javascript", "application/javascript"},
+		{TypeScriptType, "application", "typescript", "ts", "application/typescript", "application/typescript"},
+		{TSXType, "text", "tsx", "tsx", "text/tsx", "text/tsx"},
+		{JSXType, "text", "jsx", "jsx", "text/jsx", "text/jsx"},
 		{JSONType, "application", "json", "json", "application/json", "application/json"},
 		{RSSType, "application", "rss", "xml", "application/rss+xml", "application/rss+xml"},
 		{SVGType, "image", "svg", "svg", "image/svg+xml", "image/svg+xml"},
@@ -58,7 +61,7 @@ func TestDefaultTypes(t *testing.T) {
 
 	}
 
-	c.Assert(len(DefaultTypes), qt.Equals, 23)
+	c.Assert(len(DefaultTypes), qt.Equals, 26)
 
 }
 

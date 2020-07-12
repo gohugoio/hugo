@@ -19,13 +19,14 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/gohugoio/hugo/tpl/internal/resourcehelpers"
+
+	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources/postpub"
 
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
-	_errors "github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/resources/resource_factories/bundler"
 	"github.com/gohugoio/hugo/resources/resource_factories/create"
@@ -239,10 +240,10 @@ func (ns *Namespace) ToCSS(args ...interface{}) (resource.Resource, error) {
 		ok         bool
 	)
 
-	r, targetPath, ok = ns.resolveIfFirstArgIsString(args)
+	r, targetPath, ok = resourcehelpers.ResolveIfFirstArgIsString(args)
 
 	if !ok {
-		r, m, err = ns.resolveArgs(args)
+		r, m, err = resourcehelpers.ResolveArgs(args)
 		if err != nil {
 			return nil, err
 		}
@@ -250,7 +251,7 @@ func (ns *Namespace) ToCSS(args ...interface{}) (resource.Resource, error) {
 
 	var options scss.Options
 	if targetPath != "" {
-		options.TargetPath = targetPath
+		options.TargetPath = helpers.ToSlashTrimLeading(targetPath)
 	} else if m != nil {
 		options, err = scss.DecodeOptions(m)
 		if err != nil {
@@ -263,7 +264,7 @@ func (ns *Namespace) ToCSS(args ...interface{}) (resource.Resource, error) {
 
 // PostCSS processes the given Resource with PostCSS
 func (ns *Namespace) PostCSS(args ...interface{}) (resource.Resource, error) {
-	r, m, err := ns.resolveArgs(args)
+	r, m, err := resourcehelpers.ResolveArgs(args)
 	if err != nil {
 		return nil, err
 	}
@@ -285,7 +286,7 @@ func (ns *Namespace) PostProcess(r resource.Resource) (postpub.PostPublishedReso
 
 // Babel processes the given Resource with Babel.
 func (ns *Namespace) Babel(args ...interface{}) (resource.Resource, error) {
-	r, m, err := ns.resolveArgs(args)
+	r, m, err := resourcehelpers.ResolveArgs(args)
 	if err != nil {
 		return nil, err
 	}
@@ -300,49 +301,4 @@ func (ns *Namespace) Babel(args ...interface{}) (resource.Resource, error) {
 
 	return ns.babelClient.Process(r, options)
 
-}
-
-// We allow string or a map as the first argument in some cases.
-func (ns *Namespace) resolveIfFirstArgIsString(args []interface{}) (resources.ResourceTransformer, string, bool) {
-	if len(args) != 2 {
-		return nil, "", false
-	}
-
-	v1, ok1 := args[0].(string)
-	if !ok1 {
-		return nil, "", false
-	}
-	v2, ok2 := args[1].(resources.ResourceTransformer)
-
-	return v2, v1, ok2
-}
-
-// This roundabout way of doing it is needed to get both pipeline behaviour and options as arguments.
-func (ns *Namespace) resolveArgs(args []interface{}) (resources.ResourceTransformer, map[string]interface{}, error) {
-	if len(args) == 0 {
-		return nil, nil, errors.New("no Resource provided in transformation")
-	}
-
-	if len(args) == 1 {
-		r, ok := args[0].(resources.ResourceTransformer)
-		if !ok {
-			return nil, nil, fmt.Errorf("type %T not supported in Resource transformations", args[0])
-		}
-		return r, nil, nil
-	}
-
-	r, ok := args[1].(resources.ResourceTransformer)
-	if !ok {
-		if _, ok := args[1].(map[string]interface{}); !ok {
-			return nil, nil, fmt.Errorf("no Resource provided in transformation")
-		}
-		return nil, nil, fmt.Errorf("type %T not supported in Resource transformations", args[0])
-	}
-
-	m, err := maps.ToStringMapE(args[0])
-	if err != nil {
-		return nil, nil, _errors.Wrap(err, "invalid options type")
-	}
-
-	return r, m, nil
 }

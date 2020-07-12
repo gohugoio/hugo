@@ -15,15 +15,12 @@
 package js
 
 import (
-	"errors"
-	"fmt"
-
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/gohugoio/hugo/resources/resource_transformers/js"
-	_errors "github.com/pkg/errors"
+	"github.com/gohugoio/hugo/tpl/internal/resourcehelpers"
 )
 
 // New returns a new instance of the js-namespaced template functions.
@@ -41,14 +38,28 @@ type Namespace struct {
 
 // Build processes the given Resource with ESBuild.
 func (ns *Namespace) Build(args ...interface{}) (resource.Resource, error) {
-	r, m, err := ns.resolveArgs(args)
-	if err != nil {
-		return nil, err
-	}
-	var options js.Options
-	if m != nil {
-		options, err = js.DecodeOptions(m)
+	var (
+		r          resources.ResourceTransformer
+		m          map[string]interface{}
+		targetPath string
+		err        error
+		ok         bool
+	)
 
+	r, targetPath, ok = resourcehelpers.ResolveIfFirstArgIsString(args)
+
+	if !ok {
+		r, m, err = resourcehelpers.ResolveArgs(args)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var options js.Options
+	if targetPath != "" {
+		options.TargetPath = helpers.ToSlashTrimLeading(targetPath)
+	} else if m != nil {
+		options, err = js.DecodeOptions(m)
 		if err != nil {
 			return nil, err
 		}
@@ -56,35 +67,4 @@ func (ns *Namespace) Build(args ...interface{}) (resource.Resource, error) {
 
 	return ns.client.Process(r, options)
 
-}
-
-// This roundabout way of doing it is needed to get both pipeline behaviour and options as arguments.
-// This is a copy of tpl/resources/resolveArgs
-func (ns *Namespace) resolveArgs(args []interface{}) (resources.ResourceTransformer, map[string]interface{}, error) {
-	if len(args) == 0 {
-		return nil, nil, errors.New("no Resource provided in transformation")
-	}
-
-	if len(args) == 1 {
-		r, ok := args[0].(resources.ResourceTransformer)
-		if !ok {
-			return nil, nil, fmt.Errorf("type %T not supported in Resource transformations", args[0])
-		}
-		return r, nil, nil
-	}
-
-	r, ok := args[1].(resources.ResourceTransformer)
-	if !ok {
-		if _, ok := args[1].(map[string]interface{}); !ok {
-			return nil, nil, fmt.Errorf("no Resource provided in transformation")
-		}
-		return nil, nil, fmt.Errorf("type %T not supported in Resource transformations", args[0])
-	}
-
-	m, err := maps.ToStringMapE(args[0])
-	if err != nil {
-		return nil, nil, _errors.Wrap(err, "invalid options type")
-	}
-
-	return r, m, nil
 }
