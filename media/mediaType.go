@@ -45,7 +45,6 @@ type Type struct {
 
 	Delimiter string `json:"delimiter"` // e.g. "."
 
-	// TODO(bep) make this a string to make it hashable + method
 	Suffixes []string `json:"suffixes"`
 
 	// Set when doing lookup by suffix.
@@ -130,13 +129,17 @@ var (
 	CSVType        = Type{MainType: "text", SubType: "csv", Suffixes: []string{"csv"}, Delimiter: defaultDelimiter}
 	HTMLType       = Type{MainType: "text", SubType: "html", Suffixes: []string{"html"}, Delimiter: defaultDelimiter}
 	JavascriptType = Type{MainType: "application", SubType: "javascript", Suffixes: []string{"js"}, Delimiter: defaultDelimiter}
-	JSONType       = Type{MainType: "application", SubType: "json", Suffixes: []string{"json"}, Delimiter: defaultDelimiter}
-	RSSType        = Type{MainType: "application", SubType: "rss", mimeSuffix: "xml", Suffixes: []string{"xml"}, Delimiter: defaultDelimiter}
-	XMLType        = Type{MainType: "application", SubType: "xml", Suffixes: []string{"xml"}, Delimiter: defaultDelimiter}
-	SVGType        = Type{MainType: "image", SubType: "svg", mimeSuffix: "xml", Suffixes: []string{"svg"}, Delimiter: defaultDelimiter}
-	TextType       = Type{MainType: "text", SubType: "plain", Suffixes: []string{"txt"}, Delimiter: defaultDelimiter}
-	TOMLType       = Type{MainType: "application", SubType: "toml", Suffixes: []string{"toml"}, Delimiter: defaultDelimiter}
-	YAMLType       = Type{MainType: "application", SubType: "yaml", Suffixes: []string{"yaml", "yml"}, Delimiter: defaultDelimiter}
+	TypeScriptType = Type{MainType: "application", SubType: "typescript", Suffixes: []string{"ts"}, Delimiter: defaultDelimiter}
+	TSXType        = Type{MainType: "text", SubType: "tsx", Suffixes: []string{"tsx"}, Delimiter: defaultDelimiter}
+	JSXType        = Type{MainType: "text", SubType: "jsx", Suffixes: []string{"jsx"}, Delimiter: defaultDelimiter}
+
+	JSONType = Type{MainType: "application", SubType: "json", Suffixes: []string{"json"}, Delimiter: defaultDelimiter}
+	RSSType  = Type{MainType: "application", SubType: "rss", mimeSuffix: "xml", Suffixes: []string{"xml"}, Delimiter: defaultDelimiter}
+	XMLType  = Type{MainType: "application", SubType: "xml", Suffixes: []string{"xml"}, Delimiter: defaultDelimiter}
+	SVGType  = Type{MainType: "image", SubType: "svg", mimeSuffix: "xml", Suffixes: []string{"svg"}, Delimiter: defaultDelimiter}
+	TextType = Type{MainType: "text", SubType: "plain", Suffixes: []string{"txt"}, Delimiter: defaultDelimiter}
+	TOMLType = Type{MainType: "application", SubType: "toml", Suffixes: []string{"toml"}, Delimiter: defaultDelimiter}
+	YAMLType = Type{MainType: "application", SubType: "yaml", Suffixes: []string{"yaml", "yml"}, Delimiter: defaultDelimiter}
 
 	// Common image types
 	PNGType  = Type{MainType: "image", SubType: "png", Suffixes: []string{"png"}, Delimiter: defaultDelimiter}
@@ -165,6 +168,9 @@ var DefaultTypes = Types{
 	SASSType,
 	HTMLType,
 	JavascriptType,
+	TypeScriptType,
+	TSXType,
+	JSXType,
 	JSONType,
 	RSSType,
 	XMLType,
