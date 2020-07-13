@@ -1488,6 +1488,19 @@
         "skipHTML": false,
         "footnoteAnchorPrefix": "",
         "footnoteReturnLinkContents": ""
+      },
+      "asciidocExt": {
+        "backend": "html5",
+        "docType": "article",
+        "extensions": [],
+        "attributes": {},
+        "noHeaderOrFooter": true,
+        "safeMode": "unsafe",
+        "sectionNumbers": false,
+        "verbose": true,
+        "trace": false,
+        "failureLevel": "fatal",
+        "workingFolderCurrent": false
       }
     },
     "minify": {
@@ -1570,6 +1583,16 @@
         "delimiter": ".",
         "suffixes": [
           "toml"
+        ]
+      },
+      {
+        "type": "application/typescript",
+        "string": "application/typescript",
+        "mainType": "application",
+        "subType": "typescript",
+        "delimiter": ".",
+        "suffixes": [
+          "ts"
         ]
       },
       {
@@ -1665,6 +1688,16 @@
         ]
       },
       {
+        "type": "text/jsx",
+        "string": "text/jsx",
+        "mainType": "text",
+        "subType": "jsx",
+        "delimiter": ".",
+        "suffixes": [
+          "jsx"
+        ]
+      },
+      {
         "type": "text/plain",
         "string": "text/plain",
         "mainType": "text",
@@ -1672,6 +1705,16 @@
         "delimiter": ".",
         "suffixes": [
           "txt"
+        ]
+      },
+      {
+        "type": "text/tsx",
+        "string": "text/tsx",
+        "mainType": "text",
+        "subType": "tsx",
+        "delimiter": ".",
+        "suffixes": [
+          "tsx"
         ]
       },
       {
@@ -3189,6 +3232,21 @@
           "Examples": []
         }
       },
+      "debug": {
+        "Dump": {
+          "Description": "Dump returns a object dump of val as a string.\nNote that not every value passed to Dump will print so nicely, but\nwe'll improve on that. We recommend using the \"go\" Chroma lexer to format the output\nnicely.\nAlso note that the output from Dump may change from Hugo version to the next,\nso don't depend on a specific output.",
+          "Args": [
+            "val"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{- $m := newScratch -}}\n{{- $m.Set \"Hugo\" \"Rocks!\" -}}\n{{- $m.Values | debug.Dump | safeHTML -}}",
+              "map[string]interface {}{\n  \"Hugo\": \"Rocks!\",\n}"
+            ]
+          ]
+        }
+      },
       "encoding": {
         "Base64Decode": {
           "Description": "Base64Decode returns the base64 decoding of the given content.",
@@ -3505,6 +3563,14 @@
           ]
         }
       },
+      "js": {
+        "Build": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        }
+      },
       "lang": {
         "Merge": {
           "Description": "",
@@ -3733,6 +3799,14 @@
               "1"
             ]
           ]
+        }
+      },
+      "openapi3": {
+        "Unmarshal": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": []
         }
       },
       "os": {
@@ -4228,6 +4302,20 @@
           "Args": null,
           "Aliases": null,
           "Examples": null
+        },
+        "Count": {
+          "Description": "Count counts the number of non-overlapping instances of substr in s.\nIf substr is an empty string, Count returns 1 + the number of Unicode code points in s.",
+          "Args": [
+            "substr",
+            "s"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{\"aabab\" | strings.Count \"a\" }}",
+              "3"
+            ]
+          ]
         },
         "CountRunes": {
           "Description": "CountRunes returns the number of runes in s, excluding whitepace.",
@@ -4767,7 +4855,7 @@
           ]
         },
         "Unmarshal": {
-          "Description": "Unmarshal unmarshals the data given, which can be either a string\nor a Resource. Supported formats are JSON, TOML, YAML, and CSV.\nYou can optionally provide an options map as the first argument.",
+          "Description": "Unmarshal unmarshals the data given, which can be either a string, json.RawMessage\nor a Resource. Supported formats are JSON, TOML, YAML, and CSV.\nYou can optionally provide an options map as the first argument.",
           "Args": [
             "args"
           ],

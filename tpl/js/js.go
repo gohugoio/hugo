@@ -25,6 +25,9 @@ import (
 
 // New returns a new instance of the js-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
+	if deps.ResourceSpec == nil {
+		return &Namespace{}
+	}
 	return &Namespace{
 		client: js.New(deps.BaseFs.Assets, deps.ResourceSpec),
 	}
