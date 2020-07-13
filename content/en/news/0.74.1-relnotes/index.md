@@ -2,7 +2,7 @@
 ---
 date: 2020-07-13
 title: "Hugo 0.74.1: A couple of Bug Fixes"
-description: "This version fixes a couple of bugs introduced in 0.74.0."
+description: "This version fixes one issue introduced in 0.74.0."
 categories: ["Releases"]
 images:
 - images/blog/hugo-bug-poster.png
