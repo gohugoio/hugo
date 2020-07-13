@@ -677,3 +677,46 @@ P3: Inline: p3
 	)
 
 }
+
+// https://github.com/gohugoio/hugo/issues/7478
+func TestBaseWithAndWithoutDefine(t *testing.T) {
+
+	b := newTestSitesBuilder(t)
+
+	b.WithContent("p1.md", "---\ntitle: P\n---\nContent")
+
+	b.WithTemplates(
+		"_default/baseof.html", `
+::Header Start:{{ block "header" . }}{{ end }}:Header End:
+::{{ block "main" . }}Main{{ end }}::
+`, "index.html", `
+{{ define "header" }}
+Home Header
+{{ end }}
+{{ define "main" }}
+This is home main
+{{ end }}
+`,
+
+		"_default/single.html", `
+{{ define "main" }}
+This is single main
+{{ end }}
+`,
+	)
+
+	b.CreateSites().Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", `
+Home Header
+This is home main
+`,
+	)
+
+	b.AssertFileContent("public/p1/index.html", `
+ ::Header Start::Header End:
+This is single main
+`,
+	)
+
+}
