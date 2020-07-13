@@ -1,25 +1,32 @@
 
 ---
 date: 2020-07-13
-title: "0.74.0"
-description: "0.74.0"
+title: "Native JS Bundler, Open API Support, Inline Partials"
+description: "Hugo 0.74.0 brings blazingly fast native JavaScript bundling, with minification, tree shaking, scope hoisting for ES6 modules, and transpilation of JSX and newer JS syntax down to ES6. And more."
 categories: ["Releases"]
 ---
 
-	**Note:** The documentation site isn't updated with all of the main new things below. We will get to it soon.
+**Note:** The documentation site isn't updated with all of the main new things below. We will get to it soon.
 
-This release comes with native JavaScript bundling (and minifier), with [import](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) support (from `node_modules` etc.), tree shaking, scope hoisting for ES6 modules, transpilation of JSX and newer JS syntax down to ES6, JavaScript/JSX and TypeScript/TSX support. And it's _very fast_. [Benchmarks](https://github.com/evanw/esbuild#benchmarks) rates it at least 100x faster than the other JavaScript bundlers included. This new feature is backed by the very impressive [ESBuild](https://github.com/evanw/esbuild) project by [@evanw](https://github.com/evanw). Many thanks to [@remko](https://github.com/remko) for the integration work.
+This release comes with native JavaScript bundling (and minifier), with [import](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) support (from `node_modules` etc.), tree shaking, scope hoisting for ES6 modules, transpilation of JSX and newer JS syntax down to ES6, JavaScript/JSX and TypeScript/TSX support. And it's _very fast_. [Benchmarks](https://github.com/evanw/esbuild#benchmarks) rates it **at least 100x faster** than the other JavaScript bundlers included. This new feature is backed by the very impressive [ESBuild](https://github.com/evanw/esbuild) project by [@evanw](https://github.com/evanw). Many thanks to [@remko](https://github.com/remko) for the integration work.
 
+A very simple example building a TypeScript file:
+
+```go-html-template
+{{ $js := resources.Get "js/main.ts" | js.Build }}
+```
 This release also comes with Open API 3-support. This makes it much easier to create "Swagger styled" API-documentation. The below will unmarshal your YAML file into [this object graph](https://godoc.org/github.com/getkin/kin-openapi/openapi3#Swagger):
 
-````go-html-template
+```go-html-template
 {{ $api := resources.Get "api/openapi.yaml" | openapi3.Unmarshal }}
 ```
 
 Hugo's Asciidoc integration has also gotten a face lift. A big shoutout to [@muenchhausen](https://github.com/muenchhausen) and [@bwklein](https://github.com/bwklein) for their work on this.
 
+And finally, [partials](https://gohugo.io/templates/partials/) can now be defined inline -- and that is way more useful than it sounds.
+ 
 
-This release represents **23 contributions by 9 contributors** to the main Hugo code base.[@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@niklasfasching](https://github.com/niklasfasching), [@bwklein](https://github.com/bwklein, and [@muenchhausen](https://github.com/muenchhausen) for their ongoing contributions.
+This release represents **23 contributions by 9 contributors** to the main Hugo code base. [@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@niklasfasching](https://github.com/niklasfasching), [@bwklein](https://github.com/bwklein), and [@muenchhausen](https://github.com/muenchhausen) for their ongoing contributions.
 
 And a big thanks to [@digitalcraftsman](https://github.com/digitalcraftsman) for his relentless work on keeping the themes site in pristine condition and to [@davidsneighbour](https://github.com/davidsneighbour), [@coliff](https://github.com/coliff) and [@kaushalmodi](https://github.com/kaushalmodi) for all the great work on the documentation site.
 
@@ -74,8 +81,5 @@ Hugo now has:
 ### Other
 
 * Fix server reload when non-HTML shortcode changes [42e150fb](https://github.com/gohugoio/hugo/commit/42e150fbfac736bd49bc7e50cb8cdf9f81386f59) [@bep](https://github.com/bep) [#7448](https://github.com/gohugoio/hugo/issues/7448)
-
-
-
 
 
