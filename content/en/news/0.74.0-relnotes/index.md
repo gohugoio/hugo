@@ -23,7 +23,7 @@ This release also comes with Open API 3-support. This makes it much easier to cr
 
 Hugo's Asciidoc integration has also gotten a face lift. A big shoutout to [@muenchhausen](https://github.com/muenchhausen) and [@bwklein](https://github.com/bwklein) for their work on this.
 
-And finally, [partials](https://gohugo.io/templates/partials/) can now be defined inline -- and that is way more useful than it sounds.
+And finally, [partials](https://gohugo.io/templates/partials/#inline-partials) can now be defined inline -- and that is way more useful than it sounds.
  
 
 This release represents **23 contributions by 9 contributors** to the main Hugo code base. [@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@niklasfasching](https://github.com/niklasfasching), [@bwklein](https://github.com/bwklein), and [@muenchhausen](https://github.com/muenchhausen) for their ongoing contributions.
