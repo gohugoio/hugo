@@ -13,7 +13,7 @@
                 {{ $url := printf "%s?%s" . (querify "utm_source" "homepage" "utm_medium" "banner" "utm_campaign" "hugosponsor") | safeURL }}
                 {{ if eq (getenv "HUGO_ENV") "production" | or (eq $.cx.Site.Params.env "production")  }}
                    {{ $gtagID := printf "Sponsor %s %s" $banner.name $gtag | title }}
-                   <a href="{{ $url }}" onclick="trackOutboundLink({{ printf "'%s', '%s'" $gtagID $url | safeJS }}); return false;" class="grow">
+                   <a href="{{ $url }}" onclick="trackOutboundLink({{ printf "'%s', '%s'" $gtagID $url | safeJS }});" class="grow">
                 {{ else }}
                    <a href="{{ $url }}" class="grow">
                 {{ end }}

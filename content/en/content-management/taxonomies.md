@@ -1,7 +1,7 @@
 ---
 title: Taxonomies
 linktitle:
-description: Hugo includes support for user-defined taxonomies..
+description: Hugo includes support for user-defined taxonomies.
 date: 2017-02-01
 publishdate: 2017-02-01
 keywords: [taxonomies,metadata,front matter,terms]
