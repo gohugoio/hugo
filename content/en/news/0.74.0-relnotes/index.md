@@ -6,7 +6,7 @@ description: "Hugo 0.74.0 brings blazingly fast native JavaScript bundling, with
 categories: ["Releases"]
 ---
 
-**Note:** The documentation site isn't updated with all of the main new things below. We will get to it soon.
+**Note:** The documentation site isn't updated with all of the main new things below. We will get to it soon. See https://github.com/gohugoio/hugoDocs/issues/1171
 
 This release comes with native JavaScript bundling (and minifier), with [import](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) support (from `node_modules` etc.), tree shaking, scope hoisting for ES6 modules, transpilation of JSX and newer JS syntax down to ES6, JavaScript/JSX and TypeScript/TSX support. And it's _very fast_. [Benchmarks](https://github.com/evanw/esbuild#benchmarks) rates it **at least 100x faster** than the other JavaScript bundlers included. This new feature is backed by the very impressive [ESBuild](https://github.com/evanw/esbuild) project by [@evanw](https://github.com/evanw). Many thanks to [@remko](https://github.com/remko) for the integration work.
 
