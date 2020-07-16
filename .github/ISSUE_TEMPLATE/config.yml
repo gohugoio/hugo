@@ -1,0 +1,4 @@
+contact_links:
+    - name: Ask the Hugo community
+      url: https://discourse.gohugo.io/
+      about: If your request is "not really" a bug or you are unsure about it, or if this is just a configuration or an adaption request feel free to ask in our community for help
