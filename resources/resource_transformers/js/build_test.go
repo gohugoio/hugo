@@ -42,6 +42,7 @@ func TestToInternalOptions(t *testing.T) {
 		JSXFactory:  "v3",
 		JSXFragment: "v4",
 		Externals:   []string{"react"},
+		Defines:     map[string]interface{}{"process.env.NODE_ENV": "production"},
 		Minify:      true,
 	}
 
@@ -52,7 +53,7 @@ func TestToInternalOptions(t *testing.T) {
 		JSXFactory:  "v3",
 		JSXFragment: "v4",
 		Externals:   []string{"react"},
-		Defines:     nil,
+		Defines:     map[string]string{"process.env.NODE_ENV": "production"},
 		TSConfig:    "",
 	})
 
