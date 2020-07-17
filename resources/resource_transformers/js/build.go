@@ -19,6 +19,8 @@ import (
 	"path"
 	"strings"
 
+	"github.com/spf13/cast"
+
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugolib/filesystems"
 	"github.com/gohugoio/hugo/media"
@@ -50,6 +52,9 @@ type Options struct {
 	// External dependencies, e.g. "react".
 	Externals []string `hash:"set"`
 
+	// User defined symbols.
+	Defines map[string]interface{}
+
 	// What to use instead of React.createElement.
 	JSXFactory string
 
@@ -66,10 +71,11 @@ type internalOptions struct {
 
 	Externals []string `hash:"set"`
 
+	Defines map[string]string
+
 	// These are currently not exposed in the public Options struct,
 	// but added here to make the options hash as stable as possible for
 	// whenever we do.
-	Defines  map[string]string
 	TSConfig string
 }
 
@@ -77,6 +83,7 @@ func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
 	if m == nil {
 		return
 	}
+	err = mapstructure.WeakDecode(m, &opts)
 	err = mapstructure.WeakDecode(m, &opts)
 
 	if opts.TargetPath != "" {
@@ -210,11 +217,16 @@ func toInternalOptions(opts Options) internalOptions {
 	if target == "" {
 		target = defaultTarget
 	}
+	var defines map[string]string
+	if opts.Defines != nil {
+		defines = cast.ToStringMapString(opts.Defines)
+	}
 	return internalOptions{
 		TargetPath:  opts.TargetPath,
 		Minify:      opts.Minify,
 		Target:      target,
 		Externals:   opts.Externals,
+		Defines:     defines,
 		JSXFactory:  opts.JSXFactory,
 		JSXFragment: opts.JSXFragment,
 	}
