@@ -18,13 +18,12 @@
 package asciidocext
 
 import (
-	"github.com/gohugoio/hugo/markup/markup_config"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/markup/converter"
+	"github.com/gohugoio/hugo/markup/markup_config"
 	"github.com/spf13/viper"
 
 	qt "github.com/frankban/quicktest"
@@ -51,18 +50,21 @@ func TestAsciidoctorDefaultArgs(t *testing.T) {
 	c.Assert(ac, qt.Not(qt.IsNil))
 
 	args := ac.parseArgs(converter.DocumentContext{})
-	c.Assert(args, qt.Not(qt.IsNil))
-	c.Assert(strings.Join(args, " "), qt.Equals, "--no-header-footer")
+	expected := []string{"--no-header-footer", "--trace"}
+	c.Assert(args, qt.DeepEquals, expected)
 }
 
-func TestAsciidoctorDiagramArgs(t *testing.T) {
+func TestAsciidoctorNonDefaultArgs(t *testing.T) {
 	c := qt.New(t)
 	cfg := viper.New()
 	mconf := markup_config.Default
-	mconf.AsciidocExt.NoHeaderOrFooter = true
-	mconf.AsciidocExt.Extensions = []string{"asciidoctor-html5s", "asciidoctor-diagram"}
-	mconf.AsciidocExt.Backend = "html5s"
-
+	mconf.AsciidocExt.Backend = "manpage"
+	mconf.AsciidocExt.NoHeaderOrFooter = false
+	mconf.AsciidocExt.SafeMode = "safe"
+	mconf.AsciidocExt.SectionNumbers = true
+	mconf.AsciidocExt.Verbose = true
+	mconf.AsciidocExt.Trace = false
+	mconf.AsciidocExt.FailureLevel = "warn"
 	p, err := Provider.New(
 		converter.ProviderConfig{
 			Cfg:          cfg,
@@ -79,8 +81,65 @@ func TestAsciidoctorDiagramArgs(t *testing.T) {
 	c.Assert(ac, qt.Not(qt.IsNil))
 
 	args := ac.parseArgs(converter.DocumentContext{})
-	c.Assert(len(args), qt.Equals, 7)
-	c.Assert(strings.Join(args, " "), qt.Equals, "-b html5s -r asciidoctor-html5s -r asciidoctor-diagram --no-header-footer")
+	expected := []string{"-b", "manpage", "--section-numbers", "--verbose", "--failure-level", "warn", "--safe-mode", "safe"}
+	c.Assert(args, qt.DeepEquals, expected)
+}
+
+func TestAsciidoctorDisallowedArgs(t *testing.T) {
+	c := qt.New(t)
+	cfg := viper.New()
+	mconf := markup_config.Default
+	mconf.AsciidocExt.Backend = "disallowed-backend"
+	mconf.AsciidocExt.Extensions = []string{"disallowed-extention"}
+	mconf.AsciidocExt.Attributes = map[string]string{"outdir": "disallowed-attribute"}
+	mconf.AsciidocExt.SafeMode = "disallowed-safemode"
+	mconf.AsciidocExt.FailureLevel = "disallowed-failurelevel"
+	p, err := Provider.New(
+		converter.ProviderConfig{
+			Cfg:          cfg,
+			MarkupConfig: mconf,
+			Logger:       loggers.NewErrorLogger(),
+		},
+	)
+	c.Assert(err, qt.IsNil)
+
+	conv, err := p.New(converter.DocumentContext{})
+	c.Assert(err, qt.IsNil)
+
+	ac := conv.(*asciidocConverter)
+	c.Assert(ac, qt.Not(qt.IsNil))
+
+	args := ac.parseArgs(converter.DocumentContext{})
+	expected := []string{"--no-header-footer", "--trace"}
+	c.Assert(args, qt.DeepEquals, expected)
+}
+
+func TestAsciidoctorDiagramArgs(t *testing.T) {
+	c := qt.New(t)
+	cfg := viper.New()
+	mconf := markup_config.Default
+	mconf.AsciidocExt.NoHeaderOrFooter = true
+	mconf.AsciidocExt.Extensions = []string{"asciidoctor-html5s", "asciidoctor-diagram"}
+	mconf.AsciidocExt.Backend = "html5s"
+	mconf.AsciidocExt.Trace = false
+	p, err := Provider.New(
+		converter.ProviderConfig{
+			Cfg:          cfg,
+			MarkupConfig: mconf,
+			Logger:       loggers.NewErrorLogger(),
+		},
+	)
+	c.Assert(err, qt.IsNil)
+
+	conv, err := p.New(converter.DocumentContext{})
+	c.Assert(err, qt.IsNil)
+
+	ac := conv.(*asciidocConverter)
+	c.Assert(ac, qt.Not(qt.IsNil))
+
+	args := ac.parseArgs(converter.DocumentContext{})
+	expected := []string{"-b", "html5s", "-r", "asciidoctor-html5s", "-r", "asciidoctor-diagram", "--no-header-footer"}
+	c.Assert(args, qt.DeepEquals, expected)
 }
 
 func TestAsciidoctorWorkingFolderCurrent(t *testing.T) {
@@ -88,6 +147,7 @@ func TestAsciidoctorWorkingFolderCurrent(t *testing.T) {
 	cfg := viper.New()
 	mconf := markup_config.Default
 	mconf.AsciidocExt.WorkingFolderCurrent = true
+	mconf.AsciidocExt.Trace = false
 	p, err := Provider.New(
 		converter.ProviderConfig{
 			Cfg:          cfg,
@@ -121,6 +181,7 @@ func TestAsciidoctorWorkingFolderCurrentAndExtensions(t *testing.T) {
 	mconf.AsciidocExt.Extensions = []string{"asciidoctor-html5s", "asciidoctor-diagram"}
 	mconf.AsciidocExt.Backend = "html5s"
 	mconf.AsciidocExt.WorkingFolderCurrent = true
+	mconf.AsciidocExt.Trace = false
 	p, err := Provider.New(
 		converter.ProviderConfig{
 			Cfg:          cfg,
@@ -156,6 +217,7 @@ func TestAsciidoctorAttributes(t *testing.T) {
 	cfg := viper.New()
 	mconf := markup_config.Default
 	mconf.AsciidocExt.Attributes = map[string]string{"my-base-url": "https://gohugo.io/", "my-attribute-name": "my value"}
+	mconf.AsciidocExt.Trace = false
 	p, err := Provider.New(
 		converter.ProviderConfig{
 			Cfg:          cfg,

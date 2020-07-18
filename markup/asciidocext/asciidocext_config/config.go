@@ -14,21 +14,26 @@
 // Package asciidoc_config holds asciidoc related configuration.
 package asciidocext_config
 
-// DefaultConfig holds the default asciidoc configuration.
-// These values are asciidoctor cli defaults (see https://asciidoctor.org/docs/user-manual/)
 var (
+	// Default holds Hugo's default asciidoc configuration.
 	Default = Config{
 		Backend:              "html5",
-		DocType:              "article",
 		Extensions:           []string{},
 		Attributes:           map[string]string{},
 		NoHeaderOrFooter:     true,
 		SafeMode:             "unsafe",
 		SectionNumbers:       false,
-		Verbose:              true,
-		Trace:                false,
+		Verbose:              false,
+		Trace:                true,
 		FailureLevel:         "fatal",
 		WorkingFolderCurrent: false,
+	}
+
+	// CliDefault holds Asciidoctor CLI defaults (see https://asciidoctor.org/docs/user-manual/)
+	CliDefault = Config{
+		Backend:      "html5",
+		SafeMode:     "unsafe",
+		FailureLevel: "fatal",
 	}
 
 	AllowedExtensions = map[string]bool{
@@ -72,7 +77,6 @@ var (
 // Config configures asciidoc.
 type Config struct {
 	Backend              string
-	DocType              string
 	Extensions           []string
 	Attributes           map[string]string
 	NoHeaderOrFooter     bool
