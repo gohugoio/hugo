@@ -17,8 +17,10 @@ import (
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/markup/asciidocext/asciidocext_config"
+	"github.com/gohugoio/hugo/markup/bibliography"
 	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
 	"github.com/gohugoio/hugo/markup/highlight"
+	"github.com/gohugoio/hugo/markup/pandoc/pandoc_config"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/mitchellh/mapstructure"
 )
@@ -33,12 +35,16 @@ type Config struct {
 
 	// Table of contents configuration
 	TableOfContents tableofcontents.Config
+	Bibliography    bibliography.Config
 
 	// Configuration for the Goldmark markdown engine.
 	Goldmark goldmark_config.Config
 
 	// Configuration for the Asciidoc external markdown engine.
 	AsciidocExt asciidocext_config.Config
+
+	// Configuration for Pandoc external markdown engine.
+	Pandoc pandoc_config.Config
 }
 
 func Decode(cfg config.Provider) (conf Config, err error) {
@@ -102,6 +108,7 @@ var Default = Config{
 
 	TableOfContents: tableofcontents.DefaultConfig,
 	Highlight:       highlight.DefaultConfig,
+	Bibliography:    bibliography.Default,
 
 	Goldmark:    goldmark_config.Default,
 	AsciidocExt: asciidocext_config.Default,

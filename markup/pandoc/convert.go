@@ -15,13 +15,33 @@
 package pandoc
 
 import (
+	"strings"
+
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/htesting"
+	"github.com/mitchellh/mapstructure"
+
 	"github.com/gohugoio/hugo/identity"
 
+	"github.com/gohugoio/hugo/markup/bibliography"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/internal"
+	"github.com/gohugoio/hugo/markup/pandoc/pandoc_config"
+
+	"path"
 )
+
+type paramer interface {
+	Param(interface{}) (interface{}, error)
+}
+
+type searchPaths struct {
+	Paths []string
+}
+
+func (s *searchPaths) AsResourcePath() string {
+	return strings.Join(s.Paths, ":")
+}
 
 // Provider is the package entry point.
 var Provider converter.ProviderProvider = provider{}
@@ -32,15 +52,15 @@ type provider struct {
 func (p provider) New(cfg converter.ProviderConfig) (converter.Provider, error) {
 	return converter.NewProvider("pandoc", func(ctx converter.DocumentContext) (converter.Converter, error) {
 		return &pandocConverter{
-			ctx: ctx,
-			cfg: cfg,
+			docCtx: ctx,
+			cfg:    cfg,
 		}, nil
 	}), nil
 }
 
 type pandocConverter struct {
-	ctx converter.DocumentContext
-	cfg converter.ProviderConfig
+	docCtx converter.DocumentContext
+	cfg    converter.ProviderConfig
 }
 
 func (c *pandocConverter) Convert(ctx converter.RenderContext) (converter.ResultRender, error) {
@@ -56,30 +76,53 @@ func (c *pandocConverter) Supports(feature identity.Identity) bool {
 }
 
 // getPandocContent calls pandoc as an external helper to convert pandoc markdown to HTML.
-func (c *pandocConverter) getPandocContent(src []byte, ctx converter.DocumentContext) ([]byte, error) {
+func (c *pandocConverter) getPandocContent(src []byte) []byte {
 	logger := c.cfg.Logger
-	binaryName := getPandocBinaryName()
-	if binaryName == "" {
+	pandocPath, pandocFound := getPandocBinaryName()
+	if !pandocFound {
 		logger.Println("pandoc not found in $PATH: Please install.\n",
 			"                 Leaving pandoc content unrendered.")
-		return src, nil
+		return src
 	}
-	args := []string{"--mathjax"}
-	return internal.ExternallyRenderContent(c.cfg, ctx, src, binaryName, args)
+
+	var pandocConfig pandoc_config.Config = c.cfg.MarkupConfig.Pandoc
+	var bibConfig bibliography.Config = c.cfg.MarkupConfig.Bibliography
+
+	if pageParameters, ok := c.docCtx.Document.(paramer); ok {
+		if bibParam, err := pageParameters.Param("bibliography"); err == nil {
+			mapstructure.WeakDecode(bibParam, &bibConfig)
+		}
+
+		if pandocParam, err := pageParameters.Param("pandoc"); err == nil {
+			mapstructure.WeakDecode(pandocParam, &pandocConfig)
+		}
+	}
+
+	arguments := pandocConfig.AsPandocArguments()
+
+	if bibConfig.Source != "" {
+		arguments = append(arguments, "--citeproc", "--bibliography", bibConfig.Source)
+		if bibConfig.CitationStyle != "" {
+			arguments = append(arguments, "--csl", bibConfig.CitationStyle)
+		}
+	}
+
+	resourcePath := strings.Join([]string{path.Dir(c.docCtx.Filename), "static", "."}, ":")
+	arguments = append(arguments, "--resource-path", resourcePath)
+
+	renderedContent, _ := internal.ExternallyRenderContent(c.cfg, c.docCtx, src, pandocPath, arguments)
+	return renderedContent
 }
 
 const pandocBinary = "pandoc"
 
-func getPandocBinaryName() string {
-	if hexec.InPath(pandocBinary) {
-		return pandocBinary
-	}
-	return ""
+func getPandocBinaryName() (string, bool) {
+	return pandocBinary, hexec.InPath(pandocBinary)
 }
 
 // Supports returns whether Pandoc is installed on this computer.
 func Supports() bool {
-	hasBin := getPandocBinaryName() != ""
+	_, hasBin := getPandocBinaryName()
 	if htesting.SupportsAll() {
 		if !hasBin {
 			panic("pandoc not installed")
