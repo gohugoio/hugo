@@ -15,6 +15,7 @@
 package pandoc
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/hexec"
@@ -22,7 +23,6 @@ import (
 	"github.com/mitchellh/mapstructure"
 
 	"github.com/gohugoio/hugo/identity"
-
 	"github.com/gohugoio/hugo/markup/bibliography"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/internal"
@@ -64,7 +64,7 @@ type pandocConverter struct {
 }
 
 func (c *pandocConverter) Convert(ctx converter.RenderContext) (converter.ResultRender, error) {
-	b, err := c.getPandocContent(ctx.Src, c.ctx)
+	b, err := c.getPandocContent(ctx.Src)
 	if err != nil {
 		return nil, err
 	}
@@ -76,17 +76,14 @@ func (c *pandocConverter) Supports(feature identity.Identity) bool {
 }
 
 // getPandocContent calls pandoc as an external helper to convert pandoc markdown to HTML.
-func (c *pandocConverter) getPandocContent(src []byte) []byte {
-	logger := c.cfg.Logger
+func (c *pandocConverter) getPandocContent(src []byte) ([]byte, error) {
 	pandocPath, pandocFound := getPandocBinaryName()
 	if !pandocFound {
-		logger.Println("pandoc not found in $PATH: Please install.\n",
-			"                 Leaving pandoc content unrendered.")
-		return src
+		return nil, errors.New("pandoc not found in $PATH: Please install.")
 	}
 
-	var pandocConfig pandoc_config.Config = c.cfg.MarkupConfig.Pandoc
-	var bibConfig bibliography.Config = c.cfg.MarkupConfig.Bibliography
+	var pandocConfig pandoc_config.Config = c.cfg.MarkupConfig().Pandoc
+	var bibConfig bibliography.Config = c.cfg.MarkupConfig().Bibliography
 
 	if pageParameters, ok := c.docCtx.Document.(paramer); ok {
 		if bibParam, err := pageParameters.Param("bibliography"); err == nil {
@@ -111,7 +108,7 @@ func (c *pandocConverter) getPandocContent(src []byte) []byte {
 	arguments = append(arguments, "--resource-path", resourcePath)
 
 	renderedContent, _ := internal.ExternallyRenderContent(c.cfg, c.docCtx, src, pandocPath, arguments)
-	return renderedContent
+	return renderedContent, nil
 }
 
 const pandocBinary = "pandoc"

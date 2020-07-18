@@ -111,5 +111,6 @@ var Default = Config{
 	Bibliography:    bibliography.Default,
 
 	Goldmark:    goldmark_config.Default,
+	Pandoc:      pandoc_config.Default,
 	AsciidocExt: asciidocext_config.Default,
 }

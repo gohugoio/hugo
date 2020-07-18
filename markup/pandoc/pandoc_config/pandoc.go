@@ -69,6 +69,12 @@ type Config struct {
 	ExtraArgs []string
 }
 
+var Default = Config{
+	InputFormat:   "markdown",
+	UseLegacyHtml: false,
+	UseMathjax:    true,
+}
+
 func (c *Config) getInputArg() string {
 	var b strings.Builder
 	b.WriteString("--from=")
