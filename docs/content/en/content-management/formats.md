@@ -74,14 +74,14 @@ Asciidoctor parameters can be customized in Hugo:
 Parameter | Default | Comment
 --- | --- | --- 
 backend | `html5` | Don't change this unless you know what you are doing.
-doctype | `article` | Document type (article, book or manpage).
+doctype | `article` | Currently supported Document type is `article`.
 extensions | | Possible extensions are `asciidoctor-html5s`, `asciidoctor-bibtex`, `asciidoctor-diagram`,	`asciidoctor-interdoc-reftext`, `asciidoctor-katex`, `asciidoctor-latex`, `asciidoctor-mathematical`, `asciidoctor-question`, `asciidoctor-rouge`.
 attributes | | Variables to be referenced in your `adoc` file. This is a list of variable name/value maps. See [Asciidoctor#attributes](https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#attributes-and-substitutions).
 noheaderorfooter | true | Output an embeddable document, which excludes the header, the footer, and everything outside the body of the document. Don't change this unless you know what you are doing. 
 safemode | `unsafe` | Safe mode level `unsafe`, `safe`, `server` or `secure`. Don't change this unless you know what you are doing.
 sectionnumbers | `false` | Auto-number section titles.
-verbose | `true` | Verbosely print processing information and configuration file checks to stderr.
-trace | `false` | Include backtrace information on errors.
+verbose | `false` | Verbosely print processing information and configuration file checks to stderr.
+trace | `true` | Include backtrace information on errors.
 failurelevel | `fatal` | The minimum logging level that triggers a non-zero exit code (failure).
 workingfoldercurrent | `false` | Set the working folder to the rendered `adoc` file, so [include](https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#include-files) will work with relative paths. This setting uses the `asciidoctor` cli parameter `--base-dir` and attribute `outdir=`. For rendering [asciidoctor-diagram](https://asciidoctor.org/docs/asciidoctor-diagram/)  `workingfoldercurrent` must be set to `true`.
 
@@ -89,7 +89,6 @@ workingfoldercurrent | `false` | Set the working folder to the rendered `adoc` f
 [markup.asciidocext]
     extensions = ["asciidoctor-html5s", "asciidoctor-diagram"]
     workingFolderCurrent = true
-    trace = true
     [markup.asciidocext.attributes]
         my-base-url = "https://example.com/"
         my-attribute-name = "my value"
