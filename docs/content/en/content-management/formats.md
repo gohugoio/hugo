@@ -33,7 +33,7 @@ The current list of content formats in Hugo:
 | Blackfriday | blackfriday  |Blackfriday will eventually be deprecated.|
 |MMark|mmark|Mmark is deprecated and will be removed in a future release.|
 |Emacs Org-Mode|org|See [go-org](https://github.com/niklasfasching/go-org).|
-|AsciiDoc|asciidoc, adoc, ad|Needs AsciiDoc or [Asciidoctor][ascii] installed.|
+|AsciiDoc|asciidocext, adoc, ad|Needs [Asciidoctor][ascii] installed.|
 |RST|rst|Needs [RST](http://docutils.sourceforge.net/rst.html) installed.|
 |Pandoc|pandoc, pdc|Needs [Pandoc](https://www.pandoc.org/) installed.|
 |HTML|html, htm|To be treated as a content file, with layout, shortcodes etc., it must have front matter. If not, it will be copied as-is.|
@@ -44,17 +44,17 @@ The `markup identifier` is fetched from either the `markup` variable in front ma
 ## External Helpers
 
 Some of the formats in the table above needs external helpers installed on your PC. For example, for AsciiDoc files, 
-Hugo will try to call the `asciidoctor` or `asciidoc` command. This means that you will have to install the associated 
+Hugo will try to call the `asciidoctor` command. This means that you will have to install the associated
 tool on your machine to be able to use these formats.
 
 Hugo passes reasonable default arguments to these external helpers by default:
 
-- `asciidoctor`: `--no-header-footer -v -`
+- `asciidoctor`: `--no-header-footer --trace -`
 - `rst2html`: `--leave-comments --initial-header-level=2`
 - `pandoc`: `--mathjax`
 
 {{% warning "Performance of External Helpers" %}}
-Because additional formats are external commands generation performance will rely heavily on the performance of the external tool you are using. As this feature is still in its infancy, feedback is welcome.
+Because additional formats are external commands, generation performance will rely heavily on the performance of the external tool you are using. As this feature is still in its infancy, feedback is welcome.
 {{% /warning %}}
 
 ### External Helper AsciiDoc
