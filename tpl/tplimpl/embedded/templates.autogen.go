@@ -294,8 +294,8 @@ if (!doNotTrack) {
 <meta itemprop="description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}">
 
 {{- if .IsPage }}{{ $ISO8601 := "2006-01-02T15:04:05-07:00" }}{{ if not .PublishDate.IsZero }}
-<meta itemprop="datePublished" content="{{ .PublishDate.Format $ISO8601 | safeHTML }}" />{{ end }}
-{{ if not .Lastmod.IsZero }}<meta itemprop="dateModified" content="{{ .Lastmod.Format $ISO8601 | safeHTML }}" />{{ end }}
+<meta itemprop="datePublished" {{ .PublishDate.Format $ISO8601 | printf "content=%q" | safeHTMLAttr }} />{{ end }}
+{{ if not .Lastmod.IsZero }}<meta itemprop="dateModified" {{ .Lastmod.Format $ISO8601 | printf "content=%q" | safeHTMLAttr }} />{{ end }}
 <meta itemprop="wordCount" content="{{ .WordCount }}">
 {{ with $.Params.images }}{{ range first 6 . -}}
 <meta itemprop="image" content="{{ . | absURL }}">
@@ -312,7 +312,8 @@ if (!doNotTrack) {
 
 <!-- Output all taxonomies as schema.org keywords -->
 <meta itemprop="keywords" content="{{ if .IsPage}}{{ range $index, $tag := .Params.tags }}{{ $tag }},{{ end }}{{ else }}{{ range $plural, $terms := .Site.Taxonomies }}{{ range $term, $val := $terms }}{{ printf "%s," $term }}{{ end }}{{ end }}{{ end }}" />
-{{- end }}`},
+{{- end }}
+`},
 	{`shortcodes/__h_simple_assets.html`, `{{ define "__h_simple_css" }}{{/* These template definitions are global. */}}
 {{- if not (.Page.Scratch.Get "__h_simple_css") -}}
 {{/* Only include once */}}
