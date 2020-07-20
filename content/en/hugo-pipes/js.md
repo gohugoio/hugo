@@ -28,7 +28,7 @@ minify [bool]
 
 target [string]
 : The language target.
-  One of: `es2015`, `es2016`, `es2017`, `es2018`, `es2019`, `es2020` or `esnext`.
+  One of: `es5`, `es2015`, `es2016`, `es2017`, `es2018`, `es2019`, `es2020` or `esnext`.
   Default is `esnext`.
 
 externals [slice]
