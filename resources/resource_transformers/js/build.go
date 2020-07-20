@@ -127,6 +127,8 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	switch t.options.Target {
 	case defaultTarget:
 		target = api.ESNext
+	case "es5":
+		target = api.ES5
 	case "es6", "es2015":
 		target = api.ES2015
 	case "es2016":
