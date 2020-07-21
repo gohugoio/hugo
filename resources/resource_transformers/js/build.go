@@ -62,32 +62,18 @@ type Options struct {
 	JSXFragment string
 }
 
-type internalOptions struct {
-	TargetPath  string
-	Minify      bool
-	Target      string
-	JSXFactory  string
-	JSXFragment string
-
-	Externals []string `hash:"set"`
-
-	Defines map[string]string
-
-	// These are currently not exposed in the public Options struct,
-	// but added here to make the options hash as stable as possible for
-	// whenever we do.
-	TSConfig string
-}
-
-func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
-	if m == nil {
+func decodeOptions(m map[string]interface{}) (opts Options, err error) {
+	err = mapstructure.WeakDecode(m, &opts)
+	if err != nil {
 		return
 	}
-	err = mapstructure.WeakDecode(m, &opts)
-	err = mapstructure.WeakDecode(m, &opts)
 
 	if opts.TargetPath != "" {
 		opts.TargetPath = helpers.ToSlashTrimLeading(opts.TargetPath)
+	}
+
+	if opts.Target == "" {
+		opts.Target = defaultTarget
 	}
 
 	opts.Target = strings.ToLower(opts.Target)
@@ -105,26 +91,31 @@ func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) *Client {
 }
 
 type buildTransformation struct {
-	options internalOptions
-	rs      *resources.Spec
-	sfs     *filesystems.SourceFilesystem
+	optsm map[string]interface{}
+	rs    *resources.Spec
+	sfs   *filesystems.SourceFilesystem
 }
 
 func (t *buildTransformation) Key() internal.ResourceTransformationKey {
-	return internal.NewResourceTransformationKey("jsbuild", t.options)
+	return internal.NewResourceTransformationKey("jsbuild", t.optsm)
 }
 
 func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
 	ctx.OutMediaType = media.JavascriptType
 
-	if t.options.TargetPath != "" {
-		ctx.OutPath = t.options.TargetPath
+	opts, err := decodeOptions(t.optsm)
+	if err != nil {
+		return err
+	}
+
+	if opts.TargetPath != "" {
+		ctx.OutPath = opts.TargetPath
 	} else {
 		ctx.ReplaceOutPathExtension(".js")
 	}
 
 	var target api.Target
-	switch t.options.Target {
+	switch opts.Target {
 	case defaultTarget:
 		target = api.ESNext
 	case "es5":
@@ -142,7 +133,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	case "es2020":
 		target = api.ES2020
 	default:
-		return fmt.Errorf("invalid target: %q", t.options.Target)
+		return fmt.Errorf("invalid target: %q", opts.Target)
 	}
 
 	var loader api.Loader
@@ -176,18 +167,18 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 
 		Target: target,
 
-		MinifyWhitespace:  t.options.Minify,
-		MinifyIdentifiers: t.options.Minify,
-		MinifySyntax:      t.options.Minify,
+		MinifyWhitespace:  opts.Minify,
+		MinifyIdentifiers: opts.Minify,
+		MinifySyntax:      opts.Minify,
 
-		Defines: t.options.Defines,
+		Defines: cast.ToStringMapString(opts.Defines),
 
-		Externals: t.options.Externals,
+		Externals: opts.Externals,
 
-		JSXFactory:  t.options.JSXFactory,
-		JSXFragment: t.options.JSXFragment,
+		JSXFactory:  opts.JSXFactory,
+		JSXFragment: opts.JSXFragment,
 
-		Tsconfig: t.options.TSConfig,
+		//Tsconfig: opts.TSConfig,
 
 		Stdin: &api.StdinOptions{
 			Contents:   string(src),
@@ -208,28 +199,8 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	return nil
 }
 
-func (c *Client) Process(res resources.ResourceTransformer, opts Options) (resource.Resource, error) {
+func (c *Client) Process(res resources.ResourceTransformer, opts map[string]interface{}) (resource.Resource, error) {
 	return res.Transform(
-		&buildTransformation{rs: c.rs, sfs: c.sfs, options: toInternalOptions(opts)},
+		&buildTransformation{rs: c.rs, sfs: c.sfs, optsm: opts},
 	)
-}
-
-func toInternalOptions(opts Options) internalOptions {
-	target := opts.Target
-	if target == "" {
-		target = defaultTarget
-	}
-	var defines map[string]string
-	if opts.Defines != nil {
-		defines = cast.ToStringMapString(opts.Defines)
-	}
-	return internalOptions{
-		TargetPath:  opts.TargetPath,
-		Minify:      opts.Minify,
-		Target:      target,
-		Externals:   opts.Externals,
-		Defines:     defines,
-		JSXFactory:  opts.JSXFactory,
-		JSXFragment: opts.JSXFragment,
-	}
 }
