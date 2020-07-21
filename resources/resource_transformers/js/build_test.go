@@ -16,6 +16,10 @@ package js
 import (
 	"testing"
 
+	"github.com/gohugoio/hugo/media"
+
+	"github.com/evanw/esbuild/pkg/api"
+
 	qt "github.com/frankban/quicktest"
 )
 
@@ -26,9 +30,37 @@ func TestOptionKey(t *testing.T) {
 
 	opts := map[string]interface{}{
 		"TargetPath": "foo",
+		"Target":     "es2018",
 	}
 
 	key := (&buildTransformation{optsm: opts}).Key()
 
-	c.Assert(key.Value(), qt.Equals, "jsbuild_15565843046704064284")
+	c.Assert(key.Value(), qt.Equals, "jsbuild_7891849149754191852")
+}
+
+func TestToBuildOptions(t *testing.T) {
+	c := qt.New(t)
+
+	opts, err := toBuildOptions(Options{mediaType: media.JavascriptType})
+	c.Assert(err, qt.IsNil)
+	c.Assert(opts, qt.DeepEquals, api.BuildOptions{
+		Bundle: true,
+		Target: api.ESNext,
+		Format: api.FormatIIFE,
+		Stdin:  &api.StdinOptions{},
+	})
+
+	opts, err = toBuildOptions(Options{
+		Target: "es2018", Format: "cjs", Minify: true, mediaType: media.JavascriptType})
+	c.Assert(err, qt.IsNil)
+	c.Assert(opts, qt.DeepEquals, api.BuildOptions{
+		Bundle:            true,
+		Target:            api.ES2018,
+		Format:            api.FormatCommonJS,
+		MinifyIdentifiers: true,
+		MinifySyntax:      true,
+		MinifyWhitespace:  true,
+		Stdin:             &api.StdinOptions{},
+	})
+
 }
