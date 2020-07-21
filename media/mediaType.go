@@ -378,6 +378,11 @@ func DecodeTypes(mms ...map[string]interface{}) (Types, error) {
 	return m, nil
 }
 
+// IsZero reports whether this Type represents a zero value.
+func (m Type) IsZero() bool {
+	return m.SubType == ""
+}
+
 // MarshalJSON returns the JSON encoding of m.
 func (m Type) MarshalJSON() ([]byte, error) {
 	type Alias Type

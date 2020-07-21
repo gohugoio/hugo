@@ -33,8 +33,6 @@ import (
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
-const defaultTarget = "esnext"
-
 type Options struct {
 	// If not set, the source path will be used as the base target path.
 	// Note that the target path's extension may change if the target MIME type
@@ -49,6 +47,11 @@ type Options struct {
 	// Default is esnext.
 	Target string
 
+	// The output format.
+	// One of: iife, cjs, esm
+	// Default is to esm.
+	Format string
+
 	// External dependencies, e.g. "react".
 	Externals []string `hash:"set"`
 
@@ -60,25 +63,29 @@ type Options struct {
 
 	// What to use instead of React.Fragment.
 	JSXFragment string
+
+	mediaType  media.Type
+	outDir     string
+	contents   string
+	sourcefile string
+	resolveDir string
 }
 
-func decodeOptions(m map[string]interface{}) (opts Options, err error) {
-	err = mapstructure.WeakDecode(m, &opts)
-	if err != nil {
-		return
+func decodeOptions(m map[string]interface{}) (Options, error) {
+	var opts Options
+
+	if err := mapstructure.WeakDecode(m, &opts); err != nil {
+		return opts, err
 	}
 
 	if opts.TargetPath != "" {
 		opts.TargetPath = helpers.ToSlashTrimLeading(opts.TargetPath)
 	}
 
-	if opts.Target == "" {
-		opts.Target = defaultTarget
-	}
-
 	opts.Target = strings.ToLower(opts.Target)
+	opts.Format = strings.ToLower(opts.Format)
 
-	return
+	return opts, nil
 }
 
 type Client struct {
@@ -114,9 +121,40 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		ctx.ReplaceOutPathExtension(".js")
 	}
 
+	src, err := ioutil.ReadAll(ctx.From)
+	if err != nil {
+		return err
+	}
+
+	sdir, sfile := path.Split(ctx.SourcePath)
+	opts.sourcefile = sfile
+	opts.resolveDir = t.sfs.RealFilename(sdir)
+	opts.contents = string(src)
+	opts.mediaType = ctx.InMediaType
+
+	buildOptions, err := toBuildOptions(opts)
+	if err != nil {
+		return err
+	}
+
+	result := api.Build(buildOptions)
+	if len(result.Errors) > 0 {
+		return fmt.Errorf("%s", result.Errors[0].Text)
+	}
+	ctx.To.Write(result.OutputFiles[0].Contents)
+	return nil
+}
+
+func (c *Client) Process(res resources.ResourceTransformer, opts map[string]interface{}) (resource.Resource, error) {
+	return res.Transform(
+		&buildTransformation{rs: c.rs, sfs: c.sfs, optsm: opts},
+	)
+}
+
+func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 	var target api.Target
 	switch opts.Target {
-	case defaultTarget:
+	case "", "esnext":
 		target = api.ESNext
 	case "es5":
 		target = api.ES5
@@ -133,11 +171,17 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	case "es2020":
 		target = api.ES2020
 	default:
-		return fmt.Errorf("invalid target: %q", opts.Target)
+		err = fmt.Errorf("invalid target: %q", opts.Target)
+		return
+	}
+
+	mediaType := opts.mediaType
+	if mediaType.IsZero() {
+		mediaType = media.JavascriptType
 	}
 
 	var loader api.Loader
-	switch ctx.InMediaType.SubType {
+	switch mediaType.SubType {
 	// TODO(bep) ESBuild support a set of other loaders, but I currently fail
 	// to see the relevance. That may change as we start using this.
 	case media.JavascriptType.SubType:
@@ -149,29 +193,43 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	case media.JSXType.SubType:
 		loader = api.LoaderJSX
 	default:
-		return fmt.Errorf("unsupported Media Type: %q", ctx.InMediaType)
+		err = fmt.Errorf("unsupported Media Type: %q", opts.mediaType)
+		return
+	}
+
+	var format api.Format
+	// One of: iife, cjs, esm
+	switch opts.Format {
+	case "", "iife":
+		format = api.FormatIIFE
+	case "esm":
+		format = api.FormatESModule
+	case "cjs":
+		format = api.FormatCommonJS
+	default:
+		err = fmt.Errorf("unsupported script output format: %q", opts.Format)
+		return
 
 	}
 
-	src, err := ioutil.ReadAll(ctx.From)
-	if err != nil {
-		return err
+	var defines map[string]string
+	if opts.Defines != nil {
+		defines = cast.ToStringMapString(opts.Defines)
 	}
 
-	sdir, sfile := path.Split(ctx.SourcePath)
-	sdir = t.sfs.RealFilename(sdir)
-
-	buildOptions := api.BuildOptions{
+	buildOptions = api.BuildOptions{
 		Outfile: "",
 		Bundle:  true,
 
 		Target: target,
+		Format: format,
 
 		MinifyWhitespace:  opts.Minify,
 		MinifyIdentifiers: opts.Minify,
 		MinifySyntax:      opts.Minify,
 
-		Defines: cast.ToStringMapString(opts.Defines),
+		Outdir:  opts.outDir,
+		Defines: defines,
 
 		Externals: opts.Externals,
 
@@ -181,26 +239,12 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		//Tsconfig: opts.TSConfig,
 
 		Stdin: &api.StdinOptions{
-			Contents:   string(src),
-			Sourcefile: sfile,
-			ResolveDir: sdir,
+			Contents:   opts.contents,
+			Sourcefile: opts.sourcefile,
+			ResolveDir: opts.resolveDir,
 			Loader:     loader,
 		},
 	}
-	result := api.Build(buildOptions)
-	if len(result.Errors) > 0 {
-		return fmt.Errorf("%s", result.Errors[0].Text)
-	}
-	if len(result.OutputFiles) != 1 {
-		return fmt.Errorf("unexpected output count: %d", len(result.OutputFiles))
-	}
+	return
 
-	ctx.To.Write(result.OutputFiles[0].Contents)
-	return nil
-}
-
-func (c *Client) Process(res resources.ResourceTransformer, opts map[string]interface{}) (resource.Resource, error) {
-	return res.Transform(
-		&buildTransformation{rs: c.rs, sfs: c.sfs, optsm: opts},
-	)
 }
