@@ -38,6 +38,7 @@ var tags = []tag{
 // New creates a function that can be used
 // to inject a script tag for the livereload JavaScript in a HTML document.
 func New(baseURL url.URL) transform.Transformer {
+
 	return func(ft transform.FromTo) error {
 		b := ft.From().Bytes()
 		var idx = -1
@@ -53,19 +54,11 @@ func New(baseURL url.URL) transform.Transformer {
 			}
 		}
 
-		if !strings.HasSuffix(baseURL.Path, "/") {
-			baseURL.Path += "/"
-		}
+		path := strings.TrimSuffix(baseURL.Path, "/")
 
-		src := baseURL.Path + "livereload.js?mindelay=10&v=2"
-
+		src := path + "/livereload.js?mindelay=10&v=2"
 		src += "&port=" + baseURL.Port()
-
-		path := baseURL.Path + "livereload"
-		if strings.HasPrefix(path, "/") {
-			path = path[1:]
-		}
-		src += "&path=" + path
+		src += "&path=" + strings.TrimPrefix(path + "/livereload", "/")
 
 		c := make([]byte, len(b))
 		copy(c, b)
