@@ -24,47 +24,11 @@ import (
 func TestOptionKey(t *testing.T) {
 	c := qt.New(t)
 
-	opts := internalOptions{
-		TargetPath: "foo",
+	opts := map[string]interface{}{
+		"TargetPath": "foo",
 	}
 
-	key := (&buildTransformation{options: opts}).Key()
+	key := (&buildTransformation{optsm: opts}).Key()
 
-	c.Assert(key.Value(), qt.Equals, "jsbuild_9405671309963492201")
-}
-
-func TestToInternalOptions(t *testing.T) {
-	c := qt.New(t)
-
-	o := Options{
-		TargetPath:  "v1",
-		Target:      "v2",
-		JSXFactory:  "v3",
-		JSXFragment: "v4",
-		Externals:   []string{"react"},
-		Defines:     map[string]interface{}{"process.env.NODE_ENV": "production"},
-		Minify:      true,
-	}
-
-	c.Assert(toInternalOptions(o), qt.DeepEquals, internalOptions{
-		TargetPath:  "v1",
-		Minify:      true,
-		Target:      "v2",
-		JSXFactory:  "v3",
-		JSXFragment: "v4",
-		Externals:   []string{"react"},
-		Defines:     map[string]string{"process.env.NODE_ENV": "production"},
-		TSConfig:    "",
-	})
-
-	c.Assert(toInternalOptions(Options{}), qt.DeepEquals, internalOptions{
-		TargetPath:  "",
-		Minify:      false,
-		Target:      "esnext",
-		JSXFactory:  "",
-		JSXFragment: "",
-		Externals:   nil,
-		Defines:     nil,
-		TSConfig:    "",
-	})
+	c.Assert(key.Value(), qt.Equals, "jsbuild_15565843046704064284")
 }
