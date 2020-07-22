@@ -124,6 +124,8 @@ func (t *Template) copy(c *common) *Template {
 // its definition. If it has been defined and already has that name, the existing
 // definition is replaced; otherwise a new template is created, defined, and returned.
 func (t *Template) AddParseTree(name string, tree *parse.Tree) (*Template, error) {
+	t.muFuncs.Lock()
+	defer t.muFuncs.Unlock()
 	t.init()
 	nt := t
 	if name != t.name {
@@ -182,6 +184,8 @@ func (t *Template) Lookup(name string) *Template {
 	if t.common == nil {
 		return nil
 	}
+	t.muFuncs.RLock()
+	defer t.muFuncs.RUnlock()
 	return t.tmpl[name]
 }
 
