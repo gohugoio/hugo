@@ -69,7 +69,6 @@ func (a *asciidocConverter) getAsciidocContent(src []byte, ctx converter.Documen
 	}
 
 	args := a.parseArgs(ctx)
-	args = append(args, "--trace")
 	args = append(args, "-")
 
 	a.cfg.Logger.INFO.Println("Rendering", ctx.DocumentName, "with", path, "using asciidoctor args", args, "...")
@@ -81,9 +80,7 @@ func (a *asciidocConverter) parseArgs(ctx converter.DocumentContext) []string {
 	var cfg = a.cfg.MarkupConfig.AsciidocExt
 	args := []string{}
 
-	if asciidocext_config.AllowedBackend[cfg.Backend] && cfg.Backend != asciidocext_config.Default.Backend {
-		args = append(args, "-b", cfg.Backend)
-	}
+	args = a.appendArg(args, "-b", cfg.Backend, asciidocext_config.CliDefault.Backend, asciidocext_config.AllowedBackend)
 
 	for _, extension := range cfg.Extensions {
 		if !asciidocext_config.AllowedExtensions[extension] {
@@ -147,26 +144,33 @@ func (a *asciidocConverter) parseArgs(ctx converter.DocumentContext) []string {
 		a.cfg.Logger.WARN.Println("asciidoctor parameter NoHeaderOrFooter is expected for correct html rendering")
 	}
 
-	if cfg.SectionNumbers != asciidocext_config.Default.SectionNumbers {
+	if cfg.SectionNumbers {
 		args = append(args, "--section-numbers")
 	}
 
-	if cfg.Verbose != asciidocext_config.Default.Verbose {
-		args = append(args, "-v")
+	if cfg.Verbose {
+		args = append(args, "--verbose")
 	}
 
-	if cfg.Trace != asciidocext_config.Default.Trace {
+	if cfg.Trace {
 		args = append(args, "--trace")
 	}
 
-	if asciidocext_config.AllowedFailureLevel[cfg.FailureLevel] && cfg.FailureLevel != asciidocext_config.Default.FailureLevel {
-		args = append(args, "--failure-level", cfg.FailureLevel)
-	}
+	args = a.appendArg(args, "--failure-level", cfg.FailureLevel, asciidocext_config.CliDefault.FailureLevel, asciidocext_config.AllowedFailureLevel)
 
-	if asciidocext_config.AllowedSafeMode[cfg.SafeMode] && cfg.SafeMode != asciidocext_config.Default.SafeMode {
-		args = append(args, "--safe-mode", cfg.SafeMode)
-	}
+	args = a.appendArg(args, "--safe-mode", cfg.SafeMode, asciidocext_config.CliDefault.SafeMode, asciidocext_config.AllowedSafeMode)
 
+	return args
+}
+
+func (a *asciidocConverter) appendArg(args []string, option, value, defaultValue string, allowedValues map[string]bool) []string {
+	if value != defaultValue {
+		if allowedValues[value] {
+			args = append(args, option, value)
+		} else {
+			a.cfg.Logger.ERROR.Println("Unsupported asciidoctor value `" + value + "` for option " + option + " was passed in and will be ignored.")
+		}
+	}
 	return args
 }
 
