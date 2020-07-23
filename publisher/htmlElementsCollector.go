@@ -220,6 +220,7 @@ func isQuote(b byte) bool {
 var (
 	htmlJsonFixer = strings.NewReplacer(", ", "\n")
 	jsonAttrRe    = regexp.MustCompile(`'?(.*?)'?:.*`)
+	classAttrRe   = regexp.MustCompile(`(?i)^class$|transition`)
 )
 
 func parseHTMLElement(elStr string) (el htmlElement) {
@@ -242,7 +243,7 @@ func parseHTMLElement(elStr string) (el htmlElement) {
 					// There should be only one, but one never knows...
 					el.IDs = append(el.IDs, a.Val)
 				default:
-					if strings.EqualFold(a.Key, "class") {
+					if classAttrRe.MatchString(a.Key) {
 						el.Classes = append(el.Classes, strings.Fields(a.Val)...)
 					} else {
 						key := strings.ToLower(a.Key)
