@@ -57,6 +57,11 @@ func Install() error {
 	return sh.RunWith(flagEnv(), goexe, "install", "-ldflags", ldflags, "-tags", buildTags(), packageName)
 }
 
+// Uninstall hugo binary
+func Uninstall() error {
+	return sh.Run(goexe, "clean", "-i", packageName)
+}
+
 func flagEnv() map[string]string {
 	hash, _ := sh.Output("git", "rev-parse", "--short", "HEAD")
 	return map[string]string{
