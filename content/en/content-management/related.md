@@ -82,7 +82,7 @@ related:
     weight: 100
   - name: date
     weight: 10
-{{< code-toggle file="config" >}}
+{{< /code-toggle >}}
 
 Custom configuration should be set using the same syntax.
 
