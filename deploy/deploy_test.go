@@ -28,6 +28,7 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/gohugoio/hugo/media"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/spf13/afero"
@@ -208,6 +209,12 @@ func TestFindDiffs(t *testing.T) {
 }
 
 func TestWalkLocal(t *testing.T) {
+
+	mediaTypes, err := media.DecodeTypes([]map[string]interface{}{}...)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	tests := map[string]struct {
 		Given  []string
 		Expect []string
@@ -246,7 +253,7 @@ func TestWalkLocal(t *testing.T) {
 					fd.Close()
 				}
 			}
-			if got, err := walkLocal(fs, nil, nil, nil); err != nil {
+			if got, err := walkLocal(fs, nil, nil, nil, &mediaTypes); err != nil {
 				t.Fatal(err)
 			} else {
 				expect := map[string]interface{}{}
@@ -346,13 +353,18 @@ func TestLocalFile(t *testing.T) {
 		},
 	}
 
+	mediaTypes, err := media.DecodeTypes([]map[string]interface{}{}...)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	for _, tc := range tests {
 		t.Run(tc.Description, func(t *testing.T) {
 			fs := new(afero.MemMapFs)
 			if err := afero.WriteFile(fs, tc.Path, []byte(content), os.ModePerm); err != nil {
 				t.Fatal(err)
 			}
-			lf, err := newLocalFile(fs, tc.Path, filepath.ToSlash(tc.Path), tc.Matcher)
+			lf, err := newLocalFile(fs, tc.Path, filepath.ToSlash(tc.Path), tc.Matcher, &mediaTypes)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -527,6 +539,11 @@ func initFsTests() ([]*fsTest, func(), error) {
 // TestEndToEndSync verifies that basic adds, updates, and deletes are working
 // correctly.
 func TestEndToEndSync(t *testing.T) {
+
+	mediaTypes, err := media.DecodeTypes([]map[string]interface{}{}...)
+	if err != nil {
+		t.Fatal(err)
+	}
 	ctx := context.Background()
 	tests, cleanup, err := initFsTests()
 	if err != nil {
@@ -543,6 +560,7 @@ func TestEndToEndSync(t *testing.T) {
 				localFs:    test.fs,
 				maxDeletes: -1,
 				bucket:     test.bucket,
+				mediaTypes: &mediaTypes,
 			}
 
 			// Initial deployment should sync remote with local.
@@ -614,6 +632,11 @@ func TestEndToEndSync(t *testing.T) {
 // TestMaxDeletes verifies that the "maxDeletes" flag is working correctly.
 func TestMaxDeletes(t *testing.T) {
 	ctx := context.Background()
+
+	mediaTypes, err := media.DecodeTypes([]map[string]interface{}{}...)
+	if err != nil {
+		t.Fatal(err)
+	}
 	tests, cleanup, err := initFsTests()
 	if err != nil {
 		t.Fatal(err)
@@ -629,6 +652,7 @@ func TestMaxDeletes(t *testing.T) {
 				localFs:    test.fs,
 				maxDeletes: -1,
 				bucket:     test.bucket,
+				mediaTypes: &mediaTypes,
 			}
 
 			// Sync remote with local.
@@ -703,6 +727,11 @@ func TestMaxDeletes(t *testing.T) {
 func TestIncludeExclude(t *testing.T) {
 	ctx := context.Background()
 
+	mediaTypes, err := media.DecodeTypes([]map[string]interface{}{}...)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	tests := []struct {
 		Include string
 		Exclude string
@@ -766,6 +795,7 @@ func TestIncludeExclude(t *testing.T) {
 				maxDeletes: -1,
 				bucket:     fsTest.bucket,
 				target:     tgt,
+				mediaTypes: &mediaTypes,
 			}
 
 			// Sync remote with local.
@@ -784,6 +814,10 @@ func TestIncludeExclude(t *testing.T) {
 func TestIncludeExcludeRemoteDelete(t *testing.T) {
 	ctx := context.Background()
 
+	mediaTypes, err := media.DecodeTypes([]map[string]interface{}{}...)
+	if err != nil {
+		t.Fatal(err)
+	}
 	tests := []struct {
 		Include string
 		Exclude string
@@ -826,6 +860,7 @@ func TestIncludeExcludeRemoteDelete(t *testing.T) {
 				localFs:    fsTest.fs,
 				maxDeletes: -1,
 				bucket:     fsTest.bucket,
+				mediaTypes: &mediaTypes,
 			}
 
 			// Initial sync to get the files on the remote
@@ -865,6 +900,11 @@ func TestIncludeExcludeRemoteDelete(t *testing.T) {
 // In particular, MD5 hashes must be of the compressed content.
 func TestCompression(t *testing.T) {
 	ctx := context.Background()
+
+	mediaTypes, err := media.DecodeTypes([]map[string]interface{}{}...)
+	if err != nil {
+		t.Fatal(err)
+	}
 	tests, cleanup, err := initFsTests()
 	if err != nil {
 		t.Fatal(err)
@@ -877,9 +917,10 @@ func TestCompression(t *testing.T) {
 				t.Fatal(err)
 			}
 			deployer := &Deployer{
-				localFs:  test.fs,
-				bucket:   test.bucket,
-				matchers: []*matcher{{Pattern: ".*", Gzip: true, re: regexp.MustCompile(".*")}},
+				localFs:    test.fs,
+				bucket:     test.bucket,
+				matchers:   []*matcher{{Pattern: ".*", Gzip: true, re: regexp.MustCompile(".*")}},
+				mediaTypes: &mediaTypes,
 			}
 
 			// Initial deployment should sync remote with local.
@@ -923,6 +964,11 @@ func TestCompression(t *testing.T) {
 // attribute for matcher works.
 func TestMatching(t *testing.T) {
 	ctx := context.Background()
+
+	mediaTypes, err := media.DecodeTypes([]map[string]interface{}{}...)
+	if err != nil {
+		t.Fatal(err)
+	}
 	tests, cleanup, err := initFsTests()
 	if err != nil {
 		t.Fatal(err)
@@ -935,9 +981,10 @@ func TestMatching(t *testing.T) {
 				t.Fatal(err)
 			}
 			deployer := &Deployer{
-				localFs:  test.fs,
-				bucket:   test.bucket,
-				matchers: []*matcher{{Pattern: "^subdir/aaa$", Force: true, re: regexp.MustCompile("^subdir/aaa$")}},
+				localFs:    test.fs,
+				bucket:     test.bucket,
+				matchers:   []*matcher{{Pattern: "^subdir/aaa$", Force: true, re: regexp.MustCompile("^subdir/aaa$")}},
+				mediaTypes: &mediaTypes,
 			}
 
 			// Initial deployment to sync remote with local.
