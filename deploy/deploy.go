@@ -33,6 +33,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/media"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	jww "github.com/spf13/jwalterweatherman"
@@ -51,6 +52,7 @@ type Deployer struct {
 
 	target        *target          // the target to deploy to
 	matchers      []*matcher       // matchers to apply to uploaded files
+	mediaTypes    media.Types      // Hugo's MediaType to guess ContentType
 	ordering      []*regexp.Regexp // orders uploads
 	quiet         bool             // true reduces STDOUT
 	confirm       bool             // true enables confirmation before making changes
@@ -96,11 +98,13 @@ func New(cfg config.Provider, localFs afero.Fs) (*Deployer, error) {
 			return nil, fmt.Errorf("deployment target %q not found", targetName)
 		}
 	}
+
 	return &Deployer{
 		localFs:       localFs,
 		target:        tgt,
 		matchers:      dcfg.Matchers,
 		ordering:      dcfg.ordering,
+		mediaTypes:    dcfg.mediaTypes,
 		quiet:         cfg.GetBool("quiet"),
 		confirm:       cfg.GetBool("confirm"),
 		dryRun:        cfg.GetBool("dryRun"),
@@ -130,7 +134,7 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 	if d.target != nil {
 		include, exclude = d.target.includeGlob, d.target.excludeGlob
 	}
-	local, err := walkLocal(d.localFs, d.matchers, include, exclude)
+	local, err := walkLocal(d.localFs, d.matchers, include, exclude, d.mediaTypes)
 	if err != nil {
 		return err
 	}
@@ -322,14 +326,15 @@ type localFile struct {
 	// gzipped before upload.
 	UploadSize int64
 
-	fs      afero.Fs
-	matcher *matcher
-	md5     []byte       // cache
-	gzipped bytes.Buffer // cached of gzipped contents if gzipping
+	fs         afero.Fs
+	matcher    *matcher
+	md5        []byte       // cache
+	gzipped    bytes.Buffer // cached of gzipped contents if gzipping
+	mediaTypes media.Types
 }
 
 // newLocalFile initializes a *localFile.
-func newLocalFile(fs afero.Fs, nativePath, slashpath string, m *matcher) (*localFile, error) {
+func newLocalFile(fs afero.Fs, nativePath, slashpath string, m *matcher, mt media.Types) (*localFile, error) {
 	f, err := fs.Open(nativePath)
 	if err != nil {
 		return nil, err
@@ -340,6 +345,7 @@ func newLocalFile(fs afero.Fs, nativePath, slashpath string, m *matcher) (*local
 		SlashPath:  slashpath,
 		fs:         fs,
 		matcher:    m,
+		mediaTypes: mt,
 	}
 	if m != nil && m.Gzip {
 		// We're going to gzip the content. Do it once now, and cache the result
@@ -410,10 +416,13 @@ func (lf *localFile) ContentType() string {
 	if lf.matcher != nil && lf.matcher.ContentType != "" {
 		return lf.matcher.ContentType
 	}
-	// TODO: Hugo has a MediaType and a MediaTypes list and also a concept
-	// of custom MIME types.
-	// Use 1) The matcher 2) Hugo's MIME types 3) TypeByExtension.
-	return mime.TypeByExtension(filepath.Ext(lf.NativePath))
+
+	ext := filepath.Ext(lf.NativePath)
+	if mimeType, found := lf.mediaTypes.GetFirstBySuffix(strings.TrimPrefix(ext, ".")); found {
+		return mimeType.Type()
+	}
+
+	return mime.TypeByExtension(ext)
 }
 
 // Force returns true if the file should be forced to re-upload based on the
@@ -457,7 +466,7 @@ func knownHiddenDirectory(name string) bool {
 
 // walkLocal walks the source directory and returns a flat list of files,
 // using localFile.SlashPath as the map keys.
-func walkLocal(fs afero.Fs, matchers []*matcher, include, exclude glob.Glob) (map[string]*localFile, error) {
+func walkLocal(fs afero.Fs, matchers []*matcher, include, exclude glob.Glob, mediaTypes media.Types) (map[string]*localFile, error) {
 	retval := map[string]*localFile{}
 	err := afero.Walk(fs, "", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -503,7 +512,7 @@ func walkLocal(fs afero.Fs, matchers []*matcher, include, exclude glob.Glob) (ma
 				break
 			}
 		}
-		lf, err := newLocalFile(fs, path, slashpath, m)
+		lf, err := newLocalFile(fs, path, slashpath, m, mediaTypes)
 		if err != nil {
 			return err
 		}
