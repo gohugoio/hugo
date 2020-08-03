@@ -52,7 +52,7 @@ type Deployer struct {
 
 	target        *target          // the target to deploy to
 	matchers      []*matcher       // matchers to apply to uploaded files
-	mediaTypes    media.Types     // Hugo's MediaType to guess ContentType
+	mediaTypes    media.Types      // Hugo's MediaType to guess ContentType
 	ordering      []*regexp.Regexp // orders uploads
 	quiet         bool             // true reduces STDOUT
 	confirm       bool             // true enables confirmation before making changes
@@ -330,11 +330,11 @@ type localFile struct {
 	matcher    *matcher
 	md5        []byte       // cache
 	gzipped    bytes.Buffer // cached of gzipped contents if gzipping
-	mediaTypes *media.Types
+	mediaTypes media.Types
 }
 
 // newLocalFile initializes a *localFile.
-func newLocalFile(fs afero.Fs, nativePath, slashpath string, m *matcher, mt *media.Types) (*localFile, error) {
+func newLocalFile(fs afero.Fs, nativePath, slashpath string, m *matcher, mt media.Types) (*localFile, error) {
 	f, err := fs.Open(nativePath)
 	if err != nil {
 		return nil, err
@@ -512,7 +512,7 @@ func walkLocal(fs afero.Fs, matchers []*matcher, include, exclude glob.Glob, med
 				break
 			}
 		}
-		lf, err := newLocalFile(fs, path, slashpath, m, &mediaTypes)
+		lf, err := newLocalFile(fs, path, slashpath, m, mediaTypes)
 		if err != nil {
 			return err
 		}
