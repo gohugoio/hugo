@@ -52,7 +52,7 @@ type Deployer struct {
 
 	target        *target          // the target to deploy to
 	matchers      []*matcher       // matchers to apply to uploaded files
-	mediaTypes    *media.Types     // Hugo's MediaType to guess ContentType
+	mediaTypes    media.Types     // Hugo's MediaType to guess ContentType
 	ordering      []*regexp.Regexp // orders uploads
 	quiet         bool             // true reduces STDOUT
 	confirm       bool             // true enables confirmation before making changes
@@ -466,7 +466,7 @@ func knownHiddenDirectory(name string) bool {
 
 // walkLocal walks the source directory and returns a flat list of files,
 // using localFile.SlashPath as the map keys.
-func walkLocal(fs afero.Fs, matchers []*matcher, include, exclude glob.Glob, mediaTypes *media.Types) (map[string]*localFile, error) {
+func walkLocal(fs afero.Fs, matchers []*matcher, include, exclude glob.Glob, mediaTypes media.Types) (map[string]*localFile, error) {
 	retval := map[string]*localFile{}
 	err := afero.Walk(fs, "", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -512,7 +512,7 @@ func walkLocal(fs afero.Fs, matchers []*matcher, include, exclude glob.Glob, med
 				break
 			}
 		}
-		lf, err := newLocalFile(fs, path, slashpath, m, mediaTypes)
+		lf, err := newLocalFile(fs, path, slashpath, m, &mediaTypes)
 		if err != nil {
 			return err
 		}

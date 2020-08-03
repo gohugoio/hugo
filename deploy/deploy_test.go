@@ -248,7 +248,7 @@ func TestWalkLocal(t *testing.T) {
 					fd.Close()
 				}
 			}
-			if got, err := walkLocal(fs, nil, nil, nil, &media.DefaultTypes); err != nil {
+			if got, err := walkLocal(fs, nil, nil, nil, media.DefaultTypes); err != nil {
 				t.Fatal(err)
 			} else {
 				expect := map[string]interface{}{}
@@ -566,7 +566,7 @@ func TestEndToEndSync(t *testing.T) {
 				localFs:    test.fs,
 				maxDeletes: -1,
 				bucket:     test.bucket,
-				mediaTypes: &media.DefaultTypes,
+				mediaTypes: media.DefaultTypes,
 			}
 
 			// Initial deployment should sync remote with local.
@@ -653,7 +653,7 @@ func TestMaxDeletes(t *testing.T) {
 				localFs:    test.fs,
 				maxDeletes: -1,
 				bucket:     test.bucket,
-				mediaTypes: &media.DefaultTypes,
+				mediaTypes: media.DefaultTypes,
 			}
 
 			// Sync remote with local.
@@ -790,7 +790,7 @@ func TestIncludeExclude(t *testing.T) {
 				maxDeletes: -1,
 				bucket:     fsTest.bucket,
 				target:     tgt,
-				mediaTypes: &media.DefaultTypes,
+				mediaTypes: media.DefaultTypes,
 			}
 
 			// Sync remote with local.
@@ -851,7 +851,7 @@ func TestIncludeExcludeRemoteDelete(t *testing.T) {
 				localFs:    fsTest.fs,
 				maxDeletes: -1,
 				bucket:     fsTest.bucket,
-				mediaTypes: &media.DefaultTypes,
+				mediaTypes: media.DefaultTypes,
 			}
 
 			// Initial sync to get the files on the remote
@@ -907,7 +907,7 @@ func TestCompression(t *testing.T) {
 				localFs:    test.fs,
 				bucket:     test.bucket,
 				matchers:   []*matcher{{Pattern: ".*", Gzip: true, re: regexp.MustCompile(".*")}},
-				mediaTypes: &media.DefaultTypes,
+				mediaTypes: media.DefaultTypes,
 			}
 
 			// Initial deployment should sync remote with local.
@@ -966,7 +966,7 @@ func TestMatching(t *testing.T) {
 				localFs:    test.fs,
 				bucket:     test.bucket,
 				matchers:   []*matcher{{Pattern: "^subdir/aaa$", Force: true, re: regexp.MustCompile("^subdir/aaa$")}},
-				mediaTypes: &media.DefaultTypes,
+				mediaTypes: media.DefaultTypes,
 			}
 
 			// Initial deployment to sync remote with local.

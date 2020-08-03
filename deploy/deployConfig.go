@@ -33,7 +33,7 @@ type deployConfig struct {
 	Order    []string
 
 	ordering   []*regexp.Regexp // compiled Order
-	mediaTypes *media.Types
+	mediaTypes media.Types
 }
 
 type target struct {
@@ -146,8 +146,7 @@ func decodeConfig(cfg config.Provider) (deployConfig, error) {
 		mediaTypesConfig = append(mediaTypesConfig, cfg.GetStringMap("mediaTypes"))
 	}
 
-	mt, err := media.DecodeTypes(mediaTypesConfig...)
-	dcfg.mediaTypes = &mt
+	dcfg.mediaTypes, err = media.DecodeTypes(mediaTypesConfig...)
 	if err != nil {
 		return dcfg, err
 	}
