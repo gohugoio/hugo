@@ -16,13 +16,11 @@ aliases: [/extras/highlighting/,/extras/highlight/,/tools/syntax-highlighting/]
 toc: true
 ---
 
-
 Hugo uses [Chroma](https://github.com/alecthomas/chroma) as its code highlighter; it is built in Go and is really, really fast -- and for the most important parts compatible with Pygments we used before.
 
 ## Configure Syntax Highlighter
 
 See [Configure Highlight](/getting-started/configuration-markup#highlight).
-
 
 ## Generate Syntax Highlighter CSS
 
@@ -35,7 +33,6 @@ hugo gen chromastyles --style=monokai > syntax.css
 ```
 
 Run `hugo gen chromastyles -h` for more options. See https://xyproto.github.io/splash/docs/ for a gallery of available styles.
-
 
 ## Highlight Shortcode
 
@@ -79,8 +76,6 @@ func GetTitleFunc(style string) func(s string) string {
   }
 }
 {{< / highlight >}}
-
-
 
 ## Highlight Template Func
 
