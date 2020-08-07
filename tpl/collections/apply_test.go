@@ -61,6 +61,10 @@ func (templateFinder) GetFunc(name string) (reflect.Value, bool) {
 
 }
 
+func (templateFinder) ListErrorPageCodes() []string {
+	return nil
+}
+
 func TestApply(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)

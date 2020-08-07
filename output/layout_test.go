@@ -124,10 +124,14 @@ func TestLayout(t *testing.T) {
 		{"Reserved section, partials", LayoutDescriptor{Kind: "section", Section: "partials", Type: "partials"}, "", ampType,
 			[]string{"section/partials.amp.html"}, 12},
 		// This is currently always HTML only
-		{"404, HTML", LayoutDescriptor{Kind: "404"}, "", htmlFormat,
+		{"404, HTML", LayoutDescriptor{Kind: "404", StatusCode: "404"}, "", htmlFormat,
 			[]string{"404.html.html", "404.html"}, 2},
-		{"404, HTML baseof", LayoutDescriptor{Kind: "404", Baseof: true}, "", htmlFormat,
+
+		{"404, HTML baseof", LayoutDescriptor{Kind: "404", Baseof: true, StatusCode: "404"}, "", htmlFormat,
 			[]string{"404-baseof.html.html", "baseof.html.html", "404-baseof.html", "baseof.html", "_default/404-baseof.html.html", "_default/baseof.html.html", "_default/404-baseof.html", "_default/baseof.html"}, 8},
+		{"403, HTML", LayoutDescriptor{Kind: "404", StatusCode: "403"}, "", htmlFormat,
+			[]string{"403.html.html", "403.html"}, 2},
+
 		{"Content hook", LayoutDescriptor{Kind: "render-link", RenderingHook: true, Layout: "mylayout", Section: "blog"}, "", ampType,
 			[]string{"blog/_markup/render-link.amp.html", "blog/_markup/render-link.html", "_default/_markup/render-link.amp.html", "_default/_markup/render-link.html"}, 4},
 	} {

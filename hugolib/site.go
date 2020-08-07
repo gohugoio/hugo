@@ -1215,7 +1215,7 @@ func (s *Site) render(ctx *siteRenderContext) (err error) {
 			}
 		}
 
-		if err = s.render404(); err != nil {
+		if err = s.renderErrorPages(); err != nil {
 			return
 		}
 	}

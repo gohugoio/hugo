@@ -30,11 +30,12 @@ var reservedSections = map[string]bool{
 // LayoutDescriptor describes how a layout should be chosen. This is
 // typically built from a Page.
 type LayoutDescriptor struct {
-	Type    string
-	Section string
-	Kind    string
-	Lang    string
-	Layout  string
+	Type       string
+	Section    string
+	Kind       string
+	Lang       string
+	StatusCode string // for custom error page
+	Layout     string
 	// LayoutOverride indicates what we should only look for the above layout.
 	LayoutOverride bool
 
@@ -177,7 +178,7 @@ func resolvePageTemplate(d LayoutDescriptor, f Format) []string {
 		// For legacy reasons this is deliberately put last.
 		b.addKind()
 	case "404":
-		b.addLayoutVariations("404")
+		b.addLayoutVariations(d.StatusCode)
 		b.addTypeVariations("")
 	}
 

@@ -74,7 +74,10 @@ var (
 	_ tpl.Info     = (*templateState)(nil)
 )
 
-var baseTemplateDefineRe = regexp.MustCompile(`^{{-?\s*define`)
+var (
+	baseTemplateDefineRe = regexp.MustCompile(`^{{-?\s*define`)
+	errorStatusCodeRe    = regexp.MustCompile(`^([45]\d{2})\.html`)
+)
 
 // needsBaseTemplate returns true if the first non-comment template block is a
 // define block.
@@ -285,6 +288,8 @@ type templateHandler struct {
 	// Note that for shortcodes that same information is embedded in the
 	// shortcodeTemplates type.
 	templateInfo map[string]tpl.Info
+
+	errorPages []string
 }
 
 // AddTemplate parses and adds a template to the collection.
@@ -377,6 +382,10 @@ func (t *templateHandler) HasTemplate(name string) bool {
 
 	_, found := t.Lookup(name)
 	return found
+}
+
+func (t *templateHandler) ListErrorPageCodes() []string {
+	return t.errorPages
 }
 
 func (t *templateHandler) findLayout(d output.LayoutDescriptor, f output.Format) (tpl.Template, bool, error) {
@@ -703,6 +712,11 @@ func (t *templateHandler) loadTemplates() error {
 
 		if err := t.addTemplateFile(name, path); err != nil {
 			return err
+		}
+
+		matched := errorStatusCodeRe.FindStringSubmatch(name)
+		if len(matched) == 2 {
+			t.errorPages = append(t.errorPages, matched[1])
 		}
 
 		return nil

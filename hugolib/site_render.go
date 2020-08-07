@@ -43,7 +43,7 @@ type siteRenderContext struct {
 	multihost bool
 }
 
-// Whether to render 404.html, robotsTXT.txt which usually is rendered
+// Whether to render error pages, robotsTXT.txt which usually is rendered
 // once only in the site root.
 func (s siteRenderContext) renderSingletonPages() bool {
 	if s.multihost {
@@ -219,12 +219,25 @@ func (s *Site) renderPaginator(p *pageState, templ tpl.Template) error {
 	return nil
 }
 
-func (s *Site) render404() error {
+func (s *Site) renderErrorPages() error {
+	for _, statusCode := range s.Tmpl().ListErrorPageCodes() {
+
+		err := s.renderErrorPage(statusCode)
+
+		if err != nil {
+			return err
+		}
+
+	}
+	return nil
+}
+
+func (s *Site) renderErrorPage(statusCode string) error {
 	p, err := newPageStandalone(&pageMeta{
 		s:    s,
 		kind: kind404,
 		urlPaths: pagemeta.URLPath{
-			URL: "404.html",
+			URL: statusCode + ".html",
 		},
 	},
 		output.HTMLFormat,
@@ -240,6 +253,7 @@ func (s *Site) render404() error {
 
 	var d output.LayoutDescriptor
 	d.Kind = kind404
+	d.StatusCode = statusCode
 
 	templ, found, err := s.Tmpl().LookupLayout(d, output.HTMLFormat)
 	if err != nil {
@@ -252,10 +266,10 @@ func (s *Site) render404() error {
 	targetPath := p.targetPaths().TargetFilename
 
 	if targetPath == "" {
-		return errors.New("failed to create targetPath for 404 page")
+		return errors.New(fmt.Sprintf("failed to create targetPath for %s page", statusCode))
 	}
 
-	return s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, "404 page", targetPath, p, templ)
+	return s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, statusCode+" page", targetPath, p, templ)
 }
 
 func (s *Site) renderSitemap() error {

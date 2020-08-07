@@ -51,6 +51,7 @@ type TemplateHandler interface {
 	Execute(t Template, wr io.Writer, data interface{}) error
 	LookupLayout(d output.LayoutDescriptor, f output.Format) (Template, bool, error)
 	HasTemplate(name string) bool
+	ListErrorPageCodes() []string
 }
 
 type TemplateLookup interface {
