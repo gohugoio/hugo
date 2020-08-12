@@ -43,9 +43,9 @@ var EmbeddedTemplates = [][2]string{
     <webMaster>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</webMaster>{{end}}{{ with .Site.Copyright }}
     <copyright>{{.}}</copyright>{{end}}{{ if not .Date.IsZero }}
     <lastBuildDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</lastBuildDate>{{ end }}
-    {{ with .OutputFormats.Get "RSS" }}
-	{{ printf "<atom:link href=%q rel=\"self\" type=%q />" .Permalink .MediaType | safeHTML }}
-    {{ end }}
+    {{- with .OutputFormats.Get "RSS" -}}
+    {{ printf "<atom:link href=%q rel=\"self\" type=%q />" .Permalink .MediaType | safeHTML }}
+    {{- end -}}
     {{ range $pages }}
     <item>
       <title>{{ .Title }}</title>
@@ -57,7 +57,8 @@ var EmbeddedTemplates = [][2]string{
     </item>
     {{ end }}
   </channel>
-</rss>`},
+</rss>
+`},
 	{`_default/sitemap.xml`, `{{ printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
@@ -79,17 +80,18 @@ var EmbeddedTemplates = [][2]string{
                 />{{ end }}
   </url>
   {{ end }}
-</urlset>`},
+</urlset>
+`},
 	{`_default/sitemapindex.xml`, `{{ printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-	{{ range . }}
-	<sitemap>
-	   	<loc>{{ .SitemapAbsURL }}</loc>
-		{{ if not .LastChange.IsZero }}
-	   	<lastmod>{{ .LastChange.Format "2006-01-02T15:04:05-07:00" | safeHTML }}</lastmod>
-		{{ end }}
-	</sitemap>
-	{{ end }}
+  {{ range . }}
+  <sitemap>
+    <loc>{{ .SitemapAbsURL }}</loc>
+    {{ if not .LastChange.IsZero }}
+      <lastmod>{{ .LastChange.Format "2006-01-02T15:04:05-07:00" | safeHTML }}</lastmod>
+    {{ end }}
+  </sitemap>
+  {{ end }}
 </sitemapindex>
 `},
 	{`alias.html`, `<!DOCTYPE html><html><head><title>{{ .Permalink }}</title><link rel="canonical" href="{{ .Permalink }}"/><meta name="robots" content="noindex"><meta charset="utf-8" /><meta http-equiv="refresh" content="0; url={{ .Permalink }}" /></head></html>`},
