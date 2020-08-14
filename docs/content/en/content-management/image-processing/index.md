@@ -294,7 +294,7 @@ disableLatLong = false
 
 ## Smart Cropping of Images
 
-By default, Hugo will use the [Smartcrop](https://github.com/muesli/smartcrop), a library created by [muesli](https://github.com/muesli), when cropping images with `.Fill`. You can set the anchor point manually, but in most cases the smart option will make a good choice. And we will work with the library author to improve this in the future.
+By default, Hugo will use [Smartcrop](https://github.com/muesli/smartcrop), a library created by [muesli](https://github.com/muesli), when cropping images with `.Fill`. You can set the anchor point manually, but in most cases the smart option will make a good choice. And we will work with the library author to improve this in the future.
 
 An example using the sunset image from above:
 

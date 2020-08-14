@@ -45,7 +45,7 @@ defines [map]
 {{ $defines := dict "process.env.NODE_ENV" `"development"` }}
 ```
 
-format [string] {{< new-in "0.75.0" >}}
+format [string] {{< new-in "0.74.3" >}}
 : The output format.
   One of: `iife`, `cjs`, `esm`.
   Default is `iife`, a self-executing function, suitable for inclusion as a <script> tag. 
