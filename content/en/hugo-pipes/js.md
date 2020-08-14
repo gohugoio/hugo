@@ -28,7 +28,7 @@ minify [bool]
 
 target [string]
 : The language target.
-  One of: `es2015`, `es2016`, `es2017`, `es2018`, `es2019`, `es2020` or `esnext`.
+  One of: `es5`, `es2015`, `es2016`, `es2017`, `es2018`, `es2019`, `es2020` or `esnext`.
   Default is `esnext`.
 
 externals [slice]
@@ -44,6 +44,11 @@ defines [map]
 ```go-html-template
 {{ $defines := dict "process.env.NODE_ENV" `"development"` }}
 ```
+
+format [string] {{< new-in "0.74.3" >}}
+: The output format.
+  One of: `iife`, `cjs`, `esm`.
+  Default is `iife`, a self-executing function, suitable for inclusion as a <script> tag. 
 
 ### Examples
 

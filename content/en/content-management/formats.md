@@ -33,7 +33,7 @@ The current list of content formats in Hugo:
 | Blackfriday | blackfriday  |Blackfriday will eventually be deprecated.|
 |MMark|mmark|Mmark is deprecated and will be removed in a future release.|
 |Emacs Org-Mode|org|See [go-org](https://github.com/niklasfasching/go-org).|
-|AsciiDoc|asciidoc, adoc, ad|Needs AsciiDoc or [Asciidoctor][ascii] installed.|
+|AsciiDoc|asciidocext, adoc, ad|Needs [Asciidoctor][ascii] installed.|
 |RST|rst|Needs [RST](http://docutils.sourceforge.net/rst.html) installed.|
 |Pandoc|pandoc, pdc|Needs [Pandoc](https://www.pandoc.org/) installed.|
 |HTML|html, htm|To be treated as a content file, with layout, shortcodes etc., it must have front matter. If not, it will be copied as-is.|
@@ -44,17 +44,17 @@ The `markup identifier` is fetched from either the `markup` variable in front ma
 ## External Helpers
 
 Some of the formats in the table above needs external helpers installed on your PC. For example, for AsciiDoc files, 
-Hugo will try to call the `asciidoctor` or `asciidoc` command. This means that you will have to install the associated 
+Hugo will try to call the `asciidoctor` command. This means that you will have to install the associated
 tool on your machine to be able to use these formats.
 
 Hugo passes reasonable default arguments to these external helpers by default:
 
-- `asciidoctor`: `--no-header-footer -v -`
+- `asciidoctor`: `--no-header-footer --trace -`
 - `rst2html`: `--leave-comments --initial-header-level=2`
 - `pandoc`: `--mathjax`
 
 {{% warning "Performance of External Helpers" %}}
-Because additional formats are external commands generation performance will rely heavily on the performance of the external tool you are using. As this feature is still in its infancy, feedback is welcome.
+Because additional formats are external commands, generation performance will rely heavily on the performance of the external tool you are using. As this feature is still in its infancy, feedback is welcome.
 {{% /warning %}}
 
 ### External Helper AsciiDoc
@@ -74,14 +74,14 @@ Asciidoctor parameters can be customized in Hugo:
 Parameter | Default | Comment
 --- | --- | --- 
 backend | `html5` | Don't change this unless you know what you are doing.
-doctype | `article` | Document type (article, book or manpage).
+doctype | `article` | Currently supported Document type is `article`.
 extensions | | Possible extensions are `asciidoctor-html5s`, `asciidoctor-bibtex`, `asciidoctor-diagram`,	`asciidoctor-interdoc-reftext`, `asciidoctor-katex`, `asciidoctor-latex`, `asciidoctor-mathematical`, `asciidoctor-question`, `asciidoctor-rouge`.
 attributes | | Variables to be referenced in your `adoc` file. This is a list of variable name/value maps. See [Asciidoctor#attributes](https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#attributes-and-substitutions).
 noheaderorfooter | true | Output an embeddable document, which excludes the header, the footer, and everything outside the body of the document. Don't change this unless you know what you are doing. 
 safemode | `unsafe` | Safe mode level `unsafe`, `safe`, `server` or `secure`. Don't change this unless you know what you are doing.
 sectionnumbers | `false` | Auto-number section titles.
-verbose | `true` | Verbosely print processing information and configuration file checks to stderr.
-trace | `false` | Include backtrace information on errors.
+verbose | `false` | Verbosely print processing information and configuration file checks to stderr.
+trace | `true` | Include backtrace information on errors.
 failurelevel | `fatal` | The minimum logging level that triggers a non-zero exit code (failure).
 workingfoldercurrent | `false` | Set the working folder to the rendered `adoc` file, so [include](https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#include-files) will work with relative paths. This setting uses the `asciidoctor` cli parameter `--base-dir` and attribute `outdir=`. For rendering [asciidoctor-diagram](https://asciidoctor.org/docs/asciidoctor-diagram/)  `workingfoldercurrent` must be set to `true`.
 
@@ -89,7 +89,6 @@ workingfoldercurrent | `false` | Set the working folder to the rendered `adoc` f
 [markup.asciidocext]
     extensions = ["asciidoctor-html5s", "asciidoctor-diagram"]
     workingFolderCurrent = true
-    trace = true
     [markup.asciidocext.attributes]
         my-base-url = "https://example.com/"
         my-attribute-name = "my value"

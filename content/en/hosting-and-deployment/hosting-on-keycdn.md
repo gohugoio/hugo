@@ -66,7 +66,7 @@ pages:
     - master
 
 ```
-Using this integration method,  you will have to specify the Zone ID and your [KeyCDN API](https://www.keycdn.com/api) key as secret variables. To do this, navigate to the top-left menu bar in GitLab and select Projects. Then, select your project and click on the Settings page. Finally, select Pipelines from the sub-menu and scroll down to the Secret Variable section. 
+Using this integration method,  you will have to specify the Zone ID and your [KeyCDN API](https://www.keycdn.com/api) key as secret variables. To do this, navigate to the top-left menu bar in GitLab and select Projects. Then, select your project and click on the Settings page. Finally, select Pipelines from the sub-menu and scroll down to the Secret Variable section.
 
 The Secret Variable for your Zone ID should look similar to:
 
@@ -89,6 +89,6 @@ git push -u origin master
 
 You can watch the progress and CI job output in your Gitlab project under “Pipelines”. 
 
-After verifying your CI job ran without issues, first check that your GitLab page shows up under `https://youruser.gitlab.io/reponame/` (it might look broken depending on your browser settings as all links point to your KeyCDN zone – don’t worry about that) and then by heading to whatever Zonealias / Zone URL you defined.
+After verifying your CI job ran without issues, first check that your GitLab page shows up under `https://youruser.gitlab.io/reponame/` (it might look broken depending on your browser settings as all links point to your KeyCDN zone – don’t worry about that) and then by heading to whatever Zone alias / Zone URL you defined.
 
 To learn more about Hugo hosting options with KeyCDN, check out the complete [Hugo hosting with KeyCDN integration guide](https://www.keycdn.com/support/hugo-hosting/).
