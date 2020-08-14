@@ -12,6 +12,9 @@ builds:
     ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }}
     env:
       - CGO_ENABLED=0
+    flags:
+      - -buildmode
+      - exe
     goos:
       - darwin
       - linux
@@ -39,6 +42,8 @@ builds:
       - CC=x86_64-w64-mingw32-gcc
       - CXX=x86_64-w64-mingw32-g++
     flags:
+      - -buildmode
+      - exe
       - -tags
       - extended
     goos:
@@ -53,6 +58,8 @@ builds:
       - CC=o64-clang
       - CXX=o64-clang++
     flags:
+      - -buildmode
+      - exe
       - -tags
       - extended
     goos:
@@ -65,6 +72,8 @@ builds:
     env:
       - CGO_ENABLED=1
     flags:
+      - -buildmode
+      - exe
       - -tags
       - extended
     goos:

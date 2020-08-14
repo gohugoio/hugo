@@ -42,19 +42,25 @@ func init() {
 	os.Setenv("GO111MODULE", "on")
 }
 
+func runWith(env map[string]string, cmd string, inArgs ...interface{}) error {
+	s := argsToStrings(inArgs...)
+	return sh.RunWith(env, cmd, s...)
+
+}
+
 // Build hugo binary
 func Hugo() error {
-	return sh.RunWith(flagEnv(), goexe, "build", "-ldflags", ldflags, "-tags", buildTags(), packageName)
+	return runWith(flagEnv(), goexe, "build", "-ldflags", ldflags, buildFlags(), "-tags", buildTags(), packageName)
 }
 
 // Build hugo binary with race detector enabled
 func HugoRace() error {
-	return sh.RunWith(flagEnv(), goexe, "build", "-race", "-ldflags", ldflags, "-tags", buildTags(), packageName)
+	return runWith(flagEnv(), goexe, "build", "-race", "-ldflags", ldflags, buildFlags(), "-tags", buildTags(), packageName)
 }
 
 // Install hugo binary
 func Install() error {
-	return sh.RunWith(flagEnv(), goexe, "install", "-ldflags", ldflags, "-tags", buildTags(), packageName)
+	return runWith(flagEnv(), goexe, "install", "-ldflags", ldflags, buildFlags(), "-tags", buildTags(), packageName)
 }
 
 // Uninstall hugo binary
@@ -79,7 +85,7 @@ func Generate() error {
 	}
 
 	for _, pkg := range generatorPackages {
-		if err := sh.RunWith(flagEnv(), goexe, "generate", path.Join(packageName, pkg)); err != nil {
+		if err := runWith(flagEnv(), goexe, "generate", path.Join(packageName, pkg)); err != nil {
 			return err
 		}
 	}
@@ -176,13 +182,13 @@ func Test386() error {
 // Run tests
 func Test() error {
 	env := map[string]string{"GOFLAGS": testGoFlags()}
-	return runCmd(env, goexe, "test", "./...", "-tags", buildTags())
+	return runCmd(env, goexe, "test", "./...", buildFlags(), "-tags", buildTags())
 }
 
 // Run tests with race detector
 func TestRace() error {
 	env := map[string]string{"GOFLAGS": testGoFlags()}
-	return runCmd(env, goexe, "test", "-race", "./...", "-tags", buildTags())
+	return runCmd(env, goexe, "test", "-race", "./...", buildFlags(), "-tags", buildTags())
 }
 
 // Run gofmt linter
@@ -318,11 +324,11 @@ func TestCoverHTML() error {
 	return sh.Run(goexe, "tool", "cover", "-html="+coverAll)
 }
 
-func runCmd(env map[string]string, cmd string, args ...string) error {
+func runCmd(env map[string]string, cmd string, args ...interface{}) error {
 	if mg.Verbose() {
-		return sh.RunWith(env, cmd, args...)
+		return runWith(env, cmd, args...)
 	}
-	output, err := sh.OutputWith(env, cmd, args...)
+	output, err := sh.OutputWith(env, cmd, argsToStrings(args...)...)
 	if err != nil {
 		fmt.Fprint(os.Stderr, output)
 	}
@@ -338,6 +344,13 @@ func isCI() bool {
 	return os.Getenv("CI") != ""
 }
 
+func buildFlags() []string {
+	if runtime.GOOS == "windows" {
+		return []string{"-buildmode", "exe"}
+	}
+	return nil
+}
+
 func buildTags() string {
 	// To build the extended Hugo SCSS/SASS enabled version, build with
 	// HUGO_BUILD_TAGS=extended mage install etc.
@@ -345,4 +358,24 @@ func buildTags() string {
 		return envtags
 	}
 	return "none"
+}
+
+func argsToStrings(v ...interface{}) []string {
+	var args []string
+	for _, arg := range v {
+		switch v := arg.(type) {
+		case string:
+			if v != "" {
+				args = append(args, v)
+			}
+		case []string:
+			if v != nil {
+				args = append(args, v...)
+			}
+		default:
+			panic("invalid type")
+		}
+	}
+
+	return args
 }
