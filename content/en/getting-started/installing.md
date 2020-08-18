@@ -495,7 +495,7 @@ This option is not recommended because the Hugo in Linux package managers for De
 You can also install Hugo from the Arch Linux [community](https://www.archlinux.org/packages/community/x86_64/hugo/) repository. Applies also to derivatives such as Manjaro.
 
 ```
-sudo pacman -Syu hugo
+sudo pacman -S hugo
 ```
 
 ### Fedora, Red Hat and CentOS
