@@ -15,10 +15,11 @@ package babel
 
 import (
 	"io"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
+
+	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/resources/internal"
@@ -157,7 +158,7 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	cmd := exec.Command(binary, cmdArgs...)
 
 	cmd.Stdout = ctx.To
-	cmd.Stderr = os.Stderr
+	cmd.Stderr = loggers.LoggerToWriterWithPrefix(logger.INFO, "babel")
 	cmd.Env = hugo.GetExecEnviron(t.rs.Cfg)
 
 	stdin, err := cmd.StdinPipe()
