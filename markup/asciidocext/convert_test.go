@@ -90,7 +90,7 @@ func TestAsciidoctorDisallowedArgs(t *testing.T) {
 	cfg := viper.New()
 	mconf := markup_config.Default
 	mconf.AsciidocExt.Backend = "disallowed-backend"
-	mconf.AsciidocExt.Extensions = []string{"disallowed-extention"}
+	mconf.AsciidocExt.Extensions = []string{"disallowed-extension"}
 	mconf.AsciidocExt.Attributes = map[string]string{"outdir": "disallowed-attribute"}
 	mconf.AsciidocExt.SafeMode = "disallowed-safemode"
 	mconf.AsciidocExt.FailureLevel = "disallowed-failurelevel"
