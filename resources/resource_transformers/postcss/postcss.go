@@ -36,7 +36,6 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/pkg/errors"
 
-	"os"
 	"os/exec"
 
 	"github.com/mitchellh/mapstructure"
@@ -199,9 +198,10 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	cmd := exec.Command(binary, cmdArgs...)
 
 	var errBuf bytes.Buffer
+	infoW := loggers.LoggerToWriterWithPrefix(logger.INFO, "postcss")
 
 	cmd.Stdout = ctx.To
-	cmd.Stderr = io.MultiWriter(os.Stderr, &errBuf)
+	cmd.Stderr = io.MultiWriter(infoW, &errBuf)
 	cmd.Env = hugo.GetExecEnviron(t.rs.Cfg)
 
 	stdin, err := cmd.StdinPipe()

@@ -531,8 +531,6 @@ func (c *Client) runGo(
 		return nil
 	}
 
-	//defer c.logger.PrintTimer(time.Now(), fmt.Sprint(args))
-
 	stderr := new(bytes.Buffer)
 	cmd := exec.CommandContext(ctx, "go", args...)
 

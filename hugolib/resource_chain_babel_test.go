@@ -14,11 +14,14 @@
 package hugolib
 
 import (
+	"bytes"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"testing"
+
+	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/gohugoio/hugo/htesting"
 
@@ -80,10 +83,13 @@ class Car {
 	c.Assert(err, qt.IsNil)
 	defer clean()
 
+	var logBuf bytes.Buffer
+	logger := loggers.NewBasicLoggerForWriter(jww.LevelInfo, &logBuf)
+
 	v := viper.New()
 	v.Set("workingDir", workDir)
 	v.Set("disableKinds", []string{"taxonomy", "term", "page"})
-	b := newTestSitesBuilder(t).WithLogger(loggers.NewWarningLogger())
+	b := newTestSitesBuilder(t).WithLogger(logger)
 
 	// Need to use OS fs for this.
 	b.Fs = hugofs.NewDefault(v)
@@ -108,12 +114,10 @@ Transpiled: {{ $transpiled.Content | safeJS }}
 	_, err = exec.Command("npm", "install").CombinedOutput()
 	b.Assert(err, qt.IsNil)
 
-	out, err := captureStderr(func() error {
-		return b.BuildE(BuildCfg{})
+	b.Build(BuildCfg{})
 
-	})
 	// Make sure Node sees this.
-	b.Assert(out, qt.Contains, "Hugo Environment: production")
+	b.Assert(logBuf.String(), qt.Contains, "babel: Hugo Environment: production")
 	b.Assert(err, qt.IsNil)
 
 	b.AssertFileContent("public/index.html", `
