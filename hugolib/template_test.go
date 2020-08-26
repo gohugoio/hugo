@@ -424,42 +424,79 @@ Hugo: {{ hugo.Generator }}
 
 func TestPartialWithReturn(t *testing.T) {
 
-	b := newTestSitesBuilder(t).WithSimpleConfigFile()
+	c := qt.New(t)
 
-	b.WithTemplatesAdded(
-		"index.html", `
+	newBuilder := func(t testing.TB) *sitesBuilder {
+		b := newTestSitesBuilder(t).WithSimpleConfigFile()
+		b.WithTemplatesAdded(
+			"partials/add42.tpl", `
+		{{ $v := add . 42 }}
+		{{ return $v }}
+		`,
+			"partials/dollarContext.tpl", `
+{{ $v := add $ 42 }}
+{{ return $v }}
+`,
+			"partials/dict.tpl", `
+{{ $v := add $.adder 42 }}
+{{ return $v }}
+`,
+			"partials/complex.tpl", `
+{{ return add . 42 }}
+`, "partials/hello.tpl", `
+		{{ $v := printf "hello %s" . }}
+		{{ return $v }}
+		`,
+		)
+
+		return b
+
+	}
+
+	c.Run("Return", func(c *qt.C) {
+		b := newBuilder(c)
+
+		b.WithTemplatesAdded(
+			"index.html", `
 Test Partials With Return Values:
 
 add42: 50: {{ partial "add42.tpl" 8 }}
+hello world: {{ partial "hello.tpl" "world" }}
 dollarContext: 60: {{ partial "dollarContext.tpl" 18 }}
 adder: 70: {{ partial "dict.tpl" (dict "adder" 28) }}
 complex: 80: {{ partial "complex.tpl" 38 }}
 `,
-		"partials/add42.tpl", `
-		{{ $v := add . 42 }}
-		{{ return $v }}
-		`,
-		"partials/dollarContext.tpl", `
-{{ $v := add $ 42 }}
-{{ return $v }}
-`,
-		"partials/dict.tpl", `
-{{ $v := add $.adder 42 }}
-{{ return $v }}
-`,
-		"partials/complex.tpl", `
-{{ return add . 42 }}
-`,
-	)
+		)
 
-	b.CreateSites().Build(BuildCfg{})
+		b.CreateSites().Build(BuildCfg{})
 
-	b.AssertFileContent("public/index.html",
-		"add42: 50: 50",
-		"dollarContext: 60: 60",
-		"adder: 70: 70",
-		"complex: 80: 80",
-	)
+		b.AssertFileContent("public/index.html", `
+add42: 50: 50
+hello world: hello world
+dollarContext: 60: 60
+adder: 70: 70
+complex: 80: 80
+`,
+		)
+
+	})
+
+	c.Run("Zero argument", func(c *qt.C) {
+		b := newBuilder(c)
+
+		b.WithTemplatesAdded(
+			"index.html", `
+Test Partials With Return Values:
+
+add42: fail: {{ partial "add42.tpl" 0 }}
+
+`,
+		)
+
+		e := b.CreateSites().BuildE(BuildCfg{})
+		b.Assert(e, qt.Not(qt.IsNil))
+
+	})
 
 }
 

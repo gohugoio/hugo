@@ -144,7 +144,7 @@ Now, to make a change to Hugo's source:
 1. Add your fork as a new remote (the remote name, "fork" in this example, is arbitrary):
 
     ```bash
-    git remote add fork git://github.com/USERNAME/hugo.git
+    git remote add fork git@github.com:USERNAME/hugo.git
     ```
 
 1. Push the changes to your new remote:

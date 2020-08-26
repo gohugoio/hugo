@@ -100,7 +100,7 @@ type pagesCollector struct {
 // That is, if a front matter cascade section is removed, added or edited.
 // If this is the case we must re-evaluate its descendants.
 func (c *pagesCollector) isCascadingEdit(dir contentDirKey) (bool, string) {
-	// This is eiter a section or a taxonomy node. Find it.
+	// This is either a section or a taxonomy node. Find it.
 	prefix := cleanTreeKey(dir.dirname)
 
 	section := "/"

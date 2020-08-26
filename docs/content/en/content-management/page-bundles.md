@@ -18,8 +18,8 @@ Page Bundles are a way to group [Page Resources](/content-management/page-resour
 
 A Page Bundle can be one of:
 
--   Leaf Bundle (leaf means it has no children)
--   Branch Bundle (home page, section, taxonomy terms, taxonomy list)
+- Leaf Bundle (leaf means it has no children)
+- Branch Bundle (home page, section, taxonomy terms, taxonomy list)
 
 |                                     | Leaf Bundle                                              | Branch Bundle                                                                                                                                                                                                      |
 |-------------------------------------|----------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  |

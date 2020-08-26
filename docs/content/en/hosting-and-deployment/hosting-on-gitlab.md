@@ -77,6 +77,10 @@ That's it! You can now follow the CI agent building your page at `https://gitlab
 
 After the build has passed, your new website is available at `https://<YourUsername>.gitlab.io/<your-hugo-site>/`.
 
+{{% note %}}
+Make sure your `baseURL` key-value in your [site configuration](/getting-started/configuration/) reflects the full URL of your GitLab pages repository if you're using the default GitLab Pages URL (e.g., `https://<YourUsername>.gitlab.io/<your-hugo-site>/`) and not a custom domain.
+{{% /note %}}
+
 ## Next Steps
 
 GitLab supports using custom CNAME's and TLS certificates. For more details on GitLab Pages, see the [GitLab Pages setup documentation](https://about.gitlab.com/2016/04/07/gitlab-pages-setup/).

@@ -14,10 +14,15 @@
 package hugolib
 
 import (
+	"bytes"
+
+	jww "github.com/spf13/jwalterweatherman"
+
 	"fmt"
 	"io"
 	"math/rand"
 	"os"
+
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -893,10 +898,13 @@ h1 {
 	c.Assert(err, qt.IsNil)
 	defer clean()
 
+	var logBuf bytes.Buffer
+
 	newTestBuilder := func(v *viper.Viper) *sitesBuilder {
 		v.Set("workingDir", workDir)
 		v.Set("disableKinds", []string{"taxonomy", "term", "page"})
-		b := newTestSitesBuilder(t).WithLogger(loggers.NewWarningLogger())
+		logger := loggers.NewBasicLoggerForWriter(jww.LevelInfo, &logBuf)
+		b := newTestSitesBuilder(t).WithLogger(logger)
 		// Need to use OS fs for this.
 		b.Fs = hugofs.NewDefault(v)
 		b.WithWorkingDir(workDir)
@@ -942,14 +950,10 @@ class-in-b {
 	b.Assert(os.Chdir(workDir), qt.IsNil)
 	_, err = exec.Command("npm", "install").CombinedOutput()
 	b.Assert(err, qt.IsNil)
-
-	out, _ := captureStderr(func() error {
-		b.Build(BuildCfg{})
-		return nil
-	})
+	b.Build(BuildCfg{})
 
 	// Make sure Node sees this.
-	b.Assert(out, qt.Contains, "Hugo Environment: production")
+	b.Assert(logBuf.String(), qt.Contains, "Hugo Environment: production")
 
 	b.AssertFileContent("public/index.html", `
 Styles RelPermalink: /css/styles.css

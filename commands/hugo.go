@@ -278,13 +278,6 @@ func setValueFromFlag(flags *flag.FlagSet, key string, cfg config.Provider, targ
 
 func isTerminal() bool {
 	return terminal.IsTerminal(os.Stdout)
-
-}
-func ifTerminal(s string) string {
-	if !isTerminal() {
-		return ""
-	}
-	return s
 }
 
 func (c *commandeer) fullBuild() error {
@@ -295,7 +288,7 @@ func (c *commandeer) fullBuild() error {
 	)
 
 	if !c.h.quiet {
-		fmt.Print(ifTerminal(hideCursor) + "Building sites … ")
+		fmt.Println("Start building sites … ")
 		if isTerminal() {
 			defer func() {
 				fmt.Print(showCursor + clearLine)
