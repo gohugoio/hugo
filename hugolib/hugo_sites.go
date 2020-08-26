@@ -1062,7 +1062,7 @@ func (m *contentChangeMap) resolveAndRemove(filename string, fim hugofs.FileMeta
 		return dir, bundleLeaf
 	}
 
-	fileTp, isContent := classifyBundledFile(filename, fim)
+	fileTp, isContent := classifyBundledFile(fim)
 	if isContent && fileTp != bundleNot {
 		// A new bundle.
 		return dir, fileTp
