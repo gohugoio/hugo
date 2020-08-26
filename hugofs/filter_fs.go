@@ -34,8 +34,11 @@ var (
 	_ afero.File    = (*filterDir)(nil)
 )
 
-func NewLanguageFs(langs map[string]int, fs afero.Fs) (afero.Fs, error) {
-
+// NewLanguageFs creates an overlay filesystem where each leaf file entry (a
+// hugofs.FileMetaInfo) contains hugofs.FileMeta information as well as the core
+// filesystem information. Use a type cast to extract the hugo-specific
+// information from the afero.Fs interface.
+func NewLanguageFs(langs map[string]int, branchBundlePrefixes []string, fs afero.Fs) (afero.Fs, error) {
 	applyMeta := func(fs *FilterFs, name string, fis []os.FileInfo) {
 
 		for i, fi := range fis {
@@ -70,6 +73,29 @@ func NewLanguageFs(langs map[string]int, fs afero.Fs) (afero.Fs, error) {
 			})
 
 			fis[i] = fim
+		}
+
+		for i, n := range append(branchBundlePrefixes, "index") {
+			found := false
+			bundleType := files.ContentClassBranch
+			if i == len(branchBundlePrefixes) {
+				bundleType = files.ContentClassLeaf
+			}
+			for _, fi := range fis {
+				fim := fi.(*fileInfoMeta)
+				// Note, there may be multiple top-level bundle files for different languages.
+				if fim.m.TranslationBaseName() == n {
+					found = true
+					fim.m[metaKeyClassifier] = bundleType
+				}
+			}
+			if found {
+				// Only use the most-preferred bundle name, skip less common
+				// ones. This means you can't mix (for example) README.en.md and
+				// _index.fr.md in one directory, but that's probably
+				// appropriate.
+				break
+			}
 		}
 	}
 

@@ -19,6 +19,7 @@ package asciidocext
 import (
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/asciidocext/asciidocext_config"
@@ -54,7 +55,7 @@ func (a *asciidocConverter) Convert(ctx converter.RenderContext) (converter.Resu
 	return converter.Bytes(a.getAsciidocContent(ctx.Src, a.ctx)), nil
 }
 
-func (c *asciidocConverter) Supports(feature identity.Identity) bool {
+func (a *asciidocConverter) Supports(feature identity.Identity) bool {
 	return false
 }
 
@@ -116,7 +117,16 @@ func (a *asciidocConverter) parseArgs(ctx converter.DocumentContext) []string {
 		var err error
 
 		file := filepath.Base(ctx.Filename)
-		if a.cfg.Cfg.GetBool("uglyUrls") || file == "_index.adoc" || file == "index.adoc" {
+		file = strings.TrimSuffix(file, filepath.Ext(file))
+		isBundle := (file == "index")
+		// Should this use the FS to get the FileMetaInfo instead?
+		for _, name := range a.cfg.Cfg.GetStringSlice("branchBundlePrefix") {
+			if file == name {
+				isBundle = true
+			}
+		}
+
+		if a.cfg.Cfg.GetBool("uglyUrls") || isBundle {
 			outDir, err = filepath.Abs(filepath.Dir(filepath.Join(destinationDir, ctx.DocumentName)))
 
 		} else {

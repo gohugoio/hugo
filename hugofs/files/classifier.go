@@ -89,7 +89,7 @@ func ClassifyContentFile(filename string, open func() (afero.File, error)) Conte
 	if IsHTMLFile(filename) {
 		// We need to look inside the file. If the first non-whitespace
 		// character is a "<", then we treat it as a regular file.
-		// Eearlier we created pages for these files, but that had all sorts
+		// Earlier we created pages for these files, but that had all sorts
 		// of troubles, and isn't what it says in the documentation.
 		// See https://github.com/gohugoio/hugo/issues/7030
 		if open == nil {
@@ -100,22 +100,13 @@ func ClassifyContentFile(filename string, open func() (afero.File, error)) Conte
 		if err != nil {
 			return ContentClassFile
 		}
-		ishtml := isHTMLContent(f)
-		f.Close()
-		if ishtml {
+		defer f.Close()
+
+		if isHTMLContent(f) {
 			return ContentClassFile
 		}
 
 	}
-
-	if strings.HasPrefix(filename, "_index.") {
-		return ContentClassBranch
-	}
-
-	if strings.HasPrefix(filename, "index.") {
-		return ContentClassLeaf
-	}
-
 	return ContentClassContent
 }
 

@@ -806,6 +806,65 @@ categories: ["mycat"]
 	}
 }
 
+func TestCustomBundlePrefix(t *testing.T) {
+	t.Parallel()
+
+	config := `
+baseURL = "http://example.com/blog"
+# Only handle README.md
+branchBundlePrefix = ["README", "test"]
+	`
+	b := newTestSitesBuilder(t).WithConfigTemplate(nil, "toml", config)
+
+	b.WithContent("README.md", `---
+title: root
+---
+# Root`,
+		"other.md", `# Some text, no frontmatter`,
+		"sub2/README.md", `---
+title: more github
+---
+# README!`,
+		"sub2/test.md", `---
+title: lower priority, just content
+---
+# Test content`,
+		"sub2/more/index.md", `---
+title: this is a leaf
+---
+# Leaf`,
+		"sub2/more/yadda.md", `---
+title: here is another
+---
+# Yadda Yadda`,
+		"subdir/_index.md", `---
+title: not a bundle
+---
+# Index`,
+		"subdir/test.md", `---
+title: also a bundle
+---
+# Test bundle`)
+	b.WithTemplatesAdded(
+		"index.html", `{{.Content}}`,
+		"_default/single.html", `{{.Content}}`,
+		"_default/list.html", `{{.Content}}
+		{{range .Pages}}
+		<a href="{{.Permalink}}">{{.Title}}</a>
+		{{end}}
+		Done`)
+	b.CreateSites().Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", "Root")
+	b.AssertFileContent("public/other/index.html", "no frontmatter")
+	b.AssertFileContent("public/subdir/_index/index.html", "Index")
+	b.AssertFileContent("public/subdir/index.html", "Test bundle")
+	b.AssertFileContent("public/sub2/index.html", "README!")
+	b.AssertFileContent("public/sub2/test/index.html", "Test content")
+	b.AssertFileContent("public/sub2/more/index.html", "Leaf")
+	// yadda.md is not rendered, because more is a leaf.
+}
+
 // https://github.com/gohugoio/hugo/issues/5777
 func TestTableOfContentsInShortcodes(t *testing.T) {
 	t.Parallel()

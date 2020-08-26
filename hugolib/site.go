@@ -357,10 +357,12 @@ func (s *Site) initRenderFormats() {
 	s.renderFormats = formats
 }
 
+// GetRelatedDocsHandler provides public access to the RelatedDocsHandler.
 func (s *Site) GetRelatedDocsHandler() *page.RelatedDocsHandler {
 	return s.relatedDocsHandler
 }
 
+// Language provides access to the site's configured language.
 func (s *Site) Language() *langs.Language {
 	return s.language
 }
@@ -1735,7 +1737,7 @@ func (s *Site) publish(statCounter *uint64, path string, r io.Reader) (err error
 }
 
 func (s *Site) kindFromFileInfoOrSections(fi *fileInfo, sections []string) string {
-	if fi.TranslationBaseName() == "_index" {
+	if fi.FileInfo().Meta().Classifier() == files.ContentClassBranch {
 		if fi.Dir() == "" {
 			return page.KindHome
 		}

@@ -1040,13 +1040,13 @@ func (m *contentChangeMap) add(dirname string, tp bundleDirType) {
 	m.mu.Unlock()
 }
 
-func (m *contentChangeMap) resolveAndRemove(filename string) (string, bundleDirType) {
+func (m *contentChangeMap) resolveAndRemove(filename string, fim hugofs.FileMetaInfo) (string, bundleDirType) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
 	// Bundles share resources, so we need to start from the virtual root.
 	relFilename := m.pathSpec.RelContentDir(filename)
-	dir, name := filepath.Split(relFilename)
+	dir := filepath.Dir(relFilename)
 	if !strings.HasSuffix(dir, helpers.FilePathSeparator) {
 		dir += helpers.FilePathSeparator
 	}
@@ -1062,7 +1062,7 @@ func (m *contentChangeMap) resolveAndRemove(filename string) (string, bundleDirT
 		return dir, bundleLeaf
 	}
 
-	fileTp, isContent := classifyBundledFile(name)
+	fileTp, isContent := classifyBundledFile(filename, fim)
 	if isContent && fileTp != bundleNot {
 		// A new bundle.
 		return dir, fileTp

@@ -3,7 +3,6 @@ package deps
 import (
 	"sync"
 	"sync/atomic"
-	"time"
 
 	"github.com/pkg/errors"
 
@@ -12,6 +11,7 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/hugolib/filesystems"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/page"
@@ -86,9 +86,6 @@ type Deps struct {
 	translationProvider ResourceProvider
 
 	Metrics metrics.Provider
-
-	// Timeout is configurable in site config.
-	Timeout time.Duration
 
 	// BuildStartListeners will be notified before a build starts.
 	BuildStartListeners *Listeners
@@ -226,7 +223,8 @@ func New(cfg DepsCfg) (*Deps, error) {
 		cfg.OutputFormats = output.DefaultFormats
 	}
 
-	ps, err := helpers.NewPathSpec(fs, cfg.Language, logger)
+	ps, err := helpers.NewPathSpec(fs, cfg.Language, logger,
+		filesystems.WithBranchBundlePrefixes(cfg.BranchBundlePrefix()))
 
 	if err != nil {
 		return nil, errors.Wrap(err, "create PathSpec")
@@ -279,7 +277,6 @@ func New(cfg DepsCfg) (*Deps, error) {
 		FileCaches:              fileCaches,
 		BuildStartListeners:     &Listeners{},
 		BuildState:              buildState,
-		Timeout:                 time.Duration(timeoutms) * time.Millisecond,
 		globalErrHandler:        errorHandler,
 	}
 
@@ -296,7 +293,9 @@ func (d Deps) ForLanguage(cfg DepsCfg, onCreated func(d *Deps) error) (*Deps, er
 	l := cfg.Language
 	var err error
 
-	d.PathSpec, err = helpers.NewPathSpecWithBaseBaseFsProvided(d.Fs, l, d.Log, d.BaseFs)
+	d.PathSpec, err = helpers.NewPathSpec(d.Fs, l, d.Log,
+		filesystems.WithBaseFs(d.BaseFs),
+		filesystems.WithBranchBundlePrefixes(cfg.BranchBundlePrefix()))
 	if err != nil {
 		return nil, err
 	}
@@ -340,6 +339,24 @@ func (d Deps) ForLanguage(cfg DepsCfg, onCreated func(d *Deps) error) (*Deps, er
 
 }
 
+// BranchBundlePrefix provides the (possibly-overriden) filename prefix for
+// branch Bundles. This defaults to "_index", but may be overriden on a sitewide
+// basis.
+func (d *Deps) BranchBundlePrefix() []string {
+	return branchBundlePrefix(d.Cfg)
+}
+
+func branchBundlePrefix(c config.Provider) []string {
+	var prefix []string
+	if c != nil {
+		prefix = c.GetStringSlice("branchBundlePrefix")
+	}
+	if len(prefix) == 0 {
+		prefix = []string{"_index"}
+	}
+	return prefix
+}
+
 // DepsCfg contains configuration options that can be used to configure Hugo
 // on a global level, i.e. logging etc.
 // Nil values will be given default values.
@@ -377,6 +394,13 @@ type DepsCfg struct {
 
 	// Whether we are in running (server) mode
 	Running bool
+}
+
+// BranchBundlePrefix provides the (possibly-overriden) filename prefix for
+// branch Bundles. This defaults to "_index", but may be overriden on a sitewide
+// basis.
+func (dc *DepsCfg) BranchBundlePrefix() []string {
+	return branchBundlePrefix(dc.Cfg)
 }
 
 // BuildState are flags that may be turned on during a build.

@@ -31,6 +31,19 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
+// simpleClassify determines the type of a file; in a real FS, this is partially
+// based on a config option, but we hard-code the results here for simplicity.
+func simpleClassify(fi hugofs.FileMetaInfo) files.ContentClass {
+	switch fi.Name() {
+	case "index.md":
+		return files.ContentClassLeaf
+	case "_index.md":
+		return files.ContentClassBranch
+	default:
+		return files.ClassifyContentFile(fi.Name(), fi.Meta().GetOpener())
+	}
+}
+
 func BenchmarkContentMap(b *testing.B) {
 	writeFile := func(c *qt.C, fs afero.Fs, filename, content string) hugofs.FileMetaInfo {
 		c.Helper()
@@ -54,8 +67,7 @@ func BenchmarkContentMap(b *testing.B) {
 				// real flow, so simulate this here.
 				meta["lang"] = lang
 				meta["path"] = meta.Filename()
-				meta["classifier"] = files.ClassifyContentFile(fi.Name(), meta.GetOpener())
-
+				meta["classifier"] = simpleClassify(fi)
 			})
 	}
 
@@ -115,7 +127,7 @@ func TestContentMap(t *testing.T) {
 				// real flow, so simulate this here.
 				meta["lang"] = lang
 				meta["path"] = meta.Filename()
-				meta["classifier"] = files.ClassifyContentFile(fi.Name(), meta.GetOpener())
+				meta["classifier"] = simpleClassify(fi)
 				meta["translationBaseName"] = helpers.Filename(fi.Name())
 
 			})

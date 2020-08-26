@@ -97,8 +97,7 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, name, kind, targetPath, archety
 
 	if name == "" {
 		name = f.TranslationBaseName()
-
-		if name == "index" || name == "_index" {
+		if f.FileInfo().Meta().Classifier().IsBundle() || name == "index" {
 			// Page bundles; the directory name will hopefully have a better name.
 			dir := strings.TrimSuffix(f.Dir(), helpers.FilePathSeparator)
 			_, name = filepath.Split(dir)

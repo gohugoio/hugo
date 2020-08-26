@@ -173,7 +173,10 @@ func (c *pagesCollector) Collect() (collectErr error) {
 		}
 		dirs := make(map[contentDirKey]bool)
 		for _, filename := range c.filenames {
-			dir, btype := c.tracker.resolveAndRemove(filename)
+			// Ignore errors here because resolveAndRemove will fall back if no Stat information is available.
+			fi, _ := c.fs.Stat(filename)
+			fim, _ := fi.(hugofs.FileMetaInfo)
+			dir, btype := c.tracker.resolveAndRemove(filename, fim)
 			dirs[contentDirKey{dir, filename, btype}] = true
 		}
 

@@ -180,6 +180,9 @@ func (c *PageCollections) getSectionOrPage(ref string) (*contentNode, string) {
 		// A section
 		return n, ""
 	}
+	if n == nil {
+		panic(fmt.Sprintf("Expected to find prefix %q in content map", pref))
+	}
 
 	m := c.pageMap
 
@@ -194,6 +197,9 @@ func (c *PageCollections) getSectionOrPage(ref string) (*contentNode, string) {
 	// folder name.
 	name = strings.TrimSuffix(name, "/index")
 	name = strings.TrimSuffix(name, "/_index")
+	if n.fi != nil && n.fi.Meta().Classifier().IsBundle() {
+		name = strings.TrimSuffix(name, "/"+n.fi.Meta().TranslationBaseName())
+	}
 
 	if !found {
 		return nil, name

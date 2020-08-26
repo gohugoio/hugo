@@ -52,7 +52,7 @@ func NewContent(
 
 	if isDir {
 
-		langFs, err := hugofs.NewLanguageFs(sites.LanguageSet(), archetypeFs)
+		langFs, err := hugofs.NewLanguageFs(sites.LanguageSet(), sites.BranchBundlePrefix(), archetypeFs)
 		if err != nil {
 			return err
 		}

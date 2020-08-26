@@ -89,7 +89,18 @@ const (
 
 // Returns the given file's name's bundle type and whether it is a content
 // file or not.
-func classifyBundledFile(name string) (bundleDirType, bool) {
+func classifyBundledFile(name string, fim hugofs.FileMetaInfo) (bundleDirType, bool) {
+	if fim != nil {
+		switch fim.Meta().Classifier() {
+		case files.ContentClassBranch:
+			return bundleBranch, true
+		case files.ContentClassLeaf:
+			return bundleLeaf, true
+		default:
+			return bundleNot, false
+		}
+	}
+	// Fallback path, generally used for tests
 	if !files.IsContentFile(name) {
 		return bundleNot, false
 	}
@@ -101,7 +112,7 @@ func classifyBundledFile(name string) (bundleDirType, bool) {
 		return bundleLeaf, true
 	}
 
-	return bundleNot, true
+	return bundleNot, false
 }
 
 func (b bundleDirType) String() string {

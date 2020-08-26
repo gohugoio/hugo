@@ -49,6 +49,10 @@ type BaseFs struct {
 	// SourceFilesystems contains the different source file systems.
 	*SourceFilesystems
 
+	// bundlePrefixes is a preference list of strings used to identify bundle
+	// files belonging to a branch; this is {"_index"} by default.
+	bundlePrefixes []string
+
 	// The filesystem used to publish the rendered site.
 	// This usually maps to /my-project/public.
 	PublishFs afero.Fs
@@ -338,6 +342,15 @@ func WithBaseFs(b *BaseFs) func(*BaseFs) error {
 	}
 }
 
+// WithBranchBundlePrefix sets the prefix used to identify documentation files
+// as page bundles. Defaults to "_index".
+func WithBranchBundlePrefixes(p []string) func(*BaseFs) error {
+	return func(b *BaseFs) error {
+		b.bundlePrefixes = p
+		return nil
+	}
+}
+
 // NewBase builds the filesystems used by Hugo given the paths and options provided.NewBase
 func NewBase(p *paths.Paths, logger *loggers.Logger, options ...func(*BaseFs) error) (*BaseFs, error) {
 	fs := p.Fs
@@ -348,7 +361,8 @@ func NewBase(p *paths.Paths, logger *loggers.Logger, options ...func(*BaseFs) er
 	publishFs := hugofs.NewBaseFileDecorator(afero.NewBasePathFs(fs.Destination, p.AbsPublishDir))
 
 	b := &BaseFs{
-		PublishFs: publishFs,
+		bundlePrefixes: []string{"_index"},
+		PublishFs:      publishFs,
 	}
 
 	for _, opt := range options {
@@ -374,16 +388,17 @@ func NewBase(p *paths.Paths, logger *loggers.Logger, options ...func(*BaseFs) er
 }
 
 type sourceFilesystemsBuilder struct {
-	logger   *loggers.Logger
-	p        *paths.Paths
-	sourceFs afero.Fs
-	result   *SourceFilesystems
-	theBigFs *filesystemsCollector
+	logger         *loggers.Logger
+	p              *paths.Paths
+	bundlePrefixes []string
+	sourceFs       afero.Fs
+	result         *SourceFilesystems
+	theBigFs       *filesystemsCollector
 }
 
 func newSourceFilesystemsBuilder(p *paths.Paths, logger *loggers.Logger, b *BaseFs) *sourceFilesystemsBuilder {
 	sourceFs := hugofs.NewBaseFileDecorator(p.Fs.Source)
-	return &sourceFilesystemsBuilder{p: p, logger: logger, sourceFs: sourceFs, theBigFs: b.theBigFs, result: &SourceFilesystems{}}
+	return &sourceFilesystemsBuilder{p: p, logger: logger, bundlePrefixes: b.bundlePrefixes, sourceFs: sourceFs, theBigFs: b.theBigFs, result: &SourceFilesystems{}}
 }
 
 func (b *sourceFilesystemsBuilder) newSourceFilesystem(name string, fs afero.Fs, dirs []hugofs.FileMetaInfo) *SourceFilesystem {
@@ -443,7 +458,7 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 	contentDirs := b.theBigFs.overlayDirs[files.ComponentFolderContent]
 	contentBfs := afero.NewBasePathFs(b.theBigFs.overlayMountsContent, files.ComponentFolderContent)
 
-	contentFs, err := hugofs.NewLanguageFs(b.p.LanguagesDefaultFirst.AsOrdinalSet(), contentBfs)
+	contentFs, err := hugofs.NewLanguageFs(b.p.LanguagesDefaultFirst.AsOrdinalSet(), b.bundlePrefixes, contentBfs)
 	if err != nil {
 		return nil, errors.Wrap(err, "create content filesystem")
 	}
