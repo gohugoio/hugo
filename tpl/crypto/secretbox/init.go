@@ -1,4 +1,4 @@
-// Copyright 2017 The Hugo Authors. All rights reserved.
+// Copyright 2020 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,14 +11,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package crypto
+package secretbox
 
 import (
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/tpl/internal"
 )
 
-const name = "crypto"
+const name = "secretbox"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
@@ -29,32 +29,23 @@ func init() {
 			Context: func(args ...interface{}) interface{} { return ctx },
 		}
 
-		ns.AddMethodMapping(ctx.MD5,
-			[]string{"md5"},
+		ns.AddMethodMapping(ctx.Open,
+			nil,
 			[][2]string{
-				{`{{ md5 "Hello world, gophers!" }}`, `b3029f756f98f79e7f1b7f1d1f0dd53b`},
-				{`{{ crypto.MD5 "Hello world, gophers!" }}`, `b3029f756f98f79e7f1b7f1d1f0dd53b`},
+				{
+					`{{ secretbox.Open "KEY" (hexDecode "444f4e27542053454e442041204e4f4e434500000000000036f13ebda2c8537738c4958c367744f3c1b949c9872bb59e5f53706fd6ad") }}`,
+					`Secret Message`,
+				},
 			},
 		)
 
-		ns.AddMethodMapping(ctx.SHA1,
-			[]string{"sha1"},
+		ns.AddMethodMapping(ctx.Seal,
+			nil,
 			[][2]string{
-				{`{{ sha1 "Hello world, gophers!" }}`, `c8b5b0e33d408246e30f53e32b8f7627a7a649d4`},
-			},
-		)
-
-		ns.AddMethodMapping(ctx.SHA256,
-			[]string{"sha256"},
-			[][2]string{
-				{`{{ sha256 "Hello world, gophers!" }}`, `6ec43b78da9669f50e4e422575c54bf87536954ccd58280219c393f2ce352b46`},
-			},
-		)
-
-		ns.AddMethodMapping(ctx.HMAC,
-			[]string{"hmac"},
-			[][2]string{
-				{`{{ hmac "sha256" "Secret key" "Hello world, gophers!" }}`, `b6d11b6c53830b9d87036272ca9fe9d19306b8f9d8aa07b15da27d89e6e34f40`},
+				{
+					`{{ secretbox.Seal "KEY" "Secret Message" "DON'T SEND A NONCE" | hexEncode }}`,
+					`444f4e27542053454e442041204e4f4e434500000000000036f13ebda2c8537738c4958c367744f3c1b949c9872bb59e5f53706fd6ad`,
+				},
 			},
 		)
 

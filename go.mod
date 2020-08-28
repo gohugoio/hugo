@@ -57,6 +57,7 @@ require (
 	github.com/yuin/goldmark-highlighting v0.0.0-20200307114337-60d527fdb691
 	go.opencensus.io v0.22.0 // indirect
 	gocloud.dev v0.15.0
+	golang.org/x/crypto v0.0.0-20190422183909-d864b10871cd
 	golang.org/x/image v0.0.0-20191214001246-9130b4cfad52
 	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553
 	golang.org/x/oauth2 v0.0.0-20190523182746-aaccbc9213b0 // indirect

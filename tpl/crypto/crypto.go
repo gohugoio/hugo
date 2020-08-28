@@ -69,7 +69,7 @@ func (ns *Namespace) SHA256(in interface{}) (string, error) {
 }
 
 // HMAC returns a cryptographic hash that uses a key to sign a message.
-func (ns *Namespace) HMAC(h interface{}, k interface{}, m interface{}) (string, error) {
+func (ns *Namespace) HMAC(h, k, m interface{}) (string, error) {
 	ha, err := cast.ToStringE(h)
 	if err != nil {
 		return "", err
@@ -105,5 +105,5 @@ func (ns *Namespace) HMAC(h interface{}, k interface{}, m interface{}) (string, 
 		return "", err
 	}
 
-	return hex.EncodeToString(mac.Sum(nil)[:]), nil
+	return hex.EncodeToString(mac.Sum(nil)), nil
 }

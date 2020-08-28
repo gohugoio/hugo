@@ -19,22 +19,19 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/gohugoio/hugo/tpl"
-
 	"github.com/gohugoio/hugo/common/maps"
-
+	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/tpl"
+	"github.com/gohugoio/hugo/tpl/internal"
 	template "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
-
-	"github.com/gohugoio/hugo/deps"
-
-	"github.com/gohugoio/hugo/tpl/internal"
 
 	// Init the namespaces
 	_ "github.com/gohugoio/hugo/tpl/cast"
 	_ "github.com/gohugoio/hugo/tpl/collections"
 	_ "github.com/gohugoio/hugo/tpl/compare"
 	_ "github.com/gohugoio/hugo/tpl/crypto"
+	_ "github.com/gohugoio/hugo/tpl/crypto/secretbox"
 	_ "github.com/gohugoio/hugo/tpl/data"
 	_ "github.com/gohugoio/hugo/tpl/debug"
 	_ "github.com/gohugoio/hugo/tpl/encoding"
@@ -90,7 +87,7 @@ func (t *templateExecHelper) GetMapValue(tmpl texttemplate.Preparer, receiver, k
 	return v, v.IsValid()
 }
 
-func (t *templateExecHelper) GetMethod(tmpl texttemplate.Preparer, receiver reflect.Value, name string) (method reflect.Value, firstArg reflect.Value) {
+func (t *templateExecHelper) GetMethod(tmpl texttemplate.Preparer, receiver reflect.Value, name string) (method, firstArg reflect.Value) {
 	// This is a hot path and receiver.MethodByName really shows up in the benchmarks.
 	// Page.Render is the only method with a WithTemplateInfo as of now, so let's just
 	// check that for now.
@@ -142,7 +139,6 @@ func newTemplateExecuter(d *deps.Deps) (texttemplate.Executer, map[string]reflec
 }
 
 func createFuncMap(d *deps.Deps) map[string]interface{} {
-
 	funcMap := template.FuncMap{}
 
 	// Merge the namespace funcs
@@ -169,5 +165,4 @@ func createFuncMap(d *deps.Deps) map[string]interface{} {
 	}
 
 	return funcMap
-
 }
