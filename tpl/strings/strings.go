@@ -19,14 +19,12 @@ import (
 	"fmt"
 	"html/template"
 	"strings"
-
-	_strings "strings"
 	"unicode/utf8"
-
-	_errors "github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
+
+	_errors "github.com/pkg/errors"
 	"github.com/spf13/cast"
 )
 
@@ -79,7 +77,7 @@ func (ns *Namespace) CountWords(s interface{}) (int, error) {
 	}
 
 	counter := 0
-	for _, word := range _strings.Fields(helpers.StripHTML(ss)) {
+	for _, word := range strings.Fields(helpers.StripHTML(ss)) {
 		runeCount := utf8.RuneCountInString(word)
 		if len(word) == runeCount {
 			counter++
@@ -112,14 +110,13 @@ func (ns *Namespace) Chomp(s interface{}) (interface{}, error) {
 		return "", err
 	}
 
-	res := _strings.TrimRight(ss, "\r\n")
+	res := strings.TrimRight(ss, "\r\n")
 	switch s.(type) {
 	case template.HTML:
 		return template.HTML(res), nil
 	default:
 		return res, nil
 	}
-
 }
 
 // Contains reports whether substr is in s.
@@ -134,7 +131,7 @@ func (ns *Namespace) Contains(s, substr interface{}) (bool, error) {
 		return false, err
 	}
 
-	return _strings.Contains(ss, su), nil
+	return strings.Contains(ss, su), nil
 }
 
 // ContainsAny reports whether any Unicode code points in chars are within s.
@@ -149,7 +146,7 @@ func (ns *Namespace) ContainsAny(s, chars interface{}) (bool, error) {
 		return false, err
 	}
 
-	return _strings.ContainsAny(ss, sc), nil
+	return strings.ContainsAny(ss, sc), nil
 }
 
 // HasPrefix tests whether the input s begins with prefix.
@@ -164,7 +161,7 @@ func (ns *Namespace) HasPrefix(s, prefix interface{}) (bool, error) {
 		return false, err
 	}
 
-	return _strings.HasPrefix(ss, sx), nil
+	return strings.HasPrefix(ss, sx), nil
 }
 
 // HasSuffix tests whether the input s begins with suffix.
@@ -179,12 +176,13 @@ func (ns *Namespace) HasSuffix(s, suffix interface{}) (bool, error) {
 		return false, err
 	}
 
-	return _strings.HasSuffix(ss, sx), nil
+	return strings.HasSuffix(ss, sx), nil
 }
 
 // Replace returns a copy of the string s with all occurrences of old replaced
-// with new.
-func (ns *Namespace) Replace(s, old, new interface{}) (string, error) {
+// with new.  The number of replacements can be limited with an optional fourth
+// parameter.
+func (ns *Namespace) Replace(s, old, new interface{}, limit ...interface{}) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return "", err
@@ -200,7 +198,16 @@ func (ns *Namespace) Replace(s, old, new interface{}) (string, error) {
 		return "", err
 	}
 
-	return _strings.Replace(ss, so, sn, -1), nil
+	if len(limit) == 0 {
+		return strings.ReplaceAll(ss, so, sn), nil
+	}
+
+	lim, err := cast.ToIntE(limit[0])
+	if err != nil {
+		return "", err
+	}
+
+	return strings.Replace(ss, so, sn, lim), nil
 }
 
 // SliceString slices a string by specifying a half-open range with
@@ -247,7 +254,6 @@ func (ns *Namespace) SliceString(a interface{}, startEnd ...interface{}) (string
 	} else {
 		return string(asRunes[:]), nil
 	}
-
 }
 
 // Split slices an input string into all substrings separated by delimiter.
@@ -257,7 +263,7 @@ func (ns *Namespace) Split(a interface{}, delimiter string) ([]string, error) {
 		return []string{}, err
 	}
 
-	return _strings.Split(aStr, delimiter), nil
+	return strings.Split(aStr, delimiter), nil
 }
 
 // Substr extracts parts of a string, beginning at the character at the specified
@@ -362,7 +368,7 @@ func (ns *Namespace) ToLower(s interface{}) (string, error) {
 		return "", err
 	}
 
-	return _strings.ToLower(ss), nil
+	return strings.ToLower(ss), nil
 }
 
 // ToUpper returns a copy of the input s with all Unicode letters mapped to their
@@ -373,7 +379,7 @@ func (ns *Namespace) ToUpper(s interface{}) (string, error) {
 		return "", err
 	}
 
-	return _strings.ToUpper(ss), nil
+	return strings.ToUpper(ss), nil
 }
 
 // Trim returns a string with all leading and trailing characters defined
@@ -389,7 +395,7 @@ func (ns *Namespace) Trim(s, cutset interface{}) (string, error) {
 		return "", err
 	}
 
-	return _strings.Trim(ss, sc), nil
+	return strings.Trim(ss, sc), nil
 }
 
 // TrimLeft returns a slice of the string s with all leading characters
@@ -405,7 +411,7 @@ func (ns *Namespace) TrimLeft(cutset, s interface{}) (string, error) {
 		return "", err
 	}
 
-	return _strings.TrimLeft(ss, sc), nil
+	return strings.TrimLeft(ss, sc), nil
 }
 
 // TrimPrefix returns s without the provided leading prefix string. If s doesn't
@@ -421,7 +427,7 @@ func (ns *Namespace) TrimPrefix(prefix, s interface{}) (string, error) {
 		return "", err
 	}
 
-	return _strings.TrimPrefix(ss, sx), nil
+	return strings.TrimPrefix(ss, sx), nil
 }
 
 // TrimRight returns a slice of the string s with all trailing characters
@@ -437,7 +443,7 @@ func (ns *Namespace) TrimRight(cutset, s interface{}) (string, error) {
 		return "", err
 	}
 
-	return _strings.TrimRight(ss, sc), nil
+	return strings.TrimRight(ss, sc), nil
 }
 
 // TrimSuffix returns s without the provided trailing suffix string. If s
@@ -453,7 +459,7 @@ func (ns *Namespace) TrimSuffix(suffix, s interface{}) (string, error) {
 		return "", err
 	}
 
-	return _strings.TrimSuffix(ss, sx), nil
+	return strings.TrimSuffix(ss, sx), nil
 }
 
 // Repeat returns a new string consisting of count copies of the string s.
@@ -472,5 +478,5 @@ func (ns *Namespace) Repeat(n, s interface{}) (string, error) {
 		return "", errors.New("strings: negative Repeat count")
 	}
 
-	return _strings.Repeat(ss, sn), nil
+	return strings.Repeat(ss, sn), nil
 }
