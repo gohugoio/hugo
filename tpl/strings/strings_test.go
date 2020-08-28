@@ -15,11 +15,11 @@ package strings
 
 import (
 	"html/template"
-
 	"testing"
 
-	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
+
+	qt "github.com/frankban/quicktest"
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"
 )
@@ -302,18 +302,30 @@ func TestReplace(t *testing.T) {
 		s      interface{}
 		old    interface{}
 		new    interface{}
+		limit  interface{}
 		expect interface{}
 	}{
-		{"aab", "a", "b", "bbb"},
-		{"11a11", 1, 2, "22a22"},
-		{12345, 1, 2, "22345"},
+		{"aab", "a", "b", nil, "bbb"},
+		{"11a11", 1, 2, nil, "22a22"},
+		{12345, 1, 2, nil, "22345"},
+		{"aab", "a", "b", 1, "bab"},
+		{"11a11", 1, 2, 2, "22a11"},
 		// errors
-		{tstNoStringer{}, "a", "b", false},
-		{"a", tstNoStringer{}, "b", false},
-		{"a", "b", tstNoStringer{}, false},
+		{tstNoStringer{}, "a", "b", nil, false},
+		{"a", tstNoStringer{}, "b", nil, false},
+		{"a", "b", tstNoStringer{}, nil, false},
 	} {
 
-		result, err := ns.Replace(test.s, test.old, test.new)
+		var (
+			result string
+			err    error
+		)
+
+		if test.limit != nil {
+			result, err = ns.Replace(test.s, test.old, test.new, test.limit)
+		} else {
+			result, err = ns.Replace(test.s, test.old, test.new)
+		}
 
 		if b, ok := test.expect.(bool); ok && !b {
 			c.Assert(err, qt.Not(qt.IsNil))

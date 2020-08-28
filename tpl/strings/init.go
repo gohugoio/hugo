@@ -63,7 +63,8 @@ func init() {
 			[][2]string{
 				{
 					`{{ findRE "[G|g]o" "Hugo is a static side generator written in Go." "1" }}`,
-					`[go]`},
+					`[go]`,
+				},
 			},
 		)
 
@@ -87,7 +88,12 @@ func init() {
 			[][2]string{
 				{
 					`{{ replace "Batman and Robin" "Robin" "Catwoman" }}`,
-					`Batman and Catwoman`},
+					`Batman and Catwoman`,
+				},
+				{
+					`{{ replace "aabbaabb" "a" "z" 2 }}`,
+					`zzbbaabb`,
+				},
 			},
 		)
 
@@ -192,7 +198,6 @@ func init() {
 		)
 
 		return ns
-
 	}
 
 	internal.AddTemplateFuncsNamespace(f)
