@@ -99,7 +99,16 @@ func init() {
 
 		ns.AddMethodMapping(ctx.ReplaceRE,
 			[]string{"replaceRE"},
-			[][2]string{},
+			[][2]string{
+				{
+					`{{ replaceRE "a+b" "X" "aabbaabbab" }}`,
+					`XbXbX`,
+				},
+				{
+					`{{ replaceRE "a+b" "X" "aabbaabbab" 1 }}`,
+					`Xbaabbab`,
+				},
+			},
 		)
 
 		ns.AddMethodMapping(ctx.SliceString,
