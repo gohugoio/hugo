@@ -63,4 +63,18 @@ func TestToBuildOptions(t *testing.T) {
 		Stdin:             &api.StdinOptions{},
 	})
 
+	opts, err = toBuildOptions(Options{
+		Target: "es2018", Format: "cjs", Minify: true, mediaType: media.JavascriptType,
+		SourceMap: "inline"})
+	c.Assert(err, qt.IsNil)
+	c.Assert(opts, qt.DeepEquals, api.BuildOptions{
+		Bundle:            true,
+		Target:            api.ES2018,
+		Format:            api.FormatCommonJS,
+		MinifyIdentifiers: true,
+		MinifySyntax:      true,
+		MinifyWhitespace:  true,
+		Sourcemap:         api.SourceMapInline,
+		Stdin:             &api.StdinOptions{},
+	})
 }
