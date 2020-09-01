@@ -222,9 +222,9 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 
 	var sourceMap api.SourceMap
 	switch opts.SourceMap {
-	case "inline", "1":
+	case "inline":
 		sourceMap = api.SourceMapInline
-	case "", "0":
+	case "":
 		sourceMap = api.SourceMapNone
 	default:
 		err = fmt.Errorf("unsupported sourcemap type: %q", opts.SourceMap)
