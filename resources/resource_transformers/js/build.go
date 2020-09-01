@@ -42,6 +42,9 @@ type Options struct {
 	// Whether to minify to output.
 	Minify bool
 
+	// Whether to write mapfiles (currently inline only)
+	SourceMap string
+
 	// The language target.
 	// One of: es2015, es2016, es2017, es2018, es2019, es2020 or esnext.
 	// Default is esnext.
@@ -217,12 +220,24 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 		defines = cast.ToStringMapString(opts.Defines)
 	}
 
+	var sourceMap api.SourceMap
+	switch opts.SourceMap {
+	case "inline":
+		sourceMap = api.SourceMapInline
+	case "":
+		sourceMap = api.SourceMapNone
+	default:
+		err = fmt.Errorf("unsupported sourcemap type: %q", opts.SourceMap)
+		return
+	}
+
 	buildOptions = api.BuildOptions{
 		Outfile: "",
 		Bundle:  true,
 
-		Target: target,
-		Format: format,
+		Target:    target,
+		Format:    format,
+		Sourcemap: sourceMap,
 
 		MinifyWhitespace:  opts.Minify,
 		MinifyIdentifiers: opts.Minify,
