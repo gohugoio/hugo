@@ -261,7 +261,7 @@ Archive:  hugo_X.Y_osx-64bit.tgz
 Hugo Static Site Generator v0.13 BuildDate: 2015-02-22T04:02:30-06:00
 ```
 
-You may need to add your bin directory to your `PATH` variable. The `which` command will check for us. If it can find `hugo`, it will print the full path to it. Otherwise, it will not print anything.
+You may need to add your bin directory to your `PATH` environment variable. The `which` command will check for us. If it can find `hugo`, it will print the full path to it. Otherwise, it will not print anything.
 
 ```
 # check if hugo is in the path
@@ -269,21 +269,37 @@ which hugo
 /Users/USERNAME/bin/hugo
 ```
 
-If `hugo` is not in your `PATH`, add it by updating your `~/.bash_profile` file. First, start up an editor:
+If `hugo` is not in your `PATH`:
 
-```
-nano ~/.bash_profile
-```
+1. Determine your default shell (zsh or bash).
 
-Add a line to update your `PATH` variable:
+   ```
+   echo $SHELL
+   ```
 
-```
-export PATH=$PATH:$HOME/bin
-```
+2. Edit your profile.
 
-Then save the file by pressing Control-X, then Y to save the file and return to the prompt.
+   If your default shell is zsh:
 
-Close the terminal and open a new terminal to pick up the changes to your profile. Verify your success by running the `which hugo` command again.
+   ```
+   nano ~/.zprofile
+   ```
+
+   If your default shell is bash:
+
+   ```
+   nano ~/.bash_profile
+   ```
+
+3. Insert a line to add `$HOME/bin` to your existing `PATH`.
+
+   ```
+   export PATH=$PATH:$HOME/bin
+   ```
+
+4. Save the file by pressing Control-X, then Y.
+
+5. Close the terminal and open a new terminal to pick up the changes to your profile. Verify the change by running the `which hugo` command again.
 
 You've successfully installed Hugo.
 
