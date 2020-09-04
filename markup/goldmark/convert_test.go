@@ -195,6 +195,26 @@ func TestConvertAutoIDBlackfriday(t *testing.T) {
 	c.Assert(got, qt.Contains, "<h2 id=\"let-s-try-this-shall-we\">")
 }
 
+func TestConvertIssues(t *testing.T) {
+	c := qt.New(t)
+
+	// https://github.com/gohugoio/hugo/issues/7619
+	c.Run("Hyphen in HTML attributes", func(c *qt.C) {
+		mconf := markup_config.Default
+		mconf.Goldmark.Renderer.Unsafe = true
+		input := `<custom-element>
+    <div>This will be "slotted" into the custom element.</div>
+</custom-element>
+`
+
+		b := convert(c, mconf, input)
+		got := string(b.Bytes())
+
+		c.Assert(got, qt.Contains, "<p><custom-element>\n<div>This will be &ldquo;slotted&rdquo; into the custom element.</div>\n</custom-element></p>\n")
+	})
+
+}
+
 func TestCodeFence(t *testing.T) {
 	c := qt.New(t)
 
