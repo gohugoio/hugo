@@ -20,6 +20,8 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/modules"
 
@@ -215,6 +217,10 @@ func (p *testPage) FuzzyWordCount() int {
 }
 
 func (p *testPage) GetPage(ref string) (Page, error) {
+	panic("not implemented")
+}
+
+func (p *testPage) GetPageWithTemplateInfo(info tpl.Info, ref string) (Page, error) {
 	panic("not implemented")
 }
 
@@ -562,6 +568,10 @@ func (p *testPage) Weight() int {
 }
 
 func (p *testPage) WordCount() int {
+	panic("not implemented")
+}
+
+func (p *testPage) GetIdentity() identity.Identity {
 	panic("not implemented")
 }
 

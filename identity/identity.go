@@ -129,6 +129,8 @@ func (im *identityManager) Reset() {
 	im.Unlock()
 }
 
+// TODO(bep) these identities are currently only read on server reloads
+// so there should be no concurrency issues, but that may change.
 func (im *identityManager) GetIdentities() Identities {
 	im.Lock()
 	defer im.Unlock()

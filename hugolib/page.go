@@ -78,6 +78,7 @@ type pageContext interface {
 	posOffset(offset int) text.Position
 	wrapError(err error) error
 	getContentConverter() converter.Converter
+	addDependency(dep identity.Provider)
 }
 
 // wrapErr adds some context to the given error if possible.
@@ -91,6 +92,18 @@ func wrapErr(err error, ctx interface{}) error {
 type pageSiteAdapter struct {
 	p page.Page
 	s *Site
+}
+
+func (pa pageSiteAdapter) GetPageWithTemplateInfo(info tpl.Info, ref string) (page.Page, error) {
+	p, err := pa.GetPage(ref)
+	if p != nil {
+		// Track pages referenced by templates/shortcodes
+		// when in server mode.
+		if im, ok := info.(identity.Manager); ok {
+			im.Add(p)
+		}
+	}
+	return p, err
 }
 
 func (pa pageSiteAdapter) GetPage(ref string) (page.Page, error) {
@@ -125,6 +138,10 @@ func (p *pageState) Eq(other interface{}) bool {
 	}
 
 	return p == pp
+}
+
+func (p *pageState) GetIdentity() identity.Identity {
+	return identity.NewPathIdentity(files.ComponentFolderContent, filepath.FromSlash(p.Path()))
 }
 
 func (p *pageState) GitInfo() *gitmap.GitInfo {

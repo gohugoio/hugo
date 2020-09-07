@@ -599,7 +599,7 @@ title: P1
 
 	idset := make(map[identity.Identity]bool)
 	collectIdentities(idset, templ.(tpl.Info))
-	b.Assert(idset, qt.HasLen, 10)
+	b.Assert(idset, qt.HasLen, 11)
 
 }
 
