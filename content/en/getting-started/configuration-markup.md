@@ -95,7 +95,7 @@ The features currently supported are:
 * `link`
 * `heading` {{< new-in "0.71.0" >}}
 
-You can define [Output-Format-](/templates/output-formats) and [language-](/content-management/multilingual/)specific templates if needed.[^hooktemplate] Your `layouts` folder may look like this:
+You can define [Output-Format-](/templates/output-formats) and [language-](/content-management/multilingual/)specific templates if needed. Your `layouts` folder may look like this:
 
 ```bash
 layouts
@@ -194,5 +194,3 @@ The rendered html will be
 ```html
 <h3 id="section-a">Section A <a href="#section-a">¶</a></h3>
 ```
-
-[^hooktemplate]: It's currently only possible to have one set of render hook templates, e.g. not per `Type` or `Section`. We may consider that in a future version.
