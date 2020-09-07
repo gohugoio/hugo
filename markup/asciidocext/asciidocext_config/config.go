@@ -24,7 +24,7 @@ var (
 		SafeMode:             "unsafe",
 		SectionNumbers:       false,
 		Verbose:              false,
-		Trace:                true,
+		Trace:                false,
 		FailureLevel:         "fatal",
 		WorkingFolderCurrent: false,
 	}
