@@ -95,7 +95,7 @@ For the second position, you would just use:
 most helpful when the condition depends on either of the values, or both:
 
 ```
-{{ or .Get "title" | .Get "alt" | if }} alt="{{ with .Get "alt"}}{{.}}{{else}}{{.Get "title"}}{{end}}"{{ end }}
+{{ if or (.Get "title") (.Get "alt") }} alt="{{ with .Get "alt"}}{{.}}{{else}}{{.Get "title"}}{{end}}"{{ end }}
 ```
 
 #### `.Inner`

@@ -91,11 +91,14 @@ disable
 ## Module Config: mounts
 
 {{% note %}}
-When the `mounts` config was introduced in Hugo 0.56.0, we were careful to preserve the existing `staticDir` and similar configuration to make sure all existing sites just continued to work.
-
-But you should not have both. So if you add a `mounts` section you should make it complete and remove the old `staticDir` etc. settings.
+When the `mounts` config was introduced in Hugo 0.56.0, we were careful to preserve the existing `staticDir` and similar configuration to make sure all existing sites just continued to work. But you should not have both: if you add a `mounts` section you should remove the old `staticDir` etc. settings.
 {{% /note %}}
 
+{{% warning %}}
+When you add a mount, the default mount for the concerned target root is ignored: be sure to explicitly add it.
+{{% /warning %}}
+
+**Default mounts**
 {{< code-toggle file="config">}}
 [module]
 [[module.mounts]]
