@@ -29,11 +29,13 @@ For other approaches learning Hugo like book or a video tutorial refer to the [e
 ## Step 1: Install Hugo
 
 {{% note %}}
-`Homebrew`, a package manager for `macOS`,  can be installed from [brew.sh](https://brew.sh/). See [install](/getting-started/installing) if you are running Windows etc.
+`Homebrew` and `MacPorts`, package managers for `macOS`,  can be installed from [brew.sh](https://brew.sh/) or [macports.org](https://www.macports.org/) respectively. See [install](/getting-started/installing) if you are running Windows etc.
 {{% /note %}}
 
 ```bash
 brew install hugo
+# or
+port install hugo
 ```
 
 To verify your new install:
@@ -101,6 +103,10 @@ draft: true
 ---
 
 ```
+
+{{% note %}}
+Drafts do not get deployed; once you finish a post, update the header of the post to say `draft: false`. More info [here](/getting-started/usage/#draft-future-and-expired-content).
+{{% /note %}}
 
 ## Step 5: Start the Hugo server
 
@@ -171,6 +177,3 @@ hugo -D
 
 Output will be in `./public/` directory by default (`-d`/`--destination` flag to change it, or set `publishdir` in the config file).
 
-{{% note %}}
-Drafts do not get deployed; once you finish a post, update the header of the post to say `draft: false`. More info [here](/getting-started/usage/#draft-future-and-expired-content).
-{{% /note %}}

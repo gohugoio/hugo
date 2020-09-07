@@ -316,43 +316,82 @@ See https://github.com/gohugoio/hugo/issues/3564
 
 {{% /note %}}
 
+### Query basic translation
+
 From within your templates, use the `i18n` function like this:
 
 ```
 {{ i18n "home" }}
 ```
 
-This uses a definition like this one in `i18n/en-US.toml`:
+The function will search for the `"home"` id from `i18n/en-US.toml` file:
 
 ```
 [home]
 other = "Home"
 ```
 
-Often you will want to use to the page variables in the translations strings. To do that, pass on the "." context when calling `i18n`:
+The result will be
+
+```
+Home
+```
+
+### Query a flexible translation with variables
+
+Often you will want to use to the page variables in the translations strings. To do that, pass on the `.` context when calling `i18n`:
 
 ```
 {{ i18n "wordCount" . }}
 ```
 
-This uses a definition like this one in `i18n/en-US.toml`:
+The function will pass the `.` context to the `"wordCount"` id in `i18n/en-US.toml` file:
 
 ```
 [wordCount]
 other = "This article has {{ .WordCount }} words."
 ```
-An example of singular and plural form:
+
+Assume `.WordCount` in the context has value is 101. The result will be:
+
+```
+This article has 101 words.
+```
+
+### Query a singular/plural translation
+
+In other to meet singular/plural requirement, you must pass a dictionary (map) data with a numeric `.Count` property to the `i18n` function. The below example uses `.ReadingTime` variable which has a built-in `.Count` property.
+
+```
+{{ i18n "readingTime" .ReadingTime }}
+```
+
+The function will read `.Count` from `.ReadingTime` and evaluate where the number is singular (`one`) or plural (`other`). After that, it will pass to `readingTime` id in `i18n/en-US.toml` file:
 
 ```
 [readingTime]
 one = "One minute to read"
 other = "{{.Count}} minutes to read"
 ```
-And then in the template:
+
+Assume `.ReadingTime.Count` in the context has value is 525600. The result will be:
 
 ```
-{{ i18n "readingTime" .ReadingTime }}
+525600 minutes to read
 ```
+
+If `.ReadingTime.Count` in the context has value is 1. The result is:
+
+```
+One minutes to read
+```
+
+In case you need to pass a custom data: (`"(dict Count" 25)` is minimum requirment)
+
+```
+{{ i18n "readingTime" (dict "Count" 25 "FirstArgument" true "SecondArgument" false "Etc" "so on, so far") }}
+```
+
 
 ## Customize Dates
 

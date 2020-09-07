@@ -646,7 +646,7 @@ Go allows you to do more than what's shown here. Using Hugo's [`where` function]
 [functions]: /functions/ "See the full list of Hugo's templating functions with a quick start reference guide and basic and advanced examples."
 [Go html/template]: https://golang.org/pkg/html/template/ "Godocs references for Go's html templating"
 [gohtmltemplate]: https://golang.org/pkg/html/template/ "Godocs references for Go's html templating"
-[index]: /functions/index/
+[index]: /functions/index-function/
 [math functions]: /functions/math/
 [partials]: /templates/partials/ "Link to the partial templates page inside of the templating section of the Hugo docs"
 [internal_templates]: /templates/internal/
