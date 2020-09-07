@@ -3,5 +3,7 @@ version: 2
 updates:
   - package-ecosystem: "gomod" 
     directory: "/"
+    commit_message:
+      prefix: "deps"
     schedule:
       interval: "daily"
