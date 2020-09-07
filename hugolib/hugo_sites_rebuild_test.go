@@ -259,3 +259,66 @@ Output Shortcode AMP Edited
 	})
 
 }
+
+// Issues #7623 #7625
+func TestSitesRebuildOnFilesIncludedWithGetPage(t *testing.T) {
+	b := newTestSitesBuilder(t).Running()
+	b.WithContent("pages/p1.md", `---
+title: p1
+---
+P3: {{< GetPage "pages/p3" >}}
+`)
+
+	b.WithContent("pages/p2.md", `---
+title: p2
+---
+P4: {{< site_GetPage "pages/p4" >}}
+P5: {{< site_GetPage "p5" >}}
+P6: {{< dot_site_GetPage "p6" >}}
+`)
+
+	b.WithContent("pages/p3/index.md", "---\ntitle: p3\nheadless: true\n---\nP3 content")
+	b.WithContent("pages/p4/index.md", "---\ntitle: p4\nheadless: true\n---\nP4 content")
+	b.WithContent("pages/p5.md", "---\ntitle: p5\n---\nP5 content")
+	b.WithContent("pages/p6.md", "---\ntitle: p6\n---\nP6 content")
+
+	b.WithTemplates(
+		"_default/single.html", `{{ .Content }}`,
+		"shortcodes/GetPage.html", `
+{{ $arg := .Get 0 }}
+{{ $p := .Page.GetPage $arg }}
+{{ $p.Content }}
+	`,
+		"shortcodes/site_GetPage.html", `
+{{ $arg := .Get 0 }}
+{{ $p := site.GetPage $arg }}
+{{ $p.Content }}
+	`, "shortcodes/dot_site_GetPage.html", `
+{{ $arg := .Get 0 }}
+{{ $p := .Site.GetPage $arg }}
+{{ $p.Content }}
+	`,
+	)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/pages/p1/index.html", "P3 content")
+	b.AssertFileContent("public/pages/p2/index.html", `P4 content
+P5 content
+P6 content
+`)
+
+	b.EditFiles("content/pages/p3/index.md", "---\ntitle: p3\n---\nP3 changed content")
+	b.EditFiles("content/pages/p4/index.md", "---\ntitle: p4\n---\nP4 changed content")
+	b.EditFiles("content/pages/p5.md", "---\ntitle: p5\n---\nP5 changed content")
+	b.EditFiles("content/pages/p6.md", "---\ntitle: p6\n---\nP6 changed content")
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/pages/p1/index.html", "P3 changed content")
+	b.AssertFileContent("public/pages/p2/index.html", `P4 changed content
+P5 changed content
+P6 changed content
+`)
+
+}

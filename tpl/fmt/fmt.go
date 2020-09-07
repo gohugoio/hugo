@@ -23,10 +23,17 @@ import (
 
 // New returns a new instance of the fmt-namespaced template functions.
 func New(d *deps.Deps) *Namespace {
-	return &Namespace{
+	ns := &Namespace{
 		errorLogger: helpers.NewDistinctLogger(d.Log.ERROR),
 		warnLogger:  helpers.NewDistinctLogger(d.Log.WARN),
 	}
+
+	d.BuildStartListeners.Add(func() {
+		ns.errorLogger.Reset()
+		ns.warnLogger.Reset()
+	})
+
+	return ns
 }
 
 // Namespace provides template functions for the "fmt" namespace.

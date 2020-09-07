@@ -97,6 +97,9 @@ type Deps struct {
 	// This is common/global for all sites.
 	BuildState *BuildState
 
+	// Whether we are in running (server) mode
+	Running bool
+
 	*globalErrHandler
 }
 
@@ -279,6 +282,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		FileCaches:              fileCaches,
 		BuildStartListeners:     &Listeners{},
 		BuildState:              buildState,
+		Running:                 cfg.Running,
 		Timeout:                 time.Duration(timeoutms) * time.Millisecond,
 		globalErrHandler:        errorHandler,
 	}
