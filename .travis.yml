@@ -12,8 +12,8 @@ env:
 git:
   depth: false
 go:
-  - "1.14.7"
-  - "1.15"
+  - "1.14.8"
+  - "1.15.1"
   - master
 
 arch:
