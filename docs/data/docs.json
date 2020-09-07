@@ -231,6 +231,21 @@
         ]
       },
       {
+        "Name": "Caddyfile",
+        "Aliases": [
+          "caddy",
+          "caddyfile"
+        ]
+      },
+      {
+        "Name": "Caddyfile Directives",
+        "Aliases": [
+          "caddy-d",
+          "caddyfile-d",
+          "caddyfile-directives"
+        ]
+      },
+      {
         "Name": "Cap'n Proto",
         "Aliases": [
           "capnp"
@@ -599,6 +614,7 @@
         "Aliases": [
           "cfg",
           "dosini",
+          "editorconfig",
           "gitconfig",
           "inf",
           "ini"
@@ -871,6 +887,12 @@
         ]
       },
       {
+        "Name": "PHTML",
+        "Aliases": [
+          "phtml"
+        ]
+      },
+      {
         "Name": "PL/pgSQL",
         "Aliases": [
           "plpgsql"
@@ -910,6 +932,12 @@
         "Aliases": [
           "pc",
           "pkgconfig"
+        ]
+      },
+      {
+        "Name": "Pony",
+        "Aliases": [
+          "pony"
         ]
       },
       {
@@ -1363,6 +1391,12 @@
         ]
       },
       {
+        "Name": "Zig",
+        "Aliases": [
+          "zig"
+        ]
+      },
+      {
         "Name": "cfstatement",
         "Aliases": [
           "cfs"
@@ -1491,13 +1525,12 @@
       },
       "asciidocExt": {
         "backend": "html5",
-        "docType": "article",
         "extensions": [],
         "attributes": {},
         "noHeaderOrFooter": true,
         "safeMode": "unsafe",
         "sectionNumbers": false,
-        "verbose": true,
+        "verbose": false,
         "trace": false,
         "failureLevel": "fatal",
         "workingFolderCurrent": false
@@ -2973,10 +3006,9 @@
           "Examples": []
         },
         "Merge": {
-          "Description": "Merge creates a copy of dst and merges src into it.\nCurrently only maps supported. Key handling is case insensitive.",
+          "Description": "Merge creates a copy of the final parameter and merges the preceeding\nparameters into it in reverse order.\nCurrently only maps are supported. Key handling is case insensitive.",
           "Args": [
-            "src",
-            "dst"
+            "params"
           ],
           "Aliases": [
             "merge"
@@ -2989,6 +3021,10 @@
             [
               "{{  merge (dict \"title\" \"Default Title\" \"description\" \"Yes, Hugo Rocks!\") (dict \"title\" \"Hugo Rocks!\") | sort }}",
               "[Yes, Hugo Rocks! Hugo Rocks!]"
+            ],
+            [
+              "{{  merge (dict \"title\" \"Default Title\" \"description\" \"Yes, Hugo Rocks!\") (dict \"title\" \"Hugo Rocks!\") (dict \"extra\" \"For reals!\") | sort }}",
+              "[Yes, Hugo Rocks! For reals! Hugo Rocks!]"
             ]
           ]
         },
@@ -4408,11 +4444,12 @@
           ]
         },
         "Replace": {
-          "Description": "Replace returns a copy of the string s with all occurrences of old replaced\nwith new.",
+          "Description": "Replace returns a copy of the string s with all occurrences of old replaced\nwith new.  The number of replacements can be limited with an optional fourth\nparameter.",
           "Args": [
             "s",
             "old",
-            "new"
+            "new",
+            "limit"
           ],
           "Aliases": [
             "replace"
@@ -4421,20 +4458,34 @@
             [
               "{{ replace \"Batman and Robin\" \"Robin\" \"Catwoman\" }}",
               "Batman and Catwoman"
+            ],
+            [
+              "{{ replace \"aabbaabb\" \"a\" \"z\" 2 }}",
+              "zzbbaabb"
             ]
           ]
         },
         "ReplaceRE": {
-          "Description": "ReplaceRE returns a copy of s, replacing all matches of the regular\nexpression pattern with the replacement text repl.",
+          "Description": "ReplaceRE returns a copy of s, replacing all matches of the regular\nexpression pattern with the replacement text repl. The number of replacements\ncan be limited with an optional fourth parameter.",
           "Args": [
             "pattern",
             "repl",
-            "s"
+            "s",
+            "n"
           ],
           "Aliases": [
             "replaceRE"
           ],
-          "Examples": []
+          "Examples": [
+            [
+              "{{ replaceRE \"a+b\" \"X\" \"aabbaabbab\" }}",
+              "XbXbX"
+            ],
+            [
+              "{{ replaceRE \"a+b\" \"X\" \"aabbaabbab\" 1 }}",
+              "Xbaabbab"
+            ]
+          ]
         },
         "RuneCount": {
           "Description": "RuneCount returns the number of runes in s.",
