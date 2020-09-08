@@ -11,7 +11,7 @@ require (
 	github.com/aws/aws-sdk-go v1.27.1
 	github.com/bep/debounce v1.2.0
 	github.com/bep/gitmap v1.1.2
-	github.com/bep/golibsass v0.6.0
+	github.com/bep/golibsass v0.7.0
 	github.com/bep/tmc v0.5.1
 	github.com/disintegration/gift v1.2.1
 	github.com/dustin/go-humanize v1.0.0
