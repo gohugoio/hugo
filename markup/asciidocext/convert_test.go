@@ -50,7 +50,7 @@ func TestAsciidoctorDefaultArgs(t *testing.T) {
 	c.Assert(ac, qt.Not(qt.IsNil))
 
 	args := ac.parseArgs(converter.DocumentContext{})
-	expected := []string{"--no-header-footer", "--trace"}
+	expected := []string{"--no-header-footer"}
 	c.Assert(args, qt.DeepEquals, expected)
 }
 
@@ -110,7 +110,7 @@ func TestAsciidoctorDisallowedArgs(t *testing.T) {
 	c.Assert(ac, qt.Not(qt.IsNil))
 
 	args := ac.parseArgs(converter.DocumentContext{})
-	expected := []string{"--no-header-footer", "--trace"}
+	expected := []string{"--no-header-footer"}
 	c.Assert(args, qt.DeepEquals, expected)
 }
 
