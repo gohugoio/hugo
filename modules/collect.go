@@ -196,7 +196,8 @@ func (c *collector) initModules() error {
 		gomods:   goModules{},
 	}
 
-	if !c.ccfg.IgnoreVendor && c.isVendored(c.ccfg.WorkingDir) {
+	// If both these are true, we don't even need Go installed to build.
+	if c.ccfg.IgnoreVendor == nil && c.isVendored(c.ccfg.WorkingDir) {
 		return nil
 	}
 
@@ -229,7 +230,7 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import, disabled bool
 	modulePath := moduleImport.Path
 	var realOwner Module = owner
 
-	if !c.ccfg.IgnoreVendor {
+	if !c.ccfg.shouldIgnoreVendor(modulePath) {
 		if err := c.collectModulesTXT(owner); err != nil {
 			return nil, err
 		}

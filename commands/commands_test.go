@@ -151,7 +151,7 @@ func readFileFrom(c *qt.C, filename string) string {
 	return string(b)
 }
 
-func TestCommandsPersistentFlags(t *testing.T) {
+func TestFlags(t *testing.T) {
 	c := qt.New(t)
 
 	noOpRunE := func(cmd *cobra.Command, args []string) error {
@@ -159,90 +159,103 @@ func TestCommandsPersistentFlags(t *testing.T) {
 	}
 
 	tests := []struct {
+		name  string
 		args  []string
-		check func(command []cmder)
-	}{{[]string{"server",
-		"--config=myconfig.toml",
-		"--configDir=myconfigdir",
-		"--contentDir=mycontent",
-		"--disableKinds=page,home",
-		"--environment=testing",
-		"--configDir=myconfigdir",
-		"--layoutDir=mylayouts",
-		"--theme=mytheme",
-		"--gc",
-		"--themesDir=mythemes",
-		"--cleanDestinationDir",
-		"--navigateToChanged",
-		"--disableLiveReload",
-		"--noHTTPCache",
-		"--i18n-warnings",
-		"--destination=/tmp/mydestination",
-		"-b=https://example.com/b/",
-		"--port=1366",
-		"--renderToDisk",
-		"--source=mysource",
-		"--path-warnings",
-	}, func(commands []cmder) {
-		var sc *serverCmd
-		for _, command := range commands {
-			if b, ok := command.(commandsBuilderGetter); ok {
-				v := b.getCommandsBuilder().hugoBuilderCommon
-				c.Assert(v.cfgFile, qt.Equals, "myconfig.toml")
-				c.Assert(v.cfgDir, qt.Equals, "myconfigdir")
-				c.Assert(v.source, qt.Equals, "mysource")
-				c.Assert(v.baseURL, qt.Equals, "https://example.com/b/")
-			}
+		check func(c *qt.C, cmd *serverCmd)
+	}{
+		{
+			// https://github.com/gohugoio/hugo/issues/7642
+			name: "ignoreVendor as bool",
+			args: []string{"server", "--ignoreVendor"},
+			check: func(c *qt.C, cmd *serverCmd) {
+				cfg := viper.New()
+				cmd.flagsToConfig(cfg)
+				c.Assert(cfg.Get("ignoreVendor"), qt.Equals, true)
+			},
+		},
+		{
+			// https://github.com/gohugoio/hugo/issues/7642
+			name: "ignoreVendorPaths",
+			args: []string{"server", "--ignoreVendorPaths=github.com/**"},
+			check: func(c *qt.C, cmd *serverCmd) {
+				cfg := viper.New()
+				cmd.flagsToConfig(cfg)
+				c.Assert(cfg.Get("ignoreVendorPaths"), qt.Equals, "github.com/**")
+			},
+		},
+		{
+			name: "Persistent flags",
+			args: []string{"server",
+				"--config=myconfig.toml",
+				"--configDir=myconfigdir",
+				"--contentDir=mycontent",
+				"--disableKinds=page,home",
+				"--environment=testing",
+				"--configDir=myconfigdir",
+				"--layoutDir=mylayouts",
+				"--theme=mytheme",
+				"--gc",
+				"--themesDir=mythemes",
+				"--cleanDestinationDir",
+				"--navigateToChanged",
+				"--disableLiveReload",
+				"--noHTTPCache",
+				"--i18n-warnings",
+				"--destination=/tmp/mydestination",
+				"-b=https://example.com/b/",
+				"--port=1366",
+				"--renderToDisk",
+				"--source=mysource",
+				"--path-warnings",
+			},
+			check: func(c *qt.C, sc *serverCmd) {
+				c.Assert(sc, qt.Not(qt.IsNil))
+				c.Assert(sc.navigateToChanged, qt.Equals, true)
+				c.Assert(sc.disableLiveReload, qt.Equals, true)
+				c.Assert(sc.noHTTPCache, qt.Equals, true)
+				c.Assert(sc.renderToDisk, qt.Equals, true)
+				c.Assert(sc.serverPort, qt.Equals, 1366)
+				c.Assert(sc.environment, qt.Equals, "testing")
 
-			if srvCmd, ok := command.(*serverCmd); ok {
-				sc = srvCmd
-			}
-		}
+				cfg := viper.New()
+				sc.flagsToConfig(cfg)
+				c.Assert(cfg.GetString("publishDir"), qt.Equals, "/tmp/mydestination")
+				c.Assert(cfg.GetString("contentDir"), qt.Equals, "mycontent")
+				c.Assert(cfg.GetString("layoutDir"), qt.Equals, "mylayouts")
+				c.Assert(cfg.GetStringSlice("theme"), qt.DeepEquals, []string{"mytheme"})
+				c.Assert(cfg.GetString("themesDir"), qt.Equals, "mythemes")
+				c.Assert(cfg.GetString("baseURL"), qt.Equals, "https://example.com/b/")
 
-		c.Assert(sc, qt.Not(qt.IsNil))
-		c.Assert(sc.navigateToChanged, qt.Equals, true)
-		c.Assert(sc.disableLiveReload, qt.Equals, true)
-		c.Assert(sc.noHTTPCache, qt.Equals, true)
-		c.Assert(sc.renderToDisk, qt.Equals, true)
-		c.Assert(sc.serverPort, qt.Equals, 1366)
-		c.Assert(sc.environment, qt.Equals, "testing")
+				c.Assert(cfg.Get("disableKinds"), qt.DeepEquals, []string{"page", "home"})
 
-		cfg := viper.New()
-		sc.flagsToConfig(cfg)
-		c.Assert(cfg.GetString("publishDir"), qt.Equals, "/tmp/mydestination")
-		c.Assert(cfg.GetString("contentDir"), qt.Equals, "mycontent")
-		c.Assert(cfg.GetString("layoutDir"), qt.Equals, "mylayouts")
-		c.Assert(cfg.GetStringSlice("theme"), qt.DeepEquals, []string{"mytheme"})
-		c.Assert(cfg.GetString("themesDir"), qt.Equals, "mythemes")
-		c.Assert(cfg.GetString("baseURL"), qt.Equals, "https://example.com/b/")
+				c.Assert(cfg.GetBool("gc"), qt.Equals, true)
 
-		c.Assert(cfg.Get("disableKinds"), qt.DeepEquals, []string{"page", "home"})
+				// The flag is named path-warnings
+				c.Assert(cfg.GetBool("logPathWarnings"), qt.Equals, true)
 
-		c.Assert(cfg.GetBool("gc"), qt.Equals, true)
+				// The flag is named i18n-warnings
+				c.Assert(cfg.GetBool("logI18nWarnings"), qt.Equals, true)
 
-		// The flag is named path-warnings
-		c.Assert(cfg.GetBool("logPathWarnings"), qt.Equals, true)
-
-		// The flag is named i18n-warnings
-		c.Assert(cfg.GetBool("logI18nWarnings"), qt.Equals, true)
-
-	}}}
+			}}}
 
 	for _, test := range tests {
-		b := newCommandsBuilder()
-		root := b.addAll().build()
+		c.Run(test.name, func(c *qt.C) {
 
-		for _, c := range b.commands {
-			if c.getCommand() == nil {
-				continue
+			b := newCommandsBuilder()
+			root := b.addAll().build()
+
+			for _, cmd := range b.commands {
+				if cmd.getCommand() == nil {
+					continue
+				}
+				// We are only intereseted in the flag handling here.
+				cmd.getCommand().RunE = noOpRunE
 			}
-			// We are only intereseted in the flag handling here.
-			c.getCommand().RunE = noOpRunE
-		}
-		rootCmd := root.getCommand()
-		rootCmd.SetArgs(test.args)
-		c.Assert(rootCmd.Execute(), qt.IsNil)
-		test.check(b.commands)
+			rootCmd := root.getCommand()
+			rootCmd.SetArgs(test.args)
+			c.Assert(rootCmd.Execute(), qt.IsNil)
+			test.check(c, b.commands[0].(*serverCmd))
+		})
 	}
 
 }

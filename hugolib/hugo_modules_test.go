@@ -126,11 +126,15 @@ baseURL = "https://example.com"
 title = "My Modular Site"
 workingDir = %q
 theme = %q
-ignoreVendor = %t
+ignoreVendorPaths = %q
 
 `
 
-		config := fmt.Sprintf(configTemplate, workingDir, m.Path(), ignoreVendor)
+		ignoreVendorPaths := ""
+		if ignoreVendor {
+			ignoreVendorPaths = "github.com/**"
+		}
+		config := fmt.Sprintf(configTemplate, workingDir, m.Path(), ignoreVendorPaths)
 
 		b := newTestSitesBuilder(t)
 
