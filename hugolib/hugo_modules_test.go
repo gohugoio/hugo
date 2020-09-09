@@ -39,11 +39,11 @@ import (
 )
 
 // https://github.com/gohugoio/hugo/issues/6730
-func TestHugoModulesTargetInSubFolder(t *testing.T) {
+func TestHugoModulesVariants(t *testing.T) {
 	if !isCI() {
-		// TODO(bep) investigate why this fails when running in LiteIDE (it works from the shell).
 		t.Skip("skip (relative) long running modules test when running locally")
 	}
+
 	config := `
 baseURL="https://example.org"
 workingDir = %q
@@ -51,45 +51,88 @@ workingDir = %q
 [module]
 [[module.imports]]
 path="github.com/gohugoio/hugoTestModule2"
-  [[module.imports.mounts]]
-    source = "templates/hooks"
-    target = "layouts/_default/_markup"
-    
+%s
 `
 
-	b := newTestSitesBuilder(t)
-	workingDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-modules-target-in-subfolder-test")
-	b.Assert(err, qt.IsNil)
-	defer clean()
-	b.Fs = hugofs.NewDefault(viper.New())
-	b.WithWorkingDir(workingDir).WithConfigFile("toml", fmt.Sprintf(config, workingDir))
-	b.WithTemplates("_default/single.html", `{{ .Content }}`)
-	b.WithContent("p1.md", `---
+	createConfig := func(workingDir, moduleOpts string) string {
+		return fmt.Sprintf(config, workingDir, moduleOpts)
+	}
+
+	newTestBuilder := func(t testing.TB, moduleOpts string) (*sitesBuilder, func()) {
+		b := newTestSitesBuilder(t)
+		workingDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-modules-variants")
+		b.Assert(err, qt.IsNil)
+		b.Fs = hugofs.NewDefault(viper.New())
+		b.WithWorkingDir(workingDir).WithConfigFile("toml", createConfig(workingDir, moduleOpts))
+		b.WithTemplates(
+			"index.html", `
+Param from module: {{ site.Params.Hugo }}|
+{{ $js := resources.Get "jslibs/alpinejs/alpine.js" }}
+JS imported in module: {{ with $js }}{{ .RelPermalink }}{{ end }}|
+`,
+			"_default/single.html", `{{ .Content }}`)
+		b.WithContent("p1.md", `---
 title: "Page"
 ---
 
 [A link](https://bep.is)
 
 `)
-	b.WithSourceFile("go.mod", `
+		b.WithSourceFile("go.mod", `
 module github.com/gohugoio/tests/testHugoModules
 
 
 `)
 
-	b.WithSourceFile("go.sum", `
+		b.WithSourceFile("go.sum", `
 github.com/gohugoio/hugoTestModule2 v0.0.0-20200131160637-9657d7697877 h1:WLM2bQCKIWo04T6NsIWsX/Vtirhf0TnpY66xyqGlgVY=
 github.com/gohugoio/hugoTestModule2 v0.0.0-20200131160637-9657d7697877/go.mod h1:CBFZS3khIAXKxReMwq0le8sEl/D8hcXmixlOHVv+Gd0=
 `)
 
-	b.Build(BuildCfg{})
+		return b, clean
 
-	b.AssertFileContent("public/p1/index.html", `<p>Page|https://bep.is|Title: |Text: A link|END</p>`)
+	}
+
+	t.Run("Target in subfolder", func(t *testing.T) {
+
+		b, clean := newTestBuilder(t, "ignoreImports=true")
+		defer clean()
+
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/p1/index.html", `<p>Page|https://bep.is|Title: |Text: A link|END</p>`)
+	})
+
+	t.Run("Ignore config", func(t *testing.T) {
+
+		b, clean := newTestBuilder(t, "ignoreConfig=true")
+		defer clean()
+
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/index.html", `
+Param from module: |
+JS imported in module: |
+`)
+	})
+
+	t.Run("Ignore imports", func(t *testing.T) {
+
+		b, clean := newTestBuilder(t, "ignoreImports=true")
+		defer clean()
+
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/index.html", `
+Param from module: Rocks|
+JS imported in module: |
+`)
+	})
 
 }
 
 // TODO(bep) this fails when testmodBuilder is also building ...
-func TestHugoModules(t *testing.T) {
+func TestHugoModulesMatrix(t *testing.T) {
 	if !isCI() {
 		t.Skip("skip (relative) long running modules test when running locally")
 	}
