@@ -219,7 +219,7 @@ func (c *Client) Vendor() error {
 			// This is the project.
 			continue
 		}
-		// We respect the --ignoreVendor flag even for the vendor command.
+
 		if !t.IsGoMod() && !t.Vendor() {
 			// We currently do not vendor components living in the
 			// theme directory, see https://github.com/gohugoio/hugo/issues/5993

@@ -339,7 +339,7 @@ func (c *collector) addAndRecurse(owner *moduleAdapter, disabled bool) error {
 			if err != nil {
 				return err
 			}
-			if tc == nil {
+			if tc == nil || moduleImport.IgnoreImports {
 				continue
 			}
 			if err := c.addAndRecurse(tc, disabled); err != nil {
