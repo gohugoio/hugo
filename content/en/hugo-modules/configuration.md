@@ -18,10 +18,15 @@ toc: true
 
 {{< code-toggle file="config">}}
 [module]
+noVendor = ""
 proxy = "direct"
 noProxy = "none"
 private = "*.*"
 {{< /code-toggle >}}
+
+
+noVendor {{< new-in "0.75.0" >}}
+: A optional Glob pattern matching module paths to skip when vendoring, e.g. "github.com/**"
 
 proxy
 : Defines the proxy server to use to download remote modules. Default is `direct`, which means "git clone" and similar.
