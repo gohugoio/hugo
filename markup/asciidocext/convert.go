@@ -11,13 +11,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package asciidocext converts Asciidoc to HTML using Asciidoc or Asciidoctor
-// external binaries. The `asciidoc` module is reserved for a future golang
+// Package asciidocext converts AsciiDoc to HTML using Asciidoctor
+// external binary. The `asciidoc` module is reserved for a future golang
 // implementation.
 package asciidocext
 
 import (
 	"bytes"
+	"io"
 	"os/exec"
 	"path/filepath"
 
@@ -77,12 +78,12 @@ func (a *asciidocConverter) Supports(_ identity.Identity) bool {
 	return false
 }
 
-// getAsciidocContent calls asciidoctor or asciidoc as an external helper
+// getAsciidocContent calls asciidoctor as an external helper
 // to convert AsciiDoc content to HTML.
 func (a *asciidocConverter) getAsciidocContent(src []byte, ctx converter.DocumentContext) []byte {
 	path := getAsciidoctorExecPath()
 	if path == "" {
-		a.cfg.Logger.ERROR.Println("asciidoctor / asciidoc not found in $PATH: Please install.\n",
+		a.cfg.Logger.ERROR.Println("asciidoctor not found in $PATH: Please install.\n",
 			"                 Leaving AsciiDoc content unrendered.")
 		return src
 	}
@@ -216,30 +217,21 @@ func extractTOC(src []byte) ([]byte, tableofcontents.Root, error) {
 		toVisit []*html.Node
 	)
 	f = func(n *html.Node) bool {
-		if n.Type == html.ElementNode && n.Data == "div" {
-			for _, a := range n.Attr {
-				if a.Key == "id" && a.Val == "toc" {
-					toc, err = parseTOC(n)
-					if err != nil {
-						return false
-					}
-					n.Parent.RemoveChild(n)
-					return true
-				}
-			}
+		if n.Type == html.ElementNode && n.Data == "div" && attr(n, "id") == "toc" {
+			toc = parseTOC(n)
+			n.Parent.RemoveChild(n)
+			return true
 		}
 		if n.FirstChild != nil {
 			toVisit = append(toVisit, n.FirstChild)
 		}
-		if n.NextSibling != nil {
-			if ok := f(n.NextSibling); ok {
-				return true
-			}
+		if n.NextSibling != nil && f(n.NextSibling) {
+			return true
 		}
 		for len(toVisit) > 0 {
 			nv := toVisit[0]
 			toVisit = toVisit[1:]
-			if ok := f(nv); ok {
+			if f(nv) {
 				return true
 			}
 		}
@@ -261,50 +253,58 @@ func extractTOC(src []byte) ([]byte, tableofcontents.Root, error) {
 }
 
 // parseTOC returns a TOC root from the given toc Node
-func parseTOC(doc *html.Node) (tableofcontents.Root, error) {
+func parseTOC(doc *html.Node) tableofcontents.Root {
 	var (
 		toc tableofcontents.Root
 		f   func(*html.Node, int, int)
 	)
-	f = func(n *html.Node, parent, level int) {
+	f = func(n *html.Node, row, level int) {
 		if n.Type == html.ElementNode {
 			switch n.Data {
 			case "ul":
 				if level == 0 {
-					parent += 1
+					row++
 				}
-				level += 1
-				f(n.FirstChild, parent, level)
+				level++
+				f(n.FirstChild, row, level)
 			case "li":
 				for c := n.FirstChild; c != nil; c = c.NextSibling {
 					if c.Type != html.ElementNode || c.Data != "a" {
 						continue
 					}
-					var href string
-					for _, a := range c.Attr {
-						if a.Key == "href" {
-							href = a.Val[1:]
-							break
-						}
-					}
-					for d := c.FirstChild; d != nil; d = d.NextSibling {
-						if d.Type == html.TextNode {
-							toc.AddAt(tableofcontents.Header{
-								Text: d.Data,
-								ID:   href,
-							}, parent, level)
-						}
-					}
+					href := attr(c, "href")[1:]
+					toc.AddAt(tableofcontents.Header{
+						Text: nodeContent(c),
+						ID:   href,
+					}, row, level)
 				}
-				f(n.FirstChild, parent, level)
+				f(n.FirstChild, row, level)
 			}
 		}
 		if n.NextSibling != nil {
-			f(n.NextSibling, parent, level)
+			f(n.NextSibling, row, level)
 		}
 	}
 	f(doc.FirstChild, 0, 0)
-	return toc, nil
+	return toc
+}
+
+func attr(node *html.Node, key string) string {
+	for _, a := range node.Attr {
+		if a.Key == key {
+			return a.Val
+		}
+	}
+	return ""
+}
+
+func nodeContent(node *html.Node) string {
+	var buf bytes.Buffer
+	w := io.Writer(&buf)
+	for c := node.FirstChild; c != nil; c = c.NextSibling {
+		html.Render(w, c)
+	}
+	return buf.String()
 }
 
 // Supports returns whether Asciidoctor is installed on this computer.
