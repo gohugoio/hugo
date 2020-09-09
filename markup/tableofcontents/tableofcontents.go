@@ -40,19 +40,19 @@ type Root struct {
 }
 
 // AddAt adds the header into the given location.
-func (toc *Root) AddAt(h Header, y, x int) {
-	for i := len(toc.Headers); i <= y; i++ {
+func (toc *Root) AddAt(h Header, row, level int) {
+	for i := len(toc.Headers); i <= row; i++ {
 		toc.Headers = append(toc.Headers, Header{})
 	}
 
-	if x == 0 {
-		toc.Headers[y] = h
+	if level == 0 {
+		toc.Headers[row] = h
 		return
 	}
 
-	header := &toc.Headers[y]
+	header := &toc.Headers[row]
 
-	for i := 1; i < x; i++ {
+	for i := 1; i < level; i++ {
 		if len(header.Headers) == 0 {
 			header.Headers = append(header.Headers, Header{})
 		}

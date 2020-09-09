@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package asciidocext converts Asciidoc to HTML using Asciidoc or Asciidoctor
-// external binaries. The `asciidoc` module is reserved for a future golang
+// Package asciidocext converts AsciiDoc to HTML using Asciidoctor
+// external binary. The `asciidoc` module is reserved for a future golang
 // implementation.
 
 package asciidocext
@@ -24,6 +24,7 @@ import (
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/markup_config"
+	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/spf13/viper"
 
 	qt "github.com/frankban/quicktest"
@@ -250,7 +251,7 @@ func TestAsciidoctorAttributes(t *testing.T) {
 
 func TestConvert(t *testing.T) {
 	if !Supports() {
-		t.Skip("asciidoc/asciidoctor not installed")
+		t.Skip("asciidoctor not installed")
 	}
 	c := qt.New(t)
 
@@ -273,7 +274,7 @@ func TestConvert(t *testing.T) {
 
 func TestTableOfContents(t *testing.T) {
 	if !Supports() {
-		t.Skip("asciidoc/asciidoctor not installed")
+		t.Skip("asciidoctor not installed")
 	}
 	c := qt.New(t)
 	p, err := Provider.New(converter.ProviderConfig{Logger: loggers.NewErrorLogger()})
@@ -304,4 +305,43 @@ testContent
 	root := toc.TableOfContents()
 	c.Assert(root.ToHTML(2, 4, false), qt.Equals, "<nav id=\"TableOfContents\">\n  <ul>\n    <li><a href=\"#_introduction\">Introduction</a></li>\n    <li><a href=\"#_section_1\">Section 1</a>\n      <ul>\n        <li><a href=\"#_section_1_1\">Section 1.1</a>\n          <ul>\n            <li><a href=\"#_section_1_1_1\">Section 1.1.1</a></li>\n          </ul>\n        </li>\n        <li><a href=\"#_section_1_2\">Section 1.2</a></li>\n      </ul>\n    </li>\n    <li><a href=\"#_section_2\">Section 2</a></li>\n  </ul>\n</nav>")
 	c.Assert(root.ToHTML(2, 3, false), qt.Equals, "<nav id=\"TableOfContents\">\n  <ul>\n    <li><a href=\"#_introduction\">Introduction</a></li>\n    <li><a href=\"#_section_1\">Section 1</a>\n      <ul>\n        <li><a href=\"#_section_1_1\">Section 1.1</a></li>\n        <li><a href=\"#_section_1_2\">Section 1.2</a></li>\n      </ul>\n    </li>\n    <li><a href=\"#_section_2\">Section 2</a></li>\n  </ul>\n</nav>")
+}
+
+func TestTableOfContentsWithCode(t *testing.T) {
+	if !Supports() {
+		t.Skip("asciidoctor not installed")
+	}
+	c := qt.New(t)
+	mconf := markup_config.Default
+	p, err := Provider.New(
+		converter.ProviderConfig{
+			MarkupConfig: mconf,
+			Logger:       loggers.NewErrorLogger(),
+		},
+	)
+	c.Assert(err, qt.IsNil)
+	conv, err := p.New(converter.DocumentContext{})
+	c.Assert(err, qt.IsNil)
+	b, err := conv.Convert(converter.RenderContext{Src: []byte(`:toc: auto
+
+== Some ` + "`code`" + ` in the title
+`)})
+	c.Assert(err, qt.IsNil)
+	toc, ok := b.(converter.TableOfContentsProvider)
+	c.Assert(ok, qt.Equals, true)
+	expected := tableofcontents.Headers{
+		{},
+		{
+			ID:   "",
+			Text: "",
+			Headers: tableofcontents.Headers{
+				{
+					ID:      "_some_code_in_the_title",
+					Text:    "Some <code>code</code> in the title",
+					Headers: nil,
+				},
+			},
+		},
+	}
+	c.Assert(toc.TableOfContents().Headers, qt.DeepEquals, expected)
 }
