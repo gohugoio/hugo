@@ -227,6 +227,10 @@ type Config struct {
 	// Will be validated against the running Hugo version.
 	HugoVersion HugoVersion
 
+	// A optional Glob pattern matching module paths to skip when vendoring, e.g.
+	// "github.com/**".
+	NoVendor string
+
 	// Configures GOPROXY.
 	Proxy string
 	// Configures GONOPROXY.

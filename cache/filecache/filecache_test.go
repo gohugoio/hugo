@@ -25,6 +25,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gobwas/glob"
+
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/modules"
 
@@ -314,12 +316,13 @@ func initConfig(fs afero.Fs, cfg config.Provider) error {
 	if !filepath.IsAbs(themesDir) {
 		themesDir = filepath.Join(workingDir, themesDir)
 	}
+	globAll := glob.MustCompile("**", '/')
 	modulesClient := modules.NewClient(modules.ClientConfig{
 		Fs:           fs,
 		WorkingDir:   workingDir,
 		ThemesDir:    themesDir,
 		ModuleConfig: modConfig,
-		IgnoreVendor: true,
+		IgnoreVendor: globAll,
 	})
 
 	moduleConfig, err := modulesClient.Collect()

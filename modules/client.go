@@ -26,8 +26,9 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/gobwas/glob"
 	hglob "github.com/gohugoio/hugo/hugofs/glob"
+
+	"github.com/gobwas/glob"
 
 	"github.com/gohugoio/hugo/hugofs"
 
@@ -100,10 +101,16 @@ func NewClient(cfg ClientConfig) *Client {
 		logger = loggers.NewWarningLogger()
 	}
 
+	var noVendor glob.Glob
+	if cfg.ModuleConfig.NoVendor != "" {
+		noVendor, _ = hglob.GetGlob(hglob.NormalizePath(cfg.ModuleConfig.NoVendor))
+	}
+
 	return &Client{
 		fs:                fs,
 		ccfg:              cfg,
 		logger:            logger,
+		noVendor:          noVendor,
 		moduleConfig:      mcfg,
 		environ:           env,
 		GoModulesFilename: goModFilename}
@@ -113,6 +120,8 @@ func NewClient(cfg ClientConfig) *Client {
 type Client struct {
 	fs     afero.Fs
 	logger *loggers.Logger
+
+	noVendor glob.Glob
 
 	ccfg ClientConfig
 
@@ -217,6 +226,10 @@ func (c *Client) Vendor() error {
 	for _, t := range tc.AllModules {
 		if t.Owner() == nil {
 			// This is the project.
+			continue
+		}
+
+		if !c.shouldVendor(t.Path()) {
 			continue
 		}
 
@@ -594,6 +607,10 @@ func (c *Client) tidy(mods Modules, goModOnly bool) error {
 	}
 
 	return nil
+}
+
+func (c *Client) shouldVendor(path string) bool {
+	return c.noVendor == nil || !c.noVendor.Match(path)
 }
 
 // ClientConfig configures the module Client.
