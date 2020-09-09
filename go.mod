@@ -18,7 +18,7 @@ require (
 	github.com/evanw/esbuild v0.6.32
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/frankban/quicktest v1.10.2
-	github.com/fsnotify/fsnotify v1.4.7
+	github.com/fsnotify/fsnotify v1.4.9
 	github.com/getkin/kin-openapi v0.14.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/gobwas/glob v0.2.3
