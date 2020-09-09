@@ -17,8 +17,15 @@ import (
 	"fmt"
 	"html/template"
 	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/gohugoio/hugo/hugofs/files"
+
+	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/hugofs"
 )
 
 const (
@@ -73,8 +80,23 @@ func NewInfo(environment string) Info {
 	}
 }
 
-func GetExecEnviron(cfg config.Provider) []string {
+func GetExecEnviron(workDir string, cfg config.Provider, fs afero.Fs) []string {
 	env := os.Environ()
+	nodepath := filepath.Join(workDir, "node_modules")
+	if np := os.Getenv("NODE_PATH"); np != "" {
+		nodepath = workDir + string(os.PathListSeparator) + np
+	}
+	config.SetEnvVars(&env, "NODE_PATH", nodepath)
+	config.SetEnvVars(&env, "HUGO_WORKDIR", workDir)
 	config.SetEnvVars(&env, "HUGO_ENVIRONMENT", cfg.GetString("environment"))
+	fis, err := afero.ReadDir(fs, files.FolderJSConfig)
+	if err == nil {
+		for _, fi := range fis {
+			key := fmt.Sprintf("HUGO_FILE_%s", strings.ReplaceAll(strings.ToUpper(fi.Name()), ".", "_"))
+			value := fi.(hugofs.FileMetaInfo).Meta().Filename()
+			config.SetEnvVars(&env, key, value)
+		}
+	}
+
 	return env
 }

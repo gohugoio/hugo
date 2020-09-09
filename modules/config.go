@@ -56,7 +56,9 @@ func ApplyProjectConfigDefaults(cfg config.Provider, mod Module) error {
 	// the basic level.
 	componentsConfigured := make(map[string]bool)
 	for _, mnt := range moda.mounts {
-		componentsConfigured[mnt.Component()] = true
+		if !strings.HasPrefix(mnt.Target, files.JsConfigFolderMountPrefix) {
+			componentsConfigured[mnt.Component()] = true
+		}
 	}
 
 	type dirKeyComponent struct {
@@ -318,10 +320,19 @@ type Mount struct {
 	Target string // relative target path, e.g. "assets/bootstrap/scss"
 
 	Lang string // any language code associated with this mount.
+
 }
 
 func (m Mount) Component() string {
 	return strings.Split(m.Target, fileSeparator)[0]
+}
+
+func (m Mount) ComponentAndName() (string, string) {
+	k := strings.Index(m.Target, fileSeparator)
+	if k == -1 {
+		return m.Target, ""
+	}
+	return m.Target[:k], m.Target[k+1:]
 }
 
 func getStaticDirs(cfg config.Provider) []string {

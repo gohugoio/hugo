@@ -873,6 +873,10 @@ func TestResourceChainPostCSS(t *testing.T) {
 
 	postcssConfig := `
 console.error("Hugo Environment:", process.env.HUGO_ENVIRONMENT );
+// https://github.com/gohugoio/hugo/issues/7656
+console.error("package.json:", process.env.HUGO_FILE_PACKAGE_JSON );
+console.error("PostCSS Config File:", process.env.HUGO_FILE_POSTCSS_CONFIG_JS );
+
 
 module.exports = {
   plugins: [
@@ -954,6 +958,8 @@ class-in-b {
 
 	// Make sure Node sees this.
 	b.Assert(logBuf.String(), qt.Contains, "Hugo Environment: production")
+	b.Assert(logBuf.String(), qt.Contains, fmt.Sprintf("PostCSS Config File: %s/postcss.config.js", workDir))
+	b.Assert(logBuf.String(), qt.Contains, fmt.Sprintf("package.json: %s/package.json", workDir))
 
 	b.AssertFileContent("public/index.html", `
 Styles RelPermalink: /css/styles.css

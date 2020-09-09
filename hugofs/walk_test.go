@@ -21,8 +21,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gohugoio/hugo/common/hugo"
-
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/htesting"
@@ -129,12 +127,6 @@ func TestWalkSymbolicLink(t *testing.T) {
 	})
 
 	t.Run("BasePath Fs", func(t *testing.T) {
-		if hugo.GoMinorVersion() < 12 {
-			// https://github.com/golang/go/issues/30520
-			// This is fixed in Go 1.13 and in the latest Go 1.12
-			t.Skip("skip this for Go <= 1.11 due to a bug in Go's stdlib")
-
-		}
 		c := qt.New(t)
 
 		docsFs := afero.NewBasePathFs(fs, docsDir)
