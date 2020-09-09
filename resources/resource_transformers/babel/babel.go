@@ -14,6 +14,7 @@
 package babel
 
 import (
+	"bytes"
 	"io"
 	"os/exec"
 	"path/filepath"
@@ -27,7 +28,6 @@ import (
 	"github.com/mitchellh/mapstructure"
 
 	"github.com/gohugoio/hugo/common/herrors"
-	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/pkg/errors"
@@ -120,6 +120,9 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	var configFile string
 	logger := t.rs.Logger
 
+	var errBuf bytes.Buffer
+	infoW := loggers.LoggerToWriterWithPrefix(logger.INFO, "babel")
+
 	if t.options.Config != "" {
 		configFile = t.options.Config
 	} else {
@@ -130,16 +133,10 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 
 	// We need an abolute filename to the config file.
 	if !filepath.IsAbs(configFile) {
-		// We resolve this against the virtual Work filesystem, to allow
-		// this config file to live in one of the themes if needed.
-		fi, err := t.rs.BaseFs.Work.Stat(configFile)
-		if err != nil {
-			if t.options.Config != "" {
-				// Only fail if the user specificed config file is not found.
-				return errors.Wrapf(err, "babel config %q not found:", configFile)
-			}
-		} else {
-			configFile = fi.(hugofs.FileMetaInfo).Meta().Filename()
+		configFile = t.rs.BaseFs.ResolveJSConfigFile(configFile)
+		if configFile == "" && t.options.Config != "" {
+			// Only fail if the user specificed config file is not found.
+			return errors.Errorf("babel config %q not found:", configFile)
 		}
 	}
 
@@ -158,8 +155,8 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	cmd := exec.Command(binary, cmdArgs...)
 
 	cmd.Stdout = ctx.To
-	cmd.Stderr = loggers.LoggerToWriterWithPrefix(logger.INFO, "babel")
-	cmd.Env = hugo.GetExecEnviron(t.rs.Cfg)
+	cmd.Stderr = io.MultiWriter(infoW, &errBuf)
+	cmd.Env = hugo.GetExecEnviron(t.rs.WorkingDir, t.rs.Cfg, t.rs.BaseFs.Assets.Fs)
 
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
@@ -173,7 +170,7 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 
 	err = cmd.Run()
 	if err != nil {
-		return err
+		return errors.Wrap(err, errBuf.String())
 	}
 
 	return nil

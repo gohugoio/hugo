@@ -26,6 +26,13 @@ import (
 	"github.com/spf13/afero"
 )
 
+const (
+	// The NPM package.json "template" file.
+	FilenamePackageHugoJSON = "package.hugo.json"
+	// The NPM package file.
+	FilenamePackageJSON = "package.json"
+)
+
 var (
 	// This should be the only list of valid extensions for content files.
 	contentFileExtensions = []string{
@@ -163,9 +170,12 @@ const (
 	ComponentFolderI18n       = "i18n"
 
 	FolderResources = "resources"
+	FolderJSConfig  = "_jsconfig" // Mounted below /assets with postcss.config.js etc.
 )
 
 var (
+	JsConfigFolderMountPrefix = filepath.Join(ComponentFolderAssets, FolderJSConfig)
+
 	ComponentFolders = []string{
 		ComponentFolderArchetypes,
 		ComponentFolderStatic,

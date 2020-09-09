@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -382,6 +383,11 @@ func (c *collector) applyMounts(moduleImport Import, mod *moduleAdapter) error {
 		return err
 	}
 
+	mounts, err = c.mountCommonJSConfig(mod, mounts)
+	if err != nil {
+		return err
+	}
+
 	mod.mounts = mounts
 	return nil
 }
@@ -547,6 +553,43 @@ func (c *collector) loadModules() error {
 	}
 	c.gomods = modules
 	return nil
+}
+
+// Matches postcss.config.js etc.
+var commonJSConfigs = regexp.MustCompile(`(babel|postcss|tailwind)\.config\.js`)
+
+func (c *collector) mountCommonJSConfig(owner *moduleAdapter, mounts []Mount) ([]Mount, error) {
+	for _, m := range mounts {
+		if strings.HasPrefix(m.Target, files.JsConfigFolderMountPrefix) {
+			// This follows the convention of the other component types (assets, content, etc.),
+			// if one or more is specificed by the user, we skip the defaults.
+			// These mounts were added to Hugo in 0.75.
+			return mounts, nil
+		}
+	}
+
+	// Mount the common JS config files.
+	fis, err := afero.ReadDir(c.fs, owner.Dir())
+	if err != nil {
+		return mounts, err
+	}
+
+	for _, fi := range fis {
+		n := fi.Name()
+
+		should := n == files.FilenamePackageHugoJSON || n == files.FilenamePackageJSON
+		should = should || commonJSConfigs.MatchString(n)
+
+		if should {
+			mounts = append(mounts, Mount{
+				Source: n,
+				Target: filepath.Join(files.ComponentFolderAssets, files.FolderJSConfig, n),
+			})
+		}
+
+	}
+
+	return mounts, nil
 }
 
 func (c *collector) normalizeMounts(owner *moduleAdapter, mounts []Mount) ([]Mount, error) {

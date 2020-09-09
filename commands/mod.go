@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2020 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+
+	"github.com/gohugoio/hugo/hugolib"
 
 	"github.com/gohugoio/hugo/modules"
 	"github.com/spf13/cobra"
@@ -113,6 +115,8 @@ This is not needed if you only operate on modules inside /themes or if you have 
 
 		RunE: nil,
 	}
+
+	cmd.AddCommand(newModNPMCmd(c))
 
 	cmd.AddCommand(
 		&cobra.Command{
@@ -270,6 +274,15 @@ func (c *modCmd) withModsClient(failOnMissingConfig bool, f func(*modules.Client
 	}
 
 	return f(com.hugo().ModulesClient)
+}
+
+func (c *modCmd) withHugo(f func(*hugolib.HugoSites) error) error {
+	com, err := c.initConfig(true)
+	if err != nil {
+		return err
+	}
+
+	return f(com.hugo())
 }
 
 func (c *modCmd) initConfig(failOnNoConfig bool) (*commandeer, error) {
