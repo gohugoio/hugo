@@ -18,6 +18,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gobwas/glob"
+	hglob "github.com/gohugoio/hugo/hugofs/glob"
+
 	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/gohugoio/hugo/cache/filecache"
@@ -200,6 +203,12 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 				}
 			}
 		}
+	}
+
+	// We made this a Glob pattern in Hugo 0.75, we don't need both.
+	if v.GetBool("ignoreVendor") {
+		helpers.Deprecated("--ignoreVendor", "--ignoreVendorPaths **", false)
+		v.Set("ignoreVendorPaths", "**")
 	}
 
 	modulesConfig, err := l.loadModulesConfig(v)
@@ -417,7 +426,10 @@ func (l configLoader) collectModules(modConfig modules.Config, v1 *viper.Viper, 
 
 	themesDir := paths.AbsPathify(l.WorkingDir, v1.GetString("themesDir"))
 
-	ignoreVendor := v1.GetBool("ignoreVendor")
+	var ignoreVendor glob.Glob
+	if s := v1.GetString("ignoreVendorPaths"); s != "" {
+		ignoreVendor, _ = hglob.GetGlob(hglob.NormalizePath(s))
+	}
 
 	filecacheConfigs, err := filecache.DecodeConfig(l.Fs, v1)
 	if err != nil {

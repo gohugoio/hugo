@@ -17,6 +17,8 @@ import (
 	"bytes"
 	"testing"
 
+	"github.com/gohugoio/hugo/hugofs/glob"
+
 	"github.com/gohugoio/hugo/common/hugo"
 
 	"github.com/gohugoio/hugo/htesting"
@@ -89,7 +91,7 @@ project github.com/gohugoio/hugoTestModules1_darwin/modh2_2_2@v1.3.0+vendor
 		Fs:           hugofs.Os,
 		WorkingDir:   workingDir,
 		ModuleConfig: modConfig,
-		IgnoreVendor: true,
+		IgnoreVendor: globAll,
 	})
 
 	graphb.Reset()
@@ -100,6 +102,8 @@ project github.com/gohugoio/hugoTestModules1_darwin/modh2_2_2@v1.3.0+vendor
 	c.Assert(client.Tidy(), qt.IsNil)
 
 }
+
+var globAll, _ = glob.GetGlob("**")
 
 func TestGetModlineSplitter(t *testing.T) {
 

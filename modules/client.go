@@ -605,8 +605,9 @@ type ClientConfig struct {
 	// etc.
 	HookBeforeFinalize func(m *ModulesConfig) error
 
-	// Ignore any _vendor directory.
-	IgnoreVendor bool
+	// Ignore any _vendor directory for module paths matching the given pattern.
+	// This can be nil.
+	IgnoreVendor glob.Glob
 
 	// Absolute path to the project dir.
 	WorkingDir string
@@ -616,6 +617,10 @@ type ClientConfig struct {
 
 	CacheDir     string // Module cache
 	ModuleConfig Config
+}
+
+func (c ClientConfig) shouldIgnoreVendor(path string) bool {
+	return c.IgnoreVendor != nil && c.IgnoreVendor.Match(path)
 }
 
 type goBinaryStatus int
