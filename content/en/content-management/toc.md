@@ -92,11 +92,11 @@ The following is a [partial template][partials] that adds slightly more logic fo
 With the preceding example, even pages with > 400 words *and* `toc` not set to `false` will not render a table of contents if there are no headings in the page for the `{{.TableOfContents}}` variable to pull from.
 {{% /note %}}
 
-## Usage with asciidoc
+## Usage with AsciiDoc
 
-Hugo supports table of contents with Asciidoc content format.
+Hugo supports table of contents with AsciiDoc content format.
 
-In the header of your content file, specify the Asciidoc TOC directives, by using the macro style:
+In the header of your content file, specify the AsciiDoc TOC directives, by using the macro or auto style:
 
 ```asciidoc
 // <!-- Your front matter up here -->
@@ -117,7 +117,7 @@ He lay on his armour-like back, and if he lifted his head a little he could see 
 
 A collection of textile samples lay spread out on the table - Samsa was a travelling salesman - and above it there hung a picture that he had recently cut out of an illustrated magazine and housed in a nice, gilded frame. It showed a lady fitted out with a fur hat and fur boa who sat upright, raising a heavy fur muff that covered the whole of her lower arm towards the viewer. Gregor then turned to look out the window at the dull weather. Drops
 ```
-Hugo will take this Asciddoc and create a table of contents store it in the page variable `.TableOfContents`, in the same as described for Markdown.
+Hugo will take this AsciiDoc and create a table of contents store it in the page variable `.TableOfContents`, in the same as described for Markdown.
 
 [conditionals]: /templates/introduction/#conditionals
 [front matter]: /content-management/front-matter/
