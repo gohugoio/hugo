@@ -210,7 +210,7 @@ func TestConvertIssues(t *testing.T) {
 		b := convert(c, mconf, input)
 		got := string(b.Bytes())
 
-		c.Assert(got, qt.Contains, "<p><custom-element>\n<div>This will be &ldquo;slotted&rdquo; into the custom element.</div>\n</custom-element></p>\n")
+		c.Assert(got, qt.Contains, "<custom-element>\n    <div>This will be \"slotted\" into the custom element.</div>\n</custom-element>\n")
 	})
 
 }
