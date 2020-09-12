@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cast"
@@ -42,7 +43,7 @@ type Options struct {
 	// Whether to minify to output.
 	Minify bool
 
-	// Whether to write mapfiles (currently inline only)
+	// Whether to write mapfiles
 	SourceMap string
 
 	// The language target.
@@ -72,6 +73,7 @@ type Options struct {
 	contents   string
 	sourcefile string
 	resolveDir string
+	workDir    string
 }
 
 func decodeOptions(m map[string]interface{}) (Options, error) {
@@ -130,6 +132,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	}
 
 	sdir, sfile := path.Split(ctx.SourcePath)
+	opts.workDir = t.rs.WorkingDir
 	opts.sourcefile = sfile
 	opts.resolveDir = t.sfs.RealFilename(sdir)
 	opts.contents = string(src)
@@ -141,10 +144,38 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	}
 
 	result := api.Build(buildOptions)
-	if len(result.Errors) > 0 {
-		return fmt.Errorf("%s", result.Errors[0].Text)
+	if len(result.Warnings) > 0 {
+		for _, value := range result.Errors {
+			t.rs.Logger.WARN.Println(fmt.Sprintf("%s:%d: WARN: %s",
+				t.sfs.RealFilename(filepath.Join(sdir, value.Location.File)),
+				value.Location.Line, value.Text))
+			t.rs.Logger.WARN.Println("  ", value.Location.LineText)
+		}
 	}
-	ctx.To.Write(result.OutputFiles[0].Contents)
+	if len(result.Errors) > 0 {
+		output := result.Errors[0].Text
+		for _, value := range result.Errors {
+			line := fmt.Sprintf("%s:%d ERROR: %s",
+				t.sfs.RealFilename(filepath.Join(sdir, value.Location.File)),
+				value.Location.Line, value.Text)
+			t.rs.Logger.ERROR.Println(line)
+			output = fmt.Sprintf("%s\n%s", output, line)
+			t.rs.Logger.ERROR.Println("  ", value.Location.LineText)
+		}
+		return fmt.Errorf("%s", output)
+	}
+	if buildOptions.Outfile != "" {
+		_, tfile := path.Split(opts.TargetPath)
+		output := fmt.Sprintf("%s//# sourceMappingURL=%s\n",
+			string(result.OutputFiles[1].Contents), tfile+".map")
+		_, err := ctx.To.Write([]byte(output))
+		if err != nil {
+			return err
+		}
+		ctx.PublishSourceMap(string(result.OutputFiles[0].Contents))
+	} else {
+		ctx.To.Write(result.OutputFiles[0].Contents)
+	}
 	return nil
 }
 
@@ -212,7 +243,6 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 	default:
 		err = fmt.Errorf("unsupported script output format: %q", opts.Format)
 		return
-
 	}
 
 	var defines map[string]string
@@ -220,10 +250,16 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 		defines = cast.ToStringMapString(opts.Defines)
 	}
 
+	var outDir = opts.outDir
+	var outFile = ""
 	var sourceMap api.SourceMap
 	switch opts.SourceMap {
 	case "inline":
 		sourceMap = api.SourceMapInline
+	case "external":
+		sourceMap = api.SourceMapExternal
+		outFile = filepath.Join(opts.workDir, opts.TargetPath)
+		outDir = ""
 	case "":
 		sourceMap = api.SourceMapNone
 	default:
@@ -232,7 +268,7 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 	}
 
 	buildOptions = api.BuildOptions{
-		Outfile: "",
+		Outfile: outFile,
 		Bundle:  true,
 
 		Target:    target,
@@ -243,7 +279,7 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 		MinifyIdentifiers: opts.Minify,
 		MinifySyntax:      opts.Minify,
 
-		Outdir:  opts.outDir,
+		Outdir:  outDir,
 		Defines: defines,
 
 		Externals: opts.Externals,
