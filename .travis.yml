@@ -47,10 +47,10 @@ cache:
 
 before_install:
   - df -h
-    # https://travis-ci.community/t/go-cant-find-gcc-with-go1-11-1-on-windows/293/5
+  # https://travis-ci.community/t/go-cant-find-gcc-with-go1-11-1-on-windows/293/5
   - if [ "$TRAVIS_OS_NAME" = "windows" ]; then
-        choco install mingw -y;
-        export PATH=/c/tools/mingw64/bin:"$PATH";
+    choco install mingw -y;
+    export PATH=/c/tools/mingw64/bin:"$PATH";
     fi
   - gem install asciidoctor
   - type asciidoctor
@@ -65,11 +65,12 @@ install:
 script:
   - go mod download
   - go mod verify
-  - mage -v test
-  - if [ "$TRAVIS_ARCH" = "amd64" ]; then
-        mage -v check;
+  - travis_wait 20 mage -v test
+  - >
+    if [ "$TRAVIS_ARCH" = "amd64" ]; then
+      mage -v check;
     else
-        HUGO_TIMEOUT=30000 mage -v check;
+      HUGO_TIMEOUT=30000 mage -v check;
     fi
   - mage -v hugo
   - HUGO_IGNOREERRORS=error-remote-getjson ./hugo -s docs/
