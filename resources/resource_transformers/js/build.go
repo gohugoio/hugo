@@ -154,7 +154,8 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 				tsConfig = path.Join(opts.workDir, "jsconfig.json")
 				_, err = t.sfs.Fs.Stat(tsConfig)
 				if err != nil {
-					tsConfig = ""
+					// Use this one by default
+					tsConfig = path.Join(opts.workDir, "tsconfig.json")
 				}
 			}
 		}

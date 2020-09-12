@@ -81,7 +81,9 @@ document.body.textContent = greeter(user);`
   "scripts": {},
 
   "dependencies": {
-    "to-camel-case": "1.0.0"
+		"to-camel-case": "1.0.0",
+		"react": "^16",
+		"react-dom": "^16"
   }
 }
 `
