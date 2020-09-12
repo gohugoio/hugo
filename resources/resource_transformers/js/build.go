@@ -14,8 +14,10 @@
 package js
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
@@ -74,6 +76,7 @@ type Options struct {
 	sourcefile string
 	resolveDir string
 	workDir    string
+	tsConfig   string
 }
 
 func decodeOptions(m map[string]interface{}) (Options, error) {
@@ -138,12 +141,99 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	opts.contents = string(src)
 	opts.mediaType = ctx.InMediaType
 
-	buildOptions, err := toBuildOptions(opts)
+	// Search for original ts/jsconfig file
+	tsConfig := path.Join(sdir, "tsconfig.json")
+	_, err = t.sfs.Fs.Stat(tsConfig)
+	if err != nil {
+		tsConfig = path.Join(sdir, "jsconfig.json")
+		_, err = t.sfs.Fs.Stat(tsConfig)
+		if err != nil {
+			tsConfig = path.Join(opts.workDir, "tsconfig.json")
+			_, err = t.sfs.Fs.Stat(tsConfig)
+			if err != nil {
+				tsConfig = path.Join(opts.workDir, "jsconfig.json")
+				_, err = t.sfs.Fs.Stat(tsConfig)
+				if err != nil {
+					tsConfig = ""
+				}
+			}
+		}
+	}
+
+	// Get real source path
+	configDir, _ := path.Split(t.sfs.RealFilename(ctx.SourcePath))
+
+	// Resolve paths for @assets and @js (@js is just an alias for assets/js)
+	dirs := make([]interface{}, 0)
+	jsDirs := make([]interface{}, 0)
+	for _, dir := range t.sfs.RealDirs(".") {
+		rel, _ := filepath.Rel(configDir, dir)
+		dirs = append(dirs, "./"+rel+"/*")
+		jsDirs = append(jsDirs, "./"+rel+"/js/*")
+	}
+
+	// Create new temporary tsconfig file
+	newTSConfig, err := ioutil.TempFile(configDir, "tsconfig.*.json")
 	if err != nil {
 		return err
 	}
 
+	// Construct new temporary tsconfig file content
+	config := make(map[string]interface{})
+	if tsConfig != "" {
+		oldConfig, err := ioutil.ReadFile(t.sfs.RealFilename(tsConfig))
+		if err != nil {
+			return err
+		}
+		err = json.Unmarshal(oldConfig, &config)
+		if err != nil {
+			return err
+		}
+	} else {
+		config["compilerOptions"] = map[string]interface{}{
+			"baseUrl": ".",
+		}
+	}
+
+	// Assign new global paths to the config file while reading existing ones.
+	oldCompilerOptions := config["compilerOptions"].(map[string]interface{})
+	oldPaths := oldCompilerOptions["paths"].(map[string]interface{})
+	if oldPaths == nil {
+		oldPaths = make(map[string]interface{})
+		oldCompilerOptions["paths"] = oldPaths
+	}
+	oldPaths["@assets/*"] = dirs
+	oldPaths["@js/*"] = jsDirs
+
+	// Output the new config file
+	bytes, err := json.MarshalIndent(config, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	// Write tsconfig file
+	_, err = newTSConfig.Write(bytes)
+	if err != nil {
+		return err
+	}
+	err = newTSConfig.Close()
+	if err != nil {
+		return err
+	}
+
+	// Tell ESBuild about this new config file to use
+	opts.tsConfig = newTSConfig.Name()
+
+	buildOptions, err := toBuildOptions(opts)
+	if err != nil {
+		os.Remove(opts.tsConfig)
+		return err
+	}
+
 	result := api.Build(buildOptions)
+
+	os.Remove(opts.tsConfig)
+
 	if len(result.Warnings) > 0 {
 		for _, value := range result.Errors {
 			t.rs.Logger.WARN.Println(fmt.Sprintf("%s:%d: WARN: %s",
@@ -287,7 +377,7 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 		JSXFactory:  opts.JSXFactory,
 		JSXFragment: opts.JSXFragment,
 
-		//Tsconfig: opts.TSConfig,
+		Tsconfig: opts.tsConfig,
 
 		Stdin: &api.StdinOptions{
 			Contents:   opts.contents,
