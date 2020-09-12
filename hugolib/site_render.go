@@ -130,7 +130,7 @@ func pageRenderer(
 		}
 
 		if !found {
-			s.logMissingLayout("", p.Kind(), p.f.Name)
+			s.logMissingLayout("", p.Layout(), p.Kind(), p.f.Name)
 			continue
 		}
 
@@ -148,7 +148,7 @@ func pageRenderer(
 	}
 }
 
-func (s *Site) logMissingLayout(name, kind, outputFormat string) {
+func (s *Site) logMissingLayout(name, layout, kind, outputFormat string) {
 	log := s.Log.WARN
 	if name != "" && infoOnMissingLayout[name] {
 		log = s.Log.INFO
@@ -160,6 +160,11 @@ func (s *Site) logMissingLayout(name, kind, outputFormat string) {
 	if outputFormat != "" {
 		msg += " %q"
 		args = append(args, outputFormat)
+	}
+
+	if layout != "" {
+		msg += " for layout %q"
+		args = append(args, layout)
 	}
 
 	if kind != "" {
