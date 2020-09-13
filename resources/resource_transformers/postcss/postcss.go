@@ -17,8 +17,10 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"io"
 	"io/ioutil"
+	"os"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -140,62 +142,82 @@ func (t *postcssTransformation) Key() internal.ResourceTransformationKey {
 // npm install -g autoprefixer
 func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
 
-	const localPostCSSPath = "node_modules/.bin/"
+	localCommand := ""
+	localConfig := ""
 	const binaryName = "postcss"
 
-	// Try first in the project's node_modules.
-	csiBinPath := filepath.Join(t.rs.WorkingDir, localPostCSSPath, binaryName)
-
-	binary := csiBinPath
-
-	if _, err := exec.LookPath(binary); err != nil {
-		// Try PATH
-		binary = binaryName
-		if _, err := exec.LookPath(binary); err != nil {
-			// This may be on a CI server etc. Will fall back to pre-built assets.
-			return herrors.ErrFeatureNotAvailable
-		}
-	}
-
 	var configFile string
-	logger := t.rs.Logger
-
 	if t.options.Config != "" {
 		configFile = t.options.Config
 	} else {
 		configFile = "postcss.config.js"
 	}
 
-	configFile = filepath.Clean(configFile)
-
-	// We need an abolute filename to the config file.
-	if !filepath.IsAbs(configFile) {
-		// We resolve this against the virtual Work filesystem, to allow
-		// this config file to live in one of the themes if needed.
-		fi, err := t.rs.BaseFs.Work.Stat(configFile)
-		if err != nil {
-			if t.options.Config != "" {
-				// Only fail if the user specificed config file is not found.
-				return errors.Wrapf(err, "postcss config %q not found:", configFile)
+	nodePath := ""
+	binPath := ""
+	for idx, mod := range t.rs.PathSpec.Paths.AllModules {
+		dir := mod.Dir()
+		if localCommand == "" {
+			commandPath := path.Join(dir, "node_modules", ".bin", binaryName)
+			if _, err := os.Stat(commandPath); err == nil {
+				localCommand = commandPath
 			}
-			configFile = ""
-		} else {
-			configFile = fi.(hugofs.FileMetaInfo).Meta().Filename()
 		}
+		if !filepath.IsAbs(configFile) {
+			checkConfig := path.Join(dir, configFile)
+			if _, err := os.Stat(checkConfig); err == nil {
+				localConfig = checkConfig
+			}
+		}
+		if idx == 0 {
+			nodePath = fmt.Sprintf("%s/node_modules", dir)
+			binPath = fmt.Sprintf("%s/node_modules/.bin", dir)
+		} else {
+			nodePath = fmt.Sprintf("%s%c%s/node_modules", nodePath, filepath.ListSeparator, dir)
+			binPath = fmt.Sprintf("%s%c%s/node_modules/.bin", binPath, filepath.ListSeparator, dir)
+		}
+	}
+
+	if localCommand == "" {
+		if _, err := exec.LookPath(binaryName); err != nil {
+			// This may be on a CI server etc. Will fall back to pre-built assets.
+			return herrors.ErrFeatureNotAvailable
+		}
+		localCommand = binaryName
+	}
+
+	logger := t.rs.Logger
+
+	if localConfig != "" {
+		localConfig = filepath.Clean(localConfig)
+	} else if t.options.Config != "" {
+		return errors.Errorf("postcss config %q not found", t.options.Config)
 	}
 
 	var cmdArgs []string
 
-	if configFile != "" {
+	if localConfig != "" {
 		logger.INFO.Println("postcss: use config file", configFile)
-		cmdArgs = []string{"--config", configFile}
+		cmdArgs = []string{"--config", localConfig}
 	}
 
 	if optArgs := t.options.toArgs(); len(optArgs) > 0 {
 		cmdArgs = append(cmdArgs, optArgs...)
 	}
 
-	cmd := exec.Command(binary, cmdArgs...)
+	cmd := exec.Command(localCommand, cmdArgs...)
+	env := os.Environ()
+
+	oldPath := os.Getenv("PATH")
+	env = append(env, fmt.Sprintf("PATH=%s%c%s", binPath, filepath.ListSeparator, oldPath))
+
+	oldPath = os.Getenv("NODE_PATH")
+	if oldPath == "" {
+		env = append(env, fmt.Sprintf("NODE_ENV=%s", nodePath))
+	} else {
+		env = append(env, fmt.Sprintf("NODE_ENV=%s%c%s", nodePath, filepath.ListSeparator, oldPath))
+	}
+	cmd.Env = env
 
 	var errBuf bytes.Buffer
 	infoW := loggers.LoggerToWriterWithPrefix(logger.INFO, "postcss")
