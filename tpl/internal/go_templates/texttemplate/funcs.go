@@ -211,6 +211,12 @@ func indexIn(item reflect.Value, indexSlice reflect.Value) (reflect.Value, error
 	}
 	indexes := make([]reflect.Value, 0)
 	switch indexSlice.Kind() {
+	case reflect.String:
+		str := indexSlice.String()
+		slice := strings.Split(str, ".")
+		for _, arg := range slice {
+			indexes = append(indexes, reflect.ValueOf(arg))
+		}
 	case reflect.Array, reflect.Slice:
 		intf := indexSlice.Interface()
 		slice, ok := intf.([]interface{})
