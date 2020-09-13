@@ -141,6 +141,17 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	opts.contents = string(src)
 	opts.mediaType = ctx.InMediaType
 
+	rootPaths := make([]string, 0)
+	// This is not ideal, because it will ignore possible things inside of package.json in each root.
+	// But ESBuild prefers jsconfig/tsconfig anyways.
+	for _, mod := range t.rs.PathSpec.Paths.AllModules {
+		dir := mod.Dir()
+		nodeModules := path.Join(dir, "node_modules")
+		if _, err := os.Stat(nodeModules); err == nil {
+			rootPaths = append(rootPaths, nodeModules+"/*")
+		}
+	}
+
 	// Search for original ts/jsconfig file
 	tsConfig := path.Join(sdir, "tsconfig.json")
 	_, err = t.sfs.Fs.Stat(tsConfig)
@@ -167,10 +178,14 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	// Resolve paths for @assets and @js (@js is just an alias for assets/js)
 	dirs := make([]interface{}, 0)
 	jsDirs := make([]interface{}, 0)
+	dirIndexs := make([]interface{}, 0)
+	jsDirIndexs := make([]interface{}, 0)
 	for _, dir := range t.sfs.RealDirs(".") {
 		rel, _ := filepath.Rel(configDir, dir)
 		dirs = append(dirs, "./"+rel+"/*")
 		jsDirs = append(jsDirs, "./"+rel+"/js/*")
+		dirIndexs = append(dirIndexs, "./"+rel+"/index.js")
+		jsDirIndexs = append(jsDirIndexs, "./"+rel+"/js/index.js")
 	}
 
 	// Create new temporary tsconfig file
@@ -205,6 +220,16 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	}
 	oldPaths["@assets/*"] = dirs
 	oldPaths["@js/*"] = jsDirs
+	// Make @js and @assets absolue matches search for index files
+	// to get around the problem in ESBuild resolving folders as index files.
+	oldPaths["@assets"] = dirIndexs
+	oldPaths["@js"] = jsDirIndexs
+
+	if len(rootPaths) > 0 {
+		// This will allow import "react" to resolve a react module that's
+		// either in the root node_modules or in one of the hugo mods.
+		oldPaths["*"] = rootPaths
+	}
 
 	// Output the new config file
 	bytes, err := json.MarshalIndent(config, "", "  ")
