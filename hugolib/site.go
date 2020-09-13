@@ -1721,7 +1721,7 @@ func (hr hookRenderer) RenderHeading(w io.Writer, ctx hooks.HeadingContext) erro
 
 func (s *Site) renderForTemplate(name, outputFormat string, d interface{}, w io.Writer, templ tpl.Template) (err error) {
 	if templ == nil {
-		s.logMissingLayout(name, "", outputFormat)
+		s.logMissingLayout(name, "", "", outputFormat)
 		return nil
 	}
 
