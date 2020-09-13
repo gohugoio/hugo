@@ -815,11 +815,12 @@ func (h *HugoSites) loadData(fis []hugofs.FileMetaInfo) (err error) {
 	for _, fi := range fis {
 		fileSystem := spec.NewFilesystemFromFileMetaInfo(fi)
 		files, err := fileSystem.Files()
+		prefix := fi.Meta()["dataPrefix"].(string)
 		if err != nil {
 			return err
 		}
 		for _, r := range files {
-			if err := h.handleDataFile(r); err != nil {
+			if err := h.handleDataFile(r, prefix); err != nil {
 				return err
 			}
 		}
@@ -828,7 +829,7 @@ func (h *HugoSites) loadData(fis []hugofs.FileMetaInfo) (err error) {
 	return
 }
 
-func (h *HugoSites) handleDataFile(r source.File) error {
+func (h *HugoSites) handleDataFile(r source.File, prefix string) error {
 	var current map[string]interface{}
 
 	f, err := r.FileInfo().Meta().Open()
@@ -839,7 +840,16 @@ func (h *HugoSites) handleDataFile(r source.File) error {
 
 	// Crawl in data tree to insert data
 	current = h.data
-	keyParts := strings.Split(r.Dir(), helpers.FilePathSeparator)
+	dir := r.Dir()
+	if prefix != "" {
+		if dir == helpers.FilePathSeparator {
+			dir = ""
+		} else {
+			dir = helpers.FilePathSeparator + dir
+		}
+		dir = prefix + dir
+	}
+	keyParts := strings.Split(dir, helpers.FilePathSeparator)
 
 	for _, key := range keyParts {
 		if key != "" {

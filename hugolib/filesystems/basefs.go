@@ -144,7 +144,7 @@ type SourceFilesystems struct {
 	// When in non-multihost mode there will be one entry in this map with a blank key.
 	Static map[string]*SourceFilesystem
 
-	// All the /static dirs (including themes/modules).
+// All the /static dirs (including themes/modules).
 	StaticDirs []hugofs.FileMetaInfo
 }
 
@@ -548,6 +548,10 @@ func (b *sourceFilesystemsBuilder) isStaticMount(mnt modules.Mount) bool {
 	return strings.HasPrefix(mnt.Target, files.ComponentFolderStatic)
 }
 
+func (b *sourceFilesystemsBuilder) isDataMount(mnt modules.Mount) bool {
+	return strings.HasPrefix(mnt.Target, files.ComponentFolderData)
+}
+
 func (b *sourceFilesystemsBuilder) createModFs(
 	collector *filesystemsCollector,
 	md mountsDescriptor) error {
@@ -586,6 +590,7 @@ func (b *sourceFilesystemsBuilder) createModFs(
 		}
 
 		isContentMount := b.isContentMount(mount)
+		isDataMount := b.isDataMount(mount)
 
 		lang := mount.Lang
 		if lang == "" && isContentMount {
@@ -594,7 +599,11 @@ func (b *sourceFilesystemsBuilder) createModFs(
 
 		rm.Meta["lang"] = lang
 
-		if isContentMount {
+		if isDataMount {
+			parts := strings.Split(mount.Target, "/")
+			rm.Meta["dataPrefix"] = strings.Join(parts[1:], "/")
+			fromTo = append(fromTo, rm)
+		} else if isContentMount {
 			fromToContent = append(fromToContent, rm)
 		} else if b.isStaticMount(mount) {
 			fromToStatic = append(fromToStatic, rm)
