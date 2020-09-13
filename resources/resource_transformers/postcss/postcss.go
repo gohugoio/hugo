@@ -35,6 +35,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/pkg/errors"
 
@@ -206,16 +207,16 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	}
 
 	cmd := exec.Command(localCommand, cmdArgs...)
-	env := os.Environ()
+	env := hugo.GetExecEnviron(t.rs.Cfg)
 
 	oldPath := os.Getenv("PATH")
-	env = append(env, fmt.Sprintf("PATH=%s%c%s", binPath, filepath.ListSeparator, oldPath))
+	config.SetEnvVars(&env, "PATH", fmt.Sprintf("PATH=%s%c%s", binPath, filepath.ListSeparator, oldPath))
 
 	oldPath = os.Getenv("NODE_PATH")
 	if oldPath == "" {
-		env = append(env, fmt.Sprintf("NODE_ENV=%s", nodePath))
+		config.SetEnvVars(&env, "NODE_ENV", nodePath)
 	} else {
-		env = append(env, fmt.Sprintf("NODE_ENV=%s%c%s", nodePath, filepath.ListSeparator, oldPath))
+		config.SetEnvVars(&env, "NODE_ENV", fmt.Sprintf("%s%c%s", nodePath, filepath.ListSeparator, oldPath))
 	}
 	cmd.Env = env
 
@@ -224,7 +225,6 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 
 	cmd.Stdout = ctx.To
 	cmd.Stderr = io.MultiWriter(infoW, &errBuf)
-	cmd.Env = hugo.GetExecEnviron(t.rs.Cfg)
 
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
