@@ -141,17 +141,6 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	opts.contents = string(src)
 	opts.mediaType = ctx.InMediaType
 
-	rootPaths := make([]string, 0)
-	// This is not ideal, because it will ignore possible things inside of package.json in each root.
-	// But ESBuild prefers jsconfig/tsconfig anyways.
-	for _, mod := range t.rs.PathSpec.Paths.AllModules {
-		dir := mod.Dir()
-		nodeModules := path.Join(dir, "node_modules")
-		if _, err := os.Stat(nodeModules); err == nil {
-			rootPaths = append(rootPaths, nodeModules+"/*")
-		}
-	}
-
 	// Search for original ts/jsconfig file
 	tsConfig := path.Join(sdir, "tsconfig.json")
 	_, err = t.sfs.Fs.Stat(tsConfig)
@@ -180,14 +169,22 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	jsDirs := make([]interface{}, 0)
 	dirIndexs := make([]interface{}, 0)
 	jsDirIndexs := make([]interface{}, 0)
+	rootPaths := make([]string, 0)
 	for _, dir := range t.sfs.RealDirs(".") {
-		if !strings.HasSuffix(dir, ".json") {
+		rootDir := dir
+		if !strings.HasSuffix(dir, "package.json") {
 			// Online consider real dirs and not "package.json" which is now part of the list
 			rel, _ := filepath.Rel(configDir, dir)
 			dirs = append(dirs, "./"+rel+"/*")
 			jsDirs = append(jsDirs, "./"+rel+"/js/*")
 			dirIndexs = append(dirIndexs, "./"+rel+"/index.js")
 			jsDirIndexs = append(jsDirIndexs, "./"+rel+"/js/index.js")
+		} else {
+			rootDir, _ = path.Split(dir)
+		}
+		nodeModules := path.Join(rootDir, "node_modules")
+		if _, err := os.Stat(nodeModules); err == nil {
+			rootPaths = append(rootPaths, nodeModules+"/*")
 		}
 	}
 
