@@ -52,7 +52,7 @@ type Config struct {
 
 	// When set, add links to line numbers
 	AnchorLineNos bool
-	LineAnchors string
+	LineAnchors   string
 
 	// Start the line numbers from this value (default is 1).
 	LineNoStart int
@@ -64,13 +64,12 @@ type Config struct {
 	TabWidth int
 
 	GuessSyntax bool
-
 }
 
 func (cfg Config) ToHTMLOptions() []html.Option {
 	var lineAnchors string
 	if cfg.LineAnchors != "" {
-		lineAnchors = cfg.LineAnchors+"-"
+		lineAnchors = cfg.LineAnchors + "-"
 	}
 	var options = []html.Option{
 		html.TabWidth(cfg.TabWidth),
