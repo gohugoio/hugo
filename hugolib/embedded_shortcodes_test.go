@@ -260,11 +260,11 @@ func TestShortcodeGist(t *testing.T) {
 	}{
 		{
 			`{{< gist spf13 7896402 >}}`,
-			"(?s)^<script type=\"application/javascript\" src=\"https://gist.github.com/spf13/7896402.js\"></script>",
+			"(?s)^<script async type=\"application/javascript\" src=\"https://gist.github.com/spf13/7896402.js\"></script>",
 		},
 		{
 			`{{< gist spf13 7896402 "img.html" >}}`,
-			"(?s)^<script type=\"application/javascript\" src=\"https://gist.github.com/spf13/7896402.js\\?file=img.html\"></script>",
+			"(?s)^<script async type=\"application/javascript\" src=\"https://gist.github.com/spf13/7896402.js\\?file=img.html\"></script>",
 		},
 	} {
 		var (
