@@ -1474,6 +1474,8 @@
         "noClasses": true,
         "lineNos": false,
         "lineNumbersInTable": true,
+        "anchorLineNos": false,
+        "lineAnchors": "",
         "lineNoStart": 1,
         "hl_Lines": "",
         "tabWidth": 4,
