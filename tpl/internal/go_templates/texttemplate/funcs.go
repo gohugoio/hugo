@@ -40,6 +40,7 @@ func builtins() FuncMap {
 		"call":     call,
 		"html":     HTMLEscaper,
 		"index":    index,
+		"indexIn":  indexIn,
 		"slice":    slice,
 		"js":       JSEscaper,
 		"len":      length,
@@ -199,6 +200,31 @@ func indexArg(index reflect.Value, cap int) (int, error) {
 }
 
 // Indexing.
+func indexIn(item reflect.Value, indexSlice reflect.Value) (reflect.Value, error) {
+	item = indirectInterface(item)
+	if !item.IsValid() {
+		return reflect.Value{}, fmt.Errorf("index of untyped nil")
+	}
+	indexSlice = indirectInterface(indexSlice)
+	if !indexSlice.IsValid() {
+		return reflect.Value{}, fmt.Errorf("index of untyped nil")
+	}
+	indexes := make([]reflect.Value, 0)
+	switch indexSlice.Kind() {
+	case reflect.Array, reflect.Slice:
+		intf := indexSlice.Interface()
+		slice, ok := intf.([]interface{})
+		if !ok {
+			return reflect.Value{}, fmt.Errorf("can't indexIn using type %s", indexSlice.Type())
+		}
+		for _, arg := range slice {
+			indexes = append(indexes, reflect.ValueOf(arg))
+		}
+	default:
+		return reflect.Value{}, fmt.Errorf("can't indexIn using type %s", indexSlice.Type())
+	}
+	return index(item, indexes...)
+}
 
 // index returns the result of indexing its first argument by the following
 // arguments. Thus "index x 1 2 3" is, in Go syntax, x[1][2][3]. Each
