@@ -181,11 +181,14 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	dirIndexs := make([]interface{}, 0)
 	jsDirIndexs := make([]interface{}, 0)
 	for _, dir := range t.sfs.RealDirs(".") {
-		rel, _ := filepath.Rel(configDir, dir)
-		dirs = append(dirs, "./"+rel+"/*")
-		jsDirs = append(jsDirs, "./"+rel+"/js/*")
-		dirIndexs = append(dirIndexs, "./"+rel+"/index.js")
-		jsDirIndexs = append(jsDirIndexs, "./"+rel+"/js/index.js")
+		if !strings.HasSuffix(dir, ".json") {
+			// Online consider real dirs and not "package.json" which is now part of the list
+			rel, _ := filepath.Rel(configDir, dir)
+			dirs = append(dirs, "./"+rel+"/*")
+			jsDirs = append(jsDirs, "./"+rel+"/js/*")
+			dirIndexs = append(dirIndexs, "./"+rel+"/index.js")
+			jsDirIndexs = append(jsDirIndexs, "./"+rel+"/js/index.js")
+		}
 	}
 
 	// Create new temporary tsconfig file
@@ -261,22 +264,37 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	os.Remove(opts.tsConfig)
 
 	if len(result.Warnings) > 0 {
-		for _, value := range result.Errors {
-			t.rs.Logger.WARN.Println(fmt.Sprintf("%s:%d: WARN: %s",
-				t.sfs.RealFilename(filepath.Join(sdir, value.Location.File)),
-				value.Location.Line, value.Text))
-			t.rs.Logger.WARN.Println("  ", value.Location.LineText)
+		for _, value := range result.Warnings {
+			if value.Location != nil {
+				t.rs.Logger.WARN.Println(fmt.Sprintf("%s:%d: WARN: %s",
+					t.sfs.RealFilename(filepath.Join(sdir, value.Location.File)),
+					value.Location.Line, value.Text))
+				t.rs.Logger.WARN.Println("  ", value.Location.LineText)
+			} else {
+				t.rs.Logger.WARN.Println(fmt.Sprintf("%s: WARN: %s",
+					t.sfs.RealFilename(filepath.Join(sdir)),
+					value.Text))
+			}
 		}
 	}
 	if len(result.Errors) > 0 {
 		output := result.Errors[0].Text
 		for _, value := range result.Errors {
-			line := fmt.Sprintf("%s:%d ERROR: %s",
-				t.sfs.RealFilename(filepath.Join(sdir, value.Location.File)),
-				value.Location.Line, value.Text)
+			var line string
+			if value.Location != nil {
+				line = fmt.Sprintf("%s:%d ERROR: %s",
+					t.sfs.RealFilename(filepath.Join(sdir, value.Location.File)),
+					value.Location.Line, value.Text)
+			} else {
+				line = fmt.Sprintf("%s ERROR: %s",
+					t.sfs.RealFilename(filepath.Join(sdir)),
+					value.Text)
+			}
 			t.rs.Logger.ERROR.Println(line)
 			output = fmt.Sprintf("%s\n%s", output, line)
-			t.rs.Logger.ERROR.Println("  ", value.Location.LineText)
+			if value.Location != nil {
+				t.rs.Logger.ERROR.Println("  ", value.Location.LineText)
+			}
 		}
 		return fmt.Errorf("%s", output)
 	}
