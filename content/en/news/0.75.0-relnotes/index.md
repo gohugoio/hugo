@@ -6,7 +6,7 @@ description: "Hugo 0.75 comes with a new \"hugo mod npm pack\" command, several 
 categories: ["Releases"]
 ---
 
-Hugo `0.75.0` brings several improvements to Hugo Modules, a new CLI command to bridge the JavaScript dependencies into Hugo, a refresh of the versions of the most important upstream dependencies, and more.
+Hugo `0.75.0` brings several improvements to Hugo Modules, a new CLI command to bridge the JavaScript dependencies into Hugo, a refresh of the versions of the most important upstream dependencies, and more. There are also some good bug fixes in this release. One notable one is covered by [this commit](https://github.com/gohugoio/hugo/commit/4055c121847847d8bd6b95a928185daee065091b) -- which covers a "stale content scenario in server" when you include content or page data via `GetPage` from a shortcode.
 
 ## NPM Pack
 
