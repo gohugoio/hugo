@@ -12,7 +12,7 @@ Experimental: Prepares and writes a composite package.json file for your project
 
 Prepares and writes a composite package.json file for your project.
 
-On first run it creates a "package.hugo.json" in the project root if not alread there. This file will be used as a template file
+On first run it creates a "package.hugo.json" in the project root if not already there. This file will be used as a template file
 with the base dependency set. 
 
 This set will be merged with all "package.hugo.json" files found in the dependency tree, picking the version closest to the project.
