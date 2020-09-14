@@ -58,7 +58,7 @@ type ImageOps interface {
 	Fit(spec string) (Image, error)
 	Resize(spec string) (Image, error)
 	Filter(filters ...interface{}) (Image, error)
-	Exif() (*exif.Exif, error)
+	Exif() *exif.Exif
 }
 
 type ResourceTypeProvider interface {
