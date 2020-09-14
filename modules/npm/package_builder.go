@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/gohugoio/hugo/common/hugio"
+
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/pkg/errors"
@@ -51,7 +53,12 @@ func Pack(fs afero.Fs, fis []hugofs.FileMetaInfo) error {
 	if err != nil {
 		// Have a package.json?
 		fi, err = fs.Stat(packageJSONName)
-		if err != nil {
+		if err == nil {
+			// Preserve the original in package.hugo.json.
+			if err = hugio.CopyFile(fs, packageJSONName, files.FilenamePackageHugoJSON); err != nil {
+				return errors.Wrap(err, "npm pack: failed to copy package file")
+			}
+		} else {
 			// Create one.
 			name := "project"
 			// Use the Hugo site's folder name as the default name.
