@@ -123,7 +123,7 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 	if info.HasReturn {
 		if !hreflect.IsTruthful(context) {
 			// TODO(bep) we need to fix this, but it is non-trivial.
-			return nil, errors.New("partials that returns a value needs a non-zero argument.")
+			return nil, errors.New("partial that returns a value needs a non-zero argument.")
 		}
 		// Wrap the context sent to the template to capture the return value.
 		// Note that the template is rewritten to make sure that the dot (".")
