@@ -144,7 +144,7 @@ type SourceFilesystems struct {
 	// When in non-multihost mode there will be one entry in this map with a blank key.
 	Static map[string]*SourceFilesystem
 
-// All the /static dirs (including themes/modules).
+	// All the /static dirs (including themes/modules).
 	StaticDirs []hugofs.FileMetaInfo
 }
 
