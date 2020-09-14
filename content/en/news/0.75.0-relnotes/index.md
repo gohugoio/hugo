@@ -43,7 +43,7 @@ const tailwind = require('tailwindcss')(tailwindConfig);
 
 * We have added a `noVendor` Glob pattern config to the module config [d4611c43](https://github.com/gohugoio/hugo/commit/d4611c4322dabfd8d2520232be578388029867db) [@bep](https://github.com/bep) [#7647](https://github.com/gohugoio/hugo/issues/7647). This allows you to only vendor a subset of your dependencies.
 * We have added `ignoreImports` option to module imports config [20af9a07](https://github.com/gohugoio/hugo/commit/20af9a078189ce1e92a1d2047c90fba2a4e91827) [@bep](https://github.com/bep) [#7646](https://github.com/gohugoio/hugo/issues/7646), which allows you to import a module and load its config, but not follow its imports.
-* We have deprecated `--ignoreVendor` in favour of a `--ignoreVendor`, a patch matching Glob pattern [9a1e6d15](https://github.com/gohugoio/hugo/commit/9a1e6d15a31ec667b2ff9cf20e43b1daca61e004) [@bep](https://github.com/bep). A typical use for this would be when you have vendored your dependencies, but want to edit one of them.
+* We have deprecated `--ignoreVendor` in favour of a `--ignoreVendorPaths`, a patch matching Glob pattern [9a1e6d15](https://github.com/gohugoio/hugo/commit/9a1e6d15a31ec667b2ff9cf20e43b1daca61e004) [@bep](https://github.com/bep). A typical use for this would be when you have vendored your dependencies, but want to edit one of them.
 
 
 ## Statistics
