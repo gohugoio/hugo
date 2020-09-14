@@ -115,6 +115,17 @@ func (t *buildTransformation) Key() internal.ResourceTransformationKey {
 	return internal.NewResourceTransformationKey("jsbuild", t.optsm)
 }
 
+func appendExts(list []string, rel string) []string {
+	for _, ext := range []string{".tsx", ".ts", ".jsx", ".mjs", ".cjs", ".js", ".json"} {
+		if strings.HasPrefix(rel, ".") {
+			list = append(list, fmt.Sprintf("./%s/js/index%s", rel, ext))
+		} else {
+			list = append(list, fmt.Sprintf("./%s/js/index%s", rel, ext))
+		}
+	}
+	return list
+}
+
 func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
 	ctx.OutMediaType = media.JavascriptType
 
@@ -142,49 +153,54 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	opts.mediaType = ctx.InMediaType
 
 	// Search for original ts/jsconfig file
-	tsConfig := path.Join(sdir, "tsconfig.json")
-	_, err = t.sfs.Fs.Stat(tsConfig)
-	if err != nil {
-		tsConfig = path.Join(sdir, "jsconfig.json")
-		_, err = t.sfs.Fs.Stat(tsConfig)
-		if err != nil {
-			tsConfig = path.Join(opts.workDir, "tsconfig.json")
-			_, err = t.sfs.Fs.Stat(tsConfig)
-			if err != nil {
-				tsConfig = path.Join(opts.workDir, "jsconfig.json")
-				_, err = t.sfs.Fs.Stat(tsConfig)
-				if err != nil {
-					// Use this one by default
-					tsConfig = path.Join(opts.workDir, "tsconfig.json")
-				}
-			}
-		}
+	tsConfig := path.Join(opts.workDir, "tsconfig.json")
+	jsConfig := path.Join(opts.workDir, "jsconfig.json")
+	_, err = os.Stat(jsConfig)
+	if err == nil {
+		tsConfig = jsConfig
 	}
 
 	// Get real source path
-	configDir, _ := path.Split(t.sfs.RealFilename(ctx.SourcePath))
+	configDir, _ := path.Split(tsConfig)
+
+	// Search for the innerMost tsconfig or jsconfig
+	innerTsConfig := ""
+	tsDir := opts.resolveDir
+	baseURLAbs := opts.workDir
+	baseURL := "."
+	for tsDir != "" {
+		tryTsConfig := path.Join(tsDir, "tsconfig.json")
+		_, err := os.Stat(tryTsConfig)
+		if err != nil {
+			tryTsConfig := path.Join(tsDir, "jsconfig.json")
+			_, err = os.Stat(tryTsConfig)
+			if err == nil {
+				innerTsConfig = tryTsConfig
+				break
+			}
+		} else {
+			innerTsConfig = tryTsConfig
+			break
+		}
+		tsDir = path.Dir(tsDir)
+		if tsDir == opts.workDir {
+			break
+		}
+	}
 
 	// Resolve paths for @assets and @js (@js is just an alias for assets/js)
-	dirs := make([]interface{}, 0)
-	jsDirs := make([]interface{}, 0)
-	dirIndexs := make([]interface{}, 0)
-	jsDirIndexs := make([]interface{}, 0)
+	dirs := make([]string, 0)
 	rootPaths := make([]string, 0)
 	for _, dir := range t.sfs.RealDirs(".") {
 		rootDir := dir
 		if !strings.HasSuffix(dir, "package.json") {
-			// Online consider real dirs and not "package.json" which is now part of the list
-			rel, _ := filepath.Rel(configDir, dir)
-			dirs = append(dirs, "./"+rel+"/*")
-			jsDirs = append(jsDirs, "./"+rel+"/js/*")
-			dirIndexs = append(dirIndexs, "./"+rel+"/index.js")
-			jsDirIndexs = append(jsDirIndexs, "./"+rel+"/js/index.js")
+			dirs = append(dirs, dir)
 		} else {
 			rootDir, _ = path.Split(dir)
 		}
 		nodeModules := path.Join(rootDir, "node_modules")
 		if _, err := os.Stat(nodeModules); err == nil {
-			rootPaths = append(rootPaths, nodeModules+"/*")
+			rootPaths = append(rootPaths, nodeModules)
 		}
 	}
 
@@ -196,8 +212,8 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 
 	// Construct new temporary tsconfig file content
 	config := make(map[string]interface{})
-	if tsConfig != "" {
-		oldConfig, err := ioutil.ReadFile(t.sfs.RealFilename(tsConfig))
+	if innerTsConfig != "" {
+		oldConfig, err := ioutil.ReadFile(innerTsConfig)
 		if err == nil {
 			// If there is an error, it just means there is no config file here.
 			// Since we're also using the tsConfig file path to detect where
@@ -208,27 +224,78 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 			}
 		}
 	}
+
 	if config["compilerOptions"] == nil {
-		config["compilerOptions"] = map[string]interface{}{
-			"baseUrl": ".",
+		config["compilerOptions"] = map[string]interface{}{}
+	}
+
+	// Handle possible extends
+	if config["extends"] != nil {
+		extends := config["extends"].(string)
+		extendsAbs := path.Join(tsDir, extends)
+		rel, _ := filepath.Rel(configDir, extendsAbs)
+		if rel != "" {
+			if strings.HasPrefix(rel, ".") {
+				extends = rel
+			} else {
+				extends = fmt.Sprintf("./%s", rel)
+			}
 		}
+		config["extends"] = extends
 	}
 
 	// Assign new global paths to the config file while reading existing ones.
 	oldCompilerOptions := config["compilerOptions"].(map[string]interface{})
+
+	// Handle original baseUrl if it's there
+	if oldCompilerOptions["baseUrl"] != nil {
+		baseURL = oldCompilerOptions["baseUrl"].(string)
+		baseURLAbs = path.Join(tsDir, baseURL)
+		rel, _ := filepath.Rel(configDir, baseURLAbs)
+		if rel != "" {
+			if strings.HasPrefix(rel, ".") {
+				baseURL = rel
+			} else {
+				baseURL = fmt.Sprintf("./%s", rel)
+			}
+		}
+		oldCompilerOptions["baseUrl"] = baseURL
+	} else {
+		oldCompilerOptions["baseUrl"] = baseURL
+	}
+
 	var oldPaths map[string]interface{}
+	// Get original paths if they exist
 	if oldCompilerOptions["paths"] != nil {
 		oldPaths = oldCompilerOptions["paths"].(map[string]interface{})
 	} else {
 		oldPaths = make(map[string]interface{})
 	}
 	oldCompilerOptions["paths"] = oldPaths
-	oldPaths["@assets/*"] = dirs
-	oldPaths["@js/*"] = jsDirs
+
+	assets := make([]string, 0)
+	assetsExact := make([]string, 0)
+	js := make([]string, 0)
+	jsExact := make([]string, 0)
+	for _, dir := range dirs {
+		rel, _ := filepath.Rel(baseURLAbs, dir)
+		if strings.HasPrefix(rel, ".") {
+			assets = append(assets, fmt.Sprintf("%s/*", rel))
+			js = append(js, fmt.Sprintf("%s/js/*", rel))
+		} else {
+			assets = append(assets, fmt.Sprintf("./%s/*", rel))
+			js = append(js, fmt.Sprintf("./%s/js/*", rel))
+		}
+		assetsExact = appendExts(assetsExact, rel)
+		jsExact = appendExts(jsExact, rel)
+	}
+
+	oldPaths["@assets/*"] = assets
+	oldPaths["@js/*"] = js
 	// Make @js and @assets absolue matches search for index files
 	// to get around the problem in ESBuild resolving folders as index files.
-	oldPaths["@assets"] = dirIndexs
-	oldPaths["@js"] = jsDirIndexs
+	oldPaths["@assets"] = assetsExact
+	oldPaths["@js"] = jsExact
 
 	if len(rootPaths) > 0 {
 		// This will allow import "react" to resolve a react module that's
