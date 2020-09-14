@@ -62,7 +62,8 @@ Hugo now has:
 * 352+ [themes](http://themes.gohugo.io/)
 
 ## Notes
-We now build with Go 1.15, which means that we no longer build release binaries for MacOS 32-bit.
+* We now build with Go 1.15, which means that we no longer build release binaries for MacOS 32-bit.
+* You may now get an error message about "error calling partial: partials that returns a value needs a non-zero argument.". This error situation was not caught earlier, and comes from a limitation in Go's templates: If you use the `return` keyword in a partial, the argument you pass to that partial (e.g. the ".") cannot be zero (and 0 and "" is considered a zero argument).
 
 ## Enhancements
 
