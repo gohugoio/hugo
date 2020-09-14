@@ -201,14 +201,16 @@ JS imported in module: |
 		b, clean := newTestBuilder(t, "")
 		defer clean()
 
-		b.WithSourceFile("package.json", `{
+		const origPackageJSON = `{
 		"name": "mypack",
 		"version": "1.2.3",
         "scripts": {},
           "dependencies": {
            "moo": "1.2.3"
         	}
-}`)
+}`
+
+		b.WithSourceFile("package.json", origPackageJSON)
 
 		b.Build(BuildCfg{})
 		b.Assert(npm.Pack(b.H.BaseFs.SourceFs, b.H.BaseFs.Assets.Dirs), qt.IsNil)
@@ -244,6 +246,10 @@ JS imported in module: |
  "version": "1.2.3"
 }`
 		})
+
+		// https://github.com/gohugoio/hugo/issues/7690
+		b.AssertFileContent("package.hugo.json", origPackageJSON)
+
 	})
 
 	t.Run("Create package.json, no default, no package.json", func(t *testing.T) {
@@ -281,7 +287,9 @@ JS imported in module: |
  "name": "myhugosite",
  "version": "0.1.0"
 }`
+
 		})
+
 	})
 
 }
