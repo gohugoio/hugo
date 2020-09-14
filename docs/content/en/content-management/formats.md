@@ -92,6 +92,8 @@ workingfoldercurrent | `false` | Set the working folder to the rendered `adoc` f
     [markup.asciidocext.attributes]
         my-base-url = "https://example.com/"
         my-attribute-name = "my value"
+        empty-attribute = ""          # empty attribute, equivalent to `--attribute empty-attribute`
+        "attribute-to-unset!" = ""    # unset attribute, equivalent to `--attribute attribute-to-unset!`
 ```
 
 Important: External `asciidoctor` requires Hugo rendering to _disk_ to a specific destination folder. It is required to run Hugo with the command option `--destination`!
