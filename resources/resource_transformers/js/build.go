@@ -198,14 +198,17 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	config := make(map[string]interface{})
 	if tsConfig != "" {
 		oldConfig, err := ioutil.ReadFile(t.sfs.RealFilename(tsConfig))
-		if err != nil {
-			return err
+		if err == nil {
+			// If there is an error, it just means there is no config file here.
+			// Since we're also using the tsConfig file path to detect where
+			// to put the temp file, this is ok.
+			err = json.Unmarshal(oldConfig, &config)
+			if err != nil {
+				return err
+			}
 		}
-		err = json.Unmarshal(oldConfig, &config)
-		if err != nil {
-			return err
-		}
-	} else {
+	}
+	if config["compilerOptions"] == nil {
 		config["compilerOptions"] = map[string]interface{}{
 			"baseUrl": ".",
 		}
@@ -213,11 +216,13 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 
 	// Assign new global paths to the config file while reading existing ones.
 	oldCompilerOptions := config["compilerOptions"].(map[string]interface{})
-	oldPaths := oldCompilerOptions["paths"].(map[string]interface{})
-	if oldPaths == nil {
+	var oldPaths map[string]interface{}
+	if oldCompilerOptions["paths"] != nil {
+		oldPaths = oldCompilerOptions["paths"].(map[string]interface{})
+	} else {
 		oldPaths = make(map[string]interface{})
-		oldCompilerOptions["paths"] = oldPaths
 	}
+	oldCompilerOptions["paths"] = oldPaths
 	oldPaths["@assets/*"] = dirs
 	oldPaths["@js/*"] = jsDirs
 	// Make @js and @assets absolue matches search for index files
