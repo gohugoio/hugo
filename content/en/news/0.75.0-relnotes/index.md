@@ -1,15 +1,14 @@
 
 ---
 date: 2020-09-14
-title: "0.75.0"
-description: "0.75.0"
+title: "NPM Pack"
+description: "Hugo 0.75 comes with a new \"hugo mod npm pack\" command, several improvements re. Hugo Modules and the Node tools, and more."
 categories: ["Releases"]
 ---
 
-	Hugo `0.75.0` brings several improvements to Hugo Modules, a new CLI command to bridge the JavaScript dependencies into Hugo, a refresh of the versions of the most important upstream dependencies, and more.
+Hugo `0.75.0` brings several improvements to Hugo Modules, a new CLI command to bridge the JavaScript dependencies into Hugo, a refresh of the versions of the most important upstream dependencies, and more.
 
 ## NPM Pack
-
 
 The new CLI command is called `hugo mod npm pack`.  We have marked it as experimental. It works great, go ahead and use it, but we need to test this out in real projects to get a feel of it; it is likely that it will change/improve in the upcoming versions of Hugo. The command creates a consolidated `package.json` from the project and all of its [theme components](https://gohugo.io/hugo-modules/theme-components/). On version conflicts, the version closest to the project is selected. We may revise that strategy in the future ([minimal version selection](https://about.sourcegraph.com/blog/the-pain-that-minimal-version-selection-solves/) maybe?), but this should give both control and the least amount of surprise for the site owner.
 
@@ -61,6 +60,9 @@ Hugo now has:
 * 46596+ [stars](https://github.com/gohugoio/hugo/stargazers)
 * 438+ [contributors](https://github.com/gohugoio/hugo/graphs/contributors)
 * 352+ [themes](http://themes.gohugo.io/)
+
+## Notes
+We now build with Go 1.15, which means that we no longer build release binaries for MacOS 32-bit.
 
 ## Enhancements
 
