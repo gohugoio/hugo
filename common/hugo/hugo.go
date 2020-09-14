@@ -87,7 +87,7 @@ func GetExecEnviron(workDir string, cfg config.Provider, fs afero.Fs) []string {
 		nodepath = workDir + string(os.PathListSeparator) + np
 	}
 	config.SetEnvVars(&env, "NODE_PATH", nodepath)
-	config.SetEnvVars(&env, "HUGO_WORKDIR", workDir)
+	config.SetEnvVars(&env, "PWD", workDir)
 	config.SetEnvVars(&env, "HUGO_ENVIRONMENT", cfg.GetString("environment"))
 	fis, err := afero.ReadDir(fs, files.FolderJSConfig)
 	if err == nil {
