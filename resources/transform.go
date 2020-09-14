@@ -183,7 +183,7 @@ func (r *resourceAdapter) Height() int {
 	return r.getImageOps().Height()
 }
 
-func (r *resourceAdapter) Exif() (*exif.Exif, error) {
+func (r *resourceAdapter) Exif() *exif.Exif {
 	return r.getImageOps().Exif()
 }
 

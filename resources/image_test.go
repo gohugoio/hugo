@@ -321,6 +321,7 @@ func TestImageResize8BitPNG(t *testing.T) {
 	c.Assert(image.MediaType().Type(), qt.Equals, "image/png")
 	c.Assert(image.RelPermalink(), qt.Equals, "/a/gohugoio.png")
 	c.Assert(image.ResourceType(), qt.Equals, "image")
+	c.Assert(image.Exif(), qt.IsNil)
 
 	resized, err := image.Resize("800x")
 	c.Assert(err, qt.IsNil)
@@ -337,12 +338,14 @@ func TestImageResizeInSubPath(t *testing.T) {
 	c.Assert(image.MediaType(), eq, media.PNGType)
 	c.Assert(image.RelPermalink(), qt.Equals, "/a/sub/gohugoio2.png")
 	c.Assert(image.ResourceType(), qt.Equals, "image")
+	c.Assert(image.Exif(), qt.IsNil)
 
 	resized, err := image.Resize("101x101")
 	c.Assert(err, qt.IsNil)
 	c.Assert(resized.MediaType().Type(), qt.Equals, "image/png")
 	c.Assert(resized.RelPermalink(), qt.Equals, "/a/sub/gohugoio2_hu0e1b9e4a4be4d6f86c7b37b9ccce3fbc_73886_101x101_resize_linear_2.png")
 	c.Assert(resized.Width(), qt.Equals, 101)
+	c.Assert(resized.Exif(), qt.IsNil)
 
 	publishedImageFilename := filepath.Clean(resized.RelPermalink())
 
@@ -387,8 +390,7 @@ func TestImageExif(t *testing.T) {
 	image := fetchResourceForSpec(spec, c, "sunset.jpg").(resource.Image)
 
 	getAndCheckExif := func(c *qt.C, image resource.Image) {
-		x, err := image.Exif()
-		c.Assert(err, qt.IsNil)
+		x := image.Exif()
 		c.Assert(x, qt.Not(qt.IsNil))
 
 		c.Assert(x.Date.Format("2006-01-02"), qt.Equals, "2017-10-27")
@@ -403,7 +405,7 @@ func TestImageExif(t *testing.T) {
 		c.Assert(ok, qt.Equals, true)
 		c.Assert(lensModel, qt.Equals, "smc PENTAX-DA* 16-50mm F2.8 ED AL [IF] SDM")
 		resized, _ := image.Resize("300x200")
-		x2, _ := resized.Exif()
+		x2 := resized.Exif()
 		c.Assert(x2, eq, x)
 	}
 
@@ -426,8 +428,7 @@ func BenchmarkImageExif(b *testing.B) {
 	}
 
 	getAndCheckExif := func(c *qt.C, image resource.Image) {
-		x, err := image.Exif()
-		c.Assert(err, qt.IsNil)
+		x := image.Exif()
 		c.Assert(x, qt.Not(qt.IsNil))
 		c.Assert(x.Long, qt.Equals, float64(-4.50846))
 
