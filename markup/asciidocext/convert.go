@@ -18,7 +18,6 @@ package asciidocext
 
 import (
 	"bytes"
-	"io"
 	"os/exec"
 	"path/filepath"
 
@@ -64,7 +63,7 @@ type asciidocConverter struct {
 }
 
 func (a *asciidocConverter) Convert(ctx converter.RenderContext) (converter.Result, error) {
-	content, toc, err := extractTOC(a.getAsciidocContent(ctx.Src, a.ctx))
+	content, toc, err := a.extractTOC(a.getAsciidocContent(ctx.Src, a.ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -204,7 +203,7 @@ func getAsciidoctorExecPath() string {
 
 // extractTOC extracts the toc from the given src html.
 // It returns the html without the TOC, and the TOC data
-func extractTOC(src []byte) ([]byte, tableofcontents.Root, error) {
+func (a *asciidocConverter) extractTOC(src []byte) ([]byte, tableofcontents.Root, error) {
 	var buf bytes.Buffer
 	buf.Write(src)
 	node, err := html.Parse(&buf)
@@ -219,7 +218,9 @@ func extractTOC(src []byte) ([]byte, tableofcontents.Root, error) {
 	f = func(n *html.Node) bool {
 		if n.Type == html.ElementNode && n.Data == "div" && attr(n, "id") == "toc" {
 			toc = parseTOC(n)
-			n.Parent.RemoveChild(n)
+			if !a.cfg.MarkupConfig.AsciidocExt.PreserveTOC {
+				n.Parent.RemoveChild(n)
+			}
 			return true
 		}
 		if n.FirstChild != nil {
@@ -285,7 +286,7 @@ func parseTOC(doc *html.Node) tableofcontents.Root {
 			f(n.NextSibling, row, level)
 		}
 	}
-	f(doc.FirstChild, 0, 0)
+	f(doc.FirstChild, -1, 0)
 	return toc
 }
 
@@ -300,9 +301,8 @@ func attr(node *html.Node, key string) string {
 
 func nodeContent(node *html.Node) string {
 	var buf bytes.Buffer
-	w := io.Writer(&buf)
 	for c := node.FirstChild; c != nil; c = c.NextSibling {
-		html.Render(w, c)
+		html.Render(&buf, c)
 	}
 	return buf.String()
 }
