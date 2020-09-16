@@ -65,12 +65,12 @@ install:
 script:
   - go mod download
   - go mod verify
-  - mage -v test
+  - travis_wait 20 mage -v test
   - >
     if [ "$TRAVIS_ARCH" = "amd64" ]; then
-      travis_wait 20 mage -v check;
+      mage -v check;
     else
-      HUGO_TIMEOUT=30000 travis_wait 20 mage -v check;
+      HUGO_TIMEOUT=30000 mage -v check;
     fi
   - mage -v hugo
   - ./hugo -s docs/
