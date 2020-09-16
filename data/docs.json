@@ -1535,7 +1535,8 @@
         "verbose": false,
         "trace": false,
         "failureLevel": "fatal",
-        "workingFolderCurrent": false
+        "workingFolderCurrent": false,
+        "preserveTOC": false
       }
     },
     "minify": {
