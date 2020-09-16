@@ -36,6 +36,7 @@ import (
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
+// Options esbuild configuration
 type Options struct {
 	// If not set, the source path will be used as the base target path.
 	// Note that the target path's extension may change if the target MIME type
@@ -63,6 +64,9 @@ type Options struct {
 
 	// User defined symbols.
 	Defines map[string]interface{}
+
+	// User defined data (must be JSON marshall'able)
+	Data interface{}
 
 	// What to use instead of React.createElement.
 	JSXFactory string
@@ -96,11 +100,13 @@ func decodeOptions(m map[string]interface{}) (Options, error) {
 	return opts, nil
 }
 
+// Client context for esbuild
 type Client struct {
 	rs  *resources.Spec
 	sfs *filesystems.SourceFilesystem
 }
 
+// New create new client context
 func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) *Client {
 	return &Client{rs: rs, sfs: fs}
 }
@@ -145,30 +151,26 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		return err
 	}
 
-	sdir, sfile := path.Split(ctx.SourcePath)
-	opts.workDir = t.rs.WorkingDir
+	sdir, sfile := path.Split(t.sfs.RealFilename(ctx.SourcePath))
+	opts.workDir, err = filepath.Abs(t.rs.WorkingDir)
+	if err != nil {
+		return err
+	}
+
 	opts.sourcefile = sfile
-	opts.resolveDir = t.sfs.RealFilename(sdir)
+	opts.resolveDir = sdir
 	opts.contents = string(src)
 	opts.mediaType = ctx.InMediaType
 
-	// Search for original ts/jsconfig file
-	tsConfig := path.Join(opts.workDir, "tsconfig.json")
-	jsConfig := path.Join(opts.workDir, "jsconfig.json")
-	_, err = os.Stat(jsConfig)
-	if err == nil {
-		tsConfig = jsConfig
-	}
-
 	// Get real source path
-	configDir, _ := path.Split(tsConfig)
+	configDir := opts.workDir
 
 	// Search for the innerMost tsconfig or jsconfig
 	innerTsConfig := ""
 	tsDir := opts.resolveDir
 	baseURLAbs := opts.workDir
 	baseURL := "."
-	for tsDir != "" {
+	for tsDir != "." {
 		tryTsConfig := path.Join(tsDir, "tsconfig.json")
 		_, err := os.Stat(tryTsConfig)
 		if err != nil {
@@ -182,10 +184,10 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 			innerTsConfig = tryTsConfig
 			break
 		}
-		tsDir = path.Dir(tsDir)
 		if tsDir == opts.workDir {
 			break
 		}
+		tsDir = path.Dir(tsDir)
 	}
 
 	// Resolve paths for @assets and @js (@js is just an alias for assets/js)
@@ -202,12 +204,6 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		if _, err := os.Stat(nodeModules); err == nil {
 			rootPaths = append(rootPaths, nodeModules)
 		}
-	}
-
-	// Create new temporary tsconfig file
-	newTSConfig, err := ioutil.TempFile(configDir, "tsconfig.*.json")
-	if err != nil {
-		return err
 	}
 
 	// Construct new temporary tsconfig file content
@@ -245,11 +241,11 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	}
 
 	// Assign new global paths to the config file while reading existing ones.
-	oldCompilerOptions := config["compilerOptions"].(map[string]interface{})
+	compilerOptions := config["compilerOptions"].(map[string]interface{})
 
 	// Handle original baseUrl if it's there
-	if oldCompilerOptions["baseUrl"] != nil {
-		baseURL = oldCompilerOptions["baseUrl"].(string)
+	if compilerOptions["baseUrl"] != nil {
+		baseURL = compilerOptions["baseUrl"].(string)
 		baseURLAbs = path.Join(tsDir, baseURL)
 		rel, _ := filepath.Rel(configDir, baseURLAbs)
 		if rel != "" {
@@ -259,19 +255,19 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 				baseURL = fmt.Sprintf("./%s", rel)
 			}
 		}
-		oldCompilerOptions["baseUrl"] = baseURL
+		compilerOptions["baseUrl"] = baseURL
 	} else {
-		oldCompilerOptions["baseUrl"] = baseURL
+		compilerOptions["baseUrl"] = baseURL
 	}
 
-	var oldPaths map[string]interface{}
+	var optionsPaths map[string]interface{}
 	// Get original paths if they exist
-	if oldCompilerOptions["paths"] != nil {
-		oldPaths = oldCompilerOptions["paths"].(map[string]interface{})
+	if compilerOptions["paths"] != nil {
+		optionsPaths = compilerOptions["paths"].(map[string]interface{})
 	} else {
-		oldPaths = make(map[string]interface{})
+		optionsPaths = make(map[string]interface{})
 	}
-	oldCompilerOptions["paths"] = oldPaths
+	compilerOptions["paths"] = optionsPaths
 
 	assets := make([]string, 0)
 	assetsExact := make([]string, 0)
@@ -290,18 +286,58 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		jsExact = appendExts(jsExact, rel)
 	}
 
-	oldPaths["@assets/*"] = assets
-	oldPaths["@js/*"] = js
+	optionsPaths["@assets/*"] = assets
+	optionsPaths["@js/*"] = js
+
 	// Make @js and @assets absolue matches search for index files
 	// to get around the problem in ESBuild resolving folders as index files.
-	oldPaths["@assets"] = assetsExact
-	oldPaths["@js"] = jsExact
+	optionsPaths["@assets"] = assetsExact
+	optionsPaths["@js"] = jsExact
+
+	filesToDelete := make([]*os.File, 0)
+
+	var newDataFile *os.File
+	if opts.Data != nil {
+		// Create a data file
+		newDataFile, err = ioutil.TempFile(configDir, "data.*.json")
+
+		// Output the data
+		bytes, err := json.MarshalIndent(opts.Data, "", "  ")
+		if err != nil {
+			return err
+		}
+
+		// Write tsconfig file
+		_, err = newDataFile.Write(bytes)
+		if err != nil {
+			return err
+		}
+		err = newDataFile.Close()
+		if err != nil {
+			return err
+		}
+
+		// Link this file into `import data from "@data"`
+		dataFiles := make([]string, 1)
+		rel, _ := filepath.Rel(baseURLAbs, newDataFile.Name())
+		dataFiles[0] = rel
+		optionsPaths["@data"] = dataFiles
+
+		filesToDelete = append(filesToDelete, newDataFile)
+	}
 
 	if len(rootPaths) > 0 {
 		// This will allow import "react" to resolve a react module that's
 		// either in the root node_modules or in one of the hugo mods.
-		oldPaths["*"] = rootPaths
+		optionsPaths["*"] = rootPaths
 	}
+
+	// Create new temporary tsconfig file
+	newTSConfig, err := ioutil.TempFile(configDir, "tsconfig.*.json")
+	if err != nil {
+		return err
+	}
+	filesToDelete = append(filesToDelete, newTSConfig)
 
 	// Output the new config file
 	bytes, err := json.MarshalIndent(config, "", "  ")
@@ -330,18 +366,21 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 
 	result := api.Build(buildOptions)
 
-	os.Remove(opts.tsConfig)
+	for _, file := range filesToDelete {
+		os.Remove(file.Name())
+	}
+	// os.Remove(opts.tsConfig)
 
 	if len(result.Warnings) > 0 {
 		for _, value := range result.Warnings {
 			if value.Location != nil {
 				t.rs.Logger.WARN.Println(fmt.Sprintf("%s:%d: WARN: %s",
-					t.sfs.RealFilename(filepath.Join(sdir, value.Location.File)),
+					filepath.Join(sdir, value.Location.File),
 					value.Location.Line, value.Text))
 				t.rs.Logger.WARN.Println("  ", value.Location.LineText)
 			} else {
 				t.rs.Logger.WARN.Println(fmt.Sprintf("%s: WARN: %s",
-					t.sfs.RealFilename(filepath.Join(sdir)),
+					sdir,
 					value.Text))
 			}
 		}
@@ -352,11 +391,11 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 			var line string
 			if value.Location != nil {
 				line = fmt.Sprintf("%s:%d ERROR: %s",
-					t.sfs.RealFilename(filepath.Join(sdir, value.Location.File)),
+					filepath.Join(sdir, value.Location.File),
 					value.Location.Line, value.Text)
 			} else {
 				line = fmt.Sprintf("%s ERROR: %s",
-					t.sfs.RealFilename(filepath.Join(sdir)),
+					sdir,
 					value.Text)
 			}
 			t.rs.Logger.ERROR.Println(line)
@@ -382,6 +421,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	return nil
 }
 
+// Process process esbuild transform
 func (c *Client) Process(res resources.ResourceTransformer, opts map[string]interface{}) (resource.Resource, error) {
 	return res.Transform(
 		&buildTransformation{rs: c.rs, sfs: c.sfs, optsm: opts},
@@ -453,6 +493,7 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 		defines = cast.ToStringMapString(opts.Defines)
 	}
 
+	// By default we only need to specify outDir and no outFile
 	var outDir = opts.outDir
 	var outFile = ""
 	var sourceMap api.SourceMap
@@ -460,6 +501,8 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 	case "inline":
 		sourceMap = api.SourceMapInline
 	case "external":
+		// When doing external sourcemaps we should specify
+		// out file and no out dir
 		sourceMap = api.SourceMapExternal
 		outFile = filepath.Join(opts.workDir, opts.TargetPath)
 		outDir = ""
