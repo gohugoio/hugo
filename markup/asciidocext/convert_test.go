@@ -277,11 +277,17 @@ func TestTableOfContents(t *testing.T) {
 		t.Skip("asciidoctor not installed")
 	}
 	c := qt.New(t)
-	p, err := Provider.New(converter.ProviderConfig{Logger: loggers.NewErrorLogger()})
+	mconf := markup_config.Default
+	p, err := Provider.New(
+		converter.ProviderConfig{
+			MarkupConfig: mconf,
+			Logger:       loggers.NewErrorLogger(),
+		},
+	)
 	c.Assert(err, qt.IsNil)
 	conv, err := p.New(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)
-	b, err := conv.Convert(converter.RenderContext{Src: []byte(`:toc: macro
+	r, err := conv.Convert(converter.RenderContext{Src: []byte(`:toc: macro
 :toclevels: 4
 toc::[]
 
@@ -300,11 +306,52 @@ testContent
 == Section 2
 `)})
 	c.Assert(err, qt.IsNil)
-	toc, ok := b.(converter.TableOfContentsProvider)
+	toc, ok := r.(converter.TableOfContentsProvider)
 	c.Assert(ok, qt.Equals, true)
-	root := toc.TableOfContents()
-	c.Assert(root.ToHTML(2, 4, false), qt.Equals, "<nav id=\"TableOfContents\">\n  <ul>\n    <li><a href=\"#_introduction\">Introduction</a></li>\n    <li><a href=\"#_section_1\">Section 1</a>\n      <ul>\n        <li><a href=\"#_section_1_1\">Section 1.1</a>\n          <ul>\n            <li><a href=\"#_section_1_1_1\">Section 1.1.1</a></li>\n          </ul>\n        </li>\n        <li><a href=\"#_section_1_2\">Section 1.2</a></li>\n      </ul>\n    </li>\n    <li><a href=\"#_section_2\">Section 2</a></li>\n  </ul>\n</nav>")
-	c.Assert(root.ToHTML(2, 3, false), qt.Equals, "<nav id=\"TableOfContents\">\n  <ul>\n    <li><a href=\"#_introduction\">Introduction</a></li>\n    <li><a href=\"#_section_1\">Section 1</a>\n      <ul>\n        <li><a href=\"#_section_1_1\">Section 1.1</a></li>\n        <li><a href=\"#_section_1_2\">Section 1.2</a></li>\n      </ul>\n    </li>\n    <li><a href=\"#_section_2\">Section 2</a></li>\n  </ul>\n</nav>")
+	expected := tableofcontents.Root{
+		Headers: tableofcontents.Headers{
+			{
+				ID:   "",
+				Text: "",
+				Headers: tableofcontents.Headers{
+					{
+						ID:      "_introduction",
+						Text:    "Introduction",
+						Headers: nil,
+					},
+					{
+						ID:   "_section_1",
+						Text: "Section 1",
+						Headers: tableofcontents.Headers{
+							{
+								ID:   "_section_1_1",
+								Text: "Section 1.1",
+								Headers: tableofcontents.Headers{
+									{
+										ID:      "_section_1_1_1",
+										Text:    "Section 1.1.1",
+										Headers: nil,
+									},
+								},
+							},
+							{
+								ID:      "_section_1_2",
+								Text:    "Section 1.2",
+								Headers: nil,
+							},
+						},
+					},
+					{
+						ID:      "_section_2",
+						Text:    "Section 2",
+						Headers: nil,
+					},
+				},
+			},
+		},
+	}
+	c.Assert(toc.TableOfContents(), qt.DeepEquals, expected)
+	c.Assert(string(r.Bytes()), qt.Not(qt.Contains), "<div id=\"toc\" class=\"toc\">")
 }
 
 func TestTableOfContentsWithCode(t *testing.T) {
@@ -322,26 +369,72 @@ func TestTableOfContentsWithCode(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	conv, err := p.New(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)
-	b, err := conv.Convert(converter.RenderContext{Src: []byte(`:toc: auto
+	r, err := conv.Convert(converter.RenderContext{Src: []byte(`:toc: auto
 
 == Some ` + "`code`" + ` in the title
 `)})
 	c.Assert(err, qt.IsNil)
-	toc, ok := b.(converter.TableOfContentsProvider)
+	toc, ok := r.(converter.TableOfContentsProvider)
 	c.Assert(ok, qt.Equals, true)
-	expected := tableofcontents.Headers{
-		{},
-		{
-			ID:   "",
-			Text: "",
-			Headers: tableofcontents.Headers{
-				{
-					ID:      "_some_code_in_the_title",
-					Text:    "Some <code>code</code> in the title",
-					Headers: nil,
+	expected := tableofcontents.Root{
+		Headers: tableofcontents.Headers{
+			{
+				ID:   "",
+				Text: "",
+				Headers: tableofcontents.Headers{
+					{
+						ID:      "_some_code_in_the_title",
+						Text:    "Some <code>code</code> in the title",
+						Headers: nil,
+					},
 				},
 			},
 		},
 	}
-	c.Assert(toc.TableOfContents().Headers, qt.DeepEquals, expected)
+	c.Assert(toc.TableOfContents(), qt.DeepEquals, expected)
+	c.Assert(string(r.Bytes()), qt.Not(qt.Contains), "<div id=\"toc\" class=\"toc\">")
+}
+
+func TestTableOfContentsPreserveTOC(t *testing.T) {
+	if !Supports() {
+		t.Skip("asciidoctor not installed")
+	}
+	c := qt.New(t)
+	mconf := markup_config.Default
+	mconf.AsciidocExt.PreserveTOC = true
+	p, err := Provider.New(
+		converter.ProviderConfig{
+			MarkupConfig: mconf,
+			Logger:       loggers.NewErrorLogger(),
+		},
+	)
+	c.Assert(err, qt.IsNil)
+	conv, err := p.New(converter.DocumentContext{})
+	c.Assert(err, qt.IsNil)
+	r, err := conv.Convert(converter.RenderContext{Src: []byte(`:toc:
+:idprefix:
+:idseparator: -
+
+== Some title
+`)})
+	c.Assert(err, qt.IsNil)
+	toc, ok := r.(converter.TableOfContentsProvider)
+	c.Assert(ok, qt.Equals, true)
+	expected := tableofcontents.Root{
+		Headers: tableofcontents.Headers{
+			{
+				ID:   "",
+				Text: "",
+				Headers: tableofcontents.Headers{
+					{
+						ID:      "some-title",
+						Text:    "Some title",
+						Headers: nil,
+					},
+				},
+			},
+		},
+	}
+	c.Assert(toc.TableOfContents(), qt.DeepEquals, expected)
+	c.Assert(string(r.Bytes()), qt.Contains, "<div id=\"toc\" class=\"toc\">")
 }

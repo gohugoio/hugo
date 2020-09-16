@@ -27,6 +27,7 @@ var (
 		Trace:                false,
 		FailureLevel:         "fatal",
 		WorkingFolderCurrent: false,
+		PreserveTOC:          false,
 	}
 
 	// CliDefault holds Asciidoctor CLI defaults (see https://asciidoctor.org/docs/user-manual/)
@@ -86,4 +87,5 @@ type Config struct {
 	Trace                bool
 	FailureLevel         string
 	WorkingFolderCurrent bool
+	PreserveTOC          bool
 }
