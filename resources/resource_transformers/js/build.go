@@ -123,11 +123,7 @@ func (t *buildTransformation) Key() internal.ResourceTransformationKey {
 
 func appendExts(list []string, rel string) []string {
 	for _, ext := range []string{".tsx", ".ts", ".jsx", ".mjs", ".cjs", ".js", ".json"} {
-		if strings.HasPrefix(rel, ".") {
-			list = append(list, fmt.Sprintf("./%s/js/index%s", rel, ext))
-		} else {
-			list = append(list, fmt.Sprintf("./%s/js/index%s", rel, ext))
-		}
+		list = append(list, fmt.Sprintf("%s/index%s", rel, ext))
 	}
 	return list
 }
@@ -151,7 +147,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		return err
 	}
 
-	sdir, sfile := path.Split(t.sfs.RealFilename(ctx.SourcePath))
+	sdir, sfile := filepath.Split(t.sfs.RealFilename(ctx.SourcePath))
 	opts.workDir, err = filepath.Abs(t.rs.WorkingDir)
 	if err != nil {
 		return err
@@ -162,13 +158,27 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	opts.contents = string(src)
 	opts.mediaType = ctx.InMediaType
 
-	// Get real source path
-	configDir := opts.workDir
+	// Create new temporary tsconfig file
+	newTSConfig, err := ioutil.TempFile("", "tsconfig.*.json")
+	if err != nil {
+		return err
+	}
+
+	filesToDelete := make([]*os.File, 0)
+
+	defer func() {
+		for _, file := range filesToDelete {
+			os.Remove(file.Name())
+		}
+	}()
+
+	filesToDelete = append(filesToDelete, newTSConfig)
+	configDir, _ := filepath.Split(newTSConfig.Name())
 
 	// Search for the innerMost tsconfig or jsconfig
 	innerTsConfig := ""
 	tsDir := opts.resolveDir
-	baseURLAbs := opts.workDir
+	baseURLAbs := configDir
 	baseURL := "."
 	for tsDir != "." {
 		tryTsConfig := path.Join(tsDir, "tsconfig.json")
@@ -178,10 +188,12 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 			_, err = os.Stat(tryTsConfig)
 			if err == nil {
 				innerTsConfig = tryTsConfig
+				baseURLAbs = tsDir
 				break
 			}
 		} else {
 			innerTsConfig = tryTsConfig
+			baseURLAbs = tsDir
 			break
 		}
 		if tsDir == opts.workDir {
@@ -225,29 +237,20 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		config["compilerOptions"] = map[string]interface{}{}
 	}
 
-	// Handle possible extends
-	if config["extends"] != nil {
-		extends := config["extends"].(string)
-		extendsAbs := path.Join(tsDir, extends)
-		rel, _ := filepath.Rel(configDir, extendsAbs)
-		if rel != "" {
-			if strings.HasPrefix(rel, ".") {
-				extends = rel
-			} else {
-				extends = fmt.Sprintf("./%s", rel)
-			}
-		}
-		config["extends"] = extends
-	}
-
 	// Assign new global paths to the config file while reading existing ones.
 	compilerOptions := config["compilerOptions"].(map[string]interface{})
 
 	// Handle original baseUrl if it's there
 	if compilerOptions["baseUrl"] != nil {
 		baseURL = compilerOptions["baseUrl"].(string)
-		baseURLAbs = path.Join(tsDir, baseURL)
-		rel, _ := filepath.Rel(configDir, baseURLAbs)
+		oldBaseURLAbs := path.Join(tsDir, baseURL)
+		rel, _ := filepath.Rel(configDir, oldBaseURLAbs)
+		configDir = oldBaseURLAbs
+		baseURLAbs = configDir
+		if "/" != helpers.FilePathSeparator {
+			// On windows we need to use slashes instead of backslash
+			rel = strings.ReplaceAll(rel, helpers.FilePathSeparator, "/")
+		}
 		if rel != "" {
 			if strings.HasPrefix(rel, ".") {
 				baseURL = rel
@@ -258,6 +261,30 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		compilerOptions["baseUrl"] = baseURL
 	} else {
 		compilerOptions["baseUrl"] = baseURL
+	}
+
+	jsRel := func(refPath string) string {
+		rel, _ := filepath.Rel(configDir, refPath)
+		if "/" != helpers.FilePathSeparator {
+			// On windows we need to use slashes instead of backslash
+			rel = strings.ReplaceAll(rel, helpers.FilePathSeparator, "/")
+		}
+		if rel != "" {
+			if !strings.HasPrefix(rel, ".") {
+				rel = fmt.Sprintf("./%s", rel)
+			}
+		} else {
+			rel = "."
+		}
+		return rel
+	}
+
+	// Handle possible extends
+	if config["extends"] != nil {
+		extends := config["extends"].(string)
+		extendsAbs := path.Join(tsDir, extends)
+		rel := jsRel(extendsAbs)
+		config["extends"] = rel
 	}
 
 	var optionsPaths map[string]interface{}
@@ -274,15 +301,12 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	js := make([]string, 0)
 	jsExact := make([]string, 0)
 	for _, dir := range dirs {
-		rel, _ := filepath.Rel(baseURLAbs, dir)
-		if strings.HasPrefix(rel, ".") {
-			assets = append(assets, fmt.Sprintf("%s/*", rel))
-			js = append(js, fmt.Sprintf("%s/js/*", rel))
-		} else {
-			assets = append(assets, fmt.Sprintf("./%s/*", rel))
-			js = append(js, fmt.Sprintf("./%s/js/*", rel))
-		}
+		rel := jsRel(dir)
+		assets = append(assets, fmt.Sprintf("%s/*", rel))
 		assetsExact = appendExts(assetsExact, rel)
+
+		rel = jsRel(filepath.Join(dir, "js"))
+		js = append(js, fmt.Sprintf("%s/*", rel))
 		jsExact = appendExts(jsExact, rel)
 	}
 
@@ -293,8 +317,6 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	// to get around the problem in ESBuild resolving folders as index files.
 	optionsPaths["@assets"] = assetsExact
 	optionsPaths["@js"] = jsExact
-
-	filesToDelete := make([]*os.File, 0)
 
 	var newDataFile *os.File
 	if opts.Data != nil {
@@ -332,13 +354,6 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		optionsPaths["*"] = rootPaths
 	}
 
-	// Create new temporary tsconfig file
-	newTSConfig, err := ioutil.TempFile(configDir, "tsconfig.*.json")
-	if err != nil {
-		return err
-	}
-	filesToDelete = append(filesToDelete, newTSConfig)
-
 	// Output the new config file
 	bytes, err := json.MarshalIndent(config, "", "  ")
 	if err != nil {
@@ -365,11 +380,6 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	}
 
 	result := api.Build(buildOptions)
-
-	for _, file := range filesToDelete {
-		os.Remove(file.Name())
-	}
-	// os.Remove(opts.tsConfig)
 
 	if len(result.Warnings) > 0 {
 		for _, value := range result.Warnings {
@@ -406,6 +416,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		}
 		return fmt.Errorf("%s", output)
 	}
+
 	if buildOptions.Outfile != "" {
 		_, tfile := path.Split(opts.TargetPath)
 		output := fmt.Sprintf("%s//# sourceMappingURL=%s\n",
