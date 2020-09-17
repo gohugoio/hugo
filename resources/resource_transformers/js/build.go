@@ -20,8 +20,10 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"reflect"
 	"strings"
 
+	"github.com/achiku/varfmt"
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -321,12 +323,65 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	var newDataFile *os.File
 	if opts.Data != nil {
 		// Create a data file
-		newDataFile, err = ioutil.TempFile(configDir, "data.*.json")
+		lines := make([]string, 0)
+		lines = append(lines, "// auto generated data import")
+		exports := make([]string, 0)
+		keys := make(map[string]bool)
 
-		// Output the data
-		bytes, err := json.MarshalIndent(opts.Data, "", "  ")
-		if err != nil {
-			return err
+		var bytes []byte
+
+		conv := reflect.ValueOf(opts.Data)
+		convType := conv.Kind()
+		if convType == reflect.Interface {
+			if conv.IsNil() {
+				conv = reflect.Value{}
+			}
+		}
+
+		if conv.Kind() != reflect.Map {
+			// Write out as single JSON file
+			newDataFile, err = ioutil.TempFile("", "data.*.json")
+			// Output the data
+			bytes, err = json.MarshalIndent(conv.InterfaceData(), "", "  ")
+			if err != nil {
+				return err
+			}
+		} else {
+			// Try to allow tree shaking at the root
+			newDataFile, err = ioutil.TempFile(configDir, "data.*.js")
+			for _, key := range conv.MapKeys() {
+				strKey := key.Interface().(string)
+				if keys[strKey] {
+					continue
+				}
+				keys[strKey] = true
+
+				value := conv.MapIndex(key)
+
+				keyVar := varfmt.PublicVarName(strKey)
+
+				// Output the data
+				bytes, err := json.MarshalIndent(value.Interface(), "", "  ")
+				if err != nil {
+					return err
+				}
+				jsonValue := string(bytes)
+
+				lines = append(lines, fmt.Sprintf("export const %s = %s;", keyVar, jsonValue))
+				exports = append(exports, fmt.Sprintf("  %s,", keyVar))
+				if strKey != keyVar {
+					exports = append(exports, fmt.Sprintf("  [\"%s\"]: %s,", strKey, keyVar))
+				}
+			}
+
+			lines = append(lines, "const all = {")
+			for _, line := range exports {
+				lines = append(lines, line)
+			}
+			lines = append(lines, "};")
+			lines = append(lines, "export default all;")
+
+			bytes = []byte(strings.Join(lines, "\n"))
 		}
 
 		// Write tsconfig file
