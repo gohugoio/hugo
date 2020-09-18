@@ -63,7 +63,7 @@ from snapcraft.internal import errors
 logger = logging.getLogger(__name__)
 
 _NODEJS_BASE = "node-v{version}-linux-{arch}"
-_NODEJS_VERSION = "12.18.3"
+_NODEJS_VERSION = "12.18.4"
 _NODEJS_TMPL = "https://nodejs.org/dist/v{version}/{base}.tar.gz"
 _NODEJS_ARCHES = {"i386": "x86", "amd64": "x64", "armhf": "armv7l", "arm64": "arm64", "ppc64el": "ppc64le", "s390x": "s390x"}
 _YARN_URL = "https://yarnpkg.com/latest.tar.gz"
