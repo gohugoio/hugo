@@ -23,6 +23,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -1027,11 +1028,20 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 		logger = helpers.NewDistinctFeedbackLogger()
 	)
 
+	var isCSSConfigRe = regexp.MustCompile(`(postcss|tailwind)\.config\.js`)
+	var isCSSFileRe = regexp.MustCompile(`\.(css|scss|sass)`)
+
 	var cachePartitions []string
+	// Special case
+	// TODO(bep) I have a ongoing branch where I have redone the cache. Consider this there.
+	var isCSSChange bool
 
 	for _, ev := range events {
 		if assetsFilename := s.BaseFs.Assets.MakePathRelative(ev.Name); assetsFilename != "" {
 			cachePartitions = append(cachePartitions, resources.ResourceKeyPartitions(assetsFilename)...)
+			if !isCSSChange {
+				isCSSChange = isCSSFileRe.MatchString(assetsFilename) || isCSSConfigRe.MatchString(assetsFilename)
+			}
 		}
 
 		id, found := s.eventToIdentity(ev)
@@ -1078,6 +1088,9 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 	// These in memory resource caches will be rebuilt on demand.
 	for _, s := range s.h.Sites {
 		s.ResourceSpec.ResourceCache.DeletePartitions(cachePartitions...)
+		if isCSSChange {
+			s.ResourceSpec.ResourceCache.DeleteContains("css", "scss", "sass")
+		}
 	}
 
 	if tmplChanged || i18nChanged {
