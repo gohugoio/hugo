@@ -88,7 +88,7 @@ ignoreConfig
 : If enabled, any module configuration file, e.g. `config.toml`, will not be loaded. Note that this will also stop the loading of any transitive module dependencies.
 
 disable
-: Set to `true` to disable the module off while keeping any version info in the `go.*` files.
+: Set to `true` to disable the module while keeping any version info in the `go.*` files.
 
 {{< gomodules-info >}}
 
