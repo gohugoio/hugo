@@ -87,6 +87,8 @@ func TestClassCollector(t *testing.T) {
 
 		{"Alpine transition 1", `<div x-transition:enter-start="opacity-0 transform mobile:-translate-x-8 sm:-translate-y-8">`, f("div", "mobile:-translate-x-8 opacity-0 sm:-translate-y-8 transform", "")},
 		{"Vue bind", `<div v-bind:class="{ active: isActive }"></div>`, f("div", "active", "")},
+		// https://github.com/gohugoio/hugo/issues/7746
+		{"Apostrophe inside attribute value", `<a class="missingclass" title="Plus d'information">my text</a><div></div>`, f("a div", "missingclass", "")},
 	} {
 		c.Run(test.name, func(c *qt.C) {
 			w := newHTMLElementsCollectorWriter(newHTMLElementsCollector())

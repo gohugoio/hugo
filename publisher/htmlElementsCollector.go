@@ -67,7 +67,9 @@ type cssClassCollectorWriter struct {
 
 	isCollecting bool
 	dropValue    bool
-	inQuote      bool
+
+	inQuote    bool
+	quoteValue byte
 }
 
 func (w *cssClassCollectorWriter) Write(p []byte) (n int, err error) {
@@ -165,7 +167,12 @@ func (c *cssClassCollectorWriter) startCollecting() {
 
 func (c *cssClassCollectorWriter) toggleIfQuote(b byte) {
 	if isQuote(b) {
-		c.inQuote = !c.inQuote
+		if c.inQuote && b == c.quoteValue {
+			c.inQuote = false
+		} else if !c.inQuote {
+			c.inQuote = true
+			c.quoteValue = b
+		}
 	}
 }
 
