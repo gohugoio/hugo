@@ -53,6 +53,9 @@ type GoogleAnalytics struct {
 
 	// Enabling this will make it so the users' IP addresses are anonymized within Google Analytics.
 	AnonymizeIP bool
+
+	// Enabling this will make it so extra page information is not sent to Google Analytics
+	DisableEnchancedData bool
 }
 
 // Instagram holds the privacy configuration settings related to the Instagram shortcode.

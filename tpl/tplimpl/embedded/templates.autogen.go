@@ -121,32 +121,47 @@ var EmbeddedTemplates = [][2]string{
 	{`google_analytics.html`, `{{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
 {{- if not $pc.Disable -}}
 {{ with .Site.GoogleAnalytics }}
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ . }}"></script>
 <script type="application/javascript">
 {{ template "__ga_js_set_doNotTrack" $ }}
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	{{- if $pc.UseSessionStorage }}
-	if (window.sessionStorage) {
-		var GA_SESSION_STORAGE_KEY = 'ga:clientId';
-		ga('create', '{{ . }}', {
-	    'storage': 'none',
-	    'clientId': sessionStorage.getItem(GA_SESSION_STORAGE_KEY)
-	   });
-	   ga(function(tracker) {
-	    sessionStorage.setItem(GA_SESSION_STORAGE_KEY, tracker.get('clientId'));
-	   });
-   }
-	{{ else }}
-	ga('create', '{{ . }}', 'auto');
-	{{ end -}}
-	{{ if $pc.AnonymizeIP }}ga('set', 'anonymizeIp', true);{{ end }}
-	ga('send', 'pageview');
+  var config = { 'send_page_view': true };
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+
+  {{ if $pc.UseSessionStorage -}}
+  var GA_STORAGE_KEY = 'ga:clientId';
+  if (window.sessionStorage && sessionStorage.getItem(GA_STORAGE_KEY)) {
+    sessionStorage.setItem(GA_STORAGE_KEY);
+  }
+  config['client_storage'] = 'none';
+  config['client_id'] = sessionStorage.getItem(GA_STORAGE_KEY);
+  {{ end -}}
+
+  {{ if $pc.AnonymizeIP }}
+  config['anonymize_ip'] = true;
+  {{ end -}}
+  
+  {{ if not $pc.DisableEnchancedData -}}
+  gtag('title', '{{ $.Title }}');
+  gtag('permalink', '{{ $.Permalink }}');
+  gtag('published_date', '{{ $.Date.Format "2006-01-22" }}');
+  gtag('modified_date', '{{ $.Lastmod.Format "2006-01-22" }}');
+  gtag('language', '{{ $.Language }}');
+  gtag('kind', '{{ $.Kind }}');
+  gtag('type', '{{ $.Type }}');
+  gtag('tags', {{ $.Params.tags }});
+  gtag('categories', {{ $.Params.categories }});
+  {{ end -}}
+
+  gtag('js', new Date());
+  gtag('config', '{{ . }}', config);
+}
+else {
+  window['ga-disable-{{ . }}'] = true;
 }
 </script>
-{{ end }}
+{{ end -}}
 {{- end -}}
 {{- define "__ga_js_set_doNotTrack" -}}{{/* This is also used in the async version. */}}
 {{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
@@ -157,35 +172,8 @@ var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
 var doNotTrack = (dnt == "1" || dnt == "yes");
 {{- end -}}
 {{- end -}}`},
-	{`google_analytics_async.html`, `{{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
-{{- if not $pc.Disable -}}
-{{ with .Site.GoogleAnalytics }}
-<script type="application/javascript">
-{{ template "__ga_js_set_doNotTrack" $ }}
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	{{- if $pc.UseSessionStorage }}
-	if (window.sessionStorage) {
-		var GA_SESSION_STORAGE_KEY = 'ga:clientId';
-		ga('create', '{{ . }}', {
-	    'storage': 'none',
-	    'clientId': sessionStorage.getItem(GA_SESSION_STORAGE_KEY)
-	   });
-	   ga(function(tracker) {
-	    sessionStorage.setItem(GA_SESSION_STORAGE_KEY, tracker.get('clientId'));
-	   });
-   }
-	{{ else }}
-	ga('create', '{{ . }}', 'auto');
-	{{ end -}}
-	{{ if $pc.AnonymizeIP }}ga('set', 'anonymizeIp', true);{{ end }}
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-{{ end }}
-{{- end -}}
-`},
+	{`google_analytics_async.html`, `{{/* This template file is for backwards compatibility only. */}}
+{{ template "_internal/google_analytics.html" . }}`},
 	{`google_news.html`, `{{ if .IsPage }}{{ with .Params.news_keywords }}
   <meta name="news_keywords" content="{{ range $i, $kw := first 10 . }}{{ if $i }},{{ end }}{{ $kw }}{{ end }}" />
 {{ end }}{{ end }}`},

@@ -42,6 +42,7 @@ disable = false
 respectDoNotTrack = false
 anonymizeIP = false
 useSessionStorage = false
+disableEnchancedData = false
 [privacy.instagram]
 disable = false
 simple = false
@@ -90,6 +91,9 @@ respectDoNotTrack
 
 useSessionStorage
 : Enabling this will disable the use of Cookies and use Session Storage to Store the GA Client ID.
+
+disableEnchancedData bool
+: Enabling this will make it so extra page information is not sent to Google Analytics
 
 ### Instagram
 
