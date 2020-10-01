@@ -116,5 +116,8 @@ func (ns *Namespace) Plainify(s interface{}) (string, error) {
 		return "", err
 	}
 
+	ss = helpers.StripTag(ss, "script")
+	ss = helpers.StripTag(ss, "style")
+
 	return helpers.StripHTML(ss), nil
 }

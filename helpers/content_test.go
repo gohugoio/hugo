@@ -91,6 +91,32 @@ func BenchmarkStripHTML(b *testing.B) {
 	}
 }
 
+func TestStripTag(t *testing.T) {
+	type test struct {
+		input, expected, tag string
+	}
+	data := []test{
+		{"Test one <script>alert('test');</script>here", "Test one here", "script"},
+		{"Test two <style>p { color:#ff000; }</style>here", "Test two here", "style"},
+		{"Test strip script not style <script>alert('test');</script><style>p { color:#ff000; }</style>here", "Test strip script not style <style>p { color:#ff000; }</style>here", "script"},
+		{"No Tags", "No Tags", "script"},
+	}
+
+	for i, d := range data {
+		output := StripTag(d.input, d.tag)
+		if d.expected != output {
+			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
+		}
+	}
+}
+
+func BenchmarkStripTag(b *testing.B) {
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		StripTag(tstHTMLContent, "script")
+	}
+}
+
 func TestStripEmptyNav(t *testing.T) {
 	c := qt.New(t)
 	cleaned := stripEmptyNav([]byte("do<nav>\n</nav>\n\nbedobedo"))

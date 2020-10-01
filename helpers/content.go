@@ -148,6 +148,44 @@ func StripHTML(s string) string {
 	return b.String()
 }
 
+// StripTag accepts a string, strips out the given tag and all of its contents and returns a string.
+func StripTag(in string, tag string) string {
+	if len(tag) == 0 {
+		return in
+	}
+
+	startTag := "<" + tag
+	endTag := "</" + tag + ">"
+
+	start := strings.Index(in, startTag)
+	if start < 0 {
+		return in
+	}
+
+	result := make([]byte, start, len(in))
+	copy(result, in)
+
+	for {
+		end := strings.Index(in[start+len(startTag):], endTag)
+		if end < 0 {
+			result = append(result, in[start:]...)
+			break
+		}
+		end += (start + len(startTag)) + len(endTag)
+
+		start = strings.Index(in[end:], startTag)
+		if start < 0 {
+			result = append(result, in[end:]...)
+			break
+		}
+		start += end
+
+		result = append(result, in[end:start]...)
+	}
+
+	return string(result)
+}
+
 // stripEmptyNav strips out empty <nav> tags from content.
 func stripEmptyNav(in []byte) []byte {
 	return bytes.Replace(in, []byte("<nav>\n</nav>\n\n"), []byte(``), -1)
