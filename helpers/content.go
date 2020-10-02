@@ -119,6 +119,38 @@ func StripHTML(s string) string {
 	}
 	s = stripHTMLReplacer.Replace(s)
 
+	for _, value := range []string{"script", "style"} {
+		startTag := "<" + value
+		endTag := "</" + value + ">"
+
+		start := strings.Index(s, startTag)
+		if start >= 0 {
+
+			result := make([]byte, start, len(s))
+			copy(result, s)
+
+			for {
+				end := strings.Index(s[start+len(startTag):], endTag)
+				if end < 0 {
+					result = append(result, s[start:]...)
+					break
+				}
+				end += (start + len(startTag)) + len(endTag)
+
+				start = strings.Index(s[end:], startTag)
+				if start < 0 {
+					result = append(result, s[end:]...)
+					break
+				}
+				start += end
+
+				result = append(result, s[end:start]...)
+			}
+
+			s = string(result)
+		}
+	}
+
 	// Walk through the string removing all tags
 	b := bp.GetBuffer()
 	defer bp.PutBuffer(b)
@@ -146,44 +178,6 @@ func StripHTML(s string) string {
 
 	}
 	return b.String()
-}
-
-// StripTag accepts a string, strips out the given tag and all of its contents and returns a string.
-func StripTag(in string, tag string) string {
-	if len(tag) == 0 {
-		return in
-	}
-
-	startTag := "<" + tag
-	endTag := "</" + tag + ">"
-
-	start := strings.Index(in, startTag)
-	if start < 0 {
-		return in
-	}
-
-	result := make([]byte, start, len(in))
-	copy(result, in)
-
-	for {
-		end := strings.Index(in[start+len(startTag):], endTag)
-		if end < 0 {
-			result = append(result, in[start:]...)
-			break
-		}
-		end += (start + len(startTag)) + len(endTag)
-
-		start = strings.Index(in[end:], startTag)
-		if start < 0 {
-			result = append(result, in[end:]...)
-			break
-		}
-		start += end
-
-		result = append(result, in[end:start]...)
-	}
-
-	return string(result)
 }
 
 // stripEmptyNav strips out empty <nav> tags from content.

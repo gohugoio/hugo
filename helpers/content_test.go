@@ -28,7 +28,7 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
-const tstHTMLContent = "<!DOCTYPE html><html><head><script src=\"http://two/foobar.js\"></script></head><body><nav><ul><li hugo-nav=\"section_0\"></li><li hugo-nav=\"section_1\"></li></ul></nav><article>content <a href=\"http://two/foobar\">foobar</a>. Follow up</article><p>This is some text.<br>And some more.</p></body></html>"
+const tstHTMLContent = "<!DOCTYPE html><html><head><script src=\"http://two/foobar.js\"></script><style>p { color:#ff000; }</style></head><body><nav><ul><li hugo-nav=\"section_0\"></li><li hugo-nav=\"section_1\"></li></ul></nav><article>content <a href=\"http://two/foobar\">foobar</a>. Follow up</article><p>This is some text.<br>And some more.</p><script>alert('test');</script></body></html>"
 
 func TestTrimShortHTML(t *testing.T) {
 	tests := []struct {
@@ -63,6 +63,9 @@ func TestStripHTML(t *testing.T) {
 		{"</br> strip br<br>", " strip br\n"},
 		{"</br> strip br2<br />", " strip br2\n"},
 		{"This <strong>is</strong> a\nnewline", "This is a newline"},
+		{"Test one <script>alert('test');</script>here", "Test one here"},
+		{"Test two <style>p { color:#ff000; }</style>here", "Test two here"},
+		{"Test strip script and style <script>alert('test');</script><style>p { color:#ff000; }</style>here", "Test strip script and style here"},
 		{"No Tags", "No Tags"},
 		{`<p>Summary Next Line.
 <figure >
@@ -88,32 +91,6 @@ func BenchmarkStripHTML(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		StripHTML(tstHTMLContent)
-	}
-}
-
-func TestStripTag(t *testing.T) {
-	type test struct {
-		input, expected, tag string
-	}
-	data := []test{
-		{"Test one <script>alert('test');</script>here", "Test one here", "script"},
-		{"Test two <style>p { color:#ff000; }</style>here", "Test two here", "style"},
-		{"Test strip script not style <script>alert('test');</script><style>p { color:#ff000; }</style>here", "Test strip script not style <style>p { color:#ff000; }</style>here", "script"},
-		{"No Tags", "No Tags", "script"},
-	}
-
-	for i, d := range data {
-		output := StripTag(d.input, d.tag)
-		if d.expected != output {
-			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
-		}
-	}
-}
-
-func BenchmarkStripTag(b *testing.B) {
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		StripTag(tstHTMLContent, "script")
 	}
 }
 
