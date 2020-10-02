@@ -51,6 +51,7 @@ enableDNT = false
 simple = false
 [privacy.vimeo]
 disable = false
+enableDNT = false
 simple = false
 [privacy.youtube]
 disable = false
@@ -127,6 +128,9 @@ privacyEnhanced
 : When you turn on privacy-enhanced mode, YouTube won’t store information about visitors on your website unless the user plays the embedded video.
 
 ### Vimeo
+
+enableDNT
+: Enabling this for the vimeo shortcode, the Vimeo player will be blocked from tracking any session data, including all cookies and stats.
 
 simple
 : If simple mode is enabled, the video thumbnail is fetched from Vimeo's servers and it is overlayed with a play button. If the user clicks to play the video, it will open in a new tab directly on Vimeo's website.
