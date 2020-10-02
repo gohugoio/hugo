@@ -46,6 +46,7 @@ enableDNT = true
 simple = true
 [privacy.vimeo]
 disable = true
+enableDNT = true
 simple = true
 [privacy.youtube]
 disable = true
@@ -64,7 +65,7 @@ simple = true
 		pc.GoogleAnalytics.RespectDoNotTrack, pc.GoogleAnalytics.AnonymizeIP,
 		pc.GoogleAnalytics.UseSessionStorage, pc.GoogleAnalytics.DisableEnchancedData,
 		pc.Instagram.Disable, pc.Instagram.Simple, pc.Twitter.Disable, pc.Twitter.EnableDNT,
-		pc.Twitter.Simple, pc.Vimeo.Disable, pc.Vimeo.Simple,
+		pc.Twitter.Simple, pc.Vimeo.Disable, pc.Vimeo.EnableDNT, pc.Vimeo.Simple,
 		pc.YouTube.PrivacyEnhanced, pc.YouTube.Disable,
 	}
 
