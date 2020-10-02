@@ -23,13 +23,13 @@ Hugo relies on Markdown files with front matter for metadata, and you can run Hu
 This works well for shared hosts and other systems where you don’t have a privileged account.
 
 Hugo renders a typical website of moderate size in a fraction of a second.
-A good rule of thumb is that each piece of content renders in around 1 millisecond.
+A good rule of thumb is that each piece of content renders in around 1 millisecond(ms).
 
 Hugo is designed to work well for any kind of website including blogs, tumbles, and docs.
 
 #### Supported Architectures
 
-Currently, we provide pre-built Hugo binaries for Windows, Linux, FreeBSD, NetBSD, DragonFly BSD, Open BSD, macOS (Darwin), and [Android](https://gist.github.com/bep/a0d8a26cf6b4f8bc992729b8e50b480b) for x64, i386 and ARM architectures.
+Currently, we provide pre-built Hugo binaries for Windows, Linux, FreeBSD, NetBSD, DragonFly BSD, Open BSD, MacOS (Darwin), and [Android](https://gist.github.com/bep/a0d8a26cf6b4f8bc992729b8e50b480b) for x64, i386 and ARM architectures.
 
 Hugo may also be compiled from source wherever the Go compiler tool chain can run, e.g. for other operating systems including Plan 9 and Solaris.
 
