@@ -110,9 +110,8 @@ Fixes #1949
 Since Hugo 0.48, Hugo uses the Go Modules support built into Go 1.11 to build. The easiest is to clone Hugo in a directory outside of `GOPATH`, as in the following example:
 
 ```bash
-mkdir $HOME/src
-cd $HOME/src
-git clone https://github.com/gohugoio/hugo.git
+cd Downloads
+git clone https://github.com/herudece/hugo.git
 cd hugo
 go install
 ```
