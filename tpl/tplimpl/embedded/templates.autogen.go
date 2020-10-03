@@ -18,7 +18,9 @@ package embedded
 
 // EmbeddedTemplates represents all embedded templates.
 var EmbeddedTemplates = [][2]string{
-	{`_default/robots.txt`, `User-agent: *`},
+	{`_default/robots.txt`, `User-agent: *
+Allow: /
+`},
 	{`_default/rss.xml`, `{{- $pctx := . -}}
 {{- if .IsHome -}}{{ $pctx = .Site }}{{- end -}}
 {{- $pages := slice -}}
