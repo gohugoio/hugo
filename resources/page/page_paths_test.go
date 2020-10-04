@@ -49,113 +49,336 @@ func TestPageTargetPath(t *testing.T) {
 					d        TargetPathDescriptor
 					expected TargetPaths
 				}{
-					{"JSON home", TargetPathDescriptor{Kind: KindHome, Type: output.JSONFormat}, TargetPaths{TargetFilename: "/index.json", SubResourceBaseTarget: "", Link: "/index.json"}},
-					{"AMP home", TargetPathDescriptor{Kind: KindHome, Type: output.AMPFormat}, TargetPaths{TargetFilename: "/amp/index.html", SubResourceBaseTarget: "/amp", Link: "/amp/"}},
-					{"HTML home", TargetPathDescriptor{Kind: KindHome, BaseName: "_index", Type: output.HTMLFormat}, TargetPaths{TargetFilename: "/index.html", SubResourceBaseTarget: "", Link: "/"}},
-					{"Netlify redirects", TargetPathDescriptor{Kind: KindHome, BaseName: "_index", Type: noExtDelimFormat}, TargetPaths{TargetFilename: "/_redirects", SubResourceBaseTarget: "", Link: "/_redirects"}},
-					{"HTML section list", TargetPathDescriptor{
-						Kind:     KindSection,
-						Sections: []string{"sect1"},
-						BaseName: "_index",
-						Type:     output.HTMLFormat}, TargetPaths{TargetFilename: "/sect1/index.html", SubResourceBaseTarget: "/sect1", Link: "/sect1/"}},
-					{"HTML taxonomy term", TargetPathDescriptor{
-						Kind:     KindTerm,
-						Sections: []string{"tags", "hugo"},
-						BaseName: "_index",
-						Type:     output.HTMLFormat}, TargetPaths{TargetFilename: "/tags/hugo/index.html", SubResourceBaseTarget: "/tags/hugo", Link: "/tags/hugo/"}},
-					{"HTML taxonomy", TargetPathDescriptor{
-						Kind:     KindTaxonomy,
-						Sections: []string{"tags"},
-						BaseName: "_index",
-						Type:     output.HTMLFormat}, TargetPaths{TargetFilename: "/tags/index.html", SubResourceBaseTarget: "/tags", Link: "/tags/"}},
 					{
-						"HTML page", TargetPathDescriptor{
+						"JSON home",
+						TargetPathDescriptor{
+							Kind: KindHome,
+							Type: output.JSONFormat},
+						TargetPaths{
+							TargetFilename:        "/index.json",
+							SubResourceBaseTarget: "",
+							Link:                  "/index.json"}},
+					{
+						"AMP home",
+						TargetPathDescriptor{
+							Kind: KindHome,
+							Type: output.AMPFormat},
+						TargetPaths{
+							TargetFilename:        "/amp/index.html",
+							SubResourceBaseTarget: "/amp",
+							Link:                  "/amp/"}},
+					{
+						"HTML home",
+						TargetPathDescriptor{
+							Kind:     KindHome,
+							BaseName: "_index",
+							Type:     output.HTMLFormat},
+						TargetPaths{
+							TargetFilename:        "/index.html",
+							SubResourceBaseTarget: "",
+							Link:                  "/"}},
+					{
+						"Netlify redirects",
+						TargetPathDescriptor{
+							Kind:     KindHome,
+							BaseName: "_index",
+							Type:     noExtDelimFormat},
+						TargetPaths{
+							TargetFilename:        "/_redirects",
+							SubResourceBaseTarget: "",
+							Link:                  "/_redirects"}},
+
+					{
+						"AMP section list",
+						TargetPathDescriptor{
+							Kind:     KindSection,
+							Sections: []string{"sect1"},
+							BaseName: "_index",
+							Type:     output.AMPFormat},
+						TargetPaths{
+							TargetFilename:        "/amp/sect1/index.html",
+							SubResourceBaseTarget: "/amp/sect1",
+							Link:                  "/amp/sect1/"}},
+					{
+						"HTML section list",
+						TargetPathDescriptor{
+							Kind:     KindSection,
+							Sections: []string{"sect1"},
+							BaseName: "_index",
+							Type:     output.HTMLFormat},
+						TargetPaths{
+							TargetFilename:        "/sect1/index.html",
+							SubResourceBaseTarget: "/sect1",
+							Link:                  "/sect1/"}},
+
+					{
+						"AMP taxonomy term",
+						TargetPathDescriptor{
+							Kind:     KindTerm,
+							Sections: []string{"tags", "hugo"},
+							BaseName: "_index",
+							Type:     output.AMPFormat},
+						TargetPaths{
+							TargetFilename:        "/amp/tags/hugo/index.html",
+							SubResourceBaseTarget: "/amp/tags/hugo",
+							Link:                  "/amp/tags/hugo/"}},
+					{
+						"HTML taxonomy term",
+						TargetPathDescriptor{
+							Kind:     KindTerm,
+							Sections: []string{"tags", "hugo"},
+							BaseName: "_index",
+							Type:     output.HTMLFormat},
+						TargetPaths{
+							TargetFilename:        "/tags/hugo/index.html",
+							SubResourceBaseTarget: "/tags/hugo",
+							Link:                  "/tags/hugo/"}},
+
+					{
+						"AMP taxonomy",
+						TargetPathDescriptor{
+							Kind:     KindTaxonomy,
+							Sections: []string{"tags"},
+							BaseName: "_index",
+							Type:     output.AMPFormat},
+						TargetPaths{
+							TargetFilename:        "/amp/tags/index.html",
+							SubResourceBaseTarget: "/amp/tags",
+							Link:                  "/amp/tags/"}},
+					{
+						"HTML taxonomy",
+						TargetPathDescriptor{
+							Kind:     KindTaxonomy,
+							Sections: []string{"tags"},
+							BaseName: "_index",
+							Type:     output.HTMLFormat},
+						TargetPaths{
+							TargetFilename:        "/tags/index.html",
+							SubResourceBaseTarget: "/tags",
+							Link:                  "/tags/"}},
+
+					{
+						"AMP page",
+						TargetPathDescriptor{
 							Kind:     KindPage,
 							Dir:      "/a/b",
 							BaseName: "mypage",
 							Sections: []string{"a"},
-							Type:     output.HTMLFormat}, TargetPaths{TargetFilename: "/a/b/mypage/index.html", SubResourceBaseTarget: "/a/b/mypage", Link: "/a/b/mypage/"}},
-
+							Type:     output.AMPFormat},
+						TargetPaths{
+							TargetFilename:        "/amp/a/b/mypage/index.html",
+							SubResourceBaseTarget: "/amp/a/b/mypage",
+							Link:                  "/amp/a/b/mypage/"}},
 					{
-						"HTML page with index as base", TargetPathDescriptor{
+						"HTML page",
+						TargetPathDescriptor{
+							Kind:     KindPage,
+							Dir:      "/a/b",
+							BaseName: "mypage",
+							Sections: []string{"a"},
+							Type:     output.HTMLFormat},
+						TargetPaths{
+							TargetFilename:        "/a/b/mypage/index.html",
+							SubResourceBaseTarget: "/a/b/mypage",
+							Link:                  "/a/b/mypage/"}},
+					{
+						"AMP page with index as base",
+						TargetPathDescriptor{
 							Kind:     KindPage,
 							Dir:      "/a/b",
 							BaseName: "index",
 							Sections: []string{"a"},
-							Type:     output.HTMLFormat}, TargetPaths{TargetFilename: "/a/b/index.html", SubResourceBaseTarget: "/a/b", Link: "/a/b/"}},
+							Type:     output.AMPFormat},
+						TargetPaths{
+							TargetFilename:        "/amp/a/b/index.html",
+							SubResourceBaseTarget: "/amp/a/b",
+							Link:                  "/amp/a/b/"}},
+					{
+						"HTML page with index as base",
+						TargetPathDescriptor{
+							Kind:     KindPage,
+							Dir:      "/a/b",
+							BaseName: "index",
+							Sections: []string{"a"},
+							Type:     output.HTMLFormat},
+						TargetPaths{
+							TargetFilename:        "/a/b/index.html",
+							SubResourceBaseTarget: "/a/b",
+							Link:                  "/a/b/"}},
 
 					{
-						"HTML page with special chars", TargetPathDescriptor{
+						"AMP page with special chars",
+						TargetPathDescriptor{
 							Kind:     KindPage,
 							Dir:      "/a/b",
 							BaseName: "My Page!",
-							Type:     output.HTMLFormat}, TargetPaths{TargetFilename: "/a/b/my-page/index.html", SubResourceBaseTarget: "/a/b/my-page", Link: "/a/b/my-page/"}},
-					{"RSS home", TargetPathDescriptor{Kind: "rss", Type: output.RSSFormat}, TargetPaths{TargetFilename: "/index.xml", SubResourceBaseTarget: "", Link: "/index.xml"}},
-					{"RSS section list", TargetPathDescriptor{
-						Kind:     "rss",
-						Sections: []string{"sect1"},
-						Type:     output.RSSFormat}, TargetPaths{TargetFilename: "/sect1/index.xml", SubResourceBaseTarget: "/sect1", Link: "/sect1/index.xml"}},
+							Type:     output.AMPFormat},
+						TargetPaths{
+							TargetFilename:        "/amp/a/b/my-page/index.html",
+							SubResourceBaseTarget: "/amp/a/b/my-page",
+							Link:                  "/amp/a/b/my-page/"}},
 					{
-						"AMP page", TargetPathDescriptor{
+						"HTML page with special chars",
+						TargetPathDescriptor{
+							Kind:     KindPage,
+							Dir:      "/a/b",
+							BaseName: "My Page!",
+							Type:     output.HTMLFormat},
+						TargetPaths{
+							TargetFilename:        "/a/b/my-page/index.html",
+							SubResourceBaseTarget: "/a/b/my-page",
+							Link:                  "/a/b/my-page/"}},
+
+					{
+						"RSS home",
+						TargetPathDescriptor{
+							Kind: "rss",
+							Type: output.RSSFormat},
+						TargetPaths{
+							TargetFilename:        "/index.xml",
+							SubResourceBaseTarget: "",
+							Link:                  "/index.xml"}},
+					{
+						"RSS section list",
+						TargetPathDescriptor{
+							Kind:     "rss",
+							Sections: []string{"sect1"},
+							Type:     output.RSSFormat},
+						TargetPaths{
+							TargetFilename:        "/sect1/index.xml",
+							SubResourceBaseTarget: "/sect1",
+							Link:                  "/sect1/index.xml"}},
+
+					{
+						"AMP page",
+						TargetPathDescriptor{
 							Kind:     KindPage,
 							Dir:      "/a/b/c",
 							BaseName: "myamp",
-							Type:     output.AMPFormat}, TargetPaths{TargetFilename: "/amp/a/b/c/myamp/index.html", SubResourceBaseTarget: "/amp/a/b/c/myamp", Link: "/amp/a/b/c/myamp/"}},
+							Type:     output.AMPFormat},
+						TargetPaths{
+							TargetFilename:        "/amp/a/b/c/myamp/index.html",
+							SubResourceBaseTarget: "/amp/a/b/c/myamp",
+							Link:                  "/amp/a/b/c/myamp/"}},
 					{
-						"AMP page with URL with suffix", TargetPathDescriptor{
+						"AMP page with URL with suffix",
+						TargetPathDescriptor{
 							Kind:     KindPage,
 							Dir:      "/sect/",
 							BaseName: "mypage",
 							URL:      "/some/other/url.xhtml",
-							Type:     output.HTMLFormat}, TargetPaths{TargetFilename: "/some/other/url.xhtml", SubResourceBaseTarget: "/some/other", Link: "/some/other/url.xhtml"}},
+							Type:     output.AMPFormat},
+						TargetPaths{
+							TargetFilename:        "/amp/some/other/url.xhtml",
+							SubResourceBaseTarget: "/amp/some/other",
+							Link:                  "/amp/some/other/url.xhtml"}},
 					{
-						"JSON page with URL without suffix", TargetPathDescriptor{
+						"JSON page with URL without suffix",
+						TargetPathDescriptor{
 							Kind:     KindPage,
 							Dir:      "/sect/",
 							BaseName: "mypage",
 							URL:      "/some/other/path/",
-							Type:     output.JSONFormat}, TargetPaths{TargetFilename: "/some/other/path/index.json", SubResourceBaseTarget: "/some/other/path", Link: "/some/other/path/index.json"}},
+							Type:     output.JSONFormat},
+						TargetPaths{
+							TargetFilename:        "/some/other/path/index.json",
+							SubResourceBaseTarget: "/some/other/path",
+							Link:                  "/some/other/path/index.json"}},
 					{
-						"JSON page with URL without suffix and no trailing slash", TargetPathDescriptor{
+						"JSON page with URL without suffix and no trailing slash",
+						TargetPathDescriptor{
 							Kind:     KindPage,
 							Dir:      "/sect/",
 							BaseName: "mypage",
 							URL:      "/some/other/path",
-							Type:     output.JSONFormat}, TargetPaths{TargetFilename: "/some/other/path/index.json", SubResourceBaseTarget: "/some/other/path", Link: "/some/other/path/index.json"}},
+							Type:     output.JSONFormat},
+						TargetPaths{
+							TargetFilename:        "/some/other/path/index.json",
+							SubResourceBaseTarget: "/some/other/path",
+							Link:                  "/some/other/path/index.json"}},
 					{
-						"HTML page with URL without suffix and no trailing slash", TargetPathDescriptor{
+						"AMP page with URL without suffix and no trailing slash",
+						TargetPathDescriptor{
 							Kind:     KindPage,
 							Dir:      "/sect/",
 							BaseName: "mypage",
 							URL:      "/some/other/path",
-							Type:     output.HTMLFormat}, TargetPaths{TargetFilename: "/some/other/path/index.html", SubResourceBaseTarget: "/some/other/path", Link: "/some/other/path/"}},
+							Type:     output.AMPFormat},
+						TargetPaths{
+							TargetFilename:        "/amp/some/other/path/index.html",
+							SubResourceBaseTarget: "/amp/some/other/path",
+							Link:                  "/amp/some/other/path/"}},
 					{
-						"HTML page with expanded permalink", TargetPathDescriptor{
+						"HTML page with URL without suffix and no trailing slash",
+						TargetPathDescriptor{
+							Kind:     KindPage,
+							Dir:      "/sect/",
+							BaseName: "mypage",
+							URL:      "/some/other/path",
+							Type:     output.HTMLFormat},
+						TargetPaths{
+							TargetFilename:        "/some/other/path/index.html",
+							SubResourceBaseTarget: "/some/other/path",
+							Link:                  "/some/other/path/"}},
+					{
+						"AMP page with expanded permalink",
+						TargetPathDescriptor{
 							Kind:              KindPage,
 							Dir:               "/a/b",
 							BaseName:          "mypage",
 							ExpandedPermalink: "/2017/10/my-title/",
-							Type:              output.HTMLFormat}, TargetPaths{TargetFilename: "/2017/10/my-title/index.html", SubResourceBaseTarget: "/2017/10/my-title", Link: "/2017/10/my-title/"}},
+							Type:              output.AMPFormat},
+						TargetPaths{
+							TargetFilename:        "/amp/2017/10/my-title/index.html",
+							SubResourceBaseTarget: "/amp/2017/10/my-title",
+							Link:                  "/amp/2017/10/my-title/"}},
 					{
-						"Paginated HTML home", TargetPathDescriptor{
+						"HTML page with expanded permalink",
+						TargetPathDescriptor{
+							Kind:              KindPage,
+							Dir:               "/a/b",
+							BaseName:          "mypage",
+							ExpandedPermalink: "/2017/10/my-title/",
+							Type:              output.HTMLFormat},
+						TargetPaths{
+							TargetFilename:        "/2017/10/my-title/index.html",
+							SubResourceBaseTarget: "/2017/10/my-title",
+							Link:                  "/2017/10/my-title/"}},
+					{
+						"Paginated HTML home",
+						TargetPathDescriptor{
 							Kind:     KindHome,
 							BaseName: "_index",
 							Type:     output.HTMLFormat,
-							Addends:  "page/3"}, TargetPaths{TargetFilename: "/page/3/index.html", SubResourceBaseTarget: "/page/3", Link: "/page/3/"}},
+							Addends:  "page/3"},
+						TargetPaths{
+							TargetFilename:        "/page/3/index.html",
+							SubResourceBaseTarget: "/page/3",
+							Link:                  "/page/3/"}},
 					{
-						"Paginated Taxonomy terms list", TargetPathDescriptor{
+						"Paginated HTML Taxonomy terms list",
+						TargetPathDescriptor{
 							Kind:     KindTerm,
 							BaseName: "_index",
 							Sections: []string{"tags", "hugo"},
 							Type:     output.HTMLFormat,
-							Addends:  "page/3"}, TargetPaths{TargetFilename: "/tags/hugo/page/3/index.html", SubResourceBaseTarget: "/tags/hugo/page/3", Link: "/tags/hugo/page/3/"}},
+							Addends:  "page/3"},
+						TargetPaths{
+							TargetFilename:        "/tags/hugo/page/3/index.html",
+							SubResourceBaseTarget: "/tags/hugo/page/3",
+							Link:                  "/tags/hugo/page/3/"}},
 					{
-						"Regular page with addend", TargetPathDescriptor{
+						"Regular HTML page with addend",
+						TargetPathDescriptor{
 							Kind:     KindPage,
 							Dir:      "/a/b",
 							BaseName: "mypage",
 							Addends:  "c/d/e",
-							Type:     output.HTMLFormat}, TargetPaths{TargetFilename: "/a/b/mypage/c/d/e/index.html", SubResourceBaseTarget: "/a/b/mypage/c/d/e", Link: "/a/b/mypage/c/d/e/"}},
+							Type:     output.HTMLFormat},
+						TargetPaths{
+							TargetFilename:        "/a/b/mypage/c/d/e/index.html",
+							SubResourceBaseTarget: "/a/b/mypage/c/d/e",
+							Link:                  "/a/b/mypage/c/d/e/"}},
 				}
 
 				for i, test := range tests {

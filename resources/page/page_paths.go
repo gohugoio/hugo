@@ -158,7 +158,7 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 	}
 
 	if d.Type.Path != "" {
-		pagePath = pjoin(pagePath, d.Type.Path)
+		pagePath = pjoin(d.Type.Path, pagePath)
 	}
 
 	if d.Kind != KindHome && d.URL != "" {
