@@ -376,17 +376,36 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 			}
 
 			if redirect := f.c.serverConfig.MatchRedirect(requestURI); !redirect.IsZero() {
+				doRedirect := true
 				// This matches Netlify's behaviour and is needed for SPA behaviour.
 				// See https://docs.netlify.com/routing/redirects/rewrites-proxies/
-				if redirect.Status == 200 {
-					if r2 := f.rewriteRequest(r, strings.TrimPrefix(redirect.To, u.Path)); r2 != nil {
-						requestURI = redirect.To
-						r = r2
+				if !redirect.Force {
+					path := filepath.Clean(strings.TrimPrefix(requestURI, u.Path))
+					fi, err := f.c.hugo().BaseFs.PublishFs.Stat(path)
+					if err == nil {
+						if fi.IsDir() {
+							// There will be overlapping directories, so we
+							// need to check for a file.
+							_, err = f.c.hugo().BaseFs.PublishFs.Stat(filepath.Join(path, "index.html"))
+							doRedirect = err != nil
+						} else {
+							doRedirect = false
+						}
+
 					}
-				} else {
-					w.Header().Set("Content-Type", "")
-					http.Redirect(w, r, redirect.To, redirect.Status)
-					return
+				}
+
+				if doRedirect {
+					if redirect.Status == 200 {
+						if r2 := f.rewriteRequest(r, strings.TrimPrefix(redirect.To, u.Path)); r2 != nil {
+							requestURI = redirect.To
+							r = r2
+						}
+					} else {
+						w.Header().Set("Content-Type", "")
+						http.Redirect(w, r, redirect.To, redirect.Status)
+						return
+					}
 				}
 
 			}
@@ -416,7 +435,6 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 
 	fileserver := decorate(http.FileServer(fs))
 	mu := http.NewServeMux()
-
 	if u.Path == "" || u.Path == "/" {
 		mu.Handle("/", fileserver)
 	} else {

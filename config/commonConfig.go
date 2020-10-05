@@ -184,6 +184,7 @@ type Redirect struct {
 	From   string
 	To     string
 	Status int
+	Force  bool
 }
 
 func (r Redirect) IsZero() bool {
