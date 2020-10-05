@@ -85,11 +85,12 @@ func newTestPathSpecFor(cfg config.Provider) *helpers.PathSpec {
 }
 
 type testPage struct {
+	kind        string
 	description string
 	title       string
 	linkTitle   string
-
-	section string
+	lang        string
+	section     string
 
 	content string
 
@@ -297,11 +298,11 @@ func (p *testPage) Keywords() []string {
 }
 
 func (p *testPage) Kind() string {
-	panic("not implemented")
+	return p.kind
 }
 
 func (p *testPage) Lang() string {
-	panic("not implemented")
+	return p.lang
 }
 
 func (p *testPage) Language() *langs.Language {

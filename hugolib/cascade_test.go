@@ -229,7 +229,7 @@ Banner: post.jpg`,
 
 		counters := &testCounters{}
 		b.Build(BuildCfg{testCounters: counters})
-		// As we only changed the content, not the cascade front matter, make
+		// As we only changed the content, not the cascade front matter,
 		// only the home page is re-rendered.
 		b.Assert(int(counters.contentRenderCounter), qt.Equals, 1)
 
@@ -391,4 +391,72 @@ defaultContentLanguageInSubDir = false
 	)
 
 	return b
+}
+
+func TestCascadeTarget(t *testing.T) {
+	t.Parallel()
+
+	c := qt.New(t)
+
+	newBuilder := func(c *qt.C) *sitesBuilder {
+		b := newTestSitesBuilder(c)
+
+		b.WithTemplates("index.html", `
+{{ $p1 := site.GetPage "s1/p1" }}
+{{ $s1 := site.GetPage "s1" }}
+
+P1|p1:{{ $p1.Params.p1 }}|p2:{{ $p1.Params.p2 }}|
+S1|p1:{{ $s1.Params.p1 }}|p2:{{ $s1.Params.p2 }}|
+`)
+		b.WithContent("s1/_index.md", "---\ntitle: s1 section\n---")
+		b.WithContent("s1/p1/index.md", "---\ntitle: p1\n---")
+		b.WithContent("s1/p2/index.md", "---\ntitle: p2\n---")
+		b.WithContent("s2/p1/index.md", "---\ntitle: p1_2\n---")
+
+		return b
+
+	}
+
+	c.Run("slice", func(c *qt.C) {
+		b := newBuilder(c)
+		b.WithContent("_index.md", `+++
+title = "Home"
+[[cascade]]
+p1 = "p1"
+[[cascade]]
+p2 = "p2"
++++
+`)
+
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/index.html", "P1|p1:p1|p2:p2")
+
+	})
+
+	c.Run("slice with _target", func(c *qt.C) {
+		b := newBuilder(c)
+
+		b.WithContent("_index.md", `+++
+title = "Home"
+[[cascade]]
+p1 = "p1"
+[cascade._target]
+path="**p1**"
+[[cascade]]
+p2 = "p2"
+[cascade._target]
+kind="section"
++++
+`)
+
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/index.html", `
+P1|p1:p1|p2:|
+S1|p1:|p2:p2|
+`)
+
+	})
+
 }

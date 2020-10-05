@@ -23,30 +23,36 @@ import (
 	"github.com/gobwas/glob/syntax"
 )
 
+type globErr struct {
+	glob glob.Glob
+	err  error
+}
+
 var (
-	globCache = make(map[string]glob.Glob)
+	globCache = make(map[string]globErr)
 	globMu    sync.RWMutex
 )
 
 func GetGlob(pattern string) (glob.Glob, error) {
-	var g glob.Glob
+	var eg globErr
 
 	globMu.RLock()
-	g, found := globCache[pattern]
+	var found bool
+	eg, found = globCache[pattern]
 	globMu.RUnlock()
-	if !found {
-		var err error
-		g, err = glob.Compile(strings.ToLower(pattern), '/')
-		if err != nil {
-			return nil, err
-		}
-
-		globMu.Lock()
-		globCache[pattern] = g
-		globMu.Unlock()
+	if found {
+		return eg.glob, eg.err
 	}
 
-	return g, nil
+	var err error
+	g, err := glob.Compile(strings.ToLower(pattern), '/')
+	eg = globErr{g, err}
+
+	globMu.Lock()
+	globCache[pattern] = eg
+	globMu.Unlock()
+
+	return eg.glob, eg.err
 
 }
 

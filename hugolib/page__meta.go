@@ -308,12 +308,22 @@ func (p *pageMeta) Weight() int {
 
 func (pm *pageMeta) mergeBucketCascades(b1, b2 *pagesMapBucket) {
 	if b1.cascade == nil {
-		b1.cascade = make(map[string]interface{})
+		b1.cascade = make(map[page.PageMatcher]maps.Params)
 	}
+
 	if b2 != nil && b2.cascade != nil {
 		for k, v := range b2.cascade {
-			if _, found := b1.cascade[k]; !found {
+
+			vv, found := b1.cascade[k]
+			if !found {
 				b1.cascade[k] = v
+			} else {
+				// Merge
+				for ck, cv := range v {
+					if _, found := vv[ck]; !found {
+						vv[ck] = cv
+					}
+				}
 			}
 		}
 	}
@@ -332,14 +342,44 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 		if p.bucket != nil {
 			// Check for any cascade define on itself.
 			if cv, found := frontmatter["cascade"]; found {
-				p.bucket.cascade = maps.ToStringMap(cv)
+				switch v := cv.(type) {
+				case []map[string]interface{}:
+					p.bucket.cascade = make(map[page.PageMatcher]maps.Params)
+
+					for _, vv := range v {
+						var m page.PageMatcher
+						if mv, found := vv["_target"]; found {
+							err := page.DecodePageMatcher(mv, &m)
+							if err != nil {
+								return err
+							}
+						}
+						c, found := p.bucket.cascade[m]
+						if found {
+							// Merge
+							for k, v := range vv {
+								if _, found := c[k]; !found {
+									c[k] = v
+								}
+							}
+						} else {
+							p.bucket.cascade[m] = vv
+						}
+
+					}
+				default:
+					p.bucket.cascade = map[page.PageMatcher]maps.Params{
+						page.PageMatcher{}: maps.ToStringMap(cv),
+					}
+				}
+
 			}
 		}
 	} else {
 		frontmatter = make(map[string]interface{})
 	}
 
-	var cascade map[string]interface{}
+	var cascade map[page.PageMatcher]maps.Params
 
 	if p.bucket != nil {
 		if parentBucket != nil {
@@ -351,9 +391,14 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 		cascade = parentBucket.cascade
 	}
 
-	for k, v := range cascade {
-		if _, found := frontmatter[k]; !found {
-			frontmatter[k] = v
+	for m, v := range cascade {
+		if !m.Matches(p) {
+			continue
+		}
+		for kk, vv := range v {
+			if _, found := frontmatter[kk]; !found {
+				frontmatter[kk] = vv
+			}
 		}
 	}
 
@@ -466,7 +511,7 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 		case "outputs":
 			o := cast.ToStringSlice(v)
 			if len(o) > 0 {
-				// Output formats are exlicitly set in front matter, use those.
+				// Output formats are explicitly set in front matter, use those.
 				outFormats, err := p.s.outputFormatsConfig.GetByNames(o...)
 
 				if err != nil {
