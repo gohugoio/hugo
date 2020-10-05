@@ -42,6 +42,9 @@ disable = false
 respectDoNotTrack = false
 anonymizeIP = false
 useSessionStorage = false
+disableGtagAdGoogleSignals = false
+disableGtagAdPersonalizationSignals = false
+disableGtagEnhancedData = false
 [privacy.instagram]
 disable = false
 simple = false
@@ -91,6 +94,15 @@ respectDoNotTrack
 
 useSessionStorage
 : Enabling this will disable the use of Cookies and use Session Storage to Store the GA Client ID.
+
+disableGtagAdGoogleSignals
+: Enabling this will disable all advertising, reporting, and remarketing features, and override any property settings established in the Google Analytics user interface (gtag only).
+
+disableGtagAdPersonalizationSignals
+: Enabling this will disable Google advertising personalization features (gtag only).
+	
+disableGtagEnhancedData
+: Enabling this will make it so extra page information is not sent to Google Analytics (gtag only).
 
 ### Instagram
 

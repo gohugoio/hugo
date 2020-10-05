@@ -36,6 +36,9 @@ disable = true
 respectDoNotTrack = true
 anonymizeIP = true
 useSessionStorage = true
+disableGtagAdGoogleSignals = true
+disableGtagAdPersonalizationSignals = true
+disableGtagEnhancedData = true
 [privacy.instagram]
 disable = true
 simple = true
@@ -62,7 +65,9 @@ simple = true
 	got := []bool{
 		pc.Disqus.Disable, pc.GoogleAnalytics.Disable,
 		pc.GoogleAnalytics.RespectDoNotTrack, pc.GoogleAnalytics.AnonymizeIP,
-		pc.GoogleAnalytics.UseSessionStorage, pc.Instagram.Disable,
+		pc.GoogleAnalytics.UseSessionStorage, pc.GoogleAnalytics.DisableGtagAdGoogleSignals,
+		pc.GoogleAnalytics.DisableGtagAdPersonalizationSignals,
+		pc.GoogleAnalytics.DisableGtagEnhancedData, pc.Instagram.Disable,
 		pc.Instagram.Simple, pc.Twitter.Disable, pc.Twitter.EnableDNT,
 		pc.Twitter.Simple, pc.Vimeo.Disable, pc.Vimeo.EnableDNT, pc.Vimeo.Simple,
 		pc.YouTube.PrivacyEnhanced, pc.YouTube.Disable,

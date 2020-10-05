@@ -188,6 +188,68 @@ if (!doNotTrack) {
 {{ end }}
 {{- end -}}
 `},
+	{`google_analytics_gtag.html`, `{{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
+{{- if not $pc.Disable -}}
+{{ with .Site.GoogleAnalytics }}
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ . }}"></script>
+<script type="application/javascript">
+{{ template "__ga_js_set_doNotTrack" $ }}
+if (!doNotTrack) {
+  var config = { 'send_page_view': true };
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+
+  {{ if $pc.UseSessionStorage -}}
+  var GA_STORAGE_KEY = 'ga:clientId';
+  if (window.sessionStorage && sessionStorage.getItem(GA_STORAGE_KEY)) {
+    sessionStorage.setItem(GA_STORAGE_KEY);
+  }
+  config['client_storage'] = 'none';
+  config['client_id'] = sessionStorage.getItem(GA_STORAGE_KEY);
+  {{ end -}}
+
+  {{ if $pc.AnonymizeIP }}
+  config['anonymize_ip'] = true;
+  {{ end -}}
+
+  {{ if $pc.DisableGtagAdGoogleSignals }}
+  config['allow_google_signals'] = false;
+  {{ end -}}
+
+  {{ if $pc.DisableGtagAdPersonalizationSignals }}
+  config['allow_ad_personalization_signals'] = false;
+  {{ end -}}
+
+  {{ if not $pc.DisableGtagEnhancedData -}}
+  gtag('title', '{{ $.Title }}');
+  gtag('permalink', '{{ $.Permalink }}');
+  gtag('published_date', '{{ $.Date.Format "2006-01-22" }}');
+  gtag('modified_date', '{{ $.Lastmod.Format "2006-01-22" }}');
+  gtag('language', '{{ $.Language }}');
+  gtag('kind', '{{ $.Kind }}');
+  gtag('type', '{{ $.Type }}');
+  gtag('tags', {{ $.Params.tags }});
+  gtag('categories', {{ $.Params.categories }});
+  {{ end -}}
+
+  gtag('js', new Date());
+  gtag('config', '{{ . }}', config);
+}
+else {
+  window['ga-disable-{{ . }}'] = true;
+}
+</script>
+{{ end -}}
+{{- end -}}
+{{- define "__ga_js_set_doNotTrack" -}}{{/* This is also used in the async version. */}}
+{{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
+{{- if not $pc.RespectDoNotTrack -}}
+var doNotTrack = false;
+{{- else -}}
+var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+var doNotTrack = (dnt == "1" || dnt == "yes");
+{{- end -}}
+{{- end -}}`},
 	{`google_news.html`, `{{ if .IsPage }}{{ with .Params.news_keywords }}
   <meta name="news_keywords" content="{{ range $i, $kw := first 10 . }}{{ if $i }},{{ end }}{{ $kw }}{{ end }}" />
 {{ end }}{{ end }}`},
