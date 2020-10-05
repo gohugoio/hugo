@@ -997,6 +997,16 @@ func (s *Site) translateFileEvents(events []fsnotify.Event) []fsnotify.Event {
 	return filtered
 }
 
+var (
+	// These are only used for cache busting, so false positives are fine.
+	// We also deliberately do not match for file suffixes to also catch
+	// directory names.
+	// TODO(bep) consider this when completing the relevant PR rewrite on this.
+	cssFileRe   = regexp.MustCompile("(css|sass|scss)")
+	cssConfigRe = regexp.MustCompile(`(postcss|tailwind)\.config\.js`)
+	jsFileRe    = regexp.MustCompile("(js|ts|jsx|tsx)")
+)
+
 // reBuild partially rebuilds a site given the filesystem events.
 // It returns whetever the content source was changed.
 // TODO(bep) clean up/rewrite this method.
@@ -1028,19 +1038,24 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 		logger = helpers.NewDistinctFeedbackLogger()
 	)
 
-	var isCSSConfigRe = regexp.MustCompile(`(postcss|tailwind)\.config\.js`)
-	var isCSSFileRe = regexp.MustCompile(`\.(css|scss|sass)`)
-
 	var cachePartitions []string
 	// Special case
 	// TODO(bep) I have a ongoing branch where I have redone the cache. Consider this there.
-	var isCSSChange bool
+	var (
+		evictCSSRe *regexp.Regexp
+		evictJSRe  *regexp.Regexp
+	)
 
 	for _, ev := range events {
 		if assetsFilename := s.BaseFs.Assets.MakePathRelative(ev.Name); assetsFilename != "" {
 			cachePartitions = append(cachePartitions, resources.ResourceKeyPartitions(assetsFilename)...)
-			if !isCSSChange {
-				isCSSChange = isCSSFileRe.MatchString(assetsFilename) || isCSSConfigRe.MatchString(assetsFilename)
+			if evictCSSRe == nil {
+				if cssFileRe.MatchString(assetsFilename) || cssConfigRe.MatchString(assetsFilename) {
+					evictCSSRe = cssFileRe
+				}
+			}
+			if evictJSRe == nil && jsFileRe.MatchString(assetsFilename) {
+				evictJSRe = jsFileRe
 			}
 		}
 
@@ -1088,8 +1103,11 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 	// These in memory resource caches will be rebuilt on demand.
 	for _, s := range s.h.Sites {
 		s.ResourceSpec.ResourceCache.DeletePartitions(cachePartitions...)
-		if isCSSChange {
-			s.ResourceSpec.ResourceCache.DeleteContains("css", "scss", "sass")
+		if evictCSSRe != nil {
+			s.ResourceSpec.ResourceCache.DeleteMatches(evictCSSRe)
+		}
+		if evictJSRe != nil {
+			s.ResourceSpec.ResourceCache.DeleteMatches(evictJSRe)
 		}
 	}
 

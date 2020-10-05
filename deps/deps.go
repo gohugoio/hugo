@@ -316,14 +316,16 @@ func (d Deps) ForLanguage(cfg DepsCfg, onCreated func(d *Deps) error) (*Deps, er
 
 	d.Site = cfg.Site
 
-	// The resource cache is global so reuse.
+	// These are common for all sites, so reuse.
 	// TODO(bep) clean up these inits.
 	resourceCache := d.ResourceSpec.ResourceCache
+	postBuildAssets := d.ResourceSpec.PostBuildAssets
 	d.ResourceSpec, err = resources.NewSpec(d.PathSpec, d.ResourceSpec.FileCaches, d.BuildState, d.Log, d.globalErrHandler, cfg.OutputFormats, cfg.MediaTypes)
 	if err != nil {
 		return nil, err
 	}
 	d.ResourceSpec.ResourceCache = resourceCache
+	d.ResourceSpec.PostBuildAssets = postBuildAssets
 
 	d.Cfg = l
 	d.Language = l

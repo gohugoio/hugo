@@ -304,6 +304,7 @@ The `build` configuration section contains global build-related configuration op
 [build]
 useResourceCacheWhen="fallback"
 writeStats = false
+noJSConfigInAssets = false
 {{< /code-toggle >}}
 
 
@@ -312,6 +313,9 @@ useResourceCacheWhen
 
 writeStats {{< new-in "0.69.0" >}}
 : When enabled, a file named `hugo_stats.json` will be written to your project root with some aggregated data about the build, e.g. list of HTML entities published to be used to do [CSS pruning](/hugo-pipes/postprocess/#css-purging-with-postcss). If you're only using this for the production build, you should consider placing it below [config/production](/getting-started/configuration/#configuration-directory). It's also worth mentioning that, due to the nature of the partial server builds, new HTML entities will be added when you add or change them while the server is running, but the old values will not be removed until you restart the server or run a regular `hugo` build.
+
+noJSConfigInAssets {{< new-in "0.78.0" >}}
+: Turn off writing a `jsconfig.js` into your `/assets` folder with mapping of imports from running [js.Build](https://gohugo.io/hugo-pipes/js). This file is intended to help with intellisense/navigation inside code editors such as [VS Code](https://code.visualstudio.com/). Note that if you do not use `js.Build`, no file will be written.
 
 ## Configure Server
 
