@@ -1757,3 +1757,24 @@ $$$
 		`<pre><code class="language-bash {hl_lines=[1]}" data-lang="bash {hl_lines=[1]}">SHORT`,
 	)
 }
+
+func TestPageCaseIssues(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t)
+	b.WithConfigFile("toml", `defaultContentLanguage = "no"
+[languages]
+[languages.NO]
+title = "Norsk"
+`)
+	b.WithContent("a/B/C/Page1.md", "---\ntitle: Page1\n---")
+	b.WithTemplates("index.html", `
+{{ $p1 := site.GetPage "a/B/C/Page1" }}
+Lang: {{ .Lang }}
+Page1: {{ $p1.Path }}
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", "Lang: no", filepath.FromSlash("Page1: a/B/C/Page1.md"))
+}
