@@ -33,8 +33,6 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/gohugoio/hugo/resources/resource"
-
 	"github.com/gohugoio/hugo/output"
 
 	"github.com/pkg/errors"
@@ -351,14 +349,45 @@ func (h *HugoSites) postProcess() error {
 		return err
 	}
 
-	var toPostProcess []resource.OriginProvider
-	for _, s := range h.Sites {
-		for _, v := range s.ResourceSpec.PostProcessResources {
-			toPostProcess = append(toPostProcess, v)
+	// This will only be set when js.Build have been triggered with
+	// imports that resolves to the project or a module.
+	// Write a jsconfig.json file to the project's /asset directory
+	// to help JS intellisense in VS Code etc.
+	if !h.ResourceSpec.BuildConfig.NoJSConfigInAssets && h.BaseFs.Assets.Dirs != nil {
+		m := h.BaseFs.Assets.Dirs[0].Meta()
+		assetsDir := m.Filename()
+		if strings.HasPrefix(assetsDir, h.ResourceSpec.WorkingDir) {
+			if jsConfig := h.ResourceSpec.JSConfigBuilder.Build(assetsDir); jsConfig != nil {
+
+				b, err := json.MarshalIndent(jsConfig, "", " ")
+				if err != nil {
+					h.Log.Warnf("Failed to create jsconfig.json: %s", err)
+
+				} else {
+					filename := filepath.Join(assetsDir, "jsconfig.json")
+					if h.running {
+						h.skipRebuildForFilenamesMu.Lock()
+						h.skipRebuildForFilenames[filename] = true
+						h.skipRebuildForFilenamesMu.Unlock()
+					}
+					// Make sure it's  written to the OS fs as this is used by
+					// editors.
+					if err := afero.WriteFile(hugofs.Os, filename, b, 0666); err != nil {
+						h.Log.Warnf("Failed to write jsconfig.json: %s", err)
+					}
+				}
+			}
+
 		}
 	}
 
+	var toPostProcess []postpub.PostPublishedResource
+	for _, r := range h.ResourceSpec.PostProcessResources {
+		toPostProcess = append(toPostProcess, r)
+	}
+
 	if len(toPostProcess) == 0 {
+		// Nothing more to do.
 		return nil
 	}
 

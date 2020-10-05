@@ -41,6 +41,10 @@ type Build struct {
 	// When enabled, will collect and write a hugo_stats.json with some build
 	// related aggregated data (e.g. CSS class names).
 	WriteStats bool
+
+	// Can be used to toggle off writing of the intellinsense /assets/jsconfig.js
+	// file.
+	NoJSConfigInAssets bool
 }
 
 func (b Build) UseResourceCache(err error) bool {

@@ -984,9 +984,11 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 	staticEvents := []fsnotify.Event{}
 	dynamicEvents := []fsnotify.Event{}
 
-	// Special handling for symbolic links inside /content.
 	filtered := []fsnotify.Event{}
 	for _, ev := range evs {
+		if c.hugo().ShouldSkipFileChangeEvent(ev) {
+			continue
+		}
 		// Check the most specific first, i.e. files.
 		contentMapped := c.hugo().ContentChanges.GetSymbolicLinkMappings(ev.Name)
 		if len(contentMapped) > 0 {

@@ -23,6 +23,20 @@ targetPath [string]
 : If not set, the source path will be used as the base target path. 
 Note that the target path's extension may change if the target MIME type is different, e.g. when the source is TypeScript.
 
+params [map or slice] {{< new-in "0.78.0" >}}
+: Params that can be imported as JSON in your JS files, e.g.:
+
+```go-html-template
+{{ $js := resources.Get "js/main.js" | js.Build (dict "params" (dict "api" "https://example.org/api" ) }}
+```
+And then in your JS file: 
+
+```js
+import * as params from '@params';
+``` 
+
+Note that this is meant for small data sets, e.g. config settings. For larger data, please put/mount the files into `/assets` and import them directly.
+
 minify [bool]
 : Let `js.Build` handle the minification.
 
@@ -50,7 +64,51 @@ defines [map]
 format [string] {{< new-in "0.74.3" >}}
 : The output format.
   One of: `iife`, `cjs`, `esm`.
-  Default is `iife`, a self-executing function, suitable for inclusion as a <script> tag. 
+  Default is `iife`, a self-executing function, suitable for inclusion as a <script> tag.
+
+
+### Import JS code from /assets
+
+{{< new-in "0.78.0" >}}
+
+Since Hugo `v0.78.0` `js.Build` has full support for the virtual union file system in [Hugo Modules](/hugo-modules/). You can see some simple examples in this [test project](https://github.com/gohugoio/hugoTestProjectJSModImports), but in short this means that you can do this:
+
+```js
+import { hello } from 'my/module';
+```
+
+And it will respolve to the top-most `index.{js,ts,tsx,jsx}` inside `assets/my/module` in the layered file system.
+
+```js
+import { hello3 } from 'my/module/hello3';
+```
+
+Wil resolve to `hello3.{js,ts,tsx,jsx}` inside `assets/my/module`.
+
+Any imports starting with `.` is resolved relative to the current file:
+
+```js
+import { hello4 } from './lib';
+```
+
+For other files (e.g. `JSON`, `CSS`) you need to use the relative path including any extension, e.g:
+
+```js
+import * as data from 'my/module/data.json';
+```
+
+Also note the new `params` option that can be passed from template to your JS files, e.g.:
+
+```go-html-template
+{{ $js := resources.Get "js/main.js" | js.Build (dict "params" (dict "api" "https://example.org/api" ) }}
+```
+And then in your JS file: 
+
+```js
+import * as params from '@params';
+```
+
+Hugo will, by default, generate a `assets/jsconfig.js` file that maps the imports. This is useful for navigation/intellisense help inside code editors, but if you don't need/want it, you can [turn it off](/getting-started/configuration/#configure-build).
 
 ### Examples
 
@@ -69,7 +127,8 @@ Or with options:
 <script type="text/javascript" src="{{ $built.RelPermalink }}" defer></script>
 ```
 
-#### Shimming a JS library
+#### Shimming a JS library 
+
 It's a very common practice to load external libraries using CDN rather than importing all packages in a single JS file, making it bulky. To do the same with Hugo, you'll need to shim the libraries as follows. In this example, `algoliasearch` and `instantsearch.js` will be shimmed.
 
 Firstly, add the following to your project's `package.json`:
