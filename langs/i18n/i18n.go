@@ -74,19 +74,24 @@ func (t Translator) initFuncs(bndl *i18n.Bundle) {
 
 		t.translateFuncs[currentLangKey] = func(translationID string, templateData interface{}) string {
 
+			var pluralCount interface{}
+
 			if templateData != nil {
 				tp := reflect.TypeOf(templateData)
 				if hreflect.IsNumber(tp.Kind()) {
+					pluralCount = templateData
 					// This was how go-i18n worked in v1.
 					templateData = map[string]interface{}{
 						"Count": templateData,
 					}
+
 				}
 			}
 
 			translated, translatedLang, err := localizer.LocalizeWithTag(&i18n.LocalizeConfig{
 				MessageID:    translationID,
 				TemplateData: templateData,
+				PluralCount:  pluralCount,
 			})
 
 			if err == nil && currentLang == translatedLang {

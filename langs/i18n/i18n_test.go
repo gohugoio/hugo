@@ -14,6 +14,7 @@
 package i18n
 
 import (
+	"fmt"
 	"path/filepath"
 	"testing"
 
@@ -124,6 +125,35 @@ var i18nTests = []i18nTest{
 		id:           "wordCount",
 		expected:     "¡Hola, 50 gente!",
 		expectedFlag: "¡Hola, 50 gente!",
+	},
+	// https://github.com/gohugoio/hugo/issues/7787
+	{
+		name: "readingTime-one",
+		data: map[string][]byte{
+			"en.toml": []byte(`[readingTime]
+one = "One minute to read"
+other = "{{ .Count }} minutes to read"
+`),
+		},
+		args:         1,
+		lang:         "en",
+		id:           "readingTime",
+		expected:     "One minute to read",
+		expectedFlag: "One minute to read",
+	},
+	{
+		name: "readingTime-many",
+		data: map[string][]byte{
+			"en.toml": []byte(`[readingTime]
+one = "One minute to read"
+other = "{{ .Count }} minutes to read"
+`),
+		},
+		args:         21,
+		lang:         "en",
+		id:           "readingTime",
+		expected:     "21 minutes to read",
+		expectedFlag: "21 minutes to read",
 	},
 	// Same id and translation in current language
 	// https://github.com/gohugoio/hugo/issues/2607
@@ -242,13 +272,15 @@ func TestI18nTranslate(t *testing.T) {
 		v.Set("enableMissingTranslationPlaceholders", enablePlaceholders)
 
 		for _, test := range i18nTests {
-			if enablePlaceholders {
-				expected = test.expectedFlag
-			} else {
-				expected = test.expected
-			}
-			actual = doTestI18nTranslate(t, test, v)
-			c.Assert(actual, qt.Equals, expected)
+			c.Run(fmt.Sprintf("%s-%t", test.name, enablePlaceholders), func(c *qt.C) {
+				if enablePlaceholders {
+					expected = test.expectedFlag
+				} else {
+					expected = test.expected
+				}
+				actual = doTestI18nTranslate(t, test, v)
+				c.Assert(actual, qt.Equals, expected)
+			})
 		}
 	}
 }
