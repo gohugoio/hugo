@@ -1,12 +1,12 @@
 
 ---
 date: 2020-10-06
-title: "0.76.0"
-description: "0.76.0"
+title: "Multiple Cascades With Page Filters"
+description: "Hugo 0.76.0 brings multiple cascade blocks per page with filters for path, kind and language."
 categories: ["Releases"]
 ---
 
-	In **Hugo 0.76.0** you can now have a list of [cascade](https://gohugo.io/content-management/front-matter#front-matter-cascade) blocks per page and a new `_target` keyword where you can select which pages to _cascade_ upon using [Glob](https://github.com/gobwas/glob) patterns for a `Page`'s `Kind`, `Lang` and/or `Path`:
+In **Hugo 0.76.0** you can now have a list of [cascade](https://gohugo.io/content-management/front-matter#front-matter-cascade) blocks per page and a new `_target` keyword where you can select which pages to _cascade_ upon using [Glob](https://github.com/gobwas/glob) patterns for a `Page`'s `Kind`, `Lang` and/or `Path`:
 
 ```toml
 title ="Blog"
