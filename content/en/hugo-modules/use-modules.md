@@ -41,7 +41,7 @@ The easiest way to use a Module for a theme is to import it in the config.
 ```toml
 [module]
   [[module.imports]]
-    path = "github.com/spf13/hyde/"
+    path = "github.com/spf13/hyde"
 ```
 
 ## Update Modules

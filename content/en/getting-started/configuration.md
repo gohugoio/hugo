@@ -67,7 +67,7 @@ In addition to using a single site config file, one can use the `configDir` dire
 
 Considering the structure above, when running `hugo --environment staging`, Hugo will use every settings from `config/_default` and merge `staging`'s on top of those.
 {{% note %}}
-Default environments are __development__ with `hugo serve` and __production__ with `hugo`.
+Default environments are __development__ with `hugo server` and __production__ with `hugo`.
 {{%/ note %}}
 ## All Configuration Settings
 
