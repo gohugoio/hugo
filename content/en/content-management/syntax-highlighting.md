@@ -43,6 +43,8 @@ Options:
 * `linenos`: configure line numbers. Valid values are `true`, `false`, `table`, or `inline`. `false` will turn off line numbers if it's configured to be on in site config. {{< new-in "0.60.0" >}} `table` will give copy-and-paste friendly code blocks.
 * `hl_lines`: lists a set of line numbers or line number ranges to be highlighted.
 * `linenostart=199`: starts the line number count from 199.
+* `anchorlinenos`: Configure anchors on line numbers. Valid values are `true` or `false`;
+* `lineanchors`: Configure a prefix for the anchors on line numbers. Will be suffixed with `-`, so linking to the line number 1 with the option `lineanchors=prefix` adds the anchor `prefix-1` to the page.  
 
 ### Example: Highlight Shortcode
 

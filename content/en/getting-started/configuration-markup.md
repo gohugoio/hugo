@@ -30,6 +30,8 @@ This is the default configuration:
 
 {{< code-toggle config="markup.goldmark" />}}
 
+For details on the extensions, refer to [this section](https://github.com/yuin/goldmark/#built-in-extensions) of the Goldmark documentation
+
 Some settings explained:
 
 unsafe

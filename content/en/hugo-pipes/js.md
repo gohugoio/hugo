@@ -38,6 +38,8 @@ externals [slice]
 {{ $externals := slice "react" "react-dom" }}
 ```
 
+> Marking a package as external doesn't imply that the library can be loaded from a CDN. It simply tells Hugo not to expand/include the package in the JS file.
+
 defines [map]
 : Allow to define a set of string replacement to be performed when building. Should be a map where each key is to be replaced by its value.
 
@@ -66,3 +68,29 @@ Or with options:
 {{ $built := resources.Get "scripts/main.js" | js.Build $opts }}
 <script type="text/javascript" src="{{ $built.RelPermalink }}" defer></script>
 ```
+
+#### Shimming a JS library
+It's a very common practice to load external libraries using CDN rather than importing all packages in a single JS file, making it bulky. To do the same with Hugo, you'll need to shim the libraries as follows. In this example, `algoliasearch` and `instantsearch.js` will be shimmed.
+
+Firstly, add the following to your project's `package.json`:
+```json
+{
+  "browser": {
+    "algoliasearch/lite": "./public/js/shims/algoliasearch.js",
+    "instantsearch.js/es/lib/main": "./public/js/shims/instantsearch.js"
+  }
+}
+```
+
+What this does is it tells Hugo to look for the listed packages somewhere else. Here we're telling Hugo to look for `algoliasearch/lite` and `instantsearch.js/es/lib/main` in the project's `public/js/shims` folder.
+
+Now we'll need to create the shim JS files which export the global JS variables `module.exports = window.something`. You can create a separate shim JS file in your `assets` directory, and redirect the import paths there if you wish, but a much cleaner way is to create these files on the go, by having the following before your JS is built.
+
+```go-html-template
+{{ $a := "module.exports = window.algoliasearch" | resources.FromString "js/shims/algoliasearch.js" }}
+{{ $i := "module.exports = window.instantsearch" | resources.FromString "js/shims/instantsearch.js" }}
+
+{{/* Call RelPermalink unnecessarily to generate JS files */}}
+{{ $placebo := slice $a.RelPermalink $i.RelPermalink }}
+```
+That's it! You should now have a browser-friendly JS which can use external JS libraries.

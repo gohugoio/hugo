@@ -24,6 +24,30 @@ Hugo Pipe's Babel requires the `@babel/cli` and `@babel/core` JavaScript package
 If you are using the Hugo Snap package, Babel and plugin(s) need to be installed locally within your Hugo site directory, e.g., `npm install @babel/cli @babel/core --save-dev` without the `-g` flag.
 {{% /note %}}
 
+
+### Config
+
+{{< new-in "v0.75.0" >}}
+
+In Hugo `v0.75` we improved the way we resolve JS configuration and dependencies. One of them is that we now adds the main project's `node_modules` to `NODE_PATH` when running Babel and similar tools. There are some known [issues](https://github.com/babel/babel/issues/5618) with Babel in this area, so if you have a `babel.config.js` living in a Hugo Module (and not in the project itself), we recommend using `require` to load the presets/plugins, e.g.:
+
+
+```js
+module.exports = {
+        presets: [
+                [
+                        require('@babel/preset-env'),
+                        {
+                                useBuiltIns: 'entry',
+                                corejs: 3
+                        }
+                ]
+        ]
+};
+```
+
+
+
 ### Options
 
 config [string]

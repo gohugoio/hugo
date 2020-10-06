@@ -49,7 +49,7 @@ tool on your machine to be able to use these formats.
 
 Hugo passes reasonable default arguments to these external helpers by default:
 
-- `asciidoctor`: `--no-header-footer --trace -`
+- `asciidoctor`: `--no-header-footer -`
 - `rst2html`: `--leave-comments --initial-header-level=2`
 - `pandoc`: `--mathjax`
 
@@ -81,7 +81,7 @@ noheaderorfooter | true | Output an embeddable document, which excludes the head
 safemode | `unsafe` | Safe mode level `unsafe`, `safe`, `server` or `secure`. Don't change this unless you know what you are doing.
 sectionnumbers | `false` | Auto-number section titles.
 verbose | `false` | Verbosely print processing information and configuration file checks to stderr.
-trace | `true` | Include backtrace information on errors.
+trace | `false` | Include backtrace information on errors.
 failurelevel | `fatal` | The minimum logging level that triggers a non-zero exit code (failure).
 workingfoldercurrent | `false` | Set the working folder to the rendered `adoc` file, so [include](https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#include-files) will work with relative paths. This setting uses the `asciidoctor` cli parameter `--base-dir` and attribute `outdir=`. For rendering [asciidoctor-diagram](https://asciidoctor.org/docs/asciidoctor-diagram/)  `workingfoldercurrent` must be set to `true`.
 
