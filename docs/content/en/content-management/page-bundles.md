@@ -135,10 +135,6 @@ A leaf bundle can be made headless by adding below in the Front Matter
 headless = true
 ```
 
-{{% note %}}
-Only leaf bundles can be made headless.
-{{% /note %}}
-
 There are many use cases of such headless page bundles:
 
 -   Shared media galleries
