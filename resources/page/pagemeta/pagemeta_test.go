@@ -31,33 +31,61 @@ func TestDecodeBuildConfig(t *testing.T) {
 
 	configTempl := `
 [_build]
-render = true
+render = %s
 list = %s
 publishResources = true`
 
 	for _, test := range []struct {
-		list   interface{}
-		expect string
+		args   []interface{}
+		expect BuildConfig
 	}{
-		{"true", Always},
-		{"false", Never},
-		{`"always"`, Always},
-		{`"local"`, ListLocally},
-		{`"asdfadf"`, Always},
+		{
+			[]interface{}{"true", "true"},
+			BuildConfig{
+				Render:           Always,
+				List:             Always,
+				PublishResources: true,
+				set:              true,
+			}},
+		{[]interface{}{"true", "false"}, BuildConfig{
+			Render:           Always,
+			List:             Never,
+			PublishResources: true,
+			set:              true,
+		}},
+		{[]interface{}{`"always"`, `"always"`}, BuildConfig{
+			Render:           Always,
+			List:             Always,
+			PublishResources: true,
+			set:              true,
+		}},
+		{[]interface{}{`"never"`, `"never"`}, BuildConfig{
+			Render:           Never,
+			List:             Never,
+			PublishResources: true,
+			set:              true,
+		}},
+		{[]interface{}{`"link"`, `"local"`}, BuildConfig{
+			Render:           Link,
+			List:             ListLocally,
+			PublishResources: true,
+			set:              true,
+		}},
+		{[]interface{}{`"always"`, `"asdfadf"`}, BuildConfig{
+			Render:           Always,
+			List:             Always,
+			PublishResources: true,
+			set:              true,
+		}},
 	} {
-		cfg, err := config.FromConfigString(fmt.Sprintf(configTempl, test.list), "toml")
+		cfg, err := config.FromConfigString(fmt.Sprintf(configTempl, test.args...), "toml")
 		c.Assert(err, qt.IsNil)
 		bcfg, err := DecodeBuildConfig(cfg.Get("_build"))
 		c.Assert(err, qt.IsNil)
 
 		eq := qt.CmpEquals(hqt.DeepAllowUnexported(BuildConfig{}))
 
-		c.Assert(bcfg, eq, BuildConfig{
-			Render:           true,
-			List:             test.expect,
-			PublishResources: true,
-			set:              true,
-		})
+		c.Assert(bcfg, eq, test.expect)
 
 	}
 

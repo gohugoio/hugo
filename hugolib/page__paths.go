@@ -51,9 +51,11 @@ func newPagePaths(
 
 		var relPermalink, permalink string
 
-		// If a page is headless or marked as "no render", or bundled in another,
+		// If a page is headless or bundled in another,
 		// it will not get published on its own and it will have no links.
-		if !pm.noRender() && !pm.bundled {
+		// We also check the build options if it's set to not render or have
+		// a link.
+		if !pm.noLink() && !pm.bundled {
 			relPermalink = paths.RelPermalink(s.PathSpec)
 			permalink = paths.PermalinkForOutputFormat(s.PathSpec, f)
 		}
