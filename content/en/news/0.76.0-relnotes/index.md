@@ -22,7 +22,7 @@ background = "goldenbridge.jpg"
 kind="section"
 ```
 
-Tasks that were earlier hard/borderline impossible to do are now simple. One common example would to apply a different template set to nested sections; you can now apply a customm `Type` to these sections using  `path="/blog/*/**"` and similar.
+Tasks that were earlier hard/borderline impossible to do are now simple. One common example would to apply a different template set to nested sections; you can now apply a custom `Type` to these sections using  `path="/blog/*/**"` and similar.
 
 A related improvement is that the [build option](https://gohugo.io/content-management/build-options/#readout) `render` is now an enum. In addition to turning on/off rendering of a given page you can tell Hugo to not render, but you want to preserve the `.Permalink`, useful for SPA applications.
 
