@@ -22,6 +22,7 @@ import (
 	"github.com/gohugoio/hugo/media"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/kylelemons/godebug/diff"
 )
 
 func TestLayout(t *testing.T) {
@@ -57,12 +58,11 @@ func TestLayout(t *testing.T) {
 	)
 
 	for _, this := range []struct {
-		name           string
-		d              LayoutDescriptor
-		layoutOverride string
-		tp             Format
-		expect         []string
-		expectCount    int
+		name             string
+		layoutDescriptor LayoutDescriptor
+		layoutOverride   string
+		format           Format
+		expect           []string
 	}{
 		{
 			"Home", LayoutDescriptor{Kind: "home"}, "", ampType,
@@ -74,8 +74,12 @@ func TestLayout(t *testing.T) {
 				"home.html",
 				"list.html",
 				"_default/index.amp.html",
+				"_default/home.amp.html",
+				"_default/list.amp.html",
+				"_default/index.html",
+				"_default/home.html",
+				"_default/list.html",
 			},
-			12,
 		},
 		{
 			"Home baseof", LayoutDescriptor{Kind: "home", Baseof: true}, "", ampType,
@@ -85,8 +89,18 @@ func TestLayout(t *testing.T) {
 				"list-baseof.amp.html",
 				"baseof.amp.html",
 				"index-baseof.html",
+				"home-baseof.html",
+				"list-baseof.html",
+				"baseof.html",
+				"_default/index-baseof.amp.html",
+				"_default/home-baseof.amp.html",
+				"_default/list-baseof.amp.html",
+				"_default/baseof.amp.html",
+				"_default/index-baseof.html",
+				"_default/home-baseof.html",
+				"_default/list-baseof.html",
+				"_default/baseof.html",
 			},
-			16,
 		},
 		{
 			"Home, HTML", LayoutDescriptor{Kind: "home"}, "", htmlFormat,
@@ -94,8 +108,17 @@ func TestLayout(t *testing.T) {
 			[]string{
 				"index.html.html",
 				"home.html.html",
+				"list.html.html",
+				"index.html",
+				"home.html",
+				"list.html",
+				"_default/index.html.html",
+				"_default/home.html.html",
+				"_default/list.html.html",
+				"_default/index.html",
+				"_default/home.html",
+				"_default/list.html",
 			},
-			12,
 		},
 		{
 			"Home, HTML, baseof", LayoutDescriptor{Kind: "home", Baseof: true}, "", htmlFormat,
@@ -104,13 +127,48 @@ func TestLayout(t *testing.T) {
 				"home-baseof.html.html",
 				"list-baseof.html.html",
 				"baseof.html.html",
+				"index-baseof.html",
+				"home-baseof.html",
+				"list-baseof.html",
+				"baseof.html",
+				"_default/index-baseof.html.html",
+				"_default/home-baseof.html.html",
+				"_default/list-baseof.html.html",
+				"_default/baseof.html.html",
+				"_default/index-baseof.html",
+				"_default/home-baseof.html",
+				"_default/list-baseof.html",
+				"_default/baseof.html",
 			},
-			16,
 		},
 		{
 			"Home, french language", LayoutDescriptor{Kind: "home", Lang: "fr"}, "", ampType,
-			[]string{"index.fr.amp.html"},
-			24,
+			[]string{
+				"index.fr.amp.html",
+				"home.fr.amp.html",
+				"list.fr.amp.html",
+				"index.amp.html",
+				"home.amp.html",
+				"list.amp.html",
+				"index.fr.html",
+				"home.fr.html",
+				"list.fr.html",
+				"index.html",
+				"home.html",
+				"list.html",
+				"_default/index.fr.amp.html",
+				"_default/home.fr.amp.html",
+				"_default/list.fr.amp.html",
+				"_default/index.amp.html",
+				"_default/home.amp.html",
+				"_default/list.amp.html",
+				"_default/index.fr.html",
+				"_default/home.fr.html",
+				"_default/list.fr.html",
+				"_default/index.html",
+				"_default/home.html",
+				"_default/list.html",
+			},
 		},
 		{
 			"Home, no ext or delim", LayoutDescriptor{Kind: "home"}, "", noExtDelimFormat,
@@ -118,8 +176,10 @@ func TestLayout(t *testing.T) {
 				"index.nem",
 				"home.nem",
 				"list.nem",
+				"_default/index.nem",
+				"_default/home.nem",
+				"_default/list.nem",
 			},
-			6,
 		},
 		{
 			"Home, no ext", LayoutDescriptor{Kind: "home"}, "", noExt,
@@ -127,13 +187,14 @@ func TestLayout(t *testing.T) {
 				"index.nex",
 				"home.nex",
 				"list.nex",
+				"_default/index.nex",
+				"_default/home.nex",
+				"_default/list.nex",
 			},
-			6,
 		},
 		{
 			"Page, no ext or delim", LayoutDescriptor{Kind: "page"}, "", noExtDelimFormat,
 			[]string{"_default/single.nem"},
-			1,
 		},
 		{
 			"Section", LayoutDescriptor{Kind: "section", Section: "sect1"}, "", ampType,
@@ -146,8 +207,17 @@ func TestLayout(t *testing.T) {
 				"sect1/list.html",
 				"section/sect1.amp.html",
 				"section/section.amp.html",
+				"section/list.amp.html",
+				"section/sect1.html",
+				"section/section.html",
+				"section/list.html",
+				"_default/sect1.amp.html",
+				"_default/section.amp.html",
+				"_default/list.amp.html",
+				"_default/sect1.html",
+				"_default/section.html",
+				"_default/list.html",
 			},
-			18,
 		},
 		{
 			"Section, baseof", LayoutDescriptor{Kind: "section", Section: "sect1", Baseof: true}, "", ampType,
@@ -160,8 +230,23 @@ func TestLayout(t *testing.T) {
 				"sect1/section-baseof.html",
 				"sect1/list-baseof.html",
 				"sect1/baseof.html",
+				"section/sect1-baseof.amp.html",
+				"section/section-baseof.amp.html",
+				"section/list-baseof.amp.html",
+				"section/baseof.amp.html",
+				"section/sect1-baseof.html",
+				"section/section-baseof.html",
+				"section/list-baseof.html",
+				"section/baseof.html",
+				"_default/sect1-baseof.amp.html",
+				"_default/section-baseof.amp.html",
+				"_default/list-baseof.amp.html",
+				"_default/baseof.amp.html",
+				"_default/sect1-baseof.html",
+				"_default/section-baseof.html",
+				"_default/list-baseof.html",
+				"_default/baseof.html",
 			},
-			24,
 		},
 		{
 			"Section with layout", LayoutDescriptor{Kind: "section", Section: "sect1", Layout: "mylayout"}, "", ampType,
@@ -172,8 +257,25 @@ func TestLayout(t *testing.T) {
 				"sect1/list.amp.html",
 				"sect1/mylayout.html",
 				"sect1/sect1.html",
+				"sect1/section.html",
+				"sect1/list.html",
+				"section/mylayout.amp.html",
+				"section/sect1.amp.html",
+				"section/section.amp.html",
+				"section/list.amp.html",
+				"section/mylayout.html",
+				"section/sect1.html",
+				"section/section.html",
+				"section/list.html",
+				"_default/mylayout.amp.html",
+				"_default/sect1.amp.html",
+				"_default/section.amp.html",
+				"_default/list.amp.html",
+				"_default/mylayout.html",
+				"_default/sect1.html",
+				"_default/section.html",
+				"_default/list.html",
 			},
-			24,
 		},
 		{
 			"Term", LayoutDescriptor{Kind: "term", Section: "tags"}, "", ampType,
@@ -211,7 +313,6 @@ func TestLayout(t *testing.T) {
 				"_default/taxonomy.html",
 				"_default/list.html",
 			},
-			32,
 		},
 		{
 			"Taxonomy", LayoutDescriptor{Kind: "taxonomy", Section: "categories"}, "", ampType,
@@ -241,7 +342,6 @@ func TestLayout(t *testing.T) {
 				"_default/taxonomy.html",
 				"_default/list.html",
 			},
-			24,
 		},
 		{
 			"Page", LayoutDescriptor{Kind: "page"}, "", ampType,
@@ -249,7 +349,6 @@ func TestLayout(t *testing.T) {
 				"_default/single.amp.html",
 				"_default/single.html",
 			},
-			2,
 		},
 		{
 			"Page, baseof", LayoutDescriptor{Kind: "page", Baseof: true}, "", ampType,
@@ -259,7 +358,6 @@ func TestLayout(t *testing.T) {
 				"_default/single-baseof.html",
 				"_default/baseof.html",
 			},
-			4,
 		},
 		{
 			"Page with layout", LayoutDescriptor{Kind: "page", Layout: "mylayout"}, "", ampType,
@@ -269,7 +367,6 @@ func TestLayout(t *testing.T) {
 				"_default/mylayout.html",
 				"_default/single.html",
 			},
-			4,
 		},
 		{
 			"Page with layout, baseof", LayoutDescriptor{Kind: "page", Layout: "mylayout", Baseof: true}, "", ampType,
@@ -281,7 +378,6 @@ func TestLayout(t *testing.T) {
 				"_default/single-baseof.html",
 				"_default/baseof.html",
 			},
-			6,
 		},
 		{
 			"Page with layout and type", LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype"}, "", ampType,
@@ -289,8 +385,12 @@ func TestLayout(t *testing.T) {
 				"myttype/mylayout.amp.html",
 				"myttype/single.amp.html",
 				"myttype/mylayout.html",
+				"myttype/single.html",
+				"_default/mylayout.amp.html",
+				"_default/single.amp.html",
+				"_default/mylayout.html",
+				"_default/single.html",
 			},
-			8,
 		},
 		{
 			"Page with layout and type with subtype", LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype/mysubtype"}, "", ampType,
@@ -298,8 +398,12 @@ func TestLayout(t *testing.T) {
 				"myttype/mysubtype/mylayout.amp.html",
 				"myttype/mysubtype/single.amp.html",
 				"myttype/mysubtype/mylayout.html",
+				"myttype/mysubtype/single.html",
+				"_default/mylayout.amp.html",
+				"_default/single.amp.html",
+				"_default/mylayout.html",
+				"_default/single.html",
 			},
-			8,
 		},
 		// RSS
 		{
@@ -308,8 +412,19 @@ func TestLayout(t *testing.T) {
 				"index.rss.xml",
 				"home.rss.xml",
 				"rss.xml",
+				"list.rss.xml",
+				"index.xml",
+				"home.xml",
+				"list.xml",
+				"_default/index.rss.xml",
+				"_default/home.rss.xml",
+				"_default/rss.xml",
+				"_default/list.rss.xml",
+				"_default/index.xml",
+				"_default/home.xml",
+				"_default/list.xml",
+				"_internal/_default/rss.xml",
 			},
-			15,
 		},
 		{
 			"RSS Home, baseof", LayoutDescriptor{Kind: "home", Baseof: true}, "", RSSFormat,
@@ -318,8 +433,19 @@ func TestLayout(t *testing.T) {
 				"home-baseof.rss.xml",
 				"list-baseof.rss.xml",
 				"baseof.rss.xml",
+				"index-baseof.xml",
+				"home-baseof.xml",
+				"list-baseof.xml",
+				"baseof.xml",
+				"_default/index-baseof.rss.xml",
+				"_default/home-baseof.rss.xml",
+				"_default/list-baseof.rss.xml",
+				"_default/baseof.rss.xml",
+				"_default/index-baseof.xml",
+				"_default/home-baseof.xml",
+				"_default/list-baseof.xml",
+				"_default/baseof.xml",
 			},
-			16,
 		},
 		{
 			"RSS Section", LayoutDescriptor{Kind: "section", Section: "sect1"}, "", RSSFormat,
@@ -330,8 +456,23 @@ func TestLayout(t *testing.T) {
 				"sect1/list.rss.xml",
 				"sect1/sect1.xml",
 				"sect1/section.xml",
+				"sect1/list.xml",
+				"section/sect1.rss.xml",
+				"section/section.rss.xml",
+				"section/rss.xml",
+				"section/list.rss.xml",
+				"section/sect1.xml",
+				"section/section.xml",
+				"section/list.xml",
+				"_default/sect1.rss.xml",
+				"_default/section.rss.xml",
+				"_default/rss.xml",
+				"_default/list.rss.xml",
+				"_default/sect1.xml",
+				"_default/section.xml",
+				"_default/list.xml",
+				"_internal/_default/rss.xml",
 			},
-			22,
 		},
 		{
 			"RSS Term", LayoutDescriptor{Kind: "term", Section: "tag"}, "", RSSFormat,
@@ -345,8 +486,35 @@ func TestLayout(t *testing.T) {
 				"term/tag.xml",
 				"term/taxonomy.xml",
 				"term/list.xml",
+				"taxonomy/term.rss.xml",
+				"taxonomy/tag.rss.xml",
+				"taxonomy/taxonomy.rss.xml",
+				"taxonomy/rss.xml",
+				"taxonomy/list.rss.xml",
+				"taxonomy/term.xml",
+				"taxonomy/tag.xml",
+				"taxonomy/taxonomy.xml",
+				"taxonomy/list.xml",
+				"tag/term.rss.xml",
+				"tag/tag.rss.xml",
+				"tag/taxonomy.rss.xml",
+				"tag/rss.xml",
+				"tag/list.rss.xml",
+				"tag/term.xml",
+				"tag/tag.xml",
+				"tag/taxonomy.xml",
+				"tag/list.xml",
+				"_default/term.rss.xml",
+				"_default/tag.rss.xml",
+				"_default/taxonomy.rss.xml",
+				"_default/rss.xml",
+				"_default/list.rss.xml",
+				"_default/term.xml",
+				"_default/tag.xml",
+				"_default/taxonomy.xml",
+				"_default/list.xml",
+				"_internal/_default/rss.xml",
 			},
-			37,
 		},
 		{
 			"RSS Taxonomy", LayoutDescriptor{Kind: "taxonomy", Section: "tag"}, "", RSSFormat,
@@ -380,15 +548,23 @@ func TestLayout(t *testing.T) {
 				"_default/list.xml",
 				"_internal/_default/rss.xml",
 			},
-			28,
 		},
 		{
 			"Home plain text", LayoutDescriptor{Kind: "home"}, "", JSONFormat,
 			[]string{
 				"index.json.json",
 				"home.json.json",
+				"list.json.json",
+				"index.json",
+				"home.json",
+				"list.json",
+				"_default/index.json.json",
+				"_default/home.json.json",
+				"_default/list.json.json",
+				"_default/index.json",
+				"_default/home.json",
+				"_default/list.json",
 			},
-			12,
 		},
 		{
 			"Page plain text", LayoutDescriptor{Kind: "page"}, "", JSONFormat,
@@ -396,17 +572,40 @@ func TestLayout(t *testing.T) {
 				"_default/single.json.json",
 				"_default/single.json",
 			},
-			2,
 		},
 		{
 			"Reserved section, shortcodes", LayoutDescriptor{Kind: "section", Section: "shortcodes", Type: "shortcodes"}, "", ampType,
-			[]string{"section/shortcodes.amp.html"},
-			12,
+			[]string{
+				"section/shortcodes.amp.html",
+				"section/section.amp.html",
+				"section/list.amp.html",
+				"section/shortcodes.html",
+				"section/section.html",
+				"section/list.html",
+				"_default/shortcodes.amp.html",
+				"_default/section.amp.html",
+				"_default/list.amp.html",
+				"_default/shortcodes.html",
+				"_default/section.html",
+				"_default/list.html",
+			},
 		},
 		{
 			"Reserved section, partials", LayoutDescriptor{Kind: "section", Section: "partials", Type: "partials"}, "", ampType,
-			[]string{"section/partials.amp.html"},
-			12,
+			[]string{
+				"section/partials.amp.html",
+				"section/section.amp.html",
+				"section/list.amp.html",
+				"section/partials.html",
+				"section/section.html",
+				"section/list.html",
+				"_default/partials.amp.html",
+				"_default/section.amp.html",
+				"_default/list.amp.html",
+				"_default/partials.html",
+				"_default/section.html",
+				"_default/list.html",
+			},
 		},
 		// This is currently always HTML only
 		{
@@ -415,7 +614,6 @@ func TestLayout(t *testing.T) {
 				"404.html.html",
 				"404.html",
 			},
-			2,
 		},
 		{
 			"404, HTML baseof", LayoutDescriptor{Kind: "404", Baseof: true}, "", htmlFormat,
@@ -429,7 +627,6 @@ func TestLayout(t *testing.T) {
 				"_default/404-baseof.html",
 				"_default/baseof.html",
 			},
-			8,
 		},
 		{
 			"Content hook", LayoutDescriptor{Kind: "render-link", RenderingHook: true, Layout: "mylayout", Section: "blog"}, "", ampType,
@@ -439,25 +636,27 @@ func TestLayout(t *testing.T) {
 				"_default/_markup/render-link.amp.html",
 				"_default/_markup/render-link.html",
 			},
-			4,
 		},
 	} {
 		c.Run(this.name, func(c *qt.C) {
 			l := NewLayoutHandler()
 
-			layouts, err := l.For(this.d, this.tp)
+			layouts, err := l.For(this.layoutDescriptor, this.format)
 
 			c.Assert(err, qt.IsNil)
-			c.Assert(layouts, qt.Not(qt.IsNil), qt.Commentf(this.d.Kind))
-			c.Assert(len(layouts) >= len(this.expect), qt.Equals, true, qt.Commentf("%d vs %d", len(layouts), len(this.expect)))
-			// Not checking the complete list for now ...
-			got := layouts[:len(this.expect)]
-			if len(layouts) != this.expectCount || !reflect.DeepEqual(got, this.expect) {
-				formatted := strings.Replace(fmt.Sprintf("%v", layouts), "[", "\"", 1)
-				formatted = strings.Replace(formatted, "]", "\"", 1)
-				formatted = strings.Replace(formatted, " ", "\", \"", -1)
+			c.Assert(layouts, qt.Not(qt.IsNil), qt.Commentf(this.layoutDescriptor.Kind))
 
-				c.Fatalf("Got %d/%d:\n%v\nExpected:\n%v\nAll:\n%v\nFormatted:\n%s", len(layouts), this.expectCount, got, this.expect, layouts, formatted)
+			if !reflect.DeepEqual(layouts, this.expect) {
+				r := strings.NewReplacer(
+					"[", "\t\"",
+					"]", "\",",
+					" ", "\",\n\t\"",
+				)
+				fmtGot := r.Replace(fmt.Sprintf("%v", layouts))
+				fmtExp := r.Replace(fmt.Sprintf("%v", this.expect))
+
+				c.Fatalf("got %d items, expected %d:\nGot:\n\t%v\nExpected:\n\t%v\nDiff:\n%s", len(layouts), len(this.expect), layouts, this.expect, diff.Diff(fmtExp, fmtGot))
+
 			}
 		})
 	}
