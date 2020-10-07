@@ -18,7 +18,6 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/docshelper"
 	"github.com/gohugoio/hugo/parser"
-	"github.com/spf13/cast"
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/tdewolff/minify/v2/css"
@@ -36,16 +35,18 @@ var defaultTdewolffConfig = tdewolffConfig{
 		KeepEndTags:             true,
 		KeepDefaultAttrVals:     true,
 		KeepWhitespace:          false,
-		KeepQuotes:              false,
+		// KeepQuotes:              false, >= v2.6.2
 	},
 	CSS: css.Minifier{
-		Precision: 0,
-		KeepCSS2:  true,
+		Decimals: -1, // will be deprecated
+		// Precision: 0,  // use Precision with >= v2.7.0
+		KeepCSS2: true,
 	},
 	JS:   js.Minifier{},
 	JSON: json.Minifier{},
 	SVG: svg.Minifier{
-		Precision: 0,
+		Decimals: -1, // will be deprecated
+		// Precision: 0,  // use Precision with >= v2.7.0
 	},
 	XML: xml.Minifier{
 		KeepWhitespace: false,
@@ -97,22 +98,6 @@ func decodeConfig(cfg config.Provider) (conf minifyConfig, err error) {
 	}
 
 	m := maps.ToStringMap(v)
-
-	// Handle upstream renames.
-	if td, found := m["tdewolff"]; found {
-		tdm := cast.ToStringMap(td)
-		for _, key := range []string{"css", "svg"} {
-			if v, found := tdm[key]; found {
-				vm := cast.ToStringMap(v)
-				if vv, found := vm["decimal"]; found {
-					vvi := cast.ToInt(vv)
-					if vvi > 0 {
-						vm["precision"] = vvi
-					}
-				}
-			}
-		}
-	}
 
 	err = mapstructure.WeakDecode(m, &conf)
 
