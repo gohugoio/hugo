@@ -199,6 +199,19 @@ other = "{{ .Count }} minuttar lesing"`),
 		expected:     "3 minuttar lesing",
 		expectedFlag: "3 minuttar lesing",
 	},
+	// https://github.com/gohugoio/hugo/issues/7798
+	{
+		name: "known-language-missing-plural",
+		data: map[string][]byte{
+			"oc.toml": []byte(`[oc]
+one =  "abc"`),
+		},
+		args:         1,
+		lang:         "oc",
+		id:           "oc",
+		expected:     "abc",
+		expectedFlag: "abc",
+	},
 	// https://github.com/gohugoio/hugo/issues/7794
 	{
 		name: "dotted-bare-key",
@@ -292,7 +305,7 @@ func TestI18nTranslate(t *testing.T) {
 				} else {
 					expected = test.expected
 				}
-				actual = doTestI18nTranslate(t, test, v)
+				actual = doTestI18nTranslate(c, test, v)
 				c.Assert(actual, qt.Equals, expected)
 			})
 		}
