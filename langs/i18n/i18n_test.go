@@ -199,6 +199,20 @@ other = "{{ .Count }} minuttar lesing"`),
 		expected:     "3 minuttar lesing",
 		expectedFlag: "3 minuttar lesing",
 	},
+	// https://github.com/gohugoio/hugo/issues/7794
+	{
+		name: "dotted-bare-key",
+		data: map[string][]byte{
+			"en.toml": []byte(`"shop_nextPage.one" = "Show Me The Money"
+
+`),
+		},
+		args:         nil,
+		lang:         "en",
+		id:           "shop_nextPage.one",
+		expected:     "Show Me The Money",
+		expectedFlag: "Show Me The Money",
+	},
 }
 
 func doTestI18nTranslate(t testing.TB, test i18nTest, cfg config.Provider) string {
