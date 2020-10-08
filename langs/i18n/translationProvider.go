@@ -15,6 +15,7 @@ package i18n
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"golang.org/x/text/language"
@@ -95,6 +96,14 @@ func addTranslationFile(bundle *i18n.Bundle, r source.File) error {
 
 	_, err = bundle.ParseMessageFileBytes(b, name)
 	if err != nil {
+		if strings.Contains(err.Error(), "no plural rule") {
+			// https://github.com/gohugoio/hugo/issues/7798
+			name = artificialLangTagPrefix + name
+			_, err = bundle.ParseMessageFileBytes(b, name)
+			if err == nil {
+				return nil
+			}
+		}
 		return errWithFileContext(_errors.Wrapf(err, "failed to load translations"), r)
 	}
 
