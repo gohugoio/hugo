@@ -70,12 +70,14 @@ parts:
     node-packages:
         - "@babel/cli"
         - "@babel/core"
+        - postcss
         - postcss-cli
     filesets:
       node:
         - bin/node
       postcss:
         - bin/postcss
+        - lib/node_modules/postcss/*
         - lib/node_modules/postcss-cli/*
       babel:
         - bin/babel
