@@ -15,7 +15,7 @@ require (
 	github.com/bep/tmc v0.5.1
 	github.com/disintegration/gift v1.2.1
 	github.com/dustin/go-humanize v1.0.0
-	github.com/evanw/esbuild v0.7.9
+	github.com/evanw/esbuild v0.7.13
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/frankban/quicktest v1.11.0
 	github.com/fsnotify/fsnotify v1.4.9
