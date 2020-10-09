@@ -226,6 +226,18 @@ one =  "abc"`),
 		expected:     "Show Me The Money",
 		expectedFlag: "Show Me The Money",
 	},
+	// https: //github.com/gohugoio/hugo/issues/7804
+	{
+		name: "lang-with-hyphen",
+		data: map[string][]byte{
+			"pt-br.toml": []byte(`foo.one =  "abc"`),
+		},
+		args:         1,
+		lang:         "pt-br",
+		id:           "foo",
+		expected:     "abc",
+		expectedFlag: "abc",
+	},
 }
 
 func doTestI18nTranslate(t testing.TB, test i18nTest, cfg config.Provider) string {
