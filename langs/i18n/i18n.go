@@ -66,12 +66,11 @@ func (t Translator) Func(lang string) translateFunc {
 func (t Translator) initFuncs(bndl *i18n.Bundle) {
 	enableMissingTranslationPlaceholders := t.cfg.GetBool("enableMissingTranslationPlaceholders")
 	for _, lang := range bndl.LanguageTags() {
-
 		currentLang := lang
 		currentLangStr := currentLang.String()
-		currentLangKey := strings.TrimPrefix(currentLangStr, artificialLangTagPrefix)
+		// This may be pt-BR; make it case insensitive.
+		currentLangKey := strings.ToLower(strings.TrimPrefix(currentLangStr, artificialLangTagPrefix))
 		localizer := i18n.NewLocalizer(bndl, currentLangStr)
-
 		t.translateFuncs[currentLangKey] = func(translationID string, templateData interface{}) string {
 
 			var pluralCount interface{}

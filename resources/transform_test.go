@@ -152,7 +152,7 @@ func TestTransform(t *testing.T) {
 
 		// The transformed file should only be published if RelPermalink
 		// or Permalink is called.
-		n := htesting.RandIntn(3)
+		n := htesting.Rnd.Intn(3)
 		shouldExist := true
 		switch n {
 		case 0:
