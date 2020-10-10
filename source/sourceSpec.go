@@ -35,6 +35,7 @@ type SourceSpec struct {
 
 	// This is set if the ignoreFiles config is set.
 	ignoreFilesRe []*regexp.Regexp
+	watchFilesRe []*regexp.Regexp
 
 	Languages              map[string]interface{}
 	DefaultContentLanguage string
@@ -60,20 +61,33 @@ func NewSourceSpec(ps *helpers.PathSpec, fs afero.Fs) *SourceSpec {
 	}
 
 	ignoreFiles := cast.ToStringSlice(cfg.Get("ignoreFiles"))
-	var regexps []*regexp.Regexp
+	var ignoreRegexps []*regexp.Regexp
 	if len(ignoreFiles) > 0 {
 		for _, ignorePattern := range ignoreFiles {
 			re, err := regexp.Compile(ignorePattern)
 			if err != nil {
 				helpers.DistinctErrorLog.Printf("Invalid regexp %q in ignoreFiles: %s", ignorePattern, err)
 			} else {
-				regexps = append(regexps, re)
+				ignoreRegexps = append(ignoreRegexps, re)
 			}
 
 		}
 	}
 
-	return &SourceSpec{ignoreFilesRe: regexps, PathSpec: ps, SourceFs: fs, Languages: languages, DefaultContentLanguage: defaultLang, DisabledLanguages: disabledLangsSet}
+	watchFiles := cast.ToStringSlice(cfg.Get("watchFiles"))
+	var watchRegexps []*regexp.Regexp
+	if len(watchFiles) > 0 {
+		for _, watchPattern := range watchFiles {
+			re, err := regexp.Compile(watchPattern)
+			if err != nil {
+				helpers.DistinctErrorLog.Printf("Invalid regexp %q in watchFiles: %s", watchPattern, err)
+			} else {
+				watchRegexps = append(watchRegexps, re)
+			}
+		}
+	}
+
+	return &SourceSpec{ignoreFilesRe: ignoreRegexps, watchFilesRe: watchRegexps, PathSpec: ps, SourceFs: fs, Languages: languages, DefaultContentLanguage: defaultLang, DisabledLanguages: disabledLangsSet}
 
 }
 
@@ -98,29 +112,44 @@ func (s *SourceSpec) IgnoreFile(filename string) bool {
 		}
 	}
 
-	if len(s.ignoreFilesRe) == 0 {
-		return false
-	}
-
 	for _, re := range s.ignoreFilesRe {
 		if re.MatchString(filename) {
 			return true
 		}
-	}
-
-	if runtime.GOOS == "windows" {
-		// Also check the forward slash variant if different.
-		unixFilename := filepath.ToSlash(filename)
-		if unixFilename != filename {
-			for _, re := range s.ignoreFilesRe {
-				if re.MatchString(unixFilename) {
-					return true
-				}
+		if runtime.GOOS == "windows" {
+			// Also check the forward slash variant if different.
+			unixFilename := filepath.ToSlash(filename)
+			if re.MatchString(unixFilename) {
+				return true
 			}
 		}
 	}
 
-	return false
+	if len(s.watchFilesRe) == 0 {
+		return false
+	}
+
+	fi, err := os.Stat(filename)
+	if err != nil {
+		return true
+	}
+	if fi.IsDir() {
+		return false
+	}
+
+	for _, re := range s.watchFilesRe {
+		if re.MatchString(filename) {
+			return false
+		}
+		if runtime.GOOS == "windows" {
+			unixFilename := filepath.ToSlash(filename)
+			if re.MatchString(unixFilename) {
+				return false
+			}
+		}
+	}
+
+	return true
 }
 
 // IsRegularSourceFile returns whether filename represents a regular file in the
