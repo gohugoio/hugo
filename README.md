@@ -178,6 +178,7 @@ Hugo stands on the shoulder of many great open source libraries, in lexical orde
  | [github.com/spf13/viper](https://github.com/spf13/viper) | MIT License |
  | [github.com/tdewolff/minify](https://github.com/tdewolff/minify) | MIT License |
  | [github.com/tdewolff/parse](https://github.com/tdewolff/parse) | MIT License |
+ | [github.com/yosssi/gohtml](https://github.com/yosssi/gohtml) | MIT License |
  | [github.com/yuin/goldmark](https://github.com/yuin/goldmark) | MIT License |
  | [github.com/yuin/goldmark-highlighting](https://github.com/yuin/goldmark-highlighting) | MIT License |
  | [go.opencensus.io](https://go.opencensus.io) | Apache License 2.0 |

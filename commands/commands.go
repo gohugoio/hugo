@@ -313,6 +313,7 @@ func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
 	cmd.Flags().StringSlice("disableKinds", []string{}, "disable different kind of pages (home, RSS etc.)")
 
 	cmd.Flags().Bool("minify", false, "minify any supported output format (HTML, XML etc.)")
+	cmd.Flags().Bool("prettify", false, "prettify any supported output format (HTML)")
 
 	// Set bash-completion.
 	// Each flag must first be defined before using the SetAnnotation() call.

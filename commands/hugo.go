@@ -241,6 +241,7 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 	}
 
 	setValueFromFlag(cmd.Flags(), "minify", cfg, "minifyOutput", true)
+	setValueFromFlag(cmd.Flags(), "prettify", cfg, "prettifyOutput", true)
 
 	// Set some "config aliases"
 	setValueFromFlag(cmd.Flags(), "destination", cfg, "publishDir", false)
