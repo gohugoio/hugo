@@ -121,7 +121,7 @@ See also `.ExpiryDate`, `.Date`, `.PublishDate`, and [`.GitInfo`][gitinfo].
 : the Page content stripped of HTML as a `[]string` using Go's [`strings.Fields`](https://golang.org/pkg/strings/#Fields) to split `.Plain` into a slice.
 
 .Prev
-: Points down to the previous [regular page](/variables/site/#site-pages) (sorted by Hugo's [default sort](/templates/lists#default-weight-date-linktitle-filepath)). Example: `{{if .PrevPage}}{{.PrevPage.Permalink}}{{end}}`.  Calling `.Prev` from the last page returns `nil`.
+: Points down to the previous [regular page](/variables/site/#site-pages) (sorted by Hugo's [default sort](/templates/lists#default-weight-date-linktitle-filepath)). Example: `{{if .Prev}}{{.Prev.Permalink}}{{end}}`.  Calling `.Prev` from the last page returns `nil`.
 
 .PrevInSection
 : Points down to the previous [regular page](/variables/site/#site-pages) below the same top level section (e.g. `/blog`). Pages are sorted by Hugo's [default sort](/templates/lists#default-weight-date-linktitle-filepath). Example: `{{if .PrevInSection}}{{.PrevInSection.Permalink}}{{end}}`.  Calling `.PrevInSection` from the last page returns `nil`.
