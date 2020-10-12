@@ -663,13 +663,25 @@ func TestLayout(t *testing.T) {
 }
 
 func BenchmarkLayout(b *testing.B) {
-	c := qt.New(b)
 	descriptor := LayoutDescriptor{Kind: "taxonomy", Section: "categories"}
 	l := NewLayoutHandler()
 
 	for i := 0; i < b.N; i++ {
-		layouts, err := l.For(descriptor, HTMLFormat)
-		c.Assert(err, qt.IsNil)
-		c.Assert(layouts, qt.Not(qt.HasLen), 0)
+		_, err := l.For(descriptor, HTMLFormat)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
+func BenchmarkLayoutUncached(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		descriptor := LayoutDescriptor{Kind: "taxonomy", Section: "categories"}
+		l := NewLayoutHandler()
+
+		_, err := l.For(descriptor, HTMLFormat)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
