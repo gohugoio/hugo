@@ -166,7 +166,7 @@ func (a aliasHandler) targetPathAlias(src string) (string, error) {
 	alias = strings.TrimPrefix(alias, "/")
 	if strings.HasSuffix(alias, "/") {
 		alias = alias + "index.html"
-	} else if !strings.HasSuffix(alias, ".html") {
+	} else if !strings.HasSuffix(alias, ".html") && !strings.HasSuffix(alias, ".htm") {
 		alias = alias + "/" + "index.html"
 	}
 

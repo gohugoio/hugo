@@ -351,7 +351,7 @@ func (s *Site) renderAliases() error {
 					a = path.Join(f.Path, a)
 				}
 
-				if s.UglyURLs && !strings.HasSuffix(a, ".html") {
+				if s.UglyURLs && !strings.HasSuffix(a, ".html") && !strings.HasSuffix(a, ".htm") {
 					a += ".html"
 				}
 
