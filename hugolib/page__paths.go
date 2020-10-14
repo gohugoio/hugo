@@ -76,7 +76,7 @@ func newPagePaths(
 	}
 
 	var out page.OutputFormats
-	if !pm.noRender() {
+	if !pm.noLink() {
 		out = pageOutputFormats
 	}
 
