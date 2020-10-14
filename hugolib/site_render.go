@@ -323,19 +323,27 @@ func (s *Site) renderRobotsTXT() error {
 // renderAliases renders shell pages that simply have a redirect in the header.
 func (s *Site) renderAliases() error {
 	var err error
-	s.pageMap.pageTrees.WalkRenderable(func(ss string, n *contentNode) bool {
+	s.pageMap.pageTrees.WalkLinkable(func(ss string, n *contentNode) bool {
 		p := n.p
 		if len(p.Aliases()) == 0 {
 			return false
 		}
 
+		pathSeen := make(map[string]bool)
+
 		for _, of := range p.OutputFormats() {
 			if !of.Format.IsHTML {
-				return false
+				continue
 			}
 
-			plink := of.Permalink()
 			f := of.Format
+
+			if pathSeen[f.Path] {
+				continue
+			}
+			pathSeen[f.Path] = true
+
+			plink := of.Permalink()
 
 			for _, a := range p.Aliases() {
 				isRelative := !strings.HasPrefix(a, "/")
