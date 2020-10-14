@@ -66,7 +66,7 @@ type Deps struct {
 	FileCaches filecache.Caches
 
 	// The translation func to use
-	Translate func(translationID string, args ...interface{}) string `json:"-"`
+	Translate func(translationID string, templateData interface{}) string `json:"-"`
 
 	// The language in use. TODO(bep) consolidate with site
 	Language *langs.Language
@@ -96,6 +96,9 @@ type Deps struct {
 	// Atomic values set during a build.
 	// This is common/global for all sites.
 	BuildState *BuildState
+
+	// Whether we are in running (server) mode
+	Running bool
 
 	*globalErrHandler
 }
@@ -279,6 +282,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		FileCaches:              fileCaches,
 		BuildStartListeners:     &Listeners{},
 		BuildState:              buildState,
+		Running:                 cfg.Running,
 		Timeout:                 time.Duration(timeoutms) * time.Millisecond,
 		globalErrHandler:        errorHandler,
 	}

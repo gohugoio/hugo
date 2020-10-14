@@ -22,6 +22,42 @@ import (
 	"github.com/gohugoio/hugo/common/types"
 )
 
+// TODO(bep) replace the private versions in /tpl with these.
+// IsInt returns whether the given kind is a number.
+func IsNumber(kind reflect.Kind) bool {
+	return IsInt(kind) || IsUint(kind) || IsFloat(kind)
+}
+
+// IsInt returns whether the given kind is an int.
+func IsInt(kind reflect.Kind) bool {
+	switch kind {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return true
+	default:
+		return false
+	}
+}
+
+// IsUint returns whether the given kind is an uint.
+func IsUint(kind reflect.Kind) bool {
+	switch kind {
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return true
+	default:
+		return false
+	}
+}
+
+// IsFloat returns whether the given kind is a float.
+func IsFloat(kind reflect.Kind) bool {
+	switch kind {
+	case reflect.Float32, reflect.Float64:
+		return true
+	default:
+		return false
+	}
+}
+
 // IsTruthful returns whether in represents a truthful value.
 // See IsTruthfulValue
 func IsTruthful(in interface{}) bool {

@@ -16,6 +16,7 @@ package livereloadinject
 import (
 	"bytes"
 	"fmt"
+  "html"
 	"net/url"
 	"strings"
 
@@ -68,7 +69,7 @@ func New(baseURL url.URL) transform.Transformer {
 			return err
 		}
 
-		script := []byte(fmt.Sprintf(`<script src="%s" data-no-instant defer></script>`, src))
+		script := []byte(fmt.Sprintf(`<script src="%s" data-no-instant defer></script>`, html.EscapeString(src)))
 
 		i := idx
 		if match.appendScript {

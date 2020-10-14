@@ -33,8 +33,6 @@ import (
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
-const defaultTarget = "esnext"
-
 type Options struct {
 	// If not set, the source path will be used as the base target path.
 	// Note that the target path's extension may change if the target MIME type
@@ -44,10 +42,18 @@ type Options struct {
 	// Whether to minify to output.
 	Minify bool
 
+	// Whether to write mapfiles (currently inline only)
+	SourceMap string
+
 	// The language target.
 	// One of: es2015, es2016, es2017, es2018, es2019, es2020 or esnext.
 	// Default is esnext.
 	Target string
+
+	// The output format.
+	// One of: iife, cjs, esm
+	// Default is to esm.
+	Format string
 
 	// External dependencies, e.g. "react".
 	Externals []string `hash:"set"`
@@ -60,39 +66,29 @@ type Options struct {
 
 	// What to use instead of React.Fragment.
 	JSXFragment string
+
+	mediaType  media.Type
+	outDir     string
+	contents   string
+	sourcefile string
+	resolveDir string
 }
 
-type internalOptions struct {
-	TargetPath  string
-	Minify      bool
-	Target      string
-	JSXFactory  string
-	JSXFragment string
+func decodeOptions(m map[string]interface{}) (Options, error) {
+	var opts Options
 
-	Externals []string `hash:"set"`
-
-	Defines map[string]string
-
-	// These are currently not exposed in the public Options struct,
-	// but added here to make the options hash as stable as possible for
-	// whenever we do.
-	TSConfig string
-}
-
-func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
-	if m == nil {
-		return
+	if err := mapstructure.WeakDecode(m, &opts); err != nil {
+		return opts, err
 	}
-	err = mapstructure.WeakDecode(m, &opts)
-	err = mapstructure.WeakDecode(m, &opts)
 
 	if opts.TargetPath != "" {
 		opts.TargetPath = helpers.ToSlashTrimLeading(opts.TargetPath)
 	}
 
 	opts.Target = strings.ToLower(opts.Target)
+	opts.Format = strings.ToLower(opts.Format)
 
-	return
+	return opts, nil
 }
 
 type Client struct {
@@ -105,27 +101,63 @@ func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) *Client {
 }
 
 type buildTransformation struct {
-	options internalOptions
-	rs      *resources.Spec
-	sfs     *filesystems.SourceFilesystem
+	optsm map[string]interface{}
+	rs    *resources.Spec
+	sfs   *filesystems.SourceFilesystem
 }
 
 func (t *buildTransformation) Key() internal.ResourceTransformationKey {
-	return internal.NewResourceTransformationKey("jsbuild", t.options)
+	return internal.NewResourceTransformationKey("jsbuild", t.optsm)
 }
 
 func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
 	ctx.OutMediaType = media.JavascriptType
 
-	if t.options.TargetPath != "" {
-		ctx.OutPath = t.options.TargetPath
+	opts, err := decodeOptions(t.optsm)
+	if err != nil {
+		return err
+	}
+
+	if opts.TargetPath != "" {
+		ctx.OutPath = opts.TargetPath
 	} else {
 		ctx.ReplaceOutPathExtension(".js")
 	}
 
+	src, err := ioutil.ReadAll(ctx.From)
+	if err != nil {
+		return err
+	}
+
+	sdir, sfile := path.Split(ctx.SourcePath)
+	opts.sourcefile = sfile
+	opts.resolveDir = t.sfs.RealFilename(sdir)
+	opts.contents = string(src)
+	opts.mediaType = ctx.InMediaType
+
+	buildOptions, err := toBuildOptions(opts)
+	if err != nil {
+		return err
+	}
+
+	result := api.Build(buildOptions)
+	if len(result.Errors) > 0 {
+		return fmt.Errorf("%s", result.Errors[0].Text)
+	}
+	ctx.To.Write(result.OutputFiles[0].Contents)
+	return nil
+}
+
+func (c *Client) Process(res resources.ResourceTransformer, opts map[string]interface{}) (resource.Resource, error) {
+	return res.Transform(
+		&buildTransformation{rs: c.rs, sfs: c.sfs, optsm: opts},
+	)
+}
+
+func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 	var target api.Target
-	switch t.options.Target {
-	case defaultTarget:
+	switch opts.Target {
+	case "", "esnext":
 		target = api.ESNext
 	case "es5":
 		target = api.ES5
@@ -142,11 +174,17 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	case "es2020":
 		target = api.ES2020
 	default:
-		return fmt.Errorf("invalid target: %q", t.options.Target)
+		err = fmt.Errorf("invalid target: %q", opts.Target)
+		return
+	}
+
+	mediaType := opts.mediaType
+	if mediaType.IsZero() {
+		mediaType = media.JavascriptType
 	}
 
 	var loader api.Loader
-	switch ctx.InMediaType.SubType {
+	switch mediaType.SubType {
 	// TODO(bep) ESBuild support a set of other loaders, but I currently fail
 	// to see the relevance. That may change as we start using this.
 	case media.JavascriptType.SubType:
@@ -158,78 +196,70 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	case media.JSXType.SubType:
 		loader = api.LoaderJSX
 	default:
-		return fmt.Errorf("unsupported Media Type: %q", ctx.InMediaType)
+		err = fmt.Errorf("unsupported Media Type: %q", opts.mediaType)
+		return
+	}
+
+	var format api.Format
+	// One of: iife, cjs, esm
+	switch opts.Format {
+	case "", "iife":
+		format = api.FormatIIFE
+	case "esm":
+		format = api.FormatESModule
+	case "cjs":
+		format = api.FormatCommonJS
+	default:
+		err = fmt.Errorf("unsupported script output format: %q", opts.Format)
+		return
 
 	}
 
-	src, err := ioutil.ReadAll(ctx.From)
-	if err != nil {
-		return err
-	}
-
-	sdir, sfile := path.Split(ctx.SourcePath)
-	sdir = t.sfs.RealFilename(sdir)
-
-	buildOptions := api.BuildOptions{
-		Outfile: "",
-		Bundle:  true,
-
-		Target: target,
-
-		MinifyWhitespace:  t.options.Minify,
-		MinifyIdentifiers: t.options.Minify,
-		MinifySyntax:      t.options.Minify,
-
-		Defines: t.options.Defines,
-
-		Externals: t.options.Externals,
-
-		JSXFactory:  t.options.JSXFactory,
-		JSXFragment: t.options.JSXFragment,
-
-		Tsconfig: t.options.TSConfig,
-
-		Stdin: &api.StdinOptions{
-			Contents:   string(src),
-			Sourcefile: sfile,
-			ResolveDir: sdir,
-			Loader:     loader,
-		},
-	}
-	result := api.Build(buildOptions)
-	if len(result.Errors) > 0 {
-		return fmt.Errorf("%s", result.Errors[0].Text)
-	}
-	if len(result.OutputFiles) != 1 {
-		return fmt.Errorf("unexpected output count: %d", len(result.OutputFiles))
-	}
-
-	ctx.To.Write(result.OutputFiles[0].Contents)
-	return nil
-}
-
-func (c *Client) Process(res resources.ResourceTransformer, opts Options) (resource.Resource, error) {
-	return res.Transform(
-		&buildTransformation{rs: c.rs, sfs: c.sfs, options: toInternalOptions(opts)},
-	)
-}
-
-func toInternalOptions(opts Options) internalOptions {
-	target := opts.Target
-	if target == "" {
-		target = defaultTarget
-	}
 	var defines map[string]string
 	if opts.Defines != nil {
 		defines = cast.ToStringMapString(opts.Defines)
 	}
-	return internalOptions{
-		TargetPath:  opts.TargetPath,
-		Minify:      opts.Minify,
-		Target:      target,
-		Externals:   opts.Externals,
-		Defines:     defines,
+
+	var sourceMap api.SourceMap
+	switch opts.SourceMap {
+	case "inline":
+		sourceMap = api.SourceMapInline
+	case "":
+		sourceMap = api.SourceMapNone
+	default:
+		err = fmt.Errorf("unsupported sourcemap type: %q", opts.SourceMap)
+		return
+	}
+
+	buildOptions = api.BuildOptions{
+		Outfile: "",
+		Bundle:  true,
+
+		Target:    target,
+		Format:    format,
+		Sourcemap: sourceMap,
+
+		MinifyWhitespace:  opts.Minify,
+		MinifyIdentifiers: opts.Minify,
+		MinifySyntax:      opts.Minify,
+
+		Outdir:  opts.outDir,
+		Defines: defines,
+
+		Externals: opts.Externals,
+
 		JSXFactory:  opts.JSXFactory,
 		JSXFragment: opts.JSXFragment,
+
+		//Tsconfig: opts.TSConfig,
+
+		Stdin: &api.StdinOptions{
+			Contents:   opts.contents,
+			Sourcefile: opts.sourcefile,
+			ResolveDir: opts.resolveDir,
+			Loader:     loader,
+		},
 	}
+	return
+
 }

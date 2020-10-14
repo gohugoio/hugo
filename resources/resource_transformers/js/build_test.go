@@ -16,6 +16,10 @@ package js
 import (
 	"testing"
 
+	"github.com/gohugoio/hugo/media"
+
+	"github.com/evanw/esbuild/pkg/api"
+
 	qt "github.com/frankban/quicktest"
 )
 
@@ -24,47 +28,53 @@ import (
 func TestOptionKey(t *testing.T) {
 	c := qt.New(t)
 
-	opts := internalOptions{
-		TargetPath: "foo",
+	opts := map[string]interface{}{
+		"TargetPath": "foo",
+		"Target":     "es2018",
 	}
 
-	key := (&buildTransformation{options: opts}).Key()
+	key := (&buildTransformation{optsm: opts}).Key()
 
-	c.Assert(key.Value(), qt.Equals, "jsbuild_9405671309963492201")
+	c.Assert(key.Value(), qt.Equals, "jsbuild_7891849149754191852")
 }
 
-func TestToInternalOptions(t *testing.T) {
+func TestToBuildOptions(t *testing.T) {
 	c := qt.New(t)
 
-	o := Options{
-		TargetPath:  "v1",
-		Target:      "v2",
-		JSXFactory:  "v3",
-		JSXFragment: "v4",
-		Externals:   []string{"react"},
-		Defines:     map[string]interface{}{"process.env.NODE_ENV": "production"},
-		Minify:      true,
-	}
-
-	c.Assert(toInternalOptions(o), qt.DeepEquals, internalOptions{
-		TargetPath:  "v1",
-		Minify:      true,
-		Target:      "v2",
-		JSXFactory:  "v3",
-		JSXFragment: "v4",
-		Externals:   []string{"react"},
-		Defines:     map[string]string{"process.env.NODE_ENV": "production"},
-		TSConfig:    "",
+	opts, err := toBuildOptions(Options{mediaType: media.JavascriptType})
+	c.Assert(err, qt.IsNil)
+	c.Assert(opts, qt.DeepEquals, api.BuildOptions{
+		Bundle: true,
+		Target: api.ESNext,
+		Format: api.FormatIIFE,
+		Stdin:  &api.StdinOptions{},
 	})
 
-	c.Assert(toInternalOptions(Options{}), qt.DeepEquals, internalOptions{
-		TargetPath:  "",
-		Minify:      false,
-		Target:      "esnext",
-		JSXFactory:  "",
-		JSXFragment: "",
-		Externals:   nil,
-		Defines:     nil,
-		TSConfig:    "",
+	opts, err = toBuildOptions(Options{
+		Target: "es2018", Format: "cjs", Minify: true, mediaType: media.JavascriptType})
+	c.Assert(err, qt.IsNil)
+	c.Assert(opts, qt.DeepEquals, api.BuildOptions{
+		Bundle:            true,
+		Target:            api.ES2018,
+		Format:            api.FormatCommonJS,
+		MinifyIdentifiers: true,
+		MinifySyntax:      true,
+		MinifyWhitespace:  true,
+		Stdin:             &api.StdinOptions{},
+	})
+
+	opts, err = toBuildOptions(Options{
+		Target: "es2018", Format: "cjs", Minify: true, mediaType: media.JavascriptType,
+		SourceMap: "inline"})
+	c.Assert(err, qt.IsNil)
+	c.Assert(opts, qt.DeepEquals, api.BuildOptions{
+		Bundle:            true,
+		Target:            api.ES2018,
+		Format:            api.FormatCommonJS,
+		MinifyIdentifiers: true,
+		MinifySyntax:      true,
+		MinifyWhitespace:  true,
+		Sourcemap:         api.SourceMapInline,
+		Stdin:             &api.StdinOptions{},
 	})
 }

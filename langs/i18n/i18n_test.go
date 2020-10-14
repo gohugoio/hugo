@@ -14,6 +14,7 @@
 package i18n
 
 import (
+	"fmt"
 	"path/filepath"
 	"testing"
 
@@ -125,6 +126,35 @@ var i18nTests = []i18nTest{
 		expected:     "¡Hola, 50 gente!",
 		expectedFlag: "¡Hola, 50 gente!",
 	},
+	// https://github.com/gohugoio/hugo/issues/7787
+	{
+		name: "readingTime-one",
+		data: map[string][]byte{
+			"en.toml": []byte(`[readingTime]
+one = "One minute to read"
+other = "{{ .Count }} minutes to read"
+`),
+		},
+		args:         1,
+		lang:         "en",
+		id:           "readingTime",
+		expected:     "One minute to read",
+		expectedFlag: "One minute to read",
+	},
+	{
+		name: "readingTime-many",
+		data: map[string][]byte{
+			"en.toml": []byte(`[readingTime]
+one = "One minute to read"
+other = "{{ .Count }} minutes to read"
+`),
+		},
+		args:         21,
+		lang:         "en",
+		id:           "readingTime",
+		expected:     "21 minutes to read",
+		expectedFlag: "21 minutes to read",
+	},
 	// Same id and translation in current language
 	// https://github.com/gohugoio/hugo/issues/2607
 	{
@@ -168,6 +198,45 @@ other = "{{ .Count }} minuttar lesing"`),
 		id:           "readingTime",
 		expected:     "3 minuttar lesing",
 		expectedFlag: "3 minuttar lesing",
+	},
+	// https://github.com/gohugoio/hugo/issues/7798
+	{
+		name: "known-language-missing-plural",
+		data: map[string][]byte{
+			"oc.toml": []byte(`[oc]
+one =  "abc"`),
+		},
+		args:         1,
+		lang:         "oc",
+		id:           "oc",
+		expected:     "abc",
+		expectedFlag: "abc",
+	},
+	// https://github.com/gohugoio/hugo/issues/7794
+	{
+		name: "dotted-bare-key",
+		data: map[string][]byte{
+			"en.toml": []byte(`"shop_nextPage.one" = "Show Me The Money"
+
+`),
+		},
+		args:         nil,
+		lang:         "en",
+		id:           "shop_nextPage.one",
+		expected:     "Show Me The Money",
+		expectedFlag: "Show Me The Money",
+	},
+	// https: //github.com/gohugoio/hugo/issues/7804
+	{
+		name: "lang-with-hyphen",
+		data: map[string][]byte{
+			"pt-br.toml": []byte(`foo.one =  "abc"`),
+		},
+		args:         1,
+		lang:         "pt-br",
+		id:           "foo",
+		expected:     "abc",
+		expectedFlag: "abc",
 	},
 }
 
@@ -242,13 +311,15 @@ func TestI18nTranslate(t *testing.T) {
 		v.Set("enableMissingTranslationPlaceholders", enablePlaceholders)
 
 		for _, test := range i18nTests {
-			if enablePlaceholders {
-				expected = test.expectedFlag
-			} else {
-				expected = test.expected
-			}
-			actual = doTestI18nTranslate(t, test, v)
-			c.Assert(actual, qt.Equals, expected)
+			c.Run(fmt.Sprintf("%s-%t", test.name, enablePlaceholders), func(c *qt.C) {
+				if enablePlaceholders {
+					expected = test.expectedFlag
+				} else {
+					expected = test.expected
+				}
+				actual = doTestI18nTranslate(c, test, v)
+				c.Assert(actual, qt.Equals, expected)
+			})
 		}
 	}
 }

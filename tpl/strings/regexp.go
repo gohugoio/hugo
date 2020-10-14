@@ -46,8 +46,9 @@ func (ns *Namespace) FindRE(expr string, content interface{}, limit ...interface
 }
 
 // ReplaceRE returns a copy of s, replacing all matches of the regular
-// expression pattern with the replacement text repl.
-func (ns *Namespace) ReplaceRE(pattern, repl, s interface{}) (_ string, err error) {
+// expression pattern with the replacement text repl. The number of replacements
+// can be limited with an optional fourth parameter.
+func (ns *Namespace) ReplaceRE(pattern, repl, s interface{}, n ...interface{}) (_ string, err error) {
 	sp, err := cast.ToStringE(pattern)
 	if err != nil {
 		return
@@ -63,12 +64,27 @@ func (ns *Namespace) ReplaceRE(pattern, repl, s interface{}) (_ string, err erro
 		return
 	}
 
+	nn := -1
+	if len(n) > 0 {
+		nn, err = cast.ToIntE(n[0])
+		if err != nil {
+			return
+		}
+	}
+
 	re, err := reCache.Get(sp)
 	if err != nil {
 		return "", err
 	}
 
-	return re.ReplaceAllString(ss, sr), nil
+	return re.ReplaceAllStringFunc(ss, func(str string) string {
+		if nn == 0 {
+			return str
+		}
+
+		nn -= 1
+		return re.ReplaceAllString(str, sr)
+	}), nil
 }
 
 // regexpCache represents a cache of regexp objects protected by a mutex.

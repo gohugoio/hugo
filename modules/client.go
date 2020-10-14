@@ -26,8 +26,9 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/gobwas/glob"
 	hglob "github.com/gohugoio/hugo/hugofs/glob"
+
+	"github.com/gobwas/glob"
 
 	"github.com/gohugoio/hugo/hugofs"
 
@@ -100,10 +101,16 @@ func NewClient(cfg ClientConfig) *Client {
 		logger = loggers.NewWarningLogger()
 	}
 
+	var noVendor glob.Glob
+	if cfg.ModuleConfig.NoVendor != "" {
+		noVendor, _ = hglob.GetGlob(hglob.NormalizePath(cfg.ModuleConfig.NoVendor))
+	}
+
 	return &Client{
 		fs:                fs,
 		ccfg:              cfg,
 		logger:            logger,
+		noVendor:          noVendor,
 		moduleConfig:      mcfg,
 		environ:           env,
 		GoModulesFilename: goModFilename}
@@ -113,6 +120,8 @@ func NewClient(cfg ClientConfig) *Client {
 type Client struct {
 	fs     afero.Fs
 	logger *loggers.Logger
+
+	noVendor glob.Glob
 
 	ccfg ClientConfig
 
@@ -219,7 +228,11 @@ func (c *Client) Vendor() error {
 			// This is the project.
 			continue
 		}
-		// We respect the --ignoreVendor flag even for the vendor command.
+
+		if !c.shouldVendor(t.Path()) {
+			continue
+		}
+
 		if !t.IsGoMod() && !t.Vendor() {
 			// We currently do not vendor components living in the
 			// theme directory, see https://github.com/gohugoio/hugo/issues/5993
@@ -531,8 +544,6 @@ func (c *Client) runGo(
 		return nil
 	}
 
-	//defer c.logger.PrintTimer(time.Now(), fmt.Sprint(args))
-
 	stderr := new(bytes.Buffer)
 	cmd := exec.CommandContext(ctx, "go", args...)
 
@@ -598,6 +609,10 @@ func (c *Client) tidy(mods Modules, goModOnly bool) error {
 	return nil
 }
 
+func (c *Client) shouldVendor(path string) bool {
+	return c.noVendor == nil || !c.noVendor.Match(path)
+}
+
 // ClientConfig configures the module Client.
 type ClientConfig struct {
 	Fs     afero.Fs
@@ -607,8 +622,9 @@ type ClientConfig struct {
 	// etc.
 	HookBeforeFinalize func(m *ModulesConfig) error
 
-	// Ignore any _vendor directory.
-	IgnoreVendor bool
+	// Ignore any _vendor directory for module paths matching the given pattern.
+	// This can be nil.
+	IgnoreVendor glob.Glob
 
 	// Absolute path to the project dir.
 	WorkingDir string
@@ -618,6 +634,10 @@ type ClientConfig struct {
 
 	CacheDir     string // Module cache
 	ModuleConfig Config
+}
+
+func (c ClientConfig) shouldIgnoreVendor(path string) bool {
+	return c.IgnoreVendor != nil && c.IgnoreVendor.Match(path)
 }
 
 type goBinaryStatus int

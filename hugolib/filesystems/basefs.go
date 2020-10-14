@@ -49,6 +49,9 @@ type BaseFs struct {
 	// SourceFilesystems contains the different source file systems.
 	*SourceFilesystems
 
+	// The project source.
+	SourceFs afero.Fs
+
 	// The filesystem used to publish the rendered site.
 	// This usually maps to /my-project/public.
 	PublishFs afero.Fs
@@ -98,6 +101,23 @@ func (b *BaseFs) RelContentDir(filename string) string {
 	}
 	// Either not a content dir or already relative.
 	return filename
+}
+
+// ResolveJSConfigFile resolves the JS-related config file to a absolute
+// filename. One example of such would be postcss.config.js.
+func (fs *BaseFs) ResolveJSConfigFile(name string) string {
+	// First look in assets/_jsconfig
+	fi, err := fs.Assets.Fs.Stat(filepath.Join(files.FolderJSConfig, name))
+	if err == nil {
+		return fi.(hugofs.FileMetaInfo).Meta().Filename()
+	}
+	// Fall back to the work dir.
+	fi, err = fs.Work.Stat(name)
+	if err == nil {
+		return fi.(hugofs.FileMetaInfo).Meta().Filename()
+	}
+
+	return ""
 }
 
 // SourceFilesystems contains the different source file systems. These can be
@@ -346,8 +366,10 @@ func NewBase(p *paths.Paths, logger *loggers.Logger, options ...func(*BaseFs) er
 	}
 
 	publishFs := hugofs.NewBaseFileDecorator(afero.NewBasePathFs(fs.Destination, p.AbsPublishDir))
+	sourceFs := hugofs.NewBaseFileDecorator(afero.NewBasePathFs(fs.Source, p.WorkingDir))
 
 	b := &BaseFs{
+		SourceFs:  sourceFs,
 		PublishFs: publishFs,
 	}
 
@@ -696,11 +718,16 @@ type filesystemsCollector struct {
 
 func (c *filesystemsCollector) addDirs(rfs *hugofs.RootMappingFs) {
 	for _, componentFolder := range files.ComponentFolders {
-		dirs, err := rfs.Dirs(componentFolder)
+		c.addDir(rfs, componentFolder)
+	}
 
-		if err == nil {
-			c.overlayDirs[componentFolder] = append(c.overlayDirs[componentFolder], dirs...)
-		}
+}
+
+func (c *filesystemsCollector) addDir(rfs *hugofs.RootMappingFs, componentFolder string) {
+	dirs, err := rfs.Dirs(componentFolder)
+
+	if err == nil {
+		c.overlayDirs[componentFolder] = append(c.overlayDirs[componentFolder], dirs...)
 	}
 }
 

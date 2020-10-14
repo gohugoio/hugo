@@ -39,6 +39,23 @@ func init() {
 	jww.SetLogListeners(jww.LogCounter(GlobalErrorCounter, jww.LevelError))
 }
 
+func LoggerToWriterWithPrefix(logger *log.Logger, prefix string) io.Writer {
+	return prefixWriter{
+		logger: logger,
+		prefix: prefix,
+	}
+}
+
+type prefixWriter struct {
+	logger *log.Logger
+	prefix string
+}
+
+func (w prefixWriter) Write(p []byte) (n int, err error) {
+	w.logger.Printf("%s: %s", w.prefix, p)
+	return len(p), nil
+}
+
 // Logger wraps a *loggers.Logger and some other related logging state.
 type Logger struct {
 	*jww.Notepad
@@ -93,17 +110,32 @@ func NewLogger(stdoutThreshold, logThreshold jww.Threshold, outHandle, logHandle
 
 // NewDebugLogger is a convenience function to create a debug logger.
 func NewDebugLogger() *Logger {
-	return newBasicLogger(jww.LevelDebug)
+	return NewBasicLogger(jww.LevelDebug)
 }
 
 // NewWarningLogger is a convenience function to create a warning logger.
 func NewWarningLogger() *Logger {
-	return newBasicLogger(jww.LevelWarn)
+	return NewBasicLogger(jww.LevelWarn)
+}
+
+// NewInfoLogger is a convenience function to create a info logger.
+func NewInfoLogger() *Logger {
+	return NewBasicLogger(jww.LevelInfo)
 }
 
 // NewErrorLogger is a convenience function to create an error logger.
 func NewErrorLogger() *Logger {
-	return newBasicLogger(jww.LevelError)
+	return NewBasicLogger(jww.LevelError)
+}
+
+// NewBasicLogger creates a new basic logger writing to Stdout.
+func NewBasicLogger(t jww.Threshold) *Logger {
+	return newLogger(t, jww.LevelError, os.Stdout, ioutil.Discard, false)
+}
+
+// NewBasicLoggerForWriter creates a new basic logger writing to w.
+func NewBasicLoggerForWriter(t jww.Threshold, w io.Writer) *Logger {
+	return newLogger(t, jww.LevelError, w, ioutil.Discard, false)
 }
 
 var (
@@ -214,8 +246,4 @@ func newLogger(stdoutThreshold, logThreshold jww.Threshold, outHandle, logHandle
 		WarnCounter:  warnCounter,
 		errors:       errorBuff,
 	}
-}
-
-func newBasicLogger(t jww.Threshold) *Logger {
-	return newLogger(t, jww.LevelError, os.Stdout, ioutil.Discard, false)
 }

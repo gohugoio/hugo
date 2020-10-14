@@ -36,7 +36,6 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/pkg/errors"
 
-	"os"
 	"os/exec"
 
 	"github.com/mitchellh/mapstructure"
@@ -171,17 +170,11 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 
 	// We need an abolute filename to the config file.
 	if !filepath.IsAbs(configFile) {
-		// We resolve this against the virtual Work filesystem, to allow
-		// this config file to live in one of the themes if needed.
-		fi, err := t.rs.BaseFs.Work.Stat(configFile)
-		if err != nil {
-			if t.options.Config != "" {
-				// Only fail if the user specificed config file is not found.
-				return errors.Wrapf(err, "postcss config %q not found:", configFile)
-			}
-			configFile = ""
-		} else {
-			configFile = fi.(hugofs.FileMetaInfo).Meta().Filename()
+		configFile = t.rs.BaseFs.ResolveJSConfigFile(configFile)
+		if configFile == "" && t.options.Config != "" {
+			// Only fail if the user specificed config file is not found.
+			return errors.Errorf("postcss config %q not found:", configFile)
+
 		}
 	}
 
@@ -199,10 +192,12 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	cmd := exec.Command(binary, cmdArgs...)
 
 	var errBuf bytes.Buffer
+	infoW := loggers.LoggerToWriterWithPrefix(logger.INFO, "postcss")
 
 	cmd.Stdout = ctx.To
-	cmd.Stderr = io.MultiWriter(os.Stderr, &errBuf)
-	cmd.Env = hugo.GetExecEnviron(t.rs.Cfg)
+	cmd.Stderr = io.MultiWriter(infoW, &errBuf)
+
+	cmd.Env = hugo.GetExecEnviron(t.rs.WorkingDir, t.rs.Cfg, t.rs.BaseFs.Assets.Fs)
 
 	stdin, err := cmd.StdinPipe()
 	if err != nil {

@@ -56,7 +56,9 @@ func ApplyProjectConfigDefaults(cfg config.Provider, mod Module) error {
 	// the basic level.
 	componentsConfigured := make(map[string]bool)
 	for _, mnt := range moda.mounts {
-		componentsConfigured[mnt.Component()] = true
+		if !strings.HasPrefix(mnt.Target, files.JsConfigFolderMountPrefix) {
+			componentsConfigured[mnt.Component()] = true
+		}
 	}
 
 	type dirKeyComponent struct {
@@ -227,6 +229,10 @@ type Config struct {
 	// Will be validated against the running Hugo version.
 	HugoVersion HugoVersion
 
+	// A optional Glob pattern matching module paths to skip when vendoring, e.g.
+	// "github.com/**".
+	NoVendor string
+
 	// Configures GOPROXY.
 	Proxy string
 	// Configures GONOPROXY.
@@ -301,10 +307,12 @@ func (v HugoVersion) IsValid() bool {
 }
 
 type Import struct {
-	Path         string // Module path
-	IgnoreConfig bool   // Ignore any config.toml found.
-	Disable      bool   // Turn off this module.
-	Mounts       []Mount
+	Path          string // Module path
+	IgnoreConfig  bool   // Ignore any config in config.toml (will still folow imports).
+	IgnoreImports bool   // Do not follow any configured imports.
+	NoVendor      bool   // Never vendor this import (only allowed in main project).
+	Disable       bool   // Turn off this module.
+	Mounts        []Mount
 }
 
 type Mount struct {
@@ -312,10 +320,19 @@ type Mount struct {
 	Target string // relative target path, e.g. "assets/bootstrap/scss"
 
 	Lang string // any language code associated with this mount.
+
 }
 
 func (m Mount) Component() string {
 	return strings.Split(m.Target, fileSeparator)[0]
+}
+
+func (m Mount) ComponentAndName() (string, string) {
+	k := strings.Index(m.Target, fileSeparator)
+	if k == -1 {
+		return m.Target, ""
+	}
+	return m.Target[:k], m.Target[k+1:]
 }
 
 func getStaticDirs(cfg config.Provider) []string {

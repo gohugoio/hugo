@@ -32,6 +32,7 @@ func TestCreatePlaceholders(t *testing.T) {
 
 	c.Assert(m, qt.DeepEquals, map[string]interface{}{
 		"FullSuffix":  "pre_foo.FullSuffix_post",
+		"IsZero":      "pre_foo.IsZero_post",
 		"Type":        "pre_foo.Type_post",
 		"MainType":    "pre_foo.MainType_post",
 		"Delimiter":   "pre_foo.Delimiter_post",

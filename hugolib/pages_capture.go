@@ -100,7 +100,7 @@ type pagesCollector struct {
 // That is, if a front matter cascade section is removed, added or edited.
 // If this is the case we must re-evaluate its descendants.
 func (c *pagesCollector) isCascadingEdit(dir contentDirKey) (bool, string) {
-	// This is eiter a section or a taxonomy node. Find it.
+	// This is either a section or a taxonomy node. Find it.
 	prefix := cleanTreeKey(dir.dirname)
 
 	section := "/"
@@ -137,6 +137,7 @@ func (c *pagesCollector) isCascadingEdit(dir contentDirKey) (bool, string) {
 		hasCascade := n.p.bucket.cascade != nil && len(n.p.bucket.cascade) > 0
 		if !ok {
 			isCascade = hasCascade
+
 			return true
 		}
 
@@ -145,7 +146,12 @@ func (c *pagesCollector) isCascadingEdit(dir contentDirKey) (bool, string) {
 			return true
 		}
 
-		isCascade = !reflect.DeepEqual(cascade1, n.p.bucket.cascade)
+		for _, v := range n.p.bucket.cascade {
+			isCascade = !reflect.DeepEqual(cascade1, v)
+			if isCascade {
+				break
+			}
+		}
 
 		return true
 
@@ -187,6 +193,7 @@ func (c *pagesCollector) Collect() (collectErr error) {
 				collectErr = c.collectDir(dir.dirname, true, nil)
 			case bundleBranch:
 				isCascading, section := c.isCascadingEdit(dir)
+
 				if isCascading {
 					c.contentMap.deleteSection(section)
 				}

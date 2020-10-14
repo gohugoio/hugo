@@ -36,7 +36,7 @@ type LanguagesConfig struct {
 
 func LoadLanguageSettings(cfg config.Provider, oldLangs Languages) (c LanguagesConfig, err error) {
 
-	defaultLang := cfg.GetString("defaultContentLanguage")
+	defaultLang := strings.ToLower(cfg.GetString("defaultContentLanguage"))
 	if defaultLang == "" {
 		defaultLang = "en"
 		cfg.Set("defaultContentLanguage", defaultLang)

@@ -295,3 +295,22 @@ func (c *ResourceCache) DeletePartitions(partitions ...string) {
 	}
 
 }
+
+func (c *ResourceCache) DeleteContains(parts ...string) {
+	c.Lock()
+	defer c.Unlock()
+
+	for k := range c.cache {
+		clear := false
+		for _, part := range parts {
+			if strings.Contains(k, part) {
+				clear = true
+				break
+			}
+		}
+		if clear {
+			delete(c.cache, k)
+		}
+	}
+
+}

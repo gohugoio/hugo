@@ -18,10 +18,15 @@ toc: true
 
 {{< code-toggle file="config">}}
 [module]
+noVendor = ""
 proxy = "direct"
 noProxy = "none"
 private = "*.*"
 {{< /code-toggle >}}
+
+
+noVendor {{< new-in "0.75.0" >}}
+: A optional Glob pattern matching module paths to skip when vendoring, e.g. "github.com/**"
 
 proxy
 : Defines the proxy server to use to download remote modules. Default is `direct`, which means "git clone" and similar.
@@ -83,7 +88,7 @@ ignoreConfig
 : If enabled, any module configuration file, e.g. `config.toml`, will not be loaded. Note that this will also stop the loading of any transitive module dependencies.
 
 disable
-: Set to `true` to disable the module off while keeping any version info in the `go.*` files.
+: Set to `true` to disable the module while keeping any version info in the `go.*` files.
 
 {{< gomodules-info >}}
 
@@ -91,11 +96,14 @@ disable
 ## Module Config: mounts
 
 {{% note %}}
-When the `mounts` config was introduced in Hugo 0.56.0, we were careful to preserve the existing `staticDir` and similar configuration to make sure all existing sites just continued to work.
-
-But you should not have both. So if you add a `mounts` section you should make it complete and remove the old `staticDir` etc. settings.
+When the `mounts` config was introduced in Hugo 0.56.0, we were careful to preserve the existing `staticDir` and similar configuration to make sure all existing sites just continued to work. But you should not have both: if you add a `mounts` section you should remove the old `staticDir` etc. settings.
 {{% /note %}}
 
+{{% warning %}}
+When you add a mount, the default mount for the concerned target root is ignored: be sure to explicitly add it.
+{{% /warning %}}
+
+**Default mounts**
 {{< code-toggle file="config">}}
 [module]
 [[module.mounts]]

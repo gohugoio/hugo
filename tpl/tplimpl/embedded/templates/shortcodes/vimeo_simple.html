@@ -1,5 +1,8 @@
+{{- $pc := .Page.Site.Config.Privacy.Vimeo -}}
+{{- if not $pc.Disable -}}
 {{ $id := .Get "id" | default (.Get 0) }}
-{{- $item := getJSON "https://vimeo.com/api/oembed.json?url=https://vimeo.com/" $id -}}
+{{ $dnt := cond (eq $pc.EnableDNT true) "?dnt=1" "" }}
+{{- $item := getJSON (print "https://vimeo.com/api/oembed.json?url=https://vimeo.com/" $id $dnt) -}}
 {{ $class := .Get "class" | default (.Get 1) }}
 {{ $hasClass := $class }}
 {{ $class := $class | default "__h_video" }}
@@ -15,4 +18,5 @@
 {{ $original := $thumb | replaceRE "(_.*\\.)" "." }}
 <img src="{{ $thumb }}" srcset="{{ $thumb }} 1x, {{ $original }} 2x" alt="{{ .title }}">
 <div class="play">{{ template "__h_simple_icon_play" $ }}</div></a></div>
+{{- end -}}
 {{- end -}}

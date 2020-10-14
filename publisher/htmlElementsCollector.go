@@ -67,7 +67,9 @@ type cssClassCollectorWriter struct {
 
 	isCollecting bool
 	dropValue    bool
-	inQuote      bool
+
+	inQuote    bool
+	quoteValue byte
 }
 
 func (w *cssClassCollectorWriter) Write(p []byte) (n int, err error) {
@@ -165,7 +167,12 @@ func (c *cssClassCollectorWriter) startCollecting() {
 
 func (c *cssClassCollectorWriter) toggleIfQuote(b byte) {
 	if isQuote(b) {
-		c.inQuote = !c.inQuote
+		if c.inQuote && b == c.quoteValue {
+			c.inQuote = false
+		} else if !c.inQuote {
+			c.inQuote = true
+			c.quoteValue = b
+		}
 	}
 }
 
@@ -220,6 +227,7 @@ func isQuote(b byte) bool {
 var (
 	htmlJsonFixer = strings.NewReplacer(", ", "\n")
 	jsonAttrRe    = regexp.MustCompile(`'?(.*?)'?:.*`)
+	classAttrRe   = regexp.MustCompile(`(?i)^class$|transition`)
 )
 
 func parseHTMLElement(elStr string) (el htmlElement) {
@@ -242,7 +250,7 @@ func parseHTMLElement(elStr string) (el htmlElement) {
 					// There should be only one, but one never knows...
 					el.IDs = append(el.IDs, a.Val)
 				default:
-					if strings.EqualFold(a.Key, "class") {
+					if classAttrRe.MatchString(a.Key) {
 						el.Classes = append(el.Classes, strings.Fields(a.Val)...)
 					} else {
 						key := strings.ToLower(a.Key)

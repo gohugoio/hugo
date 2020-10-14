@@ -789,7 +789,7 @@ func (m *pageMaps) withMaps(fn func(pm *pageMap) error) error {
 
 type pagesMapBucket struct {
 	// Cascading front matter.
-	cascade maps.Params
+	cascade map[page.PageMatcher]maps.Params
 
 	owner *pageState // The branch node
 

@@ -997,7 +997,6 @@ func (h *HugoSites) resetPageStateFromEvents(idset identity.Identities) {
 		}
 		return false
 	})
-
 }
 
 // Used in partial reloading to determine if the change is in a bundle.

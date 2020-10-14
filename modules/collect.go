@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -196,7 +197,8 @@ func (c *collector) initModules() error {
 		gomods:   goModules{},
 	}
 
-	if !c.ccfg.IgnoreVendor && c.isVendored(c.ccfg.WorkingDir) {
+	// If both these are true, we don't even need Go installed to build.
+	if c.ccfg.IgnoreVendor == nil && c.isVendored(c.ccfg.WorkingDir) {
 		return nil
 	}
 
@@ -229,7 +231,7 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import, disabled bool
 	modulePath := moduleImport.Path
 	var realOwner Module = owner
 
-	if !c.ccfg.IgnoreVendor {
+	if !c.ccfg.shouldIgnoreVendor(modulePath) {
 		if err := c.collectModulesTXT(owner); err != nil {
 			return nil, err
 		}
@@ -338,7 +340,7 @@ func (c *collector) addAndRecurse(owner *moduleAdapter, disabled bool) error {
 			if err != nil {
 				return err
 			}
-			if tc == nil {
+			if tc == nil || moduleImport.IgnoreImports {
 				continue
 			}
 			if err := c.addAndRecurse(tc, disabled); err != nil {
@@ -377,6 +379,11 @@ func (c *collector) applyMounts(moduleImport Import, mod *moduleAdapter) error {
 
 	var err error
 	mounts, err = c.normalizeMounts(mod, mounts)
+	if err != nil {
+		return err
+	}
+
+	mounts, err = c.mountCommonJSConfig(mod, mounts)
 	if err != nil {
 		return err
 	}
@@ -546,6 +553,43 @@ func (c *collector) loadModules() error {
 	}
 	c.gomods = modules
 	return nil
+}
+
+// Matches postcss.config.js etc.
+var commonJSConfigs = regexp.MustCompile(`(babel|postcss|tailwind)\.config\.js`)
+
+func (c *collector) mountCommonJSConfig(owner *moduleAdapter, mounts []Mount) ([]Mount, error) {
+	for _, m := range mounts {
+		if strings.HasPrefix(m.Target, files.JsConfigFolderMountPrefix) {
+			// This follows the convention of the other component types (assets, content, etc.),
+			// if one or more is specificed by the user, we skip the defaults.
+			// These mounts were added to Hugo in 0.75.
+			return mounts, nil
+		}
+	}
+
+	// Mount the common JS config files.
+	fis, err := afero.ReadDir(c.fs, owner.Dir())
+	if err != nil {
+		return mounts, err
+	}
+
+	for _, fi := range fis {
+		n := fi.Name()
+
+		should := n == files.FilenamePackageHugoJSON || n == files.FilenamePackageJSON
+		should = should || commonJSConfigs.MatchString(n)
+
+		if should {
+			mounts = append(mounts, Mount{
+				Source: n,
+				Target: filepath.Join(files.ComponentFolderAssets, files.FolderJSConfig, n),
+			})
+		}
+
+	}
+
+	return mounts, nil
 }
 
 func (c *collector) normalizeMounts(owner *moduleAdapter, mounts []Mount) ([]Mount, error) {

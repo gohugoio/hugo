@@ -1,17 +1,16 @@
 ---
 title: replaceRE
-# linktitle: replaceRE
 description: Replaces all occurrences of a regular expression with the replacement pattern.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-04-30
+lastmod: 2020-09-07
 categories: [functions]
 menu:
   docs:
     parent: "functions"
 keywords: [regex]
-signature: ["replaceRE PATTERN REPLACEMENT INPUT"]
+signature: ["strings.ReplaceRE PATTERN REPLACEMENT INPUT [LIMIT]", "replaceRE PATTERN REPLACEMENT INPUT [LIMIT]"]
 workson: []
 hugoversion:
 relatedfuncs: []
@@ -19,9 +18,14 @@ deprecated: false
 aliases: []
 ---
 
+`strings.ReplaceRE` returns a copy of `INPUT`, replacing all matches of the regular
+expression `PATTERN` with the replacement text `REPLACEMENT`.
+The number of replacements can be limited with an optional `LIMIT` parameter.
+
 ```
 {{ replaceRE "^https?://([^/]+).*" "$1" "http://gohugo.io/docs" }}` → "gohugo.io"
 {{ "http://gohugo.io/docs" | replaceRE "^https?://([^/]+).*" "$1" }}` → "gohugo.io"
+{{ replaceRE "a+b" "X" "aabbaabbab" 1 }} → "Xbaabbab"
 ```
 
 {{% note %}}

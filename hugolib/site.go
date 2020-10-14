@@ -23,6 +23,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -1027,11 +1028,20 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 		logger = helpers.NewDistinctFeedbackLogger()
 	)
 
+	var isCSSConfigRe = regexp.MustCompile(`(postcss|tailwind)\.config\.js`)
+	var isCSSFileRe = regexp.MustCompile(`\.(css|scss|sass)`)
+
 	var cachePartitions []string
+	// Special case
+	// TODO(bep) I have a ongoing branch where I have redone the cache. Consider this there.
+	var isCSSChange bool
 
 	for _, ev := range events {
 		if assetsFilename := s.BaseFs.Assets.MakePathRelative(ev.Name); assetsFilename != "" {
 			cachePartitions = append(cachePartitions, resources.ResourceKeyPartitions(assetsFilename)...)
+			if !isCSSChange {
+				isCSSChange = isCSSFileRe.MatchString(assetsFilename) || isCSSConfigRe.MatchString(assetsFilename)
+			}
 		}
 
 		id, found := s.eventToIdentity(ev)
@@ -1078,6 +1088,9 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 	// These in memory resource caches will be rebuilt on demand.
 	for _, s := range s.h.Sites {
 		s.ResourceSpec.ResourceCache.DeletePartitions(cachePartitions...)
+		if isCSSChange {
+			s.ResourceSpec.ResourceCache.DeleteContains("css", "scss", "sass")
+		}
 	}
 
 	if tmplChanged || i18nChanged {
@@ -1538,6 +1551,7 @@ func (s *Site) resetBuildState(sourceChanged bool) {
 	s.init.Reset()
 
 	if sourceChanged {
+		s.pageMap.contentMap.pageReverseIndex.Reset()
 		s.PageCollections = newPageCollections(s.pageMap)
 		s.pageMap.withEveryBundlePage(func(p *pageState) bool {
 			p.pagePages = &pagePages{}
@@ -1584,6 +1598,18 @@ func (s *SiteInfo) GetPage(ref ...string) (page.Page, error) {
 		p = page.NilPage
 	}
 
+	return p, err
+}
+
+func (s *SiteInfo) GetPageWithTemplateInfo(info tpl.Info, ref ...string) (page.Page, error) {
+	p, err := s.GetPage(ref...)
+	if p != nil {
+		// Track pages referenced by templates/shortcodes
+		// when in server mode.
+		if im, ok := info.(identity.Manager); ok {
+			im.Add(p)
+		}
+	}
 	return p, err
 }
 
@@ -1711,7 +1737,7 @@ func (hr hookRenderer) RenderHeading(w io.Writer, ctx hooks.HeadingContext) erro
 
 func (s *Site) renderForTemplate(name, outputFormat string, d interface{}, w io.Writer, templ tpl.Template) (err error) {
 	if templ == nil {
-		s.logMissingLayout(name, "", outputFormat)
+		s.logMissingLayout(name, "", "", outputFormat)
 		return nil
 	}
 

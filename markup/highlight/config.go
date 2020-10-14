@@ -50,6 +50,10 @@ type Config struct {
 	LineNos            bool
 	LineNumbersInTable bool
 
+	// When set, add links to line numbers
+	AnchorLineNos bool
+	LineAnchors   string
+
 	// Start the line numbers from this value (default is 1).
 	LineNoStart int
 
@@ -63,12 +67,17 @@ type Config struct {
 }
 
 func (cfg Config) ToHTMLOptions() []html.Option {
+	var lineAnchors string
+	if cfg.LineAnchors != "" {
+		lineAnchors = cfg.LineAnchors + "-"
+	}
 	var options = []html.Option{
 		html.TabWidth(cfg.TabWidth),
 		html.WithLineNumbers(cfg.LineNos),
 		html.BaseLineNumber(cfg.LineNoStart),
 		html.LineNumbersInTable(cfg.LineNumbersInTable),
 		html.WithClasses(!cfg.NoClasses),
+		html.LinkableLineNumbers(cfg.AnchorLineNos, lineAnchors),
 	}
 
 	if cfg.Hl_Lines != "" {

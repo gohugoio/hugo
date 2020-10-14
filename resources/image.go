@@ -71,11 +71,11 @@ type imageMeta struct {
 	Exif *exif.Exif
 }
 
-func (i *imageResource) Exif() (*exif.Exif, error) {
+func (i *imageResource) Exif() *exif.Exif {
 	return i.root.getExif()
 }
 
-func (i *imageResource) getExif() (*exif.Exif, error) {
+func (i *imageResource) getExif() *exif.Exif {
 
 	i.metaInit.Do(func() {
 
@@ -131,10 +131,14 @@ func (i *imageResource) getExif() (*exif.Exif, error) {
 	})
 
 	if i.metaInitErr != nil {
-		return nil, i.metaInitErr
+		panic(fmt.Sprintf("metadata init failed: %s", i.metaInitErr))
 	}
 
-	return i.meta.Exif, nil
+	if i.meta == nil {
+		return nil
+	}
+
+	return i.meta.Exif
 }
 
 func (i *imageResource) Clone() resource.Resource {

@@ -95,21 +95,23 @@ func newContentMap(cfg contentMapConfig) *contentMap {
 
 	m.pageReverseIndex = &contentTreeReverseIndex{
 		t: []*contentTree{m.pages, m.sections, m.taxonomies},
-		initFn: func(t *contentTree, m map[interface{}]*contentNode) {
-			t.Walk(func(s string, v interface{}) bool {
-				n := v.(*contentNode)
-				if n.p != nil && !n.p.File().IsZero() {
-					meta := n.p.File().FileInfo().Meta()
-					if meta.Path() != meta.PathFile() {
-						// Keep track of the original mount source.
-						mountKey := filepath.ToSlash(filepath.Join(meta.Module(), meta.PathFile()))
-						addToReverseMap(mountKey, n, m)
+		contentTreeReverseIndexMap: &contentTreeReverseIndexMap{
+			initFn: func(t *contentTree, m map[interface{}]*contentNode) {
+				t.Walk(func(s string, v interface{}) bool {
+					n := v.(*contentNode)
+					if n.p != nil && !n.p.File().IsZero() {
+						meta := n.p.File().FileInfo().Meta()
+						if meta.Path() != meta.PathFile() {
+							// Keep track of the original mount source.
+							mountKey := filepath.ToSlash(filepath.Join(meta.Module(), meta.PathFile()))
+							addToReverseMap(mountKey, n, m)
+						}
 					}
-				}
-				k := strings.TrimPrefix(strings.TrimSuffix(path.Base(s), cmLeafSeparator), cmBranchSeparator)
-				addToReverseMap(k, n, m)
-				return false
-			})
+					k := strings.TrimPrefix(strings.TrimSuffix(path.Base(s), cmLeafSeparator), cmBranchSeparator)
+					addToReverseMap(k, n, m)
+					return false
+				})
+			},
 		},
 	}
 
@@ -1030,10 +1032,19 @@ func (c *contentTreeRef) getSections() page.Pages {
 
 type contentTreeReverseIndex struct {
 	t []*contentTree
-	m map[interface{}]*contentNode
+	*contentTreeReverseIndexMap
+}
 
+type contentTreeReverseIndexMap struct {
+	m      map[interface{}]*contentNode
 	init   sync.Once
 	initFn func(*contentTree, map[interface{}]*contentNode)
+}
+
+func (c *contentTreeReverseIndex) Reset() {
+	c.contentTreeReverseIndexMap = &contentTreeReverseIndexMap{
+		initFn: c.initFn,
+	}
 }
 
 func (c *contentTreeReverseIndex) Get(key interface{}) *contentNode {

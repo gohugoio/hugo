@@ -79,6 +79,21 @@ User-Agent: foo
 		c.Assert(result, qt.Not(qt.Contains), "class=\"lnt\"")
 	})
 
+	c.Run("Highlight lines, linenumbers default on, anchorlinenumbers default on", func(c *qt.C) {
+		cfg := DefaultConfig
+		cfg.NoClasses = false
+		cfg.LineNos = true
+		cfg.AnchorLineNos = true
+		h := New(cfg)
+
+		result, _ := h.Highlight(lines, "bash", "")
+		c.Assert(result, qt.Contains, "<span class=\"lnt\" id=\"2\">2\n</span>")
+		result, _ = h.Highlight(lines, "bash", "lineanchors=test")
+		c.Assert(result, qt.Contains, "<span class=\"lnt\" id=\"test-2\">2\n</span>")
+		result, _ = h.Highlight(lines, "bash", "anchorlinenos=false,hl_lines=2")
+		c.Assert(result, qt.Not(qt.Contains), "id=\"2\"")
+	})
+
 	c.Run("Highlight lines, linenumbers default on, linenumbers in table default off", func(c *qt.C) {
 		cfg := DefaultConfig
 		cfg.NoClasses = false

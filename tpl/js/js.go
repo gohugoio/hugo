@@ -16,7 +16,6 @@ package js
 
 import (
 	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/gohugoio/hugo/resources/resource_transformers/js"
@@ -58,16 +57,10 @@ func (ns *Namespace) Build(args ...interface{}) (resource.Resource, error) {
 		}
 	}
 
-	var options js.Options
 	if targetPath != "" {
-		options.TargetPath = helpers.ToSlashTrimLeading(targetPath)
-	} else if m != nil {
-		options, err = js.DecodeOptions(m)
-		if err != nil {
-			return nil, err
-		}
+		m = map[string]interface{}{"targetPath": targetPath}
 	}
 
-	return ns.client.Process(r, options)
+	return ns.client.Process(r, m)
 
 }

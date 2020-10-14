@@ -31,7 +31,7 @@ func TestLiveReloadInject(t *testing.T) {
 		t.Errorf("Parsing test URL failed")
 		return
 	}
-	expectBase := `<script src="/subpath/livereload.js?mindelay=10&v=2&port=1234&path=subpath/livereload" data-no-instant defer></script>`
+	expectBase := `<script src="/subpath/livereload.js?mindelay=10&amp;v=2&amp;port=1234&amp;path=subpath/livereload" data-no-instant defer></script>`
 	apply := func(s string) string {
 		out := new(bytes.Buffer)
 		in := strings.NewReader(s)

@@ -51,10 +51,11 @@ func BailOut(after time.Duration) {
 
 }
 
-var rnd = rand.New(rand.NewSource(time.Now().UnixNano()))
+// Rnd is used only for testing.
+var Rnd = rand.New(rand.NewSource(time.Now().UnixNano()))
 
-func RandIntn(n int) int {
-	return rnd.Intn(n)
+func RandBool() bool {
+	return Rnd.Intn(2) != 0
 }
 
 // DiffStringSlices returns the difference between two string slices.

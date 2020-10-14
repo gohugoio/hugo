@@ -42,9 +42,6 @@ func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 		(&rm).clean()
 
 		fromBase := files.ResolveComponentFolder(rm.From)
-		if fromBase == "" {
-			panic("unrecognised component folder in" + rm.From)
-		}
 
 		if len(rm.To) < 2 {
 			panic(fmt.Sprintf("invalid root mapping; from/to: %s/%s", rm.From, rm.To))

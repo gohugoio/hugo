@@ -22,6 +22,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/modules/npm"
+
 	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/spf13/afero"
@@ -38,12 +40,11 @@ import (
 	"github.com/spf13/viper"
 )
 
-// https://github.com/gohugoio/hugo/issues/6730
-func TestHugoModulesTargetInSubFolder(t *testing.T) {
+func TestHugoModulesVariants(t *testing.T) {
 	if !isCI() {
-		// TODO(bep) investigate why this fails when running in LiteIDE (it works from the shell).
 		t.Skip("skip (relative) long running modules test when running locally")
 	}
+
 	config := `
 baseURL="https://example.org"
 workingDir = %q
@@ -51,45 +52,250 @@ workingDir = %q
 [module]
 [[module.imports]]
 path="github.com/gohugoio/hugoTestModule2"
-  [[module.imports.mounts]]
-    source = "templates/hooks"
-    target = "layouts/_default/_markup"
-    
+%s
 `
 
-	b := newTestSitesBuilder(t)
-	workingDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-modules-target-in-subfolder-test")
-	b.Assert(err, qt.IsNil)
-	defer clean()
-	b.Fs = hugofs.NewDefault(viper.New())
-	b.WithWorkingDir(workingDir).WithConfigFile("toml", fmt.Sprintf(config, workingDir))
-	b.WithTemplates("_default/single.html", `{{ .Content }}`)
-	b.WithContent("p1.md", `---
+	createConfig := func(workingDir, moduleOpts string) string {
+		return fmt.Sprintf(config, workingDir, moduleOpts)
+	}
+
+	newTestBuilder := func(t testing.TB, moduleOpts string) (*sitesBuilder, func()) {
+		b := newTestSitesBuilder(t)
+		tempDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-modules-variants")
+		b.Assert(err, qt.IsNil)
+		workingDir := filepath.Join(tempDir, "myhugosite")
+		b.Assert(os.MkdirAll(workingDir, 0777), qt.IsNil)
+		b.Fs = hugofs.NewDefault(viper.New())
+		b.WithWorkingDir(workingDir).WithConfigFile("toml", createConfig(workingDir, moduleOpts))
+		b.WithTemplates(
+			"index.html", `
+Param from module: {{ site.Params.Hugo }}|
+{{ $js := resources.Get "jslibs/alpinejs/alpine.js" }}
+JS imported in module: {{ with $js }}{{ .RelPermalink }}{{ end }}|
+`,
+			"_default/single.html", `{{ .Content }}`)
+		b.WithContent("p1.md", `---
 title: "Page"
 ---
 
 [A link](https://bep.is)
 
 `)
-	b.WithSourceFile("go.mod", `
+		b.WithSourceFile("go.mod", `
 module github.com/gohugoio/tests/testHugoModules
 
 
 `)
 
-	b.WithSourceFile("go.sum", `
+		b.WithSourceFile("go.sum", `
 github.com/gohugoio/hugoTestModule2 v0.0.0-20200131160637-9657d7697877 h1:WLM2bQCKIWo04T6NsIWsX/Vtirhf0TnpY66xyqGlgVY=
 github.com/gohugoio/hugoTestModule2 v0.0.0-20200131160637-9657d7697877/go.mod h1:CBFZS3khIAXKxReMwq0le8sEl/D8hcXmixlOHVv+Gd0=
 `)
 
-	b.Build(BuildCfg{})
+		return b, clean
 
-	b.AssertFileContent("public/p1/index.html", `<p>Page|https://bep.is|Title: |Text: A link|END</p>`)
+	}
+
+	t.Run("Target in subfolder", func(t *testing.T) {
+
+		b, clean := newTestBuilder(t, "ignoreImports=true")
+		defer clean()
+
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/p1/index.html", `<p>Page|https://bep.is|Title: |Text: A link|END</p>`)
+	})
+
+	t.Run("Ignore config", func(t *testing.T) {
+
+		b, clean := newTestBuilder(t, "ignoreConfig=true")
+		defer clean()
+
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/index.html", `
+Param from module: |
+JS imported in module: |
+`)
+	})
+
+	t.Run("Ignore imports", func(t *testing.T) {
+
+		b, clean := newTestBuilder(t, "ignoreImports=true")
+		defer clean()
+
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/index.html", `
+Param from module: Rocks|
+JS imported in module: |
+`)
+	})
+
+	t.Run("Create package.json", func(t *testing.T) {
+
+		b, clean := newTestBuilder(t, "")
+		defer clean()
+
+		b.WithSourceFile("package.json", `{
+		"name": "mypack",
+		"version": "1.2.3",
+        "scripts": {},
+          "dependencies": {
+        	"nonon": "error"
+        	}
+}`)
+
+		b.WithSourceFile("package.hugo.json", `{
+		"name": "mypack",
+		"version": "1.2.3",
+        "scripts": {},
+          "dependencies": {
+        	"foo": "1.2.3"
+        	},
+        "devDependencies": {
+                "postcss-cli": "7.8.0",
+                "tailwindcss": "1.8.0"
+ 
+        }
+}`)
+
+		b.Build(BuildCfg{})
+		b.Assert(npm.Pack(b.H.BaseFs.SourceFs, b.H.BaseFs.Assets.Dirs), qt.IsNil)
+
+		b.AssertFileContentFn("package.json", func(s string) bool {
+			return s == `{
+ "comments": {
+  "dependencies": {
+   "foo": "project",
+   "react-dom": "github.com/gohugoio/hugoTestModule2"
+  },
+  "devDependencies": {
+   "@babel/cli": "github.com/gohugoio/hugoTestModule2",
+   "@babel/core": "github.com/gohugoio/hugoTestModule2",
+   "@babel/preset-env": "github.com/gohugoio/hugoTestModule2",
+   "postcss-cli": "project",
+   "tailwindcss": "project"
+  }
+ },
+ "dependencies": {
+  "foo": "1.2.3",
+  "react-dom": "^16.13.1"
+ },
+ "devDependencies": {
+  "@babel/cli": "7.8.4",
+  "@babel/core": "7.9.0",
+  "@babel/preset-env": "7.9.5",
+  "postcss-cli": "7.8.0",
+  "tailwindcss": "1.8.0"
+ },
+ "name": "mypack",
+ "scripts": {},
+ "version": "1.2.3"
+}`
+		})
+	})
+
+	t.Run("Create package.json, no default", func(t *testing.T) {
+
+		b, clean := newTestBuilder(t, "")
+		defer clean()
+
+		const origPackageJSON = `{
+		"name": "mypack",
+		"version": "1.2.3",
+        "scripts": {},
+          "dependencies": {
+           "moo": "1.2.3"
+        	}
+}`
+
+		b.WithSourceFile("package.json", origPackageJSON)
+
+		b.Build(BuildCfg{})
+		b.Assert(npm.Pack(b.H.BaseFs.SourceFs, b.H.BaseFs.Assets.Dirs), qt.IsNil)
+
+		b.AssertFileContentFn("package.json", func(s string) bool {
+			return s == `{
+ "comments": {
+  "dependencies": {
+   "moo": "project",
+   "react-dom": "github.com/gohugoio/hugoTestModule2"
+  },
+  "devDependencies": {
+   "@babel/cli": "github.com/gohugoio/hugoTestModule2",
+   "@babel/core": "github.com/gohugoio/hugoTestModule2",
+   "@babel/preset-env": "github.com/gohugoio/hugoTestModule2",
+   "postcss-cli": "github.com/gohugoio/hugoTestModule2",
+   "tailwindcss": "github.com/gohugoio/hugoTestModule2"
+  }
+ },
+ "dependencies": {
+  "moo": "1.2.3",
+  "react-dom": "^16.13.1"
+ },
+ "devDependencies": {
+  "@babel/cli": "7.8.4",
+  "@babel/core": "7.9.0",
+  "@babel/preset-env": "7.9.5",
+  "postcss-cli": "7.1.0",
+  "tailwindcss": "1.2.0"
+ },
+ "name": "mypack",
+ "scripts": {},
+ "version": "1.2.3"
+}`
+		})
+
+		// https://github.com/gohugoio/hugo/issues/7690
+		b.AssertFileContent("package.hugo.json", origPackageJSON)
+
+	})
+
+	t.Run("Create package.json, no default, no package.json", func(t *testing.T) {
+
+		b, clean := newTestBuilder(t, "")
+		defer clean()
+
+		b.Build(BuildCfg{})
+		b.Assert(npm.Pack(b.H.BaseFs.SourceFs, b.H.BaseFs.Assets.Dirs), qt.IsNil)
+
+		b.AssertFileContentFn("package.json", func(s string) bool {
+			return s == `{
+ "comments": {
+  "dependencies": {
+   "react-dom": "github.com/gohugoio/hugoTestModule2"
+  },
+  "devDependencies": {
+   "@babel/cli": "github.com/gohugoio/hugoTestModule2",
+   "@babel/core": "github.com/gohugoio/hugoTestModule2",
+   "@babel/preset-env": "github.com/gohugoio/hugoTestModule2",
+   "postcss-cli": "github.com/gohugoio/hugoTestModule2",
+   "tailwindcss": "github.com/gohugoio/hugoTestModule2"
+  }
+ },
+ "dependencies": {
+  "react-dom": "^16.13.1"
+ },
+ "devDependencies": {
+  "@babel/cli": "7.8.4",
+  "@babel/core": "7.9.0",
+  "@babel/preset-env": "7.9.5",
+  "postcss-cli": "7.1.0",
+  "tailwindcss": "1.2.0"
+ },
+ "name": "myhugosite",
+ "version": "0.1.0"
+}`
+
+		})
+
+	})
 
 }
 
 // TODO(bep) this fails when testmodBuilder is also building ...
-func TestHugoModules(t *testing.T) {
+func TestHugoModulesMatrix(t *testing.T) {
 	if !isCI() {
 		t.Skip("skip (relative) long running modules test when running locally")
 	}
@@ -126,11 +332,15 @@ baseURL = "https://example.com"
 title = "My Modular Site"
 workingDir = %q
 theme = %q
-ignoreVendor = %t
+ignoreVendorPaths = %q
 
 `
 
-		config := fmt.Sprintf(configTemplate, workingDir, m.Path(), ignoreVendor)
+		ignoreVendorPaths := ""
+		if ignoreVendor {
+			ignoreVendorPaths = "github.com/**"
+		}
+		config := fmt.Sprintf(configTemplate, workingDir, m.Path(), ignoreVendorPaths)
 
 		b := newTestSitesBuilder(t)
 

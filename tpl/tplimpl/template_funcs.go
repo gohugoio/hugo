@@ -64,7 +64,8 @@ var _ texttemplate.ExecHelper = (*templateExecHelper)(nil)
 var zero reflect.Value
 
 type templateExecHelper struct {
-	funcs map[string]reflect.Value
+	running bool // whether we're in server mode.
+	funcs   map[string]reflect.Value
 }
 
 func (t *templateExecHelper) GetFunc(tmpl texttemplate.Preparer, name string) (reflect.Value, bool) {
@@ -91,14 +92,15 @@ func (t *templateExecHelper) GetMapValue(tmpl texttemplate.Preparer, receiver, k
 }
 
 func (t *templateExecHelper) GetMethod(tmpl texttemplate.Preparer, receiver reflect.Value, name string) (method reflect.Value, firstArg reflect.Value) {
-	// This is a hot path and receiver.MethodByName really shows up in the benchmarks.
-	// Page.Render is the only method with a WithTemplateInfo as of now, so let's just
-	// check that for now.
-	// TODO(bep) find a more flexible, but still fast, way.
-	if name == "Render" {
-		if info, ok := tmpl.(tpl.Info); ok {
-			if m := receiver.MethodByName(name + "WithTemplateInfo"); m.IsValid() {
-				return m, reflect.ValueOf(info)
+	if t.running {
+		// This is a hot path and receiver.MethodByName really shows up in the benchmarks,
+		// so we maintain a list of method names with that signature.
+		switch name {
+		case "GetPage", "Render":
+			if info, ok := tmpl.(tpl.Info); ok {
+				if m := receiver.MethodByName(name + "WithTemplateInfo"); m.IsValid() {
+					return m, reflect.ValueOf(info)
+				}
 			}
 		}
 	}
@@ -133,7 +135,8 @@ func newTemplateExecuter(d *deps.Deps) (texttemplate.Executer, map[string]reflec
 	}
 
 	exeHelper := &templateExecHelper{
-		funcs: funcsv,
+		running: d.Running,
+		funcs:   funcsv,
 	}
 
 	return texttemplate.NewExecuter(

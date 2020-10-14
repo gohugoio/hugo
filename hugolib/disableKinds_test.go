@@ -54,7 +54,15 @@ title: No List
 _build:
   render: false
 ---
-`, "sect/no-publishresources/index.md", `
+`,
+			"sect/no-render-link.md", `
+---
+title: No Render Link
+_build:
+  render: link
+---
+`,
+			"sect/no-publishresources/index.md", `
 ---
 title: No Publish Resources
 _build:
@@ -297,6 +305,20 @@ title: Headless Local Lists Sub
 		p := getPage(b, ref)
 		b.Assert(p, qt.Not(qt.IsNil))
 		b.Assert(p.RelPermalink(), qt.Equals, "")
+		b.Assert(p.OutputFormats(), qt.HasLen, 0)
+		b.Assert(getPageInSitePages(b, ref), qt.Not(qt.IsNil))
+		sect := getPage(b, "/sect")
+		b.Assert(getPageInPagePages(sect, ref), qt.Not(qt.IsNil))
+	})
+
+	c.Run("Build config, no render link", func(c *qt.C) {
+		b := newSitesBuilder(c, disableKind)
+		b.Build(BuildCfg{})
+		ref := "/sect/no-render-link.md"
+		b.Assert(b.CheckExists("public/sect/no-render/index.html"), qt.Equals, false)
+		p := getPage(b, ref)
+		b.Assert(p, qt.Not(qt.IsNil))
+		b.Assert(p.RelPermalink(), qt.Equals, "/blog/sect/no-render-link/")
 		b.Assert(p.OutputFormats(), qt.HasLen, 0)
 		b.Assert(getPageInSitePages(b, ref), qt.Not(qt.IsNil))
 		sect := getPage(b, "/sect")
