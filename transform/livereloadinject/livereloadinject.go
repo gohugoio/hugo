@@ -16,7 +16,7 @@ package livereloadinject
 import (
 	"bytes"
 	"fmt"
-  "html"
+	"html"
 	"net/url"
 	"strings"
 
