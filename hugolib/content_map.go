@@ -830,6 +830,13 @@ var (
 		}
 		return n.p.m.noRender()
 	}
+
+	contentTreeNoLinkFilter = func(s string, n *contentNode) bool {
+		if n.p == nil {
+			return true
+		}
+		return n.p.m.noLink()
+	}
 )
 
 func (c *contentTree) WalkQuery(query pageMapQuery, walkFn contentTreeNodeCallback) {
@@ -860,6 +867,13 @@ func (c *contentTree) WalkQuery(query pageMapQuery, walkFn contentTreeNodeCallba
 
 func (c contentTrees) WalkRenderable(fn contentTreeNodeCallback) {
 	query := pageMapQuery{Filter: contentTreeNoRenderFilter}
+	for _, tree := range c {
+		tree.WalkQuery(query, fn)
+	}
+}
+
+func (c contentTrees) WalkLinkable(fn contentTreeNodeCallback) {
+	query := pageMapQuery{Filter: contentTreeNoLinkFilter}
 	for _, tree := range c {
 		tree.WalkQuery(query, fn)
 	}

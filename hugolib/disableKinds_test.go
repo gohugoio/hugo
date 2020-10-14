@@ -58,6 +58,7 @@ _build:
 			"sect/no-render-link.md", `
 ---
 title: No Render Link
+aliases: ["/link-alias"]
 _build:
   render: link
 ---
@@ -319,10 +320,14 @@ title: Headless Local Lists Sub
 		p := getPage(b, ref)
 		b.Assert(p, qt.Not(qt.IsNil))
 		b.Assert(p.RelPermalink(), qt.Equals, "/blog/sect/no-render-link/")
-		b.Assert(p.OutputFormats(), qt.HasLen, 0)
+		b.Assert(p.OutputFormats(), qt.HasLen, 1)
 		b.Assert(getPageInSitePages(b, ref), qt.Not(qt.IsNil))
 		sect := getPage(b, "/sect")
 		b.Assert(getPageInPagePages(sect, ref), qt.Not(qt.IsNil))
+
+		// https://github.com/gohugoio/hugo/issues/7832
+		// It should still render any aliases.
+		b.AssertFileContent("public/link-alias/index.html", "refresh")
 	})
 
 	c.Run("Build config, no publish resources", func(c *qt.C) {
