@@ -146,7 +146,7 @@ Hugo stands on the shoulder of many great open source libraries, in lexical orde
  | [github.com/fsnotify/fsnotify](https://github.com/fsnotify/fsnotify) | BSD 3-Clause "New" or "Revised" License |
  | [github.com/gobwas/glob](https://github.com/gobwas/glob) | MIT License |
  | [github.com/gorilla/websocket](https://github.com/gorilla/websocket) | BSD 2-Clause "Simplified" License |
- | [github.com/hashicorp/golang-lru](https://github.com/hashicorp/golang-lru) | Mozilla Public License 2.0 |
+ | [github.com/hashicorp/golang-lru](https://github.com/hashicorp/golang-lru) | Mozilla Public LicensE 2.0 |
  | [github.com/hashicorp/hcl](https://github.com/hashicorp/hcl) | Mozilla Public License 2.0 |
  | [github.com/jdkato/prose](https://github.com/jdkato/prose) | MIT License |
  | [github.com/kr/pretty](https://github.com/kr/pretty) | MIT License |
