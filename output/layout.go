@@ -208,9 +208,11 @@ func resolvePageTemplate(d LayoutDescriptor, f Format) []string {
 }
 
 func (l *layoutBuilder) resolveVariations() []string {
-	var layouts []string
+	var (
+		layouts    []string
+		variations []string
+	)
 
-	var variations []string
 	name := strings.ToLower(l.f.Name)
 
 	if l.d.Lang != "" {
@@ -222,14 +224,23 @@ func (l *layoutBuilder) resolveVariations() []string {
 
 	variations = append(variations, "")
 
-	for _, typeVar := range l.typeVariations {
+	for _, typ := range l.typeVariations {
 		for _, variation := range variations {
-			for _, layoutVar := range l.layoutVariations {
-				if variation == "" && layoutVar == "" {
+			for _, layout := range l.layoutVariations {
+				if variation == "" && layout == "" {
 					continue
 				}
 
-				s := constructLayoutPath(typeVar, layoutVar, variation, l.f.MediaType.Suffix())
+				var s string
+
+				// Avoid stuttering lookups such as index.html.html.
+				// Second condition checks for lang variation such as "fr.html".
+				if variation == l.f.MediaType.Suffix() || strings.HasSuffix(variation, "."+l.f.MediaType.Suffix()) {
+					s = constructLayoutPath(typ, layout, variation, "")
+				} else {
+					s = constructLayoutPath(typ, layout, variation, l.f.MediaType.Suffix())
+				}
+
 				if s != "" {
 					layouts = append(layouts, s)
 				}

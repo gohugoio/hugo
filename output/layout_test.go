@@ -104,17 +104,10 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Home, HTML", LayoutDescriptor{Kind: "home"}, "", htmlFormat,
-			// We will eventually get to index.html. This looks stuttery, but makes the lookup logic easy to understand.
 			[]string{
-				"index.html.html",
-				"home.html.html",
-				"list.html.html",
 				"index.html",
 				"home.html",
 				"list.html",
-				"_default/index.html.html",
-				"_default/home.html.html",
-				"_default/list.html.html",
 				"_default/index.html",
 				"_default/home.html",
 				"_default/list.html",
@@ -123,18 +116,31 @@ func TestLayout(t *testing.T) {
 		{
 			"Home, HTML, baseof", LayoutDescriptor{Kind: "home", Baseof: true}, "", htmlFormat,
 			[]string{
-				"index-baseof.html.html",
-				"home-baseof.html.html",
-				"list-baseof.html.html",
-				"baseof.html.html",
 				"index-baseof.html",
 				"home-baseof.html",
 				"list-baseof.html",
 				"baseof.html",
-				"_default/index-baseof.html.html",
-				"_default/home-baseof.html.html",
-				"_default/list-baseof.html.html",
-				"_default/baseof.html.html",
+				"_default/index-baseof.html",
+				"_default/home-baseof.html",
+				"_default/list-baseof.html",
+				"_default/baseof.html",
+			},
+		},
+		{
+			"Home, HTML, baseof, french", LayoutDescriptor{Kind: "home", Baseof: true, Lang: "fr"}, "", htmlFormat,
+			[]string{
+				"index-baseof.fr.html",
+				"home-baseof.fr.html",
+				"list-baseof.fr.html",
+				"baseof.fr.html",
+				"index-baseof.html",
+				"home-baseof.html",
+				"list-baseof.html",
+				"baseof.html",
+				"_default/index-baseof.fr.html",
+				"_default/home-baseof.fr.html",
+				"_default/list-baseof.fr.html",
+				"_default/baseof.fr.html",
 				"_default/index-baseof.html",
 				"_default/home-baseof.html",
 				"_default/list-baseof.html",
@@ -552,15 +558,9 @@ func TestLayout(t *testing.T) {
 		{
 			"Home plain text", LayoutDescriptor{Kind: "home"}, "", JSONFormat,
 			[]string{
-				"index.json.json",
-				"home.json.json",
-				"list.json.json",
 				"index.json",
 				"home.json",
 				"list.json",
-				"_default/index.json.json",
-				"_default/home.json.json",
-				"_default/list.json.json",
 				"_default/index.json",
 				"_default/home.json",
 				"_default/list.json",
@@ -569,7 +569,6 @@ func TestLayout(t *testing.T) {
 		{
 			"Page plain text", LayoutDescriptor{Kind: "page"}, "", JSONFormat,
 			[]string{
-				"_default/single.json.json",
 				"_default/single.json",
 			},
 		},
@@ -611,19 +610,14 @@ func TestLayout(t *testing.T) {
 		{
 			"404, HTML", LayoutDescriptor{Kind: "404"}, "", htmlFormat,
 			[]string{
-				"404.html.html",
 				"404.html",
 			},
 		},
 		{
 			"404, HTML baseof", LayoutDescriptor{Kind: "404", Baseof: true}, "", htmlFormat,
 			[]string{
-				"404-baseof.html.html",
-				"baseof.html.html",
 				"404-baseof.html",
 				"baseof.html",
-				"_default/404-baseof.html.html",
-				"_default/baseof.html.html",
 				"_default/404-baseof.html",
 				"_default/baseof.html",
 			},
