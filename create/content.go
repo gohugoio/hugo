@@ -105,7 +105,8 @@ func NewContent(
 	if editor != "" {
 		jww.FEEDBACK.Printf("Editing %s with %q ...\n", targetPath, editor)
 
-		cmd := exec.Command(editor, contentPath)
+		editorCmd := append(strings.Fields(editor), contentPath)
+		cmd := exec.Command(editorCmd[0], editorCmd[1:]...)
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
