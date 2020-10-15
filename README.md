@@ -13,7 +13,7 @@ A Fast and Flexible Static Site Generator built with love by [bep](https://githu
 [![Linux and macOS Build Status](https://api.travis-ci.org/gohugoio/hugo.svg?branch=master&label=Windows+and+Linux+and+macOS+build "Windows, Linux and macOS Build Status")](https://travis-ci.org/gohugoio/hugo)
 [![Go Report Card](https://goreportcard.com/badge/github.com/gohugoio/hugo)](https://goreportcard.com/report/github.com/gohugoio/hugo)
 
-## Overview
+## Overview --
 
 Hugo is a static HTML and CSS website generator written in [Go][].
 It is optimized for speed, ease of use, and configurability.
@@ -27,7 +27,7 @@ A good rule of thumb is that each piece of content renders in around 1 milliseco
 
 Hugo is designed to work well for any kind of website including blogs, tumbles, and docs.
 
-#### Supported Architectures
+#### Supported Architectures --
 
 Currently, we provide pre-built Hugo binaries for Windows, Linux, FreeBSD, NetBSD, DragonFly BSD, Open BSD, macOS (Darwin), and [Android](https://gist.github.com/bep/a0d8a26cf6b4f8bc992729b8e50b480b) for x64, i386 and ARM architectures.
 
@@ -35,7 +35,7 @@ Hugo may also be compiled from source wherever the Go compiler tool chain can ru
 
 **Complete documentation is available at [Hugo Documentation](https://gohugo.io/getting-started/).**
 
-## Choose How to Install
+## Choose How to Install --
 
 If you want to use Hugo as your site generator, simply install the Hugo binaries.
 The Hugo binaries have no external dependencies.
@@ -45,18 +45,18 @@ To contribute to the Hugo source code or documentation, you should [fork the Hug
 Finally, you can install the Hugo source code with `go`, build the binaries yourself, and run Hugo that way.
 Building the binaries is an easy task for an experienced `go` getter.
 
-### Install Hugo as Your Site Generator (Binary Install)
+### Install Hugo as Your Site Generator (Binary Install) --
 
 Use the [installation instructions in the Hugo documentation](https://gohugo.io/getting-started/installing/).
 
-### Build and Install the Binaries from Source (Advanced Install)
+### Build and Install the Binaries from Source (Advanced Install) --
 
-#### Prerequisite Tools
+#### Prerequisite Tools --
 
 * [Git](https://git-scm.com/)
 * [Go (we test it with the last 2 major versions)](https://golang.org/dl/)
 
-#### Fetch from GitHub
+#### Fetch from GitHub --
 
 Since Hugo 0.48, Hugo uses the Go Modules support built into Go 1.11 to build. The easiest is to clone Hugo in a directory outside of `GOPATH`, as in the following example:
 
@@ -76,14 +76,14 @@ If you want to compile with Sass/SCSS support use `--tags extended` and make sur
 CGO_ENABLED=1 go install --tags extended
 ```
 
-## The Hugo Documentation
+## The Hugo Documentation --
 
 The Hugo documentation now lives in its own repository, see https://github.com/gohugoio/hugoDocs. But we do keep a version of that documentation as a `git subtree` in this repository. To build the sub folder `/docs` as a Hugo site, you need to clone this repo:
 
 ```bash
 git clone git@github.com:gohugoio/hugo.git
 ```
-## Contributing to Hugo
+## Contributing to Hugo --
 
 For a complete guide to contributing to Hugo, see the [Contribution Guide](CONTRIBUTING.md).
 
@@ -94,19 +94,19 @@ helping to manage issues, etc.
 
 The Hugo community and maintainers are [very active](https://github.com/gohugoio/hugo/pulse/monthly) and helpful, and the project benefits greatly from this activity.
 
-### Asking Support Questions
+### Asking Support Questions --
 
 We have an active [discussion forum](https://discourse.gohugo.io) where users and developers can ask questions.
 Please don't use the GitHub issue tracker to ask questions.
 
-### Reporting Issues
+### Reporting Issues --
 
 If you believe you have found a defect in Hugo or its documentation, use
 the GitHub issue tracker to report the problem to the Hugo maintainers.
 If you're not sure if it's a bug or not, start by asking in the [discussion forum](https://discourse.gohugo.io).
 When reporting the issue, please provide the version of Hugo in use (`hugo version`).
 
-### Submitting Patches
+### Submitting Patches --
 
 The Hugo project welcomes all contributors and contributions regardless of skill or experience level.
 If you are interested in helping with the project, we will help you with your contribution.
@@ -124,7 +124,7 @@ For a complete guide to contributing code to Hugo, see the [Contribution Guide](
 [Go]: https://golang.org/
 [Hugo Documentation]: https://gohugo.io/overview/introduction/
 
-## Dependencies
+## Dependencies --
 
 Hugo stands on the shoulder of many great open source libraries, in lexical order:
 
