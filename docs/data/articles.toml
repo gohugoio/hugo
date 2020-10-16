@@ -1,4 +1,10 @@
 [[article]]
+	title = "How do I deploy a Hugo website?"
+	url = "https://humanitec.com/blog/how-to-deploy-hugo-website"
+	author = "Christoph Richter"
+	date = "2020-10-16"
+
+[[article]]
 	title = "A visit to the Workshop: Hugo/Unix/Vim integration"
 	url = "https://blog.afoolishmanifesto.com/posts/hugo-unix-vim-integration/"
 	author = "fREW Schmidt"
