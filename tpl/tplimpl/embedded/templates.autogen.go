@@ -263,6 +263,7 @@ if (!doNotTrack) {
   {{- range $pag.Pagers -}}
   {{- $right := sub .TotalPages .PageNumber -}}
   {{- $showNumber := or (le .PageNumber 3) (eq $right 0) -}}
+  {{- $showNumber := or $showNumber (le .TotalPages 5) -}}{{/* Issue #7523 */}}
   {{- $showNumber := or $showNumber (and (gt .PageNumber (sub $pag.PageNumber 2)) (lt .PageNumber (add $pag.PageNumber 2))) -}}
   {{- if $showNumber -}}
     {{- $ellipsed = false -}}
