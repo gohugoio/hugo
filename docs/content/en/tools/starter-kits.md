@@ -29,6 +29,7 @@ The following starter kits are developed by active members of the Hugo community
 * [Blaupause][]. Blaupause is a developer-friendly Hugo starter kit based on Gulp tasks. It comes ES6-ready with several helpers for SVG and fonts and basic structure for HTML, SCSS, and JavaScript.
 * [hugulp][]. hugulp is a tool to optimize the assets of a Hugo website. The main idea is to recreate the famous Ruby on Rails Asset Pipeline, which minifies, concatenates and fingerprints the assets used in your website.
 * [Atlas][]. Atlas is a Hugo boilerplate designed to speed up development with support for Netlify, Hugo Pipes, SCSS & more. It's actively maintained and contributions are always welcome.
+* [Hyas][]. Hyas is a Hugo starter helping you build modern websites that are secure, fast, and SEO-ready — by default. It is Netlify-ready (functions, redirects, headers) and comes with [documentation](https://gethyas.com/) to easily make it your own.
 
 
 [addkit]: https://github.com/gohugoio/hugo/edit/master/docs/content/en/tools/starter-kits.md
@@ -41,3 +42,4 @@ The following starter kits are developed by active members of the Hugo community
 [hugulp]: https://github.com/jbrodriguez/hugulp
 [Victor Hugo]: https://github.com/netlify/victor-hugo
 [Atlas]: https://github.com/indigotree/atlas
+[Hyas]: https://github.com/h-enk/hyas
