@@ -37,12 +37,15 @@ type Highlighter struct {
 }
 
 func (h Highlighter) Highlight(code, lang, optsStr string) (string, error) {
-	cfg := h.cfg
-	if optsStr != "" {
-		if err := applyOptionsFromString(optsStr, &cfg); err != nil {
-			return "", err
-		}
+	if optsStr == "" {
+		return highlight(code, lang, h.cfg)
 	}
+
+	cfg := h.cfg
+	if err := applyOptionsFromString(optsStr, &cfg); err != nil {
+		return "", err
+	}
+
 	return highlight(code, lang, cfg)
 }
 
