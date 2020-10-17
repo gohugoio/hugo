@@ -82,6 +82,9 @@ The Hugo documentation now lives in its own repository, see https://github.com/g
 
 ```bash
 git clone git@github.com:gohugoio/hugo.git
+
+## Basic Usage
+Hugo’s CLI is fully featured but simple to use, even for those who have very limited experience working from the command line.
 ```
 ## Contributing to Hugo
 
