@@ -14,21 +14,21 @@
 // Package related holds code to help finding related content.
 package related
 
-import (
+import
+(
 	"errors"
 	"fmt"
 	"math"
 	"sort"
 	"strings"
 	"time"
-
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/mitchellh/mapstructure"
 )
 
 var (
-	_        Keyword = (*StringKeyword)(nil)
-	zeroDate         = time.Time{}
+	_  Keyword = (*StringKeyword)(nil)
+	   zeroDate= time.Time{}
 
 	// DefaultConfig is the default related config.
 	DefaultConfig = Config{
@@ -59,7 +59,8 @@ An example site config.toml:
 	weight = 1
 	pattern = "2006"
 */
-type Config struct {
+type Config struct
+{
 	// Only include matches >= threshold, a normalized rank between 0 and 100.
 	Threshold int
 
@@ -74,8 +75,10 @@ type Config struct {
 }
 
 // Add adds a given index.
-func (c *Config) Add(index IndexConfig) {
-	if c.ToLower {
+func (c *Config) Add(index IndexConfig)
+{
+	if c.ToLower 
+	{
 		index.ToLower = true
 	}
 	c.Indices = append(c.Indices, index)
@@ -85,7 +88,8 @@ func (c *Config) Add(index IndexConfig) {
 type IndexConfigs []IndexConfig
 
 // IndexConfig configures an index.
-type IndexConfig struct {
+type IndexConfig struct
+{
 	// The index name. This directly maps to a field or Param name.
 	Name string
 
@@ -105,7 +109,8 @@ type IndexConfig struct {
 }
 
 // Document is the interface an indexable document in Hugo must fulfill.
-type Document interface {
+type Document interface
+{
 	// RelatedKeywords returns a list of keywords for the given index config.
 	RelatedKeywords(cfg IndexConfig) ([]Keyword, error)
 
@@ -119,7 +124,8 @@ type Document interface {
 
 // InvertedIndex holds an inverted index, also sometimes named posting list, which
 // lists, for every possible search term, the documents that contain that term.
-type InvertedIndex struct {
+type InvertedIndex struct 
+{
 	cfg   Config
 	index map[string]map[Keyword][]Document
 
@@ -127,9 +133,12 @@ type InvertedIndex struct {
 	maxWeight int
 }
 
-func (idx *InvertedIndex) getIndexCfg(name string) (IndexConfig, bool) {
-	for _, conf := range idx.cfg.Indices {
-		if conf.Name == name {
+func (idx *InvertedIndex) getIndexCfg(name string) (IndexConfig, bool)
+{
+	for _, conf := range idx.cfg.Indices
+	{
+		if conf.Name == name
+		{
 			return conf, true
 		}
 	}
@@ -139,16 +148,20 @@ func (idx *InvertedIndex) getIndexCfg(name string) (IndexConfig, bool) {
 
 // NewInvertedIndex creates a new InvertedIndex.
 // Documents to index must be added in Add.
-func NewInvertedIndex(cfg Config) *InvertedIndex {
+func NewInvertedIndex(cfg Config) *InvertedIndex 
+{
 	idx := &InvertedIndex{index: make(map[string]map[Keyword][]Document), cfg: cfg}
-	for _, conf := range cfg.Indices {
+	for _, conf := range cfg.Indices 
+	{
 		idx.index[conf.Name] = make(map[Keyword][]Document)
-		if conf.Weight < idx.minWeight {
+		if conf.Weight < idx.minWeight
+		{
 			// By default, the weight scale starts at 0, but we allow
 			// negative weights.
 			idx.minWeight = conf.Weight
 		}
-		if conf.Weight > idx.maxWeight {
+		if conf.Weight > idx.maxWeight
+		{
 			idx.maxWeight = conf.Weight
 		}
 	}
@@ -157,23 +170,29 @@ func NewInvertedIndex(cfg Config) *InvertedIndex {
 
 // Add documents to the inverted index.
 // The value must support == and !=.
-func (idx *InvertedIndex) Add(docs ...Document) error {
+func (idx *InvertedIndex) Add(docs ...Document) error
+{
 	var err error
-	for _, config := range idx.cfg.Indices {
-		if config.Weight == 0 {
+	for _, config := range idx.cfg.Indices 
+	{
+		if config.Weight == 0 
+		{
 			// Disabled
 			continue
 		}
 		setm := idx.index[config.Name]
 
-		for _, doc := range docs {
+		for _, doc := range docs 
+		{
 			var words []Keyword
 			words, err = doc.RelatedKeywords(config)
-			if err != nil {
+			if err != nil 
+			{
 				continue
 			}
 
-			for _, keyword := range words {
+			for _, keyword := range words 
+			{
 				setm[keyword] = append(setm[keyword], doc)
 			}
 		}
@@ -185,37 +204,45 @@ func (idx *InvertedIndex) Add(docs ...Document) error {
 
 // queryElement holds the index name and keywords that can be used to compose a
 // search for related content.
-type queryElement struct {
+type queryElement struct 
+{
 	Index    string
 	Keywords []Keyword
 }
 
-func newQueryElement(index string, keywords ...Keyword) queryElement {
+func newQueryElement(index string, keywords ...Keyword) queryElement 
+{
 	return queryElement{Index: index, Keywords: keywords}
 }
 
 type ranks []*rank
 
-type rank struct {
+type rank struct 
+{
 	Doc     Document
 	Weight  int
 	Matches int
 }
 
-func (r *rank) addWeight(w int) {
+func (r *rank) addWeight(w int) 
+{
 	r.Weight += w
 	r.Matches++
 }
 
-func newRank(doc Document, weight int) *rank {
+func newRank(doc Document, weight int) *rank 
+{
 	return &rank{Doc: doc, Weight: weight, Matches: 1}
 }
 
 func (r ranks) Len() int      { return len(r) }
 func (r ranks) Swap(i, j int) { r[i], r[j] = r[j], r[i] }
-func (r ranks) Less(i, j int) bool {
-	if r[i].Weight == r[j].Weight {
-		if r[i].Doc.PublishDate() == r[j].Doc.PublishDate() {
+func (r ranks) Less(i, j int) bool 
+{
+	if r[i].Weight == r[j].Weight 
+	{
+		if r[i].Doc.PublishDate() == r[j].Doc.PublishDate() 
+		{
 			return r[i].Doc.Name() < r[j].Doc.Name()
 		}
 		return r[i].Doc.PublishDate().After(r[j].Doc.PublishDate())
@@ -229,27 +256,34 @@ func (r ranks) Less(i, j int) bool {
 // and the index weights, and any matches with a rank below the configured
 // threshold (normalize to 0..100) will be removed.
 // If an index name is provided, only that index will be queried.
-func (idx *InvertedIndex) SearchDoc(doc Document, indices ...string) ([]Document, error) {
+func (idx *InvertedIndex) SearchDoc(doc Document, indices ...string) ([]Document, error) 
+{
 	var q []queryElement
 
 	var configs IndexConfigs
 
-	if len(indices) == 0 {
+	if len(indices) == 0
+	{
 		configs = idx.cfg.Indices
-	} else {
+	}
+	else 
+	{
 		configs = make(IndexConfigs, len(indices))
 		for i, indexName := range indices {
 			cfg, found := idx.getIndexCfg(indexName)
-			if !found {
+			if !found 
+			{
 				return nil, fmt.Errorf("index %q not found", indexName)
 			}
 			configs[i] = cfg
 		}
 	}
 
-	for _, cfg := range configs {
+	for _, cfg := range configs 
+	{
 		keywords, err := doc.RelatedKeywords(cfg)
-		if err != nil {
+		if err != nil 
+		{
 			return nil, err
 		}
 
@@ -261,14 +295,17 @@ func (idx *InvertedIndex) SearchDoc(doc Document, indices ...string) ([]Document
 }
 
 // ToKeywords returns a Keyword slice of the given input.
-func (cfg IndexConfig) ToKeywords(v interface{}) ([]Keyword, error) {
+func (cfg IndexConfig) ToKeywords(v interface{}) ([]Keyword, error) 
+{
 	var (
 		keywords []Keyword
 		toLower  = cfg.ToLower
 	)
-	switch vv := v.(type) {
+	switch vv := v.(type) 
+	{
 	case string:
-		if toLower {
+		if toLower 
+		{
 			vv = strings.ToLower(vv)
 		}
 		keywords = append(keywords, StringKeyword(vv))
@@ -301,7 +338,8 @@ func (cfg IndexConfig) ToKeywords(v interface{}) ([]Keyword, error) {
 // The resulting document set will be sorted according to number of matches
 // and the index weights, and any matches with a rank below the configured
 // threshold (normalize to 0..100) will be removed.
-func (idx *InvertedIndex) SearchKeyValues(args ...types.KeyValues) ([]Document, error) {
+func (idx *InvertedIndex) SearchKeyValues(args ...types.KeyValues) ([]Document, error) 
+{
 	q := make([]queryElement, len(args))
 
 	for i, arg := range args {
@@ -311,7 +349,8 @@ func (idx *InvertedIndex) SearchKeyValues(args ...types.KeyValues) ([]Document, 
 			return nil, fmt.Errorf("index %q not valid", arg.Key)
 		}
 		conf, found := idx.getIndexCfg(key)
-		if !found {
+		if !found 
+		{
 			return nil, fmt.Errorf("index %q not found", key)
 		}
 
