@@ -237,6 +237,7 @@ Running hugo does not remove generated files before building. This means that yo
 
 See Also
 ```
+```
 ## Contributing to Hugo
 
 For a complete guide to contributing to Hugo, see the [Contribution Guide](CONTRIBUTING.md).
