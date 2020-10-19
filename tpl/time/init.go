@@ -34,15 +34,26 @@ func init() {
 				//
 				// If args are passed, call AsTime().
 
-				if len(args) == 0 {
+				switch len(args) {
+				case 0:
 					return ctx
-				}
+				case 1:
+					t, err := ctx.AsTime(args[0])
+					if err != nil {
+						return err
+					}
+					return t
+				case 2:
+					t, err := ctx.AsTime(args[0], args[1])
+					if err != nil {
+						return err
+					}
+					return t
 
-				t, err := ctx.AsTime(args[0])
-				if err != nil {
-					return err
+				// 3 or more arguments. Currently not supported.
+				default:
+					return "Invalid arguments supplied to `time`. Refer to time documentation: https://gohugo.io/functions/time/"
 				}
-				return t
 			},
 		}
 
