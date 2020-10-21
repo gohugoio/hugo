@@ -66,7 +66,7 @@ func (p *pageMenus) init() {
 		var err error
 		p.pm, err = navigation.PageMenusFromPage(p.p)
 		if err != nil {
-			p.p.s.Log.ERROR.Println(p.p.wrapError(err))
+			p.p.s.Log.Errorln(p.p.wrapError(err))
 		}
 
 	})

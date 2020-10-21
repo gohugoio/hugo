@@ -47,7 +47,7 @@ func NewSpec(
 	s *helpers.PathSpec,
 	fileCaches filecache.Caches,
 	incr identity.Incrementer,
-	logger *loggers.Logger,
+	logger loggers.Logger,
 	errorHandler herrors.ErrorSender,
 	outputFormats output.Formats,
 	mimeTypes media.Types) (*Spec, error) {
@@ -105,7 +105,7 @@ type Spec struct {
 	MediaTypes    media.Types
 	OutputFormats output.Formats
 
-	Logger      *loggers.Logger
+	Logger      loggers.Logger
 	ErrorSender herrors.ErrorSender
 
 	TextTemplates tpl.TemplateParseFinder

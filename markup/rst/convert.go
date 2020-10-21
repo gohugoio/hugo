@@ -60,11 +60,11 @@ func (c *rstConverter) getRstContent(src []byte, ctx converter.DocumentContext) 
 	path := getRstExecPath()
 
 	if path == "" {
-		logger.ERROR.Println("rst2html / rst2html.py not found in $PATH: Please install.\n",
+		logger.Println("rst2html / rst2html.py not found in $PATH: Please install.\n",
 			"                 Leaving reStructuredText content unrendered.")
 		return src
 	}
-	logger.INFO.Println("Rendering", ctx.DocumentName, "with", path, "...")
+	logger.Println("Rendering", ctx.DocumentName, "with", path, "...")
 	var result []byte
 	// certain *nix based OSs wrap executables in scripted launchers
 	// invoking binaries on these OSs via python interpreter causes SyntaxError

@@ -581,7 +581,7 @@ func (m *pageMap) attachPageToViews(s string, b *contentNode) {
 		w := getParamToLower(b.p, viewName.plural+"_weight")
 		weight, err := cast.ToIntE(w)
 		if err != nil {
-			m.s.Log.ERROR.Printf("Unable to convert taxonomy weight %#v to int for %q", w, b.p.Path())
+			m.s.Log.Errorf("Unable to convert taxonomy weight %#v to int for %q", w, b.p.Path())
 			// weight will equal zero, so let the flow continue
 		}
 

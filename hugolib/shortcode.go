@@ -324,7 +324,7 @@ func renderShortcode(
 		var found, more bool
 		tmpl, found, more = s.Tmpl().LookupVariant(sc.name, tplVariants)
 		if !found {
-			s.Log.ERROR.Printf("Unable to locate template for shortcode %q in page %q", sc.name, p.File().Path())
+			s.Log.Errorf("Unable to locate template for shortcode %q in page %q", sc.name, p.File().Path())
 			return "", false, nil
 		}
 		hasVariants = hasVariants || more
@@ -349,7 +349,7 @@ func renderShortcode(
 				hasVariants = hasVariants || more
 				inner += s
 			default:
-				s.Log.ERROR.Printf("Illegal state on shortcode rendering of %q in page %q. Illegal type in inner data: %s ",
+				s.Log.Errorf("Illegal state on shortcode rendering of %q in page %q. Illegal type in inner data: %s ",
 					sc.name, p.File().Path(), reflect.TypeOf(innerData))
 				return "", false, nil
 			}

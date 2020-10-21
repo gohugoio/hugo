@@ -35,11 +35,11 @@ var (
 type Translator struct {
 	translateFuncs map[string]translateFunc
 	cfg            config.Provider
-	logger         *loggers.Logger
+	logger         loggers.Logger
 }
 
 // NewTranslator creates a new Translator for the given language bundle and configuration.
-func NewTranslator(b *i18n.Bundle, cfg config.Provider, logger *loggers.Logger) Translator {
+func NewTranslator(b *i18n.Bundle, cfg config.Provider, logger loggers.Logger) Translator {
 	t := Translator{cfg: cfg, logger: logger, translateFuncs: make(map[string]translateFunc)}
 	t.initFuncs(b)
 	return t
@@ -51,12 +51,12 @@ func (t Translator) Func(lang string) translateFunc {
 	if f, ok := t.translateFuncs[lang]; ok {
 		return f
 	}
-	t.logger.INFO.Printf("Translation func for language %v not found, use default.", lang)
+	t.logger.Infof("Translation func for language %v not found, use default.", lang)
 	if f, ok := t.translateFuncs[t.cfg.GetString("defaultContentLanguage")]; ok {
 		return f
 	}
 
-	t.logger.INFO.Println("i18n not initialized; if you need string translations, check that you have a bundle in /i18n that matches the site language or the default language.")
+	t.logger.Infoln("i18n not initialized; if you need string translations, check that you have a bundle in /i18n that matches the site language or the default language.")
 	return func(translationID string, args interface{}) string {
 		return ""
 	}
@@ -98,7 +98,7 @@ func (t Translator) initFuncs(bndl *i18n.Bundle) {
 			}
 
 			if _, ok := err.(*i18n.MessageNotFoundErr); !ok {
-				t.logger.WARN.Printf("Failed to get translated string for language %q and ID %q: %s", currentLangStr, translationID, err)
+				t.logger.Warnf("Failed to get translated string for language %q and ID %q: %s", currentLangStr, translationID, err)
 			}
 
 			if t.cfg.GetBool("logI18nWarnings") {

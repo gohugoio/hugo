@@ -65,7 +65,7 @@ type ContentSpec struct {
 
 // NewContentSpec returns a ContentSpec initialized
 // with the appropriate fields from the given config.Provider.
-func NewContentSpec(cfg config.Provider, logger *loggers.Logger, contentFs afero.Fs) (*ContentSpec, error) {
+func NewContentSpec(cfg config.Provider, logger loggers.Logger, contentFs afero.Fs) (*ContentSpec, error) {
 
 	spec := &ContentSpec{
 		summaryLength: cfg.GetInt("summaryLength"),

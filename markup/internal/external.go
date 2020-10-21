@@ -25,11 +25,11 @@ func ExternallyRenderContent(
 	for _, item := range strings.Split(cmderr.String(), "\n") {
 		item := strings.TrimSpace(item)
 		if item != "" {
-			logger.ERROR.Printf("%s: %s", ctx.DocumentName, item)
+			logger.Errorf("%s: %s", ctx.DocumentName, item)
 		}
 	}
 	if err != nil {
-		logger.ERROR.Printf("%s rendering %s: %v", path, ctx.DocumentName, err)
+		logger.Errorf("%s rendering %s: %v", path, ctx.DocumentName, err)
 	}
 
 	return normalizeExternalHelperLineFeeds(out.Bytes())

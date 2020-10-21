@@ -149,9 +149,9 @@ func pageRenderer(
 }
 
 func (s *Site) logMissingLayout(name, layout, kind, outputFormat string) {
-	log := s.Log.WARN
+	log := s.Log.Warn()
 	if name != "" && infoOnMissingLayout[name] {
-		log = s.Log.INFO
+		log = s.Log.Info()
 	}
 
 	errMsg := "You should create a template file which matches Hugo Layouts Lookup Rules for this combination."
@@ -396,13 +396,13 @@ func (s *Site) renderMainLanguageRedirect() error {
 		mainLang := s.h.multilingual.DefaultLang
 		if s.Info.defaultContentLanguageInSubdir {
 			mainLangURL := s.PathSpec.AbsURL(mainLang.Lang+"/", false)
-			s.Log.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
+			s.Log.Debug().Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
 			if err := s.publishDestAlias(true, "/", mainLangURL, html, nil); err != nil {
 				return err
 			}
 		} else {
 			mainLangURL := s.PathSpec.AbsURL("", false)
-			s.Log.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
+			s.Log.Debug().Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
 			if err := s.publishDestAlias(true, mainLang.Lang, mainLangURL, html, nil); err != nil {
 				return err
 			}

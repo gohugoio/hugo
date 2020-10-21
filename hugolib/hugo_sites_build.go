@@ -162,9 +162,8 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		var b bytes.Buffer
 		h.Metrics.WriteMetrics(&b)
 
-		h.Log.FEEDBACK.Printf("\nTemplate Metrics:\n\n")
-		h.Log.FEEDBACK.Print(b.String())
-		h.Log.FEEDBACK.Println()
+		h.Log.Printf("\nTemplate Metrics:\n\n")
+		h.Log.Println(b.String())
 	}
 
 	select {
@@ -183,7 +182,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		return err
 	}
 
-	errorCount := h.Log.ErrorCounter.Count()
+	errorCount := h.Log.LogCounters().ErrorCounter.Count()
 	if errorCount > 0 {
 		return fmt.Errorf("logged %d error(s)", errorCount)
 	}

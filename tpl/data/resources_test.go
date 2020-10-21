@@ -195,13 +195,13 @@ func newDeps(cfg config.Provider) *deps.Deps {
 	}
 	cfg.Set("allModules", modules.Modules{mod})
 
-	cs, err := helpers.NewContentSpec(cfg, loggers.NewErrorLogger(), afero.NewMemMapFs())
+	logger := loggers.NewIgnorableLogger(loggers.NewErrorLogger(), "none")
+	cs, err := helpers.NewContentSpec(cfg, logger, afero.NewMemMapFs())
 	if err != nil {
 		panic(err)
 	}
 
 	fs := hugofs.NewMem(cfg)
-	logger := loggers.NewErrorLogger()
 
 	p, err := helpers.NewPathSpec(fs, cfg, nil)
 	if err != nil {
@@ -219,7 +219,7 @@ func newDeps(cfg config.Provider) *deps.Deps {
 		FileCaches:       fileCaches,
 		ContentSpec:      cs,
 		Log:              logger,
-		DistinctErrorLog: helpers.NewDistinctLogger(logger.ERROR),
+		DistinctErrorLog: helpers.NewDistinctLogger(logger.Error()),
 	}
 }
 

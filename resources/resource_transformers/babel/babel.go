@@ -121,7 +121,7 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	logger := t.rs.Logger
 
 	var errBuf bytes.Buffer
-	infoW := loggers.LoggerToWriterWithPrefix(logger.INFO, "babel")
+	infoW := loggers.LoggerToWriterWithPrefix(logger.Info(), "babel")
 
 	if t.options.Config != "" {
 		configFile = t.options.Config
@@ -143,7 +143,7 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	var cmdArgs []string
 
 	if configFile != "" {
-		logger.INFO.Println("babel: use config file", configFile)
+		logger.Infoln("babel: use config file", configFile)
 		cmdArgs = []string{"--config-file", configFile}
 	}
 

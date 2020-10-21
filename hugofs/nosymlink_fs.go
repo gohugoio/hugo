@@ -28,14 +28,14 @@ var (
 )
 
 // NewNoSymlinkFs creates a new filesystem that prevents symlinks.
-func NewNoSymlinkFs(fs afero.Fs, logger *loggers.Logger, allowFiles bool) afero.Fs {
+func NewNoSymlinkFs(fs afero.Fs, logger loggers.Logger, allowFiles bool) afero.Fs {
 	return &noSymlinkFs{Fs: fs, logger: logger, allowFiles: allowFiles}
 }
 
 // noSymlinkFs is a filesystem that prevents symlinking.
 type noSymlinkFs struct {
 	allowFiles bool // block dirs only
-	logger     *loggers.Logger
+	logger     loggers.Logger
 	afero.Fs
 }
 

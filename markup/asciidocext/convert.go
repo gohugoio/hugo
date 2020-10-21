@@ -82,7 +82,7 @@ func (a *asciidocConverter) Supports(_ identity.Identity) bool {
 func (a *asciidocConverter) getAsciidocContent(src []byte, ctx converter.DocumentContext) []byte {
 	path := getAsciidoctorExecPath()
 	if path == "" {
-		a.cfg.Logger.ERROR.Println("asciidoctor not found in $PATH: Please install.\n",
+		a.cfg.Logger.Errorln("asciidoctor not found in $PATH: Please install.\n",
 			"                 Leaving AsciiDoc content unrendered.")
 		return src
 	}
@@ -90,7 +90,7 @@ func (a *asciidocConverter) getAsciidocContent(src []byte, ctx converter.Documen
 	args := a.parseArgs(ctx)
 	args = append(args, "-")
 
-	a.cfg.Logger.INFO.Println("Rendering", ctx.DocumentName, "with", path, "using asciidoctor args", args, "...")
+	a.cfg.Logger.Infoln("Rendering", ctx.DocumentName, "with", path, "using asciidoctor args", args, "...")
 
 	return internal.ExternallyRenderContent(a.cfg, ctx, src, path, args)
 }
@@ -103,7 +103,7 @@ func (a *asciidocConverter) parseArgs(ctx converter.DocumentContext) []string {
 
 	for _, extension := range cfg.Extensions {
 		if !asciidocext_config.AllowedExtensions[extension] {
-			a.cfg.Logger.ERROR.Println("Unsupported asciidoctor extension was passed in. Extension `" + extension + "` ignored.")
+			a.cfg.Logger.Errorln("Unsupported asciidoctor extension was passed in. Extension `" + extension + "` ignored.")
 			continue
 		}
 
@@ -112,7 +112,7 @@ func (a *asciidocConverter) parseArgs(ctx converter.DocumentContext) []string {
 
 	for attributeKey, attributeValue := range cfg.Attributes {
 		if asciidocext_config.DisallowedAttributes[attributeKey] {
-			a.cfg.Logger.ERROR.Println("Unsupported asciidoctor attribute was passed in. Attribute `" + attributeKey + "` ignored.")
+			a.cfg.Logger.Errorln("Unsupported asciidoctor attribute was passed in. Attribute `" + attributeKey + "` ignored.")
 			continue
 		}
 
@@ -125,7 +125,7 @@ func (a *asciidocConverter) parseArgs(ctx converter.DocumentContext) []string {
 		destinationDir := a.cfg.Cfg.GetString("destination")
 
 		if destinationDir == "" {
-			a.cfg.Logger.ERROR.Println("markup.asciidocext.workingFolderCurrent requires hugo command option --destination to be set")
+			a.cfg.Logger.Errorln("markup.asciidocext.workingFolderCurrent requires hugo command option --destination to be set")
 		}
 		if !filepath.IsAbs(destinationDir) && sourceDir != "" {
 			destinationDir = filepath.Join(sourceDir, destinationDir)
@@ -144,14 +144,14 @@ func (a *asciidocConverter) parseArgs(ctx converter.DocumentContext) []string {
 			if ok {
 				postDir = filepath.Base(page.RelPermalink())
 			} else {
-				a.cfg.Logger.ERROR.Println("unable to cast interface to pageSubset")
+				a.cfg.Logger.Errorln("unable to cast interface to pageSubset")
 			}
 
 			outDir, err = filepath.Abs(filepath.Join(destinationDir, filepath.Dir(ctx.DocumentName), postDir))
 		}
 
 		if err != nil {
-			a.cfg.Logger.ERROR.Println("asciidoctor outDir: ", err)
+			a.cfg.Logger.Errorln("asciidoctor outDir: ", err)
 		}
 
 		args = append(args, "--base-dir", contentDir, "-a", "outdir="+outDir)
@@ -160,7 +160,7 @@ func (a *asciidocConverter) parseArgs(ctx converter.DocumentContext) []string {
 	if cfg.NoHeaderOrFooter {
 		args = append(args, "--no-header-footer")
 	} else {
-		a.cfg.Logger.WARN.Println("asciidoctor parameter NoHeaderOrFooter is expected for correct html rendering")
+		a.cfg.Logger.Warnln("asciidoctor parameter NoHeaderOrFooter is expected for correct html rendering")
 	}
 
 	if cfg.SectionNumbers {
@@ -187,7 +187,7 @@ func (a *asciidocConverter) appendArg(args []string, option, value, defaultValue
 		if allowedValues[value] {
 			args = append(args, option, value)
 		} else {
-			a.cfg.Logger.ERROR.Println("Unsupported asciidoctor value `" + value + "` for option " + option + " was passed in and will be ignored.")
+			a.cfg.Logger.Errorln("Unsupported asciidoctor value `" + value + "` for option " + option + " was passed in and will be ignored.")
 		}
 	}
 	return args

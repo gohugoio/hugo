@@ -21,6 +21,7 @@ import (
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/source"
 	"github.com/gohugoio/hugo/tpl"
+	"github.com/spf13/cast"
 	jww "github.com/spf13/jwalterweatherman"
 )
 
@@ -30,7 +31,7 @@ import (
 type Deps struct {
 
 	// The logger to use.
-	Log *loggers.Logger `json:"-"`
+	Log loggers.Logger `json:"-"`
 
 	// Used to log errors that may repeat itself many times.
 	DistinctErrorLog *helpers.DistinctLogger
@@ -260,12 +261,15 @@ func New(cfg DepsCfg) (*Deps, error) {
 		timeoutms = 3000
 	}
 
-	distinctErrorLogger := helpers.NewDistinctLogger(logger.ERROR)
-	distinctWarnLogger := helpers.NewDistinctLogger(logger.WARN)
+	ignoreErrors := cast.ToStringSlice(cfg.Cfg.Get("ignoreErrors"))
+	ignorableLogger := loggers.NewIgnorableLogger(logger, ignoreErrors...)
+
+	distinctErrorLogger := helpers.NewDistinctLogger(logger.Error())
+	distinctWarnLogger := helpers.NewDistinctLogger(logger.Warn())
 
 	d := &Deps{
 		Fs:                      fs,
-		Log:                     logger,
+		Log:                     ignorableLogger,
 		DistinctErrorLog:        distinctErrorLogger,
 		DistinctWarningLog:      distinctWarnLogger,
 		templateProvider:        cfg.TemplateProvider,
@@ -350,7 +354,7 @@ func (d Deps) ForLanguage(cfg DepsCfg, onCreated func(d *Deps) error) (*Deps, er
 type DepsCfg struct {
 
 	// The Logger to use.
-	Logger *loggers.Logger
+	Logger loggers.Logger
 
 	// The file systems to use
 	Fs *hugofs.Fs

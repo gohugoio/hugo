@@ -19,25 +19,31 @@ import (
 )
 
 // IgnorableLogger is a logger that ignores certain log statements.
-type IgnorableLogger struct {
-	logger     *Logger
+type IgnorableLogger interface {
+	Logger
+	Errorsf(statementID, format string, v ...interface{})
+}
+
+type ignorableLogger struct {
+	Logger
 	statements map[string]bool
 }
 
 // NewIgnorableLogger wraps the given logger and ignores the log statement IDs given.
-func NewIgnorableLogger(logger *Logger, statements ...string) IgnorableLogger {
+func NewIgnorableLogger(logger Logger, statements ...string) IgnorableLogger {
 	statementsSet := make(map[string]bool)
 	for _, s := range statements {
 		statementsSet[strings.ToLower(s)] = true
 
 	}
-	return IgnorableLogger{
-		logger:     logger,
+	return ignorableLogger{
+		Logger:     logger,
 		statements: statementsSet,
 	}
 }
 
-func (l IgnorableLogger) Errorf(statementID, format string, v ...interface{}) {
+// Errorsf logs statementID as an ERROR if not configured as ignoreable.
+func (l ignorableLogger) Errorsf(statementID, format string, v ...interface{}) {
 	if l.statements[statementID] {
 		// Ignore.
 		return
@@ -48,5 +54,5 @@ ignoreErrors = [%q]`, statementID)
 
 	format += ignoreMsg
 
-	l.logger.ERROR.Printf(format, v...)
+	l.Errorf(format, v...)
 }

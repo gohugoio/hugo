@@ -181,7 +181,7 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	var cmdArgs []string
 
 	if configFile != "" {
-		logger.INFO.Println("postcss: use config file", configFile)
+		logger.Infoln("postcss: use config file", configFile)
 		cmdArgs = []string{"--config", configFile}
 	}
 
@@ -192,7 +192,7 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	cmd := exec.Command(binary, cmdArgs...)
 
 	var errBuf bytes.Buffer
-	infoW := loggers.LoggerToWriterWithPrefix(logger.INFO, "postcss")
+	infoW := loggers.LoggerToWriterWithPrefix(logger.Info(), "postcss")
 
 	cmd.Stdout = ctx.To
 	cmd.Stderr = io.MultiWriter(infoW, &errBuf)
@@ -245,10 +245,10 @@ type importResolver struct {
 	contentSeen map[string]bool
 	linemap     map[int]fileOffset
 	fs          afero.Fs
-	logger      *loggers.Logger
+	logger      loggers.Logger
 }
 
-func newImportResolver(r io.Reader, inPath string, fs afero.Fs, logger *loggers.Logger) *importResolver {
+func newImportResolver(r io.Reader, inPath string, fs afero.Fs, logger loggers.Logger) *importResolver {
 	return &importResolver{
 		r:      r,
 		inPath: inPath,
@@ -296,7 +296,7 @@ func (imp *importResolver) importRecursive(
 			importContent, hash := imp.contentHash(filename)
 			if importContent == nil {
 				trackLine(i, offset, "ERROR")
-				imp.logger.WARN.Printf("postcss: Failed to resolve CSS @import in %q for path %q", inPath, filename)
+				imp.logger.Warnf("postcss: Failed to resolve CSS @import in %q for path %q", inPath, filename)
 				continue
 			}
 
