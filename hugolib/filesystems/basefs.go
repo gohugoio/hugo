@@ -359,7 +359,7 @@ func WithBaseFs(b *BaseFs) func(*BaseFs) error {
 }
 
 // NewBase builds the filesystems used by Hugo given the paths and options provided.NewBase
-func NewBase(p *paths.Paths, logger *loggers.Logger, options ...func(*BaseFs) error) (*BaseFs, error) {
+func NewBase(p *paths.Paths, logger loggers.Logger, options ...func(*BaseFs) error) (*BaseFs, error) {
 	fs := p.Fs
 	if logger == nil {
 		logger = loggers.NewWarningLogger()
@@ -396,14 +396,14 @@ func NewBase(p *paths.Paths, logger *loggers.Logger, options ...func(*BaseFs) er
 }
 
 type sourceFilesystemsBuilder struct {
-	logger   *loggers.Logger
+	logger   loggers.Logger
 	p        *paths.Paths
 	sourceFs afero.Fs
 	result   *SourceFilesystems
 	theBigFs *filesystemsCollector
 }
 
-func newSourceFilesystemsBuilder(p *paths.Paths, logger *loggers.Logger, b *BaseFs) *sourceFilesystemsBuilder {
+func newSourceFilesystemsBuilder(p *paths.Paths, logger loggers.Logger, b *BaseFs) *sourceFilesystemsBuilder {
 	sourceFs := hugofs.NewBaseFileDecorator(p.Fs.Source)
 	return &sourceFilesystemsBuilder{p: p, logger: logger, sourceFs: sourceFs, theBigFs: b.theBigFs, result: &SourceFilesystems{}}
 }

@@ -124,11 +124,11 @@ type ModulesConfig struct {
 	GoModulesFilename string
 }
 
-func (m *ModulesConfig) setActiveMods(logger *loggers.Logger) error {
+func (m *ModulesConfig) setActiveMods(logger loggers.Logger) error {
 	var activeMods Modules
 	for _, mod := range m.AllModules {
 		if !mod.Config().HugoVersion.IsValid() {
-			logger.WARN.Printf(`Module %q is not compatible with this Hugo version; run "hugo mod graph" for more information.`, mod.Path())
+			logger.Warnf(`Module %q is not compatible with this Hugo version; run "hugo mod graph" for more information.`, mod.Path())
 		}
 		if !mod.Disabled() {
 			activeMods = append(activeMods, mod)
@@ -140,7 +140,7 @@ func (m *ModulesConfig) setActiveMods(logger *loggers.Logger) error {
 	return nil
 }
 
-func (m *ModulesConfig) finalize(logger *loggers.Logger) error {
+func (m *ModulesConfig) finalize(logger loggers.Logger) error {
 	for _, mod := range m.AllModules {
 		m := mod.(*moduleAdapter)
 		m.mounts = filterUnwantedMounts(m.mounts)
@@ -422,7 +422,7 @@ func (c *collector) applyThemeConfig(tc *moduleAdapter) error {
 		}
 		themeCfg, err = metadecoders.Default.UnmarshalToMap(data, metadecoders.TOML)
 		if err != nil {
-			c.logger.WARN.Printf("Failed to read module config for %q in %q: %s", tc.Path(), themeTOML, err)
+			c.logger.Warnf("Failed to read module config for %q in %q: %s", tc.Path(), themeTOML, err)
 		} else {
 			maps.ToLower(themeCfg)
 		}
@@ -480,7 +480,7 @@ func (c *collector) collect() {
 	defer c.logger.PrintTimerIfDelayed(time.Now(), "hugo: collected modules")
 	d := debounce.New(2 * time.Second)
 	d(func() {
-		c.logger.FEEDBACK.Println("hugo: downloading modules …")
+		c.logger.Println("hugo: downloading modules …")
 	})
 	defer d(func() {})
 

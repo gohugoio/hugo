@@ -23,6 +23,9 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/constants"
+	"github.com/gohugoio/hugo/common/loggers"
+
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/cache/filecache"
@@ -85,7 +88,7 @@ func (ns *Namespace) GetCSV(sep string, urlParts ...interface{}) (d [][]string, 
 
 	err = ns.getResource(cache, unmarshal, req)
 	if err != nil {
-		ns.deps.Log.ERROR.Printf("Failed to get CSV resource %q: %s", url, err)
+		ns.deps.Log.(loggers.IgnorableLogger).Errorsf(constants.ErrRemoteGetCSV, "Failed to get CSV resource %q: %s", url, err)
 		return nil, nil
 	}
 
@@ -117,7 +120,7 @@ func (ns *Namespace) GetJSON(urlParts ...interface{}) (interface{}, error) {
 
 	err = ns.getResource(cache, unmarshal, req)
 	if err != nil {
-		ns.deps.Log.ERROR.Printf("Failed to get JSON resource %q: %s", url, err)
+		ns.deps.Log.(loggers.IgnorableLogger).Errorsf(constants.ErrRemoteGetJSON, "Failed to get JSON resource %q: %s", url, err)
 		return nil, nil
 	}
 

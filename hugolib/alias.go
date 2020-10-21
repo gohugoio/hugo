@@ -33,11 +33,11 @@ import (
 
 type aliasHandler struct {
 	t         tpl.TemplateHandler
-	log       *loggers.Logger
+	log       loggers.Logger
 	allowRoot bool
 }
 
-func newAliasHandler(t tpl.TemplateHandler, l *loggers.Logger, allowRoot bool) aliasHandler {
+func newAliasHandler(t tpl.TemplateHandler, l loggers.Logger, allowRoot bool) aliasHandler {
 	return aliasHandler{t, l, allowRoot}
 }
 
@@ -80,7 +80,7 @@ func (s *Site) writeDestAlias(path, permalink string, outputFormat output.Format
 func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, outputFormat output.Format, p page.Page) (err error) {
 	handler := newAliasHandler(s.Tmpl(), s.Log, allowRoot)
 
-	s.Log.DEBUG.Println("creating alias:", path, "redirecting to", permalink)
+	s.Log.Debug().Println("creating alias:", path, "redirecting to", permalink)
 
 	targetPath, err := handler.targetPathAlias(path)
 	if err != nil {
@@ -153,12 +153,12 @@ func (a aliasHandler) targetPathAlias(src string) (string, error) {
 	if len(msgs) > 0 {
 		if runtime.GOOS == "windows" {
 			for _, m := range msgs {
-				a.log.ERROR.Println(m)
+				a.log.Errorln(m)
 			}
 			return "", fmt.Errorf("cannot create \"%s\": Windows filename restriction", originalAlias)
 		}
 		for _, m := range msgs {
-			a.log.INFO.Println(m)
+			a.log.Infoln(m)
 		}
 	}
 

@@ -26,11 +26,11 @@ func TestLogger(t *testing.T) {
 	c := qt.New(t)
 	l := NewWarningLogger()
 
-	l.ERROR.Println("One error")
-	l.ERROR.Println("Two error")
-	l.WARN.Println("A warning")
+	l.Errorln("One error")
+	l.Errorln("Two error")
+	l.Warnln("A warning")
 
-	c.Assert(l.ErrorCounter.Count(), qt.Equals, uint64(2))
+	c.Assert(l.LogCounters().ErrorCounter.Count(), qt.Equals, uint64(2))
 
 }
 

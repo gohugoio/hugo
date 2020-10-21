@@ -108,14 +108,14 @@ func TestGetCSV(t *testing.T) {
 		got, err := ns.GetCSV(test.sep, test.url)
 
 		if _, ok := test.expect.(bool); ok {
-			c.Assert(int(ns.deps.Log.ErrorCounter.Count()), qt.Equals, 1)
+			c.Assert(int(ns.deps.Log.LogCounters().ErrorCounter.Count()), qt.Equals, 1)
 			//c.Assert(err, msg, qt.Not(qt.IsNil))
 			c.Assert(got, qt.IsNil)
 			continue
 		}
 
 		c.Assert(err, qt.IsNil, msg)
-		c.Assert(int(ns.deps.Log.ErrorCounter.Count()), qt.Equals, 0)
+		c.Assert(int(ns.deps.Log.LogCounters().ErrorCounter.Count()), qt.Equals, 0)
 		c.Assert(got, qt.Not(qt.IsNil), msg)
 		c.Assert(got, qt.DeepEquals, test.expect, msg)
 
@@ -198,12 +198,12 @@ func TestGetJSON(t *testing.T) {
 		got, _ := ns.GetJSON(test.url)
 
 		if _, ok := test.expect.(bool); ok {
-			c.Assert(int(ns.deps.Log.ErrorCounter.Count()), qt.Equals, 1)
+			c.Assert(int(ns.deps.Log.LogCounters().ErrorCounter.Count()), qt.Equals, 1)
 			//c.Assert(err, msg, qt.Not(qt.IsNil))
 			continue
 		}
 
-		c.Assert(int(ns.deps.Log.ErrorCounter.Count()), qt.Equals, 0, msg)
+		c.Assert(int(ns.deps.Log.LogCounters().ErrorCounter.Count()), qt.Equals, 0, msg)
 		c.Assert(got, qt.Not(qt.IsNil), msg)
 		c.Assert(got, qt.DeepEquals, test.expect)
 	}

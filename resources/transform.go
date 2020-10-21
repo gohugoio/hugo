@@ -290,7 +290,7 @@ func (r *resourceAdapter) publish() {
 		r.publisherErr = r.target.Publish()
 
 		if r.publisherErr != nil {
-			r.spec.Logger.ERROR.Printf("Failed to publish Resource: %s", r.publisherErr)
+			r.spec.Logger.Errorf("Failed to publish Resource: %s", r.publisherErr)
 		}
 	})
 
@@ -546,7 +546,7 @@ func (r *resourceAdapter) initTransform(publish, setContent bool) {
 			if r.spec.ErrorSender != nil {
 				r.spec.ErrorSender.SendError(r.transformationsErr)
 			} else {
-				r.spec.Logger.ERROR.Printf("Transformation failed: %s", r.transformationsErr)
+				r.spec.Logger.Errorf("Transformation failed: %s", r.transformationsErr)
 			}
 		}
 	})

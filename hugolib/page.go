@@ -536,7 +536,7 @@ func (p *pageState) renderResources() (err error) {
 					// mode when the same resource is member of different page bundles.
 					toBeDeleted = append(toBeDeleted, i)
 				} else {
-					p.s.Log.ERROR.Printf("Failed to publish Resource for page %q: %s", p.pathOrTitle(), err)
+					p.s.Log.Errorf("Failed to publish Resource for page %q: %s", p.pathOrTitle(), err)
 				}
 			} else {
 				p.s.PathSpec.ProcessingStats.Incr(&p.s.PathSpec.ProcessingStats.Files)
@@ -718,7 +718,7 @@ func (p *pageState) getContentConverter() converter.Converter {
 	})
 
 	if err != nil {
-		p.s.Log.ERROR.Println("Failed to create content converter:", err)
+		p.s.Log.Errorln("Failed to create content converter:", err)
 	}
 	return p.m.contentConverter
 }

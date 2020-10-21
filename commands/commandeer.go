@@ -60,7 +60,7 @@ type commandeerHugoState struct {
 type commandeer struct {
 	*commandeerHugoState
 
-	logger       *loggers.Logger
+	logger       loggers.Logger
 	serverConfig *config.Server
 
 	// Currently only set when in "fast render mode". But it seems to
@@ -112,7 +112,7 @@ func (c *commandeerHugoState) hugo() *hugolib.HugoSites {
 }
 
 func (c *commandeer) errCount() int {
-	return int(c.logger.ErrorCounter.Count())
+	return int(c.logger.LogCounters().ErrorCounter.Count())
 }
 
 func (c *commandeer) getErrorWithContext() interface{} {
@@ -415,7 +415,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 	}
 	config.Set("cacheDir", cacheDir)
 
-	cfg.Logger.INFO.Println("Using config file:", config.ConfigFileUsed())
+	cfg.Logger.Infoln("Using config file:", config.ConfigFileUsed())
 
 	return nil
 

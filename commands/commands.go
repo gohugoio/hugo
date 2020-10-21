@@ -322,16 +322,12 @@ func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
 	_ = cmd.Flags().SetAnnotation("theme", cobra.BashCompSubdirsInDir, []string{"themes"})
 }
 
-func checkErr(logger *loggers.Logger, err error, s ...string) {
+func checkErr(logger loggers.Logger, err error, s ...string) {
 	if err == nil {
 		return
 	}
-	if len(s) == 0 {
-		logger.CRITICAL.Println(err)
-		return
-	}
 	for _, message := range s {
-		logger.ERROR.Println(message)
+		logger.Errorln(message)
 	}
-	logger.ERROR.Println(err)
+	logger.Errorln(err)
 }

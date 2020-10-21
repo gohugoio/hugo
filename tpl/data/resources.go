@@ -45,7 +45,7 @@ func (ns *Namespace) getRemote(cache *filecache.Cache, unmarshal func([]byte) (b
 		var err error
 		handled = true
 		for i := 0; i <= resRetries; i++ {
-			ns.deps.Log.INFO.Printf("Downloading: %s ...", url)
+			ns.deps.Log.Infof("Downloading: %s ...", url)
 			var res *http.Response
 			res, err = ns.client.Do(req)
 			if err != nil {
@@ -75,8 +75,8 @@ func (ns *Namespace) getRemote(cache *filecache.Cache, unmarshal func([]byte) (b
 				return nil, err
 			}
 
-			ns.deps.Log.INFO.Printf("Cannot read remote resource %s: %s", url, err)
-			ns.deps.Log.INFO.Printf("Retry #%d for %s and sleeping for %s", i+1, url, resSleep)
+			ns.deps.Log.Infof("Cannot read remote resource %s: %s", url, err)
+			ns.deps.Log.Infof("Retry #%d for %s and sleeping for %s", i+1, url, resSleep)
 			time.Sleep(resSleep)
 		}
 

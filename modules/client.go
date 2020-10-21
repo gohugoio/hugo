@@ -119,7 +119,7 @@ func NewClient(cfg ClientConfig) *Client {
 // Client contains most of the API provided by this package.
 type Client struct {
 	fs     afero.Fs
-	logger *loggers.Logger
+	logger loggers.Logger
 
 	noVendor glob.Glob
 
@@ -329,7 +329,7 @@ func (c *Client) Get(args ...string) error {
 }
 
 func (c *Client) get(args ...string) error {
-	if err := c.runGo(context.Background(), c.logger.Out, append([]string{"get"}, args...)...); err != nil {
+	if err := c.runGo(context.Background(), c.logger.Out(), append([]string{"get"}, args...)...); err != nil {
 		errors.Wrapf(err, "failed to get %q", args)
 	}
 	return nil
@@ -339,7 +339,7 @@ func (c *Client) get(args ...string) error {
 // If path is empty, Go will try to guess.
 // If this succeeds, this project will be marked as Go Module.
 func (c *Client) Init(path string) error {
-	err := c.runGo(context.Background(), c.logger.Out, "mod", "init", path)
+	err := c.runGo(context.Background(), c.logger.Out(), "mod", "init", path)
 	if err != nil {
 		return errors.Wrap(err, "failed to init modules")
 	}
@@ -403,7 +403,7 @@ func (c *Client) Clean(pattern string) error {
 		}
 		_, err = hugofs.MakeReadableAndRemoveAllModulePkgDir(c.fs, m.Dir)
 		if err == nil {
-			c.logger.FEEDBACK.Printf("hugo: cleaned module cache for %q", m.Path)
+			c.logger.Printf("hugo: cleaned module cache for %q", m.Path)
 		}
 	}
 	return err
@@ -560,7 +560,7 @@ func (c *Client) runGo(
 
 		if strings.Contains(stderr.String(), "invalid version: unknown revision") {
 			// See https://github.com/gohugoio/hugo/issues/6825
-			c.logger.FEEDBACK.Println(`hugo: you need to manually edit go.mod to resolve the unknown revision.`)
+			c.logger.Println(`hugo: you need to manually edit go.mod to resolve the unknown revision.`)
 		}
 
 		_, ok := err.(*exec.ExitError)
@@ -616,7 +616,7 @@ func (c *Client) shouldVendor(path string) bool {
 // ClientConfig configures the module Client.
 type ClientConfig struct {
 	Fs     afero.Fs
-	Logger *loggers.Logger
+	Logger loggers.Logger
 
 	// If set, it will be run before we do any duplicate checks for modules
 	// etc.

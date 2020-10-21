@@ -57,7 +57,7 @@ func (c *pandocConverter) getPandocContent(src []byte, ctx converter.DocumentCon
 	logger := c.cfg.Logger
 	path := getPandocExecPath()
 	if path == "" {
-		logger.ERROR.Println("pandoc not found in $PATH: Please install.\n",
+		logger.Println("pandoc not found in $PATH: Please install.\n",
 			"                 Leaving pandoc content unrendered.")
 		return src
 	}

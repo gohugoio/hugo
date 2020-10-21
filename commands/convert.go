@@ -123,7 +123,7 @@ func (cc *convertCmd) convertContents(format metadecoders.Format) error {
 
 	site := h.Sites[0]
 
-	site.Log.FEEDBACK.Println("processing", len(site.AllPages()), "content files")
+	site.Log.Println("processing", len(site.AllPages()), "content files")
 	for _, p := range site.AllPages() {
 		if err := cc.convertAndSavePage(p, site, format); err != nil {
 			return err
@@ -147,19 +147,19 @@ func (cc *convertCmd) convertAndSavePage(p page.Page, site *hugolib.Site, target
 
 	errMsg := fmt.Errorf("Error processing file %q", p.Path())
 
-	site.Log.INFO.Println("Attempting to convert", p.File().Filename())
+	site.Log.Infoln("Attempting to convert", p.File().Filename())
 
 	f := p.File()
 	file, err := f.FileInfo().Meta().Open()
 	if err != nil {
-		site.Log.ERROR.Println(errMsg)
+		site.Log.Errorln(errMsg)
 		file.Close()
 		return nil
 	}
 
 	pf, err := pageparser.ParseFrontMatterAndContent(file)
 	if err != nil {
-		site.Log.ERROR.Println(errMsg)
+		site.Log.Errorln(errMsg)
 		file.Close()
 		return err
 	}
@@ -179,7 +179,7 @@ func (cc *convertCmd) convertAndSavePage(p page.Page, site *hugolib.Site, target
 	var newContent bytes.Buffer
 	err = parser.InterfaceToFrontMatter(pf.FrontMatter, targetFormat, &newContent)
 	if err != nil {
-		site.Log.ERROR.Println(errMsg)
+		site.Log.Errorln(errMsg)
 		return err
 	}
 

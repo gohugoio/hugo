@@ -223,7 +223,7 @@ func (h *HugoSites) pickOneAndLogTheRest(errors []error) error {
 			break
 		}
 
-		h.Log.ERROR.Println(err)
+		h.Log.Errorln(err)
 	}
 
 	return errors[i]
@@ -246,7 +246,7 @@ func (h *HugoSites) NumLogErrors() int {
 	if h == nil {
 		return 0
 	}
-	return int(h.Log.ErrorCounter.Count())
+	return int(h.Log.LogCounters().ErrorCounter.Count())
 }
 
 func (h *HugoSites) PrintProcessingStats(w io.Writer) {
@@ -386,7 +386,7 @@ func (h *HugoSites) loadGitInfo() error {
 	if h.Cfg.GetBool("enableGitInfo") {
 		gi, err := newGitInfo(h.Cfg)
 		if err != nil {
-			h.Log.ERROR.Println("Failed to read Git log:", err)
+			h.Log.Errorln("Failed to read Git log:", err)
 		} else {
 			h.gitInfo = gi
 		}
@@ -570,7 +570,7 @@ func (h *HugoSites) resetLogs() {
 	h.Log.Reset()
 	loggers.GlobalErrorCounter.Reset()
 	for _, s := range h.Sites {
-		s.Deps.DistinctErrorLog = helpers.NewDistinctLogger(h.Log.ERROR)
+		s.Deps.DistinctErrorLog = helpers.NewDistinctLogger(h.Log.Error())
 	}
 }
 
@@ -879,14 +879,14 @@ func (h *HugoSites) handleDataFile(r source.File) error {
 					// 1. A theme uses the same key; the main data folder wins
 					// 2. A sub folder uses the same key: the sub folder wins
 					// TODO(bep) figure out a way to detect 2) above and make that a WARN
-					h.Log.INFO.Printf("Data for key '%s' in path '%s' is overridden by higher precedence data already in the data tree", key, r.Path())
+					h.Log.Infof("Data for key '%s' in path '%s' is overridden by higher precedence data already in the data tree", key, r.Path())
 				} else {
 					higherPrecedentMap[key] = value
 				}
 			}
 		default:
 			// can't merge: higherPrecedentData is not a map
-			h.Log.WARN.Printf("The %T data from '%s' overridden by "+
+			h.Log.Warnf("The %T data from '%s' overridden by "+
 				"higher precedence %T data already in the data tree", data, r.Path(), higherPrecedentData)
 		}
 
@@ -895,12 +895,12 @@ func (h *HugoSites) handleDataFile(r source.File) error {
 			current[r.BaseFileName()] = data
 		} else {
 			// we don't merge array data
-			h.Log.WARN.Printf("The %T data from '%s' overridden by "+
+			h.Log.Warnf("The %T data from '%s' overridden by "+
 				"higher precedence %T data already in the data tree", data, r.Path(), higherPrecedentData)
 		}
 
 	default:
-		h.Log.ERROR.Printf("unexpected data type %T in file %s", data, r.LogicalName())
+		h.Log.Errorf("unexpected data type %T in file %s", data, r.LogicalName())
 	}
 
 	return nil

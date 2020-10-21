@@ -31,7 +31,7 @@ type ProviderConfig struct {
 
 	Cfg       config.Provider // Site config
 	ContentFs afero.Fs
-	Logger    *loggers.Logger
+	Logger    loggers.Logger
 	Highlight func(code, lang, optsStr string) (string, error)
 }
 

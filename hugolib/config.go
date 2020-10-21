@@ -74,7 +74,7 @@ func loadSiteConfig(cfg config.Provider) (scfg SiteConfig, err error) {
 // ConfigSourceDescriptor describes where to find the config (e.g. config.toml etc.).
 type ConfigSourceDescriptor struct {
 	Fs     afero.Fs
-	Logger *loggers.Logger
+	Logger loggers.Logger
 
 	// Path to the config file to use, e.g. /my/project/config.toml
 	Filename string

@@ -425,7 +425,7 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		delete(disabledKinds, "taxonomyTerm")
 	} else if disabledKinds[page.KindTaxonomy] && !disabledKinds[page.KindTerm] {
 		// This is a potentially ambigous situation. It may be correct.
-		ignorableLogger.Errorf(constants.ErrIDAmbigousDisableKindTaxonomy, `You have the value 'taxonomy' in the disabledKinds list. In Hugo 0.73.0 we fixed these to be what most people expect (taxonomy and term).
+		ignorableLogger.Errorsf(constants.ErrIDAmbigousDisableKindTaxonomy, `You have the value 'taxonomy' in the disabledKinds list. In Hugo 0.73.0 we fixed these to be what most people expect (taxonomy and term).
 But this also means that your site configuration may not do what you expect. If it is correct, you can suppress this message by following the instructions below.`)
 
 	}
@@ -485,7 +485,7 @@ But this also means that your site configuration may not do what you expect. If 
 			delete(siteOutputs, "taxonomyTerm")
 		} else if hasTaxonomy && !hasTerm {
 			// This is a potentially ambigous situation. It may be correct.
-			ignorableLogger.Errorf(constants.ErrIDAmbigousOutputKindTaxonomy, `You have configured output formats for 'taxonomy' in your site configuration. In Hugo 0.73.0 we fixed these to be what most people expect (taxonomy and term).
+			ignorableLogger.Errorsf(constants.ErrIDAmbigousOutputKindTaxonomy, `You have configured output formats for 'taxonomy' in your site configuration. In Hugo 0.73.0 we fixed these to be what most people expect (taxonomy and term).
 But this also means that your site configuration may not do what you expect. If it is correct, you can suppress this message by following the instructions below.`)
 		}
 		if !hasTaxonomy && hasTaxonomyTerm {
@@ -806,12 +806,12 @@ type siteRefLinker struct {
 }
 
 func newSiteRefLinker(cfg config.Provider, s *Site) (siteRefLinker, error) {
-	logger := s.Log.ERROR
+	logger := s.Log.Error()
 
 	notFoundURL := cfg.GetString("refLinksNotFoundURL")
 	errLevel := cfg.GetString("refLinksErrorLevel")
 	if strings.EqualFold(errLevel, "warning") {
-		logger = s.Log.WARN
+		logger = s.Log.Warn()
 	}
 	return siteRefLinker{s: s, errorLogger: logger, notFoundURL: notFoundURL}, nil
 }
@@ -1006,7 +1006,7 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 
 	changeIdentities := make(identity.Identities)
 
-	s.Log.DEBUG.Printf("Rebuild for events %q", events)
+	s.Log.Debug().Printf("Rebuild for events %q", events)
 
 	h := s.h
 
@@ -1377,17 +1377,17 @@ func (s *Site) getMenusFromConfig() navigation.Menus {
 		for name, menu := range menus {
 			m, err := cast.ToSliceE(menu)
 			if err != nil {
-				s.Log.ERROR.Printf("unable to process menus in site config\n")
-				s.Log.ERROR.Println(err)
+				s.Log.Errorf("unable to process menus in site config\n")
+				s.Log.Errorln(err)
 			} else {
 				for _, entry := range m {
-					s.Log.DEBUG.Printf("found menu: %q, in site config\n", name)
+					s.Log.Debug().Printf("found menu: %q, in site config\n", name)
 
 					menuEntry := navigation.MenuEntry{Menu: name}
 					ime, err := maps.ToStringMapE(entry)
 					if err != nil {
-						s.Log.ERROR.Printf("unable to process menus in site config\n")
-						s.Log.ERROR.Println(err)
+						s.Log.Errorf("unable to process menus in site config\n")
+						s.Log.Errorln(err)
 					}
 
 					menuEntry.MarshallMap(ime)
@@ -1471,7 +1471,7 @@ func (s *Site) assembleMenus() {
 		for name, me := range p.pageMenus.menus() {
 			if _, ok := flat[twoD{name, me.KeyName()}]; ok {
 				err := p.wrapError(errors.Errorf("duplicate menu entry with identifier %q in menu %q", me.KeyName(), name))
-				s.Log.WARN.Println(err)
+				s.Log.Warnln(err)
 				continue
 			}
 			flat[twoD{name, me.KeyName()}] = me
@@ -1643,7 +1643,7 @@ func (s *Site) lookupLayouts(layouts ...string) tpl.Template {
 }
 
 func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath string, d interface{}, templ tpl.Template) error {
-	s.Log.DEBUG.Printf("Render XML for %q to %q", name, targetPath)
+	s.Log.Debug().Printf("Render XML for %q to %q", name, targetPath)
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 
@@ -1665,7 +1665,7 @@ func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath st
 }
 
 func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath string, p *pageState, templ tpl.Template) error {
-	s.Log.DEBUG.Printf("Render %s to %q", name, targetPath)
+	s.Log.Debug().Printf("Render %s to %q", name, targetPath)
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 

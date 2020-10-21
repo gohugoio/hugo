@@ -649,7 +649,7 @@ min_version = 0.55.0
 
 	c := qt.New(t)
 
-	c.Assert(logger.WarnCounter.Count(), qt.Equals, uint64(3))
+	c.Assert(logger.LogCounters().WarnCounter.Count(), qt.Equals, uint64(3))
 
 }
 

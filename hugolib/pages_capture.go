@@ -41,7 +41,7 @@ const (
 func newPagesCollector(
 	sp *source.SourceSpec,
 	contentMap *pageMaps,
-	logger *loggers.Logger,
+	logger loggers.Logger,
 	contentTracker *contentChangeMap,
 	proc pagesCollectorProcessorProvider, filenames ...string) *pagesCollector {
 
@@ -83,7 +83,7 @@ type pageBundles map[string]*fileinfoBundle
 type pagesCollector struct {
 	sp     *source.SourceSpec
 	fs     afero.Fs
-	logger *loggers.Logger
+	logger loggers.Logger
 
 	contentMap *pageMaps
 
@@ -441,7 +441,7 @@ func (c *pagesCollector) collectDir(dirname string, partial bool, inFilter func(
 			// The branch variant will win because of sort order, but log
 			// a warning about it.
 			if thisBtype > bundleNot && btype > bundleNot && thisBtype != btype {
-				c.logger.WARN.Printf("Content directory %q have both index.* and _index.* files, pick one.", dir.Meta().Filename())
+				c.logger.Warnf("Content directory %q have both index.* and _index.* files, pick one.", dir.Meta().Filename())
 				// Reclassify it so it will be handled as a content file inside the
 				// section, which is in line with the <= 0.55 behaviour.
 				meta["classifier"] = files.ContentClassContent
