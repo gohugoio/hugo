@@ -14,6 +14,7 @@
 package maps
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/gobwas/glob"
@@ -62,6 +63,23 @@ func ToStringMapE(in interface{}) (map[string]interface{}, error) {
 func ToStringMap(in interface{}) map[string]interface{} {
 	m, _ := ToStringMapE(in)
 	return m
+}
+
+func ToSliceStringMap(in interface{}) ([]map[string]interface{}, error) {
+	switch v := in.(type) {
+	case []map[string]interface{}:
+		return v, nil
+	case []interface{}:
+		var s []map[string]interface{}
+		for _, entry := range v {
+			if vv, ok := entry.(map[string]interface{}); ok {
+				s = append(s, vv)
+			}
+		}
+		return s, nil
+	default:
+		return nil, fmt.Errorf("unable to cast %#v of type %T to []map[string]interface{}", in, in)
+	}
 }
 
 type keyRename struct {

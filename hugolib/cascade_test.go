@@ -459,4 +459,58 @@ S1|p1:|p2:p2|
 
 	})
 
+	c.Run("slice with yaml _target", func(c *qt.C) {
+		b := newBuilder(c)
+
+		b.WithContent("_index.md", `---
+title: "Home"
+cascade:
+- p1: p1
+  _target:
+    path: "**p1**"
+- p2: p2
+  _target:
+    kind: "section"
+---
+`)
+
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/index.html", `
+P1|p1:p1|p2:|
+S1|p1:|p2:p2|
+`)
+
+	})
+
+	c.Run("slice with json _target", func(c *qt.C) {
+		b := newBuilder(c)
+
+		b.WithContent("_index.md", `{
+"title": "Home",
+"cascade": [
+  {
+    "p1": "p1",
+	"_target": {
+	  "path": "**p1**"
+    }
+  },{
+    "p2": "p2",
+	"_target": {
+      "kind": "section"
+    }
+  }
+]
+}
+`)
+
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/index.html", `
+		P1|p1:p1|p2:|
+		S1|p1:|p2:p2|
+		`)
+
+	})
+
 }

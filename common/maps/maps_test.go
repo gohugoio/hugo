@@ -75,6 +75,39 @@ func TestToLower(t *testing.T) {
 	}
 }
 
+func TestToSliceStringMap(t *testing.T) {
+	c := qt.New(t)
+
+	tests := []struct {
+		input    interface{}
+		expected []map[string]interface{}
+	}{
+		{
+			input: []map[string]interface{}{
+				{"abc": 123},
+			},
+			expected: []map[string]interface{}{
+				{"abc": 123},
+			},
+		}, {
+			input: []interface{}{
+				map[string]interface{}{
+					"def": 456,
+				},
+			},
+			expected: []map[string]interface{}{
+				{"def": 456},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		v, err := ToSliceStringMap(test.input)
+		c.Assert(err, qt.IsNil)
+		c.Assert(v, qt.DeepEquals, test.expected)
+	}
+}
+
 func TestRenameKeys(t *testing.T) {
 	c := qt.New(t)
 
