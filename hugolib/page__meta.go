@@ -342,8 +342,7 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 		if p.bucket != nil {
 			// Check for any cascade define on itself.
 			if cv, found := frontmatter["cascade"]; found {
-				switch v := cv.(type) {
-				case []map[string]interface{}:
+				if v, err := maps.ToSliceStringMap(cv); err == nil {
 					p.bucket.cascade = make(map[page.PageMatcher]maps.Params)
 
 					for _, vv := range v {
@@ -367,12 +366,12 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 						}
 
 					}
-				default:
+				} else {
 					p.bucket.cascade = map[page.PageMatcher]maps.Params{
 						page.PageMatcher{}: maps.ToStringMap(cv),
 					}
-				}
 
+				}
 			}
 		}
 	} else {
