@@ -7,8 +7,7 @@ jobs:
   build:
     runs-on: macos-latest
     steps:
-    
+    - name: Copy Repository Contents
+      uses: actions/checkout@master
     - name: TODO
       run: ./_action_files/mac.sh
-      
-  
