@@ -284,6 +284,8 @@ github.com/kylelemons/godebug v1.1.0/go.mod h1:9/0rRGxNHcop5bhtWyNeEfOS8JIWk580+
 github.com/kyokomi/emoji v2.2.4+incompatible h1:np0woGKwx9LiHAQmwZx79Oc0rHpNw3o+3evou4BEPv4=
 github.com/kyokomi/emoji v2.2.4+incompatible/go.mod h1:mZ6aGCD7yk8j6QY6KICwnZ2pxoszVseX1DNoGtU2tBA=
 github.com/lib/pq v1.1.0/go.mod h1:5WUZQaWbwv1U+lTReE5YruASi9Al49XbQIvNi/34Woo=
+github.com/litao91/goldmark-mathjax v0.0.0-20200921072530-4c5dae64834a h1:l12N1wrrK490w3IMtrdr5GMFHOesCIA9Tv8WvUh+H/Y=
+github.com/litao91/goldmark-mathjax v0.0.0-20200921072530-4c5dae64834a/go.mod h1:FdZNqN8u5ntryGYCpJHnTJLLEpjWCPvL8HGZmZFBXe4=
 github.com/magefile/mage v1.10.0 h1:3HiXzCUY12kh9bIuyXShaVe529fJfyqoVM42o/uom2g=
 github.com/magefile/mage v1.10.0/go.mod h1:z5UZb/iS3GoOSn0JgWuiw7dxlurVYTu+/jHXqQg881A=
 github.com/magiconair/properties v1.8.1 h1:ZC2Vc7/ZFkGmsVC9KvOjumD+G5lXy2RtTKyzRKO2BQ4=
