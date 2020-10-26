@@ -5,10 +5,10 @@ on:
 
 jobs:     
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
-
+    
     - name: TODO
-      run: echo "HELLO"
+      run: ./_action_files/mac.sh
       
   
