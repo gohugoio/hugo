@@ -1,0 +1,14 @@
+name: Build Binaries
+on:
+  push:
+  workflow_dispatch: 
+
+jobs:     
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: TODO
+      run: echo "HELLO"
+      
+  
