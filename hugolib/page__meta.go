@@ -285,6 +285,9 @@ func (p *pageMeta) Sitemap() config.Sitemap {
 }
 
 func (p *pageMeta) Title() string {
+	if p.title == "" && !p.File().IsZero() {
+		return p.File().ContentBaseName()
+	}
 	return p.title
 }
 

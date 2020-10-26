@@ -1300,7 +1300,7 @@ Content.
 `)
 
 	b.Build(BuildCfg{})
-	b.AssertFileContent("public/index.html", "Title||")
+	b.AssertFileContent("public/index.html", "Title|_index|")
 }
 
 func TestShouldBuild(t *testing.T) {
