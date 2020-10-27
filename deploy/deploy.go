@@ -262,17 +262,29 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 
 	if d.invalidateCDN {
 		if d.target.CloudFrontDistributionID != "" {
-			jww.FEEDBACK.Println("Invalidating CloudFront CDN...")
-			if err := InvalidateCloudFront(ctx, d.target.CloudFrontDistributionID); err != nil {
-				jww.FEEDBACK.Printf("Failed to invalidate CloudFront CDN: %v\n", err)
-				return err
+			if d.dryRun {
+				if !d.quiet {
+					jww.FEEDBACK.Printf("[DRY RUN] Would invalidate CloudFront CDN with ID %s\n", d.target.CloudFrontDistributionID)
+				}
+			} else {
+				jww.FEEDBACK.Println("Invalidating CloudFront CDN...")
+				if err := InvalidateCloudFront(ctx, d.target.CloudFrontDistributionID); err != nil {
+					jww.FEEDBACK.Printf("Failed to invalidate CloudFront CDN: %v\n", err)
+					return err
+				}
 			}
 		}
 		if d.target.GoogleCloudCDNOrigin != "" {
-			jww.FEEDBACK.Println("Invalidating Google Cloud CDN...")
-			if err := InvalidateGoogleCloudCDN(ctx, d.target.GoogleCloudCDNOrigin); err != nil {
-				jww.FEEDBACK.Printf("Failed to invalidate Google Cloud CDN: %v\n", err)
-				return err
+			if d.dryRun {
+				if !d.quiet {
+					jww.FEEDBACK.Printf("[DRY RUN] Would invalidate Google Cloud CDN with origin %s\n", d.target.GoogleCloudCDNOrigin)
+				}
+			} else {
+				jww.FEEDBACK.Println("Invalidating Google Cloud CDN...")
+				if err := InvalidateGoogleCloudCDN(ctx, d.target.GoogleCloudCDNOrigin); err != nil {
+					jww.FEEDBACK.Printf("Failed to invalidate Google Cloud CDN: %v\n", err)
+					return err
+				}
 			}
 		}
 		jww.FEEDBACK.Println("Success!")
