@@ -111,6 +111,15 @@ func TestMerge(t *testing.T) {
 			},
 			maps.Params{"a": 1, "b": maps.Params{"d": 1, "e": 2, "f": 3}, "c": 3}, false,
 		},
+		{
+			// https://github.com/gohugoio/hugo/issues/7899
+			"matching keys with non-map src value",
+			[]interface{}{
+				map[string]interface{}{"k": "v"},
+				map[string]interface{}{"k": map[string]interface{}{"k2": "v2"}},
+			},
+			map[string]interface{}{"k": map[string]interface{}{"k2": "v2"}}, false,
+		},
 		{"src nil", []interface{}{nil, simpleMap}, simpleMap, false},
 		// Error cases.
 		{"dst not a map", []interface{}{nil, "not a map"}, nil, true},
