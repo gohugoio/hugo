@@ -198,6 +198,8 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 					} else {
 						v.Set(key, val)
 					}
+				} else if nestedKey != "" {
+					owner[nestedKey] = valStr
 				} else {
 					v.Set(key, valStr)
 				}

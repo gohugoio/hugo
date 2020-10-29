@@ -37,7 +37,11 @@ func getNested(m map[string]interface{}, indices []string) (interface{}, string,
 	first := indices[0]
 	v, found := m[strings.ToLower(cast.ToString(first))]
 	if !found {
+		if len(indices) == 1 {
+			return nil, first, m
+		}
 		return nil, "", nil
+
 	}
 
 	if len(indices) == 1 {

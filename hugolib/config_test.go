@@ -495,7 +495,6 @@ stringSlice = ["a", "b"]
 [imaging]
 anchor = "smart"
 quality = 75 
-resamplefilter = "CatmullRom"
 `
 
 	b := newTestSitesBuilder(t).WithConfigFile("toml", baseConfig)
@@ -505,6 +504,7 @@ resamplefilter = "CatmullRom"
 		"HUGO_NEW", "new", // key not in config.toml
 		"HUGO_ENABLEGITINFO", "false",
 		"HUGO_IMAGING_ANCHOR", "top",
+		"HUGO_IMAGING_RESAMPLEFILTER", "CatmullRom",
 		"HUGO_STRINGSLICE", `["c", "d"]`,
 		"HUGO_INTSLICE", `[5, 8, 9]`,
 		"HUGO_FLOATSLICE", `[5.32]`,
@@ -519,6 +519,7 @@ resamplefilter = "CatmullRom"
 	c.Assert(cfg.Get("new"), qt.Equals, "new")
 	c.Assert(cfg.Get("imaging.anchor"), qt.Equals, "top")
 	c.Assert(cfg.Get("imaging.quality"), qt.Equals, int64(75))
+	c.Assert(cfg.Get("imaging.resamplefilter"), qt.Equals, "CatmullRom")
 	c.Assert(cfg.Get("stringSlice"), qt.DeepEquals, []interface{}{"c", "d"})
 	c.Assert(cfg.Get("floatSlice"), qt.DeepEquals, []interface{}{5.32})
 	c.Assert(cfg.Get("intSlice"), qt.DeepEquals, []interface{}{5, 8, 9})

@@ -47,5 +47,29 @@ func TestGetNestedParam(t *testing.T) {
 	c.Assert(must("nested_color", "_", m), qt.Equals, "blue")
 	c.Assert(must("nested.nestednested.color", ".", m), qt.Equals, "green")
 	c.Assert(must("string.name", ".", m), qt.IsNil)
+	c.Assert(must("nested.foo", ".", m), qt.IsNil)
+
+}
+
+// https://github.com/gohugoio/hugo/issues/7903
+func TestGetNestedParamFnNestedNewKey(t *testing.T) {
+
+	c := qt.New(t)
+
+	nested := map[string]interface{}{
+		"color": "blue",
+	}
+	m := map[string]interface{}{
+		"nested": nested,
+	}
+
+	existing, nestedKey, owner, err := GetNestedParamFn("nested.new", ".", func(key string) interface{} {
+		return m[key]
+	})
+
+	c.Assert(err, qt.IsNil)
+	c.Assert(existing, qt.IsNil)
+	c.Assert(nestedKey, qt.Equals, "new")
+	c.Assert(owner, qt.DeepEquals, nested)
 
 }
