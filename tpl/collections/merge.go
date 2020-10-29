@@ -106,6 +106,10 @@ func mergeMap(dst, src reflect.Value) reflect.Value {
 			dve := dv.Elem()
 			if dve.Kind() == reflect.Map {
 				sve := sv.Elem()
+				if sve.Kind() != reflect.Map {
+					continue
+				}
+
 				if dve.Type().Key() == sve.Type().Key() {
 					out.SetMapIndex(key, mergeMap(dve, sve))
 				}
