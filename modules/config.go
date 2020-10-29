@@ -18,6 +18,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/pkg/errors"
+
 	"github.com/gohugoio/hugo/common/hugo"
 
 	"github.com/gohugoio/hugo/config"
@@ -40,6 +42,14 @@ var DefaultModuleConfig = Config{
 	// Comma separated glob list matching paths that should be
 	// treated as private.
 	Private: "*.*",
+
+	// A list of replacement directives mapping a module path to a directory
+	// or a theme component in the themes folder.
+	// Note that this will turn the component into a traditional theme component
+	// that does not partake in vendoring etc.
+	// The syntax is the similar to the replacement directives used in go.mod, e.g:
+	//    github.com/mod1 -> ../mod1,github.com/mod2 -> ../mod2
+	Replacements: nil,
 }
 
 // ApplyProjectConfigDefaults applies default/missing module configuration for
@@ -182,7 +192,12 @@ func ApplyProjectConfigDefaults(cfg config.Provider, mod Module) error {
 
 // DecodeConfig creates a modules Config from a given Hugo configuration.
 func DecodeConfig(cfg config.Provider) (Config, error) {
+	return decodeConfig(cfg, nil)
+}
+
+func decodeConfig(cfg config.Provider, pathReplacements map[string]string) (Config, error) {
 	c := DefaultModuleConfig
+	c.replacementsMap = pathReplacements
 
 	if cfg == nil {
 		return c, nil
@@ -195,6 +210,37 @@ func DecodeConfig(cfg config.Provider) (Config, error) {
 		m := cfg.GetStringMap("module")
 		if err := mapstructure.WeakDecode(m, &c); err != nil {
 			return c, err
+		}
+
+		if c.replacementsMap == nil {
+
+			if len(c.Replacements) == 1 {
+				c.Replacements = strings.Split(c.Replacements[0], ",")
+			}
+
+			for i, repl := range c.Replacements {
+				c.Replacements[i] = strings.TrimSpace(repl)
+			}
+
+			c.replacementsMap = make(map[string]string)
+			for _, repl := range c.Replacements {
+				parts := strings.Split(repl, "->")
+				if len(parts) != 2 {
+					return c, errors.Errorf(`invalid module.replacements: %q; configure replacement pairs on the form "oldpath->newpath" `, repl)
+				}
+
+				c.replacementsMap[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
+			}
+		}
+
+		if c.replacementsMap != nil && c.Imports != nil {
+			for i, imp := range c.Imports {
+				if newImp, found := c.replacementsMap[imp.Path]; found {
+					imp.Path = newImp
+					c.Imports[i] = imp
+				}
+			}
+
 		}
 
 		for i, mnt := range c.Mounts {
@@ -232,6 +278,9 @@ type Config struct {
 	// A optional Glob pattern matching module paths to skip when vendoring, e.g.
 	// "github.com/**".
 	NoVendor string
+
+	Replacements    []string
+	replacementsMap map[string]string
 
 	// Configures GOPROXY.
 	Proxy string

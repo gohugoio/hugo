@@ -274,10 +274,14 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import, disabled bool
 				}
 			}
 
-			// Fall back to /themes/<mymodule>
+			// Fall back to project/themes/<mymodule>
 			if moduleDir == "" {
-				moduleDir = filepath.Join(c.ccfg.ThemesDir, modulePath)
-
+				var err error
+				moduleDir, err = c.createThemeDirname(modulePath, owner.projectMod)
+				if err != nil {
+					c.err = err
+					return nil, nil
+				}
 				if found, _ := afero.Exists(c.fs, moduleDir); !found {
 					c.err = c.wrapModuleNotFound(errors.Errorf(`module %q not found; either add it as a Hugo Module or store it in %q.`, modulePath, c.ccfg.ThemesDir))
 					return nil, nil
@@ -441,7 +445,7 @@ func (c *collector) applyThemeConfig(tc *moduleAdapter) error {
 		tc.cfg = cfg
 	}
 
-	config, err := DecodeConfig(cfg)
+	config, err := decodeConfig(cfg, c.moduleConfig.replacementsMap)
 	if err != nil {
 		return err
 	}
@@ -605,7 +609,6 @@ func (c *collector) normalizeMounts(owner *moduleAdapter, mounts []Mount) ([]Mou
 
 		mnt.Source = filepath.Clean(mnt.Source)
 		mnt.Target = filepath.Clean(mnt.Target)
-
 		var sourceDir string
 
 		if owner.projectMod && filepath.IsAbs(mnt.Source) {

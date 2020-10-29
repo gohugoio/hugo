@@ -41,7 +41,9 @@ func TestConfigHugoVersionIsValid(t *testing.T) {
 
 func TestDecodeConfig(t *testing.T) {
 	c := qt.New(t)
-	tomlConfig := `
+
+	c.Run("Basic", func(c *qt.C) {
+		tomlConfig := `
 [module]
 
 [module.hugoVersion]
@@ -63,31 +65,61 @@ source="src/markdown/blog"
 target="content/blog"
 lang="en"
 `
-	cfg, err := config.FromConfigString(tomlConfig, "toml")
-	c.Assert(err, qt.IsNil)
+		cfg, err := config.FromConfigString(tomlConfig, "toml")
+		c.Assert(err, qt.IsNil)
 
-	mcfg, err := DecodeConfig(cfg)
-	c.Assert(err, qt.IsNil)
+		mcfg, err := DecodeConfig(cfg)
+		c.Assert(err, qt.IsNil)
 
-	v056 := hugo.VersionString("0.56.0")
+		v056 := hugo.VersionString("0.56.0")
 
-	hv := mcfg.HugoVersion
+		hv := mcfg.HugoVersion
 
-	c.Assert(v056.Compare(hv.Min), qt.Equals, -1)
-	c.Assert(v056.Compare(hv.Max), qt.Equals, 1)
-	c.Assert(hv.Extended, qt.Equals, true)
+		c.Assert(v056.Compare(hv.Min), qt.Equals, -1)
+		c.Assert(v056.Compare(hv.Max), qt.Equals, 1)
+		c.Assert(hv.Extended, qt.Equals, true)
 
-	if hugo.IsExtended {
-		c.Assert(hv.IsValid(), qt.Equals, true)
-	}
+		if hugo.IsExtended {
+			c.Assert(hv.IsValid(), qt.Equals, true)
+		}
 
-	c.Assert(len(mcfg.Mounts), qt.Equals, 1)
-	c.Assert(len(mcfg.Imports), qt.Equals, 1)
-	imp := mcfg.Imports[0]
-	imp.Path = "github.com/bep/mycomponent"
-	c.Assert(imp.Mounts[1].Source, qt.Equals, "src/markdown/blog")
-	c.Assert(imp.Mounts[1].Target, qt.Equals, "content/blog")
-	c.Assert(imp.Mounts[1].Lang, qt.Equals, "en")
+		c.Assert(len(mcfg.Mounts), qt.Equals, 1)
+		c.Assert(len(mcfg.Imports), qt.Equals, 1)
+		imp := mcfg.Imports[0]
+		imp.Path = "github.com/bep/mycomponent"
+		c.Assert(imp.Mounts[1].Source, qt.Equals, "src/markdown/blog")
+		c.Assert(imp.Mounts[1].Target, qt.Equals, "content/blog")
+		c.Assert(imp.Mounts[1].Lang, qt.Equals, "en")
+	})
+
+	c.Run("Replacements", func(c *qt.C) {
+		for _, tomlConfig := range []string{`
+[module]
+replacements="a->b,github.com/bep/mycomponent->c"
+[[module.imports]]
+path="github.com/bep/mycomponent"
+`, `
+[module]
+replacements=["a->b","github.com/bep/mycomponent->c"]
+[[module.imports]]
+path="github.com/bep/mycomponent"
+`} {
+
+			cfg, err := config.FromConfigString(tomlConfig, "toml")
+			c.Assert(err, qt.IsNil)
+
+			mcfg, err := DecodeConfig(cfg)
+			c.Assert(err, qt.IsNil)
+			c.Assert(mcfg.Replacements, qt.DeepEquals, []string{"a->b", "github.com/bep/mycomponent->c"})
+			c.Assert(mcfg.replacementsMap, qt.DeepEquals, map[string]string{
+				"a":                          "b",
+				"github.com/bep/mycomponent": "c",
+			})
+
+			c.Assert(mcfg.Imports[0].Path, qt.Equals, "c")
+
+		}
+	})
 
 }
 

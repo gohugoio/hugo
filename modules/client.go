@@ -613,6 +613,15 @@ func (c *Client) shouldVendor(path string) bool {
 	return c.noVendor == nil || !c.noVendor.Match(path)
 }
 
+func (c *Client) createThemeDirname(modulePath string, isProjectMod bool) (string, error) {
+	modulePath = filepath.Clean(modulePath)
+	moduleDir := filepath.Join(c.ccfg.ThemesDir, modulePath)
+	if !isProjectMod && !strings.HasPrefix(moduleDir, c.ccfg.ThemesDir) {
+		return "", errors.Errorf("invalid module path %q; must be relative to themesDir when defined outside of the project", modulePath)
+	}
+	return moduleDir, nil
+}
+
 // ClientConfig configures the module Client.
 type ClientConfig struct {
 	Fs     afero.Fs
