@@ -17,7 +17,8 @@ There are also several useful **[Hugo Modules](https://gohugo.io/hugo-modules/)*
 * We have added `Replacements` to the [Module Configuration](https://gohugo.io/hugo-modules/configuration/#module-config-top-level). This should enable a much simpler developer workflow, simpler to set up preview sites for your remote theme etc, as you now can do `env HUGO_MODULE_REPLACEMENTS="github.com/bep/myprettytheme -> ../.." hugo` and similar.
 * The module `Path` for local modules can now be absolute for imports defined in the project.
 
-This release represents **38 contributions by 11 contributors** to the main Hugo code base.[@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@moorereason](https://github.com/moorereason), and [@anthonyfok](https://github.com/anthonyfok) for their ongoing contributions.
+This release represents **38 contributions by 11 contributors** to the main Hugo code base. [@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@moorereason](https://github.com/moorereason), and [@anthonyfok](https://github.com/anthonyfok) for their ongoing contributions.
+
 And a big thanks to [@digitalcraftsman](https://github.com/digitalcraftsman) for his relentless work on keeping the themes site in pristine condition and to [@davidsneighbour](https://github.com/davidsneighbour), [@coliff](https://github.com/coliff) and [@kaushalmodi](https://github.com/kaushalmodi) for all the great work on the documentation site.
 
 Many have also been busy writing and fixing the documentation in [hugoDocs](https://github.com/gohugoio/hugoDocs), 
