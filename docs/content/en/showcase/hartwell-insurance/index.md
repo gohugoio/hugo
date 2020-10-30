@@ -30,7 +30,7 @@ For example, this two column layout shown below. I used CSS Columns with a  `bre
 
 For the ripple effects on the section headings, I used JS to prepend a `<canvas>` element then animated it with `RequestAnimationFrame`. It adds a nice bit of movement on the page.
 
-On the [Hartwell Profitmaker](https://www.hartwell-insurance.com/profitmaker/) section, I toyed with the idea of using Vue.js for the calculator, but after giving it some thought, I decided to code in Vanilla. The result, all of the site JS comes in at 3.2KB!
+On the Hartwell Profitmaker section, I toyed with the idea of using Vue.js for the calculator, but after giving it some thought, I decided to code in Vanilla. The result, all of the site JS comes in at 3.2KB!
 
 The plan was to host with Netlify and therefore get access to Netlify Forms. It meant spending 0 minutes on getting a backend set up – I could focus fully on the frontend.
 

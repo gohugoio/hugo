@@ -1,12 +1,12 @@
 
 ---
 date: 2020-10-06
-title: "0.76.0"
-description: "0.76.0"
+title: "Multiple Cascades With Page Filters"
+description: "Hugo 0.76.0 brings multiple cascade blocks per page with filters for path, kind and language."
 categories: ["Releases"]
 ---
 
-	In **Hugo 0.76.0** you can now have a list of [cascade](https://gohugo.io/content-management/front-matter#front-matter-cascade) blocks per page and a new `_target` keyword where you can select which pages to _cascade_ upon using [Glob](https://github.com/gobwas/glob) patterns for a `Page`'s `Kind`, `Lang` and/or `Path`:
+In **Hugo 0.76.0** you can now have a list of [cascade](https://gohugo.io/content-management/front-matter#front-matter-cascade) blocks per page and a new `_target` keyword where you can select which pages to _cascade_ upon using [Glob](https://github.com/gobwas/glob) patterns for a `Page`'s `Kind`, `Lang` and/or `Path`:
 
 ```toml
 title ="Blog"
@@ -26,7 +26,7 @@ Tasks that were earlier hard/borderline impossible to do are now simple. One com
 
 A related improvement is that the [build option](https://gohugo.io/content-management/build-options/#readout) `render` is now an enum. In addition to turning on/off rendering of a given page you can tell Hugo to not render, but you want to preserve the `.Permalink`, useful for SPA applications.
 
-This release represents **35 contributions by 8 contributors** to the main Hugo code base.[@dependabot[bot]](https://github.com/apps/dependabot) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@bep](https://github.com/bep), [@ai](https://github.com/ai), and [@jmooring](https://github.com/jmooring) for their ongoing contributions.
+This release represents **35 contributions by 8 contributors** to the main Hugo code base. A big shoutout to [@bep](https://github.com/bep), [@ai](https://github.com/ai), and [@jmooring](https://github.com/jmooring) for their ongoing contributions.
 And a big thanks to [@digitalcraftsman](https://github.com/digitalcraftsman) for his relentless work on keeping the themes site in pristine condition and to [@davidsneighbour](https://github.com/davidsneighbour), [@coliff](https://github.com/coliff) and [@kaushalmodi](https://github.com/kaushalmodi) for all the great work on the documentation site.
 
 Many have also been busy writing and fixing the documentation in [hugoDocs](https://github.com/gohugoio/hugoDocs), 

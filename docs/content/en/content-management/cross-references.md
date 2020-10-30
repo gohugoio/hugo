@@ -77,9 +77,9 @@ produces this HTML:
 
 Get the permalink to a heading by appending the ID to the path when using the `ref` or `relref` shortcodes:
 
-```md
-{{</* ref "document.md#reference */>}}
-{{</* relref "document.md#reference */>}}
+```go-html-template
+{{</* ref "document.md#reference" */>}}
+{{</* relref "document.md#reference" */>}}
 ```
 
 Generate a custom heading ID by including an attribute. For example:
