@@ -1557,18 +1557,13 @@
           "keepWhitespace": false
         },
         "css": {
-          "keepCSS2": true,
-          "precision": 0
+          "decimals": -1,
+          "keepCSS2": true
         },
-        "js": {
-          "precision": 0,
-          "keepVarNames": false
-        },
-        "json": {
-          "precision": 0
-        },
+        "js": {},
+        "json": {},
         "svg": {
-          "precision": 0
+          "decimals": -1
         },
         "xml": {
           "keepWhitespace": false
@@ -4727,7 +4722,8 @@
         "AsTime": {
           "Description": "AsTime converts the textual representation of the datetime string into\na time.Time interface.",
           "Args": [
-            "v"
+            "v",
+            "args"
           ],
           "Aliases": null,
           "Examples": [
