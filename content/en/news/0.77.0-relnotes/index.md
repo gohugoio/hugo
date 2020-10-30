@@ -9,7 +9,7 @@ categories: ["Releases"]
 Hugo `0.77.0` is a small, but useful release. Some notable updates are:
 
 * **time.AsTime** accepts an optional location as second parameter, allowing timezone aware printing of dates.
-* You can now build with `hugo install -tags nodeploy` if you don't need the **`hugo deploy`** feature.
+* You can now build with `go install -tags nodeploy` if you don't need the **`hugo deploy`** feature.
 * Remote **`getJSON`** errors can now be ignored by adding `ignoreErrors = ["error-remote-getjson"]` to your site config.
 
 There are also several useful **[Hugo Modules](https://gohugo.io/hugo-modules/)** enhancements:
