@@ -1,15 +1,13 @@
 
 ---
 date: 2020-10-07
-title: "Hugo 0.76.2: A couple of Bug Fixes"
-description: "This version fixes a couple of bugs introduced in 0.76.0."
+title: "Hugo 0.76.2: One Bug Fix"
+description: "This release reverts to an older (and working) version of the JS minifier."
 categories: ["Releases"]
 images:
 - images/blog/hugo-bug-poster.png
 
 ---
-
-	
 
 This is a bug-fix release with one important fix.
 

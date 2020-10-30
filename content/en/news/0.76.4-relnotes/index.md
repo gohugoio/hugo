@@ -1,8 +1,8 @@
 
 ---
 date: 2020-10-12
-title: "Hugo 0.76.4: A couple of Bug Fixes"
-description: "This version fixes a couple of bugs introduced in 0.76.0."
+title: "Hugo 0.76.4: One Bug Fix"
+description: "This version fixes one more i18n regression from 0.76.0."
 categories: ["Releases"]
 images:
 - images/blog/hugo-bug-poster.png

@@ -360,7 +360,7 @@ This article has 101 words.
 
 ### Query a singular/plural translation
 
-In other to meet singular/plural requirement, you must pass a dictionary (map) data with a numeric `.Count` property to the `i18n` function. The below example uses `.ReadingTime` variable which has a built-in `.Count` property.
+In order to meet singular/plural requirement, you must pass a dictionary (map) with a numeric `.Count` property to the `i18n` function. The below example uses `.ReadingTime` variable which has a built-in `.Count` property.
 
 ```
 {{ i18n "readingTime" .ReadingTime }}
@@ -374,7 +374,7 @@ one = "One minute to read"
 other = "{{.Count}} minutes to read"
 ```
 
-Assume `.ReadingTime.Count` in the context has value is 525600. The result will be:
+Assume `.ReadingTime.Count` in the context has value of 525600. The result will be:
 
 ```
 525600 minutes to read
@@ -386,7 +386,7 @@ If `.ReadingTime.Count` in the context has value is 1. The result is:
 One minutes to read
 ```
 
-In case you need to pass a custom data: (`"(dict Count" 25)` is minimum requirment)
+In case you need to pass custom data: (`(dict "Count" 25)` is minimum requirement)
 
 ```
 {{ i18n "readingTime" (dict "Count" 25 "FirstArgument" true "SecondArgument" false "Etc" "so on, so far") }}
