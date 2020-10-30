@@ -15,6 +15,7 @@ package modules
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -155,6 +156,14 @@ project github.com/gohugoio/hugoTestModules1_darwin/modh2_2_2@v1.3.0+vendor
 		c.Assert(dirname, qt.Equals, filepath.Join(client.ccfg.ThemesDir, "../../foo"))
 
 		dirname, err = client.createThemeDirname("../../foo", false)
+		c.Assert(err, qt.Not(qt.IsNil))
+
+		absDir := filepath.Join(client.ccfg.WorkingDir, "..", "..")
+		dirname, err = client.createThemeDirname(absDir, true)
+		c.Assert(err, qt.IsNil)
+		c.Assert(dirname, qt.Equals, absDir)
+		dirname, err = client.createThemeDirname(absDir, false)
+		fmt.Println(dirname)
 		c.Assert(err, qt.Not(qt.IsNil))
 
 	})

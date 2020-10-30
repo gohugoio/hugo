@@ -614,10 +614,19 @@ func (c *Client) shouldVendor(path string) bool {
 }
 
 func (c *Client) createThemeDirname(modulePath string, isProjectMod bool) (string, error) {
+	invalid := errors.Errorf("invalid module path %q; must be relative to themesDir when defined outside of the project", modulePath)
+
 	modulePath = filepath.Clean(modulePath)
+	if filepath.IsAbs(modulePath) {
+		if isProjectMod {
+			return modulePath, nil
+		}
+		return "", invalid
+	}
+
 	moduleDir := filepath.Join(c.ccfg.ThemesDir, modulePath)
 	if !isProjectMod && !strings.HasPrefix(moduleDir, c.ccfg.ThemesDir) {
-		return "", errors.Errorf("invalid module path %q; must be relative to themesDir when defined outside of the project", modulePath)
+		return "", invalid
 	}
 	return moduleDir, nil
 }
