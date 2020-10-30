@@ -1,12 +1,12 @@
 
 ---
 date: 2020-10-30
-title: "0.77.0"
-description: "0.77.0"
+title: "Hugo 0.77.0: Hugo Modules Improvements and More "
+description: "New Replacements config option for simpler development workflows, ignore errors from getJSON, localized dates, and more."
 categories: ["Releases"]
 ---
 
-	Hugo `0.77.0` is a small, but useful release. Some notable updates are:
+Hugo `0.77.0` is a small, but useful release. Some notable updates are:
 
 * **time.AsTime** accepts an optional location as second parameter, allowing timezone aware printing of dates.
 * You can now build with `hugo install -tags nodeploy` if you don't need the **`hugo deploy`** feature.
