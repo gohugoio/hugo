@@ -96,14 +96,13 @@ With the preceding example, even pages with > 400 words *and* `toc` not set to `
 
 Hugo supports table of contents with AsciiDoc content format.
 
-In the header of your content file, specify the AsciiDoc TOC directives, by using the macro or auto style:
+In the header of your content file, specify the AsciiDoc TOC directives necessary to ensure that the table of contents is generated. Hugo will use the generated TOC to populate the page variable `.TableOfContents` in the same way as described for Markdown. See example below:
 
 ```asciidoc
 // <!-- Your front matter up here -->
-:toc: macro
+:toc:
 // Set toclevels to be at least your hugo [markup.tableOfContents.endLevel] config key
 :toclevels: 4
-toc::[]
 
 == Introduction
 

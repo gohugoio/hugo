@@ -360,10 +360,10 @@ Note that a `status` code of 200 will trigger a [URL rewrite](https://docs.netli
 from = "/myspa/**"
 to = "/myspa/"
 status = 200
+force = false
 {{< /code-toggle >}}
 
-
-
+{{< new-in "0.76.0" >}} Setting `force=true` will make a redirect even if there is existing content in the path. Note that before Hugo 0.76  `force` was the default behaviour, but this is inline with how Netlify does it.
 
 ## Configure Title Case
 
