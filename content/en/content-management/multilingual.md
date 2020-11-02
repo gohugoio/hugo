@@ -52,6 +52,10 @@ help  = "Aide"
 title = "مدونتي"
 weight = 2
 languagedirection = "rtl"
+
+[languages.pt-pt]
+title = "O meu blog"
+weight = 3
 {{< /code-toggle >}}
 
 Anything not defined in a `languages` block will fall back to the global value for that key (e.g., `copyright` for the English `en` language). This also works for `params`, as demonstrated with `help` above: You will get the value `Aide` in French and `Help` in all the languages without this parameter set.
@@ -66,6 +70,8 @@ When working with front matter `Params` in [single page templates][singles], omi
 If the default language needs to be rendered below its own language code (`/en`) like the others, set `defaultContentLanguageInSubdir: true`.
 
 Only the obvious non-global options can be overridden per language. Examples of global options are `baseURL`, `buildDrafts`, etc.
+
+**Please note:** use lowercase language codes, even when using regional languages (ie. use pt-pt instead of pt-PT). Currently Hugo language internals lowercase language codes, which can cause conflicts with settings like `DefaultContentLanguage` which are not lowercased. Please track the evolution of this issue in [Hugo repository issue tracker](https://github.com/gohugoio/hugo/issues/7344)
 
 ### Disable a Language
 
