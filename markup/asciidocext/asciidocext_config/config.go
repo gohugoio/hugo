@@ -47,6 +47,7 @@ var (
 		"asciidoctor-mathematical":     true,
 		"asciidoctor-question":         true,
 		"asciidoctor-rouge":            true,
+		"asciidoctor-kroki":			true,
 	}
 
 	AllowedSafeMode = map[string]bool{
