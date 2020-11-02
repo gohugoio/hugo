@@ -255,6 +255,11 @@ Using the preceding `instagram` with `hidecaption` example above, the following 
 {{< instagram BWNjjyYFxVx hidecaption >}}
 
 
+
+{{% note %}}
+The `instagram`-shortcode refers an endpoint of Instagram's API, that's deprecated since October 24th, 2020. Thus, no images can be fetched from this API endpoint, resulting in an error when the `instagram`-shortcode is used. For more information please have a look at GitHub issue [#7879](https://github.com/gohugoio/hugo/issues/7879).
+{{% /note %}}
+
 ### `param`
 
 Gets a value from the current `Page's` params set in front matter, with a fall back to the site param value. It will log an `ERROR` if the param with the given key could not be found in either.
