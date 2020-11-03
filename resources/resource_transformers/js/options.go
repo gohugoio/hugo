@@ -70,6 +70,16 @@ type Options struct {
 	// What to use instead of React.Fragment.
 	JSXFragment string
 
+	// There is/was a bug in WebKit with severe performance issue with the tracking
+	// of TDZ checks in JavaScriptCore.
+	//
+	// Enabling this flag removes the TDZ and `const` assignment checks and
+	// may improve performance of larger JS codebases until the WebKit fix
+	// is in widespread use.
+	//
+	// See https://bugs.webkit.org/show_bug.cgi?id=199866
+	AvoidTDZ bool
+
 	mediaType  media.Type
 	outDir     string
 	contents   string
@@ -338,6 +348,8 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 
 		JSXFactory:  opts.JSXFactory,
 		JSXFragment: opts.JSXFragment,
+
+		AvoidTDZ: opts.AvoidTDZ,
 
 		Tsconfig: opts.tsConfig,
 
