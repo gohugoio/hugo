@@ -113,6 +113,8 @@ import * as params from '@params';
 
 Hugo will, by default, generate a `assets/jsconfig.js` file that maps the imports. This is useful for navigation/intellisense help inside code editors, but if you don't need/want it, you can [turn it off](/getting-started/configuration/#configure-build).
 
+**Note:** See https://github.com/gohugoio/hugo/issues/7924 for a known issue with node_modules in submodules; we're going to fix it.
+
 **Note:** If you're developing a theme/component that's is supposed to be imported and depends on dependencies inside `package.json`, the project needs to run [hugo mod npm pack](/commands/hugo_mod_npm_pack/) to see the dependencies.
 
 ### Examples
