@@ -176,11 +176,21 @@ path="github.com/gohugoio/hugoTestProjectJSModImports"
         
 go 1.15
         
-require github.com/gohugoio/hugoTestProjectJSModImports v0.3.0 // indirect
+require github.com/gohugoio/hugoTestProjectJSModImports v0.5.0 // indirect
 
 `)
 
 	b.WithContent("p1.md", "").WithNothingAdded()
+
+	b.WithSourceFile("package.json", `{
+ "dependencies": {
+  "date-fns": "^2.16.1"
+ }
+}`)
+
+	b.Assert(os.Chdir(workDir), qt.IsNil)
+	_, err = exec.Command("npm", "install").CombinedOutput()
+	b.Assert(err, qt.IsNil)
 
 	b.Build(BuildCfg{})
 
@@ -189,8 +199,9 @@ greeting: "greeting configured in mod2"
 Hello1 from mod1: $
 return "Hello2 from mod1";
 var Hugo = "Rocks!";
-return "Hello3 from mod2";
-return "Hello from lib in the main project";
+Hello3 from mod2. Date from date-fns: ${today}
+Hello from lib in the main project
+Hello5 from mod2.
 var myparam = "Hugo Rocks!";`)
 
 }

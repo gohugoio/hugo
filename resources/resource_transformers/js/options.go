@@ -16,6 +16,7 @@ package js
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -29,6 +30,13 @@ import (
 	"github.com/gohugoio/hugo/media"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cast"
+)
+
+const (
+	nsImportHugo = "ns-hugo"
+	nsParams     = "ns-params"
+
+	stdinImporter = "<stdin>"
 )
 
 // Options esbuild configuration
@@ -111,6 +119,26 @@ type importCache struct {
 	m map[string]api.OnResolveResult
 }
 
+var extensionToLoaderMap = map[string]api.Loader{
+	".js":   api.LoaderJS,
+	".mjs":  api.LoaderJS,
+	".cjs":  api.LoaderJS,
+	".jsx":  api.LoaderJSX,
+	".ts":   api.LoaderTS,
+	".tsx":  api.LoaderTSX,
+	".css":  api.LoaderCSS,
+	".json": api.LoaderJSON,
+	".txt":  api.LoaderText,
+}
+
+func loaderFromFilename(filename string) api.Loader {
+	l, found := extensionToLoaderMap[filepath.Ext(filename)]
+	if found {
+		return l
+	}
+	return api.LoaderJS
+}
+
 func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 	fs := c.rs.Assets
 
@@ -119,20 +147,21 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 	}
 
 	resolveImport := func(args api.OnResolveArgs) (api.OnResolveResult, error) {
-		relDir := fs.MakePathRelative(args.ResolveDir)
 
-		if relDir == "" {
-			// Not in a Hugo Module, probably in node_modules.
-			return api.OnResolveResult{}, nil
+		isStdin := args.Importer == stdinImporter
+		var relDir string
+		if !isStdin {
+			relDir = filepath.Dir(fs.MakePathRelative(args.Importer))
+		} else {
+			relDir = filepath.Dir(opts.sourcefile)
 		}
 
 		impPath := args.Path
 
-		// stdin is the main entry file which already is at the relative root.
 		// Imports not starting with a "." is assumed to live relative to /assets.
 		// Hugo makes no assumptions about the directory structure below /assets.
-		if args.Importer != "<stdin>" && strings.HasPrefix(impPath, ".") {
-			impPath = filepath.Join(relDir, args.Path)
+		if relDir != "" && strings.HasPrefix(impPath, ".") {
+			impPath = filepath.Join(relDir, impPath)
 		}
 
 		findFirst := func(base string) hugofs.FileMeta {
@@ -164,6 +193,7 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 			// It may be a regular file imported without an extension.
 			m = findFirst(impPath)
 		}
+		//
 
 		if m != nil {
 			// Store the source root so we can create a jsconfig.json
@@ -172,9 +202,11 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 			// in server mode, we may get stale entries on renames etc.,
 			// but that shouldn't matter too much.
 			c.rs.JSConfigBuilder.AddSourceRoot(m.SourceRoot())
-			return api.OnResolveResult{Path: m.Filename(), Namespace: ""}, nil
+			return api.OnResolveResult{Path: m.Filename(), Namespace: nsImportHugo}, nil
 		}
 
+		// Not found in /assets. Probably in node_modules. ESBuild will handle that
+		// rather complex logic.
 		return api.OnResolveResult{}, nil
 	}
 
@@ -205,6 +237,23 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 					return imp, nil
 
 				})
+			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: nsImportHugo},
+				func(args api.OnLoadArgs) (api.OnLoadResult, error) {
+					b, err := ioutil.ReadFile(args.Path)
+
+					if err != nil {
+						return api.OnLoadResult{}, errors.Wrapf(err, "failed to read %q", args.Path)
+					}
+					c := string(b)
+					return api.OnLoadResult{
+						// See https://github.com/evanw/esbuild/issues/502
+						// This allows all modules to resolve dependencies
+						// in the main project's node_modules.
+						ResolveDir: opts.resolveDir,
+						Contents:   &c,
+						Loader:     loaderFromFilename(args.Path),
+					}, nil
+				})
 		},
 	}
 
@@ -226,10 +275,10 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 				func(args api.OnResolveArgs) (api.OnResolveResult, error) {
 					return api.OnResolveResult{
 						Path:      args.Path,
-						Namespace: "params",
+						Namespace: nsParams,
 					}, nil
 				})
-			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: "params"},
+			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: nsParams},
 				func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 					return api.OnLoadResult{
 						Contents: &bs,

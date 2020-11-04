@@ -354,26 +354,31 @@ func (h *HugoSites) postProcess() error {
 	// Write a jsconfig.json file to the project's /asset directory
 	// to help JS intellisense in VS Code etc.
 	if !h.ResourceSpec.BuildConfig.NoJSConfigInAssets && h.BaseFs.Assets.Dirs != nil {
-		m := h.BaseFs.Assets.Dirs[0].Meta()
-		assetsDir := m.Filename()
-		if strings.HasPrefix(assetsDir, h.ResourceSpec.WorkingDir) {
-			if jsConfig := h.ResourceSpec.JSConfigBuilder.Build(assetsDir); jsConfig != nil {
+		fi, err := h.BaseFs.Assets.Fs.Stat("")
+		if err != nil {
+			h.Log.Warnf("Failed to resolve jsconfig.json dir: %s", err)
+		} else {
+			m := fi.(hugofs.FileMetaInfo).Meta()
+			assetsDir := m.SourceRoot()
+			if strings.HasPrefix(assetsDir, h.ResourceSpec.WorkingDir) {
+				if jsConfig := h.ResourceSpec.JSConfigBuilder.Build(assetsDir); jsConfig != nil {
 
-				b, err := json.MarshalIndent(jsConfig, "", " ")
-				if err != nil {
-					h.Log.Warnf("Failed to create jsconfig.json: %s", err)
+					b, err := json.MarshalIndent(jsConfig, "", " ")
+					if err != nil {
+						h.Log.Warnf("Failed to create jsconfig.json: %s", err)
 
-				} else {
-					filename := filepath.Join(assetsDir, "jsconfig.json")
-					if h.running {
-						h.skipRebuildForFilenamesMu.Lock()
-						h.skipRebuildForFilenames[filename] = true
-						h.skipRebuildForFilenamesMu.Unlock()
-					}
-					// Make sure it's  written to the OS fs as this is used by
-					// editors.
-					if err := afero.WriteFile(hugofs.Os, filename, b, 0666); err != nil {
-						h.Log.Warnf("Failed to write jsconfig.json: %s", err)
+					} else {
+						filename := filepath.Join(assetsDir, "jsconfig.json")
+						if h.running {
+							h.skipRebuildForFilenamesMu.Lock()
+							h.skipRebuildForFilenames[filename] = true
+							h.skipRebuildForFilenamesMu.Unlock()
+						}
+						// Make sure it's  written to the OS fs as this is used by
+						// editors.
+						if err := afero.WriteFile(hugofs.Os, filename, b, 0666); err != nil {
+							h.Log.Warnf("Failed to write jsconfig.json: %s", err)
+						}
 					}
 				}
 			}
