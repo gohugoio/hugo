@@ -80,7 +80,7 @@ Since Hugo `v0.78.0` `js.Build` has full support for the virtual union file syst
 import { hello } from 'my/module';
 ```
 
-And it will respolve to the top-most `index.{js,ts,tsx,jsx}` inside `assets/my/module` in the layered file system.
+And it will resolve to the top-most `index.{js,ts,tsx,jsx}` inside `assets/my/module` in the layered file system.
 
 ```js
 import { hello3 } from 'my/module/hello3';
