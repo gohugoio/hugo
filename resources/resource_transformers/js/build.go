@@ -78,8 +78,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	}
 
 	opts.sourcefile = ctx.SourcePath
-	opts.workDir = t.c.rs.WorkingDir
-	opts.resolveDir = opts.workDir
+	opts.resolveDir = t.c.rs.WorkingDir
 	opts.contents = string(src)
 	opts.mediaType = ctx.InMediaType
 

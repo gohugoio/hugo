@@ -93,7 +93,6 @@ type Options struct {
 	contents   string
 	sourcefile string
 	resolveDir string
-	workDir    string
 	tsConfig   string
 }
 
@@ -365,12 +364,6 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 	switch opts.SourceMap {
 	case "inline":
 		sourceMap = api.SourceMapInline
-	case "external":
-		// When doing external sourcemaps we should specify
-		// out file and no out dir
-		sourceMap = api.SourceMapExternal
-		outFile = filepath.Join(opts.workDir, opts.TargetPath)
-		outDir = ""
 	case "":
 		sourceMap = api.SourceMapNone
 	default:
