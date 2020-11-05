@@ -113,9 +113,16 @@ import * as params from '@params';
 
 Hugo will, by default, generate a `assets/jsconfig.js` file that maps the imports. This is useful for navigation/intellisense help inside code editors, but if you don't need/want it, you can [turn it off](/getting-started/configuration/#configure-build).
 
-**Note:** See https://github.com/gohugoio/hugo/issues/7924 for a known issue with node_modules in submodules; we're going to fix it.
 
-**Note:** If you're developing a theme/component that's is supposed to be imported and depends on dependencies inside `package.json`, the project needs to run [hugo mod npm pack](/commands/hugo_mod_npm_pack/) to see the dependencies.
+
+### Include Dependencies In package.json / node_modules
+
+Hugo will, as described above, first look for a JS component in the comosite `/assets` filesystem. If not found there, it will fall back to [ESBuild](https://esbuild.github.io/)'s resolve order. If you have any imported NPM dependencies in your project, you need to make sure to run `npm install` before you run `hugo`.
+
+{{< new-in "0.78.1" >}} From Hugo `0.78.1` the start directory for resolving NPM packages (aka. packages that live inside a `node_modules` folder) is always the main project folder.
+
+**Note:** If you're developing a theme/component that is supposed to be imported and depends on dependencies inside `package.json`, we recommend reqading about [hugo mod npm pack](/commands/hugo_mod_npm_pack/), a tool to consolidate all the NPM dependencies in a project.
+
 
 ### Examples
 
