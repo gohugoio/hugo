@@ -144,6 +144,11 @@ func TestJSBuild(t *testing.T) {
 		t.Skip("skip (relative) long running modules test when running locally")
 	}
 
+	if runtime.GOOS == "windows" {
+		// TODO(bep) we really need to get this working on Travis.
+		t.Skip("skip npm test on Windows")
+	}
+
 	wd, _ := os.Getwd()
 	defer func() {
 		os.Chdir(wd)
