@@ -69,6 +69,8 @@ format [string] {{< new-in "0.74.3" >}}
   One of: `iife`, `cjs`, `esm`.
   Default is `iife`, a self-executing function, suitable for inclusion as a <script> tag.
 
+sourceMap
+: Whether to generate source maps. Enum, currently only `inline` (we will improve that).
 
 ### Import JS code from /assets
 
