@@ -23,6 +23,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/cache/memcache"
 	"github.com/gohugoio/hugo/resources/jsconfig"
 
 	"github.com/gohugoio/hugo/common/herrors"
@@ -49,12 +50,14 @@ import (
 func NewSpec(
 	s *helpers.PathSpec,
 	fileCaches filecache.Caches,
+	memCache *memcache.Cache,
 	incr identity.Incrementer,
 	logger loggers.Logger,
 	errorHandler herrors.ErrorSender,
 	execHelper *hexec.Exec,
 	outputFormats output.Formats,
 	mimeTypes media.Types) (*Spec, error) {
+
 	imgConfig, err := images.DecodeConfig(s.Cfg.GetStringMap("imaging"))
 	if err != nil {
 		return nil, err
@@ -96,12 +99,12 @@ func NewSpec(
 		},
 		imageCache: newImageCache(
 			fileCaches.ImageCache(),
-
+			memCache,
 			s,
 		),
 	}
 
-	rs.ResourceCache = newResourceCache(rs)
+	rs.ResourceCache = newResourceCache(rs, memCache)
 
 	return rs, nil
 }
@@ -145,57 +148,14 @@ func (r *Spec) New(fd ResourceSourceDescriptor) (resource.Resource, error) {
 	return r.newResourceFor(fd)
 }
 
-func (r *Spec) CacheStats() string {
-	r.imageCache.mu.RLock()
-	defer r.imageCache.mu.RUnlock()
-
-	s := fmt.Sprintf("Cache entries: %d", len(r.imageCache.store))
-
-	count := 0
-	for k := range r.imageCache.store {
-		if count > 5 {
-			break
-		}
-		s += "\n" + k
-		count++
-	}
-
-	return s
-}
-
-func (r *Spec) ClearCaches() {
-	r.imageCache.clear()
-	r.ResourceCache.clear()
-}
-
-func (r *Spec) DeleteBySubstring(s string) {
-	r.imageCache.deleteIfContains(s)
-}
-
 func (s *Spec) String() string {
 	return "spec"
 }
 
 // TODO(bep) clean up below
-func (r *Spec) newGenericResource(sourceFs afero.Fs,
-	targetPathBuilder func() page.TargetPaths,
-	osFileInfo os.FileInfo,
-	sourceFilename,
-	baseFilename string,
-	mediaType media.Type) *genericResource {
-	return r.newGenericResourceWithBase(
-		sourceFs,
-		nil,
-		nil,
-		targetPathBuilder,
-		osFileInfo,
-		sourceFilename,
-		baseFilename,
-		mediaType,
-	)
-}
-
 func (r *Spec) newGenericResourceWithBase(
+	groupIdentity identity.Identity,
+	dependencyManager identity.Manager,
 	sourceFs afero.Fs,
 	openReadSeekerCloser resource.OpenReadSeekCloser,
 	targetPathBaseDirs []string,
@@ -204,6 +164,7 @@ func (r *Spec) newGenericResourceWithBase(
 	sourceFilename,
 	baseFilename string,
 	mediaType media.Type) *genericResource {
+
 	if osFileInfo != nil && osFileInfo.IsDir() {
 		panic(fmt.Sprintf("dirs not supported resource types: %v", osFileInfo))
 	}
@@ -235,6 +196,8 @@ func (r *Spec) newGenericResourceWithBase(
 	}
 
 	g := &genericResource{
+		groupIdentity:          groupIdentity,
+		dependencyManager:      dependencyManager,
 		resourceFileInfo:       gfi,
 		resourcePathDescriptor: pathDescriptor,
 		mediaType:              mediaType,
@@ -297,7 +260,18 @@ func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (reso
 		}
 	}
 
+	if fd.GroupIdentity == nil {
+		// TODO1
+		fd.GroupIdentity = identity.StringIdentity("/" + memcache.CleanKey(fd.RelTargetFilename))
+	}
+
+	if fd.DependencyManager == nil {
+		fd.DependencyManager = identity.NopManager
+	}
+
 	gr := r.newGenericResourceWithBase(
+		fd.GroupIdentity,
+		fd.DependencyManager,
 		sourceFs,
 		fd.OpenReadSeekCloser,
 		fd.TargetBasePaths,
@@ -305,7 +279,8 @@ func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (reso
 		fi,
 		sourceFilename,
 		fd.RelTargetFilename,
-		mimeType)
+		mimeType,
+	)
 
 	if mimeType.MainType == "image" {
 		imgFormat, ok := images.ImageFormatFromMediaSubType(mimeType.SubType)

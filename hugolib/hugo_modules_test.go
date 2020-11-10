@@ -820,50 +820,26 @@ title: "My Page"
 }
 
 // https://github.com/gohugoio/hugo/issues/6684
-func TestMountsContentFile(t *testing.T) {
-	t.Parallel()
+func TestMountsContentFileNew(t *testing.T) {
 	c := qt.New(t)
-	workingDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-modules-content-file")
-	c.Assert(err, qt.IsNil)
-	defer clean()
 
-	configTemplate := `
+	files := `
+-- README.md --
+---
+title: "Readme Title"
+---
+Readme Content.
+-- config.toml --
 baseURL = "https://example.com"
 title = "My Modular Site"
-workingDir = %q
-
 [module]
-  [[module.mounts]]
-    source = "README.md"
-    target = "content/_index.md"
-  [[module.mounts]]
-    source = "mycontent"
-    target = "content/blog"
-
-`
-
-	tomlConfig := fmt.Sprintf(configTemplate, workingDir)
-
-	b := newTestSitesBuilder(t).Running()
-
-	b.Fs = hugofs.NewDefault(config.New())
-
-	b.WithWorkingDir(workingDir).WithConfigFile("toml", tomlConfig)
-	b.WithTemplatesAdded("index.html", `
-{{ .Title }}
-{{ .Content }}
-
-{{ $readme := .Site.GetPage "/README.md" }}
-{{ with $readme }}README: {{ .Title }}|Filename: {{ path.Join .File.Filename }}|Path: {{ path.Join .File.Path }}|FilePath: {{ path.Join .File.FileInfo.Meta.PathFile }}|{{ end }}
-
-
-{{ $mypage := .Site.GetPage "/blog/mypage.md" }}
-{{ with $mypage }}MYPAGE: {{ .Title }}|Path: {{ path.Join .File.Path }}|FilePath: {{ path.Join .File.FileInfo.Meta.PathFile }}|{{ end }}
-{{ $mybundle := .Site.GetPage "/blog/mybundle" }}
-{{ with $mybundle }}MYBUNDLE: {{ .Title }}|Path: {{ path.Join .File.Path }}|FilePath: {{ path.Join .File.FileInfo.Meta.PathFile }}|{{ end }}
-
-
-`, "_default/_markup/render-link.html", `
+[[module.mounts]]
+source = "README.md"
+target = "content/_index.md"
+[[module.mounts]]
+source = "mycontent"
+target = "content/blog"
+-- layouts/_default/_markup/render-link.html --
 {{ $link := .Destination }}
 {{ $isRemote := strings.HasPrefix $link "http" }}
 {{- if not $isRemote -}}
@@ -872,29 +848,21 @@ workingDir = %q
 {{- with $url.Fragment }}{{ $fragment = printf "#%s" . }}{{ end -}}
 {{- with .Page.GetPage $url.Path }}{{ $link = printf "%s%s" .Permalink $fragment }}{{ end }}{{ end -}}
 <a href="{{ $link | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}{{ if $isRemote }} target="_blank"{{ end }}>{{ .Text | safeHTML }}</a>
-`)
-
-	os.Mkdir(filepath.Join(workingDir, "mycontent"), 0777)
-	os.Mkdir(filepath.Join(workingDir, "mycontent", "mybundle"), 0777)
-
-	b.WithSourceFile("README.md", `---
-title: "Readme Title"
----
-
-Readme Content.
-`,
-		filepath.Join("mycontent", "mypage.md"), `
----
-title: "My Page"
----
+-- layouts/_default/single.html --
+Single: {{ .Title }}|{{ .Content }}|
+-- layouts/index.html --
+{{ .Title }}
+{{ .Content }}
+{{ $readme := .Site.GetPage "/README.md" }}
+{{ if not $readme }}{{ errorf "README.md not found in GetPage" }}{{ end}}
+{{ with $readme }}README: {{ .Title }}|Filename: {{ path.Join .File.Filename }}|Path: {{ path.Join .File.Path }}|FilePath: {{ path.Join .File.FileInfo.Meta.PathFile }}|{{ end }}
 
 
-* [Relative Link From Page](mybundle)
-* [Relative Link From Page, filename](mybundle/index.md)
-* [Link using original path](/mycontent/mybundle/index.md)
-
-
-`, filepath.Join("mycontent", "mybundle", "index.md"), `
+{{ $mypage := .Site.GetPage "/blog/mypage.md" }}
+{{ with $mypage }}MYPAGE: {{ .Title }}|Path: {{ path.Join .File.Path }}|FilePath: {{ path.Join .File.FileInfo.Meta.PathFile }}|{{ end }}
+{{ $mybundle := .Site.GetPage "/blog/mybundle" }}
+{{ with $mybundle }}MYBUNDLE: {{ .Title }}|Path: {{ path.Join .File.Path }}|FilePath: {{ path.Join .File.FileInfo.Meta.PathFile }}|{{ end }}
+-- mycontent/mybundle/index.md --
 ---
 title: "My Bundle"
 ---
@@ -904,14 +872,30 @@ title: "My Bundle"
 * [Link to Home](/)
 * [Link to Home, README.md](/README.md)
 * [Link to Home, _index.md](/_index.md)
+-- mycontent/mypage.md --
+---
+title: "My Page"
+---
 
-`)
 
-	b.Build(BuildCfg{})
+* [Relative Link From Page](mybundle)
+* [Relative Link From Page, filename](mybundle/index.md)
+* [Link using original path](/mycontent/mybundle/index.md)
+
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           c,
+			NeedsOsFS:   true,
+			TxtarString: files,
+			Running:     true,
+		},
+	).Build()
 
 	b.AssertFileContent("public/index.html", `
 README: Readme Title
-/README.md|Path: _index.md|FilePath: README.md
+README.md|Path: _index.md|FilePath: README.md
 Readme Content.
 MYPAGE: My Page|Path: blog/mypage.md|FilePath: mycontent/mypage.md|
 MYBUNDLE: My Bundle|Path: blog/mybundle/index.md|FilePath: mycontent/mybundle/index.md|
@@ -935,7 +919,7 @@ title: "Readme Edit"
 ---
 `)
 
-	b.Build(BuildCfg{})
+	b.Build()
 
 	b.AssertFileContent("public/index.html", `
 Readme Edit
@@ -995,6 +979,7 @@ title: P1
 		b.Build(BuildCfg{})
 
 		p := b.GetPage("blog/p1.md")
+		b.Assert(p, qt.IsNotNil)
 		f := p.File().FileInfo().Meta()
 		b.Assert(filepath.ToSlash(f.Path), qt.Equals, "blog/p1.md")
 		b.Assert(filepath.ToSlash(f.PathFile()), qt.Equals, "content/blog/p1.md")

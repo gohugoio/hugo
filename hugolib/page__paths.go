@@ -15,7 +15,12 @@ package hugolib
 
 import (
 	"net/url"
+	"path"
 	"strings"
+
+	"github.com/gohugoio/hugo/resources/page/pagekinds"
+
+	"github.com/gohugoio/hugo/output"
 
 	"github.com/gohugoio/hugo/helpers"
 
@@ -24,20 +29,25 @@ import (
 
 func newPagePaths(
 	s *Site,
-	p page.Page,
+	n *contentNode,
 	pm *pageMeta) (pagePaths, error) {
-	targetPathDescriptor, err := createTargetPathDescriptor(s, p, pm)
+	targetPathDescriptor, err := createTargetPathDescriptor(s, n, pm)
 	if err != nil {
 		return pagePaths{}, err
 	}
 
-	outputFormats := pm.outputFormats()
-	if len(outputFormats) == 0 {
-		return pagePaths{}, nil
-	}
+	var outputFormats output.Formats
+	if n.IsStandalone() {
+		outputFormats = output.Formats{n.traits.(kindOutputFormatTrait).OutputFormat()}
+	} else {
+		outputFormats = pm.outputFormats()
+		if len(outputFormats) == 0 {
+			return pagePaths{}, nil
+		}
 
-	if pm.noRender() {
-		outputFormats = outputFormats[:1]
+		if pm.noRender() {
+			outputFormats = outputFormats[:1]
+		}
 	}
 
 	pageOutputFormats := make(page.OutputFormats, len(outputFormats))
@@ -47,7 +57,6 @@ func newPagePaths(
 		desc := targetPathDescriptor
 		desc.Type = f
 		paths := page.CreateTargetPaths(desc)
-
 		var relPermalink, permalink string
 
 		// If a page is headless or bundled in another,
@@ -100,7 +109,7 @@ func (l pagePaths) OutputFormats() page.OutputFormats {
 	return l.outputFormats
 }
 
-func createTargetPathDescriptor(s *Site, p page.Page, pm *pageMeta) (page.TargetPathDescriptor, error) {
+func createTargetPathDescriptor(s *Site, n *contentNode, pm *pageMeta) (page.TargetPathDescriptor, error) {
 	var (
 		dir             string
 		baseName        string
@@ -108,21 +117,27 @@ func createTargetPathDescriptor(s *Site, p page.Page, pm *pageMeta) (page.Target
 	)
 
 	d := s.Deps
+	p := n.p
 
-	if !p.File().IsZero() {
+	// TODO1 HttpStatus layout warning.
+
+	if p.File() == nil {
+		if n.key != "" && !p.IsNode() {
+			baseName = path.Base(n.key)
+		}
+	} else {
 		dir = p.File().Dir()
 		baseName = p.File().TranslationBaseName()
 		contentBaseName = p.File().ContentBaseName()
+		if baseName != contentBaseName {
+			// See https://github.com/gohugoio/hugo/issues/4870
+			// A leaf bundle
+			dir = strings.TrimSuffix(dir, contentBaseName+helpers.FilePathSeparator)
+			baseName = contentBaseName
+		}
 	}
 
-	if baseName != contentBaseName {
-		// See https://github.com/gohugoio/hugo/issues/4870
-		// A leaf bundle
-		dir = strings.TrimSuffix(dir, contentBaseName+helpers.FilePathSeparator)
-		baseName = contentBaseName
-	}
-
-	alwaysInSubDir := p.Kind() == kindSitemap
+	alwaysInSubDir := p.Kind() == pagekinds.Sitemap
 
 	desc := page.TargetPathDescriptor{
 		PathSpec:    d.PathSpec,
@@ -143,12 +158,12 @@ func createTargetPathDescriptor(s *Site, p page.Page, pm *pageMeta) (page.Target
 	desc.PrefixFilePath = s.getLanguageTargetPathLang(alwaysInSubDir)
 	desc.PrefixLink = s.getLanguagePermalinkLang(alwaysInSubDir)
 
-	// Expand only page.KindPage and page.KindTaxonomy; don't expand other Kinds of Pages
-	// like page.KindSection or page.KindTaxonomyTerm because they are "shallower" and
+	// Expand only pagekinds.KindPage and pagekinds.KindTaxonomy; don't expand other Kinds of Pages
+	// like pagekinds.KindSection or pagekinds.KindTaxonomyTerm because they are "shallower" and
 	// the permalink configuration values are likely to be redundant, e.g.
 	// naively expanding /category/:slug/ would give /category/categories/ for
-	// the "categories" page.KindTaxonomyTerm.
-	if p.Kind() == page.KindPage || p.Kind() == page.KindTerm {
+	// the "categories" pagekinds.KindTaxonomyTerm.
+	if p.Kind() == pagekinds.Page || p.Kind() == pagekinds.Term {
 		opath, err := d.ResourceSpec.Permalinks.Expand(p.Section(), p)
 		if err != nil {
 			return desc, err

@@ -22,12 +22,12 @@ import (
 	"regexp"
 	"sort"
 	"strings"
-	"unicode"
 
 	"github.com/gohugoio/hugo/common/text"
 
 	"github.com/gohugoio/hugo/config"
 
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/common/hugio"
@@ -44,7 +44,11 @@ var ErrThemeUndefined = errors.New("no theme set")
 // whilst preserving the original casing of the string.
 // E.g. Social Media -> Social-Media
 func (p *PathSpec) MakePath(s string) string {
-	return p.UnicodeSanitize(s)
+	s = paths.Sanitize(s)
+	if p.RemovePathAccents {
+		s = text.RemoveAccentsString(s)
+	}
+	return s
 }
 
 // MakePathsSanitized applies MakePathSanitized on every item in the slice
@@ -71,52 +75,6 @@ func ToSlashTrimLeading(s string) string {
 // and replacing hyphens with whitespace.
 func MakeTitle(inpath string) string {
 	return strings.Replace(strings.TrimSpace(inpath), "-", " ", -1)
-}
-
-// From https://golang.org/src/net/url/url.go
-func ishex(c rune) bool {
-	switch {
-	case '0' <= c && c <= '9':
-		return true
-	case 'a' <= c && c <= 'f':
-		return true
-	case 'A' <= c && c <= 'F':
-		return true
-	}
-	return false
-}
-
-// UnicodeSanitize sanitizes string to be used in Hugo URL's, allowing only
-// a predefined set of special Unicode characters.
-// If RemovePathAccents configuration flag is enabled, Unicode accents
-// are also removed.
-// Spaces will be replaced with a single hyphen, and sequential hyphens will be reduced to one.
-func (p *PathSpec) UnicodeSanitize(s string) string {
-	if p.RemovePathAccents {
-		s = text.RemoveAccentsString(s)
-	}
-
-	source := []rune(s)
-	target := make([]rune, 0, len(source))
-	var prependHyphen bool
-
-	for i, r := range source {
-		isAllowed := r == '.' || r == '/' || r == '\\' || r == '_' || r == '#' || r == '+' || r == '~'
-		isAllowed = isAllowed || unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r)
-		isAllowed = isAllowed || (r == '%' && i+2 < len(source) && ishex(source[i+1]) && ishex(source[i+2]))
-
-		if isAllowed {
-			if prependHyphen {
-				target = append(target, '-')
-				prependHyphen = false
-			}
-			target = append(target, r)
-		} else if len(target) > 0 && (r == '-' || unicode.IsSpace(r)) {
-			prependHyphen = true
-		}
-	}
-
-	return string(target)
 }
 
 func makePathRelative(inPath string, possibleDirectories ...string) (string, error) {
@@ -478,4 +436,19 @@ func AddTrailingSlash(path string) string {
 		path += "/"
 	}
 	return path
+}
+
+// AddLeadingSlash adds a leading Unix styled slash (/) if not already
+// there.
+func AddLeadingSlash(path string) string {
+	if !strings.HasPrefix(path, "/") {
+		path = "/" + path
+	}
+	return path
+}
+
+// AddLeadingAndTrailingSlash adds a leading and trailing Unix styled slash (/)
+// if not already there.
+func AddLeadingAndTrailingSlash(path string) string {
+	return AddTrailingSlash(AddLeadingSlash(path))
 }

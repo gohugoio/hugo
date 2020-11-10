@@ -1,1 +1,1 @@
-gobench -package=./hugolib -bench="BenchmarkSiteNew/Deep_content_tree"
+gobench --package ./hugolib --bench "BenchmarkSiteNew/Regular_Deep" -base v0.89.4

@@ -16,6 +16,7 @@ package lazy
 import (
 	"context"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/pkg/errors"
@@ -28,6 +29,9 @@ func New() *Init {
 
 // Init holds a graph of lazily initialized dependencies.
 type Init struct {
+	// Used in tests
+	initCount uint64
+
 	mu sync.Mutex
 
 	prev     *Init
@@ -45,6 +49,12 @@ func (ini *Init) Add(initFn func() (interface{}, error)) *Init {
 		ini = New()
 	}
 	return ini.add(false, initFn)
+}
+
+// InitCount gets the number of this this Init has been initialized.
+func (ini *Init) InitCount() int {
+	i := atomic.LoadUint64(&ini.initCount)
+	return int(i)
 }
 
 // AddWithTimeout is same as Add, but with a timeout that aborts initialization.
@@ -77,6 +87,7 @@ func (ini *Init) Do() (interface{}, error) {
 	}
 
 	ini.init.Do(func() {
+		atomic.AddUint64(&ini.initCount, 1)
 		prev := ini.prev
 		if prev != nil {
 			// A branch. Initialize the ancestors.

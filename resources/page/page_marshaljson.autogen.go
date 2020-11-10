@@ -69,7 +69,7 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 	linkTitle := p.LinkTitle()
 	isNode := p.IsNode()
 	isPage := p.IsPage()
-	path := p.Pathc()
+	path := p.Path()
 	slug := p.Slug()
 	lang := p.Lang()
 	isSection := p.IsSection()
@@ -89,7 +89,8 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 	isTranslated := p.IsTranslated()
 	allTranslations := p.AllTranslations()
 	translations := p.Translations()
-	getIdentity := p.GetIdentity()
+	identifierBase := p.IdentifierBase()
+	getDependencyManager := p.GetDependencyManager()
 
 	s := struct {
 		Content                  interface{}
@@ -127,6 +128,7 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 		IsNode                   bool
 		IsPage                   bool
 		Path                     string
+		Pathc                    string
 		Slug                     string
 		Lang                     string
 		IsSection                bool
@@ -146,7 +148,8 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 		IsTranslated             bool
 		AllTranslations          Pages
 		Translations             Pages
-		GetIdentity              identity.Identity
+		IdentifierBase           interface{}
+		GetDependencyManager     identity.Manager
 	}{
 		Content:                  content,
 		Plain:                    plain,
@@ -202,7 +205,8 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 		IsTranslated:             isTranslated,
 		AllTranslations:          allTranslations,
 		Translations:             translations,
-		GetIdentity:              getIdentity,
+		IdentifierBase:           identifierBase,
+		GetDependencyManager:     getDependencyManager,
 	}
 
 	return json.Marshal(&s)

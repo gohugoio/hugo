@@ -52,29 +52,6 @@ func TestGetRelativePath(t *testing.T) {
 	}
 }
 
-func TestMakePathRelative(t *testing.T) {
-	type test struct {
-		inPath, path1, path2, output string
-	}
-
-	data := []test{
-		{"/abc/bcd/ab.css", "/abc/bcd", "/bbc/bcd", "/ab.css"},
-		{"/abc/bcd/ab.css", "/abcd/bcd", "/abc/bcd", "/ab.css"},
-	}
-
-	for i, d := range data {
-		output, _ := makePathRelative(d.inPath, d.path1, d.path2)
-		if d.output != output {
-			t.Errorf("Test #%d failed. Expected %q got %q", i, d.output, output)
-		}
-	}
-	_, error := makePathRelative("a/b/c.ss", "/a/c", "/d/c", "/e/f")
-
-	if error == nil {
-		t.Errorf("Test failed, expected error")
-	}
-}
-
 func TestGetDottedRelativePath(t *testing.T) {
 	// on Windows this will receive both kinds, both country and western ...
 	for _, f := range []func(string) string{filepath.FromSlash, func(s string) string { return s }} {
@@ -249,4 +226,60 @@ func TestFindCWD(t *testing.T) {
 			t.Errorf("Test %d failed. Expected %q but got %q", i, d.expectedErr, err)
 		}
 	}
+}
+
+func TesSanitize(t *testing.T) {
+	c := qt.New(t)
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"  Foo bar  ", "Foo-bar"},
+		{"Foo.Bar/foo_Bar-Foo", "Foo.Bar/foo_Bar-Foo"},
+		{"fOO,bar:foobAR", "fOObarfoobAR"},
+		{"FOo/BaR.html", "FOo/BaR.html"},
+		{"FOo/Ba---R.html", "FOo/Ba-R.html"},
+		{"FOo/Ba       R.html", "FOo/Ba-R.html"},
+		{"трям/трям", "трям/трям"},
+		{"은행", "은행"},
+		{"Банковский кассир", "Банковскии-кассир"},
+		// Issue #1488
+		{"संस्कृत", "संस्कृत"},
+		{"a%C3%B1ame", "a%C3%B1ame"},          // Issue #1292
+		{"this+is+a+test", "sthis+is+a+test"}, // Issue #1290
+		{"~foo", "~foo"},                      // Issue #2177
+
+	}
+
+	for _, test := range tests {
+		c.Assert(Sanitize(test.input), qt.Equals, test.expected)
+	}
+}
+
+func BenchmarkSanitize(b *testing.B) {
+	const (
+		allAlowedPath = "foo/bar"
+		spacePath     = "foo bar"
+	)
+
+	// This should not allocate any memory.
+	b.Run("All allowed", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			got := Sanitize(allAlowedPath)
+			if got != allAlowedPath {
+				b.Fatal(got)
+			}
+		}
+	})
+
+	// This will allocate some memory.
+	b.Run("Spaces", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			got := Sanitize(spacePath)
+			if got != "foo-bar" {
+				b.Fatal(got)
+			}
+		}
+	})
+
 }

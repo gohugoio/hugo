@@ -89,6 +89,7 @@ func IsContentExt(ext string) bool {
 type ContentClass string
 
 const (
+	// TODO1 remove this.
 	ContentClassLeaf    ContentClass = "leaf"
 	ContentClassBranch  ContentClass = "branch"
 	ContentClassFile    ContentClass = "zfile" // Sort below

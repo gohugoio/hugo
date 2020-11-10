@@ -60,15 +60,14 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 	for i := len(dirs) - 1; i >= 0; i-- {
 		dir := dirs[i]
 		src := spec.NewFilesystemFromFileMetaInfo(dir)
-		files, err := src.Files()
+
+		err := src.Walk(func(file source.File) error {
+			return addTranslationFile(bundle, file)
+		})
 		if err != nil {
 			return err
 		}
-		for _, file := range files {
-			if err := addTranslationFile(bundle, file); err != nil {
-				return err
-			}
-		}
+
 	}
 
 	tp.t = NewTranslator(bundle, d.Cfg, d.Log)

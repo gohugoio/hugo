@@ -14,8 +14,11 @@
 package transform
 
 import (
+	"context"
 	"io/ioutil"
 	"strings"
+
+	"github.com/gohugoio/hugo/cache/memcache"
 
 	"github.com/gohugoio/hugo/resources/resource"
 
@@ -69,24 +72,33 @@ func (ns *Namespace) Unmarshal(args ...interface{}) (interface{}, error) {
 			key += decoder.OptionsKey()
 		}
 
-		return ns.cache.GetOrCreate(key, func() (interface{}, error) {
+		return ns.cache.GetOrCreate(context.TODO(), key, func() memcache.Entry {
 			f := metadecoders.FormatFromMediaType(r.MediaType())
 			if f == "" {
-				return nil, errors.Errorf("MIME %q not supported", r.MediaType())
+				return memcache.Entry{Err: errors.Errorf("MIME %q not supported", r.MediaType())}
 			}
 
 			reader, err := r.ReadSeekCloser()
 			if err != nil {
-				return nil, err
+				return memcache.Entry{Err: err}
 			}
 			defer reader.Close()
 
 			b, err := ioutil.ReadAll(reader)
 			if err != nil {
-				return nil, err
+				return memcache.Entry{Err: err}
 			}
 
-			return decoder.Unmarshal(b, f)
+			v, err := decoder.Unmarshal(b, f)
+
+			return memcache.Entry{
+				Value:     v,
+				Err:       err,
+				ClearWhen: memcache.ClearOnChange,
+				StaleFunc: func() bool {
+					return resource.IsStaleAny(r)
+				},
+			}
 		})
 	}
 
@@ -101,13 +113,15 @@ func (ns *Namespace) Unmarshal(args ...interface{}) (interface{}, error) {
 
 	key := helpers.MD5String(dataStr)
 
-	return ns.cache.GetOrCreate(key, func() (interface{}, error) {
+	return ns.cache.GetOrCreate(context.TODO(), key, func() memcache.Entry {
 		f := decoder.FormatFromContentString(dataStr)
 		if f == "" {
-			return nil, errors.New("unknown format")
+			return memcache.Entry{Err: errors.New("unknown format")}
 		}
 
-		return decoder.Unmarshal([]byte(dataStr), f)
+		v, err := decoder.Unmarshal([]byte(dataStr), f)
+
+		return memcache.Entry{Value: v, Err: err, ClearWhen: memcache.ClearOnChange}
 	})
 }
 

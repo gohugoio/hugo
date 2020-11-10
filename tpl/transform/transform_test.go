@@ -17,6 +17,7 @@ import (
 	"html/template"
 	"testing"
 
+	"github.com/gohugoio/hugo/cache/memcache"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/spf13/afero"
 
@@ -249,6 +250,7 @@ func newDeps(cfg config.Provider) *deps.Deps {
 	return &deps.Deps{
 		Cfg:         cfg,
 		Fs:          hugofs.NewMem(l),
+		MemCache:    memcache.New(memcache.Config{}),
 		ContentSpec: cs,
 	}
 }

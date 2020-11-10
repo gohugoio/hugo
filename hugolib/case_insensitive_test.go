@@ -34,7 +34,7 @@ defaultContentLanguageInSubdir = true
 AngledQuotes = true
 HrefTargetBlank = true
 
-[Params]
+[Params]	
 Search = true
 Color = "green"
 mood = "Happy"

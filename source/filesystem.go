@@ -17,8 +17,6 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/pkg/errors"
-
 	"github.com/gohugoio/hugo/hugofs"
 )
 
@@ -44,32 +42,49 @@ func (sp SourceSpec) NewFilesystemFromFileMetaInfo(fi hugofs.FileMetaInfo) *File
 	return &Filesystem{SourceSpec: sp, fi: fi}
 }
 
-// Files returns a slice of readable files.
-func (f *Filesystem) Files() ([]File, error) {
-	f.filesInit.Do(func() {
-		err := f.captureFiles()
+func (f *Filesystem) Walk(adder func(File) error) error {
+	walker := func(path string, fi hugofs.FileMetaInfo, err error) error {
 		if err != nil {
-			f.filesInitErr = errors.Wrap(err, "capture files")
+			return err
 		}
-	})
-	return f.files, f.filesInitErr
-}
 
-// add populates a file in the Filesystem.files
-func (f *Filesystem) add(name string, fi hugofs.FileMetaInfo) (err error) {
-	var file File
+		if fi.IsDir() {
+			return nil
+		}
 
-	file, err = f.SourceSpec.NewFileInfo(fi)
-	if err != nil {
+		meta := fi.Meta()
+		filename := meta.Filename
+
+		b, err := f.shouldRead(filename, fi)
+		if err != nil {
+			return err
+		}
+
+		file, err := f.SourceSpec.NewFileInfo(fi)
+		if err != nil {
+			return err
+		}
+
+		if b {
+			if err = adder(file); err != nil {
+				return err
+			}
+		}
+
 		return err
 	}
 
-	f.files = append(f.files, file)
+	w := hugofs.NewWalkway(hugofs.WalkwayConfig{
+		Fs:     f.SourceFs,
+		Info:   f.fi,
+		Root:   f.Base,
+		WalkFn: walker,
+	})
 
-	return err
+	return w.Walk()
 }
 
-func (f *Filesystem) captureFiles() error {
+func (f *Filesystem) _captureFiles() error {
 	walker := func(path string, fi hugofs.FileMetaInfo, err error) error {
 		if err != nil {
 			return err
@@ -88,7 +103,7 @@ func (f *Filesystem) captureFiles() error {
 		}
 
 		if b {
-			err = f.add(filename, fi)
+			// err = f.add(fi)
 		}
 
 		return err

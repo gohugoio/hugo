@@ -24,7 +24,7 @@ type Info interface {
 	ParseInfo() ParseInfo
 
 	// Identifies this template and its dependencies.
-	identity.Provider
+	identity.Identity
 }
 
 type InfoManager interface {
@@ -32,22 +32,6 @@ type InfoManager interface {
 
 	// Identifies and manages this template and its dependencies.
 	identity.Manager
-}
-
-type defaultInfo struct {
-	identity.Manager
-	parseInfo ParseInfo
-}
-
-func NewInfo(id identity.Manager, parseInfo ParseInfo) Info {
-	return &defaultInfo{
-		Manager:   id,
-		parseInfo: parseInfo,
-	}
-}
-
-func (info *defaultInfo) ParseInfo() ParseInfo {
-	return info.parseInfo
 }
 
 type ParseInfo struct {

@@ -26,6 +26,8 @@ var (
 )
 
 type languageCompositeFs struct {
+	base    ExtendedFs
+	overlay ExtendedFs
 	*afero.CopyOnWriteFs
 }
 
@@ -33,8 +35,12 @@ type languageCompositeFs struct {
 // This is a hybrid filesystem. To get a specific file in Open, Stat etc., use the full filename
 // to the target filesystem. This information is available in Readdir, Stat etc. via the
 // special LanguageFileInfo FileInfo implementation.
-func NewLanguageCompositeFs(base, overlay afero.Fs) afero.Fs {
-	return &languageCompositeFs{afero.NewCopyOnWriteFs(base, overlay).(*afero.CopyOnWriteFs)}
+func NewLanguageCompositeFs(base, overlay ExtendedFs) ExtendedFs {
+	return &languageCompositeFs{
+		base:          base,
+		overlay:       overlay,
+		CopyOnWriteFs: afero.NewCopyOnWriteFs(base, overlay).(*afero.CopyOnWriteFs),
+	}
 }
 
 // Open takes the full path to the file in the target filesystem. If it is a directory, it gets merged
@@ -51,6 +57,16 @@ func (fs *languageCompositeFs) Open(name string) (afero.File, error) {
 		fu.Merger = LanguageDirsMerger
 	}
 	return f, nil
+}
+
+func (fs *languageCompositeFs) ReverseLookup(name string) (string, error) {
+	// Try the overlay first.
+	s, err := fs.overlay.ReverseLookup(name)
+	if s != "" || err != nil {
+		return s, err
+	}
+
+	return fs.base.ReverseLookup(name)
 }
 
 // LanguageDirsMerger implements the afero.DirsMerger interface, which is used

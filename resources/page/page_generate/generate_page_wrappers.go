@@ -59,14 +59,15 @@ func Generate(c *codegen.Inspector) error {
 		return errors.Wrap(err, "failed to generate JSON marshaler")
 	}
 
-	if err := generateDeprecatedWrappers(c); err != nil {
-		return errors.Wrap(err, "failed to generate deprecate wrappers")
-	}
+	/*
+		// Removed in 0.93.0, keep this a little in case we need to re-introduce it.
+		if err := generateDeprecatedWrappers(c); err != nil {
+			return errors.Wrap(err, "failed to generate deprecate wrappers")
+		}
 
-	if err := generateFileIsZeroWrappers(c); err != nil {
-		return errors.Wrap(err, "failed to generate file wrappers")
-	}
-
+		if err := generateFileIsZeroWrappers(c); err != nil {
+			return errors.Wrap(err, "failed to generate file wrappers")
+		}*/
 	return nil
 }
 

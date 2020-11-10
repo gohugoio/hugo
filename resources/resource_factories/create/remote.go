@@ -16,6 +16,7 @@ package create
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"io"
 	"io/ioutil"
 	"mime"
@@ -46,7 +47,7 @@ func (c *Client) FromRemote(uri string, optionsm map[string]interface{}) (resour
 
 	resourceID := helpers.HashString(uri, optionsm)
 
-	_, httpResponse, err := c.cacheGetResource.GetOrCreate(resourceID, func() (io.ReadCloser, error) {
+	_, httpResponse, err := c.cacheGetResource.GetOrCreate(context.TODO(), resourceID, func() (io.ReadCloser, error) {
 		options, err := decodeRemoteOptions(optionsm)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to decode options for resource %s", uri)

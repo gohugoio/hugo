@@ -213,7 +213,7 @@ func TestSiteBuildErrors(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			t.Parallel()
+			//t.Parallel()
 			c := qt.New(t)
 			errorAsserter := testSiteBuildErrorAsserter{
 				c:    c,

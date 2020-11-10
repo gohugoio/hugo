@@ -14,6 +14,7 @@
 package tplimpl
 
 import (
+	"context"
 	"io"
 	"os"
 	"path/filepath"
@@ -111,10 +112,6 @@ func needsBaseTemplate(templ string) bool {
 	return baseTemplateDefineRe.MatchString(templ[idx:])
 }
 
-func newIdentity(name string) identity.Manager {
-	return identity.NewManager(identity.NewPathIdentity(files.ComponentFolderLayouts, name))
-}
-
 func newStandaloneTextTemplate(funcs map[string]interface{}) tpl.TemplateParseFinder {
 	return &textTemplateWrapperWithLock{
 		RWMutex:  &sync.RWMutex{},
@@ -132,7 +129,6 @@ func newTemplateExec(d *deps.Deps) (*templateExec, error) {
 	h := &templateHandler{
 		nameBaseTemplateName: make(map[string]string),
 		transformNotFound:    make(map[string]*templateState),
-		identityNotFound:     make(map[string][]identity.Manager),
 
 		shortcodes:   make(map[string]*shortcodeTemplates),
 		templateInfo: make(map[string]tpl.Info),
@@ -185,13 +181,15 @@ func newTemplateNamespace(funcs map[string]interface{}) *templateNamespace {
 }
 
 func newTemplateState(templ tpl.Template, info templateInfo) *templateState {
-	return &templateState{
+	s := &templateState{
 		info:      info,
 		typ:       info.resolveType(),
 		Template:  templ,
-		Manager:   newIdentity(info.name),
+		Manager:   identity.NewManager(tpl.NewTemplateIdentity(templ)),
 		parseInfo: tpl.DefaultParseInfo,
 	}
+
+	return s
 }
 
 type layoutCacheKey struct {
@@ -216,6 +214,10 @@ func (t templateExec) Clone(d *deps.Deps) *templateExec {
 }
 
 func (t *templateExec) Execute(templ tpl.Template, wr io.Writer, data interface{}) error {
+	return t.ExecuteWithContext(context.Background(), templ, wr, data)
+}
+
+func (t *templateExec) ExecuteWithContext(ctx context.Context, templ tpl.Template, wr io.Writer, data interface{}) error {
 	if rlocker, ok := templ.(types.RLocker); ok {
 		rlocker.RLock()
 		defer rlocker.RUnlock()
@@ -224,7 +226,7 @@ func (t *templateExec) Execute(templ tpl.Template, wr io.Writer, data interface{
 		defer t.Metrics.MeasureSince(templ.Name(), time.Now())
 	}
 
-	execErr := t.executor.Execute(templ, wr, data)
+	execErr := t.executor.ExecuteWithContext(ctx, templ, wr, data)
 	if execErr != nil {
 		execErr = t.addFileContext(templ, execErr)
 	}
@@ -273,9 +275,6 @@ type templateHandler struct {
 	// AST transformation pass.
 	transformNotFound map[string]*templateState
 
-	// Holds identities of templates not found during first pass.
-	identityNotFound map[string][]identity.Manager
-
 	// shortcodes maps shortcode name to template variants
 	// (language, output format etc.) of that shortcode.
 	shortcodes map[string]*shortcodeTemplates
@@ -321,6 +320,7 @@ func (t *templateHandler) LookupLayout(d output.LayoutDescriptor, f output.Forma
 	templ, found, err := t.findLayout(d, f)
 	if err == nil && found {
 		t.layoutTemplateCache[key] = templ
+		_ = templ.(identity.Identity)
 		return templ, true, nil
 	}
 
@@ -411,7 +411,8 @@ func (t *templateHandler) findLayout(d output.LayoutDescriptor, f output.Format)
 			ts.baseInfo = base
 
 			// Add the base identity to detect changes
-			ts.Add(identity.NewPathIdentity(files.ComponentFolderLayouts, base.name))
+			// TODO1 can we just add the real template?
+			ts.AddIdentity(identity.NewPathIdentity(files.ComponentFolderLayouts, base.name, "", ""))
 		}
 
 		t.applyTemplateTransformers(t.main, ts)
@@ -645,11 +646,6 @@ func (t *templateHandler) applyTemplateTransformers(ns *templateNamespace, ts *t
 
 	for k := range c.templateNotFound {
 		t.transformNotFound[k] = ts
-		t.identityNotFound[k] = append(t.identityNotFound[k], c.t)
-	}
-
-	for k := range c.identityNotFound {
-		t.identityNotFound[k] = append(t.identityNotFound[k], c.t)
 	}
 
 	return c, err
@@ -806,15 +802,6 @@ func (t *templateHandler) postTransform() error {
 		}
 	}
 
-	for k, v := range t.identityNotFound {
-		ts := t.findTemplate(k)
-		if ts != nil {
-			for _, im := range v {
-				im.Add(ts)
-			}
-		}
-	}
-
 	for _, v := range t.shortcodes {
 		sort.Slice(v.variants, func(i, j int) bool {
 			v1, v2 := v.variants[i], v.variants[j]
@@ -939,6 +926,10 @@ type templateState struct {
 
 func (t *templateState) ParseInfo() tpl.ParseInfo {
 	return t.parseInfo
+}
+
+func (t *templateState) IdentifierBase() interface{} {
+	return t.Name()
 }
 
 func (t *templateState) isText() bool {

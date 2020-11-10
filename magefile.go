@@ -1,3 +1,4 @@
+//go:build mage
 // +build mage
 
 package main
@@ -97,10 +98,9 @@ func Generate() error {
 	}
 
 	goFmtPatterns := []string{
-		// TODO(bep) check: stat ./resources/page/*autogen*: no such file or directory
 		"./resources/page/page_marshaljson.autogen.go",
-		"./resources/page/page_wrappers.autogen.go",
-		"./resources/page/zero_file.autogen.go",
+		//"./resources/page/page_wrappers.autogen.go",
+		//"./resources/page/zero_file.autogen.go",
 	}
 
 	for _, pattern := range goFmtPatterns {

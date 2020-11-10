@@ -15,295 +15,8 @@ package hugolib
 
 import (
 	"fmt"
-	"path/filepath"
-	"strings"
 	"testing"
-
-	"github.com/gohugoio/hugo/common/paths"
-
-	"github.com/gohugoio/hugo/htesting/hqt"
-
-	"github.com/gohugoio/hugo/hugofs/files"
-
-	"github.com/gohugoio/hugo/hugofs"
-	"github.com/spf13/afero"
-
-	qt "github.com/frankban/quicktest"
 )
-
-func BenchmarkContentMap(b *testing.B) {
-	writeFile := func(c *qt.C, fs afero.Fs, filename, content string) hugofs.FileMetaInfo {
-		c.Helper()
-		filename = filepath.FromSlash(filename)
-		c.Assert(fs.MkdirAll(filepath.Dir(filename), 0777), qt.IsNil)
-		c.Assert(afero.WriteFile(fs, filename, []byte(content), 0777), qt.IsNil)
-
-		fi, err := fs.Stat(filename)
-		c.Assert(err, qt.IsNil)
-
-		mfi := fi.(hugofs.FileMetaInfo)
-		return mfi
-	}
-
-	createFs := func(fs afero.Fs, lang string) afero.Fs {
-		return hugofs.NewBaseFileDecorator(fs,
-			func(fi hugofs.FileMetaInfo) {
-				meta := fi.Meta()
-				// We have a more elaborate filesystem setup in the
-				// real flow, so simulate this here.
-				meta.Lang = lang
-				meta.Path = meta.Filename
-				meta.Classifier = files.ClassifyContentFile(fi.Name(), meta.OpenFunc)
-			})
-	}
-
-	b.Run("CreateMissingNodes", func(b *testing.B) {
-		c := qt.New(b)
-		b.StopTimer()
-		mps := make([]*contentMap, b.N)
-		for i := 0; i < b.N; i++ {
-			m := newContentMap(contentMapConfig{lang: "en"})
-			mps[i] = m
-			memfs := afero.NewMemMapFs()
-			fs := createFs(memfs, "en")
-			for i := 1; i <= 20; i++ {
-				c.Assert(m.AddFilesBundle(writeFile(c, fs, fmt.Sprintf("sect%d/a/index.md", i), "page")), qt.IsNil)
-				c.Assert(m.AddFilesBundle(writeFile(c, fs, fmt.Sprintf("sect2%d/%sindex.md", i, strings.Repeat("b/", i)), "page")), qt.IsNil)
-			}
-
-		}
-
-		b.StartTimer()
-
-		for i := 0; i < b.N; i++ {
-			m := mps[i]
-			c.Assert(m.CreateMissingNodes(), qt.IsNil)
-
-			b.StopTimer()
-			m.pages.DeletePrefix("/")
-			m.sections.DeletePrefix("/")
-			b.StartTimer()
-		}
-	})
-}
-
-func TestContentMap(t *testing.T) {
-	c := qt.New(t)
-
-	writeFile := func(c *qt.C, fs afero.Fs, filename, content string) hugofs.FileMetaInfo {
-		c.Helper()
-		filename = filepath.FromSlash(filename)
-		c.Assert(fs.MkdirAll(filepath.Dir(filename), 0777), qt.IsNil)
-		c.Assert(afero.WriteFile(fs, filename, []byte(content), 0777), qt.IsNil)
-
-		fi, err := fs.Stat(filename)
-		c.Assert(err, qt.IsNil)
-
-		mfi := fi.(hugofs.FileMetaInfo)
-		return mfi
-	}
-
-	createFs := func(fs afero.Fs, lang string) afero.Fs {
-		return hugofs.NewBaseFileDecorator(fs,
-			func(fi hugofs.FileMetaInfo) {
-				meta := fi.Meta()
-				// We have a more elaborate filesystem setup in the
-				// real flow, so simulate this here.
-				meta.Lang = lang
-				meta.Path = meta.Filename
-				meta.TranslationBaseName = paths.Filename(fi.Name())
-				meta.Classifier = files.ClassifyContentFile(fi.Name(), meta.OpenFunc)
-			})
-	}
-
-	c.Run("AddFiles", func(c *qt.C) {
-		memfs := afero.NewMemMapFs()
-
-		fsl := func(lang string) afero.Fs {
-			return createFs(memfs, lang)
-		}
-
-		fs := fsl("en")
-
-		header := writeFile(c, fs, "blog/a/index.md", "page")
-
-		c.Assert(header.Meta().Lang, qt.Equals, "en")
-
-		resources := []hugofs.FileMetaInfo{
-			writeFile(c, fs, "blog/a/b/data.json", "data"),
-			writeFile(c, fs, "blog/a/logo.png", "image"),
-		}
-
-		m := newContentMap(contentMapConfig{lang: "en"})
-
-		c.Assert(m.AddFilesBundle(header, resources...), qt.IsNil)
-
-		c.Assert(m.AddFilesBundle(writeFile(c, fs, "blog/b/c/index.md", "page")), qt.IsNil)
-
-		c.Assert(m.AddFilesBundle(
-			writeFile(c, fs, "blog/_index.md", "section page"),
-			writeFile(c, fs, "blog/sectiondata.json", "section resource"),
-		), qt.IsNil)
-
-		got := m.testDump()
-
-		expect := `
-          Tree 0:
-              	/blog/__hb_a__hl_
-              	/blog/__hb_b/c__hl_
-              Tree 1:
-              	/blog/
-              Tree 2:
-              	/blog/__hb_a__hl_b/data.json
-              	/blog/__hb_a__hl_logo.png
-              	/blog/__hl_sectiondata.json
-              en/pages/blog/__hb_a__hl_|f:blog/a/index.md
-              	 - R: blog/a/b/data.json
-              	 - R: blog/a/logo.png
-              en/pages/blog/__hb_b/c__hl_|f:blog/b/c/index.md
-              en/sections/blog/|f:blog/_index.md
-              	 - P: blog/a/index.md
-              	 - P: blog/b/c/index.md
-              	 - R: blog/sectiondata.json
-    
-`
-
-		c.Assert(got, hqt.IsSameString, expect, qt.Commentf(got))
-
-		// Add a data file to the section bundle
-		c.Assert(m.AddFiles(
-			writeFile(c, fs, "blog/sectiondata2.json", "section resource"),
-		), qt.IsNil)
-
-		// And then one to the leaf bundles
-		c.Assert(m.AddFiles(
-			writeFile(c, fs, "blog/a/b/data2.json", "data2"),
-		), qt.IsNil)
-
-		c.Assert(m.AddFiles(
-			writeFile(c, fs, "blog/b/c/d/data3.json", "data3"),
-		), qt.IsNil)
-
-		got = m.testDump()
-
-		expect = `
-			 Tree 0:
-              	/blog/__hb_a__hl_
-              	/blog/__hb_b/c__hl_
-              Tree 1:
-              	/blog/
-              Tree 2:
-              	/blog/__hb_a__hl_b/data.json
-              	/blog/__hb_a__hl_b/data2.json
-              	/blog/__hb_a__hl_logo.png
-              	/blog/__hb_b/c__hl_d/data3.json
-              	/blog/__hl_sectiondata.json
-              	/blog/__hl_sectiondata2.json
-              en/pages/blog/__hb_a__hl_|f:blog/a/index.md
-              	 - R: blog/a/b/data.json
-              	 - R: blog/a/b/data2.json
-              	 - R: blog/a/logo.png
-              en/pages/blog/__hb_b/c__hl_|f:blog/b/c/index.md
-              	 - R: blog/b/c/d/data3.json
-              en/sections/blog/|f:blog/_index.md
-              	 - P: blog/a/index.md
-              	 - P: blog/b/c/index.md
-              	 - R: blog/sectiondata.json
-              	 - R: blog/sectiondata2.json
-             
-`
-
-		c.Assert(got, hqt.IsSameString, expect, qt.Commentf(got))
-
-		// Add a regular page (i.e. not a bundle)
-		c.Assert(m.AddFilesBundle(writeFile(c, fs, "blog/b.md", "page")), qt.IsNil)
-
-		c.Assert(m.testDump(), hqt.IsSameString, `
-		 Tree 0:
-              	/blog/__hb_a__hl_
-              	/blog/__hb_b/c__hl_
-              	/blog/__hb_b__hl_
-              Tree 1:
-              	/blog/
-              Tree 2:
-              	/blog/__hb_a__hl_b/data.json
-              	/blog/__hb_a__hl_b/data2.json
-              	/blog/__hb_a__hl_logo.png
-              	/blog/__hb_b/c__hl_d/data3.json
-              	/blog/__hl_sectiondata.json
-              	/blog/__hl_sectiondata2.json
-              en/pages/blog/__hb_a__hl_|f:blog/a/index.md
-              	 - R: blog/a/b/data.json
-              	 - R: blog/a/b/data2.json
-              	 - R: blog/a/logo.png
-              en/pages/blog/__hb_b/c__hl_|f:blog/b/c/index.md
-              	 - R: blog/b/c/d/data3.json
-              en/pages/blog/__hb_b__hl_|f:blog/b.md
-              en/sections/blog/|f:blog/_index.md
-              	 - P: blog/a/index.md
-              	 - P: blog/b/c/index.md
-              	 - P: blog/b.md
-              	 - R: blog/sectiondata.json
-              	 - R: blog/sectiondata2.json
-             
-       
-				`, qt.Commentf(m.testDump()))
-	})
-
-	c.Run("CreateMissingNodes", func(c *qt.C) {
-		memfs := afero.NewMemMapFs()
-
-		fsl := func(lang string) afero.Fs {
-			return createFs(memfs, lang)
-		}
-
-		fs := fsl("en")
-
-		m := newContentMap(contentMapConfig{lang: "en"})
-
-		c.Assert(m.AddFilesBundle(writeFile(c, fs, "blog/page.md", "page")), qt.IsNil)
-		c.Assert(m.AddFilesBundle(writeFile(c, fs, "blog/a/index.md", "page")), qt.IsNil)
-		c.Assert(m.AddFilesBundle(writeFile(c, fs, "bundle/index.md", "page")), qt.IsNil)
-
-		c.Assert(m.CreateMissingNodes(), qt.IsNil)
-
-		got := m.testDump()
-
-		c.Assert(got, hqt.IsSameString, `
-			
-			 Tree 0:
-              	/__hb_bundle__hl_
-              	/blog/__hb_a__hl_
-              	/blog/__hb_page__hl_
-              Tree 1:
-              	/
-              	/blog/
-              Tree 2:
-              en/pages/__hb_bundle__hl_|f:bundle/index.md
-              en/pages/blog/__hb_a__hl_|f:blog/a/index.md
-              en/pages/blog/__hb_page__hl_|f:blog/page.md
-              en/sections/
-              	 - P: bundle/index.md
-              en/sections/blog/
-              	 - P: blog/a/index.md
-              	 - P: blog/page.md
-            
-			`, qt.Commentf(got))
-	})
-
-	c.Run("cleanKey", func(c *qt.C) {
-		for _, test := range []struct {
-			in       string
-			expected string
-		}{
-			{"/a/b/", "/a/b"},
-			{filepath.FromSlash("/a/b/"), "/a/b"},
-			{"/a//b/", "/a/b"},
-		} {
-			c.Assert(cleanTreeKey(test.in), qt.Equals, test.expected)
-		}
-	})
-}
 
 func TestContentMapSite(t *testing.T) {
 	b := newTestSitesBuilder(t)
@@ -313,13 +26,17 @@ func TestContentMapSite(t *testing.T) {
 title: "Page %d"
 date: "2019-06-0%d"	
 lastMod: "2019-06-0%d"
-categories: ["funny"]
+categories: [%q]
 ---
 
 Page content.
 `
 	createPage := func(i int) string {
-		return fmt.Sprintf(pageTempl, i, i, i+1)
+		return fmt.Sprintf(pageTempl, i, i, i+1, "funny")
+	}
+
+	createPageInCategory := func(i int, category string) string {
+		return fmt.Sprintf(pageTempl, i, i, i+1, category)
 	}
 
 	draftTemplate := `---
@@ -358,8 +75,8 @@ Home Content.
 	b.WithContent("blog/draftsection/sub/_index.md", createPage(12))
 	b.WithContent("blog/draftsection/sub/page.md", createPage(13))
 	b.WithContent("docs/page6.md", createPage(11))
-	b.WithContent("tags/_index.md", createPage(32))
-	b.WithContent("overlap/_index.md", createPage(33))
+	b.WithContent("tags/_index.md", createPageInCategory(32, "sad"))
+	b.WithContent("overlap/_index.md", createPageInCategory(33, "sad"))
 	b.WithContent("overlap2/_index.md", createPage(34))
 
 	b.WithTemplatesAdded("layouts/index.html", `
@@ -394,13 +111,13 @@ InSection: true: {{ $page.InSection $blog }} false: {{ $page.InSection $blogSub 
 Next: {{ $page2.Next.RelPermalink }}
 NextInSection: {{ $page2.NextInSection.RelPermalink }}
 Pages: {{ range $blog.Pages }}{{ .RelPermalink }}|{{ end }}
-Sections: {{ range $home.Sections }}{{ .RelPermalink }}|{{ end }}
-Categories: {{ range .Site.Taxonomies.categories }}{{ .Page.RelPermalink }}; {{ .Page.Title }}; {{ .Count }}|{{ end }}
-Category Terms:  {{ $categories.Kind}}: {{ range $categories.Data.Terms.Alphabetical }}{{ .Page.RelPermalink }}; {{ .Page.Title }}; {{ .Count }}|{{ end }}
-Category Funny:  {{ $funny.Kind}}; {{ $funny.Data.Term }}: {{ range $funny.Pages }}{{ .RelPermalink }};|{{ end }}
+Sections: {{ range $home.Sections }}{{ .RelPermalink }}|{{ end }}:END
+Categories: {{ range .Site.Taxonomies.categories }}{{ .Page.RelPermalink }}; {{ .Page.Title }}; {{ .Count }}|{{ end }}:END
+Category Terms:  {{ $categories.Kind}}: {{ range $categories.Data.Terms.Alphabetical }}{{ .Page.RelPermalink }}; {{ .Page.Title }}; {{ .Count }}|{{ end }}:END
+Category Funny:  {{ $funny.Kind}}; {{ $funny.Data.Term }}: {{ range $funny.Pages }}{{ .RelPermalink }};|{{ end }}:END
 Pag Num Pages: {{ len .Paginator.Pages }}
 Pag Blog Num Pages: {{ len $blog.Paginator.Pages }}
-Blog Num RegularPages: {{ len $blog.RegularPages }}
+Blog Num RegularPages: {{ len $blog.RegularPages }}|{{ range $blog.RegularPages }}P: {{ .RelPermalink }}|{{ end }}
 Blog Num Pages: {{ len $blog.Pages }}
 
 Draft1: {{ if (.Site.GetPage "blog/subsection/draft") }}FOUND{{ end }}|
@@ -421,11 +138,11 @@ Draft5: {{ if (.Site.GetPage "blog/draftsection/sub/page") }}FOUND{{ end }}|
         Main Sections: [blog]
         Pag Num Pages: 7
         
-      Home: Hugo Home|/|2019-06-08|Current Section: |Resources: 
-        Blog Section: Blogs|/blog/|2019-06-08|Current Section: blog|Resources: 
-        Blog Sub Section: Page 3|/blog/subsection/|2019-06-03|Current Section: blog/subsection|Resources: application: /blog/subsection/subdata.json|
-        Page: Page 1|/blog/page1/|2019-06-01|Current Section: blog|Resources: 
-        Bundle: Page 12|/blog/bundle/|0001-01-01|Current Section: blog|Resources: application: /blog/bundle/data.json|page: |
+        Home: Hugo Home|/|2019-06-08|Current Section: /|Resources: 
+        Blog Section: Blogs|/blog/|2019-06-08|Current Section: /blog|Resources: 
+        Blog Sub Section: Page 3|/blog/subsection/|2019-06-03|Current Section: /blog/subsection|Resources: application: /blog/subsection/subdata.json|
+        Page: Page 1|/blog/page1/|2019-06-01|Current Section: /blog|Resources: 
+        Bundle: Page 12|/blog/bundle/|0001-01-01|Current Section: /blog|Resources: application: /blog/bundle/data.json|page: |
         IsDescendant: true: true true: true true: true true: true true: true true: true false: false
         IsAncestor: true: true true: true true: true true: true true: true true: true true: true false: false false: false  false: false
         IsDescendant overlap1: false: false
@@ -437,10 +154,10 @@ Draft5: {{ if (.Site.GetPage "blog/draftsection/sub/page") }}FOUND{{ end }}|
         Next: /blog/page3/
         NextInSection: /blog/page3/
         Pages: /blog/page3/|/blog/subsection/|/blog/page2/|/blog/page1/|/blog/bundle/|
-        Sections: /blog/|/docs/|
-        Categories: /categories/funny/; funny; 11|
-        Category Terms:  taxonomy: /categories/funny/; funny; 11|
- 		Category Funny:  term; funny: /blog/subsection/page4/;|/blog/page3/;|/blog/subsection/;|/blog/page2/;|/blog/page1/;|/blog/subsection/page5/;|/docs/page6/;|/blog/bundle/;|;|
+        Sections: /blog/|/docs/|/overlap/|/overlap2/|:END
+		Categories: /categories/funny/; funny; 9|/categories/sad/; sad; 2|:END
+        Category Terms:  taxonomy: /categories/funny/; funny; 9|/categories/sad/; sad; 2|:END
+		Category Funny:  term; funny: /blog/subsection/page4/;|/blog/page3/;|/blog/subsection/;|/blog/page2/;|/blog/page1/;|/blog/subsection/page5/;|/docs/page6/;|/blog/bundle/;|/overlap2/;|:END
  		Pag Num Pages: 7
         Pag Blog Num Pages: 4
         Blog Num RegularPages: 4

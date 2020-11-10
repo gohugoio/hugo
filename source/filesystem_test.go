@@ -32,17 +32,6 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 )
 
-func TestEmptySourceFilesystem(t *testing.T) {
-	c := qt.New(t)
-	ss := newTestSourceSpec()
-	src := ss.NewFilesystem("")
-	files, err := src.Files()
-	c.Assert(err, qt.IsNil)
-	if len(files) != 0 {
-		t.Errorf("new filesystem should contain 0 files.")
-	}
-}
-
 func TestUnicodeNorm(t *testing.T) {
 	if runtime.GOOS != "darwin" {
 		// Normalization code is only for Mac OS, since it is not necessary for other OSes.
@@ -60,19 +49,20 @@ func TestUnicodeNorm(t *testing.T) {
 	}
 
 	ss := newTestSourceSpec()
-	fi := hugofs.NewFileMetaInfo(nil, hugofs.NewFileMeta())
 
 	for i, path := range paths {
 		base := fmt.Sprintf("base%d", i)
 		c.Assert(afero.WriteFile(ss.Fs.Source, filepath.Join(base, path.NFD), []byte("some data"), 0777), qt.IsNil)
 		src := ss.NewFilesystem(base)
-		_ = src.add(path.NFD, fi)
-		files, err := src.Files()
+		var found bool
+		err := src.Walk(func(f File) error {
+			found = true
+			c.Assert(f.BaseFileName(), qt.Equals, path.NFC)
+			return nil
+		})
 		c.Assert(err, qt.IsNil)
-		f := files[0]
-		if f.BaseFileName() != path.NFC {
-			t.Fatalf("file %q name in NFD form should be normalized (%s)", f.BaseFileName(), path.NFC)
-		}
+		c.Assert(found, qt.IsTrue)
+
 	}
 }
 

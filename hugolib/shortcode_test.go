@@ -20,12 +20,13 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/resources/page/pagekinds"
+
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/markup/asciidocext"
 	"github.com/gohugoio/hugo/markup/rst"
 
 	"github.com/gohugoio/hugo/parser/pageparser"
-	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/tpl"
@@ -709,7 +710,7 @@ CSV: {{< myShort >}}
 	b.Assert(len(h.Sites), qt.Equals, 1)
 
 	s := h.Sites[0]
-	home := s.getPage(page.KindHome)
+	home := s.getPage(pagekinds.Home)
 	b.Assert(home, qt.Not(qt.IsNil))
 	b.Assert(len(home.OutputFormats()), qt.Equals, 3)
 
@@ -948,40 +949,61 @@ C-%s`
 func TestShortcodeParentResourcesOnRebuild(t *testing.T) {
 	t.Parallel()
 
-	b := newTestSitesBuilder(t).Running().WithSimpleConfigFile()
-	b.WithTemplatesAdded(
-		"index.html", `
+	files := `
+-- config.toml --
+baseURL = 'http://example.com/'
+-- content/b1/index.md --
+---
+title: MyPage
+---
+CONTENT
+-- content/b1/logo.png --
+PNG logo
+-- content/b1/p1.md --
+---
+title: MyPage
+---
+
+SHORTCODE: {{< c >}}
+-- content/blog/_index.md --
+---
+title: MyPage
+---
+
+SHORTCODE: {{< c >}}
+-- content/blog/article.md --
+---
+title: MyPage
+---
+
+SHORTCODE: {{< c >}}
+-- content/blog/logo-article.png --
+PNG logo
+-- layouts/index.html --
 {{ $b := .Site.GetPage "b1" }}
 b1 Content: {{ $b.Content }}
 {{$p := $b.Resources.GetMatch "p1*" }}
 Content: {{ $p.Content }}
 {{ $article := .Site.GetPage "blog/article" }}
 Article Content: {{ $article.Content }}
-`,
-		"shortcodes/c.html", `
+-- layouts/shortcodes/c.html --
 {{ range .Page.Parent.Resources }}
 * Parent resource: {{ .Name }}: {{ .RelPermalink }}
 {{ end }}
-`)
 
-	pageContent := `
----
-title: MyPage
----
 
-SHORTCODE: {{< c >}}
 
-`
+	`
 
-	b.WithContent("b1/index.md", pageContent,
-		"b1/logo.png", "PNG logo",
-		"b1/p1.md", pageContent,
-		"blog/_index.md", pageContent,
-		"blog/logo-article.png", "PNG logo",
-		"blog/article.md", pageContent,
-	)
+	c := qt.New(t)
 
-	b.Build(BuildCfg{})
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           c,
+			TxtarString: files,
+			Running:     true,
+		},
+	).Build()
 
 	assert := func(matchers ...string) {
 		allMatchers := append(matchers, "Parent resource: logo.png: /b1/logo.png",
@@ -995,11 +1017,11 @@ SHORTCODE: {{< c >}}
 
 	assert()
 
-	b.EditFiles("content/b1/index.md", pageContent+" Edit.")
+	b.EditFileReplace("content/b1/index.md", func(s string) string { return strings.ReplaceAll(s, "CONTENT", "Content Edit") })
 
-	b.Build(BuildCfg{})
+	b.Build()
 
-	assert("Edit.")
+	assert("Content Edit")
 }
 
 func TestShortcodePreserveOrder(t *testing.T) {

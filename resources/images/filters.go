@@ -19,7 +19,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
-	"github.com/gohugoio/hugo/resources/resource"
+	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/disintegration/gift"
 	"github.com/spf13/cast"
@@ -70,7 +70,7 @@ func (*Filters) Text(text string, options ...interface{}) gift.Filter {
 					panic(fmt.Sprintf("invalid font source: %s", err))
 				}
 				fontSource, ok1 := v.(hugio.ReadSeekCloserProvider)
-				identifier, ok2 := v.(resource.Identifier)
+				identifier, ok2 := v.(types.Identifier)
 
 				if !(ok1 && ok2) {
 					panic(fmt.Sprintf("invalid text font source: %T", v))

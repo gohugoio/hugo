@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2021 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/gohugoio/hugo/resources/page/pagekinds"
 
 	"github.com/gohugoio/hugo/resources/page"
 
@@ -153,8 +155,8 @@ permalinkeds:
 
 	s := b.H.Sites[0]
 
-	// Make sure that each page.KindTaxonomyTerm page has an appropriate number
-	// of page.KindTaxonomy pages in its Pages slice.
+	// Make sure that each pagekinds.KindTaxonomyTerm page has an appropriate number
+	// of pagekinds.KindTaxonomy pages in its Pages slice.
 	taxonomyTermPageCounts := map[string]int{
 		"tags":         3,
 		"categories":   2,
@@ -165,16 +167,16 @@ permalinkeds:
 
 	for taxonomy, count := range taxonomyTermPageCounts {
 		msg := qt.Commentf(taxonomy)
-		term := s.getPage(page.KindTaxonomy, taxonomy)
+		term := s.getPage(pagekinds.Taxonomy, taxonomy)
 		b.Assert(term, qt.Not(qt.IsNil), msg)
 		b.Assert(len(term.Pages()), qt.Equals, count, msg)
 
 		for _, p := range term.Pages() {
-			b.Assert(p.Kind(), qt.Equals, page.KindTerm)
+			b.Assert(p.Kind(), qt.Equals, pagekinds.Term)
 		}
 	}
 
-	cat1 := s.getPage(page.KindTerm, "categories", "cat1")
+	cat1 := s.getPage(pagekinds.Term, "categories", "cat1")
 	b.Assert(cat1, qt.Not(qt.IsNil))
 	if uglyURLs {
 		b.Assert(cat1.RelPermalink(), qt.Equals, "/blog/categories/cat1.html")
@@ -182,8 +184,8 @@ permalinkeds:
 		b.Assert(cat1.RelPermalink(), qt.Equals, "/blog/categories/cat1/")
 	}
 
-	pl1 := s.getPage(page.KindTerm, "permalinkeds", "pl1")
-	permalinkeds := s.getPage(page.KindTaxonomy, "permalinkeds")
+	pl1 := s.getPage(pagekinds.Term, "permalinkeds", "pl1")
+	permalinkeds := s.getPage(pagekinds.Taxonomy, "permalinkeds")
 	b.Assert(pl1, qt.Not(qt.IsNil))
 	b.Assert(permalinkeds, qt.Not(qt.IsNil))
 	if uglyURLs {
@@ -194,7 +196,7 @@ permalinkeds:
 		b.Assert(permalinkeds.RelPermalink(), qt.Equals, "/blog/permalinkeds/")
 	}
 
-	helloWorld := s.getPage(page.KindTerm, "others", "hello-hugo-world")
+	helloWorld := s.getPage(pagekinds.Term, "others", "hello-hugo-world")
 	b.Assert(helloWorld, qt.Not(qt.IsNil))
 	b.Assert(helloWorld.Title(), qt.Equals, "Hello Hugo world")
 
@@ -266,11 +268,13 @@ title: "This is S3s"
 		return pages
 	}
 
-	ta := filterbyKind(page.KindTerm)
-	te := filterbyKind(page.KindTaxonomy)
+	te := filterbyKind(pagekinds.Term)
+	ta := filterbyKind(pagekinds.Taxonomy)
 
-	b.Assert(len(te), qt.Equals, 4)
-	b.Assert(len(ta), qt.Equals, 7)
+	// b.PrintDebug()
+
+	b.Assert(len(ta), qt.Equals, 4)
+	b.Assert(len(te), qt.Equals, 7)
 
 	b.AssertFileContent("public/news/categories/a/index.html", "Taxonomy List Page 1|a|Hello|https://example.com/news/categories/a/|")
 	b.AssertFileContent("public/news/categories/b/index.html", "Taxonomy List Page 1|This is B|Hello|https://example.com/news/categories/b/|")
@@ -279,6 +283,8 @@ title: "This is S3s"
 	b.AssertFileContent("public/t1/t2/t3s/t4/t5/index.html", "Taxonomy List Page 1|This is T5|Hello|https://example.com/t1/t2/t3s/t4/t5/|")
 	b.AssertFileContent("public/t1/t2/t3s/t4/t5/t6/index.html", "Taxonomy List Page 1|t4/t5/t6|Hello|https://example.com/t1/t2/t3s/t4/t5/t6/|")
 
+	//	b.PrintDebug()
+
 	b.AssertFileContent("public/news/categories/index.html", "Taxonomy Term Page 1|News/Categories|Hello|https://example.com/news/categories/|")
 	b.AssertFileContent("public/t1/t2/t3s/index.html", "Taxonomy Term Page 1|T1/T2/T3s|Hello|https://example.com/t1/t2/t3s/|")
 	b.AssertFileContent("public/s1/s2/s3s/index.html", "Taxonomy Term Page 1|This is S3s|Hello|https://example.com/s1/s2/s3s/|")
@@ -286,6 +292,8 @@ title: "This is S3s"
 
 // https://github.com/gohugoio/hugo/issues/5719
 func TestTaxonomiesNextGenLoops(t *testing.T) {
+	t.Parallel()
+
 	b := newTestSitesBuilder(t).WithSimpleConfigFile()
 
 	b.WithTemplatesAdded("index.html", `
@@ -521,7 +529,7 @@ Funny:|/p1/|
 Funny:|/p2/|`)
 }
 
-//https://github.com/gohugoio/hugo/issues/6590
+// https://github.com/gohugoio/hugo/issues/6590
 func TestTaxonomiesListPages(t *testing.T) {
 	b := newTestSitesBuilder(t)
 	b.WithTemplates("_default/list.html", `
@@ -672,25 +680,27 @@ baseURL = "https://example.org"
 abc: {{ template "print-page" $abc }}|IsAncestor: {{ $abc.IsAncestor $abcdefgs }}|IsDescendant: {{ $abc.IsDescendant $abcdefgs }}
 abcdefgs: {{ template "print-page" $abcdefgs }}|IsAncestor: {{ $abcdefgs.IsAncestor $abc }}|IsDescendant: {{ $abcdefgs.IsDescendant $abc }}
 
-{{ define "print-page" }}{{ .RelPermalink }}|{{ .Title }}|{{.Kind }}|Parent: {{ with .Parent }}{{ .RelPermalink }}{{ end }}|CurrentSection: {{ .CurrentSection.RelPermalink}}|FirstSection: {{ .FirstSection.RelPermalink }}{{ end }}
+{{ define "print-page" }}{{ .RelPermalink }}|{{ .Title }}|Kind: {{.Kind }}|Parent: {{ with .Parent }}{{ .RelPermalink }}{{ end }}|CurrentSection: {{ .CurrentSection.RelPermalink}}|FirstSection: {{ .FirstSection.RelPermalink }}{{ end }}
 
 `)
 
 	b.Build(BuildCfg{})
 
+	// b.H.Sites[0].pageMap.debugDefault()
+
 	b.AssertFileContent("public/index.html", `
-    Page: /||home|Parent: |CurrentSection: /|
-    Page: /abc/|abc|section|Parent: /|CurrentSection: /abc/|
-    Page: /abc/p1/|abc-p|page|Parent: /abc/|CurrentSection: /abc/|
-    Page: /abcdefgh/|abcdefgh|section|Parent: /|CurrentSection: /abcdefgh/|
-    Page: /abcdefgh/p1/|abcdefgh-p|page|Parent: /abcdefgh/|CurrentSection: /abcdefgh/|
-    Page: /abcdefghijk/|abcdefghijk|page|Parent: /|CurrentSection: /|
-    Page: /abcdefghis/|Abcdefghis|taxonomy|Parent: /|CurrentSection: /|
-    Page: /abcdefgs/|Abcdefgs|taxonomy|Parent: /|CurrentSection: /|
-    Page: /abcdefs/|Abcdefs|taxonomy|Parent: /|CurrentSection: /|
-    abc: /abcdefgs/abc/|abc|term|Parent: /abcdefgs/|CurrentSection: /abcdefgs/|
-    abcdefgs: /abcdefgs/|Abcdefgs|taxonomy|Parent: /|CurrentSection: /|
-    abc: /abcdefgs/abc/|abc|term|Parent: /abcdefgs/|CurrentSection: /abcdefgs/|FirstSection: /|IsAncestor: false|IsDescendant: true
-    abcdefgs: /abcdefgs/|Abcdefgs|taxonomy|Parent: /|CurrentSection: /|FirstSection: /|IsAncestor: true|IsDescendant: false
-`)
+    Page: /||Kind: home|Parent: |CurrentSection: /|
+    Page: /abc/|abc|Kind: section|Parent: /|CurrentSection: /abc/|
+    Page: /abc/p1/|abc-p|Kind: page|Parent: /abc/|CurrentSection: /abc/|
+    Page: /abcdefgh/|abcdefgh|Kind: section|Parent: /|CurrentSection: /abcdefgh/|
+    Page: /abcdefgh/p1/|abcdefgh-p|Kind: page|Parent: /abcdefgh/|CurrentSection: /abcdefgh/|
+    Page: /abcdefghijk/|abcdefghijk|Kind: page|Parent: /|CurrentSection: /|
+    Page: /abcdefghis/|Abcdefghis|Kind: taxonomy|Parent: /|CurrentSection: /abcdefghis/|
+    Page: /abcdefgs/|Abcdefgs|Kind: taxonomy|Parent: /|CurrentSection: /abcdefgs/|
+    Page: /abcdefs/|Abcdefs|Kind: taxonomy|Parent: /|CurrentSection: /abcdefs/|
+    abc: /abcdefgs/abc/|abc|Kind: term|Parent: /abcdefgs/|CurrentSection: /abcdefgs/abc/|
+    abcdefgs: /abcdefgs/|Abcdefgs|Kind: taxonomy|Parent: /|CurrentSection: /abcdefgs/|
+    
+    abc: /abcdefgs/abc/|abc|Kind: term|Parent: /abcdefgs/|CurrentSection: /abcdefgs/abc/|FirstSection: /abcdefgs/|IsAncestor: false|IsDescendant: true
+	abcdefgs: /abcdefgs/|Abcdefgs|Kind: taxonomy|Parent: /|CurrentSection: /abcdefgs/|FirstSection: /abcdefgs/|IsAncestor: true|IsDescendant: false`)
 }

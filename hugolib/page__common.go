@@ -27,11 +27,11 @@ import (
 )
 
 type treeRefProvider interface {
-	getTreeRef() *contentTreeRef
+	getTreeRef() contentTreeRefProvider
 }
 
-func (p *pageCommon) getTreeRef() *contentTreeRef {
-	return p.treeRef
+func (p *pageCommon) getTreeRef() contentTreeRefProvider {
+	return p.m.treeRef
 }
 
 type nextPrevProvider interface {
@@ -54,8 +54,7 @@ type pageCommon struct {
 	s *Site
 	m *pageMeta
 
-	bucket  *pagesMapBucket
-	treeRef *contentTreeRef
+	bucket *pagesMapBucket // Set for the branch nodes.
 
 	// Lazily initialized dependencies.
 	init *lazy.Init
@@ -79,7 +78,7 @@ type pageCommon struct {
 	page.RefProvider
 	page.ShortcodeInfoProvider
 	page.SitesProvider
-	page.DeprecatedWarningPageMethods
+	// Removed in 0.93.0, keep this a little in case we need to re-introduce it. page.DeprecatedWarningPageMethods
 	page.TranslationsProvider
 	page.TreeProvider
 	resource.LanguageProvider
@@ -101,6 +100,8 @@ type pageCommon struct {
 	// The parsed page content.
 	pageContent
 
+	shortcodeState *shortcodeHandler
+
 	// Set if feature enabled and this is in a Git repo.
 	gitInfo *gitmap.GitInfo
 
@@ -114,9 +115,6 @@ type pageCommon struct {
 	// Internal use
 	page.InternalDependencies
 
-	// The children. Regular pages will have none.
-	*pagePages
-
 	// Any bundled resources
 	resources            resource.Resources
 	resourcesInit        sync.Once
@@ -129,19 +127,15 @@ type pageCommon struct {
 	translationKey     string
 	translationKeyInit sync.Once
 
-	// Will only be set for bundled pages.
-	parent *pageState
-
-	// Set in fast render mode to force render a given page.
-	forceRender bool
+	buildState int
 }
 
-type pagePages struct {
-	pagesInit sync.Once
-	pages     page.Pages
+func (p *pageCommon) IdentifierBase() interface{} {
+	return p.Path()
+}
 
-	regularPagesInit          sync.Once
-	regularPages              page.Pages
-	regularPagesRecursiveInit sync.Once
-	regularPagesRecursive     page.Pages
+// IsStale returns whether the Page is stale and needs a full rebuild.
+func (p *pageCommon) IsStale() bool {
+	// TODO1 MarkStale
+	return p.resources.IsStale()
 }

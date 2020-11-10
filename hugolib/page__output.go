@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/resources/page"
@@ -54,13 +55,20 @@ func newPageOutput(
 		targetPathsProvider,
 	}
 
+	var dependencyManager identity.Manager = identity.NopManager
+	if ps.s.running() {
+		dependencyManager = identity.NewManager(identity.Anonymous)
+	}
+
 	po := &pageOutput{
 		f:                       f,
+		dependencyManager:       dependencyManager,
 		pagePerOutputProviders:  providers,
 		ContentProvider:         page.NopPage,
 		TableOfContentsProvider: page.NopPage,
 		render:                  render,
 		paginator:               pag,
+		ps:                      ps,
 	}
 
 	return po
@@ -69,7 +77,7 @@ func newPageOutput(
 // We create a pageOutput for every output format combination, even if this
 // particular page isn't configured to be rendered to that format.
 type pageOutput struct {
-	// Set if this page isn't configured to be rendered to this format.
+	// Enabled if this page is configured to be rendered to this format.
 	render bool
 
 	f output.Format
@@ -85,8 +93,19 @@ type pageOutput struct {
 	page.ContentProvider
 	page.TableOfContentsProvider
 
+	// We have one per output so we can do a fine grained page resets.
+	dependencyManager identity.Manager
+
+	ps *pageState
+
 	// May be nil.
 	cp *pageContentOutput
+
+	renderState int
+}
+
+func (o *pageOutput) GetDependencyManager() identity.Manager {
+	return o.dependencyManager
 }
 
 func (o *pageOutput) initRenderHooks() error {
@@ -97,10 +116,10 @@ func (o *pageOutput) initRenderHooks() error {
 	var initErr error
 
 	o.cp.renderHooks.init.Do(func() {
-		ps := o.cp.p
+		ps := o.ps
 
 		c := ps.getContentConverter()
-		if c == nil || !c.Supports(converter.FeatureRenderHooks) {
+		if c == nil || !c.Supports(converter.FeatureRenderHookImage) {
 			return
 		}
 

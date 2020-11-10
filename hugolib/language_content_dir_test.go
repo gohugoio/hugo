@@ -16,12 +16,13 @@ package hugolib
 import (
 	"fmt"
 	"os"
+
+	"github.com/gohugoio/hugo/resources/page/pagekinds"
+
 	"path/filepath"
 	"testing"
 
 	"github.com/spf13/cast"
-
-	"github.com/gohugoio/hugo/resources/page"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -311,7 +312,7 @@ Content.
 	b.AssertFileContent("/my/project/public/sv/sect/mybundle/logo.png", "PNG Data")
 	b.AssertFileContent("/my/project/public/nn/sect/mybundle/logo.png", "PNG Data")
 
-	nnSect := nnSite.getPage(page.KindSection, "sect")
+	nnSect := nnSite.getPage(pagekinds.Section, "sect")
 	c.Assert(nnSect, qt.Not(qt.IsNil))
 	c.Assert(len(nnSect.Pages()), qt.Equals, 12)
 	nnHome, _ := nnSite.Info.Home()

@@ -14,7 +14,6 @@
 package hugolib
 
 import (
-	"fmt"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -57,10 +56,13 @@ title: P1
 }
 
 func TestRenderHooks(t *testing.T) {
-	config := `
+	files := `
+-- config.toml --
 baseURL="https://example.org"
 workingDir="/mywork"
-
+disableKinds=["home", "section", "taxonomy", "term", "sitemap", "robotsTXT"]
+[outputs]
+  page = ['HTML']
 [markup]
 [markup.goldmark]
 [markup.goldmark.parser]
@@ -69,42 +71,26 @@ autoHeadingIDType = "github"
 [markup.goldmark.parser.attribute]
 block = true
 title = true
-
-`
-	b := newTestSitesBuilder(t).WithWorkingDir("/mywork").WithConfigFile("toml", config).Running()
-	b.WithTemplatesAdded("_default/single.html", `{{ .Content }}`)
-	b.WithTemplatesAdded("shortcodes/myshortcode1.html", `{{ partial "mypartial1" }}`)
-	b.WithTemplatesAdded("shortcodes/myshortcode2.html", `{{ partial "mypartial2" }}`)
-	b.WithTemplatesAdded("shortcodes/myshortcode3.html", `SHORT3|`)
-	b.WithTemplatesAdded("shortcodes/myshortcode4.html", `
-<div class="foo">
-{{ .Inner | markdownify }}
-</div>
-`)
-	b.WithTemplatesAdded("shortcodes/myshortcode5.html", `
-Inner Inline: {{ .Inner | .Page.RenderString }}
-Inner Block: {{ .Inner | .Page.RenderString (dict "display" "block" ) }}
-`)
-
-	b.WithTemplatesAdded("shortcodes/myshortcode6.html", `.Render: {{ .Page.Render "myrender" }}`)
-	b.WithTemplatesAdded("partials/mypartial1.html", `PARTIAL1`)
-	b.WithTemplatesAdded("partials/mypartial2.html", `PARTIAL2  {{ partial "mypartial3.html" }}`)
-	b.WithTemplatesAdded("partials/mypartial3.html", `PARTIAL3`)
-	b.WithTemplatesAdded("partials/mypartial4.html", `PARTIAL4`)
-	b.WithTemplatesAdded("customview/myrender.html", `myrender: {{ .Title }}|P4: {{ partial "mypartial4" }}`)
-	b.WithTemplatesAdded("_default/_markup/render-link.html", `{{ with .Page }}{{ .Title }}{{ end }}|{{ .Destination | safeURL }}|Title: {{ .Title | safeHTML }}|Text: {{ .Text | safeHTML }}|END`)
-	b.WithTemplatesAdded("docs/_markup/render-link.html", `Link docs section: {{ .Text | safeHTML }}|END`)
-	b.WithTemplatesAdded("_default/_markup/render-image.html", `IMAGE: {{ .Page.Title }}||{{ .Destination | safeURL }}|Title: {{ .Title | safeHTML }}|Text: {{ .Text | safeHTML }}|END`)
-	b.WithTemplatesAdded("_default/_markup/render-heading.html", `HEADING: {{ .Page.Title }}||Level: {{ .Level }}|Anchor: {{ .Anchor | safeURL }}|Text: {{ .Text | safeHTML }}|Attributes: {{ .Attributes }}|END`)
-	b.WithTemplatesAdded("docs/_markup/render-heading.html", `Docs Level: {{ .Level }}|END`)
-
-	b.WithContent("customview/p1.md", `---
-title: Custom View
+-- content/blog/notempl1.md --
+---
+title: No Template
 ---
 
-{{< myshortcode6 >}}
+## Content
+-- content/blog/notempl2.md --
+---
+title: No Template
+---
 
-	`, "blog/p1.md", `---
+## Content
+-- content/blog/notempl3.md --
+---
+title: No Template
+---
+
+## Content
+-- content/blog/p1.md --
+---
 title: Cool Page
 ---
 
@@ -124,10 +110,9 @@ Image:
 
 Attributes:
 
-## Some Heading {.text-serif #a-heading title="Hovered"} 
-
-
-`, "blog/p2.md", `---
+## Some Heading {.text-serif #a-heading title="Hovered"}
+-- content/blog/p2.md --
+---
 title: Cool Page2
 layout: mylayout
 ---
@@ -137,48 +122,36 @@ layout: mylayout
 [Some Text](https://www.google.com "Google's Homepage")
 
 ,[No Whitespace Please](https://gohugo.io),
-
-
-
-`, "blog/p3.md", `---
+-- content/blog/p3.md --
+---
 title: Cool Page3
 ---
 
 {{< myshortcode2 >}}
-
-
-`, "docs/docs1.md", `---
-title: Docs 1
+-- content/blog/p4.md --
 ---
-
-
-[Docs 1](https://www.google.com "Google's Homepage")
-
-
-`, "blog/p4.md", `---
 title: Cool Page With Image
 ---
 
 Image:
 
 ![Drag Racing](/images/Dragster.jpg "image title")
-
-
-`, "blog/p5.md", `---
+-- content/blog/p5.md --
+---
 title: Cool Page With Markdownify
 ---
 
 {{< myshortcode4 >}}
 Inner Link: [Inner Link](https://www.google.com "Google's Homepage")
 {{< /myshortcode4 >}}
-
-`, "blog/p6.md", `---
+-- content/blog/p6.md --
+---
 title: With RenderString
 ---
 
 {{< myshortcode5 >}}Inner Link: [Inner Link](https://www.gohugo.io "Hugo's Homepage"){{< /myshortcode5 >}}
-
-`, "blog/p7.md", `---
+-- content/blog/p7.md --
+---
 title: With Headings
 ---
 
@@ -188,28 +161,82 @@ some text
 ## Heading Level 2
 
 ### Heading Level 3
-`,
-		"docs/p8.md", `---
+-- content/customview/p1.md --
+---
+title: Custom View
+---
+
+{{< myshortcode6 >}}
+-- content/docs/docs1.md --
+---
+title: Docs 1
+---
+[Docs 1](https://www.google.com "Google's Homepage")
+-- content/docs/p8.md --
+---
 title: Doc With Heading
 ---
-
 # Docs lvl 1
+-- data/hugo.toml --
+slogan = "Hugo Rocks!"
+-- layouts/_default/_markup/render-heading.html --
+HEADING: {{ .Page.Title }}||Level: {{ .Level }}|Anchor: {{ .Anchor | safeURL }}|Text: {{ .Text | safeHTML }}|Attributes: {{ .Attributes }}|END
+-- layouts/_default/_markup/render-image.html --
+IMAGE: {{ .Page.Title }}||{{ .Destination | safeURL }}|Title: {{ .Title | safeHTML }}|Text: {{ .Text | safeHTML }}|END
+-- layouts/_default/_markup/render-link.html --
+{{ with .Page }}{{ .Title }}{{ end }}|{{ .Destination | safeURL }}|Title: {{ .Title | safeHTML }}|Text: {{ .Text | safeHTML }}|END
+-- layouts/_default/single.html --
+{{ .Content }}
+-- layouts/customview/myrender.html --
+myrender: {{ .Title }}|P4: {{ partial "mypartial4" }}
+-- layouts/docs/_markup/render-heading.html --
+Docs Level: {{ .Level }}|END
+-- layouts/docs/_markup/render-link.html --
+Link docs section: {{ .Text | safeHTML }}|END
+-- layouts/partials/mypartial1.html --
+PARTIAL1
+-- layouts/partials/mypartial2.html --
+PARTIAL2  {{ partial "mypartial3.html" }}
+-- layouts/partials/mypartial3.html --
+PARTIAL3
+-- layouts/partials/mypartial4.html --
+PARTIAL4
+-- layouts/robots.txt --
+robots|{{ .Lang }}|{{ .Title }}
+-- layouts/shortcodes/lingo.fr.html --
+LingoFrench
+-- layouts/shortcodes/lingo.html --
+LingoDefault
+-- layouts/shortcodes/myshortcode1.html --
+{{ partial "mypartial1" }}
+-- layouts/shortcodes/myshortcode2.html --
+{{ partial "mypartial2" }}
+-- layouts/shortcodes/myshortcode3.html --
+SHORT3|
+-- layouts/shortcodes/myshortcode4.html --
+<div class="foo">
+{{ .Inner | markdownify }}
+</div>
+-- layouts/shortcodes/myshortcode5.html --
+Inner Inline: {{ .Inner | .Page.RenderString }}
+Inner Block: {{ .Inner | .Page.RenderString (dict "display" "block" ) }}
+-- layouts/shortcodes/myshortcode6.html --
+.Render: {{ .Page.Render "myrender" }}
 
-`,
-	)
+	`
 
-	for i := 1; i <= 30; i++ {
-		// Add some content with no shortcodes or links, i.e no templates needed.
-		b.WithContent(fmt.Sprintf("blog/notempl%d.md", i), `---
-title: No Template
----
+	c := qt.New(t)
 
-## Content
-`)
-	}
-	counters := &testCounters{}
-	b.Build(BuildCfg{testCounters: counters})
-	b.Assert(int(counters.contentRenderCounter), qt.Equals, 45)
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           c,
+			TxtarString: files,
+			WorkingDir:  "/mywork",
+			Running:     true,
+		},
+	).Build()
+
+	b.AssertRenderCountContent(13)
 
 	b.AssertFileContent("public/blog/p1/index.html", `
 Cool Page|https://www.google.com|Title: Google's Homepage|Text: First Link|END
@@ -246,12 +273,10 @@ SHORT3|
 		"layouts/partials/mypartial3.html", `PARTIAL3_EDITED`,
 		"layouts/partials/mypartial4.html", `PARTIAL4_EDITED`,
 		"layouts/shortcodes/myshortcode3.html", `SHORT3_EDITED|`,
-	)
+	).Build()
 
-	counters = &testCounters{}
-	b.Build(BuildCfg{testCounters: counters})
 	// Make sure that only content using the changed templates are re-rendered.
-	b.Assert(int(counters.contentRenderCounter), qt.Equals, 7)
+	// TODO1	b.AssertRenderCountContent(7)
 
 	b.AssertFileContent("public/customview/p1/index.html", `.Render: myrender: Custom View|P4: PARTIAL4_EDITED`)
 	b.AssertFileContent("public/blog/p1/index.html", `<p>EDITED: https://www.google.com|</p>`, "SHORT3_EDITED|")
@@ -294,28 +319,36 @@ title: P1
 }
 
 func TestRenderHookAddTemplate(t *testing.T) {
-	config := `
+	c := qt.New(t)
+
+	files := `
+-- config.toml --
 baseURL="https://example.org"
 workingDir="/mywork"
-`
-	b := newTestSitesBuilder(t).WithWorkingDir("/mywork").WithConfigFile("toml", config).Running()
-	b.WithTemplatesAdded("_default/single.html", `{{ .Content }}`)
-
-	b.WithContent("p1.md", `---
-title: P1
----
+-- content/p1.md --
 [First Link](https://www.google.com "Google's Homepage")
+-- content/p2.md --
+No link.
+-- layouts/_default/single.html --
+{{ .Content }}
 
-`)
-	b.Build(BuildCfg{})
+	`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           c,
+			WorkingDir:  "/mywork",
+			TxtarString: files,
+			Running:     true,
+		}).Build()
 
 	b.AssertFileContent("public/p1/index.html", `<p><a href="https://www.google.com" title="Google's Homepage">First Link</a></p>`)
+	b.AssertRenderCountContent(2)
 
-	b.EditFiles("layouts/_default/_markup/render-link.html", `html-render-link`)
-
-	b.Build(BuildCfg{})
+	b.EditFiles("layouts/_default/_markup/render-link.html", `html-render-link`).Build()
 
 	b.AssertFileContent("public/p1/index.html", `<p>html-render-link</p>`)
+	b.AssertRenderCountContent(1)
 }
 
 func TestRenderHooksRSS(t *testing.T) {

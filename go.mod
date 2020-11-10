@@ -2,8 +2,6 @@ module github.com/gohugoio/hugo
 
 require (
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
-	github.com/PuerkitoBio/purell v1.1.1
-	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/alecthomas/chroma v0.9.4
 	github.com/armon/go-radix v1.0.0
 	github.com/aws/aws-sdk-go v1.41.14
@@ -17,8 +15,7 @@ require (
 	github.com/cli/safeexec v1.0.0
 	github.com/disintegration/gift v1.2.1
 	github.com/dustin/go-humanize v1.0.0
-	github.com/evanw/esbuild v0.14.8
-	github.com/fortytw2/leaktest v1.3.0
+	github.com/evanw/esbuild v0.14.5
 	github.com/frankban/quicktest v1.14.0
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/getkin/kin-openapi v0.85.0
@@ -32,6 +29,7 @@ require (
 	github.com/google/go-cmp v0.5.6
 	github.com/gorilla/websocket v1.4.2
 	github.com/jdkato/prose v1.2.1
+	github.com/karlseguin/ccache/v2 v2.0.8
 	github.com/kylelemons/godebug v1.1.0
 	github.com/kyokomi/emoji/v2 v2.2.8
 	github.com/magefile/mage v1.11.0
@@ -42,6 +40,7 @@ require (
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/niklasfasching/go-org v1.6.0
 	github.com/olekukonko/tablewriter v0.0.5
+	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58
 	github.com/pelletier/go-toml/v2 v2.0.0-beta.3.0.20210727221244-fa0796069526
 	github.com/pkg/errors v0.9.1
 	github.com/rogpeppe/go-internal v1.8.0
@@ -63,6 +62,7 @@ require (
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/text v0.3.7
+	golang.org/x/tools v0.1.5
 	google.golang.org/api v0.61.0
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/yaml.v2 v2.4.0

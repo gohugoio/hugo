@@ -14,13 +14,17 @@
 package htesting
 
 import (
+	"fmt"
 	"math/rand"
 	"os"
 	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
+	"testing"
 	"time"
+
+	qt "github.com/frankban/quicktest"
 
 	"github.com/spf13/afero"
 )
@@ -107,6 +111,11 @@ func IsCI() bool {
 	return (os.Getenv("CI") != "" || os.Getenv("CI_LOCAL") != "") && os.Getenv("CIRCLE_BRANCH") == ""
 }
 
+// IsWindows reports whether this runs on Windows.
+func IsWindows() bool {
+	return runtime.GOOS == "windows"
+}
+
 // IsGitHubAction reports whether we're running in a GitHub Action.
 func IsGitHubAction() bool {
 	return os.Getenv("GITHUB_ACTION") != ""
@@ -140,5 +149,47 @@ func extractMinorVersionFromGoTag(tag string) int {
 
 	// a commit hash, not useful.
 	return -1
+}
 
+// Println should only be used for temporary debugging.
+func Println(a ...interface{}) {
+	if !IsTest {
+		panic("tprintln left in production code")
+	}
+	fmt.Println(a...)
+}
+
+// Printf should only be used for temporary debugging.
+func Printf(format string, a ...interface{}) {
+	if !IsTest {
+		// panic("tprintf left in production code")
+	}
+	fmt.Printf(format, a...)
+}
+
+func NewPinnedRunner(t testing.TB, pinnedTestRe string) *PinnedRunner {
+	if pinnedTestRe == "" {
+		pinnedTestRe = ".*"
+	}
+	re := regexp.MustCompile("(?i)" + pinnedTestRe)
+	return &PinnedRunner{
+		c:  qt.New(t),
+		re: re,
+	}
+}
+
+type PinnedRunner struct {
+	c  *qt.C
+	re *regexp.Regexp
+}
+
+func (r *PinnedRunner) Run(name string, f func(c *qt.C)) bool {
+	if !r.re.MatchString(name) {
+		if IsCI() {
+			// TODO1 enable
+			// r.c.Fatal("found pinned test when running in CI")
+		}
+		return true
+	}
+	return r.c.Run(name, f)
 }

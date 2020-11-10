@@ -19,6 +19,7 @@ import (
 	"sync"
 
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/htesting"
 
 	"github.com/gohugoio/hugo/hugofs/files"
 
@@ -105,7 +106,7 @@ type FileInfo struct {
 
 	sp *SourceSpec
 
-	fi hugofs.FileMetaInfo
+	fim hugofs.FileMetaInfo
 
 	// Derived from filename
 	ext  string // Extension without any "."
@@ -127,8 +128,16 @@ type FileInfo struct {
 	lazyInit sync.Once
 }
 
+func (fi *FileInfo) pathToDir(s string) string {
+	return filepath.FromSlash(s[1:] + "/")
+}
+
+func (fi *FileInfo) p() paths.Path {
+	return fi.fim.Meta().PathInfo
+}
+
 // Filename returns a file's absolute path and filename on disk.
-func (fi *FileInfo) Filename() string { return fi.filename }
+func (fi *FileInfo) Filename() string { return fi.fim.Meta().Filename }
 
 // Path gets the relative path including file name and extension.  The directory
 // is relative to the content root.
@@ -136,22 +145,33 @@ func (fi *FileInfo) Path() string { return fi.relPath }
 
 // Dir gets the name of the directory that contains this file.  The directory is
 // relative to the content root.
-func (fi *FileInfo) Dir() string { return fi.relDir }
+func (fi *FileInfo) Dir() string {
+	return fi.pathToDir(fi.p().Dir())
+}
 
 // Extension is an alias to Ext().
-func (fi *FileInfo) Extension() string { return fi.Ext() }
+func (fi *FileInfo) Extension() string {
+	helpers.Deprecated(".File.Extension()", ".File.Ext()", false)
+	return fi.Ext()
+}
 
 // Ext returns a file's extension without the leading period (ie. "md").
-func (fi *FileInfo) Ext() string { return fi.ext }
+func (fi *FileInfo) Ext() string { return fi.p().Ext() }
 
 // Lang returns a file's language (ie. "sv").
-func (fi *FileInfo) Lang() string { return fi.lang }
+func (fi *FileInfo) Lang() string { return fi.p().Identifier(1) }
 
 // LogicalName returns a file's name and extension (ie. "page.sv.md").
-func (fi *FileInfo) LogicalName() string { return fi.name }
+func (fi *FileInfo) LogicalName() string {
+	return fi.p().Name()
+}
 
 // BaseFileName returns a file's name without extension (ie. "page.sv").
-func (fi *FileInfo) BaseFileName() string { return fi.baseName }
+func (fi *FileInfo) BaseFileName() string {
+	htesting.Println("===>l", fi.p().Base())
+
+	return fi.baseName
+}
 
 // TranslationBaseName returns a file's translation base name without the
 // language segment (ie. "page").
@@ -177,13 +197,13 @@ func (fi *FileInfo) UniqueID() string {
 }
 
 // FileInfo returns a file's underlying os.FileInfo.
-func (fi *FileInfo) FileInfo() hugofs.FileMetaInfo { return fi.fi }
+func (fi *FileInfo) FileInfo() hugofs.FileMetaInfo { return fi.fim }
 
 func (fi *FileInfo) String() string { return fi.BaseFileName() }
 
 // Open implements ReadableFile.
 func (fi *FileInfo) Open() (hugio.ReadSeekCloser, error) {
-	f, err := fi.fi.Meta().Open()
+	f, err := fi.fim.Meta().Open()
 
 	return f, err
 }
@@ -277,7 +297,7 @@ func (sp *SourceSpec) NewFileInfo(fi hugofs.FileMetaInfo) (*FileInfo, error) {
 	f := &FileInfo{
 		sp:                  sp,
 		filename:            filename,
-		fi:                  fi,
+		fim:                 fi,
 		lang:                lang,
 		ext:                 ext,
 		dir:                 dir,

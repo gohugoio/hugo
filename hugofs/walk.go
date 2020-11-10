@@ -21,6 +21,7 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/pkg/errors"
 
@@ -36,6 +37,8 @@ type Walkway struct {
 	fs       afero.Fs
 	root     string
 	basePath string
+
+	doFoo bool
 
 	logger loggers.Logger
 
@@ -55,8 +58,10 @@ type Walkway struct {
 }
 
 type WalkwayConfig struct {
-	Fs       afero.Fs
-	Root     string
+	Fs   afero.Fs
+	Root string
+
+	// TODO1 check if we can remove.
 	BasePath string
 
 	Logger loggers.Logger
@@ -64,6 +69,9 @@ type WalkwayConfig struct {
 	// One or both of these may be pre-set.
 	Info       FileMetaInfo
 	DirEntries []FileMetaInfo
+
+	// TODO1
+	DoFoo bool
 
 	WalkFn   WalkFunc
 	HookPre  WalkHook
@@ -97,6 +105,7 @@ func NewWalkway(cfg WalkwayConfig) *Walkway {
 		walkFn:     cfg.WalkFn,
 		hookPre:    cfg.HookPre,
 		hookPost:   cfg.HookPost,
+		doFoo:      cfg.DoFoo,
 		logger:     logger,
 		seen:       make(map[string]bool),
 	}
@@ -260,15 +269,19 @@ func (w *Walkway) walk(path string, info FileMetaInfo, dirEntries []FileMetaInfo
 		if name == "" {
 			panic(fmt.Sprintf("[%s] no name set in %v", path, meta))
 		}
-		pathn := filepath.Join(path, name)
 
-		pathMeta := pathn
-		if w.basePath != "" {
-			pathMeta = strings.TrimPrefix(pathn, w.basePath)
+		if meta.PathInfo == nil {
+			pathn := filepath.Join(path, name)
+
+			pathMeta := pathn
+			if w.basePath != "" {
+				pathMeta = strings.TrimPrefix(pathn, w.basePath) // TODO1  basePath usage?
+			}
+
+			meta.Path = normalizeFilename(pathMeta)
+			meta.PathInfo = paths.Parse(meta.Path, paths.ForComponent(meta.Component))
+			meta.PathWalk = pathn
 		}
-
-		meta.Path = normalizeFilename(pathMeta)
-		meta.PathWalk = pathn
 
 		if fim.IsDir() && w.isSeen(meta.Filename) {
 			// Prevent infinite recursion

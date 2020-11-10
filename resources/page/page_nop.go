@@ -16,6 +16,7 @@
 package page
 
 import (
+	"context"
 	"html/template"
 	"time"
 
@@ -398,7 +399,7 @@ func (p *nopPage) RelRef(argsm map[string]interface{}) (string, error) {
 	return "", nil
 }
 
-func (p *nopPage) Render(layout ...string) (template.HTML, error) {
+func (p *nopPage) Render(ctx context.Context, layout ...string) (template.HTML, error) {
 	return "", nil
 }
 
@@ -502,6 +503,10 @@ func (p *nopPage) WordCount() int {
 	return 0
 }
 
-func (p *nopPage) GetIdentity() identity.Identity {
-	return identity.NewPathIdentity("content", "foo/bar.md")
+func (p *nopPage) IdentifierBase() interface{} {
+	return ""
+}
+
+func (p *nopPage) GetDependencyManager() identity.Manager {
+	panic("Not implemented")
 }

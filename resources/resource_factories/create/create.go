@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2021 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,11 +16,14 @@
 package create
 
 import (
+	"context"
 	"net/http"
 	"path"
 	"path/filepath"
-	"strings"
 	"time"
+
+	"github.com/gohugoio/hugo/cache/memcache"
+	"github.com/gohugoio/hugo/identity"
 
 	"github.com/gohugoio/hugo/hugofs/glob"
 
@@ -54,11 +57,16 @@ func New(rs *resources.Spec) *Client {
 // Get creates a new Resource by opening the given filename in the assets filesystem.
 func (c *Client) Get(filename string) (resource.Resource, error) {
 	filename = filepath.Clean(filename)
-	return c.rs.ResourceCache.GetOrCreate(resources.ResourceCacheKey(filename), func() (resource.Resource, error) {
+	key := memcache.CleanKey(filename)
+	return c.rs.ResourceCache.GetOrCreate(context.TODO(), key, memcache.ClearOnChange, func() (resource.Resource, error) {
+		// TODO1 consolidate etc. (make into one identity)
+		id := identity.NewManager(identity.StringIdentity(key))
 		return c.rs.New(resources.ResourceSourceDescriptor{
-			Fs:             c.rs.BaseFs.Assets.Fs,
-			LazyPublish:    true,
-			SourceFilename: filename,
+			Fs:                c.rs.BaseFs.Assets.Fs,
+			LazyPublish:       true,
+			SourceFilename:    filename,
+			GroupIdentity:     id,
+			DependencyManager: id,
 		})
 	})
 }
@@ -85,13 +93,7 @@ func (c *Client) match(pattern string, firstOnly bool) (resource.Resources, erro
 		name = "__match"
 	}
 
-	pattern = glob.NormalizePath(pattern)
-	partitions := glob.FilterGlobParts(strings.Split(pattern, "/"))
-	if len(partitions) == 0 {
-		partitions = []string{resources.CACHE_OTHER}
-	}
-	key := path.Join(name, path.Join(partitions...))
-	key = path.Join(key, pattern)
+	key := path.Join(name, glob.NormalizePath(pattern))
 
 	return c.rs.ResourceCache.GetOrCreateResources(key, func() (resource.Resources, error) {
 		var res resource.Resources
@@ -125,7 +127,7 @@ func (c *Client) match(pattern string, firstOnly bool) (resource.Resources, erro
 
 // FromString creates a new Resource from a string with the given relative target path.
 func (c *Client) FromString(targetPath, content string) (resource.Resource, error) {
-	return c.rs.ResourceCache.GetOrCreate(path.Join(resources.CACHE_OTHER, targetPath), func() (resource.Resource, error) {
+	r, err := c.rs.ResourceCache.GetOrCreate(context.TODO(), memcache.CleanKey(targetPath), memcache.ClearOnRebuild, func() (resource.Resource, error) {
 		return c.rs.New(
 			resources.ResourceSourceDescriptor{
 				Fs:          c.rs.FileCaches.AssetsCache().Fs,
@@ -136,4 +138,10 @@ func (c *Client) FromString(targetPath, content string) (resource.Resource, erro
 				RelTargetFilename: filepath.Clean(targetPath),
 			})
 	})
+
+	if err == nil {
+		// Mark it so it gets evicted on rebuild.
+		r.(resource.Staler).MarkStale()
+	}
+	return r, err
 }

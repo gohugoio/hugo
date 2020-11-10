@@ -86,7 +86,6 @@ tags_weight: %d
 		"pageGroups:2:page.PagesGroup:Page(/page1.md)/Page(/page2.md)",
 		`weightedPages:2::page.WeightedPages:[WeightedPage(10,"Page") WeightedPage(20,"Page")]`)
 }
-
 func TestUnionFunc(t *testing.T) {
 	c := qt.New(t)
 
@@ -96,7 +95,6 @@ title: "Page"
 tags: ["blue", "green"]
 tags_weight: %d
 ---
-
 `
 	b := newTestSitesBuilder(t)
 	b.WithSimpleConfigFile().

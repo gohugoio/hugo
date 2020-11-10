@@ -22,6 +22,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/resources/page/pagekinds"
+
 	"github.com/gobuffalo/flect"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/publisher"
@@ -609,7 +611,7 @@ func TestOrderedPages(t *testing.T) {
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
-	if s.getPage(page.KindSection, "sect").Pages()[1].Title() != "Three" || s.getPage(page.KindSection, "sect").Pages()[2].Title() != "Four" {
+	if s.getPage(pagekinds.Section, "sect").Pages()[1].Title() != "Three" || s.getPage(pagekinds.Section, "sect").Pages()[2].Title() != "Four" {
 		t.Error("Pages in unexpected order.")
 	}
 
@@ -897,7 +899,7 @@ func TestRefLinking(t *testing.T) {
 	t.Parallel()
 	site := setupLinkingMockSite(t)
 
-	currentPage := site.getPage(page.KindPage, "level2/level3/start.md")
+	currentPage := site.getPage(pagekinds.Page, "level2/level3/start.md")
 	if currentPage == nil {
 		t.Fatalf("failed to find current page in site")
 	}
@@ -957,12 +959,14 @@ func TestRefLinking(t *testing.T) {
 func checkLinkCase(site *Site, link string, currentPage page.Page, relative bool, outputFormat string, expected string, t *testing.T, i int) {
 	t.Helper()
 	if out, err := site.refLink(link, currentPage, relative, outputFormat); err != nil || out != expected {
-		t.Fatalf("[%d] Expected %q from %q to resolve to %q, got %q - error: %s", i, link, currentPage.Pathc(), expected, out, err)
+		t.Fatalf("[%d] Expected %q from %q to resolve to %q, got %q - error: %s", i, link, currentPage.Path(), expected, out, err)
 	}
 }
 
 // https://github.com/gohugoio/hugo/issues/6952
 func TestRefIssues(t *testing.T) {
+	t.Parallel()
+
 	b := newTestSitesBuilder(t)
 	b.WithContent(
 		"post/b1/index.md", "---\ntitle: pb1\n---\nRef: {{< ref \"b2\" >}}",
@@ -982,6 +986,8 @@ func TestRefIssues(t *testing.T) {
 func TestClassCollector(t *testing.T) {
 	for _, minify := range []bool{false, true} {
 		t.Run(fmt.Sprintf("minify-%t", minify), func(t *testing.T) {
+			t.Parallel()
+
 			statsFilename := "hugo_stats.json"
 			defer os.Remove(statsFilename)
 

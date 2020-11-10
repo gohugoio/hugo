@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2021 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@
 package resources
 
 import (
+	"context"
 	"image"
 	"io"
 	"path/filepath"
-	"strings"
-	"sync"
+
+	"github.com/gohugoio/hugo/cache/memcache"
 
 	"github.com/gohugoio/hugo/resources/images"
 
@@ -30,36 +31,7 @@ type imageCache struct {
 	pathSpec *helpers.PathSpec
 
 	fileCache *filecache.Cache
-
-	mu    sync.RWMutex
-	store map[string]*resourceAdapter
-}
-
-func (c *imageCache) deleteIfContains(s string) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	s = c.normalizeKeyBase(s)
-	for k := range c.store {
-		if strings.Contains(k, s) {
-			delete(c.store, k)
-		}
-	}
-}
-
-// The cache key is a lowercase path with Unix style slashes and it always starts with
-// a leading slash.
-func (c *imageCache) normalizeKey(key string) string {
-	return "/" + c.normalizeKeyBase(key)
-}
-
-func (c *imageCache) normalizeKeyBase(key string) string {
-	return strings.Trim(strings.ToLower(filepath.ToSlash(key)), "/")
-}
-
-func (c *imageCache) clear() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.store = make(map[string]*resourceAdapter)
+	mCache    memcache.Getter
 }
 
 func (c *imageCache) getOrCreate(
@@ -67,101 +39,90 @@ func (c *imageCache) getOrCreate(
 	createImage func() (*imageResource, image.Image, error)) (*resourceAdapter, error) {
 	relTarget := parent.relTargetPathFromConfig(conf)
 	memKey := parent.relTargetPathForRel(relTarget.path(), false, false, false)
-	memKey = c.normalizeKey(memKey)
+	memKey = memcache.CleanKey(memKey)
 
-	// For the file cache we want to generate and store it once if possible.
-	fileKeyPath := relTarget
-	if fi := parent.root.getFileInfo(); fi != nil {
-		fileKeyPath.dir = filepath.ToSlash(filepath.Dir(fi.Meta().Path))
-	}
-	fileKey := fileKeyPath.path()
+	v, err := c.mCache.GetOrCreate(context.TODO(), memKey, func() memcache.Entry {
+		// For the file cache we want to generate and store it once if possible.
+		fileKeyPath := relTarget
+		if fi := parent.root.getFileInfo(); fi != nil {
+			fileKeyPath.dir = filepath.ToSlash(filepath.Dir(fi.Meta().Path))
+		}
+		fileKey := fileKeyPath.path()
 
-	// First check the in-memory store, then the disk.
-	c.mu.RLock()
-	cachedImage, found := c.store[memKey]
-	c.mu.RUnlock()
+		var img *imageResource
 
-	if found {
-		return cachedImage, nil
-	}
+		// These funcs are protected by a named lock.
+		// read clones the parent to its new name and copies
+		// the content to the destinations.
+		read := func(info filecache.ItemInfo, r io.ReadSeeker) error {
+			img = parent.clone(nil)
+			rp := img.getResourcePaths()
+			rp.relTargetDirFile.file = relTarget.file
+			img.setSourceFilename(info.Name)
 
-	var img *imageResource
+			if err := img.InitConfig(r); err != nil {
+				return err
+			}
 
-	// These funcs are protected by a named lock.
-	// read clones the parent to its new name and copies
-	// the content to the destinations.
-	read := func(info filecache.ItemInfo, r io.ReadSeeker) error {
-		img = parent.clone(nil)
-		rp := img.getResourcePaths()
-		rp.relTargetDirFile.file = relTarget.file
-		img.setSourceFilename(info.Name)
+			r.Seek(0, 0)
 
-		if err := img.InitConfig(r); err != nil {
+			w, err := img.openDestinationsForWriting()
+			if err != nil {
+				return err
+			}
+
+			if w == nil {
+				// Nothing to write.
+				return nil
+			}
+
+			defer w.Close()
+			_, err = io.Copy(w, r)
+
 			return err
 		}
 
-		r.Seek(0, 0)
+		// create creates the image and encodes it to the cache (w).
+		create := func(info filecache.ItemInfo, w io.WriteCloser) (err error) {
+			defer w.Close()
 
-		w, err := img.openDestinationsForWriting()
+			var conv image.Image
+			img, conv, err = createImage()
+			if err != nil {
+				return
+			}
+			rp := img.getResourcePaths()
+			rp.relTargetDirFile.file = relTarget.file
+			img.setSourceFilename(info.Name)
+
+			return img.EncodeTo(conf, conv, w)
+		}
+
+		// Now look in the file cache.
+
+		// The definition of this counter is not that we have processed that amount
+		// (e.g. resized etc.), it can be fetched from file cache,
+		//  but the count of processed image variations for this site.
+		c.pathSpec.ProcessingStats.Incr(&c.pathSpec.ProcessingStats.ProcessedImages)
+
+		_, err := c.fileCache.ReadOrCreate(fileKey, read, create)
 		if err != nil {
-			return err
+			return memcache.Entry{Err: err}
 		}
 
-		if w == nil {
-			// Nothing to write.
-			return nil
-		}
+		// The file is now stored in this cache.
+		img.setSourceFs(c.fileCache.Fs)
 
-		defer w.Close()
-		_, err = io.Copy(w, r)
+		imgAdapter := newResourceAdapter(parent.getSpec(), true, img)
 
-		return err
-	}
-
-	// create creates the image and encodes it to the cache (w).
-	create := func(info filecache.ItemInfo, w io.WriteCloser) (err error) {
-		defer w.Close()
-
-		var conv image.Image
-		img, conv, err = createImage()
-		if err != nil {
-			return
-		}
-		rp := img.getResourcePaths()
-		rp.relTargetDirFile.file = relTarget.file
-		img.setSourceFilename(info.Name)
-
-		return img.EncodeTo(conf, conv, w)
-	}
-
-	// Now look in the file cache.
-
-	// The definition of this counter is not that we have processed that amount
-	// (e.g. resized etc.), it can be fetched from file cache,
-	//  but the count of processed image variations for this site.
-	c.pathSpec.ProcessingStats.Incr(&c.pathSpec.ProcessingStats.ProcessedImages)
-
-	_, err := c.fileCache.ReadOrCreate(fileKey, read, create)
+		return memcache.Entry{Value: imgAdapter, ClearWhen: memcache.ClearOnChange}
+	})
 	if err != nil {
 		return nil, err
 	}
-
-	// The file is now stored in this cache.
-	img.setSourceFs(c.fileCache.Fs)
-
-	c.mu.Lock()
-	if cachedImage, found = c.store[memKey]; found {
-		c.mu.Unlock()
-		return cachedImage, nil
-	}
-
-	imgAdapter := newResourceAdapter(parent.getSpec(), true, img)
-	c.store[memKey] = imgAdapter
-	c.mu.Unlock()
-
-	return imgAdapter, nil
+	return v.(*resourceAdapter), nil
 }
 
-func newImageCache(fileCache *filecache.Cache, ps *helpers.PathSpec) *imageCache {
-	return &imageCache{fileCache: fileCache, pathSpec: ps, store: make(map[string]*resourceAdapter)}
+func newImageCache(fileCache *filecache.Cache, memCache *memcache.Cache, ps *helpers.PathSpec) *imageCache {
+	return &imageCache{fileCache: fileCache, mCache: memCache.GetOrCreatePartition("images", memcache.ClearOnChange), pathSpec: ps}
 }

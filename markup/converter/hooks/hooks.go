@@ -14,9 +14,7 @@
 package hooks
 
 import (
-	"fmt"
 	"io"
-	"strings"
 
 	"github.com/gohugoio/hugo/identity"
 )
@@ -35,7 +33,7 @@ type LinkContext interface {
 
 type LinkRenderer interface {
 	RenderLink(w io.Writer, ctx LinkContext) error
-	identity.Provider
+	Template() identity.Identity // TODO1 remove this
 }
 
 // HeadingContext contains accessors to all attributes that a HeadingRenderer
@@ -60,7 +58,7 @@ type HeadingContext interface {
 type HeadingRenderer interface {
 	// Render writes the rendered content to w using the data in w.
 	RenderHeading(w io.Writer, ctx HeadingContext) error
-	identity.Provider
+	Template() identity.Identity
 }
 
 type Renderers struct {
@@ -84,7 +82,7 @@ func (r Renderers) Eq(other interface{}) bool {
 	if (b1 || b2) && (b1 != b2) {
 		return false
 	}
-	if !b1 && r.ImageRenderer.GetIdentity() != ro.ImageRenderer.GetIdentity() {
+	if !b1 && r.ImageRenderer.Template() != ro.ImageRenderer.Template() {
 		return false
 	}
 
@@ -92,7 +90,7 @@ func (r Renderers) Eq(other interface{}) bool {
 	if (b1 || b2) && (b1 != b2) {
 		return false
 	}
-	if !b1 && r.LinkRenderer.GetIdentity() != ro.LinkRenderer.GetIdentity() {
+	if !b1 && r.LinkRenderer.Template() != ro.LinkRenderer.Template() {
 		return false
 	}
 
@@ -100,7 +98,7 @@ func (r Renderers) Eq(other interface{}) bool {
 	if (b1 || b2) && (b1 != b2) {
 		return false
 	}
-	if !b1 && r.HeadingRenderer.GetIdentity() != ro.HeadingRenderer.GetIdentity() {
+	if !b1 && r.HeadingRenderer.Template() != ro.HeadingRenderer.Template() {
 		return false
 	}
 
@@ -109,24 +107,4 @@ func (r Renderers) Eq(other interface{}) bool {
 
 func (r Renderers) IsZero() bool {
 	return r.HeadingRenderer == nil && r.LinkRenderer == nil && r.ImageRenderer == nil
-}
-
-func (r Renderers) String() string {
-	if r.IsZero() {
-		return "<zero>"
-	}
-
-	var sb strings.Builder
-
-	if r.LinkRenderer != nil {
-		sb.WriteString(fmt.Sprintf("LinkRenderer<%s>|", r.LinkRenderer.GetIdentity()))
-	}
-	if r.HeadingRenderer != nil {
-		sb.WriteString(fmt.Sprintf("HeadingRenderer<%s>|", r.HeadingRenderer.GetIdentity()))
-	}
-	if r.ImageRenderer != nil {
-		sb.WriteString(fmt.Sprintf("ImageRenderer<%s>|", r.ImageRenderer.GetIdentity()))
-	}
-
-	return sb.String()
 }

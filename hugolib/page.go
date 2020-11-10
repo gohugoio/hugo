@@ -15,13 +15,13 @@ package hugolib
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"html/template"
 	"os"
 	"path"
 	"path/filepath"
 	"sort"
-	"strings"
 
 	"github.com/mitchellh/mapstructure"
 
@@ -30,8 +30,6 @@ import (
 	"github.com/gohugoio/hugo/markup/converter"
 
 	"github.com/gohugoio/hugo/tpl"
-
-	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/bep/gitmap"
 
@@ -46,7 +44,7 @@ import (
 	"github.com/gohugoio/hugo/output"
 
 	"github.com/gohugoio/hugo/media"
-	"github.com/gohugoio/hugo/source"
+	"github.com/gohugoio/hugo/resources/page/pagekinds"
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/common/collections"
@@ -58,9 +56,10 @@ import (
 )
 
 var (
-	_ page.Page           = (*pageState)(nil)
-	_ collections.Grouper = (*pageState)(nil)
-	_ collections.Slicer  = (*pageState)(nil)
+	_ page.Page                          = (*pageState)(nil)
+	_ collections.Grouper                = (*pageState)(nil)
+	_ collections.Slicer                 = (*pageState)(nil)
+	_ identity.DependencyManagerProvider = (*pageState)(nil)
 )
 
 var (
@@ -78,7 +77,7 @@ type pageContext interface {
 	posOffset(offset int) text.Position
 	wrapError(err error) error
 	getContentConverter() converter.Converter
-	addDependency(dep identity.Provider)
+	addDependency(dep identity.Identity)
 }
 
 // wrapErr adds some context to the given error if possible.
@@ -92,18 +91,6 @@ func wrapErr(err error, ctx interface{}) error {
 type pageSiteAdapter struct {
 	p page.Page
 	s *Site
-}
-
-func (pa pageSiteAdapter) GetPageWithTemplateInfo(info tpl.Info, ref string) (page.Page, error) {
-	p, err := pa.GetPage(ref)
-	if p != nil {
-		// Track pages referenced by templates/shortcodes
-		// when in server mode.
-		if im, ok := info.(identity.Manager); ok {
-			im.Add(p)
-		}
-	}
-	return p, err
 }
 
 func (pa pageSiteAdapter) GetPage(ref string) (page.Page, error) {
@@ -120,6 +107,7 @@ func (pa pageSiteAdapter) GetPage(ref string) (page.Page, error) {
 type pageState struct {
 	// This slice will be of same length as the number of global slice of output
 	// formats (for all sites).
+	// TODO1 update doc
 	pageOutputs []*pageOutput
 
 	// This will be shifted out when we start to render a new output format.
@@ -144,8 +132,8 @@ func (p *pageState) Eq(other interface{}) bool {
 	return p == pp
 }
 
-func (p *pageState) GetIdentity() identity.Identity {
-	return identity.NewPathIdentity(files.ComponentFolderContent, filepath.FromSlash(p.Pathc()))
+func (p *pageState) IdentifierBase() interface{} {
+	return p.Path()
 }
 
 func (p *pageState) GitInfo() *gitmap.GitInfo {
@@ -155,23 +143,12 @@ func (p *pageState) GitInfo() *gitmap.GitInfo {
 // GetTerms gets the terms defined on this page in the given taxonomy.
 // The pages returned will be ordered according to the front matter.
 func (p *pageState) GetTerms(taxonomy string) page.Pages {
-	if p.treeRef == nil {
-		return nil
-	}
-
-	m := p.s.pageMap
-
-	taxonomy = strings.ToLower(taxonomy)
-	prefix := cleanSectionTreeKey(taxonomy)
-	self := strings.TrimPrefix(p.treeRef.key, "/")
-
 	var pas page.Pages
-
-	m.taxonomies.WalkQuery(pageMapQuery{Prefix: prefix}, func(s string, n *contentNode) bool {
-		key := s + self
-		if tn, found := m.taxonomyEntries.Get(key); found {
-			vi := tn.(*contentNode).viewInfo
-			pas = append(pas, pageWithOrdinal{pageState: n.p, ordinal: vi.ordinal})
+	taxonomyKey := cleanTreeKey(taxonomy)
+	p.s.pageMap.WalkBranchesPrefix(taxonomyKey+"/", func(s string, b *contentBranchNode) bool {
+		v, found := b.refs[p]
+		if found {
+			pas = append(pas, pageWithOrdinal{pageState: b.n.p, ordinal: v.ordinal})
 		}
 		return false
 	})
@@ -185,93 +162,41 @@ func (p *pageState) MarshalJSON() ([]byte, error) {
 	return page.MarshalPageToJSON(p)
 }
 
-func (p *pageState) getPages() page.Pages {
-	b := p.bucket
-	if b == nil {
-		return nil
-	}
-	return b.getPages()
-}
-
-func (p *pageState) getPagesRecursive() page.Pages {
-	b := p.bucket
-	if b == nil {
-		return nil
-	}
-	return b.getPagesRecursive()
-}
-
-func (p *pageState) getPagesAndSections() page.Pages {
-	b := p.bucket
-	if b == nil {
-		return nil
-	}
-	return b.getPagesAndSections()
-}
-
 func (p *pageState) RegularPagesRecursive() page.Pages {
-	p.regularPagesRecursiveInit.Do(func() {
-		var pages page.Pages
-		switch p.Kind() {
-		case page.KindSection:
-			pages = p.getPagesRecursive()
-		default:
-			pages = p.RegularPages()
-		}
-		p.regularPagesRecursive = pages
-	})
-	return p.regularPagesRecursive
-}
-
-func (p *pageState) PagesRecursive() page.Pages {
-	return nil
+	switch p.Kind() {
+	case pagekinds.Section, pagekinds.Home:
+		return p.bucket.getRegularPagesRecursive()
+	default:
+		return p.RegularPages()
+	}
 }
 
 func (p *pageState) RegularPages() page.Pages {
-	p.regularPagesInit.Do(func() {
-		var pages page.Pages
-
-		switch p.Kind() {
-		case page.KindPage:
-		case page.KindSection, page.KindHome, page.KindTaxonomy:
-			pages = p.getPages()
-		case page.KindTerm:
-			all := p.Pages()
-			for _, p := range all {
-				if p.IsPage() {
-					pages = append(pages, p)
-				}
-			}
-		default:
-			pages = p.s.RegularPages()
-		}
-
-		p.regularPages = pages
-	})
-
-	return p.regularPages
+	switch p.Kind() {
+	case pagekinds.Page:
+	case pagekinds.Section, pagekinds.Home, pagekinds.Taxonomy:
+		return p.bucket.getRegularPages()
+	case pagekinds.Term:
+		return p.bucket.getRegularPagesInTerm()
+	default:
+		return p.s.RegularPages()
+	}
+	return nil
 }
 
 func (p *pageState) Pages() page.Pages {
-	p.pagesInit.Do(func() {
-		var pages page.Pages
-
-		switch p.Kind() {
-		case page.KindPage:
-		case page.KindSection, page.KindHome:
-			pages = p.getPagesAndSections()
-		case page.KindTerm:
-			pages = p.bucket.getTaxonomyEntries()
-		case page.KindTaxonomy:
-			pages = p.bucket.getTaxonomies()
-		default:
-			pages = p.s.Pages()
-		}
-
-		p.pages = pages
-	})
-
-	return p.pages
+	switch p.Kind() {
+	case pagekinds.Page:
+	case pagekinds.Section, pagekinds.Home:
+		return p.bucket.getPagesAndSections()
+	case pagekinds.Term:
+		return p.bucket.getPagesInTerm()
+	case pagekinds.Taxonomy:
+		return p.bucket.getTaxonomies()
+	default:
+		return p.s.Pages()
+	}
+	return nil
 }
 
 // RawContent returns the un-rendered source content without
@@ -335,8 +260,8 @@ func (p *pageState) Site() page.Site {
 }
 
 func (p *pageState) String() string {
-	if sourceRef := p.sourceRef(); sourceRef != "" {
-		return fmt.Sprintf("Page(%s)", sourceRef)
+	if pth := p.Path(); pth != "" {
+		return fmt.Sprintf("Page(%s)", helpers.AddLeadingSlash(filepath.ToSlash(pth)))
 	}
 	return fmt.Sprintf("Page(%q)", p.Title())
 }
@@ -356,7 +281,7 @@ func (p *pageState) TranslationKey() string {
 	p.translationKeyInit.Do(func() {
 		if p.m.translationKey != "" {
 			p.translationKey = p.Kind() + "/" + p.m.translationKey
-		} else if p.IsPage() && !p.File().IsZero() {
+		} else if p.IsPage() && p.File() != nil {
 			p.translationKey = path.Join(p.Kind(), filepath.ToSlash(p.File().Dir()), p.File().TranslationBaseName())
 		} else if p.IsNode() {
 			p.translationKey = path.Join(p.Kind(), p.SectionsPath())
@@ -410,7 +335,6 @@ func (p *pageState) createRenderHooks(f output.Format) (hooks.Renderers, error) 
 	if templFound {
 		renderers.LinkRenderer = hookRenderer{
 			templateHandler: p.s.Tmpl(),
-			SearchProvider:  templ.(identity.SearchProvider),
 			templ:           templ,
 		}
 	}
@@ -423,7 +347,7 @@ func (p *pageState) createRenderHooks(f output.Format) (hooks.Renderers, error) 
 	if templFound {
 		renderers.ImageRenderer = hookRenderer{
 			templateHandler: p.s.Tmpl(),
-			SearchProvider:  templ.(identity.SearchProvider),
+			Identity:        templ.(tpl.Info),
 			templ:           templ,
 		}
 	}
@@ -436,7 +360,7 @@ func (p *pageState) createRenderHooks(f output.Format) (hooks.Renderers, error) 
 	if templFound {
 		renderers.HeadingRenderer = hookRenderer{
 			templateHandler: p.s.Tmpl(),
-			SearchProvider:  templ.(identity.SearchProvider),
+			Identity:        templ.(tpl.Info),
 			templ:           templ,
 		}
 	}
@@ -450,13 +374,16 @@ func (p *pageState) getLayoutDescriptor() output.LayoutDescriptor {
 		sections := p.SectionsEntries()
 
 		switch p.Kind() {
-		case page.KindSection:
+		case pagekinds.Section:
 			if len(sections) > 0 {
 				section = sections[0]
 			}
-		case page.KindTaxonomy, page.KindTerm:
-			b := p.getTreeRef().n
-			section = b.viewInfo.name.singular
+		case pagekinds.Taxonomy, pagekinds.Term:
+			v, ok := p.getTreeRef().GetNode().traits.(viewInfoTrait)
+			if !ok || v.ViewInfo() == nil {
+				panic(fmt.Sprintf("no view info set for %q", p.getTreeRef().GetNode().Key()))
+			}
+			section = v.ViewInfo().name.singular
 		default:
 		}
 
@@ -490,10 +417,12 @@ func (p *pageState) resolveTemplate(layouts ...string) (tpl.Template, bool, erro
 		d.LayoutOverride = true
 	}
 
-	return p.s.Tmpl().LookupLayout(d, f)
+	tp, found, err := p.s.Tmpl().LookupLayout(d, f)
+
+	return tp, found, err
 }
 
-// This is serialized
+// This is serialized.
 func (p *pageState) initOutputFormat(isRenderingSite bool, idx int) error {
 	if err := p.shiftToOutputFormat(isRenderingSite, idx); err != nil {
 		return err
@@ -651,19 +580,19 @@ func (p *pageState) RenderString(args ...interface{}) (template.HTML, error) {
 	return template.HTML(string(b)), nil
 }
 
-func (p *pageState) addDependency(dep identity.Provider) {
-	if !p.s.running() || p.pageOutput.cp == nil {
+// TODO1 check if this can be removed entirely?
+func (p *pageState) addDependency(dep identity.Identity) {
+	if !p.s.running() {
 		return
 	}
-	p.pageOutput.cp.dependencyTracker.Add(dep)
+	p.pageOutput.dependencyManager.AddIdentity(dep)
 }
 
-func (p *pageState) RenderWithTemplateInfo(info tpl.Info, layout ...string) (template.HTML, error) {
-	p.addDependency(info)
-	return p.Render(layout...)
+func (p *pageState) GetDependencyManager() identity.Manager {
+	return p.getTreeRef().GetNode().GetDependencyManager()
 }
 
-func (p *pageState) Render(layout ...string) (template.HTML, error) {
+func (p *pageState) Render(ctx context.Context, layout ...string) (template.HTML, error) {
 	templ, found, err := p.resolveTemplate(layout...)
 	if err != nil {
 		return "", p.wrapError(err)
@@ -673,8 +602,7 @@ func (p *pageState) Render(layout ...string) (template.HTML, error) {
 		return "", nil
 	}
 
-	p.addDependency(templ.(tpl.Info))
-	res, err := executeToString(p.s.Tmpl(), templ, p)
+	res, err := executeToString(ctx, p.s.Tmpl(), templ, p)
 	if err != nil {
 		return "", p.wrapError(errors.Wrapf(err, "failed to execute template %q v", layout))
 	}
@@ -688,7 +616,7 @@ func (p *pageState) wrapError(err error) error {
 		return err
 	}
 	var filename string
-	if !p.File().IsZero() {
+	if p.File() != nil {
 		filename = p.File().Filename()
 	}
 
@@ -719,7 +647,9 @@ func (p *pageState) getContentConverter() converter.Converter {
 	return p.m.contentConverter
 }
 
-func (p *pageState) mapContent(bucket *pagesMapBucket, meta *pageMeta) error {
+func (p *pageState) mapContent(meta *pageMeta) (map[string]interface{}, error) {
+	var result map[string]interface{}
+
 	s := p.shortcodeState
 
 	rn := &pageContentMap{
@@ -736,7 +666,6 @@ func (p *pageState) mapContent(bucket *pagesMapBucket, meta *pageMeta) error {
 	// … it's safe to keep some "global" state
 	var currShortcode shortcode
 	var ordinal int
-	var frontMatterSet bool
 
 Loop:
 	for {
@@ -746,31 +675,20 @@ Loop:
 		case it.Type == pageparser.TypeIgnore:
 		case it.IsFrontMatter():
 			f := pageparser.FormatFromFrontMatterType(it.Type)
-			m, err := metadecoders.Default.UnmarshalToMap(it.Val, f)
+			var err error
+			result, err = metadecoders.Default.UnmarshalToMap(it.Val, f)
 			if err != nil {
 				if fe, ok := err.(herrors.FileError); ok {
-					return herrors.ToFileErrorWithOffset(fe, iter.LineNumber()-1)
+					return nil, herrors.ToFileErrorWithOffset(fe, iter.LineNumber()-1)
 				} else {
-					return err
+					return nil, err
 				}
 			}
-
-			if err := meta.setMetadata(bucket, p, m); err != nil {
-				return err
-			}
-
-			frontMatterSet = true
 
 			next := iter.Peek()
 			if !next.IsDone() {
 				p.source.posMainContent = next.Pos
 			}
-
-			if !p.s.shouldBuild(p) {
-				// Nothing more to do.
-				return nil
-			}
-
 		case it.Type == pageparser.TypeLeadSummaryDivider:
 			posBody := -1
 			f := func(item pageparser.Item) bool {
@@ -805,7 +723,7 @@ Loop:
 
 			currShortcode, err := s.extractShortcode(ordinal, 0, iter)
 			if err != nil {
-				return fail(errors.Wrap(err, "failed to extract shortcode"), it)
+				return nil, fail(errors.Wrap(err, "failed to extract shortcode"), it)
 			}
 
 			currShortcode.pos = it.Pos
@@ -840,24 +758,16 @@ Loop:
 		case it.IsError():
 			err := fail(errors.WithStack(errors.New(it.ValStr())), it)
 			currShortcode.err = err
-			return err
+			return nil, err
 
 		default:
 			rn.AddBytes(it)
 		}
 	}
 
-	if !frontMatterSet {
-		// Page content without front matter. Assign default front matter from
-		// cascades etc.
-		if err := meta.setMetadata(bucket, p, nil); err != nil {
-			return err
-		}
-	}
-
 	p.cmap = rn
 
-	return nil
+	return result, nil
 }
 
 func (p *pageState) errorf(err error, format string, a ...interface{}) error {
@@ -891,12 +801,12 @@ func (p *pageState) parseError(err error, input []byte, offset int) error {
 }
 
 func (p *pageState) pathOrTitle() string {
-	if !p.File().IsZero() {
+	if p.File() != nil {
 		return p.File().Filename()
 	}
 
-	if p.Pathc() != "" {
-		return p.Pathc()
+	if p.Path() != "" {
+		return p.Path()
 	}
 
 	return p.Title()
@@ -965,7 +875,7 @@ func (p *pageState) shiftToOutputFormat(isRenderingSite bool, idx int) error {
 
 		if cp == nil {
 			var err error
-			cp, err = newPageContentOutput(p, p.pageOutput)
+			cp, err = newPageContentOutput(p.pageOutput)
 			if err != nil {
 				return err
 			}
@@ -975,48 +885,6 @@ func (p *pageState) shiftToOutputFormat(isRenderingSite bool, idx int) error {
 	}
 
 	return nil
-}
-
-// sourceRef returns the reference used by GetPage and ref/relref shortcodes to refer to
-// this page. It is prefixed with a "/".
-//
-// For pages that have a source file, it is returns the path to this file as an
-// absolute path rooted in this site's content dir.
-// For pages that do not (sections without content page etc.), it returns the
-// virtual path, consistent with where you would add a source file.
-func (p *pageState) sourceRef() string {
-	if !p.File().IsZero() {
-		sourcePath := p.File().Path()
-		if sourcePath != "" {
-			return "/" + filepath.ToSlash(sourcePath)
-		}
-	}
-
-	if len(p.SectionsEntries()) > 0 {
-		// no backing file, return the virtual source path
-		return "/" + p.SectionsPath()
-	}
-
-	return ""
-}
-
-func (s *Site) sectionsFromFile(fi source.File) []string {
-	dirname := fi.Dir()
-
-	dirname = strings.Trim(dirname, helpers.FilePathSeparator)
-	if dirname == "" {
-		return nil
-	}
-	parts := strings.Split(dirname, helpers.FilePathSeparator)
-
-	if fii, ok := fi.(*fileInfo); ok {
-		if len(parts) > 0 && fii.FileInfo().Meta().Classifier == files.ContentClassLeaf {
-			// my-section/mybundle/index.md => my-section
-			return parts[:len(parts)-1]
-		}
-	}
-
-	return parts
 }
 
 var (

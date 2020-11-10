@@ -17,12 +17,195 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"sync"
+
+	"github.com/gohugoio/hugo/common/paths"
+
+	"github.com/gohugoio/hugo/resources/page/pagekinds"
 
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/output"
 )
 
-const slash = "/"
+func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
+
+	// Normalize all file Windows paths to simplify what's next.
+	if helpers.FilePathSeparator != "/" {
+		d.Dir = filepath.ToSlash(d.Dir)
+		d.PrefixFilePath = filepath.ToSlash(d.PrefixFilePath)
+	}
+
+	if !d.Type.Root && d.URL != "" && !strings.HasPrefix(d.URL, "/") {
+		// Treat this as a context relative URL
+		d.ForcePrefix = true
+	}
+
+	if d.URL != "" {
+		d.URL = filepath.ToSlash(d.URL)
+		if strings.Contains(d.URL, "..") {
+			d.URL = path.Join("/", d.URL)
+		}
+	}
+
+	if d.Type.Root && !d.ForcePrefix {
+		d.PrefixFilePath = ""
+		d.PrefixLink = ""
+	}
+
+	pb := getPagePathBuilder(d)
+	defer putPagePathBuilder(pb)
+
+	pb.fullSuffix = d.Type.MediaType.FirstSuffix.FullSuffix
+
+	// The top level index files, i.e. the home page etc., needs
+	// the index base even when uglyURLs is enabled.
+	needsBase := true
+
+	pb.isUgly = (d.UglyURLs || d.Type.Ugly) && !d.Type.NoUgly
+	pb.baseNameSameAsType = d.BaseName != "" && d.BaseName == d.Type.BaseName
+
+	if d.ExpandedPermalink == "" && pb.baseNameSameAsType {
+		pb.isUgly = true
+	}
+
+	if d.Type == output.RobotsTxtFormat {
+		pb.Add(d.Type.BaseName)
+		pb.noSubResources = true
+	} else if d.Type == output.HTTPStatusHTMLFormat || d.Type == output.SitemapFormat {
+		pb.Add(d.Kind)
+		pb.noSubResources = true
+	} else if d.Kind != pagekinds.Page && d.URL == "" && len(d.Sections) > 0 {
+		if d.ExpandedPermalink != "" {
+			pb.Add(d.ExpandedPermalink)
+		} else {
+			pb.Add(d.Sections...)
+		}
+		needsBase = false
+	}
+
+	if d.Type.Path != "" {
+		pb.Add(d.Type.Path)
+	}
+
+	if d.Kind != pagekinds.Home && d.URL != "" {
+		pb.Add(paths.FieldsSlash(d.URL)...)
+
+		if d.Addends != "" {
+			pb.Add(d.Addends)
+		}
+
+		hasDot := strings.Contains(d.URL, ".")
+		hasSlash := strings.HasSuffix(d.URL, "/")
+
+		if hasSlash || !hasDot {
+			pb.Add(d.Type.BaseName + pb.fullSuffix)
+		} else if hasDot {
+			pb.fullSuffix = paths.Ext(d.URL)
+		}
+
+		if pb.IsHtmlIndex() {
+			pb.linkUpperOffset = 1
+		}
+
+		if d.ForcePrefix {
+
+			// Prepend language prefix if not already set in URL
+			if d.PrefixFilePath != "" && !strings.HasPrefix(d.URL, "/"+d.PrefixFilePath) {
+				pb.prefixPath = d.PrefixFilePath
+			}
+
+			if d.PrefixLink != "" && !strings.HasPrefix(d.URL, "/"+d.PrefixLink) {
+				pb.prefixLink = d.PrefixLink
+			}
+		}
+	} else if !pagekinds.IsBranch(d.Kind) {
+		if d.ExpandedPermalink != "" {
+			pb.Add(d.ExpandedPermalink)
+		} else {
+			if d.Dir != "" {
+				pb.Add(d.Dir)
+			}
+			if d.BaseName != "" {
+				pb.Add(d.BaseName)
+			}
+		}
+
+		if d.Addends != "" {
+			pb.Add(d.Addends)
+		}
+
+		if pb.isUgly {
+			pb.ConcatLast(pb.fullSuffix)
+		} else {
+			pb.Add(d.Type.BaseName + pb.fullSuffix)
+		}
+
+		if pb.IsHtmlIndex() {
+			pb.linkUpperOffset = 1
+		}
+
+		if d.PrefixFilePath != "" {
+			pb.prefixPath = d.PrefixFilePath
+		}
+
+		if d.PrefixLink != "" {
+			pb.prefixLink = d.PrefixLink
+		}
+	} else {
+		if d.Addends != "" {
+			pb.Add(d.Addends)
+		}
+
+		needsBase = needsBase && d.Addends == ""
+
+		if needsBase || !pb.isUgly {
+			pb.Add(d.Type.BaseName + pb.fullSuffix)
+		} else {
+			pb.ConcatLast(pb.fullSuffix)
+		}
+
+		if pb.IsHtmlIndex() {
+			pb.linkUpperOffset = 1
+		}
+
+		if d.PrefixFilePath != "" {
+			pb.prefixPath = d.PrefixFilePath
+		}
+
+		if d.PrefixLink != "" {
+			pb.prefixLink = d.PrefixLink
+		}
+	}
+
+	// if page URL is explicitly set in frontmatter,
+	// preserve its value without sanitization
+	if d.Kind != pagekinds.Page || d.URL == "" {
+		// Note: MakePathSanitized will lower case the path if
+		// disablePathToLower isn't set.
+		pb.Sanitize()
+	}
+
+	link := pb.Link()
+	pagePath := pb.PathFile()
+
+	tp.TargetFilename = filepath.FromSlash(pagePath)
+	if !pb.noSubResources {
+		tp.SubResourceBaseTarget = filepath.FromSlash(pb.PathDir())
+		tp.SubResourceBaseLink = pb.LinkDir()
+	}
+	if d.URL != "" {
+		tp.Link = paths.URLEscape(link)
+	} else {
+		// This is slightly faster for when we know we don't have any
+		// query or scheme etc.
+		tp.Link = paths.PathEscape(link)
+	}
+	if tp.Link == "" {
+		tp.Link = "/"
+	}
+
+	return
+}
 
 // TargetPathDescriptor describes how a file path for a given resource
 // should look like on the file system. The same descriptor is then later used to
@@ -74,7 +257,7 @@ type TargetPathDescriptor struct {
 // TODO(bep) move this type.
 type TargetPaths struct {
 
-	// Where to store the file on disk relative to the publish dir. OS slashes.
+	// Where to store the file on disk relative to the publish dir. OS "/"es.
 	TargetFilename string
 
 	// The directory to write sub-resources of the above.
@@ -83,12 +266,8 @@ type TargetPaths struct {
 	// The base for creating links to sub-resources of the above.
 	SubResourceBaseLink string
 
-	// The relative permalink to this resources. Unix slashes.
+	// The relative permalink to this resources. Unix "/"es.
 	Link string
-}
-
-func (p TargetPaths) RelPermalink(s *helpers.PathSpec) string {
-	return s.PrependBasePath(p.Link, false)
 }
 
 func (p TargetPaths) PermalinkForOutputFormat(s *helpers.PathSpec, f output.Format) string {
@@ -106,237 +285,161 @@ func (p TargetPaths) PermalinkForOutputFormat(s *helpers.PathSpec, f output.Form
 	return s.PermalinkForBaseURL(p.Link, baseURL)
 }
 
-func isHtmlIndex(s string) bool {
-	return strings.HasSuffix(s, "/index.html")
+func (p TargetPaths) RelPermalink(s *helpers.PathSpec) string {
+	return s.PrependBasePath(p.Link, false)
 }
 
-func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
-	if d.Type.Name == "" {
-		panic("CreateTargetPath: missing type")
+var pagePathBuilderPool = &sync.Pool{
+	New: func() interface{} {
+		return &pagePathBuilder{}
+	},
+}
+
+// When adding state here, remember to update putPagePathBuilder.
+type pagePathBuilder struct {
+	els []string
+
+	d TargetPathDescriptor
+
+	// Builder state.
+	isUgly             bool
+	baseNameSameAsType bool
+	noSubResources     bool
+	fullSuffix         string // File suffix including any ".".
+	prefixLink         string
+	prefixPath         string
+	linkUpperOffset    int
+}
+
+func (p *pagePathBuilder) Add(el ...string) {
+	p.els = append(p.els, el...)
+}
+
+func (p *pagePathBuilder) ConcatLast(s string) {
+	if p.els == nil {
+		p.Add(s)
+		return
+	}
+	old := p.els[len(p.els)-1]
+	if old[len(old)-1] == '/' {
+		old = old[:len(old)-1]
+	}
+	p.els[len(p.els)-1] = old + s
+}
+
+func (p *pagePathBuilder) IsHtmlIndex() bool {
+	return p.Last() == "index.html"
+}
+
+func (p *pagePathBuilder) Last() string {
+	if p.els == nil {
+		return ""
+	}
+	return p.els[len(p.els)-1]
+}
+
+func (p *pagePathBuilder) Link() string {
+	link := p.Path(p.linkUpperOffset)
+
+	if p.baseNameSameAsType {
+		link = strings.TrimSuffix(link, p.d.BaseName)
 	}
 
-	// Normalize all file Windows paths to simplify what's next.
-	if helpers.FilePathSeparator != slash {
-		d.Dir = filepath.ToSlash(d.Dir)
-		d.PrefixFilePath = filepath.ToSlash(d.PrefixFilePath)
-
+	if p.prefixLink != "" {
+		link = "/" + p.prefixLink + link
 	}
 
-	if d.URL != "" && !strings.HasPrefix(d.URL, "/") {
-		// Treat this as a context relative URL
-		d.ForcePrefix = true
+	if p.linkUpperOffset > 0 && !strings.HasSuffix(link, "/") {
+		link += "/"
 	}
 
-	pagePath := slash
-	fullSuffix := d.Type.MediaType.FirstSuffix.FullSuffix
+	return link
+}
 
-	var (
-		pagePathDir string
-		link        string
-		linkDir     string
-	)
-
-	// The top level index files, i.e. the home page etc., needs
-	// the index base even when uglyURLs is enabled.
-	needsBase := true
-
-	isUgly := d.UglyURLs && !d.Type.NoUgly
-	baseNameSameAsType := d.BaseName != "" && d.BaseName == d.Type.BaseName
-
-	if d.ExpandedPermalink == "" && baseNameSameAsType {
-		isUgly = true
+func (p *pagePathBuilder) LinkDir() string {
+	if p.noSubResources {
+		return ""
 	}
 
-	if d.Kind != KindPage && d.URL == "" && len(d.Sections) > 0 {
-		if d.ExpandedPermalink != "" {
-			pagePath = pjoin(pagePath, d.ExpandedPermalink)
-		} else {
-			pagePath = pjoin(d.Sections...)
-		}
-		needsBase = false
+	pathDir := p.PathDirBase()
+
+	if p.prefixLink != "" {
+		pathDir = "/" + p.prefixLink + pathDir
 	}
 
-	if d.Type.Path != "" {
-		pagePath = pjoin(pagePath, d.Type.Path)
+	return pathDir
+}
+
+func (p *pagePathBuilder) Path(upperOffset int) string {
+	upper := len(p.els)
+	if upperOffset > 0 {
+		upper -= upperOffset
+	}
+	pth := path.Join(p.els[:upper]...)
+	return helpers.AddLeadingSlash(pth)
+}
+
+func (p *pagePathBuilder) PathDir() string {
+	dir := p.PathDirBase()
+	if p.prefixPath != "" {
+		dir = "/" + p.prefixPath + dir
+	}
+	return dir
+}
+
+func (p *pagePathBuilder) PathDirBase() string {
+	if p.noSubResources {
+		return ""
 	}
 
-	if d.Kind != KindHome && d.URL != "" {
-		pagePath = pjoin(pagePath, d.URL)
+	dir := p.Path(0)
+	isIndex := strings.HasPrefix(p.Last(), p.d.Type.BaseName+".")
 
-		if d.Addends != "" {
-			pagePath = pjoin(pagePath, d.Addends)
-		}
-
-		pagePathDir = pagePath
-		link = pagePath
-		hasDot := strings.Contains(d.URL, ".")
-		hasSlash := strings.HasSuffix(d.URL, slash)
-
-		if hasSlash || !hasDot {
-			pagePath = pjoin(pagePath, d.Type.BaseName+fullSuffix)
-		} else if hasDot {
-			pagePathDir = path.Dir(pagePathDir)
-		}
-
-		if !isHtmlIndex(pagePath) {
-			link = pagePath
-		} else if !hasSlash {
-			link += slash
-		}
-
-		linkDir = pagePathDir
-
-		if d.ForcePrefix {
-
-			// Prepend language prefix if not already set in URL
-			if d.PrefixFilePath != "" && !strings.HasPrefix(d.URL, slash+d.PrefixFilePath) {
-				pagePath = pjoin(d.PrefixFilePath, pagePath)
-				pagePathDir = pjoin(d.PrefixFilePath, pagePathDir)
-			}
-
-			if d.PrefixLink != "" && !strings.HasPrefix(d.URL, slash+d.PrefixLink) {
-				link = pjoin(d.PrefixLink, link)
-				linkDir = pjoin(d.PrefixLink, linkDir)
-			}
-		}
-
-	} else if d.Kind == KindPage {
-
-		if d.ExpandedPermalink != "" {
-			pagePath = pjoin(pagePath, d.ExpandedPermalink)
-		} else {
-			if d.Dir != "" {
-				pagePath = pjoin(pagePath, d.Dir)
-			}
-			if d.BaseName != "" {
-				pagePath = pjoin(pagePath, d.BaseName)
-			}
-		}
-
-		if d.Addends != "" {
-			pagePath = pjoin(pagePath, d.Addends)
-		}
-
-		link = pagePath
-
-		// TODO(bep) this should not happen after the fix in https://github.com/gohugoio/hugo/issues/4870
-		// but we may need some more testing before we can remove it.
-		if baseNameSameAsType {
-			link = strings.TrimSuffix(link, d.BaseName)
-		}
-
-		pagePathDir = link
-		link = link + slash
-		linkDir = pagePathDir
-
-		if isUgly {
-			pagePath = addSuffix(pagePath, fullSuffix)
-		} else {
-			pagePath = pjoin(pagePath, d.Type.BaseName+fullSuffix)
-		}
-
-		if !isHtmlIndex(pagePath) {
-			link = pagePath
-		}
-
-		if d.PrefixFilePath != "" {
-			pagePath = pjoin(d.PrefixFilePath, pagePath)
-			pagePathDir = pjoin(d.PrefixFilePath, pagePathDir)
-		}
-
-		if d.PrefixLink != "" {
-			link = pjoin(d.PrefixLink, link)
-			linkDir = pjoin(d.PrefixLink, linkDir)
-		}
-
+	if isIndex {
+		dir = path.Dir(dir)
 	} else {
-		if d.Addends != "" {
-			pagePath = pjoin(pagePath, d.Addends)
-		}
-
-		needsBase = needsBase && d.Addends == ""
-
-		// No permalink expansion etc. for node type pages (for now)
-		base := ""
-
-		if needsBase || !isUgly {
-			base = d.Type.BaseName
-		}
-
-		pagePathDir = pagePath
-		link = pagePath
-		linkDir = pagePathDir
-
-		if base != "" {
-			pagePath = path.Join(pagePath, addSuffix(base, fullSuffix))
-		} else {
-			pagePath = addSuffix(pagePath, fullSuffix)
-		}
-
-		if !isHtmlIndex(pagePath) {
-			link = pagePath
-		} else {
-			link += slash
-		}
-
-		if d.PrefixFilePath != "" {
-			pagePath = pjoin(d.PrefixFilePath, pagePath)
-			pagePathDir = pjoin(d.PrefixFilePath, pagePathDir)
-		}
-
-		if d.PrefixLink != "" {
-			link = pjoin(d.PrefixLink, link)
-			linkDir = pjoin(d.PrefixLink, linkDir)
-		}
+		dir = strings.TrimSuffix(dir, p.fullSuffix)
 	}
 
-	pagePath = pjoin(slash, pagePath)
-	pagePathDir = strings.TrimSuffix(path.Join(slash, pagePathDir), slash)
-
-	hadSlash := strings.HasSuffix(link, slash)
-	link = strings.Trim(link, slash)
-	if hadSlash {
-		link += slash
+	if dir == "/" {
+		dir = ""
 	}
 
-	if !strings.HasPrefix(link, slash) {
-		link = slash + link
-	}
-
-	linkDir = strings.TrimSuffix(path.Join(slash, linkDir), slash)
-
-	// if page URL is explicitly set in frontmatter,
-	// preserve its value without sanitization
-	if d.Kind != KindPage || d.URL == "" {
-		// Note: MakePathSanitized will lower case the path if
-		// disablePathToLower isn't set.
-		pagePath = d.PathSpec.MakePathSanitized(pagePath)
-		pagePathDir = d.PathSpec.MakePathSanitized(pagePathDir)
-		link = d.PathSpec.MakePathSanitized(link)
-		linkDir = d.PathSpec.MakePathSanitized(linkDir)
-	}
-
-	tp.TargetFilename = filepath.FromSlash(pagePath)
-	tp.SubResourceBaseTarget = filepath.FromSlash(pagePathDir)
-	tp.SubResourceBaseLink = linkDir
-	tp.Link = d.PathSpec.URLizeFilename(link)
-	if tp.Link == "" {
-		tp.Link = slash
-	}
-
-	return
+	return dir
 }
 
-func addSuffix(s, suffix string) string {
-	return strings.Trim(s, slash) + suffix
+func (p *pagePathBuilder) PathFile() string {
+	dir := p.Path(0)
+	if p.prefixPath != "" {
+		dir = "/" + p.prefixPath + dir
+	}
+	return dir
 }
 
-// Like path.Join, but preserves one trailing slash if present.
-func pjoin(elem ...string) string {
-	hadSlash := strings.HasSuffix(elem[len(elem)-1], slash)
-	joined := path.Join(elem...)
-	if hadSlash && !strings.HasSuffix(joined, slash) {
-		return joined + slash
+func (p *pagePathBuilder) Prepend(el ...string) {
+	p.els = append(p.els[:0], append(el, p.els[0:]...)...)
+}
+
+func (p *pagePathBuilder) Sanitize() {
+	for i, el := range p.els {
+		p.els[i] = p.d.PathSpec.MakePathSanitized(el)
 	}
-	return joined
+}
+
+func getPagePathBuilder(d TargetPathDescriptor) *pagePathBuilder {
+	b := pagePathBuilderPool.Get().(*pagePathBuilder)
+	b.d = d
+	return b
+}
+
+func putPagePathBuilder(b *pagePathBuilder) {
+	b.els = b.els[:0]
+	b.fullSuffix = ""
+	b.baseNameSameAsType = false
+	b.isUgly = false
+	b.noSubResources = false
+	b.prefixLink = ""
+	b.prefixPath = ""
+	b.linkUpperOffset = 0
+	pagePathBuilderPool.Put(b)
 }

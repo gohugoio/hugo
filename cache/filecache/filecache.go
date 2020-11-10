@@ -15,6 +15,7 @@ package filecache
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"io"
 	"io/ioutil"
@@ -163,7 +164,7 @@ func (c *Cache) ReadOrCreate(id string,
 // GetOrCreate tries to get the file with the given id from cache. If not found or expired, create will
 // be invoked and the result cached.
 // This method is protected by a named lock using the given id as identifier.
-func (c *Cache) GetOrCreate(id string, create func() (io.ReadCloser, error)) (ItemInfo, io.ReadCloser, error) {
+func (c *Cache) GetOrCreate(ctx context.Context, id string, create func() (io.ReadCloser, error)) (ItemInfo, io.ReadCloser, error) {
 	id = cleanID(id)
 
 	c.nlocker.Lock(id)

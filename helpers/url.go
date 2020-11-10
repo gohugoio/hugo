@@ -20,79 +20,20 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/paths"
-
-	"github.com/PuerkitoBio/purell"
 )
-
-func sanitizeURLWithFlags(in string, f purell.NormalizationFlags) string {
-	s, err := purell.NormalizeURLString(in, f)
-	if err != nil {
-		return in
-	}
-
-	// Temporary workaround for the bug fix and resulting
-	// behavioral change in purell.NormalizeURLString():
-	// a leading '/' was inadvertently added to relative links,
-	// but no longer, see #878.
-	//
-	// I think the real solution is to allow Hugo to
-	// make relative URL with relative path,
-	// e.g. "../../post/hello-again/", as wished by users
-	// in issues #157, #622, etc., without forcing
-	// relative URLs to begin with '/'.
-	// Once the fixes are in, let's remove this kludge
-	// and restore SanitizeURL() to the way it was.
-	//                         -- @anthonyfok, 2015-02-16
-	//
-	// Begin temporary kludge
-	u, err := url.Parse(s)
-	if err != nil {
-		panic(err)
-	}
-	if len(u.Path) > 0 && !strings.HasPrefix(u.Path, "/") {
-		u.Path = "/" + u.Path
-	}
-	return u.String()
-	// End temporary kludge
-
-	// return s
-
-}
-
-// SanitizeURL sanitizes the input URL string.
-func SanitizeURL(in string) string {
-	return sanitizeURLWithFlags(in, purell.FlagsSafe|purell.FlagRemoveTrailingSlash|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
-}
-
-// SanitizeURLKeepTrailingSlash is the same as SanitizeURL, but will keep any trailing slash.
-func SanitizeURLKeepTrailingSlash(in string) string {
-	return sanitizeURLWithFlags(in, purell.FlagsSafe|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
-}
 
 // URLize is similar to MakePath, but with Unicode handling
 // Example:
 //     uri: Vim (text editor)
 //     urlize: vim-text-editor
 func (p *PathSpec) URLize(uri string) string {
-	return p.URLEscape(p.MakePathSanitized(uri))
+	return paths.URLEscape(p.MakePathSanitized(uri))
 }
 
 // URLizeFilename creates an URL from a filename by escaping unicode letters
 // and turn any filepath separator into forward slashes.
 func (p *PathSpec) URLizeFilename(filename string) string {
-	return p.URLEscape(filepath.ToSlash(filename))
-}
-
-// URLEscape escapes unicode letters.
-func (p *PathSpec) URLEscape(uri string) string {
-	// escape unicode letters
-	parsedURI, err := url.Parse(uri)
-	if err != nil {
-		// if net/url can not parse URL it means Sanitize works incorrectly
-		panic(err)
-	}
-	x := parsedURI.String()
-	return x
+	return filepath.ToSlash(paths.PathEscape(filename))
 }
 
 // AbsURL creates an absolute URL from the relative path given and the BaseURL set in config.
@@ -213,26 +154,4 @@ func (p *PathSpec) PrependBasePath(rel string, isAbs bool) string {
 		}
 	}
 	return rel
-}
-
-// URLizeAndPrep applies misc sanitation to the given URL to get it in line
-// with the Hugo standard.
-func (p *PathSpec) URLizeAndPrep(in string) string {
-	return p.URLPrep(p.URLize(in))
-}
-
-// URLPrep applies misc sanitation to the given URL.
-func (p *PathSpec) URLPrep(in string) string {
-	if p.UglyURLs {
-		return paths.Uglify(SanitizeURL(in))
-	}
-	pretty := paths.PrettifyURL(SanitizeURL(in))
-	if path.Ext(pretty) == ".xml" {
-		return pretty
-	}
-	url, err := purell.NormalizeURLString(pretty, purell.FlagAddTrailingSlash)
-	if err != nil {
-		return pretty
-	}
-	return url
 }

@@ -511,7 +511,7 @@ func (c *commandeer) serve(s *serverCmd) error {
 		mu, serverURL, endpoint, err := srv.createEndpoint(i)
 
 		if doLiveReload {
-			u, err := url.Parse(helpers.SanitizeURL(baseURLs[i]))
+			u, err := url.Parse(baseURLs[i])
 			if err != nil {
 				return err
 			}

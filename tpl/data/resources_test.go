@@ -197,7 +197,7 @@ func newDeps(cfg config.Provider) *deps.Deps {
 
 	ex := hexec.New(security.DefaultConfig)
 
-	logger := loggers.NewIgnorableLogger(loggers.NewErrorLogger(), "none")
+	logger := loggers.NewIgnorableLogger(loggers.NewErrorLogger(), nil, nil)
 	cs, err := helpers.NewContentSpec(cfg, logger, afero.NewMemMapFs(), ex)
 	if err != nil {
 		panic(err)

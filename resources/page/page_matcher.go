@@ -17,6 +17,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/resources/page/pagekinds"
+
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/maps"
@@ -58,8 +60,8 @@ func (m PageMatcher) Matches(p Page) bool {
 
 	if m.Path != "" {
 		g, err := glob.GetGlob(m.Path)
-		// TODO(bep) Path() vs filepath vs leading slash.
-		p := strings.ToLower(filepath.ToSlash(p.Pathc()))
+		// TODO1 vs file.Path.
+		p := strings.ToLower(filepath.ToSlash(p.Path()))
 		if !(strings.HasPrefix(p, "/")) {
 			p = "/" + p
 		}
@@ -114,7 +116,7 @@ func DecodePageMatcher(m interface{}, v *PageMatcher) error {
 
 	v.Kind = strings.ToLower(v.Kind)
 	if v.Kind != "" {
-		if _, found := kindMap[v.Kind]; !found {
+		if pagekinds.Get(v.Kind) == "" {
 			return errors.Errorf("%q is not a valid Page Kind", v.Kind)
 		}
 	}

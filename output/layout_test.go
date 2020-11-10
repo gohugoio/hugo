@@ -1,4 +1,4 @@
-// Copyright 2017-present The Hugo Authors. All rights reserved.
+// Copyright 2021 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/resources/page/pagekinds"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/kylelemons/godebug/diff"
@@ -62,7 +63,7 @@ func TestLayout(t *testing.T) {
 	}{
 		{
 			"Home",
-			LayoutDescriptor{Kind: "home"},
+			LayoutDescriptor{Kind: pagekinds.Home},
 			"", ampType,
 			[]string{
 				"index.amp.html",
@@ -81,7 +82,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Home baseof",
-			LayoutDescriptor{Kind: "home", Baseof: true},
+			LayoutDescriptor{Kind: pagekinds.Home, Baseof: true},
 			"", ampType,
 			[]string{
 				"index-baseof.amp.html",
@@ -104,7 +105,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Home, HTML",
-			LayoutDescriptor{Kind: "home"},
+			LayoutDescriptor{Kind: pagekinds.Home},
 			"", htmlFormat,
 			// We will eventually get to index.html. This looks stuttery, but makes the lookup logic easy to understand.
 			[]string{
@@ -124,7 +125,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Home, HTML, baseof",
-			LayoutDescriptor{Kind: "home", Baseof: true},
+			LayoutDescriptor{Kind: pagekinds.Home, Baseof: true},
 			"", htmlFormat,
 			[]string{
 				"index-baseof.html.html",
@@ -147,7 +148,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Home, french language",
-			LayoutDescriptor{Kind: "home", Lang: "fr"},
+			LayoutDescriptor{Kind: pagekinds.Home, Lang: "fr"},
 			"", ampType,
 			[]string{
 				"index.fr.amp.html",
@@ -178,7 +179,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Home, no ext or delim",
-			LayoutDescriptor{Kind: "home"},
+			LayoutDescriptor{Kind: pagekinds.Home},
 			"", noExtDelimFormat,
 			[]string{
 				"index.nem",
@@ -191,7 +192,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Home, no ext",
-			LayoutDescriptor{Kind: "home"},
+			LayoutDescriptor{Kind: pagekinds.Home},
 			"", noExt,
 			[]string{
 				"index.nex",
@@ -204,13 +205,13 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Page, no ext or delim",
-			LayoutDescriptor{Kind: "page"},
+			LayoutDescriptor{Kind: pagekinds.Page},
 			"", noExtDelimFormat,
 			[]string{"_default/single.nem"},
 		},
 		{
 			"Section",
-			LayoutDescriptor{Kind: "section", Section: "sect1"},
+			LayoutDescriptor{Kind: pagekinds.Section, Section: "sect1"},
 			"", ampType,
 			[]string{
 				"sect1/sect1.amp.html",
@@ -235,7 +236,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Section, baseof",
-			LayoutDescriptor{Kind: "section", Section: "sect1", Baseof: true},
+			LayoutDescriptor{Kind: pagekinds.Section, Section: "sect1", Baseof: true},
 			"", ampType,
 			[]string{
 				"sect1/sect1-baseof.amp.html",
@@ -266,7 +267,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Section, baseof, French, AMP",
-			LayoutDescriptor{Kind: "section", Section: "sect1", Lang: "fr", Baseof: true},
+			LayoutDescriptor{Kind: pagekinds.Section, Section: "sect1", Lang: "fr", Baseof: true},
 			"", ampType,
 			[]string{
 				"sect1/sect1-baseof.fr.amp.html",
@@ -321,7 +322,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Section with layout",
-			LayoutDescriptor{Kind: "section", Section: "sect1", Layout: "mylayout"},
+			LayoutDescriptor{Kind: pagekinds.Section, Section: "sect1", Layout: "mylayout"},
 			"", ampType,
 			[]string{
 				"sect1/mylayout.amp.html",
@@ -352,7 +353,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Term, French, AMP",
-			LayoutDescriptor{Kind: "term", Section: "tags", Lang: "fr"},
+			LayoutDescriptor{Kind: pagekinds.Term, Section: "tags", Lang: "fr"},
 			"", ampType,
 			[]string{
 				"term/term.fr.amp.html",
@@ -423,7 +424,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Term, baseof, French, AMP",
-			LayoutDescriptor{Kind: "term", Section: "tags", Lang: "fr", Baseof: true},
+			LayoutDescriptor{Kind: pagekinds.Term, Section: "tags", Lang: "fr", Baseof: true},
 			"", ampType,
 			[]string{
 				"term/term-baseof.fr.amp.html",
@@ -510,7 +511,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Term",
-			LayoutDescriptor{Kind: "term", Section: "tags"},
+			LayoutDescriptor{Kind: pagekinds.Term, Section: "tags"},
 			"", ampType,
 			[]string{
 				"term/term.amp.html",
@@ -549,7 +550,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Taxonomy",
-			LayoutDescriptor{Kind: "taxonomy", Section: "categories"},
+			LayoutDescriptor{Kind: pagekinds.Taxonomy, Section: "categories"},
 			"", ampType,
 			[]string{
 				"categories/categories.terms.amp.html",
@@ -580,7 +581,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Page",
-			LayoutDescriptor{Kind: "page"},
+			LayoutDescriptor{Kind: pagekinds.Page},
 			"", ampType,
 			[]string{
 				"_default/single.amp.html",
@@ -589,7 +590,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Page, baseof",
-			LayoutDescriptor{Kind: "page", Baseof: true},
+			LayoutDescriptor{Kind: pagekinds.Page, Baseof: true},
 			"", ampType,
 			[]string{
 				"_default/single-baseof.amp.html",
@@ -600,7 +601,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Page with layout",
-			LayoutDescriptor{Kind: "page", Layout: "mylayout"},
+			LayoutDescriptor{Kind: pagekinds.Page, Layout: "mylayout"},
 			"", ampType,
 			[]string{
 				"_default/mylayout.amp.html",
@@ -611,7 +612,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Page with layout, baseof",
-			LayoutDescriptor{Kind: "page", Layout: "mylayout", Baseof: true},
+			LayoutDescriptor{Kind: pagekinds.Page, Layout: "mylayout", Baseof: true},
 			"", ampType,
 			[]string{
 				"_default/mylayout-baseof.amp.html",
@@ -624,7 +625,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Page with layout and type",
-			LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype"},
+			LayoutDescriptor{Kind: pagekinds.Page, Layout: "mylayout", Type: "myttype"},
 			"", ampType,
 			[]string{
 				"myttype/mylayout.amp.html",
@@ -639,7 +640,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Page baseof with layout and type",
-			LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype", Baseof: true},
+			LayoutDescriptor{Kind: pagekinds.Page, Layout: "mylayout", Type: "myttype", Baseof: true},
 			"", ampType,
 			[]string{
 				"myttype/mylayout-baseof.amp.html",
@@ -658,7 +659,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Page baseof with layout and type in French",
-			LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype", Lang: "fr", Baseof: true},
+			LayoutDescriptor{Kind: pagekinds.Page, Layout: "mylayout", Type: "myttype", Lang: "fr", Baseof: true},
 			"", ampType,
 			[]string{
 				"myttype/mylayout-baseof.fr.amp.html",
@@ -689,7 +690,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Page with layout and type with subtype",
-			LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype/mysubtype"},
+			LayoutDescriptor{Kind: pagekinds.Page, Layout: "mylayout", Type: "myttype/mysubtype"},
 			"", ampType,
 			[]string{
 				"myttype/mysubtype/mylayout.amp.html",
@@ -705,7 +706,7 @@ func TestLayout(t *testing.T) {
 		// RSS
 		{
 			"RSS Home",
-			LayoutDescriptor{Kind: "home"},
+			LayoutDescriptor{Kind: pagekinds.Home},
 			"", RSSFormat,
 			[]string{
 				"index.rss.xml",
@@ -727,7 +728,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"RSS Home, baseof",
-			LayoutDescriptor{Kind: "home", Baseof: true},
+			LayoutDescriptor{Kind: pagekinds.Home, Baseof: true},
 			"", RSSFormat,
 			[]string{
 				"index-baseof.rss.xml",
@@ -750,7 +751,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"RSS Section",
-			LayoutDescriptor{Kind: "section", Section: "sect1"},
+			LayoutDescriptor{Kind: pagekinds.Section, Section: "sect1"},
 			"", RSSFormat,
 			[]string{
 				"sect1/sect1.rss.xml",
@@ -779,7 +780,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"RSS Term",
-			LayoutDescriptor{Kind: "term", Section: "tag"},
+			LayoutDescriptor{Kind: pagekinds.Term, Section: "tag"},
 			"", RSSFormat,
 			[]string{
 				"term/term.rss.xml",
@@ -823,7 +824,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"RSS Taxonomy",
-			LayoutDescriptor{Kind: "taxonomy", Section: "tag"},
+			LayoutDescriptor{Kind: pagekinds.Taxonomy, Section: "tag"},
 			"", RSSFormat,
 			[]string{
 				"tag/tag.terms.rss.xml",
@@ -858,7 +859,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Home plain text",
-			LayoutDescriptor{Kind: "home"},
+			LayoutDescriptor{Kind: pagekinds.Home},
 			"", JSONFormat,
 			[]string{
 				"index.json.json",
@@ -877,7 +878,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Page plain text",
-			LayoutDescriptor{Kind: "page"},
+			LayoutDescriptor{Kind: pagekinds.Page},
 			"", JSONFormat,
 			[]string{
 				"_default/single.json.json",
@@ -886,7 +887,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Reserved section, shortcodes",
-			LayoutDescriptor{Kind: "section", Section: "shortcodes", Type: "shortcodes"},
+			LayoutDescriptor{Kind: pagekinds.Section, Section: "shortcodes", Type: "shortcodes"},
 			"", ampType,
 			[]string{
 				"section/shortcodes.amp.html",
@@ -905,7 +906,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"Reserved section, partials",
-			LayoutDescriptor{Kind: "section", Section: "partials", Type: "partials"},
+			LayoutDescriptor{Kind: pagekinds.Section, Section: "partials", Type: "partials"},
 			"", ampType,
 			[]string{
 				"section/partials.amp.html",
@@ -922,10 +923,22 @@ func TestLayout(t *testing.T) {
 				"_default/list.html",
 			},
 		},
+		{
+			"robots.txt",
+			LayoutDescriptor{Kind: pagekinds.RobotsTXT},
+			"", RobotsTxtFormat,
+			[]string{"robots.robots.txt", "robots.txt", "_default/robots.robots.txt", "_default/robots.txt", "_internal/_default/robots.txt"},
+		},
+		{
+			"sitemap",
+			LayoutDescriptor{Kind: pagekinds.Sitemap},
+			"", SitemapFormat,
+			[]string{"sitemap.sitemap.xml", "sitemap.xml", "_default/sitemap.sitemap.xml", "_default/sitemap.xml", "_internal/_default/sitemap.xml"},
+		},
 		// This is currently always HTML only
 		{
 			"404, HTML",
-			LayoutDescriptor{Kind: "404"},
+			LayoutDescriptor{Kind: pagekinds.Status404},
 			"", htmlFormat,
 			[]string{
 				"404.html.html",
@@ -934,7 +947,7 @@ func TestLayout(t *testing.T) {
 		},
 		{
 			"404, HTML baseof",
-			LayoutDescriptor{Kind: "404", Baseof: true},
+			LayoutDescriptor{Kind: pagekinds.Status404, Baseof: true},
 			"", htmlFormat,
 			[]string{
 				"404-baseof.html.html",
@@ -976,7 +989,7 @@ func TestLayout(t *testing.T) {
 				fmtGot := r.Replace(fmt.Sprintf("%v", layouts))
 				fmtExp := r.Replace(fmt.Sprintf("%v", this.expect))
 
-				c.Fatalf("got %d items, expected %d:\nGot:\n\t%v\nExpected:\n\t%v\nDiff:\n%s", len(layouts), len(this.expect), layouts, this.expect, diff.Diff(fmtExp, fmtGot))
+				c.Fatalf("got %d items, expected %d:\nGot:\n\t%#v\nExpected:\n\t%#v\nDiff:\n%s", len(layouts), len(this.expect), layouts, this.expect, diff.Diff(fmtExp, fmtGot))
 
 			}
 		})
@@ -984,7 +997,7 @@ func TestLayout(t *testing.T) {
 }
 
 func BenchmarkLayout(b *testing.B) {
-	descriptor := LayoutDescriptor{Kind: "taxonomy", Section: "categories"}
+	descriptor := LayoutDescriptor{Kind: pagekinds.Taxonomy, Section: "categories"}
 	l := NewLayoutHandler()
 
 	for i := 0; i < b.N; i++ {
@@ -997,7 +1010,7 @@ func BenchmarkLayout(b *testing.B) {
 
 func BenchmarkLayoutUncached(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		descriptor := LayoutDescriptor{Kind: "taxonomy", Section: "categories"}
+		descriptor := LayoutDescriptor{Kind: pagekinds.Taxonomy, Section: "categories"}
 		l := NewLayoutHandler()
 
 		_, err := l.For(descriptor, HTMLFormat)

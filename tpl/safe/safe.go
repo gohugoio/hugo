@@ -18,6 +18,8 @@ package safe
 import (
 	"html/template"
 
+	"github.com/gohugoio/hugo/common/paths"
+
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/cast"
 )
@@ -68,6 +70,10 @@ func (ns *Namespace) URL(a interface{}) (template.URL, error) {
 
 // SanitizeURL returns a given string as html/template URL content.
 func (ns *Namespace) SanitizeURL(a interface{}) (string, error) {
+	helpers.Deprecated("safe.SanitizeURL", "urlize", true)
 	s, err := cast.ToStringE(a)
-	return helpers.SanitizeURL(s), err
+	if err != nil {
+		return "", err
+	}
+	return paths.URLEscape(s), nil
 }

@@ -16,9 +16,12 @@
 package tplimpl
 
 import (
+	"context"
 	"reflect"
 	"strings"
 
+	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/common/maps"
@@ -61,8 +64,13 @@ import (
 )
 
 var (
-	_    texttemplate.ExecHelper = (*templateExecHelper)(nil)
-	zero reflect.Value
+	_                                  texttemplate.ExecHelper = (*templateExecHelper)(nil)
+	zero                               reflect.Value
+	identityInterface                  = reflect.TypeOf((*identity.Identity)(nil)).Elem()
+	identityProviderInterface          = reflect.TypeOf((*identity.IdentityProvider)(nil)).Elem()
+	identityLookupProviderInterface    = reflect.TypeOf((*identity.IdentityLookupProvider)(nil)).Elem()
+	dependencyManagerProviderInterface = reflect.TypeOf((*identity.DependencyManagerProvider)(nil)).Elem()
+	contextInterface                   = reflect.TypeOf((*context.Context)(nil)).Elem()
 )
 
 type templateExecHelper struct {
@@ -70,14 +78,30 @@ type templateExecHelper struct {
 	funcs   map[string]reflect.Value
 }
 
-func (t *templateExecHelper) GetFunc(tmpl texttemplate.Preparer, name string) (reflect.Value, bool) {
+func (t *templateExecHelper) GetFunc(ctx context.Context, tmpl texttemplate.Preparer, name string) (fn reflect.Value, firstArg reflect.Value, found bool) {
 	if fn, found := t.funcs[name]; found {
-		return fn, true
+		if fn.Type().NumIn() > 0 {
+			first := fn.Type().In(0)
+			if first.Implements(contextInterface) {
+				// TODO1 check if we can void this conversion every time -- and if that matters.
+				// The first argument may be context.Context. This is never provided by the end user, but it's used to pass down
+				// contextual information, e.g. the top level data context (e.g. Page).
+				return fn, reflect.ValueOf(ctx), true
+			}
+		}
+
+		return fn, zero, true
 	}
-	return zero, false
+	return zero, zero, false
 }
 
-func (t *templateExecHelper) GetMapValue(tmpl texttemplate.Preparer, receiver, key reflect.Value) (reflect.Value, bool) {
+func (t *templateExecHelper) Init(ctx context.Context, tmpl texttemplate.Preparer) {
+	if t.running {
+		t.trackDeps(ctx, tmpl, "", reflect.Value{})
+	}
+}
+
+func (t *templateExecHelper) GetMapValue(ctx context.Context, tmpl texttemplate.Preparer, receiver, key reflect.Value) (reflect.Value, bool) {
 	if params, ok := receiver.Interface().(maps.Params); ok {
 		// Case insensitive.
 		keystr := strings.ToLower(key.String())
@@ -93,21 +117,84 @@ func (t *templateExecHelper) GetMapValue(tmpl texttemplate.Preparer, receiver, k
 	return v, v.IsValid()
 }
 
-func (t *templateExecHelper) GetMethod(tmpl texttemplate.Preparer, receiver reflect.Value, name string) (method reflect.Value, firstArg reflect.Value) {
+func (t *templateExecHelper) GetMethod(ctx context.Context, tmpl texttemplate.Preparer, receiver reflect.Value, name string) (method reflect.Value, firstArg reflect.Value) {
 	if t.running {
-		// This is a hot path and receiver.MethodByName really shows up in the benchmarks,
-		// so we maintain a list of method names with that signature.
-		switch name {
-		case "GetPage", "Render":
-			if info, ok := tmpl.(tpl.Info); ok {
-				if m := receiver.MethodByName(name + "WithTemplateInfo"); m.IsValid() {
-					return m, reflect.ValueOf(info)
-				}
-			}
+		t.trackDeps(ctx, tmpl, name, receiver)
+	}
+
+	fn := receiver.MethodByName(name)
+	if !fn.IsValid() {
+		return zero, zero
+	}
+
+	if fn.Type().NumIn() > 0 {
+		first := fn.Type().In(0)
+		if first.Implements(contextInterface) {
+			// The first argument may be context.Context. This is never provided by the end user, but it's used to pass down
+			// contextual information, e.g. the top level data context (e.g. Page).
+			return fn, reflect.ValueOf(ctx)
 		}
 	}
 
-	return receiver.MethodByName(name), zero
+	return fn, zero
+}
+
+func (t *templateExecHelper) trackDeps(ctx context.Context, tmpl texttemplate.Preparer, name string, receiver reflect.Value) {
+	if tmpl == nil {
+		panic("must provide a template")
+	}
+
+	dot := ctx.Value(texttemplate.DataContextKey)
+
+	if dot == nil {
+		return
+	}
+
+	// TODO1 remove all but DependencyManagerProvider
+	// idm, ok := dot.(identity.Manager)
+
+	dp, ok := dot.(identity.DependencyManagerProvider)
+
+	if !ok {
+		// Check for .Page, as in shortcodes.
+		// TODO1 remove this interface from .Page
+		var pp page.PageProvider
+		if pp, ok = dot.(page.PageProvider); ok {
+			dp, ok = pp.Page().(identity.DependencyManagerProvider)
+		}
+	}
+
+	if !ok {
+		// The aliases currently have no dependency manager.
+		// TODO(bep)
+		return
+	}
+
+	// TODO1 bookmark1
+
+	idm := dp.GetDependencyManager()
+
+	if info, ok := tmpl.(identity.Identity); ok {
+		idm.AddIdentity(info)
+	} else {
+
+		// TODO1 fix this re shortcodes
+		id := identity.NewPathIdentity("layouts", tmpl.(tpl.Template).Name(), "", "")
+		idm.AddIdentity(id)
+	}
+
+	identity.WalkIdentitiesValue(receiver, func(id identity.Identity) bool {
+		idm.AddIdentity(id)
+		return false
+	})
+
+	if receiver.IsValid() {
+		if receiver.Type().Implements(identityLookupProviderInterface) {
+			if id, found := receiver.Interface().(identity.IdentityLookupProvider).LookupIdentity(name); found {
+				idm.AddIdentity(id)
+			}
+		}
+	}
 }
 
 func newTemplateExecuter(d *deps.Deps) (texttemplate.Executer, map[string]reflect.Value) {

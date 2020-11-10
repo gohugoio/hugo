@@ -42,7 +42,7 @@ type LayoutDescriptor struct {
 }
 
 func (d LayoutDescriptor) isList() bool {
-	return !d.RenderingHook && d.Kind != "page" && d.Kind != "404"
+	return !d.RenderingHook && (d.Kind == "home" || d.Kind == "section" || d.Kind == "taxonomy" || d.Kind == "term")
 }
 
 // LayoutHandler calculates the layout template to use to render a given output type.
@@ -176,6 +176,13 @@ func resolvePageTemplate(d LayoutDescriptor, f Format) []string {
 	case "404":
 		b.addLayoutVariations("404")
 		b.addTypeVariations("")
+	case "robotsTXT":
+		b.addLayoutVariations("robots")
+		b.addTypeVariations("")
+	case "sitemap":
+		b.addLayoutVariations("sitemap")
+		b.addTypeVariations("")
+		// TODO1 sitemapindex
 	}
 
 	isRSS := f.Name == RSSFormat.Name
@@ -202,6 +209,13 @@ func resolvePageTemplate(d LayoutDescriptor, f Format) []string {
 
 	if !d.RenderingHook && !d.Baseof && isRSS {
 		layouts = append(layouts, "_internal/_default/rss.xml")
+	}
+
+	switch d.Kind {
+	case "robotsTXT":
+		layouts = append(layouts, "_internal/_default/robots.txt")
+	case "sitemap":
+		layouts = append(layouts, "_internal/_default/sitemap.xml")
 	}
 
 	return layouts

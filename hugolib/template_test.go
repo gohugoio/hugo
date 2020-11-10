@@ -16,16 +16,13 @@ package hugolib
 import (
 	"fmt"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/identity"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/tpl"
 )
 
 func TestTemplateLookupOrder(t *testing.T) {
@@ -211,6 +208,8 @@ Some content
 
 // https://github.com/gohugoio/hugo/issues/4895
 func TestTemplateBOM(t *testing.T) {
+	t.Parallel()
+
 	b := newTestSitesBuilder(t).WithSimpleConfigFile()
 	bom := "\ufeff"
 
@@ -376,6 +375,8 @@ title: My Page
 }
 
 func TestTemplateFuncs(t *testing.T) {
+	t.Parallel()
+
 	b := newTestSitesBuilder(t).WithDefaultMultiSiteConfig()
 
 	homeTpl := `Site: {{ site.Language.Lang }} / {{ .Site.Language.Lang }} / {{ site.BaseURL }}
@@ -402,6 +403,8 @@ Hugo: {{ hugo.Generator }}
 }
 
 func TestPartialWithReturn(t *testing.T) {
+	t.Parallel()
+
 	c := qt.New(t)
 
 	newBuilder := func(t testing.TB) *sitesBuilder {
@@ -460,6 +463,7 @@ complex: 80: 80
 
 // Issue 7528
 func TestPartialWithZeroedArgs(t *testing.T) {
+	t.Parallel()
 
 	b := newTestSitesBuilder(t)
 	b.WithTemplatesAdded("index.html",
@@ -483,10 +487,11 @@ X123X
 X123X
 X123X
 `)
-
 }
 
 func TestPartialCached(t *testing.T) {
+	t.Parallel()
+
 	b := newTestSitesBuilder(t)
 
 	b.WithTemplatesAdded(
@@ -512,6 +517,8 @@ Partial cached3: {{ partialCached "p1" "input3" $key2 }}
 
 // https://github.com/gohugoio/hugo/issues/6615
 func TestTemplateTruth(t *testing.T) {
+	t.Parallel()
+
 	b := newTestSitesBuilder(t)
 	b.WithTemplatesAdded("index.html", `
 {{ $p := index site.RegularPages 0 }}
@@ -538,57 +545,9 @@ with: Zero OK
 `)
 }
 
-func TestTemplateDependencies(t *testing.T) {
-	b := newTestSitesBuilder(t).Running()
-
-	b.WithTemplates("index.html", `
-{{ $p := site.GetPage "p1" }}
-{{ partial "p1.html"  $p }}
-{{ partialCached "p2.html" "foo" }}
-{{ partials.Include "p3.html" "data" }}
-{{ partials.IncludeCached "p4.html" "foo" }}
-{{ $p := partial "p5" }}
-{{ partial "sub/p6.html" }}
-{{ partial "P7.html" }}
-{{ template "_default/foo.html" }}
-Partial nested: {{ partial "p10" }}
-
-`,
-		"partials/p1.html", `ps: {{ .Render "li" }}`,
-		"partials/p2.html", `p2`,
-		"partials/p3.html", `p3`,
-		"partials/p4.html", `p4`,
-		"partials/p5.html", `p5`,
-		"partials/sub/p6.html", `p6`,
-		"partials/P7.html", `p7`,
-		"partials/p8.html", `p8 {{ partial "p9.html" }}`,
-		"partials/p9.html", `p9`,
-		"partials/p10.html", `p10 {{ partial "p11.html" }}`,
-		"partials/p11.html", `p11`,
-		"_default/foo.html", `foo`,
-		"_default/li.html", `li {{ partial "p8.html" }}`,
-	)
-
-	b.WithContent("p1.md", `---
-title: P1
----
-
-
-`)
-
-	b.Build(BuildCfg{})
-
-	s := b.H.Sites[0]
-
-	templ, found := s.lookupTemplate("index.html")
-	b.Assert(found, qt.Equals, true)
-
-	idset := make(map[identity.Identity]bool)
-	collectIdentities(idset, templ.(tpl.Info))
-	b.Assert(idset, qt.HasLen, 11)
-}
-
 func TestTemplateGoIssues(t *testing.T) {
+	t.Parallel()
+
 	b := newTestSitesBuilder(t)
 
 	b.WithTemplatesAdded(
@@ -627,21 +586,9 @@ Population in Norway is 5 MILLIONS
 `)
 }
 
-func collectIdentities(set map[identity.Identity]bool, provider identity.Provider) {
-	if ids, ok := provider.(identity.IdentitiesProvider); ok {
-		for _, id := range ids.GetIdentities() {
-			collectIdentities(set, id)
-		}
-	} else {
-		set[provider.GetIdentity()] = true
-	}
-}
-
-func ident(level int) string {
-	return strings.Repeat(" ", level)
-}
-
 func TestPartialInline(t *testing.T) {
+	t.Parallel()
+
 	b := newTestSitesBuilder(t)
 
 	b.WithContent("p1.md", "")
@@ -676,6 +623,7 @@ P2: 32`,
 }
 
 func TestPartialInlineBase(t *testing.T) {
+	t.Parallel()
 	b := newTestSitesBuilder(t)
 
 	b.WithContent("p1.md", "")
@@ -719,6 +667,7 @@ P3: Inline: p3
 
 // https://github.com/gohugoio/hugo/issues/7478
 func TestBaseWithAndWithoutDefine(t *testing.T) {
+	t.Parallel()
 	b := newTestSitesBuilder(t)
 
 	b.WithContent("p1.md", "---\ntitle: P\n---\nContent")

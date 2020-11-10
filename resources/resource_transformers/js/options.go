@@ -20,7 +20,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/cache/memcache"
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 
@@ -192,7 +194,7 @@ func resolveComponentInAssets(fs afero.Fs, impPath string) *hugofs.FileMeta {
 	return m
 }
 
-func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
+func createBuildPlugins(depsManager identity.Manager, c *Client, opts Options) ([]api.Plugin, error) {
 	fs := c.rs.Assets
 
 	resolveImport := func(args api.OnResolveArgs) (api.OnResolveResult, error) {
@@ -227,6 +229,10 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 		m := resolveComponentInAssets(fs.Fs, impPath)
 
 		if m != nil {
+			// TODO1 key
+			importID := identity.StringIdentity("/" + memcache.CleanKey(strings.TrimPrefix(m.PathFile(), m.Component)))
+			depsManager.AddIdentity(importID)
+
 			// Store the source root so we can create a jsconfig.json
 			// to help intellisense when the build is done.
 			// This should be a small number of elements, and when

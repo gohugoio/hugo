@@ -30,7 +30,7 @@ func TestInit(t *testing.T) {
 	var ns *internal.TemplateFuncsNamespace
 
 	for _, nsf := range internal.TemplateFuncsNamespaceRegistry {
-		ns = nsf(&deps.Deps{Log: loggers.NewIgnorableLogger(loggers.NewErrorLogger())})
+		ns = nsf(&deps.Deps{Log: loggers.NewIgnorableLogger(loggers.NewErrorLogger(), nil, nil)})
 		if ns.Name == name {
 			found = true
 			break

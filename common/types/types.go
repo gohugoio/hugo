@@ -90,3 +90,21 @@ func IsNil(v interface{}) bool {
 type DevMarker interface {
 	DevOnly()
 }
+
+// Identifier identifies a resource.
+type Identifier interface {
+	Key() string
+}
+
+// KeyString is a string that implements Identifier.
+type KeyString string
+
+func (k KeyString) Key() string {
+	return string(k)
+}
+
+// LowHigh is typically used to represent a slice boundary.
+type LowHigh struct {
+	Low  int
+	High int
+}

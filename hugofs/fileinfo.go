@@ -31,6 +31,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/hreflect"
+	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/spf13/afero"
 )
@@ -42,12 +43,14 @@ func NewFileMeta() *FileMeta {
 // PathFile returns the relative file path for the file source.
 func (f *FileMeta) PathFile() string {
 	if f.BaseDir == "" {
-		return ""
+		return f.Filename
 	}
 	return strings.TrimPrefix(strings.TrimPrefix(f.Filename, f.BaseDir), filepathSeparator)
 }
 
 type FileMeta struct {
+	PathInfo paths.Path
+
 	Name             string
 	Filename         string
 	Path             string
@@ -58,6 +61,7 @@ type FileMeta struct {
 	SourceRoot string
 	MountRoot  string
 	Module     string
+	Component  string
 
 	Weight     int
 	Ordinal    int
@@ -131,6 +135,10 @@ func (f *FileMeta) JoinStat(name string) (FileMetaInfo, error) {
 type FileMetaInfo interface {
 	os.FileInfo
 	Meta() *FileMeta
+}
+
+type FileInfoProvider interface {
+	FileInfo() FileMetaInfo
 }
 
 type fileInfoMeta struct {

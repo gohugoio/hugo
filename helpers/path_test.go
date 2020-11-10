@@ -44,6 +44,8 @@ func TestMakePath(t *testing.T) {
 		{"Foo.Bar/foo_Bar-Foo", "Foo.Bar/foo_Bar-Foo", true},
 		{"fOO,bar:foobAR", "fOObarfoobAR", true},
 		{"FOo/BaR.html", "FOo/BaR.html", true},
+		{"FOo/Ba---R.html", "FOo/Ba-R.html", true},
+		{"FOo/Ba       R.html", "FOo/Ba-R.html", true},
 		{"трям/трям", "трям/трям", true},
 		{"은행", "은행", true},
 		{"Банковский кассир", "Банковскии-кассир", true},

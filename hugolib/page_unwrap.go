@@ -31,8 +31,8 @@ func unwrapPage(in interface{}) (page.Page, error) {
 		return v, nil
 	case pageWrapper:
 		return v.page(), nil
-	case page.Page:
-		return v, nil
+	case page.PageProvider:
+		return v.Page(), nil
 	case nil:
 		return nil, nil
 	default:

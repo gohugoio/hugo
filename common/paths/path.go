@@ -16,11 +16,13 @@ package paths
 import (
 	"errors"
 	"fmt"
+	"net/url"
 	"os"
 	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
+	"unicode"
 )
 
 // FilePathSeparator as defined by os.Separator.
@@ -81,15 +83,6 @@ func MakeTitle(inpath string) string {
 func ReplaceExtension(path string, newExt string) string {
 	f, _ := fileAndExt(path, fpb)
 	return f + "." + newExt
-}
-
-func makePathRelative(inPath string, possibleDirectories ...string) (string, error) {
-	for _, currentPath := range possibleDirectories {
-		if strings.HasPrefix(inPath, currentPath) {
-			return strings.TrimPrefix(inPath, currentPath), nil
-		}
-	}
-	return inPath, errors.New("can't extract relative path, unknown prefix")
 }
 
 // Should be good enough for Hugo.
@@ -233,38 +226,15 @@ func GetRelativePath(path, base string) (final string, err error) {
 	return name, nil
 }
 
-// PathPrep prepares the path using the uglify setting to create paths on
-// either the form /section/name/index.html or /section/name.html.
-func PathPrep(ugly bool, in string) string {
-	if ugly {
-		return Uglify(in)
-	}
-	return PrettifyPath(in)
+var slashFunc = func(r rune) bool {
+	return r == '/'
 }
 
-// PrettifyPath is the same as PrettifyURLPath but for file paths.
-//     /section/name.html       becomes /section/name/index.html
-//     /section/name/           becomes /section/name/index.html
-//     /section/name/index.html becomes /section/name/index.html
-func PrettifyPath(in string) string {
-	return prettifyPath(in, fpb)
-}
-
-func prettifyPath(in string, b filepathPathBridge) string {
-	if filepath.Ext(in) == "" {
-		// /section/name/  -> /section/name/index.html
-		if len(in) < 2 {
-			return b.Separator()
-		}
-		return b.Join(in, "index.html")
-	}
-	name, ext := fileAndExt(in, b)
-	if name == "index" {
-		// /section/name/index.html -> /section/name/index.html
-		return b.Clean(in)
-	}
-	// /section/name.html -> /section/name/index.html
-	return b.Join(b.Dir(in), name, "index"+ext)
+// FieldsSlash cuts s into fields separated with '/'.
+// TODO1 add some tests, consider leading/trailing slashes.
+func FieldsSlash(s string) []string {
+	f := strings.FieldsFunc(s, slashFunc)
+	return f
 }
 
 type NamedSlice struct {
@@ -309,4 +279,89 @@ func AddTrailingSlash(path string) string {
 		path += "/"
 	}
 	return path
+}
+
+// PathEscape escapes unicode letters in pth.
+// Use URLEscape to escape full URLs including scheme, query etc.
+// This is slightly faster for the common case.
+// Note, there is a url.PathEscape function, but that also
+// escapes /.
+func PathEscape(pth string) string {
+	u, err := url.Parse(pth)
+	if err != nil {
+		panic(err)
+	}
+	return u.EscapedPath()
+}
+
+// Sanitize sanitizes string to be used in Hugo's file paths and URLs, allowing only
+// a predefined set of special Unicode characters.
+//
+// Spaces will be replaced with a single hyphen, and sequential hyphens will be reduced to one.
+//
+// This function is the core function used to normalize paths in Hugo.
+//
+// This function is used for key creation in Hugo's content map, which needs to be very fast.
+// This key is also used as a base for URL/file path creation, so  this should always be truthful:
+//
+//     helpers.PathSpec.MakePathSanitized(anyPath) == helpers.PathSpec.MakePathSanitized(Sanitize(anyPath))
+//
+// Even if the user has stricter rules defined for the final paths (e.g. removePathAccents=true).
+func Sanitize(s string) string {
+	var willChange bool
+	for i, r := range s {
+		willChange = !isAllowedPathCharacter(s, i, r)
+		if willChange {
+			break
+		}
+	}
+
+	if !willChange {
+		// Prevent allocation when nothing changes.
+		return s
+	}
+
+	target := make([]rune, 0, len(s))
+	var prependHyphen bool
+
+	for i, r := range s {
+		isAllowed := isAllowedPathCharacter(s, i, r)
+
+		if isAllowed {
+			if prependHyphen {
+				target = append(target, '-')
+				prependHyphen = false
+			}
+			target = append(target, r)
+		} else if len(target) > 0 && (r == '-' || unicode.IsSpace(r)) {
+			prependHyphen = true
+		}
+	}
+
+	return string(target)
+}
+
+func isAllowedPathCharacter(s string, i int, r rune) bool {
+	if r == ' ' {
+		return false
+	}
+	// Check for the most likely first (faster).
+	isAllowed := unicode.IsLetter(r) || unicode.IsDigit(r)
+	isAllowed = isAllowed || r == '.' || r == '/' || r == '\\' || r == '_' || r == '#' || r == '+' || r == '~'
+	isAllowed = isAllowed || unicode.IsMark(r)
+	isAllowed = isAllowed || (r == '%' && i+2 < len(s) && ishex(s[i+1]) && ishex(s[i+2]))
+	return isAllowed
+}
+
+// From https://golang.org/src/net/url/url.go
+func ishex(c byte) bool {
+	switch {
+	case '0' <= c && c <= '9':
+		return true
+	case 'a' <= c && c <= 'f':
+		return true
+	case 'A' <= c && c <= 'F':
+		return true
+	}
+	return false
 }

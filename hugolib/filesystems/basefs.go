@@ -24,6 +24,8 @@ import (
 	"strings"
 	"sync"
 
+	hpaths "github.com/gohugoio/hugo/hugolib/paths"
+
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugofs/glob"
 
@@ -40,7 +42,7 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs"
 
-	"github.com/gohugoio/hugo/hugolib/paths"
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/spf13/afero"
 )
 
@@ -323,6 +325,25 @@ func (s SourceFilesystems) IsAsset(filename string) bool {
 	return s.Assets.Contains(filename)
 }
 
+// CollectPathIdentities collects paths relative to their component root.
+func (s SourceFilesystems) CollectPathIdentities(filename string) []paths.PathInfo {
+	var identities []paths.PathInfo
+
+	for _, fs := range []*SourceFilesystem{s.Assets, s.Content, s.Data, s.I18n, s.Layouts} {
+		fs.withEachRelativePath(filename, func(rel string, fim hugofs.FileMetaInfo) {
+			meta := fim.Meta()
+			pth := paths.Parse(filepath.ToSlash(rel), paths.ForComponent(fs.Name))
+			filename = meta.Filename
+			if fim.IsDir() {
+				filename = filepath.Join(filename, rel)
+			}
+			identities = append(identities, paths.WithInfo(pth, filename))
+		})
+	}
+
+	return identities
+}
+
 // IsI18n returns true if the given filename is a member of the i18n filesystem.
 func (s SourceFilesystems) IsI18n(filename string) bool {
 	return s.I18n.Contains(filename)
@@ -342,19 +363,68 @@ func (s SourceFilesystems) MakeStaticPathRelative(filename string) string {
 
 // MakePathRelative creates a relative path from the given filename.
 func (d *SourceFilesystem) MakePathRelative(filename string) (string, bool) {
-	for _, dir := range d.Dirs {
-		meta := dir.(hugofs.FileMetaInfo).Meta()
-		currentPath := meta.Filename
+	paths := d.collectRelativePaths(filename)
+	if paths == nil {
+		return "", false
+	}
+	return paths[0], true
+}
 
-		if strings.HasPrefix(filename, currentPath) {
-			rel := strings.TrimPrefix(filename, currentPath)
-			if mp := meta.Path; mp != "" {
-				rel = filepath.Join(mp, rel)
+func (d *SourceFilesystem) collectRelativePaths(filename string) []string {
+	var paths []string
+	d.withEachRelativePath(filename, func(rel string, meta hugofs.FileMetaInfo) {
+		paths = append(paths, rel)
+	})
+
+	return paths
+}
+
+func (d *SourceFilesystem) withEachRelativePath(filename string, cb func(rel string, meta hugofs.FileMetaInfo)) {
+	relFromFim := func(fim hugofs.FileMetaInfo) string {
+		meta := fim.Meta()
+		if !fim.IsDir() {
+			if filename == meta.Filename {
+				return filepath.Base(filename)
 			}
-			return strings.TrimPrefix(rel, filePathSeparator), true
+		} else if rel := relFilename(meta, filename); rel != "" {
+			return rel
+		}
+		return ""
+	}
+
+	for _, dir := range d.Dirs {
+		fim := dir.(hugofs.FileMetaInfo)
+		if rel := relFromFim(fim); rel != "" {
+			cb(rel, fim)
 		}
 	}
-	return "", false
+
+	if rev, ok := d.Fs.(hugofs.ReverseLookupProvider); ok {
+		for _, dir := range d.Dirs {
+			fim := dir.(hugofs.FileMetaInfo)
+			if rel := relFromFim(fim); rel != "" {
+				relReverse, _ := rev.ReverseLookup(rel)
+				if relReverse != "" {
+					cb(relReverse, fim)
+				}
+			}
+		}
+	}
+}
+
+func relFilename(meta *hugofs.FileMeta, filename string) string {
+	dirname := meta.Filename
+	if !strings.HasSuffix(dirname, filePathSeparator) {
+		dirname += filePathSeparator
+	}
+	if !strings.HasPrefix(filename, dirname) {
+		return ""
+	}
+	rel := strings.TrimPrefix(filename, dirname)
+	if mp := meta.Path; mp != "" {
+		rel = filepath.Join(mp, rel)
+	}
+	return strings.TrimPrefix(rel, filePathSeparator)
 }
 
 func (d *SourceFilesystem) RealFilename(rel string) string {
@@ -422,7 +492,7 @@ func WithBaseFs(b *BaseFs) func(*BaseFs) error {
 }
 
 // NewBase builds the filesystems used by Hugo given the paths and options provided.NewBase
-func NewBase(p *paths.Paths, logger loggers.Logger, options ...func(*BaseFs) error) (*BaseFs, error) {
+func NewBase(p *hpaths.Paths, logger loggers.Logger, options ...func(*BaseFs) error) (*BaseFs, error) {
 	fs := p.Fs
 	if logger == nil {
 		logger = loggers.NewWarningLogger()
@@ -466,13 +536,13 @@ func NewBase(p *paths.Paths, logger loggers.Logger, options ...func(*BaseFs) err
 
 type sourceFilesystemsBuilder struct {
 	logger   loggers.Logger
-	p        *paths.Paths
+	p        *hpaths.Paths
 	sourceFs afero.Fs
 	result   *SourceFilesystems
 	theBigFs *filesystemsCollector
 }
 
-func newSourceFilesystemsBuilder(p *paths.Paths, logger loggers.Logger, b *BaseFs) *sourceFilesystemsBuilder {
+func newSourceFilesystemsBuilder(p *hpaths.Paths, logger loggers.Logger, b *BaseFs) *sourceFilesystemsBuilder {
 	sourceFs := hugofs.NewBaseFileDecorator(p.Fs.Source)
 	return &sourceFilesystemsBuilder{p: p, logger: logger, sourceFs: sourceFs, theBigFs: b.theBigFs, result: &SourceFilesystems{}}
 }
@@ -530,7 +600,10 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 	b.result.I18n = b.newSourceFilesystem(files.ComponentFolderI18n, i18nFs, i18nDirs)
 
 	contentDirs := b.theBigFs.overlayDirs[files.ComponentFolderContent]
-	contentBfs := afero.NewBasePathFs(b.theBigFs.overlayMountsContent, files.ComponentFolderContent)
+	contentBfs := hugofs.NewExtendedFs(
+		afero.NewBasePathFs(b.theBigFs.overlayMountsContent, files.ComponentFolderContent),
+		b.theBigFs.overlayMountsContent,
+	)
 
 	contentFs, err := hugofs.NewLanguageFs(b.p.LanguagesDefaultFirst.AsOrdinalSet(), contentBfs)
 	if err != nil {
@@ -561,7 +634,7 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 	return b.result, nil
 }
 
-func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesystemsCollector, error) {
+func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *hpaths.Paths) (*filesystemsCollector, error) {
 	var staticFsMap map[string]afero.Fs
 	if b.p.Cfg.GetBool("multihost") {
 		staticFsMap = make(map[string]afero.Fs)
@@ -625,7 +698,7 @@ func (b *sourceFilesystemsBuilder) createModFs(
 		if filepath.IsAbs(path) {
 			return "", path
 		}
-		return md.dir, paths.AbsPathify(md.dir, path)
+		return md.dir, hpaths.AbsPathify(md.dir, path)
 	}
 
 	for _, mount := range md.Mounts() {
@@ -773,8 +846,8 @@ type filesystemsCollector struct {
 	sourceModules afero.Fs // Source for modules/themes
 
 	overlayMounts        afero.Fs
-	overlayMountsContent afero.Fs
-	overlayMountsStatic  afero.Fs
+	overlayMountsContent hugofs.ExtendedFs
+	overlayMountsStatic  hugofs.ExtendedFs
 	overlayFull          afero.Fs
 	overlayResources     afero.Fs
 

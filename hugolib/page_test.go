@@ -545,6 +545,7 @@ date: 2012-01-12
 	s := b.H.Sites[0]
 
 	checkDate := func(p page.Page, year int) {
+		b.Helper()
 		b.Assert(p.Date().Year(), qt.Equals, year)
 		b.Assert(p.Lastmod().Year(), qt.Equals, year)
 	}
@@ -1277,11 +1278,15 @@ Content:{{ .Content }}
 
 // https://github.com/gohugoio/hugo/issues/5781
 func TestPageWithZeroFile(t *testing.T) {
+	t.Parallel()
+
 	newTestSitesBuilder(t).WithLogger(loggers.NewWarningLogger()).WithSimpleConfigFile().
 		WithTemplatesAdded("index.html", "{{ .File.Filename }}{{ with .File }}{{ .Dir }}{{ end }}").Build(BuildCfg{})
 }
 
 func TestHomePageWithNoTitle(t *testing.T) {
+	t.Parallel()
+
 	b := newTestSitesBuilder(t).WithConfigFile("toml", `
 title = "Site Title"
 `)

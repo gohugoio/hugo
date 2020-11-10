@@ -16,6 +16,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/gohugoio/hugo/resources/page/pagekinds"
+
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/resources/page"
 )
@@ -109,10 +111,10 @@ title: Headless Local Lists Sub
 	}
 
 	getPageInSitePages := func(b *sitesBuilder, ref string) page.Page {
-		b.Helper()
 		for _, pages := range []page.Pages{b.H.Sites[0].Pages(), b.H.Sites[0].RegularPages()} {
 			for _, p := range pages {
-				if ref == p.(*pageState).sourceRef() {
+				pth := p.(*pageState).m.Path()
+				if ref == pth {
 					return p
 				}
 			}
@@ -126,7 +128,8 @@ title: Headless Local Lists Sub
 		}
 		for _, pages := range pageCollections {
 			for _, p := range pages {
-				if ref == p.(*pageState).sourceRef() {
+				pth := p.(*pageState).m.Path()
+				if ref == pth {
 					return p
 				}
 			}
@@ -134,22 +137,22 @@ title: Headless Local Lists Sub
 		return nil
 	}
 
-	disableKind := page.KindPage
+	disableKind := pagekinds.Page
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
 		s := b.H.Sites[0]
 		b.Assert(getPage(b, "/sect/page.md"), qt.IsNil)
 		b.Assert(b.CheckExists("public/sect/page/index.html"), qt.Equals, false)
-		b.Assert(getPageInSitePages(b, "/sect/page.md"), qt.IsNil)
-		b.Assert(getPageInPagePages(getPage(b, "/"), "/sect/page.md"), qt.IsNil)
+		b.Assert(getPageInSitePages(b, "/sect"), qt.IsNil)
+		b.Assert(getPageInPagePages(getPage(b, "/"), "/sect/page"), qt.IsNil)
 
 		// Also check the side effects
 		b.Assert(b.CheckExists("public/categories/mycat/index.html"), qt.Equals, false)
 		b.Assert(len(s.Taxonomies()["categories"]), qt.Equals, 0)
 	})
 
-	disableKind = page.KindTerm
+	disableKind = pagekinds.Term
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
@@ -161,23 +164,22 @@ title: Headless Local Lists Sub
 		b.Assert(getPage(b, "/categories/mycat"), qt.IsNil)
 	})
 
-	disableKind = page.KindTaxonomy
+	disableKind = pagekinds.Taxonomy
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
 		s := b.H.Sites[0]
-		b.Assert(b.CheckExists("public/categories/mycat/index.html"), qt.Equals, true)
-		b.Assert(b.CheckExists("public/categories/index.html"), qt.Equals, false)
-		b.Assert(len(s.Taxonomies()["categories"]), qt.Equals, 1)
-		b.Assert(getPage(b, "/categories/mycat"), qt.Not(qt.IsNil))
+		b.Assert(b.CheckExists("public/categories/mycat/index.html"), qt.IsFalse)
+		b.Assert(b.CheckExists("public/categories/index.html"), qt.IsFalse)
+		b.Assert(len(s.Taxonomies()["categories"]), qt.Equals, 0)
+		b.Assert(getPage(b, "/categories/mycat"), qt.IsNil)
 		categories := getPage(b, "/categories")
-		b.Assert(categories, qt.Not(qt.IsNil))
-		b.Assert(categories.RelPermalink(), qt.Equals, "")
+		b.Assert(categories, qt.IsNil)
 		b.Assert(getPageInSitePages(b, "/categories"), qt.IsNil)
 		b.Assert(getPageInPagePages(getPage(b, "/"), "/categories"), qt.IsNil)
 	})
 
-	disableKind = page.KindHome
+	disableKind = pagekinds.Home
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
@@ -185,12 +187,12 @@ title: Headless Local Lists Sub
 		home := getPage(b, "/")
 		b.Assert(home, qt.Not(qt.IsNil))
 		b.Assert(home.RelPermalink(), qt.Equals, "")
-		b.Assert(getPageInSitePages(b, "/"), qt.IsNil)
-		b.Assert(getPageInPagePages(home, "/"), qt.IsNil)
+		b.Assert(getPageInSitePages(b, ""), qt.IsNil)
+		b.Assert(getPageInPagePages(home, ""), qt.IsNil)
 		b.Assert(getPage(b, "/sect/page.md"), qt.Not(qt.IsNil))
 	})
 
-	disableKind = page.KindSection
+	disableKind = pagekinds.Section
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
@@ -205,12 +207,12 @@ title: Headless Local Lists Sub
 		page := getPage(b, "/sect/page.md")
 		b.Assert(page, qt.Not(qt.IsNil))
 		b.Assert(page.CurrentSection(), qt.Equals, sect)
-		b.Assert(getPageInPagePages(sect, "/sect/page.md"), qt.Not(qt.IsNil))
+		b.Assert(getPageInPagePages(sect, "/sect/page"), qt.Not(qt.IsNil))
 		b.AssertFileContent("public/sitemap.xml", "sitemap")
 		b.AssertFileContent("public/index.xml", "rss")
 	})
 
-	disableKind = kindRSS
+	disableKind = "RSS"
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
@@ -219,21 +221,21 @@ title: Headless Local Lists Sub
 		b.Assert(home.OutputFormats(), qt.HasLen, 1)
 	})
 
-	disableKind = kindSitemap
+	disableKind = pagekinds.Sitemap
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
 		b.Assert(b.CheckExists("public/sitemap.xml"), qt.Equals, false)
 	})
 
-	disableKind = kind404
+	disableKind = pagekinds.Status404
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
 		b.Assert(b.CheckExists("public/404.html"), qt.Equals, false)
 	})
 
-	disableKind = kindRobotsTXT
+	disableKind = pagekinds.RobotsTXT
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.WithTemplatesAdded("robots.txt", "myrobots")
@@ -276,10 +278,10 @@ title: Headless Local Lists Sub
 		b.Assert(sect, qt.Not(qt.IsNil))
 		b.Assert(getPageInSitePages(b, ref), qt.IsNil)
 
-		b.Assert(getPageInSitePages(b, "/headless-local/_index.md"), qt.IsNil)
-		b.Assert(getPageInSitePages(b, "/headless-local/headless-local-page.md"), qt.IsNil)
+		b.Assert(getPageInSitePages(b, "/headless-local"), qt.IsNil)
+		b.Assert(getPageInSitePages(b, "/headless-local/headless-local-page"), qt.IsNil)
 
-		localPageRef := ref + "/headless-local-page.md"
+		localPageRef := ref + "/headless-local-page"
 
 		b.Assert(getPageInPagePages(sect, localPageRef, sect.RegularPages()), qt.Not(qt.IsNil))
 		b.Assert(getPageInPagePages(sect, localPageRef, sect.RegularPagesRecursive()), qt.Not(qt.IsNil))
@@ -290,14 +292,14 @@ title: Headless Local Lists Sub
 		sect = getPage(b, ref)
 		b.Assert(sect, qt.Not(qt.IsNil))
 
-		localPageRef = ref + "/headless-local-sub-page.md"
+		localPageRef = ref + "/headless-local-sub-page"
 		b.Assert(getPageInPagePages(sect, localPageRef), qt.Not(qt.IsNil))
 	})
 
 	c.Run("Build config, no render", func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
-		ref := "/sect/no-render.md"
+		ref := "/sect/no-render"
 		b.Assert(b.CheckExists("public/sect/no-render/index.html"), qt.Equals, false)
 		p := getPage(b, ref)
 		b.Assert(p, qt.Not(qt.IsNil))
@@ -311,7 +313,7 @@ title: Headless Local Lists Sub
 	c.Run("Build config, no render link", func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
-		ref := "/sect/no-render-link.md"
+		ref := "/sect/no-render-link"
 		b.Assert(b.CheckExists("public/sect/no-render/index.html"), qt.Equals, false)
 		p := getPage(b, ref)
 		b.Assert(p, qt.Not(qt.IsNil))

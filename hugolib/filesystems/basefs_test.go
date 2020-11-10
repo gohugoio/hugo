@@ -33,7 +33,6 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugolib/paths"
 	"github.com/gohugoio/hugo/modules"
-	
 )
 
 func initConfig(fs afero.Fs, cfg config.Provider) error {

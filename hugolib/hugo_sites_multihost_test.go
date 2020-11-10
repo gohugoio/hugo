@@ -3,17 +3,16 @@ package hugolib
 import (
 	"testing"
 
-	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/resources/page/pagekinds"
 
 	qt "github.com/frankban/quicktest"
 )
 
 func TestMultihosts(t *testing.T) {
-	t.Parallel()
-
 	c := qt.New(t)
 
-	configTemplate := `
+	files := `
+-- config.toml --
 paginate = 1
 disablePathToLower = true
 defaultContentLanguage = "fr"
@@ -27,38 +26,160 @@ other = "/somewhere/else/:filename"
 [Taxonomies]
 tag = "tags"
 
-[Languages]
-[Languages.en]
+[languages]
+[languages.en]
 staticDir2 = ["ens1", "ens2"]
 baseURL = "https://example.com/docs"
 weight = 10
 title = "In English"
 languageName = "English"
 
-[Languages.fr]
+[languages.fr]
 staticDir2 = ["frs1", "frs2"]
 baseURL = "https://example.fr"
 weight = 20
 title = "Le Français"
 languageName = "Français"
 
-[Languages.nn]
+[languages.nn]
 staticDir2 = ["nns1", "nns2"]
 baseURL = "https://example.no"
 weight = 30
 title = "På nynorsk"
 languageName = "Nynorsk"
+-- content/bundles/b1/index.en.md --
+---
+title: Bundle EN
+publishdate: "2000-01-06"
+weight: 2001
+---
+# Bundle Content EN
+-- content/bundles/b1/index.md --
+---
+title: Bundle Default
+publishdate: "2000-01-06"
+weight: 2002
+---
+# Bundle Content Default
+-- content/bundles/b1/logo.png --
+PNG Data
+-- content/other/doc5.fr.md --
+---
+title: doc5
+weight: 5
+publishdate: "2000-01-06"
+---
+# doc5
+*autre contenu francophone*
+NOTE: should use the "permalinks" configuration with :filename
+-- content/root.en.md --
+---
+title: root
+weight: 10000
+slug: root
+publishdate: "2000-01-01"
+---
+# root
+-- content/sect/doc1.en.md --
+---
+title: doc1
+weight: 1
+slug: doc1-slug
+tags:
+  - tag1
+publishdate: "2000-01-01"
+---
+# doc1
+*some "content"*
+-- content/sect/doc1.fr.md --
+---
+title: doc1
+weight: 1
+plaques:
+  - FRtag1
+  - FRtag2
+publishdate: "2000-01-04"
+---
+# doc1
+*quelque "contenu"*
+NOTE: date is after "doc3"
+-- content/sect/doc2.en.md --
+---
+title: doc2
+weight: 2
+publishdate: "2000-01-02"
+---
+# doc2
+*some content*
+NOTE: without slug, "doc2" should be used, without ".en" as URL
+-- content/sect/doc3.en.md --
+---
+title: doc3
+weight: 3
+publishdate: "2000-01-03"
+aliases: [/en/al/alias1,/al/alias2/]
+tags:
+  - tag2
+  - tag1
+url: /superbob/
+---
+# doc3
+*some content*
+NOTE: third 'en' doc, should trigger pagination on home page.
+-- content/sect/doc4.md --
+---
+title: doc4
+weight: 4
+plaques:
+  - FRtag1
+publishdate: "2000-01-05"
+---
+# doc4
+*du contenu francophone*
+-- i18n/en.toml --
+[hello]
+other = "Hello"
+-- i18n/en.yaml --
+hello:
+  other: "Hello"
+-- i18n/fr.toml --
+[hello]
+other = "Bonjour"
+-- i18n/fr.yaml --
+hello:
+  other: "Bonjour"
+-- i18n/nb.toml --
+[hello]
+other = "Hallo"
+-- i18n/nn.toml --
+[hello]
+other = "Hallo"
+-- layouts/_default/list.html --
+List Page {{ $p := .Paginator }}{{ $p.PageNumber }}|{{ .Title }}|{{ i18n "hello" }}|{{ .Permalink }}|Pager: {{ template "_internal/pagination.html" . }}|Kind: {{ .Kind }}|Content: {{ .Content }}|Len Pages: {{ len .Pages }}|Len RegularPages: {{ len .RegularPages }}| HasParent: {{ if .Parent }}YES{{ else }}NO{{ end }}
+-- layouts/_default/single.html --
+Single: {{ .Title }}|{{ i18n "hello" }}|{{.Language.Lang}}|RelPermalink: {{ .RelPermalink }}|Permalink: {{ .Permalink }}|{{ .Content }}|Resources: {{ range .Resources }}{{ .MediaType }}: {{ .RelPermalink}} -- {{ end }}|Summary: {{ .Summary }}|Truncated: {{ .Truncated }}|Parent: {{ .Parent.Title }}
+-- layouts/_default/taxonomy.html --
+-- layouts/index.fr.html --
+{{ $p := .Paginator }}French Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n "hello" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}|String Resource: {{ ( "Hugo Pipes" | resources.FromString "text/pipes.txt").RelPermalink  }}
+-- layouts/index.html --
+{{ $p := .Paginator }}Default Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n "hello" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}|String Resource: {{ ( "Hugo Pipes" | resources.FromString "text/pipes.txt").RelPermalink  }}
+-- layouts/robots.txt --
+robots|{{ .Lang }}|{{ .Title }}
+	`
 
-`
-
-	b := newMultiSiteTestDefaultBuilder(t).WithConfigFile("toml", configTemplate)
-	b.CreateSites().Build(BuildCfg{})
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:               c,
+			NeedsOsFS:       false,
+			NeedsNpmInstall: false,
+			TxtarString:     files,
+		}).Build()
 
 	b.AssertFileContent("public/en/sect/doc1-slug/index.html", "Hello")
 
 	s1 := b.H.Sites[0]
 
-	s1h := s1.getPage(page.KindHome)
+	s1h := s1.getPage(pagekinds.Home)
 	c.Assert(s1h.IsTranslated(), qt.Equals, true)
 	c.Assert(len(s1h.Translations()), qt.Equals, 2)
 	c.Assert(s1h.Permalink(), qt.Equals, "https://example.com/docs/")
@@ -69,7 +190,7 @@ languageName = "Nynorsk"
 	// For multihost, we never want any content in the root.
 	//
 	// check url in front matter:
-	pageWithURLInFrontMatter := s1.getPage(page.KindPage, "sect/doc3.en.md")
+	pageWithURLInFrontMatter := s1.getPage(pagekinds.Page, "sect/doc3.en.md")
 	c.Assert(pageWithURLInFrontMatter, qt.Not(qt.IsNil))
 	c.Assert(pageWithURLInFrontMatter.RelPermalink(), qt.Equals, "/docs/superbob/")
 	b.AssertFileContent("public/en/superbob/index.html", "doc3|Hello|en")
@@ -78,7 +199,7 @@ languageName = "Nynorsk"
 	b.AssertFileContent("public/en/robots.txt", "robots|en")
 	b.AssertFileContent("public/fr/robots.txt", "robots|fr")
 	b.AssertFileContent("public/nn/robots.txt", "robots|nn")
-	b.AssertFileDoesNotExist("public/robots.txt")
+	b.AssertDestinationExists("public/robots.txt", false)
 
 	// check alias:
 	b.AssertFileContent("public/en/al/alias1/index.html", `content="0; url=https://example.com/docs/superbob/"`)
@@ -86,10 +207,10 @@ languageName = "Nynorsk"
 
 	s2 := b.H.Sites[1]
 
-	s2h := s2.getPage(page.KindHome)
+	s2h := s2.getPage(pagekinds.Home)
 	c.Assert(s2h.Permalink(), qt.Equals, "https://example.fr/")
 
-	b.AssertFileContent("public/fr/index.html", "French Home Page", "String Resource: /docs/text/pipes.txt")
+	b.AssertFileContent("public/fr/index.html", "French Home Page", "String Resource: /text/pipes.txt")
 	b.AssertFileContent("public/fr/text/pipes.txt", "Hugo Pipes")
 	b.AssertFileContent("public/en/index.html", "Default Home Page", "String Resource: /docs/text/pipes.txt")
 	b.AssertFileContent("public/en/text/pipes.txt", "Hugo Pipes")
@@ -102,7 +223,7 @@ languageName = "Nynorsk"
 
 	// Check bundles
 
-	bundleEn := s1.getPage(page.KindPage, "bundles/b1/index.en.md")
+	bundleEn := s1.getPage(pagekinds.Page, "bundles/b1/index.en.md")
 	c.Assert(bundleEn, qt.Not(qt.IsNil))
 	c.Assert(bundleEn.RelPermalink(), qt.Equals, "/docs/bundles/b1/")
 	c.Assert(len(bundleEn.Resources()), qt.Equals, 1)
@@ -110,7 +231,7 @@ languageName = "Nynorsk"
 	b.AssertFileContent("public/en/bundles/b1/logo.png", "PNG Data")
 	b.AssertFileContent("public/en/bundles/b1/index.html", " image/png: /docs/bundles/b1/logo.png")
 
-	bundleFr := s2.getPage(page.KindPage, "bundles/b1/index.md")
+	bundleFr := s2.getPage(pagekinds.Page, "bundles/b1/index.md")
 	c.Assert(bundleFr, qt.Not(qt.IsNil))
 	c.Assert(bundleFr.RelPermalink(), qt.Equals, "/bundles/b1/")
 	c.Assert(len(bundleFr.Resources()), qt.Equals, 1)

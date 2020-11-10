@@ -110,7 +110,6 @@ func (c Config) CheckAllowedExec(name string) error {
 		}
 	}
 	return nil
-
 }
 
 func (c Config) CheckAllowedGetEnv(name string) error {
@@ -159,7 +158,6 @@ func (c Config) ToSecurityMap() map[string]interface{} {
 		"security": m,
 	}
 	return sec
-
 }
 
 // DecodeConfig creates a privacy Config from a given Hugo configuration.
@@ -189,7 +187,6 @@ func DecodeConfig(cfg config.Provider) (Config, error) {
 	}
 
 	return sc, nil
-
 }
 
 func stringSliceToWhitelistHook() mapstructure.DecodeHookFuncType {
@@ -205,7 +202,6 @@ func stringSliceToWhitelistHook() mapstructure.DecodeHookFuncType {
 		wl := types.ToStringSlicePreserveString(data)
 
 		return NewWhitelist(wl...), nil
-
 	}
 }
 

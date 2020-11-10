@@ -14,28 +14,16 @@
 package resources
 
 import (
+	"context"
 	"encoding/json"
 	"io"
-	"path"
-	"path/filepath"
-	"regexp"
-	"strings"
 	"sync"
 
-	"github.com/gohugoio/hugo/helpers"
-
-	"github.com/gohugoio/hugo/hugofs/glob"
+	"github.com/gohugoio/hugo/cache/memcache"
 
 	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/cache/filecache"
-
-	"github.com/BurntSushi/locker"
-)
-
-const (
-	CACHE_CLEAR_ALL = "clear_all"
-	CACHE_OTHER     = "other"
 )
 
 type ResourceCache struct {
@@ -43,123 +31,39 @@ type ResourceCache struct {
 
 	sync.RWMutex
 
-	// Either resource.Resource or resource.Resources.
-	cache map[string]interface{}
+	// Memory cache with either
+	// resource.Resource or resource.Resources.
+	cache memcache.Getter
 
 	fileCache *filecache.Cache
-
-	// Provides named resource locks.
-	nlocker *locker.Locker
 }
 
-// ResourceCacheKey converts the filename into the format used in the resource
-// cache.
-func ResourceCacheKey(filename string) string {
-	filename = filepath.ToSlash(filename)
-	return path.Join(resourceKeyPartition(filename), filename)
-}
-
-func resourceKeyPartition(filename string) string {
-	ext := strings.TrimPrefix(path.Ext(filepath.ToSlash(filename)), ".")
-	if ext == "" {
-		ext = CACHE_OTHER
-	}
-	return ext
-}
-
-// Commonly used aliases and directory names used for some types.
-var extAliasKeywords = map[string][]string{
-	"sass": {"scss"},
-	"scss": {"sass"},
-}
-
-// ResourceKeyPartitions resolves a ordered slice of partitions that is
-// used to do resource cache invalidations.
-//
-// We use the first directory path element and the extension, so:
-//     a/b.json => "a", "json"
-//     b.json => "json"
-//
-// For some of the extensions we will also map to closely related types,
-// e.g. "scss" will also return "sass".
-//
-func ResourceKeyPartitions(filename string) []string {
-	var partitions []string
-	filename = glob.NormalizePath(filename)
-	dir, name := path.Split(filename)
-	ext := strings.TrimPrefix(path.Ext(filepath.ToSlash(name)), ".")
-
-	if dir != "" {
-		partitions = append(partitions, strings.Split(dir, "/")[0])
-	}
-
-	if ext != "" {
-		partitions = append(partitions, ext)
-	}
-
-	if aliases, found := extAliasKeywords[ext]; found {
-		partitions = append(partitions, aliases...)
-	}
-
-	if len(partitions) == 0 {
-		partitions = []string{CACHE_OTHER}
-	}
-
-	return helpers.UniqueStringsSorted(partitions)
-}
-
-// ResourceKeyContainsAny returns whether the key is a member of any of the
-// given partitions.
-//
-// This is used for resource cache invalidation.
-func ResourceKeyContainsAny(key string, partitions []string) bool {
-	parts := strings.Split(key, "/")
-	for _, p1 := range partitions {
-		for _, p2 := range parts {
-			if p1 == p2 {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-func newResourceCache(rs *Spec) *ResourceCache {
+func newResourceCache(rs *Spec, memCache *memcache.Cache) *ResourceCache {
 	return &ResourceCache{
 		rs:        rs,
 		fileCache: rs.FileCaches.AssetsCache(),
-		cache:     make(map[string]interface{}),
-		nlocker:   locker.NewLocker(),
+		cache:     memCache.GetOrCreatePartition("resources", memcache.ClearOnChange),
 	}
 }
 
-func (c *ResourceCache) clear() {
-	c.Lock()
-	defer c.Unlock()
-
-	c.cache = make(map[string]interface{})
-	c.nlocker = locker.NewLocker()
+func (c *ResourceCache) Get(ctx context.Context, key string) (resource.Resource, error) {
+	// TODO, maybe also look in resources and rename it to something ala Find?
+	v, err := c.cache.Get(ctx, key)
+	if v == nil || err != nil {
+		return nil, err
+	}
+	return v.(resource.Resource), nil
 }
 
-func (c *ResourceCache) Contains(key string) bool {
-	key = c.cleanKey(filepath.ToSlash(key))
-	_, found := c.get(key)
-	return found
-}
-
-func (c *ResourceCache) cleanKey(key string) string {
-	return strings.TrimPrefix(path.Clean(strings.ToLower(key)), "/")
-}
-
-func (c *ResourceCache) get(key string) (interface{}, bool) {
-	c.RLock()
-	defer c.RUnlock()
-	r, found := c.cache[key]
-	return r, found
-}
-
-func (c *ResourceCache) GetOrCreate(key string, f func() (resource.Resource, error)) (resource.Resource, error) {
-	r, err := c.getOrCreate(key, func() (interface{}, error) { return f() })
+func (c *ResourceCache) GetOrCreate(ctx context.Context, key string, clearWhen memcache.ClearWhen, f func() (resource.Resource, error)) (resource.Resource, error) {
+	r, err := c.cache.GetOrCreate(ctx, key, func() memcache.Entry {
+		r, err := f()
+		return memcache.Entry{
+			Value:     r,
+			Err:       err,
+			ClearWhen: clearWhen,
+		}
+	})
 	if r == nil || err != nil {
 		return nil, err
 	}
@@ -167,40 +71,18 @@ func (c *ResourceCache) GetOrCreate(key string, f func() (resource.Resource, err
 }
 
 func (c *ResourceCache) GetOrCreateResources(key string, f func() (resource.Resources, error)) (resource.Resources, error) {
-	r, err := c.getOrCreate(key, func() (interface{}, error) { return f() })
+	r, err := c.cache.GetOrCreate(context.TODO(), key, func() memcache.Entry {
+		r, err := f()
+		return memcache.Entry{
+			Value:     r,
+			Err:       err,
+			ClearWhen: memcache.ClearOnChange,
+		}
+	})
 	if r == nil || err != nil {
 		return nil, err
 	}
 	return r.(resource.Resources), nil
-}
-
-func (c *ResourceCache) getOrCreate(key string, f func() (interface{}, error)) (interface{}, error) {
-	key = c.cleanKey(key)
-	// First check in-memory cache.
-	r, found := c.get(key)
-	if found {
-		return r, nil
-	}
-	// This is a potentially long running operation, so get a named lock.
-	c.nlocker.Lock(key)
-
-	// Double check in-memory cache.
-	r, found = c.get(key)
-	if found {
-		c.nlocker.Unlock(key)
-		return r, nil
-	}
-
-	defer c.nlocker.Unlock(key)
-
-	r, err := f()
-	if err != nil {
-		return nil, err
-	}
-
-	c.set(key, r)
-
-	return r, nil
 }
 
 func (c *ResourceCache) getFilenames(key string) (string, string) {
@@ -252,54 +134,4 @@ func (c *ResourceCache) writeMeta(key string, meta transformedResourceMetadata) 
 	fi, fc, err := c.fileCache.WriteCloser(filenameContent)
 
 	return fi, fc, err
-}
-
-func (c *ResourceCache) set(key string, r interface{}) {
-	c.Lock()
-	defer c.Unlock()
-	c.cache[key] = r
-}
-
-func (c *ResourceCache) DeletePartitions(partitions ...string) {
-	partitionsSet := map[string]bool{
-		// Always clear out the resources not matching any partition.
-		"other": true,
-	}
-	for _, p := range partitions {
-		partitionsSet[p] = true
-	}
-
-	if partitionsSet[CACHE_CLEAR_ALL] {
-		c.clear()
-		return
-	}
-
-	c.Lock()
-	defer c.Unlock()
-
-	for k := range c.cache {
-		clear := false
-		for p := range partitionsSet {
-			if strings.Contains(k, p) {
-				// There will be some false positive, but that's fine.
-				clear = true
-				break
-			}
-		}
-
-		if clear {
-			delete(c.cache, k)
-		}
-	}
-}
-
-func (c *ResourceCache) DeleteMatches(re *regexp.Regexp) {
-	c.Lock()
-	defer c.Unlock()
-
-	for k := range c.cache {
-		if re.MatchString(k) {
-			delete(c.cache, k)
-		}
-	}
 }

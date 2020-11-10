@@ -58,18 +58,25 @@ type Format struct {
 	// as template parser.
 	IsPlainText bool `json:"isPlainText"`
 
-	// IsHTML returns whether this format is int the HTML family. This includes
+	// IsHTML returns whether this format is in the HTML family. This includes
 	// HTML, AMP etc. This is used to decide when to create alias redirects etc.
 	IsHTML bool `json:"isHTML"`
 
 	// Enable to ignore the global uglyURLs setting.
 	NoUgly bool `json:"noUgly"`
 
+	// Enable to override the global uglyURLs setting.
+	Ugly bool `json:"ugly"`
+
 	// Enable if it doesn't make sense to include this format in an alternative
 	// format listing, CSS being one good example.
 	// Note that we use the term "alternative" and not "alternate" here, as it
 	// does not necessarily replace the other format, it is an alternative representation.
 	NotAlternative bool `json:"notAlternative"`
+
+	// Eneable if this is a resource which path always starts at the root,
+	// e.g. /robots.txt.
+	Root bool
 
 	// Setting this will make this output format control the value of
 	// .Permalink and .RelPermalink for a rendered Page.
@@ -114,6 +121,7 @@ var (
 		Rel:            "stylesheet",
 		NotAlternative: true,
 	}
+
 	CSVFormat = Format{
 		Name:        "CSV",
 		MediaType:   media.CSVType,
@@ -133,6 +141,15 @@ var (
 		// Weight will be used as first sort criteria. HTML will, by default,
 		// be rendered first, but set it to 10 so it's easy to put one above it.
 		Weight: 10,
+	}
+
+	HTTPStatusHTMLFormat = Format{
+		Name:           "HTTPStatus",
+		MediaType:      media.HTMLType,
+		NotAlternative: true,
+		Ugly:           true,
+		IsHTML:         true,
+		Permalinkable:  true,
 	}
 
 	JSONFormat = Format{
@@ -156,6 +173,8 @@ var (
 		Name:        "ROBOTS",
 		MediaType:   media.TextType,
 		BaseName:    "robots",
+		Ugly:        true,
+		Root:        true,
 		IsPlainText: true,
 		Rel:         "alternate",
 	}
@@ -172,7 +191,7 @@ var (
 		Name:      "Sitemap",
 		MediaType: media.XMLType,
 		BaseName:  "sitemap",
-		NoUgly:    true,
+		Ugly:      true,
 		Rel:       "sitemap",
 	}
 )
@@ -184,6 +203,7 @@ var DefaultFormats = Formats{
 	CSSFormat,
 	CSVFormat,
 	HTMLFormat,
+	HTTPStatusHTMLFormat,
 	JSONFormat,
 	WebAppManifestFormat,
 	RobotsTxtFormat,
@@ -390,6 +410,11 @@ func decode(mediaTypes media.Types, input interface{}, output *Format) error {
 // "index.xml").
 func (f Format) BaseFilename() string {
 	return f.BaseName + f.MediaType.FirstSuffix.FullSuffix
+}
+
+// IsZero returns true if f represents a zero value.
+func (f Format) IsZero() bool {
+	return f.Name == ""
 }
 
 // MarshalJSON returns the JSON encoding of f.

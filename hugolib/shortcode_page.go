@@ -16,6 +16,7 @@ package hugolib
 import (
 	"html/template"
 
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/resources/page"
 )
 
@@ -29,6 +30,7 @@ var tocShortcodePlaceholder = createShortcodePlaceholder("TOC", 0)
 type pageForShortcode struct {
 	page.PageWithoutContent
 	page.ContentProvider
+	identity.DependencyManagerProvider
 
 	// We need to replace it after we have rendered it, so provide a
 	// temporary placeholder.
@@ -39,14 +41,15 @@ type pageForShortcode struct {
 
 func newPageForShortcode(p *pageState) page.Page {
 	return &pageForShortcode{
-		PageWithoutContent: p,
-		ContentProvider:    page.NopPage,
-		toc:                template.HTML(tocShortcodePlaceholder),
-		p:                  p,
+		PageWithoutContent:        p,
+		ContentProvider:           page.NopPage,
+		DependencyManagerProvider: p.pageOutput,
+		toc:                       template.HTML(tocShortcodePlaceholder),
+		p:                         p,
 	}
 }
 
-func (p *pageForShortcode) page() page.Page {
+func (p *pageForShortcode) Page() page.Page {
 	return p.PageWithoutContent.(page.Page)
 }
 
@@ -60,16 +63,18 @@ type pageForRenderHooks struct {
 	page.PageWithoutContent
 	page.TableOfContentsProvider
 	page.ContentProvider
+	identity.DependencyManagerProvider
 }
 
 func newPageForRenderHook(p *pageState) page.Page {
 	return &pageForRenderHooks{
-		PageWithoutContent:      p,
-		ContentProvider:         page.NopPage,
-		TableOfContentsProvider: page.NopPage,
+		PageWithoutContent:        p,
+		ContentProvider:           page.NopPage,
+		TableOfContentsProvider:   page.NopPage,
+		DependencyManagerProvider: p.pageOutput,
 	}
 }
 
-func (p *pageForRenderHooks) page() page.Page {
+func (p *pageForRenderHooks) Page() page.Page {
 	return p.PageWithoutContent.(page.Page)
 }

@@ -14,303 +14,584 @@
 package hugolib
 
 import (
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/htesting"
 )
 
-func TestSitesRebuild(t *testing.T) {
-	configFile := `
-baseURL = "https://example.com"
-title = "Rebuild this"
-contentDir = "content"
-enableInlineShortcodes = true
-timeout = "5s"
+func TestRebuildAddPageToSection(t *testing.T) {
+	c := qt.New(t)
 
+	files := `
+-- config.toml --
+disableKinds=["home", "taxonomy", "term", "sitemap", "robotsTXT"]
+[outputs]
+	section = ['HTML']
+	page = ['HTML']
+-- content/blog/b1.md --
+-- content/blog/b3.md --
+-- content/doc/d1.md --
+-- content/doc/d3.md --
+-- layouts/_default/single.html --
+{{ .Pathc }}
+-- layouts/_default/list.html --
+List:
+{{ range $i, $e := .RegularPages }}
+{{ $i }}: {{ .Pathc }}
+{{ end }}
 
 `
 
-	var (
-		contentFilename = "content/blog/page1.md"
-		dataFilename    = "data/mydata.toml"
-	)
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           c,
+			TxtarString: files,
+			Running:     true,
+		},
+	).Build()
 
-	createSiteBuilder := func(t testing.TB) *sitesBuilder {
-		b := newTestSitesBuilder(t).WithConfigFile("toml", configFile).Running()
-
-		b.WithSourceFile(dataFilename, `hugo = "Rocks!"`)
-
-		b.WithContent("content/_index.md", `---
-title: Home, Sweet Home!
----
-
+	b.AssertRenderCountPage(6)
+	b.AssertFileContent("public/blog/index.html", `
+0: /blog/b1
+1: /blog/b3
 `)
 
-		b.WithContent(contentFilename, `
----
-title: "Page 1"
-summary: "Initial summary"
-paginate: 3
----
-
-Content.
-
-{{< badge.inline >}}
-Data Inline: {{ site.Data.mydata.hugo }}
-{{< /badge.inline >}}
+	b.AddFiles("content/blog/b2.md", "").Build()
+	b.AssertFileContent("public/blog/index.html", `
+0: /blog/b1
+1: /blog/b2
+2: /blog/b3
 `)
 
-		// For .Page.Render tests
-		b.WithContent("prender.md", `---
-title: Page 1
----
-
-Content for Page 1.
-
-{{< dorender >}}
-
-`)
-
-		b.WithTemplatesAdded(
-			"layouts/shortcodes/dorender.html", `
-{{ $p := .Page }}
-Render {{ $p.RelPermalink }}: {{ $p.Render "single" }}
-
-`)
-
-		b.WithTemplatesAdded("index.html", `
-{{ range (.Paginate .Site.RegularPages).Pages }}
-* Page Paginate: {{ .Title }}|Summary: {{ .Summary }}|Content: {{ .Content }}
-{{ end }}
-{{ range .Site.RegularPages }}
-* Page Pages: {{ .Title }}|Summary: {{ .Summary }}|Content: {{ .Content }}
-{{ end }}
-Content: {{ .Content }}
-Data: {{ site.Data.mydata.hugo }}
-`)
-
-		b.WithTemplatesAdded("layouts/partials/mypartial1.html", `Mypartial1`)
-		b.WithTemplatesAdded("layouts/partials/mypartial2.html", `Mypartial2`)
-		b.WithTemplatesAdded("layouts/partials/mypartial3.html", `Mypartial3`)
-		b.WithTemplatesAdded("_default/single.html", `{{ define "main" }}Single Main: {{ .Title }}|Mypartial1: {{ partial "mypartial1.html" }}{{ end }}`)
-		b.WithTemplatesAdded("_default/list.html", `{{ define "main" }}List Main: {{ .Title }}{{ end }}`)
-		b.WithTemplatesAdded("_default/baseof.html", `Baseof:{{ block "main" . }}Baseof Main{{ end }}|Mypartial3: {{ partial "mypartial3.html" }}:END`)
-
-		return b
-	}
-
-	t.Run("Refresh paginator on edit", func(t *testing.T) {
-		b := createSiteBuilder(t)
-
-		b.Build(BuildCfg{})
-
-		b.AssertFileContent("public/index.html", "* Page Paginate: Page 1|Summary: Initial summary|Content: <p>Content.</p>")
-
-		b.EditFiles(contentFilename, `
----
-title: "Page 1 edit"
-summary: "Edited summary"
----
-
-Edited content.
-
-`)
-
-		b.Build(BuildCfg{})
-
-		b.AssertFileContent("public/index.html", "* Page Paginate: Page 1 edit|Summary: Edited summary|Content: <p>Edited content.</p>")
-		// https://github.com/gohugoio/hugo/issues/5833
-		b.AssertFileContent("public/index.html", "* Page Pages: Page 1 edit|Summary: Edited summary|Content: <p>Edited content.</p>")
-	})
-
-	// https://github.com/gohugoio/hugo/issues/6768
-	t.Run("Edit data", func(t *testing.T) {
-		b := createSiteBuilder(t)
-
-		b.Build(BuildCfg{})
-
-		b.AssertFileContent("public/index.html", `
-Data: Rocks!
-Data Inline: Rocks!
-`)
-
-		b.EditFiles(dataFilename, `hugo = "Rules!"`)
-
-		b.Build(BuildCfg{})
-
-		b.AssertFileContent("public/index.html", `
-Data: Rules!
-Data Inline: Rules!`)
-	})
-
-	// https://github.com/gohugoio/hugo/issues/6968
-	t.Run("Edit single.html with base", func(t *testing.T) {
-		b := newTestSitesBuilder(t).Running()
-
-		b.WithTemplates(
-			"_default/single.html", `{{ define "main" }}Single{{ end }}`,
-			"_default/baseof.html", `Base: {{ block "main"  .}}Block{{ end }}`,
-		)
-
-		b.WithContent("p1.md", "---\ntitle: Page\n---")
-
-		b.Build(BuildCfg{})
-
-		b.EditFiles("layouts/_default/single.html", `Single Edit: {{ define "main" }}Single{{ end }}`)
-
-		counters := &testCounters{}
-
-		b.Build(BuildCfg{testCounters: counters})
-
-		b.Assert(int(counters.contentRenderCounter), qt.Equals, 0)
-	})
-
-	t.Run("Page.Render, edit baseof", func(t *testing.T) {
-		b := createSiteBuilder(t)
-
-		b.WithTemplatesAdded("index.html", `
-{{ $p := site.GetPage "prender.md" }}
-prender: {{ $p.Title }}|{{ $p.Content }}
-
-`)
-
-		b.Build(BuildCfg{})
-
-		b.AssertFileContent("public/index.html", `
- Render /prender/: Baseof:Single Main: Page 1|Mypartial1: Mypartial1|Mypartial3: Mypartial3:END
-`)
-
-		b.EditFiles("layouts/_default/baseof.html", `Baseof Edited:{{ block "main" . }}Baseof Main{{ end }}:END`)
-
-		b.Build(BuildCfg{})
-
-		b.AssertFileContent("public/index.html", `
-Render /prender/: Baseof Edited:Single Main: Page 1|Mypartial1: Mypartial1:END
-`)
-	})
-
-	t.Run("Page.Render, edit partial in baseof", func(t *testing.T) {
-		b := createSiteBuilder(t)
-
-		b.WithTemplatesAdded("index.html", `
-{{ $p := site.GetPage "prender.md" }}
-prender: {{ $p.Title }}|{{ $p.Content }}
-
-`)
-
-		b.Build(BuildCfg{})
-
-		b.AssertFileContent("public/index.html", `
- Render /prender/: Baseof:Single Main: Page 1|Mypartial1: Mypartial1|Mypartial3: Mypartial3:END
-`)
-
-		b.EditFiles("layouts/partials/mypartial3.html", `Mypartial3 Edited`)
-
-		b.Build(BuildCfg{})
-
-		b.AssertFileContent("public/index.html", `
-Render /prender/: Baseof:Single Main: Page 1|Mypartial1: Mypartial1|Mypartial3: Mypartial3 Edited:END
-`)
-	})
-
-	t.Run("Edit RSS shortcode", func(t *testing.T) {
-		b := createSiteBuilder(t)
-
-		b.WithContent("output.md", `---
-title: Output
-outputs: ["HTML", "AMP"]
-layout: output
----
-
-Content for Output.
-
-{{< output >}}
-
-`)
-
-		b.WithTemplates(
-			"layouts/_default/output.html", `Output HTML: {{ .RelPermalink }}|{{ .Content }}`,
-			"layouts/_default/output.amp.html", `Output AMP: {{ .RelPermalink }}|{{ .Content }}`,
-			"layouts/shortcodes/output.html", `Output Shortcode HTML`,
-			"layouts/shortcodes/output.amp.html", `Output Shortcode AMP`)
-
-		b.Build(BuildCfg{})
-
-		b.AssertFileContent("public/output/index.html", `
-Output Shortcode HTML
-`)
-		b.AssertFileContent("public/amp/output/index.html", `
-Output Shortcode AMP
-`)
-
-		b.EditFiles("layouts/shortcodes/output.amp.html", `Output Shortcode AMP Edited`)
-
-		b.Build(BuildCfg{})
-
-		b.AssertFileContent("public/amp/output/index.html", `
-Output Shortcode AMP Edited
-`)
-	})
+	// The 3 sections.
+	b.AssertRenderCountPage(3)
 }
 
-// Issues #7623 #7625
-func TestSitesRebuildOnFilesIncludedWithGetPage(t *testing.T) {
-	b := newTestSitesBuilder(t).Running()
-	b.WithContent("pages/p1.md", `---
-title: p1
----
-P3: {{< GetPage "pages/p3" >}}
+func TestRebuildAddPageToSectionListItFromAnotherSection(t *testing.T) {
+	c := qt.New(t)
+
+	files := `
+-- config.toml --
+disableKinds=["home", "taxonomy", "term", "sitemap", "robotsTXT"]
+[outputs]
+	section = ['HTML']
+	page = ['HTML']
+-- content/blog/b1.md --
+-- content/blog/b3.md --
+-- content/doc/d1.md --
+-- content/doc/d3.md --
+-- layouts/_default/single.html --
+{{ .Pathc }}
+-- layouts/_default/list.html --
+List Default
+-- layouts/doc/list.html --
+{{ $blog := site.GetPage "blog" }}
+List Doc:
+{{ range $i, $e := $blog.RegularPages }}
+{{ $i }}: {{ .Pathc }}
+{{ end }}
+
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           c,
+			TxtarString: files,
+			Running:     true,
+		},
+	).Build()
+
+	b.AssertRenderCountPage(6)
+	b.AssertFileContent("public/doc/index.html", `
+0: /blog/b1
+1: /blog/b3
 `)
 
-	b.WithContent("pages/p2.md", `---
-title: p2
----
-P4: {{< site_GetPage "pages/p4" >}}
-P5: {{< site_GetPage "p5" >}}
-P6: {{< dot_site_GetPage "p6" >}}
+	b.AddFiles("content/blog/b2.md", "").Build()
+	b.AssertFileContent("public/doc/index.html", `
+0: /blog/b1
+1: /blog/b2
+2: /blog/b3
 `)
 
-	b.WithContent("pages/p3/index.md", "---\ntitle: p3\nheadless: true\n---\nP3 content")
-	b.WithContent("pages/p4/index.md", "---\ntitle: p4\nheadless: true\n---\nP4 content")
-	b.WithContent("pages/p5.md", "---\ntitle: p5\n---\nP5 content")
-	b.WithContent("pages/p6.md", "---\ntitle: p6\n---\nP6 content")
+	// Just the 3 sections.
+	b.AssertRenderCountPage(3)
+}
 
-	b.WithTemplates(
-		"_default/single.html", `{{ .Content }}`,
-		"shortcodes/GetPage.html", `
-{{ $arg := .Get 0 }}
-{{ $p := .Page.GetPage $arg }}
-{{ $p.Content }}
-	`,
-		"shortcodes/site_GetPage.html", `
-{{ $arg := .Get 0 }}
-{{ $p := site.GetPage $arg }}
-{{ $p.Content }}
-	`, "shortcodes/dot_site_GetPage.html", `
-{{ $arg := .Get 0 }}
-{{ $p := .Site.GetPage $arg }}
-{{ $p.Content }}
-	`,
+func TestRebuildChangePartialUsedInShortcode(t *testing.T) {
+	c := qt.New(t)
+
+	files := `
+-- config.toml --
+disableKinds=["home", "section", "taxonomy", "term", "sitemap", "robotsTXT"]
+[outputs]
+	page = ['HTML']
+-- content/blog/p1.md --
+Shortcode: {{< c >}}
+-- content/blog/p2.md --
+CONTENT
+-- layouts/_default/single.html --
+{{ .Pathc }}: {{ .Content }}
+-- layouts/shortcodes/c.html --
+{{ partial "p.html" . }}
+-- layouts/partials/p.html --
+MYPARTIAL
+
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           c,
+			TxtarString: files,
+			Running:     true,
+		},
+	).Build()
+
+	b.AssertRenderCountPage(2)
+	b.AssertFileContent("public/blog/p1/index.html", `/blog/p1: <p>Shortcode: MYPARTIAL`)
+
+	b.EditFiles("layouts/partials/p.html", "MYPARTIAL CHANGED").Build()
+
+	b.AssertRenderCountPage(1)
+	b.AssertFileContent("public/blog/p1/index.html", `/blog/p1: <p>Shortcode: MYPARTIAL CHANGED`)
+}
+
+func TestRebuildEditPartials(t *testing.T) {
+	c := qt.New(t)
+
+	files := `
+-- config.toml --
+disableKinds=["home", "section", "taxonomy", "term", "sitemap", "robotsTXT"]
+[outputs]
+	page = ['HTML']
+-- content/blog/p1.md --
+Shortcode: {{< c >}}
+-- content/blog/p2.md --
+CONTENT
+-- content/blog/p3.md --
+Shortcode: {{< d >}}
+-- content/blog/p4.md --
+Shortcode: {{< d >}}
+-- content/blog/p5.md --
+Shortcode: {{< d >}}
+-- content/blog/p6.md --
+Shortcode: {{< d >}}
+-- content/blog/p7.md --
+Shortcode: {{< d >}}
+-- layouts/_default/single.html --
+{{ .Pathc }}: {{ .Content }}
+-- layouts/shortcodes/c.html --
+{{ partial "p.html" . }}
+-- layouts/shortcodes/d.html --
+{{ partialCached "p.html" . }}
+-- layouts/partials/p.html --
+MYPARTIAL
+
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           c,
+			TxtarString: files,
+			Running:     true,
+		},
+	).Build()
+
+	b.AssertRenderCountPage(7)
+	b.AssertFileContent("public/blog/p1/index.html", `/blog/p1: <p>Shortcode: MYPARTIAL`)
+	b.AssertFileContent("public/blog/p3/index.html", `/blog/p3: <p>Shortcode: MYPARTIAL`)
+
+	b.EditFiles("layouts/partials/p.html", "MYPARTIAL CHANGED").Build()
+
+	b.AssertRenderCountPage(6)
+	b.AssertFileContent("public/blog/p1/index.html", `/blog/p1: <p>Shortcode: MYPARTIAL CHANGED`)
+	b.AssertFileContent("public/blog/p3/index.html", `/blog/p3: <p>Shortcode: MYPARTIAL CHANGED`)
+	b.AssertFileContent("public/blog/p4/index.html", `/blog/p4: <p>Shortcode: MYPARTIAL CHANGED`)
+}
+
+// bookmark1
+func TestRebuildBasic(t *testing.T) {
+	// TODO1
+	pinnedTestCase := ""
+	tt := htesting.NewPinnedRunner(t, pinnedTestCase)
+
+	var (
+		twoPagesAndHomeDataInP1 = `
+-- config.toml --
+disableKinds=["section", "taxonomy", "term", "sitemap", "robotsTXT"]
+[permalinks]
+"/"="/:filename/"
+[outputs]
+  home = ['HTML']
+  page = ['HTML']
+-- data/mydata.toml --
+hugo="Rocks!"
+-- content/p1.md --
+---
+includeData: true
+---
+CONTENT
+-- content/p2.md --
+CONTENT
+-- layouts/_default/single.html --
+{{ if .Params.includeData }}
+Hugo {{ site.Data.mydata.hugo }}
+{{ else }}
+NO DATA USED
+{{ end }}
+Title: {{ .Title }}|Content Start: {{ .Content }}:End:
+-- layouts/index.html --
+Home: Len site.Pages: {{ len site.Pages}}|Len site.RegularPages: {{ len site.RegularPages}}|Len site.AllPages: {{ len site.AllPages}}:End:
+`
+
+		twoPagesDataInShortcodeInP2HTMLAndRSS = `
+-- config.toml --
+disableKinds=["home", "section", "taxonomy", "term", "sitemap", "robotsTXT"]
+[outputs]
+  page = ['HTML', 'RSS']
+-- data/mydata.toml --
+hugo="Rocks!"
+-- content/p1.md --
+---
+slug: p1
+---
+CONTENT
+-- content/p2.md --
+---
+slug: p2
+---
+{{< foo >}}
+CONTENT
+-- layouts/_default/single.html --
+HTML: {{ .Slug }}: {{ .Content }}
+-- layouts/_default/single.xml --
+XML: {{ .Slug }}: {{ .Content }}
+-- layouts/shortcodes/foo.html --
+Hugo {{ site.Data.mydata.hugo }}
+-- layouts/shortcodes/foo.xml --
+No Data
+`
+
+		twoPagesDataInRenderHookInP2 = `
+-- config.toml --
+disableKinds=["home", "section", "taxonomy", "term", "sitemap", "robotsTXT"]
+-- data/mydata.toml --
+hugo="Rocks!"
+-- content/p1.md --
+---
+slug: p1
+---
+-- content/p2.md --
+---
+slug: p2
+---
+[Text](https://www.gohugo.io "Title")
+-- layouts/_default/single.html --
+{{ .Slug }}: {{ .Content }}
+-- layouts/_default/_markup/render-link.html --
+Hugo {{ site.Data.mydata.hugo }}
+`
+
+		twoPagesAndHomeWithBaseTemplate = `
+-- config.toml --
+disableKinds=[ "section", "taxonomy", "term", "sitemap", "robotsTXT"]
+[outputs]
+  home = ['HTML']
+  page = ['HTML']
+-- data/mydata.toml --
+hugo="Rocks!"
+-- content/_index.md --
+---
+title: MyHome
+---
+-- content/p1.md --
+---
+slug: p1
+---
+-- content/p2.md --
+---
+slug: p2
+---
+-- layouts/_default/baseof.html --
+Block Main Start:{{ block "main" . }}{{ end }}:End:
+-- layouts/_default/single.html --
+{{ define "main" }}Single Main Start:{{ .Slug }}: {{ .Content }}:End:{{ end }}
+-- layouts/_default/list.html --
+{{ define "main" }}List Main Start:{{ .Title }}: {{ .Content }}:End{{ end }}
+`
 	)
 
-	b.Build(BuildCfg{})
+	// * Remove doc
+	// * Add
+	// * Rename file
+	// * Change doc
+	// * Change a template
+	// * Change language file
+	// OK * Site.LastChange - mod, no mod
 
-	b.AssertFileContent("public/pages/p1/index.html", "P3 content")
-	b.AssertFileContent("public/pages/p2/index.html", `P4 content
-P5 content
-P6 content
-`)
+	// Tests for  Site.LastChange
+	for _, changeSiteLastChanged := range []bool{false, true} {
+		name := "Site.LastChange"
+		if changeSiteLastChanged {
+			name += " Changed"
+		} else {
+			name += " Not Changed"
+		}
 
-	b.EditFiles("content/pages/p3/index.md", "---\ntitle: p3\n---\nP3 changed content")
-	b.EditFiles("content/pages/p4/index.md", "---\ntitle: p4\n---\nP4 changed content")
-	b.EditFiles("content/pages/p5.md", "---\ntitle: p5\n---\nP5 changed content")
-	b.EditFiles("content/pages/p6.md", "---\ntitle: p6\n---\nP6 changed content")
+		const files = `
+-- config.toml --
+disableKinds=["section", "taxonomy", "term", "sitemap", "robotsTXT", "404"]
+[outputs]
+	home = ['HTML']
+	page = ['HTML']
+-- content/_index.md --
+---
+title: Home
+lastMod: 2020-02-01
+---
+-- content/p1.md --
+---
+title: P1
+lastMod: 2020-03-01
+---
+CONTENT
+-- content/p2.md --
+---
+title: P2
+lastMod: 2020-03-02
+---
+CONTENT
+-- layouts/_default/single.html --
+Title: {{ .Title }}|Lastmod: {{ .Lastmod.Format "2006-01-02" }}|Content Start: {{ .Content }}:End:
+-- layouts/index.html --
+Home: Lastmod: {{ .Lastmod.Format "2006-01-02" }}|site.LastChange: {{ site.LastChange.Format "2006-01-02" }}:End:
+		`
 
-	b.Build(BuildCfg{})
+		tt.Run(name, func(c *qt.C) {
+			b := NewIntegrationTestBuilder(
+				IntegrationTestConfig{
+					T:           c,
+					TxtarString: files,
+					Running:     true,
+				},
+			).Build()
 
-	b.AssertFileContent("public/pages/p1/index.html", "P3 changed content")
-	b.AssertFileContent("public/pages/p2/index.html", `P4 changed content
-P5 changed content
-P6 changed content
-`)
+			b.AssertFileContent("public/p1/index.html", "Title: P1|Lastmod: 2020-03-01")
+			b.AssertFileContent("public/index.html", "Home: Lastmod: 2020-02-01|site.LastChange: 2020-03-02")
+			b.AssertRenderCountPage(3)
+
+			if changeSiteLastChanged {
+				b.EditFileReplace("content/p1.md", func(s string) string { return strings.ReplaceAll(s, "lastMod: 2020-03-01", "lastMod: 2020-05-01") })
+			} else {
+				b.EditFileReplace("content/p1.md", func(s string) string { return strings.ReplaceAll(s, "CONTENT", "Content Changed") })
+			}
+
+			b.Build()
+
+			if changeSiteLastChanged {
+				b.AssertFileContent("public/p1/index.html", "Title: P1|Lastmod: 2020-05-01")
+				b.AssertFileContent("public/index.html", "Home: Lastmod: 2020-02-01|site.LastChange: 2020-05-01")
+				b.AssertRenderCountPage(2)
+			} else {
+				b.AssertRenderCountPage(1)
+				b.AssertFileContent("public/p1/index.html", "Content Changed")
+
+			}
+		})
+	}
+
+	tt.Run("Content Edit, Add, Rename, Remove", func(c *qt.C) {
+		b := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           c,
+				TxtarString: twoPagesAndHomeDataInP1,
+				Running:     true,
+			},
+		).Build()
+
+		b.AssertFileContent("public/p1/index.html", "Hugo Rocks!")
+		b.AssertFileContent("public/index.html", `Home: Len site.Pages: 3|Len site.RegularPages: 2|Len site.AllPages: 3:End:`)
+		b.AssertRenderCountPage(3)
+		b.AssertBuildCountData(1)
+		b.AssertBuildCountLayouts(1)
+
+		// Edit
+		b.EditFileReplace("content/p1.md", func(s string) string { return strings.ReplaceAll(s, "CONTENT", "Changed Content") }).Build()
+
+		b.AssertFileContent("public/p1/index.html", "Changed Content")
+		b.AssertRenderCountPage(1)
+		b.AssertRenderCountContent(1)
+		b.AssertBuildCountData(1)
+		b.AssertBuildCountLayouts(1)
+
+		b.AddFiles("content/p3.md", `ADDED`).Build()
+		b.AssertFileContent("public/index.html", `Home: Len site.Pages: 4|Len site.RegularPages: 3|Len site.AllPages: 4:End:`)
+
+		// Remove
+		b.RemoveFiles("content/p1.md").Build()
+
+		b.AssertFileContent("public/index.html", `Home: Len site.Pages: 3|Len site.RegularPages: 2|Len site.AllPages: 3:End:`)
+		b.AssertRenderCountPage(1)
+		b.AssertRenderCountContent(0)
+		b.AssertBuildCountData(1)
+		b.AssertBuildCountLayouts(1)
+
+		// Rename
+		b.RenameFile("content/p2.md", "content/p2n.md").Build()
+
+		b.AssertFileContent("public/index.html", `Home: Len site.Pages: 3|Len site.RegularPages: 2|Len site.AllPages: 3:End:`)
+		b.AssertFileContent("public/p2n/index.html", "NO DATA USED")
+		b.AssertRenderCountPage(2)
+		b.AssertRenderCountContent(1)
+		b.AssertBuildCountData(1)
+		b.AssertBuildCountLayouts(1)
+	})
+
+	tt.Run("Data in page template", func(c *qt.C) {
+		b := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           c,
+				TxtarString: twoPagesAndHomeDataInP1,
+				Running:     true,
+			},
+		).Build()
+
+		b.AssertFileContent("public/p1/index.html", "Hugo Rocks!")
+		b.AssertFileContent("public/p2/index.html", "NO DATA USED")
+		b.AssertRenderCountPage(3)
+		b.AssertBuildCountData(1)
+		b.AssertBuildCountLayouts(1)
+
+		b.EditFiles("data/mydata.toml", `hugo="Rules!"`).Build()
+
+		b.AssertFileContent("public/p1/index.html", "Hugo Rules!")
+
+		b.AssertBuildCountData(2)
+		b.AssertBuildCountLayouts(1)
+		b.AssertRenderCountPage(1) // We only need to re-render the one page that uses site.Data.
+	})
+
+	tt.Run("Data in shortcode", func(c *qt.C) {
+		b := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           c,
+				TxtarString: twoPagesDataInShortcodeInP2HTMLAndRSS,
+				Running:     true,
+			},
+		).Build()
+
+		b.AssertFileContent("public/p2/index.html", "Hugo Rocks!")
+		b.AssertFileContent("public/p2/index.xml", "No Data")
+
+		b.AssertRenderCountContent(3) // p2 (2 variants), p1
+		b.AssertRenderCountPage(4)    // p2 (2), p1 (2)
+		b.AssertBuildCountData(1)
+		b.AssertBuildCountLayouts(1)
+
+		b.EditFiles("data/mydata.toml", `hugo="Rules!"`).Build()
+
+		b.AssertFileContent("public/p2/index.html", "Hugo Rules!")
+		b.AssertFileContent("public/p2/index.xml", "No Data")
+
+		// We only need to re-render the one page that uses the shortcode with site.Data (p2)
+		b.AssertRenderCountContent(1)
+		b.AssertRenderCountPage(1)
+		b.AssertBuildCountData(2)
+		b.AssertBuildCountLayouts(1)
+	})
+
+	// TODO1 site date(s).
+
+	tt.Run("Layout Shortcode", func(c *qt.C) {
+		b := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           c,
+				TxtarString: twoPagesDataInShortcodeInP2HTMLAndRSS,
+				Running:     true,
+			},
+		).Build()
+
+		b.AssertBuildCountLayouts(1)
+		b.AssertBuildCountData(1)
+
+		b.EditFiles("layouts/shortcodes/foo.html", `Shortcode changed"`).Build()
+
+		b.AssertFileContent("public/p2/index.html", "Shortcode changed")
+		b.AssertRenderCountContent(1)
+		b.AssertRenderCountPage(1)
+		b.AssertBuildCountLayouts(2)
+		b.AssertBuildCountData(1)
+	})
+
+	tt.Run("Data in Render Hook", func(c *qt.C) {
+		b := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           c,
+				TxtarString: twoPagesDataInRenderHookInP2,
+				Running:     true,
+			},
+		).Build()
+
+		b.AssertFileContent("public/p2/index.html", "Hugo Rocks!")
+		b.AssertBuildCountData(1)
+
+		b.EditFiles("data/mydata.toml", `hugo="Rules!"`).Build()
+
+		b.AssertFileContent("public/p2/index.html", "Hugo Rules!")
+		// We only need to re-render the one page that contains a link (p2)
+		b.AssertRenderCountContent(1)
+		b.AssertRenderCountPage(1)
+		b.AssertBuildCountData(2)
+	})
+
+	tt.Run("Layout Single", func(c *qt.C) {
+		b := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           c,
+				TxtarString: twoPagesAndHomeWithBaseTemplate,
+				Running:     true,
+			},
+		).Build()
+
+		b.EditFiles("layouts/_default/single.html", `Single template changed"`).Build()
+		b.AssertFileContent("public/p1/index.html", "Single template changed")
+		b.AssertFileContent("public/p2/index.html", "Single template changed")
+		b.AssertRenderCountContent(0) // Reuse .Content
+		b.AssertRenderCountPage(2)    // Re-render both pages using single.html
+	})
+
+	tt.Run("Layout List", func(c *qt.C) {
+		b := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           c,
+				TxtarString: twoPagesAndHomeWithBaseTemplate,
+				Running:     true,
+			},
+		).Build()
+
+		b.EditFiles("layouts/_default/list.html", `List template changed"`).Build()
+		b.AssertFileContent("public/index.html", "List template changed")
+		b.AssertFileContent("public/p2/index.html", "Block Main Start:Single Main Start:p2: :End::End:")
+		b.AssertRenderCountContent(0) // Reuse .Content
+		b.AssertRenderCountPage(1)    // Re-render home page only
+	})
+
+	tt.Run("Layout Base", func(c *qt.C) {
+		b := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           c,
+				TxtarString: twoPagesAndHomeWithBaseTemplate,
+				Running:     true,
+			},
+		).Build()
+
+		b.AssertFileContent("public/index.html", "Block Main Start:List Main Start:MyHome: :End:End:")
+		b.EditFiles("layouts/_default/baseof.html", `Block Main Changed Start:{{ block "main" . }}{{ end }}:End:"`).Build()
+		b.AssertFileContent("public/index.html", "Block Main Changed Start:List Main Start:MyHome: :End:End:")
+		b.AssertFileContent("public/p2/index.html", "Block Main Changed Start:Single Main Start:p2: :End::End:")
+		b.AssertRenderCountContent(0) // Reuse .Content
+		b.AssertRenderCountPage(3)    // Re-render all 3 pages
+	})
 }

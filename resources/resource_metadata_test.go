@@ -200,12 +200,12 @@ func TestAssignMetadata(t *testing.T) {
 		}},
 	} {
 
-		foo2 = spec.newGenericResource(nil, nil, nil, "/b/foo2.css", "foo2.css", media.CSSType)
-		logo2 = spec.newGenericResource(nil, nil, nil, "/b/Logo2.png", "Logo2.png", pngType)
-		foo1 = spec.newGenericResource(nil, nil, nil, "/a/foo1.css", "foo1.css", media.CSSType)
-		logo1 = spec.newGenericResource(nil, nil, nil, "/a/logo1.png", "logo1.png", pngType)
-		foo3 = spec.newGenericResource(nil, nil, nil, "/b/foo3.css", "foo3.css", media.CSSType)
-		logo3 = spec.newGenericResource(nil, nil, nil, "/b/logo3.png", "logo3.png", pngType)
+		foo2 = newGenericResource(spec, nil, nil, nil, "/b/foo2.css", "foo2.css", media.CSSType)
+		logo2 = newGenericResource(spec, nil, nil, nil, "/b/Logo2.png", "Logo2.png", pngType)
+		foo1 = newGenericResource(spec, nil, nil, nil, "/a/foo1.css", "foo1.css", media.CSSType)
+		logo1 = newGenericResource(spec, nil, nil, nil, "/a/logo1.png", "logo1.png", pngType)
+		foo3 = newGenericResource(spec, nil, nil, nil, "/b/foo3.css", "foo3.css", media.CSSType)
+		logo3 = newGenericResource(spec, nil, nil, nil, "/b/logo3.png", "logo3.png", pngType)
 
 		resources = resource.Resources{
 			foo2,

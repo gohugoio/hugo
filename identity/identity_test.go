@@ -11,79 +11,215 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package identity
+package identity_test
 
 import (
 	"fmt"
-	"math/rand"
-	"strconv"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/identity/identitytesting"
 )
 
 func TestIdentityManager(t *testing.T) {
 	c := qt.New(t)
 
-	id1 := testIdentity{name: "id1"}
-	im := NewManager(id1)
+	newM := func() identity.Manager {
+		m1 := identity.NewManager(testIdentity{"base", "root"})
+		m2 := identity.NewManager(identity.Anonymous)
+		m3 := identity.NewManager(testIdentity{"base3", "id3"})
+		m1.AddIdentity(
+			testIdentity{"base", "id1"},
+			testIdentity{"base2", "id2"},
+			m2,
+			m3,
+		)
 
-	c.Assert(im.Search(id1).GetIdentity(), qt.Equals, id1)
-	c.Assert(im.Search(testIdentity{name: "notfound"}), qt.Equals, nil)
+		m2.AddIdentity(testIdentity{"base4", "id4"})
+
+		return m1
+	}
+
+	c.Run("Contains", func(c *qt.C) {
+		im := newM()
+		c.Assert(im.Contains(testIdentity{"base", "root"}), qt.IsTrue)
+		c.Assert(im.Contains(testIdentity{"base", "id1"}), qt.IsTrue)
+		c.Assert(im.Contains(testIdentity{"base3", "id3"}), qt.IsTrue)
+		c.Assert(im.Contains(testIdentity{"base", "notfound"}), qt.IsFalse)
+
+		im.Reset()
+		c.Assert(im.Contains(testIdentity{"base", "root"}), qt.IsTrue)
+		c.Assert(im.Contains(testIdentity{"base", "id1"}), qt.IsFalse)
+	})
+
+	c.Run("ContainsProbably", func(c *qt.C) {
+		im := newM()
+		c.Assert(im.ContainsProbably(testIdentity{"base", "id1"}), qt.IsTrue)
+		c.Assert(im.ContainsProbably(testIdentity{"base", "notfound"}), qt.IsTrue)
+		c.Assert(im.ContainsProbably(testIdentity{"base2", "notfound"}), qt.IsTrue)
+		c.Assert(im.ContainsProbably(testIdentity{"base3", "notfound"}), qt.IsTrue)
+		c.Assert(im.ContainsProbably(testIdentity{"base4", "notfound"}), qt.IsTrue)
+		c.Assert(im.ContainsProbably(testIdentity{"base5", "notfound"}), qt.IsFalse)
+
+		im.Reset()
+		c.Assert(im.Contains(testIdentity{"base", "root"}), qt.IsTrue)
+		c.Assert(im.ContainsProbably(testIdentity{"base", "notfound"}), qt.IsTrue)
+	})
+
+	c.Run("Anonymous", func(c *qt.C) {
+		im := newM()
+		im.AddIdentity(identity.Anonymous)
+		c.Assert(im.Contains(identity.Anonymous), qt.IsFalse)
+		c.Assert(im.ContainsProbably(identity.Anonymous), qt.IsFalse)
+		c.Assert(identity.IsNotDependent(identity.Anonymous, identity.Anonymous), qt.IsTrue)
+	})
+
+	c.Run("GenghisKhan", func(c *qt.C) {
+		im := newM()
+		c.Assert(im.Contains(identity.GenghisKhan), qt.IsFalse)
+		c.Assert(im.ContainsProbably(identity.GenghisKhan), qt.IsTrue)
+		c.Assert(identity.IsNotDependent(identity.GenghisKhan, identity.GenghisKhan), qt.IsTrue)
+	})
 }
 
 func BenchmarkIdentityManager(b *testing.B) {
-	createIds := func(num int) []Identity {
-		ids := make([]Identity, num)
+	createIds := func(num int) []identity.Identity {
+		ids := make([]identity.Identity, num)
 		for i := 0; i < num; i++ {
-			ids[i] = testIdentity{name: fmt.Sprintf("id%d", i)}
+			name := fmt.Sprintf("id%d", i)
+			ids[i] = &testIdentity{base: name, name: name}
 		}
 		return ids
 	}
 
-	b.Run("Add", func(b *testing.B) {
-		c := qt.New(b)
-		b.StopTimer()
-		ids := createIds(b.N)
-		im := NewManager(testIdentity{"first"})
-		b.StartTimer()
-
+	b.Run("identity.NewManager", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			im.Add(ids[i])
+			m := identity.NewManager(identity.Anonymous)
+			if m == nil {
+				b.Fatal("manager is nil")
+			}
 		}
-
-		b.StopTimer()
-		c.Assert(im.GetIdentities(), qt.HasLen, b.N+1)
 	})
 
-	b.Run("Search", func(b *testing.B) {
-		c := qt.New(b)
-		b.StopTimer()
+	b.Run("Add unique", func(b *testing.B) {
 		ids := createIds(b.N)
-		im := NewManager(testIdentity{"first"})
+		im := identity.NewManager(identity.Anonymous)
 
+		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			im.Add(ids[i])
+			im.AddIdentity(ids[i])
 		}
 
-		b.StartTimer()
+		b.StopTimer()
+	})
 
+	b.Run("Add duplicates", func(b *testing.B) {
+		id := &testIdentity{base: "a", name: "b"}
+		im := identity.NewManager(identity.Anonymous)
+
+		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			name := "id" + strconv.Itoa(rand.Intn(b.N))
-			id := im.Search(testIdentity{name: name})
-			c.Assert(id.GetIdentity().Name(), qt.Equals, name)
+			im.AddIdentity(id)
 		}
+
+		b.StopTimer()
+	})
+
+	b.Run("Nop StringIdentity const", func(b *testing.B) {
+		const id = identity.StringIdentity("test")
+		for i := 0; i < b.N; i++ {
+			identity.NopManager.AddIdentity(id)
+		}
+	})
+
+	b.Run("Nop StringIdentity const other package", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			identity.NopManager.AddIdentity(identitytesting.TestIdentity)
+		}
+	})
+
+	b.Run("Nop StringIdentity var", func(b *testing.B) {
+		id := identity.StringIdentity("test")
+		for i := 0; i < b.N; i++ {
+			identity.NopManager.AddIdentity(id)
+		}
+	})
+
+	b.Run("Nop pointer identity", func(b *testing.B) {
+		id := &testIdentity{base: "a", name: "b"}
+		for i := 0; i < b.N; i++ {
+			identity.NopManager.AddIdentity(id)
+		}
+	})
+
+	b.Run("Nop Anonymous", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			identity.NopManager.AddIdentity(identity.Anonymous)
+		}
+	})
+
+	runContainsBenchmark := func(b *testing.B, im identity.Manager, fn func(id identity.Identity) bool, shouldFind bool) {
+		if shouldFind {
+			ids := createIds(b.N)
+
+			for i := 0; i < b.N; i++ {
+				im.AddIdentity(ids[i])
+			}
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				found := fn(ids[i])
+				if !found {
+					b.Fatal("id not found")
+				}
+			}
+		} else {
+			noMatchQuery := &testIdentity{base: "notfound", name: "notfound"}
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				found := fn(noMatchQuery)
+				if found {
+					b.Fatal("id  found")
+				}
+			}
+		}
+	}
+
+	b.Run("Contains", func(b *testing.B) {
+		im := identity.NewManager(identity.Anonymous)
+		runContainsBenchmark(b, im, im.Contains, true)
+	})
+
+	b.Run("ContainsNotFound", func(b *testing.B) {
+		im := identity.NewManager(identity.Anonymous)
+		runContainsBenchmark(b, im, im.Contains, false)
+	})
+
+	b.Run("ContainsProbably", func(b *testing.B) {
+		im := identity.NewManager(identity.Anonymous)
+		runContainsBenchmark(b, im, im.ContainsProbably, true)
+	})
+
+	b.Run("ContainsProbablyNotFound", func(b *testing.B) {
+		im := identity.NewManager(identity.Anonymous)
+		runContainsBenchmark(b, im, im.ContainsProbably, false)
 	})
 }
 
 type testIdentity struct {
+	base string
 	name string
 }
 
-func (id testIdentity) GetIdentity() Identity {
-	return id
+func (id testIdentity) IdentifierBase() interface{} {
+	return id.base
 }
 
 func (id testIdentity) Name() string {
 	return id.name
+}
+
+type testIdentityManager struct {
+	testIdentity
+	identity.Manager
 }

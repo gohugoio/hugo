@@ -14,40 +14,8 @@
 package paths
 
 import (
-	"strings"
 	"testing"
-
-	qt "github.com/frankban/quicktest"
 )
-
-func TestSanitizeURL(t *testing.T) {
-	tests := []struct {
-		input    string
-		expected string
-	}{
-		{"http://foo.bar/", "http://foo.bar"},
-		{"http://foo.bar", "http://foo.bar"},          // issue #1105
-		{"http://foo.bar/zoo/", "http://foo.bar/zoo"}, // issue #931
-	}
-
-	for i, test := range tests {
-		o1 := SanitizeURL(test.input)
-		o2 := SanitizeURLKeepTrailingSlash(test.input)
-
-		expected2 := test.expected
-
-		if strings.HasSuffix(test.input, "/") && !strings.HasSuffix(expected2, "/") {
-			expected2 += "/"
-		}
-
-		if o1 != test.expected {
-			t.Errorf("[%d] 1: Expected %#v, got %#v\n", i, test.expected, o1)
-		}
-		if o2 != expected2 {
-			t.Errorf("[%d] 2: Expected %#v, got %#v\n", i, expected2, o2)
-		}
-	}
-}
 
 func TestMakePermalink(t *testing.T) {
 	type test struct {
@@ -94,36 +62,4 @@ func TestAddContextRoot(t *testing.T) {
 			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
 		}
 	}
-}
-
-func TestPretty(t *testing.T) {
-	c := qt.New(t)
-	c.Assert("/section/name/index.html", qt.Equals, PrettifyURLPath("/section/name.html"))
-	c.Assert("/section/sub/name/index.html", qt.Equals, PrettifyURLPath("/section/sub/name.html"))
-	c.Assert("/section/name/index.html", qt.Equals, PrettifyURLPath("/section/name/"))
-	c.Assert("/section/name/index.html", qt.Equals, PrettifyURLPath("/section/name/index.html"))
-	c.Assert("/index.html", qt.Equals, PrettifyURLPath("/index.html"))
-	c.Assert("/name/index.xml", qt.Equals, PrettifyURLPath("/name.xml"))
-	c.Assert("/", qt.Equals, PrettifyURLPath("/"))
-	c.Assert("/", qt.Equals, PrettifyURLPath(""))
-	c.Assert("/section/name", qt.Equals, PrettifyURL("/section/name.html"))
-	c.Assert("/section/sub/name", qt.Equals, PrettifyURL("/section/sub/name.html"))
-	c.Assert("/section/name", qt.Equals, PrettifyURL("/section/name/"))
-	c.Assert("/section/name", qt.Equals, PrettifyURL("/section/name/index.html"))
-	c.Assert("/", qt.Equals, PrettifyURL("/index.html"))
-	c.Assert("/name/index.xml", qt.Equals, PrettifyURL("/name.xml"))
-	c.Assert("/", qt.Equals, PrettifyURL("/"))
-	c.Assert("/", qt.Equals, PrettifyURL(""))
-}
-
-func TestUgly(t *testing.T) {
-	c := qt.New(t)
-	c.Assert("/section/name.html", qt.Equals, Uglify("/section/name.html"))
-	c.Assert("/section/sub/name.html", qt.Equals, Uglify("/section/sub/name.html"))
-	c.Assert("/section/name.html", qt.Equals, Uglify("/section/name/"))
-	c.Assert("/section/name.html", qt.Equals, Uglify("/section/name/index.html"))
-	c.Assert("/index.html", qt.Equals, Uglify("/index.html"))
-	c.Assert("/name.xml", qt.Equals, Uglify("/name.xml"))
-	c.Assert("/", qt.Equals, Uglify("/"))
-	c.Assert("/", qt.Equals, Uglify(""))
 }

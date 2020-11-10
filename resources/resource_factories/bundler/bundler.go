@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2021 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,10 +15,12 @@
 package bundler
 
 import (
+	"context"
 	"fmt"
 	"io"
-	"path"
 	"path/filepath"
+
+	"github.com/gohugoio/hugo/cache/memcache"
 
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/media"
@@ -81,8 +83,7 @@ func (r *multiReadSeekCloser) Close() error {
 
 // Concat concatenates the list of Resource objects.
 func (c *Client) Concat(targetPath string, r resource.Resources) (resource.Resource, error) {
-	// The CACHE_OTHER will make sure this will be re-created and published on rebuilds.
-	return c.rs.ResourceCache.GetOrCreate(path.Join(resources.CACHE_OTHER, targetPath), func() (resource.Resource, error) {
+	return c.rs.ResourceCache.GetOrCreate(context.TODO(), targetPath, memcache.ClearOnRebuild, func() (resource.Resource, error) {
 		var resolvedm media.Type
 
 		// The given set of resources must be of the same Media Type.

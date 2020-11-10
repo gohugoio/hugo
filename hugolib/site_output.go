@@ -17,8 +17,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/gohugoio/hugo/resources/page/pagekinds"
+
 	"github.com/gohugoio/hugo/output"
-	"github.com/gohugoio/hugo/resources/page"
 	"github.com/spf13/cast"
 )
 
@@ -34,20 +35,20 @@ func createDefaultOutputFormats(allFormats output.Formats) map[string]output.For
 	}
 
 	m := map[string]output.Formats{
-		page.KindPage:     {htmlOut},
-		page.KindHome:     defaultListTypes,
-		page.KindSection:  defaultListTypes,
-		page.KindTerm:     defaultListTypes,
-		page.KindTaxonomy: defaultListTypes,
+		pagekinds.Page:     {htmlOut},
+		pagekinds.Home:     defaultListTypes,
+		pagekinds.Section:  defaultListTypes,
+		pagekinds.Term:     defaultListTypes,
+		pagekinds.Taxonomy: defaultListTypes,
 		// Below are for consistency. They are currently not used during rendering.
-		kindSitemap:   {sitemapOut},
-		kindRobotsTXT: {robotsOut},
-		kind404:       {htmlOut},
+		pagekinds.Sitemap:   {sitemapOut},
+		pagekinds.RobotsTXT: {robotsOut},
+		pagekinds.Status404: {htmlOut},
 	}
 
 	// May be disabled
 	if rssFound {
-		m[kindRSS] = output.Formats{rssOut}
+		m["RSS"] = output.Formats{rssOut}
 	}
 
 	return m
@@ -69,7 +70,7 @@ func createSiteOutputFormats(allFormats output.Formats, outputs map[string]inter
 	seen := make(map[string]bool)
 
 	for k, v := range outputs {
-		k = getKind(k)
+		k = pagekinds.Get(k)
 		if k == "" {
 			// Invalid kind
 			continue

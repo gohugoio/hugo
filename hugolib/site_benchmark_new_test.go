@@ -101,7 +101,6 @@ title="My Page"
 
 My page content.
 `
-
 	}
 
 	var categoryKey string
@@ -241,7 +240,6 @@ canonifyURLs = true
 				return sb
 			},
 			func(s *sitesBuilder) {
-
 			},
 		},
 		{
@@ -273,6 +271,8 @@ canonifyURLs = true
 
 				sb := newTestSitesBuilder(b).WithConfigFile("toml", `
 baseURL = "https://example.com"
+
+ignoreWarnings = ["warn-path-file"]
 
 [languages]
 [languages.en]
@@ -421,6 +421,7 @@ baseURL = "https://example.com"
 				createContent := func(dir, name string) {
 					var content string
 					if strings.Contains(name, "_index") {
+						// TODO(bep) fixme
 						content = pageContent(1)
 					} else {
 						content = pageContentWithCategory(1, fmt.Sprintf("category%d", r.Intn(5)+1))
@@ -535,7 +536,7 @@ func BenchmarkSiteNew(b *testing.B) {
 								panic("infinite loop")
 							}
 							p = pages[rnd.Intn(len(pages))]
-							if !p.File().IsZero() {
+							if p.File() != nil {
 								break
 							}
 						}

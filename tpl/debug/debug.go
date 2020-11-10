@@ -26,8 +26,7 @@ func New(d *deps.Deps) *Namespace {
 }
 
 // Namespace provides template functions for the "debug" namespace.
-type Namespace struct {
-}
+type Namespace struct{}
 
 // Dump returns a object dump of val as a string.
 // Note that not every value passed to Dump will print so nicely, but

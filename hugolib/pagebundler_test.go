@@ -24,6 +24,7 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/resources/page/pagekinds"
 
 	"github.com/gohugoio/hugo/hugofs/files"
 
@@ -98,7 +99,7 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 
 						c.Assert(len(s.RegularPages()), qt.Equals, 8)
 
-						singlePage := s.getPage(page.KindPage, "a/1.md")
+						singlePage := s.getPage(pagekinds.Page, "a/1.md")
 						c.Assert(singlePage.BundleType(), qt.Equals, files.ContentClass(""))
 
 						c.Assert(singlePage, qt.Not(qt.IsNil))
@@ -144,18 +145,18 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 						// This should be just copied to destination.
 						b.AssertFileContent(filepath.FromSlash("/work/public/assets/pic1.png"), "content")
 
-						leafBundle1 := s.getPage(page.KindPage, "b/my-bundle/index.md")
+						leafBundle1 := s.getPage(pagekinds.Page, "b/my-bundle/index.md")
 						c.Assert(leafBundle1, qt.Not(qt.IsNil))
 						c.Assert(leafBundle1.BundleType(), qt.Equals, files.ContentClassLeaf)
 						c.Assert(leafBundle1.Section(), qt.Equals, "b")
-						sectionB := s.getPage(page.KindSection, "b")
+						sectionB := s.getPage(pagekinds.Section, "b")
 						c.Assert(sectionB, qt.Not(qt.IsNil))
 						home, _ := s.Info.Home()
 						c.Assert(home.BundleType(), qt.Equals, files.ContentClassBranch)
 
 						// This is a root bundle and should live in the "home section"
 						// See https://github.com/gohugoio/hugo/issues/4332
-						rootBundle := s.getPage(page.KindPage, "root")
+						rootBundle := s.getPage(pagekinds.Page, "root")
 						c.Assert(rootBundle, qt.Not(qt.IsNil))
 						c.Assert(rootBundle.Parent().IsHome(), qt.Equals, true)
 						if !ugly {
@@ -163,9 +164,9 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 							b.AssertFileContent(filepath.FromSlash("/work/public/cpath/root/cindex.html"), "Single RelPermalink: "+relURLBase+"/cpath/root/")
 						}
 
-						leafBundle2 := s.getPage(page.KindPage, "a/b/index.md")
+						leafBundle2 := s.getPage(pagekinds.Page, "a/b/index.md")
 						c.Assert(leafBundle2, qt.Not(qt.IsNil))
-						unicodeBundle := s.getPage(page.KindPage, "c/bundle/index.md")
+						unicodeBundle := s.getPage(pagekinds.Page, "c/bundle/index.md")
 						c.Assert(unicodeBundle, qt.Not(qt.IsNil))
 
 						pageResources := leafBundle1.Resources().ByType(pageResourceType)
@@ -290,11 +291,11 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 
 				c.Assert(len(s.RegularPages()), qt.Equals, 8)
 				c.Assert(len(s.Pages()), qt.Equals, 16)
-				//dumpPages(s.AllPages()...)
+				// dumpPages(s.AllPages()...)
 
 				c.Assert(len(s.AllPages()), qt.Equals, 31)
 
-				bundleWithSubPath := s.getPage(page.KindPage, "lb/index")
+				bundleWithSubPath := s.getPage(pagekinds.Page, "lb/index")
 				c.Assert(bundleWithSubPath, qt.Not(qt.IsNil))
 
 				// See https://github.com/gohugoio/hugo/issues/4312
@@ -308,22 +309,22 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 				// and probably also just b (aka "my-bundle")
 				// These may also be translated, so we also need to test that.
 				//  "bf", "my-bf-bundle", "index.md + nn
-				bfBundle := s.getPage(page.KindPage, "bf/my-bf-bundle/index")
+				bfBundle := s.getPage(pagekinds.Page, "bf/my-bf-bundle/index")
 				c.Assert(bfBundle, qt.Not(qt.IsNil))
 				c.Assert(bfBundle.Language().Lang, qt.Equals, "en")
-				c.Assert(s.getPage(page.KindPage, "bf/my-bf-bundle/index.md"), qt.Equals, bfBundle)
-				c.Assert(s.getPage(page.KindPage, "bf/my-bf-bundle"), qt.Equals, bfBundle)
-				c.Assert(s.getPage(page.KindPage, "my-bf-bundle"), qt.Equals, bfBundle)
+				c.Assert(s.getPage(pagekinds.Page, "bf/my-bf-bundle/index.md"), qt.Equals, bfBundle)
+				c.Assert(s.getPage(pagekinds.Page, "bf/my-bf-bundle"), qt.Equals, bfBundle)
+				c.Assert(s.getPage(pagekinds.Page, "my-bf-bundle"), qt.Equals, bfBundle)
 
 				nnSite := sites.Sites[1]
 				c.Assert(len(nnSite.RegularPages()), qt.Equals, 7)
 
-				bfBundleNN := nnSite.getPage(page.KindPage, "bf/my-bf-bundle/index")
+				bfBundleNN := nnSite.getPage(pagekinds.Page, "bf/my-bf-bundle/index")
 				c.Assert(bfBundleNN, qt.Not(qt.IsNil))
 				c.Assert(bfBundleNN.Language().Lang, qt.Equals, "nn")
-				c.Assert(nnSite.getPage(page.KindPage, "bf/my-bf-bundle/index.nn.md"), qt.Equals, bfBundleNN)
-				c.Assert(nnSite.getPage(page.KindPage, "bf/my-bf-bundle"), qt.Equals, bfBundleNN)
-				c.Assert(nnSite.getPage(page.KindPage, "my-bf-bundle"), qt.Equals, bfBundleNN)
+				c.Assert(nnSite.getPage(pagekinds.Page, "bf/my-bf-bundle/index.nn.md"), qt.Equals, bfBundleNN)
+				c.Assert(nnSite.getPage(pagekinds.Page, "bf/my-bf-bundle"), qt.Equals, bfBundleNN)
+				c.Assert(nnSite.getPage(pagekinds.Page, "my-bf-bundle"), qt.Equals, bfBundleNN)
 
 				// See https://github.com/gohugoio/hugo/issues/4295
 				// Every resource should have its Name prefixed with its base folder.
@@ -382,7 +383,7 @@ func TestMultilingualDisableLanguage(t *testing.T) {
 	c.Assert(len(s.Pages()), qt.Equals, 16)
 	// No nn pages
 	c.Assert(len(s.AllPages()), qt.Equals, 16)
-	s.pageMap.withEveryBundlePage(func(p *pageState) bool {
+	s.pageMap.WithEveryBundlePage(func(p *pageState) bool {
 		c.Assert(p.Language().Lang != "nn", qt.Equals, true)
 		return false
 	})
@@ -483,7 +484,7 @@ TheContent.
 	s := b.H.Sites[0]
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 7)
-	a1Bundle := s.getPage(page.KindPage, "symbolic2/a1/index.md")
+	a1Bundle := s.getPage(pagekinds.Page, "symbolic2/a1/index.md")
 	c.Assert(a1Bundle, qt.Not(qt.IsNil))
 	c.Assert(len(a1Bundle.Resources()), qt.Equals, 2)
 	c.Assert(len(a1Bundle.Resources().ByType(pageResourceType)), qt.Equals, 1)
@@ -541,10 +542,10 @@ HEADLESS {{< myShort >}}
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 1)
 
-	regular := s.getPage(page.KindPage, "a/index")
+	regular := s.getPage(pagekinds.Page, "a/index")
 	c.Assert(regular.RelPermalink(), qt.Equals, "/s1/")
 
-	headless := s.getPage(page.KindPage, "b/index")
+	headless := s.getPage(pagekinds.Page, "b/index")
 	c.Assert(headless, qt.Not(qt.IsNil))
 	c.Assert(headless.Title(), qt.Equals, "Headless Bundle in Topless Bar")
 	c.Assert(headless.RelPermalink(), qt.Equals, "")
@@ -1013,6 +1014,8 @@ slug: %s
 }
 
 func TestBundleMisc(t *testing.T) {
+	t.Parallel()
+
 	config := `
 baseURL = "https://example.com"
 defaultContentLanguage = "en"
@@ -1093,14 +1096,14 @@ slug: leaf
 
 	b.AssertFileContent("public/en/index.html",
 		filepath.FromSlash("section|sect1/sect2/_index.md|CurrentSection: sect1/sect2/_index.md"),
-		"myen.md|CurrentSection: enonly")
+		"myen.md|CurrentSection: /enonly")
 
 	b.AssertFileContentFn("public/en/index.html", func(s string) bool {
 		// Check ignored files
 		return !regexp.MustCompile("README|ignore").MatchString(s)
 	})
 
-	b.AssertFileContent("public/nn/index.html", filepath.FromSlash("page|sect1/sect2/page.md|CurrentSection: sect1"))
+	b.AssertFileContent("public/nn/index.html", filepath.FromSlash("page|sect1/sect2/page.md|"), "CurrentSection: /sect1")
 	b.AssertFileContentFn("public/nn/index.html", func(s string) bool {
 		return !strings.Contains(s, "enonly")
 	})
@@ -1241,23 +1244,28 @@ title: %q
 }
 
 func TestBundleTransformMany(t *testing.T) {
-	b := newTestSitesBuilder(t).WithSimpleConfigFile().Running()
+	c := qt.New(t)
+
+	var files strings.Builder
+	addFile := func(filename, content string) {
+		files.WriteString(fmt.Sprintf("-- %s --\n%s\n", filename, content))
+	}
 
 	for i := 1; i <= 50; i++ {
-		b.WithContent(fmt.Sprintf("bundle%d/index.md", i), fmt.Sprintf(`
+		addFile(fmt.Sprintf("content/bundle%d/index.md", i), fmt.Sprintf(`
 ---
 title: "Page"
 weight: %d
 ---
 
 `, i))
-		b.WithSourceFile(fmt.Sprintf("content/bundle%d/data.yaml", i), fmt.Sprintf(`data: v%d`, i))
-		b.WithSourceFile(fmt.Sprintf("content/bundle%d/data.json", i), fmt.Sprintf(`{ "data": "v%d" }`, i))
-		b.WithSourceFile(fmt.Sprintf("assets/data%d/data.yaml", i), fmt.Sprintf(`vdata: v%d`, i))
+		addFile(fmt.Sprintf("content/bundle%d/data.yaml", i), fmt.Sprintf("data: v%d\n", i))
+		addFile(fmt.Sprintf("content/bundle%d/data.json", i), fmt.Sprintf("{ \"data\": \"v%d\" }\n", i))
+		addFile(fmt.Sprintf("assets/data%d/data.yaml", i), fmt.Sprintf("vdata: v%d\n", i))
 
 	}
 
-	b.WithTemplatesAdded("_default/single.html", `
+	addFile("layouts/_default/single.html", `
 {{ $bundleYaml := .Resources.GetMatch "*.yaml" }}
 {{ $bundleJSON := .Resources.GetMatch "*.json" }}
 {{ $assetsYaml := resources.GetMatch (printf "data%d/*.yaml" .Weight) }}
@@ -1275,13 +1283,19 @@ bundle fingerprinted: {{ $bundleFingerprinted.RelPermalink }}
 assets fingerprinted: {{ $assetsFingerprinted.RelPermalink }}
 
 bundle min min min: {{ $jsonMinMinMin.RelPermalink }}
-bundle min min key: {{ $jsonMinMin.Key }}
 
 `)
 
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           c,
+			Running:     true,
+			TxtarString: files.String(),
+		}).Build()
+
 	for i := 0; i < 3; i++ {
 
-		b.Build(BuildCfg{})
+		b.Build()
 
 		for i := 1; i <= 50; i++ {
 			index := fmt.Sprintf("public/bundle%d/index.html", i)
@@ -1289,22 +1303,21 @@ bundle min min key: {{ $jsonMinMin.Key }}
 			b.AssertFileContent(index, fmt.Sprintf("data content unmarshaled: v%d", i))
 			b.AssertFileContent(index, fmt.Sprintf("data assets content unmarshaled: v%d", i))
 
-			md5Asset := helpers.MD5String(fmt.Sprintf(`vdata: v%d`, i))
+			md5Asset := helpers.MD5String(fmt.Sprintf("vdata: v%d\n", i))
 			b.AssertFileContent(index, fmt.Sprintf("assets fingerprinted: /data%d/data.%s.yaml", i, md5Asset))
 
 			// The original is not used, make sure it's not published.
-			b.Assert(b.CheckExists(fmt.Sprintf("public/data%d/data.yaml", i)), qt.Equals, false)
+			b.AssertDestinationExists(fmt.Sprintf("public/data%d/data.yaml", i), false)
 
-			md5Bundle := helpers.MD5String(fmt.Sprintf(`data: v%d`, i))
+			md5Bundle := helpers.MD5String(fmt.Sprintf("data: v%d\n", i))
 			b.AssertFileContent(index, fmt.Sprintf("bundle fingerprinted: /bundle%d/data.%s.yaml", i, md5Bundle))
 
 			b.AssertFileContent(index,
 				fmt.Sprintf("bundle min min min: /bundle%d/data.min.min.min.json", i),
-				fmt.Sprintf("bundle min min key: /bundle%d/data.min.min.json", i),
 			)
-			b.Assert(b.CheckExists(fmt.Sprintf("public/bundle%d/data.min.min.min.json", i)), qt.Equals, true)
-			b.Assert(b.CheckExists(fmt.Sprintf("public/bundle%d/data.min.json", i)), qt.Equals, false)
-			b.Assert(b.CheckExists(fmt.Sprintf("public/bundle%d/data.min.min.json", i)), qt.Equals, false)
+			b.AssertDestinationExists(fmt.Sprintf("public/bundle%d/data.min.min.min.json", i), true)
+			b.AssertDestinationExists(fmt.Sprintf("public/bundle%d/data.min.json", i), false)
+			b.AssertDestinationExists(fmt.Sprintf("public/bundle%d/data.min.min.json", i), false)
 
 		}
 

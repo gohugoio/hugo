@@ -14,10 +14,6 @@
 package hugolib
 
 import (
-	"strings"
-
-	"github.com/gohugoio/hugo/hugofs/files"
-
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -84,23 +80,6 @@ const (
 	bundleLeaf
 	bundleBranch
 )
-
-// Returns the given file's name's bundle type and whether it is a content
-// file or not.
-func classifyBundledFile(name string) (bundleDirType, bool) {
-	if !files.IsContentFile(name) {
-		return bundleNot, false
-	}
-	if strings.HasPrefix(name, "_index.") {
-		return bundleBranch, true
-	}
-
-	if strings.HasPrefix(name, "index.") {
-		return bundleLeaf, true
-	}
-
-	return bundleNot, true
-}
 
 func (b bundleDirType) String() string {
 	switch b {

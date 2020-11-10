@@ -42,6 +42,84 @@ title: Page
 	b.AssertFileContent("public/index.html", `Site: EN`)
 }
 
+// TODO1 remove.
+func TestSmokeNew(t *testing.T) {
+	c := qt.New(t)
+
+	files := `
+-- config.toml --
+baseURL = "https://example.com"
+disableKinds=["home", "taxonomy", "term", "sitemap", "robotsTXT"]
+[outputs]
+	section = ['HTML']
+	page = ['HTML']
+-- content/mysection/_index.md --
+---
+title: "My Section"
+---
+-- content/mysection/p1.md --
+-- content/mysection/mysectiontext.txt --
+Hello Section!
+-- content/mysection/d1/mysectiontext.txt --
+Hello Section1!
+-- content/mysection/mybundle1/index.md --
+---
+title: "My Bundle1"
+---
+-- content/mysection/mybundle2/index.en.md --
+---
+title: "My Bundle2"
+---
+-- content/mysection/mybundle1/mybundletext.txt --
+Hello Bundle!
+-- content/mysection/mybundle1/d1/mybundletext2.txt --
+Hello Bundle2!
+-- layouts/_default/single.html --
+Single: {{ .Path }}|{{ .Title }}|
+Resources: {{ range .Resources }}{{ .RelPermalink }}|{{ end }}
+{{ with .File }}
+File1: Filename: {{ .Filename}}|Path: {{ .Path }}|Dir: {{ .Dir }}|Extension: {{ .Extension }}|Ext: {{ .Ext }}|
+File2: Lang: {{ .Lang }}|LogicalName: {{ .LogicalName }}|BaseFileName: {{ .BaseFileName }}|
+File3: TranslationBaseName: {{ .TranslationBaseName }}|ContentBaseName: {{ .ContentBaseName }}|Section: {{ .Section}}|UniqueID: {{ .UniqueID}}|
+{{ end }}
+-- layouts/_default/list.html --
+List: {{ .Path }}|{{ .Title }}|
+Pages: {{ range .Pages }}{{ .RelPermalink }}|{{ end }}
+Resources: {{ range .Resources }}{{ .RelPermalink }}|{{ end }}
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           c,
+			NeedsOsFS:   false,
+			TxtarString: files,
+		}).Build()
+
+	b.AssertFileContent("public/mysection/mybundle1/index.html", `
+Single: /mysection/mybundle1|My Bundle1|
+Resources: /mysection/mybundle1/d1/mybundletext2.txt|/mysection/mybundle1/mybundletext.txt|
+`)
+
+	b.AssertFileContent("public/mysection/mybundle1/index.html", `
+File1: Filename: content/mysection/mybundle1/index.md|Path: mysection/mybundle1/index.md|Dir: mysection/mybundle1/|Extension: md|Ext: md|
+File2: Lang: |LogicalName: index.md|BaseFileName: index|
+File3: TranslationBaseName: index|ContentBaseName: mybundle1|Section: mysection|UniqueID: cfe009c850a931b15e6b90d9d1d2d08b|
+`)
+
+	b.AssertFileContent("public/mysection/mybundle2/index.html", `
+Single: /mysection/mybundle2|My Bundle2|
+File1: Filename: content/mysection/mybundle2/index.en.md|Path: mysection/mybundle2/index.en.md|Dir: mysection/mybundle2/|Extension: md|Ext: md|
+File2: Lang: en|LogicalName: index.en.md|BaseFileName: index.en|
+File3: TranslationBaseName: index|ContentBaseName: mybundle2|Section: mysection|UniqueID: 514f2911b671de703d891fbc58e94792|
+`)
+
+	b.AssertFileContent("public/mysection/index.html", `
+List: /mysection|My Section|
+Pages: /mysection/p1/|/mysection/mybundle1/|/mysection/mybundle2/|
+Resources: /mysection/mysectiontext.txt|
+`)
+}
+
 func TestSmoke(t *testing.T) {
 	t.Parallel()
 
@@ -229,6 +307,7 @@ Some **Markdown** in JSON shortcode.
 
 	// .Render should use template/content from the current output format
 	// even if that output format isn't configured for that page.
+	// TODO1
 	b.AssertFileContent(
 		"public/index.json",
 		"Render 0: page|JSON: LI|false|Params: Rocks!",
@@ -264,8 +343,9 @@ Some **Markdown** in JSON shortcode.
 	b.AssertFileContent("public/page/1/index.html", `rel="canonical" href="https://example.com/"`)
 	b.AssertFileContent("public/page/2/index.html", "HTML: List|home|In English|", "Paginator: 2")
 
-	// 404
 	b.AssertFileContent("public/404.html", "404|404 Page not found")
+
+	// 404 TODO1
 
 	// Sitemaps
 	b.AssertFileContent("public/en/sitemap.xml", "<loc>https://example.com/blog/</loc>")

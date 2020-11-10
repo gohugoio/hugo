@@ -1,4 +1,4 @@
-// Copyright 2017 The Hugo Authors. All rights reserved.
+// Copyright 2021 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@ package transform
 import (
 	"testing"
 
+	"github.com/gohugoio/hugo/cache/memcache"
+
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/htesting/hqt"
@@ -28,7 +30,9 @@ func TestInit(t *testing.T) {
 	var ns *internal.TemplateFuncsNamespace
 
 	for _, nsf := range internal.TemplateFuncsNamespaceRegistry {
-		ns = nsf(&deps.Deps{})
+		ns = nsf(&deps.Deps{
+			MemCache: memcache.New(memcache.Config{}),
+		})
 		if ns.Name == name {
 			found = true
 			break

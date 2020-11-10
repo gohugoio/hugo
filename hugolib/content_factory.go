@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"context"
 	"io"
 	"path/filepath"
 	"strings"
@@ -41,7 +42,6 @@ type ContentFactory struct {
 
 // AppplyArchetypeFilename archetypeFilename to w as a template using the given Page p as the foundation for the data context.
 func (f ContentFactory) AppplyArchetypeFilename(w io.Writer, p page.Page, archetypeKind, archetypeFilename string) error {
-
 	fi, err := f.h.SourceFilesystems.Archetypes.Fs.Stat(archetypeFilename)
 	if err != nil {
 		return err
@@ -54,11 +54,9 @@ func (f ContentFactory) AppplyArchetypeFilename(w io.Writer, p page.Page, archet
 	templateSource, err := afero.ReadFile(f.h.SourceFilesystems.Archetypes.Fs, archetypeFilename)
 	if err != nil {
 		return errors.Wrapf(err, "failed to read archetype file %q: %s", archetypeFilename, err)
-
 	}
 
 	return f.AppplyArchetypeTemplate(w, p, archetypeKind, string(templateSource))
-
 }
 
 // AppplyArchetypeFilename templateSource to w as a template using the given Page p as the foundation for the data context.
@@ -82,7 +80,7 @@ func (f ContentFactory) AppplyArchetypeTemplate(w io.Writer, p page.Page, archet
 		return errors.Wrapf(err, "failed to parse archetype template: %s", err)
 	}
 
-	result, err := executeToString(ps.s.Tmpl(), templ, d)
+	result, err := executeToString(context.Background(), ps.s.Tmpl(), templ, d)
 	if err != nil {
 		return errors.Wrapf(err, "failed to execute archetype template: %s", err)
 	}
@@ -90,7 +88,6 @@ func (f ContentFactory) AppplyArchetypeTemplate(w io.Writer, p page.Page, archet
 	_, err = io.WriteString(w, f.shortocdeReplacerPost.Replace(result))
 
 	return err
-
 }
 
 func (f ContentFactory) SectionFromFilename(filename string) (string, error) {

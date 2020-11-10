@@ -14,6 +14,7 @@
 package page
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"path"
@@ -22,7 +23,6 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/identity"
-	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/modules"
 
@@ -229,10 +229,6 @@ func (p *testPage) FuzzyWordCount() int {
 }
 
 func (p *testPage) GetPage(ref string) (Page, error) {
-	panic("not implemented")
-}
-
-func (p *testPage) GetPageWithTemplateInfo(info tpl.Info, ref string) (Page, error) {
 	panic("not implemented")
 }
 
@@ -478,7 +474,7 @@ func (p *testPage) RelRefFrom(argsm map[string]interface{}, source interface{}) 
 	return "", nil
 }
 
-func (p *testPage) Render(layout ...string) (template.HTML, error) {
+func (p *testPage) Render(ctx context.Context, layout ...string) (template.HTML, error) {
 	panic("not implemented")
 }
 
@@ -587,8 +583,12 @@ func (p *testPage) WordCount() int {
 	panic("not implemented")
 }
 
-func (p *testPage) GetIdentity() identity.Identity {
-	panic("not implemented")
+func (p *testPage) IdentifierBase() interface{} {
+	return p.path
+}
+
+func (p *testPage) GetDependencyManager() identity.Manager {
+	return identity.NopManager
 }
 
 func createTestPages(num int) Pages {

@@ -14,6 +14,7 @@
 package filecache
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -134,7 +135,7 @@ dir = ":cacheDir/c"
 
 		for _, ca := range []*Cache{caches.ImageCache(), caches.AssetsCache(), caches.GetJSONCache(), caches.GetCSVCache()} {
 			for i := 0; i < 2; i++ {
-				info, r, err := ca.GetOrCreate("a", rf("abc"))
+				info, r, err := ca.GetOrCreate(context.TODO(), "a", rf("abc"))
 				c.Assert(err, qt.IsNil)
 				c.Assert(r, qt.Not(qt.IsNil))
 				c.Assert(info.Name, qt.Equals, "a")
@@ -152,7 +153,7 @@ dir = ":cacheDir/c"
 				c.Assert(err, qt.IsNil)
 				c.Assert(string(b), qt.Equals, "abc")
 
-				_, r, err = ca.GetOrCreate("a", rf("bcd"))
+				_, r, err = ca.GetOrCreate(context.TODO(), "a", rf("bcd"))
 				c.Assert(err, qt.IsNil)
 				b, _ = ioutil.ReadAll(r)
 				r.Close()
@@ -229,7 +230,7 @@ dir = "/cache/c"
 				ca := caches.Get(cacheName)
 				c.Assert(ca, qt.Not(qt.IsNil))
 				filename, data := filenameData(i)
-				_, r, err := ca.GetOrCreate(filename, func() (io.ReadCloser, error) {
+				_, r, err := ca.GetOrCreate(context.TODO(), filename, func() (io.ReadCloser, error) {
 					return hugio.ToReadCloser(strings.NewReader(data)), nil
 				})
 				c.Assert(err, qt.IsNil)

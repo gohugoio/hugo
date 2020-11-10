@@ -16,6 +16,7 @@
 package partials
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"html/template"
@@ -25,6 +26,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/identity"
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -44,21 +46,26 @@ type partialCacheKey struct {
 	variant interface{}
 }
 
+type partialCacheEntry struct {
+	templateIdentity identity.Identity
+	v                interface{}
+}
+
 // partialCache represents a cache of partials protected by a mutex.
 type partialCache struct {
 	sync.RWMutex
-	p map[partialCacheKey]interface{}
+	p map[partialCacheKey]partialCacheEntry
 }
 
 func (p *partialCache) clear() {
 	p.Lock()
 	defer p.Unlock()
-	p.p = make(map[partialCacheKey]interface{})
+	p.p = make(map[partialCacheKey]partialCacheEntry)
 }
 
 // New returns a new instance of the templates-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
-	cache := &partialCache{p: make(map[partialCacheKey]interface{})}
+	cache := &partialCache{p: make(map[partialCacheKey]partialCacheEntry)}
 	deps.BuildStartListeners.Add(
 		func() {
 			cache.clear()
@@ -92,12 +99,25 @@ func (c *contextWrapper) Set(in interface{}) string {
 // If the partial contains a return statement, that value will be returned.
 // Else, the rendered output will be returned:
 // A string if the partial is a text/template, or template.HTML when html/template.
-func (ns *Namespace) Include(name string, contextList ...interface{}) (interface{}, error) {
+// Note that ctx is provided by Hugo, not the end user. TODO1 ctx used?
+func (ns *Namespace) Include(ctx context.Context, name string, dataList ...interface{}) (interface{}, error) {
+	v, id, err := ns.include(ctx, name, dataList...)
+	if err != nil {
+		return nil, err
+	}
+	if ns.deps.Running {
+		// Track the usage of this partial so we know when to re-render pages using it.
+		tpl.AddIdentiesToDataContext(ctx, id)
+	}
+	return v, nil
+}
+
+func (ns *Namespace) include(ctx context.Context, name string, dataList ...interface{}) (interface{}, identity.Identity, error) {
 	name = strings.TrimPrefix(name, "partials/")
 
-	var context interface{}
-	if len(contextList) > 0 {
-		context = contextList[0]
+	var data interface{}
+	if len(dataList) > 0 {
+		data = dataList[0]
 	}
 
 	n := "partials/" + name
@@ -109,7 +129,7 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 	}
 
 	if !found {
-		return "", fmt.Errorf("partial %q not found", name)
+		return "", nil, fmt.Errorf("partial %q not found", name)
 	}
 
 	var info tpl.ParseInfo
@@ -123,8 +143,8 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 		// Wrap the context sent to the template to capture the return value.
 		// Note that the template is rewritten to make sure that the dot (".")
 		// and the $ variable points to Arg.
-		context = &contextWrapper{
-			Arg: context,
+		data = &contextWrapper{
+			Arg: data,
 		}
 
 		// We don't care about any template output.
@@ -135,13 +155,13 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 		w = b
 	}
 
-	if err := ns.deps.Tmpl().Execute(templ, w, context); err != nil {
-		return "", err
+	if err := ns.deps.Tmpl().ExecuteWithContext(ctx, templ, w, data); err != nil {
+		return "", nil, err
 	}
 
 	var result interface{}
 
-	if ctx, ok := context.(*contextWrapper); ok {
+	if ctx, ok := data.(*contextWrapper); ok {
 		result = ctx.Result
 	} else if _, ok := templ.(*texttemplate.Template); ok {
 		result = w.(fmt.Stringer).String()
@@ -153,24 +173,30 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 		ns.deps.Metrics.TrackValue(templ.Name(), result)
 	}
 
-	return result, nil
+	return result, templ.(identity.Identity), nil
 }
 
 // IncludeCached executes and caches partial templates.  The cache is created with name+variants as the key.
-func (ns *Namespace) IncludeCached(name string, context interface{}, variants ...interface{}) (interface{}, error) {
+// Note that ctx is provided by Hugo and not the end user.
+func (ns *Namespace) IncludeCached(ctx context.Context, name string, data interface{}, variants ...interface{}) (interface{}, error) {
 	key, err := createKey(name, variants...)
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := ns.getOrCreate(key, context)
+	result, err := ns.getOrCreate(ctx, key, data)
 	if err == errUnHashable {
 		// Try one more
 		key.variant = helpers.HashString(key.variant)
-		result, err = ns.getOrCreate(key, context)
+		result, err = ns.getOrCreate(ctx, key, data)
 	}
 
-	return result, err
+	if ns.deps.Running {
+		// Track the usage of this partial so we know when to re-render pages using it.
+		tpl.AddIdentiesToDataContext(ctx, result.templateIdentity)
+	}
+
+	return result.v, err
 }
 
 func createKey(name string, variants ...interface{}) (partialCacheKey, error) {
@@ -196,7 +222,7 @@ func createKey(name string, variants ...interface{}) (partialCacheKey, error) {
 
 var errUnHashable = errors.New("unhashable")
 
-func (ns *Namespace) getOrCreate(key partialCacheKey, context interface{}) (result interface{}, err error) {
+func (ns *Namespace) getOrCreate(ctx context.Context, key partialCacheKey, dot interface{}) (pe partialCacheEntry, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = r.(error)
@@ -215,9 +241,9 @@ func (ns *Namespace) getOrCreate(key partialCacheKey, context interface{}) (resu
 		return p, nil
 	}
 
-	p, err = ns.Include(key.name, context)
+	v, id, err := ns.include(ctx, key.name, dot)
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	ns.cachedPartials.Lock()
@@ -226,7 +252,12 @@ func (ns *Namespace) getOrCreate(key partialCacheKey, context interface{}) (resu
 	if p2, ok := ns.cachedPartials.p[key]; ok {
 		return p2, nil
 	}
-	ns.cachedPartials.p[key] = p
 
-	return p, nil
+	pe = partialCacheEntry{
+		templateIdentity: id,
+		v:                v,
+	}
+	ns.cachedPartials.p[key] = pe
+
+	return
 }

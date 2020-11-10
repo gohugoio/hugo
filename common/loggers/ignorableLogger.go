@@ -22,29 +22,36 @@ import (
 type IgnorableLogger interface {
 	Logger
 	Errorsf(statementID, format string, v ...interface{})
+	Warnsf(statementID, format string, v ...interface{})
 	Apply(logger Logger) IgnorableLogger
 }
 
 type ignorableLogger struct {
 	Logger
-	statements map[string]bool
+	statementsError   map[string]bool
+	statementsWarning map[string]bool
 }
 
 // NewIgnorableLogger wraps the given logger and ignores the log statement IDs given.
-func NewIgnorableLogger(logger Logger, statements ...string) IgnorableLogger {
-	statementsSet := make(map[string]bool)
-	for _, s := range statements {
-		statementsSet[strings.ToLower(s)] = true
+func NewIgnorableLogger(logger Logger, statementsError, statementsWarning []string) IgnorableLogger {
+	statementsSetError := make(map[string]bool)
+	for _, s := range statementsError {
+		statementsSetError[strings.ToLower(s)] = true
+	}
+	statementsSetWarning := make(map[string]bool)
+	for _, s := range statementsWarning {
+		statementsSetWarning[strings.ToLower(s)] = true
 	}
 	return ignorableLogger{
-		Logger:     logger,
-		statements: statementsSet,
+		Logger:            logger,
+		statementsError:   statementsSetError,
+		statementsWarning: statementsSetWarning,
 	}
 }
 
 // Errorsf logs statementID as an ERROR if not configured as ignoreable.
 func (l ignorableLogger) Errorsf(statementID, format string, v ...interface{}) {
-	if l.statements[statementID] {
+	if l.statementsError[statementID] {
 		// Ignore.
 		return
 	}
@@ -57,9 +64,24 @@ ignoreErrors = [%q]`, statementID)
 	l.Errorf(format, v...)
 }
 
+// Warnsf logs statementID as an WARNING if not configured as ignoreable.
+func (l ignorableLogger) Warnsf(statementID, format string, v ...interface{}) {
+	if l.statementsWarning[statementID] {
+		// Ignore.
+		return
+	}
+	ignoreMsg := fmt.Sprintf(`
+To turn off this WARNING, you can ignore it by adding this to your site config:
+ignoreWarnings = [%q]`, statementID)
+
+	format += ignoreMsg
+
+	l.Warnf(format, v...)
+}
+
 func (l ignorableLogger) Apply(logger Logger) IgnorableLogger {
 	return ignorableLogger{
-		Logger:     logger,
-		statements: l.statements,
+		Logger:          logger,
+		statementsError: l.statementsError,
 	}
 }

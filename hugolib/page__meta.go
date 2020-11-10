@@ -22,9 +22,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gohugoio/hugo/resources/page/pagekinds"
+
 	"github.com/gohugoio/hugo/langs"
 
-	"github.com/gobuffalo/flect"
 	"github.com/gohugoio/hugo/markup/converter"
 
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -49,7 +50,15 @@ import (
 
 var cjkRe = regexp.MustCompile(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`)
 
+var _ resource.Dated = (*pageMeta)(nil)
+
 type pageMeta struct {
+	// Reference to this node in the content map.
+	treeRef contentTreeRefProvider
+
+	// Same as treeRef, but embeds some common Page methods directly.
+	contentNodeInfoProvider
+
 	// kind is the discriminator that identifies the different page types
 	// in the different page collections. This can, as an example, be used
 	// to to filter regular pages, find sections etc.
@@ -57,12 +66,7 @@ type pageMeta struct {
 	// page, home, section, taxonomy and term.
 	// It is of string type to make it easy to reason about in
 	// the templates.
-	kind string
-
-	// This is a standalone page not part of any page collection. These
-	// include sitemap, robotsTXT and similar. It will have no pageOutputs, but
-	// a fixed pageOutput.
-	standalone bool
+	contentKindProvider
 
 	draft       bool // Only published when running with -D flag
 	buildConfig pagemeta.BuildConfig
@@ -96,7 +100,7 @@ type pageMeta struct {
 
 	urlPaths pagemeta.URLPath
 
-	resource.Dates
+	pageMetaDates
 
 	// Set if this page is bundled inside another.
 	bundled bool
@@ -114,8 +118,6 @@ type pageMeta struct {
 
 	f source.File
 
-	sections []string
-
 	// Sitemap overrides from front matter.
 	sitemap config.Sitemap
 
@@ -124,6 +126,51 @@ type pageMeta struct {
 	renderingConfigOverrides map[string]interface{}
 	contentConverterInit     sync.Once
 	contentConverter         converter.Converter
+}
+
+type pageMetaDates struct {
+	datesInit sync.Once
+	dates     resource.Dates
+
+	calculated   resource.Dates
+	userProvided resource.Dates
+}
+
+// If not user provided, the calculated dates may change,
+// but this will be good enough for determining if we should
+// not build a given page (publishDate in the future, expiryDate in the past).
+func (d *pageMetaDates) getTemporaryDates() resource.Dates {
+	if !resource.IsZeroDates(d.userProvided) {
+		return d.userProvided
+	}
+	return d.calculated
+}
+
+func (d *pageMetaDates) initDates() resource.Dates {
+	d.datesInit.Do(func() {
+		if !resource.IsZeroDates(d.userProvided) {
+			d.dates = d.userProvided
+		} else {
+			d.dates = d.calculated
+		}
+	})
+	return d.dates
+}
+
+func (d *pageMetaDates) Date() time.Time {
+	return d.initDates().Date()
+}
+
+func (d *pageMetaDates) Lastmod() time.Time {
+	return d.initDates().Lastmod()
+}
+
+func (d *pageMetaDates) PublishDate() time.Time {
+	return d.initDates().PublishDate()
+}
+
+func (d *pageMetaDates) ExpiryDate() time.Time {
+	return d.initDates().ExpiryDate()
 }
 
 func (p *pageMeta) Aliases() []string {
@@ -180,15 +227,11 @@ func (p *pageMeta) File() source.File {
 }
 
 func (p *pageMeta) IsHome() bool {
-	return p.Kind() == page.KindHome
+	return p.Kind() == pagekinds.Home
 }
 
 func (p *pageMeta) Keywords() []string {
 	return p.keywords
-}
-
-func (p *pageMeta) Kind() string {
-	return p.kind
 }
 
 func (p *pageMeta) Layout() string {
@@ -215,7 +258,7 @@ func (p *pageMeta) IsNode() bool {
 }
 
 func (p *pageMeta) IsPage() bool {
-	return p.Kind() == page.KindPage
+	return p.Kind() == pagekinds.Page
 }
 
 // Param is a convenience method to do lookups in Page's and Site's Params map,
@@ -232,28 +275,13 @@ func (p *pageMeta) Params() maps.Params {
 }
 
 func (p *pageMeta) Path() string {
-	if !p.File().IsZero() {
-		const example = `
-  {{ $path := "" }}
-  {{ with .File }}
-	{{ $path = .Path }}
-  {{ else }}
-	{{ $path = .Path }}
-  {{ end }}
-`
-		helpers.Deprecated(".Path when the page is backed by a file", "We plan to use Path for a canonical source path and you probably want to check the source is a file. To get the current behaviour, you can use a construct simlar to the below:\n"+example, false)
-
+	k := p.treeRef.Key()
+	if k == "" {
+		// Home page is represented by an empty string in the internal content map,
+		// for technical reasons, but in the templates we need a value.
+		return "/"
 	}
-
-	return p.Pathc()
-}
-
-// This is just a bridge method, use Path in templates.
-func (p *pageMeta) Pathc() string {
-	if !p.File().IsZero() {
-		return p.File().Path()
-	}
-	return p.SectionsPath()
+	return k
 }
 
 // RelatedKeywords implements the related.Document interface needed for fast page searches.
@@ -267,35 +295,14 @@ func (p *pageMeta) RelatedKeywords(cfg related.IndexConfig) ([]related.Keyword, 
 }
 
 func (p *pageMeta) IsSection() bool {
-	return p.Kind() == page.KindSection
+	return p.Kind() == pagekinds.Section
 }
 
 func (p *pageMeta) Section() string {
-	if p.IsHome() {
+	if len(p.SectionsEntries()) == 0 {
 		return ""
 	}
-
-	if p.IsNode() {
-		if len(p.sections) == 0 {
-			// May be a sitemap or similar.
-			return ""
-		}
-		return p.sections[0]
-	}
-
-	if !p.File().IsZero() {
-		return p.File().Section()
-	}
-
-	panic("invalid page state")
-}
-
-func (p *pageMeta) SectionsEntries() []string {
-	return p.sections
-}
-
-func (p *pageMeta) SectionsPath() string {
-	return path.Join(p.SectionsEntries()...)
+	return p.SectionsEntries()[0]
 }
 
 func (p *pageMeta) Sitemap() config.Sitemap {
@@ -331,7 +338,6 @@ func (pm *pageMeta) mergeBucketCascades(b1, b2 *pagesMapBucket) {
 
 	if b2 != nil && b2.cascade != nil {
 		for k, v := range b2.cascade {
-
 			vv, found := b1.cascade[k]
 			if !found {
 				b1.cascade[k] = v
@@ -347,12 +353,10 @@ func (pm *pageMeta) mergeBucketCascades(b1, b2 *pagesMapBucket) {
 	}
 }
 
-func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, frontmatter map[string]interface{}) error {
+func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, n *contentNode, frontmatter map[string]interface{}) error {
 	pm.params = make(maps.Params)
 
-	if frontmatter == nil && (parentBucket == nil || parentBucket.cascade == nil) {
-		return nil
-	}
+	p := n.p
 
 	if frontmatter != nil {
 		// Needed for case insensitive fetching of params values
@@ -396,7 +400,7 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 
 	var mtime time.Time
 	var contentBaseName string
-	if !p.File().IsZero() {
+	if p.File() != nil {
 		contentBaseName = p.File().ContentBaseName()
 		if p.File().FileInfo() != nil {
 			mtime = p.File().FileInfo().ModTime()
@@ -411,7 +415,7 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 	descriptor := &pagemeta.FrontMatterDescriptor{
 		Frontmatter:   frontmatter,
 		Params:        pm.params,
-		Dates:         &pm.Dates,
+		Dates:         &pm.pageMetaDates.userProvided,
 		PageURLs:      &pm.urlPaths,
 		BaseFilename:  contentBaseName,
 		ModTime:       mtime,
@@ -430,6 +434,11 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 	pm.buildConfig, err = pagemeta.DecodeBuildConfig(frontmatter["_build"])
 	if err != nil {
 		return err
+	}
+
+	if n.IsStandalone() {
+		// Standalone pages, e.g. 404.
+		pm.buildConfig.List = pagemeta.Never
 	}
 
 	var sitemapSet bool
@@ -613,6 +622,7 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 					}
 				default:
 					pm.params[loki] = vv
+
 				}
 			}
 		}
@@ -654,8 +664,13 @@ func (p *pageMeta) noListAlways() bool {
 }
 
 func (p *pageMeta) getListFilter(local bool) contentTreeNodeCallback {
-	return newContentTreeFilter(func(n *contentNode) bool {
+	return func(s string, n *contentNode) bool {
 		if n == nil {
+			return true
+		}
+
+		if n.IsStandalone() {
+			// Never list 404, sitemap and similar.
 			return true
 		}
 
@@ -670,7 +685,7 @@ func (p *pageMeta) getListFilter(local bool) contentTreeNodeCallback {
 		}
 
 		return !shouldList
-	})
+	}
 }
 
 func (p *pageMeta) noRender() bool {
@@ -681,7 +696,7 @@ func (p *pageMeta) noLink() bool {
 	return p.buildConfig.Render == pagemeta.Never
 }
 
-func (p *pageMeta) applyDefaultValues(n *contentNode) error {
+func (p *pageMeta) applyDefaultValues(np contentTreeRefProvider) error {
 	if p.buildConfig.IsZero() {
 		p.buildConfig, _ = pagemeta.DecodeBuildConfig(nil)
 	}
@@ -691,7 +706,7 @@ func (p *pageMeta) applyDefaultValues(n *contentNode) error {
 	}
 
 	if p.markup == "" {
-		if !p.File().IsZero() {
+		if p.File() != nil {
 			// Fall back to file extension
 			p.markup = p.s.ContentSpec.ResolveMarkup(p.File().Ext())
 		}
@@ -700,31 +715,18 @@ func (p *pageMeta) applyDefaultValues(n *contentNode) error {
 		}
 	}
 
-	if p.title == "" && p.f.IsZero() {
+	if p.title == "" && p.f == nil {
 		switch p.Kind() {
-		case page.KindHome:
+		case pagekinds.Home:
 			p.title = p.s.Info.title
-		case page.KindSection:
-			var sectionName string
-			if n != nil {
-				sectionName = n.rootSection()
-			} else {
-				sectionName = p.sections[0]
-			}
-
-			sectionName = helpers.FirstUpper(sectionName)
-			if p.s.Cfg.GetBool("pluralizeListTitles") {
-				p.title = flect.Pluralize(sectionName)
-			} else {
-				p.title = sectionName
-			}
-		case page.KindTerm:
-			// TODO(bep) improve
-			key := p.sections[len(p.sections)-1]
+		case pagekinds.Section:
+			p.title = np.GetBranch().defaultTitle
+		case pagekinds.Term:
+			key := p.SectionsEntries()[len(p.SectionsEntries())-1]
 			p.title = strings.Replace(p.s.titleFunc(key), "-", " ", -1)
-		case page.KindTaxonomy:
-			p.title = p.s.titleFunc(p.sections[0])
-		case kind404:
+		case pagekinds.Taxonomy:
+			p.title = p.s.titleFunc(path.Join(p.SectionsEntries()...))
+		case pagekinds.Status404:
 			p.title = "404 Page not found"
 
 		}
@@ -743,7 +745,7 @@ func (p *pageMeta) applyDefaultValues(n *contentNode) error {
 		}
 	}
 
-	if !p.f.IsZero() {
+	if p.f != nil {
 		var renderingConfigOverrides map[string]interface{}
 		bfParam := getParamToLower(p, "blackfriday")
 		if bfParam != nil {

@@ -47,8 +47,7 @@ import (
 // Provider is the package entry point.
 var Provider converter.ProviderProvider = provide{}
 
-type provide struct {
-}
+type provide struct{}
 
 func (p provide) New(cfg converter.ProviderConfig) (converter.Provider, error) {
 	md := newMarkdown(cfg)
@@ -163,20 +162,13 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 	return md
 }
 
-var _ identity.IdentitiesProvider = (*converterResult)(nil)
-
 type converterResult struct {
 	converter.Result
 	toc tableofcontents.Root
-	ids identity.Identities
 }
 
 func (c converterResult) TableOfContents() tableofcontents.Root {
 	return c.toc
-}
-
-func (c converterResult) GetIdentities() identity.Identities {
-	return c.ids
 }
 
 type bufWriter struct {
@@ -206,13 +198,11 @@ type renderContext struct {
 type renderContextData interface {
 	RenderContext() converter.RenderContext
 	DocumentContext() converter.DocumentContext
-	AddIdentity(id identity.Provider)
 }
 
 type renderContextDataHolder struct {
 	rctx converter.RenderContext
 	dctx converter.DocumentContext
-	ids  identity.Manager
 }
 
 func (ctx *renderContextDataHolder) RenderContext() converter.RenderContext {
@@ -222,12 +212,6 @@ func (ctx *renderContextDataHolder) RenderContext() converter.RenderContext {
 func (ctx *renderContextDataHolder) DocumentContext() converter.DocumentContext {
 	return ctx.dctx
 }
-
-func (ctx *renderContextDataHolder) AddIdentity(id identity.Provider) {
-	ctx.ids.Add(id)
-}
-
-var converterIdentity = identity.KeyValueIdentity{Key: "goldmark", Value: "converter"}
 
 func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (result converter.Result, err error) {
 	defer func() {
@@ -254,7 +238,6 @@ func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (result convert
 	rcx := &renderContextDataHolder{
 		rctx: ctx,
 		dctx: c.ctx,
-		ids:  identity.NewManager(converterIdentity),
 	}
 
 	w := &renderContext{
@@ -268,17 +251,18 @@ func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (result convert
 
 	return converterResult{
 		Result: buf,
-		ids:    rcx.ids.GetIdentities(),
 		toc:    pctx.TableOfContents(),
 	}, nil
 }
 
 var featureSet = map[identity.Identity]bool{
-	converter.FeatureRenderHooks: true,
+	converter.FeatureRenderHookHeading: true,
+	converter.FeatureRenderHookImage:   true,
+	converter.FeatureRenderHookLink:    true,
 }
 
 func (c *goldmarkConverter) Supports(feature identity.Identity) bool {
-	return featureSet[feature.GetIdentity()]
+	return featureSet[feature]
 }
 
 func (c *goldmarkConverter) newParserContext(rctx converter.RenderContext) *parserContext {

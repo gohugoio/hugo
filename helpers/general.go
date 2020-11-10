@@ -517,6 +517,24 @@ func PrintFs(fs afero.Fs, path string, w io.Writer) {
 	})
 }
 
+// FormatByteCount pretty formats b.
+func FormatByteCount(bc uint64) string {
+	const (
+		Gigabyte = 1 << 30
+		Megabyte = 1 << 20
+		Kilobyte = 1 << 10
+	)
+	switch {
+	case bc > Gigabyte || -bc > Gigabyte:
+		return fmt.Sprintf("%.2f GB", float64(bc)/Gigabyte)
+	case bc > Megabyte || -bc > Megabyte:
+		return fmt.Sprintf("%.2f MB", float64(bc)/Megabyte)
+	case bc > Kilobyte || -bc > Kilobyte:
+		return fmt.Sprintf("%.2f KB", float64(bc)/Kilobyte)
+	}
+	return fmt.Sprintf("%d B", bc)
+}
+
 // HashString returns a hash from the given elements.
 // It will panic if the hash cannot be calculated.
 func HashString(elements ...interface{}) string {

@@ -43,7 +43,11 @@ func newAliasHandler(t tpl.TemplateHandler, l loggers.Logger, allowRoot bool) al
 
 type aliasPage struct {
 	Permalink string
-	page.Page
+	p         page.Page
+}
+
+func (p aliasPage) Page() page.Page {
+	return p.p
 }
 
 func (a aliasHandler) renderAlias(permalink string, p page.Page) (io.Reader, error) {

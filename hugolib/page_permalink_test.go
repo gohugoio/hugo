@@ -60,6 +60,9 @@ func TestPermalink(t *testing.T) {
 
 		// test URL overrides
 		{"x/y/z/boofar.md", "", "", "/z/y/q/", false, false, "/z/y/q/", "/z/y/q/"},
+
+		// Unicode encode
+		{"трям/boo-makeindex.md", "http://barnew/", "трям", "", false, false, "http://barnew/%D1%82%D1%80%D1%8F%D0%BC/%D1%82%D1%80%D1%8F%D0%BC/", "/%D1%82%D1%80%D1%8F%D0%BC/%D1%82%D1%80%D1%8F%D0%BC/"},
 	}
 
 	for i, test := range tests {

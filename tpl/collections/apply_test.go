@@ -14,6 +14,7 @@
 package collections
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"reflect"
@@ -48,6 +49,10 @@ func (templateFinder) LookupLayout(d output.LayoutDescriptor, f output.Format) (
 }
 
 func (templateFinder) Execute(t tpl.Template, wr io.Writer, data interface{}) error {
+	return nil
+}
+
+func (templateFinder) ExecuteWithContext(ctx context.Context, t tpl.Template, wr io.Writer, data interface{}) error {
 	return nil
 }
 

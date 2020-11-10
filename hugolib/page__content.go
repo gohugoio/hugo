@@ -26,14 +26,14 @@ var (
 	internalSummaryDividerPre       = []byte("\n\n" + internalSummaryDividerBase + "\n\n")
 )
 
+var zeroContent = pageContent{}
+
 // The content related items on a Page.
 type pageContent struct {
 	selfLayout string
 	truncated  bool
 
 	cmap *pageContentMap
-
-	shortcodeState *shortcodeHandler
 
 	source rawPageContent
 }
