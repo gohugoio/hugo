@@ -28,7 +28,7 @@ And then in a JavaScript component:
 ```js
 import * as params from '@params';
 
-// Wil resolve to one of `hello.{js,ts,tsx,jsx}` inside `assets/my/module`.
+// Will resolve to one of `hello.{js,ts,tsx,jsx}` inside `assets/my/module`.
 import { hello } from 'my/module/hello';
 
 var api = params.api;
