@@ -6,7 +6,7 @@ description: "0.78.0"
 categories: ["Releases"]
 ---
 
-	This release finally brings full [Hugo Modules](https://gohugo.io/hugo-modules/) support to [js.Build](https://gohugo.io/hugo-pipes/js/), curtsy of he new plugin API in the really, really fast [ESBuild](https://github.com/evanw/esbuild) by [@evanw](https://github.com/evanw).
+	This release finally brings full [Hugo Modules](https://gohugo.io/hugo-modules/) support to [js.Build](https://gohugo.io/hugo-pipes/js/), courtesy of the new plugin API in the really, really fast [ESBuild](https://github.com/evanw/esbuild) by [@evanw](https://github.com/evanw).
 
 Some notes on the improvements in this release:
 
