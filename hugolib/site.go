@@ -1047,7 +1047,7 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 	)
 
 	for _, ev := range events {
-		if assetsFilename := s.BaseFs.Assets.MakePathRelative(ev.Name); assetsFilename != "" {
+		if assetsFilename, _ := s.BaseFs.Assets.MakePathRelative(ev.Name); assetsFilename != "" {
 			cachePartitions = append(cachePartitions, resources.ResourceKeyPartitions(assetsFilename)...)
 			if evictCSSRe == nil {
 				if cssFileRe.MatchString(assetsFilename) || cssConfigRe.MatchString(assetsFilename) {

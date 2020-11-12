@@ -394,9 +394,14 @@ func TestMakePathRelative(t *testing.T) {
 	sfs := bfs.Static[""]
 	c.Assert(sfs, qt.Not(qt.IsNil))
 
-	c.Assert(sfs.MakePathRelative(filepath.Join(workDir, "dist", "d1", "foo.txt")), qt.Equals, filepath.FromSlash("mydist/d1/foo.txt"))
-	c.Assert(sfs.MakePathRelative(filepath.Join(workDir, "static", "d2", "foo.txt")), qt.Equals, filepath.FromSlash("d2/foo.txt"))
-	c.Assert(sfs.MakePathRelative(filepath.Join(workDir, "dust", "d3", "foo.txt")), qt.Equals, filepath.FromSlash("foo/bar/d3/foo.txt"))
+	makeRel := func(s string) string {
+		r, _ := sfs.MakePathRelative(s)
+		return r
+	}
+
+	c.Assert(makeRel(filepath.Join(workDir, "dist", "d1", "foo.txt")), qt.Equals, filepath.FromSlash("mydist/d1/foo.txt"))
+	c.Assert(makeRel(filepath.Join(workDir, "static", "d2", "foo.txt")), qt.Equals, filepath.FromSlash("d2/foo.txt"))
+	c.Assert(makeRel(filepath.Join(workDir, "dust", "d3", "foo.txt")), qt.Equals, filepath.FromSlash("foo/bar/d3/foo.txt"))
 
 }
 
