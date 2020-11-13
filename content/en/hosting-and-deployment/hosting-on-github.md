@@ -247,7 +247,7 @@ Refer to the [official documentation for custom domains][domains] for further in
 [ghsignup]: https://github.com/join
 [GitHub Pages service]: https://help.github.com/articles/what-is-github-pages/
 [installgit]: https://git-scm.com/downloads
-[orphan branch]: https://git-scm.com/docs/git-checkout/#git-checkout---orphanltnewbranchgt
+[orphan branch]: https://git-scm.com/docs/git-checkout/#Documentation/git-checkout.txt---orphanltnewbranchgt
 [Quick Start]: /getting-started/quick-start/
 [submodule]: https://github.com/blog/2104-working-with-submodules
 [worktree feature]: https://git-scm.com/docs/git-worktree
