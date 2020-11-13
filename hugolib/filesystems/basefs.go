@@ -267,7 +267,7 @@ func (s SourceFilesystems) IsI18n(filename string) bool {
 // It will return an empty string if the filename is not a member of a static filesystem.
 func (s SourceFilesystems) MakeStaticPathRelative(filename string) string {
 	for _, staticFs := range s.Static {
-		rel := staticFs.MakePathRelative(filename)
+		rel, _ := staticFs.MakePathRelative(filename)
 		if rel != "" {
 			return rel
 		}
@@ -276,8 +276,7 @@ func (s SourceFilesystems) MakeStaticPathRelative(filename string) string {
 }
 
 // MakePathRelative creates a relative path from the given filename.
-// It will return an empty string if the filename is not a member of this filesystem.
-func (d *SourceFilesystem) MakePathRelative(filename string) string {
+func (d *SourceFilesystem) MakePathRelative(filename string) (string, bool) {
 
 	for _, dir := range d.Dirs {
 		meta := dir.(hugofs.FileMetaInfo).Meta()
@@ -288,10 +287,10 @@ func (d *SourceFilesystem) MakePathRelative(filename string) string {
 			if mp := meta.Path(); mp != "" {
 				rel = filepath.Join(mp, rel)
 			}
-			return strings.TrimPrefix(rel, filePathSeparator)
+			return strings.TrimPrefix(rel, filePathSeparator), true
 		}
 	}
-	return ""
+	return "", false
 }
 
 func (d *SourceFilesystem) RealFilename(rel string) string {
