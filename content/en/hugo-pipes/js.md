@@ -105,7 +105,7 @@ import * as data from 'my/module/data.json';
 Also note the new `params` option that can be passed from template to your JS files, e.g.:
 
 ```go-html-template
-{{ $js := resources.Get "js/main.js" | js.Build (dict "params" (dict "api" "https://example.org/api" ) }}
+{{ $js := resources.Get "js/main.js" | js.Build (dict "params" (dict "api" "https://example.org/api")) }}
 ```
 And then in your JS file: 
 
