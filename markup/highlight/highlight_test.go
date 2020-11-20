@@ -87,9 +87,9 @@ User-Agent: foo
 		h := New(cfg)
 
 		result, _ := h.Highlight(lines, "bash", "")
-		c.Assert(result, qt.Contains, "<span class=\"lnt\" id=\"2\">2\n</span>")
+		// From Chroma v0.8.2 this is linkable: https://github.com/alecthomas/chroma/commit/ab61726cdb54d5a98b6efe7ed76af6aa0698ab4a
+		c.Assert(result, qt.Contains, "<span class=\"lnt\" id=\"2\"><a style=\"outline: none; text-decoration:none; color:inherit\" href=\"#2\">2</a>\n</span>")
 		result, _ = h.Highlight(lines, "bash", "lineanchors=test")
-		c.Assert(result, qt.Contains, "<span class=\"lnt\" id=\"test-2\">2\n</span>")
 		result, _ = h.Highlight(lines, "bash", "anchorlinenos=false,hl_lines=2")
 		c.Assert(result, qt.Not(qt.Contains), "id=\"2\"")
 	})
