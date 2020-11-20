@@ -39,6 +39,7 @@ type MenuEntry struct {
 	Weight        int
 	Parent        string
 	Children      Menu
+	Params        maps.Params
 }
 
 func (m *MenuEntry) URL() string {
@@ -127,6 +128,8 @@ func (m *MenuEntry) MarshallMap(ime map[string]interface{}) {
 			m.Identifier = cast.ToString(v)
 		case "parent":
 			m.Parent = cast.ToString(v)
+		case "params":
+			m.Params = maps.ToStringMap(v)
 		}
 	}
 }
