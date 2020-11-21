@@ -62,7 +62,6 @@ func TestWhere(t *testing.T) {
 		}
 
 		return testVariants
-
 	}
 
 	for i, test := range []testt{
@@ -171,17 +170,17 @@ func TestWhere(t *testing.T) {
 			},
 			key: "B", match: "b2",
 			expect: []maps.Params{
-				maps.Params{"a": "a2", "b": "b2"},
+				{"a": "a2", "b": "b2"},
 			},
 		},
 		{
 			seq: []maps.Params{
-				maps.Params{
+				{
 					"a": map[string]interface{}{
 						"b": "b1",
 					},
 				},
-				maps.Params{
+				{
 					"a": map[string]interface{}{
 						"b": "b2",
 					},
@@ -189,7 +188,7 @@ func TestWhere(t *testing.T) {
 			},
 			key: "A.B", match: "b2",
 			expect: []maps.Params{
-				maps.Params{
+				{
 					"a": map[string]interface{}{
 						"b": "b2",
 					},

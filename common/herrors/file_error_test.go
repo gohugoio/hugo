@@ -52,5 +52,4 @@ func TestToLineNumberError(t *testing.T) {
 		c.Assert(pos.ColumnNumber, qt.Equals, test.columnNumber, errMsg)
 		c.Assert(errors.Cause(got), qt.Not(qt.IsNil))
 	}
-
 }

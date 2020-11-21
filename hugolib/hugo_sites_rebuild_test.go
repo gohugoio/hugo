@@ -20,7 +20,6 @@ import (
 )
 
 func TestSitesRebuild(t *testing.T) {
-
 	configFile := `
 baseURL = "https://example.com"
 title = "Rebuild this"
@@ -142,7 +141,6 @@ Data Inline: Rocks!
 		b.AssertFileContent("public/index.html", `
 Data: Rules!
 Data Inline: Rules!`)
-
 	})
 
 	// https://github.com/gohugoio/hugo/issues/6968
@@ -165,7 +163,6 @@ Data Inline: Rules!`)
 		b.Build(BuildCfg{testCounters: counters})
 
 		b.Assert(int(counters.contentRenderCounter), qt.Equals, 0)
-
 	})
 
 	t.Run("Page.Render, edit baseof", func(t *testing.T) {
@@ -190,7 +187,6 @@ prender: {{ $p.Title }}|{{ $p.Content }}
 		b.AssertFileContent("public/index.html", `
 Render /prender/: Baseof Edited:Single Main: Page 1|Mypartial1: Mypartial1:END
 `)
-
 	})
 
 	t.Run("Page.Render, edit partial in baseof", func(t *testing.T) {
@@ -215,7 +211,6 @@ prender: {{ $p.Title }}|{{ $p.Content }}
 		b.AssertFileContent("public/index.html", `
 Render /prender/: Baseof:Single Main: Page 1|Mypartial1: Mypartial1|Mypartial3: Mypartial3 Edited:END
 `)
-
 	})
 
 	t.Run("Edit RSS shortcode", func(t *testing.T) {
@@ -255,9 +250,7 @@ Output Shortcode AMP
 		b.AssertFileContent("public/amp/output/index.html", `
 Output Shortcode AMP Edited
 `)
-
 	})
-
 }
 
 // Issues #7623 #7625
@@ -320,5 +313,4 @@ P6 content
 P5 changed content
 P6 changed content
 `)
-
 }

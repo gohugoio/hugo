@@ -34,21 +34,18 @@ func TestPathKey(t *testing.T) {
 	} {
 		c.Assert(pathKey(test.in), qt.Equals, test.expect)
 	}
-
 }
 
 func TestFilterUnwantedMounts(t *testing.T) {
-
 	mounts := []Mount{
-		Mount{Source: "a", Target: "b", Lang: "en"},
-		Mount{Source: "a", Target: "b", Lang: "en"},
-		Mount{Source: "b", Target: "c", Lang: "en"},
+		{Source: "a", Target: "b", Lang: "en"},
+		{Source: "a", Target: "b", Lang: "en"},
+		{Source: "b", Target: "c", Lang: "en"},
 	}
 
 	filtered := filterUnwantedMounts(mounts)
 
 	c := qt.New(t)
 	c.Assert(len(filtered), qt.Equals, 2)
-	c.Assert(filtered, qt.DeepEquals, []Mount{Mount{Source: "a", Target: "b", Lang: "en"}, Mount{Source: "b", Target: "c", Lang: "en"}})
-
+	c.Assert(filtered, qt.DeepEquals, []Mount{{Source: "a", Target: "b", Lang: "en"}, {Source: "b", Target: "c", Lang: "en"}})
 }

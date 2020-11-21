@@ -44,7 +44,18 @@ Multiple site config files can be specified as a comma-separated string to the `
 
 In addition to using a single site config file, one can use the `configDir` directory (default to `config/`) to maintain easier organization and environment specific settings.
 
-- Each file represents a configuration root object, such as `Params`, `Menus`, `Languages` etc...
+- Each file represents a configuration root object, such as `params.toml` for `[Params]`, `menu(s).toml` for `[Menu]`, `languages.toml` for `[Languages]` etc...
+- Each file's content must be top-level, for example:
+  
+  In `config.toml` is:
+  ```toml
+  [Params]
+    foo = "bar"
+  ```
+  In `params.toml` is:
+  ```
+  foo = "bar"
+  ```
 - Each directory holds a group of files containing settings unique to an environment.
 - Files can be localized to become language specific.
 
@@ -426,6 +437,8 @@ Names must be prefixed with `HUGO_` and the configuration key must be set in upp
 
 To set config params, prefix the name with `HUGO_PARAMS_`
 {{% /note %}}
+
+{{< new-in "0.79.0" >}} If you are using snake_cased variable names, the above will not work, so since Hugo 0.79.0 Hugo determines the delimiter to use by the first character after `HUGO`. This allows you to define environment variables on the form `HUGOxPARAMSxAPI_KEY=abcdefgh`, using any [allowed](https://stackoverflow.com/questions/2821043/allowed-characters-in-linux-environment-variable-names#:~:text=So%20names%20may%20contain%20any,not%20begin%20with%20a%20digit.) delimiter.
 
 {{< todo >}}
 Test and document setting params via JSON env var.

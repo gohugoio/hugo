@@ -1,15 +1,14 @@
 package resources
 
 import (
-	"path/filepath"
-	"testing"
-
 	"image"
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
+	"testing"
 
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/modules"
@@ -51,11 +50,9 @@ func createTestCfg() *viper.Viper {
 	cfg.Set("allModules", modules.Modules{mod})
 
 	return cfg
-
 }
 
 func newTestResourceSpec(desc specDescriptor) *Spec {
-
 	baseURL := desc.baseURL
 	if baseURL == "" {
 		baseURL = "https://example.com/"
@@ -133,7 +130,6 @@ func newTestResourceOsFs(c *qt.C) (*Spec, string) {
 	c.Assert(err, qt.IsNil)
 
 	return spec, workDir
-
 }
 
 func fetchSunset(c *qt.C) resource.Image {

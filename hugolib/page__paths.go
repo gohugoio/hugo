@@ -26,7 +26,6 @@ func newPagePaths(
 	s *Site,
 	p page.Page,
 	pm *pageMeta) (pagePaths, error) {
-
 	targetPathDescriptor, err := createTargetPathDescriptor(s, p, pm)
 	if err != nil {
 		return pagePaths{}, err
@@ -71,7 +70,8 @@ func newPagePaths(
 
 		targets[f.Name] = targetPathsHolder{
 			paths:        paths,
-			OutputFormat: pageOutputFormats[permalinksIndex]}
+			OutputFormat: pageOutputFormats[permalinksIndex],
+		}
 
 	}
 
@@ -86,7 +86,6 @@ func newPagePaths(
 		targetPaths:          targets,
 		targetPathDescriptor: targetPathDescriptor,
 	}, nil
-
 }
 
 type pagePaths struct {
@@ -163,5 +162,4 @@ func createTargetPathDescriptor(s *Site, p page.Page, pm *pageMeta) (page.Target
 	}
 
 	return desc, nil
-
 }

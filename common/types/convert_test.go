@@ -26,7 +26,6 @@ func TestToStringSlicePreserveString(t *testing.T) {
 	c.Assert(ToStringSlicePreserveString("Hugo"), qt.DeepEquals, []string{"Hugo"})
 	c.Assert(ToStringSlicePreserveString([]interface{}{"A", "B"}), qt.DeepEquals, []string{"A", "B"})
 	c.Assert(ToStringSlicePreserveString(nil), qt.IsNil)
-
 }
 
 func TestToString(t *testing.T) {
@@ -34,5 +33,4 @@ func TestToString(t *testing.T) {
 
 	c.Assert(ToString([]byte("Hugo")), qt.Equals, "Hugo")
 	c.Assert(ToString(json.RawMessage("Hugo")), qt.Equals, "Hugo")
-
 }

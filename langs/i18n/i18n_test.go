@@ -244,7 +244,6 @@ func doTestI18nTranslate(t testing.TB, test i18nTest, cfg config.Provider) strin
 	tp := prepareTranslationProvider(t, test, cfg)
 	f := tp.t.Func(test.lang)
 	return f(test.id, test.args)
-
 }
 
 func prepareTranslationProvider(t testing.TB, test i18nTest, cfg config.Provider) *TranslationProvider {
@@ -298,7 +297,6 @@ func getConfig() *viper.Viper {
 	v.Set("allModules", modules.Modules{mod})
 
 	return v
-
 }
 
 func TestI18nTranslate(t *testing.T) {
@@ -339,5 +337,4 @@ func BenchmarkI18nTranslate(b *testing.B) {
 			}
 		})
 	}
-
 }

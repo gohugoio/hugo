@@ -98,7 +98,8 @@ func NewWalkway(cfg WalkwayConfig) *Walkway {
 		hookPre:    cfg.HookPre,
 		hookPost:   cfg.HookPost,
 		logger:     logger,
-		seen:       make(map[string]bool)}
+		seen:       make(map[string]bool),
+	}
 }
 
 func (w *Walkway) Walk() error {
@@ -134,7 +135,6 @@ func (w *Walkway) Walk() error {
 	}
 
 	return w.walk(w.root, fi, w.dirEntries, w.walkFn)
-
 }
 
 // if the filesystem supports it, use Lstat, else use fs.Stat

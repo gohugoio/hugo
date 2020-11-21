@@ -98,7 +98,7 @@ func newPageCollections(m *pageMap) *PageCollections {
 
 // This is an adapter func for the old API with Kind as first argument.
 // This is invoked when you do .Site.GetPage. We drop the Kind and fails
-// if there are more than 2 arguments, which would be ambigous.
+// if there are more than 2 arguments, which would be ambiguous.
 func (c *PageCollections) getPageOldVersion(ref ...string) (page.Page, error) {
 	var refs []string
 	for _, r := range ref {
@@ -205,7 +205,6 @@ func (c *PageCollections) getSectionOrPage(ref string) (*contentNode, string) {
 	}
 
 	return m.getPage(s, name), name
-
 }
 
 // For Ref/Reflink and .Site.GetPage do simple name lookups for the potentially ambigous myarticle.md and /myarticle.md,
@@ -292,7 +291,7 @@ func (c *PageCollections) getContentNode(context page.Page, isReflink bool, ref 
 	getByName := func(s string) (*contentNode, error) {
 		n := m.pageReverseIndex.Get(s)
 		if n != nil {
-			if n == ambigousContentNode {
+			if n == ambiguousContentNode {
 				return nil, fmt.Errorf("page reference %q is ambiguous", ref)
 			}
 			return n, nil
@@ -326,7 +325,6 @@ func (c *PageCollections) getContentNode(context page.Page, isReflink bool, ref 
 
 	// Ref/relref supports this potentially ambigous lookup.
 	return getByName(path.Base(name))
-
 }
 
 func (*PageCollections) findPagesByKindIn(kind string, inPages page.Pages) page.Pages {

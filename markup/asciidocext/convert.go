@@ -18,8 +18,11 @@ package asciidocext
 
 import (
 	"bytes"
-	"os/exec"
 	"path/filepath"
+
+	"github.com/gohugoio/hugo/htesting"
+
+	"github.com/cli/safeexec"
 
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/asciidocext/asciidocext_config"
@@ -96,7 +99,7 @@ func (a *asciidocConverter) getAsciidocContent(src []byte, ctx converter.Documen
 }
 
 func (a *asciidocConverter) parseArgs(ctx converter.DocumentContext) []string {
-	var cfg = a.cfg.MarkupConfig.AsciidocExt
+	cfg := a.cfg.MarkupConfig.AsciidocExt
 	args := []string{}
 
 	args = a.appendArg(args, "-b", cfg.Backend, asciidocext_config.CliDefault.Backend, asciidocext_config.AllowedBackend)
@@ -137,7 +140,6 @@ func (a *asciidocConverter) parseArgs(ctx converter.DocumentContext) []string {
 		file := filepath.Base(ctx.Filename)
 		if a.cfg.Cfg.GetBool("uglyUrls") || file == "_index.adoc" || file == "index.adoc" {
 			outDir, err = filepath.Abs(filepath.Dir(filepath.Join(destinationDir, ctx.DocumentName)))
-
 		} else {
 			postDir := ""
 			page, ok := ctx.Document.(pageSubset)
@@ -194,7 +196,7 @@ func (a *asciidocConverter) appendArg(args []string, option, value, defaultValue
 }
 
 func getAsciidoctorExecPath() string {
-	path, err := exec.LookPath("asciidoctor")
+	path, err := safeexec.LookPath("asciidoctor")
 	if err != nil {
 		return ""
 	}
@@ -309,5 +311,8 @@ func nodeContent(node *html.Node) string {
 
 // Supports returns whether Asciidoctor is installed on this computer.
 func Supports() bool {
+	if htesting.SupportsAll() {
+		return true
+	}
 	return getAsciidoctorExecPath() != ""
 }

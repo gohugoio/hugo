@@ -25,6 +25,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/cli/safeexec"
+
+	"github.com/gohugoio/hugo/common/hexec"
+
 	"github.com/gohugoio/hugo/common/hugo"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -35,8 +39,6 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/pkg/errors"
-
-	"os/exec"
 
 	"github.com/mitchellh/mapstructure"
 
@@ -139,7 +141,6 @@ func (t *postcssTransformation) Key() internal.ResourceTransformationKey {
 // npm install -g postcss-cli
 // npm install -g autoprefixer
 func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
-
 	const localPostCSSPath = "node_modules/.bin/"
 	const binaryName = "postcss"
 
@@ -148,10 +149,10 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 
 	binary := csiBinPath
 
-	if _, err := exec.LookPath(binary); err != nil {
+	if _, err := safeexec.LookPath(binary); err != nil {
 		// Try PATH
 		binary = binaryName
-		if _, err := exec.LookPath(binary); err != nil {
+		if _, err := safeexec.LookPath(binary); err != nil {
 			// This may be on a CI server etc. Will fall back to pre-built assets.
 			return herrors.ErrFeatureNotAvailable
 		}
@@ -168,13 +169,12 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 
 	configFile = filepath.Clean(configFile)
 
-	// We need an abolute filename to the config file.
+	// We need an absolute filename to the config file.
 	if !filepath.IsAbs(configFile) {
 		configFile = t.rs.BaseFs.ResolveJSConfigFile(configFile)
 		if configFile == "" && t.options.Config != "" {
-			// Only fail if the user specificed config file is not found.
+			// Only fail if the user specified config file is not found.
 			return errors.Errorf("postcss config %q not found:", configFile)
-
 		}
 	}
 
@@ -189,7 +189,10 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 		cmdArgs = append(cmdArgs, optArgs...)
 	}
 
-	cmd := exec.Command(binary, cmdArgs...)
+	cmd, err := hexec.SafeCommand(binary, cmdArgs...)
+	if err != nil {
+		return err
+	}
 
 	var errBuf bytes.Buffer
 	infoW := loggers.LoggerToWriterWithPrefix(logger.Info(), "postcss")
@@ -271,7 +274,6 @@ func (imp *importResolver) importRecursive(
 	lineNum int,
 	content string,
 	inPath string) (int, string, error) {
-
 	basePath := path.Dir(inPath)
 
 	var replacements []string
@@ -350,7 +352,6 @@ func (imp *importResolver) resolve() (io.Reader, error) {
 	}
 
 	return strings.NewReader(newContent), nil
-
 }
 
 // See https://www.w3schools.com/cssref/pr_import_rule.asp

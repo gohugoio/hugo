@@ -90,7 +90,6 @@ func newPageBase(metaProvider *pageMeta) (*pageState, error) {
 	ps.AlternativeOutputFormatsProvider = ps
 
 	return ps, nil
-
 }
 
 func newPageBucket(p *pageState) *pagesMapBucket {
@@ -102,7 +101,6 @@ func newPageFromMeta(
 	parentBucket *pagesMapBucket,
 	meta map[string]interface{},
 	metaProvider *pageMeta) (*pageState, error) {
-
 	if metaProvider.f == nil {
 		metaProvider.f = page.NewZeroFile(metaProvider.s.DistinctWarningLog)
 	}
@@ -170,11 +168,9 @@ func newPageFromMeta(
 		}
 
 		return nil, nil
-
 	})
 
 	return ps, err
-
 }
 
 // Used by the legacy 404, sitemap and robots.txt rendering
@@ -182,7 +178,6 @@ func newPageStandalone(m *pageMeta, f output.Format) (*pageState, error) {
 	m.configuredOutputFormats = output.Formats{f}
 	m.standalone = true
 	p, err := newPageFromMeta(nil, nil, nil, m)
-
 	if err != nil {
 		return nil, err
 	}
@@ -192,7 +187,6 @@ func newPageStandalone(m *pageMeta, f output.Format) (*pageState, error) {
 	}
 
 	return p, nil
-
 }
 
 type pageDeprecatedWarning struct {
@@ -205,6 +199,7 @@ func (p *pageDeprecatedWarning) LanguagePrefix() string { return p.p.s.Info.Lang
 func (p *pageDeprecatedWarning) GetParam(key string) interface{} {
 	return p.p.m.params[strings.ToLower(key)]
 }
+
 func (p *pageDeprecatedWarning) RSSLink() template.URL {
 	f := p.p.OutputFormats().Get("RSS")
 	if f == nil {
@@ -212,6 +207,7 @@ func (p *pageDeprecatedWarning) RSSLink() template.URL {
 	}
 	return template.URL(f.Permalink())
 }
+
 func (p *pageDeprecatedWarning) URL() string {
 	if p.p.IsPage() && p.p.m.urlPaths.URL != "" {
 		// This is the url set in front matter
@@ -219,5 +215,4 @@ func (p *pageDeprecatedWarning) URL() string {
 	}
 	// Fall back to the relative permalink.
 	return p.p.RelPermalink()
-
 }

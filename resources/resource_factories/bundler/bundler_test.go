@@ -37,5 +37,4 @@ func TestMultiReadSeekCloser(t *testing.T) {
 		_, err := rc.Seek(0, 0)
 		c.Assert(err, qt.IsNil)
 	}
-
 }

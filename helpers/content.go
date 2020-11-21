@@ -20,6 +20,7 @@ package helpers
 import (
 	"bytes"
 	"html/template"
+	"strings"
 	"unicode"
 	"unicode/utf8"
 
@@ -33,8 +34,6 @@ import (
 
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/config"
-
-	"strings"
 )
 
 // SummaryDivider denotes where content summarization should end. The default is "<!--more-->".
@@ -66,7 +65,6 @@ type ContentSpec struct {
 // NewContentSpec returns a ContentSpec initialized
 // with the appropriate fields from the given config.Provider.
 func NewContentSpec(cfg config.Provider, logger loggers.Logger, contentFs afero.Fs) (*ContentSpec, error) {
-
 	spec := &ContentSpec{
 		summaryLength: cfg.GetInt("summaryLength"),
 		BuildFuture:   cfg.GetBool("buildFuture"),
@@ -81,7 +79,6 @@ func NewContentSpec(cfg config.Provider, logger loggers.Logger, contentFs afero.
 		ContentFs: contentFs,
 		Logger:    logger,
 	})
-
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +109,6 @@ var stripHTMLReplacer = strings.NewReplacer("\n", " ", "</p>", "\n", "<br>", "\n
 
 // StripHTML accepts a string, strips out all HTML tags and returns it.
 func StripHTML(s string) string {
-
 	// Shortcut strings with no tags in them
 	if !strings.ContainsAny(s, "<>") {
 		return s

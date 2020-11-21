@@ -17,6 +17,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugolib/filesystems"
 
 	"github.com/fsnotify/fsnotify"
@@ -95,19 +96,27 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 			// This assumes that Hugo has not generated content on top of a static file and then removed
 			// the source of that static file. In this case Hugo will incorrectly remove that file
 			// from the published directory.
+			//
+			// With renderToComposite, we do not need whole static sync system.
+			// But it may be user-friendly to keep these event messages
 			if ev.Op&fsnotify.Rename == fsnotify.Rename || ev.Op&fsnotify.Remove == fsnotify.Remove {
 				if _, err := sourceFs.Fs.Stat(relPath); os.IsNotExist(err) {
 					// If file doesn't exist in any static dir, remove it
 					toRemove := filepath.Join(publishDir, relPath)
 
 					logger.Println("File no longer exists in static dir, removing", toRemove)
-					_ = c.Fs.Destination.RemoveAll(toRemove)
+					if c.renderTo != config.RenderDestComposite {
+						_ = c.Fs.Destination.RemoveAll(toRemove)
+					}
+
 				} else if err == nil {
 					// If file still exists, sync it
 					logger.Println("Syncing", relPath, "to", publishDir)
 
-					if err := syncer.Sync(filepath.Join(publishDir, relPath), relPath); err != nil {
-						c.logger.Errorln(err)
+					if c.renderTo != config.RenderDestComposite {
+						if err := syncer.Sync(filepath.Join(publishDir, relPath), relPath); err != nil {
+							c.logger.Errorln(err)
+						}
 					}
 				} else {
 					c.logger.Errorln(err)
@@ -118,8 +127,10 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 
 			// For all other event operations Hugo will sync static.
 			logger.Println("Syncing", relPath, "to", publishDir)
-			if err := syncer.Sync(filepath.Join(publishDir, relPath), relPath); err != nil {
-				c.logger.Errorln(err)
+			if c.renderTo != config.RenderDestComposite {
+				if err := syncer.Sync(filepath.Join(publishDir, relPath), relPath); err != nil {
+					c.logger.Errorln(err)
+				}
 			}
 		}
 
@@ -128,5 +139,4 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 
 	_, err := c.doWithPublishDirs(syncFn)
 	return err
-
 }

@@ -16,10 +16,11 @@ package hugolib
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
 	"testing"
+
+	"github.com/gohugoio/hugo/common/hexec"
 
 	"github.com/gohugoio/hugo/htesting"
 
@@ -33,7 +34,7 @@ import (
 )
 
 func TestJSBuildWithNPM(t *testing.T) {
-	if !isCI() {
+	if !htesting.IsCI() {
 		t.Skip("skip (relative) long running modules test when running locally")
 	}
 
@@ -125,7 +126,9 @@ TS: {{ template "print" $ts }}
 
 	b.WithSourceFile("assets/js/included.js", includedJS)
 
-	out, err := exec.Command("npm", "install").CombinedOutput()
+	cmd, err := hexec.SafeCommand("npm", "install")
+	b.Assert(err, qt.IsNil)
+	out, err := cmd.CombinedOutput()
 	b.Assert(err, qt.IsNil, qt.Commentf(string(out)))
 
 	b.Build(BuildCfg{})
@@ -133,14 +136,13 @@ TS: {{ template "print" $ts }}
 	b.AssertFileContent("public/index.html", `
 console.log(&#34;included&#34;);
 if (hasSpace.test(string))
-const React = __toModule(require(&#34;react&#34;));
+var React = __toModule(require(&#34;react&#34;));
 function greeter(person) {
 `)
-
 }
 
 func TestJSBuild(t *testing.T) {
-	if !isCI() {
+	if !htesting.IsCI() {
 		t.Skip("skip (relative) long running modules test when running locally")
 	}
 
@@ -194,7 +196,8 @@ require github.com/gohugoio/hugoTestProjectJSModImports v0.5.0 // indirect
 }`)
 
 	b.Assert(os.Chdir(workDir), qt.IsNil)
-	_, err = exec.Command("npm", "install").CombinedOutput()
+	cmd, _ := hexec.SafeCommand("npm", "install")
+	_, err = cmd.CombinedOutput()
 	b.Assert(err, qt.IsNil)
 
 	b.Build(BuildCfg{})
@@ -208,5 +211,4 @@ Hello3 from mod2. Date from date-fns: ${today}
 Hello from lib in the main project
 Hello5 from mod2.
 var myparam = "Hugo Rocks!";`)
-
 }

@@ -31,7 +31,6 @@ import (
 )
 
 func convert(c *qt.C, mconf markup_config.Config, content string) converter.Result {
-
 	p, err := Provider.New(
 		converter.ProviderConfig{
 			MarkupConfig: mconf,
@@ -163,7 +162,6 @@ description
 	c.Assert(ok, qt.Equals, true)
 	tocHTML := toc.TableOfContents().ToHTML(1, 2, false)
 	c.Assert(tocHTML, qt.Contains, "TableOfContents")
-
 }
 
 func TestConvertAutoIDAsciiOnly(t *testing.T) {
@@ -212,7 +210,6 @@ func TestConvertIssues(t *testing.T) {
 
 		c.Assert(got, qt.Contains, "<custom-element>\n    <div>This will be \"slotted\" into the custom element.</div>\n</custom-element>\n")
 	})
-
 }
 
 func TestCodeFence(t *testing.T) {
@@ -257,7 +254,6 @@ LINE5
 </code></pre></div>`)
 		result = convertForConfig(c, cfg, `echo "Hugo Rocks!"`, "unknown")
 		c.Assert(result, qt.Equals, "<pre><code class=\"language-unknown\" data-lang=\"unknown\">echo &quot;Hugo Rocks!&quot;\n</code></pre>")
-
 	})
 
 	c.Run("Highlight lines, default config", func(c *qt.C) {

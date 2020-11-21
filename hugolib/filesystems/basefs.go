@@ -16,6 +16,7 @@
 package filesystems
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path"
@@ -32,8 +33,6 @@ import (
 	"github.com/gohugoio/hugo/modules"
 
 	"github.com/gohugoio/hugo/hugofs"
-
-	"fmt"
 
 	"github.com/gohugoio/hugo/hugolib/paths"
 	"github.com/spf13/afero"
@@ -80,7 +79,7 @@ func (fs *BaseFs) AllDirs() []hugofs.FileMetaInfo {
 		fs.Content.Dirs,
 		fs.Assets.Dirs,
 		fs.Layouts.Dirs,
-		//fs.Resources.Dirs,
+		// fs.Resources.Dirs,
 		fs.StaticDirs,
 	} {
 		dirs = append(dirs, dirSet...)
@@ -160,7 +159,6 @@ func (s *SourceFilesystems) FileSystems() []*SourceFilesystem {
 		s.Archetypes,
 		// TODO(bep) static
 	}
-
 }
 
 // A SourceFilesystem holds the filesystem for a given source type in Hugo (data,
@@ -192,7 +190,6 @@ func (s SourceFilesystems) ContentStaticAssetFs(lang string) afero.Fs {
 
 	base := afero.NewCopyOnWriteFs(s.Assets.Fs, staticFs)
 	return afero.NewCopyOnWriteFs(base, s.Content.Fs)
-
 }
 
 // StaticFs returns the static filesystem for the given language.
@@ -277,7 +274,6 @@ func (s SourceFilesystems) MakeStaticPathRelative(filename string) string {
 
 // MakePathRelative creates a relative path from the given filename.
 func (d *SourceFilesystem) MakePathRelative(filename string) (string, bool) {
-
 	for _, dir := range d.Dirs {
 		meta := dir.(hugofs.FileMetaInfo).Meta()
 		currentPath := meta.Filename()
@@ -416,7 +412,6 @@ func (b *sourceFilesystemsBuilder) newSourceFilesystem(name string, fs afero.Fs,
 }
 
 func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
-
 	if b.theBigFs == nil {
 
 		theBigFs, err := b.createMainOverlayFs(b.p)
@@ -435,7 +430,6 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 		dirs := b.theBigFs.overlayDirs[componentID]
 
 		return b.newSourceFilesystem(componentID, afero.NewBasePathFs(b.theBigFs.overlayMounts, componentID), dirs)
-
 	}
 
 	b.theBigFs.finalizeDirs()
@@ -491,11 +485,9 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 	}
 
 	return b.result, nil
-
 }
 
 func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesystemsCollector, error) {
-
 	var staticFsMap map[string]afero.Fs
 	if b.p.Cfg.GetBool("multihost") {
 		staticFsMap = make(map[string]afero.Fs)
@@ -536,7 +528,6 @@ func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesys
 	err := b.createOverlayFs(collector, modsReversed)
 
 	return collector, err
-
 }
 
 func (b *sourceFilesystemsBuilder) isContentMount(mnt modules.Mount) bool {
@@ -550,7 +541,6 @@ func (b *sourceFilesystemsBuilder) isStaticMount(mnt modules.Mount) bool {
 func (b *sourceFilesystemsBuilder) createModFs(
 	collector *filesystemsCollector,
 	md mountsDescriptor) error {
-
 	var (
 		fromTo        []hugofs.RootMapping
 		fromToContent []hugofs.RootMapping
@@ -641,7 +631,6 @@ func (b *sourceFilesystemsBuilder) createModFs(
 			sfs, found := collector.staticPerLanguage[lang]
 			if found {
 				collector.staticPerLanguage[lang] = afero.NewCopyOnWriteFs(sfs, bfs)
-
 			} else {
 				collector.staticPerLanguage[lang] = bfs
 			}
@@ -672,7 +661,6 @@ func (b *sourceFilesystemsBuilder) createModFs(
 	}
 
 	return nil
-
 }
 
 func printFs(fs afero.Fs, path string, w io.Writer) {
@@ -719,7 +707,6 @@ func (c *filesystemsCollector) addDirs(rfs *hugofs.RootMappingFs) {
 	for _, componentFolder := range files.ComponentFolders {
 		c.addDir(rfs, componentFolder)
 	}
-
 }
 
 func (c *filesystemsCollector) addDir(rfs *hugofs.RootMappingFs, componentFolder string) {
@@ -737,7 +724,6 @@ func (c *filesystemsCollector) finalizeDirs() {
 			c.reverseFis(dirs)
 		}
 	})
-
 }
 
 func (c *filesystemsCollector) reverseFis(fis []hugofs.FileMetaInfo) {

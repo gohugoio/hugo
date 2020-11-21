@@ -118,7 +118,6 @@ func TestNewContentSpec(t *testing.T) {
 	c.Assert(spec.BuildFuture, qt.Equals, true)
 	c.Assert(spec.BuildExpired, qt.Equals, true)
 	c.Assert(spec.BuildDrafts, qt.Equals, true)
-
 }
 
 var benchmarkTruncateString = strings.Repeat("This is a sentence about nothing.", 20)
@@ -225,7 +224,7 @@ func TestExtractTOCGreaterThanSeventy(t *testing.T) {
 	content := []byte("<nav>\n<ul>\nTOC This is a very long content which will definitely be greater than seventy, I promise you that.<li><a href=\"#")
 
 	actualTocLessContent, actualToc := ExtractTOC(content)
-	//Because the start of Toc is greater than 70+startpoint of <li> content and empty TOC will be returned
+	// Because the start of Toc is greater than 70+startpoint of <li> content and empty TOC will be returned
 	expectedToc := []byte("")
 
 	if !bytes.Equal(actualTocLessContent, content) {
@@ -255,7 +254,6 @@ func TestExtractNoTOC(t *testing.T) {
 var totalWordsBenchmarkString = strings.Repeat("Hugo Rocks ", 200)
 
 func TestTotalWords(t *testing.T) {
-
 	for i, this := range []struct {
 		s     string
 		words int

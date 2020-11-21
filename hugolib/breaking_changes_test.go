@@ -21,11 +21,9 @@ import (
 )
 
 func Test073(t *testing.T) {
-
-	asertDisabledTaxonomyAndTerm := func(b *sitesBuilder, taxonomy, term bool) {
+	assertDisabledTaxonomyAndTerm := func(b *sitesBuilder, taxonomy, term bool) {
 		b.Assert(b.CheckExists("public/tags/index.html"), qt.Equals, taxonomy)
 		b.Assert(b.CheckExists("public/tags/tag1/index.html"), qt.Equals, term)
-
 	}
 
 	assertOutputTaxonomyAndTerm := func(b *sitesBuilder, taxonomy, term bool) {
@@ -48,7 +46,6 @@ func Test073(t *testing.T) {
 			func(err error, out string, b *sitesBuilder) {
 				b.Assert(err, qt.IsNil)
 				assertOutputTaxonomyAndTerm(b, true, true)
-
 			},
 		},
 		{
@@ -60,7 +57,6 @@ taxonomyTerm = ["JSON"]
 			func(err error, out string, b *sitesBuilder) {
 				b.Assert(err, qt.IsNil)
 				assertOutputTaxonomyAndTerm(b, true, false)
-
 			},
 		},
 		{
@@ -72,7 +68,6 @@ taxonomy = ["JSON"]
 			func(err error, out string, b *sitesBuilder) {
 				b.Assert(err, qt.Not(qt.IsNil))
 				b.Assert(out, qt.Contains, `ignoreErrors = ["error-output-taxonomy"]`)
-
 			},
 		},
 		{
@@ -86,7 +81,6 @@ taxonomy = ["JSON"]
 			func(err error, out string, b *sitesBuilder) {
 				b.Assert(err, qt.IsNil)
 				assertOutputTaxonomyAndTerm(b, true, false)
-
 			},
 		},
 		{
@@ -94,8 +88,7 @@ taxonomy = ["JSON"]
 			`disableKinds = ["taxonomy", "taxonomyTerm"]`,
 			func(err error, out string, b *sitesBuilder) {
 				b.Assert(err, qt.IsNil)
-				asertDisabledTaxonomyAndTerm(b, false, false)
-
+				assertDisabledTaxonomyAndTerm(b, false, false)
 			},
 		},
 		{
@@ -103,8 +96,7 @@ taxonomy = ["JSON"]
 			`disableKinds = ["taxonomyTerm"]`,
 			func(err error, out string, b *sitesBuilder) {
 				b.Assert(err, qt.IsNil)
-				asertDisabledTaxonomyAndTerm(b, false, true)
-
+				assertDisabledTaxonomyAndTerm(b, false, true)
 			},
 		},
 		{
@@ -121,11 +113,10 @@ taxonomy = ["JSON"]
 			ignoreErrors = ["error-disable-taxonomy"]`,
 			func(err error, out string, b *sitesBuilder) {
 				b.Assert(err, qt.IsNil)
-				asertDisabledTaxonomyAndTerm(b, false, true)
+				assertDisabledTaxonomyAndTerm(b, false, true)
 			},
 		},
 	} {
-
 		t.Run(this.name, func(t *testing.T) {
 			b := newTestSitesBuilder(t).WithConfigFile("toml", this.config)
 			b.WithTemplatesAdded("_default/list.json", "JSON")
@@ -135,7 +126,5 @@ taxonomy = ["JSON"]
 			fmt.Println(out)
 			this.assert(err, out, b)
 		})
-
 	}
-
 }

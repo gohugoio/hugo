@@ -225,7 +225,6 @@ func (m *pageMap) newPageFromContentNode(n *contentNode, parentBucket *pagesMapB
 }
 
 func (m *pageMap) newResource(fim hugofs.FileMetaInfo, owner *pageState) (resource.Resource, error) {
-
 	if owner == nil {
 		panic("owner is nil")
 	}
@@ -233,7 +232,7 @@ func (m *pageMap) newResource(fim hugofs.FileMetaInfo, owner *pageState) (resour
 	outputFormats := owner.m.outputFormats()
 	seen := make(map[string]bool)
 	var targetBasePaths []string
-	// Make sure bundled resources are published to all of the ouptput formats'
+	// Make sure bundled resources are published to all of the output formats'
 	// sub paths.
 	for _, f := range outputFormats {
 		p := f.Path
@@ -424,7 +423,6 @@ func (m *pageMap) assembleResources(s string, p *pageState, parentBucket *pagesM
 }
 
 func (m *pageMap) assembleSections() error {
-
 	var sectionsToDelete []string
 	var err error
 
@@ -508,7 +506,6 @@ func (m *pageMap) assembleSections() error {
 }
 
 func (m *pageMap) assembleTaxonomies() error {
-
 	var taxonomiesToDelete []string
 	var err error
 
@@ -565,7 +562,6 @@ func (m *pageMap) assembleTaxonomies() error {
 	}
 
 	return err
-
 }
 
 func (m *pageMap) attachPageToViews(s string, b *contentNode) {
@@ -656,7 +652,6 @@ func (m *pageMap) collectSections(query pageMapQuery, fn func(c *contentNode)) e
 }
 
 func (m *pageMap) collectSectionsFn(query pageMapQuery, fn func(s string, c *contentNode) bool) error {
-
 	if !strings.HasSuffix(query.Prefix, "/") {
 		query.Prefix += "/"
 	}
@@ -957,11 +952,9 @@ func (w *sectionWalker) applyAggregates() *sectionAggregateHandler {
 	return w.walkLevel("/", func() sectionWalkHandler {
 		return &sectionAggregateHandler{}
 	}).(*sectionAggregateHandler)
-
 }
 
 func (w *sectionWalker) walkLevel(prefix string, createVisitor func() sectionWalkHandler) sectionWalkHandler {
-
 	level := strings.Count(prefix, "/")
 
 	visitor := createVisitor()
@@ -1029,7 +1022,6 @@ func (w *sectionWalker) walkLevel(prefix string, createVisitor func() sectionWal
 	})
 
 	return visitor
-
 }
 
 type viewName struct {

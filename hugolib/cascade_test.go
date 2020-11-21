@@ -51,7 +51,6 @@ func BenchmarkCascade(b *testing.B) {
 }
 
 func TestCascade(t *testing.T) {
-
 	allLangs := []string{"en", "nn", "nb", "sv"}
 
 	langs := allLangs[:3]
@@ -101,9 +100,7 @@ func TestCascade(t *testing.T) {
 
 		// Check cascade into bundled page
 		b.AssertFileContent("public/bundle1/index.html", `Resources: bp1.md|home.png|`)
-
 	})
-
 }
 
 func TestCascadeEdit(t *testing.T) {
@@ -252,7 +249,6 @@ func newCascadeTestBuilder(t testing.TB, langs []string) *sitesBuilder {
 		metaStr := "---\n" + yamlStr + "\n---"
 
 		return metaStr
-
 	}
 
 	createLangConfig := func(lang string) string {
@@ -290,7 +286,6 @@ defaultContentLanguageInSubDir = false
 	b := newTestSitesBuilder(t).WithConfigFile("toml", config)
 
 	createContentFiles := func(lang string) {
-
 		withContent := func(filenameContent ...string) {
 			for i := 0; i < len(filenameContent); i += 2 {
 				b.WithContent(path.Join(lang, filenameContent[i]), filenameContent[i+1])
@@ -414,7 +409,6 @@ S1|p1:{{ $s1.Params.p1 }}|p2:{{ $s1.Params.p2 }}|
 		b.WithContent("s2/p1/index.md", "---\ntitle: p1_2\n---")
 
 		return b
-
 	}
 
 	c.Run("slice", func(c *qt.C) {
@@ -431,7 +425,6 @@ p2 = "p2"
 		b.Build(BuildCfg{})
 
 		b.AssertFileContent("public/index.html", "P1|p1:p1|p2:p2")
-
 	})
 
 	c.Run("slice with _target", func(c *qt.C) {
@@ -456,7 +449,6 @@ kind="section"
 P1|p1:p1|p2:|
 S1|p1:|p2:p2|
 `)
-
 	})
 
 	c.Run("slice with yaml _target", func(c *qt.C) {
@@ -480,7 +472,6 @@ cascade:
 P1|p1:p1|p2:|
 S1|p1:|p2:p2|
 `)
-
 	})
 
 	c.Run("slice with json _target", func(c *qt.C) {
@@ -510,7 +501,5 @@ S1|p1:|p2:p2|
 		P1|p1:p1|p2:|
 		S1|p1:|p2:p2|
 		`)
-
 	})
-
 }

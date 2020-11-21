@@ -39,5 +39,4 @@ func (k ResourceTransformationKey) Value() string {
 	}
 
 	return k.Name + "_" + helpers.HashString(k.elements...)
-
 }

@@ -155,11 +155,10 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 	}
 
 	if ns.deps.Metrics != nil {
-		ns.deps.Metrics.TrackValue(n, result)
+		ns.deps.Metrics.TrackValue(templ.Name(), result)
 	}
 
 	return result, nil
-
 }
 
 // IncludeCached executes and caches partial templates.  The cache is created with name+variants as the key.

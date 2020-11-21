@@ -43,7 +43,6 @@ func BenchmarkContentMap(b *testing.B) {
 
 		mfi := fi.(hugofs.FileMetaInfo)
 		return mfi
-
 	}
 
 	createFs := func(fs afero.Fs, lang string) afero.Fs {
@@ -55,7 +54,6 @@ func BenchmarkContentMap(b *testing.B) {
 				meta["lang"] = lang
 				meta["path"] = meta.Filename()
 				meta["classifier"] = files.ClassifyContentFile(fi.Name(), meta.GetOpener())
-
 			})
 	}
 
@@ -87,7 +85,6 @@ func BenchmarkContentMap(b *testing.B) {
 			b.StartTimer()
 		}
 	})
-
 }
 
 func TestContentMap(t *testing.T) {
@@ -104,7 +101,6 @@ func TestContentMap(t *testing.T) {
 
 		mfi := fi.(hugofs.FileMetaInfo)
 		return mfi
-
 	}
 
 	createFs := func(fs afero.Fs, lang string) afero.Fs {
@@ -117,12 +113,10 @@ func TestContentMap(t *testing.T) {
 				meta["path"] = meta.Filename()
 				meta["classifier"] = files.ClassifyContentFile(fi.Name(), meta.GetOpener())
 				meta["translationBaseName"] = helpers.Filename(fi.Name())
-
 			})
 	}
 
 	c.Run("AddFiles", func(c *qt.C) {
-
 		memfs := afero.NewMemMapFs()
 
 		fsl := func(lang string) afero.Fs {
@@ -254,11 +248,9 @@ func TestContentMap(t *testing.T) {
              
        
 				`, qt.Commentf(m.testDump()))
-
 	})
 
 	c.Run("CreateMissingNodes", func(c *qt.C) {
-
 		memfs := afero.NewMemMapFs()
 
 		fsl := func(lang string) afero.Fs {
@@ -297,7 +289,6 @@ func TestContentMap(t *testing.T) {
               	 - P: blog/page.md
             
 			`, qt.Commentf(got))
-
 	})
 
 	c.Run("cleanKey", func(c *qt.C) {
@@ -309,15 +300,12 @@ func TestContentMap(t *testing.T) {
 			{filepath.FromSlash("/a/b/"), "/a/b"},
 			{"/a//b/", "/a/b"},
 		} {
-
 			c.Assert(cleanTreeKey(test.in), qt.Equals, test.expected)
-
 		}
 	})
 }
 
 func TestContentMapSite(t *testing.T) {
-
 	b := newTestSitesBuilder(t)
 
 	pageTempl := `
@@ -435,9 +423,9 @@ Draft5: {{ if (.Site.GetPage "blog/draftsection/sub/page") }}FOUND{{ end }}|
         
       Home: Hugo Home|/|2019-06-08|Current Section: |Resources: 
         Blog Section: Blogs|/blog/|2019-06-08|Current Section: blog|Resources: 
-        Blog Sub Section: Page 3|/blog/subsection/|2019-06-03|Current Section: blog/subsection|Resources: json: /blog/subsection/subdata.json|
+        Blog Sub Section: Page 3|/blog/subsection/|2019-06-03|Current Section: blog/subsection|Resources: application: /blog/subsection/subdata.json|
         Page: Page 1|/blog/page1/|2019-06-01|Current Section: blog|Resources: 
-        Bundle: Page 12|/blog/bundle/|0001-01-01|Current Section: blog|Resources: json: /blog/bundle/data.json|page: |
+        Bundle: Page 12|/blog/bundle/|0001-01-01|Current Section: blog|Resources: application: /blog/bundle/data.json|page: |
         IsDescendant: true: true true: true true: true true: true true: true true: true false: false
         IsAncestor: true: true true: true true: true true: true true: true true: true true: true false: false false: false  false: false
         IsDescendant overlap1: false: false

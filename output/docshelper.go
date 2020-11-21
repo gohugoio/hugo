@@ -23,7 +23,6 @@ func init() {
 }
 
 func createLayoutExamples() interface{} {
-
 	type Example struct {
 		Example      string
 		Kind         string
@@ -78,11 +77,11 @@ func createLayoutExamples() interface{} {
 			Kind:         example.d.Kind,
 			OutputFormat: example.f.Name,
 			Suffix:       example.f.MediaType.Suffix(),
-			Layouts:      makeLayoutsPresentable(layouts)})
+			Layouts:      makeLayoutsPresentable(layouts),
+		})
 	}
 
 	return basicExamples
-
 }
 
 func makeLayoutsPresentable(l []string) []string {

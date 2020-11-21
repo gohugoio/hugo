@@ -16,6 +16,7 @@ package resources
 import (
 	"bytes"
 	"fmt"
+	"image"
 	"io"
 	"path"
 	"strings"
@@ -50,9 +51,11 @@ var (
 // These are transformations that need special support in Hugo that may not
 // be available when building the theme/site so we write the transformation
 // result to disk and reuse if needed for these,
+// TODO(bep) it's a little fragile having these constants redefined here.
 var transformationsToCacheOnDisk = map[string]bool{
-	"postcss": true,
-	"tocss":   true,
+	"postcss":    true,
+	"tocss":      true,
+	"tocss-dart": true,
 }
 
 func newResourceAdapter(spec *Spec, lazyPublish bool, target transformableResource) *resourceAdapter {
@@ -105,7 +108,7 @@ type ResourceTransformationCtx struct {
 	// to be simple types, as it needs to be serialized to JSON and back.
 	Data map[string]interface{}
 
-	// This is used to publis additional artifacts, e.g. source maps.
+	// This is used to publish additional artifacts, e.g. source maps.
 	// We may improve this.
 	OpenResourcePublisher func(relTargetPath string) (io.WriteCloser, error)
 }
@@ -264,6 +267,10 @@ func (r *resourceAdapter) Width() int {
 	return r.getImageOps().Width()
 }
 
+func (r *resourceAdapter) DecodeImage() (image.Image, error) {
+	return r.getImageOps().DecodeImage()
+}
+
 func (r *resourceAdapter) getImageOps() resource.ImageOps {
 	img, ok := r.target.(resource.ImageOps)
 	if !ok {
@@ -293,7 +300,6 @@ func (r *resourceAdapter) publish() {
 			r.spec.Logger.Errorf("Failed to publish Resource: %s", r.publisherErr)
 		}
 	})
-
 }
 
 func (r *resourceAdapter) TransformationKey() string {
@@ -397,7 +403,6 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 		}
 
 		newErr := func(err error) error {
-
 			msg := fmt.Sprintf("%s: failed to transform %q (%s)", strings.ToUpper(tr.Key().Name), tctx.InPath, tctx.InMediaType.Type())
 
 			if err == herrors.ErrFeatureNotAvailable {
@@ -408,6 +413,9 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 					errMsg = ". Check your PostCSS installation; install with \"npm install postcss-cli\". See https://gohugo.io/hugo-pipes/postcss/"
 				} else if tr.Key().Name == "tocss" {
 					errMsg = ". Check your Hugo installation; you need the extended version to build SCSS/SASS."
+				} else if tr.Key().Name == "tocss-dart" {
+					errMsg = ". You need dart-sass-embedded in your system $PATH."
+
 				} else if tr.Key().Name == "babel" {
 					errMsg = ". You need to install Babel, see https://gohugo.io/hugo-pipes/babel/"
 				}
@@ -416,7 +424,6 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 			}
 
 			return errors.Wrap(err, msg)
-
 		}
 
 		var tryFileCache bool
@@ -440,6 +447,9 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 		if tryFileCache {
 			f := r.target.tryTransformedFileCache(key, updates)
 			if f == nil {
+				if err != nil {
+					return newErr(err)
+				}
 				return newErr(errors.Errorf("resource %q not found in file cache", key))
 			}
 			transformedContentr = f
@@ -482,7 +492,7 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 			publishwriters = append(publishwriters, metaw)
 		}
 
-		// Any transofrmations reading from From must also write to To.
+		// Any transformations reading from From must also write to To.
 		// This means that if the target buffer is empty, we can just reuse
 		// the original reader.
 		if b, ok := tctx.To.(*bytes.Buffer); ok && b.Len() > 0 {
@@ -590,7 +600,7 @@ type transformationUpdate struct {
 	startCtx ResourceTransformationCtx
 }
 
-func (u *transformationUpdate) isContenChanged() bool {
+func (u *transformationUpdate) isContentChanged() bool {
 	return u.content != nil || u.sourceFilename != nil
 }
 

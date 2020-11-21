@@ -65,7 +65,6 @@ func (p pageContent) contentToRender(renderedShortcodes map[string]string) []byt
 				// Insert the placeholder so we can insert the content after
 				// markdown processing.
 				c = append(c, []byte(v.placeholder)...)
-
 			}
 		default:
 			panic(fmt.Sprintf("unknown item type %T", it))

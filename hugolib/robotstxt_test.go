@@ -38,5 +38,4 @@ func TestRobotsTXTOutput(t *testing.T) {
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent("public/robots.txt", "User-agent: Googlebot")
-
 }

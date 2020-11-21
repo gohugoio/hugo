@@ -44,8 +44,10 @@ var testT = &T{
 	NonEmptyInterfaceTypedNil: (*T)(nil),
 }
 
-type tstEqerType1 string
-type tstEqerType2 string
+type (
+	tstEqerType1 string
+	tstEqerType2 string
+)
 
 func (t tstEqerType2) Eq(other interface{}) bool {
 	return cast.ToString(t) == cast.ToString(other)
@@ -397,7 +399,6 @@ func TestCase(t *testing.T) {
 
 	c.Assert(n.Eq("az", "az"), qt.Equals, true)
 	c.Assert(n.Eq("az", stringType("az")), qt.Equals, true)
-
 }
 
 func TestStringType(t *testing.T) {

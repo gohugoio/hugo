@@ -43,7 +43,8 @@ func TestMerge(t *testing.T) {
 				map[string]interface{}{"a": 42, "c": 3},
 				map[string]interface{}{"a": 1, "b": 2},
 			},
-			map[string]interface{}{"a": 1, "b": 2, "c": 3}, false,
+			map[string]interface{}{"a": 1, "b": 2, "c": 3},
+			false,
 		},
 		{
 			"multi",
@@ -52,7 +53,8 @@ func TestMerge(t *testing.T) {
 				map[string]interface{}{"a": 1, "b": 2},
 				map[string]interface{}{"a": 9, "c": 4, "d": 7},
 			},
-			map[string]interface{}{"a": 9, "b": 2, "c": 4, "d": 7, "e": 11}, false,
+			map[string]interface{}{"a": 9, "b": 2, "c": 4, "d": 7, "e": 11},
+			false,
 		},
 		{
 			"basic case insensitive",
@@ -60,7 +62,8 @@ func TestMerge(t *testing.T) {
 				map[string]interface{}{"A": 42, "c": 3},
 				map[string]interface{}{"a": 1, "b": 2},
 			},
-			map[string]interface{}{"a": 1, "b": 2, "c": 3}, false,
+			map[string]interface{}{"a": 1, "b": 2, "c": 3},
+			false,
 		},
 		{
 			"nested",
@@ -68,7 +71,8 @@ func TestMerge(t *testing.T) {
 				map[string]interface{}{"a": 42, "c": 3, "b": map[string]interface{}{"d": 55, "e": 66, "f": 3}},
 				map[string]interface{}{"a": 1, "b": map[string]interface{}{"d": 1, "e": 2}},
 			},
-			map[string]interface{}{"a": 1, "b": map[string]interface{}{"d": 1, "e": 2, "f": 3}, "c": 3}, false,
+			map[string]interface{}{"a": 1, "b": map[string]interface{}{"d": 1, "e": 2, "f": 3}, "c": 3},
+			false,
 		},
 		{
 			// https://github.com/gohugoio/hugo/issues/6633
@@ -77,7 +81,8 @@ func TestMerge(t *testing.T) {
 				map[string]interface{}{"a": 42, "c": 3},
 				maps.Params{"a": 1, "b": 2},
 			},
-			maps.Params{"a": int(1), "b": int(2), "c": int(3)}, false,
+			maps.Params{"a": int(1), "b": int(2), "c": int(3)},
+			false,
 		},
 		{
 			"params dst, upper case src",
@@ -85,7 +90,8 @@ func TestMerge(t *testing.T) {
 				map[string]interface{}{"a": 42, "C": 3},
 				maps.Params{"a": 1, "b": 2},
 			},
-			maps.Params{"a": int(1), "b": int(2), "c": int(3)}, false,
+			maps.Params{"a": int(1), "b": int(2), "c": int(3)},
+			false,
 		},
 		{
 			"params src",
@@ -93,7 +99,8 @@ func TestMerge(t *testing.T) {
 				maps.Params{"a": 42, "c": 3},
 				map[string]interface{}{"a": 1, "c": 2},
 			},
-			map[string]interface{}{"a": int(1), "c": int(2)}, false,
+			map[string]interface{}{"a": int(1), "c": int(2)},
+			false,
 		},
 		{
 			"params src, upper case dst",
@@ -101,7 +108,8 @@ func TestMerge(t *testing.T) {
 				maps.Params{"a": 42, "c": 3},
 				map[string]interface{}{"a": 1, "C": 2},
 			},
-			map[string]interface{}{"a": int(1), "C": int(2)}, false,
+			map[string]interface{}{"a": int(1), "C": int(2)},
+			false,
 		},
 		{
 			"nested, params dst",
@@ -109,7 +117,8 @@ func TestMerge(t *testing.T) {
 				map[string]interface{}{"a": 42, "c": 3, "b": map[string]interface{}{"d": 55, "e": 66, "f": 3}},
 				maps.Params{"a": 1, "b": maps.Params{"d": 1, "e": 2}},
 			},
-			maps.Params{"a": 1, "b": maps.Params{"d": 1, "e": 2, "f": 3}, "c": 3}, false,
+			maps.Params{"a": 1, "b": maps.Params{"d": 1, "e": 2, "f": 3}, "c": 3},
+			false,
 		},
 		{
 			// https://github.com/gohugoio/hugo/issues/7899
@@ -118,7 +127,8 @@ func TestMerge(t *testing.T) {
 				map[string]interface{}{"k": "v"},
 				map[string]interface{}{"k": map[string]interface{}{"k2": "v2"}},
 			},
-			map[string]interface{}{"k": map[string]interface{}{"k2": "v2"}}, false,
+			map[string]interface{}{"k": map[string]interface{}{"k2": "v2"}},
+			false,
 		},
 		{"src nil", []interface{}{nil, simpleMap}, simpleMap, false},
 		// Error cases.

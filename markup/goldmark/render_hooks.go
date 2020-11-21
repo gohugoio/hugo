@@ -115,7 +115,6 @@ func (r *hookedRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) 
 
 // https://github.com/yuin/goldmark/blob/b611cd333a492416b56aa8d94b04a67bf0096ab2/renderer/html/html.go#L404
 func (r *hookedRenderer) RenderAttributes(w util.BufWriter, node ast.Node) {
-
 	for _, attr := range node.Attributes() {
 		_, _ = w.WriteString(" ")
 		_, _ = w.Write(attr.Name)
@@ -186,10 +185,9 @@ func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.N
 		},
 	)
 
-	ctx.AddIdentity(h.ImageRenderer.GetIdentity())
+	ctx.AddIdentity(h.ImageRenderer)
 
 	return ast.WalkContinue, err
-
 }
 
 // Fall back to the default Goldmark render funcs. Method below borrowed from:
@@ -248,7 +246,10 @@ func (r *hookedRenderer) renderLink(w util.BufWriter, source []byte, node ast.No
 		},
 	)
 
-	ctx.AddIdentity(h.LinkRenderer.GetIdentity())
+	// TODO(bep) I have a working branch that fixes these rather confusing identity types,
+	// but for now it's important that it's not .GetIdentity() that's added here,
+	// to make sure we search the entire chain on changes.
+	ctx.AddIdentity(h.LinkRenderer)
 
 	return ast.WalkContinue, err
 }
@@ -308,7 +309,7 @@ func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast
 		},
 	)
 
-	ctx.AddIdentity(h.HeadingRenderer.GetIdentity())
+	ctx.AddIdentity(h.HeadingRenderer)
 
 	return ast.WalkContinue, err
 }

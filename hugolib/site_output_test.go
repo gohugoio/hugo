@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -21,8 +22,6 @@ import (
 	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/spf13/afero"
-
-	"fmt"
 
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/output"
@@ -40,7 +39,6 @@ func TestSiteWithPageOutputs(t *testing.T) {
 }
 
 func doTestSiteWithPageOutputs(t *testing.T, outputs []string) {
-
 	outputsStr := strings.Replace(fmt.Sprintf("%q", outputs), " ", ", ", -1)
 
 	siteConfig := `
@@ -215,7 +213,6 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 
 	b.Assert(home.HasShortcode("myShort"), qt.Equals, true)
 	b.Assert(home.HasShortcode("doesNotExist"), qt.Equals, false)
-
 }
 
 // Issue #3447
@@ -250,9 +247,8 @@ baseName = "feed"
 
 	s := h.Sites[0]
 
-	//Issue #3450
+	// Issue #3450
 	c.Assert(s.Info.RSSLink, qt.Equals, "http://example.com/blog/feed.xml")
-
 }
 
 // Issue #3614
@@ -325,11 +321,9 @@ baseName = "customdelimbase"
 	c.Assert(outputs.Get("DEF").RelPermalink(), qt.Equals, "/blog/defaultdelimbase.defd")
 	c.Assert(outputs.Get("NOS").RelPermalink(), qt.Equals, "/blog/nosuffixbase")
 	c.Assert(outputs.Get("CUS").RelPermalink(), qt.Equals, "/blog/customdelimbase_del")
-
 }
 
 func TestCreateSiteOutputFormats(t *testing.T) {
-
 	t.Run("Basic", func(t *testing.T) {
 		c := qt.New(t)
 
@@ -358,7 +352,6 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 		c.Assert(outputs[kindSitemap], deepEqualsOutputFormats, output.Formats{output.SitemapFormat})
 		c.Assert(outputs[kindRobotsTXT], deepEqualsOutputFormats, output.Formats{output.RobotsTxtFormat})
 		c.Assert(outputs[kind404], deepEqualsOutputFormats, output.Formats{output.HTMLFormat})
-
 	})
 
 	// Issue #4528
@@ -376,9 +369,7 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 		outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
 		c.Assert(err, qt.IsNil)
 		c.Assert(outputs[page.KindTaxonomy], deepEqualsOutputFormats, output.Formats{output.JSONFormat})
-
 	})
-
 }
 
 func TestCreateSiteOutputFormatsInvalidConfig(t *testing.T) {
@@ -432,7 +423,6 @@ func TestCreateSiteOutputFormatsCustomFormats(t *testing.T) {
 
 // https://github.com/gohugoio/hugo/issues/5849
 func TestOutputFormatPermalinkable(t *testing.T) {
-
 	config := `
 baseURL = "https://example.com"
 
@@ -575,7 +565,6 @@ Output Formats: {{ len .OutputFormats }};{{ range .OutputFormats }}{{ .Name }};{
 		"This RelPermalink: /blog/html-base-nobase/",
 		outputFormats,
 	)
-
 }
 
 func TestSiteWithPageNoOutputs(t *testing.T) {
@@ -625,5 +614,4 @@ WordCount: {{ .WordCount }}
 
 	b.AssertFileContent("public/outputs-empty/index.html", "HTML:", "Word1. Word2.")
 	b.AssertFileContent("public/outputs-string/index.html", "O1:", "Word1. Word2.")
-
 }

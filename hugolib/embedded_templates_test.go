@@ -76,5 +76,4 @@ title: My Site
 <meta property="og:image" content="https://example.org/siteimg1.jpg"/>
 <meta itemprop="image" content="https://example.org/siteimg1.jpg"/>
 `)
-
 }

@@ -44,11 +44,14 @@ import (
 // Build builds all sites. If filesystem events are provided,
 // this is considered to be a potential partial rebuild.
 func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
-
 	if h.running {
 		// Make sure we don't trigger rebuilds in parallel.
 		h.runningMu.Lock()
 		defer h.runningMu.Unlock()
+	} else {
+		defer func() {
+			h.Close()
+		}()
 	}
 
 	ctx, task := trace.NewTask(context.Background(), "Build")
@@ -70,7 +73,6 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		to <- h.pickOneAndLogTheRest(errors)
 
 		close(to)
-
 	}(errCollector, errs)
 
 	if h.Metrics != nil {
@@ -186,7 +188,6 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 	}
 
 	return nil
-
 }
 
 // Build lifecycle methods below.
@@ -242,11 +243,9 @@ func (h *HugoSites) process(config *BuildCfg, init func(config *BuildCfg) error,
 	}
 
 	return firstSite.process(*config)
-
 }
 
 func (h *HugoSites) assemble(bcfg *BuildCfg) error {
-
 	if len(h.Sites) > 1 {
 		// The first is initialized during process; initialize the rest
 		for _, site := range h.Sites[1:] {
@@ -269,7 +268,6 @@ func (h *HugoSites) assemble(bcfg *BuildCfg) error {
 	}
 
 	return nil
-
 }
 
 func (h *HugoSites) render(config *BuildCfg) error {
@@ -327,7 +325,6 @@ func (h *HugoSites) render(config *BuildCfg) error {
 			}
 
 		}
-
 	}
 
 	if !config.SkipRender {
@@ -366,7 +363,6 @@ func (h *HugoSites) postProcess() error {
 					b, err := json.MarshalIndent(jsConfig, "", " ")
 					if err != nil {
 						h.Log.Warnf("Failed to create jsconfig.json: %s", err)
-
 					} else {
 						filename := filepath.Join(assetsDir, "jsconfig.json")
 						if h.running {
@@ -400,7 +396,6 @@ func (h *HugoSites) postProcess() error {
 	g, _ := workers.Start(context.Background())
 
 	handleFile := func(filename string) error {
-
 		content, err := afero.ReadFile(h.BaseFs.PublishFs, filename)
 		if err != nil {
 			return err
@@ -443,7 +438,6 @@ func (h *HugoSites) postProcess() error {
 		}
 
 		return nil
-
 	}
 
 	_ = afero.Walk(h.BaseFs.PublishFs, "", func(path string, info os.FileInfo, err error) error {
@@ -468,7 +462,6 @@ func (h *HugoSites) postProcess() error {
 	}
 
 	return g.Wait()
-
 }
 
 type publishStats struct {
@@ -512,5 +505,4 @@ func (h *HugoSites) writeBuildStats() error {
 	}
 
 	return nil
-
 }

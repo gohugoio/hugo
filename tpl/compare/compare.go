@@ -43,7 +43,7 @@ type Namespace struct {
 func (*Namespace) Default(dflt interface{}, given ...interface{}) (interface{}, error) {
 	// given is variadic because the following construct will not pass a piped
 	// argument when the key is missing:  {{ index . "key" | default "foo" }}
-	// The Go template will complain that we got 1 argument when we expectd 2.
+	// The Go template will complain that we got 1 argument when we expected 2.
 
 	if len(given) == 0 {
 		return dflt, nil

@@ -219,7 +219,6 @@ func TestGetTitleFunc(t *testing.T) {
 	c.Assert(GetTitleFunc("ap")(title), qt.Equals, "Somewhere Over the Rainbow")
 	c.Assert(GetTitleFunc("")(title), qt.Equals, "Somewhere Over the Rainbow")
 	c.Assert(GetTitleFunc("unknown")(title), qt.Equals, "Somewhere Over the Rainbow")
-
 }
 
 func BenchmarkReaderContains(b *testing.B) {
@@ -354,7 +353,6 @@ func BenchmarkMD5FromFileFast(b *testing.B) {
 			}
 		})
 	}
-
 }
 
 func BenchmarkUniqueStrings(b *testing.B) {
@@ -406,7 +404,6 @@ func BenchmarkUniqueStrings(b *testing.B) {
 			}
 		}
 	})
-
 }
 
 func TestHashString(t *testing.T) {

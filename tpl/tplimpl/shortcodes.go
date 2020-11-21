@@ -80,7 +80,6 @@ func (s *shortcodeTemplates) fromVariantsSlice(variants []string) (shortcodeVari
 // calculate a weight for two string slices of same length.
 // higher value means "better match".
 func (s *shortcodeTemplates) compareVariants(a, b []string) int {
-
 	weight := 0
 	k := len(a)
 	for i, av := range a {
@@ -101,7 +100,6 @@ func templateVariants(name string) []string {
 }
 
 func templateNameAndVariants(name string) (string, []string) {
-
 	variants := make([]string, numTemplateVariants)
 
 	parts := strings.Split(name, ".")

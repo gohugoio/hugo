@@ -69,7 +69,6 @@ simple = true
 	}
 
 	c.Assert(got, qt.All(qt.Equals), true)
-
 }
 
 func TestDecodeConfigFromTOMLCaseInsensitive(t *testing.T) {

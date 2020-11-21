@@ -274,7 +274,6 @@ func TestRealDirs(t *testing.T) {
 	c.Assert(realDirs[len(realDirs)-1], qt.Equals, filepath.Join(themesDir, "mytheme/assets/scss"))
 
 	c.Assert(bfs.theBigFs, qt.Not(qt.IsNil))
-
 }
 
 func TestStaticFs(t *testing.T) {
@@ -305,7 +304,6 @@ func TestStaticFs(t *testing.T) {
 	sfs := bfs.StaticFs("en")
 	checkFileContent(sfs, "f1.txt", c, "Hugo Rocks!")
 	checkFileContent(sfs, "f2.txt", c, "Hugo Themes Still Rocks!")
-
 }
 
 func TestStaticFsMultiHost(t *testing.T) {
@@ -402,7 +400,6 @@ func TestMakePathRelative(t *testing.T) {
 	c.Assert(makeRel(filepath.Join(workDir, "dist", "d1", "foo.txt")), qt.Equals, filepath.FromSlash("mydist/d1/foo.txt"))
 	c.Assert(makeRel(filepath.Join(workDir, "static", "d2", "foo.txt")), qt.Equals, filepath.FromSlash("d2/foo.txt"))
 	c.Assert(makeRel(filepath.Join(workDir, "dust", "d3", "foo.txt")), qt.Equals, filepath.FromSlash("foo/bar/d3/foo.txt"))
-
 }
 
 func checkFileCount(fs afero.Fs, dirname string, c *qt.C, expected int) {
@@ -412,7 +409,6 @@ func checkFileCount(fs afero.Fs, dirname string, c *qt.C, expected int) {
 }
 
 func checkFileContent(fs afero.Fs, filename string, c *qt.C, expected ...string) {
-
 	b, err := afero.ReadFile(fs, filename)
 	c.Assert(err, qt.IsNil)
 

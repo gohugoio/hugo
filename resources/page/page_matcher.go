@@ -41,7 +41,6 @@ type PageMatcher struct {
 
 // Matches returns whether p matches this matcher.
 func (m PageMatcher) Matches(p Page) bool {
-
 	if m.Kind != "" {
 		g, err := glob.GetGlob(m.Kind)
 		if err == nil && !g.Match(p.Kind()) {
@@ -87,5 +86,4 @@ func DecodePageMatcher(m interface{}, v *PageMatcher) error {
 	v.Path = filepath.ToSlash(strings.ToLower(v.Path))
 
 	return nil
-
 }

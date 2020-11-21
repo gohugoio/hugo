@@ -42,12 +42,14 @@ var (
 		"rest", "rst",
 		"mmark",
 		"org",
-		"pandoc", "pdc"}
+		"pandoc", "pdc",
+	}
 
 	contentFileExtensionsSet map[string]bool
 
 	htmlFileExtensions = []string{
-		"html", "htm"}
+		"html", "htm",
+	}
 
 	htmlFileExtensionsSet map[string]bool
 )

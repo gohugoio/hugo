@@ -20,14 +20,12 @@ import (
 )
 
 func TestShortcodesTemplate(t *testing.T) {
-
 	t.Run("isShortcode", func(t *testing.T) {
 		c := qt.New(t)
 		c.Assert(isShortcode("shortcodes/figures.html"), qt.Equals, true)
 		c.Assert(isShortcode("_internal/shortcodes/figures.html"), qt.Equals, true)
 		c.Assert(isShortcode("shortcodes\\figures.html"), qt.Equals, false)
 		c.Assert(isShortcode("myshortcodes"), qt.Equals, false)
-
 	})
 
 	t.Run("variantsFromName", func(t *testing.T) {
@@ -40,7 +38,6 @@ func TestShortcodesTemplate(t *testing.T) {
 		name, variants := templateNameAndVariants("figure.html")
 		c.Assert(name, qt.Equals, "figure")
 		c.Assert(variants, qt.DeepEquals, []string{"", "html", "html"})
-
 	})
 
 	t.Run("compareVariants", func(t *testing.T) {
@@ -65,7 +62,6 @@ func TestShortcodesTemplate(t *testing.T) {
 			w := s.compareVariants(templateVariants(test.name1), templateVariants(test.name2))
 			c.Assert(w, qt.Equals, test.expected)
 		}
-
 	})
 
 	t.Run("indexOf", func(t *testing.T) {
@@ -81,7 +77,6 @@ func TestShortcodesTemplate(t *testing.T) {
 		c.Assert(s.indexOf([]string{"a", "b", "c"}), qt.Equals, 0)
 		c.Assert(s.indexOf([]string{"a", "b", "d"}), qt.Equals, 1)
 		c.Assert(s.indexOf([]string{"a", "b", "x"}), qt.Equals, -1)
-
 	})
 
 	t.Run("Name", func(t *testing.T) {
@@ -92,6 +87,5 @@ func TestShortcodesTemplate(t *testing.T) {
 		c.Assert(templateBaseName(templateShortcode, "shortcodes/test/foo.html"), qt.Equals, "test/foo.html")
 
 		c.Assert(true, qt.Equals, true)
-
 	})
 }

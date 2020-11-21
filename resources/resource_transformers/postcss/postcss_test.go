@@ -44,7 +44,6 @@ func TestDecodeOptions(t *testing.T) {
 
 	c.Assert(err, qt.IsNil)
 	c.Assert(opts2.NoMap, qt.Equals, true)
-
 }
 
 func TestShouldImport(t *testing.T) {
@@ -117,7 +116,6 @@ E_STYLE
 		Offset:   1,
 		Filename: "d.css",
 	})
-
 }
 
 func BenchmarkImportResolver(b *testing.B) {

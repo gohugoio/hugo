@@ -104,7 +104,7 @@ func (p Pages) Len() int {
 	return len(p)
 }
 
-// ProbablyEq wraps comare.ProbablyEqer
+// ProbablyEq wraps compare.ProbablyEqer
 func (pages Pages) ProbablyEq(other interface{}) bool {
 	otherPages, ok := other.(Pages)
 	if !ok {

@@ -16,10 +16,11 @@ package babel
 import (
 	"bytes"
 	"io"
-	"os/exec"
 	"path/filepath"
 	"strconv"
 
+	"github.com/cli/safeexec"
+	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/gohugoio/hugo/common/hugo"
@@ -51,6 +52,7 @@ func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
 	err = mapstructure.WeakDecode(m, &opts)
 	return
 }
+
 func (opts Options) toArgs() []string {
 	var args []string
 
@@ -107,11 +109,10 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 
 	binary := csiBinPath
 
-	if _, err := exec.LookPath(binary); err != nil {
+	if _, err := safeexec.LookPath(binary); err != nil {
 		// Try PATH
 		binary = binaryName
-		if _, err := exec.LookPath(binary); err != nil {
-
+		if _, err := safeexec.LookPath(binary); err != nil {
 			// This may be on a CI server etc. Will fall back to pre-built assets.
 			return herrors.ErrFeatureNotAvailable
 		}
@@ -131,11 +132,11 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 
 	configFile = filepath.Clean(configFile)
 
-	// We need an abolute filename to the config file.
+	// We need an absolute filename to the config file.
 	if !filepath.IsAbs(configFile) {
 		configFile = t.rs.BaseFs.ResolveJSConfigFile(configFile)
 		if configFile == "" && t.options.Config != "" {
-			// Only fail if the user specificed config file is not found.
+			// Only fail if the user specified config file is not found.
 			return errors.Errorf("babel config %q not found:", configFile)
 		}
 	}
@@ -152,7 +153,10 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	}
 	cmdArgs = append(cmdArgs, "--filename="+ctx.SourcePath)
 
-	cmd := exec.Command(binary, cmdArgs...)
+	cmd, err := hexec.SafeCommand(binary, cmdArgs...)
+	if err != nil {
+		return err
+	}
 
 	cmd.Stdout = ctx.To
 	cmd.Stderr = io.MultiWriter(infoW, &errBuf)

@@ -16,23 +16,24 @@ package commands
 import (
 	"bytes"
 	"errors"
+	"io/ioutil"
+	"os"
+	"path"
+	"path/filepath"
+	"regexp"
 	"sync"
+	"time"
 
 	hconfig "github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/modules"
 
 	"golang.org/x/sync/semaphore"
-
-	"io/ioutil"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugo"
 
 	jww "github.com/spf13/jwalterweatherman"
-
-	"os"
-	"path/filepath"
-	"regexp"
-	"time"
 
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
@@ -87,6 +88,7 @@ type commandeer struct {
 	languagesConfigured bool
 	languages           langs.Languages
 	doLiveReload        bool
+	renderTo            hconfig.RenderDest
 	fastRenderMode      bool
 	showErrorInBrowser  bool
 	wasError            bool
@@ -156,7 +158,6 @@ func (c *commandeer) initFs(fs *hugofs.Fs) error {
 }
 
 func newCommandeer(mustHaveConfigFile, running bool, h *hugoBuilderCommon, f flagsToConfigHandler, cfgInit func(c *commandeer) error, subCmdVs ...*cobra.Command) (*commandeer, error) {
-
 	var rebuildDebouncer func(f func())
 	if running {
 		// The time value used is tested with mass content replacements in a fairly big Hugo site.
@@ -248,7 +249,6 @@ func (f *fileChangeDetector) PrepareNew() {
 }
 
 func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
-
 	if c.DepsCfg == nil {
 		c.DepsCfg = &deps.DepsCfg{}
 	}
@@ -277,7 +277,6 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 	environment := c.h.getEnvironment(running)
 
 	doWithConfig := func(cfg config.Provider) error {
-
 		if c.ftch != nil {
 			c.ftch.flagsToConfig(cfg)
 		}
@@ -309,7 +308,8 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 			Filename:     c.h.cfgFile,
 			AbsConfigDir: c.h.getConfigDir(dir),
 			Environ:      os.Environ(),
-			Environment:  environment},
+			Environment:  environment,
+		},
 		cfgSetAndInit,
 		doWithConfig)
 
@@ -351,10 +351,31 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		return err
 	}
 
-	createMemFs := config.GetBool("renderToMemory")
+	if config.GetBool("renderToDisk") {
+		jww.WARN.Println(`renderToDisk is explicitly set. this overrides "renderTo" with "disk"`)
+		config.Set("renderTo", hconfig.RenderDestDisk)
+	}
 
-	if createMemFs {
-		// Rendering to memoryFS, publish to Root regardless of publishDir.
+	if config.GetBool("renderToMemory") {
+		jww.WARN.Println(`renderToMemory is explicitly set. this overrides "renderTo" with "memory"`)
+		config.Set("renderTo", hconfig.RenderDestMemory)
+	}
+
+	dest := hconfig.RenderDestFrom(c.Cfg.GetString("renderTo"))
+
+	// set default renderDest
+	if dest == hconfig.RenderDestUnset {
+		if running {
+			dest = hconfig.RenderDestMemory
+		} else {
+			dest = hconfig.RenderDestDisk
+		}
+	}
+
+	c.renderTo = dest
+
+	if dest == hconfig.RenderDestMemory || dest == hconfig.RenderDestComposite {
+		// Render mode is memory or composite, publish to Root regardless of publishDir.
 		config.Set("publishDir", "/")
 	}
 
@@ -364,9 +385,14 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		if c.destinationFs != nil {
 			// Need to reuse the destination on server rebuilds.
 			fs.Destination = c.destinationFs
-		} else if createMemFs {
+		} else if dest == hconfig.RenderDestMemory {
 			// Hugo writes the output to memory instead of the disk.
 			fs.Destination = new(afero.MemMapFs)
+		} else if dest == hconfig.RenderDestComposite {
+			// Writes the dynamic output on memory,
+			// while serve directly from static dir on os fs.
+			modss := config.Get("allModules").(modules.Modules)
+			fs.Destination = newCompositeDestFs(modss)
 		}
 
 		if c.fastRenderMode {
@@ -389,7 +415,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		}
 
 		// To debug hard-to-find path issues.
-		//fs.Destination = hugofs.NewStacktracerFs(fs.Destination, `fr/fr`)
+		// fs.Destination = hugofs.NewStacktracerFs(fs.Destination, `fr/fr`)
 
 		err = c.initFs(fs)
 		if err != nil {
@@ -402,7 +428,6 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		h, err = hugolib.NewHugoSites(*c.DepsCfg)
 		c.hugoSites = h
 		close(c.created)
-
 	})
 
 	if err != nil {
@@ -418,5 +443,41 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 	cfg.Logger.Infoln("Using config file:", config.ConfigFileUsed())
 
 	return nil
+}
 
+func newCompositeDestFs(mods modules.Modules) afero.Fs {
+	writableFs := afero.NewMemMapFs()
+	pred := func(filename string) bool {
+		return !files.IsContentFile(filename)
+	}
+
+	// reversed order
+	for i := len(mods) - 1; i >= 0; i-- {
+		mod := mods[i]
+
+		baseDir := mod.Dir()
+		mounts := mod.Mounts()
+
+		// reversed order
+		for j := len(mounts) - 1; j >= 0; j-- {
+			mount := mounts[j]
+			if mount.Target != files.ComponentFolderContent &&
+				mount.Target != files.ComponentFolderStatic {
+				continue
+			}
+
+			targetStaticDir := path.Join(baseDir, mount.Source)
+			base := afero.NewBasePathFs(afero.NewOsFs(), targetStaticDir)
+
+			if mount.Target == files.ComponentFolderContent {
+				base = hugofs.NewFilenameFilterFs(base, pred)
+			}
+
+			readonlyFs := afero.NewReadOnlyFs(base)
+			writableFs = afero.NewCopyOnWriteFs(readonlyFs, writableFs)
+
+		}
+	}
+
+	return writableFs
 }

@@ -9,9 +9,7 @@ images:
 
 ---
 
-	
-
-This is a bug-fix release with a couple of important fixes.
+The main fix in this release is that of dependency resolution for package.json/node_modules in theme components. See [the documentation](https://gohugo.io/hugo-pipes/js/#include-dependencies-in-packagejson--node_modules) for more information.
 
 * Disable NPM test on Travis on Windows [3437174c](https://github.com/gohugoio/hugo/commit/3437174c3a7b96925b82b351ac87530b4fa796a5) [@bep](https://github.com/bep) 
 * travis: Install nodejs on Windows [f66302ca](https://github.com/gohugoio/hugo/commit/f66302ca0579171ffd1730eb8f33dd05af3d9a00) [@bep](https://github.com/bep) 

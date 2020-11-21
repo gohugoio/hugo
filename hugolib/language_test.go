@@ -24,7 +24,6 @@ import (
 )
 
 func TestI18n(t *testing.T) {
-
 	c := qt.New(t)
 
 	//https://github.com/gohugoio/hugo/issues/7804

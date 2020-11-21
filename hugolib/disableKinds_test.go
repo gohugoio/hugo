@@ -13,9 +13,8 @@
 package hugolib
 
 import (
-	"testing"
-
 	"fmt"
+	"testing"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/resources/page"
@@ -100,7 +99,6 @@ title: Headless Local Lists Sub
 		b.WithSourceFile("content/sect/no-publishresources/data.json", "DATA")
 
 		return b
-
 	}
 
 	getPage := func(b *sitesBuilder, ref string) page.Page {
@@ -210,7 +208,6 @@ title: Headless Local Lists Sub
 		b.Assert(getPageInPagePages(sect, "/sect/page.md"), qt.Not(qt.IsNil))
 		b.AssertFileContent("public/sitemap.xml", "sitemap")
 		b.AssertFileContent("public/index.xml", "rss")
-
 	})
 
 	disableKind = kindRSS
@@ -269,7 +266,6 @@ title: Headless Local Lists Sub
 		b.Assert(getPageInSitePages(b, ref), qt.IsNil)
 		sect := getPage(b, "/sect")
 		b.Assert(getPageInPagePages(sect, ref), qt.IsNil)
-
 	})
 
 	c.Run("Build config, local list", func(c *qt.C) {
@@ -356,7 +352,6 @@ home = [ "HTML", "RSS" ]
 	// In Hugo 0.65 we consolidated the code paths and made RSS a pure output format,
 	// but we should make sure to not break existing sites.
 	b.Assert(b.CheckExists("public/index.xml"), qt.Equals, false)
-
 }
 
 func TestBundleNoPublishResources(t *testing.T) {
@@ -419,5 +414,4 @@ Section: MySection|RelPermalink: |Outputs: 0
 
 	b.Assert(b.CheckExists("public/sect/no-render/index.html"), qt.Equals, false)
 	b.Assert(b.CheckExists("public/sect-no-render/index.html"), qt.Equals, false)
-
 }

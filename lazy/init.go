@@ -111,7 +111,6 @@ func (ini *Init) Do() (interface{}, error) {
 	ini.wait()
 
 	return ini.out, ini.err
-
 }
 
 // TODO(bep) investigate if we can use sync.Cond for this.
@@ -189,7 +188,6 @@ func (ini *Init) withTimeout(timeout time.Duration, f func(ctx context.Context) 
 	case ve := <-c:
 		return ve.v, ve.err
 	}
-
 }
 
 type verr struct {

@@ -29,7 +29,7 @@ import (
 
 // New returns a new instance of the openapi3-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
-	// TODO1 consolidate when merging that "other branch" -- but be aware of the keys.
+	// TODO(bep) consolidate when merging that "other branch" -- but be aware of the keys.
 	cache := namedmemcache.New()
 	deps.BuildStartListeners.Add(
 		func() {
@@ -49,7 +49,6 @@ type Namespace struct {
 }
 
 func (ns *Namespace) Unmarshal(r resource.UnmarshableResource) (*kopenapi3.Swagger, error) {
-
 	key := r.Key()
 	if key == "" {
 		return nil, errors.New("no Key set in Resource")
@@ -87,11 +86,9 @@ func (ns *Namespace) Unmarshal(r resource.UnmarshableResource) (*kopenapi3.Swagg
 
 		return s, err
 	})
-
 	if err != nil {
 		return nil, err
 	}
 
 	return v.(*kopenapi3.Swagger), nil
-
 }

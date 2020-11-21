@@ -131,8 +131,8 @@ func (b *tocBuilder) writeHeaders(level, indent int, h Headers) {
 		b.s.WriteString("\n")
 		b.indent(indent)
 	}
-
 }
+
 func (b *tocBuilder) writeHeader(level, indent int, h Header) {
 	b.indent(indent)
 	b.s.WriteString("<li>")

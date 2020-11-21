@@ -16,10 +16,9 @@ package output
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"sort"
 	"strings"
-
-	"reflect"
 
 	"github.com/mitchellh/mapstructure"
 
@@ -200,7 +199,6 @@ func (formats Formats) Less(i, j int) bool {
 	}
 
 	return fi.Weight > 0 && fi.Weight < fj.Weight
-
 }
 
 // GetBySuffix gets a output format given as suffix, e.g. "html".

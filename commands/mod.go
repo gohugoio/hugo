@@ -91,7 +91,6 @@ Also note that if you configure a positive maxAge for the "modules" file cache, 
 }
 
 func (b *commandsBuilder) newModCmd() *modCmd {
-
 	c := &modCmd{}
 
 	const commonUsage = `
@@ -264,7 +263,6 @@ If a module is vendored, that is where Hugo will look for it's dependencies.
 	c.baseBuilderCmd = b.newBuilderCmd(cmd)
 
 	return c
-
 }
 
 func (c *modCmd) withModsClient(failOnMissingConfig bool, f func(*modules.Client) error) error {

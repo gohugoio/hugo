@@ -85,6 +85,8 @@ type Options struct {
 	// is in widespread use.
 	//
 	// See https://bugs.webkit.org/show_bug.cgi?id=199866
+	// Deprecated: This no longer have any effect and will be removed.
+	// TODO(bep) remove. See https://github.com/evanw/esbuild/commit/869e8117b499ca1dbfc5b3021938a53ffe934dba
 	AvoidTDZ bool
 
 	mediaType  media.Type
@@ -210,12 +212,10 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 			build.OnResolve(api.OnResolveOptions{Filter: `.*`},
 				func(args api.OnResolveArgs) (api.OnResolveResult, error) {
 					return resolveImport(args)
-
 				})
 			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: nsImportHugo},
 				func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 					b, err := ioutil.ReadFile(args.Path)
-
 					if err != nil {
 						return api.OnLoadResult{}, errors.Wrapf(err, "failed to read %q", args.Path)
 					}
@@ -264,11 +264,9 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 	}
 
 	return []api.Plugin{importResolver, paramsPlugin}, nil
-
 }
 
 func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
-
 	var target api.Target
 	switch opts.Target {
 	case "", "esnext":
@@ -334,8 +332,8 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 	}
 
 	// By default we only need to specify outDir and no outFile
-	var outDir = opts.outDir
-	var outFile = ""
+	outDir := opts.outDir
+	outFile := ""
 	var sourceMap api.SourceMap
 	switch opts.SourceMap {
 	case "inline":
@@ -379,5 +377,4 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 		},
 	}
 	return
-
 }

@@ -20,7 +20,6 @@ import (
 )
 
 func newModNPMCmd(c *modCmd) *cobra.Command {
-
 	cmd := &cobra.Command{
 		Use:   "npm",
 		Short: "Various npm helpers.",
@@ -47,7 +46,6 @@ removed from Hugo, but we need to test this out in "real life" to get a feel of 
 so this may/will change in future versions of Hugo.
 `,
 		RunE: func(cmd *cobra.Command, args []string) error {
-
 			return c.withHugo(func(h *hugolib.HugoSites) error {
 				return npm.Pack(h.BaseFs.SourceFs, h.BaseFs.Assets.Dirs)
 			})

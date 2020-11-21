@@ -81,7 +81,6 @@ func (ns *Namespace) getRemote(cache *filecache.Cache, unmarshal func([]byte) (b
 		}
 
 		return nil, err
-
 	})
 
 	if !handled {
@@ -100,7 +99,6 @@ func getLocal(url string, fs afero.Fs, cfg config.Provider) ([]byte, error) {
 	}
 
 	return afero.ReadFile(fs, filename)
-
 }
 
 // getResource loads the content of a local or remote file and returns its content and the

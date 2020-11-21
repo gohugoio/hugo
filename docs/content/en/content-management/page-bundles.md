@@ -2,7 +2,6 @@
 title : "Page Bundles"
 description : "Content organization using Page Bundles"
 date : 2018-01-24T13:09:00-05:00
-lastmod : 2018-01-28T22:26:40-05:00
 linktitle : "Page Bundles"
 keywords : ["page", "bundle", "leaf", "branch"]
 categories : ["content management"]
@@ -186,4 +185,4 @@ The hierarchy depth at which a branch bundle is created does not
 matter.
 {{% /note %}}
 
-[^fn:1]: The `.md` extension is just an example. The extension can be `.html`, `.json` or any of any valid MIME type.
+[^fn:1]: The `.md` extension is just an example. The extension can be `.html`, `.json` or any valid MIME type.
