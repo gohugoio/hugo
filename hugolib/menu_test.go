@@ -267,3 +267,53 @@ menu:
 
 	b.AssertFileContent("public/index.html", "A|Children:C|B|")
 }
+
+func TestMenuParams(t *testing.T) {
+
+	b := newTestSitesBuilder(t).WithSimpleConfigFile()
+
+	b.WithTemplatesAdded("index.html", `
+Main: {{ len .Site.Menus.main }}
+{{ range .Site.Menus.main }}
+* Main|{{ .Name }}: {{ .URL }}|{{ .Params }}
+{{ end }}
+`)
+
+	b.WithContent("blog/page1.md", `
+---
+title: "P1"
+menu: main
+---
+
+`)
+
+	b.WithContent("blog/page2.md", `
+---
+title: "P2"
+menu: main
+---
+
+`)
+
+	b.WithContent("blog/page3.md", `
+---
+title: "P3"
+menu:
+  main:
+    weight: 30
+    params:
+      foo: "bar"
+      key2: "value2"
+---
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html",
+		"Main: 3",
+		"Main|P3: /blog/page3/|map[foo:bar key2:value2]",
+		"Main|P1: /blog/page1/|map[]",
+		"Main|P2: /blog/page2/|map[]",
+	)
+
+}
