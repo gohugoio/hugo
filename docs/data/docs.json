@@ -122,6 +122,7 @@
           "bashrc",
           "ebuild",
           "eclass",
+          "env",
           "exheres-0",
           "exlib",
           "ksh",
@@ -975,6 +976,12 @@
         ]
       },
       {
+        "Name": "PromQL",
+        "Aliases": [
+          "promql"
+        ]
+      },
+      {
         "Name": "Protocol Buffer",
         "Aliases": [
           "proto",
@@ -1186,6 +1193,13 @@
           "fun",
           "sig",
           "sml"
+        ]
+      },
+      {
+        "Name": "Stylus",
+        "Aliases": [
+          "styl",
+          "stylus"
         ]
       },
       {
