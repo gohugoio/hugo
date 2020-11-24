@@ -134,8 +134,8 @@ github.com/dustin/go-humanize v1.0.0/go.mod h1:HtrtbFcZ19U5GC7JDqmcUSB87Iq5E25Kn
 github.com/eapache/go-resiliency v1.1.0/go.mod h1:kFI+JgMyC7bLPUVY133qvEBtVayf5mFgVsvEsIPBvNs=
 github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21/go.mod h1:+020luEh2TKB4/GOp8oxxtq0Daoen/Cii55CzbTV6DU=
 github.com/eapache/queue v1.1.0/go.mod h1:6eCeP0CKFpHLu8blIFXhExK/dRa7WDZfr6jVFPTqq+I=
-github.com/evanw/esbuild v0.8.11 h1:sfs2i0c6oh3eiBCh1a6SLBZmybV5xVxs8obXi0qHyQU=
-github.com/evanw/esbuild v0.8.11/go.mod h1:y2AFBAGVelPqPodpdtxWWqe6n2jYf5FrsJbligmRmuw=
+github.com/evanw/esbuild v0.8.13 h1:W1bAEt9B91Si5koq5T19IIq6z1Gr/ybigj9dKWFmFkM=
+github.com/evanw/esbuild v0.8.13/go.mod h1:y2AFBAGVelPqPodpdtxWWqe6n2jYf5FrsJbligmRmuw=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fortytw2/leaktest v1.2.0 h1:cj6GCiwJDH7l3tMHLjZDo0QqPtrXJiWSI9JgpeQKw+Q=
 github.com/fortytw2/leaktest v1.2.0/go.mod h1:jDsjWgpAGjm2CA7WthBh/CdZYEPF31XHquHwclZch5g=
