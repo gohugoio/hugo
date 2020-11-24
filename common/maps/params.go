@@ -84,7 +84,7 @@ func GetNestedParam(keyStr, separator string, candidates ...Params) (interface{}
 }
 
 func GetNestedParamFn(keyStr, separator string, lookupFn func(key string) interface{}) (interface{}, string, map[string]interface{}, error) {
-	keySegments := strings.Split(strings.ToLower(keyStr), separator)
+	keySegments := strings.Split(keyStr, separator)
 	if len(keySegments) == 0 {
 		return nil, "", nil, nil
 	}
