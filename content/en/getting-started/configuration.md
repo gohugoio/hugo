@@ -427,6 +427,8 @@ Names must be prefixed with `HUGO_` and the configuration key must be set in upp
 To set config params, prefix the name with `HUGO_PARAMS_`
 {{% /note %}}
 
+{{< new-in "0.79.0" >}} If you are using snake_cased variable names, the above will not work, so since Hugo 0.79.0 Hugo determines the delimiter to use by the first character after `HUGO`. This allows you to define environment variables on the form `HUGOxPARAMSxAPI_KEY=abcdefgh`, using any [allowed](https://stackoverflow.com/questions/2821043/allowed-characters-in-linux-environment-variable-names#:~:text=So%20names%20may%20contain%20any,not%20begin%20with%20a%20digit.) delimiter.
+
 {{< todo >}}
 Test and document setting params via JSON env var.
 {{< /todo >}}
