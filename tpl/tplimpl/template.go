@@ -224,7 +224,9 @@ func (t *templateExec) Execute(templ tpl.Template, wr io.Writer, data interface{
 		defer t.Metrics.MeasureSince(templ.Name(), time.Now())
 	}
 
-	t.d.Log.Debug().Printf("Execute template: %q", templ.Name())
+	if t.d.Cfg.GetBool("debug") {
+		t.d.Log.Debug().Printf("Execute template: %q", templ.Name())
+	}
 	execErr := t.executor.Execute(templ, wr, data)
 	if execErr != nil {
 		execErr = t.addFileContext(templ, execErr)
