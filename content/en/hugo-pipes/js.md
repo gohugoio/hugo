@@ -102,7 +102,7 @@ For other files (e.g. `JSON`, `CSS`) you need to use the relative path including
 import * as data from 'my/module/data.json';
 ```
 
-Any imports not matching any component in `/assets` will be resolved by ESBuild with the **project directory** as the resolve directory (used as the starting point when looking for `node_modules` etc.). Also see [hugo mod npm pack](/commands/hugo_mod_npm_pack/).
+Any imports in a file outside `/assets` or that does not resolve to a component inside `/assets` will be resolved by [ESBuild](https://esbuild.github.io/) with the **project directory** as the resolve directory (used as the starting point when looking for `node_modules` etc.). Also see [hugo mod npm pack](/commands/hugo_mod_npm_pack/).  If you have any imported NPM dependencies in your project, you need to make sure to run `npm install` before you run `hugo`.
 
 Also note the new `params` option that can be passed from template to your JS files, e.g.:
 
@@ -121,7 +121,7 @@ Hugo will, by default, generate a `assets/jsconfig.js` file that maps the import
 
 ### Include Dependencies In package.json / node_modules
 
-Hugo will, as described above, first look for a JS component in the comosite `/assets` filesystem. If not found there, it will fall back to [ESBuild](https://esbuild.github.io/)'s resolve order. If you have any imported NPM dependencies in your project, you need to make sure to run `npm install` before you run `hugo`.
+Any imports in a file outside `/assets` or that does not resolve to a component inside `/assets` will be resolved by [ESBuild](https://esbuild.github.io/) with the **project directory** as the resolve directory (used as the starting point when looking for `node_modules` etc.). Also see [hugo mod npm pack](/commands/hugo_mod_npm_pack/).  If you have any imported NPM dependencies in your project, you need to make sure to run `npm install` before you run `hugo`.
 
 {{< new-in "0.78.1" >}} From Hugo `0.78.1` the start directory for resolving NPM packages (aka. packages that live inside a `node_modules` folder) is always the main project folder.
 
