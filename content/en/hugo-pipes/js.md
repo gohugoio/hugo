@@ -123,7 +123,7 @@ Hugo will, as described above, first look for a JS component in the comosite `/a
 
 {{< new-in "0.78.1" >}} From Hugo `0.78.1` the start directory for resolving NPM packages (aka. packages that live inside a `node_modules` folder) is always the main project folder.
 
-**Note:** If you're developing a theme/component that is supposed to be imported and depends on dependencies inside `package.json`, we recommend reqading about [hugo mod npm pack](/commands/hugo_mod_npm_pack/), a tool to consolidate all the NPM dependencies in a project.
+**Note:** If you're developing a theme/component that is supposed to be imported and depends on dependencies inside `package.json`, we recommend reading about [hugo mod npm pack](/commands/hugo_mod_npm_pack/), a tool to consolidate all the NPM dependencies in a project.
 
 
 ### Examples
