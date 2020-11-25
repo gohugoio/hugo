@@ -102,6 +102,8 @@ For other files (e.g. `JSON`, `CSS`) you need to use the relative path including
 import * as data from 'my/module/data.json';
 ```
 
+Any imports not matching any component in `/assets` will be resolved by ESBuild with the **project directory** as the resolve directory (used as the starting point when looking for `node_modules` etc.). Also see [hugo mod npm pack](/commands/hugo_mod_npm_pack/).
+
 Also note the new `params` option that can be passed from template to your JS files, e.g.:
 
 ```go-html-template
