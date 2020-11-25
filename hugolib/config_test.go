@@ -492,6 +492,11 @@ intSlice = [5,7,9]
 floatSlice = [3.14, 5.19]
 stringSlice = ["a", "b"]
 
+[params]
+[params.api_config]
+api_key="default_key"
+another_key="default another_key"
+
 [imaging]
 anchor = "smart"
 quality = 75 
@@ -508,6 +513,10 @@ quality = 75
 		"HUGO_STRINGSLICE", `["c", "d"]`,
 		"HUGO_INTSLICE", `[5, 8, 9]`,
 		"HUGO_FLOATSLICE", `[5.32]`,
+		// https://github.com/gohugoio/hugo/issues/7829
+		"HUGOxPARAMSxAPI_CONFIGxAPI_KEY", "new_key",
+		// Delimiters are case sensitive.
+		"HUGOxPARAMSxAPI_CONFIGXANOTHER_KEY", "another_key",
 	)
 
 	b.Build(BuildCfg{})
@@ -523,5 +532,7 @@ quality = 75
 	c.Assert(cfg.Get("stringSlice"), qt.DeepEquals, []interface{}{"c", "d"})
 	c.Assert(cfg.Get("floatSlice"), qt.DeepEquals, []interface{}{5.32})
 	c.Assert(cfg.Get("intSlice"), qt.DeepEquals, []interface{}{5, 8, 9})
+	c.Assert(cfg.Get("params.api_config.api_key"), qt.Equals, "new_key")
+	c.Assert(cfg.Get("params.api_config.another_key"), qt.Equals, "default another_key")
 
 }

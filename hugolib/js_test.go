@@ -133,7 +133,7 @@ TS: {{ template "print" $ts }}
 	b.AssertFileContent("public/index.html", `
 console.log(&#34;included&#34;);
 if (hasSpace.test(string))
-const React = __toModule(require(&#34;react&#34;));
+var React = __toModule(require(&#34;react&#34;));
 function greeter(person) {
 `)
 

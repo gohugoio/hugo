@@ -85,6 +85,8 @@ type Options struct {
 	// is in widespread use.
 	//
 	// See https://bugs.webkit.org/show_bug.cgi?id=199866
+	// Deprecated: This no longer have any effect and will be removed.
+	// TODO(bep) remove. See https://github.com/evanw/esbuild/commit/869e8117b499ca1dbfc5b3021938a53ffe934dba
 	AvoidTDZ bool
 
 	mediaType  media.Type
