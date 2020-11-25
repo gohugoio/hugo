@@ -1661,7 +1661,7 @@ func (s *Site) lookupLayouts(layouts ...string) tpl.Template {
 }
 
 func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath string, d interface{}, templ tpl.Template) error {
-	s.Log.Debug().Printf("Render XML for %q to %q", name, targetPath)
+	s.Log.Debug().Printf("Render XML (template %s) for %s to %q", templ.Name(), name, targetPath)
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 
@@ -1683,7 +1683,7 @@ func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath st
 }
 
 func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath string, p *pageState, templ tpl.Template) error {
-	s.Log.Debug().Printf("Render %s to %q", name, targetPath)
+	s.Log.Debug().Printf("Render %s (template %s) to %q", name, templ.Name(), targetPath)
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 
