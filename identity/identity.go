@@ -64,11 +64,16 @@ type Identity interface {
 
 // Manager manages identities, and is itself a Provider of Identity.
 type Manager interface {
-	IdentitiesProvider
-	Provider
+	SearchProvider
 	Add(ids ...Provider)
-	Search(id Identity) Provider
 	Reset()
+}
+
+// SearchProvider provides access to the chained set of identities.
+type SearchProvider interface {
+	Provider
+	IdentitiesProvider
+	Search(id Identity) Provider
 }
 
 // A PathIdentity is a common identity identified by a type and a path, e.g. "layouts" and "_default/single.html".

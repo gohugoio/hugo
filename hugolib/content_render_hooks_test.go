@@ -20,6 +20,43 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
+func TestRenderHookEditNestedPartial(t *testing.T) {
+	config := `
+baseURL="https://example.org"
+workingDir="/mywork"
+`
+	b := newTestSitesBuilder(t).WithWorkingDir("/mywork").WithConfigFile("toml", config).Running()
+
+	b.WithTemplates("_default/single.html", "{{ .Content }}")
+	b.WithTemplates("partials/mypartial1.html", `PARTIAL1 {{ partial "mypartial2.html" }}`)
+	b.WithTemplates("partials/mypartial2.html", `PARTIAL2`)
+	b.WithTemplates("_default/_markup/render-link.html", `Link {{ .Text | safeHTML }}|{{ partial "mypartial1.html" . }}END`)
+
+	b.WithContent("p1.md", `---
+title: P1
+---
+
+[First Link](https://www.google.com "Google's Homepage")
+
+`)
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/p1/index.html", `Link First Link|PARTIAL1 PARTIAL2END`)
+
+	b.EditFiles("layouts/partials/mypartial1.html", `PARTIAL1_EDITED {{ partial "mypartial2.html" }}`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/p1/index.html", `Link First Link|PARTIAL1_EDITED PARTIAL2END`)
+
+	b.EditFiles("layouts/partials/mypartial2.html", `PARTIAL2_EDITED`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/p1/index.html", `Link First Link|PARTIAL1_EDITED PARTIAL2_EDITEDEND`)
+
+}
+
 func TestRenderHooks(t *testing.T) {
 	config := `
 baseURL="https://example.org"

@@ -409,7 +409,7 @@ func (p *pageState) createRenderHooks(f output.Format) (*hooks.Renderers, error)
 	if templFound {
 		renderers.LinkRenderer = hookRenderer{
 			templateHandler: p.s.Tmpl(),
-			Provider:        templ.(tpl.Info),
+			SearchProvider:  templ.(identity.SearchProvider),
 			templ:           templ,
 		}
 	}
@@ -422,7 +422,7 @@ func (p *pageState) createRenderHooks(f output.Format) (*hooks.Renderers, error)
 	if templFound {
 		renderers.ImageRenderer = hookRenderer{
 			templateHandler: p.s.Tmpl(),
-			Provider:        templ.(tpl.Info),
+			SearchProvider:  templ.(identity.SearchProvider),
 			templ:           templ,
 		}
 	}
@@ -435,7 +435,7 @@ func (p *pageState) createRenderHooks(f output.Format) (*hooks.Renderers, error)
 	if templFound {
 		renderers.HeadingRenderer = hookRenderer{
 			templateHandler: p.s.Tmpl(),
-			Provider:        templ.(tpl.Info),
+			SearchProvider:  templ.(identity.SearchProvider),
 			templ:           templ,
 		}
 	}

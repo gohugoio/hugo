@@ -202,7 +202,7 @@ type renderContext struct {
 type renderContextData interface {
 	RenderContext() converter.RenderContext
 	DocumentContext() converter.DocumentContext
-	AddIdentity(id identity.Identity)
+	AddIdentity(id identity.Provider)
 }
 
 type renderContextDataHolder struct {
@@ -219,7 +219,7 @@ func (ctx *renderContextDataHolder) DocumentContext() converter.DocumentContext 
 	return ctx.dctx
 }
 
-func (ctx *renderContextDataHolder) AddIdentity(id identity.Identity) {
+func (ctx *renderContextDataHolder) AddIdentity(id identity.Provider) {
 	ctx.ids.Add(id)
 }
 

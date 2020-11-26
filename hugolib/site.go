@@ -1738,7 +1738,7 @@ var infoOnMissingLayout = map[string]bool{
 // where ITEM is the thing being hooked.
 type hookRenderer struct {
 	templateHandler tpl.TemplateHandler
-	identity.Provider
+	identity.SearchProvider
 	templ tpl.Template
 }
 
