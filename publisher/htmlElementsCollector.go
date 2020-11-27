@@ -122,12 +122,14 @@ func (w *cssClassCollectorWriter) Write(p []byte) (n int, err error) {
 						continue
 					}
 
+					key := s
+
 					s, tagName := w.insertStandinHTMLElement(s)
 					el := parseHTMLElement(s)
 					el.Tag = tagName
 
 					w.collector.mu.Lock()
-					w.collector.elementSet[s] = true
+					w.collector.elementSet[key] = true
 					if el.Tag != "" {
 						w.collector.elements = append(w.collector.elements, el)
 					}

@@ -99,3 +99,30 @@ func TestClassCollector(t *testing.T) {
 	}
 
 }
+
+func BenchmarkClassCollectorWriter(b *testing.B) {
+	const benchHTML = `
+<html>
+<body id="i1" class="a b c d">
+<a class="c d e"></a>
+<br>
+<a class="c d e"></a>
+<a class="c d e"></a>
+<br>
+<a id="i2" class="c d e f"></a>
+<a id="i3" class="c d e"></a>
+<a class="c d e"></a>
+<br>
+<a class="c d e"></a>
+<a class="c d e"></a>
+<a class="c d e"></a>
+<a class="c d e"></a>
+</body>
+</html>
+`
+	for i := 0; i < b.N; i++ {
+		w := newHTMLElementsCollectorWriter(newHTMLElementsCollector())
+		fmt.Fprint(w, benchHTML)
+
+	}
+}
