@@ -7,6 +7,8 @@ footnotereturnlinkcontents = "↩"
 languageCode = "en-us"
 title = "Hugo"
 
+ ignoreErrors = ["error-remote-getjson"]
+
 
 googleAnalytics = "UA-7131036-4"
 

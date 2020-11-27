@@ -27,7 +27,7 @@ params [map or slice] {{< new-in "0.78.0" >}}
 : Params that can be imported as JSON in your JS files, e.g.:
 
 ```go-html-template
-{{ $js := resources.Get "js/main.js" | js.Build (dict "params" (dict "api" "https://example.org/api" ) }}
+{{ $js := resources.Get "js/main.js" | js.Build (dict "params" (dict "api" "https://example.org/api")) }}
 ```
 And then in your JS file: 
 
@@ -39,6 +39,9 @@ Note that this is meant for small data sets, e.g. config settings. For larger da
 
 minify [bool]
 : Let `js.Build` handle the minification.
+
+avoidTDZ {{< new-in "0.78.0" >}}
+: There is/was a bug in WebKit with severe performance issue with the tracking of TDZ checks in JavaScriptCore. Enabling this flag removes the TDZ and `const` assignment checks and may improve performance of larger JS codebases until the WebKit fix is in widespread use. See https://bugs.webkit.org/show_bug.cgi?id=199866
 
 target [string]
 : The language target.
@@ -66,6 +69,8 @@ format [string] {{< new-in "0.74.3" >}}
   One of: `iife`, `cjs`, `esm`.
   Default is `iife`, a self-executing function, suitable for inclusion as a <script> tag.
 
+sourceMap
+: Whether to generate source maps. Enum, currently only `inline` (we will improve that).
 
 ### Import JS code from /assets
 
@@ -77,7 +82,7 @@ Since Hugo `v0.78.0` `js.Build` has full support for the virtual union file syst
 import { hello } from 'my/module';
 ```
 
-And it will respolve to the top-most `index.{js,ts,tsx,jsx}` inside `assets/my/module` in the layered file system.
+And it will resolve to the top-most `index.{js,ts,tsx,jsx}` inside `assets/my/module` in the layered file system.
 
 ```js
 import { hello3 } from 'my/module/hello3';
@@ -97,10 +102,12 @@ For other files (e.g. `JSON`, `CSS`) you need to use the relative path including
 import * as data from 'my/module/data.json';
 ```
 
+Any imports in a file outside `/assets` or that does not resolve to a component inside `/assets` will be resolved by [ESBuild](https://esbuild.github.io/) with the **project directory** as the resolve directory (used as the starting point when looking for `node_modules` etc.). Also see [hugo mod npm pack](/commands/hugo_mod_npm_pack/).  If you have any imported NPM dependencies in your project, you need to make sure to run `npm install` before you run `hugo`.
+
 Also note the new `params` option that can be passed from template to your JS files, e.g.:
 
 ```go-html-template
-{{ $js := resources.Get "js/main.js" | js.Build (dict "params" (dict "api" "https://example.org/api" ) }}
+{{ $js := resources.Get "js/main.js" | js.Build (dict "params" (dict "api" "https://example.org/api")) }}
 ```
 And then in your JS file: 
 
@@ -109,6 +116,17 @@ import * as params from '@params';
 ```
 
 Hugo will, by default, generate a `assets/jsconfig.js` file that maps the imports. This is useful for navigation/intellisense help inside code editors, but if you don't need/want it, you can [turn it off](/getting-started/configuration/#configure-build).
+
+
+
+### Include Dependencies In package.json / node_modules
+
+Any imports in a file outside `/assets` or that does not resolve to a component inside `/assets` will be resolved by [ESBuild](https://esbuild.github.io/) with the **project directory** as the resolve directory (used as the starting point when looking for `node_modules` etc.). Also see [hugo mod npm pack](/commands/hugo_mod_npm_pack/).  If you have any imported NPM dependencies in your project, you need to make sure to run `npm install` before you run `hugo`.
+
+{{< new-in "0.78.1" >}} From Hugo `0.78.1` the start directory for resolving NPM packages (aka. packages that live inside a `node_modules` folder) is always the main project folder.
+
+**Note:** If you're developing a theme/component that is supposed to be imported and depends on dependencies inside `package.json`, we recommend reading about [hugo mod npm pack](/commands/hugo_mod_npm_pack/), a tool to consolidate all the NPM dependencies in a project.
+
 
 ### Examples
 
