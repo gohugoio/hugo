@@ -44,7 +44,18 @@ Multiple site config files can be specified as a comma-separated string to the `
 
 In addition to using a single site config file, one can use the `configDir` directory (default to `config/`) to maintain easier organization and environment specific settings.
 
-- Each file represents a configuration root object, such as `Params`, `Menus`, `Languages` etc...
+- Each file represents a configuration root object, such as `params.toml` for `[Params]`, `menu(s).toml` for `[Menu]`, `languages.toml` for `[Languages]` etc...
+- Each file's content must be top-level, for example:
+  
+  In `config.toml` is:
+  ```toml
+  [Params]
+    foo = "bar"
+  ```
+  In `params.toml` is:
+  ```
+  foo = "bar"
+  ```
 - Each directory holds a group of files containing settings unique to an environment.
 - Files can be localized to become language specific.
 
@@ -304,6 +315,7 @@ The `build` configuration section contains global build-related configuration op
 [build]
 useResourceCacheWhen="fallback"
 writeStats = false
+noJSConfigInAssets = false
 {{< /code-toggle >}}
 
 
@@ -312,6 +324,9 @@ useResourceCacheWhen
 
 writeStats {{< new-in "0.69.0" >}}
 : When enabled, a file named `hugo_stats.json` will be written to your project root with some aggregated data about the build, e.g. list of HTML entities published to be used to do [CSS pruning](/hugo-pipes/postprocess/#css-purging-with-postcss). If you're only using this for the production build, you should consider placing it below [config/production](/getting-started/configuration/#configuration-directory). It's also worth mentioning that, due to the nature of the partial server builds, new HTML entities will be added when you add or change them while the server is running, but the old values will not be removed until you restart the server or run a regular `hugo` build.
+
+noJSConfigInAssets {{< new-in "0.78.0" >}}
+: Turn off writing a `jsconfig.js` into your `/assets` folder with mapping of imports from running [js.Build](https://gohugo.io/hugo-pipes/js). This file is intended to help with intellisense/navigation inside code editors such as [VS Code](https://code.visualstudio.com/). Note that if you do not use `js.Build`, no file will be written.
 
 ## Configure Server
 
