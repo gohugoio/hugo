@@ -89,6 +89,7 @@ replace github.com/bep/hugotestmods/mypartials => /Users/bep/hugotestmods/mypart
 
 If you have the `hugo server` running, the configuration will be reloaded and `/Users/bep/hugotestmods/mypartials` put on the watch list.
 
+Note that since v.0.77.0 you can use modules config [`replacements`](https://gohugo.io/hugo-modules/configuration/#module-config-top-level) option. {{< new-in "0.77.0" >}}
 
 ## Print Dependency Graph
 
