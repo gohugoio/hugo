@@ -305,10 +305,13 @@ type RelatedKeywordsProvider interface {
 
 // ShortcodeInfoProvider provides info about the shortcodes in a Page.
 type ShortcodeInfoProvider interface {
-	// HasShortcode return whether the page has a shortcode with the given name.
+	// HasShortcode returns whether the page has a given named shortcode or any
+	// shortcodes at all.  To see if any shortcodes are present, do not pass a
+	// name parameter.
+	//
 	// This method is mainly motivated with the Hugo Docs site's need for a list
 	// of pages with the `todo` shortcode in it.
-	HasShortcode(name string) bool
+	HasShortcode(name ...string) bool
 }
 
 // SitesProvider provide accessors to get sites.

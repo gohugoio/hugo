@@ -19,25 +19,21 @@ import (
 	"html/template"
 	"time"
 
-	"github.com/gohugoio/hugo/identity"
-
-	"github.com/gohugoio/hugo/hugofs/files"
-	"github.com/gohugoio/hugo/tpl"
-
-	"github.com/gohugoio/hugo/hugofs"
-
-	"github.com/bep/gitmap"
-	"github.com/gohugoio/hugo/navigation"
-
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/maps"
-	"github.com/gohugoio/hugo/source"
-
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/navigation"
 	"github.com/gohugoio/hugo/related"
 	"github.com/gohugoio/hugo/resources/resource"
+	"github.com/gohugoio/hugo/source"
+	"github.com/gohugoio/hugo/tpl"
+
+	"github.com/bep/gitmap"
 )
 
 var (
@@ -66,8 +62,8 @@ func (p *nopPage) RSSLink() template.URL {
 
 func (p *nopPage) Author() Author {
 	return Author{}
-
 }
+
 func (p *nopPage) Authors() AuthorList {
 	return nil
 }
@@ -119,6 +115,7 @@ func (p *nopPage) Description() string {
 func (p *nopPage) RefFrom(argsm map[string]interface{}, source interface{}) (string, error) {
 	return "", nil
 }
+
 func (p *nopPage) RelRefFrom(argsm map[string]interface{}, source interface{}) (string, error) {
 	return "", nil
 }
@@ -193,7 +190,7 @@ func (p *nopPage) HasMenuCurrent(menuID string, me *navigation.MenuEntry) bool {
 	return false
 }
 
-func (p *nopPage) HasShortcode(name string) bool {
+func (p *nopPage) HasShortcode(name ...string) bool {
 	return false
 }
 
@@ -356,6 +353,7 @@ func (p *nopPage) PublishDate() (t time.Time) {
 func (p *nopPage) PrevInSection() Page {
 	return nil
 }
+
 func (p *nopPage) NextInSection() Page {
 	return nil
 }

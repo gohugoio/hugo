@@ -19,28 +19,24 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/gohugoio/hugo/hugofs/files"
-	"github.com/gohugoio/hugo/identity"
-	"github.com/gohugoio/hugo/tpl"
-
-	"github.com/gohugoio/hugo/modules"
-
-	"github.com/bep/gitmap"
-	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/resources/resource"
-	"github.com/spf13/viper"
-
-	"github.com/gohugoio/hugo/navigation"
-
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/modules"
+	"github.com/gohugoio/hugo/navigation"
 	"github.com/gohugoio/hugo/related"
-
+	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/gohugoio/hugo/source"
+	"github.com/gohugoio/hugo/tpl"
+
+	"github.com/bep/gitmap"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -128,8 +124,8 @@ func (p *testPage) AlternativeOutputFormats() OutputFormats {
 
 func (p *testPage) Author() Author {
 	return Author{}
-
 }
+
 func (p *testPage) Authors() AuthorList {
 	return nil
 }
@@ -165,6 +161,7 @@ func (p *testPage) Sitemap() config.Sitemap {
 func (p *testPage) Layout() string {
 	return ""
 }
+
 func (p *testPage) Date() time.Time {
 	return p.date
 }
@@ -245,7 +242,7 @@ func (p *testPage) HasMenuCurrent(menuID string, me *navigation.MenuEntry) bool 
 	panic("not implemented")
 }
 
-func (p *testPage) HasShortcode(name string) bool {
+func (p *testPage) HasShortcode(name ...string) bool {
 	panic("not implemented")
 }
 

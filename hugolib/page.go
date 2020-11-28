@@ -23,38 +23,28 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/mitchellh/mapstructure"
-
-	"github.com/gohugoio/hugo/identity"
-
-	"github.com/gohugoio/hugo/markup/converter"
-
-	"github.com/gohugoio/hugo/tpl"
-
-	"github.com/gohugoio/hugo/hugofs/files"
-
-	"github.com/bep/gitmap"
-
-	"github.com/gohugoio/hugo/helpers"
-
-	"github.com/gohugoio/hugo/common/herrors"
-	"github.com/gohugoio/hugo/parser/metadecoders"
-
-	"github.com/gohugoio/hugo/parser/pageparser"
-	"github.com/pkg/errors"
-
-	"github.com/gohugoio/hugo/output"
-
-	"github.com/gohugoio/hugo/media"
-	"github.com/gohugoio/hugo/source"
-	"github.com/spf13/cast"
-
 	"github.com/gohugoio/hugo/common/collections"
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/text"
+	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
+	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/output"
+	"github.com/gohugoio/hugo/parser/metadecoders"
+	"github.com/gohugoio/hugo/parser/pageparser"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
+	"github.com/gohugoio/hugo/source"
+	"github.com/gohugoio/hugo/tpl"
+
+	"github.com/bep/gitmap"
+	"github.com/mitchellh/mapstructure"
+	"github.com/pkg/errors"
+	"github.com/spf13/cast"
 )
 
 var (
@@ -243,7 +233,6 @@ func (p *pageState) RegularPages() page.Pages {
 		}
 
 		p.regularPages = pages
-
 	})
 
 	return p.regularPages
@@ -319,12 +308,20 @@ func (p *pageState) Resources() resource.Resources {
 	return p.resources
 }
 
-func (p *pageState) HasShortcode(name string) bool {
+// HasShortcode returns whether the page has a given named shortcode or any
+// shortcodes at all.  To see if any shortcodes are present, do not pass a name
+// parameter.
+func (p *pageState) HasShortcode(name ...string) bool {
 	if p.shortcodeState == nil {
 		return false
 	}
 
-	return p.shortcodeState.nameSet[name]
+	if len(name) == 0 {
+		// we already know that p.shortcodeState is not nil
+		return true
+	}
+
+	return p.shortcodeState.nameSet[name[0]]
 }
 
 func (p *pageState) Site() page.Site {
@@ -358,11 +355,9 @@ func (p *pageState) TranslationKey() string {
 		} else if p.IsNode() {
 			p.translationKey = path.Join(p.Kind(), p.SectionsPath())
 		}
-
 	})
 
 	return p.translationKey
-
 }
 
 // AllTranslations returns all translations, including the current Page.
@@ -469,7 +464,6 @@ func (p *pageState) getLayoutDescriptor() output.LayoutDescriptor {
 	})
 
 	return p.layoutDescriptor
-
 }
 
 func (p *pageState) resolveTemplate(layouts ...string) (tpl.Template, bool, error) {
@@ -500,7 +494,6 @@ func (p *pageState) initOutputFormat(isRenderingSite bool, idx int) error {
 	}
 
 	return nil
-
 }
 
 // Must be run after the site section tree etc. is built and ready.
@@ -546,7 +539,6 @@ func (p *pageState) renderResources() (err error) {
 		for _, i := range toBeDeleted {
 			p.deleteResource(i)
 		}
-
 	})
 
 	return
@@ -681,7 +673,6 @@ func (p *pageState) Render(layout ...string) (template.HTML, error) {
 		return "", p.wrapError(errors.Wrapf(err, "failed to execute template %q v", layout))
 	}
 	return template.HTML(res), nil
-
 }
 
 // wrapError adds some more context to the given error if possible/needed
@@ -714,7 +705,6 @@ func (p *pageState) getContentConverter() converter.Converter {
 			markup = "markdown"
 		}
 		p.m.contentConverter, err = p.m.newContentConverter(p, markup, p.m.renderingConfigOverrides)
-
 	})
 
 	if err != nil {
@@ -724,7 +714,6 @@ func (p *pageState) getContentConverter() converter.Converter {
 }
 
 func (p *pageState) mapContent(bucket *pagesMapBucket, meta *pageMeta) error {
-
 	s := p.shortcodeState
 
 	rn := &pageContentMap{
@@ -893,7 +882,6 @@ func (p *pageState) parseError(err error, input []byte, offset int) error {
 	}
 	pos := p.posFromInput(input, offset)
 	return herrors.NewFileError("md", -1, pos.LineNumber, pos.ColumnNumber, err)
-
 }
 
 func (p *pageState) pathOrTitle() string {
@@ -955,7 +943,6 @@ func (p *pageState) shiftToOutputFormat(isRenderingSite bool, idx int) error {
 	if isRenderingSite {
 		cp := p.pageOutput.cp
 		if cp == nil {
-
 			// Look for content to reuse.
 			for i := 0; i < len(p.pageOutputs); i++ {
 				if i == idx {
