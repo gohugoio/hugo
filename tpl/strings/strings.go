@@ -327,9 +327,12 @@ func (ns *Namespace) Substr(a interface{}, nums ...interface{}) (string, error) 
 
 	end := rlen
 
-	if length < 0 {
+	switch {
+	case length == 0:
+		return "", nil
+	case length < 0:
 		end += length
-	} else if length > 0 {
+	case length > 0:
 		end = start + length
 	}
 

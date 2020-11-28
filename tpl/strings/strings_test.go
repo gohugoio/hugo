@@ -441,6 +441,9 @@ func TestSubstr(t *testing.T) {
 	}{
 		{"abc", 1, 2, "bc"},
 		{"abc", 0, 1, "a"},
+		{"abcdef", 0, 0, ""},
+		{"abcdef", 1, 0, ""},
+		{"abcdef", -1, 0, ""},
 		{"abcdef", -1, 2, "f"},
 		{"abcdef", -3, 3, "def"},
 		{"abcdef", -1, nil, "f"},
@@ -488,7 +491,7 @@ func TestSubstr(t *testing.T) {
 		}
 
 		c.Assert(err, qt.IsNil)
-		c.Assert(result, qt.Equals, test.expect, qt.Commentf("%v", test))
+		c.Check(result, qt.Equals, test.expect, qt.Commentf("%v", test))
 	}
 
 	_, err = ns.Substr("abcdef")
