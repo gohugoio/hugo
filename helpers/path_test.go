@@ -41,6 +41,10 @@ func TestMakePath(t *testing.T) {
 		expected      string
 		removeAccents bool
 	}{
+		{"dot.slash/backslash\\underscore_pound#plus+hyphen-", "dot.slash/backslash\\underscore_pound#plus+hyphen-", true},
+		{"abcXYZ0123456789", "abcXYZ0123456789", true},
+		{"%20 %2", "%20-2", true},
+		{"dash- space-y zzz -tail", "dash-space-y-zzz-tail", true},
 		{"  Foo bar  ", "Foo-bar", true},
 		{"Foo.Bar/foo_Bar-Foo", "Foo.Bar/foo_Bar-Foo", true},
 		{"fOO,bar:foobAR", "fOObarfoobAR", true},
@@ -53,7 +57,7 @@ func TestMakePath(t *testing.T) {
 		{"a%C3%B1ame", "a%C3%B1ame", false},         // Issue #1292
 		{"this+is+a+test", "this+is+a+test", false}, // Issue #1290
 		{"~foo", "~foo", false},                     // Issue #2177
-
+		{"foo--bar", "foo--bar", true},              // Issue #7288
 	}
 
 	for _, test := range tests {
@@ -184,7 +188,6 @@ func TestGetDottedRelativePath(t *testing.T) {
 	for _, f := range []func(string) string{filepath.FromSlash, func(s string) string { return s }} {
 		doTestGetDottedRelativePath(f, t)
 	}
-
 }
 
 func doTestGetDottedRelativePath(urlFixer func(string) string, t *testing.T) {
@@ -422,7 +425,6 @@ func createTempDirWithZeroLengthFiles() (string, error) {
 	}
 	// the dir now has one, zero length file in it
 	return d, nil
-
 }
 
 func createTempDirWithNonZeroLengthFiles() (string, error) {
@@ -451,7 +453,6 @@ func createTempDirWithNonZeroLengthFiles() (string, error) {
 
 	// the dir now has one, zero length file in it
 	return d, nil
-
 }
 
 func deleteTempDir(d string) {
@@ -490,7 +491,6 @@ func TestExists(t *testing.T) {
 			t.Errorf("Test %d failed. Expected %q got %q", i, d.expectedErr, err)
 		}
 	}
-
 }
 
 func TestAbsPathify(t *testing.T) {
@@ -544,7 +544,6 @@ func TestAbsPathify(t *testing.T) {
 			}
 		}
 	}
-
 }
 
 func TestExtNoDelimiter(t *testing.T) {
@@ -611,15 +610,12 @@ func TestFileAndExt(t *testing.T) {
 			t.Errorf("Test %d failed. Expected extension %q got %q.", i, d.expectedExt, ext)
 		}
 	}
-
 }
 
 func TestPathPrep(t *testing.T) {
-
 }
 
 func TestPrettifyPath(t *testing.T) {
-
 }
 
 func TestExtractAndGroupRootPaths(t *testing.T) {
@@ -642,16 +638,19 @@ func TestExtractAndGroupRootPaths(t *testing.T) {
 
 	// Make sure the original is preserved
 	c.Assert(in, qt.DeepEquals, inCopy)
-
 }
 
 func TestExtractRootPaths(t *testing.T) {
 	tests := []struct {
 		input    []string
 		expected []string
-	}{{[]string{filepath.FromSlash("a/b"), filepath.FromSlash("a/b/c/"), "b",
-		filepath.FromSlash("/c/d"), filepath.FromSlash("d/"), filepath.FromSlash("//e//")},
-		[]string{"a", "a", "b", "c", "d", "e"}}}
+	}{{
+		[]string{
+			filepath.FromSlash("a/b"), filepath.FromSlash("a/b/c/"), "b",
+			filepath.FromSlash("/c/d"), filepath.FromSlash("d/"), filepath.FromSlash("//e//"),
+		},
+		[]string{"a", "a", "b", "c", "d", "e"},
+	}}
 
 	for _, test := range tests {
 		output := ExtractRootPaths(test.input)
@@ -667,7 +666,7 @@ func TestFindCWD(t *testing.T) {
 		expectedErr error
 	}
 
-	//cwd, _ := os.Getwd()
+	// cwd, _ := os.Getwd()
 	data := []test{
 		//{cwd, nil},
 		// Commenting this out. It doesn't work properly.

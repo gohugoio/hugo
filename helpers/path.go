@@ -25,21 +25,17 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/text"
-
 	"github.com/gohugoio/hugo/config"
-
 	"github.com/gohugoio/hugo/hugofs"
 
-	"github.com/gohugoio/hugo/common/hugio"
 	_errors "github.com/pkg/errors"
 	"github.com/spf13/afero"
 )
 
-var (
-	// ErrThemeUndefined is returned when a theme has not be defined by the user.
-	ErrThemeUndefined = errors.New("no theme set")
-)
+// ErrThemeUndefined is returned when a theme has not be defined by the user.
+var ErrThemeUndefined = errors.New("no theme set")
 
 // filepathPathBridge is a bridge for common functionality in filepath vs path
 type filepathPathBridge interface {
@@ -130,9 +126,9 @@ func ishex(c rune) bool {
 
 // UnicodeSanitize sanitizes string to be used in Hugo URL's, allowing only
 // a predefined set of special Unicode characters.
-// If RemovePathAccents configuration flag is enabled, Uniccode accents
+// If RemovePathAccents configuration flag is enabled, Unicode accents
 // are also removed.
-// Spaces will be replaced with a single hyphen, and sequential hyphens will be reduced to one.
+// Spaces will be replaced with a single hyphen, and sequential replaced hyphens will be reduced to one.
 func (p *PathSpec) UnicodeSanitize(s string) string {
 	if p.RemovePathAccents {
 		s = text.RemoveAccentsString(s)
@@ -140,20 +136,30 @@ func (p *PathSpec) UnicodeSanitize(s string) string {
 
 	source := []rune(s)
 	target := make([]rune, 0, len(source))
-	var prependHyphen bool
+	var (
+		prependHyphen bool
+		wasHyphen     bool
+	)
 
 	for i, r := range source {
-		isAllowed := r == '.' || r == '/' || r == '\\' || r == '_' || r == '#' || r == '+' || r == '~'
+		isAllowed := r == '.' || r == '/' || r == '\\' || r == '_' || r == '#' || r == '+' || r == '~' || r == '-'
 		isAllowed = isAllowed || unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r)
 		isAllowed = isAllowed || (r == '%' && i+2 < len(source) && ishex(source[i+1]) && ishex(source[i+2]))
 
 		if isAllowed {
+			// track explicit hyphen in input; no need to add a new hyphen if
+			// we just saw one.
+			wasHyphen = r == '-'
+
 			if prependHyphen {
-				target = append(target, '-')
+				// if currently have a hyphen, don't prepend an extra one
+				if !wasHyphen {
+					target = append(target, '-')
+				}
 				prependHyphen = false
 			}
 			target = append(target, r)
-		} else if len(target) > 0 && (r == '-' || unicode.IsSpace(r)) {
+		} else if len(target) > 0 && unicode.IsSpace(r) && !wasHyphen {
 			prependHyphen = true
 		}
 	}
@@ -169,7 +175,6 @@ func ReplaceExtension(path string, newExt string) string {
 }
 
 func makePathRelative(inPath string, possibleDirectories ...string) (string, error) {
-
 	for _, currentPath := range possibleDirectories {
 		if strings.HasPrefix(inPath, currentPath) {
 			return strings.TrimPrefix(inPath, currentPath), nil
@@ -281,7 +286,6 @@ func fileAndExt(in string, b filepathPathBridge) (name string, ext string) {
 }
 
 func extractFilename(in, ext, base, pathSeparator string) (name string) {
-
 	// No file name cases. These are defined as:
 	// 1. any "in" path that ends in a pathSeparator
 	// 2. any "base" consisting of just an pathSeparator
@@ -299,7 +303,6 @@ func extractFilename(in, ext, base, pathSeparator string) (name string) {
 		name = base
 	}
 	return
-
 }
 
 // GetRelativePath returns the relative path of a given path.
@@ -474,21 +477,18 @@ func ExtractRootPaths(paths []string) []string {
 		r[i] = root
 	}
 	return r
-
 }
 
 // FindCWD returns the current working directory from where the Hugo
 // executable is run.
 func FindCWD() (string, error) {
 	serverFile, err := filepath.Abs(os.Args[0])
-
 	if err != nil {
 		return "", fmt.Errorf("can't get absolute path for executable: %v", err)
 	}
 
 	path := filepath.Dir(serverFile)
 	realFile, err := filepath.EvalSymlinks(serverFile)
-
 	if err != nil {
 		if _, err = os.Stat(serverFile + ".exe"); err == nil {
 			realFile = filepath.Clean(serverFile + ".exe")
@@ -516,7 +516,6 @@ func SymbolicWalk(fs afero.Fs, root string, walker hugofs.WalkFunc) error {
 	})
 
 	return w.Walk()
-
 }
 
 // LstatIfPossible can be used to call Lstat if possible, else Stat.
@@ -555,7 +554,6 @@ func OpenFilesForWriting(fs afero.Fs, filenames ...string) (io.WriteCloser, erro
 	}
 
 	return hugio.NewMultiWriteCloser(writeClosers...), nil
-
 }
 
 // OpenFileForWriting opens or creates the given file. If the target directory
@@ -598,7 +596,6 @@ func GetCacheDir(fs afero.Fs, cfg config.Provider) (string, error) {
 
 	// Fall back to a cache in /tmp.
 	return GetTempDir("hugo_cache", fs), nil
-
 }
 
 func getCacheDir(cfg config.Provider) string {
@@ -614,7 +611,6 @@ func getCacheDir(cfg config.Provider) string {
 		// is this project:
 		// https://github.com/philhawksworth/content-shards/blob/master/gulpfile.js
 		return "/opt/build/cache/hugo_cache/"
-
 	}
 
 	// This will fall back to an hugo_cache folder in the tmp dir, which should work fine for most CI
