@@ -229,6 +229,37 @@ func TestPageSortByParamNumeric(t *testing.T) {
 	c.Assert(unsetSortedValue, qt.Equals, unsetValue)
 }
 
+func TestPageSortByVersion(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	var k interface{} = "version"
+
+	var unsorted Pages = createVersionPages()
+
+	got := unsorted.ByVersion()
+
+	wantVersions := []string{
+		"0.0.1",
+		"0.100.1",
+		"1.2.3",
+		"2.2.10",
+		"2.3.1",
+		"2.100.1",
+	}
+
+	c.Assert(len(got), qt.Equals, len(wantVersions))
+	for i, s := range got {
+		v, _ := s.Param(k)
+		c.Assert(v.(string), qt.Equals, wantVersions[i])
+	}
+
+	// pages with empty params will be sorted to the end
+	delete(unsorted[3].Params(), "version")
+	got = unsorted.ByVersion()
+	v, _ := got[5].Param(k)
+	c.Assert(v, qt.Equals, nil)
+}
+
 func BenchmarkSortByWeightAndReverse(b *testing.B) {
 	p := createSortTestPages(300)
 
@@ -286,6 +317,24 @@ func createSortTestPages(num int) Pages {
 		p.description = "initial"
 
 		pages[i] = p
+	}
+
+	return pages
+}
+
+func createVersionPages() Pages {
+	testPages := []*testPage{
+		{params: map[string]interface{}{"version": "2.3.1"}},
+		{params: map[string]interface{}{"version": "1.2.3"}},
+		{params: map[string]interface{}{"version": "2.2.10"}},
+		{params: map[string]interface{}{"version": "2.100.1"}},
+		{params: map[string]interface{}{"version": "0.100.1"}},
+		{params: map[string]interface{}{"version": "0.0.1"}},
+	}
+
+	pages := make(Pages, len(testPages))
+	for i := 0; i < len(testPages); i++ {
+		pages[i] = testPages[i]
 	}
 
 	return pages

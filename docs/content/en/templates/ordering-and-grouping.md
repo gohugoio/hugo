@@ -1,5 +1,5 @@
 ---
-title: Ordere and Grouping Hugo Lists
+title: Order and Grouping Hugo Lists
 linktitle: List Ordering and Grouping
 description: You can group or order your content in both your templating and content front matter.
 date: 2017-02-01
@@ -163,6 +163,17 @@ your list templates:
 {{ range .Pages.ByLinkTitle }}
     <li>
     <a href="{{ .Permalink }}">{{ .LinkTitle }}</a>
+    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
+    </li>
+{{ end }}
+{{< /code >}}
+
+### By Version
+
+{{< code file="layouts/partials/by-version.html" >}}
+{{ range .Pages.ByVersion }}
+    <li>
+    <a href="{{ .Permalink }}">{{.Version}} - {{ .LinkTitle }}</a>
     <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
     </li>
 {{ end }}

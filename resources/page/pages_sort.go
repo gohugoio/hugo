@@ -16,12 +16,15 @@ package page
 import (
 	"sort"
 
+	"github.com/coreos/go-semver/semver"
+
 	"github.com/gohugoio/hugo/common/collections"
 
 	"github.com/gohugoio/hugo/resources/resource"
 
-	"github.com/gohugoio/hugo/compare"
 	"github.com/spf13/cast"
+
+	"github.com/gohugoio/hugo/compare"
 )
 
 var spc = newPageCache()
@@ -366,6 +369,60 @@ func (p Pages) ByParam(paramsKey interface{}) Pages {
 
 		return compare.LessStrings(s1, s2)
 
+	}
+
+	pages, _ := spc.get(key, pageBy(paramsKeyComparator).Sort, p)
+
+	return pages
+}
+
+// ByVersion sorts the pages according to the SemVer.
+//
+// Adjacent invocations on the same receiver with the same paramsKey will return a cached result.
+//
+// This may safely be executed  in parallel.
+func (p Pages) ByVersion() Pages {
+	paramsKeyStr := "version"
+	key := "pageSort.ByParam." + paramsKeyStr
+
+	paramsKeyComparator := func(p1, p2 Page) bool {
+		v1, _ := p1.Param(paramsKeyStr)
+		v2, _ := p2.Param(paramsKeyStr)
+
+		if v1 == nil {
+			return false
+		}
+
+		if v2 == nil {
+			return true
+		}
+
+		if _, ok := v1.(string); !ok {
+			return false
+		}
+
+		if _, ok := v2.(string); !ok {
+			return false
+		}
+
+		var s1, s2 *semver.Version
+
+		switch s := v1.(type) {
+		case string:
+			s1 = semver.New(s)
+		default:
+			return false
+		}
+
+		switch s := v2.(type) {
+		case string:
+			s2 = semver.New(s)
+		default:
+			return false
+		}
+
+
+		return s1.LessThan(*s2)
 	}
 
 	pages, _ := spc.get(key, pageBy(paramsKeyComparator).Sort, p)
