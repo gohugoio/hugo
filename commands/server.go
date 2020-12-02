@@ -357,7 +357,9 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 					if !f.c.paused {
 						port = f.c.Cfg.GetInt("liveReloadPort")
 					}
-					fmt.Fprint(w, injectLiveReloadScript(r, port))
+					lr := *u
+					lr.Host = fmt.Sprintf("%s:%d", lr.Hostname(), port)
+					fmt.Fprint(w, injectLiveReloadScript(r, lr))
 
 					return
 				}
@@ -501,8 +503,13 @@ func (c *commandeer) serve(s *serverCmd) error {
 		mu, serverURL, endpoint, err := srv.createEndpoint(i)
 
 		if doLiveReload {
-			mu.HandleFunc("/livereload.js", livereload.ServeJS)
-			mu.HandleFunc("/livereload", livereload.Handler)
+			u, err := url.Parse(helpers.SanitizeURL(baseURLs[i]))
+			if err != nil {
+				return err
+			}
+
+			mu.HandleFunc(u.Path+"/livereload.js", livereload.ServeJS)
+			mu.HandleFunc(u.Path+"/livereload", livereload.Handler)
 		}
 		jww.FEEDBACK.Printf("Web Server is available at %s (bind address %s)\n", serverURL, s.serverInterface)
 		go func() {

@@ -15,6 +15,7 @@ package livereloadinject
 
 import (
 	"bytes"
+	"net/url"
 	"strings"
 	"testing"
 
@@ -25,12 +26,17 @@ import (
 func TestLiveReloadInject(t *testing.T) {
 	c := qt.New(t)
 
-	expectBase := `<script src="/livereload.js?port=1313&amp;mindelay=10&amp;v=2" data-no-instant defer></script>`
+	lrurl, err := url.Parse("http://localhost:1234/subpath")
+	if err != nil {
+		t.Errorf("Parsing test URL failed")
+		return
+	}
+	expectBase := `<script src="/subpath/livereload.js?mindelay=10&amp;v=2&amp;port=1234&amp;path=subpath/livereload" data-no-instant defer></script>`
 	apply := func(s string) string {
 		out := new(bytes.Buffer)
 		in := strings.NewReader(s)
 
-		tr := transform.New(New(1313))
+		tr := transform.New(New(*lrurl))
 		tr.Apply(out, in)
 
 		return out.String()
