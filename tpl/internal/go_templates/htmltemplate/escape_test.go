@@ -891,7 +891,6 @@ func TestEscapeSet(t *testing.T) {
 			t.Errorf("want\n\t%q\ngot\n\t%q", test.want, got)
 		}
 	}
-
 }
 
 func TestErrors(t *testing.T) {
@@ -1088,7 +1087,6 @@ func TestErrors(t *testing.T) {
 		// Check that we get the same error if we call Execute again.
 		if err := tmpl.Execute(buf, nil); err == nil || err.Error() != got {
 			t.Errorf("input=%q: unexpected error on second call %q", test.input, err)
-
 		}
 	}
 }

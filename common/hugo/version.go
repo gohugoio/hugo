@@ -16,7 +16,6 @@ package hugo
 import (
 	"fmt"
 	"io"
-
 	"runtime"
 	"strings"
 
@@ -146,7 +145,6 @@ func BuildVersionString() string {
 	}
 
 	return fmt.Sprintf("%s %s %s BuildDate: %s", program, version, osArch, date)
-
 }
 
 func version(version float32, patchVersion int, suffix string) string {

@@ -30,19 +30,18 @@ type tag struct {
 }
 
 var tags = []tag{
-	tag{markup: []byte("<head>"), appendScript: true},
-	tag{markup: []byte("<HEAD>"), appendScript: true},
-	tag{markup: []byte("</body>")},
-	tag{markup: []byte("</BODY>")},
+	{markup: []byte("<head>"), appendScript: true},
+	{markup: []byte("<HEAD>"), appendScript: true},
+	{markup: []byte("</body>")},
+	{markup: []byte("</BODY>")},
 }
 
 // New creates a function that can be used
 // to inject a script tag for the livereload JavaScript in a HTML document.
 func New(baseURL url.URL) transform.Transformer {
-
 	return func(ft transform.FromTo) error {
 		b := ft.From().Bytes()
-		var idx = -1
+		idx := -1
 		var match tag
 		// We used to insert the livereload script right before the closing body.
 		// This does not work when combined with tools such as Turbolinks.

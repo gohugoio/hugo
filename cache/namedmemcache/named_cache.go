@@ -49,7 +49,6 @@ func (c *Cache) Clear() {
 
 	c.cache = make(map[string]cacheEntry)
 	c.nlocker = locker.NewLocker()
-
 }
 
 // GetOrCreate tries to get the value with the given cache key, if not found

@@ -186,5 +186,4 @@ func (p DestinationPublisher) createTransformerChain(f Descriptor) transform.Cha
 	}
 
 	return transformers
-
 }

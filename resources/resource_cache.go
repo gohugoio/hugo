@@ -69,8 +69,8 @@ func resourceKeyPartition(filename string) string {
 
 // Commonly used aliases and directory names used for some types.
 var extAliasKeywords = map[string][]string{
-	"sass": []string{"scss"},
-	"scss": []string{"sass"},
+	"sass": {"scss"},
+	"scss": {"sass"},
 }
 
 // ResourceKeyPartitions resolves a ordered slice of partitions that is
@@ -201,7 +201,6 @@ func (c *ResourceCache) getOrCreate(key string, f func() (interface{}, error)) (
 	c.set(key, r)
 
 	return r, nil
-
 }
 
 func (c *ResourceCache) getFilenames(key string) (string, string) {
@@ -230,7 +229,6 @@ func (c *ResourceCache) getFromFile(key string) (filecache.ItemInfo, io.ReadClos
 	fi, rc, _ := c.fileCache.Get(filenameContent)
 
 	return fi, rc, meta, rc != nil
-
 }
 
 // writeMeta writes the metadata to file and returns a writer for the content part.
@@ -254,7 +252,6 @@ func (c *ResourceCache) writeMeta(key string, meta transformedResourceMetadata) 
 	fi, fc, err := c.fileCache.WriteCloser(filenameContent)
 
 	return fi, fc, err
-
 }
 
 func (c *ResourceCache) set(key string, r interface{}) {
@@ -294,7 +291,6 @@ func (c *ResourceCache) DeletePartitions(partitions ...string) {
 			delete(c.cache, k)
 		}
 	}
-
 }
 
 func (c *ResourceCache) DeleteMatches(re *regexp.Regexp) {
@@ -305,7 +301,5 @@ func (c *ResourceCache) DeleteMatches(re *regexp.Regexp) {
 		if re.MatchString(k) {
 			delete(c.cache, k)
 		}
-
 	}
-
 }

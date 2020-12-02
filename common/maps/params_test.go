@@ -20,7 +20,6 @@ import (
 )
 
 func TestGetNestedParam(t *testing.T) {
-
 	m := map[string]interface{}{
 		"string":          "value",
 		"first":           1,
@@ -48,12 +47,10 @@ func TestGetNestedParam(t *testing.T) {
 	c.Assert(must("nested.nestednested.color", ".", m), qt.Equals, "green")
 	c.Assert(must("string.name", ".", m), qt.IsNil)
 	c.Assert(must("nested.foo", ".", m), qt.IsNil)
-
 }
 
 // https://github.com/gohugoio/hugo/issues/7903
 func TestGetNestedParamFnNestedNewKey(t *testing.T) {
-
 	c := qt.New(t)
 
 	nested := map[string]interface{}{
@@ -71,5 +68,4 @@ func TestGetNestedParamFnNestedNewKey(t *testing.T) {
 	c.Assert(existing, qt.IsNil)
 	c.Assert(nestedKey, qt.Equals, "new")
 	c.Assert(owner, qt.DeepEquals, nested)
-
 }

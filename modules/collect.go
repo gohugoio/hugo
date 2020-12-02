@@ -110,7 +110,6 @@ func (h *Client) collect(tidy bool) (ModulesConfig, *collector) {
 		AllModules:        c.modules,
 		GoModulesFilename: c.GoModulesFilename,
 	}, c
-
 }
 
 type ModulesConfig struct {
@@ -325,7 +324,6 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import, disabled bool
 
 	c.modules = append(c.modules, ma)
 	return ma, nil
-
 }
 
 func (c *collector) addAndRecurse(owner *moduleAdapter, disabled bool) error {
@@ -363,7 +361,6 @@ func (c *collector) applyMounts(moduleImport Import, mod *moduleAdapter) error {
 	if len(mounts) == 0 {
 		// Mounts not defined by the import.
 		mounts = modConfig.Mounts
-
 	}
 
 	if !mod.projectMod && len(mounts) == 0 {
@@ -397,7 +394,6 @@ func (c *collector) applyMounts(moduleImport Import, mod *moduleAdapter) error {
 }
 
 func (c *collector) applyThemeConfig(tc *moduleAdapter) error {
-
 	var (
 		configFilename string
 		cfg            config.Provider
@@ -477,7 +473,6 @@ func (c *collector) applyThemeConfig(tc *moduleAdapter) error {
 	tc.config = config
 
 	return nil
-
 }
 
 func (c *collector) collect() {
@@ -502,7 +497,6 @@ func (c *collector) collect() {
 
 	// Add the project mod on top.
 	c.modules = append(Modules{projectMod}, c.modules...)
-
 }
 
 func (c *collector) isVendored(dir string) bool {
@@ -515,7 +509,6 @@ func (c *collector) collectModulesTXT(owner Module) error {
 	filename := filepath.Join(vendorDir, vendorModulesFilename)
 
 	f, err := c.fs.Open(filename)
-
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil
@@ -656,7 +649,6 @@ func (c *collector) wrapModuleNotFound(err error) error {
 	}
 
 	return err
-
 }
 
 type vendoredModule struct {
@@ -679,7 +671,6 @@ func createProjectModule(gomod *goModule, workingDir string, conf Config) *modul
 		projectMod: true,
 		config:     conf,
 	}
-
 }
 
 // In the first iteration of Hugo Modules, we do not support multiple

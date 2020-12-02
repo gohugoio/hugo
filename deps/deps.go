@@ -231,7 +231,6 @@ func New(cfg DepsCfg) (*Deps, error) {
 	}
 
 	ps, err := helpers.NewPathSpec(fs, cfg.Language, logger)
-
 	if err != nil {
 		return nil, errors.Wrap(err, "create PathSpec")
 	}
@@ -347,7 +346,6 @@ func (d Deps) ForLanguage(cfg DepsCfg, onCreated func(d *Deps) error) (*Deps, er
 	d.BuildStartListeners = &Listeners{}
 
 	return &d, nil
-
 }
 
 // DepsCfg contains configuration options that can be used to configure Hugo

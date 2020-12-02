@@ -15,7 +15,6 @@ package transform
 
 import (
 	"html/template"
-
 	"testing"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -206,7 +205,6 @@ And then some.
 	c.Assert(err, qt.IsNil)
 	c.Assert(result, qt.Equals, template.HTML(
 		"<p>#First</p>\n<p>This is some <em>bold</em> text.</p>\n<h2 id=\"second\">Second</h2>\n<p>This is some more text.</p>\n<p>And then some.</p>\n"))
-
 }
 
 func TestPlainify(t *testing.T) {

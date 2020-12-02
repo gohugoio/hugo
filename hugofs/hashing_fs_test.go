@@ -49,5 +49,4 @@ func TestHashingFs(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	c.Assert(f.Close(), qt.IsNil)
 	c.Assert(observer.sum, qt.Equals, "d41d8cd98f00b204e9800998ecf8427e")
-
 }

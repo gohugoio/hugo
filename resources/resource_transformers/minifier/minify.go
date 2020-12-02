@@ -57,5 +57,4 @@ func (c *Client) Minify(res resources.ResourceTransformer) (resource.Resource, e
 		rs: c.rs,
 		m:  c.m,
 	})
-
 }

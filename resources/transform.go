@@ -293,7 +293,6 @@ func (r *resourceAdapter) publish() {
 			r.spec.Logger.Errorf("Failed to publish Resource: %s", r.publisherErr)
 		}
 	})
-
 }
 
 func (r *resourceAdapter) TransformationKey() string {
@@ -397,7 +396,6 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 		}
 
 		newErr := func(err error) error {
-
 			msg := fmt.Sprintf("%s: failed to transform %q (%s)", strings.ToUpper(tr.Key().Name), tctx.InPath, tctx.InMediaType.Type())
 
 			if err == herrors.ErrFeatureNotAvailable {
@@ -416,7 +414,6 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 			}
 
 			return errors.Wrap(err, msg)
-
 		}
 
 		var tryFileCache bool

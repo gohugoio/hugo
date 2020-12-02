@@ -14,9 +14,8 @@
 package hugolib
 
 import (
-	"testing"
-
 	"reflect"
+	"testing"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config"
@@ -43,7 +42,6 @@ func TestSitemapOutput(t *testing.T) {
 }
 
 func doTestSitemapOutput(t *testing.T, internal bool) {
-
 	c := qt.New(t)
 	cfg, fs := newTestCfg()
 	cfg.Set("baseURL", "http://auth/bub/")
@@ -82,7 +80,6 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 
 	content := readDestination(th, th.Fs, outputSitemap)
 	c.Assert(content, qt.Not(qt.Contains), "404")
-
 }
 
 func TestParseSitemap(t *testing.T) {
@@ -99,12 +96,10 @@ func TestParseSitemap(t *testing.T) {
 	if !reflect.DeepEqual(expected, result) {
 		t.Errorf("Got \n%v expected \n%v", result, expected)
 	}
-
 }
 
 // https://github.com/gohugoio/hugo/issues/5910
 func TestSitemapOutputFormats(t *testing.T) {
-
 	b := newTestSitesBuilder(t).WithSimpleConfigFile()
 
 	b.WithContent("blog/html-amp.md", `

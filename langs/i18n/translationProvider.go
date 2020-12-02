@@ -73,7 +73,6 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 	d.Translate = tp.t.Func(d.Language.Lang)
 
 	return nil
-
 }
 
 const artificialLangTagPrefix = "art-x-"
@@ -138,5 +137,4 @@ func errWithFileContext(inerr error, r source.File) error {
 		herrors.SimpleLineMatcher)
 
 	return err
-
 }

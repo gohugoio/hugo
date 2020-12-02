@@ -46,7 +46,6 @@ User-Agent: foo
 		c.Assert(result, qt.Equals, `<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">echo</span> <span class="s2">&#34;Hugo Rocks!&#34;</span></code></pre></div>`)
 		result, _ = h.Highlight(`echo "Hugo Rocks!"`, "unknown", "")
 		c.Assert(result, qt.Equals, `<pre><code class="language-unknown" data-lang="unknown">echo &#34;Hugo Rocks!&#34;</code></pre>`)
-
 	})
 
 	c.Run("Highlight lines, default config", func(c *qt.C) {
@@ -147,5 +146,4 @@ User-Agent: foo
 		c.Assert(result, qt.Contains, "hello")
 		c.Assert(result, qt.Contains, "}")
 	})
-
 }

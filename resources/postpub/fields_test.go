@@ -42,5 +42,4 @@ func TestCreatePlaceholders(t *testing.T) {
 		"SubType":     "pre_foo.SubType_post",
 		"Suffixes":    "pre_foo.Suffixes_post",
 	})
-
 }

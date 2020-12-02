@@ -17,6 +17,8 @@ import (
 	"fmt"
 	"path/filepath"
 	"reflect"
+	"strings"
+	"testing"
 
 	"github.com/gohugoio/hugo/markup/asciidocext"
 	"github.com/gohugoio/hugo/markup/rst"
@@ -25,9 +27,6 @@ import (
 
 	"github.com/gohugoio/hugo/parser/pageparser"
 	"github.com/gohugoio/hugo/resources/page"
-
-	"strings"
-	"testing"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/tpl"
@@ -96,7 +95,6 @@ func TestNonSC(t *testing.T) {
 func TestHyphenatedSC(t *testing.T) {
 	t.Parallel()
 	wt := func(tem tpl.TemplateManager) error {
-
 		tem.AddTemplate("_internal/shortcodes/hyphenated-video.html", `Playing Video {{ .Get 0 }}`)
 		return nil
 	}
@@ -286,7 +284,6 @@ func TestParentShortcode(t *testing.T) {
 	}
 	CheckShortCodeMatch(t, `{{< r1 pr1="p1" >}}1: {{< r2 pr2="p2" >}}2: {{< r3 pr3="p3" >}}{{< /r3 >}}{{< /r2 >}}{{< /r1 >}}`,
 		"1: p1 1: 2: p1p2 2: 3: p1p2p3 ", wt)
-
 }
 
 func TestFigureOnlySrc(t *testing.T) {
@@ -392,7 +389,6 @@ title: "Shortcodes Galore!"
 		return func(c *qt.C, shortcode *shortcode, err error) {
 			c.Assert(err, qt.IsNil)
 			c.Assert(str(shortcode), qt.Matches, ".*"+re+".*")
-
 		}
 	}
 
@@ -413,10 +409,14 @@ title: "Shortcodes Galore!"
 		{"inner", `{{< inner >}}Inner Content{{< / inner >}}`, regexpCheck("inner;inline:false;closing:true;inner:{Inner Content};")},
 		// issue #934
 		{"inner self-closing", `{{< inner />}}`, regexpCheck("inner;.*inner:{}")},
-		{"nested inner", `{{< inner >}}Inner Content->{{% inner2 param1 %}}inner2txt{{% /inner2 %}}Inner close->{{< / inner >}}`,
-			regexpCheck("inner;.*inner:{Inner Content->.*Inner close->}")},
-		{"nested, nested inner", `{{< inner >}}inner2->{{% inner2 param1 %}}inner2txt->inner3{{< inner3>}}inner3txt{{</ inner3 >}}{{% /inner2 %}}final close->{{< / inner >}}`,
-			regexpCheck("inner:{inner2-> inner2.*{{inner2txt->inner3.*final close->}")},
+		{
+			"nested inner", `{{< inner >}}Inner Content->{{% inner2 param1 %}}inner2txt{{% /inner2 %}}Inner close->{{< / inner >}}`,
+			regexpCheck("inner;.*inner:{Inner Content->.*Inner close->}"),
+		},
+		{
+			"nested, nested inner", `{{< inner >}}inner2->{{% inner2 param1 %}}inner2txt->inner3{{< inner3>}}inner3txt{{</ inner3 >}}{{% /inner2 %}}final close->{{< / inner >}}`,
+			regexpCheck("inner:{inner2-> inner2.*{{inner2txt->inner3.*final close->}"),
+		},
 		{"closed without content", `{{< inner param1 >}}{{< / inner >}}`, regexpCheck("inner.*inner:{}")},
 		{"inline", `{{< my.inline >}}Hi{{< /my.inline >}}`, regexpCheck("my.inline;inline:true;closing:true;inner:{Hi};")},
 	} {
@@ -441,10 +441,8 @@ title: "Shortcodes Galore!"
 			short, err := handler.extractShortcode(0, 0, iter)
 
 			test.check(c, short, err)
-
 		})
 	}
-
 }
 
 func TestShortcodesInSite(t *testing.T) {
@@ -456,11 +454,14 @@ func TestShortcodesInSite(t *testing.T) {
 		outFile     string
 		expected    interface{}
 	}{
-		{"sect/doc1.md", `a{{< b >}}c`,
-			filepath.FromSlash("public/sect/doc1/index.html"), "<p>abc</p>\n"},
+		{
+			"sect/doc1.md", `a{{< b >}}c`,
+			filepath.FromSlash("public/sect/doc1/index.html"), "<p>abc</p>\n",
+		},
 		// Issue #1642: Multiple shortcodes wrapped in P
 		// Deliberately forced to pass even if they maybe shouldn't.
-		{"sect/doc2.md", `a
+		{
+			"sect/doc2.md", `a
 
 {{< b >}}		
 {{< c >}}
@@ -468,8 +469,10 @@ func TestShortcodesInSite(t *testing.T) {
 
 e`,
 			filepath.FromSlash("public/sect/doc2/index.html"),
-			"<p>a</p>\n\n<p>b<br />\nc\nd</p>\n\n<p>e</p>\n"},
-		{"sect/doc3.md", `a
+			"<p>a</p>\n\n<p>b<br />\nc\nd</p>\n\n<p>e</p>\n",
+		},
+		{
+			"sect/doc3.md", `a
 
 {{< b >}}		
 {{< c >}}
@@ -478,8 +481,10 @@ e`,
 
 e`,
 			filepath.FromSlash("public/sect/doc3/index.html"),
-			"<p>a</p>\n\n<p>b<br />\nc</p>\n\nd\n\n<p>e</p>\n"},
-		{"sect/doc4.md", `a
+			"<p>a</p>\n\n<p>b<br />\nc</p>\n\nd\n\n<p>e</p>\n",
+		},
+		{
+			"sect/doc4.md", `a
 {{< b >}}
 {{< b >}}
 {{< b >}}
@@ -497,23 +502,33 @@ e`,
 
 `,
 			filepath.FromSlash("public/sect/doc4/index.html"),
-			"<p>a\nb\nb\nb\nb\nb</p>\n"},
+			"<p>a\nb\nb\nb\nb\nb</p>\n",
+		},
 		// #2192 #2209: Shortcodes in markdown headers
-		{"sect/doc5.md", `# {{< b >}}	
+		{
+			"sect/doc5.md", `# {{< b >}}	
 ## {{% c %}}`,
-			filepath.FromSlash("public/sect/doc5/index.html"), `-hbhb">b</h1>`},
+			filepath.FromSlash("public/sect/doc5/index.html"), `-hbhb">b</h1>`,
+		},
 		// #2223 pygments
-		{"sect/doc6.md", "\n```bash\nb = {{< b >}} c = {{% c %}}\n```\n",
+		{
+			"sect/doc6.md", "\n```bash\nb = {{< b >}} c = {{% c %}}\n```\n",
 			filepath.FromSlash("public/sect/doc6/index.html"),
-			`<span class="nv">b</span>`},
+			`<span class="nv">b</span>`,
+		},
 		// #2249
-		{"sect/doc7.ad", `_Shortcodes:_ *b: {{< b >}} c: {{% c %}}*`,
+		{
+			"sect/doc7.ad", `_Shortcodes:_ *b: {{< b >}} c: {{% c %}}*`,
 			filepath.FromSlash("public/sect/doc7/index.html"),
-			"<div class=\"paragraph\">\n<p><em>Shortcodes:</em> <strong>b: b c: c</strong></p>\n</div>\n"},
-		{"sect/doc8.rst", `**Shortcodes:** *b: {{< b >}} c: {{% c %}}*`,
+			"<div class=\"paragraph\">\n<p><em>Shortcodes:</em> <strong>b: b c: c</strong></p>\n</div>\n",
+		},
+		{
+			"sect/doc8.rst", `**Shortcodes:** *b: {{< b >}} c: {{% c %}}*`,
 			filepath.FromSlash("public/sect/doc8/index.html"),
-			"<div class=\"document\">\n\n\n<p><strong>Shortcodes:</strong> <em>b: b c: c</em></p>\n</div>"},
-		{"sect/doc9.mmark", `
+			"<div class=\"document\">\n\n\n<p><strong>Shortcodes:</strong> <em>b: b c: c</em></p>\n</div>",
+		},
+		{
+			"sect/doc9.mmark", `
 ---
 menu:
   main:
@@ -521,9 +536,11 @@ menu:
 ---
 **Shortcodes:** *b: {{< b >}} c: {{% c %}}*`,
 			filepath.FromSlash("public/sect/doc9/index.html"),
-			"<p><strong>Shortcodes:</strong> <em>b: b c: c</em></p>\n"},
+			"<p><strong>Shortcodes:</strong> <em>b: b c: c</em></p>\n",
+		},
 		// Issue #1229: Menus not available in shortcode.
-		{"sect/doc10.md", `---
+		{
+			"sect/doc10.md", `---
 menu:
   main:
     identifier: 'parent'
@@ -532,22 +549,27 @@ tags:
 ---
 **Menus:** {{< menu >}}`,
 			filepath.FromSlash("public/sect/doc10/index.html"),
-			"<p><strong>Menus:</strong> 1</p>\n"},
+			"<p><strong>Menus:</strong> 1</p>\n",
+		},
 		// Issue #2323: Taxonomies not available in shortcode.
-		{"sect/doc11.md", `---
+		{
+			"sect/doc11.md", `---
 tags:
 - Bugs
 ---
 **Tags:** {{< tags >}}`,
 			filepath.FromSlash("public/sect/doc11/index.html"),
-			"<p><strong>Tags:</strong> 2</p>\n"},
-		{"sect/doc12.md", `---
+			"<p><strong>Tags:</strong> 2</p>\n",
+		},
+		{
+			"sect/doc12.md", `---
 title: "Foo"
 ---
 
 {{% html-indented-v1 %}}`,
 			"public/sect/doc12/index.html",
-			"<h1>Hugo!</h1>"},
+			"<h1>Hugo!</h1>",
+		},
 	}
 
 	temp := tests[:0]
@@ -582,7 +604,6 @@ title: "Foo"
 		templ.AddTemplate("_internal/shortcodes/tags.html", `{{ len .Page.Site.Taxonomies.tags }}`)
 
 		return nil
-
 	}
 
 	cfg, fs := newTestCfg()
@@ -615,7 +636,6 @@ title: "Foo"
 		})
 
 	}
-
 }
 
 func TestShortcodeMultipleOutputFormats(t *testing.T) {
@@ -741,11 +761,9 @@ CSV: {{< myShort >}}
 		"Single CSV",
 		"ShortCSV",
 	)
-
 }
 
 func BenchmarkReplaceShortcodeTokens(b *testing.B) {
-
 	type input struct {
 		in           []byte
 		replacements map[string]string
@@ -764,8 +782,8 @@ func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 		{strings.Repeat("A ", 3000) + " HAHAHUGOSHORTCODE-1HBHB." + strings.Repeat("BC ", 1000) + " HAHAHUGOSHORTCODE-1HBHB.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Hello World"}, []byte(strings.Repeat("A ", 3000) + " Hello World." + strings.Repeat("BC ", 1000) + " Hello World.")},
 	}
 
-	var in = make([]input, b.N*len(data))
-	var cnt = 0
+	in := make([]input, b.N*len(data))
+	cnt := 0
 	for i := 0; i < b.N; i++ {
 		for _, this := range data {
 			in[cnt] = input{[]byte(this.input), this.replacements, this.expect}
@@ -780,7 +798,6 @@ func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 			currIn := in[cnt]
 			cnt++
 			results, err := replaceShortcodeTokens(currIn.in, currIn.replacements)
-
 			if err != nil {
 				b.Fatalf("[%d] failed: %s", i, err)
 				continue
@@ -790,7 +807,6 @@ func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 			}
 
 		}
-
 	}
 }
 
@@ -826,9 +842,12 @@ func TestReplaceShortcodeTokens(t *testing.T) {
 		{"Hello <p>HAHAHUGOSHORTCODE-1HBHB. END</p>.", "PREFIX", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "World"}, "Hello <p>World. END</p>."},
 		{"<p>Hello HAHAHUGOSHORTCODE-1HBHB</p>. END.", "PREFIX", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "World"}, "<p>Hello World</p>. END."},
 		{"Hello <p>HAHAHUGOSHORTCODE-1HBHB12", "PREFIX", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "World"}, "Hello <p>World12"},
-		{"Hello HAHAHUGOSHORTCODE-1HBHB. HAHAHUGOSHORTCODE-1HBHB-HAHAHUGOSHORTCODE-1HBHB HAHAHUGOSHORTCODE-1HBHB HAHAHUGOSHORTCODE-1HBHB HAHAHUGOSHORTCODE-1HBHB END", "P", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": strings.Repeat("BC", 100)},
+		{
+			"Hello HAHAHUGOSHORTCODE-1HBHB. HAHAHUGOSHORTCODE-1HBHB-HAHAHUGOSHORTCODE-1HBHB HAHAHUGOSHORTCODE-1HBHB HAHAHUGOSHORTCODE-1HBHB HAHAHUGOSHORTCODE-1HBHB END", "P",
+			map[string]string{"HAHAHUGOSHORTCODE-1HBHB": strings.Repeat("BC", 100)},
 			fmt.Sprintf("Hello %s. %s-%s %s %s %s END",
-				strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100))},
+				strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100)),
+		},
 	} {
 
 		results, err := replaceShortcodeTokens([]byte(this.input), this.replacements)
@@ -848,7 +867,6 @@ func TestReplaceShortcodeTokens(t *testing.T) {
 		}
 
 	}
-
 }
 
 func TestShortcodeGetContent(t *testing.T) {
@@ -919,7 +937,6 @@ C-%s`
 		"Single Content: <p>Logo:P1:|P2:logo.png/PNG logo|:P1: P1:|P2:docs1p1/<p>C-s1p1</p>\n|",
 		"P2:docbp1/<p>C-bp1</p>",
 	)
-
 }
 
 // https://github.com/gohugoio/hugo/issues/5833
@@ -978,7 +995,6 @@ SHORTCODE: {{< c >}}
 	b.Build(BuildCfg{})
 
 	assert("Edit.")
-
 }
 
 func TestShortcodePreserveOrder(t *testing.T) {
@@ -1036,7 +1052,6 @@ weight: %d
 ordinal: 0 scratch ordinal: 1 scratch get ordinal: 0
 ordinal: 2 scratch ordinal: 3 scratch get ordinal: 2
 ordinal: 4 scratch ordinal: 5 scratch get ordinal: 4`)
-
 }
 
 func TestShortcodeVariables(t *testing.T) {
@@ -1074,7 +1089,6 @@ String: {{ . | safeHTML }}
 		filepath.FromSlash("String: \"content/page.md:7:4\""),
 		"Name: s1",
 	)
-
 }
 
 func TestInlineShortcodes(t *testing.T) {
@@ -1311,10 +1325,8 @@ title: "Hugo Rocks!"
 `,
 				)
 			}
-
 		})
 	}
-
 }
 
 // https://github.com/gohugoio/hugo/issues/6857
@@ -1334,5 +1346,4 @@ title: "No Inner!"
 
 	err := b.BuildE(BuildCfg{})
 	b.Assert(err.Error(), qt.Contains, `failed to extract shortcode: shortcode "noinner" has no .Inner, yet a closing tag was provided`)
-
 }

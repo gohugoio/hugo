@@ -15,12 +15,11 @@ package hugolib
 
 import (
 	"fmt"
+	"html/template"
 	"path/filepath"
 	"testing"
 
 	"github.com/gohugoio/hugo/resources/page"
-
-	"html/template"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
@@ -52,7 +51,8 @@ func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
 		{"http://base.com/", "http://base.com/"},
 		{"http://base.com/sub/", "http://base.com/sub/"},
 		{"http://base.com/sub", "http://base.com/sub"},
-		{"http://base.com", "http://base.com"}} {
+		{"http://base.com", "http://base.com"},
+	} {
 
 		cfg, fs := newTestCfg()
 		cfg.Set("baseURL", this.in)
@@ -184,5 +184,4 @@ Do not go gentle into that good night.
 	c.Assert(sect1.RelPermalink(), qt.Equals, "/ss1/")
 	th.assertFileContent(filepath.Join("public", "ss1", "index.html"), "P1|URL: /ss1/|Next: /ss1/page/2/")
 	th.assertFileContent(filepath.Join("public", "ss1", "page", "2", "index.html"), "P2|URL: /ss1/page/2/|Next: /ss1/page/3/")
-
 }

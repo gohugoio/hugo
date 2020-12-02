@@ -16,12 +16,11 @@ package hugolib
 import (
 	"fmt"
 	"path/filepath"
-
-	"github.com/gohugoio/hugo/resources/page"
-
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/gohugoio/hugo/resources/page"
 
 	qt "github.com/frankban/quicktest"
 
@@ -73,7 +72,6 @@ func TestTaxonomiesWithAndWithoutContentFile(t *testing.T) {
 }
 
 func doTestTaxonomiesWithAndWithoutContentFile(t *testing.T, uglyURLs bool) {
-
 	siteConfig := `
 baseURL = "http://example.com/blog"
 uglyURLs = %t
@@ -202,7 +200,6 @@ permalinkeds:
 
 	// Issue #2977
 	b.AssertFileContent(pathFunc("public/empties/index.html"), "Taxonomy Term Page", "Empties")
-
 }
 
 // https://github.com/gohugoio/hugo/issues/5513
@@ -285,7 +282,6 @@ title: "This is S3s"
 	b.AssertFileContent("public/news/categories/index.html", "Taxonomy Term Page 1|News/Categories|Hello|https://example.com/news/categories/|")
 	b.AssertFileContent("public/t1/t2/t3s/index.html", "Taxonomy Term Page 1|T1/T2/T3s|Hello|https://example.com/t1/t2/t3s/|")
 	b.AssertFileContent("public/s1/s2/s3s/index.html", "Taxonomy Term Page 1|This is S3s|Hello|https://example.com/s1/s2/s3s/|")
-
 }
 
 // https://github.com/gohugoio/hugo/issues/5719
@@ -329,7 +325,6 @@ Content.
 	b.AssertFileContent("public/index.html", `<li><a href="http://example.com/tags/hugo-rocks/">Hugo Rocks!</a> 10</li>`)
 	b.AssertFileContent("public/categories/index.html", `<li><a href="http://example.com/categories/this-is-cool/">This is Cool</a> 10</li>`)
 	b.AssertFileContent("public/tags/index.html", `<li><a href="http://example.com/tags/rocks-i-say/">Rocks I say!</a> 10</li>`)
-
 }
 
 // Issue 6213
@@ -361,7 +356,6 @@ categories: ["regular"]
 	dra, _ := s.getPageNew(nil, "categories/draft")
 	b.Assert(reg, qt.Not(qt.IsNil))
 	b.Assert(dra, qt.IsNil)
-
 }
 
 func TestTaxonomiesIndexDraft(t *testing.T) {
@@ -398,7 +392,6 @@ Content.
 	b.AssertFileContentFn("public/index.html", func(s string) bool {
 		return !strings.Contains(s, "categories")
 	})
-
 }
 
 // https://github.com/gohugoio/hugo/issues/6927
@@ -442,7 +435,6 @@ NO HOME FOR YOU
 	b.Assert(b.CheckExists("public/index.html"), qt.Equals, false)
 	b.Assert(b.CheckExists("public/categories/index.html"), qt.Equals, false)
 	b.Assert(b.CheckExists("public/posts/index.html"), qt.Equals, false)
-
 }
 
 // https://github.com/gohugoio/hugo/issues/6173
@@ -470,7 +462,6 @@ categories: ["funny"]
 
 	b.AssertFileContent("public/categories/index.html", `Resource: /categories/data.json|application/json`)
 	b.AssertFileContent("public/categories/funny/index.html", `Resource: /categories/funny/funnydata.json|application/json`)
-
 }
 
 func TestTaxonomiesRemoveOne(t *testing.T) {
@@ -528,7 +519,6 @@ Len funny: 2
 Cats:|/p2/|
 Funny:|/p1/|
 Funny:|/p2/|`)
-
 }
 
 //https://github.com/gohugoio/hugo/issues/6590
@@ -579,7 +569,6 @@ Len categories.funny: 2
 categories.funny:|/|
 categories.funny:|/blog/p1/|
 `)
-
 }
 
 func TestTaxonomiesPageCollections(t *testing.T) {
@@ -653,7 +642,6 @@ Category Paginator /categories/birds/|/categories/cats/|/categories/dogs/|/categ
 	b.AssertFileContent("public/404.html", "\n404 Terms: :END\n\t")
 	b.AssertFileContent("public/categories/funny/index.xml", `<link>http://example.com/section/p1/</link>`)
 	b.AssertFileContent("public/categories/index.xml", `<link>http://example.com/categories/funny/</link>`)
-
 }
 
 func TestTaxonomiesDirectoryOverlaps(t *testing.T) {
@@ -705,5 +693,4 @@ abcdefgs: {{ template "print-page" $abcdefgs }}|IsAncestor: {{ $abcdefgs.IsAnces
     abc: /abcdefgs/abc/|abc|term|Parent: /abcdefgs/|CurrentSection: /abcdefgs/|FirstSection: /|IsAncestor: false|IsDescendant: true
     abcdefgs: /abcdefgs/|Abcdefgs|taxonomy|Parent: /|CurrentSection: /|FirstSection: /|IsAncestor: true|IsDescendant: false
 `)
-
 }

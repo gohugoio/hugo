@@ -154,5 +154,4 @@ func TestRenameKeys(t *testing.T) {
 	if !reflect.DeepEqual(expected, m) {
 		t.Errorf("Expected\n%#v, got\n%#v\n", expected, m)
 	}
-
 }

@@ -62,7 +62,6 @@ func TestDefaultTypes(t *testing.T) {
 	}
 
 	c.Assert(len(DefaultTypes), qt.Equals, 26)
-
 }
 
 func TestGetByType(t *testing.T) {
@@ -147,13 +146,12 @@ func TestFromExtensionMultipleSuffixes(t *testing.T) {
 	c.Assert(tp.String(), qt.Equals, "image/svg+xml")
 	c.Assert(found, qt.Equals, true)
 	c.Assert(tp.FullSuffix(), qt.Equals, ".svg")
-
 }
 
 func TestDecodeTypes(t *testing.T) {
 	c := qt.New(t)
 
-	var tests = []struct {
+	tests := []struct {
 		name        string
 		maps        []map[string]interface{}
 		shouldError bool
@@ -164,7 +162,10 @@ func TestDecodeTypes(t *testing.T) {
 			[]map[string]interface{}{
 				{
 					"application/json": map[string]interface{}{
-						"suffixes": []string{"jasn"}}}},
+						"suffixes": []string{"jasn"},
+					},
+				},
+			},
 			false,
 			func(t *testing.T, name string, tt Types) {
 				c.Assert(len(tt), qt.Equals, len(DefaultTypes))
@@ -172,7 +173,8 @@ func TestDecodeTypes(t *testing.T) {
 				c.Assert(found, qt.Equals, true)
 				c.Assert(json.String(), qt.Equals, "application/json")
 				c.Assert(json.FullSuffix(), qt.Equals, ".jasn")
-			}},
+			},
+		},
 		{
 			"MIME suffix in key, multiple file suffixes, custom delimiter",
 			[]map[string]interface{}{
@@ -180,7 +182,9 @@ func TestDecodeTypes(t *testing.T) {
 					"application/hugo+hg": map[string]interface{}{
 						"suffixes":  []string{"hg1", "hg2"},
 						"Delimiter": "_",
-					}}},
+					},
+				},
+			},
 			false,
 			func(t *testing.T, name string, tt Types) {
 				c.Assert(len(tt), qt.Equals, len(DefaultTypes)+1)
@@ -193,14 +197,17 @@ func TestDecodeTypes(t *testing.T) {
 
 				hg, found = tt.GetByType("application/hugo+hg")
 				c.Assert(found, qt.Equals, true)
-
-			}},
+			},
+		},
 		{
 			"Add custom media type",
 			[]map[string]interface{}{
 				{
 					"text/hugo+hgo": map[string]interface{}{
-						"Suffixes": []string{"hgo2"}}}},
+						"Suffixes": []string{"hgo2"},
+					},
+				},
+			},
 			false,
 			func(t *testing.T, name string, tt Types) {
 				c.Assert(len(tt), qt.Equals, len(DefaultTypes)+1)
@@ -212,7 +219,8 @@ func TestDecodeTypes(t *testing.T) {
 				hugo, found := tt.GetBySuffix("hgo2")
 				c.Assert(found, qt.Equals, true)
 				c.Assert(hugo.String(), qt.Equals, "text/hugo+hgo")
-			}},
+			},
+		},
 	}
 
 	for _, test := range tests {

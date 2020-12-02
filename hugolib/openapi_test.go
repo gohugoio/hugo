@@ -65,5 +65,4 @@ API: {{ $api.Info.Title | safeHTML }}
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent("public/index.html", `API: Hugo API`)
-
 }

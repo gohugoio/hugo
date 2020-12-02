@@ -83,7 +83,6 @@ func applyLegacyConfig(cfg config.Provider, conf *Config) error {
 	}
 
 	return nil
-
 }
 
 var Default = Config{

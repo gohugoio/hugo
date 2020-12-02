@@ -35,7 +35,6 @@ func main() {
 
 	goimports(htmlRoot)
 	gofmt(forkRoot)
-
 }
 
 const (
@@ -97,36 +96,41 @@ package parse
 	}
 
 	return content
-
 }
 
 var goPackages = []goPackage{
-	goPackage{srcPkg: "text/template", dstPkg: "texttemplate",
-		replacer: func(name, content string) string { return textTemplateReplacers.Replace(commonReplace(name, content)) }},
-	goPackage{srcPkg: "html/template", dstPkg: "htmltemplate", replacer: func(name, content string) string {
-		if strings.HasSuffix(name, "content.go") {
-			// Remove template.HTML types. We need to use the Go types.
-			content = removeAll(`(?s)// Strings of content.*?\)\n`, content)
-		}
-
-		content = commonReplace(name, content)
-
-		return htmlTemplateReplacers.Replace(content)
+	{
+		srcPkg: "text/template", dstPkg: "texttemplate",
+		replacer: func(name, content string) string { return textTemplateReplacers.Replace(commonReplace(name, content)) },
 	},
+	{
+		srcPkg: "html/template", dstPkg: "htmltemplate", replacer: func(name, content string) string {
+			if strings.HasSuffix(name, "content.go") {
+				// Remove template.HTML types. We need to use the Go types.
+				content = removeAll(`(?s)// Strings of content.*?\)\n`, content)
+			}
+
+			content = commonReplace(name, content)
+
+			return htmlTemplateReplacers.Replace(content)
+		},
 		rewriter: func(name string) {
 			for _, s := range []string{"CSS", "HTML", "HTMLAttr", "JS", "JSStr", "URL", "Srcset"} {
 				rewrite(name, fmt.Sprintf("%s -> htmltemplate.%s", s, s))
 			}
 			rewrite(name, `"text/template/parse" -> "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"`)
-		}},
-	goPackage{srcPkg: "internal/fmtsort", dstPkg: "fmtsort", rewriter: func(name string) {
+		},
+	},
+	{srcPkg: "internal/fmtsort", dstPkg: "fmtsort", rewriter: func(name string) {
 		rewrite(name, `"internal/fmtsort" -> "github.com/gohugoio/hugo/tpl/internal/go_templates/fmtsort"`)
 	}},
-	goPackage{srcPkg: "internal/testenv", dstPkg: "testenv",
+	{
+		srcPkg: "internal/testenv", dstPkg: "testenv",
 		replacer: func(name, content string) string { return testEnvReplacers.Replace(content) }, rewriter: func(name string) {
 			rewrite(name, `"internal/testenv" -> "github.com/gohugoio/hugo/tpl/internal/go_templates/testenv"`)
-		}},
-	goPackage{srcPkg: "internal/cfg", dstPkg: "cfg", rewriter: func(name string) {
+		},
+	},
+	{srcPkg: "internal/cfg", dstPkg: "cfg", rewriter: func(name string) {
 		rewrite(name, `"internal/cfg" -> "github.com/gohugoio/hugo/tpl/internal/go_templates/cfg"`)
 	}},
 }
@@ -196,7 +200,6 @@ func doWithGoFiles(dir string,
 func removeAll(expression, content string) string {
 	re := regexp.MustCompile(expression)
 	return re.ReplaceAllString(content, "")
-
 }
 
 func rewrite(filename, rule string) {

@@ -251,7 +251,6 @@ func (s *Site) prepareInits() {
 	})
 
 	s.init.prevNextInSection = init.Branch(func() (interface{}, error) {
-
 		var sections page.Pages
 		s.home.treeRef.m.collectSectionsRecursiveIncludingSelf(pageMapQuery{Prefix: s.home.treeRef.key}, func(n *contentNode) {
 			sections = append(sections, n.p)
@@ -317,7 +316,6 @@ func (s *Site) prepareInits() {
 		err := s.pageMap.assembleTaxonomies()
 		return nil, err
 	})
-
 }
 
 type siteRenderingContext struct {
@@ -375,7 +373,8 @@ func (s *Site) isEnabled(kind string) bool {
 
 // reset returns a new Site prepared for rebuild.
 func (s *Site) reset() *Site {
-	return &Site{Deps: s.Deps,
+	return &Site{
+		Deps:                   s.Deps,
 		disabledKinds:          s.disabledKinds,
 		titleFunc:              s.titleFunc,
 		relatedDocsHandler:     s.relatedDocsHandler.Clone(),
@@ -394,7 +393,6 @@ func (s *Site) reset() *Site {
 		PageCollections:        s.PageCollections,
 		siteCfg:                s.siteCfg,
 	}
-
 }
 
 // newSite creates a new site with the given configuration.
@@ -427,7 +425,6 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		// This is a potentially ambigous situation. It may be correct.
 		ignorableLogger.Errorsf(constants.ErrIDAmbigousDisableKindTaxonomy, `You have the value 'taxonomy' in the disabledKinds list. In Hugo 0.73.0 we fixed these to be what most people expect (taxonomy and term).
 But this also means that your site configuration may not do what you expect. If it is correct, you can suppress this message by following the instructions below.`)
-
 	}
 
 	var (
@@ -566,7 +563,6 @@ But this also means that your site configuration may not do what you expect. If 
 	s.prepareInits()
 
 	return s, nil
-
 }
 
 // NewSite creates a new site with the given dependency configuration.
@@ -623,7 +619,6 @@ func newSiteForLang(lang *langs.Language, withTemplate ...func(templ tpl.Templat
 	cfg := deps.DepsCfg{WithTemplate: withTemplates, Cfg: lang}
 
 	return NewSiteForCfg(cfg)
-
 }
 
 // NewSiteForCfg creates a new site for the given configuration.
@@ -635,7 +630,6 @@ func NewSiteForCfg(cfg deps.DepsCfg) (*Site, error) {
 		return nil, err
 	}
 	return h.Sites[0], nil
-
 }
 
 type SiteInfo struct {
@@ -669,12 +663,10 @@ type SiteInfo struct {
 
 func (s *SiteInfo) Pages() page.Pages {
 	return s.s.Pages()
-
 }
 
 func (s *SiteInfo) RegularPages() page.Pages {
 	return s.s.RegularPages()
-
 }
 
 func (s *SiteInfo) AllPages() page.Pages {
@@ -761,7 +753,6 @@ func (s *SiteInfo) ServerPort() int {
 // GoogleAnalytics is kept here for historic reasons.
 func (s *SiteInfo) GoogleAnalytics() string {
 	return s.Config().Services.GoogleAnalytics.ID
-
 }
 
 // DisqusShortname is kept here for historic reasons.
@@ -1193,7 +1184,6 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 	}
 
 	return nil
-
 }
 
 func (s *Site) process(config BuildCfg) (err error) {
@@ -1206,11 +1196,9 @@ func (s *Site) process(config BuildCfg) (err error) {
 		return
 	}
 	return err
-
 }
 
 func (s *Site) render(ctx *siteRenderContext) (err error) {
-
 	if err := page.Clear(); err != nil {
 		return err
 	}
@@ -1228,7 +1216,6 @@ func (s *Site) render(ctx *siteRenderContext) (err error) {
 				return
 			}
 		}
-
 	}
 
 	if err = s.renderPages(ctx); err != nil {
@@ -1309,7 +1296,7 @@ func (s *Site) initializeSiteInfo() error {
 		languagePrefix = "/" + lang.Lang
 	}
 
-	var uglyURLs = func(p page.Page) bool {
+	uglyURLs := func(p page.Page) bool {
 		return false
 	}
 
@@ -1388,7 +1375,6 @@ func (s *Site) readAndProcessContent(filenames ...string) error {
 }
 
 func (s *Site) getMenusFromConfig() navigation.Menus {
-
 	ret := navigation.Menus{}
 
 	if menus := s.language.GetStringMap("menus"); menus != nil {
@@ -1425,7 +1411,6 @@ func (s *Site) getMenusFromConfig() navigation.Menus {
 }
 
 func (s *SiteInfo) createNodeMenuEntryURL(in string) string {
-
 	if !strings.HasPrefix(in, "/") {
 		return in
 	}
@@ -1471,15 +1456,16 @@ func (s *Site) assembleMenus() {
 				return false
 			}
 
-			me := navigation.MenuEntry{Identifier: id,
-				Name:   p.LinkTitle(),
-				Weight: p.Weight(),
-				Page:   p}
+			me := navigation.MenuEntry{
+				Identifier: id,
+				Name:       p.LinkTitle(),
+				Weight:     p.Weight(),
+				Page:       p,
+			}
 			flat[twoD{sectionPagesMenu, me.KeyName()}] = &me
 
 			return false
 		})
-
 	}
 
 	// Add menu entries provided by pages
@@ -1538,7 +1524,6 @@ func (s *Site) getLanguageTargetPathLang(alwaysInSubDir bool) string {
 
 // get any lanaguagecode to prefix the relative permalink with.
 func (s *Site) getLanguagePermalinkLang(alwaysInSubDir bool) string {
-
 	if !s.Info.IsMultiLingual() || s.h.IsMultihost() {
 		return ""
 	}
@@ -1800,7 +1785,6 @@ func (s *Site) kindFromSections(sections []string) string {
 	}
 
 	return s.kindFromSectionPath(path.Join(sections...))
-
 }
 
 func (s *Site) kindFromSectionPath(sectionPath string) string {
@@ -1823,7 +1807,6 @@ func (s *Site) newPage(
 	parentbBucket *pagesMapBucket,
 	kind, title string,
 	sections ...string) *pageState {
-
 	m := map[string]interface{}{}
 	if title != "" {
 		m["title"] = title
@@ -1838,7 +1821,6 @@ func (s *Site) newPage(
 			kind:     kind,
 			sections: sections,
 		})
-
 	if err != nil {
 		panic(err)
 	}

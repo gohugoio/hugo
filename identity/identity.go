@@ -26,7 +26,6 @@ func NewPathIdentity(typ, pat string) PathIdentity {
 type Identities map[Identity]Provider
 
 func (ids Identities) search(depth int, id Identity) Provider {
-
 	if v, found := ids[id.GetIdentity()]; found {
 		return v
 	}

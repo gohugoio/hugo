@@ -69,7 +69,6 @@ func TestScpGetLocal(t *testing.T) {
 			t.Errorf("\nExpected: %s\nActual: %s\n", string(test.content), string(c))
 		}
 	}
-
 }
 
 func getTestServer(handler func(w http.ResponseWriter, r *http.Request)) (*httptest.Server, *http.Client) {

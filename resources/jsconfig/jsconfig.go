@@ -69,7 +69,6 @@ func (b *Builder) AddSourceRoot(root string) {
 	b.sourceRootsMu.Lock()
 	b.sourceRoots[root] = true
 	b.sourceRootsMu.Unlock()
-
 }
 
 // CompilerOptions holds compilerOptions for jsonconfig.json.

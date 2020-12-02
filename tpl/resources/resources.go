@@ -93,7 +93,6 @@ func (ns *Namespace) Get(filename interface{}) (resource.Resource, error) {
 	filenamestr = filepath.Clean(filenamestr)
 
 	return ns.createClient.Get(filenamestr)
-
 }
 
 // GetMatch finds the first Resource matching the given pattern, or nil if none found.
@@ -108,7 +107,6 @@ func (ns *Namespace) GetMatch(pattern interface{}) (resource.Resource, error) {
 	}
 
 	return ns.createClient.GetMatch(patternStr)
-
 }
 
 // Match gets all resources matching the given base path prefix, e.g
@@ -281,7 +279,6 @@ func (ns *Namespace) PostCSS(args ...interface{}) (resource.Resource, error) {
 
 func (ns *Namespace) PostProcess(r resource.Resource) (postpub.PostPublishedResource, error) {
 	return ns.deps.ResourceSpec.PostProcess(r)
-
 }
 
 // Babel processes the given Resource with Babel.
@@ -300,5 +297,4 @@ func (ns *Namespace) Babel(args ...interface{}) (resource.Resource, error) {
 	}
 
 	return ns.babelClient.Process(r, options)
-
 }

@@ -27,9 +27,7 @@ import (
 
 type translateFunc func(translationID string, templateData interface{}) string
 
-var (
-	i18nWarningLogger = helpers.NewDistinctFeedbackLogger()
-)
+var i18nWarningLogger = helpers.NewDistinctFeedbackLogger()
 
 // Translator handles i18n translations.
 type Translator struct {
@@ -60,7 +58,6 @@ func (t Translator) Func(lang string) translateFunc {
 	return func(translationID string, args interface{}) string {
 		return ""
 	}
-
 }
 
 func (t Translator) initFuncs(bndl *i18n.Bundle) {
@@ -72,7 +69,6 @@ func (t Translator) initFuncs(bndl *i18n.Bundle) {
 		currentLangKey := strings.ToLower(strings.TrimPrefix(currentLangStr, artificialLangTagPrefix))
 		localizer := i18n.NewLocalizer(bndl, currentLangStr)
 		t.translateFuncs[currentLangKey] = func(translationID string, templateData interface{}) string {
-
 			var pluralCount interface{}
 
 			if templateData != nil {

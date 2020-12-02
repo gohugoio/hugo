@@ -12,7 +12,6 @@ func ExternallyRenderContent(
 	cfg converter.ProviderConfig,
 	ctx converter.DocumentContext,
 	content []byte, path string, args []string) []byte {
-
 	logger := cfg.Logger
 	cmd := exec.Command(path, args...)
 	cmd.Stdin = bytes.NewReader(content)

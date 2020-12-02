@@ -138,7 +138,6 @@ func TestLanguageRootMapping(t *testing.T) {
 
 	c.Assert(getDirnames("content", rfsSv), qt.DeepEquals, []string{"blog", "docs"})
 	c.Assert(getDirnames("content", rfs), qt.DeepEquals, []string{"blog", "docs"})
-
 }
 
 func TestRootMappingFsDirnames(t *testing.T) {
@@ -166,7 +165,6 @@ func TestRootMappingFsDirnames(t *testing.T) {
 	dirnames, err := root.Readdirnames(-1)
 	c.Assert(err, qt.IsNil)
 	c.Assert(dirnames, qt.DeepEquals, []string{"af3", "bf1", "cf2"})
-
 }
 
 func TestRootMappingFsFilename(t *testing.T) {
@@ -208,29 +206,29 @@ func TestRootMappingFsMount(t *testing.T) {
 	bfs := afero.NewBasePathFs(fs, "themes/a").(*afero.BasePathFs)
 	rm := []RootMapping{
 		// Directories
-		RootMapping{
+		{
 			From: "content/blog",
 			To:   "mynoblogcontent",
 			Meta: FileMeta{"lang": "no"},
 		},
-		RootMapping{
+		{
 			From: "content/blog",
 			To:   "myenblogcontent",
 			Meta: FileMeta{"lang": "en"},
 		},
-		RootMapping{
+		{
 			From: "content/blog",
 			To:   "mysvblogcontent",
 			Meta: FileMeta{"lang": "sv"},
 		},
 		// Files
-		RootMapping{
+		{
 			From:      "content/singles/p1.md",
 			To:        "singlefiles/no.txt",
 			ToBasedir: "singlefiles",
 			Meta:      FileMeta{"lang": "no"},
 		},
-		RootMapping{
+		{
 			From:      "content/singles/p1.md",
 			To:        "singlefiles/sv.txt",
 			ToBasedir: "singlefiles",
@@ -300,19 +298,19 @@ func TestRootMappingFsMountOverlap(t *testing.T) {
 	c.Assert(afero.WriteFile(fs, filepath.FromSlash("de/e.txt"), []byte("some no content"), 0755), qt.IsNil)
 
 	rm := []RootMapping{
-		RootMapping{
+		{
 			From: "static",
 			To:   "da",
 		},
-		RootMapping{
+		{
 			From: "static/b",
 			To:   "db",
 		},
-		RootMapping{
+		{
 			From: "static/b/c",
 			To:   "dc",
 		},
-		RootMapping{
+		{
 			From: "/static/e/",
 			To:   "de",
 		},
@@ -339,7 +337,6 @@ func TestRootMappingFsMountOverlap(t *testing.T) {
 	fi, err := rfs.Stat(filepath.FromSlash("static/b/b.txt"))
 	c.Assert(err, qt.IsNil)
 	c.Assert(fi.Name(), qt.Equals, "b.txt")
-
 }
 
 func TestRootMappingFsOs(t *testing.T) {
@@ -485,5 +482,4 @@ func TestRootMappingFsOsBase(t *testing.T) {
 	}
 
 	c.Assert(getDirnames("static/a/b/c"), qt.DeepEquals, []string{"d4", "f-1.txt", "f-2.txt", "f-3.txt", "ms-1.txt"})
-
 }

@@ -59,7 +59,6 @@ or just source them in directly:
 			}
 
 			err := cmd.Root().GenBashCompletionFile(cc.autocompleteTarget)
-
 			if err != nil {
 				return err
 			}

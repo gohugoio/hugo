@@ -51,6 +51,7 @@ func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
 	err = mapstructure.WeakDecode(m, &opts)
 	return
 }
+
 func (opts Options) toArgs() []string {
 	var args []string
 
@@ -111,7 +112,6 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		// Try PATH
 		binary = binaryName
 		if _, err := exec.LookPath(binary); err != nil {
-
 			// This may be on a CI server etc. Will fall back to pre-built assets.
 			return herrors.ErrFeatureNotAvailable
 		}

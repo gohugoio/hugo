@@ -125,7 +125,6 @@ func (ids *idFactory) Generate(value []byte, kind ast.NodeKind) []byte {
 		}
 
 		ids.vals[buf.String()] = struct{}{}
-
 	})
 }
 

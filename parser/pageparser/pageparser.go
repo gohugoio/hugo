@@ -71,7 +71,6 @@ func ParseFrontMatterAndContent(r io.Reader) (ContentFrontMatter, error) {
 			frontMatterSource = item.Val
 		}
 		return true
-
 	}
 
 	iter.PeekWalk(walkFn)

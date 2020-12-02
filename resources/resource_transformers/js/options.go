@@ -212,12 +212,10 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 			build.OnResolve(api.OnResolveOptions{Filter: `.*`},
 				func(args api.OnResolveArgs) (api.OnResolveResult, error) {
 					return resolveImport(args)
-
 				})
 			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: nsImportHugo},
 				func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 					b, err := ioutil.ReadFile(args.Path)
-
 					if err != nil {
 						return api.OnLoadResult{}, errors.Wrapf(err, "failed to read %q", args.Path)
 					}
@@ -266,11 +264,9 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 	}
 
 	return []api.Plugin{importResolver, paramsPlugin}, nil
-
 }
 
 func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
-
 	var target api.Target
 	switch opts.Target {
 	case "", "esnext":
@@ -336,8 +332,8 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 	}
 
 	// By default we only need to specify outDir and no outFile
-	var outDir = opts.outDir
-	var outFile = ""
+	outDir := opts.outDir
+	outFile := ""
 	var sourceMap api.SourceMap
 	switch opts.SourceMap {
 	case "inline":
@@ -381,5 +377,4 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 		},
 	}
 	return
-
 }

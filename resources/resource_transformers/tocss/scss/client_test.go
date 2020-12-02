@@ -46,5 +46,4 @@ func TestReplaceRegularCSSImports(t *testing.T) {
 
 	reverted := replaceRegularImportsOut(res)
 	c.Assert(reverted, qt.Equals, scssWithImport)
-
 }

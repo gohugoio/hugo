@@ -68,9 +68,11 @@ func TestClassCollector(t *testing.T) {
 			</div>
 		</body>`, f("body div", "class1 class2 class3", "")},
 
-		{"Alpine bind 2", `<div x-bind:class="{ 'bg-black':  filter.checked }"
+		{
+			"Alpine bind 2", `<div x-bind:class="{ 'bg-black':  filter.checked }"
                         class="inline-block mr-1 mb-2 rounded  bg-gray-300 px-2 py-2">FOO</div>`,
-			f("div", "bg-black bg-gray-300 inline-block mb-2 mr-1 px-2 py-2 rounded", "")},
+			f("div", "bg-black bg-gray-300 inline-block mb-2 mr-1 px-2 py-2 rounded", ""),
+		},
 
 		{"Alpine bind 3", `<div x-bind:class="{ 'text-gray-800':  !checked, 'text-white': checked }"></div>`, f("div", "text-gray-800 text-white", "")},
 		{"Alpine bind 4", `<div x-bind:class="{ 'text-gray-800':  !checked, 
@@ -97,7 +99,6 @@ func TestClassCollector(t *testing.T) {
 			c.Assert(got, qt.DeepEquals, test.expect)
 		})
 	}
-
 }
 
 func BenchmarkClassCollectorWriter(b *testing.B) {

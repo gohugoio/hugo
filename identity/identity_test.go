@@ -33,14 +33,12 @@ func TestIdentityManager(t *testing.T) {
 }
 
 func BenchmarkIdentityManager(b *testing.B) {
-
 	createIds := func(num int) []Identity {
 		ids := make([]Identity, num)
 		for i := 0; i < num; i++ {
 			ids[i] = testIdentity{name: fmt.Sprintf("id%d", i)}
 		}
 		return ids
-
 	}
 
 	b.Run("Add", func(b *testing.B) {
@@ -75,9 +73,7 @@ func BenchmarkIdentityManager(b *testing.B) {
 			id := im.Search(testIdentity{name: name})
 			c.Assert(id.GetIdentity().Name(), qt.Equals, name)
 		}
-
 	})
-
 }
 
 type testIdentity struct {

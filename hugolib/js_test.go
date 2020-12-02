@@ -136,7 +136,6 @@ if (hasSpace.test(string))
 var React = __toModule(require(&#34;react&#34;));
 function greeter(person) {
 `)
-
 }
 
 func TestJSBuild(t *testing.T) {
@@ -208,5 +207,4 @@ Hello3 from mod2. Date from date-fns: ${today}
 Hello from lib in the main project
 Hello5 from mod2.
 var myparam = "Hugo Rocks!";`)
-
 }

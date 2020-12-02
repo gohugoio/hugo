@@ -72,7 +72,6 @@ func (n *newCmd) newContent(cmd *cobra.Command, args []string) error {
 	}
 
 	c, err := initializeConfig(true, false, &n.hugoBuilderCommon, n, cfgInit)
-
 	if err != nil {
 		return err
 	}

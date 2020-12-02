@@ -73,5 +73,4 @@ func TestConfig(t *testing.T) {
 		c.Assert(conf.Highlight.CodeFences, qt.Equals, true)
 		c.Assert(conf.Highlight.GuessSyntax, qt.Equals, true)
 	})
-
 }

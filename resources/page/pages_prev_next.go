@@ -31,5 +31,4 @@ func (p Pages) Prev(cur Page) Page {
 	}
 
 	return p[x+1]
-
 }

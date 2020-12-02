@@ -36,7 +36,6 @@ func (p provider) New(cfg converter.ProviderConfig) (converter.Provider, error) 
 			cfg: cfg,
 		}, nil
 	}), nil
-
 }
 
 type pandocConverter struct {

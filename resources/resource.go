@@ -276,7 +276,6 @@ func (l *genericResource) Publish() error {
 		defer fw.Close()
 
 		_, err = io.Copy(fw, fr)
-
 	})
 
 	return err
@@ -435,7 +434,6 @@ func (l genericResource) clone() *genericResource {
 
 // returns an opened file or nil if nothing to write (it may already be published).
 func (l *genericResource) openDestinationsForWriting() (w io.WriteCloser, err error) {
-
 	l.publishInit.Do(func() {
 		targetFilenames := l.getTargetFilenames()
 		var changedFilenames []string
@@ -456,11 +454,9 @@ func (l *genericResource) openDestinationsForWriting() (w io.WriteCloser, err er
 		}
 
 		w, err = helpers.OpenFilesForWriting(l.getSpec().BaseFs.PublishFs, changedFilenames...)
-
 	})
 
 	return
-
 }
 
 func (r *genericResource) openPublishFileForWriting(relTargetPath string) (io.WriteCloser, error) {

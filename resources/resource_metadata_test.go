@@ -43,7 +43,6 @@ func TestAssignMetadata(t *testing.T) {
 			c.Assert(logo1.Title(), qt.Equals, "My Resource")
 			c.Assert(logo1.Name(), qt.Equals, "My Name")
 			c.Assert(foo2.Name(), qt.Equals, "My Name")
-
 		}},
 		{[]map[string]interface{}{
 			{
@@ -62,7 +61,6 @@ func TestAssignMetadata(t *testing.T) {
 			c.Assert(foo2.Name(), qt.Equals, "My Name")
 			c.Assert(foo3.Name(), qt.Equals, "My Name")
 			c.Assert(foo3.Title(), qt.Equals, "My Resource")
-
 		}},
 		{[]map[string]interface{}{
 			{
@@ -102,7 +100,6 @@ func TestAssignMetadata(t *testing.T) {
 
 			c.Assert(icon1, qt.Equals, "logo")
 			c.Assert(icon2, qt.Equals, "resource")
-
 		}},
 		{[]map[string]interface{}{
 			{
@@ -126,7 +123,6 @@ func TestAssignMetadata(t *testing.T) {
 			c.Assert(foo3.Title(), qt.Equals, "Resource #5")
 
 			c.Assert(resources.GetMatch("logo name #1*"), qt.Equals, logo2)
-
 		}},
 		{[]map[string]interface{}{
 			{
@@ -146,7 +142,6 @@ func TestAssignMetadata(t *testing.T) {
 			c.Assert(logo2.Name(), qt.Equals, "Name #1")
 			c.Assert(logo1.Title(), qt.Equals, "Other Logo #2")
 			c.Assert(logo1.Name(), qt.Equals, "Name #2")
-
 		}},
 		{[]map[string]interface{}{
 			{
@@ -166,7 +161,6 @@ func TestAssignMetadata(t *testing.T) {
 			c.Assert(logo2.Name(), qt.Equals, "Name #1")
 			c.Assert(logo1.Title(), qt.Equals, "Other Logo #2")
 			c.Assert(logo1.Name(), qt.Equals, "Name #2")
-
 		}},
 		{[]map[string]interface{}{
 			{
@@ -186,7 +180,6 @@ func TestAssignMetadata(t *testing.T) {
 			c.Assert(logo2.Name(), qt.Equals, "Name #1")
 			c.Assert(logo1.Title(), qt.Equals, "Logo #2")
 			c.Assert(logo1.Name(), qt.Equals, "Name #2")
-
 		}},
 		{[]map[string]interface{}{
 			{
@@ -195,7 +188,6 @@ func TestAssignMetadata(t *testing.T) {
 		}, func(err error) {
 			// Missing src
 			c.Assert(err, qt.Not(qt.IsNil))
-
 		}},
 		{[]map[string]interface{}{
 			{
@@ -205,7 +197,6 @@ func TestAssignMetadata(t *testing.T) {
 		}, func(err error) {
 			// Invalid pattern
 			c.Assert(err, qt.Not(qt.IsNil))
-
 		}},
 	} {
 
@@ -227,5 +218,4 @@ func TestAssignMetadata(t *testing.T) {
 
 		this.assertFunc(AssignMetadata(this.metaData, resources...))
 	}
-
 }

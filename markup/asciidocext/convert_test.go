@@ -246,7 +246,6 @@ func TestAsciidoctorAttributes(t *testing.T) {
 	c.Assert(args[2], qt.Equals, "-a")
 	c.Assert(expectedValues[args[3]], qt.Equals, true)
 	c.Assert(args[4], qt.Equals, "--no-header-footer")
-
 }
 
 func TestConvert(t *testing.T) {

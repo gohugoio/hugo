@@ -453,7 +453,7 @@ func (t *Tree) parseControl(allowElseIf bool, context string) (pos Pos, line int
 	var next Node
 	list, next = t.itemList()
 	switch next.Type() {
-	case nodeEnd: //done
+	case nodeEnd: // done
 	case nodeElse:
 		if allowElseIf {
 			// Special case for "else if". If the "else" is followed immediately by an "if",

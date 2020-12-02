@@ -159,7 +159,6 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 	}
 
 	return result, nil
-
 }
 
 // IncludeCached executes and caches partial templates.  The cache is created with name+variants as the key.

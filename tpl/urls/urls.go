@@ -17,9 +17,7 @@ package urls
 import (
 	"errors"
 	"fmt"
-
 	"html/template"
-
 	"net/url"
 
 	"github.com/gohugoio/hugo/common/urls"

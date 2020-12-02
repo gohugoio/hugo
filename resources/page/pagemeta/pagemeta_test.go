@@ -46,7 +46,8 @@ publishResources = true`
 				List:             Always,
 				PublishResources: true,
 				set:              true,
-			}},
+			},
+		},
 		{[]interface{}{"true", "false"}, BuildConfig{
 			Render:           Always,
 			List:             Never,
@@ -88,5 +89,4 @@ publishResources = true`
 		c.Assert(bcfg, eq, test.expect)
 
 	}
-
 }

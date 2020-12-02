@@ -59,7 +59,6 @@ func (l *pageLexer) Iterator() *Iterator {
 
 func (l *pageLexer) Input() []byte {
 	return l.input
-
 }
 
 type Config struct {
@@ -286,7 +285,6 @@ func (s *sectionHandlers) skip() int {
 }
 
 func createSectionHandlers(l *pageLexer) *sectionHandlers {
-
 	shortCodeHandler := &sectionHandler{
 		l: l,
 		skipFunc: func(l *pageLexer) int {
@@ -327,7 +325,6 @@ func createSectionHandlers(l *pageLexer) *sectionHandlers {
 		skipFunc: func(l *pageLexer) int {
 			if l.summaryDividerChecked || l.summaryDivider == nil {
 				return -1
-
 			}
 			return l.index(l.summaryDivider)
 		},
@@ -343,7 +340,6 @@ func createSectionHandlers(l *pageLexer) *sectionHandlers {
 			l.emit(TypeLeadSummaryDivider)
 
 			return origin, true
-
 		},
 	}
 
@@ -425,7 +421,6 @@ func (s *sectionHandler) skip() int {
 }
 
 func lexMainSection(l *pageLexer) stateFunc {
-
 	if l.isEOF() {
 		return lexDone
 	}
@@ -451,11 +446,9 @@ func lexMainSection(l *pageLexer) stateFunc {
 
 	l.pos = len(l.input)
 	return lexDone
-
 }
 
 func lexDone(l *pageLexer) stateFunc {
-
 	// Done!
 	if l.pos > l.start {
 		l.emit(tText)

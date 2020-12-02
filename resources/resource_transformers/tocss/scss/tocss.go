@@ -127,7 +127,7 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		// more correct for the main entry path (main.scss typically), but
 		// it will mess up the import mappings. As a workaround, we do a replacement
 		// in the source map itself (see below).
-		//options.InputPath = inputPath
+		// options.InputPath = inputPath
 		options.to.SourceMapOptions.OutputPath = outName
 		options.to.SourceMapOptions.Contents = true
 		options.to.SourceMapOptions.OmitURL = false

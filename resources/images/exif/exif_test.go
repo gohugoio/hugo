@@ -60,7 +60,6 @@ func TestExif(t *testing.T) {
 	err = json.Unmarshal(data, x2)
 
 	c.Assert(x2, eq, x)
-
 }
 
 func TestExifPNG(t *testing.T) {

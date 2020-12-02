@@ -30,7 +30,6 @@ import (
 )
 
 func TestClient(t *testing.T) {
-
 	modName := "hugo-modules-basic-test"
 	modPath := "github.com/gohugoio/tests/" + modName
 	expect := `github.com/gohugoio/tests/hugo-modules-basic-test github.com/gohugoio/hugoTestModules1_darwin/modh2_2@v1.4.0
@@ -41,7 +40,6 @@ github.com/gohugoio/hugoTestModules1_darwin/modh2_2@v1.4.0 github.com/gohugoio/h
 	c := qt.New(t)
 
 	newClient := func(c *qt.C, withConfig func(cfg *ClientConfig)) (*Client, func()) {
-
 		workingDir, clean, err := htesting.CreateTempDir(hugofs.Os, modName)
 		c.Assert(err, qt.IsNil)
 		themesDir := filepath.Join(workingDir, "themes")
@@ -55,7 +53,7 @@ github.com/gohugoio/hugoTestModules1_darwin/modh2_2@v1.4.0 github.com/gohugoio/h
 		}
 
 		withConfig(&ccfg)
-		ccfg.ModuleConfig.Imports = []Import{Import{Path: "github.com/gohugoio/hugoTestModules1_darwin/modh2_2"}}
+		ccfg.ModuleConfig.Imports = []Import{{Path: "github.com/gohugoio/hugoTestModules1_darwin/modh2_2"}}
 		client := NewClient(ccfg)
 
 		return client, clean
@@ -98,7 +96,6 @@ project github.com/gohugoio/hugoTestModules1_darwin/modh2_2_2@v1.3.0+vendor
 
 		// Test Tidy
 		c.Assert(client.Tidy(), qt.IsNil)
-
 	})
 
 	c.Run("IgnoreVendor", func(c *qt.C) {
@@ -165,15 +162,12 @@ project github.com/gohugoio/hugoTestModules1_darwin/modh2_2_2@v1.3.0+vendor
 		dirname, err = client.createThemeDirname(absDir, false)
 		fmt.Println(dirname)
 		c.Assert(err, qt.Not(qt.IsNil))
-
 	})
-
 }
 
 var globAll, _ = glob.GetGlob("**")
 
 func TestGetModlineSplitter(t *testing.T) {
-
 	c := qt.New(t)
 
 	gomodSplitter := getModlineSplitter(true)
@@ -184,5 +178,4 @@ func TestGetModlineSplitter(t *testing.T) {
 
 	gosumSplitter := getModlineSplitter(false)
 	c.Assert(gosumSplitter("github.com/BurntSushi/toml v0.3.1"), qt.DeepEquals, []string{"github.com/BurntSushi/toml", "v0.3.1"})
-
 }

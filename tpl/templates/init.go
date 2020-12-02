@@ -31,13 +31,13 @@ func init() {
 
 		ns.AddMethodMapping(ctx.Exists,
 			nil,
-			[][2]string{{`{{ if (templates.Exists "partials/header.html") }}Yes!{{ end }}`, `Yes!`},
+			[][2]string{
+				{`{{ if (templates.Exists "partials/header.html") }}Yes!{{ end }}`, `Yes!`},
 				{`{{ if not (templates.Exists "partials/doesnotexist.html") }}No!{{ end }}`, `No!`},
 			},
 		)
 
 		return ns
-
 	}
 
 	internal.AddTemplateFuncsNamespace(f)

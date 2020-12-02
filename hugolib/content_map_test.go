@@ -43,7 +43,6 @@ func BenchmarkContentMap(b *testing.B) {
 
 		mfi := fi.(hugofs.FileMetaInfo)
 		return mfi
-
 	}
 
 	createFs := func(fs afero.Fs, lang string) afero.Fs {
@@ -55,7 +54,6 @@ func BenchmarkContentMap(b *testing.B) {
 				meta["lang"] = lang
 				meta["path"] = meta.Filename()
 				meta["classifier"] = files.ClassifyContentFile(fi.Name(), meta.GetOpener())
-
 			})
 	}
 
@@ -87,7 +85,6 @@ func BenchmarkContentMap(b *testing.B) {
 			b.StartTimer()
 		}
 	})
-
 }
 
 func TestContentMap(t *testing.T) {
@@ -104,7 +101,6 @@ func TestContentMap(t *testing.T) {
 
 		mfi := fi.(hugofs.FileMetaInfo)
 		return mfi
-
 	}
 
 	createFs := func(fs afero.Fs, lang string) afero.Fs {
@@ -117,12 +113,10 @@ func TestContentMap(t *testing.T) {
 				meta["path"] = meta.Filename()
 				meta["classifier"] = files.ClassifyContentFile(fi.Name(), meta.GetOpener())
 				meta["translationBaseName"] = helpers.Filename(fi.Name())
-
 			})
 	}
 
 	c.Run("AddFiles", func(c *qt.C) {
-
 		memfs := afero.NewMemMapFs()
 
 		fsl := func(lang string) afero.Fs {
@@ -254,11 +248,9 @@ func TestContentMap(t *testing.T) {
              
        
 				`, qt.Commentf(m.testDump()))
-
 	})
 
 	c.Run("CreateMissingNodes", func(c *qt.C) {
-
 		memfs := afero.NewMemMapFs()
 
 		fsl := func(lang string) afero.Fs {
@@ -297,7 +289,6 @@ func TestContentMap(t *testing.T) {
               	 - P: blog/page.md
             
 			`, qt.Commentf(got))
-
 	})
 
 	c.Run("cleanKey", func(c *qt.C) {
@@ -309,15 +300,12 @@ func TestContentMap(t *testing.T) {
 			{filepath.FromSlash("/a/b/"), "/a/b"},
 			{"/a//b/", "/a/b"},
 		} {
-
 			c.Assert(cleanTreeKey(test.in), qt.Equals, test.expected)
-
 		}
 	})
 }
 
 func TestContentMapSite(t *testing.T) {
-
 	b := newTestSitesBuilder(t)
 
 	pageTempl := `

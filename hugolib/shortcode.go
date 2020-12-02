@@ -16,28 +16,24 @@ package hugolib
 import (
 	"bytes"
 	"fmt"
+	"html/template"
+	"path"
+	"reflect"
+	"regexp"
+	"sort"
 	"strconv"
+	"strings"
+	"sync"
 
 	"github.com/gohugoio/hugo/helpers"
 
-	"html/template"
-	"path"
-
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/pkg/errors"
-
-	"reflect"
-
-	"regexp"
-	"sort"
 
 	"github.com/gohugoio/hugo/parser/pageparser"
 	"github.com/gohugoio/hugo/resources/page"
 
 	_errors "github.com/pkg/errors"
-
-	"strings"
-	"sync"
 
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/text"
@@ -153,7 +149,6 @@ func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
 	}
 
 	return x.Interface()
-
 }
 
 func (scp *ShortcodeWithPage) page() page.Page {
@@ -230,7 +225,7 @@ func (sc shortcode) String() string {
 			keys = append(keys, k)
 		}
 		sort.Strings(keys)
-		var tmp = make(map[string]interface{})
+		tmp := make(map[string]interface{})
 
 		for _, k := range keys {
 			tmp[k] = v[k]
@@ -261,7 +256,6 @@ type shortcodeHandler struct {
 }
 
 func newShortcodeHandler(p *pageState, s *Site, placeholderFunc func() string) *shortcodeHandler {
-
 	sh := &shortcodeHandler{
 		p:                      p,
 		s:                      s,
@@ -286,7 +280,6 @@ func renderShortcode(
 	sc *shortcode,
 	parent *ShortcodeWithPage,
 	p *pageState) (string, bool, error) {
-
 	var tmpl tpl.Template
 
 	// Tracks whether this shortcode or any of its children has template variations
@@ -360,7 +353,6 @@ func renderShortcode(
 		if sc.doMarkup && (level > 0 || sc.configVersion() == 1) {
 			var err error
 			b, err := p.pageOutput.cp.renderContent([]byte(inner), false)
-
 			if err != nil {
 				return "", false, err
 			}
@@ -413,7 +405,6 @@ func (s *shortcodeHandler) hasShortcodes() bool {
 }
 
 func (s *shortcodeHandler) renderShortcodesForPage(p *pageState, f output.Format) (map[string]string, bool, error) {
-
 	rendered := make(map[string]string)
 
 	tplVariants := tpl.TemplateVariants{
@@ -455,9 +446,9 @@ func (s *shortcodeHandler) extractShortcode(ordinal, level int, pt *pageparser.I
 	}
 	sc := &shortcode{ordinal: ordinal}
 
-	var cnt = 0
-	var nestedOrdinal = 0
-	var nextLevel = level + 1
+	cnt := 0
+	nestedOrdinal := 0
+	nextLevel := level + 1
 
 	fail := func(err error, i pageparser.Item) error {
 		return s.parseError(err, pt.Input(), i.Pos)
@@ -568,7 +559,6 @@ Loop:
 					} else {
 						return sc, errShortCodeIllegalState
 					}
-
 				}
 			} else {
 				// positional params
@@ -583,7 +573,6 @@ Loop:
 					} else {
 						return sc, errShortCodeIllegalState
 					}
-
 				}
 			}
 		case currItem.IsDone():
@@ -599,7 +588,6 @@ Loop:
 // Replace prefixed shortcode tokens with the real content.
 // Note: This function will rewrite the input slice.
 func replaceShortcodeTokens(source []byte, replacements map[string]string) ([]byte, error) {
-
 	if len(replacements) == 0 {
 		return source, nil
 	}

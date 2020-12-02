@@ -61,5 +61,4 @@ func TestConfigLegacy(t *testing.T) {
 	conf, err := decodeConfig(v)
 	c.Assert(err, qt.IsNil)
 	c.Assert(conf.MinifyOutput, qt.Equals, true)
-
 }

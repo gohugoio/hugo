@@ -47,7 +47,6 @@ func TestRenderWithInvalidTemplate(t *testing.T) {
 	withTemplate := createWithTemplateFromNameValues("missing", templateMissingFunc)
 
 	buildSingleSiteExpected(t, true, false, deps.DepsCfg{Fs: fs, Cfg: cfg, WithTemplate: withTemplate}, BuildCfg{})
-
 }
 
 func TestDraftAndFutureRender(t *testing.T) {
@@ -70,7 +69,6 @@ func TestDraftAndFutureRender(t *testing.T) {
 
 		for _, src := range sources {
 			writeSource(t, fs, filepath.Join("content", src[0]), src[1])
-
 		}
 
 		return buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
@@ -105,7 +103,6 @@ func TestDraftAndFutureRender(t *testing.T) {
 	if len(s.RegularPages()) != 4 {
 		t.Fatal("Drafts or Future posts not included as expected")
 	}
-
 }
 
 func TestFutureExpirationRender(t *testing.T) {
@@ -121,7 +118,6 @@ func TestFutureExpirationRender(t *testing.T) {
 
 		for _, src := range sources {
 			writeSource(t, fs, filepath.Join("content", src[0]), src[1])
-
 		}
 
 		return buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
@@ -174,7 +170,6 @@ func TestPageWithUnderScoreIndexInFilename(t *testing.T) {
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 1)
-
 }
 
 // Issue #957
@@ -188,7 +183,6 @@ func TestCrossrefs(t *testing.T) {
 }
 
 func doTestCrossrefs(t *testing.T, relative, uglyURLs bool) {
-
 	c := qt.New(t)
 
 	baseURL := "http://foo/bar"
@@ -257,7 +251,8 @@ THE END.`, refShortcode),
 		deps.DepsCfg{
 			Fs:           fs,
 			Cfg:          cfg,
-			WithTemplate: createWithTemplateFromNameValues("_default/single.html", "{{.Content}}")},
+			WithTemplate: createWithTemplateFromNameValues("_default/single.html", "{{.Content}}"),
+		},
 		BuildCfg{})
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 4)
@@ -276,9 +271,7 @@ THE END.`, refShortcode),
 
 	for _, test := range tests {
 		th.assertFileContent(test.doc, test.expected)
-
 	}
-
 }
 
 // Issue #939
@@ -291,7 +284,6 @@ func TestShouldAlwaysHaveUglyURLs(t *testing.T) {
 }
 
 func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
-
 	cfg, fs := newTestCfg()
 	c := qt.New(t)
 
@@ -299,7 +291,8 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 	cfg.Set("baseURL", "http://auth/bub")
 	cfg.Set("blackfriday",
 		map[string]interface{}{
-			"plainIDAnchors": true})
+			"plainIDAnchors": true,
+		})
 
 	cfg.Set("uglyURLs", uglyURLs)
 
@@ -351,7 +344,6 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 			t.Errorf("%s content expected:\n%q\ngot:\n%q", test.doc, test.expected, content)
 		}
 	}
-
 }
 
 // Issue #3355
@@ -418,7 +410,6 @@ Main section page: {{ .RelPermalink }}
 			} else {
 				b.AssertFileContent("public/index.html", "mainSections: [blog]", "Main section page: /blog/page3/")
 			}
-
 		})
 	}
 }
@@ -501,7 +492,6 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 
 		th.assertFileContent(filepath.Join("public", test.doc), test.expected)
 	}
-
 }
 
 func TestAbsURLify(t *testing.T) {
@@ -521,7 +511,6 @@ func TestAbsURLify(t *testing.T) {
 
 			for _, src := range sources {
 				writeSource(t, fs, filepath.Join("content", src[0]), src[1])
-
 			}
 
 			writeSource(t, fs, filepath.Join("layouts", "blue/single.html"), templateWithURLAbs)
@@ -608,7 +597,6 @@ func TestOrderedPages(t *testing.T) {
 
 	for _, src := range weightedSources {
 		writeSource(t, fs, filepath.Join("content", src[0]), src[1])
-
 	}
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
@@ -895,7 +883,6 @@ func setupLinkingMockSite(t *testing.T) *Site {
 		map[string]interface{}{})
 	writeSourcesToSource(t, "content", fs, sources...)
 	return buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
-
 }
 
 func TestRefLinking(t *testing.T) {
@@ -945,14 +932,13 @@ func TestRefLinking(t *testing.T) {
 		// try to confuse parsing
 		{"embedded.dot.md", "", true, "/level2/level3/embedded.dot/"},
 
-		//test empty link, as well as fragment only link
+		// test empty link, as well as fragment only link
 		{"", "", true, ""},
 	} {
-
 		t.Run(fmt.Sprint(i), func(t *testing.T) {
 			checkLinkCase(site, test.link, currentPage, test.relative, test.outputFormat, test.expected, t, i)
 
-			//make sure fragment links are also handled
+			// make sure fragment links are also handled
 			checkLinkCase(site, test.link+"#intro", currentPage, test.relative, test.outputFormat, test.expected+"#intro", t, i)
 		})
 	}
@@ -983,11 +969,9 @@ func TestRefIssues(t *testing.T) {
 
 	b.AssertFileContent("public/post/b1/index.html", `Content: <p>Ref: http://example.com/post/b2/</p>`)
 	b.AssertFileContent("public/post/nested-a/content-a/index.html", `Content: http://example.com/post/nested-b/content-b/`)
-
 }
 
 func TestClassCollector(t *testing.T) {
-
 	for _, minify := range []bool{false, true} {
 		t.Run(fmt.Sprintf("minify-%t", minify), func(t *testing.T) {
 			statsFilename := "hugo_stats.json"
@@ -1053,9 +1037,7 @@ Some text.
           }
         }
 `)
-
 		})
-
 	}
 }
 
@@ -1102,7 +1084,6 @@ ABC.
 `)
 
 	for _, lang := range []string{"en", "nb", "no", "sv"} {
-
 		for i := 100; i <= 999; i++ {
 			b.WithContent(fmt.Sprintf("p%d.%s.md", i, lang), fmt.Sprintf("---\ntitle: p%s%d\n---", lang, i))
 		}
@@ -1126,5 +1107,4 @@ ABC.
 		b.Assert(els.Tags, qt.HasLen, 9)
 		b.Assert(els.IDs, qt.HasLen, 1)
 	}
-
 }

@@ -295,13 +295,11 @@ func (h *HugoSites) GetContentPage(filename string) page.Page {
 // NewHugoSites creates a new collection of sites given the input sites, building
 // a language configuration based on those.
 func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
-
 	if cfg.Language != nil {
 		return nil, errors.New("Cannot provide Language in Cfg when sites are provided")
 	}
 
 	langConfig, err := newMultiLingualFromSites(cfg.Cfg, sites...)
-
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create language config")
 	}
@@ -437,7 +435,6 @@ func applyDeps(cfg deps.DepsCfg, sites ...*Site) error {
 				s.outputFormatsConfig,
 				s.mediaTypesConfig,
 			)
-
 			if err != nil {
 				return err
 			}
@@ -535,10 +532,7 @@ func (s *Site) withSiteTemplates(withTemplates ...func(templ tpl.TemplateManager
 }
 
 func createSitesFromConfig(cfg deps.DepsCfg) ([]*Site, error) {
-
-	var (
-		sites []*Site
-	)
+	var sites []*Site
 
 	languages := getLanguages(cfg.Cfg)
 
@@ -619,13 +613,11 @@ func (h *HugoSites) createSitesFromConfig(cfg config.Provider) error {
 	depsCfg := deps.DepsCfg{Fs: h.Fs, Cfg: cfg}
 
 	sites, err := createSitesFromConfig(depsCfg)
-
 	if err != nil {
 		return err
 	}
 
 	langConfig, err := newMultiLingualFromSites(depsCfg.Cfg, sites...)
-
 	if err != nil {
 		return err
 	}
@@ -707,7 +699,6 @@ func (cfg *BuildCfg) shouldRender(p *pageState) bool {
 }
 
 func (h *HugoSites) renderCrossSitesSitemap() error {
-
 	if !h.multilingual.enabled() || h.IsMultihost() {
 		return nil
 	}
@@ -750,7 +741,6 @@ func (h *HugoSites) renderCrossSitesRobotsTXT() error {
 		},
 	},
 		output.RobotsTxtFormat)
-
 	if err != nil {
 		return err
 	}
@@ -779,11 +769,9 @@ func (h *HugoSites) removePageByFilename(filename string) {
 		})
 		return nil
 	})
-
 }
 
 func (h *HugoSites) createPageCollections() error {
-
 	allPages := newLazyPagesFactory(func() page.Pages {
 		var pages page.Pages
 		for _, s := range h.Sites {
@@ -1083,7 +1071,6 @@ func (m *contentChangeMap) resolveAndRemove(filename string) (string, bundleDirT
 	}
 
 	return dir, bundleNot
-
 }
 
 func (m *contentChangeMap) addSymbolicLinkMapping(fim hugofs.FileMetaInfo) {

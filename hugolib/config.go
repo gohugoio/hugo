@@ -123,7 +123,6 @@ var ErrNoConfigFile = errors.New("Unable to locate config file or config directo
 // LoadConfig loads Hugo configuration into a new Viper and then adds
 // a set of defaults.
 func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provider) error) (*viper.Viper, []string, error) {
-
 	if d.Environment == "" {
 		d.Environment = hugo.EnvironmentProduction
 	}
@@ -258,7 +257,6 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 	}
 
 	return v, configFiles, err
-
 }
 
 func loadLanguageSettings(cfg config.Provider, oldLangs langs.Languages) error {
@@ -310,7 +308,6 @@ func (l configLoader) loadConfig(configName string, v *viper.Viper) (string, err
 	}
 
 	return filename, nil
-
 }
 
 func (l configLoader) wrapFileError(err error, filename string) error {
@@ -414,9 +411,7 @@ func (l configLoader) loadConfigFromConfigDir(v *viper.Viper) ([]string, error) 
 			}
 
 			return nil
-
 		})
-
 		if err != nil {
 			return nil, err
 		}
@@ -427,7 +422,6 @@ func (l configLoader) loadConfigFromConfigDir(v *viper.Viper) ([]string, error) 
 }
 
 func (l configLoader) loadModulesConfig(v1 *viper.Viper) (modules.Config, error) {
-
 	modConfig, err := modules.DecodeConfig(v1)
 	if err != nil {
 		return modules.Config{}, err
@@ -475,7 +469,6 @@ func (l configLoader) collectModules(modConfig modules.Config, v1 *viper.Viper, 
 		}
 
 		return nil
-
 	}
 
 	modulesClient := modules.NewClient(modules.ClientConfig{
@@ -503,11 +496,9 @@ func (l configLoader) collectModules(modConfig modules.Config, v1 *viper.Viper, 
 	}
 
 	return moduleConfig.ActiveModules, configFilenames, err
-
 }
 
 func (l configLoader) applyThemeConfig(v1 *viper.Viper, theme modules.Module) error {
-
 	const (
 		paramsKey    = "params"
 		languagesKey = "languages"
@@ -560,7 +551,6 @@ func (l configLoader) applyThemeConfig(v1 *viper.Viper, theme modules.Module) er
 	}
 
 	return nil
-
 }
 
 func (configLoader) mergeStringMapKeepLeft(rootKey, key string, v1, v2 config.Provider) {
@@ -587,7 +577,6 @@ func (configLoader) mergeStringMapKeepLeft(rootKey, key string, v1, v2 config.Pr
 }
 
 func loadDefaultSettingsFor(v *viper.Viper) error {
-
 	v.RegisterAlias("indexes", "taxonomies")
 
 	/*

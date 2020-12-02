@@ -130,6 +130,4 @@ type RenderContext struct {
 	RenderHooks *hooks.Renderers
 }
 
-var (
-	FeatureRenderHooks = identity.NewPathIdentity("markup", "renderingHooks")
-)
+var FeatureRenderHooks = identity.NewPathIdentity("markup", "renderingHooks")

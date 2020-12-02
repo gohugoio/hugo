@@ -71,7 +71,6 @@ func BenchmarkGetPage(b *testing.B) {
 }
 
 func createGetPageRegularBenchmarkSite(t testing.TB) *Site {
-
 	var (
 		c       = qt.New(t)
 		cfg, fs = newTestCfg()
@@ -89,7 +88,6 @@ func createGetPageRegularBenchmarkSite(t testing.TB) *Site {
 	}
 
 	return buildSingleSite(c, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
-
 }
 
 func TestBenchmarkGetPageRegular(t *testing.T) {
@@ -142,7 +140,6 @@ func BenchmarkGetPageRegular(b *testing.B) {
 			c.Assert(page, qt.Not(qt.IsNil))
 		}
 	})
-
 }
 
 type getPageTest struct {
@@ -172,7 +169,6 @@ func (t *getPageTest) check(p page.Page, err error, errorMsg string, c *qt.C) {
 }
 
 func TestGetPage(t *testing.T) {
-
 	var (
 		cfg, fs = newTestCfg()
 		c       = qt.New(t)
@@ -246,10 +242,10 @@ func TestGetPage(t *testing.T) {
 		{"Absolute, page in subsection", page.KindPage, nil, []string{"/sect3/page1.md", "/Sect3/Page1.md"}, "Title3_1"},
 		{"Absolute, section, subsection with same name", page.KindSection, nil, []string{"/sect3/sect7"}, "another sect7"},
 		{"Absolute, page, deep", page.KindPage, nil, []string{"/sect3/subsect/deep.md"}, "deep page"},
-		{"Absolute, page, OS slashes", page.KindPage, nil, []string{filepath.FromSlash("/sect5/page3.md")}, "Title5_3"}, //test OS-specific path
+		{"Absolute, page, OS slashes", page.KindPage, nil, []string{filepath.FromSlash("/sect5/page3.md")}, "Title5_3"}, // test OS-specific path
 		{"Absolute, unique", page.KindPage, nil, []string{"/sect3/unique.md"}, "UniqueBase"},
 		{"Absolute, unique, case", page.KindPage, nil, []string{"/sect3/Unique2.md", "/sect3/unique2.md", "/sect3/unique2", "/sect3/Unique2"}, "UniqueBase2"},
-		//next test depends on this page existing
+		// next test depends on this page existing
 		// {"NoPage", nil, []string{"/unique.md"}, ""},  // ISSUE #4969: this is resolving to /sect3/unique.md
 		{"Absolute, missing page", "NoPage", nil, []string{"/missing-page.md"}, ""},
 		{"Absolute, missing section", "NoPage", nil, []string{"/missing-section"}, ""},
@@ -267,7 +263,7 @@ func TestGetPage(t *testing.T) {
 		{"Rel sect7 dot", page.KindSection, sec3, []string{"./sect7"}, "another sect7"},
 		{"Dot deep", page.KindPage, sec3, []string{"./subsect/deep.md"}, "deep page"},
 		{"Dot dot inner", page.KindPage, sec3, []string{"./subsect/../../sect7/page9.md"}, "Title7_9"},
-		{"Dot OS slash", page.KindPage, sec3, []string{filepath.FromSlash("../sect5/page3.md")}, "Title5_3"}, //test OS-specific path
+		{"Dot OS slash", page.KindPage, sec3, []string{filepath.FromSlash("../sect5/page3.md")}, "Title5_3"}, // test OS-specific path
 		{"Dot unique", page.KindPage, sec3, []string{"./unique.md"}, "UniqueBase"},
 		{"Dot sect", "NoPage", sec3, []string{"./sect2"}, ""},
 		//{"NoPage", sec3, []string{"sect2"}, ""}, // ISSUE: /sect3 page relative query is resolving to /sect2
@@ -275,7 +271,7 @@ func TestGetPage(t *testing.T) {
 		{"Abs, ignore context, home", page.KindHome, sec3, []string{"/"}, "home page"},
 		{"Abs, ignore context, about", page.KindPage, sec3, []string{"/about.md"}, "about page"},
 		{"Abs, ignore context, page in section", page.KindPage, sec3, []string{"/sect4/page2.md"}, "Title4_2"},
-		{"Abs, ignore context, page subsect deep", page.KindPage, sec3, []string{"/sect3/subsect/deep.md"}, "deep page"}, //next test depends on this page existing
+		{"Abs, ignore context, page subsect deep", page.KindPage, sec3, []string{"/sect3/subsect/deep.md"}, "deep page"}, // next test depends on this page existing
 		{"Abs, ignore context, page deep", "NoPage", sec3, []string{"/subsect/deep.md"}, ""},
 
 		// Taxonomies
@@ -308,10 +304,8 @@ func TestGetPage(t *testing.T) {
 				page2, err := s.getPageNew(test.context, ref)
 				test.check(page2, err, errorMsg, c)
 			}
-
 		})
 	}
-
 }
 
 // https://github.com/gohugoio/hugo/issues/6034
@@ -338,7 +332,6 @@ NOT FOUND
 	b.AssertFileContent("public/what/index.html", `Members: members what`)
 	b.AssertFileContent("public/where/index.html", `Members: members where`)
 	b.AssertFileContent("public/who/index.html", `NOT FOUND`)
-
 }
 
 // https://github.com/gohugoio/hugo/issues/7016
@@ -377,7 +370,6 @@ NOT FOUND
 
 	b.AssertFileContent("public/index.html", `Docs p1: p1`)
 	b.AssertFileContent("public/en/index.html", `NOT FOUND`)
-
 }
 
 func TestShouldDoSimpleLookup(t *testing.T) {
@@ -387,7 +379,6 @@ func TestShouldDoSimpleLookup(t *testing.T) {
 	c.Assert(shouldDoSimpleLookup("/foo.md"), qt.Equals, true)
 	c.Assert(shouldDoSimpleLookup("./foo.md"), qt.Equals, false)
 	c.Assert(shouldDoSimpleLookup("docs/foo.md"), qt.Equals, false)
-
 }
 
 func TestRegularPagesRecursive(t *testing.T) {
@@ -426,5 +417,4 @@ Sect1 RegularPagesRecursive: page:/docs/sect1/ps1/|page:/docs/sect1/ps2/|page:/d
 
 
 `)
-
 }

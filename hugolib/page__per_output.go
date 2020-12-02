@@ -65,7 +65,6 @@ var (
 var pageContentOutputDependenciesID = identity.KeyValueIdentity{Key: "pageOutput", Value: "dependencies"}
 
 func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, error) {
-
 	parent := p.init
 
 	var dependencyTracker identity.Manager
@@ -195,7 +194,6 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 		cp.content = helpers.BytesToHTML(cp.workContent)
 
 		return nil
-
 	}
 
 	// Recursive loops can only happen in content files with template code (shortcodes etc.)
@@ -225,7 +223,6 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 	})
 
 	return cp, nil
-
 }
 
 type renderHooks struct {
@@ -370,7 +367,6 @@ func (p *pageContentOutput) setAutoSummary() error {
 	p.truncated = truncated
 
 	return nil
-
 }
 
 func (cp *pageContentOutput) renderContent(content []byte, renderTOC bool) (converter.Result, error) {
@@ -379,7 +375,6 @@ func (cp *pageContentOutput) renderContent(content []byte, renderTOC bool) (conv
 }
 
 func (cp *pageContentOutput) renderContentWithConverter(c converter.Converter, content []byte, renderTOC bool) (converter.Result, error) {
-
 	r, err := c.Convert(
 		converter.RenderContext{
 			Src:         content,
@@ -396,7 +391,6 @@ func (cp *pageContentOutput) renderContentWithConverter(c converter.Converter, c
 	}
 
 	return r, err
-
 }
 
 func (p *pageContentOutput) setWordCounts(isCJKLanguage bool) {
@@ -467,7 +461,6 @@ func executeToString(h tpl.TemplateHandler, templ tpl.Template, data interface{}
 		return "", err
 	}
 	return b.String(), nil
-
 }
 
 func splitUserDefinedSummaryAndContent(markup string, c []byte) (summary []byte, content []byte, err error) {
@@ -487,7 +480,6 @@ func splitUserDefinedSummaryAndContent(markup string, c []byte) (summary []byte,
 	switch markup {
 	case "asciidocext":
 		startTag = "div"
-
 	}
 
 	// Walk back and forward to the surrounding tags.

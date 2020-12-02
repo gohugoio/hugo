@@ -62,9 +62,7 @@ func (p provide) New(cfg converter.ProviderConfig) (converter.Provider, error) {
 	}), nil
 }
 
-var (
-	_ converter.AnchorNameSanitizer = (*goldmarkConverter)(nil)
-)
+var _ converter.AnchorNameSanitizer = (*goldmarkConverter)(nil)
 
 type goldmarkConverter struct {
 	md  goldmark.Markdown
@@ -156,7 +154,6 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 	)
 
 	return md
-
 }
 
 var _ identity.IdentitiesProvider = (*converterResult)(nil)
@@ -267,7 +264,6 @@ func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (result convert
 		ids:    rcx.ids.GetIdentities(),
 		toc:    pctx.TableOfContents(),
 	}, nil
-
 }
 
 var featureSet = map[identity.Identity]bool{
@@ -329,7 +325,6 @@ func newHighlighting(cfg highlight.Config) goldmark.Extender {
 			}
 
 			w.WriteString("</div>")
-
 		}),
 	)
 }

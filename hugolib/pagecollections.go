@@ -205,7 +205,6 @@ func (c *PageCollections) getSectionOrPage(ref string) (*contentNode, string) {
 	}
 
 	return m.getPage(s, name), name
-
 }
 
 // For Ref/Reflink and .Site.GetPage do simple name lookups for the potentially ambigous myarticle.md and /myarticle.md,
@@ -326,7 +325,6 @@ func (c *PageCollections) getContentNode(context page.Page, isReflink bool, ref 
 
 	// Ref/relref supports this potentially ambigous lookup.
 	return getByName(path.Base(name))
-
 }
 
 func (*PageCollections) findPagesByKindIn(kind string, inPages page.Pages) page.Pages {

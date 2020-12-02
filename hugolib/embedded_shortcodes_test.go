@@ -17,12 +17,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/spf13/cast"
-
-	"path/filepath"
 
 	"github.com/gohugoio/hugo/deps"
 
@@ -86,12 +85,14 @@ func TestShortcodeHighlight(t *testing.T) {
 	for _, this := range []struct {
 		in, expected string
 	}{
-		{`{{< highlight java >}}
+		{
+			`{{< highlight java >}}
 void do();
 {{< /highlight >}}`,
 			`(?s)<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java"`,
 		},
-		{`{{< highlight java "style=friendly" >}}
+		{
+			`{{< highlight java "style=friendly" >}}
 void do();
 {{< /highlight >}}`,
 			`(?s)<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">`,
@@ -205,7 +206,6 @@ title: Shorty
 
 		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), this.expected)
 	}
-
 }
 
 func TestShortcodeVimeo(t *testing.T) {

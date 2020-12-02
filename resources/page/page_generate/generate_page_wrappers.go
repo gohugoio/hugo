@@ -56,7 +56,6 @@ var (
 func Generate(c *codegen.Inspector) error {
 	if err := generateMarshalJSON(c); err != nil {
 		return errors.Wrap(err, "failed to generate JSON marshaler")
-
 	}
 
 	if err := generateDeprecatedWrappers(c); err != nil {
@@ -73,7 +72,6 @@ func Generate(c *codegen.Inspector) error {
 func generateMarshalJSON(c *codegen.Inspector) error {
 	filename := filepath.Join(c.ProjectRootDir, packageDir, "page_marshaljson.autogen.go")
 	f, err := os.Create(filename)
-
 	if err != nil {
 		return err
 	}

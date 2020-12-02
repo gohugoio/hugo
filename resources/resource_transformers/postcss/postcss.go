@@ -19,6 +19,7 @@ import (
 	"encoding/hex"
 	"io"
 	"io/ioutil"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -35,8 +36,6 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/pkg/errors"
-
-	"os/exec"
 
 	"github.com/mitchellh/mapstructure"
 
@@ -139,7 +138,6 @@ func (t *postcssTransformation) Key() internal.ResourceTransformationKey {
 // npm install -g postcss-cli
 // npm install -g autoprefixer
 func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
-
 	const localPostCSSPath = "node_modules/.bin/"
 	const binaryName = "postcss"
 
@@ -174,7 +172,6 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 		if configFile == "" && t.options.Config != "" {
 			// Only fail if the user specificed config file is not found.
 			return errors.Errorf("postcss config %q not found:", configFile)
-
 		}
 	}
 
@@ -271,7 +268,6 @@ func (imp *importResolver) importRecursive(
 	lineNum int,
 	content string,
 	inPath string) (int, string, error) {
-
 	basePath := path.Dir(inPath)
 
 	var replacements []string
@@ -350,7 +346,6 @@ func (imp *importResolver) resolve() (io.Reader, error) {
 	}
 
 	return strings.NewReader(newContent), nil
-
 }
 
 // See https://www.w3schools.com/cssref/pr_import_rule.asp

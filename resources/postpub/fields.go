@@ -53,7 +53,7 @@ func structToMap(s interface{}) map[string]interface{} {
 
 // insert placeholder for the templates. Do it very shallow for now.
 func insertFieldPlaceholders(root string, m map[string]interface{}, createPlaceholder func(s string) string) {
-	for k, _ := range m {
+	for k := range m {
 		m[k] = createPlaceholder(root + "." + k)
 	}
 }

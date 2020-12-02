@@ -128,8 +128,8 @@ func (p *testPage) AlternativeOutputFormats() OutputFormats {
 
 func (p *testPage) Author() Author {
 	return Author{}
-
 }
+
 func (p *testPage) Authors() AuthorList {
 	return nil
 }
@@ -165,6 +165,7 @@ func (p *testPage) Sitemap() config.Sitemap {
 func (p *testPage) Layout() string {
 	return ""
 }
+
 func (p *testPage) Date() time.Time {
 	return p.date
 }

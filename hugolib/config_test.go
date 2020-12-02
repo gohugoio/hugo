@@ -43,7 +43,6 @@ func TestLoadConfig(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 
 	c.Assert(cfg.GetString("paginatePath"), qt.Equals, "side")
-
 }
 
 func TestLoadMultiConfig(t *testing.T) {
@@ -359,7 +358,6 @@ map[string]interface {}{
     },
   },
 }`, got["menu"])
-
 }
 
 func TestPrivacyConfig(t *testing.T) {
@@ -381,7 +379,6 @@ privacyEnhanced = true
 	b.Build(BuildCfg{SkipRender: true})
 
 	c.Assert(b.H.Sites[0].Info.Config().Privacy.YouTube.PrivacyEnhanced, qt.Equals, true)
-
 }
 
 func TestLoadConfigModules(t *testing.T) {
@@ -477,11 +474,9 @@ project n4
 `
 
 	c.Assert(graphb.String(), qt.Equals, expected)
-
 }
 
 func TestLoadConfigWithOsEnvOverrides(t *testing.T) {
-
 	c := qt.New(t)
 
 	baseConfig := `
@@ -534,5 +529,4 @@ quality = 75
 	c.Assert(cfg.Get("intSlice"), qt.DeepEquals, []interface{}{5, 8, 9})
 	c.Assert(cfg.Get("params.api_config.api_key"), qt.Equals, "new_key")
 	c.Assert(cfg.Get("params.api_config.another_key"), qt.Equals, "default another_key")
-
 }

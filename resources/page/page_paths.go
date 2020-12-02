@@ -16,7 +16,6 @@ package page
 import (
 	"path"
 	"path/filepath"
-
 	"strings"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -112,7 +111,6 @@ func isHtmlIndex(s string) bool {
 }
 
 func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
-
 	if d.Type.Name == "" {
 		panic("CreateTargetPath: missing type")
 	}
@@ -205,7 +203,6 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 
 		if d.ExpandedPermalink != "" {
 			pagePath = pjoin(pagePath, d.ExpandedPermalink)
-
 		} else {
 			if d.Dir != "" {
 				pagePath = pjoin(pagePath, d.Dir)
@@ -273,7 +270,6 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 			pagePath = path.Join(pagePath, addSuffix(base, d.Type.MediaType.FullSuffix()))
 		} else {
 			pagePath = addSuffix(pagePath, d.Type.MediaType.FullSuffix())
-
 		}
 
 		if !isHtmlIndex(pagePath) {

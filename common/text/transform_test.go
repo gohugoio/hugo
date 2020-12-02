@@ -25,5 +25,4 @@ func TestRemoveAccents(t *testing.T) {
 	c.Assert(string(RemoveAccents([]byte("Resumé"))), qt.Equals, "Resume")
 	c.Assert(string(RemoveAccents([]byte("Hugo Rocks!"))), qt.Equals, "Hugo Rocks!")
 	c.Assert(string(RemoveAccentsString("Resumé")), qt.Equals, "Resume")
-
 }

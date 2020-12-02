@@ -61,5 +61,4 @@ func TestLiveReloadInject(t *testing.T) {
 	c.Run("No match", func(c *qt.C) {
 		c.Assert(apply("<h1>No match</h1>"), qt.Equals, "<h1>No match</h1>")
 	})
-
 }

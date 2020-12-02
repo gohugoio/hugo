@@ -25,7 +25,6 @@ import (
 )
 
 func main() {
-
 	templateFolder := filepath.Join("..", "templates")
 
 	temlatePath := filepath.Join(".", templateFolder)
@@ -92,7 +91,6 @@ var EmbeddedTemplates = [][2]string{
 		fmt.Fprint(file, "	", v, ",\n")
 	}
 	fmt.Fprint(file, "}\n")
-
 }
 
 func nameValue(name, value string) string {

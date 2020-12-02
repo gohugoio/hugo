@@ -20,11 +20,13 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
-var _ Slicer = (*tstSlicer)(nil)
-var _ Slicer = (*tstSlicerIn1)(nil)
-var _ Slicer = (*tstSlicerIn2)(nil)
-var _ testSlicerInterface = (*tstSlicerIn1)(nil)
-var _ testSlicerInterface = (*tstSlicerIn1)(nil)
+var (
+	_ Slicer              = (*tstSlicer)(nil)
+	_ Slicer              = (*tstSlicerIn1)(nil)
+	_ Slicer              = (*tstSlicerIn2)(nil)
+	_ testSlicerInterface = (*tstSlicerIn1)(nil)
+	_ testSlicerInterface = (*tstSlicerIn1)(nil)
+)
 
 type testSlicerInterface interface {
 	Name() string
@@ -54,7 +56,6 @@ func (p *tstSlicerIn1) Slice(in interface{}) (interface{}, error) {
 		default:
 			return nil, errors.New("invalid type")
 		}
-
 	}
 	return result, nil
 }
@@ -120,5 +121,4 @@ func TestSlice(t *testing.T) {
 
 		c.Assert(test.expected, qt.DeepEquals, result, errMsg)
 	}
-
 }

@@ -413,11 +413,9 @@ func TestImageExif(t *testing.T) {
 	image = fetchResourceForSpec(spec, c, "sunset.jpg").(resource.Image)
 	// This will read from file cache.
 	getAndCheckExif(c, image)
-
 }
 
 func BenchmarkImageExif(b *testing.B) {
-
 	getImages := func(c *qt.C, b *testing.B, fs afero.Fs) []resource.Image {
 		spec := newTestResourceSpec(specDescriptor{fs: fs, c: c})
 		images := make([]resource.Image, b.N)
@@ -431,7 +429,6 @@ func BenchmarkImageExif(b *testing.B) {
 		x := image.Exif()
 		c.Assert(x, qt.Not(qt.IsNil))
 		c.Assert(x.Long, qt.Equals, float64(-4.50846))
-
 	}
 
 	b.Run("Cold cache", func(b *testing.B) {
@@ -443,7 +440,6 @@ func BenchmarkImageExif(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			getAndCheckExif(c, images[i])
 		}
-
 	})
 
 	b.Run("Cold cache, 10", func(b *testing.B) {
@@ -457,7 +453,6 @@ func BenchmarkImageExif(b *testing.B) {
 				getAndCheckExif(c, images[i])
 			}
 		}
-
 	})
 
 	b.Run("Warm cache", func(b *testing.B) {
@@ -475,9 +470,7 @@ func BenchmarkImageExif(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			getAndCheckExif(c, images[i])
 		}
-
 	})
-
 }
 
 // usesFMA indicates whether "fused multiply and add" (FMA) instruction is
@@ -680,7 +673,6 @@ func TestImageOperationsGolden(t *testing.T) {
 		f1.Close()
 		f2.Close()
 	}
-
 }
 
 func BenchmarkResizeParallel(b *testing.B) {
