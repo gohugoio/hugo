@@ -44,7 +44,6 @@ func newPagesCollector(
 	logger loggers.Logger,
 	contentTracker *contentChangeMap,
 	proc pagesCollectorProcessorProvider, filenames ...string) *pagesCollector {
-
 	return &pagesCollector{
 		fs:         sp.SourceFs,
 		contentMap: contentMap,
@@ -75,7 +74,6 @@ func (b *fileinfoBundle) containsResource(name string) bool {
 	}
 
 	return false
-
 }
 
 type pageBundles map[string]*fileinfoBundle
@@ -154,7 +152,6 @@ func (c *pagesCollector) isCascadingEdit(dir contentDirKey) (bool, string) {
 		}
 
 		return true
-
 	})
 
 	return isCascade, section
@@ -213,7 +210,6 @@ func (c *pagesCollector) Collect() (collectErr error) {
 	}
 
 	return
-
 }
 
 func (c *pagesCollector) isBundleHeader(fi hugofs.FileMetaInfo) bool {
@@ -343,7 +339,6 @@ func (c *pagesCollector) collectDir(dirname string, partial bool, inFilter func(
 		dir hugofs.FileMetaInfo,
 		path string,
 		readdir []hugofs.FileMetaInfo) error {
-
 		if btype > bundleNot && c.tracker != nil {
 			c.tracker.add(path, btype)
 		}
@@ -367,7 +362,6 @@ func (c *pagesCollector) collectDir(dirname string, partial bool, inFilter func(
 		}
 
 		return nil
-
 	}
 
 	filter := func(fim hugofs.FileMetaInfo) bool {
@@ -469,7 +463,6 @@ func (c *pagesCollector) collectDir(dirname string, partial bool, inFilter func(
 
 		// Keep walking.
 		return readdir, nil
-
 	}
 
 	var postHook hugofs.WalkHook
@@ -504,14 +497,13 @@ func (c *pagesCollector) collectDir(dirname string, partial bool, inFilter func(
 		Info:     fim,
 		HookPre:  preHook,
 		HookPost: postHook,
-		WalkFn:   wfn})
+		WalkFn:   wfn,
+	})
 
 	return w.Walk()
-
 }
 
 func (c *pagesCollector) handleBundleBranch(readdir []hugofs.FileMetaInfo) error {
-
 	// Maps bundles to its language.
 	bundles := pageBundles{}
 
@@ -542,7 +534,6 @@ func (c *pagesCollector) handleBundleBranch(readdir []hugofs.FileMetaInfo) error
 	}
 
 	return c.handleFiles(contentFiles...)
-
 }
 
 func (c *pagesCollector) handleBundleLeaf(dir hugofs.FileMetaInfo, path string, readdir []hugofs.FileMetaInfo) error {
@@ -558,7 +549,6 @@ func (c *pagesCollector) handleBundleLeaf(dir hugofs.FileMetaInfo, path string, 
 		}
 
 		return c.addToBundle(info, bundleLeaf, bundles)
-
 	}
 
 	// Start a new walker from the given path.
@@ -568,14 +558,14 @@ func (c *pagesCollector) handleBundleLeaf(dir hugofs.FileMetaInfo, path string, 
 		Logger:     c.logger,
 		Info:       dir,
 		DirEntries: readdir,
-		WalkFn:     walk})
+		WalkFn:     walk,
+	})
 
 	if err := w.Walk(); err != nil {
 		return err
 	}
 
 	return c.proc.Process(bundles)
-
 }
 
 func (c *pagesCollector) handleFiles(fis ...hugofs.FileMetaInfo) error {

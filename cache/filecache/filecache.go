@@ -158,7 +158,6 @@ func (c *Cache) ReadOrCreate(id string,
 	err = create(info, f)
 
 	return
-
 }
 
 // GetOrCreate tries to get the file with the given id from cache. If not found or expired, create will
@@ -220,7 +219,6 @@ func (c *Cache) GetOrCreateBytes(id string, create func() ([]byte, error)) (Item
 		return info, nil, err
 	}
 	return info, b, nil
-
 }
 
 // GetBytes gets the file content with the given id from the cahce, nil if none found.
@@ -276,7 +274,6 @@ func (c *Cache) getOrRemove(id string) hugio.ReadSeekCloser {
 	}
 
 	f, err := c.Fs.Open(id)
-
 	if err != nil {
 		return nil
 	}
@@ -299,7 +296,6 @@ func (c *Cache) getString(id string) string {
 	defer c.nlocker.Unlock(id)
 
 	f, err := c.Fs.Open(id)
-
 	if err != nil {
 		return ""
 	}
@@ -307,7 +303,6 @@ func (c *Cache) getString(id string) string {
 
 	b, _ := ioutil.ReadAll(f)
 	return string(b)
-
 }
 
 // Caches is a named set of caches.

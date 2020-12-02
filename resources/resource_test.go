@@ -39,7 +39,6 @@ func TestGenericResource(t *testing.T) {
 	c.Assert(r.Permalink(), qt.Equals, "https://example.com/foo.css")
 	c.Assert(r.RelPermalink(), qt.Equals, "/foo.css")
 	c.Assert(r.ResourceType(), qt.Equals, "css")
-
 }
 
 func TestGenericResourceWithLinkFacory(t *testing.T) {
@@ -78,7 +77,6 @@ func TestNewResourceFromFilename(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	c.Assert(r, qt.Not(qt.IsNil))
 	c.Assert(r.ResourceType(), qt.Equals, "json")
-
 }
 
 func TestNewResourceFromFilenameSubPathInBaseURL(t *testing.T) {
@@ -96,7 +94,6 @@ func TestNewResourceFromFilenameSubPathInBaseURL(t *testing.T) {
 	c.Assert(r.ResourceType(), qt.Equals, "image")
 	c.Assert(r.RelPermalink(), qt.Equals, "/docs/a/b/logo.png")
 	c.Assert(r.Permalink(), qt.Equals, "https://example.com/docs/a/b/logo.png")
-
 }
 
 var pngType, _ = media.FromStringAndExt("image/png", "png")
@@ -108,11 +105,11 @@ func TestResourcesByType(t *testing.T) {
 		spec.newGenericResource(nil, nil, nil, "/a/foo1.css", "foo1.css", media.CSSType),
 		spec.newGenericResource(nil, nil, nil, "/a/logo.png", "logo.css", pngType),
 		spec.newGenericResource(nil, nil, nil, "/a/foo2.css", "foo2.css", media.CSSType),
-		spec.newGenericResource(nil, nil, nil, "/a/foo3.css", "foo3.css", media.CSSType)}
+		spec.newGenericResource(nil, nil, nil, "/a/foo3.css", "foo3.css", media.CSSType),
+	}
 
 	c.Assert(len(resources.ByType("css")), qt.Equals, 3)
 	c.Assert(len(resources.ByType("image")), qt.Equals, 1)
-
 }
 
 func TestResourcesGetByPrefix(t *testing.T) {
@@ -123,7 +120,8 @@ func TestResourcesGetByPrefix(t *testing.T) {
 		spec.newGenericResource(nil, nil, nil, "/a/logo1.png", "logo1.png", pngType),
 		spec.newGenericResource(nil, nil, nil, "/b/Logo2.png", "Logo2.png", pngType),
 		spec.newGenericResource(nil, nil, nil, "/b/foo2.css", "foo2.css", media.CSSType),
-		spec.newGenericResource(nil, nil, nil, "/b/foo3.css", "foo3.css", media.CSSType)}
+		spec.newGenericResource(nil, nil, nil, "/b/foo3.css", "foo3.css", media.CSSType),
+	}
 
 	c.Assert(resources.GetMatch("asdf*"), qt.IsNil)
 	c.Assert(resources.GetMatch("logo*").RelPermalink(), qt.Equals, "/logo1.png")
@@ -141,7 +139,6 @@ func TestResourcesGetByPrefix(t *testing.T) {
 	c.Assert(logo.Params(), qt.Not(qt.IsNil))
 	c.Assert(logo.Name(), qt.Equals, "logo1.png")
 	c.Assert(logo.Title(), qt.Equals, "logo1.png")
-
 }
 
 func TestResourcesGetMatch(t *testing.T) {
@@ -187,7 +184,6 @@ func TestResourcesGetMatch(t *testing.T) {
 	// (it is possible for users to do a rename)
 	// This is analogous to standing in a directory and doing "ls *.*".
 	c.Assert(len(resources.Match("/c/**.css")), qt.Equals, 0)
-
 }
 
 func BenchmarkResourcesMatch(b *testing.B) {
@@ -218,7 +214,6 @@ func BenchmarkResourcesMatchA100(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		resources.Match(pattern)
 	}
-
 }
 
 func benchResources(b *testing.B) resource.Resources {
@@ -242,7 +237,6 @@ func benchResources(b *testing.B) resource.Resources {
 	}
 
 	return resources
-
 }
 
 func BenchmarkAssignMetadata(b *testing.B) {
@@ -252,7 +246,7 @@ func BenchmarkAssignMetadata(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()
 		var resources resource.Resources
-		var meta = []map[string]interface{}{
+		meta := []map[string]interface{}{
 			{
 				"title": "Foo #:counter",
 				"name":  "Foo Name #:counter",

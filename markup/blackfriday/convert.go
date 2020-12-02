@@ -52,7 +52,6 @@ func (p provider) New(cfg converter.ProviderConfig) (converter.Provider, error) 
 			cfg:        cfg,
 		}, nil
 	}), nil
-
 }
 
 type blackfridayConverter struct {
@@ -125,7 +124,6 @@ func (c *blackfridayConverter) getHTMLRenderer(renderTOC bool) blackfriday.Rende
 }
 
 func getFlags(renderTOC bool, cfg blackfriday_config.Config) int {
-
 	var flags int
 
 	if renderTOC {

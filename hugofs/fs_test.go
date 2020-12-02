@@ -31,7 +31,6 @@ func TestNewDefault(t *testing.T) {
 	c.Assert(f.Source, hqt.IsSameType, new(afero.OsFs))
 	c.Assert(f.Os, qt.Not(qt.IsNil))
 	c.Assert(f.WorkingDir, qt.IsNil)
-
 }
 
 func TestNewMem(t *testing.T) {
@@ -57,5 +56,4 @@ func TestWorkingDir(t *testing.T) {
 
 	c.Assert(f.WorkingDir, qt.Not(qt.IsNil))
 	c.Assert(f.WorkingDir, hqt.IsSameType, new(afero.BasePathFs))
-
 }

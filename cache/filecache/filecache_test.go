@@ -183,7 +183,6 @@ dir = ":cacheDir/c"
 		c.Assert(string(b), qt.Equals, "Hugo is great!")
 
 	}
-
 }
 
 func TestFileCacheConcurrent(t *testing.T) {
@@ -253,7 +252,6 @@ func TestFileCacheReadOrCreateErrorInRead(t *testing.T) {
 	var result string
 
 	rf := func(failLevel int) func(info ItemInfo, r io.ReadSeeker) error {
-
 		return func(info ItemInfo, r io.ReadSeeker) error {
 			if failLevel > 0 {
 				if failLevel > 1 {
@@ -347,5 +345,4 @@ func newPathsSpec(t *testing.T, fs afero.Fs, configStr string) *helpers.PathSpec
 	p, err := helpers.NewPathSpec(hugofs.NewFrom(fs, cfg), cfg, nil)
 	c.Assert(err, qt.IsNil)
 	return p
-
 }

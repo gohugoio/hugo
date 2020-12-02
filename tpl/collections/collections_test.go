@@ -17,7 +17,6 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-
 	"math/rand"
 	"reflect"
 	"testing"
@@ -195,8 +194,10 @@ func TestDictionary(t *testing.T) {
 	}{
 		{[]interface{}{"a", "b"}, map[string]interface{}{"a": "b"}},
 		{[]interface{}{[]string{"a", "b"}, "c"}, map[string]interface{}{"a": map[string]interface{}{"b": "c"}}},
-		{[]interface{}{[]string{"a", "b"}, "c", []string{"a", "b2"}, "c2", "b", "c"},
-			map[string]interface{}{"a": map[string]interface{}{"b": "c", "b2": "c2"}, "b": "c"}},
+		{
+			[]interface{}{[]string{"a", "b"}, "c", []string{"a", "b2"}, "c2", "b", "c"},
+			map[string]interface{}{"a": map[string]interface{}{"b": "c", "b2": "c2"}, "b": "c"},
+		},
 		{[]interface{}{"a", 12, "b", []int{4}}, map[string]interface{}{"a": 12, "b": []int{4}}},
 		// errors
 		{[]interface{}{5, "b"}, false},
@@ -237,7 +238,6 @@ func TestReverse(t *testing.T) {
 	c.Assert(reversed, qt.IsNil)
 	_, err = ns.Reverse(43)
 	c.Assert(err, qt.Not(qt.IsNil))
-
 }
 
 func TestEchoParam(t *testing.T) {
@@ -369,8 +369,10 @@ func (p testPage) String() string {
 	return "p-" + p.Title
 }
 
-type pagesPtr []*testPage
-type pagesVals []testPage
+type (
+	pagesPtr  []*testPage
+	pagesVals []testPage
+)
 
 var (
 	p1 = &testPage{"A"}
@@ -716,7 +718,6 @@ func TestSlice(t *testing.T) {
 
 		c.Assert(result, qt.DeepEquals, test.expected, errMsg)
 	}
-
 }
 
 func TestUnion(t *testing.T) {
@@ -907,7 +908,6 @@ type TstParams struct {
 
 func (x TstParams) Params() maps.Params {
 	return x.params
-
 }
 
 type TstXIHolder struct {

@@ -81,7 +81,7 @@ func (c *rstConverter) getRstContent(src []byte, ctx converter.DocumentContext) 
 	// TODO(bep) check if rst2html has a body only option.
 	bodyStart := bytes.Index(result, []byte("<body>\n"))
 	if bodyStart < 0 {
-		bodyStart = -7 //compensate for length
+		bodyStart = -7 // compensate for length
 	}
 
 	bodyEnd := bytes.Index(result, []byte("\n</body>"))

@@ -72,7 +72,6 @@ func TestNew(t *testing.T) {
 		c.Assert(m.Minify(test.tp, &b, strings.NewReader(test.rawString)), qt.IsNil)
 		c.Assert(b.String(), qt.Equals, test.expectedMinString)
 	}
-
 }
 
 func TestConfigureMinify(t *testing.T) {
@@ -145,7 +144,6 @@ func TestJSONRoundTrip(t *testing.T) {
 		c.Assert(json.Unmarshal(b.Bytes(), &m2), qt.IsNil)
 		c.Assert(m1, qt.DeepEquals, m2)
 	}
-
 }
 
 func TestBugs(t *testing.T) {
@@ -166,5 +164,4 @@ func TestBugs(t *testing.T) {
 		c.Assert(m.Minify(test.tp, &b, strings.NewReader(test.rawString)), qt.IsNil)
 		c.Assert(b.String(), qt.Equals, test.expectedMinString)
 	}
-
 }

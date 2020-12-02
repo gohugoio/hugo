@@ -14,11 +14,10 @@
 package collections
 
 import (
+	"fmt"
 	"io"
 	"reflect"
 	"testing"
-
-	"fmt"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
@@ -58,7 +57,6 @@ func (templateFinder) GetFunc(name string) (reflect.Value, bool) {
 	}
 
 	return reflect.ValueOf(fmt.Sprint), true
-
 }
 
 func TestApply(t *testing.T) {
@@ -88,5 +86,4 @@ func TestApply(t *testing.T) {
 	if err == nil {
 		t.Errorf("apply with unknown func should fail")
 	}
-
 }

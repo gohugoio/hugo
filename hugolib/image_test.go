@@ -38,7 +38,6 @@ func TestImageOps(t *testing.T) {
 	defer clean()
 
 	newBuilder := func(timeout interface{}) *sitesBuilder {
-
 		v := viper.New()
 		v.Set("workingDir", workDir)
 		v.Set("baseURL", "https://example.org")
@@ -169,11 +168,9 @@ IMG SHORTCODE: /images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_129x239_r
 	b.Build(BuildCfg{})
 
 	assertImages()
-
 }
 
 func TestImageResizeMultilingual(t *testing.T) {
-
 	b := newTestSitesBuilder(t).WithConfigFile("toml", `
 baseURL="https://example.org"
 defaultContentLanguage = "en"
@@ -247,5 +244,4 @@ SUNSET2: {{ $resized2.RelPermalink }}/{{ $resized2.Width }}/Lat: {{ $resized2.Ex
 
 	// TODO(bep) add this as a default assertion after Build()?
 	b.AssertNoDuplicateWrites()
-
 }

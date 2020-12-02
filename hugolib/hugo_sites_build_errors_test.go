@@ -34,11 +34,9 @@ func (t testSiteBuildErrorAsserter) assertErrorMessage(e1, e2 string) {
 	// The error message will contain filenames with OS slashes. Normalize before compare.
 	e1, e2 = filepath.ToSlash(e1), filepath.ToSlash(e2)
 	t.c.Assert(e2, qt.Contains, e1)
-
 }
 
 func TestSiteBuildErrors(t *testing.T) {
-
 	const (
 		yamlcontent = "yamlcontent"
 		tomlcontent = "tomlcontent"
@@ -92,7 +90,6 @@ func TestSiteBuildErrors(t *testing.T) {
 				a.c.Assert(fe.Position().ColumnNumber, qt.Equals, 1)
 				a.c.Assert(fe.ChromaLexer, qt.Equals, "go-html-template")
 				a.assertErrorMessage("\"layouts/foo/single.html:5:1\": parse failed: template: foo/single.html:5: unexpected \"}\" in operand", fe.Error())
-
 			},
 		},
 		{
@@ -107,7 +104,6 @@ func TestSiteBuildErrors(t *testing.T) {
 				a.c.Assert(fe.Position().ColumnNumber, qt.Equals, 14)
 				a.c.Assert(fe.ChromaLexer, qt.Equals, "go-html-template")
 				a.assertErrorMessage("\"layouts/_default/single.html:5:14\": execute of template failed", fe.Error())
-
 			},
 		},
 		{
@@ -122,7 +118,6 @@ func TestSiteBuildErrors(t *testing.T) {
 				a.c.Assert(fe.Position().ColumnNumber, qt.Equals, 14)
 				a.c.Assert(fe.ChromaLexer, qt.Equals, "go-html-template")
 				a.assertErrorMessage("\"layouts/_default/single.html:5:14\": execute of template failed", fe.Error())
-
 			},
 		},
 		{
@@ -184,7 +179,6 @@ func TestSiteBuildErrors(t *testing.T) {
 				fe := a.getFileError(err)
 				a.c.Assert(fe.Position().LineNumber, qt.Equals, 6)
 				a.c.Assert(fe.ErrorContext.ChromaLexer, qt.Equals, "toml")
-
 			},
 		},
 		{
@@ -198,7 +192,6 @@ func TestSiteBuildErrors(t *testing.T) {
 
 				a.c.Assert(fe.Position().LineNumber, qt.Equals, 3)
 				a.c.Assert(fe.ErrorContext.ChromaLexer, qt.Equals, "json")
-
 			},
 		},
 		{
@@ -235,7 +228,6 @@ func TestSiteBuildErrors(t *testing.T) {
 					return content
 				}
 				return test.fileFixer(content)
-
 			}
 
 			b.WithTemplatesAdded("layouts/shortcodes/sc.html", f(shortcode, `SHORTCODE L1
@@ -348,9 +340,7 @@ title: "A page"
 ---
 
 {{< c >}}`)
-
 	}
 
 	b.CreateSites().BuildFail(BuildCfg{})
-
 }

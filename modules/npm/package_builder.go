@@ -45,7 +45,6 @@ const (
 )
 
 func Pack(fs afero.Fs, fis []hugofs.FileMetaInfo) error {
-
 	var b *packageBuilder
 
 	// Have a package.hugo.json?
@@ -140,7 +139,6 @@ func Pack(fs afero.Fs, fis []hugofs.FileMetaInfo) error {
 	}
 
 	return nil
-
 }
 
 func newPackageBuilder(source string, first io.Reader) *packageBuilder {
@@ -220,7 +218,6 @@ func (b *packageBuilder) addm(source string, m map[string]interface{}) {
 			}
 		}
 	}
-
 }
 
 func (b *packageBuilder) unmarshal(r io.Reader) map[string]interface{} {

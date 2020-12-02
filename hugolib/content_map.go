@@ -130,7 +130,7 @@ type cmInsertKeyBuilder struct {
 }
 
 func (b cmInsertKeyBuilder) ForPage(s string) *cmInsertKeyBuilder {
-	//fmt.Println("ForPage:", s, "baseKey:", b.baseKey, "key:", b.key)
+	// fmt.Println("ForPage:", s, "baseKey:", b.baseKey, "key:", b.key)
 	baseKey := b.baseKey
 	b.baseKey = s
 
@@ -154,7 +154,7 @@ func (b cmInsertKeyBuilder) ForPage(s string) *cmInsertKeyBuilder {
 }
 
 func (b cmInsertKeyBuilder) ForResource(s string) *cmInsertKeyBuilder {
-	//fmt.Println("ForResource:", s, "baseKey:", b.baseKey, "key:", b.key)
+	// fmt.Println("ForResource:", s, "baseKey:", b.baseKey, "key:", b.key)
 
 	baseKey := helpers.AddTrailingSlash(b.baseKey)
 	s = strings.TrimPrefix(s, baseKey)
@@ -287,7 +287,6 @@ func (c *contentBundleViewInfo) sections() []string {
 	}
 
 	return []string{c.name.plural, c.termKey}
-
 }
 
 func (c *contentBundleViewInfo) term() string {
@@ -393,7 +392,6 @@ func (m *contentMap) AddFilesBundle(header hugofs.FileMetaInfo, resources ...hug
 	}
 
 	return nil
-
 }
 
 func (m *contentMap) CreateMissingNodes() error {
@@ -462,7 +460,6 @@ func (m *contentMap) CreateMissingNodes() error {
 	}
 
 	return nil
-
 }
 
 func (m *contentMap) getBundleDir(meta hugofs.FileMeta) string {
@@ -611,7 +608,6 @@ func (m *contentMap) deleteBundleMatching(matches func(b *contentNode) bool) {
 	if s != "" {
 		m.resources.Delete(s)
 	}
-
 }
 
 // Deletes any empty root section that's not backed by a content file.
@@ -686,7 +682,6 @@ func (m *contentMap) splitKey(k string) []string {
 	}
 
 	return strings.Split(k, "/")[1:]
-
 }
 
 func (m *contentMap) testDump() string {
@@ -701,7 +696,6 @@ func (m *contentMap) testDump() string {
 	}
 
 	for i, r := range []*contentTree{m.pages, m.sections} {
-
 		r.Walk(func(s string, v interface{}) bool {
 			c := v.(*contentNode)
 			cpToString := func(c *contentNode) string {
@@ -730,7 +724,6 @@ func (m *contentMap) testDump() string {
 			m.resources.WalkPrefix(resourcesPrefix, func(s string, v interface{}) bool {
 				sb.WriteString("\t - R: " + filepath.ToSlash((v.(*contentNode).fi.(hugofs.FileMetaInfo)).Meta().Filename()) + "\n")
 				return false
-
 			})
 
 			return false
@@ -738,7 +731,6 @@ func (m *contentMap) testDump() string {
 	}
 
 	return sb.String()
-
 }
 
 type contentMapConfig struct {
@@ -787,7 +779,6 @@ func (b *contentNode) rootSection() string {
 		return b.path
 	}
 	return b.path[:firstSlash]
-
 }
 
 type contentTree struct {
@@ -906,7 +897,6 @@ func (c *contentTree) WalkBelow(prefix string, fn radix.WalkFn) {
 		}
 		return fn(s, v)
 	})
-
 }
 
 func (c *contentTree) getMatch(matches func(b *contentNode) bool) string {

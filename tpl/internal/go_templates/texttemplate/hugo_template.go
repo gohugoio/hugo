@@ -77,7 +77,6 @@ func (t *executer) Execute(p Preparer, wr io.Writer, data interface{}) error {
 	}
 
 	return tmpl.executeWithState(state, value)
-
 }
 
 // Prepare returns a template ready for execution.

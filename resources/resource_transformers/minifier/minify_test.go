@@ -39,5 +39,4 @@ func TestTransform(t *testing.T) {
 	content, err := transformed.(resource.ContentProvider).Content()
 	c.Assert(err, qt.IsNil)
 	c.Assert(content, qt.Equals, "<h1>Hugo Rocks!</h1>")
-
 }

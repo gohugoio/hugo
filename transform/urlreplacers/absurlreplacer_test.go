@@ -116,7 +116,8 @@ var (
 	srcsetXMLTests = []test{
 		{srcsetXMLBasic, srcsetXMLBasicCorrect},
 		{srcsetXMLSingleQuote, srcsetXMLSingleQuoteCorrect},
-		{srcsetXMLVariations, srcsetXMLVariationsCorrect}}
+		{srcsetXMLVariations, srcsetXMLVariationsCorrect},
+	}
 
 	relurlTests = []test{{relPathVariations, relPathVariationsCorrect}}
 )
@@ -152,7 +153,6 @@ func TestAbsURL(t *testing.T) {
 	tr := transform.New(NewAbsURLTransformer(testBaseURL))
 
 	apply(t.Errorf, tr, absURLTests)
-
 }
 
 func TestAbsURLUnqoted(t *testing.T) {
@@ -174,7 +174,6 @@ func TestRelativeURL(t *testing.T) {
 	tr := transform.New(NewAbsURLTransformer(helpers.GetDottedRelativePath(filepath.FromSlash("/post/sub/"))))
 
 	applyWithPath(t.Errorf, tr, relurlTests)
-
 }
 
 func TestAbsURLSrcSet(t *testing.T) {

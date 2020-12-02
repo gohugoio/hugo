@@ -1,14 +1,20 @@
 package hugolib
 
 import (
+	"bytes"
+	"fmt"
 	"image/jpeg"
 	"io"
 	"math/rand"
+	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
 	"strconv"
+	"strings"
 	"testing"
+	"text/template"
 	"time"
 	"unicode/utf8"
 
@@ -22,12 +28,6 @@ import (
 	"github.com/gohugoio/hugo/parser"
 	"github.com/pkg/errors"
 
-	"bytes"
-	"fmt"
-	"regexp"
-	"strings"
-	"text/template"
-
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/config"
@@ -40,8 +40,6 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/spf13/viper"
-
-	"os"
 
 	"github.com/gohugoio/hugo/resources/resource"
 
@@ -122,8 +120,10 @@ func newTestSitesBuilder(t testing.TB) *sitesBuilder {
 		Separator:         " ",
 	}
 
-	return &sitesBuilder{T: t, C: qt.New(t), Fs: fs, configFormat: "toml",
-		dumper: litterOptions, rnd: rand.New(rand.NewSource(time.Now().Unix()))}
+	return &sitesBuilder{
+		T: t, C: qt.New(t), Fs: fs, configFormat: "toml",
+		dumper: litterOptions, rnd: rand.New(rand.NewSource(time.Now().Unix())),
+	}
 }
 
 func newTestSitesBuilderFromDepsCfg(t testing.TB, d deps.DepsCfg) *sitesBuilder {
@@ -141,7 +141,6 @@ func newTestSitesBuilderFromDepsCfg(t testing.TB, d deps.DepsCfg) *sitesBuilder 
 	b.WithWorkingDir(workingDir)
 
 	return b.WithViper(d.Cfg.(*viper.Viper))
-
 }
 
 func (s *sitesBuilder) Running() *sitesBuilder {
@@ -289,7 +288,7 @@ func (s *sitesBuilder) WithSimpleConfigFileAndSettings(settings interface{}) *si
 }
 
 func (s *sitesBuilder) WithDefaultMultiSiteConfig() *sitesBuilder {
-	var defaultMultiSiteConfig = `
+	defaultMultiSiteConfig := `
 baseURL = "http://example.com/blog"
 
 paginate = 1
@@ -347,7 +346,6 @@ lag = "lag"
 ` + commonConfigSections
 
 	return s.WithConfigFile("toml", defaultMultiSiteConfig)
-
 }
 
 func (s *sitesBuilder) WithSunset(in string) {
@@ -450,7 +448,7 @@ func (s *sitesBuilder) writeFilePairs(folder string, files []filenameContent) *s
 	// That file system is backed by a map so not sure how this helps, but some
 	// randomness in tests doesn't hurt.
 	// TODO(bep) this turns out to be more confusing than helpful.
-	//s.rnd.Shuffle(len(files), func(i, j int) { files[i], files[j] = files[j], files[i] })
+	// s.rnd.Shuffle(len(files), func(i, j int) { files[i], files[j] = files[j], files[i] })
 
 	for _, fc := range files {
 		target := folder
@@ -487,11 +485,10 @@ func (s *sitesBuilder) LoadConfig() error {
 		Fs:         s.Fs.Source,
 		Logger:     s.logger,
 		Environ:    s.environ,
-		Filename:   "config." + s.configFormat}, func(cfg config.Provider) error {
-
+		Filename:   "config." + s.configFormat,
+	}, func(cfg config.Provider) error {
 		return nil
 	})
-
 	if err != nil {
 		return err
 	}
@@ -572,7 +569,6 @@ func (s *sitesBuilder) BuildFail(cfg BuildCfg) *sitesBuilder {
 }
 
 func (s *sitesBuilder) changeEvents() []fsnotify.Event {
-
 	var events []fsnotify.Event
 
 	for _, v := range s.changedFiles {
@@ -620,7 +616,6 @@ func (s *sitesBuilder) build(cfg BuildCfg, shouldFail bool) *sitesBuilder {
 }
 
 func (s *sitesBuilder) addDefaults() {
-
 	var (
 		contentTemplate = `---
 title: doc1
@@ -846,7 +841,6 @@ func (th testHelper) replaceDefaultContentLanguageValue(value string) string {
 
 	if !defaultInSubDir {
 		value = strings.Replace(value, replace, "", 1)
-
 	}
 	return value
 }
@@ -864,7 +858,6 @@ func newTestCfgBasic() (*viper.Viper, *hugofs.Fs) {
 	fs := hugofs.NewFrom(hugofs.NewBaseFileDecorator(mm), v)
 
 	return v, fs
-
 }
 
 func newTestCfg(withConfig ...func(cfg config.Provider) error) (*viper.Viper, *hugofs.Fs) {
@@ -888,7 +881,6 @@ func newTestCfg(withConfig ...func(cfg config.Provider) error) (*viper.Viper, *h
 	fs := hugofs.NewFrom(hugofs.NewBaseFileDecorator(mm), v)
 
 	return v, fs
-
 }
 
 func newTestSitesFromConfig(t testing.TB, afs afero.Fs, tomlConfig string, layoutPathContentPairs ...string) (testHelper, *HugoSites) {
@@ -919,7 +911,6 @@ func newTestSitesFromConfig(t testing.TB, afs afero.Fs, tomlConfig string, layou
 }
 
 func createWithTemplateFromNameValues(additionalTemplates ...string) func(templ tpl.TemplateManager) error {
-
 	return func(templ tpl.TemplateManager) error {
 		for i := 0; i < len(additionalTemplates); i += 2 {
 			err := templ.AddTemplate(additionalTemplates[i], additionalTemplates[i+1])
@@ -1059,7 +1050,6 @@ func skipSymlink(t *testing.T) {
 	if runtime.GOOS == "windows" && os.Getenv("CI") == "" {
 		t.Skip("skip symlink test on local Windows (needs admin)")
 	}
-
 }
 
 func captureStderr(f func() error) (string, error) {

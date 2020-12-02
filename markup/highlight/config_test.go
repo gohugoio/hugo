@@ -40,7 +40,6 @@ func TestConfig(t *testing.T) {
 		c.Assert(cfg.CodeFences, qt.Equals, false)
 		c.Assert(cfg.LineNos, qt.Equals, true)
 		c.Assert(cfg.LineNumbersInTable, qt.Equals, false)
-
 	})
 
 	c.Run("parseOptions", func(c *qt.C) {
@@ -54,6 +53,5 @@ func TestConfig(t *testing.T) {
 		c.Assert(cfg.LineNumbersInTable, qt.Equals, false)
 		c.Assert(cfg.LineNoStart, qt.Equals, 32)
 		c.Assert(cfg.Hl_Lines, qt.Equals, "3-8 10-20")
-
 	})
 }

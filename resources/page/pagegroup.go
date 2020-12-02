@@ -355,7 +355,6 @@ func (p PageGroup) ProbablyEq(other interface{}) bool {
 	}
 
 	return p.Pages.ProbablyEq(otherP.Pages)
-
 }
 
 // Slice is not meant to be used externally. It's a bridge function
@@ -406,7 +405,6 @@ func (psg PagesGroup) ProbablyEq(other interface{}) bool {
 	}
 
 	return true
-
 }
 
 // ToPagesGroup tries to convert seq into a PagesGroup.

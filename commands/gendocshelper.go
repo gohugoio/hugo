@@ -23,9 +23,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	_ cmder = (*genDocsHelper)(nil)
-)
+var _ cmder = (*genDocsHelper)(nil)
 
 type genDocsHelper struct {
 	target string
@@ -70,5 +68,4 @@ func (g *genDocsHelper) generate() error {
 
 	fmt.Println("Done!")
 	return nil
-
 }

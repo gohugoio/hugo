@@ -120,7 +120,6 @@ path="github.com/bep/mycomponent"
 
 		}
 	})
-
 }
 
 func TestDecodeConfigBothOldAndNewProvided(t *testing.T) {
@@ -141,7 +140,6 @@ path="a"
 	c.Assert(err, qt.IsNil)
 	c.Assert(len(modCfg.Imports), qt.Equals, 3)
 	c.Assert(modCfg.Imports[0].Path, qt.Equals, "a")
-
 }
 
 // Test old style theme import.

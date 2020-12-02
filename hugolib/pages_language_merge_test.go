@@ -85,7 +85,6 @@ func TestMergeLanguages(t *testing.T) {
 	unchanged, err := nnSite.RegularPages().MergeByLanguageInterface(nil)
 	c.Assert(err, qt.IsNil)
 	c.Assert(unchanged, deepEqualsPages, nnSite.RegularPages())
-
 }
 
 func TestMergeLanguagesTemplate(t *testing.T) {

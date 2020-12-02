@@ -14,9 +14,8 @@
 package tpl
 
 import (
-	"reflect"
-
 	"io"
+	"reflect"
 	"regexp"
 
 	"github.com/gohugoio/hugo/output"

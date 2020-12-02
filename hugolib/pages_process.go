@@ -156,7 +156,6 @@ func (p *sitePagesProcessor) copyFile(fim hugofs.FileMetaInfo) error {
 	defer f.Close()
 
 	return s.publish(&s.PathSpec.ProcessingStats.Files, target, f)
-
 }
 
 func (p *sitePagesProcessor) doProcess(item interface{}) error {
@@ -189,7 +188,6 @@ func (p *sitePagesProcessor) doProcess(item interface{}) error {
 		panic(fmt.Sprintf("unrecognized item type in Process: %T", item))
 	}
 	return nil
-
 }
 
 func (p *sitePagesProcessor) shouldSkip(fim hugofs.FileMetaInfo) bool {

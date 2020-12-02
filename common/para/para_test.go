@@ -16,7 +16,6 @@ package para
 import (
 	"context"
 	"runtime"
-
 	"sort"
 	"sync"
 	"sync/atomic"
@@ -60,7 +59,6 @@ func TestPara(t *testing.T) {
 		c.Assert(sort.IntsAreSorted(result), qt.Equals, false, qt.Commentf("Para does not seem to be parallel"))
 		sort.Ints(result)
 		c.Assert(result, qt.DeepEquals, ints)
-
 	})
 
 	c.Run("Time", func(c *qt.C) {
@@ -84,7 +82,5 @@ func TestPara(t *testing.T) {
 		c.Assert(r.Wait(), qt.IsNil)
 		c.Assert(counter, qt.Equals, int64(n))
 		c.Assert(time.Since(start) < n/2*time.Millisecond, qt.Equals, true)
-
 	})
-
 }

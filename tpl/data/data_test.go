@@ -109,7 +109,7 @@ func TestGetCSV(t *testing.T) {
 
 		if _, ok := test.expect.(bool); ok {
 			c.Assert(int(ns.deps.Log.LogCounters().ErrorCounter.Count()), qt.Equals, 1)
-			//c.Assert(err, msg, qt.Not(qt.IsNil))
+			// c.Assert(err, msg, qt.Not(qt.IsNil))
 			c.Assert(got, qt.IsNil)
 			continue
 		}
@@ -199,7 +199,7 @@ func TestGetJSON(t *testing.T) {
 
 		if _, ok := test.expect.(bool); ok {
 			c.Assert(int(ns.deps.Log.LogCounters().ErrorCounter.Count()), qt.Equals, 1)
-			//c.Assert(err, msg, qt.Not(qt.IsNil))
+			// c.Assert(err, msg, qt.Not(qt.IsNil))
 			continue
 		}
 

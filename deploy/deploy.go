@@ -466,7 +466,7 @@ func (lf *localFile) MD5() []byte {
 // knownHiddenDirectory checks if the specified name is a well known
 // hidden directory.
 func knownHiddenDirectory(name string) bool {
-	var knownDirectories = []string{
+	knownDirectories := []string{
 		".well-known",
 	}
 
@@ -697,7 +697,6 @@ func findDiffs(localFiles map[string]*localFile, remoteFiles map[string]*blob.Li
 //
 // The subslices are sorted by Local.SlashPath.
 func applyOrdering(ordering []*regexp.Regexp, uploads []*fileToUpload) [][]*fileToUpload {
-
 	// Sort the whole slice by Local.SlashPath first.
 	sort.Slice(uploads, func(i, j int) bool { return uploads[i].Local.SlashPath < uploads[j].Local.SlashPath })
 

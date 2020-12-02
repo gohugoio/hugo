@@ -115,7 +115,6 @@ func (r *hookedRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) 
 
 // https://github.com/yuin/goldmark/blob/b611cd333a492416b56aa8d94b04a67bf0096ab2/renderer/html/html.go#L404
 func (r *hookedRenderer) RenderAttributes(w util.BufWriter, node ast.Node) {
-
 	for _, attr := range node.Attributes() {
 		_, _ = w.WriteString(" ")
 		_, _ = w.Write(attr.Name)
@@ -189,7 +188,6 @@ func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.N
 	ctx.AddIdentity(h.ImageRenderer)
 
 	return ast.WalkContinue, err
-
 }
 
 // Fall back to the default Goldmark render funcs. Method below borrowed from:

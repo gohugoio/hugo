@@ -47,7 +47,6 @@ type aliasPage struct {
 }
 
 func (a aliasHandler) renderAlias(permalink string, p page.Page) (io.Reader, error) {
-
 	var templ tpl.Template
 	var found bool
 

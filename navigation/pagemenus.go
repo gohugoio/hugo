@@ -94,7 +94,6 @@ func PageMenusFromPage(p Page) (PageMenus, error) {
 	}
 
 	return pm, nil
-
 }
 
 func NewMenuQueryProvider(
@@ -102,7 +101,6 @@ func NewMenuQueryProvider(
 	pagem PageMenusGetter,
 	sitem MenusGetter,
 	p Page) MenuQueryProvider {
-
 	return &pageMenus{
 		p:               p,
 		pagem:           pagem,
@@ -119,7 +117,6 @@ type pageMenus struct {
 }
 
 func (pm *pageMenus) HasMenuCurrent(menuID string, me *MenuEntry) bool {
-
 	// page is labeled as "shadow-member" of the menu with the same identifier as the section
 	if pm.setionPagesMenu != "" {
 		section := pm.p.Section()
@@ -136,7 +133,6 @@ func (pm *pageMenus) HasMenuCurrent(menuID string, me *MenuEntry) bool {
 	menus := pm.pagem.Menus()
 
 	if m, ok := menus[menuID]; ok {
-
 		for _, child := range me.Children {
 			if child.IsEqual(m) {
 				return true
@@ -165,7 +161,6 @@ func (pm *pageMenus) HasMenuCurrent(menuID string, me *MenuEntry) bool {
 	}
 
 	return false
-
 }
 
 func (pm *pageMenus) IsMenuCurrent(menuID string, inme *MenuEntry) bool {

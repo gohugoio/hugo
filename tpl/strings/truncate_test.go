@@ -15,7 +15,6 @@ package strings
 
 import (
 	"html/template"
-
 	"reflect"
 	"strings"
 	"testing"
@@ -81,5 +80,4 @@ func TestTruncate(t *testing.T) {
 	if err == nil {
 		t.Errorf("Should have errored")
 	}
-
 }

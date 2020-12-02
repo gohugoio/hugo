@@ -93,5 +93,4 @@ func initEmoji() {
 			emojiMaxSize = len(k)
 		}
 	}
-
 }

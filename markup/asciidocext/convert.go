@@ -96,7 +96,7 @@ func (a *asciidocConverter) getAsciidocContent(src []byte, ctx converter.Documen
 }
 
 func (a *asciidocConverter) parseArgs(ctx converter.DocumentContext) []string {
-	var cfg = a.cfg.MarkupConfig.AsciidocExt
+	cfg := a.cfg.MarkupConfig.AsciidocExt
 	args := []string{}
 
 	args = a.appendArg(args, "-b", cfg.Backend, asciidocext_config.CliDefault.Backend, asciidocext_config.AllowedBackend)
@@ -137,7 +137,6 @@ func (a *asciidocConverter) parseArgs(ctx converter.DocumentContext) []string {
 		file := filepath.Base(ctx.Filename)
 		if a.cfg.Cfg.GetBool("uglyUrls") || file == "_index.adoc" || file == "index.adoc" {
 			outDir, err = filepath.Abs(filepath.Dir(filepath.Join(destinationDir, ctx.DocumentName)))
-
 		} else {
 			postDir := ""
 			page, ok := ctx.Document.(pageSubset)

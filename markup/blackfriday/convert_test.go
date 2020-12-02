@@ -129,7 +129,7 @@ func TestGetAllFlags(t *testing.T) {
 	actualFlags := getFlags(false, b)
 
 	var expectedFlags int
-	//OR-ing flags together...
+	// OR-ing flags together...
 	for _, d := range allFlags {
 		expectedFlags |= d.testFlag
 	}

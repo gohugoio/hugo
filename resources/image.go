@@ -76,13 +76,10 @@ func (i *imageResource) Exif() *exif.Exif {
 }
 
 func (i *imageResource) getExif() *exif.Exif {
-
 	i.metaInit.Do(func() {
-
 		supportsExif := i.Format == images.JPEG || i.Format == images.TIFF
 		if !supportsExif {
 			return
-
 		}
 
 		key := i.getImageMetaCacheTargetPath()
@@ -104,7 +101,6 @@ func (i *imageResource) getExif() *exif.Exif {
 		}
 
 		create := func(info filecache.ItemInfo, w io.WriteCloser) (err error) {
-
 			f, err := i.root.ReadSeekCloser()
 			if err != nil {
 				i.metaInitErr = err
@@ -123,11 +119,9 @@ func (i *imageResource) getExif() *exif.Exif {
 			// Also write it to cache
 			enc := json.NewEncoder(w)
 			return enc.Encode(i.meta)
-
 		}
 
 		_, i.metaInitErr = i.getSpec().imageCache.fileCache.ReadOrCreate(key, read, create)
-
 	})
 
 	if i.metaInitErr != nil {
@@ -296,7 +290,6 @@ func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src im
 
 		return ci, converted, nil
 	})
-
 	if err != nil {
 		if i.root != nil && i.root.getFileInfo() != nil {
 			return nil, errors.Wrapf(err, "image %q", i.root.getFileInfo().Meta().Filename())

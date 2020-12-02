@@ -45,7 +45,6 @@ func init() {
 func runWith(env map[string]string, cmd string, inArgs ...interface{}) error {
 	s := argsToStrings(inArgs...)
 	return sh.RunWith(env, cmd, s...)
-
 }
 
 // Build hugo binary

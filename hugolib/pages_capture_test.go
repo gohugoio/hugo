@@ -30,13 +30,12 @@ import (
 )
 
 func TestPagesCapture(t *testing.T) {
-
 	cfg, hfs := newTestCfg()
 	fs := hfs.Source
 
 	c := qt.New(t)
 
-	var writeFile = func(filename string) {
+	writeFile := func(filename string) {
 		c.Assert(afero.WriteFile(fs, filepath.FromSlash(filename), []byte(fmt.Sprintf("content-%s", filename)), 0755), qt.IsNil)
 	}
 
@@ -61,7 +60,6 @@ func TestPagesCapture(t *testing.T) {
 		c.Assert(coll.Collect(), qt.IsNil)
 		c.Assert(len(proc.items), qt.Equals, 4)
 	})
-
 }
 
 type testPagesCollectorProcessor struct {
@@ -73,6 +71,7 @@ func (proc *testPagesCollectorProcessor) Process(item interface{}) error {
 	proc.items = append(proc.items, item)
 	return nil
 }
+
 func (proc *testPagesCollectorProcessor) Start(ctx context.Context) context.Context {
 	return ctx
 }

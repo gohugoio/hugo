@@ -102,7 +102,7 @@ Content.
 	var contentFiles []string
 	section := "sect"
 
-	var contentRoot = func(lang string) string {
+	contentRoot := func(lang string) string {
 		switch lang {
 		case "nn":
 			return "content/norsk"
@@ -111,10 +111,9 @@ Content.
 		default:
 			return "content/main"
 		}
-
 	}
 
-	var contentSectionRoot = func(lang string) string {
+	contentSectionRoot := func(lang string) string {
 		return contentRoot(lang) + "/" + section
 	}
 
@@ -215,7 +214,7 @@ Content.
 
 	err := b.BuildE(BuildCfg{})
 
-	//dumpPages(b.H.Sites[1].RegularPages()...)
+	// dumpPages(b.H.Sites[1].RegularPages()...)
 
 	c.Assert(err, qt.IsNil)
 
@@ -228,7 +227,7 @@ Content.
 	b.AssertFileContent("/my/project/public/en/mystatic/file1.yaml", "en")
 	b.AssertFileContent("/my/project/public/nn/mystatic/file1.yaml", "nn")
 
-	//dumpPages(nnSite.RegularPages()...)
+	// dumpPages(nnSite.RegularPages()...)
 
 	c.Assert(len(nnSite.RegularPages()), qt.Equals, 12)
 	c.Assert(len(enSite.RegularPages()), qt.Equals, 13)
@@ -317,7 +316,6 @@ Content.
 	c.Assert(len(nnSect.Pages()), qt.Equals, 12)
 	nnHome, _ := nnSite.Info.Home()
 	c.Assert(nnHome.RelPermalink(), qt.Equals, "/nn/")
-
 }
 
 // https://github.com/gohugoio/hugo/issues/6463
@@ -404,5 +402,4 @@ Page: /fr/event/page1/|ev-fr1
 Page: /fr/event/page2/|ev-fr2
 Page: /fr/other/page1/|other-fr1
 Page: /fr/other/page2/|other-fr2`)
-
 }

@@ -93,7 +93,6 @@ func compileRegexp(expression string) (*regexp.Regexp, error) {
 	}
 
 	return regexp.Compile(expression)
-
 }
 
 func NewDecoder(options ...func(*Decoder) error) (*Decoder, error) {
@@ -118,7 +117,6 @@ func (d *Decoder) Decode(r io.Reader) (ex *Exif, err error) {
 	x, err = _exif.Decode(r)
 	if err != nil {
 		if err.Error() == "EOF" {
-
 			// Found no Exif
 			return nil, nil
 		}
@@ -190,7 +188,6 @@ func decodeTag(x *_exif.Exif, f _exif.FieldName, t *tiff.Tag) (interface{}, erro
 	}
 
 	return rv, nil
-
 }
 
 // Code borrowed from exif.DateTime and adjusted.
@@ -202,7 +199,6 @@ func tryParseDate(x *_exif.Exif, s string) (time.Time, error) {
 		timeZone = tz
 	}
 	return time.ParseInLocation(exifTimeLayout, dateStr, timeZone)
-
 }
 
 type exifWalker struct {

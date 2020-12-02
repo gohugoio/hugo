@@ -40,9 +40,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var (
-	logger = loggers.NewErrorLogger()
-)
+var logger = loggers.NewErrorLogger()
 
 func newTestConfig() config.Provider {
 	v := viper.New()
@@ -188,7 +186,6 @@ func TestPartialCached(t *testing.T) {
 			t.Fatalf("cache mismatch")
 		}
 	}
-
 }
 
 func BenchmarkPartial(b *testing.B) {

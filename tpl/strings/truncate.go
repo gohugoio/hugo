@@ -17,7 +17,6 @@ import (
 	"errors"
 	"html"
 	"html/template"
-
 	"regexp"
 	"unicode"
 	"unicode/utf8"

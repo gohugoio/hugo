@@ -53,7 +53,6 @@ func NewSpec(
 	errorHandler herrors.ErrorSender,
 	outputFormats output.Formats,
 	mimeTypes media.Types) (*Spec, error) {
-
 	imgConfig, err := images.DecodeConfig(s.Cfg.GetStringMap("imaging"))
 	if err != nil {
 		return nil, err
@@ -96,12 +95,12 @@ func NewSpec(
 			fileCaches.ImageCache(),
 
 			s,
-		)}
+		),
+	}
 
 	rs.ResourceCache = newResourceCache(rs)
 
 	return rs, nil
-
 }
 
 type Spec struct {
@@ -189,7 +188,6 @@ func (r *Spec) newGenericResource(sourceFs afero.Fs,
 		baseFilename,
 		mediaType,
 	)
-
 }
 
 func (r *Spec) newGenericResourceWithBase(
@@ -201,7 +199,6 @@ func (r *Spec) newGenericResourceWithBase(
 	sourceFilename,
 	baseFilename string,
 	mediaType media.Type) *genericResource {
-
 	if osFileInfo != nil && osFileInfo.IsDir() {
 		panic(fmt.Sprintf("dirs not supported resource types: %v", osFileInfo))
 	}
@@ -250,7 +247,6 @@ func (r *Spec) newGenericResourceWithBase(
 	}
 
 	return g
-
 }
 
 func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (resource.Resource, error) {
@@ -318,7 +314,6 @@ func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (reso
 	}
 
 	return newResourceAdapter(gr.spec, fd.LazyPublish, gr), nil
-
 }
 
 func (r *Spec) newResourceFor(fd ResourceSourceDescriptor) (resource.Resource, error) {

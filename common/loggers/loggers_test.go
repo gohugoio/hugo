@@ -31,7 +31,6 @@ func TestLogger(t *testing.T) {
 	l.Warnln("A warning")
 
 	c.Assert(l.LogCounters().ErrorCounter.Count(), qt.Equals, uint64(2))
-
 }
 
 func TestLoggerToWriterWithPrefix(t *testing.T) {

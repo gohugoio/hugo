@@ -13,9 +13,7 @@
 
 package hugolib
 
-var (
-	_ Permalinker = (*pageState)(nil)
-)
+var _ Permalinker = (*pageState)(nil)
 
 // Permalinker provides permalinks of both the relative and absolute kind.
 type Permalinker interface {

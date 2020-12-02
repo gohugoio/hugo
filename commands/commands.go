@@ -88,6 +88,7 @@ var _ commandsBuilderGetter = (*baseBuilderCmd)(nil)
 type commandsBuilderGetter interface {
 	getCommandsBuilder() *commandsBuilder
 }
+
 type baseBuilderCmd struct {
 	*baseCmd
 	*commandsBuilder
@@ -138,7 +139,6 @@ func (c *nilCommand) getCommand() *cobra.Command {
 }
 
 func (c *nilCommand) flagsToConfig(cfg config.Provider) {
-
 }
 
 func (b *commandsBuilder) newHugoCmd() *hugoCmd {

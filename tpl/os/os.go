@@ -28,7 +28,6 @@ import (
 
 // New returns a new instance of the os-namespaced template functions.
 func New(d *deps.Deps) *Namespace {
-
 	var rfs afero.Fs
 	if d.Fs != nil {
 		rfs = d.Fs.WorkingDir
@@ -80,7 +79,6 @@ func readFile(fs afero.Fs, filename string) (string, error) {
 		return "", err
 	}
 	b, err := afero.ReadFile(fs, filename)
-
 	if err != nil {
 		return "", err
 	}

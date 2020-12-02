@@ -80,7 +80,6 @@ func GetNestedParam(keyStr, separator string, candidates ...Params) (interface{}
 	}
 
 	return nil, nil
-
 }
 
 func GetNestedParamFn(keyStr, separator string, lookupFn func(key string) interface{}) (interface{}, string, map[string]interface{}, error) {

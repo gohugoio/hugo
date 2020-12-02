@@ -34,7 +34,6 @@ func NewIgnorableLogger(logger Logger, statements ...string) IgnorableLogger {
 	statementsSet := make(map[string]bool)
 	for _, s := range statements {
 		statementsSet[strings.ToLower(s)] = true
-
 	}
 	return ignorableLogger{
 		Logger:     logger,

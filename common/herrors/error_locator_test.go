@@ -125,5 +125,4 @@ E`, offsetMatcher)
 	c.Assert(location.Lines, qt.DeepEquals, []string{"A", "B", "C", "D"})
 	c.Assert(location.Position().LineNumber, qt.Equals, 2)
 	c.Assert(location.LinesPos, qt.Equals, 1)
-
 }

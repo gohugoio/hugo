@@ -38,11 +38,9 @@ func decorateDirs(fs afero.Fs, meta FileMeta) afero.Fs {
 	ffs.decorate = decorator
 
 	return ffs
-
 }
 
 func decoratePath(fs afero.Fs, createPath func(name string) string) afero.Fs {
-
 	ffs := &baseFileDecoratorFs{Fs: fs}
 
 	decorator := func(fi os.FileInfo, name string) (os.FileInfo, error) {
@@ -54,7 +52,6 @@ func decoratePath(fs afero.Fs, createPath func(name string) string) afero.Fs {
 	ffs.decorate = decorator
 
 	return ffs
-
 }
 
 // DecorateBasePathFs adds Path info to files and directories in the
@@ -81,7 +78,6 @@ func DecorateBasePathFs(base *afero.BasePathFs) afero.Fs {
 // NewBaseFileDecorator decorates the given Fs to provide the real filename
 // and an Opener func.
 func NewBaseFileDecorator(fs afero.Fs, callbacks ...func(fi FileMetaInfo)) afero.Fs {
-
 	ffs := &baseFileDecoratorFs{Fs: fs}
 
 	decorator := func(fi os.FileInfo, filename string) (os.FileInfo, error) {
@@ -128,7 +124,6 @@ func NewBaseFileDecorator(fs afero.Fs, callbacks ...func(fi FileMetaInfo)) afero
 		}
 
 		return fim, nil
-
 	}
 
 	ffs.decorate = decorator
@@ -161,7 +156,6 @@ func (fs *baseFileDecoratorFs) Stat(name string) (os.FileInfo, error) {
 	}
 
 	return fs.decorate(fi, name)
-
 }
 
 func (fs *baseFileDecoratorFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {

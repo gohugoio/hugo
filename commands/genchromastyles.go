@@ -22,9 +22,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	_ cmder = (*genChromaStyles)(nil)
-)
+var _ cmder = (*genChromaStyles)(nil)
 
 type genChromaStyles struct {
 	style          string

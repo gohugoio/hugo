@@ -53,7 +53,6 @@ func GetGlob(pattern string) (glob.Glob, error) {
 	globMu.Unlock()
 
 	return eg.glob, eg.err
-
 }
 
 func NormalizePath(p string) string {
@@ -98,5 +97,4 @@ func HasGlobChar(s string) bool {
 		}
 	}
 	return false
-
 }

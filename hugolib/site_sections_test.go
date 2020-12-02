@@ -25,7 +25,6 @@ import (
 )
 
 func TestNestedSections(t *testing.T) {
-
 	var (
 		c       = qt.New(t)
 		cfg, fs = newTestCfg()
@@ -139,7 +138,6 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			// > b,c
 			c.Assert(getPage(p, "/empty1/b"), qt.IsNil) // No _index.md page.
 			c.Assert(getPage(p, "/empty1/b/c"), qt.Not(qt.IsNil))
-
 		}},
 		{"empty2", func(c *qt.C, p page.Page) {
 			// > b,c,d where b and d have _index.md files.
@@ -157,7 +155,6 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			c.Assert(cp.Eq(d), qt.Equals, false)
 			c.Assert(cp.Eq(cp), qt.Equals, true)
 			c.Assert(cp.Eq("asdf"), qt.Equals, false)
-
 		}},
 		{"empty3", func(c *qt.C, p page.Page) {
 			// b,c,d with regular page in b
@@ -166,7 +163,6 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			e3 := getPage(p, "/empty3/b/empty3")
 			c.Assert(e3, qt.Not(qt.IsNil))
 			c.Assert(e3.File().LogicalName(), qt.Equals, "empty3.md")
-
 		}},
 		{"empty3", func(c *qt.C, p page.Page) {
 			xxx := getPage(p, "/empty3/nil")
@@ -234,7 +230,6 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			}
 
 			c.Assert(p.Eq(p.CurrentSection()), qt.Equals, true)
-
 		}},
 		{"l1,l2_2", func(c *qt.C, p page.Page) {
 			c.Assert(p.Title(), qt.Equals, "T22_-1")
@@ -278,7 +273,6 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			isAncestor, err = nilp.IsAncestor(l1)
 			c.Assert(err, qt.IsNil)
 			c.Assert(isAncestor, qt.Equals, false)
-
 		}},
 		{"perm a,link", func(c *qt.C, p page.Page) {
 			c.Assert(p.Title(), qt.Equals, "T9_-1")
@@ -290,7 +284,6 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 
 			last := p.Pages()[3]
 			c.Assert(last.RelPermalink(), qt.Equals, "/perm-a/link/t1_5/")
-
 		}},
 	}
 
@@ -335,7 +328,6 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 	c.Assert(sectionWithSpace.RelPermalink(), qt.Equals, "/spaces-in-section/")
 
 	th.assertFileContent("public/l1/l2/page/2/index.html", "L1/l2-IsActive: true", "PAG|T2_3|true")
-
 }
 
 func TestNextInSectionNested(t *testing.T) {
@@ -380,5 +372,4 @@ Next: {{ with .NextInSection }}{{ .RelPermalink }}{{ end }}|
 		"Prev: /blog/cool/cool2/|", "Next: |")
 	b.AssertFileContent("public/blog/cool/cool2/index.html",
 		"Prev: |", "Next: /blog/cool/cool1/|")
-
 }

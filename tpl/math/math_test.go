@@ -197,7 +197,6 @@ func TestSqrt(t *testing.T) {
 	result, err := ns.Sqrt(-1)
 	c.Assert(err, qt.IsNil)
 	c.Assert(result, qt.Satisfies, math.IsNaN)
-
 }
 
 func TestMod(t *testing.T) {

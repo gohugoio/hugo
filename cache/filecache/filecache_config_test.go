@@ -69,7 +69,6 @@ dir = "/path/to/c3"
 	c3 := decoded["images"]
 	c.Assert(c3.MaxAge, qt.Equals, time.Duration(-1))
 	c.Assert(c3.Dir, qt.Equals, filepath.FromSlash("/path/to/c3/filecache/images"))
-
 }
 
 func TestDecodeConfigIgnoreCache(t *testing.T) {
@@ -110,7 +109,6 @@ dir = "/path/to/c3"
 	for _, v := range decoded {
 		c.Assert(v.MaxAge, qt.Equals, time.Duration(0))
 	}
-
 }
 
 func TestDecodeConfigDefault(t *testing.T) {
@@ -178,7 +176,6 @@ dir = "/"
 
 	_, err = DecodeConfig(fs, cfg)
 	c.Assert(err, qt.Not(qt.IsNil))
-
 }
 
 func newTestConfig() *viper.Viper {

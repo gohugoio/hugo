@@ -238,7 +238,6 @@ func (p *pageMeta) Path() string {
 
 // RelatedKeywords implements the related.Document interface needed for fast page searches.
 func (p *pageMeta) RelatedKeywords(cfg related.IndexConfig) ([]related.Keyword, error) {
-
 	v, err := p.Param(cfg.Name)
 	if err != nil {
 		return nil, err
@@ -269,7 +268,6 @@ func (p *pageMeta) Section() string {
 	}
 
 	panic("invalid page state")
-
 }
 
 func (p *pageMeta) SectionsEntries() []string {
@@ -368,9 +366,8 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 					}
 				} else {
 					p.bucket.cascade = map[page.PageMatcher]maps.Params{
-						page.PageMatcher{}: maps.ToStringMap(cv),
+						{}: maps.ToStringMap(cv),
 					}
-
 				}
 			}
 		}
@@ -486,7 +483,6 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 					// this may get its language path added twice.
 					// TODO(bep) eventually remove this.
 					p.s.Log.Warnf(`Front matter in %q with the url %q with no leading / has what looks like the language prefix added. In Hugo 0.55 we added support for page relative URLs in front matter, no language prefix needed. Check the URL and consider to either add a leading / or remove the language prefix.`, p.pathOrTitle(), url)
-
 				}
 			}
 			pm.urlPaths.URL = url
@@ -661,7 +657,6 @@ func (p *pageMeta) noListAlways() bool {
 }
 
 func (p *pageMeta) getListFilter(local bool) contentTreeNodeCallback {
-
 	return newContentTreeFilter(func(n *contentNode) bool {
 		if n == nil {
 			return true
@@ -763,7 +758,6 @@ func (p *pageMeta) applyDefaultValues(n *contentNode) error {
 	}
 
 	return nil
-
 }
 
 func (p *pageMeta) newContentConverter(ps *pageState, markup string, renderingConfigOverrides map[string]interface{}) (converter.Converter, error) {
@@ -791,7 +785,6 @@ func (p *pageMeta) newContentConverter(ps *pageState, markup string, renderingCo
 			ConfigOverrides: renderingConfigOverrides,
 		},
 	)
-
 	if err != nil {
 		return converter.NopConverter, err
 	}

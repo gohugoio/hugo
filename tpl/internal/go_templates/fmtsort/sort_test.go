@@ -6,11 +6,12 @@ package fmtsort_test
 
 import (
 	"fmt"
-	"github.com/gohugoio/hugo/tpl/internal/go_templates/fmtsort"
 	"math"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/fmtsort"
 )
 
 var compareTests = [][]reflect.Value{

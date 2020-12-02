@@ -93,11 +93,9 @@ github.com/gohugoio/hugoTestModule2 v0.0.0-20200131160637-9657d7697877/go.mod h1
 `)
 
 		return b, clean
-
 	}
 
 	t.Run("Target in subfolder", func(t *testing.T) {
-
 		b, clean := newTestBuilder(t, "ignoreImports=true")
 		defer clean()
 
@@ -107,7 +105,6 @@ github.com/gohugoio/hugoTestModule2 v0.0.0-20200131160637-9657d7697877/go.mod h1
 	})
 
 	t.Run("Ignore config", func(t *testing.T) {
-
 		b, clean := newTestBuilder(t, "ignoreConfig=true")
 		defer clean()
 
@@ -120,7 +117,6 @@ JS imported in module: |
 	})
 
 	t.Run("Ignore imports", func(t *testing.T) {
-
 		b, clean := newTestBuilder(t, "ignoreImports=true")
 		defer clean()
 
@@ -133,7 +129,6 @@ JS imported in module: |
 	})
 
 	t.Run("Create package.json", func(t *testing.T) {
-
 		b, clean := newTestBuilder(t, "")
 		defer clean()
 
@@ -197,7 +192,6 @@ JS imported in module: |
 	})
 
 	t.Run("Create package.json, no default", func(t *testing.T) {
-
 		b, clean := newTestBuilder(t, "")
 		defer clean()
 
@@ -249,11 +243,9 @@ JS imported in module: |
 
 		// https://github.com/gohugoio/hugo/issues/7690
 		b.AssertFileContent("package.hugo.json", origPackageJSON)
-
 	})
 
 	t.Run("Create package.json, no default, no package.json", func(t *testing.T) {
-
 		b, clean := newTestBuilder(t, "")
 		defer clean()
 
@@ -287,11 +279,8 @@ JS imported in module: |
  "name": "myhugosite",
  "version": "0.1.0"
 }`
-
 		})
-
 	})
-
 }
 
 // TODO(bep) this fails when testmodBuilder is also building ...
@@ -532,7 +521,6 @@ other="Theme C"
 		"i18n theme: Theme C",
 		"i18n theme2: Theme2 D",
 	)
-
 }
 
 func TestModulesIgnoreConfig(t *testing.T) {
@@ -560,7 +548,6 @@ a = "Should Be Ignored!"
 	b.AssertFileContentFn("public/index.html", func(s string) bool {
 		return !strings.Contains(s, "Ignored")
 	})
-
 }
 
 func TestModulesDisabled(t *testing.T) {
@@ -596,7 +583,6 @@ b = "B param"
 	b.AssertFileContentFn("public/index.html", func(s string) bool {
 		return strings.Contains(s, "A param") && !strings.Contains(s, "B param")
 	})
-
 }
 
 func TestModulesIncompatible(t *testing.T) {
@@ -650,7 +636,6 @@ min_version = 0.55.0
 	c := qt.New(t)
 
 	c.Assert(logger.LogCounters().WarnCounter.Count(), qt.Equals, uint64(3))
-
 }
 
 func TestModulesSymlinks(t *testing.T) {
@@ -740,7 +725,8 @@ weight = 2
 		bfs.Content.Fs,
 		bfs.Data.Fs,
 		bfs.Assets.Fs,
-		bfs.I18n.Fs} {
+		bfs.I18n.Fs,
+	} {
 
 		if i != 0 {
 			continue
@@ -756,7 +742,6 @@ weight = 2
 				}
 
 				_, err := fs.Stat(filepath.FromSlash(filename))
-
 				if err != nil {
 					if i > 0 && strings.HasSuffix(filename, "toml") && strings.Contains(err.Error(), "files not supported") {
 						// OK
@@ -803,7 +788,7 @@ title: "My Page"
 
 	b.Build(BuildCfg{})
 
-	//helpers.PrintFs(b.H.Fs.Source, "public", os.Stdout)
+	// helpers.PrintFs(b.H.Fs.Source, "public", os.Stdout)
 
 	b.AssertFileContent("public/mypage/index.html", "Permalink: https://example.org/mypage/")
 }
@@ -929,7 +914,6 @@ title: "Readme Edit"
 	b.AssertFileContent("public/index.html", `
 Readme Edit
 `)
-
 }
 
 func TestMountsPaths(t *testing.T) {
@@ -969,7 +953,6 @@ workingDir = %q
 			clean:      clean,
 			workingDir: workingDir,
 		}
-
 	}
 
 	c.Run("Default", func(c *qt.C) {
@@ -991,7 +974,6 @@ title: P1
 		b.Assert(filepath.ToSlash(f.PathFile()), qt.Equals, "content/blog/p1.md")
 
 		b.Assert(b.H.BaseFs.Layouts.Path(filepath.Join(test.workingDir, "layouts", "_default", "single.html")), qt.Equals, filepath.FromSlash("_default/single.html"))
-
 	})
 
 	c.Run("Mounts", func(c *qt.C) {
@@ -1047,9 +1029,7 @@ title: P1
 		b.Assert(b.H.BaseFs.Layouts.Path(filepath.Join(absShortcodesDir, "myshort.html")), qt.Equals, filepath.FromSlash("shortcodes/myshort.html"))
 		b.Assert(b.H.BaseFs.Content.Path(filepath.Join(subContentDir, "p1.md")), qt.Equals, filepath.FromSlash("blog/sub/p1.md"))
 		b.Assert(b.H.BaseFs.Content.Path(filepath.Join(test.workingDir, "README.md")), qt.Equals, filepath.FromSlash("_index.md"))
-
 	})
-
 }
 
 // https://github.com/gohugoio/hugo/issues/6299
@@ -1074,7 +1054,6 @@ func TestSiteWithGoModButNoModules(t *testing.T) {
 
 	b.WithSourceFile("go.mod", "")
 	b.Build(BuildCfg{})
-
 }
 
 // https://github.com/gohugoio/hugo/issues/6622
@@ -1128,5 +1107,4 @@ P1: {{ $p1.Title }}|{{ $p1.RelPermalink }}|Filename: {{ $p1.File.Filename }}
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent("public/index.html", "P1: Abs|/p1/", "Filename: "+contentFilename)
-
 }

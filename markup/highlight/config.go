@@ -71,7 +71,7 @@ func (cfg Config) ToHTMLOptions() []html.Option {
 	if cfg.LineAnchors != "" {
 		lineAnchors = cfg.LineAnchors + "-"
 	}
-	var options = []html.Option{
+	options := []html.Option{
 		html.TabWidth(cfg.TabWidth),
 		html.WithLineNumbers(cfg.LineNos),
 		html.BaseLineNumber(cfg.LineNoStart),
@@ -126,7 +126,6 @@ func ApplyLegacyConfig(cfg config.Provider, conf *Config) error {
 	}
 
 	return nil
-
 }
 
 func parseOptions(in string) (map[string]interface{}, error) {
@@ -199,5 +198,4 @@ func hlLinesToRanges(startLine int, s string) ([][2]int, error) {
 		ranges = append(ranges, r)
 	}
 	return ranges, nil
-
 }

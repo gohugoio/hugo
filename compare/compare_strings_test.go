@@ -61,5 +61,4 @@ func TestLexicographicSort(t *testing.T) {
 	})
 
 	c.Assert(s, qt.DeepEquals, []string{"A", "b", "Ba", "ba", "ba", "Bz"})
-
 }
