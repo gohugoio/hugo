@@ -181,10 +181,14 @@ func (p *PathSpec) AbsURL(in string, addLanguage bool) string {
 		if prefix != "" {
 			hasPrefix := false
 			// avoid adding language prefix if already present
+			in2 := in
 			if strings.HasPrefix(in, "/") {
-				hasPrefix = strings.HasPrefix(in[1:], prefix)
+				in2 = in[1:]
+			}
+			if in2 == prefix {
+				hasPrefix = true
 			} else {
-				hasPrefix = strings.HasPrefix(in, prefix)
+				hasPrefix = strings.HasPrefix(in2, prefix+"/")
 			}
 
 			if !hasPrefix {
@@ -230,10 +234,14 @@ func (p *PathSpec) RelURL(in string, addLanguage bool) string {
 		if prefix != "" {
 			hasPrefix := false
 			// avoid adding language prefix if already present
+			in2 := in
 			if strings.HasPrefix(in, "/") {
-				hasPrefix = strings.HasPrefix(in[1:], prefix)
+				in2 = in[1:]
+			}
+			if in2 == prefix {
+				hasPrefix = true
 			} else {
-				hasPrefix = strings.HasPrefix(in, prefix)
+				hasPrefix = strings.HasPrefix(in2, prefix+"/")
 			}
 
 			if !hasPrefix {
