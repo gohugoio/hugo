@@ -17,6 +17,7 @@ var itemName = map[itemType]string{
 	itemBool:         "bool",
 	itemChar:         "char",
 	itemCharConstant: "charconst",
+	itemComment:      "comment",
 	itemComplex:      "complex",
 	itemDeclare:      ":=",
 	itemEOF:          "EOF",
@@ -92,6 +93,7 @@ var lexTests = []lexTest{
 	{"text", `now is the time`, []item{mkItem(itemText, "now is the time"), tEOF}},
 	{"text with comment", "hello-{{/* this is a comment */}}-world", []item{
 		mkItem(itemText, "hello-"),
+		mkItem(itemComment, "/* this is a comment */"),
 		mkItem(itemText, "-world"),
 		tEOF,
 	}},
@@ -313,6 +315,7 @@ var lexTests = []lexTest{
 	}},
 	{"trimming spaces before and after comment", "hello- {{- /* hello */ -}} -world", []item{
 		mkItem(itemText, "hello-"),
+		mkItem(itemComment, "/* hello */"),
 		mkItem(itemText, "-world"),
 		tEOF,
 	}},
@@ -322,7 +325,7 @@ var lexTests = []lexTest{
 		tLeft,
 		mkItem(itemError, "unrecognized character in action: U+0001"),
 	}},
-	{"unclosed action", "{{\n}}", []item{
+	{"unclosed action", "{{", []item{
 		tLeft,
 		mkItem(itemError, "unclosed action"),
 	}},
@@ -391,7 +394,7 @@ var lexTests = []lexTest{
 
 // collect gathers the emitted items into a slice.
 func collect(t *lexTest, left, right string) (items []item) {
-	l := lex(t.name, t.input, left, right)
+	l := lex(t.name, t.input, left, right, true)
 	for {
 		item := l.nextItem()
 		items = append(items, item)
@@ -531,7 +534,7 @@ func TestPos(t *testing.T) {
 func TestShutdown(t *testing.T) {
 	// We need to duplicate template.Parse here to hold on to the lexer.
 	const text = "erroneous{{define}}{{else}}1234"
-	lexer := lex("foo", text, "{{", "}}")
+	lexer := lex("foo", text, "{{", "}}", false)
 	_, err := New("root").parseLexer(lexer)
 	if err == nil {
 		t.Fatalf("expected error")
