@@ -585,7 +585,7 @@ func TestTemplateGoIssues(t *testing.T) {
 {{ $title := "a & b" }}
 <script type="application/ld+json">{"@type":"WebPage","headline":"{{$title}}"}</script>
 
-{{/* Action newlines, from Go 1.16, see https://github.com/golang/go/issues/29770 */}}
+{{/* Action/commands newlines, from Go 1.16, see https://github.com/golang/go/issues/29770 */}}
 {{ $norway := dict
 	"country" "Norway"
 	"population" "5 millions"
@@ -598,7 +598,11 @@ func TestTemplateGoIssues(t *testing.T) {
 	"dialing_code" "+47"
 }}
 
-Population in Norway is {{ $norway.population }}
+Population in Norway is {{
+	  $norway.population
+	| lower
+	| upper
+}}
 
 `,
 	)
@@ -607,7 +611,7 @@ Population in Norway is {{ $norway.population }}
 
 	b.AssertFileContent("public/index.html", `
 <script type="application/ld+json">{"@type":"WebPage","headline":"a \u0026 b"}</script>
-Population in Norway is 5 millions
+Population in Norway is 5 MILLIONS
 
 `)
 }
