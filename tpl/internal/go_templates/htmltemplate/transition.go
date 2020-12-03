@@ -41,10 +41,8 @@ var transitionFunc = [...]func(context, []byte) (context, int){
 	stateError:       tError,
 }
 
-var (
-	commentStart = []byte("<!--")
-	commentEnd   = []byte("-->")
-)
+var commentStart = []byte("<!--")
+var commentEnd = []byte("-->")
 
 // tText is the context transition function for the text state.
 func tText(c context, s []byte) (context, int) {

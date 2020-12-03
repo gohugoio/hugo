@@ -42,6 +42,7 @@ func TestFindEndTag(t *testing.T) {
 }
 
 func BenchmarkTemplateSpecialTags(b *testing.B) {
+
 	r := struct {
 		Name, Gift string
 	}{"Aunt Mildred", "bone china tea set"}

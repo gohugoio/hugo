@@ -13,6 +13,7 @@ package testenv
 import (
 	"errors"
 	"flag"
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/cfg"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -21,8 +22,6 @@ import (
 	"strings"
 	"sync"
 	"testing"
-
-	"github.com/gohugoio/hugo/tpl/internal/go_templates/cfg"
 )
 
 // Builder reports the name of the builder running this test

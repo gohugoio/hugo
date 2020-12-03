@@ -337,7 +337,6 @@ var jsStrNormReplacementTable = []string{
 	'<':  `\u003c`,
 	'>':  `\u003e`,
 }
-
 var jsRegexpReplacementTable = []string{
 	0:    `\u0000`,
 	'\t': `\t`,

@@ -12,10 +12,8 @@ import (
 	"syscall"
 )
 
-var (
-	symlinkOnce   sync.Once
-	winSymlinkErr error
-)
+var symlinkOnce sync.Once
+var winSymlinkErr error
 
 func initWinHasSymlink() {
 	tmpdir, err := ioutil.TempDir("", "symtest")

@@ -210,10 +210,8 @@ var cssReplacementTable = []string{
 	'}':  `\7d`,
 }
 
-var (
-	expressionBytes = []byte("expression")
-	mozBindingBytes = []byte("mozbinding")
-)
+var expressionBytes = []byte("expression")
+var mozBindingBytes = []byte("mozbinding")
 
 // cssValueFilter allows innocuous CSS values in the output including CSS
 // quantities (10px or 25%), ID or class literals (#foo, .bar), keyword values

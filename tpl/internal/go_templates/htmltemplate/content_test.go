@@ -427,7 +427,7 @@ func TestStringer(t *testing.T) {
 	if err := tmpl.Execute(b, s); err != nil {
 		t.Fatal(err)
 	}
-	expect := "string=3"
+	var expect = "string=3"
 	if b.String() != expect {
 		t.Errorf("expected %q got %q", expect, b.String())
 	}

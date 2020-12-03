@@ -85,4 +85,5 @@ Method: {{ .Hello1 "v1" }}
 	c.Assert(got, qt.Contains, "hello hugo")
 	c.Assert(got, qt.Contains, "Map: av")
 	c.Assert(got, qt.Contains, "Method: v2 v1")
+
 }
