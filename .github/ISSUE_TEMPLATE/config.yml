@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+    - name: Support
+      url: https://discourse.gohugo.io/
+      about: Please do not use Github for support requests. Visit https://discourse.gohugo.io for support!
