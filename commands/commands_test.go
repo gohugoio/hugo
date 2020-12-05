@@ -89,7 +89,7 @@ func TestExecute(t *testing.T) {
 		defer clean()
 		resp := Execute([]string{"deploy", "-s=" + dir, "-e=staging", "--target=mydeployment", "--dryRun"})
 		c.Assert(resp.Err, qt.Not(qt.IsNil))
-		c.Assert(resp.Err.Error(), qt.Contains, `no provider registered for "hugocloud"`)
+		c.Assert(resp.Err.Error(), qt.Contains, `no driver registered for "hugocloud"`)
 	})
 
 	c.Run("list", func(c *qt.C) {
