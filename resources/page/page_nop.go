@@ -96,6 +96,10 @@ func (p *nopPage) Content() (interface{}, error) {
 	return "", nil
 }
 
+func (p *nopPage) ProcessedContent() (interface{}, error) {
+	return "", nil
+}
+
 func (p *nopPage) ContentBaseName() string {
 	return ""
 }

@@ -368,6 +368,10 @@ func (p *testPage) Pages() Pages {
 	panic("not implemented")
 }
 
+func (p *testPage) ProcessedContent() (interface{}, error) {
+	panic("not implemented")
+}
+
 func (p *testPage) RegularPages() Pages {
 	panic("not implemented")
 }

@@ -79,7 +79,7 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 		renderHooks:       &renderHooks{},
 	}
 
-	initContent := func() (err error) {
+	initContent := func(unprocessed bool) (err error) {
 		p.s.h.IncrContentRender()
 
 		if p.cmap == nil {
@@ -120,7 +120,7 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 
 		cp.workContent = p.contentToRender(cp.contentPlaceholders)
 
-		isHTML := cp.p.m.markup == "html"
+		isHTML := cp.p.m.markup == "html" || unprocessed
 
 		if !isHTML {
 			r, err := cp.renderContent(cp.workContent, true)
@@ -200,15 +200,20 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 	// Avoid creating new goroutines if we don't have to.
 	needTimeout := p.shortcodeState.hasShortcodes() || cp.renderHooks != nil
 
-	if needTimeout {
-		cp.initMain = parent.BranchWithTimeout(p.s.siteCfg.timeout, func(ctx context.Context) (interface{}, error) {
-			return nil, initContent()
-		})
-	} else {
-		cp.initMain = parent.Branch(func() (interface{}, error) {
-			return nil, initContent()
+	makeInit := func(unprocessed bool) *lazy.Init {
+		if needTimeout {
+			return parent.BranchWithTimeout(p.s.siteCfg.timeout, func(ctx context.Context) (interface{}, error) {
+				return nil, initContent(unprocessed)
+			})
+		}
+
+		return parent.Branch(func() (interface{}, error) {
+			return nil, initContent(unprocessed)
 		})
 	}
+
+	cp.initMain = makeInit(false)
+	cp.initUnprocessed = makeInit(true)
 
 	cp.initPlain = cp.initMain.Branch(func() (interface{}, error) {
 		cp.plain = helpers.StripHTML(string(cp.content))
@@ -241,8 +246,9 @@ type pageContentOutput struct {
 	p *pageState
 
 	// Lazy load dependencies
-	initMain  *lazy.Init
-	initPlain *lazy.Init
+	initMain        *lazy.Init
+	initPlain       *lazy.Init
+	initUnprocessed *lazy.Init
 
 	placeholdersEnabled     bool
 	placeholdersEnabledInit sync.Once
@@ -288,11 +294,19 @@ func (p *pageContentOutput) Reset() {
 	}
 	p.initMain.Reset()
 	p.initPlain.Reset()
+	p.initUnprocessed.Reset()
 	p.renderHooks = &renderHooks{}
 }
 
 func (p *pageContentOutput) Content() (interface{}, error) {
 	if p.p.s.initInit(p.initMain, p.p) {
+		return p.content, nil
+	}
+	return nil, nil
+}
+
+func (p *pageContentOutput) ProcessedContent() (interface{}, error) {
+	if p.p.s.initInit(p.initUnprocessed, p.p) {
 		return p.content, nil
 	}
 	return nil, nil

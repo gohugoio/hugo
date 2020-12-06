@@ -77,6 +77,7 @@ type ChildCareProvider interface {
 // ContentProvider provides the content related values for a Page.
 type ContentProvider interface {
 	Content() (interface{}, error)
+	ProcessedContent() (interface{}, error)
 	Plain() string
 	PlainWords() []string
 	Summary() template.HTML

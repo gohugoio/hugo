@@ -1755,3 +1755,37 @@ Page1: {{ $p1.Path }}
 
 	b.AssertFileContent("public/index.html", "Lang: no", filepath.FromSlash("Page1: a/B/C/Page1.md"))
 }
+
+func TestProcessedContent(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t)
+	b.WithTemplatesAdded("_default/single.html", `
+	ProcessedContent: {{ .ProcessedContent }}
+	`, "shortcodes/t.html", `T-SHORT`, "shortcodes/s.html", `## Code
+	{{ .Inner }}
+	`)
+
+	content := `
++++
+title = "Processed Page"
++++
+
+## Shortcode {{% t %}} in header
+
+{{% s %}}
+Content
+{{% /s %}}
+
+Link with URL as text
+
+[https://google.com](https://google.com)
+`
+
+	b.WithContent("page.md", content)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/page/index.html",
+		`T-SHORT`, `[https://google.com](https://google.com)`, `## Code`)
+}
