@@ -27,6 +27,7 @@ func main() {
 			resp.Cmd.Println("")
 			resp.Cmd.Println(resp.Cmd.UsageString())
 		}
+		// 实际上会被转换成 255 错误码
 		os.Exit(-1)
 	}
 }
