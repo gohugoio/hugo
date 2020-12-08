@@ -29,6 +29,8 @@ import (
 
 var _ cmder = (*newCmd)(nil)
 
+var _ cmder = &newCmd{}
+
 type newCmd struct {
 	contentEditor string
 	contentType   string

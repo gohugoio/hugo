@@ -116,6 +116,7 @@ func (n *newSiteCmd) newSite(cmd *cobra.Command, args []string) error {
 		return newUserError("path needs to be provided")
 	}
 
+	// 取输入路径的绝对路径
 	createpath, err := filepath.Abs(filepath.Clean(args[0]))
 	if err != nil {
 		return newUserError(err)
@@ -123,6 +124,8 @@ func (n *newSiteCmd) newSite(cmd *cobra.Command, args []string) error {
 
 	forceNew, _ := cmd.Flags().GetBool("force")
 
+	// viper.New 创建一个空结构体
+	// 其实现了 ConfigProvider 接口
 	return n.doNewSite(hugofs.NewDefault(viper.New()), createpath, forceNew)
 }
 
