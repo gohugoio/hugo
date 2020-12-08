@@ -85,6 +85,8 @@ func (n *newSiteCmd) doNewSite(fs *hugofs.Fs, basepath string, force bool) error
 		case !isEmpty && force:
 			all := append(dirs, filepath.Join(basepath, "config."+n.configFormat))
 			for _, path := range all {
+				// 存在就报错，force 有何意义
+				// 但是不主动删用户的文件应该是对的
 				if exists, _ := helpers.Exists(path, fs.Source); exists {
 					return errors.New(path + " already exists")
 				}
@@ -93,6 +95,7 @@ func (n *newSiteCmd) doNewSite(fs *hugofs.Fs, basepath string, force bool) error
 	}
 
 	for _, dir := range dirs {
+		// 是否应该 755 权限？
 		if err := fs.Source.MkdirAll(dir, 0777); err != nil {
 			return _errors.Wrap(err, "Failed to create dir")
 		}
@@ -133,10 +136,11 @@ func createConfig(fs *hugofs.Fs, inpath string, kind string) (err error) {
 	in := map[string]string{
 		"baseURL":      "http://example.org/",
 		"title":        "My New Hugo Site",
-		"languageCode": "en-us",
+		"languageCode": "en-us", // 语言 code 是否可以从操作系统获取
 	}
 
 	var buf bytes.Buffer
+	// 映射 map 配置到文件格式
 	err = parser.InterfaceToConfig(in, metadecoders.FormatFromString(kind), &buf)
 	if err != nil {
 		return err

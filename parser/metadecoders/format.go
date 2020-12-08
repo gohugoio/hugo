@@ -32,6 +32,7 @@ const (
 	CSV  Format = "csv"
 )
 
+// 校验用户输入的文件格式到标准格式
 // FormatFromString turns formatStr, typically a file extension without any ".",
 // into a Format. It returns an empty string for unknown formats.
 func FormatFromString(formatStr string) Format {
