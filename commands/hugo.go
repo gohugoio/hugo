@@ -125,6 +125,7 @@ func initializeConfig(mustHaveConfigFile, running bool,
 	return c, nil
 }
 
+// 日志输出到文件
 func (c *commandeer) createLogger(cfg config.Provider, running bool) (loggers.Logger, error) {
 	var (
 		logHandle       = ioutil.Discard

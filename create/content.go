@@ -34,10 +34,10 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
+// 包装创建具体类型文件的初始化函数
 // NewContent creates a new content file in the content directory based upon the
 // given kind, which is used to lookup an archetype.
-func NewContent(
-	sites *hugolib.HugoSites, kind, targetPath string) error {
+func NewContent(sites *hugolib.HugoSites, kind, targetPath string) error {
 	targetPath = filepath.Clean(targetPath)
 	ext := helpers.Ext(targetPath)
 	ps := sites.PathSpec
@@ -257,6 +257,7 @@ func resolveContentPath(sites *hugolib.HugoSites, fs afero.Fs, targetPath string
 		siteContentDir string
 	)
 
+	// 以 post.<lang>.md 标识不同语言的文章
 	// Try the filename: my-post.en.md
 	for _, ss := range sites.Sites {
 		if strings.Contains(targetPath, "."+ss.Language().Lang+".") {

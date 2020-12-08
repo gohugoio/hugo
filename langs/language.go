@@ -57,9 +57,12 @@ type Language struct {
 
 	Cfg config.Provider
 
+	// frontmatter 之前有一个 params 配置
+	// params 规定名字、字符串类型、和备注
 	// These are params declared in the [params] section of the language merged with the
 	// site's params, the most specific (language) wins on duplicate keys.
 	params    map[string]interface{}
+	// 并发锁
 	paramsMu  sync.Mutex
 	paramsSet bool
 
@@ -77,10 +80,12 @@ func (l *Language) String() string {
 func NewLanguage(lang string, cfg config.Provider) *Language {
 	// Note that language specific params will be overridden later.
 	// We should improve that, but we need to make a copy:
+	// 深拷贝 params
 	params := make(map[string]interface{})
 	for k, v := range cfg.GetStringMap("params") {
 		params[k] = v
 	}
+	// key 大小写转换
 	maps.ToLower(params)
 
 	l := &Language{Lang: lang, ContentDir: cfg.GetString("contentDir"), Cfg: cfg, params: params, settings: make(map[string]interface{})}

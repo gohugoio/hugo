@@ -74,10 +74,12 @@ func (n *newThemeCmd) newTheme(cmd *cobra.Command, args []string) error {
 	mkdir(createpath, "layouts", "partials")
 
 	touchFile(cfg.Fs.Source, createpath, "layouts", "index.html")
-	touchFile(cfg.Fs.Source, createpath, "layouts", "404.html")
+	touchFile(cfg.Fs.Source, createpath, "layouts", "404.html") // 404 页面可以利用 github pages 的配置项
 	touchFile(cfg.Fs.Source, createpath, "layouts", "_default", "list.html")
 	touchFile(cfg.Fs.Source, createpath, "layouts", "_default", "single.html")
 
+	// go 写 html，非常不优雅
+	// 就和写 protobuf 生成器一样难受
 	baseofDefault := []byte(`<!DOCTYPE html>
 <html>
     {{- partial "head.html" . -}}

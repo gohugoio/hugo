@@ -18,6 +18,7 @@ import (
 	"sync"
 )
 
+// LIFO 队列 并发安全
 // EvictingStringQueue is a queue which automatically evicts elements from the head of
 // the queue when attempting to add new elements onto the queue and it is full.
 // This queue orders elements LIFO (last-in-first-out). It throws away duplicates.

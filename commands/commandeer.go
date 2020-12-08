@@ -78,6 +78,7 @@ type commandeer struct {
 	// We watch these for changes.
 	configFiles []string
 
+	// 防抖函数
 	// Used in cases where we get flooded with events in server mode.
 	debounce func(f func())
 
