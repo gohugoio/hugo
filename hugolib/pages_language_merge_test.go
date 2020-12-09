@@ -170,7 +170,8 @@ date: "2018-02-28"
 func BenchmarkMergeByLanguage(b *testing.B) {
 	const count = 100
 
-	builder := newTestSiteForLanguageMerge(b, count)
+	// newTestSiteForLanguageMerge creates count+1 pages.
+	builder := newTestSiteForLanguageMerge(b, count-1)
 	builder.CreateSites()
 	builder.Build(BuildCfg{SkipRender: true})
 	h := builder.H
