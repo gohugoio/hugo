@@ -106,6 +106,7 @@ func newCommandeerHugoState() *commandeerHugoState {
 }
 
 func (c *commandeerHugoState) hugo() *hugolib.HugoSites {
+	// 阻塞到创建完成
 	<-c.created
 	return c.hugoSites
 }
@@ -154,12 +155,14 @@ func (c *commandeer) initFs(fs *hugofs.Fs) error {
 	return nil
 }
 
+// 创建程序核心
 func newCommandeer(mustHaveConfigFile, running bool, h *hugoBuilderCommon, f flagsToConfigHandler, cfgInit func(c *commandeer) error, subCmdVs ...*cobra.Command) (*commandeer, error) {
 	var rebuildDebouncer func(f func())
 	if running {
 		// The time value used is tested with mass content replacements in a fairly big Hugo site.
 		// It is better to wait for some seconds in those cases rather than get flooded
 		// with rebuilds.
+		// 防抖函数
 		rebuildDebouncer = debounce.New(4 * time.Second)
 	}
 

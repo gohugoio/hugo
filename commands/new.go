@@ -65,6 +65,7 @@ Ensure you run this within the root directory of your site.`,
 	return cc
 }
 
+// new 指令入口
 func (n *newCmd) newContent(cmd *cobra.Command, args []string) error {
 	cfgInit := func(c *commandeer) error {
 		if cmd.Flags().Changed("editor") {
@@ -73,6 +74,7 @@ func (n *newCmd) newContent(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
+	// 初始化配置项
 	c, err := initializeConfig(true, false, &n.hugoBuilderCommon, n, cfgInit)
 	if err != nil {
 		return err
