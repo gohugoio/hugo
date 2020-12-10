@@ -147,27 +147,27 @@ Or with options:
 
 #### Shimming a JS library 
 
-It's a very common practice to load external libraries using CDN rather than importing all packages in a single JS file, making it bulky. To do the same with Hugo, you'll need to shim the libraries as follows. In this example, `algoliasearch` and `instantsearch.js` will be shimmed.
+It's a common practice to load external libraries using a content delivery network (CDN) rather than importing all packages in a single JS file. To load scripts from a CDN with Hugo, you'll need to shim the libraries as follows. In this example, `react` and `react-dom` will be shimmed.
 
-Firstly, add the following to your project's `package.json`:
+First, add React and ReactDOM [CDN script tags](https://reactjs.org/docs/add-react-to-a-website.html#tip-minify-javascript-for-production) in your HTML template files. Then create `assets/js/shims/react.js` and `assets/js/shims/react-dom.js` with the following contents:
+```js
+// In assets/js/shims/react.js
+module.exports = window.React;
+
+// In assets/js/shims/react-dom.js
+module.exports = window.ReactDOM;
+```
+
+Finally, add the following to your project's `package.json`:
 ```json
 {
   "browser": {
-    "algoliasearch/lite": "./public/js/shims/algoliasearch.js",
-    "instantsearch.js/es/lib/main": "./public/js/shims/instantsearch.js"
+    "react": "./assets/js/shims/react.js",
+    "react-dom": "./assets/js/shims/react-dom.js"
   }
 }
 ```
 
-What this does is it tells Hugo to look for the listed packages somewhere else. Here we're telling Hugo to look for `algoliasearch/lite` and `instantsearch.js/es/lib/main` in the project's `public/js/shims` folder.
+This tells Hugo's `js.Build` command to look for `react` and `react-dom` in the project's `assets/js/shims` folder. Note that the `browser` field in your `package.json` file will cause React and ReactDOM to be excluded from your JavaScript bundle. Therefore, **it is unnecessary to add them to the `js.Build` command's `externals` argument.**
 
-Now we'll need to create the shim JS files which export the global JS variables `module.exports = window.something`. You can create a separate shim JS file in your `assets` directory, and redirect the import paths there if you wish, but a much cleaner way is to create these files on the go, by having the following before your JS is built.
-
-```go-html-template
-{{ $a := "module.exports = window.algoliasearch" | resources.FromString "js/shims/algoliasearch.js" }}
-{{ $i := "module.exports = window.instantsearch" | resources.FromString "js/shims/instantsearch.js" }}
-
-{{/* Call RelPermalink unnecessarily to generate JS files */}}
-{{ $placebo := slice $a.RelPermalink $i.RelPermalink }}
-```
 That's it! You should now have a browser-friendly JS which can use external JS libraries.
