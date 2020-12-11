@@ -316,7 +316,7 @@ categories: ["This is Cool", "And new" ]
 ---
 
 Content.
-		
+
 		`)
 	}
 
@@ -454,7 +454,7 @@ categories: ["funny"]
 	`,
 		"categories/_index.md", "---\ntitle: Categories Page\n---",
 		"categories/data.json", "Category data",
-		"categories/funny/_index.md", "---\ntitle: Funnny Category\n---",
+		"categories/funny/_index.md", "---\ntitle: Funny Category\n---",
 		"categories/funny/funnydata.json", "Category funny data",
 	)
 
@@ -525,7 +525,7 @@ Funny:|/p2/|`)
 func TestTaxonomiesListPages(t *testing.T) {
 	b := newTestSitesBuilder(t)
 	b.WithTemplates("_default/list.html", `
-	
+
 {{ template "print-taxo" "categories.cats" }}
 {{ template "print-taxo" "categories.funny" }}
 
@@ -560,7 +560,7 @@ categories: ["cats"]
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent("public/index.html", `
-    
+
 Len categories.cats: 2
 categories.cats:|/blog/|
 categories.cats:|/|

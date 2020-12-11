@@ -20,7 +20,7 @@ import (
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
-// Client for minification of Resource objects. Supported minfiers are:
+// Client for minification of Resource objects. Supported minifiers are:
 // css, html, js, json, svg and xml.
 type Client struct {
 	rs *resources.Spec

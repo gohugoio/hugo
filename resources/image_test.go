@@ -354,7 +354,7 @@ func TestImageResizeInSubPath(t *testing.T) {
 	assertImageFile(c, spec.BaseFs.PublishFs, publishedImageFilename, 101, 101)
 	c.Assert(spec.BaseFs.PublishFs.Remove(publishedImageFilename), qt.IsNil)
 
-	// Cleare mem cache to simulate reading from the file cache.
+	// Clear mem cache to simulate reading from the file cache.
 	spec.imageCache.clear()
 
 	resizedAgain, err := image.Resize("101x101")

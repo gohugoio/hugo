@@ -34,7 +34,7 @@ var DefaultBuild = Build{
 	WriteStats:           false,
 }
 
-// Build holds some build related condfiguration.
+// Build holds some build related configuration.
 type Build struct {
 	UseResourceCacheWhen string // never, fallback, always. Default is fallback
 

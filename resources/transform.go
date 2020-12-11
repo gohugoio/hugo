@@ -105,7 +105,7 @@ type ResourceTransformationCtx struct {
 	// to be simple types, as it needs to be serialized to JSON and back.
 	Data map[string]interface{}
 
-	// This is used to publis additional artifacts, e.g. source maps.
+	// This is used to publish additional artifacts, e.g. source maps.
 	// We may improve this.
 	OpenResourcePublisher func(relTargetPath string) (io.WriteCloser, error)
 }
@@ -479,7 +479,7 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 			publishwriters = append(publishwriters, metaw)
 		}
 
-		// Any transofrmations reading from From must also write to To.
+		// Any transformations reading from From must also write to To.
 		// This means that if the target buffer is empty, we can just reuse
 		// the original reader.
 		if b, ok := tctx.To.(*bytes.Buffer); ok && b.Len() > 0 {
@@ -587,7 +587,7 @@ type transformationUpdate struct {
 	startCtx ResourceTransformationCtx
 }
 
-func (u *transformationUpdate) isContenChanged() bool {
+func (u *transformationUpdate) isContentChanged() bool {
 	return u.content != nil || u.sourceFilename != nil
 }
 

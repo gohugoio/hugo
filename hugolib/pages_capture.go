@@ -278,7 +278,7 @@ func (c *pagesCollector) addToBundle(info hugofs.FileMetaInfo, btyp bundleDirTyp
 			if btyp == bundleBranch {
 				// No special logic for branch bundles.
 				// Every language needs its own _index.md file.
-				// Also, we only clone bundle headers for lonsesome, bundled,
+				// Also, we only clone bundle headers for lonesome, bundled,
 				// content files.
 				return c.handleFiles(info)
 			}

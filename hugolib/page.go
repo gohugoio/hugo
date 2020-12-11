@@ -584,7 +584,7 @@ type renderStringOpts struct {
 	Markup  string
 }
 
-var defualtRenderStringOpts = renderStringOpts{
+var defaultRenderStringOpts = renderStringOpts{
 	Display: "inline",
 	Markup:  "", // Will inherit the page's value when not set.
 }
@@ -595,7 +595,7 @@ func (p *pageState) RenderString(args ...interface{}) (template.HTML, error) {
 	}
 
 	var s string
-	opts := defualtRenderStringOpts
+	opts := defaultRenderStringOpts
 	sidx := 1
 
 	if len(args) == 1 {
@@ -978,7 +978,7 @@ func (p *pageState) shiftToOutputFormat(isRenderingSite bool, idx int) error {
 //
 // For pages that have a source file, it is returns the path to this file as an
 // absolute path rooted in this site's content dir.
-// For pages that do not (sections witout content page etc.), it returns the
+// For pages that do not (sections without content page etc.), it returns the
 // virtual path, consistent with where you would add a source file.
 func (p *pageState) sourceRef() string {
 	if !p.File().IsZero() {

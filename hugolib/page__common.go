@@ -57,7 +57,7 @@ type pageCommon struct {
 	bucket  *pagesMapBucket
 	treeRef *contentTreeRef
 
-	// Laziliy initialized dependencies.
+	// Lazily initialized dependencies.
 	init *lazy.Init
 
 	// All of these represents the common parts of a page.Page

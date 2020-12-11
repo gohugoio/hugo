@@ -21,7 +21,7 @@ import (
 )
 
 func Test073(t *testing.T) {
-	asertDisabledTaxonomyAndTerm := func(b *sitesBuilder, taxonomy, term bool) {
+	assertDisabledTaxonomyAndTerm := func(b *sitesBuilder, taxonomy, term bool) {
 		b.Assert(b.CheckExists("public/tags/index.html"), qt.Equals, taxonomy)
 		b.Assert(b.CheckExists("public/tags/tag1/index.html"), qt.Equals, term)
 	}
@@ -88,7 +88,7 @@ taxonomy = ["JSON"]
 			`disableKinds = ["taxonomy", "taxonomyTerm"]`,
 			func(err error, out string, b *sitesBuilder) {
 				b.Assert(err, qt.IsNil)
-				asertDisabledTaxonomyAndTerm(b, false, false)
+				assertDisabledTaxonomyAndTerm(b, false, false)
 			},
 		},
 		{
@@ -96,7 +96,7 @@ taxonomy = ["JSON"]
 			`disableKinds = ["taxonomyTerm"]`,
 			func(err error, out string, b *sitesBuilder) {
 				b.Assert(err, qt.IsNil)
-				asertDisabledTaxonomyAndTerm(b, false, true)
+				assertDisabledTaxonomyAndTerm(b, false, true)
 			},
 		},
 		{
@@ -113,7 +113,7 @@ taxonomy = ["JSON"]
 			ignoreErrors = ["error-disable-taxonomy"]`,
 			func(err error, out string, b *sitesBuilder) {
 				b.Assert(err, qt.IsNil)
-				asertDisabledTaxonomyAndTerm(b, false, true)
+				assertDisabledTaxonomyAndTerm(b, false, true)
 			},
 		},
 	} {

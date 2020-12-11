@@ -172,7 +172,7 @@ func (t *Iterator) PeekWalk(walkFn func(item Item) bool) {
 	}
 }
 
-// Consume is a convencience method to consume the next n tokens,
+// Consume is a convenience method to consume the next n tokens,
 // but back off Errors and EOF.
 func (t *Iterator) Consume(cnt int) {
 	for i := 0; i < cnt; i++ {

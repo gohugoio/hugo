@@ -152,7 +152,7 @@ func (fi *FileInfo) LogicalName() string { return fi.name }
 func (fi *FileInfo) BaseFileName() string { return fi.baseName }
 
 // TranslationBaseName returns a file's translation base name without the
-// language segement (ie. "page").
+// language segment (ie. "page").
 func (fi *FileInfo) TranslationBaseName() string { return fi.translationBaseName }
 
 // ContentBaseName is a either TranslationBaseName or name of containing folder
@@ -266,7 +266,7 @@ func (sp *SourceSpec) NewFileInfo(fi hugofs.FileMetaInfo) (*FileInfo, error) {
 	baseName := helpers.Filename(name)
 
 	if translationBaseName == "" {
-		// This is usyally provided by the filesystem. But this FileInfo is also
+		// This is usually provided by the filesystem. But this FileInfo is also
 		// created in a standalone context when doing "hugo new". This is
 		// an approximate implementation, which is "good enough" in that case.
 		fileLangExt := filepath.Ext(baseName)

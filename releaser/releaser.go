@@ -131,12 +131,12 @@ func (r *ReleaseHandler) Run() error {
 		return err
 	}
 
-	prepareRelaseNotes := isPatch || relNotesState == releaseNotesNone
+	prepareReleaseNotes := isPatch || relNotesState == releaseNotesNone
 	shouldRelease := isPatch || relNotesState == releaseNotesReady
 
 	defer r.gitPush() // TODO(bep)
 
-	if prepareRelaseNotes || shouldRelease {
+	if prepareReleaseNotes || shouldRelease {
 		gitCommits, err = getGitInfos(changeLogFromTag, "hugo", "", !r.try)
 		if err != nil {
 			return err
@@ -150,11 +150,11 @@ func (r *ReleaseHandler) Run() error {
 	}
 
 	if relNotesState == releaseNotesCreated {
-		fmt.Println("Release notes created, but not ready. Reneame to *-ready.md to continue ...")
+		fmt.Println("Release notes created, but not ready. Rename to *-ready.md to continue ...")
 		return nil
 	}
 
-	if prepareRelaseNotes {
+	if prepareReleaseNotes {
 		releaseNotesFile, err := r.writeReleaseNotesToTemp(version, isPatch, gitCommits, gitCommitsDocs)
 		if err != nil {
 			return err

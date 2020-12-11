@@ -128,7 +128,7 @@ func ishex(c rune) bool {
 
 // UnicodeSanitize sanitizes string to be used in Hugo URL's, allowing only
 // a predefined set of special Unicode characters.
-// If RemovePathAccents configuration flag is enabled, Uniccode accents
+// If RemovePathAccents configuration flag is enabled, Unicode accents
 // are also removed.
 // Spaces will be replaced with a single hyphen, and sequential hyphens will be reduced to one.
 func (p *PathSpec) UnicodeSanitize(s string) string {
@@ -212,12 +212,12 @@ func GetDottedRelativePath(inPath string) string {
 	return dottedPath
 }
 
-// ExtNoDelimiter takes a path and returns the extension, excluding the delmiter, i.e. "md".
+// ExtNoDelimiter takes a path and returns the extension, excluding the delimiter, i.e. "md".
 func ExtNoDelimiter(in string) string {
 	return strings.TrimPrefix(Ext(in), ".")
 }
 
-// Ext takes a path and returns the extension, including the delmiter, i.e. ".md".
+// Ext takes a path and returns the extension, including the delimiter, i.e. ".md".
 func Ext(in string) string {
 	_, ext := fileAndExt(in, fpb)
 	return ext
@@ -229,13 +229,13 @@ func PathAndExt(in string) (string, string) {
 }
 
 // FileAndExt takes a path and returns the file and extension separated,
-// the extension including the delmiter, i.e. ".md".
+// the extension including the delimiter, i.e. ".md".
 func FileAndExt(in string) (string, string) {
 	return fileAndExt(in, fpb)
 }
 
 // FileAndExtNoDelimiter takes a path and returns the file and extension separated,
-// the extension excluding the delmiter, e.g "md".
+// the extension excluding the delimiter, e.g "md".
 func FileAndExtNoDelimiter(in string) (string, string) {
 	file, ext := fileAndExt(in, fpb)
 	return file, strings.TrimPrefix(ext, ".")

@@ -28,10 +28,10 @@ const (
 	h5JsContentSingleQuote      = "<!DOCTYPE html><html><head><script src='foobar.js'></script><script src='/barfoo.js'></script></head><body><nav><h1>title</h1></nav><article>content <a href='foobar'>foobar</a>. <a href='/foobar'>Follow up</a></article></body></html>"
 	h5JsContentAbsURL           = "<!DOCTYPE html><html><head><script src=\"http://user@host:10234/foobar.js\"></script></head><body><nav><h1>title</h1></nav><article>content <a href=\"https://host/foobar\">foobar</a>. Follow up</article></body></html>"
 	h5JsContentAbsURLSchemaless = "<!DOCTYPE html><html><head><script src=\"//host/foobar.js\"></script><script src='//host2/barfoo.js'></head><body><nav><h1>title</h1></nav><article>content <a href=\"//host/foobar\">foobar</a>. <a href='//host2/foobar'>Follow up</a></article></body></html>"
-	corectOutputSrcHrefDq       = "<!DOCTYPE html><html><head><script src=\"foobar.js\"></script><script src=\"http://base/barfoo.js\"></script></head><body><nav><h1>title</h1></nav><article>content <a href=\"foobar\">foobar</a>. <a href=\"http://base/foobar\">Follow up</a></article></body></html>"
-	corectOutputSrcHrefSq       = "<!DOCTYPE html><html><head><script src='foobar.js'></script><script src='http://base/barfoo.js'></script></head><body><nav><h1>title</h1></nav><article>content <a href='foobar'>foobar</a>. <a href='http://base/foobar'>Follow up</a></article></body></html>"
+	correctOutputSrcHrefDq      = "<!DOCTYPE html><html><head><script src=\"foobar.js\"></script><script src=\"http://base/barfoo.js\"></script></head><body><nav><h1>title</h1></nav><article>content <a href=\"foobar\">foobar</a>. <a href=\"http://base/foobar\">Follow up</a></article></body></html>"
+	correctOutputSrcHrefSq      = "<!DOCTYPE html><html><head><script src='foobar.js'></script><script src='http://base/barfoo.js'></script></head><body><nav><h1>title</h1></nav><article>content <a href='foobar'>foobar</a>. <a href='http://base/foobar'>Follow up</a></article></body></html>"
 
-	h5XMLXontentAbsURL        = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?><feed xmlns=\"http://www.w3.org/2005/Atom\"><entry><content type=\"html\">&lt;p&gt;&lt;a href=&#34;/foobar&#34;&gt;foobar&lt;/a&gt;&lt;/p&gt; &lt;p&gt;A video: &lt;iframe src=&#39;/foo&#39;&gt;&lt;/iframe&gt;&lt;/p&gt;</content></entry></feed>"
+	h5XMLContentAbsURL        = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?><feed xmlns=\"http://www.w3.org/2005/Atom\"><entry><content type=\"html\">&lt;p&gt;&lt;a href=&#34;/foobar&#34;&gt;foobar&lt;/a&gt;&lt;/p&gt; &lt;p&gt;A video: &lt;iframe src=&#39;/foo&#39;&gt;&lt;/iframe&gt;&lt;/p&gt;</content></entry></feed>"
 	correctOutputSrcHrefInXML = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?><feed xmlns=\"http://www.w3.org/2005/Atom\"><entry><content type=\"html\">&lt;p&gt;&lt;a href=&#34;http://base/foobar&#34;&gt;foobar&lt;/a&gt;&lt;/p&gt; &lt;p&gt;A video: &lt;iframe src=&#39;http://base/foo&#39;&gt;&lt;/iframe&gt;&lt;/p&gt;</content></entry></feed>"
 	h5XMLContentGuarded       = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?><feed xmlns=\"http://www.w3.org/2005/Atom\"><entry><content type=\"html\">&lt;p&gt;&lt;a href=&#34;//foobar&#34;&gt;foobar&lt;/a&gt;&lt;/p&gt; &lt;p&gt;A video: &lt;iframe src=&#39;//foo&#39;&gt;&lt;/iframe&gt;&lt;/p&gt;</content></entry></feed>"
 )
@@ -60,30 +60,30 @@ const (
 	srcsetXMLBasicCorrect       = `Pre. <img srcset=&#34;http://base/img/small.jpg 200w, http://base/img/big.jpg 700w&#34; alt=&#34;text&#34; src=&#34;http://base/img/foo.jpg&#34;>`
 	srcsetXMLSingleQuote        = `Pre. <img srcset=&#34;/img/small.jpg 200w, /img/big.jpg 700w&#34; alt=&#34;text&#34; src=&#34;/img/foo.jpg&#34;>`
 	srcsetXMLSingleQuoteCorrect = `Pre. <img srcset=&#34;http://base/img/small.jpg 200w, http://base/img/big.jpg 700w&#34; alt=&#34;text&#34; src=&#34;http://base/img/foo.jpg&#34;>`
-	srcsetVariations            = `Pre. 
-Missing start quote: <img srcset=/img/small.jpg 200w, /img/big.jpg 700w" alt="text"> src='/img/foo.jpg'> FOO. 
-<img srcset='/img.jpg'> 
+	srcsetVariations            = `Pre.
+Missing start quote: <img srcset=/img/small.jpg 200w, /img/big.jpg 700w" alt="text"> src='/img/foo.jpg'> FOO.
+<img srcset='/img.jpg'>
 schemaless: <img srcset='//img.jpg' src='//basic.jpg'>
 schemaless2: <img srcset="//img.jpg" src="//basic.jpg2> POST
 `
 )
 
 const (
-	srcsetVariationsCorrect = `Pre. 
-Missing start quote: <img srcset=/img/small.jpg 200w, /img/big.jpg 700w" alt="text"> src='http://base/img/foo.jpg'> FOO. 
-<img srcset='http://base/img.jpg'> 
+	srcsetVariationsCorrect = `Pre.
+Missing start quote: <img srcset=/img/small.jpg 200w, /img/big.jpg 700w" alt="text"> src='http://base/img/foo.jpg'> FOO.
+<img srcset='http://base/img.jpg'>
 schemaless: <img srcset='//img.jpg' src='//basic.jpg'>
 schemaless2: <img srcset="//img.jpg" src="//basic.jpg2> POST
 `
-	srcsetXMLVariations = `Pre. 
-Missing start quote: &lt;img srcset=/img/small.jpg 200w /img/big.jpg 700w&quot; alt=&quot;text&quot;&gt; src=&#39;/img/foo.jpg&#39;&gt; FOO. 
-&lt;img srcset=&#39;/img.jpg&#39;&gt; 
+	srcsetXMLVariations = `Pre.
+Missing start quote: &lt;img srcset=/img/small.jpg 200w /img/big.jpg 700w&quot; alt=&quot;text&quot;&gt; src=&#39;/img/foo.jpg&#39;&gt; FOO.
+&lt;img srcset=&#39;/img.jpg&#39;&gt;
 schemaless: &lt;img srcset=&#39;//img.jpg&#39; src=&#39;//basic.jpg&#39;&gt;
 schemaless2: &lt;img srcset=&quot;//img.jpg&quot; src=&quot;//basic.jpg2&gt; POST
 `
-	srcsetXMLVariationsCorrect = `Pre. 
-Missing start quote: &lt;img srcset=/img/small.jpg 200w /img/big.jpg 700w&quot; alt=&quot;text&quot;&gt; src=&#39;http://base/img/foo.jpg&#39;&gt; FOO. 
-&lt;img srcset=&#39;http://base/img.jpg&#39;&gt; 
+	srcsetXMLVariationsCorrect = `Pre.
+Missing start quote: &lt;img srcset=/img/small.jpg 200w /img/big.jpg 700w&quot; alt=&quot;text&quot;&gt; src=&#39;http://base/img/foo.jpg&#39;&gt; FOO.
+&lt;img srcset=&#39;http://base/img.jpg&#39;&gt;
 schemaless: &lt;img srcset=&#39;//img.jpg&#39; src=&#39;//basic.jpg&#39;&gt;
 schemaless2: &lt;img srcset=&quot;//img.jpg&quot; src=&quot;//basic.jpg2&gt; POST
 `
@@ -96,14 +96,14 @@ schemaless2: &lt;img srcset=&quot;//img.jpg&quot; src=&quot;//basic.jpg2&gt; POS
 
 var (
 	absURLlBenchTests = []test{
-		{h5JsContentDoubleQuote, corectOutputSrcHrefDq},
-		{h5JsContentSingleQuote, corectOutputSrcHrefSq},
+		{h5JsContentDoubleQuote, correctOutputSrcHrefDq},
+		{h5JsContentSingleQuote, correctOutputSrcHrefSq},
 		{h5JsContentAbsURL, h5JsContentAbsURL},
 		{h5JsContentAbsURLSchemaless, h5JsContentAbsURLSchemaless},
 	}
 
 	xmlAbsURLBenchTests = []test{
-		{h5XMLXontentAbsURL, correctOutputSrcHrefInXML},
+		{h5XMLContentAbsURL, correctOutputSrcHrefInXML},
 		{h5XMLContentGuarded, h5XMLContentGuarded},
 	}
 
@@ -155,7 +155,7 @@ func TestAbsURL(t *testing.T) {
 	apply(t.Errorf, tr, absURLTests)
 }
 
-func TestAbsURLUnqoted(t *testing.T) {
+func TestAbsURLUnquoted(t *testing.T) {
 	tr := transform.New(NewAbsURLTransformer(testBaseURL))
 
 	apply(t.Errorf, tr, []test{

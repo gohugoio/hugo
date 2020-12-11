@@ -105,7 +105,7 @@ func (p *PathSpec) URLize(uri string) string {
 	return p.URLEscape(p.MakePathSanitized(uri))
 }
 
-// URLizeFilename creates an URL from a filename by esacaping unicode letters
+// URLizeFilename creates an URL from a filename by escaping unicode letters
 // and turn any filepath separator into forward slashes.
 func (p *PathSpec) URLizeFilename(filename string) string {
 	return p.URLEscape(filepath.ToSlash(filename))
@@ -280,7 +280,7 @@ func AddContextRoot(baseURL, relativePath string) string {
 
 	newPath := path.Join(url.Path, relativePath)
 
-	// path strips traling slash, ignore root path.
+	// path strips trailing slash, ignore root path.
 	if newPath != "/" && strings.HasSuffix(relativePath, "/") {
 		newPath += "/"
 	}

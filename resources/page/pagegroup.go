@@ -343,7 +343,7 @@ func (p Pages) GroupByParamDate(key string, format string, order ...string) (Pag
 	return p.groupByDateField(sorter, formatter, order...)
 }
 
-// ProbablyEq wraps comare.ProbablyEqer
+// ProbablyEq wraps compare.ProbablyEqer
 func (p PageGroup) ProbablyEq(other interface{}) bool {
 	otherP, ok := other.(PageGroup)
 	if !ok {
@@ -387,7 +387,7 @@ func (psg PagesGroup) Len() int {
 	return l
 }
 
-// ProbablyEq wraps comare.ProbablyEqer
+// ProbablyEq wraps compare.ProbablyEqer
 func (psg PagesGroup) ProbablyEq(other interface{}) bool {
 	otherPsg, ok := other.(PagesGroup)
 	if !ok {

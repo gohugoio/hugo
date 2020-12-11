@@ -108,7 +108,7 @@ func (p Pages) withInvertedIndex(search func(idx *related.InvertedIndex) ([]rela
 
 	d, ok := p[0].(InternalDependencies)
 	if !ok {
-		return nil, errors.Errorf("invalid type %T in related serch", p[0])
+		return nil, errors.Errorf("invalid type %T in related search", p[0])
 	}
 
 	cache := d.GetRelatedDocsHandler()

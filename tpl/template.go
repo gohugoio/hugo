@@ -87,7 +87,7 @@ type TemplateParseFinder interface {
 	TemplateFinder
 }
 
-// TemplateDebugger prints some debug info to stdoud.
+// TemplateDebugger prints some debug info to stdout.
 type TemplateDebugger interface {
 	Debug()
 }
