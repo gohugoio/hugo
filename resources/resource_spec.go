@@ -274,7 +274,7 @@ func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (reso
 
 	ext := strings.ToLower(filepath.Ext(fd.RelTargetFilename))
 	mimeType, found := r.MediaTypes.GetFirstBySuffix(strings.TrimPrefix(ext, "."))
-	// TODO(bep) we need to handle these ambigous types better, but in this context
+	// TODO(bep) we need to handle these ambiguous types better, but in this context
 	// we most likely want the application/xml type.
 	if mimeType.Suffix() == "xml" && mimeType.SubType == "rss" {
 		mimeType, found = r.MediaTypes.GetByType("application/xml")

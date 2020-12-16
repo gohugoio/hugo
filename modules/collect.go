@@ -559,7 +559,7 @@ func (c *collector) mountCommonJSConfig(owner *moduleAdapter, mounts []Mount) ([
 	for _, m := range mounts {
 		if strings.HasPrefix(m.Target, files.JsConfigFolderMountPrefix) {
 			// This follows the convention of the other component types (assets, content, etc.),
-			// if one or more is specificed by the user, we skip the defaults.
+			// if one or more is specified by the user, we skip the defaults.
 			// These mounts were added to Hugo in 0.75.
 			return mounts, nil
 		}

@@ -270,7 +270,7 @@ func TestRootMappingFsMount(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	c.Assert(string(b), qt.Equals, "some no content")
 
-	// Ambigous
+	// Ambiguous
 	_, err = rfs.Stat(filepath.FromSlash("content/singles/p1.md"))
 	c.Assert(err, qt.Not(qt.IsNil))
 

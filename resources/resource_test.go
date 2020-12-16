@@ -41,7 +41,7 @@ func TestGenericResource(t *testing.T) {
 	c.Assert(r.ResourceType(), qt.Equals, "css")
 }
 
-func TestGenericResourceWithLinkFacory(t *testing.T) {
+func TestGenericResourceWithLinkFactory(t *testing.T) {
 	c := qt.New(t)
 	spec := newTestResourceSpec(specDescriptor{c: c})
 

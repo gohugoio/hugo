@@ -53,7 +53,7 @@ func TestSort(t *testing.T) {
 
 		{[]int{1, 2, 3, 4, 5}, nil, "asc", []int{1, 2, 3, 4, 5}},
 		{[]int{5, 4, 3, 1, 2}, nil, "asc", []int{1, 2, 3, 4, 5}},
-		// test sort key parameter is focibly set empty
+		// test sort key parameter is forcibly set empty
 		{[]string{"class3", "class1", "class2"}, map[int]string{1: "a"}, "asc", []string{"class1", "class2", "class3"}},
 		// test map sorting by keys
 		{map[string]int{"1": 10, "2": 20, "3": 30, "4": 40, "5": 50}, nil, "asc", []int{10, 20, 30, 40, 50}},

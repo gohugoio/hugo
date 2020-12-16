@@ -140,7 +140,7 @@ func (w *cssClassCollectorWriter) Write(p []byte) (n int, err error) {
 	return
 }
 
-// The net/html parser does not handle single table elemnts as input, e.g. tbody.
+// The net/html parser does not handle single table elements as input, e.g. tbody.
 // We only care about the element/class/ids, so just store away the original tag name
 // and pretend it's a <div>.
 func (c *cssClassCollectorWriter) insertStandinHTMLElement(el string) (string, string) {

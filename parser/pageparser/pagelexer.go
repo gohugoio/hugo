@@ -426,7 +426,7 @@ func lexMainSection(l *pageLexer) stateFunc {
 	}
 
 	if l.isInHTMLComment {
-		return lexEndFromtMatterHTMLComment
+		return lexEndFrontMatterHTMLComment
 	}
 
 	// Fast forward as far as possible.

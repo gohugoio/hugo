@@ -152,7 +152,7 @@ func (i *imageResource) cloneWithUpdates(u *transformationUpdate) (baseResource,
 
 	var img *images.Image
 
-	if u.isContenChanged() {
+	if u.isContentChanged() {
 		img = i.WithSpec(base)
 	} else {
 		img = i.Image

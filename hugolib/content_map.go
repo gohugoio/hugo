@@ -58,8 +58,8 @@ const (
 	cmLeafSeparator   = "__hl_"
 )
 
-// Used to mark ambigous keys in reverse index lookups.
-var ambigousContentNode = &contentNode{}
+// Used to mark ambiguous keys in reverse index lookups.
+var ambiguousContentNode = &contentNode{}
 
 func newContentMap(cfg contentMapConfig) *contentMap {
 	m := &contentMap{
@@ -86,8 +86,8 @@ func newContentMap(cfg contentMapConfig) *contentMap {
 	addToReverseMap := func(k string, n *contentNode, m map[interface{}]*contentNode) {
 		k = strings.ToLower(k)
 		existing, found := m[k]
-		if found && existing != ambigousContentNode {
-			m[k] = ambigousContentNode
+		if found && existing != ambiguousContentNode {
+			m[k] = ambiguousContentNode
 		} else if !found {
 			m[k] = n
 		}

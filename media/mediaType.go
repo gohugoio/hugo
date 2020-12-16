@@ -40,7 +40,7 @@ type Type struct {
 	SubType  string `json:"subType"`  // i.e. html
 
 	// This is the optional suffix after the "+" in the MIME type,
-	//  e.g. "xml" in "applicatiion/rss+xml".
+	//  e.g. "xml" in "application/rss+xml".
 	mimeSuffix string
 
 	Delimiter string `json:"delimiter"` // e.g. "."
@@ -107,7 +107,7 @@ func (m Type) FullSuffix() string {
 	return m.Delimiter + m.Suffix()
 }
 
-// Suffix returns the file suffix without any delmiter prepended.
+// Suffix returns the file suffix without any delimiter prepended.
 func (m Type) Suffix() string {
 	if m.fileSuffix != "" {
 		return m.fileSuffix

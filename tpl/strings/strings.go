@@ -43,7 +43,7 @@ type Namespace struct {
 	deps      *deps.Deps
 }
 
-// CountRunes returns the number of runes in s, excluding whitepace.
+// CountRunes returns the number of runes in s, excluding whitespace.
 func (ns *Namespace) CountRunes(s interface{}) (int, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {

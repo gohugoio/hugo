@@ -221,7 +221,7 @@ func (c *Cache) GetOrCreateBytes(id string, create func() ([]byte, error)) (Item
 	return info, b, nil
 }
 
-// GetBytes gets the file content with the given id from the cahce, nil if none found.
+// GetBytes gets the file content with the given id from the cache, nil if none found.
 func (c *Cache) GetBytes(id string) (ItemInfo, []byte, error) {
 	id = cleanID(id)
 

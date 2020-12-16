@@ -37,7 +37,7 @@ type PathSpec struct {
 	Cfg config.Provider
 }
 
-// NewPathSpec creats a new PathSpec from the given filesystems and language.
+// NewPathSpec creates a new PathSpec from the given filesystems and language.
 func NewPathSpec(fs *hugofs.Fs, cfg config.Provider, logger loggers.Logger) (*PathSpec, error) {
 	return NewPathSpecWithBaseBaseFsProvided(fs, cfg, logger, nil)
 }

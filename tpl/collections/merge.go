@@ -23,7 +23,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Merge creates a copy of the final parameter and merges the preceeding
+// Merge creates a copy of the final parameter and merges the preceding
 // parameters into it in reverse order.
 // Currently only maps are supported. Key handling is case insensitive.
 func (ns *Namespace) Merge(params ...interface{}) (interface{}, error) {

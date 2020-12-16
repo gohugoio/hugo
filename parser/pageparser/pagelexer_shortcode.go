@@ -185,7 +185,7 @@ Loop:
 					l.backup()
 					break Loop
 				} else if openQuoteFound {
-					// the coming quoute is inside
+					// the coming quote is inside
 					escapedInnerQuoteFound = true
 					escapedQuoteState = 1
 				}

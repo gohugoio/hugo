@@ -302,7 +302,7 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 				// A bundle in a/b/index.en.md
 				// a/b/index.en.md => OK
 				// a/b/index => OK
-				// index.en.md => ambigous, but OK.
+				// index.en.md => ambiguous, but OK.
 				// With bundles, the file name has little meaning, the folder it lives in does. So this should also work:
 				// a/b
 				// and probably also just b (aka "my-bundle")
@@ -1250,7 +1250,7 @@ func TestBundleTransformMany(t *testing.T) {
 title: "Page"
 weight: %d
 ---
-		
+
 `, i))
 		b.WithSourceFile(fmt.Sprintf("content/bundle%d/data.yaml", i), fmt.Sprintf(`data: v%d`, i))
 		b.WithSourceFile(fmt.Sprintf("content/bundle%d/data.json", i), fmt.Sprintf(`{ "data": "v%d" }`, i))

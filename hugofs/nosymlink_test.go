@@ -135,7 +135,7 @@ func TestNoSymlinkFs(t *testing.T) {
 			// Check readdir
 			f, err = fs.Open(workDir)
 			c.Assert(err, qt.IsNil)
-			// There is at least one unsported symlink inside workDir
+			// There is at least one unsupported symlink inside workDir
 			_, err = f.Readdir(-1)
 			c.Assert(err, qt.IsNil)
 			f.Close()

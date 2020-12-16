@@ -56,7 +56,7 @@ LOOP:
 	return lexMainSection
 }
 
-func lexEndFromtMatterHTMLComment(l *pageLexer) stateFunc {
+func lexEndFrontMatterHTMLComment(l *pageLexer) stateFunc {
 	l.isInHTMLComment = false
 	right := l.index(htmlCommentEnd)
 	if right == -1 {

@@ -27,7 +27,7 @@ type OutputFormats []OutputFormat
 
 // OutputFormat links to a representation of a resource.
 type OutputFormat struct {
-	// Rel constains a value that can be used to construct a rel link.
+	// Rel contains a value that can be used to construct a rel link.
 	// This is value is fetched from the output format definition.
 	// Note that for pages with only one output format,
 	// this method will always return "canonical".

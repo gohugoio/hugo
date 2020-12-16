@@ -13,7 +13,7 @@
 
 package page
 
-// Next returns the next page reletive to the given
+// Next returns the next page relative to the given
 func (p Pages) Next(cur Page) Page {
 	x := searchPage(cur, p)
 	if x <= 0 {

@@ -151,7 +151,7 @@ JS imported in module: |
         "devDependencies": {
                 "postcss-cli": "7.8.0",
                 "tailwindcss": "1.8.0"
- 
+
         }
 }`)
 
@@ -375,7 +375,7 @@ module github.com/gohugoio/tests/testHugoModules
 }
 
 func createChildModMatchers(m *mods.Md, ignoreVendor, vendored bool) []string {
-	// Child depdendencies are one behind.
+	// Child dependencies are one behind.
 	expectMinorVersion := 3
 
 	if !ignoreVendor && vendored {
@@ -1078,7 +1078,7 @@ workingDir=%q
   [[module.mounts]]
     source = %q
     target = "content"
-    
+
 `, workDir, absContentDir)
 
 	defer clean1()

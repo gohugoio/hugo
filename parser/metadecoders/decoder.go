@@ -105,7 +105,7 @@ func (d Decoder) UnmarshalStringTo(data string, typ interface{}) (interface{}, e
 	case float64:
 		return cast.ToFloat64E(data)
 	default:
-		return nil, errors.Errorf("unmarshal: %T not supportedd", typ)
+		return nil, errors.Errorf("unmarshal: %T not supported", typ)
 	}
 }
 

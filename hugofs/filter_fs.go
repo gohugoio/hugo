@@ -276,7 +276,7 @@ func (f *filterDir) Readdirnames(count int) ([]string, error) {
 }
 
 // Try to extract the language from the given filename.
-// Any valid language identificator in the name will win over the
+// Any valid language identifier in the name will win over the
 // language set on the file system, e.g. "mypost.en.md".
 func langInfoFrom(languages map[string]int, name string) (string, string, string) {
 	var lang string

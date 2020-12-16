@@ -232,7 +232,7 @@ func (m *pageMap) newResource(fim hugofs.FileMetaInfo, owner *pageState) (resour
 	outputFormats := owner.m.outputFormats()
 	seen := make(map[string]bool)
 	var targetBasePaths []string
-	// Make sure bundled resources are published to all of the ouptput formats'
+	// Make sure bundled resources are published to all of the output formats'
 	// sub paths.
 	for _, f := range outputFormats {
 		p := f.Path

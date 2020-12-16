@@ -365,7 +365,7 @@ func (m Methods) Imports() []string {
 }
 
 // ToMarshalJSON creates a MarshalJSON method for these methods. Any method name
-// matchin any of the regexps in excludes will be ignored.
+// matching any of the regexps in excludes will be ignored.
 func (m Methods) ToMarshalJSON(receiver, pkgPath string, excludes ...string) (string, []string) {
 	var sb strings.Builder
 

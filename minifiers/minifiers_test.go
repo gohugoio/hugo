@@ -95,7 +95,7 @@ func TestConfigureMinify(t *testing.T) {
 	}{
 		{media.HTMLType, "<hello> Hugo! </hello>", "<hello> Hugo! </hello>", false}, // configured minifier
 		{media.CSSType, " body { color: blue; }  ", "body{color:blue}", false},      // default minifier
-		{media.XMLType, " <hello>  Hugo!   </hello>  ", "", true},                   // disable Xml minificatin
+		{media.XMLType, " <hello>  Hugo!   </hello>  ", "", true},                   // disable Xml minification
 	} {
 		var b bytes.Buffer
 		if !test.errorExpected {

@@ -155,7 +155,7 @@ func parseOptions(in string) (map[string]interface{}, error) {
 	return opts, nil
 }
 
-// startLine compansates for https://github.com/alecthomas/chroma/issues/30
+// startLine compensates for https://github.com/alecthomas/chroma/issues/30
 func hlLinesToRanges(startLine int, s string) ([][2]int, error) {
 	var ranges [][2]int
 	s = strings.TrimSpace(s)
