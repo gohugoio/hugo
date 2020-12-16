@@ -38,7 +38,7 @@
 {{- $permalink := .Permalink }}
 {{- $siteSeries := .Site.Taxonomies.series }}{{ with .Params.series }}
 {{- range $name := . }}
-  {{- $series := index $siteSeries $name }}
+  {{- $series := index $siteSeries ($name | urlize) }}
   {{- range $page := first 6 $series.Pages }}
     {{- if ne $page.Permalink $permalink }}<meta property="og:see_also" content="{{ $page.Permalink }}" />{{ end }}
   {{- end }}
