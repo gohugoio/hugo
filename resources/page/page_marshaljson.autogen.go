@@ -17,9 +17,6 @@ package page
 
 import (
 	"encoding/json"
-	"html/template"
-	"time"
-
 	"github.com/bep/gitmap"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
@@ -29,6 +26,8 @@ import (
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/navigation"
 	"github.com/gohugoio/hugo/source"
+	"html/template"
+	"time"
 )
 
 func MarshalPageToJSON(p Page) ([]byte, error) {

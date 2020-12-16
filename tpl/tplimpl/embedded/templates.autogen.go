@@ -229,7 +229,7 @@ if (!doNotTrack) {
 {{- $permalink := .Permalink }}
 {{- $siteSeries := .Site.Taxonomies.series }}{{ with .Params.series }}
 {{- range $name := . }}
-  {{- $series := index $siteSeries $name }}
+  {{- $series := index $siteSeries ($name | urlize) }}
   {{- range $page := first 6 $series.Pages }}
     {{- if ne $page.Permalink $permalink }}<meta property="og:see_also" content="{{ $page.Permalink }}" />{{ end }}
   {{- end }}
@@ -536,7 +536,8 @@ if (!doNotTrack) {
 <div {{ with $class }}class="{{ . }}"{{ else }}style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;"{{ end }}>
   <iframe src="https://{{ $ytHost }}/embed/{{ $id }}{{ with .Get "autoplay" }}{{ if eq . "true" }}?autoplay=1{{ end }}{{ end }}" {{ if not $class }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" {{ end }}allowfullscreen title="{{ $title }}"></iframe>
 </div>
-{{ end -}}`},
+{{ end -}}
+`},
 	{`twitter_cards.html`, `{{- with $.Params.images -}}
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="{{ index . 0 | absURL }}"/>
