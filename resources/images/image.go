@@ -325,3 +325,9 @@ func IsOpaque(img image.Image) bool {
 
 	return false
 }
+
+// ImageSource identifies and decodes an image.
+type ImageSource interface {
+	DecodeImage() (image.Image, error)
+	Key() string
+}
