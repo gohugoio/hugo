@@ -533,6 +533,11 @@ func TestImageOperationsGolden(t *testing.T) {
 		fmt.Println(workDir)
 	}
 
+	gopher := fetchImageForSpec(spec, c, "gopher-hero8.png")
+	var err error
+	gopher, err = gopher.Resize("30x")
+	c.Assert(err, qt.IsNil)
+
 	// Test PNGs with alpha channel.
 	for _, img := range []string{"gopher-hero8.png", "gradient-circle.png"} {
 		orig := fetchImageForSpec(spec, c, img)
@@ -589,6 +594,7 @@ func TestImageOperationsGolden(t *testing.T) {
 			f.Invert(),
 			f.Hue(22),
 			f.Contrast(32.5),
+			f.Overlay(gopher.(images.ImageSource), 20, 30),
 		}
 
 		resized, err := orig.Fill("400x200 center")

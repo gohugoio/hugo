@@ -16,6 +16,7 @@ package resources
 import (
 	"bytes"
 	"fmt"
+	"image"
 	"io"
 	"path"
 	"strings"
@@ -262,6 +263,10 @@ func (r resourceAdapter) Transform(t ...ResourceTransformation) (ResourceTransfo
 
 func (r *resourceAdapter) Width() int {
 	return r.getImageOps().Width()
+}
+
+func (r *resourceAdapter) DecodeImage() (image.Image, error) {
+	return r.getImageOps().DecodeImage()
 }
 
 func (r *resourceAdapter) getImageOps() resource.ImageOps {
