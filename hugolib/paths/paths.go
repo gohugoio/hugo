@@ -38,7 +38,7 @@ type Paths struct {
 	BasePath string
 
 	// Directories
-	// TODO(bep) when we have trimmed down mos of the dirs usage outside of this package, make
+	// TODO(bep) when we have trimmed down most of the dirs usage outside of this package, make
 	// these into an interface.
 	ThemesDir  string
 	WorkingDir string
