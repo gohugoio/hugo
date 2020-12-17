@@ -707,7 +707,7 @@ func newTestBundleSources(t testing.TB) (*hugofs.Fs, *viper.Viper) {
 	cfg.Set("contentDir", "base")
 	cfg.Set("baseURL", "https://example.com")
 	cfg.Set("mediaTypes", map[string]interface{}{
-		"text/bepsays": map[string]interface{}{
+		"bepsays/bep": map[string]interface{}{
 			"suffixes": []string{"bep"},
 		},
 	})
@@ -1234,7 +1234,7 @@ title: %q
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent("public/bundle/index.html", `
-        json|sub/data.json|
+        application|sub/data.json|
         page|bundle p1|
         page|bundle sub index|
         page|bundle sub p2|

@@ -423,9 +423,9 @@ Draft5: {{ if (.Site.GetPage "blog/draftsection/sub/page") }}FOUND{{ end }}|
         
       Home: Hugo Home|/|2019-06-08|Current Section: |Resources: 
         Blog Section: Blogs|/blog/|2019-06-08|Current Section: blog|Resources: 
-        Blog Sub Section: Page 3|/blog/subsection/|2019-06-03|Current Section: blog/subsection|Resources: json: /blog/subsection/subdata.json|
+        Blog Sub Section: Page 3|/blog/subsection/|2019-06-03|Current Section: blog/subsection|Resources: application: /blog/subsection/subdata.json|
         Page: Page 1|/blog/page1/|2019-06-01|Current Section: blog|Resources: 
-        Bundle: Page 12|/blog/bundle/|0001-01-01|Current Section: blog|Resources: json: /blog/bundle/data.json|page: |
+        Bundle: Page 12|/blog/bundle/|0001-01-01|Current Section: blog|Resources: application: /blog/bundle/data.json|page: |
         IsDescendant: true: true true: true true: true true: true true: true true: true false: false
         IsAncestor: true: true true: true true: true true: true true: true true: true true: true false: false false: false  false: false
         IsDescendant overlap1: false: false
