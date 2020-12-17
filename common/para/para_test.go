@@ -81,6 +81,9 @@ func TestPara(t *testing.T) {
 
 		c.Assert(r.Wait(), qt.IsNil)
 		c.Assert(counter, qt.Equals, int64(n))
-		c.Assert(time.Since(start) < n/2*time.Millisecond, qt.Equals, true)
+
+		since := time.Since(start)
+		limit := n / 2 * time.Millisecond
+		c.Assert(since < limit, qt.Equals, true, qt.Commentf("%s >= %s", since, limit))
 	})
 }
