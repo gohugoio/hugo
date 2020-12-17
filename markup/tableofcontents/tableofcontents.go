@@ -14,8 +14,8 @@
 package tableofcontents
 
 import (
-	"strings"
 	"strconv"
+	"strings"
 )
 
 // Headers holds the top level (h1) headers.
@@ -90,13 +90,13 @@ type tocBuilder struct {
 	s strings.Builder
 	h Headers
 
-	startLevel      int
-	stopLevel       int
-	ordered         bool
-	writeLevels     bool
-	wrapperElement  string
-	wrapperId       string
-	wrapperClass	string
+	startLevel     int
+	stopLevel      int
+	ordered        bool
+	writeLevels    bool
+	wrapperElement string
+	wrapperId      string
+	wrapperClass   string
 }
 
 func (b *tocBuilder) Build() {
@@ -108,7 +108,7 @@ func (b *tocBuilder) writeNav(h Headers) {
 	if len(b.wrapperClass) > 0 {
 		wrapperClass = " class=\"" + b.wrapperClass + "\""
 	}
-	b.s.WriteString("<" + b.wrapperElement + wrapperClass + " id=\"" + b.wrapperId +"\">")
+	b.s.WriteString("<" + b.wrapperElement + wrapperClass + " id=\"" + b.wrapperId + "\">")
 	b.writeHeaders(1, 0, b.h)
 	b.s.WriteString("</" + b.wrapperElement + ">")
 }
@@ -132,7 +132,7 @@ func (b *tocBuilder) writeHeaders(level, indent int, h Headers) {
 		b.indent(indent + 1)
 		levelAttr := ""
 		if b.writeLevels {
-			levelAttr = " data-level=\"" + strconv.Itoa(level) + "\"";
+			levelAttr = " data-level=\"" + strconv.Itoa(level) + "\""
 		}
 		if b.ordered {
 			b.s.WriteString("<ol" + levelAttr + ">\n")
@@ -175,13 +175,13 @@ func (b *tocBuilder) indent(n int) {
 
 // DefaultConfig is the default ToC configuration.
 var DefaultConfig = Config{
-	StartLevel:      2,
-	EndLevel:        3,
-	Ordered:         false,
-	WriteLevels:     false,
-	WrapperElement:  "nav",
-	WrapperId:       "TableOfContents",
-	WrapperClass:    "",
+	StartLevel:     2,
+	EndLevel:       3,
+	Ordered:        false,
+	WriteLevels:    false,
+	WrapperElement: "nav",
+	WrapperId:      "TableOfContents",
+	WrapperClass:   "",
 }
 
 type Config struct {
@@ -196,7 +196,7 @@ type Config struct {
 	// Whether to produce a ordered list or not.
 	Ordered bool
 
-	// If set to true each <ul> element will provide an attribute 'data-level' 
+	// If set to true each <ul> element will provide an attribute 'data-level'
 	// with the corresponding level (eg. h2 -> 2, h3 -> 3, ...)
 	WriteLevels bool
 
@@ -208,5 +208,4 @@ type Config struct {
 
 	// CSS class which will be applied to the wrapper
 	WrapperClass string
-
 }

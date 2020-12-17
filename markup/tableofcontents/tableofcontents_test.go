@@ -154,7 +154,6 @@ func TestTocMissingParent(t *testing.T) {
 </nav>`, qt.Commentf(got))
 }
 
-
 func TestTocWriteLevels(t *testing.T) {
 	c := qt.New(t)
 
