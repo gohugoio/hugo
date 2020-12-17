@@ -160,7 +160,7 @@ description
 
 	toc, ok := b.(converter.TableOfContentsProvider)
 	c.Assert(ok, qt.Equals, true)
-	tocHTML := toc.TableOfContents().ToHTML(1, 2, false)
+	tocHTML := toc.TableOfContents().ToHTML(1, 2, false, false, "", "", "")
 	c.Assert(tocHTML, qt.Contains, "TableOfContents")
 }
 

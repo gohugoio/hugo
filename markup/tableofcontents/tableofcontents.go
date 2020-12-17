@@ -15,6 +15,7 @@ package tableofcontents
 
 import (
 	"strings"
+	"strconv"
 )
 
 // Headers holds the top level (h1) headers.
@@ -61,14 +62,25 @@ func (toc *Root) AddAt(h Header, row, level int) {
 	header.Headers = append(header.Headers, h)
 }
 
+func GetDefault(val string, defVal string) string {
+	if len(val) == 0 {
+		return defVal
+	}
+	return val
+}
+
 // ToHTML renders the ToC as HTML.
-func (toc Root) ToHTML(startLevel, stopLevel int, ordered bool) string {
+func (toc Root) ToHTML(startLevel, stopLevel int, ordered bool, writeLevels bool, wrapperElement string, wrapperId string, wrapperClass string) string {
 	b := &tocBuilder{
-		s:          strings.Builder{},
-		h:          toc.Headers,
-		startLevel: startLevel,
-		stopLevel:  stopLevel,
-		ordered:    ordered,
+		s:              strings.Builder{},
+		h:              toc.Headers,
+		startLevel:     startLevel,
+		stopLevel:      stopLevel,
+		ordered:        ordered,
+		writeLevels:    writeLevels,
+		wrapperElement: GetDefault(wrapperElement, "nav"),
+		wrapperId:      GetDefault(wrapperId, "TableOfContents"),
+		wrapperClass:   wrapperClass,
 	}
 	b.Build()
 	return b.s.String()
@@ -78,9 +90,13 @@ type tocBuilder struct {
 	s strings.Builder
 	h Headers
 
-	startLevel int
-	stopLevel  int
-	ordered    bool
+	startLevel      int
+	stopLevel       int
+	ordered         bool
+	writeLevels     bool
+	wrapperElement  string
+	wrapperId       string
+	wrapperClass	string
 }
 
 func (b *tocBuilder) Build() {
@@ -88,9 +104,13 @@ func (b *tocBuilder) Build() {
 }
 
 func (b *tocBuilder) writeNav(h Headers) {
-	b.s.WriteString("<nav id=\"TableOfContents\">")
+	wrapperClass := ""
+	if len(b.wrapperClass) > 0 {
+		wrapperClass = " class=\"" + b.wrapperClass + "\""
+	}
+	b.s.WriteString("<" + b.wrapperElement + wrapperClass + " id=\"" + b.wrapperId +"\">")
 	b.writeHeaders(1, 0, b.h)
-	b.s.WriteString("</nav>")
+	b.s.WriteString("</" + b.wrapperElement + ">")
 }
 
 func (b *tocBuilder) writeHeaders(level, indent int, h Headers) {
@@ -110,10 +130,14 @@ func (b *tocBuilder) writeHeaders(level, indent int, h Headers) {
 	if hasChildren {
 		b.s.WriteString("\n")
 		b.indent(indent + 1)
+		levelAttr := ""
+		if b.writeLevels {
+			levelAttr = " data-level=\"" + strconv.Itoa(level) + "\"";
+		}
 		if b.ordered {
-			b.s.WriteString("<ol>\n")
+			b.s.WriteString("<ol" + levelAttr + ">\n")
 		} else {
-			b.s.WriteString("<ul>\n")
+			b.s.WriteString("<ul" + levelAttr + ">\n")
 		}
 	}
 
@@ -151,9 +175,13 @@ func (b *tocBuilder) indent(n int) {
 
 // DefaultConfig is the default ToC configuration.
 var DefaultConfig = Config{
-	StartLevel: 2,
-	EndLevel:   3,
-	Ordered:    false,
+	StartLevel:      2,
+	EndLevel:        3,
+	Ordered:         false,
+	WriteLevels:     false,
+	WrapperElement:  "nav",
+	WrapperId:       "TableOfContents",
+	WrapperClass:    "",
 }
 
 type Config struct {
@@ -167,4 +195,18 @@ type Config struct {
 
 	// Whether to produce a ordered list or not.
 	Ordered bool
+
+	// If set to true each <ul> element will provide an attribute 'data-level' 
+	// with the corresponding level (eg. h2 -> 2, h3 -> 3, ...)
+	WriteLevels bool
+
+	// Allows to specify a different element than <nav> to be used for the toc
+	WrapperElement string
+
+	// The ID to be used (default: 'TableOfContents')
+	WrapperId string
+
+	// CSS class which will be applied to the wrapper
+	WrapperClass string
+
 }
