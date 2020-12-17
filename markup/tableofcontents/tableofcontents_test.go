@@ -30,7 +30,7 @@ func TestToc(t *testing.T) {
 	toc.AddAt(Header{Text: "1-H3-1", ID: "1-h2-2"}, 0, 2)
 	toc.AddAt(Header{Text: "Header 2", ID: "h1-2"}, 1, 0)
 
-	got := toc.ToHTML(1, -1, false)
+	got := toc.ToHTML(1, -1, false, false, "", "", "")
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
   <ul>
     <li><a href="#h1-1">Header 1</a>
@@ -47,7 +47,7 @@ func TestToc(t *testing.T) {
   </ul>
 </nav>`, qt.Commentf(got))
 
-	got = toc.ToHTML(1, 1, false)
+	got = toc.ToHTML(1, 1, false, false, "", "", "")
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
   <ul>
     <li><a href="#h1-1">Header 1</a></li>
@@ -55,7 +55,7 @@ func TestToc(t *testing.T) {
   </ul>
 </nav>`, qt.Commentf(got))
 
-	got = toc.ToHTML(1, 2, false)
+	got = toc.ToHTML(1, 2, false, false, "", "", "")
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
   <ul>
     <li><a href="#h1-1">Header 1</a>
@@ -68,7 +68,7 @@ func TestToc(t *testing.T) {
   </ul>
 </nav>`, qt.Commentf(got))
 
-	got = toc.ToHTML(2, 2, false)
+	got = toc.ToHTML(2, 2, false, false, "", "", "")
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
   <ul>
     <li><a href="#1-h2-1">1-H2-1</a></li>
@@ -76,7 +76,7 @@ func TestToc(t *testing.T) {
   </ul>
 </nav>`, qt.Commentf(got))
 
-	got = toc.ToHTML(1, -1, true)
+	got = toc.ToHTML(1, -1, true, false, "", "", "")
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
   <ol>
     <li><a href="#h1-1">Header 1</a>
@@ -103,7 +103,7 @@ func TestTocMissingParent(t *testing.T) {
 	toc.AddAt(Header{Text: "H3", ID: "h3"}, 1, 2)
 	toc.AddAt(Header{Text: "H3", ID: "h3"}, 1, 2)
 
-	got := toc.ToHTML(1, -1, false)
+	got := toc.ToHTML(1, -1, false, false, "", "", "")
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
   <ul>
     <li>
@@ -124,7 +124,7 @@ func TestTocMissingParent(t *testing.T) {
   </ul>
 </nav>`, qt.Commentf(got))
 
-	got = toc.ToHTML(3, 3, false)
+	got = toc.ToHTML(3, 3, false, false, "", "", "")
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
   <ul>
     <li><a href="#h3">H3</a></li>
@@ -132,7 +132,7 @@ func TestTocMissingParent(t *testing.T) {
   </ul>
 </nav>`, qt.Commentf(got))
 
-	got = toc.ToHTML(1, -1, true)
+	got = toc.ToHTML(1, -1, true, false, "", "", "")
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
   <ol>
     <li>
@@ -152,4 +152,155 @@ func TestTocMissingParent(t *testing.T) {
     </li>
   </ol>
 </nav>`, qt.Commentf(got))
+}
+
+
+func TestTocWriteLevels(t *testing.T) {
+	c := qt.New(t)
+
+	toc := &Root{}
+
+	toc.AddAt(Header{Text: "Header 1", ID: "h1-1"}, 0, 0)
+	toc.AddAt(Header{Text: "1-H2-1", ID: "1-h2-1"}, 0, 1)
+	toc.AddAt(Header{Text: "1-H2-2", ID: "1-h2-2"}, 0, 1)
+	toc.AddAt(Header{Text: "1-H3-1", ID: "1-h2-2"}, 0, 2)
+	toc.AddAt(Header{Text: "Header 2", ID: "h1-2"}, 1, 0)
+
+	got := toc.ToHTML(1, -1, false, true, "", "", "")
+	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
+  <ul data-level="1">
+    <li><a href="#h1-1">Header 1</a>
+      <ul data-level="2">
+        <li><a href="#1-h2-1">1-H2-1</a></li>
+        <li><a href="#1-h2-2">1-H2-2</a>
+          <ul data-level="3">
+            <li><a href="#1-h2-2">1-H3-1</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><a href="#h1-2">Header 2</a></li>
+  </ul>
+</nav>`, qt.Commentf(got))
+
+}
+
+func TestTocAlternateWrapperElement(t *testing.T) {
+	c := qt.New(t)
+
+	toc := &Root{}
+
+	toc.AddAt(Header{Text: "Header 1", ID: "h1-1"}, 0, 0)
+	toc.AddAt(Header{Text: "1-H2-1", ID: "1-h2-1"}, 0, 1)
+	toc.AddAt(Header{Text: "1-H2-2", ID: "1-h2-2"}, 0, 1)
+	toc.AddAt(Header{Text: "1-H3-1", ID: "1-h2-2"}, 0, 2)
+	toc.AddAt(Header{Text: "Header 2", ID: "h1-2"}, 1, 0)
+
+	got := toc.ToHTML(1, -1, false, false, "div", "", "")
+	c.Assert(got, qt.Equals, `<div id="TableOfContents">
+  <ul>
+    <li><a href="#h1-1">Header 1</a>
+      <ul>
+        <li><a href="#1-h2-1">1-H2-1</a></li>
+        <li><a href="#1-h2-2">1-H2-2</a>
+          <ul>
+            <li><a href="#1-h2-2">1-H3-1</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><a href="#h1-2">Header 2</a></li>
+  </ul>
+</div>`, qt.Commentf(got))
+
+}
+
+func TestTocAlternateWrapperId(t *testing.T) {
+	c := qt.New(t)
+
+	toc := &Root{}
+
+	toc.AddAt(Header{Text: "Header 1", ID: "h1-1"}, 0, 0)
+	toc.AddAt(Header{Text: "1-H2-1", ID: "1-h2-1"}, 0, 1)
+	toc.AddAt(Header{Text: "1-H2-2", ID: "1-h2-2"}, 0, 1)
+	toc.AddAt(Header{Text: "1-H3-1", ID: "1-h2-2"}, 0, 2)
+	toc.AddAt(Header{Text: "Header 2", ID: "h1-2"}, 1, 0)
+
+	got := toc.ToHTML(1, -1, false, false, "", "bronco", "")
+	c.Assert(got, qt.Equals, `<nav id="bronco">
+  <ul>
+    <li><a href="#h1-1">Header 1</a>
+      <ul>
+        <li><a href="#1-h2-1">1-H2-1</a></li>
+        <li><a href="#1-h2-2">1-H2-2</a>
+          <ul>
+            <li><a href="#1-h2-2">1-H3-1</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><a href="#h1-2">Header 2</a></li>
+  </ul>
+</nav>`, qt.Commentf(got))
+
+}
+
+func TestTocWithWrapperClass(t *testing.T) {
+	c := qt.New(t)
+
+	toc := &Root{}
+
+	toc.AddAt(Header{Text: "Header 1", ID: "h1-1"}, 0, 0)
+	toc.AddAt(Header{Text: "1-H2-1", ID: "1-h2-1"}, 0, 1)
+	toc.AddAt(Header{Text: "1-H2-2", ID: "1-h2-2"}, 0, 1)
+	toc.AddAt(Header{Text: "1-H3-1", ID: "1-h2-2"}, 0, 2)
+	toc.AddAt(Header{Text: "Header 2", ID: "h1-2"}, 1, 0)
+
+	got := toc.ToHTML(1, -1, false, false, "", "", "my-toc")
+	c.Assert(got, qt.Equals, `<nav class="my-toc" id="TableOfContents">
+  <ul>
+    <li><a href="#h1-1">Header 1</a>
+      <ul>
+        <li><a href="#1-h2-1">1-H2-1</a></li>
+        <li><a href="#1-h2-2">1-H2-2</a>
+          <ul>
+            <li><a href="#1-h2-2">1-H3-1</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><a href="#h1-2">Header 2</a></li>
+  </ul>
+</nav>`, qt.Commentf(got))
+
+}
+
+func TestTocWithLevelsAndAlternateWrapperElementAndAlternateWrapperIdAndWrapperClass(t *testing.T) {
+	c := qt.New(t)
+
+	toc := &Root{}
+
+	toc.AddAt(Header{Text: "Header 1", ID: "h1-1"}, 0, 0)
+	toc.AddAt(Header{Text: "1-H2-1", ID: "1-h2-1"}, 0, 1)
+	toc.AddAt(Header{Text: "1-H2-2", ID: "1-h2-2"}, 0, 1)
+	toc.AddAt(Header{Text: "1-H3-1", ID: "1-h2-2"}, 0, 2)
+	toc.AddAt(Header{Text: "Header 2", ID: "h1-2"}, 1, 0)
+
+	got := toc.ToHTML(1, -1, false, true, "div", "bibo", "my-toc")
+	c.Assert(got, qt.Equals, `<div class="my-toc" id="bibo">
+  <ul data-level="1">
+    <li><a href="#h1-1">Header 1</a>
+      <ul data-level="2">
+        <li><a href="#1-h2-1">1-H2-1</a></li>
+        <li><a href="#1-h2-2">1-H2-2</a>
+          <ul data-level="3">
+            <li><a href="#1-h2-2">1-H3-1</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><a href="#h1-2">Header 2</a></li>
+  </ul>
+</div>`, qt.Commentf(got))
+
 }

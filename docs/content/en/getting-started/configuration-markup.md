@@ -80,6 +80,18 @@ endLevel
 ordered
 : Whether or not to generate an ordered list instead of an unordered list.
 
+writeLevels
+: If enabled the list elements `<ul>, <ol>` will receive an attribute `data-level` with the corresponding level value.
+
+wrapperElement
+: By default `<nav>` is used. This option allows to specify an alternative such as `<div>`.
+
+wrapperId
+: By default `TableOfContents` is used. This option allows to specify an alternate ID.
+
+wrapperClass
+: If set this CSS class will be applied to the _wrapperElement_.
+
 
 ## Markdown Render Hooks
 
