@@ -208,12 +208,7 @@ func (r *Spec) newGenericResourceWithBase(
 	baseFilename = helpers.ToSlashTrimLeading(baseFilename)
 	fpath, fname := path.Split(baseFilename)
 
-	var resourceType string
-	if mediaType.MainType == "image" {
-		resourceType = mediaType.MainType
-	} else {
-		resourceType = mediaType.SubType
-	}
+	resourceType := mediaType.MainType
 
 	pathDescriptor := &resourcePathDescriptor{
 		baseTargetPathDirs: helpers.UniqueStringsReuse(targetPathBaseDirs),
