@@ -13,7 +13,6 @@ package testenv
 import (
 	"errors"
 	"flag"
-	"github.com/gohugoio/hugo/tpl/internal/go_templates/cfg"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -22,6 +21,9 @@ import (
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/cli/safeexec"
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/cfg"
 )
 
 // Builder reports the name of the builder running this test
@@ -111,7 +113,7 @@ func GoTool() (string, error) {
 	if _, err := os.Stat(path); err == nil {
 		return path, nil
 	}
-	goBin, err := exec.LookPath("go" + exeSuffix)
+	goBin, err := safeexec.LookPath("go" + exeSuffix)
 	if err != nil {
 		return "", errors.New("cannot find go tool: " + err.Error())
 	}
@@ -162,7 +164,7 @@ func MustHaveExecPath(t testing.TB, path string) {
 
 	err, found := execPaths.Load(path)
 	if !found {
-		_, err = exec.LookPath(path)
+		_, err = safeexec.LookPath(path)
 		err, _ = execPaths.LoadOrStore(path, err)
 	}
 	if err != nil {

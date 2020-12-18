@@ -2,8 +2,10 @@ package internal
 
 import (
 	"bytes"
-	"os/exec"
 	"strings"
+
+	"github.com/cli/safeexec"
+	"github.com/gohugoio/hugo/common/hexec"
 
 	"github.com/gohugoio/hugo/markup/converter"
 )
@@ -13,12 +15,16 @@ func ExternallyRenderContent(
 	ctx converter.DocumentContext,
 	content []byte, path string, args []string) []byte {
 	logger := cfg.Logger
-	cmd := exec.Command(path, args...)
+	cmd, err := hexec.SafeCommand(path, args...)
+	if err != nil {
+		logger.Errorf("%s rendering %s: %v", path, ctx.DocumentName, err)
+		return nil
+	}
 	cmd.Stdin = bytes.NewReader(content)
 	var out, cmderr bytes.Buffer
 	cmd.Stdout = &out
 	cmd.Stderr = &cmderr
-	err := cmd.Run()
+	err = cmd.Run()
 	// Most external helpers exit w/ non-zero exit code only if severe, i.e.
 	// halting errors occurred. -> log stderr output regardless of state of err
 	for _, item := range strings.Split(cmderr.String(), "\n") {
@@ -40,9 +46,9 @@ func normalizeExternalHelperLineFeeds(content []byte) []byte {
 }
 
 func GetPythonExecPath() string {
-	path, err := exec.LookPath("python")
+	path, err := safeexec.LookPath("python")
 	if err != nil {
-		path, err = exec.LookPath("python.exe")
+		path, err = safeexec.LookPath("python.exe")
 		if err != nil {
 			return ""
 		}
