@@ -16,10 +16,11 @@ package hugolib
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
 	"testing"
+
+	"github.com/gohugoio/hugo/common/hexec"
 
 	"github.com/gohugoio/hugo/htesting"
 
@@ -125,7 +126,9 @@ TS: {{ template "print" $ts }}
 
 	b.WithSourceFile("assets/js/included.js", includedJS)
 
-	out, err := exec.Command("npm", "install").CombinedOutput()
+	cmd, err := hexec.SafeCommand("npm", "install")
+	b.Assert(err, qt.IsNil)
+	out, err := cmd.CombinedOutput()
 	b.Assert(err, qt.IsNil, qt.Commentf(string(out)))
 
 	b.Build(BuildCfg{})
@@ -194,7 +197,8 @@ require github.com/gohugoio/hugoTestProjectJSModImports v0.5.0 // indirect
 }`)
 
 	b.Assert(os.Chdir(workDir), qt.IsNil)
-	_, err = exec.Command("npm", "install").CombinedOutput()
+	cmd, _ := hexec.SafeCommand("npm", "install")
+	_, err = cmd.CombinedOutput()
 	b.Assert(err, qt.IsNil)
 
 	b.Build(BuildCfg{})

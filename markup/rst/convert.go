@@ -16,8 +16,9 @@ package rst
 
 import (
 	"bytes"
-	"os/exec"
 	"runtime"
+
+	"github.com/cli/safeexec"
 
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/internal"
@@ -96,9 +97,9 @@ func (c *rstConverter) getRstContent(src []byte, ctx converter.DocumentContext) 
 }
 
 func getRstExecPath() string {
-	path, err := exec.LookPath("rst2html")
+	path, err := safeexec.LookPath("rst2html")
 	if err != nil {
-		path, err = exec.LookPath("rst2html.py")
+		path, err = safeexec.LookPath("rst2html.py")
 		if err != nil {
 			return ""
 		}

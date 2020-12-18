@@ -23,7 +23,8 @@ import (
 	"math/rand"
 	"os"
 
-	"os/exec"
+	"github.com/gohugoio/hugo/common/hexec"
+
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -952,7 +953,8 @@ class-in-b {
 	b.WithSourceFile("postcss.config.js", postcssConfig)
 
 	b.Assert(os.Chdir(workDir), qt.IsNil)
-	_, err = exec.Command("npm", "install").CombinedOutput()
+	cmd, err := hexec.SafeCommand("npm", "install")
+	_, err = cmd.CombinedOutput()
 	b.Assert(err, qt.IsNil)
 	b.Build(BuildCfg{})
 

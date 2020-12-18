@@ -16,10 +16,11 @@ package babel
 import (
 	"bytes"
 	"io"
-	"os/exec"
 	"path/filepath"
 	"strconv"
 
+	"github.com/cli/safeexec"
+	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/gohugoio/hugo/common/hugo"
@@ -107,10 +108,10 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 
 	binary := csiBinPath
 
-	if _, err := exec.LookPath(binary); err != nil {
+	if _, err := safeexec.LookPath(binary); err != nil {
 		// Try PATH
 		binary = binaryName
-		if _, err := exec.LookPath(binary); err != nil {
+		if _, err := safeexec.LookPath(binary); err != nil {
 
 			// This may be on a CI server etc. Will fall back to pre-built assets.
 			return herrors.ErrFeatureNotAvailable
@@ -152,7 +153,10 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	}
 	cmdArgs = append(cmdArgs, "--filename="+ctx.SourcePath)
 
-	cmd := exec.Command(binary, cmdArgs...)
+	cmd, err := hexec.SafeCommand(binary, cmdArgs...)
+	if err != nil {
+		return err
+	}
 
 	cmd.Stdout = ctx.To
 	cmd.Stderr = io.MultiWriter(infoW, &errBuf)

@@ -15,11 +15,12 @@ package releaser
 
 import (
 	"fmt"
-	"os/exec"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/gohugoio/hugo/common/hexec"
 )
 
 var issueRe = regexp.MustCompile(`(?i)[Updates?|Closes?|Fix.*|See] #(\d+)`)
@@ -148,7 +149,7 @@ func extractIssues(body string) []int {
 type gitInfos []gitInfo
 
 func git(args ...string) (string, error) {
-	cmd := exec.Command("git", args...)
+	cmd, _ := hexec.SafeCommand("git", args...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", fmt.Errorf("git failed: %q: %q (%q)", err, out, args)

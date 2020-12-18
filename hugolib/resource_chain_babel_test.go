@@ -16,10 +16,11 @@ package hugolib
 import (
 	"bytes"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
 	"testing"
+
+	"github.com/gohugoio/hugo/common/hexec"
 
 	jww "github.com/spf13/jwalterweatherman"
 
@@ -111,7 +112,8 @@ Transpiled: {{ $transpiled.Content | safeJS }}
 	b.WithSourceFile("babel.config.js", babelConfig)
 
 	b.Assert(os.Chdir(workDir), qt.IsNil)
-	_, err = exec.Command("npm", "install").CombinedOutput()
+	cmd, _ := hexec.SafeCommand("npm", "install")
+	_, err = cmd.CombinedOutput()
 	b.Assert(err, qt.IsNil)
 
 	b.Build(BuildCfg{})
