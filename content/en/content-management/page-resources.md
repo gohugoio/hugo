@@ -21,7 +21,9 @@ the lowest page they are bundled with, and simple which names does not contain `
 ## Properties
 
 ResourceType
-: The main type of the resource. For example, a file of MIME type `image/jpeg` has the ResourceType `image`.
+: The main type of the resource's [Media Type](/templates/output-formats/#media-types). For example, a file of MIME type `image/jpeg` has the ResourceType `image`. A `Page` will have `ResourceType` with value `page`.
+
+{{< new-in "0.80.0" >}} Note that we in Hugo `v0.80.0` fixed a bug where non-image resources (e.g. video) would return the MIME sub type, e.g. `json`.
 
 Name
 : Default value is the filename (relative to the owning page). Can be set in front matter.
