@@ -1,7 +1,7 @@
 
 ---
 date: 2020-12-19
-title: "Hugo .79.1: One Security Patch for Hugo on Windows"
+title: "Hugo 0.79.1: One Security Patch for Hugo on Windows"
 description: "Disallow running of e.g. Pandoc in the current directory."
 categories: ["Releases"]
 images:
