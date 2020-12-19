@@ -15,7 +15,7 @@ Windows users who ran `hugo` inside untrusted Hugo sites was affected.
 
 The origin of this issue comes from Go, see https://github.com/golang/go/issues/38736
 
-We have fixed this in Hugo by [using](https://github.com/gohugoio/hugo/commit/4a8267d64a40564aced0695bca05249da17b0eab) a patched version of `exec.LookPath` from https://github.com/cli/safeexec (thanks to [@mislav](https://github.com/mislav)) for the implementation).
+We have fixed this in Hugo by [using](https://github.com/gohugoio/hugo/commit/4a8267d64a40564aced0695bca05249da17b0eab) a patched version of `exec.LookPath` from https://github.com/cli/safeexec (thanks to [@mislav](https://github.com/mislav) for the implementation).
 
 Thanks to [@Ry0taK](https://github.com/Ry0taK) for the bug report.
 
