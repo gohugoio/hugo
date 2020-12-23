@@ -34,7 +34,7 @@ import (
 )
 
 func TestJSBuildWithNPM(t *testing.T) {
-	if !isCI() {
+	if !htesting.IsCI() {
 		t.Skip("skip (relative) long running modules test when running locally")
 	}
 
@@ -142,7 +142,7 @@ function greeter(person) {
 }
 
 func TestJSBuild(t *testing.T) {
-	if !isCI() {
+	if !htesting.IsCI() {
 		t.Skip("skip (relative) long running modules test when running locally")
 	}
 

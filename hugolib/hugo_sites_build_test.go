@@ -414,7 +414,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 func TestMultiSitesRebuild(t *testing.T) {
 	// t.Parallel() not supported, see https://github.com/fortytw2/leaktest/issues/4
 	// This leaktest seems to be a little bit shaky on Travis.
-	if !isCI() {
+	if !htesting.IsCI() {
 		defer leaktest.CheckTimeout(t, 10*time.Second)()
 	}
 

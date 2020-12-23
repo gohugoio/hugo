@@ -15,6 +15,7 @@ package htesting
 
 import (
 	"math/rand"
+	"os"
 	"runtime"
 	"strings"
 	"time"
@@ -85,4 +86,8 @@ func DiffStringSlices(slice1 []string, slice2 []string) []string {
 // Useful for tests.
 func DiffStrings(s1, s2 string) []string {
 	return DiffStringSlices(strings.Fields(s1), strings.Fields(s2))
+}
+
+func IsCI() bool {
+	return (os.Getenv("CI") != "" || os.Getenv("CI_LOCAL") != "") && os.Getenv("CIRCLE_BRANCH") == ""
 }

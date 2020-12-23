@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/fortytw2/leaktest"
+	"github.com/gohugoio/hugo/htesting"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/herrors"
@@ -316,7 +317,7 @@ Some content.
 
 // https://github.com/gohugoio/hugo/issues/5375
 func TestSiteBuildTimeout(t *testing.T) {
-	if !isCI() {
+	if !htesting.IsCI() {
 		defer leaktest.CheckTimeout(t, 10*time.Second)()
 	}
 

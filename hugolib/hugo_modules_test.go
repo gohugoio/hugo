@@ -41,7 +41,7 @@ import (
 )
 
 func TestHugoModulesVariants(t *testing.T) {
-	if !isCI() {
+	if !htesting.IsCI() {
 		t.Skip("skip (relative) long running modules test when running locally")
 	}
 
@@ -285,12 +285,12 @@ JS imported in module: |
 
 // TODO(bep) this fails when testmodBuilder is also building ...
 func TestHugoModulesMatrix(t *testing.T) {
-	if !isCI() {
+	if !htesting.IsCI() {
 		t.Skip("skip (relative) long running modules test when running locally")
 	}
 	t.Parallel()
 
-	if !isCI() || hugo.GoMinorVersion() < 12 {
+	if !htesting.IsCI() || hugo.GoMinorVersion() < 12 {
 		// https://github.com/golang/go/issues/26794
 		// There were some concurrent issues with Go modules in < Go 12.
 		t.Skip("skip this on local host and for Go <= 1.11 due to a bug in Go's stdlib")

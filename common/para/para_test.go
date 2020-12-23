@@ -22,12 +22,18 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/htesting"
+
 	qt "github.com/frankban/quicktest"
 )
 
 func TestPara(t *testing.T) {
 	if runtime.NumCPU() < 4 {
 		t.Skipf("skip para test, CPU count is %d", runtime.NumCPU())
+	}
+
+	if !htesting.IsCI() {
+		t.Skip("skip para test when not running on CI")
 	}
 
 	c := qt.New(t)
