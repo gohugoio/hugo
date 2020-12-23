@@ -526,6 +526,8 @@ func (c *commandeer) serve(s *serverCmd) error {
 		<-sigs
 	}
 
+	c.hugo().Close()
+
 	return nil
 }
 

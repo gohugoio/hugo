@@ -15,9 +15,12 @@
 package resources
 
 import (
-	"errors"
 	"fmt"
 	"path/filepath"
+	"sync"
+
+	"github.com/gohugoio/hugo/common/maps"
+	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/tpl/internal/resourcehelpers"
 
@@ -35,7 +38,9 @@ import (
 	"github.com/gohugoio/hugo/resources/resource_transformers/minifier"
 	"github.com/gohugoio/hugo/resources/resource_transformers/postcss"
 	"github.com/gohugoio/hugo/resources/resource_transformers/templates"
+	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/dartsass"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/scss"
+
 	"github.com/spf13/cast"
 )
 
@@ -56,15 +61,15 @@ func New(deps *deps.Deps) (*Namespace, error) {
 	}
 
 	return &Namespace{
-		deps:            deps,
-		scssClient:      scssClient,
-		createClient:    create.New(deps.ResourceSpec),
-		bundlerClient:   bundler.New(deps.ResourceSpec),
-		integrityClient: integrity.New(deps.ResourceSpec),
-		minifyClient:    minifyClient,
-		postcssClient:   postcss.New(deps.ResourceSpec),
-		templatesClient: templates.New(deps.ResourceSpec, deps),
-		babelClient:     babel.New(deps.ResourceSpec),
+		deps:              deps,
+		scssClientLibSass: scssClient,
+		createClient:      create.New(deps.ResourceSpec),
+		bundlerClient:     bundler.New(deps.ResourceSpec),
+		integrityClient:   integrity.New(deps.ResourceSpec),
+		minifyClient:      minifyClient,
+		postcssClient:     postcss.New(deps.ResourceSpec),
+		templatesClient:   templates.New(deps.ResourceSpec, deps),
+		babelClient:       babel.New(deps.ResourceSpec),
 	}, nil
 }
 
@@ -72,14 +77,34 @@ func New(deps *deps.Deps) (*Namespace, error) {
 type Namespace struct {
 	deps *deps.Deps
 
-	createClient    *create.Client
-	bundlerClient   *bundler.Client
-	scssClient      *scss.Client
-	integrityClient *integrity.Client
-	minifyClient    *minifier.Client
-	postcssClient   *postcss.Client
-	babelClient     *babel.Client
-	templatesClient *templates.Client
+	createClient      *create.Client
+	bundlerClient     *bundler.Client
+	scssClientLibSass *scss.Client
+	integrityClient   *integrity.Client
+	minifyClient      *minifier.Client
+	postcssClient     *postcss.Client
+	babelClient       *babel.Client
+	templatesClient   *templates.Client
+
+	// The Dart Client requires a os/exec process, so  only
+	// create it if we really need it.
+	// This is mostly to avoid creating one per site build test.
+	scssClientDartSassInit sync.Once
+	scssClientDartSass     *dartsass.Client
+}
+
+func (ns *Namespace) getscssClientDartSass() (*dartsass.Client, error) {
+	var err error
+	ns.scssClientDartSassInit.Do(func() {
+		ns.scssClientDartSass, err = dartsass.New(ns.deps.BaseFs.Assets, ns.deps.ResourceSpec)
+		if err != nil {
+			return
+		}
+		ns.deps.BuildClosers.Add(ns.scssClientDartSass)
+
+	})
+
+	return ns.scssClientDartSass, err
 }
 
 // Get locates the filename given in Hugo's assets filesystem
@@ -230,12 +255,21 @@ func (ns *Namespace) Minify(r resources.ResourceTransformer) (resource.Resource,
 // ToCSS converts the given Resource to CSS. You can optional provide an Options
 // object or a target path (string) as first argument.
 func (ns *Namespace) ToCSS(args ...interface{}) (resource.Resource, error) {
+	const (
+		// Transpiler implementation can be controlled from the client by
+		// setting the 'transpiler' option.
+		// Default is currently 'libsass', but that may change.
+		transpilerDart    = "dartsass"
+		transpilerLibSass = "libsass"
+	)
+
 	var (
 		r          resources.ResourceTransformer
 		m          map[string]interface{}
 		targetPath string
 		err        error
 		ok         bool
+		transpiler = transpilerLibSass
 	)
 
 	r, targetPath, ok = resourcehelpers.ResolveIfFirstArgIsString(args)
@@ -247,17 +281,46 @@ func (ns *Namespace) ToCSS(args ...interface{}) (resource.Resource, error) {
 		}
 	}
 
-	var options scss.Options
-	if targetPath != "" {
-		options.TargetPath = helpers.ToSlashTrimLeading(targetPath)
-	} else if m != nil {
-		options, err = scss.DecodeOptions(m)
-		if err != nil {
-			return nil, err
+	if m != nil {
+		maps.ToLower(m)
+		if t, found := m["transpiler"]; found {
+			switch t {
+			case transpilerDart, transpilerLibSass:
+				transpiler = cast.ToString(t)
+			default:
+				return nil, errors.Errorf("unsupported transpiler %q; valid values are %q or %q", t, transpilerLibSass, transpilerDart)
+			}
 		}
 	}
 
-	return ns.scssClient.ToCSS(r, options)
+	if transpiler == transpilerLibSass {
+		var options scss.Options
+		if targetPath != "" {
+			options.TargetPath = helpers.ToSlashTrimLeading(targetPath)
+		} else if m != nil {
+			options, err = scss.DecodeOptions(m)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		return ns.scssClientLibSass.ToCSS(r, options)
+	}
+
+	if m == nil {
+		m = make(map[string]interface{})
+	}
+	if targetPath != "" {
+		m["targetPath"] = targetPath
+	}
+
+	client, err := ns.getscssClientDartSass()
+	if err != nil {
+		return nil, err
+	}
+
+	return client.ToCSS(r, m)
+
 }
 
 // PostCSS processes the given Resource with PostCSS

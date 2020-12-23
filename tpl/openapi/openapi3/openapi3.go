@@ -29,7 +29,7 @@ import (
 
 // New returns a new instance of the openapi3-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
-	// TODO1 consolidate when merging that "other branch" -- but be aware of the keys.
+	// TODO(bep) consolidate when merging that "other branch" -- but be aware of the keys.
 	cache := namedmemcache.New()
 	deps.BuildStartListeners.Add(
 		func() {

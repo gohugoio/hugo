@@ -20,6 +20,8 @@ import (
 	"math/rand"
 	"os"
 
+	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/dartsass"
+
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -45,33 +47,44 @@ import (
 )
 
 func TestSCSSWithIncludePaths(t *testing.T) {
-	if !scss.Supports() {
-		t.Skip("Skip SCSS")
-	}
 	c := qt.New(t)
-	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-scss-include")
-	c.Assert(err, qt.IsNil)
-	defer clean()
 
-	v := viper.New()
-	v.Set("workingDir", workDir)
-	b := newTestSitesBuilder(t).WithLogger(loggers.NewErrorLogger())
-	// Need to use OS fs for this.
-	b.Fs = hugofs.NewDefault(v)
-	b.WithWorkingDir(workDir)
-	b.WithViper(v)
+	for _, test := range []struct {
+		name     string
+		supports func() bool
+	}{
+		{"libsass", func() bool { return scss.Supports() }},
+		{"dartsass", func() bool { return dartsass.Supports() }},
+	} {
 
-	fooDir := filepath.Join(workDir, "node_modules", "foo")
-	scssDir := filepath.Join(workDir, "assets", "scss")
-	c.Assert(os.MkdirAll(fooDir, 0777), qt.IsNil)
-	c.Assert(os.MkdirAll(filepath.Join(workDir, "content", "sect"), 0777), qt.IsNil)
-	c.Assert(os.MkdirAll(filepath.Join(workDir, "data"), 0777), qt.IsNil)
-	c.Assert(os.MkdirAll(filepath.Join(workDir, "i18n"), 0777), qt.IsNil)
-	c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "shortcodes"), 0777), qt.IsNil)
-	c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "_default"), 0777), qt.IsNil)
-	c.Assert(os.MkdirAll(filepath.Join(scssDir), 0777), qt.IsNil)
+		c.Run(test.name, func(c *qt.C) {
+			if !test.supports() {
+				c.Skip(fmt.Sprintf("Skip %s", test.name))
+			}
 
-	b.WithSourceFile(filepath.Join(fooDir, "_moo.scss"), `
+			workDir, clean, err := htesting.CreateTempDir(hugofs.Os, fmt.Sprintf("hugo-scss-include-%s", test.name))
+			c.Assert(err, qt.IsNil)
+			defer clean()
+
+			v := viper.New()
+			v.Set("workingDir", workDir)
+			b := newTestSitesBuilder(c).WithLogger(loggers.NewErrorLogger())
+			// Need to use OS fs for this.
+			b.Fs = hugofs.NewDefault(v)
+			b.WithWorkingDir(workDir)
+			b.WithViper(v)
+
+			fooDir := filepath.Join(workDir, "node_modules", "foo")
+			scssDir := filepath.Join(workDir, "assets", "scss")
+			c.Assert(os.MkdirAll(fooDir, 0777), qt.IsNil)
+			c.Assert(os.MkdirAll(filepath.Join(workDir, "content", "sect"), 0777), qt.IsNil)
+			c.Assert(os.MkdirAll(filepath.Join(workDir, "data"), 0777), qt.IsNil)
+			c.Assert(os.MkdirAll(filepath.Join(workDir, "i18n"), 0777), qt.IsNil)
+			c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "shortcodes"), 0777), qt.IsNil)
+			c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "_default"), 0777), qt.IsNil)
+			c.Assert(os.MkdirAll(filepath.Join(scssDir), 0777), qt.IsNil)
+
+			b.WithSourceFile(filepath.Join(fooDir, "_moo.scss"), `
 $moolor: #fff;
 
 moo {
@@ -79,47 +92,63 @@ moo {
 }
 `)
 
-	b.WithSourceFile(filepath.Join(scssDir, "main.scss"), `
+			b.WithSourceFile(filepath.Join(scssDir, "main.scss"), `
 @import "moo";
 
 `)
 
-	b.WithTemplatesAdded("index.html", `
-{{ $cssOpts := (dict "includePaths" (slice "node_modules/foo" ) ) }}
+			b.WithTemplatesAdded("index.html", fmt.Sprintf(`
+{{ $cssOpts := (dict "includePaths" (slice "node_modules/foo") "transpiler" %q ) }}
 {{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts  | minify  }}
 T1: {{ $r.Content }}
-`)
-	b.Build(BuildCfg{})
+`, test.name))
+			b.Build(BuildCfg{})
 
-	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), `T1: moo{color:#fff}`)
+			b.AssertFileContent(filepath.Join(workDir, "public/index.html"), `T1: moo{color:#fff}`)
+		})
+
+	}
+
 }
 
 func TestSCSSWithRegularCSSImport(t *testing.T) {
-	if !scss.Supports() {
-		t.Skip("Skip SCSS")
-	}
 	c := qt.New(t)
-	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-scss-include")
-	c.Assert(err, qt.IsNil)
-	defer clean()
 
-	v := viper.New()
-	v.Set("workingDir", workDir)
-	b := newTestSitesBuilder(t).WithLogger(loggers.NewErrorLogger())
-	// Need to use OS fs for this.
-	b.Fs = hugofs.NewDefault(v)
-	b.WithWorkingDir(workDir)
-	b.WithViper(v)
+	for _, test := range []struct {
+		name     string
+		supports func() bool
+	}{
+		{"libsass", func() bool { return scss.Supports() }},
+		{"dartsass", func() bool { return dartsass.Supports() }},
+	} {
 
-	scssDir := filepath.Join(workDir, "assets", "scss")
-	c.Assert(os.MkdirAll(filepath.Join(workDir, "content", "sect"), 0777), qt.IsNil)
-	c.Assert(os.MkdirAll(filepath.Join(workDir, "data"), 0777), qt.IsNil)
-	c.Assert(os.MkdirAll(filepath.Join(workDir, "i18n"), 0777), qt.IsNil)
-	c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "shortcodes"), 0777), qt.IsNil)
-	c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "_default"), 0777), qt.IsNil)
-	c.Assert(os.MkdirAll(filepath.Join(scssDir), 0777), qt.IsNil)
+		c.Run(test.name, func(c *qt.C) {
+			if !test.supports() {
+				c.Skip(fmt.Sprintf("Skip %s", test.name))
+			}
 
-	b.WithSourceFile(filepath.Join(scssDir, "_moo.scss"), `
+			workDir, clean, err := htesting.CreateTempDir(hugofs.Os, fmt.Sprintf("hugo-scss-include-regular-%s", test.name))
+			c.Assert(err, qt.IsNil)
+			defer clean()
+
+			v := viper.New()
+			v.Set("workingDir", workDir)
+			b := newTestSitesBuilder(c).WithLogger(loggers.NewErrorLogger())
+			// Need to use OS fs for this.
+			b.Fs = hugofs.NewDefault(v)
+			b.WithWorkingDir(workDir)
+			b.WithViper(v)
+
+			scssDir := filepath.Join(workDir, "assets", "scss")
+			c.Assert(os.MkdirAll(filepath.Join(workDir, "content", "sect"), 0777), qt.IsNil)
+			c.Assert(os.MkdirAll(filepath.Join(workDir, "data"), 0777), qt.IsNil)
+			c.Assert(os.MkdirAll(filepath.Join(workDir, "i18n"), 0777), qt.IsNil)
+			c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "shortcodes"), 0777), qt.IsNil)
+			c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "_default"), 0777), qt.IsNil)
+			c.Assert(os.MkdirAll(filepath.Join(scssDir), 0777), qt.IsNil)
+			b.WithSourceFile(filepath.Join(scssDir, "regular.css"), ``)
+			b.WithSourceFile(filepath.Join(scssDir, "another.css"), ``)
+			b.WithSourceFile(filepath.Join(scssDir, "_moo.scss"), `
 $moolor: #fff;
 
 moo {
@@ -127,7 +156,7 @@ moo {
 }
 `)
 
-	b.WithSourceFile(filepath.Join(scssDir, "main.scss"), `
+			b.WithSourceFile(filepath.Join(scssDir, "main.scss"), `
 @import "moo";
 @import "regular.css";
 @import "moo";
@@ -136,13 +165,17 @@ moo {
 /* foo */
 `)
 
-	b.WithTemplatesAdded("index.html", `
-{{ $r := resources.Get "scss/main.scss" |  toCSS  }}
+			b.WithTemplatesAdded("index.html", fmt.Sprintf(`
+{{ $r := resources.Get "scss/main.scss" |  toCSS (dict "transpiler" %q)  }}
 T1: {{ $r.Content | safeHTML }}
-`)
-	b.Build(BuildCfg{})
+`, test.name))
+			b.Build(BuildCfg{})
 
-	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), `
+			if test.name == "libsass" {
+				// LibSass does not support regular CSS imports. There
+				// is an open bug about it that probably will never be resolved.
+				// Hugo works around this by preserving them in place:
+				b.AssertFileContent(filepath.Join(workDir, "public/index.html"), `
  T1: moo {
  color: #fff; }
 
@@ -154,47 +187,79 @@ moo {
 /* foo */
         
 `)
+			} else {
+				// Dart Sass does not follow regular CSS import, but they
+				// get pulled to the top.
+				b.AssertFileContent(filepath.Join(workDir, "public/index.html"), `T1: @import "regular.css";
+@import "another.css";
+moo {
+  color: #fff;
+}
+
+moo {
+  color: #fff;
+}
+
+/* foo */`)
+
+			}
+		})
+	}
+
 }
 
 func TestSCSSWithThemeOverrides(t *testing.T) {
-	if !scss.Supports() {
-		t.Skip("Skip SCSS")
-	}
 	c := qt.New(t)
-	workDir, clean1, err := htesting.CreateTempDir(hugofs.Os, "hugo-scss-include")
-	c.Assert(err, qt.IsNil)
-	defer clean1()
 
-	theme := "mytheme"
-	themesDir := filepath.Join(workDir, "themes")
-	themeDirs := filepath.Join(themesDir, theme)
-	v := viper.New()
-	v.Set("workingDir", workDir)
-	v.Set("theme", theme)
-	b := newTestSitesBuilder(t).WithLogger(loggers.NewErrorLogger())
-	// Need to use OS fs for this.
-	b.Fs = hugofs.NewDefault(v)
-	b.WithWorkingDir(workDir)
-	b.WithViper(v)
+	for _, test := range []struct {
+		name     string
+		supports func() bool
+	}{
+		{"libsass", func() bool { return scss.Supports() }},
+		{"dartsass", func() bool { return dartsass.Supports() }},
+	} {
 
-	fooDir := filepath.Join(workDir, "node_modules", "foo")
-	scssDir := filepath.Join(workDir, "assets", "scss")
-	scssThemeDir := filepath.Join(themeDirs, "assets", "scss")
-	c.Assert(os.MkdirAll(fooDir, 0777), qt.IsNil)
-	c.Assert(os.MkdirAll(filepath.Join(workDir, "content", "sect"), 0777), qt.IsNil)
-	c.Assert(os.MkdirAll(filepath.Join(workDir, "data"), 0777), qt.IsNil)
-	c.Assert(os.MkdirAll(filepath.Join(workDir, "i18n"), 0777), qt.IsNil)
-	c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "shortcodes"), 0777), qt.IsNil)
-	c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "_default"), 0777), qt.IsNil)
-	c.Assert(os.MkdirAll(filepath.Join(scssDir, "components"), 0777), qt.IsNil)
-	c.Assert(os.MkdirAll(filepath.Join(scssThemeDir, "components"), 0777), qt.IsNil)
+		c.Run(test.name, func(c *qt.C) {
+			if !test.supports() {
+				c.Skip(fmt.Sprintf("Skip %s", test.name))
+			}
 
-	b.WithSourceFile(filepath.Join(scssThemeDir, "components", "_imports.scss"), `
+			workDir, clean1, err := htesting.CreateTempDir(hugofs.Os, fmt.Sprintf("hugo-scss-include-theme-overrides-%s", test.name))
+			c.Assert(err, qt.IsNil)
+			defer clean1()
+
+			theme := "mytheme"
+			themesDir := filepath.Join(workDir, "themes")
+			themeDirs := filepath.Join(themesDir, theme)
+			v := viper.New()
+			v.Set("workingDir", workDir)
+			v.Set("theme", theme)
+			b := newTestSitesBuilder(c).WithLogger(loggers.NewErrorLogger())
+			// Need to use OS fs for this.
+			b.Fs = hugofs.NewDefault(v)
+			b.WithWorkingDir(workDir)
+			b.WithViper(v)
+
+			fooDir := filepath.Join(workDir, "node_modules", "foo")
+			scssDir := filepath.Join(workDir, "assets", "scss")
+			scssThemeDir := filepath.Join(themeDirs, "assets", "scss")
+			c.Assert(os.MkdirAll(fooDir, 0777), qt.IsNil)
+			c.Assert(os.MkdirAll(filepath.Join(workDir, "content", "sect"), 0777), qt.IsNil)
+			c.Assert(os.MkdirAll(filepath.Join(workDir, "data"), 0777), qt.IsNil)
+			c.Assert(os.MkdirAll(filepath.Join(workDir, "i18n"), 0777), qt.IsNil)
+			c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "shortcodes"), 0777), qt.IsNil)
+			c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "_default"), 0777), qt.IsNil)
+			c.Assert(os.MkdirAll(filepath.Join(scssDir, "components"), 0777), qt.IsNil)
+			c.Assert(os.MkdirAll(filepath.Join(scssThemeDir, "components"), 0777), qt.IsNil)
+
+			b.WithSourceFile(filepath.Join(scssThemeDir, "components", "_imports.scss"), `
 @import "moo";
 @import "_boo";
+@import "_zoo";
+
 `)
 
-	b.WithSourceFile(filepath.Join(scssThemeDir, "components", "_moo.scss"), `
+			b.WithSourceFile(filepath.Join(scssThemeDir, "components", "_moo.scss"), `
 $moolor: #fff;
 
 moo {
@@ -202,7 +267,16 @@ moo {
 }
 `)
 
-	b.WithSourceFile(filepath.Join(scssThemeDir, "components", "_boo.scss"), `
+			// Only in theme.
+			b.WithSourceFile(filepath.Join(scssThemeDir, "components", "_zoo.scss"), `
+$zoolor: pink;
+
+zoo {
+  color: $zoolor;
+}
+`)
+
+			b.WithSourceFile(filepath.Join(scssThemeDir, "components", "_boo.scss"), `
 $boolor: orange;
 
 boo {
@@ -210,12 +284,12 @@ boo {
 }
 `)
 
-	b.WithSourceFile(filepath.Join(scssThemeDir, "main.scss"), `
+			b.WithSourceFile(filepath.Join(scssThemeDir, "main.scss"), `
 @import "components/imports";
 
 `)
 
-	b.WithSourceFile(filepath.Join(scssDir, "components", "_moo.scss"), `
+			b.WithSourceFile(filepath.Join(scssDir, "components", "_moo.scss"), `
 $moolor: #ccc;
 
 moo {
@@ -223,7 +297,7 @@ moo {
 }
 `)
 
-	b.WithSourceFile(filepath.Join(scssDir, "components", "_boo.scss"), `
+			b.WithSourceFile(filepath.Join(scssDir, "components", "_boo.scss"), `
 $boolor: green;
 
 boo {
@@ -231,22 +305,43 @@ boo {
 }
 `)
 
-	b.WithTemplatesAdded("index.html", `
-{{ $cssOpts := (dict "includePaths" (slice "node_modules/foo" ) ) }}
+			b.WithTemplatesAdded("index.html", fmt.Sprintf(`
+{{ $cssOpts := (dict "includePaths" (slice "node_modules/foo" ) "transpiler" %q ) }}
 {{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts  | minify  }}
 T1: {{ $r.Content }}
-`)
-	b.Build(BuildCfg{})
+`, test.name))
+			b.Build(BuildCfg{})
 
-	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), `T1: moo{color:#ccc}boo{color:green}`)
+			b.AssertFileContent(
+				filepath.Join(workDir, "public/index.html"),
+				`T1: moo{color:#ccc}boo{color:green}zoo{color:pink}`,
+			)
+		})
+	}
+
 }
 
 // https://github.com/gohugoio/hugo/issues/6274
 func TestSCSSWithIncludePathsSass(t *testing.T) {
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		name     string
+		supports func() bool
+	}{
+		{"libsass", func() bool { return scss.Supports() }},
+		{"dartsass", func() bool { return dartsass.Supports() }},
+	} {
+
+		c.Run(test.name, func(c *qt.C) {
+			if !test.supports() {
+				c.Skip(fmt.Sprintf("Skip %s", test.name))
+			}
+		})
+	}
 	if !scss.Supports() {
 		t.Skip("Skip SCSS")
 	}
-	c := qt.New(t)
 	workDir, clean1, err := htesting.CreateTempDir(hugofs.Os, "hugo-scss-includepaths")
 	c.Assert(err, qt.IsNil)
 	defer clean1()

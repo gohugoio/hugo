@@ -48,6 +48,10 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		// Make sure we don't trigger rebuilds in parallel.
 		h.runningMu.Lock()
 		defer h.runningMu.Unlock()
+	} else {
+		defer func() {
+			h.Close()
+		}()
 	}
 
 	ctx, task := trace.NewTask(context.Background(), "Build")

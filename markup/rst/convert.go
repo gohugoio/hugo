@@ -19,6 +19,7 @@ import (
 	"runtime"
 
 	"github.com/cli/safeexec"
+	"github.com/gohugoio/hugo/htesting"
 
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/internal"
@@ -109,5 +110,8 @@ func getRstExecPath() string {
 
 // Supports returns whether rst is installed on this computer.
 func Supports() bool {
+	if htesting.SupportsAll() {
+		return true
+	}
 	return getRstExecPath() != ""
 }
