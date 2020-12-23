@@ -70,7 +70,7 @@ func (e ErrorContext) Position() text.Position {
 
 var _ causer = (*ErrorWithFileContext)(nil)
 
-// ErrorWithFileContext is an error with some additional file context related
+// ErrorWithFileCoxntext is an error with some additional file context related
 // to that error.
 type ErrorWithFileContext struct {
 	cause error

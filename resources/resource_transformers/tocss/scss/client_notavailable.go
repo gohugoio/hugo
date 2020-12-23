@@ -16,6 +16,7 @@
 package scss
 
 import (
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
 )
@@ -26,5 +27,8 @@ func (c *Client) ToCSS(res resources.ResourceTransformer, opts Options) (resourc
 
 // Used in tests.
 func Supports() bool {
+	if htesting.SupportsAll() {
+		return true
+	}
 	return false
 }

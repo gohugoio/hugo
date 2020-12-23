@@ -20,6 +20,8 @@ import (
 	"bytes"
 	"path/filepath"
 
+	"github.com/gohugoio/hugo/htesting"
+
 	"github.com/cli/safeexec"
 
 	"github.com/gohugoio/hugo/identity"
@@ -309,5 +311,8 @@ func nodeContent(node *html.Node) string {
 
 // Supports returns whether Asciidoctor is installed on this computer.
 func Supports() bool {
+	if htesting.SupportsAll() {
+		return true
+	}
 	return getAsciidoctorExecPath() != ""
 }

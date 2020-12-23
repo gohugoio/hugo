@@ -411,6 +411,9 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 					errMsg = ". Check your PostCSS installation; install with \"npm install postcss-cli\". See https://gohugo.io/hugo-pipes/postcss/"
 				} else if tr.Key().Name == "tocss" {
 					errMsg = ". Check your Hugo installation; you need the extended version to build SCSS/SASS."
+				} else if tr.Key().Name == "tocss-dart" {
+					errMsg = ". You need dart-sass-embedded in your system $PATH."
+
 				} else if tr.Key().Name == "babel" {
 					errMsg = ". You need to install Babel, see https://gohugo.io/hugo-pipes/babel/"
 				}
@@ -442,6 +445,9 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 		if tryFileCache {
 			f := r.target.tryTransformedFileCache(key, updates)
 			if f == nil {
+				if err != nil {
+					return newErr(err)
+				}
 				return newErr(errors.Errorf("resource %q not found in file cache", key))
 			}
 			transformedContentr = f
