@@ -213,18 +213,23 @@ func IsAbsURL(path string) bool {
 }
 
 // RelURL creates a URL relative to the BaseURL root.
-// Note: The result URL will not include the context root if canonifyURLs is enabled.
+// Note1: The result URL will not include the context root if canonifyURLs is enabled.
+// Note2: If input is an absolute URL (contain an sheme) not starting by baseURL, input is returned.
 func (p *PathSpec) RelURL(in string, addLanguage bool) string {
 	baseURL := p.BaseURL.String()
-	canonifyURLs := p.CanonifyURLs
-	if (!strings.HasPrefix(in, baseURL) && strings.HasPrefix(in, "http")) || strings.HasPrefix(in, "//") {
-		return in
-	}
-
 	u := in
 
 	if strings.HasPrefix(in, baseURL) {
 		u = strings.TrimPrefix(u, baseURL)
+	} else {
+		url, err := url.Parse(in)
+		if err != nil {
+			return in
+		}
+
+		if url.IsAbs() || strings.HasPrefix(in, "//") {
+			return in
+		}
 	}
 
 	if addLanguage {
@@ -254,6 +259,7 @@ func (p *PathSpec) RelURL(in string, addLanguage bool) string {
 		}
 	}
 
+	canonifyURLs := p.CanonifyURLs
 	if !canonifyURLs {
 		u = AddContextRoot(baseURL, u)
 	}
