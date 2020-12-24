@@ -20,7 +20,7 @@ aliases: []
 
 `safeURL` declares the provided string as a "safe" URL or URL substring (see [RFC 3986][]). A URL like `javascript:checkThatFormNotEditedBeforeLeavingPage()` from a trusted source should go in the page, but by default dynamic `javascript:` URLs are filtered out since they are a frequently exploited injection vector.
 
-Without `safeURL`, only the URI schemes `http:`, `https:` and `mailto:` are considered safe by Go templates. If any other URI schemes (e.g., `irc:` and `javascript:`) are detected, the whole URL will be replaced with `#ZgotmplZ`. This is to "defang" any potential attack in the URL by rendering it useless.
+Without `safeURL`, only the URI schemes `http:`, `https:`, `mailto:` and `tel:` are considered safe by Go templates. If any other URI schemes (e.g., `irc:` and `javascript:`) are detected, the whole URL will be replaced with `#ZgotmplZ`. This is to "defang" any potential attack in the URL by rendering it useless.
 
 The following examples use a [site `config.toml`][configuration] with the following [menu entry][menus]:
 

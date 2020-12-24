@@ -28,6 +28,10 @@ import (
 //    * mailto: Opens an email program and starts a new draft. This side effect
 //              is not irreversible until the user explicitly clicks send; it
 //              can be undone by closing the email program.
+//    * tel:    Opens an call program to start a new phone call. This side effect
+//              use to be reversible as call programms use to wait for confirmation
+//              before starting the call ; and can be undone by closing the call or
+//              the call program.
 //
 // To allow URLs containing other schemes to bypass this filter, developers must
 // explicitly indicate that such a URL is expected and safe by encapsulating it
@@ -49,7 +53,8 @@ func isSafeURL(s string) bool {
 	if i := strings.IndexRune(s, ':'); i >= 0 && !strings.ContainsRune(s[:i], '/') {
 
 		protocol := s[:i]
-		if !strings.EqualFold(protocol, "http") && !strings.EqualFold(protocol, "https") && !strings.EqualFold(protocol, "mailto") {
+		if !strings.EqualFold(protocol, "http") && !strings.EqualFold(protocol, "https") &&
+		!strings.EqualFold(protocol, "mailto") && !strings.EqualFold(protocol, "tel") {
 			return false
 		}
 	}
