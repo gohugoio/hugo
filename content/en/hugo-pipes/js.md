@@ -115,7 +115,7 @@ And then in your JS file:
 import * as params from '@params';
 ```
 
-Hugo will, by default, generate a `assets/jsconfig.js` file that maps the imports. This is useful for navigation/intellisense help inside code editors, but if you don't need/want it, you can [turn it off](/getting-started/configuration/#configure-build).
+Hugo will, by default, generate a `assets/jsconfig.json` file that maps the imports. This is useful for navigation/intellisense help inside code editors, but if you don't need/want it, you can [turn it off](/getting-started/configuration/#configure-build).
 
 
 
