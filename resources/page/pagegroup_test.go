@@ -34,7 +34,8 @@ var pageGroupTestSources = []pageGroupTestObject{
 	{"/section1/testpage2.md", 3, "2012-01-01", "bar"},
 	{"/section1/testpage3.md", 2, "2012-04-06", "foo"},
 	{"/section2/testpage4.md", 1, "2012-03-02", "bar"},
-	{"/section2/testpage5.md", 1, "2012-04-06", "baz"},
+	// date might also be a full datetime:
+	{"/section2/testpage5.md", 1, "2012-04-06T00:00:00Z", "baz"},
 }
 
 func preparePageGroupTestPages(t *testing.T) Pages {
