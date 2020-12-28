@@ -316,7 +316,7 @@ func (p Pages) GroupByParamDate(key string, format string, order ...string) (Pag
 		var r Pages
 
 		for _, p := range pages {
-			param := resource.GetParamToLower(p, key)
+			param := resource.GetParam(p, key)
 			var t time.Time
 
 			if param != nil {
