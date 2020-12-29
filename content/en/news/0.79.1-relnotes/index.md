@@ -11,7 +11,7 @@ images:
 
 Hugo depends on Go's `os/exec` for certain features, e.g. for rendering of Pandoc documents if these binaries are found in the system `%PATH%` on Windows. However, if a malicious file with the same name (`exe` or `bat`) was found in the current working directory at the time of running `hugo`, the malicious command would be invoked instead of the system one.
 
-Windows users who ran `hugo` inside untrusted Hugo sites was affected.
+Windows users who ran `hugo` inside untrusted Hugo sites were affected.
 
 The origin of this issue comes from Go, see https://github.com/golang/go/issues/38736
 
