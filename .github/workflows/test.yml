@@ -13,9 +13,6 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
     - run: pip install docutils
     - run: rst2html.py --version
     - if: matrix.os == 'ubuntu-latest'
