@@ -30,7 +30,7 @@ require (
 	github.com/gorilla/websocket v1.4.2
 	github.com/jdkato/prose v1.2.0
 	github.com/kylelemons/godebug v1.1.0
-	github.com/kyokomi/emoji v2.2.4+incompatible
+	github.com/kyokomi/emoji/v2 v2.2.7
 	github.com/magefile/mage v1.10.0
 	github.com/markbates/inflect v1.0.4
 	github.com/mattn/go-isatty v0.0.12
