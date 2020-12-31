@@ -33,7 +33,7 @@ targetPath [string]
 : If not set, the resource's target path will be the asset file original path with its extension replaced by `.css`.
 
 outputStyle [string]
-: Default is `nested`. Other available output styles are `expanded`, `compact` and `compressed`.
+: Default is `nested` (LibSass) and `expanded` (Dart Sass). Other available output styles for LibSass are `expanded`, `compact` and `compressed`. Dart Sass only supports `expanded` and `compressed`.
 
 precision [int]
 : Precision of floating point math. **Note:** This option is not supported by Dart Sass.
