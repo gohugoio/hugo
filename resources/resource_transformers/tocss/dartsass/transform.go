@@ -82,6 +82,7 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 			baseDir: baseDir,
 			c:       t.c,
 		},
+		OutputStyle:     godartsass.ParseOutputStyle(opts.OutputStyle),
 		EnableSourceMap: opts.EnableSourceMap,
 	}
 
