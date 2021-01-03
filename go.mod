@@ -8,7 +8,7 @@ require (
 	github.com/alecthomas/chroma v0.8.2
 	github.com/alecthomas/repr v0.0.0-20181024024818-d37bc2a10ba1 // indirect
 	github.com/armon/go-radix v1.0.0
-	github.com/aws/aws-sdk-go v1.35.0
+	github.com/aws/aws-sdk-go v1.36.19
 	github.com/bep/debounce v1.2.0
 	github.com/bep/gitmap v1.1.2
 	github.com/bep/godartsass v0.11.0
