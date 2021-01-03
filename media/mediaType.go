@@ -166,7 +166,7 @@ var (
 	TSXType        = newMediaType("text", "tsx", []string{"tsx"})
 	JSXType        = newMediaType("text", "jsx", []string{"jsx"})
 
-	JSONType = newMediaType("application", "json", []string{"json"})
+	JSONType = newMediaType("application", "json", []string{"json", "webmanifest"})
 	RSSType  = newMediaTypeWithMimeSuffix("application", "rss", "xml", []string{"xml"})
 	XMLType  = newMediaType("application", "xml", []string{"xml"})
 	SVGType  = newMediaTypeWithMimeSuffix("image", "svg", "xml", []string{"svg"})
