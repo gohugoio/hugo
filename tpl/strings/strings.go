@@ -16,7 +16,6 @@ package strings
 
 import (
 	"errors"
-	"fmt"
 	"html/template"
 	"strings"
 	"unicode/utf8"
@@ -322,7 +321,7 @@ func (ns *Namespace) Substr(a interface{}, nums ...interface{}) (string, error) 
 	}
 
 	if start > rlen-1 {
-		return "", fmt.Errorf("start position out of bounds for %d-byte string", rlen)
+		return "", nil
 	}
 
 	end := rlen
@@ -337,7 +336,7 @@ func (ns *Namespace) Substr(a interface{}, nums ...interface{}) (string, error) 
 	}
 
 	if start >= end {
-		return "", fmt.Errorf("calculated start position greater than end position: %d > %d", start, end)
+		return "", nil
 	}
 
 	if end < 0 {
