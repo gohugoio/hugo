@@ -23,7 +23,7 @@ var _ cmder = (*genautocompleteCmd)(nil)
 type genautocompleteCmd struct {
 	autocompleteTarget string
 
-	// bash for now (zsh and others will come)
+	// bash or zsh
 	autocompleteType string
 
 	*baseCmd
@@ -37,9 +37,6 @@ func newGenautocompleteCmd() *genautocompleteCmd {
 		Short: "Generate shell autocompletion script for Hugo",
 		Long: `Generates a shell autocompletion script for Hugo.
 
-NOTE: The current version supports Bash only.
-      This should work for *nix systems with Bash installed.
-
 By default, the file is written directly to /etc/bash_completion.d
 for convenience, and the command may need superuser rights, e.g.:
 
@@ -48,29 +45,40 @@ for convenience, and the command may need superuser rights, e.g.:
 Add ` + "`--completionfile=/path/to/file`" + ` flag to set alternative
 file-path and name.
 
+Add ` + "`--type={bash, zsh, fish or powershell}`" + ` flag to set alternative
+shell type.
+
 Logout and in again to reload the completion scripts,
 or just source them in directly:
 
-	$ . /etc/bash_completion`,
+	$ . /etc/bash_completion or /path/to/file`,
 
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if cc.autocompleteType != "bash" {
-				return newUserError("Only Bash is supported for now")
+			var err error
+			switch cc.autocompleteType {
+			case "zsh":
+				err = cmd.Root().GenZshCompletionFile(cc.autocompleteTarget)
+			case "bash":
+				err = cmd.Root().GenBashCompletionFile(cc.autocompleteTarget)
+			case "fish":
+				err = cmd.Root().GenFishCompletionFile(cc.autocompleteTarget, true)
+			case "powershell":
+				err = cmd.Root().GenFishCompletionFile(cc.autocompleteTarget, true)
+			default:
+				return newUserError("Unsupported completion type")
 			}
 
-			err := cmd.Root().GenBashCompletionFile(cc.autocompleteTarget)
 			if err != nil {
 				return err
 			}
 
-			jww.FEEDBACK.Println("Bash completion file for Hugo saved to", cc.autocompleteTarget)
-
+			jww.FEEDBACK.Println(cc.autocompleteType+" completion file for Hugo saved to", cc.autocompleteTarget)
 			return nil
 		},
 	})
 
 	cc.cmd.PersistentFlags().StringVarP(&cc.autocompleteTarget, "completionfile", "", "/etc/bash_completion.d/hugo.sh", "autocompletion file")
-	cc.cmd.PersistentFlags().StringVarP(&cc.autocompleteType, "type", "", "bash", "autocompletion type (currently only bash supported)")
+	cc.cmd.PersistentFlags().StringVarP(&cc.autocompleteType, "type", "", "bash", "autocompletion type (zsh, bash, fish or powershell)")
 
 	// For bash-completion
 	cc.cmd.PersistentFlags().SetAnnotation("completionfile", cobra.BashCompFilenameExt, []string{})
