@@ -33,7 +33,9 @@ func TestFilenameFilter(t *testing.T) {
 	fs := NewFilenameFilterFs(&afero.MemMapFs{}, pred)
 	_, err := fs.Create("/another.html")
 
-	c.Assert(err, qt.ErrorMatches, "The system cannot find the file specified.")
+	c.Assert(err, qt.Not(qt.IsNil))
+	// go 1.14.x:  "The system cannot find the file specified."
+	// go 1.15.x:  "no such file or directory"
 }
 
 func TestFilterROFilenameFilterChain(t *testing.T) {
@@ -45,7 +47,9 @@ func TestFilterROFilenameFilterChain(t *testing.T) {
 	rofs := afero.NewReadOnlyFs(&afero.MemMapFs{})
 	fs := &FilenameFilterFs{pred: pred, source: rofs}
 	_, err := fs.Create("/file.txt")
-	c.Assert(err, qt.ErrorMatches, "The system cannot find the file specified.")
+	c.Assert(err, qt.Not(qt.IsNil))
+	// go 1.14.x:  "The system cannot find the file specified."
+	// go 1.15.x:  "no such file or directory"
 }
 
 func TestFilenameFilterReadDir(t *testing.T) {
