@@ -324,13 +324,9 @@ func TestLayout(t *testing.T) {
 			},
 		},
 		{
-<<<<<<< HEAD
 			"Section with layout",
 			LayoutDescriptor{Kind: "section", Section: "sect1", Layout: "mylayout"},
 			"", ampType,
-=======
-			"Section with layout", LayoutDescriptor{Kind: "section", Section: "sect1", Layout: "mylayout"}, "", ampType,
->>>>>>> 34061706... output: Add more layout lookup tests
 			[]string{
 				"sect1/mylayout.amp.html",
 				"sect1/sect1.amp.html",
@@ -359,13 +355,9 @@ func TestLayout(t *testing.T) {
 			},
 		},
 		{
-<<<<<<< HEAD
 			"Term, French, AMP",
 			LayoutDescriptor{Kind: "term", Section: "tags", Lang: "fr"},
 			"", ampType,
-=======
-			"Term, French, AMP", LayoutDescriptor{Kind: "term", Section: "tags", Lang: "fr"}, "", ampType,
->>>>>>> 34061706... output: Add more layout lookup tests
 			[]string{
 				"term/term.fr.amp.html",
 				"term/tags.fr.amp.html",
@@ -434,13 +426,9 @@ func TestLayout(t *testing.T) {
 			},
 		},
 		{
-<<<<<<< HEAD
 			"Term, baseof, French, AMP",
 			LayoutDescriptor{Kind: "term", Section: "tags", Lang: "fr", Baseof: true},
 			"", ampType,
-=======
-			"Term, baseof, French, AMP", LayoutDescriptor{Kind: "term", Section: "tags", Lang: "fr", Baseof: true}, "", ampType,
->>>>>>> 34061706... output: Add more layout lookup tests
 			[]string{
 				"term/term-baseof.fr.amp.html",
 				"term/tags-baseof.fr.amp.html",
@@ -525,13 +513,9 @@ func TestLayout(t *testing.T) {
 			},
 		},
 		{
-<<<<<<< HEAD
 			"Term",
 			LayoutDescriptor{Kind: "term", Section: "tags"},
 			"", ampType,
-=======
-			"Term", LayoutDescriptor{Kind: "term", Section: "tags"}, "", ampType,
->>>>>>> 34061706... output: Add more layout lookup tests
 			[]string{
 				"term/term.amp.html",
 				"term/tags.amp.html",
@@ -658,13 +642,9 @@ func TestLayout(t *testing.T) {
 			},
 		},
 		{
-<<<<<<< HEAD
 			"Page baseof with layout and type",
 			LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype", Baseof: true},
 			"", ampType,
-=======
-			"Page baseof with layout and type", LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype", Baseof: true}, "", ampType,
->>>>>>> 34061706... output: Add more layout lookup tests
 			[]string{
 				"myttype/mylayout-baseof.amp.html",
 				"myttype/single-baseof.amp.html",
@@ -681,13 +661,9 @@ func TestLayout(t *testing.T) {
 			},
 		},
 		{
-<<<<<<< HEAD
 			"Page baseof with layout and type in French",
 			LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype", Lang: "fr", Baseof: true},
 			"", ampType,
-=======
-			"Page baseof with layout and type in French", LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype", Lang: "fr", Baseof: true}, "", ampType,
->>>>>>> 34061706... output: Add more layout lookup tests
 			[]string{
 				"myttype/mylayout-baseof.fr.amp.html",
 				"myttype/single-baseof.fr.amp.html",
@@ -716,13 +692,9 @@ func TestLayout(t *testing.T) {
 			},
 		},
 		{
-<<<<<<< HEAD
 			"Page with layout and type with subtype",
 			LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype/mysubtype"},
 			"", ampType,
-=======
-			"Page with layout and type with subtype", LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype/mysubtype"}, "", ampType,
->>>>>>> 34061706... output: Add more layout lookup tests
 			[]string{
 				"myttype/mysubtype/mylayout.amp.html",
 				"myttype/mysubtype/single.amp.html",
