@@ -91,7 +91,7 @@ func TestAsciidoctorDisallowedArgs(t *testing.T) {
 	cfg := viper.New()
 	mconf := markup_config.Default
 	mconf.AsciidocExt.Backend = "disallowed-backend"
-	mconf.AsciidocExt.Extensions = []string{"disallowed-extension"}
+	mconf.AsciidocExt.Extensions = []string{"./disallowed-extension"}
 	mconf.AsciidocExt.Attributes = map[string]string{"outdir": "disallowed-attribute"}
 	mconf.AsciidocExt.SafeMode = "disallowed-safemode"
 	mconf.AsciidocExt.FailureLevel = "disallowed-failurelevel"
@@ -115,14 +115,11 @@ func TestAsciidoctorDisallowedArgs(t *testing.T) {
 	c.Assert(args, qt.DeepEquals, expected)
 }
 
-func TestAsciidoctorDiagramArgs(t *testing.T) {
+func TestAsciidoctorArbitraryExtension(t *testing.T) {
 	c := qt.New(t)
 	cfg := viper.New()
 	mconf := markup_config.Default
-	mconf.AsciidocExt.NoHeaderOrFooter = true
-	mconf.AsciidocExt.Extensions = []string{"asciidoctor-html5s", "asciidoctor-diagram"}
-	mconf.AsciidocExt.Backend = "html5s"
-	mconf.AsciidocExt.Trace = false
+	mconf.AsciidocExt.Extensions = []string{"arbitrary-extension"}
 	p, err := Provider.New(
 		converter.ProviderConfig{
 			Cfg:          cfg,
@@ -139,8 +136,43 @@ func TestAsciidoctorDiagramArgs(t *testing.T) {
 	c.Assert(ac, qt.Not(qt.IsNil))
 
 	args := ac.parseArgs(converter.DocumentContext{})
-	expected := []string{"-b", "html5s", "-r", "asciidoctor-html5s", "-r", "asciidoctor-diagram", "--no-header-footer"}
+	expected := []string{"-r", "arbitrary-extension", "--no-header-footer"}
 	c.Assert(args, qt.DeepEquals, expected)
+}
+
+func TestAsciidoctorDisallowedExtension(t *testing.T) {
+	c := qt.New(t)
+	cfg := viper.New()
+	for _, disallowedExtension := range []string{
+		`foo-bar//`,
+		`foo-bar\\ `,
+		`../../foo-bar`,
+		`/foo-bar`,
+		`C:\foo-bar`,
+		`foo-bar.rb`,
+		`foo.bar`,
+	} {
+		mconf := markup_config.Default
+		mconf.AsciidocExt.Extensions = []string{disallowedExtension}
+		p, err := Provider.New(
+			converter.ProviderConfig{
+				Cfg:          cfg,
+				MarkupConfig: mconf,
+				Logger:       loggers.NewErrorLogger(),
+			},
+		)
+		c.Assert(err, qt.IsNil)
+
+		conv, err := p.New(converter.DocumentContext{})
+		c.Assert(err, qt.IsNil)
+
+		ac := conv.(*asciidocConverter)
+		c.Assert(ac, qt.Not(qt.IsNil))
+
+		args := ac.parseArgs(converter.DocumentContext{})
+		expected := []string{"--no-header-footer"}
+		c.Assert(args, qt.DeepEquals, expected)
+	}
 }
 
 func TestAsciidoctorWorkingFolderCurrent(t *testing.T) {
