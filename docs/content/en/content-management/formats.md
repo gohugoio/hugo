@@ -100,6 +100,8 @@ Below are all the AsciiDoc related settings in Hugo with their default values:
 
 {{< code-toggle config="markup.asciidocExt" />}}
 
+Notice that for security concerns only extensions that do not have path separators (either `\`, `/` or `.`) are allowed. That means that extensions can only be invoked if they are in one's ruby's `$LOAD_PATH` (ie. most likely, the extension has been installed by the user). Any extension declared relative to the website's path will not be accepted.
+
 Example of how to set extensions and attributes:
 
 ```

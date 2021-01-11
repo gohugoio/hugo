@@ -19,6 +19,7 @@ package asciidocext
 import (
 	"bytes"
 	"path/filepath"
+	"strings"
 
 	"github.com/gohugoio/hugo/htesting"
 
@@ -105,11 +106,10 @@ func (a *asciidocConverter) parseArgs(ctx converter.DocumentContext) []string {
 	args = a.appendArg(args, "-b", cfg.Backend, asciidocext_config.CliDefault.Backend, asciidocext_config.AllowedBackend)
 
 	for _, extension := range cfg.Extensions {
-		if !asciidocext_config.AllowedExtensions[extension] {
-			a.cfg.Logger.Errorln("Unsupported asciidoctor extension was passed in. Extension `" + extension + "` ignored.")
+		if strings.LastIndexAny(extension, `\/.`) > -1 {
+			a.cfg.Logger.Errorln("Unsupported asciidoctor extension was passed in. Extension `" + extension + "` ignored. Only installed asciidoctor extensions are allowed.")
 			continue
 		}
-
 		args = append(args, "-r", extension)
 	}
 
