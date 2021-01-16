@@ -338,6 +338,8 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 	switch opts.SourceMap {
 	case "inline":
 		sourceMap = api.SourceMapInline
+	case "external":
+		sourceMap = api.SourceMapExternal
 	case "":
 		sourceMap = api.SourceMapNone
 	default:

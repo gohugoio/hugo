@@ -16,7 +16,11 @@ package babel
 import (
 	"bytes"
 	"io"
+	"io/ioutil"
+	"os"
+	"path"
 	"path/filepath"
+	"regexp"
 	"strconv"
 
 	"github.com/cli/safeexec"
@@ -43,6 +47,7 @@ type Options struct {
 	Compact    *bool
 	Verbose    bool
 	NoBabelrc  bool
+	SourceMaps string
 }
 
 func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
@@ -56,6 +61,14 @@ func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
 func (opts Options) toArgs() []string {
 	var args []string
 
+	switch opts.SourceMaps {
+	case "true":
+		args = append(args, "--source-maps")
+	case "external":
+		args = append(args, "--source-maps")
+	case "inline":
+		args = append(args, "--source-maps=inline")
+	}
 	if opts.Minified {
 		args = append(args, "--minified")
 	}
@@ -141,6 +154,8 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		}
 	}
 
+	ctx.ReplaceOutPathExtension(".js")
+
 	var cmdArgs []string
 
 	if configFile != "" {
@@ -153,13 +168,21 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	}
 	cmdArgs = append(cmdArgs, "--filename="+ctx.SourcePath)
 
+	compileOutput, err := ioutil.TempFile("", "compileOut-*.js")
+	if err != nil {
+		return err
+	}
+
+	cmdArgs = append(cmdArgs, "--out-file="+compileOutput.Name())
+	defer os.Remove(compileOutput.Name())
+
 	cmd, err := hexec.SafeCommand(binary, cmdArgs...)
 	if err != nil {
 		return err
 	}
 
-	cmd.Stdout = ctx.To
 	cmd.Stderr = io.MultiWriter(infoW, &errBuf)
+	cmd.Stdout = cmd.Stderr
 	cmd.Env = hugo.GetExecEnviron(t.rs.WorkingDir, t.rs.Cfg, t.rs.BaseFs.Assets.Fs)
 
 	stdin, err := cmd.StdinPipe()
@@ -176,6 +199,27 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	if err != nil {
 		return errors.Wrap(err, errBuf.String())
 	}
+
+	content, err := ioutil.ReadAll(compileOutput)
+	if err != nil {
+		return err
+	}
+
+	if _, err := os.Stat(compileOutput.Name() + ".map"); err == nil {
+		defer os.Remove(compileOutput.Name() + ".map")
+		sourceMap, err := ioutil.ReadFile(compileOutput.Name() + ".map")
+		if err != nil {
+			return err
+		}
+		if err = ctx.PublishSourceMap(string(sourceMap)); err != nil {
+			return err
+		}
+		symPath := path.Base(ctx.OutPath) + ".map"
+		re := regexp.MustCompile(`//# sourceMappingURL=.*\n?`)
+		content = []byte(re.ReplaceAllString(string(content), "//# sourceMappingURL="+symPath+"\n"))
+	}
+
+	ctx.To.Write(content)
 
 	return nil
 }
