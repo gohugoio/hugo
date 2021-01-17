@@ -598,10 +598,16 @@ func (t *templateHandler) applyBaseTemplate(overlay, base templateInfo) (tpl.Tem
 			}
 		}
 
-		templ, err = templ.Parse(overlay.template)
+		templ, err = texttemplate.Must(templ.Clone()).Parse(overlay.template)
 		if err != nil {
 			return nil, overlay.errWithFileContext("parse failed", err)
 		}
+
+		// The extra lookup is a workaround, see
+		// * https://github.com/golang/go/issues/16101
+		// * https://github.com/gohugoio/hugo/issues/2549
+		// templ = templ.Lookup(templ.Name())
+
 		return templ, nil
 	}
 
