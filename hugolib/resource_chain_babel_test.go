@@ -112,10 +112,10 @@ class Car2 {
 {{ $transpiled := resources.Get "js/main.js" | babel -}}
 Transpiled: {{ $transpiled.Content | safeJS }}
 
-{{ $transpiled := resources.Get "js/main2.js" | babel (dict "sourceMaps" "inline") -}}
+{{ $transpiled := resources.Get "js/main2.js" | babel (dict "sourceMap" "inline") -}}
 Transpiled2: {{ $transpiled.Content | safeJS }}
 
-{{ $transpiled := resources.Get "js/main2.js" | babel (dict "sourceMaps" "external") -}}
+{{ $transpiled := resources.Get "js/main2.js" | babel (dict "sourceMap" "external") -}}
 Transpiled3: {{ $transpiled.Permalink }}
 
 `)

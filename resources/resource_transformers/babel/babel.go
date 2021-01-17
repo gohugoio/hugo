@@ -47,7 +47,7 @@ type Options struct {
 	Compact    *bool
 	Verbose    bool
 	NoBabelrc  bool
-	SourceMaps string
+	SourceMap  string
 }
 
 // DecodeOptions decodes options to and generates command flags
@@ -64,7 +64,7 @@ func (opts Options) toArgs() []string {
 
 	// external is not a known constant on the babel command line
 	// .sourceMaps must be a boolean, "inline", "both", or undefined
-	switch opts.SourceMaps {
+	switch opts.SourceMap {
 	case "external":
 		args = append(args, "--source-maps")
 	case "inline":
