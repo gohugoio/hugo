@@ -390,9 +390,9 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 			fs.Destination = new(afero.MemMapFs)
 		} else if dest == hconfig.RenderDestComposite {
 			// Writes the dynamic output on memory,
-			// while serve directly from static dir on os fs.
-			modss := config.Get("allModules").(modules.Modules)
-			fs.Destination = newCompositeDestFs(modss)
+			// while serve directly from "static" files on os fs.
+			mods := config.Get("allModules").(modules.Modules)
+			fs.Destination = newCompositeDestFs(mods)
 		}
 
 		if c.fastRenderMode {
