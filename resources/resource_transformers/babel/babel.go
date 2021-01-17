@@ -50,6 +50,7 @@ type Options struct {
 	SourceMaps string
 }
 
+// DecodeOptions decodes options to and generates command flags
 func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
 	if m == nil {
 		return
@@ -61,9 +62,9 @@ func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
 func (opts Options) toArgs() []string {
 	var args []string
 
+	// external is not a known constant on the babel command line
+	// .sourceMaps must be a boolean, "inline", "both", or undefined
 	switch opts.SourceMaps {
-	case "true":
-		args = append(args, "--source-maps")
 	case "external":
 		args = append(args, "--source-maps")
 	case "inline":
@@ -168,6 +169,9 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	}
 	cmdArgs = append(cmdArgs, "--filename="+ctx.SourcePath)
 
+	// Create compile into a real temp file:
+	// 1. separate stdout/stderr messages from babel (https://github.com/gohugoio/hugo/issues/8136)
+	// 2. allow generation and retrieval of external source map.
 	compileOutput, err := ioutil.TempFile("", "compileOut-*.js")
 	if err != nil {
 		return err
@@ -205,18 +209,19 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		return err
 	}
 
-	if _, err := os.Stat(compileOutput.Name() + ".map"); err == nil {
-		defer os.Remove(compileOutput.Name() + ".map")
-		sourceMap, err := ioutil.ReadFile(compileOutput.Name() + ".map")
+	mapFile := compileOutput.Name() + ".map"
+	if _, err := os.Stat(mapFile); err == nil {
+		defer os.Remove(mapFile)
+		sourceMap, err := ioutil.ReadFile(mapFile)
 		if err != nil {
 			return err
 		}
 		if err = ctx.PublishSourceMap(string(sourceMap)); err != nil {
 			return err
 		}
-		symPath := path.Base(ctx.OutPath) + ".map"
+		targetPath := path.Base(ctx.OutPath) + ".map"
 		re := regexp.MustCompile(`//# sourceMappingURL=.*\n?`)
-		content = []byte(re.ReplaceAllString(string(content), "//# sourceMappingURL="+symPath+"\n"))
+		content = []byte(re.ReplaceAllString(string(content), "//# sourceMappingURL="+targetPath+"\n"))
 	}
 
 	ctx.To.Write(content)
