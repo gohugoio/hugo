@@ -47,32 +47,37 @@ func TestServer(t *testing.T) {
 
 	stop := make(chan bool)
 
-	b := newCommandsBuilder()
-	scmd := b.newServerCmdSignaled(stop)
+	dests := []string{"memory", "composite"}
 
-	cmd := scmd.getCommand()
-	cmd.SetArgs([]string{"-s=" + dir, fmt.Sprintf("-p=%d", port)})
+	for _, dest := range dests {
 
-	go func() {
-		_, err = cmd.ExecuteC()
+		b := newCommandsBuilder()
+		scmd := b.newServerCmdSignaled(stop)
+
+		cmd := scmd.getCommand()
+		cmd.SetArgs([]string{"-s=" + dir, fmt.Sprintf("-p=%d", port), "--renderTo=" + dest})
+
+		go func() {
+			_, err = cmd.ExecuteC()
+			c.Assert(err, qt.IsNil)
+		}()
+
+		// There is no way to know exactly when the server is ready for connections.
+		// We could improve by something like https://golang.org/pkg/net/http/httptest/#Server
+		// But for now, let us sleep and pray!
+		time.Sleep(2 * time.Second)
+
+		resp, err := http.Get("http://localhost:1331/")
 		c.Assert(err, qt.IsNil)
-	}()
+		defer resp.Body.Close()
+		homeContent := helpers.ReaderToString(resp.Body)
 
-	// There is no way to know exactly when the server is ready for connections.
-	// We could improve by something like https://golang.org/pkg/net/http/httptest/#Server
-	// But for now, let us sleep and pray!
-	time.Sleep(2 * time.Second)
+		c.Assert(homeContent, qt.Contains, "List: Hugo Commands")
+		c.Assert(homeContent, qt.Contains, "Environment: development")
 
-	resp, err := http.Get("http://localhost:1331/")
-	c.Assert(err, qt.IsNil)
-	defer resp.Body.Close()
-	homeContent := helpers.ReaderToString(resp.Body)
-
-	c.Assert(homeContent, qt.Contains, "List: Hugo Commands")
-	c.Assert(homeContent, qt.Contains, "Environment: development")
-
-	// Stop the server.
-	stop <- true
+		// Stop the server.
+		stop <- true
+	}
 }
 
 func TestFixURL(t *testing.T) {
