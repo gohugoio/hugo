@@ -137,6 +137,10 @@ func (fs *FilterFs) Chtimes(n string, a, m time.Time) error {
 	return syscall.EPERM
 }
 
+func (fs *FilterFs) Chown(n string, uid, gid int) error {
+	return syscall.EPERM
+}
+
 func (fs *FilterFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {
 	fi, b, err := lstatIfPossible(fs.fs, name)
 	if err != nil {
