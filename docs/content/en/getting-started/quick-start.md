@@ -65,7 +65,7 @@ First, download the theme from GitHub and add it to your site's `themes` directo
 ```bash
 cd quickstart
 git init
-git submodule add https://github.com/budparr/gohugo-theme-ananke.git themes/ananke
+git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke.git themes/ananke
 ```
 
 *Note for non-git users:*
