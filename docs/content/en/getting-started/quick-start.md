@@ -71,7 +71,7 @@ git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke.git theme
 *Note for non-git users:*
    - If you do not have git installed, you can download the archive of the latest
      version of this theme from:
-       https://github.com/budparr/gohugo-theme-ananke/archive/master.zip
+       https://github.com/theNewDynamic/gohugo-theme-ananke/archive/master.zip
    - Extract that .zip file to get a "gohugo-theme-ananke-master" directory.
    - Rename that directory to "ananke", and move it into the "themes/" directory.
 
