@@ -60,6 +60,10 @@ func (fs *SliceFs) Chtimes(n string, a, m time.Time) error {
 	return syscall.EPERM
 }
 
+func (fs *SliceFs) Chown(n string, uid, gid int) error {
+	return syscall.EPERM
+}
+
 func (fs *SliceFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {
 	fi, _, err := fs.pickFirst(name)
 	if err != nil {
