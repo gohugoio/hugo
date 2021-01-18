@@ -109,14 +109,16 @@ document.body.textContent = greeter(user);`
 JS:  {{ template "print" $js }}
 {{ $jsx := resources.Get "js/myjsx.jsx" | js.Build $options }}
 JSX: {{ template "print" $jsx }}
-{{ $ts := resources.Get "js/myts.ts" | js.Build }}
+{{ $ts := resources.Get "js/myts.ts" | js.Build (dict "sourcemap" "inline")}}
 TS: {{ template "print" $ts }}
-
+{{ $ts2 := resources.Get "js/myts.ts" | js.Build (dict "sourcemap" "external" "TargetPath" "js/myts2.js")}}
+TS2: {{ template "print" $ts2 }}
 {{ define "print" }}RelPermalink: {{.RelPermalink}}|MIME: {{ .MediaType }}|Content: {{ .Content | safeJS }}{{ end }}
 
 `)
 
 	jsDir := filepath.Join(workDir, "assets", "js")
+	fmt.Println(workDir)
 	b.Assert(os.MkdirAll(jsDir, 0777), qt.IsNil)
 	b.Assert(os.Chdir(workDir), qt.IsNil)
 	b.WithSourceFile("package.json", packageJSON)
@@ -133,6 +135,8 @@ TS: {{ template "print" $ts }}
 
 	b.Build(BuildCfg{})
 
+	b.AssertFileContent("public/js/myts.js", `//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJz`)
+	b.AssertFileContent("public/js/myts2.js.map", `"version": 3,`)
 	b.AssertFileContent("public/index.html", `
 console.log(&#34;included&#34;);
 if (hasSpace.test(string))

@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
+	"regexp"
 	"strings"
 
 	"github.com/spf13/afero"
@@ -92,6 +94,14 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		return err
 	}
 
+	if buildOptions.Sourcemap == api.SourceMapExternal && buildOptions.Outdir == "" {
+		buildOptions.Outdir, err = ioutil.TempDir(os.TempDir(), "compileOutput")
+		if err != nil {
+			return err
+		}
+		defer os.Remove(buildOptions.Outdir)
+	}
+
 	result := api.Build(buildOptions)
 
 	if len(result.Errors) > 0 {
@@ -145,7 +155,25 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		return errors[0]
 	}
 
-	ctx.To.Write(result.OutputFiles[0].Contents)
+	if buildOptions.Sourcemap == api.SourceMapExternal {
+		content := string(result.OutputFiles[1].Contents)
+		symPath := path.Base(ctx.OutPath) + ".map"
+		re := regexp.MustCompile(`//# sourceMappingURL=.*\n?`)
+		content = re.ReplaceAllString(content, "//# sourceMappingURL="+symPath+"\n")
+
+		if err = ctx.PublishSourceMap(string(result.OutputFiles[0].Contents)); err != nil {
+			return err
+		}
+		_, err := ctx.To.Write([]byte(content))
+		if err != nil {
+			return err
+		}
+	} else {
+		_, err := ctx.To.Write(result.OutputFiles[0].Contents)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
