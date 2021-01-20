@@ -27,7 +27,7 @@ Any SASS or SCSS file can be transformed into a CSS file using `resources.ToCSS`
 
 transpiler [string] {{< new-in "0.80.0" >}}
 
-: The `transpiler` to use, valid values are `libsass` (default) and `dartsass`. Note that the Embedded Dart Sass project is still in beta (beta 5 at the time of writing). The release is scheduled for Q1 2021. We will try to improve the installation process by then, but if you want to use Hugo with Dart Sass you need to download a release binary from [Embedded Dart Sass](https://github.com/sass/dart-sass-embedded/releases) and make sure it's in your PC's `$PATH` (or `%PATH%` on Windows).
+: The `transpiler` to use, valid values are `libsass` (default) and `dartsass`. Note that the Embedded Dart Sass project is still in beta (beta 5 at the time of writing). The release is scheduled for Q1 2021. We will try to improve the installation process by then, but if you want to use Hugo with Dart Sass you need to download a release binary from [Embedded Dart Sass](https://github.com/sass/dart-sass-embedded/releases) (beta 5) and make sure it's in your PC's `$PATH` (or `%PATH%` on Windows).
 
 targetPath [string]
 : If not set, the resource's target path will be the asset file original path with its extension replaced by `.css`.

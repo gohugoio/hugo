@@ -1,12 +1,12 @@
 
 ---
 date: 2020-11-27
-title: "0.79.0"
-description: "0.79.0"
+title: "Hugo 0.79.0: Black Friday Edition"
+description: "Hugo 0.79.0 brings .Params to menus, snake_case support for OS environment config, and a refresh of upstream dependencies (Chroma, ESBuild etc.)."
 categories: ["Releases"]
 ---
 
-	Hugo `0.79.0` is a small, but useful release. You can now set custom `.Params` in your [menu](https://gohugo.io/content-management/menus/) configuration, and you can now also override deeply nested snake_cased configuration variables with [OS environment variables](https://gohugo.io/getting-started/configuration/#configure-with-environment-variables). Other than that we have refreshed all the core upstream dependencies. A special thanks to [@alecthomas](https://github.com/alecthomas) (some new [Chroma lexers](https://github.com/alecthomas/chroma/releases/tag/v0.8.2) and fixes) and [@evanw](https://github.com/evanw) ([ESBuild](https://github.com/evanw/esbuild)).
+Hugo `0.79.0` is a small, but useful release. You can now set custom `.Params` in your [menu](https://gohugo.io/content-management/menus/) configuration, and you can now also override deeply nested snake_cased configuration variables with [OS environment variables](https://gohugo.io/getting-started/configuration/#configure-with-environment-variables). Other than that we have refreshed all the core upstream dependencies. A special thanks to [@alecthomas](https://github.com/alecthomas) (some new [Chroma lexers](https://github.com/alecthomas/chroma/releases/tag/v0.8.2) and fixes) and [@evanw](https://github.com/evanw) ([ESBuild](https://github.com/evanw/esbuild)).
 
 This release represents **33 contributions by 8 contributors** to the main Hugo code base. [@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout [@AdamKorcz](https://github.com/AdamKorcz), and [@davidejones](https://github.com/davidejones) for their ongoing contributions. And a big thanks to [@digitalcraftsman](https://github.com/digitalcraftsman) for his relentless work on keeping the themes site in pristine condition and to [@davidsneighbour](https://github.com/davidsneighbour), [@coliff](https://github.com/coliff) and [@kaushalmodi](https://github.com/kaushalmodi) for all the great work on the documentation site.
 
