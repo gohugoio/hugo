@@ -124,8 +124,6 @@ Taxonomies can be ordered by either alphabetical key or by the number of content
 
 ### Order Alphabetically Example
 
-In Hugo 0.55 and later you can do:
-
 ```go-html-template
 <ul>
     {{ range .Data.Terms.Alphabetical }}
@@ -133,22 +131,6 @@ In Hugo 0.55 and later you can do:
     {{ end }}
 </ul>
 ```
-
-Before that you would have to do something like:
-
-```go-html-template
-<ul>
-    {{ $type := .Type }}
-    {{ range $key, $value := .Data.Terms.Alphabetical }}
-        {{ $name := .Name }}
-        {{ $count := .Count }}
-        {{ with $.Site.GetPage (printf "/%s/%s" $type $name) }}
-            <li><a href="{{ .Permalink }}">{{ $name }}</a> {{ $count }}</li>
-        {{ end }}
-    {{ end }}
-</ul>
-```
-
 
 <!-- [See Also Taxonomy Lists](/templates/list/) -->
 
@@ -220,27 +202,11 @@ Because we are leveraging the front matter system to define taxonomies for conte
 
 ### Example: List Tags in a Single Page Template
 
-{{< new-in "0.65.0" >}}
-
 ```go-html-template
 <ul>
     {{ range (.GetTerms "tags") }}
         <li><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
    {{ end }}
-</ul>
-```
-
-Before Hugo 0.65.0 you needed to do something like this:
-
-```go-html-template
-{{ $taxo := "tags" }} <!-- Use the plural form here -->
-<ul id="{{ $taxo }}">
-    {{ range .Param $taxo }}
-        {{ $name := . }}
-        {{ with $.Site.GetPage (printf "/%s/%s" $taxo ($name | urlize)) }}
-            <li><a href="{{ .Permalink }}">{{ $name }}</a></li>
-        {{ end }}
-    {{ end }}
 </ul>
 ```
 
@@ -310,26 +276,10 @@ The following example displays all terms in a site's tags taxonomy:
 
 ### Example: List All Site Tags {#example-list-all-site-tags}
 
-In Hugo 0.55 and later you can simply do:
-
 ```go-html-template
 <ul>
     {{ range .Site.Taxonomies.tags }}
             <li><a href="{{ .Page.Permalink }}">{{ .Page.Title }}</a> {{ .Count }}</li>
-    {{ end }}
-</ul>
-```
-
-Before that you would do something like this:
-
-{{< todo >}}Clean up rest of the taxonomy examples re Hugo 0.55.{{< /todo >}}
-
-```go-html-template
-<ul id="all-tags">
-    {{ range $name, $taxonomy := .Site.Taxonomies.tags }}
-        {{ with $.Site.GetPage (printf "/tags/%s" $name) }}
-            <li><a href="{{ .Permalink }}">{{ $name }}</a></li>
-        {{ end }}
     {{ end }}
 </ul>
 ```

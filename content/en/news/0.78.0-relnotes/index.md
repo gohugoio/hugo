@@ -12,7 +12,7 @@ Some notes on the improvements in this release:
 
 * Now `js.Build` fully supports the virtual union filesystem in [Hugo Modules](https://gohugo.io/hugo-modules/). Any import inside your JavaScript components will resolve starting from the top component mount inside `/assets` with a fallback to the traditional "JS way" (`node_modules` etc.)
 * You can now pass configuration data from the templates to your scripts via a new `params` option.
-* Hugo now writes a `jsconfig.js` file inside `/assets` (you can turn it off) with import mappings to help editors such as VS Code with intellisense/navigation, which is especially useful when there is no common root and the source lives inside some temporary directory.
+* Hugo now writes a `jsconfig.json` file inside `/assets` (you can turn it off) with import mappings to help editors such as VS Code with intellisense/navigation, which is especially useful when there is no common root and the source lives inside some temporary directory.
 * We have also improved the build errors you get from `js.Build`. In server mode you will get a preview of the failing lines and in the console you will get a link to the location.
 
 Read more about this in [the documentation](https://gohugo.io/hugo-pipes/js/), but a short usage example would look like:
