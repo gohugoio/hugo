@@ -14,13 +14,14 @@
 package js
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
 	"regexp"
 	"strings"
+
+	"github.com/pkg/errors"
 
 	"github.com/spf13/afero"
 
@@ -108,6 +109,9 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 
 		createErr := func(msg api.Message) error {
 			loc := msg.Location
+			if loc == nil {
+				return errors.New(msg.Text)
+			}
 			path := loc.File
 
 			var (
