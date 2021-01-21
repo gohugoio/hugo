@@ -152,10 +152,11 @@ It's a common practice to load external libraries using a content delivery netwo
 First, add React and ReactDOM [CDN script tags](https://reactjs.org/docs/add-react-to-a-website.html#tip-minify-javascript-for-production) in your HTML template files. Then create `assets/js/shims/react.js` and `assets/js/shims/react-dom.js` with the following contents:
 ```js
 // In assets/js/shims/react.js
-module.exports = window.React;
+export let React = window.React;
 
 // In assets/js/shims/react-dom.js
-module.exports = window.ReactDOM;
+export let ReactDom = window.ReactDom;
+
 ```
 
 Finally, add the following to your project's `package.json`:
