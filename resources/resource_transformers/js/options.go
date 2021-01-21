@@ -34,6 +34,7 @@ import (
 const (
 	nsImportHugo = "ns-hugo"
 	nsParams     = "ns-params"
+	nsExternal   = "ns-external"
 
 	stdinImporter = "<stdin>"
 )
@@ -61,8 +62,14 @@ type Options struct {
 	// Default is to esm.
 	Format string
 
-	// External dependencies, e.g. "react".
+	// External dependencies.
+	// See https://esbuild.github.io/api/#external
 	Externals []string `hash:"set"`
+
+	// This option allows you to automatically replace a global variable with
+	// an import from another file.
+	// See https://esbuild.github.io/api/#inject
+	Inject []string `hash:"set"`
 
 	// User defined symbols.
 	Defines map[string]interface{}
@@ -211,10 +218,37 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 		Setup: func(build api.PluginBuild) {
 			build.OnResolve(api.OnResolveOptions{Filter: `.*`},
 				func(args api.OnResolveArgs) (api.OnResolveResult, error) {
+					switch args.Path {
+					case "react", "react-dom":
+						return api.OnResolveResult{
+							Path:      args.Path,
+							Namespace: nsExternal,
+						}, nil
+
+					}
+
 					return resolveImport(args)
 				})
-			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: nsImportHugo},
+			build.OnLoad(
+				api.OnLoadOptions{
+					Filter: `.*`,
+				},
 				func(args api.OnLoadArgs) (api.OnLoadResult, error) {
+					if args.Namespace == nsExternal {
+						var c string
+						switch args.Path {
+						case "react":
+							c = `window.React`
+						case "react-dom":
+							c = `window.ReactDom`
+						default:
+							return api.OnLoadResult{}, errors.Errorf("unknown component %q", args.Path)
+						}
+
+						return api.OnLoadResult{
+							Contents: &c,
+						}, nil
+					}
 					b, err := ioutil.ReadFile(args.Path)
 					if err != nil {
 						return api.OnLoadResult{}, errors.Wrapf(err, "failed to read %q", args.Path)
@@ -228,7 +262,8 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 						Contents:   &c,
 						Loader:     loaderFromFilename(args.Path),
 					}, nil
-				})
+				},
+			)
 		},
 	}
 
@@ -363,6 +398,7 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 		Define: defines,
 
 		External: opts.Externals,
+		Inject:   opts.Inject,
 
 		JSXFactory:  opts.JSXFactory,
 		JSXFragment: opts.JSXFragment,
