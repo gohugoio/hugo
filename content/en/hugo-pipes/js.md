@@ -155,7 +155,7 @@ First, add React and ReactDOM [CDN script tags](https://reactjs.org/docs/add-rea
 export let React = window.React;
 
 // In assets/js/shims/react-dom.js
-export let ReactDOM = window.ReactDOM;
+export let ReactDom = window.ReactDom;
 
 ```
 
