@@ -62,10 +62,13 @@ type Options struct {
 	Format string
 
 	// External dependencies, e.g. "react".
-	Externals []string `hash:"set"`
+	Externals []string
 
 	// User defined symbols.
 	Defines map[string]interface{}
+
+	// Maps a component import to another.
+	Shims map[string]string
 
 	// User defined params. Will be marshaled to JSON and available as "@params", e.g.
 	//     import * as params from '@params';
@@ -138,6 +141,13 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 	fs := c.rs.Assets
 
 	resolveImport := func(args api.OnResolveArgs) (api.OnResolveResult, error) {
+		impPath := args.Path
+		if opts.Shims != nil {
+			override, found := opts.Shims[impPath]
+			if found {
+				impPath = override
+			}
+		}
 		isStdin := args.Importer == stdinImporter
 		var relDir string
 		if !isStdin {
@@ -152,8 +162,6 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 		} else {
 			relDir = filepath.Dir(opts.sourcefile)
 		}
-
-		impPath := args.Path
 
 		// Imports not starting with a "." is assumed to live relative to /assets.
 		// Hugo makes no assumptions about the directory structure below /assets.
