@@ -43,19 +43,42 @@ minify [bool]
 avoidTDZ {{< new-in "0.78.0" >}}
 : There is/was a bug in WebKit with severe performance issue with the tracking of TDZ checks in JavaScriptCore. Enabling this flag removes the TDZ and `const` assignment checks and may improve performance of larger JS codebases until the WebKit fix is in widespread use. See https://bugs.webkit.org/show_bug.cgi?id=199866
 
+shims {{< new-in "0.81.0" >}}
+: This option allows swapping out a component with another. A common use case is to load dependencies like React from a CDN  (with _shims_) when in production, but running with the full bundled `node_modules` dependency during development:
+
+```
+{{ $shims := dict "react" "js/shims/react.js"  "react-dom" "js/shims/react-dom.js" }}
+{{ $js = $js | js.Build dict "shims" $shims }}
+```
+
+The _shim_ files may look like these:
+
+```js
+// js/shims/react.js
+module.exports = window.React;
+```
+
+```js
+// js/shims/react-dom.js
+module.exports = window.ReactDOM;
+```
+
+
+With the above, these imports should work in both scenarios:
+
+```js
+import * as React from 'react'
+import * as ReactDOM from 'react-dom';
+```
+
 target [string]
 : The language target.
   One of: `es5`, `es2015`, `es2016`, `es2017`, `es2018`, `es2019`, `es2020` or `esnext`.
   Default is `esnext`.
 
 externals [slice]
-: External dependencies. If a dependency should not be included in the bundle (Ex. library loaded from a CDN.), it should be listed here.
+: External dependencies. Use this to trim dependencies you know will never be executed. See https://esbuild.github.io/api/#external
 
-```go-html-template
-{{ $externals := slice "react" "react-dom" }}
-```
-
-> Marking a package as external doesn't imply that the library can be loaded from a CDN. It simply tells Hugo not to expand/include the package in the JS file.
 
 defines [map]
 : Allow to define a set of string replacement to be performed when building. Should be a map where each key is to be replaced by its value.
@@ -145,29 +168,4 @@ Or with options:
 <script type="text/javascript" src="{{ $built.RelPermalink }}" defer></script>
 ```
 
-#### Shimming a JS library 
 
-It's a common practice to load external libraries using a content delivery network (CDN) rather than importing all packages in a single JS file. To load scripts from a CDN with Hugo, you'll need to shim the libraries as follows. In this example, `react` and `react-dom` will be shimmed.
-
-First, add React and ReactDOM [CDN script tags](https://reactjs.org/docs/add-react-to-a-website.html#tip-minify-javascript-for-production) in your HTML template files. Then create `assets/js/shims/react.js` and `assets/js/shims/react-dom.js` with the following contents:
-```js
-// In assets/js/shims/react.js
-module.exports = window.React;
-
-// In assets/js/shims/react-dom.js
-module.exports = window.ReactDOM;
-```
-
-Finally, add the following to your project's `package.json`:
-```json
-{
-  "browser": {
-    "react": "./assets/js/shims/react.js",
-    "react-dom": "./assets/js/shims/react-dom.js"
-  }
-}
-```
-
-This tells Hugo's `js.Build` command to look for `react` and `react-dom` in the project's `assets/js/shims` folder. Note that the `browser` field in your `package.json` file will cause React and ReactDOM to be excluded from your JavaScript bundle. Therefore, **it is unnecessary to add them to the `js.Build` command's `externals` argument.**
-
-That's it! You should now have a browser-friendly JS which can use external JS libraries.
