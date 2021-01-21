@@ -304,6 +304,7 @@ func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&cc.printm, "print-mem", "", false, "print memory usage to screen at intervals")
 	cmd.Flags().StringVarP(&cc.mutexprofile, "profile-mutex", "", "", "write Mutex profile to `file`")
 	cmd.Flags().StringVarP(&cc.traceprofile, "trace", "", "", "write trace to `file` (not useful in general)")
+	cmd.Flags().IntP("maxReadFileSize", "", 1000000, "an upper size limit(in bytes) for readFile.")
 
 	// Hide these for now.
 	cmd.Flags().MarkHidden("profile-cpu")

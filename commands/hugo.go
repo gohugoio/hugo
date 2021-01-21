@@ -198,6 +198,7 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"ignoreVendorPaths",
 		"templateMetrics",
 		"templateMetricsHints",
+		"maxReadFileSize",
 
 		// Moved from vars.
 		"baseURL",
