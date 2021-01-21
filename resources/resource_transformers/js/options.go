@@ -238,9 +238,9 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 						var c string
 						switch args.Path {
 						case "react":
-							c = `window.React`
+							c = `export let React = window.React;`
 						case "react-dom":
-							c = `window.ReactDom`
+							c = `export let ReactDom = window.ReactDom;`
 						default:
 							return api.OnLoadResult{}, errors.Errorf("unknown component %q", args.Path)
 						}
