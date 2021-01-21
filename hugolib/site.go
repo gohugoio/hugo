@@ -1059,6 +1059,8 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 				logger.Println("Source changed", ev)
 				sourceChanged = append(sourceChanged, ev)
 			case files.ComponentFolderLayouts:
+				// TODO(bep) see https://github.com/gohugoio/hugo/issues/8161
+				cachePartitions = append(cachePartitions, resources.CACHE_OTHER, "js")
 				tmplChanged = true
 				if !s.Tmpl().HasTemplate(id.Path) {
 					tmplAdded = true
