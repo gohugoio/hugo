@@ -187,7 +187,7 @@ path="github.com/gohugoio/hugoTestProjectJSModImports"
         
 go 1.15
         
-require github.com/gohugoio/hugoTestProjectJSModImports v0.5.0 // indirect
+require github.com/gohugoio/hugoTestProjectJSModImports v0.8.0 // indirect
 
 `)
 
@@ -215,4 +215,9 @@ Hello3 from mod2. Date from date-fns: ${today}
 Hello from lib in the main project
 Hello5 from mod2.
 var myparam = "Hugo Rocks!";`)
+
+	// React JSX, verify the shimming.
+	b.AssertFileContent("public/js/like.js", `@v0.8.0/assets/js/shims/react.js
+module.exports = window.ReactDOM;
+`)
 }
