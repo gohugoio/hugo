@@ -63,6 +63,7 @@ func (ns *Namespace) Getenv(key interface{}) (string, error) {
 // readFile reads the file named by filename in the given filesystem
 // and returns the contents as a string.
 // There is a upper size limit set at 1 megabytes by default.
+// This limit can be overridden by setting maxReadFileSize value in the config.
 func readFile(fs afero.Fs, filename string, maxSize int64) (string, error) {
 	if filename == "" {
 		return "", errors.New("readFile needs a filename")
