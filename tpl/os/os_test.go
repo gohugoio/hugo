@@ -32,12 +32,14 @@ func TestReadFile(t *testing.T) {
 
 	v := viper.New()
 	v.Set("workingDir", workingDir)
+	v.Set("maxReadFileSize", 16)
 
 	// f := newTestFuncsterWithViper(v)
-	ns := New(&deps.Deps{Fs: hugofs.NewMem(v)})
+	ns := New(&deps.Deps{Fs: hugofs.NewMem(v), Cfg: v})
 
 	afero.WriteFile(ns.deps.Fs.Source, filepath.Join(workingDir, "/f/f1.txt"), []byte("f1-content"), 0755)
 	afero.WriteFile(ns.deps.Fs.Source, filepath.Join("/home", "f2.txt"), []byte("f2-content"), 0755)
+	afero.WriteFile(ns.deps.Fs.Source, filepath.Join(workingDir, "bigFile.txt"), []byte("a-very-big-file-content"), 0755)
 
 	for _, test := range []struct {
 		filename string
@@ -48,6 +50,7 @@ func TestReadFile(t *testing.T) {
 		{filepath.FromSlash("../f2.txt"), false},
 		{"", false},
 		{"b", false},
+		{filepath.FromSlash("bigFile.txt"), false},
 	} {
 
 		result, err := ns.ReadFile(test.filename)

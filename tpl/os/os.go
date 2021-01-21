@@ -62,14 +62,15 @@ func (ns *Namespace) Getenv(key interface{}) (string, error) {
 
 // readFile reads the file named by filename in the given filesystem
 // and returns the contents as a string.
-// There is a upper size limit set at 1 megabytes.
-func readFile(fs afero.Fs, filename string) (string, error) {
+// There is a upper size limit set at 1 megabytes by default.
+// This limit can be overridden by setting maxReadFileSize value in the config.
+func readFile(fs afero.Fs, filename string, maxSize int64) (string, error) {
 	if filename == "" {
 		return "", errors.New("readFile needs a filename")
 	}
 
 	if info, err := fs.Stat(filename); err == nil {
-		if info.Size() > 1000000 {
+		if info.Size() > maxSize {
 			return "", fmt.Errorf("file %q is too big", filename)
 		}
 	} else {
@@ -99,7 +100,12 @@ func (ns *Namespace) ReadFile(i interface{}) (string, error) {
 		s = ns.deps.PathSpec.RelPathify(s)
 	}
 
-	return readFile(ns.readFileFs, s)
+	maxSize := int64(ns.deps.Cfg.GetInt("maxReadFileSize"))
+	if maxSize == 0 {
+		maxSize = 1000000
+	}
+
+	return readFile(ns.readFileFs, s, maxSize)
 }
 
 // ReadDir lists the directory contents relative to the configured WorkingDir.
