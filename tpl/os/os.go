@@ -18,7 +18,6 @@ package os
 import (
 	"errors"
 	"fmt"
-	"os"
 	_os "os"
 
 	"github.com/gohugoio/hugo/deps"
@@ -62,22 +61,11 @@ func (ns *Namespace) Getenv(key interface{}) (string, error) {
 
 // readFile reads the file named by filename in the given filesystem
 // and returns the contents as a string.
-// There is a upper size limit set at 1 megabytes.
 func readFile(fs afero.Fs, filename string) (string, error) {
 	if filename == "" {
 		return "", errors.New("readFile needs a filename")
 	}
 
-	if info, err := fs.Stat(filename); err == nil {
-		if info.Size() > 1000000 {
-			return "", fmt.Errorf("file %q is too big", filename)
-		}
-	} else {
-		if os.IsNotExist(err) {
-			return "", fmt.Errorf("file %q does not exist", filename)
-		}
-		return "", err
-	}
 	b, err := afero.ReadFile(fs, filename)
 	if err != nil {
 		return "", err
