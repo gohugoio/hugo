@@ -18,6 +18,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -101,6 +102,28 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 			return err
 		}
 		defer os.Remove(buildOptions.Outdir)
+	}
+
+	if opts.Inject != nil {
+		// Resolve the absolute filenames.
+		for i, ext := range opts.Inject {
+			impPath := filepath.FromSlash(ext)
+			if filepath.IsAbs(impPath) {
+				return errors.Errorf("inject: absolute paths not supported, must be relative to /assets")
+			}
+
+			m := resolveComponentInAssets(t.c.rs.Assets.Fs, impPath)
+
+			if m == nil {
+				return errors.Errorf("inject: file %q not found", ext)
+			}
+
+			opts.Inject[i] = m.Filename()
+
+		}
+
+		buildOptions.Inject = opts.Inject
+
 	}
 
 	result := api.Build(buildOptions)
