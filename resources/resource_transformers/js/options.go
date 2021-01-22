@@ -20,6 +20,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/spf13/afero"
+
 	"github.com/pkg/errors"
 
 	"github.com/evanw/esbuild/pkg/api"
@@ -63,6 +65,11 @@ type Options struct {
 
 	// External dependencies, e.g. "react".
 	Externals []string
+
+	// This option allows you to automatically replace a global variable with an import from another file.
+	// The filenames must be relative to /assets.
+	// See https://esbuild.github.io/api/#inject
+	Inject []string
 
 	// User defined symbols.
 	Defines map[string]interface{}
@@ -137,6 +144,40 @@ func loaderFromFilename(filename string) api.Loader {
 	return api.LoaderJS
 }
 
+func resolveComponentInAssets(fs afero.Fs, impPath string) hugofs.FileMeta {
+	findFirst := func(base string) hugofs.FileMeta {
+		// This is the most common sub-set of ESBuild's default extensions.
+		// We assume that imports of JSON, CSS etc. will be using their full
+		// name with extension.
+		for _, ext := range []string{".js", ".ts", ".tsx", ".jsx"} {
+			if fi, err := fs.Stat(base + ext); err == nil {
+				return fi.(hugofs.FileMetaInfo).Meta()
+			}
+		}
+
+		// Not found.
+		return nil
+	}
+
+	var m hugofs.FileMeta
+
+	// First the path as is.
+	fi, err := fs.Stat(impPath)
+
+	if err == nil {
+		if fi.IsDir() {
+			m = findFirst(filepath.Join(impPath, "index"))
+		} else {
+			m = fi.(hugofs.FileMetaInfo).Meta()
+		}
+	} else {
+		// It may be a regular file imported without an extension.
+		m = findFirst(impPath)
+	}
+
+	return m
+}
+
 func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 	fs := c.rs.Assets
 
@@ -169,36 +210,7 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 			impPath = filepath.Join(relDir, impPath)
 		}
 
-		findFirst := func(base string) hugofs.FileMeta {
-			// This is the most common sub-set of ESBuild's default extensions.
-			// We assume that imports of JSON, CSS etc. will be using their full
-			// name with extension.
-			for _, ext := range []string{".js", ".ts", ".tsx", ".jsx"} {
-				if fi, err := fs.Fs.Stat(base + ext); err == nil {
-					return fi.(hugofs.FileMetaInfo).Meta()
-				}
-			}
-
-			// Not found.
-			return nil
-		}
-
-		var m hugofs.FileMeta
-
-		// First the path as is.
-		fi, err := fs.Fs.Stat(impPath)
-
-		if err == nil {
-			if fi.IsDir() {
-				m = findFirst(filepath.Join(impPath, "index"))
-			} else {
-				m = fi.(hugofs.FileMetaInfo).Meta()
-			}
-		} else {
-			// It may be a regular file imported without an extension.
-			m = findFirst(impPath)
-		}
-		//
+		m := resolveComponentInAssets(fs.Fs, impPath)
 
 		if m != nil {
 			// Store the source root so we can create a jsconfig.json
