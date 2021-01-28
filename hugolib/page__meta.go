@@ -656,6 +656,10 @@ func (p *pageMeta) noListAlways() bool {
 	return p.buildConfig.List != pagemeta.Always
 }
 
+func (p *pageMeta) noListNever() bool {
+	return p.buildConfig.List != pagemeta.Never
+}
+
 func (p *pageMeta) getListFilter(local bool) contentTreeNodeCallback {
 	return newContentTreeFilter(func(n *contentNode) bool {
 		if n == nil {

@@ -815,6 +815,13 @@ var (
 		return n.p.m.noListAlways()
 	}
 
+	contentTreeNoListNeverFilter = func(s string, n *contentNode) bool {
+		if n.p == nil {
+			return true
+		}
+		return n.p.m.noListNever()
+	}
+
 	contentTreeNoRenderFilter = func(s string, n *contentNode) bool {
 		if n.p == nil {
 			return true

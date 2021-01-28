@@ -300,14 +300,16 @@ func (m *pageMap) createSiteTaxonomies() error {
 	return walkErr
 }
 
-func (m *pageMap) createListAllPages() page.Pages {
+type contentNodeFilter func(s string, n *contentNode) bool
+
+func (m *pageMap) createListPages(cnf contentNodeFilter) page.Pages {
 	pages := make(page.Pages, 0)
 
 	m.contentMap.pageTrees.Walk(func(s string, n *contentNode) bool {
 		if n.p == nil {
 			panic(fmt.Sprintf("BUG: page not set for %q", s))
 		}
-		if contentTreeNoListAlwaysFilter(s, n) {
+		if cnf(s, n) {
 			return false
 		}
 		pages = append(pages, n.p)
@@ -316,6 +318,14 @@ func (m *pageMap) createListAllPages() page.Pages {
 
 	page.SortByDefault(pages)
 	return pages
+}
+
+func (m *pageMap) createListAllPages() page.Pages {
+	return m.createListPages(contentTreeNoListAlwaysFilter)
+}
+
+func (m *pageMap) createListHeadlessPages() page.Pages {
+	return m.createListPages(contentTreeNoListNeverFilter)
 }
 
 func (m *pageMap) assemblePages() error {

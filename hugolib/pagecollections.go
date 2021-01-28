@@ -34,6 +34,7 @@ type PageCollections struct {
 	// Lazy initialized page collections
 	pages           *lazyPagesFactory
 	regularPages    *lazyPagesFactory
+	headlessPages   *lazyPagesFactory
 	allPages        *lazyPagesFactory
 	allRegularPages *lazyPagesFactory
 }
@@ -48,6 +49,12 @@ func (c *PageCollections) Pages() page.Pages {
 // This is for the current language only.
 func (c *PageCollections) RegularPages() page.Pages {
 	return c.regularPages.get()
+}
+
+// HeadlessPages returns all the headless pages.
+// This is for the current language only.
+func (c *PageCollections) HeadlessPages() page.Pages {
+	return c.headlessPages.get()
 }
 
 // AllPages returns all pages for all languages.
@@ -91,6 +98,10 @@ func newPageCollections(m *pageMap) *PageCollections {
 
 	c.regularPages = newLazyPagesFactory(func() page.Pages {
 		return c.findPagesByKindIn(page.KindPage, c.pages.get())
+	})
+
+	c.headlessPages = newLazyPagesFactory(func() page.Pages {
+		return m.createListHeadlessPages()
 	})
 
 	return c
