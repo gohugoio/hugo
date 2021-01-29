@@ -6,12 +6,13 @@ package template
 
 import (
 	"fmt"
-	"github.com/gohugoio/hugo/tpl/internal/go_templates/fmtsort"
-	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 	"io"
 	"reflect"
 	"runtime"
 	"strings"
+
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/fmtsort"
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 )
 
 // maxExecDepth specifies the maximum stack depth of templates within
@@ -179,10 +180,7 @@ func errRecover(errp *error) {
 // A template may be executed safely in parallel, although if parallel
 // executions share a Writer the output may be interleaved.
 func (t *Template) ExecuteTemplate(wr io.Writer, name string, data interface{}) error {
-	var tmpl *Template
-	if t.common != nil {
-		tmpl = t.tmpl[name]
-	}
+	tmpl := t.Lookup(name)
 	if tmpl == nil {
 		return fmt.Errorf("template: no template %q associated with template %q", name, t.name)
 	}
@@ -230,6 +228,9 @@ func (t *Template) DefinedTemplates() string {
 		return ""
 	}
 	var b strings.Builder
+	// temporary Hugo-fix
+	t.muTmpl.RLock()
+	defer t.muTmpl.RUnlock()
 	for name, tmpl := range t.tmpl {
 		if tmpl.Tree == nil || tmpl.Root == nil {
 			continue
@@ -401,7 +402,7 @@ func (s *state) walkRange(dot reflect.Value, r *parse.RangeNode) {
 
 func (s *state) walkTemplate(dot reflect.Value, t *parse.TemplateNode) {
 	s.at(t)
-	tmpl := s.tmpl.tmpl[t.Name]
+	tmpl := s.tmpl.Lookup(t.Name)
 	if tmpl == nil {
 		s.errorf("template %q not defined", t.Name)
 	}
