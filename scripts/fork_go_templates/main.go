@@ -18,7 +18,7 @@ import (
 
 func main() {
 	// TODO(bep) git checkout tag
-	// The current is built with Go version da54dfb6a1f3bef827b9ec3780c98fde77a97d11 / go1.16dev
+	// The current is built with Go version c8bd8010ff7c0115bf186443119216ba51f09d2b / go1.16dev
 	fmt.Println("Forking ...")
 	defer fmt.Println("Done ...")
 
