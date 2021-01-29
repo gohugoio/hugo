@@ -75,6 +75,7 @@ var (
 		"\"text/template\"\n", "template \"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate\"\n",
 		`"html/template"`, `htmltemplate "html/template"`,
 		`"fmt"`, `htmltemplate "html/template"`,
+		`t.Skip("this test currently fails with -race; see issue #39807")`, `// t.Skip("this test currently fails with -race; see issue #39807")`,
 	)
 )
 
