@@ -9,7 +9,6 @@ package template_test
 import (
 	"bytes"
 	"github.com/gohugoio/hugo/tpl/internal/go_templates/testenv"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -42,13 +41,13 @@ func main() {
 	t.Used()
 }
 `
-	td, err := ioutil.TempDir("", "text_template_TestDeadCodeElimination")
+	td, err := os.MkdirTemp("", "text_template_TestDeadCodeElimination")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(td)
 
-	if err := ioutil.WriteFile(filepath.Join(td, "x.go"), []byte(prog), 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(td, "x.go"), []byte(prog), 0644); err != nil {
 		t.Fatal(err)
 	}
 	cmd := exec.Command(testenv.GoToolPath(t), "build", "-o", "x.exe", "x.go")
@@ -56,7 +55,7 @@ func main() {
 	if out, err := cmd.CombinedOutput(); err != nil {
 		t.Fatalf("go build: %v, %s", err, out)
 	}
-	slurp, err := ioutil.ReadFile(filepath.Join(td, "x.exe"))
+	slurp, err := os.ReadFile(filepath.Join(td, "x.exe"))
 	if err != nil {
 		t.Fatal(err)
 	}
