@@ -101,7 +101,8 @@ linkTitle
 : used for creating links to content; if set, Hugo defaults to using the `linktitle` before the `title`. Hugo can also [order lists of content by `linktitle`][bylinktitle].
 
 markup
-: **experimental**; specify `"rst"` for reStructuredText (requires`rst2html`) or `"md"` (default) for Markdown.
+: sets the content format, instead of inferring it from the file extension. See the list of valid markup identifiers in
+[Content Formats](/content-management/formats/#list-of-content-formats).
 
 outputs
 : allows you to specify output formats specific to the content. See [output formats][outputs].

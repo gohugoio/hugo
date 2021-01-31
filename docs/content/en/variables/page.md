@@ -98,6 +98,9 @@ See also `.ExpiryDate`, `.Date`, `.PublishDate`, and [`.GitInfo`][gitinfo].
 .LinkTitle
 : access when creating links to the content. If set, Hugo will use the `linktitle` from the front matter before `title`.
 
+.Markup
+: the markup content format. See [Content Formats](/content-management/formats/).
+
 .Next
 : Points up to the next [regular page](/variables/site/#site-pages) (sorted by Hugo's [default sort](/templates/lists#default-weight-date-linktitle-filepath)). Example: `{{with .Next}}{{.Permalink}}{{end}}`. Calling `.Next` from the first page returns `nil`.
 

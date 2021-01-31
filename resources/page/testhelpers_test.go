@@ -336,6 +336,10 @@ func (p *testPage) LogicalName() string {
 	panic("not implemented")
 }
 
+func (p *testPage) Markup() string {
+	panic("not implemented")
+}
+
 func (p *testPage) MediaType() media.Type {
 	panic("not implemented")
 }

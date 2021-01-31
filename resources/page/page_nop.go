@@ -274,6 +274,10 @@ func (p *nopPage) LogicalName() string {
 	return ""
 }
 
+func (p *nopPage) Markup() string {
+	return ""
+}
+
 func (p *nopPage) MediaType() (m media.Type) {
 	return
 }

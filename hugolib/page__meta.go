@@ -201,6 +201,10 @@ func (p *pageMeta) LinkTitle() string {
 	return p.Title()
 }
 
+func (p *pageMeta) Markup() string {
+	return p.markup
+}
+
 func (p *pageMeta) Name() string {
 	if p.resourcePath != "" {
 		return p.resourcePath
@@ -625,7 +629,13 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 		pm.sitemap = p.s.siteCfg.sitemap
 	}
 
-	pm.markup = p.s.ContentSpec.ResolveMarkup(pm.markup)
+	if pm.markup != "" {
+		canonicalMarkup := p.s.ContentSpec.ResolveMarkup(pm.markup)
+		if canonicalMarkup == "" {
+			p.m.s.Log.Warnf("page %q has unknown markup %q.", p.File().Filename(), pm.markup)
+		}
+		pm.markup = canonicalMarkup
+	}
 
 	if draft != nil && published != nil {
 		pm.draft = *draft

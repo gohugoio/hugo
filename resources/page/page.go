@@ -166,6 +166,9 @@ type PageMetaProvider interface {
 	// The title used for links.
 	LinkTitle() string
 
+	// Markup content format.
+	Markup() string
+
 	// IsNode returns whether this is an item of one of the list types in Hugo,
 	// i.e. not a regular content
 	IsNode() bool

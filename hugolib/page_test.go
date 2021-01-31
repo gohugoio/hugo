@@ -299,6 +299,12 @@ func checkPageTitle(t *testing.T, page page.Page, title string) {
 	}
 }
 
+func checkPageMarkup(t *testing.T, page page.Page, markup string) {
+	if page.Markup() != markup {
+		t.Fatalf("Page markup is: %s.  Expected %s", page.Markup(), markup)
+	}
+}
+
 func checkPageContent(t *testing.T, page page.Page, expected string, msg ...interface{}) {
 	t.Helper()
 	a := normalizeContent(expected)
@@ -571,6 +577,22 @@ func TestCreateNewPage(t *testing.T) {
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, settings, simplePage)
+}
+
+func TestPageMarkup(t *testing.T) {
+	t.Parallel()
+	markupByExt := map[string]string{
+		"md":    "markdown",
+		"mmark": "mmark",
+		"ad":    "asciidocext",
+		"rst":   "rst",
+	}
+	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
+		p := pages[0]
+		checkPageMarkup(t, p, markupByExt[ext])
+	}
+
+	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePage)
 }
 
 func TestPageSummary(t *testing.T) {
