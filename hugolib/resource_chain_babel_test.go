@@ -17,7 +17,6 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
-	"runtime"
 	"testing"
 
 	"github.com/gohugoio/hugo/common/hexec"
@@ -38,10 +37,6 @@ import (
 func TestResourceChainBabel(t *testing.T) {
 	if !htesting.IsCI() {
 		t.Skip("skip (relative) long running modules test when running locally")
-	}
-
-	if runtime.GOOS == "windows" {
-		t.Skip("skip npm test on Windows")
 	}
 
 	wd, _ := os.Getwd()
