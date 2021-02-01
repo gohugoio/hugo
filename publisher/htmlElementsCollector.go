@@ -149,6 +149,7 @@ func (c *cssClassCollectorWriter) insertStandinHTMLElement(el string) (string, s
 	if spacei != -1 {
 		tag = tag[:spacei]
 	}
+	tag = strings.Trim(tag, "\n ")
 	newv := strings.Replace(el, tag, "div", 1)
 	return newv, strings.ToLower(tag)
 }
