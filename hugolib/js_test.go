@@ -38,10 +38,6 @@ func TestJSBuildWithNPM(t *testing.T) {
 		t.Skip("skip (relative) long running modules test when running locally")
 	}
 
-	if runtime.GOOS == "windows" {
-		t.Skip("skip NPM test on Windows")
-	}
-
 	wd, _ := os.Getwd()
 	defer func() {
 		os.Chdir(wd)
