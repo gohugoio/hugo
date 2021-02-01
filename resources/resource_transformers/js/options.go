@@ -102,7 +102,7 @@ type Options struct {
 	mediaType  media.Type
 	outDir     string
 	contents   string
-	sourcefile string
+	sourceDir  string
 	resolveDir string
 	tsConfig   string
 }
@@ -201,7 +201,7 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 			}
 			relDir = filepath.Dir(rel)
 		} else {
-			relDir = filepath.Dir(opts.sourcefile)
+			relDir = opts.sourceDir
 		}
 
 		// Imports not starting with a "." is assumed to live relative to /assets.
