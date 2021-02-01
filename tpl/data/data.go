@@ -116,6 +116,7 @@ func (ns *Namespace) GetJSON(urlParts ...interface{}) (interface{}, error) {
 	}
 
 	req.Header.Add("Accept", "application/json")
+	req.Header.Add("User-Agent", "Hugo Static Site Generator")
 
 	err = ns.getResource(cache, unmarshal, req)
 	if err != nil {
