@@ -81,8 +81,8 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		return err
 	}
 
-	opts.sourcefile = ctx.SourcePath
-	opts.resolveDir = t.c.rs.WorkingDir
+	opts.sourceDir = filepath.FromSlash(path.Dir(ctx.SourcePath))
+	opts.resolveDir = t.c.rs.WorkingDir // where node_modules gets resolved
 	opts.contents = string(src)
 	opts.mediaType = ctx.InMediaType
 
