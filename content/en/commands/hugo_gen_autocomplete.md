@@ -20,7 +20,7 @@ for convenience, and the command may need superuser rights, e.g.:
 Add `--completionfile=/path/to/file` flag to set alternative
 file-path and name.
 
-Add `--type={bash, zsh, fish or powershell}` flag to set alternative
+Add `--type={bash, zsh or fish}` flag to set alternative
 shell type.
 
 Logout and in again to reload the completion scripts,
@@ -37,7 +37,7 @@ hugo gen autocomplete [flags]
 ```
       --completionfile string   autocompletion file (default "/etc/bash_completion.d/hugo.sh")
   -h, --help                    help for autocomplete
-      --type string             autocompletion type (zsh, bash, fish or powershell) (default "bash")
+      --type string             autocompletion type (zsh, bash or fish) (default "bash")
 ```
 
 ### Options inherited from parent commands
