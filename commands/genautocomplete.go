@@ -22,10 +22,8 @@ var _ cmder = (*genautocompleteCmd)(nil)
 
 type genautocompleteCmd struct {
 	autocompleteTarget string
-
-	// bash or zsh
+	// bash, zsh or fish
 	autocompleteType string
-
 	*baseCmd
 }
 
@@ -45,7 +43,7 @@ for convenience, and the command may need superuser rights, e.g.:
 Add ` + "`--completionfile=/path/to/file`" + ` flag to set alternative
 file-path and name.
 
-Add ` + "`--type={bash, zsh, fish or powershell}`" + ` flag to set alternative
+Add ` + "`--type={bash, zsh or fish}`" + ` flag to set alternative
 shell type.
 
 Logout and in again to reload the completion scripts,
@@ -61,8 +59,6 @@ or just source them in directly:
 			case "bash":
 				err = cmd.Root().GenBashCompletionFile(cc.autocompleteTarget)
 			case "fish":
-				err = cmd.Root().GenFishCompletionFile(cc.autocompleteTarget, true)
-			case "powershell":
 				err = cmd.Root().GenFishCompletionFile(cc.autocompleteTarget, true)
 			default:
 				return newUserError("Unsupported completion type")
