@@ -25,12 +25,14 @@ import (
 
 const sitemapTemplate = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   {{ range .Data.Pages }}
+    {{- if .Permalink -}}
   <url>
     <loc>{{ .Permalink }}</loc>{{ if not .Lastmod.IsZero }}
     <lastmod>{{ safeHTML ( .Lastmod.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ end }}{{ with .Sitemap.ChangeFreq }}
     <changefreq>{{ . }}</changefreq>{{ end }}{{ if ge .Sitemap.Priority 0.0 }}
     <priority>{{ .Sitemap.Priority }}</priority>{{ end }}
   </url>
+    {{- end -}}
   {{ end }}
 </urlset>`
 
@@ -80,6 +82,7 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 
 	content := readDestination(th, th.Fs, outputSitemap)
 	c.Assert(content, qt.Not(qt.Contains), "404")
+	c.Assert(content, qt.Not(qt.Contains), "<loc></loc>")
 }
 
 func TestParseSitemap(t *testing.T) {
