@@ -14,6 +14,9 @@
 package commands
 
 import (
+	"io"
+	"os"
+
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -53,13 +56,21 @@ or just source them in directly:
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var err error
+			var target io.Writer
+
+			if cc.autocompleteTarget == "" {
+				target = os.Stdout
+			} else {
+				target, _ = os.OpenFile(cc.autocompleteTarget, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			}
+
 			switch cc.autocompleteType {
 			case "zsh":
-				err = cmd.Root().GenZshCompletionFile(cc.autocompleteTarget)
+				err = cmd.Root().GenZshCompletion(target)
 			case "bash":
-				err = cmd.Root().GenBashCompletionFile(cc.autocompleteTarget)
+				err = cmd.Root().GenBashCompletion(target)
 			case "fish":
-				err = cmd.Root().GenFishCompletionFile(cc.autocompleteTarget, true)
+				err = cmd.Root().GenFishCompletion(target, true)
 			default:
 				return newUserError("Unsupported completion type")
 			}
@@ -68,16 +79,15 @@ or just source them in directly:
 				return err
 			}
 
-			jww.FEEDBACK.Println(cc.autocompleteType+" completion file for Hugo saved to", cc.autocompleteTarget)
+			if cc.autocompleteTarget != "" {
+				jww.FEEDBACK.Println(cc.autocompleteType+" completion file for Hugo saved to", cc.autocompleteTarget)
+			}
 			return nil
 		},
 	})
 
-	cc.cmd.PersistentFlags().StringVarP(&cc.autocompleteTarget, "completionfile", "", "/etc/bash_completion.d/hugo.sh", "autocompletion file")
-	cc.cmd.PersistentFlags().StringVarP(&cc.autocompleteType, "type", "", "bash", "autocompletion type (zsh, bash, fish or powershell)")
-
-	// For bash-completion
-	cc.cmd.PersistentFlags().SetAnnotation("completionfile", cobra.BashCompFilenameExt, []string{})
+	cc.cmd.PersistentFlags().StringVarP(&cc.autocompleteTarget, "completionfile", "f", "", "autocompletion file, defaults to stdout")
+	cc.cmd.PersistentFlags().StringVarP(&cc.autocompleteType, "type", "t", "bash", "autocompletion type (zsh, bash or fish)")
 
 	return cc
 }
