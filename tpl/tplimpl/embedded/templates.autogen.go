@@ -63,6 +63,7 @@ var EmbeddedTemplates = [][2]string{
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   {{ range .Data.Pages }}
+    {{- if .Permalink -}}
   <url>
     <loc>{{ .Permalink }}</loc>{{ if not .Lastmod.IsZero }}
     <lastmod>{{ safeHTML ( .Lastmod.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ end }}{{ with .Sitemap.ChangeFreq }}
@@ -79,6 +80,7 @@ var EmbeddedTemplates = [][2]string{
                 href="{{ .Permalink }}"
                 />{{ end }}
   </url>
+    {{- end -}}
   {{ end }}
 </urlset>
 `},

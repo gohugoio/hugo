@@ -583,11 +583,21 @@ categories = [ "hugo" ]
 +++
 Front Matter with Ordered Pages 4. This is longer content`
 
+var weightedPage5 = `+++
+weight = "5"
+title = "Five"
+
+[_build]
+render = "never"
++++
+Front Matter with Ordered Pages 5`
+
 var weightedSources = [][2]string{
 	{filepath.FromSlash("sect/doc1.md"), weightedPage1},
 	{filepath.FromSlash("sect/doc2.md"), weightedPage2},
 	{filepath.FromSlash("sect/doc3.md"), weightedPage3},
 	{filepath.FromSlash("sect/doc4.md"), weightedPage4},
+	{filepath.FromSlash("sect/doc5.md"), weightedPage5},
 }
 
 func TestOrderedPages(t *testing.T) {
@@ -979,8 +989,8 @@ func TestClassCollector(t *testing.T) {
 
 			b := newTestSitesBuilder(t)
 			b.WithConfigFile("toml", fmt.Sprintf(`
-			
-			
+
+
 minify = %t
 
 [build]
@@ -989,7 +999,7 @@ minify = %t
 `, minify))
 
 			b.WithTemplates("index.html", `
-	
+
 <div id="el1" class="a b c">Foo</div>
 
 Some text.
@@ -1047,7 +1057,7 @@ func TestClassCollectorStress(t *testing.T) {
 
 	b := newTestSitesBuilder(t)
 	b.WithConfigFile("toml", `
-	
+
 disableKinds = ["home", "section", "term", "taxonomy" ]
 
 [languages]
