@@ -11,7 +11,7 @@ require (
 	github.com/aws/aws-sdk-go v1.36.33
 	github.com/bep/debounce v1.2.0
 	github.com/bep/gitmap v1.1.2
-	github.com/bep/godartsass v0.11.0
+	github.com/bep/godartsass v0.12.0
 	github.com/bep/golibsass v0.7.0
 	github.com/bep/tmc v0.5.1
 	github.com/cli/safeexec v1.0.0
