@@ -49,6 +49,7 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 	bundle.RegisterUnmarshalFunc("yaml", yaml.Unmarshal)
+	bundle.RegisterUnmarshalFunc("yml", yaml.Unmarshal)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 
 	// The source dirs are ordered so the most important comes first. Since this is a
