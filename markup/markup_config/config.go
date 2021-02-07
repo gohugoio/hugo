@@ -44,6 +44,8 @@ type Config struct {
 func Decode(cfg config.Provider) (conf Config, err error) {
 	conf = Default
 
+	normalizeConfig(cfg)
+
 	m := cfg.GetStringMap("markup")
 	if m == nil {
 		return
@@ -63,6 +65,17 @@ func Decode(cfg config.Provider) (conf Config, err error) {
 	}
 
 	return
+}
+
+func normalizeConfig(cfg config.Provider) {
+	// Changed from a bool in 0.81.0
+	const attrKey = "markup.goldmark.parser.attribute"
+	av := cfg.Get(attrKey)
+	if avb, ok := av.(bool); ok {
+		cfg.Set(attrKey, goldmark_config.ParserAttribute{
+			Title: avb,
+		})
+	}
 }
 
 func applyLegacyConfig(cfg config.Provider, conf *Config) error {

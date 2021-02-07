@@ -1509,7 +1509,10 @@
         "parser": {
           "autoHeadingID": true,
           "autoHeadingIDType": "github",
-          "attribute": true
+          "attribute": {
+            "title": true,
+            "block": false
+          }
         },
         "extensions": {
           "typographer": true,
@@ -3023,7 +3026,7 @@
           "Examples": []
         },
         "Merge": {
-          "Description": "Merge creates a copy of the final parameter and merges the preceeding\nparameters into it in reverse order.\nCurrently only maps are supported. Key handling is case insensitive.",
+          "Description": "Merge creates a copy of the final parameter and merges the preceding\nparameters into it in reverse order.\nCurrently only maps are supported. Key handling is case insensitive.",
           "Args": [
             "params"
           ],
@@ -3521,6 +3524,12 @@
           "Examples": null
         },
         "Invert": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Overlay": {
           "Description": "",
           "Args": null,
           "Aliases": null,
@@ -4371,7 +4380,7 @@
           ]
         },
         "CountRunes": {
-          "Description": "CountRunes returns the number of runes in s, excluding whitepace.",
+          "Description": "CountRunes returns the number of runes in s, excluding whitespace.",
           "Args": [
             "s"
           ],
