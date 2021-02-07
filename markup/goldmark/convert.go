@@ -21,6 +21,8 @@ import (
 	"path/filepath"
 	"runtime/debug"
 
+	"github.com/gohugoio/hugo/markup/goldmark/internal/extensions/attributes"
+
 	"github.com/gohugoio/hugo/identity"
 
 	"github.com/pkg/errors"
@@ -137,8 +139,12 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 		parserOptions = append(parserOptions, parser.WithAutoHeadingID())
 	}
 
-	if cfg.Parser.Attribute {
+	if cfg.Parser.Attribute.Title {
 		parserOptions = append(parserOptions, parser.WithAttribute())
+	}
+
+	if cfg.Parser.Attribute.Block {
+		extensions = append(extensions, attributes.New())
 	}
 
 	md := goldmark.New(
