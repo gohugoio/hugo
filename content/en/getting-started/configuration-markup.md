@@ -40,6 +40,34 @@ unsafe
 typographer
 : This extension substitutes punctuations with typographic entities like [smartypants](https://daringfireball.net/projects/smartypants/).
 
+attribute
+: Enable custom attribute support for titles and blocks by adding attribute lists inside single curly brackets (`{.myclass class="class1 class2" }`) and placing it _after the Markdown element it decorates_, on the same line for titles and on a new line directly below for blocks.
+
+{{< new-in "0.81" >}} In Hugo 0.81.0 we added support for adding attributes (e.g. CSS classes) to Markdown blocks, e.g. tables, lists, paragraphs etc.
+
+A blockquote with a CSS class:
+
+```md
+> foo
+> bar
+{.myclass}
+```
+
+There are some current limitations: For tables you can currently only apply it to the full table, and for lists the `ul`/`ol`-nodes only, e.g.:
+
+```md
+* Fruit
+  * Apple
+  * Orange
+  * Banana
+  {.fruits}
+* Dairy
+  * Milk
+  * Cheese
+  {.dairies}
+{.list}
+```
+
 autoHeadingIDType ("github") {{< new-in "0.62.2" >}}
 : The strategy used for creating auto IDs (anchor names). Available types are `github`, `github-ascii` and `blackfriday`. `github` produces GitHub-compatible IDs, `github-ascii` will drop any non-Ascii characters after accent normalization, and `blackfriday` will make the IDs work as with [Blackfriday](#blackfriday), the default Markdown engine before Hugo 0.60. Note that if Goldmark is your default Markdown engine, this is also the strategy used in the [anchorize](/functions/anchorize/) template func.
 
