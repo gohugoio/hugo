@@ -4,7 +4,6 @@ linktitle: Host on GitHub
 description: Deploy Hugo as a GitHub Pages project or personal/organizational site and automate the whole process with Github Action Workflow
 date: 2014-03-21
 publishdate: 2014-03-21
-lastmod: 2018-09-22
 categories: [hosting and deployment]
 keywords: [github,git,deployment,hosting]
 authors: [Spencer Lyon, Gunnar Morling]
@@ -14,7 +13,6 @@ menu:
     weight: 30
 weight: 30
 sections_weight: 30
-draft: false
 toc: true
 aliases: [/tutorials/github-pages-blog/]
 ---
@@ -29,7 +27,7 @@ GitHub provides free and fast static hosting over SSL for personal, organization
 
 ## Types of GitHub Pages
 
-There are 2 types of GitHub Pages:
+There are two types of GitHub Pages:
 
 - User/Organization Pages (`https://<USERNAME|ORGANIZATION>.github.io/`)
 - Project Pages (`https://<USERNAME|ORGANIZATION>.github.io/<PROJECT>/`)
@@ -45,15 +43,13 @@ As mentioned in the [GitHub Pages documentation][ghorgs], you can host a user/or
 
 This is a much simpler setup as your Hugo files and generated content are published into two different repositories.
 
-
-## Build Hugo With Github Action
+## Build Hugo With GitHub Action
 
 GitHub execute your software development workflows. Everytime you push your code on the Github repository, Github Action will build the site automatically.
 
 Create a file in `.github/workflows/gh-pages.yml` containing the following content (based on https://github.com/marketplace/actions/hugo-setup ):
 
- ```
- 
+```yml
 name: github pages
 
 on:
@@ -95,7 +91,7 @@ For more advance settings https://github.com/marketplace/actions/hugo-setup
 
 ## Use a Custom Domain
 
-If you'd like to use a custom domain for your GitHub Pages site, create a file `static/CNAME`. Your custom domain name should be the only contents inside `CNAME`. Since it's inside `static`, the published site will contain the CNAME file at the root of the published site, which is a requirements of GitHub Pages.
+If you'd like to use a custom domain for your GitHub Pages site, create a file `static/CNAME`. Your custom domain name should be the only contents inside `CNAME`. Since it's inside `static`, the published site will contain the CNAME file at the root of the published site, which is a requirement of GitHub Pages.
 
 Refer to the [official documentation for custom domains][domains] for further information.
 
