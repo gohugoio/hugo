@@ -50,9 +50,10 @@ This is a much simpler setup as your Hugo files and generated content are publis
 
 GitHub execute your software development workflows. Everytime you push your code on the Github repository, Github Action will build the site automatically.
 
-Create a file in `.github/workflows/gh-pages.yml` containing the following content (based on https://github.com/marketplace/actions/hugo-setup):
+Create a file in `.github/workflows/gh-pages.yml` containing the following content (based on https://github.com/marketplace/actions/hugo-setup ):
 
- `
+ ```
+ 
 name: github pages
 
 on:
@@ -70,29 +71,25 @@ jobs:
           fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
 
       - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v2
+        uses: peaceiris/actions-hugo@latest
         with:
-          hugo-version: '0.79.1'
+          hugo-version: 'latest'
           # extended: true
 
       - name: Build
         run: hugo --minify
 
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@latest
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
- `
 
-Set hugo-version: `'latest'` to use the latest version of Hugo.
-
-`
 - name: Setup Hugo
-  uses: peaceiris/actions-hugo@v2
+  uses: peaceiris/actions-hugo@latest
   with:
     hugo-version: 'latest'
-`
+```
 
 For more advance settings https://github.com/marketplace/actions/hugo-setup 
 
