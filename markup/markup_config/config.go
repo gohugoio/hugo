@@ -14,6 +14,7 @@
 package markup_config
 
 import (
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/docshelper"
 	"github.com/gohugoio/hugo/markup/asciidocext/asciidocext_config"
@@ -23,6 +24,7 @@ import (
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/gohugoio/hugo/parser"
 	"github.com/mitchellh/mapstructure"
+	"github.com/spf13/cast"
 )
 
 type Config struct {
@@ -44,12 +46,11 @@ type Config struct {
 func Decode(cfg config.Provider) (conf Config, err error) {
 	conf = Default
 
-	normalizeConfig(cfg)
-
 	m := cfg.GetStringMap("markup")
 	if m == nil {
 		return
 	}
+	normalizeConfig(m)
 
 	err = mapstructure.WeakDecode(m, &conf)
 	if err != nil {
@@ -67,14 +68,19 @@ func Decode(cfg config.Provider) (conf Config, err error) {
 	return
 }
 
-func normalizeConfig(cfg config.Provider) {
+func normalizeConfig(m map[string]interface{}) {
+	v, err := maps.GetNestedParam("goldmark.parser", ".", m)
+	if err != nil {
+		return
+	}
+	vm := cast.ToStringMap(v)
 	// Changed from a bool in 0.81.0
-	const attrKey = "markup.goldmark.parser.attribute"
-	av := cfg.Get(attrKey)
-	if avb, ok := av.(bool); ok {
-		cfg.Set(attrKey, goldmark_config.ParserAttribute{
-			Title: avb,
-		})
+	if vv, found := vm["attribute"]; found {
+		if vvb, ok := vv.(bool); ok {
+			vm["attribute"] = goldmark_config.ParserAttribute{
+				Title: vvb,
+			}
+		}
 	}
 }
 
