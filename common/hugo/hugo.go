@@ -34,8 +34,8 @@ const (
 )
 
 var (
-	// commitHash contains the current Git revision. Use make to build to make
-	// sure this gets set.
+	// commitHash contains the current Git revision.
+	// Use mage to build to make sure this gets set.
 	commitHash string
 
 	// buildDate contains the date of the current build.
