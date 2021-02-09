@@ -25,8 +25,10 @@ var _ cmder = (*genautocompleteCmd)(nil)
 
 type genautocompleteCmd struct {
 	autocompleteTarget string
-	// bash, zsh or fish
+
+	// bash, zsh, fish or powershell
 	autocompleteType string
+
 	*baseCmd
 }
 
@@ -46,7 +48,7 @@ for convenience, and the command may need superuser rights, e.g.:
 Add ` + "`--completionfile=/path/to/file`" + ` flag to set alternative
 file-path and name.
 
-Add ` + "`--type={bash, zsh or fish}`" + ` flag to set alternative
+Add ` + "`--type={bash, zsh, fish or powershell}`" + ` flag to set alternative
 shell type.
 
 Logout and in again to reload the completion scripts,
@@ -65,12 +67,14 @@ or just source them in directly:
 			}
 
 			switch cc.autocompleteType {
-			case "zsh":
-				err = cmd.Root().GenZshCompletion(target)
 			case "bash":
 				err = cmd.Root().GenBashCompletion(target)
+			case "zsh":
+				err = cmd.Root().GenZshCompletion(target)
 			case "fish":
 				err = cmd.Root().GenFishCompletion(target, true)
+			case "powershell":
+				err = cmd.Root().GenPowerShellCompletion(target)
 			default:
 				return newUserError("Unsupported completion type")
 			}
@@ -87,7 +91,7 @@ or just source them in directly:
 	})
 
 	cc.cmd.PersistentFlags().StringVarP(&cc.autocompleteTarget, "completionfile", "f", "", "autocompletion file, defaults to stdout")
-	cc.cmd.PersistentFlags().StringVarP(&cc.autocompleteType, "type", "t", "bash", "autocompletion type (zsh, bash or fish)")
+	cc.cmd.PersistentFlags().StringVarP(&cc.autocompleteType, "type", "t", "bash", "autocompletion type (bash, zsh, fish, or powershell)")
 
 	return cc
 }
