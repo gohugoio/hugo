@@ -67,7 +67,7 @@ jobs:
           fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
 
       - name: Setup Hugo
-        uses: peaceiris/actions-hugo@latest
+        uses: peaceiris/actions-hugo@v2
         with:
           hugo-version: 'latest'
           # extended: true
@@ -76,15 +76,10 @@ jobs:
         run: hugo --minify
 
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@latest
+        uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
-
-- name: Setup Hugo
-  uses: peaceiris/actions-hugo@latest
-  with:
-    hugo-version: 'latest'
 ```
 
 For more advance settings https://github.com/marketplace/actions/hugo-setup 
