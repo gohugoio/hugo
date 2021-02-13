@@ -40,6 +40,9 @@ var (
 
 	// buildDate contains the date of the current build.
 	buildDate string
+
+	// vendorInfo contains vendor notes about the current build.
+	vendorInfo string
 )
 
 // Info contains information about the current Hugo environment
