@@ -22,11 +22,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gobuffalo/flect"
 	"github.com/gohugoio/hugo/publisher"
 
 	"github.com/spf13/viper"
-
-	"github.com/markbates/inflect"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
@@ -487,7 +486,7 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 	for _, test := range tests {
 
 		if test.pluralAware && pluralize {
-			test.expected = inflect.Pluralize(test.expected)
+			test.expected = flect.Pluralize(test.expected)
 		}
 
 		th.assertFileContent(filepath.Join("public", test.doc), test.expected)
