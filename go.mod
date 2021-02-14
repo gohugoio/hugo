@@ -27,7 +27,7 @@ require (
 	github.com/gobuffalo/flect v0.2.2
 	github.com/gobwas/glob v0.2.3
 	github.com/gohugoio/testmodBuilder/mods v0.0.0-20190520184928-c56af20f2e95
-	github.com/google/go-cmp v0.5.3
+	github.com/google/go-cmp v0.5.4
 	github.com/gorilla/websocket v1.4.2
 	github.com/jdkato/prose v1.2.0
 	github.com/kylelemons/godebug v1.1.0
