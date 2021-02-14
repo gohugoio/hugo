@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync/atomic"
 	"testing"
 
 	"github.com/gohugoio/hugo/hugofs/glob"
@@ -32,15 +33,18 @@ import (
 func TestClient(t *testing.T) {
 	modName := "hugo-modules-basic-test"
 	modPath := "github.com/gohugoio/tests/" + modName
+	defaultImport := "modh2_2"
 	expect := `github.com/gohugoio/tests/hugo-modules-basic-test github.com/gohugoio/hugoTestModules1_darwin/modh2_2@v1.4.0
 github.com/gohugoio/hugoTestModules1_darwin/modh2_2@v1.4.0 github.com/gohugoio/hugoTestModules1_darwin/modh2_2_1v@v1.3.0
 github.com/gohugoio/hugoTestModules1_darwin/modh2_2@v1.4.0 github.com/gohugoio/hugoTestModules1_darwin/modh2_2_2@v1.3.0
 `
 
 	c := qt.New(t)
+	var clientID uint64 // we increment this to get each test in its own directory.
 
-	newClient := func(c *qt.C, withConfig func(cfg *ClientConfig)) (*Client, func()) {
-		workingDir, clean, err := htesting.CreateTempDir(hugofs.Os, modName)
+	newClient := func(c *qt.C, withConfig func(cfg *ClientConfig), imp string) (*Client, func()) {
+		atomic.AddUint64(&clientID, uint64(1))
+		workingDir, clean, err := htesting.CreateTempDir(hugofs.Os, fmt.Sprintf("%s-%d", modName, clientID))
 		c.Assert(err, qt.IsNil)
 		themesDir := filepath.Join(workingDir, "themes")
 		err = os.Mkdir(themesDir, 0777)
@@ -53,7 +57,7 @@ github.com/gohugoio/hugoTestModules1_darwin/modh2_2@v1.4.0 github.com/gohugoio/h
 		}
 
 		withConfig(&ccfg)
-		ccfg.ModuleConfig.Imports = []Import{{Path: "github.com/gohugoio/hugoTestModules1_darwin/modh2_2"}}
+		ccfg.ModuleConfig.Imports = []Import{{Path: "github.com/gohugoio/hugoTestModules1_darwin/" + imp}}
 		client := NewClient(ccfg)
 
 		return client, clean
@@ -62,7 +66,7 @@ github.com/gohugoio/hugoTestModules1_darwin/modh2_2@v1.4.0 github.com/gohugoio/h
 	c.Run("All", func(c *qt.C) {
 		client, clean := newClient(c, func(cfg *ClientConfig) {
 			cfg.ModuleConfig = DefaultModuleConfig
-		})
+		}, defaultImport)
 		defer clean()
 
 		// Test Init
@@ -103,7 +107,7 @@ project github.com/gohugoio/hugoTestModules1_darwin/modh2_2_2@v1.3.0+vendor
 			c, func(cfg *ClientConfig) {
 				cfg.ModuleConfig = DefaultModuleConfig
 				cfg.IgnoreVendor = globAll
-			})
+			}, defaultImport)
 		defer clean()
 
 		c.Assert(client.Init(modPath), qt.IsNil)
@@ -122,7 +126,7 @@ project github.com/gohugoio/hugoTestModules1_darwin/modh2_2_2@v1.3.0+vendor
 		client, clean := newClient(
 			c, func(cfg *ClientConfig) {
 				cfg.ModuleConfig = mcfg
-			})
+			}, defaultImport)
 		defer clean()
 
 		c.Assert(client.Init(modPath), qt.IsNil)
@@ -135,13 +139,37 @@ project github.com/gohugoio/hugoTestModules1_darwin/modh2_2_2@v1.3.0+vendor
 		c.Assert(graphb.String(), qt.Equals, expect)
 	})
 
+	c.Run("VendorClosest", func(c *qt.C) {
+		mcfg := DefaultModuleConfig
+		mcfg.VendorClosest = true
+
+		client, clean := newClient(
+			c, func(cfg *ClientConfig) {
+				cfg.ModuleConfig = mcfg
+				s := "github.com/gohugoio/hugoTestModules1_darwin/modh1_1v"
+				g, _ := glob.GetGlob(s)
+				cfg.IgnoreVendor = g
+			}, "modh1v")
+		defer clean()
+
+		c.Assert(client.Init(modPath), qt.IsNil)
+		_, err := client.Collect()
+		c.Assert(err, qt.IsNil)
+		c.Assert(client.Vendor(), qt.IsNil)
+
+		var graphb bytes.Buffer
+		c.Assert(client.Graph(&graphb), qt.IsNil)
+
+		c.Assert(graphb.String(), qt.Contains, "github.com/gohugoio/hugoTestModules1_darwin/modh1_1v@v1.3.0 github.com/gohugoio/hugoTestModules1_darwin/modh1_1_1v@v1.1.0+vendor")
+	})
+
 	// https://github.com/gohugoio/hugo/issues/7908
 	c.Run("createThemeDirname", func(c *qt.C) {
 		mcfg := DefaultModuleConfig
 		client, clean := newClient(
 			c, func(cfg *ClientConfig) {
 				cfg.ModuleConfig = mcfg
-			})
+			}, defaultImport)
 		defer clean()
 
 		dirname, err := client.createThemeDirname("foo", false)
