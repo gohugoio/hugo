@@ -22,6 +22,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gobuffalo/flect"
 	"github.com/gohugoio/hugo/markup/converter"
 
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -31,7 +32,6 @@ import (
 	"github.com/gohugoio/hugo/related"
 
 	"github.com/gohugoio/hugo/source"
-	"github.com/markbates/inflect"
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/maps"
@@ -717,7 +717,7 @@ func (p *pageMeta) applyDefaultValues(n *contentNode) error {
 
 			sectionName = helpers.FirstUpper(sectionName)
 			if p.s.Cfg.GetBool("pluralizeListTitles") {
-				p.title = inflect.Pluralize(sectionName)
+				p.title = flect.Pluralize(sectionName)
 			} else {
 				p.title = sectionName
 			}
