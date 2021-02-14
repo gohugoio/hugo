@@ -279,6 +279,13 @@ type Config struct {
 	// "github.com/**".
 	NoVendor string
 
+	// When enabled, we will pick the vendored module closest to the module
+	// using it.
+	// The default behaviour is to pick the first.
+	// Note that there can still be only one dependency of a given module path,
+	// so once it is in use it cannot be redefined.
+	VendorClosest bool
+
 	Replacements    []string
 	replacementsMap map[string]string
 
