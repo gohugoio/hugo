@@ -276,7 +276,7 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import, disabled bool
 			// Fall back to project/themes/<mymodule>
 			if moduleDir == "" {
 				var err error
-				moduleDir, err = c.createThemeDirname(modulePath, owner.projectMod)
+				moduleDir, err = c.createThemeDirname(modulePath, owner.projectMod || moduleImport.pathProjectReplaced)
 				if err != nil {
 					c.err = err
 					return nil, nil

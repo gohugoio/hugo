@@ -237,6 +237,7 @@ func decodeConfig(cfg config.Provider, pathReplacements map[string]string) (Conf
 			for i, imp := range c.Imports {
 				if newImp, found := c.replacementsMap[imp.Path]; found {
 					imp.Path = newImp
+					imp.pathProjectReplaced = true
 					c.Imports[i] = imp
 				}
 			}
@@ -355,12 +356,13 @@ func (v HugoVersion) IsValid() bool {
 }
 
 type Import struct {
-	Path          string // Module path
-	IgnoreConfig  bool   // Ignore any config in config.toml (will still folow imports).
-	IgnoreImports bool   // Do not follow any configured imports.
-	NoVendor      bool   // Never vendor this import (only allowed in main project).
-	Disable       bool   // Turn off this module.
-	Mounts        []Mount
+	Path                string // Module path
+	pathProjectReplaced bool   // Set when Path is replaced in project config.
+	IgnoreConfig        bool   // Ignore any config in config.toml (will still folow imports).
+	IgnoreImports       bool   // Do not follow any configured imports.
+	NoVendor            bool   // Never vendor this import (only allowed in main project).
+	Disable             bool   // Turn off this module.
+	Mounts              []Mount
 }
 
 type Mount struct {
