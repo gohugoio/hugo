@@ -80,6 +80,7 @@ extended
 [[module.imports]]
   path = "github.com/gohugoio/hugoTestModules1_linux/modh1_2_1v"
   ignoreConfig = false
+  ignoreImports = false
   disable = false
 [[module.imports]]
   path = "my-shortcodes"
@@ -90,6 +91,9 @@ path
 
 ignoreConfig
 : If enabled, any module configuration file, e.g. `config.toml`, will not be loaded. Note that this will also stop the loading of any transitive module dependencies.
+
+ignoreImports {{< new-in "0.80.0" >}}
+: If enabled, module imports will not be followed.
 
 disable
 : Set to `true` to disable the module while keeping any version info in the `go.*` files.
