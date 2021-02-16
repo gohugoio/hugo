@@ -389,7 +389,7 @@ Assume `.ReadingTime.Count` in the context has value of 525600. The result will 
 If `.ReadingTime.Count` in the context has value is 1. The result is:
 
 ```
-One minutes to read
+One minute to read
 ```
 
 In case you need to pass custom data: (`(dict "Count" 25)` is minimum requirement)
