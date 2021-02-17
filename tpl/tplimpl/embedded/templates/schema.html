@@ -5,21 +5,21 @@
 {{- $iso8601 := "2006-01-02T15:04:05-07:00" -}}
 <meta itemprop="datePublished" content="{{ .PublishDate.Format $iso8601 }}" />
 <meta itemprop="dateModified" content="{{ .Lastmod.Format $iso8601 }}" />
-
 <meta itemprop="wordCount" content="{{ .WordCount }}">
-{{ with $.Params.images }}{{ range first 6 . -}}
-<meta itemprop="image" content="{{ . | absURL }}">
-{{ end }}{{ else -}}
+
+{{- with $.Params.images -}}
+{{- range first 6 . -}}<meta itemprop="image" content="{{ . | absURL }}">{{ end -}}
+{{- else -}}
 {{- $images := $.Resources.ByType "image" -}}
 {{- $featured := $images.GetMatch "*feature*" -}}
 {{- if not $featured }}{{ $featured = $images.GetMatch "{*cover*,*thumbnail*}" }}{{ end -}}
 {{- with $featured -}}
 <meta itemprop="image" content="{{ $featured.Permalink }}">
-{{ else -}}
-{{- with $.Site.Params.images -}}
-<meta itemprop="image" content="{{ index . 0 | absURL }}"/>
-{{ end }}{{ end }}{{ end }}
+{{- else -}}
+{{- with $.Site.Params.images -}}<meta itemprop="image" content="{{ index . 0 | absURL }}"/>{{ end -}}
+{{- end -}}
+{{- end -}}
 
 <!-- Output all taxonomies as schema.org keywords -->
 <meta itemprop="keywords" content="{{ if .IsPage}}{{ range $index, $tag := .Params.tags }}{{ $tag }},{{ end }}{{ else }}{{ range $plural, $terms := .Site.Taxonomies }}{{ range $term, $val := $terms }}{{ printf "%s," $term }}{{ end }}{{ end }}{{ end }}" />
-{{- end }}
+{{- end -}}
