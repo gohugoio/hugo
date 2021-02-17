@@ -9,7 +9,7 @@ builds:
   -
     binary: hugo
     id: hugo
-    ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }}
+    ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }} -X github.com/gohugoio/hugo/common/hugo.vendorInfo=gohugoio
     env:
       - CGO_ENABLED=0
     flags:
@@ -38,7 +38,7 @@ builds:
     binary: hugo
     id: hugo_extended_windows
     ldflags:
-      - -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }}
+      - -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }} -X github.com/gohugoio/hugo/common/hugo.vendorInfo=gohugoio
       - "-extldflags '-static'"
     env:
       - CGO_ENABLED=1
@@ -55,7 +55,7 @@ builds:
       - amd64
   - binary: hugo
     id: hugo_extended_darwin
-    ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }}
+    ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }} -X github.com/gohugoio/hugo/common/hugo.vendorInfo=gohugoio
     env:
       - CGO_ENABLED=1
       - CC=o64-clang
@@ -69,9 +69,10 @@ builds:
       - darwin
     goarch:
       - amd64
+      - arm64
   - binary: hugo
     id: hugo_extended_linux
-    ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }}
+    ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }} -X github.com/gohugoio/hugo/common/hugo.vendorInfo=gohugoio
     env:
       - CGO_ENABLED=1
     flags:
@@ -83,7 +84,6 @@ builds:
       - linux
     goarch:
       - amd64
-
 release:
   draft: true
 
@@ -146,7 +146,7 @@ nfpms:
     maintainer: "Bjørn Erik Pedersen <bjorn.erik.pedersen@gmail.com>"
     description: "A Fast and Flexible Static Site Generator built with love in GoLang."
     license: "Apache 2.0"
-    name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}"
+    file_name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}"
     replacements:
       amd64: 64bit
       386: 32bit
@@ -169,7 +169,7 @@ nfpms:
     maintainer: "Bjørn Erik Pedersen <bjorn.erik.pedersen@gmail.com>"
     description: "A Fast and Flexible Static Site Generator built with love in GoLang."
     license: "Apache 2.0"
-    name_template: "{{.ProjectName}}_extended_{{.Version}}_{{.Os}}-{{.Arch}}"
+    file_name_template: "{{.ProjectName}}_extended_{{.Version}}_{{.Os}}-{{.Arch}}"
     replacements:
       amd64: 64bit
       386: 32bit
