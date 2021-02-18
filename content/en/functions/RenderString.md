@@ -20,7 +20,7 @@ signature: [".RenderString MARKUP"]
 The method takes an optional map argument with these options:
 
 display ("inline")
-: `inline` or `block`. If `inline` (default), surrounding ´<p></p>` on short snippets will be trimmed.
+: `inline` or `block`. If `inline` (default), surrounding `<p></p>` on short snippets will be trimmed.
 
 markup (defaults to the Page's markup)
 : See identifiers in [List of content formats](/content-management/formats/#list-of-content-formats).
