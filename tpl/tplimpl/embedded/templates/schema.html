@@ -3,8 +3,8 @@
 
 {{- if .IsPage -}}
 {{- $iso8601 := "2006-01-02T15:04:05-07:00" -}}
-{{ with .PublishDate }}<meta itemprop="datePublished" content="{{ .PublishDate.Format $iso8601 }}" />{{ end}}
-{{ with .Lastmod }}<meta itemprop="dateModified" content="{{ .Lastmod.Format $iso8601 }}" />{{ end}}
+{{ with .PublishDate }}<meta itemprop="datePublished" content="{{ .Format $iso8601 }}" />{{ end}}
+{{ with .Lastmod }}<meta itemprop="dateModified" content="{{ .Format $iso8601 }}" />{{ end}}
 <meta itemprop="wordCount" content="{{ .WordCount }}">
 
 {{- with $.Params.images -}}

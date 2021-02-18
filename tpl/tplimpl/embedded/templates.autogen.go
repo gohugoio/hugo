@@ -212,8 +212,8 @@ if (!doNotTrack) {
 {{- if .IsPage }}
 {{- $iso8601 := "2006-01-02T15:04:05-07:00" -}}
 <meta property="article:section" content="{{ .Section }}" />
-{{ with .PublishDate }}<meta property="article:published_time" content="{{ .PublishDate.Format $iso8601 }}" />{{ end }}
-{{ with .Lastmod }}<meta property="article:modified_time" content="{{ .Lastmod.Format $iso8601 }}" />{{ end }}
+{{ with .PublishDate }}<meta property="article:published_time" content="{{ .Format $iso8601 }}" />{{ end }}
+{{ with .Lastmod }}<meta property="article:modified_time" content="{{ .Format $iso8601 }}" />{{ end }}
 
 {{- range .Site.Authors }}
 {{ with .Social.facebook }}<meta property="article:author" content="https://www.facebook.com/{{ . }}" />{{ end }}
@@ -295,8 +295,8 @@ if (!doNotTrack) {
 
 {{- if .IsPage -}}
 {{- $iso8601 := "2006-01-02T15:04:05-07:00" -}}
-{{ with .PublishDate }}<meta itemprop="datePublished" content="{{ .PublishDate.Format $iso8601 }}" />{{ end}}
-{{ with .Lastmod }}<meta itemprop="dateModified" content="{{ .Lastmod.Format $iso8601 }}" />{{ end}}
+{{ with .PublishDate }}<meta itemprop="datePublished" content="{{ .Format $iso8601 }}" />{{ end}}
+{{ with .Lastmod }}<meta itemprop="dateModified" content="{{ .Format $iso8601 }}" />{{ end}}
 <meta itemprop="wordCount" content="{{ .WordCount }}">
 
 {{- with $.Params.images -}}
