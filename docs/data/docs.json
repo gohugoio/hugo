@@ -1566,6 +1566,7 @@
       "disableXML": false,
       "tdewolff": {
         "html": {
+          "keepComments": false,
           "keepConditionalComments": true,
           "keepDefaultAttrVals": true,
           "keepDocumentTags": true,
@@ -1574,13 +1575,18 @@
           "keepWhitespace": false
         },
         "css": {
-          "decimals": -1,
-          "keepCSS2": true
+          "keepCSS2": true,
+          "precision": 0
         },
-        "js": {},
-        "json": {},
+        "js": {
+          "precision": 0,
+          "keepVarNames": false
+        },
+        "json": {
+          "precision": 0
+        },
         "svg": {
-          "decimals": -1
+          "precision": 0
         },
         "xml": {
           "keepWhitespace": false
