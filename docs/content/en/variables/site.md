@@ -96,7 +96,7 @@ All the methods below, e.g. `.Site.RegularPages` can also be reached via the glo
 : top-level directories of the site.
 
 .Site.Taxonomies
-: the [taxonomies](/taxonomies/usage/) for the entire site.  Replaces the now-obsolete `.Site.Indexes` since v0.11. Also see section [Taxonomies elsewhere](#taxonomies-elsewhere).
+: the [taxonomies](/taxonomies/usage/) for the entire site.  Also see section [Taxonomies elsewhere](#taxonomies-elsewhere).
 
 .Site.Title
 : a string representing the title of the site.
