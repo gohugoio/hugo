@@ -88,7 +88,7 @@ And it will resolve to the top-most `index.{js,ts,tsx,jsx}` inside `assets/my/mo
 import { hello3 } from 'my/module/hello3';
 ```
 
-Wil resolve to `hello3.{js,ts,tsx,jsx}` inside `assets/my/module`.
+Will resolve to `hello3.{js,ts,tsx,jsx}` inside `assets/my/module`.
 
 Any imports starting with `.` is resolved relative to the current file:
 
