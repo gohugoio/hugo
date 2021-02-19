@@ -6,7 +6,7 @@ description: "Attribute lists (e.g. CSS classes) for Markdown blocks, newlines i
 categories: ["Releases"]
 ---
 
-**Hugo 0.81.0** is the first release in this decade, it is the fastest to date, and it's packed with useful new features.
+**Hugo 0.81.0** is the first release of this decade, it is the fastest to date, and it's packed with useful new features.
 
 ## Newlines in Template Actions and Commands
 
