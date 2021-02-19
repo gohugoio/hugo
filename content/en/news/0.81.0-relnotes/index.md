@@ -126,6 +126,16 @@ There are several [Hugo Modules](https://gohugo.io/hugo-modules/)-related improv
 * Add config option modules.vendorClosest [bdfbcf6f](https://github.com/gohugoio/hugo/commit/bdfbcf6f4b4ab53a617ab76f72e8aa28da6067de) [@bep](https://github.com/bep) [#8235](https://github.com/gohugoio/hugo/issues/8235)[#8242](https://github.com/gohugoio/hugo/issues/8242)
 * Throw an error running hugo mod vendor on mountless module [4ffaeaf1](https://github.com/gohugoio/hugo/commit/4ffaeaf15536596c94dc73b393ca7894e3bd5e2c) [@bep](https://github.com/bep) 
 
+## Minify - Keep Comments
+
+Keep comments when running `hugo --minify` with a new setting in config.toml. 
+
+```toml
+[minify.tdewolff.html]
+keepComments = true
+```
+
+The default value for this setting is `false`.
 
 ## Statistics
 
