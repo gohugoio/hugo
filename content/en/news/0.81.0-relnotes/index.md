@@ -1,19 +1,19 @@
 
 ---
 date: 2021-02-19
-title: "0.81.0"
-description: "0.81.0"
+title: "Hugo 0.81.0: The Smorgasbord Edition"
+description: "Attribute lists (e.g. CSS classes) for Markdown blocks, newlines in template actions/blocks, native Apple M1 ARM64 binary, it's faster, and more …"
 categories: ["Releases"]
 ---
 
-	**Hugo 0.81.0** is the first release in this decade, it is the fastest to date, and it's packed with useful new features.
+**Hugo 0.81.0** is the first release in this decade, it is the fastest to date, and it's packed with useful new features.
 
 ## Newlines in Template Actions and Commands
 
 You can now have newlines within template actions and pipelines. This means that you can now do this and similar:
 
 ```go-html-template
-FIX dict 
+{{ dict 
 	"country" "Norway" 
 	"population" "5 millions"
 	"language" "Norwegian"
@@ -23,7 +23,7 @@ FIX dict
 	"largest_city" "Oslo"
 	"currency"  "Norwegian krone"
 	"dialing_code" "+47" 
-FIX
+}}
 ```
 
 Note that the above construction will fail in Hugo versions < `0.81.0`.
@@ -40,13 +40,11 @@ Hugo already supports adding attribute lists (e.g CSS classes) after titles. We 
 
 See [Configure Goldmark](https://gohugo.io/getting-started/configuration-markup#goldmark).
 
-
 ## Performance
 
 This release is the fastest Hugo to date, see details in the benchmarks below. This is [especially true](https://gohugo.io/news/hugo-macos-intel-vs-arm/) if you use the new ARM64 MacOS binary (only works on [Apple M1](https://en.wikipedia.org/wiki/Apple_M1) devices).
 
-<details>
-  <summary>Site Building and Rebuilding Benchmarks: v0.80.0 => v0.81.0 </summary>
+### Site Building and Rebuilding Benchmarks: v0.80.0 => v0.81.0
 
 ```
 name                                      old time/op    new time/op    delta
@@ -103,7 +101,8 @@ SiteNew/Regular_Many_HTML_templates-16        129k ± 0%      129k ± 0%   +0.35
 SiteNew/Regular_Page_collections-16           199k ± 0%      200k ± 0%   +0.55%  (p=0.029 n=4+4)
 SiteNew/Regular_List_terms-16                53.5k ± 0%     53.4k ± 0%   -0.18%  (p=0.029 n=4+4)
 ```
-</details>
+
+
 
 ## Native Arm Binary for Apple M1
 
