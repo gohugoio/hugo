@@ -122,7 +122,6 @@ var EmbeddedTemplates = [][2]string{
 {{- end -}}`},
 	{`google_analytics.html`, `{{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
 {{- if not $pc.Disable }}{{ with .Site.GoogleAnalytics -}}
-<meta property="temp:." content="{{ . }}">
 {{ if hasPrefix . "G-"}}
 <script async src="https://www.googletagmanager.com/gtag/js?id={{ . }}"></script>
 <script>
