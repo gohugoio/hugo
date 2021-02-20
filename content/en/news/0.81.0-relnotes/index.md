@@ -4,6 +4,7 @@ date: 2021-02-19
 title: "Hugo 0.81.0: The Smorgasbord Edition"
 description: "Attribute lists (e.g. CSS classes) for Markdown blocks, newlines in template actions/blocks, native Apple M1 ARM64 binary, it's faster, and more …"
 categories: ["Releases"]
+toc: true
 ---
 
 **Hugo 0.81.0** is the first release of this decade, it is the fastest to date, and it's packed with useful new features.
