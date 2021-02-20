@@ -144,6 +144,7 @@ Hugo now has:
 ## Notes
 
 * We have updated to Beta 6 of the Dart Sass Protocol which is not backwards compatible, so if you use Dart Sass you need to also update [that binary](https://gohugo.io/hugo-pipes/scss-sass/#options).
+* `hugo gen autocomplete` now default to `stdout`; you can change this by setting `--completionfile`. As an added bonus we now also support auto completion for zsh, fish and powershell.
 
 ## Changelog
 
