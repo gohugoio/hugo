@@ -179,6 +179,9 @@ Text
 PlainText
 : The plain variant of the above.
 
+Attributes (map) {{< new-in "0.82.0" >}}
+: A map of attributes (e.g. `id`, `class`)
+
 #### Link with title Markdown example:
 
 ```md
