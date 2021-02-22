@@ -14,6 +14,8 @@
 package goldmark
 
 import (
+	"sync"
+
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 
 	"github.com/yuin/goldmark"
@@ -36,6 +38,25 @@ func newLinkRenderer() renderer.NodeRenderer {
 
 func newLinks() goldmark.Extender {
 	return &links{}
+}
+
+type attributesHolder struct {
+	// What we get from Goldmark.
+	astAttributes []ast.Attribute
+
+	// What we send to the the render hooks.
+	attributesInit sync.Once
+	attributes     map[string]string
+}
+
+func (a *attributesHolder) Attributes() map[string]string {
+	a.attributesInit.Do(func() {
+		a.attributes = make(map[string]string)
+		for _, attr := range a.astAttributes {
+			a.attributes[string(attr.Name)] = string(util.EscapeHTML(attr.Value.([]byte)))
+		}
+	})
+	return a.attributes
 }
 
 type linkContext struct {
@@ -76,6 +97,7 @@ type headingContext struct {
 	anchor    string
 	text      string
 	plainText string
+	*attributesHolder
 }
 
 func (ctx headingContext) Page() interface{} {
@@ -301,11 +323,12 @@ func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast
 	err := h.HeadingRenderer.RenderHeading(
 		w,
 		headingContext{
-			page:      ctx.DocumentContext().Document,
-			level:     n.Level,
-			anchor:    string(anchor),
-			text:      string(text),
-			plainText: string(n.Text(source)),
+			page:             ctx.DocumentContext().Document,
+			level:            n.Level,
+			anchor:           string(anchor),
+			text:             string(text),
+			plainText:        string(n.Text(source)),
+			attributesHolder: &attributesHolder{astAttributes: n.Attributes()},
 		},
 	)
 

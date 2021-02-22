@@ -19,6 +19,10 @@ import (
 	"github.com/gohugoio/hugo/identity"
 )
 
+type AttributesProvider interface {
+	Attributes() map[string]string
+}
+
 type LinkContext interface {
 	Page() interface{}
 	Destination() string
@@ -45,6 +49,9 @@ type HeadingContext interface {
 	Text() string
 	// PlainText is the unrendered version of Text.
 	PlainText() string
+
+	// Attributes (e.g. CSS classes)
+	AttributesProvider
 }
 
 // HeadingRenderer describes a uniquely identifiable rendering hook.
