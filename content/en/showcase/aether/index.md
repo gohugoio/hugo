@@ -22,7 +22,7 @@ The last piece is, funnily enough, moving our blog to Hugo, which it is not as o
 
 ### Structure
 
-Our website is built in such a way that there is a separate Vue.js instance for each of the contexts since we are no using JS-based single-page navigation. We use Hugo for navigation and to build most pages. For the pages we need to make interactive, we use Vue.js to build individual, self-contained single-page Javascript apps. One such example is our sign-up flow at [aether.app](https://aether.app), an individual Vue app living within a Hugo page, with its own JS-based navigation.
+Our website is built in such a way that there is a separate Vue.js instance for each of the contexts since we are not using JS-based single-page navigation. We use Hugo for navigation and to build most pages. For the pages we need to make interactive, we use Vue.js to build individual, self-contained single-page Javascript apps. One such example is our sign-up flow at [aether.app](https://aether.app), an individual Vue app living within a Hugo page, with its own JS-based navigation.
 
 This is a relatively complex setup, and somewhat out of the ordinary. Yet, even with this custom setup, using Hugo was painless.
 
