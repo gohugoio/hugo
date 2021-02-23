@@ -31,7 +31,7 @@ require (
 	github.com/gorilla/websocket v1.4.2
 	github.com/jdkato/prose v1.2.0
 	github.com/kylelemons/godebug v1.1.0
-	github.com/kyokomi/emoji/v2 v2.2.7
+	github.com/kyokomi/emoji/v2 v2.2.8
 	github.com/magefile/mage v1.10.0
 	github.com/mattn/go-isatty v0.0.12
 	github.com/miekg/mmark v1.3.6
@@ -50,7 +50,7 @@ require (
 	github.com/sanity-io/litter v1.5.0
 	github.com/spf13/afero v1.5.1
 	github.com/spf13/cast v1.3.1
-	github.com/spf13/cobra v1.1.1
+	github.com/spf13/cobra v1.1.3
 	github.com/spf13/fsync v0.9.0
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/pflag v1.0.5
