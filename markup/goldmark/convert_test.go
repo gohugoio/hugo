@@ -226,6 +226,25 @@ func TestConvertAttributes(t *testing.T) {
 			"> foo\n> bar\n{#id .className attrName=attrValue class=\"class1 class2\"}\n",
 			"<blockquote id=\"id\" class=\"className class1 class2\"><p>foo\nbar</p>\n</blockquote>\n",
 		},
+		/*{
+			// TODO(bep) this needs an upstream fix, see https://github.com/yuin/goldmark/issues/195
+			"Code block, CodeFences=false",
+			func(conf *markup_config.Config) {
+				withBlockAttributes(conf)
+				conf.Highlight.CodeFences = false
+			},
+			"```bash\necho 'foo';\n```\n{.myclass}",
+			"TODO",
+		},*/
+		{
+			"Code block, CodeFences=true",
+			func(conf *markup_config.Config) {
+				withBlockAttributes(conf)
+				conf.Highlight.CodeFences = true
+			},
+			"```bash\necho 'foo';\n````\n{.myclass id=\"myid\"}",
+			"<div class=\"highlight myclass\" id=\"myid\"><pre style",
+		},
 		{
 			"Paragraph",
 			withBlockAttributes,
