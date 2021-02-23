@@ -45,7 +45,6 @@ func NewSliceFs(dirs ...FileMetaInfo) (afero.Fs, error) {
 	}
 
 	return fs, nil
-
 }
 
 // SliceFs is an ordered composite filesystem.
@@ -61,9 +60,12 @@ func (fs *SliceFs) Chtimes(n string, a, m time.Time) error {
 	return syscall.EPERM
 }
 
+func (fs *SliceFs) Chown(n string, uid, gid int) error {
+	return syscall.EPERM
+}
+
 func (fs *SliceFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {
 	fi, _, err := fs.pickFirst(name)
-
 	if err != nil {
 		return nil, false, err
 	}
@@ -73,7 +75,6 @@ func (fs *SliceFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {
 	}
 
 	return nil, false, errors.Errorf("lstat: files not supported: %q", name)
-
 }
 
 func (fs *SliceFs) Mkdir(n string, p os.FileMode) error {
@@ -103,7 +104,6 @@ func (fs *SliceFs) Open(name string) (afero.File, error) {
 		idx:     idx,
 		dirname: name,
 	}, nil
-
 }
 
 func (fs *SliceFs) OpenFile(name string, flag int, perm os.FileMode) (afero.File, error) {
@@ -222,7 +222,6 @@ func (fs *SliceFs) readDirs(name string, startIdx, count int) ([]os.FileInfo, er
 	}
 
 	return dirs, nil
-
 }
 
 type sliceDir struct {

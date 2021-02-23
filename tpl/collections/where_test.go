@@ -16,8 +16,11 @@ package collections
 import (
 	"fmt"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
+
+	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/gohugoio/hugo/deps"
 )
@@ -59,7 +62,6 @@ func TestWhere(t *testing.T) {
 		}
 
 		return testVariants
-
 	}
 
 	for i, test := range []testt{
@@ -160,6 +162,37 @@ func TestWhere(t *testing.T) {
 			key: 2, match: "m",
 			expect: []*map[int]string{
 				{1: "a", 2: "m"},
+			},
+		},
+		{
+			seq: []maps.Params{
+				{"a": "a1", "b": "b1"}, {"a": "a2", "b": "b2"},
+			},
+			key: "B", match: "b2",
+			expect: []maps.Params{
+				{"a": "a2", "b": "b2"},
+			},
+		},
+		{
+			seq: []maps.Params{
+				{
+					"a": map[string]interface{}{
+						"b": "b1",
+					},
+				},
+				{
+					"a": map[string]interface{}{
+						"b": "b2",
+					},
+				},
+			},
+			key: "A.B", match: "b2",
+			expect: []maps.Params{
+				{
+					"a": map[string]interface{}{
+						"b": "b2",
+					},
+				},
 			},
 		},
 		{
@@ -557,11 +590,24 @@ func TestWhere(t *testing.T) {
 				"zap": []interface{}{map[interface{}]interface{}{"a": 5, "b": 6}},
 			},
 		},
+		{
+			seq: map[string]interface{}{
+				"foo": []interface{}{maps.Params{"a": 1, "b": 2}},
+				"bar": []interface{}{maps.Params{"a": 3, "b": 4}},
+				"zap": []interface{}{maps.Params{"a": 5, "b": 6}},
+			},
+			key: "B", op: ">", match: 3,
+			expect: map[string]interface{}{
+				"bar": []interface{}{maps.Params{"a": 3, "b": 4}},
+				"zap": []interface{}{maps.Params{"a": 5, "b": 6}},
+			},
+		},
 	} {
 
 		testVariants := createTestVariants(test)
 		for j, test := range testVariants {
-			name := fmt.Sprintf("[%d/%d] %T %s %s", i, j, test.seq, test.op, test.key)
+			name := fmt.Sprintf("%d/%d %T %s %s", i, j, test.seq, test.op, test.key)
+			name = strings.ReplaceAll(name, "[]", "slice-of-")
 			t.Run(name, func(t *testing.T) {
 				var results interface{}
 				var err error

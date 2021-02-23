@@ -20,11 +20,11 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/media"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/spf13/viper"
 )
 
@@ -79,7 +79,6 @@ func (t testContentResource) Key() string {
 }
 
 func TestUnmarshal(t *testing.T) {
-
 	v := viper.New()
 	ns := New(newDeps(v))
 	c := qt.New(t)
@@ -120,21 +119,17 @@ func TestUnmarshal(t *testing.T) {
 		}},
 		{testContentResource{key: "r1", content: `a;b;c`, mime: media.CSVType}, map[string]interface{}{"delimiter": ";"}, func(r [][]string) {
 			c.Assert([][]string{{"a", "b", "c"}}, qt.DeepEquals, r)
-
 		}},
 		{"a,b,c", nil, func(r [][]string) {
 			c.Assert([][]string{{"a", "b", "c"}}, qt.DeepEquals, r)
-
 		}},
 		{"a;b;c", map[string]interface{}{"delimiter": ";"}, func(r [][]string) {
 			c.Assert([][]string{{"a", "b", "c"}}, qt.DeepEquals, r)
-
 		}},
 		{testContentResource{key: "r1", content: `
 % This is a comment
 a;b;c`, mime: media.CSVType}, map[string]interface{}{"DElimiter": ";", "Comment": "%"}, func(r [][]string) {
 			c.Assert([][]string{{"a", "b", "c"}}, qt.DeepEquals, r)
-
 		}},
 		// errors
 		{"thisisnotavaliddataformat", nil, false},

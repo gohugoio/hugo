@@ -16,6 +16,7 @@ package commands
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/url"
@@ -33,7 +34,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/livereload"
-	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
@@ -185,7 +185,7 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 						// port set explicitly by user -- he/she probably meant it!
 						err = newSystemErrorF("Server startup failed: %s", err)
 					}
-					c.logger.FEEDBACK.Println("port", sc.serverPort, "already in use, attempting to use an available port")
+					c.logger.Println("port", sc.serverPort, "already in use, attempting to use an available port")
 					sp, err := helpers.FindAvailablePort()
 					if err != nil {
 						err = newSystemError("Unable to find alternative port to use:", err)
@@ -228,7 +228,6 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 		}
 
 		return err
-
 	}
 
 	if err := memStats(); err != nil {
@@ -262,7 +261,6 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 			jww.FEEDBACK.Printf("Watching for changes in %s\n", group)
 		}
 		watcher, err := c.newWatcher(watchDirs...)
-
 		if err != nil {
 			return err
 		}
@@ -272,7 +270,6 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 	}
 
 	return c.serve(sc)
-
 }
 
 func getRootWatchDirsStr(baseDir string, watchDirs []string) string {
@@ -287,9 +284,20 @@ func getRootWatchDirsStr(baseDir string, watchDirs []string) string {
 type fileServer struct {
 	baseURLs      []string
 	roots         []string
-	errorTemplate tpl.Template
+	errorTemplate func(err interface{}) (io.Reader, error)
 	c             *commandeer
 	s             *serverCmd
+}
+
+func (f *fileServer) rewriteRequest(r *http.Request, toPath string) *http.Request {
+	r2 := new(http.Request)
+	*r2 = *r
+	r2.URL = new(url.URL)
+	*r2.URL = *r.URL
+	r2.URL.Path = toPath
+	r2.Header.Set("X-Rewrite-Original-URI", r.URL.RequestURI())
+
+	return r2
 }
 
 func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, error) {
@@ -334,17 +342,20 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 				// First check the error state
 				err := f.c.getErrorWithContext()
 				if err != nil {
+					f.c.wasError = true
 					w.WriteHeader(500)
-					var b bytes.Buffer
-					err := f.errorTemplate.Execute(&b, err)
+					r, err := f.errorTemplate(err)
 					if err != nil {
-						f.c.logger.ERROR.Println(err)
+						f.c.logger.Errorln(err)
 					}
+
 					port = 1313
 					if !f.c.paused {
 						port = f.c.Cfg.GetInt("liveReloadPort")
 					}
-					fmt.Fprint(w, injectLiveReloadScript(&b, port))
+					lr := *u
+					lr.Host = fmt.Sprintf("%s:%d", lr.Hostname(), port)
+					fmt.Fprint(w, injectLiveReloadScript(r, lr))
 
 					return
 				}
@@ -355,31 +366,71 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 				w.Header().Set("Pragma", "no-cache")
 			}
 
+			// Ignore any query params for the operations below.
+			requestURI := strings.TrimSuffix(r.RequestURI, "?"+r.URL.RawQuery)
+
+			for _, header := range f.c.serverConfig.MatchHeaders(requestURI) {
+				w.Header().Set(header.Key, header.Value)
+			}
+
+			if redirect := f.c.serverConfig.MatchRedirect(requestURI); !redirect.IsZero() {
+				doRedirect := true
+				// This matches Netlify's behaviour and is needed for SPA behaviour.
+				// See https://docs.netlify.com/routing/redirects/rewrites-proxies/
+				if !redirect.Force {
+					path := filepath.Clean(strings.TrimPrefix(requestURI, u.Path))
+					fi, err := f.c.hugo().BaseFs.PublishFs.Stat(path)
+					if err == nil {
+						if fi.IsDir() {
+							// There will be overlapping directories, so we
+							// need to check for a file.
+							_, err = f.c.hugo().BaseFs.PublishFs.Stat(filepath.Join(path, "index.html"))
+							doRedirect = err != nil
+						} else {
+							doRedirect = false
+						}
+					}
+				}
+
+				if doRedirect {
+					if redirect.Status == 200 {
+						if r2 := f.rewriteRequest(r, strings.TrimPrefix(redirect.To, u.Path)); r2 != nil {
+							requestURI = redirect.To
+							r = r2
+						}
+					} else {
+						w.Header().Set("Content-Type", "")
+						http.Redirect(w, r, redirect.To, redirect.Status)
+						return
+					}
+				}
+
+			}
+
 			if f.c.fastRenderMode && f.c.buildErr == nil {
-				p := r.RequestURI
-				if strings.HasSuffix(p, "/") || strings.HasSuffix(p, "html") || strings.HasSuffix(p, "htm") {
-					if !f.c.visitedURLs.Contains(p) {
+				if strings.HasSuffix(requestURI, "/") || strings.HasSuffix(requestURI, "html") || strings.HasSuffix(requestURI, "htm") {
+					if !f.c.visitedURLs.Contains(requestURI) {
 						// If not already on stack, re-render that single page.
-						if err := f.c.partialReRender(p); err != nil {
-							f.c.handleBuildErr(err, fmt.Sprintf("Failed to render %q", p))
+						if err := f.c.partialReRender(requestURI); err != nil {
+							f.c.handleBuildErr(err, fmt.Sprintf("Failed to render %q", requestURI))
 							if f.c.showErrorInBrowser {
-								http.Redirect(w, r, p, http.StatusMovedPermanently)
+								http.Redirect(w, r, requestURI, http.StatusMovedPermanently)
 								return
 							}
 						}
 					}
 
-					f.c.visitedURLs.Add(p)
+					f.c.visitedURLs.Add(requestURI)
 
 				}
 			}
+
 			h.ServeHTTP(w, r)
 		})
 	}
 
 	fileserver := decorate(http.FileServer(fs))
 	mu := http.NewServeMux()
-
 	if u.Path == "" || u.Path == "/" {
 		mu.Handle("/", fileserver)
 	} else {
@@ -396,8 +447,8 @@ var logErrorRe = regexp.MustCompile(`(?s)ERROR \d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{
 func removeErrorPrefixFromLog(content string) string {
 	return logErrorRe.ReplaceAllLiteralString(content, "")
 }
-func (c *commandeer) serve(s *serverCmd) error {
 
+func (c *commandeer) serve(s *serverCmd) error {
 	isMultiHost := c.hugo().IsMultihost()
 
 	var (
@@ -416,17 +467,21 @@ func (c *commandeer) serve(s *serverCmd) error {
 		roots = []string{""}
 	}
 
-	templ, err := c.hugo().TextTmpl.Parse("__default_server_error", buildErrorTemplate)
+	templ, err := c.hugo().TextTmpl().Parse("__default_server_error", buildErrorTemplate)
 	if err != nil {
 		return err
 	}
 
 	srv := &fileServer{
-		baseURLs:      baseURLs,
-		roots:         roots,
-		c:             c,
-		s:             s,
-		errorTemplate: templ,
+		baseURLs: baseURLs,
+		roots:    roots,
+		c:        c,
+		s:        s,
+		errorTemplate: func(ctx interface{}) (io.Reader, error) {
+			b := &bytes.Buffer{}
+			err := c.hugo().Tmpl().Execute(templ, b, ctx)
+			return b, err
+		},
 	}
 
 	doLiveReload := !c.Cfg.GetBool("disableLiveReload")
@@ -435,21 +490,26 @@ func (c *commandeer) serve(s *serverCmd) error {
 		livereload.Initialize()
 	}
 
-	var sigs = make(chan os.Signal, 1)
+	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
 	for i := range baseURLs {
 		mu, serverURL, endpoint, err := srv.createEndpoint(i)
 
 		if doLiveReload {
-			mu.HandleFunc("/livereload.js", livereload.ServeJS)
-			mu.HandleFunc("/livereload", livereload.Handler)
+			u, err := url.Parse(helpers.SanitizeURL(baseURLs[i]))
+			if err != nil {
+				return err
+			}
+
+			mu.HandleFunc(u.Path+"/livereload.js", livereload.ServeJS)
+			mu.HandleFunc(u.Path+"/livereload", livereload.Handler)
 		}
 		jww.FEEDBACK.Printf("Web Server is available at %s (bind address %s)\n", serverURL, s.serverInterface)
 		go func() {
 			err = http.ListenAndServe(endpoint, mu)
 			if err != nil {
-				c.logger.ERROR.Printf("Error: %s\n", err.Error())
+				c.logger.Errorf("Error: %s\n", err.Error())
 				os.Exit(1)
 			}
 		}()
@@ -465,6 +525,8 @@ func (c *commandeer) serve(s *serverCmd) error {
 	} else {
 		<-sigs
 	}
+
+	c.hugo().Close()
 
 	return nil
 }

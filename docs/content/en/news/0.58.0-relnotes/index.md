@@ -1,12 +1,12 @@
 
 ---
 date: 2019-09-04
-title: "0.58.0"
-description: "0.58.0"
+title: "Image Processing Galore!"
+description: "Hugo 0.58 adds the long sought after Exif method plus many useful image filters. And it's faster ..."
 categories: ["Releases"]
 ---
 
-	**Hugo 0.58** adds the long sought after [Exif (docs)](https://gohugo.io/content-management/image-processing/#exif)  method on image and a bunch of useful [image filters (docs)](https://gohugo.io/functions/images/#image-filters), courtesy of [@disintegration](https://github.com/disintegration)'s great [Gift](https://github.com/disintegration/gift) image library.
+**Hugo 0.58** adds the long sought after [Exif (docs)](https://gohugo.io/content-management/image-processing/#exif)  method on image and a bunch of useful [image filters (docs)](https://gohugo.io/functions/images/#image-filters), courtesy of [@disintegration](https://github.com/disintegration)'s great [Gift](https://github.com/disintegration/gift) image library.
 
 This means that you now can do variations of this:
 
@@ -38,6 +38,12 @@ Hugo now has:
 * 37859+ [stars](https://github.com/gohugoio/hugo/stargazers)
 * 440+ [contributors](https://github.com/gohugoio/hugo/graphs/contributors)
 * 317+ [themes](http://themes.gohugo.io/)
+
+## Notes
+
+* `home.Pages` now behaves like all the other sections, see [#6240](https://github.com/gohugoio/hugo/issues/6240). If you want to list all the regular pages, use `.Site.RegularPages`.
+* We have added some new image filters to Hugo's image processing. This also means that we have consolidated the resize operations to use the one `gift` library (from the same developer as the one we used before). The operations work as before, but one difference is that we no longer embed color profile information in PNG images, but this should also be a more portable solution. Software that supports color profiles will assume that images without an embedded profile are in the sRGB profile. Software that doesn't support color profiles will use the monitor's profile, which is most likely to be sRGB as well.
+* We have improved the file cache logic for processed images and only stores them once when the same image is bundled in multiple languages. This means that you may want to run `hugo --gc` to clean your image cache.
 
 ## Enhancements
 

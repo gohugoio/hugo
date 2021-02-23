@@ -12,7 +12,7 @@ hugoversion: "0.53"
 aliases: []
 ---
 
-The function accept either a `Resource` created in [Hugo Pipes](/hugo-pipes/) or via [Page Bundles](/content-management/page-bundles/), or simply a string. The two examples below will produce the same map:
+The function accepts either a `Resource` created in [Hugo Pipes](/hugo-pipes/) or via [Page Bundles](/content-management/page-bundles/), or simply a string. The two examples below will produce the same map:
 
 ```go-html-template
 {{ $greetings := "hello = \"Hello Hugo\"" | transform.Unmarshal }}`

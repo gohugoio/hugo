@@ -23,19 +23,17 @@ import (
 	"github.com/spf13/afero"
 )
 
-var (
-	ErrPermissionSymlink = errors.New("symlinks not allowed in this filesystem")
-)
+var ErrPermissionSymlink = errors.New("symlinks not allowed in this filesystem")
 
 // NewNoSymlinkFs creates a new filesystem that prevents symlinks.
-func NewNoSymlinkFs(fs afero.Fs, logger *loggers.Logger, allowFiles bool) afero.Fs {
+func NewNoSymlinkFs(fs afero.Fs, logger loggers.Logger, allowFiles bool) afero.Fs {
 	return &noSymlinkFs{Fs: fs, logger: logger, allowFiles: allowFiles}
 }
 
 // noSymlinkFs is a filesystem that prevents symlinking.
 type noSymlinkFs struct {
 	allowFiles bool // block dirs only
-	logger     *loggers.Logger
+	logger     loggers.Logger
 	afero.Fs
 }
 
@@ -79,7 +77,6 @@ func (fs *noSymlinkFs) Stat(name string) (os.FileInfo, error) {
 }
 
 func (fs *noSymlinkFs) stat(name string) (os.FileInfo, bool, error) {
-
 	var (
 		fi       os.FileInfo
 		wasLstat bool

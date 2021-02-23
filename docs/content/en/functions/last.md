@@ -21,7 +21,6 @@ draft: false
 aliases: []
 ---
 
-
 ```
 {{ range last 10 .Pages }}
     {{ .Render "summary" }}

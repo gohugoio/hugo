@@ -50,7 +50,7 @@ This partial would produce the following HTML output:
 </ul>
 {{< /output >}}
 
-The odd output can be remedied by adding ` | safeURL` to our `.Title` page variable:
+The odd output can be remedied by adding ` | safeURL` to our `.URL` page variable:
 
 {{< code file="layouts/partials/correct-url-sidebar-menu.html" copy="false" >}}
 <!-- This unordered list may be part of a sidebar menu -->
@@ -69,4 +69,4 @@ With the `.URL` page variable piped through `safeURL`, we get the desired output
 
 [configuration]: /getting-started/configuration/
 [menus]: /content-management/menus/
-[RFC 3986]: http://tools.ietf.org/html/rfc3986
+[RFC 3986]: https://tools.ietf.org/html/rfc3986

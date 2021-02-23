@@ -68,7 +68,7 @@ func TestNoSymlinkFs(t *testing.T) {
 
 	for _, bfs := range []afero.Fs{NewBaseFileDecorator(Os), Os} {
 		for _, allowFiles := range []bool{false, true} {
-			logger.WarnCounter.Reset()
+			logger.LogCounters().WarnCounter.Reset()
 			fs := NewNoSymlinkFs(bfs, logger, allowFiles)
 			ls := fs.(afero.Lstater)
 			symlinkedDir := filepath.Join(workDir, "symlinkdedir")
@@ -135,12 +135,12 @@ func TestNoSymlinkFs(t *testing.T) {
 			// Check readdir
 			f, err = fs.Open(workDir)
 			c.Assert(err, qt.IsNil)
-			// There is at least one unsported symlink inside workDir
+			// There is at least one unsupported symlink inside workDir
 			_, err = f.Readdir(-1)
+			c.Assert(err, qt.IsNil)
 			f.Close()
-			c.Assert(logger.WarnCounter.Count(), qt.Equals, uint64(1))
+			c.Assert(logger.LogCounters().WarnCounter.Count(), qt.Equals, uint64(1))
 
 		}
 	}
-
 }

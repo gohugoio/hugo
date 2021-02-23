@@ -1,0 +1,34 @@
+{{ $file := .Get "file" }}
+{{ $code := "" }}
+{{ with .Get "config" }}
+{{ $file = $file | default "config" }}
+{{ $sections := (split . ".") }}
+{{ $configSection := index $.Site.Data.docs.config $sections }}
+{{ $code = dict $sections $configSection  }}
+{{ else }}
+{{ $code = $.Inner }}
+{{ end  }}
+{{ $langs := (slice "yaml" "toml" "json") }}
+<div class="code relative" {{ with $file }}id="{{ . | urlize}}"{{ end }}>
+	<div class="code-nav flex flex-nowrap items-stretch">
+		{{- with $file -}}
+			<div class="san-serif f6 dib lh-solid pl2 pv2 mr2">{{ . }}.</div>
+		{{- end -}}
+		{{ range $langs }}
+			<button data-toggle-tab="{{ . }}" class="tab-button {{ cond (eq . "yaml") "active" ""}} ba san-serif f6 dib lh-solid ph2 pv2">{{ . }}</button>&nbsp;
+		{{ end }}
+	</div>
+	<div class="tab-content">
+		{{ range $langs }}
+			<div data-pane="{{ . }}" class="code-copy-content nt3 tab-pane {{ cond (eq . "yaml") "active" ""}}">
+				{{ highlight ($code | transform.Remarshal . | safeHTML) . ""}}
+			</div>
+			{{ if ne ($.Get "copy") "false" }}
+				<button class="needs-js copy copy-toggle bg-accent-color-dark f6 absolute top-0 right-0 lh-solid hover-bg-primary-color-dark bn white ph3 pv2" title="Copy this code to your clipboard." data-clipboard-action="copy" aria-label="copy button">
+				</button>
+				{{/* Functionality located within filesaver.js The copy here is located in the css with .copy class so it can be replaced with JS on success */}}
+			{{end}}
+		{{ end }}
+	</div>
+
+</div>

@@ -9,7 +9,7 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitatio	ns under the License.
+// limitations under the License.
 
 package herrors
 
@@ -21,9 +21,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-var (
-	_ causer = (*fileError)(nil)
-)
+var _ causer = (*fileError)(nil)
 
 // FileError represents an error when handling a file: Parsing a config file,
 // execute a template etc.

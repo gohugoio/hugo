@@ -22,6 +22,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/common/maps"
+
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
@@ -29,6 +31,7 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/langs"
+	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 )
 
@@ -50,6 +53,8 @@ func TestAfter(t *testing.T) {
 		{int64(2), []int{100, 200, 300}, []int{300}},
 		{100, []int{100, 200}, []int{}},
 		{"1", []int{100, 200, 300}, []int{200, 300}},
+		{0, []int{100, 200, 300, 400, 500}, []int{100, 200, 300, 400, 500}},
+		{0, []string{"a", "b", "c", "d", "e"}, []string{"a", "b", "c", "d", "e"}},
 		{int64(-1), []int{100, 200, 300}, false},
 		{"noint", []int{100, 200, 300}, false},
 		{2, []string{}, []string{}},
@@ -179,7 +184,6 @@ func TestDelimit(t *testing.T) {
 }
 
 func TestDictionary(t *testing.T) {
-	t.Parallel()
 	c := qt.New(t)
 
 	ns := New(&deps.Deps{})
@@ -189,23 +193,51 @@ func TestDictionary(t *testing.T) {
 		expect interface{}
 	}{
 		{[]interface{}{"a", "b"}, map[string]interface{}{"a": "b"}},
+		{[]interface{}{[]string{"a", "b"}, "c"}, map[string]interface{}{"a": map[string]interface{}{"b": "c"}}},
+		{
+			[]interface{}{[]string{"a", "b"}, "c", []string{"a", "b2"}, "c2", "b", "c"},
+			map[string]interface{}{"a": map[string]interface{}{"b": "c", "b2": "c2"}, "b": "c"},
+		},
 		{[]interface{}{"a", 12, "b", []int{4}}, map[string]interface{}{"a": 12, "b": []int{4}}},
 		// errors
 		{[]interface{}{5, "b"}, false},
 		{[]interface{}{"a", "b", "c"}, false},
 	} {
-		errMsg := qt.Commentf("[%d] %v", i, test.values)
+		i := i
+		test := test
+		c.Run(fmt.Sprint(i), func(c *qt.C) {
+			c.Parallel()
+			errMsg := qt.Commentf("[%d] %v", i, test.values)
 
-		result, err := ns.Dictionary(test.values...)
+			result, err := ns.Dictionary(test.values...)
 
-		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
-			continue
-		}
+			if b, ok := test.expect.(bool); ok && !b {
+				c.Assert(err, qt.Not(qt.IsNil), errMsg)
+				return
+			}
 
-		c.Assert(err, qt.IsNil, errMsg)
-		c.Assert(result, qt.DeepEquals, test.expect, errMsg)
+			c.Assert(err, qt.IsNil, errMsg)
+			c.Assert(result, qt.DeepEquals, test.expect, qt.Commentf(fmt.Sprint(result)))
+		})
 	}
+}
+
+func TestReverse(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	ns := New(&deps.Deps{})
+
+	s := []string{"a", "b", "c"}
+	reversed, err := ns.Reverse(s)
+	c.Assert(err, qt.IsNil)
+	c.Assert(reversed, qt.DeepEquals, []string{"c", "b", "a"}, qt.Commentf(fmt.Sprint(reversed)))
+	c.Assert(s, qt.DeepEquals, []string{"a", "b", "c"})
+
+	reversed, err = ns.Reverse(nil)
+	c.Assert(err, qt.IsNil)
+	c.Assert(reversed, qt.IsNil)
+	_, err = ns.Reverse(43)
+	c.Assert(err, qt.Not(qt.IsNil))
 }
 
 func TestEchoParam(t *testing.T) {
@@ -313,6 +345,12 @@ func TestIn(t *testing.T) {
 		// Structs
 		{pagesVals{p3v, p2v, p3v, p2v}, p2v, true},
 		{pagesVals{p3v, p2v, p3v, p2v}, p4v, false},
+		// template.HTML
+		{template.HTML("this substring should be found"), "substring", true},
+		{template.HTML("this substring should not be found"), "subseastring", false},
+		// Uncomparable, use hashstructure
+		{[]string{"a", "b"}, []string{"a", "b"}, false},
+		{[][]string{{"a", "b"}}, []string{"a", "b"}, true},
 	} {
 
 		errMsg := qt.Commentf("[%d] %v", i, test)
@@ -321,10 +359,6 @@ func TestIn(t *testing.T) {
 		c.Assert(err, qt.IsNil)
 		c.Assert(result, qt.Equals, test.expect, errMsg)
 	}
-
-	// Slices are not comparable
-	_, err := ns.In([]string{"a", "b"}, []string{"a", "b"})
-	c.Assert(err, qt.Not(qt.IsNil))
 }
 
 type testPage struct {
@@ -335,8 +369,10 @@ func (p testPage) String() string {
 	return "p-" + p.Title
 }
 
-type pagesPtr []*testPage
-type pagesVals []testPage
+type (
+	pagesPtr  []*testPage
+	pagesVals []testPage
+)
 
 var (
 	p1 = &testPage{"A"}
@@ -493,6 +529,8 @@ func TestLast(t *testing.T) {
 		{int64(2), []int{100, 200, 300}, []int{200, 300}},
 		{100, []int{100, 200}, []int{100, 200}},
 		{"1", []int{100, 200, 300}, []int{300}},
+		{"0", []int{100, 200, 300}, []int{}},
+		{"0", []string{"a", "b", "c"}, []string{}},
 		// errors
 		{int64(-1), []int{100, 200, 300}, false},
 		{"noint", []int{100, 200, 300}, false},
@@ -635,7 +673,7 @@ func TestShuffleRandomising(t *testing.T) {
 
 	// Note that this test can fail with false negative result if the shuffle
 	// of the sequence happens to be the same as the original sequence. However
-	// the propability of the event is 10^-158 which is negligible.
+	// the probability of the event is 10^-158 which is negligible.
 	seqLen := 100
 	rand.Seed(time.Now().UTC().UnixNano())
 
@@ -680,7 +718,6 @@ func TestSlice(t *testing.T) {
 
 		c.Assert(result, qt.DeepEquals, test.expected, errMsg)
 	}
-
 }
 
 func TestUnion(t *testing.T) {
@@ -798,9 +835,14 @@ func TestUniq(t *testing.T) {
 		// Structs
 		{pagesVals{p3v, p2v, p3v, p2v}, pagesVals{p3v, p2v}, false},
 
+		// not Comparable(), use hashstructure
+		{[]map[string]int{
+			{"K1": 1}, {"K2": 2}, {"K1": 1}, {"K2": 1},
+		}, []map[string]int{
+			{"K1": 1}, {"K2": 2}, {"K2": 1},
+		}, false},
+
 		// should fail
-		// uncomparable types
-		{[]map[string]int{{"K1": 1}}, []map[string]int{{"K2": 2}, {"K2": 2}}, true},
 		{1, 1, true},
 		{"foo", "fo", true},
 	} {
@@ -860,6 +902,14 @@ type TstX struct {
 	unexported string
 }
 
+type TstParams struct {
+	params maps.Params
+}
+
+func (x TstParams) Params() maps.Params {
+	return x.params
+}
+
 type TstXIHolder struct {
 	XI TstXI
 }
@@ -890,7 +940,7 @@ func ToTstXIs(slice interface{}) []TstXI {
 func newDeps(cfg config.Provider) *deps.Deps {
 	l := langs.NewLanguage("en", cfg)
 	l.Set("i18nDir", "i18n")
-	cs, err := helpers.NewContentSpec(l)
+	cs, err := helpers.NewContentSpec(l, loggers.NewErrorLogger(), afero.NewMemMapFs())
 	if err != nil {
 		panic(err)
 	}

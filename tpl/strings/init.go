@@ -51,12 +51,36 @@ func init() {
 			[][2]string{},
 		)
 
+		ns.AddMethodMapping(ctx.Count,
+			nil,
+			[][2]string{
+				{`{{"aabab" | strings.Count "a" }}`, `3`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Contains,
+			nil,
+			[][2]string{
+				{`{{ strings.Contains "abc" "b" }}`, `true`},
+				{`{{ strings.Contains "abc" "d" }}`, `false`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.ContainsAny,
+			nil,
+			[][2]string{
+				{`{{ strings.ContainsAny "abc" "bcd" }}`, `true`},
+				{`{{ strings.ContainsAny "abc" "def" }}`, `false`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.FindRE,
 			[]string{"findRE"},
 			[][2]string{
 				{
 					`{{ findRE "[G|g]o" "Hugo is a static side generator written in Go." "1" }}`,
-					`[go]`},
+					`[go]`,
+				},
 			},
 		)
 
@@ -80,13 +104,27 @@ func init() {
 			[][2]string{
 				{
 					`{{ replace "Batman and Robin" "Robin" "Catwoman" }}`,
-					`Batman and Catwoman`},
+					`Batman and Catwoman`,
+				},
+				{
+					`{{ replace "aabbaabb" "a" "z" 2 }}`,
+					`zzbbaabb`,
+				},
 			},
 		)
 
 		ns.AddMethodMapping(ctx.ReplaceRE,
 			[]string{"replaceRE"},
-			[][2]string{},
+			[][2]string{
+				{
+					`{{ replaceRE "a+b" "X" "aabbaabbab" }}`,
+					`XbXbX`,
+				},
+				{
+					`{{ replaceRE "a+b" "X" "aabbaabbab" 1 }}`,
+					`Xbaabbab`,
+				},
+			},
 		)
 
 		ns.AddMethodMapping(ctx.SliceString,
@@ -185,7 +223,6 @@ func init() {
 		)
 
 		return ns
-
 	}
 
 	internal.AddTemplateFuncsNamespace(f)

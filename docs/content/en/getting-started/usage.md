@@ -36,7 +36,7 @@ hugo is the main command, used to build your Hugo site.
 Hugo is a Fast and Flexible Static Site Generator
 built with love by spf13 and friends in Go.
 
-Complete documentation is available at http://gohugo.io/.
+Complete documentation is available at https://gohugo.io/.
 
 Usage:
   hugo [flags]
@@ -56,7 +56,7 @@ Available Commands:
   version     Print the version number of Hugo
 
 Flags:
-  -b, --baseURL string         hostname (and path) to the root, e.g. http://spf13.com/
+  -b, --baseURL string         hostname (and path) to the root, e.g. https://spf13.com/
   -D, --buildDrafts            include content marked as draft
   -E, --buildExpired           include expired content
   -F, --buildFuture            include content with publishdate in the future
@@ -203,23 +203,6 @@ Since Hugo generates a static website, your site can be hosted *anywhere* using 
 Running `hugo` *does not* remove generated files before building. This means that you should delete your `public/` directory (or the publish directory you specified via flag or configuration file) before running the `hugo` command. If you do not remove these files, you run the risk of the wrong files (e.g., drafts or future posts) being left in the generated site.
 {{% /warning %}}
 
-### Dev vs Deploy Destinations
-
-Hugo does not remove generated files before building. An easy workaround is to use different directories for development and production.
-
-To start a server that builds draft content (helpful for editing), you can specify a different destination; e.g., a `dev/` directory:
-
-```
-hugo server -wDs ~/Code/hugo/docs -d dev
-```
-
-When the content is ready for publishing, use the default `public/` dir:
-
-```
-hugo -s ~/Code/hugo/docs
-```
-
-This prevents draft content from accidentally becoming available.
 
 [commands]: /commands/
 [config]: /getting-started/configuration/

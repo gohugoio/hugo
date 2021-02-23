@@ -26,3 +26,4 @@ And for all the other small things around Hugo:
 * [HugoPhotoSwipe](https://github.com/GjjvdBurg/HugoPhotoSwipe) makes it easy to create image galleries using PhotoSwipe.
 * [Hugo SFTP Upload](https://github.com/thomasmey/HugoSftpUpload) Syncs the local build of your Hugo website with your remote webserver via SFTP.
 * [Emacs Easy Hugo](https://github.com/masasam/emacs-easy-hugo) Emacs package for writing blog posts in markdown or org-mode and building your site with Hugo.
+* [JAMStack Themes](https://jamstackthemes.dev/ssg/hugo/). JAMStack themes is a collection of site themes filterable by static site generator and supported CMS to help build CMS-connected sites using Hugo (linking to Hugo-specific themes).

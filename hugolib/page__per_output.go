@@ -23,6 +23,12 @@ import (
 	"sync"
 	"unicode/utf8"
 
+	"github.com/gohugoio/hugo/identity"
+
+	"github.com/gohugoio/hugo/markup/converter/hooks"
+
+	"github.com/gohugoio/hugo/markup/converter"
+
 	"github.com/gohugoio/hugo/lazy"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
@@ -56,148 +62,179 @@ var (
 	}
 )
 
-func newPageContentOutput(p *pageState) func(f output.Format) (*pageContentOutput, error) {
+var pageContentOutputDependenciesID = identity.KeyValueIdentity{Key: "pageOutput", Value: "dependencies"}
 
+func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, error) {
 	parent := p.init
 
-	return func(f output.Format) (*pageContentOutput, error) {
-		cp := &pageContentOutput{
-			p: p,
-			f: f,
+	var dependencyTracker identity.Manager
+	if p.s.running() {
+		dependencyTracker = identity.NewManager(pageContentOutputDependenciesID)
+	}
+
+	cp := &pageContentOutput{
+		dependencyTracker: dependencyTracker,
+		p:                 p,
+		f:                 po.f,
+		renderHooks:       &renderHooks{},
+	}
+
+	initContent := func() (err error) {
+		p.s.h.IncrContentRender()
+
+		if p.cmap == nil {
+			// Nothing to do.
+			return nil
+		}
+		defer func() {
+			// See https://github.com/gohugoio/hugo/issues/6210
+			if r := recover(); r != nil {
+				err = fmt.Errorf("%s", r)
+				p.s.Log.Errorf("[BUG] Got panic:\n%s\n%s", r, string(debug.Stack()))
+			}
+		}()
+
+		if err := po.initRenderHooks(); err != nil {
+			return err
 		}
 
-		initContent := func() (err error) {
-			if p.cmap == nil {
-				// Nothing to do.
-				return nil
-			}
-			defer func() {
-				// See https://github.com/gohugoio/hugo/issues/6210
-				if r := recover(); r != nil {
-					err = fmt.Errorf("%s", r)
-					p.s.Log.ERROR.Println("[BUG] Got panic:\n", string(debug.Stack()))
-				}
-			}()
+		var hasShortcodeVariants bool
 
-			var hasVariants bool
+		f := po.f
+		cp.contentPlaceholders, hasShortcodeVariants, err = p.shortcodeState.renderShortcodesForPage(p, f)
+		if err != nil {
+			return err
+		}
 
-			cp.contentPlaceholders, hasVariants, err = p.shortcodeState.renderShortcodesForPage(p, f)
+		enableReuse := !(hasShortcodeVariants || cp.renderHooksHaveVariants)
+
+		if enableReuse {
+			// Reuse this for the other output formats.
+			// We may improve on this, but we really want to avoid re-rendering the content
+			// to all output formats.
+			// The current rule is that if you need output format-aware shortcodes or
+			// content rendering hooks, create a output format-specific template, e.g.
+			// myshortcode.amp.html.
+			cp.enableReuse()
+		}
+
+		cp.workContent = p.contentToRender(cp.contentPlaceholders)
+
+		isHTML := cp.p.m.markup == "html"
+
+		if !isHTML {
+			r, err := cp.renderContent(cp.workContent, true)
 			if err != nil {
 				return err
 			}
 
-			if p.render && !hasVariants {
-				// We can reuse this for the other output formats
-				cp.enableReuse()
+			cp.workContent = r.Bytes()
+
+			if tocProvider, ok := r.(converter.TableOfContentsProvider); ok {
+				cfg := p.s.ContentSpec.Converters.GetMarkupConfig()
+				cp.tableOfContents = template.HTML(
+					tocProvider.TableOfContents().ToHTML(
+						cfg.TableOfContents.StartLevel,
+						cfg.TableOfContents.EndLevel,
+						cfg.TableOfContents.Ordered,
+					),
+				)
+			} else {
+				tmpContent, tmpTableOfContents := helpers.ExtractTOC(cp.workContent)
+				cp.tableOfContents = helpers.BytesToHTML(tmpTableOfContents)
+				cp.workContent = tmpContent
 			}
+		}
 
-			cp.workContent = p.contentToRender(cp.contentPlaceholders)
+		if cp.placeholdersEnabled {
+			// ToC was accessed via .Page.TableOfContents in the shortcode,
+			// at a time when the ToC wasn't ready.
+			cp.contentPlaceholders[tocShortcodePlaceholder] = string(cp.tableOfContents)
+		}
 
-			isHTML := cp.p.m.markup == "html"
-
-			if p.renderable {
-				if !isHTML {
-					cp.workContent = cp.renderContent(p, cp.workContent)
-					tmpContent, tmpTableOfContents := helpers.ExtractTOC(cp.workContent)
-					cp.tableOfContents = helpers.BytesToHTML(tmpTableOfContents)
-					cp.workContent = tmpContent
-				}
-
-				if cp.placeholdersEnabled {
-					// ToC was accessed via .Page.TableOfContents in the shortcode,
-					// at a time when the ToC wasn't ready.
-					cp.contentPlaceholders[tocShortcodePlaceholder] = string(cp.tableOfContents)
-				}
-
-				if p.cmap.hasNonMarkdownShortcode || cp.placeholdersEnabled {
-					// There are one or more replacement tokens to be replaced.
-					cp.workContent, err = replaceShortcodeTokens(cp.workContent, cp.contentPlaceholders)
-					if err != nil {
-						return err
-					}
-				}
-
-				if cp.p.source.hasSummaryDivider {
-					if isHTML {
-						src := p.source.parsed.Input()
-
-						// Use the summary sections as they are provided by the user.
-						if p.source.posSummaryEnd != -1 {
-							cp.summary = helpers.BytesToHTML(src[p.source.posMainContent:p.source.posSummaryEnd])
-						}
-
-						if cp.p.source.posBodyStart != -1 {
-							cp.workContent = src[cp.p.source.posBodyStart:]
-						}
-
-					} else {
-						summary, content, err := splitUserDefinedSummaryAndContent(cp.p.m.markup, cp.workContent)
-						if err != nil {
-							cp.p.s.Log.ERROR.Printf("Failed to set user defined summary for page %q: %s", cp.p.pathOrTitle(), err)
-						} else {
-							cp.workContent = content
-							cp.summary = helpers.BytesToHTML(summary)
-						}
-					}
-				} else if cp.p.m.summary != "" {
-					html := cp.p.s.ContentSpec.RenderBytes(&helpers.RenderingContext{
-						Content: []byte(cp.p.m.summary), RenderTOC: false, PageFmt: cp.p.m.markup,
-						Cfg:        p.Language(),
-						DocumentID: p.File().UniqueID(), DocumentName: p.File().Path(),
-						Config: cp.p.getRenderingConfig()})
-					html = cp.p.s.ContentSpec.TrimShortHTML(html)
-					cp.summary = helpers.BytesToHTML(html)
-				}
-			}
-
-			cp.content = helpers.BytesToHTML(cp.workContent)
-
-			if !p.renderable {
-				err := cp.addSelfTemplate()
+		if p.cmap.hasNonMarkdownShortcode || cp.placeholdersEnabled {
+			// There are one or more replacement tokens to be replaced.
+			cp.workContent, err = replaceShortcodeTokens(cp.workContent, cp.contentPlaceholders)
+			if err != nil {
 				return err
 			}
-
-			return nil
-
 		}
 
-		// Recursive loops can only happen in content files with template code (shortcodes etc.)
-		// Avoid creating new goroutines if we don't have to.
-		needTimeout := !p.renderable || p.shortcodeState.hasShortcodes()
+		if cp.p.source.hasSummaryDivider {
+			if isHTML {
+				src := p.source.parsed.Input()
 
-		if needTimeout {
-			cp.initMain = parent.BranchdWithTimeout(p.s.siteCfg.timeout, func(ctx context.Context) (interface{}, error) {
-				return nil, initContent()
-			})
-		} else {
-			cp.initMain = parent.Branch(func() (interface{}, error) {
-				return nil, initContent()
-			})
-		}
+				// Use the summary sections as they are provided by the user.
+				if p.source.posSummaryEnd != -1 {
+					cp.summary = helpers.BytesToHTML(src[p.source.posMainContent:p.source.posSummaryEnd])
+				}
 
-		cp.initPlain = cp.initMain.Branch(func() (interface{}, error) {
-			cp.plain = helpers.StripHTML(string(cp.content))
-			cp.plainWords = strings.Fields(cp.plain)
-			cp.setWordCounts(p.m.isCJKLanguage)
+				if cp.p.source.posBodyStart != -1 {
+					cp.workContent = src[cp.p.source.posBodyStart:]
+				}
 
-			if err := cp.setAutoSummary(); err != nil {
-				return err, nil
+			} else {
+				summary, content, err := splitUserDefinedSummaryAndContent(cp.p.m.markup, cp.workContent)
+				if err != nil {
+					cp.p.s.Log.Errorf("Failed to set user defined summary for page %q: %s", cp.p.pathOrTitle(), err)
+				} else {
+					cp.workContent = content
+					cp.summary = helpers.BytesToHTML(summary)
+				}
 			}
+		} else if cp.p.m.summary != "" {
+			b, err := cp.renderContent([]byte(cp.p.m.summary), false)
+			if err != nil {
+				return err
+			}
+			html := cp.p.s.ContentSpec.TrimShortHTML(b.Bytes())
+			cp.summary = helpers.BytesToHTML(html)
+		}
 
-			return nil, nil
-		})
+		cp.content = helpers.BytesToHTML(cp.workContent)
 
-		return cp, nil
-
+		return nil
 	}
 
+	// Recursive loops can only happen in content files with template code (shortcodes etc.)
+	// Avoid creating new goroutines if we don't have to.
+	needTimeout := p.shortcodeState.hasShortcodes() || cp.renderHooks != nil
+
+	if needTimeout {
+		cp.initMain = parent.BranchWithTimeout(p.s.siteCfg.timeout, func(ctx context.Context) (interface{}, error) {
+			return nil, initContent()
+		})
+	} else {
+		cp.initMain = parent.Branch(func() (interface{}, error) {
+			return nil, initContent()
+		})
+	}
+
+	cp.initPlain = cp.initMain.Branch(func() (interface{}, error) {
+		cp.plain = helpers.StripHTML(string(cp.content))
+		cp.plainWords = strings.Fields(cp.plain)
+		cp.setWordCounts(p.m.isCJKLanguage)
+
+		if err := cp.setAutoSummary(); err != nil {
+			return err, nil
+		}
+
+		return nil, nil
+	})
+
+	return cp, nil
+}
+
+type renderHooks struct {
+	hooks *hooks.Renderers
+	init  sync.Once
 }
 
 // pageContentOutput represents the Page content for a given output format.
 type pageContentOutput struct {
 	f output.Format
 
-	// If we can safely reuse this for other output formats.
+	// If we can reuse this for other output formats.
 	reuse     bool
 	reuseInit sync.Once
 
@@ -210,9 +247,15 @@ type pageContentOutput struct {
 	placeholdersEnabled     bool
 	placeholdersEnabledInit sync.Once
 
+	renderHooks *renderHooks
+
+	// Set if there are more than one output format variant
+	renderHooksHaveVariants bool // TODO(bep) reimplement this in another way, consolidate with shortcodes
+
 	// Content state
 
-	workContent []byte
+	workContent       []byte
+	dependencyTracker identity.Manager // Set in server mode.
 
 	// Temporary storage of placeholders mapped to their content.
 	// These are shortcodes etc. Some of these will need to be replaced
@@ -233,9 +276,26 @@ type pageContentOutput struct {
 	readingTime    int
 }
 
+func (p *pageContentOutput) trackDependency(id identity.Provider) {
+	if p.dependencyTracker != nil {
+		p.dependencyTracker.Add(id)
+	}
+}
+
+func (p *pageContentOutput) Reset() {
+	if p.dependencyTracker != nil {
+		p.dependencyTracker.Reset()
+	}
+	p.initMain.Reset()
+	p.initPlain.Reset()
+	p.renderHooks = &renderHooks{}
+}
+
 func (p *pageContentOutput) Content() (interface{}, error) {
-	p.p.s.initInit(p.initMain, p.p)
-	return p.content, nil
+	if p.p.s.initInit(p.initMain, p.p) {
+		return p.content, nil
+	}
+	return nil, nil
 }
 
 func (p *pageContentOutput) FuzzyWordCount() int {
@@ -307,15 +367,30 @@ func (p *pageContentOutput) setAutoSummary() error {
 	p.truncated = truncated
 
 	return nil
-
 }
 
-func (cp *pageContentOutput) renderContent(p page.Page, content []byte) []byte {
-	return cp.p.s.ContentSpec.RenderBytes(&helpers.RenderingContext{
-		Content: content, RenderTOC: true, PageFmt: cp.p.m.markup,
-		Cfg:        p.Language(),
-		DocumentID: p.File().UniqueID(), DocumentName: p.File().Path(),
-		Config: cp.p.getRenderingConfig()})
+func (cp *pageContentOutput) renderContent(content []byte, renderTOC bool) (converter.Result, error) {
+	c := cp.p.getContentConverter()
+	return cp.renderContentWithConverter(c, content, renderTOC)
+}
+
+func (cp *pageContentOutput) renderContentWithConverter(c converter.Converter, content []byte, renderTOC bool) (converter.Result, error) {
+	r, err := c.Convert(
+		converter.RenderContext{
+			Src:         content,
+			RenderTOC:   renderTOC,
+			RenderHooks: cp.renderHooks.hooks,
+		})
+
+	if err == nil {
+		if ids, ok := r.(identity.IdentitiesProvider); ok {
+			for _, v := range ids.GetIdentities() {
+				cp.trackDependency(v)
+			}
+		}
+	}
+
+	return r, err
 }
 
 func (p *pageContentOutput) setWordCounts(isCJKLanguage bool) {
@@ -345,15 +420,6 @@ func (p *pageContentOutput) setWordCounts(isCJKLanguage bool) {
 	}
 }
 
-func (p *pageContentOutput) addSelfTemplate() error {
-	self := p.p.selfLayoutForOutput(p.f)
-	err := p.p.s.TemplateHandler().AddLateTemplate(self, string(p.content))
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 // A callback to signal that we have inserted a placeholder into the rendered
 // content. This avoids doing extra replacement work.
 func (p *pageContentOutput) enablePlaceholders() {
@@ -371,9 +437,7 @@ func (p *pageContentOutput) enableReuse() {
 // these will be shifted out when rendering a given output format.
 type pagePerOutputProviders interface {
 	targetPather
-	page.ContentProvider
 	page.PaginatorProvider
-	page.TableOfContentsProvider
 	resource.ResourceLinksProvider
 }
 
@@ -390,14 +454,13 @@ func (t targetPathsHolder) targetPaths() page.TargetPaths {
 	return t.paths
 }
 
-func executeToString(templ tpl.Template, data interface{}) (string, error) {
+func executeToString(h tpl.TemplateHandler, templ tpl.Template, data interface{}) (string, error) {
 	b := bp.GetBuffer()
 	defer bp.PutBuffer(b)
-	if err := templ.Execute(b, data); err != nil {
+	if err := h.Execute(templ, b, data); err != nil {
 		return "", err
 	}
 	return b.String(), nil
-
 }
 
 func splitUserDefinedSummaryAndContent(markup string, c []byte) (summary []byte, content []byte, err error) {
@@ -415,9 +478,8 @@ func splitUserDefinedSummaryAndContent(markup string, c []byte) (summary []byte,
 
 	startTag := "p"
 	switch markup {
-	case "asciidoc":
+	case "asciidocext":
 		startTag = "div"
-
 	}
 
 	// Walk back and forward to the surrounding tags.

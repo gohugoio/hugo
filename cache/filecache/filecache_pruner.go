@@ -17,6 +17,8 @@ import (
 	"io"
 	"os"
 
+	"github.com/gohugoio/hugo/hugofs"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 )
@@ -108,7 +110,6 @@ func (c *Cache) Prune(force bool) (int, error) {
 }
 
 func (c *Cache) pruneRootDir(force bool) (int, error) {
-
 	info, err := c.Fs.Stat(c.pruneAllRootDir)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -121,18 +122,5 @@ func (c *Cache) pruneRootDir(force bool) (int, error) {
 		return 0, nil
 	}
 
-	counter := 0
-	// Module cache has 0555 directories; make them writable in order to remove content.
-	afero.Walk(c.Fs, c.pruneAllRootDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return nil
-		}
-		if info.IsDir() {
-			counter++
-			c.Fs.Chmod(path, 0777)
-		}
-		return nil
-	})
-	return 1, c.Fs.RemoveAll(c.pruneAllRootDir)
-
+	return hugofs.MakeReadableAndRemoveAllModulePkgDir(c.Fs, c.pruneAllRootDir)
 }

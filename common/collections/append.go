@@ -51,7 +51,6 @@ func Append(to interface{}, from ...interface{}) (interface{}, error) {
 				} else if !fromt.AssignableTo(tot) {
 					// Fall back to a []interface{} slice.
 					return appendToInterfaceSliceFromValues(tov, fromv)
-
 				}
 			}
 		}
@@ -65,6 +64,7 @@ func Append(to interface{}, from ...interface{}) (interface{}, error) {
 		fv := reflect.ValueOf(f)
 		if !fv.Type().AssignableTo(tot) {
 			// Fall back to a []interface{} slice.
+			tov, _ := indirect(reflect.ValueOf(to))
 			return appendToInterfaceSlice(tov, from...)
 		}
 		tov = reflect.Append(tov, fv)

@@ -34,7 +34,8 @@ func TestServer(t *testing.T) {
 		t.Skip("Skip server test on appveyor")
 	}
 	c := qt.New(t)
-	dir, err := createSimpleTestSite(t, testSiteConfig{})
+	dir, clean, err := createSimpleTestSite(t, testSiteConfig{})
+	defer clean()
 	c.Assert(err, qt.IsNil)
 
 	// Let us hope that this port is available on all systems ...
@@ -72,7 +73,6 @@ func TestServer(t *testing.T) {
 
 	// Stop the server.
 	stop <- true
-
 }
 
 func TestFixURL(t *testing.T) {
@@ -126,7 +126,6 @@ ERROR 2018/10/07 13:11:12 Rebuild failed: logged 1 error(s)
 	withoutError := removeErrorPrefixFromLog(content)
 
 	c.Assert(strings.Contains(withoutError, "ERROR"), qt.Equals, false)
-
 }
 
 func isWindowsCI() bool {

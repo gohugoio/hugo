@@ -16,6 +16,7 @@ package images
 import (
 	"errors"
 	"fmt"
+	"image/color"
 	"strconv"
 	"strings"
 
@@ -27,6 +28,7 @@ import (
 const (
 	defaultJPEGQuality    = 75
 	defaultResampleFilter = "box"
+	defaultBgColor        = "ffffff"
 )
 
 var (
@@ -87,16 +89,28 @@ func ImageFormatFromExt(ext string) (Format, bool) {
 	return f, found
 }
 
-func DecodeConfig(m map[string]interface{}) (Imaging, error) {
+func DecodeConfig(m map[string]interface{}) (ImagingConfig, error) {
 	var i Imaging
+	var ic ImagingConfig
 	if err := mapstructure.WeakDecode(m, &i); err != nil {
-		return i, err
+		return ic, err
 	}
 
 	if i.Quality == 0 {
 		i.Quality = defaultJPEGQuality
 	} else if i.Quality < 0 || i.Quality > 100 {
-		return i, errors.New("JPEG quality must be a number between 1 and 100")
+		return ic, errors.New("JPEG quality must be a number between 1 and 100")
+	}
+
+	if i.BgColor != "" {
+		i.BgColor = strings.TrimPrefix(i.BgColor, "#")
+	} else {
+		i.BgColor = defaultBgColor
+	}
+	var err error
+	ic.BgColor, err = hexStringToColor(i.BgColor)
+	if err != nil {
+		return ic, err
 	}
 
 	if i.Anchor == "" || strings.EqualFold(i.Anchor, smartCropIdentifier) {
@@ -104,7 +118,7 @@ func DecodeConfig(m map[string]interface{}) (Imaging, error) {
 	} else {
 		i.Anchor = strings.ToLower(i.Anchor)
 		if _, found := anchorPositions[i.Anchor]; !found {
-			return i, errors.New("invalid anchor value in imaging config")
+			return ic, errors.New("invalid anchor value in imaging config")
 		}
 	}
 
@@ -114,7 +128,7 @@ func DecodeConfig(m map[string]interface{}) (Imaging, error) {
 		filter := strings.ToLower(i.ResampleFilter)
 		_, found := imageFilters[filter]
 		if !found {
-			return i, fmt.Errorf("%q is not a valid resample filter", filter)
+			return ic, fmt.Errorf("%q is not a valid resample filter", filter)
 		}
 		i.ResampleFilter = filter
 	}
@@ -124,7 +138,9 @@ func DecodeConfig(m map[string]interface{}) (Imaging, error) {
 		i.Exif.ExcludeFields = "GPS|Exif|Exposure[M|P|B]|Contrast|Resolution|Sharp|JPEG|Metering|Sensing|Saturation|ColorSpace|Flash|WhiteBalance"
 	}
 
-	return i, nil
+	ic.Cfg = i
+
+	return ic, nil
 }
 
 func DecodeImageConfig(action, config string, defaults Imaging) (ImageConfig, error) {
@@ -151,6 +167,12 @@ func DecodeImageConfig(action, config string, defaults Imaging) (ImageConfig, er
 		} else if filter, ok := imageFilters[part]; ok {
 			c.Filter = filter
 			c.FilterStr = part
+		} else if part[0] == '#' {
+			c.BgColorStr = part[1:]
+			c.BgColor, err = hexStringToColor(c.BgColorStr)
+			if err != nil {
+				return c, err
+			}
 		} else if part[0] == 'q' {
 			c.Quality, err = strconv.Atoi(part[1:])
 			if err != nil {
@@ -230,6 +252,14 @@ type ImageConfig struct {
 	// The rotation will be performed first.
 	Rotate int
 
+	// Used to fill any transparency.
+	// When set in site config, it's used when converting to a format that does
+	// not support transparency.
+	// When set per image operation, it's used even for formats that does support
+	// transparency.
+	BgColor    color.Color
+	BgColorStr string
+
 	Width  int
 	Height int
 
@@ -255,6 +285,10 @@ func (i ImageConfig) GetKey(format Format) string {
 	if i.Rotate != 0 {
 		k += "_r" + strconv.Itoa(i.Rotate)
 	}
+	if i.BgColorStr != "" {
+		k += "_bg" + i.BgColorStr
+	}
+
 	anchor := i.AnchorStr
 	if anchor == smartCropIdentifier {
 		anchor = anchor + strconv.Itoa(smartCropVersionNumber)
@@ -277,6 +311,13 @@ func (i ImageConfig) GetKey(format Format) string {
 	return k
 }
 
+type ImagingConfig struct {
+	BgColor color.Color
+
+	// Config as provided by the user.
+	Cfg Imaging
+}
+
 // Imaging contains default image processing configuration. This will be fetched
 // from site (or language) config.
 type Imaging struct {
@@ -288,6 +329,9 @@ type Imaging struct {
 
 	// The anchor to use in Fill. Default is "smart", i.e. Smart Crop.
 	Anchor string
+
+	// Default color used in fill operations (e.g. "fff" for white).
+	BgColor string
 
 	Exif ExifConfig
 }

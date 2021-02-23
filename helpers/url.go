@@ -83,7 +83,7 @@ func sanitizeURLWithFlags(in string, f purell.NormalizationFlags) string {
 	return u.String()
 	// End temporary kludge
 
-	//return s
+	// return s
 
 }
 
@@ -103,10 +103,9 @@ func SanitizeURLKeepTrailingSlash(in string) string {
 //     urlize: vim-text-editor
 func (p *PathSpec) URLize(uri string) string {
 	return p.URLEscape(p.MakePathSanitized(uri))
-
 }
 
-// URLizeFilename creates an URL from a filename by esacaping unicode letters
+// URLizeFilename creates an URL from a filename by escaping unicode letters
 // and turn any filepath separator into forward slashes.
 func (p *PathSpec) URLizeFilename(filename string) string {
 	return p.URLEscape(filepath.ToSlash(filename))
@@ -130,7 +129,6 @@ func (p *PathSpec) URLEscape(uri string) string {
 //    path:   post/how-i-blog
 //    result: http://spf13.com/post/how-i-blog
 func MakePermalink(host, plink string) *url.URL {
-
 	base, err := url.Parse(host)
 	if err != nil {
 		panic(err)
@@ -181,10 +179,14 @@ func (p *PathSpec) AbsURL(in string, addLanguage bool) string {
 		if prefix != "" {
 			hasPrefix := false
 			// avoid adding language prefix if already present
+			in2 := in
 			if strings.HasPrefix(in, "/") {
-				hasPrefix = strings.HasPrefix(in[1:], prefix)
+				in2 = in[1:]
+			}
+			if in2 == prefix {
+				hasPrefix = true
 			} else {
-				hasPrefix = strings.HasPrefix(in, prefix)
+				hasPrefix = strings.HasPrefix(in2, prefix+"/")
 			}
 
 			if !hasPrefix {
@@ -230,10 +232,14 @@ func (p *PathSpec) RelURL(in string, addLanguage bool) string {
 		if prefix != "" {
 			hasPrefix := false
 			// avoid adding language prefix if already present
+			in2 := in
 			if strings.HasPrefix(in, "/") {
-				hasPrefix = strings.HasPrefix(in[1:], prefix)
+				in2 = in[1:]
+			}
+			if in2 == prefix {
+				hasPrefix = true
 			} else {
-				hasPrefix = strings.HasPrefix(in, prefix)
+				hasPrefix = strings.HasPrefix(in2, prefix+"/")
 			}
 
 			if !hasPrefix {
@@ -267,7 +273,6 @@ func (p *PathSpec) RelURL(in string, addLanguage bool) string {
 // For relative URL entries on sites with a base url with a context root set (i.e. http://example.com/mysite),
 // relative URLs must not include the context root if canonifyURLs is enabled. But if it's disabled, it must be set.
 func AddContextRoot(baseURL, relativePath string) string {
-
 	url, err := url.Parse(baseURL)
 	if err != nil {
 		panic(err)
@@ -275,7 +280,7 @@ func AddContextRoot(baseURL, relativePath string) string {
 
 	newPath := path.Join(url.Path, relativePath)
 
-	// path strips traling slash, ignore root path.
+	// path strips trailing slash, ignore root path.
 	if newPath != "/" && strings.HasSuffix(relativePath, "/") {
 		newPath += "/"
 	}

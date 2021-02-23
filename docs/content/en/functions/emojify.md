@@ -27,6 +27,6 @@ I :heart: Hugo!
 
 
 [config]: /getting-started/configuration/
-[emojis]: http://www.emoji-cheat-sheet.com/
+[emojis]: https://www.webfx.com/tools/emoji-cheat-sheet/
 [sc]: /templates/shortcode-templates/
 [scsource]: https://github.com/gohugoio/hugo/tree/master/docs/layouts/shortcodes

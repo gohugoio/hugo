@@ -29,8 +29,7 @@ import (
 var _ cmder = (*listCmd)(nil)
 
 type listCmd struct {
-	hugoBuilderCommon
-	*baseCmd
+	*baseBuilderCmd
 }
 
 func (lc *listCmd) buildSites(config map[string]interface{}) (*hugolib.HugoSites, error) {
@@ -47,7 +46,6 @@ func (lc *listCmd) buildSites(config map[string]interface{}) (*hugolib.HugoSites
 	}
 
 	sites, err := hugolib.NewHugoSites(*c.DepsCfg)
-
 	if err != nil {
 		return nil, newSystemError("Error creating sites", err)
 	}
@@ -59,26 +57,25 @@ func (lc *listCmd) buildSites(config map[string]interface{}) (*hugolib.HugoSites
 	return sites, nil
 }
 
-func newListCmd() *listCmd {
+func (b *commandsBuilder) newListCmd() *listCmd {
 	cc := &listCmd{}
 
-	cc.baseCmd = newBaseCmd(&cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "Listing out various types of content",
 		Long: `Listing out various types of content.
 
 List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 		RunE: nil,
-	})
+	}
 
-	cc.cmd.AddCommand(
+	cmd.AddCommand(
 		&cobra.Command{
 			Use:   "drafts",
 			Short: "List all drafts",
 			Long:  `List all of the drafts in your content directory.`,
 			RunE: func(cmd *cobra.Command, args []string) error {
 				sites, err := cc.buildSites(map[string]interface{}{"buildDrafts": true})
-
 				if err != nil {
 					return newSystemError("Error building sites", err)
 				}
@@ -98,7 +95,6 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 			Long:  `List all of the posts in your content directory which will be posted in the future.`,
 			RunE: func(cmd *cobra.Command, args []string) error {
 				sites, err := cc.buildSites(map[string]interface{}{"buildFuture": true})
-
 				if err != nil {
 					return newSystemError("Error building sites", err)
 				}
@@ -127,7 +123,6 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 			Long:  `List all of the posts in your content directory which has already expired.`,
 			RunE: func(cmd *cobra.Command, args []string) error {
 				sites, err := cc.buildSites(map[string]interface{}{"buildExpired": true})
-
 				if err != nil {
 					return newSystemError("Error building sites", err)
 				}
@@ -160,7 +155,6 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 					"buildDrafts":  true,
 					"buildFuture":  true,
 				})
-
 				if err != nil {
 					return newSystemError("Error building sites", err)
 				}
@@ -202,8 +196,7 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 		},
 	)
 
-	cc.cmd.PersistentFlags().StringVarP(&cc.source, "source", "s", "", "filesystem path to read files relative from")
-	cc.cmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
+	cc.baseBuilderCmd = b.newBuilderBasicCmd(cmd)
 
 	return cc
 }

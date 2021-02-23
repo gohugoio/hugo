@@ -12,22 +12,3 @@
 // limitations under the License.
 
 package tplimpl
-
-import (
-	"html/template"
-
-	"github.com/gohugoio/hugo/deps"
-)
-
-// Some of the template funcs are'nt entirely stateless.
-type templateFuncster struct {
-	funcMap template.FuncMap
-
-	*deps.Deps
-}
-
-func newTemplateFuncster(deps *deps.Deps) *templateFuncster {
-	return &templateFuncster{
-		Deps: deps,
-	}
-}

@@ -81,6 +81,21 @@ This means the partial will *only* be able to access those variables. The partia
 
 In addition to outputting markup, partials can be used to return a value of any type. In order to return a value, a partial must include a lone `return` statement.
 
+## Inline partials
+
+{{< new-in "0.74.0" >}}
+
+You can also define partials inline in the template. But remember that template namespace is global, so you need to make sure that the names are unique to avoid conflicts.
+
+```go-html-template
+Value: {{ partial "my-inline-partial" . }}
+
+{{ define "partials/my-inline-partial" }}
+{{ $value := 32 }}
+{{ return $value }}
+{{ end }}
+```
+
 ### Example GetFeatured
 ```go-html-template
 {{/* layouts/partials/GetFeatured.html */}}
@@ -143,7 +158,7 @@ Note that the variant parameters are not made available to the underlying partia
 
 ### Example `header.html`
 
-The following `header.html` partial template is used for [spf13.com](http://spf13.com/):
+The following `header.html` partial template is used for [spf13.com](https://spf13.com/):
 
 {{< code file="layouts/partials/header.html" download="header.html" >}}
 <!DOCTYPE html>
@@ -169,35 +184,18 @@ The `header.html` example partial was built before the introduction of block tem
 
 ### Example `footer.html`
 
-The following `footer.html` partial template is used for [spf13.com](http://spf13.com/):
+The following `footer.html` partial template is used for [spf13.com](https://spf13.com/):
 
 {{< code file="layouts/partials/footer.html" download="footer.html" >}}
 <footer>
   <div>
     <p>
     &copy; 2013-14 Steve Francia.
-    <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons Attribution">Some rights reserved</a>;
-    please attribute properly and link back. Hosted by <a href="http://servergrove.com">ServerGrove</a>.
+    <a href="https://creativecommons.org/licenses/by/3.0/" title="Creative Commons Attribution">Some rights reserved</a>;
+    please attribute properly and link back.
     </p>
   </div>
 </footer>
-<script type="text/javascript">
-
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-XYSYXYSY-X']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script');
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' :
-        'http://www') + '.google-analytics.com/ga.js';
-    ga.setAttribute('async', 'true');
-    document.documentElement.firstChild.appendChild(ga);
-  })();
-
-</script>
-</body>
-</html>
 {{< /code >}}
 
 [context]: /templates/introduction/ "The most easily overlooked concept to understand about Go templating is how the dot always refers to the current context."

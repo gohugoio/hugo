@@ -65,5 +65,4 @@ func TestUseSettingsFromRootIfSet(t *testing.T) {
 
 	c.Assert(config.Disqus.Shortname, qt.Equals, "root_short")
 	c.Assert(config.GoogleAnalytics.ID, qt.Equals, "ga_root")
-
 }

@@ -18,14 +18,34 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/hreflect"
+	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/pkg/errors"
 )
 
-// Merge creates a copy of dst and merges src into it.
-// Currently only maps supported. Key handling is case insensitive.
-func (ns *Namespace) Merge(src, dst interface{}) (interface{}, error) {
+// Merge creates a copy of the final parameter and merges the preceding
+// parameters into it in reverse order.
+// Currently only maps are supported. Key handling is case insensitive.
+func (ns *Namespace) Merge(params ...interface{}) (interface{}, error) {
+	if len(params) < 2 {
+		return nil, errors.New("merge requires at least two parameters")
+	}
 
+	var err error
+	result := params[len(params)-1]
+
+	for i := len(params) - 2; i >= 0; i-- {
+		result, err = ns.merge(params[i], result)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return result, nil
+}
+
+// merge creates a copy of dst and merges src into it.
+func (ns *Namespace) merge(src, dst interface{}) (interface{}, error) {
 	vdst, vsrc := reflect.ValueOf(dst), reflect.ValueOf(src)
 
 	if vdst.Kind() != reflect.Map {
@@ -40,7 +60,7 @@ func (ns *Namespace) Merge(src, dst interface{}) (interface{}, error) {
 		return nil, errors.Errorf("source must be a map, got %T", src)
 	}
 
-	if vsrc.Type() != vdst.Type() {
+	if vsrc.Type().Key() != vdst.Type().Key() {
 		return nil, errors.Errorf("incompatible map types, got %T to %T", src, dst)
 	}
 
@@ -58,15 +78,16 @@ func caseInsensitiveLookup(m, k reflect.Value) (reflect.Value, bool) {
 		if strings.EqualFold(k.String(), key.String()) {
 			return m.MapIndex(key), true
 		}
-
 	}
 
 	return reflect.Value{}, false
 }
 
 func mergeMap(dst, src reflect.Value) reflect.Value {
-
 	out := reflect.MakeMap(dst.Type())
+
+	// If the destination is Params, we must lower case all keys.
+	_, lowerCase := dst.Interface().(maps.Params)
 
 	// Copy the destination map.
 	for _, key := range dst.MapKeys() {
@@ -81,15 +102,22 @@ func mergeMap(dst, src reflect.Value) reflect.Value {
 		dv, found := caseInsensitiveLookup(dst, key)
 
 		if found {
-			// If both are the same map type, merge.
+			// If both are the same map key type, merge.
 			dve := dv.Elem()
 			if dve.Kind() == reflect.Map {
 				sve := sv.Elem()
-				if dve.Type() == sve.Type() {
+				if sve.Kind() != reflect.Map {
+					continue
+				}
+
+				if dve.Type().Key() == sve.Type().Key() {
 					out.SetMapIndex(key, mergeMap(dve, sve))
 				}
 			}
 		} else {
+			if lowerCase && key.Kind() == reflect.String {
+				key = reflect.ValueOf(strings.ToLower(key.String()))
+			}
 			out.SetMapIndex(key, sv)
 		}
 	}

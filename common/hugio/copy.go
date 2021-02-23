@@ -26,28 +26,29 @@ import (
 
 // CopyFile copies a file.
 func CopyFile(fs afero.Fs, from, to string) error {
-	sf, err := os.Open(from)
+	sf, err := fs.Open(from)
 	if err != nil {
 		return err
 	}
 	defer sf.Close()
-	df, err := os.Create(to)
+	df, err := fs.Create(to)
 	if err != nil {
 		return err
 	}
 	defer df.Close()
 	_, err = io.Copy(df, sf)
-	if err == nil {
-		si, err := os.Stat(from)
-		if err != nil {
-			err = os.Chmod(to, si.Mode())
-
-			if err != nil {
-				return err
-			}
-		}
-
+	if err != nil {
+		return err
 	}
+	si, err := fs.Stat(from)
+	if err != nil {
+		err = fs.Chmod(to, si.Mode())
+
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

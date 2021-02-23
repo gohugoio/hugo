@@ -14,6 +14,7 @@
 package maps
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/gobwas/glob"
@@ -25,23 +26,59 @@ import (
 // recursively.
 // Notes:
 // * This will modify the map given.
-// * Any nested map[interface{}]interface{} will be converted to map[string]interface{}.
-func ToLower(m map[string]interface{}) {
+// * Any nested map[interface{}]interface{} will be converted to Params.
+func ToLower(m Params) {
 	for k, v := range m {
+		var retyped bool
 		switch v.(type) {
 		case map[interface{}]interface{}:
-			v = cast.ToStringMap(v)
-			ToLower(v.(map[string]interface{}))
+			var p Params = cast.ToStringMap(v)
+			v = p
+			ToLower(p)
+			retyped = true
 		case map[string]interface{}:
-			ToLower(v.(map[string]interface{}))
+			var p Params = v.(map[string]interface{})
+			v = p
+			ToLower(p)
+			retyped = true
 		}
 
 		lKey := strings.ToLower(k)
-		if k != lKey {
+		if retyped || k != lKey {
 			delete(m, k)
 			m[lKey] = v
 		}
+	}
+}
 
+func ToStringMapE(in interface{}) (map[string]interface{}, error) {
+	switch in.(type) {
+	case Params:
+		return in.(Params), nil
+	default:
+		return cast.ToStringMapE(in)
+	}
+}
+
+func ToStringMap(in interface{}) map[string]interface{} {
+	m, _ := ToStringMapE(in)
+	return m
+}
+
+func ToSliceStringMap(in interface{}) ([]map[string]interface{}, error) {
+	switch v := in.(type) {
+	case []map[string]interface{}:
+		return v, nil
+	case []interface{}:
+		var s []map[string]interface{}
+		for _, entry := range v {
+			if vv, ok := entry.(map[string]interface{}); ok {
+				s = append(s, vv)
+			}
+		}
+		return s, nil
+	default:
+		return nil, fmt.Errorf("unable to cast %#v of type %T to []map[string]interface{}", in, in)
 	}
 }
 

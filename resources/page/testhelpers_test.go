@@ -19,6 +19,10 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/tpl"
+
 	"github.com/gohugoio/hugo/modules"
 
 	"github.com/bep/gitmap"
@@ -81,11 +85,12 @@ func newTestPathSpecFor(cfg config.Provider) *helpers.PathSpec {
 }
 
 type testPage struct {
+	kind        string
 	description string
 	title       string
 	linkTitle   string
-
-	section string
+	lang        string
+	section     string
 
 	content string
 
@@ -123,8 +128,8 @@ func (p *testPage) AlternativeOutputFormats() OutputFormats {
 
 func (p *testPage) Author() Author {
 	return Author{}
-
 }
+
 func (p *testPage) Authors() AuthorList {
 	return nil
 }
@@ -133,7 +138,7 @@ func (p *testPage) BaseFileName() string {
 	panic("not implemented")
 }
 
-func (p *testPage) BundleType() string {
+func (p *testPage) BundleType() files.ContentClass {
 	panic("not implemented")
 }
 
@@ -160,6 +165,7 @@ func (p *testPage) Sitemap() config.Sitemap {
 func (p *testPage) Layout() string {
 	return ""
 }
+
 func (p *testPage) Date() time.Time {
 	return p.date
 }
@@ -216,7 +222,15 @@ func (p *testPage) GetPage(ref string) (Page, error) {
 	panic("not implemented")
 }
 
+func (p *testPage) GetPageWithTemplateInfo(info tpl.Info, ref string) (Page, error) {
+	panic("not implemented")
+}
+
 func (p *testPage) GetParam(key string) interface{} {
+	panic("not implemented")
+}
+
+func (p *testPage) GetTerms(taxonomy string) Pages {
 	panic("not implemented")
 }
 
@@ -285,11 +299,11 @@ func (p *testPage) Keywords() []string {
 }
 
 func (p *testPage) Kind() string {
-	panic("not implemented")
+	return p.kind
 }
 
 func (p *testPage) Lang() string {
-	panic("not implemented")
+	return p.lang
 }
 
 func (p *testPage) Language() *langs.Language {
@@ -310,6 +324,9 @@ func (p *testPage) Len() int {
 
 func (p *testPage) LinkTitle() string {
 	if p.linkTitle == "" {
+		if p.title == "" {
+			return p.path
+		}
 		return p.title
 	}
 	return p.linkTitle
@@ -355,6 +372,10 @@ func (p *testPage) RegularPages() Pages {
 	panic("not implemented")
 }
 
+func (p *testPage) RegularPagesRecursive() Pages {
+	panic("not implemented")
+}
+
 func (p *testPage) Paginate(seq interface{}, options ...interface{}) (*Pager, error) {
 	return nil, nil
 }
@@ -367,7 +388,7 @@ func (p *testPage) Param(key interface{}) (interface{}, error) {
 	return resource.Param(p, nil, key)
 }
 
-func (p *testPage) Params() map[string]interface{} {
+func (p *testPage) Params() maps.Params {
 	return p.params
 }
 
@@ -443,7 +464,11 @@ func (p *testPage) RelRefFrom(argsm map[string]interface{}, source interface{}) 
 	return "", nil
 }
 
-func (p *testPage) Render(layout ...string) template.HTML {
+func (p *testPage) Render(layout ...string) (template.HTML, error) {
+	panic("not implemented")
+}
+
+func (p *testPage) RenderString(args ...interface{}) (template.HTML, error) {
 	panic("not implemented")
 }
 
@@ -545,6 +570,10 @@ func (p *testPage) Weight() int {
 }
 
 func (p *testPage) WordCount() int {
+	panic("not implemented")
+}
+
+func (p *testPage) GetIdentity() identity.Identity {
 	panic("not implemented")
 }
 

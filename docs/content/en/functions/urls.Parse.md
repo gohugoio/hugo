@@ -21,7 +21,7 @@ aliases: []
 
 
 ```
-{{ $url := urls.Parse "http://www.gohugo.io" }}		
+{{ $url := urls.Parse "http://www.gohugo.io" }}
 ```
 
 and returns a [URL](https://godoc.org/net/url#URL) structure. The struct fields are accessed via the `.` notation:

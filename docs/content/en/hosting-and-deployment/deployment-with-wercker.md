@@ -289,8 +289,6 @@ Once this workflow is established, you can update your website automatically by 
 
 [The source code for the site used in this guide is available on GitHub][guidesource], as is the [Wercker Hugo Build step][guidestep].
 
-If you want to see an example of how you can deploy to S3 instead of GitHub pages, check [Wercker's documentation][werckerdocs] for guidance on setup.
-
 [1]: /images/hosting-and-deployment/deployment-with-wercker/creating-a-basic-hugo-site.png
 [2]: /images/hosting-and-deployment/deployment-with-wercker/adding-the-project-to-github.png
 [3]: /images/hosting-and-deployment/deployment-with-wercker/wercker-sign-up.png
@@ -321,4 +319,3 @@ If you want to see an example of how you can deploy to S3 instead of GitHub page
 [hugoconfig]: /getting-started/configuration/
 [publicappurl]: https://app.wercker.com/#applications/5586dcbdaf7de9c51b02b0d5
 [quickstart]: /getting-started/quick-start/
-[werckerdocs]: http://devcenter.wercker.com/docs/deploy/s3.html

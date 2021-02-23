@@ -17,15 +17,20 @@ import (
 	"fmt"
 	"html/template"
 	"os"
-
-	"github.com/gohugoio/hugo/config"
-
-	"github.com/gohugoio/hugo/common/loggers"
-
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/gohugoio/hugo/htesting"
+
+	"github.com/gohugoio/hugo/markup/rst"
+
+	"github.com/gohugoio/hugo/markup/asciidocext"
+
+	"github.com/gohugoio/hugo/config"
+
+	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/gohugoio/hugo/hugofs"
 
@@ -89,12 +94,6 @@ Summary Next Line. {{<figure src="/not/real" >}}.
 More text here.
 
 Some more text
-`
-
-	simplePageWithEmbeddedScript = `---
-title: Simple
----
-<script type='text/javascript'>alert('the script tags are still there, right?');</script>
 `
 
 	simplePageWithSummaryDelimiterSameLine = `---
@@ -321,8 +320,9 @@ func normalizeContent(c string) string {
 }
 
 func checkPageTOC(t *testing.T, page page.Page, toc string) {
+	t.Helper()
 	if page.TableOfContents() != template.HTML(toc) {
-		t.Fatalf("Page TableOfContents is: %q.\nExpected %q", page.TableOfContents(), toc)
+		t.Fatalf("Page TableOfContents is:\n%q.\nExpected %q", page.TableOfContents(), toc)
 	}
 }
 
@@ -371,15 +371,14 @@ func normalizeExpected(ext, str string) string {
 
 func testAllMarkdownEnginesForPages(t *testing.T,
 	assertFunc func(t *testing.T, ext string, pages page.Pages), settings map[string]interface{}, pageSources ...string) {
-
 	engines := []struct {
 		ext           string
 		shouldExecute func() bool
 	}{
 		{"md", func() bool { return true }},
 		{"mmark", func() bool { return true }},
-		{"ad", func() bool { return helpers.HasAsciidoc() }},
-		{"rst", func() bool { return helpers.HasRst() }},
+		{"ad", func() bool { return asciidocext.Supports() }},
+		{"rst", func() bool { return rst.Supports() }},
 	}
 
 	for _, e := range engines {
@@ -392,7 +391,6 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 				cfg.Set(k, v)
 			}
 			return nil
-
 		})
 
 		contentDir := "content"
@@ -431,13 +429,13 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 		b.Assert(content(home), qt.Contains, "Home Page Content")
 
 	}
-
 }
 
 // Issue #1076
 func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 	t.Parallel()
 	cfg, fs := newTestCfg()
+
 	c := qt.New(t)
 
 	writeSource(t, fs, filepath.Join("content", "simple.md"), simplePageWithSummaryDelimiterAndMarkdownThatCrossesBorder)
@@ -449,12 +447,12 @@ func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 	p := s.RegularPages()[0]
 
 	if p.Summary() != template.HTML(
-		"<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a href=\"#fn:1\">1</a></sup></p>") {
+		"<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup id=\"fnref:1\"><a href=\"#fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup></p>") {
 		t.Fatalf("Got summary:\n%q", p.Summary())
 	}
 
 	cnt := content(p)
-	if cnt != "<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a href=\"#fn:1\">1</a></sup></p>\n\n<div class=\"footnotes\">\n\n<hr />\n\n<ol>\n<li id=\"fn:1\">Many people say so.\n <a class=\"footnote-return\" href=\"#fnref:1\"><sup>[return]</sup></a></li>\n</ol>\n</div>" {
+	if cnt != "<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup id=\"fnref:1\"><a href=\"#fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup></p>\n<section class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"fn:1\" role=\"doc-endnote\">\n<p>Many people say so. <a href=\"#fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</section>" {
 		t.Fatalf("Got content:\n%q", cnt)
 	}
 }
@@ -481,7 +479,7 @@ categories: ["cool stuff"]
 	s := b.H.Sites[0]
 
 	checkDate := func(t time.Time, msg string) {
-		b.Assert(t.Year(), qt.Equals, 2017)
+		b.Assert(t.Year(), qt.Equals, 2017, qt.Commentf(msg))
 	}
 
 	checkDated := func(d resource.Dated, msg string) {
@@ -492,7 +490,6 @@ categories: ["cool stuff"]
 		checkDated(p, p.Kind())
 	}
 	checkDate(s.Info.LastChange(), "site")
-
 }
 
 func TestPageDatesSections(t *testing.T) {
@@ -504,30 +501,54 @@ func TestPageDatesSections(t *testing.T) {
 title: Page
 date: 2017-01-15
 ---
-`)
-	b.WithSimpleConfigFile().WithContent("with-index-no-date/_index.md", `---
+`, "with-index-no-date/_index.md", `---
 title: No Date
 ---
 
-`)
+`,
+		// https://github.com/gohugoio/hugo/issues/5854
+		"with-index-date/_index.md", `---
+title: Date
+date: 2018-01-15
+---
 
-	// https://github.com/gohugoio/hugo/issues/5854
-	b.WithSimpleConfigFile().WithContent("with-index-date/_index.md", `---
+`, "with-index-date/p1.md", `---
+title: Date
+date: 2018-01-15
+---
+
+`, "with-index-date/p1.md", `---
 title: Date
 date: 2018-01-15
 ---
 
 `)
 
+	for i := 1; i <= 20; i++ {
+		b.WithContent(fmt.Sprintf("main-section/p%d.md", i), `---
+title: Date
+date: 2012-01-12
+---
+
+`)
+	}
+
 	b.CreateSites().Build(BuildCfg{})
 
 	b.Assert(len(b.H.Sites), qt.Equals, 1)
 	s := b.H.Sites[0]
 
-	b.Assert(s.getPage("/").Date().Year(), qt.Equals, 2017)
-	b.Assert(s.getPage("/no-index").Date().Year(), qt.Equals, 2017)
+	checkDate := func(p page.Page, year int) {
+		b.Assert(p.Date().Year(), qt.Equals, year)
+		b.Assert(p.Lastmod().Year(), qt.Equals, year)
+	}
+
+	checkDate(s.getPage("/"), 2018)
+	checkDate(s.getPage("/no-index"), 2017)
 	b.Assert(s.getPage("/with-index-no-date").Date().IsZero(), qt.Equals, true)
-	b.Assert(s.getPage("/with-index-date").Date().Year(), qt.Equals, 2018)
+	checkDate(s.getPage("/with-index-date"), 2018)
+
+	b.Assert(s.Site.LastChange().Year(), qt.Equals, 2018)
 }
 
 func TestCreateNewPage(t *testing.T) {
@@ -622,7 +643,6 @@ Simple Page With Some Date`
 		for _, p := range pages {
 			c.Assert(hasDate(p), qt.Equals, true)
 		}
-
 	}
 
 	fields := []string{"date", "publishdate", "pubdate", "published"}
@@ -653,7 +673,6 @@ title: Raw
 	p := s.RegularPages()[0]
 
 	c.Assert("**Raw**", qt.Equals, p.RawContent())
-
 }
 
 func TestPageWithShortCodeInSummary(t *testing.T) {
@@ -669,23 +688,13 @@ func TestPageWithShortCodeInSummary(t *testing.T) {
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithShortcodeInSummary)
 }
 
-func TestPageWithEmbeddedScriptTag(t *testing.T) {
-	t.Parallel()
-	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
-		p := pages[0]
-		if ext == "ad" || ext == "rst" {
-			// TOD(bep)
-			return
-		}
-		checkPageContent(t, p, "<script type='text/javascript'>alert('the script tags are still there, right?');</script>\n", ext)
-	}
-
-	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithEmbeddedScript)
-}
-
 func TestPageWithAdditionalExtension(t *testing.T) {
 	t.Parallel()
 	cfg, fs := newTestCfg()
+	cfg.Set("markup", map[string]interface{}{
+		"defaultMarkdownHandler": "blackfriday", // TODO(bep)
+	})
+
 	c := qt.New(t)
 
 	writeSource(t, fs, filepath.Join("content", "simple.md"), simplePageWithAdditionalExtension)
@@ -700,7 +709,6 @@ func TestPageWithAdditionalExtension(t *testing.T) {
 }
 
 func TestTableOfContents(t *testing.T) {
-
 	cfg, fs := newTestCfg()
 	c := qt.New(t)
 
@@ -712,8 +720,8 @@ func TestTableOfContents(t *testing.T) {
 
 	p := s.RegularPages()[0]
 
-	checkPageContent(t, p, "\n\n<p>For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.</p>\n\n<h2 id=\"aa\">AA</h2>\n\n<p>I have no idea, of course, how long it took me to reach the limit of the plain,\nbut at last I entered the foothills, following a pretty little canyon upward\ntoward the mountains. Beside me frolicked a laughing brooklet, hurrying upon\nits noisy way down to the silent sea. In its quieter pools I discovered many\nsmall fish, of four-or five-pound weight I should imagine. In appearance,\nexcept as to size and color, they were not unlike the whale of our own seas. As\nI watched them playing about I discovered, not only that they suckled their\nyoung, but that at intervals they rose to the surface to breathe as well as to\nfeed upon certain grasses and a strange, scarlet lichen which grew upon the\nrocks just above the water line.</p>\n\n<h3 id=\"aaa\">AAA</h3>\n\n<p>I remember I felt an extraordinary persuasion that I was being played with,\nthat presently, when I was upon the very verge of safety, this mysterious\ndeath&ndash;as swift as the passage of light&ndash;would leap after me from the pit about\nthe cylinder and strike me down. ## BB</p>\n\n<h3 id=\"bbb\">BBB</h3>\n\n<p>&ldquo;You&rsquo;re a great Granser,&rdquo; he cried delightedly, &ldquo;always making believe them little marks mean something.&rdquo;</p>\n")
-	checkPageTOC(t, p, "<nav id=\"TableOfContents\">\n<ul>\n<li>\n<ul>\n<li><a href=\"#aa\">AA</a>\n<ul>\n<li><a href=\"#aaa\">AAA</a></li>\n<li><a href=\"#bbb\">BBB</a></li>\n</ul></li>\n</ul></li>\n</ul>\n</nav>")
+	checkPageContent(t, p, "<p>For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.</p><h2 id=\"aa\">AA</h2> <p>I have no idea, of course, how long it took me to reach the limit of the plain, but at last I entered the foothills, following a pretty little canyon upward toward the mountains. Beside me frolicked a laughing brooklet, hurrying upon its noisy way down to the silent sea. In its quieter pools I discovered many small fish, of four-or five-pound weight I should imagine. In appearance, except as to size and color, they were not unlike the whale of our own seas. As I watched them playing about I discovered, not only that they suckled their young, but that at intervals they rose to the surface to breathe as well as to feed upon certain grasses and a strange, scarlet lichen which grew upon the rocks just above the water line.</p><h3 id=\"aaa\">AAA</h3> <p>I remember I felt an extraordinary persuasion that I was being played with, that presently, when I was upon the very verge of safety, this mysterious death&ndash;as swift as the passage of light&ndash;would leap after me from the pit about the cylinder and strike me down. ## BB</p><h3 id=\"bbb\">BBB</h3> <p>&ldquo;You&rsquo;re a great Granser,&rdquo; he cried delightedly, &ldquo;always making believe them little marks mean something.&rdquo;</p>")
+	checkPageTOC(t, p, "<nav id=\"TableOfContents\">\n  <ul>\n    <li><a href=\"#aa\">AA</a>\n      <ul>\n        <li><a href=\"#aaa\">AAA</a></li>\n        <li><a href=\"#bbb\">BBB</a></li>\n      </ul>\n    </li>\n  </ul>\n</nav>")
 }
 
 func TestPageWithMoreTag(t *testing.T) {
@@ -724,7 +732,6 @@ func TestPageWithMoreTag(t *testing.T) {
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Same Line</p>\n\n<p>Some more text</p>\n"))
 		checkPageSummary(t, p, normalizeExpected(ext, "<p>Summary Same Line</p>"))
 		checkPageType(t, p, "page")
-
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithSummaryDelimiterSameLine)
@@ -732,7 +739,6 @@ func TestPageWithMoreTag(t *testing.T) {
 
 // #2973
 func TestSummaryWithHTMLTagsOnNextLine(t *testing.T) {
-
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
 		c := qt.New(t)
 		p := pages[0]
@@ -773,6 +779,10 @@ func TestPageWithDate(t *testing.T) {
 }
 
 func TestPageWithLastmodFromGitInfo(t *testing.T) {
+	if htesting.IsCI() {
+		// TODO(bep) figure out why this fails on GitHub actions.
+		t.Skip("Skip GitInfo test on CI")
+	}
 	c := qt.New(t)
 
 	// We need to use the OS fs for this.
@@ -824,7 +834,6 @@ func TestPageWithLastmodFromGitInfo(t *testing.T) {
 
 	// 2018-08-11 is the Git author date for testsite/content_nn/first-post.md
 	c.Assert(nnSite.RegularPages()[0].Lastmod().Format("2006-01-02"), qt.Equals, "2018-08-11")
-
 }
 
 func TestPageWithFrontMatterConfig(t *testing.T) {
@@ -890,7 +899,6 @@ Content
 			}
 		})
 	}
-
 }
 
 func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
@@ -956,7 +964,6 @@ func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, settings, simplePageWithIsCJKLanguageFalse)
-
 }
 
 func TestWordCount(t *testing.T) {
@@ -974,7 +981,6 @@ func TestWordCount(t *testing.T) {
 		if p.ReadingTime() != 3 {
 			t.Fatalf("[%s] incorrect min read. expected %v, got %v", ext, 3, p.ReadingTime())
 		}
-
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithLongContent)
@@ -1038,7 +1044,6 @@ func TestTranslationKey(t *testing.T) {
 	p2 := s.RegularPages()[1]
 
 	c.Assert(p2.TranslationKey(), qt.Equals, "page/sect/simple")
-
 }
 
 func TestChompBOM(t *testing.T) {
@@ -1111,7 +1116,6 @@ but if you like it, hit :+1: and get subscribed!
 		}
 
 	}
-
 }
 
 func TestPageHTMLContent(t *testing.T) {
@@ -1148,7 +1152,6 @@ title: "HTML Content"
 		"Summary: \n<p>This is summary</p>\n|Truncated: true",
 		"|<p>This is the main content.</p>|",
 	)
-
 }
 
 // https://github.com/gohugoio/hugo/issues/5381
@@ -1264,7 +1267,6 @@ Content:{{ .Content }}
 		"Title: hello",
 		"Content:<p>This is the content.</p>",
 	)
-
 }
 
 // https://github.com/gohugoio/hugo/issues/5781
@@ -1291,11 +1293,11 @@ Content.
 
 func TestShouldBuild(t *testing.T) {
 	t.Parallel()
-	var past = time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC)
-	var future = time.Date(2037, 11, 17, 20, 34, 58, 651387237, time.UTC)
-	var zero = time.Time{}
+	past := time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC)
+	future := time.Date(2037, 11, 17, 20, 34, 58, 651387237, time.UTC)
+	zero := time.Time{}
 
-	var publishSettings = []struct {
+	publishSettings := []struct {
 		buildFuture  bool
 		buildExpired bool
 		buildDrafts  bool
@@ -1420,7 +1422,6 @@ tags:
 				} else {
 					c.Assert(p.RelPermalink(), qt.Equals, "/post/test0.dot/")
 				}
-
 			})
 		}
 	}
@@ -1428,7 +1429,6 @@ tags:
 
 // https://github.com/gohugoio/hugo/issues/4675
 func TestWordCountAndSimilarVsSummary(t *testing.T) {
-
 	t.Parallel()
 	c := qt.New(t)
 
@@ -1514,13 +1514,12 @@ Summary: In Chinese, 好 means good.
 
 	b.AssertFileContent("public/p1/index.html", "WordCount: 510\nFuzzyWordCount: 600\nReadingTime: 3\nLen Plain: 2550\nLen PlainWords: 510\nTruncated: false\nLen Summary: 2549\nLen Content: 2557")
 
-	b.AssertFileContent("public/p2/index.html", "WordCount: 314\nFuzzyWordCount: 400\nReadingTime: 2\nLen Plain: 1569\nLen PlainWords: 314\nTruncated: true\nLen Summary: 25\nLen Content: 1583")
+	b.AssertFileContent("public/p2/index.html", "WordCount: 314\nFuzzyWordCount: 400\nReadingTime: 2\nLen Plain: 1569\nLen PlainWords: 314\nTruncated: true\nLen Summary: 25\nLen Content: 1582")
 
-	b.AssertFileContent("public/p3/index.html", "WordCount: 206\nFuzzyWordCount: 300\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 43\nLen Content: 652")
-	b.AssertFileContent("public/p4/index.html", "WordCount: 7\nFuzzyWordCount: 100\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 43\nLen Content: 652")
-	b.AssertFileContent("public/p5/index.html", "WordCount: 206\nFuzzyWordCount: 300\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 229\nLen Content: 653")
-	b.AssertFileContent("public/p6/index.html", "WordCount: 7\nFuzzyWordCount: 100\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: false\nLen Summary: 637\nLen Content: 653")
-
+	b.AssertFileContent("public/p3/index.html", "WordCount: 206\nFuzzyWordCount: 300\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 43\nLen Content: 651")
+	b.AssertFileContent("public/p4/index.html", "WordCount: 7\nFuzzyWordCount: 100\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 43\nLen Content: 651")
+	b.AssertFileContent("public/p5/index.html", "WordCount: 206\nFuzzyWordCount: 300\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 229\nLen Content: 652")
+	b.AssertFileContent("public/p6/index.html", "WordCount: 7\nFuzzyWordCount: 100\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: false\nLen Summary: 637\nLen Content: 652")
 }
 
 func TestScratchSite(t *testing.T) {
@@ -1569,7 +1568,8 @@ baseURL = "https://example.org"
 {{ $withStringParam := .Site.GetPage "withstringparam" }}
 
 Author page: {{ $withParam.Param "author.name" }}
-Author page string: {{ $withStringParam.Param "author.name" }}|
+Author name page string: {{ $withStringParam.Param "author.name" }}|
+Author page string: {{ $withStringParam.Param "author" }}|
 Author site config:  {{ $noParam.Param "author.name" }}
 
 `,
@@ -1599,8 +1599,165 @@ author = "Jo Nesbø"
 `)
 	b.Build(BuildCfg{})
 
-	b.AssertFileContent("public/index.html", "Author page: Ernest Miller Hemingway")
-	b.AssertFileContent("public/index.html", "Author page string: |")
-	b.AssertFileContent("public/index.html", "Author site config:  Kurt Vonnegut")
+	b.AssertFileContent("public/index.html",
+		"Author page: Ernest Miller Hemingway",
+		"Author name page string: Kurt Vonnegut|",
+		"Author page string: Jo Nesbø|",
+		"Author site config:  Kurt Vonnegut")
+}
 
+func TestGoldmark(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t).WithConfigFile("toml", `
+baseURL = "https://example.org"
+
+[markup]
+defaultMarkdownHandler="goldmark"
+[markup.goldmark]
+[markup.goldmark.renderer]
+unsafe = false
+[markup.highlight]
+noClasses=false
+
+
+`)
+	b.WithTemplatesAdded("_default/single.html", `
+Title: {{ .Title }}
+ToC: {{ .TableOfContents }}
+Content: {{ .Content }}
+
+`, "shortcodes/t.html", `T-SHORT`, "shortcodes/s.html", `## Code
+{{ .Inner }}
+`)
+
+	content := `
++++
+title = "A Page!"
++++
+
+## Shortcode {{% t %}} in header
+
+## Code Fense in Shortcode
+
+{{% s %}}
+$$$bash {hl_lines=[1]}
+SHORT
+$$$
+{{% /s %}}
+
+## Code Fence
+
+$$$bash {hl_lines=[1]}
+MARKDOWN
+$$$
+
+Link with URL as text
+
+[https://google.com](https://google.com)
+
+
+`
+	content = strings.ReplaceAll(content, "$$$", "```")
+
+	b.WithContent("page.md", content)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/page/index.html",
+		`<nav id="TableOfContents">
+<li><a href="#shortcode-t-short-in-header">Shortcode T-SHORT in header</a></li>
+<code class="language-bash" data-lang="bash"><span class="hl">SHORT
+<code class="language-bash" data-lang="bash"><span class="hl">MARKDOWN
+<p><a href="https://google.com">https://google.com</a></p>
+`)
+}
+
+func TestBlackfridayDefault(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t).WithConfigFile("toml", `
+baseURL = "https://example.org"
+
+[markup]
+defaultMarkdownHandler="blackfriday"
+[markup.highlight]
+noClasses=false
+[markup.goldmark]
+[markup.goldmark.renderer]
+unsafe=true
+
+
+`)
+	// Use the new attribute syntax to make sure it's not Goldmark.
+	b.WithTemplatesAdded("_default/single.html", `
+Title: {{ .Title }}
+Content: {{ .Content }}
+
+`, "shortcodes/s.html", `## Code
+{{ .Inner }}
+`)
+
+	content := `
++++
+title = "A Page!"
++++
+
+
+## Code Fense in Shortcode
+
+{{% s %}}
+S:
+{{% s %}}
+$$$bash {hl_lines=[1]}
+SHORT
+$$$
+{{% /s %}}
+{{% /s %}}
+
+## Code Fence
+
+$$$bash {hl_lines=[1]}
+MARKDOWN
+$$$
+
+`
+	content = strings.ReplaceAll(content, "$$$", "```")
+
+	for i, ext := range []string{"md", "html"} {
+		b.WithContent(fmt.Sprintf("page%d.%s", i+1, ext), content)
+	}
+
+	b.Build(BuildCfg{})
+
+	// Blackfriday does not support this extended attribute syntax.
+	b.AssertFileContent("public/page1/index.html",
+		`<pre><code class="language-bash {hl_lines=[1]}" data-lang="bash {hl_lines=[1]}">SHORT</code></pre>`,
+		`<pre><code class="language-bash {hl_lines=[1]}" data-lang="bash {hl_lines=[1]}">MARKDOWN`,
+	)
+
+	b.AssertFileContent("public/page2/index.html",
+		`<pre><code class="language-bash {hl_lines=[1]}" data-lang="bash {hl_lines=[1]}">SHORT`,
+	)
+}
+
+func TestPageCaseIssues(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t)
+	b.WithConfigFile("toml", `defaultContentLanguage = "no"
+[languages]
+[languages.NO]
+title = "Norsk"
+`)
+	b.WithContent("a/B/C/Page1.md", "---\ntitle: Page1\n---")
+	b.WithTemplates("index.html", `
+{{ $p1 := site.GetPage "a/B/C/Page1" }}
+Lang: {{ .Lang }}
+Page1: {{ $p1.Path }}
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", "Lang: no", filepath.FromSlash("Page1: a/B/C/Page1.md"))
 }

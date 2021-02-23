@@ -80,5 +80,4 @@ func TestTruncate(t *testing.T) {
 	if err == nil {
 		t.Errorf("Should have errored")
 	}
-
 }

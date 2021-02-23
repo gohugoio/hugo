@@ -21,6 +21,27 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
+// The most basic build test.
+func TestHello(t *testing.T) {
+	t.Parallel()
+	b := newTestSitesBuilder(t)
+	b.WithConfigFile("toml", `
+baseURL="https://example.org"
+disableKinds = ["term", "taxonomy", "section", "page"]
+`)
+	b.WithContent("p1", `
+---
+title: Page
+---
+
+`)
+	b.WithTemplates("index.html", `Site: {{ .Site.Language.Lang | upper }}`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", `Site: EN`)
+}
+
 func TestSmoke(t *testing.T) {
 	t.Parallel()
 
@@ -101,7 +122,7 @@ Footnotes:
 
 `
 
-	var pageContentAutoSummary = strings.Replace(pageContentAndSummaryDivider, "<!--more-->", "", 1)
+	pageContentAutoSummary := strings.Replace(pageContentAndSummaryDivider, "<!--more-->", "", 1)
 
 	b := newTestSitesBuilder(t).WithConfigFile("toml", configFile)
 	b.WithTemplatesAdded("shortcodes/markdown-shortcode.html", `
@@ -261,12 +282,10 @@ Some **Markdown** in JSON shortcode.
 	// Markdown vs shortcodes
 	// Check that all footnotes are grouped (even those from inside the shortcode)
 	b.AssertFileContentRe("public/blog/markyshort/index.html", `Footnotes:.*<ol>.*Fn 1.*Fn 2.*Fn 3.*</ol>`)
-
 }
 
 // https://github.com/golang/go/issues/30286
 func TestDataRace(t *testing.T) {
-
 	const page = `
 ---
 title: "The Page"

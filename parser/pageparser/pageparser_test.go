@@ -16,6 +16,9 @@ package pageparser
 import (
 	"strings"
 	"testing"
+
+	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/parser/metadecoders"
 )
 
 func BenchmarkParse(b *testing.B) {
@@ -67,5 +70,21 @@ This is some summary. This is some summary. This is some summary. This is some s
 		if _, err := parseBytes(input, cfg, lexIntroSection); err != nil {
 			b.Fatal(err)
 		}
+	}
+}
+
+func TestFormatFromFrontMatterType(t *testing.T) {
+	c := qt.New(t)
+	for _, test := range []struct {
+		typ    ItemType
+		expect metadecoders.Format
+	}{
+		{TypeFrontMatterJSON, metadecoders.JSON},
+		{TypeFrontMatterTOML, metadecoders.TOML},
+		{TypeFrontMatterYAML, metadecoders.YAML},
+		{TypeFrontMatterORG, metadecoders.ORG},
+		{TypeIgnore, ""},
+	} {
+		c.Assert(FormatFromFrontMatterType(test.typ), qt.Equals, test.expect)
 	}
 }

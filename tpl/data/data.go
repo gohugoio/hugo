@@ -23,6 +23,11 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/constants"
+	"github.com/gohugoio/hugo/common/loggers"
+
+	"github.com/spf13/cast"
+
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/deps"
 	_errors "github.com/pkg/errors"
@@ -30,7 +35,6 @@ import (
 
 // New returns a new instance of the data-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
-
 	return &Namespace{
 		deps:         deps,
 		cacheGetCSV:  deps.FileCaches.GetCSVCache(),
@@ -54,8 +58,8 @@ type Namespace struct {
 // The data separator can be a comma, semi-colon, pipe, etc, but only one character.
 // If you provide multiple parts for the URL they will be joined together to the final URL.
 // GetCSV returns nil or a slice slice to use in a short code.
-func (ns *Namespace) GetCSV(sep string, urlParts ...string) (d [][]string, err error) {
-	url := strings.Join(urlParts, "")
+func (ns *Namespace) GetCSV(sep string, urlParts ...interface{}) (d [][]string, err error) {
+	url := joinURL(urlParts)
 	cache := ns.cacheGetCSV
 
 	unmarshal := func(b []byte) (bool, error) {
@@ -83,7 +87,7 @@ func (ns *Namespace) GetCSV(sep string, urlParts ...string) (d [][]string, err e
 
 	err = ns.getResource(cache, unmarshal, req)
 	if err != nil {
-		ns.deps.Log.ERROR.Printf("Failed to get CSV resource %q: %s", url, err)
+		ns.deps.Log.(loggers.IgnorableLogger).Errorsf(constants.ErrRemoteGetCSV, "Failed to get CSV resource %q: %s", url, err)
 		return nil, nil
 	}
 
@@ -93,9 +97,9 @@ func (ns *Namespace) GetCSV(sep string, urlParts ...string) (d [][]string, err e
 // GetJSON expects one or n-parts of a URL to a resource which can either be a local or a remote one.
 // If you provide multiple parts they will be joined together to the final URL.
 // GetJSON returns nil or parsed JSON to use in a short code.
-func (ns *Namespace) GetJSON(urlParts ...string) (interface{}, error) {
+func (ns *Namespace) GetJSON(urlParts ...interface{}) (interface{}, error) {
 	var v interface{}
-	url := strings.Join(urlParts, "")
+	url := joinURL(urlParts)
 	cache := ns.cacheGetJSON
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -112,14 +116,19 @@ func (ns *Namespace) GetJSON(urlParts ...string) (interface{}, error) {
 	}
 
 	req.Header.Add("Accept", "application/json")
+	req.Header.Add("User-Agent", "Hugo Static Site Generator")
 
 	err = ns.getResource(cache, unmarshal, req)
 	if err != nil {
-		ns.deps.Log.ERROR.Printf("Failed to get JSON resource %q: %s", url, err)
+		ns.deps.Log.(loggers.IgnorableLogger).Errorsf(constants.ErrRemoteGetJSON, "Failed to get JSON resource %q: %s", url, err)
 		return nil, nil
 	}
 
 	return v, nil
+}
+
+func joinURL(urlParts []interface{}) string {
+	return strings.Join(cast.ToStringSlice(urlParts), "")
 }
 
 // parseCSV parses bytes of CSV data into a slice slice string or an error

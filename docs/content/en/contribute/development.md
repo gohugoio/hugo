@@ -107,7 +107,7 @@ On a Mac, you can install [Hub](https://github.com/github/hub) using [Homebrew](
 brew install hub
 ```
 
-Now we'll create an [alias in Bash](http://tldp.org/LDP/abs/html/aliases.html) so that typing `git` actually runs `Hub`:
+Now we'll create an [alias in Bash](https://tldp.org/LDP/abs/html/aliases.html) so that typing `git` actually runs `Hub`:
 
 ```
 echo "alias git='hub'" >> ~/.bash_profile
@@ -151,7 +151,7 @@ go install
 ```
 
 
-Hugo relies on [mage](github.com/magefile/mage) for some convenient build and test targets. If you don't already have it, get it:
+Hugo relies on [mage](https://github.com/magefile/mage) for some convenient build and test targets. If you don't already have it, get it:
 
 ```
 go get github.com/magefile/mage
@@ -404,7 +404,7 @@ Last but not least you should accept the contributor license agreement (CLA). A 
 
 We use the [Travis CI loop](https://travis-ci.org/gohugoio/hugo) (Linux and OS&nbsp;X) and [AppVeyor](https://ci.appveyor.com/project/gohugoio/hugo/branch/master) (Windows) to compile Hugo with your additions. This should ensure that everything works as expected before merging your pull request. This in most cases only relevant if you made changes to the codebase of Hugo.
 
-![Automic builds and their status](/images/contribute/development/ci-errors.png)
+![Automatic builds and their status](/images/contribute/development/ci-errors.png)
 
 Above you can see that Travis wasn't able to compile the changes in this pull request. Click on "Details" and try to investigate why the build failed. But it doesn't have to be your fault. Mostly, the `master` branch that we used as foundation for your pull request should build without problems.
 

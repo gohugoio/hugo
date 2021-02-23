@@ -15,11 +15,17 @@
 package resources
 
 import (
-	"errors"
 	"fmt"
 	"path/filepath"
+	"sync"
 
-	_errors "github.com/pkg/errors"
+	"github.com/gohugoio/hugo/common/maps"
+	"github.com/pkg/errors"
+
+	"github.com/gohugoio/hugo/tpl/internal/resourcehelpers"
+
+	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/resources/postpub"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/resources"
@@ -27,11 +33,14 @@ import (
 
 	"github.com/gohugoio/hugo/resources/resource_factories/bundler"
 	"github.com/gohugoio/hugo/resources/resource_factories/create"
+	"github.com/gohugoio/hugo/resources/resource_transformers/babel"
 	"github.com/gohugoio/hugo/resources/resource_transformers/integrity"
 	"github.com/gohugoio/hugo/resources/resource_transformers/minifier"
 	"github.com/gohugoio/hugo/resources/resource_transformers/postcss"
 	"github.com/gohugoio/hugo/resources/resource_transformers/templates"
+	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/dartsass"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/scss"
+
 	"github.com/spf13/cast"
 )
 
@@ -45,15 +54,22 @@ func New(deps *deps.Deps) (*Namespace, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	minifyClient, err := minifier.New(deps.ResourceSpec)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Namespace{
-		deps:            deps,
-		scssClient:      scssClient,
-		createClient:    create.New(deps.ResourceSpec),
-		bundlerClient:   bundler.New(deps.ResourceSpec),
-		integrityClient: integrity.New(deps.ResourceSpec),
-		minifyClient:    minifier.New(deps.ResourceSpec),
-		postcssClient:   postcss.New(deps.ResourceSpec),
-		templatesClient: templates.New(deps.ResourceSpec, deps.TextTmpl),
+		deps:              deps,
+		scssClientLibSass: scssClient,
+		createClient:      create.New(deps.ResourceSpec),
+		bundlerClient:     bundler.New(deps.ResourceSpec),
+		integrityClient:   integrity.New(deps.ResourceSpec),
+		minifyClient:      minifyClient,
+		postcssClient:     postcss.New(deps.ResourceSpec),
+		templatesClient:   templates.New(deps.ResourceSpec, deps),
+		babelClient:       babel.New(deps.ResourceSpec),
 	}, nil
 }
 
@@ -61,13 +77,34 @@ func New(deps *deps.Deps) (*Namespace, error) {
 type Namespace struct {
 	deps *deps.Deps
 
-	createClient    *create.Client
-	bundlerClient   *bundler.Client
-	scssClient      *scss.Client
-	integrityClient *integrity.Client
-	minifyClient    *minifier.Client
-	postcssClient   *postcss.Client
-	templatesClient *templates.Client
+	createClient      *create.Client
+	bundlerClient     *bundler.Client
+	scssClientLibSass *scss.Client
+	integrityClient   *integrity.Client
+	minifyClient      *minifier.Client
+	postcssClient     *postcss.Client
+	babelClient       *babel.Client
+	templatesClient   *templates.Client
+
+	// The Dart Client requires a os/exec process, so  only
+	// create it if we really need it.
+	// This is mostly to avoid creating one per site build test.
+	scssClientDartSassInit sync.Once
+	scssClientDartSass     *dartsass.Client
+}
+
+func (ns *Namespace) getscssClientDartSass() (*dartsass.Client, error) {
+	var err error
+	ns.scssClientDartSassInit.Do(func() {
+		ns.scssClientDartSass, err = dartsass.New(ns.deps.BaseFs.Assets, ns.deps.ResourceSpec)
+		if err != nil {
+			return
+		}
+		ns.deps.BuildClosers.Add(ns.scssClientDartSass)
+
+	})
+
+	return ns.scssClientDartSass, err
 }
 
 // Get locates the filename given in Hugo's assets filesystem
@@ -81,7 +118,6 @@ func (ns *Namespace) Get(filename interface{}) (resource.Resource, error) {
 	filenamestr = filepath.Clean(filenamestr)
 
 	return ns.createClient.Get(filenamestr)
-
 }
 
 // GetMatch finds the first Resource matching the given pattern, or nil if none found.
@@ -96,7 +132,6 @@ func (ns *Namespace) GetMatch(pattern interface{}) (resource.Resource, error) {
 	}
 
 	return ns.createClient.GetMatch(patternStr)
-
 }
 
 // Match gets all resources matching the given base path prefix, e.g
@@ -220,39 +255,77 @@ func (ns *Namespace) Minify(r resources.ResourceTransformer) (resource.Resource,
 // ToCSS converts the given Resource to CSS. You can optional provide an Options
 // object or a target path (string) as first argument.
 func (ns *Namespace) ToCSS(args ...interface{}) (resource.Resource, error) {
+	const (
+		// Transpiler implementation can be controlled from the client by
+		// setting the 'transpiler' option.
+		// Default is currently 'libsass', but that may change.
+		transpilerDart    = "dartsass"
+		transpilerLibSass = "libsass"
+	)
+
 	var (
 		r          resources.ResourceTransformer
 		m          map[string]interface{}
 		targetPath string
 		err        error
 		ok         bool
+		transpiler = transpilerLibSass
 	)
 
-	r, targetPath, ok = ns.resolveIfFirstArgIsString(args)
+	r, targetPath, ok = resourcehelpers.ResolveIfFirstArgIsString(args)
 
 	if !ok {
-		r, m, err = ns.resolveArgs(args)
+		r, m, err = resourcehelpers.ResolveArgs(args)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	var options scss.Options
+	if m != nil {
+		maps.ToLower(m)
+		if t, found := m["transpiler"]; found {
+			switch t {
+			case transpilerDart, transpilerLibSass:
+				transpiler = cast.ToString(t)
+			default:
+				return nil, errors.Errorf("unsupported transpiler %q; valid values are %q or %q", t, transpilerLibSass, transpilerDart)
+			}
+		}
+	}
+
+	if transpiler == transpilerLibSass {
+		var options scss.Options
+		if targetPath != "" {
+			options.TargetPath = helpers.ToSlashTrimLeading(targetPath)
+		} else if m != nil {
+			options, err = scss.DecodeOptions(m)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		return ns.scssClientLibSass.ToCSS(r, options)
+	}
+
+	if m == nil {
+		m = make(map[string]interface{})
+	}
 	if targetPath != "" {
-		options.TargetPath = targetPath
-	} else if m != nil {
-		options, err = scss.DecodeOptions(m)
-		if err != nil {
-			return nil, err
-		}
+		m["targetPath"] = targetPath
 	}
 
-	return ns.scssClient.ToCSS(r, options)
+	client, err := ns.getscssClientDartSass()
+	if err != nil {
+		return nil, err
+	}
+
+	return client.ToCSS(r, m)
+
 }
 
 // PostCSS processes the given Resource with PostCSS
 func (ns *Namespace) PostCSS(args ...interface{}) (resource.Resource, error) {
-	r, m, err := ns.resolveArgs(args)
+	r, m, err := resourcehelpers.ResolveArgs(args)
 	if err != nil {
 		return nil, err
 	}
@@ -267,44 +340,24 @@ func (ns *Namespace) PostCSS(args ...interface{}) (resource.Resource, error) {
 	return ns.postcssClient.Process(r, options)
 }
 
-// We allow string or a map as the first argument in some cases.
-func (ns *Namespace) resolveIfFirstArgIsString(args []interface{}) (resources.ResourceTransformer, string, bool) {
-	if len(args) != 2 {
-		return nil, "", false
-	}
-
-	v1, ok1 := args[0].(string)
-	if !ok1 {
-		return nil, "", false
-	}
-	v2, ok2 := args[1].(resources.ResourceTransformer)
-
-	return v2, v1, ok2
+func (ns *Namespace) PostProcess(r resource.Resource) (postpub.PostPublishedResource, error) {
+	return ns.deps.ResourceSpec.PostProcess(r)
 }
 
-// This roundabout way of doing it is needed to get both pipeline behaviour and options as arguments.
-func (ns *Namespace) resolveArgs(args []interface{}) (resources.ResourceTransformer, map[string]interface{}, error) {
-	if len(args) == 0 {
-		return nil, nil, errors.New("no Resource provided in transformation")
-	}
-
-	if len(args) == 1 {
-		r, ok := args[0].(resources.ResourceTransformer)
-		if !ok {
-			return nil, nil, fmt.Errorf("type %T not supported in Resource transformations", args[0])
-		}
-		return r, nil, nil
-	}
-
-	r, ok := args[1].(resources.ResourceTransformer)
-	if !ok {
-		return nil, nil, fmt.Errorf("type %T not supported in Resource transformations", args[0])
-	}
-
-	m, err := cast.ToStringMapE(args[0])
+// Babel processes the given Resource with Babel.
+func (ns *Namespace) Babel(args ...interface{}) (resource.Resource, error) {
+	r, m, err := resourcehelpers.ResolveArgs(args)
 	if err != nil {
-		return nil, nil, _errors.Wrap(err, "invalid options type")
+		return nil, err
+	}
+	var options babel.Options
+	if m != nil {
+		options, err = babel.DecodeOptions(m)
+
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	return r, m, nil
+	return ns.babelClient.Process(r, options)
 }

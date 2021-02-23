@@ -34,10 +34,3 @@ func TestResourceTransformationKey(t *testing.T) {
 	c := qt.New(t)
 	c.Assert(key.Value(), qt.Equals, "testing_518996646957295636")
 }
-
-func TestHashString(t *testing.T) {
-	c := qt.New(t)
-
-	c.Assert(HashString("a", "b"), qt.Equals, "2712570657419664240")
-	c.Assert(HashString("ab"), qt.Equals, "590647783936702392")
-}

@@ -102,7 +102,7 @@ Content.
 	var contentFiles []string
 	section := "sect"
 
-	var contentRoot = func(lang string) string {
+	contentRoot := func(lang string) string {
 		switch lang {
 		case "nn":
 			return "content/norsk"
@@ -111,10 +111,9 @@ Content.
 		default:
 			return "content/main"
 		}
-
 	}
 
-	var contentSectionRoot = func(lang string) string {
+	contentSectionRoot := func(lang string) string {
 		return contentRoot(lang) + "/" + section
 	}
 
@@ -215,7 +214,7 @@ Content.
 
 	err := b.BuildE(BuildCfg{})
 
-	//dumpPages(b.H.Sites[1].RegularPages()...)
+	// dumpPages(b.H.Sites[1].RegularPages()...)
 
 	c.Assert(err, qt.IsNil)
 
@@ -228,7 +227,7 @@ Content.
 	b.AssertFileContent("/my/project/public/en/mystatic/file1.yaml", "en")
 	b.AssertFileContent("/my/project/public/nn/mystatic/file1.yaml", "nn")
 
-	//dumpPages(nnSite.RegularPages()...)
+	// dumpPages(nnSite.RegularPages()...)
 
 	c.Assert(len(nnSite.RegularPages()), qt.Equals, 12)
 	c.Assert(len(enSite.RegularPages()), qt.Equals, 13)
@@ -317,5 +316,90 @@ Content.
 	c.Assert(len(nnSect.Pages()), qt.Equals, 12)
 	nnHome, _ := nnSite.Info.Home()
 	c.Assert(nnHome.RelPermalink(), qt.Equals, "/nn/")
+}
 
+// https://github.com/gohugoio/hugo/issues/6463
+func TestLanguageRootSectionsMismatch(t *testing.T) {
+	t.Parallel()
+
+	config := `
+baseURL: "https://example.org/"
+languageCode: "en-us"
+title: "My New Hugo Site"
+theme: "mytheme"
+
+contentDir: "content/en"
+
+languages:
+    en:
+        weight: 1
+        languageName: "English"
+        contentDir: content/en
+    es:
+        weight: 2
+        languageName: "Español"
+        contentDir: content/es
+    fr:
+        weight: 4
+        languageName: "Française"
+        contentDir: content/fr
+
+        
+`
+	createPage := func(title string) string {
+		return fmt.Sprintf(`---
+title: %q
+---
+
+`, title)
+	}
+
+	b := newTestSitesBuilder(t)
+	b.WithConfigFile("yaml", config)
+
+	b.WithSourceFile("themes/mytheme/layouts/index.html", `MYTHEME`)
+	b.WithTemplates("index.html", `
+Lang: {{ .Lang }}
+{{ range .Site.RegularPages }}
+Page: {{ .RelPermalink }}|{{ .Title -}}
+{{ end }}
+
+`)
+	b.WithSourceFile("static/hello.txt", `hello`)
+	b.WithContent("en/_index.md", createPage("en home"))
+	b.WithContent("es/_index.md", createPage("es home"))
+	b.WithContent("fr/_index.md", createPage("fr home"))
+
+	for i := 1; i < 3; i++ {
+		b.WithContent(fmt.Sprintf("en/event/page%d.md", i), createPage(fmt.Sprintf("ev-en%d", i)))
+		b.WithContent(fmt.Sprintf("es/event/page%d.md", i), createPage(fmt.Sprintf("ev-es%d", i)))
+		b.WithContent(fmt.Sprintf("fr/event/page%d.md", i), createPage(fmt.Sprintf("ev-fr%d", i)))
+		b.WithContent(fmt.Sprintf("en/blog/page%d.md", i), createPage(fmt.Sprintf("blog-en%d", i)))
+		b.WithContent(fmt.Sprintf("es/blog/page%d.md", i), createPage(fmt.Sprintf("blog-es%d", i)))
+		b.WithContent(fmt.Sprintf("fr/other/page%d.md", i), createPage(fmt.Sprintf("other-fr%d", i)))
+	}
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", `
+Lang: en
+Page: /blog/page1/|blog-en1
+Page: /blog/page2/|blog-en2
+Page: /event/page1/|ev-en1
+Page: /event/page2/|ev-en2
+`)
+
+	b.AssertFileContent("public/es/index.html", `
+Lang: es
+Page: /es/blog/page1/|blog-es1
+Page: /es/blog/page2/|blog-es2
+Page: /es/event/page1/|ev-es1
+Page: /es/event/page2/|ev-es2
+`)
+	b.AssertFileContent("public/fr/index.html", `
+Lang: fr
+Page: /fr/event/page1/|ev-fr1
+Page: /fr/event/page2/|ev-fr2
+Page: /fr/other/page1/|other-fr1
+Page: /fr/other/page2/|other-fr2`)
 }

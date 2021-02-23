@@ -31,5 +31,4 @@ func TestItemValTyped(t *testing.T) {
 	c.Assert(Item{Val: []byte("true")}.ValTyped(), qt.Equals, true)
 	c.Assert(Item{Val: []byte("false")}.ValTyped(), qt.Equals, false)
 	c.Assert(Item{Val: []byte("trues")}.ValTyped(), qt.Equals, "trues")
-
 }

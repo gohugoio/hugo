@@ -23,10 +23,13 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"unicode"
 	"unicode/utf8"
+
+	"github.com/mitchellh/hashstructure"
 
 	"github.com/gohugoio/hugo/hugofs"
 
@@ -43,11 +46,6 @@ import (
 
 // FilePathSeparator as defined by os.Separator.
 const FilePathSeparator = string(filepath.Separator)
-
-// Strips carriage returns from third-party / external processes (useful for Windows)
-func normalizeExternalHelperLineFeeds(content []byte) []byte {
-	return bytes.Replace(content, []byte("\r"), []byte(""), -1)
-}
 
 // FindAvailablePort returns an available and valid TCP port.
 func FindAvailablePort() (*net.TCPAddr, error) {
@@ -72,28 +70,6 @@ func InStringArray(arr []string, el string) bool {
 		}
 	}
 	return false
-}
-
-// GuessType attempts to guess the type of file from a given string.
-func GuessType(in string) string {
-	switch strings.ToLower(in) {
-	case "md", "markdown", "mdown":
-		return "markdown"
-	case "asciidoc", "adoc", "ad":
-		return "asciidoc"
-	case "mmark":
-		return "mmark"
-	case "rst":
-		return "rst"
-	case "pandoc", "pdc":
-		return "pandoc"
-	case "html", "htm":
-		return "html"
-	case "org":
-		return "org"
-	}
-
-	return ""
 }
 
 // FirstUpper returns a string with the first character as upper case.
@@ -181,7 +157,6 @@ func ReaderToString(lines io.Reader) string {
 
 // ReaderContains reports whether subslice is within r.
 func ReaderContains(r io.Reader, subslice []byte) bool {
-
 	if r == nil || len(subslice) == 0 {
 		return false
 	}
@@ -279,8 +254,15 @@ type LogPrinter interface {
 // DistinctLogger ignores duplicate log statements.
 type DistinctLogger struct {
 	sync.RWMutex
-	logger LogPrinter
-	m      map[string]bool
+	getLogger func() LogPrinter
+	m         map[string]bool
+}
+
+func (l *DistinctLogger) Reset() {
+	l.Lock()
+	defer l.Unlock()
+
+	l.m = make(map[string]bool)
 }
 
 // Println will log the string returned from fmt.Sprintln given the arguments,
@@ -309,7 +291,7 @@ func (l *DistinctLogger) print(logStatement string) {
 
 	l.Lock()
 	if !l.m[logStatement] {
-		l.logger.Println(logStatement)
+		l.getLogger().Println(logStatement)
 		l.m[logStatement] = true
 	}
 	l.Unlock()
@@ -317,23 +299,23 @@ func (l *DistinctLogger) print(logStatement string) {
 
 // NewDistinctErrorLogger creates a new DistinctLogger that logs ERRORs
 func NewDistinctErrorLogger() *DistinctLogger {
-	return &DistinctLogger{m: make(map[string]bool), logger: jww.ERROR}
+	return &DistinctLogger{m: make(map[string]bool), getLogger: func() LogPrinter { return jww.ERROR }}
 }
 
 // NewDistinctLogger creates a new DistinctLogger that logs to the provided logger.
 func NewDistinctLogger(logger LogPrinter) *DistinctLogger {
-	return &DistinctLogger{m: make(map[string]bool), logger: logger}
+	return &DistinctLogger{m: make(map[string]bool), getLogger: func() LogPrinter { return logger }}
 }
 
 // NewDistinctWarnLogger creates a new DistinctLogger that logs WARNs
 func NewDistinctWarnLogger() *DistinctLogger {
-	return &DistinctLogger{m: make(map[string]bool), logger: jww.WARN}
+	return &DistinctLogger{m: make(map[string]bool), getLogger: func() LogPrinter { return jww.WARN }}
 }
 
 // NewDistinctFeedbackLogger creates a new DistinctLogger that can be used
 // to give feedback to the user while not spamming with duplicates.
 func NewDistinctFeedbackLogger() *DistinctLogger {
-	return &DistinctLogger{m: make(map[string]bool), logger: jww.FEEDBACK}
+	return &DistinctLogger{m: make(map[string]bool), getLogger: func() LogPrinter { return jww.FEEDBACK }}
 }
 
 var (
@@ -347,11 +329,11 @@ var (
 	DistinctFeedbackLog = NewDistinctFeedbackLogger()
 )
 
-// InitLoggers sets up the global distinct loggers.
+// InitLoggers resets the global distinct loggers.
 func InitLoggers() {
-	DistinctErrorLog = NewDistinctErrorLogger()
-	DistinctWarnLog = NewDistinctWarnLogger()
-	DistinctFeedbackLog = NewDistinctFeedbackLogger()
+	DistinctErrorLog.Reset()
+	DistinctWarnLog.Reset()
+	DistinctFeedbackLog.Reset()
 }
 
 // Deprecated informs about a deprecation, but only once for a given set of arguments' values.
@@ -359,16 +341,11 @@ func InitLoggers() {
 // point at the next Hugo release.
 // The idea is two remove an item in two Hugo releases to give users and theme authors
 // plenty of time to fix their templates.
-func Deprecated(object, item, alternative string, err bool) {
-	if !strings.HasSuffix(alternative, ".") {
-		alternative += "."
-	}
-
+func Deprecated(item, alternative string, err bool) {
 	if err {
-		DistinctErrorLog.Printf("%s's %s is deprecated and will be removed in Hugo %s. %s", object, item, hugo.CurrentVersion.Next().ReleaseVersion(), alternative)
-
+		DistinctErrorLog.Printf("%s is deprecated and will be removed in Hugo %s. %s", item, hugo.CurrentVersion.Next().ReleaseVersion(), alternative)
 	} else {
-		DistinctWarnLog.Printf("%s's %s is deprecated and will be removed in a future release. %s", object, item, alternative)
+		DistinctWarnLog.Printf("%s is deprecated and will be removed in a future release. %s", item, alternative)
 	}
 }
 
@@ -458,36 +435,6 @@ func NormalizeHugoFlags(f *pflag.FlagSet, name string) pflag.NormalizedName {
 	return pflag.NormalizedName(name)
 }
 
-// DiffStringSlices returns the difference between two string slices.
-// Useful in tests.
-// See:
-// http://stackoverflow.com/questions/19374219/how-to-find-the-difference-between-two-slices-of-strings-in-golang
-func DiffStringSlices(slice1 []string, slice2 []string) []string {
-	diffStr := []string{}
-	m := map[string]int{}
-
-	for _, s1Val := range slice1 {
-		m[s1Val] = 1
-	}
-	for _, s2Val := range slice2 {
-		m[s2Val] = m[s2Val] + 1
-	}
-
-	for mKey, mVal := range m {
-		if mVal == 1 {
-			diffStr = append(diffStr, mKey)
-		}
-	}
-
-	return diffStr
-}
-
-// DiffStrings splits the strings into fields and runs it into DiffStringSlices.
-// Useful for tests.
-func DiffStrings(s1, s2 string) []string {
-	return DiffStringSlices(strings.Fields(s1), strings.Fields(s2))
-}
-
 // PrintFs prints the given filesystem to the given writer starting from the given path.
 // This is useful for debugging.
 func PrintFs(fs afero.Fs, path string, w io.Writer) {
@@ -505,4 +452,21 @@ func PrintFs(fs afero.Fs, path string, w io.Writer) {
 		fmt.Fprintf(w, "    %q %q\t\t%v\n", path, filename, meta)
 		return nil
 	})
+}
+
+// HashString returns a hash from the given elements.
+// It will panic if the hash cannot be calculated.
+func HashString(elements ...interface{}) string {
+	var o interface{}
+	if len(elements) == 1 {
+		o = elements[0]
+	} else {
+		o = elements
+	}
+
+	hash, err := hashstructure.Hash(o, nil)
+	if err != nil {
+		panic(err)
+	}
+	return strconv.FormatUint(hash, 10)
 }

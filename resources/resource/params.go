@@ -19,12 +19,15 @@ import (
 	"github.com/spf13/cast"
 )
 
-func Param(r ResourceParamsProvider, fallback map[string]interface{}, key interface{}) (interface{}, error) {
+func Param(r ResourceParamsProvider, fallback maps.Params, key interface{}) (interface{}, error) {
 	keyStr, err := cast.ToStringE(key)
 	if err != nil {
 		return nil, err
 	}
 
-	return maps.GetNestedParam(keyStr, ".", r.Params(), fallback)
+	if fallback == nil {
+		return maps.GetNestedParam(keyStr, ".", r.Params())
+	}
 
+	return maps.GetNestedParam(keyStr, ".", r.Params(), fallback)
 }

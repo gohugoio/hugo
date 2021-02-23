@@ -36,10 +36,6 @@ The homepage, similar to other [list pages in Hugo][lists], accepts content and 
 
 See the homepage template below or [Content Organization][contentorg] for more information on the role of `_index.md` in adding content and front matter to list pages.
 
-## `.Pages` on the Homepage
-
-In addition to the standard [page variables][pagevars], the homepage template has access to *all* site content via `.Pages`.
-
 ## Example Homepage Template
 
 The following is an example of a homepage template that uses [partial][partials], [base][] templates, and a content file at `content/_index.md` to populate the `{{.Title}}` and `{{.Content}}` [page variables][pagevars].
@@ -58,8 +54,7 @@ The following is an example of a homepage template that uses [partial][partials]
         {{.Content}}
       </div>
       <div>
-        <!-- Note that .Pages is the same as .Site.RegularPages on the homepage template. -->
-        {{ range first 10 .Pages }}
+        {{ range first 10 .Site.RegularPages }}
             {{ .Render "summary"}}
         {{ end }}
       </div>

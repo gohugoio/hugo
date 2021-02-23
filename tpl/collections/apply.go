@@ -52,7 +52,6 @@ func (ns *Namespace) Apply(seq interface{}, fname string, args ...interface{}) (
 			vv := seqv.Index(i)
 
 			vvv, err := applyFnToThis(fnv, vv, args...)
-
 			if err != nil {
 				return nil, err
 			}
@@ -106,17 +105,8 @@ func applyFnToThis(fn, this reflect.Value, args ...interface{}) (reflect.Value, 
 
 func (ns *Namespace) lookupFunc(fname string) (reflect.Value, bool) {
 	if !strings.ContainsRune(fname, '.') {
-		templ, ok := ns.deps.Tmpl.(tpl.TemplateFuncsGetter)
-		if !ok {
-			panic("Needs a tpl.TemplateFuncsGetter")
-		}
-		fm := templ.GetFuncs()
-		fn, found := fm[fname]
-		if !found {
-			return reflect.Value{}, false
-		}
-
-		return reflect.ValueOf(fn), true
+		templ := ns.deps.Tmpl().(tpl.TemplateFuncGetter)
+		return templ.GetFunc(fname)
 	}
 
 	ss := strings.SplitN(fname, ".", 2)

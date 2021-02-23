@@ -21,6 +21,12 @@ import (
 	"github.com/spf13/cast"
 )
 
+// RLocker represents the read locks in sync.RWMutex.
+type RLocker interface {
+	RLock()
+	RUnlock()
+}
+
 // KeyValueStr is a string tuple.
 type KeyValueStr struct {
 	Key   string

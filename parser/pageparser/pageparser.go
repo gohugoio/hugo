@@ -11,10 +11,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package pageparser provides a parser for Hugo content files (Markdown, HTML etc.) in Hugo.
-// This implementation is highly inspired by the great talk given by Rob Pike called "Lexical Scanning in Go"
-// It's on YouTube, Google it!.
-// See slides here: http://cuddle.googlecode.com/hg/talk/lex.html
 package pageparser
 
 import (
@@ -22,6 +18,7 @@ import (
 	"io"
 	"io/ioutil"
 
+	"github.com/gohugoio/hugo/parser/metadecoders"
 	"github.com/pkg/errors"
 )
 
@@ -41,6 +38,60 @@ var _ Result = (*pageLexer)(nil)
 // the frontmatter only.
 func Parse(r io.Reader, cfg Config) (Result, error) {
 	return parseSection(r, cfg, lexIntroSection)
+}
+
+type ContentFrontMatter struct {
+	Content           []byte
+	FrontMatter       map[string]interface{}
+	FrontMatterFormat metadecoders.Format
+}
+
+// ParseFrontMatterAndContent is a convenience method to extract front matter
+// and content from a content page.
+func ParseFrontMatterAndContent(r io.Reader) (ContentFrontMatter, error) {
+	var cf ContentFrontMatter
+
+	psr, err := Parse(r, Config{})
+	if err != nil {
+		return cf, err
+	}
+
+	var frontMatterSource []byte
+
+	iter := psr.Iterator()
+
+	walkFn := func(item Item) bool {
+		if frontMatterSource != nil {
+			// The rest is content.
+			cf.Content = psr.Input()[item.Pos:]
+			// Done
+			return false
+		} else if item.IsFrontMatter() {
+			cf.FrontMatterFormat = FormatFromFrontMatterType(item.Type)
+			frontMatterSource = item.Val
+		}
+		return true
+	}
+
+	iter.PeekWalk(walkFn)
+
+	cf.FrontMatter, err = metadecoders.Default.UnmarshalToMap(frontMatterSource, cf.FrontMatterFormat)
+	return cf, err
+}
+
+func FormatFromFrontMatterType(typ ItemType) metadecoders.Format {
+	switch typ {
+	case TypeFrontMatterJSON:
+		return metadecoders.JSON
+	case TypeFrontMatterORG:
+		return metadecoders.ORG
+	case TypeFrontMatterTOML:
+		return metadecoders.TOML
+	case TypeFrontMatterYAML:
+		return metadecoders.YAML
+	default:
+		return ""
+	}
 }
 
 // ParseMain parses starting with the main section. Used in tests.
@@ -121,7 +172,7 @@ func (t *Iterator) PeekWalk(walkFn func(item Item) bool) {
 	}
 }
 
-// Consume is a convencience method to consume the next n tokens,
+// Consume is a convenience method to consume the next n tokens,
 // but back off Errors and EOF.
 func (t *Iterator) Consume(cnt int) {
 	for i := 0; i < cnt; i++ {

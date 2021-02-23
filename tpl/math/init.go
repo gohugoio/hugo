@@ -64,6 +64,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Sqrt,
+			nil,
+			[][2]string{
+				{"{{math.Sqrt 81}}", "9"},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Mod,
 			[]string{"mod"},
 			[][2]string{
@@ -85,6 +92,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Pow,
+			[]string{"pow"},
+			[][2]string{
+				{"{{math.Pow 2 3}}", "8"},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Round,
 			nil,
 			[][2]string{
@@ -100,7 +114,6 @@ func init() {
 		)
 
 		return ns
-
 	}
 
 	internal.AddTemplateFuncsNamespace(f)

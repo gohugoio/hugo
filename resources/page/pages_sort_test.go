@@ -126,7 +126,6 @@ func TestSortByN(t *testing.T) {
 			t.Errorf("[%d] sort error", i)
 		}
 	}
-
 }
 
 func TestLimit(t *testing.T) {
@@ -260,7 +259,6 @@ func setSortVals(dates [4]time.Time, titles [4]string, weights [4]int, pages Pag
 	for _, p := range pages {
 		p.(*testPage).content = ""
 	}
-
 }
 
 func createSortTestPages(num int) Pages {
@@ -269,6 +267,7 @@ func createSortTestPages(num int) Pages {
 	for i := 0; i < num; i++ {
 		p := newTestPage()
 		p.path = fmt.Sprintf("/x/y/p%d.md", i)
+		p.title = fmt.Sprintf("Title %d", i%(num+1/2))
 		p.params = map[string]interface{}{
 			"arbitrarily": map[string]interface{}{
 				"nested": ("xyz" + fmt.Sprintf("%v", 100-i)),

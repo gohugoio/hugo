@@ -11,6 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// +build !nodeploy
+
 package deploy
 
 import (
@@ -38,18 +40,21 @@ order = ["o1", "o2"]
 name = "name0"
 url = "url0"
 cloudfrontdistributionid = "cdn0"
+include = "*.html"
 
 # All uppercase.
 [[deployment.targets]]
 NAME = "name1"
 URL = "url1"
 CLOUDFRONTDISTRIBUTIONID = "cdn1"
+INCLUDE = "*.jpg"
 
 # Camelcase.
 [[deployment.targets]]
 name = "name2"
 url = "url2"
 cloudFrontDistributionID = "cdn2"
+exclude = "*.png"
 
 # All lowercase.
 [[deployment.matchers]]
@@ -90,11 +95,21 @@ force = true
 
 	// Targets.
 	c.Assert(len(dcfg.Targets), qt.Equals, 3)
+	wantInclude := []string{"*.html", "*.jpg", ""}
+	wantExclude := []string{"", "", "*.png"}
 	for i := 0; i < 3; i++ {
 		tgt := dcfg.Targets[i]
 		c.Assert(tgt.Name, qt.Equals, fmt.Sprintf("name%d", i))
 		c.Assert(tgt.URL, qt.Equals, fmt.Sprintf("url%d", i))
 		c.Assert(tgt.CloudFrontDistributionID, qt.Equals, fmt.Sprintf("cdn%d", i))
+		c.Assert(tgt.Include, qt.Equals, wantInclude[i])
+		if wantInclude[i] != "" {
+			c.Assert(tgt.includeGlob, qt.Not(qt.IsNil))
+		}
+		c.Assert(tgt.Exclude, qt.Equals, wantExclude[i])
+		if wantExclude[i] != "" {
+			c.Assert(tgt.excludeGlob, qt.Not(qt.IsNil))
+		}
 	}
 
 	// Matchers.

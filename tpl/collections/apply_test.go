@@ -14,12 +14,14 @@
 package collections
 
 import (
-	"testing"
-
 	"fmt"
+	"io"
+	"reflect"
+	"testing"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/tpl"
 )
 
@@ -29,21 +31,40 @@ func (templateFinder) Lookup(name string) (tpl.Template, bool) {
 	return nil, false
 }
 
+func (templateFinder) HasTemplate(name string) bool {
+	return false
+}
+
 func (templateFinder) LookupVariant(name string, variants tpl.TemplateVariants) (tpl.Template, bool, bool) {
 	return nil, false, false
 }
 
-func (templateFinder) GetFuncs() map[string]interface{} {
-	return map[string]interface{}{
-		"print": fmt.Sprint,
+func (templateFinder) LookupVariants(name string) []tpl.Template {
+	return nil
+}
+
+func (templateFinder) LookupLayout(d output.LayoutDescriptor, f output.Format) (tpl.Template, bool, error) {
+	return nil, false, nil
+}
+
+func (templateFinder) Execute(t tpl.Template, wr io.Writer, data interface{}) error {
+	return nil
+}
+
+func (templateFinder) GetFunc(name string) (reflect.Value, bool) {
+	if name == "dobedobedo" {
+		return reflect.Value{}, false
 	}
+
+	return reflect.ValueOf(fmt.Sprint), true
 }
 
 func TestApply(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
-
-	ns := New(&deps.Deps{Tmpl: new(templateFinder)})
+	d := &deps.Deps{}
+	d.SetTmpl(new(templateFinder))
+	ns := New(d)
 
 	strings := []interface{}{"a\n", "b\n"}
 
@@ -65,5 +86,4 @@ func TestApply(t *testing.T) {
 	if err == nil {
 		t.Errorf("apply with unknown func should fail")
 	}
-
 }

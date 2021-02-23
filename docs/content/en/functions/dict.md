@@ -21,6 +21,12 @@ aliases: []
 
 `dict` is especially useful for passing more than one value to a partial template.
 
+Note that the `key` can be either a `string` or a `string slice`. The latter is useful to create a deply nested structure, e.g.:
+
+```go-text-template
+{{ $m := dict (slice "a" "b" "c") "value" }}
+```
+
 
 ## Example: Using `dict` to pass multiple values to a `partial`
 

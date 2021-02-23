@@ -29,12 +29,11 @@ import (
 var _ cmder = (*newThemeCmd)(nil)
 
 type newThemeCmd struct {
-	*baseCmd
-	hugoBuilderCommon
+	*baseBuilderCmd
 }
 
-func newNewThemeCmd() *newThemeCmd {
-	ccmd := &newThemeCmd{baseCmd: newBaseCmd(nil)}
+func (b *commandsBuilder) newNewThemeCmd() *newThemeCmd {
+	cc := &newThemeCmd{}
 
 	cmd := &cobra.Command{
 		Use:   "theme [name]",
@@ -43,18 +42,17 @@ func newNewThemeCmd() *newThemeCmd {
 New theme is a skeleton. Please add content to the touched files. Add your
 name to the copyright line in the license and adjust the theme.toml file
 as you see fit.`,
-		RunE: ccmd.newTheme,
+		RunE: cc.newTheme,
 	}
 
-	ccmd.cmd = cmd
+	cc.baseBuilderCmd = b.newBuilderBasicCmd(cmd)
 
-	return ccmd
+	return cc
 }
 
 // newTheme creates a new Hugo theme template
 func (n *newThemeCmd) newTheme(cmd *cobra.Command, args []string) error {
 	c, err := initializeConfig(false, false, &n.hugoBuilderCommon, n, nil)
-
 	if err != nil {
 		return err
 	}
@@ -146,7 +144,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 }
 
 func (n *newThemeCmd) createThemeMD(fs *hugofs.Fs, inpath string) (err error) {
-
 	by := []byte(`# theme.toml template for a Hugo theme
 # See https://github.com/gohugoio/hugoThemes#themetoml for an example
 
@@ -157,7 +154,7 @@ description = ""
 homepage = "http://example.com/"
 tags = []
 features = []
-min_version = "0.41"
+min_version = "0.41.0"
 
 [author]
   name = ""

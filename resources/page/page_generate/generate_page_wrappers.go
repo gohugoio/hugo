@@ -56,7 +56,6 @@ var (
 func Generate(c *codegen.Inspector) error {
 	if err := generateMarshalJSON(c); err != nil {
 		return errors.Wrap(err, "failed to generate JSON marshaler")
-
 	}
 
 	if err := generateDeprecatedWrappers(c); err != nil {
@@ -73,7 +72,6 @@ func Generate(c *codegen.Inspector) error {
 func generateMarshalJSON(c *codegen.Inspector) error {
 	filename := filepath.Join(c.ProjectRootDir, packageDir, "page_marshaljson.autogen.go")
 	f, err := os.Create(filename)
-
 	if err != nil {
 		return err
 	}
@@ -83,7 +81,7 @@ func generateMarshalJSON(c *codegen.Inspector) error {
 
 	// Exclude these methods
 	excludes := []reflect.Type{
-		// We need to eveluate the deprecated vs JSON in the future,
+		// We need to evaluate the deprecated vs JSON in the future,
 		// but leave them out for now.
 		pageInterfaceDeprecated,
 
@@ -148,7 +146,7 @@ func generateDeprecatedWrappers(c *codegen.Inspector) error {
 		"Hugo":           "Use the global hugo function.",
 		"LanguagePrefix": "Use .Site.LanguagePrefix.",
 		"GetParam":       "Use .Param or .Params.myParam.",
-		"RSSLink": `Use the Output Format's link, e.g. something like: 
+		"RSSLink": `Use the Output Format's link, e.g. something like:
     {{ with .OutputFormats.Get "RSS" }}{{ .RelPermalink }}{{ end }}`,
 		"URL": "Use .Permalink or .RelPermalink. If what you want is the front matter URL value, use .Params.url",
 	}
@@ -165,7 +163,7 @@ func generateDeprecatedWrappers(c *codegen.Inspector) error {
 			}
 		}
 
-		return fmt.Sprintf("helpers.Deprecated(%q, %q, %q, false)", "Page", "."+name, alternative)
+		return fmt.Sprintf("helpers.Deprecated(%q, %q, false)", "Page."+name, alternative)
 	}
 
 	var buff bytes.Buffer
@@ -246,8 +244,8 @@ package page
 %s
 
 // ZeroFile represents a zero value of source.File with warnings if invoked.
-type zeroFile struct {	
-	log *helpers.DistinctLogger 
+type zeroFile struct {
+	log *helpers.DistinctLogger
 }
 
 func NewZeroFile(log *helpers.DistinctLogger) source.File {

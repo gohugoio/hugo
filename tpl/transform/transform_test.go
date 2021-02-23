@@ -17,6 +17,9 @@ import (
 	"html/template"
 	"testing"
 
+	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/spf13/afero"
+
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
@@ -201,8 +204,7 @@ And then some.
 	result, err := ns.Markdownify(text)
 	c.Assert(err, qt.IsNil)
 	c.Assert(result, qt.Equals, template.HTML(
-		"<p>#First</p>\n\n<p>This is some <em>bold</em> text.</p>\n\n<h2 id=\"second\">Second</h2>\n\n<p>This is some more text.</p>\n\n<p>And then some.</p>\n"))
-
+		"<p>#First</p>\n<p>This is some <em>bold</em> text.</p>\n<h2 id=\"second\">Second</h2>\n<p>This is some more text.</p>\n<p>And then some.</p>\n"))
 }
 
 func TestPlainify(t *testing.T) {
@@ -239,7 +241,7 @@ func newDeps(cfg config.Provider) *deps.Deps {
 
 	l := langs.NewLanguage("en", cfg)
 
-	cs, err := helpers.NewContentSpec(l)
+	cs, err := helpers.NewContentSpec(l, loggers.NewErrorLogger(), afero.NewMemMapFs())
 	if err != nil {
 		panic(err)
 	}

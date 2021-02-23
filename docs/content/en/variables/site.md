@@ -20,6 +20,10 @@ toc: true
 
 The following is a list of site-level (aka "global") variables. Many of these variables are defined in your site's [configuration file][config], whereas others are built into Hugo's core for convenient usage in your templates.
 
+## Get the Site object from a partial
+
+All the methods below, e.g. `.Site.RegularPages` can also be reached via the global `site` function, e.g. `site.RegularPages`, which can be handy in partials where the `Page` object isn't easily available. {{< new-in "0.53" >}}.
+
 ## Site Variables List
 
 .Site.AllPages
@@ -42,9 +46,6 @@ The following is a list of site-level (aka "global") variables. Many of these va
 
 .Site.DisqusShortname
 : a string representing the shortname of the Disqus shortcode as defined in the site configuration.
-
-.Site.Files
-: all source files for the Hugo website.
 
 .Site.GoogleAnalytics
 : a string representing your tracking code for Google Analytics as defined in the site configuration.
@@ -95,7 +96,7 @@ The following is a list of site-level (aka "global") variables. Many of these va
 : top-level directories of the site.
 
 .Site.Taxonomies
-: the [taxonomies](/taxonomies/usage/) for the entire site.  Replaces the now-obsolete `.Site.Indexes` since v0.11. Also see section [Taxonomies elsewhere](#taxonomies-elsewhere).
+: the [taxonomies](/taxonomies/usage/) for the entire site.  Also see section [Taxonomies elsewhere](#taxonomies-elsewhere).
 
 .Site.Title
 : a string representing the title of the site.

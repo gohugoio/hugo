@@ -13,12 +13,44 @@
 
 package tpl
 
+import (
+	"github.com/gohugoio/hugo/identity"
+)
+
 // Increments on breaking changes.
 const TemplateVersion = 2
 
-// Info holds some info extracted from a parsed template.
-type Info struct {
+type Info interface {
+	ParseInfo() ParseInfo
 
+	// Identifies this template and its dependencies.
+	identity.Provider
+}
+
+type InfoManager interface {
+	ParseInfo() ParseInfo
+
+	// Identifies and manages this template and its dependencies.
+	identity.Manager
+}
+
+type defaultInfo struct {
+	identity.Manager
+	parseInfo ParseInfo
+}
+
+func NewInfo(id identity.Manager, parseInfo ParseInfo) Info {
+	return &defaultInfo{
+		Manager:   id,
+		parseInfo: parseInfo,
+	}
+}
+
+func (info *defaultInfo) ParseInfo() ParseInfo {
+	return info.parseInfo
+}
+
+type ParseInfo struct {
 	// Set for shortcode templates with any {{ .Inner }}
 	IsInner bool
 
@@ -26,17 +58,25 @@ type Info struct {
 	HasReturn bool
 
 	// Config extracted from template.
-	Config Config
+	Config ParseConfig
 }
 
-func (info Info) IsZero() bool {
+func (info ParseInfo) IsZero() bool {
 	return info.Config.Version == 0
 }
 
-type Config struct {
+// Info holds some info extracted from a parsed template.
+type Info1 struct {
+}
+
+type ParseConfig struct {
 	Version int
 }
 
-var DefaultConfig = Config{
+var DefaultParseConfig = ParseConfig{
 	Version: TemplateVersion,
+}
+
+var DefaultParseInfo = ParseInfo{
+	Config: DefaultParseConfig,
 }

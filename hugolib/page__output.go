@@ -14,25 +14,24 @@
 package hugolib
 
 import (
+	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
 func newPageOutput(
-	cp *pageContentOutput, // may be nil
 	ps *pageState,
 	pp pagePaths,
 	f output.Format,
 	render bool) *pageOutput {
-
 	var targetPathsProvider targetPathsHolder
 	var linksProvider resource.ResourceLinksProvider
 
 	ft, found := pp.targetPaths[f.Name]
 	if !found {
 		// Link to the main output format
-		ft = pp.targetPaths[pp.OutputFormats()[0].Format.Name]
+		ft = pp.targetPaths[pp.firstOutputFormat.Format.Name]
 	}
 	targetPathsProvider = ft
 	linksProvider = ft
@@ -45,38 +44,26 @@ func newPageOutput(
 		paginatorProvider = pag
 	}
 
-	var contentProvider page.ContentProvider = page.NopPage
-	var tableOfContentsProvider page.TableOfContentsProvider = page.NopPage
-
-	if cp != nil {
-		contentProvider = cp
-		tableOfContentsProvider = cp
-	}
-
 	providers := struct {
-		page.ContentProvider
-		page.TableOfContentsProvider
 		page.PaginatorProvider
 		resource.ResourceLinksProvider
 		targetPather
 	}{
-		contentProvider,
-		tableOfContentsProvider,
 		paginatorProvider,
 		linksProvider,
 		targetPathsProvider,
 	}
 
 	po := &pageOutput{
-		f:                      f,
-		cp:                     cp,
-		pagePerOutputProviders: providers,
-		render:                 render,
-		paginator:              pag,
+		f:                       f,
+		pagePerOutputProviders:  providers,
+		ContentProvider:         page.NopPage,
+		TableOfContentsProvider: page.NopPage,
+		render:                  render,
+		paginator:               pag,
 	}
 
 	return po
-
 }
 
 // We create a pageOutput for every output format combination, even if this
@@ -92,12 +79,52 @@ type pageOutput struct {
 	// used in template(s).
 	paginator *pagePaginator
 
-	// This interface provides the functionality that is specific for this
+	// These interface provides the functionality that is specific for this
 	// output format.
 	pagePerOutputProviders
+	page.ContentProvider
+	page.TableOfContentsProvider
 
-	// This may be nil.
+	// May be nil.
 	cp *pageContentOutput
+}
+
+func (o *pageOutput) initRenderHooks() error {
+	if o.cp == nil {
+		return nil
+	}
+
+	var initErr error
+
+	o.cp.renderHooks.init.Do(func() {
+		ps := o.cp.p
+
+		c := ps.getContentConverter()
+		if c == nil || !c.Supports(converter.FeatureRenderHooks) {
+			return
+		}
+
+		h, err := ps.createRenderHooks(o.f)
+		if err != nil {
+			initErr = err
+		}
+		if h == nil {
+			return
+		}
+
+		o.cp.renderHooks.hooks = h
+	})
+
+	return initErr
+}
+
+func (p *pageOutput) initContentProvider(cp *pageContentOutput) {
+	if cp == nil {
+		return
+	}
+	p.ContentProvider = cp
+	p.TableOfContentsProvider = cp
+	p.cp = cp
 }
 
 func (p *pageOutput) enablePlaceholders() {

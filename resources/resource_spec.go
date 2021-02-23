@@ -21,10 +21,18 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"sync"
 
-	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/resources/jsconfig"
+
+	"github.com/gohugoio/hugo/common/herrors"
+
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/identity"
 
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/resources/postpub"
 
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/common/loggers"
@@ -40,10 +48,11 @@ import (
 func NewSpec(
 	s *helpers.PathSpec,
 	fileCaches filecache.Caches,
-	logger *loggers.Logger,
+	incr identity.Incrementer,
+	logger loggers.Logger,
+	errorHandler herrors.ErrorSender,
 	outputFormats output.Formats,
 	mimeTypes media.Types) (*Spec, error) {
-
 	imgConfig, err := images.DecodeConfig(s.Cfg.GetStringMap("imaging"))
 	if err != nil {
 		return nil, err
@@ -52,6 +61,10 @@ func NewSpec(
 	imaging, err := images.NewImageProcessor(imgConfig)
 	if err != nil {
 		return nil, err
+	}
+
+	if incr == nil {
+		incr = &identity.IncrementByOne{}
 	}
 
 	if logger == nil {
@@ -63,23 +76,31 @@ func NewSpec(
 		return nil, err
 	}
 
-	rs := &Spec{PathSpec: s,
+	rs := &Spec{
+		PathSpec:      s,
 		Logger:        logger,
+		ErrorSender:   errorHandler,
 		imaging:       imaging,
+		incr:          incr,
 		MediaTypes:    mimeTypes,
 		OutputFormats: outputFormats,
 		Permalinks:    permalinks,
+		BuildConfig:   config.DecodeBuild(s.Cfg),
 		FileCaches:    fileCaches,
+		PostBuildAssets: &PostBuildAssets{
+			PostProcessResources: make(map[string]postpub.PostPublishedResource),
+			JSConfigBuilder:      jsconfig.NewBuilder(),
+		},
 		imageCache: newImageCache(
 			fileCaches.ImageCache(),
 
 			s,
-		)}
+		),
+	}
 
 	rs.ResourceCache = newResourceCache(rs)
 
 	return rs, nil
-
 }
 
 type Spec struct {
@@ -88,18 +109,31 @@ type Spec struct {
 	MediaTypes    media.Types
 	OutputFormats output.Formats
 
-	Logger *loggers.Logger
+	Logger      loggers.Logger
+	ErrorSender herrors.ErrorSender
 
 	TextTemplates tpl.TemplateParseFinder
 
-	Permalinks page.PermalinkExpander
+	Permalinks  page.PermalinkExpander
+	BuildConfig config.Build
 
 	// Holds default filter settings etc.
 	imaging *images.ImageProcessor
 
+	incr          identity.Incrementer
 	imageCache    *imageCache
 	ResourceCache *ResourceCache
 	FileCaches    filecache.Caches
+
+	// Assets used after the build is done.
+	// This is shared between all sites.
+	*PostBuildAssets
+}
+
+type PostBuildAssets struct {
+	postProcessMu        sync.RWMutex
+	PostProcessResources map[string]postpub.PostPublishedResource
+	JSConfigBuilder      *jsconfig.Builder
 }
 
 func (r *Spec) New(fd ResourceSourceDescriptor) (resource.Resource, error) {
@@ -129,15 +163,8 @@ func (r *Spec) ClearCaches() {
 	r.ResourceCache.clear()
 }
 
-func (r *Spec) DeleteCacheByPrefix(prefix string) {
-	r.imageCache.deleteByPrefix(prefix)
-}
-
-// TODO(bep) unify
-func (r *Spec) IsInImageCache(key string) bool {
-	// This is used for cache pruning. We currently only have images, but we could
-	// imagine expanding on this.
-	return r.imageCache.isInCache(key)
+func (r *Spec) DeleteBySubstring(s string) {
+	r.imageCache.deleteIfContains(s)
 }
 
 func (s *Spec) String() string {
@@ -161,7 +188,6 @@ func (r *Spec) newGenericResource(sourceFs afero.Fs,
 		baseFilename,
 		mediaType,
 	)
-
 }
 
 func (r *Spec) newGenericResourceWithBase(
@@ -173,7 +199,6 @@ func (r *Spec) newGenericResourceWithBase(
 	sourceFilename,
 	baseFilename string,
 	mediaType media.Type) *genericResource {
-
 	if osFileInfo != nil && osFileInfo.IsDir() {
 		panic(fmt.Sprintf("dirs not supported resource types: %v", osFileInfo))
 	}
@@ -183,12 +208,7 @@ func (r *Spec) newGenericResourceWithBase(
 	baseFilename = helpers.ToSlashTrimLeading(baseFilename)
 	fpath, fname := path.Split(baseFilename)
 
-	var resourceType string
-	if mediaType.MainType == "image" {
-		resourceType = mediaType.MainType
-	} else {
-		resourceType = mediaType.SubType
-	}
+	resourceType := mediaType.MainType
 
 	pathDescriptor := &resourcePathDescriptor{
 		baseTargetPathDirs: helpers.UniqueStringsReuse(targetPathBaseDirs),
@@ -222,7 +242,6 @@ func (r *Spec) newGenericResourceWithBase(
 	}
 
 	return g
-
 }
 
 func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (resource.Resource, error) {
@@ -250,7 +269,7 @@ func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (reso
 
 	ext := strings.ToLower(filepath.Ext(fd.RelTargetFilename))
 	mimeType, found := r.MediaTypes.GetFirstBySuffix(strings.TrimPrefix(ext, "."))
-	// TODO(bep) we need to handle these ambigous types better, but in this context
+	// TODO(bep) we need to handle these ambiguous types better, but in this context
 	// we most likely want the application/xml type.
 	if mimeType.Suffix() == "xml" && mimeType.SubType == "rss" {
 		mimeType, found = r.MediaTypes.GetByType("application/xml")
@@ -290,7 +309,6 @@ func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (reso
 	}
 
 	return newResourceAdapter(gr.spec, fd.LazyPublish, gr), nil
-
 }
 
 func (r *Spec) newResourceFor(fd ResourceSourceDescriptor) (resource.Resource, error) {

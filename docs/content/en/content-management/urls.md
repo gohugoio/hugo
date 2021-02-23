@@ -38,6 +38,20 @@ permalinks:
 
 Only the content under `posts/` will have the new URL structure. For example, the file `content/posts/sample-entry.md` with `date: 2017-02-27T19:20:00-05:00` in its front matter will render to `public/2017/02/sample-entry/index.html` at build time and therefore be reachable at `https://example.com/2017/02/sample-entry/`.
 
+To configure the `permalinks` option for pages in the "root" section, use **/** as the key:
+
+{{< code-toggle file="config" copy="false" >}}
+permalinks:
+  /: /:year/:month/:filename/
+{{< /code-toggle >}}
+
+If the standard date-based permalink configuration does not meet your needs, you can also format URL segments using [Go time formatting directives](https://golang.org/pkg/time/#Time.Format). For example, a URL structure with two digit years and month and day digits without zero padding can be accomplished with:
+
+{{< code-toggle file="config" copy="false" >}}
+permalinks:
+  posts: /:06/:1/:2/:title/
+{{< /code-toggle >}}
+
 You can also configure permalinks of taxonomies with the same syntax, by using the plural form of the taxonomy instead of the section. You will probably only want to use the configuration values `:slug` or `:title`.
 
 ### Permalink Configuration Values
@@ -79,6 +93,8 @@ The following is a list of values that can be used in a `permalink` definition i
 
 `:filename`
 : the content's filename (without extension)
+
+Additionally, a Go time format string prefixed with `:` may be used.
 
 ## Aliases
 
@@ -193,7 +209,7 @@ content/posts/post-1.md
 
 ## Ugly URLs
 
-If you would like to have what are often referred to as "ugly URLs" (e.g., example.com/urls.html), set `uglyurls = true` or `uglyurls: true` in your site's `config.toml` or `config.yaml`, respectively. You can also use the `--uglyURLs=true` [flag from the command line][usage] with `hugo` or `hugo server`.
+If you would like to have what are often referred to as "ugly URLs" (e.g., example.com/urls.html), set `uglyurls = true` or `uglyurls: true` in your site's `config.toml` or `config.yaml`, respectively. You can also set the `HUGO_UGLYURLS` environment variable to `true` when running `hugo` or `hugo server`.
 
 If you want a specific piece of content to have an exact URL, you can specify this in the [front matter][] under the `url` key. The following are examples of the same content directory and what the eventual URL structure will be when Hugo runs with its default behavior.
 

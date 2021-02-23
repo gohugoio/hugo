@@ -18,8 +18,6 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/media"
-
-	"github.com/gohugoio/hugo/parser/pageparser"
 )
 
 type Format string
@@ -41,7 +39,6 @@ func FormatFromString(formatStr string) Format {
 	if strings.Contains(formatStr, ".") {
 		// Assume a filename
 		formatStr = strings.TrimPrefix(filepath.Ext(formatStr), ".")
-
 	}
 	switch formatStr {
 	case "yaml", "yml":
@@ -57,7 +54,6 @@ func FormatFromString(formatStr string) Format {
 	}
 
 	return ""
-
 }
 
 // FormatFromMediaType gets the Format given a MIME type, empty string
@@ -70,22 +66,6 @@ func FormatFromMediaType(m media.Type) Format {
 	}
 
 	return ""
-}
-
-// FormatFromFrontMatterType will return empty if not supported.
-func FormatFromFrontMatterType(typ pageparser.ItemType) Format {
-	switch typ {
-	case pageparser.TypeFrontMatterJSON:
-		return JSON
-	case pageparser.TypeFrontMatterORG:
-		return ORG
-	case pageparser.TypeFrontMatterTOML:
-		return TOML
-	case pageparser.TypeFrontMatterYAML:
-		return YAML
-	default:
-		return ""
-	}
 }
 
 // FormatFromContentString tries to detect the format (JSON, YAML or TOML)

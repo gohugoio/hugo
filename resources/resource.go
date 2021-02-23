@@ -22,6 +22,10 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/gohugoio/hugo/resources/internal"
+
+	"github.com/gohugoio/hugo/common/herrors"
+
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/media"
@@ -30,9 +34,9 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
-
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -93,6 +97,24 @@ type ResourceTransformer interface {
 
 type Transformer interface {
 	Transform(...ResourceTransformation) (ResourceTransformer, error)
+}
+
+func NewFeatureNotAvailableTransformer(key string, elements ...interface{}) ResourceTransformation {
+	return transformerNotAvailable{
+		key: internal.NewResourceTransformationKey(key, elements...),
+	}
+}
+
+type transformerNotAvailable struct {
+	key internal.ResourceTransformationKey
+}
+
+func (t transformerNotAvailable) Transform(ctx *ResourceTransformationCtx) error {
+	return herrors.ErrFeatureNotAvailable
+}
+
+func (t transformerNotAvailable) Key() internal.ResourceTransformationKey {
+	return t.key
 }
 
 type baseResourceResource interface {
@@ -228,7 +250,7 @@ func (l *genericResource) Name() string {
 	return l.name
 }
 
-func (l *genericResource) Params() map[string]interface{} {
+func (l *genericResource) Params() maps.Params {
 	return l.params
 }
 
@@ -254,7 +276,6 @@ func (l *genericResource) Publish() error {
 		defer fw.Close()
 
 		_, err = io.Copy(fw, fr)
-
 	})
 
 	return err
@@ -413,14 +434,13 @@ func (l genericResource) clone() *genericResource {
 
 // returns an opened file or nil if nothing to write (it may already be published).
 func (l *genericResource) openDestinationsForWriting() (w io.WriteCloser, err error) {
-
 	l.publishInit.Do(func() {
 		targetFilenames := l.getTargetFilenames()
 		var changedFilenames []string
 
 		// Fast path:
 		// This is a processed version of the original;
-		// check if it already existis at the destination.
+		// check if it already exists at the destination.
 		for _, targetFilename := range targetFilenames {
 			if _, err := l.getSpec().BaseFs.PublishFs.Stat(targetFilename); err == nil {
 				continue
@@ -434,11 +454,9 @@ func (l *genericResource) openDestinationsForWriting() (w io.WriteCloser, err er
 		}
 
 		w, err = helpers.OpenFilesForWriting(l.getSpec().BaseFs.PublishFs, changedFilenames...)
-
 	})
 
 	return
-
 }
 
 func (r *genericResource) openPublishFileForWriting(relTargetPath string) (io.WriteCloser, error) {
@@ -644,7 +662,7 @@ type resourcePathDescriptor struct {
 	targetPathBuilder func() page.TargetPaths
 
 	// This will normally be the same as above, but this will only apply to publishing
-	// of resources. It may be mulltiple values when in multihost mode.
+	// of resources. It may be multiple values when in multihost mode.
 	baseTargetPathDirs []string
 
 	// baseOffset is set when the output format's path has a offset, e.g. for AMP.

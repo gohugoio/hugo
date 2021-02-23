@@ -19,11 +19,20 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/spf13/viper"
+
+	"github.com/gohugoio/hugo/common/loggers"
+
 	qt "github.com/frankban/quicktest"
 	"github.com/spf13/afero"
 )
 
-func TestGuessType(t *testing.T) {
+func TestResolveMarkup(t *testing.T) {
+	c := qt.New(t)
+	cfg := viper.New()
+	spec, err := NewContentSpec(cfg, loggers.NewErrorLogger(), afero.NewMemMapFs())
+	c.Assert(err, qt.IsNil)
+
 	for i, this := range []struct {
 		in     string
 		expect string
@@ -31,9 +40,9 @@ func TestGuessType(t *testing.T) {
 		{"md", "markdown"},
 		{"markdown", "markdown"},
 		{"mdown", "markdown"},
-		{"asciidoc", "asciidoc"},
-		{"adoc", "asciidoc"},
-		{"ad", "asciidoc"},
+		{"asciidocext", "asciidocext"},
+		{"adoc", "asciidocext"},
+		{"ad", "asciidocext"},
 		{"rst", "rst"},
 		{"pandoc", "pandoc"},
 		{"pdc", "pandoc"},
@@ -43,7 +52,7 @@ func TestGuessType(t *testing.T) {
 		{"org", "org"},
 		{"excel", ""},
 	} {
-		result := GuessType(this.in)
+		result := spec.ResolveMarkup(this.in)
 		if result != this.expect {
 			t.Errorf("[%d] got %s but expected %s", i, result, this.expect)
 		}
@@ -210,7 +219,6 @@ func TestGetTitleFunc(t *testing.T) {
 	c.Assert(GetTitleFunc("ap")(title), qt.Equals, "Somewhere Over the Rainbow")
 	c.Assert(GetTitleFunc("")(title), qt.Equals, "Somewhere Over the Rainbow")
 	c.Assert(GetTitleFunc("unknown")(title), qt.Equals, "Somewhere Over the Rainbow")
-
 }
 
 func BenchmarkReaderContains(b *testing.B) {
@@ -345,7 +353,6 @@ func BenchmarkMD5FromFileFast(b *testing.B) {
 			}
 		})
 	}
-
 }
 
 func BenchmarkUniqueStrings(b *testing.B) {
@@ -397,5 +404,11 @@ func BenchmarkUniqueStrings(b *testing.B) {
 			}
 		}
 	})
+}
 
+func TestHashString(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(HashString("a", "b"), qt.Equals, "2712570657419664240")
+	c.Assert(HashString("ab"), qt.Equals, "590647783936702392")
 }

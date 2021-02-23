@@ -56,5 +56,4 @@ func TestNewPathSpecFromConfig(t *testing.T) {
 	c.Assert(p.BaseURL.String(), qt.Equals, "http://base.com")
 	c.Assert(p.ThemesDir, qt.Equals, "thethemes")
 	c.Assert(p.WorkingDir, qt.Equals, "thework")
-
 }

@@ -42,19 +42,29 @@ func init() {
 	os.Setenv("GO111MODULE", "on")
 }
 
+func runWith(env map[string]string, cmd string, inArgs ...interface{}) error {
+	s := argsToStrings(inArgs...)
+	return sh.RunWith(env, cmd, s...)
+}
+
 // Build hugo binary
 func Hugo() error {
-	return sh.RunWith(flagEnv(), goexe, "build", "-ldflags", ldflags, "-tags", buildTags(), packageName)
+	return runWith(flagEnv(), goexe, "build", "-ldflags", ldflags, buildFlags(), "-tags", buildTags(), packageName)
 }
 
 // Build hugo binary with race detector enabled
 func HugoRace() error {
-	return sh.RunWith(flagEnv(), goexe, "build", "-race", "-ldflags", ldflags, "-tags", buildTags(), packageName)
+	return runWith(flagEnv(), goexe, "build", "-race", "-ldflags", ldflags, buildFlags(), "-tags", buildTags(), packageName)
 }
 
 // Install hugo binary
 func Install() error {
-	return sh.RunWith(flagEnv(), goexe, "install", "-ldflags", ldflags, "-tags", buildTags(), packageName)
+	return runWith(flagEnv(), goexe, "install", "-ldflags", ldflags, buildFlags(), "-tags", buildTags(), packageName)
+}
+
+// Uninstall hugo binary
+func Uninstall() error {
+	return sh.Run(goexe, "clean", "-i", packageName)
 }
 
 func flagEnv() map[string]string {
@@ -66,6 +76,7 @@ func flagEnv() map[string]string {
 	}
 }
 
+// Generate autogen packages
 func Generate() error {
 	generatorPackages := []string{
 		"tpl/tplimpl/embedded/generate",
@@ -73,7 +84,7 @@ func Generate() error {
 	}
 
 	for _, pkg := range generatorPackages {
-		if err := sh.RunWith(flagEnv(), goexe, "generate", path.Join(packageName, pkg)); err != nil {
+		if err := runWith(flagEnv(), goexe, "generate", path.Join(packageName, pkg)); err != nil {
 			return err
 		}
 	}
@@ -99,6 +110,11 @@ func Generate() error {
 	}
 
 	return nil
+}
+
+// Generate docs helper
+func GenDocsHelper() error {
+	return runCmd(flagEnv(), goexe, "run", "-tags", buildTags(), "main.go", "gen", "docshelper")
 }
 
 // Build hugo without git info
@@ -134,7 +150,11 @@ func Check() {
 		return
 	}
 
-	mg.Deps(Test386)
+	if runtime.GOARCH == "amd64" && runtime.GOOS != "darwin" {
+		mg.Deps(Test386)
+	} else {
+		fmt.Printf("Skip Test386 on %s and/or %s\n", runtime.GOARCH, runtime.GOOS)
+	}
 
 	mg.Deps(Fmt, Vet)
 
@@ -155,19 +175,19 @@ func testGoFlags() string {
 // Note that we don't run with the extended tag. Currently not supported in 32 bit.
 func Test386() error {
 	env := map[string]string{"GOARCH": "386", "GOFLAGS": testGoFlags()}
-	return sh.RunWith(env, goexe, "test", "./...")
+	return runCmd(env, goexe, "test", "./...")
 }
 
 // Run tests
 func Test() error {
 	env := map[string]string{"GOFLAGS": testGoFlags()}
-	return sh.RunWith(env, goexe, "test", "./...", "-tags", buildTags())
+	return runCmd(env, goexe, "test", "./...", buildFlags(), "-tags", buildTags())
 }
 
 // Run tests with race detector
 func TestRace() error {
 	env := map[string]string{"GOFLAGS": testGoFlags()}
-	return sh.RunWith(env, goexe, "test", "-race", "./...", "-tags", buildTags())
+	return runCmd(env, goexe, "test", "-race", "./...", buildFlags(), "-tags", buildTags())
 }
 
 // Run gofmt linter
@@ -303,20 +323,59 @@ func TestCoverHTML() error {
 	return sh.Run(goexe, "tool", "cover", "-html="+coverAll)
 }
 
+func runCmd(env map[string]string, cmd string, args ...interface{}) error {
+	if mg.Verbose() {
+		return runWith(env, cmd, args...)
+	}
+	output, err := sh.OutputWith(env, cmd, argsToStrings(args...)...)
+	if err != nil {
+		fmt.Fprint(os.Stderr, output)
+	}
+
+	return err
+}
+
 func isGoLatest() bool {
-	return strings.Contains(runtime.Version(), "1.12")
+	return strings.Contains(runtime.Version(), "1.14")
 }
 
 func isCI() bool {
 	return os.Getenv("CI") != ""
 }
 
+func buildFlags() []string {
+	if runtime.GOOS == "windows" {
+		return []string{"-buildmode", "exe"}
+	}
+	return nil
+}
+
 func buildTags() string {
 	// To build the extended Hugo SCSS/SASS enabled version, build with
 	// HUGO_BUILD_TAGS=extended mage install etc.
+	// To build without `hugo deploy` for smaller binary, use HUGO_BUILD_TAGS=nodeploy
 	if envtags := os.Getenv("HUGO_BUILD_TAGS"); envtags != "" {
 		return envtags
 	}
 	return "none"
+}
 
+func argsToStrings(v ...interface{}) []string {
+	var args []string
+	for _, arg := range v {
+		switch v := arg.(type) {
+		case string:
+			if v != "" {
+				args = append(args, v)
+			}
+		case []string:
+			if v != nil {
+				args = append(args, v...)
+			}
+		default:
+			panic("invalid type")
+		}
+	}
+
+	return args
 }

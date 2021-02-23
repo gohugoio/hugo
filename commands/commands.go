@@ -14,7 +14,9 @@
 package commands
 
 import (
+	"fmt"
 	"os"
+	"time"
 
 	"github.com/gohugoio/hugo/hugolib/paths"
 
@@ -45,12 +47,12 @@ func (b *commandsBuilder) addAll() *commandsBuilder {
 		b.newServerCmd(),
 		newVersionCmd(),
 		newEnvCmd(),
-		newConfigCmd(),
+		b.newConfigCmd(),
 		newCheckCmd(),
-		newDeployCmd(),
-		newConvertCmd(),
+		b.newDeployCmd(),
+		b.newConvertCmd(),
 		b.newNewCmd(),
-		newListCmd(),
+		b.newListCmd(),
 		newImportCmd(),
 		newGenCmd(),
 		createReleaser(),
@@ -86,6 +88,7 @@ var _ commandsBuilderGetter = (*baseBuilderCmd)(nil)
 type commandsBuilderGetter interface {
 	getCommandsBuilder() *commandsBuilder
 }
+
 type baseBuilderCmd struct {
 	*baseCmd
 	*commandsBuilder
@@ -106,6 +109,12 @@ func newBaseCmd(cmd *cobra.Command) *baseCmd {
 func (b *commandsBuilder) newBuilderCmd(cmd *cobra.Command) *baseBuilderCmd {
 	bcmd := &baseBuilderCmd{commandsBuilder: b, baseCmd: &baseCmd{cmd: cmd}}
 	bcmd.hugoBuilderCommon.handleFlags(cmd)
+	return bcmd
+}
+
+func (b *commandsBuilder) newBuilderBasicCmd(cmd *cobra.Command) *baseBuilderCmd {
+	bcmd := &baseBuilderCmd{commandsBuilder: b, baseCmd: &baseCmd{cmd: cmd}}
+	bcmd.hugoBuilderCommon.handleCommonBuilderFlags(cmd)
 	return bcmd
 }
 
@@ -130,7 +139,6 @@ func (c *nilCommand) getCommand() *cobra.Command {
 }
 
 func (c *nilCommand) flagsToConfig(cfg config.Provider) {
-
 }
 
 func (b *commandsBuilder) newHugoCmd() *hugoCmd {
@@ -146,6 +154,7 @@ built with love by spf13 and friends in Go.
 
 Complete documentation is available at http://gohugo.io/.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			defer cc.timeTrack(time.Now(), "Total")
 			cfgInit := func(c *commandeer) error {
 				if cc.buildWatch {
 					c.Set("disableLiveReload", true)
@@ -203,6 +212,7 @@ type hugoBuilderCommon struct {
 	memprofile   string
 	mutexprofile string
 	traceprofile string
+	printm       bool
 
 	// TODO(bep) var vs string
 	logging    bool
@@ -214,6 +224,14 @@ type hugoBuilderCommon struct {
 	cfgFile string
 	cfgDir  string
 	logFile string
+}
+
+func (cc *hugoBuilderCommon) timeTrack(start time.Time, name string) {
+	if cc.quiet {
+		return
+	}
+	elapsed := time.Since(start)
+	fmt.Printf("%s in %v ms\n", name, int(1000*elapsed.Seconds()))
 }
 
 func (cc *hugoBuilderCommon) getConfigDir(baseDir string) string {
@@ -237,6 +255,11 @@ func (cc *hugoBuilderCommon) getEnvironment(isServer bool) string {
 		return v
 	}
 
+	//  Used by Netlify and Forestry
+	if v, found := os.LookupEnv("HUGO_ENV"); found {
+		return v
+	}
+
 	if isServer {
 		return hugo.EnvironmentDevelopment
 	}
@@ -250,6 +273,7 @@ func (cc *hugoBuilderCommon) handleCommonBuilderFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().StringVarP(&cc.environment, "environment", "e", "", "build environment")
 	cmd.PersistentFlags().StringP("themesDir", "", "", "filesystem path to themes directory")
 	cmd.PersistentFlags().BoolP("ignoreVendor", "", false, "ignores any _vendor directory")
+	cmd.PersistentFlags().StringP("ignoreVendorPaths", "", "", "ignores any _vendor for module paths matching the given Glob pattern")
 }
 
 func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
@@ -277,6 +301,7 @@ func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolP("path-warnings", "", false, "print warnings on duplicate target paths etc.")
 	cmd.Flags().StringVarP(&cc.cpuprofile, "profile-cpu", "", "", "write cpu profile to `file`")
 	cmd.Flags().StringVarP(&cc.memprofile, "profile-mem", "", "", "write memory profile to `file`")
+	cmd.Flags().BoolVarP(&cc.printm, "print-mem", "", false, "print memory usage to screen at intervals")
 	cmd.Flags().StringVarP(&cc.mutexprofile, "profile-mutex", "", "", "write Mutex profile to `file`")
 	cmd.Flags().StringVarP(&cc.traceprofile, "trace", "", "", "write trace to `file` (not useful in general)")
 
@@ -297,16 +322,12 @@ func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
 	_ = cmd.Flags().SetAnnotation("theme", cobra.BashCompSubdirsInDir, []string{"themes"})
 }
 
-func checkErr(logger *loggers.Logger, err error, s ...string) {
+func checkErr(logger loggers.Logger, err error, s ...string) {
 	if err == nil {
 		return
 	}
-	if len(s) == 0 {
-		logger.CRITICAL.Println(err)
-		return
-	}
 	for _, message := range s {
-		logger.ERROR.Println(message)
+		logger.Errorln(message)
 	}
-	logger.ERROR.Println(err)
+	logger.Errorln(err)
 }

@@ -14,10 +14,16 @@ menu:
     weight: 31
 ---
 
+Page resources are available for [page bundles]({{< relref "/content-management/page-bundles" >}}) only,
+i.e. a directory with either a `index.md`, or `_index.md` file at its root. Resources are only attached to
+the lowest page they are bundled with, and simple which names does not contain `index.md` are not attached any resource.
+
 ## Properties
 
 ResourceType
-: The main type of the resource. For example, a file of MIME type `image/jpg` has the ResourceType `image`.
+: The main type of the resource's [Media Type](/templates/output-formats/#media-types). For example, a file of MIME type `image/jpeg` has the ResourceType `image`. A `Page` will have `ResourceType` with value `page`.
+
+{{< new-in "0.80.0" >}} Note that we in Hugo `v0.80.0` fixed a bug where non-image resources (e.g. video) would return the MIME sub type, e.g. `json`.
 
 Name
 : Default value is the filename (relative to the owning page). Can be set in front matter.
@@ -35,7 +41,7 @@ Content
 : The content of the resource itself. For most resources, this returns a string with the contents of the file. This can be used to inline some resources, such as `<script>{{ (.Resources.GetMatch "myscript.js").Content | safeJS }}</script>` or `<img src="{{ (.Resources.GetMatch "mylogo.png").Content | base64Encode }}">`.
 
 MediaType
-: The MIME type of the resource, such as `image/jpg`.
+: The MIME type of the resource, such as `image/jpeg`.
 
 MediaType.MainType
 : The main type of the resource's MIME type. For example, a file of MIME type `application/pdf` has for MainType `application`.
@@ -67,7 +73,7 @@ GetMatch
 ```go
 // Using Match/GetMatch to find this images/sunset.jpg ?
 .Resources.Match "images/sun*" ✅
-.Resources.Match "**/Sunset.jpg" ✅
+.Resources.Match "**/sunset.jpg" ✅
 .Resources.Match "images/*.jpg" ✅
 .Resources.Match "**.jpg" ✅
 .Resources.Match "*" 🚫
@@ -78,7 +84,7 @@ GetMatch
 
 ## Page Resources Metadata
 
-Page Resources' metadata is managed from their page's front matter with an array/table parameter named `resources`. You can batch assign values using a [wildcards](http://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm).
+The page resources' metadata is managed from the corresponding page's front matter with an array/table parameter named `resources`. You can batch assign values using [wildcards](https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm).
 
 {{% note %}}
 Resources of type `page` get `Title` etc. from their own front matter.
@@ -135,7 +141,7 @@ From the example above:
 - Every docx in the bundle will receive the `word` icon.
 
 {{% warning %}}
-The __order matters__ --- Only the **first set** values of the `title`, `name` and `params`-**keys** will be used. Consecutive parameters will be set only for the ones not already set. For example, in the above example, `.Params.icon` is already first set to `"photo"` in `src = "documents/photo_specs.pdf"`. So that would not get overridden to `"pdf"` by the later set `src = "**.pdf"` rule.
+The __order matters__ --- Only the **first set** values of the `title`, `name` and `params`-**keys** will be used. Consecutive parameters will be set only for the ones not already set. In the above example, `.Params.icon` is first set to `"photo"` in `src = "documents/photo_specs.pdf"`. So that would not get overridden to `"pdf"` by the later set `src = "**.pdf"` rule.
 {{%/ warning %}}
 
 ### The `:counter` placeholder in `name` and `title`

@@ -14,6 +14,9 @@
 package resource
 
 import (
+	"image"
+
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/images/exif"
@@ -27,9 +30,17 @@ type Cloner interface {
 	Clone() Resource
 }
 
+// OriginProvider provides the original Resource if this is wrapped.
+// This is an internal Hugo interface and not meant for use in the templates.
+type OriginProvider interface {
+	Origin() Resource
+	GetFieldString(pattern string) (string, bool)
+}
+
 // Resource represents a linkable resource, i.e. a content page, image etc.
 type Resource interface {
-	ResourceTypesProvider
+	ResourceTypeProvider
+	MediaTypeProvider
 	ResourceLinksProvider
 	ResourceMetaProvider
 	ResourceParamsProvider
@@ -49,17 +60,27 @@ type ImageOps interface {
 	Fit(spec string) (Image, error)
 	Resize(spec string) (Image, error)
 	Filter(filters ...interface{}) (Image, error)
-	Exif() (*exif.Exif, error)
+	Exif() *exif.Exif
+
+	// Internal
+	DecodeImage() (image.Image, error)
 }
 
-type ResourceTypesProvider interface {
-	// MediaType is this resource's MIME type.
-	MediaType() media.Type
-
+type ResourceTypeProvider interface {
 	// ResourceType is the resource type. For most file types, this is the main
 	// part of the MIME type, e.g. "image", "application", "text" etc.
 	// For content pages, this value is "page".
 	ResourceType() string
+}
+
+type ResourceTypesProvider interface {
+	ResourceTypeProvider
+	MediaTypeProvider
+}
+
+type MediaTypeProvider interface {
+	// MediaType is this resource's MIME type.
+	MediaType() media.Type
 }
 
 type ResourceLinksProvider interface {
@@ -85,7 +106,7 @@ type ResourceMetaProvider interface {
 
 type ResourceParamsProvider interface {
 	// Params set in front matter for this resource.
-	Params() map[string]interface{}
+	Params() maps.Params
 }
 
 type ResourceDataProvider interface {
@@ -155,6 +176,12 @@ type LanguageProvider interface {
 // TranslationKeyProvider connects translations of the same Resource.
 type TranslationKeyProvider interface {
 	TranslationKey() string
+}
+
+// UnmarshableResource represents a Resource that can be unmarshaled to some other format.
+type UnmarshableResource interface {
+	ReadSeekCloserResource
+	Identifier
 }
 
 type resourceTypesHolder struct {

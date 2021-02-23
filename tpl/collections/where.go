@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+
+	"github.com/gohugoio/hugo/common/maps"
 )
 
 // Where returns a filtered subset of a given data type.
@@ -277,6 +279,7 @@ func evaluateSubElem(obj reflect.Value, elemName string) (reflect.Value, error) 
 	if !obj.IsValid() {
 		return zero, errors.New("can't evaluate an invalid value")
 	}
+
 	typ := obj.Type()
 	obj, isNil := indirect(obj)
 
@@ -295,6 +298,7 @@ func evaluateSubElem(obj reflect.Value, elemName string) (reflect.Value, error) 
 	if objPtr.Kind() != reflect.Interface && objPtr.CanAddr() {
 		objPtr = objPtr.Addr()
 	}
+
 	mt, ok := objPtr.Type().MethodByName(elemName)
 	if ok {
 		switch {
@@ -368,16 +372,22 @@ func parseWhereArgs(args ...interface{}) (mv reflect.Value, op string, err error
 // Array or Slice.
 func (ns *Namespace) checkWhereArray(seqv, kv, mv reflect.Value, path []string, op string) (interface{}, error) {
 	rv := reflect.MakeSlice(seqv.Type(), 0, 0)
+
 	for i := 0; i < seqv.Len(); i++ {
 		var vvv reflect.Value
 		rvv := seqv.Index(i)
+
 		if kv.Kind() == reflect.String {
-			vvv = rvv
-			for _, elemName := range path {
-				var err error
-				vvv, err = evaluateSubElem(vvv, elemName)
-				if err != nil {
-					continue
+			if params, ok := rvv.Interface().(maps.Params); ok {
+				vvv = reflect.ValueOf(params.Get(path...))
+			} else {
+				vvv = rvv
+				for _, elemName := range path {
+					var err error
+					vvv, err = evaluateSubElem(vvv, elemName)
+					if err != nil {
+						continue
+					}
 				}
 			}
 		} else {

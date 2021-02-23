@@ -56,10 +56,9 @@ In the rendered page response, the `https://__baseurl__` will be replaced with y
 
 We will now create a git repository and then push our code to Bitbucket. In Bitbucket, create a repository.
 
-![][1]
+![Bitbucket Screenshot][1]
 
 [1]: /images/hosting-and-deployment/hosting-on-bitbucket/bitbucket-create-repo.png
-
 
 ```
 # initialize new git repository
@@ -133,10 +132,9 @@ Your code will be committed to Bitbucket, Bitbucket Pipelines will run your buil
 
 At this point, you can now create and edit blog posts directly in the Bitbucket UI.
 
-![][2]
+![Bitbucket blog Screenshot][2]
 
 [2]: /images/hosting-and-deployment/hosting-on-bitbucket/bitbucket-blog-post.png
-
 
 ## Suggested next steps
 

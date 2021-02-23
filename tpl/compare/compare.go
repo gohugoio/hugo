@@ -43,7 +43,7 @@ type Namespace struct {
 func (*Namespace) Default(dflt interface{}, given ...interface{}) (interface{}, error) {
 	// given is variadic because the following construct will not pass a piped
 	// argument when the key is missing:  {{ index . "key" | default "foo" }}
-	// The Go template will complain that we got 1 argument when we expectd 2.
+	// The Go template will complain that we got 1 argument when we expected 2.
 
 	if len(given) == 0 {
 		return dflt, nil
@@ -111,6 +111,8 @@ func (n *Namespace) Eq(first interface{}, others ...interface{}) bool {
 			return vv.Float()
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 			return vv.Uint()
+		case reflect.String:
+			return vv.String()
 		default:
 			return v
 		}
@@ -119,11 +121,17 @@ func (n *Namespace) Eq(first interface{}, others ...interface{}) bool {
 	normFirst := normalize(first)
 	for _, other := range others {
 		if e, ok := first.(compare.Eqer); ok {
-			return e.Eq(other)
+			if e.Eq(other) {
+				return true
+			}
+			continue
 		}
 
 		if e, ok := other.(compare.Eqer); ok {
-			return e.Eq(first)
+			if e.Eq(first) {
+				return true
+			}
+			continue
 		}
 
 		other = normalize(other)
@@ -135,33 +143,58 @@ func (n *Namespace) Eq(first interface{}, others ...interface{}) bool {
 	return false
 }
 
-// Ne returns the boolean truth of arg1 != arg2.
-func (n *Namespace) Ne(x, y interface{}) bool {
-	return !n.Eq(x, y)
+// Ne returns the boolean truth of arg1 != arg2 && arg1 != arg3 && arg1 != arg4.
+func (n *Namespace) Ne(first interface{}, others ...interface{}) bool {
+	for _, other := range others {
+		if n.Eq(first, other) {
+			return false
+		}
+	}
+	return true
 }
 
-// Ge returns the boolean truth of arg1 >= arg2.
-func (n *Namespace) Ge(a, b interface{}) bool {
-	left, right := n.compareGet(a, b)
-	return left >= right
+// Ge returns the boolean truth of arg1 >= arg2 && arg1 >= arg3 && arg1 >= arg4.
+func (n *Namespace) Ge(first interface{}, others ...interface{}) bool {
+	for _, other := range others {
+		left, right := n.compareGet(first, other)
+		if !(left >= right) {
+			return false
+		}
+	}
+	return true
 }
 
-// Gt returns the boolean truth of arg1 > arg2.
-func (n *Namespace) Gt(a, b interface{}) bool {
-	left, right := n.compareGet(a, b)
-	return left > right
+// Gt returns the boolean truth of arg1 > arg2 && arg1 > arg3 && arg1 > arg4.
+func (n *Namespace) Gt(first interface{}, others ...interface{}) bool {
+	for _, other := range others {
+		left, right := n.compareGet(first, other)
+		if !(left > right) {
+			return false
+		}
+	}
+	return true
 }
 
-// Le returns the boolean truth of arg1 <= arg2.
-func (n *Namespace) Le(a, b interface{}) bool {
-	left, right := n.compareGet(a, b)
-	return left <= right
+// Le returns the boolean truth of arg1 <= arg2 && arg1 <= arg3 && arg1 <= arg4.
+func (n *Namespace) Le(first interface{}, others ...interface{}) bool {
+	for _, other := range others {
+		left, right := n.compareGet(first, other)
+		if !(left <= right) {
+			return false
+		}
+	}
+	return true
 }
 
-// Lt returns the boolean truth of arg1 < arg2.
-func (n *Namespace) Lt(a, b interface{}) bool {
-	left, right := n.compareGet(a, b)
-	return left < right
+// Lt returns the boolean truth of arg1 < arg2 && arg1 < arg3 && arg1 < arg4.
+func (n *Namespace) Lt(first interface{}, others ...interface{}) bool {
+	for _, other := range others {
+		left, right := n.compareGet(first, other)
+		if !(left < right) {
+			return false
+		}
+	}
+	return true
 }
 
 // Conditional can be used as a ternary operator.
@@ -219,6 +252,11 @@ func (ns *Namespace) compareGet(a interface{}, b interface{}) (float64, float64)
 		case timeType:
 			left = float64(toTimeUnix(av))
 		}
+	case reflect.Bool:
+		left = 0
+		if av.Bool() {
+			left = 1
+		}
 	}
 
 	bv := reflect.ValueOf(b)
@@ -241,6 +279,11 @@ func (ns *Namespace) compareGet(a interface{}, b interface{}) (float64, float64)
 		switch bv.Type() {
 		case timeType:
 			right = float64(toTimeUnix(bv))
+		}
+	case reflect.Bool:
+		right = 0
+		if bv.Bool() {
+			right = 1
 		}
 	}
 

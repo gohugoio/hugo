@@ -16,8 +16,10 @@
 package filesystems
 
 import (
+	"fmt"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -31,8 +33,6 @@ import (
 	"github.com/gohugoio/hugo/modules"
 
 	"github.com/gohugoio/hugo/hugofs"
-
-	"fmt"
 
 	"github.com/gohugoio/hugo/hugolib/paths"
 	"github.com/spf13/afero"
@@ -48,6 +48,9 @@ type BaseFs struct {
 	// SourceFilesystems contains the different source file systems.
 	*SourceFilesystems
 
+	// The project source.
+	SourceFs afero.Fs
+
 	// The filesystem used to publish the rendered site.
 	// This usually maps to /my-project/public.
 	PublishFs afero.Fs
@@ -55,6 +58,8 @@ type BaseFs struct {
 	theBigFs *filesystemsCollector
 }
 
+// TODO(bep) we can get regular files in here and that is fine, but
+// we need to clean up the naming.
 func (fs *BaseFs) WatchDirs() []hugofs.FileMetaInfo {
 	var dirs []hugofs.FileMetaInfo
 	for _, dir := range fs.AllDirs() {
@@ -62,7 +67,6 @@ func (fs *BaseFs) WatchDirs() []hugofs.FileMetaInfo {
 			dirs = append(dirs, dir)
 		}
 	}
-
 	return dirs
 }
 
@@ -75,7 +79,7 @@ func (fs *BaseFs) AllDirs() []hugofs.FileMetaInfo {
 		fs.Content.Dirs,
 		fs.Assets.Dirs,
 		fs.Layouts.Dirs,
-		//fs.Resources.Dirs,
+		// fs.Resources.Dirs,
 		fs.StaticDirs,
 	} {
 		dirs = append(dirs, dirSet...)
@@ -90,12 +94,29 @@ func (b *BaseFs) RelContentDir(filename string) string {
 	for _, dir := range b.SourceFilesystems.Content.Dirs {
 		dirname := dir.Meta().Filename()
 		if strings.HasPrefix(filename, dirname) {
-			rel := strings.TrimPrefix(filename, dirname)
+			rel := path.Join(dir.Meta().Path(), strings.TrimPrefix(filename, dirname))
 			return strings.TrimPrefix(rel, filePathSeparator)
 		}
 	}
 	// Either not a content dir or already relative.
 	return filename
+}
+
+// ResolveJSConfigFile resolves the JS-related config file to a absolute
+// filename. One example of such would be postcss.config.js.
+func (fs *BaseFs) ResolveJSConfigFile(name string) string {
+	// First look in assets/_jsconfig
+	fi, err := fs.Assets.Fs.Stat(filepath.Join(files.FolderJSConfig, name))
+	if err == nil {
+		return fi.(hugofs.FileMetaInfo).Meta().Filename()
+	}
+	// Fall back to the work dir.
+	fi, err = fs.Work.Stat(name)
+	if err == nil {
+		return fi.(hugofs.FileMetaInfo).Meta().Filename()
+	}
+
+	return ""
 }
 
 // SourceFilesystems contains the different source file systems. These can be
@@ -126,10 +147,27 @@ type SourceFilesystems struct {
 	StaticDirs []hugofs.FileMetaInfo
 }
 
+// FileSystems returns the FileSystems relevant for the change detection
+// in server mode.
+// Note: This does currently not return any static fs.
+func (s *SourceFilesystems) FileSystems() []*SourceFilesystem {
+	return []*SourceFilesystem{
+		s.Content,
+		s.Data,
+		s.I18n,
+		s.Layouts,
+		s.Archetypes,
+		// TODO(bep) static
+	}
+}
+
 // A SourceFilesystem holds the filesystem for a given source type in Hugo (data,
 // i18n, layouts, static) and additional metadata to be able to use that filesystem
 // in server mode.
 type SourceFilesystem struct {
+	// Name matches one in files.ComponentFolders
+	Name string
+
 	// This is a virtual composite filesystem. It expects path relative to a context.
 	Fs afero.Fs
 
@@ -152,7 +190,6 @@ func (s SourceFilesystems) ContentStaticAssetFs(lang string) afero.Fs {
 
 	base := afero.NewCopyOnWriteFs(s.Assets.Fs, staticFs)
 	return afero.NewCopyOnWriteFs(base, s.Content.Fs)
-
 }
 
 // StaticFs returns the static filesystem for the given language.
@@ -227,7 +264,7 @@ func (s SourceFilesystems) IsI18n(filename string) bool {
 // It will return an empty string if the filename is not a member of a static filesystem.
 func (s SourceFilesystems) MakeStaticPathRelative(filename string) string {
 	for _, staticFs := range s.Static {
-		rel := staticFs.MakePathRelative(filename)
+		rel, _ := staticFs.MakePathRelative(filename)
 		if rel != "" {
 			return rel
 		}
@@ -236,8 +273,7 @@ func (s SourceFilesystems) MakeStaticPathRelative(filename string) string {
 }
 
 // MakePathRelative creates a relative path from the given filename.
-// It will return an empty string if the filename is not a member of this filesystem.
-func (d *SourceFilesystem) MakePathRelative(filename string) string {
+func (d *SourceFilesystem) MakePathRelative(filename string) (string, bool) {
 	for _, dir := range d.Dirs {
 		meta := dir.(hugofs.FileMetaInfo).Meta()
 		currentPath := meta.Filename()
@@ -247,10 +283,10 @@ func (d *SourceFilesystem) MakePathRelative(filename string) string {
 			if mp := meta.Path(); mp != "" {
 				rel = filepath.Join(mp, rel)
 			}
-			return strings.TrimPrefix(rel, filePathSeparator)
+			return strings.TrimPrefix(rel, filePathSeparator), true
 		}
 	}
-	return ""
+	return "", false
 }
 
 func (d *SourceFilesystem) RealFilename(rel string) string {
@@ -273,6 +309,22 @@ func (d *SourceFilesystem) Contains(filename string) bool {
 		}
 	}
 	return false
+}
+
+// Path returns the mount relative path to the given filename if it is a member of
+// of the current filesystem, an empty string if not.
+func (d *SourceFilesystem) Path(filename string) string {
+	for _, dir := range d.Dirs {
+		meta := dir.Meta()
+		if strings.HasPrefix(filename, meta.Filename()) {
+			p := strings.TrimPrefix(strings.TrimPrefix(filename, meta.Filename()), filePathSeparator)
+			if mountRoot := meta.MountRoot(); mountRoot != "" {
+				return filepath.Join(mountRoot, p)
+			}
+			return p
+		}
+	}
+	return ""
 }
 
 // RealDirs gets a list of absolute paths to directories starting from the given
@@ -302,15 +354,17 @@ func WithBaseFs(b *BaseFs) func(*BaseFs) error {
 }
 
 // NewBase builds the filesystems used by Hugo given the paths and options provided.NewBase
-func NewBase(p *paths.Paths, logger *loggers.Logger, options ...func(*BaseFs) error) (*BaseFs, error) {
+func NewBase(p *paths.Paths, logger loggers.Logger, options ...func(*BaseFs) error) (*BaseFs, error) {
 	fs := p.Fs
 	if logger == nil {
 		logger = loggers.NewWarningLogger()
 	}
 
-	publishFs := afero.NewBasePathFs(fs.Destination, p.AbsPublishDir)
+	publishFs := hugofs.NewBaseFileDecorator(afero.NewBasePathFs(fs.Destination, p.AbsPublishDir))
+	sourceFs := hugofs.NewBaseFileDecorator(afero.NewBasePathFs(fs.Source, p.WorkingDir))
 
 	b := &BaseFs{
+		SourceFs:  sourceFs,
 		PublishFs: publishFs,
 	}
 
@@ -337,26 +391,27 @@ func NewBase(p *paths.Paths, logger *loggers.Logger, options ...func(*BaseFs) er
 }
 
 type sourceFilesystemsBuilder struct {
-	logger   *loggers.Logger
+	logger   loggers.Logger
 	p        *paths.Paths
 	sourceFs afero.Fs
 	result   *SourceFilesystems
 	theBigFs *filesystemsCollector
 }
 
-func newSourceFilesystemsBuilder(p *paths.Paths, logger *loggers.Logger, b *BaseFs) *sourceFilesystemsBuilder {
+func newSourceFilesystemsBuilder(p *paths.Paths, logger loggers.Logger, b *BaseFs) *sourceFilesystemsBuilder {
 	sourceFs := hugofs.NewBaseFileDecorator(p.Fs.Source)
 	return &sourceFilesystemsBuilder{p: p, logger: logger, sourceFs: sourceFs, theBigFs: b.theBigFs, result: &SourceFilesystems{}}
 }
 
-func (b *sourceFilesystemsBuilder) newSourceFilesystem(fs afero.Fs, dirs []hugofs.FileMetaInfo) *SourceFilesystem {
+func (b *sourceFilesystemsBuilder) newSourceFilesystem(name string, fs afero.Fs, dirs []hugofs.FileMetaInfo) *SourceFilesystem {
 	return &SourceFilesystem{
+		Name: name,
 		Fs:   fs,
 		Dirs: dirs,
 	}
 }
-func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 
+func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 	if b.theBigFs == nil {
 
 		theBigFs, err := b.createMainOverlayFs(b.p)
@@ -369,13 +424,12 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 
 	createView := func(componentID string) *SourceFilesystem {
 		if b.theBigFs == nil || b.theBigFs.overlayMounts == nil {
-			return b.newSourceFilesystem(hugofs.NoOpFs, nil)
+			return b.newSourceFilesystem(componentID, hugofs.NoOpFs, nil)
 		}
 
 		dirs := b.theBigFs.overlayDirs[componentID]
 
-		return b.newSourceFilesystem(afero.NewBasePathFs(b.theBigFs.overlayMounts, componentID), dirs)
-
+		return b.newSourceFilesystem(componentID, afero.NewBasePathFs(b.theBigFs.overlayMounts, componentID), dirs)
 	}
 
 	b.theBigFs.finalizeDirs()
@@ -392,14 +446,14 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 		return nil, err
 	}
 
-	b.result.Data = b.newSourceFilesystem(dataFs, dataDirs)
+	b.result.Data = b.newSourceFilesystem(files.ComponentFolderData, dataFs, dataDirs)
 
 	i18nDirs := b.theBigFs.overlayDirs[files.ComponentFolderI18n]
 	i18nFs, err := hugofs.NewSliceFs(i18nDirs...)
 	if err != nil {
 		return nil, err
 	}
-	b.result.I18n = b.newSourceFilesystem(i18nFs, i18nDirs)
+	b.result.I18n = b.newSourceFilesystem(files.ComponentFolderI18n, i18nFs, i18nDirs)
 
 	contentDirs := b.theBigFs.overlayDirs[files.ComponentFolderContent]
 	contentBfs := afero.NewBasePathFs(b.theBigFs.overlayMountsContent, files.ComponentFolderContent)
@@ -409,7 +463,7 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 		return nil, errors.Wrap(err, "create content filesystem")
 	}
 
-	b.result.Content = b.newSourceFilesystem(contentFs, contentDirs)
+	b.result.Content = b.newSourceFilesystem(files.ComponentFolderContent, contentFs, contentDirs)
 
 	b.result.Work = afero.NewReadOnlyFs(b.theBigFs.overlayFull)
 
@@ -421,21 +475,19 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 	if b.theBigFs.staticPerLanguage != nil {
 		// Multihost mode
 		for k, v := range b.theBigFs.staticPerLanguage {
-			sfs := b.newSourceFilesystem(v, b.result.StaticDirs)
+			sfs := b.newSourceFilesystem(files.ComponentFolderStatic, v, b.result.StaticDirs)
 			sfs.PublishFolder = k
 			ms[k] = sfs
 		}
 	} else {
 		bfs := afero.NewBasePathFs(b.theBigFs.overlayMountsStatic, files.ComponentFolderStatic)
-		ms[""] = b.newSourceFilesystem(bfs, b.result.StaticDirs)
+		ms[""] = b.newSourceFilesystem(files.ComponentFolderStatic, bfs, b.result.StaticDirs)
 	}
 
 	return b.result, nil
-
 }
 
 func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesystemsCollector, error) {
-
 	var staticFsMap map[string]afero.Fs
 	if b.p.Cfg.GetBool("multihost") {
 		staticFsMap = make(map[string]afero.Fs)
@@ -476,7 +528,6 @@ func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesys
 	err := b.createOverlayFs(collector, modsReversed)
 
 	return collector, err
-
 }
 
 func (b *sourceFilesystemsBuilder) isContentMount(mnt modules.Mount) bool {
@@ -490,15 +541,17 @@ func (b *sourceFilesystemsBuilder) isStaticMount(mnt modules.Mount) bool {
 func (b *sourceFilesystemsBuilder) createModFs(
 	collector *filesystemsCollector,
 	md mountsDescriptor) error {
-
 	var (
 		fromTo        []hugofs.RootMapping
 		fromToContent []hugofs.RootMapping
 		fromToStatic  []hugofs.RootMapping
 	)
 
-	absPathify := func(path string) string {
-		return paths.AbsPathify(md.dir, path)
+	absPathify := func(path string) (string, string) {
+		if filepath.IsAbs(path) {
+			return "", path
+		}
+		return md.dir, paths.AbsPathify(md.dir, path)
 	}
 
 	for _, mount := range md.Mounts() {
@@ -508,9 +561,13 @@ func (b *sourceFilesystemsBuilder) createModFs(
 			mountWeight++
 		}
 
+		base, filename := absPathify(mount.Source)
+
 		rm := hugofs.RootMapping{
-			From: mount.Target,
-			To:   absPathify(mount.Source),
+			From:      mount.Target,
+			To:        filename,
+			ToBasedir: base,
+			Module:    md.Module.Path(),
 			Meta: hugofs.FileMeta{
 				"watch":       md.Watch(),
 				"mountWeight": mountWeight,
@@ -574,7 +631,6 @@ func (b *sourceFilesystemsBuilder) createModFs(
 			sfs, found := collector.staticPerLanguage[lang]
 			if found {
 				collector.staticPerLanguage[lang] = afero.NewCopyOnWriteFs(sfs, bfs)
-
 			} else {
 				collector.staticPerLanguage[lang] = bfs
 			}
@@ -585,7 +641,8 @@ func (b *sourceFilesystemsBuilder) createModFs(
 		if md.isMainProject {
 			return b.p.AbsResourcesDir
 		}
-		return absPathify(files.FolderResources)
+		_, filename := absPathify(files.FolderResources)
+		return filename
 	}
 
 	if collector.overlayMounts == nil {
@@ -604,7 +661,6 @@ func (b *sourceFilesystemsBuilder) createModFs(
 	}
 
 	return nil
-
 }
 
 func printFs(fs afero.Fs, path string, w io.Writer) {
@@ -649,11 +705,15 @@ type filesystemsCollector struct {
 
 func (c *filesystemsCollector) addDirs(rfs *hugofs.RootMappingFs) {
 	for _, componentFolder := range files.ComponentFolders {
-		dirs, err := rfs.Dirs(componentFolder)
+		c.addDir(rfs, componentFolder)
+	}
+}
 
-		if err == nil {
-			c.overlayDirs[componentFolder] = append(c.overlayDirs[componentFolder], dirs...)
-		}
+func (c *filesystemsCollector) addDir(rfs *hugofs.RootMappingFs, componentFolder string) {
+	dirs, err := rfs.Dirs(componentFolder)
+
+	if err == nil {
+		c.overlayDirs[componentFolder] = append(c.overlayDirs[componentFolder], dirs...)
 	}
 }
 
@@ -664,7 +724,6 @@ func (c *filesystemsCollector) finalizeDirs() {
 			c.reverseFis(dirs)
 		}
 	})
-
 }
 
 func (c *filesystemsCollector) reverseFis(fis []hugofs.FileMetaInfo) {

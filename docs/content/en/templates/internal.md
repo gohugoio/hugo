@@ -102,8 +102,8 @@ You can create the following `layouts/partials/disqus.html`:
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
 })();
 </script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 {{< /code >}}
 
 The `if` statement skips the initialization of the Disqus comment injection when you are running on `localhost`.
@@ -115,7 +115,7 @@ You can then render your custom Disqus partial template as follows:
 ```
 
 ## Open Graph
-An internal template for the [Open Graph protocol](http://ogp.me/), metadata that enables a page to become a rich object in a social graph.
+An internal template for the [Open Graph protocol](https://ogp.me/), metadata that enables a page to become a rich object in a social graph.
 This format is used for Facebook and some other sites.
 
 ### Configure Open Graph
@@ -152,7 +152,7 @@ Various optional metadata can also be set:
 - The first 6 `tags` on the page are used for the tags metadata.
 - The `series` taxonomy is used to specify related "see also" pages by placing them in the same series.
 
-If using YouTube this will produce a og:video tag like `<meta property="og:video" content="url">`. If using a YouTube link make sure this is in **https://www.youtube.com/v/NlXVWtgLNjY** not __https://www.youtube.com/watch?v=NlXVWtgLNjY__
+If using YouTube this will produce a og:video tag like `<meta property="og:video" content="url">`. Use the `https://youtu.be/<id>` format with YouTube videos (example: `https://youtu.be/qtIqKaDlqXo`).
 
 ### Use the Open Graph Template
 
@@ -184,7 +184,7 @@ images = ["post-cover.png"]
 {{</ code-toggle >}}
 
 If `images` aren't specified in the page front-matter, then hugo searches for [image page resources](/content-management/image-processing/) with `feature`, `cover`, or `thumbnail` in their name.
-If no image resources with those names are found, the images defined in the [site config](getting-started/configuration/) are used instead.
+If no image resources with those names are found, the images defined in the [site config](/getting-started/configuration/) are used instead.
 If no images are found at all, then an image-less Twitter `summary` card is used instead of `summary_large_image`.
 
 Hugo uses the page title and description for the card's title and description fields. The page summary is used if no description is given.

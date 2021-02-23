@@ -21,7 +21,7 @@ It is possible to create a resource directly from the template using `resources.
 The following example creates a resource file containing localized variables for every project's languages.
 
 ```go-html-template
-{{ $string := (printf "var rootURL: '%s'; var apiURL: '%s';" (absURL "/") (.Param "API_URL")) }}
+{{ $string := (printf "var rootURL = '%s'; var apiURL = '%s';" (absURL "/") (.Param "API_URL")) }}
 {{ $targetPath := "js/vars.js" }}
 {{ $vars := $string | resources.FromString $targetPath }}
 {{ $global := resources.Get "js/global.js" | resources.Minify }}

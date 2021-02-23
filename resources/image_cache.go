@@ -35,32 +35,25 @@ type imageCache struct {
 	store map[string]*resourceAdapter
 }
 
-func (c *imageCache) isInCache(key string) bool {
-	c.mu.RLock()
-	_, found := c.store[c.normalizeKey(key)]
-	c.mu.RUnlock()
-	return found
-}
-
-func (c *imageCache) deleteByPrefix(prefix string) {
+func (c *imageCache) deleteIfContains(s string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	prefix = c.normalizeKey(prefix)
+	s = c.normalizeKeyBase(s)
 	for k := range c.store {
-		if strings.HasPrefix(k, prefix) {
+		if strings.Contains(k, s) {
 			delete(c.store, k)
 		}
 	}
 }
 
+// The cache key is a lowercase path with Unix style slashes and it always starts with
+// a leading slash.
 func (c *imageCache) normalizeKey(key string) string {
-	// It is a path with Unix style slashes and it always starts with a leading slash.
-	key = filepath.ToSlash(key)
-	if !strings.HasPrefix(key, "/") {
-		key = "/" + key
-	}
+	return "/" + c.normalizeKeyBase(key)
+}
 
-	return key
+func (c *imageCache) normalizeKeyBase(key string) string {
+	return strings.Trim(strings.ToLower(filepath.ToSlash(key)), "/")
 }
 
 func (c *imageCache) clear() {
@@ -74,6 +67,7 @@ func (c *imageCache) getOrCreate(
 	createImage func() (*imageResource, image.Image, error)) (*resourceAdapter, error) {
 	relTarget := parent.relTargetPathFromConfig(conf)
 	memKey := parent.relTargetPathForRel(relTarget.path(), false, false, false)
+	memKey = c.normalizeKey(memKey)
 
 	// For the file cache we want to generate and store it once if possible.
 	fileKeyPath := relTarget
@@ -96,11 +90,17 @@ func (c *imageCache) getOrCreate(
 	// These funcs are protected by a named lock.
 	// read clones the parent to its new name and copies
 	// the content to the destinations.
-	read := func(info filecache.ItemInfo, r io.Reader) error {
+	read := func(info filecache.ItemInfo, r io.ReadSeeker) error {
 		img = parent.clone(nil)
 		rp := img.getResourcePaths()
 		rp.relTargetDirFile.file = relTarget.file
 		img.setSourceFilename(info.Name)
+
+		if err := img.InitConfig(r); err != nil {
+			return err
+		}
+
+		r.Seek(0, 0)
 
 		w, err := img.openDestinationsForWriting()
 		if err != nil {
@@ -114,6 +114,7 @@ func (c *imageCache) getOrCreate(
 
 		defer w.Close()
 		_, err = io.Copy(w, r)
+
 		return err
 	}
 

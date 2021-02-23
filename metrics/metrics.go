@@ -18,15 +18,18 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"reflect"
 	"sort"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/gohugoio/hugo/compare"
+	"github.com/gohugoio/hugo/helpers"
 
-	"github.com/gohugoio/hugo/common/hreflect"
+	"github.com/gohugoio/hugo/common/types"
+
+	"github.com/gohugoio/hugo/compare"
 )
 
 // The Provider interface defines an interface for measuring metrics.
@@ -51,15 +54,17 @@ type diff struct {
 	simSum   int
 }
 
+var counter = 0
+
 func (d *diff) add(v interface{}) *diff {
-	if !hreflect.IsTruthful(v) {
+	if types.IsNil(d.baseline) {
 		d.baseline = v
 		d.count = 1
 		d.simSum = 100 // If we get only one it is very cache friendly.
 		return d
 	}
-
-	d.simSum += howSimilar(v, d.baseline)
+	adder := howSimilar(v, d.baseline)
+	d.simSum += adder
 	d.count++
 
 	return d
@@ -113,6 +118,7 @@ func (s *Store) TrackValue(key string, value interface{}) {
 	}
 
 	d.add(value)
+
 	s.diffmu.Unlock()
 }
 
@@ -135,6 +141,7 @@ func (s *Store) WriteMetrics(w io.Writer) {
 		var max time.Duration
 
 		diff, found := s.diffs[k]
+
 		cacheFactor := 0
 		if found {
 			cacheFactor = int(math.Floor(float64(diff.simSum) / float64(diff.count)))
@@ -174,7 +181,6 @@ func (s *Store) WriteMetrics(w io.Writer) {
 			fmt.Fprintf(w, "  %13s  %12s  %12s  %5d  %s\n", v.sum, v.avg, v.max, v.count, v.key)
 		}
 	}
-
 }
 
 // A result represents the calculated results for a given metric.
@@ -196,11 +202,19 @@ func (b bySum) Less(i, j int) bool { return b[i].sum > b[j].sum }
 // howSimilar is a naive diff implementation that returns
 // a number between 0-100 indicating how similar a and b are.
 func howSimilar(a, b interface{}) int {
-	// TODO(bep) object equality fast path, but remember that
-	// we can get anytning in here.
+	t1, t2 := reflect.TypeOf(a), reflect.TypeOf(b)
+	if t1 != t2 {
+		return 0
+	}
 
-	as, ok1 := a.(string)
-	bs, ok2 := b.(string)
+	if t1.Comparable() && t2.Comparable() {
+		if a == b {
+			return 100
+		}
+	}
+
+	as, ok1 := types.TypeToString(a)
+	bs, ok2 := types.TypeToString(b)
 
 	if ok1 && ok2 {
 		return howSimilarStrings(as, bs)
@@ -222,6 +236,10 @@ func howSimilar(a, b interface{}) int {
 		return 90
 	}
 
+	h1, h2 := helpers.HashString(a), helpers.HashString(b)
+	if h1 == h2 {
+		return 100
+	}
 	return 0
 }
 
@@ -229,6 +247,9 @@ func howSimilar(a, b interface{}) int {
 // a number between 0-100 indicating how similar a and b are.
 // 100 is when all words in a also exists in b.
 func howSimilarStrings(a, b string) int {
+	if a == b {
+		return 100
+	}
 
 	// Give some weight to the word positions.
 	const partitionSize = 4

@@ -17,6 +17,10 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+
+	"github.com/spf13/cast"
+
+	"github.com/gohugoio/hugo/common/maps"
 )
 
 // Index returns the result of indexing its first argument by the following
@@ -28,11 +32,32 @@ import (
 // We deviate from the stdlib due to https://github.com/golang/go/issues/14751.
 //
 // TODO(moorereason): merge upstream changes.
-func (ns *Namespace) Index(item interface{}, indices ...interface{}) (interface{}, error) {
+func (ns *Namespace) Index(item interface{}, args ...interface{}) (interface{}, error) {
 	v := reflect.ValueOf(item)
 	if !v.IsValid() {
 		return nil, errors.New("index of untyped nil")
 	}
+
+	lowerm, ok := item.(maps.Params)
+	if ok {
+		return lowerm.Get(cast.ToStringSlice(args)...), nil
+	}
+
+	var indices []interface{}
+
+	if len(args) == 1 {
+		v := reflect.ValueOf(args[0])
+		if v.Kind() == reflect.Slice {
+			for i := 0; i < v.Len(); i++ {
+				indices = append(indices, v.Index(i).Interface())
+			}
+		}
+	}
+
+	if indices == nil {
+		indices = args
+	}
+
 	for _, i := range indices {
 		index := reflect.ValueOf(i)
 		var isNil bool
@@ -63,6 +88,7 @@ func (ns *Namespace) Index(item interface{}, indices ...interface{}) (interface{
 			if err != nil {
 				return nil, err
 			}
+
 			if x := v.MapIndex(index); x.IsValid() {
 				v = x
 			} else {

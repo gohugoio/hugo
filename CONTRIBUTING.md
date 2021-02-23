@@ -29,11 +29,15 @@ Please don't use the GitHub issue tracker to ask questions.
 ## Reporting Issues
 
 If you believe you have found a defect in Hugo or its documentation, use
-the GitHub [issue tracker](https://github.com/gohugoio/hugo/issues) to report
+the GitHub issue tracker to report
 the problem to the Hugo maintainers. If you're not sure if it's a bug or not,
 start by asking in the [discussion forum](https://discourse.gohugo.io).
 When reporting the issue, please provide the version of Hugo in use (`hugo
 version`) and your operating system.
+
+- [Hugo Issues · gohugoio/hugo](https://github.com/gohugoio/hugo/issues)
+- [Hugo Documentation Issues · gohugoio/hugoDocs](https://github.com/gohugoio/hugoDocs/issues)
+- [Hugo Website Theme Issues · gohugoio/hugoThemesSite](https://github.com/gohugoio/hugoThemesSite/issues)
 
 ## Code Contribution
 
@@ -44,14 +48,14 @@ Hugo has become a fully featured static site generator, so any new functionality
 * strive not to break existing sites.
 * close or update an open [Hugo issue](https://github.com/gohugoio/hugo/issues)
 
-If it is of some complexity, the contributor is expected to maintain and support the new future (answer questions on the forum, fix any bugs etc.).
+If it is of some complexity, the contributor is expected to maintain and support the new feature in the future (answer questions on the forum, fix any bugs etc.).
 
 It is recommended to open up a discussion on the [Hugo Forum](https://discourse.gohugo.io/) to get feedback on your idea before you begin. If you are submitting a complex feature, create a small design proposal on the [Hugo issue tracker](https://github.com/gohugoio/hugo/issues) before you start.
 
+Note that we do not accept new features that require [CGO](https://github.com/golang/go/wiki/cgo).
+We have one exception to this rule which is LibSASS.
 
 **Bug fixes are, of course, always welcome.**
-
-
 
 ## Submitting Patches
 
@@ -140,7 +144,7 @@ Now, to make a change to Hugo's source:
 1. Add your fork as a new remote (the remote name, "fork" in this example, is arbitrary):
 
     ```bash
-    git remote add fork git://github.com/USERNAME/hugo.git
+    git remote add fork git@github.com:USERNAME/hugo.git
     ```
 
 1. Push the changes to your new remote:

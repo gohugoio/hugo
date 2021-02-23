@@ -140,7 +140,6 @@ const (
 	tEOF
 
 	// page items
-	TypeHTMLStart          // document starting with < as first non-whitespace
 	TypeLeadSummaryDivider // <!--more-->,  # more
 	TypeFrontMatterYAML
 	TypeFrontMatterTOML

@@ -19,6 +19,11 @@ import (
 	"html/template"
 	"time"
 
+	"github.com/gohugoio/hugo/identity"
+
+	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/tpl"
+
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/bep/gitmap"
@@ -61,8 +66,8 @@ func (p *nopPage) RSSLink() template.URL {
 
 func (p *nopPage) Author() Author {
 	return Author{}
-
 }
+
 func (p *nopPage) Authors() AuthorList {
 	return nil
 }
@@ -83,7 +88,7 @@ func (p *nopPage) BaseFileName() string {
 	return ""
 }
 
-func (p *nopPage) BundleType() string {
+func (p *nopPage) BundleType() files.ContentClass {
 	return ""
 }
 
@@ -114,6 +119,7 @@ func (p *nopPage) Description() string {
 func (p *nopPage) RefFrom(argsm map[string]interface{}, source interface{}) (string, error) {
 	return "", nil
 }
+
 func (p *nopPage) RelRefFrom(argsm map[string]interface{}, source interface{}) (string, error) {
 	return "", nil
 }
@@ -168,7 +174,15 @@ func (p *nopPage) GetPage(ref string) (Page, error) {
 	return nil, nil
 }
 
+func (p *nopPage) GetPageWithTemplateInfo(info tpl.Info, ref string) (Page, error) {
+	return nil, nil
+}
+
 func (p *nopPage) GetParam(key string) interface{} {
+	return nil
+}
+
+func (p *nopPage) GetTerms(taxonomy string) Pages {
 	return nil
 }
 
@@ -288,6 +302,10 @@ func (p *nopPage) RegularPages() Pages {
 	return nil
 }
 
+func (p *nopPage) RegularPagesRecursive() Pages {
+	return nil
+}
+
 func (p *nopPage) Paginate(seq interface{}, options ...interface{}) (*Pager, error) {
 	return nil, nil
 }
@@ -300,7 +318,7 @@ func (p *nopPage) Param(key interface{}) (interface{}, error) {
 	return nil, nil
 }
 
-func (p *nopPage) Params() map[string]interface{} {
+func (p *nopPage) Params() maps.Params {
 	return nil
 }
 
@@ -339,6 +357,7 @@ func (p *nopPage) PublishDate() (t time.Time) {
 func (p *nopPage) PrevInSection() Page {
 	return nil
 }
+
 func (p *nopPage) NextInSection() Page {
 	return nil
 }
@@ -371,8 +390,12 @@ func (p *nopPage) RelRef(argsm map[string]interface{}) (string, error) {
 	return "", nil
 }
 
-func (p *nopPage) Render(layout ...string) template.HTML {
-	return ""
+func (p *nopPage) Render(layout ...string) (template.HTML, error) {
+	return "", nil
+}
+
+func (p *nopPage) RenderString(args ...interface{}) (template.HTML, error) {
+	return "", nil
 }
 
 func (p *nopPage) ResourceType() string {
@@ -469,4 +492,8 @@ func (p *nopPage) Weight() int {
 
 func (p *nopPage) WordCount() int {
 	return 0
+}
+
+func (p *nopPage) GetIdentity() identity.Identity {
+	return identity.NewPathIdentity("content", "foo/bar.md")
 }

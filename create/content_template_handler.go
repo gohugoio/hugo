@@ -83,7 +83,6 @@ var (
 )
 
 func executeArcheTypeAsTemplate(s *hugolib.Site, name, kind, targetPath, archetypeFilename string) ([]byte, error) {
-
 	var (
 		archetypeContent  []byte
 		archetypeTemplate []byte
@@ -110,7 +109,7 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, name, kind, targetPath, archety
 		Date: time.Now().Format(time.RFC3339),
 		Name: name,
 		File: f,
-		Site: &s.Info,
+		Site: s.Info,
 	}
 
 	if archetypeFilename == "" {
@@ -129,21 +128,20 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, name, kind, targetPath, archety
 	archetypeTemplate = []byte(archetypeShortcodeReplacementsPre.Replace(string(archetypeTemplate)))
 
 	// Reuse the Hugo template setup to get the template funcs properly set up.
-	templateHandler := s.Deps.Tmpl.(tpl.TemplateHandler)
-	templateName := "_text/" + helpers.Filename(archetypeFilename)
-	if err := templateHandler.AddTemplate(templateName, string(archetypeTemplate)); err != nil {
+	templateHandler := s.Deps.Tmpl().(tpl.TemplateManager)
+	templateName := helpers.Filename(archetypeFilename)
+	if err := templateHandler.AddTemplate("_text/"+templateName, string(archetypeTemplate)); err != nil {
 		return nil, errors.Wrapf(err, "Failed to parse archetype file %q:", archetypeFilename)
 	}
 
 	templ, _ := templateHandler.Lookup(templateName)
 
 	var buff bytes.Buffer
-	if err := templ.Execute(&buff, data); err != nil {
+	if err := templateHandler.Execute(templ, &buff, data); err != nil {
 		return nil, errors.Wrapf(err, "Failed to process archetype file %q:", archetypeFilename)
 	}
 
 	archetypeContent = []byte(archetypeShortcodeReplacementsPost.Replace(buff.String()))
 
 	return archetypeContent, nil
-
 }

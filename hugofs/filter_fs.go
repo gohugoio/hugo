@@ -35,9 +35,7 @@ var (
 )
 
 func NewLanguageFs(langs map[string]int, fs afero.Fs) (afero.Fs, error) {
-
 	applyMeta := func(fs *FilterFs, name string, fis []os.FileInfo) {
-
 		for i, fi := range fis {
 			if fi.IsDir() {
 				filename := filepath.Join(name, fi.Name())
@@ -66,7 +64,7 @@ func NewLanguageFs(langs map[string]int, fs afero.Fs) (afero.Fs, error) {
 				metaKeyOrdinal:                    langs[lang],
 				metaKeyTranslationBaseName:        translationBaseName,
 				metaKeyTranslationBaseNameWithExt: translationBaseNameWithExt,
-				metaKeyClassifier:                 files.ClassifyContentFile(fi.Name()),
+				metaKeyClassifier:                 files.ClassifyContentFile(fi.Name(), meta.GetOpener()),
 			})
 
 			fis[i] = fim
@@ -104,11 +102,9 @@ func NewLanguageFs(langs map[string]int, fs afero.Fs) (afero.Fs, error) {
 		applyPerSource: applyMeta,
 		applyAll:       all,
 	}, nil
-
 }
 
 func NewFilterFs(fs afero.Fs) (afero.Fs, error) {
-
 	applyMeta := func(fs *FilterFs, name string, fis []os.FileInfo) {
 		for i, fi := range fis {
 			if fi.IsDir() {
@@ -123,7 +119,6 @@ func NewFilterFs(fs afero.Fs) (afero.Fs, error) {
 	}
 
 	return ffs, nil
-
 }
 
 // FilterFs is an ordered composite filesystem.
@@ -142,9 +137,12 @@ func (fs *FilterFs) Chtimes(n string, a, m time.Time) error {
 	return syscall.EPERM
 }
 
+func (fs *FilterFs) Chown(n string, uid, gid int) error {
+	return syscall.EPERM
+}
+
 func (fs *FilterFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {
 	fi, b, err := lstatIfPossible(fs.fs, name)
-
 	if err != nil {
 		return nil, false, err
 	}
@@ -153,10 +151,10 @@ func (fs *FilterFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {
 		return decorateFileInfo(fi, fs, fs.getOpener(name), "", "", nil), false, nil
 	}
 
-	fs.applyFilters(name, -1, fi)
+	parent := filepath.Dir(name)
+	fs.applyFilters(parent, -1, fi)
 
 	return fi, b, nil
-
 }
 
 func (fs *FilterFs) Mkdir(n string, p os.FileMode) error {
@@ -181,11 +179,10 @@ func (fs *FilterFs) Open(name string) (afero.File, error) {
 		File: f,
 		ffs:  fs,
 	}, nil
-
 }
 
 func (fs *FilterFs) OpenFile(name string, flag int, perm os.FileMode) (afero.File, error) {
-	panic("not implemented")
+	return fs.fs.Open(name)
 }
 
 func (fs *FilterFs) ReadDir(name string) ([]os.FileInfo, error) {
@@ -254,7 +251,6 @@ func (fs *FilterFs) applyFilters(name string, count int, fis ...os.FileInfo) ([]
 	}
 
 	return fis, nil
-
 }
 
 type filterDir struct {
@@ -284,7 +280,7 @@ func (f *filterDir) Readdirnames(count int) ([]string, error) {
 }
 
 // Try to extract the language from the given filename.
-// Any valid language identificator in the name will win over the
+// Any valid language identifier in the name will win over the
 // language set on the file system, e.g. "mypost.en.md".
 func langInfoFrom(languages map[string]int, name string) (string, string, string) {
 	var lang string
@@ -312,7 +308,6 @@ func langInfoFrom(languages map[string]int, name string) (string, string, string
 	}
 
 	return lang, translationBaseName, translationBaseNameWithExt
-
 }
 
 func printFs(fs afero.Fs, path string, w io.Writer) {

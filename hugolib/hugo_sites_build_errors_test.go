@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/fortytw2/leaktest"
+	"github.com/gohugoio/hugo/htesting"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/herrors"
@@ -27,18 +28,16 @@ func (t testSiteBuildErrorAsserter) getFileError(err error) *herrors.ErrorWithFi
 
 func (t testSiteBuildErrorAsserter) assertLineNumber(lineNumber int, err error) {
 	fe := t.getFileError(err)
-	t.c.Assert(fe.Position().LineNumber, qt.Equals, lineNumber)
+	t.c.Assert(fe.Position().LineNumber, qt.Equals, lineNumber, qt.Commentf(err.Error()))
 }
 
 func (t testSiteBuildErrorAsserter) assertErrorMessage(e1, e2 string) {
 	// The error message will contain filenames with OS slashes. Normalize before compare.
 	e1, e2 = filepath.ToSlash(e1), filepath.ToSlash(e2)
 	t.c.Assert(e2, qt.Contains, e1)
-
 }
 
 func TestSiteBuildErrors(t *testing.T) {
-
 	const (
 		yamlcontent = "yamlcontent"
 		tomlcontent = "tomlcontent"
@@ -65,7 +64,8 @@ func TestSiteBuildErrors(t *testing.T) {
 			fileFixer: func(content string) string {
 				return strings.Replace(content, ".Title }}", ".Title }", 1)
 			},
-			assertCreateError: func(a testSiteBuildErrorAsserter, err error) {
+			// Base templates gets parsed at build time.
+			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				a.assertLineNumber(4, err)
 			},
 		},
@@ -90,8 +90,7 @@ func TestSiteBuildErrors(t *testing.T) {
 				a.c.Assert(fe.Position().LineNumber, qt.Equals, 5)
 				a.c.Assert(fe.Position().ColumnNumber, qt.Equals, 1)
 				a.c.Assert(fe.ChromaLexer, qt.Equals, "go-html-template")
-				a.assertErrorMessage("\"layouts/_default/single.html:5:1\": parse failed: template: _default/single.html:5: unexpected \"}\" in operand", fe.Error())
-
+				a.assertErrorMessage("\"layouts/foo/single.html:5:1\": parse failed: template: foo/single.html:5: unexpected \"}\" in operand", fe.Error())
 			},
 		},
 		{
@@ -106,7 +105,6 @@ func TestSiteBuildErrors(t *testing.T) {
 				a.c.Assert(fe.Position().ColumnNumber, qt.Equals, 14)
 				a.c.Assert(fe.ChromaLexer, qt.Equals, "go-html-template")
 				a.assertErrorMessage("\"layouts/_default/single.html:5:14\": execute of template failed", fe.Error())
-
 			},
 		},
 		{
@@ -121,7 +119,6 @@ func TestSiteBuildErrors(t *testing.T) {
 				a.c.Assert(fe.Position().ColumnNumber, qt.Equals, 14)
 				a.c.Assert(fe.ChromaLexer, qt.Equals, "go-html-template")
 				a.assertErrorMessage("\"layouts/_default/single.html:5:14\": execute of template failed", fe.Error())
-
 			},
 		},
 		{
@@ -183,7 +180,6 @@ func TestSiteBuildErrors(t *testing.T) {
 				fe := a.getFileError(err)
 				a.c.Assert(fe.Position().LineNumber, qt.Equals, 6)
 				a.c.Assert(fe.ErrorContext.ChromaLexer, qt.Equals, "toml")
-
 			},
 		},
 		{
@@ -197,7 +193,6 @@ func TestSiteBuildErrors(t *testing.T) {
 
 				a.c.Assert(fe.Position().LineNumber, qt.Equals, 3)
 				a.c.Assert(fe.ErrorContext.ChromaLexer, qt.Equals, "json")
-
 			},
 		},
 		{
@@ -234,7 +229,6 @@ func TestSiteBuildErrors(t *testing.T) {
 					return content
 				}
 				return test.fileFixer(content)
-
 			}
 
 			b.WithTemplatesAdded("layouts/shortcodes/sc.html", f(shortcode, `SHORTCODE L1
@@ -256,6 +250,13 @@ SINGLE L3:
 SINGLE L4:
 SINGLE L5: {{ .Title }} {{ .Content }}
 {{ end }}
+`))
+
+			b.WithTemplatesAdded("layouts/foo/single.html", f(single, `
+SINGLE L2:
+SINGLE L3:
+SINGLE L4:
+SINGLE L5: {{ .Title }} {{ .Content }}
 `))
 
 			b.WithContent("myyaml.md", f(yamlcontent, `---
@@ -316,7 +317,7 @@ Some content.
 
 // https://github.com/gohugoio/hugo/issues/5375
 func TestSiteBuildTimeout(t *testing.T) {
-	if !isCI() {
+	if !htesting.IsCI() {
 		defer leaktest.CheckTimeout(t, 10*time.Second)()
 	}
 
@@ -340,9 +341,7 @@ title: "A page"
 ---
 
 {{< c >}}`)
-
 	}
 
 	b.CreateSites().BuildFail(BuildCfg{})
-
 }

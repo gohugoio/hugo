@@ -18,6 +18,11 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/types"
+
+	"github.com/gobwas/glob"
+	hglob "github.com/gohugoio/hugo/hugofs/glob"
+
 	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/gohugoio/hugo/cache/filecache"
@@ -71,7 +76,7 @@ func loadSiteConfig(cfg config.Provider) (scfg SiteConfig, err error) {
 // ConfigSourceDescriptor describes where to find the config (e.g. config.toml etc.).
 type ConfigSourceDescriptor struct {
 	Fs     afero.Fs
-	Logger *loggers.Logger
+	Logger loggers.Logger
 
 	// Path to the config file to use, e.g. /my/project/config.toml
 	Filename string
@@ -118,7 +123,6 @@ var ErrNoConfigFile = errors.New("Unable to locate config file or config directo
 // LoadConfig loads Hugo configuration into a new Viper and then adds
 // a set of defaults.
 func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provider) error) (*viper.Viper, []string, error) {
-
 	if d.Environment == "" {
 		d.Environment = hugo.EnvironmentProduction
 	}
@@ -163,43 +167,65 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 		}
 	}
 
+	const delim = "__env__delim"
+
 	// Apply environment overrides
 	if len(d.Environ) > 0 {
-		// Extract all that start with the HUGO_ prefix
-		const hugoEnvPrefix = "HUGO_"
-		var hugoEnv []string
+		// Extract all that start with the HUGO prefix.
+		// The delimiter is the following rune, usually "_".
+		const hugoEnvPrefix = "HUGO"
+		var hugoEnv []types.KeyValueStr
 		for _, v := range d.Environ {
 			key, val := config.SplitEnvVar(v)
 			if strings.HasPrefix(key, hugoEnvPrefix) {
-				hugoEnv = append(hugoEnv, strings.ToLower(strings.TrimPrefix(key, hugoEnvPrefix)), val)
+				delimiterAndKey := strings.TrimPrefix(key, hugoEnvPrefix)
+				if len(delimiterAndKey) < 2 {
+					continue
+				}
+				// Allow delimiters to be case sensitive.
+				// It turns out there isn't that many allowed special
+				// chars in environment variables when used in Bash and similar,
+				// so variables on the form HUGOxPARAMSxFOO=bar is one option.
+				key := strings.ReplaceAll(delimiterAndKey[1:], delimiterAndKey[:1], delim)
+				key = strings.ToLower(key)
+				hugoEnv = append(hugoEnv, types.KeyValueStr{
+					Key:   key,
+					Value: val,
+				})
+
 			}
 		}
 
-		if len(hugoEnv) > 0 {
-			for i := 0; i < len(hugoEnv); i += 2 {
-				key, valStr := strings.ToLower(hugoEnv[i]), hugoEnv[i+1]
+		for _, env := range hugoEnv {
+			existing, nestedKey, owner, err := maps.GetNestedParamFn(env.Key, delim, v.Get)
+			if err != nil {
+				return v, configFiles, err
+			}
 
-				existing, nestedKey, owner, err := maps.GetNestedParamFn(key, "_", v.Get)
+			if existing != nil {
+				val, err := metadecoders.Default.UnmarshalStringTo(env.Value, existing)
 				if err != nil {
-					return v, configFiles, err
+					continue
 				}
 
-				if existing != nil {
-					val, err := metadecoders.Default.UnmarshalStringTo(valStr, existing)
-					if err != nil {
-						continue
-					}
-
-					if owner != nil {
-						owner[nestedKey] = val
-					} else {
-						v.Set(key, val)
-					}
+				if owner != nil {
+					owner[nestedKey] = val
 				} else {
-					v.Set(key, valStr)
+					v.Set(env.Key, val)
 				}
+			} else if nestedKey != "" {
+				owner[nestedKey] = env.Value
+			} else {
+				v.Set(env.Key, env.Value)
 			}
 		}
+
+	}
+
+	// We made this a Glob pattern in Hugo 0.75, we don't need both.
+	if v.GetBool("ignoreVendor") {
+		helpers.Deprecated("--ignoreVendor", "--ignoreVendorPaths **", false)
+		v.Set("ignoreVendorPaths", "**")
 	}
 
 	modulesConfig, err := l.loadModulesConfig(v)
@@ -225,16 +251,12 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 	}
 
 	_, modulesConfigFiles, err := l.collectModules(modulesConfig, v, collectHook)
-	if err != nil {
-		return v, configFiles, err
-	}
 
-	if len(modulesConfigFiles) > 0 {
+	if err == nil && len(modulesConfigFiles) > 0 {
 		configFiles = append(configFiles, modulesConfigFiles...)
 	}
 
-	return v, configFiles, nil
-
+	return v, configFiles, err
 }
 
 func loadLanguageSettings(cfg config.Provider, oldLangs langs.Languages) error {
@@ -286,7 +308,6 @@ func (l configLoader) loadConfig(configName string, v *viper.Viper) (string, err
 	}
 
 	return filename, nil
-
 }
 
 func (l configLoader) wrapFileError(err error, filename string) error {
@@ -390,9 +411,7 @@ func (l configLoader) loadConfigFromConfigDir(v *viper.Viper) ([]string, error) 
 			}
 
 			return nil
-
 		})
-
 		if err != nil {
 			return nil, err
 		}
@@ -403,7 +422,6 @@ func (l configLoader) loadConfigFromConfigDir(v *viper.Viper) ([]string, error) 
 }
 
 func (l configLoader) loadModulesConfig(v1 *viper.Viper) (modules.Config, error) {
-
 	modConfig, err := modules.DecodeConfig(v1)
 	if err != nil {
 		return modules.Config{}, err
@@ -420,7 +438,10 @@ func (l configLoader) collectModules(modConfig modules.Config, v1 *viper.Viper, 
 
 	themesDir := paths.AbsPathify(l.WorkingDir, v1.GetString("themesDir"))
 
-	ignoreVendor := v1.GetBool("ignoreVendor")
+	var ignoreVendor glob.Glob
+	if s := v1.GetString("ignoreVendorPaths"); s != "" {
+		ignoreVendor, _ = hglob.GetGlob(hglob.NormalizePath(s))
+	}
 
 	filecacheConfigs, err := filecache.DecodeConfig(l.Fs, v1)
 	if err != nil {
@@ -448,7 +469,6 @@ func (l configLoader) collectModules(modConfig modules.Config, v1 *viper.Viper, 
 		}
 
 		return nil
-
 	}
 
 	modulesClient := modules.NewClient(modules.ClientConfig{
@@ -465,9 +485,6 @@ func (l configLoader) collectModules(modConfig modules.Config, v1 *viper.Viper, 
 	v1.Set("modulesClient", modulesClient)
 
 	moduleConfig, err := modulesClient.Collect()
-	if err != nil {
-		return nil, nil, err
-	}
 
 	// Avoid recreating these later.
 	v1.Set("allModules", moduleConfig.ActiveModules)
@@ -478,12 +495,10 @@ func (l configLoader) collectModules(modConfig modules.Config, v1 *viper.Viper, 
 		configFilenames = append(configFilenames, moduleConfig.GoModulesFilename)
 	}
 
-	return moduleConfig.ActiveModules, configFilenames, nil
-
+	return moduleConfig.ActiveModules, configFilenames, err
 }
 
 func (l configLoader) applyThemeConfig(v1 *viper.Viper, theme modules.Module) error {
-
 	const (
 		paramsKey    = "params"
 		languagesKey = "languages"
@@ -536,7 +551,6 @@ func (l configLoader) applyThemeConfig(v1 *viper.Viper, theme modules.Module) er
 	}
 
 	return nil
-
 }
 
 func (configLoader) mergeStringMapKeepLeft(rootKey, key string, v1, v2 config.Provider) {
@@ -563,12 +577,6 @@ func (configLoader) mergeStringMapKeepLeft(rootKey, key string, v1, v2 config.Pr
 }
 
 func loadDefaultSettingsFor(v *viper.Viper) error {
-
-	c, err := helpers.NewContentSpec(v)
-	if err != nil {
-		return err
-	}
-
 	v.RegisterAlias("indexes", "taxonomies")
 
 	/*
@@ -602,11 +610,6 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 	v.SetDefault("taxonomies", map[string]string{"tag": "tags", "category": "categories"})
 	v.SetDefault("permalinks", make(map[string]string))
 	v.SetDefault("sitemap", config.Sitemap{Priority: -1, Filename: "sitemap.xml"})
-	v.SetDefault("pygmentsStyle", "monokai")
-	v.SetDefault("pygmentsUseClasses", false)
-	v.SetDefault("pygmentsCodeFences", false)
-	v.SetDefault("pygmentsUseClassic", false)
-	v.SetDefault("pygmentsOptions", "")
 	v.SetDefault("disableLiveReload", false)
 	v.SetDefault("pluralizeListTitles", true)
 	v.SetDefault("forceSyncStatic", false)
@@ -616,7 +619,6 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 	v.SetDefault("paginate", 10)
 	v.SetDefault("paginatePath", "page")
 	v.SetDefault("summaryLength", 70)
-	v.SetDefault("blackfriday", c.BlackFriday)
 	v.SetDefault("rssLimit", -1)
 	v.SetDefault("sectionPagesMenu", "")
 	v.SetDefault("disablePathToLower", false)
@@ -631,7 +633,7 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 	v.SetDefault("disableAliases", false)
 	v.SetDefault("debug", false)
 	v.SetDefault("disableFastRender", false)
-	v.SetDefault("timeout", 15000) // 15 seconds
+	v.SetDefault("timeout", "30s")
 	v.SetDefault("enableInlineShortcodes", false)
 
 	return nil

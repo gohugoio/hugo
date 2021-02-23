@@ -22,14 +22,14 @@ toc: true
 See [Template Lookup Order](/templates/lookup-order/) for the complete reference.
 
 {{% note "Hugo Ships with an RSS Template" %}}
-Hugo ships with its own [RSS 2.0 template](#the-embedded-rss-xml). The embedded template will be sufficient for most use cases.
+Hugo ships with its own [RSS 2.0 template](#the-embedded-rssxml). The embedded template will be sufficient for most use cases.
 {{% /note %}}
 
 RSS pages are of the type `Page` and have all the [page variables](/variables/page/) available to use in the templates.
 
 ### Section RSS
 
-A [section’s][section] RSS will be rendered at `/<SECTION>/index.xml` (e.g., http://spf13.com/project/index.xml).
+A [section’s][section] RSS will be rendered at `/<SECTION>/index.xml` (e.g., [https://spf13.com/project/index.xml](https://spf13.com/project/index.xml)).
 
 Hugo provides the ability for you to define any RSS type you wish and can have different RSS files for each section and taxonomy.
 
@@ -55,37 +55,9 @@ copyright = "This work is licensed under a Creative Commons Attribution-ShareAli
 
 ## The Embedded rss.xml
 
-This is the default RSS template that ships with Hugo. It adheres to the [RSS 2.0 Specification][RSS 2.0].
+This is the default RSS template that ships with Hugo:
 
-```xml
-{{ printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>" | safeHTML }}
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>{{ if eq  .Title  .Site.Title }}{{ .Site.Title }}{{ else }}{{ with .Title }}{{.}} on {{ end }}{{ .Site.Title }}{{ end }}</title>
-    <link>{{ .Permalink }}</link>
-    <description>Recent content {{ if ne  .Title  .Site.Title }}{{ with .Title }}in {{.}} {{ end }}{{ end }}on {{ .Site.Title }}</description>
-    <generator>Hugo -- gohugo.io</generator>{{ with .Site.LanguageCode }}
-    <language>{{.}}</language>{{end}}{{ with .Site.Author.email }}
-    <managingEditor>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</managingEditor>{{end}}{{ with .Site.Author.email }}
-    <webMaster>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</webMaster>{{end}}{{ with .Site.Copyright }}
-    <copyright>{{.}}</copyright>{{end}}{{ if not .Date.IsZero }}
-    <lastBuildDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</lastBuildDate>{{ end }}
-    {{ with .OutputFormats.Get "RSS" }}
-        {{ printf "<atom:link href=%q rel=\"self\" type=%q />" .Permalink .MediaType | safeHTML }}
-    {{ end }}
-    {{ range .Pages }}
-    <item>
-      <title>{{ .Title }}</title>
-      <link>{{ .Permalink }}</link>
-      <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
-      {{ with .Site.Author.email }}<author>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</author>{{end}}
-      <guid>{{ .Permalink }}</guid>
-      <description>{{ .Summary | html }}</description>
-    </item>
-    {{ end }}
-  </channel>
-</rss>
-```
+https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/rss.xml
 
 ## Reference your RSS Feed in `<head>`
 
@@ -115,6 +87,6 @@ _We are assuming `BaseURL` to be `https://example.com/` and `$.Site.Title` to be
 
 [config]: /getting-started/configuration/
 [embedded]: #the-embedded-rss-xml
-[RSS 2.0]: http://cyber.law.harvard.edu/rss/rss.html "RSS 2.0 Specification"
+[RSS 2.0]: https://cyber.harvard.edu/rss/rss.html "RSS 2.0 Specification"
 [section]: /content-management/sections/
 [Output Formats]: /templates/output-formats/#link-to-output-formats

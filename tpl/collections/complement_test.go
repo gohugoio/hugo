@@ -65,7 +65,11 @@ func TestComplement(t *testing.T) {
 		{[]string{"a", "b", "c"}, []interface{}{"error"}, false},
 		{"error", []interface{}{[]string{"c", "d"}, []string{"a", "b"}}, false},
 		{[]string{"a", "b", "c"}, []interface{}{[][]string{{"c", "d"}}}, false},
-		{[]interface{}{[][]string{{"c", "d"}}}, []interface{}{[]string{"c", "d"}, []string{"a", "b"}}, false},
+		{
+			[]interface{}{[][]string{{"c", "d"}}},
+			[]interface{}{[]string{"c", "d"}, []string{"a", "b"}},
+			[]interface{}{[][]string{{"c", "d"}}},
+		},
 	} {
 
 		errMsg := qt.Commentf("[%d]", i)
@@ -90,5 +94,4 @@ func TestComplement(t *testing.T) {
 	c.Assert(err, qt.Not(qt.IsNil))
 	_, err = ns.Complement([]string{"a", "b"})
 	c.Assert(err, qt.Not(qt.IsNil))
-
 }

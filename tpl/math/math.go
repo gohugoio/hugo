@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package math provides template functions for mathmatical operations.
+// Package math provides template functions for mathematical operations.
 package math
 
 import (
@@ -64,12 +64,22 @@ func (ns *Namespace) Floor(x interface{}) (float64, error) {
 // Log returns the natural logarithm of a number.
 func (ns *Namespace) Log(a interface{}) (float64, error) {
 	af, err := cast.ToFloat64E(a)
-
 	if err != nil {
 		return 0, errors.New("Log operator can't be used with non integer or float value")
 	}
 
 	return math.Log(af), nil
+}
+
+// Sqrt returns the square root of a number.
+// NOTE: will return for NaN for negative values of a
+func (ns *Namespace) Sqrt(a interface{}) (float64, error) {
+	af, err := cast.ToFloat64E(a)
+	if err != nil {
+		return 0, errors.New("Sqrt operator can't be used with non integer or float value")
+	}
+
+	return math.Sqrt(af), nil
 }
 
 // Mod returns a % b.
@@ -101,6 +111,18 @@ func (ns *Namespace) ModBool(a, b interface{}) (bool, error) {
 // Mul multiplies two numbers.
 func (ns *Namespace) Mul(a, b interface{}) (interface{}, error) {
 	return _math.DoArithmetic(a, b, '*')
+}
+
+// Pow returns a raised to the power of b.
+func (ns *Namespace) Pow(a, b interface{}) (float64, error) {
+	af, erra := cast.ToFloat64E(a)
+	bf, errb := cast.ToFloat64E(b)
+
+	if erra != nil || errb != nil {
+		return 0, errors.New("Pow operator can't be used with non-float value")
+	}
+
+	return math.Pow(af, bf), nil
 }
 
 // Round returns the nearest integer, rounding half away from zero.

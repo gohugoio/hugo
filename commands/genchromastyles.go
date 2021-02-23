@@ -22,9 +22,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	_ cmder = (*genChromaStyles)(nil)
-)
+var _ cmder = (*genChromaStyles)(nil)
 
 type genChromaStyles struct {
 	style          string
@@ -68,7 +66,7 @@ func (g *genChromaStyles) generate() error {
 	if err != nil {
 		return err
 	}
-	formatter := html.New(html.WithClasses())
+	formatter := html.New(html.WithAllClasses(true))
 	formatter.WriteCSS(os.Stdout, style)
 	return nil
 }

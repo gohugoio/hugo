@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -21,8 +22,6 @@ import (
 	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/spf13/afero"
-
-	"fmt"
 
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/output"
@@ -40,7 +39,6 @@ func TestSiteWithPageOutputs(t *testing.T) {
 }
 
 func doTestSiteWithPageOutputs(t *testing.T, outputs []string) {
-
 	outputsStr := strings.Replace(fmt.Sprintf("%q", outputs), " ", ", ", -1)
 
 	siteConfig := `
@@ -49,7 +47,7 @@ baseURL = "http://example.com/blog"
 paginate = 1
 defaultContentLanguage = "en"
 
-disableKinds = ["section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404"]
+disableKinds = ["section", "term", "taxonomy", "RSS", "sitemap", "robotsTXT", "404"]
 
 [Taxonomies]
 tag = "tags"
@@ -215,7 +213,6 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 
 	b.Assert(home.HasShortcode("myShort"), qt.Equals, true)
 	b.Assert(home.HasShortcode("doesNotExist"), qt.Equals, false)
-
 }
 
 // Issue #3447
@@ -226,7 +223,7 @@ baseURL = "http://example.com/blog"
 paginate = 1
 defaultContentLanguage = "en"
 
-disableKinds = ["page", "section", "taxonomy", "taxonomyTerm", "sitemap", "robotsTXT", "404"]
+disableKinds = ["page", "section", "term", "taxonomy", "sitemap", "robotsTXT", "404"]
 
 [outputFormats]
 [outputFormats.RSS]
@@ -250,9 +247,8 @@ baseName = "feed"
 
 	s := h.Sites[0]
 
-	//Issue #3450
+	// Issue #3450
 	c.Assert(s.Info.RSSLink, qt.Equals, "http://example.com/blog/feed.xml")
-
 }
 
 // Issue #3614
@@ -263,7 +259,7 @@ baseURL = "http://example.com/blog"
 paginate = 1
 defaultContentLanguage = "en"
 
-disableKinds = ["page", "section", "taxonomy", "taxonomyTerm", "sitemap", "robotsTXT", "404"]
+disableKinds = ["page", "section", "term", "taxonomy", "sitemap", "robotsTXT", "404"]
 
 [mediaTypes]
 [mediaTypes."text/nodot"]
@@ -325,11 +321,9 @@ baseName = "customdelimbase"
 	c.Assert(outputs.Get("DEF").RelPermalink(), qt.Equals, "/blog/defaultdelimbase.defd")
 	c.Assert(outputs.Get("NOS").RelPermalink(), qt.Equals, "/blog/nosuffixbase")
 	c.Assert(outputs.Get("CUS").RelPermalink(), qt.Equals, "/blog/customdelimbase_del")
-
 }
 
 func TestCreateSiteOutputFormats(t *testing.T) {
-
 	t.Run("Basic", func(t *testing.T) {
 		c := qt.New(t)
 
@@ -341,14 +335,14 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 		cfg := viper.New()
 		cfg.Set("outputs", outputsConfig)
 
-		outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg)
+		outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
 		c.Assert(err, qt.IsNil)
 		c.Assert(outputs[page.KindSection], deepEqualsOutputFormats, output.Formats{output.JSONFormat})
 		c.Assert(outputs[page.KindHome], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.JSONFormat})
 
 		// Defaults
+		c.Assert(outputs[page.KindTerm], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.RSSFormat})
 		c.Assert(outputs[page.KindTaxonomy], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.RSSFormat})
-		c.Assert(outputs[page.KindTaxonomyTerm], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.RSSFormat})
 		c.Assert(outputs[page.KindPage], deepEqualsOutputFormats, output.Formats{output.HTMLFormat})
 
 		// These aren't (currently) in use when rendering in Hugo,
@@ -358,7 +352,6 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 		c.Assert(outputs[kindSitemap], deepEqualsOutputFormats, output.Formats{output.SitemapFormat})
 		c.Assert(outputs[kindRobotsTXT], deepEqualsOutputFormats, output.Formats{output.RobotsTxtFormat})
 		c.Assert(outputs[kind404], deepEqualsOutputFormats, output.Formats{output.HTMLFormat})
-
 	})
 
 	// Issue #4528
@@ -367,16 +360,16 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 		cfg := viper.New()
 
 		outputsConfig := map[string]interface{}{
+			// Note that we in Hugo 0.53.0 renamed this Kind to "taxonomy",
+			// but keep this test to test the legacy mapping.
 			"taxonomyterm": []string{"JSON"},
 		}
 		cfg.Set("outputs", outputsConfig)
 
-		outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg)
+		outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
 		c.Assert(err, qt.IsNil)
-		c.Assert(outputs[page.KindTaxonomyTerm], deepEqualsOutputFormats, output.Formats{output.JSONFormat})
-
+		c.Assert(outputs[page.KindTaxonomy], deepEqualsOutputFormats, output.Formats{output.JSONFormat})
 	})
-
 }
 
 func TestCreateSiteOutputFormatsInvalidConfig(t *testing.T) {
@@ -389,7 +382,7 @@ func TestCreateSiteOutputFormatsInvalidConfig(t *testing.T) {
 	cfg := viper.New()
 	cfg.Set("outputs", outputsConfig)
 
-	_, err := createSiteOutputFormats(output.DefaultFormats, cfg)
+	_, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
 	c.Assert(err, qt.Not(qt.IsNil))
 }
 
@@ -403,7 +396,7 @@ func TestCreateSiteOutputFormatsEmptyConfig(t *testing.T) {
 	cfg := viper.New()
 	cfg.Set("outputs", outputsConfig)
 
-	outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg)
+	outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
 	c.Assert(err, qt.IsNil)
 	c.Assert(outputs[page.KindHome], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.RSSFormat})
 }
@@ -423,14 +416,13 @@ func TestCreateSiteOutputFormatsCustomFormats(t *testing.T) {
 		customHTML = output.Format{Name: "HTML", BaseName: "customHTML"}
 	)
 
-	outputs, err := createSiteOutputFormats(output.Formats{customRSS, customHTML}, cfg)
+	outputs, err := createSiteOutputFormats(output.Formats{customRSS, customHTML}, cfg.GetStringMap("outputs"), false)
 	c.Assert(err, qt.IsNil)
 	c.Assert(outputs[page.KindHome], deepEqualsOutputFormats, output.Formats{customHTML, customRSS})
 }
 
 // https://github.com/gohugoio/hugo/issues/5849
 func TestOutputFormatPermalinkable(t *testing.T) {
-
 	config := `
 baseURL = "https://example.com"
 
@@ -573,7 +565,6 @@ Output Formats: {{ len .OutputFormats }};{{ range .OutputFormats }}{{ .Name }};{
 		"This RelPermalink: /blog/html-base-nobase/",
 		outputFormats,
 	)
-
 }
 
 func TestSiteWithPageNoOutputs(t *testing.T) {
@@ -623,5 +614,4 @@ WordCount: {{ .WordCount }}
 
 	b.AssertFileContent("public/outputs-empty/index.html", "HTML:", "Word1. Word2.")
 	b.AssertFileContent("public/outputs-string/index.html", "O1:", "Word1. Word2.")
-
 }

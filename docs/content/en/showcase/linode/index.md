@@ -1,15 +1,9 @@
 ---
-
 title: Linode Docs
-
 date: 2018-02-12
-
 description: "Showcase: \"Hugo allows us to build thousands of pages in seconds.\""
-
 siteURL: https://linode.com/docs/
-
 siteSource: https://github.com/linode/docs
-
 ---
 
 The documentation team at Linode has been writing guides since 2009, with the goal of helping new and experienced Linux users find the best tools and get the most out of their systems.

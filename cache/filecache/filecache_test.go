@@ -14,6 +14,7 @@
 package filecache
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -23,6 +24,8 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/gobwas/glob"
 
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/modules"
@@ -180,7 +183,6 @@ dir = ":cacheDir/c"
 		c.Assert(string(b), qt.Equals, "Hugo is great!")
 
 	}
-
 }
 
 func TestFileCacheConcurrent(t *testing.T) {
@@ -243,6 +245,54 @@ dir = "/cache/c"
 	wg.Wait()
 }
 
+func TestFileCacheReadOrCreateErrorInRead(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	var result string
+
+	rf := func(failLevel int) func(info ItemInfo, r io.ReadSeeker) error {
+		return func(info ItemInfo, r io.ReadSeeker) error {
+			if failLevel > 0 {
+				if failLevel > 1 {
+					return ErrFatal
+				}
+				return errors.New("fail")
+			}
+
+			b, _ := ioutil.ReadAll(r)
+			result = string(b)
+
+			return nil
+		}
+	}
+
+	bf := func(s string) func(info ItemInfo, w io.WriteCloser) error {
+		return func(info ItemInfo, w io.WriteCloser) error {
+			defer w.Close()
+			result = s
+			_, err := w.Write([]byte(s))
+			return err
+		}
+	}
+
+	cache := NewCache(afero.NewMemMapFs(), 100*time.Hour, "")
+
+	const id = "a32"
+
+	_, err := cache.ReadOrCreate(id, rf(0), bf("v1"))
+	c.Assert(err, qt.IsNil)
+	c.Assert(result, qt.Equals, "v1")
+	_, err = cache.ReadOrCreate(id, rf(0), bf("v2"))
+	c.Assert(err, qt.IsNil)
+	c.Assert(result, qt.Equals, "v1")
+	_, err = cache.ReadOrCreate(id, rf(1), bf("v3"))
+	c.Assert(err, qt.IsNil)
+	c.Assert(result, qt.Equals, "v3")
+	_, err = cache.ReadOrCreate(id, rf(2), bf("v3"))
+	c.Assert(err, qt.Equals, ErrFatal)
+}
+
 func TestCleanID(t *testing.T) {
 	c := qt.New(t)
 	c.Assert(cleanID(filepath.FromSlash("/a/b//c.txt")), qt.Equals, filepath.FromSlash("a/b/c.txt"))
@@ -264,12 +314,13 @@ func initConfig(fs afero.Fs, cfg config.Provider) error {
 	if !filepath.IsAbs(themesDir) {
 		themesDir = filepath.Join(workingDir, themesDir)
 	}
+	globAll := glob.MustCompile("**", '/')
 	modulesClient := modules.NewClient(modules.ClientConfig{
 		Fs:           fs,
 		WorkingDir:   workingDir,
 		ThemesDir:    themesDir,
 		ModuleConfig: modConfig,
-		IgnoreVendor: true,
+		IgnoreVendor: globAll,
 	})
 
 	moduleConfig, err := modulesClient.Collect()
@@ -294,5 +345,4 @@ func newPathsSpec(t *testing.T, fs afero.Fs, configStr string) *helpers.PathSpec
 	p, err := helpers.NewPathSpec(hugofs.NewFrom(fs, cfg), cfg, nil)
 	c.Assert(err, qt.IsNil)
 	return p
-
 }

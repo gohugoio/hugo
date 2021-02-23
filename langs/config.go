@@ -35,8 +35,7 @@ type LanguagesConfig struct {
 }
 
 func LoadLanguageSettings(cfg config.Provider, oldLangs Languages) (c LanguagesConfig, err error) {
-
-	defaultLang := cfg.GetString("defaultContentLanguage")
+	defaultLang := strings.ToLower(cfg.GetString("defaultContentLanguage"))
 	if defaultLang == "" {
 		defaultLang = "en"
 		cfg.Set("defaultContentLanguage", defaultLang)
@@ -160,7 +159,6 @@ func LoadLanguageSettings(cfg config.Provider, oldLangs Languages) (c LanguagesC
 				return c, errors.New("baseURL must be set on all or none of the languages")
 			}
 		}
-
 	}
 
 	return c, nil
@@ -171,8 +169,7 @@ func toSortedLanguages(cfg config.Provider, l map[string]interface{}) (Languages
 	i := 0
 
 	for lang, langConf := range l {
-		langsMap, err := cast.ToStringMapE(langConf)
-
+		langsMap, err := maps.ToStringMapE(langConf)
 		if err != nil {
 			return nil, fmt.Errorf("Language config is not a map: %T", langConf)
 		}
@@ -185,6 +182,8 @@ func toSortedLanguages(cfg config.Provider, l map[string]interface{}) (Languages
 				language.Title = cast.ToString(v)
 			case "languagename":
 				language.LanguageName = cast.ToString(v)
+			case "languagedirection":
+				language.LanguageDirection = cast.ToString(v)
 			case "weight":
 				language.Weight = cast.ToInt(v)
 			case "contentdir":
@@ -192,7 +191,7 @@ func toSortedLanguages(cfg config.Provider, l map[string]interface{}) (Languages
 			case "disabled":
 				language.Disabled = cast.ToBool(v)
 			case "params":
-				m := cast.ToStringMap(v)
+				m := maps.ToStringMap(v)
 				// Needed for case insensitive fetching of params values
 				maps.ToLower(m)
 				for k, vv := range m {

@@ -24,19 +24,21 @@ import (
 func TestTemplateInfoShortcode(t *testing.T) {
 	c := qt.New(t)
 	d := newD(c)
-	h := d.Tmpl.(tpl.TemplateHandler)
+	defer d.Close()
+	h := d.Tmpl().(*templateExec)
 
 	c.Assert(h.AddTemplate("shortcodes/mytemplate.html", `
 {{ .Inner }}
 `), qt.IsNil)
 
-	tt, found, _ := d.Tmpl.LookupVariant("mytemplate", tpl.TemplateVariants{})
+	c.Assert(h.postTransform(), qt.IsNil)
+
+	tt, found, _ := d.Tmpl().LookupVariant("mytemplate", tpl.TemplateVariants{})
 
 	c.Assert(found, qt.Equals, true)
-	tti, ok := tt.(tpl.TemplateInfoProvider)
+	tti, ok := tt.(tpl.Info)
 	c.Assert(ok, qt.Equals, true)
-	c.Assert(tti.TemplateInfo().IsInner, qt.Equals, true)
-
+	c.Assert(tti.ParseInfo().IsInner, qt.Equals, true)
 }
 
 // TODO(bep) move and use in other places
@@ -53,5 +55,4 @@ func newD(c *qt.C) *deps.Deps {
 	provider.Update(d)
 
 	return d
-
 }

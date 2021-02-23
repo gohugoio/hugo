@@ -16,8 +16,9 @@ package transform
 import (
 	"testing"
 
+	"github.com/gohugoio/hugo/htesting"
+
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/viper"
 )
 
@@ -99,14 +100,13 @@ title: Test Metadata
 
 			converted, err := ns.Remarshal(v1.format, v2.data)
 			c.Assert(err, qt.IsNil, fromTo)
-			diff := helpers.DiffStrings(v1.data, converted)
+			diff := htesting.DiffStrings(v1.data, converted)
 			if len(diff) > 0 {
 				t.Errorf("[%s] Expected \n%v\ngot\n%v\ndiff:\n%v", fromTo, v1.data, converted, diff)
 			}
 
 		}
 	}
-
 }
 
 func TestRemarshalComments(t *testing.T) {
@@ -147,7 +147,7 @@ Hugo = "Rules"
 			c.Assert(err, qt.IsNil, fromTo)
 		}
 
-		diff := helpers.DiffStrings(expected, converted)
+		diff := htesting.DiffStrings(expected, converted)
 		if len(diff) > 0 {
 			t.Fatalf("[%s] Expected \n%v\ngot\n%v\ndiff:\n%v\n", fromTo, expected, converted, diff)
 		}
@@ -156,16 +156,31 @@ Hugo = "Rules"
 
 func TestTestRemarshalError(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	v := viper.New()
 	v.Set("contentDir", "content")
 	ns := New(newDeps(v))
-	c := qt.New(t)
 
 	_, err := ns.Remarshal("asdf", "asdf")
 	c.Assert(err, qt.Not(qt.IsNil))
 
 	_, err = ns.Remarshal("json", "asdf")
 	c.Assert(err, qt.Not(qt.IsNil))
+}
 
+func TestTestRemarshalMapInput(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	v := viper.New()
+	v.Set("contentDir", "content")
+	ns := New(newDeps(v))
+
+	input := map[string]interface{}{
+		"hello": "world",
+	}
+
+	output, err := ns.Remarshal("toml", input)
+	c.Assert(err, qt.IsNil)
+	c.Assert(output, qt.Equals, "hello = \"world\"\n")
 }

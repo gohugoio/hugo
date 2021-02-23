@@ -83,7 +83,6 @@ func (s *ProcessingStats) Table(w io.Writer) {
 	table.SetHeader([]string{"", s.Name})
 	table.SetBorder(false)
 	table.Render()
-
 }
 
 // ProcessingStatsTable writes a table-formatted representation of stats to w.
@@ -108,7 +107,6 @@ func ProcessingStatsTable(w io.Writer, stats ...*ProcessingStats) {
 			} else {
 				data[j] = append(data[j], strconv.Itoa(int(tv.val)))
 			}
-
 		}
 
 	}
@@ -119,5 +117,4 @@ func ProcessingStatsTable(w io.Writer, stats ...*ProcessingStats) {
 	table.SetHeader(names)
 	table.SetBorder(false)
 	table.Render()
-
 }

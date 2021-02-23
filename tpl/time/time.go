@@ -21,6 +21,33 @@ import (
 	"github.com/spf13/cast"
 )
 
+var timeFormats = []string{
+	_time.RFC3339,
+	"2006-01-02T15:04:05", // iso8601 without timezone
+	_time.RFC1123Z,
+	_time.RFC1123,
+	_time.RFC822Z,
+	_time.RFC822,
+	_time.RFC850,
+	_time.ANSIC,
+	_time.UnixDate,
+	_time.RubyDate,
+	"2006-01-02 15:04:05.999999999 -0700 MST", // Time.String()
+	"2006-01-02",
+	"02 Jan 2006",
+	"2006-01-02T15:04:05-0700", // RFC3339 without timezone hh:mm colon
+	"2006-01-02 15:04:05 -07:00",
+	"2006-01-02 15:04:05 -0700",
+	"2006-01-02 15:04:05Z07:00", // RFC3339 without T
+	"2006-01-02 15:04:05Z0700",  // RFC3339 without T or timezone hh:mm colon
+	"2006-01-02 15:04:05",
+	_time.Kitchen,
+	_time.Stamp,
+	_time.StampMilli,
+	_time.StampMicro,
+	_time.StampNano,
+}
+
 // New returns a new instance of the time-namespaced template functions.
 func New() *Namespace {
 	return &Namespace{}
@@ -31,13 +58,42 @@ type Namespace struct{}
 
 // AsTime converts the textual representation of the datetime string into
 // a time.Time interface.
-func (ns *Namespace) AsTime(v interface{}) (interface{}, error) {
-	t, err := cast.ToTimeE(v)
+func (ns *Namespace) AsTime(v interface{}, args ...interface{}) (interface{}, error) {
+	if len(args) == 0 {
+		t, err := cast.ToTimeE(v)
+		if err != nil {
+			return nil, err
+		}
+
+		return t, nil
+	}
+
+	timeStr, err := cast.ToStringE(v)
 	if err != nil {
 		return nil, err
 	}
 
-	return t, nil
+	locStr, err := cast.ToStringE(args[0])
+	if err != nil {
+		return nil, err
+	}
+
+	loc, err := _time.LoadLocation(locStr)
+	if err != nil {
+		return nil, err
+	}
+
+	// Note: Cast currently doesn't support time with non-default locations. For now, just inlining this.
+	// Reference: https://github.com/spf13/cast/pull/80
+
+	for _, dateType := range timeFormats {
+		t, err2 := _time.ParseInLocation(dateType, timeStr, loc)
+		if err2 == nil {
+			return t, nil
+		}
+	}
+
+	return nil, fmt.Errorf("Unable to ParseInLocation using date %q with timezone %q", v, loc)
 }
 
 // Format converts the textual representation of the datetime string into

@@ -59,7 +59,6 @@ func (p *pagePaginator) Paginate(seq interface{}, options ...interface{}) (*page
 		}
 
 		p.current = paginator.Pagers()[0]
-
 	})
 
 	if initErr != nil {
@@ -82,14 +81,19 @@ func (p *pagePaginator) Paginator(options ...interface{}) (*page.Pager, error) {
 		pd.Type = p.source.outputFormat()
 
 		var pages page.Pages
-		if p.source.IsHome() {
+
+		switch p.source.Kind() {
+		case page.KindHome:
 			// From Hugo 0.57 we made home.Pages() work like any other
 			// section. To avoid the default paginators for the home page
 			// changing in the wild, we make this a special case.
 			pages = p.source.s.RegularPages()
-		} else {
+		case page.KindTerm, page.KindTaxonomy:
+			pages = p.source.Pages()
+		default:
 			pages = p.source.RegularPages()
 		}
+
 		paginator, err := page.Paginate(pd, pages, pagerSize)
 		if err != nil {
 			initErr = err
@@ -97,7 +101,6 @@ func (p *pagePaginator) Paginator(options ...interface{}) (*page.Pager, error) {
 		}
 
 		p.current = paginator.Pagers()[0]
-
 	})
 
 	if initErr != nil {

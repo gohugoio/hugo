@@ -25,6 +25,14 @@ const filterAPIVersion = 0
 type Filters struct {
 }
 
+// Overlay creates a filter that overlays src at position x y.
+func (*Filters) Overlay(src ImageSource, x, y interface{}) gift.Filter {
+	return filter{
+		Options: newFilterOpts(src.Key(), x, y),
+		Filter:  overlayFilter{src: src, x: cast.ToInt(x), y: cast.ToInt(y)},
+	}
+}
+
 // Brightness creates a filter that changes the brightness of an image.
 // The percentage parameter must be in range (-100, 100).
 func (*Filters) Brightness(percentage interface{}) gift.Filter {

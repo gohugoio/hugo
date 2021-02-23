@@ -16,6 +16,7 @@ package data
 import (
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"path/filepath"
 	"time"
 
@@ -44,7 +45,7 @@ func (ns *Namespace) getRemote(cache *filecache.Cache, unmarshal func([]byte) (b
 		var err error
 		handled = true
 		for i := 0; i <= resRetries; i++ {
-			ns.deps.Log.INFO.Printf("Downloading: %s ...", url)
+			ns.deps.Log.Infof("Downloading: %s ...", url)
 			var res *http.Response
 			res, err = ns.client.Do(req)
 			if err != nil {
@@ -74,13 +75,12 @@ func (ns *Namespace) getRemote(cache *filecache.Cache, unmarshal func([]byte) (b
 				return nil, err
 			}
 
-			ns.deps.Log.INFO.Printf("Cannot read remote resource %s: %s", url, err)
-			ns.deps.Log.INFO.Printf("Retry #%d for %s and sleeping for %s", i+1, url, resSleep)
+			ns.deps.Log.Infof("Cannot read remote resource %s: %s", url, err)
+			ns.deps.Log.Infof("Retry #%d for %s and sleeping for %s", i+1, url, resSleep)
 			time.Sleep(resSleep)
 		}
 
 		return nil, err
-
 	})
 
 	if !handled {
@@ -99,7 +99,6 @@ func getLocal(url string, fs afero.Fs, cfg config.Provider) ([]byte, error) {
 	}
 
 	return afero.ReadFile(fs, filename)
-
 }
 
 // getResource loads the content of a local or remote file and returns its content and the
@@ -107,7 +106,11 @@ func getLocal(url string, fs afero.Fs, cfg config.Provider) ([]byte, error) {
 func (ns *Namespace) getResource(cache *filecache.Cache, unmarshal func(b []byte) (bool, error), req *http.Request) error {
 	switch req.URL.Scheme {
 	case "":
-		b, err := getLocal(req.URL.String(), ns.deps.Fs.Source, ns.deps.Cfg)
+		url, err := url.QueryUnescape(req.URL.String())
+		if err != nil {
+			return err
+		}
+		b, err := getLocal(url, ns.deps.Fs.Source, ns.deps.Cfg)
 		if err != nil {
 			return err
 		}

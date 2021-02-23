@@ -1,5 +1,3 @@
-
-
 ---
 title: Hugo and the  General Data Protection Regulation (GDPR)
 linktitle: Hugo and GDPR
@@ -53,6 +51,7 @@ enableDNT = false
 simple = false
 [privacy.vimeo]
 disable = false
+enableDNT = false
 simple = false
 [privacy.youtube]
 disable = false
@@ -98,7 +97,7 @@ useSessionStorage
 simple
 : If simple mode is enabled, a static and no-JS version of the Instagram image card will be built. Note that this only supports image cards and the image itself will be fetched from Instagram's servers.
 
-**Note:** If you use the _simple mode_ for Instagram and a site styled with Bootstrap 4, you may want to disable the inlines styles provided by Hugo:
+**Note:** If you use the _simple mode_ for Instagram and a site styled with Bootstrap 4, you may want to disable the inline styles provided by Hugo:
 
  {{< code-toggle file="config">}}
 [services]
@@ -129,6 +128,9 @@ privacyEnhanced
 : When you turn on privacy-enhanced mode, YouTube won’t store information about visitors on your website unless the user plays the embedded video.
 
 ### Vimeo
+
+enableDNT
+: Enabling this for the vimeo shortcode, the Vimeo player will be blocked from tracking any session data, including all cookies and stats.
 
 simple
 : If simple mode is enabled, the video thumbnail is fetched from Vimeo's servers and it is overlayed with a play button. If the user clicks to play the video, it will open in a new tab directly on Vimeo's website.

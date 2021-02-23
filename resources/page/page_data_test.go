@@ -16,7 +16,6 @@ package page
 import (
 	"bytes"
 	"testing"
-
 	"text/template"
 
 	qt "github.com/frankban/quicktest"
@@ -53,5 +52,4 @@ func TestPageData(t *testing.T) {
 	c.Assert(templ.Execute(&buff, data), qt.IsNil)
 
 	c.Assert(buff.String(), qt.Contains, "Pages(2)")
-
 }

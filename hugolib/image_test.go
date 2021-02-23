@@ -17,6 +17,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/htesting"
@@ -35,11 +37,11 @@ func TestImageOps(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	defer clean()
 
-	newBuilder := func() *sitesBuilder {
-
+	newBuilder := func(timeout interface{}) *sitesBuilder {
 		v := viper.New()
 		v.Set("workingDir", workDir)
 		v.Set("baseURL", "https://example.org")
+		v.Set("timeout", timeout)
 
 		b := newTestSitesBuilder(t).WithWorkingDir(workDir)
 		b.Fs = hugofs.NewDefault(v)
@@ -49,9 +51,17 @@ func TestImageOps(t *testing.T) {
 title: "My bundle"
 ---
 
+{{< imgproc >}}
+
 `)
 
-		b.WithTemplatesAdded("index.html", `
+		b.WithTemplatesAdded(
+			"shortcodes/imgproc.html", `
+{{ $img := resources.Get "images/sunset.jpg" }}
+{{ $r := $img.Resize "129x239" }}
+IMG SHORTCODE: {{ $r.RelPermalink }}/{{ $r.Width }}
+`,
+			"index.html", `
 {{ $p := .Site.GetPage "mybundle" }}
 {{ $img1 := resources.Get "images/sunset.jpg" }}
 {{ $img2 := $p.Resources.GetMatch "sunset.jpg" }}
@@ -83,7 +93,7 @@ BG3: {{ $blurryGrayscale3.RelPermalink }}/{{ $blurryGrayscale3.Width }}
 {{ $blurryGrayscale4 := $r.Filter $filters }}
 BG4: {{ $blurryGrayscale4.RelPermalink }}/{{ $blurryGrayscale4.Width }}
 
-
+{{ $p.Content }}
 
 `)
 
@@ -112,35 +122,55 @@ BG4: {{ $blurryGrayscale4.RelPermalink }}/{{ $blurryGrayscale4.Width }}
 	out.Close()
 	src.Close()
 
-	b := newBuilder()
-	b.Build(BuildCfg{})
+	// First build it with a very short timeout to trigger errors.
+	b := newBuilder("10ns")
 
 	imgExpect := `
-Resized1: images/sunset.jpg|123|234|image/jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_123x234_resize_q75_box.jpg|
-Resized2: images/sunset.jpg|12|23|image/jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_ada4bb1a57f77a63306e3bd67286248e.jpg|
-Resized3: sunset.jpg|345|678|image/jpg|/mybundle/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_345x678_resize_q75_box.jpg|
-Resized4: sunset.jpg|34|67|image/jpg|/mybundle/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_44d8c928664d7c5a67377c6ec58425ce.jpg|
-Resized5: images/sunset.jpg|456|789|image/jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_456x789_resize_q75_box.jpg|
-Resized6: images/sunset.jpg|350|219|image/jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_350x0_resize_q75_box.a86fe88d894e5db613f6aa8a80538fefc25b20fa24ba0d782c057adcef616f56.jpg|
+Resized1: images/sunset.jpg|123|234|image/jpeg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_123x234_resize_q75_box.jpg|
+Resized2: images/sunset.jpg|12|23|image/jpeg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_ada4bb1a57f77a63306e3bd67286248e.jpg|
+Resized3: sunset.jpg|345|678|image/jpeg|/mybundle/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_345x678_resize_q75_box.jpg|
+Resized4: sunset.jpg|34|67|image/jpeg|/mybundle/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_44d8c928664d7c5a67377c6ec58425ce.jpg|
+Resized5: images/sunset.jpg|456|789|image/jpeg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_456x789_resize_q75_box.jpg|
+Resized6: images/sunset.jpg|350|219|image/jpeg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_350x0_resize_q75_box.a86fe88d894e5db613f6aa8a80538fefc25b20fa24ba0d782c057adcef616f56.jpg|
 BG1: /images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_2ae8bb993431ec1aec40fe59927b46b4.jpg/123
 BG2: /images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_2ae8bb993431ec1aec40fe59927b46b4.jpg/123
 BG3: /images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_ed7740a90b82802261c2fbdb98bc8082.jpg/123
 BG4: /images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_ed7740a90b82802261c2fbdb98bc8082.jpg/123
+IMG SHORTCODE: /images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_129x239_resize_q75_box.jpg/129
 `
 
-	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), imgExpect)
-	b.AssertImage(350, 219, "public/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_350x0_resize_q75_box.a86fe88d894e5db613f6aa8a80538fefc25b20fa24ba0d782c057adcef616f56.jpg")
+	assertImages := func() {
+		b.Helper()
+		b.AssertFileContent(filepath.Join(workDir, "public/index.html"), imgExpect)
+		b.AssertImage(350, 219, "public/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_350x0_resize_q75_box.a86fe88d894e5db613f6aa8a80538fefc25b20fa24ba0d782c057adcef616f56.jpg")
+		b.AssertImage(129, 239, "public/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_129x239_resize_q75_box.jpg")
+	}
 
-	// Build it again to make sure we read images from file cache.
-	b = newBuilder()
+	err = b.BuildE(BuildCfg{})
+	if runtime.GOOS != "windows" && !strings.Contains(runtime.GOARCH, "arm") && !htesting.IsGitHubAction() {
+		// TODO(bep)
+		c.Assert(err, qt.Not(qt.IsNil))
+	}
+
+	b = newBuilder(29000)
 	b.Build(BuildCfg{})
 
-	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), imgExpect)
+	assertImages()
 
+	// Truncate one image.
+	imgInCache := filepath.Join(workDir, "resources/_gen/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_ed7740a90b82802261c2fbdb98bc8082.jpg")
+	f, err := os.Create(imgInCache)
+	c.Assert(err, qt.IsNil)
+	f.Close()
+
+	// Build it again to make sure we read images from file cache.
+	b = newBuilder("30s")
+	b.Build(BuildCfg{})
+
+	assertImages()
 }
 
 func TestImageResizeMultilingual(t *testing.T) {
-
 	b := newTestSitesBuilder(t).WithConfigFile("toml", `
 baseURL="https://example.org"
 defaultContentLanguage = "en"
@@ -205,13 +235,13 @@ SUNSET2: {{ $resized2.RelPermalink }}/{{ $resized2.Width }}/Lat: {{ $resized2.Ex
 
 	// Check the file cache
 	b.AssertImage(200, 200, "resources/_gen/images/bundle/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x200_resize_q75_box.jpg")
-	b.AssertFileContent("resources/_gen/images/bundle/sunset_17701188623491591036.json",
+
+	b.AssertFileContent("resources/_gen/images/bundle/sunset_7645215769587362592.json",
 		"DateTimeDigitized|time.Time", "PENTAX")
 	b.AssertImage(123, 234, "resources/_gen/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_123x234_resize_q75_box.jpg")
-	b.AssertFileContent("resources/_gen/images/sunset_17701188623491591036.json",
+	b.AssertFileContent("resources/_gen/images/sunset_7645215769587362592.json",
 		"DateTimeDigitized|time.Time", "PENTAX")
 
 	// TODO(bep) add this as a default assertion after Build()?
 	b.AssertNoDuplicateWrites()
-
 }

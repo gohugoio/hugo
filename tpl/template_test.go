@@ -27,5 +27,4 @@ func TestExtractBaseof(t *testing.T) {
 	c.Assert(replaced, qt.Equals, "_default/baseof.html")
 	c.Assert(extractBaseOf("not baseof for you"), qt.Equals, "")
 	c.Assert(extractBaseOf("template: blog/baseof.html:23:11:"), qt.Equals, "blog/baseof.html")
-	c.Assert(extractBaseOf("template: blog/baseof.ace:23:11:"), qt.Equals, "blog/baseof.ace")
 }

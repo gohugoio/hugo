@@ -4,7 +4,7 @@ title: Flesland Flis AS
 date: 2018-04-24
 description: "showcase: Business Page for a tile shop in Bergen, Norway"
 siteURL: https://www.fleslandflis.no
-byline: "[Sindre Gusdal](http://www.absoluttweb.no), Absoluttweb AS"
+byline: "[Sindre Gusdal](https://www.absoluttweb.no), Absoluttweb AS"
 
 ---
 

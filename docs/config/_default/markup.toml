@@ -1,0 +1,7 @@
+defaultMarkdownHandler = "goldmark"
+
+[highlight]
+style = "trac"
+lineNumbersInTable = true
+noClasses = false
+

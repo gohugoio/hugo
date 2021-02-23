@@ -95,7 +95,7 @@ For the second position, you would just use:
 most helpful when the condition depends on either of the values, or both:
 
 ```
-{{ or .Get "title" | .Get "alt" | if }} alt="{{ with .Get "alt"}}{{.}}{{else}}{{.Get "title"}}{{end}}"{{ end }}
+{{ if or (.Get "title") (.Get "alt") }} alt="{{ with .Get "alt"}}{{.}}{{else}}{{.Get "title"}}{{end}}"{{ end }}
 ```
 
 #### `.Inner`
@@ -183,7 +183,7 @@ Would load the template at `/layouts/shortcodes/youtube.html`:
 
 {{< code file="/layouts/shortcodes/youtube.html" >}}
 <div class="embed video-player">
-<iframe class="youtube-player" type="text/html" width="640" height="385" src="http://www.youtube.com/embed/{{ index .Params 0 }}" allowfullscreen frameborder="0">
+<iframe class="youtube-player" type="text/html" width="640" height="385" src="https://www.youtube.com/embed/{{ index .Params 0 }}" allowfullscreen frameborder="0">
 </iframe>
 </div>
 {{< /code >}}
@@ -192,7 +192,7 @@ Would load the template at `/layouts/shortcodes/youtube.html`:
 <div class="embed video-player">
     <iframe class="youtube-player" type="text/html"
         width="640" height="385"
-        src="http://www.youtube.com/embed/09jf3ow9jfw"
+        src="https://www.youtube.com/embed/09jf3ow9jfw"
         allowfullscreen frameborder="0">
     </iframe>
 </div>
@@ -252,11 +252,11 @@ Would load the template found at `/layouts/shortcodes/vimeo.html`:
 {{< code file="/layouts/shortcodes/vimeo.html" >}}
 {{ if .IsNamedParams }}
   <div class="{{ if .Get "class" }}{{ .Get "class" }}{{ else }}vimeo-container{{ end }}">
-    <iframe src="//player.vimeo.com/video/{{ .Get "id" }}" allowfullscreen></iframe>
+    <iframe src="https://player.vimeo.com/video/{{ .Get "id" }}" allowfullscreen></iframe>
   </div>
 {{ else }}
   <div class="{{ if len .Params | eq 2 }}{{ .Get 1 }}{{ else }}vimeo-container{{ end }}">
-    <iframe src="//player.vimeo.com/video/{{ .Get 0 }}" allowfullscreen></iframe>
+    <iframe src="https://player.vimeo.com/video/{{ .Get 0 }}" allowfullscreen></iframe>
   </div>
 {{ end }}
 {{< /code >}}
@@ -265,10 +265,10 @@ Would be rendered as:
 
 {{< code file="vimeo-iframes.html" copy="false" >}}
 <div class="vimeo-container">
-  <iframe src="//player.vimeo.com/video/49718712" allowfullscreen></iframe>
+  <iframe src="https://player.vimeo.com/video/49718712" allowfullscreen></iframe>
 </div>
 <div class="flex-video">
-  <iframe src="//player.vimeo.com/video/49718712" allowfullscreen></iframe>
+  <iframe src="https://player.vimeo.com/video/49718712" allowfullscreen></iframe>
 </div>
 {{< /code >}}
 
@@ -298,10 +298,6 @@ The rendered output of the HTML example code block will be as follows:
 <span style="color: #f92672">&lt;/html&gt;</span>
 </pre></div>
 {{< /code >}}
-
-{{% note %}}
-The preceding shortcode makes use of a Hugo-specific template function called `highlight`, which uses [Pygments](http://pygments.org) to add syntax highlighting to the example HTML code block. See the [developer tools page on syntax highlighting](/tools/syntax-highlighting/) for more information.
-{{% /note %}}
 
 ### Nested Shortcode: Image Gallery
 

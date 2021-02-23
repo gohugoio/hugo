@@ -15,6 +15,7 @@ package filecache
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"io/ioutil"
 	"os"
@@ -30,6 +31,9 @@ import (
 	"github.com/BurntSushi/locker"
 	"github.com/spf13/afero"
 )
+
+// ErrFatal can be used to signal an unrecoverable error.
+var ErrFatal = errors.New("fatal filecache error")
 
 const (
 	filecacheRootDirname = "filecache"
@@ -125,7 +129,7 @@ func (c *Cache) WriteCloser(id string) (ItemInfo, io.WriteCloser, error) {
 // If not found a new file is created and passed to create, which should close
 // it when done.
 func (c *Cache) ReadOrCreate(id string,
-	read func(info ItemInfo, r io.Reader) error,
+	read func(info ItemInfo, r io.ReadSeeker) error,
 	create func(info ItemInfo, w io.WriteCloser) error) (info ItemInfo, err error) {
 	id = cleanID(id)
 
@@ -137,7 +141,13 @@ func (c *Cache) ReadOrCreate(id string,
 	if r := c.getOrRemove(id); r != nil {
 		err = read(info, r)
 		defer r.Close()
-		return
+		if err == nil || err == ErrFatal {
+			// See https://github.com/gohugoio/hugo/issues/6401
+			// To recover from file corruption we handle read errors
+			// as the cache item was not found.
+			// Any file permission issue will also fail in the next step.
+			return
+		}
 	}
 
 	f, err := helpers.OpenFileForWriting(c.Fs, id)
@@ -148,7 +158,6 @@ func (c *Cache) ReadOrCreate(id string,
 	err = create(info, f)
 
 	return
-
 }
 
 // GetOrCreate tries to get the file with the given id from cache. If not found or expired, create will
@@ -210,10 +219,9 @@ func (c *Cache) GetOrCreateBytes(id string, create func() ([]byte, error)) (Item
 		return info, nil, err
 	}
 	return info, b, nil
-
 }
 
-// GetBytes gets the file content with the given id from the cahce, nil if none found.
+// GetBytes gets the file content with the given id from the cache, nil if none found.
 func (c *Cache) GetBytes(id string) (ItemInfo, []byte, error) {
 	id = cleanID(id)
 
@@ -266,7 +274,6 @@ func (c *Cache) getOrRemove(id string) hugio.ReadSeekCloser {
 	}
 
 	f, err := c.Fs.Open(id)
-
 	if err != nil {
 		return nil
 	}
@@ -289,7 +296,6 @@ func (c *Cache) getString(id string) string {
 	defer c.nlocker.Unlock(id)
 
 	f, err := c.Fs.Open(id)
-
 	if err != nil {
 		return ""
 	}
@@ -297,7 +303,6 @@ func (c *Cache) getString(id string) string {
 
 	b, _ := ioutil.ReadAll(f)
 	return string(b)
-
 }
 
 // Caches is a named set of caches.

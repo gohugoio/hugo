@@ -38,5 +38,4 @@ func TestInit(t *testing.T) {
 
 	c.Assert(found, qt.Equals, true)
 	c.Assert(ns.Context(), hqt.IsSameType, &Namespace{})
-
 }

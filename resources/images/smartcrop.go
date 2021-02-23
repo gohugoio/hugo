@@ -70,5 +70,4 @@ func (p *ImageProcessor) smartCrop(img image.Image, width, height int, filter gi
 	}
 
 	return img.Bounds().Intersect(rect), nil
-
 }

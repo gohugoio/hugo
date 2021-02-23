@@ -75,5 +75,4 @@ func TestSymDiff(t *testing.T) {
 	c.Assert(err, qt.Not(qt.IsNil))
 	_, err = ns.Complement([]string{"a", "b"})
 	c.Assert(err, qt.Not(qt.IsNil))
-
 }

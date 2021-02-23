@@ -16,7 +16,15 @@
 package tplimpl
 
 import (
-	"html/template"
+	"reflect"
+	"strings"
+
+	"github.com/gohugoio/hugo/tpl"
+
+	"github.com/gohugoio/hugo/common/maps"
+
+	template "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
+	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 
 	"github.com/gohugoio/hugo/deps"
 
@@ -28,13 +36,16 @@ import (
 	_ "github.com/gohugoio/hugo/tpl/compare"
 	_ "github.com/gohugoio/hugo/tpl/crypto"
 	_ "github.com/gohugoio/hugo/tpl/data"
+	_ "github.com/gohugoio/hugo/tpl/debug"
 	_ "github.com/gohugoio/hugo/tpl/encoding"
 	_ "github.com/gohugoio/hugo/tpl/fmt"
 	_ "github.com/gohugoio/hugo/tpl/hugo"
 	_ "github.com/gohugoio/hugo/tpl/images"
 	_ "github.com/gohugoio/hugo/tpl/inflect"
+	_ "github.com/gohugoio/hugo/tpl/js"
 	_ "github.com/gohugoio/hugo/tpl/lang"
 	_ "github.com/gohugoio/hugo/tpl/math"
+	_ "github.com/gohugoio/hugo/tpl/openapi/openapi3"
 	_ "github.com/gohugoio/hugo/tpl/os"
 	_ "github.com/gohugoio/hugo/tpl/partials"
 	_ "github.com/gohugoio/hugo/tpl/path"
@@ -48,6 +59,92 @@ import (
 	_ "github.com/gohugoio/hugo/tpl/transform"
 	_ "github.com/gohugoio/hugo/tpl/urls"
 )
+
+var (
+	_    texttemplate.ExecHelper = (*templateExecHelper)(nil)
+	zero reflect.Value
+)
+
+type templateExecHelper struct {
+	running bool // whether we're in server mode.
+	funcs   map[string]reflect.Value
+}
+
+func (t *templateExecHelper) GetFunc(tmpl texttemplate.Preparer, name string) (reflect.Value, bool) {
+	if fn, found := t.funcs[name]; found {
+		return fn, true
+	}
+	return zero, false
+}
+
+func (t *templateExecHelper) GetMapValue(tmpl texttemplate.Preparer, receiver, key reflect.Value) (reflect.Value, bool) {
+	if params, ok := receiver.Interface().(maps.Params); ok {
+		// Case insensitive.
+		keystr := strings.ToLower(key.String())
+		v, found := params[keystr]
+		if !found {
+			return zero, false
+		}
+		return reflect.ValueOf(v), true
+	}
+
+	v := receiver.MapIndex(key)
+
+	return v, v.IsValid()
+}
+
+func (t *templateExecHelper) GetMethod(tmpl texttemplate.Preparer, receiver reflect.Value, name string) (method reflect.Value, firstArg reflect.Value) {
+	if t.running {
+		// This is a hot path and receiver.MethodByName really shows up in the benchmarks,
+		// so we maintain a list of method names with that signature.
+		switch name {
+		case "GetPage", "Render":
+			if info, ok := tmpl.(tpl.Info); ok {
+				if m := receiver.MethodByName(name + "WithTemplateInfo"); m.IsValid() {
+					return m, reflect.ValueOf(info)
+				}
+			}
+		}
+	}
+
+	return receiver.MethodByName(name), zero
+}
+
+func newTemplateExecuter(d *deps.Deps) (texttemplate.Executer, map[string]reflect.Value) {
+	funcs := createFuncMap(d)
+	funcsv := make(map[string]reflect.Value)
+
+	for k, v := range funcs {
+		vv := reflect.ValueOf(v)
+		funcsv[k] = vv
+	}
+
+	// Duplicate Go's internal funcs here for faster lookups.
+	for k, v := range template.GoFuncs {
+		if _, exists := funcsv[k]; !exists {
+			vv, ok := v.(reflect.Value)
+			if !ok {
+				vv = reflect.ValueOf(v)
+			}
+			funcsv[k] = vv
+		}
+	}
+
+	for k, v := range texttemplate.GoFuncs {
+		if _, exists := funcsv[k]; !exists {
+			funcsv[k] = v
+		}
+	}
+
+	exeHelper := &templateExecHelper{
+		running: d.Running,
+		funcs:   funcsv,
+	}
+
+	return texttemplate.NewExecuter(
+		exeHelper,
+	), funcsv
+}
 
 func createFuncMap(d *deps.Deps) map[string]interface{} {
 	funcMap := template.FuncMap{}
@@ -66,15 +163,14 @@ func createFuncMap(d *deps.Deps) map[string]interface{} {
 				}
 				funcMap[alias] = mm.Method
 			}
-
 		}
+	}
 
+	if d.OverloadedTemplateFuncs != nil {
+		for k, v := range d.OverloadedTemplateFuncs {
+			funcMap[k] = v
+		}
 	}
 
 	return funcMap
-
-}
-func (t *templateFuncster) initFuncMap(funcMap template.FuncMap) {
-	t.funcMap = funcMap
-	t.Tmpl.(*templateHandler).setFuncs(funcMap)
 }

@@ -57,5 +57,4 @@ func TestGlob(t *testing.T) {
 	c.Assert(collect("*.json"), qt.HasLen, 1)
 	c.Assert(collect("**.xml"), qt.HasLen, 1)
 	c.Assert(collect(filepath.FromSlash("/jsonfiles/*.json")), qt.HasLen, 2)
-
 }

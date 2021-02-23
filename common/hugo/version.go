@@ -15,8 +15,7 @@ package hugo
 
 import (
 	"fmt"
-	"strconv"
-
+	"io"
 	"runtime"
 	"strings"
 
@@ -128,14 +127,15 @@ func (v Version) NextPatchLevel(level int) Version {
 // BuildVersionString creates a version string. This is what you see when
 // running "hugo version".
 func BuildVersionString() string {
-	program := "Hugo Static Site Generator"
+	// program := "Hugo Static Site Generator"
+	program := "hugo"
 
 	version := "v" + CurrentVersion.String()
 	if commitHash != "" {
 		version += "-" + strings.ToUpper(commitHash)
 	}
 	if IsExtended {
-		version += "/extended"
+		version += "+extended"
 	}
 
 	osArch := runtime.GOOS + "/" + runtime.GOARCH
@@ -145,8 +145,14 @@ func BuildVersionString() string {
 		date = "unknown"
 	}
 
-	return fmt.Sprintf("%s %s %s BuildDate: %s", program, version, osArch, date)
+	versionString := fmt.Sprintf("%s %s %s BuildDate=%s",
+		program, version, osArch, date)
 
+	if vendorInfo != "" {
+		versionString += " VendorInfo=" + vendorInfo
+	}
+
+	return versionString
 }
 
 func version(version float32, patchVersion int, suffix string) string {
@@ -245,7 +251,15 @@ func goMinorVersion(version string) int {
 	if strings.HasPrefix(version, "devel") {
 		return 9999 // magic
 	}
-	i, _ := strconv.Atoi(strings.Split(version, ".")[1])
-	return i
-
+	var major, minor int
+	var trailing string
+	n, err := fmt.Sscanf(version, "go%d.%d%s", &major, &minor, &trailing)
+	if n == 2 && err == io.EOF {
+		// Means there were no trailing characters (i.e., not an alpha/beta)
+		err = nil
+	}
+	if err != nil {
+		return 0
+	}
+	return minor
 }

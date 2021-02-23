@@ -6,7 +6,7 @@ description: "Hugo 0.46: Full SCSS/SASS import inheritance support, rework of Hu
 categories: ["Releases"]
 ---
 
-	**Hugo 0.46** is the closing credits to **The Summer of Hugo**. While most people have been relaxing on the beach, Hugo has been really busy: 
+**Hugo 0.46** is the closing credits to **The Summer of Hugo**. While most people have been relaxing on the beach, Hugo has been really busy: 
 
 * **0.42, June 12, 2018**: [Theme Composition and Inheritance!](https://gohugo.io/news/0.42-relnotes/)
 * **0.43, July 9, 2018**: [Hugo Pipes!](https://gohugo.io/news/0.43-relnotes/)

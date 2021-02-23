@@ -20,10 +20,11 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/gohugoio/hugo/common/hexec"
 
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/pkg/errors"
@@ -131,12 +132,12 @@ func (r *ReleaseHandler) Run() error {
 		return err
 	}
 
-	prepareRelaseNotes := isPatch || relNotesState == releaseNotesNone
+	prepareReleaseNotes := isPatch || relNotesState == releaseNotesNone
 	shouldRelease := isPatch || relNotesState == releaseNotesReady
 
 	defer r.gitPush() // TODO(bep)
 
-	if prepareRelaseNotes || shouldRelease {
+	if prepareReleaseNotes || shouldRelease {
 		gitCommits, err = getGitInfos(changeLogFromTag, "hugo", "", !r.try)
 		if err != nil {
 			return err
@@ -150,11 +151,11 @@ func (r *ReleaseHandler) Run() error {
 	}
 
 	if relNotesState == releaseNotesCreated {
-		fmt.Println("Release notes created, but not ready. Reneame to *-ready.md to continue ...")
+		fmt.Println("Release notes created, but not ready. Rename to *-ready.md to continue ...")
 		return nil
 	}
 
-	if prepareRelaseNotes {
+	if prepareReleaseNotes {
 		releaseNotesFile, err := r.writeReleaseNotesToTemp(version, isPatch, gitCommits, gitCommitsDocs)
 		if err != nil {
 			return err
@@ -261,12 +262,12 @@ func (r *ReleaseHandler) release(releaseNotesFile string) error {
 		return nil
 	}
 
-	args := []string{"--rm-dist", "--release-notes", releaseNotesFile}
+	args := []string{"--parallelism", "3", "--timeout", "60m", "--rm-dist", "--release-notes", releaseNotesFile}
 	if r.skipPublish {
 		args = append(args, "--skip-publish")
 	}
 
-	cmd := exec.Command("goreleaser", args...)
+	cmd, _ := hexec.SafeCommand("goreleaser", args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()

@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2020 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,10 @@ package publisher
 import (
 	"errors"
 	"io"
+	"net/url"
 	"sync/atomic"
+
+	"github.com/gohugoio/hugo/resources"
 
 	"github.com/gohugoio/hugo/media"
 
@@ -49,8 +52,8 @@ type Descriptor struct {
 	StatCounter *uint64
 
 	// Configuration that trigger pre-processing.
-	// LiveReload script will be injected if this is > 0
-	LiveReloadPort int
+	// LiveReload script will be injected if this is != nil
+	LiveReloadBaseURL *url.URL
 
 	// Enable to inject the Hugo generated tag in the header. Is currently only
 	// injected on the home page for HTML type of output formats.
@@ -67,19 +70,22 @@ type Descriptor struct {
 // DestinationPublisher is the default and currently only publisher in Hugo. This
 // publisher prepares and publishes an item to the defined destination, e.g. /public.
 type DestinationPublisher struct {
-	fs     afero.Fs
-	minify bool
-	min    minifiers.Client
+	fs                    afero.Fs
+	min                   minifiers.Client
+	htmlElementsCollector *htmlElementsCollector
 }
 
 // NewDestinationPublisher creates a new DestinationPublisher.
-func NewDestinationPublisher(fs afero.Fs, outputFormats output.Formats, mediaTypes media.Types, minify bool) DestinationPublisher {
-	pub := DestinationPublisher{fs: fs}
-	if minify {
-		pub.min = minifiers.New(mediaTypes, outputFormats)
-		pub.minify = true
+func NewDestinationPublisher(rs *resources.Spec, outputFormats output.Formats, mediaTypes media.Types) (pub DestinationPublisher, err error) {
+	fs := rs.BaseFs.PublishFs
+	cfg := rs.Cfg
+	var classCollector *htmlElementsCollector
+	if rs.BuildConfig.WriteStats {
+		classCollector = newHTMLElementsCollector()
 	}
-	return pub
+	pub = DestinationPublisher{fs: fs, htmlElementsCollector: classCollector}
+	pub.min, err = minifiers.New(mediaTypes, outputFormats, cfg)
+	return
 }
 
 // Publish applies any relevant transformations and writes the file
@@ -111,16 +117,38 @@ func (p DestinationPublisher) Publish(d Descriptor) error {
 	}
 	defer f.Close()
 
-	_, err = io.Copy(f, src)
+	var w io.Writer = f
+
+	if p.htmlElementsCollector != nil && d.OutputFormat.IsHTML {
+		w = io.MultiWriter(w, newHTMLElementsCollectorWriter(p.htmlElementsCollector))
+	}
+
+	_, err = io.Copy(w, src)
 	if err == nil && d.StatCounter != nil {
 		atomic.AddUint64(d.StatCounter, uint64(1))
 	}
+
 	return err
+}
+
+func (p DestinationPublisher) PublishStats() PublishStats {
+	if p.htmlElementsCollector == nil {
+		return PublishStats{}
+	}
+
+	return PublishStats{
+		HTMLElements: p.htmlElementsCollector.getHTMLElements(),
+	}
+}
+
+type PublishStats struct {
+	HTMLElements HTMLElements `json:"htmlElements"`
 }
 
 // Publisher publishes a result file.
 type Publisher interface {
 	Publish(d Descriptor) error
+	PublishStats() PublishStats
 }
 
 // XML transformer := transform.New(urlreplacers.NewAbsURLInXMLTransformer(path))
@@ -139,8 +167,8 @@ func (p DestinationPublisher) createTransformerChain(f Descriptor) transform.Cha
 	}
 
 	if isHTML {
-		if f.LiveReloadPort > 0 {
-			transformers = append(transformers, livereloadinject.New(f.LiveReloadPort))
+		if f.LiveReloadBaseURL != nil {
+			transformers = append(transformers, livereloadinject.New(*f.LiveReloadBaseURL))
 		}
 
 		// This is only injected on the home page.
@@ -150,7 +178,7 @@ func (p DestinationPublisher) createTransformerChain(f Descriptor) transform.Cha
 
 	}
 
-	if p.minify {
+	if p.min.MinifyOutput {
 		minifyTransformer := p.min.Transformer(f.OutputFormat.MediaType)
 		if minifyTransformer != nil {
 			transformers = append(transformers, minifyTransformer)
@@ -158,5 +186,4 @@ func (p DestinationPublisher) createTransformerChain(f Descriptor) transform.Cha
 	}
 
 	return transformers
-
 }

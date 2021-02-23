@@ -26,16 +26,18 @@ import (
 	"time"
 	"unicode"
 
+	"github.com/gohugoio/hugo/parser/pageparser"
+
 	"github.com/gohugoio/hugo/common/hugio"
 
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/parser"
 	"github.com/spf13/afero"
-	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -72,11 +74,9 @@ Import from Jekyll requires two paths, e.g. ` + "`hugo import jekyll jekyll_root
 	cc.cmd.AddCommand(importJekyllCmd)
 
 	return cc
-
 }
 
 func (i *importCmd) importFromJekyll(cmd *cobra.Command, args []string) error {
-
 	if len(args) < 2 {
 		return newUserError(`import from jekyll requires two paths, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`.")
 	}
@@ -105,7 +105,7 @@ func (i *importCmd) importFromJekyll(cmd *cobra.Command, args []string) error {
 		return errors.New("abort: jekyll root contains neither posts nor drafts")
 	}
 
-	site, err := i.createSiteFromJekyll(jekyllRoot, targetDir, jekyllPostDirs, forceImport)
+	err = i.createSiteFromJekyll(jekyllRoot, targetDir, jekyllPostDirs, forceImport)
 
 	if err != nil {
 		return newUserError(err)
@@ -142,7 +142,7 @@ func (i *importCmd) importFromJekyll(cmd *cobra.Command, args []string) error {
 		}
 
 		fileCount++
-		return convertJekyllPost(site, path, relPath, targetDir, draft)
+		return convertJekyllPost(path, relPath, targetDir, draft)
 	}
 
 	for jekyllPostDir, hasAnyPostInDir := range jekyllPostDirs {
@@ -200,22 +200,22 @@ func (i *importCmd) retrieveJekyllPostDir(fs afero.Fs, dir string) (bool, bool) 
 	return false, true
 }
 
-func (i *importCmd) createSiteFromJekyll(jekyllRoot, targetDir string, jekyllPostDirs map[string]bool, force bool) (*hugolib.Site, error) {
+func (i *importCmd) createSiteFromJekyll(jekyllRoot, targetDir string, jekyllPostDirs map[string]bool, force bool) error {
 	s, err := hugolib.NewSiteDefaultLang()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	fs := s.Fs.Source
 	if exists, _ := helpers.Exists(targetDir, fs); exists {
 		if isDir, _ := helpers.IsDir(targetDir, fs); !isDir {
-			return nil, errors.New("target path \"" + targetDir + "\" exists but is not a directory")
+			return errors.New("target path \"" + targetDir + "\" exists but is not a directory")
 		}
 
 		isEmpty, _ := helpers.IsEmpty(targetDir, fs)
 
 		if !isEmpty && !force {
-			return nil, errors.New("target path \"" + targetDir + "\" exists and is not empty")
+			return errors.New("target path \"" + targetDir + "\" exists and is not empty")
 		}
 	}
 
@@ -232,7 +232,7 @@ func (i *importCmd) createSiteFromJekyll(jekyllRoot, targetDir string, jekyllPos
 
 	i.copyJekyllFilesAndFolders(jekyllRoot, filepath.Join(targetDir, "static"), jekyllPostDirs)
 
-	return s, nil
+	return nil
 }
 
 func (i *importCmd) loadJekyllConfig(fs afero.Fs, jekyllRoot string) map[string]interface{} {
@@ -253,13 +253,11 @@ func (i *importCmd) loadJekyllConfig(fs afero.Fs, jekyllRoot string) map[string]
 	defer f.Close()
 
 	b, err := ioutil.ReadAll(f)
-
 	if err != nil {
 		return nil
 	}
 
 	c, err := metadecoders.Default.UnmarshalToMap(b, metadecoders.YAML)
-
 	if err != nil {
 		return nil
 	}
@@ -336,8 +334,10 @@ func (i *importCmd) copyJekyllFilesAndFolders(jekyllRoot, dest string, jekyllPos
 			}
 		} else {
 			lowerEntryName := strings.ToLower(entry.Name())
-			exceptSuffix := []string{".md", ".markdown", ".html", ".htm",
-				".xml", ".textile", "rakefile", "gemfile", ".lock"}
+			exceptSuffix := []string{
+				".md", ".markdown", ".html", ".htm",
+				".xml", ".textile", "rakefile", "gemfile", ".lock",
+			}
 			isExcept := false
 			for _, suffix := range exceptSuffix {
 				if strings.HasSuffix(lowerEntryName, suffix) {
@@ -375,7 +375,7 @@ func parseJekyllFilename(filename string) (time.Time, string, error) {
 	return postDate, postName, nil
 }
 
-func convertJekyllPost(s *hugolib.Site, path, relPath, targetDir string, draft bool) error {
+func convertJekyllPost(path, relPath, targetDir string, draft bool) error {
 	jww.TRACE.Println("Converting", path)
 
 	filename := filepath.Base(path)
@@ -397,19 +397,23 @@ func convertJekyllPost(s *hugolib.Site, path, relPath, targetDir string, draft b
 		return err
 	}
 
-	pf, err := parseContentFile(bytes.NewReader(contentBytes))
+	pf, err := pageparser.ParseFrontMatterAndContent(bytes.NewReader(contentBytes))
 	if err != nil {
 		jww.ERROR.Println("Parse file error:", path)
 		return err
 	}
 
-	newmetadata, err := convertJekyllMetaData(pf.frontMatter, postName, postDate, draft)
+	newmetadata, err := convertJekyllMetaData(pf.FrontMatter, postName, postDate, draft)
 	if err != nil {
 		jww.ERROR.Println("Convert metadata error:", path)
 		return err
 	}
 
-	content := convertJekyllContent(newmetadata, string(pf.content))
+	content, err := convertJekyllContent(newmetadata, string(pf.Content))
+	if err != nil {
+		jww.ERROR.Println("Converting Jekyll error:", path)
+		return err
+	}
 
 	fs := hugofs.Os
 	if err := helpers.WriteToDisk(targetFile, strings.NewReader(content), fs); err != nil {
@@ -420,7 +424,7 @@ func convertJekyllPost(s *hugolib.Site, path, relPath, targetDir string, draft b
 }
 
 func convertJekyllMetaData(m interface{}, postName string, postDate time.Time, draft bool) (interface{}, error) {
-	metadata, err := cast.ToStringMapE(m)
+	metadata, err := maps.ToStringMapE(m)
 	if err != nil {
 		return nil, err
 	}
@@ -471,8 +475,8 @@ func convertJekyllMetaData(m interface{}, postName string, postDate time.Time, d
 	return metadata, nil
 }
 
-func convertJekyllContent(m interface{}, content string) string {
-	metadata, _ := cast.ToStringMapE(m)
+func convertJekyllContent(m interface{}, content string) (string, error) {
+	metadata, _ := maps.ToStringMapE(m)
 
 	lines := strings.Split(content, "\n")
 	var resultLines []string
@@ -515,7 +519,16 @@ func convertJekyllContent(m interface{}, content string) string {
 		content = replace.re.ReplaceAllStringFunc(content, replace.replace)
 	}
 
-	return content
+	var buf bytes.Buffer
+	if len(metadata) != 0 {
+		err := parser.InterfaceToFrontMatter(m, metadecoders.YAML, &buf)
+		if err != nil {
+			return "", err
+		}
+	}
+	buf.WriteString(content)
+
+	return buf.String(), nil
 }
 
 func replaceHighlightTag(match string) string {
@@ -587,8 +600,8 @@ func replaceImageTag(match string) string {
 	}
 	result.WriteString(">}}")
 	return result.String()
-
 }
+
 func replaceOptionalPart(buffer *bytes.Buffer, partName string, part string) {
 	if len(part) > 0 {
 		buffer.WriteString(partName + "=\"" + part + "\" ")

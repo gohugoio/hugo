@@ -64,7 +64,7 @@ func (ini *Init) Branch(initFn func() (interface{}, error)) *Init {
 }
 
 // BranchdWithTimeout is same as Branch, but with a timeout.
-func (ini *Init) BranchdWithTimeout(timeout time.Duration, f func(ctx context.Context) (interface{}, error)) *Init {
+func (ini *Init) BranchWithTimeout(timeout time.Duration, f func(ctx context.Context) (interface{}, error)) *Init {
 	return ini.Branch(func() (interface{}, error) {
 		return ini.withTimeout(timeout, f)
 	})
@@ -111,7 +111,6 @@ func (ini *Init) Do() (interface{}, error) {
 	ini.wait()
 
 	return ini.out, ini.err
-
 }
 
 // TODO(bep) investigate if we can use sync.Cond for this.
@@ -185,11 +184,10 @@ func (ini *Init) withTimeout(timeout time.Duration, f func(ctx context.Context) 
 
 	select {
 	case <-ctx.Done():
-		return nil, errors.New("timed out initializing value. This is most likely a circular loop in a shortcode")
+		return nil, errors.New("timed out initializing value. You may have a circular loop in a shortcode, or your site may have resources that take longer to build than the `timeout` limit in your Hugo config file.")
 	case ve := <-c:
 		return ve.v, ve.err
 	}
-
 }
 
 type verr struct {

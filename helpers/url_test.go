@@ -23,7 +23,6 @@ import (
 )
 
 func TestURLize(t *testing.T) {
-
 	v := newTestCfg()
 	l := langs.NewDefaultLanguage(v)
 	p, _ := NewPathSpec(hugofs.NewMem(v), l, nil)
@@ -84,6 +83,21 @@ func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 		{"http//foo", "http://base/path", "http://base/path/MULTIhttp/foo"},
 	}
 
+	if multilingual && addLanguage && defaultInSubDir {
+		newTests := []struct {
+			input    string
+			baseURL  string
+			expected string
+		}{
+			{lang + "test", "http://base/", "http://base/" + lang + "/" + lang + "test"},
+			{"/" + lang + "test", "http://base/", "http://base/" + lang + "/" + lang + "test"},
+		}
+
+		for _, test := range newTests {
+			tests = append(tests, test)
+		}
+	}
+
 	for _, test := range tests {
 		v.Set("baseURL", test.baseURL)
 		v.Set("contentDir", "content")
@@ -98,7 +112,6 @@ func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 			} else {
 				expected = strings.Replace(expected, "MULTI", lang+"/", 1)
 			}
-
 		} else {
 			expected = strings.Replace(expected, "MULTI", "", 1)
 		}
@@ -162,6 +175,22 @@ func doTestRelURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 		{"", "http://base/ace", false, "/aceMULTI"},
 		{"http://abs", "http://base/", false, "http://abs"},
 		{"//schemaless", "http://base/", false, "//schemaless"},
+	}
+
+	if multilingual && addLanguage && defaultInSubDir {
+		newTests := []struct {
+			input    string
+			baseURL  string
+			canonify bool
+			expected string
+		}{
+			{lang + "test", "http://base/", false, "/" + lang + "/" + lang + "test"},
+			{"/" + lang + "test", "http://base/", false, "/" + lang + "/" + lang + "test"},
+		}
+
+		for _, test := range newTests {
+			tests = append(tests, test)
+		}
 	}
 
 	for i, test := range tests {
@@ -263,7 +292,6 @@ func TestURLPrep(t *testing.T) {
 			t.Errorf("Test #%d failed. Expected %q got %q", i, d.output, output)
 		}
 	}
-
 }
 
 func TestAddContextRoot(t *testing.T) {

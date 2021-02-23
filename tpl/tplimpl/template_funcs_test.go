@@ -40,9 +40,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var (
-	logger = loggers.NewErrorLogger()
-)
+var logger = loggers.NewErrorLogger()
 
 func newTestConfig() config.Provider {
 	v := viper.New()
@@ -100,6 +98,7 @@ func TestTemplateFuncsExamples(t *testing.T) {
 	depsCfg := newDepsConfig(v)
 	depsCfg.Fs = fs
 	d, err := deps.New(depsCfg)
+	defer d.Close()
 	c.Assert(err, qt.IsNil)
 
 	var data struct {
@@ -119,7 +118,7 @@ func TestTemplateFuncsExamples(t *testing.T) {
 		for _, mm := range ns.MethodMappings {
 			for i, example := range mm.Examples {
 				in, expected := example[0], example[1]
-				d.WithTemplate = func(templ tpl.TemplateHandler) error {
+				d.WithTemplate = func(templ tpl.TemplateManager) error {
 					c.Assert(templ.AddTemplate("test", in), qt.IsNil)
 					c.Assert(templ.AddTemplate("partials/header.html", "<title>Hugo Rocks!</title>"), qt.IsNil)
 					return nil
@@ -127,8 +126,8 @@ func TestTemplateFuncsExamples(t *testing.T) {
 				c.Assert(d.LoadResources(), qt.IsNil)
 
 				var b bytes.Buffer
-				templ, _ := d.Tmpl.Lookup("test")
-				c.Assert(templ.Execute(&b, &data), qt.IsNil)
+				templ, _ := d.Tmpl().Lookup("test")
+				c.Assert(d.Tmpl().Execute(templ, &b, &data), qt.IsNil)
 				if b.String() != expected {
 					t.Fatalf("%s[%d]: got %q expected %q", ns.Name, i, b.String(), expected)
 				}
@@ -154,7 +153,7 @@ func TestPartialCached(t *testing.T) {
 
 	config := newDepsConfig(v)
 
-	config.WithTemplate = func(templ tpl.TemplateHandler) error {
+	config.WithTemplate = func(templ tpl.TemplateManager) error {
 		err := templ.AddTemplate("partials/"+name, partial)
 		if err != nil {
 			return err
@@ -165,6 +164,7 @@ func TestPartialCached(t *testing.T) {
 
 	de, err := deps.New(config)
 	c.Assert(err, qt.IsNil)
+	defer de.Close()
 	c.Assert(de.LoadResources(), qt.IsNil)
 
 	ns := partials.New(de)
@@ -188,7 +188,6 @@ func TestPartialCached(t *testing.T) {
 			t.Fatalf("cache mismatch")
 		}
 	}
-
 }
 
 func BenchmarkPartial(b *testing.B) {
@@ -208,7 +207,7 @@ func BenchmarkPartialCached(b *testing.B) {
 func doBenchmarkPartial(b *testing.B, f func(ns *partials.Namespace) error) {
 	c := qt.New(b)
 	config := newDepsConfig(viper.New())
-	config.WithTemplate = func(templ tpl.TemplateHandler) error {
+	config.WithTemplate = func(templ tpl.TemplateManager) error {
 		err := templ.AddTemplate("partials/bench1", `{{ shuffle (seq 1 10) }}`)
 		if err != nil {
 			return err
@@ -219,6 +218,7 @@ func doBenchmarkPartial(b *testing.B, f func(ns *partials.Namespace) error) {
 
 	de, err := deps.New(config)
 	c.Assert(err, qt.IsNil)
+	defer de.Close()
 	c.Assert(de.LoadResources(), qt.IsNil)
 
 	ns := partials.New(de)

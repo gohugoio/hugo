@@ -14,9 +14,7 @@
 package hugolib
 
 import (
-	"fmt"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -61,7 +59,7 @@ angledQuotes = false
 hrefTargetBlank = false
 [Languages.en.Colors]
 BLUE = "blues"
-yellow = "golden"
+Yellow = "golden"
 `
 	caseMixingPage1En = `
 ---
@@ -129,25 +127,12 @@ Partial Site Global: {{ site.Params.COLOR }}|{{ site.Params.COLORS.YELLOW }}
 `)
 
 	writeToFs(t, fs, "config.toml", caseMixingSiteConfigTOML)
-
 }
 
 func TestCaseInsensitiveConfigurationVariations(t *testing.T) {
 	t.Parallel()
 
 	c := qt.New(t)
-
-	// See issues 2615, 1129, 2590 and maybe some others
-	// Also see 2598
-	//
-	// Viper is now, at least for the Hugo part, case insensitive
-	// So we need tests for all of it, with needed adjustments on the Hugo side.
-	// Not sure what that will be. Let us see.
-
-	// So all the below with case variations:
-	// config: regular fields, blackfriday config, param with nested map
-	// language: new and overridden values, in regular fields and nested paramsmap
-	// page frontmatter: regular fields, blackfriday config, param with nested map
 
 	mm := afero.NewMemMapFs()
 
@@ -168,8 +153,18 @@ Block Page Colors: {{ .Params.COLOR }}|{{ .Params.Colors.Blue }}
 {{ define "main"}}
 Page Colors: {{ .Params.CoLOR }}|{{ .Params.Colors.Blue }}
 Site Colors: {{ .Site.Params.COlOR }}|{{ .Site.Params.COLORS.YELLOW }}
+{{ template "index-color" (dict "name" "Page" "params" .Params) }}
+{{ template "index-color" (dict "name" "Site" "params" .Site.Params) }}
+
 {{ .Content }}
 {{ partial "partial.html" . }}
+{{ end }}
+{{ define "index-color" }}
+{{ $yellow := index .params "COLoRS" "yELLOW" }}
+{{ $colors := index .params "COLoRS" }}
+{{ $yellow2 := index $colors "yEllow" }}
+index1|{{ .name }}: {{ $yellow }}|
+index2|{{ .name }}: {{ $yellow2 }}|
 {{ end }}
 `)
 
@@ -177,14 +172,17 @@ Site Colors: {{ .Site.Params.COlOR }}|{{ .Site.Params.COLORS.YELLOW }}
 Page Title: {{ .Title }}
 Site Title: {{ .Site.Title }}
 Site Lang Mood: {{ .Site.Language.Params.MOoD }}
-Page Colors: {{ .Params.COLOR }}|{{ .Params.Colors.Blue }}
-Site Colors: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}
+Page Colors: {{ .Params.COLOR }}|{{ .Params.Colors.Blue }}|{{ index .Params "ColOR" }}
+Site Colors: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}|{{ index .Site.Params "ColOR" }}
+{{ $page2 := .Site.GetPage "/sect2/page2" }}
+{{ if $page2 }}
+Page2: {{ $page2.Params.ColoR }} 
+{{ end }}
 {{ .Content }}
 {{ partial "partial.html" . }}
 `)
 
 	sites, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
-
 	if err != nil {
 		t.Fatalf("Failed to create sites: %s", err)
 	}
@@ -196,8 +194,8 @@ Site Colors: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}
 	}
 
 	th.assertFileContent(filepath.Join("public", "nn", "sect1", "page1", "index.html"),
-		"Page Colors: red|heavenly",
-		"Site Colors: green|yellow",
+		"Page Colors: red|heavenly|red",
+		"Site Colors: green|yellow|green",
 		"Site Lang Mood: Happy",
 		"Shortcode Page: red|heavenly",
 		"Shortcode Site: green|yellow",
@@ -206,7 +204,7 @@ Site Colors: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}
 		"Partial Site Global: green|yellow",
 		"Page Title: Side 1",
 		"Site Title: Nynorsk title",
-		"&laquo;Hi&raquo;", // angled quotes
+		"Page2: black ",
 	)
 
 	th.assertFileContent(filepath.Join("public", "en", "sect1", "page1", "index.html"),
@@ -225,87 +223,9 @@ Site Colors: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}
 		"Block Page Colors: black|sky",
 		"Partial Page: black|sky",
 		"Partial Site: green|yellow",
+		"index1|Page: flower|",
+		"index1|Site: yellow|",
+		"index2|Page: flower|",
+		"index2|Site: yellow|",
 	)
-}
-
-func TestCaseInsensitiveConfigurationForAllTemplateEngines(t *testing.T) {
-	t.Parallel()
-
-	noOp := func(s string) string {
-		return s
-	}
-
-	amberFixer := func(s string) string {
-		fixed := strings.Replace(s, "{{ .Site.Params", "{{ Site.Params", -1)
-		fixed = strings.Replace(fixed, "{{ .Params", "{{ Params", -1)
-		fixed = strings.Replace(fixed, ".Content", "Content", -1)
-		fixed = strings.Replace(fixed, "{{", "#{", -1)
-		fixed = strings.Replace(fixed, "}}", "}", -1)
-
-		return fixed
-	}
-
-	for _, config := range []struct {
-		suffix        string
-		templateFixer func(s string) string
-	}{
-		{"amber", amberFixer},
-		{"html", noOp},
-		{"ace", noOp},
-	} {
-		doTestCaseInsensitiveConfigurationForTemplateEngine(t, config.suffix, config.templateFixer)
-
-	}
-
-}
-
-func doTestCaseInsensitiveConfigurationForTemplateEngine(t *testing.T, suffix string, templateFixer func(s string) string) {
-	c := qt.New(t)
-	mm := afero.NewMemMapFs()
-
-	caseMixingTestsWriteCommonSources(t, mm)
-
-	cfg, err := LoadConfigDefault(mm)
-	c.Assert(err, qt.IsNil)
-
-	fs := hugofs.NewFrom(mm, cfg)
-
-	th := newTestHelper(cfg, fs, t)
-
-	t.Log("Testing", suffix)
-
-	templTemplate := `
-p
-	|
-	| Page Colors: {{ .Params.CoLOR }}|{{ .Params.Colors.Blue }}
-	| Site Colors: {{ .Site.Params.COlOR }}|{{ .Site.Params.COLORS.YELLOW }}
-	| {{ .Content }}
-
-`
-
-	templ := templateFixer(templTemplate)
-
-	t.Log(templ)
-
-	writeSource(t, fs, filepath.Join("layouts", "_default", fmt.Sprintf("single.%s", suffix)), templ)
-
-	sites, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
-
-	if err != nil {
-		t.Fatalf("Failed to create sites: %s", err)
-	}
-
-	err = sites.Build(BuildCfg{})
-
-	if err != nil {
-		t.Fatalf("Failed to build sites: %s", err)
-	}
-
-	th.assertFileContent(filepath.Join("public", "nn", "sect1", "page1", "index.html"),
-		"Page Colors: red|heavenly",
-		"Site Colors: green|yellow",
-		"Shortcode Page: red|heavenly",
-		"Shortcode Site: green|yellow",
-	)
-
 }

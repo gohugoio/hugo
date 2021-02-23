@@ -21,6 +21,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gobwas/glob"
+
 	"github.com/gohugoio/hugo/config"
 
 	"github.com/gohugoio/hugo/langs"
@@ -49,12 +51,13 @@ func initConfig(fs afero.Fs, cfg config.Provider) error {
 	if !filepath.IsAbs(themesDir) {
 		themesDir = filepath.Join(workingDir, themesDir)
 	}
+	globAll := glob.MustCompile("**", '/')
 	modulesClient := modules.NewClient(modules.ClientConfig{
 		Fs:           fs,
 		WorkingDir:   workingDir,
 		ThemesDir:    themesDir,
 		ModuleConfig: modConfig,
-		IgnoreVendor: true,
+		IgnoreVendor: globAll,
 	})
 
 	moduleConfig, err := modulesClient.Collect()
@@ -173,9 +176,7 @@ theme = ["atheme"]
 			filename = filepath.FromSlash(filename)
 			f, err := fs.Open(filename)
 			c.Assert(err, qt.IsNil)
-			name := f.Name()
 			f.Close()
-			c.Assert(name, qt.Equals, filename)
 		}
 	}
 }
@@ -273,7 +274,6 @@ func TestRealDirs(t *testing.T) {
 	c.Assert(realDirs[len(realDirs)-1], qt.Equals, filepath.Join(themesDir, "mytheme/assets/scss"))
 
 	c.Assert(bfs.theBigFs, qt.Not(qt.IsNil))
-
 }
 
 func TestStaticFs(t *testing.T) {
@@ -304,7 +304,6 @@ func TestStaticFs(t *testing.T) {
 	sfs := bfs.StaticFs("en")
 	checkFileContent(sfs, "f1.txt", c, "Hugo Rocks!")
 	checkFileContent(sfs, "f2.txt", c, "Hugo Themes Still Rocks!")
-
 }
 
 func TestStaticFsMultiHost(t *testing.T) {
@@ -393,20 +392,23 @@ func TestMakePathRelative(t *testing.T) {
 	sfs := bfs.Static[""]
 	c.Assert(sfs, qt.Not(qt.IsNil))
 
-	c.Assert(sfs.MakePathRelative(filepath.Join(workDir, "dist", "d1", "foo.txt")), qt.Equals, filepath.FromSlash("mydist/d1/foo.txt"))
-	c.Assert(sfs.MakePathRelative(filepath.Join(workDir, "static", "d2", "foo.txt")), qt.Equals, filepath.FromSlash("d2/foo.txt"))
-	c.Assert(sfs.MakePathRelative(filepath.Join(workDir, "dust", "d3", "foo.txt")), qt.Equals, filepath.FromSlash("foo/bar/d3/foo.txt"))
+	makeRel := func(s string) string {
+		r, _ := sfs.MakePathRelative(s)
+		return r
+	}
 
+	c.Assert(makeRel(filepath.Join(workDir, "dist", "d1", "foo.txt")), qt.Equals, filepath.FromSlash("mydist/d1/foo.txt"))
+	c.Assert(makeRel(filepath.Join(workDir, "static", "d2", "foo.txt")), qt.Equals, filepath.FromSlash("d2/foo.txt"))
+	c.Assert(makeRel(filepath.Join(workDir, "dust", "d3", "foo.txt")), qt.Equals, filepath.FromSlash("foo/bar/d3/foo.txt"))
 }
 
 func checkFileCount(fs afero.Fs, dirname string, c *qt.C, expected int) {
-	count, _, err := countFileaAndGetFilenames(fs, dirname)
+	count, _, err := countFilesAndGetFilenames(fs, dirname)
 	c.Assert(err, qt.IsNil)
 	c.Assert(count, qt.Equals, expected)
 }
 
 func checkFileContent(fs afero.Fs, filename string, c *qt.C, expected ...string) {
-
 	b, err := afero.ReadFile(fs, filename)
 	c.Assert(err, qt.IsNil)
 
@@ -417,7 +419,7 @@ func checkFileContent(fs afero.Fs, filename string, c *qt.C, expected ...string)
 	}
 }
 
-func countFileaAndGetFilenames(fs afero.Fs, dirname string) (int, []string, error) {
+func countFilesAndGetFilenames(fs afero.Fs, dirname string) (int, []string, error) {
 	if fs == nil {
 		return 0, nil, errors.New("no fs")
 	}
