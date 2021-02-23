@@ -1,16 +1,7 @@
 {{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
 {{- if not $pc.Disable }}{{ with .Site.GoogleAnalytics -}}
 {{ if hasPrefix . "G-"}}
-<script async src="https://www.googletagmanager.com/gtag/js?id={{ . }}"></script>
-<script>
-{{ template "__ga_js_set_doNotTrack" $ }}
-if (!doNotTrack) {
-	window.dataLayer = window.dataLayer || [];
-	function gtag(){dataLayer.push(arguments);}
-	gtag('js', new Date());
-	gtag('config', '{{ . }}', { 'anonymize_ip': {{- $pc.AnonymizeIP -}} });
-}
-</script>
+{{ template "__ga_gtag_js" $ }}
 {{ else if hasPrefix . "UA-" }}
 <script type="application/javascript">
 {{ template "__ga_js_set_doNotTrack" $ }}
@@ -49,3 +40,17 @@ var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
 var doNotTrack = (dnt == "1" || dnt == "yes");
 {{- end -}}
 {{- end -}}
+
+{{- define "__ga_gtag_js" }}{{ with .Site.GoogleAnalytics -}}
+{{- $pc := $.Site.Config.Privacy.GoogleAnalytics -}}
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ . }}"></script>
+<script>
+{{ template "__ga_js_set_doNotTrack" $ }}
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', '{{ . }}', { 'anonymize_ip': {{- $pc.AnonymizeIP -}} });
+}
+</script>
+{{- end }}{{ end -}}
