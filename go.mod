@@ -50,7 +50,7 @@ require (
 	github.com/sanity-io/litter v1.5.0
 	github.com/spf13/afero v1.5.1
 	github.com/spf13/cast v1.3.1
-	github.com/spf13/cobra v1.1.1
+	github.com/spf13/cobra v1.1.3
 	github.com/spf13/fsync v0.9.0
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/pflag v1.0.5
