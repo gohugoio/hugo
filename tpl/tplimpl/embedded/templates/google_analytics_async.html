@@ -1,8 +1,6 @@
 {{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
-{{- if not $pc.Disable }}{{ with .Site.GoogleAnalytics -}}
-{{ if hasPrefix . "G-"}}
-{{ template "__ga_gtag_js" $ }}
-{{ else if hasPrefix . "UA-" }}
+{{- if not $pc.Disable -}}
+{{ with .Site.GoogleAnalytics }}
 <script type="application/javascript">
 {{ template "__ga_js_set_doNotTrack" $ }}
 if (!doNotTrack) {
@@ -26,5 +24,5 @@ if (!doNotTrack) {
 }
 </script>
 <script async src='https://www.google-analytics.com/analytics.js'></script>
+{{ end }}
 {{- end -}}
-{{- end }}{{ end -}}

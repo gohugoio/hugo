@@ -123,7 +123,16 @@ var EmbeddedTemplates = [][2]string{
 	{`google_analytics.html`, `{{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
 {{- if not $pc.Disable }}{{ with .Site.GoogleAnalytics -}}
 {{ if hasPrefix . "G-"}}
-{{ template "__ga_gtag_js" $ }}
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ . }}"></script>
+<script>
+{{ template "__ga_js_set_doNotTrack" $ }}
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', '{{ . }}', { 'anonymize_ip': {{- $pc.AnonymizeIP -}} });
+}
+</script>
 {{ else if hasPrefix . "UA-" }}
 <script type="application/javascript">
 {{ template "__ga_js_set_doNotTrack" $ }}
@@ -161,26 +170,10 @@ var doNotTrack = false;
 var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
 var doNotTrack = (dnt == "1" || dnt == "yes");
 {{- end -}}
-{{- end -}}
-
-{{- define "__ga_gtag_js" }}{{ with .Site.GoogleAnalytics -}}
-{{- $pc := $.Site.Config.Privacy.GoogleAnalytics -}}
-<script async src="https://www.googletagmanager.com/gtag/js?id={{ . }}"></script>
-<script>
-{{ template "__ga_js_set_doNotTrack" $ }}
-if (!doNotTrack) {
-	window.dataLayer = window.dataLayer || [];
-	function gtag(){dataLayer.push(arguments);}
-	gtag('js', new Date());
-	gtag('config', '{{ . }}', { 'anonymize_ip': {{- $pc.AnonymizeIP -}} });
-}
-</script>
-{{- end }}{{ end -}}`},
+{{- end -}}`},
 	{`google_analytics_async.html`, `{{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
-{{- if not $pc.Disable }}{{ with .Site.GoogleAnalytics -}}
-{{ if hasPrefix . "G-"}}
-{{ template "__ga_gtag_js" $ }}
-{{ else if hasPrefix . "UA-" }}
+{{- if not $pc.Disable -}}
+{{ with .Site.GoogleAnalytics }}
 <script type="application/javascript">
 {{ template "__ga_js_set_doNotTrack" $ }}
 if (!doNotTrack) {
@@ -204,8 +197,8 @@ if (!doNotTrack) {
 }
 </script>
 <script async src='https://www.google-analytics.com/analytics.js'></script>
+{{ end }}
 {{- end -}}
-{{- end }}{{ end -}}
 `},
 	{`google_news.html`, `{{ if .IsPage }}{{ with .Params.news_keywords }}
   <meta name="news_keywords" content="{{ range $i, $kw := first 10 . }}{{ if $i }},{{ end }}{{ $kw }}{{ end }}" />
