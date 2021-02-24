@@ -56,6 +56,8 @@ You can then include the Google Analytics internal template:
 {{ template "_internal/google_analytics_async.html" . }}
 ```
 
+When using Google Analytics v4 use `_internal/google_analytics.html`.
+
 A `.Site.GoogleAnalytics` variable is also exposed from the config.
 
 ## Disqus
