@@ -83,6 +83,19 @@ disable = true
 
 ### GoogleAnalytics
 
+Implement GDPR consent support with some custom JavaScript.
+```html
+<script>
+if (localStorage.getItem("doNotTrack") === null) {
+    // default value before any choice has been made
+    localStorage.setItem("doNotTrack", "1")
+}
+var doNotTrack = localStorage.getItem("doNotTrack");
+</script>
+{{ template "_internal/google_analytics.html" . }}
+```
+After consent, set the localStorage `doNotTrack` value to `"0"` and reload the page.
+
 anonymizeIP
 : Enabling this will make it so the users' IP addresses are anonymized within Google Analytics.
 
