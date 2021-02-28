@@ -225,6 +225,12 @@ func (r *ReleaseHandler) Run() error {
 		}
 	}
 
+	// switch back to the "master" branch
+	if _, err := r.git("checkout", "master"); err != nil {
+		return err
+	}
+
+    // prepare repo for next release
 	if err := r.release(releaseNotesFile); err != nil {
 		return err
 	}
