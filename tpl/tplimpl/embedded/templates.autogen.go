@@ -121,8 +121,19 @@ var EmbeddedTemplates = [][2]string{
 <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>{{end}}
 {{- end -}}`},
 	{`google_analytics.html`, `{{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
-{{- if not $pc.Disable -}}
-{{ with .Site.GoogleAnalytics }}
+{{- if not $pc.Disable }}{{ with .Site.GoogleAnalytics -}}
+{{ if hasPrefix . "G-"}}
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ . }}"></script>
+<script>
+{{ template "__ga_js_set_doNotTrack" $ }}
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', '{{ . }}', { 'anonymize_ip': {{- $pc.AnonymizeIP -}} });
+}
+</script>
+{{ else if hasPrefix . "UA-" }}
 <script type="application/javascript">
 {{ template "__ga_js_set_doNotTrack" $ }}
 if (!doNotTrack) {
@@ -148,8 +159,9 @@ if (!doNotTrack) {
 	ga('send', 'pageview');
 }
 </script>
-{{ end }}
 {{- end -}}
+{{- end }}{{ end -}}
+
 {{- define "__ga_js_set_doNotTrack" -}}{{/* This is also used in the async version. */}}
 {{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
 {{- if not $pc.RespectDoNotTrack -}}

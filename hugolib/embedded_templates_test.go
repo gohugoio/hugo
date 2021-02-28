@@ -110,7 +110,7 @@ Disqus:
 	// Gheck GA regular and async
 	b.AssertFileContent("public/index.html",
 		"'anonymizeIp', true",
-		"'script','https://www.google-analytics.com/analytics.js','ga');\n\tga('create', 'ga_id', 'auto')",
+		"'script','https://www.google-analytics.com/analytics.js','ga');\n\tga('create', 'UA-ga_id', 'auto')",
 		"<script async src='https://www.google-analytics.com/analytics.js'>")
 
 	// Disqus
