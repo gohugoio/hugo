@@ -992,6 +992,18 @@ func pagesToString(pages ...page.Page) string {
 	return strings.Join(paths, "|")
 }
 
+func dumpPagesLinks(pages ...page.Page) {
+	var links []string
+	for _, p := range pages {
+		links = append(links, p.RelPermalink())
+	}
+	sort.Strings(links)
+
+	for _, link := range links {
+		fmt.Println(link)
+	}
+}
+
 func dumpPages(pages ...page.Page) {
 	fmt.Println("---------")
 	for _, p := range pages {
