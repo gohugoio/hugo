@@ -249,7 +249,7 @@ const commonConfigSections = `
 [services.disqus]
 shortname = "disqus_shortname"
 [services.googleAnalytics]
-id = "ga_id"
+id = "UA-ga_id"
 
 [privacy]
 [privacy.disqus]
