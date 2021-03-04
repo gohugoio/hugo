@@ -944,7 +944,7 @@ func TestRefLinking(t *testing.T) {
 		// test empty link, as well as fragment only link
 		{"", "", true, ""},
 	} {
-		t.Run(fmt.Sprint(i), func(t *testing.T) {
+		t.Run(fmt.Sprintf("t%dt", i), func(t *testing.T) {
 			checkLinkCase(site, test.link, currentPage, test.relative, test.outputFormat, test.expected, t, i)
 
 			// make sure fragment links are also handled
