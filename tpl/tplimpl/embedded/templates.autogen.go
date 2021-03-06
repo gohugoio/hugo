@@ -236,9 +236,14 @@ if (!doNotTrack) {
 {{- end -}}
 {{- end -}}
 
-{{- with .Params.audio }}<meta property="og:audio" content="{{ . }}" />{{ end }}
-{{- with .Params.locale }}<meta property="og:locale" content="{{ . }}" />{{ end }}
 {{- with .Site.Params.title }}<meta property="og:site_name" content="{{ . }}" />{{ end }}
+
+{{- with or .Params.locale .Language.Locale }}<meta property="og:locale" content="{{ . }}" />{{ end -}}
+{{- range .Translations }}{{ with or .Params.locale .Language.Locale -}}
+<meta property="og:locale:alternate" content="{{ . }}" />
+{{- end }}{{ end -}}
+
+{{- with .Params.audio }}<meta property="og:audio" content="{{ . }}" />{{ end }}
 {{- with .Params.videos }}{{- range . }}
 <meta property="og:video" content="{{ . | absURL }}" />
 {{ end }}{{ end }}
