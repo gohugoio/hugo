@@ -424,13 +424,24 @@ func (ns *Namespace) Last(limit interface{}, seq interface{}) (interface{}, erro
 // Querify encodes the given parameters in URL-encoded form ("bar=baz&foo=quux") sorted by key.
 func (ns *Namespace) Querify(params ...interface{}) (string, error) {
 	qs := url.Values{}
-	vals, err := ns.Dictionary(params...)
-	if err != nil {
-		return "", errors.New("querify keys must be strings")
+	if len(params)%2 != 0 {
+		return "", errors.New("invalid query")
 	}
 
-	for name, value := range vals {
-		qs.Add(name, fmt.Sprintf("%v", value))
+	var pairedSlice [][]interface{}
+	for i := 0; i < len(params); i += 2 {
+		var name string
+		switch v := params[i].(type) {
+		case string:
+			name = v
+			pairedSlice = append(pairedSlice, []interface{}{name, params[i+1]})
+		default:
+			return "", errors.New("query keys must be strings")
+		}
+	}
+
+	for _, vals := range pairedSlice {
+		qs.Add(fmt.Sprintf("%v", vals[0]), fmt.Sprintf("%v", vals[1]))
 	}
 
 	return qs.Encode(), nil
