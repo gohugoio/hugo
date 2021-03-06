@@ -44,6 +44,7 @@ type Language struct {
 	Lang              string
 	LanguageName      string
 	LanguageDirection string
+	Locale            string
 	Title             string
 	Weight            int
 

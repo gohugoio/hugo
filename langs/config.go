@@ -184,6 +184,8 @@ func toSortedLanguages(cfg config.Provider, l map[string]interface{}) (Languages
 				language.LanguageName = cast.ToString(v)
 			case "languagedirection":
 				language.LanguageDirection = cast.ToString(v)
+			case "locale":
+				language.Locale = cast.ToString(v)
 			case "weight":
 				language.Weight = cast.ToInt(v)
 			case "contentdir":
