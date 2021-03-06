@@ -564,9 +564,16 @@ func TestQuerify(t *testing.T) {
 	}{
 		{[]interface{}{"a", "b"}, "a=b"},
 		{[]interface{}{"a", "b", "c", "d", "f", " &"}, `a=b&c=d&f=+%26`},
+		{[]interface{}{[]string{"a", "b"}}, "a=b"},
+		{[]interface{}{[]string{"a", "b", "c", "d", "f", " &"}}, `a=b&c=d&f=+%26`},
+		{[]interface{}{[]interface{}{"x", "y"}}, `x=y`},
+		{[]interface{}{[]interface{}{"x", 5}}, `x=5`},
 		// errors
 		{[]interface{}{5, "b"}, false},
 		{[]interface{}{"a", "b", "c"}, false},
+		{[]interface{}{[]string{"a", "b", "c"}}, false},
+		{[]interface{}{[]string{"a", "b"}, "c"}, false},
+		{[]interface{}{[]interface{}{"c", "d", "e"}}, false},
 	} {
 		errMsg := qt.Commentf("[%d] %v", i, test.params)
 
@@ -579,6 +586,32 @@ func TestQuerify(t *testing.T) {
 
 		c.Assert(err, qt.IsNil, errMsg)
 		c.Assert(result, qt.Equals, test.expect, errMsg)
+	}
+}
+
+func BenchmarkQuerify(b *testing.B) {
+	ns := New(&deps.Deps{})
+	params := []interface{}{"a", "b", "c", "d", "f", " &"}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := ns.Querify(params...)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkQuerifySlice(b *testing.B) {
+	ns := New(&deps.Deps{})
+	params := []string{"a", "b", "c", "d", "f", " &"}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := ns.Querify(params)
+		if err != nil {
+			b.Fatal(err)
+		}
 	}
 }
 
