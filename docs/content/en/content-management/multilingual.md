@@ -37,12 +37,14 @@ help  = "Help"
 [languages.en]
 title = "My blog"
 weight = 1
+locale = "en_US"
 [languages.en.params]
 linkedin = "https://linkedin.com/whoever"
 
 [languages.fr]
 title = "Mon blogue"
 weight = 2
+locale = "fr_FR"
 [languages.fr.params]
 linkedin = "https://linkedin.com/fr/whoever"
 [languages.fr.params.navigation]
