@@ -14,7 +14,9 @@
 package hooks
 
 import (
+	"fmt"
 	"io"
+	"strings"
 
 	"github.com/gohugoio/hugo/identity"
 )
@@ -67,26 +69,64 @@ type Renderers struct {
 	HeadingRenderer HeadingRenderer
 }
 
-func (r *Renderers) Eq(other interface{}) bool {
-	ro, ok := other.(*Renderers)
+func (r Renderers) Eq(other interface{}) bool {
+	ro, ok := other.(Renderers)
 	if !ok {
 		return false
 	}
-	if r == nil || ro == nil {
-		return r == nil
+
+	if r.IsZero() || ro.IsZero() {
+		return r.IsZero() && ro.IsZero()
 	}
 
-	if r.ImageRenderer.GetIdentity() != ro.ImageRenderer.GetIdentity() {
+	var b1, b2 bool
+	b1, b2 = r.ImageRenderer == nil, ro.ImageRenderer == nil
+	if (b1 || b2) && (b1 != b2) {
+		return false
+	}
+	if !b1 && r.ImageRenderer.GetIdentity() != ro.ImageRenderer.GetIdentity() {
 		return false
 	}
 
-	if r.LinkRenderer.GetIdentity() != ro.LinkRenderer.GetIdentity() {
+	b1, b2 = r.LinkRenderer == nil, ro.LinkRenderer == nil
+	if (b1 || b2) && (b1 != b2) {
+		return false
+	}
+	if !b1 && r.LinkRenderer.GetIdentity() != ro.LinkRenderer.GetIdentity() {
 		return false
 	}
 
-	if r.HeadingRenderer.GetIdentity() != ro.HeadingRenderer.GetIdentity() {
+	b1, b2 = r.HeadingRenderer == nil, ro.HeadingRenderer == nil
+	if (b1 || b2) && (b1 != b2) {
+		return false
+	}
+	if !b1 && r.HeadingRenderer.GetIdentity() != ro.HeadingRenderer.GetIdentity() {
 		return false
 	}
 
 	return true
+}
+
+func (r Renderers) IsZero() bool {
+	return r.HeadingRenderer == nil && r.LinkRenderer == nil && r.ImageRenderer == nil
+}
+
+func (r Renderers) String() string {
+	if r.IsZero() {
+		return "<zero>"
+	}
+
+	var sb strings.Builder
+
+	if r.LinkRenderer != nil {
+		sb.WriteString(fmt.Sprintf("LinkRenderer<%s>|", r.LinkRenderer.GetIdentity()))
+	}
+	if r.HeadingRenderer != nil {
+		sb.WriteString(fmt.Sprintf("HeadingRenderer<%s>|", r.HeadingRenderer.GetIdentity()))
+	}
+	if r.ImageRenderer != nil {
+		sb.WriteString(fmt.Sprintf("ImageRenderer<%s>|", r.ImageRenderer.GetIdentity()))
+	}
+
+	return sb.String()
 }

@@ -107,12 +107,39 @@ func (o *pageOutput) initRenderHooks() error {
 		h, err := ps.createRenderHooks(o.f)
 		if err != nil {
 			initErr = err
-		}
-		if h == nil {
 			return
 		}
-
 		o.cp.renderHooks.hooks = h
+
+		if !o.cp.renderHooksHaveVariants || h.IsZero() {
+			// Check if there is a different render hooks template
+			// for any of the other page output formats.
+			// If not, we can reuse this.
+			for _, po := range ps.pageOutputs {
+				if po.f.Name != o.f.Name {
+					h2, err := ps.createRenderHooks(po.f)
+					if err != nil {
+						initErr = err
+						return
+					}
+
+					if h2.IsZero() {
+						continue
+					}
+
+					if o.cp.renderHooks.hooks.IsZero() {
+						o.cp.renderHooks.hooks = h2
+					}
+
+					o.cp.renderHooksHaveVariants = !h2.Eq(o.cp.renderHooks.hooks)
+
+					if o.cp.renderHooksHaveVariants {
+						break
+					}
+
+				}
+			}
+		}
 	})
 
 	return initErr
