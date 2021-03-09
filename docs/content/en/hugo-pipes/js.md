@@ -40,9 +40,6 @@ Note that this is meant for small data sets, e.g. config settings. For larger da
 minify [bool]
 : Let `js.Build` handle the minification.
 
-avoidTDZ {{< new-in "0.78.0" >}}
-: There is/was a bug in WebKit with severe performance issue with the tracking of TDZ checks in JavaScriptCore. Enabling this flag removes the TDZ and `const` assignment checks and may improve performance of larger JS codebases until the WebKit fix is in widespread use. See https://bugs.webkit.org/show_bug.cgi?id=199866
-
 inject [slice] {{< new-in "0.81.0" >}}
 : This option allows you to automatically replace a global variable with an import from another file. The path names must be relative to `assets`.  See https://esbuild.github.io/api/#inject
 
