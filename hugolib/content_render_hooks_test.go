@@ -315,8 +315,10 @@ func TestRenderHooksRSS(t *testing.T) {
 
 	b.WithTemplates("index.html", `
 {{ $p := site.GetPage "p1.md" }}
+{{ $p2 := site.GetPage "p2.md" }}
 
 P1: {{ $p.Content }}
+P2: {{ $p2.Content }}
 	
 	`, "index.xml", `
 
@@ -330,6 +332,8 @@ P3: {{ $p3.Content }}
 	`,
 		"_default/_markup/render-link.html", `html-link: {{ .Destination | safeURL }}|`,
 		"_default/_markup/render-link.rss.xml", `xml-link: {{ .Destination | safeURL }}|`,
+		"_default/_markup/render-heading.html", `html-heading: {{ .Text }}|`,
+		"_default/_markup/render-heading.rss.xml", `xml-heading: {{ .Text }}|`,
 	)
 
 	b.WithContent("p1.md", `---
@@ -337,12 +341,14 @@ title: "p1"
 ---
 P1. [I'm an inline-style link](https://www.gohugo.io)
 
+# Heading in p1
 
 `, "p2.md", `---
 title: "p2"
 ---
 P1. [I'm an inline-style link](https://www.bep.is)
 
+# Heading in p2
 
 `,
 		"p3.md", `---
@@ -356,10 +362,15 @@ P3. [I'm an inline-style link](https://www.example.org)
 
 	b.Build(BuildCfg{})
 
-	b.AssertFileContent("public/index.html", "P1: <p>P1. html-link: https://www.gohugo.io|</p>")
+	b.AssertFileContent("public/index.html", `
+P1: <p>P1. html-link: https://www.gohugo.io|</p>
+html-heading: Heading in p1|
+html-heading: Heading in p2|
+`)
 	b.AssertFileContent("public/index.xml", `
 P2: <p>P1. xml-link: https://www.bep.is|</p>
 P3: <p>P3. xml-link: https://www.example.org|</p>
+xml-heading: Heading in p2|
 `)
 }
 

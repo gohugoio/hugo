@@ -226,7 +226,7 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 }
 
 type renderHooks struct {
-	hooks *hooks.Renderers
+	hooks hooks.Renderers
 	init  sync.Once
 }
 
