@@ -220,8 +220,9 @@ map[string]interface {}{
       MainType: "text",
       SubType: "m1",
       Delimiter: ".",
-      Suffixes: []string{
-        "m1main",
+      FirstSuffix: SuffixInfo{
+        Suffix: "m1main",
+        FullSuffix: ".m1main",
       },
     },
   },
@@ -231,8 +232,9 @@ map[string]interface {}{
       MainType: "text",
       SubType: "m2",
       Delimiter: ".",
-      Suffixes: []string{
-        "m2theme",
+      FirstSuffix: SuffixInfo{
+        Suffix: "m2theme",
+        FullSuffix: ".m2theme",
       },
     },
   },

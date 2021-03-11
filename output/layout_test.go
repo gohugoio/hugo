@@ -28,12 +28,8 @@ import (
 func TestLayout(t *testing.T) {
 	c := qt.New(t)
 
-	noExtNoDelimMediaType := media.TextType
-	noExtNoDelimMediaType.Suffixes = nil
-	noExtNoDelimMediaType.Delimiter = ""
-
-	noExtMediaType := media.TextType
-	noExtMediaType.Suffixes = nil
+	noExtNoDelimMediaType := media.WithDelimiterAndSuffixes(media.TextType, "", "")
+	noExtMediaType := media.WithDelimiterAndSuffixes(media.TextType, ".", "")
 
 	var (
 		ampType = Format{

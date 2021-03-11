@@ -432,7 +432,7 @@ func (lf *localFile) ContentType() string {
 	}
 
 	ext := filepath.Ext(lf.NativePath)
-	if mimeType, found := lf.mediaTypes.GetFirstBySuffix(strings.TrimPrefix(ext, ".")); found {
+	if mimeType, _, found := lf.mediaTypes.GetFirstBySuffix(strings.TrimPrefix(ext, ".")); found {
 		return mimeType.Type()
 	}
 

@@ -20,6 +20,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/spf13/cast"
+
 	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/mitchellh/mapstructure"
@@ -36,28 +38,37 @@ const (
 // If suffix is not provided, the sub type will be used.
 // See // https://en.wikipedia.org/wiki/Media_type
 type Type struct {
-	MainType string `json:"mainType"` // i.e. text
-	SubType  string `json:"subType"`  // i.e. html
+	MainType  string `json:"mainType"`  // i.e. text
+	SubType   string `json:"subType"`   // i.e. html
+	Delimiter string `json:"delimiter"` // e.g. "."
+
+	// FirstSuffix holds the first suffix defined for this Type.
+	FirstSuffix SuffixInfo `json:"firstSuffix"`
 
 	// This is the optional suffix after the "+" in the MIME type,
 	//  e.g. "xml" in "application/rss+xml".
 	mimeSuffix string
 
-	Delimiter string `json:"delimiter"` // e.g. "."
-
-	Suffixes []string `json:"suffixes"`
-
-	// Set when doing lookup by suffix.
-	fileSuffix string
+	// E.g. "jpg,jpeg"
+	// Stored as a string to make Type comparable.
+	suffixesCSV string
 }
 
-// FromStringAndExt is same as FromString, but adds the file extension to the type.
+// SuffixInfo holds information about a Type's suffix.
+type SuffixInfo struct {
+	Suffix     string `json:"suffix"`
+	FullSuffix string `json:"fullSuffix"`
+}
+
+// FromStringAndExt creates a Type from a MIME string and a given extension.
 func FromStringAndExt(t, ext string) (Type, error) {
 	tp, err := fromString(t)
 	if err != nil {
 		return tp, err
 	}
-	tp.Suffixes = []string{strings.TrimPrefix(ext, ".")}
+	tp.suffixesCSV = strings.TrimPrefix(ext, ".")
+	tp.Delimiter = defaultDelimiter
+	tp.init()
 	return tp, nil
 }
 
@@ -102,61 +113,83 @@ func (m Type) String() string {
 	return m.Type()
 }
 
-// FullSuffix returns the file suffix with any delimiter prepended.
-func (m Type) FullSuffix() string {
-	return m.Delimiter + m.Suffix()
+// Suffixes returns all valid file suffixes for this type.
+func (m Type) Suffixes() []string {
+	if m.suffixesCSV == "" {
+		return nil
+	}
+
+	return strings.Split(m.suffixesCSV, ",")
 }
 
-// Suffix returns the file suffix without any delimiter prepended.
-func (m Type) Suffix() string {
-	if m.fileSuffix != "" {
-		return m.fileSuffix
+func (m *Type) init() {
+	m.FirstSuffix.FullSuffix = ""
+	m.FirstSuffix.Suffix = ""
+	if suffixes := m.Suffixes(); suffixes != nil {
+		m.FirstSuffix.Suffix = suffixes[0]
+		m.FirstSuffix.FullSuffix = m.Delimiter + m.FirstSuffix.Suffix
 	}
-	if len(m.Suffixes) > 0 {
-		return m.Suffixes[0]
-	}
-	// There are MIME types without file suffixes.
-	return ""
+}
+
+// WithDelimiterAndSuffixes is used in tests.
+func WithDelimiterAndSuffixes(t Type, delimiter, suffixesCSV string) Type {
+	t.Delimiter = delimiter
+	t.suffixesCSV = suffixesCSV
+	t.init()
+	return t
+}
+
+func newMediaType(main, sub string, suffixes []string) Type {
+	t := Type{MainType: main, SubType: sub, suffixesCSV: strings.Join(suffixes, ","), Delimiter: defaultDelimiter}
+	t.init()
+	return t
+}
+
+func newMediaTypeWithMimeSuffix(main, sub, mimeSuffix string, suffixes []string) Type {
+	mt := newMediaType(main, sub, suffixes)
+	mt.mimeSuffix = mimeSuffix
+	mt.init()
+	return mt
 }
 
 // Definitions from https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types etc.
 // Note that from Hugo 0.44 we only set Suffix if it is part of the MIME type.
 var (
-	CalendarType   = Type{MainType: "text", SubType: "calendar", Suffixes: []string{"ics"}, Delimiter: defaultDelimiter}
-	CSSType        = Type{MainType: "text", SubType: "css", Suffixes: []string{"css"}, Delimiter: defaultDelimiter}
-	SCSSType       = Type{MainType: "text", SubType: "x-scss", Suffixes: []string{"scss"}, Delimiter: defaultDelimiter}
-	SASSType       = Type{MainType: "text", SubType: "x-sass", Suffixes: []string{"sass"}, Delimiter: defaultDelimiter}
-	CSVType        = Type{MainType: "text", SubType: "csv", Suffixes: []string{"csv"}, Delimiter: defaultDelimiter}
-	HTMLType       = Type{MainType: "text", SubType: "html", Suffixes: []string{"html"}, Delimiter: defaultDelimiter}
-	JavascriptType = Type{MainType: "application", SubType: "javascript", Suffixes: []string{"js"}, Delimiter: defaultDelimiter}
-	TypeScriptType = Type{MainType: "application", SubType: "typescript", Suffixes: []string{"ts"}, Delimiter: defaultDelimiter}
-	TSXType        = Type{MainType: "text", SubType: "tsx", Suffixes: []string{"tsx"}, Delimiter: defaultDelimiter}
-	JSXType        = Type{MainType: "text", SubType: "jsx", Suffixes: []string{"jsx"}, Delimiter: defaultDelimiter}
+	CalendarType   = newMediaType("text", "calendar", []string{"ics"})
+	CSSType        = newMediaType("text", "css", []string{"css"})
+	SCSSType       = newMediaType("text", "x-scss", []string{"scss"})
+	SASSType       = newMediaType("text", "x-sass", []string{"sass"})
+	CSVType        = newMediaType("text", "csv", []string{"csv"})
+	HTMLType       = newMediaType("text", "html", []string{"html"})
+	JavascriptType = newMediaType("application", "javascript", []string{"js"})
+	TypeScriptType = newMediaType("application", "typescript", []string{"ts"})
+	TSXType        = newMediaType("text", "tsx", []string{"tsx"})
+	JSXType        = newMediaType("text", "jsx", []string{"jsx"})
 
-	JSONType = Type{MainType: "application", SubType: "json", Suffixes: []string{"json"}, Delimiter: defaultDelimiter}
-	RSSType  = Type{MainType: "application", SubType: "rss", mimeSuffix: "xml", Suffixes: []string{"xml"}, Delimiter: defaultDelimiter}
-	XMLType  = Type{MainType: "application", SubType: "xml", Suffixes: []string{"xml"}, Delimiter: defaultDelimiter}
-	SVGType  = Type{MainType: "image", SubType: "svg", mimeSuffix: "xml", Suffixes: []string{"svg"}, Delimiter: defaultDelimiter}
-	TextType = Type{MainType: "text", SubType: "plain", Suffixes: []string{"txt"}, Delimiter: defaultDelimiter}
-	TOMLType = Type{MainType: "application", SubType: "toml", Suffixes: []string{"toml"}, Delimiter: defaultDelimiter}
-	YAMLType = Type{MainType: "application", SubType: "yaml", Suffixes: []string{"yaml", "yml"}, Delimiter: defaultDelimiter}
+	JSONType = newMediaType("application", "json", []string{"json"})
+	RSSType  = newMediaTypeWithMimeSuffix("application", "rss", "xml", []string{"xml"})
+	XMLType  = newMediaType("application", "xml", []string{"xml"})
+	SVGType  = newMediaTypeWithMimeSuffix("image", "svg", "xml", []string{"svg"})
+	TextType = newMediaType("text", "plain", []string{"txt"})
+	TOMLType = newMediaType("application", "toml", []string{"toml"})
+	YAMLType = newMediaType("application", "yaml", []string{"yaml", "yml"})
 
 	// Common image types
-	PNGType  = Type{MainType: "image", SubType: "png", Suffixes: []string{"png"}, Delimiter: defaultDelimiter}
-	JPEGType = Type{MainType: "image", SubType: "jpeg", Suffixes: []string{"jpg", "jpeg"}, Delimiter: defaultDelimiter}
-	GIFType  = Type{MainType: "image", SubType: "gif", Suffixes: []string{"gif"}, Delimiter: defaultDelimiter}
-	TIFFType = Type{MainType: "image", SubType: "tiff", Suffixes: []string{"tif", "tiff"}, Delimiter: defaultDelimiter}
-	BMPType  = Type{MainType: "image", SubType: "bmp", Suffixes: []string{"bmp"}, Delimiter: defaultDelimiter}
+	PNGType  = newMediaType("image", "png", []string{"png"})
+	JPEGType = newMediaType("image", "jpeg", []string{"jpg", "jpeg"})
+	GIFType  = newMediaType("image", "gif", []string{"gif"})
+	TIFFType = newMediaType("image", "tiff", []string{"tif", "tiff"})
+	BMPType  = newMediaType("image", "bmp", []string{"bmp"})
 
 	// Common video types
-	AVIType  = Type{MainType: "video", SubType: "x-msvideo", Suffixes: []string{"avi"}, Delimiter: defaultDelimiter}
-	MPEGType = Type{MainType: "video", SubType: "mpeg", Suffixes: []string{"mpg", "mpeg"}, Delimiter: defaultDelimiter}
-	MP4Type  = Type{MainType: "video", SubType: "mp4", Suffixes: []string{"mp4"}, Delimiter: defaultDelimiter}
-	OGGType  = Type{MainType: "video", SubType: "ogg", Suffixes: []string{"ogv"}, Delimiter: defaultDelimiter}
-	WEBMType = Type{MainType: "video", SubType: "webm", Suffixes: []string{"webm"}, Delimiter: defaultDelimiter}
-	GPPType  = Type{MainType: "video", SubType: "3gpp", Suffixes: []string{"3gpp", "3gp"}, Delimiter: defaultDelimiter}
+	AVIType  = newMediaType("video", "x-msvideo", []string{"avi"})
+	MPEGType = newMediaType("video", "mpeg", []string{"mpg", "mpeg"})
+	MP4Type  = newMediaType("video", "mp4", []string{"mp4"})
+	OGGType  = newMediaType("video", "ogg", []string{"ogv"})
+	WEBMType = newMediaType("video", "webm", []string{"webm"})
+	GPPType  = newMediaType("video", "3gpp", []string{"3gpp", "3gp"})
 
-	OctetType = Type{MainType: "application", SubType: "octet-stream"}
+	OctetType = newMediaType("application", "octet-stream", nil)
 )
 
 // DefaultTypes is the default media types supported by Hugo.
@@ -221,54 +254,56 @@ func (t Types) GetByType(tp string) (Type, bool) {
 
 // BySuffix will return all media types matching a suffix.
 func (t Types) BySuffix(suffix string) []Type {
+	suffix = strings.ToLower(suffix)
 	var types []Type
 	for _, tt := range t {
-		if match := tt.matchSuffix(suffix); match != "" {
+		if tt.hasSuffix(suffix) {
 			types = append(types, tt)
 		}
 	}
 	return types
 }
 
-// GetFirstBySuffix will return the first media type matching the given suffix.
-func (t Types) GetFirstBySuffix(suffix string) (Type, bool) {
+// GetFirstBySuffix will return the first type matching the given suffix.
+func (t Types) GetFirstBySuffix(suffix string) (Type, SuffixInfo, bool) {
+	suffix = strings.ToLower(suffix)
 	for _, tt := range t {
-		if match := tt.matchSuffix(suffix); match != "" {
-			tt.fileSuffix = match
-			return tt, true
+		if tt.hasSuffix(suffix) {
+			return tt, SuffixInfo{
+				FullSuffix: tt.Delimiter + suffix,
+				Suffix:     suffix,
+			}, true
 		}
 	}
-	return Type{}, false
+	return Type{}, SuffixInfo{}, false
 }
 
 // GetBySuffix gets a media type given as suffix, e.g. "html".
 // It will return false if no format could be found, or if the suffix given
 // is ambiguous.
 // The lookup is case insensitive.
-func (t Types) GetBySuffix(suffix string) (tp Type, found bool) {
+func (t Types) GetBySuffix(suffix string) (tp Type, si SuffixInfo, found bool) {
+	suffix = strings.ToLower(suffix)
 	for _, tt := range t {
-		if match := tt.matchSuffix(suffix); match != "" {
+		if tt.hasSuffix(suffix) {
 			if found {
 				// ambiguous
 				found = false
 				return
 			}
 			tp = tt
-			tp.fileSuffix = match
+			si = SuffixInfo{
+				FullSuffix: tt.Delimiter + suffix,
+				Suffix:     suffix,
+			}
 			found = true
 		}
 	}
 	return
 }
 
-func (m Type) matchSuffix(suffix string) string {
-	for _, s := range m.Suffixes {
-		if strings.EqualFold(suffix, s) {
-			return s
-		}
-	}
-
-	return ""
+func (m Type) hasSuffix(suffix string) bool {
+	return strings.Contains(m.suffixesCSV, suffix)
 }
 
 // GetByMainSubType gets a media type given a main and a sub type e.g. "text" and "plain".
@@ -328,9 +363,6 @@ func DecodeTypes(mms ...map[string]interface{}) (Types, error) {
 	// Maps type string to Type. Type string is the full application/svg+xml.
 	mmm := make(map[string]Type)
 	for _, dt := range DefaultTypes {
-		suffixes := make([]string, len(dt.Suffixes))
-		copy(suffixes, dt.Suffixes)
-		dt.Suffixes = suffixes
 		mmm[dt.Type()] = dt
 	}
 
@@ -360,10 +392,16 @@ func DecodeTypes(mms ...map[string]interface{}) (Types, error) {
 				return Types{}, suffixIsRemoved()
 			}
 
+			if suffixes, found := vm["suffixes"]; found {
+				mediaType.suffixesCSV = strings.TrimSpace(strings.ToLower(strings.Join(cast.ToStringSlice(suffixes), ",")))
+			}
+
 			// The user may set the delimiter as an empty string.
-			if !delimiterSet && len(mediaType.Suffixes) != 0 {
+			if !delimiterSet && mediaType.suffixesCSV != "" {
 				mediaType.Delimiter = defaultDelimiter
 			}
+
+			mediaType.init()
 
 			mmm[k] = mediaType
 
@@ -387,12 +425,14 @@ func (m Type) IsZero() bool {
 func (m Type) MarshalJSON() ([]byte, error) {
 	type Alias Type
 	return json.Marshal(&struct {
-		Type   string `json:"type"`
-		String string `json:"string"`
 		Alias
+		Type     string   `json:"type"`
+		String   string   `json:"string"`
+		Suffixes []string `json:"suffixes"`
 	}{
-		Type:   m.Type(),
-		String: m.String(),
-		Alias:  (Alias)(m),
+		Alias:    (Alias)(m),
+		Type:     m.Type(),
+		String:   m.String(),
+		Suffixes: strings.Split(m.suffixesCSV, ","),
 	})
 }

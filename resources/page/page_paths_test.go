@@ -27,8 +27,7 @@ import (
 func TestPageTargetPath(t *testing.T) {
 	pathSpec := newTestPathSpec()
 
-	noExtNoDelimMediaType := media.TextType
-	noExtNoDelimMediaType.Suffixes = []string{}
+	noExtNoDelimMediaType := media.WithDelimiterAndSuffixes(media.TextType, "", "")
 	noExtNoDelimMediaType.Delimiter = ""
 
 	// Netlify style _redirects
@@ -209,11 +208,11 @@ func TestPageTargetPath(t *testing.T) {
 							// TODO(bep) simplify
 							if test.d.Kind == KindPage && test.d.BaseName == test.d.Type.BaseName {
 							} else if test.d.Kind == KindHome && test.d.Type.Path != "" {
-							} else if test.d.Type.MediaType.Suffix() != "" && (!strings.HasPrefix(expected.TargetFilename, "/index") || test.d.Addends != "") && test.d.URL == "" && isUgly {
+							} else if test.d.Type.MediaType.FirstSuffix.Suffix != "" && (!strings.HasPrefix(expected.TargetFilename, "/index") || test.d.Addends != "") && test.d.URL == "" && isUgly {
 								expected.TargetFilename = strings.Replace(expected.TargetFilename,
-									"/"+test.d.Type.BaseName+"."+test.d.Type.MediaType.Suffix(),
-									"."+test.d.Type.MediaType.Suffix(), 1)
-								expected.Link = strings.TrimSuffix(expected.Link, "/") + "." + test.d.Type.MediaType.Suffix()
+									"/"+test.d.Type.BaseName+"."+test.d.Type.MediaType.FirstSuffix.Suffix,
+									"."+test.d.Type.MediaType.FirstSuffix.Suffix, 1)
+								expected.Link = strings.TrimSuffix(expected.Link, "/") + "." + test.d.Type.MediaType.FirstSuffix.Suffix
 
 							}
 
