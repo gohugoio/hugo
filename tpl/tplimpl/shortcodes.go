@@ -56,7 +56,7 @@ func (s *shortcodeTemplates) fromVariants(variants tpl.TemplateVariants) (shortc
 	return s.fromVariantsSlice([]string{
 		variants.Language,
 		strings.ToLower(variants.OutputFormat.Name),
-		variants.OutputFormat.MediaType.Suffix(),
+		variants.OutputFormat.MediaType.FirstSuffix.Suffix,
 	})
 }
 

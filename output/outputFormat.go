@@ -20,6 +20,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/pkg/errors"
+
 	"github.com/mitchellh/mapstructure"
 
 	"github.com/gohugoio/hugo/media"
@@ -207,14 +209,16 @@ func (formats Formats) Less(i, j int) bool {
 // The lookup is case insensitive.
 func (formats Formats) GetBySuffix(suffix string) (f Format, found bool) {
 	for _, ff := range formats {
-		if strings.EqualFold(suffix, ff.MediaType.Suffix()) {
-			if found {
-				// ambiguous
-				found = false
-				return
+		for _, suffix2 := range ff.MediaType.Suffixes() {
+			if strings.EqualFold(suffix, suffix2) {
+				if found {
+					// ambiguous
+					found = false
+					return
+				}
+				f = ff
+				found = true
 			}
-			f = ff
-			found = true
 		}
 	}
 	return
@@ -310,6 +314,7 @@ func DecodeFormats(mediaTypes media.Types, maps ...map[string]interface{}) (Form
 				}
 
 				f = append(f, newOutFormat)
+
 			}
 		}
 	}
@@ -319,7 +324,7 @@ func DecodeFormats(mediaTypes media.Types, maps ...map[string]interface{}) (Form
 	return f, nil
 }
 
-func decode(mediaTypes media.Types, input, output interface{}) error {
+func decode(mediaTypes media.Types, input interface{}, output *Format) error {
 	config := &mapstructure.DecoderConfig{
 		Metadata:         nil,
 		Result:           output,
@@ -337,12 +342,19 @@ func decode(mediaTypes media.Types, input, output interface{}) error {
 						// If mediaType is a string, look it up and replace it
 						// in the map.
 						vv := dataVal.MapIndex(key)
-						if mediaTypeStr, ok := vv.Interface().(string); ok {
-							mediaType, found := mediaTypes.GetByType(mediaTypeStr)
+						vvi := vv.Interface()
+
+						switch vviv := vvi.(type) {
+						case media.Type:
+						// OK
+						case string:
+							mediaType, found := mediaTypes.GetByType(vviv)
 							if !found {
-								return c, fmt.Errorf("media type %q not found", mediaTypeStr)
+								return c, fmt.Errorf("media type %q not found", vviv)
 							}
 							dataVal.SetMapIndex(key, reflect.ValueOf(mediaType))
+						default:
+							return nil, errors.Errorf("invalid output format configuration; wrong type for media type, expected string (e.g. text/html), got %T", vvi)
 						}
 					}
 				}
@@ -357,12 +369,13 @@ func decode(mediaTypes media.Types, input, output interface{}) error {
 	}
 
 	return decoder.Decode(input)
+
 }
 
 // BaseFilename returns the base filename of f including an extension (ie.
 // "index.xml").
 func (f Format) BaseFilename() string {
-	return f.BaseName + f.MediaType.FullSuffix()
+	return f.BaseName + f.MediaType.FirstSuffix.FullSuffix
 }
 
 // MarshalJSON returns the JSON encoding of f.

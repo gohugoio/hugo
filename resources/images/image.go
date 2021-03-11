@@ -265,7 +265,7 @@ func (f Format) SupportsTransparency() bool {
 // DefaultExtension returns the default file extension of this format, starting with a dot.
 // For example: .jpg for JPEG
 func (f Format) DefaultExtension() string {
-	return f.MediaType().FullSuffix()
+	return f.MediaType().FirstSuffix.FullSuffix
 }
 
 // MediaType returns the media type of this image, e.g. image/jpeg for JPEG

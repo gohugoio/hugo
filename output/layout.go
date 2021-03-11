@@ -229,7 +229,7 @@ func (l *layoutBuilder) resolveVariations() []string {
 					continue
 				}
 
-				s := constructLayoutPath(typeVar, layoutVar, variation, l.f.MediaType.Suffix())
+				s := constructLayoutPath(typeVar, layoutVar, variation, l.f.MediaType.FirstSuffix.Suffix)
 				if s != "" {
 					layouts = append(layouts, s)
 				}
