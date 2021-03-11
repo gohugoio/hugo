@@ -233,3 +233,26 @@ func TestDecodeTypes(t *testing.T) {
 		}
 	}
 }
+
+func BenchmarkTypeOps(b *testing.B) {
+	mt := MPEGType
+	mts := DefaultTypes
+	for i := 0; i < b.N; i++ {
+		_ = mt.FullSuffix()
+		_ = mt.IsZero()
+		c, err := mt.MarshalJSON()
+		if c == nil || err != nil {
+			b.Fatal("failed")
+		}
+		_ = mt.String()
+		_ = mt.Suffix()
+		_ = mt.Suffixes
+		_ = mt.Type()
+		_ = mts.BySuffix("xml")
+		_, _ = mts.GetByMainSubType("application", "xml")
+		_, _ = mts.GetBySuffix("xml")
+		_, _ = mts.GetByType("application")
+		_, _ = mts.GetFirstBySuffix("xml")
+
+	}
+}
