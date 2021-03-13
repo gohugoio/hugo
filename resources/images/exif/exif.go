@@ -227,7 +227,7 @@ func (e *exifWalker) Walk(f _exif.FieldName, tag *tiff.Tag) error {
 func nullString(in []byte) string {
 	var rv bytes.Buffer
 	for _, b := range in {
-		if unicode.IsPrint(rune(b)) {
+		if unicode.IsGraphic(rune(b)) {
 			rv.WriteByte(b)
 		}
 	}

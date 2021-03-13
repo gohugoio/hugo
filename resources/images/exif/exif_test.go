@@ -75,6 +75,20 @@ func TestExifPNG(t *testing.T) {
 	c.Assert(err, qt.Not(qt.IsNil))
 }
 
+func TestIssue8079(t *testing.T) {
+	c := qt.New(t)
+
+	f, err := os.Open(filepath.FromSlash("../../testdata/iss8079.jpg"))
+	c.Assert(err, qt.IsNil)
+	defer f.Close()
+
+	d, err := NewDecoder()
+	c.Assert(err, qt.IsNil)
+	x, err := d.Decode(f)
+	c.Assert(err, qt.IsNil)
+	c.Assert(x.Tags["ImageDescription"], qt.Equals, "Città del Vaticano #nanoblock #vatican #vaticancity")
+}
+
 func BenchmarkDecodeExif(b *testing.B) {
 	c := qt.New(b)
 	f, err := os.Open(filepath.FromSlash("../../testdata/sunset.jpg"))
