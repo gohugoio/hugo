@@ -89,6 +89,23 @@ func TestIssue8079(t *testing.T) {
 	c.Assert(x.Tags["ImageDescription"], qt.Equals, "Città del Vaticano #nanoblock #vatican #vaticancity")
 }
 
+func TestNullString(t *testing.T) {
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		in     string
+		expect string
+	}{
+		{"foo", "foo"},
+		{"\x20", "\x20"},
+		{"\xc4\x81", "\xc4\x81"}, // \u0101
+		{"\u0160", "\u0160"},     // non-breaking space
+	} {
+		res := nullString([]byte(test.in))
+		c.Assert(res, qt.Equals, test.expect)
+	}
+}
+
 func BenchmarkDecodeExif(b *testing.B) {
 	c := qt.New(b)
 	f, err := os.Open(filepath.FromSlash("../../testdata/sunset.jpg"))

@@ -226,17 +226,14 @@ func (e *exifWalker) Walk(f _exif.FieldName, tag *tiff.Tag) error {
 
 func nullString(in []byte) string {
 	var rv bytes.Buffer
-	for _, b := range in {
-		if unicode.IsGraphic(rune(b)) {
-			rv.WriteByte(b)
+	for len(in) > 0 {
+		r, size := utf8.DecodeRune(in)
+		if unicode.IsGraphic(r) {
+			rv.WriteRune(r)
 		}
+		in = in[size:]
 	}
-	rvs := rv.String()
-	if utf8.ValidString(rvs) {
-		return rvs
-	}
-
-	return ""
+	return rv.String()
 }
 
 var tcodec *tmc.Codec
