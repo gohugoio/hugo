@@ -14,7 +14,9 @@
 package tplimpl
 
 import (
+	"embed"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -39,8 +41,6 @@ import (
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/pkg/errors"
 
-	"github.com/gohugoio/hugo/tpl/tplimpl/embedded"
-
 	htmltemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 
@@ -54,6 +54,7 @@ const (
 	shortcodesPathPrefix = "shortcodes/"
 	internalPathPrefix   = "_internal/"
 	baseFileBase         = "baseof"
+	templateFolder       = "templates"
 )
 
 // The identifiers may be truncated in the log, e.g.
@@ -63,6 +64,12 @@ var identifiersRe = regexp.MustCompile(`at \<(.*?)(\.{3})?\>:`)
 var embeddedTemplatesAliases = map[string][]string{
 	"shortcodes/twitter.html": {"shortcodes/tweet.html"},
 }
+
+//go:embed templates/*
+var embeddedTemplatesFS embed.FS
+
+// embeddedTemplates represents all embedded templates.
+var embeddedTemplates = loadEmbeddedTemplates()
 
 var (
 	_ tpl.TemplateManager    = (*templateExec)(nil)
@@ -75,6 +82,33 @@ var (
 )
 
 var baseTemplateDefineRe = regexp.MustCompile(`^{{-?\s*define`)
+
+// loadEmbeddedTemplates loads all embedded templates that have been embedded using the embed directive.
+func loadEmbeddedTemplates() [][2]string {
+	var templates [][2]string
+	err := fs.WalkDir(embeddedTemplatesFS, templateFolder, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			return nil
+		}
+		if strings.HasPrefix(d.Name(), ".") {
+			return nil
+		}
+		templateName := filepath.ToSlash(strings.TrimPrefix(path, templateFolder+string(os.PathSeparator)))
+		templateContent, err := embeddedTemplatesFS.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		templates = append(templates, [2]string{templateName, string(templateContent)})
+		return nil
+	})
+	if err != nil {
+		panic(err)
+	}
+	return templates
+}
 
 // needsBaseTemplate returns true if the first non-comment template block is a
 // define block.
@@ -664,7 +698,7 @@ func (t *templateHandler) extractIdentifiers(line string) []string {
 }
 
 func (t *templateHandler) loadEmbedded() error {
-	for _, kv := range embedded.EmbeddedTemplates {
+	for _, kv := range embeddedTemplates {
 		name, templ := kv[0], kv[1]
 		if err := t.AddTemplate(internalPathPrefix+name, templ); err != nil {
 			return err
