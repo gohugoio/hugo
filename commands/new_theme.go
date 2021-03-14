@@ -38,7 +38,7 @@ func (b *commandsBuilder) newNewThemeCmd() *newThemeCmd {
 	cmd := &cobra.Command{
 		Use:   "theme [name]",
 		Short: "Create a new theme",
-		Long: `Create a new theme (skeleton) called [name] in the current directory.
+		Long: `Create a new theme (skeleton) called [name] in ./themes.
 New theme is a skeleton. Please add content to the touched files. Add your
 name to the copyright line in the license and adjust the theme.toml file
 as you see fit.`,
