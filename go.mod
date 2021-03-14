@@ -18,7 +18,7 @@ require (
 	github.com/disintegration/gift v1.2.1
 	github.com/dlclark/regexp2 v1.4.0 // indirect
 	github.com/dustin/go-humanize v1.0.0
-	github.com/evanw/esbuild v0.8.46
+	github.com/evanw/esbuild v0.9.0
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/frankban/quicktest v1.11.3
 	github.com/fsnotify/fsnotify v1.4.9

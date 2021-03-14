@@ -68,7 +68,6 @@ func TestToBuildOptions(t *testing.T) {
 		MinifyIdentifiers: true,
 		MinifySyntax:      true,
 		MinifyWhitespace:  true,
-		AvoidTDZ:          true,
 		Stdin: &api.StdinOptions{
 			Loader: api.LoaderJS,
 		},

@@ -206,12 +206,12 @@ func (r *hookedRenderer) renderDefaultImage(w util.BufWriter, source []byte, nod
 
 func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.Image)
-	var h *hooks.Renderers
+	var h hooks.Renderers
 
 	ctx, ok := w.(*renderContext)
 	if ok {
 		h = ctx.RenderContext().RenderHooks
-		ok = h != nil && h.ImageRenderer != nil
+		ok = h.ImageRenderer != nil
 	}
 
 	if !ok {
@@ -267,12 +267,12 @@ func (r *hookedRenderer) renderDefaultLink(w util.BufWriter, source []byte, node
 
 func (r *hookedRenderer) renderLink(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.Link)
-	var h *hooks.Renderers
+	var h hooks.Renderers
 
 	ctx, ok := w.(*renderContext)
 	if ok {
 		h = ctx.RenderContext().RenderHooks
-		ok = h != nil && h.LinkRenderer != nil
+		ok = h.LinkRenderer != nil
 	}
 
 	if !ok {
@@ -326,12 +326,12 @@ func (r *hookedRenderer) renderDefaultHeading(w util.BufWriter, source []byte, n
 
 func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.Heading)
-	var h *hooks.Renderers
+	var h hooks.Renderers
 
 	ctx, ok := w.(*renderContext)
 	if ok {
 		h = ctx.RenderContext().RenderHooks
-		ok = h != nil && h.HeadingRenderer != nil
+		ok = h.HeadingRenderer != nil
 	}
 
 	if !ok {

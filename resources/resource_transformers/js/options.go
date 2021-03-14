@@ -387,8 +387,6 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 		JSXFactory:  opts.JSXFactory,
 		JSXFragment: opts.JSXFragment,
 
-		AvoidTDZ: opts.AvoidTDZ,
-
 		Tsconfig: opts.tsConfig,
 
 		// Note: We're not passing Sourcefile to ESBuild.
