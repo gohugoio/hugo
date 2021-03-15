@@ -633,8 +633,17 @@ github.com/subosito/gotenv v1.2.0 h1:Slr1R9HxAlEKefgq5jn9U+DnETlIUa6HfgEzj0g5d7s
 github.com/subosito/gotenv v1.2.0/go.mod h1:N0PQaV/YGNqwC0u51sEeR/aUtSLEXKX9iv69rRypqCw=
 github.com/tdewolff/minify/v2 v2.9.13 h1:RrwQhgGoYBhKN/ezStGB+crU64wPK1ZE5Jmkl63lif0=
 github.com/tdewolff/minify/v2 v2.9.13/go.mod h1:faNOp+awAoo+fhFHD+NAkBOaXBAvJI2X2SDERGKnARo=
+github.com/tdewolff/minify/v2 v2.9.14 h1:sRmHG4It5bG5GqTiI4K1wmQLfPEG7hm4/SO0rwfBN18=
+github.com/tdewolff/minify/v2 v2.9.14/go.mod h1:VxxRIRJnYb0aV00j98vmAS9aKpYcsa5QR1qB5ce4HaY=
+github.com/tdewolff/minify/v2 v2.9.15 h1:gZzGuFHvmxDjsAM6Eu53xo8A5NiaVu3gzamvHAxDpAI=
+github.com/tdewolff/minify/v2 v2.9.15/go.mod h1:tK4qPnHUZgANtEGVMwTBxrF1eNIBkigHFYo7F3Y98GQ=
 github.com/tdewolff/parse/v2 v2.5.10 h1:vj35n+ljq8LuYUx436s4qB18wuwP7thrLv+t1syE39M=
 github.com/tdewolff/parse/v2 v2.5.10/go.mod h1:WzaJpRSbwq++EIQHYIRTpbYKNA3gn9it1Ik++q4zyho=
+github.com/tdewolff/parse/v2 v2.5.12/go.mod h1:WzaJpRSbwq++EIQHYIRTpbYKNA3gn9it1Ik++q4zyho=
+github.com/tdewolff/parse/v2 v2.5.13 h1:9JiNjiyub3Xsqu2pIFuQFhQQtPBDS7Jkqy1htSKuu2M=
+github.com/tdewolff/parse/v2 v2.5.13/go.mod h1:WzaJpRSbwq++EIQHYIRTpbYKNA3gn9it1Ik++q4zyho=
+github.com/tdewolff/parse/v2 v2.5.14 h1:ftdD54vkOeLZ7VkEZxp+wZrYZyyPi43GGon5GwBTRUI=
+github.com/tdewolff/parse/v2 v2.5.14/go.mod h1:WzaJpRSbwq++EIQHYIRTpbYKNA3gn9it1Ik++q4zyho=
 github.com/tdewolff/test v1.0.6 h1:76mzYJQ83Op284kMT+63iCNCI7NEERsIN8dLM+RiKr4=
 github.com/tdewolff/test v1.0.6/go.mod h1:6DAvZliBAAnD7rhVgwaM7DE5/d9NMOAJ09SqYqeK4QE=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5 h1:LnC5Kc/wtumK+WB441p7ynQJzVuNRJiqddSIE3IlSEQ=
