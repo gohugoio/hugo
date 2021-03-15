@@ -13,7 +13,7 @@ jobs:
         # this is necessary because of limitation mentioned in
         # https://github.community/t5/GitHub-Actions/Triggering-a-new-workflow-from-another-workflow/td-p/31676
         with:
-          token: ${{ secrets.WORKAROUND_TOKEN }}
+          token: ${{ secrets.GITHUB_ACTION_WORKAROUND_TOKEN }}
       - run: |
           git remote add upstream https://github.com/gohugoio/hugo.git
           git config --global user.email "${GITHUB_EMAIL}"
@@ -32,7 +32,9 @@ jobs:
 
           for commit in $(git log develop --reverse --author="lulu" --pretty=%H);
           do
+              echo "cherry pick"
               git cherry-pick $commit --strategy-option theirs
+              echo "git commit"
               git commit --allow-empty -m "[auto] apply custom changes from develop"
           done
 
