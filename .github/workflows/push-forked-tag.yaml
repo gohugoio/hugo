@@ -13,7 +13,7 @@ jobs:
         # this is necessary because of limitation mentioned in
         # https://github.community/t5/GitHub-Actions/Triggering-a-new-workflow-from-another-workflow/td-p/31676
         with:
-          token: ${{ secrets.GITHUB_ACTION_WORKAROUND_TOKEN }}
+          token: ${{ secrets.WORKAROUND_TOKEN }}
       - run: |
           git remote add upstream https://github.com/gohugoio/hugo.git
           git config --global user.email "${GITHUB_EMAIL}"
