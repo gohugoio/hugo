@@ -158,6 +158,8 @@ func TestBugs(t *testing.T) {
 	}{
 		// https://github.com/gohugoio/hugo/issues/5506
 		{media.CSSType, " body { color: rgba(000, 000, 000, 0.7); }", "body{color:rgba(0,0,0,.7)}"},
+		// https://github.com/gohugoio/hugo/issues/8332
+		{media.HTMLType, "<i class='fas fa-tags fa-fw'></i> Tags", `<i class="fas fa-tags fa-fw"></i> Tags`},
 	} {
 		var b bytes.Buffer
 
