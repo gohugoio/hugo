@@ -138,7 +138,7 @@ func newTemplateExec(d *deps.Deps) (*templateExec, error) {
 		baseof:       make(map[string]templateInfo),
 		needsBaseof:  make(map[string]templateInfo),
 
-		main: newTemplateNamespace(funcMap, false),
+		main: newTemplateNamespace(funcMap),
 
 		Deps:                d,
 		layoutHandler:       output.NewLayoutHandler(),
@@ -167,24 +167,17 @@ func newTemplateExec(d *deps.Deps) (*templateExec, error) {
 	if d.WithTemplate != nil {
 		if err := d.WithTemplate(e); err != nil {
 			return nil, err
-
 		}
 	}
 
 	return e, nil
 }
 
-func newTemplateNamespace(funcs map[string]interface{}, lock bool) *templateNamespace {
-	var mu *sync.RWMutex
-	if lock {
-		mu = &sync.RWMutex{}
-	}
-
+func newTemplateNamespace(funcs map[string]interface{}) *templateNamespace {
 	return &templateNamespace{
 		prototypeHTML: htmltemplate.New("").Funcs(funcs),
 		prototypeText: texttemplate.New("").Funcs(funcs),
 		templateStateMap: &templateStateMap{
-			mu:        mu,
 			templates: make(map[string]*templateState),
 		},
 	}
@@ -251,21 +244,7 @@ func (t *templateExec) MarkReady() error {
 		}
 	})
 
-	if err != nil {
-		return err
-	}
-
-	if t.Deps.BuildFlags.HasLateTemplate.Load() {
-		// This costs memory, so try to avoid it if we don't have to.
-		// The late templates are used to handle HTML in files in /content
-		// without front matter.
-		t.readyLateInit.Do(func() {
-			t.late = t.main.Clone(true)
-			t.late.createPrototypes()
-		})
-	}
-
-	return nil
+	return err
 }
 
 type templateHandler struct {
@@ -273,10 +252,7 @@ type templateHandler struct {
 	needsBaseof map[string]templateInfo
 	baseof      map[string]templateInfo
 
-	late *templateNamespace // Templates added after main has started executing.
-
-	readyInit     sync.Once
-	readyLateInit sync.Once
+	readyInit sync.Once
 
 	// This is the filesystem to load the templates from. All the templates are
 	// stored in the root of this filesystem.
@@ -309,14 +285,6 @@ type templateHandler struct {
 	templateInfo map[string]tpl.Info
 }
 
-// AddLateTemplate is used to add a template after the
-// regular templates have started its execution.
-// These are currently "pure HTML content files".
-func (t *templateHandler) AddLateTemplate(name, tpl string) error {
-	_, err := t.late.parse(t.newTemplateInfo(name, tpl))
-	return err
-}
-
 // AddTemplate parses and adds a template to the collection.
 // Templates with name prefixed with "_text" will be handled as plain
 // text templates.
@@ -332,10 +300,6 @@ func (t *templateHandler) Lookup(name string) (tpl.Template, bool) {
 	templ, found := t.main.Lookup(name)
 	if found {
 		return templ, true
-	}
-
-	if t.late != nil {
-		return t.late.Lookup(name)
 	}
 
 	return nil, false
@@ -379,13 +343,33 @@ func (t *templateHandler) LookupVariant(name string, variants tpl.TemplateVarian
 	more := len(s.variants) > 1
 
 	return sv.ts, true, more
+}
 
+// LookupVariants returns all variants of name, nil if none found.
+func (t *templateHandler) LookupVariants(name string) []tpl.Template {
+	name = templateBaseName(templateShortcode, name)
+	s, found := t.shortcodes[name]
+	if !found {
+		return nil
+	}
+
+	variants := make([]tpl.Template, len(s.variants))
+	for i := 0; i < len(variants); i++ {
+		variants[i] = s.variants[i].ts
+	}
+
+	return variants
 }
 
 func (t *templateHandler) HasTemplate(name string) bool {
 	if _, found := t.baseof[name]; found {
 		return true
 	}
+
+	if _, found := t.needsBaseof[name]; found {
+		return true
+	}
+
 	_, found := t.Lookup(name)
 	return found
 }
@@ -430,6 +414,10 @@ func (t *templateHandler) findLayout(d output.LayoutDescriptor, f output.Format)
 		}
 
 		t.applyTemplateTransformers(t.main, ts)
+
+		if err := t.extractPartials(ts.Template); err != nil {
+			return nil, false, err
+		}
 
 		return ts, true, nil
 
@@ -508,7 +496,6 @@ func (t *templateHandler) addFileContext(templ tpl.Template, inerr error) error 
 	err, _ := checkFilename(ts.baseInfo, inerr)
 
 	return err
-
 }
 
 func (t *templateHandler) addShortcodeVariant(ts *templateState) {
@@ -591,7 +578,6 @@ func (t *templateHandler) addTemplateFile(name, path string) error {
 	t.applyTemplateTransformers(t.main, templ)
 
 	return nil
-
 }
 
 func (t *templateHandler) addTemplateTo(info templateInfo, to *templateNamespace) (*templateState, error) {
@@ -612,10 +598,16 @@ func (t *templateHandler) applyBaseTemplate(overlay, base templateInfo) (tpl.Tem
 			}
 		}
 
-		templ, err = templ.Parse(overlay.template)
+		templ, err = texttemplate.Must(templ.Clone()).Parse(overlay.template)
 		if err != nil {
 			return nil, overlay.errWithFileContext("parse failed", err)
 		}
+
+		// The extra lookup is a workaround, see
+		// * https://github.com/golang/go/issues/16101
+		// * https://github.com/gohugoio/hugo/issues/2549
+		// templ = templ.Lookup(templ.Name())
+
 		return templ, nil
 	}
 
@@ -723,7 +715,6 @@ func (t *templateHandler) loadTemplates() error {
 	}
 
 	return nil
-
 }
 
 func (t *templateHandler) nameIsText(name string) (string, bool) {
@@ -741,10 +732,65 @@ func (t *templateHandler) noBaseNeeded(name string) bool {
 	return strings.Contains(name, "_markup/")
 }
 
+func (t *templateHandler) extractPartials(templ tpl.Template) error {
+	templs := templates(templ)
+	for _, templ := range templs {
+		if templ.Name() == "" || !strings.HasPrefix(templ.Name(), "partials/") {
+			continue
+		}
+
+		ts := newTemplateState(templ, templateInfo{name: templ.Name()})
+		ts.typ = templatePartial
+
+		t.main.mu.RLock()
+		_, found := t.main.templates[templ.Name()]
+		t.main.mu.RUnlock()
+
+		if !found {
+			t.main.mu.Lock()
+			// This is a template defined inline.
+			_, err := applyTemplateTransformers(ts, t.main.newTemplateLookup(ts))
+			if err != nil {
+				t.main.mu.Unlock()
+				return err
+			}
+			t.main.templates[templ.Name()] = ts
+			t.main.mu.Unlock()
+
+		}
+	}
+
+	return nil
+}
+
 func (t *templateHandler) postTransform() error {
+	defineCheckedHTML := false
+	defineCheckedText := false
+
 	for _, v := range t.main.templates {
 		if v.typ == templateShortcode {
 			t.addShortcodeVariant(v)
+		}
+
+		if defineCheckedHTML && defineCheckedText {
+			continue
+		}
+
+		isText := isText(v.Template)
+		if isText {
+			if defineCheckedText {
+				continue
+			}
+			defineCheckedText = true
+		} else {
+			if defineCheckedHTML {
+				continue
+			}
+			defineCheckedHTML = true
+		}
+
+		if err := t.extractPartials(v.Template); err != nil {
+			return err
 		}
 	}
 
@@ -780,20 +826,12 @@ type templateNamespace struct {
 	*templateStateMap
 }
 
-func (t templateNamespace) Clone(lock bool) *templateNamespace {
-	if t.mu != nil {
-		t.mu.Lock()
-		defer t.mu.Unlock()
-	}
-
-	var mu *sync.RWMutex
-	if lock {
-		mu = &sync.RWMutex{}
-	}
+func (t templateNamespace) Clone() *templateNamespace {
+	t.mu.Lock()
+	defer t.mu.Unlock()
 
 	t.templateStateMap = &templateStateMap{
 		templates: make(map[string]*templateState),
-		mu:        mu,
 	}
 
 	t.prototypeText = texttemplate.Must(t.prototypeText.Clone())
@@ -803,18 +841,12 @@ func (t templateNamespace) Clone(lock bool) *templateNamespace {
 }
 
 func (t *templateNamespace) Lookup(name string) (tpl.Template, bool) {
-	if t.mu != nil {
-		t.mu.RLock()
-		defer t.mu.RLock()
-	}
+	t.mu.RLock()
+	defer t.mu.RUnlock()
 
 	templ, found := t.templates[name]
 	if !found {
 		return nil, false
-	}
-
-	if t.mu != nil {
-		return &templateWrapperWithLock{RWMutex: t.mu, Template: templ}, true
 	}
 
 	return templ, found
@@ -839,15 +871,12 @@ func (t *templateNamespace) newTemplateLookup(in *templateState) func(name strin
 			return newTemplateState(templ, templateInfo{name: templ.Name()})
 		}
 		return nil
-
 	}
 }
 
 func (t *templateNamespace) parse(info templateInfo) (*templateState, error) {
-	if t.mu != nil {
-		t.mu.Lock()
-		defer t.mu.Unlock()
-	}
+	t.mu.Lock()
+	defer t.mu.Unlock()
 
 	if info.isText {
 		prototype := t.prototypeText
@@ -894,12 +923,16 @@ func (t *templateState) ParseInfo() tpl.ParseInfo {
 }
 
 func (t *templateState) isText() bool {
-	_, isText := t.Template.(*texttemplate.Template)
+	return isText(t.Template)
+}
+
+func isText(templ tpl.Template) bool {
+	_, isText := templ.(*texttemplate.Template)
 	return isText
 }
 
 type templateStateMap struct {
-	mu        *sync.RWMutex // May be nil
+	mu        sync.RWMutex
 	templates map[string]*templateState
 }
 
@@ -927,6 +960,10 @@ func (t *textTemplateWrapperWithLock) Lookup(name string) (tpl.Template, bool) {
 }
 
 func (t *textTemplateWrapperWithLock) LookupVariant(name string, variants tpl.TemplateVariants) (tpl.Template, bool, bool) {
+	panic("not supported")
+}
+
+func (t *textTemplateWrapperWithLock) LookupVariants(name string) []tpl.Template {
 	panic("not supported")
 }
 
@@ -961,7 +998,6 @@ func removeLeadingBOM(s string) string {
 	}
 
 	return s
-
 }
 
 // resolves _internal/shortcodes/param.html => param.html etc.
@@ -973,7 +1009,6 @@ func templateBaseName(typ templateType, name string) string {
 	default:
 		panic("not implemented")
 	}
-
 }
 
 func unwrap(templ tpl.Template) tpl.Template {
@@ -981,4 +1016,22 @@ func unwrap(templ tpl.Template) tpl.Template {
 		return ts.Template
 	}
 	return templ
+}
+
+func templates(in tpl.Template) []tpl.Template {
+	var templs []tpl.Template
+	in = unwrap(in)
+	if textt, ok := in.(*texttemplate.Template); ok {
+		for _, t := range textt.Templates() {
+			templs = append(templs, t)
+		}
+	}
+
+	if htmlt, ok := in.(*htmltemplate.Template); ok {
+		for _, t := range htmlt.Templates() {
+			templs = append(templs, t)
+		}
+	}
+
+	return templs
 }

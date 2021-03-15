@@ -16,6 +16,16 @@ package hugo
 import (
 	"fmt"
 	"html/template"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/gohugoio/hugo/hugofs/files"
+
+	"github.com/spf13/afero"
+
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/hugofs"
 )
 
 const (
@@ -24,12 +34,15 @@ const (
 )
 
 var (
-	// commitHash contains the current Git revision. Use make to build to make
-	// sure this gets set.
+	// commitHash contains the current Git revision.
+	// Use mage to build to make sure this gets set.
 	commitHash string
 
 	// buildDate contains the date of the current build.
 	buildDate string
+
+	// vendorInfo contains vendor notes about the current build.
+	vendorInfo string
 )
 
 // Info contains information about the current Hugo environment
@@ -54,6 +67,10 @@ func (i Info) Generator() template.HTML {
 	return template.HTML(fmt.Sprintf(`<meta name="generator" content="Hugo %s" />`, CurrentVersion.String()))
 }
 
+func (i Info) IsProduction() bool {
+	return i.Environment == EnvironmentProduction
+}
+
 // NewInfo creates a new Hugo Info object.
 func NewInfo(environment string) Info {
 	if environment == "" {
@@ -64,4 +81,25 @@ func NewInfo(environment string) Info {
 		BuildDate:   buildDate,
 		Environment: environment,
 	}
+}
+
+func GetExecEnviron(workDir string, cfg config.Provider, fs afero.Fs) []string {
+	env := os.Environ()
+	nodepath := filepath.Join(workDir, "node_modules")
+	if np := os.Getenv("NODE_PATH"); np != "" {
+		nodepath = workDir + string(os.PathListSeparator) + np
+	}
+	config.SetEnvVars(&env, "NODE_PATH", nodepath)
+	config.SetEnvVars(&env, "PWD", workDir)
+	config.SetEnvVars(&env, "HUGO_ENVIRONMENT", cfg.GetString("environment"))
+	fis, err := afero.ReadDir(fs, files.FolderJSConfig)
+	if err == nil {
+		for _, fi := range fis {
+			key := fmt.Sprintf("HUGO_FILE_%s", strings.ReplaceAll(strings.ToUpper(fi.Name()), ".", "_"))
+			value := fi.(hugofs.FileMetaInfo).Meta().Filename()
+			config.SetEnvVars(&env, key, value)
+		}
+	}
+
+	return env
 }

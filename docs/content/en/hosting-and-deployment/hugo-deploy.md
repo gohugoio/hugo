@@ -19,7 +19,7 @@ aliases: []
 toc: true
 ---
 
-You can use the "hugo deploy" command to upload your site directly to a Google Cloud Storage (GCS) bucket, an AWS S3 bucket, and/or an Azure Storage bucket.
+You can use the "hugo deploy" command to upload your site directly to a Google Cloud Storage (GCS) bucket, an AWS S3 bucket, and/or an Azure Storage container.
 
 ## Assumptions
 
@@ -46,7 +46,7 @@ Follow the [AWS instructions for how to create a bucket](https://docs.aws.amazon
 
 ### Azure Storage
 
-Follow the [Azure instructions for how to create a bucket](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-portal).
+Follow the [Azure instructions for how to create a storage container](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-portal).
 
 ## Configure the deployment
 
@@ -54,7 +54,7 @@ In the configuration file for your site, add a `[deployment]` section with one
 or more `[[deployment.targets]]` section, one for each deployment target. Here's
 a detailed example:
 
-```
+```toml
 [deployment]
 # By default, files are uploaded in an arbitrary order.
 # Files that match the regular expressions in the "Order" list
@@ -82,8 +82,16 @@ name = "mydeployment"
 # If you are using a CloudFront CDN, deploy will invalidate the cache as needed.
 cloudFrontDistributionID = <ID>
 
-
-# ... add more [[deployment.targets]] sections ...
+# Optionally, you can include or exclude specific files.
+# See https://godoc.org/github.com/gobwas/glob#Glob for the glob pattern syntax.
+# If non-empty, the pattern is matched against the local path.
+# All paths are matched against in their filepath.ToSlash form.
+# If exclude is non-empty, and a local or remote file's path matches it, that file is not synced.
+# If include is non-empty, and a local or remote file's path does not match it, that file is not synced.
+# As a result, local files that don't pass the include/exclude filters are not uploaded to remote,
+# and remote files that don't pass the include/exclude filters are not deleted.
+# include = "**.html" # would only include files with ".html" suffix
+# exclude = "**.{jpg, png}" # would exclude files with ".jpg" or ".png" suffix
 
 
 # [[deployment.matchers]] configure behavior for files that match the Pattern.
@@ -108,7 +116,8 @@ gzip = true
 ## Deploy
 
 To deploy to a target:
-```
+
+```bash
 hugo deploy [--target=<target name>, defaults to first target]
 ```
 

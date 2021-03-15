@@ -160,3 +160,23 @@ Here's an example:
   {{ end }}
 </nav>
 ```
+
+## Using .Params in Menus
+
+User-defined content on menu items are accessible via `.Params`.
+
+Here's an example:
+
+```
+<nav class="sidebar-nav">
+  {{ range .Site.Menus.main }}
+    <a href="{{ .URL }}" title="{{ .Title }}" class="{{ with .Params.class }}{{ . }}{{ end }}">
+      {{- .Name -}}
+    </a>
+  {{ end }}
+</nav>
+```
+
+{{% note %}}
+With Menu-level .Params they can easily exist on one menu item but not another. It's recommended to access them gracefully using the [with function](/functions/with).
+{{% /note %}}

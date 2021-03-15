@@ -51,7 +51,7 @@ func NewTestResourceSpec() (*resources.Spec, error) {
 		return nil, err
 	}
 
-	spec, err := resources.NewSpec(s, filecaches, nil, output.DefaultFormats, media.DefaultTypes)
+	spec, err := resources.NewSpec(s, filecaches, nil, nil, nil, output.DefaultFormats, media.DefaultTypes)
 	return spec, err
 }
 

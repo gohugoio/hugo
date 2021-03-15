@@ -13,12 +13,13 @@ func TestMultihosts(t *testing.T) {
 
 	c := qt.New(t)
 
-	var configTemplate = `
+	configTemplate := `
 paginate = 1
 disablePathToLower = true
 defaultContentLanguage = "fr"
 defaultContentLanguageInSubdir = false
 staticDir = ["s1", "s2"]
+enableRobotsTXT = true
 
 [permalinks]
 other = "/somewhere/else/:filename"
@@ -73,6 +74,12 @@ languageName = "Nynorsk"
 	c.Assert(pageWithURLInFrontMatter.RelPermalink(), qt.Equals, "/docs/superbob/")
 	b.AssertFileContent("public/en/superbob/index.html", "doc3|Hello|en")
 
+	// the domain root is the language directory for each language, so the robots.txt is created in the language directories
+	b.AssertFileContent("public/en/robots.txt", "robots|en")
+	b.AssertFileContent("public/fr/robots.txt", "robots|fr")
+	b.AssertFileContent("public/nn/robots.txt", "robots|nn")
+	b.AssertFileDoesNotExist("public/robots.txt")
+
 	// check alias:
 	b.AssertFileContent("public/en/al/alias1/index.html", `content="0; url=https://example.com/docs/superbob/"`)
 	b.AssertFileContent("public/en/al/alias2/index.html", `content="0; url=https://example.com/docs/superbob/"`)
@@ -109,5 +116,4 @@ languageName = "Nynorsk"
 	c.Assert(len(bundleFr.Resources()), qt.Equals, 1)
 	b.AssertFileContent("public/fr/bundles/b1/logo.png", "PNG Data")
 	b.AssertFileContent("public/fr/bundles/b1/index.html", " image/png: /bundles/b1/logo.png")
-
 }

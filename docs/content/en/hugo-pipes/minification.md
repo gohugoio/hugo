@@ -16,10 +16,12 @@ draft: false
 ---
 
 
-Any resource of the aforementioned types can be minifed using `resources.Minify` which takes for argument the resource object.
+Any resource of the aforementioned types can be minified using `resources.Minify` which takes for argument the resource object.
 
 
 ```go-html-template
 {{ $css := resources.Get "css/main.css" }}
 {{ $style := $css | resources.Minify }}
 ```
+
+Note that you can also minify the final HTML output to `/public` by running `hugo --minify`.

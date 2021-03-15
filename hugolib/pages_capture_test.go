@@ -19,8 +19,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/pkg/errors"
-
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/source"
 
@@ -32,13 +30,12 @@ import (
 )
 
 func TestPagesCapture(t *testing.T) {
-
 	cfg, hfs := newTestCfg()
 	fs := hfs.Source
 
 	c := qt.New(t)
 
-	var writeFile = func(filename string) {
+	writeFile := func(filename string) {
 		c.Assert(afero.WriteFile(fs, filepath.FromSlash(filename), []byte(fmt.Sprintf("content-%s", filename)), 0755), qt.IsNil)
 	}
 
@@ -59,16 +56,9 @@ func TestPagesCapture(t *testing.T) {
 	t.Run("Collect", func(t *testing.T) {
 		c := qt.New(t)
 		proc := &testPagesCollectorProcessor{}
-		coll := newPagesCollector(sourceSpec, loggers.NewErrorLogger(), nil, proc)
+		coll := newPagesCollector(sourceSpec, nil, loggers.NewErrorLogger(), nil, proc)
 		c.Assert(coll.Collect(), qt.IsNil)
 		c.Assert(len(proc.items), qt.Equals, 4)
-	})
-
-	t.Run("error in Wait", func(t *testing.T) {
-		c := qt.New(t)
-		coll := newPagesCollector(sourceSpec, loggers.NewErrorLogger(), nil,
-			&testPagesCollectorProcessor{waitErr: errors.New("failed")})
-		c.Assert(coll.Collect(), qt.Not(qt.IsNil))
 	})
 }
 
@@ -81,6 +71,7 @@ func (proc *testPagesCollectorProcessor) Process(item interface{}) error {
 	proc.items = append(proc.items, item)
 	return nil
 }
+
 func (proc *testPagesCollectorProcessor) Start(ctx context.Context) context.Context {
 	return ctx
 }

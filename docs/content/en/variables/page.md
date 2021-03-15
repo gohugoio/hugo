@@ -72,6 +72,9 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 .IsPage
 : always `true` for regular content pages.
 
+.IsSection
+: `true` if [`.Kind`](/templates/section-templates/#page-kinds) is `section`.
+
 .IsTranslated
 : `true` if there are translations to display.
 
@@ -115,10 +118,10 @@ See also `.ExpiryDate`, `.Date`, `.PublishDate`, and [`.GitInfo`][gitinfo].
 : the Page content stripped of HTML tags and presented as a string.
 
 .PlainWords
-: the Page content stripped of HTML as a `[]string` using Go's [`strings.Fields`](https://golang.org/pkg/strings/#Fields) to split `.Plain` into a slice.
+: the slice of strings that results from splitting .Plain into words, as defined in Go's [strings.Fields](https://golang.org/pkg/strings/#Fields).
 
 .Prev
-: Points down to the previous [regular page](/variables/site/#site-pages) (sorted by Hugo's [default sort](/templates/lists#default-weight-date-linktitle-filepath)). Example: `{{if .PrevPage}}{{.PrevPage.Permalink}}{{end}}`.  Calling `.Prev` from the last page returns `nil`.
+: Points down to the previous [regular page](/variables/site/#site-pages) (sorted by Hugo's [default sort](/templates/lists#default-weight-date-linktitle-filepath)). Example: `{{if .Prev}}{{.Prev.Permalink}}{{end}}`.  Calling `.Prev` from the last page returns `nil`.
 
 .PrevInSection
 : Points down to the previous [regular page](/variables/site/#site-pages) below the same top level section (e.g. `/blog`). Pages are sorted by Hugo's [default sort](/templates/lists#default-weight-date-linktitle-filepath). Example: `{{if .PrevInSection}}{{.PrevInSection.Permalink}}{{end}}`.  Calling `.PrevInSection` from the last page returns `nil`.
@@ -131,7 +134,7 @@ See also `.ExpiryDate`, `.Date`, `.PublishDate`, and [`.GitInfo`][gitinfo].
 
 .RawContent
 : raw markdown content without the front matter. Useful with [remarkjs.com](
-http://remarkjs.com)
+https://remarkjs.com)
 
 .ReadingTime
 : the estimated time, in minutes, it takes to read the content.
@@ -179,8 +182,8 @@ http://remarkjs.com)
 .Type
 : the [content type](/content-management/types/) of the content (e.g., `posts`).
 
-.UniqueID
-: the MD5-checksum of the content file's path.
+.UniqueID (deprecated)
+: the MD5-checksum of the content file's path. This variable is deprecated and will be removed, use `.File.UniqueID` instead.
 
 .Weight
 : assigned weight (in the front matter) to this content, used in sorting.

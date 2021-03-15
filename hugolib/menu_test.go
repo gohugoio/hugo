@@ -14,9 +14,8 @@
 package hugolib
 
 import (
-	"testing"
-
 	"fmt"
+	"testing"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -104,11 +103,9 @@ Menu Main:  {{ partial "menu.html" (dict "page" . "menu" "main") }}`,
 			"/sect1/|Section One|Section One|100|-|-|"+
 			"/sect2/|Sect2s|Sect2s|0|-|HasMenuCurrent|"+
 			"/sect3/|Sect3s|Sect3s|0|-|-|")
-
 }
 
 func TestMenuFrontMatter(t *testing.T) {
-
 	b := newTestSitesBuilder(t).WithSimpleConfigFile()
 
 	b.WithTemplatesAdded("index.html", `
@@ -155,12 +152,10 @@ menu:
 		"Main|P1: /blog/page1/",
 		"Other|P2: /blog/page2/",
 	)
-
 }
 
 // https://github.com/gohugoio/hugo/issues/5849
 func TestMenuPageMultipleOutputFormats(t *testing.T) {
-
 	config := `
 baseURL = "https://example.com"
 
@@ -219,7 +214,6 @@ menu: "main"
 
 // https://github.com/gohugoio/hugo/issues/5989
 func TestMenuPageSortByDate(t *testing.T) {
-
 	b := newTestSitesBuilder(t).WithSimpleConfigFile()
 
 	b.WithContent("blog/a.md", `
@@ -266,4 +260,52 @@ menu:
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent("public/index.html", "A|Children:C|B|")
+}
+
+func TestMenuParams(t *testing.T) {
+	b := newTestSitesBuilder(t).WithSimpleConfigFile()
+
+	b.WithTemplatesAdded("index.html", `
+Main: {{ len .Site.Menus.main }}
+{{ range .Site.Menus.main }}
+* Main|{{ .Name }}: {{ .URL }}|{{ .Params }}
+{{ end }}
+`)
+
+	b.WithContent("blog/page1.md", `
+---
+title: "P1"
+menu: main
+---
+
+`)
+
+	b.WithContent("blog/page2.md", `
+---
+title: "P2"
+menu: main
+---
+
+`)
+
+	b.WithContent("blog/page3.md", `
+---
+title: "P3"
+menu:
+  main:
+    weight: 30
+    params:
+      foo: "bar"
+      key2: "value2"
+---
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html",
+		"Main: 3",
+		"Main|P3: /blog/page3/|map[foo:bar key2:value2]",
+		"Main|P1: /blog/page1/|map[]",
+		"Main|P2: /blog/page2/|map[]",
+	)
 }

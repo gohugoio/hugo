@@ -60,8 +60,12 @@ func init() {
 			[][2]string{},
 		)
 
-		return ns
+		ns.AddMethodMapping(ctx.Babel,
+			[]string{"babel"},
+			[][2]string{},
+		)
 
+		return ns
 	}
 
 	internal.AddTemplateFuncsNamespace(f)

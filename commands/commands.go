@@ -88,6 +88,7 @@ var _ commandsBuilderGetter = (*baseBuilderCmd)(nil)
 type commandsBuilderGetter interface {
 	getCommandsBuilder() *commandsBuilder
 }
+
 type baseBuilderCmd struct {
 	*baseCmd
 	*commandsBuilder
@@ -138,7 +139,6 @@ func (c *nilCommand) getCommand() *cobra.Command {
 }
 
 func (c *nilCommand) flagsToConfig(cfg config.Provider) {
-
 }
 
 func (b *commandsBuilder) newHugoCmd() *hugoCmd {
@@ -212,6 +212,7 @@ type hugoBuilderCommon struct {
 	memprofile   string
 	mutexprofile string
 	traceprofile string
+	printm       bool
 
 	// TODO(bep) var vs string
 	logging    bool
@@ -272,6 +273,7 @@ func (cc *hugoBuilderCommon) handleCommonBuilderFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().StringVarP(&cc.environment, "environment", "e", "", "build environment")
 	cmd.PersistentFlags().StringP("themesDir", "", "", "filesystem path to themes directory")
 	cmd.PersistentFlags().BoolP("ignoreVendor", "", false, "ignores any _vendor directory")
+	cmd.PersistentFlags().StringP("ignoreVendorPaths", "", "", "ignores any _vendor for module paths matching the given Glob pattern")
 }
 
 func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
@@ -299,6 +301,7 @@ func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolP("path-warnings", "", false, "print warnings on duplicate target paths etc.")
 	cmd.Flags().StringVarP(&cc.cpuprofile, "profile-cpu", "", "", "write cpu profile to `file`")
 	cmd.Flags().StringVarP(&cc.memprofile, "profile-mem", "", "", "write memory profile to `file`")
+	cmd.Flags().BoolVarP(&cc.printm, "print-mem", "", false, "print memory usage to screen at intervals")
 	cmd.Flags().StringVarP(&cc.mutexprofile, "profile-mutex", "", "", "write Mutex profile to `file`")
 	cmd.Flags().StringVarP(&cc.traceprofile, "trace", "", "", "write trace to `file` (not useful in general)")
 
@@ -319,16 +322,12 @@ func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
 	_ = cmd.Flags().SetAnnotation("theme", cobra.BashCompSubdirsInDir, []string{"themes"})
 }
 
-func checkErr(logger *loggers.Logger, err error, s ...string) {
+func checkErr(logger loggers.Logger, err error, s ...string) {
 	if err == nil {
 		return
 	}
-	if len(s) == 0 {
-		logger.CRITICAL.Println(err)
-		return
-	}
 	for _, message := range s {
-		logger.ERROR.Println(message)
+		logger.Errorln(message)
 	}
-	logger.ERROR.Println(err)
+	logger.Errorln(err)
 }

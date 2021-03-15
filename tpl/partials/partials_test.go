@@ -37,5 +37,4 @@ func TestCreateKey(t *testing.T) {
 		c.Assert(create("a", map[string]string{"a": "av"}), qt.Equals, partialCacheKey{name: "a", variant: "4809626101226749924"})
 		c.Assert(create("a", []string{"a", "b"}), qt.Equals, partialCacheKey{name: "a", variant: "2712570657419664240"})
 	}
-
 }

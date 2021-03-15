@@ -23,9 +23,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	_ cmder = (*genDocsHelper)(nil)
-)
+var _ cmder = (*genDocsHelper)(nil)
 
 type genDocsHelper struct {
 	target string
@@ -64,11 +62,10 @@ func (g *genDocsHelper) generate() error {
 	enc := json.NewEncoder(f)
 	enc.SetIndent("", "  ")
 
-	if err := enc.Encode(docshelper.DocProviders); err != nil {
+	if err := enc.Encode(docshelper.GetDocProvider()); err != nil {
 		return err
 	}
 
 	fmt.Println("Done!")
 	return nil
-
 }

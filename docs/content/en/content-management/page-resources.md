@@ -14,10 +14,16 @@ menu:
     weight: 31
 ---
 
+Page resources are available for [page bundles]({{< relref "/content-management/page-bundles" >}}) only,
+i.e. a directory with either a `index.md`, or `_index.md` file at its root. Resources are only attached to
+the lowest page they are bundled with, and simple which names does not contain `index.md` are not attached any resource.
+
 ## Properties
 
 ResourceType
-: The main type of the resource. For example, a file of MIME type `image/jpeg` has the ResourceType `image`.
+: The main type of the resource's [Media Type](/templates/output-formats/#media-types). For example, a file of MIME type `image/jpeg` has the ResourceType `image`. A `Page` will have `ResourceType` with value `page`.
+
+{{< new-in "0.80.0" >}} Note that we in Hugo `v0.80.0` fixed a bug where non-image resources (e.g. video) would return the MIME sub type, e.g. `json`.
 
 Name
 : Default value is the filename (relative to the owning page). Can be set in front matter.
@@ -78,7 +84,7 @@ GetMatch
 
 ## Page Resources Metadata
 
-The page resources' metadata is managed from the corresponding page's front matter with an array/table parameter named `resources`. You can batch assign values using [wildcards](http://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm).
+The page resources' metadata is managed from the corresponding page's front matter with an array/table parameter named `resources`. You can batch assign values using [wildcards](https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm).
 
 {{% note %}}
 Resources of type `page` get `Title` etc. from their own front matter.

@@ -26,7 +26,7 @@ You should define the available languages in a `languages` section in your site 
 The following is an example of a site configuration for a multilingual Hugo project:
 
 {{< code-toggle file="config" >}}
-DefaultContentLanguage = "en"
+defaultContentLanguage = "en"
 copyright = "Everything is mine"
 
 [params]
@@ -47,6 +47,15 @@ weight = 2
 linkedin = "https://linkedin.com/fr/whoever"
 [languages.fr.params.navigation]
 help  = "Aide"
+
+[languages.ar]
+title = "مدونتي"
+weight = 2
+languagedirection = "rtl"
+
+[languages.pt-pt]
+title = "O meu blog"
+weight = 3
 {{< /code-toggle >}}
 
 Anything not defined in a `languages` block will fall back to the global value for that key (e.g., `copyright` for the English `en` language). This also works for `params`, as demonstrated with `help` above: You will get the value `Aide` in French and `Help` in all the languages without this parameter set.
@@ -58,9 +67,11 @@ When working with front matter `Params` in [single page templates][singles], omi
 
 `defaultContentLanguage` sets the project's default language. If not set, the default language will be `en`.
 
-If the default language needs to be rendererd below its own language code (`/en`) like the others, set `defaultContentLanguageInSubdir: true`.
+If the default language needs to be rendered below its own language code (`/en`) like the others, set `defaultContentLanguageInSubdir: true`.
 
 Only the obvious non-global options can be overridden per language. Examples of global options are `baseURL`, `buildDrafts`, etc.
+
+**Please note:** use lowercase language codes, even when using regional languages (ie. use pt-pt instead of pt-PT). Currently Hugo language internals lowercase language codes, which can cause conflicts with settings like `defaultContentLanguage` which are not lowercased. Please track the evolution of this issue in [Hugo repository issue tracker](https://github.com/gohugoio/hugo/issues/7344)
 
 ### Disable a Language
 
@@ -120,7 +131,7 @@ public
 
 **All URLs (i.e `.Permalink` etc.) will be generated from that root. So the English home page above will have its `.Permalink` set to `https://example.com/`.**
 
-When you run `hugo server` we will start multiple HTTP servers. You will typlically see something like this in the console:
+When you run `hugo server` we will start multiple HTTP servers. You will typically see something like this in the console:
 
 ```bash
 Web Server is available at 127.0.0.1:1313 (bind address 127.0.0.1)
@@ -199,7 +210,7 @@ languages:
 
 The value of `contentDir` can be any valid path -- even absolute path references. The only restriction is that the content directories cannot overlap.
 
-Considering the following example in conjunction with the configuration above: 
+Considering the following example in conjunction with the configuration above:
 
 1. `/content/english/about.md`
 2. `/content/french/about.md`
@@ -311,43 +322,82 @@ See https://github.com/gohugoio/hugo/issues/3564
 
 {{% /note %}}
 
+### Query basic translation
+
 From within your templates, use the `i18n` function like this:
 
 ```
 {{ i18n "home" }}
 ```
 
-This uses a definition like this one in `i18n/en-US.toml`:
+The function will search for the `"home"` id from `i18n/en-US.toml` file:
 
 ```
 [home]
 other = "Home"
 ```
 
-Often you will want to use to the page variables in the translations strings. To do that, pass on the "." context when calling `i18n`:
+The result will be
+
+```
+Home
+```
+
+### Query a flexible translation with variables
+
+Often you will want to use to the page variables in the translations strings. To do that, pass on the `.` context when calling `i18n`:
 
 ```
 {{ i18n "wordCount" . }}
 ```
 
-This uses a definition like this one in `i18n/en-US.toml`:
+The function will pass the `.` context to the `"wordCount"` id in `i18n/en-US.toml` file:
 
 ```
 [wordCount]
 other = "This article has {{ .WordCount }} words."
 ```
-An example of singular and plural form:
+
+Assume `.WordCount` in the context has value is 101. The result will be:
+
+```
+This article has 101 words.
+```
+
+### Query a singular/plural translation
+
+In order to meet singular/plural requirement, you must pass a dictionary (map) with a numeric `.Count` property to the `i18n` function. The below example uses `.ReadingTime` variable which has a built-in `.Count` property.
+
+```
+{{ i18n "readingTime" .ReadingTime }}
+```
+
+The function will read `.Count` from `.ReadingTime` and evaluate where the number is singular (`one`) or plural (`other`). After that, it will pass to `readingTime` id in `i18n/en-US.toml` file:
 
 ```
 [readingTime]
 one = "One minute to read"
 other = "{{.Count}} minutes to read"
 ```
-And then in the template:
+
+Assume `.ReadingTime.Count` in the context has value of 525600. The result will be:
 
 ```
-{{ i18n "readingTime" .ReadingTime }}
+525600 minutes to read
 ```
+
+If `.ReadingTime.Count` in the context has value is 1. The result is:
+
+```
+One minutes to read
+```
+
+In case you need to pass custom data: (`(dict "Count" 25)` is minimum requirement)
+
+```
+{{ i18n "readingTime" (dict "Count" 25 "FirstArgument" true "SecondArgument" false "Etc" "so on, so far") }}
+```
+
 
 ## Customize Dates
 

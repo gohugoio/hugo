@@ -321,6 +321,7 @@ func TestImageResize8BitPNG(t *testing.T) {
 	c.Assert(image.MediaType().Type(), qt.Equals, "image/png")
 	c.Assert(image.RelPermalink(), qt.Equals, "/a/gohugoio.png")
 	c.Assert(image.ResourceType(), qt.Equals, "image")
+	c.Assert(image.Exif(), qt.IsNil)
 
 	resized, err := image.Resize("800x")
 	c.Assert(err, qt.IsNil)
@@ -337,12 +338,14 @@ func TestImageResizeInSubPath(t *testing.T) {
 	c.Assert(image.MediaType(), eq, media.PNGType)
 	c.Assert(image.RelPermalink(), qt.Equals, "/a/sub/gohugoio2.png")
 	c.Assert(image.ResourceType(), qt.Equals, "image")
+	c.Assert(image.Exif(), qt.IsNil)
 
 	resized, err := image.Resize("101x101")
 	c.Assert(err, qt.IsNil)
 	c.Assert(resized.MediaType().Type(), qt.Equals, "image/png")
 	c.Assert(resized.RelPermalink(), qt.Equals, "/a/sub/gohugoio2_hu0e1b9e4a4be4d6f86c7b37b9ccce3fbc_73886_101x101_resize_linear_2.png")
 	c.Assert(resized.Width(), qt.Equals, 101)
+	c.Assert(resized.Exif(), qt.IsNil)
 
 	publishedImageFilename := filepath.Clean(resized.RelPermalink())
 
@@ -351,7 +354,7 @@ func TestImageResizeInSubPath(t *testing.T) {
 	assertImageFile(c, spec.BaseFs.PublishFs, publishedImageFilename, 101, 101)
 	c.Assert(spec.BaseFs.PublishFs.Remove(publishedImageFilename), qt.IsNil)
 
-	// Cleare mem cache to simulate reading from the file cache.
+	// Clear mem cache to simulate reading from the file cache.
 	spec.imageCache.clear()
 
 	resizedAgain, err := image.Resize("101x101")
@@ -387,8 +390,7 @@ func TestImageExif(t *testing.T) {
 	image := fetchResourceForSpec(spec, c, "sunset.jpg").(resource.Image)
 
 	getAndCheckExif := func(c *qt.C, image resource.Image) {
-		x, err := image.Exif()
-		c.Assert(err, qt.IsNil)
+		x := image.Exif()
 		c.Assert(x, qt.Not(qt.IsNil))
 
 		c.Assert(x.Date.Format("2006-01-02"), qt.Equals, "2017-10-27")
@@ -403,7 +405,7 @@ func TestImageExif(t *testing.T) {
 		c.Assert(ok, qt.Equals, true)
 		c.Assert(lensModel, qt.Equals, "smc PENTAX-DA* 16-50mm F2.8 ED AL [IF] SDM")
 		resized, _ := image.Resize("300x200")
-		x2, _ := resized.Exif()
+		x2 := resized.Exif()
 		c.Assert(x2, eq, x)
 	}
 
@@ -411,11 +413,9 @@ func TestImageExif(t *testing.T) {
 	image = fetchResourceForSpec(spec, c, "sunset.jpg").(resource.Image)
 	// This will read from file cache.
 	getAndCheckExif(c, image)
-
 }
 
 func BenchmarkImageExif(b *testing.B) {
-
 	getImages := func(c *qt.C, b *testing.B, fs afero.Fs) []resource.Image {
 		spec := newTestResourceSpec(specDescriptor{fs: fs, c: c})
 		images := make([]resource.Image, b.N)
@@ -426,11 +426,9 @@ func BenchmarkImageExif(b *testing.B) {
 	}
 
 	getAndCheckExif := func(c *qt.C, image resource.Image) {
-		x, err := image.Exif()
-		c.Assert(err, qt.IsNil)
+		x := image.Exif()
 		c.Assert(x, qt.Not(qt.IsNil))
 		c.Assert(x.Long, qt.Equals, float64(-4.50846))
-
 	}
 
 	b.Run("Cold cache", func(b *testing.B) {
@@ -442,7 +440,6 @@ func BenchmarkImageExif(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			getAndCheckExif(c, images[i])
 		}
-
 	})
 
 	b.Run("Cold cache, 10", func(b *testing.B) {
@@ -456,7 +453,6 @@ func BenchmarkImageExif(b *testing.B) {
 				getAndCheckExif(c, images[i])
 			}
 		}
-
 	})
 
 	b.Run("Warm cache", func(b *testing.B) {
@@ -474,9 +470,7 @@ func BenchmarkImageExif(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			getAndCheckExif(c, images[i])
 		}
-
 	})
-
 }
 
 // usesFMA indicates whether "fused multiply and add" (FMA) instruction is
@@ -539,6 +533,11 @@ func TestImageOperationsGolden(t *testing.T) {
 		fmt.Println(workDir)
 	}
 
+	gopher := fetchImageForSpec(spec, c, "gopher-hero8.png")
+	var err error
+	gopher, err = gopher.Resize("30x")
+	c.Assert(err, qt.IsNil)
+
 	// Test PNGs with alpha channel.
 	for _, img := range []string{"gopher-hero8.png", "gradient-circle.png"} {
 		orig := fetchImageForSpec(spec, c, img)
@@ -595,9 +594,11 @@ func TestImageOperationsGolden(t *testing.T) {
 			f.Invert(),
 			f.Hue(22),
 			f.Contrast(32.5),
+			f.Overlay(gopher.(images.ImageSource), 20, 30),
 		}
 
 		resized, err := orig.Fill("400x200 center")
+		c.Assert(err, qt.IsNil)
 
 		for _, filter := range filters {
 			resized, err := resized.Filter(filter)
@@ -678,7 +679,6 @@ func TestImageOperationsGolden(t *testing.T) {
 		f1.Close()
 		f2.Close()
 	}
-
 }
 
 func BenchmarkResizeParallel(b *testing.B) {

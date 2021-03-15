@@ -94,19 +94,20 @@ More examples can be found in Go's [documentation for the time package][timecons
 
 ### Cardinal Numbers and Ordinal Abbreviations
 
-Spelled-out cardinal numbers (e.g. "one", "two", and "three") and ordinal abbreviations (i.e., with shorted suffixes like "1st", "2nd", and "3rd") are not currently supported:
+Spelled-out cardinal numbers (e.g. "one", "two", and "three") are not currently supported. 
+
+Ordinal abbreviations (i.e., with shorted suffixes like "1st", "2nd", and "3rd") are not currently directly supported. By using `{{.Date.Format "Jan 2nd 2006"}}`, Hugo assumes you want to append `nd` as a string to the day of the month. However, you can chain functions together to create something like this:
 
 ```
-{{.Date.Format "Jan 2nd 2006"}}
+{{ .Date.Format "2" }}{{ if in (slice 1 21 31) .Date.Day}}st{{ else if in (slice 2 22) .Date.Day}}nd{{ else if in (slice 3 23) .Date.Day}}rd{{ else }}th{{ end }} of {{ .Date.Format "January 2006" }}
 ```
 
-Hugo assumes you want to append `nd` as a string to the day of the month and outputs the following:
+This will output:
 
 ```
-Mar 3nd 2017
+5th of March 2017
 ```
 
-<!-- Content idea: see https://discourse.gohugo.io/t/formatting-a-date-with-suffix-2nd/5701 -->
 
 ### Use `.Local` and `.UTC`
 

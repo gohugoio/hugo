@@ -37,7 +37,6 @@ func TestSplitPages(t *testing.T) {
 
 	lastChunk := chunks[4]
 	c.Assert(lastChunk.Len(), qt.Equals, 1)
-
 }
 
 func TestSplitPageGroups(t *testing.T) {
@@ -78,7 +77,6 @@ func TestSplitPageGroups(t *testing.T) {
 	} else {
 		t.Fatal("Excepted PageGroup")
 	}
-
 }
 
 func TestPager(t *testing.T) {
@@ -111,7 +109,6 @@ func TestPager(t *testing.T) {
 	first = pag.Pagers()[0].First()
 	c.Assert(first.PageGroups(), qt.Not(qt.HasLen), 0)
 	c.Assert(first.Pages(), qt.HasLen, 0)
-
 }
 
 func doTestPages(t *testing.T, paginator *Paginator) {
@@ -171,7 +168,6 @@ func TestPagerNoPages(t *testing.T) {
 	first = paginator.Pagers()[0].First()
 	c.Assert(first.PageGroups(), qt.HasLen, 0)
 	c.Assert(first.Pages(), qt.HasLen, 0)
-
 }
 
 func doTestPagerNoPages(t *testing.T, paginator *Paginator) {
@@ -195,7 +191,6 @@ func doTestPagerNoPages(t *testing.T, paginator *Paginator) {
 	c.Assert(pageOne.TotalPages(), qt.Equals, 0)
 	c.Assert(pageOne.PageNumber(), qt.Equals, 1)
 	c.Assert(pageOne.PageSize(), qt.Equals, 5)
-
 }
 
 func TestPaginationURLFactory(t *testing.T) {
@@ -206,7 +201,6 @@ func TestPaginationURLFactory(t *testing.T) {
 
 	for _, uglyURLs := range []bool{false, true} {
 		c.Run(fmt.Sprintf("uglyURLs=%t", uglyURLs), func(c *qt.C) {
-
 			tests := []struct {
 				name         string
 				d            TargetPathDescriptor
@@ -215,10 +209,16 @@ func TestPaginationURLFactory(t *testing.T) {
 				expected     string
 				expectedUgly string
 			}{
-				{"HTML home page 32",
-					TargetPathDescriptor{Kind: KindHome, Type: output.HTMLFormat}, "http://example.com/", 32, "/zoo/32/", "/zoo/32.html"},
-				{"JSON home page 42",
-					TargetPathDescriptor{Kind: KindHome, Type: output.JSONFormat}, "http://example.com/", 42, "/zoo/42/index.json", "/zoo/42.json"},
+				{
+					"HTML home page 32",
+					TargetPathDescriptor{Kind: KindHome, Type: output.HTMLFormat},
+					"http://example.com/", 32, "/zoo/32/", "/zoo/32.html",
+				},
+				{
+					"JSON home page 42",
+					TargetPathDescriptor{Kind: KindHome, Type: output.JSONFormat},
+					"http://example.com/", 42, "/zoo/42/index.json", "/zoo/42.json",
+				},
 			}
 
 			for _, test := range tests {
@@ -242,7 +242,6 @@ func TestPaginationURLFactory(t *testing.T) {
 
 			}
 		})
-
 	}
 }
 
@@ -276,7 +275,6 @@ func TestProbablyEqualPageLists(t *testing.T) {
 
 		if result != this.expect {
 			t.Errorf("[%d] got %t but expected %t", i, result, this.expect)
-
 		}
 	}
 }

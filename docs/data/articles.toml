@@ -35,7 +35,7 @@
 	date = "2017-02-19"
 
 [[article]]
-	title = "Switching from Wordpress to Hugo"
+	title = "Switching from WordPress to Hugo"
 	url = "http://schnuddelhuddel.de/switching-from-wordpress-to-hugo/"
 	author = "Mario Martelli"
 	date = "2017-02-19"
@@ -119,7 +119,7 @@
 	date = "2016-09-21"
 
 [[article]]
-	title = "Building our site: From Django & Wordpress to a static generator (Part I)"
+	title = "Building our site: From Django & WordPress to a static generator (Part I)"
 	url = "https://tryolabs.com/blog/2016/09/20/building-our-site-django-wordpress-to-static-part-i/"
 	author = "Alan Descoins"
 	date = "2016-09-20"

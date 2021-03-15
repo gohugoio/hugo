@@ -152,5 +152,4 @@ func TestTocMissingParent(t *testing.T) {
     </li>
   </ol>
 </nav>`, qt.Commentf(got))
-
 }

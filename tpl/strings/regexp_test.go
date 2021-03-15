@@ -46,7 +46,7 @@ func TestFindRE(t *testing.T) {
 		}
 
 		c.Assert(err, qt.IsNil)
-		c.Assert(result, qt.DeepEquals, test.expect)
+		c.Check(result, qt.DeepEquals, test.expect)
 	}
 }
 
@@ -58,19 +58,29 @@ func TestReplaceRE(t *testing.T) {
 		pattern interface{}
 		repl    interface{}
 		s       interface{}
+		n       []interface{}
 		expect  interface{}
 	}{
-		{"^https?://([^/]+).*", "$1", "http://gohugo.io/docs", "gohugo.io"},
-		{"^https?://([^/]+).*", "$2", "http://gohugo.io/docs", ""},
-		{"(ab)", "AB", "aabbaab", "aABbaAB"},
+		{"^https?://([^/]+).*", "$1", "http://gohugo.io/docs", nil, "gohugo.io"},
+		{"^https?://([^/]+).*", "$2", "http://gohugo.io/docs", nil, ""},
+		{"(ab)", "AB", "aabbaab", nil, "aABbaAB"},
+		{"(ab)", "AB", "aabbaab", []interface{}{1}, "aABbaab"},
 		// errors
-		{"(ab", "AB", "aabb", false}, // invalid re
-		{tstNoStringer{}, "$2", "http://gohugo.io/docs", false},
-		{"^https?://([^/]+).*", tstNoStringer{}, "http://gohugo.io/docs", false},
-		{"^https?://([^/]+).*", "$2", tstNoStringer{}, false},
+		{"(ab", "AB", "aabb", nil, false}, // invalid re
+		{tstNoStringer{}, "$2", "http://gohugo.io/docs", nil, false},
+		{"^https?://([^/]+).*", tstNoStringer{}, "http://gohugo.io/docs", nil, false},
+		{"^https?://([^/]+).*", "$2", tstNoStringer{}, nil, false},
 	} {
 
-		result, err := ns.ReplaceRE(test.pattern, test.repl, test.s)
+		var (
+			result string
+			err    error
+		)
+		if len(test.n) > 0 {
+			result, err = ns.ReplaceRE(test.pattern, test.repl, test.s, test.n...)
+		} else {
+			result, err = ns.ReplaceRE(test.pattern, test.repl, test.s)
+		}
 
 		if b, ok := test.expect.(bool); ok && !b {
 			c.Assert(err, qt.Not(qt.IsNil))
@@ -78,6 +88,6 @@ func TestReplaceRE(t *testing.T) {
 		}
 
 		c.Assert(err, qt.IsNil)
-		c.Assert(result, qt.Equals, test.expect)
+		c.Check(result, qt.Equals, test.expect)
 	}
 }

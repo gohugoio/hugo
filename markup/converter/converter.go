@@ -14,6 +14,8 @@
 package converter
 
 import (
+	"bytes"
+
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/identity"
@@ -29,7 +31,7 @@ type ProviderConfig struct {
 
 	Cfg       config.Provider // Site config
 	ContentFs afero.Fs
-	Logger    *loggers.Logger
+	Logger    loggers.Logger
 	Highlight func(code, lang, optsStr string) (string, error)
 }
 
@@ -63,6 +65,18 @@ func (n newConverter) New(ctx DocumentContext) (Converter, error) {
 
 func (n newConverter) Name() string {
 	return n.name
+}
+
+var NopConverter = new(nopConverter)
+
+type nopConverter int
+
+func (nopConverter) Convert(ctx RenderContext) (Result, error) {
+	return &bytes.Buffer{}, nil
+}
+
+func (nopConverter) Supports(feature identity.Identity) bool {
+	return false
 }
 
 // Converter wraps the Convert method that converts some markup into
@@ -105,6 +119,7 @@ type DocumentContext struct {
 	Document        interface{} // May be nil. Usually a page.Page
 	DocumentID      string
 	DocumentName    string
+	Filename        string
 	ConfigOverrides map[string]interface{}
 }
 
@@ -112,9 +127,7 @@ type DocumentContext struct {
 type RenderContext struct {
 	Src         []byte
 	RenderTOC   bool
-	RenderHooks *hooks.Render
+	RenderHooks hooks.Renderers
 }
 
-var (
-	FeatureRenderHooks = identity.NewPathIdentity("markup", "renderingHooks")
-)
+var FeatureRenderHooks = identity.NewPathIdentity("markup", "renderingHooks")

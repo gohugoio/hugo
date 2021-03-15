@@ -7,6 +7,8 @@ footnotereturnlinkcontents = "↩"
 languageCode = "en-us"
 title = "Hugo"
 
+ ignoreErrors = ["error-remote-getjson"]
+
 
 googleAnalytics = "UA-7131036-4"
 
@@ -58,14 +60,6 @@ pattern = "2006"
 [social]
 twitter = "GoHugoIO"
 
-# MARKDOWN
-## Configuration for BlackFriday markdown parser: https://github.com/russross/blackfriday
-[blackfriday]
-	plainIDAnchors = true
-  # See https://github.com/gohugoio/hugo/issues/2424
-	hrefTargetBlank = false
-  angledQuotes = false
-  latexDashes = true
 
 [imaging]
 # See https://github.com/disintegration/imaging

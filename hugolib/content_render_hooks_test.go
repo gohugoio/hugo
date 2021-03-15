@@ -20,10 +20,56 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
+func TestRenderHookEditNestedPartial(t *testing.T) {
+	config := `
+baseURL="https://example.org"
+workingDir="/mywork"
+`
+	b := newTestSitesBuilder(t).WithWorkingDir("/mywork").WithConfigFile("toml", config).Running()
+
+	b.WithTemplates("_default/single.html", "{{ .Content }}")
+	b.WithTemplates("partials/mypartial1.html", `PARTIAL1 {{ partial "mypartial2.html" }}`)
+	b.WithTemplates("partials/mypartial2.html", `PARTIAL2`)
+	b.WithTemplates("_default/_markup/render-link.html", `Link {{ .Text | safeHTML }}|{{ partial "mypartial1.html" . }}END`)
+
+	b.WithContent("p1.md", `---
+title: P1
+---
+
+[First Link](https://www.google.com "Google's Homepage")
+
+`)
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/p1/index.html", `Link First Link|PARTIAL1 PARTIAL2END`)
+
+	b.EditFiles("layouts/partials/mypartial1.html", `PARTIAL1_EDITED {{ partial "mypartial2.html" }}`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/p1/index.html", `Link First Link|PARTIAL1_EDITED PARTIAL2END`)
+
+	b.EditFiles("layouts/partials/mypartial2.html", `PARTIAL2_EDITED`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/p1/index.html", `Link First Link|PARTIAL1_EDITED PARTIAL2_EDITEDEND`)
+}
+
 func TestRenderHooks(t *testing.T) {
 	config := `
 baseURL="https://example.org"
 workingDir="/mywork"
+
+[markup]
+[markup.goldmark]
+[markup.goldmark.parser]
+autoHeadingID = true
+autoHeadingIDType = "github"
+[markup.goldmark.parser.attribute]
+block = true
+title = true
+
 `
 	b := newTestSitesBuilder(t).WithWorkingDir("/mywork").WithConfigFile("toml", config).Running()
 	b.WithTemplatesAdded("_default/single.html", `{{ .Content }}`)
@@ -49,6 +95,8 @@ Inner Block: {{ .Inner | .Page.RenderString (dict "display" "block" ) }}
 	b.WithTemplatesAdded("_default/_markup/render-link.html", `{{ with .Page }}{{ .Title }}{{ end }}|{{ .Destination | safeURL }}|Title: {{ .Title | safeHTML }}|Text: {{ .Text | safeHTML }}|END`)
 	b.WithTemplatesAdded("docs/_markup/render-link.html", `Link docs section: {{ .Text | safeHTML }}|END`)
 	b.WithTemplatesAdded("_default/_markup/render-image.html", `IMAGE: {{ .Page.Title }}||{{ .Destination | safeURL }}|Title: {{ .Title | safeHTML }}|Text: {{ .Text | safeHTML }}|END`)
+	b.WithTemplatesAdded("_default/_markup/render-heading.html", `HEADING: {{ .Page.Title }}||Level: {{ .Level }}|Anchor: {{ .Anchor | safeURL }}|Text: {{ .Text | safeHTML }}|Attributes: {{ .Attributes }}|END`)
+	b.WithTemplatesAdded("docs/_markup/render-heading.html", `Docs Level: {{ .Level }}|END`)
 
 	b.WithContent("customview/p1.md", `---
 title: Custom View
@@ -69,6 +117,10 @@ title: Cool Page
 Image:
 
 ![Drag Racing](/images/Dragster.jpg "image title")
+
+Attributes:
+
+## Some Heading {.text-serif #a-heading title="Hovered"} 
 
 
 `, "blog/p2.md", `---
@@ -122,7 +174,25 @@ title: With RenderString
 
 {{< myshortcode5 >}}Inner Link: [Inner Link](https://www.gohugo.io "Hugo's Homepage"){{< /myshortcode5 >}}
 
-`)
+`, "blog/p7.md", `---
+title: With Headings
+---
+
+# Heading Level 1
+some text
+
+## Heading Level 2
+
+### Heading Level 3
+`,
+		"docs/p8.md", `---
+title: Doc With Heading
+---
+
+# Docs lvl 1
+
+`,
+	)
 
 	for i := 1; i <= 30; i++ {
 		// Add some content with no shortcodes or links, i.e no templates needed.
@@ -135,7 +205,7 @@ title: No Template
 	}
 	counters := &testCounters{}
 	b.Build(BuildCfg{testCounters: counters})
-	b.Assert(int(counters.contentRenderCounter), qt.Equals, 50)
+	b.Assert(int(counters.contentRenderCounter), qt.Equals, 45)
 
 	b.AssertFileContent("public/blog/p1/index.html", `
 <p>Cool Page|https://www.google.com|Title: Google's Homepage|Text: First Link|END</p>
@@ -182,7 +252,10 @@ SHORT3|
 	// We may add type template support later, keep this for then. b.AssertFileContent("public/docs/docs1/index.html", `DOCS EDITED: https://www.google.com|</p>`)
 	b.AssertFileContent("public/blog/p4/index.html", `IMAGE EDITED: /images/Dragster.jpg|`)
 	b.AssertFileContent("public/blog/p6/index.html", "<p>Inner Link: EDITED: https://www.gohugo.io|</p>")
+	b.AssertFileContent("public/blog/p7/index.html", "HEADING: With Headings||Level: 1|Anchor: heading-level-1|Text: Heading Level 1|Attributes: map[id:heading-level-1]|END<p>some text</p>\nHEADING: With Headings||Level: 2|Anchor: heading-level-2|Text: Heading Level 2|Attributes: map[id:heading-level-2]|ENDHEADING: With Headings||Level: 3|Anchor: heading-level-3|Text: Heading Level 3|Attributes: map[id:heading-level-3]|END")
 
+	// https://github.com/gohugoio/hugo/issues/7349
+	b.AssertFileContent("public/docs/p8/index.html", "Docs Level: 1")
 }
 
 func TestRenderHooksDeleteTemplate(t *testing.T) {
@@ -210,7 +283,6 @@ title: P1
 
 	b.Build(BuildCfg{})
 	b.AssertFileContent("public/p1/index.html", `<p><a href="https://www.google.com" title="Google's Homepage">First Link</a></p>`)
-
 }
 
 func TestRenderHookAddTemplate(t *testing.T) {
@@ -236,17 +308,17 @@ title: P1
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent("public/p1/index.html", `<p>html-render-link</p>`)
-
 }
 
 func TestRenderHooksRSS(t *testing.T) {
-
 	b := newTestSitesBuilder(t)
 
 	b.WithTemplates("index.html", `
 {{ $p := site.GetPage "p1.md" }}
+{{ $p2 := site.GetPage "p2.md" }}
 
 P1: {{ $p.Content }}
+P2: {{ $p2.Content }}
 	
 	`, "index.xml", `
 
@@ -260,6 +332,8 @@ P3: {{ $p3.Content }}
 	`,
 		"_default/_markup/render-link.html", `html-link: {{ .Destination | safeURL }}|`,
 		"_default/_markup/render-link.rss.xml", `xml-link: {{ .Destination | safeURL }}|`,
+		"_default/_markup/render-heading.html", `html-heading: {{ .Text }}|`,
+		"_default/_markup/render-heading.rss.xml", `xml-heading: {{ .Text }}|`,
 	)
 
 	b.WithContent("p1.md", `---
@@ -267,12 +341,14 @@ title: "p1"
 ---
 P1. [I'm an inline-style link](https://www.gohugo.io)
 
+# Heading in p1
 
 `, "p2.md", `---
 title: "p2"
 ---
 P1. [I'm an inline-style link](https://www.bep.is)
 
+# Heading in p2
 
 `,
 		"p3.md", `---
@@ -286,17 +362,20 @@ P3. [I'm an inline-style link](https://www.example.org)
 
 	b.Build(BuildCfg{})
 
-	b.AssertFileContent("public/index.html", "P1: <p>P1. html-link: https://www.gohugo.io|</p>")
+	b.AssertFileContent("public/index.html", `
+P1: <p>P1. html-link: https://www.gohugo.io|</p>
+html-heading: Heading in p1|
+html-heading: Heading in p2|
+`)
 	b.AssertFileContent("public/index.xml", `
 P2: <p>P1. xml-link: https://www.bep.is|</p>
 P3: <p>P3. xml-link: https://www.example.org|</p>
+xml-heading: Heading in p2|
 `)
-
 }
 
 // https://github.com/gohugoio/hugo/issues/6629
 func TestRenderLinkWithMarkupInText(t *testing.T) {
-
 	b := newTestSitesBuilder(t)
 	b.WithConfigFile("toml", `
 
@@ -339,11 +418,9 @@ Image:
 <p>Some regular <strong>markup</strong>.</p>
 <p>html-image: image.jpg|Text: Hello<br> Goodbye|Plain: Hello GoodbyeEND</p>
 `)
-
 }
 
 func TestRenderString(t *testing.T) {
-
 	b := newTestSitesBuilder(t)
 
 	b.WithTemplates("index.html", `
@@ -353,9 +430,10 @@ func TestRenderString(t *testing.T) {
 RSTART:{{ "**Bold Markdown**" | $p.RenderString }}:REND
 RSTART:{{  "**Bold Block Markdown**" | $p.RenderString  $optBlock }}:REND
 RSTART:{{  "/italic org mode/" | $p.RenderString  $optOrg }}:REND
+RSTART:{{ "## Header2" | $p.RenderString }}:REND
 
 
-`)
+`, "_default/_markup/render-heading.html", "Hook Heading: {{ .Level }}")
 
 	b.WithContent("p1.md", `---
 title: "p1"
@@ -369,6 +447,32 @@ title: "p1"
 RSTART:<strong>Bold Markdown</strong>:REND
 RSTART:<p><strong>Bold Block Markdown</strong></p>
 RSTART:<em>italic org mode</em>:REND
+RSTART:Hook Heading: 2:REND
 `)
+}
 
+// https://github.com/gohugoio/hugo/issues/6882
+func TestRenderStringOnListPage(t *testing.T) {
+	renderStringTempl := `
+{{ .RenderString "**Hello**" }}
+`
+	b := newTestSitesBuilder(t)
+	b.WithContent("mysection/p1.md", `FOO`)
+	b.WithTemplates(
+		"index.html", renderStringTempl,
+		"_default/list.html", renderStringTempl,
+		"_default/single.html", renderStringTempl,
+	)
+
+	b.Build(BuildCfg{})
+
+	for _, filename := range []string{
+		"index.html",
+		"mysection/index.html",
+		"categories/index.html",
+		"tags/index.html",
+		"mysection/p1/index.html",
+	} {
+		b.AssertFileContent("public/"+filename, `<strong>Hello</strong>`)
+	}
 }

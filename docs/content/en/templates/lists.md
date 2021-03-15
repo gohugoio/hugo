@@ -424,7 +424,7 @@ In the above example, you may want `{{.Title}}` to point the `title` field you h
 ### By Publish Date
 
 {{< code file="layouts/partials/by-page-publish-date.html" >}}
-<!-- Groups content by month according to the "publishdate" field in front matter -->
+<!-- Groups content by month according to the "publishDate" field in front matter -->
 {{ range .Pages.GroupByPublishDate "2006-01" }}
 <h3>{{ .Key }}</h3>
 <ul>
@@ -432,6 +432,41 @@ In the above example, you may want `{{.Title}}` to point the `title` field you h
     <li>
     <a href="{{ .Permalink }}">{{ .Title }}</a>
     <div class="meta">{{ .PublishDate.Format "Mon, Jan 2, 2006" }}</div>
+    </li>
+    {{ end }}
+</ul>
+{{ end }}
+{{< /code >}}
+
+
+### By Lastmod
+
+{{< code file="layouts/partials/by-page-lastmod.html" >}}
+<!-- Groups content by month according to the "lastMod" field in front matter -->
+{{ range .Pages.GroupByLastmod "2006-01" }}
+<h3>{{ .Key }}</h3>
+<ul>
+    {{ range .Pages }}
+    <li>
+    <a href="{{ .Permalink }}">{{ .Title }}</a>
+    <div class="meta">{{ .Lastmod.Format "Mon, Jan 2, 2006" }}</div>
+    </li>
+    {{ end }}
+</ul>
+{{ end }}
+{{< /code >}}
+
+### By Expiry Date
+
+{{< code file="layouts/partials/by-page-expiry-date.html" >}}
+<!-- Groups content by month according to the "expiryDate" field in front matter -->
+{{ range .Pages.GroupByExpiryDate "2006-01" }}
+<h3>{{ .Key }}</h3>
+<ul>
+    {{ range .Pages }}
+    <li>
+    <a href="{{ .Permalink }}">{{ .Title }}</a>
+    <div class="meta">{{ .ExpiryDate.Format "Mon, Jan 2, 2006" }}</div>
     </li>
     {{ end }}
 </ul>
@@ -534,17 +569,17 @@ See the documentation on [`where` function][wherefunction] and
 [`first` function][firstfunction] for further details.
 
 [base]: /templates/base/
-[bepsays]: http://bepsays.com/en/2016/12/19/hugo-018/
+[bepsays]: https://bepsays.com/en/2016/12/19/hugo-018/
 [directorystructure]: /getting-started/directory-structure/
 [`Format` function]: /functions/format/
 [front matter]: /content-management/front-matter/
 [getpage]: /functions/getpage/
 [homepage]: /templates/homepage/
 [homepage]: /templates/homepage/
-[mentalmodel]: http://webstyleguide.com/wsg3/3-information-architecture/3-site-structure.html
+[mentalmodel]: https://webstyleguide.com/wsg3/3-information-architecture/3-site-structure.html
 [pagevars]: /variables/page/
 [partials]: /templates/partials/
-[RSS 2.0]: http://cyber.law.harvard.edu/rss/rss.html "RSS 2.0 Specification"
+[RSS 2.0]: https://cyber.harvard.edu/rss/rss.html "RSS 2.0 Specification"
 [rss]: /templates/rss/
 [sections]: /content-management/sections/
 [sectiontemps]: /templates/section-templates/

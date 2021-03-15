@@ -135,7 +135,7 @@ videos
 : an array of paths to videos related to the page; used by the `opengraph` [internal template](/templates/internal) to populate `og:video`.
 
 weight
-: used for [ordering your content in lists][ordering]. Lower weight gets higher precedence. So content with lower weight will come first.
+: used for [ordering your content in lists][ordering]. Lower weight gets higher precedence. So content with lower weight will come first. If set, weights should be non-zero, as 0 is interpreted as an *unset* weight.
 
 \<taxonomies\>
 : field name of the *plural* form of the index. See `tags` and `categories` in the above front matter examples. _Note that the plural form of user-defined taxonomies cannot be the same as any of the predefined front matter variables._
@@ -159,18 +159,55 @@ show_comments: false
 
 Any node or section can pass down to descendents a set of Front Matter values as long as defined underneath the reserved `cascade` Front Matter key.
 
+### Target Specific Pages
+
+{{< new-in "0.76.0" >}}
+
+Since Hugo 0.76 the `cascade` block can be a slice with a optional `_target` keyword, allowing for multiple `cascade` values targeting different page sets.
+
+{{< code-toggle copy="false" >}}
+title ="Blog"
+[[cascade]]
+background = "yosemite.jpg"
+[cascade._target]
+path="/blog/**"
+lang="en"
+kind="page"
+[[cascade]]
+background = "goldenbridge.jpg"
+[cascade._target]
+kind="section"
+{{</ code-toggle >}}
+
+Keywords available for `_target`:
+
+path
+: A [Glob](https://github.com/gobwas/glob) pattern matching the content path below /content. Expects Unix-styled slashes. Note that this is the virtual path, so it starts at the mount root. The matching support double-asterisks so you can match for patterns like `/blog/*/**` to match anything from the third level and down.
+
+kind
+: A Glob pattern matching the Page's Kind(s), e.g. "{home,section}".
+
+lang
+: A Glob pattern matching the Page's language, e.g. "{en,sv}".
+
+Any of the above can be omitted. 
+
 ### Example
-```yaml
-# content/blog/_index.md
+
+In `content/blog/_index.md`
+
+{{< code-toggle copy="false" >}}
 title: Blog
 cascade:
   banner: images/typewriter.jpg
-```
+{{</ code-toggle >}}
 
 With the above example the Blog section page and its descendents will return `images/typewriter.jpg` when `.Params.banner` is invoked unless:
 
 - Said descendent has its own `banner` value set 
 - Or a closer ancestor node has its own `cascade.banner` value set.
+
+
 
 ## Order Content Through Front Matter
 

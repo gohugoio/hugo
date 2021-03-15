@@ -23,10 +23,17 @@ import (
 
 // New returns a new instance of the fmt-namespaced template functions.
 func New(d *deps.Deps) *Namespace {
-	return &Namespace{
-		errorLogger: helpers.NewDistinctLogger(d.Log.ERROR),
-		warnLogger:  helpers.NewDistinctLogger(d.Log.WARN),
+	ns := &Namespace{
+		errorLogger: helpers.NewDistinctLogger(d.Log.Error()),
+		warnLogger:  helpers.NewDistinctLogger(d.Log.Warn()),
 	}
+
+	d.BuildStartListeners.Add(func() {
+		ns.errorLogger.Reset()
+		ns.warnLogger.Reset()
+	})
+
+	return ns
 }
 
 // Namespace provides template functions for the "fmt" namespace.
@@ -43,7 +50,6 @@ func (ns *Namespace) Print(a ...interface{}) string {
 // Printf returns a formatted string representation of the passed arguments.
 func (ns *Namespace) Printf(format string, a ...interface{}) string {
 	return _fmt.Sprintf(format, a...)
-
 }
 
 // Println returns string representation of the passed arguments ending with a newline.

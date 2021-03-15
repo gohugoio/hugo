@@ -22,12 +22,18 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/htesting"
+
 	qt "github.com/frankban/quicktest"
 )
 
 func TestPara(t *testing.T) {
 	if runtime.NumCPU() < 4 {
 		t.Skipf("skip para test, CPU count is %d", runtime.NumCPU())
+	}
+
+	if !htesting.IsCI() {
+		t.Skip("skip para test when not running on CI")
 	}
 
 	c := qt.New(t)
@@ -59,7 +65,6 @@ func TestPara(t *testing.T) {
 		c.Assert(sort.IntsAreSorted(result), qt.Equals, false, qt.Commentf("Para does not seem to be parallel"))
 		sort.Ints(result)
 		c.Assert(result, qt.DeepEquals, ints)
-
 	})
 
 	c.Run("Time", func(c *qt.C) {
@@ -82,8 +87,9 @@ func TestPara(t *testing.T) {
 
 		c.Assert(r.Wait(), qt.IsNil)
 		c.Assert(counter, qt.Equals, int64(n))
-		c.Assert(time.Since(start) < n/2*time.Millisecond, qt.Equals, true)
 
+		since := time.Since(start)
+		limit := n / 2 * time.Millisecond
+		c.Assert(since < limit, qt.Equals, true, qt.Commentf("%s >= %s", since, limit))
 	})
-
 }

@@ -15,6 +15,7 @@ package highlight
 
 import (
 	"fmt"
+	gohtml "html"
 	"io"
 	"strings"
 
@@ -36,12 +37,15 @@ type Highlighter struct {
 }
 
 func (h Highlighter) Highlight(code, lang, optsStr string) (string, error) {
-	cfg := h.cfg
-	if optsStr != "" {
-		if err := applyOptionsFromString(optsStr, &cfg); err != nil {
-			return "", err
-		}
+	if optsStr == "" {
+		return highlight(code, lang, h.cfg)
 	}
+
+	cfg := h.cfg
+	if err := applyOptionsFromString(optsStr, &cfg); err != nil {
+		return "", err
+	}
+
 	return highlight(code, lang, cfg)
 }
 
@@ -63,7 +67,7 @@ func highlight(code, lang string, cfg Config) (string, error) {
 	if lexer == nil {
 		wrapper := getPreWrapper(lang)
 		fmt.Fprint(w, wrapper.Start(true, ""))
-		fmt.Fprint(w, code)
+		fmt.Fprint(w, gohtml.EscapeString(code))
 		fmt.Fprint(w, wrapper.End(true))
 		return w.String(), nil
 	}
@@ -72,6 +76,7 @@ func highlight(code, lang string, cfg Config) (string, error) {
 	if style == nil {
 		style = styles.Fallback
 	}
+	lexer = chroma.Coalesce(lexer)
 
 	iterator, err := lexer.Tokenise(nil, code)
 	if err != nil {

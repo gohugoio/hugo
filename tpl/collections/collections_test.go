@@ -17,7 +17,6 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-
 	"math/rand"
 	"reflect"
 	"testing"
@@ -195,8 +194,10 @@ func TestDictionary(t *testing.T) {
 	}{
 		{[]interface{}{"a", "b"}, map[string]interface{}{"a": "b"}},
 		{[]interface{}{[]string{"a", "b"}, "c"}, map[string]interface{}{"a": map[string]interface{}{"b": "c"}}},
-		{[]interface{}{[]string{"a", "b"}, "c", []string{"a", "b2"}, "c2", "b", "c"},
-			map[string]interface{}{"a": map[string]interface{}{"b": "c", "b2": "c2"}, "b": "c"}},
+		{
+			[]interface{}{[]string{"a", "b"}, "c", []string{"a", "b2"}, "c2", "b", "c"},
+			map[string]interface{}{"a": map[string]interface{}{"b": "c", "b2": "c2"}, "b": "c"},
+		},
 		{[]interface{}{"a", 12, "b", []int{4}}, map[string]interface{}{"a": 12, "b": []int{4}}},
 		// errors
 		{[]interface{}{5, "b"}, false},
@@ -237,7 +238,6 @@ func TestReverse(t *testing.T) {
 	c.Assert(reversed, qt.IsNil)
 	_, err = ns.Reverse(43)
 	c.Assert(err, qt.Not(qt.IsNil))
-
 }
 
 func TestEchoParam(t *testing.T) {
@@ -345,6 +345,12 @@ func TestIn(t *testing.T) {
 		// Structs
 		{pagesVals{p3v, p2v, p3v, p2v}, p2v, true},
 		{pagesVals{p3v, p2v, p3v, p2v}, p4v, false},
+		// template.HTML
+		{template.HTML("this substring should be found"), "substring", true},
+		{template.HTML("this substring should not be found"), "subseastring", false},
+		// Uncomparable, use hashstructure
+		{[]string{"a", "b"}, []string{"a", "b"}, false},
+		{[][]string{{"a", "b"}}, []string{"a", "b"}, true},
 	} {
 
 		errMsg := qt.Commentf("[%d] %v", i, test)
@@ -353,10 +359,6 @@ func TestIn(t *testing.T) {
 		c.Assert(err, qt.IsNil)
 		c.Assert(result, qt.Equals, test.expect, errMsg)
 	}
-
-	// Slices are not comparable
-	_, err := ns.In([]string{"a", "b"}, []string{"a", "b"})
-	c.Assert(err, qt.Not(qt.IsNil))
 }
 
 type testPage struct {
@@ -367,8 +369,10 @@ func (p testPage) String() string {
 	return "p-" + p.Title
 }
 
-type pagesPtr []*testPage
-type pagesVals []testPage
+type (
+	pagesPtr  []*testPage
+	pagesVals []testPage
+)
 
 var (
 	p1 = &testPage{"A"}
@@ -669,7 +673,7 @@ func TestShuffleRandomising(t *testing.T) {
 
 	// Note that this test can fail with false negative result if the shuffle
 	// of the sequence happens to be the same as the original sequence. However
-	// the propability of the event is 10^-158 which is negligible.
+	// the probability of the event is 10^-158 which is negligible.
 	seqLen := 100
 	rand.Seed(time.Now().UTC().UnixNano())
 
@@ -714,7 +718,6 @@ func TestSlice(t *testing.T) {
 
 		c.Assert(result, qt.DeepEquals, test.expected, errMsg)
 	}
-
 }
 
 func TestUnion(t *testing.T) {
@@ -832,9 +835,14 @@ func TestUniq(t *testing.T) {
 		// Structs
 		{pagesVals{p3v, p2v, p3v, p2v}, pagesVals{p3v, p2v}, false},
 
+		// not Comparable(), use hashstructure
+		{[]map[string]int{
+			{"K1": 1}, {"K2": 2}, {"K1": 1}, {"K2": 1},
+		}, []map[string]int{
+			{"K1": 1}, {"K2": 2}, {"K2": 1},
+		}, false},
+
 		// should fail
-		// uncomparable types
-		{[]map[string]int{{"K1": 1}}, []map[string]int{{"K2": 2}, {"K2": 2}}, true},
 		{1, 1, true},
 		{"foo", "fo", true},
 	} {
@@ -900,7 +908,6 @@ type TstParams struct {
 
 func (x TstParams) Params() maps.Params {
 	return x.params
-
 }
 
 type TstXIHolder struct {

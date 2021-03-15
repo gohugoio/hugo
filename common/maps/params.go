@@ -37,7 +37,11 @@ func getNested(m map[string]interface{}, indices []string) (interface{}, string,
 	first := indices[0]
 	v, found := m[strings.ToLower(cast.ToString(first))]
 	if !found {
+		if len(indices) == 1 {
+			return nil, first, m
+		}
 		return nil, "", nil
+
 	}
 
 	if len(indices) == 1 {
@@ -76,11 +80,10 @@ func GetNestedParam(keyStr, separator string, candidates ...Params) (interface{}
 	}
 
 	return nil, nil
-
 }
 
 func GetNestedParamFn(keyStr, separator string, lookupFn func(key string) interface{}) (interface{}, string, map[string]interface{}, error) {
-	keySegments := strings.Split(strings.ToLower(keyStr), separator)
+	keySegments := strings.Split(keyStr, separator)
 	if len(keySegments) == 0 {
 		return nil, "", nil, nil
 	}

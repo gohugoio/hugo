@@ -72,7 +72,7 @@ Hugo provides a sensible default configuration of Related Content, but you can f
 
 Without any `related` configuration set on the project, Hugo's Related Content methods will use the following.
 
-```yaml
+{{< code-toggle file="config" >}}
 related:
   threshold: 80
   includeNewer: false
@@ -82,7 +82,9 @@ related:
     weight: 100
   - name: date
     weight: 10
-```
+{{< /code-toggle >}}
+
+Note that if you have configured `tags` as a taxonomy, `tags` will also be added to the default configuration abve with the weight of `80`.
 
 Custom configuration should be set using the same syntax.
 

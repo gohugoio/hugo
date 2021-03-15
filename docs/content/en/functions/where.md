@@ -114,7 +114,7 @@ You can also put the returned value of the `where` clauses into a variable:
 
 ## Use `where` with `first`
 
-Using `first` and [`where`][wherefunction] together can be very
+Using `first` and `where` together can be very
 powerful. Below snippet gets a list of posts only from [**main
 sections**](#mainsections), sorts it using the [default
 ordering](/templates/lists/) for lists (i.e., `weight => date`), and
@@ -138,7 +138,7 @@ You can also nest `where` clauses to drill down on lists of content by more than
 
 Filtering only works for set fields. To check whether a field is set or exists, you can use the operand `nil`.
 
-This can be useful to filter a small amount of pages from a large pool. Instead of set field on all pages, you can set field on required pages only.
+This can be useful to filter a small amount of pages from a large pool. Instead of setting a field on all pages, you can set that field on required pages only.
 
 Only the following operators are available for `nil`
 

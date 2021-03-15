@@ -40,16 +40,17 @@ More intricate examples appear below.
 Text and spaces
 
 By default, all text between actions is copied verbatim when the template is
-executed. For example, the string " items are made of " in the example above appears
-on standard output when the program is run.
+executed. For example, the string " items are made of " in the example above
+appears on standard output when the program is run.
 
-However, to aid in formatting template source code, if an action's left delimiter
-(by default "{{") is followed immediately by a minus sign and ASCII space character
-("{{- "), all trailing white space is trimmed from the immediately preceding text.
-Similarly, if the right delimiter ("}}") is preceded by a space and minus sign
-(" -}}"), all leading white space is trimmed from the immediately following text.
-In these trim markers, the ASCII space must be present; "{{-3}}" parses as an
-action containing the number -3.
+However, to aid in formatting template source code, if an action's left
+delimiter (by default "{{") is followed immediately by a minus sign and white
+space, all trailing white space is trimmed from the immediately preceding text.
+Similarly, if the right delimiter ("}}") is preceded by white space and a minus
+sign, all leading white space is trimmed from the immediately following text.
+In these trim markers, the white space must be present:
+"{{- 3}}" is like "{{3}}" but trims the immediately preceding text, while
+"{{-3}}" parses as an action containing the number -3.
 
 For instance, when executing the template whose source is
 
@@ -102,8 +103,8 @@ data, defined in detail in the corresponding sections that follow.
 		If the value of the pipeline has length zero, nothing is output;
 		otherwise, dot is set to the successive elements of the array,
 		slice, or map and T1 is executed. If the value is a map and the
-		keys are of basic type with a defined order ("comparable"), the
-		elements will be visited in sorted key order.
+		keys are of basic type with a defined order, the elements will be
+		visited in sorted key order.
 
 	{{range pipeline}} T1 {{else}} T0 {{end}}
 		The value of the pipeline must be an array, slice, map, or channel.
@@ -385,14 +386,12 @@ returning in effect
 (Unlike with || in Go, however, eq is a function call and all the
 arguments will be evaluated.)
 
-The comparison functions work on basic types only (or named basic
-types, such as "type Celsius float32"). They implement the Go rules
-for comparison of values, except that size and exact type are
-ignored, so any integer value, signed or unsigned, may be compared
-with any other integer value. (The arithmetic value is compared,
-not the bit pattern, so all negative integers are less than all
-unsigned integers.) However, as usual, one may not compare an int
-with a float32 and so on.
+The comparison functions work on any values whose type Go defines as
+comparable. For basic types such as integers, the rules are relaxed:
+size and exact type are ignored, so any integer value, signed or unsigned,
+may be compared with any other integer value. (The arithmetic value is compared,
+not the bit pattern, so all negative integers are less than all unsigned integers.)
+However, as usual, one may not compare an int with a float32 and so on.
 
 Associated templates
 

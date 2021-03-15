@@ -60,7 +60,6 @@ func (p PermalinkExpander) callback(attr string) (pageToPermaAttribute, bool) {
 // NewPermalinkExpander creates a new PermalinkExpander configured by the given
 // PathSpec.
 func NewPermalinkExpander(ps *helpers.PathSpec) (PermalinkExpander, error) {
-
 	p := PermalinkExpander{ps: ps}
 
 	p.knownPermalinkAttributes = map[string]pageToPermaAttribute{
@@ -103,11 +102,9 @@ func (l PermalinkExpander) Expand(key string, p Page) (string, error) {
 	}
 
 	return expand(p)
-
 }
 
 func (l PermalinkExpander) parse(patterns map[string]string) (map[string]func(Page) (string, error), error) {
-
 	expanders := make(map[string]func(Page) (string, error))
 
 	// Allow " " and / to represent the root section.
@@ -138,7 +135,6 @@ func (l PermalinkExpander) parse(patterns map[string]string) (map[string]func(Pa
 		}
 
 		expanders[k] = func(p Page) (string, error) {
-
 			if matches == nil {
 				return pattern, nil
 			}
@@ -149,7 +145,6 @@ func (l PermalinkExpander) parse(patterns map[string]string) (map[string]func(Pa
 				attr := replacement[1:]
 				callback := callbacks[i]
 				newAttr, err := callback(p, attr)
-
 				if err != nil {
 					return "", &permalinkExpandError{pattern: pattern, err: err}
 				}
@@ -159,7 +154,6 @@ func (l PermalinkExpander) parse(patterns map[string]string) (map[string]func(Pa
 			}
 
 			return newField, nil
-
 		}
 
 	}
@@ -176,7 +170,7 @@ var attributeRegexp = regexp.MustCompile(`:\w+`)
 // validate determines if a PathPattern is well-formed
 func (l PermalinkExpander) validate(pp string) bool {
 	fragments := strings.Split(pp[1:], "/")
-	var bail = false
+	bail := false
 	for i := range fragments {
 		if bail {
 			return false

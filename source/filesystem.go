@@ -102,11 +102,9 @@ func (f *Filesystem) captureFiles() error {
 	})
 
 	return w.Walk()
-
 }
 
 func (f *Filesystem) shouldRead(filename string, fi hugofs.FileMetaInfo) (bool, error) {
-
 	ignore := f.SourceSpec.IgnoreFile(fi.Meta().Filename())
 
 	if fi.IsDir() {

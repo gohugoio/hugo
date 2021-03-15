@@ -14,7 +14,6 @@ workson: []
 hugoversion:
 relatedfuncs: [printf]
 deprecated: false
-aliases: [/functions/errorf]
 ---
 
 `errorf` or `warnf` will evaluate a format string, then output the result to the ERROR or WARNING log (and only once per error message to avoid flooding the log).

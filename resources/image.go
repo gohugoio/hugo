@@ -36,6 +36,7 @@ import (
 
 	"github.com/gohugoio/hugo/resources/resource"
 
+	"github.com/pkg/errors"
 	_errors "github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -70,18 +71,15 @@ type imageMeta struct {
 	Exif *exif.Exif
 }
 
-func (i *imageResource) Exif() (*exif.Exif, error) {
+func (i *imageResource) Exif() *exif.Exif {
 	return i.root.getExif()
 }
 
-func (i *imageResource) getExif() (*exif.Exif, error) {
-
+func (i *imageResource) getExif() *exif.Exif {
 	i.metaInit.Do(func() {
-
 		supportsExif := i.Format == images.JPEG || i.Format == images.TIFF
 		if !supportsExif {
 			return
-
 		}
 
 		key := i.getImageMetaCacheTargetPath()
@@ -103,7 +101,6 @@ func (i *imageResource) getExif() (*exif.Exif, error) {
 		}
 
 		create := func(info filecache.ItemInfo, w io.WriteCloser) (err error) {
-
 			f, err := i.root.ReadSeekCloser()
 			if err != nil {
 				i.metaInitErr = err
@@ -122,18 +119,20 @@ func (i *imageResource) getExif() (*exif.Exif, error) {
 			// Also write it to cache
 			enc := json.NewEncoder(w)
 			return enc.Encode(i.meta)
-
 		}
 
 		_, i.metaInitErr = i.getSpec().imageCache.fileCache.ReadOrCreate(key, read, create)
-
 	})
 
 	if i.metaInitErr != nil {
-		return nil, i.metaInitErr
+		panic(fmt.Sprintf("metadata init failed: %s", i.metaInitErr))
 	}
 
-	return i.meta.Exif, nil
+	if i.meta == nil {
+		return nil
+	}
+
+	return i.meta.Exif
 }
 
 func (i *imageResource) Clone() resource.Resource {
@@ -153,7 +152,7 @@ func (i *imageResource) cloneWithUpdates(u *transformationUpdate) (baseResource,
 
 	var img *images.Image
 
-	if u.isContenChanged() {
+	if u.isContentChanged() {
 		img = i.WithSpec(base)
 	} else {
 		img = i.Image
@@ -234,7 +233,7 @@ const imageProcWorkers = 1
 var imageProcSem = make(chan bool, imageProcWorkers)
 
 func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src image.Image) (image.Image, error)) (resource.Image, error) {
-	return i.getSpec().imageCache.getOrCreate(i, conf, func() (*imageResource, image.Image, error) {
+	img, err := i.getSpec().imageCache.getOrCreate(i, conf, func() (*imageResource, image.Image, error) {
 		imageProcSem <- true
 		defer func() {
 			<-imageProcSem
@@ -243,7 +242,7 @@ func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src im
 		errOp := conf.Action
 		errPath := i.getSourceFilename()
 
-		src, err := i.decodeSource()
+		src, err := i.DecodeImage()
 		if err != nil {
 			return nil, nil, &os.PathError{Op: errOp, Path: errPath, Err: err}
 		}
@@ -291,6 +290,12 @@ func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src im
 
 		return ci, converted, nil
 	})
+	if err != nil {
+		if i.root != nil && i.root.getFileInfo() != nil {
+			return nil, errors.Wrapf(err, "image %q", i.root.getFileInfo().Meta().Filename())
+		}
+	}
+	return img, nil
 }
 
 func (i *imageResource) decodeImageConfig(action, spec string) (images.ImageConfig, error) {
@@ -319,7 +324,9 @@ func (i *imageResource) decodeImageConfig(action, spec string) (images.ImageConf
 	return conf, nil
 }
 
-func (i *imageResource) decodeSource() (image.Image, error) {
+// DecodeImage decodes the image source into an Image.
+// This an internal method and may change.
+func (i *imageResource) DecodeImage() (image.Image, error) {
 	f, err := i.ReadSeekCloser()
 	if err != nil {
 		return nil, _errors.Wrap(err, "failed to open image for decode")

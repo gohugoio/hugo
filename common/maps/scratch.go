@@ -51,7 +51,6 @@ func NewScratcher() Scratcher {
 //
 // If the first add for a key is an array or slice, then the next value(s) will be appended.
 func (c *Scratch) Add(key string, newAddend interface{}) (string, error) {
-
 	var newVal interface{}
 	c.mu.RLock()
 	existingAddend, found := c.values[key]
@@ -107,6 +106,15 @@ func (c *Scratch) Get(key string) interface{} {
 	return val
 }
 
+// Values returns the raw backing map. Note that you should just use
+// this method on the locally scoped Scratch instances you obtain via newScratch, not
+// .Page.Scratch etc., as that will lead to concurrency issues.
+func (c *Scratch) Values() map[string]interface{} {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.values
+}
+
 // SetInMap stores a value to a map with the given key in the Node context.
 // This map can later be retrieved with GetSortedMapValues.
 func (c *Scratch) SetInMap(key string, mapKey string, value interface{}) string {
@@ -147,7 +155,7 @@ func (c *Scratch) GetSortedMapValues(key string) interface{} {
 	return sortedArray
 }
 
-// NewScratch returns a new instance Scratch.
+// NewScratch returns a new instance of Scratch.
 func NewScratch() *Scratch {
 	return &Scratch{values: make(map[string]interface{})}
 }

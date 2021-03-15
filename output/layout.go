@@ -14,7 +14,6 @@
 package output
 
 import (
-	"fmt"
 	"strings"
 	"sync"
 
@@ -65,7 +64,6 @@ func NewLayoutHandler() *LayoutHandler {
 // For returns a layout for the given LayoutDescriptor and options.
 // Layouts are rendered and cached internally.
 func (l *LayoutHandler) For(d LayoutDescriptor, f Format) ([]string, error) {
-
 	// We will get lots of requests for the same layouts, so avoid recalculations.
 	key := layoutCacheKey{d, f.Name}
 	l.mu.RLock()
@@ -131,18 +129,18 @@ func (l *layoutBuilder) addKind() {
 const renderingHookRoot = "/_markup"
 
 func resolvePageTemplate(d LayoutDescriptor, f Format) []string {
-
 	b := &layoutBuilder{d: d, f: f}
+
+	if !d.RenderingHook && d.Layout != "" {
+		b.addLayoutVariations(d.Layout)
+	}
+	if d.Type != "" {
+		b.addTypeVariations(d.Type)
+	}
 
 	if d.RenderingHook {
 		b.addLayoutVariations(d.Kind)
-	} else {
-		if d.Layout != "" {
-			b.addLayoutVariations(d.Layout)
-		}
-		if d.Type != "" {
-			b.addTypeVariations(d.Type)
-		}
+		b.addSectionType()
 	}
 
 	switch d.Kind {
@@ -159,20 +157,22 @@ func resolvePageTemplate(d LayoutDescriptor, f Format) []string {
 		}
 		b.addSectionType()
 		b.addKind()
-	case "taxonomy":
+	case "term":
+		b.addKind()
 		if d.Section != "" {
 			b.addLayoutVariations(d.Section)
 		}
-		b.addKind()
+		b.addLayoutVariations("taxonomy")
+		b.addTypeVariations("taxonomy")
 		b.addSectionType()
-
-	case "taxonomyTerm":
+	case "taxonomy":
 		if d.Section != "" {
 			b.addLayoutVariations(d.Section + ".terms")
 		}
-		b.addTypeVariations("taxonomy")
 		b.addSectionType()
 		b.addLayoutVariations("terms")
+		// For legacy reasons this is deliberately put last.
+		b.addKind()
 	case "404":
 		b.addLayoutVariations("404")
 		b.addTypeVariations("")
@@ -205,11 +205,9 @@ func resolvePageTemplate(d LayoutDescriptor, f Format) []string {
 	}
 
 	return layouts
-
 }
 
 func (l *layoutBuilder) resolveVariations() []string {
-
 	var layouts []string
 
 	var variations []string
@@ -217,7 +215,7 @@ func (l *layoutBuilder) resolveVariations() []string {
 
 	if l.d.Lang != "" {
 		// We prefer the most specific type before language.
-		variations = append(variations, []string{fmt.Sprintf("%s.%s", l.d.Lang, name), name, l.d.Lang}...)
+		variations = append(variations, []string{l.d.Lang + "." + name, name, l.d.Lang}...)
 	} else {
 		variations = append(variations, name)
 	}
@@ -230,55 +228,63 @@ func (l *layoutBuilder) resolveVariations() []string {
 				if variation == "" && layoutVar == "" {
 					continue
 				}
-				template := layoutTemplate(typeVar, layoutVar)
-				layouts = append(layouts, replaceKeyValues(template,
-					"TYPE", typeVar,
-					"LAYOUT", layoutVar,
-					"VARIATIONS", variation,
-					"EXTENSION", l.f.MediaType.Suffix(),
-				))
+
+				s := constructLayoutPath(typeVar, layoutVar, variation, l.f.MediaType.FirstSuffix.Suffix)
+				if s != "" {
+					layouts = append(layouts, s)
+				}
 			}
 		}
-
 	}
 
-	return filterDotLess(layouts)
+	return layouts
 }
 
-func layoutTemplate(typeVar, layoutVar string) string {
-
-	var l string
-
-	if typeVar != "" {
-		l = "TYPE/"
+// constructLayoutPath constructs a layout path given a type, layout,
+// variations, and extension.  The path constructed follows the pattern of
+// type/layout.variations.extension.  If any value is empty, it will be left out
+// of the path construction.
+//
+// Path construction requires at least 2 of 3 out of layout, variations, and extension.
+// If more than one of those is empty, an empty string is returned.
+func constructLayoutPath(typ, layout, variations, extension string) string {
+	// we already know that layout and variations are not both empty because of
+	// checks in resolveVariants().
+	if extension == "" && (layout == "" || variations == "") {
+		return ""
 	}
 
-	if layoutVar != "" {
-		l += "LAYOUT.VARIATIONS.EXTENSION"
-	} else {
-		l += "VARIATIONS.EXTENSION"
+	// Commence valid path construction...
+
+	var (
+		p       strings.Builder
+		needDot bool
+	)
+
+	if typ != "" {
+		p.WriteString(typ)
+		p.WriteString("/")
 	}
 
-	return l
-}
+	if layout != "" {
+		p.WriteString(layout)
+		needDot = true
+	}
 
-func filterDotLess(layouts []string) []string {
-	var filteredLayouts []string
-
-	for _, l := range layouts {
-		l = strings.Replace(l, "..", ".", -1)
-		l = strings.Trim(l, ".")
-		// If media type has no suffix, we have "index" type of layouts in this list, which
-		// doesn't make much sense.
-		if strings.Contains(l, ".") {
-			filteredLayouts = append(filteredLayouts, l)
+	if variations != "" {
+		if needDot {
+			p.WriteString(".")
 		}
+		p.WriteString(variations)
+		needDot = true
 	}
 
-	return filteredLayouts
-}
+	if extension != "" {
+		if needDot {
+			p.WriteString(".")
+		}
+		p.WriteString(extension)
+	}
 
-func replaceKeyValues(s string, oldNew ...string) string {
-	replacer := strings.NewReplacer(oldNew...)
-	return replacer.Replace(s)
+	return p.String()
 }

@@ -77,7 +77,6 @@ func TestDecodeConfig(t *testing.T) {
 	imaging = imagingConfig.Cfg
 	c.Assert(imaging.Exif.DisableLatLong, qt.Equals, true)
 	c.Assert(imaging.Exif.ExcludeFields, qt.Equals, "GPS|Exif|Exposure[M|P|B]|Contrast|Resolution|Sharp|JPEG|Metering|Sensing|Saturation|ColorSpace|Flash|WhiteBalance")
-
 }
 
 func TestDecodeImageConfig(t *testing.T) {

@@ -16,13 +16,11 @@ aliases: [/extras/highlighting/,/extras/highlight/,/tools/syntax-highlighting/]
 toc: true
 ---
 
-
 Hugo uses [Chroma](https://github.com/alecthomas/chroma) as its code highlighter; it is built in Go and is really, really fast -- and for the most important parts compatible with Pygments we used before.
 
 ## Configure Syntax Highlighter
 
 See [Configure Highlight](/getting-started/configuration-markup#highlight).
-
 
 ## Generate Syntax Highlighter CSS
 
@@ -36,17 +34,17 @@ hugo gen chromastyles --style=monokai > syntax.css
 
 Run `hugo gen chromastyles -h` for more options. See https://xyproto.github.io/splash/docs/ for a gallery of available styles.
 
-
 ## Highlight Shortcode
 
 Highlighting is carried out via the [built-in shortcode](/content-management/shortcodes/) `highlight`. `highlight` takes exactly one required parameter for the programming language to be highlighted and requires a closing shortcode. Note that `highlight` is *not* used for client-side javascript highlighting.
 
 Options:
 
-* `linenos`: Valid values are `true`, `false`, `table`, `inline`. `table` will give copy-and-paste friendly code blocks) turns on line numbers.
-* Setting `linenos` to `false` will turn off linenumbers if it's configured to be on in site config.{{< new-in "0.60.0" >}}
-* `hl_lines` lists a set of line numbers or line number ranges to be highlighted.
-* `linenostart=199` starts the line number count from 199.
+* `linenos`: configure line numbers. Valid values are `true`, `false`, `table`, or `inline`. `false` will turn off line numbers if it's configured to be on in site config. {{< new-in "0.60.0" >}} `table` will give copy-and-paste friendly code blocks.
+* `hl_lines`: lists a set of line numbers or line number ranges to be highlighted.
+* `linenostart=199`: starts the line number count from 199.
+* `anchorlinenos`: Configure anchors on line numbers. Valid values are `true` or `false`;
+* `lineanchors`: Configure a prefix for the anchors on line numbers. Will be suffixed with `-`, so linking to the line number 1 with the option `lineanchors=prefix` adds the anchor `prefix-1` to the page.  
 
 ### Example: Highlight Shortcode
 
@@ -80,8 +78,6 @@ func GetTitleFunc(style string) func(s string) string {
   }
 }
 {{< / highlight >}}
-
-
 
 ## Highlight Template Func
 

@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 )
 
 // NewIdentityManager creates a new Manager starting at id.
@@ -24,14 +25,23 @@ func NewPathIdentity(typ, pat string) PathIdentity {
 // Identities stores identity providers.
 type Identities map[Identity]Provider
 
-func (ids Identities) search(id Identity) Provider {
-	if v, found := ids[id]; found {
+func (ids Identities) search(depth int, id Identity) Provider {
+	if v, found := ids[id.GetIdentity()]; found {
 		return v
 	}
+
+	depth++
+
+	// There may be infinite recursion in templates.
+	if depth > 100 {
+		// Bail out.
+		return nil
+	}
+
 	for _, v := range ids {
 		switch t := v.(type) {
 		case IdentitiesProvider:
-			if nested := t.GetIdentities().search(id); nested != nil {
+			if nested := t.GetIdentities().search(depth, id); nested != nil {
 				return nested
 			}
 		}
@@ -53,11 +63,16 @@ type Identity interface {
 
 // Manager manages identities, and is itself a Provider of Identity.
 type Manager interface {
-	IdentitiesProvider
-	Provider
+	SearchProvider
 	Add(ids ...Provider)
-	Search(id Identity) Provider
 	Reset()
+}
+
+// SearchProvider provides access to the chained set of identities.
+type SearchProvider interface {
+	Provider
+	IdentitiesProvider
+	Search(id Identity) Provider
 }
 
 // A PathIdentity is a common identity identified by a type and a path, e.g. "layouts" and "_default/single.html".
@@ -118,6 +133,8 @@ func (im *identityManager) Reset() {
 	im.Unlock()
 }
 
+// TODO(bep) these identities are currently only read on server reloads
+// so there should be no concurrency issues, but that may change.
 func (im *identityManager) GetIdentities() Identities {
 	im.Lock()
 	defer im.Unlock()
@@ -127,5 +144,20 @@ func (im *identityManager) GetIdentities() Identities {
 func (im *identityManager) Search(id Identity) Provider {
 	im.Lock()
 	defer im.Unlock()
-	return im.ids.search(id.GetIdentity())
+	return im.ids.search(0, id.GetIdentity())
+}
+
+// Incrementer increments and returns the value.
+// Typically used for IDs.
+type Incrementer interface {
+	Incr() int
+}
+
+// IncrementByOne implements Incrementer adding 1 every time Incr is called.
+type IncrementByOne struct {
+	counter uint64
+}
+
+func (c *IncrementByOne) Incr() int {
+	return int(atomic.AddUint64(&c.counter, uint64(1)))
 }

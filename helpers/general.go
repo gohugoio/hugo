@@ -157,7 +157,6 @@ func ReaderToString(lines io.Reader) string {
 
 // ReaderContains reports whether subslice is within r.
 func ReaderContains(r io.Reader, subslice []byte) bool {
-
 	if r == nil || len(subslice) == 0 {
 		return false
 	}
@@ -345,7 +344,6 @@ func InitLoggers() {
 func Deprecated(item, alternative string, err bool) {
 	if err {
 		DistinctErrorLog.Printf("%s is deprecated and will be removed in Hugo %s. %s", item, hugo.CurrentVersion.Next().ReleaseVersion(), alternative)
-
 	} else {
 		DistinctWarnLog.Printf("%s is deprecated and will be removed in a future release. %s", item, alternative)
 	}
@@ -435,36 +433,6 @@ func NormalizeHugoFlags(f *pflag.FlagSet, name string) pflag.NormalizedName {
 		name = "uglyURLs"
 	}
 	return pflag.NormalizedName(name)
-}
-
-// DiffStringSlices returns the difference between two string slices.
-// Useful in tests.
-// See:
-// http://stackoverflow.com/questions/19374219/how-to-find-the-difference-between-two-slices-of-strings-in-golang
-func DiffStringSlices(slice1 []string, slice2 []string) []string {
-	diffStr := []string{}
-	m := map[string]int{}
-
-	for _, s1Val := range slice1 {
-		m[s1Val] = 1
-	}
-	for _, s2Val := range slice2 {
-		m[s2Val] = m[s2Val] + 1
-	}
-
-	for mKey, mVal := range m {
-		if mVal == 1 {
-			diffStr = append(diffStr, mKey)
-		}
-	}
-
-	return diffStr
-}
-
-// DiffStrings splits the strings into fields and runs it into DiffStringSlices.
-// Useful for tests.
-func DiffStrings(s1, s2 string) []string {
-	return DiffStringSlices(strings.Fields(s1), strings.Fields(s2))
 }
 
 // PrintFs prints the given filesystem to the given writer starting from the given path.

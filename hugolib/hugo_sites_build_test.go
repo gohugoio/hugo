@@ -2,13 +2,13 @@ package hugolib
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 	"testing"
-
-	"path/filepath"
 	"time"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/fortytw2/leaktest"
@@ -198,7 +198,6 @@ p1 = "p1en"
 }
 
 func TestMultiSitesBuild(t *testing.T) {
-
 	for _, config := range []struct {
 		content string
 		suffix  string
@@ -207,7 +206,6 @@ func TestMultiSitesBuild(t *testing.T) {
 		{multiSiteYAMLConfigTemplate, "yml"},
 		{multiSiteJSONConfigTemplate, "json"},
 	} {
-
 		t.Run(config.suffix, func(t *testing.T) {
 			t.Parallel()
 			doTestMultiSitesBuild(t, config.content, config.suffix)
@@ -244,7 +242,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 
 	c.Assert(enSite.language.Lang, qt.Equals, "en")
 
-	//dumpPages(enSite.RegularPages()...)
+	// dumpPages(enSite.RegularPages()...)
 
 	c.Assert(len(enSite.RegularPages()), qt.Equals, 5)
 	c.Assert(len(enSite.AllPages()), qt.Equals, 32)
@@ -254,8 +252,10 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	b.AssertFileContent("public/fr/404.html", "404|fr|404 Page not found")
 
 	// Check robots.txt
-	b.AssertFileContent("public/en/robots.txt", "robots|en|")
-	b.AssertFileContent("public/nn/robots.txt", "robots|nn|")
+	// the domain root is the public directory, so the robots.txt has to be created there and not in the language directories
+	b.AssertFileContent("public/robots.txt", "robots")
+	b.AssertFileDoesNotExist("public/en/robots.txt")
+	b.AssertFileDoesNotExist("public/nn/robots.txt")
 
 	b.AssertFileContent("public/en/sect/doc1-slug/index.html", "Permalink: http://example.com/blog/en/sect/doc1-slug/")
 	b.AssertFileContent("public/en/sect/doc2/index.html", "Permalink: http://example.com/blog/en/sect/doc2/")
@@ -276,8 +276,8 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	c.Assert(len(doc4.Translations()), qt.Equals, 0)
 
 	// Taxonomies and their URLs
-	c.Assert(len(enSite.Taxonomies), qt.Equals, 1)
-	tags := enSite.Taxonomies["tags"]
+	c.Assert(len(enSite.Taxonomies()), qt.Equals, 1)
+	tags := enSite.Taxonomies()["tags"]
 	c.Assert(len(tags), qt.Equals, 2)
 	c.Assert(doc1en, qt.Equals, tags["tag1"][0].Page)
 
@@ -338,14 +338,14 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 
 	nnSite := sites[2]
 	c.Assert(nnSite.language.Lang, qt.Equals, "nn")
-	taxNn := nnSite.getPage(page.KindTaxonomyTerm, "lag")
+	taxNn := nnSite.getPage(page.KindTaxonomy, "lag")
 	c.Assert(taxNn, qt.Not(qt.IsNil))
 	c.Assert(len(taxNn.Translations()), qt.Equals, 1)
 	c.Assert(taxNn.Translations()[0].Language().Lang, qt.Equals, "nb")
 
-	taxTermNn := nnSite.getPage(page.KindTaxonomy, "lag", "sogndal")
+	taxTermNn := nnSite.getPage(page.KindTerm, "lag", "sogndal")
 	c.Assert(taxTermNn, qt.Not(qt.IsNil))
-	c.Assert(nnSite.getPage(page.KindTaxonomy, "LAG", "SOGNDAL"), qt.Equals, taxTermNn)
+	c.Assert(nnSite.getPage(page.KindTerm, "LAG", "SOGNDAL"), qt.Equals, taxTermNn)
 	c.Assert(len(taxTermNn.Translations()), qt.Equals, 1)
 	c.Assert(taxTermNn.Translations()[0].Language().Lang, qt.Equals, "nb")
 
@@ -357,8 +357,8 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	b.AssertFileContent("public/fr/sitemap.xml", "http://example.com/blog/fr/sect/doc1/")
 
 	// Check taxonomies
-	enTags := enSite.Taxonomies["tags"]
-	frTags := frSite.Taxonomies["plaques"]
+	enTags := enSite.Taxonomies()["tags"]
+	frTags := frSite.Taxonomies()["plaques"]
 	c.Assert(len(enTags), qt.Equals, 2, qt.Commentf("Tags in en: %v", enTags))
 	c.Assert(len(frTags), qt.Equals, 2, qt.Commentf("Tags in fr: %v", frTags))
 	c.Assert(enTags["tag1"], qt.Not(qt.IsNil))
@@ -409,13 +409,12 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	c.Assert(logoEn, qt.Not(qt.IsNil))
 	b.AssertFileContent("public/en/bundles/b1/index.html", "Resources: image/png: /blog/en/bundles/b1/logo.png")
 	b.AssertFileContent("public/en/bundles/b1/logo.png", "PNG Data")
-
 }
 
 func TestMultiSitesRebuild(t *testing.T) {
 	// t.Parallel() not supported, see https://github.com/fortytw2/leaktest/issues/4
 	// This leaktest seems to be a little bit shaky on Travis.
-	if !isCI() {
+	if !htesting.IsCI() {
 		defer leaktest.CheckTimeout(t, 10*time.Second)()
 	}
 
@@ -467,7 +466,6 @@ func TestMultiSitesRebuild(t *testing.T) {
 			[]fsnotify.Event{{Name: filepath.FromSlash("content/sect/doc2.en.md"), Op: fsnotify.Remove}},
 			func(t *testing.T) {
 				c.Assert(len(enSite.RegularPages()), qt.Equals, 4, qt.Commentf("1 en removed"))
-
 			},
 		},
 		{
@@ -505,7 +503,6 @@ func TestMultiSitesRebuild(t *testing.T) {
 				c.Assert(len(enSite.RegularPages()), qt.Equals, 6)
 				doc1 := readDestination(t, fs, "public/en/sect/doc1-slug/index.html")
 				c.Assert(strings.Contains(doc1, "CHANGED"), qt.Equals, true)
-
 			},
 		},
 		// Rename a file
@@ -524,7 +521,8 @@ func TestMultiSitesRebuild(t *testing.T) {
 				c.Assert(enSite.RegularPages()[1].Title(), qt.Equals, "new_en_1")
 				rendered := readDestination(t, fs, "public/en/new1renamed/index.html")
 				c.Assert(rendered, qt.Contains, "new_en_1")
-			}},
+			},
+		},
 		{
 			// Change a template
 			func(t *testing.T) {
@@ -564,7 +562,6 @@ func TestMultiSitesRebuild(t *testing.T) {
 				c.Assert(homeEn, qt.Not(qt.IsNil))
 				c.Assert(len(homeEn.Translations()), qt.Equals, 3)
 				c.Assert(homeEn.Translations()[0].Language().Lang, qt.Equals, "fr")
-
 			},
 		},
 		// Change a shortcode
@@ -590,14 +587,12 @@ func TestMultiSitesRebuild(t *testing.T) {
 		}
 
 		err := b.H.Build(BuildCfg{}, this.events...)
-
 		if err != nil {
 			t.Fatalf("[%d] Failed to rebuild sites: %s", i, err)
 		}
 
 		this.assertFunc(t)
 	}
-
 }
 
 // https://github.com/gohugoio/hugo/issues/4706
@@ -706,7 +701,7 @@ func checkContent(s *sitesBuilder, filename string, matches ...string) {
 	content := readDestination(s.T, s.Fs, filename)
 	for _, match := range matches {
 		if !strings.Contains(content, match) {
-			s.Fatalf("No match for %q in content for %s\n%q", match, filename, content)
+			s.Fatalf("No match for\n%q\nin content for %s\n%q\nDiff:\n%s", match, filename, content, htesting.DiffStrings(content, match))
 		}
 	}
 }
@@ -759,7 +754,6 @@ Title: My categories
 `)
 
 	for _, lang := range []string{"en", "nn"} {
-
 		b.WithContent(lang+"/mysection/page.md", `
 ---
 Title: My Page
@@ -767,7 +761,6 @@ categories: ["mycat"]
 ---
 
 `)
-
 	}
 
 	b.Build(BuildCfg{})
@@ -778,7 +771,6 @@ categories: ["mycat"]
 		"/categories",
 		"/categories/mycat",
 	} {
-
 		t.Run(path, func(t *testing.T) {
 			c := qt.New(t)
 
@@ -799,7 +791,6 @@ categories: ["mycat"]
 			c.Assert(len(m1), qt.Equals, 1)
 			c.Assert(len(m2), qt.Equals, 1)
 		})
-
 	}
 }
 

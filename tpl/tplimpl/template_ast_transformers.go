@@ -73,7 +73,6 @@ func (c templateContext) getIfNotVisited(name string) *templateState {
 func newTemplateContext(
 	t *templateState,
 	lookupFn func(name string) *templateState) *templateContext {
-
 	return &templateContext{
 		t:                t,
 		lookupFn:         lookupFn,
@@ -86,7 +85,6 @@ func newTemplateContext(
 func applyTemplateTransformers(
 	t *templateState,
 	lookupFn func(name string) *templateState) (*templateContext, error) {
-
 	if t == nil {
 		return nil, errors.New("expected template, but none provided")
 	}
@@ -117,9 +115,7 @@ const (
 	partialReturnWrapperTempl = `{{ $_hugo_dot := $ }}{{ $ := .Arg }}{{ with .Arg }}{{ $_hugo_dot.Set ("PLACEHOLDER") }}{{ end }}`
 )
 
-var (
-	partialReturnWrapper *parse.ListNode
-)
+var partialReturnWrapper *parse.ListNode
 
 func init() {
 	templ, err := texttemplate.New("").Parse(partialReturnWrapperTempl)
@@ -127,7 +123,6 @@ func init() {
 		panic(err)
 	}
 	partialReturnWrapper = templ.Tree.Root
-
 }
 
 func (c *templateContext) wrapInPartialReturnWrapper(n *parse.ListNode) *parse.ListNode {
@@ -142,7 +137,6 @@ func (c *templateContext) wrapInPartialReturnWrapper(n *parse.ListNode) *parse.L
 	withNode.List.Nodes = append(n.Nodes, retn)
 
 	return wrapper
-
 }
 
 // applyTransformations do 2 things:
@@ -275,7 +269,6 @@ func (c *templateContext) collectInner(n *parse.CommandNode) {
 			break
 		}
 	}
-
 }
 
 var partialRe = regexp.MustCompile(`^partial(Cached)?$|^partials\.Include(Cached)?$`)
@@ -330,7 +323,6 @@ func (c *templateContext) collectReturnNode(n *parse.CommandNode) bool {
 	c.returnNode.Args = c.returnNode.Args[1:]
 
 	return false
-
 }
 
 func findTemplateIn(name string, in tpl.Template) (tpl.Template, bool) {
@@ -345,5 +337,4 @@ func findTemplateIn(name string, in tpl.Template) (tpl.Template, bool) {
 		return templ, true
 	}
 	return nil, false
-
 }

@@ -51,7 +51,6 @@ func (p provider) New(cfg converter.ProviderConfig) (converter.Provider, error) 
 			cfg:        cfg,
 		}, nil
 	}), nil
-
 }
 
 type mmarkConverter struct {
@@ -74,7 +73,6 @@ func getHTMLRenderer(
 	ctx converter.DocumentContext,
 	cfg blackfriday_config.Config,
 	pcfg converter.ProviderConfig) mmark.Renderer {
-
 	var (
 		flags      int
 		documentID string
@@ -99,7 +97,6 @@ func getHTMLRenderer(
 		Config:            pcfg,
 		Renderer:          mmark.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
 	}
-
 }
 
 func getMmarkExtensions(cfg blackfriday_config.Config) int {

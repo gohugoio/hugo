@@ -20,7 +20,7 @@ aliases: []
 
 Takes a string containing the name of the variable as input. Returns
 an empty string if the variable is not set, otherwise returns the
-value of the variable. 
+value of the variable.
 
 ```
 {{ getenv "HOME" }}

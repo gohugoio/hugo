@@ -29,11 +29,13 @@ For other approaches learning Hugo like book or a video tutorial refer to the [e
 ## Step 1: Install Hugo
 
 {{% note %}}
-`Homebrew`, a package manager for `macOS`,  can be installed from [brew.sh](https://brew.sh/). See [install](/getting-started/installing) if you are running Windows etc.
+`Homebrew` and `MacPorts`, package managers for `macOS`,  can be installed from [brew.sh](https://brew.sh/) or [macports.org](https://www.macports.org/) respectively. See [install](/getting-started/installing) if you are running Windows etc.
 {{% /note %}}
 
 ```bash
 brew install hugo
+# or
+port install hugo
 ```
 
 To verify your new install:
@@ -58,7 +60,7 @@ The above will create a new Hugo site in a folder named `quickstart`.
 
 See [themes.gohugo.io](https://themes.gohugo.io/) for a list of themes to consider. This quickstart uses the beautiful [Ananke theme](https://themes.gohugo.io/gohugo-theme-ananke/).
 
-First, download the theme from Github and add it to your site's `theme` directory:
+First, download the theme from GitHub and add it to your site's `themes` directory:
 
 ```bash
 cd quickstart
@@ -83,7 +85,7 @@ echo 'theme = "ananke"' >> config.toml
 
 ## Step 4: Add Some Content
 
-You can manually create content files (for example as `content/<CATEGORY>/<FILE>.<FORMAT>`) and provide metadata in them, however you can use the `new` command to do few things for you (like add title and date):
+You can manually create content files (for example as `content/<CATEGORY>/<FILE>.<FORMAT>`) and provide metadata in them, however you can use the `new` command to do a few things for you (like add title and date):
 
 ```
 hugo new posts/my-first-post.md
@@ -101,6 +103,10 @@ draft: true
 ---
 
 ```
+
+{{% note %}}
+Drafts do not get deployed; once you finish a post, update the header of the post to say `draft: false`. More info [here](/getting-started/usage/#draft-future-and-expired-content).
+{{% /note %}}
 
 ## Step 5: Start the Hugo server
 
@@ -171,6 +177,3 @@ hugo -D
 
 Output will be in `./public/` directory by default (`-d`/`--destination` flag to change it, or set `publishdir` in the config file).
 
-{{% note %}}
-Drafts do not get deployed; once you finish a post, update the header of the post to say `draft: false`. More info [here](/getting-started/usage/#draft-future-and-expired-content).
-{{% /note %}}

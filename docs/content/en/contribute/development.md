@@ -107,7 +107,7 @@ On a Mac, you can install [Hub](https://github.com/github/hub) using [Homebrew](
 brew install hub
 ```
 
-Now we'll create an [alias in Bash](http://tldp.org/LDP/abs/html/aliases.html) so that typing `git` actually runs `Hub`:
+Now we'll create an [alias in Bash](https://tldp.org/LDP/abs/html/aliases.html) so that typing `git` actually runs `Hub`:
 
 ```
 echo "alias git='hub'" >> ~/.bash_profile
@@ -151,7 +151,7 @@ go install
 ```
 
 
-Hugo relies on [mage](github.com/magefile/mage) for some convenient build and test targets. If you don't already have it, get it:
+Hugo relies on [mage](https://github.com/magefile/mage) for some convenient build and test targets. If you don't already have it, get it:
 
 ```
 go get github.com/magefile/mage

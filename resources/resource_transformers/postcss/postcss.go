@@ -14,17 +14,31 @@
 package postcss
 
 import (
+	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"io"
+	"io/ioutil"
+	"path"
 	"path/filepath"
+	"regexp"
+	"strconv"
+	"strings"
+
+	"github.com/cli/safeexec"
+
+	"github.com/gohugoio/hugo/common/hexec"
+
+	"github.com/gohugoio/hugo/common/hugo"
+
+	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/gohugoio/hugo/resources/internal"
+	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/pkg/errors"
-
-	"os"
-	"os/exec"
 
 	"github.com/mitchellh/mapstructure"
 
@@ -33,19 +47,15 @@ import (
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
-// Some of the options from https://github.com/postcss/postcss-cli
-type Options struct {
+const importIdentifier = "@import"
 
-	// Set a custom path to look for a config file.
-	Config string
+var cssSyntaxErrorRe = regexp.MustCompile(`> (\d+) \|`)
 
-	NoMap bool // Disable the default inline sourcemaps
+var shouldImportRe = regexp.MustCompile(`^@import ["'].*["'];?\s*(/\*.*\*/)?$`)
 
-	// Options for when not using a config file
-	Use         string // List of postcss plugins to use
-	Parser      string //  Custom postcss parser
-	Stringifier string // Custom postcss stringifier
-	Syntax      string // Custom postcss syntax
+// New creates a new Client with the given specification.
+func New(rs *resources.Spec) *Client {
+	return &Client{rs: rs}
 }
 
 func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
@@ -62,6 +72,39 @@ func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
 	}
 
 	return
+}
+
+// Client is the client used to do PostCSS transformations.
+type Client struct {
+	rs *resources.Spec
+}
+
+// Process transforms the given Resource with the PostCSS processor.
+func (c *Client) Process(res resources.ResourceTransformer, options Options) (resource.Resource, error) {
+	return res.Transform(&postcssTransformation{rs: c.rs, options: options})
+}
+
+// Some of the options from https://github.com/postcss/postcss-cli
+type Options struct {
+
+	// Set a custom path to look for a config file.
+	Config string
+
+	NoMap bool // Disable the default inline sourcemaps
+
+	// Enable inlining of @import statements.
+	// Does so recursively, but currently once only per file;
+	// that is, it's not possible to import the same file in
+	// different scopes (root, media query...)
+	// Note that this import routine does not care about the CSS spec,
+	// so you can have @import anywhere in the file.
+	InlineImports bool
+
+	// Options for when not using a config file
+	Use         string // List of postcss plugins to use
+	Parser      string //  Custom postcss parser
+	Stringifier string // Custom postcss stringifier
+	Syntax      string // Custom postcss syntax
 }
 
 func (opts Options) toArgs() []string {
@@ -84,16 +127,6 @@ func (opts Options) toArgs() []string {
 	return args
 }
 
-// Client is the client used to do PostCSS transformations.
-type Client struct {
-	rs *resources.Spec
-}
-
-// New creates a new Client with the given specification.
-func New(rs *resources.Spec) *Client {
-	return &Client{rs: rs}
-}
-
 type postcssTransformation struct {
 	options Options
 	rs      *resources.Spec
@@ -108,7 +141,6 @@ func (t *postcssTransformation) Key() internal.ResourceTransformationKey {
 // npm install -g postcss-cli
 // npm install -g autoprefixer
 func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
-
 	const localPostCSSPath = "node_modules/.bin/"
 	const binaryName = "postcss"
 
@@ -117,10 +149,10 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 
 	binary := csiBinPath
 
-	if _, err := exec.LookPath(binary); err != nil {
+	if _, err := safeexec.LookPath(binary); err != nil {
 		// Try PATH
 		binary = binaryName
-		if _, err := exec.LookPath(binary); err != nil {
+		if _, err := safeexec.LookPath(binary); err != nil {
 			// This may be on a CI server etc. Will fall back to pre-built assets.
 			return herrors.ErrFeatureNotAvailable
 		}
@@ -137,26 +169,19 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 
 	configFile = filepath.Clean(configFile)
 
-	// We need an abolute filename to the config file.
+	// We need an absolute filename to the config file.
 	if !filepath.IsAbs(configFile) {
-		// We resolve this against the virtual Work filesystem, to allow
-		// this config file to live in one of the themes if needed.
-		fi, err := t.rs.BaseFs.Work.Stat(configFile)
-		if err != nil {
-			if t.options.Config != "" {
-				// Only fail if the user specificed config file is not found.
-				return errors.Wrapf(err, "postcss config %q not found:", configFile)
-			}
-			configFile = ""
-		} else {
-			configFile = fi.(hugofs.FileMetaInfo).Meta().Filename()
+		configFile = t.rs.BaseFs.ResolveJSConfigFile(configFile)
+		if configFile == "" && t.options.Config != "" {
+			// Only fail if the user specified config file is not found.
+			return errors.Errorf("postcss config %q not found:", configFile)
 		}
 	}
 
 	var cmdArgs []string
 
 	if configFile != "" {
-		logger.INFO.Println("postcss: use config file", configFile)
+		logger.Infoln("postcss: use config file", configFile)
 		cmdArgs = []string{"--config", configFile}
 	}
 
@@ -164,30 +189,220 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 		cmdArgs = append(cmdArgs, optArgs...)
 	}
 
-	cmd := exec.Command(binary, cmdArgs...)
+	cmd, err := hexec.SafeCommand(binary, cmdArgs...)
+	if err != nil {
+		return err
+	}
+
+	var errBuf bytes.Buffer
+	infoW := loggers.LoggerToWriterWithPrefix(logger.Info(), "postcss")
 
 	cmd.Stdout = ctx.To
-	cmd.Stderr = os.Stderr
+	cmd.Stderr = io.MultiWriter(infoW, &errBuf)
+
+	cmd.Env = hugo.GetExecEnviron(t.rs.WorkingDir, t.rs.Cfg, t.rs.BaseFs.Assets.Fs)
 
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return err
 	}
 
+	src := ctx.From
+
+	imp := newImportResolver(
+		ctx.From,
+		ctx.InPath,
+		t.rs.Assets.Fs, t.rs.Logger,
+	)
+
+	if t.options.InlineImports {
+		var err error
+		src, err = imp.resolve()
+		if err != nil {
+			return err
+		}
+	}
+
 	go func() {
 		defer stdin.Close()
-		io.Copy(stdin, ctx.From)
+		io.Copy(stdin, src)
 	}()
 
 	err = cmd.Run()
 	if err != nil {
-		return err
+		return imp.toFileError(errBuf.String())
 	}
 
 	return nil
 }
 
-// Process transforms the given Resource with the PostCSS processor.
-func (c *Client) Process(res resources.ResourceTransformer, options Options) (resource.Resource, error) {
-	return res.Transform(&postcssTransformation{rs: c.rs, options: options})
+type fileOffset struct {
+	Filename string
+	Offset   int
+}
+
+type importResolver struct {
+	r      io.Reader
+	inPath string
+
+	contentSeen map[string]bool
+	linemap     map[int]fileOffset
+	fs          afero.Fs
+	logger      loggers.Logger
+}
+
+func newImportResolver(r io.Reader, inPath string, fs afero.Fs, logger loggers.Logger) *importResolver {
+	return &importResolver{
+		r:      r,
+		inPath: inPath,
+		fs:     fs, logger: logger,
+		linemap: make(map[int]fileOffset), contentSeen: make(map[string]bool),
+	}
+}
+
+func (imp *importResolver) contentHash(filename string) ([]byte, string) {
+	b, err := afero.ReadFile(imp.fs, filename)
+	if err != nil {
+		return nil, ""
+	}
+	h := sha256.New()
+	h.Write(b)
+	return b, hex.EncodeToString(h.Sum(nil))
+}
+
+func (imp *importResolver) importRecursive(
+	lineNum int,
+	content string,
+	inPath string) (int, string, error) {
+	basePath := path.Dir(inPath)
+
+	var replacements []string
+	lines := strings.Split(content, "\n")
+
+	trackLine := func(i, offset int, line string) {
+		// TODO(bep) this is not very efficient.
+		imp.linemap[i+lineNum] = fileOffset{Filename: inPath, Offset: offset}
+	}
+
+	i := 0
+	for offset, line := range lines {
+		i++
+		line = strings.TrimSpace(line)
+
+		if !imp.shouldImport(line) {
+			trackLine(i, offset, line)
+		} else {
+			i--
+			path := strings.Trim(strings.TrimPrefix(line, importIdentifier), " \"';")
+			filename := filepath.Join(basePath, path)
+			importContent, hash := imp.contentHash(filename)
+			if importContent == nil {
+				trackLine(i, offset, "ERROR")
+				imp.logger.Warnf("postcss: Failed to resolve CSS @import in %q for path %q", inPath, filename)
+				continue
+			}
+
+			if imp.contentSeen[hash] {
+				i++
+				// Just replace the line with an empty string.
+				replacements = append(replacements, []string{line, ""}...)
+				trackLine(i, offset, "IMPORT")
+				continue
+			}
+
+			imp.contentSeen[hash] = true
+
+			// Handle recursive imports.
+			l, nested, err := imp.importRecursive(i+lineNum, string(importContent), filepath.ToSlash(filename))
+			if err != nil {
+				return 0, "", err
+			}
+
+			trackLine(i, offset, line)
+
+			i += l
+
+			importContent = []byte(nested)
+
+			replacements = append(replacements, []string{line, string(importContent)}...)
+		}
+	}
+
+	if len(replacements) > 0 {
+		repl := strings.NewReplacer(replacements...)
+		content = repl.Replace(content)
+	}
+
+	return i, content, nil
+}
+
+func (imp *importResolver) resolve() (io.Reader, error) {
+	const importIdentifier = "@import"
+
+	content, err := ioutil.ReadAll(imp.r)
+	if err != nil {
+		return nil, err
+	}
+
+	contents := string(content)
+
+	_, newContent, err := imp.importRecursive(0, contents, imp.inPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return strings.NewReader(newContent), nil
+}
+
+// See https://www.w3schools.com/cssref/pr_import_rule.asp
+// We currently only support simple file imports, no urls, no media queries.
+// So this is OK:
+//     @import "navigation.css";
+// This is not:
+//     @import url("navigation.css");
+//     @import "mobstyle.css" screen and (max-width: 768px);
+func (imp *importResolver) shouldImport(s string) bool {
+	if !strings.HasPrefix(s, importIdentifier) {
+		return false
+	}
+	if strings.Contains(s, "url(") {
+		return false
+	}
+
+	return shouldImportRe.MatchString(s)
+}
+
+func (imp *importResolver) toFileError(output string) error {
+	inErr := errors.New(strings.TrimSpace(output))
+
+	match := cssSyntaxErrorRe.FindStringSubmatch(output)
+	if match == nil {
+		return inErr
+	}
+
+	lineNum, err := strconv.Atoi(match[1])
+	if err != nil {
+		return inErr
+	}
+
+	file, ok := imp.linemap[lineNum]
+	if !ok {
+		return inErr
+	}
+
+	fi, err := imp.fs.Stat(file.Filename)
+	if err != nil {
+		return inErr
+	}
+	realFilename := fi.(hugofs.FileMetaInfo).Meta().Filename()
+
+	ferr := herrors.NewFileError("css", -1, file.Offset+1, 1, inErr)
+
+	werr, ok := herrors.WithFileContextForFile(ferr, realFilename, file.Filename, imp.fs, herrors.SimpleLineMatcher)
+
+	if !ok {
+		return ferr
+	}
+
+	return werr
 }

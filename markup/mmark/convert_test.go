@@ -29,7 +29,7 @@ import (
 func TestGetMmarkExtensions(t *testing.T) {
 	b := blackfriday_config.Default
 
-	//TODO: This is doing the same just with different marks...
+	// TODO: This is doing the same just with different marks...
 	type data struct {
 		testFlag int
 	}

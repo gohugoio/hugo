@@ -113,6 +113,11 @@ Removes the given key
 {{ .Scratch.Delete "greetings" }}
 ```
 
+#### .Values
+
+`Values` returns the raw backing map. Note that you should just use this method on the locally scoped `Scratch` instances you obtain via `newScratch`, not
+ `.Page.Scratch` etc., as that will lead to concurrency issues.
+
 ## Scope
 The scope of the backing data is global for the given `Page` or `Shortcode`, and spans partial and shortcode includes.
 

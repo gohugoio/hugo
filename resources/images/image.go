@@ -92,7 +92,6 @@ func (i *Image) EncodeTo(conf ImageConfig, img image.Image, w io.Writer) error {
 	default:
 		return errors.New("format not supported")
 	}
-
 }
 
 // Height returns i's height.
@@ -165,7 +164,6 @@ func NewImageProcessor(cfg ImagingConfig) (*ImageProcessor, error) {
 		exif.ExcludeFields(e.ExcludeFields),
 		exif.IncludeFields(e.IncludeFields),
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -174,7 +172,6 @@ func NewImageProcessor(cfg ImagingConfig) (*ImageProcessor, error) {
 		Cfg:         cfg,
 		exifDecoder: exifDecoder,
 	}, nil
-
 }
 
 type ImageProcessor struct {
@@ -268,7 +265,7 @@ func (f Format) SupportsTransparency() bool {
 // DefaultExtension returns the default file extension of this format, starting with a dot.
 // For example: .jpg for JPEG
 func (f Format) DefaultExtension() string {
-	return f.MediaType().FullSuffix()
+	return f.MediaType().FirstSuffix.FullSuffix
 }
 
 // MediaType returns the media type of this image, e.g. image/jpeg for JPEG
@@ -327,4 +324,10 @@ func IsOpaque(img image.Image) bool {
 	}
 
 	return false
+}
+
+// ImageSource identifies and decodes an image.
+type ImageSource interface {
+	DecodeImage() (image.Image, error)
+	Key() string
 }

@@ -113,7 +113,6 @@ func TestPermalinkExpansionMultiSection(t *testing.T) {
 	expanded, err = expander.Expand("blog", page)
 	c.Assert(err, qt.IsNil)
 	c.Assert(expanded, qt.Equals, "/blue/2012")
-
 }
 
 func TestPermalinkExpansionConcurrent(t *testing.T) {

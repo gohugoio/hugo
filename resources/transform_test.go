@@ -152,7 +152,7 @@ func TestTransform(t *testing.T) {
 
 		// The transformed file should only be published if RelPermalink
 		// or Permalink is called.
-		n := htesting.RandIntn(3)
+		n := htesting.Rnd.Intn(3)
 		shouldExist := true
 		switch n {
 		case 0:
@@ -323,7 +323,7 @@ func TestTransform(t *testing.T) {
 
 		transformations := make([]ResourceTransformation, count)
 		for i := 0; i < count; i++ {
-			transformations[i] = createContentReplacer(fmt.Sprintf("t%d", i), fmt.Sprint(i), string(i+65))
+			transformations[i] = createContentReplacer(fmt.Sprintf("t%d", i), fmt.Sprint(i), string(rune(i+65)))
 		}
 
 		var countstr strings.Builder
@@ -385,11 +385,10 @@ func TestTransform(t *testing.T) {
 		resizedNotPublished, err := img.Resize("50x50")
 		c.Assert(err, qt.IsNil)
 		c.Assert(resizedNotPublished.Height(), qt.Equals, 50)
-		//c.Assert(resized.RelPermalink(), qt.Equals, "/gopher.changed_hu2e827f5a78333ebc04166dd643235dea_1462_50x50_resize_linear_2.png")
+		// c.Assert(resized.RelPermalink(), qt.Equals, "/gopher.changed_hu2e827f5a78333ebc04166dd643235dea_1462_50x50_resize_linear_2.png")
 		assertShouldExist(c, spec, "public/gopher.changed_hu2e827f5a78333ebc04166dd643235dea_1462_50x50_resize_linear_2.png", false)
 
 		assertNoDuplicateWrites(c, spec)
-
 	})
 
 	c.Run("Concurrent", func(c *qt.C) {

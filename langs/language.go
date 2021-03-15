@@ -36,14 +36,16 @@ var globalOnlySettings = map[string]bool{
 	strings.ToLower("multilingual"):                   true,
 	strings.ToLower("assetDir"):                       true,
 	strings.ToLower("resourceDir"):                    true,
+	strings.ToLower("build"):                          true,
 }
 
 // Language manages specific-language configuration.
 type Language struct {
-	Lang         string
-	LanguageName string
-	Title        string
-	Weight       int
+	Lang              string
+	LanguageName      string
+	LanguageDirection string
+	Title             string
+	Weight            int
 
 	Disabled bool
 
@@ -120,12 +122,11 @@ func (l Languages) Less(i, j int) bool {
 	}
 
 	return wj == 0 || wi < wj
-
 }
 
 func (l Languages) Swap(i, j int) { l[i], l[j] = l[j], l[i] }
 
-// Params retunrs language-specific params merged with the global params.
+// Params returns language-specific params merged with the global params.
 func (l *Language) Params() maps.Params {
 	// TODO(bep) this construct should not be needed. Create the
 	// language params in one go.
@@ -254,5 +255,4 @@ func (l *Language) IsSet(key string) bool {
 		}
 	}
 	return l.Cfg.IsSet(key)
-
 }

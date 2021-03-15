@@ -18,13 +18,16 @@ package page
 import (
 	"html/template"
 
+	"github.com/gohugoio/hugo/identity"
+
 	"github.com/bep/gitmap"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/maps"
-
 	"github.com/gohugoio/hugo/compare"
+	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/gohugoio/hugo/navigation"
 	"github.com/gohugoio/hugo/related"
@@ -64,6 +67,10 @@ type ChildCareProvider interface {
 	// use RegularPages.
 	RegularPages() Pages
 
+	// RegularPagesRecursive returns all regular pages below the current
+	// section.
+	RegularPagesRecursive() Pages
+
 	Resources() resource.Resources
 }
 
@@ -93,6 +100,9 @@ type GetPageProvider interface {
 	// This will return nil when no page could be found, and will return
 	// an error if the ref is ambiguous.
 	GetPage(ref string) (Page, error)
+
+	// GetPageWithTemplateInfo is for internal use only.
+	GetPageWithTemplateInfo(info tpl.Info, ref string) (Page, error)
 }
 
 // GitInfoProvider provides Git info.
@@ -133,7 +143,7 @@ type PageMetaProvider interface {
 
 	// BundleType returns the bundle type: "leaf", "branch" or an empty string if it is none.
 	// See https://gohugo.io/content-management/page-bundles/
-	BundleType() string
+	BundleType() files.ContentClass
 
 	// A configured description.
 	Description() string
@@ -147,7 +157,7 @@ type PageMetaProvider interface {
 	// Configured keywords.
 	Keywords() []string
 
-	// The Page Kind. One of page, home, section, taxonomy, taxonomyTerm.
+	// The Page Kind. One of page, home, section, taxonomy, term.
 	Kind() string
 
 	// The configured layout to use to render this page. Typically set in front matter.
@@ -251,6 +261,13 @@ type PageWithoutContent interface {
 	compare.Eqer
 	maps.Scratcher
 	RelatedKeywordsProvider
+
+	// GetTerms gets the terms of a given taxonomy,
+	// e.g. GetTerms("categories")
+	GetTerms(taxonomy string) Pages
+
+	// Used in change/dependency tracking.
+	identity.Provider
 
 	DeprecatedWarningPageMethods
 }

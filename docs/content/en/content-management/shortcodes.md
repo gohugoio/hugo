@@ -21,7 +21,7 @@ toc: true
 
 ## What a Shortcode is
 
-Hugo loves Markdown because of its simple content format, but there are times when Markdown falls short. Often, content authors are forced to add raw HTML (e.g., video `<iframes>`) to Markdown content. We think this contradicts the beautiful simplicity of Markdown's syntax.
+Hugo loves Markdown because of its simple content format, but there are times when Markdown falls short. Often, content authors are forced to add raw HTML (e.g., video `<iframe>`'s) to Markdown content. We think this contradicts the beautiful simplicity of Markdown's syntax.
 
 Hugo created **shortcodes** to circumvent these limitations.
 
@@ -50,6 +50,17 @@ Here are two examples of paired shortcodes:
 ```
 
 The examples above use two different delimiters, the difference being the `%` character in the first and the `<>` characters in the second.
+
+### Shortcodes with raw string parameters
+
+{{< new-in "0.64.1" >}}
+
+You can pass multiple lines as parameters to a shortcode by using raw string literals:
+
+```
+{{</*  myshortcode `This is some <b>HTML</b>,
+and a new line with a "quoted string".` */>}}
+```
 
 ### Shortcodes with Markdown
 
@@ -244,6 +255,11 @@ Using the preceding `instagram` with `hidecaption` example above, the following 
 {{< instagram BWNjjyYFxVx hidecaption >}}
 
 
+
+{{% note %}}
+The `instagram`-shortcode refers an endpoint of Instagram's API, that's deprecated since October 24th, 2020. Thus, no images can be fetched from this API endpoint, resulting in an error when the `instagram`-shortcode is used. For more information please have a look at GitHub issue [#7879](https://github.com/gohugoio/hugo/issues/7879).
+{{% /note %}}
+
 ### `param`
 
 Gets a value from the current `Page's` params set in front matter, with a fall back to the site param value. It will log an `ERROR` if the param with the given key could not be found in either.
@@ -322,7 +338,7 @@ Using the preceding `tweet` example, the following simulates the displayed exper
 
 ### `vimeo`
 
-Adding a video from [Vimeo][] is equivalent to the YouTube shortcode above.
+Adding a video from [Vimeo][] is equivalent to the [YouTube Input shortcode][].
 
 ```
 https://vimeo.com/channels/staffpicks/146022717
@@ -382,6 +398,13 @@ Furthermore, you can automatically start playback of the embedded video by setti
 {{</* youtube id="w7Ft2ymGmfc" autoplay="true" */>}}
 {{< /code >}}
 
+For [accessibility reasons](https://dequeuniversity.com/tips/provide-iframe-titles), it's best to provide a title for your YouTube video.  You  can do this using the shortcode by providing a `title` parameter. If no title is provided, a default of "YouTube Video" will be used.
+
+{{< code file="example-youtube-input-with-title.md" >}}
+{{</* youtube id="w7Ft2ymGmfc" title="A New Hugo Site in Under Two Minutes" */>}}
+{{< /code >}}
+
+
 #### Example `youtube` Output
 
 Using the preceding `youtube` example, the following HTML will be added to your rendered website's markup:
@@ -407,12 +430,12 @@ To learn more about creating custom shortcodes, see the [shortcode template docu
 [`figure` shortcode]: #figure
 [contentmanagementsection]: /content-management/formats/
 [examplegist]: https://gist.github.com/spf13/7896402
-[figureelement]: http://html5doctor.com/the-figure-figcaption-elements/ "An article from HTML5 doctor discussing the fig and figcaption elements."
+[figureelement]: https://html5doctor.com/the-figure-figcaption-elements/ "An article from HTML5 doctor discussing the fig and figcaption elements."
 [Hugo and the GDPR]: /about/hugo-and-gdpr/
 [Instagram]: https://www.instagram.com/
 [pagevariables]: /variables/page/
 [partials]: /templates/partials/
-[Pygments]: http://pygments.org/
+[Pygments]: https://pygments.org/
 [quickstart]: /getting-started/quick-start/
 [sctemps]: /templates/shortcode-templates/
 [scvars]: /variables/shortcodes/
@@ -420,3 +443,4 @@ To learn more about creating custom shortcodes, see the [shortcode template docu
 [templatessection]: /templates/
 [Vimeo]: https://vimeo.com/
 [YouTube Videos]: https://www.youtube.com/
+[YouTube Input shortcode]: #youtube

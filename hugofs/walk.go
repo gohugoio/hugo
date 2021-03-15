@@ -37,7 +37,7 @@ type Walkway struct {
 	root     string
 	basePath string
 
-	logger *loggers.Logger
+	logger loggers.Logger
 
 	// May be pre-set
 	fi         FileMetaInfo
@@ -59,7 +59,7 @@ type WalkwayConfig struct {
 	Root     string
 	BasePath string
 
-	Logger *loggers.Logger
+	Logger loggers.Logger
 
 	// One or both of these may be pre-set.
 	Info       FileMetaInfo
@@ -98,7 +98,8 @@ func NewWalkway(cfg WalkwayConfig) *Walkway {
 		hookPre:    cfg.HookPre,
 		hookPost:   cfg.HookPost,
 		logger:     logger,
-		seen:       make(map[string]bool)}
+		seen:       make(map[string]bool),
+	}
 }
 
 func (w *Walkway) Walk() error {
@@ -134,7 +135,6 @@ func (w *Walkway) Walk() error {
 	}
 
 	return w.walk(w.root, fi, w.dirEntries, w.walkFn)
-
 }
 
 // if the filesystem supports it, use Lstat, else use fs.Stat
@@ -158,15 +158,15 @@ func (w *Walkway) checkErr(filename string, err error) bool {
 		// The file may be removed in process.
 		// This may be a ERROR situation, but it is not possible
 		// to determine as a general case.
-		w.logger.WARN.Printf("File %q not found, skipping.", filename)
+		w.logger.Warnf("File %q not found, skipping.", filename)
 		return true
 	}
 
 	return false
 }
 
-func logUnsupportedSymlink(filename string, logger *loggers.Logger) {
-	logger.WARN.Printf("Unsupported symlink found in %q, skipping.", filename)
+func logUnsupportedSymlink(filename string, logger loggers.Logger) {
+	logger.Warnf("Unsupported symlink found in %q, skipping.", filename)
 }
 
 // walk recursively descends path, calling walkFn.

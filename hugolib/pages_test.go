@@ -55,13 +55,13 @@ func BenchmarkPagesPrevNext(b *testing.B) {
 	}
 
 	for _, variant := range []Variant{
-		Variant{".Next", nil, func(p page.Page, pages page.Pages) { p.Next() }},
-		Variant{".Prev", nil, func(p page.Page, pages page.Pages) { p.Prev() }},
-		Variant{"Pages.Next", nil, func(p page.Page, pages page.Pages) { pages.Next(p) }},
-		Variant{"Pages.Prev", nil, func(p page.Page, pages page.Pages) { pages.Prev(p) }},
-		Variant{"Pages.Shuffled.Next", shufflePages, func(p page.Page, pages page.Pages) { pages.Next(p) }},
-		Variant{"Pages.Shuffled.Prev", shufflePages, func(p page.Page, pages page.Pages) { pages.Prev(p) }},
-		Variant{"Pages.ByTitle.Next", func(pages page.Pages) page.Pages { return pages.ByTitle() }, func(p page.Page, pages page.Pages) { pages.Next(p) }},
+		{".Next", nil, func(p page.Page, pages page.Pages) { p.Next() }},
+		{".Prev", nil, func(p page.Page, pages page.Pages) { p.Prev() }},
+		{"Pages.Next", nil, func(p page.Page, pages page.Pages) { pages.Next(p) }},
+		{"Pages.Prev", nil, func(p page.Page, pages page.Pages) { pages.Prev(p) }},
+		{"Pages.Shuffled.Next", shufflePages, func(p page.Page, pages page.Pages) { pages.Next(p) }},
+		{"Pages.Shuffled.Prev", shufflePages, func(p page.Page, pages page.Pages) { pages.Prev(p) }},
+		{"Pages.ByTitle.Next", func(pages page.Pages) page.Pages { return pages.ByTitle() }, func(p page.Page, pages page.Pages) { pages.Next(p) }},
 	} {
 		for _, numPages := range []int{300, 5000} {
 			b.Run(fmt.Sprintf("%s-pages-%d", variant.name, numPages), func(b *testing.B) {

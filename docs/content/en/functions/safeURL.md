@@ -69,4 +69,4 @@ With the `.URL` page variable piped through `safeURL`, we get the desired output
 
 [configuration]: /getting-started/configuration/
 [menus]: /content-management/menus/
-[RFC 3986]: http://tools.ietf.org/html/rfc3986
+[RFC 3986]: https://tools.ietf.org/html/rfc3986

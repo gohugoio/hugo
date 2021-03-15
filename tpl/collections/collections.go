@@ -18,7 +18,6 @@ package collections
 import (
 	"fmt"
 	"html/template"
-
 	"math/rand"
 	"net/url"
 	"reflect"
@@ -271,18 +270,13 @@ func (ns *Namespace) In(l interface{}, v interface{}) (bool, error) {
 	lv := reflect.ValueOf(l)
 	vv := reflect.ValueOf(v)
 
-	if !vv.Type().Comparable() {
-		return false, errors.Errorf("value to check must be comparable: %T", v)
-	}
-
-	// Normalize numeric types to float64 etc.
 	vvk := normalize(vv)
 
 	switch lv.Kind() {
 	case reflect.Array, reflect.Slice:
 		for i := 0; i < lv.Len(); i++ {
 			lvv, isNil := indirectInterface(lv.Index(i))
-			if isNil || !lvv.Type().Comparable() {
+			if isNil {
 				continue
 			}
 
@@ -292,12 +286,17 @@ func (ns *Namespace) In(l interface{}, v interface{}) (bool, error) {
 				return true, nil
 			}
 		}
-	case reflect.String:
-		if vv.Type() == lv.Type() && strings.Contains(lv.String(), vv.String()) {
-			return true, nil
-		}
 	}
-	return false, nil
+	ss, err := cast.ToStringE(l)
+	if err != nil {
+		return false, nil
+	}
+
+	su, err := cast.ToStringE(v)
+	if err != nil {
+		return false, nil
+	}
+	return strings.Contains(ss, su), nil
 }
 
 // Intersect returns the common elements in the given sets, l1 and l2.  l1 and
@@ -478,9 +477,9 @@ func (ns *Namespace) Seq(args ...interface{}) ([]int, error) {
 		return nil, errors.New("invalid arguments to Seq")
 	}
 
-	var inc = 1
+	inc := 1
 	var last int
-	var first = intArgs[0]
+	first := intArgs[0]
 
 	if len(intArgs) == 1 {
 		last = first
@@ -580,7 +579,6 @@ type intersector struct {
 }
 
 func (i *intersector) appendIfNotSeen(v reflect.Value) {
-
 	vi := v.Interface()
 	if !i.seen[vi] {
 		i.r = reflect.Append(i.r, v)
@@ -708,6 +706,7 @@ func (ns *Namespace) Uniq(seq interface{}) (interface{}, error) {
 	switch v.Kind() {
 	case reflect.Slice:
 		slice = reflect.MakeSlice(v.Type(), 0, 0)
+
 	case reflect.Array:
 		slice = reflect.MakeSlice(reflect.SliceOf(v.Type().Elem()), 0, 0)
 	default:
@@ -715,12 +714,12 @@ func (ns *Namespace) Uniq(seq interface{}) (interface{}, error) {
 	}
 
 	seen := make(map[interface{}]bool)
+
 	for i := 0; i < v.Len(); i++ {
 		ev, _ := indirectInterface(v.Index(i))
-		if !ev.Type().Comparable() {
-			return nil, errors.New("elements must be comparable")
-		}
+
 		key := normalize(ev)
+
 		if _, found := seen[key]; !found {
 			slice = reflect.Append(slice, ev)
 			seen[key] = true
@@ -728,7 +727,6 @@ func (ns *Namespace) Uniq(seq interface{}) (interface{}, error) {
 	}
 
 	return slice.Interface(), nil
-
 }
 
 // KeyVals creates a key and values wrapper.

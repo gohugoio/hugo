@@ -15,23 +15,37 @@
 // is of limited interest for the general Hugo user.
 package docshelper
 
-import (
-	"encoding/json"
+type (
+	DocProviderFunc = func() DocProvider
+	DocProvider     map[string]map[string]interface{}
 )
 
-// DocProviders contains all DocProviders added to the system.
-var DocProviders = make(map[string]DocProvider)
+var docProviderFuncs []DocProviderFunc
 
-// AddDocProvider adds or updates the DocProvider for a given name.
-func AddDocProvider(name string, provider DocProvider) {
-	DocProviders[name] = provider
+func AddDocProviderFunc(fn DocProviderFunc) {
+	docProviderFuncs = append(docProviderFuncs, fn)
 }
 
-// DocProvider is used to save arbitrary JSON data
-// used for the generation of the documentation.
-type DocProvider func() map[string]interface{}
+func GetDocProvider() DocProvider {
+	provider := make(DocProvider)
 
-// MarshalJSON returns a JSON representation of the DocProvider.
-func (d DocProvider) MarshalJSON() ([]byte, error) {
-	return json.MarshalIndent(d(), "", "  ")
+	for _, fn := range docProviderFuncs {
+		p := fn()
+		for k, v := range p {
+			if prev, found := provider[k]; !found {
+				provider[k] = v
+			} else {
+				merge(prev, v)
+			}
+		}
+	}
+
+	return provider
+}
+
+// Shallow merge
+func merge(dst, src map[string]interface{}) {
+	for k, v := range src {
+		dst[k] = v
+	}
 }

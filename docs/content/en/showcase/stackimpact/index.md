@@ -1,13 +1,8 @@
 ---
-
 title: StackImpact
-
 date: 2018-02-20
-
 description: "\"Hugo is a perfect choice for a product website.\""
-
 siteURL: https://stackimpact.com/
-
 ---
 
 After gradually handing over the control of our website to WordPress plugins, we realized that we needed to act.

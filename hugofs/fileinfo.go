@@ -37,8 +37,10 @@ import (
 const (
 	metaKeyFilename = "filename"
 
+	metaKeySourceRoot                 = "sourceRoot"
 	metaKeyBaseDir                    = "baseDir" // Abs base directory of source file.
 	metaKeyMountRoot                  = "mountRoot"
+	metaKeyModule                     = "module"
 	metaKeyOriginalFilename           = "originalFilename"
 	metaKeyName                       = "name"
 	metaKeyPath                       = "path"
@@ -84,6 +86,7 @@ func (f FileMeta) OriginalFilename() string {
 func (f FileMeta) SkipDir() bool {
 	return f.GetBool(metaKeySkipDir)
 }
+
 func (f FileMeta) TranslationBaseName() string {
 	return f.stringV(metaKeyTranslationBaseName)
 }
@@ -100,10 +103,10 @@ func (f FileMeta) Name() string {
 	return f.stringV(metaKeyName)
 }
 
-func (f FileMeta) Classifier() string {
-	c := f.stringV(metaKeyClassifier)
-	if c != "" {
-		return c
+func (f FileMeta) Classifier() files.ContentClass {
+	c, found := f[metaKeyClassifier]
+	if found {
+		return c.(files.ContentClass)
 	}
 
 	return files.ContentClassFile // For sorting
@@ -127,8 +130,16 @@ func (f FileMeta) PathFile() string {
 	return strings.TrimPrefix(strings.TrimPrefix(f.Filename(), base), filepathSeparator)
 }
 
+func (f FileMeta) SourceRoot() string {
+	return f.stringV(metaKeySourceRoot)
+}
+
 func (f FileMeta) MountRoot() string {
 	return f.stringV(metaKeyMountRoot)
+}
+
+func (f FileMeta) Module() string {
+	return f.stringV(metaKeyModule)
 }
 
 func (f FileMeta) Weight() int {
@@ -226,7 +237,6 @@ func (fi *fileInfoMeta) Meta() FileMeta {
 }
 
 func NewFileMetaInfo(fi os.FileInfo, m FileMeta) FileMetaInfo {
-
 	if fim, ok := fi.(FileMetaInfo); ok {
 		mergeFileMeta(fim.Meta(), m)
 	}
@@ -302,7 +312,6 @@ func decorateFileInfo(
 	fi os.FileInfo,
 	fs afero.Fs, opener func() (afero.File, error),
 	filename, filepath string, inMeta FileMeta) FileMetaInfo {
-
 	var meta FileMeta
 	var fim FileMetaInfo
 
@@ -324,7 +333,6 @@ func decorateFileInfo(
 	mergeFileMeta(inMeta, meta)
 
 	return fim
-
 }
 
 func isSymlink(fi os.FileInfo) bool {
@@ -369,6 +377,5 @@ func sortFileInfos(fis []os.FileInfo) {
 	sort.Slice(fis, func(i, j int) bool {
 		fimi, fimj := fis[i].(FileMetaInfo), fis[j].(FileMetaInfo)
 		return fimi.Meta().Filename() < fimj.Meta().Filename()
-
 	})
 }

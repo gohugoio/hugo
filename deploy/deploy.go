@@ -11,6 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// +build !nodeploy
+
 package deploy
 
 import (
@@ -31,7 +33,9 @@ import (
 	"sync"
 
 	"github.com/dustin/go-humanize"
+	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/media"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	jww "github.com/spf13/jwalterweatherman"
@@ -50,6 +54,7 @@ type Deployer struct {
 
 	target        *target          // the target to deploy to
 	matchers      []*matcher       // matchers to apply to uploaded files
+	mediaTypes    media.Types      // Hugo's MediaType to guess ContentType
 	ordering      []*regexp.Regexp // orders uploads
 	quiet         bool             // true reduces STDOUT
 	confirm       bool             // true enables confirmation before making changes
@@ -95,11 +100,13 @@ func New(cfg config.Provider, localFs afero.Fs) (*Deployer, error) {
 			return nil, fmt.Errorf("deployment target %q not found", targetName)
 		}
 	}
+
 	return &Deployer{
 		localFs:       localFs,
 		target:        tgt,
 		matchers:      dcfg.Matchers,
 		ordering:      dcfg.ordering,
+		mediaTypes:    dcfg.mediaTypes,
 		quiet:         cfg.GetBool("quiet"),
 		confirm:       cfg.GetBool("confirm"),
 		dryRun:        cfg.GetBool("dryRun"),
@@ -125,7 +132,11 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 	}
 
 	// Load local files from the source directory.
-	local, err := walkLocal(d.localFs, d.matchers)
+	var include, exclude glob.Glob
+	if d.target != nil {
+		include, exclude = d.target.includeGlob, d.target.excludeGlob
+	}
+	local, err := walkLocal(d.localFs, d.matchers, include, exclude, d.mediaTypes)
 	if err != nil {
 		return err
 	}
@@ -133,7 +144,7 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 	d.summary.NumLocal = len(local)
 
 	// Load remote files from the target.
-	remote, err := walkRemote(ctx, bucket)
+	remote, err := walkRemote(ctx, bucket, include, exclude)
 	if err != nil {
 		return err
 	}
@@ -251,17 +262,29 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 
 	if d.invalidateCDN {
 		if d.target.CloudFrontDistributionID != "" {
-			jww.FEEDBACK.Println("Invalidating CloudFront CDN...")
-			if err := InvalidateCloudFront(ctx, d.target.CloudFrontDistributionID); err != nil {
-				jww.FEEDBACK.Printf("Failed to invalidate CloudFront CDN: %v\n", err)
-				return err
+			if d.dryRun {
+				if !d.quiet {
+					jww.FEEDBACK.Printf("[DRY RUN] Would invalidate CloudFront CDN with ID %s\n", d.target.CloudFrontDistributionID)
+				}
+			} else {
+				jww.FEEDBACK.Println("Invalidating CloudFront CDN...")
+				if err := InvalidateCloudFront(ctx, d.target.CloudFrontDistributionID); err != nil {
+					jww.FEEDBACK.Printf("Failed to invalidate CloudFront CDN: %v\n", err)
+					return err
+				}
 			}
 		}
 		if d.target.GoogleCloudCDNOrigin != "" {
-			jww.FEEDBACK.Println("Invalidating Google Cloud CDN...")
-			if err := InvalidateGoogleCloudCDN(ctx, d.target.GoogleCloudCDNOrigin); err != nil {
-				jww.FEEDBACK.Printf("Failed to invalidate Google Cloud CDN: %v\n", err)
-				return err
+			if d.dryRun {
+				if !d.quiet {
+					jww.FEEDBACK.Printf("[DRY RUN] Would invalidate Google Cloud CDN with origin %s\n", d.target.GoogleCloudCDNOrigin)
+				}
+			} else {
+				jww.FEEDBACK.Println("Invalidating Google Cloud CDN...")
+				if err := InvalidateGoogleCloudCDN(ctx, d.target.GoogleCloudCDNOrigin); err != nil {
+					jww.FEEDBACK.Printf("Failed to invalidate Google Cloud CDN: %v\n", err)
+					return err
+				}
 			}
 		}
 		jww.FEEDBACK.Println("Success!")
@@ -317,14 +340,15 @@ type localFile struct {
 	// gzipped before upload.
 	UploadSize int64
 
-	fs      afero.Fs
-	matcher *matcher
-	md5     []byte       // cache
-	gzipped bytes.Buffer // cached of gzipped contents if gzipping
+	fs         afero.Fs
+	matcher    *matcher
+	md5        []byte       // cache
+	gzipped    bytes.Buffer // cached of gzipped contents if gzipping
+	mediaTypes media.Types
 }
 
 // newLocalFile initializes a *localFile.
-func newLocalFile(fs afero.Fs, nativePath, slashpath string, m *matcher) (*localFile, error) {
+func newLocalFile(fs afero.Fs, nativePath, slashpath string, m *matcher, mt media.Types) (*localFile, error) {
 	f, err := fs.Open(nativePath)
 	if err != nil {
 		return nil, err
@@ -335,6 +359,7 @@ func newLocalFile(fs afero.Fs, nativePath, slashpath string, m *matcher) (*local
 		SlashPath:  slashpath,
 		fs:         fs,
 		matcher:    m,
+		mediaTypes: mt,
 	}
 	if m != nil && m.Gzip {
 		// We're going to gzip the content. Do it once now, and cache the result
@@ -405,10 +430,13 @@ func (lf *localFile) ContentType() string {
 	if lf.matcher != nil && lf.matcher.ContentType != "" {
 		return lf.matcher.ContentType
 	}
-	// TODO: Hugo has a MediaType and a MediaTypes list and also a concept
-	// of custom MIME types.
-	// Use 1) The matcher 2) Hugo's MIME types 3) TypeByExtension.
-	return mime.TypeByExtension(filepath.Ext(lf.NativePath))
+
+	ext := filepath.Ext(lf.NativePath)
+	if mimeType, _, found := lf.mediaTypes.GetFirstBySuffix(strings.TrimPrefix(ext, ".")); found {
+		return mimeType.Type()
+	}
+
+	return mime.TypeByExtension(ext)
 }
 
 // Force returns true if the file should be forced to re-upload based on the
@@ -435,9 +463,24 @@ func (lf *localFile) MD5() []byte {
 	return lf.md5
 }
 
+// knownHiddenDirectory checks if the specified name is a well known
+// hidden directory.
+func knownHiddenDirectory(name string) bool {
+	knownDirectories := []string{
+		".well-known",
+	}
+
+	for _, dir := range knownDirectories {
+		if name == dir {
+			return true
+		}
+	}
+	return false
+}
+
 // walkLocal walks the source directory and returns a flat list of files,
 // using localFile.SlashPath as the map keys.
-func walkLocal(fs afero.Fs, matchers []*matcher) (map[string]*localFile, error) {
+func walkLocal(fs afero.Fs, matchers []*matcher, include, exclude glob.Glob, mediaTypes media.Types) (map[string]*localFile, error) {
 	retval := map[string]*localFile{}
 	err := afero.Walk(fs, "", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -446,7 +489,10 @@ func walkLocal(fs afero.Fs, matchers []*matcher) (map[string]*localFile, error) 
 		if info.IsDir() {
 			// Skip hidden directories.
 			if path != "" && strings.HasPrefix(info.Name(), ".") {
-				return filepath.SkipDir
+				// Except for specific hidden directories
+				if !knownHiddenDirectory(info.Name()) {
+					return filepath.SkipDir
+				}
 			}
 			return nil
 		}
@@ -461,8 +507,18 @@ func walkLocal(fs afero.Fs, matchers []*matcher) (map[string]*localFile, error) 
 			path = norm.NFC.String(path)
 		}
 
-		// Find the first matching matcher (if any).
+		// Check include/exclude matchers.
 		slashpath := filepath.ToSlash(path)
+		if include != nil && !include.Match(slashpath) {
+			jww.INFO.Printf("  dropping %q due to include\n", slashpath)
+			return nil
+		}
+		if exclude != nil && exclude.Match(slashpath) {
+			jww.INFO.Printf("  dropping %q due to exclude\n", slashpath)
+			return nil
+		}
+
+		// Find the first matching matcher (if any).
 		var m *matcher
 		for _, cur := range matchers {
 			if cur.Matches(slashpath) {
@@ -470,7 +526,7 @@ func walkLocal(fs afero.Fs, matchers []*matcher) (map[string]*localFile, error) 
 				break
 			}
 		}
-		lf, err := newLocalFile(fs, path, slashpath, m)
+		lf, err := newLocalFile(fs, path, slashpath, m, mediaTypes)
 		if err != nil {
 			return err
 		}
@@ -484,7 +540,7 @@ func walkLocal(fs afero.Fs, matchers []*matcher) (map[string]*localFile, error) 
 }
 
 // walkRemote walks the target bucket and returns a flat list.
-func walkRemote(ctx context.Context, bucket *blob.Bucket) (map[string]*blob.ListObject, error) {
+func walkRemote(ctx context.Context, bucket *blob.Bucket, include, exclude glob.Glob) (map[string]*blob.ListObject, error) {
 	retval := map[string]*blob.ListObject{}
 	iter := bucket.List(nil)
 	for {
@@ -494,6 +550,15 @@ func walkRemote(ctx context.Context, bucket *blob.Bucket) (map[string]*blob.List
 		}
 		if err != nil {
 			return nil, err
+		}
+		// Check include/exclude matchers.
+		if include != nil && !include.Match(obj.Key) {
+			jww.INFO.Printf("  remote dropping %q due to include\n", obj.Key)
+			continue
+		}
+		if exclude != nil && exclude.Match(obj.Key) {
+			jww.INFO.Printf("  remote dropping %q due to exclude\n", obj.Key)
+			continue
 		}
 		// If the remote didn't give us an MD5, compute one.
 		// This can happen for some providers (e.g., fileblob, which uses the
@@ -632,7 +697,6 @@ func findDiffs(localFiles map[string]*localFile, remoteFiles map[string]*blob.Li
 //
 // The subslices are sorted by Local.SlashPath.
 func applyOrdering(ordering []*regexp.Regexp, uploads []*fileToUpload) [][]*fileToUpload {
-
 	// Sort the whole slice by Local.SlashPath first.
 	sort.Slice(uploads, func(i, j int) bool { return uploads[i].Local.SlashPath < uploads[j].Local.SlashPath })
 

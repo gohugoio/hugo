@@ -17,7 +17,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"html/template"
 	"io"
 	"path"
 	"path/filepath"
@@ -32,15 +31,13 @@ import (
 	"github.com/gohugoio/hugo/tpl"
 )
 
-var defaultAliasTemplates *template.Template
-
 type aliasHandler struct {
 	t         tpl.TemplateHandler
-	log       *loggers.Logger
+	log       loggers.Logger
 	allowRoot bool
 }
 
-func newAliasHandler(t tpl.TemplateHandler, l *loggers.Logger, allowRoot bool) aliasHandler {
+func newAliasHandler(t tpl.TemplateHandler, l loggers.Logger, allowRoot bool) aliasHandler {
 	return aliasHandler{t, l, allowRoot}
 }
 
@@ -50,7 +47,6 @@ type aliasPage struct {
 }
 
 func (a aliasHandler) renderAlias(permalink string, p page.Page) (io.Reader, error) {
-
 	var templ tpl.Template
 	var found bool
 
@@ -83,7 +79,7 @@ func (s *Site) writeDestAlias(path, permalink string, outputFormat output.Format
 func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, outputFormat output.Format, p page.Page) (err error) {
 	handler := newAliasHandler(s.Tmpl(), s.Log, allowRoot)
 
-	s.Log.DEBUG.Println("creating alias:", path, "redirecting to", permalink)
+	s.Log.Debug().Println("creating alias:", path, "redirecting to", permalink)
 
 	targetPath, err := handler.targetPathAlias(path)
 	if err != nil {
@@ -102,8 +98,11 @@ func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, outputFo
 		OutputFormat: outputFormat,
 	}
 
-	return s.publisher.Publish(pd)
+	if s.Info.relativeURLs || s.Info.canonifyURLs {
+		pd.AbsURLPath = s.absURLPath(targetPath)
+	}
 
+	return s.publisher.Publish(pd)
 }
 
 func (a aliasHandler) targetPathAlias(src string) (string, error) {
@@ -153,12 +152,12 @@ func (a aliasHandler) targetPathAlias(src string) (string, error) {
 	if len(msgs) > 0 {
 		if runtime.GOOS == "windows" {
 			for _, m := range msgs {
-				a.log.ERROR.Println(m)
+				a.log.Errorln(m)
 			}
 			return "", fmt.Errorf("cannot create \"%s\": Windows filename restriction", originalAlias)
 		}
 		for _, m := range msgs {
-			a.log.INFO.Println(m)
+			a.log.Infoln(m)
 		}
 	}
 

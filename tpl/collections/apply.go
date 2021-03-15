@@ -52,7 +52,6 @@ func (ns *Namespace) Apply(seq interface{}, fname string, args ...interface{}) (
 			vv := seqv.Index(i)
 
 			vvv, err := applyFnToThis(fnv, vv, args...)
-
 			if err != nil {
 				return nil, err
 			}

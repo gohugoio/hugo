@@ -10,19 +10,19 @@ import (
 
 // This is is just some helpers used to create some JSON used in the Hugo docs.
 func init() {
-	docsProvider := func() map[string]interface{} {
-		docs := make(map[string]interface{})
-
-		docs["formats"] = DefaultFormats
-		docs["layouts"] = createLayoutExamples()
-		return docs
+	docsProvider := func() docshelper.DocProvider {
+		return docshelper.DocProvider{
+			"output": map[string]interface{}{
+				"formats": DefaultFormats,
+				"layouts": createLayoutExamples(),
+			},
+		}
 	}
 
-	docshelper.AddDocProvider("output", docsProvider)
+	docshelper.AddDocProviderFunc(docsProvider)
 }
 
 func createLayoutExamples() interface{} {
-
 	type Example struct {
 		Example      string
 		Kind         string
@@ -59,14 +59,14 @@ func createLayoutExamples() interface{} {
 		{"JSON home", LayoutDescriptor{Kind: "home", Type: "page"}, JSONFormat},
 		{"RSS home", LayoutDescriptor{Kind: "home", Type: "page"}, RSSFormat},
 		{"RSS section posts", LayoutDescriptor{Kind: "section", Type: "posts"}, RSSFormat},
-		{"Taxonomy list in categories", LayoutDescriptor{Kind: "taxonomy", Type: "categories", Section: "category"}, RSSFormat},
-		{"Taxonomy terms in categories", LayoutDescriptor{Kind: "taxonomyTerm", Type: "categories", Section: "category"}, RSSFormat},
+		{"Taxonomy in categories", LayoutDescriptor{Kind: "taxonomy", Type: "categories", Section: "category"}, RSSFormat},
+		{"Term in categories", LayoutDescriptor{Kind: "term", Type: "categories", Section: "category"}, RSSFormat},
 		{"Section list for \"posts\" section", LayoutDescriptor{Kind: "section", Type: "posts", Section: "posts"}, HTMLFormat},
 		{"Section list for \"posts\" section with type set to \"blog\"", LayoutDescriptor{Kind: "section", Type: "blog", Section: "posts"}, HTMLFormat},
 		{"Section list for \"posts\" section with layout set to \"demoLayout\"", LayoutDescriptor{Kind: "section", Layout: demoLayout, Section: "posts"}, HTMLFormat},
 
 		{"Taxonomy list in categories", LayoutDescriptor{Kind: "taxonomy", Type: "categories", Section: "category"}, HTMLFormat},
-		{"Taxonomy term in categories", LayoutDescriptor{Kind: "taxonomyTerm", Type: "categories", Section: "category"}, HTMLFormat},
+		{"Taxonomy term in categories", LayoutDescriptor{Kind: "term", Type: "categories", Section: "category"}, HTMLFormat},
 	} {
 
 		l := NewLayoutHandler()
@@ -76,12 +76,12 @@ func createLayoutExamples() interface{} {
 			Example:      example.name,
 			Kind:         example.d.Kind,
 			OutputFormat: example.f.Name,
-			Suffix:       example.f.MediaType.Suffix(),
-			Layouts:      makeLayoutsPresentable(layouts)})
+			Suffix:       example.f.MediaType.FirstSuffix.Suffix,
+			Layouts:      makeLayoutsPresentable(layouts),
+		})
 	}
 
 	return basicExamples
-
 }
 
 func makeLayoutsPresentable(l []string) []string {

@@ -20,6 +20,7 @@ package helpers
 import (
 	"bytes"
 	"html/template"
+	"strings"
 	"unicode"
 	"unicode/utf8"
 
@@ -33,8 +34,6 @@ import (
 
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/config"
-
-	"strings"
 )
 
 // SummaryDivider denotes where content summarization should end. The default is "<!--more-->".
@@ -44,6 +43,7 @@ var (
 	openingPTag        = []byte("<p>")
 	closingPTag        = []byte("</p>")
 	paragraphIndicator = []byte("<p")
+	closingIndicator   = []byte("</")
 )
 
 // ContentSpec provides functionality to render markdown content.
@@ -64,8 +64,7 @@ type ContentSpec struct {
 
 // NewContentSpec returns a ContentSpec initialized
 // with the appropriate fields from the given config.Provider.
-func NewContentSpec(cfg config.Provider, logger *loggers.Logger, contentFs afero.Fs) (*ContentSpec, error) {
-
+func NewContentSpec(cfg config.Provider, logger loggers.Logger, contentFs afero.Fs) (*ContentSpec, error) {
 	spec := &ContentSpec{
 		summaryLength: cfg.GetInt("summaryLength"),
 		BuildFuture:   cfg.GetBool("buildFuture"),
@@ -80,7 +79,6 @@ func NewContentSpec(cfg config.Provider, logger *loggers.Logger, contentFs afero
 		ContentFs: contentFs,
 		Logger:    logger,
 	})
-
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +109,6 @@ var stripHTMLReplacer = strings.NewReplacer("\n", " ", "</p>", "\n", "<br>", "\n
 
 // StripHTML accepts a string, strips out all HTML tags and returns it.
 func StripHTML(s string) string {
-
 	// Shortcut strings with no tags in them
 	if !strings.ContainsAny(s, "<>") {
 		return s
@@ -315,9 +312,13 @@ func (c *ContentSpec) TruncateWordsToWholeSentence(s string) (string, bool) {
 // where said tags are the only <p> tags in the input and enclose the content
 // of the input (whitespace excluded).
 func (c *ContentSpec) TrimShortHTML(input []byte) []byte {
-	first := bytes.Index(input, paragraphIndicator)
-	last := bytes.LastIndex(input, paragraphIndicator)
-	if first == last {
+	firstOpeningP := bytes.Index(input, paragraphIndicator)
+	lastOpeningP := bytes.LastIndex(input, paragraphIndicator)
+
+	lastClosingP := bytes.LastIndex(input, closingPTag)
+	lastClosing := bytes.LastIndex(input, closingIndicator)
+
+	if firstOpeningP == lastOpeningP && lastClosingP == lastClosing {
 		input = bytes.TrimSpace(input)
 		input = bytes.TrimPrefix(input, openingPTag)
 		input = bytes.TrimSuffix(input, closingPTag)

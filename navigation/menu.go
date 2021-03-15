@@ -14,13 +14,13 @@
 package navigation
 
 import (
-	"github.com/gohugoio/hugo/common/maps"
-	"github.com/gohugoio/hugo/common/types"
-	"github.com/gohugoio/hugo/compare"
-
 	"html/template"
 	"sort"
 	"strings"
+
+	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/types"
+	"github.com/gohugoio/hugo/compare"
 
 	"github.com/spf13/cast"
 )
@@ -39,6 +39,7 @@ type MenuEntry struct {
 	Weight        int
 	Parent        string
 	Children      Menu
+	Params        maps.Params
 }
 
 func (m *MenuEntry) URL() string {
@@ -127,6 +128,8 @@ func (m *MenuEntry) MarshallMap(ime map[string]interface{}) {
 			m.Identifier = cast.ToString(v)
 		case "parent":
 			m.Parent = cast.ToString(v)
+		case "params":
+			m.Params = maps.ToStringMap(v)
 		}
 	}
 }

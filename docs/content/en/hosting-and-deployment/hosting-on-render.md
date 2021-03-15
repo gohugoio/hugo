@@ -46,12 +46,11 @@ Static sites are **completely free** on Render and include the following:
 
 You can set up a Hugo site on Render in two quick steps:
 
-1. Create a new **Web Service** on Render, and give Render permission to access your GitHub/Gitlab repo.
+1. Create a new **Static Site** on Render, and give Render permission to access your GitHub/Gitlab repo.
 2. Use the following values during creation:
 
   Field                | Value
   -------------------  |  -------------------
- **Environment**       | `Static Site`
  **Build Command**     | `hugo --gc --minify` (or your own build command)
  **Publish Directory** | `public` (or your own output directory)
 

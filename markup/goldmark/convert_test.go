@@ -17,6 +17,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/spf13/cast"
+
 	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
 
 	"github.com/gohugoio/hugo/markup/highlight"
@@ -31,7 +33,6 @@ import (
 )
 
 func convert(c *qt.C, mconf markup_config.Config, content string) converter.Result {
-
 	p, err := Provider.New(
 		converter.ProviderConfig{
 			MarkupConfig: mconf,
@@ -149,7 +150,7 @@ description
 	c.Assert(got, qt.Contains, `Autolink: <a href="https://gohugo.io/">https://gohugo.io/</a>`)
 	c.Assert(got, qt.Contains, `Strikethrough:<del>Hi</del> Hello, world`)
 	c.Assert(got, qt.Contains, `<th>foo</th>`)
-	c.Assert(got, qt.Contains, `<li><input disabled="" type="checkbox">Push my commits to GitHub</li>`)
+	c.Assert(got, qt.Contains, `<li><input disabled="" type="checkbox"> Push my commits to GitHub</li>`)
 
 	c.Assert(got, qt.Contains, `Straight double &ldquo;quotes&rdquo; and single &lsquo;quotes&rsquo;`)
 	c.Assert(got, qt.Contains, `Dashes (“&ndash;” and “&mdash;”) `)
@@ -163,7 +164,6 @@ description
 	c.Assert(ok, qt.Equals, true)
 	tocHTML := toc.TableOfContents().ToHTML(1, 2, false)
 	c.Assert(tocHTML, qt.Contains, "TableOfContents")
-
 }
 
 func TestConvertAutoIDAsciiOnly(t *testing.T) {
@@ -193,6 +193,141 @@ func TestConvertAutoIDBlackfriday(t *testing.T) {
 	got := string(b.Bytes())
 
 	c.Assert(got, qt.Contains, "<h2 id=\"let-s-try-this-shall-we\">")
+}
+
+func TestConvertAttributes(t *testing.T) {
+	c := qt.New(t)
+
+	withBlockAttributes := func(conf *markup_config.Config) {
+		conf.Goldmark.Parser.Attribute.Block = true
+		conf.Goldmark.Parser.Attribute.Title = false
+	}
+
+	withTitleAndBlockAttributes := func(conf *markup_config.Config) {
+		conf.Goldmark.Parser.Attribute.Block = true
+		conf.Goldmark.Parser.Attribute.Title = true
+	}
+
+	for _, test := range []struct {
+		name       string
+		withConfig func(conf *markup_config.Config)
+		input      string
+		expect     interface{}
+	}{
+		{
+			"Title",
+			nil,
+			"## heading {#id .className attrName=attrValue class=\"class1 class2\"}",
+			"<h2 id=\"id\" class=\"className class1 class2\" attrName=\"attrValue\">heading</h2>\n",
+		},
+		{
+			"Blockquote",
+			withBlockAttributes,
+			"> foo\n> bar\n{#id .className attrName=attrValue class=\"class1 class2\"}\n",
+			"<blockquote id=\"id\" class=\"className class1 class2\"><p>foo\nbar</p>\n</blockquote>\n",
+		},
+		/*{
+			// TODO(bep) this needs an upstream fix, see https://github.com/yuin/goldmark/issues/195
+			"Code block, CodeFences=false",
+			func(conf *markup_config.Config) {
+				withBlockAttributes(conf)
+				conf.Highlight.CodeFences = false
+			},
+			"```bash\necho 'foo';\n```\n{.myclass}",
+			"TODO",
+		},*/
+		{
+			"Code block, CodeFences=true",
+			func(conf *markup_config.Config) {
+				withBlockAttributes(conf)
+				conf.Highlight.CodeFences = true
+			},
+			"```bash\necho 'foo';\n````\n{.myclass id=\"myid\"}",
+			"<div class=\"highlight myclass\" id=\"myid\"><pre style",
+		},
+		{
+			"Paragraph",
+			withBlockAttributes,
+			"\nHi there.\n{.myclass }",
+			"<p class=\"myclass\">Hi there.</p>\n",
+		},
+		{
+			"Ordered list",
+			withBlockAttributes,
+			"\n1. First\n2. Second\n{.myclass }",
+			"<ol class=\"myclass\">\n<li>First</li>\n<li>Second</li>\n</ol>\n",
+		},
+		{
+			"Unordered list",
+			withBlockAttributes,
+			"\n* First\n* Second\n{.myclass }",
+			"<ul class=\"myclass\">\n<li>First</li>\n<li>Second</li>\n</ul>\n",
+		},
+		{
+			"Unordered list, indented",
+			withBlockAttributes,
+			`* Fruit
+  * Apple
+  * Orange
+  * Banana
+  {.fruits}
+* Dairy
+  * Milk
+  * Cheese
+  {.dairies}
+{.list}`,
+			[]string{"<ul class=\"list\">\n<li>Fruit\n<ul class=\"fruits\">", "<li>Dairy\n<ul class=\"dairies\">"},
+		},
+		{
+			"Table",
+			withBlockAttributes,
+			`| A        | B           |
+| ------------- |:-------------:| -----:|
+| AV      | BV |
+{.myclass }`,
+			"<table class=\"myclass\">\n<thead>",
+		},
+		{
+			"Title and Blockquote",
+			withTitleAndBlockAttributes,
+			"## heading {#id .className attrName=attrValue class=\"class1 class2\"}\n> foo\n> bar\n{.myclass}",
+			"<h2 id=\"id\" class=\"className class1 class2\" attrName=\"attrValue\">heading</h2>\n<blockquote class=\"myclass\"><p>foo\nbar</p>\n</blockquote>\n",
+		},
+	} {
+		c.Run(test.name, func(c *qt.C) {
+			mconf := markup_config.Default
+			if test.withConfig != nil {
+				test.withConfig(&mconf)
+			}
+			b := convert(c, mconf, test.input)
+			got := string(b.Bytes())
+
+			for _, s := range cast.ToStringSlice(test.expect) {
+				c.Assert(got, qt.Contains, s)
+			}
+
+		})
+	}
+
+}
+
+func TestConvertIssues(t *testing.T) {
+	c := qt.New(t)
+
+	// https://github.com/gohugoio/hugo/issues/7619
+	c.Run("Hyphen in HTML attributes", func(c *qt.C) {
+		mconf := markup_config.Default
+		mconf.Goldmark.Renderer.Unsafe = true
+		input := `<custom-element>
+    <div>This will be "slotted" into the custom element.</div>
+</custom-element>
+`
+
+		b := convert(c, mconf, input)
+		got := string(b.Bytes())
+
+		c.Assert(got, qt.Contains, "<custom-element>\n    <div>This will be \"slotted\" into the custom element.</div>\n</custom-element>\n")
+	})
 }
 
 func TestCodeFence(t *testing.T) {
@@ -237,7 +372,6 @@ LINE5
 </code></pre></div>`)
 		result = convertForConfig(c, cfg, `echo "Hugo Rocks!"`, "unknown")
 		c.Assert(result, qt.Equals, "<pre><code class=\"language-unknown\" data-lang=\"unknown\">echo &quot;Hugo Rocks!&quot;\n</code></pre>")
-
 	})
 
 	c.Run("Highlight lines, default config", func(c *qt.C) {

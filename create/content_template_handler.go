@@ -83,7 +83,6 @@ var (
 )
 
 func executeArcheTypeAsTemplate(s *hugolib.Site, name, kind, targetPath, archetypeFilename string) ([]byte, error) {
-
 	var (
 		archetypeContent  []byte
 		archetypeTemplate []byte
@@ -110,7 +109,7 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, name, kind, targetPath, archety
 		Date: time.Now().Format(time.RFC3339),
 		Name: name,
 		File: f,
-		Site: &s.Info,
+		Site: s.Info,
 	}
 
 	if archetypeFilename == "" {
@@ -145,5 +144,4 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, name, kind, targetPath, archety
 	archetypeContent = []byte(archetypeShortcodeReplacementsPost.Replace(buff.String()))
 
 	return archetypeContent, nil
-
 }

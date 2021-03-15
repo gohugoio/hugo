@@ -15,7 +15,6 @@ package transform
 
 import (
 	"html/template"
-
 	"testing"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -44,7 +43,7 @@ func TestEmojify(t *testing.T) {
 		expect interface{}
 	}{
 		{":notamoji:", template.HTML(":notamoji:")},
-		{"I :heart: Hugo", template.HTML("I ❤ Hugo")},
+		{"I :heart: Hugo", template.HTML("I ❤️ Hugo")},
 		// errors
 		{tstNoStringer{}, false},
 	} {
@@ -206,7 +205,6 @@ And then some.
 	c.Assert(err, qt.IsNil)
 	c.Assert(result, qt.Equals, template.HTML(
 		"<p>#First</p>\n<p>This is some <em>bold</em> text.</p>\n<h2 id=\"second\">Second</h2>\n<p>This is some more text.</p>\n<p>And then some.</p>\n"))
-
 }
 
 func TestPlainify(t *testing.T) {

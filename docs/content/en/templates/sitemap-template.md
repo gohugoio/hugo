@@ -43,7 +43,7 @@ For multilingual sites, we also create a Sitemap index. You can provide a custom
 
 ## Hugo’s sitemap.xml
 
-This template respects the version 0.9 of the [Sitemap Protocol](http://www.sitemaps.org/protocol.html).
+This template respects the version 0.9 of the [Sitemap Protocol](https://www.sitemaps.org/protocol.html).
 
 ```xml
 {{ printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>" | safeHTML }}

@@ -100,3 +100,34 @@ func TestSHA256(t *testing.T) {
 		c.Assert(result, qt.Equals, test.expect, errMsg)
 	}
 }
+
+func TestHMAC(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	ns := New()
+
+	for i, test := range []struct {
+		hash   interface{}
+		key    interface{}
+		msg    interface{}
+		expect interface{}
+	}{
+		{"md5", "Secret key", "Hello world, gophers!", "36eb69b6bf2de96b6856fdee8bf89754"},
+		{"sha1", "Secret key", "Hello world, gophers!", "84a76647de6cd47ac6ae4258e3753f711172ce68"},
+		{"sha256", "Secret key", "Hello world, gophers!", "b6d11b6c53830b9d87036272ca9fe9d19306b8f9d8aa07b15da27d89e6e34f40"},
+		{"sha512", "Secret key", "Hello world, gophers!", "dc3e586cd936865e2abc4c12665e9cc568b2dad714df3c9037cbea159d036cfc4209da9e3fcd30887ff441056941966899f6fb7eec9646ff9ddb592595a8eb7f"},
+		{"", t, "", false},
+	} {
+		errMsg := qt.Commentf("[%d] %v, %v, %v", i, test.hash, test.key, test.msg)
+
+		result, err := ns.HMAC(test.hash, test.key, test.msg)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			continue
+		}
+
+		c.Assert(err, qt.IsNil, errMsg)
+		c.Assert(result, qt.Equals, test.expect, errMsg)
+	}
+}

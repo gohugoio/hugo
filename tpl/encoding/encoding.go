@@ -1,4 +1,4 @@
-// Copyright 2017 The Hugo Authors. All rights reserved.
+// Copyright 2020 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package encoding
 import (
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"html/template"
 
 	"github.com/spf13/cast"
@@ -51,9 +52,35 @@ func (ns *Namespace) Base64Encode(content interface{}) (string, error) {
 	return base64.StdEncoding.EncodeToString([]byte(conv)), nil
 }
 
-// Jsonify encodes a given object to JSON.
-func (ns *Namespace) Jsonify(v interface{}) (template.HTML, error) {
-	b, err := json.Marshal(v)
+// Jsonify encodes a given object to JSON.  To pretty print the JSON, pass a map
+// or dictionary of options as the first argument.  Supported options are
+// "prefix" and "indent".  Each JSON element in the output will begin on a new
+// line beginning with prefix followed by one or more copies of indent according
+// to the indentation nesting.
+func (ns *Namespace) Jsonify(args ...interface{}) (template.HTML, error) {
+	var (
+		b   []byte
+		err error
+	)
+
+	switch len(args) {
+	case 0:
+		return "", nil
+	case 1:
+		b, err = json.Marshal(args[0])
+	case 2:
+		var opts map[string]string
+
+		opts, err = cast.ToStringMapStringE(args[0])
+		if err != nil {
+			break
+		}
+
+		b, err = json.MarshalIndent(args[1], opts["prefix"], opts["indent"])
+	default:
+		err = errors.New("too many arguments to jsonify")
+	}
+
 	if err != nil {
 		return "", err
 	}

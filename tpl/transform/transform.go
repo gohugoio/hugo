@@ -98,7 +98,6 @@ func (ns *Namespace) Markdownify(s interface{}) (template.HTML, error) {
 	}
 
 	b, err := ns.deps.ContentSpec.RenderMarkdown([]byte(ss))
-
 	if err != nil {
 		return "", err
 	}

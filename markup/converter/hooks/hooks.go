@@ -14,10 +14,16 @@
 package hooks
 
 import (
+	"fmt"
 	"io"
+	"strings"
 
 	"github.com/gohugoio/hugo/identity"
 )
+
+type AttributesProvider interface {
+	Attributes() map[string]string
+}
 
 type LinkContext interface {
 	Page() interface{}
@@ -27,32 +33,100 @@ type LinkContext interface {
 	PlainText() string
 }
 
-type Render struct {
-	LinkRenderer  LinkRenderer
-	ImageRenderer LinkRenderer
+type LinkRenderer interface {
+	RenderLink(w io.Writer, ctx LinkContext) error
+	identity.Provider
 }
 
-func (r *Render) Eq(other interface{}) bool {
-	ro, ok := other.(*Render)
+// HeadingContext contains accessors to all attributes that a HeadingRenderer
+// can use to render a heading.
+type HeadingContext interface {
+	// Page is the page containing the heading.
+	Page() interface{}
+	// Level is the level of the header (i.e. 1 for top-level, 2 for sub-level, etc.).
+	Level() int
+	// Anchor is the HTML id assigned to the heading.
+	Anchor() string
+	// Text is the rendered (HTML) heading text, excluding the heading marker.
+	Text() string
+	// PlainText is the unrendered version of Text.
+	PlainText() string
+
+	// Attributes (e.g. CSS classes)
+	AttributesProvider
+}
+
+// HeadingRenderer describes a uniquely identifiable rendering hook.
+type HeadingRenderer interface {
+	// Render writes the rendered content to w using the data in w.
+	RenderHeading(w io.Writer, ctx HeadingContext) error
+	identity.Provider
+}
+
+type Renderers struct {
+	LinkRenderer    LinkRenderer
+	ImageRenderer   LinkRenderer
+	HeadingRenderer HeadingRenderer
+}
+
+func (r Renderers) Eq(other interface{}) bool {
+	ro, ok := other.(Renderers)
 	if !ok {
 		return false
 	}
-	if r == nil || ro == nil {
-		return r == nil
+
+	if r.IsZero() || ro.IsZero() {
+		return r.IsZero() && ro.IsZero()
 	}
 
-	if r.ImageRenderer.GetIdentity() != ro.ImageRenderer.GetIdentity() {
+	var b1, b2 bool
+	b1, b2 = r.ImageRenderer == nil, ro.ImageRenderer == nil
+	if (b1 || b2) && (b1 != b2) {
+		return false
+	}
+	if !b1 && r.ImageRenderer.GetIdentity() != ro.ImageRenderer.GetIdentity() {
 		return false
 	}
 
-	if r.LinkRenderer.GetIdentity() != ro.LinkRenderer.GetIdentity() {
+	b1, b2 = r.LinkRenderer == nil, ro.LinkRenderer == nil
+	if (b1 || b2) && (b1 != b2) {
+		return false
+	}
+	if !b1 && r.LinkRenderer.GetIdentity() != ro.LinkRenderer.GetIdentity() {
+		return false
+	}
+
+	b1, b2 = r.HeadingRenderer == nil, ro.HeadingRenderer == nil
+	if (b1 || b2) && (b1 != b2) {
+		return false
+	}
+	if !b1 && r.HeadingRenderer.GetIdentity() != ro.HeadingRenderer.GetIdentity() {
 		return false
 	}
 
 	return true
 }
 
-type LinkRenderer interface {
-	Render(w io.Writer, ctx LinkContext) error
-	identity.Provider
+func (r Renderers) IsZero() bool {
+	return r.HeadingRenderer == nil && r.LinkRenderer == nil && r.ImageRenderer == nil
+}
+
+func (r Renderers) String() string {
+	if r.IsZero() {
+		return "<zero>"
+	}
+
+	var sb strings.Builder
+
+	if r.LinkRenderer != nil {
+		sb.WriteString(fmt.Sprintf("LinkRenderer<%s>|", r.LinkRenderer.GetIdentity()))
+	}
+	if r.HeadingRenderer != nil {
+		sb.WriteString(fmt.Sprintf("HeadingRenderer<%s>|", r.HeadingRenderer.GetIdentity()))
+	}
+	if r.ImageRenderer != nil {
+		sb.WriteString(fmt.Sprintf("ImageRenderer<%s>|", r.ImageRenderer.GetIdentity()))
+	}
+
+	return sb.String()
 }

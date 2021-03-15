@@ -2,7 +2,6 @@
 title : "Page Bundles"
 description : "Content organization using Page Bundles"
 date : 2018-01-24T13:09:00-05:00
-lastmod : 2018-01-28T22:26:40-05:00
 linktitle : "Page Bundles"
 keywords : ["page", "bundle", "leaf", "branch"]
 categories : ["content management"]
@@ -18,8 +17,8 @@ Page Bundles are a way to group [Page Resources](/content-management/page-resour
 
 A Page Bundle can be one of:
 
--   Leaf Bundle (leaf means it has no children)
--   Branch Bundle (home page, section, taxonomy terms, taxonomy list)
+- Leaf Bundle (leaf means it has no children)
+- Branch Bundle (home page, section, taxonomy terms, taxonomy list)
 
 |                                     | Leaf Bundle                                              | Branch Bundle                                                                                                                                                                                                      |
 |-------------------------------------|----------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  |
@@ -72,6 +71,14 @@ about
 my-post
 : This leaf bundle has the `index.md`, two other content
     Markdown files and two image files.
+
+image1
+: This image is a page resource of `my-post`
+    and only available in `my-post/index.md` resources.
+
+image2
+: This image is a page resource of `my-post`
+    and only available in `my-post/index.md` resources.
 
 my-other-post
 : This leaf bundle has only the `index.md`.
@@ -127,10 +134,6 @@ A leaf bundle can be made headless by adding below in the Front Matter
 headless = true
 ```
 
-{{% note %}}
-Only leaf bundles can be made headless.
-{{% /note %}}
-
 There are many use cases of such headless page bundles:
 
 -   Shared media galleries
@@ -182,4 +185,4 @@ The hierarchy depth at which a branch bundle is created does not
 matter.
 {{% /note %}}
 
-[^fn:1]: The `.md` extension is just an example. The extension can be `.html`, `.json` or any of any valid MIME type.
+[^fn:1]: The `.md` extension is just an example. The extension can be `.html`, `.json` or any valid MIME type.
