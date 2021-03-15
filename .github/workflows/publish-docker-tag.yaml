@@ -1,5 +1,6 @@
 name: Publish Docker Image
 on:
+  workflow_dispatch:
   push:
     tags:
       - v*-p
