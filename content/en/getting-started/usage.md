@@ -120,15 +120,15 @@ in 90 ms
 
 Hugo allows you to set `draft`, `publishdate`, and even `expirydate` in your content's [front matter][]. By default, Hugo will not publish:
 
-1. Content with `draft: true` status
-2. Content with a past `expirydate` value
-3. Content with a future `publishdate` value
+1. Content with a future `publishdate` value
+2. Content with `draft: true` status
+3. Content with a past `expirydate` value
 
 All three of these can be overridden during both local development *and* deployment by adding the following flags to `hugo` and `hugo server`, respectively, or by changing the boolean values assigned to the fields of the same name (without `--`) in your [configuration][config]:
 
-`-D` or `--buildDrafts`\
-`-E` or `--buildExpired`\
-`-F` or `--buildFuture`\
+1. `--buildFuture`
+2. `--buildDrafts`
+3. `--buildExpired`
 
 ## LiveReload
 
