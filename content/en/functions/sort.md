@@ -23,7 +23,7 @@ A sorted array of map values will be returned with the keys eliminated. There ar
 
 ```
 +++
-keywords: [ "tag3", "tag1", "tag2" ]
+tags = [ "tag1", "tag3", "tag2" ]
 +++
 
 // Site config
@@ -62,4 +62,3 @@ Authors: {{ range sort .Site.Params.authors "lastName" "desc" }}{{ .lastName }} 
 
 → Outputs Authors: Perkins Linsley Bergevin
 ```
-
