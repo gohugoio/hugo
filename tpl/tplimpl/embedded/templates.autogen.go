@@ -226,14 +226,6 @@ if (!doNotTrack) {
 <meta property="article:section" content="{{ .Section }}" />
 {{ with .PublishDate }}<meta property="article:published_time" content="{{ .Format $iso8601 }}" />{{ end }}
 {{ with .Lastmod }}<meta property="article:modified_time" content="{{ .Format $iso8601 }}" />{{ end }}
-
-{{- range .Site.Authors }}
-{{ with .Social.facebook }}<meta property="article:author" content="https://www.facebook.com/{{ . }}" />{{ end }}
-{{ with .Site.Social.facebook }}<meta property="article:publisher" content="https://www.facebook.com/{{ . }}" />{{ end }}
-{{- with .Params.tags }}{{ range first 6 . }}
-<meta property="article:tag" content="{{ . }}" />
-{{- end }}{{ end -}}
-{{- end -}}
 {{- end -}}
 
 {{- with .Params.audio }}<meta property="og:audio" content="{{ . }}" />{{ end }}
@@ -573,9 +565,5 @@ if (!doNotTrack) {
 {{ with .Site.Social.twitter -}}
 <meta name="twitter:site" content="@{{ . }}"/>
 {{ end -}}
-{{ range .Site.Authors }}
-{{ with .twitter -}}
-<meta name="twitter:creator" content="@{{ . }}"/>
-{{ end -}}
-{{ end -}}`},
+`},
 }
