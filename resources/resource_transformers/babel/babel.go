@@ -172,7 +172,7 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	// Create compile into a real temp file:
 	// 1. separate stdout/stderr messages from babel (https://github.com/gohugoio/hugo/issues/8136)
 	// 2. allow generation and retrieval of external source map.
-	compileOutput, err := ioutil.TempFile("", "compileOut-*.js")
+	compileOutput, err := ioutil.TempFile("", "babel-out-*.js")
 	if err != nil {
 		return err
 	}

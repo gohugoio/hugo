@@ -89,6 +89,12 @@ func GetExecEnviron(workDir string, cfg config.Provider, fs afero.Fs) []string {
 	if np := os.Getenv("NODE_PATH"); np != "" {
 		nodepath = workDir + string(os.PathListSeparator) + np
 	}
+
+	// For tailwindcss-jit -- we must make sure that we don't start their watcher
+	// as that currently will not work.
+	// See https://github.com/tailwindlabs/tailwindcss-jit#getting-started
+	config.SetEnvVars(&env, "TAILWIND_MODE", "build")
+
 	config.SetEnvVars(&env, "NODE_PATH", nodepath)
 	config.SetEnvVars(&env, "PWD", workDir)
 	config.SetEnvVars(&env, "HUGO_ENVIRONMENT", cfg.GetString("environment"))

@@ -19,11 +19,13 @@ import (
 	"encoding/hex"
 	"io"
 	"io/ioutil"
+	"os"
 	"path"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/cli/safeexec"
 
@@ -141,6 +143,7 @@ func (t *postcssTransformation) Key() internal.ResourceTransformationKey {
 // npm install -g postcss-cli
 // npm install -g autoprefixer
 func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
+	defer loggers.TimeTrack(time.Now(), "PostCSS")
 	const localPostCSSPath = "node_modules/.bin/"
 	const binaryName = "postcss"
 
@@ -178,11 +181,18 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 		}
 	}
 
-	var cmdArgs []string
+	// tailwindcss-jit currently does not support reading from stdin.
+	inFile, err := ioutil.TempFile("", "postcss-in-*.css")
+	if err != nil {
+		return err
+	}
+	defer os.Remove(inFile.Name())
+
+	cmdArgs := []string{inFile.Name()}
 
 	if configFile != "" {
 		logger.Infoln("postcss: use config file", configFile)
-		cmdArgs = []string{"--config", configFile}
+		cmdArgs = append(cmdArgs, "--config", configFile)
 	}
 
 	if optArgs := t.options.toArgs(); len(optArgs) > 0 {
@@ -202,11 +212,6 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 
 	cmd.Env = hugo.GetExecEnviron(t.rs.WorkingDir, t.rs.Cfg, t.rs.BaseFs.Assets.Fs)
 
-	stdin, err := cmd.StdinPipe()
-	if err != nil {
-		return err
-	}
-
 	src := ctx.From
 
 	imp := newImportResolver(
@@ -223,10 +228,9 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 		}
 	}
 
-	go func() {
-		defer stdin.Close()
-		io.Copy(stdin, src)
-	}()
+	if _, err := io.Copy(inFile, src); err != nil {
+		return err
+	}
 
 	err = cmd.Run()
 	if err != nil {
