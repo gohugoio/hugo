@@ -18,6 +18,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/gobwas/glob"
@@ -26,8 +27,6 @@ import (
 	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/gohugoio/hugo/cache/filecache"
-
-	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
@@ -167,6 +166,40 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 		}
 	}
 
+	// We made this a Glob pattern in Hugo 0.75, we don't need both.
+	if v.GetBool("ignoreVendor") {
+		helpers.Deprecated("--ignoreVendor", "--ignoreVendorPaths **", false)
+		v.Set("ignoreVendorPaths", "**")
+	}
+
+	modulesConfig, err := l.loadModulesConfig(v)
+	if err != nil {
+		return v, configFiles, err
+	}
+
+	// Need to run these after the modules are loaded, but before
+	// they are finalized.
+	collectHook := func(m *modules.ModulesConfig) error {
+		if err := loadLanguageSettings(v, nil); err != nil {
+			return err
+		}
+
+		mods := m.ActiveModules
+
+		// Apply default project mounts.
+		if err := modules.ApplyProjectConfigDefaults(v, mods[0]); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	_, modulesConfigFiles, err := l.collectModules(modulesConfig, v, collectHook)
+
+	if err == nil && len(modulesConfigFiles) > 0 {
+		configFiles = append(configFiles, modulesConfigFiles...)
+	}
+
 	const delim = "__env__delim"
 
 	// Apply environment overrides
@@ -220,40 +253,6 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 			}
 		}
 
-	}
-
-	// We made this a Glob pattern in Hugo 0.75, we don't need both.
-	if v.GetBool("ignoreVendor") {
-		helpers.Deprecated("--ignoreVendor", "--ignoreVendorPaths **", false)
-		v.Set("ignoreVendorPaths", "**")
-	}
-
-	modulesConfig, err := l.loadModulesConfig(v)
-	if err != nil {
-		return v, configFiles, err
-	}
-
-	// Need to run these after the modules are loaded, but before
-	// they are finalized.
-	collectHook := func(m *modules.ModulesConfig) error {
-		if err := loadLanguageSettings(v, nil); err != nil {
-			return err
-		}
-
-		mods := m.ActiveModules
-
-		// Apply default project mounts.
-		if err := modules.ApplyProjectConfigDefaults(v, mods[0]); err != nil {
-			return err
-		}
-
-		return nil
-	}
-
-	_, modulesConfigFiles, err := l.collectModules(modulesConfig, v, collectHook)
-
-	if err == nil && len(modulesConfigFiles) > 0 {
-		configFiles = append(configFiles, modulesConfigFiles...)
 	}
 
 	return v, configFiles, err
