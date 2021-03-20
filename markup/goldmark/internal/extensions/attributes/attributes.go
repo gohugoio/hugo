@@ -97,10 +97,16 @@ type transformer struct{}
 func (a *transformer) Transform(node *ast.Document, reader text.Reader, pc parser.Context) {
 	var attributes = make([]ast.Node, 0, 500)
 	ast.Walk(node, func(node ast.Node, entering bool) (ast.WalkStatus, error) {
-		if entering && node.Kind() == kindAttributesBlock && !node.HasBlankPreviousLines() {
-			attributes = append(attributes, node)
-			return ast.WalkSkipChildren, nil
+		if entering && node.Kind() == kindAttributesBlock {
+			// Attributes for fenced code blocks are handled in their own extension,
+			// but note that we currently only support code block attributes when
+			// CodeFences=true.
+			if node.PreviousSibling().Kind() != ast.KindFencedCodeBlock && !node.HasBlankPreviousLines() {
+				attributes = append(attributes, node)
+				return ast.WalkSkipChildren, nil
+			}
 		}
+
 		return ast.WalkContinue, nil
 	})
 
