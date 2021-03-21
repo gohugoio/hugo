@@ -18,8 +18,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
+
+	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/gobwas/glob"
 	hglob "github.com/gohugoio/hugo/hugofs/glob"
@@ -166,6 +167,71 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 		}
 	}
 
+	applyOsEnvOverrides := func() error {
+
+		const delim = "__env__delim"
+
+		// Apply environment overrides
+		if len(d.Environ) > 0 {
+			// Extract all that start with the HUGO prefix.
+			// The delimiter is the following rune, usually "_".
+			const hugoEnvPrefix = "HUGO"
+			var hugoEnv []types.KeyValueStr
+			for _, v := range d.Environ {
+				key, val := config.SplitEnvVar(v)
+				if strings.HasPrefix(key, hugoEnvPrefix) {
+					delimiterAndKey := strings.TrimPrefix(key, hugoEnvPrefix)
+					if len(delimiterAndKey) < 2 {
+						continue
+					}
+					// Allow delimiters to be case sensitive.
+					// It turns out there isn't that many allowed special
+					// chars in environment variables when used in Bash and similar,
+					// so variables on the form HUGOxPARAMSxFOO=bar is one option.
+					key := strings.ReplaceAll(delimiterAndKey[1:], delimiterAndKey[:1], delim)
+					key = strings.ToLower(key)
+					hugoEnv = append(hugoEnv, types.KeyValueStr{
+						Key:   key,
+						Value: val,
+					})
+
+				}
+			}
+
+			for _, env := range hugoEnv {
+				existing, nestedKey, owner, err := maps.GetNestedParamFn(env.Key, delim, v.Get)
+				if err != nil {
+					return err
+				}
+
+				if existing != nil {
+					val, err := metadecoders.Default.UnmarshalStringTo(env.Value, existing)
+					if err != nil {
+						continue
+					}
+
+					if owner != nil {
+						owner[nestedKey] = val
+					} else {
+						v.Set(env.Key, val)
+					}
+				} else if nestedKey != "" {
+					owner[nestedKey] = env.Value
+				} else {
+					v.Set(env.Key, env.Value)
+				}
+			}
+
+		}
+
+		return nil
+
+	}
+
+	if err := applyOsEnvOverrides(); err != nil {
+		return v, configFiles, err
+	}
+
 	// We made this a Glob pattern in Hugo 0.75, we don't need both.
 	if v.GetBool("ignoreVendor") {
 		helpers.Deprecated("--ignoreVendor", "--ignoreVendorPaths **", false)
@@ -200,59 +266,8 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 		configFiles = append(configFiles, modulesConfigFiles...)
 	}
 
-	const delim = "__env__delim"
-
-	// Apply environment overrides
-	if len(d.Environ) > 0 {
-		// Extract all that start with the HUGO prefix.
-		// The delimiter is the following rune, usually "_".
-		const hugoEnvPrefix = "HUGO"
-		var hugoEnv []types.KeyValueStr
-		for _, v := range d.Environ {
-			key, val := config.SplitEnvVar(v)
-			if strings.HasPrefix(key, hugoEnvPrefix) {
-				delimiterAndKey := strings.TrimPrefix(key, hugoEnvPrefix)
-				if len(delimiterAndKey) < 2 {
-					continue
-				}
-				// Allow delimiters to be case sensitive.
-				// It turns out there isn't that many allowed special
-				// chars in environment variables when used in Bash and similar,
-				// so variables on the form HUGOxPARAMSxFOO=bar is one option.
-				key := strings.ReplaceAll(delimiterAndKey[1:], delimiterAndKey[:1], delim)
-				key = strings.ToLower(key)
-				hugoEnv = append(hugoEnv, types.KeyValueStr{
-					Key:   key,
-					Value: val,
-				})
-
-			}
-		}
-
-		for _, env := range hugoEnv {
-			existing, nestedKey, owner, err := maps.GetNestedParamFn(env.Key, delim, v.Get)
-			if err != nil {
-				return v, configFiles, err
-			}
-
-			if existing != nil {
-				val, err := metadecoders.Default.UnmarshalStringTo(env.Value, existing)
-				if err != nil {
-					continue
-				}
-
-				if owner != nil {
-					owner[nestedKey] = val
-				} else {
-					v.Set(env.Key, val)
-				}
-			} else if nestedKey != "" {
-				owner[nestedKey] = env.Value
-			} else {
-				v.Set(env.Key, env.Value)
-			}
-		}
-
+	if err := applyOsEnvOverrides(); err != nil {
+		return v, configFiles, err
 	}
 
 	return v, configFiles, err
