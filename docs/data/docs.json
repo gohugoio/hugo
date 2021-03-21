@@ -1597,263 +1597,369 @@
   "media": {
     "types": [
       {
-        "type": "application/javascript",
-        "string": "application/javascript",
         "mainType": "application",
         "subType": "javascript",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "js",
+          "fullSuffix": ".js"
+        },
+        "type": "application/javascript",
+        "string": "application/javascript",
         "suffixes": [
           "js"
         ]
       },
       {
-        "type": "application/json",
-        "string": "application/json",
         "mainType": "application",
         "subType": "json",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "json",
+          "fullSuffix": ".json"
+        },
+        "type": "application/json",
+        "string": "application/json",
         "suffixes": [
           "json"
         ]
       },
       {
-        "type": "application/octet-stream",
-        "string": "application/octet-stream",
         "mainType": "application",
         "subType": "octet-stream",
-        "delimiter": "",
-        "suffixes": null
+        "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "",
+          "fullSuffix": ""
+        },
+        "type": "application/octet-stream",
+        "string": "application/octet-stream",
+        "suffixes": [
+          ""
+        ]
       },
       {
-        "type": "application/rss+xml",
-        "string": "application/rss+xml",
         "mainType": "application",
         "subType": "rss",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "xml",
+          "fullSuffix": ".xml"
+        },
+        "type": "application/rss+xml",
+        "string": "application/rss+xml",
         "suffixes": [
           "xml"
         ]
       },
       {
-        "type": "application/toml",
-        "string": "application/toml",
         "mainType": "application",
         "subType": "toml",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "toml",
+          "fullSuffix": ".toml"
+        },
+        "type": "application/toml",
+        "string": "application/toml",
         "suffixes": [
           "toml"
         ]
       },
       {
-        "type": "application/typescript",
-        "string": "application/typescript",
         "mainType": "application",
         "subType": "typescript",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "ts",
+          "fullSuffix": ".ts"
+        },
+        "type": "application/typescript",
+        "string": "application/typescript",
         "suffixes": [
           "ts"
         ]
       },
       {
-        "type": "application/xml",
-        "string": "application/xml",
         "mainType": "application",
         "subType": "xml",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "xml",
+          "fullSuffix": ".xml"
+        },
+        "type": "application/xml",
+        "string": "application/xml",
         "suffixes": [
           "xml"
         ]
       },
       {
-        "type": "application/yaml",
-        "string": "application/yaml",
         "mainType": "application",
         "subType": "yaml",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "yaml",
+          "fullSuffix": ".yaml"
+        },
+        "type": "application/yaml",
+        "string": "application/yaml",
         "suffixes": [
           "yaml",
           "yml"
         ]
       },
       {
-        "type": "image/jpeg",
-        "string": "image/jpeg",
         "mainType": "image",
         "subType": "jpeg",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "jpg",
+          "fullSuffix": ".jpg"
+        },
+        "type": "image/jpeg",
+        "string": "image/jpeg",
         "suffixes": [
           "jpg",
           "jpeg"
         ]
       },
       {
-        "type": "image/png",
-        "string": "image/png",
         "mainType": "image",
         "subType": "png",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "png",
+          "fullSuffix": ".png"
+        },
+        "type": "image/png",
+        "string": "image/png",
         "suffixes": [
           "png"
         ]
       },
       {
-        "type": "image/svg+xml",
-        "string": "image/svg+xml",
         "mainType": "image",
         "subType": "svg",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "svg",
+          "fullSuffix": ".svg"
+        },
+        "type": "image/svg+xml",
+        "string": "image/svg+xml",
         "suffixes": [
           "svg"
         ]
       },
       {
-        "type": "text/calendar",
-        "string": "text/calendar",
         "mainType": "text",
         "subType": "calendar",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "ics",
+          "fullSuffix": ".ics"
+        },
+        "type": "text/calendar",
+        "string": "text/calendar",
         "suffixes": [
           "ics"
         ]
       },
       {
-        "type": "text/css",
-        "string": "text/css",
         "mainType": "text",
         "subType": "css",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "css",
+          "fullSuffix": ".css"
+        },
+        "type": "text/css",
+        "string": "text/css",
         "suffixes": [
           "css"
         ]
       },
       {
-        "type": "text/csv",
-        "string": "text/csv",
         "mainType": "text",
         "subType": "csv",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "csv",
+          "fullSuffix": ".csv"
+        },
+        "type": "text/csv",
+        "string": "text/csv",
         "suffixes": [
           "csv"
         ]
       },
       {
-        "type": "text/html",
-        "string": "text/html",
         "mainType": "text",
         "subType": "html",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "html",
+          "fullSuffix": ".html"
+        },
+        "type": "text/html",
+        "string": "text/html",
         "suffixes": [
           "html"
         ]
       },
       {
-        "type": "text/jsx",
-        "string": "text/jsx",
         "mainType": "text",
         "subType": "jsx",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "jsx",
+          "fullSuffix": ".jsx"
+        },
+        "type": "text/jsx",
+        "string": "text/jsx",
         "suffixes": [
           "jsx"
         ]
       },
       {
-        "type": "text/plain",
-        "string": "text/plain",
         "mainType": "text",
         "subType": "plain",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "txt",
+          "fullSuffix": ".txt"
+        },
+        "type": "text/plain",
+        "string": "text/plain",
         "suffixes": [
           "txt"
         ]
       },
       {
-        "type": "text/tsx",
-        "string": "text/tsx",
         "mainType": "text",
         "subType": "tsx",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "tsx",
+          "fullSuffix": ".tsx"
+        },
+        "type": "text/tsx",
+        "string": "text/tsx",
         "suffixes": [
           "tsx"
         ]
       },
       {
-        "type": "text/x-sass",
-        "string": "text/x-sass",
         "mainType": "text",
         "subType": "x-sass",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "sass",
+          "fullSuffix": ".sass"
+        },
+        "type": "text/x-sass",
+        "string": "text/x-sass",
         "suffixes": [
           "sass"
         ]
       },
       {
-        "type": "text/x-scss",
-        "string": "text/x-scss",
         "mainType": "text",
         "subType": "x-scss",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "scss",
+          "fullSuffix": ".scss"
+        },
+        "type": "text/x-scss",
+        "string": "text/x-scss",
         "suffixes": [
           "scss"
         ]
       },
       {
-        "type": "video/3gpp",
-        "string": "video/3gpp",
         "mainType": "video",
         "subType": "3gpp",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "3gpp",
+          "fullSuffix": ".3gpp"
+        },
+        "type": "video/3gpp",
+        "string": "video/3gpp",
         "suffixes": [
           "3gpp",
           "3gp"
         ]
       },
       {
-        "type": "video/mp4",
-        "string": "video/mp4",
         "mainType": "video",
         "subType": "mp4",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "mp4",
+          "fullSuffix": ".mp4"
+        },
+        "type": "video/mp4",
+        "string": "video/mp4",
         "suffixes": [
           "mp4"
         ]
       },
       {
-        "type": "video/mpeg",
-        "string": "video/mpeg",
         "mainType": "video",
         "subType": "mpeg",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "mpg",
+          "fullSuffix": ".mpg"
+        },
+        "type": "video/mpeg",
+        "string": "video/mpeg",
         "suffixes": [
           "mpg",
           "mpeg"
         ]
       },
       {
-        "type": "video/ogg",
-        "string": "video/ogg",
         "mainType": "video",
         "subType": "ogg",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "ogv",
+          "fullSuffix": ".ogv"
+        },
+        "type": "video/ogg",
+        "string": "video/ogg",
         "suffixes": [
           "ogv"
         ]
       },
       {
-        "type": "video/webm",
-        "string": "video/webm",
         "mainType": "video",
         "subType": "webm",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "webm",
+          "fullSuffix": ".webm"
+        },
+        "type": "video/webm",
+        "string": "video/webm",
         "suffixes": [
           "webm"
         ]
       },
       {
-        "type": "video/x-msvideo",
-        "string": "video/x-msvideo",
         "mainType": "video",
         "subType": "x-msvideo",
         "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "avi",
+          "fullSuffix": ".avi"
+        },
+        "type": "video/x-msvideo",
+        "string": "video/x-msvideo",
         "suffixes": [
           "avi"
         ]
@@ -1866,11 +1972,15 @@
         "MediaType": "text/html",
         "name": "HTML",
         "mediaType": {
-          "type": "text/html",
-          "string": "text/html",
           "mainType": "text",
           "subType": "html",
           "delimiter": ".",
+          "firstSuffix": {
+            "suffix": "html",
+            "fullSuffix": ".html"
+          },
+          "type": "text/html",
+          "string": "text/html",
           "suffixes": [
             "html"
           ]
@@ -1890,11 +2000,15 @@
         "MediaType": "text/html",
         "name": "AMP",
         "mediaType": {
-          "type": "text/html",
-          "string": "text/html",
           "mainType": "text",
           "subType": "html",
           "delimiter": ".",
+          "firstSuffix": {
+            "suffix": "html",
+            "fullSuffix": ".html"
+          },
+          "type": "text/html",
+          "string": "text/html",
           "suffixes": [
             "html"
           ]
@@ -1914,11 +2028,15 @@
         "MediaType": "text/css",
         "name": "CSS",
         "mediaType": {
-          "type": "text/css",
-          "string": "text/css",
           "mainType": "text",
           "subType": "css",
           "delimiter": ".",
+          "firstSuffix": {
+            "suffix": "css",
+            "fullSuffix": ".css"
+          },
+          "type": "text/css",
+          "string": "text/css",
           "suffixes": [
             "css"
           ]
@@ -1938,11 +2056,15 @@
         "MediaType": "text/csv",
         "name": "CSV",
         "mediaType": {
-          "type": "text/csv",
-          "string": "text/csv",
           "mainType": "text",
           "subType": "csv",
           "delimiter": ".",
+          "firstSuffix": {
+            "suffix": "csv",
+            "fullSuffix": ".csv"
+          },
+          "type": "text/csv",
+          "string": "text/csv",
           "suffixes": [
             "csv"
           ]
@@ -1962,11 +2084,15 @@
         "MediaType": "text/calendar",
         "name": "Calendar",
         "mediaType": {
-          "type": "text/calendar",
-          "string": "text/calendar",
           "mainType": "text",
           "subType": "calendar",
           "delimiter": ".",
+          "firstSuffix": {
+            "suffix": "ics",
+            "fullSuffix": ".ics"
+          },
+          "type": "text/calendar",
+          "string": "text/calendar",
           "suffixes": [
             "ics"
           ]
@@ -1986,11 +2112,15 @@
         "MediaType": "application/json",
         "name": "JSON",
         "mediaType": {
-          "type": "application/json",
-          "string": "application/json",
           "mainType": "application",
           "subType": "json",
           "delimiter": ".",
+          "firstSuffix": {
+            "suffix": "json",
+            "fullSuffix": ".json"
+          },
+          "type": "application/json",
+          "string": "application/json",
           "suffixes": [
             "json"
           ]
@@ -2010,11 +2140,15 @@
         "MediaType": "text/plain",
         "name": "ROBOTS",
         "mediaType": {
-          "type": "text/plain",
-          "string": "text/plain",
           "mainType": "text",
           "subType": "plain",
           "delimiter": ".",
+          "firstSuffix": {
+            "suffix": "txt",
+            "fullSuffix": ".txt"
+          },
+          "type": "text/plain",
+          "string": "text/plain",
           "suffixes": [
             "txt"
           ]
@@ -2034,11 +2168,15 @@
         "MediaType": "application/rss+xml",
         "name": "RSS",
         "mediaType": {
-          "type": "application/rss+xml",
-          "string": "application/rss+xml",
           "mainType": "application",
           "subType": "rss",
           "delimiter": ".",
+          "firstSuffix": {
+            "suffix": "xml",
+            "fullSuffix": ".xml"
+          },
+          "type": "application/rss+xml",
+          "string": "application/rss+xml",
           "suffixes": [
             "xml"
           ]
@@ -2058,11 +2196,15 @@
         "MediaType": "application/xml",
         "name": "Sitemap",
         "mediaType": {
-          "type": "application/xml",
-          "string": "application/xml",
           "mainType": "application",
           "subType": "xml",
           "delimiter": ".",
+          "firstSuffix": {
+            "suffix": "xml",
+            "fullSuffix": ".xml"
+          },
+          "type": "application/xml",
+          "string": "application/xml",
           "suffixes": [
             "xml"
           ]
@@ -4360,16 +4502,40 @@
           ]
         },
         "Contains": {
-          "Description": "",
-          "Args": null,
+          "Description": "Contains reports whether substr is in s.",
+          "Args": [
+            "s",
+            "substr"
+          ],
           "Aliases": null,
-          "Examples": null
+          "Examples": [
+            [
+              "{{ strings.Contains \"abc\" \"b\" }}",
+              "true"
+            ],
+            [
+              "{{ strings.Contains \"abc\" \"d\" }}",
+              "false"
+            ]
+          ]
         },
         "ContainsAny": {
-          "Description": "",
-          "Args": null,
+          "Description": "ContainsAny reports whether any Unicode code points in chars are within s.",
+          "Args": [
+            "s",
+            "chars"
+          ],
           "Aliases": null,
-          "Examples": null
+          "Examples": [
+            [
+              "{{ strings.ContainsAny \"abc\" \"bcd\" }}",
+              "true"
+            ],
+            [
+              "{{ strings.ContainsAny \"abc\" \"def\" }}",
+              "false"
+            ]
+          ]
         },
         "Count": {
           "Description": "Count counts the number of non-overlapping instances of substr in s.\nIf substr is an empty string, Count returns 1 + the number of Unicode code points in s.",
