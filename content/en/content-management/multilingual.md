@@ -421,12 +421,13 @@ At the time of this writing, Go does not yet have support for internationalized 
 ...then index the non-English date names in your templates like so:
 
 ~~~html
-<time class="post-date" datetime="{{ .Date.Format '2006-01-02T15:04:05Z07:00' | safeHTML }}">
+<time class="post-date" datetime="{{ .Date.Format `2006-01-02T15:04:05Z07:00` | safeHTML }}">
   Article publié le {{ .Date.Day }} {{ index $.Site.Data.mois (printf "%d" .Date.Month) }} {{ .Date.Year }} (dernière modification le {{ .Lastmod.Day }} {{ index $.Site.Data.mois (printf "%d" .Lastmod.Month) }} {{ .Lastmod.Year }})
 </time>
 ~~~
 
 This technique extracts the day, month and year by specifying ``.Date.Day``, ``.Date.Month``, and ``.Date.Year``, and uses the month number as a key, when indexing the month name data file.
+
 
 ## Menus
 
