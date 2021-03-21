@@ -1,7 +1,7 @@
 
 ---
 date: 2021-03-21
-title: "Hugo 0.80: Mostly bugfixes"
+title: "Hugo 0.82: Mostly bugfixes"
 description: "Mostly bug fixes, but some useful improvements with Markdown attributes."
 categories: ["Releases"]
 ---
