@@ -1,12 +1,12 @@
 
 ---
 date: 2021-03-21
-title: "0.82.0"
-description: "0.82.0"
+title: "Hugo 0.80: Mostly bugfixes"
+description: "Mostly bug fixes, but some useful improvements with Markdown attributes."
 categories: ["Releases"]
 ---
 
-	This is a small release, mostly a maintainance/bugfix release. But also notable is that you can now add custom Markdown attributes (e.g. CSS classes) to code fences ([aed7df62](https://github.com/gohugoio/hugo/commit/aed7df62a811b07b73ec5cbbf03e69e4bbf00919) [@bep](https://github.com/bep) [#8278](https://github.com/gohugoio/hugo/issues/8278)) and that you can use the attribute lists in title render hooks (`.Attributes`; see [cd0c5d7e](https://github.com/gohugoio/hugo/commit/cd0c5d7ef32cbd570af00c50ce760452381df64e) [@bep](https://github.com/bep) [#8270](https://github.com/gohugoio/hugo/issues/8270)).
+This is a small release, mostly a maintainance/bugfix release. But also notable is that you can now add custom Markdown attributes (e.g. CSS classes) to code fences ([aed7df62](https://github.com/gohugoio/hugo/commit/aed7df62a811b07b73ec5cbbf03e69e4bbf00919) [@bep](https://github.com/bep) [#8278](https://github.com/gohugoio/hugo/issues/8278)) and that you can use the attribute lists in title render hooks (`.Attributes`; see [cd0c5d7e](https://github.com/gohugoio/hugo/commit/cd0c5d7ef32cbd570af00c50ce760452381df64e) [@bep](https://github.com/bep) [#8270](https://github.com/gohugoio/hugo/issues/8270)).
 
 This release represents **28 contributions by 8 contributors** to the main Hugo code base.[@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@moorereason](https://github.com/moorereason), and [@gzagatti](https://github.com/gzagatti) for their ongoing contributions.
 And a big thanks to [@digitalcraftsman](https://github.com/digitalcraftsman) for his relentless work on keeping the themes site in pristine condition and to [@davidsneighbour](https://github.com/davidsneighbour), [@coliff](https://github.com/coliff) and [@kaushalmodi](https://github.com/kaushalmodi) for all the great work on the documentation site.
