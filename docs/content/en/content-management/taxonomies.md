@@ -109,7 +109,7 @@ When taxonomies are used---and [taxonomy templates][] are provided---Hugo will a
 * A single page at `example.com/categories/` that lists all the [terms within the taxonomy][]
 * [Individual taxonomy list pages][taxonomy templates] (e.g., `/categories/development/`) for each of the terms that shows a listing of all pages marked as part of that taxonomy within any content file's [front matter][]
 
-## Configure Taxonomies {#configuring-taxonomies}
+## Configure Taxonomies
 
 Custom taxonomies other than the [defaults](#default-taxonomies) must be defined in your [site config][config] before they can be used throughout the site. You need to provide both the plural and singular labels for each taxonomy. For example, `singular key = "plural value"` for TOML and `singular key: "plural value"` for YAML.
 

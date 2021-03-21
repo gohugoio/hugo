@@ -1,4 +1,4 @@
-{{$classes_box := "ba b--light-gray bg-light-gray br3 flex flex-column flex-wrap items-center justify-center ph3 pv4 mb4 w-100 w-30-l "}}
+{{$classes_box := "ba b--dark-gray bg-light-gray br3 flex flex-column flex-wrap items-center justify-center ph3 pv4 mb4 w-100 w-30-l "}}
 {{$gtag := .gtag | default "unknown" }}
 {{ with .cx.Site.Data.sponsors }}
   <section class="{{ $.classes_section | default "bg-primary-color-dark b--dark-gray bb bt ph5 pv4 w-100"}}">
@@ -8,7 +8,7 @@
         {{ range .banners }}
           {{ $banner := . }}
           {{if .logo}}
-            <div class="{{$classes_box}} o-100">
+            <div class="{{$classes_box}} o-100"{{ with .bgcolor }} style="background-color: {{ . }};"{{ end}}>
               {{with .link -}}
                 {{ $url := printf "%s?%s" . (querify "utm_source" "homepage" "utm_medium" "banner" "utm_campaign" "hugosponsor") | safeURL }}
                 {{ if eq (getenv "HUGO_ENV") "production" | or (eq $.cx.Site.Params.env "production")  }}

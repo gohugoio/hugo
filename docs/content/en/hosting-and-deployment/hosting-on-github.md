@@ -82,7 +82,7 @@ jobs:
           publish_dir: ./public
 ```
 
-For more advance settings https://github.com/marketplace/actions/hugo-setup 
+For more advanced settings https://github.com/marketplace/actions/hugo-setup 
 
 ## Use a Custom Domain
 
