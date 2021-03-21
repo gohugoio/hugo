@@ -33,11 +33,17 @@ To print all images paths in a [Page Bundle]({{< relref "/content-management/org
 
 The `image` resource can also be retrieved from a [global resource]({{< relref "/hugo-pipes/introduction#from-file-to-resource" >}})
 
+```go-html-template
 {{- $image := resources.Get "images/logo.jpg" -}}
+```
 
 ## Image Processing Methods
 
-The `image` resource implements the methods `Resize`, `Fit` and `Fill`, each returning the transformed image using the specified dimensions and processing options. The `image` resource also, since Hugo 0.58, implements the method `Exif` and `Filter`.
+The `image` resource implements the  `Resize`, `Fit`, `Fill`, and `Filter` methods, each returning a transformed image using the specified dimensions and processing options. 
+
+{{% note %}}
+Metadata (EXIF, IPTC, XMP, etc.) is not preserved during image transformation. Use the [`Exif`](#exif) method with the _original_ image to extract EXIF metadata from JPEG or TIFF images.
+{{% /note %}}
 
 ### Resize
 

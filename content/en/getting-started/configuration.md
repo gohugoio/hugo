@@ -253,7 +253,7 @@ sectionPagesMenu ("")
 : See ["Section Menu for Lazy Bloggers"](/templates/menu-templates/#section-menu-for-lazy-bloggers).
 
 sitemap
-: Default [sitemap configuration](/templates/sitemap-template/#configure-sitemap-xml).
+: Default [sitemap configuration](/templates/sitemap-template/#configure-sitemapxml).
 
 staticDir ("static")
 : A directory or a list of directories from where Hugo reads [static files][static-files]. {{% module-mounts-note %}}
