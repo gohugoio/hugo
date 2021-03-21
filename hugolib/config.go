@@ -167,61 +167,62 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 		}
 	}
 
+	// This is invoked both after we load the main config and at the end
+	// to support OS env override of config options used in the module collector.
 	applyOsEnvOverrides := func() error {
+		if d.Environ == nil {
+			return nil
+		}
 
 		const delim = "__env__delim"
 
-		// Apply environment overrides
-		if len(d.Environ) > 0 {
-			// Extract all that start with the HUGO prefix.
-			// The delimiter is the following rune, usually "_".
-			const hugoEnvPrefix = "HUGO"
-			var hugoEnv []types.KeyValueStr
-			for _, v := range d.Environ {
-				key, val := config.SplitEnvVar(v)
-				if strings.HasPrefix(key, hugoEnvPrefix) {
-					delimiterAndKey := strings.TrimPrefix(key, hugoEnvPrefix)
-					if len(delimiterAndKey) < 2 {
-						continue
-					}
-					// Allow delimiters to be case sensitive.
-					// It turns out there isn't that many allowed special
-					// chars in environment variables when used in Bash and similar,
-					// so variables on the form HUGOxPARAMSxFOO=bar is one option.
-					key := strings.ReplaceAll(delimiterAndKey[1:], delimiterAndKey[:1], delim)
-					key = strings.ToLower(key)
-					hugoEnv = append(hugoEnv, types.KeyValueStr{
-						Key:   key,
-						Value: val,
-					})
-
+		// Extract all that start with the HUGO prefix.
+		// The delimiter is the following rune, usually "_".
+		const hugoEnvPrefix = "HUGO"
+		var hugoEnv []types.KeyValueStr
+		for _, v := range d.Environ {
+			key, val := config.SplitEnvVar(v)
+			if strings.HasPrefix(key, hugoEnvPrefix) {
+				delimiterAndKey := strings.TrimPrefix(key, hugoEnvPrefix)
+				if len(delimiterAndKey) < 2 {
+					continue
 				}
+				// Allow delimiters to be case sensitive.
+				// It turns out there isn't that many allowed special
+				// chars in environment variables when used in Bash and similar,
+				// so variables on the form HUGOxPARAMSxFOO=bar is one option.
+				key := strings.ReplaceAll(delimiterAndKey[1:], delimiterAndKey[:1], delim)
+				key = strings.ToLower(key)
+				hugoEnv = append(hugoEnv, types.KeyValueStr{
+					Key:   key,
+					Value: val,
+				})
+
+			}
+		}
+
+		for _, env := range hugoEnv {
+			existing, nestedKey, owner, err := maps.GetNestedParamFn(env.Key, delim, v.Get)
+			if err != nil {
+				return err
 			}
 
-			for _, env := range hugoEnv {
-				existing, nestedKey, owner, err := maps.GetNestedParamFn(env.Key, delim, v.Get)
+			if existing != nil {
+				val, err := metadecoders.Default.UnmarshalStringTo(env.Value, existing)
 				if err != nil {
-					return err
+					continue
 				}
 
-				if existing != nil {
-					val, err := metadecoders.Default.UnmarshalStringTo(env.Value, existing)
-					if err != nil {
-						continue
-					}
-
-					if owner != nil {
-						owner[nestedKey] = val
-					} else {
-						v.Set(env.Key, val)
-					}
-				} else if nestedKey != "" {
-					owner[nestedKey] = env.Value
+				if owner != nil {
+					owner[nestedKey] = val
 				} else {
-					v.Set(env.Key, env.Value)
+					v.Set(env.Key, val)
 				}
+			} else if nestedKey != "" {
+				owner[nestedKey] = env.Value
+			} else {
+				v.Set(env.Key, env.Value)
 			}
-
 		}
 
 		return nil
