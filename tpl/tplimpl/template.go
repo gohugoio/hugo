@@ -767,6 +767,8 @@ func (t *templateHandler) postTransform() error {
 	defineCheckedHTML := false
 	defineCheckedText := false
 
+	t.main.mu.RLock()
+	defer t.main.mu.RUnlock()
 	for _, v := range t.main.templates {
 		if v.typ == templateShortcode {
 			t.addShortcodeVariant(v)
