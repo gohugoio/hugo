@@ -415,7 +415,10 @@ func (t *templateHandler) findLayout(d output.LayoutDescriptor, f output.Format)
 
 		t.applyTemplateTransformers(t.main, ts)
 
-		if err := t.extractPartials(ts.Template); err != nil {
+		t.main.mu.RLock()
+		err = t.extractPartials(ts.Template)
+		t.main.mu.RUnlock()
+		if err != nil {
 			return nil, false, err
 		}
 
@@ -732,6 +735,7 @@ func (t *templateHandler) noBaseNeeded(name string) bool {
 	return strings.Contains(name, "_markup/")
 }
 
+// should be called with t.main.mu locked due to access to t.main.templates
 func (t *templateHandler) extractPartials(templ tpl.Template) error {
 	templs := templates(templ)
 	for _, templ := range templs {
@@ -742,21 +746,15 @@ func (t *templateHandler) extractPartials(templ tpl.Template) error {
 		ts := newTemplateState(templ, templateInfo{name: templ.Name()})
 		ts.typ = templatePartial
 
-		t.main.mu.RLock()
 		_, found := t.main.templates[templ.Name()]
-		t.main.mu.RUnlock()
 
 		if !found {
-			t.main.mu.Lock()
 			// This is a template defined inline.
 			_, err := applyTemplateTransformers(ts, t.main.newTemplateLookup(ts))
 			if err != nil {
-				t.main.mu.Unlock()
 				return err
 			}
 			t.main.templates[templ.Name()] = ts
-			t.main.mu.Unlock()
-
 		}
 	}
 
