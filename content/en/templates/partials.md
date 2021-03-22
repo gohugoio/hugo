@@ -175,7 +175,6 @@ The following `header.html` partial template is used for [spf13.com](https://spf
 
     {{ partial "head_includes.html" . }}
 </head>
-<body lang="en">
 {{< /code >}}
 
 {{% note %}}
