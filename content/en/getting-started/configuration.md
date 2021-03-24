@@ -444,15 +444,15 @@ To set config params, prefix the name with `HUGO_PARAMS_`
 Test and document setting params via JSON env var.
 {{< /todo >}}
 
-## Ignore Content Files When Rendering
+## Ignore Content and Data Files when Rendering
 
-The following statement inside `./config.toml` will cause Hugo to ignore content files ending with `.foo` and `.boo` when rendering:
+To exclude specific files from the content and data directories when rendering your site, set `ignoreFiles` to one or more regular expressions.
 
-```
-ignoreFiles = [ "\\.foo$", "\\.boo$" ]
-```
+For example, to ignore content and data files ending with `.foo` and `.boo`:
 
-The above is a list of regular expressions. Note that the backslash (`\`) character is escaped in this example to keep TOML happy.
+{{< code-toggle >}}
+ignoreFiles = [ "\\.foo$","\\.boo$"]
+{{< /code-toggle >}}
 
 ## Configure Front Matter
 
