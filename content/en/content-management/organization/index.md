@@ -33,7 +33,7 @@ The bundle documentation is **work in progress**. We will publish more comprehen
 {{% /note %}}
 
 
-# Organization of Content Source
+## Organization of Content Source
 
 
 In Hugo, your content should be organized in a manner that reflects the rendered website.
