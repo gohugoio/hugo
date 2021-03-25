@@ -14,7 +14,7 @@ relatedfuncs: [dict, append, reflect.IsMap, reflect.IsSlice]
 aliases: []
 ---
 
-Merge creates a copy of the final `MAP` and merges any preceeding `MAP` into it in reverse order.
+Merge creates a copy of the final `MAP` and merges any preceding `MAP` into it in reverse order.
 Key handling is case-insensitive.
 
 An example merging two maps.
