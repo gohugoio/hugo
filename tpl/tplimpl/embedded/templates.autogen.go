@@ -265,7 +265,11 @@ if (!doNotTrack) {
   </li>
   {{ end -}}
   <li class="page-item{{ if not $pag.HasPrev }} disabled{{ end }}">
-    <a {{ if $pag.HasPrev }}href="{{ $pag.Prev.URL }}"{{ end }} class="page-link" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+    {{- if $pag.HasPrev -}}
+    <a href="{{ $pag.Prev.URL }}" class="page-link" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+    {{- else -}}
+    <div class="page-link" aria-label="Previous"><span aria-hidden="true">&laquo;</span></div>
+    {{- end -}}
   </li>
   {{- $ellipsed := false -}}
   {{- $shouldEllipse := false -}}
@@ -292,7 +296,11 @@ if (!doNotTrack) {
   {{- end -}}
   {{- end }}
   <li class="page-item{{ if not $pag.HasNext }} disabled{{ end }}">
-    <a {{ if $pag.HasNext }}href="{{ $pag.Next.URL }}"{{ end }} class="page-link" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+    {{- if $pag.HasNext -}}
+    <a href="{{ $pag.Next.URL }}" class="page-link" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+    {{- else -}}
+    <div class="page-link" aria-label="Next"><span aria-hidden="true">&raquo;</span></div>
+    {{- end -}}
   </li>
   {{- with $pag.Last }}
   <li class="page-item">
