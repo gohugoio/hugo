@@ -35,10 +35,14 @@ There are several ways to set up CSS purging with PostCSS in Hugo. If you have a
 
 The below configuration will write a `hugo_stats.json` file to the project root as part of the build. If you're only using this for the production build, you should consider placing it below [config/production](/getting-started/configuration/#configuration-directory).
 
+`config.toml`
+
 ```toml
 [build]
   writeStats = true
 ```
+
+`purgecss.config.js`
 
 ```js
 const purgecss = require('@fullhuman/postcss-purgecss')({
@@ -48,14 +52,6 @@ const purgecss = require('@fullhuman/postcss-purgecss')({
         return els.tags.concat(els.classes, els.ids);
     }
 });
-
-module.exports = {
-    plugins: [
-        require('tailwindcss'),
-        require('autoprefixer'),
-        ...(process.env.HUGO_ENVIRONMENT === 'production' ? [ purgecss ] : [])
-    ]
-};
 ```
 
 Note that in the example above, the "CSS purge step" will only be applied to the production build. This means that you need to do something like this in your head template to build and include your CSS:
