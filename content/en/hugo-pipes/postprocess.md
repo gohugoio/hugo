@@ -52,6 +52,12 @@ const purgecss = require('@fullhuman/postcss-purgecss')({
         return els.tags.concat(els.classes, els.ids);
     }
 });
+
+module.exports = {
+     plugins: [
+         ...(process.env.HUGO_ENVIRONMENT === 'production' ? [ purgecss ] : [])
+     ]
+ };
 ```
 
 Note that in the example above, the "CSS purge step" will only be applied to the production build. This means that you need to do something like this in your head template to build and include your CSS:
