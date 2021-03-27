@@ -42,7 +42,7 @@ The below configuration will write a `hugo_stats.json` file to the project root 
   writeStats = true
 ```
 
-`purgecss.config.js`
+`postcss.config.js`
 
 ```js
 const purgecss = require('@fullhuman/postcss-purgecss')({
