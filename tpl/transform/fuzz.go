@@ -16,32 +16,8 @@
 package transform
 
 import (
-	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/langs"
-	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 )
-
-type tstNoStringer struct{}
-
-func newDeps(cfg config.Provider) *deps.Deps {
-	cfg.Set("contentDir", "content")
-	cfg.Set("i18nDir", "i18n")
-
-	l := langs.NewLanguage("en", cfg)
-
-	cs, _ := helpers.NewContentSpec(l, loggers.NewErrorLogger(), afero.NewMemMapFs())
-
-	return &deps.Deps{
-		Cfg:         cfg,
-		Fs:          hugofs.NewMem(l),
-		ContentSpec: cs,
-	}
-}
 
 func FuzzMarkdownify(data []byte) int {
 	v := viper.New()
