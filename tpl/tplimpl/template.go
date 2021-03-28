@@ -66,6 +66,9 @@ var embeddedTemplatesAliases = map[string][]string{
 }
 
 //go:embed templates/*
+//go:embed templates/_default/*
+//go:embed templates/shortcodes/*
+//go:embed templates/shortcodes/_*
 var embeddedTemplatesFS embed.FS
 
 // embeddedTemplates represents all embedded templates.
