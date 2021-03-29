@@ -20,8 +20,8 @@ Key handling is case-insensitive.
 An example merging two maps.
 
 ```go-html-template
-{{ $default_params := dict "color" "blue" "width" "50%" "height" "25%" }}
-{{ $user_params := dict "color" "red" "extra" (dict "duration" 2) }}
+{{ $default_params := dict "color" "blue" "width" "50%" "height" "25%" "icon" "star" }}
+{{ $user_params := dict "color" "red" "icon" "mail" "extra" (dict "duration" 2) }}
 {{ $params := merge $default_params $user_params }}
 ```
 
