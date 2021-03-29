@@ -282,6 +282,13 @@ var (
 	}
 )
 
+// toSliceFunc returns a slice func that slices s according to the cut spec.
+// The cut spec must be on form [low:high] (one or both can be omitted),
+// also allowing single slice indices (e.g. [2]) and the special [last] keyword
+// giving the last element of the slice.
+// The returned function will be lenient and not panic in out of bounds situation.
+//
+// The current use case for this is to use parts of the sections path in permalinks.
 func (l PermalinkExpander) toSliceFunc(cut string) func(s []string) []string {
 	cut = strings.ToLower(strings.TrimSpace(cut))
 	if cut == "" {

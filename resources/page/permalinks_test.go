@@ -171,6 +171,8 @@ func TestPermalinkExpansionSliceSyntax(t *testing.T) {
 		c.Assert(fn("[1:]"), qt.DeepEquals, []string{"b", "c", "d"})
 		c.Assert(fn("[:2]"), qt.DeepEquals, []string{"a", "b"})
 		c.Assert(fn("[0:2]"), qt.DeepEquals, []string{"a", "b"})
+		c.Assert(fn("[:]"), qt.DeepEquals, []string{"a", "b", "c", "d"})
+		c.Assert(fn(""), qt.DeepEquals, []string{"a", "b", "c", "d"})
 		c.Assert(fn("[last]"), qt.DeepEquals, []string{"d"})
 		c.Assert(fn("[:last]"), qt.DeepEquals, []string{"a", "b", "c"})
 
@@ -181,6 +183,12 @@ func TestPermalinkExpansionSliceSyntax(t *testing.T) {
 		c.Assert(fn("[5:]"), qt.DeepEquals, []string{})
 		c.Assert(fn("[5:32]"), qt.DeepEquals, []string{})
 		c.Assert(exp.toSliceFunc("[:1]")(nil), qt.DeepEquals, []string(nil))
+
+		// These all return nil
+		c.Assert(fn("[]"), qt.IsNil)
+		c.Assert(fn("[1:}"), qt.IsNil)
+		c.Assert(fn("foo"), qt.IsNil)
+
 	})
 
 }
