@@ -319,6 +319,9 @@ func (l PermalinkExpander) toSliceFunc(cut string) func(s []string) []string {
 		}
 
 		n, _ := strconv.Atoi(s)
+		if n < 0 {
+			n = 0
+		}
 		return func(ss []string) int {
 			// Prevent out of bound situations. It would not make
 			// much sense to panic here.
@@ -335,7 +338,7 @@ func (l PermalinkExpander) toSliceFunc(cut string) func(s []string) []string {
 	if !strings.Contains(opsStr, ":") {
 		toN := toNFunc(opts[0], true)
 		return func(s []string) []string {
-			if s == nil {
+			if len(s) == 0 {
 				return nil
 			}
 			v := s[toN(s)]
@@ -349,7 +352,7 @@ func (l PermalinkExpander) toSliceFunc(cut string) func(s []string) []string {
 	toN1, toN2 := toNFunc(opts[0], true), toNFunc(opts[1], false)
 
 	return func(s []string) []string {
-		if s == nil {
+		if len(s) == 0 {
 			return nil
 		}
 		return s[toN1(s):toN2(s)]

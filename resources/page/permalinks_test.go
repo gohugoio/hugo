@@ -180,9 +180,12 @@ func TestPermalinkExpansionSliceSyntax(t *testing.T) {
 
 	c.Run("Out of bounds", func(c *qt.C) {
 		c.Assert(fn("[1:5]"), qt.DeepEquals, []string{"b", "c", "d"})
+		c.Assert(fn("[-1:5]"), qt.DeepEquals, []string{"a", "b", "c", "d"})
+		c.Assert(fn("[5:]"), qt.DeepEquals, []string{})
 		c.Assert(fn("[5:]"), qt.DeepEquals, []string{})
 		c.Assert(fn("[5:32]"), qt.DeepEquals, []string{})
 		c.Assert(exp.toSliceFunc("[:1]")(nil), qt.DeepEquals, []string(nil))
+		c.Assert(exp.toSliceFunc("[:1]")([]string{}), qt.DeepEquals, []string(nil))
 
 		// These all return nil
 		c.Assert(fn("[]"), qt.IsNil)
