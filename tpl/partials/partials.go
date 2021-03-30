@@ -93,23 +93,41 @@ func (c *contextWrapper) Set(in interface{}) string {
 // Else, the rendered output will be returned:
 // A string if the partial is a text/template, or template.HTML when html/template.
 func (ns *Namespace) Include(name string, contextList ...interface{}) (interface{}, error) {
-	name = strings.TrimPrefix(name, "partials/")
+	name, result, err := ns.include(name, contextList...)
+	if err != nil {
+		return result, err
+	}
 
+	if ns.deps.Metrics != nil {
+		ns.deps.Metrics.TrackValue(name, result, false)
+	}
+
+	return result, nil
+}
+
+// include is a helper function that lookups and executes the named partial.
+// Returns the final template name and the rendered output.
+func (ns *Namespace) include(name string, contextList ...interface{}) (string, interface{}, error) {
 	var context interface{}
 	if len(contextList) > 0 {
 		context = contextList[0]
 	}
 
-	n := "partials/" + name
-	templ, found := ns.deps.Tmpl().Lookup(n)
+	var n string
+	if strings.HasPrefix(name, "partials/") {
+		n = name
+	} else {
+		n = "partials/" + name
+	}
 
+	templ, found := ns.deps.Tmpl().Lookup(n)
 	if !found {
 		// For legacy reasons.
 		templ, found = ns.deps.Tmpl().Lookup(n + ".html")
 	}
 
 	if !found {
-		return "", fmt.Errorf("partial %q not found", name)
+		return "", "", fmt.Errorf("partial %q not found", name)
 	}
 
 	var info tpl.ParseInfo
@@ -136,7 +154,7 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 	}
 
 	if err := ns.deps.Tmpl().Execute(templ, w, context); err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	var result interface{}
@@ -149,11 +167,7 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 		result = template.HTML(w.(fmt.Stringer).String())
 	}
 
-	if ns.deps.Metrics != nil {
-		ns.deps.Metrics.TrackValue(templ.Name(), result)
-	}
-
-	return result, nil
+	return templ.Name(), result, nil
 }
 
 // IncludeCached executes and caches partial templates.  The cache is created with name+variants as the key.
@@ -215,9 +229,14 @@ func (ns *Namespace) getOrCreate(key partialCacheKey, context interface{}) (resu
 		return p, nil
 	}
 
-	p, err = ns.Include(key.name, context)
+	var name string
+	name, p, err = ns.include(key.name, context)
 	if err != nil {
 		return nil, err
+	}
+
+	if ns.deps.Metrics != nil {
+		ns.deps.Metrics.TrackValue(name, p, true)
 	}
 
 	ns.cachedPartials.Lock()
