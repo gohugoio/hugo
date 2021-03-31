@@ -433,7 +433,7 @@ This technique extracts the day, month and year by specifying ``.Date.Day``, ``.
 
 You can define your menus for each language independently. Creating multilingual menus works just like [creating regular menus][menus], except they're defined in language-specific blocks in the configuration file:
 
-```
+{{< code-toggle file="config" >}}
 defaultContentLanguage = "en"
 
 [languages.en]
@@ -454,7 +454,7 @@ languageName = "Deutsch"
 url    = "/"
 name   = "Startseite"
 weight = 0
-```
+{{< /code-toggle >}}
 
 The rendering of the main navigation works as usual. `.Site.Menus` will just contain the menu in the current language. Note that `absLangURL` below will link to the correct locale of your website. Without it, menu entries in all languages would link to the English version, since it's the default content language that resides in the root directory.
 
