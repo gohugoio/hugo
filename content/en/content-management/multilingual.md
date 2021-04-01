@@ -345,7 +345,7 @@ Home
 
 ### Query a flexible translation with variables
 
-Often you will want to use to the page variables in the translations strings. To do that, pass on the `.` context when calling `i18n`:
+Often you will want to use the page variables in the translation strings. To do so, pass the `.` context when calling `i18n`:
 
 ```
 {{ i18n "wordCount" . }}
