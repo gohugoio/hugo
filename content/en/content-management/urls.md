@@ -202,7 +202,7 @@ The following demonstrates the concept:
 
 ```
 content/posts/_index.md
-=> example.com/posts/index.html
+=> example.com/posts/
 content/posts/post-1.md
 => example.com/posts/post-1/
 ```
