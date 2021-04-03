@@ -555,7 +555,6 @@ func (c *commandeer) serve(s *serverCmd) error {
 					os.Exit(1)
 				}
 				defer torendpoint.Close()
-				fmt.Printf("Open Tor browser and navigate to http://%v.onion\n", torendpoint.ID)
 				err = http.Serve(torendpoint, mu)
 				if err != nil {
 					c.logger.Errorf("Error: %s\n", err.Error())
@@ -590,14 +589,14 @@ func (c *commandeer) torlistener(addr string, keysDir string) (*tor.OnionService
 		os.Exit(1)
 	}
 	var keys *ed25519.KeyPair
-	if _, err := os.Stat(keysDir + addr + ".tor.private"); os.IsNotExist(err) {
+	if _, err := os.Stat(filepath.Join(keysDir, addr) + ".tor.private"); os.IsNotExist(err) {
 		tkeys, err := ed25519.GenerateKey(nil)
 		if err != nil {
 			c.logger.Errorf("Error: %s\n", err.Error())
 			os.Exit(1)
 		}
 		keys = &tkeys
-		f, err := os.Create(keysDir + ".tor.private")
+		f, err := os.Create(filepath.Join(keysDir, addr) + ".tor.private")
 		if err != nil {
 			c.logger.Errorf("Error: %s\n", err.Error())
 			os.Exit(1)
@@ -609,7 +608,7 @@ func (c *commandeer) torlistener(addr string, keysDir string) (*tor.OnionService
 			os.Exit(1)
 		}
 	} else if err == nil {
-		tkeys, err := ioutil.ReadFile(keysDir + ".tor.private")
+		tkeys, err := ioutil.ReadFile(filepath.Join(keysDir, addr) + ".tor.private")
 		if err != nil {
 			c.logger.Errorf("Error: %s\n", err.Error())
 			os.Exit(1)
@@ -635,7 +634,7 @@ func (c *commandeer) torlistener(addr string, keysDir string) (*tor.OnionService
 		os.Exit(1)
 	}
 	//	torconfig.Onion = listener.ID + ".onion"
-	err = ioutil.WriteFile(keysDir+addr+".tor.public.txt", []byte(listener.ID+".onion"), 0644)
+	err = ioutil.WriteFile(filepath.Join(keysDir, addr)+".tor.public.txt", []byte(listener.ID+".onion"), 0644)
 	if err != nil {
 		c.logger.Errorf("Error: %s\n", err.Error())
 		os.Exit(1)
