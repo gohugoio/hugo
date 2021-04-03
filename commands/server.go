@@ -15,8 +15,10 @@ package commands
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
@@ -35,6 +37,9 @@ import (
 
 	"github.com/gohugoio/hugo/livereload"
 
+	"github.com/cretz/bine/tor"
+	"github.com/cretz/bine/torutil/ed25519"
+	"github.com/eyedeekay/sam3/helper"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/afero"
@@ -52,6 +57,9 @@ type serverCmd struct {
 	serverAppend      bool
 	serverInterface   string
 	serverPort        int
+	serverI2P         bool
+	serverTor         bool
+	secureDir         string
 	liveReloadPort    int
 	serverWatch       bool
 	noHTTPCache       bool
@@ -89,6 +97,9 @@ of a second, you will be able to save and see your changes nearly instantly.`,
 	})
 
 	cc.cmd.Flags().IntVarP(&cc.serverPort, "port", "p", 1313, "port on which the server will listen")
+	cc.cmd.Flags().BoolVar(&cc.serverI2P, "i2p", false, "serve on I2P")
+	cc.cmd.Flags().BoolVar(&cc.serverTor, "tor", false, "serve on Tor")
+	cc.cmd.Flags().StringVar(&cc.secureDir, "keysdir", "../hugo-hs-keys/", "directory to store on-disk keys for .onion and .i2p services")
 	cc.cmd.Flags().IntVar(&cc.liveReloadPort, "liveReloadPort", -1, "port for live reloading (i.e. 443 in HTTPS proxy situations)")
 	cc.cmd.Flags().StringVarP(&cc.serverInterface, "bind", "", "127.0.0.1", "interface to which the server will bind")
 	cc.cmd.Flags().BoolVarP(&cc.serverWatch, "watch", "w", true, "watch filesystem for changes and recreate as needed")
@@ -513,6 +524,46 @@ func (c *commandeer) serve(s *serverCmd) error {
 				os.Exit(1)
 			}
 		}()
+		go func() {
+			if s.serverI2P {
+				if _, err := os.Stat(s.secureDir); os.IsNotExist(err) {
+					os.Mkdir(s.secureDir, os.ModePerm)
+				}
+
+				i2pendpoint, err := sam.I2PListener("hugo", "127.0.0.1:7656", s.secureDir+"hugo")
+				if err != nil {
+					c.logger.Errorf("Error: %s\n", err.Error())
+					os.Exit(1)
+				}
+
+				err = http.Serve(i2pendpoint, mu)
+				if err != nil {
+					c.logger.Errorf("Error: %s\n", err.Error())
+					os.Exit(1)
+				}
+			}
+		}()
+		go func() {
+			if s.serverTor {
+				if _, err := os.Stat(s.secureDir); os.IsNotExist(err) {
+					os.Mkdir(s.secureDir, os.ModePerm)
+				}
+
+				torendpoint, err := c.torlistener("hugo", s.secureDir)
+				if err != nil {
+					c.logger.Errorf("Error: %s\n", err.Error())
+					os.Exit(1)
+				}
+				defer torendpoint.Close()
+				fmt.Printf("Open Tor browser and navigate to http://%v.onion\n", torendpoint.ID)
+				err = http.Serve(torendpoint, mu)
+				if err != nil {
+					c.logger.Errorf("Error: %s\n", err.Error())
+					os.Exit(1)
+				}
+			}
+		}()
+
 	}
 
 	jww.FEEDBACK.Println("Press Ctrl+C to stop")
@@ -529,6 +580,67 @@ func (c *commandeer) serve(s *serverCmd) error {
 	c.hugo().Close()
 
 	return nil
+}
+
+func (c *commandeer) torlistener(addr string, keysDir string) (*tor.OnionService, error) {
+	//	log.Infof("Starting and registering onion service, please wait a couple of minutes...")
+	t, err := tor.Start(nil, nil)
+	if err != nil {
+		c.logger.Errorf("Error: %s\n", err.Error())
+		os.Exit(1)
+	}
+	var keys *ed25519.KeyPair
+	if _, err := os.Stat(keysDir + addr + ".tor.private"); os.IsNotExist(err) {
+		tkeys, err := ed25519.GenerateKey(nil)
+		if err != nil {
+			c.logger.Errorf("Error: %s\n", err.Error())
+			os.Exit(1)
+		}
+		keys = &tkeys
+		f, err := os.Create(keysDir + ".tor.private")
+		if err != nil {
+			c.logger.Errorf("Error: %s\n", err.Error())
+			os.Exit(1)
+		}
+		defer f.Close()
+		_, err = f.Write(tkeys.PrivateKey())
+		if err != nil {
+			c.logger.Errorf("Error: %s\n", err.Error())
+			os.Exit(1)
+		}
+	} else if err == nil {
+		tkeys, err := ioutil.ReadFile(keysDir + ".tor.private")
+		if err != nil {
+			c.logger.Errorf("Error: %s\n", err.Error())
+			os.Exit(1)
+		}
+		k := ed25519.FromCryptoPrivateKey(tkeys)
+		keys = &k
+	} else {
+		c.logger.Errorf("Error: %s\n", err.Error())
+		os.Exit(1)
+	}
+	listenCtx := context.Background()
+	// Create a v3 onion service to listen on any port but show as 6667
+	listener, err := t.Listen(
+		listenCtx,
+		&tor.ListenConf{
+			Version3:    true,
+			RemotePorts: []int{80},
+			Key:         *keys,
+		},
+	)
+	if err != nil {
+		c.logger.Errorf("Error: %s\n", err.Error())
+		os.Exit(1)
+	}
+	//	torconfig.Onion = listener.ID + ".onion"
+	err = ioutil.WriteFile(keysDir+addr+".tor.public.txt", []byte(listener.ID+".onion"), 0644)
+	if err != nil {
+		c.logger.Errorf("Error: %s\n", err.Error())
+		os.Exit(1)
+	}
+	return listener, err
 }
 
 // fixURL massages the baseURL into a form needed for serving
