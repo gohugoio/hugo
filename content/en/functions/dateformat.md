@@ -17,7 +17,7 @@ relatedfuncs: [Format,now,Unix,time]
 deprecated: false
 ---
 
-`dateFormat` converts the textual representation of the `datetime` into the specified format or returns it as a Go `time.Time` type value. These are formatted with the layout string.
+`dateFormat` converts an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) timestamp string `INPUT` into the format specified by the `LAYOUT` string.
 
 ```
 {{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }} → "Wednesday, Jan 21, 2015"
@@ -27,5 +27,6 @@ deprecated: false
 As of v0.19 of Hugo, the `dateFormat` function is *not* supported as part of Hugo's [multilingual feature](/content-management/multilingual/).
 {{% /warning %}}
 
-See the [`Format` function](/functions/format/) for a more complete list of date formatting options in your templates.
+See [Go’s Layout String](/functions/format/#gos-layout-string) to learn about how the `LAYOUT` string has to be formatted. There are also some useful examples.
 
+See the [`time` function](/functions/time/) to convert an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) timestamp string to a Go `time.Time` type value.
