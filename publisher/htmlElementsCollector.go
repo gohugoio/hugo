@@ -64,7 +64,7 @@ type cssClassCollectorWriter struct {
 	buff      bytes.Buffer
 
 	isCollecting bool
-	dropValue    bool
+	inPreTag     string
 
 	inQuote    bool
 	quoteValue byte
@@ -90,54 +90,68 @@ func (w *cssClassCollectorWriter) Write(p []byte) (n int, err error) {
 				b := p[i]
 				w.toggleIfQuote(b)
 				if !w.inQuote && b == '>' {
-					w.endCollecting(false)
+					w.endCollecting()
 					break
 				}
 				w.buff.WriteByte(b)
 			}
 
 			if !w.isCollecting {
-				if w.dropValue {
-					w.buff.Reset()
-				} else {
-					// First check if we have processed this element before.
-					w.collector.mu.RLock()
-
-					// See https://github.com/dominikh/go-tools/issues/723
-					//lint:ignore S1030 This construct avoids memory allocation for the string.
-					seen := w.collector.elementSet[string(w.buff.Bytes())]
-					w.collector.mu.RUnlock()
-					if seen {
-						w.buff.Reset()
-						continue
-					}
-
+				if w.inPreTag != "" {
 					s := w.buff.String()
-
+					if tagName, isEnd := w.parseEndTag(s); isEnd && w.inPreTag == tagName {
+						w.inPreTag = ""
+					}
 					w.buff.Reset()
-
-					if strings.HasPrefix(s, "</") {
-						continue
-					}
-
-					key := s
-
-					s, tagName := w.insertStandinHTMLElement(s)
-					el := parseHTMLElement(s)
-					el.Tag = tagName
-
-					w.collector.mu.Lock()
-					w.collector.elementSet[key] = true
-					if el.Tag != "" {
-						w.collector.elements = append(w.collector.elements, el)
-					}
-					w.collector.mu.Unlock()
+					continue
 				}
+
+				// First check if we have processed this element before.
+				w.collector.mu.RLock()
+
+				// See https://github.com/dominikh/go-tools/issues/723
+				//lint:ignore S1030 This construct avoids memory allocation for the string.
+				seen := w.collector.elementSet[string(w.buff.Bytes())]
+				w.collector.mu.RUnlock()
+				if seen {
+					w.buff.Reset()
+					continue
+				}
+
+				s := w.buff.String()
+
+				w.buff.Reset()
+
+				if strings.HasPrefix(s, "</") {
+					continue
+				}
+
+				key := s
+
+				s, tagName := w.insertStandinHTMLElement(s)
+				el := parseHTMLElement(s)
+				el.Tag = tagName
+				if w.isPreFormatted(tagName) {
+					w.inPreTag = tagName
+				}
+
+				w.collector.mu.Lock()
+				w.collector.elementSet[key] = true
+				if el.Tag != "" {
+					w.collector.elements = append(w.collector.elements, el)
+				}
+				w.collector.mu.Unlock()
+
 			}
 		}
 	}
 
 	return
+}
+
+// No need to look inside these for HTML elements.
+func (c *cssClassCollectorWriter) isPreFormatted(s string) bool {
+	return s == "pre" || s == "textarea" || s == "script"
 }
 
 // The net/html parser does not handle single table elements as input, e.g. tbody.
@@ -154,15 +168,24 @@ func (c *cssClassCollectorWriter) insertStandinHTMLElement(el string) (string, s
 	return newv, strings.ToLower(tag)
 }
 
-func (c *cssClassCollectorWriter) endCollecting(drop bool) {
+func (c *cssClassCollectorWriter) parseEndTag(s string) (string, bool) {
+	if !strings.HasPrefix(s, "</") {
+		return "", false
+	}
+	s = strings.TrimPrefix(s, "</")
+	s = strings.TrimSuffix(s, ">")
+	return strings.ToLower(strings.TrimSpace(s)), true
+}
+
+func (c *cssClassCollectorWriter) endCollecting() {
 	c.isCollecting = false
 	c.inQuote = false
-	c.dropValue = drop
+
 }
 
 func (c *cssClassCollectorWriter) startCollecting() {
 	c.isCollecting = true
-	c.dropValue = false
+
 }
 
 func (c *cssClassCollectorWriter) toggleIfQuote(b byte) {
