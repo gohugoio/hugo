@@ -13,6 +13,7 @@ require (
 	github.com/bep/gitmap v1.1.2
 	github.com/bep/godartsass v0.12.0
 	github.com/bep/golibsass v0.7.0
+	github.com/bep/gowebp v0.1.0 // indirect
 	github.com/bep/tmc v0.5.1
 	github.com/cli/safeexec v1.0.0
 	github.com/disintegration/gift v1.2.1
@@ -59,7 +60,7 @@ require (
 	github.com/yuin/goldmark v1.3.2
 	github.com/yuin/goldmark-highlighting v0.0.0-20200307114337-60d527fdb691
 	gocloud.dev v0.20.0
-	golang.org/x/image v0.0.0-20191214001246-9130b4cfad52
+	golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb
 	golang.org/x/net v0.0.0-20210316092652-d523dce5a7f4
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/text v0.3.5

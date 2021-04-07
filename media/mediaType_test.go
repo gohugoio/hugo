@@ -55,7 +55,7 @@ func TestDefaultTypes(t *testing.T) {
 
 	}
 
-	c.Assert(len(DefaultTypes), qt.Equals, 26)
+	c.Assert(len(DefaultTypes), qt.Equals, 27)
 }
 
 func TestGetByType(t *testing.T) {

@@ -120,7 +120,11 @@ func GetDependencyList() []string {
 	}
 
 	if IsExtended {
-		deps = append(deps, formatDep("github.com/sass/libsass", "3.6.4"))
+		deps = append(
+			deps,
+			formatDep("github.com/sass/libsass", "3.6.4"),
+			formatDep("github.com/webmproject/libwebp", "v1.2.0"),
+		)
 	}
 
 	bi, ok := debug.ReadBuildInfo()

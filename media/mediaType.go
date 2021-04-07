@@ -180,6 +180,7 @@ var (
 	GIFType  = newMediaType("image", "gif", []string{"gif"})
 	TIFFType = newMediaType("image", "tiff", []string{"tif", "tiff"})
 	BMPType  = newMediaType("image", "bmp", []string{"bmp"})
+	WEBPType = newMediaType("image", "webp", []string{"webp"})
 
 	// Common video types
 	AVIType  = newMediaType("video", "x-msvideo", []string{"avi"})
@@ -214,6 +215,7 @@ var DefaultTypes = Types{
 	TOMLType,
 	PNGType,
 	JPEGType,
+	WEBPType,
 	AVIType,
 	MPEGType,
 	MP4Type,
