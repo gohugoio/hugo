@@ -18,6 +18,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/minifiers"
+
+	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/output"
+	"github.com/spf13/viper"
+
 	qt "github.com/frankban/quicktest"
 )
 
@@ -40,6 +46,11 @@ func TestClassCollector(t *testing.T) {
 			Classes: classess,
 			IDs:     idss,
 		}
+	}
+
+	skipMinifyTest := map[string]bool{
+		"Script tags content should be skipped": true, // https://github.com/tdewolff/minify/issues/396
+
 	}
 
 	for _, test := range []struct {
@@ -96,12 +107,25 @@ func TestClassCollector(t *testing.T) {
 		{"Pre tags content should be skipped", `<pre class="preclass"><span>foo</span><span>bar</span></pre><div class="foo"></div>`, f("div pre", "foo preclass", "")},
 		{"Textare tags content should be skipped", `<textarea class="textareaclass"><span>foo</span><span>bar</span></textarea><div class="foo"></div>`, f("div textarea", "foo textareaclass", "")},
 	} {
-		c.Run(test.name, func(c *qt.C) {
-			w := newHTMLElementsCollectorWriter(newHTMLElementsCollector())
-			fmt.Fprint(w, test.html)
-			got := w.collector.getHTMLElements()
-			c.Assert(got, qt.DeepEquals, test.expect)
-		})
+
+		for _, minify := range []bool{false, true} {
+			c.Run(fmt.Sprintf("%s--minify-%t", test.name, minify), func(c *qt.C) {
+				w := newHTMLElementsCollectorWriter(newHTMLElementsCollector())
+
+				if minify {
+					if skipMinifyTest[test.name] {
+						c.Skip("skip minify test")
+					}
+					v := viper.New()
+					m, _ := minifiers.New(media.DefaultTypes, output.DefaultFormats, v)
+					m.Minify(media.HTMLType, w, strings.NewReader(test.html))
+				} else {
+					fmt.Fprint(w, test.html)
+				}
+				got := w.collector.getHTMLElements()
+				c.Assert(got, qt.DeepEquals, test.expect)
+			})
+		}
 	}
 }
 
