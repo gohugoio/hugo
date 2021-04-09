@@ -166,12 +166,12 @@ section names to hard-coded values like `"posts"` or `"post"`.
 If the user has not set this config parameter in their site config, it
 will default to the _section with the most pages_.
 
-The user can override the default in `config.toml`:
+The user can override the default:
 
-```toml
+{{< code-toggle file="config" >}}
 [params]
   mainSections = ["blog", "docs"]
-```
+{{< /code-toggle >}}
 
 [intersect]: /functions/intersect/
 [wherekeyword]: https://www.techonthenet.com/sql/where.php

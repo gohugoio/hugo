@@ -66,7 +66,7 @@ Hugo also ships with an internal template for [Disqus comments][disqus], a popul
 
 ### Configure Disqus
 
-To use Hugo's Disqus template, you first need to set a single value in your site's `config.toml` or `config.yml`:
+To use Hugo's Disqus template, you first need to set a single configuration value:
 
 {{< code-toggle file="config" >}}
 disqusShortname = "yourdiscussshortname"

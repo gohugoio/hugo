@@ -43,15 +43,15 @@ The table below shows the RSS template lookup order for the different page kinds
 
 By default, Hugo will create an unlimited number of RSS entries. You can limit the number of articles included in the built-in RSS templates by assigning a numeric value to `rssLimit:` field in your project's [`config` file][config].
 
-The following values will also be included in the RSS output if specified in your site’s configuration:
+The following values will also be included in the RSS output if specified:
 
-```toml
+{{< code-toggle file="config" >}}
 languageCode = "en-us"
 copyright = "This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License."
 
 [author]
     name = "My Name Here"
-```
+{{< /code-toggle >}}
 
 ## The Embedded rss.xml
 

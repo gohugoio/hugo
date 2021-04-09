@@ -47,15 +47,15 @@ In addition to using a single site config file, one can use the `configDir` dire
 - Each file represents a configuration root object, such as `params.toml` for `[Params]`, `menu(s).toml` for `[Menu]`, `languages.toml` for `[Languages]` etc...
 - Each file's content must be top-level, for example:
   
-  In `config.toml` is:
-  ```toml
-  [Params]
-    foo = "bar"
-  ```
-  In `params.toml` is:
-  ```
+{{< code-toggle file="config" >}}
+[Params]
   foo = "bar"
-  ```
+{{< /code-toggle >}}
+
+{{< code-toggle file="params" >}}
+foo = "bar"
+{{< /code-toggle >}}
+
 - Each directory holds a group of files containing settings unique to an environment.
 - Files can be localized to become language specific.
 
@@ -465,20 +465,20 @@ Dates are important in Hugo, and you can configure how Hugo assigns dates to you
 
 The default configuration is:
 
-```toml
+{{< code-toggle file="config" >}}
 [frontmatter]
 date = ["date", "publishDate", "lastmod"]
 lastmod = [":git", "lastmod", "date", "publishDate"]
 publishDate = ["publishDate", "date"]
 expiryDate = ["expiryDate"]
-```
+{{< /code-toggle >}}
 
 If you, as an example, have a non-standard date parameter in some of your content, you can override the setting for `date`:
 
- ```toml
+{{< code-toggle file="config" >}}
 [frontmatter]
 date = ["myDate", ":default"]
-```
+{{< /code-toggle >}}
 
 The `:default` is a shortcut to the default settings. The above will set `.Date` to the date value in `myDate` if present, if not we will look in `date`,`publishDate`, `lastmod` and pick the first valid date.
 
@@ -492,10 +492,10 @@ The special date handlers are:
 
 An example:
 
- ```toml
+{{< code-toggle file="config" >}}
 [frontmatter]
 lastmod = ["lastmod", ":fileModTime", ":default"]
-```
+{{< /code-toggle >}}
 
 
 The above will try first to extract the value for `.Lastmod` starting with the `lastmod` front matter parameter, then the content file's modification timestamp. The last, `:default` should not be needed here, but Hugo will finally look for a valid date in `:git`, `date` and then `publishDate`.
@@ -506,10 +506,10 @@ The above will try first to extract the value for `.Lastmod` starting with the `
 
 An example:
 
-```toml
+{{< code-toggle file="config" >}}
 [frontmatter]
 date  = [":filename", ":default"]
-```
+{{< /code-toggle >}}
 
 The above will try first to extract the value for `.Date` from the filename, then it will look in front matter parameters `date`, `publishDate` and lastly `lastmod`.
 

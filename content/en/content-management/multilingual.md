@@ -77,9 +77,9 @@ Only the obvious non-global options can be overridden per language. Examples of 
 
 You can disable one or more languages. This can be useful when working on a new translation.
 
-```toml
+{{< code-toggle file="config" >}}
 disableLanguages = ["fr", "ja"]
-```
+{{< /code-toggle >}}
 
 Note that you cannot disable the default content language.
 
@@ -330,12 +330,12 @@ From within your templates, use the `i18n` function like this:
 {{ i18n "home" }}
 ```
 
-The function will search for the `"home"` id from `i18n/en-US.toml` file:
+The function will search for the `"home"` id:
 
-```
+{{< code-toggle file="i18n/en-US" >}}
 [home]
 other = "Home"
-```
+{{< /code-toggle >}}
 
 The result will be
 
@@ -351,12 +351,12 @@ Often you will want to use the page variables in the translation strings. To do 
 {{ i18n "wordCount" . }}
 ```
 
-The function will pass the `.` context to the `"wordCount"` id in `i18n/en-US.toml` file:
+The function will pass the `.` context to the `"wordCount"` id:
 
-```
+{{< code-toggle file="i18n/en-US" >}}
 [wordCount]
 other = "This article has {{ .WordCount }} words."
-```
+{{< /code-toggle >}}
 
 Assume `.WordCount` in the context has value is 101. The result will be:
 
@@ -372,13 +372,13 @@ In order to meet singular/plural requirement, you must pass a dictionary (map) w
 {{ i18n "readingTime" .ReadingTime }}
 ```
 
-The function will read `.Count` from `.ReadingTime` and evaluate where the number is singular (`one`) or plural (`other`). After that, it will pass to `readingTime` id in `i18n/en-US.toml` file:
+The function will read `.Count` from `.ReadingTime` and evaluate where the number is singular (`one`) or plural (`other`). After that, it will pass to `readingTime` id:
 
-```
+{{< code-toggle file="i18n/en-US" >}}
 [readingTime]
 one = "One minute to read"
 other = "{{.Count}} minutes to read"
-```
+{{< /code-toggle >}}
 
 Assume `.ReadingTime.Count` in the context has value of 525600. The result will be:
 
