@@ -18,6 +18,8 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
+	"runtime/debug"
+	"sort"
 	"strings"
 
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -106,4 +108,31 @@ func GetExecEnviron(workDir string, cfg config.Provider, fs afero.Fs) []string {
 	}
 
 	return env
+}
+
+// GetDependencyList returns a sorted dependency list on the format package="version".
+// It includes both Go dependencies and (a manually maintained) list of C(++) dependencies.
+func GetDependencyList() []string {
+	var deps []string
+
+	formatDep := func(path, version string) string {
+		return fmt.Sprintf("%s=%q", path, version)
+	}
+
+	if IsExtended {
+		deps = append(deps, formatDep("github.com/sass/libsass", "3.6.4"))
+	}
+
+	bi, ok := debug.ReadBuildInfo()
+	if !ok {
+		return deps
+	}
+
+	for _, dep := range bi.Deps {
+		deps = append(deps, formatDep(dep.Path, dep.Version))
+	}
+
+	sort.Strings(deps)
+
+	return deps
 }
