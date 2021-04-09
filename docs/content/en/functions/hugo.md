@@ -41,6 +41,9 @@ hugo.CommitHash
 hugo.BuildDate
 : the compile date of the current Hugo binary formatted with RFC 3339 e.g. `2002-10-02T10:00:00-05:00`
 
+hugo.IsExtended {{< new-in "0.83.0" >}}
+: whether this is the extended Hugo binary.
+
 hugo.IsProduction
 : returns true if `hugo.Environment` is set to the production environment
 
