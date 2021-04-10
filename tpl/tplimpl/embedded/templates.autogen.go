@@ -366,14 +366,14 @@ if (!doNotTrack) {
 	{`shortcodes/figure.html`, `<figure{{ with .Get "class" }} class="{{ . }}"{{ end }}>
     {{- if .Get "link" -}}
         <a href="{{ .Get "link" }}"{{ with .Get "target" }} target="{{ . }}"{{ end }}{{ with .Get "rel" }} rel="{{ . }}"{{ end }}>
-    {{- end }}
+    {{- end -}}
     <img src="{{ .Get "src" }}"
          {{- if or (.Get "alt") (.Get "caption") }}
          alt="{{ with .Get "alt" }}{{ . }}{{ else }}{{ .Get "caption" | markdownify| plainify }}{{ end }}"
          {{- end -}}
          {{- with .Get "width" }} width="{{ . }}"{{ end -}}
          {{- with .Get "height" }} height="{{ . }}"{{ end -}}
-    /> <!-- Closing img tag -->
+    /><!-- Closing img tag -->
     {{- if .Get "link" }}</a>{{ end -}}
     {{- if or (or (.Get "title") (.Get "caption")) (.Get "attr") -}}
         <figcaption>
