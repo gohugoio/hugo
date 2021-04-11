@@ -534,8 +534,8 @@ github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 h1:zYyBkD/k9seD2A7fsi6
 github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646/go.mod h1:jpp1/29i3P1S/RLdc7JQKbRpFeM1dOBd8T9ki5s+AY8=
 github.com/nicksnyder/go-i18n/v2 v2.1.1 h1:ATCOanRDlrfKVB4WHAdJnLEqZtDmKYsweqsOUYflnBU=
 github.com/nicksnyder/go-i18n/v2 v2.1.1/go.mod h1:d++QJC9ZVf7pa48qrsRWhMJ5pSHIPmS3OLqK1niyLxs=
-github.com/niklasfasching/go-org v1.4.0 h1:qPy4VEdX55f5QcLiaD3X7N/tY5XOgk4y2uEyQa02i7A=
-github.com/niklasfasching/go-org v1.4.0/go.mod h1:4FWT4U/Anir9ewjwNpbZIzMjG5RaXFafkyWZNEPRdk8=
+github.com/niklasfasching/go-org v1.5.0 h1:V8IwoSPm/d61bceyWFxxnQLtlvNT+CjiYIhtZLdnMF0=
+github.com/niklasfasching/go-org v1.5.0/go.mod h1:sSb8ylwnAG+h8MGFDB3R1D5bxf8wA08REfhjShg3kjA=
 github.com/nkovacs/streamquote v0.0.0-20170412213628-49af9bddb229 h1:E2B8qYyeSgv5MXpmzZXRNp8IAQ4vjxIjhpAf5hv/tAg=
 github.com/nkovacs/streamquote v0.0.0-20170412213628-49af9bddb229/go.mod h1:0aYXnNPJ8l7uZxf45rWW1a/uME32OF0rhiYGNQ2oF2E=
 github.com/oklog/ulid v1.3.1 h1:EGfNDEx6MqHz8B3uNV6QAib1UR2Lm97sHi3ocA6ESJ4=
