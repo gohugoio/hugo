@@ -14,17 +14,17 @@
 package publisher
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 	"testing"
 
-	"github.com/gohugoio/hugo/minifiers"
-
 	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/minifiers"
 	"github.com/gohugoio/hugo/output"
-	"github.com/spf13/viper"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/spf13/viper"
 )
 
 func TestClassCollector(t *testing.T) {
@@ -50,7 +50,6 @@ func TestClassCollector(t *testing.T) {
 
 	skipMinifyTest := map[string]bool{
 		"Script tags content should be skipped": true, // https://github.com/tdewolff/minify/issues/396
-
 	}
 
 	for _, test := range []struct {
@@ -62,56 +61,57 @@ func TestClassCollector(t *testing.T) {
 		{"duplicates", `<div class="b a b"></div>`, f("div", "a b", "")},
 		{"single quote", `<body class='b a'></body>`, f("body", "a b", "")},
 		{"no quote", `<body class=b id=myelement></body>`, f("body", "b", "myelement")},
-		{"thead", `
-		https://github.com/gohugoio/hugo/issues/7318
-<table class="cl1">
+		// https://github.com/gohugoio/hugo/issues/7318
+		{"thead", `<table class="cl1">
     <thead class="cl2"><tr class="cl3"><td class="cl4"></td></tr></thead>
     <tbody class="cl5"><tr class="cl6"><td class="cl7"></td></tr></tbody>
 </table>`, f("table tbody td thead tr", "cl1 cl2 cl3 cl4 cl5 cl6 cl7", "")},
 		// https://github.com/gohugoio/hugo/issues/7161
 		{"minified a href", `<a class="b a" href=/></a>`, f("a", "a b", "")},
-
 		{"AlpineJS bind 1", `<body>
-			<div x-bind:class="{
+    <div x-bind:class="{
         'class1': data.open,
         'class2 class3': data.foo == 'bar'
          }">
-			</div>
-		</body>`, f("body div", "class1 class2 class3", "")},
-
-		{
-			"Alpine bind 2", `<div x-bind:class="{ 'bg-black':  filter.checked }"
-                        class="inline-block mr-1 mb-2 rounded  bg-gray-300 px-2 py-2">FOO</div>`,
+    </div>
+</body>`, f("body div", "class1 class2 class3", "")},
+		{"AlpineJS bind 2", `<div x-bind:class="{ 'bg-black':  filter.checked }" class="inline-block mr-1 mb-2 rounded  bg-gray-300 px-2 py-2">FOO</div>`,
 			f("div", "bg-black bg-gray-300 inline-block mb-2 mr-1 px-2 py-2 rounded", ""),
 		},
-
-		{"Alpine bind 3", `<div x-bind:class="{ 'text-gray-800':  !checked, 'text-white': checked }"></div>`, f("div", "text-gray-800 text-white", "")},
-		{"Alpine bind 4", `<div x-bind:class="{ 'text-gray-800':  !checked, 
+		{"AlpineJS bind 3", `<div x-bind:class="{ 'text-gray-800':  !checked, 'text-white': checked }"></div>`, f("div", "text-gray-800 text-white", "")},
+		{"AlpineJS bind 4", `<div x-bind:class="{ 'text-gray-800':  !checked, 
 					 'text-white': checked }"></div>`, f("div", "text-gray-800 text-white", "")},
-
-		{"Alpine bind 5", `<a x-bind:class="{
+		{"AlpineJS bind 5", `<a x-bind:class="{
                 'text-a': a && b,
                 'text-b': !a && b || c,
                 'pl-3': a === 1,
                  pl-2: b == 3,
                 'text-gray-600': (a > 1)
-      
                 }" class="block w-36 cursor-pointer pr-3 no-underline capitalize"></a>`, f("a", "block capitalize cursor-pointer no-underline pl-2 pl-3 pr-3 text-a text-b text-gray-600 w-36", "")},
-
-		{"Alpine transition 1", `<div x-transition:enter-start="opacity-0 transform mobile:-translate-x-8 sm:-translate-y-8">`, f("div", "mobile:-translate-x-8 opacity-0 sm:-translate-y-8 transform", "")},
+		{"AlpineJS transition 1", `<div x-transition:enter-start="opacity-0 transform mobile:-translate-x-8 sm:-translate-y-8">`, f("div", "mobile:-translate-x-8 opacity-0 sm:-translate-y-8 transform", "")},
 		{"Vue bind", `<div v-bind:class="{ active: isActive }"></div>`, f("div", "active", "")},
 		// Issue #7746
 		{"Apostrophe inside attribute value", `<a class="missingclass" title="Plus d'information">my text</a><div></div>`, f("a div", "missingclass", "")},
 		// Issue #7567
 		{"Script tags content should be skipped", `<script><span>foo</span><span>bar</span></script><div class="foo"></div>`, f("div script", "foo", "")},
+		{"Style tags content should be skipped", `<style>p{color: red;font-size: 20px;}</style><div class="foo"></div>`, f("div style", "foo", "")},
 		{"Pre tags content should be skipped", `<pre class="preclass"><span>foo</span><span>bar</span></pre><div class="foo"></div>`, f("div pre", "foo preclass", "")},
-		{"Textare tags content should be skipped", `<textarea class="textareaclass"><span>foo</span><span>bar</span></textarea><div class="foo"></div>`, f("div textarea", "foo textareaclass", "")},
+		{"Textarea tags content should be skipped", `<textarea class="textareaclass"><span>foo</span><span>bar</span></textarea><div class="foo"></div>`, f("div textarea", "foo textareaclass", "")},
+		{"DOCTYPE should beskipped", `<!DOCTYPE html>`, f("", "", "")},
+		{"Comments should be skipped", `<!-- example comment -->`, f("", "", "")},
+		// Issue #8417
+		{"Tabs inline", `<hr	id="a" class="foo"><div class="bar">d</div>`, f("div hr", "bar foo", "a")},
+		{"Tabs on multiple rows", `<form
+			id="a"
+			action="www.example.com"
+			method="post"
+></form>
+<div id="b" class="foo">d</div>`, f("div form", "foo", "a b")},
 	} {
 
 		for _, minify := range []bool{false, true} {
 			c.Run(fmt.Sprintf("%s--minify-%t", test.name, minify), func(c *qt.C) {
 				w := newHTMLElementsCollectorWriter(newHTMLElementsCollector())
-
 				if minify {
 					if skipMinifyTest[test.name] {
 						c.Skip("skip minify test")
@@ -152,6 +152,106 @@ func BenchmarkClassCollectorWriter(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		w := newHTMLElementsCollectorWriter(newHTMLElementsCollector())
 		fmt.Fprint(w, benchHTML)
+	}
+}
 
+const benchHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+<title>title</title>
+<style>
+	a {color: red;}
+	.c {color: blue;}
+</style>
+</head>
+<body id="i1" class="a b c d">
+<a class="c d e"></a>
+<hr>
+<a class="c d e"></a>
+<a class="c d e"></a>
+<hr>
+<a id="i2" class="c d e f"></a>
+<a id="i3" class="c d e"></a>
+<a class="c d e"></a>
+<p>To force<br> line breaks<br> in a text,<br> use the br<br> element.</p>
+<hr>
+<a class="c d e"></a>
+<a class="c d e"></a>
+<a class="c d e"></a>
+<a class="c d e"></a>
+<table>
+  <thead class="ch">
+  <tr>
+    <th>Month</th>
+    <th>Savings</th>
+  </tr>
+  </thead>
+  <tbody class="cb">
+  <tr>
+    <td>January</td>
+    <td>$100</td>
+  </tr>
+  <tr>
+    <td>February</td>
+    <td>$200</td>
+  </tr>
+  </tbody>
+  <tfoot class="cf">
+  <tr>
+    <td></td>
+    <td>$300</td>
+  </tr>
+  </tfoot>
+</table>
+</body>
+</html>
+`
+
+func BenchmarkElementsCollectorWriter(b *testing.B) {
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		w := newHTMLElementsCollectorWriter(newHTMLElementsCollector())
+		fmt.Fprint(w, benchHTML)
+	}
+}
+
+func BenchmarkElementsCollectorWriterMinified(b *testing.B) {
+	b.ReportAllocs()
+	v := viper.New()
+	m, _ := minifiers.New(media.DefaultTypes, output.DefaultFormats, v)
+	var buf bytes.Buffer
+	m.Minify(media.HTMLType, &buf, strings.NewReader(benchHTML))
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		w := newHTMLElementsCollectorWriter(newHTMLElementsCollector())
+		fmt.Fprint(w, buf.String())
+	}
+}
+
+func BenchmarkElementsCollectorWriterWithMinifyStream(b *testing.B) {
+	b.ReportAllocs()
+	v := viper.New()
+	m, _ := minifiers.New(media.DefaultTypes, output.DefaultFormats, v)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		w := newHTMLElementsCollectorWriter(newHTMLElementsCollector())
+		m.Minify(media.HTMLType, w, strings.NewReader(benchHTML))
+	}
+}
+
+func BenchmarkElementsCollectorWriterWithMinifyString(b *testing.B) {
+	b.ReportAllocs()
+	v := viper.New()
+	m, _ := minifiers.New(media.DefaultTypes, output.DefaultFormats, v)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		var buf bytes.Buffer
+		m.Minify(media.HTMLType, &buf, strings.NewReader(benchHTML))
+		w := newHTMLElementsCollectorWriter(newHTMLElementsCollector())
+		fmt.Fprint(w, buf.String())
 	}
 }

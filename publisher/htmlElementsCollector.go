@@ -20,21 +20,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gohugoio/hugo/helpers"
 	"golang.org/x/net/html"
+
+	"github.com/gohugoio/hugo/helpers"
 )
-
-func newHTMLElementsCollector() *htmlElementsCollector {
-	return &htmlElementsCollector{
-		elementSet: make(map[string]bool),
-	}
-}
-
-func newHTMLElementsCollectorWriter(collector *htmlElementsCollector) *cssClassCollectorWriter {
-	return &cssClassCollectorWriter{
-		collector: collector,
-	}
-}
 
 // HTMLElements holds lists of tags and attribute values for classes and id.
 type HTMLElements struct {
@@ -59,152 +48,6 @@ func (h *HTMLElements) Sort() {
 	sort.Strings(h.IDs)
 }
 
-type cssClassCollectorWriter struct {
-	collector *htmlElementsCollector
-	buff      bytes.Buffer
-
-	isCollecting bool
-	inPreTag     string
-
-	inQuote    bool
-	quoteValue byte
-}
-
-func (w *cssClassCollectorWriter) Write(p []byte) (n int, err error) {
-	n = len(p)
-	i := 0
-
-	for i < len(p) {
-		if !w.isCollecting {
-			for ; i < len(p); i++ {
-				b := p[i]
-				if b == '<' {
-					w.startCollecting()
-					break
-				}
-			}
-		}
-
-		if w.isCollecting {
-			for ; i < len(p); i++ {
-				b := p[i]
-				w.toggleIfQuote(b)
-				if !w.inQuote && b == '>' {
-					w.endCollecting()
-					break
-				}
-				w.buff.WriteByte(b)
-			}
-
-			if !w.isCollecting {
-				if w.inPreTag != "" {
-					s := w.buff.String()
-					if tagName, isEnd := w.parseEndTag(s); isEnd && w.inPreTag == tagName {
-						w.inPreTag = ""
-					}
-					w.buff.Reset()
-					continue
-				}
-
-				// First check if we have processed this element before.
-				w.collector.mu.RLock()
-
-				// See https://github.com/dominikh/go-tools/issues/723
-				//lint:ignore S1030 This construct avoids memory allocation for the string.
-				seen := w.collector.elementSet[string(w.buff.Bytes())]
-				w.collector.mu.RUnlock()
-				if seen {
-					w.buff.Reset()
-					continue
-				}
-
-				s := w.buff.String()
-
-				w.buff.Reset()
-
-				if strings.HasPrefix(s, "</") {
-					continue
-				}
-
-				key := s
-
-				s, tagName := w.insertStandinHTMLElement(s)
-				el := parseHTMLElement(s)
-				el.Tag = tagName
-				if w.isPreFormatted(tagName) {
-					w.inPreTag = tagName
-				}
-
-				w.collector.mu.Lock()
-				w.collector.elementSet[key] = true
-				if el.Tag != "" {
-					w.collector.elements = append(w.collector.elements, el)
-				}
-				w.collector.mu.Unlock()
-
-			}
-		}
-	}
-
-	return
-}
-
-// No need to look inside these for HTML elements.
-func (c *cssClassCollectorWriter) isPreFormatted(s string) bool {
-	return s == "pre" || s == "textarea" || s == "script"
-}
-
-// The net/html parser does not handle single table elements as input, e.g. tbody.
-// We only care about the element/class/ids, so just store away the original tag name
-// and pretend it's a <div>.
-func (c *cssClassCollectorWriter) insertStandinHTMLElement(el string) (string, string) {
-	tag := el[1:]
-	spacei := strings.Index(tag, " ")
-	if spacei != -1 {
-		tag = tag[:spacei]
-	}
-	tag = strings.Trim(tag, "\n ")
-	newv := strings.Replace(el, tag, "div", 1)
-	return newv, strings.ToLower(tag)
-}
-
-func (c *cssClassCollectorWriter) parseEndTag(s string) (string, bool) {
-	if !strings.HasPrefix(s, "</") {
-		return "", false
-	}
-	s = strings.TrimPrefix(s, "</")
-	s = strings.TrimSuffix(s, ">")
-	return strings.ToLower(strings.TrimSpace(s)), true
-}
-
-func (c *cssClassCollectorWriter) endCollecting() {
-	c.isCollecting = false
-	c.inQuote = false
-
-}
-
-func (c *cssClassCollectorWriter) startCollecting() {
-	c.isCollecting = true
-
-}
-
-func (c *cssClassCollectorWriter) toggleIfQuote(b byte) {
-	if isQuote(b) {
-		if c.inQuote && b == c.quoteValue {
-			c.inQuote = false
-		} else if !c.inQuote {
-			c.inQuote = true
-			c.quoteValue = b
-		}
-	}
-}
-
-type htmlElement struct {
-	Tag     string
-	Classes []string
-	IDs     []string
-}
-
 type htmlElementsCollector struct {
 	// Contains the raw HTML string. We will get the same element
 	// several times, and want to avoid costly reparsing when this
@@ -214,6 +57,12 @@ type htmlElementsCollector struct {
 	elements []htmlElement
 
 	mu sync.RWMutex
+}
+
+func newHTMLElementsCollector() *htmlElementsCollector {
+	return &htmlElementsCollector{
+		elementSet: make(map[string]bool),
+	}
 }
 
 func (c *htmlElementsCollector) getHTMLElements() HTMLElements {
@@ -242,8 +91,174 @@ func (c *htmlElementsCollector) getHTMLElements() HTMLElements {
 	return els
 }
 
+type htmlElementsCollectorWriter struct {
+	collector *htmlElementsCollector
+	buff      bytes.Buffer
+
+	isCollecting bool
+	inPreTag     string
+
+	inQuote    bool
+	quoteValue byte
+}
+
+func newHTMLElementsCollectorWriter(collector *htmlElementsCollector) *htmlElementsCollectorWriter {
+	return &htmlElementsCollectorWriter{
+		collector: collector,
+	}
+}
+
+// Write splits the incoming stream into single html element and writes these into elementSet
+func (w *htmlElementsCollectorWriter) Write(p []byte) (n int, err error) {
+	n = len(p)
+	i := 0
+
+	for i < len(p) {
+		// if is not collecting, cycle through byte stream until start bracket "<" is found
+		if !w.isCollecting {
+			for ; i < len(p); i++ {
+				b := p[i]
+				if b == '<' {
+					w.startCollecting()
+					break
+				}
+			}
+		}
+
+		if w.isCollecting {
+			// if is collecting, cycle through byte stream until end bracket ">" is found
+			// disregard any ">" if within a quote
+			// write bytes until found to buffer
+			for ; i < len(p); i++ {
+				b := p[i]
+				w.toggleIfQuote(b)
+				w.buff.WriteByte(b)
+
+				if !w.inQuote && b == '>' {
+					w.endCollecting()
+					break
+				}
+			}
+		}
+
+		// if no end bracket ">" is found while collecting, but the stream ended
+		// this could mean we received chunks of a stream from e.g. the minify functionality
+		// next if loop will be skipped
+
+		// at this point we have collected an element line between angle brackets "<" and ">"
+		if !w.isCollecting {
+			s := w.buff.String()
+			w.buff.Reset()
+
+			// filter out unwanted tags
+			// empty string, just in case
+			// if within preformatted code blocks <pre>, <textarea>, <script>, <style>
+			// comments and doctype tags
+			// end tags
+			switch {
+			case s == "": // empty string
+				continue
+			case w.inPreTag != "": // within preformatted code block
+				if tagName, isEnd := parseEndTag(s); isEnd && w.inPreTag == tagName {
+					w.inPreTag = ""
+				}
+				continue
+			case strings.HasPrefix(s, "<!"): // comment or doctype tag
+				continue
+			case strings.HasPrefix(s, "</"): // end tag
+				continue
+			}
+
+			// check if we have processed this element before.
+			w.collector.mu.RLock()
+			seen := w.collector.elementSet[s]
+			w.collector.mu.RUnlock()
+			if seen {
+				continue
+			}
+
+			// check if a preformatted code block started
+			if tagName, isStart := parseStartTag(s); isStart && isPreFormatted(tagName) {
+				w.inPreTag = tagName
+			}
+
+			// parse each collected element
+			el, err := parseHTMLElement(s)
+			if err != nil {
+				return n, err
+			}
+
+			// write this tag to the element set
+			w.collector.mu.Lock()
+			w.collector.elementSet[s] = true
+			w.collector.elements = append(w.collector.elements, el)
+			w.collector.mu.Unlock()
+		}
+	}
+
+	return
+}
+
+func (c *htmlElementsCollectorWriter) startCollecting() {
+	c.isCollecting = true
+}
+
+func (c *htmlElementsCollectorWriter) endCollecting() {
+	c.isCollecting = false
+	c.inQuote = false
+}
+
+func (c *htmlElementsCollectorWriter) toggleIfQuote(b byte) {
+	if isQuote(b) {
+		if c.inQuote && b == c.quoteValue {
+			c.inQuote = false
+		} else if !c.inQuote {
+			c.inQuote = true
+			c.quoteValue = b
+		}
+	}
+}
+
 func isQuote(b byte) bool {
 	return b == '"' || b == '\''
+}
+
+func parseStartTag(s string) (string, bool) {
+	if strings.HasPrefix(s, "</") || strings.HasPrefix(s, "<!") {
+		return "", false
+	}
+
+	s = strings.TrimPrefix(s, "<")
+	s = strings.TrimSuffix(s, ">")
+
+	spaceIndex := strings.Index(s, " ")
+	if spaceIndex != -1 {
+		s = s[:spaceIndex]
+	}
+
+	return strings.ToLower(strings.TrimSpace(s)), true
+}
+
+func parseEndTag(s string) (string, bool) {
+	if !strings.HasPrefix(s, "</") {
+		return "", false
+	}
+
+	s = strings.TrimPrefix(s, "</")
+	s = strings.TrimSuffix(s, ">")
+
+	return strings.ToLower(strings.TrimSpace(s)), true
+}
+
+// No need to look inside these for HTML elements.
+func isPreFormatted(s string) bool {
+	return s == "pre" || s == "textarea" || s == "script" || s == "style"
+}
+
+type htmlElement struct {
+	Tag     string
+	Classes []string
+	IDs     []string
 }
 
 var (
@@ -252,11 +267,29 @@ var (
 	classAttrRe   = regexp.MustCompile(`(?i)^class$|transition`)
 )
 
-func parseHTMLElement(elStr string) (el htmlElement) {
-	elStr = strings.TrimSpace(elStr)
-	if !strings.HasSuffix(elStr, ">") {
-		elStr += ">"
+func parseHTMLElement(elStr string) (el htmlElement, err error) {
+	var tagBuffer string = ""
+	exceptionList := map[string]bool{
+		"thead": true,
+		"tbody": true,
+		"tfoot": true,
+		"td":    true,
+		"tr":    true,
 	}
+
+	tagName, ok := parseStartTag(elStr)
+	if !ok {
+		return
+	}
+
+	// The net/html parser does not handle single table elements as input, e.g. tbody.
+	// We only care about the element/class/ids, so just store away the original tag name
+	// and pretend it's a <div>.
+	if exceptionList[tagName] {
+		tagBuffer = tagName
+		elStr = strings.Replace(elStr, tagName, "div", 1)
+	}
+
 	n, err := html.Parse(strings.NewReader(elStr))
 	if err != nil {
 		return
@@ -287,7 +320,6 @@ func parseHTMLElement(elStr string) (el htmlElement) {
 							val = strings.Join(lines, "\n")
 							val = jsonAttrRe.ReplaceAllString(val, "$1")
 							el.Classes = append(el.Classes, strings.Fields(val)...)
-
 						}
 					}
 				}
@@ -300,6 +332,11 @@ func parseHTMLElement(elStr string) (el htmlElement) {
 	}
 
 	walk(n)
+
+	// did we replaced the start tag?
+	if tagBuffer != "" {
+		el.Tag = tagBuffer
+	}
 
 	return
 }
