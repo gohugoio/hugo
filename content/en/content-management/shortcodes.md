@@ -302,8 +302,8 @@ Read a more extensive description of `ref` and `relref` in the [cross references
 Assuming that standard Hugo pretty URLs are turned on.
 
 ```
-<a href="/blog/neat">Neat</a>
-<a href="/about/#who:c28654c202e73453784cfd2c5ab356c0">Who</a>
+<a href="https://example.com/blog/neat">Neat</a>
+<a href="/about/#who">Who</a>
 ```
 
 ### `tweet`
