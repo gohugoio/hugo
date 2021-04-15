@@ -408,8 +408,8 @@ github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRW
 github.com/neurosnap/sentences v1.0.6/go.mod h1:pg1IapvYpWCJJm/Etxeh0+gtMf1rI1STY9S7eUCPbDc=
 github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 h1:zYyBkD/k9seD2A7fsi6Oo2LfFZAehjjQMERAvZLEDnQ=
 github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646/go.mod h1:jpp1/29i3P1S/RLdc7JQKbRpFeM1dOBd8T9ki5s+AY8=
-github.com/nicksnyder/go-i18n/v2 v2.1.1 h1:ATCOanRDlrfKVB4WHAdJnLEqZtDmKYsweqsOUYflnBU=
-github.com/nicksnyder/go-i18n/v2 v2.1.1/go.mod h1:d++QJC9ZVf7pa48qrsRWhMJ5pSHIPmS3OLqK1niyLxs=
+github.com/nicksnyder/go-i18n/v2 v2.1.2 h1:QHYxcUJnGHBaq7XbvgunmZ2Pn0focXFqTD61CkH146c=
+github.com/nicksnyder/go-i18n/v2 v2.1.2/go.mod h1:d++QJC9ZVf7pa48qrsRWhMJ5pSHIPmS3OLqK1niyLxs=
 github.com/niklasfasching/go-org v1.5.0 h1:V8IwoSPm/d61bceyWFxxnQLtlvNT+CjiYIhtZLdnMF0=
 github.com/niklasfasching/go-org v1.5.0/go.mod h1:sSb8ylwnAG+h8MGFDB3R1D5bxf8wA08REfhjShg3kjA=
 github.com/nkovacs/streamquote v0.0.0-20170412213628-49af9bddb229/go.mod h1:0aYXnNPJ8l7uZxf45rWW1a/uME32OF0rhiYGNQ2oF2E=
