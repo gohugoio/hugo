@@ -8,12 +8,12 @@ require (
 	github.com/alecthomas/chroma v0.8.2
 	github.com/alecthomas/repr v0.0.0-20181024024818-d37bc2a10ba1 // indirect
 	github.com/armon/go-radix v1.0.0
-	github.com/aws/aws-sdk-go v1.37.11
+	github.com/aws/aws-sdk-go v1.38.21
 	github.com/bep/debounce v1.2.0
 	github.com/bep/gitmap v1.1.2
 	github.com/bep/godartsass v0.12.0
 	github.com/bep/golibsass v0.7.0
-	github.com/bep/gowebp v0.1.0 // indirect
+	github.com/bep/gowebp v0.1.0
 	github.com/bep/tmc v0.5.1
 	github.com/cli/safeexec v1.0.0
 	github.com/disintegration/gift v1.2.1
@@ -43,13 +43,13 @@ require (
 	github.com/nicksnyder/go-i18n/v2 v2.1.2
 	github.com/niklasfasching/go-org v1.5.0
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/pelletier/go-toml v1.8.1
+	github.com/pelletier/go-toml v1.9.0
 	github.com/pkg/errors v0.9.1
 	github.com/rogpeppe/go-internal v1.8.0
 	github.com/russross/blackfriday v1.5.3-0.20200218234912-41c5fccfd6f6
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 	github.com/sanity-io/litter v1.5.0
-	github.com/spf13/afero v1.5.1
+	github.com/spf13/afero v1.6.0
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/fsync v0.9.0
