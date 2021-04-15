@@ -96,13 +96,11 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		return err
 	}
 
-	if buildOptions.Sourcemap == api.SourceMapExternal && buildOptions.Outdir == "" {
-		buildOptions.Outdir, err = ioutil.TempDir(os.TempDir(), "compileOutput")
-		if err != nil {
-			return err
-		}
-		defer os.Remove(buildOptions.Outdir)
+	buildOptions.Outdir, err = ioutil.TempDir(os.TempDir(), "compileOutput")
+	if err != nil {
+		return err
 	}
+	defer os.Remove(buildOptions.Outdir)
 
 	if opts.Inject != nil {
 		// Resolve the absolute filenames.
@@ -181,6 +179,25 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 
 		return errors[0]
 	}
+
+	for _, outputFile := range result.OutputFiles {
+		if strings.HasSuffix(outputFile.Path, ".css") {
+			ctx.OutMediaType = media.CSSType
+			// below is the code from ctx.PublishSourceMap with .css instead of .map
+			target := ctx.OutPath + ".css"
+			f, err := ctx.OpenResourcePublisher(target)
+			if err != nil {
+				return err
+			}
+			defer f.Close()
+			_, err = f.Write([]byte(outputFile.Contents))
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	ctx.OutMediaType = media.JavascriptType
 
 	if buildOptions.Sourcemap == api.SourceMapExternal {
 		content := string(result.OutputFiles[1].Contents)
