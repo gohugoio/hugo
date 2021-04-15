@@ -43,7 +43,7 @@ require (
 	github.com/nicksnyder/go-i18n/v2 v2.1.2
 	github.com/niklasfasching/go-org v1.5.0
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/pelletier/go-toml v1.8.1
+	github.com/pelletier/go-toml v1.9.0
 	github.com/pkg/errors v0.9.1
 	github.com/rogpeppe/go-internal v1.8.0
 	github.com/russross/blackfriday v1.5.3-0.20200218234912-41c5fccfd6f6
