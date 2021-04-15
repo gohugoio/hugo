@@ -86,7 +86,7 @@ The following logical operators are available with `where`:
 ## Use `where` with `Booleans`
 When using booleans you should not put quotation marks.
 ```go-html-template
-{{range where .Pages ".Draft" true}}
+{{range where .Pages "Draft" true}}
         <p>{{.Title}}</p>
 {{end}}
 ```
@@ -95,7 +95,7 @@ When using booleans you should not put quotation marks.
 ## Use `where` with `intersect`
 
 ```go-html-template
-{{ range where .Site.Pages ".Params.tags" "intersect" .Params.tags }}
+{{ range where .Site.Pages "Params.tags" "intersect" .Params.tags }}
   {{ if ne .Permalink $.Permalink }}
     {{ .Render "summary" }}
   {{ end }}
@@ -131,7 +131,7 @@ then ranges through only the first 5 posts in that list:
 You can also nest `where` clauses to drill down on lists of content by more than one parameter. The following first grabs all pages in the "blog" section and then ranges through the result of the first `where` clause and finds all pages that are *not* featured:
 
 ```go-html-template
-{{ range where (where .Pages "Section" "blog" ) ".Params.featured" "!=" true }}
+{{ range where (where .Pages "Section" "blog" ) "Params.featured" "!=" true }}
 ```
 
 ## Unset Fields
@@ -146,7 +146,7 @@ Only the following operators are available for `nil`
 * `!=`, `<>`, `ne`: True if the given field is set.
 
 ```go-html-template
-{{ range where .Pages ".Params.specialpost" "!=" nil }}
+{{ range where .Pages "Params.specialpost" "!=" nil }}
    {{ .Content }}
 {{ end }}
 ```

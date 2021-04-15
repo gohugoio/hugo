@@ -99,7 +99,7 @@ Value: {{ partial "my-inline-partial" . }}
 ### Example GetFeatured
 ```go-html-template
 {{/* layouts/partials/GetFeatured.html */}}
-{{ return first . (where site.RegularPages ".Params.featured" true) }}
+{{ return first . (where site.RegularPages "Params.featured" true) }}
 ```
 
 ```go-html-template
