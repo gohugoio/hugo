@@ -138,7 +138,7 @@ func (d Decoder) UnmarshalTo(data []byte, f Format, v interface{}) error {
 	case TOML:
 		err = toml.Unmarshal(data, v)
 	case YAML:
-		err = yaml.Unmarshal(data, v)
+		err = yaml.UnmarshalStrict(data, v)
 		if err != nil {
 			return toFileError(f, errors.Wrap(err, "failed to unmarshal YAML"))
 		}

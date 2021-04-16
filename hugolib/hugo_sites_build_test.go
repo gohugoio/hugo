@@ -1399,7 +1399,6 @@ draft: true
 `,
 		"stats/tax.nn.md", `---
 title: Tax NN
-weight: 8
 publishdate: "2000-01-06"
 weight: 1001
 lag:
@@ -1409,7 +1408,6 @@ lag:
 `,
 		"stats/tax.nb.md", `---
 title: Tax NB
-weight: 8
 publishdate: "2000-01-06"
 weight: 1002
 lag:
