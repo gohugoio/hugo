@@ -101,20 +101,7 @@ func (w *cssClassCollectorWriter) Write(p []byte) (n int, err error) {
 			}
 
 			if !w.isCollecting {
-				// First check if we have processed this element before.
-				w.collector.mu.RLock()
-
-				// See https://github.com/dominikh/go-tools/issues/723
-				//lint:ignore S1030 This construct avoids memory allocation for the string.
-				seen := w.collector.elementSet[string(w.buff.Bytes())]
-				w.collector.mu.RUnlock()
-				if seen {
-					w.buff.Reset()
-					continue
-				}
-
 				s := w.buff.String()
-
 				w.buff.Reset()
 
 				if strings.HasPrefix(s, "</") {
