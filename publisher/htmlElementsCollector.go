@@ -244,12 +244,10 @@ func parseStartTag(s string) (string, bool) {
 	s = strings.TrimPrefix(s, "<")
 	s = strings.TrimSuffix(s, ">")
 
-	spaceIndex := strings.Index(s, " ")
-	if spaceIndex != -1 {
-		s = s[:spaceIndex]
-	}
+	fields := strings.Fields(s);
+	tag := fields[0];
 
-	return strings.ToLower(strings.TrimSpace(s)), true
+	return strings.ToLower(tag), true
 }
 
 func (c *htmlElementsCollectorWriter) parseEndTag(s string) bool {
