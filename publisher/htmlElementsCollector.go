@@ -135,8 +135,11 @@ func (w *htmlElementsCollectorWriter) Write(p []byte) (n int, err error) {
 				w.buff.WriteByte(b)
 
 				if !w.inQuote && b == '>' {
-					w.endCollecting()
-					break
+					s := w.buff.String()
+					if w.inPreTag == "" || w.parseEndTag(s) {
+						w.endCollecting()
+						break
+					}
 				}
 			}
 		}
@@ -151,12 +154,11 @@ func (w *htmlElementsCollectorWriter) Write(p []byte) (n int, err error) {
 				continue
 			}
 
-			if w.inPreTag != "" { // within preformatted code block
-				s := w.buff.String()
+			// Ignore everything inside a 'preformatted' tag. The tag its self is
+			// recorded already.
+			if w.inPreTag != "" {
+				w.inPreTag = ""
 				w.buff.Reset()
-				if tagName, isEnd := parseEndTag(s); isEnd && w.inPreTag == tagName {
-					w.inPreTag = ""
-				}
 				continue
 			}
 
@@ -250,15 +252,14 @@ func parseStartTag(s string) (string, bool) {
 	return strings.ToLower(strings.TrimSpace(s)), true
 }
 
-func parseEndTag(s string) (string, bool) {
-	if !strings.HasPrefix(s, "</") {
-		return "", false
+func (c *htmlElementsCollectorWriter) parseEndTag(s string) bool {
+	slen := len(s)
+	if slen > 83 {
+		// Avoid processing big amounts with ToLower().
+		s = s[slen - 83:]
 	}
-
-	s = strings.TrimPrefix(s, "</")
-	s = strings.TrimSuffix(s, ">")
-
-	return strings.ToLower(strings.TrimSpace(s)), true
+	s = strings.ToLower(s)
+	return strings.HasSuffix(s, "</"+c.inPreTag+">")
 }
 
 // No need to look inside these for HTML elements. These can contain arbitrary
