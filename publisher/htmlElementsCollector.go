@@ -162,21 +162,9 @@ func (w *htmlElementsCollectorWriter) Write(p []byte) (n int, err error) {
 				continue
 			}
 
-			// First check if we have processed this element before.
-			w.collector.mu.RLock()
-
 			// Work with the bytes slice as long as it's practical,
 			// to save memory allocations.
 			b := w.buff.Bytes()
-
-			// See https://github.com/dominikh/go-tools/issues/723
-			//lint:ignore S1030 This construct avoids memory allocation for the string.
-			seen := w.collector.elementSet[string(b)]
-			w.collector.mu.RUnlock()
-			if seen {
-				w.buff.Reset()
-				continue
-			}
 
 			// Filter out unwanted tags
 			// if within preformatted code blocks <pre>, <textarea>, <script>, <style>
