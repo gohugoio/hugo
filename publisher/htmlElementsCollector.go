@@ -261,9 +261,10 @@ func parseEndTag(s string) (string, bool) {
 	return strings.ToLower(strings.TrimSpace(s)), true
 }
 
-// No need to look inside these for HTML elements.
+// No need to look inside these for HTML elements. These can contain arbitrary
+// code which could be misunderstood as HTML.
 func isPreFormatted(s string) bool {
-	return s == "pre" || s == "textarea" || s == "script" || s == "style"
+	return s == "pre" || s == "textarea" || s == "script" || s == "style" || s == "title" || s == "canvas"
 }
 
 type htmlElement struct {
