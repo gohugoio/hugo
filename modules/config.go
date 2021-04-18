@@ -392,6 +392,11 @@ func (m Mount) ComponentAndName() (string, string) {
 	return m.Target[:k], m.Target[k+1:]
 }
 
+func (m Mount) IsStaticFile(filename string) bool {
+	// default
+	return (m.Target == files.ComponentFolderContent || m.Target == files.ComponentFolderStatic) && !files.IsContentFile(filename)
+}
+
 func getStaticDirs(cfg config.Provider) []string {
 	var staticDirs []string
 	for i := -1; i <= 10; i++ {

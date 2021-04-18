@@ -25,7 +25,6 @@ import (
 	"time"
 
 	hconfig "github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/modules"
 
 	"golang.org/x/sync/semaphore"
@@ -447,9 +446,6 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 
 func newCompositeDestFs(mods modules.Modules) afero.Fs {
 	writableFs := afero.NewMemMapFs()
-	pred := func(filename string) bool {
-		return !files.IsContentFile(filename)
-	}
 
 	// reversed order
 	for i := len(mods) - 1; i >= 0; i-- {
@@ -461,21 +457,12 @@ func newCompositeDestFs(mods modules.Modules) afero.Fs {
 		// reversed order
 		for j := len(mounts) - 1; j >= 0; j-- {
 			mount := mounts[j]
-			if mount.Target != files.ComponentFolderContent &&
-				mount.Target != files.ComponentFolderStatic {
-				continue
-			}
+			targetDir := path.Join(baseDir, mount.Source)
 
-			targetStaticDir := path.Join(baseDir, mount.Source)
-			base := afero.NewBasePathFs(afero.NewOsFs(), targetStaticDir)
-
-			if mount.Target == files.ComponentFolderContent {
-				base = hugofs.NewFilenameFilterFs(base, pred)
-			}
-
-			readonlyFs := afero.NewReadOnlyFs(base)
+			basePathFs := afero.NewBasePathFs(afero.NewOsFs(), targetDir)
+			fileInfoFs := hugofs.NewFilenameFilterFs(basePathFs, mount.IsStaticFile)
+			readonlyFs := afero.NewReadOnlyFs(fileInfoFs)
 			writableFs = afero.NewCopyOnWriteFs(readonlyFs, writableFs)
-
 		}
 	}
 
