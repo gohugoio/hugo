@@ -237,6 +237,7 @@ func decodeConfig(cfg config.Provider, pathReplacements map[string]string) (Conf
 			for i, imp := range c.Imports {
 				if newImp, found := c.replacementsMap[imp.Path]; found {
 					imp.Path = newImp
+					imp.pathProjectReplaced = true
 					c.Imports[i] = imp
 				}
 			}
@@ -277,6 +278,13 @@ type Config struct {
 	// A optional Glob pattern matching module paths to skip when vendoring, e.g.
 	// "github.com/**".
 	NoVendor string
+
+	// When enabled, we will pick the vendored module closest to the module
+	// using it.
+	// The default behaviour is to pick the first.
+	// Note that there can still be only one dependency of a given module path,
+	// so once it is in use it cannot be redefined.
+	VendorClosest bool
 
 	Replacements    []string
 	replacementsMap map[string]string
@@ -355,12 +363,13 @@ func (v HugoVersion) IsValid() bool {
 }
 
 type Import struct {
-	Path          string // Module path
-	IgnoreConfig  bool   // Ignore any config in config.toml (will still folow imports).
-	IgnoreImports bool   // Do not follow any configured imports.
-	NoVendor      bool   // Never vendor this import (only allowed in main project).
-	Disable       bool   // Turn off this module.
-	Mounts        []Mount
+	Path                string // Module path
+	pathProjectReplaced bool   // Set when Path is replaced in project config.
+	IgnoreConfig        bool   // Ignore any config in config.toml (will still folow imports).
+	IgnoreImports       bool   // Do not follow any configured imports.
+	NoVendor            bool   // Never vendor this import (only allowed in main project).
+	Disable             bool   // Turn off this module.
+	Mounts              []Mount
 }
 
 type Mount struct {

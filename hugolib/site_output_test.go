@@ -305,13 +305,14 @@ baseName = "customdelimbase"
 
 	c.Assert(err, qt.IsNil)
 
+	s := h.Sites[0]
+
 	th.assertFileContent("public/_redirects", "a dotless")
 	th.assertFileContent("public/defaultdelimbase.defd", "default delimim")
 	// This looks weird, but the user has chosen this definition.
 	th.assertFileContent("public/nosuffixbase", "no suffix")
 	th.assertFileContent("public/customdelimbase_del", "custom delim")
 
-	s := h.Sites[0]
 	home := s.getPage(page.KindHome)
 	c.Assert(home, qt.Not(qt.IsNil))
 

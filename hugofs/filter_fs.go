@@ -133,11 +133,11 @@ func (fs *FilterFs) Chmod(n string, m os.FileMode) error {
 	return syscall.EPERM
 }
 
-func (fs *FilterFs) Chown(name string, uid, gid int) error {
-	return fs.fs.Chown(name, uid, gid)
+func (fs *FilterFs) Chtimes(n string, a, m time.Time) error {
+	return syscall.EPERM
 }
 
-func (fs *FilterFs) Chtimes(n string, a, m time.Time) error {
+func (fs *FilterFs) Chown(n string, uid, gid int) error {
 	return syscall.EPERM
 }
 

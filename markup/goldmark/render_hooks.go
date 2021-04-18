@@ -14,6 +14,11 @@
 package goldmark
 
 import (
+	"bytes"
+	"sync"
+
+	"github.com/spf13/cast"
+
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 
 	"github.com/yuin/goldmark"
@@ -36,6 +41,25 @@ func newLinkRenderer() renderer.NodeRenderer {
 
 func newLinks() goldmark.Extender {
 	return &links{}
+}
+
+type attributesHolder struct {
+	// What we get from Goldmark.
+	astAttributes []ast.Attribute
+
+	// What we send to the the render hooks.
+	attributesInit sync.Once
+	attributes     map[string]string
+}
+
+func (a *attributesHolder) Attributes() map[string]string {
+	a.attributesInit.Do(func() {
+		a.attributes = make(map[string]string)
+		for _, attr := range a.astAttributes {
+			a.attributes[string(attr.Name)] = string(util.EscapeHTML(attr.Value.([]byte)))
+		}
+	})
+	return a.attributes
 }
 
 type linkContext struct {
@@ -76,6 +100,7 @@ type headingContext struct {
 	anchor    string
 	text      string
 	plainText string
+	*attributesHolder
 }
 
 func (ctx headingContext) Page() interface{} {
@@ -113,13 +138,41 @@ func (r *hookedRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) 
 	reg.Register(ast.KindHeading, r.renderHeading)
 }
 
-// https://github.com/yuin/goldmark/blob/b611cd333a492416b56aa8d94b04a67bf0096ab2/renderer/html/html.go#L404
-func (r *hookedRenderer) RenderAttributes(w util.BufWriter, node ast.Node) {
-	for _, attr := range node.Attributes() {
+func (r *hookedRenderer) renderAttributesForNode(w util.BufWriter, node ast.Node) {
+	renderAttributes(w, false, node.Attributes()...)
+}
+
+var (
+
+	// Attributes with special meaning that does not make sense to render in HTML.
+	attributeExcludes = map[string]bool{
+		"linenos":     true,
+		"hl_lines":    true,
+		"linenostart": true,
+	}
+)
+
+func renderAttributes(w util.BufWriter, skipClass bool, attributes ...ast.Attribute) {
+	for _, attr := range attributes {
+		if skipClass && bytes.Equal(attr.Name, []byte("class")) {
+			continue
+		}
+
+		if attributeExcludes[string(attr.Name)] {
+			continue
+		}
+
 		_, _ = w.WriteString(" ")
 		_, _ = w.Write(attr.Name)
 		_, _ = w.WriteString(`="`)
-		_, _ = w.Write(util.EscapeHTML(attr.Value.([]byte)))
+
+		switch v := attr.Value.(type) {
+		case []byte:
+			_, _ = w.Write(util.EscapeHTML(v))
+		default:
+			w.WriteString(cast.ToString(v))
+		}
+
 		_ = w.WriteByte('"')
 	}
 }
@@ -153,12 +206,12 @@ func (r *hookedRenderer) renderDefaultImage(w util.BufWriter, source []byte, nod
 
 func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.Image)
-	var h *hooks.Renderers
+	var h hooks.Renderers
 
 	ctx, ok := w.(*renderContext)
 	if ok {
 		h = ctx.RenderContext().RenderHooks
-		ok = h != nil && h.ImageRenderer != nil
+		ok = h.ImageRenderer != nil
 	}
 
 	if !ok {
@@ -214,12 +267,12 @@ func (r *hookedRenderer) renderDefaultLink(w util.BufWriter, source []byte, node
 
 func (r *hookedRenderer) renderLink(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.Link)
-	var h *hooks.Renderers
+	var h hooks.Renderers
 
 	ctx, ok := w.(*renderContext)
 	if ok {
 		h = ctx.RenderContext().RenderHooks
-		ok = h != nil && h.LinkRenderer != nil
+		ok = h.LinkRenderer != nil
 	}
 
 	if !ok {
@@ -260,7 +313,7 @@ func (r *hookedRenderer) renderDefaultHeading(w util.BufWriter, source []byte, n
 		_, _ = w.WriteString("<h")
 		_ = w.WriteByte("0123456"[n.Level])
 		if n.Attributes() != nil {
-			r.RenderAttributes(w, node)
+			r.renderAttributesForNode(w, node)
 		}
 		_ = w.WriteByte('>')
 	} else {
@@ -273,12 +326,12 @@ func (r *hookedRenderer) renderDefaultHeading(w util.BufWriter, source []byte, n
 
 func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.Heading)
-	var h *hooks.Renderers
+	var h hooks.Renderers
 
 	ctx, ok := w.(*renderContext)
 	if ok {
 		h = ctx.RenderContext().RenderHooks
-		ok = h != nil && h.HeadingRenderer != nil
+		ok = h.HeadingRenderer != nil
 	}
 
 	if !ok {
@@ -301,11 +354,12 @@ func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast
 	err := h.HeadingRenderer.RenderHeading(
 		w,
 		headingContext{
-			page:      ctx.DocumentContext().Document,
-			level:     n.Level,
-			anchor:    string(anchor),
-			text:      string(text),
-			plainText: string(n.Text(source)),
+			page:             ctx.DocumentContext().Document,
+			level:            n.Level,
+			anchor:           string(anchor),
+			text:             string(text),
+			plainText:        string(n.Text(source)),
+			attributesHolder: &attributesHolder{astAttributes: n.Attributes()},
 		},
 	)
 

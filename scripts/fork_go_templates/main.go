@@ -18,7 +18,7 @@ import (
 
 func main() {
 	// TODO(bep) git checkout tag
-	// The current is built with Go version b68fa57c599720d33a2d735782969ce95eabf794 / go1.15dev
+	// The current is built with Go version 2f0da6d9e29d9b9d5a4d10427ca9f71d12bbacc8 / go1.16
 	fmt.Println("Forking ...")
 	defer fmt.Println("Done ...")
 
@@ -75,6 +75,7 @@ var (
 		"\"text/template\"\n", "template \"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate\"\n",
 		`"html/template"`, `htmltemplate "html/template"`,
 		`"fmt"`, `htmltemplate "html/template"`,
+		`t.Skip("this test currently fails with -race; see issue #39807")`, `// t.Skip("this test currently fails with -race; see issue #39807")`,
 	)
 )
 

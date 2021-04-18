@@ -63,6 +63,7 @@ var EmbeddedTemplates = [][2]string{
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   {{ range .Data.Pages }}
+    {{- if .Permalink -}}
   <url>
     <loc>{{ .Permalink }}</loc>{{ if not .Lastmod.IsZero }}
     <lastmod>{{ safeHTML ( .Lastmod.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ end }}{{ with .Sitemap.ChangeFreq }}
@@ -79,6 +80,7 @@ var EmbeddedTemplates = [][2]string{
                 href="{{ .Permalink }}"
                 />{{ end }}
   </url>
+    {{- end -}}
   {{ end }}
 </urlset>
 `},
@@ -119,8 +121,19 @@ var EmbeddedTemplates = [][2]string{
 <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>{{end}}
 {{- end -}}`},
 	{`google_analytics.html`, `{{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
-{{- if not $pc.Disable -}}
-{{ with .Site.GoogleAnalytics }}
+{{- if not $pc.Disable }}{{ with .Site.GoogleAnalytics -}}
+{{ if hasPrefix . "G-"}}
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ . }}"></script>
+<script>
+{{ template "__ga_js_set_doNotTrack" $ }}
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', '{{ . }}', { 'anonymize_ip': {{- $pc.AnonymizeIP -}} });
+}
+</script>
+{{ else if hasPrefix . "UA-" }}
 <script type="application/javascript">
 {{ template "__ga_js_set_doNotTrack" $ }}
 if (!doNotTrack) {
@@ -146,8 +159,9 @@ if (!doNotTrack) {
 	ga('send', 'pageview');
 }
 </script>
-{{ end }}
 {{- end -}}
+{{- end }}{{ end -}}
+
 {{- define "__ga_js_set_doNotTrack" -}}{{/* This is also used in the async version. */}}
 {{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
 {{- if not $pc.RespectDoNotTrack -}}
@@ -193,56 +207,51 @@ if (!doNotTrack) {
 <meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}" />
 <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}" />
 <meta property="og:url" content="{{ .Permalink }}" />
-{{ with $.Params.images }}{{ range first 6 . -}}
-<meta property="og:image" content="{{ . | absURL }}" />
-{{ end }}{{ else -}}
+
+{{- with $.Params.images -}}
+{{- range first 6 . }}<meta property="og:image" content="{{ . | absURL }}" />{{ end -}}
+{{- else -}}
 {{- $images := $.Resources.ByType "image" -}}
 {{- $featured := $images.GetMatch "*feature*" -}}
 {{- if not $featured }}{{ $featured = $images.GetMatch "{*cover*,*thumbnail*}" }}{{ end -}}
 {{- with $featured -}}
 <meta property="og:image" content="{{ $featured.Permalink }}"/>
-{{ else -}}
-{{- with $.Site.Params.images -}}
-<meta property="og:image" content="{{ index . 0 | absURL }}"/>
-{{ end }}{{ end }}{{ end }}
+{{- else -}}
+{{- with $.Site.Params.images }}<meta property="og:image" content="{{ index . 0 | absURL }}"/>{{ end -}}
+{{- end -}}
+{{- end -}}
 
-{{- $iso8601 := "2006-01-02T15:04:05-07:00" -}}
 {{- if .IsPage }}
-{{- if not .PublishDate.IsZero }}<meta property="article:published_time" {{ .PublishDate.Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />
-{{ else if not .Date.IsZero }}<meta property="article:published_time" {{ .Date.Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />
-{{ end }}
-{{- if not .Lastmod.IsZero }}<meta property="article:modified_time" {{ .Lastmod.Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />{{ end }}
-{{- else }}
-{{- if not .Date.IsZero }}<meta property="og:updated_time" {{ .Lastmod.Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />
-{{- end }}
-{{- end }}{{/* .IsPage */}}
+{{- $iso8601 := "2006-01-02T15:04:05-07:00" -}}
+<meta property="article:section" content="{{ .Section }}" />
+{{ with .PublishDate }}<meta property="article:published_time" content="{{ .Format $iso8601 }}" />{{ end }}
+{{ with .Lastmod }}<meta property="article:modified_time" content="{{ .Format $iso8601 }}" />{{ end }}
+
+{{- range .Site.Authors }}
+{{ with .Social.facebook }}<meta property="article:author" content="https://www.facebook.com/{{ . }}" />{{ end }}
+{{ with .Site.Social.facebook }}<meta property="article:publisher" content="https://www.facebook.com/{{ . }}" />{{ end }}
+{{- with .Params.tags }}{{ range first 6 . }}
+<meta property="article:tag" content="{{ . }}" />
+{{- end }}{{ end -}}
+{{- end -}}
+{{- end -}}
 
 {{- with .Params.audio }}<meta property="og:audio" content="{{ . }}" />{{ end }}
 {{- with .Params.locale }}<meta property="og:locale" content="{{ . }}" />{{ end }}
 {{- with .Site.Params.title }}<meta property="og:site_name" content="{{ . }}" />{{ end }}
-{{- with .Params.videos }}
-{{- range . }}
+{{- with .Params.videos }}{{- range . }}
 <meta property="og:video" content="{{ . | absURL }}" />
 {{ end }}{{ end }}
 
 {{- /* If it is part of a series, link to related articles */}}
 {{- $permalink := .Permalink }}
-{{- $siteSeries := .Site.Taxonomies.series }}{{ with .Params.series }}
-{{- range $name := . }}
+{{- $siteSeries := .Site.Taxonomies.series }}
+{{ with .Params.series }}{{- range $name := . }}
   {{- $series := index $siteSeries ($name | urlize) }}
   {{- range $page := first 6 $series.Pages }}
     {{- if ne $page.Permalink $permalink }}<meta property="og:see_also" content="{{ $page.Permalink }}" />{{ end }}
   {{- end }}
 {{ end }}{{ end }}
-
-{{- if .IsPage }}
-{{- range .Site.Authors }}{{ with .Social.facebook }}
-<meta property="article:author" content="https://www.facebook.com/{{ . }}" />{{ end }}{{ with .Site.Social.facebook }}
-<meta property="article:publisher" content="https://www.facebook.com/{{ . }}" />{{ end }}
-<meta property="article:section" content="{{ .Section }}" />
-{{- with .Params.tags }}{{ range first 6 . }}
-<meta property="article:tag" content="{{ . }}" />{{ end }}{{ end }}
-{{- end }}{{ end }}
 
 {{- /* Facebook Page Admin ID for Domain Insights */}}
 {{- with .Site.Social.facebook_admin }}<meta property="fb:admins" content="{{ . }}" />{{ end }}
@@ -296,26 +305,28 @@ if (!doNotTrack) {
 	{`schema.html`, `<meta itemprop="name" content="{{ .Title }}">
 <meta itemprop="description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}">
 
-{{- if .IsPage }}{{ $ISO8601 := "2006-01-02T15:04:05-07:00" }}{{ if not .PublishDate.IsZero }}
-<meta itemprop="datePublished" {{ .PublishDate.Format $ISO8601 | printf "content=%q" | safeHTMLAttr }} />{{ end }}
-{{ if not .Lastmod.IsZero }}<meta itemprop="dateModified" {{ .Lastmod.Format $ISO8601 | printf "content=%q" | safeHTMLAttr }} />{{ end }}
+{{- if .IsPage -}}
+{{- $iso8601 := "2006-01-02T15:04:05-07:00" -}}
+{{ with .PublishDate }}<meta itemprop="datePublished" content="{{ .Format $iso8601 }}" />{{ end}}
+{{ with .Lastmod }}<meta itemprop="dateModified" content="{{ .Format $iso8601 }}" />{{ end}}
 <meta itemprop="wordCount" content="{{ .WordCount }}">
-{{ with $.Params.images }}{{ range first 6 . -}}
-<meta itemprop="image" content="{{ . | absURL }}">
-{{ end }}{{ else -}}
+
+{{- with $.Params.images -}}
+{{- range first 6 . -}}<meta itemprop="image" content="{{ . | absURL }}">{{ end -}}
+{{- else -}}
 {{- $images := $.Resources.ByType "image" -}}
 {{- $featured := $images.GetMatch "*feature*" -}}
 {{- if not $featured }}{{ $featured = $images.GetMatch "{*cover*,*thumbnail*}" }}{{ end -}}
 {{- with $featured -}}
 <meta itemprop="image" content="{{ $featured.Permalink }}">
-{{ else -}}
-{{- with $.Site.Params.images -}}
-<meta itemprop="image" content="{{ index . 0 | absURL }}"/>
-{{ end }}{{ end }}{{ end }}
+{{- else -}}
+{{- with $.Site.Params.images -}}<meta itemprop="image" content="{{ index . 0 | absURL }}"/>{{ end -}}
+{{- end -}}
+{{- end -}}
 
 <!-- Output all taxonomies as schema.org keywords -->
 <meta itemprop="keywords" content="{{ if .IsPage}}{{ range $index, $tag := .Params.tags }}{{ $tag }},{{ end }}{{ else }}{{ range $plural, $terms := .Site.Taxonomies }}{{ range $term, $val := $terms }}{{ printf "%s," $term }}{{ end }}{{ end }}{{ end }}" />
-{{- end }}
+{{- end -}}
 `},
 	{`shortcodes/__h_simple_assets.html`, `{{ define "__h_simple_css" }}{{/* These template definitions are global. */}}
 {{- if not (.Page.Scratch.Get "__h_simple_css") -}}
@@ -355,14 +366,14 @@ if (!doNotTrack) {
 	{`shortcodes/figure.html`, `<figure{{ with .Get "class" }} class="{{ . }}"{{ end }}>
     {{- if .Get "link" -}}
         <a href="{{ .Get "link" }}"{{ with .Get "target" }} target="{{ . }}"{{ end }}{{ with .Get "rel" }} rel="{{ . }}"{{ end }}>
-    {{- end }}
+    {{- end -}}
     <img src="{{ .Get "src" }}"
          {{- if or (.Get "alt") (.Get "caption") }}
          alt="{{ with .Get "alt" }}{{ . }}{{ else }}{{ .Get "caption" | markdownify| plainify }}{{ end }}"
          {{- end -}}
          {{- with .Get "width" }} width="{{ . }}"{{ end -}}
          {{- with .Get "height" }} height="{{ . }}"{{ end -}}
-    /> <!-- Closing img tag -->
+    /><!-- Closing img tag -->
     {{- if .Get "link" }}</a>{{ end -}}
     {{- if or (or (.Get "title") (.Get "caption")) (.Get "attr") -}}
         <figcaption>

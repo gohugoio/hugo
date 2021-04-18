@@ -68,7 +68,6 @@ func TestToBuildOptions(t *testing.T) {
 		MinifyIdentifiers: true,
 		MinifySyntax:      true,
 		MinifyWhitespace:  true,
-		AvoidTDZ:          true,
 		Stdin: &api.StdinOptions{
 			Loader: api.LoaderJS,
 		},
@@ -105,6 +104,24 @@ func TestToBuildOptions(t *testing.T) {
 		MinifySyntax:      true,
 		MinifyWhitespace:  true,
 		Sourcemap:         api.SourceMapInline,
+		Stdin: &api.StdinOptions{
+			Loader: api.LoaderJS,
+		},
+	})
+
+	opts, err = toBuildOptions(Options{
+		Target: "es2018", Format: "cjs", Minify: true, mediaType: media.JavascriptType,
+		SourceMap: "external",
+	})
+	c.Assert(err, qt.IsNil)
+	c.Assert(opts, qt.DeepEquals, api.BuildOptions{
+		Bundle:            true,
+		Target:            api.ES2018,
+		Format:            api.FormatCommonJS,
+		MinifyIdentifiers: true,
+		MinifySyntax:      true,
+		MinifyWhitespace:  true,
+		Sourcemap:         api.SourceMapExternal,
 		Stdin: &api.StdinOptions{
 			Loader: api.LoaderJS,
 		},

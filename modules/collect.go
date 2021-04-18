@@ -276,7 +276,7 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import, disabled bool
 			// Fall back to project/themes/<mymodule>
 			if moduleDir == "" {
 				var err error
-				moduleDir, err = c.createThemeDirname(modulePath, owner.projectMod)
+				moduleDir, err = c.createThemeDirname(modulePath, owner.projectMod || moduleImport.pathProjectReplaced)
 				if err != nil {
 					c.err = err
 					return nil, nil
@@ -531,7 +531,16 @@ func (c *collector) collectModulesTXT(owner Module) error {
 			return errors.Errorf("invalid modules list: %q", filename)
 		}
 		path := parts[0]
-		if _, found := c.vendored[path]; !found {
+
+		shouldAdd := c.Client.moduleConfig.VendorClosest
+
+		if !shouldAdd {
+			if _, found := c.vendored[path]; !found {
+				shouldAdd = true
+			}
+		}
+
+		if shouldAdd {
 			c.vendored[path] = vendoredModule{
 				Owner:   owner,
 				Dir:     filepath.Join(vendorDir, path),

@@ -78,7 +78,7 @@ git submodule add https://github.com/budparr/gohugo-theme-ananke.git themes/anan
 Then, add the theme to the site configuration:
 
 ```bash
-echo 'theme = "ananke"' >> config.toml
+echo theme = \"ananke\" >> config.toml
 ```
 
 {{< asciicast 7naKerRYUGVPj8kiDmdh5k5h9 >}}

@@ -584,6 +584,26 @@ func TestTemplateGoIssues(t *testing.T) {
 		"index.html", `
 {{ $title := "a & b" }}
 <script type="application/ld+json">{"@type":"WebPage","headline":"{{$title}}"}</script>
+
+{{/* Action/commands newlines, from Go 1.16, see https://github.com/golang/go/issues/29770 */}}
+{{ $norway := dict
+	"country" "Norway"
+	"population" "5 millions"
+	"language" "Norwegian"
+	"language_code" "nb"
+	"weather" "freezing cold"
+	"capitol" "Oslo"
+	"largest_city" "Oslo"
+	"currency"  "Norwegian krone"
+	"dialing_code" "+47"
+}}
+
+Population in Norway is {{
+	  $norway.population
+	| lower
+	| upper
+}}
+
 `,
 	)
 
@@ -591,6 +611,7 @@ func TestTemplateGoIssues(t *testing.T) {
 
 	b.AssertFileContent("public/index.html", `
 <script type="application/ld+json">{"@type":"WebPage","headline":"a \u0026 b"}</script>
+Population in Norway is 5 MILLIONS
 
 `)
 }

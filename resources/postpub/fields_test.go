@@ -31,15 +31,14 @@ func TestCreatePlaceholders(t *testing.T) {
 	})
 
 	c.Assert(m, qt.DeepEquals, map[string]interface{}{
-		"FullSuffix":  "pre_foo.FullSuffix_post",
 		"IsZero":      "pre_foo.IsZero_post",
+		"MarshalJSON": "pre_foo.MarshalJSON_post",
+		"Suffixes":    "pre_foo.Suffixes_post",
+		"Delimiter":   "pre_foo.Delimiter_post",
+		"FirstSuffix": "pre_foo.FirstSuffix_post",
+		"String":      "pre_foo.String_post",
 		"Type":        "pre_foo.Type_post",
 		"MainType":    "pre_foo.MainType_post",
-		"Delimiter":   "pre_foo.Delimiter_post",
-		"MarshalJSON": "pre_foo.MarshalJSON_post",
-		"String":      "pre_foo.String_post",
-		"Suffix":      "pre_foo.Suffix_post",
 		"SubType":     "pre_foo.SubType_post",
-		"Suffixes":    "pre_foo.Suffixes_post",
 	})
 }

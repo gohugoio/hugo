@@ -128,6 +128,7 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 	}
 
 	pagePath := slash
+	fullSuffix := d.Type.MediaType.FirstSuffix.FullSuffix
 
 	var (
 		pagePathDir string
@@ -172,7 +173,7 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 		hasSlash := strings.HasSuffix(d.URL, slash)
 
 		if hasSlash || !hasDot {
-			pagePath = pjoin(pagePath, d.Type.BaseName+d.Type.MediaType.FullSuffix())
+			pagePath = pjoin(pagePath, d.Type.BaseName+fullSuffix)
 		} else if hasDot {
 			pagePathDir = path.Dir(pagePathDir)
 		}
@@ -229,9 +230,9 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 		linkDir = pagePathDir
 
 		if isUgly {
-			pagePath = addSuffix(pagePath, d.Type.MediaType.FullSuffix())
+			pagePath = addSuffix(pagePath, fullSuffix)
 		} else {
-			pagePath = pjoin(pagePath, d.Type.BaseName+d.Type.MediaType.FullSuffix())
+			pagePath = pjoin(pagePath, d.Type.BaseName+fullSuffix)
 		}
 
 		if !isHtmlIndex(pagePath) {
@@ -267,9 +268,9 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 		linkDir = pagePathDir
 
 		if base != "" {
-			pagePath = path.Join(pagePath, addSuffix(base, d.Type.MediaType.FullSuffix()))
+			pagePath = path.Join(pagePath, addSuffix(base, fullSuffix))
 		} else {
-			pagePath = addSuffix(pagePath, d.Type.MediaType.FullSuffix())
+			pagePath = addSuffix(pagePath, fullSuffix)
 		}
 
 		if !isHtmlIndex(pagePath) {

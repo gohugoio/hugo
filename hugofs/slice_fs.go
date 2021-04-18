@@ -60,8 +60,8 @@ func (fs *SliceFs) Chtimes(n string, a, m time.Time) error {
 	return syscall.EPERM
 }
 
-func (fs *SliceFs) Chown(name string, uid, gid int) error {
-	panic("not implemented")
+func (fs *SliceFs) Chown(n string, uid, gid int) error {
+	return syscall.EPERM
 }
 
 func (fs *SliceFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {

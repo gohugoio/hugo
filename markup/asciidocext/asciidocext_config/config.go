@@ -37,18 +37,6 @@ var (
 		FailureLevel: "fatal",
 	}
 
-	AllowedExtensions = map[string]bool{
-		"asciidoctor-html5s":           true,
-		"asciidoctor-bibtex":           true,
-		"asciidoctor-diagram":          true,
-		"asciidoctor-interdoc-reftext": true,
-		"asciidoctor-katex":            true,
-		"asciidoctor-latex":            true,
-		"asciidoctor-mathematical":     true,
-		"asciidoctor-question":         true,
-		"asciidoctor-rouge":            true,
-	}
-
 	AllowedSafeMode = map[string]bool{
 		"unsafe": true,
 		"safe":   true,

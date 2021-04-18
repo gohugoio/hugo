@@ -207,7 +207,7 @@ func (i *imageResource) Fill(spec string) (resource.Image, error) {
 }
 
 func (i *imageResource) Filter(filters ...interface{}) (resource.Image, error) {
-	conf := i.Proc.GetDefaultImageConfig("filter")
+	conf := images.GetDefaultImageConfig("filter", i.Proc.Cfg)
 
 	var gfilters []gift.Filter
 
@@ -299,26 +299,9 @@ func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src im
 }
 
 func (i *imageResource) decodeImageConfig(action, spec string) (images.ImageConfig, error) {
-	conf, err := images.DecodeImageConfig(action, spec, i.Proc.Cfg.Cfg)
+	conf, err := images.DecodeImageConfig(action, spec, i.Proc.Cfg, i.Format)
 	if err != nil {
 		return conf, err
-	}
-
-	// default to the source format
-	if conf.TargetFormat == 0 {
-		conf.TargetFormat = i.Format
-	}
-
-	if conf.Quality <= 0 && conf.TargetFormat.RequiresDefaultQuality() {
-		// We need a quality setting for all JPEGs
-		conf.Quality = i.Proc.Cfg.Cfg.Quality
-	}
-
-	if conf.BgColor == nil && conf.TargetFormat != i.Format {
-		if i.Format.SupportsTransparency() && !conf.TargetFormat.SupportsTransparency() {
-			conf.BgColor = i.Proc.Cfg.BgColor
-			conf.BgColorStr = i.Proc.Cfg.Cfg.BgColor
-		}
 	}
 
 	return conf, nil
@@ -360,15 +343,16 @@ func (i *imageResource) setBasePath(conf images.ImageConfig) {
 func (i *imageResource) getImageMetaCacheTargetPath() string {
 	const imageMetaVersionNumber = 1 // Increment to invalidate the meta cache
 
-	cfg := i.getSpec().imaging.Cfg.Cfg
+	cfgHash := i.getSpec().imaging.Cfg.CfgHash
 	df := i.getResourcePaths().relTargetDirFile
 	if fi := i.getFileInfo(); fi != nil {
 		df.dir = filepath.Dir(fi.Meta().Path())
 	}
 	p1, _ := helpers.FileAndExt(df.file)
 	h, _ := i.hash()
-	idStr := helpers.HashString(h, i.size(), imageMetaVersionNumber, cfg)
-	return path.Join(df.dir, fmt.Sprintf("%s_%s.json", p1, idStr))
+	idStr := helpers.HashString(h, i.size(), imageMetaVersionNumber, cfgHash)
+	p := path.Join(df.dir, fmt.Sprintf("%s_%s.json", p1, idStr))
+	return p
 }
 
 func (i *imageResource) relTargetPathFromConfig(conf images.ImageConfig) dirFile {

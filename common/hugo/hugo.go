@@ -18,6 +18,8 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
+	"runtime/debug"
+	"sort"
 	"strings"
 
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -34,12 +36,15 @@ const (
 )
 
 var (
-	// commitHash contains the current Git revision. Use make to build to make
-	// sure this gets set.
+	// commitHash contains the current Git revision.
+	// Use mage to build to make sure this gets set.
 	commitHash string
 
 	// buildDate contains the date of the current build.
 	buildDate string
+
+	// vendorInfo contains vendor notes about the current build.
+	vendorInfo string
 )
 
 // Info contains information about the current Hugo environment
@@ -66,6 +71,10 @@ func (i Info) Generator() template.HTML {
 
 func (i Info) IsProduction() bool {
 	return i.Environment == EnvironmentProduction
+}
+
+func (i Info) IsExtended() bool {
+	return IsExtended
 }
 
 // NewInfo creates a new Hugo Info object.
@@ -99,4 +108,35 @@ func GetExecEnviron(workDir string, cfg config.Provider, fs afero.Fs) []string {
 	}
 
 	return env
+}
+
+// GetDependencyList returns a sorted dependency list on the format package="version".
+// It includes both Go dependencies and (a manually maintained) list of C(++) dependencies.
+func GetDependencyList() []string {
+	var deps []string
+
+	formatDep := func(path, version string) string {
+		return fmt.Sprintf("%s=%q", path, version)
+	}
+
+	if IsExtended {
+		deps = append(
+			deps,
+			formatDep("github.com/sass/libsass", "3.6.4"),
+			formatDep("github.com/webmproject/libwebp", "v1.2.0"),
+		)
+	}
+
+	bi, ok := debug.ReadBuildInfo()
+	if !ok {
+		return deps
+	}
+
+	for _, dep := range bi.Deps {
+		deps = append(deps, formatDep(dep.Path, dep.Version))
+	}
+
+	sort.Strings(deps)
+
+	return deps
 }

@@ -16,7 +16,11 @@ package babel
 import (
 	"bytes"
 	"io"
+	"io/ioutil"
+	"os"
+	"path"
 	"path/filepath"
+	"regexp"
 	"strconv"
 
 	"github.com/cli/safeexec"
@@ -43,8 +47,10 @@ type Options struct {
 	Compact    *bool
 	Verbose    bool
 	NoBabelrc  bool
+	SourceMap  string
 }
 
+// DecodeOptions decodes options to and generates command flags
 func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
 	if m == nil {
 		return
@@ -56,6 +62,14 @@ func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
 func (opts Options) toArgs() []string {
 	var args []string
 
+	// external is not a known constant on the babel command line
+	// .sourceMaps must be a boolean, "inline", "both", or undefined
+	switch opts.SourceMap {
+	case "external":
+		args = append(args, "--source-maps")
+	case "inline":
+		args = append(args, "--source-maps=inline")
+	}
 	if opts.Minified {
 		args = append(args, "--minified")
 	}
@@ -141,6 +155,8 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		}
 	}
 
+	ctx.ReplaceOutPathExtension(".js")
+
 	var cmdArgs []string
 
 	if configFile != "" {
@@ -153,13 +169,24 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	}
 	cmdArgs = append(cmdArgs, "--filename="+ctx.SourcePath)
 
+	// Create compile into a real temp file:
+	// 1. separate stdout/stderr messages from babel (https://github.com/gohugoio/hugo/issues/8136)
+	// 2. allow generation and retrieval of external source map.
+	compileOutput, err := ioutil.TempFile("", "compileOut-*.js")
+	if err != nil {
+		return err
+	}
+
+	cmdArgs = append(cmdArgs, "--out-file="+compileOutput.Name())
+	defer os.Remove(compileOutput.Name())
+
 	cmd, err := hexec.SafeCommand(binary, cmdArgs...)
 	if err != nil {
 		return err
 	}
 
-	cmd.Stdout = ctx.To
 	cmd.Stderr = io.MultiWriter(infoW, &errBuf)
+	cmd.Stdout = cmd.Stderr
 	cmd.Env = hugo.GetExecEnviron(t.rs.WorkingDir, t.rs.Cfg, t.rs.BaseFs.Assets.Fs)
 
 	stdin, err := cmd.StdinPipe()
@@ -176,6 +203,28 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	if err != nil {
 		return errors.Wrap(err, errBuf.String())
 	}
+
+	content, err := ioutil.ReadAll(compileOutput)
+	if err != nil {
+		return err
+	}
+
+	mapFile := compileOutput.Name() + ".map"
+	if _, err := os.Stat(mapFile); err == nil {
+		defer os.Remove(mapFile)
+		sourceMap, err := ioutil.ReadFile(mapFile)
+		if err != nil {
+			return err
+		}
+		if err = ctx.PublishSourceMap(string(sourceMap)); err != nil {
+			return err
+		}
+		targetPath := path.Base(ctx.OutPath) + ".map"
+		re := regexp.MustCompile(`//# sourceMappingURL=.*\n?`)
+		content = []byte(re.ReplaceAllString(string(content), "//# sourceMappingURL="+targetPath+"\n"))
+	}
+
+	ctx.To.Write(content)
 
 	return nil
 }

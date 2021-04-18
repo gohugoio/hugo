@@ -20,6 +20,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/spf13/afero"
+
 	"github.com/pkg/errors"
 
 	"github.com/evanw/esbuild/pkg/api"
@@ -62,10 +64,18 @@ type Options struct {
 	Format string
 
 	// External dependencies, e.g. "react".
-	Externals []string `hash:"set"`
+	Externals []string
+
+	// This option allows you to automatically replace a global variable with an import from another file.
+	// The filenames must be relative to /assets.
+	// See https://esbuild.github.io/api/#inject
+	Inject []string
 
 	// User defined symbols.
 	Defines map[string]interface{}
+
+	// Maps a component import to another.
+	Shims map[string]string
 
 	// User defined params. Will be marshaled to JSON and available as "@params", e.g.
 	//     import * as params from '@params';
@@ -92,7 +102,7 @@ type Options struct {
 	mediaType  media.Type
 	outDir     string
 	contents   string
-	sourcefile string
+	sourceDir  string
 	resolveDir string
 	tsConfig   string
 }
@@ -134,10 +144,51 @@ func loaderFromFilename(filename string) api.Loader {
 	return api.LoaderJS
 }
 
+func resolveComponentInAssets(fs afero.Fs, impPath string) hugofs.FileMeta {
+	findFirst := func(base string) hugofs.FileMeta {
+		// This is the most common sub-set of ESBuild's default extensions.
+		// We assume that imports of JSON, CSS etc. will be using their full
+		// name with extension.
+		for _, ext := range []string{".js", ".ts", ".tsx", ".jsx"} {
+			if fi, err := fs.Stat(base + ext); err == nil {
+				return fi.(hugofs.FileMetaInfo).Meta()
+			}
+		}
+
+		// Not found.
+		return nil
+	}
+
+	var m hugofs.FileMeta
+
+	// First the path as is.
+	fi, err := fs.Stat(impPath)
+
+	if err == nil {
+		if fi.IsDir() {
+			m = findFirst(filepath.Join(impPath, "index"))
+		} else {
+			m = fi.(hugofs.FileMetaInfo).Meta()
+		}
+	} else {
+		// It may be a regular file imported without an extension.
+		m = findFirst(impPath)
+	}
+
+	return m
+}
+
 func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 	fs := c.rs.Assets
 
 	resolveImport := func(args api.OnResolveArgs) (api.OnResolveResult, error) {
+		impPath := args.Path
+		if opts.Shims != nil {
+			override, found := opts.Shims[impPath]
+			if found {
+				impPath = override
+			}
+		}
 		isStdin := args.Importer == stdinImporter
 		var relDir string
 		if !isStdin {
@@ -150,10 +201,8 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 			}
 			relDir = filepath.Dir(rel)
 		} else {
-			relDir = filepath.Dir(opts.sourcefile)
+			relDir = opts.sourceDir
 		}
-
-		impPath := args.Path
 
 		// Imports not starting with a "." is assumed to live relative to /assets.
 		// Hugo makes no assumptions about the directory structure below /assets.
@@ -161,36 +210,7 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 			impPath = filepath.Join(relDir, impPath)
 		}
 
-		findFirst := func(base string) hugofs.FileMeta {
-			// This is the most common sub-set of ESBuild's default extensions.
-			// We assume that imports of JSON, CSS etc. will be using their full
-			// name with extension.
-			for _, ext := range []string{".js", ".ts", ".tsx", ".jsx"} {
-				if fi, err := fs.Fs.Stat(base + ext); err == nil {
-					return fi.(hugofs.FileMetaInfo).Meta()
-				}
-			}
-
-			// Not found.
-			return nil
-		}
-
-		var m hugofs.FileMeta
-
-		// First the path as is.
-		fi, err := fs.Fs.Stat(impPath)
-
-		if err == nil {
-			if fi.IsDir() {
-				m = findFirst(filepath.Join(impPath, "index"))
-			} else {
-				m = fi.(hugofs.FileMetaInfo).Meta()
-			}
-		} else {
-			// It may be a regular file imported without an extension.
-			m = findFirst(impPath)
-		}
-		//
+		m := resolveComponentInAssets(fs.Fs, impPath)
 
 		if m != nil {
 			// Store the source root so we can create a jsconfig.json
@@ -338,6 +358,8 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 	switch opts.SourceMap {
 	case "inline":
 		sourceMap = api.SourceMapInline
+	case "external":
+		sourceMap = api.SourceMapExternal
 	case "":
 		sourceMap = api.SourceMapNone
 	default:
@@ -365,13 +387,13 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 		JSXFactory:  opts.JSXFactory,
 		JSXFragment: opts.JSXFragment,
 
-		AvoidTDZ: opts.AvoidTDZ,
-
 		Tsconfig: opts.tsConfig,
 
+		// Note: We're not passing Sourcefile to ESBuild.
+		// This makes ESBuild pass `stdin` as the Importer to the import
+		// resolver, which is what we need/expect.
 		Stdin: &api.StdinOptions{
 			Contents:   opts.contents,
-			Sourcefile: opts.sourcefile,
 			ResolveDir: opts.resolveDir,
 			Loader:     loader,
 		},

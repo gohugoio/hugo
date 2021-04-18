@@ -40,19 +40,45 @@ Note that this is meant for small data sets, e.g. config settings. For larger da
 minify [bool]
 : Let `js.Build` handle the minification.
 
+inject [slice] {{< new-in "0.81.0" >}}
+: This option allows you to automatically replace a global variable with an import from another file. The path names must be relative to `assets`.  See https://esbuild.github.io/api/#inject
+
+shims {{< new-in "0.81.0" >}}
+: This option allows swapping out a component with another. A common use case is to load dependencies like React from a CDN  (with _shims_) when in production, but running with the full bundled `node_modules` dependency during development:
+
+```
+{{ $shims := dict "react" "js/shims/react.js"  "react-dom" "js/shims/react-dom.js" }}
+{{ $js = $js | js.Build dict "shims" $shims }}
+```
+
+The _shim_ files may look like these:
+
+```js
+// js/shims/react.js
+module.exports = window.React;
+```
+
+```js
+// js/shims/react-dom.js
+module.exports = window.ReactDOM;
+```
+
+
+With the above, these imports should work in both scenarios:
+
+```js
+import * as React from 'react'
+import * as ReactDOM from 'react-dom';
+```
+
 target [string]
 : The language target.
   One of: `es5`, `es2015`, `es2016`, `es2017`, `es2018`, `es2019`, `es2020` or `esnext`.
   Default is `esnext`.
 
 externals [slice]
-: External dependencies. If a dependency should not be included in the bundle (Ex. library loaded from a CDN.), it should be listed here.
+: External dependencies. Use this to trim dependencies you know will never be executed. See https://esbuild.github.io/api/#external
 
-```go-html-template
-{{ $externals := slice "react" "react-dom" }}
-```
-
-> Marking a package as external doesn't imply that the library can be loaded from a CDN. It simply tells Hugo not to expand/include the package in the JS file.
 
 defines [map]
 : Allow to define a set of string replacement to be performed when building. Should be a map where each key is to be replaced by its value.
@@ -85,7 +111,7 @@ And it will resolve to the top-most `index.{js,ts,tsx,jsx}` inside `assets/my/mo
 import { hello3 } from 'my/module/hello3';
 ```
 
-Wil resolve to `hello3.{js,ts,tsx,jsx}` inside `assets/my/module`.
+Will resolve to `hello3.{js,ts,tsx,jsx}` inside `assets/my/module`.
 
 Any imports starting with `.` is resolved relative to the current file:
 
@@ -112,7 +138,7 @@ And then in your JS file:
 import * as params from '@params';
 ```
 
-Hugo will, by default, generate a `assets/jsconfig.js` file that maps the imports. This is useful for navigation/intellisense help inside code editors, but if you don't need/want it, you can [turn it off](/getting-started/configuration/#configure-build).
+Hugo will, by default, generate a `assets/jsconfig.json` file that maps the imports. This is useful for navigation/intellisense help inside code editors, but if you don't need/want it, you can [turn it off](/getting-started/configuration/#configure-build).
 
 
 
@@ -142,29 +168,4 @@ Or with options:
 <script type="text/javascript" src="{{ $built.RelPermalink }}" defer></script>
 ```
 
-#### Shimming a JS library 
 
-It's a very common practice to load external libraries using CDN rather than importing all packages in a single JS file, making it bulky. To do the same with Hugo, you'll need to shim the libraries as follows. In this example, `algoliasearch` and `instantsearch.js` will be shimmed.
-
-Firstly, add the following to your project's `package.json`:
-```json
-{
-  "browser": {
-    "algoliasearch/lite": "./public/js/shims/algoliasearch.js",
-    "instantsearch.js/es/lib/main": "./public/js/shims/instantsearch.js"
-  }
-}
-```
-
-What this does is it tells Hugo to look for the listed packages somewhere else. Here we're telling Hugo to look for `algoliasearch/lite` and `instantsearch.js/es/lib/main` in the project's `public/js/shims` folder.
-
-Now we'll need to create the shim JS files which export the global JS variables `module.exports = window.something`. You can create a separate shim JS file in your `assets` directory, and redirect the import paths there if you wish, but a much cleaner way is to create these files on the go, by having the following before your JS is built.
-
-```go-html-template
-{{ $a := "module.exports = window.algoliasearch" | resources.FromString "js/shims/algoliasearch.js" }}
-{{ $i := "module.exports = window.instantsearch" | resources.FromString "js/shims/instantsearch.js" }}
-
-{{/* Call RelPermalink unnecessarily to generate JS files */}}
-{{ $placebo := slice $a.RelPermalink $i.RelPermalink }}
-```
-That's it! You should now have a browser-friendly JS which can use external JS libraries.

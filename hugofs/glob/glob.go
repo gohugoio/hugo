@@ -33,6 +33,14 @@ var (
 	globMu    sync.RWMutex
 )
 
+type caseInsensitiveGlob struct {
+	g glob.Glob
+}
+
+func (g caseInsensitiveGlob) Match(s string) bool {
+	return g.g.Match(strings.ToLower(s))
+
+}
 func GetGlob(pattern string) (glob.Glob, error) {
 	var eg globErr
 
@@ -46,7 +54,7 @@ func GetGlob(pattern string) (glob.Glob, error) {
 
 	var err error
 	g, err := glob.Compile(strings.ToLower(pattern), '/')
-	eg = globErr{g, err}
+	eg = globErr{caseInsensitiveGlob{g: g}, err}
 
 	globMu.Lock()
 	globCache[pattern] = eg

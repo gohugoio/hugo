@@ -60,6 +60,16 @@ func TestRenderHooks(t *testing.T) {
 	config := `
 baseURL="https://example.org"
 workingDir="/mywork"
+
+[markup]
+[markup.goldmark]
+[markup.goldmark.parser]
+autoHeadingID = true
+autoHeadingIDType = "github"
+[markup.goldmark.parser.attribute]
+block = true
+title = true
+
 `
 	b := newTestSitesBuilder(t).WithWorkingDir("/mywork").WithConfigFile("toml", config).Running()
 	b.WithTemplatesAdded("_default/single.html", `{{ .Content }}`)
@@ -85,7 +95,7 @@ Inner Block: {{ .Inner | .Page.RenderString (dict "display" "block" ) }}
 	b.WithTemplatesAdded("_default/_markup/render-link.html", `{{ with .Page }}{{ .Title }}{{ end }}|{{ .Destination | safeURL }}|Title: {{ .Title | safeHTML }}|Text: {{ .Text | safeHTML }}|END`)
 	b.WithTemplatesAdded("docs/_markup/render-link.html", `Link docs section: {{ .Text | safeHTML }}|END`)
 	b.WithTemplatesAdded("_default/_markup/render-image.html", `IMAGE: {{ .Page.Title }}||{{ .Destination | safeURL }}|Title: {{ .Title | safeHTML }}|Text: {{ .Text | safeHTML }}|END`)
-	b.WithTemplatesAdded("_default/_markup/render-heading.html", `HEADING: {{ .Page.Title }}||Level: {{ .Level }}|Anchor: {{ .Anchor | safeURL }}|Text: {{ .Text | safeHTML }}|END`)
+	b.WithTemplatesAdded("_default/_markup/render-heading.html", `HEADING: {{ .Page.Title }}||Level: {{ .Level }}|Anchor: {{ .Anchor | safeURL }}|Text: {{ .Text | safeHTML }}|Attributes: {{ .Attributes }}|END`)
 	b.WithTemplatesAdded("docs/_markup/render-heading.html", `Docs Level: {{ .Level }}|END`)
 
 	b.WithContent("customview/p1.md", `---
@@ -107,6 +117,10 @@ title: Cool Page
 Image:
 
 ![Drag Racing](/images/Dragster.jpg "image title")
+
+Attributes:
+
+## Some Heading {.text-serif #a-heading title="Hovered"} 
 
 
 `, "blog/p2.md", `---
@@ -238,7 +252,7 @@ SHORT3|
 	// We may add type template support later, keep this for then. b.AssertFileContent("public/docs/docs1/index.html", `DOCS EDITED: https://www.google.com|</p>`)
 	b.AssertFileContent("public/blog/p4/index.html", `IMAGE EDITED: /images/Dragster.jpg|`)
 	b.AssertFileContent("public/blog/p6/index.html", "<p>Inner Link: EDITED: https://www.gohugo.io|</p>")
-	b.AssertFileContent("public/blog/p7/index.html", "HEADING: With Headings||Level: 1|Anchor: heading-level-1|Text: Heading Level 1|END<p>some text</p>\nHEADING: With Headings||Level: 2|Anchor: heading-level-2|Text: Heading Level 2|ENDHEADING: With Headings||Level: 3|Anchor: heading-level-3|Text: Heading Level 3|END")
+	b.AssertFileContent("public/blog/p7/index.html", "HEADING: With Headings||Level: 1|Anchor: heading-level-1|Text: Heading Level 1|Attributes: map[id:heading-level-1]|END<p>some text</p>\nHEADING: With Headings||Level: 2|Anchor: heading-level-2|Text: Heading Level 2|Attributes: map[id:heading-level-2]|ENDHEADING: With Headings||Level: 3|Anchor: heading-level-3|Text: Heading Level 3|Attributes: map[id:heading-level-3]|END")
 
 	// https://github.com/gohugoio/hugo/issues/7349
 	b.AssertFileContent("public/docs/p8/index.html", "Docs Level: 1")
@@ -301,8 +315,10 @@ func TestRenderHooksRSS(t *testing.T) {
 
 	b.WithTemplates("index.html", `
 {{ $p := site.GetPage "p1.md" }}
+{{ $p2 := site.GetPage "p2.md" }}
 
 P1: {{ $p.Content }}
+P2: {{ $p2.Content }}
 	
 	`, "index.xml", `
 
@@ -316,6 +332,8 @@ P3: {{ $p3.Content }}
 	`,
 		"_default/_markup/render-link.html", `html-link: {{ .Destination | safeURL }}|`,
 		"_default/_markup/render-link.rss.xml", `xml-link: {{ .Destination | safeURL }}|`,
+		"_default/_markup/render-heading.html", `html-heading: {{ .Text }}|`,
+		"_default/_markup/render-heading.rss.xml", `xml-heading: {{ .Text }}|`,
 	)
 
 	b.WithContent("p1.md", `---
@@ -323,12 +341,14 @@ title: "p1"
 ---
 P1. [I'm an inline-style link](https://www.gohugo.io)
 
+# Heading in p1
 
 `, "p2.md", `---
 title: "p2"
 ---
 P1. [I'm an inline-style link](https://www.bep.is)
 
+# Heading in p2
 
 `,
 		"p3.md", `---
@@ -342,10 +362,15 @@ P3. [I'm an inline-style link](https://www.example.org)
 
 	b.Build(BuildCfg{})
 
-	b.AssertFileContent("public/index.html", "P1: <p>P1. html-link: https://www.gohugo.io|</p>")
+	b.AssertFileContent("public/index.html", `
+P1: <p>P1. html-link: https://www.gohugo.io|</p>
+html-heading: Heading in p1|
+html-heading: Heading in p2|
+`)
 	b.AssertFileContent("public/index.xml", `
 P2: <p>P1. xml-link: https://www.bep.is|</p>
 P3: <p>P3. xml-link: https://www.example.org|</p>
+xml-heading: Heading in p2|
 `)
 }
 

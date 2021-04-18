@@ -14,11 +14,15 @@
 package js
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
+	"path/filepath"
+	"regexp"
 	"strings"
+
+	"github.com/pkg/errors"
 
 	"github.com/spf13/afero"
 
@@ -77,8 +81,8 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		return err
 	}
 
-	opts.sourcefile = ctx.SourcePath
-	opts.resolveDir = t.c.rs.WorkingDir
+	opts.sourceDir = filepath.FromSlash(path.Dir(ctx.SourcePath))
+	opts.resolveDir = t.c.rs.WorkingDir // where node_modules gets resolved
 	opts.contents = string(src)
 	opts.mediaType = ctx.InMediaType
 
@@ -92,12 +96,45 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		return err
 	}
 
+	if buildOptions.Sourcemap == api.SourceMapExternal && buildOptions.Outdir == "" {
+		buildOptions.Outdir, err = ioutil.TempDir(os.TempDir(), "compileOutput")
+		if err != nil {
+			return err
+		}
+		defer os.Remove(buildOptions.Outdir)
+	}
+
+	if opts.Inject != nil {
+		// Resolve the absolute filenames.
+		for i, ext := range opts.Inject {
+			impPath := filepath.FromSlash(ext)
+			if filepath.IsAbs(impPath) {
+				return errors.Errorf("inject: absolute paths not supported, must be relative to /assets")
+			}
+
+			m := resolveComponentInAssets(t.c.rs.Assets.Fs, impPath)
+
+			if m == nil {
+				return errors.Errorf("inject: file %q not found", ext)
+			}
+
+			opts.Inject[i] = m.Filename()
+
+		}
+
+		buildOptions.Inject = opts.Inject
+
+	}
+
 	result := api.Build(buildOptions)
 
 	if len(result.Errors) > 0 {
 
 		createErr := func(msg api.Message) error {
 			loc := msg.Location
+			if loc == nil {
+				return errors.New(msg.Text)
+			}
 			path := loc.File
 
 			var (
@@ -145,7 +182,25 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		return errors[0]
 	}
 
-	ctx.To.Write(result.OutputFiles[0].Contents)
+	if buildOptions.Sourcemap == api.SourceMapExternal {
+		content := string(result.OutputFiles[1].Contents)
+		symPath := path.Base(ctx.OutPath) + ".map"
+		re := regexp.MustCompile(`//# sourceMappingURL=.*\n?`)
+		content = re.ReplaceAllString(content, "//# sourceMappingURL="+symPath+"\n")
+
+		if err = ctx.PublishSourceMap(string(result.OutputFiles[0].Contents)); err != nil {
+			return err
+		}
+		_, err := ctx.To.Write([]byte(content))
+		if err != nil {
+			return err
+		}
+	} else {
+		_, err := ctx.To.Write(result.OutputFiles[0].Contents)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

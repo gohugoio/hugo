@@ -23,7 +23,6 @@ import (
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/dartsass"
 
 	"path/filepath"
-	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -576,7 +575,7 @@ Min HTML: {{ ( resources.Get "mydata/html1.html" | resources.Minify ).Content | 
 `)
 		}, func(b *sitesBuilder) {
 			b.AssertFileContent("public/index.html", `Min CSS: h1{font-style:bold}`)
-			b.AssertFileContent("public/index.html", `Min JS: var x;x=5;document.getElementById(&#34;demo&#34;).innerHTML=x*10;`)
+			b.AssertFileContent("public/index.html", `Min JS: var x;x=5,document.getElementById(&#34;demo&#34;).innerHTML=x*10`)
 			b.AssertFileContent("public/index.html", `Min JSON: {"employees":[{"firstName":"John","lastName":"Doe"},{"firstName":"Anna","lastName":"Smith"},{"firstName":"Peter","lastName":"Jones"}]}`)
 			b.AssertFileContent("public/index.html", `Min XML: <hello><world>Hugo Rocks!</<world></hello>`)
 			b.AssertFileContent("public/index.html", `Min SVG: <svg height="100" width="100"><path d="M1e2 1e2H3e2 2e2z"/></svg>`)
@@ -925,10 +924,6 @@ func TestResourceChainPostCSS(t *testing.T) {
 		t.Skip("skip (relative) long running modules test when running locally")
 	}
 
-	if runtime.GOOS == "windows" {
-		t.Skip("skip npm test on Windows")
-	}
-
 	wd, _ := os.Getwd()
 	defer func() {
 		os.Chdir(wd)
@@ -1034,8 +1029,8 @@ class-in-b {
 
 	// Make sure Node sees this.
 	b.Assert(logBuf.String(), qt.Contains, "Hugo Environment: production")
-	b.Assert(logBuf.String(), qt.Contains, fmt.Sprintf("PostCSS Config File: %s/postcss.config.js", workDir))
-	b.Assert(logBuf.String(), qt.Contains, fmt.Sprintf("package.json: %s/package.json", workDir))
+	b.Assert(logBuf.String(), qt.Contains, filepath.FromSlash(fmt.Sprintf("PostCSS Config File: %s/postcss.config.js", workDir)))
+	b.Assert(logBuf.String(), qt.Contains, filepath.FromSlash(fmt.Sprintf("package.json: %s/package.json", workDir)))
 
 	b.AssertFileContent("public/index.html", `
 Styles RelPermalink: /css/styles.css

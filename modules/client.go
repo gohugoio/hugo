@@ -237,6 +237,12 @@ func (c *Client) Vendor() error {
 			continue
 		}
 
+		// See https://github.com/gohugoio/hugo/issues/8239
+		// This is an error situation. We need something to vendor.
+		if t.Mounts() == nil {
+			return errors.Errorf("cannot vendor module %q, need at least one mount", t.Path())
+		}
+
 		fmt.Fprintln(&modulesContent, "# "+t.Path()+" "+t.Version())
 
 		dir := t.Dir()

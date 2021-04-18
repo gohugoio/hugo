@@ -249,7 +249,7 @@ const commonConfigSections = `
 [services.disqus]
 shortname = "disqus_shortname"
 [services.googleAnalytics]
-id = "ga_id"
+id = "UA-ga_id"
 
 [privacy]
 [privacy.disqus]
@@ -990,6 +990,18 @@ func pagesToString(pages ...page.Page) string {
 	}
 	sort.Strings(paths)
 	return strings.Join(paths, "|")
+}
+
+func dumpPagesLinks(pages ...page.Page) {
+	var links []string
+	for _, p := range pages {
+		links = append(links, p.RelPermalink())
+	}
+	sort.Strings(links)
+
+	for _, link := range links {
+		fmt.Println(link)
+	}
 }
 
 func dumpPages(pages ...page.Page) {

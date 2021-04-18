@@ -18,6 +18,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/minifiers"
+
+	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/output"
+	"github.com/spf13/viper"
+
 	qt "github.com/frankban/quicktest"
 )
 
@@ -40,6 +46,11 @@ func TestClassCollector(t *testing.T) {
 			Classes: classess,
 			IDs:     idss,
 		}
+	}
+
+	skipMinifyTest := map[string]bool{
+		"Script tags content should be skipped": true, // https://github.com/tdewolff/minify/issues/396
+
 	}
 
 	for _, test := range []struct {
@@ -89,15 +100,32 @@ func TestClassCollector(t *testing.T) {
 
 		{"Alpine transition 1", `<div x-transition:enter-start="opacity-0 transform mobile:-translate-x-8 sm:-translate-y-8">`, f("div", "mobile:-translate-x-8 opacity-0 sm:-translate-y-8 transform", "")},
 		{"Vue bind", `<div v-bind:class="{ active: isActive }"></div>`, f("div", "active", "")},
-		// https://github.com/gohugoio/hugo/issues/7746
+		// Issue #7746
 		{"Apostrophe inside attribute value", `<a class="missingclass" title="Plus d'information">my text</a><div></div>`, f("a div", "missingclass", "")},
+		// Issue #7567
+		{"Script tags content should be skipped", `<script><span>foo</span><span>bar</span></script><div class="foo"></div>`, f("div script", "foo", "")},
+		{"Pre tags content should be skipped", `<pre class="preclass"><span>foo</span><span>bar</span></pre><div class="foo"></div>`, f("div pre", "foo preclass", "")},
+		{"Textare tags content should be skipped", `<textarea class="textareaclass"><span>foo</span><span>bar</span></textarea><div class="foo"></div>`, f("div textarea", "foo textareaclass", "")},
 	} {
-		c.Run(test.name, func(c *qt.C) {
-			w := newHTMLElementsCollectorWriter(newHTMLElementsCollector())
-			fmt.Fprint(w, test.html)
-			got := w.collector.getHTMLElements()
-			c.Assert(got, qt.DeepEquals, test.expect)
-		})
+
+		for _, minify := range []bool{false, true} {
+			c.Run(fmt.Sprintf("%s--minify-%t", test.name, minify), func(c *qt.C) {
+				w := newHTMLElementsCollectorWriter(newHTMLElementsCollector())
+
+				if minify {
+					if skipMinifyTest[test.name] {
+						c.Skip("skip minify test")
+					}
+					v := viper.New()
+					m, _ := minifiers.New(media.DefaultTypes, output.DefaultFormats, v)
+					m.Minify(media.HTMLType, w, strings.NewReader(test.html))
+				} else {
+					fmt.Fprint(w, test.html)
+				}
+				got := w.collector.getHTMLElements()
+				c.Assert(got, qt.DeepEquals, test.expect)
+			})
+		}
 	}
 }
 

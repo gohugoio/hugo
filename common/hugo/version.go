@@ -127,14 +127,15 @@ func (v Version) NextPatchLevel(level int) Version {
 // BuildVersionString creates a version string. This is what you see when
 // running "hugo version".
 func BuildVersionString() string {
-	program := "Hugo Static Site Generator"
+	// program := "Hugo Static Site Generator"
+	program := "hugo"
 
 	version := "v" + CurrentVersion.String()
 	if commitHash != "" {
 		version += "-" + strings.ToUpper(commitHash)
 	}
 	if IsExtended {
-		version += "/extended"
+		version += "+extended"
 	}
 
 	osArch := runtime.GOOS + "/" + runtime.GOARCH
@@ -144,7 +145,14 @@ func BuildVersionString() string {
 		date = "unknown"
 	}
 
-	return fmt.Sprintf("%s %s %s BuildDate: %s", program, version, osArch, date)
+	versionString := fmt.Sprintf("%s %s %s BuildDate=%s",
+		program, version, osArch, date)
+
+	if vendorInfo != "" {
+		versionString += " VendorInfo=" + vendorInfo
+	}
+
+	return versionString
 }
 
 func version(version float32, patchVersion int, suffix string) string {

@@ -913,7 +913,7 @@ type whatChanged struct {
 // package, so it will behave correctly with Hugo's built-in server.
 func (s *Site) RegisterMediaTypes() {
 	for _, mt := range s.mediaTypesConfig {
-		for _, suffix := range mt.Suffixes {
+		for _, suffix := range mt.Suffixes() {
 			_ = mime.AddExtensionType(mt.Delimiter+suffix, mt.Type()+"; charset=utf-8")
 		}
 	}
