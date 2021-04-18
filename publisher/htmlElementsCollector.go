@@ -144,12 +144,8 @@ func (c *cssClassCollectorWriter) isIgnoreTag(s string) bool {
 // We only care about the element/class/ids, so just store away the original tag name
 // and pretend it's a <div>.
 func (c *cssClassCollectorWriter) insertStandinHTMLElement(el string) (string, string) {
-	tag := el[1:]
-	spacei := strings.Index(tag, " ")
-	if spacei != -1 {
-		tag = tag[:spacei]
-	}
-	tag = strings.Trim(tag, "\n ")
+	fields := strings.Fields(el[1:]);
+	tag := fields[0];
 	newv := strings.Replace(el, tag, "div", 1)
 	return newv, strings.ToLower(tag)
 }
