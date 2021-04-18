@@ -90,22 +90,17 @@ func (w *cssClassCollectorWriter) Write(p []byte) (n int, err error) {
 				b := p[i]
 				w.toggleIfQuote(b)
 				if !w.inQuote && b == '>' {
-					w.endCollecting()
-					break
+					s := w.buff.String()
+					if w.inIgnoreTag == "" || w.hasIgnoreEndTag(s) {
+						w.inIgnoreTag = ""
+						w.endCollecting()
+						break
+					}
 				}
 				w.buff.WriteByte(b)
 			}
 
 			if !w.isCollecting {
-				if w.inIgnoreTag != "" {
-					s := w.buff.String()
-					if tagName, isEnd := w.parseEndTag(s); isEnd && w.inIgnoreTag == tagName {
-						w.inIgnoreTag = ""
-					}
-					w.buff.Reset()
-					continue
-				}
-
 				// First check if we have processed this element before.
 				w.collector.mu.RLock()
 
@@ -169,13 +164,9 @@ func (c *cssClassCollectorWriter) insertStandinHTMLElement(el string) (string, s
 	return newv, strings.ToLower(tag)
 }
 
-func (c *cssClassCollectorWriter) parseEndTag(s string) (string, bool) {
-	if !strings.HasPrefix(s, "</") {
-		return "", false
-	}
-	s = strings.TrimPrefix(s, "</")
-	s = strings.TrimSuffix(s, ">")
-	return strings.ToLower(strings.TrimSpace(s)), true
+func (c *cssClassCollectorWriter) hasIgnoreEndTag(s string) bool {
+	s = strings.TrimSuffix(s, ">") // Allow '</script>' as well as '</script'.
+	return strings.HasSuffix(s, "</"+c.inIgnoreTag)
 }
 
 func (c *cssClassCollectorWriter) endCollecting() {
