@@ -92,7 +92,6 @@ func (w *cssClassCollectorWriter) Write(p []byte) (n int, err error) {
 				if !w.inQuote && b == '>' {
 					s := w.buff.String()
 					if w.inIgnoreTag == "" || w.hasIgnoreEndTag(s) {
-						w.inIgnoreTag = ""
 						w.endCollecting()
 						break
 					}
@@ -104,6 +103,10 @@ func (w *cssClassCollectorWriter) Write(p []byte) (n int, err error) {
 				s := w.buff.String()
 				w.buff.Reset()
 
+				if w.inIgnoreTag != "" {
+					w.inIgnoreTag = ""
+					continue
+				}
 				if strings.HasPrefix(s, "</") {
 					continue
 				}
