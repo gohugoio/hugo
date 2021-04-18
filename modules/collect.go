@@ -149,13 +149,13 @@ func (m *ModulesConfig) finalize(logger loggers.Logger) error {
 
 func filterUnwantedMounts(mounts []Mount) []Mount {
 	// Remove duplicates
-	seen := make(map[Mount]bool)
+	seen := make(map[MountKey]bool)
 	tmp := mounts[:0]
 	for _, m := range mounts {
-		if !seen[m] {
+		if !seen[m.Key()] {
 			tmp = append(tmp, m)
 		}
-		seen[m] = true
+		seen[m.Key()] = true
 	}
 	return tmp
 }

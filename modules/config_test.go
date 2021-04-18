@@ -14,9 +14,13 @@
 package modules
 
 import (
+	"os"
+	"regexp"
 	"testing"
 
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/spf13/viper"
 
 	"github.com/gohugoio/hugo/config"
 
@@ -158,4 +162,224 @@ theme = ["a", "b"]
 	c.Assert(len(mcfg.Imports), qt.Equals, 2)
 	c.Assert(mcfg.Imports[0].Path, qt.Equals, "a")
 	c.Assert(mcfg.Imports[1].Path, qt.Equals, "b")
+}
+
+type fileInfoMock struct {
+	os.FileInfo
+	name string
+	size int64
+}
+
+func (mock fileInfoMock) Name() string {
+	return mock.name
+}
+
+func (mock fileInfoMock) Size() int64 {
+	return mock.size
+}
+
+func TestMountIsStaticfile(t *testing.T) {
+	c := qt.New(t)
+
+	tests := []struct {
+		name     string
+		rule     staticFileRule
+		source   string
+		target   string
+		fi       fileInfoMock
+		expected bool
+	}{
+		{
+			"default:static",
+			staticFileRule{},
+			"static",
+			files.ComponentFolderStatic,
+			fileInfoMock{name: "/hugo.png"},
+			true,
+		},
+		{
+			"default:content:md",
+			staticFileRule{},
+			"content",
+			files.ComponentFolderContent,
+			fileInfoMock{name: "/foo/post.md"},
+			false,
+		},
+		{
+			"default:content:png",
+			staticFileRule{},
+			"content",
+			files.ComponentFolderContent,
+			fileInfoMock{name: "/foo/image.png"},
+			true,
+		},
+		{
+			"default:other dirs",
+			staticFileRule{},
+			"layouts",
+			files.ComponentFolderLayouts,
+			fileInfoMock{name: "/foo/image.png"},
+			false,
+		},
+		{
+			"ignore by regexp",
+			staticFileRule{
+				ignores: []*regexp.Regexp{
+					regexp.MustCompile("\\.md$"),
+					regexp.MustCompile("^content/non-static/.*$"),
+				},
+			},
+			"content",
+			files.ComponentFolderContent,
+			fileInfoMock{name: "/non-static/hugo.mkdwn"},
+			false,
+		},
+		{
+			"not ignore by regexp",
+			staticFileRule{
+				ignores: []*regexp.Regexp{
+					regexp.MustCompile("\\.md$"),
+					regexp.MustCompile("^content/non-static/.*$"),
+				},
+			},
+			"content",
+			files.ComponentFolderContent,
+			fileInfoMock{name: "/hugo.png"},
+			true,
+		},
+		{
+			"include by file size",
+			staticFileRule{
+				size: 500,
+			},
+			"content",
+			files.ComponentFolderContent,
+			fileInfoMock{name: "/foo/post.md", size: 500 * 1024},
+			true,
+		},
+		{
+			"exclude by file size",
+			staticFileRule{
+				size: 500,
+			},
+			"content",
+			files.ComponentFolderContent,
+			fileInfoMock{name: "/foo/post.md", size: 499 * 1024},
+			false,
+		},
+		{
+			"ignore rule is prior to size rule",
+			staticFileRule{
+				ignores: []*regexp.Regexp{
+					regexp.MustCompile("\\.md$"),
+				},
+				size: 100,
+			},
+			"content",
+			files.ComponentFolderContent,
+			fileInfoMock{name: "/foo/post.md", size: 500 * 1024},
+			false,
+		},
+	}
+
+	for _, test := range tests {
+		m := Mount{
+			Source:         test.source,
+			Target:         test.target,
+			staticFileRule: test.rule,
+		}
+		got := m.IsStaticFile(test.fi)
+		c.Assert(got, qt.Equals, test.expected)
+	}
+}
+
+func TestGetStaticFileRule(t *testing.T) {
+	c := qt.New(t)
+
+	tests := []struct {
+		name        string
+		config      map[string]interface{}
+		dirKey      string
+		shouldError bool
+		assert      func(got staticFileRule)
+	}{
+		{
+			"default",
+			map[string]interface{}{},
+			"content",
+			false,
+			func(got staticFileRule) {
+				c.Assert(got.size, qt.Equals, float64(0))
+				c.Assert(len(got.ignores), qt.Equals, 0)
+			},
+		},
+		{
+			"normal",
+			map[string]interface{}{
+				"content": map[string]interface{}{
+					"size": 1.5,
+					"ignore": []string{
+						".*",
+					},
+				},
+			},
+			"content",
+			false,
+			func(got staticFileRule) {
+				c.Assert(got.size, qt.Equals, float64(1.5))
+				c.Assert(len(got.ignores), qt.Equals, 1)
+				c.Assert(got.ignores[0].MatchString("any"), qt.IsTrue)
+			},
+		},
+		{
+			"diffrent dirKey",
+			map[string]interface{}{
+				"content": map[string]interface{}{
+					"size":   0,
+					"ignore": []string{},
+				},
+			},
+			"static",
+			false,
+			func(got staticFileRule) {
+				c.Assert(got.size, qt.Equals, float64(0))
+				c.Assert(len(got.ignores), qt.Equals, 0)
+			},
+		},
+		{
+			"decode error",
+			map[string]interface{}{
+				"content": map[string]interface{}{
+					"size": "foo",
+				},
+			},
+			"content",
+			true,
+			func(got staticFileRule) {},
+		},
+		{
+			"regex compile error",
+			map[string]interface{}{
+				"content": map[string]interface{}{
+					"ignore": []string{
+						"(",
+					},
+				},
+			},
+			"content",
+			true,
+			func(got staticFileRule) {},
+		},
+	}
+
+	for _, test := range tests {
+		v := viper.New()
+		v.Set("staticFileRules", test.config)
+		got, err := getStaticFileRule(v, test.dirKey)
+		if test.shouldError {
+			c.Assert(err, qt.Not(qt.IsNil))
+		} else {
+			test.assert(got)
+		}
+	}
 }
