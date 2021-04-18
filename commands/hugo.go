@@ -652,6 +652,9 @@ func (c *commandeer) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint6
 	syncer.ChmodFilter = chmodFilter
 	syncer.SrcFs = fs
 	syncer.DestFs = c.Fs.Destination
+	if c.renderStaticToDisk {
+		syncer.DestFs = c.Fs.DestinationStatic
+	}
 	// Now that we are using a unionFs for the static directories
 	// We can effectively clean the publishDir on initial sync
 	syncer.Delete = c.Cfg.GetBool("cleanDestinationDir")
