@@ -14,6 +14,7 @@
 package hugofs
 
 import (
+	"os"
 	"strings"
 	"testing"
 
@@ -23,14 +24,15 @@ import (
 
 // ref. https://github.com/spf13/afero/blob/master/ro_regexp_test.go
 
-func TestFilenameFilter(t *testing.T) {
+func TestFileInfoFilter(t *testing.T) {
 	c := qt.New(t)
 
-	pred := func(name string) bool {
+	pred := func(fi os.FileInfo) bool {
+		name := fi.Name()
 		return name == "/only.html"
 	}
 
-	fs := NewFilenameFilterFs(&afero.MemMapFs{}, pred)
+	fs := NewFileInfoFilterFs(&afero.MemMapFs{}, pred)
 	_, err := fs.Create("/another.html")
 
 	c.Assert(err, qt.Not(qt.IsNil))
@@ -38,34 +40,37 @@ func TestFilenameFilter(t *testing.T) {
 	// go 1.15.x:  "no such file or directory"
 }
 
-func TestFilterROFilenameFilterChain(t *testing.T) {
+func TestFilterROFileInfoFilterChain(t *testing.T) {
 	c := qt.New(t)
-	pred := func(name string) bool {
+	pred := func(fi os.FileInfo) bool {
+		name := fi.Name()
 		return name == "/only.html"
 	}
 
 	rofs := afero.NewReadOnlyFs(&afero.MemMapFs{})
-	fs := &FilenameFilterFs{pred: pred, source: rofs}
+	fs := &FileInfoFilterFs{pred: pred, source: rofs}
 	_, err := fs.Create("/file.txt")
 	c.Assert(err, qt.Not(qt.IsNil))
 	// go 1.14.x:  "The system cannot find the file specified."
 	// go 1.15.x:  "no such file or directory"
 }
 
-func TestFilenameFilterReadDir(t *testing.T) {
+func TestFileInfoFilterReadDir(t *testing.T) {
 	c := qt.New(t)
 
-	txtExts := func(name string) bool {
+	txtExts := func(fi os.FileInfo) bool {
+		name := fi.Name()
 		return strings.HasSuffix(name, ".txt")
 	}
 
-	hasPrefixA := func(name string) bool {
+	hasPrefixA := func(fi os.FileInfo) bool {
+		name := fi.Name()
 		return strings.HasPrefix(name, "a")
 	}
 
 	mfs := &afero.MemMapFs{}
-	fs1 := &FilenameFilterFs{pred: txtExts, source: mfs}
-	fs := &FilenameFilterFs{pred: hasPrefixA, source: fs1}
+	fs1 := &FileInfoFilterFs{pred: txtExts, source: mfs}
+	fs := &FileInfoFilterFs{pred: hasPrefixA, source: fs1}
 
 	mfs.MkdirAll("/dir/sub", 0777)
 	for _, name := range []string{"afile.txt", "afile.html", "bfile.txt"} {

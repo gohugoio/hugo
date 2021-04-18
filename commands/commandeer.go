@@ -460,7 +460,7 @@ func newCompositeDestFs(mods modules.Modules) afero.Fs {
 			targetDir := path.Join(baseDir, mount.Source)
 
 			basePathFs := afero.NewBasePathFs(afero.NewOsFs(), targetDir)
-			fileInfoFs := hugofs.NewFilenameFilterFs(basePathFs, mount.IsStaticFile)
+			fileInfoFs := hugofs.NewFileInfoFilterFs(basePathFs, mount.IsStaticFile)
 			readonlyFs := afero.NewReadOnlyFs(fileInfoFs)
 			writableFs = afero.NewCopyOnWriteFs(readonlyFs, writableFs)
 		}
