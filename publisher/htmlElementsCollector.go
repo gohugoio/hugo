@@ -64,7 +64,7 @@ type cssClassCollectorWriter struct {
 	buff      bytes.Buffer
 
 	isCollecting bool
-	inPreTag     string
+	inIgnoreTag  string
 
 	inQuote    bool
 	quoteValue byte
@@ -97,10 +97,10 @@ func (w *cssClassCollectorWriter) Write(p []byte) (n int, err error) {
 			}
 
 			if !w.isCollecting {
-				if w.inPreTag != "" {
+				if w.inIgnoreTag != "" {
 					s := w.buff.String()
-					if tagName, isEnd := w.parseEndTag(s); isEnd && w.inPreTag == tagName {
-						w.inPreTag = ""
+					if tagName, isEnd := w.parseEndTag(s); isEnd && w.inIgnoreTag == tagName {
+						w.inIgnoreTag = ""
 					}
 					w.buff.Reset()
 					continue
@@ -131,8 +131,8 @@ func (w *cssClassCollectorWriter) Write(p []byte) (n int, err error) {
 				s, tagName := w.insertStandinHTMLElement(s)
 				el := parseHTMLElement(s)
 				el.Tag = tagName
-				if w.isPreFormatted(tagName) {
-					w.inPreTag = tagName
+				if w.isIgnoreTag(tagName) {
+					w.inIgnoreTag = tagName
 				}
 
 				w.collector.mu.Lock()
@@ -149,9 +149,10 @@ func (w *cssClassCollectorWriter) Write(p []byte) (n int, err error) {
 	return
 }
 
-// No need to look inside these for HTML elements.
-func (c *cssClassCollectorWriter) isPreFormatted(s string) bool {
-	return s == "pre" || s == "textarea" || s == "script"
+// No need to look inside these for HTML elements. These are document metadata
+// elements with end tag and scripting tags which don't contain HTML.
+func (c *cssClassCollectorWriter) isIgnoreTag(s string) bool {
+	return s == "style" || s == "title" || s == "canvas" || s == "script"
 }
 
 // The net/html parser does not handle single table elements as input, e.g. tbody.
