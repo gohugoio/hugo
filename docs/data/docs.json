@@ -1753,6 +1753,20 @@
         ]
       },
       {
+        "mainType": "image",
+        "subType": "webp",
+        "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "webp",
+          "fullSuffix": ".webp"
+        },
+        "type": "image/webp",
+        "string": "image/webp",
+        "suffixes": [
+          "webp"
+        ]
+      },
+      {
         "mainType": "text",
         "subType": "calendar",
         "delimiter": ".",
@@ -3462,6 +3476,12 @@
       },
       "hugo": {
         "Generator": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "IsExtended": {
           "Description": "",
           "Args": null,
           "Aliases": null,
