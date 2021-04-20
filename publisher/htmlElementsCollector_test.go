@@ -14,7 +14,6 @@
 package publisher
 
 import (
-	"bytes"
 	"fmt"
 	"strings"
 	"testing"
@@ -129,33 +128,8 @@ func TestClassCollector(t *testing.T) {
 	}
 }
 
-func BenchmarkClassCollectorWriter(b *testing.B) {
+func BenchmarkElementsCollectorWriter(b *testing.B) {
 	const benchHTML = `
-<html>
-<body id="i1" class="a b c d">
-<a class="c d e"></a>
-<br>
-<a class="c d e"></a>
-<a class="c d e"></a>
-<br>
-<a id="i2" class="c d e f"></a>
-<a id="i3" class="c d e"></a>
-<a class="c d e"></a>
-<br>
-<a class="c d e"></a>
-<a class="c d e"></a>
-<a class="c d e"></a>
-<a class="c d e"></a>
-</body>
-</html>
-`
-	for i := 0; i < b.N; i++ {
-		w := newHTMLElementsCollectorWriter(newHTMLElementsCollector())
-		fmt.Fprint(w, benchHTML)
-	}
-}
-
-const benchHTML = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -207,51 +181,9 @@ const benchHTML = `
 </body>
 </html>
 `
-
-func BenchmarkElementsCollectorWriter(b *testing.B) {
-	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		w := newHTMLElementsCollectorWriter(newHTMLElementsCollector())
 		fmt.Fprint(w, benchHTML)
-	}
-}
 
-func BenchmarkElementsCollectorWriterMinified(b *testing.B) {
-	b.ReportAllocs()
-	v := viper.New()
-	m, _ := minifiers.New(media.DefaultTypes, output.DefaultFormats, v)
-	var buf bytes.Buffer
-	m.Minify(media.HTMLType, &buf, strings.NewReader(benchHTML))
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		w := newHTMLElementsCollectorWriter(newHTMLElementsCollector())
-		fmt.Fprint(w, buf.String())
-	}
-}
-
-func BenchmarkElementsCollectorWriterWithMinifyStream(b *testing.B) {
-	b.ReportAllocs()
-	v := viper.New()
-	m, _ := minifiers.New(media.DefaultTypes, output.DefaultFormats, v)
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		w := newHTMLElementsCollectorWriter(newHTMLElementsCollector())
-		m.Minify(media.HTMLType, w, strings.NewReader(benchHTML))
-	}
-}
-
-func BenchmarkElementsCollectorWriterWithMinifyString(b *testing.B) {
-	b.ReportAllocs()
-	v := viper.New()
-	m, _ := minifiers.New(media.DefaultTypes, output.DefaultFormats, v)
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		var buf bytes.Buffer
-		m.Minify(media.HTMLType, &buf, strings.NewReader(benchHTML))
-		w := newHTMLElementsCollectorWriter(newHTMLElementsCollector())
-		fmt.Fprint(w, buf.String())
 	}
 }

@@ -108,13 +108,13 @@ func newHTMLElementsCollectorWriter(collector *htmlElementsCollector) *htmlEleme
 	}
 }
 
-// Write splits the incoming stream into single html element and writes these into elementSet
+// Write splits the incoming stream into single html element.
 func (w *htmlElementsCollectorWriter) Write(p []byte) (n int, err error) {
 	n = len(p)
 	i := 0
 
 	for i < len(p) {
-		// if is not collecting, cycle through byte stream until start bracket "<" is found
+		// If we are not collecting, cycle through byte stream until start bracket "<" is found.
 		if !w.isCollecting {
 			for ; i < len(p); i++ {
 				b := p[i]
@@ -126,9 +126,9 @@ func (w *htmlElementsCollectorWriter) Write(p []byte) (n int, err error) {
 		}
 
 		if w.isCollecting {
-			// if is collecting, cycle through byte stream until end bracket ">" is found
-			// disregard any ">" if within a quote
-			// write bytes until found to buffer
+			// If we are collecting, cycle through byte stream until end bracket ">" is found,
+			// disregard any ">" if within a quote,
+			// write bytes until found to buffer.
 			for ; i < len(p); i++ {
 				b := p[i]
 				w.toggleIfQuote(b)
@@ -141,54 +141,69 @@ func (w *htmlElementsCollectorWriter) Write(p []byte) (n int, err error) {
 			}
 		}
 
-		// if no end bracket ">" is found while collecting, but the stream ended
+		// If no end bracket ">" is found while collecting, but the stream ended
 		// this could mean we received chunks of a stream from e.g. the minify functionality
-		// next if loop will be skipped
+		// next if loop will be skipped.
 
-		// at this point we have collected an element line between angle brackets "<" and ">"
+		// At this point we have collected an element line between angle brackets "<" and ">".
 		if !w.isCollecting {
-			s := w.buff.String()
-			w.buff.Reset()
-
-			// filter out unwanted tags
-			// empty string, just in case
-			// if within preformatted code blocks <pre>, <textarea>, <script>, <style>
-			// comments and doctype tags
-			// end tags
-			switch {
-			case s == "": // empty string
+			if w.buff.Len() == 0 {
 				continue
-			case w.inPreTag != "": // within preformatted code block
+			}
+
+			if w.inPreTag != "" { // within preformatted code block
+				s := w.buff.String()
+				w.buff.Reset()
 				if tagName, isEnd := parseEndTag(s); isEnd && w.inPreTag == tagName {
 					w.inPreTag = ""
 				}
 				continue
-			case strings.HasPrefix(s, "<!"): // comment or doctype tag
-				continue
-			case strings.HasPrefix(s, "</"): // end tag
-				continue
 			}
 
-			// check if we have processed this element before.
+			// First check if we have processed this element before.
 			w.collector.mu.RLock()
-			seen := w.collector.elementSet[s]
+
+			// Work with the bytes slice as long as it's practical,
+			// to save memory allocations.
+			b := w.buff.Bytes()
+
+			// See https://github.com/dominikh/go-tools/issues/723
+			//lint:ignore S1030 This construct avoids memory allocation for the string.
+			seen := w.collector.elementSet[string(b)]
 			w.collector.mu.RUnlock()
 			if seen {
+				w.buff.Reset()
 				continue
 			}
 
-			// check if a preformatted code block started
+			// Filter out unwanted tags
+			// if within preformatted code blocks <pre>, <textarea>, <script>, <style>
+			// comments and doctype tags
+			// end tags.
+			switch {
+			case bytes.HasPrefix(b, []byte("<!")): // comment or doctype tag
+				w.buff.Reset()
+				continue
+			case bytes.HasPrefix(b, []byte("</")): // end tag
+				w.buff.Reset()
+				continue
+			}
+
+			s := w.buff.String()
+			w.buff.Reset()
+
+			// Check if a preformatted code block started.
 			if tagName, isStart := parseStartTag(s); isStart && isPreFormatted(tagName) {
 				w.inPreTag = tagName
 			}
 
-			// parse each collected element
+			// Parse each collected element.
 			el, err := parseHTMLElement(s)
 			if err != nil {
 				return n, err
 			}
 
-			// write this tag to the element set
+			// Write this tag to the element set.
 			w.collector.mu.Lock()
 			w.collector.elementSet[s] = true
 			w.collector.elements = append(w.collector.elements, el)
@@ -265,17 +280,18 @@ var (
 	htmlJsonFixer = strings.NewReplacer(", ", "\n")
 	jsonAttrRe    = regexp.MustCompile(`'?(.*?)'?:.*`)
 	classAttrRe   = regexp.MustCompile(`(?i)^class$|transition`)
-)
 
-func parseHTMLElement(elStr string) (el htmlElement, err error) {
-	var tagBuffer string = ""
-	exceptionList := map[string]bool{
+	exceptionList = map[string]bool{
 		"thead": true,
 		"tbody": true,
 		"tfoot": true,
 		"td":    true,
 		"tr":    true,
 	}
+)
+
+func parseHTMLElement(elStr string) (el htmlElement, err error) {
+	var tagBuffer string = ""
 
 	tagName, ok := parseStartTag(elStr)
 	if !ok {
