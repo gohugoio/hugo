@@ -14,14 +14,14 @@ relatedfuncs: [dict, append, reflect.IsMap, reflect.IsSlice]
 aliases: []
 ---
 
-Merge creates a copy of the final `MAP` and merges any preceeding `MAP` into it in reverse order.
+Merge creates a copy of the final `MAP` and merges any preceding `MAP` into it in reverse order.
 Key handling is case-insensitive.
 
 An example merging two maps.
 
 ```go-html-template
-{{ $default_params := dict "color" "blue" "width" "50%" "height" "25%" }}
-{{ $user_params := dict "color" "red" "extra" (dict "duration" 2) }}
+{{ $default_params := dict "color" "blue" "width" "50%" "height" "25%" "icon" "star" }}
+{{ $user_params := dict "color" "red" "icon" "mail" "extra" (dict "duration" 2) }}
 {{ $params := merge $default_params $user_params }}
 ```
 
@@ -39,5 +39,3 @@ Resulting __$params__:
 {{% note %}}
   Regardless of depth, merging only applies to maps. For slices, use [append]({{< ref "functions/append" >}})
 {{% /note %}}
-
-

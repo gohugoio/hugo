@@ -24,15 +24,15 @@ The real power of Hugo pagination shines when combined with the [`where` functio
 
 Pagination can be configured in your [site configuration][configuration]:
 
-`Paginate`
+`paginate`
 : default = `10`. This setting can be overridden within the template.
 
-`PaginatePath`
+`paginatePath`
 : default = `page`. Allows you to set a different path for your pagination pages.
 
-Setting `Paginate` to a positive value will split the list pages for the homepage, sections and taxonomies into chunks of that size. But note that the generation of the pagination pages for sections, taxonomies and homepage is *lazy* --- the pages will not be created if not referenced by a `.Paginator` (see below).
+Setting `paginate` to a positive value will split the list pages for the homepage, sections and taxonomies into chunks of that size. But note that the generation of the pagination pages for sections, taxonomies and homepage is *lazy* --- the pages will not be created if not referenced by a `.Paginator` (see below).
 
-`PaginatePath` is used to adapt the `URL` to the pages in the paginator (the default setting will produce URLs on the form `/page/1/`.
+`paginatePath` is used to adapt the `URL` to the pages in the paginator (the default setting will produce URLs on the form `/page/1/`.
 
 ## List Paginator Pages
 

@@ -10,7 +10,7 @@ The two main items in Hugo 0.67.0 is custom HTTP header support in `hugo server`
 
 Being able to [configure HTTP headers](https://gohugo.io/getting-started/configuration/#configure-server) in your development server means that you can now verify how your site behaves with the intended Content Security Policy settings etc., e.g.:
 
-```toml
+{{< code-toggle file="config" >}}
 [server]
 [[server.headers]]
 for = "/**.html"
@@ -21,7 +21,7 @@ X-XSS-Protection = "1; mode=block"
 X-Content-Type-Options = "nosniff"
 Referrer-Policy = "strict-origin-when-cross-origin"
 Content-Security-Policy = "script-src localhost:1313"
-```
+{{< /code-toggle >}}
 
 **Note:** This release also changes how raw HTML files inside /content is processed to be in line with the documentation. See [#7030](https://github.com/gohugoio/hugo/issues/7030).
 

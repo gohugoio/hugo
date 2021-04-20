@@ -65,10 +65,10 @@ You can [set Hugo version](https://www.netlify.com/blog/2017/04/11/netlify-plus-
 
 For production:
 
-```
+{{< code-toggle file="netlify" >}}
 [context.production.environment]
   HUGO_VERSION = "0.53"
-```
+{{< /code-toggle >}}
 
 For testing:
 

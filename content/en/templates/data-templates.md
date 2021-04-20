@@ -51,7 +51,7 @@ The example below is a bit contrived, but it illustrates the flexibility of data
 
 `jacopastorius.toml` contains the content below. `johnpatitucci.toml` contains a similar list:
 
-```
+{{< code-toggle file="jacopastorius" >}}
 discography = [
 "1974 – Modern American Music … Period! The Criteria Sessions",
 "1974 – Jaco",
@@ -69,7 +69,7 @@ discography = [
 "2003 - Punk Jazz: The Jaco Pastorius Anthology (compilation)",
 "2007 - The Essential Jaco Pastorius (compilation)"
 ]
-```
+{{< /code-toggle >}}
 
 The list of bass players can be accessed via `.Site.Data.jazz.bass`, a single bass player by adding the filename without the suffix, e.g. `.Site.Data.jazz.bass.jacopastorius`.
 

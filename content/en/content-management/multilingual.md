@@ -77,9 +77,9 @@ Only the obvious non-global options can be overridden per language. Examples of 
 
 You can disable one or more languages. This can be useful when working on a new translation.
 
-```toml
+{{< code-toggle file="config" >}}
 disableLanguages = ["fr", "ja"]
-```
+{{< /code-toggle >}}
 
 Note that you cannot disable the default content language.
 
@@ -330,12 +330,12 @@ From within your templates, use the `i18n` function like this:
 {{ i18n "home" }}
 ```
 
-The function will search for the `"home"` id from `i18n/en-US.toml` file:
+The function will search for the `"home"` id:
 
-```
+{{< code-toggle file="i18n/en-US" >}}
 [home]
 other = "Home"
-```
+{{< /code-toggle >}}
 
 The result will be
 
@@ -345,18 +345,18 @@ Home
 
 ### Query a flexible translation with variables
 
-Often you will want to use to the page variables in the translations strings. To do that, pass on the `.` context when calling `i18n`:
+Often you will want to use the page variables in the translation strings. To do so, pass the `.` context when calling `i18n`:
 
 ```
 {{ i18n "wordCount" . }}
 ```
 
-The function will pass the `.` context to the `"wordCount"` id in `i18n/en-US.toml` file:
+The function will pass the `.` context to the `"wordCount"` id:
 
-```
+{{< code-toggle file="i18n/en-US" >}}
 [wordCount]
 other = "This article has {{ .WordCount }} words."
-```
+{{< /code-toggle >}}
 
 Assume `.WordCount` in the context has value is 101. The result will be:
 
@@ -372,13 +372,13 @@ In order to meet singular/plural requirement, you must pass a dictionary (map) w
 {{ i18n "readingTime" .ReadingTime }}
 ```
 
-The function will read `.Count` from `.ReadingTime` and evaluate where the number is singular (`one`) or plural (`other`). After that, it will pass to `readingTime` id in `i18n/en-US.toml` file:
+The function will read `.Count` from `.ReadingTime` and evaluate where the number is singular (`one`) or plural (`other`). After that, it will pass to `readingTime` id:
 
-```
+{{< code-toggle file="i18n/en-US" >}}
 [readingTime]
 one = "One minute to read"
 other = "{{.Count}} minutes to read"
-```
+{{< /code-toggle >}}
 
 Assume `.ReadingTime.Count` in the context has value of 525600. The result will be:
 
@@ -389,7 +389,7 @@ Assume `.ReadingTime.Count` in the context has value of 525600. The result will 
 If `.ReadingTime.Count` in the context has value is 1. The result is:
 
 ```
-One minutes to read
+One minute to read
 ```
 
 In case you need to pass custom data: (`(dict "Count" 25)` is minimum requirement)
@@ -433,7 +433,7 @@ This technique extracts the day, month and year by specifying ``.Date.Day``, ``.
 
 You can define your menus for each language independently. Creating multilingual menus works just like [creating regular menus][menus], except they're defined in language-specific blocks in the configuration file:
 
-```
+{{< code-toggle file="config" >}}
 defaultContentLanguage = "en"
 
 [languages.en]
@@ -454,7 +454,7 @@ languageName = "Deutsch"
 url    = "/"
 name   = "Startseite"
 weight = 0
-```
+{{< /code-toggle >}}
 
 The rendering of the main navigation works as usual. `.Site.Menus` will just contain the menu in the current language. Note that `absLangURL` below will link to the correct locale of your website. Without it, menu entries in all languages would link to the English version, since it's the default content language that resides in the root directory.
 

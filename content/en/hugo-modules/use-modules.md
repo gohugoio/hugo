@@ -36,13 +36,13 @@ Also see the [CLI Doc](/commands/hugo_mod_init/).
 The easiest way to use a Module for a theme is to import it in the config.
 
 1. Initialize the hugo module system: `hugo mod init github.com/<your_user>/<your_project>`
-2. Import the theme in your `config.toml`:
+2. Import the theme:
 
-```toml
+{{< code-toggle file="config" >}}
 [module]
   [[module.imports]]
     path = "github.com/spf13/hyde"
-```
+{{< /code-toggle >}}
 
 ## Update Modules
 

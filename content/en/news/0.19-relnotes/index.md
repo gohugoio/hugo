@@ -33,9 +33,9 @@ Hugo `0.18` was bringing full-parallel page rendering, so workarounds depending 
 
 With Hugo `0.19`, you can control this behaviour by turning off page types you do not want ({{<gh 2534 >}}). In its most extreme case, if you put the below setting in your [`config.toml`](/getting-started/configuration/), you will get **nothing!**:
 
-```
+{{< code-toggle file="config" >}}
 disableKinds = ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404"]
-```
+{{< /code-toggle >}}
 
 ### Other New Features
 

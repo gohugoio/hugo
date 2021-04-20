@@ -23,3 +23,8 @@ aliases: []
 ```
 {{ .Title | markdownify }}
 ```
+
+*Note*: if you need [Render Hooks][], which `markdownify` doesn't currently
+support, use [.RenderString](/functions/renderstring/) instead.
+
+[Render Hooks]: /getting-started/configuration-markup/#markdown-render-hooks

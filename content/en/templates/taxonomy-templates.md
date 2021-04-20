@@ -206,7 +206,7 @@ Because we are leveraging the front matter system to define taxonomies for conte
 <ul>
     {{ range (.GetTerms "tags") }}
         <li><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
-   {{ end }}
+    {{ end }}
 </ul>
 ```
 

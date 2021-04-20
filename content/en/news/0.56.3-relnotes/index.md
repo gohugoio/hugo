@@ -13,7 +13,7 @@ This is a bug-fix release with a couple of important fixes. After getting feedba
 
 It adds support for overlapping file mounts, even for the filesystems where we walk down the directory structure. One relevant example that is fixed by this release:
 
-```toml
+{{< code-toggle file="config" >}}
 [module]
 [[module.mounts]]
 source="content1"
@@ -21,7 +21,7 @@ target="content"
 [[module.mounts]]
 source="content2"
 target="content/docs"
-```
+{{< /code-toggle >}}
 
 The above is obviously both common and very useful. This was never an issue with the situations where you load a specific file/directory (e.g. `resources.Get "a/b/c/d/sunset.jpg"`).
 
