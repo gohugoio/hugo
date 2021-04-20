@@ -25,7 +25,7 @@ If there is no slash in `PATH`, it returns an empty directory and the base is se
 **Note:** On Windows, `PATH` is converted to slash (`/`) separators.
 
 ```
-{{ $dirFile := path.Split "a/news.html" }} → $dirDile.Dir → "a/", $dirFile.File → "news.html"
-{{ $dirFile := path.Split "news.html" }} → $dirDile.Dir → "", $dirDile.File → "news.html"
-{{ $dirFile := path.Split "a/b/c" }} → $dirDile.Dir → "a/b/", $dirDile.File →  "c"
+{{ $dirFile := path.Split "a/news.html" }} → $dirFile.Dir → "a/", $dirFile.File → "news.html"
+{{ $dirFile := path.Split "news.html" }} → $dirFile.Dir → "", $dirFile.File → "news.html"
+{{ $dirFile := path.Split "a/b/c" }} → $dirFile.Dir → "a/b/", $dirFile.File →  "c"
 ```

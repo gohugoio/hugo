@@ -183,15 +183,11 @@ Or...
 hugo server --disableLiveReload
 ```
 
-The latter flag can be omitted by adding the following key-value to  your `config.toml` or `config.yml` file, respectively:
+The latter flag can be omitted by adding the following:
 
-```
+{{< code-toggle file="config" >}}
 disableLiveReload = true
-```
-
-```
-disableLiveReload: true
-```
+{{< /code-toggle >}}
 
 ## Deploy Your Website
 

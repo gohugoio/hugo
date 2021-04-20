@@ -38,7 +38,7 @@ cd your-hugo-site
 In the root directory of your Hugo site, create a `.gitlab-ci.yml` file. The `.gitlab-ci.yml` configures the GitLab CI on how to build your page. Simply add the content below.
 
 {{< code file=".gitlab-ci.yml" >}}
-image: monachus/hugo
+image: registry.gitlab.com/pages/hugo:latest
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
@@ -52,6 +52,10 @@ pages:
   only:
   - master
 {{< /code >}}
+
+{{% note %}}
+All available Hugo versions are listed [here](https://gitlab.com/pages/hugo/container_registry)
+{{% /note %}}
 
 ## Push Your Hugo Website to GitLab
 

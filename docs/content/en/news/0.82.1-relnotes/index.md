@@ -1,8 +1,8 @@
 
 ---
 date: 2021-04-20
-title: "Hugo 0.82.1: A couple of Bug Fixes"
-description: "This version fixes a couple of bugs introduced in 0.82.0."
+title: "Hugo 0.82.1: One Bug Fix"
+description: "This version fixes a bug introduced in 0.82.0."
 categories: ["Releases"]
 images:
 - images/blog/hugo-bug-poster.png

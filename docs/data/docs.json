@@ -1969,22 +1969,8 @@
   "output": {
     "formats": [
       {
-        "MediaType": "text/html",
+        "mediaType": "text/html",
         "name": "HTML",
-        "mediaType": {
-          "mainType": "text",
-          "subType": "html",
-          "delimiter": ".",
-          "firstSuffix": {
-            "suffix": "html",
-            "fullSuffix": ".html"
-          },
-          "type": "text/html",
-          "string": "text/html",
-          "suffixes": [
-            "html"
-          ]
-        },
         "path": "",
         "baseName": "index",
         "rel": "canonical",
@@ -1997,22 +1983,8 @@
         "weight": 10
       },
       {
-        "MediaType": "text/html",
+        "mediaType": "text/html",
         "name": "AMP",
-        "mediaType": {
-          "mainType": "text",
-          "subType": "html",
-          "delimiter": ".",
-          "firstSuffix": {
-            "suffix": "html",
-            "fullSuffix": ".html"
-          },
-          "type": "text/html",
-          "string": "text/html",
-          "suffixes": [
-            "html"
-          ]
-        },
         "path": "amp",
         "baseName": "index",
         "rel": "amphtml",
@@ -2025,22 +1997,8 @@
         "weight": 0
       },
       {
-        "MediaType": "text/css",
+        "mediaType": "text/css",
         "name": "CSS",
-        "mediaType": {
-          "mainType": "text",
-          "subType": "css",
-          "delimiter": ".",
-          "firstSuffix": {
-            "suffix": "css",
-            "fullSuffix": ".css"
-          },
-          "type": "text/css",
-          "string": "text/css",
-          "suffixes": [
-            "css"
-          ]
-        },
         "path": "",
         "baseName": "styles",
         "rel": "stylesheet",
@@ -2053,22 +2011,8 @@
         "weight": 0
       },
       {
-        "MediaType": "text/csv",
+        "mediaType": "text/csv",
         "name": "CSV",
-        "mediaType": {
-          "mainType": "text",
-          "subType": "csv",
-          "delimiter": ".",
-          "firstSuffix": {
-            "suffix": "csv",
-            "fullSuffix": ".csv"
-          },
-          "type": "text/csv",
-          "string": "text/csv",
-          "suffixes": [
-            "csv"
-          ]
-        },
         "path": "",
         "baseName": "index",
         "rel": "alternate",
@@ -2081,22 +2025,8 @@
         "weight": 0
       },
       {
-        "MediaType": "text/calendar",
+        "mediaType": "text/calendar",
         "name": "Calendar",
-        "mediaType": {
-          "mainType": "text",
-          "subType": "calendar",
-          "delimiter": ".",
-          "firstSuffix": {
-            "suffix": "ics",
-            "fullSuffix": ".ics"
-          },
-          "type": "text/calendar",
-          "string": "text/calendar",
-          "suffixes": [
-            "ics"
-          ]
-        },
         "path": "",
         "baseName": "index",
         "rel": "alternate",
@@ -2109,22 +2039,8 @@
         "weight": 0
       },
       {
-        "MediaType": "application/json",
+        "mediaType": "application/json",
         "name": "JSON",
-        "mediaType": {
-          "mainType": "application",
-          "subType": "json",
-          "delimiter": ".",
-          "firstSuffix": {
-            "suffix": "json",
-            "fullSuffix": ".json"
-          },
-          "type": "application/json",
-          "string": "application/json",
-          "suffixes": [
-            "json"
-          ]
-        },
         "path": "",
         "baseName": "index",
         "rel": "alternate",
@@ -2137,22 +2053,8 @@
         "weight": 0
       },
       {
-        "MediaType": "text/plain",
+        "mediaType": "text/plain",
         "name": "ROBOTS",
-        "mediaType": {
-          "mainType": "text",
-          "subType": "plain",
-          "delimiter": ".",
-          "firstSuffix": {
-            "suffix": "txt",
-            "fullSuffix": ".txt"
-          },
-          "type": "text/plain",
-          "string": "text/plain",
-          "suffixes": [
-            "txt"
-          ]
-        },
         "path": "",
         "baseName": "robots",
         "rel": "alternate",
@@ -2165,22 +2067,8 @@
         "weight": 0
       },
       {
-        "MediaType": "application/rss+xml",
+        "mediaType": "application/rss+xml",
         "name": "RSS",
-        "mediaType": {
-          "mainType": "application",
-          "subType": "rss",
-          "delimiter": ".",
-          "firstSuffix": {
-            "suffix": "xml",
-            "fullSuffix": ".xml"
-          },
-          "type": "application/rss+xml",
-          "string": "application/rss+xml",
-          "suffixes": [
-            "xml"
-          ]
-        },
         "path": "",
         "baseName": "index",
         "rel": "alternate",
@@ -2193,22 +2081,8 @@
         "weight": 0
       },
       {
-        "MediaType": "application/xml",
+        "mediaType": "application/xml",
         "name": "Sitemap",
-        "mediaType": {
-          "mainType": "application",
-          "subType": "xml",
-          "delimiter": ".",
-          "firstSuffix": {
-            "suffix": "xml",
-            "fullSuffix": ".xml"
-          },
-          "type": "application/xml",
-          "string": "application/xml",
-          "suffixes": [
-            "xml"
-          ]
-        },
         "path": "",
         "baseName": "sitemap",
         "rel": "sitemap",
@@ -2441,7 +2315,7 @@
         ]
       },
       {
-        "Example": "AMP home, French language\"",
+        "Example": "AMP home, French language",
         "Kind": "home",
         "OutputFormat": "AMP",
         "Suffix": "html",

@@ -47,15 +47,15 @@ In addition to using a single site config file, one can use the `configDir` dire
 - Each file represents a configuration root object, such as `params.toml` for `[Params]`, `menu(s).toml` for `[Menu]`, `languages.toml` for `[Languages]` etc...
 - Each file's content must be top-level, for example:
   
-  In `config.toml` is:
-  ```toml
-  [Params]
-    foo = "bar"
-  ```
-  In `params.toml` is:
-  ```
+{{< code-toggle file="config" >}}
+[Params]
   foo = "bar"
-  ```
+{{< /code-toggle >}}
+
+{{< code-toggle file="params" >}}
+foo = "bar"
+{{< /code-toggle >}}
+
 - Each directory holds a group of files containing settings unique to an environment.
 - Files can be localized to become language specific.
 
@@ -325,6 +325,8 @@ useResourceCacheWhen
 writeStats {{< new-in "0.69.0" >}}
 : When enabled, a file named `hugo_stats.json` will be written to your project root with some aggregated data about the build, e.g. list of HTML entities published to be used to do [CSS pruning](/hugo-pipes/postprocess/#css-purging-with-postcss). If you're only using this for the production build, you should consider placing it below [config/production](/getting-started/configuration/#configuration-directory). It's also worth mentioning that, due to the nature of the partial server builds, new HTML entities will be added when you add or change them while the server is running, but the old values will not be removed until you restart the server or run a regular `hugo` build.
 
+**Note** that the prime use case for this is purging of unused CSS; it is build for speed and there may be false positives (e.g. elements that isn't really a HTML element).
+
 noJSConfigInAssets {{< new-in "0.78.0" >}}
 : Turn off writing a `jsconfig.json` into your `/assets` folder with mapping of imports from running [js.Build](https://gohugo.io/hugo-pipes/js). This file is intended to help with intellisense/navigation inside code editors such as [VS Code](https://code.visualstudio.com/). Note that if you do not use `js.Build`, no file will be written.
 
@@ -444,15 +446,15 @@ To set config params, prefix the name with `HUGO_PARAMS_`
 Test and document setting params via JSON env var.
 {{< /todo >}}
 
-## Ignore Content Files When Rendering
+## Ignore Content and Data Files when Rendering
 
-The following statement inside `./config.toml` will cause Hugo to ignore content files ending with `.foo` and `.boo` when rendering:
+To exclude specific files from the content and data directories when rendering your site, set `ignoreFiles` to one or more regular expressions.
 
-```
-ignoreFiles = [ "\\.foo$", "\\.boo$" ]
-```
+For example, to ignore content and data files ending with `.foo` and `.boo`:
 
-The above is a list of regular expressions. Note that the backslash (`\`) character is escaped in this example to keep TOML happy.
+{{< code-toggle >}}
+ignoreFiles = [ "\\.foo$","\\.boo$"]
+{{< /code-toggle >}}
 
 ## Configure Front Matter
 
@@ -463,20 +465,20 @@ Dates are important in Hugo, and you can configure how Hugo assigns dates to you
 
 The default configuration is:
 
-```toml
+{{< code-toggle file="config" >}}
 [frontmatter]
 date = ["date", "publishDate", "lastmod"]
 lastmod = [":git", "lastmod", "date", "publishDate"]
 publishDate = ["publishDate", "date"]
 expiryDate = ["expiryDate"]
-```
+{{< /code-toggle >}}
 
 If you, as an example, have a non-standard date parameter in some of your content, you can override the setting for `date`:
 
- ```toml
+{{< code-toggle file="config" >}}
 [frontmatter]
 date = ["myDate", ":default"]
-```
+{{< /code-toggle >}}
 
 The `:default` is a shortcut to the default settings. The above will set `.Date` to the date value in `myDate` if present, if not we will look in `date`,`publishDate`, `lastmod` and pick the first valid date.
 
@@ -490,10 +492,10 @@ The special date handlers are:
 
 An example:
 
- ```toml
+{{< code-toggle file="config" >}}
 [frontmatter]
 lastmod = ["lastmod", ":fileModTime", ":default"]
-```
+{{< /code-toggle >}}
 
 
 The above will try first to extract the value for `.Lastmod` starting with the `lastmod` front matter parameter, then the content file's modification timestamp. The last, `:default` should not be needed here, but Hugo will finally look for a valid date in `:git`, `date` and then `publishDate`.
@@ -504,10 +506,10 @@ The above will try first to extract the value for `.Lastmod` starting with the `
 
 An example:
 
-```toml
+{{< code-toggle file="config" >}}
 [frontmatter]
 date  = [":filename", ":default"]
-```
+{{< /code-toggle >}}
 
 The above will try first to extract the value for `.Date` from the filename, then it will look in front matter parameters `date`, `publishDate` and lastly `lastmod`.
 

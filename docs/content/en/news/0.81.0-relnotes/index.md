@@ -128,12 +128,12 @@ There are several [Hugo Modules](https://gohugo.io/hugo-modules/)-related improv
 
 ## Minify - Keep Comments
 
-Keep comments when running `hugo --minify` with a new setting in config.toml. 
+Keep comments when running `hugo --minify` with a new setting:
 
-```toml
+{{< code-toggle file="config" >}}
 [minify.tdewolff.html]
 keepComments = true
-```
+{{< /code-toggle >}}
 
 The default value for this setting is `false`.
 

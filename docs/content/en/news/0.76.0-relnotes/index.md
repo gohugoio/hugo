@@ -46,13 +46,13 @@ We have added a `force` flag to the [server redirects](https://gohugo.io/getting
 
 This is set to default `false`. If you want the old behaviour you need to add this flag to your configuration:
 
-```toml
+{{< code-toggle file="config" >}}
 [[redirects]]
 from = "/myspa/**"
 to = "/myspa/"
 status = 200
 force = true
-```
+{{< /code-toggle >}}
 
 ## Enhancements
 

@@ -1,1 +1,1 @@
-# github.com/gohugoio/gohugoioTheme v0.0.0-20210301124928-2c15837dfec3
+# github.com/gohugoio/gohugoioTheme v0.0.0-20210409071416-c88da48134b7

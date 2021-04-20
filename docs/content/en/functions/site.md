@@ -1,7 +1,7 @@
 ---
 title: site
 linktitle: site
-description: The `site` function provides global access the same data as `.Site` page method
+description: The `site` function provides global access to the same data as the `.Site` page method.
 godocref:
 date: 2021-02-11
 publishdate: 2021-02-11
