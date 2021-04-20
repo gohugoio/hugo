@@ -15,6 +15,7 @@ package media
 
 import (
 	"encoding/json"
+	"sort"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -98,11 +99,28 @@ func TestBySuffix(t *testing.T) {
 
 func TestGetFirstBySuffix(t *testing.T) {
 	c := qt.New(t)
-	_, f, found := DefaultTypes.GetFirstBySuffix("xml")
-	c.Assert(found, qt.Equals, true)
-	c.Assert(f, qt.Equals, SuffixInfo{
-		Suffix:     "xml",
-		FullSuffix: ".xml"})
+
+	types := DefaultTypes
+
+	// Issue #8406
+	geoJSON := newMediaTypeWithMimeSuffix("application", "geo", "json", []string{"geojson", "gjson"})
+	types = append(types, geoJSON)
+	sort.Sort(types)
+
+	check := func(suffix string, expectedType Type) {
+		t, f, found := types.GetFirstBySuffix(suffix)
+		c.Assert(found, qt.Equals, true)
+		c.Assert(f, qt.Equals, SuffixInfo{
+			Suffix:     suffix,
+			FullSuffix: "." + suffix})
+		c.Assert(t, qt.Equals, expectedType)
+	}
+
+	check("js", JavascriptType)
+	check("json", JSONType)
+	check("geojson", geoJSON)
+	check("gjson", geoJSON)
+
 }
 
 func TestFromTypeString(t *testing.T) {

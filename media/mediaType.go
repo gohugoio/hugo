@@ -303,7 +303,7 @@ func (t Types) GetBySuffix(suffix string) (tp Type, si SuffixInfo, found bool) {
 }
 
 func (m Type) hasSuffix(suffix string) bool {
-	return strings.Contains(m.suffixesCSV, suffix)
+	return strings.Contains(","+m.suffixesCSV+",", ","+suffix+",")
 }
 
 // GetByMainSubType gets a media type given a main and a sub type e.g. "text" and "plain".
