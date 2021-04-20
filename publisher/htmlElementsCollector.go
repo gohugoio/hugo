@@ -239,10 +239,6 @@ func isQuote(b byte) bool {
 }
 
 func parseStartTag(s string) (string, bool) {
-	if strings.HasPrefix(s, "</") || strings.HasPrefix(s, "<!") {
-		return "", false
-	}
-
 	s = strings.TrimPrefix(s, "<")
 	s = strings.TrimSuffix(s, ">")
 
