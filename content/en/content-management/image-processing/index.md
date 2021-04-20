@@ -167,12 +167,26 @@ For color codes, see https://www.google.com/search?q=color+picker
 
 **Note** that you also set a default background color to use, see [Image Processing Config](#image-processing-config).
 
-### JPEG Quality
+### JPEG and Webp Quality
 
-Only relevant for JPEG images, values 1 to 100 inclusive, higher is better. Default is 75.
+Only relevant for JPEG and Webp images, values 1 to 100 inclusive, higher is better. Default is 75.
 
 ```go
 {{ $image.Resize "600x q50" }}
+```
+
+{{< new-in "0.83.0" >}} Webp support was added in Hugo 0.83.0.
+
+### Hint {{< new-in "0.83.0" >}}
+
+Hint about what type of image this is. Currently only used when encoding to Webp.
+
+Default value is `photo`.
+
+Valid values are `picture`, `photo`, `drawing`, `icon`, or `text`.
+
+```go
+{{ $image.Resize "600x webp drawing" }}
 ```
 
 ### Rotate
@@ -258,8 +272,13 @@ You can configure an `imaging` section in `config.toml` with default image proce
 # See https://github.com/disintegration/imaging
 resampleFilter = "box"
 
-# Default JPEG quality setting. Default is 75.
+# Default JPEG or WEBP quality setting. Default is 75.
 quality = 75
+
+# Default hint about what type of image. Currently only used for Webp encoding.
+# Default is "photo".
+# Valid values are "picture", "photo", "drawing", "icon", or "text".
+hint = "photo"
 
 # Anchor used when cropping pictures.
 # Default is "smart" which does Smart Cropping, using https://github.com/muesli/smartcrop
