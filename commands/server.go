@@ -104,7 +104,7 @@ of a second, you will be able to save and see your changes nearly instantly.`,
 	cc.cmd.Flags().String("memstats", "", "log memory usage to this file")
 	cc.cmd.Flags().String("meminterval", "100ms", "interval to poll memory usage (requires --memstats), valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".")
 
-	dest := cc.cmd.Flags().String("renderTo", "", `"memory", "composite" or "disk" (default is "memory")`)
+	dest := cc.cmd.Flags().String("renderTo", "", `"memory", "composite", "disk", or "hybrid" (default is "memory")`)
 	cc.renderTo = config.RenderDestFrom(*dest)
 
 	return cc
@@ -326,7 +326,9 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 		case config.RenderDestMemory:
 			jww.FEEDBACK.Println("Serving pages from memory")
 		case config.RenderDestComposite:
-			jww.FEEDBACK.Println("Serving pages from memory and staticDir(s)")
+			jww.FEEDBACK.Println("Serving pages from memory and source directories")
+		case config.RenderDestHybrid:
+			jww.FEEDBACK.Println("Serving pages from memory and " + absPublishDir)
 		default:
 			return nil, "", "", fmt.Errorf("Invalid renderTo: %s", f.c.renderTo)
 		}

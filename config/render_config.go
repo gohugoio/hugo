@@ -23,6 +23,7 @@ const (
 	RenderDestDisk      RenderDest = "disk"
 	RenderDestComposite            = "composite"
 	RenderDestMemory               = "memory"
+	RenderDestHybrid               = "hybrid"
 	RenderDestUnset                = ""
 )
 
@@ -34,6 +35,8 @@ func RenderDestFrom(s string) RenderDest {
 		return RenderDestComposite
 	case "memory":
 		return RenderDestMemory
+	case "hybrid":
+		return RenderDestHybrid
 	case "":
 		return RenderDestUnset
 	default:

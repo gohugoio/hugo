@@ -149,9 +149,12 @@ func (c *commandeer) Set(key string, value interface{}) {
 	c.Cfg.Set(key, value)
 }
 
-func (c *commandeer) initFs(fs *hugofs.Fs) error {
+func (c *commandeer) initFs(fs *hugofs.Fs, staticFs *hugofs.Fs) error {
 	c.destinationFs = fs.Destination
 	c.DepsCfg.Fs = fs
+	if staticFs != nil {
+		c.DepsCfg.StaticFs = staticFs
+	}
 
 	return nil
 }
@@ -380,6 +383,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 
 	c.fsCreate.Do(func() {
 		fs := hugofs.NewFrom(sourceFs, config)
+		var staticFs *hugofs.Fs
 
 		if c.destinationFs != nil {
 			// Need to reuse the destination on server rebuilds.
@@ -392,6 +396,15 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 			// while serve directly from "static" files on os fs.
 			mods := config.Get("allModules").(modules.Modules)
 			fs.Destination = newCompositeDestFs(mods)
+		} else if dest == hconfig.RenderDestHybrid {
+			// Writes the dynamic output on memory,
+			// while serve others directly from publishDir
+			publishDir := config.GetString("publishDir")
+			writableFs := afero.NewBasePathFs(afero.NewMemMapFs(), publishDir)
+			publicFs := afero.NewOsFs()
+			fs.Destination = afero.NewCopyOnWriteFs(afero.NewReadOnlyFs(publicFs), writableFs)
+		    staticFs = hugofs.NewFrom(sourceFs, config)
+			staticFs.Destination = publicFs
 		}
 
 		if c.fastRenderMode {
@@ -416,7 +429,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		// To debug hard-to-find path issues.
 		// fs.Destination = hugofs.NewStacktracerFs(fs.Destination, `fr/fr`)
 
-		err = c.initFs(fs)
+		err = c.initFs(fs, staticFs)
 		if err != nil {
 			close(c.created)
 			return

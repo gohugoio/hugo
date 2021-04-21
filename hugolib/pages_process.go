@@ -182,10 +182,6 @@ func (p *sitePagesProcessor) doProcess(item interface{}) error {
 				return err
 			}
 		case files.ContentClassFile:
-			if p.renderTo == config.RenderDestComposite {
-				return nil
-			}
-
 			if err := p.copyFile(v); err != nil {
 				return err
 			}

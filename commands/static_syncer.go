@@ -57,6 +57,9 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 		syncer.ChmodFilter = chmodFilter
 		syncer.SrcFs = sourceFs.Fs
 		syncer.DestFs = c.Fs.Destination
+		if c.renderTo == config.RenderDestHybrid {
+			syncer.DestFs = c.StaticFs.Destination
+		}
 
 		// prevent spamming the log on changes
 		logger := helpers.NewDistinctFeedbackLogger()
