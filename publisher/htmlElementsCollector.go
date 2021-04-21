@@ -310,7 +310,7 @@ func parseHTMLElement(elStr string) (el htmlElement, err error) {
 	}
 	var walk func(*html.Node)
 	walk = func(n *html.Node) {
-		if n.Type == html.ElementNode && strings.Contains(elStr, n.Data) {
+		if n.Type == html.ElementNode && strings.Contains(strings.ToLower(elStr), n.Data) {
 			el.Tag = n.Data
 
 			for _, a := range n.Attr {
