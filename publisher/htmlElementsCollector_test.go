@@ -78,7 +78,7 @@ func TestClassCollector(t *testing.T) {
 			f("div", "bg-black bg-gray-300 inline-block mb-2 mr-1 px-2 py-2 rounded", ""),
 		},
 		{"AlpineJS bind 3", `<div x-bind:class="{ 'text-gray-800':  !checked, 'text-white': checked }"></div>`, f("div", "text-gray-800 text-white", "")},
-		{"AlpineJS bind 4", `<div x-bind:class="{ 'text-gray-800':  !checked, 
+		{"AlpineJS bind 4", `<div x-bind:class="{ 'text-gray-800':  !checked,
 					 'text-white': checked }"></div>`, f("div", "text-gray-800 text-white", "")},
 		{"AlpineJS bind 5", `<a x-bind:class="{
                 'text-a': a && b,
@@ -96,7 +96,7 @@ func TestClassCollector(t *testing.T) {
 		{"Style tags content should be skipped", `<style>p{color: red;font-size: 20px;}</style><div class="foo"></div>`, f("div style", "foo", "")},
 		{"Pre tags content should be skipped", `<pre class="preclass"><span>foo</span><span>bar</span></pre><div class="foo"></div>`, f("div pre", "foo preclass", "")},
 		{"Textarea tags content should be skipped", `<textarea class="textareaclass"><span>foo</span><span>bar</span></textarea><div class="foo"></div>`, f("div textarea", "foo textareaclass", "")},
-		{"DOCTYPE should beskipped", `<!DOCTYPE html>`, f("", "", "")},
+		{"DOCTYPE should be skipped", `<!DOCTYPE html>`, f("", "", "")},
 		{"Comments should be skipped", `<!-- example comment -->`, f("", "", "")},
 		// Issue #8417
 		{"Tabs inline", `<hr	id="a" class="foo"><div class="bar">d</div>`, f("div hr", "bar foo", "a")},
