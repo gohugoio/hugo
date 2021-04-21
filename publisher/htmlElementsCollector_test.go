@@ -89,6 +89,8 @@ func TestClassCollector(t *testing.T) {
                 }" class="block w-36 cursor-pointer pr-3 no-underline capitalize"></a>`, f("a", "block capitalize cursor-pointer no-underline pl-2 pl-3 pr-3 text-a text-b text-gray-600 w-36", "")},
 		{"AlpineJS transition 1", `<div x-transition:enter-start="opacity-0 transform mobile:-translate-x-8 sm:-translate-y-8">`, f("div", "mobile:-translate-x-8 opacity-0 sm:-translate-y-8 transform", "")},
 		{"Vue bind", `<div v-bind:class="{ active: isActive }"></div>`, f("div", "active", "")},
+		{"Uppercase tags", `<DIV></DIV>`, f("div", "", "")},
+		{"Predefined tags with distinct casing", `<script>if (a < b) { nothing(); }</SCRIPT><div></div>`, f("div script", "", "")},
 		// Issue #7746
 		{"Apostrophe inside attribute value", `<a class="missingclass" title="Plus d'information">my text</a><div></div>`, f("a div", "missingclass", "")},
 		// Issue #7567
