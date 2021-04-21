@@ -382,11 +382,20 @@ func (ns *Namespace) checkWhereArray(seqv, kv, mv reflect.Value, path []string, 
 				vvv = reflect.ValueOf(params.Get(path...))
 			} else {
 				vvv = rvv
-				for _, elemName := range path {
+				for i, elemName := range path {
 					var err error
 					vvv, err = evaluateSubElem(vvv, elemName)
+
 					if err != nil {
 						continue
+					}
+
+					if i < len(path)-1 && vvv.IsValid() {
+						if params, ok := vvv.Interface().(maps.Params); ok {
+							// The current path element is the map itself, .Params.
+							vvv = reflect.ValueOf(params.Get(path[i+1:]...))
+							break
+						}
 					}
 				}
 			}
