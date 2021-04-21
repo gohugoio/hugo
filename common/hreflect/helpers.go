@@ -23,7 +23,7 @@ import (
 )
 
 // TODO(bep) replace the private versions in /tpl with these.
-// IsInt returns whether the given kind is a number.
+// IsNumber returns whether the given kind is a number.
 func IsNumber(kind reflect.Kind) bool {
 	return IsInt(kind) || IsUint(kind) || IsFloat(kind)
 }
