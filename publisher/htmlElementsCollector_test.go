@@ -95,6 +95,8 @@ func TestClassCollector(t *testing.T) {
 		{"Script tags content should be skipped", `<script><span>foo</span><span>bar</span></script><div class="foo"></div>`, f("div script", "foo", "")},
 		{"Style tags content should be skipped", `<style>p{color: red;font-size: 20px;}</style><div class="foo"></div>`, f("div style", "foo", "")},
 		{"Pre tags content should be skipped", `<pre class="preclass"><span>foo</span><span>bar</span></pre><div class="foo"></div>`, f("div pre", "foo preclass", "")},
+		{"A < in a preformatted tag content shouldn't mess up", `<script>if (a < b) { doNothing(); }</script><div class="foo"></div>`, f("div script", "foo", "")},
+		{"JS text named like a tag content shouldn't mess up", `<script>r = a < b; //script>2</script><div class="foo"></div>`, f("div script", "foo", "")},
 		{"Textarea tags content should be skipped", `<textarea class="textareaclass"><span>foo</span><span>bar</span></textarea><div class="foo"></div>`, f("div textarea", "foo textareaclass", "")},
 		{"DOCTYPE should be skipped", `<!DOCTYPE html>`, f("", "", "")},
 		{"Comments should be skipped", `<!-- example comment -->`, f("", "", "")},
