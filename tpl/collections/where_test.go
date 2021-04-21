@@ -164,6 +164,24 @@ func TestWhere(t *testing.T) {
 				{1: "a", 2: "m"},
 			},
 		},
+		// Case insensitive maps.Params
+		// Slice of structs
+		{
+			seq: []TstParams{{params: maps.Params{"i": 0, "color": "indigo"}}, {params: maps.Params{"i": 1, "color": "blue"}}, {params: maps.Params{"i": 2, "color": "green"}}, {params: maps.Params{"i": 3, "color": "blue"}}},
+			key: ".Params.COLOR", match: "blue",
+			expect: []TstParams{{params: maps.Params{"i": 1, "color": "blue"}}, {params: maps.Params{"i": 3, "color": "blue"}}},
+		},
+		{
+			seq: []TstParams{{params: maps.Params{"nested": map[string]interface{}{"color": "indigo"}}}, {params: maps.Params{"nested": map[string]interface{}{"color": "blue"}}}},
+			key: ".Params.NEsTED.COLOR", match: "blue",
+			expect: []TstParams{{params: maps.Params{"nested": map[string]interface{}{"color": "blue"}}}},
+		},
+		{
+			seq: []TstParams{{params: maps.Params{"i": 0, "color": "indigo"}}, {params: maps.Params{"i": 1, "color": "blue"}}, {params: maps.Params{"i": 2, "color": "green"}}, {params: maps.Params{"i": 3, "color": "blue"}}},
+			key: ".Params", match: "blue",
+			expect: []TstParams{},
+		},
+		// Slice of maps
 		{
 			seq: []maps.Params{
 				{"a": "a1", "b": "b1"}, {"a": "a2", "b": "b2"},
