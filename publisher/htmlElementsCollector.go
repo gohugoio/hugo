@@ -299,7 +299,10 @@ func parseHTMLElement(elStr string) (el htmlElement, err error) {
 	// and pretend it's a <div>.
 	if exceptionList[tagName] {
 		tagBuffer = tagName
-		elStr = strings.Replace(elStr, tagName, "div", 1)
+
+		fields := strings.Fields(elStr);
+		fields[0] = "<div"
+		elStr = strings.Join(fields, " ")
 	}
 
 	n, err := html.Parse(strings.NewReader(elStr))
