@@ -1,10 +1,12 @@
 name: hugo
-version: "0.83.0-DEV"
+version: git
 summary: Fast and Flexible Static Site Generator
 description: |
   Hugo is a static HTML and CSS website generator written in Go. It is
   optimized for speed, easy use and configurability. Hugo takes a directory
   with content and templates and renders them into a full HTML website.
+license: "Apache-2.0"
+base: core20
 confinement: strict
 grade: devel # "devel" or "stable"
 
@@ -12,7 +14,10 @@ apps:
   hugo:
     command: bin/hugo
     completer: hugo-completion
-    plugs: [home, network-bind, removable-media]
+    plugs:
+      - home
+      - network-bind
+      - removable-media
 
 parts:
   git:
@@ -36,16 +41,16 @@ parts:
       export PATH=$GOPATH/bin:$PATH
 
       echo ' * Running "go get -v github.com/magefile/mage"...'
-      GO111MODULE=off go get -v github.com/magefile/mage
+      go get -v github.com/magefile/mage
 
-      echo ' * Running "mage -v test"...'
-      export GO111MODULE=on
-      mage -v test
+      #echo ' * Running "mage -v test"...'
+      #mage -v test
 
-      echo " * SNAPCRAFT_IMAGE_INFO=$SNAPCRAFT_IMAGE_INFO"
+      echo " * SNAPCRAFT_IMAGE_INFO=${SNAPCRAFT_IMAGE_INFO=}"
       # Example: SNAPCRAFT_IMAGE_INFO='{"build_url": "https://launchpad.net/~gohugoio/+snap/hugo-extended-dev/+build/344022"}'
+      export HUGO_BUILD_TAGS=""
       if echo $SNAPCRAFT_IMAGE_INFO | grep -q '/+snap/hugo-extended'; then
-          export HUGO_BUILD_TAGS="extended"
+        HUGO_BUILD_TAGS="extended"
       fi
       echo " * Building hugo (HUGO_BUILD_TAGS=\"$HUGO_BUILD_TAGS\")..."
       [ "$SNAPCRAFT_PROJECT_GRADE" = "stable" ] && mage -v hugoNoGitInfo || mage -v hugo
@@ -65,27 +70,17 @@ parts:
       strip --remove-section=.comment --remove-section=.note $SNAPCRAFT_PART_INSTALL/bin/hugo
       ls -l $SNAPCRAFT_PART_INSTALL/bin/hugo
 
-  node:
-    plugin: x-nodejs
-    node-packages:
-        - "@babel/cli"
-        - "@babel/core"
-        - postcss
-        - postcss-cli
-    filesets:
-      node:
-        - bin/node
-      postcss:
-        - bin/postcss
-        - lib/node_modules/postcss/*
-        - lib/node_modules/postcss-cli/*
-      babel:
-        - bin/babel
-        - lib/node_modules/@babel/cli/*
+  pandoc:
+    plugin: nil
+    stage-packages:
+      - libatomic1
+      - pandoc
+      - pandoc-data
+    organize:
+      usr/bin/: bin/
+      usr/lib/: lib/
     prime:
-      - $node
-      - $postcss
-      - $babel
+      - bin/pandoc
 
   pygments:
     plugin: python
