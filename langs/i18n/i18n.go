@@ -17,6 +17,8 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/spf13/cast"
+
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
@@ -69,17 +71,15 @@ func (t Translator) initFuncs(bndl *i18n.Bundle) {
 		currentLangKey := strings.ToLower(strings.TrimPrefix(currentLangStr, artificialLangTagPrefix))
 		localizer := i18n.NewLocalizer(bndl, currentLangStr)
 		t.translateFuncs[currentLangKey] = func(translationID string, templateData interface{}) string {
-			var pluralCount interface{}
+			pluralCount := getPluralCount(templateData)
 
 			if templateData != nil {
 				tp := reflect.TypeOf(templateData)
-				if hreflect.IsNumber(tp.Kind()) {
-					pluralCount = templateData
-					// This was how go-i18n worked in v1.
-					templateData = map[string]interface{}{
-						"Count": templateData,
-					}
-
+				if hreflect.IsInt(tp.Kind()) {
+					// This was how go-i18n worked in v1,
+					// and we keep it like this to avoid breaking
+					// lots of sites in the wild.
+					templateData = intCount(cast.ToInt(templateData))
 				}
 			}
 
@@ -108,4 +108,50 @@ func (t Translator) initFuncs(bndl *i18n.Bundle) {
 			return translated
 		}
 	}
+}
+
+// intCount wraps the Count method.
+type intCount int
+
+func (c intCount) Count() int {
+	return int(c)
+}
+
+const countFieldName = "Count"
+
+func getPluralCount(o interface{}) int {
+	if o == nil {
+		return 0
+	}
+
+	switch v := o.(type) {
+	case map[string]interface{}:
+		for k, vv := range v {
+			if strings.EqualFold(k, countFieldName) {
+				return cast.ToInt(vv)
+			}
+		}
+	default:
+		vv := reflect.Indirect(reflect.ValueOf(v))
+		if vv.Kind() == reflect.Interface && !vv.IsNil() {
+			vv = vv.Elem()
+		}
+		tp := vv.Type()
+
+		if tp.Kind() == reflect.Struct {
+			f := vv.FieldByName(countFieldName)
+			if f.IsValid() {
+				return cast.ToInt(f.Interface())
+			}
+			m := vv.MethodByName(countFieldName)
+			if m.IsValid() && m.Type().NumIn() == 0 && m.Type().NumOut() == 1 {
+				c := m.Call(nil)
+				return cast.ToInt(c[0].Interface())
+			}
+		}
+
+		return cast.ToInt(o)
+	}
+
+	return 0
 }
