@@ -142,6 +142,20 @@ other = "{{ .Count }} minutes to read"
 		expectedFlag: "One minute to read",
 	},
 	{
+		name: "readingTime-many-dot",
+		data: map[string][]byte{
+			"en.toml": []byte(`[readingTime]
+one = "One minute to read"
+other = "{{ . }} minutes to read"
+`),
+		},
+		args:         21,
+		lang:         "en",
+		id:           "readingTime",
+		expected:     "21 minutes to read",
+		expectedFlag: "21 minutes to read",
+	},
+	{
 		name: "readingTime-many",
 		data: map[string][]byte{
 			"en.toml": []byte(`[readingTime]
@@ -154,6 +168,62 @@ other = "{{ .Count }} minutes to read"
 		id:           "readingTime",
 		expected:     "21 minutes to read",
 		expectedFlag: "21 minutes to read",
+	},
+	// Issue #8454
+	{
+		name: "readingTime-map-one",
+		data: map[string][]byte{
+			"en.toml": []byte(`[readingTime]
+one = "One minute to read"
+other = "{{ .Count }} minutes to read"
+`),
+		},
+		args:         map[string]interface{}{"Count": 1},
+		lang:         "en",
+		id:           "readingTime",
+		expected:     "One minute to read",
+		expectedFlag: "One minute to read",
+	},
+	{
+		name: "readingTime-string-one",
+		data: map[string][]byte{
+			"en.toml": []byte(`[readingTime]
+one = "One minute to read"
+other = "{{ . }} minutes to read"
+`),
+		},
+		args:         "1",
+		lang:         "en",
+		id:           "readingTime",
+		expected:     "One minute to read",
+		expectedFlag: "One minute to read",
+	},
+	{
+		name: "readingTime-map-many",
+		data: map[string][]byte{
+			"en.toml": []byte(`[readingTime]
+one = "One minute to read"
+other = "{{ .Count }} minutes to read"
+`),
+		},
+		args:         map[string]interface{}{"Count": 21},
+		lang:         "en",
+		id:           "readingTime",
+		expected:     "21 minutes to read",
+		expectedFlag: "21 minutes to read",
+	},
+	{
+		name: "argument-float",
+		data: map[string][]byte{
+			"en.toml": []byte(`[float]
+other = "Number is {{ . }}"
+`),
+		},
+		args:         22.5,
+		lang:         "en",
+		id:           "float",
+		expected:     "Number is 22.5",
+		expectedFlag: "Number is 22.5",
 	},
 	// Same id and translation in current language
 	// https://github.com/gohugoio/hugo/issues/2607
@@ -244,6 +314,46 @@ func doTestI18nTranslate(t testing.TB, test i18nTest, cfg config.Provider) strin
 	tp := prepareTranslationProvider(t, test, cfg)
 	f := tp.t.Func(test.lang)
 	return f(test.id, test.args)
+}
+
+type countField struct {
+	Count int
+}
+
+type noCountField struct {
+	Counts int
+}
+
+type countMethod struct {
+}
+
+func (c countMethod) Count() int {
+	return 32
+}
+
+func TestGetPluralCount(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(getPluralCount(map[string]interface{}{"Count": 32}), qt.Equals, 32)
+	c.Assert(getPluralCount(map[string]interface{}{"Count": 1}), qt.Equals, 1)
+	c.Assert(getPluralCount(map[string]interface{}{"Count": "32"}), qt.Equals, 32)
+	c.Assert(getPluralCount(map[string]interface{}{"count": 32}), qt.Equals, 32)
+	c.Assert(getPluralCount(map[string]interface{}{"Count": "32"}), qt.Equals, 32)
+	c.Assert(getPluralCount(map[string]interface{}{"Counts": 32}), qt.Equals, 0)
+	c.Assert(getPluralCount("foo"), qt.Equals, 0)
+	c.Assert(getPluralCount(countField{Count: 22}), qt.Equals, 22)
+	c.Assert(getPluralCount(&countField{Count: 22}), qt.Equals, 22)
+	c.Assert(getPluralCount(noCountField{Counts: 23}), qt.Equals, 0)
+	c.Assert(getPluralCount(countMethod{}), qt.Equals, 32)
+	c.Assert(getPluralCount(&countMethod{}), qt.Equals, 32)
+
+	c.Assert(getPluralCount(1234), qt.Equals, 1234)
+	c.Assert(getPluralCount(1234.4), qt.Equals, 1234)
+	c.Assert(getPluralCount(1234.6), qt.Equals, 1234)
+	c.Assert(getPluralCount(0.6), qt.Equals, 0)
+	c.Assert(getPluralCount(1.0), qt.Equals, 1)
+	c.Assert(getPluralCount("1234"), qt.Equals, 1234)
+	c.Assert(getPluralCount(nil), qt.Equals, 0)
 }
 
 func prepareTranslationProvider(t testing.TB, test i18nTest, cfg config.Provider) *TranslationProvider {
