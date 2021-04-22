@@ -65,6 +65,10 @@ func TestClassCollector(t *testing.T) {
     <thead class="cl2"><tr class="cl3"><td class="cl4"></td></tr></thead>
     <tbody class="cl5"><tr class="cl6"><td class="cl7"></td></tr></tbody>
 </table>`, f("table tbody td thead tr", "cl1 cl2 cl3 cl4 cl5 cl6 cl7", "")},
+		{"thead uppercase", `<TABLE class="CL1">
+    <THEAD class="CL2"><TR class="CL3"><TD class="CL4"></TD></TR></THEAD>
+    <TBODY class="CL5"><TR class="CL6"><TD class="CL7"></TD></TR></TBODY>
+</TABLE>`, f("table tbody td thead tr", "CL1 CL2 CL3 CL4 CL5 CL6 CL7", "")},
 		// https://github.com/gohugoio/hugo/issues/7161
 		{"minified a href", `<a class="b a" href=/></a>`, f("a", "a b", "")},
 		{"AlpineJS bind 1", `<body>
