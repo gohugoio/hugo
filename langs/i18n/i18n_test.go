@@ -271,6 +271,26 @@ other = "{{ .Count }} minuttar lesing"`),
 		expected:     "3 minuttar lesing",
 		expectedFlag: "3 minuttar lesing",
 	},
+	// Issue #7838
+	{
+		name: "unknown-language-codes",
+		data: map[string][]byte{
+			"en.toml": []byte(`[readingTime]
+one ="en one"
+other = "en count {{.Count}}"`),
+			"a1.toml": []byte(`[readingTime]
+one =  "a1 one"
+other = "a1 count {{ .Count }}"`),
+			"a2.toml": []byte(`[readingTime]
+one =  "a2 one"
+other = "a2 count {{ .Count }}"`),
+		},
+		args:         3,
+		lang:         "a2",
+		id:           "readingTime",
+		expected:     "a2 count 3",
+		expectedFlag: "a2 count 3",
+	},
 	// https://github.com/gohugoio/hugo/issues/7798
 	{
 		name: "known-language-missing-plural",
