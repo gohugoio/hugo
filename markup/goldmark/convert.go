@@ -42,6 +42,8 @@ import (
 	"github.com/yuin/goldmark/renderer/html"
 	"github.com/yuin/goldmark/text"
 	"github.com/yuin/goldmark/util"
+
+	"github.com/OhYee/goldmark-plantuml"
 )
 
 // Provider is the package entry point.
@@ -134,6 +136,11 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 
 	if cfg.Extensions.Footnote {
 		extensions = append(extensions, extension.Footnote)
+	}
+
+	if cfg.Extensions.Plantuml {
+		extensions = append(extensions, extension.GFM)
+		extensions = append(extensions, uml.Default)
 	}
 
 	if cfg.Parser.AutoHeadingID {

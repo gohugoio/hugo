@@ -9,6 +9,7 @@ strikethrough = true
 table = true
 taskList = true
 typographer = true
+plantuml = true
 [goldmark.parser]
 autoHeadingID = true
 autoHeadingIDType = "github"

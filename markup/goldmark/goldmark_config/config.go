@@ -30,6 +30,7 @@ var Default = Config{
 		Strikethrough:  true,
 		Linkify:        true,
 		TaskList:       true,
+		Plantuml:       true,
 	},
 	Renderer: Renderer{
 		Unsafe: false,
@@ -61,6 +62,9 @@ type Extensions struct {
 	Strikethrough bool
 	Linkify       bool
 	TaskList      bool
+
+	// Plant UML
+	Plantuml      bool
 }
 
 type Renderer struct {

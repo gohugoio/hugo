@@ -40,6 +40,17 @@ unsafe
 typographer
 : This extension substitutes punctuations with typographic entities like [smartypants](https://daringfireball.net/projects/smartypants/).
 
+plantuml
+: This extension adds the ability to render PlantUML in Hugo. Requires [PlantUML](https://plantuml.com/).
+
+Example:
+
+```plantuml
+@startuml
+Alice -> Bob: test
+@enduml
+```
+
 attribute
 : Enable custom attribute support for titles and blocks by adding attribute lists inside single curly brackets (`{.myclass class="class1 class2" }`) and placing it _after the Markdown element it decorates_, on the same line for titles and on a new line directly below for blocks.
 

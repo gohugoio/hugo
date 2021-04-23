@@ -3,6 +3,8 @@ module github.com/gohugoio/hugo
 require (
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
 	github.com/BurntSushi/toml v0.3.1
+	github.com/OhYee/goldmark-plantuml v1.0.3
+	github.com/OhYee/goutils v1.1.5 // indirect
 	github.com/PuerkitoBio/purell v1.1.1
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/alecthomas/chroma v0.8.2
