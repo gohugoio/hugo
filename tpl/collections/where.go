@@ -87,7 +87,8 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 	var ima []int64
 	var fma []float64
 	var sma []string
-	if mv.Type() == v.Type() {
+
+	if mv.Kind() == v.Kind() {
 		switch v.Kind() {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			iv := v.Int()
