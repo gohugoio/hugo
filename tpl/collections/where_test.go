@@ -15,6 +15,7 @@ package collections
 
 import (
 	"fmt"
+	"html/template"
 	"reflect"
 	"strings"
 	"testing"
@@ -145,6 +146,17 @@ func TestWhere(t *testing.T) {
 			},
 			key: "b", match: 2.0, op: ">=",
 			expect: []map[string]float64{{"a": 1, "b": 2}, {"a": 3, "b": 3}},
+		},
+		// Issue #8353
+		// String type mismatch.
+		{
+			seq: []map[string]interface{}{
+				{"a": "1", "b": "2"}, {"a": "3", "b": template.HTML("4")}, {"a": "5", "x": "4"},
+			},
+			key: "b", match: "4",
+			expect: []map[string]interface{}{
+				{"a": "3", "b": template.HTML("4")},
+			},
 		},
 		{
 			seq: []TstX{
