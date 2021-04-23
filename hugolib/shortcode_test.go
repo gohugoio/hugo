@@ -1347,3 +1347,49 @@ title: "No Inner!"
 	err := b.BuildE(BuildCfg{})
 	b.Assert(err.Error(), qt.Contains, `failed to extract shortcode: shortcode "noinner" has no .Inner, yet a closing tag was provided`)
 }
+
+func TestShortcodeStableOutputFormatTemplates(t *testing.T) {
+	t.Parallel()
+
+	for i := 0; i < 5; i++ {
+
+		b := newTestSitesBuilder(t)
+
+		const numPages = 10
+
+		for i := 0; i < numPages; i++ {
+			b.WithContent(fmt.Sprintf("page%d.md", i), `---
+title: "Page"
+outputs: ["html", "css", "csv", "json"]
+---
+{{< myshort >}}
+
+`)
+		}
+
+		b.WithTemplates(
+			"_default/single.html", "{{ .Content }}",
+			"_default/single.css", "{{ .Content }}",
+			"_default/single.csv", "{{ .Content }}",
+			"_default/single.json", "{{ .Content }}",
+			"shortcodes/myshort.html", `Short-HTML`,
+			"shortcodes/myshort.csv", `Short-CSV`,
+		)
+
+		b.Build(BuildCfg{})
+
+		//helpers.PrintFs(b.Fs.Destination, "public", os.Stdout)
+
+		for i := 0; i < numPages; i++ {
+			b.AssertFileContent(fmt.Sprintf("public/page%d/index.html", i), "Short-HTML")
+			b.AssertFileContent(fmt.Sprintf("public/page%d/index.csv", i), "Short-CSV")
+			b.AssertFileContent(fmt.Sprintf("public/page%d/index.json", i), "Short-HTML")
+
+		}
+
+		for i := 0; i < numPages; i++ {
+			b.AssertFileContent(fmt.Sprintf("public/page%d/styles.css", i), "Short-HTML")
+		}
+
+	}
+}

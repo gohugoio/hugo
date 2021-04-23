@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"regexp"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -812,6 +813,24 @@ func (t *templateHandler) postTransform() error {
 				im.Add(ts)
 			}
 		}
+	}
+
+	for _, v := range t.shortcodes {
+		sort.Slice(v.variants, func(i, j int) bool {
+			v1, v2 := v.variants[i], v.variants[j]
+			name1, name2 := v1.ts.Name(), v2.ts.Name()
+			isHTMl1, isHTML2 := strings.HasSuffix(name1, "html"), strings.HasSuffix(name2, "html")
+
+			// There will be a weighted selection later, but make
+			// sure these are sorted to get a stable selection for
+			// output formats missing specific templates.
+			// Prefer HTML.
+			if isHTMl1 || isHTML2 && !(isHTMl1 && isHTML2) {
+				return isHTMl1
+			}
+
+			return name1 < name2
+		})
 	}
 
 	return nil
