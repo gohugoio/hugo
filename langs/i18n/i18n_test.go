@@ -18,6 +18,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/gohugoio/hugo/common/types"
+
 	"github.com/gohugoio/hugo/modules"
 
 	"github.com/gohugoio/hugo/tpl/tplimpl"
@@ -287,7 +289,6 @@ one =  "abc"`),
 		name: "dotted-bare-key",
 		data: map[string][]byte{
 			"en.toml": []byte(`"shop_nextPage.one" = "Show Me The Money"
-
 `),
 		},
 		args:         nil,
@@ -310,6 +311,78 @@ one =  "abc"`),
 	},
 }
 
+func TestPlural(t *testing.T) {
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		name     string
+		lang     string
+		id       string
+		templ    string
+		variants []types.KeyValue
+	}{
+		{
+			name: "English",
+			lang: "en",
+			id:   "hour",
+			templ: `
+[hour]
+one = "{{ . }} hour"
+other = "{{ . }} hours"`,
+			variants: []types.KeyValue{
+				{Key: 1, Value: "1 hour"},
+				{Key: "1", Value: "1 hour"},
+				{Key: 1.5, Value: "1.5 hours"},
+				{Key: "1.5", Value: "1.5 hours"},
+				{Key: 2, Value: "2 hours"},
+				{Key: "2", Value: "2 hours"},
+			},
+		},
+		{
+			name: "Polish",
+			lang: "pl",
+			id:   "day",
+			templ: `
+[day]
+one = "{{ . }} miesiąc"
+few = "{{ . }} miesiące"
+many = "{{ . }} miesięcy"
+other = "{{ . }} miesiąca"
+`,
+			variants: []types.KeyValue{
+				{Key: 1, Value: "1 miesiąc"},
+				{Key: 2, Value: "2 miesiące"},
+				{Key: 100, Value: "100 miesięcy"},
+				{Key: "100.0", Value: "100.0 miesiąca"},
+				{Key: 100.0, Value: "100 miesiąca"},
+			},
+		},
+	} {
+
+		c.Run(test.name, func(c *qt.C) {
+			cfg := getConfig()
+			fs := hugofs.NewMem(cfg)
+
+			err := afero.WriteFile(fs.Source, filepath.Join("i18n", test.lang+".toml"), []byte(test.templ), 0755)
+			c.Assert(err, qt.IsNil)
+
+			tp := NewTranslationProvider()
+			depsCfg := newDepsConfig(tp, cfg, fs)
+			d, err := deps.New(depsCfg)
+			c.Assert(err, qt.IsNil)
+			c.Assert(d.LoadResources(), qt.IsNil)
+
+			f := tp.t.Func(test.lang)
+
+			for _, variant := range test.variants {
+				c.Assert(f(test.id, variant.Key), qt.Equals, variant.Value, qt.Commentf("input: %v", variant.Key))
+			}
+
+		})
+
+	}
+}
+
 func doTestI18nTranslate(t testing.TB, test i18nTest, cfg config.Provider) string {
 	tp := prepareTranslationProvider(t, test, cfg)
 	f := tp.t.Func(test.lang)
@@ -317,7 +390,7 @@ func doTestI18nTranslate(t testing.TB, test i18nTest, cfg config.Provider) strin
 }
 
 type countField struct {
-	Count int
+	Count interface{}
 }
 
 type noCountField struct {
@@ -327,8 +400,8 @@ type noCountField struct {
 type countMethod struct {
 }
 
-func (c countMethod) Count() int {
-	return 32
+func (c countMethod) Count() interface{} {
+	return 32.5
 }
 
 func TestGetPluralCount(t *testing.T) {
@@ -336,23 +409,25 @@ func TestGetPluralCount(t *testing.T) {
 
 	c.Assert(getPluralCount(map[string]interface{}{"Count": 32}), qt.Equals, 32)
 	c.Assert(getPluralCount(map[string]interface{}{"Count": 1}), qt.Equals, 1)
-	c.Assert(getPluralCount(map[string]interface{}{"Count": "32"}), qt.Equals, 32)
+	c.Assert(getPluralCount(map[string]interface{}{"Count": 1.5}), qt.Equals, "1.5")
+	c.Assert(getPluralCount(map[string]interface{}{"Count": "32"}), qt.Equals, "32")
+	c.Assert(getPluralCount(map[string]interface{}{"Count": "32.5"}), qt.Equals, "32.5")
 	c.Assert(getPluralCount(map[string]interface{}{"count": 32}), qt.Equals, 32)
-	c.Assert(getPluralCount(map[string]interface{}{"Count": "32"}), qt.Equals, 32)
+	c.Assert(getPluralCount(map[string]interface{}{"Count": "32"}), qt.Equals, "32")
 	c.Assert(getPluralCount(map[string]interface{}{"Counts": 32}), qt.Equals, 0)
 	c.Assert(getPluralCount("foo"), qt.Equals, 0)
 	c.Assert(getPluralCount(countField{Count: 22}), qt.Equals, 22)
+	c.Assert(getPluralCount(countField{Count: 1.5}), qt.Equals, "1.5")
 	c.Assert(getPluralCount(&countField{Count: 22}), qt.Equals, 22)
 	c.Assert(getPluralCount(noCountField{Counts: 23}), qt.Equals, 0)
-	c.Assert(getPluralCount(countMethod{}), qt.Equals, 32)
-	c.Assert(getPluralCount(&countMethod{}), qt.Equals, 32)
+	c.Assert(getPluralCount(countMethod{}), qt.Equals, "32.5")
+	c.Assert(getPluralCount(&countMethod{}), qt.Equals, "32.5")
 
 	c.Assert(getPluralCount(1234), qt.Equals, 1234)
-	c.Assert(getPluralCount(1234.4), qt.Equals, 1234)
-	c.Assert(getPluralCount(1234.6), qt.Equals, 1234)
-	c.Assert(getPluralCount(0.6), qt.Equals, 0)
-	c.Assert(getPluralCount(1.0), qt.Equals, 1)
-	c.Assert(getPluralCount("1234"), qt.Equals, 1234)
+	c.Assert(getPluralCount(1234.4), qt.Equals, "1234.4")
+	c.Assert(getPluralCount(1234.0), qt.Equals, "1234.0")
+	c.Assert(getPluralCount("1234"), qt.Equals, "1234")
+	c.Assert(getPluralCount("0.5"), qt.Equals, "0.5")
 	c.Assert(getPluralCount(nil), qt.Equals, 0)
 }
 
