@@ -119,16 +119,17 @@ func (c intCount) Count() int {
 
 const countFieldName = "Count"
 
-func getPluralCount(o interface{}) int {
-	if o == nil {
+// getPluralCount gets the plural count as a string (floats) or an integer.
+func getPluralCount(v interface{}) interface{} {
+	if v == nil {
 		return 0
 	}
 
-	switch v := o.(type) {
+	switch v := v.(type) {
 	case map[string]interface{}:
 		for k, vv := range v {
 			if strings.EqualFold(k, countFieldName) {
-				return cast.ToInt(vv)
+				return toPluralCountValue(vv)
 			}
 		}
 	default:
@@ -141,17 +142,40 @@ func getPluralCount(o interface{}) int {
 		if tp.Kind() == reflect.Struct {
 			f := vv.FieldByName(countFieldName)
 			if f.IsValid() {
-				return cast.ToInt(f.Interface())
+				return toPluralCountValue(f.Interface())
 			}
 			m := vv.MethodByName(countFieldName)
 			if m.IsValid() && m.Type().NumIn() == 0 && m.Type().NumOut() == 1 {
 				c := m.Call(nil)
-				return cast.ToInt(c[0].Interface())
+				return toPluralCountValue(c[0].Interface())
 			}
 		}
-
-		return cast.ToInt(o)
 	}
 
-	return 0
+	return toPluralCountValue(v)
+
+}
+
+// go-i18n expects floats to be represented by string.
+func toPluralCountValue(in interface{}) interface{} {
+	k := reflect.TypeOf(in).Kind()
+	switch {
+	case hreflect.IsFloat(k):
+		f := cast.ToString(in)
+		if !strings.Contains(f, ".") {
+			f += ".0"
+		}
+		return f
+	case k == reflect.String:
+		if _, err := cast.ToFloat64E(in); err == nil {
+			return in
+		}
+		// A non-numeric value.
+		return 0
+	default:
+		if i, err := cast.ToIntE(in); err == nil {
+			return i
+		}
+		return 0
+	}
 }
