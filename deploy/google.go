@@ -24,8 +24,11 @@ import (
 )
 
 // Invalidate all of the content in a Google Cloud CDN distribution.
-func InvalidateGoogleCloudCDN(ctx context.Context, origin string) error {
+func InvalidateGoogleCloudCDN(ctx context.Context, origin string, invalidatePaths []string) error {
 	parts := strings.Split(origin, "/")
+	if invalidatePaths == nil {
+		invalidatePaths = append(invalidatePaths, "/*")
+	}
 	if len(parts) != 2 {
 		return fmt.Errorf("origin must be <project>/<origin>")
 	}
@@ -33,7 +36,8 @@ func InvalidateGoogleCloudCDN(ctx context.Context, origin string) error {
 	if err != nil {
 		return err
 	}
-	rule := &compute.CacheInvalidationRule{Path: "/*"}
-	_, err = service.UrlMaps.InvalidateCache(parts[0], parts[1], rule).Context(ctx).Do()
+	for _, iPath := range invalidatePaths {
+		_, err = service.UrlMaps.InvalidateCache(parts[0], parts[1], &compute.CacheInvalidationRule{Path: iPath}).Context(ctx).Do()
+	}
 	return err
 }

@@ -48,6 +48,9 @@ type target struct {
 	// invalidate when deploying this target.  It is specified as <project>/<origin>.
 	GoogleCloudCDNOrigin string
 
+	// Optional paths to invalidate, defaults to all e.g /*
+	InvalidatePaths []string
+
 	// Optional patterns of files to include/exclude for this target.
 	// Parsed using github.com/gobwas/glob.
 	Include string

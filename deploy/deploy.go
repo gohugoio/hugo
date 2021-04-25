@@ -268,7 +268,7 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 				}
 			} else {
 				jww.FEEDBACK.Println("Invalidating CloudFront CDN...")
-				if err := InvalidateCloudFront(ctx, d.target.CloudFrontDistributionID); err != nil {
+				if err := InvalidateCloudFront(ctx, d.target.CloudFrontDistributionID, d.target.InvalidatePaths); err != nil {
 					jww.FEEDBACK.Printf("Failed to invalidate CloudFront CDN: %v\n", err)
 					return err
 				}
@@ -281,7 +281,7 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 				}
 			} else {
 				jww.FEEDBACK.Println("Invalidating Google Cloud CDN...")
-				if err := InvalidateGoogleCloudCDN(ctx, d.target.GoogleCloudCDNOrigin); err != nil {
+				if err := InvalidateGoogleCloudCDN(ctx, d.target.GoogleCloudCDNOrigin, d.target.InvalidatePaths); err != nil {
 					jww.FEEDBACK.Printf("Failed to invalidate Google Cloud CDN: %v\n", err)
 					return err
 				}
