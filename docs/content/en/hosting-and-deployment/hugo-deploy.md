@@ -82,6 +82,10 @@ name = "mydeployment"
 # If you are using a CloudFront CDN, deploy will invalidate the cache as needed.
 cloudFrontDistributionID = <ID>
 
+# Target specific paths to invalidate when using cloudFrontDistributionID or GoogleCloudCDNOrigin
+# Leaving unspecified defaults to invalidating the entire cache e.g  /*
+# InvalidatePaths = [ "/foo.html", "/bar.html" ]
+
 # Optionally, you can include or exclude specific files.
 # See https://godoc.org/github.com/gobwas/glob#Glob for the glob pattern syntax.
 # If non-empty, the pattern is matched against the local path.
