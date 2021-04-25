@@ -51,15 +51,16 @@ func (p PermalinkExpander) callback(attr string) (pageToPermaAttribute, bool) {
 		return callback, true
 	}
 
-	if referenceTime.Format(attr) != attr {
-		return p.pageToPermalinkDate, true
-	}
-
 	if strings.HasPrefix(attr, "sections[") {
 		fn := p.toSliceFunc(strings.TrimPrefix(attr, "sections"))
 		return func(p Page, s string) (string, error) {
 			return path.Join(fn(p.CurrentSection().SectionsEntries())...), nil
 		}, true
+	}
+
+	// Make sure this comes after all the other checks.
+	if referenceTime.Format(attr) != attr {
+		return p.pageToPermalinkDate, true
 	}
 
 	return nil, false
