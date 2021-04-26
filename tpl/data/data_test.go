@@ -119,6 +119,20 @@ func TestGetCSV(t *testing.T) {
 		c.Assert(got, qt.Not(qt.IsNil), msg)
 		c.Assert(got, qt.DeepEquals, test.expect, msg)
 
+		// Test user-defined headers as well
+		gotHeader, _ := ns.GetCSV(test.sep, test.url, map[string]interface{}{"Accept-Charset": "utf-8", "Max-Forwards": "10"})
+
+		if _, ok := test.expect.(bool); ok {
+			c.Assert(int(ns.deps.Log.LogCounters().ErrorCounter.Count()), qt.Equals, 1)
+			// c.Assert(err, msg, qt.Not(qt.IsNil))
+			c.Assert(got, qt.IsNil)
+			continue
+		}
+
+		c.Assert(err, qt.IsNil, msg)
+		c.Assert(int(ns.deps.Log.LogCounters().ErrorCounter.Count()), qt.Equals, 0)
+		c.Assert(gotHeader, qt.Not(qt.IsNil), msg)
+		c.Assert(gotHeader, qt.DeepEquals, test.expect, msg)
 	}
 }
 
@@ -206,6 +220,19 @@ func TestGetJSON(t *testing.T) {
 		c.Assert(int(ns.deps.Log.LogCounters().ErrorCounter.Count()), qt.Equals, 0, msg)
 		c.Assert(got, qt.Not(qt.IsNil), msg)
 		c.Assert(got, qt.DeepEquals, test.expect)
+
+		// Test user-defined headers as well
+		gotHeader, _ := ns.GetJSON(test.url, map[string]interface{}{"Accept-Charset": "utf-8", "Max-Forwards": "10"})
+
+		if _, ok := test.expect.(bool); ok {
+			c.Assert(int(ns.deps.Log.LogCounters().ErrorCounter.Count()), qt.Equals, 1)
+			// c.Assert(err, msg, qt.Not(qt.IsNil))
+			continue
+		}
+
+		c.Assert(int(ns.deps.Log.LogCounters().ErrorCounter.Count()), qt.Equals, 0, msg)
+		c.Assert(gotHeader, qt.Not(qt.IsNil), msg)
+		c.Assert(gotHeader, qt.DeepEquals, test.expect)
 	}
 }
 
