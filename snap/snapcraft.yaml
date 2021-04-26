@@ -70,6 +70,13 @@ parts:
       strip --remove-section=.comment --remove-section=.note $SNAPCRAFT_PART_INSTALL/bin/hugo
       ls -l $SNAPCRAFT_PART_INSTALL/bin/hugo
 
+  node:
+    plugin: nil
+    stage-snaps:
+      - node/14/stable
+    prime:
+      - bin/node
+
   pandoc:
     plugin: nil
     stage-packages:
