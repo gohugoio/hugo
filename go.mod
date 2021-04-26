@@ -8,7 +8,7 @@ require (
 	github.com/alecthomas/chroma v0.9.1
 	github.com/alecthomas/repr v0.0.0-20181024024818-d37bc2a10ba1 // indirect
 	github.com/armon/go-radix v1.0.0
-	github.com/aws/aws-sdk-go v1.38.23
+	github.com/aws/aws-sdk-go v1.38.25
 	github.com/bep/debounce v1.2.0
 	github.com/bep/gitmap v1.1.2
 	github.com/bep/godartsass v0.12.0
@@ -18,11 +18,11 @@ require (
 	github.com/cli/safeexec v1.0.0
 	github.com/disintegration/gift v1.2.1
 	github.com/dustin/go-humanize v1.0.0
-	github.com/evanw/esbuild v0.11.13
+	github.com/evanw/esbuild v0.11.14
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/frankban/quicktest v1.12.0
 	github.com/fsnotify/fsnotify v1.4.9
-	github.com/getkin/kin-openapi v0.55.0
+	github.com/getkin/kin-openapi v0.60.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/gobuffalo/flect v0.2.2
 	github.com/gobwas/glob v0.2.3
