@@ -149,12 +149,9 @@ func (c *commandeer) Set(key string, value interface{}) {
 	c.Cfg.Set(key, value)
 }
 
-func (c *commandeer) initFs(fs *hugofs.Fs, staticFs *hugofs.Fs) error {
+func (c *commandeer) initFs(fs *hugofs.Fs) error {
 	c.destinationFs = fs.Destination
 	c.DepsCfg.Fs = fs
-	if staticFs != nil {
-		c.DepsCfg.StaticFs = staticFs
-	}
 
 	return nil
 }
@@ -383,7 +380,6 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 
 	c.fsCreate.Do(func() {
 		fs := hugofs.NewFrom(sourceFs, config)
-		var staticFs *hugofs.Fs
 
 		if c.destinationFs != nil {
 			// Need to reuse the destination on server rebuilds.
@@ -403,8 +399,6 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 			writableFs := afero.NewBasePathFs(afero.NewMemMapFs(), publishDir)
 			publicFs := afero.NewOsFs()
 			fs.Destination = afero.NewCopyOnWriteFs(afero.NewReadOnlyFs(publicFs), writableFs)
-		    staticFs = hugofs.NewFrom(sourceFs, config)
-			staticFs.Destination = publicFs
 		}
 
 		if c.fastRenderMode {
@@ -429,7 +423,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		// To debug hard-to-find path issues.
 		// fs.Destination = hugofs.NewStacktracerFs(fs.Destination, `fr/fr`)
 
-		err = c.initFs(fs, staticFs)
+		err = c.initFs(fs)
 		if err != nil {
 			close(c.created)
 			return

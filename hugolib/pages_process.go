@@ -159,7 +159,12 @@ func (p *sitePagesProcessor) copyFile(fim hugofs.FileMetaInfo) error {
 
 	defer f.Close()
 
-	return s.publish(&s.PathSpec.ProcessingStats.Files, target, f)
+	fs := s.PublishFs
+	if p.renderTo == config.RenderDestHybrid {
+		fs = s.PublishFsForHybrid
+	}
+
+	return s.publish(&s.PathSpec.ProcessingStats.Files, target, f, fs)
 }
 
 func (p *sitePagesProcessor) doProcess(item interface{}) error {
@@ -182,6 +187,10 @@ func (p *sitePagesProcessor) doProcess(item interface{}) error {
 				return err
 			}
 		case files.ContentClassFile:
+			if p.renderTo == config.RenderDestComposite {
+				return nil
+			}
+
 			if err := p.copyFile(v); err != nil {
 				return err
 			}

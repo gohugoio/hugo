@@ -41,7 +41,8 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 	c := s.c
 
 	syncFn := func(sourceFs *filesystems.SourceFilesystem) (uint64, error) {
-		publishDir := c.hugo().PathSpec.PublishDir
+		h := c.hugo()
+		publishDir := h.PathSpec.PublishDir
 		// If root, remove the second '/'
 		if publishDir == "//" {
 			publishDir = helpers.FilePathSeparator
@@ -58,7 +59,7 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 		syncer.SrcFs = sourceFs.Fs
 		syncer.DestFs = c.Fs.Destination
 		if c.renderTo == config.RenderDestHybrid {
-			syncer.DestFs = c.StaticFs.Destination
+			syncer.DestFs = h.PublishFsForHybrid
 		}
 
 		// prevent spamming the log on changes

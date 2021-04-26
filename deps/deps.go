@@ -367,10 +367,6 @@ type DepsCfg struct {
 	// The file systems to use
 	Fs *hugofs.Fs
 
-	// The file systems to use for static files
-	// For hybrid render
-	StaticFs *hugofs.Fs
-
 	// The language to use.
 	Language *langs.Language
 

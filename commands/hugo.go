@@ -632,7 +632,8 @@ func (c *commandeer) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint6
 		return 0, nil
 	}
 
-	publishDir := c.hugo().PathSpec.PublishDir
+	h := c.hugo()
+	publishDir := h.PathSpec.PublishDir
 	// If root, remove the second '/'
 	if publishDir == "//" {
 		publishDir = helpers.FilePathSeparator
@@ -651,7 +652,7 @@ func (c *commandeer) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint6
 	syncer.SrcFs = fs
 	syncer.DestFs = c.Fs.Destination
 	if c.renderTo == config.RenderDestHybrid {
-		syncer.DestFs = c.StaticFs.Destination
+		syncer.DestFs = afero.NewOsFs()
 	}
 	// Now that we are using a unionFs for the static directories
 	// We can effectively clean the publishDir on initial sync

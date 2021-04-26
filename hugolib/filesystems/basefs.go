@@ -55,6 +55,10 @@ type BaseFs struct {
 	// This usually maps to /my-project/public.
 	PublishFs afero.Fs
 
+	// The filesystem used for RenderDestHybrid.
+	// This rendering requires another fs
+	PublishFsForHybrid afero.Fs
+
 	theBigFs *filesystemsCollector
 }
 
@@ -362,10 +366,12 @@ func NewBase(p *paths.Paths, logger loggers.Logger, options ...func(*BaseFs) err
 
 	publishFs := hugofs.NewBaseFileDecorator(afero.NewBasePathFs(fs.Destination, p.AbsPublishDir))
 	sourceFs := hugofs.NewBaseFileDecorator(afero.NewBasePathFs(fs.Source, p.WorkingDir))
+	publishFsForHybrid := afero.NewBasePathFs(fs.Source, p.AbsPublishDir)
 
 	b := &BaseFs{
 		SourceFs:  sourceFs,
 		PublishFs: publishFs,
+		PublishFsForHybrid: publishFsForHybrid,
 	}
 
 	for _, opt := range options {
