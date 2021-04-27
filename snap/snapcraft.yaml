@@ -72,10 +72,14 @@ parts:
 
   node:
     plugin: nil
-    stage-snaps:
-      - node/14/stable
+    stage-packages:
+      - nodejs
+    organize:
+      usr/bin/: bin/
+      usr/lib/: lib/
     prime:
       - bin/node
+      - lib/*/lib*.so*
 
   pandoc:
     plugin: nil
@@ -90,17 +94,21 @@ parts:
       - bin/pandoc
 
   pygments:
-    plugin: python
-    python-packages: [Pygments]
+    plugin: nil
+    stage-packages:
+      - python3-pygments
+    organize:
+      usr/bin/: bin/
+      usr/lib/: lib/
     prime:
       - bin/pygmentize
       - lib/python*/site-packages/Pygments-*.dist-info/*
       - lib/python*/site-packages/pygments/*
-      - usr/bin/python*
-      - -usr/bin/python*m
-      - usr/lib/python*/*
-      - -usr/lib/python*/distutils/*
-      - -usr/lib/python*/email/*
-      - -usr/lib/python*/lib2to3/*
-      - -usr/lib/python*/tkinter/*
-      - -usr/lib/python*/unittest/*
+      - bin/python*
+      - -bin/python*m
+      - lib/python*/*
+      - -lib/python*/distutils/*
+      - -lib/python*/email/*
+      - -lib/python*/lib2to3/*
+      - -lib/python*/tkinter/*
+      - -lib/python*/unittest/*
