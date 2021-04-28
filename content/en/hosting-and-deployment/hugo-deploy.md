@@ -108,6 +108,13 @@ pattern = "^.+\\.(png|jpg)$"
 cacheControl = "max-age=31536000, no-transform, public"
 gzip = false
 
+#  Set custom content type for /sitemap.xml
+#  Will not hit the next matcher, as searching is stopped on first match
+[[deployment.matchers]]
+pattern = "^sitemap\\.xml$"
+contentType = "application/xml"
+gzip = true
+
 [[deployment.matchers]]
 pattern = "^.+\\.(html|xml|json)$"
 gzip = true
