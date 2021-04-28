@@ -17,7 +17,6 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
 func TestPathKey(t *testing.T) {
@@ -48,5 +47,5 @@ func TestFilterUnwantedMounts(t *testing.T) {
 
 	c := qt.New(t)
 	c.Assert(len(filtered), qt.Equals, 2)
-	c.Assert(filtered, qt.CmpEquals(cmpopts.IgnoreUnexported(Mount{})), []Mount{{Source: "a", Target: "b", Lang: "en"}, {Source: "b", Target: "c", Lang: "en"}})
+	c.Assert(filtered, qt.DeepEquals, []Mount{{Source: "a", Target: "b", Lang: "en"}, {Source: "b", Target: "c", Lang: "en"}})
 }

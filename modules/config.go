@@ -15,16 +15,12 @@ package modules
 
 import (
 	"fmt"
-	"os"
-	"path"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/hugo"
-	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -58,7 +54,7 @@ var DefaultModuleConfig = Config{
 
 // ApplyProjectConfigDefaults applies default/missing module configuration for
 // the main project.
-func ApplyProjectConfigDefaults(cfg config.Provider, mod Module) (err error) {
+func ApplyProjectConfigDefaults(cfg config.Provider, mod Module) error {
 	moda := mod.(*moduleAdapter)
 
 	// Map legacy directory config into the new module.
@@ -106,9 +102,7 @@ func ApplyProjectConfigDefaults(cfg config.Provider, mod Module) (err error) {
 			}
 
 			for _, dir := range staticDirs {
-				var rule staticFileRule
-				rule, err = getStaticFileRule(cfg, dir)
-				mounts = append(mounts, Mount{Lang: lang, Source: dir, Target: d.component, staticFileRule: rule})
+				mounts = append(mounts, Mount{Lang: lang, Source: dir, Target: d.component})
 			}
 
 			return mounts
@@ -117,15 +111,12 @@ func ApplyProjectConfigDefaults(cfg config.Provider, mod Module) (err error) {
 
 		if cfg.IsSet(d.key) {
 			source := cfg.GetString(d.key)
-			var rule staticFileRule
-			rule, err = getStaticFileRule(cfg, d.key)
 			componentsConfigured[d.component] = true
 
 			return []Mount{{
 				// No lang set for layouts etc.
-				Source:         source,
-				Target:         d.component,
-				staticFileRule: rule,
+				Source: source,
+				Target: d.component,
 			}}
 		}
 
@@ -155,10 +146,7 @@ func ApplyProjectConfigDefaults(cfg config.Provider, mod Module) (err error) {
 							continue
 						}
 						seen[contentDir] = true
-
-						var rule staticFileRule
-						rule, err = getStaticFileRule(cfg, d.key)
-						mounts = append(mounts, Mount{Lang: language.Lang, Source: contentDir, Target: d.component, staticFileRule: rule})
+						mounts = append(mounts, Mount{Lang: language.Lang, Source: contentDir, Target: d.component})
 					}
 				}
 
@@ -191,9 +179,7 @@ func ApplyProjectConfigDefaults(cfg config.Provider, mod Module) (err error) {
 		if componentsConfigured[dirKey.component] {
 			continue
 		}
-		var rule staticFileRule
-		rule, err = getStaticFileRule(cfg, dirKey.key)
-		mounts = append(mounts, Mount{Source: dirKey.component, Target: dirKey.component, staticFileRule: rule})
+		mounts = append(mounts, Mount{Source: dirKey.component, Target: dirKey.component})
 	}
 
 	// Prepend the mounts from configuration.
@@ -201,7 +187,7 @@ func ApplyProjectConfigDefaults(cfg config.Provider, mod Module) (err error) {
 
 	moda.mounts = mounts
 
-	return err
+	return nil
 }
 
 // DecodeConfig creates a modules Config from a given Hugo configuration.
@@ -392,18 +378,6 @@ type Mount struct {
 
 	Lang string // any language code associated with this mount.
 
-	staticFileRule staticFileRule
-}
-
-type MountKey struct{ Source, Target, Lang string }
-
-type staticFileRule struct {
-	ignores []*regexp.Regexp
-	size    float64
-}
-
-func (r staticFileRule) hasRule() bool {
-	return len(r.ignores) > 0 || r.size > 0
 }
 
 func (m Mount) Component() string {
@@ -416,31 +390,6 @@ func (m Mount) ComponentAndName() (string, string) {
 		return m.Target, ""
 	}
 	return m.Target[:k], m.Target[k+1:]
-}
-
-func (m Mount) IsStaticFile(fi os.FileInfo) bool {
-	filename := fi.Name()
-
-	if !m.staticFileRule.hasRule() {
-		// default rule
-		return (m.Target == files.ComponentFolderContent || m.Target == files.ComponentFolderStatic) && !files.IsContentFile(filename)
-	}
-
-	for _, re := range m.staticFileRule.ignores {
-		if re.MatchString(path.Join(m.Source, filename)) {
-			return false
-		}
-	}
-
-	return fi.Size() >= int64(m.staticFileRule.size*1024)
-}
-
-func (m Mount) Key() MountKey {
-	return MountKey{
-		m.Source,
-		m.Target,
-		m.Lang,
-	}
 }
 
 func getStaticDirs(cfg config.Provider) []string {
@@ -457,42 +406,4 @@ func getStringOrStringSlice(cfg config.Provider, key string, id int) []string {
 	}
 
 	return config.GetStringSlicePreserveString(cfg, key)
-}
-
-func getStaticFileRule(cfg config.Provider, dirKey string) (staticFileRule, error) {
-	c, found := cfg.GetStringMap("staticFileRules")[strings.ToLower(dirKey)]
-
-	if !found {
-		return staticFileRule{}, nil
-	}
-
-	m := maps.ToStringMap(c)
-	var r struct {
-		Ignore []string
-		Size   float64
-	}
-	err := mapstructure.WeakDecode(m, &r)
-
-	if err != nil {
-		return staticFileRule{}, err
-	}
-
-	var regexps []*regexp.Regexp
-
-	if len(r.Ignore) > 0 {
-		for _, ignorePattern := range r.Ignore {
-			re, err := regexp.Compile(ignorePattern)
-
-			if err != nil {
-				return staticFileRule{}, err
-			} else {
-				regexps = append(regexps, re)
-			}
-		}
-	}
-
-	return staticFileRule{
-		regexps,
-		r.Size,
-	}, nil
 }

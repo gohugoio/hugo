@@ -219,7 +219,6 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"maxDeletes",
 		"quiet",
 		"renderToMemory",
-		"renderTo",
 		"source",
 		"target",
 		"theme",
@@ -626,14 +625,7 @@ func chmodFilter(dst, src os.FileInfo) bool {
 }
 
 func (c *commandeer) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint64, error) {
-	// Although afero's composite filesystem can handle its layerness even without this guard,
-	// this improves reactivity of bootstrapping somehow.
-	if c.renderTo == config.RenderDestComposite {
-		return 0, nil
-	}
-
-	h := c.hugo()
-	publishDir := h.PathSpec.PublishDir
+	publishDir := c.hugo().PathSpec.PublishDir
 	// If root, remove the second '/'
 	if publishDir == "//" {
 		publishDir = helpers.FilePathSeparator
@@ -651,7 +643,7 @@ func (c *commandeer) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint6
 	syncer.ChmodFilter = chmodFilter
 	syncer.SrcFs = fs
 	syncer.DestFs = c.Fs.Destination
-	if c.renderTo == config.RenderDestHybrid {
+	if c.renderStaticFilesToDisk {
 		syncer.DestFs = afero.NewOsFs()
 	}
 	// Now that we are using a unionFs for the static directories
@@ -670,7 +662,6 @@ func (c *commandeer) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint6
 	// because we are using a baseFs (to get the union right).
 	// set sync src to root
 	err := syncer.Sync(publishDir, helpers.FilePathSeparator)
-
 	if err != nil {
 		return 0, err
 	}

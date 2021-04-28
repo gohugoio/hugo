@@ -49,7 +49,7 @@ type serverCmd struct {
 	disableLiveReload bool
 	navigateToChanged bool
 	renderToDisk      bool
-	renderTo          config.RenderDest
+	renderStaticFilesToDisk bool
 	serverAppend      bool
 	serverInterface   string
 	serverPort        int
@@ -100,12 +100,10 @@ of a second, you will be able to save and see your changes nearly instantly.`,
 	cc.cmd.Flags().BoolVar(&cc.renderToDisk, "renderToDisk", false, `render to Destination path (default is render to memory & serve from there, equivalent to "--renderTo disk")`)
 	cc.cmd.Flags().BoolVar(&cc.disableFastRender, "disableFastRender", false, "enables full re-renders on changes")
 	cc.cmd.Flags().BoolVar(&cc.disableBrowserError, "disableBrowserError", false, "do not show build errors in the browser")
+	cc.cmd.Flags().BoolVar(&cc.renderStaticFilesToDisk, "renderStaticFilesToDisk", false, "render static files to disk but dynamic files render to memory.")
 
 	cc.cmd.Flags().String("memstats", "", "log memory usage to this file")
 	cc.cmd.Flags().String("meminterval", "100ms", "interval to poll memory usage (requires --memstats), valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".")
-
-	dest := cc.cmd.Flags().String("renderTo", "", `"memory", "composite", "disk", or "hybrid" (default is "memory")`)
-	cc.renderTo = config.RenderDestFrom(*dest)
 
 	return cc
 }
@@ -136,13 +134,14 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 	// If a Destination is provided via flag write to disk
 	destination, _ := cmd.Flags().GetString("destination")
 	if destination != "" {
-		jww.WARN.Println(`"renderTo" was set to "disk" because "destination" option is set`)
-		sc.renderTo = config.RenderDestDisk
+		sc.renderToDisk = true
 	}
 
 	var serverCfgInit sync.Once
 
 	cfgInit := func(c *commandeer) error {
+		c.Set("renderToMemory", !sc.renderToDisk)
+		c.Set("renderStaticFilesToDisk", sc.renderStaticFilesToDisk)
 		if cmd.Flags().Changed("navigateToChanged") {
 			c.Set("navigateToChanged", sc.navigateToChanged)
 		}
@@ -320,17 +319,12 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 	jww.FEEDBACK.Printf("Environment: %q", f.c.hugo().Deps.Site.Hugo().Environment)
 
 	if i == 0 {
-		switch f.c.renderTo {
-		case config.RenderDestDisk:
+		if f.s.renderToDisk {
 			jww.FEEDBACK.Println("Serving pages from " + absPublishDir)
-		case config.RenderDestMemory:
+		} else if f.s.renderStaticFilesToDisk {
+			jww.FEEDBACK.Println("Serving pages from memory and static files from " + absPublishDir)
+		} else {
 			jww.FEEDBACK.Println("Serving pages from memory")
-		case config.RenderDestComposite:
-			jww.FEEDBACK.Println("Serving pages from memory and source directories")
-		case config.RenderDestHybrid:
-			jww.FEEDBACK.Println("Serving pages from memory and " + absPublishDir)
-		default:
-			return nil, "", "", fmt.Errorf("Invalid renderTo: %s", f.c.renderTo)
 		}
 	}
 

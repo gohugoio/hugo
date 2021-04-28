@@ -18,14 +18,12 @@ import (
 	"errors"
 	"io/ioutil"
 	"os"
-	"path"
 	"path/filepath"
 	"regexp"
 	"sync"
 	"time"
 
 	hconfig "github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/modules"
 
 	"golang.org/x/sync/semaphore"
 
@@ -87,7 +85,7 @@ type commandeer struct {
 	languagesConfigured bool
 	languages           langs.Languages
 	doLiveReload        bool
-	renderTo            hconfig.RenderDest
+	renderStaticFilesToDisk bool
 	fastRenderMode      bool
 	showErrorInBrowser  bool
 	wasError            bool
@@ -350,31 +348,11 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		return err
 	}
 
-	if config.GetBool("renderToDisk") {
-		jww.WARN.Println(`renderToDisk is explicitly set. this overrides "renderTo" with "disk"`)
-		config.Set("renderTo", hconfig.RenderDestDisk)
-	}
+	createMemFs := config.GetBool("renderToMemory")
+	c.renderStaticFilesToDisk = config.GetBool("renderStaticFilesToDisk")
 
-	if config.GetBool("renderToMemory") {
-		jww.WARN.Println(`renderToMemory is explicitly set. this overrides "renderTo" with "memory"`)
-		config.Set("renderTo", hconfig.RenderDestMemory)
-	}
-
-	dest := hconfig.RenderDestFrom(c.Cfg.GetString("renderTo"))
-
-	// set default renderDest
-	if dest == hconfig.RenderDestUnset {
-		if running {
-			dest = hconfig.RenderDestMemory
-		} else {
-			dest = hconfig.RenderDestDisk
-		}
-	}
-
-	c.renderTo = dest
-
-	if dest == hconfig.RenderDestMemory || dest == hconfig.RenderDestComposite {
-		// Render mode is memory or composite, publish to Root regardless of publishDir.
+	if createMemFs && !c.renderStaticFilesToDisk {
+		// Rendering to memoryFS, publish to Root regardless of publishDir.
 		config.Set("publishDir", "/")
 	}
 
@@ -384,21 +362,16 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		if c.destinationFs != nil {
 			// Need to reuse the destination on server rebuilds.
 			fs.Destination = c.destinationFs
-		} else if dest == hconfig.RenderDestMemory {
-			// Hugo writes the output to memory instead of the disk.
-			fs.Destination = new(afero.MemMapFs)
-		} else if dest == hconfig.RenderDestComposite {
-			// Writes the dynamic output on memory,
-			// while serve directly from "static" files on os fs.
-			mods := config.Get("allModules").(modules.Modules)
-			fs.Destination = newCompositeDestFs(mods)
-		} else if dest == hconfig.RenderDestHybrid {
+		} else if createMemFs && c.renderStaticFilesToDisk {
 			// Writes the dynamic output on memory,
 			// while serve others directly from publishDir
 			publishDir := config.GetString("publishDir")
 			writableFs := afero.NewBasePathFs(afero.NewMemMapFs(), publishDir)
 			publicFs := afero.NewOsFs()
 			fs.Destination = afero.NewCopyOnWriteFs(afero.NewReadOnlyFs(publicFs), writableFs)
+		} else if createMemFs {
+			// Hugo writes the output to memory instead of the disk.
+			fs.Destination = new(afero.MemMapFs)
 		}
 
 		if c.fastRenderMode {
@@ -449,29 +422,4 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 	cfg.Logger.Infoln("Using config file:", config.ConfigFileUsed())
 
 	return nil
-}
-
-func newCompositeDestFs(mods modules.Modules) afero.Fs {
-	writableFs := afero.NewMemMapFs()
-
-	// reversed order
-	for i := len(mods) - 1; i >= 0; i-- {
-		mod := mods[i]
-
-		baseDir := mod.Dir()
-		mounts := mod.Mounts()
-
-		// reversed order
-		for j := len(mounts) - 1; j >= 0; j-- {
-			mount := mounts[j]
-			targetDir := path.Join(baseDir, mount.Source)
-
-			basePathFs := afero.NewBasePathFs(afero.NewOsFs(), targetDir)
-			fileInfoFs := hugofs.NewFileInfoFilterFs(basePathFs, mount.IsStaticFile)
-			readonlyFs := afero.NewReadOnlyFs(fileInfoFs)
-			writableFs = afero.NewCopyOnWriteFs(readonlyFs, writableFs)
-		}
-	}
-
-	return writableFs
 }

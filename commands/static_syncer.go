@@ -17,11 +17,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugolib/filesystems"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/spf13/afero"
 	"github.com/spf13/fsync"
 )
 
@@ -41,8 +41,7 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 	c := s.c
 
 	syncFn := func(sourceFs *filesystems.SourceFilesystem) (uint64, error) {
-		h := c.hugo()
-		publishDir := h.PathSpec.PublishDir
+		publishDir := c.hugo().PathSpec.PublishDir
 		// If root, remove the second '/'
 		if publishDir == "//" {
 			publishDir = helpers.FilePathSeparator
@@ -58,8 +57,8 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 		syncer.ChmodFilter = chmodFilter
 		syncer.SrcFs = sourceFs.Fs
 		syncer.DestFs = c.Fs.Destination
-		if c.renderTo == config.RenderDestHybrid {
-			syncer.DestFs = h.PublishFsForHybrid
+		if c.renderStaticFilesToDisk {
+			syncer.DestFs = afero.NewOsFs()
 		}
 
 		// prevent spamming the log on changes
@@ -100,27 +99,19 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 			// This assumes that Hugo has not generated content on top of a static file and then removed
 			// the source of that static file. In this case Hugo will incorrectly remove that file
 			// from the published directory.
-			//
-			// With renderToComposite, we do not need whole static sync system.
-			// But it may be user-friendly to keep these event messages
 			if ev.Op&fsnotify.Rename == fsnotify.Rename || ev.Op&fsnotify.Remove == fsnotify.Remove {
 				if _, err := sourceFs.Fs.Stat(relPath); os.IsNotExist(err) {
 					// If file doesn't exist in any static dir, remove it
 					toRemove := filepath.Join(publishDir, relPath)
 
 					logger.Println("File no longer exists in static dir, removing", toRemove)
-					if c.renderTo != config.RenderDestComposite {
-						_ = c.Fs.Destination.RemoveAll(toRemove)
-					}
-
+					_ = c.Fs.Destination.RemoveAll(toRemove)
 				} else if err == nil {
 					// If file still exists, sync it
 					logger.Println("Syncing", relPath, "to", publishDir)
 
-					if c.renderTo != config.RenderDestComposite {
-						if err := syncer.Sync(filepath.Join(publishDir, relPath), relPath); err != nil {
-							c.logger.Errorln(err)
-						}
+					if err := syncer.Sync(filepath.Join(publishDir, relPath), relPath); err != nil {
+						c.logger.Errorln(err)
 					}
 				} else {
 					c.logger.Errorln(err)
@@ -131,10 +122,8 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 
 			// For all other event operations Hugo will sync static.
 			logger.Println("Syncing", relPath, "to", publishDir)
-			if c.renderTo != config.RenderDestComposite {
-				if err := syncer.Sync(filepath.Join(publishDir, relPath), relPath); err != nil {
-					c.logger.Errorln(err)
-				}
+			if err := syncer.Sync(filepath.Join(publishDir, relPath), relPath); err != nil {
+				c.logger.Errorln(err)
 			}
 		}
 

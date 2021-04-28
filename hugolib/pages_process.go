@@ -31,13 +31,12 @@ import (
 
 func newPagesProcessor(h *HugoSites, sp *source.SourceSpec) *pagesProcessor {
 	procs := make(map[string]pagesCollectorProcessorProvider)
-
 	for _, s := range h.Sites {
 		procs[s.Lang()] = &sitePagesProcessor{
 			m:           s.pageMap,
 			errorSender: s.h,
 			itemChan:    make(chan interface{}, config.GetNumWorkerMultiplier()*2),
-			renderTo:    config.RenderDestFrom(h.Cfg.GetString("renderTo")),
+			renderStaticFilesToDisk: h.Cfg.GetBool("renderStaticFilesToDisk"),
 		}
 	}
 	return &pagesProcessor{
@@ -119,8 +118,7 @@ type sitePagesProcessor struct {
 
 	itemChan  chan interface{}
 	itemGroup *errgroup.Group
-
-	renderTo config.RenderDest
+	renderStaticFilesToDisk bool
 }
 
 func (p *sitePagesProcessor) Process(item interface{}) error {
@@ -160,8 +158,8 @@ func (p *sitePagesProcessor) copyFile(fim hugofs.FileMetaInfo) error {
 	defer f.Close()
 
 	fs := s.PublishFs
-	if p.renderTo == config.RenderDestHybrid {
-		fs = s.PublishFsForHybrid
+	if p.renderStaticFilesToDisk {
+		fs = s.OsFs
 	}
 
 	return s.publish(&s.PathSpec.ProcessingStats.Files, target, f, fs)
@@ -187,10 +185,6 @@ func (p *sitePagesProcessor) doProcess(item interface{}) error {
 				return err
 			}
 		case files.ContentClassFile:
-			if p.renderTo == config.RenderDestComposite {
-				return nil
-			}
-
 			if err := p.copyFile(v); err != nil {
 				return err
 			}
