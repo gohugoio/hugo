@@ -370,7 +370,7 @@ func NewBase(p *paths.Paths, logger loggers.Logger, options ...func(*BaseFs) err
 	b := &BaseFs{
 		SourceFs:  sourceFs,
 		PublishFs: publishFs,
-		OsFs: osFs,
+		OsFs:      osFs,
 	}
 
 	for _, opt := range options {

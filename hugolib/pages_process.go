@@ -33,9 +33,9 @@ func newPagesProcessor(h *HugoSites, sp *source.SourceSpec) *pagesProcessor {
 	procs := make(map[string]pagesCollectorProcessorProvider)
 	for _, s := range h.Sites {
 		procs[s.Lang()] = &sitePagesProcessor{
-			m:           s.pageMap,
-			errorSender: s.h,
-			itemChan:    make(chan interface{}, config.GetNumWorkerMultiplier()*2),
+			m:                       s.pageMap,
+			errorSender:             s.h,
+			itemChan:                make(chan interface{}, config.GetNumWorkerMultiplier()*2),
 			renderStaticFilesToDisk: h.Cfg.GetBool("renderStaticFilesToDisk"),
 		}
 	}
@@ -116,8 +116,8 @@ type sitePagesProcessor struct {
 	m           *pageMap
 	errorSender herrors.ErrorSender
 
-	itemChan  chan interface{}
-	itemGroup *errgroup.Group
+	itemChan                chan interface{}
+	itemGroup               *errgroup.Group
 	renderStaticFilesToDisk bool
 }
 

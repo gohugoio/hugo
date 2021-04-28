@@ -81,14 +81,14 @@ type commandeer struct {
 	// Used in cases where we get flooded with events in server mode.
 	debounce func(f func())
 
-	serverPorts         []int
-	languagesConfigured bool
-	languages           langs.Languages
-	doLiveReload        bool
+	serverPorts             []int
+	languagesConfigured     bool
+	languages               langs.Languages
+	doLiveReload            bool
 	renderStaticFilesToDisk bool
-	fastRenderMode      bool
-	showErrorInBrowser  bool
-	wasError            bool
+	fastRenderMode          bool
+	showErrorInBrowser      bool
+	wasError                bool
 
 	configured bool
 	paused     bool

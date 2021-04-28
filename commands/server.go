@@ -46,16 +46,16 @@ type serverCmd struct {
 	// Can be used to stop the server. Useful in tests
 	stop <-chan bool
 
-	disableLiveReload bool
-	navigateToChanged bool
-	renderToDisk      bool
+	disableLiveReload       bool
+	navigateToChanged       bool
+	renderToDisk            bool
 	renderStaticFilesToDisk bool
-	serverAppend      bool
-	serverInterface   string
-	serverPort        int
-	liveReloadPort    int
-	serverWatch       bool
-	noHTTPCache       bool
+	serverAppend            bool
+	serverInterface         string
+	serverPort              int
+	liveReloadPort          int
+	serverWatch             bool
+	noHTTPCache             bool
 
 	disableFastRender   bool
 	disableBrowserError bool
