@@ -45,6 +45,7 @@ import (
 	_ "gocloud.dev/blob/fileblob" // import
 	_ "gocloud.dev/blob/gcsblob"  // import
 	_ "gocloud.dev/blob/s3blob"   // import
+	"gocloud.dev/gcerrors"
 )
 
 // Deployer supports deploying the site to target cloud providers.
@@ -238,9 +239,13 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 			go func(del string) {
 				jww.INFO.Printf("Deleting %s...\n", del)
 				if err := bucket.Delete(ctx, del); err != nil {
-					errMu.Lock()
-					defer errMu.Unlock()
-					errs = append(errs, err)
+					if gcerrors.Code(err) == gcerrors.NotFound {
+						jww.WARN.Printf("Failed to delete %q because it wasn't found: %v", del, err)
+					} else {
+						errMu.Lock()
+						defer errMu.Unlock()
+						errs = append(errs, err)
+					}
 				}
 				<-sem
 			}(del)
