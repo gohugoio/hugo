@@ -48,7 +48,7 @@ type Namespace struct {
 	deps  *deps.Deps
 }
 
-func (ns *Namespace) Unmarshal(r resource.UnmarshableResource) (*kopenapi3.Swagger, error) {
+func (ns *Namespace) Unmarshal(r resource.UnmarshableResource) (*kopenapi3.T, error) {
 	key := r.Key()
 	if key == "" {
 		return nil, errors.New("no Key set in Resource")
@@ -71,7 +71,7 @@ func (ns *Namespace) Unmarshal(r resource.UnmarshableResource) (*kopenapi3.Swagg
 			return nil, err
 		}
 
-		s := &kopenapi3.Swagger{}
+		s := &kopenapi3.T{}
 		switch f {
 		case metadecoders.YAML:
 			err = gyaml.Unmarshal(b, s)
@@ -82,7 +82,7 @@ func (ns *Namespace) Unmarshal(r resource.UnmarshableResource) (*kopenapi3.Swagg
 			return nil, err
 		}
 
-		err = kopenapi3.NewSwaggerLoader().ResolveRefsIn(s, nil)
+		err = kopenapi3.NewLoader().ResolveRefsIn(s, nil)
 
 		return s, err
 	})
@@ -90,5 +90,5 @@ func (ns *Namespace) Unmarshal(r resource.UnmarshableResource) (*kopenapi3.Swagg
 		return nil, err
 	}
 
-	return v.(*kopenapi3.Swagger), nil
+	return v.(*kopenapi3.T), nil
 }
