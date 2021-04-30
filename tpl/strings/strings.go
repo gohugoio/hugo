@@ -17,6 +17,7 @@ package strings
 import (
 	"errors"
 	"html/template"
+	"regexp"
 	"strings"
 	"unicode/utf8"
 
@@ -73,6 +74,15 @@ func (ns *Namespace) CountWords(s interface{}) (int, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return 0, _errors.Wrap(err, "Failed to convert content to string")
+	}
+
+	isCJKLanguage, err := regexp.MatchString(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`, ss)
+	if err != nil {
+		return 0, _errors.Wrap(err, "Failed to match regex pattern against string")
+	}
+
+	if !isCJKLanguage {
+		return len(strings.Fields(helpers.StripHTML((ss)))), nil
 	}
 
 	counter := 0
