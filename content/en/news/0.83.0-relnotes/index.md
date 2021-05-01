@@ -6,6 +6,9 @@ description: "WebP image encoding support, some important i18n fixes, and more."
 categories: ["Releases"]
 ---
 
+**Note:** I you use i18n, there is an unfortunate regression bug in this release (see [issue](https://github.com/gohugoio/hugo/issues/8492). A patch release coming Sunday 2th May.
+
+
 Hugo `0.83` finally brings [WebP](https://gohugo.io/content-management/image-processing/) image processing support. Note that you need the [extended version](https://gohugo.io/troubleshooting/faq/#i-get-tocss--this-feature-is-not-available-in-your-current-hugo-version) of Hugo to encode to WebP. If you want to target all Hugo versions, you may use a construct such as this:
 
 ```go-html-template
