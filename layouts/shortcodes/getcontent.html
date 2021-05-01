@@ -10,12 +10,12 @@ Usage: {{< getcontent path="PATH/TO/FILE" >}}
 {{ $scratch := newScratch -}}
 {{ with $glob -}}
   {{ $bundle := site.GetPage $path -}}
-  {{ $scratch.Set "pages" ($bundle.Resources.Match $glob) -}}
+  {{ $scratch.Set "resources" ($bundle.Resources.Match $glob) -}}
 {{ else -}}
   {{ $bundle := site.GetPage (path.Dir $path) -}}
-  {{ $scratch.Set "pages" ($bundle.Resources.Match (path.Base $path)) -}}
+  {{ $scratch.Set "resources" ($bundle.Resources.Match (path.Base $path)) -}}
 {{ end -}}
 
-{{ range ($scratch.Get "pages") -}}
+{{ range ($scratch.Get "resources") -}}
   {{ .Content }}
 {{ end -}}
