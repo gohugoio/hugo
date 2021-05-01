@@ -15,6 +15,13 @@
         ]
       },
       {
+        "Name": "AL",
+        "Aliases": [
+          "al",
+          "dal"
+        ]
+      },
+      {
         "Name": "ANTLR",
         "Aliases": [
           "antlr"
@@ -370,6 +377,14 @@
         ]
       },
       {
+        "Name": "Dylan",
+        "Aliases": [
+          "dyl",
+          "dylan",
+          "intr"
+        ]
+      },
+      {
         "Name": "EBNF",
         "Aliases": [
           "ebnf"
@@ -579,7 +594,8 @@
       {
         "Name": "Handlebars",
         "Aliases": [
-          "handlebars"
+          "handlebars",
+          "hbs"
         ]
       },
       {
@@ -666,7 +682,8 @@
         "Aliases": [
           "javascript",
           "js",
-          "jsm"
+          "jsm",
+          "mjs"
         ]
       },
       {
@@ -963,6 +980,7 @@
           "posh",
           "powershell",
           "ps1",
+          "psd1",
           "psm1"
         ]
       },
@@ -1020,6 +1038,13 @@
           "bas",
           "basic",
           "qbasic"
+        ]
+      },
+      {
+        "Name": "QML",
+        "Aliases": [
+          "qbs",
+          "qml"
         ]
       },
       {
@@ -1422,6 +1447,12 @@
           "markdown",
           "md",
           "mkd"
+        ]
+      },
+      {
+        "Name": "mcfunction",
+        "Aliases": [
+          "mcfunction"
         ]
       },
       {
