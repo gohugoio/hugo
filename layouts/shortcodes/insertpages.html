@@ -4,7 +4,7 @@ Insert page `.Content` from a (headless) bundle; you can insert `.Content` from 
 Usage: {{< insertpages path="PATH/TO/MD_FILE" >}}
        {{< insertpages path="PATH/TO/BUNDLE" glob="*_PATTERN.md" >}}
 */}} -->
-{{ $path := .Get "path" -}}
+{{- $path := .Get "path" -}}
 {{ $glob := .Get "glob" -}}
 
 {{ $scratch := newScratch -}}
