@@ -1,18 +1,18 @@
 <!-- {{/*
 Insert page `.Content` from a (headless) bundle; you can insert `.Content` from multiple page resources of the same bundle by specifying `glob`
 
-Usage: {{< insertpages path="PATH/TO/MD_FILE" >}}
-       {{< insertpages path="PATH/TO/BUNDLE" glob="*_PATTERN.md" >}}
+Usage: {{< insertpages path="PATH/TO/FILE" >}}
+       {{< insertpages path="PATH/TO/BUNDLE/" glob="*_PATTERN.md" >}}
 */}} -->
 {{- $path := .Get "path" -}}
 {{ $glob := .Get "glob" -}}
 
 {{ $scratch := newScratch -}}
 {{ with $glob -}}
-  {{ $bundle := site.GetPage (path.Join $path "index.md") -}}
+  {{ $bundle := site.GetPage $path -}}
   {{ $scratch.Set "pages" ($bundle.Resources.Match $glob) -}}
 {{ else -}}
-  {{ $bundle := site.GetPage (path.Join (path.Dir $path) "index.md") -}}
+  {{ $bundle := site.GetPage (path.Dir $path) -}}
   {{ $scratch.Set "pages" ($bundle.Resources.Match (path.Base $path)) -}}
 {{ end -}}
 

@@ -204,7 +204,7 @@ aliased form `.Pages`.
 
 ### `.Pages` compared to `.Site.Pages`
 
-{{< insertpages path="readfiles/pages-vs-site-pages.md" >}}
+{{< getcontent path="readfiles/pages-vs-site-pages.md" >}}
 
 ## Page-level Params
 
