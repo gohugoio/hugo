@@ -177,7 +177,9 @@ Only relevant for JPEG and Webp images, values 1 to 100 inclusive, higher is bet
 
 {{< new-in "0.83.0" >}} Webp support was added in Hugo 0.83.0.
 
-### Hint {{< new-in "0.83.0" >}}
+### Hint
+
+ {{< new-in "0.83.0" >}}
 
 Hint about what type of image this is. Currently only used when encoding to Webp.
 
