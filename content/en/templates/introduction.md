@@ -245,7 +245,7 @@ If the _map_, _array_, or _slice_ passed into the range is zero-length then the 
 
 ### Conditionals
 
-`if`, `else`, `with`, `or`, and `and` provide the framework for handling conditional logic in Go Templates. Like `range`, each statement is closed with an `{{ end }}`.
+`if`, `else`, `with`, `or`, `and` and `not` provide the framework for handling conditional logic in Go Templates. Like `range`, `if` and `with` statements are closed with an `{{ end }}`.
 
 Go Templates treat the following values as **false**:
 
