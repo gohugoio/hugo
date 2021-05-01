@@ -43,7 +43,7 @@ typographer
 attribute
 : Enable custom attribute support for titles and blocks by adding attribute lists inside single curly brackets (`{.myclass class="class1 class2" }`) and placing it _after the Markdown element it decorates_, on the same line for titles and on a new line directly below for blocks.
 
-{{< new-in "0.81" >}} In Hugo 0.81.0 we added support for adding attributes (e.g. CSS classes) to Markdown blocks, e.g. tables, lists, paragraphs etc.
+{{< new-in "0.81.0" >}} In Hugo 0.81.0 we added support for adding attributes (e.g. CSS classes) to Markdown blocks, e.g. tables, lists, paragraphs etc.
 
 A blockquote with a CSS class:
 
