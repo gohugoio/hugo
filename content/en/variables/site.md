@@ -127,7 +127,7 @@ You can use `.Site.Params` in a [partial template](/templates/partials/) to call
 
 ### `.Site.Pages` compared to `.Pages`
 
-{{< readfile file="/content/en/readfiles/pages-vs-site-pages.md" markdown="true" >}}
+{{< insertpages path="readfiles/pages-vs-site-pages.md" >}}
 
 
 
