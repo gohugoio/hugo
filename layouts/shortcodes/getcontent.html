@@ -1,8 +1,8 @@
 <!-- {{/*
-Insert page `.Content` from a (headless) bundle; you can insert `.Content` from multiple page resources of the same bundle by specifying `glob`
+Insert `.Content` from a (headless) bundle; you can insert `.Content` from multiple page resources of the same bundle by specifying `glob`
 
-Usage: {{< insertpages path="PATH/TO/FILE" >}}
-       {{< insertpages path="PATH/TO/BUNDLE/" glob="*_PATTERN.md" >}}
+Usage: {{< getcontent path="PATH/TO/FILE" >}}
+       {{< getcontent path="PATH/TO/BUNDLE/" glob="*_PATTERN.md" >}}
 */}} -->
 {{- $path := .Get "path" -}}
 {{ $glob := .Get "glob" -}}
