@@ -14,6 +14,7 @@
 package i18n
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 
@@ -89,8 +90,20 @@ func (t Translator) initFuncs(bndl *i18n.Bundle) {
 				PluralCount:  pluralCount,
 			})
 
-			if err == nil && currentLang == translatedLang {
+			sameLang := currentLang == translatedLang
+
+			if err == nil && sameLang {
 				return translated
+			}
+
+			if err != nil && sameLang && translated != "" {
+				// See #8492
+				// TODO(bep) this needs to be improved/fixed upstream,
+				// but currently we get an error even if the fallback to
+				// "other" succeeds.
+				if fmt.Sprintf("%T", err) == "i18n.pluralFormNotFoundError" {
+					return translated
+				}
 			}
 
 			if _, ok := err.(*i18n.MessageNotFoundErr); !ok {
@@ -120,9 +133,12 @@ func (c intCount) Count() int {
 const countFieldName = "Count"
 
 // getPluralCount gets the plural count as a string (floats) or an integer.
+// If v is nil, nil is returned.
 func getPluralCount(v interface{}) interface{} {
 	if v == nil {
-		return 0
+		// i18n called without any argument, make sure it does not
+		// get any plural count.
+		return nil
 	}
 
 	switch v := v.(type) {
@@ -171,11 +187,11 @@ func toPluralCountValue(in interface{}) interface{} {
 			return in
 		}
 		// A non-numeric value.
-		return 0
+		return nil
 	default:
 		if i, err := cast.ToIntE(in); err == nil {
 			return i
 		}
-		return 0
+		return nil
 	}
 }
