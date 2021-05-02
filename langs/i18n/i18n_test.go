@@ -359,6 +359,20 @@ other = "{{ . }} hours"`,
 			},
 		},
 		{
+			name: "Other only",
+			lang: "en",
+			id:   "hour",
+			templ: `
+[hour]
+other = "{{ with . }}{{ . }}{{ end }} hours"`,
+			variants: []types.KeyValue{
+				{Key: 1, Value: "1 hours"},
+				{Key: "1", Value: "1 hours"},
+				{Key: 2, Value: "2 hours"},
+				{Key: nil, Value: " hours"},
+			},
+		},
+		{
 			name: "Polish",
 			lang: "pl",
 			id:   "day",
@@ -381,6 +395,7 @@ other = "{{ . }} miesiąca"
 
 		c.Run(test.name, func(c *qt.C) {
 			cfg := getConfig()
+			cfg.Set("enableMissingTranslationPlaceholders", true)
 			fs := hugofs.NewMem(cfg)
 
 			err := afero.WriteFile(fs.Source, filepath.Join("i18n", test.lang+".toml"), []byte(test.templ), 0755)
@@ -388,6 +403,7 @@ other = "{{ . }} miesiąca"
 
 			tp := NewTranslationProvider()
 			depsCfg := newDepsConfig(tp, cfg, fs)
+			depsCfg.Logger = loggers.NewWarningLogger()
 			d, err := deps.New(depsCfg)
 			c.Assert(err, qt.IsNil)
 			c.Assert(d.LoadResources(), qt.IsNil)
@@ -396,6 +412,7 @@ other = "{{ . }} miesiąca"
 
 			for _, variant := range test.variants {
 				c.Assert(f(test.id, variant.Key), qt.Equals, variant.Value, qt.Commentf("input: %v", variant.Key))
+				c.Assert(int(depsCfg.Logger.LogCounters().WarnCounter.Count()), qt.Equals, 0)
 			}
 
 		})
@@ -434,12 +451,12 @@ func TestGetPluralCount(t *testing.T) {
 	c.Assert(getPluralCount(map[string]interface{}{"Count": "32.5"}), qt.Equals, "32.5")
 	c.Assert(getPluralCount(map[string]interface{}{"count": 32}), qt.Equals, 32)
 	c.Assert(getPluralCount(map[string]interface{}{"Count": "32"}), qt.Equals, "32")
-	c.Assert(getPluralCount(map[string]interface{}{"Counts": 32}), qt.Equals, 0)
-	c.Assert(getPluralCount("foo"), qt.Equals, 0)
+	c.Assert(getPluralCount(map[string]interface{}{"Counts": 32}), qt.Equals, nil)
+	c.Assert(getPluralCount("foo"), qt.Equals, nil)
 	c.Assert(getPluralCount(countField{Count: 22}), qt.Equals, 22)
 	c.Assert(getPluralCount(countField{Count: 1.5}), qt.Equals, "1.5")
 	c.Assert(getPluralCount(&countField{Count: 22}), qt.Equals, 22)
-	c.Assert(getPluralCount(noCountField{Counts: 23}), qt.Equals, 0)
+	c.Assert(getPluralCount(noCountField{Counts: 23}), qt.Equals, nil)
 	c.Assert(getPluralCount(countMethod{}), qt.Equals, "32.5")
 	c.Assert(getPluralCount(&countMethod{}), qt.Equals, "32.5")
 
@@ -448,7 +465,7 @@ func TestGetPluralCount(t *testing.T) {
 	c.Assert(getPluralCount(1234.0), qt.Equals, "1234.0")
 	c.Assert(getPluralCount("1234"), qt.Equals, "1234")
 	c.Assert(getPluralCount("0.5"), qt.Equals, "0.5")
-	c.Assert(getPluralCount(nil), qt.Equals, 0)
+	c.Assert(getPluralCount(nil), qt.Equals, nil)
 }
 
 func prepareTranslationProvider(t testing.TB, test i18nTest, cfg config.Provider) *TranslationProvider {
