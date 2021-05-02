@@ -55,8 +55,8 @@ type BaseFs struct {
 	// This usually maps to /my-project/public.
 	PublishFs afero.Fs
 
-	// The filesystem used for renderStaticFilesToDisk.
-	OsFs afero.Fs
+	// The filesystem used for renderStaticToDisk.
+	PublishFsStatic afero.Fs
 
 	theBigFs *filesystemsCollector
 }
@@ -365,12 +365,12 @@ func NewBase(p *paths.Paths, logger loggers.Logger, options ...func(*BaseFs) err
 
 	publishFs := hugofs.NewBaseFileDecorator(afero.NewBasePathFs(fs.Destination, p.AbsPublishDir))
 	sourceFs := hugofs.NewBaseFileDecorator(afero.NewBasePathFs(fs.Source, p.WorkingDir))
-	osFs := afero.NewBasePathFs(fs.Source, p.AbsPublishDir)
+	publishFsStatic := afero.NewBasePathFs(fs.Source, p.AbsPublishDir)
 
 	b := &BaseFs{
-		SourceFs:  sourceFs,
-		PublishFs: publishFs,
-		OsFs:      osFs,
+		SourceFs:        sourceFs,
+		PublishFs:       publishFs,
+		PublishFsStatic: publishFsStatic,
 	}
 
 	for _, opt := range options {

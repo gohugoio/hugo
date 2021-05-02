@@ -21,7 +21,6 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/spf13/afero"
 	"github.com/spf13/fsync"
 )
 
@@ -57,8 +56,8 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 		syncer.ChmodFilter = chmodFilter
 		syncer.SrcFs = sourceFs.Fs
 		syncer.DestFs = c.Fs.Destination
-		if c.renderStaticFilesToDisk {
-			syncer.DestFs = afero.NewOsFs()
+		if c.renderStaticToDisk {
+			syncer.DestFs = c.Fs.DestinationStatic
 		}
 
 		// prevent spamming the log on changes
