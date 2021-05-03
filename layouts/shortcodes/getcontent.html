@@ -1,5 +1,5 @@
 <!-- {{/*
-Insert `.Content` from a (headless) bundle; you can insert `.Content` from multiple page resources of the same bundle by specifying `glob`
+Insert `.Content` from a (headless) bundle. You can insert `.Content` from multiple page resources of the same bundle by specifying `glob`.
 
 Usage: {{< getcontent path="PATH/TO/FILE" >}}
        {{< getcontent path="PATH/TO/BUNDLE/" glob="*_PATTERN.md" >}}
@@ -7,15 +7,15 @@ Usage: {{< getcontent path="PATH/TO/FILE" >}}
 {{- $path := .Get "path" -}}
 {{ $glob := .Get "glob" -}}
 
-{{ $scratch := newScratch -}}
+{{ $resources := slice -}}
 {{ with $glob -}}
   {{ $bundle := site.GetPage $path -}}
-  {{ $scratch.Set "resources" ($bundle.Resources.Match $glob) -}}
+  {{ $resources = $bundle.Resources.Match $glob -}}
 {{ else -}}
   {{ $bundle := site.GetPage (path.Dir $path) -}}
-  {{ $scratch.Set "resources" ($bundle.Resources.Match (path.Base $path)) -}}
+  {{ $resources = $bundle.Resources.Match (path.Base $path) -}}
 {{ end -}}
 
-{{ range ($scratch.Get "resources") -}}
+{{ range $resources -}}
   {{ .Content }}
 {{ end -}}
