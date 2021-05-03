@@ -210,6 +210,9 @@ func TestCountWords(t *testing.T) {
 		{"Do Be Do Be Do", 5},
 		{"旁边", 2},
 		{`<div class="test">旁边</div>`, 2},
+		{"Here's to you...", 3},
+		{"Here’s to you...", 3},
+		{"Here’s to you…", 3},
 		// errors
 		{tstNoStringer{}, false},
 	} {
