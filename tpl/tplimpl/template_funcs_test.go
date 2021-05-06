@@ -46,6 +46,7 @@ func newTestConfig() config.Provider {
 	v := viper.New()
 	v.Set("contentDir", "content")
 	v.Set("dataDir", "data")
+	v.Set("pluginDir", "../../resources/testdata/plugin")
 	v.Set("i18nDir", "i18n")
 	v.Set("layoutDir", "layouts")
 	v.Set("archetypeDir", "archetypes")

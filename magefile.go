@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -17,7 +18,6 @@ import (
 
 	"github.com/gohugoio/hugo/codegen"
 	"github.com/gohugoio/hugo/resources/page/page_generate"
-
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 )
@@ -112,6 +112,27 @@ func Generate() error {
 	return nil
 }
 
+func pluginBuildFlags() []string {
+	flags := []string{"-mod", "readonly"}
+
+	return flags
+}
+
+// Compile test plugins in 32-bit mode
+func CompilePluginForTest386() error {
+	log.Printf("Compiling plugin %s\n", "hello")
+
+	envs := map[string]string{"GOARCH": "386"}
+	return runCmd(envs, goexe, "build", pluginBuildFlags(), "-o", "./resources/testdata/plugin/hello.so", "-buildmode=plugin", "github.com/gohugoio/hugo/plugins/hello")
+}
+
+// Compile test plugins
+func CompilePluginForTest() error {
+	log.Printf("Compiling plugin %s\n", "hello")
+
+	return runCmd(nil, goexe, "build", pluginBuildFlags(), "-o", "./resources/testdata/plugin/hello.so", "-buildmode=plugin", "github.com/gohugoio/hugo/plugins/hello")
+}
+
 // Generate docs helper
 func GenDocsHelper() error {
 	return runCmd(flagEnv(), goexe, "run", "-tags", buildTags(), "main.go", "gen", "docshelper")
@@ -174,18 +195,24 @@ func testGoFlags() string {
 // Run tests in 32-bit mode
 // Note that we don't run with the extended tag. Currently not supported in 32 bit.
 func Test386() error {
+	mg.Deps(CompilePluginForTest386)
+
 	env := map[string]string{"GOARCH": "386", "GOFLAGS": testGoFlags()}
 	return runCmd(env, goexe, "test", "./...")
 }
 
 // Run tests
 func Test() error {
+	mg.Deps(CompilePluginForTest)
+
 	env := map[string]string{"GOFLAGS": testGoFlags()}
 	return runCmd(env, goexe, "test", "./...", buildFlags(), "-tags", buildTags())
 }
 
 // Run tests with race detector
 func TestRace() error {
+	mg.Deps(CompilePluginForTest)
+
 	env := map[string]string{"GOFLAGS": testGoFlags()}
 	return runCmd(env, goexe, "test", "-race", "./...", buildFlags(), "-tags", buildTags())
 }
@@ -344,10 +371,13 @@ func isCI() bool {
 }
 
 func buildFlags() []string {
+	flags := []string{"-mod", "readonly"}
+
 	if runtime.GOOS == "windows" {
-		return []string{"-buildmode", "exe"}
+		flags = append(flags, "-buildmode", "exe")
 	}
-	return nil
+
+	return flags
 }
 
 func buildTags() string {

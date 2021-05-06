@@ -15,6 +15,8 @@ package page
 
 import (
 	"html/template"
+	"path"
+	"plugin"
 	"time"
 
 	"github.com/gohugoio/hugo/common/maps"
@@ -43,6 +45,7 @@ type Site interface {
 	Menus() navigation.Menus
 	Params() maps.Params
 	Data() map[string]interface{}
+	Plugin() map[string]interface{}
 }
 
 // Sites represents an ordered list of sites (languages).
@@ -59,6 +62,7 @@ func (s Sites) First() Site {
 type testSite struct {
 	h hugo.Info
 	l *langs.Language
+	pluginDir interface{}
 }
 
 func (t testSite) Hugo() hugo.Info {
@@ -117,10 +121,27 @@ func (t testSite) Data() map[string]interface{} {
 	return nil
 }
 
+func (s testSite) Plugin() map[string]interface{} {
+	pluginDir, ok := s.pluginDir.(string)
+	if !ok {
+		return nil
+	}
+
+	p, err := plugin.Open(path.Join(pluginDir, "hello.so"))
+	if err != nil {
+		panic(err)
+	}
+
+	return map[string]interface{}{
+		"hello": p,
+	}
+}
+
 // NewDummyHugoSite creates a new minimal test site.
 func NewDummyHugoSite(cfg config.Provider) Site {
 	return testSite{
-		h: hugo.NewInfo(hugo.EnvironmentProduction),
-		l: langs.NewLanguage("en", cfg),
+		h:         hugo.NewInfo(hugo.EnvironmentProduction),
+		l:         langs.NewLanguage("en", cfg),
+		pluginDir: cfg.Get("pluginDir"),
 	}
 }

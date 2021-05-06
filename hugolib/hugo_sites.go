@@ -17,6 +17,7 @@ import (
 	"context"
 	"io"
 	"path/filepath"
+	"plugin"
 	"sort"
 	"strings"
 	"sync"
@@ -80,6 +81,9 @@ type HugoSites struct {
 
 	// As loaded from the /data dirs
 	data map[string]interface{}
+
+	// As loaded from the /plugins path
+	plugin map[string]interface{}
 
 	contentInit sync.Once
 	content     *pageMaps
@@ -164,6 +168,9 @@ type hugoSitesInit struct {
 	// Loads the data from all of the /data folders.
 	data *lazy.Init
 
+	// Loads the plugin from all of the plugin pathes.
+	plugin *lazy.Init
+
 	// Performs late initialization (before render) of the templates.
 	layouts *lazy.Init
 
@@ -176,6 +183,7 @@ type hugoSitesInit struct {
 
 func (h *hugoSitesInit) Reset() {
 	h.data.Reset()
+	h.plugin.Reset()
 	h.layouts.Reset()
 	h.gitInfo.Reset()
 	h.translations.Reset()
@@ -187,6 +195,14 @@ func (h *HugoSites) Data() map[string]interface{} {
 		return nil
 	}
 	return h.data
+}
+
+func (h *HugoSites) Plugin() map[string]interface{} {
+	if _, err := h.init.plugin.Do(); err != nil {
+		h.SendError(errors.Wrap(err, "failed to load plugin"))
+		return nil
+	}
+	return h.plugin
 }
 
 func (h *HugoSites) gitInfoForPage(p page.Page) (*gitmap.GitInfo, error) {
@@ -325,6 +341,7 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 		skipRebuildForFilenames: make(map[string]bool),
 		init: &hugoSitesInit{
 			data:         lazy.New(),
+			plugin:       lazy.New(),
 			layouts:      lazy.New(),
 			gitInfo:      lazy.New(),
 			translations: lazy.New(),
@@ -340,6 +357,14 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 		err := h.loadData(h.PathSpec.BaseFs.Data.Dirs)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to load data")
+		}
+		return nil, nil
+	})
+
+	h.init.plugin.Add(func() (interface{}, error) {
+		err := h.loadPlugin(h.PathSpec.BaseFs.Plugin.Dirs)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to load plugin")
 		}
 		return nil, nil
 	})
@@ -937,6 +962,69 @@ func (h *HugoSites) readData(f source.File) (interface{}, error) {
 
 	format := metadecoders.FormatFromString(f.Extension())
 	return metadecoders.Default.Unmarshal(content, format)
+}
+
+func (h *HugoSites) loadPlugin(fis []hugofs.FileMetaInfo) (err error) {
+	spec := source.NewSourceSpec(h.PathSpec, nil)
+
+	h.plugin = make(map[string]interface{})
+	for _, fi := range fis {
+		fileSystem := spec.NewFilesystemFromFileMetaInfo(fi)
+		files, err := fileSystem.Files()
+		if err != nil {
+			return err
+		}
+		for _, r := range files {
+			if err := h.handlePluginFile(r); err != nil {
+				return err
+			}
+		}
+	}
+
+	return
+}
+
+func (h *HugoSites) handlePluginFile(r source.File) error {
+	var current map[string]interface{}
+
+	f, err := r.FileInfo().Meta().Open()
+	if err != nil {
+		return errors.Wrapf(err, "plugin: failed to open %q:", r.LogicalName())
+	}
+	defer f.Close()
+
+	// Crawl in plugin tree to insert plugin
+	current = h.plugin
+	keyParts := strings.Split(r.Dir(), helpers.FilePathSeparator)
+
+	for _, key := range keyParts {
+		if key != "" {
+			if _, ok := current[key]; !ok {
+				current[key] = make(map[string]interface{})
+			}
+			current = current[key].(map[string]interface{})
+		}
+	}
+
+	p, err := plugin.Open(r.Filename())
+	if err != nil {
+		return h.errWithFileContext(err, r)
+	}
+
+	if p == nil {
+		return nil
+	}
+
+	// filepath.Walk walks the files in lexical order, '/' comes before '.'
+	if higherPrecedent, ok := current[r.BaseFileName()]; ok && higherPrecedent != nil {
+		h.Log.Warnf("The %T plugin from '%s' overridden by "+
+			"higher precedence %T plugin already in the plugin tree", p, r.Path(), higherPrecedent)
+		return nil
+	}
+
+	current[r.BaseFileName()] = p
+
+	return nil
 }
 
 func (h *HugoSites) findPagesByKindIn(kind string, inPages page.Pages) page.Pages {

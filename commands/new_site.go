@@ -68,6 +68,7 @@ func (n *newSiteCmd) doNewSite(fs *hugofs.Fs, basepath string, force bool) error
 		archeTypePath,
 		filepath.Join(basepath, "static"),
 		filepath.Join(basepath, "data"),
+		filepath.Join(basepath, "plugins"),
 		filepath.Join(basepath, "themes"),
 	}
 

@@ -76,6 +76,7 @@ func (fs *BaseFs) AllDirs() []hugofs.FileMetaInfo {
 		fs.Archetypes.Dirs,
 		fs.I18n.Dirs,
 		fs.Data.Dirs,
+		fs.Plugin.Dirs,
 		fs.Content.Dirs,
 		fs.Assets.Dirs,
 		fs.Layouts.Dirs,
@@ -125,6 +126,7 @@ func (fs *BaseFs) ResolveJSConfigFile(name string) string {
 type SourceFilesystems struct {
 	Content    *SourceFilesystem
 	Data       *SourceFilesystem
+	Plugin     *SourceFilesystem
 	I18n       *SourceFilesystem
 	Layouts    *SourceFilesystem
 	Archetypes *SourceFilesystem
@@ -154,6 +156,7 @@ func (s *SourceFilesystems) FileSystems() []*SourceFilesystem {
 	return []*SourceFilesystem{
 		s.Content,
 		s.Data,
+		s.Plugin,
 		s.I18n,
 		s.Layouts,
 		s.Archetypes,
@@ -248,6 +251,11 @@ func (s SourceFilesystems) IsLayout(filename string) bool {
 // IsData returns true if the given filename is a member of the data filesystem.
 func (s SourceFilesystems) IsData(filename string) bool {
 	return s.Data.Contains(filename)
+}
+
+// IsPlugin returns true if the given filename is a member of the plugin filesystem.
+func (s SourceFilesystems) IsPlugin(filename string) bool {
+	return s.Plugin.Contains(filename)
 }
 
 // IsAsset returns true if the given filename is a member of the asset filesystem.
@@ -439,7 +447,7 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 	b.result.Assets = createView(files.ComponentFolderAssets)
 	b.result.ResourcesCache = b.theBigFs.overlayResources
 
-	// Data, i18n and content cannot use the overlay fs
+	// Data, plugin, i18n and content cannot use the overlay fs
 	dataDirs := b.theBigFs.overlayDirs[files.ComponentFolderData]
 	dataFs, err := hugofs.NewSliceFs(dataDirs...)
 	if err != nil {
@@ -447,6 +455,14 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 	}
 
 	b.result.Data = b.newSourceFilesystem(files.ComponentFolderData, dataFs, dataDirs)
+
+	pluginDirs := b.theBigFs.overlayDirs[files.ComponentFolderPlugins]
+	pluginFs, err := hugofs.NewSliceFs(pluginDirs...)
+	if err != nil {
+		return nil, err
+	}
+
+	b.result.Plugin = b.newSourceFilesystem(files.ComponentFolderPlugins, pluginFs, pluginDirs)
 
 	i18nDirs := b.theBigFs.overlayDirs[files.ComponentFolderI18n]
 	i18nFs, err := hugofs.NewSliceFs(i18nDirs...)

@@ -70,4 +70,8 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 )
 
+
+require github.com/gohugoio/hugo/plugins/hello v0.0.0
+replace github.com/gohugoio/hugo/plugins/hello => ./resources/testdata/plugin/hello
+
 go 1.16

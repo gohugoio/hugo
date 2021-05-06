@@ -712,6 +712,10 @@ func (s *SiteInfo) Data() map[string]interface{} {
 	return s.s.h.Data()
 }
 
+func (s *SiteInfo) Plugin() map[string]interface{} {
+	return s.s.h.Plugin()
+}
+
 func (s *SiteInfo) Language() *langs.Language {
 	return s.language
 }

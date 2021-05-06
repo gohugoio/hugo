@@ -602,6 +602,7 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 			v.SetDefault("assetDir", "assets")
 			v.SetDefault("staticDir", "static")
 			v.SetDefault("dataDir", "data")
+			v.SetDefault("pluginDir", "plugins")
 			v.SetDefault("i18nDir", "i18n")
 			v.SetDefault("archetypeDir", "archetypes")
 	*/

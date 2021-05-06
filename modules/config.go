@@ -80,6 +80,7 @@ func ApplyProjectConfigDefaults(cfg config.Provider, mod Module) error {
 	dirKeys := []dirKeyComponent{
 		{"contentDir", files.ComponentFolderContent, true},
 		{"dataDir", files.ComponentFolderData, false},
+		{"pluginDir", files.ComponentFolderPlugins, false},
 		{"layoutDir", files.ComponentFolderLayouts, false},
 		{"i18nDir", files.ComponentFolderI18n, false},
 		{"archetypeDir", files.ComponentFolderArchetypes, false},

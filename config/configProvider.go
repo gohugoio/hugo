@@ -43,6 +43,7 @@ func SetBaseTestDefaults(cfg Provider) {
 	cfg.Set("resourceDir", "resources")
 	cfg.Set("contentDir", "content")
 	cfg.Set("dataDir", "data")
+	cfg.Set("pluginDir", "plugins")
 	cfg.Set("i18nDir", "i18n")
 	cfg.Set("layoutDir", "layouts")
 	cfg.Set("assetDir", "assets")

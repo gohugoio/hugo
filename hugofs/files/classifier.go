@@ -168,6 +168,7 @@ const (
 	ComponentFolderLayouts    = "layouts"
 	ComponentFolderContent    = "content"
 	ComponentFolderData       = "data"
+	ComponentFolderPlugins    = "plugins"
 	ComponentFolderAssets     = "assets"
 	ComponentFolderI18n       = "i18n"
 
@@ -184,6 +185,7 @@ var (
 		ComponentFolderLayouts,
 		ComponentFolderContent,
 		ComponentFolderData,
+		ComponentFolderPlugins,
 		ComponentFolderAssets,
 		ComponentFolderI18n,
 	}
