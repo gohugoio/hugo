@@ -36,6 +36,15 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Exist,
+			nil,
+			[][2]string{
+				{`{{ "hello" | plugin.Exist }}`, "true"},
+				{`{{ "does-not-exists" | plugin.Exist }}`, "false"},
+				{`{{ "Hello" | plugin.Exist }}`, "false"},
+			},
+		)
+
 		return ns
 	}
 	internal.AddTemplateFuncsNamespace(f)

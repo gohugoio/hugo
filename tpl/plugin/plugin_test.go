@@ -71,3 +71,31 @@ func TestOpen(t *testing.T) {
 		c.Assert(p, qt.IsNil)
 	}
 }
+
+
+func TestExist(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	var ns = plugin.New(&deps.Deps{
+		Cfg: cfg,
+		Site: page.NewDummyHugoSite(cfg),
+	})
+
+	for _, test := range []struct{
+		PluginName interface{}
+		Exists interface{}
+	}{
+		{pluginName, true},
+		{filepath.FromSlash(pluginName), true},
+		{filepath.FromSlash(`does-not-exist`), false},
+		{filepath.FromSlash(`not-plugin/path`), false},
+		{filepath.FromSlash(`sample`), false},
+		{nil, false},
+	} {
+		ok, err := ns.Exist(test.PluginName)
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(ok, qt.Equals, test.Exists)
+	}
+}

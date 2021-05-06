@@ -61,3 +61,16 @@ func (ns *Namespace) Open(name interface{}) (*plugin.Plugin, error) {
 		Name: sname,
 	}
 }
+
+// Exist returns true if the plugin exist.
+func (ns *Namespace) Exist(name interface{}) (bool, error) {
+	sname, err := cast.ToStringE(name)
+	if err != nil {
+		return false, err
+	}
+
+	plugins := ns.deps.Site.Plugin()
+
+	_, ok := plugins[sname]
+	return ok, nil
+}
