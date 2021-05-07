@@ -4103,6 +4103,104 @@
           ]
         }
       },
+      "plugin": {
+        "Call": {
+          "Description": "",
+          "Args": [
+            "symbol",
+            "arguments"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ plugin.Call ((plugin.Open \"hello\").Lookup \"Hello\") \"holyhope\" }}",
+              "Hello holyhope"
+            ]
+          ]
+        },
+        "Exist": {
+          "Description": "Exist returns true if the plugin exist.",
+          "Args": [
+            "name"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ \"hello\" | plugin.Exist }}",
+              "true"
+            ],
+            [
+              "{{ \"does-not-exists\" | plugin.Exist }}",
+              "false"
+            ],
+            [
+              "{{ \"Hello\" | plugin.Exist }}",
+              "false"
+            ]
+          ]
+        },
+        "Get": {
+          "Description": "Get returns the loaded plugin named name.",
+          "Args": [
+            "pluginName",
+            "fieldName"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ plugin.Get \"hello\" \"HelloFmt\" }}",
+              "map[english:Hello %s]"
+            ],
+            [
+              "{{ plugin.Call (plugin.Get \"hello\" \"Hello\") \"holyhope\" }}",
+              "Hello holyhope"
+            ]
+          ]
+        },
+        "Has": {
+          "Description": "Has returns true if the symbol exists in plugin.",
+          "Args": [
+            "pluginName",
+            "fieldName"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ plugin.Has \"hello\" \"HelloFmt\" }}",
+              "true"
+            ],
+            [
+              "{{ plugin.Has \"hello\" \"Hello\" }}",
+              "true"
+            ],
+            [
+              "{{ plugin.Has \"hello\" \"Language\" }}{{/* Constant cannot be retrieved */}}",
+              "false"
+            ],
+            [
+              "{{ plugin.Has \"hello\" \"notFound\" }}",
+              "false"
+            ],
+            [
+              "{{ plugin.Has \"hello\" \"NotFound\" }}",
+              "false"
+            ]
+          ]
+        },
+        "Open": {
+          "Description": "Open returns the loaded plugin named name.",
+          "Args": [
+            "name"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ (plugin.Open \"hello\").Lookup \"HelloFmt\" }}",
+              "map[english:Hello %s]"
+            ]
+          ]
+        }
+      },
       "reflect": {
         "IsMap": {
           "Description": "IsMap reports whether v is a map.",
@@ -4374,6 +4472,12 @@
           "Examples": null
         },
         "Params": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Plugin": {
           "Description": "",
           "Args": null,
           "Aliases": null,
