@@ -40,7 +40,27 @@ func init() {
 		ns.AddMethodMapping(ctx.Call,
 			nil,
 			[][2]string{
+				{`{{ plugin.Call (plugin.Get "hello" "Hello") "holyhope" }}`, "Hello holyhope"},
 				{`{{ plugin.Call ((plugin.Open "hello").Lookup "Hello") "holyhope" }}`, "Hello holyhope"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Get,
+			nil,
+			[][2]string{
+				{`{{ plugin.Get "hello" "HelloFmt" }}`, "map[english:Hello %s french:Salutation %s spanish:Hola %s]"},
+				{`{{ plugin.Call (plugin.Get "hello" "Hello") "holyhope" }}`, "Hello holyhope"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Has,
+			nil,
+			[][2]string{
+				{`{{ plugin.Has "hello" "HelloFmt" }}`, "true"},
+				{`{{ plugin.Has "hello" "Hello" }}`, "true"},
+				{`{{ plugin.Has "hello" "Language" }}{{/* Constant cannot be retrieved */}}`, "false"},
+				{`{{ plugin.Has "hello" "notFound" }}`, "false"},
+				{`{{ plugin.Has "hello" "NotFound" }}`, "false"},
 			},
 		)
 

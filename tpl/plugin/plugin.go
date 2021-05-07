@@ -62,6 +62,32 @@ func (ns *Namespace) Open(name interface{}) (*plugin.Plugin, error) {
 	}
 }
 
+// Get returns the loaded plugin named name.
+func (ns *Namespace) Get(pluginName, fieldName interface{}) (interface{}, error) {
+	spluginName, err := cast.ToStringE(pluginName)
+	if err != nil {
+		return nil, err
+	}
+
+	plugins := ns.deps.Site.Plugin()
+
+	p, ok := plugins[spluginName]
+	if !ok {
+		return nil, &ErrPluginNotFound{
+			Name: spluginName,
+		}
+	}
+
+	sfieldName, err := cast.ToStringE(fieldName)
+	if err != nil {
+		return nil, err
+	}
+
+	symbol, err := p.(*plugin.Plugin).Lookup(sfieldName)
+
+	return symbol, err
+}
+
 func (ns *Namespace) Call(symbol interface{}, arguments ...interface{}) (interface{}, error) {
 	fn := reflect.ValueOf(symbol)
 	if fn.Kind() == reflect.Func {
@@ -129,4 +155,22 @@ func (ns *Namespace) Exist(name interface{}) (bool, error) {
 
 	_, ok := plugins[sname]
 	return ok, nil
+}
+
+
+// Has returns true if the symbol exists in plugin.
+func (ns *Namespace) Has(pluginName, fieldName interface{}) (bool, error) {
+	p, err := ns.Open(pluginName)
+	if err != nil {
+		return false, err
+	}
+
+	sfieldName, err := cast.ToStringE(fieldName)
+	if err != nil {
+		return false, err
+	}
+
+	_, err = p.Lookup(sfieldName)
+
+	return err == nil, nil
 }

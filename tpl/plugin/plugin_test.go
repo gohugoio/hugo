@@ -72,6 +72,51 @@ func TestOpen(t *testing.T) {
 	}
 }
 
+func TestGet(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	var ns = plugin.New(&deps.Deps{
+		Cfg: cfg,
+		Site: page.NewDummyHugoSite(cfg),
+	})
+
+	HelloFmt := map[string]string{
+		"english": "Hello %s",
+		"french":  "Salutation %s",
+		"spanish": "Hola %s",
+	}
+
+	for _, test := range []struct {
+		args   [2]interface{}
+		expect interface{}
+	}{
+		{[2]interface{}{pluginName, `HelloFmt`}, &HelloFmt},
+		{[2]interface{}{filepath.FromSlash(pluginName), `HelloFmt`}, &HelloFmt},
+	} {
+		v, err := ns.Get(test.args[0], test.args[1])
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(v, qt.DeepEquals, test.expect)
+	}
+
+	// Errors
+
+	for _, test := range [][2]interface{}{
+		{filepath.FromSlash(`does-not-exist`), `field`},
+		{filepath.FromSlash(`not-plugin/path`), `field`},
+		{filepath.FromSlash(`sample`), `field`},
+		{nil, `field`},
+		{filepath.FromSlash(pluginName), `UnknownField`},
+		{filepath.FromSlash(pluginName), `helloFmt`},
+		{filepath.FromSlash(pluginName), `Language`},
+	} {
+		p, err := ns.Get(test[0], test[1])
+
+		c.Assert(err, qt.Not(qt.IsNil))
+		c.Assert(p, qt.IsNil)
+	}
+}
 
 func TestExist(t *testing.T) {
 	t.Parallel()
@@ -97,6 +142,35 @@ func TestExist(t *testing.T) {
 
 		c.Assert(err, qt.IsNil)
 		c.Assert(ok, qt.Equals, test.Exists)
+	}
+}
+
+func TestHas(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	var ns = plugin.New(&deps.Deps{
+		Cfg: cfg,
+		Site: page.NewDummyHugoSite(cfg),
+	})
+
+	for _, test := range []struct{
+		PluginName interface{}
+		VariableName interface{}
+		Expect interface{}
+	}{
+		{pluginName, `Hello`, true},
+		{filepath.FromSlash(pluginName), `Hello`, true},
+		{filepath.FromSlash(pluginName), `HelloFmt`, true},
+		{filepath.FromSlash(pluginName), `Language`, false},
+		{filepath.FromSlash(pluginName), `doesNotExist`, false},
+		{filepath.FromSlash(pluginName), `not - a + variable`, false},
+		{filepath.FromSlash(pluginName), nil, false},
+	} {
+		ok, err := ns.Has(test.PluginName, test.VariableName)
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(ok, qt.Equals, test.Expect)
 	}
 }
 
