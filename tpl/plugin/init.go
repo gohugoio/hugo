@@ -33,6 +33,14 @@ func init() {
 			nil,
 			[][2]string{
 				{`{{ (plugin.Open "hello").Lookup "HelloFmt" }}`, "map[english:Hello %s french:Salutation %s spanish:Hola %s]"},
+				{`{{ plugin.Call ((plugin.Open "hello").Lookup "Hello") "holyhope" }}`, "Hello holyhope"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Call,
+			nil,
+			[][2]string{
+				{`{{ plugin.Call ((plugin.Open "hello").Lookup "Hello") "holyhope" }}`, "Hello holyhope"},
 			},
 		)
 

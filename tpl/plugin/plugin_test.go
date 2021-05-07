@@ -99,3 +99,48 @@ func TestExist(t *testing.T) {
 		c.Assert(ok, qt.Equals, test.Exists)
 	}
 }
+
+func TestCall(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	var ns = plugin.New(&deps.Deps{
+		Cfg: cfg,
+		Site: page.NewDummyHugoSite(cfg),
+	})
+
+	for _, test := range []struct{
+		PluginName interface{}
+		FunctionName interface{}
+		Arguments []interface{}
+		Expect interface{}
+	}{
+		{pluginName, `Hello`, []interface{}{"holyhope"}, "Hello holyhope"},
+		{filepath.FromSlash(pluginName), `Hello`, []interface{}{"holyhope"}, "Hello holyhope"},
+	} {
+		fn, err := ns.Get(test.PluginName, test.FunctionName)
+		c.Assert(err, qt.IsNil)
+
+		result, err := ns.Call(fn, test.Arguments...)
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.Expect)
+	}
+
+	/* Errors */
+
+	for _, test := range []struct{
+		PluginName interface{}
+		FunctionName interface{}
+		Arguments []interface{}
+	}{
+		{pluginName, `Hello`, []interface{}{(*int)(nil)}},
+		{filepath.FromSlash(pluginName), `Hello`, []interface{}{3}},
+	} {
+		fn, err := ns.Get(test.PluginName, test.FunctionName)
+		c.Assert(err, qt.IsNil)
+
+		_, err = ns.Call(fn, test.Arguments...)
+		c.Assert(err, qt.Not(qt.IsNil))
+	}
+}

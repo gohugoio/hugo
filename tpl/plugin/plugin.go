@@ -62,6 +62,62 @@ func (ns *Namespace) Open(name interface{}) (*plugin.Plugin, error) {
 	}
 }
 
+func (ns *Namespace) Call(symbol interface{}, arguments ...interface{}) (interface{}, error) {
+	fn := reflect.ValueOf(symbol)
+	if fn.Kind() == reflect.Func {
+		in := make([]reflect.Value, len(arguments))
+
+		for i, arg := range arguments {
+			in[i] = reflect.ValueOf(arg)
+		}
+
+		fnType := fn.Type()
+		for i := 0; i<fnType.NumIn(); i++ {
+			argType := fnType.In(i)
+			if !in[i].Type().AssignableTo(argType) {
+				return nil, fmt.Errorf(`Unsuported type %s for argument %d ("%v"): expected %s`, in[i].Type().Name(), i+1, arguments[i], argType.Name())
+			}
+		}
+
+		result := fn.Call(in)
+
+		switch len(result) {
+			case 0:
+				return nil, nil
+			case 1:
+				if !result[0].CanInterface() {
+					return nil, errors.New("invalid signature")
+				}
+
+				return result[0].Interface(), nil
+			case 2:
+				if !result[0].CanInterface() {
+					return nil, errors.New("invalid signature")
+				}
+				r0 := result[0].Interface()
+
+				if result[1].IsNil() {
+					return r0, nil
+				}
+
+				if !result[1].CanInterface() {
+					return nil, errors.New("invalid signature")
+				}
+
+				r1, ok := result[1].Interface().(error)
+				if !ok {
+					return nil, errors.New("invalid signature")
+				}
+
+				return r0, r1
+			default:
+				return nil, errors.New("invalid signature")
+		}
+	}
+
+	return nil, errors.New("invalid argument")
+}
+
 // Exist returns true if the plugin exist.
 func (ns *Namespace) Exist(name interface{}) (bool, error) {
 	sname, err := cast.ToStringE(name)
