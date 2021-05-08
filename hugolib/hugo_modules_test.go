@@ -135,7 +135,11 @@ JS imported in module: |
 		b.WithSourceFile("package.json", `{
 		"name": "mypack",
 		"version": "1.2.3",
-        "scripts": {},
+        "scripts": {
+          "client": "wait-on http://localhost:1313 && open http://localhost:1313",
+          "start": "run-p client server",
+		  "test": "echo 'hoge' > hoge"
+		},
           "dependencies": {
         	"nonon": "error"
         	}
@@ -144,7 +148,11 @@ JS imported in module: |
 		b.WithSourceFile("package.hugo.json", `{
 		"name": "mypack",
 		"version": "1.2.3",
-        "scripts": {},
+        "scripts": {
+          "client": "wait-on http://localhost:1313 && open http://localhost:1313",
+          "start": "run-p client server",
+		  "test": "echo 'hoge' > hoge"
+		},
           "dependencies": {
         	"foo": "1.2.3"
         	},
@@ -185,7 +193,11 @@ JS imported in module: |
     "tailwindcss": "1.8.0"
   },
   "name": "mypack",
-  "scripts": {},
+  "scripts": {
+    "client": "wait-on http://localhost:1313 && open http://localhost:1313",
+    "start": "run-p client server",
+    "test": "echo 'hoge' > hoge"
+  },
   "version": "1.2.3"
 }
 `
@@ -199,7 +211,11 @@ JS imported in module: |
 		const origPackageJSON = `{
 		"name": "mypack",
 		"version": "1.2.3",
-        "scripts": {},
+        "scripts": {
+          "client": "wait-on http://localhost:1313 && open http://localhost:1313",
+          "start": "run-p client server",
+		  "test": "echo 'hoge' > hoge"
+		},
           "dependencies": {
            "moo": "1.2.3"
         	}
@@ -237,7 +253,11 @@ JS imported in module: |
     "tailwindcss": "1.2.0"
   },
   "name": "mypack",
-  "scripts": {},
+  "scripts": {
+    "client": "wait-on http://localhost:1313 && open http://localhost:1313",
+    "start": "run-p client server",
+    "test": "echo 'hoge' > hoge"
+  },
   "version": "1.2.3"
 }
 `
