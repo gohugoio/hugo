@@ -129,6 +129,17 @@ func (c *Scratch) SetInMap(key string, mapKey string, value interface{}) string 
 	return ""
 }
 
+// DeleteInMap deletes a value to a map with the given key in the Node context.
+func (c *Scratch) DeleteInMap(key string, mapKey string) string {
+	c.mu.Lock()
+	_, found := c.values[key]
+	if found {
+		delete(c.values[key].(map[string]interface{}), mapKey)
+	}
+	c.mu.Unlock()
+	return ""
+}
+
 // GetSortedMapValues returns a sorted map previously filled with SetInMap.
 func (c *Scratch) GetSortedMapValues(key string) interface{} {
 	c.mu.RLock()
