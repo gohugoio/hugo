@@ -14,9 +14,13 @@
 package publisher
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"math/rand"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/minifiers"
@@ -28,6 +32,7 @@ import (
 
 func TestClassCollector(t *testing.T) {
 	c := qt.New((t))
+	rnd := rand.New(rand.NewSource(time.Now().Unix()))
 
 	f := func(tags, classes, ids string) HTMLElements {
 		var tagss, classess, idss []string
@@ -57,14 +62,20 @@ func TestClassCollector(t *testing.T) {
 		expect HTMLElements
 	}{
 		{"basic", `<body class="b a"></body>`, f("body", "a b", "")},
-		{"duplicates", `<div class="b a b"></div>`, f("div", "a b", "")},
+		{"duplicates", `<div class="b a b"></div><div class="b a b"></div>x'`, f("div", "a b", "")},
 		{"single quote", `<body class='b a'></body>`, f("body", "a b", "")},
 		{"no quote", `<body class=b id=myelement></body>`, f("body", "b", "myelement")},
+		{"short", `<i>`, f("i", "", "")},
+		{"invalid", `< body class="b a"></body><div></div>`, f("div", "", "")},
 		// https://github.com/gohugoio/hugo/issues/7318
 		{"thead", `<table class="cl1">
     <thead class="cl2"><tr class="cl3"><td class="cl4"></td></tr></thead>
     <tbody class="cl5"><tr class="cl6"><td class="cl7"></td></tr></tbody>
 </table>`, f("table tbody td thead tr", "cl1 cl2 cl3 cl4 cl5 cl6 cl7", "")},
+		{"thead uppercase", `<TABLE class="CL1">
+    <THEAD class="CL2"><TR class="CL3"><TD class="CL4"></TD></TR></THEAD>
+    <TBODY class="CL5"><TR class="CL6"><TD class="CL7"></TD></TR></TBODY>
+</TABLE>`, f("table tbody td thead tr", "CL1 CL2 CL3 CL4 CL5 CL6 CL7", "")},
 		// https://github.com/gohugoio/hugo/issues/7161
 		{"minified a href", `<a class="b a" href=/></a>`, f("a", "a b", "")},
 		{"AlpineJS bind 1", `<body>
@@ -98,6 +109,11 @@ func TestClassCollector(t *testing.T) {
 		{"Textarea tags content should be skipped", `<textarea class="textareaclass"><span>foo</span><span>bar</span></textarea><div class="foo"></div>`, f("div textarea", "foo textareaclass", "")},
 		{"DOCTYPE should beskipped", `<!DOCTYPE html>`, f("", "", "")},
 		{"Comments should be skipped", `<!-- example comment -->`, f("", "", "")},
+		{"Comments with elements before and after", `<div></div><!-- example comment --><span><span>`, f("div span", "", "")},
+		// Issue #8530
+		{"Comment with single quote", `<!-- Hero Area Image d'accueil --><i class="foo">`, f("i", "foo", "")},
+		{"Uppercase tags", `<DIV></DIV>`, f("div", "", "")},
+		{"Predefined tags with distinct casing", `<script>if (a < b) { nothing(); }</SCRIPT><div></div>`, f("div script", "", "")},
 		// Issue #8417
 		{"Tabs inline", `<hr	id="a" class="foo"><div class="bar">d</div>`, f("div hr", "bar foo", "a")},
 		{"Tabs on multiple rows", `<form
@@ -106,26 +122,37 @@ func TestClassCollector(t *testing.T) {
 			method="post"
 ></form>
 <div id="b" class="foo">d</div>`, f("div form", "foo", "a b")},
+		{"Big input, multibyte runes", strings.Repeat(`神真美好 `, rnd.Intn(500)+1) + "<div id=\"神真美好\" class=\"foo\">" + strings.Repeat(`神真美好 `, rnd.Intn(100)+1) + "   <span>神真美好</span>", f("div span", "foo", "神真美好")},
 	} {
 
-		for _, minify := range []bool{false, true} {
-			c.Run(fmt.Sprintf("%s--minify-%t", test.name, minify), func(c *qt.C) {
+		for _, variant := range []struct {
+			minify bool
+		}{
+			{minify: false},
+			{minify: true},
+		} {
+
+			c.Run(fmt.Sprintf("%s--minify-%t", test.name, variant.minify), func(c *qt.C) {
 				w := newHTMLElementsCollectorWriter(newHTMLElementsCollector())
-				if minify {
+				if variant.minify {
 					if skipMinifyTest[test.name] {
 						c.Skip("skip minify test")
 					}
 					v := viper.New()
 					m, _ := minifiers.New(media.DefaultTypes, output.DefaultFormats, v)
 					m.Minify(media.HTMLType, w, strings.NewReader(test.html))
+
 				} else {
-					fmt.Fprint(w, test.html)
+					var buff bytes.Buffer
+					buff.WriteString(test.html)
+					io.Copy(w, &buff)
 				}
 				got := w.collector.getHTMLElements()
 				c.Assert(got, qt.DeepEquals, test.expect)
 			})
 		}
 	}
+
 }
 
 func BenchmarkElementsCollectorWriter(b *testing.B) {
