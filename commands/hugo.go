@@ -37,6 +37,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/terminal"
 
@@ -283,6 +284,7 @@ func (c *commandeer) fullBuild() error {
 
 	if !c.h.quiet {
 		fmt.Println("Start building sites … ")
+		fmt.Println(hugo.BuildVersionString())
 		if isTerminal() {
 			defer func() {
 				fmt.Print(showCursor + clearLine)
