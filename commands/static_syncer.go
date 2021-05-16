@@ -104,7 +104,12 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 					toRemove := filepath.Join(publishDir, relPath)
 
 					logger.Println("File no longer exists in static dir, removing", toRemove)
-					_ = c.Fs.Destination.RemoveAll(toRemove)
+					if c.renderStaticToDisk {
+						_ = c.Fs.DestinationStatic.RemoveAll(toRemove)
+					} else {
+
+						_ = c.Fs.Destination.RemoveAll(toRemove)
+					}
 				} else if err == nil {
 					// If file still exists, sync it
 					logger.Println("Syncing", relPath, "to", publishDir)
