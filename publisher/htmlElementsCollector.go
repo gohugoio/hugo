@@ -152,18 +152,21 @@ type htmlElementsCollectorWriter struct {
 }
 
 // Write collects HTML elements from p.
-func (w *htmlElementsCollectorWriter) Write(p []byte) (n int, err error) {
-	n = len(p)
+func (w *htmlElementsCollectorWriter) Write(p []byte) (int, error) {
 	w.input = p
-	w.pos = 0
 
 	for {
 		w.r = w.next()
 		if w.r == eof {
-			return
+			break
 		}
 		w.state = w.state(w)
 	}
+
+	w.pos = 0
+	w.input = nil
+
+	return len(p), nil
 }
 
 func (l *htmlElementsCollectorWriter) backup() {
