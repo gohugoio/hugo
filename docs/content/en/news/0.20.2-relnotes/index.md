@@ -23,10 +23,12 @@ In `layouts/partials/mystyles.css`:
 
 Then in `config.toml` (note that by using the `.Param` lookup func, we can override the color in a page’s front matter if we want):
 
-    [params]
-    [params.colors]
-    main = "green"
-    text = "blue"
+{{< code-toggle file="config" >}}
+[params]
+[params.colors]
+main = "green"
+text = "blue"
+{{< /code-toggle >}}
 
 And then in `layouts/partials/head.html` (or the partial used to include the head section into your layout):
 

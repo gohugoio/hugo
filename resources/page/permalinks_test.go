@@ -15,6 +15,7 @@ package page
 
 import (
 	"fmt"
+	"regexp"
 	"sync"
 	"testing"
 	"time"
@@ -38,8 +39,8 @@ var testdataPermalinks = []struct {
 	{"/:filename/", true, "/test-page/"},                            // Filename
 	{"/:06-:1-:2-:Monday", true, "/12-4-6-Friday"},                  // Dates with Go formatting
 	{"/:2006_01_02_15_04_05.000", true, "/2012_04_06_03_01_59.000"}, // Complicated custom date format
-	// TODO(moorereason): need test scaffolding for this.
-	//{"/:sections/", false, "/blue/"},                              // Sections
+	{"/:sections/", true, "/a/b/c/"},                                // Sections
+	{"/:sections[last]/", true, "/c/"},                              // Sections
 
 	// Failures
 	{"/blog/:fred", false, ""},
@@ -66,19 +67,25 @@ func TestPermalinkExpansion(t *testing.T) {
 			continue
 		}
 
-		permalinksConfig := map[string]string{
-			"posts": item.spec,
-		}
+		specNameCleaner := regexp.MustCompile(`[\:\/\[\]]`)
+		name := specNameCleaner.ReplaceAllString(item.spec, "")
 
-		ps := newTestPathSpec()
-		ps.Cfg.Set("permalinks", permalinksConfig)
+		c.Run(name, func(c *qt.C) {
 
-		expander, err := NewPermalinkExpander(ps)
-		c.Assert(err, qt.IsNil)
+			permalinksConfig := map[string]string{
+				"posts": item.spec,
+			}
 
-		expanded, err := expander.Expand("posts", page)
-		c.Assert(err, qt.IsNil)
-		c.Assert(expanded, qt.Equals, item.expandsTo)
+			ps := newTestPathSpec()
+			ps.Cfg.Set("permalinks", permalinksConfig)
+
+			expander, err := NewPermalinkExpander(ps)
+			c.Assert(err, qt.IsNil)
+
+			expanded, err := expander.Expand("posts", page)
+			c.Assert(err, qt.IsNil)
+			c.Assert(expanded, qt.Equals, item.expandsTo)
+		})
 
 	}
 }
@@ -147,6 +154,46 @@ func TestPermalinkExpansionConcurrent(t *testing.T) {
 	}
 
 	wg.Wait()
+}
+
+func TestPermalinkExpansionSliceSyntax(t *testing.T) {
+	t.Parallel()
+
+	c := qt.New(t)
+	exp, _ := NewPermalinkExpander(newTestPathSpec())
+	slice := []string{"a", "b", "c", "d"}
+	fn := func(s string) []string {
+		return exp.toSliceFunc(s)(slice)
+	}
+
+	c.Run("Basic", func(c *qt.C) {
+		c.Assert(fn("[1:3]"), qt.DeepEquals, []string{"b", "c"})
+		c.Assert(fn("[1:]"), qt.DeepEquals, []string{"b", "c", "d"})
+		c.Assert(fn("[:2]"), qt.DeepEquals, []string{"a", "b"})
+		c.Assert(fn("[0:2]"), qt.DeepEquals, []string{"a", "b"})
+		c.Assert(fn("[:]"), qt.DeepEquals, []string{"a", "b", "c", "d"})
+		c.Assert(fn(""), qt.DeepEquals, []string{"a", "b", "c", "d"})
+		c.Assert(fn("[last]"), qt.DeepEquals, []string{"d"})
+		c.Assert(fn("[:last]"), qt.DeepEquals, []string{"a", "b", "c"})
+
+	})
+
+	c.Run("Out of bounds", func(c *qt.C) {
+		c.Assert(fn("[1:5]"), qt.DeepEquals, []string{"b", "c", "d"})
+		c.Assert(fn("[-1:5]"), qt.DeepEquals, []string{"a", "b", "c", "d"})
+		c.Assert(fn("[5:]"), qt.DeepEquals, []string{})
+		c.Assert(fn("[5:]"), qt.DeepEquals, []string{})
+		c.Assert(fn("[5:32]"), qt.DeepEquals, []string{})
+		c.Assert(exp.toSliceFunc("[:1]")(nil), qt.DeepEquals, []string(nil))
+		c.Assert(exp.toSliceFunc("[:1]")([]string{}), qt.DeepEquals, []string(nil))
+
+		// These all return nil
+		c.Assert(fn("[]"), qt.IsNil)
+		c.Assert(fn("[1:}"), qt.IsNil)
+		c.Assert(fn("foo"), qt.IsNil)
+
+	})
+
 }
 
 func BenchmarkPermalinkExpand(b *testing.B) {

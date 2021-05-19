@@ -14,9 +14,11 @@
 package npm
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/gohugoio/hugo/common/hugio"
 
@@ -129,12 +131,15 @@ func Pack(fs afero.Fs, fis []hugofs.FileMetaInfo) error {
 	b.originalPackageJSON["comments"] = commentsm
 
 	// Write it out to the project package.json
-	packageJSONData, err := json.MarshalIndent(b.originalPackageJSON, "", " ")
-	if err != nil {
+	packageJSONData := new(bytes.Buffer)
+	encoder := json.NewEncoder(packageJSONData)
+	encoder.SetEscapeHTML(false)
+	encoder.SetIndent("", strings.Repeat(" ", 2))
+	if err := encoder.Encode(b.originalPackageJSON); err != nil {
 		return errors.Wrap(err, "npm pack: failed to marshal JSON")
 	}
 
-	if err := afero.WriteFile(fs, packageJSONName, packageJSONData, 0666); err != nil {
+	if err := afero.WriteFile(fs, packageJSONName, packageJSONData.Bytes(), 0666); err != nil {
 		return errors.Wrap(err, "npm pack: failed to write package.json")
 	}
 

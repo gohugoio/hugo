@@ -20,14 +20,14 @@ import (
 
 	"github.com/gohugoio/hugo/common/types"
 
+	"github.com/gohugoio/hugo/common/maps"
+
 	"github.com/gobwas/glob"
 	hglob "github.com/gohugoio/hugo/hugofs/glob"
 
 	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/gohugoio/hugo/cache/filecache"
-
-	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
@@ -167,10 +167,15 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 		}
 	}
 
-	const delim = "__env__delim"
+	// This is invoked both after we load the main config and at the end
+	// to support OS env override of config options used in the module collector.
+	applyOsEnvOverrides := func() error {
+		if d.Environ == nil {
+			return nil
+		}
 
-	// Apply environment overrides
-	if len(d.Environ) > 0 {
+		const delim = "__env__delim"
+
 		// Extract all that start with the HUGO prefix.
 		// The delimiter is the following rune, usually "_".
 		const hugoEnvPrefix = "HUGO"
@@ -199,7 +204,7 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 		for _, env := range hugoEnv {
 			existing, nestedKey, owner, err := maps.GetNestedParamFn(env.Key, delim, v.Get)
 			if err != nil {
-				return v, configFiles, err
+				return err
 			}
 
 			if existing != nil {
@@ -220,6 +225,12 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 			}
 		}
 
+		return nil
+
+	}
+
+	if err := applyOsEnvOverrides(); err != nil {
+		return v, configFiles, err
 	}
 
 	// We made this a Glob pattern in Hugo 0.75, we don't need both.
@@ -254,6 +265,10 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 
 	if err == nil && len(modulesConfigFiles) > 0 {
 		configFiles = append(configFiles, modulesConfigFiles...)
+	}
+
+	if err := applyOsEnvOverrides(); err != nil {
+		return v, configFiles, err
 	}
 
 	return v, configFiles, err

@@ -8,14 +8,14 @@ images:
 - images/blog/hugo-26-poster.png
 ---
 
-This release brings a choice of **AP Style or Chicago Style Title Case** ([8fb594bf](https://github.com/gohugoio/hugo/commit/8fb594bfb090c017d4e5cbb2905780221e202c41) [#989](https://github.com/gohugoio/hugo/issues/989)). You can also now configure Blackfriday to render **« French Guillemets »** ([cb9dfc26](https://github.com/gohugoio/hugo/commit/cb9dfc2613ae5125cafa450097fb0f62dd3770e7) [#3725](https://github.com/gohugoio/hugo/issues/3725)). To enable French Guillemets, put this in your site `config.toml`:
+This release brings a choice of **AP Style or Chicago Style Title Case** ([8fb594bf](https://github.com/gohugoio/hugo/commit/8fb594bfb090c017d4e5cbb2905780221e202c41) [#989](https://github.com/gohugoio/hugo/issues/989)). You can also now configure Blackfriday to render **« French Guillemets »** ([cb9dfc26](https://github.com/gohugoio/hugo/commit/cb9dfc2613ae5125cafa450097fb0f62dd3770e7) [#3725](https://github.com/gohugoio/hugo/issues/3725)). To enable French Guillemets:
 
 
-```bash
+{{< code-toggle file="config" >}}
 [blackfriday]
 angledQuotes = true
 smartypantsQuotesNBSP = true
-```
+{{< /code-toggle >}}
 
 Oh, and this release also fixes it so you should see no ugly long crashes no more when you step wrong in your templates ([794ea21e](https://github.com/gohugoio/hugo/commit/794ea21e9449b876c5514f1ce8fe61449bbe4980)).
 

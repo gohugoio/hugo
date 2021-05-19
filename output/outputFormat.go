@@ -33,7 +33,7 @@ type Format struct {
 	// can be overridden by providing a new definition for those types.
 	Name string `json:"name"`
 
-	MediaType media.Type `json:"mediaType"`
+	MediaType media.Type `json:"-"`
 
 	// Must be set to a value when there are two or more conflicting mediatype for the same resource.
 	Path string `json:"path"`
@@ -382,7 +382,7 @@ func (f Format) BaseFilename() string {
 func (f Format) MarshalJSON() ([]byte, error) {
 	type Alias Format
 	return json.Marshal(&struct {
-		MediaType string
+		MediaType string `json:"mediaType"`
 		Alias
 	}{
 		MediaType: f.MediaType.String(),

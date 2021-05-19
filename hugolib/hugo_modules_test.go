@@ -135,7 +135,11 @@ JS imported in module: |
 		b.WithSourceFile("package.json", `{
 		"name": "mypack",
 		"version": "1.2.3",
-        "scripts": {},
+        "scripts": {
+          "client": "wait-on http://localhost:1313 && open http://localhost:1313",
+          "start": "run-p client server",
+		  "test": "echo 'hoge' > hoge"
+		},
           "dependencies": {
         	"nonon": "error"
         	}
@@ -144,7 +148,11 @@ JS imported in module: |
 		b.WithSourceFile("package.hugo.json", `{
 		"name": "mypack",
 		"version": "1.2.3",
-        "scripts": {},
+        "scripts": {
+          "client": "wait-on http://localhost:1313 && open http://localhost:1313",
+          "start": "run-p client server",
+		  "test": "echo 'hoge' > hoge"
+		},
           "dependencies": {
         	"foo": "1.2.3"
         	},
@@ -160,34 +168,39 @@ JS imported in module: |
 
 		b.AssertFileContentFn("package.json", func(s string) bool {
 			return s == `{
- "comments": {
+  "comments": {
+    "dependencies": {
+      "foo": "project",
+      "react-dom": "github.com/gohugoio/hugoTestModule2"
+    },
+    "devDependencies": {
+      "@babel/cli": "github.com/gohugoio/hugoTestModule2",
+      "@babel/core": "github.com/gohugoio/hugoTestModule2",
+      "@babel/preset-env": "github.com/gohugoio/hugoTestModule2",
+      "postcss-cli": "project",
+      "tailwindcss": "project"
+    }
+  },
   "dependencies": {
-   "foo": "project",
-   "react-dom": "github.com/gohugoio/hugoTestModule2"
+    "foo": "1.2.3",
+    "react-dom": "^16.13.1"
   },
   "devDependencies": {
-   "@babel/cli": "github.com/gohugoio/hugoTestModule2",
-   "@babel/core": "github.com/gohugoio/hugoTestModule2",
-   "@babel/preset-env": "github.com/gohugoio/hugoTestModule2",
-   "postcss-cli": "project",
-   "tailwindcss": "project"
-  }
- },
- "dependencies": {
-  "foo": "1.2.3",
-  "react-dom": "^16.13.1"
- },
- "devDependencies": {
-  "@babel/cli": "7.8.4",
-  "@babel/core": "7.9.0",
-  "@babel/preset-env": "7.9.5",
-  "postcss-cli": "7.8.0",
-  "tailwindcss": "1.8.0"
- },
- "name": "mypack",
- "scripts": {},
- "version": "1.2.3"
-}`
+    "@babel/cli": "7.8.4",
+    "@babel/core": "7.9.0",
+    "@babel/preset-env": "7.9.5",
+    "postcss-cli": "7.8.0",
+    "tailwindcss": "1.8.0"
+  },
+  "name": "mypack",
+  "scripts": {
+    "client": "wait-on http://localhost:1313 && open http://localhost:1313",
+    "start": "run-p client server",
+    "test": "echo 'hoge' > hoge"
+  },
+  "version": "1.2.3"
+}
+`
 		})
 	})
 
@@ -198,7 +211,11 @@ JS imported in module: |
 		const origPackageJSON = `{
 		"name": "mypack",
 		"version": "1.2.3",
-        "scripts": {},
+        "scripts": {
+          "client": "wait-on http://localhost:1313 && open http://localhost:1313",
+          "start": "run-p client server",
+		  "test": "echo 'hoge' > hoge"
+		},
           "dependencies": {
            "moo": "1.2.3"
         	}
@@ -211,34 +228,39 @@ JS imported in module: |
 
 		b.AssertFileContentFn("package.json", func(s string) bool {
 			return s == `{
- "comments": {
+  "comments": {
+    "dependencies": {
+      "moo": "project",
+      "react-dom": "github.com/gohugoio/hugoTestModule2"
+    },
+    "devDependencies": {
+      "@babel/cli": "github.com/gohugoio/hugoTestModule2",
+      "@babel/core": "github.com/gohugoio/hugoTestModule2",
+      "@babel/preset-env": "github.com/gohugoio/hugoTestModule2",
+      "postcss-cli": "github.com/gohugoio/hugoTestModule2",
+      "tailwindcss": "github.com/gohugoio/hugoTestModule2"
+    }
+  },
   "dependencies": {
-   "moo": "project",
-   "react-dom": "github.com/gohugoio/hugoTestModule2"
+    "moo": "1.2.3",
+    "react-dom": "^16.13.1"
   },
   "devDependencies": {
-   "@babel/cli": "github.com/gohugoio/hugoTestModule2",
-   "@babel/core": "github.com/gohugoio/hugoTestModule2",
-   "@babel/preset-env": "github.com/gohugoio/hugoTestModule2",
-   "postcss-cli": "github.com/gohugoio/hugoTestModule2",
-   "tailwindcss": "github.com/gohugoio/hugoTestModule2"
-  }
- },
- "dependencies": {
-  "moo": "1.2.3",
-  "react-dom": "^16.13.1"
- },
- "devDependencies": {
-  "@babel/cli": "7.8.4",
-  "@babel/core": "7.9.0",
-  "@babel/preset-env": "7.9.5",
-  "postcss-cli": "7.1.0",
-  "tailwindcss": "1.2.0"
- },
- "name": "mypack",
- "scripts": {},
- "version": "1.2.3"
-}`
+    "@babel/cli": "7.8.4",
+    "@babel/core": "7.9.0",
+    "@babel/preset-env": "7.9.5",
+    "postcss-cli": "7.1.0",
+    "tailwindcss": "1.2.0"
+  },
+  "name": "mypack",
+  "scripts": {
+    "client": "wait-on http://localhost:1313 && open http://localhost:1313",
+    "start": "run-p client server",
+    "test": "echo 'hoge' > hoge"
+  },
+  "version": "1.2.3"
+}
+`
 		})
 
 		// https://github.com/gohugoio/hugo/issues/7690
@@ -254,31 +276,32 @@ JS imported in module: |
 
 		b.AssertFileContentFn("package.json", func(s string) bool {
 			return s == `{
- "comments": {
+  "comments": {
+    "dependencies": {
+      "react-dom": "github.com/gohugoio/hugoTestModule2"
+    },
+    "devDependencies": {
+      "@babel/cli": "github.com/gohugoio/hugoTestModule2",
+      "@babel/core": "github.com/gohugoio/hugoTestModule2",
+      "@babel/preset-env": "github.com/gohugoio/hugoTestModule2",
+      "postcss-cli": "github.com/gohugoio/hugoTestModule2",
+      "tailwindcss": "github.com/gohugoio/hugoTestModule2"
+    }
+  },
   "dependencies": {
-   "react-dom": "github.com/gohugoio/hugoTestModule2"
+    "react-dom": "^16.13.1"
   },
   "devDependencies": {
-   "@babel/cli": "github.com/gohugoio/hugoTestModule2",
-   "@babel/core": "github.com/gohugoio/hugoTestModule2",
-   "@babel/preset-env": "github.com/gohugoio/hugoTestModule2",
-   "postcss-cli": "github.com/gohugoio/hugoTestModule2",
-   "tailwindcss": "github.com/gohugoio/hugoTestModule2"
-  }
- },
- "dependencies": {
-  "react-dom": "^16.13.1"
- },
- "devDependencies": {
-  "@babel/cli": "7.8.4",
-  "@babel/core": "7.9.0",
-  "@babel/preset-env": "7.9.5",
-  "postcss-cli": "7.1.0",
-  "tailwindcss": "1.2.0"
- },
- "name": "myhugosite",
- "version": "0.1.0"
-}`
+    "@babel/cli": "7.8.4",
+    "@babel/core": "7.9.0",
+    "@babel/preset-env": "7.9.5",
+    "postcss-cli": "7.1.0",
+    "tailwindcss": "1.2.0"
+  },
+  "name": "myhugosite",
+  "version": "0.1.0"
+}
+`
 		})
 	})
 }

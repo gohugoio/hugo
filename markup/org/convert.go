@@ -52,7 +52,6 @@ func (c *orgConverter) Convert(ctx converter.RenderContext) (converter.Result, e
 		return afero.ReadFile(c.cfg.ContentFs, filename)
 	}
 	writer := org.NewHTMLWriter()
-	writer.PrettyRelativeLinks = !c.cfg.Cfg.GetBool("uglyURLs")
 	writer.HighlightCodeBlock = func(source, lang string, inline bool) string {
 		highlightedSource, err := c.cfg.Highlight(source, lang, "")
 		if err != nil {

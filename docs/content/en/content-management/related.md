@@ -84,7 +84,7 @@ related:
     weight: 10
 {{< /code-toggle >}}
 
-Note that if you have configured `tags` as a taxonomy, `tags` will also be added to the default configuration abve with the weight of `80`.
+Note that if you have configured `tags` as a taxonomy, `tags` will also be added to the default configuration above with the weight of `80`.
 
 Custom configuration should be set using the same syntax.
 

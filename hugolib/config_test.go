@@ -483,6 +483,7 @@ func TestLoadConfigWithOsEnvOverrides(t *testing.T) {
 
 	baseConfig := `
 
+theme = "mytheme"
 environment = "production"
 enableGitInfo = true
 intSlice = [5,7,9]
@@ -501,6 +502,16 @@ quality = 75
 
 	b := newTestSitesBuilder(t).WithConfigFile("toml", baseConfig)
 
+	b.WithSourceFile("themes/mytheme/config.toml", `
+
+[params]
+[params.mytheme_section]
+theme_param="themevalue"
+[params.mytheme_section2]
+theme_param="themevalue2"
+
+`)
+
 	b.WithEnviron(
 		"HUGO_ENVIRONMENT", "test",
 		"HUGO_NEW", "new", // key not in config.toml
@@ -510,10 +521,13 @@ quality = 75
 		"HUGO_STRINGSLICE", `["c", "d"]`,
 		"HUGO_INTSLICE", `[5, 8, 9]`,
 		"HUGO_FLOATSLICE", `[5.32]`,
-		// https://github.com/gohugoio/hugo/issues/7829
+		// Issue #7829
 		"HUGOxPARAMSxAPI_CONFIGxAPI_KEY", "new_key",
 		// Delimiters are case sensitive.
 		"HUGOxPARAMSxAPI_CONFIGXANOTHER_KEY", "another_key",
+		// Issue #8346
+		"HUGOxPARAMSxMYTHEME_SECTIONxTHEME_PARAM", "themevalue_changed",
+		"HUGOxPARAMSxMYTHEME_SECTION2xTHEME_PARAM", "themevalue2_changed",
 	)
 
 	b.Build(BuildCfg{})
@@ -531,4 +545,6 @@ quality = 75
 	c.Assert(cfg.Get("intSlice"), qt.DeepEquals, []interface{}{5, 8, 9})
 	c.Assert(cfg.Get("params.api_config.api_key"), qt.Equals, "new_key")
 	c.Assert(cfg.Get("params.api_config.another_key"), qt.Equals, "default another_key")
+	c.Assert(cfg.Get("params.mytheme_section.theme_param"), qt.Equals, "themevalue_changed")
+	c.Assert(cfg.Get("params.mytheme_section2.theme_param"), qt.Equals, "themevalue2_changed")
 }

@@ -1,6 +1,6 @@
 ---
 title : "Page Resources"
-description : "Page Resources -- images, other pages, documents etc. -- have page-relative URLs and their own metadata."
+description : "Page resources -- images, other pages, documents, etc. -- have page-relative URLs and their own metadata."
 date: 2018-01-24
 categories: ["content management"]
 keywords: [bundle,content,resources]
@@ -13,10 +13,32 @@ menu:
     parent: "content-management"
     weight: 31
 ---
+Page resources are only accessible from [page bundles]({{< relref
+"/content-management/page-bundles" >}}), those directories with `index.md` or
+`_index.md` files at their root. Page resources are only available to the
+page with which they are bundled.
 
-Page resources are available for [page bundles]({{< relref "/content-management/page-bundles" >}}) only,
-i.e. a directory with either a `index.md`, or `_index.md` file at its root. Resources are only attached to
-the lowest page they are bundled with, and simple which names does not contain `index.md` are not attached any resource.
+In this example, `first-post` is a page bundle with access to 10 page resources including audio, data, documents, images, and video. Although `second-post` is also a page bundle, it has no page resources and is unable to directly access the page resources associated with `first-post`.
+
+```text
+content
+└── post
+    ├── first-post
+    │   ├── images
+    │   │   ├── a.jpg
+    │   │   ├── b.jpg
+    │   │   └── c.jpg
+    │   ├── index.md (root of page bundle)
+    │   ├── latest.html
+    │   ├── manual.json
+    │   ├── notice.md
+    │   ├── office.mp3
+    │   ├── pocket.mp4
+    │   ├── rating.pdf
+    │   └── safety.txt
+    └── second-post
+        └── index.md (root of page bundle)
+```
 
 ## Properties
 

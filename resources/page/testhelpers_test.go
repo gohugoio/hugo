@@ -16,6 +16,7 @@ package page
 import (
 	"fmt"
 	"html/template"
+	"path"
 	"path/filepath"
 	"time"
 
@@ -61,6 +62,9 @@ func newTestPageWithFile(filename string) *testPage {
 		params: make(map[string]interface{}),
 		data:   make(map[string]interface{}),
 		file:   file,
+		currentSection: &testPage{
+			sectionEntries: []string{"a", "b", "c"},
+		},
 	}
 }
 
@@ -112,6 +116,9 @@ type testPage struct {
 	data   map[string]interface{}
 
 	file source.File
+
+	currentSection *testPage
+	sectionEntries []string
 }
 
 func (p *testPage) Aliases() []string {
@@ -151,7 +158,7 @@ func (p *testPage) ContentBaseName() string {
 }
 
 func (p *testPage) CurrentSection() Page {
-	panic("not implemented")
+	return p.currentSection
 }
 
 func (p *testPage) Data() interface{} {
@@ -502,11 +509,11 @@ func (p *testPage) Sections() Pages {
 }
 
 func (p *testPage) SectionsEntries() []string {
-	panic("not implemented")
+	return p.sectionEntries
 }
 
 func (p *testPage) SectionsPath() string {
-	panic("not implemented")
+	return path.Join(p.sectionEntries...)
 }
 
 func (p *testPage) Site() Site {

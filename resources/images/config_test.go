@@ -42,7 +42,6 @@ func TestDecodeConfig(t *testing.T) {
 	imagingConfig, err = DecodeConfig(m)
 	c.Assert(err, qt.IsNil)
 	imaging = imagingConfig.Cfg
-	c.Assert(imaging.Quality, qt.Equals, defaultJPEGQuality)
 	c.Assert(imaging.ResampleFilter, qt.Equals, "box")
 	c.Assert(imaging.Anchor, qt.Equals, "smart")
 
@@ -84,18 +83,22 @@ func TestDecodeImageConfig(t *testing.T) {
 		in     string
 		expect interface{}
 	}{
-		{"300x400", newImageConfig(300, 400, 0, 0, "", "", "")},
-		{"300x400 #fff", newImageConfig(300, 400, 0, 0, "", "", "fff")},
-		{"100x200 bottomRight", newImageConfig(100, 200, 0, 0, "", "BottomRight", "")},
-		{"10x20 topleft Lanczos", newImageConfig(10, 20, 0, 0, "Lanczos", "topleft", "")},
-		{"linear left 10x r180", newImageConfig(10, 0, 0, 180, "linear", "left", "")},
+		{"300x400", newImageConfig(300, 400, 75, 0, "box", "smart", "")},
+		{"300x400 #fff", newImageConfig(300, 400, 75, 0, "box", "smart", "fff")},
+		{"100x200 bottomRight", newImageConfig(100, 200, 75, 0, "box", "BottomRight", "")},
+		{"10x20 topleft Lanczos", newImageConfig(10, 20, 75, 0, "Lanczos", "topleft", "")},
+		{"linear left 10x r180", newImageConfig(10, 0, 75, 180, "linear", "left", "")},
 		{"x20 riGht Cosine q95", newImageConfig(0, 20, 95, 0, "cosine", "right", "")},
 
 		{"", false},
 		{"foo", false},
 	} {
 
-		result, err := DecodeImageConfig("resize", this.in, Imaging{})
+		cfg, err := DecodeConfig(nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		result, err := DecodeImageConfig("resize", this.in, cfg, PNG)
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
 				t.Errorf("[%d] parseImageConfig didn't return an expected error", i)
@@ -112,11 +115,13 @@ func TestDecodeImageConfig(t *testing.T) {
 }
 
 func newImageConfig(width, height, quality, rotate int, filter, anchor, bgColor string) ImageConfig {
-	var c ImageConfig
-	c.Action = "resize"
+	var c ImageConfig = GetDefaultImageConfig("resize", ImagingConfig{})
+	c.TargetFormat = PNG
+	c.Hint = 2
 	c.Width = width
 	c.Height = height
 	c.Quality = quality
+	c.qualitySetForImage = quality != 75
 	c.Rotate = rotate
 	c.BgColorStr = bgColor
 	c.BgColor, _ = hexStringToColor(bgColor)
@@ -130,10 +135,14 @@ func newImageConfig(width, height, quality, rotate int, filter, anchor, bgColor 
 	}
 
 	if anchor != "" {
-		anchor = strings.ToLower(anchor)
-		if v, ok := anchorPositions[anchor]; ok {
-			c.Anchor = v
+		if anchor == smartCropIdentifier {
 			c.AnchorStr = anchor
+		} else {
+			anchor = strings.ToLower(anchor)
+			if v, ok := anchorPositions[anchor]; ok {
+				c.Anchor = v
+				c.AnchorStr = anchor
+			}
 		}
 	}
 

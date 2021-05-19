@@ -22,7 +22,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"github.com/gohugoio/go-i18n/v2/i18n"
 	toml "github.com/pelletier/go-toml"
 
 	"github.com/gohugoio/hugo/deps"

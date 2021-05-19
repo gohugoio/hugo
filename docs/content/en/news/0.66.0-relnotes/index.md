@@ -6,12 +6,12 @@ description: "Native inline, recursive import support in PostCSS/Tailwind, \"dep
 categories: ["Releases"]
 ---
 
-This release adds [inline `@import`](/hugo-pipes/postcss/#options) support to `resources.PostCSS`, with imports relative to Hugo's virtual, composable file system. Another useful addition is the new `build` [configuration section](/getting-started/configuration/#configure-build). As an example in `config.toml`:
+This release adds [inline `@import`](/hugo-pipes/postcss/#options) support to `resources.PostCSS`, with imports relative to Hugo's virtual, composable file system. Another useful addition is the new `build` [configuration section](/getting-started/configuration/#configure-build). As an example:
 
-```toml
+{{< code-toggle file="config" >}}
 [build]
   useResourceCacheWhen = "always"
-```
+{{< /code-toggle >}}
 
 The above will tell Hugo to _always_ use the cached build resources inside `resources/_gen` for the build steps requiring a non-standard dependency (PostCSS and SCSS/SASS). Valid values are `never`, `always` and `fallback` (default).
 

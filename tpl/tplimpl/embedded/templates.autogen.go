@@ -226,14 +226,6 @@ if (!doNotTrack) {
 <meta property="article:section" content="{{ .Section }}" />
 {{ with .PublishDate }}<meta property="article:published_time" content="{{ .Format $iso8601 }}" />{{ end }}
 {{ with .Lastmod }}<meta property="article:modified_time" content="{{ .Format $iso8601 }}" />{{ end }}
-
-{{- range .Site.Authors }}
-{{ with .Social.facebook }}<meta property="article:author" content="https://www.facebook.com/{{ . }}" />{{ end }}
-{{ with .Site.Social.facebook }}<meta property="article:publisher" content="https://www.facebook.com/{{ . }}" />{{ end }}
-{{- with .Params.tags }}{{ range first 6 . }}
-<meta property="article:tag" content="{{ . }}" />
-{{- end }}{{ end -}}
-{{- end -}}
 {{- end -}}
 
 {{- with .Params.audio }}<meta property="og:audio" content="{{ . }}" />{{ end }}
@@ -366,14 +358,14 @@ if (!doNotTrack) {
 	{`shortcodes/figure.html`, `<figure{{ with .Get "class" }} class="{{ . }}"{{ end }}>
     {{- if .Get "link" -}}
         <a href="{{ .Get "link" }}"{{ with .Get "target" }} target="{{ . }}"{{ end }}{{ with .Get "rel" }} rel="{{ . }}"{{ end }}>
-    {{- end }}
+    {{- end -}}
     <img src="{{ .Get "src" }}"
          {{- if or (.Get "alt") (.Get "caption") }}
          alt="{{ with .Get "alt" }}{{ . }}{{ else }}{{ .Get "caption" | markdownify| plainify }}{{ end }}"
          {{- end -}}
          {{- with .Get "width" }} width="{{ . }}"{{ end -}}
          {{- with .Get "height" }} height="{{ . }}"{{ end -}}
-    /> <!-- Closing img tag -->
+    /><!-- Closing img tag -->
     {{- if .Get "link" }}</a>{{ end -}}
     {{- if or (or (.Get "title") (.Get "caption")) (.Get "attr") -}}
         <figcaption>
@@ -573,9 +565,5 @@ if (!doNotTrack) {
 {{ with .Site.Social.twitter -}}
 <meta name="twitter:site" content="@{{ . }}"/>
 {{ end -}}
-{{ range .Site.Authors }}
-{{ with .twitter -}}
-<meta name="twitter:creator" content="@{{ . }}"/>
-{{ end -}}
-{{ end -}}`},
+`},
 }

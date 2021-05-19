@@ -64,7 +64,7 @@ and a new line with a "quoted string".` */>}}
 
 ### Shortcodes with Markdown
 
-In Hugo `0.55` we changed how the `%` delimiter works. Shortcodes using the `%` as the outer-most delimiter will now be fully rendered when sent to the content renderer (e.g. Blackfriday for Markdown), meaning they can be part of the generated table of contents, footnotes, etc.
+In Hugo `0.55` we changed how the `%` delimiter works. Shortcodes using the `%` as the outer-most delimiter will now be fully rendered when sent to the content renderer. They can be part of the generated table of contents, footnotes, etc.
 
 If you want the old behavior, you can put the following line in the start of your shortcode template:
 
@@ -302,8 +302,8 @@ Read a more extensive description of `ref` and `relref` in the [cross references
 Assuming that standard Hugo pretty URLs are turned on.
 
 ```
-<a href="/blog/neat">Neat</a>
-<a href="/about/#who:c28654c202e73453784cfd2c5ab356c0">Who</a>
+<a href="https://example.com/blog/neat">Neat</a>
+<a href="/about/#who">Who</a>
 ```
 
 ### `tweet`

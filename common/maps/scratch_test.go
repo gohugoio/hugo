@@ -188,6 +188,20 @@ func TestScratchSetInMap(t *testing.T) {
 	c.Assert(scratch.GetSortedMapValues("key"), qt.DeepEquals, []interface{}{0: "Abc (updated)", 1: "Def", 2: "Lux", 3: "Zyx"})
 }
 
+func TestScratchDeleteInMap(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	scratch := NewScratch()
+	scratch.SetInMap("key", "lux", "Lux")
+	scratch.SetInMap("key", "abc", "Abc")
+	scratch.SetInMap("key", "zyx", "Zyx")
+	scratch.DeleteInMap("key", "abc")
+	scratch.SetInMap("key", "def", "Def")
+	scratch.DeleteInMap("key", "lmn") // Do nothing
+	c.Assert(scratch.GetSortedMapValues("key"), qt.DeepEquals, []interface{}{0: "Def", 1: "Lux", 2: "Zyx"})
+}
+
 func TestScratchGetSortedMapValues(t *testing.T) {
 	t.Parallel()
 	scratch := NewScratch()

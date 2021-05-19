@@ -242,8 +242,18 @@ func TestConvertAttributes(t *testing.T) {
 				withBlockAttributes(conf)
 				conf.Highlight.CodeFences = true
 			},
-			"```bash\necho 'foo';\n````\n{.myclass id=\"myid\"}",
+			"```bash {.myclass id=\"myid\"}\necho 'foo';\n````\n",
 			"<div class=\"highlight myclass\" id=\"myid\"><pre style",
+		},
+		{
+			"Code block, CodeFences=true,linenos=table",
+			func(conf *markup_config.Config) {
+				withBlockAttributes(conf)
+				conf.Highlight.CodeFences = true
+			},
+			"```bash {linenos=table .myclass id=\"myid\"}\necho 'foo';\n````\n{ .adfadf }",
+			[]string{"div class=\"highlight myclass\" id=\"myid\"><div s",
+				"table style"},
 		},
 		{
 			"Paragraph",

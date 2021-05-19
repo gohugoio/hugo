@@ -14,15 +14,18 @@
 package i18n
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
+
+	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 
-	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"github.com/gohugoio/go-i18n/v2/i18n"
 )
 
 type translateFunc func(translationID string, templateData interface{}) string
@@ -69,17 +72,15 @@ func (t Translator) initFuncs(bndl *i18n.Bundle) {
 		currentLangKey := strings.ToLower(strings.TrimPrefix(currentLangStr, artificialLangTagPrefix))
 		localizer := i18n.NewLocalizer(bndl, currentLangStr)
 		t.translateFuncs[currentLangKey] = func(translationID string, templateData interface{}) string {
-			var pluralCount interface{}
+			pluralCount := getPluralCount(templateData)
 
 			if templateData != nil {
 				tp := reflect.TypeOf(templateData)
-				if hreflect.IsNumber(tp.Kind()) {
-					pluralCount = templateData
-					// This was how go-i18n worked in v1.
-					templateData = map[string]interface{}{
-						"Count": templateData,
-					}
-
+				if hreflect.IsInt(tp.Kind()) {
+					// This was how go-i18n worked in v1,
+					// and we keep it like this to avoid breaking
+					// lots of sites in the wild.
+					templateData = intCount(cast.ToInt(templateData))
 				}
 			}
 
@@ -89,8 +90,20 @@ func (t Translator) initFuncs(bndl *i18n.Bundle) {
 				PluralCount:  pluralCount,
 			})
 
-			if err == nil && currentLang == translatedLang {
+			sameLang := currentLang == translatedLang
+
+			if err == nil && sameLang {
 				return translated
+			}
+
+			if err != nil && sameLang && translated != "" {
+				// See #8492
+				// TODO(bep) this needs to be improved/fixed upstream,
+				// but currently we get an error even if the fallback to
+				// "other" succeeds.
+				if fmt.Sprintf("%T", err) == "i18n.pluralFormNotFoundError" {
+					return translated
+				}
 			}
 
 			if _, ok := err.(*i18n.MessageNotFoundErr); !ok {
@@ -107,5 +120,78 @@ func (t Translator) initFuncs(bndl *i18n.Bundle) {
 
 			return translated
 		}
+	}
+}
+
+// intCount wraps the Count method.
+type intCount int
+
+func (c intCount) Count() int {
+	return int(c)
+}
+
+const countFieldName = "Count"
+
+// getPluralCount gets the plural count as a string (floats) or an integer.
+// If v is nil, nil is returned.
+func getPluralCount(v interface{}) interface{} {
+	if v == nil {
+		// i18n called without any argument, make sure it does not
+		// get any plural count.
+		return nil
+	}
+
+	switch v := v.(type) {
+	case map[string]interface{}:
+		for k, vv := range v {
+			if strings.EqualFold(k, countFieldName) {
+				return toPluralCountValue(vv)
+			}
+		}
+	default:
+		vv := reflect.Indirect(reflect.ValueOf(v))
+		if vv.Kind() == reflect.Interface && !vv.IsNil() {
+			vv = vv.Elem()
+		}
+		tp := vv.Type()
+
+		if tp.Kind() == reflect.Struct {
+			f := vv.FieldByName(countFieldName)
+			if f.IsValid() {
+				return toPluralCountValue(f.Interface())
+			}
+			m := vv.MethodByName(countFieldName)
+			if m.IsValid() && m.Type().NumIn() == 0 && m.Type().NumOut() == 1 {
+				c := m.Call(nil)
+				return toPluralCountValue(c[0].Interface())
+			}
+		}
+	}
+
+	return toPluralCountValue(v)
+
+}
+
+// go-i18n expects floats to be represented by string.
+func toPluralCountValue(in interface{}) interface{} {
+	k := reflect.TypeOf(in).Kind()
+	switch {
+	case hreflect.IsFloat(k):
+		f := cast.ToString(in)
+		if !strings.Contains(f, ".") {
+			f += ".0"
+		}
+		return f
+	case k == reflect.String:
+		if _, err := cast.ToFloat64E(in); err == nil {
+			return in
+		}
+		// A non-numeric value.
+		return nil
+	default:
+		if i, err := cast.ToIntE(in); err == nil {
+			return i
+		}
+		return nil
 	}
 }

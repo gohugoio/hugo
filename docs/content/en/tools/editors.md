@@ -23,6 +23,7 @@ The Hugo community uses a wide range of preferred tools and has developed plug-i
 ## Sublime Text
 
 * [Hugofy](https://github.com/akmittal/Hugofy). Hugofy is a plugin for Sublime Text 3 to make life easier to use Hugo static site generator.
+* [Hugo Snippets](https://packagecontrol.io/packages/Hugo%20Snippets). Hugo Snippets is a useful plugin for adding automatic snippets to Sublime Text 3.
 
 ## Visual Studio Code
 

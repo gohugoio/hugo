@@ -18,6 +18,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/gohugoio/hugo/common/types"
+
 	"github.com/gohugoio/hugo/modules"
 
 	"github.com/gohugoio/hugo/tpl/tplimpl"
@@ -142,6 +144,20 @@ other = "{{ .Count }} minutes to read"
 		expectedFlag: "One minute to read",
 	},
 	{
+		name: "readingTime-many-dot",
+		data: map[string][]byte{
+			"en.toml": []byte(`[readingTime]
+one = "One minute to read"
+other = "{{ . }} minutes to read"
+`),
+		},
+		args:         21,
+		lang:         "en",
+		id:           "readingTime",
+		expected:     "21 minutes to read",
+		expectedFlag: "21 minutes to read",
+	},
+	{
 		name: "readingTime-many",
 		data: map[string][]byte{
 			"en.toml": []byte(`[readingTime]
@@ -154,6 +170,62 @@ other = "{{ .Count }} minutes to read"
 		id:           "readingTime",
 		expected:     "21 minutes to read",
 		expectedFlag: "21 minutes to read",
+	},
+	// Issue #8454
+	{
+		name: "readingTime-map-one",
+		data: map[string][]byte{
+			"en.toml": []byte(`[readingTime]
+one = "One minute to read"
+other = "{{ .Count }} minutes to read"
+`),
+		},
+		args:         map[string]interface{}{"Count": 1},
+		lang:         "en",
+		id:           "readingTime",
+		expected:     "One minute to read",
+		expectedFlag: "One minute to read",
+	},
+	{
+		name: "readingTime-string-one",
+		data: map[string][]byte{
+			"en.toml": []byte(`[readingTime]
+one = "One minute to read"
+other = "{{ . }} minutes to read"
+`),
+		},
+		args:         "1",
+		lang:         "en",
+		id:           "readingTime",
+		expected:     "One minute to read",
+		expectedFlag: "One minute to read",
+	},
+	{
+		name: "readingTime-map-many",
+		data: map[string][]byte{
+			"en.toml": []byte(`[readingTime]
+one = "One minute to read"
+other = "{{ .Count }} minutes to read"
+`),
+		},
+		args:         map[string]interface{}{"Count": 21},
+		lang:         "en",
+		id:           "readingTime",
+		expected:     "21 minutes to read",
+		expectedFlag: "21 minutes to read",
+	},
+	{
+		name: "argument-float",
+		data: map[string][]byte{
+			"en.toml": []byte(`[float]
+other = "Number is {{ . }}"
+`),
+		},
+		args:         22.5,
+		lang:         "en",
+		id:           "float",
+		expected:     "Number is 22.5",
+		expectedFlag: "Number is 22.5",
 	},
 	// Same id and translation in current language
 	// https://github.com/gohugoio/hugo/issues/2607
@@ -199,6 +271,26 @@ other = "{{ .Count }} minuttar lesing"`),
 		expected:     "3 minuttar lesing",
 		expectedFlag: "3 minuttar lesing",
 	},
+	// Issue #7838
+	{
+		name: "unknown-language-codes",
+		data: map[string][]byte{
+			"en.toml": []byte(`[readingTime]
+one ="en one"
+other = "en count {{.Count}}"`),
+			"a1.toml": []byte(`[readingTime]
+one =  "a1 one"
+other = "a1 count {{ .Count }}"`),
+			"a2.toml": []byte(`[readingTime]
+one =  "a2 one"
+other = "a2 count {{ .Count }}"`),
+		},
+		args:         3,
+		lang:         "a2",
+		id:           "readingTime",
+		expected:     "a2 count 3",
+		expectedFlag: "a2 count 3",
+	},
 	// https://github.com/gohugoio/hugo/issues/7798
 	{
 		name: "known-language-missing-plural",
@@ -217,7 +309,6 @@ one =  "abc"`),
 		name: "dotted-bare-key",
 		data: map[string][]byte{
 			"en.toml": []byte(`"shop_nextPage.one" = "Show Me The Money"
-
 `),
 		},
 		args:         nil,
@@ -240,10 +331,141 @@ one =  "abc"`),
 	},
 }
 
+func TestPlural(t *testing.T) {
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		name     string
+		lang     string
+		id       string
+		templ    string
+		variants []types.KeyValue
+	}{
+		{
+			name: "English",
+			lang: "en",
+			id:   "hour",
+			templ: `
+[hour]
+one = "{{ . }} hour"
+other = "{{ . }} hours"`,
+			variants: []types.KeyValue{
+				{Key: 1, Value: "1 hour"},
+				{Key: "1", Value: "1 hour"},
+				{Key: 1.5, Value: "1.5 hours"},
+				{Key: "1.5", Value: "1.5 hours"},
+				{Key: 2, Value: "2 hours"},
+				{Key: "2", Value: "2 hours"},
+			},
+		},
+		{
+			name: "Other only",
+			lang: "en",
+			id:   "hour",
+			templ: `
+[hour]
+other = "{{ with . }}{{ . }}{{ end }} hours"`,
+			variants: []types.KeyValue{
+				{Key: 1, Value: "1 hours"},
+				{Key: "1", Value: "1 hours"},
+				{Key: 2, Value: "2 hours"},
+				{Key: nil, Value: " hours"},
+			},
+		},
+		{
+			name: "Polish",
+			lang: "pl",
+			id:   "day",
+			templ: `
+[day]
+one = "{{ . }} miesiąc"
+few = "{{ . }} miesiące"
+many = "{{ . }} miesięcy"
+other = "{{ . }} miesiąca"
+`,
+			variants: []types.KeyValue{
+				{Key: 1, Value: "1 miesiąc"},
+				{Key: 2, Value: "2 miesiące"},
+				{Key: 100, Value: "100 miesięcy"},
+				{Key: "100.0", Value: "100.0 miesiąca"},
+				{Key: 100.0, Value: "100 miesiąca"},
+			},
+		},
+	} {
+
+		c.Run(test.name, func(c *qt.C) {
+			cfg := getConfig()
+			cfg.Set("enableMissingTranslationPlaceholders", true)
+			fs := hugofs.NewMem(cfg)
+
+			err := afero.WriteFile(fs.Source, filepath.Join("i18n", test.lang+".toml"), []byte(test.templ), 0755)
+			c.Assert(err, qt.IsNil)
+
+			tp := NewTranslationProvider()
+			depsCfg := newDepsConfig(tp, cfg, fs)
+			depsCfg.Logger = loggers.NewWarningLogger()
+			d, err := deps.New(depsCfg)
+			c.Assert(err, qt.IsNil)
+			c.Assert(d.LoadResources(), qt.IsNil)
+
+			f := tp.t.Func(test.lang)
+
+			for _, variant := range test.variants {
+				c.Assert(f(test.id, variant.Key), qt.Equals, variant.Value, qt.Commentf("input: %v", variant.Key))
+				c.Assert(int(depsCfg.Logger.LogCounters().WarnCounter.Count()), qt.Equals, 0)
+			}
+
+		})
+
+	}
+}
+
 func doTestI18nTranslate(t testing.TB, test i18nTest, cfg config.Provider) string {
 	tp := prepareTranslationProvider(t, test, cfg)
 	f := tp.t.Func(test.lang)
 	return f(test.id, test.args)
+}
+
+type countField struct {
+	Count interface{}
+}
+
+type noCountField struct {
+	Counts int
+}
+
+type countMethod struct {
+}
+
+func (c countMethod) Count() interface{} {
+	return 32.5
+}
+
+func TestGetPluralCount(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(getPluralCount(map[string]interface{}{"Count": 32}), qt.Equals, 32)
+	c.Assert(getPluralCount(map[string]interface{}{"Count": 1}), qt.Equals, 1)
+	c.Assert(getPluralCount(map[string]interface{}{"Count": 1.5}), qt.Equals, "1.5")
+	c.Assert(getPluralCount(map[string]interface{}{"Count": "32"}), qt.Equals, "32")
+	c.Assert(getPluralCount(map[string]interface{}{"Count": "32.5"}), qt.Equals, "32.5")
+	c.Assert(getPluralCount(map[string]interface{}{"count": 32}), qt.Equals, 32)
+	c.Assert(getPluralCount(map[string]interface{}{"Count": "32"}), qt.Equals, "32")
+	c.Assert(getPluralCount(map[string]interface{}{"Counts": 32}), qt.Equals, nil)
+	c.Assert(getPluralCount("foo"), qt.Equals, nil)
+	c.Assert(getPluralCount(countField{Count: 22}), qt.Equals, 22)
+	c.Assert(getPluralCount(countField{Count: 1.5}), qt.Equals, "1.5")
+	c.Assert(getPluralCount(&countField{Count: 22}), qt.Equals, 22)
+	c.Assert(getPluralCount(noCountField{Counts: 23}), qt.Equals, nil)
+	c.Assert(getPluralCount(countMethod{}), qt.Equals, "32.5")
+	c.Assert(getPluralCount(&countMethod{}), qt.Equals, "32.5")
+
+	c.Assert(getPluralCount(1234), qt.Equals, 1234)
+	c.Assert(getPluralCount(1234.4), qt.Equals, "1234.4")
+	c.Assert(getPluralCount(1234.0), qt.Equals, "1234.0")
+	c.Assert(getPluralCount("1234"), qt.Equals, "1234")
+	c.Assert(getPluralCount("0.5"), qt.Equals, "0.5")
+	c.Assert(getPluralCount(nil), qt.Equals, nil)
 }
 
 func prepareTranslationProvider(t testing.TB, test i18nTest, cfg config.Provider) *TranslationProvider {
