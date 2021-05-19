@@ -45,25 +45,3 @@ func RemoveAccentsString(s string) string {
 	accentTransformerPool.Put(t)
 	return s
 }
-
-// Chunk splits s into strings of size.
-func Chunk(s string, size int) []string {
-	if size >= len(s) {
-		return []string{s}
-	}
-	var chunks []string
-	chunk := make([]rune, size)
-	l := 0
-	for _, r := range s {
-		chunk[l] = r
-		l++
-		if l == size {
-			chunks = append(chunks, string(chunk))
-			l = 0
-		}
-	}
-	if l > 0 {
-		chunks = append(chunks, string(chunk[:l]))
-	}
-	return chunks
-}
