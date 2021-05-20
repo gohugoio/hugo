@@ -14,9 +14,14 @@
 package commands
 
 import (
+	"fmt"
+	"os"
+	"path/filepath"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/htesting"
+	"github.com/gohugoio/hugo/hugofs"
 )
 
 // Issue #5662
@@ -44,4 +49,46 @@ contentDir = "thisdoesnotexist"
 
 	_, err = cmd.ExecuteC()
 	c.Assert(err, qt.IsNil)
+}
+
+// Issue #8433
+func TestHugoCleanDestinationDirWithoutStaticDir(t *testing.T) {
+	c := qt.New(t)
+
+	dir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-cli")
+	c.Assert(err, qt.IsNil)
+	defer clean()
+
+	newSite := Execute([]string{"new", "site", dir})
+	c.Assert(newSite.Err, qt.IsNil)
+
+	hugo := Execute([]string{"-s=" + dir})
+	c.Assert(hugo.Err, qt.IsNil)
+
+	publicDir, err := os.ReadDir(filepath.Join(dir, "public"))
+	c.Assert(err, qt.IsNil)
+
+	files := []string{}
+	for _, file := range publicDir {
+		files = append(files, file.Name())
+	}
+
+	c.Assert(err, qt.IsNil)
+	c.Assert(files, qt.Any(qt.Equals), "categories")
+	c.Assert(files, qt.Any(qt.Equals), "tags")
+
+	err = os.RemoveAll(filepath.Join(dir, "static"))
+	c.Assert(err, qt.IsNil)
+
+	fmt.Println("Executing 'hugo --disableKinds=taxonomy,term --cleanDestinationDir'")
+	resp3 := Execute([]string{"-s=" + dir, "--disableKinds=taxonomy,term", "--cleanDestinationDir"})
+	c.Assert(resp3.Err, qt.IsNil)
+
+	publicDir, err = os.ReadDir(filepath.Join(dir, "public"))
+	c.Assert(err, qt.IsNil)
+
+	for _, file := range publicDir {
+		c.Assert(file.Name(), qt.Not(qt.Equals), "categories")
+		c.Assert(file.Name(), qt.Not(qt.Equals), "tags")
+	}
 }

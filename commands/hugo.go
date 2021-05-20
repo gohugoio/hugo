@@ -653,6 +653,28 @@ func (c *commandeer) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint6
 		syncer.DeleteFilter = func(f os.FileInfo) bool {
 			return f.IsDir() && strings.HasPrefix(f.Name(), ".")
 		}
+
+		// when `static` directory doesn't exist, using --cleanDestionationDir wouldn't
+		// remove items of an existing public directory that contains files we don't want.
+		// So delete them ourselves
+		if _, err := fs.Stat(helpers.FilePathSeparator); os.IsNotExist(err) {
+			c.logger.Infoln("no static dirs exist. Proceed to remove all files")
+
+			files, err := afero.ReadDir(c.Fs.Destination, publishDir)
+			if err != nil {
+				return 0, err
+			}
+
+			for _, file := range files {
+				if !syncer.DeleteFilter(file) {
+					err = c.Fs.Destination.RemoveAll(filepath.Join(publishDir, file.Name()))
+					if err != nil {
+						return 0, err
+					}
+
+				}
+			}
+		}
 	}
 	c.logger.Infoln("syncing static files to", publishDir)
 
