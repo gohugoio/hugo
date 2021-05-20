@@ -8,7 +8,7 @@ require (
 	github.com/alecthomas/chroma v0.9.1
 	github.com/alecthomas/repr v0.0.0-20181024024818-d37bc2a10ba1 // indirect
 	github.com/armon/go-radix v1.0.0
-	github.com/aws/aws-sdk-go v1.38.23
+	github.com/aws/aws-sdk-go v1.38.43
 	github.com/bep/debounce v1.2.0
 	github.com/bep/gitmap v1.1.2
 	github.com/bep/godartsass v0.12.0
@@ -26,7 +26,6 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/gobuffalo/flect v0.2.2
 	github.com/gobwas/glob v0.2.3
-	github.com/gohugoio/go-i18n v2.1.3-0.20210430103248-4c28c89f8013+incompatible // indirect
 	github.com/gohugoio/go-i18n/v2 v2.1.3-0.20210430103248-4c28c89f8013
 	github.com/gohugoio/testmodBuilder/mods v0.0.0-20190520184928-c56af20f2e95
 	github.com/google/go-cmp v0.5.5
