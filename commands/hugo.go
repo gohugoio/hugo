@@ -789,7 +789,7 @@ func (c *commandeer) fullRebuild(changeType string) {
 			time.Sleep(2 * time.Second)
 		}()
 
-		defer c.timeTrack(time.Now(), "Rebuilt")
+		defer c.timeTrack(time.Now(), "Total")
 
 		c.commandeerHugoState = newCommandeerHugoState()
 		err := c.loadConfig(true, true)
