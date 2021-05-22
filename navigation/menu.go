@@ -25,6 +25,8 @@ import (
 	"github.com/spf13/cast"
 )
 
+var smc = newMenuCache()
+
 // MenuEntry represents a menu item defined in either Page front matter
 // or in the site config.
 type MenuEntry struct {
@@ -204,27 +206,39 @@ func (m Menu) Limit(n int) Menu {
 
 // ByWeight sorts the menu by the weight defined in the menu configuration.
 func (m Menu) ByWeight() Menu {
-	menuEntryBy(defaultMenuEntrySort).Sort(m)
-	return m
+	const key = "menuSort.ByWeight"
+	menus, _ := smc.get(key, menuEntryBy(defaultMenuEntrySort).Sort, m)
+
+	return menus
 }
 
 // ByName sorts the menu by the name defined in the menu configuration.
 func (m Menu) ByName() Menu {
+	const key = "menuSort.ByName"
 	title := func(m1, m2 *MenuEntry) bool {
 		return compare.LessStrings(m1.Name, m2.Name)
 	}
 
-	menuEntryBy(title).Sort(m)
-	return m
+	menus, _ := smc.get(key, menuEntryBy(title).Sort, m)
+
+	return menus
 }
 
 // Reverse reverses the order of the menu entries.
 func (m Menu) Reverse() Menu {
-	for i, j := 0, len(m)-1; i < j; i, j = i+1, j-1 {
-		m[i], m[j] = m[j], m[i]
+	const key = "menuSort.Reverse"
+	reverseFunc := func(menu Menu) {
+		for i, j := 0, len(menu)-1; i < j; i, j = i+1, j-1 {
+			menu[i], menu[j] = menu[j], menu[i]
+		}
 	}
+	menus, _ := smc.get(key, reverseFunc, m)
 
-	return m
+	return menus
+}
+
+func (m Menu) Clone() Menu {
+	return append(Menu(nil), m...)
 }
 
 func (m *MenuEntry) Title() string {
