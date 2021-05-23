@@ -165,6 +165,8 @@ github.com/bep/godartsass v0.12.0 h1:VvGLA4XpXUjKvp53SI05YFLhRFJ78G+Ybnlaz6Oul7E
 github.com/bep/godartsass v0.12.0/go.mod h1:nXQlHHk4H1ghUk6n/JkYKG5RD43yJfcfp5aHRqT/pc4=
 github.com/bep/golibsass v0.7.0 h1:/ocxgtPZ5rgp7FA+mktzyent+fAg82tJq4iMsTMBAtA=
 github.com/bep/golibsass v0.7.0/go.mod h1:DL87K8Un/+pWUS75ggYv41bliGiolxzDKWJAq3eJ1MA=
+github.com/bep/golibsass v1.0.0 h1:gNguBMSDi5yZEZzVZP70YpuFQE3qogJIGUlrVILTmOw=
+github.com/bep/golibsass v1.0.0/go.mod h1:DL87K8Un/+pWUS75ggYv41bliGiolxzDKWJAq3eJ1MA=
 github.com/bep/gowebp v0.1.0 h1:4/iQpfnxHyXs3x/aTxMMdOpLEQQhFmF6G7EieWPTQyo=
 github.com/bep/gowebp v0.1.0/go.mod h1:ZhFodwdiFp8ehGJpF4LdPl6unxZm9lLFjxD3z2h2AgI=
 github.com/bep/tmc v0.5.1 h1:CsQnSC6MsomH64gw0cT5f+EwQDcvZz4AazKunFwTpuI=
