@@ -122,7 +122,8 @@ func GetDependencyList() []string {
 	if IsExtended {
 		deps = append(
 			deps,
-			formatDep("github.com/sass/libsass", "3.6.4"),
+			// TODO(bep) consider adding a DepsNonGo() method to these upstream projects.
+			formatDep("github.com/sass/libsass", "3.6.5"),
 			formatDep("github.com/webmproject/libwebp", "v1.2.0"),
 		)
 	}
