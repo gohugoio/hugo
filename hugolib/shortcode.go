@@ -460,7 +460,7 @@ Loop:
 			next := pt.Peek()
 			if next.IsRightShortcodeDelim() {
 				// no name: {{< >}} or {{% %}}
-				return sc, errors.New("Shortcode has no name")
+				return sc, errors.New("shortcode has no name")
 			}
 			if next.IsShortcodeClose() {
 				continue
