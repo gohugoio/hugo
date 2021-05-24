@@ -345,7 +345,7 @@ func TestShortcodeWrappedInPIssue(t *testing.T) {
 // #6866
 func TestShortcodeIncomplete(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatchAndError(t, `{{<          >}}`, ".*Shortcode has no name.*", nil, true)
+	CheckShortCodeMatchAndError(t, `{{<          >}}`, ".*shortcode has no name.*", nil, true)
 }
 
 func TestExtractShortcodes(t *testing.T) {
