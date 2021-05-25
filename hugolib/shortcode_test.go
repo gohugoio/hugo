@@ -65,8 +65,9 @@ title: "Title"
 		t.Fatalf("Shortcode rendered error %s.", err)
 	}
 
-	if err == nil && expectError {
-		t.Fatalf("No error from shortcode")
+	if expectError {
+		c.Assert(err, qt.ErrorMatches, expected)
+		return
 	}
 
 	h := b.H
@@ -339,6 +340,12 @@ func TestShortcodeWrappedInPIssue(t *testing.T) {
 
 {{< bug >}}
 `, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", wt)
+}
+
+// #6866
+func TestShortcodeIncomplete(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatchAndError(t, `{{<          >}}`, ".*shortcode has no name.*", nil, true)
 }
 
 func TestExtractShortcodes(t *testing.T) {

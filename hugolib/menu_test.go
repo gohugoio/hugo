@@ -105,6 +105,94 @@ Menu Main:  {{ partial "menu.html" (dict "page" . "menu" "main") }}`,
 			"/sect3/|Sect3s|Sect3s|0|-|-|")
 }
 
+// related issue #7594
+func TestMenuSort(t *testing.T) {
+	b := newTestSitesBuilder(t).WithSimpleConfigFile()
+
+	b.WithTemplatesAdded("index.html", `
+{{ range $k, $v := .Site.Menus.main }}
+Default1|{{ $k }}|{{ $v.Weight }}|{{ $v.Name }}|{{ .URL }}|{{ $v.Page }}{{ end }}
+{{ range $k, $v := .Site.Menus.main.ByWeight }}
+ByWeight|{{ $k }}|{{ $v.Weight }}|{{ $v.Name }}|{{ .URL }}|{{ $v.Page }}{{ end }}
+{{ range $k, $v := (.Site.Menus.main.ByWeight).Reverse }}
+Reverse|{{ $k }}|{{ $v.Weight }}|{{ $v.Name }}|{{ .URL }}|{{ $v.Page }}{{ end }}
+{{ range $k, $v := .Site.Menus.main }}
+Default2|{{ $k }}|{{ $v.Weight }}|{{ $v.Name }}|{{ .URL }}|{{ $v.Page }}{{ end }}
+{{ range $k, $v := .Site.Menus.main.ByWeight }}
+ByWeight|{{ $k }}|{{ $v.Weight }}|{{ $v.Name }}|{{ .URL }}|{{ $v.Page }}{{ end }}
+{{ range $k, $v := .Site.Menus.main }}
+Default3|{{ $k }}|{{ $v.Weight }}|{{ $v.Name }}|{{ .URL }}|{{ $v.Page }}{{ end }}
+`)
+
+	b.WithContent("_index.md", `
+---
+title: Home
+menu:
+  main:
+    weight: 100
+---`)
+
+	b.WithContent("blog/A.md", `
+---
+title: "A"
+menu:
+  main:
+    weight: 10
+---
+`)
+
+	b.WithContent("blog/B.md", `
+---
+title: "B"
+menu:
+  main:
+    weight: 20
+---
+`)
+	b.WithContent("blog/C.md", `
+---
+title: "C"
+menu:
+  main:
+    weight: 30
+---
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html",
+		`Default1|0|10|A|/blog/a/|Page(/blog/A.md)
+        Default1|1|20|B|/blog/b/|Page(/blog/B.md)
+        Default1|2|30|C|/blog/c/|Page(/blog/C.md)
+        Default1|3|100|Home|/|Page(/_index.md)
+
+        ByWeight|0|10|A|/blog/a/|Page(/blog/A.md)
+        ByWeight|1|20|B|/blog/b/|Page(/blog/B.md)
+        ByWeight|2|30|C|/blog/c/|Page(/blog/C.md)
+        ByWeight|3|100|Home|/|Page(/_index.md)
+
+        Reverse|0|100|Home|/|Page(/_index.md)
+        Reverse|1|30|C|/blog/c/|Page(/blog/C.md)
+        Reverse|2|20|B|/blog/b/|Page(/blog/B.md)
+        Reverse|3|10|A|/blog/a/|Page(/blog/A.md)
+
+        Default2|0|10|A|/blog/a/|Page(/blog/A.md)
+        Default2|1|20|B|/blog/b/|Page(/blog/B.md)
+        Default2|2|30|C|/blog/c/|Page(/blog/C.md)
+        Default2|3|100|Home|/|Page(/_index.md)
+
+        ByWeight|0|10|A|/blog/a/|Page(/blog/A.md)
+        ByWeight|1|20|B|/blog/b/|Page(/blog/B.md)
+        ByWeight|2|30|C|/blog/c/|Page(/blog/C.md)
+        ByWeight|3|100|Home|/|Page(/_index.md)
+
+        Default3|0|10|A|/blog/a/|Page(/blog/A.md)
+        Default3|1|20|B|/blog/b/|Page(/blog/B.md)
+        Default3|2|30|C|/blog/c/|Page(/blog/C.md)
+        Default3|3|100|Home|/|Page(/_index.md)`,
+	)
+}
+
 func TestMenuFrontMatter(t *testing.T) {
 	b := newTestSitesBuilder(t).WithSimpleConfigFile()
 

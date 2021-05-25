@@ -33,8 +33,6 @@ import (
 	"github.com/gohugoio/hugo/parser/pageparser"
 	"github.com/gohugoio/hugo/resources/page"
 
-	_errors "github.com/pkg/errors"
-
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/common/urls"
@@ -310,7 +308,7 @@ func renderShortcode(
 			var found bool
 			tmpl, found = s.TextTmpl().Lookup(templName)
 			if !found {
-				return "", false, _errors.Errorf("no earlier definition of shortcode %q found", sc.name)
+				return "", false, errors.Errorf("no earlier definition of shortcode %q found", sc.name)
 			}
 		}
 	} else {
@@ -417,7 +415,7 @@ func (s *shortcodeHandler) renderShortcodesForPage(p *pageState, f output.Format
 	for _, v := range s.shortcodes {
 		s, more, err := renderShortcode(0, s.s, tplVariants, v, nil, p)
 		if err != nil {
-			err = p.parseError(_errors.Wrapf(err, "failed to render shortcode %q", v.name), p.source.parsed.Input(), v.pos)
+			err = p.parseError(errors.Wrapf(err, "failed to render shortcode %q", v.name), p.source.parsed.Input(), v.pos)
 			return nil, false, err
 		}
 		hasVariants = hasVariants || more
@@ -460,6 +458,10 @@ Loop:
 		switch {
 		case currItem.IsLeftShortcodeDelim():
 			next := pt.Peek()
+			if next.IsRightShortcodeDelim() {
+				// no name: {{< >}} or {{% %}}
+				return sc, errors.New("shortcode has no name")
+			}
 			if next.IsShortcodeClose() {
 				continue
 			}
@@ -506,7 +508,7 @@ Loop:
 						// return that error, more specific
 						continue
 					}
-					return sc, fail(_errors.Errorf("shortcode %q has no .Inner, yet a closing tag was provided", next.Val), next)
+					return sc, fail(errors.Errorf("shortcode %q has no .Inner, yet a closing tag was provided", next.Val), next)
 				}
 			}
 			if next.IsRightShortcodeDelim() {
@@ -536,7 +538,7 @@ Loop:
 			// Used to check if the template expects inner content.
 			templs := s.s.Tmpl().LookupVariants(sc.name)
 			if templs == nil {
-				return nil, _errors.Errorf("template for shortcode %q not found", sc.name)
+				return nil, errors.Errorf("template for shortcode %q not found", sc.name)
 			}
 
 			sc.info = templs[0].(tpl.Info)
@@ -637,7 +639,7 @@ func renderShortcodeWithPage(h tpl.TemplateHandler, tmpl tpl.Template, data *Sho
 
 	err := h.Execute(tmpl, buffer, data)
 	if err != nil {
-		return "", _errors.Wrap(err, "failed to process shortcode")
+		return "", errors.Wrap(err, "failed to process shortcode")
 	}
 	return buffer.String(), nil
 }
