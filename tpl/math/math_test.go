@@ -357,3 +357,81 @@ func TestPow(t *testing.T) {
 		c.Assert(result, qt.Equals, test.expect)
 	}
 }
+
+func TestMax(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New()
+
+	for _, test := range []struct {
+		a      interface{}
+		b      interface{}
+		expect interface{}
+	}{
+		{-1, -1, float64(-1)},
+		{-1, 0, float64(0)},
+		{-1, 1, float64(1)},
+		{0, -1, float64(0)},
+		{0, 0, float64(0)},
+		{0, 1, float64(1)},
+		{1, -1, float64(1)},
+		{1, 0, float64(1)},
+		{1, 1, float64(1)},
+		{1.2, 1.23, float64(1.23)},
+		{-1.2, -1.23, float64(-1.2)},
+		{0, "a", false},
+		{"a", 0, false},
+		{"a", "b", false},
+	} {
+
+		result, err := ns.Max(test.a, test.b)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}
+
+func TestMin(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New()
+
+	for _, test := range []struct {
+		a      interface{}
+		b      interface{}
+		expect interface{}
+	}{
+		{-1, -1, float64(-1)},
+		{-1, 0, float64(-1)},
+		{-1, 1, float64(-1)},
+		{0, -1, float64(-1)},
+		{0, 0, float64(0)},
+		{0, 1, float64(0)},
+		{1, -1, float64(-1)},
+		{1, 0, float64(0)},
+		{1, 1, float64(1)},
+		{1.2, 1.23, float64(1.2)},
+		{-1.2, -1.23, float64(-1.23)},
+		{0, "a", false},
+		{"a", 0, false},
+		{"a", "b", false},
+	} {
+
+		result, err := ns.Min(test.a, test.b)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}

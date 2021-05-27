@@ -1,6 +1,6 @@
 ---
 title: Math
-description: Hugo provides nine mathematical operators in templates.
+description: Hugo provides mathematical operators in templates.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -35,7 +35,9 @@ aliases: []
 | `modBool`    | Boolean of modulus of two integers. Evaluates to `true` if result equals 0. | `{{modBool 15 3}}` &rarr; `true` |
 | `math.Ceil`  | Returns the least integer value greater than or equal to the given number.  | `{{math.Ceil 2.1}}` &rarr; `3`   |
 | `math.Floor` | Returns the greatest integer value less than or equal to the given number.  | `{{math.Floor 1.9}}` &rarr; `1`  |
-| `math.Round` | Returns the nearest integer, rounding half away from zero.                  | `{{math.Round 1.5}}` &rarr; `2`  |
 | `math.Log`   | Returns the natural logarithm of the given number.                          | `{{math.Log 42}}` &rarr; `3.737` |
-| `math.Sqrt`  | Returns the square root of the given number.                                | `{{math.Sqrt 81}}` &rarr; `9`    |
+| `math.Max`   | Returns the greater of two numbers.                                         | `{{math.Max 1 2}}` &rarr; `2`    |
+| `math.Min`   | Returns the smaller of two numbers.                                         | `{{math.Min 1 2}}` &rarr; `1`    |
 | `math.Pow`   | Returns the first number raised to the power of the second number.          | `{{math.Pow 2 3}}` &rarr; `8`    |
+| `math.Round` | Returns the nearest integer, rounding half away from zero.                  | `{{math.Round 1.5}}` &rarr; `2`  |
+| `math.Sqrt`  | Returns the square root of the given number.                                | `{{math.Sqrt 81}}` &rarr; `9`    |

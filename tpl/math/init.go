@@ -64,10 +64,17 @@ func init() {
 			},
 		)
 
-		ns.AddMethodMapping(ctx.Sqrt,
+		ns.AddMethodMapping(ctx.Max,
 			nil,
 			[][2]string{
-				{"{{math.Sqrt 81}}", "9"},
+				{"{{math.Max 1 2 }}", "2"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Min,
+			nil,
+			[][2]string{
+				{"{{math.Min 1 2 }}", "1"},
 			},
 		)
 
@@ -103,6 +110,13 @@ func init() {
 			nil,
 			[][2]string{
 				{"{{math.Round 1.5}}", "2"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Sqrt,
+			nil,
+			[][2]string{
+				{"{{math.Sqrt 81}}", "9"},
 			},
 		)
 
