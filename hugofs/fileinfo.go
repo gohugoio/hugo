@@ -280,7 +280,7 @@ func (fi *dirNameOnlyFileInfo) Mode() os.FileMode {
 }
 
 func (fi *dirNameOnlyFileInfo) ModTime() time.Time {
-	return time.Time{}
+	return time.Now()
 }
 
 func (fi *dirNameOnlyFileInfo) IsDir() bool {
