@@ -528,6 +528,8 @@ theme_param="themevalue2"
 		// Issue #8346
 		"HUGOxPARAMSxMYTHEME_SECTIONxTHEME_PARAM", "themevalue_changed",
 		"HUGOxPARAMSxMYTHEME_SECTION2xTHEME_PARAM", "themevalue2_changed",
+		"HUGO_PARAMS_EMPTY", ``,
+		"HUGO_PARAMS_HTML", `<a target="_blank" />`,
 	)
 
 	b.Build(BuildCfg{})
@@ -547,4 +549,6 @@ theme_param="themevalue2"
 	c.Assert(cfg.Get("params.api_config.another_key"), qt.Equals, "default another_key")
 	c.Assert(cfg.Get("params.mytheme_section.theme_param"), qt.Equals, "themevalue_changed")
 	c.Assert(cfg.Get("params.mytheme_section2.theme_param"), qt.Equals, "themevalue2_changed")
+	c.Assert(cfg.Get("params.empty"), qt.Equals, ``)
+	c.Assert(cfg.Get("params.html"), qt.Equals, `<a target="_blank" />`)
 }
