@@ -188,11 +188,12 @@ func (t taxonomiesConfig) Values() []viewName {
 }
 
 type siteConfigHolder struct {
-	sitemap          config.Sitemap
-	taxonomiesConfig taxonomiesConfig
-	timeout          time.Duration
-	hasCJKLanguage   bool
-	enableEmoji      bool
+	sitemap            config.Sitemap
+	taxonomiesConfig   taxonomiesConfig
+	timeout            time.Duration
+	hasCJKLanguage     bool
+	enableEmoji        bool
+	summaryByParagraph bool
 }
 
 // Lazily loaded site dependencies.
@@ -533,11 +534,12 @@ But this also means that your site configuration may not do what you expect. If 
 	}
 
 	siteConfig := siteConfigHolder{
-		sitemap:          config.DecodeSitemap(config.Sitemap{Priority: -1, Filename: "sitemap.xml"}, cfg.Language.GetStringMap("sitemap")),
-		taxonomiesConfig: taxonomies,
-		timeout:          timeout,
-		hasCJKLanguage:   cfg.Language.GetBool("hasCJKLanguage"),
-		enableEmoji:      cfg.Language.Cfg.GetBool("enableEmoji"),
+		sitemap:            config.DecodeSitemap(config.Sitemap{Priority: -1, Filename: "sitemap.xml"}, cfg.Language.GetStringMap("sitemap")),
+		taxonomiesConfig:   taxonomies,
+		timeout:            timeout,
+		hasCJKLanguage:     cfg.Language.GetBool("hasCJKLanguage"),
+		enableEmoji:        cfg.Language.Cfg.GetBool("enableEmoji"),
+		summaryByParagraph: cfg.Language.GetBool("summaryByParagraph"),
 	}
 
 	s := &Site{

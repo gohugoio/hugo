@@ -258,6 +258,9 @@ sitemap
 staticDir ("static")
 : A directory or a list of directories from where Hugo reads [static files][static-files]. {{% module-mounts-note %}}
 
+summaryByParagraph (false)
+: Enable this to generate summary from the first paragraph if no manual summary or front matter summary set.
+
 summaryLength (70)
 : The length of text in words to show in a [`.Summary`](/content-management/summaries/#hugo-defined-automatic-summary-splitting).
 

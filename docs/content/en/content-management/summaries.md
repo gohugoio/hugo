@@ -39,6 +39,10 @@ You can customize how HTML tags in the summary are loaded using functions such a
 The Hugo-defined summaries are set to use word count calculated by splitting the text by one or more consecutive whitespace characters. If you are creating content in a `CJK` language and want to use Hugo's automatic summary splitting, set `hasCJKLanguage` to `true` in your [site configuration](/getting-started/configuration/).
 {{% /note %}}
 
+#### Split after the first paragraph
+
+If you set `summaryByParagraph` configuration to true in the [site configuration](/getting-started/configuration/) then instead of taking the first 70 words, Hugo will take the first paragraph as it's summary.
+
 ### Manual Summary Splitting
 
 Alternatively, you may add the <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> summary divider where you want to split the article. 

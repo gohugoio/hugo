@@ -85,6 +85,8 @@ type pageMeta struct {
 	// whether the content is in a CJK language.
 	isCJKLanguage bool
 
+	summaryByParagraph bool
+
 	layout string
 
 	aliases []string
@@ -437,7 +439,7 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 
 	var sitemapSet bool
 
-	var draft, published, isCJKLanguage *bool
+	var draft, published, isCJKLanguage, isSummaryByParagraph *bool
 	for k, v := range frontmatter {
 		loki := strings.ToLower(k)
 
@@ -545,6 +547,10 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 		case "iscjklanguage":
 			isCJKLanguage = new(bool)
 			*isCJKLanguage = cast.ToBool(v)
+
+		case "summarybyparagraph":
+			isSummaryByParagraph = new(bool)
+			*isSummaryByParagraph = cast.ToBool(v)
 		case "translationkey":
 			pm.translationKey = cast.ToString(v)
 			pm.params[loki] = pm.translationKey
@@ -645,6 +651,12 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 		} else {
 			pm.isCJKLanguage = false
 		}
+	}
+
+	if isSummaryByParagraph != nil {
+		pm.summaryByParagraph = *isSummaryByParagraph
+	} else if p.s.siteCfg.summaryByParagraph {
+		pm.summaryByParagraph = true
 	}
 
 	pm.params["iscjklanguage"] = p.m.isCJKLanguage

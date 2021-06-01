@@ -122,6 +122,14 @@ func TestNewContentSpec(t *testing.T) {
 
 var benchmarkTruncateString = strings.Repeat("This is a sentence about nothing.", 20)
 
+func BenchmarkTestTruncateToParagraph(b *testing.B) {
+	c := newTestContentSpec()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		c.TruncateToParagraph(benchmarkTruncateString)
+	}
+}
+
 func BenchmarkTestTruncateWordsToWholeSentence(b *testing.B) {
 	c := newTestContentSpec()
 	b.ResetTimer()
@@ -159,6 +167,33 @@ func TestTruncateWordsToWholeSentence(t *testing.T) {
 	for i, d := range data {
 		c.summaryLength = d.max
 		output, truncated := c.TruncateWordsToWholeSentence(d.input)
+		if d.expected != output {
+			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
+		}
+
+		if d.truncated != truncated {
+			t.Errorf("Test %d failed. Expected truncated=%t got %t", i, d.truncated, truncated)
+		}
+	}
+}
+
+func TestTruncateWordsToParagraph(t *testing.T) {
+	c := newTestContentSpec()
+	type test struct {
+		input, expected string
+		truncated       bool
+	}
+	data := []test{
+		{"a b c", "a b c", false},
+		{"<p>To be.</p>", "<p>To be.</p>", false},
+		{"asdf jkle <p>To be.</p>", "<p>To be.</p>", true},
+		{"<blockquote>asdf jkle</blockquote><p>To be.</p>", "<p>To be.</p>", true},
+		{"<p>To be.</p><p>Or not to be. That's the question.</p>", "<p>To be.</p>", true},
+		{"<p>To <b>be.</b></p><p>Or not to be. That's the question.</p>", "<p>To <b>be.</b></p>", true},
+		{"<p>To be.<p>Or not to be. That's the question.", "<p>To be.", true},
+	}
+	for i, d := range data {
+		output, truncated := c.TruncateToParagraph(d.input)
 		if d.expected != output {
 			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
 		}

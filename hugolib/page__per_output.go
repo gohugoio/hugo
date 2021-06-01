@@ -357,11 +357,14 @@ func (p *pageContentOutput) setAutoSummary() error {
 	var summary string
 	var truncated bool
 
-	if p.p.m.isCJKLanguage {
+	if p.p.m.summaryByParagraph {
+		summary, truncated = p.p.s.ContentSpec.TruncateToParagraph(string(p.content))
+	} else if p.p.m.isCJKLanguage {
 		summary, truncated = p.p.s.ContentSpec.TruncateWordsByRune(p.plainWords)
 	} else {
 		summary, truncated = p.p.s.ContentSpec.TruncateWordsToWholeSentence(p.plain)
 	}
+
 	p.summary = template.HTML(summary)
 
 	p.truncated = truncated

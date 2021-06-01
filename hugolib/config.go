@@ -639,6 +639,7 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 	v.SetDefault("disablePathToLower", false)
 	v.SetDefault("hasCJKLanguage", false)
 	v.SetDefault("enableEmoji", false)
+	v.SetDefault("summaryByParagraph", false)
 	v.SetDefault("pygmentsCodeFencesGuessSyntax", false)
 	v.SetDefault("defaultContentLanguage", "en")
 	v.SetDefault("defaultContentLanguageInSubdir", false)

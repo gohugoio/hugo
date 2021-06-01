@@ -20,6 +20,7 @@ package helpers
 import (
 	"bytes"
 	"html/template"
+	"io"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -34,6 +35,8 @@ import (
 
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/config"
+
+	htmlTokenizer "golang.org/x/net/html"
 )
 
 // SummaryDivider denotes where content summarization should end. The default is "<!--more-->".
@@ -306,6 +309,56 @@ func (c *ContentSpec) TruncateWordsToWholeSentence(s string) (string, bool) {
 	}
 
 	return strings.TrimSpace(s[:endIndex]), endIndex < len(s)
+}
+
+// TruncateWordsToParagraph Creates summary from the first paragraph
+func (c *ContentSpec) TruncateToParagraph(pageString string) (string, bool) {
+	stringLen := len(pageString)
+	tokenizer := htmlTokenizer.NewTokenizer(bytes.NewBufferString(pageString))
+
+	var inParagraph bool
+	var paragraph []byte
+
+	for {
+		token := tokenizer.Next()
+		switch token {
+
+		case htmlTokenizer.ErrorToken:
+			if tokenizer.Err() == io.EOF {
+				if len(paragraph) > 0 {
+					return string(paragraph), len(paragraph) != stringLen
+				}
+			}
+
+			return pageString, false
+
+		case htmlTokenizer.StartTagToken, htmlTokenizer.EndTagToken:
+			tagName, _ := tokenizer.TagName()
+
+			isParagraph := len(tagName) == 1 && tagName[0] == 'p'
+
+			if isParagraph && token == htmlTokenizer.StartTagToken {
+				if inParagraph {
+					return string(paragraph), len(paragraph) != stringLen
+				}
+
+				inParagraph = true
+			}
+
+			if inParagraph {
+				paragraph = append(paragraph, tokenizer.Raw()...)
+			}
+
+			if isParagraph && token == htmlTokenizer.EndTagToken {
+				return string(paragraph), len(paragraph) != stringLen
+			}
+
+		default:
+			if inParagraph {
+				paragraph = append(paragraph, tokenizer.Raw()...)
+			}
+		}
+	}
 }
 
 // TrimShortHTML removes the <p>/</p> tags from HTML input in the situation
