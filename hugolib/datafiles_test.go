@@ -410,3 +410,17 @@ Slogan from shortcode: {{< d >}}
 	c.Assert(content, qt.Contains, "Slogan from template: Hugo Rocks!")
 	c.Assert(content, qt.Contains, "Slogan from shortcode: Hugo Rocks!")
 }
+
+func TestDataDirEmpty(t *testing.T) {
+	t.Parallel()
+	equivDataDirs := make([]dataDir, 3)
+	equivDataDirs[0].addSource("data/test/a.json", ``)
+	equivDataDirs[1].addSource("data/test/a.yaml", "")
+	equivDataDirs[2].addSource("data/test/a.toml", "")
+	expected := map[string]interface{}{
+		"test": map[string]interface{}{
+			"a": map[string]interface{}{},
+		},
+	}
+	doTestEquivalentDataDirs(t, equivDataDirs, expected)
+}

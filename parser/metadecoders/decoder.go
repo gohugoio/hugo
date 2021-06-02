@@ -112,7 +112,7 @@ func (d Decoder) UnmarshalStringTo(data string, typ interface{}) (interface{}, e
 // Unmarshal will unmarshall data in format f into an interface{}.
 // This is what's needed for Hugo's /data handling.
 func (d Decoder) Unmarshal(data []byte, f Format) (interface{}, error) {
-	if data == nil {
+	if len(data) == 0 {
 		switch f {
 		case CSV:
 			return make([][]string, 0), nil
