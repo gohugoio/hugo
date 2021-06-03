@@ -62,6 +62,78 @@ func TestExif(t *testing.T) {
 	c.Assert(x2, eq, x)
 }
 
+func TestImageWithoutExifData(t *testing.T) {
+	c := qt.New(t)
+	f, err := os.Open(filepath.FromSlash("../../testdata/sunset_without_exif.jpg"))
+	c.Assert(err, qt.IsNil)
+	defer f.Close()
+
+	d, err := NewDecoder(IncludeFields("Lens|Date"))
+	c.Assert(err, qt.IsNil)
+	x, err := d.Decode(f)
+	c.Assert(err, qt.IsNil)
+	c.Assert(x, qt.IsNil)
+}
+
+func TestTagValueTypes(t *testing.T) {
+	c := qt.New(t)
+	f, err := os.Open(filepath.FromSlash("../../testdata/sunset.jpg"))
+	c.Assert(err, qt.IsNil)
+	defer f.Close()
+
+	d, err := NewDecoder(IncludeFields("FNumber|ExposureTime|ShutterSpeedValue|Flash|GPSVersionID"))
+	c.Assert(err, qt.IsNil)
+	x, err := d.Decode(f)
+	c.Assert(err, qt.IsNil)
+
+	// Rational with numerator > 1
+	v, found := x.Tags["FNumber"]
+	c.Assert(found, qt.Equals, true)
+	c.Assert(v, hqt.IsSameType, float64(0))
+
+	// Rational with numerator = 1
+	v, found = x.Tags["ExposureTime"]
+	c.Assert(found, qt.Equals, true)
+	c.Assert(v, hqt.IsSameType, &big.Rat{})
+
+	// Signed
+	v, found = x.Tags["ShutterSpeedValue"]
+	c.Assert(found, qt.Equals, true)
+	c.Assert(v, hqt.IsSameType, float64(0))
+
+	// Short
+	v, found = x.Tags["Flash"]
+	c.Assert(found, qt.Equals, true)
+	c.Assert(v, hqt.IsSameType, int(0))
+
+	// Byte array
+	v, found = x.Tags["GPSVersionID"]
+	c.Assert(found, qt.Equals, true)
+	inArr, ok := v.([]interface{})
+	c.Assert(ok, qt.Equals, true)
+	c.Assert(inArr[0], hqt.IsSameType, uint8(0))
+}
+
+func TestDisableOptions(t *testing.T) {
+	c := qt.New(t)
+	f, err := os.Open(filepath.FromSlash("../../testdata/sunset.jpg"))
+	c.Assert(err, qt.IsNil)
+	defer f.Close()
+
+	d, err := NewDecoder(
+		WithDateDisabled(true),
+		WithLatLongDisabled(true),
+	)
+	c.Assert(err, qt.IsNil)
+	x, err := d.Decode(f)
+	c.Assert(err, qt.IsNil)
+
+	c.Assert(x.Date.IsZero(), qt.IsTrue)
+
+	c.Assert(x.Lat, qt.Equals, 0.0)
+	c.Assert(x.Long, qt.Equals, 0.0)
+}
+
 func TestExifPNG(t *testing.T) {
 	c := qt.New(t)
 
@@ -87,23 +159,6 @@ func TestIssue8079(t *testing.T) {
 	x, err := d.Decode(f)
 	c.Assert(err, qt.IsNil)
 	c.Assert(x.Tags["ImageDescription"], qt.Equals, "Città del Vaticano #nanoblock #vatican #vaticancity")
-}
-
-func TestNullString(t *testing.T) {
-	c := qt.New(t)
-
-	for _, test := range []struct {
-		in     string
-		expect string
-	}{
-		{"foo", "foo"},
-		{"\x20", "\x20"},
-		{"\xc4\x81", "\xc4\x81"}, // \u0101
-		{"\u0160", "\u0160"},     // non-breaking space
-	} {
-		res := nullString([]byte(test.in))
-		c.Assert(res, qt.Equals, test.expect)
-	}
 }
 
 func BenchmarkDecodeExif(b *testing.B) {

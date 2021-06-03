@@ -14,23 +14,26 @@
 package exif
 
 import (
-	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"math/big"
 	"regexp"
 	"strings"
 	"time"
-	"unicode"
-	"unicode/utf8"
 
 	"github.com/bep/tmc"
 
-	_exif "github.com/rwcarlsen/goexif/exif"
-	"github.com/rwcarlsen/goexif/tiff"
+	_exif "github.com/dsoprea/go-exif/v3"
+	exifcommon "github.com/dsoprea/go-exif/v3/common"
+	png "github.com/dsoprea/go-png-image-structure"
 )
 
-const exifTimeLayout = "2006:01:02 15:04:05"
+const (
+	exifTimeLayout = "2006:01:02 15:04:05"
+	// IFD ID used for efficiency. ID obtained from https://exiftool.org/TagNames/EXIF.html
+	dateTimeTagId = 0x9003
+)
 
 type Exif struct {
 	Lat  float64
@@ -106,134 +109,167 @@ func NewDecoder(options ...func(*Decoder) error) (*Decoder, error) {
 	return d, nil
 }
 
-func (d *Decoder) Decode(r io.Reader) (ex *Exif, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = fmt.Errorf("Exif failed: %v", r)
-		}
-	}()
-
-	var x *_exif.Exif
-	x, err = _exif.Decode(r)
+func (d *Decoder) Decode(r io.Reader) (*Exif, error) {
+	rawBytes, err := ioutil.ReadAll(r)
 	if err != nil {
-		if err.Error() == "EOF" {
-			// Found no Exif
-			return nil, nil
+		return nil, err
+	}
+	rawExif, err := _exif.SearchAndExtractExif(rawBytes)
+
+	if err != nil {
+		parsed := png.NewPngMediaParser()
+		if parsed.LooksLikeFormat(rawBytes) {
+			return nil, fmt.Errorf("type not supported")
 		}
-		return
+		// No Exif data
+		return nil, nil
+	}
+
+	im, err := exifcommon.NewIfdMappingWithStandard()
+	if err != nil {
+		return nil, err
+	}
+	ti := _exif.NewTagIndex()
+
+	_, index, err := _exif.Collect(im, ti, rawExif)
+	if err != nil {
+		return nil, err
 	}
 
 	var tm time.Time
 	var lat, long float64
 
-	if !d.noDate {
-		tm, _ = x.DateTime()
+	rootIfd := index.RootIfd
+
+	ifd, err := rootIfd.ChildWithIfdPath(exifcommon.IfdGpsInfoStandardIfdIdentity)
+	if !d.noLatLong && err == nil {
+		if gpsInfo, err := ifd.GpsInfo(); err == nil {
+			lat = gpsInfo.Latitude.Decimal()
+			long = gpsInfo.Longitude.Decimal()
+		}
 	}
 
-	if !d.noLatLong {
-		lat, long, _ = x.LatLong()
+	exifIfd, _ := rootIfd.ChildWithIfdPath(exifcommon.IfdExifStandardIfdIdentity)
+
+	if results, err := exifIfd.FindTagWithId(dateTimeTagId); !d.noDate && err == nil && len(results) == 1 {
+		dateTimeTagEntry := results[0]
+		dateTimeRaw, _ := dateTimeTagEntry.Value()
+		dateTimeString := dateTimeRaw.(string)
+
+		tm, _ = time.Parse(exifTimeLayout, dateTimeString)
 	}
 
-	walker := &exifWalker{x: x, vals: make(map[string]interface{}), includeMatcher: d.includeFieldsRe, excludeMatcher: d.excludeFieldsrRe}
-	if err = x.Walk(walker); err != nil {
-		return
+	vals, err := extractTags(&index, d.includeFieldsRe, d.excludeFieldsrRe)
+	if err != nil {
+		// No Exif metadata
+		return nil, nil
 	}
 
-	ex = &Exif{Lat: lat, Long: long, Date: tm, Tags: walker.vals}
+	ex := &Exif{Lat: lat, Long: long, Date: tm, Tags: vals}
 
-	return
+	return ex, nil
 }
 
-func decodeTag(x *_exif.Exif, f _exif.FieldName, t *tiff.Tag) (interface{}, error) {
-	switch t.Format() {
-	case tiff.StringVal, tiff.UndefVal:
-		s := nullString(t.Val)
-		if strings.Contains(string(f), "DateTime") {
-			if d, err := tryParseDate(x, s); err == nil {
+// Code borrowed from exif.DateTime and adjusted.
+func tryParseDate(s string) (time.Time, error) {
+	dateStr := strings.TrimRight(s, "\x00")
+	// TODO(bep): look for timezone offset, GPS time, etc.
+	timeZone := time.Local
+	return time.ParseInLocation(exifTimeLayout, dateStr, timeZone)
+}
+
+func processRational(n int64, d int64) interface{} {
+	rat := big.NewRat(n, d)
+	if n != 1 {
+		f, _ := rat.Float64()
+		return f
+	}
+	return rat
+}
+
+func extractTagValue(ite *_exif.IfdTagEntry) (val interface{}, err error) {
+	tagName := ite.TagName()
+	tagType := ite.TagType()
+	unitCount := ite.UnitCount()
+	valueRaw, err := ite.Value()
+	if err != nil {
+		return nil, err
+	}
+
+	switch tagType {
+	case exifcommon.TypeAscii:
+		s, _ := valueRaw.(string)
+		if strings.Contains(tagName, "DateTime") {
+			if d, err := tryParseDate(s); err == nil {
 				return d, nil
 			}
 		}
 		return s, nil
-	case tiff.OtherVal:
-		return "unknown", nil
+
+	case exifcommon.TypeUndefined:
+		return valueRaw, nil
 	}
 
 	var rv []interface{}
 
-	for i := 0; i < int(t.Count); i++ {
-		switch t.Format() {
-		case tiff.RatVal:
-			n, d, _ := t.Rat2(i)
-			rat := big.NewRat(n, d)
-			if n == 1 {
-				rv = append(rv, rat)
-			} else {
-				f, _ := rat.Float64()
-				rv = append(rv, f)
-			}
+	for i := 0; i < int(unitCount); i++ {
+		var val interface{}
+		switch tagType {
 
-		case tiff.FloatVal:
-			v, _ := t.Float(i)
-			rv = append(rv, v)
-		case tiff.IntVal:
-			v, _ := t.Int(i)
-			rv = append(rv, v)
+		case exifcommon.TypeRational:
+			vals, _ := valueRaw.([]exifcommon.Rational)
+			r := vals[i]
+			val = processRational(int64(r.Numerator), int64(r.Denominator))
+
+		case exifcommon.TypeSignedRational:
+			vals, _ := valueRaw.([]exifcommon.SignedRational)
+			r := vals[i]
+			val = processRational(int64(r.Numerator), int64(r.Denominator))
+
+		case exifcommon.TypeShort:
+			vals, _ := valueRaw.([]uint16)
+			i := vals[i]
+			val = int(i)
+
+		case exifcommon.TypeByte:
+			vals, _ := valueRaw.([]uint8)
+			val = vals[i]
+		}
+
+		if val != nil {
+			rv = append(rv, val)
 		}
 	}
 
-	if t.Count == 1 {
-		if len(rv) == 1 {
-			return rv[0], nil
-		}
+	if unitCount == 1 && len(rv) == 1 {
+		return rv[0], nil
 	}
 
 	return rv, nil
 }
 
-// Code borrowed from exif.DateTime and adjusted.
-func tryParseDate(x *_exif.Exif, s string) (time.Time, error) {
-	dateStr := strings.TrimRight(s, "\x00")
-	// TODO(bep): look for timezone offset, GPS time, etc.
-	timeZone := time.Local
-	if tz, _ := x.TimeZone(); tz != nil {
-		timeZone = tz
-	}
-	return time.ParseInLocation(exifTimeLayout, dateStr, timeZone)
-}
+func extractTags(ifdIndex *_exif.IfdIndex, includeMatcher *regexp.Regexp, excludeMatcher *regexp.Regexp) (map[string]interface{}, error) {
+	vals := make(map[string]interface{})
+	err := ifdIndex.RootIfd.EnumerateTagsRecursively(func(ifd *_exif.Ifd, ite *_exif.IfdTagEntry) error {
+		if ite != nil {
+			name := ite.TagName()
 
-type exifWalker struct {
-	x              *_exif.Exif
-	vals           map[string]interface{}
-	includeMatcher *regexp.Regexp
-	excludeMatcher *regexp.Regexp
-}
-
-func (e *exifWalker) Walk(f _exif.FieldName, tag *tiff.Tag) error {
-	name := string(f)
-	if e.excludeMatcher != nil && e.excludeMatcher.MatchString(name) {
-		return nil
-	}
-	if e.includeMatcher != nil && !e.includeMatcher.MatchString(name) {
-		return nil
-	}
-	val, err := decodeTag(e.x, f, tag)
-	if err != nil {
-		return err
-	}
-	e.vals[name] = val
-	return nil
-}
-
-func nullString(in []byte) string {
-	var rv bytes.Buffer
-	for len(in) > 0 {
-		r, size := utf8.DecodeRune(in)
-		if unicode.IsGraphic(r) {
-			rv.WriteRune(r)
+			if excludeMatcher != nil && excludeMatcher.MatchString(name) {
+				return nil
+			}
+			if includeMatcher != nil && !includeMatcher.MatchString(name) {
+				return nil
+			}
+			val, err := extractTagValue(ite)
+			if err != nil {
+				return err
+			}
+			vals[name] = val
 		}
-		in = in[size:]
-	}
-	return rv.String()
+		return nil
+	})
+
+	return vals, err
 }
 
 var tcodec *tmc.Codec

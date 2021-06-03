@@ -17,6 +17,9 @@ require (
 	github.com/bep/tmc v0.5.1
 	github.com/cli/safeexec v1.0.0
 	github.com/disintegration/gift v1.2.1
+	github.com/dsoprea/go-exif/v3 v3.0.0-20210512055020-8213cfabc61b
+	github.com/dsoprea/go-logging v0.0.0-20200710184922-b02d349568dd // indirect
+	github.com/dsoprea/go-png-image-structure v0.0.0-20210512210324-29b889a6093d
 	github.com/dustin/go-humanize v1.0.0
 	github.com/evanw/esbuild v0.11.16
 	github.com/fortytw2/leaktest v1.3.0
@@ -46,7 +49,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rogpeppe/go-internal v1.8.0
 	github.com/russross/blackfriday v1.5.3-0.20200218234912-41c5fccfd6f6
-	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 	github.com/sanity-io/litter v1.5.0
 	github.com/spf13/afero v1.6.0
 	github.com/spf13/cast v1.3.1
