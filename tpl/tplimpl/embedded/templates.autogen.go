@@ -315,7 +315,7 @@ if (!doNotTrack) {
     {{- range $k := seq $start $end }}
       {{- if eq $.Paginator.PageNumber $k }}
       <li class="page-item active">
-        <a href="#" aria-label="Page {{ $k }}" class="page-link" role="button">{{ $k }}</a>
+        <a href="#" aria-current="page" aria-label="Page {{ $k }}" class="page-link" role="button">{{ $k }}</a>
       </li>
       {{- else }}
       <li class="page-item">
@@ -378,7 +378,7 @@ if (!doNotTrack) {
     {{- range $k := seq $start $end }}
       {{- if eq $.Paginator.PageNumber $k }}
       <li class="page-item active">
-        <a href="#" aria-label="Page {{ $k }}" class="page-link" role="button">{{ $k }}</a>
+        <a href="#" aria-current="page" aria-label="Page {{ $k }}" class="page-link" role="button">{{ $k }}</a>
       </li>
       {{- else }}
       <li class="page-item">
