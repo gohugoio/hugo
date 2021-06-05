@@ -24,7 +24,9 @@ func TestToStringSlicePreserveString(t *testing.T) {
 	c := qt.New(t)
 
 	c.Assert(ToStringSlicePreserveString("Hugo"), qt.DeepEquals, []string{"Hugo"})
+	c.Assert(ToStringSlicePreserveString(qt.Commentf("Hugo")), qt.DeepEquals, []string{"Hugo"})
 	c.Assert(ToStringSlicePreserveString([]interface{}{"A", "B"}), qt.DeepEquals, []string{"A", "B"})
+	c.Assert(ToStringSlicePreserveString([]int{1, 3}), qt.DeepEquals, []string{"1", "3"})
 	c.Assert(ToStringSlicePreserveString(nil), qt.IsNil)
 }
 

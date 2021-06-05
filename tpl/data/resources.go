@@ -14,6 +14,7 @@
 package data
 
 import (
+	"bytes"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -37,7 +38,9 @@ var (
 // getRemote loads the content of a remote file. This method is thread safe.
 func (ns *Namespace) getRemote(cache *filecache.Cache, unmarshal func([]byte) (bool, error), req *http.Request) error {
 	url := req.URL.String()
-	id := helpers.MD5String(url)
+	var headers bytes.Buffer
+	req.Header.Write(&headers)
+	id := helpers.MD5String(url + headers.String())
 	var handled bool
 	var retry bool
 
@@ -94,10 +97,6 @@ func (ns *Namespace) getRemote(cache *filecache.Cache, unmarshal func([]byte) (b
 // getLocal loads the content of a local file
 func getLocal(url string, fs afero.Fs, cfg config.Provider) ([]byte, error) {
 	filename := filepath.Join(cfg.GetString("workingDir"), url)
-	if e, err := helpers.Exists(filename, fs); !e {
-		return nil, err
-	}
-
 	return afero.ReadFile(fs, filename)
 }
 
