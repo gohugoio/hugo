@@ -53,6 +53,7 @@ func (c *pandocConverter) Supports(feature identity.Identity) bool {
 
 // getPandocContent calls pandoc as an external helper to convert pandoc markdown to HTML.
 func (c *pandocConverter) getPandocContent(src []byte, ctx converter.DocumentContext) []byte {
+	cfg := c.cfg.MarkupConfig.Pandoc
 	logger := c.cfg.Logger
 	path := getPandocExecPath()
 	if path == "" {
@@ -60,7 +61,17 @@ func (c *pandocConverter) getPandocContent(src []byte, ctx converter.DocumentCon
 			"                 Leaving pandoc content unrendered.")
 		return src
 	}
-	args := []string{"--mathjax"}
+	args := []string{}
+
+	if cfg.Mathjax {
+		args = append(args, "--mathjax")
+	}
+
+	if cfg.Citeproc {
+		args = append(args, "--citeproc")
+		args = append(args, "--bibliography", cfg.Bibliography)
+	}
+
 	return internal.ExternallyRenderContent(c.cfg, ctx, src, path, args)
 }
 

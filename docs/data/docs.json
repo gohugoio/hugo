@@ -1585,6 +1585,11 @@
         "failureLevel": "fatal",
         "workingFolderCurrent": false,
         "preserveTOC": false
+      },
+      "pandoc": {
+        "mathjax": true,
+        "citeproc": false
+        "bibliography": "data/bibliography.json"
       }
     },
     "minify": {
