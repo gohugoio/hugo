@@ -372,12 +372,16 @@ func TestShortcodeInstagram(t *testing.T) {
 	} {
 		// overload getJSON to return mock API response from Instagram
 		instagramFuncMap := template.FuncMap{
-			"getJSON": func(urlParts ...string) interface{} {
+			"getJSON": func(args ...interface{}) interface{} {
+				headers := args[len(args)-1].(map[string]interface{})
+				auth := headers["Authorization"]
+				if auth != "Bearer dummytoken" {
+					return fmt.Errorf("invalid access token: %q", auth)
+				}
 				var v interface{}
 				err := json.Unmarshal([]byte(this.resp), &v)
 				if err != nil {
-					t.Fatalf("[%d] unexpected error in json.Unmarshal: %s", i, err)
-					return err
+					return fmt.Errorf("[%d] unexpected error in json.Unmarshal: %s", i, err)
 				}
 				return v
 			},
@@ -387,6 +391,8 @@ func TestShortcodeInstagram(t *testing.T) {
 			cfg, fs = newTestCfg()
 			th      = newTestHelper(cfg, fs, t)
 		)
+
+		cfg.Set("services.instagram.accessToken", "dummytoken")
 
 		writeSource(t, fs, filepath.Join("content", "simple.md"), fmt.Sprintf(`---
 title: Shorty
