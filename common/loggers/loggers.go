@@ -59,6 +59,8 @@ type Logger interface {
 	Println(v ...interface{})
 	PrintTimerIfDelayed(start time.Time, name string)
 	Debug() *log.Logger
+	Debugf(format string, v ...interface{})
+	Debugln(v ...interface{})
 	Info() *log.Logger
 	Infof(format string, v ...interface{})
 	Infoln(v ...interface{})
@@ -106,6 +108,14 @@ func (l *logger) Println(v ...interface{}) {
 
 func (l *logger) Debug() *log.Logger {
 	return l.DEBUG
+}
+
+func (l *logger) Debugf(format string, v ...interface{}) {
+	l.DEBUG.Printf(format, v...)
+}
+
+func (l *logger) Debugln(v ...interface{}) {
+	l.DEBUG.Println(v...)
 }
 
 func (l *logger) Infof(format string, v ...interface{}) {

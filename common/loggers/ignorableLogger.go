@@ -22,6 +22,7 @@ import (
 type IgnorableLogger interface {
 	Logger
 	Errorsf(statementID, format string, v ...interface{})
+	Apply(logger Logger) IgnorableLogger
 }
 
 type ignorableLogger struct {
@@ -54,4 +55,11 @@ ignoreErrors = [%q]`, statementID)
 	format += ignoreMsg
 
 	l.Errorf(format, v...)
+}
+
+func (l ignorableLogger) Apply(logger Logger) IgnorableLogger {
+	return ignorableLogger{
+		Logger:     logger,
+		statements: l.statements,
+	}
 }

@@ -58,7 +58,7 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 		syncer.DestFs = c.Fs.Destination
 
 		// prevent spamming the log on changes
-		logger := helpers.NewDistinctFeedbackLogger()
+		logger := helpers.NewDistinctErrorLogger()
 
 		for _, ev := range staticEvents {
 			// Due to our approach of layering both directories and the content's rendered output

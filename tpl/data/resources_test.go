@@ -213,12 +213,12 @@ func newDeps(cfg config.Provider) *deps.Deps {
 	}
 
 	return &deps.Deps{
-		Cfg:              cfg,
-		Fs:               fs,
-		FileCaches:       fileCaches,
-		ContentSpec:      cs,
-		Log:              logger,
-		DistinctErrorLog: helpers.NewDistinctLogger(logger.Error()),
+		Cfg:         cfg,
+		Fs:          fs,
+		FileCaches:  fileCaches,
+		ContentSpec: cs,
+		Log:         logger,
+		LogDistinct: helpers.NewDistinctLogger(logger),
 	}
 }
 

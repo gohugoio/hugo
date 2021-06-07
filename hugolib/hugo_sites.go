@@ -579,7 +579,8 @@ func (h *HugoSites) resetLogs() {
 	h.Log.Reset()
 	loggers.GlobalErrorCounter.Reset()
 	for _, s := range h.Sites {
-		s.Deps.DistinctErrorLog = helpers.NewDistinctLogger(h.Log.Error())
+		s.Deps.Log.Reset()
+		s.Deps.LogDistinct.Reset()
 	}
 }
 

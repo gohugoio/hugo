@@ -1007,7 +1007,7 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 
 	changeIdentities := make(identity.Identities)
 
-	s.Log.Debug().Printf("Rebuild for events %q", events)
+	s.Log.Debugf("Rebuild for events %q", events)
 
 	h := s.h
 
@@ -1026,7 +1026,7 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 		sourceFilesChanged = make(map[string]bool)
 
 		// prevent spamming the log on changes
-		logger = helpers.NewDistinctFeedbackLogger()
+		logger = helpers.NewDistinctErrorLogger()
 	)
 
 	var cachePartitions []string
@@ -1385,7 +1385,7 @@ func (s *Site) getMenusFromConfig() navigation.Menus {
 				s.Log.Errorln(err)
 			} else {
 				for _, entry := range m {
-					s.Log.Debug().Printf("found menu: %q, in site config\n", name)
+					s.Log.Debugf("found menu: %q, in site config\n", name)
 
 					menuEntry := navigation.MenuEntry{Menu: name}
 					ime, err := maps.ToStringMapE(entry)
@@ -1646,7 +1646,7 @@ func (s *Site) lookupLayouts(layouts ...string) tpl.Template {
 }
 
 func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath string, d interface{}, templ tpl.Template) error {
-	s.Log.Debug().Printf("Render XML for %q to %q", name, targetPath)
+	s.Log.Debugf("Render XML for %q to %q", name, targetPath)
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 
@@ -1668,7 +1668,7 @@ func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath st
 }
 
 func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath string, p *pageState, templ tpl.Template) error {
-	s.Log.Debug().Printf("Render %s to %q", name, targetPath)
+	s.Log.Debugf("Render %s to %q", name, targetPath)
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 
