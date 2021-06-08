@@ -3144,6 +3144,10 @@
             [
               "\u003ca href=\"https://www.google.com?{{ (querify \"q\" \"test\" \"page\" 3) | safeURL }}\"\u003eSearch\u003c/a\u003e",
               "\u003ca href=\"https://www.google.com?page=3\u0026amp;q=test\"\u003eSearch\u003c/a\u003e"
+            ],
+            [
+              "{{ slice \"foo\" 1 \"bar\" 2 | querify | safeHTML }}",
+              "bar=2\u0026foo=1"
             ]
           ]
         },
@@ -3337,7 +3341,7 @@
           "Description": "GetCSV expects a data separator and one or n-parts of a URL to a resource which\ncan either be a local or a remote one.\nThe data separator can be a comma, semi-colon, pipe, etc, but only one character.\nIf you provide multiple parts for the URL they will be joined together to the final URL.\nGetCSV returns nil or a slice slice to use in a short code.",
           "Args": [
             "sep",
-            "urlParts"
+            "args"
           ],
           "Aliases": [
             "getCSV"
@@ -3347,7 +3351,7 @@
         "GetJSON": {
           "Description": "GetJSON expects one or n-parts of a URL to a resource which can either be a local or a remote one.\nIf you provide multiple parts they will be joined together to the final URL.\nGetJSON returns nil or parsed JSON to use in a short code.",
           "Args": [
-            "urlParts"
+            "args"
           ],
           "Aliases": [
             "getJSON"
@@ -3438,6 +3442,23 @@
           "Examples": [
             [
               "{{ errorf \"%s.\" \"failed\" }}",
+              ""
+            ]
+          ]
+        },
+        "Erroridf": {
+          "Description": "Erroridf formats according to a format specifier and logs an ERROR and\nan information text that the error with the given ID can be suppressed in config.\nIt returns an empty string.",
+          "Args": [
+            "id",
+            "format",
+            "a"
+          ],
+          "Aliases": [
+            "erroridf"
+          ],
+          "Examples": [
+            [
+              "{{ erroridf \"my-err-id\" \"%s.\" \"failed\" }}",
               ""
             ]
           ]
@@ -3829,6 +3850,34 @@
             ]
           ]
         },
+        "Max": {
+          "Description": "Max returns the greater of two numbers.",
+          "Args": [
+            "a",
+            "b"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{math.Max 1 2 }}",
+              "2"
+            ]
+          ]
+        },
+        "Min": {
+          "Description": "Min returns the smaller of two numbers.",
+          "Args": [
+            "a",
+            "b"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{math.Min 1 2 }}",
+              "1"
+            ]
+          ]
+        },
         "Mod": {
           "Description": "Mod returns a % b.",
           "Args": [
@@ -3907,7 +3956,7 @@
           ]
         },
         "Sqrt": {
-          "Description": "Sqrt returns the square root of a number.\nNOTE: will return for NaN for negative values of a",
+          "Description": "Sqrt returns the square root of a number.",
           "Args": [
             "a"
           ],
