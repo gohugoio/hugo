@@ -15,6 +15,13 @@
         ]
       },
       {
+        "Name": "AL",
+        "Aliases": [
+          "al",
+          "dal"
+        ]
+      },
+      {
         "Name": "ANTLR",
         "Aliases": [
           "antlr"
@@ -370,6 +377,14 @@
         ]
       },
       {
+        "Name": "Dylan",
+        "Aliases": [
+          "dyl",
+          "dylan",
+          "intr"
+        ]
+      },
+      {
         "Name": "EBNF",
         "Aliases": [
           "ebnf"
@@ -579,7 +594,8 @@
       {
         "Name": "Handlebars",
         "Aliases": [
-          "handlebars"
+          "handlebars",
+          "hbs"
         ]
       },
       {
@@ -666,7 +682,8 @@
         "Aliases": [
           "javascript",
           "js",
-          "jsm"
+          "jsm",
+          "mjs"
         ]
       },
       {
@@ -963,6 +980,7 @@
           "posh",
           "powershell",
           "ps1",
+          "psd1",
           "psm1"
         ]
       },
@@ -1020,6 +1038,13 @@
           "bas",
           "basic",
           "qbasic"
+        ]
+      },
+      {
+        "Name": "QML",
+        "Aliases": [
+          "qbs",
+          "qml"
         ]
       },
       {
@@ -1425,6 +1450,12 @@
         ]
       },
       {
+        "Name": "mcfunction",
+        "Aliases": [
+          "mcfunction"
+        ]
+      },
+      {
         "Name": "plaintext",
         "Aliases": [
           "no-highlight",
@@ -1750,6 +1781,20 @@
         "string": "image/svg+xml",
         "suffixes": [
           "svg"
+        ]
+      },
+      {
+        "mainType": "image",
+        "subType": "webp",
+        "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "webp",
+          "fullSuffix": ".webp"
+        },
+        "type": "image/webp",
+        "string": "image/webp",
+        "suffixes": [
+          "webp"
         ]
       },
       {
@@ -3462,6 +3507,12 @@
       },
       "hugo": {
         "Generator": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "IsExtended": {
           "Description": "",
           "Args": null,
           "Aliases": null,

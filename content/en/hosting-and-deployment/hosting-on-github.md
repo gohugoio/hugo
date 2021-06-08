@@ -17,7 +17,7 @@ toc: true
 aliases: [/tutorials/github-pages-blog/]
 ---
 
-GitHub provides free and fast static hosting over SSL for personal, organization, or project pages directly from a GitHub repository via its [GitHub Pages service][] and automate development workflows and build with [GitHub Actions].
+GitHub provides free and fast static hosting over SSL for personal, organization, or project pages directly from a GitHub repository via its [GitHub Pages service][] and automating development workflows and build with [GitHub Actions].
 
 ## Assumptions
 
@@ -45,9 +45,9 @@ This is a much simpler setup as your Hugo files and generated content are publis
 
 ## Build Hugo With GitHub Action
 
-GitHub execute your software development workflows. Everytime you push your code on the Github repository, Github Action will build the site automatically.
+GitHub executes your software development workflows. Everytime you push your code on the Github repository, Github Actions will build the site automatically.
 
-Create a file in `.github/workflows/gh-pages.yml` containing the following content (based on https://github.com/marketplace/actions/hugo-setup ):
+Create a file in `.github/workflows/gh-pages.yml` containing the following content (based on [actions-hugo](https://github.com/marketplace/actions/hugo-setup)):
 
 ```yml
 name: github pages
@@ -56,10 +56,11 @@ on:
   push:
     branches:
       - main  # Set a branch to deploy
+  pull_request:
 
 jobs:
   deploy:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
         with:
@@ -77,12 +78,13 @@ jobs:
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
 ```
 
-For more advanced settings https://github.com/marketplace/actions/hugo-setup 
+For more advanced settings [actions-hugo](https://github.com/marketplace/actions/hugo-setup) and [actions-gh-pages](https://github.com/marketplace/actions/github-pages-action).
 
 ## Use a Custom Domain
 

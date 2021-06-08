@@ -167,19 +167,21 @@ For color codes, see https://www.google.com/search?q=color+picker
 
 **Note** that you also set a default background color to use, see [Image Processing Config](#image-processing-config).
 
-### JPEG and Webp Quality
+### JPEG and WebP Quality
 
-Only relevant for JPEG and Webp images, values 1 to 100 inclusive, higher is better. Default is 75.
+Only relevant for JPEG and WebP images, values 1 to 100 inclusive, higher is better. Default is 75.
 
 ```go
 {{ $image.Resize "600x q50" }}
 ```
 
-{{< new-in "0.83.0" >}} Webp support was added in Hugo 0.83.0.
+{{< new-in "0.83.0" >}} WebP support was added in Hugo 0.83.0.
 
-### Hint {{< new-in "0.83.0" >}}
+### Hint
 
-Hint about what type of image this is. Currently only used when encoding to Webp.
+ {{< new-in "0.83.0" >}}
+
+Hint about what type of image this is. Currently only used when encoding to WebP.
 
 Default value is `photo`.
 
@@ -225,11 +227,13 @@ See https://github.com/disintegration/imaging for more. If you want to trade qua
 
 By default the images is encoded in the source format, but you can set the target format as an option.
 
-Valid values are `jpg`, `png`, `tif`, `bmp`, and `gif`.
+Valid values are `jpg`, `png`, `tif`, `bmp`, `gif` and `webp`.
 
 ```go
 {{ $image.Resize "600x jpg" }}
 ```
+
+{{< new-in "0.83.0" >}} WebP support was added in Hugo 0.83.0.
 
 ## Image Processing Examples
 
@@ -272,10 +276,10 @@ You can configure an `imaging` section in `config.toml` with default image proce
 # See https://github.com/disintegration/imaging
 resampleFilter = "box"
 
-# Default JPEG or WEBP quality setting. Default is 75.
+# Default JPEG or WebP quality setting. Default is 75.
 quality = 75
 
-# Default hint about what type of image. Currently only used for Webp encoding.
+# Default hint about what type of image. Currently only used for WebP encoding.
 # Default is "photo".
 # Valid values are "picture", "photo", "drawing", "icon", or "text".
 hint = "photo"
