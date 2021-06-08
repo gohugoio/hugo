@@ -23,14 +23,13 @@ import (
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/go-i18n/v2/i18n"
 )
 
 type translateFunc func(translationID string, templateData interface{}) string
 
-var i18nWarningLogger = helpers.NewDistinctErrorLogger()
+var i18nWarningLogger = loggers.NewDistinctErrorLogger()
 
 // Translator handles i18n translations.
 type Translator struct {

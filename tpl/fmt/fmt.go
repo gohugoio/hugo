@@ -20,7 +20,6 @@ import (
 	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/helpers"
 )
 
 // New returns a new instance of the fmt-namespaced template functions.
@@ -30,7 +29,7 @@ func New(d *deps.Deps) *Namespace {
 		ignorableLogger = loggers.NewIgnorableLogger(d.Log)
 	}
 
-	distinctLogger := helpers.NewDistinctLogger(d.Log)
+	distinctLogger := loggers.NewDistinctLogger(d.Log)
 	ns := &Namespace{
 		distinctLogger: ignorableLogger.Apply(distinctLogger),
 	}

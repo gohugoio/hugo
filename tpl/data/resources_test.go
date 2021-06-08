@@ -218,7 +218,7 @@ func newDeps(cfg config.Provider) *deps.Deps {
 		FileCaches:  fileCaches,
 		ContentSpec: cs,
 		Log:         logger,
-		LogDistinct: helpers.NewDistinctLogger(logger),
+		LogDistinct: loggers.NewDistinctLogger(logger),
 	}
 }
 

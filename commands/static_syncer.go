@@ -17,6 +17,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/gohugoio/hugo/common/loggers"
+
 	"github.com/gohugoio/hugo/hugolib/filesystems"
 
 	"github.com/fsnotify/fsnotify"
@@ -58,7 +60,7 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 		syncer.DestFs = c.Fs.Destination
 
 		// prevent spamming the log on changes
-		logger := helpers.NewDistinctErrorLogger()
+		logger := loggers.NewDistinctErrorLogger()
 
 		for _, ev := range staticEvents {
 			// Due to our approach of layering both directories and the content's rendered output

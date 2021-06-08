@@ -262,8 +262,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 
 	ignoreErrors := cast.ToStringSlice(cfg.Cfg.Get("ignoreErrors"))
 	ignorableLogger := loggers.NewIgnorableLogger(logger, ignoreErrors...)
-
-	logDistinct := helpers.NewDistinctLogger(logger)
+	logDistinct := loggers.NewDistinctLogger(logger)
 
 	d := &Deps{
 		Fs:                      fs,

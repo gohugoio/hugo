@@ -1026,7 +1026,7 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 		sourceFilesChanged = make(map[string]bool)
 
 		// prevent spamming the log on changes
-		logger = helpers.NewDistinctErrorLogger()
+		logger = loggers.NewDistinctErrorLogger()
 	)
 
 	var cachePartitions []string
