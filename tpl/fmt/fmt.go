@@ -25,7 +25,11 @@ import (
 
 // New returns a new instance of the fmt-namespaced template functions.
 func New(d *deps.Deps) *Namespace {
-	ignorableLogger := d.Log.(loggers.IgnorableLogger)
+	ignorableLogger, ok := d.Log.(loggers.IgnorableLogger)
+	if !ok {
+		ignorableLogger = loggers.NewIgnorableLogger(d.Log)
+	}
+
 	distinctLogger := helpers.NewDistinctLogger(d.Log)
 	ns := &Namespace{
 		distinctLogger: ignorableLogger.Apply(distinctLogger),
