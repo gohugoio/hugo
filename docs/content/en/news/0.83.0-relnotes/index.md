@@ -1,15 +1,22 @@
 
 ---
 date: 2021-05-01
-title: "0.83.0"
-description: "0.83.0"
+title: "Hugo 0.83: WebP Support!"
+description: "WebP image encoding support, some important i18n fixes, and more."
 categories: ["Releases"]
 ---
 
-	Hugo `0.83` finally brings [WebP](https://gohugo.io/content-management/image-processing/) image processing support. Note that you need the [extended version](https://gohugo.io/troubleshooting/faq/#i-get-tocss--this-feature-is-not-available-in-your-current-hugo-version) of Hugo to encode to WebP. If you want to target all Hugo versions, you may use a construct such as this:
+**Note:** If you use i18n, there is an unfortunate regression bug in this release (see [issue](https://github.com/gohugoio/hugo/issues/8492)). A patch release coming Sunday.
+
+
+Hugo `0.83` finally brings [WebP](https://gohugo.io/content-management/image-processing/) image processing support. Note that you need the [extended version](https://gohugo.io/troubleshooting/faq/#i-get-tocss--this-feature-is-not-available-in-your-current-hugo-version) of Hugo to encode to WebP. If you want to target all Hugo versions, you may use a construct such as this:
 
 ```go-html-template
-FOO
+{{ $images := slice }}
+{{ $images = $images | append ($img.Resize "300x") }}
+{{ if hugo.IsExtended }}
+  {{ $images = $images | append ($img.Resize "300x webp") }}
+{{ end }}
 ```
 
 Also worth highlighting:
