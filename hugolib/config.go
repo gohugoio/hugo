@@ -221,7 +221,7 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 			} else if nestedKey != "" {
 				owner[nestedKey] = env.Value
 			} else {
-				v.Set(env.Key, env.Value)
+				v.Set(strings.ReplaceAll(env.Key, delim, "."), env.Value)
 			}
 		}
 

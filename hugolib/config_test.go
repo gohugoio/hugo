@@ -530,11 +530,14 @@ theme_param="themevalue2"
 		"HUGOxPARAMSxMYTHEME_SECTION2xTHEME_PARAM", "themevalue2_changed",
 		"HUGO_PARAMS_EMPTY", ``,
 		"HUGO_PARAMS_HTML", `<a target="_blank" />`,
+		//
+		"HUGO_SERVICES_GOOGLEANALYTICS_ID", `gaid`,
 	)
 
 	b.Build(BuildCfg{})
 
 	cfg := b.H.Cfg
+	scfg := b.H.Sites[0].siteConfigConfig.Services
 
 	c.Assert(cfg.Get("environment"), qt.Equals, "test")
 	c.Assert(cfg.GetBool("enablegitinfo"), qt.Equals, false)
@@ -551,4 +554,6 @@ theme_param="themevalue2"
 	c.Assert(cfg.Get("params.mytheme_section2.theme_param"), qt.Equals, "themevalue2_changed")
 	c.Assert(cfg.Get("params.empty"), qt.Equals, ``)
 	c.Assert(cfg.Get("params.html"), qt.Equals, `<a target="_blank" />`)
+
+	c.Assert(scfg.GoogleAnalytics.ID, qt.Equals, "gaid")
 }
