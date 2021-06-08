@@ -44,7 +44,7 @@ Section
 : Is relevant for `section`, `taxonomy` and `term` types.
 
 {{% note %}}
-**Tip:** The examples below looks long and complex. That is the flexibility talking. Most Hugo sites contain just a handful of templates:
+**Tip:** The examples below look long and complex. That is the flexibility talking. Most Hugo sites contain just a handful of templates:
 
 ```bash
 ├── _default
