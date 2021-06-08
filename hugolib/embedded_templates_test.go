@@ -116,3 +116,42 @@ Disqus:
 	// Disqus
 	b.AssertFileContent("public/index.html", "\"disqus_shortname\" + '.disqus.com/embed.js';")
 }
+
+func TestEmbeddedPaginationTemplate(t *testing.T) {
+	t.Parallel()
+
+	test := func(variant string, expectedOutput string) {
+		b := newTestSitesBuilder(t)
+		b.WithConfigFile("toml", `paginate = 1`)
+		b.WithContent(
+			"s1/p01.md", "---\ntitle: p01\n---",
+			"s1/p02.md", "---\ntitle: p02\n---",
+			"s1/p03.md", "---\ntitle: p03\n---",
+			"s1/p04.md", "---\ntitle: p04\n---",
+			"s1/p05.md", "---\ntitle: p05\n---",
+			"s1/p06.md", "---\ntitle: p06\n---",
+			"s1/p07.md", "---\ntitle: p07\n---",
+			"s1/p08.md", "---\ntitle: p08\n---",
+			"s1/p09.md", "---\ntitle: p09\n---",
+			"s1/p10.md", "---\ntitle: p10\n---",
+		)
+		b.WithTemplates("index.html", `{{ .Paginate (where site.RegularPages "Section" "s1") }}`+variant)
+		b.Build(BuildCfg{})
+		b.AssertFileContent("public/index.html", expectedOutput)
+	}
+
+	expectedOutputDefaultFormat := "Pager 1\n    <ul class=\"pagination pagination-default\">\n      <li class=\"page-item disabled\">\n        <a href=\"#\" aria-disabled=\"true\" aria-label=\"First\" class=\"page-link\" role=\"button\"><span aria-hidden=\"true\">&laquo;&laquo;</span></a>\n      </li>\n      <li class=\"page-item disabled\">\n        <a href=\"#\" aria-disabled=\"true\" aria-label=\"Previous\" class=\"page-link\" role=\"button\"><span aria-hidden=\"true\">&laquo;</span></a>\n      </li>\n      <li class=\"page-item active\">\n        <a href=\"#\" aria-current=\"page\" aria-label=\"Page 1\" class=\"page-link\" role=\"button\">1</a>\n      </li>\n      <li class=\"page-item\">\n        <a href=\"/page/2/\" aria-label=\"Page 2\" class=\"page-link\" role=\"button\">2</a>\n      </li>\n      <li class=\"page-item\">\n        <a href=\"/page/3/\" aria-label=\"Page 3\" class=\"page-link\" role=\"button\">3</a>\n      </li>\n      <li class=\"page-item\">\n        <a href=\"/page/4/\" aria-label=\"Page 4\" class=\"page-link\" role=\"button\">4</a>\n      </li>\n      <li class=\"page-item\">\n        <a href=\"/page/5/\" aria-label=\"Page 5\" class=\"page-link\" role=\"button\">5</a>\n      </li>\n      <li class=\"page-item\">\n        <a href=\"/page/2/\" aria-label=\"Next\" class=\"page-link\" role=\"button\"><span aria-hidden=\"true\">&raquo;</span></a>\n      </li>\n      <li class=\"page-item\">\n        <a href=\"/page/10/\" aria-label=\"Last\" class=\"page-link\" role=\"button\"><span aria-hidden=\"true\">&raquo;&raquo;</span></a>\n      </li>\n    </ul>"
+	expectedOutputTerseFormat := "Pager 1\n    <ul class=\"pagination pagination-terse\">\n      <li class=\"page-item active\">\n        <a href=\"#\" aria-current=\"page\" aria-label=\"Page 1\" class=\"page-link\" role=\"button\">1</a>\n      </li>\n      <li class=\"page-item\">\n        <a href=\"/page/2/\" aria-label=\"Page 2\" class=\"page-link\" role=\"button\">2</a>\n      </li>\n      <li class=\"page-item\">\n        <a href=\"/page/3/\" aria-label=\"Page 3\" class=\"page-link\" role=\"button\">3</a>\n      </li>\n      <li class=\"page-item\">\n        <a href=\"/page/2/\" aria-label=\"Next\" class=\"page-link\" role=\"button\"><span aria-hidden=\"true\">&raquo;</span></a>\n      </li>\n      <li class=\"page-item\">\n        <a href=\"/page/10/\" aria-label=\"Last\" class=\"page-link\" role=\"button\"><span aria-hidden=\"true\">&raquo;&raquo;</span></a>\n      </li>\n    </ul>"
+
+	variant := `{{ template "_internal/pagination.html" . }}`
+	test(variant, expectedOutputDefaultFormat)
+
+	variant = `{{ template "_internal/pagination.html" (dict "page" .) }}`
+	test(variant, expectedOutputDefaultFormat)
+
+	variant = `{{ template "_internal/pagination.html" (dict "page" . "format" "default") }}`
+	test(variant, expectedOutputDefaultFormat)
+
+	variant = `{{ template "_internal/pagination.html" (dict "page" . "format" "terse") }}`
+	test(variant, expectedOutputTerseFormat)
+}
