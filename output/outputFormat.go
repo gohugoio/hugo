@@ -143,6 +143,14 @@ var (
 		Rel:         "alternate",
 	}
 
+	WebAppManifestFormat = Format{
+		Name:        "Web App Manifest",
+		MediaType:   media.WebAppManifestType,
+		BaseName:    "manifest",
+		IsPlainText: true,
+		Rel:         "manifest",
+	}
+
 	RobotsTxtFormat = Format{
 		Name:        "ROBOTS",
 		MediaType:   media.TextType,

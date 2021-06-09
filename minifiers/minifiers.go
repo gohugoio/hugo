@@ -78,7 +78,7 @@ func New(mediaTypes media.Types, outputFormats output.Formats, cfg config.Provid
 	}
 	if !conf.DisableJSON {
 		addMinifier(m, mediaTypes, "json", &conf.Tdewolff.JSON)
-		m.AddRegexp(regexp.MustCompile(`^(application|text)/(x-|ld\+)?json$`), &conf.Tdewolff.JSON)
+		m.AddRegexp(regexp.MustCompile(`^(application|text)/(x-|(ld|manifest)\+)?json$`), &conf.Tdewolff.JSON)
 	}
 	if !conf.DisableSVG {
 		addMinifier(m, mediaTypes, "svg", &conf.Tdewolff.SVG)
