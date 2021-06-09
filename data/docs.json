@@ -1587,6 +1587,65 @@
         "preserveTOC": false
       }
     },
+    "mergeStrategy": {
+      "build": {
+        "_merge": "none"
+      },
+      "caches": {
+        "_merge": "none"
+      },
+      "frontmatter": {
+        "_merge": "none"
+      },
+      "imaging": {
+        "_merge": "none"
+      },
+      "languages": {
+        "_merge": "none",
+        "en": {
+          "_merge": "none",
+          "menus": {
+            "_merge": "shallow"
+          },
+          "params": {
+            "_merge": "deep"
+          }
+        }
+      },
+      "markup": {
+        "_merge": "none"
+      },
+      "mediatypes": {
+        "_merge": "shallow"
+      },
+      "menus": {
+        "_merge": "shallow"
+      },
+      "minify": {
+        "_merge": "none"
+      },
+      "module": {
+        "_merge": "none"
+      },
+      "outputformats": {
+        "_merge": "shallow"
+      },
+      "params": {
+        "_merge": "deep"
+      },
+      "permalinks": {
+        "_merge": "none"
+      },
+      "related": {
+        "_merge": "none"
+      },
+      "sitemap": {
+        "_merge": "none"
+      },
+      "taxonomies": {
+        "_merge": "none"
+      }
+    },
     "minify": {
       "minifyOutput": false,
       "disableHTML": false,
