@@ -410,7 +410,5 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 	}
 	config.Set("cacheDir", cacheDir)
 
-	cfg.Logger.Infoln("Using config file:", config.ConfigFileUsed())
-
 	return nil
 }

@@ -14,6 +14,7 @@
 package config
 
 import (
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 )
 
@@ -22,11 +23,15 @@ type Provider interface {
 	GetString(key string) string
 	GetInt(key string) int
 	GetBool(key string) bool
+	GetParams(key string) maps.Params
 	GetStringMap(key string) map[string]interface{}
 	GetStringMapString(key string) map[string]string
 	GetStringSlice(key string) []string
 	Get(key string) interface{}
 	Set(key string, value interface{})
+	Merge(key string, value interface{})
+	SetDefaultMergeStrategy()
+	WalkParams(walkFn func(params ...KeyParams) bool)
 	IsSet(key string) bool
 }
 

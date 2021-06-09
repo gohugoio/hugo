@@ -22,17 +22,17 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/markup_config"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
-	"github.com/spf13/viper"
 
 	qt "github.com/frankban/quicktest"
 )
 
 func TestAsciidoctorDefaultArgs(t *testing.T) {
 	c := qt.New(t)
-	cfg := viper.New()
+	cfg := config.New()
 	mconf := markup_config.Default
 
 	p, err := Provider.New(
@@ -57,7 +57,7 @@ func TestAsciidoctorDefaultArgs(t *testing.T) {
 
 func TestAsciidoctorNonDefaultArgs(t *testing.T) {
 	c := qt.New(t)
-	cfg := viper.New()
+	cfg := config.New()
 	mconf := markup_config.Default
 	mconf.AsciidocExt.Backend = "manpage"
 	mconf.AsciidocExt.NoHeaderOrFooter = false
@@ -88,7 +88,7 @@ func TestAsciidoctorNonDefaultArgs(t *testing.T) {
 
 func TestAsciidoctorDisallowedArgs(t *testing.T) {
 	c := qt.New(t)
-	cfg := viper.New()
+	cfg := config.New()
 	mconf := markup_config.Default
 	mconf.AsciidocExt.Backend = "disallowed-backend"
 	mconf.AsciidocExt.Extensions = []string{"./disallowed-extension"}
@@ -117,7 +117,7 @@ func TestAsciidoctorDisallowedArgs(t *testing.T) {
 
 func TestAsciidoctorArbitraryExtension(t *testing.T) {
 	c := qt.New(t)
-	cfg := viper.New()
+	cfg := config.New()
 	mconf := markup_config.Default
 	mconf.AsciidocExt.Extensions = []string{"arbitrary-extension"}
 	p, err := Provider.New(
@@ -142,7 +142,7 @@ func TestAsciidoctorArbitraryExtension(t *testing.T) {
 
 func TestAsciidoctorDisallowedExtension(t *testing.T) {
 	c := qt.New(t)
-	cfg := viper.New()
+	cfg := config.New()
 	for _, disallowedExtension := range []string{
 		`foo-bar//`,
 		`foo-bar\\ `,
@@ -177,7 +177,7 @@ func TestAsciidoctorDisallowedExtension(t *testing.T) {
 
 func TestAsciidoctorWorkingFolderCurrent(t *testing.T) {
 	c := qt.New(t)
-	cfg := viper.New()
+	cfg := config.New()
 	mconf := markup_config.Default
 	mconf.AsciidocExt.WorkingFolderCurrent = true
 	mconf.AsciidocExt.Trace = false
@@ -208,7 +208,7 @@ func TestAsciidoctorWorkingFolderCurrent(t *testing.T) {
 
 func TestAsciidoctorWorkingFolderCurrentAndExtensions(t *testing.T) {
 	c := qt.New(t)
-	cfg := viper.New()
+	cfg := config.New()
 	mconf := markup_config.Default
 	mconf.AsciidocExt.NoHeaderOrFooter = true
 	mconf.AsciidocExt.Extensions = []string{"asciidoctor-html5s", "asciidoctor-diagram"}
@@ -247,7 +247,7 @@ func TestAsciidoctorWorkingFolderCurrentAndExtensions(t *testing.T) {
 
 func TestAsciidoctorAttributes(t *testing.T) {
 	c := qt.New(t)
-	cfg := viper.New()
+	cfg := config.New()
 	mconf := markup_config.Default
 	mconf.AsciidocExt.Attributes = map[string]string{"my-base-url": "https://gohugo.io/", "my-attribute-name": "my value"}
 	mconf.AsciidocExt.Trace = false

@@ -5,9 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-	"time"
 
-	"github.com/fortytw2/leaktest"
 	"github.com/gohugoio/hugo/htesting"
 
 	qt "github.com/frankban/quicktest"
@@ -318,7 +316,7 @@ Some content.
 // https://github.com/gohugoio/hugo/issues/5375
 func TestSiteBuildTimeout(t *testing.T) {
 	if !htesting.IsCI() {
-		defer leaktest.CheckTimeout(t, 10*time.Second)()
+		//defer leaktest.CheckTimeout(t, 10*time.Second)()
 	}
 
 	b := newTestSitesBuilder(t)

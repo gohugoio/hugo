@@ -14,6 +14,7 @@
 package maps
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/spf13/cast"
@@ -27,6 +28,95 @@ type Params map[string]interface{}
 func (p Params) Get(indices ...string) interface{} {
 	v, _, _ := getNested(p, indices)
 	return v
+}
+
+// Set overwrites values in p with values in pp for common or new keys.
+// This is done recursively.
+func (p Params) Set(pp Params) {
+	for k, v := range pp {
+		vv, found := p[k]
+		if !found {
+			p[k] = v
+		} else {
+			switch vvv := vv.(type) {
+			case Params:
+				if pv, ok := v.(Params); ok {
+					vvv.Set(pv)
+				} else {
+					p[k] = v
+				}
+			default:
+				p[k] = v
+			}
+		}
+	}
+}
+
+// Merge transfers values from pp to p for new keys.
+// This is done recursively.
+func (p Params) Merge(pp Params) {
+	p.merge("", pp)
+}
+
+func (p Params) merge(ps ParamsMergeStrategy, pp Params) {
+	ns, found := p.GetMergeStrategy()
+
+	var ms = ns
+	if !found && ps != "" {
+		ms = ps
+	}
+
+	noUpdate := ms == ParamsMergeStrategyNone
+	noUpdate = noUpdate || (ps != "" && ps == ParamsMergeStrategyShallow)
+
+	for k, v := range pp {
+
+		if k == mergeStrategyKey {
+			continue
+		}
+		vv, found := p[k]
+
+		if found {
+			// Key matches, if both sides are Params, we try to merge.
+			if vvv, ok := vv.(Params); ok {
+				if pv, ok := v.(Params); ok {
+					vvv.merge(ms, pv)
+				}
+
+			}
+
+		} else if !noUpdate {
+			p[k] = v
+
+		}
+
+	}
+}
+
+func (p Params) GetMergeStrategy() (ParamsMergeStrategy, bool) {
+	if v, found := p[mergeStrategyKey]; found {
+		if s, ok := v.(ParamsMergeStrategy); ok {
+			return s, true
+		}
+	}
+	return ParamsMergeStrategyShallow, false
+}
+
+func (p Params) DeleteMergeStrategy() bool {
+	if _, found := p[mergeStrategyKey]; found {
+		delete(p, mergeStrategyKey)
+		return true
+	}
+	return false
+}
+
+func (p Params) SetDefaultMergeStrategy(s ParamsMergeStrategy) {
+	switch s {
+	case ParamsMergeStrategyDeep, ParamsMergeStrategyNone, ParamsMergeStrategyShallow:
+	default:
+		panic(fmt.Sprintf("invalid merge strategy %q", s))
+	}
+	p[mergeStrategyKey] = s
 }
 
 func getNested(m map[string]interface{}, indices []string) (interface{}, string, map[string]interface{}) {
@@ -107,4 +197,62 @@ func GetNestedParamFn(keyStr, separator string, lookupFn func(key string) interf
 	}
 
 	return nil, "", nil, nil
+}
+
+// ParamsMergeStrategy tells what strategy to use in Params.Merge.
+type ParamsMergeStrategy string
+
+const (
+	// Do not merge.
+	ParamsMergeStrategyNone ParamsMergeStrategy = "none"
+	// Only add new keys.
+	ParamsMergeStrategyShallow ParamsMergeStrategy = "shallow"
+	// Add new keys, merge existing.
+	ParamsMergeStrategyDeep ParamsMergeStrategy = "deep"
+
+	mergeStrategyKey = "_merge"
+)
+
+func toMergeStrategy(v interface{}) ParamsMergeStrategy {
+	s := ParamsMergeStrategy(cast.ToString(v))
+	switch s {
+	case ParamsMergeStrategyDeep, ParamsMergeStrategyNone, ParamsMergeStrategyShallow:
+		return s
+	default:
+		return ParamsMergeStrategyDeep
+	}
+}
+
+// PrepareParams
+// * makes all the keys in the given map lower cased and will do so
+// * This will modify the map given.
+// * Any nested map[interface{}]interface{} will be converted to Params.
+// * Any _merge value will be converted to proper type and value.
+func PrepareParams(m Params) {
+	for k, v := range m {
+		var retyped bool
+		lKey := strings.ToLower(k)
+		if lKey == mergeStrategyKey {
+			v = toMergeStrategy(v)
+			retyped = true
+		} else {
+			switch v.(type) {
+			case map[interface{}]interface{}:
+				var p Params = cast.ToStringMap(v)
+				v = p
+				PrepareParams(p)
+				retyped = true
+			case map[string]interface{}:
+				var p Params = v.(map[string]interface{})
+				v = p
+				PrepareParams(p)
+				retyped = true
+			}
+		}
+
+		if retyped || k != lKey {
+			delete(m, k)
+			m[lKey] = v
+		}
+	}
 }

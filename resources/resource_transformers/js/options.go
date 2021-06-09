@@ -20,9 +20,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/spf13/afero"
-
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/pkg/errors"
+	"github.com/spf13/afero"
 
 	"github.com/evanw/esbuild/pkg/api"
 
@@ -30,7 +30,6 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/media"
 	"github.com/mitchellh/mapstructure"
-	"github.com/spf13/cast"
 )
 
 const (
@@ -348,7 +347,7 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 
 	var defines map[string]string
 	if opts.Defines != nil {
-		defines = cast.ToStringMapString(opts.Defines)
+		defines = maps.ToStringMapString(opts.Defines)
 	}
 
 	// By default we only need to specify outDir and no outFile

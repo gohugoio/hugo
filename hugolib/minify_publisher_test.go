@@ -16,13 +16,13 @@ package hugolib
 import (
 	"testing"
 
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/config"
 )
 
 func TestMinifyPublisher(t *testing.T) {
 	t.Parallel()
 
-	v := viper.New()
+	v := config.New()
 	v.Set("minify", true)
 	v.Set("baseURL", "https://example.org/")
 

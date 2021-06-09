@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2021 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,17 +19,22 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
-func TestGetStringSlicePreserveString(t *testing.T) {
+func TestCompositeConfig(t *testing.T) {
 	c := qt.New(t)
-	cfg := New()
 
-	s := "This is a string"
-	sSlice := []string{"This", "is", "a", "slice"}
+	c.Run("Set and get", func(c *qt.C) {
+		base, layer := New(), New()
+		cfg := NewCompositeConfig(base, layer)
 
-	cfg.Set("s1", s)
-	cfg.Set("s2", sSlice)
+		layer.Set("a1", "av")
+		base.Set("b1", "bv")
+		cfg.Set("c1", "cv")
 
-	c.Assert(GetStringSlicePreserveString(cfg, "s1"), qt.DeepEquals, []string{s})
-	c.Assert(GetStringSlicePreserveString(cfg, "s2"), qt.DeepEquals, sSlice)
-	c.Assert(GetStringSlicePreserveString(cfg, "s3"), qt.IsNil)
+		c.Assert(cfg.Get("a1"), qt.Equals, "av")
+		c.Assert(cfg.Get("b1"), qt.Equals, "bv")
+		c.Assert(cfg.Get("c1"), qt.Equals, "cv")
+		c.Assert(cfg.IsSet("c1"), qt.IsTrue)
+		c.Assert(layer.IsSet("c1"), qt.IsTrue)
+		c.Assert(base.IsSet("c1"), qt.IsFalse)
+	})
 }

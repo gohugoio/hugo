@@ -18,53 +18,65 @@ import (
 	"strings"
 
 	"github.com/gobwas/glob"
-
 	"github.com/spf13/cast"
 )
 
-// ToLower makes all the keys in the given map lower cased and will do so
-// recursively.
-// Notes:
-// * This will modify the map given.
-// * Any nested map[interface{}]interface{} will be converted to Params.
-func ToLower(m Params) {
-	for k, v := range m {
-		var retyped bool
-		switch v.(type) {
-		case map[interface{}]interface{}:
-			var p Params = cast.ToStringMap(v)
-			v = p
-			ToLower(p)
-			retyped = true
-		case map[string]interface{}:
-			var p Params = v.(map[string]interface{})
-			v = p
-			ToLower(p)
-			retyped = true
-		}
-
-		lKey := strings.ToLower(k)
-		if retyped || k != lKey {
-			delete(m, k)
-			m[lKey] = v
-		}
-	}
-}
-
+// ToStringMapE converts in to map[string]interface{}.
 func ToStringMapE(in interface{}) (map[string]interface{}, error) {
-	switch in.(type) {
+	switch vv := in.(type) {
 	case Params:
-		return in.(Params), nil
+		return vv, nil
+	case map[string]string:
+		var m = map[string]interface{}{}
+		for k, v := range vv {
+			m[k] = v
+		}
+		return m, nil
+
 	default:
 		return cast.ToStringMapE(in)
 	}
 }
 
+// ToParamsAndPrepare converts in to Params and prepares it for use.
+// See PrepareParams.
+func ToParamsAndPrepare(in interface{}) (Params, bool) {
+	m, err := ToStringMapE(in)
+	if err != nil {
+		return nil, false
+	}
+	PrepareParams(m)
+	return m, true
+}
+
+// ToStringMap converts in to map[string]interface{}.
 func ToStringMap(in interface{}) map[string]interface{} {
 	m, _ := ToStringMapE(in)
 	return m
 }
 
+// ToStringMapStringE converts in to map[string]string.
+func ToStringMapStringE(in interface{}) (map[string]string, error) {
+	m, err := ToStringMapE(in)
+	if err != nil {
+		return nil, err
+	}
+	return cast.ToStringMapStringE(m)
+}
+
+// ToStringMapString converts in to map[string]string.
+func ToStringMapString(in interface{}) map[string]string {
+	m, _ := ToStringMapStringE(in)
+	return m
+}
+
+// ToStringMapBool converts in to bool.
+func ToStringMapBool(in interface{}) map[string]bool {
+	m, _ := ToStringMapE(in)
+	return cast.ToStringMapBool(m)
+}
+
+// ToSliceStringMap converts in to []map[string]interface{}.
 func ToSliceStringMap(in interface{}) ([]map[string]interface{}, error) {
 	switch v := in.(type) {
 	case []map[string]interface{}:
@@ -127,9 +139,8 @@ func (KeyRenamer) keyPath(k1, k2 string) string {
 	k1, k2 = strings.ToLower(k1), strings.ToLower(k2)
 	if k1 == "" {
 		return k2
-	} else {
-		return k1 + "/" + k2
 	}
+	return k1 + "/" + k2
 }
 
 func (r KeyRenamer) renamePath(parentKeyPath string, m map[string]interface{}) {

@@ -20,7 +20,6 @@ import (
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/parser/metadecoders"
 	"github.com/spf13/afero"
-	"github.com/spf13/viper"
 )
 
 var (
@@ -43,15 +42,11 @@ func IsValidConfigFilename(filename string) bool {
 
 // FromConfigString creates a config from the given YAML, JSON or TOML config. This is useful in tests.
 func FromConfigString(config, configType string) (Provider, error) {
-	v := newViper()
 	m, err := readConfig(metadecoders.FormatFromString(configType), []byte(config))
 	if err != nil {
 		return nil, err
 	}
-
-	v.MergeConfigMap(m)
-
-	return v, nil
+	return NewFrom(m), nil
 }
 
 // FromFile loads the configuration from the given filename.
@@ -60,15 +55,7 @@ func FromFile(fs afero.Fs, filename string) (Provider, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	v := newViper()
-
-	err = v.MergeConfigMap(m)
-	if err != nil {
-		return nil, err
-	}
-
-	return v, nil
+	return NewFrom(m), nil
 }
 
 // FromFileToMap is the same as FromFile, but it returns the config values
@@ -115,10 +102,4 @@ func init() {
 // alias definition.
 func RenameKeys(m map[string]interface{}) {
 	keyAliases.Rename(m)
-}
-
-func newViper() *viper.Viper {
-	v := viper.New()
-
-	return v
 }

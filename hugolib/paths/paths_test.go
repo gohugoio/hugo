@@ -16,17 +16,16 @@ package paths
 import (
 	"testing"
 
-	"github.com/gohugoio/hugo/langs"
-
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/langs"
 )
 
 func TestNewPaths(t *testing.T) {
 	c := qt.New(t)
 
-	v := viper.New()
+	v := config.New()
 	fs := hugofs.NewMem(v)
 
 	v.Set("languages", map[string]interface{}{

@@ -20,7 +20,7 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/config"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/htesting"
@@ -29,7 +29,7 @@ import (
 
 func TestLanguageRootMapping(t *testing.T) {
 	c := qt.New(t)
-	v := viper.New()
+	v := config.New()
 	v.Set("contentDir", "content")
 
 	fs := NewBaseFileDecorator(afero.NewMemMapFs())

@@ -22,13 +22,14 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/maps"
+
 	"github.com/gohugoio/hugo/parser"
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
 	"github.com/gohugoio/hugo/modules"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var _ cmder = (*configCmd)(nil)
@@ -81,7 +82,7 @@ func (c *configCmd) printConfig(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	allSettings := cfg.Cfg.(*viper.Viper).AllSettings()
+	allSettings := cfg.Cfg.Get("").(maps.Params)
 
 	// We need to clean up this, but we store objects in the config that
 	// isn't really interesting to the end user, so filter these.

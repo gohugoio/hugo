@@ -19,11 +19,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/common/loggers"
-
-	"github.com/spf13/viper"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -103,7 +102,7 @@ func TestBytesToHTML(t *testing.T) {
 }
 
 func TestNewContentSpec(t *testing.T) {
-	cfg := viper.New()
+	cfg := config.New()
 	c := qt.New(t)
 
 	cfg.Set("summaryLength", 32)

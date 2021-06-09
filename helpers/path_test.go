@@ -31,7 +31,6 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
-	"github.com/spf13/viper"
 )
 
 func TestMakePath(t *testing.T) {
@@ -490,8 +489,6 @@ func TestExists(t *testing.T) {
 }
 
 func TestAbsPathify(t *testing.T) {
-	defer viper.Reset()
-
 	type test struct {
 		inPath, workingDir, expected string
 	}
@@ -511,7 +508,6 @@ func TestAbsPathify(t *testing.T) {
 	}
 
 	for i, d := range data {
-		viper.Reset()
 		// todo see comment in AbsPathify
 		ps := newTestDefaultPathSpec("workingDir", d.workingDir)
 

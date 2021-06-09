@@ -77,7 +77,6 @@ import (
 
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
-	"github.com/spf13/viper"
 )
 
 // Site contains all the information relevant for constructing a static
@@ -501,9 +500,9 @@ But this also means that your site configuration may not do what you expect. If 
 	var relatedContentConfig related.Config
 
 	if cfg.Language.IsSet("related") {
-		relatedContentConfig, err = related.DecodeConfig(cfg.Language.Get("related"))
+		relatedContentConfig, err = related.DecodeConfig(cfg.Language.GetParams("related"))
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "failed to decode related config")
 		}
 	} else {
 		relatedContentConfig = related.DefaultConfig
@@ -574,7 +573,8 @@ func NewSite(cfg deps.DepsCfg) (*Site, error) {
 		return nil, err
 	}
 
-	if err = applyDeps(cfg, s); err != nil {
+	var l configLoader
+	if err = l.applyDeps(cfg, s); err != nil {
 		return nil, err
 	}
 
@@ -586,11 +586,11 @@ func NewSite(cfg deps.DepsCfg) (*Site, error) {
 // Note: This is mainly used in single site tests.
 // TODO(bep) test refactor -- remove
 func NewSiteDefaultLang(withTemplate ...func(templ tpl.TemplateManager) error) (*Site, error) {
-	v := viper.New()
-	if err := loadDefaultSettingsFor(v); err != nil {
+	l := configLoader{cfg: config.New()}
+	if err := l.applyConfigDefaults(); err != nil {
 		return nil, err
 	}
-	return newSiteForLang(langs.NewDefaultLanguage(v), withTemplate...)
+	return newSiteForLang(langs.NewDefaultLanguage(l.cfg), withTemplate...)
 }
 
 // NewEnglishSite creates a new site in English language.
@@ -598,11 +598,11 @@ func NewSiteDefaultLang(withTemplate ...func(templ tpl.TemplateManager) error) (
 // Note: This is mainly used in single site tests.
 // TODO(bep) test refactor -- remove
 func NewEnglishSite(withTemplate ...func(templ tpl.TemplateManager) error) (*Site, error) {
-	v := viper.New()
-	if err := loadDefaultSettingsFor(v); err != nil {
+	l := configLoader{cfg: config.New()}
+	if err := l.applyConfigDefaults(); err != nil {
 		return nil, err
 	}
-	return newSiteForLang(langs.NewLanguage("en", v), withTemplate...)
+	return newSiteForLang(langs.NewLanguage("en", l.cfg), withTemplate...)
 }
 
 // newSiteForLang creates a new site in the given language.
@@ -1314,7 +1314,7 @@ func (s *Site) initializeSiteInfo() error {
 				return vvv
 			}
 		default:
-			m := cast.ToStringMapBool(v)
+			m := maps.ToStringMapBool(v)
 			uglyURLs = func(p page.Page) bool {
 				return m[p.Section()]
 			}

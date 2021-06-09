@@ -17,11 +17,15 @@ import (
 	"bytes"
 	"fmt"
 	"path/filepath"
+	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/media"
+	"github.com/google/go-cmp/cmp"
+
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/spf13/afero"
-	"github.com/spf13/viper"
 )
 
 func TestLoadConfig(t *testing.T) {
@@ -77,12 +81,7 @@ func TestLoadConfigFromTheme(t *testing.T) {
 
 	c := qt.New(t)
 
-	mainConfigBasic := `
-theme = "test-theme"
-baseURL = "https://example.com/"
-
-`
-	mainConfig := `
+	mainConfigTemplate := `
 theme = "test-theme"
 baseURL = "https://example.com/"
 
@@ -90,9 +89,12 @@ baseURL = "https://example.com/"
 date = ["date","publishDate"]
 
 [params]
+MERGE_PARAMS
 p1 = "p1 main"
-p2 = "p2 main"
-top = "top"
+[params.b]
+b1 = "b1 main"
+[params.b.c]
+bc1 = "bc1 main"
 
 [mediaTypes]
 [mediaTypes."text/m1"]
@@ -130,7 +132,14 @@ expiryDate = ["date"]
 [params]
 p1 = "p1 theme"
 p2 = "p2 theme"
-p3 = "p3 theme"
+[params.b]
+b1 = "b1 theme"
+b2 = "b2 theme"
+[params.b.c]
+bc1 = "bc1 theme"
+bc2 = "bc2 theme"
+[params.b.c.d]
+bcd1 = "bcd1 theme"
 
 [mediaTypes]
 [mediaTypes."text/m1"]
@@ -176,190 +185,137 @@ name = "menu-theme"
 
 `
 
-	b := newTestSitesBuilder(t)
-	b.WithConfigFile("toml", mainConfig).WithThemeConfigFile("toml", themeConfig)
-	b.CreateSites().Build(BuildCfg{})
-
-	got := b.Cfg.(*viper.Viper).AllSettings()
-
-	b.AssertObject(`
-map[string]interface {}{
-  "p1": "p1 main",
-  "p2": "p2 main",
-  "p3": "p3 theme",
-  "top": "top",
-}`, got["params"])
-
-	b.AssertObject(`
-map[string]interface {}{
-  "date": []interface {}{
-    "date",
-    "publishDate",
-  },
-}`, got["frontmatter"])
-
-	b.AssertObject(`
-map[string]interface {}{
-  "text/m1": map[string]interface {}{
-    "suffixes": []interface {}{
-      "m1main",
-    },
-  },
-  "text/m2": map[string]interface {}{
-    "suffixes": []interface {}{
-      "m2theme",
-    },
-  },
-}`, got["mediatypes"])
-
-	b.AssertObject(`
-map[string]interface {}{
-  "o1": map[string]interface {}{
-    "basename": "o1main",
-    "mediatype": Type{
-      MainType: "text",
-      SubType: "m1",
-      Delimiter: ".",
-      FirstSuffix: SuffixInfo{
-        Suffix: "m1main",
-        FullSuffix: ".m1main",
-      },
-    },
-  },
-  "o2": map[string]interface {}{
-    "basename": "o2theme",
-    "mediatype": Type{
-      MainType: "text",
-      SubType: "m2",
-      Delimiter: ".",
-      FirstSuffix: SuffixInfo{
-        Suffix: "m2theme",
-        FullSuffix: ".m2theme",
-      },
-    },
-  },
-}`, got["outputformats"])
-
-	b.AssertObject(`map[string]interface {}{
-  "en": map[string]interface {}{
-    "languagename": "English",
-    "menus": map[string]interface {}{
-      "theme": []map[string]interface {}{
-        map[string]interface {}{
-          "name": "menu-lang-en-theme",
-        },
-      },
-    },
-    "params": map[string]interface {}{
-      "pl1": "p1-en-main",
-      "pl2": "p2-en-theme",
-    },
-  },
-  "nb": map[string]interface {}{
-    "languagename": "Norsk",
-    "menus": map[string]interface {}{
-      "theme": []map[string]interface {}{
-        map[string]interface {}{
-          "name": "menu-lang-nb-theme",
-        },
-      },
-    },
-    "params": map[string]interface {}{
-      "pl1": "p1-nb-main",
-      "pl2": "p2-nb-theme",
-    },
-  },
-}
-`, got["languages"])
-
-	b.AssertObject(`
-map[string]interface {}{
-  "main": []map[string]interface {}{
-    map[string]interface {}{
-      "name": "menu-main-main",
-    },
-  },
-  "thememenu": []map[string]interface {}{
-    map[string]interface {}{
-      "name": "menu-theme",
-    },
-  },
-  "top": []map[string]interface {}{
-    map[string]interface {}{
-      "name": "menu-top-main",
-    },
-  },
-}
-`, got["menus"])
-
-	c.Assert(got["baseurl"], qt.Equals, "https://example.com/")
-
-	if true {
-		return
+	buildForStrategy := func(t testing.TB, s string) *sitesBuilder {
+		mainConfig := strings.ReplaceAll(mainConfigTemplate, "MERGE_PARAMS", s)
+		b := newTestSitesBuilder(t)
+		b.WithConfigFile("toml", mainConfig).WithThemeConfigFile("toml", themeConfig)
+		return b.CreateSites().Build(BuildCfg{})
 	}
-	// Test variants with only values from theme
-	b = newTestSitesBuilder(t)
-	b.WithConfigFile("toml", mainConfigBasic).WithThemeConfigFile("toml", themeConfig)
-	b.CreateSites().Build(BuildCfg{})
 
-	got = b.Cfg.(*viper.Viper).AllSettings()
+	c.Run("Merge default", func(c *qt.C) {
+		b := buildForStrategy(c, "")
 
-	b.AssertObject(`map[string]interface {}{
-  "p1": "p1 theme",
-  "p2": "p2 theme",
-  "p3": "p3 theme",
-  "test-theme": map[string]interface {}{
-    "p1": "p1 theme",
-    "p2": "p2 theme",
-    "p3": "p3 theme",
-  },
-}`, got["params"])
+		got := b.Cfg.Get("").(maps.Params)
 
-	c.Assert(got["languages"], qt.IsNil)
-	b.AssertObject(`
-map[string]interface {}{
-  "text/m1": map[string]interface {}{
-    "suffix": "m1theme",
-  },
-  "text/m2": map[string]interface {}{
-    "suffix": "m2theme",
-  },
-}`, got["mediatypes"])
+		b.Assert(got["params"], qt.DeepEquals, maps.Params{
+			"b": maps.Params{
+				"b1": "b1 main",
+				"c": maps.Params{
+					"bc1": "bc1 main",
+					"bc2": "bc2 theme",
+					"d":   maps.Params{"bcd1": string("bcd1 theme")},
+				},
+				"b2": "b2 theme",
+			},
+			"p2": "p2 theme",
+			"p1": "p1 main",
+		})
 
-	b.AssertObject(`
-map[string]interface {}{
-  "o1": map[string]interface {}{
-    "basename": "o1theme",
-    "mediatype": Type{
-      MainType: "text",
-      SubType: "m1",
-      Suffix: "m1theme",
-      Delimiter: ".",
-    },
-  },
-  "o2": map[string]interface {}{
-    "basename": "o2theme",
-    "mediatype": Type{
-      MainType: "text",
-      SubType: "m2",
-      Suffix: "m2theme",
-      Delimiter: ".",
-    },
-  },
-}`, got["outputformats"])
-	b.AssertObject(`
-map[string]interface {}{
-  "main": []interface {}{
-    map[string]interface {}{
-      "name": "menu-main-theme",
-    },
-  },
-  "thememenu": []interface {}{
-    map[string]interface {}{
-      "name": "menu-theme",
-    },
-  },
-}`, got["menu"])
+		b.Assert(got["mediatypes"], qt.DeepEquals, maps.Params{
+			"text/m2": maps.Params{
+				"suffixes": []interface{}{
+					"m2theme",
+				},
+			},
+			"text/m1": maps.Params{
+				"suffixes": []interface{}{
+					"m1main",
+				},
+			},
+		})
+
+		var eq = qt.CmpEquals(
+			cmp.Comparer(func(m1, m2 media.Type) bool {
+				if m1.SubType != m2.SubType {
+					return false
+				}
+				return m1.FirstSuffix == m2.FirstSuffix
+			}),
+		)
+
+		mediaTypes := b.H.Sites[0].mediaTypesConfig
+		m1, _ := mediaTypes.GetByType("text/m1")
+		m2, _ := mediaTypes.GetByType("text/m2")
+
+		b.Assert(got["outputformats"], eq, maps.Params{
+			"o1": maps.Params{
+				"mediatype": m1,
+				"basename":  "o1main",
+			},
+			"o2": maps.Params{
+				"basename":  "o2theme",
+				"mediatype": m2,
+			},
+		})
+
+		b.Assert(got["languages"], qt.DeepEquals, maps.Params{
+			"en": maps.Params{
+				"languagename": "English",
+				"params": maps.Params{
+					"pl2": "p2-en-theme",
+					"pl1": "p1-en-main",
+				},
+				"menus": maps.Params{
+					"main": []map[string]interface{}{
+						{
+							"name": "menu-lang-en-main",
+						},
+					},
+					"theme": []map[string]interface{}{
+						{
+							"name": "menu-lang-en-theme",
+						},
+					},
+				},
+			},
+			"nb": maps.Params{
+				"languagename": "Norsk",
+				"params": maps.Params{
+					"top": "top-nb-theme",
+					"pl1": "p1-nb-main",
+					"pl2": "p2-nb-theme",
+				},
+				"menus": maps.Params{
+					"main": []map[string]interface{}{
+						{
+							"name": "menu-lang-nb-main",
+						},
+					},
+					"theme": []map[string]interface{}{
+						{
+							"name": "menu-lang-nb-theme",
+						},
+					},
+					"top": []map[string]interface{}{
+						{
+							"name": "menu-lang-nb-top",
+						},
+					},
+				},
+			},
+		})
+
+		c.Assert(got["baseurl"], qt.Equals, "https://example.com/")
+	})
+
+	c.Run("Merge shallow", func(c *qt.C) {
+		b := buildForStrategy(c, fmt.Sprintf("_merge=%q", "shallow"))
+
+		got := b.Cfg.Get("").(maps.Params)
+
+		// Shallow merge, only add new keys to params.
+		b.Assert(got["params"], qt.DeepEquals, maps.Params{
+			"p1": "p1 main",
+			"b": maps.Params{
+				"b1": "b1 main",
+				"c": maps.Params{
+					"bc1": "bc1 main",
+				},
+			},
+			"p2": "p2 theme",
+		})
+	})
+
 }
 
 func TestPrivacyConfig(t *testing.T) {
@@ -490,7 +446,12 @@ intSlice = [5,7,9]
 floatSlice = [3.14, 5.19]
 stringSlice = ["a", "b"]
 
+[outputFormats]
+[outputFormats.ofbase]
+mediaType = "text/plain"
+
 [params]
+paramWithNoEnvOverride="nooverride"
 [params.api_config]
 api_key="default_key"
 another_key="default another_key"
@@ -504,9 +465,16 @@ quality = 75
 
 	b.WithSourceFile("themes/mytheme/config.toml", `
 
+[outputFormats]
+[outputFormats.oftheme]
+mediaType = "text/plain"
+[outputFormats.ofbase]
+mediaType = "application/xml"
+
 [params]
 [params.mytheme_section]
 theme_param="themevalue"
+theme_param_nooverride="nooverride"
 [params.mytheme_section2]
 theme_param="themevalue2"
 
@@ -530,14 +498,16 @@ theme_param="themevalue2"
 		"HUGOxPARAMSxMYTHEME_SECTION2xTHEME_PARAM", "themevalue2_changed",
 		"HUGO_PARAMS_EMPTY", ``,
 		"HUGO_PARAMS_HTML", `<a target="_blank" />`,
-		//
+		// Issue #8618
 		"HUGO_SERVICES_GOOGLEANALYTICS_ID", `gaid`,
+		"HUGO_PARAMS_A_B_C", "abc",
 	)
 
 	b.Build(BuildCfg{})
 
 	cfg := b.H.Cfg
-	scfg := b.H.Sites[0].siteConfigConfig.Services
+	s := b.H.Sites[0]
+	scfg := s.siteConfigConfig.Services
 
 	c.Assert(cfg.Get("environment"), qt.Equals, "test")
 	c.Assert(cfg.GetBool("enablegitinfo"), qt.Equals, false)
@@ -551,9 +521,23 @@ theme_param="themevalue2"
 	c.Assert(cfg.Get("params.api_config.api_key"), qt.Equals, "new_key")
 	c.Assert(cfg.Get("params.api_config.another_key"), qt.Equals, "default another_key")
 	c.Assert(cfg.Get("params.mytheme_section.theme_param"), qt.Equals, "themevalue_changed")
+	c.Assert(cfg.Get("params.mytheme_section.theme_param_nooverride"), qt.Equals, "nooverride")
 	c.Assert(cfg.Get("params.mytheme_section2.theme_param"), qt.Equals, "themevalue2_changed")
 	c.Assert(cfg.Get("params.empty"), qt.Equals, ``)
 	c.Assert(cfg.Get("params.html"), qt.Equals, `<a target="_blank" />`)
 
+	params := cfg.Get("params").(maps.Params)
+	c.Assert(params["paramwithnoenvoverride"], qt.Equals, "nooverride")
+	c.Assert(cfg.Get("params.paramwithnoenvoverride"), qt.Equals, "nooverride")
 	c.Assert(scfg.GoogleAnalytics.ID, qt.Equals, "gaid")
+	c.Assert(cfg.Get("params.a.b"), qt.DeepEquals, maps.Params{
+		"c": "abc",
+	})
+
+	ofBase, _ := s.outputFormatsConfig.GetByName("ofbase")
+	ofTheme, _ := s.outputFormatsConfig.GetByName("oftheme")
+
+	c.Assert(ofBase.MediaType, qt.Equals, media.TextType)
+	c.Assert(ofTheme.MediaType, qt.Equals, media.TextType)
+
 }

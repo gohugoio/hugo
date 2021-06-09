@@ -32,7 +32,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/spf13/afero"
-	"github.com/spf13/viper"
+	
 )
 
 type tstNoStringer struct{}
@@ -986,7 +986,7 @@ func newDeps(cfg config.Provider) *deps.Deps {
 }
 
 func newTestNs() *Namespace {
-	v := viper.New()
+	v := config.New()
 	v.Set("contentDir", "content")
 	return New(newDeps(v))
 }

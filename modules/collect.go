@@ -424,7 +424,7 @@ func (c *collector) applyThemeConfig(tc *moduleAdapter) error {
 		if err != nil {
 			c.logger.Warnf("Failed to read module config for %q in %q: %s", tc.Path(), themeTOML, err)
 		} else {
-			maps.ToLower(themeCfg)
+			maps.PrepareParams(themeCfg)
 		}
 	}
 

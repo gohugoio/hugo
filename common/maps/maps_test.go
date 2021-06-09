@@ -67,7 +67,7 @@ func TestToLower(t *testing.T) {
 	for i, test := range tests {
 		t.Run(fmt.Sprint(i), func(t *testing.T) {
 			// ToLower modifies input.
-			ToLower(test.input)
+			PrepareParams(test.input)
 			if !reflect.DeepEqual(test.expected, test.input) {
 				t.Errorf("[%d] Expected\n%#v, got\n%#v\n", i, test.expected, test.input)
 			}

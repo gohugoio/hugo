@@ -385,8 +385,8 @@ func DecodeTypes(mms ...map[string]interface{}) (Types, error) {
 				return m, err
 			}
 
-			vm := v.(map[string]interface{})
-			maps.ToLower(vm)
+			vm := maps.ToStringMap(v)
+			maps.PrepareParams(vm)
 			_, delimiterSet := vm["delimiter"]
 			_, suffixSet := vm["suffix"]
 

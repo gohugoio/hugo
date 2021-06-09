@@ -21,7 +21,7 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config"
-	"github.com/spf13/viper"
+	
 )
 
 func TestDecodeConfigFromTOML(t *testing.T) {
@@ -164,7 +164,7 @@ Pattern = "["  # invalid regular expression
 func TestDecodeConfigDefault(t *testing.T) {
 	c := qt.New(t)
 
-	dcfg, err := decodeConfig(viper.New())
+	dcfg, err := decodeConfig(config.New())
 	c.Assert(err, qt.IsNil)
 	c.Assert(len(dcfg.Targets), qt.Equals, 0)
 	c.Assert(len(dcfg.Matchers), qt.Equals, 0)

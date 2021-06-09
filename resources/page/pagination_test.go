@@ -18,7 +18,7 @@ import (
 	"html/template"
 	"testing"
 
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/config"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/output"
@@ -196,7 +196,7 @@ func doTestPagerNoPages(t *testing.T, paginator *Paginator) {
 func TestPaginationURLFactory(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
-	cfg := viper.New()
+	cfg := config.New()
 	cfg.Set("paginatePath", "zoo")
 
 	for _, uglyURLs := range []bool{false, true} {

@@ -130,7 +130,7 @@ func AssignMetadata(metadata []map[string]interface{}, resources ...resource.Res
 				if found {
 					m := maps.ToStringMap(params)
 					// Needed for case insensitive fetching of params values
-					maps.ToLower(m)
+					maps.PrepareParams(m)
 					ma.updateParams(m)
 				}
 			}

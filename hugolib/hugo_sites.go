@@ -374,7 +374,8 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 		s.h = h
 	}
 
-	if err := applyDeps(cfg, sites...); err != nil {
+	var l configLoader
+	if err := l.applyDeps(cfg, sites...); err != nil {
 		return nil, errors.Wrap(err, "add site dependencies")
 	}
 
@@ -407,7 +408,7 @@ func (h *HugoSites) loadGitInfo() error {
 	return nil
 }
 
-func applyDeps(cfg deps.DepsCfg, sites ...*Site) error {
+func (l configLoader) applyDeps(cfg deps.DepsCfg, sites ...*Site) error {
 	if cfg.TemplateProvider == nil {
 		cfg.TemplateProvider = tplimpl.DefaultTemplateProvider
 	}
@@ -446,7 +447,7 @@ func applyDeps(cfg deps.DepsCfg, sites ...*Site) error {
 
 			d.Site = s.Info
 
-			siteConfig, err := loadSiteConfig(s.language)
+			siteConfig, err := l.loadSiteConfig(s.language)
 			if err != nil {
 				return errors.Wrap(err, "load site config")
 			}
@@ -607,11 +608,12 @@ func (h *HugoSites) withSite(fn func(s *Site) error) error {
 func (h *HugoSites) createSitesFromConfig(cfg config.Provider) error {
 	oldLangs, _ := h.Cfg.Get("languagesSorted").(langs.Languages)
 
-	if err := loadLanguageSettings(h.Cfg, oldLangs); err != nil {
+	l := configLoader{cfg: h.Cfg}
+	if err := l.loadLanguageSettings(oldLangs); err != nil {
 		return err
 	}
 
-	depsCfg := deps.DepsCfg{Fs: h.Fs, Cfg: cfg}
+	depsCfg := deps.DepsCfg{Fs: h.Fs, Cfg: l.cfg}
 
 	sites, err := createSitesFromConfig(depsCfg)
 	if err != nil {
@@ -629,7 +631,8 @@ func (h *HugoSites) createSitesFromConfig(cfg config.Provider) error {
 		s.h = h
 	}
 
-	if err := applyDeps(depsCfg, sites...); err != nil {
+	var cl configLoader
+	if err := cl.applyDeps(depsCfg, sites...); err != nil {
 		return err
 	}
 

@@ -368,7 +368,11 @@ func decode(mediaTypes media.Types, input interface{}, output *Format) error {
 		return err
 	}
 
-	return decoder.Decode(input)
+	if err = decoder.Decode(input); err != nil {
+		return errors.Wrap(err, "failed to decode output format configuration")
+	}
+
+	return nil
 
 }
 

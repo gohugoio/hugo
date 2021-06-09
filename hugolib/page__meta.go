@@ -336,7 +336,7 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 
 	if frontmatter != nil {
 		// Needed for case insensitive fetching of params values
-		maps.ToLower(frontmatter)
+		maps.PrepareParams(frontmatter)
 		if p.bucket != nil {
 			// Check for any cascade define on itself.
 			if cv, found := frontmatter["cascade"]; found {

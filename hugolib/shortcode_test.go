@@ -20,10 +20,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/markup/asciidocext"
 	"github.com/gohugoio/hugo/markup/rst"
-
-	"github.com/spf13/viper"
 
 	"github.com/gohugoio/hugo/parser/pageparser"
 	"github.com/gohugoio/hugo/resources/page"
@@ -1214,7 +1213,7 @@ title: "Hugo Rocks!"
 func TestShortcodeEmoji(t *testing.T) {
 	t.Parallel()
 
-	v := viper.New()
+	v := config.New()
 	v.Set("enableEmoji", true)
 
 	builder := newTestSitesBuilder(t).WithViper(v)
@@ -1279,7 +1278,7 @@ func TestShortcodeRef(t *testing.T) {
 		t.Run(fmt.Sprintf("plainIDAnchors=%t", plainIDAnchors), func(t *testing.T) {
 			t.Parallel()
 
-			v := viper.New()
+			v := config.New()
 			v.Set("baseURL", "https://example.org")
 			v.Set("blackfriday", map[string]interface{}{
 				"plainIDAnchors": plainIDAnchors,
