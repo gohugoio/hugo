@@ -25,6 +25,14 @@ const filterAPIVersion = 0
 type Filters struct {
 }
 
+// Dither creates a filter that dither image.
+func (*Filters) Dither(config interface{}) gift.Filter {
+	return filter{
+		Options: newFilterOpts(config),
+		Filter:  ditherFilter{config: cast.ToString(config)},
+	}
+}
+
 // Overlay creates a filter that overlays src at position x y.
 func (*Filters) Overlay(src ImageSource, x, y interface{}) gift.Filter {
 	return filter{
