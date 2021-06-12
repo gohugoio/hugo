@@ -143,9 +143,9 @@ var (
 		Rel:         "alternate",
 	}
 
-	WebAppManifestFormat = Format{
+	WebAppManifest = Format{
 		Name:        "Web App Manifest",
-		MediaType:   media.WebAppManifestType,
+		MediaType:   media.WebAppManifest,
 		BaseName:    "manifest",
 		IsPlainText: true,
 		Rel:         "manifest",
@@ -184,6 +184,7 @@ var DefaultFormats = Formats{
 	CSVFormat,
 	HTMLFormat,
 	JSONFormat,
+	WebAppManifest,
 	RobotsTxtFormat,
 	RSSFormat,
 	SitemapFormat,

@@ -167,7 +167,7 @@ var (
 	JSXType        = newMediaType("text", "jsx", []string{"jsx"})
 
 	JSONType           = newMediaType("application", "json", []string{"json"})
-	WebAppManifestType = newMediaTypeWithMimeSuffix("application", "manifest", "json", []string{"webmanifest"})
+	WebAppManifest = newMediaTypeWithMimeSuffix("application", "manifest", "json", []string{"webmanifest"})
 	RSSType            = newMediaTypeWithMimeSuffix("application", "rss", "xml", []string{"xml"})
 	XMLType            = newMediaType("application", "xml", []string{"xml"})
 	SVGType            = newMediaTypeWithMimeSuffix("image", "svg", "xml", []string{"svg"})
@@ -207,7 +207,7 @@ var DefaultTypes = Types{
 	TSXType,
 	JSXType,
 	JSONType,
-	WebAppManifestType,
+	WebAppManifest,
 	RSSType,
 	XMLType,
 	SVGType,
