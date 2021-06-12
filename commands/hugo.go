@@ -735,7 +735,6 @@ func (c *commandeer) handleBuildErr(err error, msg string) {
 }
 
 func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
-	defer c.timeTrack(time.Now(), "Total")
 
 	c.buildErr = nil
 	visited := c.visitedURLs.PeekAllSet()
@@ -1112,9 +1111,15 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 
 		c.printChangeDetected("")
 		c.changeDetector.PrepareNew()
-		if err := c.rebuildSites(dynamicEvents); err != nil {
-			c.handleBuildErr(err, "Rebuild failed")
-		}
+
+		func() {
+			defer c.timeTrack(time.Now(), "Total")
+			if err := c.rebuildSites(dynamicEvents); err != nil {
+				c.handleBuildErr(err, "Rebuild failed")
+			}
+		}()
+		// startTime := time.Now()
+		// c.timeTrack(startTime, "Total")
 
 		if doLiveReload {
 			if len(partitionedEvents.ContentEvents) == 0 && len(partitionedEvents.AssetEvents) > 0 {
