@@ -537,7 +537,6 @@ func (c *commandeer) build() error {
 }
 
 func (c *commandeer) serverBuild() error {
-	defer c.timeTrack(time.Now(), "Built")
 
 	stopProfiling, err := c.initProfiling()
 	if err != nil {
@@ -1118,8 +1117,6 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 				c.handleBuildErr(err, "Rebuild failed")
 			}
 		}()
-		// startTime := time.Now()
-		// c.timeTrack(startTime, "Total")
 
 		if doLiveReload {
 			if len(partitionedEvents.ContentEvents) == 0 && len(partitionedEvents.AssetEvents) > 0 {

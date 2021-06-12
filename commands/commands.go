@@ -168,7 +168,13 @@ Complete documentation is available at http://gohugo.io/.`,
 			}
 			cc.c = c
 
-			return c.build()
+			// prevent cobra printing error so it can be handled here (before the timeTrack prints)
+			cmd.SilenceErrors = true
+			err = c.build()
+			if err != nil {
+				cmd.PrintErrln("Error:", err.Error())
+			}
+			return err
 		},
 	})
 

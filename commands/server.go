@@ -239,7 +239,17 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := c.serverBuild(); err != nil {
+	// silence errors in cobra so we can handle them here
+	cmd.SilenceErrors = true
+	err = func() error {
+		defer c.timeTrack(time.Now(), "Built")
+		err := c.serverBuild()
+		if err != nil {
+			cmd.PrintErrln("Error:", err.Error())
+		}
+		return err
+	}()
+	if err != nil {
 		return err
 	}
 
