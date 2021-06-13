@@ -145,7 +145,7 @@ var (
 
 	WebAppManifestFormat = Format{
 		Name:        "WebAppManifest",
-		MediaType:   media.WebAppManifestFormat,
+		MediaType:   media.WebAppManifestType,
 		BaseName:    "manifest",
 		IsPlainText: true,
 		Rel:         "manifest",
