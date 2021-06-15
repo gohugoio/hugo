@@ -201,9 +201,26 @@ func (i *imageResource) Fill(spec string) (resource.Image, error) {
 		return nil, err
 	}
 
-	return i.doWithImageConfig(conf, func(src image.Image) (image.Image, error) {
+	img, err := i.doWithImageConfig(conf, func(src image.Image) (image.Image, error) {
 		return i.Proc.ApplyFiltersFromConfig(src, conf)
 	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if conf.Anchor == 0 && img.Width() == 0 || img.Height() == 0 {
+		// See https://github.com/gohugoio/hugo/issues/7955
+		// Smartcrop fails silently in some rare cases.
+		// Fall back to a center fill.
+		conf.Anchor = gift.CenterAnchor
+		conf.AnchorStr = "center"
+		return i.doWithImageConfig(conf, func(src image.Image) (image.Image, error) {
+			return i.Proc.ApplyFiltersFromConfig(src, conf)
+		})
+	}
+
+	return img, err
 }
 
 func (i *imageResource) Filter(filters ...interface{}) (resource.Image, error) {
