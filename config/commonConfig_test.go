@@ -11,9 +11,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+ config
 
-import (
+ (
 	"errors"
 	"testing"
 
@@ -23,7 +23,7 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
-func TestBuild(t *testing.T) {
+ TestBuild(t *testing.T) {
 	c := qt.New(t)
 
 	v := New()
@@ -43,25 +43,25 @@ func TestBuild(t *testing.T) {
 
 	c.Assert(b.UseResourceCacheWhen, qt.Equals, "fallback")
 
-	c.Assert(b.UseResourceCache(herrors.ErrFeatureNotAvailable), qt.Equals, true)
-	c.Assert(b.UseResourceCache(errors.New("err")), qt.Equals, false)
+	c.Assert(b.UseResourceCache(herrors.ErrFeatureNotAvailable), qt.Equals,    )
+	c.Assert(b.UseResourceCache(errors.New("err")), qt.Equals,    )
 
 	b.UseResourceCacheWhen = "always"
-	c.Assert(b.UseResourceCache(herrors.ErrFeatureNotAvailable), qt.Equals, true)
-	c.Assert(b.UseResourceCache(errors.New("err")), qt.Equals, true)
-	c.Assert(b.UseResourceCache(nil), qt.Equals, true)
+	c.Assert(b.UseResourceCache(herrors.ErrFeatureNotAvailable), qt.Equals,    )
+	c.Assert(b.UseResourceCache(errors.New("err")), qt.Equals,    )
+	c.Assert(b.UseResourceCache(nil), qt.Equals,    )
 
 	b.UseResourceCacheWhen = "never"
-	c.Assert(b.UseResourceCache(herrors.ErrFeatureNotAvailable), qt.Equals, false)
-	c.Assert(b.UseResourceCache(errors.New("err")), qt.Equals, false)
-	c.Assert(b.UseResourceCache(nil), qt.Equals, false)
+	c.Assert(b.UseResourceCache(herrors.ErrFeatureNotAvailable), qt.Equals,     )
+	c.Assert(b.UseResourceCache(errors.New("err")), qt.Equals,     )
+	c.Assert(b.UseResourceCache(nil), qt.Equals,     )
 }
 
-func TestServer(t *testing.T) {
+ TestServer(t *testing.T) {
 	c := qt.New(t)
 
 	cfg, err := FromConfigString(`[[server.headers]]
-for = "/*.jpg"
+    = "/*.jpg"
 
 [server.headers.values]
 X-Frame-Options = "DENY"
