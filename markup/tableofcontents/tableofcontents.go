@@ -62,13 +62,15 @@ func (toc *Root) AddAt(h Header, row, level int) {
 }
 
 // ToHTML renders the ToC as HTML.
-func (toc Root) ToHTML(startLevel, stopLevel int, ordered bool) string {
+func (toc Root) ToHTML(startLevel, stopLevel int, ordered bool, pre *string, post *string) string {
 	b := &tocBuilder{
 		s:          strings.Builder{},
 		h:          toc.Headers,
 		startLevel: startLevel,
 		stopLevel:  stopLevel,
 		ordered:    ordered,
+		pre:        pre,
+		post:       post,
 	}
 	b.Build()
 	return b.s.String()
@@ -81,6 +83,8 @@ type tocBuilder struct {
 	startLevel int
 	stopLevel  int
 	ordered    bool
+	pre        *string
+	post       *string
 }
 
 func (b *tocBuilder) Build() {
@@ -88,9 +92,17 @@ func (b *tocBuilder) Build() {
 }
 
 func (b *tocBuilder) writeNav(h Headers) {
-	b.s.WriteString("<nav id=\"TableOfContents\">")
+	if b.pre != nil {
+		b.s.WriteString(*b.pre)
+	} else {
+		b.s.WriteString("<nav id=\"TableOfContents\">")
+	}
 	b.writeHeaders(1, 0, b.h)
-	b.s.WriteString("</nav>")
+	if b.post != nil {
+		b.s.WriteString(*b.post)
+	} else {
+		b.s.WriteString("</nav>")
+	}
 }
 
 func (b *tocBuilder) writeHeaders(level, indent int, h Headers) {
@@ -154,6 +166,8 @@ var DefaultConfig = Config{
 	StartLevel: 2,
 	EndLevel:   3,
 	Ordered:    false,
+	Pre:        "<nav id=\"TableOfContents\">",
+	Post:       "</nav>",
 }
 
 type Config struct {
@@ -167,4 +181,8 @@ type Config struct {
 
 	// Whether to produce a ordered list or not.
 	Ordered bool
+
+	// Override default behavior for ToC navigation heading.
+	Pre  string
+	Post string
 }

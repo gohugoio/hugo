@@ -137,6 +137,8 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 						cfg.TableOfContents.StartLevel,
 						cfg.TableOfContents.EndLevel,
 						cfg.TableOfContents.Ordered,
+						&cfg.TableOfContents.Pre,
+						&cfg.TableOfContents.Post,
 					),
 				)
 			} else {

@@ -30,7 +30,7 @@ func TestToc(t *testing.T) {
 	toc.AddAt(Header{Text: "1-H3-1", ID: "1-h2-2"}, 0, 2)
 	toc.AddAt(Header{Text: "Header 2", ID: "h1-2"}, 1, 0)
 
-	got := toc.ToHTML(1, -1, false)
+	got := toc.ToHTML(1, -1, false, nil, nil)
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
   <ul>
     <li><a href="#h1-1">Header 1</a>
@@ -47,7 +47,7 @@ func TestToc(t *testing.T) {
   </ul>
 </nav>`, qt.Commentf(got))
 
-	got = toc.ToHTML(1, 1, false)
+	got = toc.ToHTML(1, 1, false, nil, nil)
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
   <ul>
     <li><a href="#h1-1">Header 1</a></li>
@@ -55,7 +55,7 @@ func TestToc(t *testing.T) {
   </ul>
 </nav>`, qt.Commentf(got))
 
-	got = toc.ToHTML(1, 2, false)
+	got = toc.ToHTML(1, 2, false, nil, nil)
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
   <ul>
     <li><a href="#h1-1">Header 1</a>
@@ -68,7 +68,7 @@ func TestToc(t *testing.T) {
   </ul>
 </nav>`, qt.Commentf(got))
 
-	got = toc.ToHTML(2, 2, false)
+	got = toc.ToHTML(2, 2, false, nil, nil)
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
   <ul>
     <li><a href="#1-h2-1">1-H2-1</a></li>
@@ -76,7 +76,7 @@ func TestToc(t *testing.T) {
   </ul>
 </nav>`, qt.Commentf(got))
 
-	got = toc.ToHTML(1, -1, true)
+	got = toc.ToHTML(1, -1, true, nil, nil)
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
   <ol>
     <li><a href="#h1-1">Header 1</a>
@@ -94,6 +94,40 @@ func TestToc(t *testing.T) {
 </nav>`, qt.Commentf(got))
 }
 
+func TestPrePostToc(t *testing.T) {
+	c := qt.New(t)
+
+	toc := &Root{}
+
+	pre := "<nav id=\"TableOfContents\"><h1>Woo</h1>"
+	post := "</nav>"
+	empty := ""
+
+	toc.AddAt(Header{Text: "Header 1", ID: "h1-1"}, 0, 0)
+
+	got := toc.ToHTML(1, -1, false, &pre, &post)
+	c.Assert(got, qt.Equals, `<nav id="TableOfContents"><h1>Woo</h1>
+  <ul>
+    <li><a href="#h1-1">Header 1</a></li>
+  </ul>
+</nav>`, qt.Commentf(got))
+
+	got = toc.ToHTML(1, -1, false, &pre, &empty)
+	c.Assert(got, qt.Equals, `<nav id="TableOfContents"><h1>Woo</h1>
+  <ul>
+    <li><a href="#h1-1">Header 1</a></li>
+  </ul>
+`, qt.Commentf(got))
+
+	got = toc.ToHTML(1, -1, false, &empty, &post)
+	c.Assert(got, qt.Equals, `
+  <ul>
+    <li><a href="#h1-1">Header 1</a></li>
+  </ul>
+</nav>`, qt.Commentf(got))
+
+}
+
 func TestTocMissingParent(t *testing.T) {
 	c := qt.New(t)
 
@@ -103,7 +137,7 @@ func TestTocMissingParent(t *testing.T) {
 	toc.AddAt(Header{Text: "H3", ID: "h3"}, 1, 2)
 	toc.AddAt(Header{Text: "H3", ID: "h3"}, 1, 2)
 
-	got := toc.ToHTML(1, -1, false)
+	got := toc.ToHTML(1, -1, false, nil, nil)
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
   <ul>
     <li>
@@ -124,7 +158,7 @@ func TestTocMissingParent(t *testing.T) {
   </ul>
 </nav>`, qt.Commentf(got))
 
-	got = toc.ToHTML(3, 3, false)
+	got = toc.ToHTML(3, 3, false, nil, nil)
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
   <ul>
     <li><a href="#h3">H3</a></li>
@@ -132,7 +166,7 @@ func TestTocMissingParent(t *testing.T) {
   </ul>
 </nav>`, qt.Commentf(got))
 
-	got = toc.ToHTML(1, -1, true)
+	got = toc.ToHTML(1, -1, true, nil, nil)
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
   <ol>
     <li>

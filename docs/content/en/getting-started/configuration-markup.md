@@ -116,6 +116,12 @@ endLevel
 ordered
 : Whether or not to generate an ordered list instead of an unordered list.
 
+pre
+: HTML to immediately precede the outer list element. Default value is `<nav id="TableOfContents">`.
+
+post
+: HTML to immediately follow the outer list element. Default value is `</nav>`.
+
 
 ## Markdown Render Hooks
 
