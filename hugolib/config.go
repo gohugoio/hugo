@@ -79,10 +79,16 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 	}
 
 	if d.AbsConfigDir != "" {
-		dirnames, err := l.loadConfigFromConfigDir()
+		dcfg, dirnames, err := config.LoadConfigFromDir(l.Fs, d.AbsConfigDir, l.Environment)
 		if err == nil {
-			configFiles = append(configFiles, dirnames...)
+			if len(dirnames) > 0 {
+				l.cfg.Set("", dcfg.Get(""))
+				configFiles = append(configFiles, dirnames...)
+			}
 		} else if err != ErrNoConfigFile {
+			if len(dirnames) > 0 {
+				return nil, nil, l.wrapFileError(err, dirnames[0])
+			}
 			return nil, nil, err
 		}
 	}
@@ -381,9 +387,9 @@ func (l configLoader) collectModules(modConfig modules.Config, v1 config.Provide
 
 	hook := func(m *modules.ModulesConfig) error {
 		for _, tc := range m.ActiveModules {
-			if tc.ConfigFilename() != "" {
+			if len(tc.ConfigFilenames()) > 0 {
 				if tc.Watch() {
-					configFilenames = append(configFilenames, tc.ConfigFilename())
+					configFilenames = append(configFilenames, tc.ConfigFilenames()...)
 				}
 
 				// Merge from theme config into v1 based on configured
@@ -406,6 +412,7 @@ func (l configLoader) collectModules(modConfig modules.Config, v1 config.Provide
 		HookBeforeFinalize: hook,
 		WorkingDir:         workingDir,
 		ThemesDir:          themesDir,
+		Environment:        l.Environment,
 		CacheDir:           filecacheConfigs.CacheDirModules(),
 		ModuleConfig:       modConfig,
 		IgnoreVendor:       ignoreVendor,
@@ -466,106 +473,6 @@ func (l configLoader) loadConfig(configName string) (string, error) {
 	l.cfg.Set("", m)
 
 	return filename, nil
-}
-
-func (l configLoader) loadConfigFromConfigDir() ([]string, error) {
-	sourceFs := l.Fs
-	configDir := l.AbsConfigDir
-
-	if _, err := sourceFs.Stat(configDir); err != nil {
-		// Config dir does not exist.
-		return nil, nil
-	}
-
-	defaultConfigDir := filepath.Join(configDir, "_default")
-	environmentConfigDir := filepath.Join(configDir, l.Environment)
-
-	var configDirs []string
-	// Merge from least to most specific.
-	for _, dir := range []string{defaultConfigDir, environmentConfigDir} {
-		if _, err := sourceFs.Stat(dir); err == nil {
-			configDirs = append(configDirs, dir)
-		}
-	}
-
-	if len(configDirs) == 0 {
-		return nil, nil
-	}
-
-	// Keep track of these so we can watch them for changes.
-	var dirnames []string
-
-	for _, configDir := range configDirs {
-		err := afero.Walk(sourceFs, configDir, func(path string, fi os.FileInfo, err error) error {
-			if fi == nil || err != nil {
-				return nil
-			}
-
-			if fi.IsDir() {
-				dirnames = append(dirnames, path)
-				return nil
-			}
-
-			if !config.IsValidConfigFilename(path) {
-				return nil
-			}
-
-			name := cpaths.Filename(filepath.Base(path))
-
-			item, err := metadecoders.Default.UnmarshalFileToMap(sourceFs, path)
-			if err != nil {
-				return l.wrapFileError(err, path)
-			}
-
-			var keyPath []string
-
-			if name != "config" {
-				// Can be params.jp, menus.en etc.
-				name, lang := cpaths.FileAndExtNoDelimiter(name)
-
-				keyPath = []string{name}
-
-				if lang != "" {
-					keyPath = []string{"languages", lang}
-					switch name {
-					case "menu", "menus":
-						keyPath = append(keyPath, "menus")
-					case "params":
-						keyPath = append(keyPath, "params")
-					}
-				}
-			}
-
-			root := item
-			if len(keyPath) > 0 {
-				root = make(map[string]interface{})
-				m := root
-				for i, key := range keyPath {
-					if i >= len(keyPath)-1 {
-						m[key] = item
-					} else {
-						nm := make(map[string]interface{})
-						m[key] = nm
-						m = nm
-					}
-				}
-			}
-
-			// Migrate menu => menus etc.
-			config.RenameKeys(root)
-
-			// Set will overwrite keys with the same name, recursively.
-			l.cfg.Set("", root)
-
-			return nil
-		})
-		if err != nil {
-			return nil, err
-		}
-
-	}
-
-	return dirnames, nil
 }
 
 func (l configLoader) loadLanguageSettings(oldLangs langs.Languages) error {

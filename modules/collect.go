@@ -396,17 +396,16 @@ func (c *collector) applyMounts(moduleImport Import, mod *moduleAdapter) error {
 func (c *collector) applyThemeConfig(tc *moduleAdapter) error {
 	var (
 		configFilename string
-		cfg            config.Provider
 		themeCfg       map[string]interface{}
-		hasConfig      bool
+		hasConfigFile  bool
 		err            error
 	)
 
 	// Viper supports more, but this is the sub-set supported by Hugo.
 	for _, configFormats := range config.ValidConfigFileExtensions {
 		configFilename = filepath.Join(tc.Dir(), "config."+configFormats)
-		hasConfig, _ = afero.Exists(c.fs, configFilename)
-		if hasConfig {
+		hasConfigFile, _ = afero.Exists(c.fs, configFilename)
+		if hasConfigFile {
 			break
 		}
 	}
@@ -428,20 +427,38 @@ func (c *collector) applyThemeConfig(tc *moduleAdapter) error {
 		}
 	}
 
-	if hasConfig {
+	if hasConfigFile {
 		if configFilename != "" {
 			var err error
-			cfg, err = config.FromFile(c.fs, configFilename)
+			tc.cfg, err = config.FromFile(c.fs, configFilename)
 			if err != nil {
 				return errors.Wrapf(err, "failed to read module config for %q in %q", tc.Path(), configFilename)
 			}
 		}
 
-		tc.configFilename = configFilename
-		tc.cfg = cfg
+		tc.configFilenames = append(tc.configFilenames, configFilename)
+
 	}
 
-	config, err := decodeConfig(cfg, c.moduleConfig.replacementsMap)
+	// Also check for a config dir, which we overlay on top of the file configuration.
+	configDir := filepath.Join(tc.Dir(), "config")
+	dcfg, dirnames, err := config.LoadConfigFromDir(c.fs, configDir, c.ccfg.Environment)
+	if err != nil {
+		return err
+	}
+
+	if len(dirnames) > 0 {
+		tc.configFilenames = append(tc.configFilenames, dirnames...)
+
+		if hasConfigFile {
+			// Set will overwrite existing keys.
+			tc.cfg.Set("", dcfg.Get(""))
+		} else {
+			tc.cfg = dcfg
+		}
+	}
+
+	config, err := decodeConfig(tc.cfg, c.moduleConfig.replacementsMap)
 	if err != nil {
 		return err
 	}
