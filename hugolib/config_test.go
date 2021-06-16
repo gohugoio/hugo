@@ -318,6 +318,59 @@ name = "menu-theme"
 
 }
 
+func TestLoadConfigFromThemeDir(t *testing.T) {
+	t.Parallel()
+
+	mainConfig := `
+theme = "test-theme"
+
+[params]
+m1 = "mv1"	
+`
+
+	themeConfig := `
+[params]
+t1 = "tv1"	
+t2 = "tv2"
+`
+
+	themeConfigDir := filepath.Join("themes", "test-theme", "config")
+	themeConfigDirDefault := filepath.Join(themeConfigDir, "_default")
+	themeConfigDirProduction := filepath.Join(themeConfigDir, "production")
+
+	projectConfigDir := "config"
+
+	b := newTestSitesBuilder(t)
+	b.WithConfigFile("toml", mainConfig).WithThemeConfigFile("toml", themeConfig)
+	b.Assert(b.Fs.Source.MkdirAll(themeConfigDirDefault, 0777), qt.IsNil)
+	b.Assert(b.Fs.Source.MkdirAll(themeConfigDirProduction, 0777), qt.IsNil)
+	b.Assert(b.Fs.Source.MkdirAll(projectConfigDir, 0777), qt.IsNil)
+
+	b.WithSourceFile(filepath.Join(projectConfigDir, "config.toml"), `[params]
+m2 = "mv2"
+`)
+	b.WithSourceFile(filepath.Join(themeConfigDirDefault, "config.toml"), `[params]
+t2 = "tv2d"
+t3 = "tv3d"
+`)
+
+	b.WithSourceFile(filepath.Join(themeConfigDirProduction, "config.toml"), `[params]
+t3 = "tv3p"
+`)
+
+	b.Build(BuildCfg{})
+
+	got := b.Cfg.Get("params").(maps.Params)
+
+	b.Assert(got, qt.DeepEquals, maps.Params{
+		"t3": "tv3p",
+		"m1": "mv1",
+		"t1": "tv1",
+		"t2": "tv2d",
+	})
+
+}
+
 func TestPrivacyConfig(t *testing.T) {
 	t.Parallel()
 

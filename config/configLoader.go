@@ -14,8 +14,13 @@
 package config
 
 import (
+	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/pkg/errors"
+
+	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/parser/metadecoders"
@@ -82,6 +87,102 @@ func loadConfigFromFile(fs afero.Fs, filename string) (map[string]interface{}, e
 	}
 	RenameKeys(m)
 	return m, nil
+}
+
+func LoadConfigFromDir(sourceFs afero.Fs, configDir, environment string) (Provider, []string, error) {
+	defaultConfigDir := filepath.Join(configDir, "_default")
+	environmentConfigDir := filepath.Join(configDir, environment)
+	cfg := New()
+
+	var configDirs []string
+	// Merge from least to most specific.
+	for _, dir := range []string{defaultConfigDir, environmentConfigDir} {
+		if _, err := sourceFs.Stat(dir); err == nil {
+			configDirs = append(configDirs, dir)
+		}
+	}
+
+	if len(configDirs) == 0 {
+		return nil, nil, nil
+	}
+
+	// Keep track of these so we can watch them for changes.
+	var dirnames []string
+
+	for _, configDir := range configDirs {
+		err := afero.Walk(sourceFs, configDir, func(path string, fi os.FileInfo, err error) error {
+			if fi == nil || err != nil {
+				return nil
+			}
+
+			if fi.IsDir() {
+				dirnames = append(dirnames, path)
+				return nil
+			}
+
+			if !IsValidConfigFilename(path) {
+				return nil
+			}
+
+			name := paths.Filename(filepath.Base(path))
+
+			item, err := metadecoders.Default.UnmarshalFileToMap(sourceFs, path)
+			if err != nil {
+				// This will be used in error reporting, use the most specific value.
+				dirnames = []string{path}
+				return errors.Wrapf(err, "failed to unmarshl config for path %q", path)
+			}
+
+			var keyPath []string
+
+			if name != "config" {
+				// Can be params.jp, menus.en etc.
+				name, lang := paths.FileAndExtNoDelimiter(name)
+
+				keyPath = []string{name}
+
+				if lang != "" {
+					keyPath = []string{"languages", lang}
+					switch name {
+					case "menu", "menus":
+						keyPath = append(keyPath, "menus")
+					case "params":
+						keyPath = append(keyPath, "params")
+					}
+				}
+			}
+
+			root := item
+			if len(keyPath) > 0 {
+				root = make(map[string]interface{})
+				m := root
+				for i, key := range keyPath {
+					if i >= len(keyPath)-1 {
+						m[key] = item
+					} else {
+						nm := make(map[string]interface{})
+						m[key] = nm
+						m = nm
+					}
+				}
+			}
+
+			// Migrate menu => menus etc.
+			RenameKeys(root)
+
+			// Set will overwrite keys with the same name, recursively.
+			cfg.Set("", root)
+
+			return nil
+		})
+		if err != nil {
+			return nil, dirnames, err
+		}
+
+	}
+
+	return cfg, dirnames, nil
+
 }
 
 var keyAliases maps.KeyRenamer
