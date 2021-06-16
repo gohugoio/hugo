@@ -55,7 +55,7 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 		d.Environment = hugo.EnvironmentProduction
 	}
 
-	if len(d.Environ) == 0 {
+	if len(d.Environ) == 0 && !hugo.IsRunningAsTest() {
 		d.Environ = os.Environ()
 	}
 
