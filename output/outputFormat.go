@@ -144,11 +144,12 @@ var (
 	}
 
 	WebAppManifestFormat = Format{
-		Name:        "WebAppManifest",
-		MediaType:   media.WebAppManifestType,
-		BaseName:    "manifest",
-		IsPlainText: true,
-		Rel:         "manifest",
+		Name:           "WebAppManifest",
+		MediaType:      media.WebAppManifestType,
+		BaseName:       "manifest",
+		IsPlainText:    true,
+		NotAlternative: true,
+		Rel:            "manifest",
 	}
 
 	RobotsTxtFormat = Format{
