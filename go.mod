@@ -20,7 +20,7 @@ require (
 	github.com/dustin/go-humanize v1.0.0
 	github.com/evanw/esbuild v0.11.16
 	github.com/fortytw2/leaktest v1.3.0
-	github.com/frankban/quicktest v1.12.0
+	github.com/frankban/quicktest v1.13.0
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/getkin/kin-openapi v0.61.0
 	github.com/ghodss/yaml v1.0.0
