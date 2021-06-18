@@ -500,7 +500,7 @@ if (!doNotTrack) {
 {{- if not $pc.Disable -}}
   {{ $accessToken := site.Config.Services.Instagram.AccessToken }}
   {{- if not $accessToken -}}
-    {{- erroridf "err-missing-instagram-accesstoken" "instagram shortcode: Missing config value for services.instagram.accessToken. This can be set in config.toml, but it is recommended to configure this via the HUGO_SERVICES_INSTAGRAM_ACCESSTOKEN OS environment variable. If you are using a Client Access Token, remember that you must combine it with your App ID using a pipe symbol (<APPID>|<CLIENTTOKEN>) otherwise the request will fail." -}}
+    {{- erroridf "error-missing-instagram-accesstoken" "instagram shortcode: Missing config value for services.instagram.accessToken. This can be set in config.toml, but it is recommended to configure this via the HUGO_SERVICES_INSTAGRAM_ACCESSTOKEN OS environment variable. If you are using a Client Access Token, remember that you must combine it with your App ID using a pipe symbol (<APPID>|<CLIENTTOKEN>) otherwise the request will fail." -}}
   {{- else -}}
     {{- if $pc.Simple -}}
       {{ template "_internal/shortcodes/instagram_simple.html" . }}
@@ -519,7 +519,7 @@ if (!doNotTrack) {
 {{- if not $pc.Disable -}}
   {{ $accessToken := site.Config.Services.Instagram.AccessToken }}
   {{- if not $accessToken -}}
-    {{- erroridf "err-missing-instagram-accesstoken" "instagram shortcode: Missing config value for services.instagram.accessToken. This can be set in config.toml, but it is recommended to configure this via the HUGO_SERVICES_INSTAGRAM_ACCESSTOKEN OS environment variable. If you are using a Client Access Token, remember that you must combine it with your App ID using a pipe symbol (<APPID>|<CLIENTTOKEN>) otherwise the request will fail." -}}
+    {{- erroridf "error-missing-instagram-accesstoken" "instagram shortcode: Missing config value for services.instagram.accessToken. This can be set in config.toml, but it is recommended to configure this via the HUGO_SERVICES_INSTAGRAM_ACCESSTOKEN OS environment variable. If you are using a Client Access Token, remember that you must combine it with your App ID using a pipe symbol (<APPID>|<CLIENTTOKEN>) otherwise the request will fail." -}}
   {{- else -}}
     {{- $id := .Get 0 -}}
     {{- $headers := dict "Authorization" (printf "Bearer %s" $accessToken) -}}
