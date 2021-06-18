@@ -201,6 +201,9 @@ logFile ("")
 markup
 : See [Configure Markup](/getting-started/configuration-markup).{{< new-in "0.60.0" >}}
 
+mediaTypes
+See [Configure Media Types](/templates/output-formats/#media-types).
+
 menu
 : See [Add Non-content Entries to a Menu](/content-management/menus/#add-non-content-entries-to-a-menu).
 
@@ -218,6 +221,9 @@ noChmod (false)
 
 noTimes (false)
 : Don't sync modification time of files.
+
+outputFormats
+See [Configure Output Formats](#configure-additional-output-formats).
 
 paginate (10)
 : Default number of elements per page in [pagination](/templates/pagination/).
