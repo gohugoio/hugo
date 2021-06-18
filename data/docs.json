@@ -15,25 +15,6 @@
         ]
       },
       {
-        "Name": "AL",
-        "Aliases": [
-          "al",
-          "dal"
-        ]
-      },
-      {
-        "Name": "ANTLR",
-        "Aliases": [
-          "antlr"
-        ]
-      },
-      {
-        "Name": "APL",
-        "Aliases": [
-          "apl"
-        ]
-      },
-      {
         "Name": "ActionScript",
         "Aliases": [
           "actionscript",
@@ -59,9 +40,22 @@
         ]
       },
       {
+        "Name": "AL",
+        "Aliases": [
+          "al",
+          "dal"
+        ]
+      },
+      {
         "Name": "Angular2",
         "Aliases": [
           "ng2"
+        ]
+      },
+      {
+        "Name": "ANTLR",
+        "Aliases": [
+          "antlr"
         ]
       },
       {
@@ -72,6 +66,12 @@
           "apacheconf",
           "conf",
           "htaccess"
+        ]
+      },
+      {
+        "Name": "APL",
+        "Aliases": [
+          "apl"
         ]
       },
       {
@@ -94,12 +94,6 @@
           "gawk",
           "mawk",
           "nawk"
-        ]
-      },
-      {
-        "Name": "BNF",
-        "Aliases": [
-          "bnf"
         ]
       },
       {
@@ -167,6 +161,12 @@
         ]
       },
       {
+        "Name": "BNF",
+        "Aliases": [
+          "bnf"
+        ]
+      },
+      {
         "Name": "Brainfuck",
         "Aliases": [
           "b",
@@ -179,7 +179,8 @@
         "Aliases": [
           "c",
           "h",
-          "idc"
+          "idc",
+          "x[bp]m"
         ]
       },
       {
@@ -205,37 +206,6 @@
           "hh",
           "hpp",
           "hxx"
-        ]
-      },
-      {
-        "Name": "CFEngine3",
-        "Aliases": [
-          "cf",
-          "cf3",
-          "cfengine3"
-        ]
-      },
-      {
-        "Name": "CMake",
-        "Aliases": [
-          "cmake",
-          "txt"
-        ]
-      },
-      {
-        "Name": "COBOL",
-        "Aliases": [
-          "COB",
-          "CPY",
-          "cob",
-          "cobol",
-          "cpy"
-        ]
-      },
-      {
-        "Name": "CSS",
-        "Aliases": [
-          "css"
         ]
       },
       {
@@ -273,6 +243,20 @@
         ]
       },
       {
+        "Name": "CFEngine3",
+        "Aliases": [
+          "cf",
+          "cf3",
+          "cfengine3"
+        ]
+      },
+      {
+        "Name": "cfstatement",
+        "Aliases": [
+          "cfs"
+        ]
+      },
+      {
         "Name": "ChaiScript",
         "Aliases": [
           "chai",
@@ -293,6 +277,23 @@
         "Aliases": [
           "clj",
           "clojure"
+        ]
+      },
+      {
+        "Name": "CMake",
+        "Aliases": [
+          "cmake",
+          "txt"
+        ]
+      },
+      {
+        "Name": "COBOL",
+        "Aliases": [
+          "COB",
+          "CPY",
+          "cob",
+          "cobol",
+          "cpy"
         ]
       },
       {
@@ -326,6 +327,12 @@
         ]
       },
       {
+        "Name": "CSS",
+        "Aliases": [
+          "css"
+        ]
+      },
+      {
         "Name": "Cython",
         "Aliases": [
           "cython",
@@ -340,12 +347,6 @@
         "Aliases": [
           "d",
           "di"
-        ]
-      },
-      {
-        "Name": "DTD",
-        "Aliases": [
-          "dtd"
         ]
       },
       {
@@ -374,6 +375,12 @@
         "Aliases": [
           "docker",
           "dockerfile"
+        ]
+      },
+      {
+        "Name": "DTD",
+        "Aliases": [
+          "dtd"
         ]
       },
       {
@@ -424,14 +431,6 @@
         ]
       },
       {
-        "Name": "FSharp",
-        "Aliases": [
-          "fs",
-          "fsharp",
-          "fsi"
-        ]
-      },
-      {
         "Name": "Factor",
         "Aliases": [
           "factor"
@@ -465,6 +464,22 @@
         ]
       },
       {
+        "Name": "FortranFixed",
+        "Aliases": [
+          "F",
+          "f",
+          "fortranfixed"
+        ]
+      },
+      {
+        "Name": "FSharp",
+        "Aliases": [
+          "fs",
+          "fsharp",
+          "fsi"
+        ]
+      },
+      {
         "Name": "GAS",
         "Aliases": [
           "S",
@@ -478,15 +493,6 @@
         "Aliases": [
           "gd",
           "gdscript"
-        ]
-      },
-      {
-        "Name": "GLSL",
-        "Aliases": [
-          "frag",
-          "geo",
-          "glsl",
-          "vert"
         ]
       },
       {
@@ -520,6 +526,15 @@
           "cucumber",
           "feature",
           "gherkin"
+        ]
+      },
+      {
+        "Name": "GLSL",
+        "Aliases": [
+          "frag",
+          "geo",
+          "glsl",
+          "vert"
         ]
       },
       {
@@ -558,37 +573,21 @@
         ]
       },
       {
+        "Name": "Groff",
+        "Aliases": [
+          "1p",
+          "3pm",
+          "[1-9]",
+          "groff",
+          "man",
+          "nroff"
+        ]
+      },
+      {
         "Name": "Groovy",
         "Aliases": [
           "gradle",
           "groovy"
-        ]
-      },
-      {
-        "Name": "HCL",
-        "Aliases": [
-          "hcl"
-        ]
-      },
-      {
-        "Name": "HLB",
-        "Aliases": [
-          "hlb"
-        ]
-      },
-      {
-        "Name": "HTML",
-        "Aliases": [
-          "htm",
-          "html",
-          "xhtml",
-          "xslt"
-        ]
-      },
-      {
-        "Name": "HTTP",
-        "Aliases": [
-          "http"
         ]
       },
       {
@@ -614,9 +613,36 @@
         ]
       },
       {
+        "Name": "HCL",
+        "Aliases": [
+          "hcl"
+        ]
+      },
+      {
         "Name": "Hexdump",
         "Aliases": [
           "hexdump"
+        ]
+      },
+      {
+        "Name": "HLB",
+        "Aliases": [
+          "hlb"
+        ]
+      },
+      {
+        "Name": "HTML",
+        "Aliases": [
+          "htm",
+          "html",
+          "xhtml",
+          "xslt"
+        ]
+      },
+      {
+        "Name": "HTTP",
+        "Aliases": [
+          "http"
         ]
       },
       {
@@ -624,17 +650,6 @@
         "Aliases": [
           "hy",
           "hylang"
-        ]
-      },
-      {
-        "Name": "INI",
-        "Aliases": [
-          "cfg",
-          "dosini",
-          "editorconfig",
-          "gitconfig",
-          "inf",
-          "ini"
         ]
       },
       {
@@ -653,6 +668,17 @@
         ]
       },
       {
+        "Name": "INI",
+        "Aliases": [
+          "cfg",
+          "dosini",
+          "editorconfig",
+          "gitconfig",
+          "inf",
+          "ini"
+        ]
+      },
+      {
         "Name": "Io",
         "Aliases": [
           "io"
@@ -663,12 +689,6 @@
         "Aliases": [
           "ijs",
           "j"
-        ]
-      },
-      {
-        "Name": "JSON",
-        "Aliases": [
-          "json"
         ]
       },
       {
@@ -684,6 +704,12 @@
           "js",
           "jsm",
           "mjs"
+        ]
+      },
+      {
+        "Name": "JSON",
+        "Aliases": [
+          "json"
         ]
       },
       {
@@ -707,17 +733,17 @@
         ]
       },
       {
-        "Name": "LLVM",
-        "Aliases": [
-          "ll",
-          "llvm"
-        ]
-      },
-      {
         "Name": "Lighttpd configuration file",
         "Aliases": [
           "lighttpd",
           "lighty"
+        ]
+      },
+      {
+        "Name": "LLVM",
+        "Aliases": [
+          "ll",
+          "llvm"
         ]
       },
       {
@@ -728,16 +754,18 @@
         ]
       },
       {
-        "Name": "MLIR",
-        "Aliases": [
-          "mlir"
-        ]
-      },
-      {
         "Name": "Mako",
         "Aliases": [
           "mako",
           "mao"
+        ]
+      },
+      {
+        "Name": "markdown",
+        "Aliases": [
+          "markdown",
+          "md",
+          "mkd"
         ]
       },
       {
@@ -769,6 +797,18 @@
         ]
       },
       {
+        "Name": "mcfunction",
+        "Aliases": [
+          "mcfunction"
+        ]
+      },
+      {
+        "Name": "Metal",
+        "Aliases": [
+          "metal"
+        ]
+      },
+      {
         "Name": "MiniZinc",
         "Aliases": [
           "MZN",
@@ -776,6 +816,12 @@
           "fzn",
           "minizinc",
           "mzn"
+        ]
+      },
+      {
+        "Name": "MLIR",
+        "Aliases": [
+          "mlir"
         ]
       },
       {
@@ -802,17 +848,17 @@
         ]
       },
       {
-        "Name": "MySQL",
-        "Aliases": [
-          "mysql",
-          "sql"
-        ]
-      },
-      {
         "Name": "Myghty",
         "Aliases": [
           "myghty",
           "myt"
+        ]
+      },
+      {
+        "Name": "MySQL",
+        "Aliases": [
+          "mysql",
+          "sql"
         ]
       },
       {
@@ -852,16 +898,6 @@
         ]
       },
       {
-        "Name": "OCaml",
-        "Aliases": [
-          "ml",
-          "mli",
-          "mll",
-          "mly",
-          "ocaml"
-        ]
-      },
-      {
         "Name": "Objective-C",
         "Aliases": [
           "h",
@@ -870,6 +906,16 @@
           "objc",
           "objective-c",
           "objectivec"
+        ]
+      },
+      {
+        "Name": "OCaml",
+        "Aliases": [
+          "ml",
+          "mli",
+          "mll",
+          "mly",
+          "ocaml"
         ]
       },
       {
@@ -894,36 +940,6 @@
         ]
       },
       {
-        "Name": "PHP",
-        "Aliases": [
-          "inc",
-          "php",
-          "php3",
-          "php4",
-          "php5",
-          "php[345]"
-        ]
-      },
-      {
-        "Name": "PHTML",
-        "Aliases": [
-          "phtml"
-        ]
-      },
-      {
-        "Name": "PL/pgSQL",
-        "Aliases": [
-          "plpgsql"
-        ]
-      },
-      {
-        "Name": "POVRay",
-        "Aliases": [
-          "inc",
-          "pov"
-        ]
-      },
-      {
         "Name": "PacmanConf",
         "Aliases": [
           "conf",
@@ -940,6 +956,26 @@
         ]
       },
       {
+        "Name": "PHP",
+        "Aliases": [
+          "inc",
+          "php",
+          "php3",
+          "php4",
+          "php5",
+          "php[345]"
+        ]
+      },
+      {
+        "Name": "PHTML",
+        "Aliases": [
+          "inc",
+          "php",
+          "php[345]",
+          "phtml"
+        ]
+      },
+      {
         "Name": "Pig",
         "Aliases": [
           "pig"
@@ -953,9 +989,31 @@
         ]
       },
       {
+        "Name": "PL/pgSQL",
+        "Aliases": [
+          "plpgsql"
+        ]
+      },
+      {
+        "Name": "plaintext",
+        "Aliases": [
+          "no-highlight",
+          "plain",
+          "text",
+          "txt"
+        ]
+      },
+      {
         "Name": "Pony",
         "Aliases": [
           "pony"
+        ]
+      },
+      {
+        "Name": "PostgreSQL SQL dialect",
+        "Aliases": [
+          "postgres",
+          "postgresql"
         ]
       },
       {
@@ -968,10 +1026,17 @@
         ]
       },
       {
-        "Name": "PostgreSQL SQL dialect",
+        "Name": "POVRay",
         "Aliases": [
-          "postgres",
-          "postgresql"
+          "inc",
+          "pov"
+        ]
+      },
+      {
+        "Name": "PowerQuery",
+        "Aliases": [
+          "powerquery",
+          "pq"
         ]
       },
       {
@@ -1016,8 +1081,14 @@
       {
         "Name": "Python",
         "Aliases": [
+          "bazel",
+          "bzl",
+          "jy",
           "py",
+          "py3",
+          "pyi",
           "python",
+          "python3",
           "pyw",
           "sage",
           "sc",
@@ -1025,10 +1096,10 @@
         ]
       },
       {
-        "Name": "Python 3",
+        "Name": "Python 2",
         "Aliases": [
-          "py3",
-          "python3"
+          "py2",
+          "python2"
         ]
       },
       {
@@ -1076,12 +1147,55 @@
         ]
       },
       {
+        "Name": "Raku",
+        "Aliases": [
+          "6pl",
+          "6pm",
+          "nqp",
+          "p6",
+          "p6l",
+          "p6m",
+          "perl6",
+          "pl",
+          "pl6",
+          "pm",
+          "pm6",
+          "raku",
+          "rakudoc",
+          "rakumod",
+          "rakutest",
+          "t"
+        ]
+      },
+      {
+        "Name": "react",
+        "Aliases": [
+          "jsx",
+          "react"
+        ]
+      },
+      {
         "Name": "ReasonML",
         "Aliases": [
           "re",
           "reason",
           "reasonml",
           "rei"
+        ]
+      },
+      {
+        "Name": "reg",
+        "Aliases": [
+          "reg",
+          "registry"
+        ]
+      },
+      {
+        "Name": "reStructuredText",
+        "Aliases": [
+          "rest",
+          "restructuredtext",
+          "rst"
         ]
       },
       {
@@ -1121,32 +1235,6 @@
         ]
       },
       {
-        "Name": "SCSS",
-        "Aliases": [
-          "scss"
-        ]
-      },
-      {
-        "Name": "SPARQL",
-        "Aliases": [
-          "rq",
-          "sparql"
-        ]
-      },
-      {
-        "Name": "SQL",
-        "Aliases": [
-          "sql"
-        ]
-      },
-      {
-        "Name": "SYSTEMD",
-        "Aliases": [
-          "service",
-          "systemd"
-        ]
-      },
-      {
         "Name": "Sass",
         "Aliases": [
           "sass"
@@ -1173,6 +1261,12 @@
           "sci",
           "scilab",
           "tst"
+        ]
+      },
+      {
+        "Name": "SCSS",
+        "Aliases": [
+          "scss"
         ]
       },
       {
@@ -1204,6 +1298,19 @@
         ]
       },
       {
+        "Name": "SPARQL",
+        "Aliases": [
+          "rq",
+          "sparql"
+        ]
+      },
+      {
+        "Name": "SQL",
+        "Aliases": [
+          "sql"
+        ]
+      },
+      {
         "Name": "SquidConf",
         "Aliases": [
           "conf",
@@ -1228,9 +1335,51 @@
         ]
       },
       {
+        "Name": "Svelte",
+        "Aliases": [
+          "svelte"
+        ]
+      },
+      {
         "Name": "Swift",
         "Aliases": [
           "swift"
+        ]
+      },
+      {
+        "Name": "SYSTEMD",
+        "Aliases": [
+          "automount",
+          "device",
+          "dnssd",
+          "link",
+          "mount",
+          "netdev",
+          "network",
+          "path",
+          "scope",
+          "service",
+          "slice",
+          "socket",
+          "swap",
+          "systemd",
+          "target",
+          "timer"
+        ]
+      },
+      {
+        "Name": "systemverilog",
+        "Aliases": [
+          "sv",
+          "svh",
+          "systemverilog"
+        ]
+      },
+      {
+        "Name": "TableGen",
+        "Aliases": [
+          "tablegen",
+          "td"
         ]
       },
       {
@@ -1239,19 +1388,6 @@
           "ASM",
           "asm",
           "tasm"
-        ]
-      },
-      {
-        "Name": "TOML",
-        "Aliases": [
-          "toml"
-        ]
-      },
-      {
-        "Name": "TableGen",
-        "Aliases": [
-          "tablegen",
-          "td"
         ]
       },
       {
@@ -1266,15 +1402,6 @@
         "Aliases": [
           "csh",
           "tcsh"
-        ]
-      },
-      {
-        "Name": "TeX",
-        "Aliases": [
-          "aux",
-          "latex",
-          "tex",
-          "toc"
         ]
       },
       {
@@ -1299,9 +1426,24 @@
         ]
       },
       {
+        "Name": "TeX",
+        "Aliases": [
+          "aux",
+          "latex",
+          "tex",
+          "toc"
+        ]
+      },
+      {
         "Name": "Thrift",
         "Aliases": [
           "thrift"
+        ]
+      },
+      {
+        "Name": "TOML",
+        "Aliases": [
+          "toml"
         ]
       },
       {
@@ -1375,6 +1517,13 @@
         ]
       },
       {
+        "Name": "verilog",
+        "Aliases": [
+          "v",
+          "verilog"
+        ]
+      },
+      {
         "Name": "VHDL",
         "Aliases": [
           "vhd",
@@ -1388,6 +1537,13 @@
           "gvimrc",
           "vim",
           "vimrc"
+        ]
+      },
+      {
+        "Name": "vue",
+        "Aliases": [
+          "vue",
+          "vuejs"
         ]
       },
       {
@@ -1433,79 +1589,6 @@
         "Name": "Zig",
         "Aliases": [
           "zig"
-        ]
-      },
-      {
-        "Name": "cfstatement",
-        "Aliases": [
-          "cfs"
-        ]
-      },
-      {
-        "Name": "markdown",
-        "Aliases": [
-          "markdown",
-          "md",
-          "mkd"
-        ]
-      },
-      {
-        "Name": "mcfunction",
-        "Aliases": [
-          "mcfunction"
-        ]
-      },
-      {
-        "Name": "plaintext",
-        "Aliases": [
-          "no-highlight",
-          "plain",
-          "text",
-          "txt"
-        ]
-      },
-      {
-        "Name": "reStructuredText",
-        "Aliases": [
-          "rest",
-          "restructuredtext",
-          "rst"
-        ]
-      },
-      {
-        "Name": "react",
-        "Aliases": [
-          "jsx",
-          "react"
-        ]
-      },
-      {
-        "Name": "reg",
-        "Aliases": [
-          "reg",
-          "registry"
-        ]
-      },
-      {
-        "Name": "systemverilog",
-        "Aliases": [
-          "sv",
-          "svh",
-          "systemverilog"
-        ]
-      },
-      {
-        "Name": "verilog",
-        "Aliases": [
-          "v",
-          "verilog"
-        ]
-      },
-      {
-        "Name": "vue",
-        "Aliases": [
-          "vue",
-          "vuejs"
         ]
       }
     ]
