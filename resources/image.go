@@ -29,6 +29,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/common/paths"
+
 	"github.com/disintegration/gift"
 
 	"github.com/gohugoio/hugo/cache/filecache"
@@ -365,7 +367,7 @@ func (i *imageResource) getImageMetaCacheTargetPath() string {
 	if fi := i.getFileInfo(); fi != nil {
 		df.dir = filepath.Dir(fi.Meta().Path())
 	}
-	p1, _ := helpers.FileAndExt(df.file)
+	p1, _ := paths.FileAndExt(df.file)
 	h, _ := i.hash()
 	idStr := helpers.HashString(h, i.size(), imageMetaVersionNumber, cfgHash)
 	p := path.Join(df.dir, fmt.Sprintf("%s_%s.json", p1, idStr))
@@ -373,7 +375,7 @@ func (i *imageResource) getImageMetaCacheTargetPath() string {
 }
 
 func (i *imageResource) relTargetPathFromConfig(conf images.ImageConfig) dirFile {
-	p1, p2 := helpers.FileAndExt(i.getResourcePaths().relTargetDirFile.file)
+	p1, p2 := paths.FileAndExt(i.getResourcePaths().relTargetDirFile.file)
 	if conf.TargetFormat != i.Format {
 		p2 = conf.TargetFormat.DefaultExtension()
 	}

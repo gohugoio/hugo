@@ -21,6 +21,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/paths"
+
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/hexec"
@@ -39,7 +41,7 @@ import (
 func NewContent(
 	sites *hugolib.HugoSites, kind, targetPath string) error {
 	targetPath = filepath.Clean(targetPath)
-	ext := helpers.Ext(targetPath)
+	ext := paths.Ext(targetPath)
 	ps := sites.PathSpec
 	archetypeFs := ps.BaseFs.SourceFilesystems.Archetypes.Fs
 	sourceFs := ps.Fs.Source

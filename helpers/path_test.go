@@ -123,38 +123,6 @@ func TestMakePathSanitizedDisablePathToLower(t *testing.T) {
 	}
 }
 
-func TestGetRelativePath(t *testing.T) {
-	tests := []struct {
-		path   string
-		base   string
-		expect interface{}
-	}{
-		{filepath.FromSlash("/a/b"), filepath.FromSlash("/a"), filepath.FromSlash("b")},
-		{filepath.FromSlash("/a/b/c/"), filepath.FromSlash("/a"), filepath.FromSlash("b/c/")},
-		{filepath.FromSlash("/c"), filepath.FromSlash("/a/b"), filepath.FromSlash("../../c")},
-		{filepath.FromSlash("/c"), "", false},
-	}
-	for i, this := range tests {
-		// ultimately a fancy wrapper around filepath.Rel
-		result, err := GetRelativePath(this.path, this.base)
-
-		if b, ok := this.expect.(bool); ok && !b {
-			if err == nil {
-				t.Errorf("[%d] GetRelativePath didn't return an expected error", i)
-			}
-		} else {
-			if err != nil {
-				t.Errorf("[%d] GetRelativePath failed: %s", i, err)
-				continue
-			}
-			if result != this.expect {
-				t.Errorf("[%d] GetRelativePath got %v but expected %v", i, result, this.expect)
-			}
-		}
-
-	}
-}
-
 func TestMakePathRelative(t *testing.T) {
 	type test struct {
 		inPath, path1, path2, output string
@@ -227,37 +195,6 @@ func TestMakeTitle(t *testing.T) {
 	}
 	for i, d := range data {
 		output := MakeTitle(d.input)
-		if d.expected != output {
-			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
-		}
-	}
-}
-
-// Replace Extension is probably poorly named, but the intent of the
-// function is to accept a path and return only the file name with a
-// new extension. It's intentionally designed to strip out the path
-// and only provide the name. We should probably rename the function to
-// be more explicit at some point.
-func TestReplaceExtension(t *testing.T) {
-	type test struct {
-		input, newext, expected string
-	}
-	data := []test{
-		// These work according to the above definition
-		{"/some/random/path/file.xml", "html", "file.html"},
-		{"/banana.html", "xml", "banana.xml"},
-		{"./banana.html", "xml", "banana.xml"},
-		{"banana/pie/index.html", "xml", "index.xml"},
-		{"../pies/fish/index.html", "xml", "index.xml"},
-		// but these all fail
-		{"filename-without-an-ext", "ext", "filename-without-an-ext.ext"},
-		{"/filename-without-an-ext", "ext", "filename-without-an-ext.ext"},
-		{"/directory/mydir/", "ext", ".ext"},
-		{"mydir/", "ext", ".ext"},
-	}
-
-	for i, d := range data {
-		output := ReplaceExtension(filepath.FromSlash(d.input), d.newext)
 		if d.expected != output {
 			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
 		}
@@ -536,78 +473,6 @@ func TestAbsPathify(t *testing.T) {
 			}
 		}
 	}
-}
-
-func TestExtNoDelimiter(t *testing.T) {
-	c := qt.New(t)
-	c.Assert(ExtNoDelimiter(filepath.FromSlash("/my/data.json")), qt.Equals, "json")
-}
-
-func TestFilename(t *testing.T) {
-	type test struct {
-		input, expected string
-	}
-	data := []test{
-		{"index.html", "index"},
-		{"./index.html", "index"},
-		{"/index.html", "index"},
-		{"index", "index"},
-		{"/tmp/index.html", "index"},
-		{"./filename-no-ext", "filename-no-ext"},
-		{"/filename-no-ext", "filename-no-ext"},
-		{"filename-no-ext", "filename-no-ext"},
-		{"directory/", ""}, // no filename case??
-		{"directory/.hidden.ext", ".hidden"},
-		{"./directory/../~/banana/gold.fish", "gold"},
-		{"../directory/banana.man", "banana"},
-		{"~/mydir/filename.ext", "filename"},
-		{"./directory//tmp/filename.ext", "filename"},
-	}
-
-	for i, d := range data {
-		output := Filename(filepath.FromSlash(d.input))
-		if d.expected != output {
-			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
-		}
-	}
-}
-
-func TestFileAndExt(t *testing.T) {
-	type test struct {
-		input, expectedFile, expectedExt string
-	}
-	data := []test{
-		{"index.html", "index", ".html"},
-		{"./index.html", "index", ".html"},
-		{"/index.html", "index", ".html"},
-		{"index", "index", ""},
-		{"/tmp/index.html", "index", ".html"},
-		{"./filename-no-ext", "filename-no-ext", ""},
-		{"/filename-no-ext", "filename-no-ext", ""},
-		{"filename-no-ext", "filename-no-ext", ""},
-		{"directory/", "", ""}, // no filename case??
-		{"directory/.hidden.ext", ".hidden", ".ext"},
-		{"./directory/../~/banana/gold.fish", "gold", ".fish"},
-		{"../directory/banana.man", "banana", ".man"},
-		{"~/mydir/filename.ext", "filename", ".ext"},
-		{"./directory//tmp/filename.ext", "filename", ".ext"},
-	}
-
-	for i, d := range data {
-		file, ext := fileAndExt(filepath.FromSlash(d.input), fpb)
-		if d.expectedFile != file {
-			t.Errorf("Test %d failed. Expected filename %q got %q.", i, d.expectedFile, file)
-		}
-		if d.expectedExt != ext {
-			t.Errorf("Test %d failed. Expected extension %q got %q.", i, d.expectedExt, ext)
-		}
-	}
-}
-
-func TestPathPrep(t *testing.T) {
-}
-
-func TestPrettifyPath(t *testing.T) {
 }
 
 func TestExtractAndGroupRootPaths(t *testing.T) {

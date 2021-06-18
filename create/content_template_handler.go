@@ -20,6 +20,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/paths"
+
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -129,7 +131,7 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, name, kind, targetPath, archety
 
 	// Reuse the Hugo template setup to get the template funcs properly set up.
 	templateHandler := s.Deps.Tmpl().(tpl.TemplateManager)
-	templateName := helpers.Filename(archetypeFilename)
+	templateName := paths.Filename(archetypeFilename)
 	if err := templateHandler.AddTemplate("_text/"+templateName, string(archetypeTemplate)); err != nil {
 		return nil, errors.Wrapf(err, "Failed to parse archetype file %q:", archetypeFilename)
 	}

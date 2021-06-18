@@ -28,6 +28,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/common/paths"
+
 	"github.com/spf13/afero"
 
 	"github.com/disintegration/gift"
@@ -145,7 +147,7 @@ func TestImageTransformFormat(t *testing.T) {
 	assertExtWidthHeight := func(img resource.Image, ext string, w, h int) {
 		c.Helper()
 		c.Assert(img, qt.Not(qt.IsNil))
-		c.Assert(helpers.Ext(img.RelPermalink()), qt.Equals, ext)
+		c.Assert(paths.Ext(img.RelPermalink()), qt.Equals, ext)
 		c.Assert(img.Width(), qt.Equals, w)
 		c.Assert(img.Height(), qt.Equals, h)
 	}

@@ -19,7 +19,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/gohugoio/hugo/htesting/hqt"
 
@@ -112,7 +112,7 @@ func TestContentMap(t *testing.T) {
 				meta["lang"] = lang
 				meta["path"] = meta.Filename()
 				meta["classifier"] = files.ClassifyContentFile(fi.Name(), meta.GetOpener())
-				meta["translationBaseName"] = helpers.Filename(fi.Name())
+				meta["translationBaseName"] = paths.Filename(fi.Name())
 			})
 	}
 

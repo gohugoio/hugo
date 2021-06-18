@@ -14,43 +14,15 @@
 package helpers
 
 import (
-	"fmt"
 	"net/url"
 	"path"
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/paths"
+
 	"github.com/PuerkitoBio/purell"
 )
-
-type pathBridge struct {
-}
-
-func (pathBridge) Base(in string) string {
-	return path.Base(in)
-}
-
-func (pathBridge) Clean(in string) string {
-	return path.Clean(in)
-}
-
-func (pathBridge) Dir(in string) string {
-	return path.Dir(in)
-}
-
-func (pathBridge) Ext(in string) string {
-	return path.Ext(in)
-}
-
-func (pathBridge) Join(elem ...string) string {
-	return path.Join(elem...)
-}
-
-func (pathBridge) Separator() string {
-	return "/"
-}
-
-var pb pathBridge
 
 func sanitizeURLWithFlags(in string, f purell.NormalizationFlags) string {
 	s, err := purell.NormalizeURLString(in, f)
@@ -123,37 +95,6 @@ func (p *PathSpec) URLEscape(uri string) string {
 	return x
 }
 
-// MakePermalink combines base URL with content path to create full URL paths.
-// Example
-//    base:   http://spf13.com/
-//    path:   post/how-i-blog
-//    result: http://spf13.com/post/how-i-blog
-func MakePermalink(host, plink string) *url.URL {
-	base, err := url.Parse(host)
-	if err != nil {
-		panic(err)
-	}
-
-	p, err := url.Parse(plink)
-	if err != nil {
-		panic(err)
-	}
-
-	if p.Host != "" {
-		panic(fmt.Errorf("can't make permalink from absolute link %q", plink))
-	}
-
-	base.Path = path.Join(base.Path, p.Path)
-
-	// path.Join will strip off the last /, so put it back if it was there.
-	hadTrailingSlash := (plink == "" && strings.HasSuffix(host, "/")) || strings.HasSuffix(p.Path, "/")
-	if hadTrailingSlash && !strings.HasSuffix(base.Path, "/") {
-		base.Path = base.Path + "/"
-	}
-
-	return base
-}
-
 // AbsURL creates an absolute URL from the relative path given and the BaseURL set in config.
 func (p *PathSpec) AbsURL(in string, addLanguage bool) string {
 	url, err := url.Parse(in)
@@ -199,17 +140,7 @@ func (p *PathSpec) AbsURL(in string, addLanguage bool) string {
 			}
 		}
 	}
-	return MakePermalink(baseURL, in).String()
-}
-
-// IsAbsURL determines whether the given path points to an absolute URL.
-func IsAbsURL(path string) bool {
-	url, err := url.Parse(path)
-	if err != nil {
-		return false
-	}
-
-	return url.IsAbs() || strings.HasPrefix(path, "//")
+	return paths.MakePermalink(baseURL, in).String()
 }
 
 // RelURL creates a URL relative to the BaseURL root.
@@ -255,7 +186,7 @@ func (p *PathSpec) RelURL(in string, addLanguage bool) string {
 	}
 
 	if !canonifyURLs {
-		u = AddContextRoot(baseURL, u)
+		u = paths.AddContextRoot(baseURL, u)
 	}
 
 	if in == "" && !strings.HasSuffix(u, "/") && strings.HasSuffix(baseURL, "/") {
@@ -267,24 +198,6 @@ func (p *PathSpec) RelURL(in string, addLanguage bool) string {
 	}
 
 	return u
-}
-
-// AddContextRoot adds the context root to an URL if it's not already set.
-// For relative URL entries on sites with a base url with a context root set (i.e. http://example.com/mysite),
-// relative URLs must not include the context root if canonifyURLs is enabled. But if it's disabled, it must be set.
-func AddContextRoot(baseURL, relativePath string) string {
-	url, err := url.Parse(baseURL)
-	if err != nil {
-		panic(err)
-	}
-
-	newPath := path.Join(url.Path, relativePath)
-
-	// path strips trailing slash, ignore root path.
-	if newPath != "/" && strings.HasSuffix(relativePath, "/") {
-		newPath += "/"
-	}
-	return newPath
 }
 
 // PrependBasePath prepends any baseURL sub-folder to the given resource
@@ -311,9 +224,9 @@ func (p *PathSpec) URLizeAndPrep(in string) string {
 // URLPrep applies misc sanitation to the given URL.
 func (p *PathSpec) URLPrep(in string) string {
 	if p.UglyURLs {
-		return Uglify(SanitizeURL(in))
+		return paths.Uglify(SanitizeURL(in))
 	}
-	pretty := PrettifyURL(SanitizeURL(in))
+	pretty := paths.PrettifyURL(SanitizeURL(in))
 	if path.Ext(pretty) == ".xml" {
 		return pretty
 	}
@@ -322,58 +235,4 @@ func (p *PathSpec) URLPrep(in string) string {
 		return pretty
 	}
 	return url
-}
-
-// PrettifyURL takes a URL string and returns a semantic, clean URL.
-func PrettifyURL(in string) string {
-	x := PrettifyURLPath(in)
-
-	if path.Base(x) == "index.html" {
-		return path.Dir(x)
-	}
-
-	if in == "" {
-		return "/"
-	}
-
-	return x
-}
-
-// PrettifyURLPath takes a URL path to a content and converts it
-// to enable pretty URLs.
-//     /section/name.html       becomes /section/name/index.html
-//     /section/name/           becomes /section/name/index.html
-//     /section/name/index.html becomes /section/name/index.html
-func PrettifyURLPath(in string) string {
-	return prettifyPath(in, pb)
-}
-
-// Uglify does the opposite of PrettifyURLPath().
-//     /section/name/index.html becomes /section/name.html
-//     /section/name/           becomes /section/name.html
-//     /section/name.html       becomes /section/name.html
-func Uglify(in string) string {
-	if path.Ext(in) == "" {
-		if len(in) < 2 {
-			return "/"
-		}
-		// /section/name/  -> /section/name.html
-		return path.Clean(in) + ".html"
-	}
-
-	name, ext := fileAndExt(in, pb)
-	if name == "index" {
-		// /section/name/index.html -> /section/name.html
-		d := path.Dir(in)
-		if len(d) > 1 {
-			return d + ext
-		}
-		return in
-	}
-	// /.xml -> /index.xml
-	if name == "" {
-		return path.Dir(in) + "index" + ext
-	}
-	// /section/name.html -> /section/name.html
-	return path.Clean(in)
 }

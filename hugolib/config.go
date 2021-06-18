@@ -21,6 +21,7 @@ import (
 	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/gohugoio/hugo/common/maps"
+	cpaths "github.com/gohugoio/hugo/common/paths"
 
 	"github.com/gobwas/glob"
 	hglob "github.com/gohugoio/hugo/hugofs/glob"
@@ -436,7 +437,7 @@ func (l configLoader) loadConfig(configName string) (string, error) {
 	}
 
 	var filename string
-	if helpers.ExtNoDelimiter(configName) != "" {
+	if cpaths.ExtNoDelimiter(configName) != "" {
 		exists, _ := helpers.Exists(baseFilename, l.Fs)
 		if exists {
 			filename = baseFilename
@@ -509,7 +510,7 @@ func (l configLoader) loadConfigFromConfigDir() ([]string, error) {
 				return nil
 			}
 
-			name := helpers.Filename(filepath.Base(path))
+			name := cpaths.Filename(filepath.Base(path))
 
 			item, err := metadecoders.Default.UnmarshalFileToMap(sourceFs, path)
 			if err != nil {
@@ -520,7 +521,7 @@ func (l configLoader) loadConfigFromConfigDir() ([]string, error) {
 
 			if name != "config" {
 				// Can be params.jp, menus.en etc.
-				name, lang := helpers.FileAndExtNoDelimiter(name)
+				name, lang := cpaths.FileAndExtNoDelimiter(name)
 
 				keyPath = []string{name}
 
