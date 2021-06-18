@@ -1799,6 +1799,20 @@
       },
       {
         "mainType": "application",
+        "subType": "manifest",
+        "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "webmanifest",
+          "fullSuffix": ".webmanifest"
+        },
+        "type": "application/manifest+json",
+        "string": "application/manifest+json",
+        "suffixes": [
+          "webmanifest"
+        ]
+      },
+      {
+        "mainType": "application",
         "subType": "octet-stream",
         "delimiter": ".",
         "firstSuffix": {
@@ -2278,6 +2292,20 @@
         "isHTML": false,
         "noUgly": true,
         "notAlternative": false,
+        "permalinkable": false,
+        "weight": 0
+      },
+      {
+        "mediaType": "application/manifest+json",
+        "name": "WebAppManifest",
+        "path": "",
+        "baseName": "manifest",
+        "rel": "manifest",
+        "protocol": "",
+        "isPlainText": true,
+        "isHTML": false,
+        "noUgly": false,
+        "notAlternative": true,
         "permalinkable": false,
         "weight": 0
       }
