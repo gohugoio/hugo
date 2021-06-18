@@ -1,12 +1,12 @@
 
 ---
 date: 2021-06-18
-title: "0.84.0"
-description: "0.84.0"
+title: "Config Revamp"
+description: "Hugo 0.84.0: Deep merge of theme configuration, config dir support now also in themes/modules, HTTP header support in getJSON, and more."
 categories: ["Releases"]
 ---
 
-	This release brings several configuration fixes and improvements that will be especially useful for themes.
+**This release brings several configuration fixes and improvements that will be especially useful for themes.**
 
 ## Deep merge of theme Params
 
