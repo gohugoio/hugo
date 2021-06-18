@@ -181,6 +181,8 @@ Only relevant for JPEG and WebP images, values 1 to 100 inclusive, higher is bet
 
  {{< new-in "0.83.0" >}}
 
+ {{< new-in "0.83.0" >}}
+
 Hint about what type of image this is. Currently only used when encoding to WebP.
 
 Default value is `photo`.

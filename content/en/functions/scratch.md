@@ -114,6 +114,18 @@ Takes a `key`, `mapKey` and `value` and adds a map of `mapKey` and `value` to th
 {{ $scratch.Get "greetings" }} > map[french:Bonjour english:Hello]
 ```
 
+#### .DeleteInMap
+Takes a `key` and `mapKey` and removes the map of `mapKey` from the given `key`.
+
+```go-html-template
+{{ .Scratch.SetInMap "greetings" "english" "Hello" }}
+{{ .Scratch.SetInMap "greetings" "french" "Bonjour" }}
+----
+{{ .Scratch.DeleteInMap "greetings" "english" }}
+----
+{{ .Scratch.Get "greetings" }} > map[french:Bonjour]
+```
+
 #### .GetSortedMapValues
 
 Return an array of values from `key` sorted by `mapKey`.
