@@ -340,42 +340,42 @@ testContent
 	toc, ok := r.(converter.TableOfContentsProvider)
 	c.Assert(ok, qt.Equals, true)
 	expected := tableofcontents.Root{
-		Headers: tableofcontents.Headers{
+		Headings: tableofcontents.Headings{
 			{
 				ID:   "",
 				Text: "",
-				Headers: tableofcontents.Headers{
+				Headings: tableofcontents.Headings{
 					{
-						ID:      "_introduction",
-						Text:    "Introduction",
-						Headers: nil,
+						ID:       "_introduction",
+						Text:     "Introduction",
+						Headings: nil,
 					},
 					{
 						ID:   "_section_1",
 						Text: "Section 1",
-						Headers: tableofcontents.Headers{
+						Headings: tableofcontents.Headings{
 							{
 								ID:   "_section_1_1",
 								Text: "Section 1.1",
-								Headers: tableofcontents.Headers{
+								Headings: tableofcontents.Headings{
 									{
-										ID:      "_section_1_1_1",
-										Text:    "Section 1.1.1",
-										Headers: nil,
+										ID:       "_section_1_1_1",
+										Text:     "Section 1.1.1",
+										Headings: nil,
 									},
 								},
 							},
 							{
-								ID:      "_section_1_2",
-								Text:    "Section 1.2",
-								Headers: nil,
+								ID:       "_section_1_2",
+								Text:     "Section 1.2",
+								Headings: nil,
 							},
 						},
 					},
 					{
-						ID:      "_section_2",
-						Text:    "Section 2",
-						Headers: nil,
+						ID:       "_section_2",
+						Text:     "Section 2",
+						Headings: nil,
 					},
 				},
 			},
@@ -408,15 +408,15 @@ func TestTableOfContentsWithCode(t *testing.T) {
 	toc, ok := r.(converter.TableOfContentsProvider)
 	c.Assert(ok, qt.Equals, true)
 	expected := tableofcontents.Root{
-		Headers: tableofcontents.Headers{
+		Headings: tableofcontents.Headings{
 			{
 				ID:   "",
 				Text: "",
-				Headers: tableofcontents.Headers{
+				Headings: tableofcontents.Headings{
 					{
-						ID:      "_some_code_in_the_title",
-						Text:    "Some <code>code</code> in the title",
-						Headers: nil,
+						ID:       "_some_code_in_the_title",
+						Text:     "Some <code>code</code> in the title",
+						Headings: nil,
 					},
 				},
 			},
@@ -452,15 +452,15 @@ func TestTableOfContentsPreserveTOC(t *testing.T) {
 	toc, ok := r.(converter.TableOfContentsProvider)
 	c.Assert(ok, qt.Equals, true)
 	expected := tableofcontents.Root{
-		Headers: tableofcontents.Headers{
+		Headings: tableofcontents.Headings{
 			{
 				ID:   "",
 				Text: "",
-				Headers: tableofcontents.Headers{
+				Headings: tableofcontents.Headings{
 					{
-						ID:      "some-title",
-						Text:    "Some title",
-						Headers: nil,
+						ID:       "some-title",
+						Text:     "Some title",
+						Headings: nil,
 					},
 				},
 			},
