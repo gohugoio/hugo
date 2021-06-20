@@ -162,14 +162,16 @@ Complete documentation is available at http://gohugo.io/.`,
 				return nil
 			}
 
+			// prevent cobra printing error so it can be handled here (before the timeTrack prints)
+			cmd.SilenceErrors = true
+
 			c, err := initializeConfig(true, cc.buildWatch, &cc.hugoBuilderCommon, cc, cfgInit)
 			if err != nil {
+				cmd.PrintErrln("Error:", err.Error())
 				return err
 			}
 			cc.c = c
 
-			// prevent cobra printing error so it can be handled here (before the timeTrack prints)
-			cmd.SilenceErrors = true
 			err = c.build()
 			if err != nil {
 				cmd.PrintErrln("Error:", err.Error())
