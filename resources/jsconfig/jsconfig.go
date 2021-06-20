@@ -15,7 +15,6 @@ package jsconfig
 
 import (
 	"path/filepath"
-	"sort"
 	"sync"
 )
 
@@ -23,12 +22,12 @@ import (
 // intellinsense in editors.
 type Builder struct {
 	sourceRootsMu sync.RWMutex
-	sourceRoots   map[string]bool
+	sourceRoots   map[string]string
 }
 
 // NewBuilder creates a new Builder.
 func NewBuilder() *Builder {
-	return &Builder{sourceRoots: make(map[string]bool)}
+	return &Builder{sourceRoots: make(map[string]string)}
 }
 
 // Build builds a new Config with paths relative to dir.
@@ -42,24 +41,24 @@ func (b *Builder) Build(dir string) *Config {
 	}
 	conf := newJSConfig()
 
-	var roots []string
-	for root := range b.sourceRoots {
-		rel, err := filepath.Rel(dir, filepath.Join(root, "*"))
+	paths := make(map[string][]string)
+	for sourceRoot, mountRoot := range b.sourceRoots {
+		rel, err := filepath.Rel(dir, filepath.Join(sourceRoot, "*"))
 		if err == nil {
-			roots = append(roots, rel)
+			globPattern := filepath.Join(mountRoot, "*")
+			paths[globPattern] = append(paths[globPattern], rel)
 		}
 	}
-	sort.Strings(roots)
-	conf.CompilerOptions.Paths["*"] = roots
 
+	conf.CompilerOptions.Paths = paths
 	return conf
 }
 
-// AddSourceRoot adds a new source root.
+// AddRoots adds a new source root and mount root.
 // This method is thread safe.
-func (b *Builder) AddSourceRoot(root string) {
+func (b *Builder) AddRoots(sourceRoot, mountRoot string) {
 	b.sourceRootsMu.RLock()
-	found := b.sourceRoots[root]
+	_, found := b.sourceRoots[sourceRoot]
 	b.sourceRootsMu.RUnlock()
 
 	if found {
@@ -67,7 +66,7 @@ func (b *Builder) AddSourceRoot(root string) {
 	}
 
 	b.sourceRootsMu.Lock()
-	b.sourceRoots[root] = true
+	b.sourceRoots[sourceRoot] = mountRoot
 	b.sourceRootsMu.Unlock()
 }
 
