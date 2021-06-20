@@ -31,12 +31,16 @@ images=["siteimg1.jpg", "siteimg2.jpg"]
 
 	b.WithContent("mybundle/index.md", `---
 title: My Bundle
+date: 2021-02-26T18:02:00-01:00
+lastmod: 2021-05-22T19:25:00-01:00
 ---
 `)
 
 	b.WithContent("mypage.md", `---
 title: My Page
 images: ["pageimg1.jpg", "pageimg2.jpg"]
+date: 2021-02-26T18:02:00+01:00
+lastmod: 2021-05-22T19:25:00+01:00
 ---
 `)
 
@@ -62,16 +66,24 @@ title: My Site
 <meta property="og:title" content="My Bundle" />
 <meta property="og:url" content="https://example.org/mybundle/" />
 <meta property="og:image" content="https://example.org/mybundle/featured-sunset.jpg"/>
+<meta property="article:published_time" content="2021-02-26T18:02:00-01:00" />
+<meta property="article:modified_time" content="2021-05-22T19:25:00-01:00" />
 <meta itemprop="name" content="My Bundle">
 <meta itemprop="image" content="https://example.org/mybundle/featured-sunset.jpg">
+<meta itemprop="datePublished" content="2021-02-26T18:02:00-01:00" />
+<meta itemprop="dateModified" content="2021-05-22T19:25:00-01:00" />
 
 `)
 	b.AssertFileContent("public/mypage/index.html", `
 <meta name="twitter:image" content="https://example.org/pageimg1.jpg"/>
 <meta property="og:image" content="https://example.org/pageimg1.jpg" />
 <meta property="og:image" content="https://example.org/pageimg2.jpg" />
+<meta property="article:published_time" content="2021-02-26T18:02:00+01:00" />
+<meta property="article:modified_time" content="2021-05-22T19:25:00+01:00" />
 <meta itemprop="image" content="https://example.org/pageimg1.jpg">
-<meta itemprop="image" content="https://example.org/pageimg2.jpg">        
+<meta itemprop="image" content="https://example.org/pageimg2.jpg">
+<meta itemprop="datePublished" content="2021-02-26T18:02:00+01:00" />
+<meta itemprop="dateModified" content="2021-05-22T19:25:00+01:00" />
 `)
 	b.AssertFileContent("public/mysite/index.html", `
 <meta name="twitter:image" content="https://example.org/siteimg1.jpg"/>
