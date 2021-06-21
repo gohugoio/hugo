@@ -16,7 +16,7 @@ package hugolib
 import (
 	"testing"
 
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/config"
 )
 
 const robotTxtTemplate = `User-agent: Googlebot
@@ -28,7 +28,7 @@ const robotTxtTemplate = `User-agent: Googlebot
 func TestRobotsTXTOutput(t *testing.T) {
 	t.Parallel()
 
-	cfg := viper.New()
+	cfg := config.New()
 	cfg.Set("baseURL", "http://auth/bub/")
 	cfg.Set("enableRobotsTXT", true)
 

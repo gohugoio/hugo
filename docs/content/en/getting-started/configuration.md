@@ -80,6 +80,26 @@ Considering the structure above, when running `hugo --environment staging`, Hugo
 {{% note %}}
 Default environments are __development__ with `hugo server` and __production__ with `hugo`.
 {{%/ note %}}
+
+## Merge Configuration from Themes
+
+{{< new-in "0.84.0" >}} The configuration merge described below was improved in Hugo 0.84.0 and made fully configurable. The big change/improvement was that we now, by default, do deep merging of `params` maps from themes.
+
+The configuration value for `_merge` can be one of:
+
+none
+: No merge.
+
+shallow
+: Only add values for new keys.
+
+shallow
+: Add values for new keys, merge existing.
+
+Note that you don't need to be so verbose as in the default setup below; a `_merge` value higher up will be inherited if not set.
+
+{{< code-toggle config="mergeStrategy" skipHeader=true />}}
+
 ## All Configuration Settings
 
 The following is the full list of Hugo-defined variables with their default
@@ -201,6 +221,9 @@ logFile ("")
 markup
 : See [Configure Markup](/getting-started/configuration-markup).{{< new-in "0.60.0" >}}
 
+mediaTypes
+See [Configure Media Types](/templates/output-formats/#media-types).
+
 menu
 : See [Add Non-content Entries to a Menu](/content-management/menus/#add-non-content-entries-to-a-menu).
 
@@ -218,6 +241,9 @@ noChmod (false)
 
 noTimes (false)
 : Don't sync modification time of files.
+
+outputFormats
+See [Configure Output Formats](#configure-additional-output-formats).
 
 paginate (10)
 : Default number of elements per page in [pagination](/templates/pagination/).

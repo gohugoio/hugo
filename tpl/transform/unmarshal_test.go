@@ -19,13 +19,14 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/config"
+
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/media"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/spf13/viper"
 )
 
 const (
@@ -79,7 +80,7 @@ func (t testContentResource) Key() string {
 }
 
 func TestUnmarshal(t *testing.T) {
-	v := viper.New()
+	v := config.New()
 	ns := New(newDeps(v))
 	c := qt.New(t)
 
@@ -173,7 +174,7 @@ a;b;c`, mime: media.CSVType}, map[string]interface{}{"DElimiter": ";", "Comment"
 }
 
 func BenchmarkUnmarshalString(b *testing.B) {
-	v := viper.New()
+	v := config.New()
 	ns := New(newDeps(v))
 
 	const numJsons = 100
@@ -196,7 +197,7 @@ func BenchmarkUnmarshalString(b *testing.B) {
 }
 
 func BenchmarkUnmarshalResource(b *testing.B) {
-	v := viper.New()
+	v := config.New()
 	ns := New(newDeps(v))
 
 	const numJsons = 100

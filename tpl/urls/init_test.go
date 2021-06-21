@@ -16,11 +16,12 @@ package urls
 import (
 	"testing"
 
+	"github.com/gohugoio/hugo/config"
+
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/htesting/hqt"
 	"github.com/gohugoio/hugo/tpl/internal"
-	"github.com/spf13/viper"
 )
 
 func TestInit(t *testing.T) {
@@ -29,7 +30,7 @@ func TestInit(t *testing.T) {
 	var ns *internal.TemplateFuncsNamespace
 
 	for _, nsf := range internal.TemplateFuncsNamespaceRegistry {
-		ns = nsf(&deps.Deps{Cfg: viper.New()})
+		ns = nsf(&deps.Deps{Cfg: config.New()})
 		if ns.Name == name {
 			found = true
 			break

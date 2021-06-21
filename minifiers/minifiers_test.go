@@ -19,16 +19,15 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gohugoio/hugo/media"
-
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/output"
-	"github.com/spf13/viper"
 )
 
 func TestNew(t *testing.T) {
 	c := qt.New(t)
-	v := viper.New()
+	v := config.New()
 	m, _ := New(media.DefaultTypes, output.DefaultFormats, v)
 
 	var rawJS string
@@ -76,7 +75,7 @@ func TestNew(t *testing.T) {
 
 func TestConfigureMinify(t *testing.T) {
 	c := qt.New(t)
-	v := viper.New()
+	v := config.New()
 	v.Set("minify", map[string]interface{}{
 		"disablexml": true,
 		"tdewolff": map[string]interface{}{
@@ -110,7 +109,7 @@ func TestConfigureMinify(t *testing.T) {
 
 func TestJSONRoundTrip(t *testing.T) {
 	c := qt.New(t)
-	v := viper.New()
+	v := config.New()
 	m, _ := New(media.DefaultTypes, output.DefaultFormats, v)
 
 	for _, test := range []string{`{
@@ -148,7 +147,7 @@ func TestJSONRoundTrip(t *testing.T) {
 
 func TestBugs(t *testing.T) {
 	c := qt.New(t)
-	v := viper.New()
+	v := config.New()
 	m, _ := New(media.DefaultTypes, output.DefaultFormats, v)
 
 	for _, test := range []struct {
@@ -171,7 +170,7 @@ func TestBugs(t *testing.T) {
 // Renamed to Precision in v2.7.0. Check that we support both.
 func TestDecodeConfigDecimalIsNowPrecision(t *testing.T) {
 	c := qt.New(t)
-	v := viper.New()
+	v := config.New()
 	v.Set("minify", map[string]interface{}{
 		"disablexml": true,
 		"tdewolff": map[string]interface{}{

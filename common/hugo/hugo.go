@@ -141,3 +141,13 @@ func GetDependencyList() []string {
 
 	return deps
 }
+
+// IsRunningAsTest reports whether we are running as a test.
+func IsRunningAsTest() bool {
+	for _, arg := range os.Args {
+		if strings.HasPrefix(arg, "-test") {
+			return true
+		}
+	}
+	return false
+}

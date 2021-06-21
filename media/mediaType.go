@@ -166,13 +166,14 @@ var (
 	TSXType        = newMediaType("text", "tsx", []string{"tsx"})
 	JSXType        = newMediaType("text", "jsx", []string{"jsx"})
 
-	JSONType = newMediaType("application", "json", []string{"json"})
-	RSSType  = newMediaTypeWithMimeSuffix("application", "rss", "xml", []string{"xml"})
-	XMLType  = newMediaType("application", "xml", []string{"xml"})
-	SVGType  = newMediaTypeWithMimeSuffix("image", "svg", "xml", []string{"svg"})
-	TextType = newMediaType("text", "plain", []string{"txt"})
-	TOMLType = newMediaType("application", "toml", []string{"toml"})
-	YAMLType = newMediaType("application", "yaml", []string{"yaml", "yml"})
+	JSONType           = newMediaType("application", "json", []string{"json"})
+	WebAppManifestType = newMediaTypeWithMimeSuffix("application", "manifest", "json", []string{"webmanifest"})
+	RSSType            = newMediaTypeWithMimeSuffix("application", "rss", "xml", []string{"xml"})
+	XMLType            = newMediaType("application", "xml", []string{"xml"})
+	SVGType            = newMediaTypeWithMimeSuffix("image", "svg", "xml", []string{"svg"})
+	TextType           = newMediaType("text", "plain", []string{"txt"})
+	TOMLType           = newMediaType("application", "toml", []string{"toml"})
+	YAMLType           = newMediaType("application", "yaml", []string{"yaml", "yml"})
 
 	// Common image types
 	PNGType  = newMediaType("image", "png", []string{"png"})
@@ -206,6 +207,7 @@ var DefaultTypes = Types{
 	TSXType,
 	JSXType,
 	JSONType,
+	WebAppManifestType,
 	RSSType,
 	XMLType,
 	SVGType,
@@ -385,8 +387,8 @@ func DecodeTypes(mms ...map[string]interface{}) (Types, error) {
 				return m, err
 			}
 
-			vm := v.(map[string]interface{})
-			maps.ToLower(vm)
+			vm := maps.ToStringMap(v)
+			maps.PrepareParams(vm)
 			_, delimiterSet := vm["delimiter"]
 			_, suffixSet := vm["suffix"]
 

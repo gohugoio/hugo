@@ -17,16 +17,15 @@ package highlight
 import (
 	"testing"
 
-	"github.com/spf13/viper"
-
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/config"
 )
 
 func TestConfig(t *testing.T) {
 	c := qt.New(t)
 
 	c.Run("applyLegacyConfig", func(c *qt.C) {
-		v := viper.New()
+		v := config.New()
 		v.Set("pygmentsStyle", "hugo")
 		v.Set("pygmentsUseClasses", false)
 		v.Set("pygmentsCodeFences", false)

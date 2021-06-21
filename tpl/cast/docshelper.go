@@ -15,18 +15,18 @@ package cast
 
 import (
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/docshelper"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/tpl/internal"
-	"github.com/spf13/viper"
 )
 
 // This file provides documentation support and is randomly put into this package.
 func init() {
 	docsProvider := func() docshelper.DocProvider {
 		d := &deps.Deps{
-			Cfg:                 viper.New(),
+			Cfg:                 config.New(),
 			Log:                 loggers.NewErrorLogger(),
 			BuildStartListeners: &deps.Listeners{},
 			Site:                page.NewDummyHugoSite(newTestConfig()),
@@ -46,8 +46,8 @@ func init() {
 	docshelper.AddDocProviderFunc(docsProvider)
 }
 
-func newTestConfig() *viper.Viper {
-	v := viper.New()
+func newTestConfig() config.Provider {
+	v := config.New()
 	v.Set("contentDir", "content")
 	return v
 }

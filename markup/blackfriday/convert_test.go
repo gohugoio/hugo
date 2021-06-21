@@ -16,7 +16,7 @@ package blackfriday
 import (
 	"testing"
 
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/config"
 
 	"github.com/gohugoio/hugo/markup/converter"
 
@@ -140,7 +140,7 @@ func TestGetAllFlags(t *testing.T) {
 func TestConvert(t *testing.T) {
 	c := qt.New(t)
 	p, err := Provider.New(converter.ProviderConfig{
-		Cfg: viper.New(),
+		Cfg: config.New(),
 	})
 	c.Assert(err, qt.IsNil)
 	conv, err := p.New(converter.DocumentContext{})
@@ -153,7 +153,7 @@ func TestConvert(t *testing.T) {
 func TestGetHTMLRendererAnchors(t *testing.T) {
 	c := qt.New(t)
 	p, err := Provider.New(converter.ProviderConfig{
-		Cfg: viper.New(),
+		Cfg: config.New(),
 	})
 	c.Assert(err, qt.IsNil)
 	conv, err := p.New(converter.DocumentContext{

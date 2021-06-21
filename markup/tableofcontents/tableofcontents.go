@@ -17,55 +17,55 @@ import (
 	"strings"
 )
 
-// Headers holds the top level (h1) headers.
-type Headers []Header
+// Headings holds the top level headings.
+type Headings []Heading
 
-// Header holds the data about a header and its children.
-type Header struct {
+// Heading holds the data about a heading and its children.
+type Heading struct {
 	ID   string
 	Text string
 
-	Headers Headers
+	Headings Headings
 }
 
 // IsZero is true when no ID or Text is set.
-func (h Header) IsZero() bool {
+func (h Heading) IsZero() bool {
 	return h.ID == "" && h.Text == ""
 }
 
 // Root implements AddAt, which can be used to build the
 // data structure for the ToC.
 type Root struct {
-	Headers Headers
+	Headings Headings
 }
 
-// AddAt adds the header into the given location.
-func (toc *Root) AddAt(h Header, row, level int) {
-	for i := len(toc.Headers); i <= row; i++ {
-		toc.Headers = append(toc.Headers, Header{})
+// AddAt adds the heading into the given location.
+func (toc *Root) AddAt(h Heading, row, level int) {
+	for i := len(toc.Headings); i <= row; i++ {
+		toc.Headings = append(toc.Headings, Heading{})
 	}
 
 	if level == 0 {
-		toc.Headers[row] = h
+		toc.Headings[row] = h
 		return
 	}
 
-	header := &toc.Headers[row]
+	heading := &toc.Headings[row]
 
 	for i := 1; i < level; i++ {
-		if len(header.Headers) == 0 {
-			header.Headers = append(header.Headers, Header{})
+		if len(heading.Headings) == 0 {
+			heading.Headings = append(heading.Headings, Heading{})
 		}
-		header = &header.Headers[len(header.Headers)-1]
+		heading = &heading.Headings[len(heading.Headings)-1]
 	}
-	header.Headers = append(header.Headers, h)
+	heading.Headings = append(heading.Headings, h)
 }
 
 // ToHTML renders the ToC as HTML.
 func (toc Root) ToHTML(startLevel, stopLevel int, ordered bool, pre *string, post *string) string {
 	b := &tocBuilder{
 		s:          strings.Builder{},
-		h:          toc.Headers,
+		h:          toc.Headings,
 		startLevel: startLevel,
 		stopLevel:  stopLevel,
 		ordered:    ordered,
@@ -78,7 +78,7 @@ func (toc Root) ToHTML(startLevel, stopLevel int, ordered bool, pre *string, pos
 
 type tocBuilder struct {
 	s strings.Builder
-	h Headers
+	h Headings
 
 	startLevel int
 	stopLevel  int
@@ -105,10 +105,10 @@ func (b *tocBuilder) writeNav(h Headers) {
 	}
 }
 
-func (b *tocBuilder) writeHeaders(level, indent int, h Headers) {
+func (b *tocBuilder) writeHeadings(level, indent int, h Headings) {
 	if level < b.startLevel {
 		for _, h := range h {
-			b.writeHeaders(level+1, indent, h.Headers)
+			b.writeHeadings(level+1, indent, h.Headings)
 		}
 		return
 	}
@@ -130,7 +130,7 @@ func (b *tocBuilder) writeHeaders(level, indent int, h Headers) {
 	}
 
 	for _, h := range h {
-		b.writeHeader(level+1, indent+2, h)
+		b.writeHeading(level+1, indent+2, h)
 	}
 
 	if hasChildren {
@@ -145,13 +145,13 @@ func (b *tocBuilder) writeHeaders(level, indent int, h Headers) {
 	}
 }
 
-func (b *tocBuilder) writeHeader(level, indent int, h Header) {
+func (b *tocBuilder) writeHeading(level, indent int, h Heading) {
 	b.indent(indent)
 	b.s.WriteString("<li>")
 	if !h.IsZero() {
 		b.s.WriteString("<a href=\"#" + h.ID + "\">" + h.Text + "</a>")
 	}
-	b.writeHeaders(level, indent, h.Headers)
+	b.writeHeadings(level, indent, h.Headings)
 	b.s.WriteString("</li>\n")
 }
 

@@ -18,6 +18,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/common/paths"
+
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/pkg/errors"
@@ -263,7 +265,7 @@ func (sp *SourceSpec) NewFileInfo(fi hugofs.FileMetaInfo) (*FileInfo, error) {
 	}
 
 	ext := strings.ToLower(strings.TrimPrefix(filepath.Ext(name), "."))
-	baseName := helpers.Filename(name)
+	baseName := paths.Filename(name)
 
 	if translationBaseName == "" {
 		// This is usually provided by the filesystem. But this FileInfo is also

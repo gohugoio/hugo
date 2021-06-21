@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
 	_errors "github.com/pkg/errors"
@@ -29,7 +30,6 @@ import (
 	"github.com/gohugoio/hugo/parser"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 )
 
 var _ cmder = (*newSiteCmd)(nil)
@@ -123,7 +123,7 @@ func (n *newSiteCmd) newSite(cmd *cobra.Command, args []string) error {
 
 	forceNew, _ := cmd.Flags().GetBool("force")
 
-	return n.doNewSite(hugofs.NewDefault(viper.New()), createpath, forceNew)
+	return n.doNewSite(hugofs.NewDefault(config.New()), createpath, forceNew)
 }
 
 func createConfig(fs *hugofs.Fs, inpath string, kind string) (err error) {

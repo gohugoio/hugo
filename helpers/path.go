@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -38,45 +37,6 @@ import (
 
 // ErrThemeUndefined is returned when a theme has not be defined by the user.
 var ErrThemeUndefined = errors.New("no theme set")
-
-// filepathPathBridge is a bridge for common functionality in filepath vs path
-type filepathPathBridge interface {
-	Base(in string) string
-	Clean(in string) string
-	Dir(in string) string
-	Ext(in string) string
-	Join(elem ...string) string
-	Separator() string
-}
-
-type filepathBridge struct {
-}
-
-func (filepathBridge) Base(in string) string {
-	return filepath.Base(in)
-}
-
-func (filepathBridge) Clean(in string) string {
-	return filepath.Clean(in)
-}
-
-func (filepathBridge) Dir(in string) string {
-	return filepath.Dir(in)
-}
-
-func (filepathBridge) Ext(in string) string {
-	return filepath.Ext(in)
-}
-
-func (filepathBridge) Join(elem ...string) string {
-	return filepath.Join(elem...)
-}
-
-func (filepathBridge) Separator() string {
-	return FilePathSeparator
-}
-
-var fpb filepathBridge
 
 // MakePath takes a string with any characters and replace it
 // so the string could be used in a path.
@@ -159,13 +119,6 @@ func (p *PathSpec) UnicodeSanitize(s string) string {
 	return string(target)
 }
 
-// ReplaceExtension takes a path and an extension, strips the old extension
-// and returns the path with the new extension.
-func ReplaceExtension(path string, newExt string) string {
-	f, _ := fileAndExt(path, fpb)
-	return f + "." + newExt
-}
-
 func makePathRelative(inPath string, possibleDirectories ...string) (string, error) {
 	for _, currentPath := range possibleDirectories {
 		if strings.HasPrefix(inPath, currentPath) {
@@ -210,144 +163,6 @@ func GetDottedRelativePath(inPath string) string {
 	}
 
 	return dottedPath
-}
-
-// ExtNoDelimiter takes a path and returns the extension, excluding the delimiter, i.e. "md".
-func ExtNoDelimiter(in string) string {
-	return strings.TrimPrefix(Ext(in), ".")
-}
-
-// Ext takes a path and returns the extension, including the delimiter, i.e. ".md".
-func Ext(in string) string {
-	_, ext := fileAndExt(in, fpb)
-	return ext
-}
-
-// PathAndExt is the same as FileAndExt, but it uses the path package.
-func PathAndExt(in string) (string, string) {
-	return fileAndExt(in, pb)
-}
-
-// FileAndExt takes a path and returns the file and extension separated,
-// the extension including the delimiter, i.e. ".md".
-func FileAndExt(in string) (string, string) {
-	return fileAndExt(in, fpb)
-}
-
-// FileAndExtNoDelimiter takes a path and returns the file and extension separated,
-// the extension excluding the delimiter, e.g "md".
-func FileAndExtNoDelimiter(in string) (string, string) {
-	file, ext := fileAndExt(in, fpb)
-	return file, strings.TrimPrefix(ext, ".")
-}
-
-// Filename takes a file path, strips out the extension,
-// and returns the name of the file.
-func Filename(in string) (name string) {
-	name, _ = fileAndExt(in, fpb)
-	return
-}
-
-// PathNoExt takes a path, strips out the extension,
-// and returns the name of the file.
-func PathNoExt(in string) string {
-	return strings.TrimSuffix(in, path.Ext(in))
-}
-
-// FileAndExt returns the filename and any extension of a file path as
-// two separate strings.
-//
-// If the path, in, contains a directory name ending in a slash,
-// then both name and ext will be empty strings.
-//
-// If the path, in, is either the current directory, the parent
-// directory or the root directory, or an empty string,
-// then both name and ext will be empty strings.
-//
-// If the path, in, represents the path of a file without an extension,
-// then name will be the name of the file and ext will be an empty string.
-//
-// If the path, in, represents a filename with an extension,
-// then name will be the filename minus any extension - including the dot
-// and ext will contain the extension - minus the dot.
-func fileAndExt(in string, b filepathPathBridge) (name string, ext string) {
-	ext = b.Ext(in)
-	base := b.Base(in)
-
-	return extractFilename(in, ext, base, b.Separator()), ext
-}
-
-func extractFilename(in, ext, base, pathSeparator string) (name string) {
-	// No file name cases. These are defined as:
-	// 1. any "in" path that ends in a pathSeparator
-	// 2. any "base" consisting of just an pathSeparator
-	// 3. any "base" consisting of just an empty string
-	// 4. any "base" consisting of just the current directory i.e. "."
-	// 5. any "base" consisting of just the parent directory i.e. ".."
-	if (strings.LastIndex(in, pathSeparator) == len(in)-1) || base == "" || base == "." || base == ".." || base == pathSeparator {
-		name = "" // there is NO filename
-	} else if ext != "" { // there was an Extension
-		// return the filename minus the extension (and the ".")
-		name = base[:strings.LastIndex(base, ".")]
-	} else {
-		// no extension case so just return base, which willi
-		// be the filename
-		name = base
-	}
-	return
-}
-
-// GetRelativePath returns the relative path of a given path.
-func GetRelativePath(path, base string) (final string, err error) {
-	if filepath.IsAbs(path) && base == "" {
-		return "", errors.New("source: missing base directory")
-	}
-	name := filepath.Clean(path)
-	base = filepath.Clean(base)
-
-	name, err = filepath.Rel(base, name)
-	if err != nil {
-		return "", err
-	}
-
-	if strings.HasSuffix(filepath.FromSlash(path), FilePathSeparator) && !strings.HasSuffix(name, FilePathSeparator) {
-		name += FilePathSeparator
-	}
-	return name, nil
-}
-
-// PathPrep prepares the path using the uglify setting to create paths on
-// either the form /section/name/index.html or /section/name.html.
-func PathPrep(ugly bool, in string) string {
-	if ugly {
-		return Uglify(in)
-	}
-	return PrettifyPath(in)
-}
-
-// PrettifyPath is the same as PrettifyURLPath but for file paths.
-//     /section/name.html       becomes /section/name/index.html
-//     /section/name/           becomes /section/name/index.html
-//     /section/name/index.html becomes /section/name/index.html
-func PrettifyPath(in string) string {
-	return prettifyPath(in, fpb)
-}
-
-func prettifyPath(in string, b filepathPathBridge) string {
-	if filepath.Ext(in) == "" {
-		// /section/name/  -> /section/name/index.html
-		if len(in) < 2 {
-			return b.Separator()
-		}
-		return b.Join(in, "index.html")
-	}
-	name, ext := fileAndExt(in, b)
-	if name == "index" {
-		// /section/name/index.html -> /section/name/index.html
-		return b.Clean(in)
-	}
-	// /section/name.html -> /section/name/index.html
-	return b.Join(b.Dir(in), name, "index"+ext)
 }
 
 type NamedSlice struct {

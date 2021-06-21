@@ -28,6 +28,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/common/paths"
+
 	"github.com/spf13/afero"
 
 	"github.com/disintegration/gift"
@@ -145,7 +147,7 @@ func TestImageTransformFormat(t *testing.T) {
 	assertExtWidthHeight := func(img resource.Image, ext string, w, h int) {
 		c.Helper()
 		c.Assert(img, qt.Not(qt.IsNil))
-		c.Assert(helpers.Ext(img.RelPermalink()), qt.Equals, ext)
+		c.Assert(paths.Ext(img.RelPermalink()), qt.Equals, ext)
 		c.Assert(img.Width(), qt.Equals, w)
 		c.Assert(img.Height(), qt.Equals, h)
 	}
@@ -173,36 +175,6 @@ func TestImageTransformFormat(t *testing.T) {
 	c.Assert(imageGif.MediaType().String(), qt.Equals, "image/gif")
 
 	assertFileCache(c, fileCache, path.Base(imageGif.RelPermalink()), 225, 141)
-}
-
-// https://github.com/gohugoio/hugo/issues/4261
-func TestImageTransformLongFilename(t *testing.T) {
-	c := qt.New(t)
-
-	image := fetchImage(c, "1234567890qwertyuiopasdfghjklzxcvbnm5to6eeeeee7via8eleph.jpg")
-	c.Assert(image, qt.Not(qt.IsNil))
-
-	resized, err := image.Resize("200x")
-	c.Assert(err, qt.IsNil)
-	c.Assert(resized, qt.Not(qt.IsNil))
-	c.Assert(resized.Width(), qt.Equals, 200)
-	c.Assert(resized.RelPermalink(), qt.Equals, "/a/_hu59e56ffff1bc1d8d122b1403d34e039f_90587_65b757a6e14debeae720fe8831f0a9bc.jpg")
-	resized, err = resized.Resize("100x")
-	c.Assert(err, qt.IsNil)
-	c.Assert(resized, qt.Not(qt.IsNil))
-	c.Assert(resized.Width(), qt.Equals, 100)
-	c.Assert(resized.RelPermalink(), qt.Equals, "/a/_hu59e56ffff1bc1d8d122b1403d34e039f_90587_c876768085288f41211f768147ba2647.jpg")
-}
-
-// Issue 6137
-func TestImageTransformUppercaseExt(t *testing.T) {
-	c := qt.New(t)
-	image := fetchImage(c, "sunrise.JPG")
-
-	resized, err := image.Resize("200x")
-	c.Assert(err, qt.IsNil)
-	c.Assert(resized, qt.Not(qt.IsNil))
-	c.Assert(resized.Width(), qt.Equals, 200)
 }
 
 // https://github.com/gohugoio/hugo/issues/5730
@@ -248,6 +220,70 @@ func TestImagePermalinkPublishOrder(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestImageBugs(t *testing.T) {
+	c := qt.New(t)
+
+	// Issue #4261
+	c.Run("Transform long filename", func(c *qt.C) {
+		image := fetchImage(c, "1234567890qwertyuiopasdfghjklzxcvbnm5to6eeeeee7via8eleph.jpg")
+		c.Assert(image, qt.Not(qt.IsNil))
+
+		resized, err := image.Resize("200x")
+		c.Assert(err, qt.IsNil)
+		c.Assert(resized, qt.Not(qt.IsNil))
+		c.Assert(resized.Width(), qt.Equals, 200)
+		c.Assert(resized.RelPermalink(), qt.Equals, "/a/_hu59e56ffff1bc1d8d122b1403d34e039f_90587_65b757a6e14debeae720fe8831f0a9bc.jpg")
+		resized, err = resized.Resize("100x")
+		c.Assert(err, qt.IsNil)
+		c.Assert(resized, qt.Not(qt.IsNil))
+		c.Assert(resized.Width(), qt.Equals, 100)
+		c.Assert(resized.RelPermalink(), qt.Equals, "/a/_hu59e56ffff1bc1d8d122b1403d34e039f_90587_c876768085288f41211f768147ba2647.jpg")
+
+	})
+
+	// Issue #6137
+	c.Run("Transform upper case extension", func(c *qt.C) {
+		image := fetchImage(c, "sunrise.JPG")
+
+		resized, err := image.Resize("200x")
+		c.Assert(err, qt.IsNil)
+		c.Assert(resized, qt.Not(qt.IsNil))
+		c.Assert(resized.Width(), qt.Equals, 200)
+
+	})
+
+	// Issue #7955
+	c.Run("Fill with smartcrop", func(c *qt.C) {
+		sunset := fetchImage(c, "sunset.jpg")
+
+		for _, test := range []struct {
+			originalDimensions string
+			targetWH           int
+		}{
+			{"408x403", 400},
+			{"425x403", 400},
+			{"459x429", 400},
+			{"476x442", 400},
+			{"544x403", 400},
+			{"476x468", 400},
+			{"578x585", 550},
+			{"578x598", 550},
+		} {
+			c.Run(test.originalDimensions, func(c *qt.C) {
+				image, err := sunset.Resize(test.originalDimensions)
+				c.Assert(err, qt.IsNil)
+				resized, err := image.Fill(fmt.Sprintf("%dx%d smart", test.targetWH, test.targetWH))
+				c.Assert(err, qt.IsNil)
+				c.Assert(resized, qt.Not(qt.IsNil))
+				c.Assert(resized.Width(), qt.Equals, test.targetWH)
+				c.Assert(resized.Height(), qt.Equals, test.targetWH)
+			})
+
+		}
+
+	})
 }
 
 func TestImageTransformConcurrent(t *testing.T) {

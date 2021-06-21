@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/modules/npm"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -37,7 +38,6 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/testmodBuilder/mods"
-	"github.com/spf13/viper"
 )
 
 func TestHugoModulesVariants(t *testing.T) {
@@ -45,7 +45,7 @@ func TestHugoModulesVariants(t *testing.T) {
 		t.Skip("skip (relative) long running modules test when running locally")
 	}
 
-	config := `
+	tomlConfig := `
 baseURL="https://example.org"
 workingDir = %q
 
@@ -56,7 +56,7 @@ path="github.com/gohugoio/hugoTestModule2"
 `
 
 	createConfig := func(workingDir, moduleOpts string) string {
-		return fmt.Sprintf(config, workingDir, moduleOpts)
+		return fmt.Sprintf(tomlConfig, workingDir, moduleOpts)
 	}
 
 	newTestBuilder := func(t testing.TB, moduleOpts string) (*sitesBuilder, func()) {
@@ -65,7 +65,7 @@ path="github.com/gohugoio/hugoTestModule2"
 		b.Assert(err, qt.IsNil)
 		workingDir := filepath.Join(tempDir, "myhugosite")
 		b.Assert(os.MkdirAll(workingDir, 0777), qt.IsNil)
-		b.Fs = hugofs.NewDefault(viper.New())
+		b.Fs = hugofs.NewDefault(config.New())
 		b.WithWorkingDir(workingDir).WithConfigFile("toml", createConfig(workingDir, moduleOpts))
 		b.WithTemplates(
 			"index.html", `
@@ -333,7 +333,7 @@ func TestHugoModulesMatrix(t *testing.T) {
 	for _, m := range testmods[:2] {
 		c := qt.New(t)
 
-		v := viper.New()
+		v := config.New()
 
 		workingDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-modules-test")
 		c.Assert(err, qt.IsNil)
@@ -671,7 +671,7 @@ func TestModulesSymlinks(t *testing.T) {
 
 	c := qt.New(t)
 	// We need to use the OS fs for this.
-	cfg := viper.New()
+	cfg := config.New()
 	fs := hugofs.NewFrom(hugofs.Os, cfg)
 
 	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-mod-sym")
@@ -839,13 +839,13 @@ workingDir = %q
 
 `
 
-	config := fmt.Sprintf(configTemplate, workingDir)
+	tomlConfig := fmt.Sprintf(configTemplate, workingDir)
 
 	b := newTestSitesBuilder(t).Running()
 
-	b.Fs = hugofs.NewDefault(viper.New())
+	b.Fs = hugofs.NewDefault(config.New())
 
-	b.WithWorkingDir(workingDir).WithConfigFile("toml", config)
+	b.WithWorkingDir(workingDir).WithConfigFile("toml", tomlConfig)
 	b.WithTemplatesAdded("index.html", `
 {{ .Title }}
 {{ .Content }}
@@ -960,16 +960,16 @@ workingDir = %q
 %s
 
 `
-		config := fmt.Sprintf(configTemplate, workingDir, mounts)
-		config = strings.Replace(config, "WORKING_DIR", workingDir, -1)
+		tomlConfig := fmt.Sprintf(configTemplate, workingDir, mounts)
+		tomlConfig = strings.Replace(tomlConfig, "WORKING_DIR", workingDir, -1)
 
 		b := newTestSitesBuilder(c).Running()
 
-		b.Fs = hugofs.NewDefault(viper.New())
+		b.Fs = hugofs.NewDefault(config.New())
 
 		os.MkdirAll(filepath.Join(workingDir, "content", "blog"), 0777)
 
-		b.WithWorkingDir(workingDir).WithConfigFile("toml", config)
+		b.WithWorkingDir(workingDir).WithConfigFile("toml", tomlConfig)
 
 		return test{
 			b:          b,
@@ -1064,7 +1064,7 @@ func TestSiteWithGoModButNoModules(t *testing.T) {
 	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-no-mod")
 	c.Assert(err, qt.IsNil)
 
-	cfg := viper.New()
+	cfg := config.New()
 	cfg.Set("workingDir", workDir)
 	fs := hugofs.NewFrom(hugofs.Os, cfg)
 
@@ -1090,7 +1090,7 @@ func TestModuleAbsMount(t *testing.T) {
 	absContentDir, clean2, err := htesting.CreateTempDir(hugofs.Os, "hugo-content")
 	c.Assert(err, qt.IsNil)
 
-	cfg := viper.New()
+	cfg := config.New()
 	cfg.Set("workingDir", workDir)
 	fs := hugofs.NewFrom(hugofs.Os, cfg)
 

@@ -31,6 +31,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gohugoio/hugo/common/paths"
+
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/livereload"
@@ -275,7 +277,7 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 func getRootWatchDirsStr(baseDir string, watchDirs []string) string {
 	relWatchDirs := make([]string, len(watchDirs))
 	for i, dir := range watchDirs {
-		relWatchDirs[i], _ = helpers.GetRelativePath(dir, baseDir)
+		relWatchDirs[i], _ = paths.GetRelativePath(dir, baseDir)
 	}
 
 	return strings.Join(helpers.UniqueStringsSorted(helpers.ExtractRootPaths(relWatchDirs)), ",")

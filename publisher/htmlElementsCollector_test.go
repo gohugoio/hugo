@@ -22,12 +22,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/config"
+
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/minifiers"
 	"github.com/gohugoio/hugo/output"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/spf13/viper"
 )
 
 func TestClassCollector(t *testing.T) {
@@ -138,7 +139,7 @@ func TestClassCollector(t *testing.T) {
 					if skipMinifyTest[test.name] {
 						c.Skip("skip minify test")
 					}
-					v := viper.New()
+					v := config.New()
 					m, _ := minifiers.New(media.DefaultTypes, output.DefaultFormats, v)
 					m.Minify(media.HTMLType, w, strings.NewReader(test.html))
 

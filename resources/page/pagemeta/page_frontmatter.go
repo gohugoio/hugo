@@ -17,6 +17,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/paths"
+
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -118,7 +120,7 @@ func (f FrontMatterHandler) IsDateKey(key string) bool {
 // This follows the format as outlined in Jekyll, https://jekyllrb.com/docs/posts/:
 // "Where YEAR is a four-digit number, MONTH and DAY are both two-digit numbers"
 func dateAndSlugFromBaseFilename(name string) (time.Time, string) {
-	withoutExt, _ := helpers.FileAndExt(name)
+	withoutExt, _ := paths.FileAndExt(name)
 
 	if len(withoutExt) < 10 {
 		// This can not be a date.

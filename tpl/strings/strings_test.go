@@ -17,14 +17,14 @@ import (
 	"html/template"
 	"testing"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/spf13/cast"
-	"github.com/spf13/viper"
 )
 
-var ns = New(&deps.Deps{Cfg: viper.New()})
+var ns = New(&deps.Deps{Cfg: config.New()})
 
 type tstNoStringer struct{}
 

@@ -20,6 +20,8 @@ import (
 	"math/rand"
 	"os"
 
+	"github.com/gohugoio/hugo/config"
+
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/dartsass"
 
 	"path/filepath"
@@ -34,8 +36,6 @@ import (
 	"github.com/gohugoio/hugo/common/herrors"
 
 	"github.com/gohugoio/hugo/htesting"
-
-	"github.com/spf13/viper"
 
 	qt "github.com/frankban/quicktest"
 
@@ -65,7 +65,7 @@ func TestSCSSWithIncludePaths(t *testing.T) {
 			c.Assert(err, qt.IsNil)
 			defer clean()
 
-			v := viper.New()
+			v := config.New()
 			v.Set("workingDir", workDir)
 			b := newTestSitesBuilder(c).WithLogger(loggers.NewErrorLogger())
 			// Need to use OS fs for this.
@@ -130,7 +130,7 @@ func TestSCSSWithRegularCSSImport(t *testing.T) {
 			c.Assert(err, qt.IsNil)
 			defer clean()
 
-			v := viper.New()
+			v := config.New()
 			v.Set("workingDir", workDir)
 			b := newTestSitesBuilder(c).WithLogger(loggers.NewErrorLogger())
 			// Need to use OS fs for this.
@@ -230,7 +230,7 @@ func TestSCSSWithThemeOverrides(t *testing.T) {
 			theme := "mytheme"
 			themesDir := filepath.Join(workDir, "themes")
 			themeDirs := filepath.Join(themesDir, theme)
-			v := viper.New()
+			v := config.New()
 			v.Set("workingDir", workDir)
 			v.Set("theme", theme)
 			b := newTestSitesBuilder(c).WithLogger(loggers.NewErrorLogger())
@@ -345,7 +345,7 @@ func TestSCSSWithIncludePathsSass(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	defer clean1()
 
-	v := viper.New()
+	v := config.New()
 	v.Set("workingDir", workDir)
 	v.Set("theme", "mytheme")
 	b := newTestSitesBuilder(t).WithLogger(loggers.NewErrorLogger())
@@ -974,7 +974,7 @@ h1 {
 
 	var logBuf bytes.Buffer
 
-	newTestBuilder := func(v *viper.Viper) *sitesBuilder {
+	newTestBuilder := func(v config.Provider) *sitesBuilder {
 		v.Set("workingDir", workDir)
 		v.Set("disableKinds", []string{"taxonomy", "term", "page"})
 		logger := loggers.NewBasicLoggerForWriter(jww.LevelInfo, &logBuf)
@@ -997,7 +997,7 @@ Styles Content: Len: {{ len $styles.Content }}|
 		return b
 	}
 
-	b := newTestBuilder(viper.New())
+	b := newTestBuilder(config.New())
 
 	cssDir := filepath.Join(workDir, "assets", "css", "components")
 	b.Assert(os.MkdirAll(cssDir, 0777), qt.IsNil)
@@ -1049,7 +1049,7 @@ Styles Content: Len: 770878|
 	build := func(s string, shouldFail bool) error {
 		b.Assert(os.RemoveAll(filepath.Join(workDir, "public")), qt.IsNil)
 
-		v := viper.New()
+		v := config.New()
 		v.Set("build", map[string]interface{}{
 			"useResourceCacheWhen": s,
 		})
