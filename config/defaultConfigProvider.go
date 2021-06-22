@@ -197,6 +197,12 @@ func (c *defaultConfigProvider) Merge(k string, v interface{}) {
 	defer c.mu.Unlock()
 	k = strings.ToLower(k)
 
+	const (
+		languagesKey = "languages"
+		paramsKey    = "params"
+		menusKey     = "menus"
+	)
+
 	if k == "" {
 		rs, f := c.root.GetMergeStrategy()
 		if f && rs == maps.ParamsMergeStrategyNone {
@@ -210,8 +216,44 @@ func (c *defaultConfigProvider) Merge(k string, v interface{}) {
 			// those as a special case.
 			for kk, vv := range p {
 				if pp, ok := vv.(maps.Params); ok {
-					if ppp, ok := c.root[kk]; ok {
-						ppp.(maps.Params).Merge(pp)
+					if pppi, ok := c.root[kk]; ok {
+						ppp := pppi.(maps.Params)
+						if kk == languagesKey {
+							// Languages is currently a special case.
+							// We may have languages with menus or params in the
+							// right map that is not present in the left map.
+							// With the default merge strategy those items will not
+							// be passed over.
+							var hasParams, hasMenus bool
+							for _, rv := range pp {
+								if lkp, ok := rv.(maps.Params); ok {
+									_, hasMenus = lkp[menusKey]
+									_, hasParams = lkp[paramsKey]
+								}
+							}
+
+							if hasMenus || hasParams {
+								for _, lv := range ppp {
+									if lkp, ok := lv.(maps.Params); ok {
+										if hasMenus {
+											if _, ok := lkp[menusKey]; !ok {
+												p := maps.Params{}
+												p.SetDefaultMergeStrategy(maps.ParamsMergeStrategyShallow)
+												lkp[menusKey] = p
+											}
+										}
+										if hasParams {
+											if _, ok := lkp[paramsKey]; !ok {
+												p := maps.Params{}
+												p.SetDefaultMergeStrategy(maps.ParamsMergeStrategyShallow)
+												lkp[paramsKey] = p
+											}
+										}
+									}
+								}
+							}
+						}
+						ppp.Merge(pp)
 					} else {
 						// We need to use the default merge strategy for
 						// this key.

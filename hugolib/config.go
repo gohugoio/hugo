@@ -93,20 +93,6 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 		}
 	}
 
-	// TODO(bep) improve this. This is currently needed to get the merge correctly.
-	if l.cfg.IsSet("languages") {
-		langs := l.cfg.GetParams("languages")
-		for _, lang := range langs {
-			langp := lang.(maps.Params)
-			if _, ok := langp["menus"]; !ok {
-				langp["menus"] = make(maps.Params)
-			}
-			if _, ok := langp["params"]; !ok {
-				langp["params"] = make(maps.Params)
-			}
-		}
-
-	}
 	l.cfg.SetDefaultMergeStrategy()
 
 	// We create languages based on the settings, so we need to make sure that
