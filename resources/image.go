@@ -112,8 +112,8 @@ func (i *imageResource) getExif() *exif.Exif {
 
 			x, err := i.getSpec().imaging.DecodeExif(f)
 			if err != nil {
-				i.metaInitErr = err
-				return
+				i.getSpec().Logger.Warnf("Unable to decode Exif metadata from image: %s", i.Key())
+				return nil
 			}
 
 			i.meta = &imageMeta{Exif: x}
