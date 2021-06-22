@@ -10,7 +10,7 @@ categories: ["Releases"]
 
 ## Deep merge of theme Params
 
-One of the most common complaint from Hugo theme owners/users has been about the configuration handling. Hugo has up until now only performed a shallow merge of theme `params` into the configuration.
+One of the most common complaints from Hugo theme owners/users has been about the configuration handling. Hugo has up until now only performed a shallow merge of theme `params` into the configuration.
 
 With that, given this example from a theme configuration:
 
@@ -22,7 +22,7 @@ green="#68FF33"
 red="#FF3358"
 ```
 
-If you would like to use the above theme, but want a different shade of red, you earlier had to copy the entire block, even the colours you're totally happy with. This was painful even the simplest setup.
+If you would like to use the above theme, but want a different shade of red, you earlier had to copy the entire block, even the colours you're totally happy with. This was painful with even the simplest setup.
 
 Now you can just override the `params` keys you want to change, e.g.:
 
@@ -56,7 +56,7 @@ We have updated the internal Instagram shortcode to pass the access token in a h
 
 ## New erroridf template func
 
-Sometime, especially when creating themes, it is useful to be able to let the user decide if an error situation is critical enough to fail the build. The new `erroridf` produces `ERROR` log statements that can be toggled off:
+Sometimes, especially when creating themes, it is useful to be able to let the user decide if an error situation is critical enough to fail the build. The new `erroridf` produces `ERROR` log statements that can be toggled off:
 
 ```html
 {{ erroridf "some-custom-id" "Some error message." }}
