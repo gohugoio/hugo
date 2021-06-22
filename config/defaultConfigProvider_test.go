@@ -204,6 +204,85 @@ func TestDefaultConfigProvider(t *testing.T) {
 		})
 	})
 
+	// Issue #8679
+	c.Run("Merge typed maps", func(c *qt.C) {
+
+		for _, left := range []interface{}{
+			map[string]string{
+				"c": "cv1",
+			},
+			map[string]interface{}{
+				"c": "cv1",
+			},
+			map[interface{}]interface{}{
+				"c": "cv1",
+			},
+		} {
+			cfg := New()
+
+			cfg.Set("", map[string]interface{}{
+				"b": left,
+			})
+
+			cfg.Merge("", maps.Params{
+				"b": maps.Params{
+					"c": "cv2",
+					"d": "dv2",
+				},
+			})
+
+			c.Assert(cfg.Get(""), qt.DeepEquals, maps.Params{
+				"b": maps.Params{
+					"c": "cv1",
+					"d": "dv2",
+				},
+			})
+		}
+
+		for _, left := range []interface{}{
+			map[string]string{
+				"b": "bv1",
+			},
+			map[string]interface{}{
+				"b": "bv1",
+			},
+			map[interface{}]interface{}{
+				"b": "bv1",
+			},
+		} {
+
+			for _, right := range []interface{}{
+				map[string]string{
+					"b": "bv2",
+					"c": "cv2",
+				},
+				map[string]interface{}{
+					"b": "bv2",
+					"c": "cv2",
+				},
+				map[interface{}]interface{}{
+					"b": "bv2",
+					"c": "cv2",
+				},
+			} {
+				cfg := New()
+
+				cfg.Set("a", left)
+
+				cfg.Merge("a", right)
+
+				c.Assert(cfg.Get(""), qt.DeepEquals, maps.Params{
+					"a": maps.Params{
+						"b": "bv1",
+						"c": "cv2",
+					},
+				})
+			}
+
+		}
+
+	})
+
 	c.Run("IsSet", func(c *qt.C) {
 		cfg := New()
 

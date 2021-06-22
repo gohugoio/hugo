@@ -104,6 +104,10 @@ func (c *compositeConfig) Set(key string, value interface{}) {
 	c.layer.Set(key, value)
 }
 
+func (c *compositeConfig) SetDefaults(params maps.Params) {
+	c.layer.SetDefaults(params)
+}
+
 func (c *compositeConfig) WalkParams(walkFn func(params ...KeyParams) bool) {
 	panic("not supported")
 }

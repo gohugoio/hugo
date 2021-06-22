@@ -163,10 +163,9 @@ func (c *defaultConfigProvider) Set(k string, v interface{}) {
 	}
 
 	switch vv := v.(type) {
-	case map[string]interface{}:
-		var p maps.Params = vv
+	case map[string]interface{}, map[interface{}]interface{}, map[string]string:
+		p := maps.MustToParamsAndPrepare(vv)
 		v = p
-		maps.PrepareParams(p)
 	}
 
 	key, m := c.getNestedKeyAndMap(k, true)
@@ -181,6 +180,16 @@ func (c *defaultConfigProvider) Set(k string, v interface{}) {
 	}
 
 	m[key] = v
+}
+
+// SetDefaults will set values from params if not already set.
+func (c *defaultConfigProvider) SetDefaults(params maps.Params) {
+	maps.PrepareParams(params)
+	for k, v := range params {
+		if _, found := c.root[k]; !found {
+			c.root[k] = v
+		}
+	}
 }
 
 func (c *defaultConfigProvider) Merge(k string, v interface{}) {
@@ -226,10 +235,9 @@ func (c *defaultConfigProvider) Merge(k string, v interface{}) {
 	}
 
 	switch vv := v.(type) {
-	case map[string]interface{}:
-		var p maps.Params = vv
+	case map[string]interface{}, map[interface{}]interface{}, map[string]string:
+		p := maps.MustToParamsAndPrepare(vv)
 		v = p
-		maps.PrepareParams(p)
 	}
 
 	key, m := c.getNestedKeyAndMap(k, true)

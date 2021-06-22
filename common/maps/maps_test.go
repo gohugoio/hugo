@@ -21,10 +21,10 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
-func TestToLower(t *testing.T) {
+func TestPrepareParams(t *testing.T) {
 	tests := []struct {
-		input    map[string]interface{}
-		expected map[string]interface{}
+		input    Params
+		expected Params
 	}{
 		{
 			map[string]interface{}{
@@ -47,6 +47,9 @@ func TestToLower(t *testing.T) {
 				"gHi": map[string]interface{}{
 					"J": 25,
 				},
+				"jKl": map[string]string{
+					"M": "26",
+				},
 			},
 			Params{
 				"abc": 32,
@@ -60,13 +63,16 @@ func TestToLower(t *testing.T) {
 				"ghi": Params{
 					"j": 25,
 				},
+				"jkl": Params{
+					"m": "26",
+				},
 			},
 		},
 	}
 
 	for i, test := range tests {
 		t.Run(fmt.Sprint(i), func(t *testing.T) {
-			// ToLower modifies input.
+			// PrepareParams modifies input.
 			PrepareParams(test.input)
 			if !reflect.DeepEqual(test.expected, test.input) {
 				t.Errorf("[%d] Expected\n%#v, got\n%#v\n", i, test.expected, test.input)

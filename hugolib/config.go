@@ -64,10 +64,6 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 
 	l := configLoader{ConfigSourceDescriptor: d, cfg: config.New()}
 
-	if err := l.applyConfigDefaults(); err != nil {
-		return l.cfg, configFiles, err
-	}
-
 	for _, name := range d.configFilenames() {
 		var filename string
 		filename, err := l.loadConfig(name)
@@ -76,6 +72,10 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 		} else if err != ErrNoConfigFile {
 			return nil, nil, err
 		}
+	}
+
+	if err := l.applyConfigDefaults(); err != nil {
+		return l.cfg, configFiles, err
 	}
 
 	if d.AbsConfigDir != "" {
@@ -298,7 +298,7 @@ func (l configLoader) applyConfigDefaults() error {
 		"enableInlineShortcodes":               false,
 	}
 
-	l.cfg.Merge("", defaultSettings)
+	l.cfg.SetDefaults(defaultSettings)
 
 	return nil
 }
