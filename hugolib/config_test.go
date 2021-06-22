@@ -76,7 +76,7 @@ func TestLoadMultiConfig(t *testing.T) {
 	c.Assert(cfg.GetString("DontChange"), qt.Equals, "same")
 }
 
-func TestLoadConfigFromTheme(t *testing.T) {
+func TestLoadConfigFromThemes(t *testing.T) {
 	t.Parallel()
 
 	c := qt.New(t)
@@ -185,11 +185,15 @@ name = "menu-theme"
 
 `
 
-	buildForStrategy := func(t testing.TB, s string) *sitesBuilder {
-		mainConfig := strings.ReplaceAll(mainConfigTemplate, "MERGE_PARAMS", s)
+	buildForConfig := func(mainConfig, themeConfig string) *sitesBuilder {
 		b := newTestSitesBuilder(t)
 		b.WithConfigFile("toml", mainConfig).WithThemeConfigFile("toml", themeConfig)
-		return b.CreateSites().Build(BuildCfg{})
+		return b.Build(BuildCfg{})
+	}
+
+	buildForStrategy := func(t testing.TB, s string) *sitesBuilder {
+		mainConfig := strings.ReplaceAll(mainConfigTemplate, "MERGE_PARAMS", s)
+		return buildForConfig(mainConfig, themeConfig)
 	}
 
 	c.Run("Merge default", func(c *qt.C) {
@@ -314,6 +318,64 @@ name = "menu-theme"
 			},
 			"p2": "p2 theme",
 		})
+	})
+
+	c.Run("Merge no params in project", func(c *qt.C) {
+		b := buildForConfig(
+			"baseURL=\"https://example.org\"\ntheme = \"test-theme\"\n",
+			"[params]\np1 = \"p1 theme\"\n",
+		)
+
+		got := b.Cfg.Get("").(maps.Params)
+
+		b.Assert(got["params"], qt.DeepEquals, maps.Params{
+			"p1": "p1 theme",
+		})
+	})
+
+	c.Run("Merge language no menus or params in project", func(c *qt.C) {
+		b := buildForConfig(
+			`
+theme = "test-theme"
+baseURL = "https://example.com/"
+
+[languages]
+[languages.en]
+languageName = "English"
+
+`,
+			`
+[languages]
+[languages.en]
+languageName = "EnglishTheme"
+
+[languages.en.params]
+p1="themep1"
+
+[[languages.en.menus.main]]
+name   = "menu-theme"
+`,
+		)
+
+		got := b.Cfg.Get("").(maps.Params)
+
+		b.Assert(got["languages"], qt.DeepEquals,
+			maps.Params{
+				"en": maps.Params{
+					"languagename": "English",
+					"menus": maps.Params{
+						"main": []map[string]interface{}{
+							{
+								"name": "menu-theme",
+							},
+						},
+					},
+					"params": maps.Params{
+						"p1": "themep1",
+					},
+				},
+			},
+		)
 	})
 
 }
