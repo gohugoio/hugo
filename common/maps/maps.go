@@ -49,6 +49,15 @@ func ToParamsAndPrepare(in interface{}) (Params, bool) {
 	return m, true
 }
 
+// MustToParamsAndPrepare calls ToParamsAndPrepare and panics if it fails.
+func MustToParamsAndPrepare(in interface{}) Params {
+	if p, ok := ToParamsAndPrepare(in); ok {
+		return p
+	} else {
+		panic(fmt.Sprintf("cannot convert %T to maps.Params", in))
+	}
+}
+
 // ToStringMap converts in to map[string]interface{}.
 func ToStringMap(in interface{}) map[string]interface{} {
 	m, _ := ToStringMapE(in)

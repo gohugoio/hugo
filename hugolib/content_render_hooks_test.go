@@ -56,6 +56,7 @@ title: P1
 	b.AssertFileContent("public/p1/index.html", `Link First Link|PARTIAL1_EDITED PARTIAL2_EDITEDEND`)
 }
 
+
 func TestRenderHooks(t *testing.T) {
 	config := `
 baseURL="https://example.org"

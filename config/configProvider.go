@@ -30,6 +30,7 @@ type Provider interface {
 	Get(key string) interface{}
 	Set(key string, value interface{})
 	Merge(key string, value interface{})
+	SetDefaults(params maps.Params)
 	SetDefaultMergeStrategy()
 	WalkParams(walkFn func(params ...KeyParams) bool)
 	IsSet(key string) bool
