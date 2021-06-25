@@ -102,7 +102,9 @@ most helpful when the condition depends on either of the values, or both:
 
 If a closing shortcode is used, the `.Inner` variable will be populated with all of the content between the opening and closing shortcodes. If a closing shortcode is required, you can check the length of `.Inner` as an indicator of its existence.
 
-A shortcode with content declared via the `.Inner` variable can also be declared without the inline content and without the closing shortcode by using the self-closing syntax:
+A shortcode with content declared via the `.Inner` variable can also be declared without the 
+content and without the closing 
+by using the self-closing syntax:
 
 ```
 {{</* innershortcode /*/>}}
@@ -366,6 +368,8 @@ More shortcode examples can be found in the [shortcodes directory for spf13.com]
 
 
 ## Inline Shortcodes
+
+{{< new-in "0.52.0" >}}
 
 Since Hugo 0.52, you can implement your shortcodes inline -- e.g. where you use them in the content file. This can be useful for scripting that you only need in one place.
 
