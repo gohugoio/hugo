@@ -40,7 +40,7 @@ func (lc *listCmd) buildSites(config map[string]interface{}) (*hugolib.HugoSites
 		return nil
 	}
 
-	c, err := initializeConfig(true, false, &lc.hugoBuilderCommon, lc, cfgInit)
+	c, err := initializeConfig(true, true, false, &lc.hugoBuilderCommon, lc, cfgInit)
 	if err != nil {
 		return nil, err
 	}

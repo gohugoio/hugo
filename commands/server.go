@@ -236,7 +236,7 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 		jww.WARN.Println("memstats error:", err)
 	}
 
-	c, err := initializeConfig(true, true, &sc.hugoBuilderCommon, sc, cfgInit)
+	c, err := initializeConfig(true, true, true, &sc.hugoBuilderCommon, sc, cfgInit)
 	if err != nil {
 		return err
 	}

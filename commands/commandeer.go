@@ -153,7 +153,7 @@ func (c *commandeer) initFs(fs *hugofs.Fs) error {
 	return nil
 }
 
-func newCommandeer(mustHaveConfigFile, running bool, h *hugoBuilderCommon, f flagsToConfigHandler, cfgInit func(c *commandeer) error, subCmdVs ...*cobra.Command) (*commandeer, error) {
+func newCommandeer(mustHaveConfigFile, mustHaveSite, running bool, h *hugoBuilderCommon, f flagsToConfigHandler, cfgInit func(c *commandeer) error, subCmdVs ...*cobra.Command) (*commandeer, error) {
 	var rebuildDebouncer func(f func())
 	if running {
 		// The time value used is tested with mass content replacements in a fairly big Hugo site.
@@ -179,7 +179,7 @@ func newCommandeer(mustHaveConfigFile, running bool, h *hugoBuilderCommon, f fla
 		logger: loggers.NewLogger(jww.LevelWarn, jww.LevelError, out, ioutil.Discard, running),
 	}
 
-	return c, c.loadConfig(mustHaveConfigFile, running)
+	return c, c.loadConfig(mustHaveConfigFile, mustHaveSite, running)
 }
 
 type fileChangeDetector struct {
@@ -244,7 +244,7 @@ func (f *fileChangeDetector) PrepareNew() {
 	f.current = make(map[string]string)
 }
 
-func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
+func (c *commandeer) loadConfig(mustHaveConfigFile, mustHaveSite, running bool) error {
 	if c.DepsCfg == nil {
 		c.DepsCfg = &deps.DepsCfg{}
 	}
@@ -392,10 +392,12 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 			return
 		}
 
-		var h *hugolib.HugoSites
+		if mustHaveSite {
+			var h *hugolib.HugoSites
 
-		h, err = hugolib.NewHugoSites(*c.DepsCfg)
-		c.hugoSites = h
+			h, err = hugolib.NewHugoSites(*c.DepsCfg)
+			c.hugoSites = h
+		}
 		close(c.created)
 	})
 

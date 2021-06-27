@@ -162,7 +162,7 @@ Complete documentation is available at http://gohugo.io/.`,
 				return nil
 			}
 
-			c, err := initializeConfig(true, cc.buildWatch, &cc.hugoBuilderCommon, cc, cfgInit)
+			c, err := initializeConfig(true, true, cc.buildWatch, &cc.hugoBuilderCommon, cc, cfgInit)
 			if err != nil {
 				return err
 			}

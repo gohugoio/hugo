@@ -114,11 +114,11 @@ func Execute(args []string) Response {
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
-func initializeConfig(mustHaveConfigFile, running bool,
+func initializeConfig(mustHaveConfigFile, mustHaveSite, running bool,
 	h *hugoBuilderCommon,
 	f flagsToConfigHandler,
 	cfgInit func(c *commandeer) error) (*commandeer, error) {
-	c, err := newCommandeer(mustHaveConfigFile, running, h, f, cfgInit)
+	c, err := newCommandeer(mustHaveConfigFile, mustHaveSite, running, h, f, cfgInit)
 	if err != nil {
 		return nil, err
 	}
@@ -792,7 +792,7 @@ func (c *commandeer) fullRebuild(changeType string) {
 		defer c.timeTrack(time.Now(), "Rebuilt")
 
 		c.commandeerHugoState = newCommandeerHugoState()
-		err := c.loadConfig(true, true)
+		err := c.loadConfig(true, true, true)
 		if err != nil {
 			// Set the processing on pause until the state is recovered.
 			c.paused = true

@@ -102,7 +102,7 @@ func (cc *convertCmd) convertContents(format metadecoders.Format) error {
 		return newUserError("Unsafe operation not allowed, use --unsafe or set a different output path")
 	}
 
-	c, err := initializeConfig(true, false, &cc.hugoBuilderCommon, cc, nil)
+	c, err := initializeConfig(true, false, false, &cc.hugoBuilderCommon, cc, nil)
 	if err != nil {
 		return err
 	}
