@@ -283,6 +283,11 @@ func (p *pageMeta) Sitemap() config.Sitemap {
 }
 
 func (p *pageMeta) Title() string {
+	if p.title == "" {
+		if p.File() != nil {
+			return p.File().TranslationBaseName()
+		}
+	}
 	return p.title
 }
 
