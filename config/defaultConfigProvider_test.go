@@ -283,6 +283,26 @@ func TestDefaultConfigProvider(t *testing.T) {
 
 	})
 
+	// Issue #8701
+	c.Run("Prevent _merge only maps", func(c *qt.C) {
+		cfg := New()
+
+		cfg.Set("", map[string]interface{}{
+			"B": "bv",
+		})
+
+		cfg.Merge("", map[string]interface{}{
+			"c": map[string]interface{}{
+				"_merge": "shallow",
+				"d":      "dv2",
+			},
+		})
+
+		c.Assert(cfg.Get(""), qt.DeepEquals, maps.Params{
+			"b": "bv",
+		})
+	})
+
 	c.Run("IsSet", func(c *qt.C) {
 		cfg := New()
 
