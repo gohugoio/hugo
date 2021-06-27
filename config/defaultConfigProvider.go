@@ -214,6 +214,7 @@ func (c *defaultConfigProvider) Merge(k string, v interface{}) {
 		if p, ok := maps.ToParamsAndPrepare(v); ok {
 			// As there may be keys in p not in root, we need to handle
 			// those as a special case.
+			var keysToDelete []string
 			for kk, vv := range p {
 				if pp, ok := vv.(maps.Params); ok {
 					if pppi, ok := c.root[kk]; ok {
@@ -261,14 +262,19 @@ func (c *defaultConfigProvider) Merge(k string, v interface{}) {
 						strategy := c.determineMergeStrategy(KeyParams{Key: "", Params: c.root}, KeyParams{Key: kk, Params: np})
 						np.SetDefaultMergeStrategy(strategy)
 						np.Merge(pp)
-						if len(np) > 0 {
-							c.root[kk] = np
+						c.root[kk] = np
+						if np.IsZero() {
+							// Just keep it until merge is done.
+							keysToDelete = append(keysToDelete, kk)
 						}
 					}
 				}
 			}
 			// Merge the rest.
 			c.root.Merge(p)
+			for _, k := range keysToDelete {
+				delete(c.root, k)
+			}
 		} else {
 			panic(fmt.Sprintf("unsupported type %T received in Merge", v))
 		}

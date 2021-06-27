@@ -156,3 +156,15 @@ func TestParamsSetAndMerge(t *testing.T) {
 	})
 
 }
+
+func TestParamsIsZero(t *testing.T) {
+	c := qt.New(t)
+
+	var nilParams Params
+
+	c.Assert(Params{}.IsZero(), qt.IsTrue)
+	c.Assert(nilParams.IsZero(), qt.IsTrue)
+	c.Assert(Params{"foo": "bar"}.IsZero(), qt.IsFalse)
+	c.Assert(Params{"_merge": "foo", "foo": "bar"}.IsZero(), qt.IsFalse)
+	c.Assert(Params{"_merge": "foo"}.IsZero(), qt.IsTrue)
+}

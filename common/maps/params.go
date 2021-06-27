@@ -52,6 +52,24 @@ func (p Params) Set(pp Params) {
 	}
 }
 
+// IsZero returns true if p is considered empty.
+func (p Params) IsZero() bool {
+	if p == nil || len(p) == 0 {
+		return true
+	}
+
+	if len(p) > 1 {
+		return false
+	}
+
+	for k, _ := range p {
+		return k == mergeStrategyKey
+	}
+
+	return false
+
+}
+
 // Merge transfers values from pp to p for new keys.
 // This is done recursively.
 func (p Params) Merge(pp Params) {
@@ -82,12 +100,9 @@ func (p Params) merge(ps ParamsMergeStrategy, pp Params) {
 				if pv, ok := v.(Params); ok {
 					vvv.merge(ms, pv)
 				}
-
 			}
-
 		} else if !noUpdate {
 			p[k] = v
-
 		}
 
 	}
