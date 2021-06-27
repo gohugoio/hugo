@@ -69,7 +69,7 @@ func (c *configCmd) printMounts(cmd *cobra.Command, args []string) error {
 	allModules := cfg.Cfg.Get("allmodules").(modules.Modules)
 
 	for _, m := range allModules {
-		if err := parser.InterfaceToConfig(&modMounts{m: m}, metadecoders.JSON, os.Stdout); err != nil {
+		if err := parser.InterfaceToConfig(&modMounts{m: m, verbose: c.verbose}, metadecoders.JSON, os.Stdout); err != nil {
 			return err
 		}
 	}
@@ -115,7 +115,8 @@ func (c *configCmd) printConfig(cmd *cobra.Command, args []string) error {
 }
 
 type modMounts struct {
-	m modules.Module
+	verbose bool
+	m       modules.Module
 }
 
 type modMount struct {
@@ -135,13 +136,45 @@ func (m *modMounts) MarshalJSON() ([]byte, error) {
 		})
 	}
 
+	var ownerPath string
+	if m.m.Owner() != nil {
+		ownerPath = m.m.Owner().Path()
+	}
+
+	if m.verbose {
+		config := m.m.Config()
+		return json.Marshal(&struct {
+			Path        string                 `json:"path"`
+			Version     string                 `json:"version"`
+			Owner       string                 `json:"owner"`
+			Dir         string                 `json:"dir"`
+			Meta        map[string]interface{} `json:"meta"`
+			HugoVersion modules.HugoVersion    `json:"hugoVersion"`
+
+			Mounts []modMount `json:"mounts"`
+		}{
+			Path:        m.m.Path(),
+			Version:     m.m.Version(),
+			Owner:       ownerPath,
+			Dir:         m.m.Dir(),
+			Meta:        config.Params,
+			HugoVersion: config.HugoVersion,
+			Mounts:      mounts,
+		})
+	}
+
 	return json.Marshal(&struct {
-		Path   string     `json:"path"`
-		Dir    string     `json:"dir"`
-		Mounts []modMount `json:"mounts"`
+		Path    string     `json:"path"`
+		Version string     `json:"version"`
+		Owner   string     `json:"owner"`
+		Dir     string     `json:"dir"`
+		Mounts  []modMount `json:"mounts"`
 	}{
-		Path:   m.m.Path(),
-		Dir:    m.m.Dir(),
-		Mounts: mounts,
+		Path:    m.m.Path(),
+		Version: m.m.Version(),
+		Owner:   ownerPath,
+		Dir:     m.m.Dir(),
+		Mounts:  mounts,
 	})
+
 }
