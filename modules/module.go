@@ -17,6 +17,8 @@
 package modules
 
 import (
+	"time"
+
 	"github.com/gohugoio/hugo/config"
 )
 
@@ -64,6 +66,9 @@ type Module interface {
 
 	// The module version.
 	Version() string
+
+	// Time version was created.
+	Time() *time.Time
 
 	// Whether this module's dir is a watch candidate.
 	Watch() bool
@@ -152,6 +157,14 @@ func (m *moduleAdapter) Version() string {
 		return m.version
 	}
 	return m.gomod.Version
+}
+
+func (m *moduleAdapter) Time() *time.Time {
+	if !m.IsGoMod() || m.gomod.Time == nil {
+		return nil
+	}
+
+	return m.gomod.Time
 }
 
 func (m *moduleAdapter) Watch() bool {
