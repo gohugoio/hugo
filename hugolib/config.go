@@ -63,6 +63,10 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 	var configFiles []string
 
 	l := configLoader{ConfigSourceDescriptor: d, cfg: config.New()}
+	// Make sure we always do this, even in error situations,
+	// as we have commands (e.g. "hugo mod init") that will
+	// use a partial configuration to do its job.
+	defer l.deleteMergeStrategies()
 
 	for _, name := range d.configFilenames() {
 		var filename string
@@ -125,10 +129,7 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 	collectHook := func(m *modules.ModulesConfig) error {
 		// We don't need the merge strategy configuration anymore,
 		// remove it so it doesn't accidentaly show up in other settings.
-		l.cfg.WalkParams(func(params ...config.KeyParams) bool {
-			params[len(params)-1].Params.DeleteMergeStrategy()
-			return false
-		})
+		l.deleteMergeStrategies()
 
 		if err := l.loadLanguageSettings(nil); err != nil {
 			return err
@@ -459,6 +460,13 @@ func (l configLoader) loadConfig(configName string) (string, error) {
 	l.cfg.Set("", m)
 
 	return filename, nil
+}
+
+func (l configLoader) deleteMergeStrategies() {
+	l.cfg.WalkParams(func(params ...config.KeyParams) bool {
+		params[len(params)-1].Params.DeleteMergeStrategy()
+		return false
+	})
 }
 
 func (l configLoader) loadLanguageSettings(oldLangs langs.Languages) error {
