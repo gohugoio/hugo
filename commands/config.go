@@ -147,7 +147,7 @@ func (m *modMounts) MarshalJSON() ([]byte, error) {
 		return json.Marshal(&struct {
 			Path        string                 `json:"path"`
 			Version     string                 `json:"version"`
-			Time        *time.Time             `json:"time"`
+			Time        time.Time              `json:"time"`
 			Owner       string                 `json:"owner"`
 			Dir         string                 `json:"dir"`
 			Meta        map[string]interface{} `json:"meta"`
@@ -169,7 +169,7 @@ func (m *modMounts) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&struct {
 		Path    string     `json:"path"`
 		Version string     `json:"version"`
-		Time    *time.Time `json:"time"`
+		Time    time.Time  `json:"time"`
 		Owner   string     `json:"owner"`
 		Dir     string     `json:"dir"`
 		Mounts  []modMount `json:"mounts"`

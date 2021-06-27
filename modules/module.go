@@ -68,7 +68,7 @@ type Module interface {
 	Version() string
 
 	// Time version was created.
-	Time() *time.Time
+	Time() time.Time
 
 	// Whether this module's dir is a watch candidate.
 	Watch() bool
@@ -159,12 +159,13 @@ func (m *moduleAdapter) Version() string {
 	return m.gomod.Version
 }
 
-func (m *moduleAdapter) Time() *time.Time {
+func (m *moduleAdapter) Time() time.Time {
 	if !m.IsGoMod() || m.gomod.Time == nil {
-		return nil
+		return time.Time{}
 	}
 
-	return m.gomod.Time
+	return *m.gomod.Time
+
 }
 
 func (m *moduleAdapter) Watch() bool {
