@@ -354,6 +354,11 @@ func (c *collector) addAndRecurse(owner *moduleAdapter, disabled bool) error {
 }
 
 func (c *collector) applyMounts(moduleImport Import, mod *moduleAdapter) error {
+	if moduleImport.NoMounts {
+		mod.mounts = nil
+		return nil
+	}
+
 	mounts := moduleImport.Mounts
 
 	modConfig := mod.Config()

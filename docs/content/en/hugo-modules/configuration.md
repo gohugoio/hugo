@@ -101,6 +101,12 @@ ignoreImports {{< new-in "0.80.0" >}}
 disable
 : Set to `true` to disable the module while keeping any version info in the `go.*` files.
 
+noMounts {{< new-in "0.84.2" >}}
+:  Do not mount any folder in this import.
+
+noVendor
+:  Never vendor this import (only allowed in main project).
+
 {{< gomodules-info >}}
 
 

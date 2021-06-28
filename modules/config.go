@@ -367,6 +367,7 @@ type Import struct {
 	pathProjectReplaced bool   // Set when Path is replaced in project config.
 	IgnoreConfig        bool   // Ignore any config in config.toml (will still folow imports).
 	IgnoreImports       bool   // Do not follow any configured imports.
+	NoMounts            bool   // Do not mount any folder in this import.
 	NoVendor            bool   // Never vendor this import (only allowed in main project).
 	Disable             bool   // Turn off this module.
 	Mounts              []Mount
