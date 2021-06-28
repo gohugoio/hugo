@@ -26,8 +26,6 @@ toc: false
 
 ## Commercial Services
 
-* [Appernetic.io](https://appernetic.io) is a Hugo Static Site Generator as a Service that is easy to use for non-technical users.
-    * **Features:** inline PageDown editor, visual tree view, image upload and digital asset management with Cloudinary, site preview, continuous integration with GitHub, atomic deploy and hosting, Git and Hugo integration, autosave, custom domain, project syncing, theme cloning and management. Developers have complete control over the source code and can manage it with GitHub’s deceptively simple workflow.
 * [DATOCMS](https://www.datocms.com) DatoCMS is a fully customizable administrative area for your static websites. Use your favorite website generator, let your clients publish new content independently, and the host the site anywhere you like.
 * [Forestry.io](https://forestry.io/). Forestry is a git-backed CMS for Hugo, Gatsby, Jekyll and VuePress websites with support for GitHub, GitLab, Bitbucket and Azure Devops. Forestry provides a nice user interface to edit and model content for non technical editors. It supports S3, Cloudinary and Netlify Large Media integrations for storing media. Every time an update is made via the CMS, Forestry will commit changes back to your repo and vice-versa.
 
