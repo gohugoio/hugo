@@ -412,8 +412,8 @@ func getCacheDir(cfg config.Provider) string {
 		return addTrailingFileSeparator(cacheDir)
 	}
 
-	// Both of these are fairly distinctive OS env keys used by Netlify.
-	if os.Getenv("DEPLOY_PRIME_URL") != "" && os.Getenv("PULL_REQUEST") != "" {
+	// This is always set to true when running on Netlify.
+	if os.Getenv("NETLIFY") == "true" {
 		// Netlify's cache behaviour is not documented, the currently best example
 		// is this project:
 		// https://github.com/philhawksworth/content-shards/blob/master/gulpfile.js
