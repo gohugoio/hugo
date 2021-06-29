@@ -576,9 +576,10 @@ anchor = "smart"
 quality = 75 
 `
 
-	b := newTestSitesBuilder(t).WithConfigFile("toml", baseConfig)
+	newB := func(t testing.TB) *sitesBuilder {
+		b := newTestSitesBuilder(t).WithConfigFile("toml", baseConfig)
 
-	b.WithSourceFile("themes/mytheme/config.toml", `
+		b.WithSourceFile("themes/mytheme/config.toml", `
 
 [outputFormats]
 [outputFormats.oftheme]
@@ -595,64 +596,90 @@ theme_param="themevalue2"
 
 `)
 
-	b.WithEnviron(
-		"HUGO_ENVIRONMENT", "test",
-		"HUGO_NEW", "new", // key not in config.toml
-		"HUGO_ENABLEGITINFO", "false",
-		"HUGO_IMAGING_ANCHOR", "top",
-		"HUGO_IMAGING_RESAMPLEFILTER", "CatmullRom",
-		"HUGO_STRINGSLICE", `["c", "d"]`,
-		"HUGO_INTSLICE", `[5, 8, 9]`,
-		"HUGO_FLOATSLICE", `[5.32]`,
-		// Issue #7829
-		"HUGOxPARAMSxAPI_CONFIGxAPI_KEY", "new_key",
-		// Delimiters are case sensitive.
-		"HUGOxPARAMSxAPI_CONFIGXANOTHER_KEY", "another_key",
-		// Issue #8346
-		"HUGOxPARAMSxMYTHEME_SECTIONxTHEME_PARAM", "themevalue_changed",
-		"HUGOxPARAMSxMYTHEME_SECTION2xTHEME_PARAM", "themevalue2_changed",
-		"HUGO_PARAMS_EMPTY", ``,
-		"HUGO_PARAMS_HTML", `<a target="_blank" />`,
-		// Issue #8618
-		"HUGO_SERVICES_GOOGLEANALYTICS_ID", `gaid`,
-		"HUGO_PARAMS_A_B_C", "abc",
-	)
+		return b
+	}
 
-	b.Build(BuildCfg{})
+	c.Run("Variations", func(c *qt.C) {
 
-	cfg := b.H.Cfg
-	s := b.H.Sites[0]
-	scfg := s.siteConfigConfig.Services
+		b := newB(c)
 
-	c.Assert(cfg.Get("environment"), qt.Equals, "test")
-	c.Assert(cfg.GetBool("enablegitinfo"), qt.Equals, false)
-	c.Assert(cfg.Get("new"), qt.Equals, "new")
-	c.Assert(cfg.Get("imaging.anchor"), qt.Equals, "top")
-	c.Assert(cfg.Get("imaging.quality"), qt.Equals, int64(75))
-	c.Assert(cfg.Get("imaging.resamplefilter"), qt.Equals, "CatmullRom")
-	c.Assert(cfg.Get("stringSlice"), qt.DeepEquals, []interface{}{"c", "d"})
-	c.Assert(cfg.Get("floatSlice"), qt.DeepEquals, []interface{}{5.32})
-	c.Assert(cfg.Get("intSlice"), qt.DeepEquals, []interface{}{5, 8, 9})
-	c.Assert(cfg.Get("params.api_config.api_key"), qt.Equals, "new_key")
-	c.Assert(cfg.Get("params.api_config.another_key"), qt.Equals, "default another_key")
-	c.Assert(cfg.Get("params.mytheme_section.theme_param"), qt.Equals, "themevalue_changed")
-	c.Assert(cfg.Get("params.mytheme_section.theme_param_nooverride"), qt.Equals, "nooverride")
-	c.Assert(cfg.Get("params.mytheme_section2.theme_param"), qt.Equals, "themevalue2_changed")
-	c.Assert(cfg.Get("params.empty"), qt.Equals, ``)
-	c.Assert(cfg.Get("params.html"), qt.Equals, `<a target="_blank" />`)
+		b.WithEnviron(
+			"HUGO_ENVIRONMENT", "test",
+			"HUGO_NEW", "new", // key not in config.toml
+			"HUGO_ENABLEGITINFO", "false",
+			"HUGO_IMAGING_ANCHOR", "top",
+			"HUGO_IMAGING_RESAMPLEFILTER", "CatmullRom",
+			"HUGO_STRINGSLICE", `["c", "d"]`,
+			"HUGO_INTSLICE", `[5, 8, 9]`,
+			"HUGO_FLOATSLICE", `[5.32]`,
+			// Issue #7829
+			"HUGOxPARAMSxAPI_CONFIGxAPI_KEY", "new_key",
+			// Delimiters are case sensitive.
+			"HUGOxPARAMSxAPI_CONFIGXANOTHER_KEY", "another_key",
+			// Issue #8346
+			"HUGOxPARAMSxMYTHEME_SECTIONxTHEME_PARAM", "themevalue_changed",
+			"HUGOxPARAMSxMYTHEME_SECTION2xTHEME_PARAM", "themevalue2_changed",
+			"HUGO_PARAMS_EMPTY", ``,
+			"HUGO_PARAMS_HTML", `<a target="_blank" />`,
+			// Issue #8618
+			"HUGO_SERVICES_GOOGLEANALYTICS_ID", `gaid`,
+			"HUGO_PARAMS_A_B_C", "abc",
+		)
 
-	params := cfg.Get("params").(maps.Params)
-	c.Assert(params["paramwithnoenvoverride"], qt.Equals, "nooverride")
-	c.Assert(cfg.Get("params.paramwithnoenvoverride"), qt.Equals, "nooverride")
-	c.Assert(scfg.GoogleAnalytics.ID, qt.Equals, "gaid")
-	c.Assert(cfg.Get("params.a.b"), qt.DeepEquals, maps.Params{
-		"c": "abc",
+		b.Build(BuildCfg{})
+
+		cfg := b.H.Cfg
+		s := b.H.Sites[0]
+		scfg := s.siteConfigConfig.Services
+
+		c.Assert(cfg.Get("environment"), qt.Equals, "test")
+		c.Assert(cfg.GetBool("enablegitinfo"), qt.Equals, false)
+		c.Assert(cfg.Get("new"), qt.Equals, "new")
+		c.Assert(cfg.Get("imaging.anchor"), qt.Equals, "top")
+		c.Assert(cfg.Get("imaging.quality"), qt.Equals, int64(75))
+		c.Assert(cfg.Get("imaging.resamplefilter"), qt.Equals, "CatmullRom")
+		c.Assert(cfg.Get("stringSlice"), qt.DeepEquals, []interface{}{"c", "d"})
+		c.Assert(cfg.Get("floatSlice"), qt.DeepEquals, []interface{}{5.32})
+		c.Assert(cfg.Get("intSlice"), qt.DeepEquals, []interface{}{5, 8, 9})
+		c.Assert(cfg.Get("params.api_config.api_key"), qt.Equals, "new_key")
+		c.Assert(cfg.Get("params.api_config.another_key"), qt.Equals, "default another_key")
+		c.Assert(cfg.Get("params.mytheme_section.theme_param"), qt.Equals, "themevalue_changed")
+		c.Assert(cfg.Get("params.mytheme_section.theme_param_nooverride"), qt.Equals, "nooverride")
+		c.Assert(cfg.Get("params.mytheme_section2.theme_param"), qt.Equals, "themevalue2_changed")
+		c.Assert(cfg.Get("params.empty"), qt.Equals, ``)
+		c.Assert(cfg.Get("params.html"), qt.Equals, `<a target="_blank" />`)
+
+		params := cfg.Get("params").(maps.Params)
+		c.Assert(params["paramwithnoenvoverride"], qt.Equals, "nooverride")
+		c.Assert(cfg.Get("params.paramwithnoenvoverride"), qt.Equals, "nooverride")
+		c.Assert(scfg.GoogleAnalytics.ID, qt.Equals, "gaid")
+		c.Assert(cfg.Get("params.a.b"), qt.DeepEquals, maps.Params{
+			"c": "abc",
+		})
+
+		ofBase, _ := s.outputFormatsConfig.GetByName("ofbase")
+		ofTheme, _ := s.outputFormatsConfig.GetByName("oftheme")
+
+		c.Assert(ofBase.MediaType, qt.Equals, media.TextType)
+		c.Assert(ofTheme.MediaType, qt.Equals, media.TextType)
+
 	})
 
-	ofBase, _ := s.outputFormatsConfig.GetByName("ofbase")
-	ofTheme, _ := s.outputFormatsConfig.GetByName("oftheme")
+	// Issue #8709
+	c.Run("Set in string", func(c *qt.C) {
+		b := newB(c)
 
-	c.Assert(ofBase.MediaType, qt.Equals, media.TextType)
-	c.Assert(ofTheme.MediaType, qt.Equals, media.TextType)
+		b.WithEnviron(
+			// imaging.anchor is a string, and it's not possible
+			// to set a child attribute.
+			"HUGO_IMAGING_ANCHOR_FOO", "top",
+		)
+
+		b.Build(BuildCfg{})
+
+		cfg := b.H.Cfg
+		c.Assert(cfg.Get("imaging.anchor"), qt.Equals, "smart")
+
+	})
 
 }

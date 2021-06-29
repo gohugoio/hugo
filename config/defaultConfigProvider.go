@@ -169,6 +169,9 @@ func (c *defaultConfigProvider) Set(k string, v interface{}) {
 	}
 
 	key, m := c.getNestedKeyAndMap(k, true)
+	if m == nil {
+		return
+	}
 
 	if existing, found := m[key]; found {
 		if p1, ok := existing.(maps.Params); ok {
@@ -289,6 +292,9 @@ func (c *defaultConfigProvider) Merge(k string, v interface{}) {
 	}
 
 	key, m := c.getNestedKeyAndMap(k, true)
+	if m == nil {
+		return
+	}
 
 	if existing, found := m[key]; found {
 		if p1, ok := existing.(maps.Params); ok {
@@ -422,7 +428,12 @@ func (c *defaultConfigProvider) getNestedKeyAndMap(key string, create bool) (str
 				return "", nil
 			}
 		}
-		current = next.(maps.Params)
+		var ok bool
+		current, ok = next.(maps.Params)
+		if !ok {
+			// E.g. a string, not a map that we can store values in.
+			return "", nil
+		}
 	}
 	return parts[len(parts)-1], current
 }
