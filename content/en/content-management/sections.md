@@ -21,9 +21,9 @@ A **Section** is a collection of pages that gets defined based on the
 organization structure under the `content/` directory.
 
 By default, all the **first-level** directories under `content/` form their own
-sections (**root sections**) provided they constitue [Branch Bundles][branch bundles].
+sections (**root sections**) provided they constitute [Branch Bundles][branch bundles].
 Directories which are just [Leaf Bundles][leaf bundles] do *not* form
-their own section, despite being first-level directories.
+their own sections, despite being first-level directories.
 
 If a user needs to define a section `foo` at a deeper level, they need to create
 a directory named `foo` with an `_index.md` file (see [Branch Bundles][branch bundles]
