@@ -14,31 +14,46 @@
 package commands
 
 import (
-	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
+
+	"github.com/gohugoio/hugo/common/hugo"
 )
 
 var _ cmder = (*versionCmd)(nil)
 
 type versionCmd struct {
+	json bool
 	*baseCmd
 }
 
 func newVersionCmd() *versionCmd {
-	return &versionCmd{
-		newBaseCmd(&cobra.Command{
-			Use:   "version",
-			Short: "Print the version number of Hugo",
-			Long:  `All software has versions. This is Hugo's.`,
-			RunE: func(cmd *cobra.Command, args []string) error {
-				printHugoVersion()
+	v := &versionCmd{}
+
+	v.baseCmd = newBaseCmd(&cobra.Command{
+		Use:   "version",
+		Short: "Print the version number of Hugo",
+		Long:  `All software has versions. This is Hugo's.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if v.json {
+				printHugoVersionJson()
 				return nil
-			},
-		}),
-	}
+			}
+			printHugoVersion()
+
+			return nil
+		},
+	})
+
+	v.cmd.Flags().BoolVar(&v.json, "json", false, "print JSON format")
+
+	return v
 }
 
 func printHugoVersion() {
 	jww.FEEDBACK.Println(hugo.BuildVersionString())
+}
+
+func printHugoVersionJson() {
+	jww.FEEDBACK.Println(hugo.BuildVersionJSON())
 }

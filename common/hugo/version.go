@@ -14,13 +14,15 @@
 package hugo
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"runtime"
 	"strings"
 
-	"github.com/gohugoio/hugo/compare"
 	"github.com/spf13/cast"
+
+	"github.com/gohugoio/hugo/compare"
 )
 
 // Version represents the Hugo build version.
@@ -153,6 +155,53 @@ func BuildVersionString() string {
 	}
 
 	return versionString
+}
+
+// VersionJSON represents the Hugo build version in JSON format.
+type VersionJSON struct {
+	Program        string `json:"program,omitempty"`
+	Version        string `json:"version,omitempty"`
+	Build          string `json:"build,omitempty"`
+	Extended       bool   `json:"extended,omitempty"`
+	BuildDate      string `json:"build_date,omitempty"`
+	VendorInfo     string `json:"vendor_info,omitempty"`
+	OSArchitecture string `json:"os_architecture,omitempty"`
+}
+
+// BuildVersionJSON creates a json version string. This is what you see when
+// running "hugo version --json"
+func BuildVersionJSON() string {
+	v := &VersionJSON{
+		Program: "hugo",
+		Version: "v" + CurrentVersion.String(),
+	}
+
+	if commitHash != "" {
+		v.Build = strings.ToUpper(commitHash)
+	}
+
+	if IsExtended {
+		v.Extended = true
+	} else {
+		v.Extended = false
+	}
+
+	v.OSArchitecture = runtime.GOOS + "/" + runtime.GOARCH
+
+	date := buildDate
+	if date == "" {
+		v.BuildDate = "unknown"
+	} else {
+		v.BuildDate = date
+	}
+
+	if vendorInfo != "" {
+		v.VendorInfo = vendorInfo
+	}
+
+	marshal, _ := json.Marshal(v)
+
+	return string(marshal)
 }
 
 func version(version float32, patchVersion int, suffix string) string {
