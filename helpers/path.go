@@ -412,8 +412,10 @@ func getCacheDir(cfg config.Provider) string {
 		return addTrailingFileSeparator(cacheDir)
 	}
 
-	// This is always set to true when running on Netlify.
-	if os.Getenv("NETLIFY") == "true" {
+	// See Issue #8714.
+	// Turns out that Cloudflare also sets NETLIFY=true in its build environment,
+	// but all of these 3 should not give any false positives.
+	if os.Getenv("NETLIFY") == "true" && os.Getenv("PULL_REQUEST") != "" && os.Getenv("DEPLOY_PRIME_URL") != "" {
 		// Netlify's cache behaviour is not documented, the currently best example
 		// is this project:
 		// https://github.com/philhawksworth/content-shards/blob/master/gulpfile.js
