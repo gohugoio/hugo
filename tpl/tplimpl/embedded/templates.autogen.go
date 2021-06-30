@@ -290,7 +290,7 @@ if (!doNotTrack) {
       </li>
       {{- else }}
       <li class="page-item disabled">
-        <a href="#" aria-disabled="true" aria-label="First" class="page-link" role="button"><span aria-hidden="true">&laquo;&laquo;</span></a>
+        <a href="#" aria-disabled="true" aria-label="First" class="page-link" role="button" tabindex="-1"><span aria-hidden="true">&laquo;&laquo;</span></a>
       </li>
       {{- end }}
     {{- end }}
@@ -301,7 +301,7 @@ if (!doNotTrack) {
       </li>
     {{- else }}
       <li class="page-item disabled">
-        <a href="#" aria-disabled="true" aria-label="Previous" class="page-link" role="button"><span aria-hidden="true">&laquo;</span></a>
+        <a href="#" aria-disabled="true" aria-label="Previous" class="page-link" role="button" tabindex="-1"><span aria-hidden="true">&laquo;</span></a>
       </li>
     {{- end }}
 
@@ -330,7 +330,7 @@ if (!doNotTrack) {
       </li>
     {{- else }}
       <li class="page-item disabled">
-        <a href="#" aria-disabled="true" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
+        <a href="#" aria-disabled="true" aria-label="Next" class="page-link" role="button" tabindex="-1"><span aria-hidden="true">&raquo;</span></a>
       </li>
     {{- end }}
 
@@ -341,7 +341,7 @@ if (!doNotTrack) {
       </li>
       {{- else }}
       <li class="page-item disabled">
-        <a href="#" aria-disabled="true" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
+        <a href="#" aria-disabled="true" aria-label="Last" class="page-link" role="button" tabindex="-1"><span aria-hidden="true">&raquo;&raquo;</span></a>
       </li>
       {{- end }}
     {{- end }}
