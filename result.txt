@@ -1,0 +1,15 @@
+Start building sites … 
+hugo v0.85.0-DEV darwin/amd64 BuildDate=unknown
+
+                   | EN  | ZH   
+-------------------+-----+------
+  Pages            | 557 |  25  
+  Paginator pages  |   3 |   1  
+  Non-page files   |  89 |   0  
+  Static files     | 145 | 145  
+  Processed images | 131 |   0  
+  Aliases          |  16 |   4  
+  Sitemaps         |   2 |   1  
+  Cleaned          |   0 |   0  
+
+Total in 1025 ms
