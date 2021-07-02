@@ -262,7 +262,7 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 		for _, group := range watchGroups {
 			jww.FEEDBACK.Printf("Watching for changes in %s\n", group)
 		}
-		watcher, err := c.newWatcher(watchDirs...)
+		watcher, err := c.newWatcher(sc.poll, watchDirs...)
 		if err != nil {
 			return err
 		}

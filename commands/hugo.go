@@ -523,7 +523,7 @@ func (c *commandeer) build() error {
 
 		c.logger.Printf("Watching for changes in %s%s{%s}\n", baseWatchDir, helpers.FilePathSeparator, rootWatchDirs)
 		c.logger.Println("Press Ctrl+C to stop")
-		watcher, err := c.newWatcher(watchDirs...)
+		watcher, err := c.newWatcher(c.h.poll, watchDirs...)
 		checkErr(c.Logger, err)
 		defer watcher.Close()
 
@@ -820,7 +820,7 @@ func (c *commandeer) fullRebuild(changeType string) {
 }
 
 // newWatcher creates a new watcher to watch filesystem events.
-func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
+func (c *commandeer) newWatcher(poll bool, dirList ...string) (*watcher.Batcher, error) {
 	if runtime.GOOS == "darwin" {
 		tweakLimit()
 	}
@@ -830,7 +830,10 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 		return nil, err
 	}
 
-	watcher, err := watcher.New(1 * time.Second)
+	// The second interval is used by the poll based watcher.
+	// Setting a shorter interval would make it snappier,
+	// but it would consume more CPU.
+	watcher, err := watcher.New(500*time.Millisecond, 700*time.Millisecond, poll)
 	if err != nil {
 		return nil, err
 	}
@@ -859,7 +862,7 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 					// Need to reload browser to show the error
 					livereload.ForceRefresh()
 				}
-			case err := <-watcher.Errors:
+			case err := <-watcher.Errors():
 				if err != nil {
 					c.logger.Errorln("Error while watching:", err)
 				}
