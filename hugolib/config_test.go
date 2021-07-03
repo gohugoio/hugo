@@ -185,7 +185,7 @@ name = "menu-theme"
 
 `
 
-	buildForConfig := func(mainConfig, themeConfig string) *sitesBuilder {
+	buildForConfig := func(t testing.TB, mainConfig, themeConfig string) *sitesBuilder {
 		b := newTestSitesBuilder(t)
 		b.WithConfigFile("toml", mainConfig).WithThemeConfigFile("toml", themeConfig)
 		return b.Build(BuildCfg{})
@@ -193,7 +193,7 @@ name = "menu-theme"
 
 	buildForStrategy := func(t testing.TB, s string) *sitesBuilder {
 		mainConfig := strings.ReplaceAll(mainConfigTemplate, "MERGE_PARAMS", s)
-		return buildForConfig(mainConfig, themeConfig)
+		return buildForConfig(t, mainConfig, themeConfig)
 	}
 
 	c.Run("Merge default", func(c *qt.C) {
@@ -322,6 +322,7 @@ name = "menu-theme"
 
 	c.Run("Merge no params in project", func(c *qt.C) {
 		b := buildForConfig(
+			c,
 			"baseURL=\"https://example.org\"\ntheme = \"test-theme\"\n",
 			"[params]\np1 = \"p1 theme\"\n",
 		)
@@ -335,6 +336,7 @@ name = "menu-theme"
 
 	c.Run("Merge language no menus or params in project", func(c *qt.C) {
 		b := buildForConfig(
+			c,
 			`
 theme = "test-theme"
 baseURL = "https://example.com/"
@@ -377,6 +379,43 @@ name   = "menu-theme"
 			},
 		)
 	})
+
+	// Issue #8724
+	for _, mergeStrategy := range []string{"none", "shallow"} {
+		c.Run(fmt.Sprintf("Merge with sitemap config in theme, mergestrategy %s", mergeStrategy), func(c *qt.C) {
+
+			smapConfigTempl := `[sitemap]
+  changefreq = %q
+  filename = "sitemap.xml"
+  priority = 0.5`
+
+			b := buildForConfig(
+				c,
+				fmt.Sprintf("_merge=%q\nbaseURL=\"https://example.org\"\ntheme = \"test-theme\"\n", mergeStrategy),
+				"baseURL=\"http://example.com\"\n"+fmt.Sprintf(smapConfigTempl, "monthly"),
+			)
+
+			got := b.Cfg.Get("").(maps.Params)
+
+			if mergeStrategy == "none" {
+				b.Assert(got["sitemap"], qt.DeepEquals, maps.Params{
+					"priority": int(-1),
+					"filename": "sitemap.xml",
+				})
+
+				b.AssertFileContent("public/sitemap.xml", "schemas/sitemap")
+			} else {
+				b.Assert(got["sitemap"], qt.DeepEquals, maps.Params{
+					"priority":   int(-1),
+					"filename":   "sitemap.xml",
+					"changefreq": "monthly",
+				})
+
+				b.AssertFileContent("public/sitemap.xml", "<changefreq>monthly</changefreq>")
+			}
+
+		})
+	}
 
 }
 
