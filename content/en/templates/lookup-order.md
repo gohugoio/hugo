@@ -34,6 +34,8 @@ Layout
 Output Format
 : See [Custom Output Formats](/templates/output-formats). An output format has both a `name` (e.g. `rss`, `amp`, `html`) and a `suffix` (e.g. `xml`, `html`). We prefer matches with both (e.g. `index.amp.html`, but look for less specific templates.
 
+Note that if the output format's Media Type has more than one suffix defined, only the first is considered.
+
 Language
 : We will consider a language code in the template name. If the site language is `fr`, `index.fr.amp.html` will win over `index.amp.html`, but `index.amp.html` will be chosen before `index.fr.html`.
 
@@ -79,7 +81,3 @@ In Hugo, layouts can live in either the project's or the themes' layout folders,
 ## Examples: Layout Lookup for Term Pages
 
 {{< datatable-filtered "output" "layouts" "Kind == term" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}
-
-
-
-
