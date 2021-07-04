@@ -11,7 +11,7 @@ images:
 
 	
 
-This is a bug-fix release with a couple of important fixes.
+This is mostly a bug fix release, but it also contains some minor modules related improvements. Most notable you now get some more information in ` hugo config mounts`, and even more so when typing ` hugo config mounts -v`.
 
 * modules: Add module.import.noMounts config [40dfdd09](https://github.com/gohugoio/hugo/commit/40dfdd09521bcb8f56150e6791d60445198f27ab) [@bep](https://github.com/bep) [#8708](https://github.com/gohugoio/hugo/issues/8708)
 * modules: Use value type for module.Time [3a6dc6d3](https://github.com/gohugoio/hugo/commit/3a6dc6d3f423c4acb79ef21b5a76e616fa2c9477) [@bep](https://github.com/bep) 

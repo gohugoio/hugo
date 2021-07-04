@@ -319,8 +319,6 @@ disableDate = false
 # Hugo extracts the "photo taken where" (GPS latitude and longitude) into
 # .Long and .Lat. Set this to true to turn it off.
 disableLatLong = false
-
-
 ```
 
 ## Smart Cropping of Images
