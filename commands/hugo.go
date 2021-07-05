@@ -30,6 +30,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gohugoio/hugo/common/types"
+
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/resources/page"
@@ -820,7 +822,7 @@ func (c *commandeer) fullRebuild(changeType string) {
 }
 
 // newWatcher creates a new watcher to watch filesystem events.
-func (c *commandeer) newWatcher(poll bool, dirList ...string) (*watcher.Batcher, error) {
+func (c *commandeer) newWatcher(pollIntervalStr string, dirList ...string) (*watcher.Batcher, error) {
 	if runtime.GOOS == "darwin" {
 		tweakLimit()
 	}
@@ -830,10 +832,17 @@ func (c *commandeer) newWatcher(poll bool, dirList ...string) (*watcher.Batcher,
 		return nil, err
 	}
 
-	// The second interval is used by the poll based watcher.
-	// Setting a shorter interval would make it snappier,
-	// but it would consume more CPU.
-	watcher, err := watcher.New(500*time.Millisecond, 700*time.Millisecond, poll)
+	var pollInterval time.Duration
+	poll := pollIntervalStr != ""
+	if poll {
+		pollInterval, err = types.ToDurationE(pollIntervalStr)
+		if err != nil {
+			return nil, fmt.Errorf("invalid value for flag poll: %s", err)
+		}
+		c.logger.Printf("Use watcher with poll interval %v", pollInterval)
+	}
+
+	watcher, err := watcher.New(500*time.Millisecond, pollInterval, poll)
 	if err != nil {
 		return nil, err
 	}

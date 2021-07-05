@@ -51,7 +51,7 @@ hugo [flags]
       --noChmod                    don't sync permission mode of files
       --noTimes                    don't sync modification time of files
       --path-warnings              print warnings on duplicate target paths etc.
-      --poll                       use a poll based approach to watch for file system changes
+      --poll string                set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes
       --print-mem                  print memory usage to screen at intervals
       --quiet                      build in quiet mode
       --renderToMemory             render to memory (only useful for benchmark testing)

@@ -204,7 +204,7 @@ type hugoBuilderCommon struct {
 	environment string
 
 	buildWatch bool
-	poll       bool
+	poll       string
 
 	gc bool
 
@@ -292,7 +292,7 @@ func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&cc.baseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
 	cmd.Flags().Bool("enableGitInfo", false, "add Git revision, date and author info to the pages")
 	cmd.Flags().BoolVar(&cc.gc, "gc", false, "enable to run some cleanup tasks (remove unused cache files) after the build")
-	cmd.Flags().BoolVar(&cc.poll, "poll", false, "use a poll based approach to watch for file system changes")
+	cmd.Flags().StringVar(&cc.poll, "poll", "", "set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes")
 
 	cmd.Flags().Bool("templateMetrics", false, "display metrics about template executions")
 	cmd.Flags().Bool("templateMetricsHints", false, "calculate some improvement hints when combined with --templateMetrics")
