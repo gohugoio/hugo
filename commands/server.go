@@ -236,12 +236,24 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 		jww.WARN.Println("memstats error:", err)
 	}
 
+	// silence errors in cobra so we can handle them here
+	cmd.SilenceErrors = true
+
 	c, err := initializeConfig(true, true, &sc.hugoBuilderCommon, sc, cfgInit)
 	if err != nil {
+		cmd.PrintErrln("Error:", err.Error())
 		return err
 	}
 
-	if err := c.serverBuild(); err != nil {
+	err = func() error {
+		defer c.timeTrack(time.Now(), "Built")
+		err := c.serverBuild()
+		if err != nil {
+			cmd.PrintErrln("Error:", err.Error())
+		}
+		return err
+	}()
+	if err != nil {
 		return err
 	}
 
