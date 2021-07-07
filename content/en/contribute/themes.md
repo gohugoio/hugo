@@ -26,6 +26,6 @@ Another great site for Hugo themes is [jamstackthemes.dev/](https://jamstackthem
 
 ### Add Your Theme to the Repo
 
-In order to add your Hugo theme to [themes.gohugo.io] please [open up a new issue in the theme repository](https://github.com/gohugoio/hugoThemes/issues/new?template=theme-submission.md). **Please make sure that you've read the theme submission guidelines in the [README](https://github.com/gohugoio/hugoThemes/blob/master/README.md#adding-a-theme-to-the-list) of the hugoThemes repository.**
+In order to add your Hugo theme to [themes.gohugo.io] please [open a pull request in the theme repository](https://github.com/gohugoio/hugoThemesSiteBuilder). **Please make sure that you've read the theme submission guidelines in the [README](https://github.com/gohugoio/hugoThemesSiteBuilder/blob/main/README.md#hugo-themes) of the hugoThemesSiteBuilder repository.**
 
 [themes.gohugo.io]: https://themes.gohugo.io/
