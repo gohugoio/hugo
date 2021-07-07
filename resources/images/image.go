@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"image/draw"
 	"image/gif"
 	"image/jpeg"
 	"image/png"
@@ -236,7 +237,18 @@ func (p *ImageProcessor) ApplyFiltersFromConfig(src image.Image, conf ImageConfi
 
 func (p *ImageProcessor) Filter(src image.Image, filters ...gift.Filter) (image.Image, error) {
 	g := gift.New(filters...)
-	dst := image.NewRGBA(g.Bounds(src.Bounds()))
+	bounds := g.Bounds(src.Bounds())
+	var dst draw.Image
+	switch src.(type) {
+	case *image.RGBA:
+		dst = image.NewRGBA(bounds)
+	case *image.NRGBA:
+		dst = image.NewNRGBA(bounds)
+	case *image.Gray:
+		dst = image.NewGray(bounds)
+	default:
+		dst = image.NewNRGBA(bounds)
+	}
 	g.Draw(dst, src)
 	return dst, nil
 }

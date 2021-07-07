@@ -28,3 +28,8 @@ import (
 func Encode(w io.Writer, m image.Image, o webpoptions.EncodingOptions) error {
 	return libwebp.Encode(w, m, o)
 }
+
+// Supports returns whether webp encoding is supported in this build.
+func Supports() bool {
+	return true
+}
