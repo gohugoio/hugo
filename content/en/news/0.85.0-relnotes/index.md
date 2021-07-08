@@ -14,7 +14,7 @@ Hugo uses [Fsnotify](https://github.com/fsnotify/fsnotify) to provide native fil
 hugo server --poll 700ms
 ```
 
-You van even do "long polling" by passing a long interval:
+You can even do "long polling" by passing a long interval:
 
 ```bash
 hugo server --poll 24h
