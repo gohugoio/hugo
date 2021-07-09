@@ -27,10 +27,10 @@ import (
 var (
 
 	// ConfigRootKeysSet contains all of the config map root keys.
-	// TODO(bep) use this for something (docs etc.)
 	ConfigRootKeysSet = map[string]bool{
 		"build":         true,
 		"caches":        true,
+		"cascade":       true,
 		"frontmatter":   true,
 		"languages":     true,
 		"imaging":       true,

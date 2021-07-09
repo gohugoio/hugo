@@ -340,34 +340,10 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 		if p.bucket != nil {
 			// Check for any cascade define on itself.
 			if cv, found := frontmatter["cascade"]; found {
-				if v, err := maps.ToSliceStringMap(cv); err == nil {
-					p.bucket.cascade = make(map[page.PageMatcher]maps.Params)
-
-					for _, vv := range v {
-						var m page.PageMatcher
-						if mv, found := vv["_target"]; found {
-							err := page.DecodePageMatcher(mv, &m)
-							if err != nil {
-								return err
-							}
-						}
-						c, found := p.bucket.cascade[m]
-						if found {
-							// Merge
-							for k, v := range vv {
-								if _, found := c[k]; !found {
-									c[k] = v
-								}
-							}
-						} else {
-							p.bucket.cascade[m] = vv
-						}
-
-					}
-				} else {
-					p.bucket.cascade = map[page.PageMatcher]maps.Params{
-						{}: maps.ToStringMap(cv),
-					}
+				var err error
+				p.bucket.cascade, err = page.DecodeCascade(cv)
+				if err != nil {
+					return err
 				}
 			}
 		}
