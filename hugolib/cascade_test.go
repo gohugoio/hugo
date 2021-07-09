@@ -20,6 +20,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/common/maps"
+
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/parser"
 	"github.com/gohugoio/hugo/parser/metadecoders"
@@ -48,6 +50,69 @@ func BenchmarkCascade(b *testing.B) {
 			}
 		})
 	}
+}
+
+func TestCascadeConfig(t *testing.T) {
+	c := qt.New(t)
+
+	// Make sure the cascade from config gets applied even if we're not
+	// having a content file for the home page.
+	for _, withHomeContent := range []bool{true, false} {
+		testName := "Home content file"
+		if !withHomeContent {
+			testName = "No home content file"
+		}
+		c.Run(testName, func(c *qt.C) {
+			b := newTestSitesBuilder(c)
+
+			b.WithConfigFile("toml", `
+baseURL="https://example.org"
+
+[cascade]
+img1 = "img1-config.jpg"
+imgconfig = "img-config.jpg"
+
+`)
+
+			if withHomeContent {
+				b.WithContent("_index.md", `
+---
+title: "Home"
+cascade:
+  img1: "img1-home.jpg"
+  img2: "img2-home.jpg"
+---
+`)
+			}
+
+			b.WithContent("p1.md", ``)
+
+			b.Build(BuildCfg{})
+
+			p1 := b.H.Sites[0].getPage("p1")
+
+			if withHomeContent {
+				b.Assert(p1.Params(), qt.DeepEquals, maps.Params{
+					"imgconfig":     "img-config.jpg",
+					"draft":         bool(false),
+					"iscjklanguage": bool(false),
+					"img1":          "img1-home.jpg",
+					"img2":          "img2-home.jpg",
+				})
+			} else {
+				b.Assert(p1.Params(), qt.DeepEquals, maps.Params{
+					"img1":          "img1-config.jpg",
+					"imgconfig":     "img-config.jpg",
+					"draft":         bool(false),
+					"iscjklanguage": bool(false),
+				})
+
+			}
+
+		})
+
+	}
+
 }
 
 func TestCascade(t *testing.T) {

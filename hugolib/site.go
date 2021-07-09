@@ -103,7 +103,7 @@ import (
 type Site struct {
 
 	// The owning container. When multiple languages, there will be multiple
-	// sites.
+	// sites .
 	h *HugoSites
 
 	*PageCollections
@@ -113,7 +113,8 @@ type Site struct {
 	Sections Taxonomy
 	Info     *SiteInfo
 
-	language *langs.Language
+	language   *langs.Language
+	siteBucket *pagesMapBucket
 
 	siteCfg siteConfigHolder
 
@@ -388,6 +389,7 @@ func (s *Site) reset() *Site {
 		frontmatterHandler:     s.frontmatterHandler,
 		mediaTypesConfig:       s.mediaTypesConfig,
 		language:               s.language,
+		siteBucket:             s.siteBucket,
 		h:                      s.h,
 		publisher:              s.publisher,
 		siteConfigConfig:       s.siteConfigConfig,
@@ -539,9 +541,23 @@ But this also means that your site configuration may not do what you expect. If 
 		enableEmoji:      cfg.Language.Cfg.GetBool("enableEmoji"),
 	}
 
-	s := &Site{
+	var siteBucket *pagesMapBucket
+	if cfg.Language.IsSet("cascade") {
+		var err error
+		cascade, err := page.DecodeCascade(cfg.Language.Get("cascade"))
+		if err != nil {
+			return nil, errors.Errorf("failed to decode cascade config: %s", err)
+		}
 
+		siteBucket = &pagesMapBucket{
+			cascade: cascade,
+		}
+
+	}
+
+	s := &Site{
 		language:      cfg.Language,
+		siteBucket:    siteBucket,
 		disabledKinds: disabledKinds,
 
 		outputFormats:       outputFormats,

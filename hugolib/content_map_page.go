@@ -462,10 +462,13 @@ func (m *pageMap) assembleSections() error {
 
 		if parent != nil {
 			parentBucket = parent.p.bucket
+		} else if s == "/" {
+			parentBucket = m.s.siteBucket
 		}
 
 		kind := page.KindSection
 		if s == "/" {
+
 			kind = page.KindHome
 		}
 
