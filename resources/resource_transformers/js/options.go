@@ -143,8 +143,8 @@ func loaderFromFilename(filename string) api.Loader {
 	return api.LoaderJS
 }
 
-func resolveComponentInAssets(fs afero.Fs, impPath string) hugofs.FileMeta {
-	findFirst := func(base string) hugofs.FileMeta {
+func resolveComponentInAssets(fs afero.Fs, impPath string) *hugofs.FileMeta {
+	findFirst := func(base string) *hugofs.FileMeta {
 		// This is the most common sub-set of ESBuild's default extensions.
 		// We assume that imports of JSON, CSS etc. will be using their full
 		// name with extension.
@@ -158,7 +158,7 @@ func resolveComponentInAssets(fs afero.Fs, impPath string) hugofs.FileMeta {
 		return nil
 	}
 
-	var m hugofs.FileMeta
+	var m *hugofs.FileMeta
 
 	// First the path as is.
 	fi, err := fs.Stat(impPath)
@@ -217,8 +217,8 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 			// This should be a small number of elements, and when
 			// in server mode, we may get stale entries on renames etc.,
 			// but that shouldn't matter too much.
-			c.rs.JSConfigBuilder.AddSourceRoot(m.SourceRoot())
-			return api.OnResolveResult{Path: m.Filename(), Namespace: nsImportHugo}, nil
+			c.rs.JSConfigBuilder.AddSourceRoot(m.SourceRoot)
+			return api.OnResolveResult{Path: m.Filename, Namespace: nsImportHugo}, nil
 		}
 
 		// Fall back to ESBuild's resolve.

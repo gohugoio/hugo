@@ -103,7 +103,7 @@ func (fs *noSymlinkFs) checkSymlinkStatus(name string, fi os.FileInfo) (os.FileI
 
 	if fim, ok := fi.(FileMetaInfo); ok {
 		meta := fim.Meta()
-		metaIsSymlink = meta.IsSymlink()
+		metaIsSymlink = meta.IsSymlink
 	}
 
 	if metaIsSymlink {

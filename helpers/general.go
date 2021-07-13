@@ -497,7 +497,7 @@ func PrintFs(fs afero.Fs, path string, w io.Writer) {
 		var filename string
 		var meta interface{}
 		if fim, ok := info.(hugofs.FileMetaInfo); ok {
-			filename = fim.Meta().Filename()
+			filename = fim.Meta().Filename
 			meta = fim.Meta()
 		}
 		fmt.Fprintf(w, "    %q %q\t\t%v\n", path, filename, meta)

@@ -23,7 +23,7 @@ import (
 	"github.com/spf13/afero"
 )
 
-func decorateDirs(fs afero.Fs, meta FileMeta) afero.Fs {
+func decorateDirs(fs afero.Fs, meta *FileMeta) afero.Fs {
 	ffs := &baseFileDecoratorFs{Fs: fs}
 
 	decorator := func(fi os.FileInfo, name string) (os.FileInfo, error) {
@@ -82,9 +82,11 @@ func NewBaseFileDecorator(fs afero.Fs, callbacks ...func(fi FileMetaInfo)) afero
 
 	decorator := func(fi os.FileInfo, filename string) (os.FileInfo, error) {
 		// Store away the original in case it's a symlink.
-		meta := FileMeta{metaKeyName: fi.Name()}
+		meta := NewFileMeta()
+		meta.Name = fi.Name()
+
 		if fi.IsDir() {
-			meta[metaKeyJoinStat] = func(name string) (FileMetaInfo, error) {
+			meta.JoinStatFunc = func(name string) (FileMetaInfo, error) {
 				joinedFilename := filepath.Join(filename, name)
 				fi, _, err := lstatIfPossible(fs, joinedFilename)
 				if err != nil {
@@ -102,7 +104,7 @@ func NewBaseFileDecorator(fs afero.Fs, callbacks ...func(fi FileMetaInfo)) afero
 
 		isSymlink := isSymlink(fi)
 		if isSymlink {
-			meta[metaKeyOriginalFilename] = filename
+			meta.OriginalFilename = filename
 			var link string
 			var err error
 			link, fi, err = evalSymlinks(fs, filename)
@@ -110,7 +112,7 @@ func NewBaseFileDecorator(fs afero.Fs, callbacks ...func(fi FileMetaInfo)) afero
 				return nil, err
 			}
 			filename = link
-			meta[metaKeyIsSymlink] = true
+			meta.IsSymlink = true
 		}
 
 		opener := func() (afero.File, error) {

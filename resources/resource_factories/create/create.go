@@ -93,7 +93,7 @@ func (c *Client) match(pattern string, firstOnly bool) (resource.Resources, erro
 				OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
 					return meta.Open()
 				},
-				RelTargetFilename: meta.Path(),
+				RelTargetFilename: meta.Path,
 			})
 			if err != nil {
 				return true, err

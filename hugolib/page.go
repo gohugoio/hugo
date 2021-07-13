@@ -1006,7 +1006,7 @@ func (s *Site) sectionsFromFile(fi source.File) []string {
 	parts := strings.Split(dirname, helpers.FilePathSeparator)
 
 	if fii, ok := fi.(*fileInfo); ok {
-		if len(parts) > 0 && fii.FileInfo().Meta().Classifier() == files.ContentClassLeaf {
+		if len(parts) > 0 && fii.FileInfo().Meta().Classifier == files.ContentClassLeaf {
 			// my-section/mybundle/index.md => my-section
 			return parts[:len(parts)-1]
 		}

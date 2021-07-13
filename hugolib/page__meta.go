@@ -714,7 +714,7 @@ func (p *pageMeta) applyDefaultValues(n *contentNode) error {
 	} else {
 		source := p.File()
 		if fi, ok := source.(*fileInfo); ok {
-			class := fi.FileInfo().Meta().Classifier()
+			class := fi.FileInfo().Meta().Classifier
 			switch class {
 			case files.ContentClassBranch, files.ContentClassLeaf:
 				p.bundleType = class

@@ -63,7 +63,7 @@ type BaseFs struct {
 func (fs *BaseFs) WatchDirs() []hugofs.FileMetaInfo {
 	var dirs []hugofs.FileMetaInfo
 	for _, dir := range fs.AllDirs() {
-		if dir.Meta().Watch() {
+		if dir.Meta().Watch {
 			dirs = append(dirs, dir)
 		}
 	}
@@ -92,9 +92,9 @@ func (fs *BaseFs) AllDirs() []hugofs.FileMetaInfo {
 // the given filename. The return value is the path and language code.
 func (b *BaseFs) RelContentDir(filename string) string {
 	for _, dir := range b.SourceFilesystems.Content.Dirs {
-		dirname := dir.Meta().Filename()
+		dirname := dir.Meta().Filename
 		if strings.HasPrefix(filename, dirname) {
-			rel := path.Join(dir.Meta().Path(), strings.TrimPrefix(filename, dirname))
+			rel := path.Join(dir.Meta().Path, strings.TrimPrefix(filename, dirname))
 			return strings.TrimPrefix(rel, filePathSeparator)
 		}
 	}
@@ -108,12 +108,12 @@ func (fs *BaseFs) ResolveJSConfigFile(name string) string {
 	// First look in assets/_jsconfig
 	fi, err := fs.Assets.Fs.Stat(filepath.Join(files.FolderJSConfig, name))
 	if err == nil {
-		return fi.(hugofs.FileMetaInfo).Meta().Filename()
+		return fi.(hugofs.FileMetaInfo).Meta().Filename
 	}
 	// Fall back to the work dir.
 	fi, err = fs.Work.Stat(name)
 	if err == nil {
-		return fi.(hugofs.FileMetaInfo).Meta().Filename()
+		return fi.(hugofs.FileMetaInfo).Meta().Filename
 	}
 
 	return ""
@@ -276,11 +276,11 @@ func (s SourceFilesystems) MakeStaticPathRelative(filename string) string {
 func (d *SourceFilesystem) MakePathRelative(filename string) (string, bool) {
 	for _, dir := range d.Dirs {
 		meta := dir.(hugofs.FileMetaInfo).Meta()
-		currentPath := meta.Filename()
+		currentPath := meta.Filename
 
 		if strings.HasPrefix(filename, currentPath) {
 			rel := strings.TrimPrefix(filename, currentPath)
-			if mp := meta.Path(); mp != "" {
+			if mp := meta.Path; mp != "" {
 				rel = filepath.Join(mp, rel)
 			}
 			return strings.TrimPrefix(rel, filePathSeparator), true
@@ -295,7 +295,7 @@ func (d *SourceFilesystem) RealFilename(rel string) string {
 		return rel
 	}
 	if realfi, ok := fi.(hugofs.FileMetaInfo); ok {
-		return realfi.Meta().Filename()
+		return realfi.Meta().Filename
 	}
 
 	return rel
@@ -304,7 +304,7 @@ func (d *SourceFilesystem) RealFilename(rel string) string {
 // Contains returns whether the given filename is a member of the current filesystem.
 func (d *SourceFilesystem) Contains(filename string) bool {
 	for _, dir := range d.Dirs {
-		if strings.HasPrefix(filename, dir.Meta().Filename()) {
+		if strings.HasPrefix(filename, dir.Meta().Filename) {
 			return true
 		}
 	}
@@ -316,9 +316,9 @@ func (d *SourceFilesystem) Contains(filename string) bool {
 func (d *SourceFilesystem) Path(filename string) string {
 	for _, dir := range d.Dirs {
 		meta := dir.Meta()
-		if strings.HasPrefix(filename, meta.Filename()) {
-			p := strings.TrimPrefix(strings.TrimPrefix(filename, meta.Filename()), filePathSeparator)
-			if mountRoot := meta.MountRoot(); mountRoot != "" {
+		if strings.HasPrefix(filename, meta.Filename) {
+			p := strings.TrimPrefix(strings.TrimPrefix(filename, meta.Filename), filePathSeparator)
+			if mountRoot := meta.MountRoot; mountRoot != "" {
 				return filepath.Join(mountRoot, p)
 			}
 			return p
@@ -333,8 +333,8 @@ func (d *SourceFilesystem) RealDirs(from string) []string {
 	var dirnames []string
 	for _, dir := range d.Dirs {
 		meta := dir.Meta()
-		dirname := filepath.Join(meta.Filename(), from)
-		_, err := meta.Fs().Stat(from)
+		dirname := filepath.Join(meta.Filename, from)
+		_, err := meta.Fs.Stat(from)
 
 		if err == nil {
 			dirnames = append(dirnames, dirname)
@@ -568,9 +568,10 @@ func (b *sourceFilesystemsBuilder) createModFs(
 			To:        filename,
 			ToBasedir: base,
 			Module:    md.Module.Path(),
-			Meta: hugofs.FileMeta{
-				"watch":       md.Watch(),
-				"mountWeight": mountWeight,
+			Meta: &hugofs.FileMeta{
+				Watch:      md.Watch(),
+				Weight:     mountWeight,
+				Classifier: files.ContentClassContent,
 			},
 		}
 
@@ -581,7 +582,7 @@ func (b *sourceFilesystemsBuilder) createModFs(
 			lang = b.p.DefaultContentLanguage
 		}
 
-		rm.Meta["lang"] = lang
+		rm.Meta.Lang = lang
 
 		if isContentMount {
 			fromToContent = append(fromToContent, rm)
@@ -622,7 +623,7 @@ func (b *sourceFilesystemsBuilder) createModFs(
 			lang := l.Lang
 
 			lfs := rmfsStatic.Filter(func(rm hugofs.RootMapping) bool {
-				rlang := rm.Meta.Lang()
+				rlang := rm.Meta.Lang
 				return rlang == "" || rlang == lang
 			})
 
@@ -676,7 +677,7 @@ func printFs(fs afero.Fs, path string, w io.Writer) {
 		}
 		var filename string
 		if fim, ok := info.(hugofs.FileMetaInfo); ok {
-			filename = fim.Meta().Filename()
+			filename = fim.Meta().Filename
 		}
 		fmt.Fprintf(w, "    %q %q\n", path, filename)
 		return nil

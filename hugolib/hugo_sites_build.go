@@ -356,7 +356,7 @@ func (h *HugoSites) postProcess() error {
 			h.Log.Warnf("Failed to resolve jsconfig.json dir: %s", err)
 		} else {
 			m := fi.(hugofs.FileMetaInfo).Meta()
-			assetsDir := m.SourceRoot()
+			assetsDir := m.SourceRoot
 			if strings.HasPrefix(assetsDir, h.ResourceSpec.WorkingDir) {
 				if jsConfig := h.ResourceSpec.JSConfigBuilder.Build(assetsDir); jsConfig != nil {
 

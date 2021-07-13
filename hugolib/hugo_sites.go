@@ -281,7 +281,7 @@ func (h *HugoSites) GetContentPage(filename string) page.Page {
 			return false
 		}
 
-		if b.fi.Meta().Filename() == filename {
+		if b.fi.Meta().Filename == filename {
 			p = b.p
 			return true
 		}
@@ -769,7 +769,7 @@ func (h *HugoSites) removePageByFilename(filename string) {
 				return false
 			}
 
-			return b.fi.Meta().Filename() == filename
+			return b.fi.Meta().Filename == filename
 		})
 		return nil
 	})
@@ -919,7 +919,7 @@ func (h *HugoSites) errWithFileContext(err error, f source.File) error {
 		return err
 	}
 
-	realFilename := fim.Meta().Filename()
+	realFilename := fim.Meta().Filename
 
 	err, _ = herrors.WithFileContextForFile(
 		err,
@@ -1079,12 +1079,12 @@ func (m *contentChangeMap) resolveAndRemove(filename string) (string, bundleDirT
 
 func (m *contentChangeMap) addSymbolicLinkMapping(fim hugofs.FileMetaInfo) {
 	meta := fim.Meta()
-	if !meta.IsSymlink() {
+	if !meta.IsSymlink {
 		return
 	}
 	m.symContentMu.Lock()
 
-	from, to := meta.Filename(), meta.OriginalFilename()
+	from, to := meta.Filename, meta.OriginalFilename
 	if fim.IsDir() {
 		if !strings.HasSuffix(from, helpers.FilePathSeparator) {
 			from += helpers.FilePathSeparator

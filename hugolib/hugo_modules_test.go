@@ -993,7 +993,7 @@ title: P1
 
 		p := b.GetPage("blog/p1.md")
 		f := p.File().FileInfo().Meta()
-		b.Assert(filepath.ToSlash(f.Path()), qt.Equals, "blog/p1.md")
+		b.Assert(filepath.ToSlash(f.Path), qt.Equals, "blog/p1.md")
 		b.Assert(filepath.ToSlash(f.PathFile()), qt.Equals, "content/blog/p1.md")
 
 		b.Assert(b.H.BaseFs.Layouts.Path(filepath.Join(test.workingDir, "layouts", "_default", "single.html")), qt.Equals, filepath.FromSlash("_default/single.html"))
@@ -1046,7 +1046,7 @@ title: P1
 		b.Assert(p1_2, qt.Equals, p1_1)
 
 		f := p1_1.File().FileInfo().Meta()
-		b.Assert(filepath.ToSlash(f.Path()), qt.Equals, "blog/sub/p1.md")
+		b.Assert(filepath.ToSlash(f.Path), qt.Equals, "blog/sub/p1.md")
 		b.Assert(filepath.ToSlash(f.PathFile()), qt.Equals, "mycontent/sub/p1.md")
 		b.Assert(b.H.BaseFs.Layouts.Path(filepath.Join(myPartialsDir, "mypartial.html")), qt.Equals, filepath.FromSlash("partials/mypartial.html"))
 		b.Assert(b.H.BaseFs.Layouts.Path(filepath.Join(absShortcodesDir, "myshort.html")), qt.Equals, filepath.FromSlash("shortcodes/myshort.html"))

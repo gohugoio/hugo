@@ -697,7 +697,7 @@ func (c *commandeer) getDirList() ([]string, error) {
 				return filepath.SkipDir
 			}
 
-			filenames = append(filenames, fi.Meta().Filename())
+			filenames = append(filenames, fi.Meta().Filename)
 		}
 
 		return nil
@@ -706,7 +706,7 @@ func (c *commandeer) getDirList() ([]string, error) {
 	watchFiles := c.hugo().PathSpec.BaseFs.WatchDirs()
 	for _, fi := range watchFiles {
 		if !fi.IsDir() {
-			filenames = append(filenames, fi.Meta().Filename())
+			filenames = append(filenames, fi.Meta().Filename)
 			continue
 		}
 

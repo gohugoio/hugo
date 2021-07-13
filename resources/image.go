@@ -311,7 +311,7 @@ func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src im
 	})
 	if err != nil {
 		if i.root != nil && i.root.getFileInfo() != nil {
-			return nil, errors.Wrapf(err, "image %q", i.root.getFileInfo().Meta().Filename())
+			return nil, errors.Wrapf(err, "image %q", i.root.getFileInfo().Meta().Filename)
 		}
 	}
 	return img, nil
@@ -365,7 +365,7 @@ func (i *imageResource) getImageMetaCacheTargetPath() string {
 	cfgHash := i.getSpec().imaging.Cfg.CfgHash
 	df := i.getResourcePaths().relTargetDirFile
 	if fi := i.getFileInfo(); fi != nil {
-		df.dir = filepath.Dir(fi.Meta().Path())
+		df.dir = filepath.Dir(fi.Meta().Path)
 	}
 	p1, _ := paths.FileAndExt(df.file)
 	h, _ := i.hash()

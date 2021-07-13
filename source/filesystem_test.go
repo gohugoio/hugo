@@ -60,7 +60,7 @@ func TestUnicodeNorm(t *testing.T) {
 	}
 
 	ss := newTestSourceSpec()
-	fi := hugofs.NewFileMetaInfo(nil, hugofs.FileMeta{})
+	fi := hugofs.NewFileMetaInfo(nil, hugofs.NewFileMeta())
 
 	for i, path := range paths {
 		base := fmt.Sprintf("base%d", i)

@@ -144,7 +144,7 @@ func (fs *SliceFs) getOpener(name string) func() (afero.File, error) {
 func (fs *SliceFs) pickFirst(name string) (os.FileInfo, int, error) {
 	for i, mfs := range fs.dirs {
 		meta := mfs.Meta()
-		fs := meta.Fs()
+		fs := meta.Fs
 		fi, _, err := lstatIfPossible(fs, name)
 		if err == nil {
 			// Gotta match!
@@ -162,8 +162,8 @@ func (fs *SliceFs) pickFirst(name string) (os.FileInfo, int, error) {
 }
 
 func (fs *SliceFs) readDirs(name string, startIdx, count int) ([]os.FileInfo, error) {
-	collect := func(lfs FileMeta) ([]os.FileInfo, error) {
-		d, err := lfs.Fs().Open(name)
+	collect := func(lfs *FileMeta) ([]os.FileInfo, error) {
+		d, err := lfs.Fs.Open(name)
 		if err != nil {
 			if !os.IsNotExist(err) {
 				return nil, err
@@ -204,7 +204,7 @@ func (fs *SliceFs) readDirs(name string, startIdx, count int) ([]os.FileInfo, er
 			duplicates = append(duplicates, i)
 		} else {
 			// Make sure it's opened by this filesystem.
-			dirs[i] = decorateFileInfo(fi, fs, fs.getOpener(fi.(FileMetaInfo).Meta().Filename()), "", "", nil)
+			dirs[i] = decorateFileInfo(fi, fs, fs.getOpener(fi.(FileMetaInfo).Meta().Filename), "", "", nil)
 			seen[fi.Name()] = true
 		}
 	}

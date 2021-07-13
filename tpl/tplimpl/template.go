@@ -538,7 +538,7 @@ func (t *templateHandler) addTemplateFile(name, path string) error {
 		realFilename := filename
 		if fi, err := fs.Stat(filename); err == nil {
 			if fim, ok := fi.(hugofs.FileMetaInfo); ok {
-				realFilename = fim.Meta().Filename()
+				realFilename = fim.Meta().Filename
 			}
 		}
 

@@ -105,7 +105,7 @@ func (c *pagesCollector) isCascadingEdit(dir contentDirKey) (bool, string) {
 	var isCascade bool
 
 	c.contentMap.walkBranchesPrefix(prefix, func(s string, n *contentNode) bool {
-		if n.fi == nil || dir.filename != n.fi.Meta().Filename() {
+		if n.fi == nil || dir.filename != n.fi.Meta().Filename {
 			return false
 		}
 
@@ -198,7 +198,7 @@ func (c *pagesCollector) Collect() (collectErr error) {
 			default:
 				// We always start from a directory.
 				collectErr = c.collectDir(dir.dirname, true, func(fim hugofs.FileMetaInfo) bool {
-					return dir.filename == fim.Meta().Filename()
+					return dir.filename == fim.Meta().Filename
 				})
 			}
 
@@ -213,12 +213,12 @@ func (c *pagesCollector) Collect() (collectErr error) {
 }
 
 func (c *pagesCollector) isBundleHeader(fi hugofs.FileMetaInfo) bool {
-	class := fi.Meta().Classifier()
+	class := fi.Meta().Classifier
 	return class == files.ContentClassLeaf || class == files.ContentClassBranch
 }
 
 func (c *pagesCollector) getLang(fi hugofs.FileMetaInfo) string {
-	lang := fi.Meta().Lang()
+	lang := fi.Meta().Lang
 	if lang != "" {
 		return lang
 	}
@@ -253,7 +253,7 @@ func (c *pagesCollector) addToBundle(info hugofs.FileMetaInfo, btyp bundleDirTyp
 		}
 
 		clone := c.cloneFileInfo(source.header)
-		clone.Meta()["lang"] = lang
+		clone.Meta().Lang = lang
 
 		return &fileinfoBundle{
 			header: clone,
@@ -265,10 +265,10 @@ func (c *pagesCollector) addToBundle(info hugofs.FileMetaInfo, btyp bundleDirTyp
 	isBundleHeader := c.isBundleHeader(info)
 	if bundle != nil && isBundleHeader {
 		// index.md file inside a bundle, see issue 6208.
-		info.Meta()["classifier"] = files.ContentClassContent
+		info.Meta().Classifier = files.ContentClassContent
 		isBundleHeader = false
 	}
-	classifier := info.Meta().Classifier()
+	classifier := info.Meta().Classifier
 	isContent := classifier == files.ContentClassContent
 	if bundle == nil {
 		if isBundleHeader {
@@ -295,14 +295,14 @@ func (c *pagesCollector) addToBundle(info hugofs.FileMetaInfo, btyp bundleDirTyp
 	}
 
 	if classifier == files.ContentClassFile {
-		translations := info.Meta().Translations()
+		translations := info.Meta().Translations
 
 		for lang, b := range bundles {
 			if !stringSliceContains(lang, translations...) && !b.containsResource(info.Name()) {
 
 				// Clone and add it to the bundle.
 				clone := c.cloneFileInfo(info)
-				clone.Meta()["lang"] = lang
+				clone.Meta().Lang = lang
 				b.resources = append(b.resources, clone)
 			}
 		}
@@ -312,16 +312,7 @@ func (c *pagesCollector) addToBundle(info hugofs.FileMetaInfo, btyp bundleDirTyp
 }
 
 func (c *pagesCollector) cloneFileInfo(fi hugofs.FileMetaInfo) hugofs.FileMetaInfo {
-	cm := hugofs.FileMeta{}
-	meta := fi.Meta()
-	if meta == nil {
-		panic(fmt.Sprintf("not meta: %v", fi.Name()))
-	}
-	for k, v := range meta {
-		cm[k] = v
-	}
-
-	return hugofs.NewFileMetaInfo(fi, cm)
+	return hugofs.NewFileMetaInfo(fi, hugofs.NewFileMeta())
 }
 
 func (c *pagesCollector) collectDir(dirname string, partial bool, inFilter func(fim hugofs.FileMetaInfo) bool) error {
@@ -365,11 +356,11 @@ func (c *pagesCollector) collectDir(dirname string, partial bool, inFilter func(
 	}
 
 	filter := func(fim hugofs.FileMetaInfo) bool {
-		if fim.Meta().SkipDir() {
+		if fim.Meta().SkipDir {
 			return false
 		}
 
-		if c.sp.IgnoreFile(fim.Meta().Filename()) {
+		if c.sp.IgnoreFile(fim.Meta().Filename) {
 			return false
 		}
 
@@ -393,7 +384,7 @@ func (c *pagesCollector) collectDir(dirname string, partial bool, inFilter func(
 				}
 			}
 		}
-		walkRoot := dir.Meta().GetBool(walkIsRootFileMetaKey)
+		walkRoot := dir.Meta().IsRootFile
 		readdir = filtered
 
 		// We merge language directories, so there can be duplicates, but they
@@ -408,12 +399,10 @@ func (c *pagesCollector) collectDir(dirname string, partial bool, inFilter func(
 			}
 
 			meta := fi.Meta()
-			if walkRoot {
-				meta[walkIsRootFileMetaKey] = true
-			}
-			class := meta.Classifier()
-			translationBase := meta.TranslationBaseNameWithExt()
-			key := pth.Join(meta.Lang(), translationBase)
+			meta.IsRootFile = walkRoot
+			class := meta.Classifier
+			translationBase := meta.TranslationBaseNameWithExt
+			key := pth.Join(meta.Lang, translationBase)
 
 			if seen[key] {
 				duplicates = append(duplicates, i)
@@ -435,10 +424,10 @@ func (c *pagesCollector) collectDir(dirname string, partial bool, inFilter func(
 			// The branch variant will win because of sort order, but log
 			// a warning about it.
 			if thisBtype > bundleNot && btype > bundleNot && thisBtype != btype {
-				c.logger.Warnf("Content directory %q have both index.* and _index.* files, pick one.", dir.Meta().Filename())
+				c.logger.Warnf("Content directory %q have both index.* and _index.* files, pick one.", dir.Meta().Filename)
 				// Reclassify it so it will be handled as a content file inside the
 				// section, which is in line with the <= 0.55 behaviour.
-				meta["classifier"] = files.ContentClassContent
+				meta.Classifier = files.ContentClassContent
 			} else if thisBtype > bundleNot {
 				btype = thisBtype
 			}
@@ -488,7 +477,7 @@ func (c *pagesCollector) collectDir(dirname string, partial bool, inFilter func(
 	fim := fi.(hugofs.FileMetaInfo)
 	// Make sure the pages in this directory gets re-rendered,
 	// even in fast render mode.
-	fim.Meta()[walkIsRootFileMetaKey] = true
+	fim.Meta().IsRootFile = true
 
 	w := hugofs.NewWalkway(hugofs.WalkwayConfig{
 		Fs:       c.fs,
@@ -517,7 +506,7 @@ func (c *pagesCollector) handleBundleBranch(readdir []hugofs.FileMetaInfo) error
 
 		meta := fim.Meta()
 
-		switch meta.Classifier() {
+		switch meta.Classifier {
 		case files.ContentClassContent:
 			contentFiles = append(contentFiles, fim)
 		default:

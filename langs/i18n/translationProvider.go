@@ -126,7 +126,7 @@ func errWithFileContext(inerr error, r source.File) error {
 	}
 
 	meta := fim.Meta()
-	realFilename := meta.Filename()
+	realFilename := meta.Filename
 	f, err := meta.Open()
 	if err != nil {
 		return inerr

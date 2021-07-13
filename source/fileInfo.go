@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2021 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -225,9 +225,9 @@ func NewTestFile(filename string) *FileInfo {
 }
 
 func (sp *SourceSpec) NewFileInfoFrom(path, filename string) (*FileInfo, error) {
-	meta := hugofs.FileMeta{
-		"filename": filename,
-		"path":     path,
+	meta := &hugofs.FileMeta{
+		Filename: filename,
+		Path:     path,
 	}
 
 	return sp.NewFileInfo(hugofs.NewFileMetaInfo(nil, meta))
@@ -236,16 +236,16 @@ func (sp *SourceSpec) NewFileInfoFrom(path, filename string) (*FileInfo, error) 
 func (sp *SourceSpec) NewFileInfo(fi hugofs.FileMetaInfo) (*FileInfo, error) {
 	m := fi.Meta()
 
-	filename := m.Filename()
-	relPath := m.Path()
-	isLeafBundle := m.Classifier() == files.ContentClassLeaf
+	filename := m.Filename
+	relPath := m.Path
+	isLeafBundle := m.Classifier == files.ContentClassLeaf
 
 	if relPath == "" {
-		return nil, errors.Errorf("no Path provided by %v (%T)", m, m.Fs())
+		return nil, errors.Errorf("no Path provided by %v (%T)", m, m.Fs)
 	}
 
 	if filename == "" {
-		return nil, errors.Errorf("no Filename provided by %v (%T)", m, m.Fs())
+		return nil, errors.Errorf("no Filename provided by %v (%T)", m, m.Fs)
 	}
 
 	relDir := filepath.Dir(relPath)
@@ -256,8 +256,8 @@ func (sp *SourceSpec) NewFileInfo(fi hugofs.FileMetaInfo) (*FileInfo, error) {
 		relDir = relDir + helpers.FilePathSeparator
 	}
 
-	lang := m.Lang()
-	translationBaseName := m.GetString("translationBaseName")
+	lang := m.Lang
+	translationBaseName := m.TranslationBaseName
 
 	dir, name := filepath.Split(relPath)
 	if !strings.HasSuffix(dir, helpers.FilePathSeparator) {

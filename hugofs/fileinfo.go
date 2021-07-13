@@ -17,6 +17,7 @@ package hugofs
 import (
 	"os"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"sort"
 	"strings"
@@ -27,240 +28,126 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/spf13/cast"
-
 	"github.com/gohugoio/hugo/common/hreflect"
 
 	"github.com/spf13/afero"
 )
 
-const (
-	metaKeyFilename = "filename"
-
-	metaKeySourceRoot                 = "sourceRoot"
-	metaKeyBaseDir                    = "baseDir" // Abs base directory of source file.
-	metaKeyMountRoot                  = "mountRoot"
-	metaKeyModule                     = "module"
-	metaKeyOriginalFilename           = "originalFilename"
-	metaKeyName                       = "name"
-	metaKeyPath                       = "path"
-	metaKeyPathWalk                   = "pathWalk"
-	metaKeyLang                       = "lang"
-	metaKeyWeight                     = "weight"
-	metaKeyOrdinal                    = "ordinal"
-	metaKeyFs                         = "fs"
-	metaKeyOpener                     = "opener"
-	metaKeyIsOrdered                  = "isOrdered"
-	metaKeyIsSymlink                  = "isSymlink"
-	metaKeyJoinStat                   = "joinStat"
-	metaKeySkipDir                    = "skipDir"
-	metaKeyClassifier                 = "classifier"
-	metaKeyTranslationBaseName        = "translationBaseName"
-	metaKeyTranslationBaseNameWithExt = "translationBaseNameWithExt"
-	metaKeyTranslations               = "translations"
-	metaKeyDecoraterPath              = "decoratorPath"
-)
-
-type FileMeta map[string]interface{}
-
-func (f FileMeta) GetInt(key string) int {
-	return cast.ToInt(f[key])
-}
-
-func (f FileMeta) GetString(key string) string {
-	return cast.ToString(f[key])
-}
-
-func (f FileMeta) GetBool(key string) bool {
-	return cast.ToBool(f[key])
-}
-
-func (f FileMeta) Filename() string {
-	return f.stringV(metaKeyFilename)
-}
-
-func (f FileMeta) OriginalFilename() string {
-	return f.stringV(metaKeyOriginalFilename)
-}
-
-func (f FileMeta) SkipDir() bool {
-	return f.GetBool(metaKeySkipDir)
-}
-
-func (f FileMeta) TranslationBaseName() string {
-	return f.stringV(metaKeyTranslationBaseName)
-}
-
-func (f FileMeta) TranslationBaseNameWithExt() string {
-	return f.stringV(metaKeyTranslationBaseNameWithExt)
-}
-
-func (f FileMeta) Translations() []string {
-	return cast.ToStringSlice(f[metaKeyTranslations])
-}
-
-func (f FileMeta) Name() string {
-	return f.stringV(metaKeyName)
-}
-
-func (f FileMeta) Classifier() files.ContentClass {
-	c, found := f[metaKeyClassifier]
-	if found {
-		return c.(files.ContentClass)
-	}
-
-	return files.ContentClassFile // For sorting
-}
-
-func (f FileMeta) Lang() string {
-	return f.stringV(metaKeyLang)
-}
-
-// Path returns the relative file path to where this file is mounted.
-func (f FileMeta) Path() string {
-	return f.stringV(metaKeyPath)
+func NewFileMeta() *FileMeta {
+	return &FileMeta{}
 }
 
 // PathFile returns the relative file path for the file source.
-func (f FileMeta) PathFile() string {
-	base := f.stringV(metaKeyBaseDir)
-	if base == "" {
+func (f *FileMeta) PathFile() string {
+	if f.BaseDir == "" {
 		return ""
 	}
-	return strings.TrimPrefix(strings.TrimPrefix(f.Filename(), base), filepathSeparator)
+	return strings.TrimPrefix(strings.TrimPrefix(f.Filename, f.BaseDir), filepathSeparator)
 }
 
-func (f FileMeta) SourceRoot() string {
-	return f.stringV(metaKeySourceRoot)
+type FileMeta struct {
+	Name             string
+	Filename         string
+	Path             string
+	PathWalk         string
+	OriginalFilename string
+	BaseDir          string
+
+	SourceRoot string
+	MountRoot  string
+	Module     string
+
+	Weight     int
+	Ordinal    int
+	IsOrdered  bool
+	IsSymlink  bool
+	IsRootFile bool
+	Watch      bool
+
+	Classifier files.ContentClass
+
+	SkipDir bool
+
+	Lang                       string
+	TranslationBaseName        string
+	TranslationBaseNameWithExt string
+	Translations               []string
+
+	Fs           afero.Fs
+	OpenFunc     func() (afero.File, error)
+	JoinStatFunc func(name string) (FileMetaInfo, error)
 }
 
-func (f FileMeta) MountRoot() string {
-	return f.stringV(metaKeyMountRoot)
-}
-
-func (f FileMeta) Module() string {
-	return f.stringV(metaKeyModule)
-}
-
-func (f FileMeta) Weight() int {
-	return f.GetInt(metaKeyWeight)
-}
-
-func (f FileMeta) Ordinal() int {
-	return f.GetInt(metaKeyOrdinal)
-}
-
-func (f FileMeta) IsOrdered() bool {
-	return f.GetBool(metaKeyIsOrdered)
-}
-
-// IsSymlink returns whether this comes from a symlinked file or directory.
-func (f FileMeta) IsSymlink() bool {
-	return f.GetBool(metaKeyIsSymlink)
-}
-
-func (f FileMeta) Watch() bool {
-	if v, found := f["watch"]; found {
-		return v.(bool)
+func (m *FileMeta) Copy() *FileMeta {
+	if m == nil {
+		return NewFileMeta()
 	}
-	return false
+	c := *m
+	return &c
 }
 
-func (f FileMeta) Fs() afero.Fs {
-	if v, found := f[metaKeyFs]; found {
-		return v.(afero.Fs)
-	}
-	return nil
-}
-
-func (f FileMeta) GetOpener() func() (afero.File, error) {
-	o, found := f[metaKeyOpener]
-	if !found {
-		return nil
-	}
-	return o.(func() (afero.File, error))
-}
-
-func (f FileMeta) Open() (afero.File, error) {
-	v, found := f[metaKeyOpener]
-	if !found {
-		return nil, errors.New("file opener not found")
-	}
-	return v.(func() (afero.File, error))()
-}
-
-func (f FileMeta) JoinStat(name string) (FileMetaInfo, error) {
-	v, found := f[metaKeyJoinStat]
-	if !found {
-		return nil, os.ErrNotExist
-	}
-	return v.(func(name string) (FileMetaInfo, error))(name)
-}
-
-func (f FileMeta) stringV(key string) string {
-	if v, found := f[key]; found {
-		return v.(string)
-	}
-	return ""
-}
-
-func (f FileMeta) setIfNotZero(key string, val interface{}) {
-	if !hreflect.IsTruthful(val) {
+func (m *FileMeta) Merge(from *FileMeta) {
+	if m == nil || from == nil {
 		return
 	}
-	f[key] = val
+	dstv := reflect.Indirect(reflect.ValueOf(m))
+	srcv := reflect.Indirect(reflect.ValueOf(from))
+
+	for i := 0; i < dstv.NumField(); i++ {
+		v := dstv.Field(i)
+		if !hreflect.IsTruthfulValue(v) {
+			v.Set(srcv.Field(i))
+		}
+	}
+}
+
+func (f *FileMeta) Open() (afero.File, error) {
+	if f.OpenFunc == nil {
+		return nil, errors.New("OpenFunc not set")
+	}
+	return f.OpenFunc()
+}
+
+func (f *FileMeta) JoinStat(name string) (FileMetaInfo, error) {
+	if f.JoinStatFunc == nil {
+		return nil, os.ErrNotExist
+	}
+	return f.JoinStatFunc(name)
 }
 
 type FileMetaInfo interface {
 	os.FileInfo
-	Meta() FileMeta
+	Meta() *FileMeta
 }
 
 type fileInfoMeta struct {
 	os.FileInfo
 
-	m FileMeta
+	m *FileMeta
 }
 
 // Name returns the file's name. Note that we follow symlinks,
 // if supported by the file system, and the Name given here will be the
 // name of the symlink, which is what Hugo needs in all situations.
 func (fi *fileInfoMeta) Name() string {
-	if name := fi.m.Name(); name != "" {
+	if name := fi.m.Name; name != "" {
 		return name
 	}
 	return fi.FileInfo.Name()
 }
 
-func (fi *fileInfoMeta) Meta() FileMeta {
+func (fi *fileInfoMeta) Meta() *FileMeta {
 	return fi.m
 }
 
-func NewFileMetaInfo(fi os.FileInfo, m FileMeta) FileMetaInfo {
+func NewFileMetaInfo(fi os.FileInfo, m *FileMeta) FileMetaInfo {
+	if m == nil {
+		panic("FileMeta must be set")
+	}
 	if fim, ok := fi.(FileMetaInfo); ok {
-		mergeFileMeta(fim.Meta(), m)
+		m.Merge(fim.Meta())
 	}
 	return &fileInfoMeta{FileInfo: fi, m: m}
-}
-
-func copyFileMeta(m FileMeta) FileMeta {
-	c := make(FileMeta)
-	for k, v := range m {
-		c[k] = v
-	}
-	return c
-}
-
-// Merge metadata, last entry wins.
-func mergeFileMeta(from, to FileMeta) {
-	if from == nil {
-		return
-	}
-	for k, v := range from {
-		if _, found := to[k]; !found {
-			to[k] = v
-		}
-	}
 }
 
 type dirNameOnlyFileInfo struct {
@@ -292,16 +179,16 @@ func (fi *dirNameOnlyFileInfo) Sys() interface{} {
 	return nil
 }
 
-func newDirNameOnlyFileInfo(name string, meta FileMeta, fileOpener func() (afero.File, error)) FileMetaInfo {
+func newDirNameOnlyFileInfo(name string, meta *FileMeta, fileOpener func() (afero.File, error)) FileMetaInfo {
 	name = normalizeFilename(name)
 	_, base := filepath.Split(name)
 
-	m := copyFileMeta(meta)
-	if _, found := m[metaKeyFilename]; !found {
-		m.setIfNotZero(metaKeyFilename, name)
+	m := meta.Copy()
+	if m.Filename == "" {
+		m.Filename = name
 	}
-	m[metaKeyOpener] = fileOpener
-	m[metaKeyIsOrdered] = false
+	m.OpenFunc = fileOpener
+	m.IsOrdered = false
 
 	return NewFileMetaInfo(
 		&dirNameOnlyFileInfo{name: base, modTime: time.Now()},
@@ -312,8 +199,8 @@ func newDirNameOnlyFileInfo(name string, meta FileMeta, fileOpener func() (afero
 func decorateFileInfo(
 	fi os.FileInfo,
 	fs afero.Fs, opener func() (afero.File, error),
-	filename, filepath string, inMeta FileMeta) FileMetaInfo {
-	var meta FileMeta
+	filename, filepath string, inMeta *FileMeta) FileMetaInfo {
+	var meta *FileMeta
 	var fim FileMetaInfo
 
 	filepath = strings.TrimPrefix(filepath, filepathSeparator)
@@ -322,16 +209,26 @@ func decorateFileInfo(
 	if fim, ok = fi.(FileMetaInfo); ok {
 		meta = fim.Meta()
 	} else {
-		meta = make(FileMeta)
+		meta = NewFileMeta()
 		fim = NewFileMetaInfo(fi, meta)
 	}
 
-	meta.setIfNotZero(metaKeyOpener, opener)
-	meta.setIfNotZero(metaKeyFs, fs)
-	meta.setIfNotZero(metaKeyPath, normalizeFilename(filepath))
-	meta.setIfNotZero(metaKeyFilename, normalizeFilename(filename))
+	if opener != nil {
+		meta.OpenFunc = opener
+	}
+	if fs != nil {
+		meta.Fs = fs
+	}
+	nfilepath := normalizeFilename(filepath)
+	nfilename := normalizeFilename(filename)
+	if nfilepath != "" {
+		meta.Path = nfilepath
+	}
+	if nfilename != "" {
+		meta.Filename = nfilename
+	}
 
-	mergeFileMeta(inMeta, meta)
+	meta.Merge(inMeta)
 
 	return fim
 }
@@ -377,6 +274,6 @@ func fromSlash(filenames []string) []string {
 func sortFileInfos(fis []os.FileInfo) {
 	sort.Slice(fis, func(i, j int) bool {
 		fimi, fimj := fis[i].(FileMetaInfo), fis[j].(FileMetaInfo)
-		return fimi.Meta().Filename() < fimj.Meta().Filename()
+		return fimi.Meta().Filename < fimj.Meta().Filename
 	})
 }

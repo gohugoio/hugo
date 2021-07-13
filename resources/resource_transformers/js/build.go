@@ -118,7 +118,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 				return errors.Errorf("inject: file %q not found", ext)
 			}
 
-			opts.Inject[i] = m.Filename()
+			opts.Inject[i] = m.Filename
 
 		}
 
@@ -150,7 +150,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 				fi, err = t.c.sfs.Fs.Stat(path)
 				if err == nil {
 					m := fi.(hugofs.FileMetaInfo).Meta()
-					path = m.Filename()
+					path = m.Filename
 					f, err = m.Open()
 				}
 

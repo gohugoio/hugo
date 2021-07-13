@@ -55,19 +55,19 @@ func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 		// Extract "blog" from "content/blog"
 		rm.path = strings.TrimPrefix(strings.TrimPrefix(rm.From, fromBase), filepathSeparator)
 		if rm.Meta == nil {
-			rm.Meta = make(FileMeta)
+			rm.Meta = NewFileMeta()
 		}
 
-		rm.Meta[metaKeySourceRoot] = rm.To
-		rm.Meta[metaKeyBaseDir] = rm.ToBasedir
-		rm.Meta[metaKeyMountRoot] = rm.path
-		rm.Meta[metaKeyModule] = rm.Module
+		rm.Meta.SourceRoot = rm.To
+		rm.Meta.BaseDir = rm.ToBasedir
+		rm.Meta.MountRoot = rm.path
+		rm.Meta.Module = rm.Module
 
-		meta := copyFileMeta(rm.Meta)
+		meta := rm.Meta.Copy()
 
 		if !fi.IsDir() {
 			_, name := filepath.Split(rm.From)
-			meta[metaKeyName] = name
+			meta.Name = name
 		}
 
 		rm.fi = NewFileMetaInfo(fi, meta)
@@ -114,11 +114,11 @@ func newRootMappingFsFromFromTo(
 
 // RootMapping describes a virtual file or directory mount.
 type RootMapping struct {
-	From      string   // The virtual mount.
-	To        string   // The source directory or file.
-	ToBasedir string   // The base of To. May be empty if an absolute path was provided.
-	Module    string   // The module path/ID.
-	Meta      FileMeta // File metadata (lang etc.)
+	From      string    // The virtual mount.
+	To        string    // The source directory or file.
+	ToBasedir string    // The base of To. May be empty if an absolute path was provided.
+	Module    string    // The module path/ID.
+	Meta      *FileMeta // File metadata (lang etc.)
 
 	fi   FileMetaInfo
 	path string // The virtual mount point, e.g. "blog".
@@ -177,7 +177,7 @@ func (fs *RootMappingFs) Dirs(base string) ([]FileMetaInfo, error) {
 		}
 
 		if !fi.IsDir() {
-			mergeFileMeta(r.Meta, fi.(FileMetaInfo).Meta())
+			fi.(FileMetaInfo).Meta().Merge(r.Meta)
 		}
 
 		fss[i] = fi.(FileMetaInfo)
@@ -304,7 +304,7 @@ func (fs *RootMappingFs) newUnionFile(fis ...FileMetaInfo) (afero.File, error) {
 		return f, nil
 	}
 
-	rf := &rootMappingFile{File: f, fs: fs, name: meta.Name(), meta: meta}
+	rf := &rootMappingFile{File: f, fs: fs, name: meta.Name, meta: meta}
 	if len(fis) == 1 {
 		return rf, err
 	}
@@ -367,7 +367,7 @@ func (fs *RootMappingFs) collectDirEntries(prefix string) ([]os.FileInfo, error)
 
 		for _, fi := range direntries {
 			meta := fi.(FileMetaInfo).Meta()
-			mergeFileMeta(rm.Meta, meta)
+			meta.Merge(rm.Meta)
 			if fi.IsDir() {
 				name := fi.Name()
 				if seen[name] {
@@ -556,7 +556,7 @@ func (fs *RootMappingFs) virtualDirOpener(name string) func() (afero.File, error
 	return func() (afero.File, error) { return &rootMappingFile{name: name, fs: fs}, nil }
 }
 
-func (fs *RootMappingFs) realDirOpener(name string, meta FileMeta) func() (afero.File, error) {
+func (fs *RootMappingFs) realDirOpener(name string, meta *FileMeta) func() (afero.File, error) {
 	return func() (afero.File, error) {
 		f, err := fs.Fs.Open(name)
 		if err != nil {
@@ -570,7 +570,7 @@ type rootMappingFile struct {
 	afero.File
 	fs   *RootMappingFs
 	name string
-	meta FileMeta
+	meta *FileMeta
 }
 
 func (f *rootMappingFile) Close() error {

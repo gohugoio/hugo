@@ -118,7 +118,7 @@ func newContentPathSection(h *hugolib.HugoSites, path string) (string, string) {
 
 	if h != nil {
 		for _, dir := range h.BaseFs.Content.Dirs {
-			createpath = strings.TrimPrefix(createpath, dir.Meta().Filename())
+			createpath = strings.TrimPrefix(createpath, dir.Meta().Filename)
 		}
 	}
 

@@ -80,12 +80,12 @@ func Pack(fs afero.Fs, fis []hugofs.FileMetaInfo) error {
 	}
 
 	meta := fi.(hugofs.FileMetaInfo).Meta()
-	masterFilename := meta.Filename()
+	masterFilename := meta.Filename
 	f, err := meta.Open()
 	if err != nil {
 		return errors.Wrap(err, "npm pack: failed to open package file")
 	}
-	b = newPackageBuilder(meta.Module(), f)
+	b = newPackageBuilder(meta.Module, f)
 	f.Close()
 
 	for _, fi := range fis {
@@ -100,7 +100,7 @@ func Pack(fs afero.Fs, fis []hugofs.FileMetaInfo) error {
 
 		meta := fi.(hugofs.FileMetaInfo).Meta()
 
-		if meta.Filename() == masterFilename {
+		if meta.Filename == masterFilename {
 			continue
 		}
 
@@ -108,7 +108,7 @@ func Pack(fs afero.Fs, fis []hugofs.FileMetaInfo) error {
 		if err != nil {
 			return errors.Wrap(err, "npm pack: failed to open package file")
 		}
-		b.Add(meta.Module(), f)
+		b.Add(meta.Module, f)
 		f.Close()
 	}
 
