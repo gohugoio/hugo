@@ -20,6 +20,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/config"
+
 	"github.com/gohugoio/hugo/media"
 	"github.com/google/go-cmp/cmp"
 
@@ -29,24 +31,49 @@ import (
 )
 
 func TestLoadConfig(t *testing.T) {
-	t.Parallel()
 
 	c := qt.New(t)
 
-	// Add a random config variable for testing.
-	// side = page in Norwegian.
-	configContent := `
-	PaginatePath = "side"
-	`
+	loadConfig := func(c *qt.C, configContent string, fromDir bool) config.Provider {
+		mm := afero.NewMemMapFs()
+		filename := "config.toml"
+		descriptor := ConfigSourceDescriptor{Fs: mm}
+		if fromDir {
+			filename = filepath.Join("config", "_default", filename)
+			descriptor.AbsConfigDir = "config"
+		}
+		writeToFs(t, mm, filename, configContent)
+		cfg, _, err := LoadConfig(descriptor)
+		c.Assert(err, qt.IsNil)
+		return cfg
+	}
 
-	mm := afero.NewMemMapFs()
+	c.Run("Basic", func(c *qt.C) {
+		c.Parallel()
+		// Add a random config variable for testing.
+		// side = page in Norwegian.
+		cfg := loadConfig(c, `PaginatePath = "side"`, false)
+		c.Assert(cfg.GetString("paginatePath"), qt.Equals, "side")
+	})
 
-	writeToFs(t, mm, "hugo.toml", configContent)
+	// Issue #8763
+	for _, fromDir := range []bool{false, true} {
+		testName := "Taxonomy overrides"
+		if fromDir {
+			testName += " from dir"
+		}
+		c.Run(testName, func(c *qt.C) {
+			c.Parallel()
+			cfg := loadConfig(c, `[taxonomies]
+appellation = "appellations"
+vigneron = "vignerons"`, fromDir)
 
-	cfg, _, err := LoadConfig(ConfigSourceDescriptor{Fs: mm, Filename: "hugo.toml"})
-	c.Assert(err, qt.IsNil)
-
-	c.Assert(cfg.GetString("paginatePath"), qt.Equals, "side")
+			c.Assert(cfg.Get("taxonomies"), qt.DeepEquals, maps.Params{
+				"appellation": "appellations",
+				"vigneron":    "vignerons",
+			})
+		})
+	}
 }
 
 func TestLoadMultiConfig(t *testing.T) {
