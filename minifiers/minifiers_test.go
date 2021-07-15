@@ -16,6 +16,7 @@ package minifiers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -155,14 +156,24 @@ func TestBugs(t *testing.T) {
 		rawString         string
 		expectedMinString string
 	}{
-		// https://github.com/gohugoio/hugo/issues/5506
+		// Issue 5506
 		{media.CSSType, " body { color: rgba(000, 000, 000, 0.7); }", "body{color:rgba(0,0,0,.7)}"},
-		// https://github.com/gohugoio/hugo/issues/8332
+		// Issue 8332
 		{media.HTMLType, "<i class='fas fa-tags fa-fw'></i> Tags", `<i class="fas fa-tags fa-fw"></i> Tags`},
+		// Issue 8759
+		{media.HTMLType, `<div class="modal-body" data-bind="if: fydSummary()">
+You finished
+<span data-bind="text: summary().count"></span> your Project,
+answering <span data-bind="text: summary().total"></span> of
+<span data-bind="text: summary().count"></span>
+correctly.
+</div>`, `<span>Hugo</span> is cool</span>`},
 	} {
 		var b bytes.Buffer
 
 		c.Assert(m.Minify(test.tp, &b, strings.NewReader(test.rawString)), qt.IsNil)
+
+		fmt.Println(b.String())
 		c.Assert(b.String(), qt.Equals, test.expectedMinString)
 	}
 }
