@@ -360,7 +360,8 @@ func (i *imageResource) setBasePath(conf images.ImageConfig) {
 }
 
 func (i *imageResource) getImageMetaCacheTargetPath() string {
-	const imageMetaVersionNumber = 1 // Increment to invalidate the meta cache
+	// Version 2: Hugo 0.86 got a new Exif library.
+	const imageMetaVersionNumber = 2 // Increment to invalidate the meta cache
 
 	cfgHash := i.getSpec().imaging.Cfg.CfgHash
 	df := i.getResourcePaths().relTargetDirFile
