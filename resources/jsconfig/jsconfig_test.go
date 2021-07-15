@@ -24,12 +24,18 @@ func TestJsConfigBuilder(t *testing.T) {
 	c := qt.New(t)
 
 	b := NewBuilder()
-	b.AddSourceRoot("/c/assets")
-	b.AddSourceRoot("/d/assets")
+	b.AddRoots("/c/assets", "")
+	b.AddRoots("/d/assets", "d")
 
 	conf := b.Build("/a/b")
 	c.Assert(conf.CompilerOptions.BaseURL, qt.Equals, ".")
-	c.Assert(conf.CompilerOptions.Paths["*"], qt.DeepEquals, []string{filepath.FromSlash("../../c/assets/*"), filepath.FromSlash("../../d/assets/*")})
+	c.Assert(
+		conf.CompilerOptions.Paths,
+		qt.DeepEquals,
+		map[string][]string{
+			"*":   {filepath.FromSlash("../../c/assets/*")},
+			"d/*": {filepath.FromSlash("../../d/assets/*")},
+		})
 
 	c.Assert(NewBuilder().Build("/a/b"), qt.IsNil)
 }

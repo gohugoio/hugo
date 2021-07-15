@@ -217,7 +217,7 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 			// This should be a small number of elements, and when
 			// in server mode, we may get stale entries on renames etc.,
 			// but that shouldn't matter too much.
-			c.rs.JSConfigBuilder.AddSourceRoot(m.SourceRoot())
+			c.rs.JSConfigBuilder.AddRoots(m.SourceRoot(), m.MountRoot())
 			return api.OnResolveResult{Path: m.Filename(), Namespace: nsImportHugo}, nil
 		}
 
