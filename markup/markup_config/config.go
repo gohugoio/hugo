@@ -24,7 +24,6 @@ import (
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/gohugoio/hugo/parser"
 	"github.com/mitchellh/mapstructure"
-	"github.com/spf13/cast"
 )
 
 type Config struct {
@@ -73,7 +72,7 @@ func normalizeConfig(m map[string]interface{}) {
 	if err != nil {
 		return
 	}
-	vm := cast.ToStringMap(v)
+	vm := maps.ToStringMap(v)
 	// Changed from a bool in 0.81.0
 	if vv, found := vm["attribute"]; found {
 		if vvb, ok := vv.(bool); ok {

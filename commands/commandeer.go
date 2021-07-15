@@ -303,7 +303,6 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 			WorkingDir:   dir,
 			Filename:     c.h.cfgFile,
 			AbsConfigDir: c.h.getConfigDir(dir),
-			Environ:      os.Environ(),
 			Environment:  environment,
 		},
 		cfgSetAndInit,
@@ -409,8 +408,6 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		return err
 	}
 	config.Set("cacheDir", cacheDir)
-
-	cfg.Logger.Infoln("Using config file:", config.ConfigFileUsed())
 
 	return nil
 }

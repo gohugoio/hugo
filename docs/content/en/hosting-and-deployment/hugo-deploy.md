@@ -4,7 +4,7 @@ linktitle: Hugo Deploy
 description: You can upload your site to GCS, S3, or Azure using the Hugo CLI.
 date: 2019-05-30
 publishdate: 2019-05-30
-lastmod: 2019-05-30
+lastmod: 2021-05-03
 categories: [hosting and deployment]
 keywords: [s3,gcs,azure,hosting,deployment]
 authors: [Robert van Gent]
@@ -95,10 +95,13 @@ cloudFrontDistributionID = <ID>
 
 
 # [[deployment.matchers]] configure behavior for files that match the Pattern.
+# See https://golang.org/pkg/regexp/syntax/ for pattern syntax.
+# Pattern searching is stopped on first match.
+
 # Samples:
 
 [[deployment.matchers]]
-#  Cache static assets for 1 year.
+# Cache static assets for 1 year.
 pattern = "^.+\\.(js|css|svg|ttf)$"
 cacheControl = "max-age=31536000, no-transform, public"
 gzip = true
@@ -107,6 +110,12 @@ gzip = true
 pattern = "^.+\\.(png|jpg)$"
 cacheControl = "max-age=31536000, no-transform, public"
 gzip = false
+
+[[deployment.matchers]]
+# Set custom content type for /sitemap.xml
+pattern = "^sitemap\\.xml$"
+contentType = "application/xml"
+gzip = true
 
 [[deployment.matchers]]
 pattern = "^.+\\.(html|xml|json)$"

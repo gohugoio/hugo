@@ -653,6 +653,9 @@ type ClientConfig struct {
 	// Absolute path to the project's themes dir.
 	ThemesDir string
 
+	// Eg. "production"
+	Environment string
+
 	CacheDir     string // Module cache
 	ModuleConfig Config
 }

@@ -29,6 +29,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/gohugoio/hugo/common/loggers"
+
 	"github.com/mitchellh/hashstructure"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -40,7 +42,6 @@ import (
 	"github.com/jdkato/prose/transform"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
-	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/pflag"
 )
 
@@ -253,9 +254,9 @@ type LogPrinter interface {
 
 // DistinctLogger ignores duplicate log statements.
 type DistinctLogger struct {
+	loggers.Logger
 	sync.RWMutex
-	getLogger func() LogPrinter
-	m         map[string]bool
+	m map[string]bool
 }
 
 func (l *DistinctLogger) Reset() {
@@ -270,52 +271,105 @@ func (l *DistinctLogger) Reset() {
 func (l *DistinctLogger) Println(v ...interface{}) {
 	// fmt.Sprint doesn't add space between string arguments
 	logStatement := strings.TrimSpace(fmt.Sprintln(v...))
-	l.print(logStatement)
+	l.printIfNotPrinted("println", logStatement, func() {
+		l.Logger.Println(logStatement)
+	})
 }
 
 // Printf will log the string returned from fmt.Sprintf given the arguments,
 // but not if it has been logged before.
-// Note: A newline is appended.
 func (l *DistinctLogger) Printf(format string, v ...interface{}) {
 	logStatement := fmt.Sprintf(format, v...)
-	l.print(logStatement)
+	l.printIfNotPrinted("printf", logStatement, func() {
+		l.Logger.Printf(format, v...)
+	})
 }
 
-func (l *DistinctLogger) print(logStatement string) {
+func (l *DistinctLogger) Debugf(format string, v ...interface{}) {
+	logStatement := fmt.Sprintf(format, v...)
+	l.printIfNotPrinted("debugf", logStatement, func() {
+		l.Logger.Debugf(format, v...)
+	})
+}
+
+func (l *DistinctLogger) Debugln(v ...interface{}) {
+	logStatement := fmt.Sprint(v...)
+	l.printIfNotPrinted("debugln", logStatement, func() {
+		l.Logger.Debugln(v...)
+	})
+}
+
+func (l *DistinctLogger) Infof(format string, v ...interface{}) {
+	logStatement := fmt.Sprintf(format, v...)
+	l.printIfNotPrinted("info", logStatement, func() {
+		l.Logger.Infof(format, v...)
+	})
+}
+
+func (l *DistinctLogger) Infoln(v ...interface{}) {
+	logStatement := fmt.Sprint(v...)
+	l.printIfNotPrinted("infoln", logStatement, func() {
+		l.Logger.Infoln(v...)
+	})
+}
+
+func (l *DistinctLogger) Warnf(format string, v ...interface{}) {
+	logStatement := fmt.Sprintf(format, v...)
+	l.printIfNotPrinted("warnf", logStatement, func() {
+		l.Logger.Warnf(format, v...)
+	})
+}
+func (l *DistinctLogger) Warnln(v ...interface{}) {
+	logStatement := fmt.Sprint(v...)
+	l.printIfNotPrinted("warnln", logStatement, func() {
+		l.Logger.Warnln(v...)
+	})
+}
+func (l *DistinctLogger) Errorf(format string, v ...interface{}) {
+	logStatement := fmt.Sprint(v...)
+	l.printIfNotPrinted("errorf", logStatement, func() {
+		l.Logger.Errorf(format, v...)
+	})
+}
+
+func (l *DistinctLogger) Errorln(v ...interface{}) {
+	logStatement := fmt.Sprint(v...)
+	l.printIfNotPrinted("errorln", logStatement, func() {
+		l.Logger.Errorln(v...)
+	})
+}
+
+func (l *DistinctLogger) hasPrinted(key string) bool {
 	l.RLock()
-	if l.m[logStatement] {
-		l.RUnlock()
+	defer l.RUnlock()
+	_, found := l.m[key]
+	return found
+}
+
+func (l *DistinctLogger) printIfNotPrinted(level, logStatement string, print func()) {
+	key := level + logStatement
+	if l.hasPrinted(key) {
 		return
 	}
-	l.RUnlock()
-
 	l.Lock()
-	if !l.m[logStatement] {
-		l.getLogger().Println(logStatement)
-		l.m[logStatement] = true
-	}
+	print()
+	l.m[key] = true
 	l.Unlock()
 }
 
 // NewDistinctErrorLogger creates a new DistinctLogger that logs ERRORs
-func NewDistinctErrorLogger() *DistinctLogger {
-	return &DistinctLogger{m: make(map[string]bool), getLogger: func() LogPrinter { return jww.ERROR }}
+func NewDistinctErrorLogger() loggers.Logger {
+	return &DistinctLogger{m: make(map[string]bool), Logger: loggers.NewErrorLogger()}
 }
 
 // NewDistinctLogger creates a new DistinctLogger that logs to the provided logger.
-func NewDistinctLogger(logger LogPrinter) *DistinctLogger {
-	return &DistinctLogger{m: make(map[string]bool), getLogger: func() LogPrinter { return logger }}
+func NewDistinctLogger(logger loggers.Logger) loggers.Logger {
+	return &DistinctLogger{m: make(map[string]bool), Logger: logger}
 }
 
 // NewDistinctWarnLogger creates a new DistinctLogger that logs WARNs
-func NewDistinctWarnLogger() *DistinctLogger {
-	return &DistinctLogger{m: make(map[string]bool), getLogger: func() LogPrinter { return jww.WARN }}
-}
-
-// NewDistinctFeedbackLogger creates a new DistinctLogger that can be used
-// to give feedback to the user while not spamming with duplicates.
-func NewDistinctFeedbackLogger() *DistinctLogger {
-	return &DistinctLogger{m: make(map[string]bool), getLogger: func() LogPrinter { return jww.FEEDBACK }}
+func NewDistinctWarnLogger() loggers.Logger {
+	return &DistinctLogger{m: make(map[string]bool), Logger: loggers.NewWarningLogger()}
 }
 
 var (
@@ -324,16 +378,13 @@ var (
 
 	// DistinctWarnLog can be used to avoid spamming the logs with warnings.
 	DistinctWarnLog = NewDistinctWarnLogger()
-
-	// DistinctFeedbackLog can be used to avoid spamming the logs with info messages.
-	DistinctFeedbackLog = NewDistinctFeedbackLogger()
 )
 
 // InitLoggers resets the global distinct loggers.
 func InitLoggers() {
 	DistinctErrorLog.Reset()
 	DistinctWarnLog.Reset()
-	DistinctFeedbackLog.Reset()
+
 }
 
 // Deprecated informs about a deprecation, but only once for a given set of arguments' values.

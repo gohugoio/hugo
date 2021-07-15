@@ -25,7 +25,6 @@ import (
 	"github.com/gohugoio/hugo/config"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/spf13/viper"
 )
 
 func TestDecodeConfig(t *testing.T) {
@@ -178,8 +177,8 @@ dir = "/"
 	c.Assert(err, qt.Not(qt.IsNil))
 }
 
-func newTestConfig() *viper.Viper {
-	cfg := viper.New()
+func newTestConfig() config.Provider {
+	cfg := config.New()
 	cfg.Set("workingDir", filepath.FromSlash("/my/cool/hugoproject"))
 	cfg.Set("contentDir", "content")
 	cfg.Set("dataDir", "data")

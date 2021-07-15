@@ -82,7 +82,7 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 : the meta keywords for the content.
 
 .Kind
-: the page's *kind*. Possible return values are `page`, `home`, `section`, `taxonomy`, or `taxonomyTerm`. Note that there are also `RSS`, `sitemap`, `robotsTXT`, and `404` kinds, but these are only available during the rendering of each of these respective page's kind and therefore *not* available in any of the `Pages` collections.
+: the page's *kind*. Possible return values are `page`, `home`, `section`, `taxonomy`, or `term`. Note that there are also `RSS`, `sitemap`, `robotsTXT`, and `404` kinds, but these are only available during the rendering of each of these respective page's kind and therefore *not* available in any of the `Pages` collections.
 
 .Language
 : a language object that points to the language's definition in the site `config`. `.Language.Lang` gives you the language code.
@@ -204,7 +204,7 @@ aliased form `.Pages`.
 
 ### `.Pages` compared to `.Site.Pages`
 
-{{< readfile file="/content/en/readfiles/pages-vs-site-pages.md" markdown="true" >}}
+{{< getcontent path="readfiles/pages-vs-site-pages.md" >}}
 
 ## Page-level Params
 

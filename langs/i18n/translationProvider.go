@@ -17,12 +17,14 @@ import (
 	"encoding/json"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/paths"
+
 	"github.com/gohugoio/hugo/common/herrors"
 	"golang.org/x/text/language"
 	yaml "gopkg.in/yaml.v2"
 
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/go-i18n/v2/i18n"
+	"github.com/gohugoio/hugo/helpers"
 	toml "github.com/pelletier/go-toml"
 
 	"github.com/gohugoio/hugo/deps"
@@ -88,7 +90,7 @@ func addTranslationFile(bundle *i18n.Bundle, r source.File) error {
 	f.Close()
 
 	name := r.LogicalName()
-	lang := helpers.Filename(name)
+	lang := paths.Filename(name)
 	tag := language.Make(lang)
 	if tag == language.Und {
 		name = artificialLangTagPrefix + name

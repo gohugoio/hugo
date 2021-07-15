@@ -130,7 +130,7 @@ func (c *pagesCollector) isCascadingEdit(dir contentDirKey) (bool, string) {
 
 		section = s
 
-		maps.ToLower(pf.FrontMatter)
+		maps.PrepareParams(pf.FrontMatter)
 		cascade1, ok := pf.FrontMatter["cascade"]
 		hasCascade := n.p.bucket.cascade != nil && len(n.p.bucket.cascade) > 0
 		if !ok {

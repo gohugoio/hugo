@@ -29,7 +29,7 @@ import (
 	"github.com/bep/gitmap"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources/resource"
-	"github.com/spf13/viper"
+	
 
 	"github.com/gohugoio/hugo/navigation"
 
@@ -69,7 +69,7 @@ func newTestPageWithFile(filename string) *testPage {
 }
 
 func newTestPathSpec() *helpers.PathSpec {
-	return newTestPathSpecFor(viper.New())
+	return newTestPathSpecFor(config.New())
 }
 
 func newTestPathSpecFor(cfg config.Provider) *helpers.PathSpec {

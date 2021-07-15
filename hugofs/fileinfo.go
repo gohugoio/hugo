@@ -264,7 +264,8 @@ func mergeFileMeta(from, to FileMeta) {
 }
 
 type dirNameOnlyFileInfo struct {
-	name string
+	name    string
+	modTime time.Time
 }
 
 func (fi *dirNameOnlyFileInfo) Name() string {
@@ -280,7 +281,7 @@ func (fi *dirNameOnlyFileInfo) Mode() os.FileMode {
 }
 
 func (fi *dirNameOnlyFileInfo) ModTime() time.Time {
-	return time.Time{}
+	return fi.modTime
 }
 
 func (fi *dirNameOnlyFileInfo) IsDir() bool {
@@ -303,7 +304,7 @@ func newDirNameOnlyFileInfo(name string, meta FileMeta, fileOpener func() (afero
 	m[metaKeyIsOrdered] = false
 
 	return NewFileMetaInfo(
-		&dirNameOnlyFileInfo{name: base},
+		&dirNameOnlyFileInfo{name: base, modTime: time.Now()},
 		m,
 	)
 }

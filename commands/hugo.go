@@ -30,6 +30,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gohugoio/hugo/common/types"
+
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/resources/page"
@@ -37,6 +39,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/terminal"
 
@@ -283,6 +286,7 @@ func (c *commandeer) fullBuild() error {
 
 	if !c.h.quiet {
 		fmt.Println("Start building sites … ")
+		fmt.Println(hugo.BuildVersionString())
 		if isTerminal() {
 			defer func() {
 				fmt.Print(showCursor + clearLine)
@@ -521,7 +525,7 @@ func (c *commandeer) build() error {
 
 		c.logger.Printf("Watching for changes in %s%s{%s}\n", baseWatchDir, helpers.FilePathSeparator, rootWatchDirs)
 		c.logger.Println("Press Ctrl+C to stop")
-		watcher, err := c.newWatcher(watchDirs...)
+		watcher, err := c.newWatcher(c.h.poll, watchDirs...)
 		checkErr(c.Logger, err)
 		defer watcher.Close()
 
@@ -535,7 +539,6 @@ func (c *commandeer) build() error {
 }
 
 func (c *commandeer) serverBuild() error {
-	defer c.timeTrack(time.Now(), "Built")
 
 	stopProfiling, err := c.initProfiling()
 	if err != nil {
@@ -733,7 +736,6 @@ func (c *commandeer) handleBuildErr(err error, msg string) {
 }
 
 func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
-	defer c.timeTrack(time.Now(), "Total")
 
 	c.buildErr = nil
 	visited := c.visitedURLs.PeekAllSet()
@@ -818,7 +820,7 @@ func (c *commandeer) fullRebuild(changeType string) {
 }
 
 // newWatcher creates a new watcher to watch filesystem events.
-func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
+func (c *commandeer) newWatcher(pollIntervalStr string, dirList ...string) (*watcher.Batcher, error) {
 	if runtime.GOOS == "darwin" {
 		tweakLimit()
 	}
@@ -828,7 +830,17 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 		return nil, err
 	}
 
-	watcher, err := watcher.New(1 * time.Second)
+	var pollInterval time.Duration
+	poll := pollIntervalStr != ""
+	if poll {
+		pollInterval, err = types.ToDurationE(pollIntervalStr)
+		if err != nil {
+			return nil, fmt.Errorf("invalid value for flag poll: %s", err)
+		}
+		c.logger.Printf("Use watcher with poll interval %v", pollInterval)
+	}
+
+	watcher, err := watcher.New(500*time.Millisecond, pollInterval, poll)
 	if err != nil {
 		return nil, err
 	}
@@ -857,7 +869,7 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 					// Need to reload browser to show the error
 					livereload.ForceRefresh()
 				}
-			case err := <-watcher.Errors:
+			case err := <-watcher.Errors():
 				if err != nil {
 					c.logger.Errorln("Error while watching:", err)
 				}
@@ -1110,9 +1122,13 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 
 		c.printChangeDetected("")
 		c.changeDetector.PrepareNew()
-		if err := c.rebuildSites(dynamicEvents); err != nil {
-			c.handleBuildErr(err, "Rebuild failed")
-		}
+
+		func() {
+			defer c.timeTrack(time.Now(), "Total")
+			if err := c.rebuildSites(dynamicEvents); err != nil {
+				c.handleBuildErr(err, "Rebuild failed")
+			}
+		}()
 
 		if doLiveReload {
 			if len(partitionedEvents.ContentEvents) == 0 && len(partitionedEvents.AssetEvents) > 0 {

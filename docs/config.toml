@@ -7,7 +7,7 @@ footnotereturnlinkcontents = "↩"
 languageCode = "en-us"
 title = "Hugo"
 
- ignoreErrors = ["error-remote-getjson"]
+ ignoreErrors = ["error-remote-getjson", "error-missing-instagram-accesstoken"]
 
 
 googleAnalytics = "UA-7131036-4"

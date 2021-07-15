@@ -22,11 +22,11 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
-	"github.com/spf13/viper"
 )
 
 type tstNoStringer struct{}
@@ -82,7 +82,7 @@ func TestNSConfig(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	v := viper.New()
+	v := config.New()
 	v.Set("workingDir", "/a/b")
 
 	ns := New(&deps.Deps{Fs: hugofs.NewMem(v)})

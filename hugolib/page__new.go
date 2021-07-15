@@ -102,7 +102,7 @@ func newPageFromMeta(
 	meta map[string]interface{},
 	metaProvider *pageMeta) (*pageState, error) {
 	if metaProvider.f == nil {
-		metaProvider.f = page.NewZeroFile(metaProvider.s.DistinctWarningLog)
+		metaProvider.f = page.NewZeroFile(metaProvider.s.LogDistinct)
 	}
 
 	ps, err := newPageBase(metaProvider)

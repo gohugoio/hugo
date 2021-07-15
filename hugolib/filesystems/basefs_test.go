@@ -33,7 +33,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugolib/paths"
 	"github.com/gohugoio/hugo/modules"
-	"github.com/spf13/viper"
+	
 )
 
 func initConfig(fs afero.Fs, cfg config.Provider) error {
@@ -76,7 +76,7 @@ func initConfig(fs afero.Fs, cfg config.Provider) error {
 
 func TestNewBaseFs(t *testing.T) {
 	c := qt.New(t)
-	v := viper.New()
+	v := config.New()
 
 	fs := hugofs.NewMem(v)
 
@@ -181,8 +181,8 @@ theme = ["atheme"]
 	}
 }
 
-func createConfig() *viper.Viper {
-	v := viper.New()
+func createConfig() config.Provider {
+	v := config.New()
 	v.Set("contentDir", "mycontent")
 	v.Set("i18nDir", "myi18n")
 	v.Set("staticDir", "mystatic")
@@ -453,7 +453,7 @@ func countFilesAndGetFilenames(fs afero.Fs, dirname string) (int, []string, erro
 	return counter, filenames, nil
 }
 
-func setConfigAndWriteSomeFilesTo(fs afero.Fs, v *viper.Viper, key, val string, num int) {
+func setConfigAndWriteSomeFilesTo(fs afero.Fs, v config.Provider, key, val string, num int) {
 	workingDir := v.GetString("workingDir")
 	v.Set(key, val)
 	fs.Mkdir(val, 0755)

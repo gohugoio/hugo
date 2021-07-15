@@ -23,6 +23,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/config"
+
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -35,7 +37,6 @@ import (
 	"github.com/gohugoio/hugo/htesting"
 
 	"github.com/gohugoio/hugo/deps"
-	"github.com/spf13/viper"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -352,12 +353,11 @@ func TestMultilingualDisableDefaultLanguage(t *testing.T) {
 
 	c := qt.New(t)
 	_, cfg := newTestBundleSourcesMultilingual(t)
-
 	cfg.Set("disableLanguages", []string{"en"})
-
-	err := loadDefaultSettingsFor(cfg)
+	l := configLoader{cfg: cfg}
+	err := l.applyConfigDefaults()
 	c.Assert(err, qt.IsNil)
-	err = loadLanguageSettings(cfg, nil)
+	err = l.loadLanguageSettings(nil)
 	c.Assert(err, qt.Not(qt.IsNil))
 	c.Assert(err.Error(), qt.Contains, "cannot disable default language")
 }
@@ -397,7 +397,7 @@ func TestPageBundlerSiteWitSymbolicLinksInContent(t *testing.T) {
 
 	c := qt.New(t)
 	// We need to use the OS fs for this.
-	cfg := viper.New()
+	cfg := config.New()
 	fs := hugofs.NewFrom(hugofs.Os, cfg)
 
 	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugosym")
@@ -696,7 +696,7 @@ Single content.
 	b.AssertFileContent("public/section-not-bundle/single/index.html", "Section Single", "|<p>Single content.</p>")
 }
 
-func newTestBundleSources(t testing.TB) (*hugofs.Fs, *viper.Viper) {
+func newTestBundleSources(t testing.TB) (*hugofs.Fs, config.Provider) {
 	cfg, fs := newTestCfgBasic()
 	c := qt.New(t)
 
@@ -863,7 +863,7 @@ Content for 은행.
 	return fs, cfg
 }
 
-func newTestBundleSourcesMultilingual(t *testing.T) (*hugofs.Fs, *viper.Viper) {
+func newTestBundleSourcesMultilingual(t *testing.T) (*hugofs.Fs, config.Provider) {
 	cfg, fs := newTestCfgBasic()
 
 	workDir := "/work"
@@ -1319,7 +1319,7 @@ func TestPageBundlerHome(t *testing.T) {
 	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-bundler-home")
 	c.Assert(err, qt.IsNil)
 
-	cfg := viper.New()
+	cfg := config.New()
 	cfg.Set("workingDir", workDir)
 	fs := hugofs.NewFrom(hugofs.Os, cfg)
 

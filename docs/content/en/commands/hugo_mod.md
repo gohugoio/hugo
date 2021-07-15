@@ -46,6 +46,7 @@ See https://gohugo.io/hugo-modules/ for more information.
       --noChmod                don't sync permission mode of files
       --noTimes                don't sync modification time of files
       --path-warnings          print warnings on duplicate target paths etc.
+      --poll string            set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes
       --print-mem              print memory usage to screen at intervals
       --templateMetrics        display metrics about template executions
       --templateMetricsHints   calculate some improvement hints when combined with --templateMetrics

@@ -20,10 +20,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/markup/asciidocext"
 	"github.com/gohugoio/hugo/markup/rst"
-
-	"github.com/spf13/viper"
 
 	"github.com/gohugoio/hugo/parser/pageparser"
 	"github.com/gohugoio/hugo/resources/page"
@@ -65,8 +64,9 @@ title: "Title"
 		t.Fatalf("Shortcode rendered error %s.", err)
 	}
 
-	if err == nil && expectError {
-		t.Fatalf("No error from shortcode")
+	if expectError {
+		c.Assert(err, qt.ErrorMatches, expected)
+		return
 	}
 
 	h := b.H
@@ -339,6 +339,12 @@ func TestShortcodeWrappedInPIssue(t *testing.T) {
 
 {{< bug >}}
 `, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", wt)
+}
+
+// #6866
+func TestShortcodeIncomplete(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatchAndError(t, `{{<          >}}`, ".*shortcode has no name.*", nil, true)
 }
 
 func TestExtractShortcodes(t *testing.T) {
@@ -1207,7 +1213,7 @@ title: "Hugo Rocks!"
 func TestShortcodeEmoji(t *testing.T) {
 	t.Parallel()
 
-	v := viper.New()
+	v := config.New()
 	v.Set("enableEmoji", true)
 
 	builder := newTestSitesBuilder(t).WithViper(v)
@@ -1272,7 +1278,7 @@ func TestShortcodeRef(t *testing.T) {
 		t.Run(fmt.Sprintf("plainIDAnchors=%t", plainIDAnchors), func(t *testing.T) {
 			t.Parallel()
 
-			v := viper.New()
+			v := config.New()
 			v.Set("baseURL", "https://example.org")
 			v.Set("blackfriday", map[string]interface{}{
 				"plainIDAnchors": plainIDAnchors,

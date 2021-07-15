@@ -16,16 +16,16 @@ package transform
 import (
 	"testing"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/htesting"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/spf13/viper"
 )
 
 func TestRemarshal(t *testing.T) {
 	t.Parallel()
 
-	v := viper.New()
+	v := config.New()
 	v.Set("contentDir", "content")
 	ns := New(newDeps(v))
 	c := qt.New(t)
@@ -112,7 +112,7 @@ title: Test Metadata
 func TestRemarshalComments(t *testing.T) {
 	t.Parallel()
 
-	v := viper.New()
+	v := config.New()
 	v.Set("contentDir", "content")
 	ns := New(newDeps(v))
 
@@ -158,7 +158,7 @@ func TestTestRemarshalError(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	v := viper.New()
+	v := config.New()
 	v.Set("contentDir", "content")
 	ns := New(newDeps(v))
 
@@ -172,7 +172,7 @@ func TestTestRemarshalError(t *testing.T) {
 func TestTestRemarshalMapInput(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
-	v := viper.New()
+	v := config.New()
 	v.Set("contentDir", "content")
 	ns := New(newDeps(v))
 

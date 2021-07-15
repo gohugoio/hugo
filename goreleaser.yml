@@ -145,7 +145,7 @@ nfpms:
     homepage: "https://gohugo.io/"
     maintainer: "Bjørn Erik Pedersen <bjorn.erik.pedersen@gmail.com>"
     description: "A Fast and Flexible Static Site Generator built with love in GoLang."
-    license: "Apache 2.0"
+    license: "Apache-2.0"
     file_name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}"
     replacements:
       amd64: 64bit
@@ -168,7 +168,7 @@ nfpms:
     homepage: "https://gohugo.io/"
     maintainer: "Bjørn Erik Pedersen <bjorn.erik.pedersen@gmail.com>"
     description: "A Fast and Flexible Static Site Generator built with love in GoLang."
-    license: "Apache 2.0"
+    license: "Apache-2.0"
     file_name_template: "{{.ProjectName}}_extended_{{.Version}}_{{.Os}}-{{.Arch}}"
     replacements:
       amd64: 64bit
@@ -182,5 +182,3 @@ nfpms:
       netbsd: NetBSD
       freebsd: FreeBSD
       dragonfly: DragonFlyBSD
-
-      

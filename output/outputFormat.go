@@ -143,6 +143,15 @@ var (
 		Rel:         "alternate",
 	}
 
+	WebAppManifestFormat = Format{
+		Name:           "WebAppManifest",
+		MediaType:      media.WebAppManifestType,
+		BaseName:       "manifest",
+		IsPlainText:    true,
+		NotAlternative: true,
+		Rel:            "manifest",
+	}
+
 	RobotsTxtFormat = Format{
 		Name:        "ROBOTS",
 		MediaType:   media.TextType,
@@ -176,6 +185,7 @@ var DefaultFormats = Formats{
 	CSVFormat,
 	HTMLFormat,
 	JSONFormat,
+	WebAppManifestFormat,
 	RobotsTxtFormat,
 	RSSFormat,
 	SitemapFormat,
@@ -368,7 +378,11 @@ func decode(mediaTypes media.Types, input interface{}, output *Format) error {
 		return err
 	}
 
-	return decoder.Decode(input)
+	if err = decoder.Decode(input); err != nil {
+		return errors.Wrap(err, "failed to decode output format configuration")
+	}
+
+	return nil
 
 }
 

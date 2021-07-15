@@ -23,9 +23,8 @@ import (
 	"testing"
 
 	"github.com/gobuffalo/flect"
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/publisher"
-
-	"github.com/spf13/viper"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
@@ -363,7 +362,7 @@ func TestMainSections(t *testing.T) {
 	c := qt.New(t)
 	for _, paramSet := range []bool{false, true} {
 		c.Run(fmt.Sprintf("param-%t", paramSet), func(c *qt.C) {
-			v := viper.New()
+			v := config.New()
 			if paramSet {
 				v.Set("params", map[string]interface{}{
 					"mainSections": []string{"a1", "a2"},
