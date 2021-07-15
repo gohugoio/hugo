@@ -123,7 +123,7 @@ type preWrapper struct {
 
 func (p preWrapper) Start(code bool, styleAttr string) string {
 	w := &strings.Builder{}
-	fmt.Fprintf(w, "<pre%s>", styleAttr)
+	fmt.Fprintf(w, `<pre tabindex="0"%s>`, styleAttr)
 	var language string
 	if code {
 		language = p.language
