@@ -14,6 +14,7 @@
 package goldmark
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -59,6 +60,10 @@ https://github.com/gohugoio/hugo/issues/6528
 [Live Demo here!](https://docuapi.netlify.com/)
 
 [I'm an inline-style link with title](https://www.google.com "Google's Homepage")
+<https://foo.bar/>
+https://bar.baz/
+<fake@example.com>
+<mailto:fake2@example.com>
 
 
 ## Code Fences
@@ -132,8 +137,14 @@ description
 	b := convert(c, mconf, content)
 	got := string(b.Bytes())
 
+	fmt.Println(got)
+
 	// Links
-	//	c.Assert(got, qt.Contains, `<a href="https://docuapi.netlify.com/">Live Demo here!</a>`)
+	c.Assert(got, qt.Contains, `<a href="https://docuapi.netlify.com/">Live Demo here!</a>`)
+	c.Assert(got, qt.Contains, `<a href="https://foo.bar/">https://foo.bar/</a>`)
+	c.Assert(got, qt.Contains, `<a href="https://bar.baz/">https://bar.baz/</a>`)
+	c.Assert(got, qt.Contains, `<a href="mailto:fake@example.com">fake@example.com</a>`)
+	c.Assert(got, qt.Contains, `<a href="mailto:fake2@example.com">mailto:fake2@example.com</a></p>`)
 
 	// Header IDs
 	c.Assert(got, qt.Contains, `<h2 id="custom">Custom ID</h2>`, qt.Commentf(got))

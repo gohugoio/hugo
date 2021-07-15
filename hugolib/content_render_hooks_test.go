@@ -56,7 +56,6 @@ title: P1
 	b.AssertFileContent("public/p1/index.html", `Link First Link|PARTIAL1_EDITED PARTIAL2_EDITEDEND`)
 }
 
-
 func TestRenderHooks(t *testing.T) {
 	config := `
 baseURL="https://example.org"
@@ -110,6 +109,10 @@ title: Cool Page
 ---
 
 [First Link](https://www.google.com "Google's Homepage")
+<https://foo.bar/>
+https://bar.baz/
+<fake@example.com>
+<mailto:fake2@example.com>
 
 {{< myshortcode3 >}}
 
@@ -209,7 +212,11 @@ title: No Template
 	b.Assert(int(counters.contentRenderCounter), qt.Equals, 45)
 
 	b.AssertFileContent("public/blog/p1/index.html", `
-<p>Cool Page|https://www.google.com|Title: Google's Homepage|Text: First Link|END</p>
+Cool Page|https://www.google.com|Title: Google's Homepage|Text: First Link|END
+Cool Page|https://foo.bar/|Title: |Text: https://foo.bar/|END
+Cool Page|https://bar.baz/|Title: |Text: https://bar.baz/|END
+Cool Page|mailto:fake@example.com|Title: |Text: fake@example.com|END
+Cool Page|mailto:fake2@example.com|Title: |Text: mailto:fake2@example.com|END
 Text: Second
 SHORT3|
 <p>IMAGE: Cool Page||/images/Dragster.jpg|Title: image title|Text: Drag Racing|END</p>
