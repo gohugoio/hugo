@@ -14,13 +14,16 @@
 package exif
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"math/big"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/common/para"
 	"github.com/gohugoio/hugo/htesting/hqt"
 	"github.com/google/go-cmp/cmp"
 
@@ -60,6 +63,42 @@ func TestExif(t *testing.T) {
 	err = json.Unmarshal(data, x2)
 
 	c.Assert(x2, eq, x)
+}
+
+func TestExifParallel(t *testing.T) {
+	c := qt.New(t)
+
+	d, err := NewDecoder(IncludeFields("Lens|Date"))
+	c.Assert(err, qt.IsNil)
+
+	p := para.New(4)
+	r, _ := p.Start(context.Background())
+
+	for i := 0; i < 20; i++ {
+		r.Run(func() error {
+			f, err := os.Open(filepath.FromSlash("../../testdata/sunset.jpg"))
+			if err != nil {
+				return err
+			}
+			defer f.Close()
+
+			x, err := d.Decode(f)
+			if err != nil {
+				return err
+			}
+
+			if x.Date.Format("2006-01-02") != "2017-10-27" {
+				return errors.New("invalid date")
+			}
+
+			return nil
+
+		})
+
+	}
+
+	c.Assert(r.Wait(), qt.IsNil)
+
 }
 
 func TestImageWithoutExifData(t *testing.T) {
@@ -143,8 +182,9 @@ func TestExifPNG(t *testing.T) {
 
 	d, err := NewDecoder()
 	c.Assert(err, qt.IsNil)
-	_, err = d.Decode(f)
-	c.Assert(err, qt.Not(qt.IsNil))
+	x, err := d.Decode(f)
+	c.Assert(err, qt.IsNil)
+	c.Assert(x, qt.IsNil)
 }
 
 func TestIssue8079(t *testing.T) {

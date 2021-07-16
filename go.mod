@@ -72,3 +72,6 @@ require (
 )
 
 go 1.16
+
+
+replace github.com/dsoprea/go-exif/v3 => /Users/bep/dev/go/dump/go-exif/v3

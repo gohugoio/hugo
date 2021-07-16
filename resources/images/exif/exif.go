@@ -14,9 +14,7 @@
 package exif
 
 import (
-	"fmt"
 	"io"
-	"io/ioutil"
 	"math/big"
 	"regexp"
 	"strings"
@@ -26,7 +24,6 @@ import (
 
 	_exif "github.com/dsoprea/go-exif/v3"
 	exifcommon "github.com/dsoprea/go-exif/v3/common"
-	png "github.com/dsoprea/go-png-image-structure"
 )
 
 const (
@@ -47,6 +44,9 @@ type Decoder struct {
 	excludeFieldsrRe *regexp.Regexp
 	noDate           bool
 	noLatLong        bool
+
+	idfm *exifcommon.IfdMapping
+	ti   *_exif.TagIndex
 }
 
 func IncludeFields(expression string) func(*Decoder) error {
@@ -99,7 +99,12 @@ func compileRegexp(expression string) (*regexp.Regexp, error) {
 }
 
 func NewDecoder(options ...func(*Decoder) error) (*Decoder, error) {
-	d := &Decoder{}
+	im, err := exifcommon.NewIfdMappingWithStandard()
+	if err != nil {
+		return nil, err
+	}
+	ti := _exif.NewTagIndex()
+	d := &Decoder{idfm: im, ti: ti}
 	for _, opt := range options {
 		if err := opt(d); err != nil {
 			return nil, err
@@ -110,28 +115,14 @@ func NewDecoder(options ...func(*Decoder) error) (*Decoder, error) {
 }
 
 func (d *Decoder) Decode(r io.Reader) (*Exif, error) {
-	rawBytes, err := ioutil.ReadAll(r)
-	if err != nil {
-		return nil, err
-	}
-	rawExif, err := _exif.SearchAndExtractExif(rawBytes)
+	rawExif, err := _exif.SearchAndExtractExifWithReader(r)
 
 	if err != nil {
-		parsed := png.NewPngMediaParser()
-		if parsed.LooksLikeFormat(rawBytes) {
-			return nil, fmt.Errorf("type not supported")
-		}
 		// No Exif data
 		return nil, nil
 	}
 
-	im, err := exifcommon.NewIfdMappingWithStandard()
-	if err != nil {
-		return nil, err
-	}
-	ti := _exif.NewTagIndex()
-
-	_, index, err := _exif.Collect(im, ti, rawExif)
+	_, index, err := _exif.Collect(d.idfm, d.ti, rawExif)
 	if err != nil {
 		return nil, err
 	}
