@@ -456,6 +456,10 @@ func TestResourceChainPostProcess(t *testing.T) {
 	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	b := newTestSitesBuilder(t)
+	b.WithConfigFile("toml", `[minify]
+  [minify.tdewolff]
+    [minify.tdewolff.html]
+      keepWhitespace = false`)
 	b.WithContent("page1.md", "---\ntitle: Page1\n---")
 	b.WithContent("page2.md", "---\ntitle: Page2\n---")
 
@@ -562,6 +566,11 @@ T6: {{ $bundle1.Permalink }}
 		}},
 
 		{"minify", func() bool { return true }, func(b *sitesBuilder) {
+			b.WithConfigFile("toml", `[minify]
+  [minify.tdewolff]
+    [minify.tdewolff.html]
+      keepWhitespace = false
+`)
 			b.WithTemplates("home.html", `
 Min CSS: {{ ( resources.Get "css/styles1.css" | minify ).Content }}
 Min JS: {{ ( resources.Get "js/script1.js" | resources.Minify ).Content | safeJS }}
