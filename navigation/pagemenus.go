@@ -15,6 +15,7 @@ package navigation
 
 import (
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cast"
@@ -97,31 +98,25 @@ func PageMenusFromPage(p Page) (PageMenus, error) {
 }
 
 func NewMenuQueryProvider(
-	setionPagesMenu string,
 	pagem PageMenusGetter,
 	sitem MenusGetter,
 	p Page) MenuQueryProvider {
 	return &pageMenus{
-		p:               p,
-		pagem:           pagem,
-		sitem:           sitem,
-		setionPagesMenu: setionPagesMenu,
+		p:     p,
+		pagem: pagem,
+		sitem: sitem,
 	}
 }
 
 type pageMenus struct {
-	pagem           PageMenusGetter
-	sitem           MenusGetter
-	setionPagesMenu string
-	p               Page
+	pagem PageMenusGetter
+	sitem MenusGetter
+	p     Page
 }
 
 func (pm *pageMenus) HasMenuCurrent(menuID string, me *MenuEntry) bool {
-	// page is labeled as "shadow-member" of the menu with the same identifier as the section
-	if pm.setionPagesMenu != "" {
-		section := pm.p.Section()
-
-		if section != "" && pm.setionPagesMenu == menuID && section == me.Identifier {
+	if !types.IsNil(me.Page) && me.Page.IsSection() {
+		if ok, _ := me.Page.IsAncestor(pm.p); ok {
 			return true
 		}
 	}
@@ -143,18 +138,15 @@ func (pm *pageMenus) HasMenuCurrent(menuID string, me *MenuEntry) bool {
 		}
 	}
 
-	if pm.p == nil || pm.p.IsPage() {
+	if pm.p == nil {
 		return false
 	}
 
-	// The following logic is kept from back when Hugo had both Page and Node types.
-	// TODO(bep) consolidate / clean
-	nme := MenuEntry{Page: pm.p, Name: pm.p.LinkTitle()}
-
 	for _, child := range me.Children {
-		if nme.IsSameResource(child) {
+		if child.isSamePage(pm.p) {
 			return true
 		}
+
 		if pm.HasMenuCurrent(menuID, child) {
 			return true
 		}
@@ -172,20 +164,16 @@ func (pm *pageMenus) IsMenuCurrent(menuID string, inme *MenuEntry) bool {
 		}
 	}
 
-	if pm.p == nil || pm.p.IsPage() {
+	if pm.p == nil {
 		return false
 	}
 
-	// The following logic is kept from back when Hugo had both Page and Node types.
-	// TODO(bep) consolidate / clean
-	me := MenuEntry{Page: pm.p, Name: pm.p.LinkTitle()}
-
-	if !me.IsSameResource(inme) {
+	if !inme.isSamePage(pm.p) {
 		return false
 	}
 
-	// this resource may be included in several menus
-	// search for it to make sure that it is in the menu with the given menuId
+	// This resource may be included in several menus.
+	// Search for it to make sure that it is in the menu with the given menuId.
 	if menu, ok := pm.sitem.Menus()[menuID]; ok {
 		for _, menuEntry := range menu {
 			if menuEntry.IsSameResource(inme) {

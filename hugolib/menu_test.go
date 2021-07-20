@@ -33,7 +33,7 @@ menu:
 `
 )
 
-func TestSectionPagesMenu(t *testing.T) {
+func TestMenusSectionPagesMenu(t *testing.T) {
 	t.Parallel()
 
 	siteConfig := `
@@ -106,7 +106,7 @@ Menu Main:  {{ partial "menu.html" (dict "page" . "menu" "main") }}`,
 }
 
 // related issue #7594
-func TestMenuSort(t *testing.T) {
+func TestMenusSort(t *testing.T) {
 	b := newTestSitesBuilder(t).WithSimpleConfigFile()
 
 	b.WithTemplatesAdded("index.html", `
@@ -193,7 +193,7 @@ menu:
 	)
 }
 
-func TestMenuFrontMatter(t *testing.T) {
+func TestMenusFrontMatter(t *testing.T) {
 	b := newTestSitesBuilder(t).WithSimpleConfigFile()
 
 	b.WithTemplatesAdded("index.html", `
@@ -243,7 +243,7 @@ menu:
 }
 
 // https://github.com/gohugoio/hugo/issues/5849
-func TestMenuPageMultipleOutputFormats(t *testing.T) {
+func TestMenusPageMultipleOutputFormats(t *testing.T) {
 	config := `
 baseURL = "https://example.com"
 
@@ -301,7 +301,7 @@ menu: "main"
 }
 
 // https://github.com/gohugoio/hugo/issues/5989
-func TestMenuPageSortByDate(t *testing.T) {
+func TestMenusPageSortByDate(t *testing.T) {
 	b := newTestSitesBuilder(t).WithSimpleConfigFile()
 
 	b.WithContent("blog/a.md", `
@@ -397,5 +397,111 @@ camelCase: camelCase_content
 foo: foo_config
 key2: key2_config
 camelCase: camelCase_config
+`)
+}
+
+func TestMenusShadowMembers(t *testing.T) {
+	b := newTestSitesBuilder(t).WithConfigFile("toml", `
+[[menus.main]]
+identifier = "contact"
+pageRef = "contact"
+title = "Contact Us"
+url = "mailto:noreply@example.com"
+weight = 1
+[[menus.main]]
+pageRef = "/blog/post3"
+title = "My Post 3"
+url = "/blog/post3"
+	
+`)
+
+	commonTempl := `
+Main: {{ len .Site.Menus.main }}
+{{ range .Site.Menus.main }}
+{{ .Title }}|HasMenuCurrent: {{ $.HasMenuCurrent "main" . }}|Page: {{ .Page }}
+{{ .Title }}|IsMenuCurrent: {{ $.IsMenuCurrent "main" . }}|Page: {{ .Page }}
+{{ end }}
+`
+
+	b.WithTemplatesAdded("index.html", commonTempl)
+	b.WithTemplatesAdded("_default/single.html", commonTempl)
+
+	b.WithContent("_index.md", `
+---
+title: "Home"
+menu:
+  main:
+    weight: 10
+---
+`)
+
+	b.WithContent("blog/_index.md", `
+---
+title: "Blog"
+menu:
+  main:
+    weight: 20
+---
+`)
+
+	b.WithContent("blog/post1.md", `
+---
+title: "My Post 1: With  No Menu Defined"
+---
+`)
+
+	b.WithContent("blog/post2.md", `
+---
+title: "My Post 2: With Menu Defined"
+menu:
+  main:
+    weight: 30
+---
+`)
+
+	b.WithContent("blog/post3.md", `
+---
+title: "My Post 2: With  No Menu Defined"
+---
+`)
+
+	b.WithContent("contact.md", `
+---
+title: "Contact: With  No Menu Defined"
+---
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", `
+Main: 5
+Home|HasMenuCurrent: false|Page: Page(/_index.md)
+Blog|HasMenuCurrent: false|Page: Page(/blog/_index.md)
+My Post 2: With Menu Defined|HasMenuCurrent: false|Page: Page(/blog/post2.md)
+My Post 3|HasMenuCurrent: false|Page: Page(/blog/post3.md)
+Contact Us|HasMenuCurrent: false|Page: Page(/contact.md)
+`)
+
+	b.AssertFileContent("public/blog/post1/index.html", `
+Home|HasMenuCurrent: false|Page: Page(/_index.md)
+Blog|HasMenuCurrent: true|Page: Page(/blog/_index.md)
+`)
+
+	b.AssertFileContent("public/blog/post2/index.html", `
+Home|HasMenuCurrent: false|Page: Page(/_index.md)
+Blog|HasMenuCurrent: true|Page: Page(/blog/_index.md)
+Blog|IsMenuCurrent: false|Page: Page(/blog/_index.md)
+`)
+
+	b.AssertFileContent("public/blog/post3/index.html", `
+Home|HasMenuCurrent: false|Page: Page(/_index.md)
+Blog|HasMenuCurrent: true|Page: Page(/blog/_index.md)
+`)
+
+	b.AssertFileContent("public/contact/index.html", `
+Contact Us|HasMenuCurrent: false|Page: Page(/contact.md)
+Contact Us|IsMenuCurrent: true|Page: Page(/contact.md)
+Blog|HasMenuCurrent: false|Page: Page(/blog/_index.md)
+Blog|IsMenuCurrent: false|Page: Page(/blog/_index.md)
 `)
 }
