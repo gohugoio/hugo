@@ -131,7 +131,8 @@ func (m *MenuEntry) MarshallMap(ime map[string]interface{}) {
 		case "parent":
 			m.Parent = cast.ToString(v)
 		case "params":
-			m.Params = maps.ToStringMap(v)
+			m.Params = maps.MustToParamsAndPrepare(v)
+
 		}
 	}
 }
