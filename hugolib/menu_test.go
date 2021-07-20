@@ -351,49 +351,51 @@ menu:
 }
 
 func TestMenuParams(t *testing.T) {
-	b := newTestSitesBuilder(t).WithSimpleConfigFile()
+	b := newTestSitesBuilder(t).WithConfigFile("toml", `
+[[menus.main]]
+identifier = "contact"
+title = "Contact Us"
+url = "mailto:noreply@example.com"
+weight = 300
+[menus.main.params]
+foo = "foo_config"	
+key2 = "key2_config"	
+camelCase = "camelCase_config"	
+`)
 
 	b.WithTemplatesAdded("index.html", `
 Main: {{ len .Site.Menus.main }}
 {{ range .Site.Menus.main }}
-* Main|{{ .Name }}: {{ .URL }}|{{ .Params }}
+foo: {{ .Params.foo }}
+key2: {{ .Params.KEy2 }}
+camelCase: {{ .Params.camelcase }}
 {{ end }}
 `)
 
-	b.WithContent("blog/page1.md", `
+	b.WithContent("_index.md", `
 ---
-title: "P1"
-menu: main
----
-
-`)
-
-	b.WithContent("blog/page2.md", `
----
-title: "P2"
-menu: main
----
-
-`)
-
-	b.WithContent("blog/page3.md", `
----
-title: "P3"
+title: "Home"
 menu:
   main:
-    weight: 30
+    weight: 10
     params:
-      foo: "bar"
-      key2: "value2"
+      foo: "foo_content"
+      key2: "key2_content"
+      camelCase: "camelCase_content"
 ---
 `)
 
 	b.Build(BuildCfg{})
 
-	b.AssertFileContent("public/index.html",
-		"Main: 3",
-		"Main|P3: /blog/page3/|map[foo:bar key2:value2]",
-		"Main|P1: /blog/page1/|map[]",
-		"Main|P2: /blog/page2/|map[]",
-	)
+	b.AssertFileContent("public/index.html", `
+Main: 2
+
+foo: foo_content
+key2: key2_content
+camelCase: camelCase_content
+
+foo: foo_config
+key2: key2_config
+camelCase: camelCase_config
+`)
 }
