@@ -308,7 +308,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		cfgSetAndInit,
 		doWithConfig)
 
-	if err != nil && mustHaveConfigFile {
+	if err != nil {
 		return err
 	} else if mustHaveConfigFile && len(configFiles) == 0 {
 		return hugolib.ErrNoConfigFile
