@@ -1452,6 +1452,10 @@ func (s *Site) assembleMenus() {
 	menuConfig := s.getMenusFromConfig()
 	for name, menu := range menuConfig {
 		for _, me := range menu {
+			if types.IsNil(me.Page) && me.PageRef != "" {
+				// Try to resolve the page.
+				me.Page, _ = s.getPageNew(nil, me.PageRef)
+			}
 			flat[twoD{name, me.KeyName()}] = me
 		}
 	}

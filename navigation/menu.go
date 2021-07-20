@@ -32,6 +32,7 @@ var smc = newMenuCache()
 type MenuEntry struct {
 	ConfiguredURL string // The URL value from front matter / config.
 	Page          Page
+	PageRef       string // The path to the page, only relevant for site config.
 	Name          string
 	Menu          string
 	Identifier    string
@@ -63,6 +64,8 @@ type Page interface {
 	Section() string
 	Weight() int
 	IsPage() bool
+	IsSection() bool
+	IsAncestor(other interface{}) (bool, error)
 	Params() maps.Params
 }
 
@@ -106,8 +109,18 @@ func (m *MenuEntry) IsEqual(inme *MenuEntry) bool {
 // IsSameResource returns whether the two menu entries points to the same
 // resource (URL).
 func (m *MenuEntry) IsSameResource(inme *MenuEntry) bool {
+	if m.isSamePage(inme.Page) {
+		return m.Page == inme.Page
+	}
 	murl, inmeurl := m.URL(), inme.URL()
 	return murl != "" && inmeurl != "" && murl == inmeurl
+}
+
+func (m *MenuEntry) isSamePage(p Page) bool {
+	if !types.IsNil(m.Page) && !types.IsNil(p) {
+		return m.Page == p
+	}
+	return false
 }
 
 func (m *MenuEntry) MarshallMap(ime map[string]interface{}) {
@@ -116,6 +129,8 @@ func (m *MenuEntry) MarshallMap(ime map[string]interface{}) {
 		switch loki {
 		case "url":
 			m.ConfiguredURL = cast.ToString(v)
+		case "pageref":
+			m.PageRef = cast.ToString(v)
 		case "weight":
 			m.Weight = cast.ToInt(v)
 		case "name":
