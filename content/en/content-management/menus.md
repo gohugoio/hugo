@@ -93,6 +93,8 @@ Here’s an example snippet pulled from a configuration file:
     post = "<span class='alert'>New!</span>"
     weight = -100
     url = "/getting-started/"
+    [menu.main.params]
+    custom_param1 = "value"
 {{< /code-toggle >}}
 
 {{% note %}}
