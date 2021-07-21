@@ -1,12 +1,12 @@
 
 ---
 date: 2021-07-05
-title: "0.85.0"
-description: "0.85.0"
+title: "Poll based watching"
+description: "Hugo 0.85.0: Polled based alternative when watching for changes and some other nice improvements."
 categories: ["Releases"]
 ---
 
-	Hugo `0.85.0` is on the smaller side of releases, but the main new thing it brings should be important to those who need it: Poll based polling when watching the filesystem for changes.
+Hugo `0.85.0` is on the smaller side of releases, but the main new thing it brings should be important to those who need it: Poll based watching the filesystem for changes.
 
 Hugo uses [Fsnotify](https://github.com/fsnotify/fsnotify) to provide native file system notifications. This is still the default, but there may situations where this isn't working. The file may not support it (e.g. NFS), or you get the "too many open files" error and cannot or do not want to increase the `ulimit`. Enable polling by passing the `--poll` flag with an interval:
 
@@ -14,7 +14,7 @@ Hugo uses [Fsnotify](https://github.com/fsnotify/fsnotify) to provide native fil
 hugo server --poll 700ms
 ```
 
-You van even do "long polling" by passing a long interval:
+You can even do "long polling" by passing a long interval:
 
 ```bash
 hugo server --poll 24h
