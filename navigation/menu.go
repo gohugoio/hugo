@@ -46,15 +46,19 @@ type MenuEntry struct {
 }
 
 func (m *MenuEntry) URL() string {
-	if m.ConfiguredURL != "" {
-		return m.ConfiguredURL
-	}
 
+	// Check page first.
+	// In Hugo 0.86.0 we added `pageRef`,
+	// a way to connect menu items in site config to pages.
+	// This means that you now can have both a Page
+	// and a configured URL.
+	// Having the configured URL as a fallback if the Page isn't found
+	// is obviously more useful, especially in multilingual sites.
 	if !types.IsNil(m.Page) {
 		return m.Page.RelPermalink()
 	}
 
-	return ""
+	return m.ConfiguredURL
 }
 
 // A narrow version of page.Page.
