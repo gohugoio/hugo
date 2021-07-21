@@ -6,7 +6,7 @@ description: "Hugo 0.86.0 adds cascade keyword to site config, much improved \"a
 categories: ["Releases"]
 ---
 
-This is release is a set of smaller fixes and improvements. Some of the more noteable:
+This release is a set of smaller fixes and improvements. Some of the more notable:
 
 You can now have a top level [cascade](https://gohugo.io/content-management/front-matter#front-matter-cascade) (or one per language, if needed) section in your site configuration (e.g. `config.toml`). This way you can control default front matter values from outside of the content files.
 
@@ -54,8 +54,3 @@ Hugo now has:
 * Fix default values when loading from config dir [ae6cf93c](https://github.com/gohugoio/hugo/commit/ae6cf93c84c3584b111f4b9fa3fb4e3f63d37915) [@bep](https://github.com/bep) [#8763](https://github.com/gohugoio/hugo/issues/8763)
 * Fix the deprecation error/warn log levels [a70da2b7](https://github.com/gohugoio/hugo/commit/a70da2b74a6af0834cce9668cdb6acdb1c86a4c0) [@bep](https://github.com/bep) 
 * Fix transparency problem when converting 32-bit images to WebP [8f40f34c](https://github.com/gohugoio/hugo/commit/8f40f34cd10a98598bb822ec633fd5d0ea64b612) [@bep](https://github.com/bep) [#8729](https://github.com/gohugoio/hugo/issues/8729)
-
-
-
-
-
