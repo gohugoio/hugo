@@ -6,7 +6,7 @@ description: "Hugo 0.86.0 adds cascade keyword to site config, much improved \"a
 categories: ["Releases"]
 ---
 
-	This is release is a set of smaller fixes and improvements. Some of the more noteable:
+This is release is a set of smaller fixes and improvements. Some of the more noteable:
 
 You can now have a top level [cascade](https://gohugo.io/content-management/front-matter#front-matter-cascade) (or one per language, if needed) section in your site configuration (e.g. `config.toml`). This way you can control default front matter values from outside of the content files.
 
