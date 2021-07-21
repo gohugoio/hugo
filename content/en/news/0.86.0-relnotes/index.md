@@ -1,8 +1,8 @@
 
 ---
 date: 2021-07-21
-title: "0.86.0"
-description: "0.86.0"
+title: "Hugo 0.86.0: Cascade in Config"
+description: "Hugo 0.86.0 adds cascade keyword to site config, much improved \"active menu item\" logic for section pages, and more."
 categories: ["Releases"]
 ---
 
@@ -10,7 +10,7 @@ categories: ["Releases"]
 
 You can now have a top level [cascade](https://gohugo.io/content-management/front-matter#front-matter-cascade) (or one per language, if needed) section in your site configuration (e.g. `config.toml`). This way you can control default front matter values from outside of the content files.
 
-Hugo's [Menu system](https://gohugo.io/content-management/menus/) works good, but hasn't been particulary easy to set the active menu state for section pages without a menu defintion. We have had the option [Section Menu for Lazy Bloggers](https://gohugo.io/templates/menu-templates/#section-menu-for-lazy-bloggers). That helped for the common case, but we have now made it behave more sensible out of the box: `$section.HasMenuCurrent` will now always return true for any descendant of that section. To support this for menu defintions in the site config, we have added a new `pageRef` option on [MenuEntry](https://gohugo.io/variables/menus/#menu-entry-variables):
+Hugo's [Menu system](https://gohugo.io/content-management/menus/) works good, but hasn't been particulary easy to set the active menu state for section pages without a menu defintion. We have had the option [Section Menu for Lazy Bloggers](https://gohugo.io/templates/menu-templates/#section-menu-for-lazy-bloggers). That helped for the common case, but we have now made it behave more sensible out of the box: `$page.HasMenuCurrent $sectionMenuEntry` will now always return true for any descendant of that section. To support this for menu defintions in the site config, we have added a new `pageRef` option on [MenuEntry](https://gohugo.io/variables/menus/#menu-entry-variables):
 
 ```toml
 [[menus.main]]

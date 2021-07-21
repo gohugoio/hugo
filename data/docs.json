@@ -1677,6 +1677,9 @@
       "caches": {
         "_merge": "none"
       },
+      "cascade": {
+        "_merge": "none"
+      },
       "frontmatter": {
         "_merge": "none"
       },
@@ -1745,7 +1748,7 @@
           "keepDocumentTags": true,
           "keepEndTags": true,
           "keepQuotes": false,
-          "keepWhitespace": false
+          "keepWhitespace": true
         },
         "css": {
           "keepCSS2": true,
@@ -1756,7 +1759,8 @@
           "keepVarNames": false
         },
         "json": {
-          "precision": 0
+          "precision": 0,
+          "keepNumbers": false
         },
         "svg": {
           "precision": 0
