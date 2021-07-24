@@ -375,7 +375,6 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 		shouldExecute func() bool
 	}{
 		{"md", func() bool { return true }},
-		{"mmark", func() bool { return true }},
 		{"ad", func() bool { return asciidocext.Supports() }},
 		{"rst", func() bool { return rst.Supports() }},
 	}

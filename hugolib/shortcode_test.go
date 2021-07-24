@@ -533,17 +533,6 @@ e`,
 			filepath.FromSlash("public/sect/doc8/index.html"),
 			"<div class=\"document\">\n\n\n<p><strong>Shortcodes:</strong> <em>b: b c: c</em></p>\n</div>",
 		},
-		{
-			"sect/doc9.mmark", `
----
-menu:
-  main:
-    parent: 'parent'
----
-**Shortcodes:** *b: {{< b >}} c: {{% c %}}*`,
-			filepath.FromSlash("public/sect/doc9/index.html"),
-			"<p><strong>Shortcodes:</strong> <em>b: b c: c</em></p>\n",
-		},
 		// Issue #1229: Menus not available in shortcode.
 		{
 			"sect/doc10.md", `---
@@ -560,6 +549,9 @@ tags:
 		// Issue #2323: Taxonomies not available in shortcode.
 		{
 			"sect/doc11.md", `---
+menu:
+  main:
+    parent: 'parent'
 tags:
 - Bugs
 ---

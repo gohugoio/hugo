@@ -46,7 +46,6 @@ func TestResolveMarkup(t *testing.T) {
 		{"rst", "rst"},
 		{"pandoc", "pandoc"},
 		{"pdc", "pandoc"},
-		{"mmark", "mmark"},
 		{"html", "html"},
 		{"htm", "html"},
 		{"org", "org"},

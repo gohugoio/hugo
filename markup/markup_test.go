@@ -39,7 +39,6 @@ func TestConverterRegistry(t *testing.T) {
 	c.Assert(r.Get("markdown").Name(), qt.Equals, "goldmark")
 
 	checkName("goldmark")
-	checkName("mmark")
 	checkName("asciidocext")
 	checkName("rst")
 	checkName("pandoc")
