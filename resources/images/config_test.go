@@ -24,9 +24,10 @@ import (
 func TestDecodeConfig(t *testing.T) {
 	c := qt.New(t)
 	m := map[string]interface{}{
-		"quality":        42,
-		"resampleFilter": "NearestNeighbor",
-		"anchor":         "topLeft",
+		"quality":         42,
+		"resampleFilter":  "NearestNeighbor",
+		"autoOrientation": true,
+		"anchor":          "topLeft",
 	}
 
 	imagingConfig, err := DecodeConfig(m)
@@ -36,6 +37,7 @@ func TestDecodeConfig(t *testing.T) {
 	c.Assert(imaging.Quality, qt.Equals, 42)
 	c.Assert(imaging.ResampleFilter, qt.Equals, "nearestneighbor")
 	c.Assert(imaging.Anchor, qt.Equals, "topleft")
+	c.Assert(imaging.AutoOrientation, qt.Equals, true)
 
 	m = map[string]interface{}{}
 

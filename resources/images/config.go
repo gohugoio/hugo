@@ -100,17 +100,19 @@ func ImageFormatFromExt(ext string) (Format, bool) {
 }
 
 const (
-	defaultJPEGQuality    = 75
-	defaultResampleFilter = "box"
-	defaultBgColor        = "ffffff"
-	defaultHint           = "photo"
+	defaultJPEGQuality     = 75
+	defaultResampleFilter  = "box"
+	defaultAutoOrientation = false
+	defaultBgColor         = "ffffff"
+	defaultHint            = "photo"
 )
 
 var defaultImaging = Imaging{
-	ResampleFilter: defaultResampleFilter,
-	BgColor:        defaultBgColor,
-	Hint:           defaultHint,
-	Quality:        defaultJPEGQuality,
+	ResampleFilter:  defaultResampleFilter,
+	AutoOrientation: defaultAutoOrientation,
+	BgColor:         defaultBgColor,
+	Hint:            defaultHint,
+	Quality:         defaultJPEGQuality,
 }
 
 func DecodeConfig(m map[string]interface{}) (ImagingConfig, error) {
@@ -152,6 +154,10 @@ func DecodeConfig(m map[string]interface{}) (ImagingConfig, error) {
 		return i, fmt.Errorf("%q is not a valid resample filter", filter)
 	}
 	i.ResampleFilter = filter
+
+	if i.Cfg.AutoOrientation == true {
+		i.AutoOrientation = true
+	}
 
 	if strings.TrimSpace(i.Cfg.Exif.IncludeFields) == "" && strings.TrimSpace(i.Cfg.Exif.ExcludeFields) == "" {
 		// Don't change this for no good reason. Please don't.
@@ -362,10 +368,11 @@ func (i ImageConfig) GetKey(format Format) string {
 }
 
 type ImagingConfig struct {
-	BgColor        color.Color
-	Hint           webpoptions.EncodingPreset
-	ResampleFilter gift.Resampling
-	Anchor         gift.Anchor
+	BgColor         color.Color
+	Hint            webpoptions.EncodingPreset
+	ResampleFilter  gift.Resampling
+	AutoOrientation bool
+	Anchor          gift.Anchor
 
 	// Config as provided by the user.
 	Cfg Imaging
@@ -382,6 +389,9 @@ type Imaging struct {
 
 	// Resample filter to use in resize operations.
 	ResampleFilter string
+
+	// If auto-orientation is enabled, the image will be transformed after decoding according to the EXIF orientation tag (if present).
+	AutoOrientation bool
 
 	// Hint about what type of image this is.
 	// Currently only used when encoding to Webp.

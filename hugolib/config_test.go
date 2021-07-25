@@ -675,6 +675,7 @@ theme_param="themevalue2"
 			"HUGO_ENABLEGITINFO", "false",
 			"HUGO_IMAGING_ANCHOR", "top",
 			"HUGO_IMAGING_RESAMPLEFILTER", "CatmullRom",
+			"HUGO_IMAGING_AUTOORIENTATION", "true",
 			"HUGO_STRINGSLICE", `["c", "d"]`,
 			"HUGO_INTSLICE", `[5, 8, 9]`,
 			"HUGO_FLOATSLICE", `[5.32]`,
@@ -704,6 +705,7 @@ theme_param="themevalue2"
 		c.Assert(cfg.Get("imaging.anchor"), qt.Equals, "top")
 		c.Assert(cfg.Get("imaging.quality"), qt.Equals, int64(75))
 		c.Assert(cfg.Get("imaging.resamplefilter"), qt.Equals, "CatmullRom")
+		c.Assert(cfg.Get("imaging.autoorientation"), qt.Equals, "true")
 		c.Assert(cfg.Get("stringSlice"), qt.DeepEquals, []interface{}{"c", "d"})
 		c.Assert(cfg.Get("floatSlice"), qt.DeepEquals, []interface{}{5.32})
 		c.Assert(cfg.Get("intSlice"), qt.DeepEquals, []interface{}{5, 8, 9})

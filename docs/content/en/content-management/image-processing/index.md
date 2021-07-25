@@ -278,6 +278,9 @@ You can configure an `imaging` section in `config.toml` with default image proce
 # See https://github.com/disintegration/imaging
 resampleFilter = "box"
 
+# If auto-orientation is enabled, the image will be transformed after decoding according to the EXIF orientation tag (if present).
+autoOrientation = false
+
 # Default JPEG or WebP quality setting. Default is 75.
 quality = 75
 

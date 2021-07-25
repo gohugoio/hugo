@@ -179,6 +179,54 @@ func TestImageTransformFormat(t *testing.T) {
 	assertFileCache(c, fileCache, path.Base(imageGif.RelPermalink()), 225, 141)
 }
 
+func TestImageTransformWithAutoOrientation(t *testing.T) {
+	c := qt.New(t)
+
+	assertWidthHeight := func(img resource.Image, w, h int) {
+		c.Helper()
+		c.Assert(img, qt.Not(qt.IsNil))
+		c.Assert(img.Width(), qt.Equals, w)
+		c.Assert(img.Height(), qt.Equals, h)
+	}
+
+	spec := newTestResourceSpec(specDescriptor{
+		c: c,
+		imagingConfig: map[string]interface{}{
+			"resampleFilter":  "linear",
+			"quality":         68,
+			"anchor":          "left",
+			"autoOrientation": true,
+		}})
+
+	image := fetchImageForSpec(spec, c, "left-orientation-6-rotate90CW.jpg")
+	fileCache := image.(specProvider).getSpec().FileCaches.ImageCache().Fs
+
+	// source image is a horizontal
+	assertWidthHeight(image, 640, 480)
+
+	// verify that after processing we'll use exif orientation tag and rotate image to be vertical
+	imageResized, err := image.Resize("240x")
+
+	c.Assert(err, qt.IsNil)
+	assertWidthHeight(imageResized, 240, 320) // processed image is vertical
+	c.Assert(imageResized.RelPermalink(), qt.Equals, "/a/left-orientation-6-rotate90CW_huf8b493236352b480cf5f84aa485c4778_3874_240x0_resize_q68_linear.jpg")
+	c.Assert(imageResized.ResourceType(), qt.Equals, "image")
+	c.Assert(imageResized.Name(), qt.Equals, "left-orientation-6-rotate90CW.jpg")
+
+	assertFileCache(c, fileCache, path.Base(imageResized.RelPermalink()), 240, 320)
+
+	// verify that in case when we have both: 'rotate parameter' and 'exif orientation tag' then we'll use them both
+	imageRotated, err := image.Resize("320x r90")
+
+	c.Assert(err, qt.IsNil)
+	assertWidthHeight(imageRotated, 320, 240) // processed image is horizontal
+	c.Assert(imageRotated.RelPermalink(), qt.Equals, "/a/left-orientation-6-rotate90CW_huf8b493236352b480cf5f84aa485c4778_3874_320x0_resize_q68_r90_linear.jpg")
+	c.Assert(imageRotated.ResourceType(), qt.Equals, "image")
+	c.Assert(imageRotated.Name(), qt.Equals, "left-orientation-6-rotate90CW.jpg")
+
+	assertFileCache(c, fileCache, path.Base(imageRotated.RelPermalink()), 320, 240)
+}
+
 // https://github.com/gohugoio/hugo/issues/5730
 func TestImagePermalinkPublishOrder(t *testing.T) {
 	for _, checkOriginalFirst := range []bool{true, false} {

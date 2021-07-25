@@ -32,6 +32,7 @@ import (
 	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/disintegration/gift"
+	"github.com/disintegration/imageorient"
 
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/resources/images/exif"
@@ -334,6 +335,11 @@ func (i *imageResource) DecodeImage() (image.Image, error) {
 		return nil, _errors.Wrap(err, "failed to open image for decode")
 	}
 	defer f.Close()
+	if i.Proc.Cfg.AutoOrientation {
+		img, _, err := imageorient.Decode(f)
+		return img, err
+	}
+
 	img, _, err := image.Decode(f)
 	return img, err
 }

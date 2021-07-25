@@ -26,9 +26,10 @@ import (
 )
 
 type specDescriptor struct {
-	baseURL string
-	c       *qt.C
-	fs      afero.Fs
+	baseURL       string
+	c             *qt.C
+	fs            afero.Fs
+	imagingConfig map[string]interface{}
 }
 
 func createTestCfg() config.Provider {
@@ -70,10 +71,13 @@ func newTestResourceSpec(desc specDescriptor) *Spec {
 	cfg := createTestCfg()
 	cfg.Set("baseURL", baseURL)
 
-	imagingCfg := map[string]interface{}{
-		"resampleFilter": "linear",
-		"quality":        68,
-		"anchor":         "left",
+	imagingCfg := desc.imagingConfig
+	if imagingCfg == nil {
+		imagingCfg = map[string]interface{}{
+			"resampleFilter": "linear",
+			"quality":        68,
+			"anchor":         "left",
+		}
 	}
 
 	cfg.Set("imaging", imagingCfg)
