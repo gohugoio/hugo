@@ -16,12 +16,14 @@ package time
 import (
 	"testing"
 	"time"
+
+	translators "github.com/bep/gotranslators"
 )
 
 func TestTimeLocation(t *testing.T) {
 	t.Parallel()
 
-	ns := New()
+	ns := New(translators.Get("en"))
 
 	for i, test := range []struct {
 		value    string
@@ -59,7 +61,7 @@ func TestTimeLocation(t *testing.T) {
 func TestFormat(t *testing.T) {
 	t.Parallel()
 
-	ns := New()
+	ns := New(translators.Get("en"))
 
 	for i, test := range []struct {
 		layout string
@@ -76,6 +78,8 @@ func TestFormat(t *testing.T) {
 		{time.RFC1123, time.Date(2016, time.March, 3, 4, 5, 0, 0, time.UTC), "Thu, 03 Mar 2016 04:05:00 UTC"},
 		{time.RFC3339, "Thu, 03 Mar 2016 04:05:00 UTC", "2016-03-03T04:05:00Z"},
 		{time.RFC1123, "2016-03-03T04:05:00Z", "Thu, 03 Mar 2016 04:05:00 UTC"},
+		// Custom layouts, as introduced in Hugo 0.87.
+		{":date_medium", "2015-01-21", "Jan 21, 2015"},
 	} {
 		result, err := ns.Format(test.layout, test.value)
 		if b, ok := test.expect.(bool); ok && !b {
@@ -97,7 +101,7 @@ func TestFormat(t *testing.T) {
 func TestDuration(t *testing.T) {
 	t.Parallel()
 
-	ns := New()
+	ns := New(translators.Get("en"))
 
 	for i, test := range []struct {
 		unit   interface{}

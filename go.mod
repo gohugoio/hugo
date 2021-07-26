@@ -13,6 +13,7 @@ require (
 	github.com/bep/gitmap v1.1.2
 	github.com/bep/godartsass v0.12.0
 	github.com/bep/golibsass v1.0.0
+	github.com/bep/gotranslators v0.0.0-20210726170149-50377fc92c80
 	github.com/bep/gowebp v0.1.0
 	github.com/bep/tmc v0.5.1
 	github.com/cli/safeexec v1.0.0
@@ -24,6 +25,7 @@ require (
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/getkin/kin-openapi v0.67.0
 	github.com/ghodss/yaml v1.0.0
+	github.com/go-playground/locales v0.13.0
 	github.com/gobuffalo/flect v0.2.3
 	github.com/gobwas/glob v0.2.3
 	github.com/gohugoio/go-i18n/v2 v2.1.3-0.20210430103248-4c28c89f8013

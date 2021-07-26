@@ -18,6 +18,10 @@ import (
 	"fmt"
 	_time "time"
 
+	"github.com/gohugoio/hugo/common/htime"
+
+	"github.com/go-playground/locales"
+
 	"github.com/spf13/cast"
 )
 
@@ -49,12 +53,16 @@ var timeFormats = []string{
 }
 
 // New returns a new instance of the time-namespaced template functions.
-func New() *Namespace {
-	return &Namespace{}
+func New(translator locales.Translator) *Namespace {
+	return &Namespace{
+		timeFormatter: htime.NewTimeFormatter(translator),
+	}
 }
 
 // Namespace provides template functions for the "time" namespace.
-type Namespace struct{}
+type Namespace struct {
+	timeFormatter htime.TimeFormatter
+}
 
 // AsTime converts the textual representation of the datetime string into
 // a time.Time interface.
@@ -105,7 +113,7 @@ func (ns *Namespace) Format(layout string, v interface{}) (string, error) {
 		return "", err
 	}
 
-	return t.Format(layout), nil
+	return ns.timeFormatter.Format(t, layout), nil
 }
 
 // Now returns the current local time.

@@ -15,6 +15,7 @@ package time
 
 import (
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/tpl/internal"
 )
 
@@ -22,7 +23,10 @@ const name = "time"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		ctx := New()
+		if d.Language == nil {
+			panic("Language must be set")
+		}
+		ctx := New(langs.GetTranslator(d.Language))
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name: name,
