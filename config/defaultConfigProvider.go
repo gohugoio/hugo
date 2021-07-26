@@ -89,6 +89,7 @@ func (c *defaultConfigProvider) Get(k string) interface{} {
 	c.mu.RLock()
 	key, m := c.getNestedKeyAndMap(strings.ToLower(k), false)
 	if m == nil {
+		c.mu.RUnlock()
 		return nil
 	}
 	v := m[key]

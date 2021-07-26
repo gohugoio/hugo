@@ -107,10 +107,16 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 		}
 	}
 
+	// Config deprecations.
 	// We made this a Glob pattern in Hugo 0.75, we don't need both.
 	if l.cfg.GetBool("ignoreVendor") {
 		helpers.Deprecated("--ignoreVendor", "--ignoreVendorPaths **", true)
 		l.cfg.Set("ignoreVendorPaths", "**")
+	}
+
+	if l.cfg.GetString("markup.defaultMarkdownHandler") == "blackfriday" {
+		helpers.Deprecated("markup.defaultMarkdownHandler=blackfriday", "See https://gohugo.io//content-management/formats/#list-of-content-formats", false)
+
 	}
 
 	// Some settings are used before we're done collecting all settings,
