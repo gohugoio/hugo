@@ -18,6 +18,8 @@ import (
 	"strings"
 	"sync"
 
+	translators "github.com/bep/gotranslators"
+	"github.com/go-playground/locales"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
 )
@@ -68,6 +70,11 @@ type Language struct {
 	params    map[string]interface{}
 	paramsMu  sync.Mutex
 	paramsSet bool
+
+	// Used for date formatting etc. We don't want this exported to the
+	// templates.
+	// TODO(bep) do the same for some of the others.
+	translator locales.Translator
 }
 
 func (l *Language) String() string {
@@ -86,8 +93,22 @@ func NewLanguage(lang string, cfg config.Provider) *Language {
 
 	localCfg := config.New()
 	compositeConfig := config.NewCompositeConfig(cfg, localCfg)
+	translator := translators.Get(lang)
+	if translator == nil {
+		translator = translators.Get(cfg.GetString("defaultContentLanguage"))
+		if translator == nil {
+			translator = translators.Get("en")
+		}
+	}
 
-	l := &Language{Lang: lang, ContentDir: cfg.GetString("contentDir"), Cfg: cfg, LocalCfg: localCfg, Provider: compositeConfig, params: params}
+	l := &Language{
+		Lang:       lang,
+		ContentDir: cfg.GetString("contentDir"),
+		Cfg:        cfg, LocalCfg: localCfg,
+		Provider:   compositeConfig,
+		params:     params,
+		translator: translator,
+	}
 	return l
 }
 
@@ -221,4 +242,11 @@ func (l *Language) IsSet(key string) bool {
 		return l.Provider.IsSet(key)
 	}
 	return l.Cfg.IsSet(key)
+}
+
+// Internal access to unexported Language fields.
+// This construct is to prevent them from leaking to the templates.
+
+func GetTranslator(l *Language) locales.Translator {
+	return l.translator
 }
