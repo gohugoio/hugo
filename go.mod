@@ -56,7 +56,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.0
 	github.com/tdewolff/minify/v2 v2.9.18
-	github.com/yuin/goldmark v1.3.9
+	github.com/yuin/goldmark v1.4.0
 	github.com/yuin/goldmark-highlighting v0.0.0-20200307114337-60d527fdb691
 	gocloud.dev v0.20.0
 	golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb
