@@ -30,20 +30,20 @@ func TestRemarshal(t *testing.T) {
 	ns := New(newDeps(v))
 	c := qt.New(t)
 
-	tomlExample := `title = "Test Metadata"
+	tomlExample := `title = 'Test Metadata'
 		
 [[resources]]
-  src = "**image-4.png"
-  title = "The Fourth Image!"
+  src = '**image-4.png'
+  title = 'The Fourth Image!'
   [resources.params]
-    byline = "picasso"
+    byline = 'picasso'
 
 [[resources]]
-  name = "my-cool-image-:counter"
-  src = "**.png"
-  title = "TOML: The Image #:counter"
+  name = 'my-cool-image-:counter'
+  src = '**.png'
+  title = 'TOML: The Image #:counter'
   [resources.params]
-    byline = "bep"
+    byline = 'bep'
 `
 
 	yamlExample := `resources:
@@ -129,11 +129,9 @@ a = "b"
 
 `
 
-	expected := `
-Hugo = "Rules"
-		
+	expected := `Hugo = 'Rules'
 [m]
-  a = "b"
+a = 'b'
 `
 
 	for _, format := range []string{"json", "yaml", "toml"} {
@@ -149,7 +147,7 @@ Hugo = "Rules"
 
 		diff := htesting.DiffStrings(expected, converted)
 		if len(diff) > 0 {
-			t.Fatalf("[%s] Expected \n%v\ngot\n%v\ndiff:\n%v\n", fromTo, expected, converted, diff)
+			t.Fatalf("[%s] Expected \n%v\ngot\n>>%v\ndiff:\n%v\n", fromTo, expected, converted, diff)
 		}
 	}
 }
@@ -182,5 +180,5 @@ func TestTestRemarshalMapInput(t *testing.T) {
 
 	output, err := ns.Remarshal("toml", input)
 	c.Assert(err, qt.IsNil)
-	c.Assert(output, qt.Equals, "hello = \"world\"\n")
+	c.Assert(output, qt.Equals, "hello = 'world'\n")
 }
