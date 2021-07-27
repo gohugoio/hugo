@@ -35,7 +35,7 @@ type siteBenchmarkTestcase struct {
 
 func getBenchmarkSiteDeepContent(b testing.TB) *sitesBuilder {
 	pageContent := func(size int) string {
-		return getBenchmarkTestDataPageContentForMarkdown(size, "", benchmarkMarkdownSnippets)
+		return getBenchmarkTestDataPageContentForMarkdown(size, false, "", benchmarkMarkdownSnippets)
 	}
 
 	sb := newTestSitesBuilder(b).WithConfigFile("toml", `
@@ -85,7 +85,7 @@ contentDir="content/sv"
 	return sb
 }
 
-func getBenchmarkTestDataPageContentForMarkdown(size int, category, markdown string) string {
+func getBenchmarkTestDataPageContentForMarkdown(size int, toml bool, category, markdown string) string {
 	base := `---
 title: "My Page"
 %s
@@ -93,10 +93,23 @@ title: "My Page"
 
 My page content.
 `
+	if toml {
+		base = `+++
+title="My Page"
+%s
++++
+
+My page content.
+`
+
+	}
 
 	var categoryKey string
 	if category != "" {
 		categoryKey = fmt.Sprintf("categories: [%s]", category)
+		if toml {
+			categoryKey = fmt.Sprintf("categories=[%s]", category)
+		}
 	}
 	base = fmt.Sprintf(base, categoryKey)
 
@@ -119,11 +132,11 @@ See my [About](/about/) page for details.
 
 func getBenchmarkSiteNewTestCases() []siteBenchmarkTestcase {
 	pageContentWithCategory := func(size int, category string) string {
-		return getBenchmarkTestDataPageContentForMarkdown(size, category, benchmarkMarkdownSnippets)
+		return getBenchmarkTestDataPageContentForMarkdown(size, false, category, benchmarkMarkdownSnippets)
 	}
 
 	pageContent := func(size int) string {
-		return getBenchmarkTestDataPageContentForMarkdown(size, "", benchmarkMarkdownSnippets)
+		return getBenchmarkTestDataPageContentForMarkdown(size, false, "", benchmarkMarkdownSnippets)
 	}
 
 	config := `
@@ -215,6 +228,20 @@ canonifyURLs = true
 				s.Assert(len(s.H.Sites), qt.Equals, 4)
 				s.Assert(len(s.H.Sites[0].RegularPages()), qt.Equals, len(s.H.Sites[1].RegularPages()))
 				s.Assert(len(s.H.Sites[0].RegularPages()), qt.Equals, 30)
+			},
+		},
+		{
+			"TOML front matter", func(b testing.TB) *sitesBuilder {
+				sb := newTestSitesBuilder(b).WithConfigFile("toml", config)
+				for i := 1; i <= 200; i++ {
+					content := getBenchmarkTestDataPageContentForMarkdown(1, true, "\"a\", \"b\", \"c\"", benchmarkMarkdownSnippets)
+					sb.WithContent(fmt.Sprintf("content/p%d.md", i), content)
+				}
+
+				return sb
+			},
+			func(s *sitesBuilder) {
+
 			},
 		},
 		{
