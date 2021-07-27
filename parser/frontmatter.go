@@ -20,7 +20,7 @@ import (
 
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
-	"github.com/BurntSushi/toml"
+	toml "github.com/pelletier/go-toml/v2"
 
 	yaml "gopkg.in/yaml.v2"
 )

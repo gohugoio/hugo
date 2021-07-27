@@ -31,9 +31,9 @@ func TestInterfaceToConfig(t *testing.T) {
 		// TOML
 		{map[string]interface{}{}, metadecoders.TOML, nil, false},
 		{
-			map[string]interface{}{"title": "test 1"},
+			map[string]interface{}{"title": "test' 1"},
 			metadecoders.TOML,
-			[]byte("title = \"test 1\"\n"),
+			[]byte("title = \"test' 1\"\n"),
 			false,
 		},
 
