@@ -51,13 +51,11 @@ func (p *pageMenus) Menus() navigation.PageMenus {
 func (p *pageMenus) menus() navigation.PageMenus {
 	p.init()
 	return p.pm
-
 }
 
 func (p *pageMenus) init() {
 	p.pmInit.Do(func() {
 		p.q = navigation.NewMenuQueryProvider(
-			p.p.s.Info.sectionPagesMenu,
 			p,
 			p.p.s,
 			p.p,
@@ -66,9 +64,7 @@ func (p *pageMenus) init() {
 		var err error
 		p.pm, err = navigation.PageMenusFromPage(p.p)
 		if err != nil {
-			p.p.s.Log.ERROR.Println(p.p.wrapError(err))
+			p.p.s.Log.Errorln(p.p.wrapError(err))
 		}
-
 	})
-
 }

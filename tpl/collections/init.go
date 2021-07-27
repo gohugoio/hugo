@@ -122,6 +122,10 @@ func init() {
 					`<a href="https://www.google.com?{{ (querify "q" "test" "page" 3) | safeURL }}">Search</a>`,
 					`<a href="https://www.google.com?page=3&amp;q=test">Search</a>`,
 				},
+				{
+					`{{ slice "foo" 1 "bar" 2 | querify | safeHTML }}`,
+					`bar=2&foo=1`,
+				},
 			},
 		)
 

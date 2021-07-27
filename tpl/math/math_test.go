@@ -197,7 +197,6 @@ func TestSqrt(t *testing.T) {
 	result, err := ns.Sqrt(-1)
 	c.Assert(err, qt.IsNil)
 	c.Assert(result, qt.Satisfies, math.IsNaN)
-
 }
 
 func TestMod(t *testing.T) {
@@ -353,6 +352,84 @@ func TestPow(t *testing.T) {
 		// we compare only 4 digits behind point if its a real float
 		// otherwise we usually get different float values on the last positions
 		result = float64(int(result*10000)) / 10000
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}
+
+func TestMax(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New()
+
+	for _, test := range []struct {
+		a      interface{}
+		b      interface{}
+		expect interface{}
+	}{
+		{-1, -1, float64(-1)},
+		{-1, 0, float64(0)},
+		{-1, 1, float64(1)},
+		{0, -1, float64(0)},
+		{0, 0, float64(0)},
+		{0, 1, float64(1)},
+		{1, -1, float64(1)},
+		{1, 0, float64(1)},
+		{1, 1, float64(1)},
+		{1.2, 1.23, float64(1.23)},
+		{-1.2, -1.23, float64(-1.2)},
+		{0, "a", false},
+		{"a", 0, false},
+		{"a", "b", false},
+	} {
+
+		result, err := ns.Max(test.a, test.b)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}
+
+func TestMin(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New()
+
+	for _, test := range []struct {
+		a      interface{}
+		b      interface{}
+		expect interface{}
+	}{
+		{-1, -1, float64(-1)},
+		{-1, 0, float64(-1)},
+		{-1, 1, float64(-1)},
+		{0, -1, float64(-1)},
+		{0, 0, float64(0)},
+		{0, 1, float64(0)},
+		{1, -1, float64(-1)},
+		{1, 0, float64(0)},
+		{1, 1, float64(1)},
+		{1.2, 1.23, float64(1.2)},
+		{-1.2, -1.23, float64(-1.23)},
+		{0, "a", false},
+		{"a", 0, false},
+		{"a", "b", false},
+	} {
+
+		result, err := ns.Min(test.a, test.b)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
 
 		c.Assert(err, qt.IsNil)
 		c.Assert(result, qt.Equals, test.expect)

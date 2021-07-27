@@ -97,7 +97,7 @@ func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, erro
 
 type ConverterProvider interface {
 	Get(name string) converter.Provider
-	//Default() converter.Provider
+	// Default() converter.Provider
 	GetMarkupConfig() markup_config.Config
 	Highlight(code, lang, optsStr string) (string, error)
 }

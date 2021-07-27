@@ -110,7 +110,6 @@ func (p *Pager) element() paginatedElement {
 
 // page returns the Page with the given index
 func (p *Pager) page(index int) (Page, error) {
-
 	if pages, ok := p.element().(Pages); ok {
 		if pages != nil && len(pages) > index {
 			return pages[index], nil
@@ -207,7 +206,6 @@ func splitPages(pages Pages, size int) []paginatedElement {
 }
 
 func splitPageGroups(pageGroups PagesGroup, size int) []paginatedElement {
-
 	type keyPage struct {
 		key  interface{}
 		page Page
@@ -269,7 +267,6 @@ func ResolvePagerSize(cfg config.Provider, options ...interface{}) (int, error) 
 }
 
 func Paginate(td TargetPathDescriptor, seq interface{}, pagerSize int) (*Paginator, error) {
-
 	if pagerSize <= 0 {
 		return nil, errors.New("'paginate' configuration setting must be positive to paginate")
 	}
@@ -300,7 +297,6 @@ func Paginate(td TargetPathDescriptor, seq interface{}, pagerSize int) (*Paginat
 // The motivation behind this is to avoid potential costly reflect.DeepEqual
 // when "probably" is good enough.
 func probablyEqualPageLists(a1 interface{}, a2 interface{}) bool {
-
 	if a1 == nil || a2 == nil {
 		return a1 == a2
 	}
@@ -347,7 +343,6 @@ func probablyEqualPageLists(a1 interface{}, a2 interface{}) bool {
 }
 
 func newPaginatorFromPages(pages Pages, size int, urlFactory paginationURLFactory) (*Paginator, error) {
-
 	if size <= 0 {
 		return nil, errors.New("Paginator size must be positive")
 	}
@@ -358,7 +353,6 @@ func newPaginatorFromPages(pages Pages, size int, urlFactory paginationURLFactor
 }
 
 func newPaginatorFromPageGroups(pageGroups PagesGroup, size int, urlFactory paginationURLFactory) (*Paginator, error) {
-
 	if size <= 0 {
 		return nil, errors.New("Paginator size must be positive")
 	}
@@ -389,7 +383,6 @@ func newPaginator(elements []paginatedElement, total, size int, urlFactory pagin
 }
 
 func newPaginationURLFactory(d TargetPathDescriptor) paginationURLFactory {
-
 	return func(pageNumber int) string {
 		pathDescriptor := d
 		var rel string
@@ -399,6 +392,5 @@ func newPaginationURLFactory(d TargetPathDescriptor) paginationURLFactory {
 		}
 
 		return CreateTargetPaths(pathDescriptor).RelPermalink(d.PathSpec)
-
 	}
 }

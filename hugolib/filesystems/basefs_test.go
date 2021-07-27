@@ -33,7 +33,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugolib/paths"
 	"github.com/gohugoio/hugo/modules"
-	"github.com/spf13/viper"
+	
 )
 
 func initConfig(fs afero.Fs, cfg config.Provider) error {
@@ -76,7 +76,7 @@ func initConfig(fs afero.Fs, cfg config.Provider) error {
 
 func TestNewBaseFs(t *testing.T) {
 	c := qt.New(t)
-	v := viper.New()
+	v := config.New()
 
 	fs := hugofs.NewMem(v)
 
@@ -181,8 +181,8 @@ theme = ["atheme"]
 	}
 }
 
-func createConfig() *viper.Viper {
-	v := viper.New()
+func createConfig() config.Provider {
+	v := config.New()
 	v.Set("contentDir", "mycontent")
 	v.Set("i18nDir", "myi18n")
 	v.Set("staticDir", "mystatic")
@@ -274,7 +274,6 @@ func TestRealDirs(t *testing.T) {
 	c.Assert(realDirs[len(realDirs)-1], qt.Equals, filepath.Join(themesDir, "mytheme/assets/scss"))
 
 	c.Assert(bfs.theBigFs, qt.Not(qt.IsNil))
-
 }
 
 func TestStaticFs(t *testing.T) {
@@ -305,7 +304,6 @@ func TestStaticFs(t *testing.T) {
 	sfs := bfs.StaticFs("en")
 	checkFileContent(sfs, "f1.txt", c, "Hugo Rocks!")
 	checkFileContent(sfs, "f2.txt", c, "Hugo Themes Still Rocks!")
-
 }
 
 func TestStaticFsMultiHost(t *testing.T) {
@@ -394,10 +392,14 @@ func TestMakePathRelative(t *testing.T) {
 	sfs := bfs.Static[""]
 	c.Assert(sfs, qt.Not(qt.IsNil))
 
-	c.Assert(sfs.MakePathRelative(filepath.Join(workDir, "dist", "d1", "foo.txt")), qt.Equals, filepath.FromSlash("mydist/d1/foo.txt"))
-	c.Assert(sfs.MakePathRelative(filepath.Join(workDir, "static", "d2", "foo.txt")), qt.Equals, filepath.FromSlash("d2/foo.txt"))
-	c.Assert(sfs.MakePathRelative(filepath.Join(workDir, "dust", "d3", "foo.txt")), qt.Equals, filepath.FromSlash("foo/bar/d3/foo.txt"))
+	makeRel := func(s string) string {
+		r, _ := sfs.MakePathRelative(s)
+		return r
+	}
 
+	c.Assert(makeRel(filepath.Join(workDir, "dist", "d1", "foo.txt")), qt.Equals, filepath.FromSlash("mydist/d1/foo.txt"))
+	c.Assert(makeRel(filepath.Join(workDir, "static", "d2", "foo.txt")), qt.Equals, filepath.FromSlash("d2/foo.txt"))
+	c.Assert(makeRel(filepath.Join(workDir, "dust", "d3", "foo.txt")), qt.Equals, filepath.FromSlash("foo/bar/d3/foo.txt"))
 }
 
 func checkFileCount(fs afero.Fs, dirname string, c *qt.C, expected int) {
@@ -407,7 +409,6 @@ func checkFileCount(fs afero.Fs, dirname string, c *qt.C, expected int) {
 }
 
 func checkFileContent(fs afero.Fs, filename string, c *qt.C, expected ...string) {
-
 	b, err := afero.ReadFile(fs, filename)
 	c.Assert(err, qt.IsNil)
 
@@ -452,7 +453,7 @@ func countFilesAndGetFilenames(fs afero.Fs, dirname string) (int, []string, erro
 	return counter, filenames, nil
 }
 
-func setConfigAndWriteSomeFilesTo(fs afero.Fs, v *viper.Viper, key, val string, num int) {
+func setConfigAndWriteSomeFilesTo(fs afero.Fs, v config.Provider, key, val string, num int) {
 	workingDir := v.GetString("workingDir")
 	v.Set(key, val)
 	fs.Mkdir(val, 0755)

@@ -17,12 +17,11 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/spf13/viper"
 )
 
 func TestGetStringSlicePreserveString(t *testing.T) {
 	c := qt.New(t)
-	cfg := viper.New()
+	cfg := New()
 
 	s := "This is a string"
 	sSlice := []string{"This", "is", "a", "slice"}

@@ -21,7 +21,7 @@ import (
 func TestMain(t *testing.T) {
 	t.Parallel()
 
-	var mainTests = []lexerTest{
+	mainTests := []lexerTest{
 		{"emoji #1", "Some text with :emoji:", []Item{nti(tText, "Some text with "), nti(TypeEmoji, ":emoji:"), tstEOF}},
 		{"emoji #2", "Some text with :emoji: and some text.", []Item{nti(tText, "Some text with "), nti(TypeEmoji, ":emoji:"), nti(tText, " and some text."), tstEOF}},
 		{"looks like an emoji #1", "Some text and then :emoji", []Item{nti(tText, "Some text and then "), nti(tText, ":"), nti(tText, "emoji"), tstEOF}},

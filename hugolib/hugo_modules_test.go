@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/modules/npm"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -37,15 +38,14 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/testmodBuilder/mods"
-	"github.com/spf13/viper"
 )
 
 func TestHugoModulesVariants(t *testing.T) {
-	if !isCI() {
+	if !htesting.IsCI() {
 		t.Skip("skip (relative) long running modules test when running locally")
 	}
 
-	config := `
+	tomlConfig := `
 baseURL="https://example.org"
 workingDir = %q
 
@@ -56,7 +56,7 @@ path="github.com/gohugoio/hugoTestModule2"
 `
 
 	createConfig := func(workingDir, moduleOpts string) string {
-		return fmt.Sprintf(config, workingDir, moduleOpts)
+		return fmt.Sprintf(tomlConfig, workingDir, moduleOpts)
 	}
 
 	newTestBuilder := func(t testing.TB, moduleOpts string) (*sitesBuilder, func()) {
@@ -65,7 +65,7 @@ path="github.com/gohugoio/hugoTestModule2"
 		b.Assert(err, qt.IsNil)
 		workingDir := filepath.Join(tempDir, "myhugosite")
 		b.Assert(os.MkdirAll(workingDir, 0777), qt.IsNil)
-		b.Fs = hugofs.NewDefault(viper.New())
+		b.Fs = hugofs.NewDefault(config.New())
 		b.WithWorkingDir(workingDir).WithConfigFile("toml", createConfig(workingDir, moduleOpts))
 		b.WithTemplates(
 			"index.html", `
@@ -93,11 +93,9 @@ github.com/gohugoio/hugoTestModule2 v0.0.0-20200131160637-9657d7697877/go.mod h1
 `)
 
 		return b, clean
-
 	}
 
 	t.Run("Target in subfolder", func(t *testing.T) {
-
 		b, clean := newTestBuilder(t, "ignoreImports=true")
 		defer clean()
 
@@ -107,7 +105,6 @@ github.com/gohugoio/hugoTestModule2 v0.0.0-20200131160637-9657d7697877/go.mod h1
 	})
 
 	t.Run("Ignore config", func(t *testing.T) {
-
 		b, clean := newTestBuilder(t, "ignoreConfig=true")
 		defer clean()
 
@@ -120,7 +117,6 @@ JS imported in module: |
 	})
 
 	t.Run("Ignore imports", func(t *testing.T) {
-
 		b, clean := newTestBuilder(t, "ignoreImports=true")
 		defer clean()
 
@@ -133,14 +129,17 @@ JS imported in module: |
 	})
 
 	t.Run("Create package.json", func(t *testing.T) {
-
 		b, clean := newTestBuilder(t, "")
 		defer clean()
 
 		b.WithSourceFile("package.json", `{
 		"name": "mypack",
 		"version": "1.2.3",
-        "scripts": {},
+        "scripts": {
+          "client": "wait-on http://localhost:1313 && open http://localhost:1313",
+          "start": "run-p client server",
+		  "test": "echo 'hoge' > hoge"
+		},
           "dependencies": {
         	"nonon": "error"
         	}
@@ -149,14 +148,18 @@ JS imported in module: |
 		b.WithSourceFile("package.hugo.json", `{
 		"name": "mypack",
 		"version": "1.2.3",
-        "scripts": {},
+        "scripts": {
+          "client": "wait-on http://localhost:1313 && open http://localhost:1313",
+          "start": "run-p client server",
+		  "test": "echo 'hoge' > hoge"
+		},
           "dependencies": {
         	"foo": "1.2.3"
         	},
         "devDependencies": {
                 "postcss-cli": "7.8.0",
                 "tailwindcss": "1.8.0"
- 
+
         }
 }`)
 
@@ -165,89 +168,106 @@ JS imported in module: |
 
 		b.AssertFileContentFn("package.json", func(s string) bool {
 			return s == `{
- "comments": {
+  "comments": {
+    "dependencies": {
+      "foo": "project",
+      "react-dom": "github.com/gohugoio/hugoTestModule2"
+    },
+    "devDependencies": {
+      "@babel/cli": "github.com/gohugoio/hugoTestModule2",
+      "@babel/core": "github.com/gohugoio/hugoTestModule2",
+      "@babel/preset-env": "github.com/gohugoio/hugoTestModule2",
+      "postcss-cli": "project",
+      "tailwindcss": "project"
+    }
+  },
   "dependencies": {
-   "foo": "project",
-   "react-dom": "github.com/gohugoio/hugoTestModule2"
+    "foo": "1.2.3",
+    "react-dom": "^16.13.1"
   },
   "devDependencies": {
-   "@babel/cli": "github.com/gohugoio/hugoTestModule2",
-   "@babel/core": "github.com/gohugoio/hugoTestModule2",
-   "@babel/preset-env": "github.com/gohugoio/hugoTestModule2",
-   "postcss-cli": "project",
-   "tailwindcss": "project"
-  }
- },
- "dependencies": {
-  "foo": "1.2.3",
-  "react-dom": "^16.13.1"
- },
- "devDependencies": {
-  "@babel/cli": "7.8.4",
-  "@babel/core": "7.9.0",
-  "@babel/preset-env": "7.9.5",
-  "postcss-cli": "7.8.0",
-  "tailwindcss": "1.8.0"
- },
- "name": "mypack",
- "scripts": {},
- "version": "1.2.3"
-}`
+    "@babel/cli": "7.8.4",
+    "@babel/core": "7.9.0",
+    "@babel/preset-env": "7.9.5",
+    "postcss-cli": "7.8.0",
+    "tailwindcss": "1.8.0"
+  },
+  "name": "mypack",
+  "scripts": {
+    "client": "wait-on http://localhost:1313 && open http://localhost:1313",
+    "start": "run-p client server",
+    "test": "echo 'hoge' > hoge"
+  },
+  "version": "1.2.3"
+}
+`
 		})
 	})
 
 	t.Run("Create package.json, no default", func(t *testing.T) {
-
 		b, clean := newTestBuilder(t, "")
 		defer clean()
 
-		b.WithSourceFile("package.json", `{
+		const origPackageJSON = `{
 		"name": "mypack",
 		"version": "1.2.3",
-        "scripts": {},
+        "scripts": {
+          "client": "wait-on http://localhost:1313 && open http://localhost:1313",
+          "start": "run-p client server",
+		  "test": "echo 'hoge' > hoge"
+		},
           "dependencies": {
            "moo": "1.2.3"
         	}
-}`)
+}`
+
+		b.WithSourceFile("package.json", origPackageJSON)
 
 		b.Build(BuildCfg{})
 		b.Assert(npm.Pack(b.H.BaseFs.SourceFs, b.H.BaseFs.Assets.Dirs), qt.IsNil)
 
 		b.AssertFileContentFn("package.json", func(s string) bool {
 			return s == `{
- "comments": {
+  "comments": {
+    "dependencies": {
+      "moo": "project",
+      "react-dom": "github.com/gohugoio/hugoTestModule2"
+    },
+    "devDependencies": {
+      "@babel/cli": "github.com/gohugoio/hugoTestModule2",
+      "@babel/core": "github.com/gohugoio/hugoTestModule2",
+      "@babel/preset-env": "github.com/gohugoio/hugoTestModule2",
+      "postcss-cli": "github.com/gohugoio/hugoTestModule2",
+      "tailwindcss": "github.com/gohugoio/hugoTestModule2"
+    }
+  },
   "dependencies": {
-   "moo": "project",
-   "react-dom": "github.com/gohugoio/hugoTestModule2"
+    "moo": "1.2.3",
+    "react-dom": "^16.13.1"
   },
   "devDependencies": {
-   "@babel/cli": "github.com/gohugoio/hugoTestModule2",
-   "@babel/core": "github.com/gohugoio/hugoTestModule2",
-   "@babel/preset-env": "github.com/gohugoio/hugoTestModule2",
-   "postcss-cli": "github.com/gohugoio/hugoTestModule2",
-   "tailwindcss": "github.com/gohugoio/hugoTestModule2"
-  }
- },
- "dependencies": {
-  "moo": "1.2.3",
-  "react-dom": "^16.13.1"
- },
- "devDependencies": {
-  "@babel/cli": "7.8.4",
-  "@babel/core": "7.9.0",
-  "@babel/preset-env": "7.9.5",
-  "postcss-cli": "7.1.0",
-  "tailwindcss": "1.2.0"
- },
- "name": "mypack",
- "scripts": {},
- "version": "1.2.3"
-}`
+    "@babel/cli": "7.8.4",
+    "@babel/core": "7.9.0",
+    "@babel/preset-env": "7.9.5",
+    "postcss-cli": "7.1.0",
+    "tailwindcss": "1.2.0"
+  },
+  "name": "mypack",
+  "scripts": {
+    "client": "wait-on http://localhost:1313 && open http://localhost:1313",
+    "start": "run-p client server",
+    "test": "echo 'hoge' > hoge"
+  },
+  "version": "1.2.3"
+}
+`
 		})
+
+		// https://github.com/gohugoio/hugo/issues/7690
+		b.AssertFileContent("package.hugo.json", origPackageJSON)
 	})
 
 	t.Run("Create package.json, no default, no package.json", func(t *testing.T) {
-
 		b, clean := newTestBuilder(t, "")
 		defer clean()
 
@@ -256,44 +276,44 @@ JS imported in module: |
 
 		b.AssertFileContentFn("package.json", func(s string) bool {
 			return s == `{
- "comments": {
+  "comments": {
+    "dependencies": {
+      "react-dom": "github.com/gohugoio/hugoTestModule2"
+    },
+    "devDependencies": {
+      "@babel/cli": "github.com/gohugoio/hugoTestModule2",
+      "@babel/core": "github.com/gohugoio/hugoTestModule2",
+      "@babel/preset-env": "github.com/gohugoio/hugoTestModule2",
+      "postcss-cli": "github.com/gohugoio/hugoTestModule2",
+      "tailwindcss": "github.com/gohugoio/hugoTestModule2"
+    }
+  },
   "dependencies": {
-   "react-dom": "github.com/gohugoio/hugoTestModule2"
+    "react-dom": "^16.13.1"
   },
   "devDependencies": {
-   "@babel/cli": "github.com/gohugoio/hugoTestModule2",
-   "@babel/core": "github.com/gohugoio/hugoTestModule2",
-   "@babel/preset-env": "github.com/gohugoio/hugoTestModule2",
-   "postcss-cli": "github.com/gohugoio/hugoTestModule2",
-   "tailwindcss": "github.com/gohugoio/hugoTestModule2"
-  }
- },
- "dependencies": {
-  "react-dom": "^16.13.1"
- },
- "devDependencies": {
-  "@babel/cli": "7.8.4",
-  "@babel/core": "7.9.0",
-  "@babel/preset-env": "7.9.5",
-  "postcss-cli": "7.1.0",
-  "tailwindcss": "1.2.0"
- },
- "name": "myhugosite",
- "version": "0.1.0"
-}`
+    "@babel/cli": "7.8.4",
+    "@babel/core": "7.9.0",
+    "@babel/preset-env": "7.9.5",
+    "postcss-cli": "7.1.0",
+    "tailwindcss": "1.2.0"
+  },
+  "name": "myhugosite",
+  "version": "0.1.0"
+}
+`
 		})
 	})
-
 }
 
 // TODO(bep) this fails when testmodBuilder is also building ...
 func TestHugoModulesMatrix(t *testing.T) {
-	if !isCI() {
+	if !htesting.IsCI() {
 		t.Skip("skip (relative) long running modules test when running locally")
 	}
 	t.Parallel()
 
-	if !isCI() || hugo.GoMinorVersion() < 12 {
+	if !htesting.IsCI() || hugo.GoMinorVersion() < 12 {
 		// https://github.com/golang/go/issues/26794
 		// There were some concurrent issues with Go modules in < Go 12.
 		t.Skip("skip this on local host and for Go <= 1.11 due to a bug in Go's stdlib")
@@ -313,7 +333,7 @@ func TestHugoModulesMatrix(t *testing.T) {
 	for _, m := range testmods[:2] {
 		c := qt.New(t)
 
-		v := viper.New()
+		v := config.New()
 
 		workingDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-modules-test")
 		c.Assert(err, qt.IsNil)
@@ -378,7 +398,7 @@ module github.com/gohugoio/tests/testHugoModules
 }
 
 func createChildModMatchers(m *mods.Md, ignoreVendor, vendored bool) []string {
-	// Child depdendencies are one behind.
+	// Child dependencies are one behind.
 	expectMinorVersion := 3
 
 	if !ignoreVendor && vendored {
@@ -524,7 +544,6 @@ other="Theme C"
 		"i18n theme: Theme C",
 		"i18n theme2: Theme2 D",
 	)
-
 }
 
 func TestModulesIgnoreConfig(t *testing.T) {
@@ -552,7 +571,6 @@ a = "Should Be Ignored!"
 	b.AssertFileContentFn("public/index.html", func(s string) bool {
 		return !strings.Contains(s, "Ignored")
 	})
-
 }
 
 func TestModulesDisabled(t *testing.T) {
@@ -588,7 +606,6 @@ b = "B param"
 	b.AssertFileContentFn("public/index.html", func(s string) bool {
 		return strings.Contains(s, "A param") && !strings.Contains(s, "B param")
 	})
-
 }
 
 func TestModulesIncompatible(t *testing.T) {
@@ -641,8 +658,7 @@ min_version = 0.55.0
 
 	c := qt.New(t)
 
-	c.Assert(logger.WarnCounter.Count(), qt.Equals, uint64(3))
-
+	c.Assert(logger.LogCounters().WarnCounter.Count(), qt.Equals, uint64(3))
 }
 
 func TestModulesSymlinks(t *testing.T) {
@@ -655,7 +671,7 @@ func TestModulesSymlinks(t *testing.T) {
 
 	c := qt.New(t)
 	// We need to use the OS fs for this.
-	cfg := viper.New()
+	cfg := config.New()
 	fs := hugofs.NewFrom(hugofs.Os, cfg)
 
 	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-mod-sym")
@@ -732,7 +748,8 @@ weight = 2
 		bfs.Content.Fs,
 		bfs.Data.Fs,
 		bfs.Assets.Fs,
-		bfs.I18n.Fs} {
+		bfs.I18n.Fs,
+	} {
 
 		if i != 0 {
 			continue
@@ -748,7 +765,6 @@ weight = 2
 				}
 
 				_, err := fs.Stat(filepath.FromSlash(filename))
-
 				if err != nil {
 					if i > 0 && strings.HasSuffix(filename, "toml") && strings.Contains(err.Error(), "files not supported") {
 						// OK
@@ -795,7 +811,7 @@ title: "My Page"
 
 	b.Build(BuildCfg{})
 
-	//helpers.PrintFs(b.H.Fs.Source, "public", os.Stdout)
+	// helpers.PrintFs(b.H.Fs.Source, "public", os.Stdout)
 
 	b.AssertFileContent("public/mypage/index.html", "Permalink: https://example.org/mypage/")
 }
@@ -823,13 +839,13 @@ workingDir = %q
 
 `
 
-	config := fmt.Sprintf(configTemplate, workingDir)
+	tomlConfig := fmt.Sprintf(configTemplate, workingDir)
 
 	b := newTestSitesBuilder(t).Running()
 
-	b.Fs = hugofs.NewDefault(viper.New())
+	b.Fs = hugofs.NewDefault(config.New())
 
-	b.WithWorkingDir(workingDir).WithConfigFile("toml", config)
+	b.WithWorkingDir(workingDir).WithConfigFile("toml", tomlConfig)
 	b.WithTemplatesAdded("index.html", `
 {{ .Title }}
 {{ .Content }}
@@ -921,7 +937,6 @@ title: "Readme Edit"
 	b.AssertFileContent("public/index.html", `
 Readme Edit
 `)
-
 }
 
 func TestMountsPaths(t *testing.T) {
@@ -945,23 +960,22 @@ workingDir = %q
 %s
 
 `
-		config := fmt.Sprintf(configTemplate, workingDir, mounts)
-		config = strings.Replace(config, "WORKING_DIR", workingDir, -1)
+		tomlConfig := fmt.Sprintf(configTemplate, workingDir, mounts)
+		tomlConfig = strings.Replace(tomlConfig, "WORKING_DIR", workingDir, -1)
 
 		b := newTestSitesBuilder(c).Running()
 
-		b.Fs = hugofs.NewDefault(viper.New())
+		b.Fs = hugofs.NewDefault(config.New())
 
 		os.MkdirAll(filepath.Join(workingDir, "content", "blog"), 0777)
 
-		b.WithWorkingDir(workingDir).WithConfigFile("toml", config)
+		b.WithWorkingDir(workingDir).WithConfigFile("toml", tomlConfig)
 
 		return test{
 			b:          b,
 			clean:      clean,
 			workingDir: workingDir,
 		}
-
 	}
 
 	c.Run("Default", func(c *qt.C) {
@@ -979,11 +993,10 @@ title: P1
 
 		p := b.GetPage("blog/p1.md")
 		f := p.File().FileInfo().Meta()
-		b.Assert(filepath.ToSlash(f.Path()), qt.Equals, "blog/p1.md")
+		b.Assert(filepath.ToSlash(f.Path), qt.Equals, "blog/p1.md")
 		b.Assert(filepath.ToSlash(f.PathFile()), qt.Equals, "content/blog/p1.md")
 
 		b.Assert(b.H.BaseFs.Layouts.Path(filepath.Join(test.workingDir, "layouts", "_default", "single.html")), qt.Equals, filepath.FromSlash("_default/single.html"))
-
 	})
 
 	c.Run("Mounts", func(c *qt.C) {
@@ -1033,15 +1046,13 @@ title: P1
 		b.Assert(p1_2, qt.Equals, p1_1)
 
 		f := p1_1.File().FileInfo().Meta()
-		b.Assert(filepath.ToSlash(f.Path()), qt.Equals, "blog/sub/p1.md")
+		b.Assert(filepath.ToSlash(f.Path), qt.Equals, "blog/sub/p1.md")
 		b.Assert(filepath.ToSlash(f.PathFile()), qt.Equals, "mycontent/sub/p1.md")
 		b.Assert(b.H.BaseFs.Layouts.Path(filepath.Join(myPartialsDir, "mypartial.html")), qt.Equals, filepath.FromSlash("partials/mypartial.html"))
 		b.Assert(b.H.BaseFs.Layouts.Path(filepath.Join(absShortcodesDir, "myshort.html")), qt.Equals, filepath.FromSlash("shortcodes/myshort.html"))
 		b.Assert(b.H.BaseFs.Content.Path(filepath.Join(subContentDir, "p1.md")), qt.Equals, filepath.FromSlash("blog/sub/p1.md"))
 		b.Assert(b.H.BaseFs.Content.Path(filepath.Join(test.workingDir, "README.md")), qt.Equals, filepath.FromSlash("_index.md"))
-
 	})
-
 }
 
 // https://github.com/gohugoio/hugo/issues/6299
@@ -1053,7 +1064,7 @@ func TestSiteWithGoModButNoModules(t *testing.T) {
 	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-no-mod")
 	c.Assert(err, qt.IsNil)
 
-	cfg := viper.New()
+	cfg := config.New()
 	cfg.Set("workingDir", workDir)
 	fs := hugofs.NewFrom(hugofs.Os, cfg)
 
@@ -1066,7 +1077,6 @@ func TestSiteWithGoModButNoModules(t *testing.T) {
 
 	b.WithSourceFile("go.mod", "")
 	b.Build(BuildCfg{})
-
 }
 
 // https://github.com/gohugoio/hugo/issues/6622
@@ -1080,7 +1090,7 @@ func TestModuleAbsMount(t *testing.T) {
 	absContentDir, clean2, err := htesting.CreateTempDir(hugofs.Os, "hugo-content")
 	c.Assert(err, qt.IsNil)
 
-	cfg := viper.New()
+	cfg := config.New()
 	cfg.Set("workingDir", workDir)
 	fs := hugofs.NewFrom(hugofs.Os, cfg)
 
@@ -1091,7 +1101,7 @@ workingDir=%q
   [[module.mounts]]
     source = %q
     target = "content"
-    
+
 `, workDir, absContentDir)
 
 	defer clean1()
@@ -1120,5 +1130,4 @@ P1: {{ $p1.Title }}|{{ $p1.RelPermalink }}|Filename: {{ $p1.File.Filename }}
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent("public/index.html", "P1: Abs|/p1/", "Filename: "+contentFilename)
-
 }

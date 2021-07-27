@@ -22,11 +22,15 @@ noVendor = ""
 proxy = "direct"
 noProxy = "none"
 private = "*.*"
+replacements = ""
 {{< /code-toggle >}}
 
 
 noVendor {{< new-in "0.75.0" >}}
 : A optional Glob pattern matching module paths to skip when vendoring, e.g. "github.com/**"
+
+vendorClosest {{< new-in "0.81.0" >}}
+: When enabled, we will pick the vendored module closest to the module using it. The default behaviour is to pick the first. Note that there can still be only one dependency of a given module path, so once it is in use it cannot be redefined.
 
 proxy
 : Defines the proxy server to use to download remote modules. Default is `direct`, which means "git clone" and similar.
@@ -36,6 +40,9 @@ noProxy
 
 private
 : Comma separated glob list matching paths that should be treated as private.
+
+replacements {{< new-in "0.77.0" >}}
+: A comma separated (or a slice) list of module path to directory replacement mapping, e.g. `"github.com/bep/myprettytheme -> ../..,github.com/bep/shortcodes -> /some/path`. This is mostly useful for temporary locally development of a module, and then it makes sense to set it as an OS environment variable, e.g: `env HUGO_MODULE_REPLACEMENTS="github.com/bep/myprettytheme -> ../.."`. Any relative path is relate to [themesDir](https://gohugo.io/getting-started/configuration/#all-configuration-settings), and absolute paths are allowed.
 
 Note that the above terms maps directly to their counterparts in Go Modules. Some of these setting may be natural to set as OS environment variables. To set the proxy server to use, as an example:
 
@@ -76,6 +83,7 @@ extended
 [[module.imports]]
   path = "github.com/gohugoio/hugoTestModules1_linux/modh1_2_1v"
   ignoreConfig = false
+  ignoreImports = false
   disable = false
 [[module.imports]]
   path = "my-shortcodes"
@@ -87,8 +95,17 @@ path
 ignoreConfig
 : If enabled, any module configuration file, e.g. `config.toml`, will not be loaded. Note that this will also stop the loading of any transitive module dependencies.
 
+ignoreImports {{< new-in "0.80.0" >}}
+: If enabled, module imports will not be followed.
+
 disable
-: Set to `true` to disable the module off while keeping any version info in the `go.*` files.
+: Set to `true` to disable the module while keeping any version info in the `go.*` files.
+
+noMounts {{< new-in "0.84.2" >}}
+:  Do not mount any folder in this import.
+
+noVendor
+:  Never vendor this import (only allowed in main project).
 
 {{< gomodules-info >}}
 

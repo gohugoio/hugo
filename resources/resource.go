@@ -276,7 +276,6 @@ func (l *genericResource) Publish() error {
 		defer fw.Close()
 
 		_, err = io.Copy(fw, fr)
-
 	})
 
 	return err
@@ -435,14 +434,13 @@ func (l genericResource) clone() *genericResource {
 
 // returns an opened file or nil if nothing to write (it may already be published).
 func (l *genericResource) openDestinationsForWriting() (w io.WriteCloser, err error) {
-
 	l.publishInit.Do(func() {
 		targetFilenames := l.getTargetFilenames()
 		var changedFilenames []string
 
 		// Fast path:
 		// This is a processed version of the original;
-		// check if it already existis at the destination.
+		// check if it already exists at the destination.
 		for _, targetFilename := range targetFilenames {
 			if _, err := l.getSpec().BaseFs.PublishFs.Stat(targetFilename); err == nil {
 				continue
@@ -456,11 +454,9 @@ func (l *genericResource) openDestinationsForWriting() (w io.WriteCloser, err er
 		}
 
 		w, err = helpers.OpenFilesForWriting(l.getSpec().BaseFs.PublishFs, changedFilenames...)
-
 	})
 
 	return
-
 }
 
 func (r *genericResource) openPublishFileForWriting(relTargetPath string) (io.WriteCloser, error) {
@@ -666,7 +662,7 @@ type resourcePathDescriptor struct {
 	targetPathBuilder func() page.TargetPaths
 
 	// This will normally be the same as above, but this will only apply to publishing
-	// of resources. It may be mulltiple values when in multihost mode.
+	// of resources. It may be multiple values when in multihost mode.
 	baseTargetPathDirs []string
 
 	// baseOffset is set when the output format's path has a offset, e.g. for AMP.

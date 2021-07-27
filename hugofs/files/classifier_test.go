@@ -39,7 +39,6 @@ func TestIsHTMLContent(t *testing.T) {
 	c.Assert(isHTMLContent(strings.NewReader("   <!--")), qt.Equals, true)
 	c.Assert(isHTMLContent(strings.NewReader("   ---<")), qt.Equals, false)
 	c.Assert(isHTMLContent(strings.NewReader(" foo  <")), qt.Equals, false)
-
 }
 
 func TestComponentFolders(t *testing.T) {
@@ -57,5 +56,4 @@ func TestComponentFolders(t *testing.T) {
 	c.Assert(IsComponentFolder("content"), qt.Equals, true)
 	c.Assert(IsComponentFolder("foo"), qt.Equals, false)
 	c.Assert(IsComponentFolder(""), qt.Equals, false)
-
 }

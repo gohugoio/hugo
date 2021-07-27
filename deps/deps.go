@@ -21,6 +21,7 @@ import (
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/source"
 	"github.com/gohugoio/hugo/tpl"
+	"github.com/spf13/cast"
 	jww "github.com/spf13/jwalterweatherman"
 )
 
@@ -30,13 +31,10 @@ import (
 type Deps struct {
 
 	// The logger to use.
-	Log *loggers.Logger `json:"-"`
+	Log loggers.Logger `json:"-"`
 
 	// Used to log errors that may repeat itself many times.
-	DistinctErrorLog *helpers.DistinctLogger
-
-	// Used to log warnings that may repeat itself many times.
-	DistinctWarningLog *helpers.DistinctLogger
+	LogDistinct loggers.Logger
 
 	// The templates to use. This will usually implement the full tpl.TemplateManager.
 	tmpl tpl.TemplateHandler
@@ -66,7 +64,7 @@ type Deps struct {
 	FileCaches filecache.Caches
 
 	// The translation func to use
-	Translate func(translationID string, args ...interface{}) string `json:"-"`
+	Translate func(translationID string, templateData interface{}) string `json:"-"`
 
 	// The language in use. TODO(bep) consolidate with site
 	Language *langs.Language
@@ -92,6 +90,9 @@ type Deps struct {
 
 	// BuildStartListeners will be notified before a build starts.
 	BuildStartListeners *Listeners
+
+	// Resources that gets closed when the build is done or the server shuts down.
+	BuildClosers *Closers
 
 	// Atomic values set during a build.
 	// This is common/global for all sites.
@@ -230,7 +231,6 @@ func New(cfg DepsCfg) (*Deps, error) {
 	}
 
 	ps, err := helpers.NewPathSpec(fs, cfg.Language, logger)
-
 	if err != nil {
 		return nil, errors.Wrap(err, "create PathSpec")
 	}
@@ -260,14 +260,15 @@ func New(cfg DepsCfg) (*Deps, error) {
 		timeoutms = 3000
 	}
 
-	distinctErrorLogger := helpers.NewDistinctLogger(logger.ERROR)
-	distinctWarnLogger := helpers.NewDistinctLogger(logger.WARN)
+	ignoreErrors := cast.ToStringSlice(cfg.Cfg.Get("ignoreErrors"))
+	ignorableLogger := loggers.NewIgnorableLogger(logger, ignoreErrors...)
+
+	logDistinct := helpers.NewDistinctLogger(logger)
 
 	d := &Deps{
 		Fs:                      fs,
-		Log:                     logger,
-		DistinctErrorLog:        distinctErrorLogger,
-		DistinctWarningLog:      distinctWarnLogger,
+		Log:                     ignorableLogger,
+		LogDistinct:             logDistinct,
 		templateProvider:        cfg.TemplateProvider,
 		translationProvider:     cfg.TranslationProvider,
 		WithTemplate:            cfg.WithTemplate,
@@ -281,6 +282,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		Site:                    cfg.Site,
 		FileCaches:              fileCaches,
 		BuildStartListeners:     &Listeners{},
+		BuildClosers:            &Closers{},
 		BuildState:              buildState,
 		Running:                 cfg.Running,
 		Timeout:                 time.Duration(timeoutms) * time.Millisecond,
@@ -292,6 +294,10 @@ func New(cfg DepsCfg) (*Deps, error) {
 	}
 
 	return d, nil
+}
+
+func (d *Deps) Close() error {
+	return d.BuildClosers.Close()
 }
 
 // ForLanguage creates a copy of the Deps with the language dependent
@@ -312,14 +318,16 @@ func (d Deps) ForLanguage(cfg DepsCfg, onCreated func(d *Deps) error) (*Deps, er
 
 	d.Site = cfg.Site
 
-	// The resource cache is global so reuse.
+	// These are common for all sites, so reuse.
 	// TODO(bep) clean up these inits.
 	resourceCache := d.ResourceSpec.ResourceCache
+	postBuildAssets := d.ResourceSpec.PostBuildAssets
 	d.ResourceSpec, err = resources.NewSpec(d.PathSpec, d.ResourceSpec.FileCaches, d.BuildState, d.Log, d.globalErrHandler, cfg.OutputFormats, cfg.MediaTypes)
 	if err != nil {
 		return nil, err
 	}
 	d.ResourceSpec.ResourceCache = resourceCache
+	d.ResourceSpec.PostBuildAssets = postBuildAssets
 
 	d.Cfg = l
 	d.Language = l
@@ -341,7 +349,6 @@ func (d Deps) ForLanguage(cfg DepsCfg, onCreated func(d *Deps) error) (*Deps, er
 	d.BuildStartListeners = &Listeners{}
 
 	return &d, nil
-
 }
 
 // DepsCfg contains configuration options that can be used to configure Hugo
@@ -350,7 +357,7 @@ func (d Deps) ForLanguage(cfg DepsCfg, onCreated func(d *Deps) error) (*Deps, er
 type DepsCfg struct {
 
 	// The Logger to use.
-	Logger *loggers.Logger
+	Logger loggers.Logger
 
 	// The file systems to use
 	Fs *hugofs.Fs
@@ -394,4 +401,31 @@ func (b *BuildState) Incr() int {
 
 func NewBuildState() BuildState {
 	return BuildState{}
+}
+
+type Closer interface {
+	Close() error
+}
+
+type Closers struct {
+	mu sync.Mutex
+	cs []Closer
+}
+
+func (cs *Closers) Add(c Closer) {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	cs.cs = append(cs.cs, c)
+}
+
+func (cs *Closers) Close() error {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	for _, c := range cs.cs {
+		c.Close()
+	}
+
+	cs.cs = cs.cs[:0]
+
+	return nil
 }

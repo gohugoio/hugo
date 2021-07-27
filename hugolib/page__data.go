@@ -60,7 +60,6 @@ func (p *pageData) Data() interface{} {
 
 		// Assign the function to the map to make sure it is lazily initialized
 		p.data["pages"] = p.Pages
-
 	})
 
 	return p.data

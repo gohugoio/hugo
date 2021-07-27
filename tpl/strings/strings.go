@@ -16,8 +16,8 @@ package strings
 
 import (
 	"errors"
-	"fmt"
 	"html/template"
+	"regexp"
 	"strings"
 	"unicode/utf8"
 
@@ -43,7 +43,7 @@ type Namespace struct {
 	deps      *deps.Deps
 }
 
-// CountRunes returns the number of runes in s, excluding whitepace.
+// CountRunes returns the number of runes in s, excluding whitespace.
 func (ns *Namespace) CountRunes(s interface{}) (int, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
@@ -74,6 +74,15 @@ func (ns *Namespace) CountWords(s interface{}) (int, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return 0, _errors.Wrap(err, "Failed to convert content to string")
+	}
+
+	isCJKLanguage, err := regexp.MatchString(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`, ss)
+	if err != nil {
+		return 0, _errors.Wrap(err, "Failed to match regex pattern against string")
+	}
+
+	if !isCJKLanguage {
+		return len(strings.Fields(helpers.StripHTML((ss)))), nil
 	}
 
 	counter := 0
@@ -279,64 +288,76 @@ func (ns *Namespace) Split(a interface{}, delimiter string) ([]string, error) {
 // if length is given and is negative, then that many characters will be omitted from
 // the end of string.
 func (ns *Namespace) Substr(a interface{}, nums ...interface{}) (string, error) {
-	aStr, err := cast.ToStringE(a)
+	s, err := cast.ToStringE(a)
 	if err != nil {
 		return "", err
 	}
 
-	var start, length int
+	asRunes := []rune(s)
+	rlen := len(asRunes)
 
-	asRunes := []rune(aStr)
+	var start, length int
 
 	switch len(nums) {
 	case 0:
-		return "", errors.New("too less arguments")
+		return "", errors.New("too few arguments")
 	case 1:
 		if start, err = cast.ToIntE(nums[0]); err != nil {
-			return "", errors.New("start argument must be integer")
+			return "", errors.New("start argument must be an integer")
 		}
-		length = len(asRunes)
+		length = rlen
 	case 2:
 		if start, err = cast.ToIntE(nums[0]); err != nil {
-			return "", errors.New("start argument must be integer")
+			return "", errors.New("start argument must be an integer")
 		}
 		if length, err = cast.ToIntE(nums[1]); err != nil {
-			return "", errors.New("length argument must be integer")
+			return "", errors.New("length argument must be an integer")
 		}
 	default:
 		return "", errors.New("too many arguments")
 	}
 
-	if start < -len(asRunes) {
+	if rlen == 0 {
+		return "", nil
+	}
+
+	if start < 0 {
+		start += rlen
+	}
+
+	// start was originally negative beyond rlen
+	if start < 0 {
 		start = 0
 	}
-	if start > len(asRunes) {
-		return "", fmt.Errorf("start position out of bounds for %d-byte string", len(aStr))
+
+	if start > rlen-1 {
+		return "", nil
 	}
 
-	var s, e int
-	if start >= 0 && length >= 0 {
-		s = start
-		e = start + length
-	} else if start < 0 && length >= 0 {
-		s = len(asRunes) + start - length + 1
-		e = len(asRunes) + start + 1
-	} else if start >= 0 && length < 0 {
-		s = start
-		e = len(asRunes) + length
-	} else {
-		s = len(asRunes) + start
-		e = len(asRunes) + length
+	end := rlen
+
+	switch {
+	case length == 0:
+		return "", nil
+	case length < 0:
+		end += length
+	case length > 0:
+		end = start + length
 	}
 
-	if s > e {
-		return "", fmt.Errorf("calculated start position greater than end position: %d > %d", s, e)
-	}
-	if e > len(asRunes) {
-		e = len(asRunes)
+	if start >= end {
+		return "", nil
 	}
 
-	return string(asRunes[s:e]), nil
+	if end < 0 {
+		return "", nil
+	}
+
+	if end > rlen {
+		end = rlen
+	}
+
+	return string(asRunes[start:end]), nil
 }
 
 // Title returns a copy of the input s with all Unicode letters that begin words

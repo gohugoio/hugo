@@ -1,15 +1,14 @@
 
 ---
 date: 2020-09-14
-title: "0.75.0"
-description: "0.75.0"
+title: "NPM Pack"
+description: "Hugo 0.75 comes with a new \"hugo mod npm pack\" command, several improvements re. Hugo Modules and the Node tools, and more."
 categories: ["Releases"]
 ---
 
-	Hugo `0.75.0` brings several improvements to Hugo Modules, a new CLI command to bridge the JavaScript dependencies into Hugo, a refresh of the versions of the most important upstream dependencies, and more.
+Hugo `0.75.0` brings several improvements to Hugo Modules, a new CLI command to bridge the JavaScript dependencies into Hugo, a refresh of the versions of the most important upstream dependencies, and more. There are also some good bug fixes in this release. One notable one is covered by [this commit](https://github.com/gohugoio/hugo/commit/4055c121847847d8bd6b95a928185daee065091b) -- which covers a "stale content scenario in server" when you include content or page data via `GetPage` from a shortcode.
 
 ## NPM Pack
-
 
 The new CLI command is called `hugo mod npm pack`.  We have marked it as experimental. It works great, go ahead and use it, but we need to test this out in real projects to get a feel of it; it is likely that it will change/improve in the upcoming versions of Hugo. The command creates a consolidated `package.json` from the project and all of its [theme components](https://gohugo.io/hugo-modules/theme-components/). On version conflicts, the version closest to the project is selected. We may revise that strategy in the future ([minimal version selection](https://about.sourcegraph.com/blog/the-pain-that-minimal-version-selection-solves/) maybe?), but this should give both control and the least amount of surprise for the site owner.
 
@@ -44,7 +43,7 @@ const tailwind = require('tailwindcss')(tailwindConfig);
 
 * We have added a `noVendor` Glob pattern config to the module config [d4611c43](https://github.com/gohugoio/hugo/commit/d4611c4322dabfd8d2520232be578388029867db) [@bep](https://github.com/bep) [#7647](https://github.com/gohugoio/hugo/issues/7647). This allows you to only vendor a subset of your dependencies.
 * We have added `ignoreImports` option to module imports config [20af9a07](https://github.com/gohugoio/hugo/commit/20af9a078189ce1e92a1d2047c90fba2a4e91827) [@bep](https://github.com/bep) [#7646](https://github.com/gohugoio/hugo/issues/7646), which allows you to import a module and load its config, but not follow its imports.
-* We have deprecated `--ignoreVendor` in favour of a `--ignoreVendor`, a patch matching Glob pattern [9a1e6d15](https://github.com/gohugoio/hugo/commit/9a1e6d15a31ec667b2ff9cf20e43b1daca61e004) [@bep](https://github.com/bep). A typical use for this would be when you have vendored your dependencies, but want to edit one of them.
+* We have deprecated `--ignoreVendor` in favour of a `--ignoreVendorPaths`, a patch matching Glob pattern [9a1e6d15](https://github.com/gohugoio/hugo/commit/9a1e6d15a31ec667b2ff9cf20e43b1daca61e004) [@bep](https://github.com/bep). A typical use for this would be when you have vendored your dependencies, but want to edit one of them.
 
 
 ## Statistics
@@ -61,6 +60,10 @@ Hugo now has:
 * 46596+ [stars](https://github.com/gohugoio/hugo/stargazers)
 * 438+ [contributors](https://github.com/gohugoio/hugo/graphs/contributors)
 * 352+ [themes](http://themes.gohugo.io/)
+
+## Notes
+* We now build with Go 1.15, which means that we no longer build release binaries for MacOS 32-bit.
+* You may now get an error message about "error calling partial: partials that returns a value needs a non-zero argument.". This error situation was not caught earlier, and comes from a limitation in Go's templates: If you use the `return` keyword in a partial, the argument you pass to that partial (e.g. the ".") cannot be zero (and 0 and "" is considered a zero argument).
 
 ## Enhancements
 

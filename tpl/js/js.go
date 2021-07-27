@@ -62,5 +62,4 @@ func (ns *Namespace) Build(args ...interface{}) (resource.Resource, error) {
 	}
 
 	return ns.client.Process(r, m)
-
 }

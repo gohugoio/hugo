@@ -20,6 +20,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/gohugoio/hugo/config"
+
 	"github.com/gohugoio/hugo/htesting"
 
 	"github.com/spf13/afero"
@@ -29,13 +31,11 @@ import (
 	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	qt "github.com/frankban/quicktest"
 )
 
 func TestExecute(t *testing.T) {
-
 	c := qt.New(t)
 
 	createSite := func(c *qt.C) (string, func()) {
@@ -90,7 +90,7 @@ func TestExecute(t *testing.T) {
 		defer clean()
 		resp := Execute([]string{"deploy", "-s=" + dir, "-e=staging", "--target=mydeployment", "--dryRun"})
 		c.Assert(resp.Err, qt.Not(qt.IsNil))
-		c.Assert(resp.Err.Error(), qt.Contains, `no provider registered for "hugocloud"`)
+		c.Assert(resp.Err.Error(), qt.Contains, `no driver registered for "hugocloud"`)
 	})
 
 	c.Run("list", func(c *qt.C) {
@@ -124,7 +124,6 @@ func TestExecute(t *testing.T) {
 		c.Assert(config, qt.Contains, "baseURL = \"http://example.org/\"")
 		checkNewSiteInited(c, siteDir)
 	})
-
 }
 
 func checkNewSiteInited(c *qt.C, basepath string) {
@@ -168,7 +167,7 @@ func TestFlags(t *testing.T) {
 			name: "ignoreVendor as bool",
 			args: []string{"server", "--ignoreVendor"},
 			check: func(c *qt.C, cmd *serverCmd) {
-				cfg := viper.New()
+				cfg := config.New()
 				cmd.flagsToConfig(cfg)
 				c.Assert(cfg.Get("ignoreVendor"), qt.Equals, true)
 			},
@@ -178,14 +177,15 @@ func TestFlags(t *testing.T) {
 			name: "ignoreVendorPaths",
 			args: []string{"server", "--ignoreVendorPaths=github.com/**"},
 			check: func(c *qt.C, cmd *serverCmd) {
-				cfg := viper.New()
+				cfg := config.New()
 				cmd.flagsToConfig(cfg)
 				c.Assert(cfg.Get("ignoreVendorPaths"), qt.Equals, "github.com/**")
 			},
 		},
 		{
 			name: "Persistent flags",
-			args: []string{"server",
+			args: []string{
+				"server",
 				"--config=myconfig.toml",
 				"--configDir=myconfigdir",
 				"--contentDir=mycontent",
@@ -217,7 +217,7 @@ func TestFlags(t *testing.T) {
 				c.Assert(sc.serverPort, qt.Equals, 1366)
 				c.Assert(sc.environment, qt.Equals, "testing")
 
-				cfg := viper.New()
+				cfg := config.New()
 				sc.flagsToConfig(cfg)
 				c.Assert(cfg.GetString("publishDir"), qt.Equals, "/tmp/mydestination")
 				c.Assert(cfg.GetString("contentDir"), qt.Equals, "mycontent")
@@ -235,12 +235,12 @@ func TestFlags(t *testing.T) {
 
 				// The flag is named i18n-warnings
 				c.Assert(cfg.GetBool("logI18nWarnings"), qt.Equals, true)
-
-			}}}
+			},
+		},
+	}
 
 	for _, test := range tests {
 		c.Run(test.name, func(c *qt.C) {
-
 			b := newCommandsBuilder()
 			root := b.addAll().build()
 
@@ -257,11 +257,9 @@ func TestFlags(t *testing.T) {
 			test.check(c, b.commands[0].(*serverCmd))
 		})
 	}
-
 }
 
 func TestCommandsExecute(t *testing.T) {
-
 	c := qt.New(t)
 
 	dir, clean, err := createSimpleTestSite(t, testSiteConfig{})
@@ -330,7 +328,6 @@ func TestCommandsExecute(t *testing.T) {
 		}
 
 	}
-
 }
 
 type testSiteConfig struct {
@@ -399,7 +396,6 @@ Environment: {{ hugo.Environment }}
 `)
 
 	return d, clean, nil
-
 }
 
 func writeFile(t *testing.T, filename, content string) {

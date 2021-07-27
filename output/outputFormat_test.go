@@ -19,36 +19,26 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/media"
-	"github.com/google/go-cmp/cmp"
-)
-
-var eq = qt.CmpEquals(
-	cmp.Comparer(func(m1, m2 media.Type) bool {
-		return m1.Type() == m2.Type()
-	}),
-	cmp.Comparer(func(o1, o2 Format) bool {
-		return o1.Name == o2.Name
-	}),
 )
 
 func TestDefaultTypes(t *testing.T) {
 	c := qt.New(t)
 	c.Assert(CalendarFormat.Name, qt.Equals, "Calendar")
-	c.Assert(CalendarFormat.MediaType, eq, media.CalendarType)
+	c.Assert(CalendarFormat.MediaType, qt.Equals, media.CalendarType)
 	c.Assert(CalendarFormat.Protocol, qt.Equals, "webcal://")
 	c.Assert(CalendarFormat.Path, qt.HasLen, 0)
 	c.Assert(CalendarFormat.IsPlainText, qt.Equals, true)
 	c.Assert(CalendarFormat.IsHTML, qt.Equals, false)
 
 	c.Assert(CSSFormat.Name, qt.Equals, "CSS")
-	c.Assert(CSSFormat.MediaType, eq, media.CSSType)
+	c.Assert(CSSFormat.MediaType, qt.Equals, media.CSSType)
 	c.Assert(CSSFormat.Path, qt.HasLen, 0)
 	c.Assert(CSSFormat.Protocol, qt.HasLen, 0) // Will inherit the BaseURL protocol.
 	c.Assert(CSSFormat.IsPlainText, qt.Equals, true)
 	c.Assert(CSSFormat.IsHTML, qt.Equals, false)
 
 	c.Assert(CSVFormat.Name, qt.Equals, "CSV")
-	c.Assert(CSVFormat.MediaType, eq, media.CSVType)
+	c.Assert(CSVFormat.MediaType, qt.Equals, media.CSVType)
 	c.Assert(CSVFormat.Path, qt.HasLen, 0)
 	c.Assert(CSVFormat.Protocol, qt.HasLen, 0)
 	c.Assert(CSVFormat.IsPlainText, qt.Equals, true)
@@ -56,7 +46,7 @@ func TestDefaultTypes(t *testing.T) {
 	c.Assert(CSVFormat.Permalinkable, qt.Equals, false)
 
 	c.Assert(HTMLFormat.Name, qt.Equals, "HTML")
-	c.Assert(HTMLFormat.MediaType, eq, media.HTMLType)
+	c.Assert(HTMLFormat.MediaType, qt.Equals, media.HTMLType)
 	c.Assert(HTMLFormat.Path, qt.HasLen, 0)
 	c.Assert(HTMLFormat.Protocol, qt.HasLen, 0)
 	c.Assert(HTMLFormat.IsPlainText, qt.Equals, false)
@@ -64,7 +54,7 @@ func TestDefaultTypes(t *testing.T) {
 	c.Assert(AMPFormat.Permalinkable, qt.Equals, true)
 
 	c.Assert(AMPFormat.Name, qt.Equals, "AMP")
-	c.Assert(AMPFormat.MediaType, eq, media.HTMLType)
+	c.Assert(AMPFormat.MediaType, qt.Equals, media.HTMLType)
 	c.Assert(AMPFormat.Path, qt.Equals, "amp")
 	c.Assert(AMPFormat.Protocol, qt.HasLen, 0)
 	c.Assert(AMPFormat.IsPlainText, qt.Equals, false)
@@ -72,11 +62,13 @@ func TestDefaultTypes(t *testing.T) {
 	c.Assert(AMPFormat.Permalinkable, qt.Equals, true)
 
 	c.Assert(RSSFormat.Name, qt.Equals, "RSS")
-	c.Assert(RSSFormat.MediaType, eq, media.RSSType)
+	c.Assert(RSSFormat.MediaType, qt.Equals, media.RSSType)
 	c.Assert(RSSFormat.Path, qt.HasLen, 0)
 	c.Assert(RSSFormat.IsPlainText, qt.Equals, false)
 	c.Assert(RSSFormat.NoUgly, qt.Equals, true)
 	c.Assert(CalendarFormat.IsHTML, qt.Equals, false)
+
+	c.Assert(len(DefaultFormats), qt.Equals, 10)
 
 }
 
@@ -84,7 +76,7 @@ func TestGetFormatByName(t *testing.T) {
 	c := qt.New(t)
 	formats := Formats{AMPFormat, CalendarFormat}
 	tp, _ := formats.GetByName("AMp")
-	c.Assert(tp, eq, AMPFormat)
+	c.Assert(tp, qt.Equals, AMPFormat)
 	_, found := formats.GetByName("HTML")
 	c.Assert(found, qt.Equals, false)
 	_, found = formats.GetByName("FOO")
@@ -96,9 +88,9 @@ func TestGetFormatByExt(t *testing.T) {
 	formats1 := Formats{AMPFormat, CalendarFormat}
 	formats2 := Formats{AMPFormat, HTMLFormat, CalendarFormat}
 	tp, _ := formats1.GetBySuffix("html")
-	c.Assert(tp, eq, AMPFormat)
+	c.Assert(tp, qt.Equals, AMPFormat)
 	tp, _ = formats1.GetBySuffix("ics")
-	c.Assert(tp, eq, CalendarFormat)
+	c.Assert(tp, qt.Equals, CalendarFormat)
 	_, found := formats1.GetBySuffix("not")
 	c.Assert(found, qt.Equals, false)
 
@@ -130,21 +122,20 @@ func TestGetFormatByFilename(t *testing.T) {
 	formats := Formats{AMPFormat, HTMLFormat, noExtDelimFormat, noExt, CalendarFormat}
 	f, found := formats.FromFilename("my.amp.html")
 	c.Assert(found, qt.Equals, true)
-	c.Assert(f, eq, AMPFormat)
+	c.Assert(f, qt.Equals, AMPFormat)
 	_, found = formats.FromFilename("my.ics")
 	c.Assert(found, qt.Equals, true)
 	f, found = formats.FromFilename("my.html")
 	c.Assert(found, qt.Equals, true)
-	c.Assert(f, eq, HTMLFormat)
+	c.Assert(f, qt.Equals, HTMLFormat)
 	f, found = formats.FromFilename("my.nem")
 	c.Assert(found, qt.Equals, true)
-	c.Assert(f, eq, noExtDelimFormat)
+	c.Assert(f, qt.Equals, noExtDelimFormat)
 	f, found = formats.FromFilename("my.nex")
 	c.Assert(found, qt.Equals, true)
-	c.Assert(f, eq, noExt)
+	c.Assert(f, qt.Equals, noExt)
 	_, found = formats.FromFilename("my.css")
 	c.Assert(found, qt.Equals, false)
-
 }
 
 func TestDecodeFormats(t *testing.T) {
@@ -152,7 +143,7 @@ func TestDecodeFormats(t *testing.T) {
 
 	mediaTypes := media.Types{media.JSONType, media.XMLType}
 
-	var tests = []struct {
+	tests := []struct {
 		name        string
 		maps        []map[string]interface{}
 		shouldError bool
@@ -164,17 +155,20 @@ func TestDecodeFormats(t *testing.T) {
 				{
 					"JsON": map[string]interface{}{
 						"baseName":    "myindex",
-						"isPlainText": "false"}}},
+						"isPlainText": "false",
+					},
+				},
+			},
 			false,
 			func(t *testing.T, name string, f Formats) {
 				msg := qt.Commentf(name)
 				c.Assert(len(f), qt.Equals, len(DefaultFormats), msg)
 				json, _ := f.GetByName("JSON")
 				c.Assert(json.BaseName, qt.Equals, "myindex")
-				c.Assert(json.MediaType, eq, media.JSONType)
+				c.Assert(json.MediaType, qt.Equals, media.JSONType)
 				c.Assert(json.IsPlainText, qt.Equals, false)
-
-			}},
+			},
+		},
 		{
 			"Add XML format with string as mediatype",
 			[]map[string]interface{}{
@@ -182,20 +176,22 @@ func TestDecodeFormats(t *testing.T) {
 					"MYXMLFORMAT": map[string]interface{}{
 						"baseName":  "myxml",
 						"mediaType": "application/xml",
-					}}},
+					},
+				},
+			},
 			false,
 			func(t *testing.T, name string, f Formats) {
 				c.Assert(len(f), qt.Equals, len(DefaultFormats)+1)
 				xml, found := f.GetByName("MYXMLFORMAT")
 				c.Assert(found, qt.Equals, true)
 				c.Assert(xml.BaseName, qt.Equals, "myxml")
-				c.Assert(xml.MediaType, eq, media.XMLType)
+				c.Assert(xml.MediaType, qt.Equals, media.XMLType)
 
 				// Verify that we haven't changed the DefaultFormats slice.
 				json, _ := f.GetByName("JSON")
 				c.Assert(json.BaseName, qt.Equals, "index")
-
-			}},
+			},
+		},
 		{
 			"Add format unknown mediatype",
 			[]map[string]interface{}{
@@ -203,11 +199,13 @@ func TestDecodeFormats(t *testing.T) {
 					"MYINVALID": map[string]interface{}{
 						"baseName":  "mymy",
 						"mediaType": "application/hugo",
-					}}},
+					},
+				},
+			},
 			true,
 			func(t *testing.T, name string, f Formats) {
-
-			}},
+			},
+		},
 		{
 			"Add and redefine XML format",
 			[]map[string]interface{}{
@@ -215,11 +213,13 @@ func TestDecodeFormats(t *testing.T) {
 					"MYOTHERXMLFORMAT": map[string]interface{}{
 						"baseName":  "myotherxml",
 						"mediaType": media.XMLType,
-					}},
+					},
+				},
 				{
 					"MYOTHERXMLFORMAT": map[string]interface{}{
 						"baseName": "myredefined",
-					}},
+					},
+				},
 			},
 			false,
 			func(t *testing.T, name string, f Formats) {
@@ -227,8 +227,9 @@ func TestDecodeFormats(t *testing.T) {
 				xml, found := f.GetByName("MYOTHERXMLFORMAT")
 				c.Assert(found, qt.Equals, true)
 				c.Assert(xml.BaseName, qt.Equals, "myredefined")
-				c.Assert(xml.MediaType, eq, media.XMLType)
-			}},
+				c.Assert(xml.MediaType, qt.Equals, media.XMLType)
+			},
+		},
 	}
 
 	for _, test := range tests {
@@ -263,5 +264,4 @@ func TestSort(t *testing.T) {
 	c.Assert(formats[0].Name, qt.Equals, "JSON")
 	c.Assert(formats[1].Name, qt.Equals, "HTML")
 	c.Assert(formats[2].Name, qt.Equals, "AMP")
-
 }

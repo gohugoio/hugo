@@ -11,6 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// +build !nodeploy
+
 package deploy
 
 import (
@@ -43,6 +45,7 @@ import (
 	_ "gocloud.dev/blob/fileblob" // import
 	_ "gocloud.dev/blob/gcsblob"  // import
 	_ "gocloud.dev/blob/s3blob"   // import
+	"gocloud.dev/gcerrors"
 )
 
 // Deployer supports deploying the site to target cloud providers.
@@ -236,9 +239,13 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 			go func(del string) {
 				jww.INFO.Printf("Deleting %s...\n", del)
 				if err := bucket.Delete(ctx, del); err != nil {
-					errMu.Lock()
-					defer errMu.Unlock()
-					errs = append(errs, err)
+					if gcerrors.Code(err) == gcerrors.NotFound {
+						jww.WARN.Printf("Failed to delete %q because it wasn't found: %v", del, err)
+					} else {
+						errMu.Lock()
+						defer errMu.Unlock()
+						errs = append(errs, err)
+					}
 				}
 				<-sem
 			}(del)
@@ -260,17 +267,29 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 
 	if d.invalidateCDN {
 		if d.target.CloudFrontDistributionID != "" {
-			jww.FEEDBACK.Println("Invalidating CloudFront CDN...")
-			if err := InvalidateCloudFront(ctx, d.target.CloudFrontDistributionID); err != nil {
-				jww.FEEDBACK.Printf("Failed to invalidate CloudFront CDN: %v\n", err)
-				return err
+			if d.dryRun {
+				if !d.quiet {
+					jww.FEEDBACK.Printf("[DRY RUN] Would invalidate CloudFront CDN with ID %s\n", d.target.CloudFrontDistributionID)
+				}
+			} else {
+				jww.FEEDBACK.Println("Invalidating CloudFront CDN...")
+				if err := InvalidateCloudFront(ctx, d.target.CloudFrontDistributionID); err != nil {
+					jww.FEEDBACK.Printf("Failed to invalidate CloudFront CDN: %v\n", err)
+					return err
+				}
 			}
 		}
 		if d.target.GoogleCloudCDNOrigin != "" {
-			jww.FEEDBACK.Println("Invalidating Google Cloud CDN...")
-			if err := InvalidateGoogleCloudCDN(ctx, d.target.GoogleCloudCDNOrigin); err != nil {
-				jww.FEEDBACK.Printf("Failed to invalidate Google Cloud CDN: %v\n", err)
-				return err
+			if d.dryRun {
+				if !d.quiet {
+					jww.FEEDBACK.Printf("[DRY RUN] Would invalidate Google Cloud CDN with origin %s\n", d.target.GoogleCloudCDNOrigin)
+				}
+			} else {
+				jww.FEEDBACK.Println("Invalidating Google Cloud CDN...")
+				if err := InvalidateGoogleCloudCDN(ctx, d.target.GoogleCloudCDNOrigin); err != nil {
+					jww.FEEDBACK.Printf("Failed to invalidate Google Cloud CDN: %v\n", err)
+					return err
+				}
 			}
 		}
 		jww.FEEDBACK.Println("Success!")
@@ -418,7 +437,7 @@ func (lf *localFile) ContentType() string {
 	}
 
 	ext := filepath.Ext(lf.NativePath)
-	if mimeType, found := lf.mediaTypes.GetFirstBySuffix(strings.TrimPrefix(ext, ".")); found {
+	if mimeType, _, found := lf.mediaTypes.GetFirstBySuffix(strings.TrimPrefix(ext, ".")); found {
 		return mimeType.Type()
 	}
 
@@ -452,7 +471,7 @@ func (lf *localFile) MD5() []byte {
 // knownHiddenDirectory checks if the specified name is a well known
 // hidden directory.
 func knownHiddenDirectory(name string) bool {
-	var knownDirectories = []string{
+	knownDirectories := []string{
 		".well-known",
 	}
 
@@ -683,7 +702,6 @@ func findDiffs(localFiles map[string]*localFile, remoteFiles map[string]*blob.Li
 //
 // The subslices are sorted by Local.SlashPath.
 func applyOrdering(ordering []*regexp.Regexp, uploads []*fileToUpload) [][]*fileToUpload {
-
 	// Sort the whole slice by Local.SlashPath first.
 	sort.Slice(uploads, func(i, j int) bool { return uploads[i].Local.SlashPath < uploads[j].Local.SlashPath })
 

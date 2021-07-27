@@ -18,9 +18,12 @@ package asciidocext
 
 import (
 	"bytes"
-	"io"
-	"os/exec"
 	"path/filepath"
+	"strings"
+
+	"github.com/gohugoio/hugo/htesting"
+
+	"github.com/cli/safeexec"
 
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/asciidocext/asciidocext_config"
@@ -64,7 +67,7 @@ type asciidocConverter struct {
 }
 
 func (a *asciidocConverter) Convert(ctx converter.RenderContext) (converter.Result, error) {
-	content, toc, err := extractTOC(a.getAsciidocContent(ctx.Src, a.ctx))
+	content, toc, err := a.extractTOC(a.getAsciidocContent(ctx.Src, a.ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +86,7 @@ func (a *asciidocConverter) Supports(_ identity.Identity) bool {
 func (a *asciidocConverter) getAsciidocContent(src []byte, ctx converter.DocumentContext) []byte {
 	path := getAsciidoctorExecPath()
 	if path == "" {
-		a.cfg.Logger.ERROR.Println("asciidoctor not found in $PATH: Please install.\n",
+		a.cfg.Logger.Errorln("asciidoctor not found in $PATH: Please install.\n",
 			"                 Leaving AsciiDoc content unrendered.")
 		return src
 	}
@@ -91,29 +94,28 @@ func (a *asciidocConverter) getAsciidocContent(src []byte, ctx converter.Documen
 	args := a.parseArgs(ctx)
 	args = append(args, "-")
 
-	a.cfg.Logger.INFO.Println("Rendering", ctx.DocumentName, "with", path, "using asciidoctor args", args, "...")
+	a.cfg.Logger.Infoln("Rendering", ctx.DocumentName, "with", path, "using asciidoctor args", args, "...")
 
 	return internal.ExternallyRenderContent(a.cfg, ctx, src, path, args)
 }
 
 func (a *asciidocConverter) parseArgs(ctx converter.DocumentContext) []string {
-	var cfg = a.cfg.MarkupConfig.AsciidocExt
+	cfg := a.cfg.MarkupConfig.AsciidocExt
 	args := []string{}
 
 	args = a.appendArg(args, "-b", cfg.Backend, asciidocext_config.CliDefault.Backend, asciidocext_config.AllowedBackend)
 
 	for _, extension := range cfg.Extensions {
-		if !asciidocext_config.AllowedExtensions[extension] {
-			a.cfg.Logger.ERROR.Println("Unsupported asciidoctor extension was passed in. Extension `" + extension + "` ignored.")
+		if strings.LastIndexAny(extension, `\/.`) > -1 {
+			a.cfg.Logger.Errorln("Unsupported asciidoctor extension was passed in. Extension `" + extension + "` ignored. Only installed asciidoctor extensions are allowed.")
 			continue
 		}
-
 		args = append(args, "-r", extension)
 	}
 
 	for attributeKey, attributeValue := range cfg.Attributes {
 		if asciidocext_config.DisallowedAttributes[attributeKey] {
-			a.cfg.Logger.ERROR.Println("Unsupported asciidoctor attribute was passed in. Attribute `" + attributeKey + "` ignored.")
+			a.cfg.Logger.Errorln("Unsupported asciidoctor attribute was passed in. Attribute `" + attributeKey + "` ignored.")
 			continue
 		}
 
@@ -126,7 +128,7 @@ func (a *asciidocConverter) parseArgs(ctx converter.DocumentContext) []string {
 		destinationDir := a.cfg.Cfg.GetString("destination")
 
 		if destinationDir == "" {
-			a.cfg.Logger.ERROR.Println("markup.asciidocext.workingFolderCurrent requires hugo command option --destination to be set")
+			a.cfg.Logger.Errorln("markup.asciidocext.workingFolderCurrent requires hugo command option --destination to be set")
 		}
 		if !filepath.IsAbs(destinationDir) && sourceDir != "" {
 			destinationDir = filepath.Join(sourceDir, destinationDir)
@@ -138,21 +140,20 @@ func (a *asciidocConverter) parseArgs(ctx converter.DocumentContext) []string {
 		file := filepath.Base(ctx.Filename)
 		if a.cfg.Cfg.GetBool("uglyUrls") || file == "_index.adoc" || file == "index.adoc" {
 			outDir, err = filepath.Abs(filepath.Dir(filepath.Join(destinationDir, ctx.DocumentName)))
-
 		} else {
 			postDir := ""
 			page, ok := ctx.Document.(pageSubset)
 			if ok {
 				postDir = filepath.Base(page.RelPermalink())
 			} else {
-				a.cfg.Logger.ERROR.Println("unable to cast interface to pageSubset")
+				a.cfg.Logger.Errorln("unable to cast interface to pageSubset")
 			}
 
 			outDir, err = filepath.Abs(filepath.Join(destinationDir, filepath.Dir(ctx.DocumentName), postDir))
 		}
 
 		if err != nil {
-			a.cfg.Logger.ERROR.Println("asciidoctor outDir: ", err)
+			a.cfg.Logger.Errorln("asciidoctor outDir: ", err)
 		}
 
 		args = append(args, "--base-dir", contentDir, "-a", "outdir="+outDir)
@@ -161,7 +162,7 @@ func (a *asciidocConverter) parseArgs(ctx converter.DocumentContext) []string {
 	if cfg.NoHeaderOrFooter {
 		args = append(args, "--no-header-footer")
 	} else {
-		a.cfg.Logger.WARN.Println("asciidoctor parameter NoHeaderOrFooter is expected for correct html rendering")
+		a.cfg.Logger.Warnln("asciidoctor parameter NoHeaderOrFooter is expected for correct html rendering")
 	}
 
 	if cfg.SectionNumbers {
@@ -188,14 +189,14 @@ func (a *asciidocConverter) appendArg(args []string, option, value, defaultValue
 		if allowedValues[value] {
 			args = append(args, option, value)
 		} else {
-			a.cfg.Logger.ERROR.Println("Unsupported asciidoctor value `" + value + "` for option " + option + " was passed in and will be ignored.")
+			a.cfg.Logger.Errorln("Unsupported asciidoctor value `" + value + "` for option " + option + " was passed in and will be ignored.")
 		}
 	}
 	return args
 }
 
 func getAsciidoctorExecPath() string {
-	path, err := exec.LookPath("asciidoctor")
+	path, err := safeexec.LookPath("asciidoctor")
 	if err != nil {
 		return ""
 	}
@@ -204,7 +205,7 @@ func getAsciidoctorExecPath() string {
 
 // extractTOC extracts the toc from the given src html.
 // It returns the html without the TOC, and the TOC data
-func extractTOC(src []byte) ([]byte, tableofcontents.Root, error) {
+func (a *asciidocConverter) extractTOC(src []byte) ([]byte, tableofcontents.Root, error) {
 	var buf bytes.Buffer
 	buf.Write(src)
 	node, err := html.Parse(&buf)
@@ -219,7 +220,9 @@ func extractTOC(src []byte) ([]byte, tableofcontents.Root, error) {
 	f = func(n *html.Node) bool {
 		if n.Type == html.ElementNode && n.Data == "div" && attr(n, "id") == "toc" {
 			toc = parseTOC(n)
-			n.Parent.RemoveChild(n)
+			if !a.cfg.MarkupConfig.AsciidocExt.PreserveTOC {
+				n.Parent.RemoveChild(n)
+			}
 			return true
 		}
 		if n.FirstChild != nil {
@@ -273,7 +276,7 @@ func parseTOC(doc *html.Node) tableofcontents.Root {
 						continue
 					}
 					href := attr(c, "href")[1:]
-					toc.AddAt(tableofcontents.Header{
+					toc.AddAt(tableofcontents.Heading{
 						Text: nodeContent(c),
 						ID:   href,
 					}, row, level)
@@ -285,7 +288,7 @@ func parseTOC(doc *html.Node) tableofcontents.Root {
 			f(n.NextSibling, row, level)
 		}
 	}
-	f(doc.FirstChild, 0, 0)
+	f(doc.FirstChild, -1, 0)
 	return toc
 }
 
@@ -300,14 +303,16 @@ func attr(node *html.Node, key string) string {
 
 func nodeContent(node *html.Node) string {
 	var buf bytes.Buffer
-	w := io.Writer(&buf)
 	for c := node.FirstChild; c != nil; c = c.NextSibling {
-		html.Render(w, c)
+		html.Render(&buf, c)
 	}
 	return buf.String()
 }
 
 // Supports returns whether Asciidoctor is installed on this computer.
 func Supports() bool {
+	if htesting.SupportsAll() {
+		return true
+	}
 	return getAsciidoctorExecPath() != ""
 }

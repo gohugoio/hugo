@@ -30,5 +30,4 @@ func TestFilterHash(t *testing.T) {
 	c.Assert(helpers.HashString(f.Grayscale()), qt.Not(qt.Equals), helpers.HashString(f.Invert()))
 	c.Assert(helpers.HashString(f.Gamma(32)), qt.Not(qt.Equals), helpers.HashString(f.Gamma(33)))
 	c.Assert(helpers.HashString(f.Gamma(32)), qt.Equals, helpers.HashString(f.Gamma(32)))
-
 }

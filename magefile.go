@@ -45,7 +45,6 @@ func init() {
 func runWith(env map[string]string, cmd string, inArgs ...interface{}) error {
 	s := argsToStrings(inArgs...)
 	return sh.RunWith(env, cmd, s...)
-
 }
 
 // Build hugo binary
@@ -354,6 +353,7 @@ func buildFlags() []string {
 func buildTags() string {
 	// To build the extended Hugo SCSS/SASS enabled version, build with
 	// HUGO_BUILD_TAGS=extended mage install etc.
+	// To build without `hugo deploy` for smaller binary, use HUGO_BUILD_TAGS=nodeploy
 	if envtags := os.Getenv("HUGO_BUILD_TAGS"); envtags != "" {
 		return envtags
 	}

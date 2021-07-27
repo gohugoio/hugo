@@ -53,7 +53,6 @@ func (s siteRenderContext) renderSingletonPages() bool {
 
 	// 1 for all sites
 	return s.sitesOutIdx == 0
-
 }
 
 // renderPages renders pages each corresponding to a markdown file.
@@ -107,7 +106,6 @@ func pageRenderer(
 	pages <-chan *pageState,
 	results chan<- error,
 	wg *sync.WaitGroup) {
-
 	defer wg.Done()
 
 	for p := range pages {
@@ -149,9 +147,9 @@ func pageRenderer(
 }
 
 func (s *Site) logMissingLayout(name, layout, kind, outputFormat string) {
-	log := s.Log.WARN
+	log := s.Log.Warn()
 	if name != "" && infoOnMissingLayout[name] {
-		log = s.Log.INFO
+		log = s.Log.Info()
 	}
 
 	errMsg := "You should create a template file which matches Hugo Layouts Lookup Rules for this combination."
@@ -184,7 +182,6 @@ func (s *Site) logMissingLayout(name, layout, kind, outputFormat string) {
 
 // renderPaginator must be run after the owning Page has been rendered.
 func (s *Site) renderPaginator(p *pageState, templ tpl.Template) error {
-
 	paginatePath := s.Cfg.GetString("paginatePath")
 
 	d := p.targetPathDescriptor
@@ -234,7 +231,6 @@ func (s *Site) render404() error {
 	},
 		output.HTMLFormat,
 	)
-
 	if err != nil {
 		return err
 	}
@@ -269,10 +265,10 @@ func (s *Site) renderSitemap() error {
 		kind: kindSitemap,
 		urlPaths: pagemeta.URLPath{
 			URL: s.siteCfg.sitemap.Filename,
-		}},
+		},
+	},
 		output.HTMLFormat,
 	)
-
 	if err != nil {
 		return err
 	}
@@ -305,7 +301,6 @@ func (s *Site) renderRobotsTXT() error {
 		},
 	},
 		output.RobotsTxtFormat)
-
 	if err != nil {
 		return err
 	}
@@ -317,25 +312,32 @@ func (s *Site) renderRobotsTXT() error {
 	templ := s.lookupLayouts("robots.txt", "_default/robots.txt", "_internal/_default/robots.txt")
 
 	return s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, "Robots Txt", p.targetPaths().TargetFilename, p, templ)
-
 }
 
 // renderAliases renders shell pages that simply have a redirect in the header.
 func (s *Site) renderAliases() error {
 	var err error
-	s.pageMap.pageTrees.WalkRenderable(func(ss string, n *contentNode) bool {
+	s.pageMap.pageTrees.WalkLinkable(func(ss string, n *contentNode) bool {
 		p := n.p
 		if len(p.Aliases()) == 0 {
 			return false
 		}
 
+		pathSeen := make(map[string]bool)
+
 		for _, of := range p.OutputFormats() {
 			if !of.Format.IsHTML {
-				return false
+				continue
 			}
 
-			plink := of.Permalink()
 			f := of.Format
+
+			if pathSeen[f.Path] {
+				continue
+			}
+			pathSeen[f.Path] = true
+
+			plink := of.Permalink()
 
 			for _, a := range p.Aliases() {
 				isRelative := !strings.HasPrefix(a, "/")
@@ -377,7 +379,6 @@ func (s *Site) renderAliases() error {
 // renderMainLanguageRedirect creates a redirect to the main language home,
 // depending on if it lives in sub folder (e.g. /en) or not.
 func (s *Site) renderMainLanguageRedirect() error {
-
 	if !s.h.multilingual.enabled() || s.h.IsMultihost() {
 		// No need for a redirect
 		return nil
@@ -388,13 +389,13 @@ func (s *Site) renderMainLanguageRedirect() error {
 		mainLang := s.h.multilingual.DefaultLang
 		if s.Info.defaultContentLanguageInSubdir {
 			mainLangURL := s.PathSpec.AbsURL(mainLang.Lang+"/", false)
-			s.Log.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
+			s.Log.Debugf("Write redirect to main language %s: %s", mainLang, mainLangURL)
 			if err := s.publishDestAlias(true, "/", mainLangURL, html, nil); err != nil {
 				return err
 			}
 		} else {
 			mainLangURL := s.PathSpec.AbsURL("", false)
-			s.Log.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
+			s.Log.Debugf("Write redirect to main language %s: %s", mainLang, mainLangURL)
 			if err := s.publishDestAlias(true, mainLang.Lang, mainLangURL, html, nil); err != nil {
 				return err
 			}

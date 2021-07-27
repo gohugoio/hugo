@@ -47,7 +47,7 @@ type orgConverter struct {
 func (c *orgConverter) Convert(ctx converter.RenderContext) (converter.Result, error) {
 	logger := c.cfg.Logger
 	config := org.New()
-	config.Log = logger.WARN
+	config.Log = logger.Warn()
 	config.ReadFile = func(filename string) ([]byte, error) {
 		return afero.ReadFile(c.cfg.ContentFs, filename)
 	}
@@ -55,7 +55,7 @@ func (c *orgConverter) Convert(ctx converter.RenderContext) (converter.Result, e
 	writer.HighlightCodeBlock = func(source, lang string, inline bool) string {
 		highlightedSource, err := c.cfg.Highlight(source, lang, "")
 		if err != nil {
-			logger.ERROR.Printf("Could not highlight source as lang %s. Using raw source.", lang)
+			logger.Errorf("Could not highlight source as lang %s. Using raw source.", lang)
 			return source
 		}
 		return highlightedSource
@@ -63,7 +63,7 @@ func (c *orgConverter) Convert(ctx converter.RenderContext) (converter.Result, e
 
 	html, err := config.Parse(bytes.NewReader(ctx.Src), c.ctx.DocumentName).Write(writer)
 	if err != nil {
-		logger.ERROR.Printf("Could not render org: %s. Using unrendered content.", err)
+		logger.Errorf("Could not render org: %s. Using unrendered content.", err)
 		return converter.Bytes(ctx.Src), nil
 	}
 	return converter.Bytes([]byte(html)), nil

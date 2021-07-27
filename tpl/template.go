@@ -14,9 +14,8 @@
 package tpl
 
 import (
-	"reflect"
-
 	"io"
+	"reflect"
 	"regexp"
 
 	"github.com/gohugoio/hugo/output"
@@ -88,7 +87,7 @@ type TemplateParseFinder interface {
 	TemplateFinder
 }
 
-// TemplateDebugger prints some debug info to stdoud.
+// TemplateDebugger prints some debug info to stdout.
 type TemplateDebugger interface {
 	Debug()
 }

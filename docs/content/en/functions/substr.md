@@ -26,6 +26,21 @@ To extract characters from the end of the string, use a negative start number.
 In addition, borrowing from the extended behavior described at https://php.net substr, if `length` is given and is negative, that number of characters will be omitted from the end of string.
 
 ```
-{{substr "BatMan" 0 -3}} → "Bat"
-{{substr "BatMan" 3 3}} → "Man"
+{{ substr "abcdef" 0 }} → "abcdef"
+{{ substr "abcdef" 1 }} → "bcdef"
+
+{{ substr "abcdef" 0 1 }} → "a"
+{{ substr "abcdef" 1 1 }} → "b"
+
+{{ substr "abcdef" 0 -1 }} → "abcde"
+{{ substr "abcdef" 1 -1 }} → "bcde"
+
+{{ substr "abcdef" -1 }} → "f"
+{{ substr "abcdef" -2 }} → "ef"
+
+{{ substr "abcdef" -1 1 }} → "f"
+{{ substr "abcdef" -2 1 }} → "e"
+
+{{ substr "abcdef" -3 -1 }} → "de"
+{{ substr "abcdef" -3 -2 }} → "d"
 ```

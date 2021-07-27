@@ -65,5 +65,4 @@ func (ns *Namespace) SymDiff(s2, s1 interface{}) (interface{}, error) {
 	}
 
 	return slice.Interface(), nil
-
 }

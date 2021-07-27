@@ -23,7 +23,6 @@ func init() {
 }
 
 func createLayoutExamples() interface{} {
-
 	type Example struct {
 		Example      string
 		Kind         string
@@ -56,7 +55,7 @@ func createLayoutExamples() interface{} {
 		{"Home page with type set", LayoutDescriptor{Kind: "home", Type: demoType}, HTMLFormat},
 		{"Base template for home page with type set", LayoutDescriptor{Baseof: true, Kind: "home", Type: demoType}, HTMLFormat},
 		{"Home page with layout set", LayoutDescriptor{Kind: "home", Type: "page", Layout: demoLayout}, HTMLFormat},
-		{`AMP home, French language"`, LayoutDescriptor{Kind: "home", Type: "page", Lang: "fr"}, AMPFormat},
+		{"AMP home, French language", LayoutDescriptor{Kind: "home", Type: "page", Lang: "fr"}, AMPFormat},
 		{"JSON home", LayoutDescriptor{Kind: "home", Type: "page"}, JSONFormat},
 		{"RSS home", LayoutDescriptor{Kind: "home", Type: "page"}, RSSFormat},
 		{"RSS section posts", LayoutDescriptor{Kind: "section", Type: "posts"}, RSSFormat},
@@ -77,12 +76,12 @@ func createLayoutExamples() interface{} {
 			Example:      example.name,
 			Kind:         example.d.Kind,
 			OutputFormat: example.f.Name,
-			Suffix:       example.f.MediaType.Suffix(),
-			Layouts:      makeLayoutsPresentable(layouts)})
+			Suffix:       example.f.MediaType.FirstSuffix.Suffix,
+			Layouts:      makeLayoutsPresentable(layouts),
+		})
 	}
 
 	return basicExamples
-
 }
 
 func makeLayoutsPresentable(l []string) []string {

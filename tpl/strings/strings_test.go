@@ -17,14 +17,14 @@ import (
 	"html/template"
 	"testing"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/spf13/cast"
-	"github.com/spf13/viper"
 )
 
-var ns = New(&deps.Deps{Cfg: viper.New()})
+var ns = New(&deps.Deps{Cfg: config.New()})
 
 type tstNoStringer struct{}
 
@@ -210,6 +210,9 @@ func TestCountWords(t *testing.T) {
 		{"Do Be Do Be Do", 5},
 		{"旁边", 2},
 		{`<div class="test">旁边</div>`, 2},
+		{"Here's to you...", 3},
+		{"Here’s to you...", 3},
+		{"Here’s to you…", 3},
 		// errors
 		{tstNoStringer{}, false},
 	} {
@@ -441,12 +444,19 @@ func TestSubstr(t *testing.T) {
 	}{
 		{"abc", 1, 2, "bc"},
 		{"abc", 0, 1, "a"},
-		{"abcdef", -1, 2, "ef"},
-		{"abcdef", -3, 3, "bcd"},
+		{"abcdef", 0, 0, ""},
+		{"abcdef", 1, 0, ""},
+		{"abcdef", -1, 0, ""},
+		{"abcdef", -1, 2, "f"},
+		{"abcdef", -3, 3, "def"},
+		{"abcdef", -1, nil, "f"},
+		{"abcdef", -2, nil, "ef"},
+		{"abcdef", -3, 1, "d"},
 		{"abcdef", 0, -1, "abcde"},
 		{"abcdef", 2, -1, "cde"},
-		{"abcdef", 4, -4, false},
-		{"abcdef", 7, 1, false},
+		{"abcdef", 4, -4, ""},
+		{"abcdef", 7, 1, ""},
+		{"abcdef", 6, nil, ""},
 		{"abcdef", 1, 100, "bcdef"},
 		{"abcdef", -100, 3, "abc"},
 		{"abcdef", -3, -1, "de"},
@@ -469,6 +479,7 @@ func TestSubstr(t *testing.T) {
 		{"abcdef", "doo", nil, false},
 		{"abcdef", "doo", "doo", false},
 		{"abcdef", 1, "doo", false},
+		{"", 0, nil, ""},
 	} {
 
 		var result string
@@ -480,12 +491,12 @@ func TestSubstr(t *testing.T) {
 		}
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Check(err, qt.Not(qt.IsNil), qt.Commentf("%v", test))
 			continue
 		}
 
-		c.Assert(err, qt.IsNil)
-		c.Assert(result, qt.Equals, test.expect)
+		c.Assert(err, qt.IsNil, qt.Commentf("%v", test))
+		c.Check(result, qt.Equals, test.expect, qt.Commentf("%v", test))
 	}
 
 	_, err = ns.Substr("abcdef")

@@ -16,6 +16,9 @@ package livereloadinject
 import (
 	"bytes"
 	"fmt"
+	"html"
+	"net/url"
+	"strings"
 
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/transform"
@@ -27,18 +30,18 @@ type tag struct {
 }
 
 var tags = []tag{
-	tag{markup: []byte("<head>"), appendScript: true},
-	tag{markup: []byte("<HEAD>"), appendScript: true},
-	tag{markup: []byte("</body>")},
-	tag{markup: []byte("</BODY>")},
+	{markup: []byte("<head>"), appendScript: true},
+	{markup: []byte("<HEAD>"), appendScript: true},
+	{markup: []byte("</body>")},
+	{markup: []byte("</BODY>")},
 }
 
 // New creates a function that can be used
 // to inject a script tag for the livereload JavaScript in a HTML document.
-func New(port int) transform.Transformer {
+func New(baseURL url.URL) transform.Transformer {
 	return func(ft transform.FromTo) error {
 		b := ft.From().Bytes()
-		var idx = -1
+		idx := -1
 		var match tag
 		// We used to insert the livereload script right before the closing body.
 		// This does not work when combined with tools such as Turbolinks.
@@ -51,6 +54,12 @@ func New(port int) transform.Transformer {
 			}
 		}
 
+		path := strings.TrimSuffix(baseURL.Path, "/")
+
+		src := path + "/livereload.js?mindelay=10&v=2"
+		src += "&port=" + baseURL.Port()
+		src += "&path=" + strings.TrimPrefix(path+"/livereload", "/")
+
 		c := make([]byte, len(b))
 		copy(c, b)
 
@@ -59,7 +68,7 @@ func New(port int) transform.Transformer {
 			return err
 		}
 
-		script := []byte(fmt.Sprintf(`<script src="/livereload.js?port=%d&amp;mindelay=10&amp;v=2" data-no-instant defer></script>`, port))
+		script := []byte(fmt.Sprintf(`<script src="%s" data-no-instant defer></script>`, html.EscapeString(src)))
 
 		i := idx
 		if match.appendScript {

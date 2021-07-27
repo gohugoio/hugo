@@ -16,10 +16,11 @@ package output
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"sort"
 	"strings"
 
-	"reflect"
+	"github.com/pkg/errors"
 
 	"github.com/mitchellh/mapstructure"
 
@@ -32,7 +33,7 @@ type Format struct {
 	// can be overridden by providing a new definition for those types.
 	Name string `json:"name"`
 
-	MediaType media.Type `json:"mediaType"`
+	MediaType media.Type `json:"-"`
 
 	// Must be set to a value when there are two or more conflicting mediatype for the same resource.
 	Path string `json:"path"`
@@ -142,6 +143,15 @@ var (
 		Rel:         "alternate",
 	}
 
+	WebAppManifestFormat = Format{
+		Name:           "WebAppManifest",
+		MediaType:      media.WebAppManifestType,
+		BaseName:       "manifest",
+		IsPlainText:    true,
+		NotAlternative: true,
+		Rel:            "manifest",
+	}
+
 	RobotsTxtFormat = Format{
 		Name:        "ROBOTS",
 		MediaType:   media.TextType,
@@ -175,6 +185,7 @@ var DefaultFormats = Formats{
 	CSVFormat,
 	HTMLFormat,
 	JSONFormat,
+	WebAppManifestFormat,
 	RobotsTxtFormat,
 	RSSFormat,
 	SitemapFormat,
@@ -200,7 +211,6 @@ func (formats Formats) Less(i, j int) bool {
 	}
 
 	return fi.Weight > 0 && fi.Weight < fj.Weight
-
 }
 
 // GetBySuffix gets a output format given as suffix, e.g. "html".
@@ -209,14 +219,16 @@ func (formats Formats) Less(i, j int) bool {
 // The lookup is case insensitive.
 func (formats Formats) GetBySuffix(suffix string) (f Format, found bool) {
 	for _, ff := range formats {
-		if strings.EqualFold(suffix, ff.MediaType.Suffix()) {
-			if found {
-				// ambiguous
-				found = false
-				return
+		for _, suffix2 := range ff.MediaType.Suffixes() {
+			if strings.EqualFold(suffix, suffix2) {
+				if found {
+					// ambiguous
+					found = false
+					return
+				}
+				f = ff
+				found = true
 			}
-			f = ff
-			found = true
 		}
 	}
 	return
@@ -312,6 +324,7 @@ func DecodeFormats(mediaTypes media.Types, maps ...map[string]interface{}) (Form
 				}
 
 				f = append(f, newOutFormat)
+
 			}
 		}
 	}
@@ -321,7 +334,7 @@ func DecodeFormats(mediaTypes media.Types, maps ...map[string]interface{}) (Form
 	return f, nil
 }
 
-func decode(mediaTypes media.Types, input, output interface{}) error {
+func decode(mediaTypes media.Types, input interface{}, output *Format) error {
 	config := &mapstructure.DecoderConfig{
 		Metadata:         nil,
 		Result:           output,
@@ -339,12 +352,19 @@ func decode(mediaTypes media.Types, input, output interface{}) error {
 						// If mediaType is a string, look it up and replace it
 						// in the map.
 						vv := dataVal.MapIndex(key)
-						if mediaTypeStr, ok := vv.Interface().(string); ok {
-							mediaType, found := mediaTypes.GetByType(mediaTypeStr)
+						vvi := vv.Interface()
+
+						switch vviv := vvi.(type) {
+						case media.Type:
+						// OK
+						case string:
+							mediaType, found := mediaTypes.GetByType(vviv)
 							if !found {
-								return c, fmt.Errorf("media type %q not found", mediaTypeStr)
+								return c, fmt.Errorf("media type %q not found", vviv)
 							}
 							dataVal.SetMapIndex(key, reflect.ValueOf(mediaType))
+						default:
+							return nil, errors.Errorf("invalid output format configuration; wrong type for media type, expected string (e.g. text/html), got %T", vvi)
 						}
 					}
 				}
@@ -358,20 +378,25 @@ func decode(mediaTypes media.Types, input, output interface{}) error {
 		return err
 	}
 
-	return decoder.Decode(input)
+	if err = decoder.Decode(input); err != nil {
+		return errors.Wrap(err, "failed to decode output format configuration")
+	}
+
+	return nil
+
 }
 
 // BaseFilename returns the base filename of f including an extension (ie.
 // "index.xml").
 func (f Format) BaseFilename() string {
-	return f.BaseName + f.MediaType.FullSuffix()
+	return f.BaseName + f.MediaType.FirstSuffix.FullSuffix
 }
 
 // MarshalJSON returns the JSON encoding of f.
 func (f Format) MarshalJSON() ([]byte, error) {
 	type Alias Format
 	return json.Marshal(&struct {
-		MediaType string
+		MediaType string `json:"mediaType"`
 		Alias
 	}{
 		MediaType: f.MediaType.String(),

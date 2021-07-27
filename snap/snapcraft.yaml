@@ -1,10 +1,12 @@
 name: hugo
-version: "0.76.0-DEV"
+version: git
 summary: Fast and Flexible Static Site Generator
 description: |
   Hugo is a static HTML and CSS website generator written in Go. It is
   optimized for speed, easy use and configurability. Hugo takes a directory
   with content and templates and renders them into a full HTML website.
+license: "Apache-2.0"
+base: core20
 confinement: strict
 grade: devel # "devel" or "stable"
 
@@ -12,7 +14,10 @@ apps:
   hugo:
     command: bin/hugo
     completer: hugo-completion
-    plugs: [home, network-bind, removable-media]
+    plugs:
+      - home
+      - network-bind
+      - removable-media
 
 parts:
   git:
@@ -26,7 +31,7 @@ parts:
 
   hugo:
     plugin: nil
-    build-snaps: [go/1.15/stable]
+    build-snaps: [go/1.16/stable]
     source: .
     override-build: |
       set -ex
@@ -36,16 +41,16 @@ parts:
       export PATH=$GOPATH/bin:$PATH
 
       echo ' * Running "go get -v github.com/magefile/mage"...'
-      GO111MODULE=off go get -v github.com/magefile/mage
+      go get -v github.com/magefile/mage
 
-      echo ' * Running "mage -v test"...'
-      export GO111MODULE=on
-      mage -v test
+      #echo ' * Running "mage -v test"...'
+      #mage -v test
 
-      echo " * SNAPCRAFT_IMAGE_INFO=$SNAPCRAFT_IMAGE_INFO"
+      echo " * SNAPCRAFT_IMAGE_INFO=${SNAPCRAFT_IMAGE_INFO=}"
       # Example: SNAPCRAFT_IMAGE_INFO='{"build_url": "https://launchpad.net/~gohugoio/+snap/hugo-extended-dev/+build/344022"}'
+      export HUGO_BUILD_TAGS=""
       if echo $SNAPCRAFT_IMAGE_INFO | grep -q '/+snap/hugo-extended'; then
-          export HUGO_BUILD_TAGS="extended"
+        HUGO_BUILD_TAGS="extended"
       fi
       echo " * Building hugo (HUGO_BUILD_TAGS=\"$HUGO_BUILD_TAGS\")..."
       [ "$SNAPCRAFT_PROJECT_GRADE" = "stable" ] && mage -v hugoNoGitInfo || mage -v hugo
@@ -66,37 +71,44 @@ parts:
       ls -l $SNAPCRAFT_PART_INSTALL/bin/hugo
 
   node:
-    plugin: x-nodejs
-    node-packages:
-        - "@babel/cli"
-        - "@babel/core"
-        - postcss-cli
-    filesets:
-      node:
-        - bin/node
-      postcss:
-        - bin/postcss
-        - lib/node_modules/postcss-cli/*
-      babel:
-        - bin/babel
-        - lib/node_modules/@babel/cli/*
+    plugin: nil
+    stage-packages:
+      - nodejs
+    organize:
+      usr/bin/: bin/
+      usr/lib/: lib/
     prime:
-      - $node
-      - $postcss
-      - $babel
+      - bin/node
+      - lib/*/lib*.so*
+
+  pandoc:
+    plugin: nil
+    stage-packages:
+      - libatomic1
+      - pandoc
+      - pandoc-data
+    organize:
+      usr/bin/: bin/
+      usr/lib/: lib/
+    prime:
+      - bin/pandoc
 
   pygments:
-    plugin: python
-    python-packages: [Pygments]
+    plugin: nil
+    stage-packages:
+      - python3-pygments
+    organize:
+      usr/bin/: bin/
+      usr/lib/: lib/
     prime:
       - bin/pygmentize
       - lib/python*/site-packages/Pygments-*.dist-info/*
       - lib/python*/site-packages/pygments/*
-      - usr/bin/python*
-      - -usr/bin/python*m
-      - usr/lib/python*/*
-      - -usr/lib/python*/distutils/*
-      - -usr/lib/python*/email/*
-      - -usr/lib/python*/lib2to3/*
-      - -usr/lib/python*/tkinter/*
-      - -usr/lib/python*/unittest/*
+      - bin/python*
+      - -bin/python*m
+      - lib/python*/*
+      - -lib/python*/distutils/*
+      - -lib/python*/email/*
+      - -lib/python*/lib2to3/*
+      - -lib/python*/tkinter/*
+      - -lib/python*/unittest/*

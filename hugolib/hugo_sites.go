@@ -22,6 +22,8 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/fsnotify/fsnotify"
+
 	"github.com/gohugoio/hugo/identity"
 
 	radix "github.com/armon/go-radix"
@@ -85,6 +87,10 @@ type HugoSites struct {
 	// Keeps track of bundle directories and symlinks to enable partial rebuilding.
 	ContentChanges *contentChangeMap
 
+	// File change events with filename stored in this map will be skipped.
+	skipRebuildForFilenamesMu sync.Mutex
+	skipRebuildForFilenames   map[string]bool
+
 	init *hugoSitesInit
 
 	workers    *para.Workers
@@ -92,6 +98,14 @@ type HugoSites struct {
 
 	*fatalErrorHandler
 	*testCounters
+}
+
+// ShouldSkipFileChangeEvent allows skipping filesystem event early before
+// the build is started.
+func (h *HugoSites) ShouldSkipFileChangeEvent(ev fsnotify.Event) bool {
+	h.skipRebuildForFilenamesMu.Lock()
+	defer h.skipRebuildForFilenamesMu.Unlock()
+	return h.skipRebuildForFilenames[ev.Name]
 }
 
 func (h *HugoSites) getContentMaps() *pageMaps {
@@ -223,7 +237,7 @@ func (h *HugoSites) pickOneAndLogTheRest(errors []error) error {
 			break
 		}
 
-		h.Log.ERROR.Println(err)
+		h.Log.Errorln(err)
 	}
 
 	return errors[i]
@@ -246,7 +260,7 @@ func (h *HugoSites) NumLogErrors() int {
 	if h == nil {
 		return 0
 	}
-	return int(h.Log.ErrorCounter.Count())
+	return int(h.Log.LogCounters().ErrorCounter.Count())
 }
 
 func (h *HugoSites) PrintProcessingStats(w io.Writer) {
@@ -267,7 +281,7 @@ func (h *HugoSites) GetContentPage(filename string) page.Page {
 			return false
 		}
 
-		if b.fi.Meta().Filename() == filename {
+		if b.fi.Meta().Filename == filename {
 			p = b.p
 			return true
 		}
@@ -281,13 +295,11 @@ func (h *HugoSites) GetContentPage(filename string) page.Page {
 // NewHugoSites creates a new collection of sites given the input sites, building
 // a language configuration based on those.
 func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
-
 	if cfg.Language != nil {
 		return nil, errors.New("Cannot provide Language in Cfg when sites are provided")
 	}
 
 	langConfig, err := newMultiLingualFromSites(cfg.Cfg, sites...)
-
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create language config")
 	}
@@ -304,12 +316,13 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 	}
 
 	h := &HugoSites{
-		running:      cfg.Running,
-		multilingual: langConfig,
-		multihost:    cfg.Cfg.GetBool("multihost"),
-		Sites:        sites,
-		workers:      workers,
-		numWorkers:   numWorkers,
+		running:                 cfg.Running,
+		multilingual:            langConfig,
+		multihost:               cfg.Cfg.GetBool("multihost"),
+		Sites:                   sites,
+		workers:                 workers,
+		numWorkers:              numWorkers,
+		skipRebuildForFilenames: make(map[string]bool),
 		init: &hugoSitesInit{
 			data:         lazy.New(),
 			layouts:      lazy.New(),
@@ -361,7 +374,8 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 		s.h = h
 	}
 
-	if err := applyDeps(cfg, sites...); err != nil {
+	var l configLoader
+	if err := l.applyDeps(cfg, sites...); err != nil {
 		return nil, errors.Wrap(err, "add site dependencies")
 	}
 
@@ -386,7 +400,7 @@ func (h *HugoSites) loadGitInfo() error {
 	if h.Cfg.GetBool("enableGitInfo") {
 		gi, err := newGitInfo(h.Cfg)
 		if err != nil {
-			h.Log.ERROR.Println("Failed to read Git log:", err)
+			h.Log.Errorln("Failed to read Git log:", err)
 		} else {
 			h.gitInfo = gi
 		}
@@ -394,7 +408,7 @@ func (h *HugoSites) loadGitInfo() error {
 	return nil
 }
 
-func applyDeps(cfg deps.DepsCfg, sites ...*Site) error {
+func (l configLoader) applyDeps(cfg deps.DepsCfg, sites ...*Site) error {
 	if cfg.TemplateProvider == nil {
 		cfg.TemplateProvider = tplimpl.DefaultTemplateProvider
 	}
@@ -422,7 +436,6 @@ func applyDeps(cfg deps.DepsCfg, sites ...*Site) error {
 				s.outputFormatsConfig,
 				s.mediaTypesConfig,
 			)
-
 			if err != nil {
 				return err
 			}
@@ -434,7 +447,7 @@ func applyDeps(cfg deps.DepsCfg, sites ...*Site) error {
 
 			d.Site = s.Info
 
-			siteConfig, err := loadSiteConfig(s.language)
+			siteConfig, err := l.loadSiteConfig(s.language)
 			if err != nil {
 				return errors.Wrap(err, "load site config")
 			}
@@ -520,10 +533,7 @@ func (s *Site) withSiteTemplates(withTemplates ...func(templ tpl.TemplateManager
 }
 
 func createSitesFromConfig(cfg deps.DepsCfg) ([]*Site, error) {
-
-	var (
-		sites []*Site
-	)
+	var sites []*Site
 
 	languages := getLanguages(cfg.Cfg)
 
@@ -570,7 +580,8 @@ func (h *HugoSites) resetLogs() {
 	h.Log.Reset()
 	loggers.GlobalErrorCounter.Reset()
 	for _, s := range h.Sites {
-		s.Deps.DistinctErrorLog = helpers.NewDistinctLogger(h.Log.ERROR)
+		s.Deps.Log.Reset()
+		s.Deps.LogDistinct.Reset()
 	}
 }
 
@@ -597,20 +608,19 @@ func (h *HugoSites) withSite(fn func(s *Site) error) error {
 func (h *HugoSites) createSitesFromConfig(cfg config.Provider) error {
 	oldLangs, _ := h.Cfg.Get("languagesSorted").(langs.Languages)
 
-	if err := loadLanguageSettings(h.Cfg, oldLangs); err != nil {
+	l := configLoader{cfg: h.Cfg}
+	if err := l.loadLanguageSettings(oldLangs); err != nil {
 		return err
 	}
 
-	depsCfg := deps.DepsCfg{Fs: h.Fs, Cfg: cfg}
+	depsCfg := deps.DepsCfg{Fs: h.Fs, Cfg: l.cfg}
 
 	sites, err := createSitesFromConfig(depsCfg)
-
 	if err != nil {
 		return err
 	}
 
 	langConfig, err := newMultiLingualFromSites(depsCfg.Cfg, sites...)
-
 	if err != nil {
 		return err
 	}
@@ -621,7 +631,8 @@ func (h *HugoSites) createSitesFromConfig(cfg config.Provider) error {
 		s.h = h
 	}
 
-	if err := applyDeps(depsCfg, sites...); err != nil {
+	var cl configLoader
+	if err := cl.applyDeps(depsCfg, sites...); err != nil {
 		return err
 	}
 
@@ -692,7 +703,6 @@ func (cfg *BuildCfg) shouldRender(p *pageState) bool {
 }
 
 func (h *HugoSites) renderCrossSitesSitemap() error {
-
 	if !h.multilingual.enabled() || h.IsMultihost() {
 		return nil
 	}
@@ -735,7 +745,6 @@ func (h *HugoSites) renderCrossSitesRobotsTXT() error {
 		},
 	},
 		output.RobotsTxtFormat)
-
 	if err != nil {
 		return err
 	}
@@ -760,15 +769,13 @@ func (h *HugoSites) removePageByFilename(filename string) {
 				return false
 			}
 
-			return b.fi.Meta().Filename() == filename
+			return b.fi.Meta().Filename == filename
 		})
 		return nil
 	})
-
 }
 
 func (h *HugoSites) createPageCollections() error {
-
 	allPages := newLazyPagesFactory(func() page.Pages {
 		var pages page.Pages
 		for _, s := range h.Sites {
@@ -879,14 +886,14 @@ func (h *HugoSites) handleDataFile(r source.File) error {
 					// 1. A theme uses the same key; the main data folder wins
 					// 2. A sub folder uses the same key: the sub folder wins
 					// TODO(bep) figure out a way to detect 2) above and make that a WARN
-					h.Log.INFO.Printf("Data for key '%s' in path '%s' is overridden by higher precedence data already in the data tree", key, r.Path())
+					h.Log.Infof("Data for key '%s' in path '%s' is overridden by higher precedence data already in the data tree", key, r.Path())
 				} else {
 					higherPrecedentMap[key] = value
 				}
 			}
 		default:
 			// can't merge: higherPrecedentData is not a map
-			h.Log.WARN.Printf("The %T data from '%s' overridden by "+
+			h.Log.Warnf("The %T data from '%s' overridden by "+
 				"higher precedence %T data already in the data tree", data, r.Path(), higherPrecedentData)
 		}
 
@@ -895,12 +902,12 @@ func (h *HugoSites) handleDataFile(r source.File) error {
 			current[r.BaseFileName()] = data
 		} else {
 			// we don't merge array data
-			h.Log.WARN.Printf("The %T data from '%s' overridden by "+
+			h.Log.Warnf("The %T data from '%s' overridden by "+
 				"higher precedence %T data already in the data tree", data, r.Path(), higherPrecedentData)
 		}
 
 	default:
-		h.Log.ERROR.Printf("unexpected data type %T in file %s", data, r.LogicalName())
+		h.Log.Errorf("unexpected data type %T in file %s", data, r.LogicalName())
 	}
 
 	return nil
@@ -912,7 +919,7 @@ func (h *HugoSites) errWithFileContext(err error, f source.File) error {
 		return err
 	}
 
-	realFilename := fim.Meta().Filename()
+	realFilename := fim.Meta().Filename
 
 	err, _ = herrors.WithFileContextForFile(
 		err,
@@ -1068,17 +1075,16 @@ func (m *contentChangeMap) resolveAndRemove(filename string) (string, bundleDirT
 	}
 
 	return dir, bundleNot
-
 }
 
 func (m *contentChangeMap) addSymbolicLinkMapping(fim hugofs.FileMetaInfo) {
 	meta := fim.Meta()
-	if !meta.IsSymlink() {
+	if !meta.IsSymlink {
 		return
 	}
 	m.symContentMu.Lock()
 
-	from, to := meta.Filename(), meta.OriginalFilename()
+	from, to := meta.Filename, meta.OriginalFilename
 	if fim.IsDir() {
 		if !strings.HasSuffix(from, helpers.FilePathSeparator) {
 			from += helpers.FilePathSeparator

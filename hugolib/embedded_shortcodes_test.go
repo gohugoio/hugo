@@ -17,12 +17,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/spf13/cast"
-
-	"path/filepath"
 
 	"github.com/gohugoio/hugo/deps"
 
@@ -86,15 +85,17 @@ func TestShortcodeHighlight(t *testing.T) {
 	for _, this := range []struct {
 		in, expected string
 	}{
-		{`{{< highlight java >}}
+		{
+			`{{< highlight java >}}
 void do();
 {{< /highlight >}}`,
-			`(?s)<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java"`,
+			`(?s)<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java"`,
 		},
-		{`{{< highlight java "style=friendly" >}}
+		{
+			`{{< highlight java "style=friendly" >}}
 void do();
 {{< /highlight >}}`,
-			`(?s)<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">`,
+			`(?s)<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">`,
 		},
 	} {
 
@@ -184,6 +185,11 @@ func TestShortcodeYoutube(t *testing.T) {
 			`{{< youtube id="w7Ft2ymGmfc" class="video" autoplay="true" >}}`,
 			"(?s)\n<div class=\"video\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\\?autoplay=1\".*?allowfullscreen title=\"YouTube Video\">.*?</iframe>.*?</div>",
 		},
+		// set custom title for accessibility)
+		{
+			`{{< youtube id="w7Ft2ymGmfc" title="A New Hugo Site in Under Two Minutes" >}}`,
+			"(?s)\n<div style=\".*?\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\" style=\".*?\" allowfullscreen title=\"A New Hugo Site in Under Two Minutes\">.*?</iframe>.*?</div>",
+		},
 	} {
 		var (
 			cfg, fs = newTestCfg()
@@ -200,7 +206,6 @@ title: Shorty
 
 		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), this.expected)
 	}
-
 }
 
 func TestShortcodeVimeo(t *testing.T) {
@@ -367,12 +372,16 @@ func TestShortcodeInstagram(t *testing.T) {
 	} {
 		// overload getJSON to return mock API response from Instagram
 		instagramFuncMap := template.FuncMap{
-			"getJSON": func(urlParts ...string) interface{} {
+			"getJSON": func(args ...interface{}) interface{} {
+				headers := args[len(args)-1].(map[string]interface{})
+				auth := headers["Authorization"]
+				if auth != "Bearer dummytoken" {
+					return fmt.Errorf("invalid access token: %q", auth)
+				}
 				var v interface{}
 				err := json.Unmarshal([]byte(this.resp), &v)
 				if err != nil {
-					t.Fatalf("[%d] unexpected error in json.Unmarshal: %s", i, err)
-					return err
+					return fmt.Errorf("[%d] unexpected error in json.Unmarshal: %s", i, err)
 				}
 				return v
 			},
@@ -382,6 +391,8 @@ func TestShortcodeInstagram(t *testing.T) {
 			cfg, fs = newTestCfg()
 			th      = newTestHelper(cfg, fs, t)
 		)
+
+		cfg.Set("services.instagram.accessToken", "dummytoken")
 
 		writeSource(t, fs, filepath.Join("content", "simple.md"), fmt.Sprintf(`---
 title: Shorty

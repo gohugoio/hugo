@@ -30,7 +30,7 @@ func TestChainZeroTransformers(t *testing.T) {
 	}
 }
 
-func TestChaingMultipleTransformers(t *testing.T) {
+func TestChainingMultipleTransformers(t *testing.T) {
 	f1 := func(ct FromTo) error {
 		_, err := ct.To().Write(bytes.Replace(ct.From().Bytes(), []byte("f1"), []byte("f1r"), -1))
 		return err

@@ -59,7 +59,6 @@ func (p *pagePaginator) Paginate(seq interface{}, options ...interface{}) (*page
 		}
 
 		p.current = paginator.Pagers()[0]
-
 	})
 
 	if initErr != nil {
@@ -102,7 +101,6 @@ func (p *pagePaginator) Paginator(options ...interface{}) (*page.Pager, error) {
 		}
 
 		p.current = paginator.Pagers()[0]
-
 	})
 
 	if initErr != nil {

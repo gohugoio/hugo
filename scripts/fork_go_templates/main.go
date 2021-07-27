@@ -5,10 +5,11 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/gohugoio/hugo/common/hexec"
 
 	"github.com/gohugoio/hugo/common/hugio"
 
@@ -17,7 +18,7 @@ import (
 
 func main() {
 	// TODO(bep) git checkout tag
-	// The current is built with Go version b68fa57c599720d33a2d735782969ce95eabf794 / go1.15dev
+	// The current is built with Go version 2f0da6d9e29d9b9d5a4d10427ca9f71d12bbacc8 / go1.16
 	fmt.Println("Forking ...")
 	defer fmt.Println("Done ...")
 
@@ -35,7 +36,6 @@ func main() {
 
 	goimports(htmlRoot)
 	gofmt(forkRoot)
-
 }
 
 const (
@@ -75,6 +75,7 @@ var (
 		"\"text/template\"\n", "template \"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate\"\n",
 		`"html/template"`, `htmltemplate "html/template"`,
 		`"fmt"`, `htmltemplate "html/template"`,
+		`t.Skip("this test currently fails with -race; see issue #39807")`, `// t.Skip("this test currently fails with -race; see issue #39807")`,
 	)
 )
 
@@ -97,36 +98,41 @@ package parse
 	}
 
 	return content
-
 }
 
 var goPackages = []goPackage{
-	goPackage{srcPkg: "text/template", dstPkg: "texttemplate",
-		replacer: func(name, content string) string { return textTemplateReplacers.Replace(commonReplace(name, content)) }},
-	goPackage{srcPkg: "html/template", dstPkg: "htmltemplate", replacer: func(name, content string) string {
-		if strings.HasSuffix(name, "content.go") {
-			// Remove template.HTML types. We need to use the Go types.
-			content = removeAll(`(?s)// Strings of content.*?\)\n`, content)
-		}
-
-		content = commonReplace(name, content)
-
-		return htmlTemplateReplacers.Replace(content)
+	{
+		srcPkg: "text/template", dstPkg: "texttemplate",
+		replacer: func(name, content string) string { return textTemplateReplacers.Replace(commonReplace(name, content)) },
 	},
+	{
+		srcPkg: "html/template", dstPkg: "htmltemplate", replacer: func(name, content string) string {
+			if strings.HasSuffix(name, "content.go") {
+				// Remove template.HTML types. We need to use the Go types.
+				content = removeAll(`(?s)// Strings of content.*?\)\n`, content)
+			}
+
+			content = commonReplace(name, content)
+
+			return htmlTemplateReplacers.Replace(content)
+		},
 		rewriter: func(name string) {
 			for _, s := range []string{"CSS", "HTML", "HTMLAttr", "JS", "JSStr", "URL", "Srcset"} {
 				rewrite(name, fmt.Sprintf("%s -> htmltemplate.%s", s, s))
 			}
 			rewrite(name, `"text/template/parse" -> "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"`)
-		}},
-	goPackage{srcPkg: "internal/fmtsort", dstPkg: "fmtsort", rewriter: func(name string) {
+		},
+	},
+	{srcPkg: "internal/fmtsort", dstPkg: "fmtsort", rewriter: func(name string) {
 		rewrite(name, `"internal/fmtsort" -> "github.com/gohugoio/hugo/tpl/internal/go_templates/fmtsort"`)
 	}},
-	goPackage{srcPkg: "internal/testenv", dstPkg: "testenv",
+	{
+		srcPkg: "internal/testenv", dstPkg: "testenv",
 		replacer: func(name, content string) string { return testEnvReplacers.Replace(content) }, rewriter: func(name string) {
 			rewrite(name, `"internal/testenv" -> "github.com/gohugoio/hugo/tpl/internal/go_templates/testenv"`)
-		}},
-	goPackage{srcPkg: "internal/cfg", dstPkg: "cfg", rewriter: func(name string) {
+		},
+	},
+	{srcPkg: "internal/cfg", dstPkg: "cfg", rewriter: func(name string) {
 		rewrite(name, `"internal/cfg" -> "github.com/gohugoio/hugo/tpl/internal/go_templates/cfg"`)
 	}},
 }
@@ -196,11 +202,10 @@ func doWithGoFiles(dir string,
 func removeAll(expression, content string) string {
 	re := regexp.MustCompile(expression)
 	return re.ReplaceAllString(content, "")
-
 }
 
 func rewrite(filename, rule string) {
-	cmf := exec.Command("gofmt", "-w", "-r", rule, filename)
+	cmf, _ := hexec.SafeCommand("gofmt", "-w", "-r", rule, filename)
 	out, err := cmf.CombinedOutput()
 	if err != nil {
 		log.Fatal("gofmt failed:", string(out))
@@ -208,7 +213,7 @@ func rewrite(filename, rule string) {
 }
 
 func goimports(dir string) {
-	cmf := exec.Command("goimports", "-w", dir)
+	cmf, _ := hexec.SafeCommand("goimports", "-w", dir)
 	out, err := cmf.CombinedOutput()
 	if err != nil {
 		log.Fatal("goimports failed:", string(out))
@@ -216,7 +221,7 @@ func goimports(dir string) {
 }
 
 func gofmt(dir string) {
-	cmf := exec.Command("gofmt", "-w", dir)
+	cmf, _ := hexec.SafeCommand("gofmt", "-w", dir)
 	out, err := cmf.CombinedOutput()
 	if err != nil {
 		log.Fatal("gofmt failed:", string(out))

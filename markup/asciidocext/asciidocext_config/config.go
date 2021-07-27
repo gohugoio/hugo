@@ -27,6 +27,7 @@ var (
 		Trace:                false,
 		FailureLevel:         "fatal",
 		WorkingFolderCurrent: false,
+		PreserveTOC:          false,
 	}
 
 	// CliDefault holds Asciidoctor CLI defaults (see https://asciidoctor.org/docs/user-manual/)
@@ -34,18 +35,6 @@ var (
 		Backend:      "html5",
 		SafeMode:     "unsafe",
 		FailureLevel: "fatal",
-	}
-
-	AllowedExtensions = map[string]bool{
-		"asciidoctor-html5s":           true,
-		"asciidoctor-bibtex":           true,
-		"asciidoctor-diagram":          true,
-		"asciidoctor-interdoc-reftext": true,
-		"asciidoctor-katex":            true,
-		"asciidoctor-latex":            true,
-		"asciidoctor-mathematical":     true,
-		"asciidoctor-question":         true,
-		"asciidoctor-rouge":            true,
 	}
 
 	AllowedSafeMode = map[string]bool{
@@ -86,4 +75,5 @@ type Config struct {
 	Trace                bool
 	FailureLevel         string
 	WorkingFolderCurrent bool
+	PreserveTOC          bool
 }

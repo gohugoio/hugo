@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2020 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,11 +17,12 @@ import (
 	"time"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/gohugoio/hugo/watcher/filenotify"
 )
 
 // Batcher batches file watch events in a given interval.
 type Batcher struct {
-	*fsnotify.Watcher
+	filenotify.FileWatcher
 	interval time.Duration
 	done     chan struct{}
 
@@ -29,12 +30,25 @@ type Batcher struct {
 }
 
 // New creates and starts a Batcher with the given time interval.
-func New(interval time.Duration) (*Batcher, error) {
-	watcher, err := fsnotify.NewWatcher()
+// It will fall back to a poll based watcher if native isn's supported.
+// To always use polling, set poll to true.
+func New(intervalBatcher, intervalPoll time.Duration, poll bool) (*Batcher, error) {
+	var err error
+	var watcher filenotify.FileWatcher
+
+	if poll {
+		watcher = filenotify.NewPollingWatcher(intervalPoll)
+	} else {
+		watcher, err = filenotify.New(intervalPoll)
+	}
+
+	if err != nil {
+		return nil, err
+	}
 
 	batcher := &Batcher{}
-	batcher.Watcher = watcher
-	batcher.interval = interval
+	batcher.FileWatcher = watcher
+	batcher.interval = intervalBatcher
 	batcher.done = make(chan struct{}, 1)
 	batcher.Events = make(chan []fsnotify.Event, 1)
 
@@ -42,7 +56,7 @@ func New(interval time.Duration) (*Batcher, error) {
 		go batcher.run()
 	}
 
-	return batcher, err
+	return batcher, nil
 }
 
 func (b *Batcher) run() {
@@ -51,7 +65,7 @@ func (b *Batcher) run() {
 OuterLoop:
 	for {
 		select {
-		case ev := <-b.Watcher.Events:
+		case ev := <-b.FileWatcher.Events():
 			evs = append(evs, ev)
 		case <-tick:
 			if len(evs) == 0 {
@@ -69,5 +83,5 @@ OuterLoop:
 // Close stops the watching of the files.
 func (b *Batcher) Close() {
 	b.done <- struct{}{}
-	b.Watcher.Close()
+	b.FileWatcher.Close()
 }

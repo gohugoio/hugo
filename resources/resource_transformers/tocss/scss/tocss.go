@@ -55,7 +55,7 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	for _, ip := range options.from.IncludePaths {
 		info, err := t.c.workFs.Stat(filepath.Clean(ip))
 		if err == nil {
-			filename := info.(hugofs.FileMetaInfo).Meta().Filename()
+			filename := info.(hugofs.FileMetaInfo).Meta().Filename
 			options.to.IncludePaths = append(options.to.IncludePaths, filename)
 		}
 	}
@@ -76,7 +76,7 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		if prev == "stdin" {
 			prevDir = baseDir
 		} else {
-			prevDir = t.c.sfs.MakePathRelative(filepath.Dir(prev))
+			prevDir, _ = t.c.sfs.MakePathRelative(filepath.Dir(prev))
 
 			if prevDir == "" {
 				// Not a member of this filesystem. Let LibSASS handle it.
@@ -105,7 +105,7 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 			fi, err := t.c.sfs.Fs.Stat(filenameToCheck)
 			if err == nil {
 				if fim, ok := fi.(hugofs.FileMetaInfo); ok {
-					return fim.Meta().Filename(), "", true
+					return fim.Meta().Filename, "", true
 				}
 			}
 		}
@@ -127,7 +127,7 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		// more correct for the main entry path (main.scss typically), but
 		// it will mess up the import mappings. As a workaround, we do a replacement
 		// in the source map itself (see below).
-		//options.InputPath = inputPath
+		// options.InputPath = inputPath
 		options.to.SourceMapOptions.OutputPath = outName
 		options.to.SourceMapOptions.Contents = true
 		options.to.SourceMapOptions.OmitURL = false

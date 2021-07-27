@@ -84,7 +84,6 @@ func lexShortcodeRightDelim(l *pageLexer) stateFunc {
 // 5. `param`
 // 6. param=`123`
 func lexShortcodeParam(l *pageLexer, escapedQuoteStart bool) stateFunc {
-
 	first := true
 	nextEq := false
 
@@ -138,7 +137,6 @@ func lexShortcodeParam(l *pageLexer, escapedQuoteStart bool) stateFunc {
 
 	l.emit(tScParam)
 	return lexInsideShortcode
-
 }
 
 func lexShortcodeParamVal(l *pageLexer) stateFunc {
@@ -187,7 +185,7 @@ Loop:
 					l.backup()
 					break Loop
 				} else if openQuoteFound {
-					// the coming quoute is inside
+					// the coming quote is inside
 					escapedInnerQuoteFound = true
 					escapedQuoteState = 1
 				}
@@ -356,7 +354,6 @@ func (l *pageLexer) currentLeftShortcodeDelim() []byte {
 		return leftDelimScWithMarkup
 	}
 	return leftDelimScNoMarkup
-
 }
 
 func (l *pageLexer) currentRightShortcodeDelim() []byte {

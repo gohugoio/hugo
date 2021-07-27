@@ -39,6 +39,8 @@
   {{ $.Scratch.Set "stylesheet" . }}
   {{end}}
 
+  <meta name="description"
+  content="{{ with .Description }}{{ . }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}">
 
   {{ block "scripts" . }}
   {{- partial "site-scripts.html" . -}}
@@ -52,9 +54,6 @@
   {{ if eq (getenv "HUGO_ENV") "production" | or (eq .Site.Params.env "production")  }}
   {{ partial "gtag" . }}
   {{ end }}
-
-
-
 
 </head>
 

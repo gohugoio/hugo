@@ -15,21 +15,72 @@ package types
 
 import (
 	"encoding/json"
+	"fmt"
 	"html/template"
+	"reflect"
+	"time"
 
 	"github.com/spf13/cast"
 )
 
-// ToStringSlicePreserveString converts v to a string slice.
-// If v is a string, it will be wrapped in a string slice.
+// ToDuration converts v to time.Duration.
+// See ToDurationE if you need to handle errors.
+func ToDuration(v interface{}) time.Duration {
+	d, _ := ToDurationE(v)
+	return d
+}
+
+// ToDurationE converts v to time.Duration.
+func ToDurationE(v interface{}) (time.Duration, error) {
+	if n := cast.ToInt(v); n > 0 {
+		return time.Duration(n) * time.Millisecond, nil
+	}
+	d, err := time.ParseDuration(cast.ToString(v))
+	if err != nil {
+		return 0, fmt.Errorf("cannot convert %v to time.Duration", v)
+	}
+	return d, nil
+}
+
+// ToStringSlicePreserveString is the same as ToStringSlicePreserveStringE,
+// but it never fails.
 func ToStringSlicePreserveString(v interface{}) []string {
+	vv, _ := ToStringSlicePreserveStringE(v)
+	return vv
+}
+
+// ToStringSlicePreserveStringE converts v to a string slice.
+// If v is a string, it will be wrapped in a string slice.
+func ToStringSlicePreserveStringE(v interface{}) ([]string, error) {
 	if v == nil {
-		return nil
+		return nil, nil
 	}
 	if sds, ok := v.(string); ok {
-		return []string{sds}
+		return []string{sds}, nil
 	}
-	return cast.ToStringSlice(v)
+	result, err := cast.ToStringSliceE(v)
+	if err == nil {
+		return result, nil
+	}
+
+	// Probably []int or similar. Fall back to reflect.
+	vv := reflect.ValueOf(v)
+
+	switch vv.Kind() {
+	case reflect.Slice, reflect.Array:
+		result = make([]string, vv.Len())
+		for i := 0; i < vv.Len(); i++ {
+			s, err := cast.ToStringE(vv.Index(i).Interface())
+			if err != nil {
+				return nil, err
+			}
+			result[i] = s
+		}
+		return result, nil
+	default:
+		return nil, fmt.Errorf("failed to convert %T to a string slice", v)
+	}
+
 }
 
 // TypeToString converts v to a string if it's a valid string type.

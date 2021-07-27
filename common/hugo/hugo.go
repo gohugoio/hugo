@@ -18,6 +18,8 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
+	"runtime/debug"
+	"sort"
 	"strings"
 
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -34,12 +36,15 @@ const (
 )
 
 var (
-	// commitHash contains the current Git revision. Use make to build to make
-	// sure this gets set.
+	// commitHash contains the current Git revision.
+	// Use mage to build to make sure this gets set.
 	commitHash string
 
 	// buildDate contains the date of the current build.
 	buildDate string
+
+	// vendorInfo contains vendor notes about the current build.
+	vendorInfo string
 )
 
 // Info contains information about the current Hugo environment
@@ -68,6 +73,10 @@ func (i Info) IsProduction() bool {
 	return i.Environment == EnvironmentProduction
 }
 
+func (i Info) IsExtended() bool {
+	return IsExtended
+}
+
 // NewInfo creates a new Hugo Info object.
 func NewInfo(environment string) Info {
 	if environment == "" {
@@ -93,10 +102,52 @@ func GetExecEnviron(workDir string, cfg config.Provider, fs afero.Fs) []string {
 	if err == nil {
 		for _, fi := range fis {
 			key := fmt.Sprintf("HUGO_FILE_%s", strings.ReplaceAll(strings.ToUpper(fi.Name()), ".", "_"))
-			value := fi.(hugofs.FileMetaInfo).Meta().Filename()
+			value := fi.(hugofs.FileMetaInfo).Meta().Filename
 			config.SetEnvVars(&env, key, value)
 		}
 	}
 
 	return env
+}
+
+// GetDependencyList returns a sorted dependency list on the format package="version".
+// It includes both Go dependencies and (a manually maintained) list of C(++) dependencies.
+func GetDependencyList() []string {
+	var deps []string
+
+	formatDep := func(path, version string) string {
+		return fmt.Sprintf("%s=%q", path, version)
+	}
+
+	if IsExtended {
+		deps = append(
+			deps,
+			// TODO(bep) consider adding a DepsNonGo() method to these upstream projects.
+			formatDep("github.com/sass/libsass", "3.6.5"),
+			formatDep("github.com/webmproject/libwebp", "v1.2.0"),
+		)
+	}
+
+	bi, ok := debug.ReadBuildInfo()
+	if !ok {
+		return deps
+	}
+
+	for _, dep := range bi.Deps {
+		deps = append(deps, formatDep(dep.Path, dep.Version))
+	}
+
+	sort.Strings(deps)
+
+	return deps
+}
+
+// IsRunningAsTest reports whether we are running as a test.
+func IsRunningAsTest() bool {
+	for _, arg := range os.Args {
+		if strings.HasPrefix(arg, "-test") {
+			return true
+		}
+	}
+	return false
 }

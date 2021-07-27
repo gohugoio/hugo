@@ -117,7 +117,7 @@ func (m *pageMap) newPageFromContentNode(n *contentNode, parentBucket *pagesMapB
 		return nil, err
 	}
 
-	if n.fi.Meta().GetBool(walkIsRootFileMetaKey) {
+	if n.fi.Meta().IsRootFile {
 		// Make sure that the bundle/section we start walking from is always
 		// rendered.
 		// This is only relevant in server fast render mode.
@@ -225,7 +225,6 @@ func (m *pageMap) newPageFromContentNode(n *contentNode, parentBucket *pagesMapB
 }
 
 func (m *pageMap) newResource(fim hugofs.FileMetaInfo, owner *pageState) (resource.Resource, error) {
-
 	if owner == nil {
 		panic("owner is nil")
 	}
@@ -233,7 +232,7 @@ func (m *pageMap) newResource(fim hugofs.FileMetaInfo, owner *pageState) (resour
 	outputFormats := owner.m.outputFormats()
 	seen := make(map[string]bool)
 	var targetBasePaths []string
-	// Make sure bundled resources are published to all of the ouptput formats'
+	// Make sure bundled resources are published to all of the output formats'
 	// sub paths.
 	for _, f := range outputFormats {
 		p := f.Path
@@ -250,7 +249,7 @@ func (m *pageMap) newResource(fim hugofs.FileMetaInfo, owner *pageState) (resour
 		return meta.Open()
 	}
 
-	target := strings.TrimPrefix(meta.Path(), owner.File().Dir())
+	target := strings.TrimPrefix(meta.Path, owner.File().Dir())
 
 	return owner.s.ResourceSpec.New(
 		resources.ResourceSourceDescriptor{
@@ -395,7 +394,7 @@ func (m *pageMap) assembleResources(s string, p *pageState, parentBucket *pagesM
 	m.resources.WalkPrefix(s, func(s string, v interface{}) bool {
 		n := v.(*contentNode)
 		meta := n.fi.Meta()
-		classifier := meta.Classifier()
+		classifier := meta.Classifier
 		var r resource.Resource
 		switch classifier {
 		case files.ContentClassContent:
@@ -424,7 +423,6 @@ func (m *pageMap) assembleResources(s string, p *pageState, parentBucket *pagesM
 }
 
 func (m *pageMap) assembleSections() error {
-
 	var sectionsToDelete []string
 	var err error
 
@@ -464,10 +462,13 @@ func (m *pageMap) assembleSections() error {
 
 		if parent != nil {
 			parentBucket = parent.p.bucket
+		} else if s == "/" {
+			parentBucket = m.s.siteBucket
 		}
 
 		kind := page.KindSection
 		if s == "/" {
+
 			kind = page.KindHome
 		}
 
@@ -508,7 +509,6 @@ func (m *pageMap) assembleSections() error {
 }
 
 func (m *pageMap) assembleTaxonomies() error {
-
 	var taxonomiesToDelete []string
 	var err error
 
@@ -565,7 +565,6 @@ func (m *pageMap) assembleTaxonomies() error {
 	}
 
 	return err
-
 }
 
 func (m *pageMap) attachPageToViews(s string, b *contentNode) {
@@ -581,7 +580,7 @@ func (m *pageMap) attachPageToViews(s string, b *contentNode) {
 		w := getParamToLower(b.p, viewName.plural+"_weight")
 		weight, err := cast.ToIntE(w)
 		if err != nil {
-			m.s.Log.ERROR.Printf("Unable to convert taxonomy weight %#v to int for %q", w, b.p.Path())
+			m.s.Log.Errorf("Unable to convert taxonomy weight %#v to int for %q", w, b.p.Path())
 			// weight will equal zero, so let the flow continue
 		}
 
@@ -656,7 +655,6 @@ func (m *pageMap) collectSections(query pageMapQuery, fn func(c *contentNode)) e
 }
 
 func (m *pageMap) collectSectionsFn(query pageMapQuery, fn func(s string, c *contentNode) bool) error {
-
 	if !strings.HasSuffix(query.Prefix, "/") {
 		query.Prefix += "/"
 	}
@@ -789,7 +787,7 @@ func (m *pageMaps) withMaps(fn func(pm *pageMap) error) error {
 
 type pagesMapBucket struct {
 	// Cascading front matter.
-	cascade maps.Params
+	cascade map[page.PageMatcher]maps.Params
 
 	owner *pageState // The branch node
 
@@ -957,11 +955,9 @@ func (w *sectionWalker) applyAggregates() *sectionAggregateHandler {
 	return w.walkLevel("/", func() sectionWalkHandler {
 		return &sectionAggregateHandler{}
 	}).(*sectionAggregateHandler)
-
 }
 
 func (w *sectionWalker) walkLevel(prefix string, createVisitor func() sectionWalkHandler) sectionWalkHandler {
-
 	level := strings.Count(prefix, "/")
 
 	visitor := createVisitor()
@@ -1029,7 +1025,6 @@ func (w *sectionWalker) walkLevel(prefix string, createVisitor func() sectionWal
 	})
 
 	return visitor
-
 }
 
 type viewName struct {

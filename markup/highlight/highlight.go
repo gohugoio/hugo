@@ -37,12 +37,15 @@ type Highlighter struct {
 }
 
 func (h Highlighter) Highlight(code, lang, optsStr string) (string, error) {
-	cfg := h.cfg
-	if optsStr != "" {
-		if err := applyOptionsFromString(optsStr, &cfg); err != nil {
-			return "", err
-		}
+	if optsStr == "" {
+		return highlight(code, lang, h.cfg)
 	}
+
+	cfg := h.cfg
+	if err := applyOptionsFromString(optsStr, &cfg); err != nil {
+		return "", err
+	}
+
 	return highlight(code, lang, cfg)
 }
 
@@ -120,7 +123,7 @@ type preWrapper struct {
 
 func (p preWrapper) Start(code bool, styleAttr string) string {
 	w := &strings.Builder{}
-	fmt.Fprintf(w, "<pre%s>", styleAttr)
+	fmt.Fprintf(w, `<pre tabindex="0"%s>`, styleAttr)
 	var language string
 	if code {
 		language = p.language

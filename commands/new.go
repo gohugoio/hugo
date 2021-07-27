@@ -72,7 +72,6 @@ func (n *newCmd) newContent(cmd *cobra.Command, args []string) error {
 	}
 
 	c, err := initializeConfig(true, false, &n.hugoBuilderCommon, n, cfgInit)
-
 	if err != nil {
 		return err
 	}
@@ -119,7 +118,7 @@ func newContentPathSection(h *hugolib.HugoSites, path string) (string, string) {
 
 	if h != nil {
 		for _, dir := range h.BaseFs.Content.Dirs {
-			createpath = strings.TrimPrefix(createpath, dir.Meta().Filename())
+			createpath = strings.TrimPrefix(createpath, dir.Meta().Filename)
 		}
 	}
 

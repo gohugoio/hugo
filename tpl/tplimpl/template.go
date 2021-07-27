@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"regexp"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -167,7 +168,6 @@ func newTemplateExec(d *deps.Deps) (*templateExec, error) {
 	if d.WithTemplate != nil {
 		if err := d.WithTemplate(e); err != nil {
 			return nil, err
-
 		}
 	}
 
@@ -246,7 +246,6 @@ func (t *templateExec) MarkReady() error {
 	})
 
 	return err
-
 }
 
 type templateHandler struct {
@@ -345,7 +344,6 @@ func (t *templateHandler) LookupVariant(name string, variants tpl.TemplateVarian
 	more := len(s.variants) > 1
 
 	return sv.ts, true, more
-
 }
 
 // LookupVariants returns all variants of name, nil if none found.
@@ -362,11 +360,9 @@ func (t *templateHandler) LookupVariants(name string) []tpl.Template {
 	}
 
 	return variants
-
 }
 
 func (t *templateHandler) HasTemplate(name string) bool {
-
 	if _, found := t.baseof[name]; found {
 		return true
 	}
@@ -501,7 +497,6 @@ func (t *templateHandler) addFileContext(templ tpl.Template, inerr error) error 
 	err, _ := checkFilename(ts.baseInfo, inerr)
 
 	return err
-
 }
 
 func (t *templateHandler) addShortcodeVariant(ts *templateState) {
@@ -543,7 +538,7 @@ func (t *templateHandler) addTemplateFile(name, path string) error {
 		realFilename := filename
 		if fi, err := fs.Stat(filename); err == nil {
 			if fim, ok := fi.(hugofs.FileMetaInfo); ok {
-				realFilename = fim.Meta().Filename()
+				realFilename = fim.Meta().Filename
 			}
 		}
 
@@ -584,7 +579,6 @@ func (t *templateHandler) addTemplateFile(name, path string) error {
 	t.applyTemplateTransformers(t.main, templ)
 
 	return nil
-
 }
 
 func (t *templateHandler) addTemplateTo(info templateInfo, to *templateNamespace) (*templateState, error) {
@@ -605,10 +599,16 @@ func (t *templateHandler) applyBaseTemplate(overlay, base templateInfo) (tpl.Tem
 			}
 		}
 
-		templ, err = templ.Parse(overlay.template)
+		templ, err = texttemplate.Must(templ.Clone()).Parse(overlay.template)
 		if err != nil {
 			return nil, overlay.errWithFileContext("parse failed", err)
 		}
+
+		// The extra lookup is a workaround, see
+		// * https://github.com/golang/go/issues/16101
+		// * https://github.com/gohugoio/hugo/issues/2549
+		// templ = templ.Lookup(templ.Name())
+
 		return templ, nil
 	}
 
@@ -716,7 +716,6 @@ func (t *templateHandler) loadTemplates() error {
 	}
 
 	return nil
-
 }
 
 func (t *templateHandler) nameIsText(name string) (string, bool) {
@@ -763,7 +762,6 @@ func (t *templateHandler) extractPartials(templ tpl.Template) error {
 	}
 
 	return nil
-
 }
 
 func (t *templateHandler) postTransform() error {
@@ -815,6 +813,24 @@ func (t *templateHandler) postTransform() error {
 				im.Add(ts)
 			}
 		}
+	}
+
+	for _, v := range t.shortcodes {
+		sort.Slice(v.variants, func(i, j int) bool {
+			v1, v2 := v.variants[i], v.variants[j]
+			name1, name2 := v1.ts.Name(), v2.ts.Name()
+			isHTMl1, isHTML2 := strings.HasSuffix(name1, "html"), strings.HasSuffix(name2, "html")
+
+			// There will be a weighted selection later, but make
+			// sure these are sorted to get a stable selection for
+			// output formats missing specific templates.
+			// Prefer HTML.
+			if isHTMl1 || isHTML2 && !(isHTMl1 && isHTML2) {
+				return isHTMl1
+			}
+
+			return name1 < name2
+		})
 	}
 
 	return nil
@@ -874,7 +890,6 @@ func (t *templateNamespace) newTemplateLookup(in *templateState) func(name strin
 			return newTemplateState(templ, templateInfo{name: templ.Name()})
 		}
 		return nil
-
 	}
 }
 
@@ -933,7 +948,6 @@ func (t *templateState) isText() bool {
 func isText(templ tpl.Template) bool {
 	_, isText := templ.(*texttemplate.Template)
 	return isText
-
 }
 
 type templateStateMap struct {
@@ -1003,7 +1017,6 @@ func removeLeadingBOM(s string) string {
 	}
 
 	return s
-
 }
 
 // resolves _internal/shortcodes/param.html => param.html etc.
@@ -1015,7 +1028,6 @@ func templateBaseName(typ templateType, name string) string {
 	default:
 		panic("not implemented")
 	}
-
 }
 
 func unwrap(templ tpl.Template) tpl.Template {
@@ -1041,5 +1053,4 @@ func templates(in tpl.Template) []tpl.Template {
 	}
 
 	return templs
-
 }

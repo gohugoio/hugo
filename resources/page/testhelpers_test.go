@@ -16,6 +16,7 @@ package page
 import (
 	"fmt"
 	"html/template"
+	"path"
 	"path/filepath"
 	"time"
 
@@ -28,7 +29,7 @@ import (
 	"github.com/bep/gitmap"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources/resource"
-	"github.com/spf13/viper"
+	
 
 	"github.com/gohugoio/hugo/navigation"
 
@@ -61,11 +62,14 @@ func newTestPageWithFile(filename string) *testPage {
 		params: make(map[string]interface{}),
 		data:   make(map[string]interface{}),
 		file:   file,
+		currentSection: &testPage{
+			sectionEntries: []string{"a", "b", "c"},
+		},
 	}
 }
 
 func newTestPathSpec() *helpers.PathSpec {
-	return newTestPathSpecFor(viper.New())
+	return newTestPathSpecFor(config.New())
 }
 
 func newTestPathSpecFor(cfg config.Provider) *helpers.PathSpec {
@@ -85,11 +89,12 @@ func newTestPathSpecFor(cfg config.Provider) *helpers.PathSpec {
 }
 
 type testPage struct {
+	kind        string
 	description string
 	title       string
 	linkTitle   string
-
-	section string
+	lang        string
+	section     string
 
 	content string
 
@@ -111,6 +116,9 @@ type testPage struct {
 	data   map[string]interface{}
 
 	file source.File
+
+	currentSection *testPage
+	sectionEntries []string
 }
 
 func (p *testPage) Aliases() []string {
@@ -127,8 +135,8 @@ func (p *testPage) AlternativeOutputFormats() OutputFormats {
 
 func (p *testPage) Author() Author {
 	return Author{}
-
 }
+
 func (p *testPage) Authors() AuthorList {
 	return nil
 }
@@ -150,7 +158,7 @@ func (p *testPage) ContentBaseName() string {
 }
 
 func (p *testPage) CurrentSection() Page {
-	panic("not implemented")
+	return p.currentSection
 }
 
 func (p *testPage) Data() interface{} {
@@ -164,6 +172,7 @@ func (p *testPage) Sitemap() config.Sitemap {
 func (p *testPage) Layout() string {
 	return ""
 }
+
 func (p *testPage) Date() time.Time {
 	return p.date
 }
@@ -297,11 +306,11 @@ func (p *testPage) Keywords() []string {
 }
 
 func (p *testPage) Kind() string {
-	panic("not implemented")
+	return p.kind
 }
 
 func (p *testPage) Lang() string {
-	panic("not implemented")
+	return p.lang
 }
 
 func (p *testPage) Language() *langs.Language {
@@ -500,11 +509,11 @@ func (p *testPage) Sections() Pages {
 }
 
 func (p *testPage) SectionsEntries() []string {
-	panic("not implemented")
+	return p.sectionEntries
 }
 
 func (p *testPage) SectionsPath() string {
-	panic("not implemented")
+	return path.Join(p.sectionEntries...)
 }
 
 func (p *testPage) Site() Site {

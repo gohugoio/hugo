@@ -38,8 +38,10 @@ outputs: ["HTML", "AMP", "JSON"]
 For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.
 `
 
-const basicTemplate = "<html><body>{{.Content}}</body></html>"
-const aliasTemplate = "<html><body>ALIASTEMPLATE</body></html>"
+const (
+	basicTemplate = "<html><body>{{.Content}}</body></html>"
+	aliasTemplate = "<html><body>ALIASTEMPLATE</body></html>"
+)
 
 func TestAlias(t *testing.T) {
 	t.Parallel()

@@ -87,7 +87,8 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 	var ima []int64
 	var fma []float64
 	var sma []string
-	if mv.Type() == v.Type() {
+
+	if mv.Kind() == v.Kind() {
 		switch v.Kind() {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			iv := v.Int()
@@ -382,11 +383,20 @@ func (ns *Namespace) checkWhereArray(seqv, kv, mv reflect.Value, path []string, 
 				vvv = reflect.ValueOf(params.Get(path...))
 			} else {
 				vvv = rvv
-				for _, elemName := range path {
+				for i, elemName := range path {
 					var err error
 					vvv, err = evaluateSubElem(vvv, elemName)
+
 					if err != nil {
 						continue
+					}
+
+					if i < len(path)-1 && vvv.IsValid() {
+						if params, ok := vvv.Interface().(maps.Params); ok {
+							// The current path element is the map itself, .Params.
+							vvv = reflect.ValueOf(params.Get(path[i+1:]...))
+							break
+						}
 					}
 				}
 			}

@@ -17,7 +17,6 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-
 	"math/rand"
 	"reflect"
 	"testing"
@@ -33,7 +32,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/spf13/afero"
-	"github.com/spf13/viper"
+	
 )
 
 type tstNoStringer struct{}
@@ -195,8 +194,10 @@ func TestDictionary(t *testing.T) {
 	}{
 		{[]interface{}{"a", "b"}, map[string]interface{}{"a": "b"}},
 		{[]interface{}{[]string{"a", "b"}, "c"}, map[string]interface{}{"a": map[string]interface{}{"b": "c"}}},
-		{[]interface{}{[]string{"a", "b"}, "c", []string{"a", "b2"}, "c2", "b", "c"},
-			map[string]interface{}{"a": map[string]interface{}{"b": "c", "b2": "c2"}, "b": "c"}},
+		{
+			[]interface{}{[]string{"a", "b"}, "c", []string{"a", "b2"}, "c2", "b", "c"},
+			map[string]interface{}{"a": map[string]interface{}{"b": "c", "b2": "c2"}, "b": "c"},
+		},
 		{[]interface{}{"a", 12, "b", []int{4}}, map[string]interface{}{"a": 12, "b": []int{4}}},
 		// errors
 		{[]interface{}{5, "b"}, false},
@@ -237,7 +238,6 @@ func TestReverse(t *testing.T) {
 	c.Assert(reversed, qt.IsNil)
 	_, err = ns.Reverse(43)
 	c.Assert(err, qt.Not(qt.IsNil))
-
 }
 
 func TestEchoParam(t *testing.T) {
@@ -369,8 +369,10 @@ func (p testPage) String() string {
 	return "p-" + p.Title
 }
 
-type pagesPtr []*testPage
-type pagesVals []testPage
+type (
+	pagesPtr  []*testPage
+	pagesVals []testPage
+)
 
 var (
 	p1 = &testPage{"A"}
@@ -562,9 +564,16 @@ func TestQuerify(t *testing.T) {
 	}{
 		{[]interface{}{"a", "b"}, "a=b"},
 		{[]interface{}{"a", "b", "c", "d", "f", " &"}, `a=b&c=d&f=+%26`},
+		{[]interface{}{[]string{"a", "b"}}, "a=b"},
+		{[]interface{}{[]string{"a", "b", "c", "d", "f", " &"}}, `a=b&c=d&f=+%26`},
+		{[]interface{}{[]interface{}{"x", "y"}}, `x=y`},
+		{[]interface{}{[]interface{}{"x", 5}}, `x=5`},
 		// errors
 		{[]interface{}{5, "b"}, false},
 		{[]interface{}{"a", "b", "c"}, false},
+		{[]interface{}{[]string{"a", "b", "c"}}, false},
+		{[]interface{}{[]string{"a", "b"}, "c"}, false},
+		{[]interface{}{[]interface{}{"c", "d", "e"}}, false},
 	} {
 		errMsg := qt.Commentf("[%d] %v", i, test.params)
 
@@ -577,6 +586,32 @@ func TestQuerify(t *testing.T) {
 
 		c.Assert(err, qt.IsNil, errMsg)
 		c.Assert(result, qt.Equals, test.expect, errMsg)
+	}
+}
+
+func BenchmarkQuerify(b *testing.B) {
+	ns := New(&deps.Deps{})
+	params := []interface{}{"a", "b", "c", "d", "f", " &"}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := ns.Querify(params...)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkQuerifySlice(b *testing.B) {
+	ns := New(&deps.Deps{})
+	params := []string{"a", "b", "c", "d", "f", " &"}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := ns.Querify(params)
+		if err != nil {
+			b.Fatal(err)
+		}
 	}
 }
 
@@ -671,7 +706,7 @@ func TestShuffleRandomising(t *testing.T) {
 
 	// Note that this test can fail with false negative result if the shuffle
 	// of the sequence happens to be the same as the original sequence. However
-	// the propability of the event is 10^-158 which is negligible.
+	// the probability of the event is 10^-158 which is negligible.
 	seqLen := 100
 	rand.Seed(time.Now().UTC().UnixNano())
 
@@ -716,7 +751,6 @@ func TestSlice(t *testing.T) {
 
 		c.Assert(result, qt.DeepEquals, test.expected, errMsg)
 	}
-
 }
 
 func TestUnion(t *testing.T) {
@@ -834,7 +868,7 @@ func TestUniq(t *testing.T) {
 		// Structs
 		{pagesVals{p3v, p2v, p3v, p2v}, pagesVals{p3v, p2v}, false},
 
-		// not Comparable(), use hashstruscture
+		// not Comparable(), use hashstructure
 		{[]map[string]int{
 			{"K1": 1}, {"K2": 2}, {"K1": 1}, {"K2": 1},
 		}, []map[string]int{
@@ -907,7 +941,6 @@ type TstParams struct {
 
 func (x TstParams) Params() maps.Params {
 	return x.params
-
 }
 
 type TstXIHolder struct {
@@ -953,7 +986,7 @@ func newDeps(cfg config.Provider) *deps.Deps {
 }
 
 func newTestNs() *Namespace {
-	v := viper.New()
+	v := config.New()
 	v.Set("contentDir", "content")
 	return New(newDeps(v))
 }

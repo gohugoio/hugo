@@ -22,17 +22,17 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/markup_config"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
-	"github.com/spf13/viper"
 
 	qt "github.com/frankban/quicktest"
 )
 
 func TestAsciidoctorDefaultArgs(t *testing.T) {
 	c := qt.New(t)
-	cfg := viper.New()
+	cfg := config.New()
 	mconf := markup_config.Default
 
 	p, err := Provider.New(
@@ -57,7 +57,7 @@ func TestAsciidoctorDefaultArgs(t *testing.T) {
 
 func TestAsciidoctorNonDefaultArgs(t *testing.T) {
 	c := qt.New(t)
-	cfg := viper.New()
+	cfg := config.New()
 	mconf := markup_config.Default
 	mconf.AsciidocExt.Backend = "manpage"
 	mconf.AsciidocExt.NoHeaderOrFooter = false
@@ -88,10 +88,10 @@ func TestAsciidoctorNonDefaultArgs(t *testing.T) {
 
 func TestAsciidoctorDisallowedArgs(t *testing.T) {
 	c := qt.New(t)
-	cfg := viper.New()
+	cfg := config.New()
 	mconf := markup_config.Default
 	mconf.AsciidocExt.Backend = "disallowed-backend"
-	mconf.AsciidocExt.Extensions = []string{"disallowed-extension"}
+	mconf.AsciidocExt.Extensions = []string{"./disallowed-extension"}
 	mconf.AsciidocExt.Attributes = map[string]string{"outdir": "disallowed-attribute"}
 	mconf.AsciidocExt.SafeMode = "disallowed-safemode"
 	mconf.AsciidocExt.FailureLevel = "disallowed-failurelevel"
@@ -115,14 +115,11 @@ func TestAsciidoctorDisallowedArgs(t *testing.T) {
 	c.Assert(args, qt.DeepEquals, expected)
 }
 
-func TestAsciidoctorDiagramArgs(t *testing.T) {
+func TestAsciidoctorArbitraryExtension(t *testing.T) {
 	c := qt.New(t)
-	cfg := viper.New()
+	cfg := config.New()
 	mconf := markup_config.Default
-	mconf.AsciidocExt.NoHeaderOrFooter = true
-	mconf.AsciidocExt.Extensions = []string{"asciidoctor-html5s", "asciidoctor-diagram"}
-	mconf.AsciidocExt.Backend = "html5s"
-	mconf.AsciidocExt.Trace = false
+	mconf.AsciidocExt.Extensions = []string{"arbitrary-extension"}
 	p, err := Provider.New(
 		converter.ProviderConfig{
 			Cfg:          cfg,
@@ -139,13 +136,48 @@ func TestAsciidoctorDiagramArgs(t *testing.T) {
 	c.Assert(ac, qt.Not(qt.IsNil))
 
 	args := ac.parseArgs(converter.DocumentContext{})
-	expected := []string{"-b", "html5s", "-r", "asciidoctor-html5s", "-r", "asciidoctor-diagram", "--no-header-footer"}
+	expected := []string{"-r", "arbitrary-extension", "--no-header-footer"}
 	c.Assert(args, qt.DeepEquals, expected)
+}
+
+func TestAsciidoctorDisallowedExtension(t *testing.T) {
+	c := qt.New(t)
+	cfg := config.New()
+	for _, disallowedExtension := range []string{
+		`foo-bar//`,
+		`foo-bar\\ `,
+		`../../foo-bar`,
+		`/foo-bar`,
+		`C:\foo-bar`,
+		`foo-bar.rb`,
+		`foo.bar`,
+	} {
+		mconf := markup_config.Default
+		mconf.AsciidocExt.Extensions = []string{disallowedExtension}
+		p, err := Provider.New(
+			converter.ProviderConfig{
+				Cfg:          cfg,
+				MarkupConfig: mconf,
+				Logger:       loggers.NewErrorLogger(),
+			},
+		)
+		c.Assert(err, qt.IsNil)
+
+		conv, err := p.New(converter.DocumentContext{})
+		c.Assert(err, qt.IsNil)
+
+		ac := conv.(*asciidocConverter)
+		c.Assert(ac, qt.Not(qt.IsNil))
+
+		args := ac.parseArgs(converter.DocumentContext{})
+		expected := []string{"--no-header-footer"}
+		c.Assert(args, qt.DeepEquals, expected)
+	}
 }
 
 func TestAsciidoctorWorkingFolderCurrent(t *testing.T) {
 	c := qt.New(t)
-	cfg := viper.New()
+	cfg := config.New()
 	mconf := markup_config.Default
 	mconf.AsciidocExt.WorkingFolderCurrent = true
 	mconf.AsciidocExt.Trace = false
@@ -176,7 +208,7 @@ func TestAsciidoctorWorkingFolderCurrent(t *testing.T) {
 
 func TestAsciidoctorWorkingFolderCurrentAndExtensions(t *testing.T) {
 	c := qt.New(t)
-	cfg := viper.New()
+	cfg := config.New()
 	mconf := markup_config.Default
 	mconf.AsciidocExt.NoHeaderOrFooter = true
 	mconf.AsciidocExt.Extensions = []string{"asciidoctor-html5s", "asciidoctor-diagram"}
@@ -215,7 +247,7 @@ func TestAsciidoctorWorkingFolderCurrentAndExtensions(t *testing.T) {
 
 func TestAsciidoctorAttributes(t *testing.T) {
 	c := qt.New(t)
-	cfg := viper.New()
+	cfg := config.New()
 	mconf := markup_config.Default
 	mconf.AsciidocExt.Attributes = map[string]string{"my-base-url": "https://gohugo.io/", "my-attribute-name": "my value"}
 	mconf.AsciidocExt.Trace = false
@@ -246,7 +278,6 @@ func TestAsciidoctorAttributes(t *testing.T) {
 	c.Assert(args[2], qt.Equals, "-a")
 	c.Assert(expectedValues[args[3]], qt.Equals, true)
 	c.Assert(args[4], qt.Equals, "--no-header-footer")
-
 }
 
 func TestConvert(t *testing.T) {
@@ -277,11 +308,17 @@ func TestTableOfContents(t *testing.T) {
 		t.Skip("asciidoctor not installed")
 	}
 	c := qt.New(t)
-	p, err := Provider.New(converter.ProviderConfig{Logger: loggers.NewErrorLogger()})
+	mconf := markup_config.Default
+	p, err := Provider.New(
+		converter.ProviderConfig{
+			MarkupConfig: mconf,
+			Logger:       loggers.NewErrorLogger(),
+		},
+	)
 	c.Assert(err, qt.IsNil)
 	conv, err := p.New(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)
-	b, err := conv.Convert(converter.RenderContext{Src: []byte(`:toc: macro
+	r, err := conv.Convert(converter.RenderContext{Src: []byte(`:toc: macro
 :toclevels: 4
 toc::[]
 
@@ -300,11 +337,52 @@ testContent
 == Section 2
 `)})
 	c.Assert(err, qt.IsNil)
-	toc, ok := b.(converter.TableOfContentsProvider)
+	toc, ok := r.(converter.TableOfContentsProvider)
 	c.Assert(ok, qt.Equals, true)
-	root := toc.TableOfContents()
-	c.Assert(root.ToHTML(2, 4, false), qt.Equals, "<nav id=\"TableOfContents\">\n  <ul>\n    <li><a href=\"#_introduction\">Introduction</a></li>\n    <li><a href=\"#_section_1\">Section 1</a>\n      <ul>\n        <li><a href=\"#_section_1_1\">Section 1.1</a>\n          <ul>\n            <li><a href=\"#_section_1_1_1\">Section 1.1.1</a></li>\n          </ul>\n        </li>\n        <li><a href=\"#_section_1_2\">Section 1.2</a></li>\n      </ul>\n    </li>\n    <li><a href=\"#_section_2\">Section 2</a></li>\n  </ul>\n</nav>")
-	c.Assert(root.ToHTML(2, 3, false), qt.Equals, "<nav id=\"TableOfContents\">\n  <ul>\n    <li><a href=\"#_introduction\">Introduction</a></li>\n    <li><a href=\"#_section_1\">Section 1</a>\n      <ul>\n        <li><a href=\"#_section_1_1\">Section 1.1</a></li>\n        <li><a href=\"#_section_1_2\">Section 1.2</a></li>\n      </ul>\n    </li>\n    <li><a href=\"#_section_2\">Section 2</a></li>\n  </ul>\n</nav>")
+	expected := tableofcontents.Root{
+		Headings: tableofcontents.Headings{
+			{
+				ID:   "",
+				Text: "",
+				Headings: tableofcontents.Headings{
+					{
+						ID:       "_introduction",
+						Text:     "Introduction",
+						Headings: nil,
+					},
+					{
+						ID:   "_section_1",
+						Text: "Section 1",
+						Headings: tableofcontents.Headings{
+							{
+								ID:   "_section_1_1",
+								Text: "Section 1.1",
+								Headings: tableofcontents.Headings{
+									{
+										ID:       "_section_1_1_1",
+										Text:     "Section 1.1.1",
+										Headings: nil,
+									},
+								},
+							},
+							{
+								ID:       "_section_1_2",
+								Text:     "Section 1.2",
+								Headings: nil,
+							},
+						},
+					},
+					{
+						ID:       "_section_2",
+						Text:     "Section 2",
+						Headings: nil,
+					},
+				},
+			},
+		},
+	}
+	c.Assert(toc.TableOfContents(), qt.DeepEquals, expected)
+	c.Assert(string(r.Bytes()), qt.Not(qt.Contains), "<div id=\"toc\" class=\"toc\">")
 }
 
 func TestTableOfContentsWithCode(t *testing.T) {
@@ -322,26 +400,72 @@ func TestTableOfContentsWithCode(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	conv, err := p.New(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)
-	b, err := conv.Convert(converter.RenderContext{Src: []byte(`:toc: auto
+	r, err := conv.Convert(converter.RenderContext{Src: []byte(`:toc: auto
 
 == Some ` + "`code`" + ` in the title
 `)})
 	c.Assert(err, qt.IsNil)
-	toc, ok := b.(converter.TableOfContentsProvider)
+	toc, ok := r.(converter.TableOfContentsProvider)
 	c.Assert(ok, qt.Equals, true)
-	expected := tableofcontents.Headers{
-		{},
-		{
-			ID:   "",
-			Text: "",
-			Headers: tableofcontents.Headers{
-				{
-					ID:      "_some_code_in_the_title",
-					Text:    "Some <code>code</code> in the title",
-					Headers: nil,
+	expected := tableofcontents.Root{
+		Headings: tableofcontents.Headings{
+			{
+				ID:   "",
+				Text: "",
+				Headings: tableofcontents.Headings{
+					{
+						ID:       "_some_code_in_the_title",
+						Text:     "Some <code>code</code> in the title",
+						Headings: nil,
+					},
 				},
 			},
 		},
 	}
-	c.Assert(toc.TableOfContents().Headers, qt.DeepEquals, expected)
+	c.Assert(toc.TableOfContents(), qt.DeepEquals, expected)
+	c.Assert(string(r.Bytes()), qt.Not(qt.Contains), "<div id=\"toc\" class=\"toc\">")
+}
+
+func TestTableOfContentsPreserveTOC(t *testing.T) {
+	if !Supports() {
+		t.Skip("asciidoctor not installed")
+	}
+	c := qt.New(t)
+	mconf := markup_config.Default
+	mconf.AsciidocExt.PreserveTOC = true
+	p, err := Provider.New(
+		converter.ProviderConfig{
+			MarkupConfig: mconf,
+			Logger:       loggers.NewErrorLogger(),
+		},
+	)
+	c.Assert(err, qt.IsNil)
+	conv, err := p.New(converter.DocumentContext{})
+	c.Assert(err, qt.IsNil)
+	r, err := conv.Convert(converter.RenderContext{Src: []byte(`:toc:
+:idprefix:
+:idseparator: -
+
+== Some title
+`)})
+	c.Assert(err, qt.IsNil)
+	toc, ok := r.(converter.TableOfContentsProvider)
+	c.Assert(ok, qt.Equals, true)
+	expected := tableofcontents.Root{
+		Headings: tableofcontents.Headings{
+			{
+				ID:   "",
+				Text: "",
+				Headings: tableofcontents.Headings{
+					{
+						ID:       "some-title",
+						Text:     "Some title",
+						Headings: nil,
+					},
+				},
+			},
+		},
+	}
+	c.Assert(toc.TableOfContents(), qt.DeepEquals, expected)
+	c.Assert(string(r.Bytes()), qt.Contains, "<div id=\"toc\" class=\"toc\">")
 }

@@ -14,15 +14,16 @@
 package hugolib
 
 import (
+	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
 	"testing"
 
-	"github.com/gohugoio/hugo/htesting"
+	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/config"
 
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/htesting"
 
 	qt "github.com/frankban/quicktest"
 
@@ -32,12 +33,8 @@ import (
 )
 
 func TestJSBuildWithNPM(t *testing.T) {
-	if !isCI() {
+	if !htesting.IsCI() {
 		t.Skip("skip (relative) long running modules test when running locally")
-	}
-
-	if runtime.GOOS == "windows" {
-		t.Skip("skip NPM test on Windows")
 	}
 
 	wd, _ := os.Getwd()
@@ -90,7 +87,7 @@ document.body.textContent = greeter(user);`
 	c.Assert(err, qt.IsNil)
 	defer clean()
 
-	v := viper.New()
+	v := config.New()
 	v.Set("workingDir", workDir)
 	v.Set("disableKinds", []string{"taxonomy", "term", "page"})
 	b := newTestSitesBuilder(t).WithLogger(loggers.NewWarningLogger())
@@ -107,14 +104,16 @@ document.body.textContent = greeter(user);`
 JS:  {{ template "print" $js }}
 {{ $jsx := resources.Get "js/myjsx.jsx" | js.Build $options }}
 JSX: {{ template "print" $jsx }}
-{{ $ts := resources.Get "js/myts.ts" | js.Build }}
+{{ $ts := resources.Get "js/myts.ts" | js.Build (dict "sourcemap" "inline")}}
 TS: {{ template "print" $ts }}
-
+{{ $ts2 := resources.Get "js/myts.ts" | js.Build (dict "sourcemap" "external" "TargetPath" "js/myts2.js")}}
+TS2: {{ template "print" $ts2 }}
 {{ define "print" }}RelPermalink: {{.RelPermalink}}|MIME: {{ .MediaType }}|Content: {{ .Content | safeJS }}{{ end }}
 
 `)
 
 	jsDir := filepath.Join(workDir, "assets", "js")
+	fmt.Println(workDir)
 	b.Assert(os.MkdirAll(jsDir, 0777), qt.IsNil)
 	b.Assert(os.Chdir(workDir), qt.IsNil)
 	b.WithSourceFile("package.json", packageJSON)
@@ -124,23 +123,31 @@ TS: {{ template "print" $ts }}
 
 	b.WithSourceFile("assets/js/included.js", includedJS)
 
-	out, err := exec.Command("npm", "install").CombinedOutput()
+	cmd, err := hexec.SafeCommand("npm", "install")
+	b.Assert(err, qt.IsNil)
+	out, err := cmd.CombinedOutput()
 	b.Assert(err, qt.IsNil, qt.Commentf(string(out)))
 
 	b.Build(BuildCfg{})
 
+	b.AssertFileContent("public/js/myts.js", `//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJz`)
+	b.AssertFileContent("public/js/myts2.js.map", `"version": 3,`)
 	b.AssertFileContent("public/index.html", `
 console.log(&#34;included&#34;);
 if (hasSpace.test(string))
-const React = __toModule(require(&#34;react&#34;));
+var React = __toModule(__require(&#34;react&#34;));
 function greeter(person) {
 `)
-
 }
 
 func TestJSBuild(t *testing.T) {
-	if !isCI() {
+	if !htesting.IsCI() {
 		t.Skip("skip (relative) long running modules test when running locally")
+	}
+
+	if runtime.GOOS == "windows" {
+		// TODO(bep) we really need to get this working on Travis.
+		t.Skip("skip npm test on Windows")
 	}
 
 	wd, _ := os.Getwd()
@@ -150,51 +157,64 @@ func TestJSBuild(t *testing.T) {
 
 	c := qt.New(t)
 
-	mainJS := `
-	import "./included";
-	
-	console.log("main");
-
-`
-	includedJS := `
-	console.log("included");
-	
-	`
-
-	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-test-js")
+	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-test-js-mod")
 	c.Assert(err, qt.IsNil)
 	defer clean()
 
-	v := viper.New()
-	v.Set("workingDir", workDir)
-	v.Set("disableKinds", []string{"taxonomy", "term", "page"})
-	b := newTestSitesBuilder(t).WithLogger(loggers.NewWarningLogger())
+	tomlConfig := fmt.Sprintf(`
+baseURL = "https://example.org"
+workingDir = %q
 
-	b.Fs = hugofs.NewDefault(v)
-	b.WithWorkingDir(workDir)
-	b.WithViper(v)
-	b.WithContent("p1.md", "")
+disableKinds = ["page", "section", "term", "taxonomy"]
 
-	b.WithTemplates("index.html", `
-{{ $js := resources.Get "js/main.js" | js.Build }}
-JS:  {{ template "print" $js }}
+[module]
+[[module.imports]]
+path="github.com/gohugoio/hugoTestProjectJSModImports"
 
 
-{{ define "print" }}RelPermalink: {{.RelPermalink}}|MIME: {{ .MediaType }}|Content: {{ .Content | safeJS }}{{ end }}
+
+`, workDir)
+
+	b := newTestSitesBuilder(t)
+	b.Fs = hugofs.NewDefault(config.New())
+	b.WithWorkingDir(workDir).WithConfigFile("toml", tomlConfig).WithLogger(loggers.NewInfoLogger())
+	b.WithSourceFile("go.mod", `module github.com/gohugoio/tests/testHugoModules
+        
+go 1.15
+        
+require github.com/gohugoio/hugoTestProjectJSModImports v0.9.0 // indirect
 
 `)
 
-	jsDir := filepath.Join(workDir, "assets", "js")
-	b.Assert(os.MkdirAll(jsDir, 0777), qt.IsNil)
+	b.WithContent("p1.md", "").WithNothingAdded()
+
+	b.WithSourceFile("package.json", `{
+ "dependencies": {
+  "date-fns": "^2.16.1"
+ }
+}`)
+
 	b.Assert(os.Chdir(workDir), qt.IsNil)
-	b.WithSourceFile("assets/js/main.js", mainJS)
-	b.WithSourceFile("assets/js/included.js", includedJS)
+	cmd, _ := hexec.SafeCommand("npm", "install")
+	_, err = cmd.CombinedOutput()
+	b.Assert(err, qt.IsNil)
 
 	b.Build(BuildCfg{})
 
-	b.AssertFileContent("public/index.html", `
-console.log(&#34;included&#34;);
-
+	b.AssertFileContent("public/js/main.js", `
+greeting: "greeting configured in mod2"
+Hello1 from mod1: $
+return "Hello2 from mod1";
+var Hugo = "Rocks!";
+Hello3 from mod2. Date from date-fns: ${today}
+Hello from lib in the main project
+Hello5 from mod2.
+var myparam = "Hugo Rocks!";
+shim cwd
 `)
 
+	// React JSX, verify the shimming.
+	b.AssertFileContent("public/js/like.js", `@v0.9.0/assets/js/shims/react.js
+module.exports = window.ReactDOM;
+`)
 }

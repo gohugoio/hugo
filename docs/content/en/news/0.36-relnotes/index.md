@@ -25,12 +25,13 @@ Hugo now has:
 ## Notes
 Hugo now defaults to **smart crop** when cropping images, if you don't specify it when calling `.Fill`.
 
-You can get the old default by adding this to your `config.toml`:
+You can get the old default by adding this:
 
-```toml
+{{< code-toggle file="config" >}}
 [imaging]
 anchor = "center"
-```
+{{< /code-toggle >}}
+
 Also, we have removed the superflous anchor name from the processed filenames that does not use this anchor, so it can be wise to run `hugo --gc` once to remove unused images.
 
 ## Enhancements

@@ -14,9 +14,8 @@
 package hugolib
 
 import (
-	"sync"
-
 	"errors"
+	"sync"
 
 	"github.com/gohugoio/hugo/langs"
 
@@ -69,7 +68,6 @@ func newMultiLingualFromSites(cfg config.Provider, sites ...*Site) (*Multilingua
 	}
 
 	return &Multilingual{Languages: languages, DefaultLang: langs.NewLanguage(defaultLang, cfg)}, nil
-
 }
 
 func (ml *Multilingual) enabled() bool {

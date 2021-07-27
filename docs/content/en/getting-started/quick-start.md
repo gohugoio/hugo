@@ -65,20 +65,20 @@ First, download the theme from GitHub and add it to your site's `themes` directo
 ```bash
 cd quickstart
 git init
-git submodule add https://github.com/budparr/gohugo-theme-ananke.git themes/ananke
+git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke.git themes/ananke
 ```
 
 *Note for non-git users:*
    - If you do not have git installed, you can download the archive of the latest
      version of this theme from:
-       https://github.com/budparr/gohugo-theme-ananke/archive/master.zip
+       https://github.com/theNewDynamic/gohugo-theme-ananke/archive/master.zip
    - Extract that .zip file to get a "gohugo-theme-ananke-master" directory.
    - Rename that directory to "ananke", and move it into the "themes/" directory.
 
 Then, add the theme to the site configuration:
 
 ```bash
-echo 'theme = "ananke"' >> config.toml
+echo theme = \"ananke\" >> config.toml
 ```
 
 {{< asciicast 7naKerRYUGVPj8kiDmdh5k5h9 >}}
@@ -163,7 +163,7 @@ Replace the `title` above with something more personal. Also, if you already hav
 **Tip:** Make the changes to the site configuration or any other file in your site while the Hugo server is running, and you will see the changes in the browser right away, though you may need to [clear your cache](https://kb.iu.edu/d/ahic).
 {{% /note %}}
 
-For theme specific configuration options, see the [theme site](https://github.com/budparr/gohugo-theme-ananke).
+For theme specific configuration options, see the [theme site](https://github.com/theNewDynamic/gohugo-theme-ananke).
 
 **For further theme customization, see [Customize a Theme](/themes/customizing/).**
 

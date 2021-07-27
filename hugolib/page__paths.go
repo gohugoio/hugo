@@ -26,7 +26,6 @@ func newPagePaths(
 	s *Site,
 	p page.Page,
 	pm *pageMeta) (pagePaths, error) {
-
 	targetPathDescriptor, err := createTargetPathDescriptor(s, p, pm)
 	if err != nil {
 		return pagePaths{}, err
@@ -51,9 +50,11 @@ func newPagePaths(
 
 		var relPermalink, permalink string
 
-		// If a page is headless or marked as "no render", or bundled in another,
+		// If a page is headless or bundled in another,
 		// it will not get published on its own and it will have no links.
-		if !pm.noRender() && !pm.bundled {
+		// We also check the build options if it's set to not render or have
+		// a link.
+		if !pm.noLink() && !pm.bundled {
 			relPermalink = paths.RelPermalink(s.PathSpec)
 			permalink = paths.PermalinkForOutputFormat(s.PathSpec, f)
 		}
@@ -69,12 +70,13 @@ func newPagePaths(
 
 		targets[f.Name] = targetPathsHolder{
 			paths:        paths,
-			OutputFormat: pageOutputFormats[permalinksIndex]}
+			OutputFormat: pageOutputFormats[permalinksIndex],
+		}
 
 	}
 
 	var out page.OutputFormats
-	if !pm.noRender() {
+	if !pm.noLink() {
 		out = pageOutputFormats
 	}
 
@@ -84,7 +86,6 @@ func newPagePaths(
 		targetPaths:          targets,
 		targetPathDescriptor: targetPathDescriptor,
 	}, nil
-
 }
 
 type pagePaths struct {
@@ -161,5 +162,4 @@ func createTargetPathDescriptor(s *Site, p page.Page, pm *pageMeta) (page.Target
 	}
 
 	return desc, nil
-
 }

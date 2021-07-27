@@ -68,6 +68,22 @@ Accessing the Page Parameter `bar` defined in a piece of content's [front matter
 {{ if or (isset .Params "alt") (isset .Params "caption") }} Caption {{ end }}
 ```
 
+#### A Single Statement Can be Split over Multiple Lines
+
+```go-html-template
+{{ if or 
+  (isset .Params "alt") 
+  (isset .Params "caption")
+}}
+```
+
+#### Raw String Literals Can Include Newlines
+
+```go-html-template
+{{ $msg := `Line one.
+Line two.` }}
+```
+
 ## Variables {#variables}
 
 Each Go Template gets a data object. In Hugo, each template is passed
@@ -245,7 +261,7 @@ If the _map_, _array_, or _slice_ passed into the range is zero-length then the 
 
 ### Conditionals
 
-`if`, `else`, `with`, `or`, and `and` provide the framework for handling conditional logic in Go Templates. Like `range`, each statement is closed with an `{{ end }}`.
+`if`, `else`, `with`, `or`, `and` and `not` provide the framework for handling conditional logic in Go Templates. Like `range`, `if` and `with` statements are closed with an `{{ end }}`.
 
 Go Templates treat the following values as **false**:
 

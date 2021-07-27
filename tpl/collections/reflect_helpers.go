@@ -165,7 +165,6 @@ func convertNumber(v reflect.Value, to reflect.Kind) (reflect.Value, error) {
 	}
 
 	return n, nil
-
 }
 
 func newSliceElement(items interface{}) interface{} {

@@ -11,6 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// +build !nodeploy
+
 package deploy
 
 import (
@@ -209,7 +211,6 @@ func TestFindDiffs(t *testing.T) {
 }
 
 func TestWalkLocal(t *testing.T) {
-
 	tests := map[string]struct {
 		Given  []string
 		Expect []string
@@ -353,7 +354,10 @@ func TestLocalFile(t *testing.T) {
 			MediaTypesConfig: []map[string]interface{}{
 				{
 					"hugo/custom": map[string]interface{}{
-						"suffixes": []string{"hugo"}}}},
+						"suffixes": []string{"hugo"},
+					},
+				},
+			},
 			WantContent:     contentBytes,
 			WantSize:        contentLen,
 			WantMD5:         contentMD5[:],

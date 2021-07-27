@@ -41,5 +41,4 @@ Content.
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent("public/index.html", `"Date":"2019-02-28T00:00:00Z"`)
-
 }

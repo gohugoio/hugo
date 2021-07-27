@@ -23,7 +23,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Merge creates a copy of the final parameter and merges the preceeding
+// Merge creates a copy of the final parameter and merges the preceding
 // parameters into it in reverse order.
 // Currently only maps are supported. Key handling is case insensitive.
 func (ns *Namespace) Merge(params ...interface{}) (interface{}, error) {
@@ -106,6 +106,10 @@ func mergeMap(dst, src reflect.Value) reflect.Value {
 			dve := dv.Elem()
 			if dve.Kind() == reflect.Map {
 				sve := sv.Elem()
+				if sve.Kind() != reflect.Map {
+					continue
+				}
+
 				if dve.Type().Key() == sve.Type().Key() {
 					out.SetMapIndex(key, mergeMap(dve, sve))
 				}

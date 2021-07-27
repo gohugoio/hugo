@@ -14,16 +14,22 @@
 package i18n
 
 import (
-	"errors"
+	"encoding/json"
+	"strings"
+
+	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"golang.org/x/text/language"
+	yaml "gopkg.in/yaml.v2"
+
+	"github.com/gohugoio/go-i18n/v2/i18n"
+	"github.com/gohugoio/hugo/helpers"
+	toml "github.com/pelletier/go-toml"
 
 	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/source"
-	"github.com/nicksnyder/go-i18n/i18n/bundle"
-	"github.com/nicksnyder/go-i18n/i18n/language"
 	_errors "github.com/pkg/errors"
 )
 
@@ -42,13 +48,11 @@ func NewTranslationProvider() *TranslationProvider {
 func (tp *TranslationProvider) Update(d *deps.Deps) error {
 	spec := source.NewSourceSpec(d.PathSpec, nil)
 
-	i18nBundle := bundle.New()
-
-	en := language.GetPluralSpec("en")
-	if en == nil {
-		return errors.New("the English language has vanished like an old oak table")
-	}
-	var newLangs []string
+	bundle := i18n.NewBundle(language.English)
+	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
+	bundle.RegisterUnmarshalFunc("yaml", yaml.Unmarshal)
+	bundle.RegisterUnmarshalFunc("yml", yaml.Unmarshal)
+	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 
 	// The source dirs are ordered so the most important comes first. Since this is a
 	// last key win situation, we have to reverse the iteration order.
@@ -56,50 +60,55 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 	for i := len(dirs) - 1; i >= 0; i-- {
 		dir := dirs[i]
 		src := spec.NewFilesystemFromFileMetaInfo(dir)
-
 		files, err := src.Files()
 		if err != nil {
 			return err
 		}
-
-		for _, r := range files {
-			currentSpec := language.GetPluralSpec(r.BaseFileName())
-			if currentSpec == nil {
-				// This may is a language code not supported by go-i18n, it may be
-				// Klingon or ... not even a fake language. Make sure it works.
-				newLangs = append(newLangs, r.BaseFileName())
-			}
-		}
-
-		if len(newLangs) > 0 {
-			language.RegisterPluralSpec(newLangs, en)
-		}
-
 		for _, file := range files {
-			if err := addTranslationFile(i18nBundle, file); err != nil {
+			if err := addTranslationFile(bundle, file); err != nil {
 				return err
 			}
 		}
 	}
 
-	tp.t = NewTranslator(i18nBundle, d.Cfg, d.Log)
+	tp.t = NewTranslator(bundle, d.Cfg, d.Log)
 
 	d.Translate = tp.t.Func(d.Language.Lang)
 
 	return nil
-
 }
 
-func addTranslationFile(bundle *bundle.Bundle, r source.File) error {
+const artificialLangTagPrefix = "art-x-"
+
+func addTranslationFile(bundle *i18n.Bundle, r source.File) error {
 	f, err := r.FileInfo().Meta().Open()
 	if err != nil {
 		return _errors.Wrapf(err, "failed to open translations file %q:", r.LogicalName())
 	}
-	err = bundle.ParseTranslationFileBytes(r.LogicalName(), helpers.ReaderToBytes(f))
+
+	b := helpers.ReaderToBytes(f)
 	f.Close()
+
+	name := r.LogicalName()
+	lang := paths.Filename(name)
+	tag := language.Make(lang)
+	if tag == language.Und {
+		name = artificialLangTagPrefix + name
+	}
+
+	_, err = bundle.ParseMessageFileBytes(b, name)
 	if err != nil {
+		if strings.Contains(err.Error(), "no plural rule") {
+			// https://github.com/gohugoio/hugo/issues/7798
+			name = artificialLangTagPrefix + name
+			_, err = bundle.ParseMessageFileBytes(b, name)
+			if err == nil {
+				return nil
+			}
+		}
 		return errWithFileContext(_errors.Wrapf(err, "failed to load translations"), r)
 	}
+
 	return nil
 }
 
@@ -117,7 +126,7 @@ func errWithFileContext(inerr error, r source.File) error {
 	}
 
 	meta := fim.Meta()
-	realFilename := meta.Filename()
+	realFilename := meta.Filename
 	f, err := meta.Open()
 	if err != nil {
 		return inerr
@@ -131,5 +140,4 @@ func errWithFileContext(inerr error, r source.File) error {
 		herrors.SimpleLineMatcher)
 
 	return err
-
 }

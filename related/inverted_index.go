@@ -22,6 +22,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/maps"
+
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/mitchellh/mapstructure"
 )
@@ -180,7 +182,6 @@ func (idx *InvertedIndex) Add(docs ...Document) error {
 	}
 
 	return err
-
 }
 
 // queryElement holds the index name and keywords that can be used to compose a
@@ -405,14 +406,9 @@ func norm(num, min, max int) int {
 }
 
 // DecodeConfig decodes a slice of map into Config.
-func DecodeConfig(in interface{}) (Config, error) {
-	if in == nil {
+func DecodeConfig(m maps.Params) (Config, error) {
+	if m == nil {
 		return Config{}, errors.New("no related config provided")
-	}
-
-	m, ok := in.(map[string]interface{})
-	if !ok {
-		return Config{}, fmt.Errorf("expected map[string]interface {} got %T", in)
 	}
 
 	if len(m) == 0 {

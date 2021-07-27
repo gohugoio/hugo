@@ -58,6 +58,22 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Contains,
+			nil,
+			[][2]string{
+				{`{{ strings.Contains "abc" "b" }}`, `true`},
+				{`{{ strings.Contains "abc" "d" }}`, `false`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.ContainsAny,
+			nil,
+			[][2]string{
+				{`{{ strings.ContainsAny "abc" "bcd" }}`, `true`},
+				{`{{ strings.ContainsAny "abc" "def" }}`, `false`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.FindRE,
 			[]string{"findRE"},
 			[][2]string{
