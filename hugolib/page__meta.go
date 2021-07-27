@@ -22,6 +22,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gohugoio/hugo/langs"
+
 	"github.com/gobuffalo/flect"
 	"github.com/gohugoio/hugo/markup/converter"
 
@@ -396,6 +398,7 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 		BaseFilename:  contentBaseName,
 		ModTime:       mtime,
 		GitAuthorDate: gitAuthorDate,
+		Location:      langs.GetLocation(pm.s.Language()),
 	}
 
 	// Handle the date separately
