@@ -134,7 +134,7 @@ Or individually access EXIF data with dot access, e.g.:
 {{ end }}
 ```
 
-Some fields may need to be formatted with [`lang.NumFmt`]({{< relref "functions/numfmt" >}}) function to prevent display like `Aperture: 2.278934289` instead of `Aperture: 2.28`.
+Some fields may need to be formatted with [`lang.FormatNumberCustom`]({{< relref "functions/lang" >}}) function to prevent display like `Aperture: 2.278934289` instead of `Aperture: 2.28`.
 
 #### Exif fields
 

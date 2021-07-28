@@ -1677,6 +1677,9 @@
       "caches": {
         "_merge": "none"
       },
+      "cascade": {
+        "_merge": "none"
+      },
       "frontmatter": {
         "_merge": "none"
       },
@@ -1745,7 +1748,7 @@
           "keepDocumentTags": true,
           "keepEndTags": true,
           "keepQuotes": false,
-          "keepWhitespace": false
+          "keepWhitespace": true
         },
         "css": {
           "keepCSS2": true,
@@ -1756,7 +1759,8 @@
           "keepVarNames": false
         },
         "json": {
-          "precision": 0
+          "precision": 0,
+          "keepNumbers": false
         },
         "svg": {
           "precision": 0
@@ -3898,14 +3902,52 @@
         }
       },
       "lang": {
-        "Merge": {
-          "Description": "",
-          "Args": null,
+        "FormatAccounting": {
+          "Description": "FormatAccounting returns the currency reprecentation of number for the given currency and precision\nfor the current language in accounting notation.",
+          "Args": [
+            "precision",
+            "currency",
+            "number"
+          ],
           "Aliases": null,
-          "Examples": null
+          "Examples": [
+            [
+              "{{ 512.5032 | lang.FormatAccounting 2 \"NOK\" }}",
+              "NOK512.50"
+            ]
+          ]
         },
-        "NumFmt": {
-          "Description": "NumFmt formats a number with the given precision using the\nnegative, decimal, and grouping options.  The `options`\nparameter is a string consisting of `\u003cnegative\u003e \u003cdecimal\u003e \u003cgrouping\u003e`.  The\ndefault `options` value is `- . ,`.\n\nNote that numbers are rounded up at 5 or greater.\nSo, with precision set to 0, 1.5 becomes `2`, and 1.4 becomes `1`.",
+        "FormatCurrency": {
+          "Description": "FormatCurrency returns the currency reprecentation of number for the given currency and precision\nfor the current language.",
+          "Args": [
+            "precision",
+            "currency",
+            "number"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ 512.5032 | lang.FormatCurrency 2 \"USD\" }}",
+              "$512.50"
+            ]
+          ]
+        },
+        "FormatNumber": {
+          "Description": "FormatNumber formats number with the given precision for the current language.",
+          "Args": [
+            "precision",
+            "number"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ 512.5032 | lang.FormatNumber 2 }}",
+              "512.50"
+            ]
+          ]
+        },
+        "FormatNumberCustom": {
+          "Description": "FormatNumberCustom formats a number with the given precision using the\nnegative, decimal, and grouping options.  The `options`\nparameter is a string consisting of `\u003cnegative\u003e \u003cdecimal\u003e \u003cgrouping\u003e`.  The\ndefault `options` value is `- . ,`.\n\nNote that numbers are rounded up at 5 or greater.\nSo, with precision set to 0, 1.5 becomes `2`, and 1.4 becomes `1`.\n\nFor a simpler function that adapts to the current language, see FormatNumberCustom.",
           "Args": [
             "precision",
             "number",
@@ -3914,19 +3956,19 @@
           "Aliases": null,
           "Examples": [
             [
-              "{{ lang.NumFmt 2 12345.6789 }}",
+              "{{ lang.FormatNumberCustom 2 12345.6789 }}",
               "12,345.68"
             ],
             [
-              "{{ lang.NumFmt 2 12345.6789 \"- , .\" }}",
+              "{{ lang.FormatNumberCustom 2 12345.6789 \"- , .\" }}",
               "12.345,68"
             ],
             [
-              "{{ lang.NumFmt 6 -12345.6789 \"- .\" }}",
+              "{{ lang.FormatNumberCustom 6 -12345.6789 \"- .\" }}",
               "-12345.678900"
             ],
             [
-              "{{ lang.NumFmt 0 -12345.6789 \"- . ,\" }}",
+              "{{ lang.FormatNumberCustom 0 -12345.6789 \"- . ,\" }}",
               "-12,346"
             ],
             [
@@ -3934,6 +3976,32 @@
               "-98,765.43"
             ]
           ]
+        },
+        "FormatPercent": {
+          "Description": "FormatPercent formats number with the given precision for the current language.\nNote that the number is assumbed to be percent.",
+          "Args": [
+            "precision",
+            "number"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ 512.5032 | lang.FormatPercent 2 }}",
+              "512.50%"
+            ]
+          ]
+        },
+        "Merge": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "NumFmt": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
         },
         "Translate": {
           "Description": "Translate returns a translated string for id.",

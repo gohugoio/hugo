@@ -19,6 +19,7 @@ deprecated: false
 aliases: []
 ---
 
+
 `time` converts a timestamp string with an optional default location into a [`time.Time`](https://godoc.org/time#Time) structure so you can access its fields:
 
 ```
