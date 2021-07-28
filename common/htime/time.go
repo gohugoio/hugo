@@ -17,6 +17,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/spf13/cast"
+
+	toml "github.com/pelletier/go-toml/v2"
+
 	"github.com/go-playground/locales"
 )
 
@@ -124,4 +128,14 @@ func (f TimeFormatter) Format(t time.Time, layout string) string {
 	s = strings.ReplaceAll(s, shortDayNames[dayIdx], f.ltr.WeekdayAbbreviated(t.Weekday()))
 
 	return s
+}
+
+func ToTimeInDefaultLocationE(i interface{}, location *time.Location) (tim time.Time, err error) {
+	switch vv := i.(type) {
+	case toml.LocalDate:
+		return vv.AsTime(location), nil
+	case toml.LocalDateTime:
+		return vv.AsTime(location), nil
+	}
+	return cast.ToTimeInDefaultLocationE(i, location)
 }

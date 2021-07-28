@@ -17,6 +17,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -130,7 +131,7 @@ func dateAndSlugFromBaseFilename(location *time.Location, name string) (time.Tim
 		return time.Time{}, ""
 	}
 
-	d, err := cast.ToTimeInDefaultLocationE(withoutExt[:10], location)
+	d, err := htime.ToTimeInDefaultLocationE(withoutExt[:10], location)
 	if err != nil {
 		return time.Time{}, ""
 	}
@@ -371,7 +372,7 @@ func (f *frontmatterFieldHandlers) newDateFieldHandler(key string, setter func(d
 			return false, nil
 		}
 
-		date, err := cast.ToTimeInDefaultLocationE(v, d.Location)
+		date, err := htime.ToTimeInDefaultLocationE(v, d.Location)
 		if err != nil {
 			return false, nil
 		}

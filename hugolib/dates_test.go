@@ -104,6 +104,7 @@ expiryDate=%s
 			if quoted {
 				return fmt.Sprintf("%q", d)
 			}
+
 			return d
 		}
 
@@ -124,7 +125,6 @@ expiryDate=%s
 		"short-date-yaml-qouted.nn.md", createPageContent(pageTemplYaml, shortDateTempl, true),
 		"long-date-yaml-unqouted.en.md", createPageContent(pageTemplYaml, longDateTempl, false),
 		"long-date-yaml-unqouted.nn.md", createPageContent(pageTemplYaml, longDateTempl, false),
-
 		// TOML
 		"short-date-toml-unqouted.en.md", createPageContent(pageTemplTOML, shortDateTempl, false),
 		"short-date-toml-unqouted.nn.md", createPageContent(pageTemplTOML, shortDateTempl, false),
@@ -180,8 +180,8 @@ ExpiryDate: 2099-07-13 15:28:01 +0000 UTC`
 	// TOML
 	// These fails: TOML (Burnt Sushi) defaults to local timezone.
 	// TODO(bep) check go-toml
-	//	b.AssertFileContent("public/en/short-date-toml-unqouted/index.html", expectShortDateEn)
-	//  b.AssertFileContent("public/nn/short-date-toml-unqouted/index.html", expectShortDateNn)
+	b.AssertFileContent("public/en/short-date-toml-unqouted/index.html", expectShortDateEn)
+	b.AssertFileContent("public/nn/short-date-toml-unqouted/index.html", expectShortDateNn)
 	b.AssertFileContent("public/en/short-date-toml-qouted/index.html", expectShortDateEn)
 	b.AssertFileContent("public/nn/short-date-toml-qouted/index.html", expectShortDateNn)
 

@@ -55,7 +55,7 @@ func (ns *Namespace) AsTime(v interface{}, args ...interface{}) (interface{}, er
 		}
 	}
 
-	return cast.ToTimeInDefaultLocationE(v, loc)
+	return htime.ToTimeInDefaultLocationE(v, loc)
 
 }
 
