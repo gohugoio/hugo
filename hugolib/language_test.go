@@ -79,3 +79,52 @@ name = "foo-a"
 
 	})
 }
+
+func TestLanguageNumberFormatting(t *testing.T) {
+
+	b := newTestSitesBuilder(t)
+	b.WithConfigFile("toml", `
+baseURL = "https://example.org"
+
+defaultContentLanguage = "en"
+defaultContentLanguageInSubDir = true
+
+[languages]
+[languages.en]
+timeZone="UTC"
+weight=10
+[languages.nn]
+weight=20
+	
+`)
+
+	b.WithTemplates("index.html", `
+
+FormatNumber: {{ 512.5032 | lang.FormatNumber 2 }}
+FormatPercent: {{ 512.5032 | lang.FormatPercent 2 }}
+FormatCurrency: {{ 512.5032 | lang.FormatCurrency 2 "USD" }}
+FormatAccounting: {{ 512.5032 | lang.FormatAccounting 2 "NOK" }}
+FormatNumberCustom: {{ lang.FormatNumberCustom 2 12345.6789 }}
+
+# We renamed this to FormatNumberCustom in 0.87.0.
+NumFmt: {{ -98765.4321 | lang.NumFmt 2 }}
+
+	
+`)
+	b.WithContent("p1.md", "")
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/en/index.html", `
+FormatNumber: 512.50
+FormatPercent: 512.50%
+FormatCurrency: $512.50
+FormatAccounting: NOK512.50
+FormatNumberCustom: 12,345.68
+        
+NumFmt: -98,765.43
+`,
+	)
+
+	b.AssertFileContent("public/nn/index.html", "FormatNumber: 512,50\nFormatPercent: 512,50\u00a0%\nFormatCurrency: 512,50\u00a0USD\nFormatAccounting: 512,50\u00a0kr")
+}

@@ -12,7 +12,7 @@ require (
 	github.com/bep/gitmap v1.1.2
 	github.com/bep/godartsass v0.12.0
 	github.com/bep/golibsass v1.0.0
-	github.com/bep/gotranslators v0.0.0-20210726170149-50377fc92c80
+	github.com/bep/gotranslators v0.2.0
 	github.com/bep/gowebp v0.1.0
 	github.com/bep/tmc v0.5.1
 	github.com/cli/safeexec v1.0.0

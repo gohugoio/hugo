@@ -15,6 +15,7 @@ package lang
 
 import (
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/tpl/internal"
 )
 
@@ -22,7 +23,7 @@ const name = "lang"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		ctx := New(d)
+		ctx := New(d, langs.GetTranslator(d.Language))
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
@@ -34,16 +35,45 @@ func init() {
 			[][2]string{},
 		)
 
-		ns.AddMethodMapping(ctx.NumFmt,
+		ns.AddMethodMapping(ctx.FormatNumber,
 			nil,
 			[][2]string{
-				{`{{ lang.NumFmt 2 12345.6789 }}`, `12,345.68`},
-				{`{{ lang.NumFmt 2 12345.6789 "- , ." }}`, `12.345,68`},
-				{`{{ lang.NumFmt 6 -12345.6789 "- ." }}`, `-12345.678900`},
-				{`{{ lang.NumFmt 0 -12345.6789 "- . ," }}`, `-12,346`},
-				{`{{ -98765.4321 | lang.NumFmt 2 }}`, `-98,765.43`},
+				{`{{ 512.5032 | lang.FormatNumber 2 }}`, `512.50`},
 			},
 		)
+
+		ns.AddMethodMapping(ctx.FormatPercent,
+			nil,
+			[][2]string{
+				{`{{ 512.5032 | lang.FormatPercent 2 }}`, `512.50%`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.FormatCurrency,
+			nil,
+			[][2]string{
+				{`{{ 512.5032 | lang.FormatCurrency 2 "USD" }}`, `$512.50`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.FormatAccounting,
+			nil,
+			[][2]string{
+				{`{{ 512.5032 | lang.FormatAccounting 2 "NOK" }}`, `NOK512.50`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.FormatNumberCustom,
+			nil,
+			[][2]string{
+				{`{{ lang.FormatNumberCustom 2 12345.6789 }}`, `12,345.68`},
+				{`{{ lang.FormatNumberCustom 2 12345.6789 "- , ." }}`, `12.345,68`},
+				{`{{ lang.FormatNumberCustom 6 -12345.6789 "- ." }}`, `-12345.678900`},
+				{`{{ lang.FormatNumberCustom 0 -12345.6789 "- . ," }}`, `-12,346`},
+				{`{{ -98765.4321 | lang.FormatNumberCustom 2 }}`, `-98,765.43`},
+			},
+		)
+
 		return ns
 	}
 

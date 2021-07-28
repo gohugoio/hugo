@@ -28,7 +28,7 @@ func TestTimeFormatter(t *testing.T) {
 	june06 = june06.Add(7777 * time.Second)
 
 	c.Run("Norsk nynorsk", func(c *qt.C) {
-		f := NewTimeFormatter(translators.Get("nn"))
+		f := NewTimeFormatter(translators.GetTranslator("nn"))
 
 		c.Assert(f.Format(june06, "Monday Jan 2 2006"), qt.Equals, "onsdag juni 6 2018")
 		c.Assert(f.Format(june06, "Mon January 2 2006"), qt.Equals, "on. juni 6 2018")
@@ -36,7 +36,7 @@ func TestTimeFormatter(t *testing.T) {
 	})
 
 	c.Run("Custom layouts Norsk nynorsk", func(c *qt.C) {
-		f := NewTimeFormatter(translators.Get("nn"))
+		f := NewTimeFormatter(translators.GetTranslator("nn"))
 
 		c.Assert(f.Format(june06, ":date_full"), qt.Equals, "onsdag 6. juni 2018")
 		c.Assert(f.Format(june06, ":date_long"), qt.Equals, "6. juni 2018")
@@ -51,7 +51,7 @@ func TestTimeFormatter(t *testing.T) {
 	})
 
 	c.Run("Custom layouts English", func(c *qt.C) {
-		f := NewTimeFormatter(translators.Get("en"))
+		f := NewTimeFormatter(translators.GetTranslator("en"))
 
 		c.Assert(f.Format(june06, ":date_full"), qt.Equals, "Wednesday, June 6, 2018")
 		c.Assert(f.Format(june06, ":date_long"), qt.Equals, "June 6, 2018")
@@ -66,7 +66,7 @@ func TestTimeFormatter(t *testing.T) {
 	})
 
 	c.Run("English", func(c *qt.C) {
-		f := NewTimeFormatter(translators.Get("en"))
+		f := NewTimeFormatter(translators.GetTranslator("en"))
 
 		c.Assert(f.Format(june06, "Monday Jan 2 2006"), qt.Equals, "Wednesday Jun 6 2018")
 		c.Assert(f.Format(june06, "Mon January 2 2006"), qt.Equals, "Wed June 6 2018")
@@ -88,7 +88,7 @@ func BenchmarkTimeFormatter(b *testing.B) {
 	})
 
 	b.Run("Localized", func(b *testing.B) {
-		f := NewTimeFormatter(translators.Get("nn"))
+		f := NewTimeFormatter(translators.GetTranslator("nn"))
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			got := f.Format(june06, "Monday Jan 2 2006")
@@ -99,7 +99,7 @@ func BenchmarkTimeFormatter(b *testing.B) {
 	})
 
 	b.Run("Localized Custom", func(b *testing.B) {
-		f := NewTimeFormatter(translators.Get("nn"))
+		f := NewTimeFormatter(translators.GetTranslator("nn"))
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			got := f.Format(june06, ":date_medium")

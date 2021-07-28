@@ -18,6 +18,7 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/docshelper"
+	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/tpl/internal"
 )
@@ -25,10 +26,12 @@ import (
 // This file provides documentation support and is randomly put into this package.
 func init() {
 	docsProvider := func() docshelper.DocProvider {
+		cfg := config.New()
 		d := &deps.Deps{
-			Cfg:                 config.New(),
+			Cfg:                 cfg,
 			Log:                 loggers.NewErrorLogger(),
 			BuildStartListeners: &deps.Listeners{},
+			Language:            langs.NewDefaultLanguage(cfg),
 			Site:                page.NewDummyHugoSite(newTestConfig()),
 		}
 

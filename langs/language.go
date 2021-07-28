@@ -97,11 +97,11 @@ func NewLanguage(lang string, cfg config.Provider) *Language {
 
 	localCfg := config.New()
 	compositeConfig := config.NewCompositeConfig(cfg, localCfg)
-	translator := translators.Get(lang)
+	translator := translators.GetTranslator(lang)
 	if translator == nil {
-		translator = translators.Get(cfg.GetString("defaultContentLanguage"))
+		translator = translators.GetTranslator(cfg.GetString("defaultContentLanguage"))
 		if translator == nil {
-			translator = translators.Get("en")
+			translator = translators.GetTranslator("en")
 		}
 	}
 

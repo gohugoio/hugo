@@ -24,7 +24,7 @@ func TestTimeLocation(t *testing.T) {
 	t.Parallel()
 
 	loc, _ := time.LoadLocation("America/Antigua")
-	ns := New(translators.Get("en"), loc)
+	ns := New(translators.GetTranslator("en"), loc)
 
 	for i, test := range []struct {
 		value    string
@@ -67,7 +67,7 @@ func TestTimeLocation(t *testing.T) {
 func TestFormat(t *testing.T) {
 	t.Parallel()
 
-	ns := New(translators.Get("en"), time.UTC)
+	ns := New(translators.GetTranslator("en"), time.UTC)
 
 	for i, test := range []struct {
 		layout string
@@ -107,7 +107,7 @@ func TestFormat(t *testing.T) {
 func TestDuration(t *testing.T) {
 	t.Parallel()
 
-	ns := New(translators.Get("en"), time.UTC)
+	ns := New(translators.GetTranslator("en"), time.UTC)
 
 	for i, test := range []struct {
 		unit   interface{}
