@@ -134,8 +134,6 @@ github.com/bep/godartsass v0.12.0 h1:VvGLA4XpXUjKvp53SI05YFLhRFJ78G+Ybnlaz6Oul7E
 github.com/bep/godartsass v0.12.0/go.mod h1:nXQlHHk4H1ghUk6n/JkYKG5RD43yJfcfp5aHRqT/pc4=
 github.com/bep/golibsass v1.0.0 h1:gNguBMSDi5yZEZzVZP70YpuFQE3qogJIGUlrVILTmOw=
 github.com/bep/golibsass v1.0.0/go.mod h1:DL87K8Un/+pWUS75ggYv41bliGiolxzDKWJAq3eJ1MA=
-github.com/bep/gotranslators v0.0.0-20210726170149-50377fc92c80 h1:FuOr7TE02FmHwf0HbOzfN0UyQfHoZd1R3PVuYduFU6U=
-github.com/bep/gotranslators v0.0.0-20210726170149-50377fc92c80/go.mod h1:/tUOv4Jdczp4ZggwBAQriNN97HsQdG1Gm+yV0PsIGD8=
 github.com/bep/gotranslators v0.2.0 h1:GW0mGPivOY4drd4HwWpn44HXBo5zc5iHdDJZj3yWb/k=
 github.com/bep/gotranslators v0.2.0/go.mod h1:fbo6ptvCVYarnHjBm4BvOJX0o18VEvA0slN7xKvqXzc=
 github.com/bep/gowebp v0.1.0 h1:4/iQpfnxHyXs3x/aTxMMdOpLEQQhFmF6G7EieWPTQyo=
@@ -191,8 +189,8 @@ github.com/envoyproxy/go-control-plane v0.9.9-0.20201210154907-fd9021fe5dad/go.m
 github.com/envoyproxy/go-control-plane v0.9.9-0.20210217033140-668b12f5399d/go.mod h1:cXg6YxExXjJnVBQHBLXeUAgxn2UodCpnH306RInaBQk=
 github.com/envoyproxy/go-control-plane v0.9.9-0.20210512163311-63b5d3c536b0/go.mod h1:hliV/p42l8fGbc6Y9bQ70uLwIvmJyVE5k4iMKlh8wCQ=
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
-github.com/evanw/esbuild v0.12.16 h1:UxvizOzRZk0gnlal2g2MulpCjIiAPtciLr674nOKtcI=
-github.com/evanw/esbuild v0.12.16/go.mod h1:y2AFBAGVelPqPodpdtxWWqe6n2jYf5FrsJbligmRmuw=
+github.com/evanw/esbuild v0.12.17 h1:9B8cjTu7ZIvS9BQAowXxxe6WMwWvC9BbNq60N6kMrQI=
+github.com/evanw/esbuild v0.12.17/go.mod h1:y2AFBAGVelPqPodpdtxWWqe6n2jYf5FrsJbligmRmuw=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fortytw2/leaktest v1.3.0 h1:u8491cBMTQ8ft8aeV+adlcytMZylmA5nnwwkRZjI8vw=
 github.com/fortytw2/leaktest v1.3.0/go.mod h1:jDsjWgpAGjm2CA7WthBh/CdZYEPF31XHquHwclZch5g=
@@ -435,8 +433,6 @@ github.com/olekukonko/tablewriter v0.0.5/go.mod h1:hPp6KlRPjbx+hW8ykQs1w3UBbZlj6
 github.com/pascaldekloe/goe v0.0.0-20180627143212-57f6aae5913c/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
 github.com/pelletier/go-toml v1.9.3 h1:zeC5b1GviRUyKYd6OJPvBU/mcVDVoL1OhT17FCt5dSQ=
 github.com/pelletier/go-toml v1.9.3/go.mod h1:u1nR/EPcESfeI/szUZKdtJ0xRNbUoANCkoOuaOx1Y+c=
-github.com/pelletier/go-toml/v2 v2.0.0-beta.3 h1:PNCTU4naEJ8mKal97P3A2qDU74QRQGlv4FXiL1XDqi4=
-github.com/pelletier/go-toml/v2 v2.0.0-beta.3/go.mod h1:aNseLYu/uKskg0zpr/kbr2z8yGuWtotWf/0BpGIAL2Y=
 github.com/pelletier/go-toml/v2 v2.0.0-beta.3.0.20210727221244-fa0796069526 h1:o8tGfr0zuKDD+3qIdzD1pK78melGepDQMb55F4Q6qlo=
 github.com/pelletier/go-toml/v2 v2.0.0-beta.3.0.20210727221244-fa0796069526/go.mod h1:aNseLYu/uKskg0zpr/kbr2z8yGuWtotWf/0BpGIAL2Y=
 github.com/pkg/diff v0.0.0-20210226163009-20ebb0f2a09e/go.mod h1:pJLUxLENpZxwdsKMEsNbx1VGcRFpLqf3715MtcvvzbA=
