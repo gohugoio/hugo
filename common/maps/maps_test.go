@@ -114,6 +114,16 @@ func TestToSliceStringMap(t *testing.T) {
 	}
 }
 
+func TestToParamsAndPrepare(t *testing.T) {
+	c := qt.New(t)
+	_, ok := ToParamsAndPrepare(map[string]interface{}{"A": "av"})
+	c.Assert(ok, qt.IsTrue)
+
+	params, ok := ToParamsAndPrepare(nil)
+	c.Assert(ok, qt.IsTrue)
+	c.Assert(params, qt.DeepEquals, Params{})
+}
+
 func TestRenameKeys(t *testing.T) {
 	c := qt.New(t)
 
