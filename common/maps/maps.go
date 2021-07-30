@@ -17,6 +17,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/types"
+
 	"github.com/gobwas/glob"
 	"github.com/spf13/cast"
 )
@@ -39,8 +41,12 @@ func ToStringMapE(in interface{}) (map[string]interface{}, error) {
 }
 
 // ToParamsAndPrepare converts in to Params and prepares it for use.
+// If in is nil, an empty map is returned.
 // See PrepareParams.
 func ToParamsAndPrepare(in interface{}) (Params, bool) {
+	if types.IsNil(in) {
+		return Params{}, true
+	}
 	m, err := ToStringMapE(in)
 	if err != nil {
 		return nil, false

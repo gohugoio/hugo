@@ -350,6 +350,25 @@ menu:
 	b.AssertFileContent("public/index.html", "A|Children:C|B|")
 }
 
+// Issue #8825
+func TestMenuParamsEmptyYaml(t *testing.T) {
+	b := newTestSitesBuilder(t).WithConfigFile("yaml", `
+
+`)
+
+	b.WithTemplates("index.html", `{{ site.Menus }}`)
+
+	b.WithContent("p1.md", `---
+menus:
+  main: 
+    identity: journal
+    weight: 2
+    params:
+---	
+`)
+	b.Build(BuildCfg{})
+}
+
 func TestMenuParams(t *testing.T) {
 	b := newTestSitesBuilder(t).WithConfigFile("toml", `
 [[menus.main]]

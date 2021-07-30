@@ -14,9 +14,12 @@
 package navigation
 
 import (
+	"fmt"
 	"html/template"
 	"sort"
 	"strings"
+
+	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
@@ -65,6 +68,7 @@ func (m *MenuEntry) URL() string {
 type Page interface {
 	LinkTitle() string
 	RelPermalink() string
+	Path() string
 	Section() string
 	Weight() int
 	IsPage() bool
@@ -127,7 +131,8 @@ func (m *MenuEntry) isSamePage(p Page) bool {
 	return false
 }
 
-func (m *MenuEntry) MarshallMap(ime map[string]interface{}) {
+func (m *MenuEntry) MarshallMap(ime map[string]interface{}) error {
+	var err error
 	for k, v := range ime {
 		loki := strings.ToLower(k)
 		switch loki {
@@ -150,10 +155,19 @@ func (m *MenuEntry) MarshallMap(ime map[string]interface{}) {
 		case "parent":
 			m.Parent = cast.ToString(v)
 		case "params":
-			m.Params = maps.MustToParamsAndPrepare(v)
-
+			var ok bool
+			m.Params, ok = maps.ToParamsAndPrepare(v)
+			if !ok {
+				err = fmt.Errorf("cannot convert %T to Params", v)
+			}
 		}
 	}
+
+	if err != nil {
+		return errors.Wrapf(err, "failed to marshal menu entry %q", m.KeyName())
+	}
+
+	return nil
 }
 
 func (m Menu) Add(me *MenuEntry) Menu {
