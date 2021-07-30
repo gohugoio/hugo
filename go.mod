@@ -22,7 +22,7 @@ require (
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/frankban/quicktest v1.13.0
 	github.com/fsnotify/fsnotify v1.4.9
-	github.com/getkin/kin-openapi v0.67.0
+	github.com/getkin/kin-openapi v0.68.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-playground/locales v0.13.0
 	github.com/gobuffalo/flect v0.2.3
