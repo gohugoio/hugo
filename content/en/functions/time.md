@@ -11,13 +11,14 @@ menu:
   docs:
     parent: "functions"
 keywords: [dates,time,location]
-signature: ["time INPUT [LOCATION]"]
+signature: ["time INPUT [TIMEZONE]"]
 workson: []
 hugoversion: "v0.77.0"
 relatedfuncs: []
 deprecated: false
 aliases: []
 ---
+
 
 `time` converts a timestamp string with an optional default location into a [`time.Time`](https://godoc.org/time#Time) structure so you can access its fields:
 
@@ -29,9 +30,11 @@ aliases: []
 
 ## Using Locations
 
-The optional `LOCATION` parameter is a string that sets a default location that is associated with the specified time value. If the time value has an explicit timezone or offset specified, it will take precedence over the `LOCATION` parameter.
+The optional `TIMEZONE` parameter is a string that sets a default time zone (or more specific, the location, which represents the collection of time offsets in a geographical area) that is associated with the specified time value. If the time value has an explicit timezone or offset specified, it will take precedence over the `TIMEZONE` parameter.
 
 The list of valid locations may be system dependent, but should include `UTC`, `Local`, or any location in the [IANA Time Zone database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+
+If no `TIMEZONE` is set, the `timeZone` from site configuration will be used.
 
 ```
 {{ time "2020-10-20" }} → 2020-10-20 00:00:00 +0000 UTC
