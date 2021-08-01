@@ -19,6 +19,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pkg/errors"
+
 	translators "github.com/bep/gotranslators"
 	"github.com/go-playground/locales"
 	"github.com/gohugoio/hugo/common/maps"
@@ -77,8 +79,10 @@ type Language struct {
 	// TODO(bep) do the same for some of the others.
 	translator locales.Translator
 
-	locationInit sync.Once
-	location     *time.Location
+	location *time.Location
+
+	// Error during initialization. Will fail the buld.
+	initErr error
 }
 
 func (l *Language) String() string {
@@ -113,6 +117,11 @@ func NewLanguage(lang string, cfg config.Provider) *Language {
 		params:     params,
 		translator: translator,
 	}
+
+	if err := l.loadLocation(cfg.GetString("timeZone")); err != nil {
+		l.initErr = err
+	}
+
 	return l
 }
 
@@ -248,18 +257,6 @@ func (l *Language) IsSet(key string) bool {
 	return l.Cfg.IsSet(key)
 }
 
-func (l *Language) getLocation() *time.Location {
-	l.locationInit.Do(func() {
-		location, err := time.LoadLocation(l.GetString("timeZone"))
-		if err != nil {
-			location = time.UTC
-		}
-		l.location = location
-	})
-
-	return l.location
-}
-
 // Internal access to unexported Language fields.
 // This construct is to prevent them from leaking to the templates.
 
@@ -268,5 +265,15 @@ func GetTranslator(l *Language) locales.Translator {
 }
 
 func GetLocation(l *Language) *time.Location {
-	return l.getLocation()
+	return l.location
+}
+
+func (l *Language) loadLocation(tzStr string) error {
+	location, err := time.LoadLocation(tzStr)
+	if err != nil {
+		return errors.Wrapf(err, "invalid timeZone for language %q", l.Lang)
+	}
+	l.location = location
+
+	return nil
 }

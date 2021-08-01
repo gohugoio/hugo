@@ -161,6 +161,12 @@ func LoadLanguageSettings(cfg config.Provider, oldLangs Languages) (c LanguagesC
 		}
 	}
 
+	for _, language := range c.Languages {
+		if language.initErr != nil {
+			return c, language.initErr
+		}
+	}
+
 	return c, nil
 }
 
@@ -196,6 +202,10 @@ func toSortedLanguages(cfg config.Provider, l map[string]interface{}) (Languages
 				maps.PrepareParams(m)
 				for k, vv := range m {
 					language.SetParam(k, vv)
+				}
+			case "timezone":
+				if err := language.loadLocation(cast.ToString(v)); err != nil {
+					return nil, err
 				}
 			}
 
