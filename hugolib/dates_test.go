@@ -203,3 +203,14 @@ timeZone = "America/LosAngeles"   # Should be America/Los_Angeles
 	b.Assert(err, qt.Not(qt.IsNil))
 	b.Assert(err.Error(), qt.Contains, `failed to load config: invalid timeZone for language "en": unknown time zone America/LosAngeles`)
 }
+
+// Issue 8835
+func TestTimeOnError(t *testing.T) {
+	b := newTestSitesBuilder(t)
+
+	b.WithTemplates("index.html", `time: {{ time "2020-10-20" "invalid-timezone" }}`)
+	b.WithContent("p1.md", "")
+
+	b.Assert(b.BuildE(BuildCfg{}), qt.Not(qt.IsNil))
+
+}

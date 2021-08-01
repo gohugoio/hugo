@@ -27,7 +27,7 @@ func init() {
 		s := d.Site
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
-			Context: func(args ...interface{}) interface{} { return s },
+			Context: func(args ...interface{}) (interface{}, error) { return s, nil },
 		}
 
 		if s == nil {

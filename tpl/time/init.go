@@ -14,6 +14,8 @@
 package time
 
 import (
+	"errors"
+
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/tpl/internal"
@@ -30,7 +32,7 @@ func init() {
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name: name,
-			Context: func(args ...interface{}) interface{} {
+			Context: func(args ...interface{}) (interface{}, error) {
 				// Handle overlapping "time" namespace and func.
 				//
 				// If no args are passed to `time`, assume namespace usage and
@@ -40,23 +42,15 @@ func init() {
 
 				switch len(args) {
 				case 0:
-					return ctx
+					return ctx, nil
 				case 1:
-					t, err := ctx.AsTime(args[0])
-					if err != nil {
-						return err
-					}
-					return t
+					return ctx.AsTime(args[0])
 				case 2:
-					t, err := ctx.AsTime(args[0], args[1])
-					if err != nil {
-						return err
-					}
-					return t
+					return ctx.AsTime(args[0], args[1])
 
 				// 3 or more arguments. Currently not supported.
 				default:
-					return "Invalid arguments supplied to `time`. Refer to time documentation: https://gohugo.io/functions/time/"
+					return nil, errors.New("Invalid arguments supplied to `time`. Refer to time documentation: https://gohugo.io/functions/time/")
 				}
 			},
 		}
