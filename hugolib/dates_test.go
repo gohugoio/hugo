@@ -15,6 +15,9 @@ package hugolib
 
 import (
 	"fmt"
+
+	qt "github.com/frankban/quicktest"
+
 	"strings"
 	"testing"
 )
@@ -185,4 +188,18 @@ ExpiryDate: 2099-07-13 15:28:01 +0000 UTC`
 	b.AssertFileContent("public/en/short-date-toml-qouted/index.html", expectShortDateEn)
 	b.AssertFileContent("public/nn/short-date-toml-qouted/index.html", expectShortDateNn)
 
+}
+
+// Issue 8832
+func TestTimeZoneInvalid(t *testing.T) {
+	b := newTestSitesBuilder(t)
+
+	b.WithConfigFile("toml", `
+	
+timeZone = "America/LosAngeles"   # Should be America/Los_Angeles
+`)
+
+	err := b.CreateSitesE()
+	b.Assert(err, qt.Not(qt.IsNil))
+	b.Assert(err.Error(), qt.Contains, `failed to load config: invalid timeZone for language "en": unknown time zone America/LosAngeles`)
 }
