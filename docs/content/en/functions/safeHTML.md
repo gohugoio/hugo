@@ -22,9 +22,9 @@ It should not be used for HTML from a third-party, or HTML with unclosed tags or
 
 Given a site-wide [`config.toml`][config] with the following `copyright` value:
 
-```
+{{< code-toggle file="config" >}}
 copyright = "© 2015 Jane Doe.  <a href=\"https://creativecommons.org/licenses/by/4.0/\">Some rights reserved</a>."
-```
+{{< /code-toggle >}}
 
 `{{ .Site.Copyright | safeHTML }}` in a template would then output:
 

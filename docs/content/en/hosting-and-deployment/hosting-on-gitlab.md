@@ -38,7 +38,7 @@ cd your-hugo-site
 In the root directory of your Hugo site, create a `.gitlab-ci.yml` file. The `.gitlab-ci.yml` configures the GitLab CI on how to build your page. Simply add the content below.
 
 {{< code file=".gitlab-ci.yml" >}}
-image: monachus/hugo
+image: registry.gitlab.com/pages/hugo:latest
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
@@ -52,6 +52,10 @@ pages:
   only:
   - master
 {{< /code >}}
+
+{{% note %}}
+All available Hugo versions are listed [here](https://gitlab.com/pages/hugo/container_registry)
+{{% /note %}}
 
 ## Push Your Hugo Website to GitLab
 
@@ -76,6 +80,10 @@ git push -u origin master
 That's it! You can now follow the CI agent building your page at `https://gitlab.com/<YourUsername>/<your-hugo-site>/pipelines`.
 
 After the build has passed, your new website is available at `https://<YourUsername>.gitlab.io/<your-hugo-site>/`.
+
+{{% note %}}
+Make sure your `baseURL` key-value in your [site configuration](/getting-started/configuration/) reflects the full URL of your GitLab pages repository if you're using the default GitLab Pages URL (e.g., `https://<YourUsername>.gitlab.io/<your-hugo-site>/`) and not a custom domain.
+{{% /note %}}
 
 ## Next Steps
 

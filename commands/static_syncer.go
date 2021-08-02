@@ -58,7 +58,7 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 		syncer.DestFs = c.Fs.Destination
 
 		// prevent spamming the log on changes
-		logger := helpers.NewDistinctFeedbackLogger()
+		logger := helpers.NewDistinctErrorLogger()
 
 		for _, ev := range staticEvents {
 			// Due to our approach of layering both directories and the content's rendered output
@@ -79,9 +79,9 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 
 			fromPath := ev.Name
 
-			relPath := sourceFs.MakePathRelative(fromPath)
+			relPath, found := sourceFs.MakePathRelative(fromPath)
 
-			if relPath == "" {
+			if !found {
 				// Not member of this virtual host.
 				continue
 			}
@@ -107,10 +107,10 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 					logger.Println("Syncing", relPath, "to", publishDir)
 
 					if err := syncer.Sync(filepath.Join(publishDir, relPath), relPath); err != nil {
-						c.logger.ERROR.Println(err)
+						c.logger.Errorln(err)
 					}
 				} else {
-					c.logger.ERROR.Println(err)
+					c.logger.Errorln(err)
 				}
 
 				continue
@@ -119,7 +119,7 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 			// For all other event operations Hugo will sync static.
 			logger.Println("Syncing", relPath, "to", publishDir)
 			if err := syncer.Sync(filepath.Join(publishDir, relPath), relPath); err != nil {
-				c.logger.ERROR.Println(err)
+				c.logger.Errorln(err)
 			}
 		}
 
@@ -128,5 +128,4 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 
 	_, err := c.doWithPublishDirs(syncFn)
 	return err
-
 }

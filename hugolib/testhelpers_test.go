@@ -1,14 +1,20 @@
 package hugolib
 
 import (
+	"bytes"
+	"fmt"
 	"image/jpeg"
 	"io"
 	"math/rand"
+	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
 	"strconv"
+	"strings"
 	"testing"
+	"text/template"
 	"time"
 	"unicode/utf8"
 
@@ -22,14 +28,9 @@ import (
 	"github.com/gohugoio/hugo/parser"
 	"github.com/pkg/errors"
 
-	"bytes"
-	"fmt"
-	"regexp"
-	"strings"
-	"text/template"
-
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/resources/page"
@@ -39,9 +40,6 @@ import (
 
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/tpl"
-	"github.com/spf13/viper"
-
-	"os"
 
 	"github.com/gohugoio/hugo/resources/resource"
 
@@ -67,7 +65,7 @@ type sitesBuilder struct {
 
 	*qt.C
 
-	logger *loggers.Logger
+	logger loggers.Logger
 	rnd    *rand.Rand
 	dumper litter.Options
 
@@ -85,7 +83,7 @@ type sitesBuilder struct {
 	// Default toml
 	configFormat  string
 	configFileSet bool
-	viperSet      bool
+	configSet     bool
 
 	// Default is empty.
 	// TODO(bep) revisit this and consider always setting it to something.
@@ -113,7 +111,7 @@ type filenameContent struct {
 }
 
 func newTestSitesBuilder(t testing.TB) *sitesBuilder {
-	v := viper.New()
+	v := config.New()
 	fs := hugofs.NewMem(v)
 
 	litterOptions := litter.Options{
@@ -122,8 +120,10 @@ func newTestSitesBuilder(t testing.TB) *sitesBuilder {
 		Separator:         " ",
 	}
 
-	return &sitesBuilder{T: t, C: qt.New(t), Fs: fs, configFormat: "toml",
-		dumper: litterOptions, rnd: rand.New(rand.NewSource(time.Now().Unix()))}
+	return &sitesBuilder{
+		T: t, C: qt.New(t), Fs: fs, configFormat: "toml",
+		dumper: litterOptions, rnd: rand.New(rand.NewSource(time.Now().Unix())),
+	}
 }
 
 func newTestSitesBuilderFromDepsCfg(t testing.TB, d deps.DepsCfg) *sitesBuilder {
@@ -140,8 +140,7 @@ func newTestSitesBuilderFromDepsCfg(t testing.TB, d deps.DepsCfg) *sitesBuilder 
 
 	b.WithWorkingDir(workingDir)
 
-	return b.WithViper(d.Cfg.(*viper.Viper))
-
+	return b.WithViper(d.Cfg.(config.Provider))
 }
 
 func (s *sitesBuilder) Running() *sitesBuilder {
@@ -154,7 +153,7 @@ func (s *sitesBuilder) WithNothingAdded() *sitesBuilder {
 	return s
 }
 
-func (s *sitesBuilder) WithLogger(logger *loggers.Logger) *sitesBuilder {
+func (s *sitesBuilder) WithLogger(logger loggers.Logger) *sitesBuilder {
 	s.logger = logger
 	return s
 }
@@ -187,26 +186,26 @@ func (s *sitesBuilder) WithConfigTemplate(data interface{}, format, configTempla
 	return s.WithConfigFile(format, b.String())
 }
 
-func (s *sitesBuilder) WithViper(v *viper.Viper) *sitesBuilder {
+func (s *sitesBuilder) WithViper(v config.Provider) *sitesBuilder {
 	s.T.Helper()
 	if s.configFileSet {
 		s.T.Fatal("WithViper: use Viper or config.toml, not both")
 	}
 	defer func() {
-		s.viperSet = true
+		s.configSet = true
 	}()
 
 	// Write to a config file to make sure the tests follow the same code path.
 	var buff bytes.Buffer
-	m := v.AllSettings()
+	m := v.Get("").(maps.Params)
 	s.Assert(parser.InterfaceToConfig(m, metadecoders.TOML, &buff), qt.IsNil)
 	return s.WithConfigFile("toml", buff.String())
 }
 
 func (s *sitesBuilder) WithConfigFile(format, conf string) *sitesBuilder {
 	s.T.Helper()
-	if s.viperSet {
-		s.T.Fatal("WithConfigFile: use Viper or config.toml, not both")
+	if s.configSet {
+		s.T.Fatal("WithConfigFile: use config.Config or config.toml, not both")
 	}
 	s.configFileSet = true
 	filename := s.absFilename("config." + format)
@@ -250,7 +249,7 @@ const commonConfigSections = `
 [services.disqus]
 shortname = "disqus_shortname"
 [services.googleAnalytics]
-id = "ga_id"
+id = "UA-ga_id"
 
 [privacy]
 [privacy.disqus]
@@ -289,7 +288,7 @@ func (s *sitesBuilder) WithSimpleConfigFileAndSettings(settings interface{}) *si
 }
 
 func (s *sitesBuilder) WithDefaultMultiSiteConfig() *sitesBuilder {
-	var defaultMultiSiteConfig = `
+	defaultMultiSiteConfig := `
 baseURL = "http://example.com/blog"
 
 paginate = 1
@@ -347,7 +346,6 @@ lag = "lag"
 ` + commonConfigSections
 
 	return s.WithConfigFile("toml", defaultMultiSiteConfig)
-
 }
 
 func (s *sitesBuilder) WithSunset(in string) {
@@ -450,7 +448,7 @@ func (s *sitesBuilder) writeFilePairs(folder string, files []filenameContent) *s
 	// That file system is backed by a map so not sure how this helps, but some
 	// randomness in tests doesn't hurt.
 	// TODO(bep) this turns out to be more confusing than helpful.
-	//s.rnd.Shuffle(len(files), func(i, j int) { files[i], files[j] = files[j], files[i] })
+	// s.rnd.Shuffle(len(files), func(i, j int) { files[i], files[j] = files[j], files[i] })
 
 	for _, fc := range files {
 		target := folder
@@ -487,11 +485,10 @@ func (s *sitesBuilder) LoadConfig() error {
 		Fs:         s.Fs.Source,
 		Logger:     s.logger,
 		Environ:    s.environ,
-		Filename:   "config." + s.configFormat}, func(cfg config.Provider) error {
-
+		Filename:   "config." + s.configFormat,
+	}, func(cfg config.Provider) error {
 		return nil
 	})
-
 	if err != nil {
 		return err
 	}
@@ -572,7 +569,6 @@ func (s *sitesBuilder) BuildFail(cfg BuildCfg) *sitesBuilder {
 }
 
 func (s *sitesBuilder) changeEvents() []fsnotify.Event {
-
 	var events []fsnotify.Event
 
 	for _, v := range s.changedFiles {
@@ -620,7 +616,6 @@ func (s *sitesBuilder) build(cfg BuildCfg, shouldFail bool) *sitesBuilder {
 }
 
 func (s *sitesBuilder) addDefaults() {
-
 	var (
 		contentTemplate = `---
 title: doc1
@@ -846,28 +841,26 @@ func (th testHelper) replaceDefaultContentLanguageValue(value string) string {
 
 	if !defaultInSubDir {
 		value = strings.Replace(value, replace, "", 1)
-
 	}
 	return value
 }
 
-func loadTestConfig(fs afero.Fs, withConfig ...func(cfg config.Provider) error) (*viper.Viper, error) {
+func loadTestConfig(fs afero.Fs, withConfig ...func(cfg config.Provider) error) (config.Provider, error) {
 	v, _, err := LoadConfig(ConfigSourceDescriptor{Fs: fs}, withConfig...)
 	return v, err
 }
 
-func newTestCfgBasic() (*viper.Viper, *hugofs.Fs) {
+func newTestCfgBasic() (config.Provider, *hugofs.Fs) {
 	mm := afero.NewMemMapFs()
-	v := viper.New()
+	v := config.New()
 	v.Set("defaultContentLanguageInSubdir", true)
 
 	fs := hugofs.NewFrom(hugofs.NewBaseFileDecorator(mm), v)
 
 	return v, fs
-
 }
 
-func newTestCfg(withConfig ...func(cfg config.Provider) error) (*viper.Viper, *hugofs.Fs) {
+func newTestCfg(withConfig ...func(cfg config.Provider) error) (config.Provider, *hugofs.Fs) {
 	mm := afero.NewMemMapFs()
 
 	v, err := loadTestConfig(mm, func(cfg config.Provider) error {
@@ -888,7 +881,6 @@ func newTestCfg(withConfig ...func(cfg config.Provider) error) (*viper.Viper, *h
 	fs := hugofs.NewFrom(hugofs.NewBaseFileDecorator(mm), v)
 
 	return v, fs
-
 }
 
 func newTestSitesFromConfig(t testing.TB, afs afero.Fs, tomlConfig string, layoutPathContentPairs ...string) (testHelper, *HugoSites) {
@@ -919,7 +911,6 @@ func newTestSitesFromConfig(t testing.TB, afs afero.Fs, tomlConfig string, layou
 }
 
 func createWithTemplateFromNameValues(additionalTemplates ...string) func(templ tpl.TemplateManager) error {
-
 	return func(templ tpl.TemplateManager) error {
 		for i := 0; i < len(additionalTemplates); i += 2 {
 			err := templ.AddTemplate(additionalTemplates[i], additionalTemplates[i+1])
@@ -937,13 +928,13 @@ func buildSingleSite(t testing.TB, depsCfg deps.DepsCfg, buildCfg BuildCfg) *Sit
 	return buildSingleSiteExpected(t, false, false, depsCfg, buildCfg)
 }
 
-func buildSingleSiteExpected(t testing.TB, expectSiteInitEror, expectBuildError bool, depsCfg deps.DepsCfg, buildCfg BuildCfg) *Site {
+func buildSingleSiteExpected(t testing.TB, expectSiteInitError, expectBuildError bool, depsCfg deps.DepsCfg, buildCfg BuildCfg) *Site {
 	t.Helper()
 	b := newTestSitesBuilderFromDepsCfg(t, depsCfg).WithNothingAdded()
 
 	err := b.CreateSitesE()
 
-	if expectSiteInitEror {
+	if expectSiteInitError {
 		b.Assert(err, qt.Not(qt.IsNil))
 		return nil
 	} else {
@@ -1001,15 +992,23 @@ func pagesToString(pages ...page.Page) string {
 	return strings.Join(paths, "|")
 }
 
+func dumpPagesLinks(pages ...page.Page) {
+	var links []string
+	for _, p := range pages {
+		links = append(links, p.RelPermalink())
+	}
+	sort.Strings(links)
+
+	for _, link := range links {
+		fmt.Println(link)
+	}
+}
+
 func dumpPages(pages ...page.Page) {
 	fmt.Println("---------")
 	for _, p := range pages {
-		var meta interface{}
-		if p.File() != nil && p.File().FileInfo() != nil {
-			meta = p.File().FileInfo().Meta()
-		}
-		fmt.Printf("Kind: %s Title: %-10s RelPermalink: %-10s Path: %-10s sections: %s Lang: %s Meta: %v\n",
-			p.Kind(), p.Title(), p.RelPermalink(), p.Path(), p.SectionsPath(), p.Lang(), meta)
+		fmt.Printf("Kind: %s Title: %-10s RelPermalink: %-10s Path: %-10s sections: %s Lang: %s\n",
+			p.Kind(), p.Title(), p.RelPermalink(), p.Path(), p.SectionsPath(), p.Lang())
 	}
 }
 
@@ -1041,10 +1040,6 @@ func printStringIndexes(s string) {
 	}
 }
 
-func isCI() bool {
-	return (os.Getenv("CI") != "" || os.Getenv("CI_LOCAL") != "") && os.Getenv("CIRCLE_BRANCH") == ""
-}
-
 // See https://github.com/golang/go/issues/19280
 // Not in use.
 var parallelEnabled = true
@@ -1059,7 +1054,6 @@ func skipSymlink(t *testing.T) {
 	if runtime.GOOS == "windows" && os.Getenv("CI") == "" {
 		t.Skip("skip symlink test on local Windows (needs admin)")
 	}
-
 }
 
 func captureStderr(f func() error) (string, error) {

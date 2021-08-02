@@ -57,7 +57,6 @@ Page: /404.html|
 Data: 1|
         
 `)
-
 }
 
 func Test404WithBase(t *testing.T) {
@@ -77,5 +76,4 @@ Page not found
 	b.AssertFileContent("public/404.html", `
 Base:
 Page not found`)
-
 }

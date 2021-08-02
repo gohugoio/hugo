@@ -81,10 +81,25 @@ This means the partial will *only* be able to access those variables. The partia
 
 In addition to outputting markup, partials can be used to return a value of any type. In order to return a value, a partial must include a lone `return` statement.
 
+## Inline partials
+
+{{< new-in "0.74.0" >}}
+
+You can also define partials inline in the template. But remember that template namespace is global, so you need to make sure that the names are unique to avoid conflicts.
+
+```go-html-template
+Value: {{ partial "my-inline-partial" . }}
+
+{{ define "partials/my-inline-partial" }}
+{{ $value := 32 }}
+{{ return $value }}
+{{ end }}
+```
+
 ### Example GetFeatured
 ```go-html-template
 {{/* layouts/partials/GetFeatured.html */}}
-{{ return first . (where site.RegularPages ".Params.featured" true) }}
+{{ return first . (where site.RegularPages "Params.featured" true) }}
 ```
 
 ```go-html-template
@@ -160,7 +175,6 @@ The following `header.html` partial template is used for [spf13.com](https://spf
 
     {{ partial "head_includes.html" . }}
 </head>
-<body lang="en">
 {{< /code >}}
 
 {{% note %}}

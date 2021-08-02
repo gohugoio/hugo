@@ -43,7 +43,6 @@ func TestSimilarPercentage(t *testing.T) {
 	c.Assert(howSimilar(template.HTML("Hugo Rules"), template.HTML("Hugo Rules")), qt.Equals, 100)
 	c.Assert(howSimilar(map[string]interface{}{"a": 32, "b": 33}, map[string]interface{}{"a": 32, "b": 33}), qt.Equals, 100)
 	c.Assert(howSimilar(map[string]interface{}{"a": 32, "b": 33}, map[string]interface{}{"a": 32, "b": 34}), qt.Equals, 0)
-
 }
 
 type testStruct struct {
@@ -56,7 +55,6 @@ func TestSimilarPercentageNonString(t *testing.T) {
 	c.Assert(howSimilar(page.Pages{}, page.Pages{}), qt.Equals, 90)
 	c.Assert(howSimilar(testStruct{Name: "A"}, testStruct{Name: "B"}), qt.Equals, 0)
 	c.Assert(howSimilar(testStruct{Name: "A"}, testStruct{Name: "A"}), qt.Equals, 100)
-
 }
 
 func BenchmarkHowSimilar(b *testing.B) {

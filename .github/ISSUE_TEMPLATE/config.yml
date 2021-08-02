@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+    - name: SUPPORT, ISSUES and TROUBLESHOOTING
+      url: https://discourse.gohugo.io/
+      about: Please DO NOT use Github for support requests. Please visit https://discourse.gohugo.io for support! You will be helped much faster there. If you ignore this request your issue might be closed with a discourse label.

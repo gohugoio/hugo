@@ -16,7 +16,7 @@ package mmark
 import (
 	"testing"
 
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/config"
 
 	"github.com/gohugoio/hugo/common/loggers"
 
@@ -29,7 +29,7 @@ import (
 func TestGetMmarkExtensions(t *testing.T) {
 	b := blackfriday_config.Default
 
-	//TODO: This is doing the same just with different marks...
+	// TODO: This is doing the same just with different marks...
 	type data struct {
 		testFlag int
 	}
@@ -62,7 +62,7 @@ func TestGetMmarkExtensions(t *testing.T) {
 
 func TestConvert(t *testing.T) {
 	c := qt.New(t)
-	p, err := Provider.New(converter.ProviderConfig{Cfg: viper.New(), Logger: loggers.NewErrorLogger()})
+	p, err := Provider.New(converter.ProviderConfig{Cfg: config.New(), Logger: loggers.NewErrorLogger()})
 	c.Assert(err, qt.IsNil)
 	conv, err := p.New(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)

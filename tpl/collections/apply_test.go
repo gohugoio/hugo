@@ -14,11 +14,10 @@
 package collections
 
 import (
+	"fmt"
 	"io"
 	"reflect"
 	"testing"
-
-	"fmt"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
@@ -40,6 +39,10 @@ func (templateFinder) LookupVariant(name string, variants tpl.TemplateVariants) 
 	return nil, false, false
 }
 
+func (templateFinder) LookupVariants(name string) []tpl.Template {
+	return nil
+}
+
 func (templateFinder) LookupLayout(d output.LayoutDescriptor, f output.Format) (tpl.Template, bool, error) {
 	return nil, false, nil
 }
@@ -54,7 +57,6 @@ func (templateFinder) GetFunc(name string) (reflect.Value, bool) {
 	}
 
 	return reflect.ValueOf(fmt.Sprint), true
-
 }
 
 func TestApply(t *testing.T) {
@@ -84,5 +86,4 @@ func TestApply(t *testing.T) {
 	if err == nil {
 		t.Errorf("apply with unknown func should fail")
 	}
-
 }

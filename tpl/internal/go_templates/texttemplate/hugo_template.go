@@ -94,7 +94,7 @@ func (t *Template) executeWithState(state *state, value reflect.Value) (err erro
 	return
 }
 
-// Below are modifed structs etc. The changes are marked with "Added for Hugo."
+// Below are modified structs etc. The changes are marked with "Added for Hugo."
 
 // state represents the state of an execution. It's not part of the
 // template so that multiple executions of the same template

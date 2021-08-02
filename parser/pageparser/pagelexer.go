@@ -11,10 +11,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package pageparser provides a parser for Hugo content files (Markdown, HTML etc.) in Hugo.
-// This implementation is highly inspired by the great talk given by Rob Pike called "Lexical Scanning in Go"
-// It's on YouTube, Google it!.
-// See slides here: http://cuddle.googlecode.com/hg/talk/lex.html
 package pageparser
 
 import (
@@ -63,7 +59,6 @@ func (l *pageLexer) Iterator() *Iterator {
 
 func (l *pageLexer) Input() []byte {
 	return l.input
-
 }
 
 type Config struct {
@@ -290,7 +285,6 @@ func (s *sectionHandlers) skip() int {
 }
 
 func createSectionHandlers(l *pageLexer) *sectionHandlers {
-
 	shortCodeHandler := &sectionHandler{
 		l: l,
 		skipFunc: func(l *pageLexer) int {
@@ -331,7 +325,6 @@ func createSectionHandlers(l *pageLexer) *sectionHandlers {
 		skipFunc: func(l *pageLexer) int {
 			if l.summaryDividerChecked || l.summaryDivider == nil {
 				return -1
-
 			}
 			return l.index(l.summaryDivider)
 		},
@@ -347,7 +340,6 @@ func createSectionHandlers(l *pageLexer) *sectionHandlers {
 			l.emit(TypeLeadSummaryDivider)
 
 			return origin, true
-
 		},
 	}
 
@@ -429,13 +421,12 @@ func (s *sectionHandler) skip() int {
 }
 
 func lexMainSection(l *pageLexer) stateFunc {
-
 	if l.isEOF() {
 		return lexDone
 	}
 
 	if l.isInHTMLComment {
-		return lexEndFromtMatterHTMLComment
+		return lexEndFrontMatterHTMLComment
 	}
 
 	// Fast forward as far as possible.
@@ -455,11 +446,9 @@ func lexMainSection(l *pageLexer) stateFunc {
 
 	l.pos = len(l.input)
 	return lexDone
-
 }
 
 func lexDone(l *pageLexer) stateFunc {
-
 	// Done!
 	if l.pos > l.start {
 		l.emit(tText)

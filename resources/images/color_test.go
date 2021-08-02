@@ -74,7 +74,6 @@ func TestAddColorToPalette(t *testing.T) {
 	c.Assert(AddColorToPalette(white, palette), qt.HasLen, 2)
 	c.Assert(AddColorToPalette(blue1, palette), qt.HasLen, 3)
 	c.Assert(AddColorToPalette(blue2, palette), qt.HasLen, 3)
-
 }
 
 func TestReplaceColorInPalette(t *testing.T) {

@@ -81,5 +81,4 @@ func Glob(fs afero.Fs, pattern string, handle func(fi FileMetaInfo) (bool, error
 	}
 
 	return nil
-
 }

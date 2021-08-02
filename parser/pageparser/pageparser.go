@@ -11,10 +11,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package pageparser provides a parser for Hugo content files (Markdown, HTML etc.) in Hugo.
-// This implementation is highly inspired by the great talk given by Rob Pike called "Lexical Scanning in Go"
-// It's on YouTube, Google it!.
-// See slides here: http://cuddle.googlecode.com/hg/talk/lex.html
 package pageparser
 
 import (
@@ -75,7 +71,6 @@ func ParseFrontMatterAndContent(r io.Reader) (ContentFrontMatter, error) {
 			frontMatterSource = item.Val
 		}
 		return true
-
 	}
 
 	iter.PeekWalk(walkFn)
@@ -177,7 +172,7 @@ func (t *Iterator) PeekWalk(walkFn func(item Item) bool) {
 	}
 }
 
-// Consume is a convencience method to consume the next n tokens,
+// Consume is a convenience method to consume the next n tokens,
 // but back off Errors and EOF.
 func (t *Iterator) Consume(cnt int) {
 	for i := 0; i < cnt; i++ {

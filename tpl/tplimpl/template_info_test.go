@@ -24,6 +24,7 @@ import (
 func TestTemplateInfoShortcode(t *testing.T) {
 	c := qt.New(t)
 	d := newD(c)
+	defer d.Close()
 	h := d.Tmpl().(*templateExec)
 
 	c.Assert(h.AddTemplate("shortcodes/mytemplate.html", `
@@ -38,7 +39,6 @@ func TestTemplateInfoShortcode(t *testing.T) {
 	tti, ok := tt.(tpl.Info)
 	c.Assert(ok, qt.Equals, true)
 	c.Assert(tti.ParseInfo().IsInner, qt.Equals, true)
-
 }
 
 // TODO(bep) move and use in other places
@@ -55,5 +55,4 @@ func newD(c *qt.C) *deps.Deps {
 	provider.Update(d)
 
 	return d
-
 }

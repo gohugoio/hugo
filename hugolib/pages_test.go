@@ -11,17 +11,21 @@ import (
 )
 
 func newPagesPrevNextTestSite(t testing.TB, numPages int) *sitesBuilder {
+	categories := []string{"blue", "green", "red", "orange", "indigo", "amber", "lime"}
+	cat1, cat2 := categories[rand.Intn(len(categories))], categories[rand.Intn(len(categories))]
+	categoriesSlice := fmt.Sprintf("[%q,%q]", cat1, cat2)
 	pageTemplate := `
 ---
 title: "Page %d"
 weight: %d
+categories: %s
 ---
 
 `
 	b := newTestSitesBuilder(t)
 
 	for i := 1; i <= numPages; i++ {
-		b.WithContent(fmt.Sprintf("page%d.md", i), fmt.Sprintf(pageTemplate, i, rand.Intn(numPages)))
+		b.WithContent(fmt.Sprintf("page%d.md", i), fmt.Sprintf(pageTemplate, i, rand.Intn(numPages), categoriesSlice))
 	}
 
 	return b
@@ -55,13 +59,13 @@ func BenchmarkPagesPrevNext(b *testing.B) {
 	}
 
 	for _, variant := range []Variant{
-		Variant{".Next", nil, func(p page.Page, pages page.Pages) { p.Next() }},
-		Variant{".Prev", nil, func(p page.Page, pages page.Pages) { p.Prev() }},
-		Variant{"Pages.Next", nil, func(p page.Page, pages page.Pages) { pages.Next(p) }},
-		Variant{"Pages.Prev", nil, func(p page.Page, pages page.Pages) { pages.Prev(p) }},
-		Variant{"Pages.Shuffled.Next", shufflePages, func(p page.Page, pages page.Pages) { pages.Next(p) }},
-		Variant{"Pages.Shuffled.Prev", shufflePages, func(p page.Page, pages page.Pages) { pages.Prev(p) }},
-		Variant{"Pages.ByTitle.Next", func(pages page.Pages) page.Pages { return pages.ByTitle() }, func(p page.Page, pages page.Pages) { pages.Next(p) }},
+		{".Next", nil, func(p page.Page, pages page.Pages) { p.Next() }},
+		{".Prev", nil, func(p page.Page, pages page.Pages) { p.Prev() }},
+		{"Pages.Next", nil, func(p page.Page, pages page.Pages) { pages.Next(p) }},
+		{"Pages.Prev", nil, func(p page.Page, pages page.Pages) { pages.Prev(p) }},
+		{"Pages.Shuffled.Next", shufflePages, func(p page.Page, pages page.Pages) { pages.Next(p) }},
+		{"Pages.Shuffled.Prev", shufflePages, func(p page.Page, pages page.Pages) { pages.Prev(p) }},
+		{"Pages.ByTitle.Next", func(pages page.Pages) page.Pages { return pages.ByTitle() }, func(p page.Page, pages page.Pages) { pages.Next(p) }},
 	} {
 		for _, numPages := range []int{300, 5000} {
 			b.Run(fmt.Sprintf("%s-pages-%d", variant.name, numPages), func(b *testing.B) {
@@ -76,6 +80,38 @@ func BenchmarkPagesPrevNext(b *testing.B) {
 				for i := 0; i < b.N; i++ {
 					p := pages[rand.Intn(len(pages))]
 					variant.run(p, pages)
+				}
+			})
+		}
+	}
+}
+
+func BenchmarkPagePageCollections(b *testing.B) {
+	type Variant struct {
+		name string
+		run  func(p page.Page)
+	}
+
+	for _, variant := range []Variant{
+		{".Pages", func(p page.Page) { p.Pages() }},
+		{".RegularPages", func(p page.Page) { p.RegularPages() }},
+		{".RegularPagesRecursive", func(p page.Page) { p.RegularPagesRecursive() }},
+	} {
+		for _, numPages := range []int{300, 5000} {
+			b.Run(fmt.Sprintf("%s-%d", variant.name, numPages), func(b *testing.B) {
+				b.StopTimer()
+				builder := newPagesPrevNextTestSite(b, numPages)
+				builder.Build(BuildCfg{SkipRender: true})
+				var pages page.Pages
+				for _, p := range builder.H.Sites[0].Pages() {
+					if !p.IsPage() {
+						pages = append(pages, p)
+					}
+				}
+				b.StartTimer()
+				for i := 0; i < b.N; i++ {
+					p := pages[rand.Intn(len(pages))]
+					variant.run(p)
 				}
 			})
 		}

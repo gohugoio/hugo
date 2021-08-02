@@ -34,5 +34,4 @@ func TestKind(t *testing.T) {
 	c.Assert(GetKind("Page"), qt.Equals, KindPage)
 	c.Assert(GetKind("Home"), qt.Equals, KindHome)
 	c.Assert(GetKind("SEction"), qt.Equals, KindSection)
-
 }

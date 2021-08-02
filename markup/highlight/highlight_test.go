@@ -43,10 +43,9 @@ User-Agent: foo
 		h := New(cfg)
 
 		result, _ := h.Highlight(`echo "Hugo Rocks!"`, "bash", "")
-		c.Assert(result, qt.Equals, `<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">echo</span> <span class="s2">&#34;Hugo Rocks!&#34;</span></code></pre></div>`)
+		c.Assert(result, qt.Equals, `<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">echo</span> <span class="s2">&#34;Hugo Rocks!&#34;</span></code></pre></div>`)
 		result, _ = h.Highlight(`echo "Hugo Rocks!"`, "unknown", "")
-		c.Assert(result, qt.Equals, `<pre><code class="language-unknown" data-lang="unknown">echo &#34;Hugo Rocks!&#34;</code></pre>`)
-
+		c.Assert(result, qt.Equals, `<pre tabindex="0"><code class="language-unknown" data-lang="unknown">echo &#34;Hugo Rocks!&#34;</code></pre>`)
 	})
 
 	c.Run("Highlight lines, default config", func(c *qt.C) {
@@ -55,7 +54,7 @@ User-Agent: foo
 		h := New(cfg)
 
 		result, _ := h.Highlight(lines, "bash", "linenos=table,hl_lines=2 4-5,linenostart=3")
-		c.Assert(result, qt.Contains, "<div class=\"highlight\"><div class=\"chroma\">\n<table class=\"lntable\"><tr><td class=\"lntd\">\n<pre class=\"chroma\"><code><span class")
+		c.Assert(result, qt.Contains, "<div class=\"highlight\"><div class=\"chroma\">\n<table class=\"lntable\"><tr><td class=\"lntd\">\n<pre tabindex=\"0\" class=\"chroma\"><code><span class")
 		c.Assert(result, qt.Contains, "<span class=\"hl\"><span class=\"lnt\">4")
 
 		result, _ = h.Highlight(lines, "bash", "linenos=inline,hl_lines=2")
@@ -79,6 +78,21 @@ User-Agent: foo
 		c.Assert(result, qt.Not(qt.Contains), "class=\"lnt\"")
 	})
 
+	c.Run("Highlight lines, linenumbers default on, anchorlinenumbers default on", func(c *qt.C) {
+		cfg := DefaultConfig
+		cfg.NoClasses = false
+		cfg.LineNos = true
+		cfg.AnchorLineNos = true
+		h := New(cfg)
+
+		result, _ := h.Highlight(lines, "bash", "")
+		// From Chroma v0.8.2 this is linkable: https://github.com/alecthomas/chroma/commit/ab61726cdb54d5a98b6efe7ed76af6aa0698ab4a
+		c.Assert(result, qt.Contains, "<span class=\"lnt\" id=\"2\"><a style=\"outline: none; text-decoration:none; color:inherit\" href=\"#2\">2</a>\n</span>")
+		result, _ = h.Highlight(lines, "bash", "lineanchors=test")
+		result, _ = h.Highlight(lines, "bash", "anchorlinenos=false,hl_lines=2")
+		c.Assert(result, qt.Not(qt.Contains), "id=\"2\"")
+	})
+
 	c.Run("Highlight lines, linenumbers default on, linenumbers in table default off", func(c *qt.C) {
 		cfg := DefaultConfig
 		cfg.NoClasses = false
@@ -99,7 +113,7 @@ User-Agent: foo
 		h := New(cfg)
 
 		result, _ := h.Highlight(lines, "", "")
-		c.Assert(result, qt.Equals, "<pre><code>LINE1\nLINE2\nLINE3\nLINE4\nLINE5\n</code></pre>")
+		c.Assert(result, qt.Equals, "<pre tabindex=\"0\"><code>LINE1\nLINE2\nLINE3\nLINE4\nLINE5\n</code></pre>")
 	})
 
 	c.Run("No language, guess syntax", func(c *qt.C) {
@@ -132,5 +146,4 @@ User-Agent: foo
 		c.Assert(result, qt.Contains, "hello")
 		c.Assert(result, qt.Contains, "}")
 	})
-
 }

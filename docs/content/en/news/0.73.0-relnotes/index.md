@@ -1,12 +1,12 @@
 
 ---
 date: 2020-06-23
-title: "0.73.0"
-description: "0.73.0"
+title: "Summer Breeze"
+description: "Taxonomy terms cleanup, render hooks per section/type, HMAC function, and more."
 categories: ["Releases"]
 ---
 
-	Again, a release on the small side. Some new features -- one example is that we now support hook templates per section/type, see [#7349](https://github.com/gohugoio/hugo/issues/7349) -- and some important bug fixes.
+Again, a release on the small side. Some new features -- one example is that we now support hook templates per section/type, see [#7349](https://github.com/gohugoio/hugo/issues/7349) -- and some important bug fixes.
 
 But the most important part of this release is that we have now finally cleaned up the terms used for the taxonomy page kinds. This has made the taxonomy feature in Hugo harder to understand than it needed to be. The old/new values for these are `taxonomy` => `term` and `taxonomyTerm` => `taxonomy`. We have taken great care to avoid site breakage. See [#6911](https://github.com/gohugoio/hugo/issues/6911) for more information.
 
@@ -16,11 +16,6 @@ And a big thanks to [@digitalcraftsman](https://github.com/digitalcraftsman) for
 Many have also been busy writing and fixing the documentation in [hugoDocs](https://github.com/gohugoio/hugoDocs), 
 which has received **30 contributions by 14 contributors**. A special thanks to christianoliff, bjorn.erik.pedersen, patrick, and hello for their work on the documentation site.
 
-
-Hugo now has:
-
-
-* 326+ [themes](http://themes.gohugo.io/)
 
 ## Notes
 

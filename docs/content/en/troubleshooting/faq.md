@@ -27,7 +27,7 @@ Yes you can! See [Configure with Environment Variables](/getting-started/configu
 
 ## How do I schedule posts?
 
-1. Set `publishDate` in the page [Front Matter](/content-management/front-matter/) to a date in the future.
+1. Set `publishDate` in the page [Front Matter](/content-management/front-matter/) to a datetime in the future. If you want the creation and publication datetime to be the same, it's also sufficient to only set `date`[^date-hierarchy].
 2. Build and publish at intervals.
 
 How to automate the "publish at intervals" part depends on your situation:
@@ -38,6 +38,8 @@ How to automate the "publish at intervals" part depends on your situation:
 Also see this Twitter thread:
 
 {{< tweet 962380712027590657 >}}
+
+[^date-hierarchy]: See [Configure Dates](https://gohugo.io/getting-started/configuration/#configure-dates) for the order in which the different date variables are complemented by each other when not explicitly set.
 
 ## Can I use the latest Hugo version on Netlify?
 

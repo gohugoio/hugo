@@ -17,10 +17,10 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/htesting/hqt"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/tpl/internal"
-	"github.com/spf13/viper"
 )
 
 func TestInit(t *testing.T) {
@@ -28,7 +28,7 @@ func TestInit(t *testing.T) {
 	var found bool
 	var ns *internal.TemplateFuncsNamespace
 
-	v := viper.New()
+	v := config.New()
 	v.Set("contentDir", "content")
 	langs.LoadLanguageSettings(v, nil)
 

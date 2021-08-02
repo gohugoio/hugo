@@ -17,6 +17,12 @@ import (
 	"fmt"
 	"html/template"
 	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+	"time"
+
+	"github.com/gohugoio/hugo/htesting"
 
 	"github.com/gohugoio/hugo/markup/rst"
 
@@ -26,17 +32,11 @@ import (
 
 	"github.com/gohugoio/hugo/common/loggers"
 
-	"path/filepath"
-	"strings"
-	"testing"
-	"time"
-
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/spf13/afero"
-	"github.com/spf13/viper"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
@@ -370,7 +370,6 @@ func normalizeExpected(ext, str string) string {
 
 func testAllMarkdownEnginesForPages(t *testing.T,
 	assertFunc func(t *testing.T, ext string, pages page.Pages), settings map[string]interface{}, pageSources ...string) {
-
 	engines := []struct {
 		ext           string
 		shouldExecute func() bool
@@ -391,7 +390,6 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 				cfg.Set(k, v)
 			}
 			return nil
-
 		})
 
 		contentDir := "content"
@@ -430,7 +428,6 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 		b.Assert(content(home), qt.Contains, "Home Page Content")
 
 	}
-
 }
 
 // Issue #1076
@@ -454,7 +451,7 @@ func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 	}
 
 	cnt := content(p)
-	if cnt != "<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup id=\"fnref:1\"><a href=\"#fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup></p>\n<section class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"fn:1\" role=\"doc-endnote\">\n<p>Many people say so. <a href=\"#fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</section>" {
+	if cnt != "<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup id=\"fnref:1\"><a href=\"#fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup></p>\n<section class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"fn:1\" role=\"doc-endnote\">\n<p>Many people say so.&#160;<a href=\"#fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</section>" {
 		t.Fatalf("Got content:\n%q", cnt)
 	}
 }
@@ -492,7 +489,6 @@ categories: ["cool stuff"]
 		checkDated(p, p.Kind())
 	}
 	checkDate(s.Info.LastChange(), "site")
-
 }
 
 func TestPageDatesSections(t *testing.T) {
@@ -646,7 +642,6 @@ Simple Page With Some Date`
 		for _, p := range pages {
 			c.Assert(hasDate(p), qt.Equals, true)
 		}
-
 	}
 
 	fields := []string{"date", "publishdate", "pubdate", "published"}
@@ -677,7 +672,6 @@ title: Raw
 	p := s.RegularPages()[0]
 
 	c.Assert("**Raw**", qt.Equals, p.RawContent())
-
 }
 
 func TestPageWithShortCodeInSummary(t *testing.T) {
@@ -685,7 +679,7 @@ func TestPageWithShortCodeInSummary(t *testing.T) {
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
 		p := pages[0]
 		checkPageTitle(t, p, "Simple")
-		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Next Line. <figure> <img src=\"/not/real\"/> </figure> . More text here.</p><p>Some more text</p>"))
+		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Next Line. <figure><img src=\"/not/real\"/> </figure> . More text here.</p><p>Some more text</p>"))
 		checkPageSummary(t, p, "Summary Next Line.  . More text here. Some more text")
 		checkPageType(t, p, "page")
 	}
@@ -714,7 +708,6 @@ func TestPageWithAdditionalExtension(t *testing.T) {
 }
 
 func TestTableOfContents(t *testing.T) {
-
 	cfg, fs := newTestCfg()
 	c := qt.New(t)
 
@@ -738,7 +731,6 @@ func TestPageWithMoreTag(t *testing.T) {
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Same Line</p>\n\n<p>Some more text</p>\n"))
 		checkPageSummary(t, p, normalizeExpected(ext, "<p>Summary Same Line</p>"))
 		checkPageType(t, p, "page")
-
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithSummaryDelimiterSameLine)
@@ -746,7 +738,6 @@ func TestPageWithMoreTag(t *testing.T) {
 
 // #2973
 func TestSummaryWithHTMLTagsOnNextLine(t *testing.T) {
-
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
 		c := qt.New(t)
 		p := pages[0]
@@ -787,10 +778,14 @@ func TestPageWithDate(t *testing.T) {
 }
 
 func TestPageWithLastmodFromGitInfo(t *testing.T) {
+	if htesting.IsCI() {
+		// TODO(bep) figure out why this fails on GitHub actions.
+		t.Skip("Skip GitInfo test on CI")
+	}
 	c := qt.New(t)
 
 	// We need to use the OS fs for this.
-	cfg := viper.New()
+	cfg := config.New()
 	fs := hugofs.NewFrom(hugofs.Os, cfg)
 	fs.Destination = &afero.MemMapFs{}
 
@@ -838,7 +833,6 @@ func TestPageWithLastmodFromGitInfo(t *testing.T) {
 
 	// 2018-08-11 is the Git author date for testsite/content_nn/first-post.md
 	c.Assert(nnSite.RegularPages()[0].Lastmod().Format("2006-01-02"), qt.Equals, "2018-08-11")
-
 }
 
 func TestPageWithFrontMatterConfig(t *testing.T) {
@@ -904,7 +898,6 @@ Content
 			}
 		})
 	}
-
 }
 
 func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
@@ -970,7 +963,6 @@ func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, settings, simplePageWithIsCJKLanguageFalse)
-
 }
 
 func TestWordCount(t *testing.T) {
@@ -988,7 +980,6 @@ func TestWordCount(t *testing.T) {
 		if p.ReadingTime() != 3 {
 			t.Fatalf("[%s] incorrect min read. expected %v, got %v", ext, 3, p.ReadingTime())
 		}
-
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithLongContent)
@@ -1052,7 +1043,6 @@ func TestTranslationKey(t *testing.T) {
 	p2 := s.RegularPages()[1]
 
 	c.Assert(p2.TranslationKey(), qt.Equals, "page/sect/simple")
-
 }
 
 func TestChompBOM(t *testing.T) {
@@ -1075,7 +1065,7 @@ func TestChompBOM(t *testing.T) {
 
 func TestPageWithEmoji(t *testing.T) {
 	for _, enableEmoji := range []bool{true, false} {
-		v := viper.New()
+		v := config.New()
 		v.Set("enableEmoji", enableEmoji)
 
 		b := newTestSitesBuilder(t).WithViper(v)
@@ -1125,7 +1115,6 @@ but if you like it, hit :+1: and get subscribed!
 		}
 
 	}
-
 }
 
 func TestPageHTMLContent(t *testing.T) {
@@ -1162,7 +1151,6 @@ title: "HTML Content"
 		"Summary: \n<p>This is summary</p>\n|Truncated: true",
 		"|<p>This is the main content.</p>|",
 	)
-
 }
 
 // https://github.com/gohugoio/hugo/issues/5381
@@ -1278,7 +1266,6 @@ Content:{{ .Content }}
 		"Title: hello",
 		"Content:<p>This is the content.</p>",
 	)
-
 }
 
 // https://github.com/gohugoio/hugo/issues/5781
@@ -1305,11 +1292,11 @@ Content.
 
 func TestShouldBuild(t *testing.T) {
 	t.Parallel()
-	var past = time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC)
-	var future = time.Date(2037, 11, 17, 20, 34, 58, 651387237, time.UTC)
-	var zero = time.Time{}
+	past := time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC)
+	future := time.Date(2037, 11, 17, 20, 34, 58, 651387237, time.UTC)
+	zero := time.Time{}
 
-	var publishSettings = []struct {
+	publishSettings := []struct {
 		buildFuture  bool
 		buildExpired bool
 		buildDrafts  bool
@@ -1434,7 +1421,6 @@ tags:
 				} else {
 					c.Assert(p.RelPermalink(), qt.Equals, "/post/test0.dot/")
 				}
-
 			})
 		}
 	}
@@ -1442,7 +1428,6 @@ tags:
 
 // https://github.com/gohugoio/hugo/issues/4675
 func TestWordCountAndSimilarVsSummary(t *testing.T) {
-
 	t.Parallel()
 	c := qt.New(t)
 
@@ -1534,7 +1519,6 @@ Summary: In Chinese, 好 means good.
 	b.AssertFileContent("public/p4/index.html", "WordCount: 7\nFuzzyWordCount: 100\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 43\nLen Content: 651")
 	b.AssertFileContent("public/p5/index.html", "WordCount: 206\nFuzzyWordCount: 300\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 229\nLen Content: 652")
 	b.AssertFileContent("public/p6/index.html", "WordCount: 7\nFuzzyWordCount: 100\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: false\nLen Summary: 637\nLen Content: 652")
-
 }
 
 func TestScratchSite(t *testing.T) {
@@ -1619,7 +1603,6 @@ author = "Jo Nesbø"
 		"Author name page string: Kurt Vonnegut|",
 		"Author page string: Jo Nesbø|",
 		"Author site config:  Kurt Vonnegut")
-
 }
 
 func TestGoldmark(t *testing.T) {
@@ -1742,18 +1725,38 @@ $$$
 
 	for i, ext := range []string{"md", "html"} {
 		b.WithContent(fmt.Sprintf("page%d.%s", i+1, ext), content)
-
 	}
 
 	b.Build(BuildCfg{})
 
 	// Blackfriday does not support this extended attribute syntax.
 	b.AssertFileContent("public/page1/index.html",
-		`<pre><code class="language-bash {hl_lines=[1]}" data-lang="bash {hl_lines=[1]}">SHORT</code></pre>`,
-		`<pre><code class="language-bash {hl_lines=[1]}" data-lang="bash {hl_lines=[1]}">MARKDOWN`,
+		`<pre tabindex="0"><code class="language-bash {hl_lines=[1]}" data-lang="bash {hl_lines=[1]}">SHORT</code></pre>`,
+		`<pre tabindex="0"><code class="language-bash {hl_lines=[1]}" data-lang="bash {hl_lines=[1]}">MARKDOWN`,
 	)
 
 	b.AssertFileContent("public/page2/index.html",
-		`<pre><code class="language-bash {hl_lines=[1]}" data-lang="bash {hl_lines=[1]}">SHORT`,
+		`<pre tabindex="0"><code class="language-bash {hl_lines=[1]}" data-lang="bash {hl_lines=[1]}">SHORT`,
 	)
+}
+
+func TestPageCaseIssues(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t)
+	b.WithConfigFile("toml", `defaultContentLanguage = "no"
+[languages]
+[languages.NO]
+title = "Norsk"
+`)
+	b.WithContent("a/B/C/Page1.md", "---\ntitle: Page1\n---")
+	b.WithTemplates("index.html", `
+{{ $p1 := site.GetPage "a/B/C/Page1" }}
+Lang: {{ .Lang }}
+Page1: {{ $p1.Path }}
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", "Lang: no", filepath.FromSlash("Page1: a/B/C/Page1.md"))
 }

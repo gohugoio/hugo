@@ -14,16 +14,15 @@
 package hugolib
 
 import (
+	"fmt"
 	"path/filepath"
 	"reflect"
+	"runtime"
 	"testing"
 
 	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/gohugoio/hugo/deps"
-
-	"fmt"
-	"runtime"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -197,7 +196,6 @@ func TestDataDirMultipleSources(t *testing.T) {
 
 	doTestDataDir(t, dd, expected,
 		"theme", "mytheme")
-
 }
 
 // test (and show) the way values from four different sources,
@@ -301,7 +299,8 @@ func TestDataDirNestedDirectories(t *testing.T) {
 	expected :=
 		map[string]interface{}{
 			"a":     []interface{}{"1", "2", "3"},
-			"test1": map[string]interface{}{"20": map[string]interface{}{"05": map[string]interface{}{"b": map[string]interface{}{"artist": "Charlie Parker"}}, "06": map[string]interface{}{"a": map[string]interface{}{"artist": "Michael Brecker"}}}}}
+			"test1": map[string]interface{}{"20": map[string]interface{}{"05": map[string]interface{}{"b": map[string]interface{}{"artist": "Charlie Parker"}}, "06": map[string]interface{}{"a": map[string]interface{}{"artist": "Michael Brecker"}}}},
+		}
 
 	doTestDataDir(t, dd, expected, "theme", "mytheme")
 }
@@ -331,9 +330,7 @@ func doTestDataDir(t *testing.T, dd dataDir, expected interface{}, configKeyValu
 }
 
 func doTestDataDirImpl(t *testing.T, dd dataDir, expected interface{}, configKeyValues ...interface{}) (err string) {
-	var (
-		cfg, fs = newTestCfg()
-	)
+	cfg, fs := newTestCfg()
 
 	for i := 0; i < len(configKeyValues); i += 2 {
 		cfg.Set(configKeyValues[i].(string), configKeyValues[i+1])

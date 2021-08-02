@@ -14,19 +14,18 @@
 package hugolib
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/spf13/afero"
 
-	"fmt"
-
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/output"
-	"github.com/spf13/viper"
 )
 
 func TestSiteWithPageOutputs(t *testing.T) {
@@ -40,7 +39,6 @@ func TestSiteWithPageOutputs(t *testing.T) {
 }
 
 func doTestSiteWithPageOutputs(t *testing.T, outputs []string) {
-
 	outputsStr := strings.Replace(fmt.Sprintf("%q", outputs), " ", ", ", -1)
 
 	siteConfig := `
@@ -215,7 +213,6 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 
 	b.Assert(home.HasShortcode("myShort"), qt.Equals, true)
 	b.Assert(home.HasShortcode("doesNotExist"), qt.Equals, false)
-
 }
 
 // Issue #3447
@@ -250,9 +247,8 @@ baseName = "feed"
 
 	s := h.Sites[0]
 
-	//Issue #3450
+	// Issue #3450
 	c.Assert(s.Info.RSSLink, qt.Equals, "http://example.com/blog/feed.xml")
-
 }
 
 // Issue #3614
@@ -309,13 +305,14 @@ baseName = "customdelimbase"
 
 	c.Assert(err, qt.IsNil)
 
+	s := h.Sites[0]
+
 	th.assertFileContent("public/_redirects", "a dotless")
 	th.assertFileContent("public/defaultdelimbase.defd", "default delimim")
 	// This looks weird, but the user has chosen this definition.
 	th.assertFileContent("public/nosuffixbase", "no suffix")
 	th.assertFileContent("public/customdelimbase_del", "custom delim")
 
-	s := h.Sites[0]
 	home := s.getPage(page.KindHome)
 	c.Assert(home, qt.Not(qt.IsNil))
 
@@ -325,11 +322,9 @@ baseName = "customdelimbase"
 	c.Assert(outputs.Get("DEF").RelPermalink(), qt.Equals, "/blog/defaultdelimbase.defd")
 	c.Assert(outputs.Get("NOS").RelPermalink(), qt.Equals, "/blog/nosuffixbase")
 	c.Assert(outputs.Get("CUS").RelPermalink(), qt.Equals, "/blog/customdelimbase_del")
-
 }
 
 func TestCreateSiteOutputFormats(t *testing.T) {
-
 	t.Run("Basic", func(t *testing.T) {
 		c := qt.New(t)
 
@@ -338,7 +333,7 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 			page.KindSection: []string{"JSON"},
 		}
 
-		cfg := viper.New()
+		cfg := config.New()
 		cfg.Set("outputs", outputsConfig)
 
 		outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
@@ -358,13 +353,12 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 		c.Assert(outputs[kindSitemap], deepEqualsOutputFormats, output.Formats{output.SitemapFormat})
 		c.Assert(outputs[kindRobotsTXT], deepEqualsOutputFormats, output.Formats{output.RobotsTxtFormat})
 		c.Assert(outputs[kind404], deepEqualsOutputFormats, output.Formats{output.HTMLFormat})
-
 	})
 
 	// Issue #4528
 	t.Run("Mixed case", func(t *testing.T) {
 		c := qt.New(t)
-		cfg := viper.New()
+		cfg := config.New()
 
 		outputsConfig := map[string]interface{}{
 			// Note that we in Hugo 0.53.0 renamed this Kind to "taxonomy",
@@ -376,9 +370,7 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 		outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
 		c.Assert(err, qt.IsNil)
 		c.Assert(outputs[page.KindTaxonomy], deepEqualsOutputFormats, output.Formats{output.JSONFormat})
-
 	})
-
 }
 
 func TestCreateSiteOutputFormatsInvalidConfig(t *testing.T) {
@@ -388,7 +380,7 @@ func TestCreateSiteOutputFormatsInvalidConfig(t *testing.T) {
 		page.KindHome: []string{"FOO", "JSON"},
 	}
 
-	cfg := viper.New()
+	cfg := config.New()
 	cfg.Set("outputs", outputsConfig)
 
 	_, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
@@ -402,7 +394,7 @@ func TestCreateSiteOutputFormatsEmptyConfig(t *testing.T) {
 		page.KindHome: []string{},
 	}
 
-	cfg := viper.New()
+	cfg := config.New()
 	cfg.Set("outputs", outputsConfig)
 
 	outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
@@ -417,7 +409,7 @@ func TestCreateSiteOutputFormatsCustomFormats(t *testing.T) {
 		page.KindHome: []string{},
 	}
 
-	cfg := viper.New()
+	cfg := config.New()
 	cfg.Set("outputs", outputsConfig)
 
 	var (
@@ -432,7 +424,6 @@ func TestCreateSiteOutputFormatsCustomFormats(t *testing.T) {
 
 // https://github.com/gohugoio/hugo/issues/5849
 func TestOutputFormatPermalinkable(t *testing.T) {
-
 	config := `
 baseURL = "https://example.com"
 
@@ -575,7 +566,6 @@ Output Formats: {{ len .OutputFormats }};{{ range .OutputFormats }}{{ .Name }};{
 		"This RelPermalink: /blog/html-base-nobase/",
 		outputFormats,
 	)
-
 }
 
 func TestSiteWithPageNoOutputs(t *testing.T) {
@@ -625,5 +615,4 @@ WordCount: {{ .WordCount }}
 
 	b.AssertFileContent("public/outputs-empty/index.html", "HTML:", "Word1. Word2.")
 	b.AssertFileContent("public/outputs-string/index.html", "O1:", "Word1. Word2.")
-
 }

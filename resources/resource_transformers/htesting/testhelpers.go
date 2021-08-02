@@ -17,17 +17,17 @@ import (
 	"path/filepath"
 
 	"github.com/gohugoio/hugo/cache/filecache"
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/spf13/afero"
-	"github.com/spf13/viper"
 )
 
 func NewTestResourceSpec() (*resources.Spec, error) {
-	cfg := viper.New()
+	cfg := config.New()
 	cfg.Set("baseURL", "https://example.org")
 	cfg.Set("publishDir", "public")
 

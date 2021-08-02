@@ -26,7 +26,7 @@ You should define the available languages in a `languages` section in your site 
 The following is an example of a site configuration for a multilingual Hugo project:
 
 {{< code-toggle file="config" >}}
-DefaultContentLanguage = "en"
+defaultContentLanguage = "en"
 copyright = "Everything is mine"
 
 [params]
@@ -52,6 +52,10 @@ help  = "Aide"
 title = "مدونتي"
 weight = 2
 languagedirection = "rtl"
+
+[languages.pt-pt]
+title = "O meu blog"
+weight = 3
 {{< /code-toggle >}}
 
 Anything not defined in a `languages` block will fall back to the global value for that key (e.g., `copyright` for the English `en` language). This also works for `params`, as demonstrated with `help` above: You will get the value `Aide` in French and `Help` in all the languages without this parameter set.
@@ -67,13 +71,15 @@ If the default language needs to be rendered below its own language code (`/en`)
 
 Only the obvious non-global options can be overridden per language. Examples of global options are `baseURL`, `buildDrafts`, etc.
 
+**Please note:** use lowercase language codes, even when using regional languages (ie. use pt-pt instead of pt-PT). Currently Hugo language internals lowercase language codes, which can cause conflicts with settings like `defaultContentLanguage` which are not lowercased. Please track the evolution of this issue in [Hugo repository issue tracker](https://github.com/gohugoio/hugo/issues/7344)
+
 ### Disable a Language
 
 You can disable one or more languages. This can be useful when working on a new translation.
 
-```toml
+{{< code-toggle file="config" >}}
 disableLanguages = ["fr", "ja"]
-```
+{{< /code-toggle >}}
 
 Note that you cannot disable the default content language.
 
@@ -316,43 +322,82 @@ See https://github.com/gohugoio/hugo/issues/3564
 
 {{% /note %}}
 
+### Query basic translation
+
 From within your templates, use the `i18n` function like this:
 
 ```
 {{ i18n "home" }}
 ```
 
-This uses a definition like this one in `i18n/en-US.toml`:
+The function will search for the `"home"` id:
 
-```
+{{< code-toggle file="i18n/en-US" >}}
 [home]
 other = "Home"
+{{< /code-toggle >}}
+
+The result will be
+
+```
+Home
 ```
 
-Often you will want to use to the page variables in the translations strings. To do that, pass on the "." context when calling `i18n`:
+### Query a flexible translation with variables
+
+Often you will want to use the page variables in the translation strings. To do so, pass the `.` context when calling `i18n`:
 
 ```
 {{ i18n "wordCount" . }}
 ```
 
-This uses a definition like this one in `i18n/en-US.toml`:
+The function will pass the `.` context to the `"wordCount"` id:
 
-```
+{{< code-toggle file="i18n/en-US" >}}
 [wordCount]
 other = "This article has {{ .WordCount }} words."
-```
-An example of singular and plural form:
+{{< /code-toggle >}}
+
+Assume `.WordCount` in the context has value is 101. The result will be:
 
 ```
-[readingTime]
-one = "One minute to read"
-other = "{{.Count}} minutes to read"
+This article has 101 words.
 ```
-And then in the template:
+
+### Query a singular/plural translation
+
+In order to meet singular/plural requirement, you must pass a dictionary (map) with a numeric `.Count` property to the `i18n` function. The below example uses `.ReadingTime` variable which has a built-in `.Count` property.
 
 ```
 {{ i18n "readingTime" .ReadingTime }}
 ```
+
+The function will read `.Count` from `.ReadingTime` and evaluate where the number is singular (`one`) or plural (`other`). After that, it will pass to `readingTime` id:
+
+{{< code-toggle file="i18n/en-US" >}}
+[readingTime]
+one = "One minute to read"
+other = "{{.Count}} minutes to read"
+{{< /code-toggle >}}
+
+Assume `.ReadingTime.Count` in the context has value of 525600. The result will be:
+
+```
+525600 minutes to read
+```
+
+If `.ReadingTime.Count` in the context has value is 1. The result is:
+
+```
+One minute to read
+```
+
+In case you need to pass custom data: (`(dict "Count" 25)` is minimum requirement)
+
+```
+{{ i18n "readingTime" (dict "Count" 25 "FirstArgument" true "SecondArgument" false "Etc" "so on, so far") }}
+```
+
 
 ## Customize Dates
 
@@ -376,18 +421,19 @@ At the time of this writing, Go does not yet have support for internationalized 
 ...then index the non-English date names in your templates like so:
 
 ~~~html
-<time class="post-date" datetime="{{ .Date.Format '2006-01-02T15:04:05Z07:00' | safeHTML }}">
+<time class="post-date" datetime="{{ .Date.Format `2006-01-02T15:04:05Z07:00` | safeHTML }}">
   Article publié le {{ .Date.Day }} {{ index $.Site.Data.mois (printf "%d" .Date.Month) }} {{ .Date.Year }} (dernière modification le {{ .Lastmod.Day }} {{ index $.Site.Data.mois (printf "%d" .Lastmod.Month) }} {{ .Lastmod.Year }})
 </time>
 ~~~
 
 This technique extracts the day, month and year by specifying ``.Date.Day``, ``.Date.Month``, and ``.Date.Year``, and uses the month number as a key, when indexing the month name data file.
 
+
 ## Menus
 
 You can define your menus for each language independently. Creating multilingual menus works just like [creating regular menus][menus], except they're defined in language-specific blocks in the configuration file:
 
-```
+{{< code-toggle file="config" >}}
 defaultContentLanguage = "en"
 
 [languages.en]
@@ -408,7 +454,7 @@ languageName = "Deutsch"
 url    = "/"
 name   = "Startseite"
 weight = 0
-```
+{{< /code-toggle >}}
 
 The rendering of the main navigation works as usual. `.Site.Menus` will just contain the menu in the current language. Note that `absLangURL` below will link to the correct locale of your website. Without it, menu entries in all languages would link to the English version, since it's the default content language that resides in the root directory.
 

@@ -16,6 +16,8 @@ package commands
 import (
 	"runtime"
 
+	"github.com/gohugoio/hugo/common/hugo"
+
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -27,18 +29,32 @@ type envCmd struct {
 }
 
 func newEnvCmd() *envCmd {
-	return &envCmd{baseCmd: newBaseCmd(&cobra.Command{
-		Use:   "env",
-		Short: "Print Hugo version and environment info",
-		Long:  `Print Hugo version and environment info. This is useful in Hugo bug reports.`,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			printHugoVersion()
-			jww.FEEDBACK.Printf("GOOS=%q\n", runtime.GOOS)
-			jww.FEEDBACK.Printf("GOARCH=%q\n", runtime.GOARCH)
-			jww.FEEDBACK.Printf("GOVERSION=%q\n", runtime.Version())
+	return &envCmd{
+		baseCmd: newBaseCmd(&cobra.Command{
+			Use:   "env",
+			Short: "Print Hugo version and environment info",
+			Long: `Print Hugo version and environment info. This is useful in Hugo bug reports.
 
-			return nil
-		},
-	}),
+If you add the -v flag, you will get a full dependency list.
+`,
+			RunE: func(cmd *cobra.Command, args []string) error {
+				printHugoVersion()
+				jww.FEEDBACK.Printf("GOOS=%q\n", runtime.GOOS)
+				jww.FEEDBACK.Printf("GOARCH=%q\n", runtime.GOARCH)
+				jww.FEEDBACK.Printf("GOVERSION=%q\n", runtime.Version())
+
+				isVerbose, _ := cmd.Flags().GetBool("verbose")
+
+				if isVerbose {
+					deps := hugo.GetDependencyList()
+					for _, dep := range deps {
+						jww.FEEDBACK.Printf("%s\n", dep)
+					}
+				}
+
+				return nil
+			},
+		}),
 	}
+
 }

@@ -19,10 +19,18 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"os/signal"
+	"path/filepath"
+	"runtime"
 	"runtime/pprof"
 	"runtime/trace"
+	"strings"
 	"sync/atomic"
+	"syscall"
+	"time"
+
+	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/gohugoio/hugo/hugofs"
 
@@ -31,20 +39,13 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/terminal"
-
-	"syscall"
 
 	"github.com/gohugoio/hugo/hugolib/filesystems"
 
 	"golang.org/x/sync/errgroup"
-
-	"os"
-	"path/filepath"
-	"runtime"
-	"strings"
-	"time"
 
 	"github.com/gohugoio/hugo/config"
 
@@ -82,7 +83,6 @@ func (r Response) IsUserError() bool {
 // Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
 // The args are usually filled with os.Args[1:].
 func Execute(args []string) Response {
-
 	hugoCmd := newCommandsBuilder().addAll().build()
 	cmd := hugoCmd.getCommand()
 	cmd.SetArgs(args)
@@ -120,17 +120,15 @@ func initializeConfig(mustHaveConfigFile, running bool,
 	h *hugoBuilderCommon,
 	f flagsToConfigHandler,
 	cfgInit func(c *commandeer) error) (*commandeer, error) {
-
 	c, err := newCommandeer(mustHaveConfigFile, running, h, f, cfgInit)
 	if err != nil {
 		return nil, err
 	}
 
 	return c, nil
-
 }
 
-func (c *commandeer) createLogger(cfg config.Provider, running bool) (*loggers.Logger, error) {
+func (c *commandeer) createLogger(cfg config.Provider, running bool) (loggers.Logger, error) {
 	var (
 		logHandle       = ioutil.Discard
 		logThreshold    = jww.LevelWarn
@@ -200,6 +198,7 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"noTimes",
 		"noChmod",
 		"ignoreVendor",
+		"ignoreVendorPaths",
 		"templateMetrics",
 		"templateMetricsHints",
 
@@ -245,7 +244,6 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 	setValueFromFlag(cmd.Flags(), "destination", cfg, "publishDir", false)
 	setValueFromFlag(cmd.Flags(), "i18n-warnings", cfg, "logI18nWarnings", false)
 	setValueFromFlag(cmd.Flags(), "path-warnings", cfg, "logPathWarnings", false)
-
 }
 
 func setValueFromFlag(flags *flag.FlagSet, key string, cfg config.Provider, targetKey string, force bool) {
@@ -278,24 +276,17 @@ func setValueFromFlag(flags *flag.FlagSet, key string, cfg config.Provider, targ
 
 func isTerminal() bool {
 	return terminal.IsTerminal(os.Stdout)
-
-}
-func ifTerminal(s string) string {
-	if !isTerminal() {
-		return ""
-	}
-	return s
 }
 
 func (c *commandeer) fullBuild() error {
-
 	var (
 		g         errgroup.Group
 		langCount map[string]uint64
 	)
 
 	if !c.h.quiet {
-		fmt.Print(ifTerminal(hideCursor) + "Building sites … ")
+		fmt.Println("Start building sites … ")
+		fmt.Println(hugo.BuildVersionString())
 		if isTerminal() {
 			defer func() {
 				fmt.Print(showCursor + clearLine)
@@ -304,7 +295,6 @@ func (c *commandeer) fullBuild() error {
 	}
 
 	copyStaticFunc := func() error {
-
 		cnt, err := c.copyStatic()
 		if err != nil {
 			return errors.Wrap(err, "Error copying static files")
@@ -352,7 +342,6 @@ func (c *commandeer) fullBuild() error {
 	}
 
 	return nil
-
 }
 
 func (c *commandeer) initCPUProfile() (func(), error) {
@@ -380,12 +369,12 @@ func (c *commandeer) initMemProfile() {
 
 	f, err := os.Create(c.h.memprofile)
 	if err != nil {
-		c.logger.ERROR.Println("could not create memory profile: ", err)
+		c.logger.Errorf("could not create memory profile: ", err)
 	}
 	defer f.Close()
 	runtime.GC() // get up-to-date statistics
 	if err := pprof.WriteHeapProfile(f); err != nil {
-		c.logger.ERROR.Println("could not write memory profile: ", err)
+		c.logger.Errorf("could not write memory profile: ", err)
 	}
 }
 
@@ -425,7 +414,6 @@ func (c *commandeer) initMutexProfile() (func(), error) {
 		pprof.Lookup("mutex").WriteTo(f, 0)
 		f.Close()
 	}, nil
-
 }
 
 func (c *commandeer) initMemTicker() func() {
@@ -435,7 +423,6 @@ func (c *commandeer) initMemTicker() func() {
 		var m runtime.MemStats
 		runtime.ReadMemStats(&m)
 		fmt.Printf("\n\nAlloc = %v\nTotalAlloc = %v\nSys = %v\nNumGC = %v\n\n", formatByteCount(m.Alloc), formatByteCount(m.TotalAlloc), formatByteCount(m.Sys), m.NumGC)
-
 	}
 
 	go func() {
@@ -448,7 +435,6 @@ func (c *commandeer) initMemTicker() func() {
 				printMem()
 				return
 			}
-
 		}
 	}()
 
@@ -458,7 +444,6 @@ func (c *commandeer) initMemTicker() func() {
 }
 
 func (c *commandeer) initProfiling() (func(), error) {
-
 	stopCPUProf, err := c.initCPUProfile()
 	if err != nil {
 		return nil, err
@@ -524,7 +509,7 @@ func (c *commandeer) build() error {
 		if createCounter, ok := c.destinationFs.(hugofs.DuplicatesReporter); ok {
 			dupes := createCounter.ReportDuplicates()
 			if dupes != "" {
-				c.logger.WARN.Println("Duplicate target paths:", dupes)
+				c.logger.Warnln("Duplicate target paths:", dupes)
 			}
 		}
 	}
@@ -538,13 +523,13 @@ func (c *commandeer) build() error {
 		baseWatchDir := c.Cfg.GetString("workingDir")
 		rootWatchDirs := getRootWatchDirsStr(baseWatchDir, watchDirs)
 
-		c.logger.FEEDBACK.Printf("Watching for changes in %s%s{%s}\n", baseWatchDir, helpers.FilePathSeparator, rootWatchDirs)
-		c.logger.FEEDBACK.Println("Press Ctrl+C to stop")
-		watcher, err := c.newWatcher(watchDirs...)
+		c.logger.Printf("Watching for changes in %s%s{%s}\n", baseWatchDir, helpers.FilePathSeparator, rootWatchDirs)
+		c.logger.Println("Press Ctrl+C to stop")
+		watcher, err := c.newWatcher(c.h.poll, watchDirs...)
 		checkErr(c.Logger, err)
 		defer watcher.Close()
 
-		var sigs = make(chan os.Signal, 1)
+		sigs := make(chan os.Signal, 1)
 		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
 		<-sigs
@@ -554,7 +539,6 @@ func (c *commandeer) build() error {
 }
 
 func (c *commandeer) serverBuild() error {
-	defer c.timeTrack(time.Now(), "Built")
 
 	stopProfiling, err := c.initProfiling()
 	if err != nil {
@@ -590,13 +574,12 @@ func (c *commandeer) copyStatic() (map[string]uint64, error) {
 }
 
 func (c *commandeer) doWithPublishDirs(f func(sourceFs *filesystems.SourceFilesystem) (uint64, error)) (map[string]uint64, error) {
-
 	langCount := make(map[string]uint64)
 
 	staticFilesystems := c.hugo().BaseFs.SourceFilesystems.Static
 
 	if len(staticFilesystems) == 0 {
-		c.logger.INFO.Println("No static directories found to sync")
+		c.logger.Infoln("No static directories found to sync")
 		return langCount, nil
 	}
 
@@ -668,13 +651,13 @@ func (c *commandeer) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint6
 	syncer.Delete = c.Cfg.GetBool("cleanDestinationDir")
 
 	if syncer.Delete {
-		c.logger.INFO.Println("removing all files from destination that don't exist in static dirs")
+		c.logger.Infoln("removing all files from destination that don't exist in static dirs")
 
 		syncer.DeleteFilter = func(f os.FileInfo) bool {
 			return f.IsDir() && strings.HasPrefix(f.Name(), ".")
 		}
 	}
-	c.logger.INFO.Println("syncing static files to", publishDir)
+	c.logger.Infoln("syncing static files to", publishDir)
 
 	// because we are using a baseFs (to get the union right).
 	// set sync src to root
@@ -695,7 +678,7 @@ func (c *commandeer) firstPathSpec() *helpers.PathSpec {
 
 func (c *commandeer) timeTrack(start time.Time, name string) {
 	elapsed := time.Since(start)
-	c.logger.FEEDBACK.Printf("%s in %v ms", name, int(1000*elapsed.Seconds()))
+	c.logger.Printf("%s in %v ms", name, int(1000*elapsed.Seconds()))
 }
 
 // getDirList provides NewWatcher() with a list of directories to watch for changes.
@@ -704,7 +687,7 @@ func (c *commandeer) getDirList() ([]string, error) {
 
 	walkFn := func(path string, fi hugofs.FileMetaInfo, err error) error {
 		if err != nil {
-			c.logger.ERROR.Println("walker: ", err)
+			c.logger.Errorln("walker: ", err)
 			return nil
 		}
 
@@ -714,23 +697,22 @@ func (c *commandeer) getDirList() ([]string, error) {
 				return filepath.SkipDir
 			}
 
-			filenames = append(filenames, fi.Meta().Filename())
+			filenames = append(filenames, fi.Meta().Filename)
 		}
 
 		return nil
-
 	}
 
 	watchFiles := c.hugo().PathSpec.BaseFs.WatchDirs()
 	for _, fi := range watchFiles {
 		if !fi.IsDir() {
-			filenames = append(filenames, fi.Meta().Filename())
+			filenames = append(filenames, fi.Meta().Filename)
 			continue
 		}
 
 		w := hugofs.NewWalkway(hugofs.WalkwayConfig{Logger: c.logger, Info: fi, WalkFn: walkFn})
 		if err := w.Walk(); err != nil {
-			c.logger.ERROR.Println("walker: ", err)
+			c.logger.Errorln("walker: ", err)
 		}
 	}
 
@@ -746,20 +728,18 @@ func (c *commandeer) buildSites() (err error) {
 func (c *commandeer) handleBuildErr(err error, msg string) {
 	c.buildErr = err
 
-	c.logger.ERROR.Print(msg + ":\n\n")
-	c.logger.ERROR.Println(helpers.FirstUpper(err.Error()))
+	c.logger.Errorln(msg + ":\n")
+	c.logger.Errorln(helpers.FirstUpper(err.Error()))
 	if !c.h.quiet && c.h.verbose {
 		herrors.PrintStackTraceFromErr(err)
 	}
 }
 
 func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
-	defer c.timeTrack(time.Now(), "Total")
 
 	c.buildErr = nil
 	visited := c.visitedURLs.PeekAllSet()
 	if c.fastRenderMode {
-
 		// Make sure we always render the home pages
 		for _, l := range c.languages {
 			langPath := c.hugo().PathSpec.GetLangSubDir(l.Lang)
@@ -769,7 +749,6 @@ func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 			home := c.hugo().PathSpec.PrependBasePath("/"+langPath, false)
 			visited[home] = true
 		}
-
 	}
 	return c.hugo().Build(hugolib.BuildCfg{RecentlyVisited: visited, ErrRecovery: c.wasError}, events...)
 }
@@ -799,13 +778,11 @@ func (c *commandeer) fullRebuild(changeType string) {
 	c.fullRebuildSem.Acquire(context.Background(), 1)
 
 	go func() {
-
 		defer c.fullRebuildSem.Release(1)
 
 		c.printChangeDetected(changeType)
 
 		defer func() {
-
 			// Allow any file system events to arrive back.
 			// This will block any rebuild on config changes for the
 			// duration of the sleep.
@@ -828,13 +805,13 @@ func (c *commandeer) fullRebuild(changeType string) {
 		if !c.paused {
 			_, err := c.copyStatic()
 			if err != nil {
-				c.logger.ERROR.Println(err)
+				c.logger.Errorln(err)
 				return
 			}
 
 			err = c.buildSites()
 			if err != nil {
-				c.logger.ERROR.Println(err)
+				c.logger.Errorln(err)
 			} else if !c.h.buildWatch && !c.Cfg.GetBool("disableLiveReload") {
 				livereload.ForceRefresh()
 			}
@@ -843,7 +820,7 @@ func (c *commandeer) fullRebuild(changeType string) {
 }
 
 // newWatcher creates a new watcher to watch filesystem events.
-func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
+func (c *commandeer) newWatcher(pollIntervalStr string, dirList ...string) (*watcher.Batcher, error) {
 	if runtime.GOOS == "darwin" {
 		tweakLimit()
 	}
@@ -853,8 +830,17 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 		return nil, err
 	}
 
-	watcher, err := watcher.New(1 * time.Second)
+	var pollInterval time.Duration
+	poll := pollIntervalStr != ""
+	if poll {
+		pollInterval, err = types.ToDurationE(pollIntervalStr)
+		if err != nil {
+			return nil, fmt.Errorf("invalid value for flag poll: %s", err)
+		}
+		c.logger.Printf("Use watcher with poll interval %v", pollInterval)
+	}
 
+	watcher, err := watcher.New(500*time.Millisecond, pollInterval, poll)
 	if err != nil {
 		return nil, err
 	}
@@ -868,7 +854,7 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 	// Identifies changes to config (config.toml) files.
 	configSet := make(map[string]bool)
 
-	c.logger.FEEDBACK.Println("Watching for config changes in", strings.Join(c.configFiles, ", "))
+	c.logger.Println("Watching for config changes in", strings.Join(c.configFiles, ", "))
 	for _, configFile := range c.configFiles {
 		watcher.Add(configFile)
 		configSet[configFile] = true
@@ -883,9 +869,9 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 					// Need to reload browser to show the error
 					livereload.ForceRefresh()
 				}
-			case err := <-watcher.Errors:
+			case err := <-watcher.Errors():
 				if err != nil {
-					c.logger.ERROR.Println("Error while watching:", err)
+					c.logger.Errorln("Error while watching:", err)
 				}
 			}
 		}
@@ -901,9 +887,9 @@ func (c *commandeer) printChangeDetected(typ string) {
 	}
 	msg += " detected, rebuilding site."
 
-	c.logger.FEEDBACK.Println(msg)
+	c.logger.Println(msg)
 	const layout = "2006-01-02 15:04:05.000 -0700"
-	c.logger.FEEDBACK.Println(time.Now().Format(layout))
+	c.logger.Println(time.Now().Format(layout))
 }
 
 const (
@@ -915,7 +901,6 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 	staticSyncer *staticSyncer,
 	evs []fsnotify.Event,
 	configSet map[string]bool) {
-
 	defer func() {
 		c.wasError = false
 	}()
@@ -956,7 +941,6 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 						time.Sleep(100 * time.Millisecond)
 					}
 				}
-
 			}
 
 			// Config file(s) changed. Need full rebuild.
@@ -985,14 +969,16 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 		return
 	}
 
-	c.logger.INFO.Println("Received System Events:", evs)
+	c.logger.Infoln("Received System Events:", evs)
 
 	staticEvents := []fsnotify.Event{}
 	dynamicEvents := []fsnotify.Event{}
 
-	// Special handling for symbolic links inside /content.
 	filtered := []fsnotify.Event{}
 	for _, ev := range evs {
+		if c.hugo().ShouldSkipFileChangeEvent(ev) {
+			continue
+		}
 		// Check the most specific first, i.e. files.
 		contentMapped := c.hugo().ContentChanges.GetSymbolicLinkMappings(ev.Name)
 		if len(contentMapped) > 0 {
@@ -1065,7 +1051,7 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 
 		walkAdder := func(path string, f hugofs.FileMetaInfo, err error) error {
 			if f.IsDir() {
-				c.logger.FEEDBACK.Println("adding created directory to watchlist", path)
+				c.logger.Println("adding created directory to watchlist", path)
 				if err := watcher.Add(path); err != nil {
 					return err
 				}
@@ -1097,15 +1083,15 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 		c.printChangeDetected("Static files")
 
 		if c.Cfg.GetBool("forceSyncStatic") {
-			c.logger.FEEDBACK.Printf("Syncing all static files\n")
+			c.logger.Printf("Syncing all static files\n")
 			_, err := c.copyStatic()
 			if err != nil {
-				c.logger.ERROR.Println("Error copying static files to publish dir:", err)
+				c.logger.Errorln("Error copying static files to publish dir:", err)
 				return
 			}
 		} else {
 			if err := staticSyncer.syncsStaticEvents(staticEvents); err != nil {
-				c.logger.ERROR.Println("Error syncing static files to publish dir:", err)
+				c.logger.Errorln("Error syncing static files to publish dir:", err)
 				return
 			}
 		}
@@ -1136,9 +1122,13 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 
 		c.printChangeDetected("")
 		c.changeDetector.PrepareNew()
-		if err := c.rebuildSites(dynamicEvents); err != nil {
-			c.handleBuildErr(err, "Rebuild failed")
-		}
+
+		func() {
+			defer c.timeTrack(time.Now(), "Total")
+			if err := c.rebuildSites(dynamicEvents); err != nil {
+				c.handleBuildErr(err, "Rebuild failed")
+			}
+		}()
 
 		if doLiveReload {
 			if len(partitionedEvents.ContentEvents) == 0 && len(partitionedEvents.AssetEvents) > 0 {
@@ -1198,7 +1188,6 @@ func partitionDynamicEvents(sourceFs *filesystems.SourceFilesystems, events []fs
 		}
 	}
 	return
-
 }
 
 func pickOneWriteOrCreatePath(events []fsnotify.Event) string {

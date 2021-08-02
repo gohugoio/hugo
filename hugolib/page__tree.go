@@ -59,7 +59,6 @@ func (pt pageTree) IsAncestor(other interface{}) (bool, error) {
 	}
 
 	return strings.HasPrefix(ref2.key, ref1.key+cmBranchSeparator), nil
-
 }
 
 func (pt pageTree) CurrentSection() page.Page {
@@ -106,7 +105,6 @@ func (pt pageTree) IsDescendant(other interface{}) (bool, error) {
 	}
 
 	return strings.HasPrefix(ref1.key, ref2.key+cmBranchSeparator), nil
-
 }
 
 func (pt pageTree) FirstSection() page.Page {
@@ -151,7 +149,6 @@ func (pt pageTree) InSection(other interface{}) (bool, error) {
 	s2, _ := ref2.getCurrentSection()
 
 	return s1 == s2, nil
-
 }
 
 func (pt pageTree) Page() page.Page {

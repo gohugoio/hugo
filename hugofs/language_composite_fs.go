@@ -59,7 +59,7 @@ var LanguageDirsMerger = func(lofi, bofi []os.FileInfo) ([]os.FileInfo, error) {
 	m := make(map[string]FileMetaInfo)
 
 	getKey := func(fim FileMetaInfo) string {
-		return path.Join(fim.Meta().Lang(), fim.Name())
+		return path.Join(fim.Meta().Lang, fim.Name())
 	}
 
 	for _, fi := range lofi {

@@ -49,13 +49,12 @@ func (c *Cache) Clear() {
 
 	c.cache = make(map[string]cacheEntry)
 	c.nlocker = locker.NewLocker()
-
 }
 
 // GetOrCreate tries to get the value with the given cache key, if not found
 // create will be called and cached.
 // This method is thread safe. It also guarantees that the create func for a given
-// key is invoced only once for this cache.
+// key is invoked only once for this cache.
 func (c *Cache) GetOrCreate(key string, create func() (interface{}, error)) (interface{}, error) {
 	c.mu.RLock()
 	entry, found := c.cache[key]

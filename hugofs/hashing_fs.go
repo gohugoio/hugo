@@ -22,9 +22,7 @@ import (
 	"github.com/spf13/afero"
 )
 
-var (
-	_ afero.Fs = (*md5HashingFs)(nil)
-)
+var _ afero.Fs = (*md5HashingFs)(nil)
 
 // FileHashReceiver will receive the filename an the content's MD5 sum on file close.
 type FileHashReceiver interface {

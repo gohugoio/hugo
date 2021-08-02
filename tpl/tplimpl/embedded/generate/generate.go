@@ -25,10 +25,9 @@ import (
 )
 
 func main() {
-
 	templateFolder := filepath.Join("..", "templates")
 
-	temlatePath := filepath.Join(".", templateFolder)
+	templatePath := filepath.Join(".", templateFolder)
 
 	file, err := os.Create("../templates.autogen.go")
 	if err != nil {
@@ -38,7 +37,7 @@ func main() {
 
 	var nameValues []string
 
-	err = filepath.Walk(temlatePath, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(templatePath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -92,7 +91,6 @@ var EmbeddedTemplates = [][2]string{
 		fmt.Fprint(file, "	", v, ",\n")
 	}
 	fmt.Fprint(file, "}\n")
-
 }
 
 func nameValue(name, value string) string {

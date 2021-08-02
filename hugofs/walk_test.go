@@ -14,6 +14,7 @@
 package hugofs
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -21,10 +22,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gohugoio/hugo/common/hugo"
-
 	"github.com/pkg/errors"
 
+	"github.com/gohugoio/hugo/common/para"
 	"github.com/gohugoio/hugo/htesting"
 
 	"github.com/spf13/afero"
@@ -49,43 +49,87 @@ func TestWalk(t *testing.T) {
 
 func TestWalkRootMappingFs(t *testing.T) {
 	c := qt.New(t)
-	fs := NewBaseFileDecorator(afero.NewMemMapFs())
 
-	testfile := "test.txt"
+	prepare := func(c *qt.C) afero.Fs {
+		fs := NewBaseFileDecorator(afero.NewMemMapFs())
 
-	c.Assert(afero.WriteFile(fs, filepath.Join("a/b", testfile), []byte("some content"), 0755), qt.IsNil)
-	c.Assert(afero.WriteFile(fs, filepath.Join("c/d", testfile), []byte("some content"), 0755), qt.IsNil)
-	c.Assert(afero.WriteFile(fs, filepath.Join("e/f", testfile), []byte("some content"), 0755), qt.IsNil)
+		testfile := "test.txt"
 
-	rm := []RootMapping{
-		RootMapping{
-			From: "static/b",
-			To:   "e/f",
-		},
-		RootMapping{
-			From: "static/a",
-			To:   "c/d",
-		},
+		c.Assert(afero.WriteFile(fs, filepath.Join("a/b", testfile), []byte("some content"), 0755), qt.IsNil)
+		c.Assert(afero.WriteFile(fs, filepath.Join("c/d", testfile), []byte("some content"), 0755), qt.IsNil)
+		c.Assert(afero.WriteFile(fs, filepath.Join("e/f", testfile), []byte("some content"), 0755), qt.IsNil)
 
-		RootMapping{
-			From: "static/c",
-			To:   "a/b",
-		},
+		rm := []RootMapping{
+			{
+				From: "static/b",
+				To:   "e/f",
+			},
+			{
+				From: "static/a",
+				To:   "c/d",
+			},
+
+			{
+				From: "static/c",
+				To:   "a/b",
+			},
+		}
+
+		rfs, err := NewRootMappingFs(fs, rm...)
+		c.Assert(err, qt.IsNil)
+		return afero.NewBasePathFs(rfs, "static")
 	}
 
-	rfs, err := NewRootMappingFs(fs, rm...)
-	c.Assert(err, qt.IsNil)
-	bfs := afero.NewBasePathFs(rfs, "static")
+	c.Run("Basic", func(c *qt.C) {
 
-	names, err := collectFilenames(bfs, "", "")
+		bfs := prepare(c)
 
-	c.Assert(err, qt.IsNil)
-	c.Assert(names, qt.DeepEquals, []string{"a/test.txt", "b/test.txt", "c/test.txt"})
+		names, err := collectFilenames(bfs, "", "")
 
+		c.Assert(err, qt.IsNil)
+		c.Assert(names, qt.DeepEquals, []string{"a/test.txt", "b/test.txt", "c/test.txt"})
+
+	})
+
+	c.Run("Para", func(c *qt.C) {
+		bfs := prepare(c)
+
+		p := para.New(4)
+		r, _ := p.Start(context.Background())
+
+		for i := 0; i < 8; i++ {
+			r.Run(func() error {
+				_, err := collectFilenames(bfs, "", "")
+				if err != nil {
+					return err
+				}
+				fi, err := bfs.Stat("b/test.txt")
+				if err != nil {
+					return err
+				}
+				meta := fi.(FileMetaInfo).Meta()
+				if meta.Filename == "" {
+					return errors.New("fail")
+				}
+				return nil
+
+			})
+		}
+
+		c.Assert(r.Wait(), qt.IsNil)
+
+	})
 }
 
 func skipSymlink() bool {
-	return runtime.GOOS == "windows" && os.Getenv("CI") == ""
+	if runtime.GOOS != "windows" {
+		return false
+	}
+	if os.Getenv("GITHUB_ACTION") != "" {
+		// TODO(bep) figure out why this fails on GitHub Actions.
+		return true
+	}
+	return os.Getenv("CI") == ""
 }
 
 func TestWalkSymbolicLink(t *testing.T) {
@@ -129,12 +173,6 @@ func TestWalkSymbolicLink(t *testing.T) {
 	})
 
 	t.Run("BasePath Fs", func(t *testing.T) {
-		if hugo.GoMinorVersion() < 12 {
-			// https://github.com/golang/go/issues/30520
-			// This is fixed in Go 1.13 and in the latest Go 1.12
-			t.Skip("skip this for Go <= 1.11 due to a bug in Go's stdlib")
-
-		}
 		c := qt.New(t)
 
 		docsFs := afero.NewBasePathFs(fs, docsDir)
@@ -145,7 +183,6 @@ func TestWalkSymbolicLink(t *testing.T) {
 		// Note: the docsreal folder is considered cyclic when walking from the root, but this works.
 		c.Assert(names, qt.DeepEquals, []string{"b.txt", "docsreal/sub/a.txt"})
 	})
-
 }
 
 func collectFilenames(fs afero.Fs, base, root string) ([]string, error) {
@@ -160,7 +197,7 @@ func collectFilenames(fs afero.Fs, base, root string) ([]string, error) {
 			return nil
 		}
 
-		filename := info.Meta().Path()
+		filename := info.Meta().Path
 		filename = filepath.ToSlash(filename)
 
 		names = append(names, filename)
@@ -173,7 +210,6 @@ func collectFilenames(fs afero.Fs, base, root string) ([]string, error) {
 	err := w.Walk()
 
 	return names, err
-
 }
 
 func collectFileinfos(fs afero.Fs, base, root string) ([]FileMetaInfo, error) {
@@ -194,7 +230,6 @@ func collectFileinfos(fs afero.Fs, base, root string) ([]FileMetaInfo, error) {
 	err := w.Walk()
 
 	return fis, err
-
 }
 
 func BenchmarkWalk(b *testing.B) {
@@ -226,7 +261,7 @@ func BenchmarkWalk(b *testing.B) {
 			return nil
 		}
 
-		filename := info.Meta().Filename()
+		filename := info.Meta().Filename
 		if !strings.HasPrefix(filename, "root") {
 			return errors.New(filename)
 		}
@@ -242,5 +277,4 @@ func BenchmarkWalk(b *testing.B) {
 			b.Fatal(err)
 		}
 	}
-
 }

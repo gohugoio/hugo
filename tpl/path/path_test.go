@@ -18,11 +18,11 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
-	"github.com/spf13/viper"
 )
 
-var ns = New(&deps.Deps{Cfg: viper.New()})
+var ns = New(&deps.Deps{Cfg: config.New()})
 
 type tstNoStringer struct{}
 

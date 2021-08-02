@@ -45,7 +45,6 @@ func NewSliceFs(dirs ...FileMetaInfo) (afero.Fs, error) {
 	}
 
 	return fs, nil
-
 }
 
 // SliceFs is an ordered composite filesystem.
@@ -61,9 +60,12 @@ func (fs *SliceFs) Chtimes(n string, a, m time.Time) error {
 	return syscall.EPERM
 }
 
+func (fs *SliceFs) Chown(n string, uid, gid int) error {
+	return syscall.EPERM
+}
+
 func (fs *SliceFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {
 	fi, _, err := fs.pickFirst(name)
-
 	if err != nil {
 		return nil, false, err
 	}
@@ -73,7 +75,6 @@ func (fs *SliceFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {
 	}
 
 	return nil, false, errors.Errorf("lstat: files not supported: %q", name)
-
 }
 
 func (fs *SliceFs) Mkdir(n string, p os.FileMode) error {
@@ -103,7 +104,6 @@ func (fs *SliceFs) Open(name string) (afero.File, error) {
 		idx:     idx,
 		dirname: name,
 	}, nil
-
 }
 
 func (fs *SliceFs) OpenFile(name string, flag int, perm os.FileMode) (afero.File, error) {
@@ -144,7 +144,7 @@ func (fs *SliceFs) getOpener(name string) func() (afero.File, error) {
 func (fs *SliceFs) pickFirst(name string) (os.FileInfo, int, error) {
 	for i, mfs := range fs.dirs {
 		meta := mfs.Meta()
-		fs := meta.Fs()
+		fs := meta.Fs
 		fi, _, err := lstatIfPossible(fs, name)
 		if err == nil {
 			// Gotta match!
@@ -162,8 +162,8 @@ func (fs *SliceFs) pickFirst(name string) (os.FileInfo, int, error) {
 }
 
 func (fs *SliceFs) readDirs(name string, startIdx, count int) ([]os.FileInfo, error) {
-	collect := func(lfs FileMeta) ([]os.FileInfo, error) {
-		d, err := lfs.Fs().Open(name)
+	collect := func(lfs *FileMeta) ([]os.FileInfo, error) {
+		d, err := lfs.Fs.Open(name)
 		if err != nil {
 			if !os.IsNotExist(err) {
 				return nil, err
@@ -204,7 +204,7 @@ func (fs *SliceFs) readDirs(name string, startIdx, count int) ([]os.FileInfo, er
 			duplicates = append(duplicates, i)
 		} else {
 			// Make sure it's opened by this filesystem.
-			dirs[i] = decorateFileInfo(fi, fs, fs.getOpener(fi.(FileMetaInfo).Meta().Filename()), "", "", nil)
+			dirs[i] = decorateFileInfo(fi, fs, fs.getOpener(fi.(FileMetaInfo).Meta().Filename), "", "", nil)
 			seen[fi.Name()] = true
 		}
 	}
@@ -222,7 +222,6 @@ func (fs *SliceFs) readDirs(name string, startIdx, count int) ([]os.FileInfo, er
 	}
 
 	return dirs, nil
-
 }
 
 type sliceDir struct {

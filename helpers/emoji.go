@@ -17,7 +17,7 @@ import (
 	"bytes"
 	"sync"
 
-	"github.com/kyokomi/emoji"
+	"github.com/kyokomi/emoji/v2"
 )
 
 var (
@@ -93,5 +93,4 @@ func initEmoji() {
 			emojiMaxSize = len(k)
 		}
 	}
-
 }

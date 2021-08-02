@@ -32,7 +32,6 @@ func TestResolveRootDir(t *testing.T) {
 		{"dat?a/foo.json", ""},
 		{"a/b[a-c]/foo.json", "a"},
 	} {
-
 		c.Assert(ResolveRootDir(test.input), qt.Equals, test.expected)
 	}
 }
@@ -46,7 +45,6 @@ func TestFilterGlobParts(t *testing.T) {
 	}{
 		{[]string{"a", "*", "c"}, []string{"a", "c"}},
 	} {
-
 		c.Assert(FilterGlobParts(test.input), qt.DeepEquals, test.expected)
 	}
 }
@@ -63,7 +61,6 @@ func TestNormalizePath(t *testing.T) {
 		{filepath.FromSlash("./FOO.json"), "foo.json"},
 		{"//", ""},
 	} {
-
 		c.Assert(NormalizePath(test.input), qt.Equals, test.expected)
 	}
 }
@@ -73,5 +70,13 @@ func TestGetGlob(t *testing.T) {
 	g, err := GetGlob("**.JSON")
 	c.Assert(err, qt.IsNil)
 	c.Assert(g.Match("data/my.json"), qt.Equals, true)
+}
 
+func BenchmarkGetGlob(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, err := GetGlob("**/foo")
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
 }

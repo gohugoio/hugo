@@ -21,11 +21,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/htesting"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/spf13/viper"
 )
 
 // We have many tests for the different resize operations etc. in the resource package,
@@ -38,8 +38,7 @@ func TestImageOps(t *testing.T) {
 	defer clean()
 
 	newBuilder := func(timeout interface{}) *sitesBuilder {
-
-		v := viper.New()
+		v := config.New()
 		v.Set("workingDir", workDir)
 		v.Set("baseURL", "https://example.org")
 		v.Set("timeout", timeout)
@@ -148,7 +147,7 @@ IMG SHORTCODE: /images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_129x239_r
 	}
 
 	err = b.BuildE(BuildCfg{})
-	if runtime.GOOS != "windows" && !strings.Contains(runtime.GOARCH, "arm") {
+	if runtime.GOOS != "windows" && !strings.Contains(runtime.GOARCH, "arm") && !htesting.IsGitHubAction() {
 		// TODO(bep)
 		c.Assert(err, qt.Not(qt.IsNil))
 	}
@@ -169,11 +168,9 @@ IMG SHORTCODE: /images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_129x239_r
 	b.Build(BuildCfg{})
 
 	assertImages()
-
 }
 
 func TestImageResizeMultilingual(t *testing.T) {
-
 	b := newTestSitesBuilder(t).WithConfigFile("toml", `
 baseURL="https://example.org"
 defaultContentLanguage = "en"
@@ -239,13 +236,12 @@ SUNSET2: {{ $resized2.RelPermalink }}/{{ $resized2.Width }}/Lat: {{ $resized2.Ex
 	// Check the file cache
 	b.AssertImage(200, 200, "resources/_gen/images/bundle/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x200_resize_q75_box.jpg")
 
-	b.AssertFileContent("resources/_gen/images/bundle/sunset_7645215769587362592.json",
+	b.AssertFileContent("resources/_gen/images/bundle/sunset_3166614710256882113.json",
 		"DateTimeDigitized|time.Time", "PENTAX")
 	b.AssertImage(123, 234, "resources/_gen/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_123x234_resize_q75_box.jpg")
-	b.AssertFileContent("resources/_gen/images/sunset_7645215769587362592.json",
+	b.AssertFileContent("resources/_gen/images/sunset_3166614710256882113.json",
 		"DateTimeDigitized|time.Time", "PENTAX")
 
 	// TODO(bep) add this as a default assertion after Build()?
 	b.AssertNoDuplicateWrites()
-
 }

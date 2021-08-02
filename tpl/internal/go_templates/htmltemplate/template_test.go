@@ -13,10 +13,11 @@ import (
 	"testing"
 
 	. "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse" // https://golang.org/issue/12996
 )
 
 func TestTemplateClone(t *testing.T) {
-	// https://golang.org/issue/12996
+
 	orig := New("name")
 	clone, err := orig.Clone()
 	if err != nil {
@@ -161,6 +162,21 @@ func TestStringsInScriptsWithJsonContentTypeAreCorrectlyEscaped(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestSkipEscapeComments(t *testing.T) {
+	c := newTestCase(t)
+	tr := parse.New("root")
+	tr.Mode = parse.ParseComments
+	newT, err := tr.Parse("{{/* A comment */}}{{ 1 }}{{/* Another comment */}}", "", "", make(map[string]*parse.Tree))
+	if err != nil {
+		t.Fatalf("Cannot parse template text: %v", err)
+	}
+	c.root, err = c.root.AddParseTree("root", newT)
+	if err != nil {
+		t.Fatalf("Cannot add parse tree to template: %v", err)
+	}
+	c.mustExecute(c.root, nil, "1")
 }
 
 type testCase struct {

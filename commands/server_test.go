@@ -22,10 +22,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/spf13/viper"
 )
 
 func TestServer(t *testing.T) {
@@ -73,7 +73,6 @@ func TestServer(t *testing.T) {
 
 	// Stop the server.
 	stop <- true
-
 }
 
 func TestFixURL(t *testing.T) {
@@ -102,7 +101,7 @@ func TestFixURL(t *testing.T) {
 		t.Run(test.TestName, func(t *testing.T) {
 			b := newCommandsBuilder()
 			s := b.newServerCmd()
-			v := viper.New()
+			v := config.New()
 			baseURL := test.CLIBaseURL
 			v.Set("baseURL", test.CfgBaseURL)
 			s.serverAppend = test.AppendPort
@@ -127,7 +126,6 @@ ERROR 2018/10/07 13:11:12 Rebuild failed: logged 1 error(s)
 	withoutError := removeErrorPrefixFromLog(content)
 
 	c.Assert(strings.Contains(withoutError, "ERROR"), qt.Equals, false)
-
 }
 
 func isWindowsCI() bool {

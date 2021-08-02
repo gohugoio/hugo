@@ -86,7 +86,6 @@ func (d *testDoc) PublishDate() time.Time {
 }
 
 func TestSearch(t *testing.T) {
-
 	config := Config{
 		Threshold:    90,
 		IncludeNewer: false,
@@ -97,7 +96,7 @@ func TestSearch(t *testing.T) {
 	}
 
 	idx := NewInvertedIndex(config)
-	//idx.debug = true
+	// idx.debug = true
 
 	docs := []Document{
 		newTestDoc("tags", "a", "b", "c", "d"),
@@ -119,7 +118,6 @@ func TestSearch(t *testing.T) {
 		set2, found := idx.index["keywords"]
 		c.Assert(found, qt.Equals, true)
 		c.Assert(len(set2), qt.Equals, 2)
-
 	})
 
 	t.Run("search-tags", func(t *testing.T) {
@@ -198,7 +196,6 @@ func TestSearch(t *testing.T) {
 			c.Assert(m[i].Name(), qt.Equals, fmt.Sprintf("doc%d", i))
 		}
 	})
-
 }
 
 func TestToKeywordsToLower(t *testing.T) {
@@ -213,11 +210,9 @@ func TestToKeywordsToLower(t *testing.T) {
 		StringKeyword("b"),
 		StringKeyword("c"),
 	})
-
 }
 
 func BenchmarkRelatedNewIndex(b *testing.B) {
-
 	pages := make([]*testDoc, 100)
 	numkeywords := 30
 	allKeywords := make([]string, numkeywords)
@@ -272,11 +267,9 @@ func BenchmarkRelatedNewIndex(b *testing.B) {
 			idx.Add(docs...)
 		}
 	})
-
 }
 
 func BenchmarkRelatedMatchesIn(b *testing.B) {
-
 	q1 := newQueryElement("tags", StringsToKeywords("keyword2", "keyword5", "keyword32", "asdf")...)
 	q2 := newQueryElement("keywords", StringsToKeywords("keyword3", "keyword4")...)
 

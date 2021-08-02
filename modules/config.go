@@ -18,6 +18,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/pkg/errors"
+
 	"github.com/gohugoio/hugo/common/hugo"
 
 	"github.com/gohugoio/hugo/config"
@@ -40,6 +42,14 @@ var DefaultModuleConfig = Config{
 	// Comma separated glob list matching paths that should be
 	// treated as private.
 	Private: "*.*",
+
+	// A list of replacement directives mapping a module path to a directory
+	// or a theme component in the themes folder.
+	// Note that this will turn the component into a traditional theme component
+	// that does not partake in vendoring etc.
+	// The syntax is the similar to the replacement directives used in go.mod, e.g:
+	//    github.com/mod1 -> ../mod1,github.com/mod2 -> ../mod2
+	Replacements: nil,
 }
 
 // ApplyProjectConfigDefaults applies default/missing module configuration for
@@ -56,7 +66,9 @@ func ApplyProjectConfigDefaults(cfg config.Provider, mod Module) error {
 	// the basic level.
 	componentsConfigured := make(map[string]bool)
 	for _, mnt := range moda.mounts {
-		componentsConfigured[mnt.Component()] = true
+		if !strings.HasPrefix(mnt.Target, files.JsConfigFolderMountPrefix) {
+			componentsConfigured[mnt.Component()] = true
+		}
 	}
 
 	type dirKeyComponent struct {
@@ -101,10 +113,11 @@ func ApplyProjectConfigDefaults(cfg config.Provider, mod Module) error {
 			source := cfg.GetString(d.key)
 			componentsConfigured[d.component] = true
 
-			return []Mount{Mount{
+			return []Mount{{
 				// No lang set for layouts etc.
 				Source: source,
-				Target: d.component}}
+				Target: d.component,
+			}}
 		}
 
 		return nil
@@ -154,7 +167,6 @@ func ApplyProjectConfigDefaults(cfg config.Provider, mod Module) error {
 	var mounts []Mount
 	for _, dirKey := range dirKeys {
 		if componentsConfigured[dirKey.component] {
-
 			continue
 		}
 
@@ -180,7 +192,12 @@ func ApplyProjectConfigDefaults(cfg config.Provider, mod Module) error {
 
 // DecodeConfig creates a modules Config from a given Hugo configuration.
 func DecodeConfig(cfg config.Provider) (Config, error) {
+	return decodeConfig(cfg, nil)
+}
+
+func decodeConfig(cfg config.Provider, pathReplacements map[string]string) (Config, error) {
 	c := DefaultModuleConfig
+	c.replacementsMap = pathReplacements
 
 	if cfg == nil {
 		return c, nil
@@ -193,6 +210,37 @@ func DecodeConfig(cfg config.Provider) (Config, error) {
 		m := cfg.GetStringMap("module")
 		if err := mapstructure.WeakDecode(m, &c); err != nil {
 			return c, err
+		}
+
+		if c.replacementsMap == nil {
+
+			if len(c.Replacements) == 1 {
+				c.Replacements = strings.Split(c.Replacements[0], ",")
+			}
+
+			for i, repl := range c.Replacements {
+				c.Replacements[i] = strings.TrimSpace(repl)
+			}
+
+			c.replacementsMap = make(map[string]string)
+			for _, repl := range c.Replacements {
+				parts := strings.Split(repl, "->")
+				if len(parts) != 2 {
+					return c, errors.Errorf(`invalid module.replacements: %q; configure replacement pairs on the form "oldpath->newpath" `, repl)
+				}
+
+				c.replacementsMap[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
+			}
+		}
+
+		if c.replacementsMap != nil && c.Imports != nil {
+			for i, imp := range c.Imports {
+				if newImp, found := c.replacementsMap[imp.Path]; found {
+					imp.Path = newImp
+					imp.pathProjectReplaced = true
+					c.Imports[i] = imp
+				}
+			}
 		}
 
 		for i, mnt := range c.Mounts {
@@ -226,6 +274,20 @@ type Config struct {
 
 	// Will be validated against the running Hugo version.
 	HugoVersion HugoVersion
+
+	// A optional Glob pattern matching module paths to skip when vendoring, e.g.
+	// "github.com/**".
+	NoVendor string
+
+	// When enabled, we will pick the vendored module closest to the module
+	// using it.
+	// The default behaviour is to pick the first.
+	// Note that there can still be only one dependency of a given module path,
+	// so once it is in use it cannot be redefined.
+	VendorClosest bool
+
+	Replacements    []string
+	replacementsMap map[string]string
 
 	// Configures GOPROXY.
 	Proxy string
@@ -301,10 +363,14 @@ func (v HugoVersion) IsValid() bool {
 }
 
 type Import struct {
-	Path         string // Module path
-	IgnoreConfig bool   // Ignore any config.toml found.
-	Disable      bool   // Turn off this module.
-	Mounts       []Mount
+	Path                string // Module path
+	pathProjectReplaced bool   // Set when Path is replaced in project config.
+	IgnoreConfig        bool   // Ignore any config in config.toml (will still folow imports).
+	IgnoreImports       bool   // Do not follow any configured imports.
+	NoMounts            bool   // Do not mount any folder in this import.
+	NoVendor            bool   // Never vendor this import (only allowed in main project).
+	Disable             bool   // Turn off this module.
+	Mounts              []Mount
 }
 
 type Mount struct {
@@ -312,10 +378,19 @@ type Mount struct {
 	Target string // relative target path, e.g. "assets/bootstrap/scss"
 
 	Lang string // any language code associated with this mount.
+
 }
 
 func (m Mount) Component() string {
 	return strings.Split(m.Target, fileSeparator)[0]
+}
+
+func (m Mount) ComponentAndName() (string, string) {
+	k := strings.Index(m.Target, fileSeparator)
+	if k == -1 {
+		return m.Target, ""
+	}
+	return m.Target[:k], m.Target[k+1:]
 }
 
 func getStaticDirs(cfg config.Provider) []string {
@@ -327,11 +402,9 @@ func getStaticDirs(cfg config.Provider) []string {
 }
 
 func getStringOrStringSlice(cfg config.Provider, key string, id int) []string {
-
 	if id >= 0 {
 		key = fmt.Sprintf("%s%d", key, id)
 	}
 
 	return config.GetStringSlicePreserveString(cfg, key)
-
 }

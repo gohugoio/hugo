@@ -24,10 +24,11 @@ type checkCmd struct {
 }
 
 func newCheckCmd() *checkCmd {
-	cc := &checkCmd{baseCmd: &baseCmd{cmd: &cobra.Command{
-		Use:   "check",
-		Short: "Contains some verification checks",
-	},
+	cc := &checkCmd{baseCmd: &baseCmd{
+		cmd: &cobra.Command{
+			Use:   "check",
+			Short: "Contains some verification checks",
+		},
 	}}
 
 	cc.cmd.AddCommand(newLimitCmd().getCommand())

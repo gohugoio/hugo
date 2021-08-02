@@ -51,7 +51,6 @@ func createDefaultOutputFormats(allFormats output.Formats) map[string]output.For
 	}
 
 	return m
-
 }
 
 func createSiteOutputFormats(allFormats output.Formats, outputs map[string]interface{}, rssDisabled bool) (map[string]output.Formats, error) {
@@ -84,7 +83,6 @@ func createSiteOutputFormats(allFormats output.Formats, outputs map[string]inter
 					// This is legacy behaviour. We used to have both
 					// a RSS page kind and output format.
 					continue
-
 				}
 				return nil, fmt.Errorf("failed to resolve output format %q from site config", format)
 			}
@@ -107,5 +105,4 @@ func createSiteOutputFormats(allFormats output.Formats, outputs map[string]inter
 	}
 
 	return outFormats, nil
-
 }

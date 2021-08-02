@@ -11,6 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// +build !nodeploy
+
 package deploy
 
 import (
@@ -20,6 +22,7 @@ import (
 	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/config"
 	hglob "github.com/gohugoio/hugo/hugofs/glob"
+	"github.com/gohugoio/hugo/media"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -31,7 +34,8 @@ type deployConfig struct {
 	Matchers []*matcher
 	Order    []string
 
-	ordering []*regexp.Regexp // compiled Order
+	ordering   []*regexp.Regexp // compiled Order
+	mediaTypes media.Types
 }
 
 type target struct {
@@ -108,7 +112,11 @@ func (m *matcher) Matches(path string) bool {
 
 // decode creates a config from a given Hugo configuration.
 func decodeConfig(cfg config.Provider) (deployConfig, error) {
-	var dcfg deployConfig
+	var (
+		mediaTypesConfig []map[string]interface{}
+		dcfg             deployConfig
+	)
+
 	if !cfg.IsSet(deploymentConfigKey) {
 		return dcfg, nil
 	}
@@ -133,6 +141,15 @@ func decodeConfig(cfg config.Provider) (deployConfig, error) {
 			return dcfg, fmt.Errorf("invalid deployment.orderings.pattern: %v", err)
 		}
 		dcfg.ordering = append(dcfg.ordering, re)
+	}
+
+	if cfg.IsSet("mediaTypes") {
+		mediaTypesConfig = append(mediaTypesConfig, cfg.GetStringMap("mediaTypes"))
+	}
+
+	dcfg.mediaTypes, err = media.DecodeTypes(mediaTypesConfig...)
+	if err != nil {
+		return dcfg, err
 	}
 	return dcfg, nil
 }

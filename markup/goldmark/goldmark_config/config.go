@@ -38,7 +38,10 @@ var Default = Config{
 	Parser: Parser{
 		AutoHeadingID:     true,
 		AutoHeadingIDType: AutoHeadingIDTypeGitHub,
-		Attribute:         true,
+		Attribute: ParserAttribute{
+			Title: true,
+			Block: false,
+		},
 	},
 }
 
@@ -84,5 +87,12 @@ type Parser struct {
 	AutoHeadingIDType string
 
 	// Enables custom attributes.
-	Attribute bool
+	Attribute ParserAttribute
+}
+
+type ParserAttribute struct {
+	// Enables custom attributes for titles.
+	Title bool
+	// Enables custom attributeds for blocks.
+	Block bool
 }

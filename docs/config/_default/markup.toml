@@ -1,5 +1,25 @@
 defaultMarkdownHandler = "goldmark"
 
+[goldmark]
+[goldmark.extensions]
+definitionList = true
+footnote = true
+linkify = true
+strikethrough = true
+table = true
+taskList = true
+typographer = true
+[goldmark.parser]
+autoHeadingID = true
+autoHeadingIDType = "github"
+[goldmark.parser.attribute]
+block = true
+title = true
+[goldmark.renderer]
+hardWraps = false
+unsafe = false
+xhtml = false
+
 [highlight]
 style = "trac"
 lineNumbersInTable = true

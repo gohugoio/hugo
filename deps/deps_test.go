@@ -20,7 +20,6 @@ import (
 )
 
 func TestBuildFlags(t *testing.T) {
-
 	c := qt.New(t)
 	var bf BuildState
 	bf.Incr()
@@ -28,5 +27,4 @@ func TestBuildFlags(t *testing.T) {
 	bf.Incr()
 
 	c.Assert(bf.Incr(), qt.Equals, 4)
-
 }

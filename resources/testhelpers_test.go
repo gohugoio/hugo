@@ -1,16 +1,16 @@
 package resources
 
 import (
-	"path/filepath"
-	"testing"
-
 	"image"
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
+	"testing"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/modules"
 
@@ -23,7 +23,6 @@ import (
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/spf13/afero"
-	"github.com/spf13/viper"
 )
 
 type specDescriptor struct {
@@ -32,8 +31,8 @@ type specDescriptor struct {
 	fs      afero.Fs
 }
 
-func createTestCfg() *viper.Viper {
-	cfg := viper.New()
+func createTestCfg() config.Provider {
+	cfg := config.New()
 	cfg.Set("resourceDir", "resources")
 	cfg.Set("contentDir", "content")
 	cfg.Set("dataDir", "data")
@@ -51,11 +50,9 @@ func createTestCfg() *viper.Viper {
 	cfg.Set("allModules", modules.Modules{mod})
 
 	return cfg
-
 }
 
 func newTestResourceSpec(desc specDescriptor) *Spec {
-
 	baseURL := desc.baseURL
 	if baseURL == "" {
 		baseURL = "https://example.com/"
@@ -133,7 +130,6 @@ func newTestResourceOsFs(c *qt.C) (*Spec, string) {
 	c.Assert(err, qt.IsNil)
 
 	return spec, workDir
-
 }
 
 func fetchSunset(c *qt.C) resource.Image {

@@ -11,10 +11,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package pageparser provides a parser for Hugo content files (Markdown, HTML etc.) in Hugo.
-// This implementation is highly inspired by the great talk given by Rob Pike called "Lexical Scanning in Go"
-// It's on YouTube, Google it!.
-// See slides here: http://cuddle.googlecode.com/hg/talk/lex.html
 package pageparser
 
 func lexIntroSection(l *pageLexer) stateFunc {
@@ -60,7 +56,7 @@ LOOP:
 	return lexMainSection
 }
 
-func lexEndFromtMatterHTMLComment(l *pageLexer) stateFunc {
+func lexEndFrontMatterHTMLComment(l *pageLexer) stateFunc {
 	l.isInHTMLComment = false
 	right := l.index(htmlCommentEnd)
 	if right == -1 {
@@ -151,12 +147,10 @@ LOOP:
 	l.emit(TypeFrontMatterORG)
 
 	return lexMainSection
-
 }
 
 // Handle YAML or TOML front matter.
 func (l *pageLexer) lexFrontMatterSection(tp ItemType, delimr rune, name string, delim []byte) stateFunc {
-
 	for i := 0; i < 2; i++ {
 		if r := l.next(); r != delimr {
 			return l.errorf("invalid %s delimiter", name)

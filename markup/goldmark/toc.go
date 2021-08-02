@@ -42,7 +42,7 @@ func (t *tocTransformer) Transform(n *ast.Document, reader text.Reader, pc parse
 
 	var (
 		toc         tableofcontents.Root
-		header      tableofcontents.Header
+		tocHeading  tableofcontents.Heading
 		level       int
 		row         = -1
 		inHeading   bool
@@ -53,10 +53,10 @@ func (t *tocTransformer) Transform(n *ast.Document, reader text.Reader, pc parse
 		s := ast.WalkStatus(ast.WalkContinue)
 		if n.Kind() == ast.KindHeading {
 			if inHeading && !entering {
-				header.Text = headingText.String()
+				tocHeading.Text = headingText.String()
 				headingText.Reset()
-				toc.AddAt(header, row, level-1)
-				header = tableofcontents.Header{}
+				toc.AddAt(tocHeading, row, level-1)
+				tocHeading = tableofcontents.Heading{}
 				inHeading = false
 				return s, nil
 			}
@@ -79,7 +79,7 @@ func (t *tocTransformer) Transform(n *ast.Document, reader text.Reader, pc parse
 
 			id, found := heading.AttributeString("id")
 			if found {
-				header.ID = string(id.([]byte))
+				tocHeading.ID = string(id.([]byte))
 			}
 		case
 			ast.KindCodeSpan,

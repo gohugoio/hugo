@@ -19,7 +19,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/config"
 
 	"github.com/gohugoio/hugo/common/loggers"
 
@@ -29,7 +29,7 @@ import (
 
 func TestResolveMarkup(t *testing.T) {
 	c := qt.New(t)
-	cfg := viper.New()
+	cfg := config.New()
 	spec, err := NewContentSpec(cfg, loggers.NewErrorLogger(), afero.NewMemMapFs())
 	c.Assert(err, qt.IsNil)
 
@@ -219,7 +219,6 @@ func TestGetTitleFunc(t *testing.T) {
 	c.Assert(GetTitleFunc("ap")(title), qt.Equals, "Somewhere Over the Rainbow")
 	c.Assert(GetTitleFunc("")(title), qt.Equals, "Somewhere Over the Rainbow")
 	c.Assert(GetTitleFunc("unknown")(title), qt.Equals, "Somewhere Over the Rainbow")
-
 }
 
 func BenchmarkReaderContains(b *testing.B) {
@@ -354,7 +353,6 @@ func BenchmarkMD5FromFileFast(b *testing.B) {
 			}
 		})
 	}
-
 }
 
 func BenchmarkUniqueStrings(b *testing.B) {
@@ -406,7 +404,6 @@ func BenchmarkUniqueStrings(b *testing.B) {
 			}
 		}
 	})
-
 }
 
 func TestHashString(t *testing.T) {

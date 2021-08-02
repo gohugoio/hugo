@@ -20,13 +20,24 @@ They are stored in a reserved Front Matter object named `_build` with the follow
 
 ```yaml
 _build:
-  render: true
+  render: always
   list: always
   publishResources: true
 ```
 
 #### render
-If true, the page will be treated as a published page, holding its dedicated output files (`index.html`, etc...) and permalink.
+If `always`, the page will be treated as a published page, holding its dedicated output files (`index.html`, etc...) and permalink.
+
+{{< new-in "0.76.0" >}} We extended this property from a boolean to an enum in Hugo 0.76.0. Valid values are:
+
+never
+: The page will not be included in any page collection.
+
+always (default)
+: The page will be rendered to disk and get a `RelPermalink` etc.
+
+link
+: The page will be not be rendered to disk, but will get a `RelPermalink`.
 
 #### list
 

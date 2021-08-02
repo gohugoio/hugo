@@ -16,8 +16,9 @@ package inflect
 
 import (
 	"strconv"
+	"strings"
 
-	_inflect "github.com/markbates/inflect"
+	_inflect "github.com/gobuffalo/flect"
 	"github.com/spf13/cast"
 )
 
@@ -53,7 +54,8 @@ func (ns *Namespace) Humanize(in interface{}) (string, error) {
 		return _inflect.Ordinalize(word), nil
 	}
 
-	return _inflect.Humanize(word), nil
+	str := _inflect.Humanize(word)
+	return _inflect.Humanize(strings.ToLower(str)), nil
 }
 
 // Pluralize returns the plural form of a single word.

@@ -53,7 +53,8 @@ And then some.
 	p, err := Provider.New(
 		converter.ProviderConfig{
 			MarkupConfig: markup_config.Default,
-			Logger:       loggers.NewErrorLogger()})
+			Logger:       loggers.NewErrorLogger(),
+		})
 	c.Assert(err, qt.IsNil)
 	conv, err := p.New(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)

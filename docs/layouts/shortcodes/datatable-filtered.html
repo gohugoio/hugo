@@ -20,8 +20,19 @@
 		{{ range $k, $v := . }}
 		{{ $.Scratch.Set $k $v }}
 		{{ end }}
-		{{ range $fields }}
-			<td>{{ $.Scratch.Get . }}</td>
+		{{ range $k, $v := $fields }}
+			<td>
+				{{ $tdContent := $.Scratch.Get . }}
+				{{ if eq $k 3 }}
+					{{ printf "%v" $tdContent |
+							strings.ReplaceRE `\[` "<ol><li>" |
+							strings.ReplaceRE `\s` "</li><li>" |
+							strings.ReplaceRE `\]` "</li></ol>" |
+							safeHTML }}
+				{{ else }}
+					{{ $tdContent }}
+				{{ end}}
+			</td>
 		{{ end }}
 	</tr>
 	{{ end }}

@@ -18,37 +18,49 @@ aliases: [/extras/robots-txt/]
 toc: false
 ---
 
-To create your robots.txt as a template, first set the `enableRobotsTXT` value to `true` in your [configuration file][config]. By default, this option generates a robots.txt with the following content, which tells search engines that they are allowed to crawl everything:
+To generate a robots.txt file from a template, change the [site configuration][config]:
 
-```
+{{< code-toggle file="config">}}
+enableRobotsTXT = true
+{{< /code-toggle >}}
+
+By default, Hugo generates robots.txt using an [internal template][internal].
+
+```text
 User-agent: *
 ```
+
+Search engines that honor the Robots Exclusion Protocol will interpret this as permission to crawl everything on the site.
 
 ## Robots.txt Template Lookup Order
 
-The [lookup order][lookup] for the `robots.txt` template is as follows:
+You may overwrite the internal template with a custom template. Hugo selects the template using this lookup order:
 
-* `/layouts/robots.txt`
-* `/themes/<THEME>/layouts/robots.txt`
-
-{{% note %}}
-If you do not want Hugo to create a default `robots.txt` or leverage the `robots.txt` template, you can hand code your own and place the file in `static`. Remember that everything in the [static directory](/getting-started/directory-structure/) is copied over as-is when Hugo builds your site.
-{{% /note %}}
+1. `/layouts/robots.txt`
+2. `/themes/<THEME>/layouts/robots.txt`
 
 ## Robots.txt Template Example
 
-The following is an example `robots.txt` layout:
-
 {{< code file="layouts/robots.txt" download="robots.txt" >}}
 User-agent: *
-
-{{range .Pages}}
-Disallow: {{.RelPermalink}}
-{{end}}
+{{ range .Pages }}
+Disallow: {{ .RelPermalink }}
+{{ end }}
 {{< /code >}}
 
-This template disallows all the pages of the site by creating one `Disallow` entry for each page.
+This template creates a robots.txt file with a `Disallow` directive for each page on the site. Search engines that honor the Robots Exclusion Protocol will not crawl any page on the site.
+
+{{% note %}}
+To create a robots.txt file without using a template:
+
+1. Set `enableRobotsTXT` to `false` in the [site configuration][config].
+2. Create a robots.txt file in the `static` directory.
+
+Remember that Hugo copies everything in the [static directory][static] to the root of `publishDir` (typically `public`) when you build your site.
 
 [config]: /getting-started/configuration/
-[lookup]: /templates/lookup-order/
-[robots]: https://www.robotstxt.org/
+[static]: /getting-started/directory-structure/
+{{% /note %}}
+
+[config]: /getting-started/configuration/
+[internal]: https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/robots.txt

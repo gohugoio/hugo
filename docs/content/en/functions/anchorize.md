@@ -1,6 +1,6 @@
 ---
 title: anchorize
-description: Takes a string and sanitizes it the same way as Blackfriday does for markdown headers.
+description: Takes a string and sanitizes it the same way as the [`defaultMarkdownHandler`](https://gohugo.io/getting-started/configuration-markup#configure-markup) does for markdown headers.
 date: 2018-10-13
 categories: [functions]
 menu:
@@ -13,8 +13,9 @@ workson: []
 relatedfuncs: [humanize]
 ---
 
-The template function uses the [`SanitizedAnchorName` logic from Blackfriday](https://github.com/russross/blackfriday#sanitized-anchor-names).
-Since the same sanitizing logic is used as the markdown parser, you can determine the ID of a header for linking with anchor tags.
+If [Goldmark](https://gohugo.io/getting-started/configuration-markup#goldmark) is set as `defaultMarkdownHandler`, the sanitizing logic adheres to the setting [`markup.goldmark.parser.autoHeadingIDType`](https://gohugo.io/getting-started/configuration-markup#goldmark). If [Blackfriday](https://gohugo.io/getting-started/configuration-markup#blackfriday) is set as `defaultMarkdownHandler`, this template function uses the [`SanitizedAnchorName` logic from Blackfriday](https://github.com/russross/blackfriday#sanitized-anchor-names) (the same applies when `markup.goldmark.parser.autoHeadingIDType` is set to `blackfriday`).
+
+Since the `defaultMarkdownHandler` and this template function use the same sanitizing logic, you can use the latter to determine the ID of a header for linking with anchor tags.
 
 ```
 {{anchorize "This is a header"}} → "this-is-a-header"

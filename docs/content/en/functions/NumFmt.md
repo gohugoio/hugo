@@ -2,7 +2,6 @@
 title: lang.NumFmt
 description: "Formats a number with a given precision using the requested `negative`, `decimal`, and `grouping` options. The `options` parameter is a string consisting of `<negative> <decimal> <grouping>`."
 godocref: ""
-workson: []
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-08-21

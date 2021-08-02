@@ -106,7 +106,6 @@ func collect(input []byte, skipFrontMatter bool, stateStart stateFunc) (items []
 	var cfg Config
 
 	return collectWithConfig(input, skipFrontMatter, stateStart, cfg)
-
 }
 
 // no positional checking, for now ...

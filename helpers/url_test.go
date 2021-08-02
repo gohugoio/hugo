@@ -17,13 +17,11 @@ import (
 	"strings"
 	"testing"
 
-	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/langs"
 )
 
 func TestURLize(t *testing.T) {
-
 	v := newTestCfg()
 	l := langs.NewDefaultLanguage(v)
 	p, _ := NewPathSpec(hugofs.NewMem(v), l, nil)
@@ -84,6 +82,20 @@ func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 		{"http//foo", "http://base/path", "http://base/path/MULTIhttp/foo"},
 	}
 
+	if multilingual && addLanguage && defaultInSubDir {
+		newTests := []struct {
+			input    string
+			baseURL  string
+			expected string
+		}{
+			{lang + "test", "http://base/", "http://base/" + lang + "/" + lang + "test"},
+			{"/" + lang + "test", "http://base/", "http://base/" + lang + "/" + lang + "test"},
+		}
+
+		tests = append(tests, newTests...)
+
+	}
+
 	for _, test := range tests {
 		v.Set("baseURL", test.baseURL)
 		v.Set("contentDir", "content")
@@ -98,31 +110,12 @@ func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 			} else {
 				expected = strings.Replace(expected, "MULTI", lang+"/", 1)
 			}
-
 		} else {
 			expected = strings.Replace(expected, "MULTI", "", 1)
 		}
 		if output != expected {
 			t.Fatalf("Expected %#v, got %#v\n", expected, output)
 		}
-	}
-}
-
-func TestIsAbsURL(t *testing.T) {
-	c := qt.New(t)
-
-	for _, this := range []struct {
-		a string
-		b bool
-	}{
-		{"http://gohugo.io", true},
-		{"https://gohugo.io", true},
-		{"//gohugo.io", true},
-		{"http//gohugo.io", false},
-		{"/content", false},
-		{"content", false},
-	} {
-		c.Assert(IsAbsURL(this.a) == this.b, qt.Equals, true)
 	}
 }
 
@@ -162,6 +155,19 @@ func doTestRelURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 		{"", "http://base/ace", false, "/aceMULTI"},
 		{"http://abs", "http://base/", false, "http://abs"},
 		{"//schemaless", "http://base/", false, "//schemaless"},
+	}
+
+	if multilingual && addLanguage && defaultInSubDir {
+		newTests := []struct {
+			input    string
+			baseURL  string
+			canonify bool
+			expected string
+		}{
+			{lang + "test", "http://base/", false, "/" + lang + "/" + lang + "test"},
+			{"/" + lang + "test", "http://base/", false, "/" + lang + "/" + lang + "test"},
+		}
+		tests = append(tests, newTests...)
 	}
 
 	for i, test := range tests {
@@ -218,28 +224,6 @@ func TestSanitizeURL(t *testing.T) {
 	}
 }
 
-func TestMakePermalink(t *testing.T) {
-	type test struct {
-		host, link, output string
-	}
-
-	data := []test{
-		{"http://abc.com/foo", "post/bar", "http://abc.com/foo/post/bar"},
-		{"http://abc.com/foo/", "post/bar", "http://abc.com/foo/post/bar"},
-		{"http://abc.com", "post/bar", "http://abc.com/post/bar"},
-		{"http://abc.com", "bar", "http://abc.com/bar"},
-		{"http://abc.com/foo/bar", "post/bar", "http://abc.com/foo/bar/post/bar"},
-		{"http://abc.com/foo/bar", "post/bar/", "http://abc.com/foo/bar/post/bar/"},
-	}
-
-	for i, d := range data {
-		output := MakePermalink(d.host, d.link).String()
-		if d.output != output {
-			t.Errorf("Test #%d failed. Expected %q got %q", i, d.output, output)
-		}
-	}
-}
-
 func TestURLPrep(t *testing.T) {
 	type test struct {
 		ugly   bool
@@ -263,62 +247,4 @@ func TestURLPrep(t *testing.T) {
 			t.Errorf("Test #%d failed. Expected %q got %q", i, d.output, output)
 		}
 	}
-
-}
-
-func TestAddContextRoot(t *testing.T) {
-	tests := []struct {
-		baseURL  string
-		url      string
-		expected string
-	}{
-		{"http://example.com/sub/", "/foo", "/sub/foo"},
-		{"http://example.com/sub/", "/foo/index.html", "/sub/foo/index.html"},
-		{"http://example.com/sub1/sub2", "/foo", "/sub1/sub2/foo"},
-		{"http://example.com", "/foo", "/foo"},
-		// cannot guess that the context root is already added int the example below
-		{"http://example.com/sub/", "/sub/foo", "/sub/sub/foo"},
-		{"http://example.com/тря", "/трям/", "/тря/трям/"},
-		{"http://example.com", "/", "/"},
-		{"http://example.com/bar", "//", "/bar/"},
-	}
-
-	for _, test := range tests {
-		output := AddContextRoot(test.baseURL, test.url)
-		if output != test.expected {
-			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
-		}
-	}
-}
-
-func TestPretty(t *testing.T) {
-	c := qt.New(t)
-	c.Assert("/section/name/index.html", qt.Equals, PrettifyURLPath("/section/name.html"))
-	c.Assert("/section/sub/name/index.html", qt.Equals, PrettifyURLPath("/section/sub/name.html"))
-	c.Assert("/section/name/index.html", qt.Equals, PrettifyURLPath("/section/name/"))
-	c.Assert("/section/name/index.html", qt.Equals, PrettifyURLPath("/section/name/index.html"))
-	c.Assert("/index.html", qt.Equals, PrettifyURLPath("/index.html"))
-	c.Assert("/name/index.xml", qt.Equals, PrettifyURLPath("/name.xml"))
-	c.Assert("/", qt.Equals, PrettifyURLPath("/"))
-	c.Assert("/", qt.Equals, PrettifyURLPath(""))
-	c.Assert("/section/name", qt.Equals, PrettifyURL("/section/name.html"))
-	c.Assert("/section/sub/name", qt.Equals, PrettifyURL("/section/sub/name.html"))
-	c.Assert("/section/name", qt.Equals, PrettifyURL("/section/name/"))
-	c.Assert("/section/name", qt.Equals, PrettifyURL("/section/name/index.html"))
-	c.Assert("/", qt.Equals, PrettifyURL("/index.html"))
-	c.Assert("/name/index.xml", qt.Equals, PrettifyURL("/name.xml"))
-	c.Assert("/", qt.Equals, PrettifyURL("/"))
-	c.Assert("/", qt.Equals, PrettifyURL(""))
-}
-
-func TestUgly(t *testing.T) {
-	c := qt.New(t)
-	c.Assert("/section/name.html", qt.Equals, Uglify("/section/name.html"))
-	c.Assert("/section/sub/name.html", qt.Equals, Uglify("/section/sub/name.html"))
-	c.Assert("/section/name.html", qt.Equals, Uglify("/section/name/"))
-	c.Assert("/section/name.html", qt.Equals, Uglify("/section/name/index.html"))
-	c.Assert("/index.html", qt.Equals, Uglify("/index.html"))
-	c.Assert("/name.xml", qt.Equals, Uglify("/name.xml"))
-	c.Assert("/", qt.Equals, Uglify("/"))
-	c.Assert("/", qt.Equals, Uglify(""))
 }

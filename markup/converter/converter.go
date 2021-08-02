@@ -31,7 +31,7 @@ type ProviderConfig struct {
 
 	Cfg       config.Provider // Site config
 	ContentFs afero.Fs
-	Logger    *loggers.Logger
+	Logger    loggers.Logger
 	Highlight func(code, lang, optsStr string) (string, error)
 }
 
@@ -127,9 +127,7 @@ type DocumentContext struct {
 type RenderContext struct {
 	Src         []byte
 	RenderTOC   bool
-	RenderHooks *hooks.Renderers
+	RenderHooks hooks.Renderers
 }
 
-var (
-	FeatureRenderHooks = identity.NewPathIdentity("markup", "renderingHooks")
-)
+var FeatureRenderHooks = identity.NewPathIdentity("markup", "renderingHooks")

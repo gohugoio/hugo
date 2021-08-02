@@ -34,5 +34,4 @@ func (ns *Namespace) Append(args ...interface{}) (interface{}, error) {
 	from := args[:len(args)-1]
 
 	return collections.Append(to, from...)
-
 }

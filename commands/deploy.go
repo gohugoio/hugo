@@ -11,6 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// +build !nodeploy
+
 package commands
 
 import (
@@ -25,6 +27,9 @@ var _ cmder = (*deployCmd)(nil)
 // deployCmd supports deploying sites to Cloud providers.
 type deployCmd struct {
 	*baseBuilderCmd
+
+	invalidateCDN bool
+	maxDeletes    int
 }
 
 // TODO: In addition to the "deploy" command, consider adding a "--deploy"
@@ -51,6 +56,8 @@ documentation.
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfgInit := func(c *commandeer) error {
+				c.Set("invalidateCDN", cc.invalidateCDN)
+				c.Set("maxDeletes", cc.maxDeletes)
 				return nil
 			}
 			comm, err := initializeConfig(true, false, &cc.hugoBuilderCommon, cc, cfgInit)
@@ -69,8 +76,8 @@ documentation.
 	cmd.Flags().Bool("confirm", false, "ask for confirmation before making changes to the target")
 	cmd.Flags().Bool("dryRun", false, "dry run")
 	cmd.Flags().Bool("force", false, "force upload of all files")
-	cmd.Flags().Bool("invalidateCDN", true, "invalidate the CDN cache listed in the deployment target")
-	cmd.Flags().Int("maxDeletes", 256, "maximum # of files to delete, or -1 to disable")
+	cmd.Flags().BoolVar(&cc.invalidateCDN, "invalidateCDN", true, "invalidate the CDN cache listed in the deployment target")
+	cmd.Flags().IntVar(&cc.maxDeletes, "maxDeletes", 256, "maximum # of files to delete, or -1 to disable")
 
 	cc.baseBuilderCmd = b.newBuilderBasicCmd(cmd)
 

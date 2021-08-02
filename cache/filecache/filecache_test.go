@@ -25,6 +25,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gobwas/glob"
+
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/modules"
 
@@ -181,7 +183,6 @@ dir = ":cacheDir/c"
 		c.Assert(string(b), qt.Equals, "Hugo is great!")
 
 	}
-
 }
 
 func TestFileCacheConcurrent(t *testing.T) {
@@ -251,7 +252,6 @@ func TestFileCacheReadOrCreateErrorInRead(t *testing.T) {
 	var result string
 
 	rf := func(failLevel int) func(info ItemInfo, r io.ReadSeeker) error {
-
 		return func(info ItemInfo, r io.ReadSeeker) error {
 			if failLevel > 0 {
 				if failLevel > 1 {
@@ -314,12 +314,13 @@ func initConfig(fs afero.Fs, cfg config.Provider) error {
 	if !filepath.IsAbs(themesDir) {
 		themesDir = filepath.Join(workingDir, themesDir)
 	}
+	globAll := glob.MustCompile("**", '/')
 	modulesClient := modules.NewClient(modules.ClientConfig{
 		Fs:           fs,
 		WorkingDir:   workingDir,
 		ThemesDir:    themesDir,
 		ModuleConfig: modConfig,
-		IgnoreVendor: true,
+		IgnoreVendor: globAll,
 	})
 
 	moduleConfig, err := modulesClient.Collect()
@@ -344,5 +345,4 @@ func newPathsSpec(t *testing.T, fs afero.Fs, configStr string) *helpers.PathSpec
 	p, err := helpers.NewPathSpec(hugofs.NewFrom(fs, cfg), cfg, nil)
 	c.Assert(err, qt.IsNil)
 	return p
-
 }

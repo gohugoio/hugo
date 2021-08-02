@@ -14,9 +14,8 @@
 package tpl
 
 import (
-	"reflect"
-
 	"io"
+	"reflect"
 	"regexp"
 
 	"github.com/gohugoio/hugo/output"
@@ -68,6 +67,7 @@ type TemplateLookupVariant interface {
 	// We are currently only interested in output formats, so we should improve
 	// this for speed.
 	LookupVariant(name string, variants TemplateVariants) (Template, bool, bool)
+	LookupVariants(name string) []Template
 }
 
 // Template is the common interface between text/template and html/template.
@@ -87,7 +87,7 @@ type TemplateParseFinder interface {
 	TemplateFinder
 }
 
-// TemplateDebugger prints some debug info to stdoud.
+// TemplateDebugger prints some debug info to stdout.
 type TemplateDebugger interface {
 	Debug()
 }

@@ -38,7 +38,6 @@ func TestSearchPage(t *testing.T) {
 			c.Assert(idx, qt.Equals, i)
 		}
 	}
-
 }
 
 func BenchmarkSearchPage(b *testing.B) {
@@ -72,23 +71,23 @@ func BenchmarkSearchPage(b *testing.B) {
 	}
 
 	for _, variant := range []Variant{
-		Variant{"Shuffled", shufflePages, searchPage},
-		Variant{"ByWeight", func(pages Pages) Pages {
+		{"Shuffled", shufflePages, searchPage},
+		{"ByWeight", func(pages Pages) Pages {
 			return pages.ByWeight()
 		}, searchPage},
-		Variant{"ByWeight.Reverse", func(pages Pages) Pages {
+		{"ByWeight.Reverse", func(pages Pages) Pages {
 			return pages.ByWeight().Reverse()
 		}, searchPage},
-		Variant{"ByDate", func(pages Pages) Pages {
+		{"ByDate", func(pages Pages) Pages {
 			return pages.ByDate()
 		}, searchPage},
-		Variant{"ByPublishDate", func(pages Pages) Pages {
+		{"ByPublishDate", func(pages Pages) Pages {
 			return pages.ByPublishDate()
 		}, searchPage},
-		Variant{"ByTitle", func(pages Pages) Pages {
+		{"ByTitle", func(pages Pages) Pages {
 			return pages.ByTitle()
 		}, searchPage},
-		Variant{"ByTitle Linear", func(pages Pages) Pages {
+		{"ByTitle Linear", func(pages Pages) Pages {
 			return pages.ByTitle()
 		}, linearSearch},
 	} {
@@ -120,5 +119,4 @@ func TestIsPagesProbablySorted(t *testing.T) {
 	c.Assert(isPagesProbablySorted(createSortTestPages(300).ByWeight(), DefaultPageSort), qt.Not(qt.IsNil))
 	c.Assert(isPagesProbablySorted(createSortTestPages(6), DefaultPageSort), qt.IsNil)
 	c.Assert(isPagesProbablySorted(createSortTestPages(300).ByTitle(), pageLessFunctions...), qt.Not(qt.IsNil))
-
 }
