@@ -20,8 +20,8 @@ import (
 	"strconv"
 	"strings"
 
-	translators "github.com/bep/gotranslators"
-	"github.com/go-playground/locales"
+	translators "github.com/gohugoio/localescompressed"
+	"github.com/gohugoio/locales"
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/deps"
@@ -186,7 +186,7 @@ func (ns *Namespace) FormatNumberCustom(precision, number interface{}, options .
 	exp := math.Pow(10.0, float64(prec))
 	r := math.Round(n*exp) / exp
 
-	// Logic from MIT Licensed github.com/go-playground/locales/
+	// Logic from MIT Licensed github.com/gohugoio/locales/
 	// Original Copyright (c) 2016 Go Playground
 
 	s := strconv.FormatFloat(math.Abs(r), 'f', prec, 64)

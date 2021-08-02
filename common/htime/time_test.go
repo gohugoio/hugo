@@ -17,7 +17,7 @@ import (
 	"testing"
 	"time"
 
-	translators "github.com/bep/gotranslators"
+	translators "github.com/gohugoio/localescompressed"
 	qt "github.com/frankban/quicktest"
 )
 

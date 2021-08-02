@@ -21,7 +21,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/htime"
 
-	"github.com/go-playground/locales"
+	"github.com/gohugoio/locales"
 
 	"github.com/spf13/cast"
 )
