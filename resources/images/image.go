@@ -17,11 +17,15 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"image/draw"
 	"image/gif"
 	"image/jpeg"
 	"image/png"
 	"io"
 	"sync"
+
+	"github.com/bep/gowebp/libwebp/webpoptions"
+	"github.com/gohugoio/hugo/resources/images/webp"
 
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/images/exif"
@@ -89,10 +93,18 @@ func (i *Image) EncodeTo(conf ImageConfig, img image.Image, w io.Writer) error {
 
 	case BMP:
 		return bmp.Encode(w, img)
+	case WEBP:
+		return webp.Encode(
+			w,
+			img, webpoptions.EncodingOptions{
+				Quality:        conf.Quality,
+				EncodingPreset: webpoptions.EncodingPreset(conf.Hint),
+				UseSharpYuv:    true,
+			},
+		)
 	default:
 		return errors.New("format not supported")
 	}
-
 }
 
 // Height returns i's height.
@@ -165,7 +177,6 @@ func NewImageProcessor(cfg ImagingConfig) (*ImageProcessor, error) {
 		exif.ExcludeFields(e.ExcludeFields),
 		exif.IncludeFields(e.IncludeFields),
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -174,7 +185,6 @@ func NewImageProcessor(cfg ImagingConfig) (*ImageProcessor, error) {
 		Cfg:         cfg,
 		exifDecoder: exifDecoder,
 	}, nil
-
 }
 
 type ImageProcessor struct {
@@ -227,15 +237,27 @@ func (p *ImageProcessor) ApplyFiltersFromConfig(src image.Image, conf ImageConfi
 
 func (p *ImageProcessor) Filter(src image.Image, filters ...gift.Filter) (image.Image, error) {
 	g := gift.New(filters...)
-	dst := image.NewRGBA(g.Bounds(src.Bounds()))
+	bounds := g.Bounds(src.Bounds())
+	var dst draw.Image
+	switch src.(type) {
+	case *image.RGBA:
+		dst = image.NewRGBA(bounds)
+	case *image.NRGBA:
+		dst = image.NewNRGBA(bounds)
+	case *image.Gray:
+		dst = image.NewGray(bounds)
+	default:
+		dst = image.NewNRGBA(bounds)
+	}
 	g.Draw(dst, src)
 	return dst, nil
 }
 
-func (p *ImageProcessor) GetDefaultImageConfig(action string) ImageConfig {
+func GetDefaultImageConfig(action string, defaults ImagingConfig) ImageConfig {
 	return ImageConfig{
 		Action:  action,
-		Quality: p.Cfg.Cfg.Quality,
+		Hint:    defaults.Hint,
+		Quality: defaults.Cfg.Quality,
 	}
 }
 
@@ -253,11 +275,13 @@ const (
 	GIF
 	TIFF
 	BMP
+	WEBP
 )
 
-// RequiresDefaultQuality returns if the default quality needs to be applied to images of this format
+// RequiresDefaultQuality returns if the default quality needs to be applied to
+// images of this format.
 func (f Format) RequiresDefaultQuality() bool {
-	return f == JPEG
+	return f == JPEG || f == WEBP
 }
 
 // SupportsTransparency reports whether it supports transparency in any form.
@@ -268,7 +292,7 @@ func (f Format) SupportsTransparency() bool {
 // DefaultExtension returns the default file extension of this format, starting with a dot.
 // For example: .jpg for JPEG
 func (f Format) DefaultExtension() string {
-	return f.MediaType().FullSuffix()
+	return f.MediaType().FirstSuffix.FullSuffix
 }
 
 // MediaType returns the media type of this image, e.g. image/jpeg for JPEG
@@ -284,6 +308,8 @@ func (f Format) MediaType() media.Type {
 		return media.TIFFType
 	case BMP:
 		return media.BMPType
+	case WEBP:
+		return media.WEBPType
 	default:
 		panic(fmt.Sprintf("%d is not a valid image format", f))
 	}
@@ -327,4 +353,10 @@ func IsOpaque(img image.Image) bool {
 	}
 
 	return false
+}
+
+// ImageSource identifies and decodes an image.
+type ImageSource interface {
+	DecodeImage() (image.Image, error)
+	Key() string
 }

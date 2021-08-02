@@ -50,3 +50,15 @@ The example above can therefore also be written as follows:
 {{ $style := resources.Get "sass/main.scss" | toCSS | minify | fingerprint }}
 <link rel="stylesheet" href="{{ $style.Permalink }}">
 ```
+
+### Caching
+
+Hugo Pipes invocations are cached based on the entire _pipe chain_.
+
+An example of a pipe chain is:
+
+```go-html-template
+{{ $mainJs := resources.Get "js/main.js" | js.Build "main.js" | minify | fingerprint }}
+```
+
+The pipe chain is only invoked the first time it is encountered in a site build, and results are otherwise loaded from cache. As such, Hugo Pipes can be used in templates which are executed thousands or millions of times without negatively impacting the build performance.

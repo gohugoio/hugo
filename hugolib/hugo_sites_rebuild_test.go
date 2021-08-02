@@ -20,12 +20,12 @@ import (
 )
 
 func TestSitesRebuild(t *testing.T) {
-
 	configFile := `
 baseURL = "https://example.com"
 title = "Rebuild this"
 contentDir = "content"
 enableInlineShortcodes = true
+timeout = "5s"
 
 
 `
@@ -141,7 +141,6 @@ Data Inline: Rocks!
 		b.AssertFileContent("public/index.html", `
 Data: Rules!
 Data Inline: Rules!`)
-
 	})
 
 	// https://github.com/gohugoio/hugo/issues/6968
@@ -164,7 +163,6 @@ Data Inline: Rules!`)
 		b.Build(BuildCfg{testCounters: counters})
 
 		b.Assert(int(counters.contentRenderCounter), qt.Equals, 0)
-
 	})
 
 	t.Run("Page.Render, edit baseof", func(t *testing.T) {
@@ -189,7 +187,6 @@ prender: {{ $p.Title }}|{{ $p.Content }}
 		b.AssertFileContent("public/index.html", `
 Render /prender/: Baseof Edited:Single Main: Page 1|Mypartial1: Mypartial1:END
 `)
-
 	})
 
 	t.Run("Page.Render, edit partial in baseof", func(t *testing.T) {
@@ -214,7 +211,106 @@ prender: {{ $p.Title }}|{{ $p.Content }}
 		b.AssertFileContent("public/index.html", `
 Render /prender/: Baseof:Single Main: Page 1|Mypartial1: Mypartial1|Mypartial3: Mypartial3 Edited:END
 `)
-
 	})
 
+	t.Run("Edit RSS shortcode", func(t *testing.T) {
+		b := createSiteBuilder(t)
+
+		b.WithContent("output.md", `---
+title: Output
+outputs: ["HTML", "AMP"]
+layout: output
+---
+
+Content for Output.
+
+{{< output >}}
+
+`)
+
+		b.WithTemplates(
+			"layouts/_default/output.html", `Output HTML: {{ .RelPermalink }}|{{ .Content }}`,
+			"layouts/_default/output.amp.html", `Output AMP: {{ .RelPermalink }}|{{ .Content }}`,
+			"layouts/shortcodes/output.html", `Output Shortcode HTML`,
+			"layouts/shortcodes/output.amp.html", `Output Shortcode AMP`)
+
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/output/index.html", `
+Output Shortcode HTML
+`)
+		b.AssertFileContent("public/amp/output/index.html", `
+Output Shortcode AMP
+`)
+
+		b.EditFiles("layouts/shortcodes/output.amp.html", `Output Shortcode AMP Edited`)
+
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/amp/output/index.html", `
+Output Shortcode AMP Edited
+`)
+	})
+}
+
+// Issues #7623 #7625
+func TestSitesRebuildOnFilesIncludedWithGetPage(t *testing.T) {
+	b := newTestSitesBuilder(t).Running()
+	b.WithContent("pages/p1.md", `---
+title: p1
+---
+P3: {{< GetPage "pages/p3" >}}
+`)
+
+	b.WithContent("pages/p2.md", `---
+title: p2
+---
+P4: {{< site_GetPage "pages/p4" >}}
+P5: {{< site_GetPage "p5" >}}
+P6: {{< dot_site_GetPage "p6" >}}
+`)
+
+	b.WithContent("pages/p3/index.md", "---\ntitle: p3\nheadless: true\n---\nP3 content")
+	b.WithContent("pages/p4/index.md", "---\ntitle: p4\nheadless: true\n---\nP4 content")
+	b.WithContent("pages/p5.md", "---\ntitle: p5\n---\nP5 content")
+	b.WithContent("pages/p6.md", "---\ntitle: p6\n---\nP6 content")
+
+	b.WithTemplates(
+		"_default/single.html", `{{ .Content }}`,
+		"shortcodes/GetPage.html", `
+{{ $arg := .Get 0 }}
+{{ $p := .Page.GetPage $arg }}
+{{ $p.Content }}
+	`,
+		"shortcodes/site_GetPage.html", `
+{{ $arg := .Get 0 }}
+{{ $p := site.GetPage $arg }}
+{{ $p.Content }}
+	`, "shortcodes/dot_site_GetPage.html", `
+{{ $arg := .Get 0 }}
+{{ $p := .Site.GetPage $arg }}
+{{ $p.Content }}
+	`,
+	)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/pages/p1/index.html", "P3 content")
+	b.AssertFileContent("public/pages/p2/index.html", `P4 content
+P5 content
+P6 content
+`)
+
+	b.EditFiles("content/pages/p3/index.md", "---\ntitle: p3\n---\nP3 changed content")
+	b.EditFiles("content/pages/p4/index.md", "---\ntitle: p4\n---\nP4 changed content")
+	b.EditFiles("content/pages/p5.md", "---\ntitle: p5\n---\nP5 changed content")
+	b.EditFiles("content/pages/p6.md", "---\ntitle: p6\n---\nP6 changed content")
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/pages/p1/index.html", "P3 changed content")
+	b.AssertFileContent("public/pages/p2/index.html", `P4 changed content
+P5 changed content
+P6 changed content
+`)
 }

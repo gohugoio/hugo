@@ -64,7 +64,7 @@ and a new line with a "quoted string".` */>}}
 
 ### Shortcodes with Markdown
 
-In Hugo `0.55` we changed how the `%` delimiter works. Shortcodes using the `%` as the outer-most delimiter will now be fully rendered when sent to the content renderer (e.g. Blackfriday for Markdown), meaning they can be part of the generated table of contents, footnotes, etc.
+In Hugo `0.55` we changed how the `%` delimiter works. Shortcodes using the `%` as the outer-most delimiter will now be fully rendered when sent to the content renderer. They can be part of the generated table of contents, footnotes, etc.
 
 If you want the old behavior, you can put the following line in the start of your shortcode template:
 
@@ -255,6 +255,11 @@ Using the preceding `instagram` with `hidecaption` example above, the following 
 {{< instagram BWNjjyYFxVx hidecaption >}}
 
 
+
+{{% note %}}
+The `instagram`-shortcode refers an endpoint of Instagram's API, that's deprecated since October 24th, 2020. Thus, no images can be fetched from this API endpoint, resulting in an error when the `instagram`-shortcode is used. For more information please have a look at GitHub issue [#7879](https://github.com/gohugoio/hugo/issues/7879).
+{{% /note %}}
+
 ### `param`
 
 Gets a value from the current `Page's` params set in front matter, with a fall back to the site param value. It will log an `ERROR` if the param with the given key could not be found in either.
@@ -297,8 +302,8 @@ Read a more extensive description of `ref` and `relref` in the [cross references
 Assuming that standard Hugo pretty URLs are turned on.
 
 ```
-<a href="/blog/neat">Neat</a>
-<a href="/about/#who:c28654c202e73453784cfd2c5ab356c0">Who</a>
+<a href="https://example.com/blog/neat">Neat</a>
+<a href="/about/#who">Who</a>
 ```
 
 ### `tweet`
@@ -392,6 +397,13 @@ Furthermore, you can automatically start playback of the embedded video by setti
 {{< code file="example-youtube-input-with-autoplay.md" >}}
 {{</* youtube id="w7Ft2ymGmfc" autoplay="true" */>}}
 {{< /code >}}
+
+For [accessibility reasons](https://dequeuniversity.com/tips/provide-iframe-titles), it's best to provide a title for your YouTube video.  You  can do this using the shortcode by providing a `title` parameter. If no title is provided, a default of "YouTube Video" will be used.
+
+{{< code file="example-youtube-input-with-title.md" >}}
+{{</* youtube id="w7Ft2ymGmfc" title="A New Hugo Site in Under Two Minutes" */>}}
+{{< /code >}}
+
 
 #### Example `youtube` Output
 

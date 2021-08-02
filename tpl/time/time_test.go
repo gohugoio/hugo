@@ -18,6 +18,44 @@ import (
 	"time"
 )
 
+func TestTimeLocation(t *testing.T) {
+	t.Parallel()
+
+	ns := New()
+
+	for i, test := range []struct {
+		value    string
+		location string
+		expect   interface{}
+	}{
+		{"2020-10-20", "", "2020-10-20 00:00:00 +0000 UTC"},
+		{"2020-10-20", "America/New_York", "2020-10-20 00:00:00 -0400 EDT"},
+		{"2020-01-20", "America/New_York", "2020-01-20 00:00:00 -0500 EST"},
+		{"2020-10-20 20:33:59", "", "2020-10-20 20:33:59 +0000 UTC"},
+		{"2020-10-20 20:33:59", "America/New_York", "2020-10-20 20:33:59 -0400 EDT"},
+		// The following have an explicit offset specified. In this case, it overrides timezone
+		{"2020-09-23T20:33:44-0700", "", "2020-09-23 20:33:44 -0700 -0700"},
+		{"2020-09-23T20:33:44-0700", "America/New_York", "2020-09-23 20:33:44 -0700 -0700"},
+		{"2020-01-20", "invalid-timezone", false}, // unknown time zone invalid-timezone
+		{"invalid-value", "", false},
+	} {
+		result, err := ns.AsTime(test.value, test.location)
+		if b, ok := test.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] AsTime didn't return an expected error, got %v", i, result)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] AsTime failed: %s", i, err)
+				continue
+			}
+			if result.(time.Time).String() != test.expect {
+				t.Errorf("[%d] AsTime got %v but expected %v", i, result, test.expect)
+			}
+		}
+	}
+}
+
 func TestFormat(t *testing.T) {
 	t.Parallel()
 

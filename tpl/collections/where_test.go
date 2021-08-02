@@ -15,6 +15,7 @@ package collections
 
 import (
 	"fmt"
+	"html/template"
 	"reflect"
 	"strings"
 	"testing"
@@ -62,7 +63,6 @@ func TestWhere(t *testing.T) {
 		}
 
 		return testVariants
-
 	}
 
 	for i, test := range []testt{
@@ -147,6 +147,17 @@ func TestWhere(t *testing.T) {
 			key: "b", match: 2.0, op: ">=",
 			expect: []map[string]float64{{"a": 1, "b": 2}, {"a": 3, "b": 3}},
 		},
+		// Issue #8353
+		// String type mismatch.
+		{
+			seq: []map[string]interface{}{
+				{"a": "1", "b": "2"}, {"a": "3", "b": template.HTML("4")}, {"a": "5", "x": "4"},
+			},
+			key: "b", match: "4",
+			expect: []map[string]interface{}{
+				{"a": "3", "b": template.HTML("4")},
+			},
+		},
 		{
 			seq: []TstX{
 				{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"},
@@ -165,23 +176,41 @@ func TestWhere(t *testing.T) {
 				{1: "a", 2: "m"},
 			},
 		},
+		// Case insensitive maps.Params
+		// Slice of structs
+		{
+			seq: []TstParams{{params: maps.Params{"i": 0, "color": "indigo"}}, {params: maps.Params{"i": 1, "color": "blue"}}, {params: maps.Params{"i": 2, "color": "green"}}, {params: maps.Params{"i": 3, "color": "blue"}}},
+			key: ".Params.COLOR", match: "blue",
+			expect: []TstParams{{params: maps.Params{"i": 1, "color": "blue"}}, {params: maps.Params{"i": 3, "color": "blue"}}},
+		},
+		{
+			seq: []TstParams{{params: maps.Params{"nested": map[string]interface{}{"color": "indigo"}}}, {params: maps.Params{"nested": map[string]interface{}{"color": "blue"}}}},
+			key: ".Params.NEsTED.COLOR", match: "blue",
+			expect: []TstParams{{params: maps.Params{"nested": map[string]interface{}{"color": "blue"}}}},
+		},
+		{
+			seq: []TstParams{{params: maps.Params{"i": 0, "color": "indigo"}}, {params: maps.Params{"i": 1, "color": "blue"}}, {params: maps.Params{"i": 2, "color": "green"}}, {params: maps.Params{"i": 3, "color": "blue"}}},
+			key: ".Params", match: "blue",
+			expect: []TstParams{},
+		},
+		// Slice of maps
 		{
 			seq: []maps.Params{
 				{"a": "a1", "b": "b1"}, {"a": "a2", "b": "b2"},
 			},
 			key: "B", match: "b2",
 			expect: []maps.Params{
-				maps.Params{"a": "a2", "b": "b2"},
+				{"a": "a2", "b": "b2"},
 			},
 		},
 		{
 			seq: []maps.Params{
-				maps.Params{
+				{
 					"a": map[string]interface{}{
 						"b": "b1",
 					},
 				},
-				maps.Params{
+				{
 					"a": map[string]interface{}{
 						"b": "b2",
 					},
@@ -189,7 +218,7 @@ func TestWhere(t *testing.T) {
 			},
 			key: "A.B", match: "b2",
 			expect: []maps.Params{
-				maps.Params{
+				{
 					"a": map[string]interface{}{
 						"b": "b2",
 					},

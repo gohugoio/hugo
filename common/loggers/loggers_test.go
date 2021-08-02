@@ -14,6 +14,9 @@
 package loggers
 
 import (
+	"bytes"
+	"fmt"
+	"log"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -23,10 +26,23 @@ func TestLogger(t *testing.T) {
 	c := qt.New(t)
 	l := NewWarningLogger()
 
-	l.ERROR.Println("One error")
-	l.ERROR.Println("Two error")
-	l.WARN.Println("A warning")
+	l.Errorln("One error")
+	l.Errorln("Two error")
+	l.Warnln("A warning")
 
-	c.Assert(l.ErrorCounter.Count(), qt.Equals, uint64(2))
+	c.Assert(l.LogCounters().ErrorCounter.Count(), qt.Equals, uint64(2))
+}
 
+func TestLoggerToWriterWithPrefix(t *testing.T) {
+	c := qt.New(t)
+
+	var b bytes.Buffer
+
+	logger := log.New(&b, "", 0)
+
+	w := LoggerToWriterWithPrefix(logger, "myprefix")
+
+	fmt.Fprint(w, "Hello Hugo!")
+
+	c.Assert(b.String(), qt.Equals, "myprefix: Hello Hugo!\n")
 }

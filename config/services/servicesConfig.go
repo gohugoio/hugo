@@ -53,6 +53,11 @@ type Instagram struct {
 	// This means that if you use Bootstrap 4 or want to provide your own CSS, you want
 	// to disable the inline CSS provided by Hugo.
 	DisableInlineCSS bool
+
+	// App or Client Access Token.
+	// If you are using a Client Access Token, remember that you must combine it with your App ID
+	// using a pipe symbol (<APPID>|<CLIENTTOKEN>) otherwise the request will fail.
+	AccessToken string
 }
 
 // Twitter holds the functional configuration settings related to the Twitter shortcodes.

@@ -20,7 +20,6 @@ import (
 )
 
 func TestGetNestedParam(t *testing.T) {
-
 	m := map[string]interface{}{
 		"string":          "value",
 		"first":           1,
@@ -47,5 +46,125 @@ func TestGetNestedParam(t *testing.T) {
 	c.Assert(must("nested_color", "_", m), qt.Equals, "blue")
 	c.Assert(must("nested.nestednested.color", ".", m), qt.Equals, "green")
 	c.Assert(must("string.name", ".", m), qt.IsNil)
+	c.Assert(must("nested.foo", ".", m), qt.IsNil)
+}
 
+// https://github.com/gohugoio/hugo/issues/7903
+func TestGetNestedParamFnNestedNewKey(t *testing.T) {
+	c := qt.New(t)
+
+	nested := map[string]interface{}{
+		"color": "blue",
+	}
+	m := map[string]interface{}{
+		"nested": nested,
+	}
+
+	existing, nestedKey, owner, err := GetNestedParamFn("nested.new", ".", func(key string) interface{} {
+		return m[key]
+	})
+
+	c.Assert(err, qt.IsNil)
+	c.Assert(existing, qt.IsNil)
+	c.Assert(nestedKey, qt.Equals, "new")
+	c.Assert(owner, qt.DeepEquals, nested)
+}
+
+func TestParamsSetAndMerge(t *testing.T) {
+	c := qt.New(t)
+
+	createParamsPair := func() (Params, Params) {
+		p1 := Params{"a": "av", "c": "cv", "nested": Params{"al2": "al2v", "cl2": "cl2v"}}
+		p2 := Params{"b": "bv", "a": "abv", "nested": Params{"bl2": "bl2v", "al2": "al2bv"}, mergeStrategyKey: ParamsMergeStrategyDeep}
+		return p1, p2
+	}
+
+	p1, p2 := createParamsPair()
+
+	p1.Set(p2)
+
+	c.Assert(p1, qt.DeepEquals, Params{
+		"a": "abv",
+		"c": "cv",
+		"nested": Params{
+			"al2": "al2bv",
+			"cl2": "cl2v",
+			"bl2": "bl2v",
+		},
+		"b":              "bv",
+		mergeStrategyKey: ParamsMergeStrategyDeep,
+	})
+
+	p1, p2 = createParamsPair()
+
+	p1.Merge(p2)
+
+	// Default is to do a shallow merge.
+	c.Assert(p1, qt.DeepEquals, Params{
+		"c": "cv",
+		"nested": Params{
+			"al2": "al2v",
+			"cl2": "cl2v",
+		},
+		"b": "bv",
+		"a": "av",
+	})
+
+	p1, p2 = createParamsPair()
+	p1.SetDefaultMergeStrategy(ParamsMergeStrategyNone)
+	p1.Merge(p2)
+	p1.DeleteMergeStrategy()
+
+	c.Assert(p1, qt.DeepEquals, Params{
+		"a": "av",
+		"c": "cv",
+		"nested": Params{
+			"al2": "al2v",
+			"cl2": "cl2v",
+		},
+	})
+
+	p1, p2 = createParamsPair()
+	p1.SetDefaultMergeStrategy(ParamsMergeStrategyShallow)
+	p1.Merge(p2)
+	p1.DeleteMergeStrategy()
+
+	c.Assert(p1, qt.DeepEquals, Params{
+		"a": "av",
+		"c": "cv",
+		"nested": Params{
+			"al2": "al2v",
+			"cl2": "cl2v",
+		},
+		"b": "bv",
+	})
+
+	p1, p2 = createParamsPair()
+	p1.SetDefaultMergeStrategy(ParamsMergeStrategyDeep)
+	p1.Merge(p2)
+	p1.DeleteMergeStrategy()
+
+	c.Assert(p1, qt.DeepEquals, Params{
+		"nested": Params{
+			"al2": "al2v",
+			"cl2": "cl2v",
+			"bl2": "bl2v",
+		},
+		"b": "bv",
+		"a": "av",
+		"c": "cv",
+	})
+
+}
+
+func TestParamsIsZero(t *testing.T) {
+	c := qt.New(t)
+
+	var nilParams Params
+
+	c.Assert(Params{}.IsZero(), qt.IsTrue)
+	c.Assert(nilParams.IsZero(), qt.IsTrue)
+	c.Assert(Params{"foo": "bar"}.IsZero(), qt.IsFalse)
+	c.Assert(Params{"_merge": "foo", "foo": "bar"}.IsZero(), qt.IsFalse)
+	c.Assert(Params{"_merge": "foo"}.IsZero(), qt.IsTrue)
 }

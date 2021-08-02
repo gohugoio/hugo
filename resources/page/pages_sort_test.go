@@ -126,7 +126,6 @@ func TestSortByN(t *testing.T) {
 			t.Errorf("[%d] sort error", i)
 		}
 	}
-
 }
 
 func TestLimit(t *testing.T) {
@@ -260,7 +259,6 @@ func setSortVals(dates [4]time.Time, titles [4]string, weights [4]int, pages Pag
 	for _, p := range pages {
 		p.(*testPage).content = ""
 	}
-
 }
 
 func createSortTestPages(num int) Pages {

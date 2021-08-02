@@ -62,5 +62,5 @@ You can use `after` in combination with the [`first` function][] and Hugo's [pow
 
 [`first` function]: /functions/first/
 [list/section page]: /templates/section-templates/
-[lists]: /lists/
+[lists]: /templates/lists/#order-content
 [slice]: /functions/slice/

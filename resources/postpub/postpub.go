@@ -108,7 +108,6 @@ func (r *PostPublishResource) GetFieldString(pattern string) (string, bool) {
 	default:
 		panic(fmt.Sprintf("unknown field accessor %q", fieldAccessor))
 	}
-
 }
 
 func (r *PostPublishResource) fieldToString(receiver interface{}, path string) string {

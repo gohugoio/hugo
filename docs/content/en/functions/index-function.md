@@ -52,13 +52,13 @@ Assume you want to add a `location = ""` field to your front matter for every ar
         └── provo.toml
 ```
 
-Here is an example of the data inside `data/locations/oslo.toml`:
+Here is an example:
 
-```
+{{< code-toggle file="data/locations/oslo" >}}
 website = "https://www.oslo.kommune.no"
 pop_city = 658390
 pop_metro = 1717900
-```
+{{< /code-toggle >}}
 
 The example we will use will be an article on Oslo, whose front matter should be set to exactly the same name as the corresponding file name in `data/locations/`:
 

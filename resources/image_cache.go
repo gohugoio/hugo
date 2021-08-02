@@ -46,7 +46,7 @@ func (c *imageCache) deleteIfContains(s string) {
 	}
 }
 
-// The cache key is a lowecase path with Unix style slashes and it always starts with
+// The cache key is a lowercase path with Unix style slashes and it always starts with
 // a leading slash.
 func (c *imageCache) normalizeKey(key string) string {
 	return "/" + c.normalizeKeyBase(key)
@@ -72,7 +72,7 @@ func (c *imageCache) getOrCreate(
 	// For the file cache we want to generate and store it once if possible.
 	fileKeyPath := relTarget
 	if fi := parent.root.getFileInfo(); fi != nil {
-		fileKeyPath.dir = filepath.ToSlash(filepath.Dir(fi.Meta().Path()))
+		fileKeyPath.dir = filepath.ToSlash(filepath.Dir(fi.Meta().Path))
 	}
 	fileKey := fileKeyPath.path()
 

@@ -77,7 +77,8 @@ var upgrader = &websocket.Upgrader{
 
 		return h1 == h2
 	},
-	ReadBufferSize: 1024, WriteBufferSize: 1024}
+	ReadBufferSize: 1024, WriteBufferSize: 1024,
+}
 
 // Handler is a HandlerFunc handling the livereload
 // Websocket interaction.

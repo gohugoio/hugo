@@ -11,10 +11,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package pageparser provides a parser for Hugo content files (Markdown, HTML etc.) in Hugo.
-// This implementation is highly inspired by the great talk given by Rob Pike called "Lexical Scanning in Go"
-// It's on YouTube, Google it!.
-// See slides here: http://cuddle.googlecode.com/hg/talk/lex.html
 package pageparser
 
 type lexerShortcodeState struct {
@@ -88,7 +84,6 @@ func lexShortcodeRightDelim(l *pageLexer) stateFunc {
 // 5. `param`
 // 6. param=`123`
 func lexShortcodeParam(l *pageLexer, escapedQuoteStart bool) stateFunc {
-
 	first := true
 	nextEq := false
 
@@ -142,7 +137,6 @@ func lexShortcodeParam(l *pageLexer, escapedQuoteStart bool) stateFunc {
 
 	l.emit(tScParam)
 	return lexInsideShortcode
-
 }
 
 func lexShortcodeParamVal(l *pageLexer) stateFunc {
@@ -191,7 +185,7 @@ Loop:
 					l.backup()
 					break Loop
 				} else if openQuoteFound {
-					// the coming quoute is inside
+					// the coming quote is inside
 					escapedInnerQuoteFound = true
 					escapedQuoteState = 1
 				}
@@ -360,7 +354,6 @@ func (l *pageLexer) currentLeftShortcodeDelim() []byte {
 		return leftDelimScWithMarkup
 	}
 	return leftDelimScNoMarkup
-
 }
 
 func (l *pageLexer) currentRightShortcodeDelim() []byte {

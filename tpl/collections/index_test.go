@@ -52,7 +52,6 @@ func TestIndex(t *testing.T) {
 		{[]int{0, 1}, []interface{}{nil}, nil, true},
 		{tstNoStringer{}, []interface{}{0}, nil, true},
 	} {
-
 		c.Run(fmt.Sprint(i), func(c *qt.C) {
 			errMsg := qt.Commentf("[%d] %v", i, test)
 

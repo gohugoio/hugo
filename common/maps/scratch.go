@@ -51,7 +51,6 @@ func NewScratcher() Scratcher {
 //
 // If the first add for a key is an array or slice, then the next value(s) will be appended.
 func (c *Scratch) Add(key string, newAddend interface{}) (string, error) {
-
 	var newVal interface{}
 	c.mu.RLock()
 	existingAddend, found := c.values[key]
@@ -126,6 +125,17 @@ func (c *Scratch) SetInMap(key string, mapKey string, value interface{}) string 
 	}
 
 	c.values[key].(map[string]interface{})[mapKey] = value
+	c.mu.Unlock()
+	return ""
+}
+
+// DeleteInMap deletes a value to a map with the given key in the Node context.
+func (c *Scratch) DeleteInMap(key string, mapKey string) string {
+	c.mu.Lock()
+	_, found := c.values[key]
+	if found {
+		delete(c.values[key].(map[string]interface{}), mapKey)
+	}
 	c.mu.Unlock()
 	return ""
 }

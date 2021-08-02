@@ -21,6 +21,7 @@ import (
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/navigation"
@@ -87,6 +88,7 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 	isTranslated := p.IsTranslated()
 	allTranslations := p.AllTranslations()
 	translations := p.Translations()
+	getIdentity := p.GetIdentity()
 
 	s := struct {
 		Content                  interface{}
@@ -143,6 +145,7 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 		IsTranslated             bool
 		AllTranslations          Pages
 		Translations             Pages
+		GetIdentity              identity.Identity
 	}{
 		Content:                  content,
 		Plain:                    plain,
@@ -198,6 +201,7 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 		IsTranslated:             isTranslated,
 		AllTranslations:          allTranslations,
 		Translations:             translations,
+		GetIdentity:              getIdentity,
 	}
 
 	return json.Marshal(&s)

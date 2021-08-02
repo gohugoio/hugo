@@ -25,6 +25,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/cli/safeexec"
+
+	"github.com/gohugoio/hugo/common/hexec"
+
 	"github.com/gohugoio/hugo/common/hugo"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -35,9 +39,6 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/pkg/errors"
-
-	"os"
-	"os/exec"
 
 	"github.com/mitchellh/mapstructure"
 
@@ -140,7 +141,6 @@ func (t *postcssTransformation) Key() internal.ResourceTransformationKey {
 // npm install -g postcss-cli
 // npm install -g autoprefixer
 func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
-
 	const localPostCSSPath = "node_modules/.bin/"
 	const binaryName = "postcss"
 
@@ -149,10 +149,10 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 
 	binary := csiBinPath
 
-	if _, err := exec.LookPath(binary); err != nil {
+	if _, err := safeexec.LookPath(binary); err != nil {
 		// Try PATH
 		binary = binaryName
-		if _, err := exec.LookPath(binary); err != nil {
+		if _, err := safeexec.LookPath(binary); err != nil {
 			// This may be on a CI server etc. Will fall back to pre-built assets.
 			return herrors.ErrFeatureNotAvailable
 		}
@@ -169,26 +169,19 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 
 	configFile = filepath.Clean(configFile)
 
-	// We need an abolute filename to the config file.
+	// We need an absolute filename to the config file.
 	if !filepath.IsAbs(configFile) {
-		// We resolve this against the virtual Work filesystem, to allow
-		// this config file to live in one of the themes if needed.
-		fi, err := t.rs.BaseFs.Work.Stat(configFile)
-		if err != nil {
-			if t.options.Config != "" {
-				// Only fail if the user specificed config file is not found.
-				return errors.Wrapf(err, "postcss config %q not found:", configFile)
-			}
-			configFile = ""
-		} else {
-			configFile = fi.(hugofs.FileMetaInfo).Meta().Filename()
+		configFile = t.rs.BaseFs.ResolveJSConfigFile(configFile)
+		if configFile == "" && t.options.Config != "" {
+			// Only fail if the user specified config file is not found.
+			return errors.Errorf("postcss config %q not found:", configFile)
 		}
 	}
 
 	var cmdArgs []string
 
 	if configFile != "" {
-		logger.INFO.Println("postcss: use config file", configFile)
+		logger.Infoln("postcss: use config file", configFile)
 		cmdArgs = []string{"--config", configFile}
 	}
 
@@ -196,13 +189,18 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 		cmdArgs = append(cmdArgs, optArgs...)
 	}
 
-	cmd := exec.Command(binary, cmdArgs...)
+	cmd, err := hexec.SafeCommand(binary, cmdArgs...)
+	if err != nil {
+		return err
+	}
 
 	var errBuf bytes.Buffer
+	infoW := loggers.LoggerToWriterWithPrefix(logger.Info(), "postcss")
 
 	cmd.Stdout = ctx.To
-	cmd.Stderr = io.MultiWriter(os.Stderr, &errBuf)
-	cmd.Env = hugo.GetExecEnviron(t.rs.Cfg)
+	cmd.Stderr = io.MultiWriter(infoW, &errBuf)
+
+	cmd.Env = hugo.GetExecEnviron(t.rs.WorkingDir, t.rs.Cfg, t.rs.BaseFs.Assets.Fs)
 
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
@@ -250,10 +248,10 @@ type importResolver struct {
 	contentSeen map[string]bool
 	linemap     map[int]fileOffset
 	fs          afero.Fs
-	logger      *loggers.Logger
+	logger      loggers.Logger
 }
 
-func newImportResolver(r io.Reader, inPath string, fs afero.Fs, logger *loggers.Logger) *importResolver {
+func newImportResolver(r io.Reader, inPath string, fs afero.Fs, logger loggers.Logger) *importResolver {
 	return &importResolver{
 		r:      r,
 		inPath: inPath,
@@ -276,7 +274,6 @@ func (imp *importResolver) importRecursive(
 	lineNum int,
 	content string,
 	inPath string) (int, string, error) {
-
 	basePath := path.Dir(inPath)
 
 	var replacements []string
@@ -301,7 +298,7 @@ func (imp *importResolver) importRecursive(
 			importContent, hash := imp.contentHash(filename)
 			if importContent == nil {
 				trackLine(i, offset, "ERROR")
-				imp.logger.WARN.Printf("postcss: Failed to resolve CSS @import in %q for path %q", inPath, filename)
+				imp.logger.Warnf("postcss: Failed to resolve CSS @import in %q for path %q", inPath, filename)
 				continue
 			}
 
@@ -355,7 +352,6 @@ func (imp *importResolver) resolve() (io.Reader, error) {
 	}
 
 	return strings.NewReader(newContent), nil
-
 }
 
 // See https://www.w3schools.com/cssref/pr_import_rule.asp
@@ -398,7 +394,7 @@ func (imp *importResolver) toFileError(output string) error {
 	if err != nil {
 		return inErr
 	}
-	realFilename := fi.(hugofs.FileMetaInfo).Meta().Filename()
+	realFilename := fi.(hugofs.FileMetaInfo).Meta().Filename
 
 	ferr := herrors.NewFileError("css", -1, file.Offset+1, 1, inErr)
 

@@ -17,16 +17,15 @@ package highlight
 import (
 	"testing"
 
-	"github.com/spf13/viper"
-
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/config"
 )
 
 func TestConfig(t *testing.T) {
 	c := qt.New(t)
 
 	c.Run("applyLegacyConfig", func(c *qt.C) {
-		v := viper.New()
+		v := config.New()
 		v.Set("pygmentsStyle", "hugo")
 		v.Set("pygmentsUseClasses", false)
 		v.Set("pygmentsCodeFences", false)
@@ -40,7 +39,6 @@ func TestConfig(t *testing.T) {
 		c.Assert(cfg.CodeFences, qt.Equals, false)
 		c.Assert(cfg.LineNos, qt.Equals, true)
 		c.Assert(cfg.LineNumbersInTable, qt.Equals, false)
-
 	})
 
 	c.Run("parseOptions", func(c *qt.C) {
@@ -54,6 +52,5 @@ func TestConfig(t *testing.T) {
 		c.Assert(cfg.LineNumbersInTable, qt.Equals, false)
 		c.Assert(cfg.LineNoStart, qt.Equals, 32)
 		c.Assert(cfg.Hl_Lines, qt.Equals, "3-8 10-20")
-
 	})
 }

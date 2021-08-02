@@ -78,7 +78,6 @@ func TestWeightedPagesPrev(t *testing.T) {
 	c.Assert(w.Prev(w[0].Page), qt.Equals, w[1].Page)
 	c.Assert(w.Prev(w[1].Page), qt.Equals, w[2].Page)
 	c.Assert(w.Prev(w[4].Page), qt.IsNil)
-
 }
 
 func TestWeightedPagesNext(t *testing.T) {
@@ -89,5 +88,4 @@ func TestWeightedPagesNext(t *testing.T) {
 	c.Assert(w.Next(w[0].Page), qt.IsNil)
 	c.Assert(w.Next(w[1].Page), qt.Equals, w[0].Page)
 	c.Assert(w.Next(w[4].Page), qt.Equals, w[3].Page)
-
 }

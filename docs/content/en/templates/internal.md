@@ -27,14 +27,20 @@ While the following internal templates are called similar to partials, they do *
 
 ## Google Analytics
 
-Hugo ships with internal templates for Google Analytics tracking, including both synchronous and asynchronous tracking codes.
+Hugo ships with internal templates for Google Analytics tracking, including both synchronous and asynchronous tracking codes. As well as support for both v3 and v4 of Google Analytics.
 
 ### Configure Google Analytics
 
 Provide your tracking id in your configuration file:
 
+**Google Analytics v3 (analytics.js)**
 {{< code-toggle file="config" >}}
-googleAnalytics = "UA-123-45"
+googleAnalytics = "UA-PROPERTY_ID"
+{{</ code-toggle >}}
+
+**Google Analytics v4 (gtag.js)**
+{{< code-toggle file="config" >}}
+googleAnalytics = "G-MEASUREMENT_ID"
 {{</ code-toggle >}}
 
 ### Use the Google Analytics Template
@@ -50,6 +56,8 @@ You can then include the Google Analytics internal template:
 {{ template "_internal/google_analytics_async.html" . }}
 ```
 
+When using Google Analytics v4 use `_internal/google_analytics.html`.
+
 A `.Site.GoogleAnalytics` variable is also exposed from the config.
 
 ## Disqus
@@ -58,7 +66,7 @@ Hugo also ships with an internal template for [Disqus comments][disqus], a popul
 
 ### Configure Disqus
 
-To use Hugo's Disqus template, you first need to set a single value in your site's `config.toml` or `config.yml`:
+To use Hugo's Disqus template, you first need to set a single configuration value:
 
 {{< code-toggle file="config" >}}
 disqusShortname = "yourdiscussshortname"
@@ -144,6 +152,7 @@ tags = []
 
 Hugo uses the page title and description for the title and description metadata.
 The first 6 URLs from the `images` array are used for image metadata.
+If [page bundles](/content-management/page-bundles/) are used and the `images` array is empty or undefined, images with filenames matching `*feature*` or `*cover*,*thumbnail*` are used for image metadata.
 
 Various optional metadata can also be set:
 
@@ -152,7 +161,7 @@ Various optional metadata can also be set:
 - The first 6 `tags` on the page are used for the tags metadata.
 - The `series` taxonomy is used to specify related "see also" pages by placing them in the same series.
 
-If using YouTube this will produce a og:video tag like `<meta property="og:video" content="url">`. If using a YouTube link make sure this is in **https://www.youtube.com/v/NlXVWtgLNjY** not __https://www.youtube.com/watch?v=NlXVWtgLNjY__
+If using YouTube this will produce a og:video tag like `<meta property="og:video" content="url">`. Use the `https://youtu.be/<id>` format with YouTube videos (example: `https://youtu.be/qtIqKaDlqXo`).
 
 ### Use the Open Graph Template
 

@@ -28,11 +28,12 @@ const (
 	Never       = "never"
 	Always      = "always"
 	ListLocally = "local"
+	Link        = "link"
 )
 
 var defaultBuildConfig = BuildConfig{
 	List:             Always,
-	Render:           true,
+	Render:           Always,
 	PublishResources: true,
 	set:              true,
 }
@@ -49,7 +50,10 @@ type BuildConfig struct {
 	List string
 
 	// Whether to render it.
-	Render bool
+	// Valid values: never, always, link.
+	// The value link means it will not be rendered, but it will get a RelPermalink/Permalink.
+	// Note that before 0.76.0 this was a bool, so we accept those too.
+	Render string
 
 	// Whether to publish its resources. These will still be published on demand,
 	// but enabling this can be useful if the originals (e.g. images) are
@@ -62,7 +66,7 @@ type BuildConfig struct {
 // Disable sets all options to their off value.
 func (b *BuildConfig) Disable() {
 	b.List = Never
-	b.Render = false
+	b.Render = Never
 	b.PublishResources = false
 	b.set = true
 }
@@ -89,6 +93,17 @@ func DecodeBuildConfig(m interface{}) (BuildConfig, error) {
 	case Always, Never, ListLocally:
 	default:
 		b.List = Always
+	}
+
+	// In 0.76.0 we changed the Render from bool to a string.
+	switch b.Render {
+	case "0":
+		b.Render = Never
+	case "1":
+		b.Render = Always
+	case Always, Never, Link:
+	default:
+		b.Render = Always
 	}
 
 	return b, err

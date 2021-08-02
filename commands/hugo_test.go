@@ -44,5 +44,4 @@ contentDir = "thisdoesnotexist"
 
 	_, err = cmd.ExecuteC()
 	c.Assert(err, qt.IsNil)
-
 }

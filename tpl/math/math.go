@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package math provides template functions for mathmatical operations.
+// Package math provides template functions for mathematical operations.
 package math
 
 import (
@@ -64,7 +64,6 @@ func (ns *Namespace) Floor(x interface{}) (float64, error) {
 // Log returns the natural logarithm of a number.
 func (ns *Namespace) Log(a interface{}) (float64, error) {
 	af, err := cast.ToFloat64E(a)
-
 	if err != nil {
 		return 0, errors.New("Log operator can't be used with non integer or float value")
 	}
@@ -72,16 +71,28 @@ func (ns *Namespace) Log(a interface{}) (float64, error) {
 	return math.Log(af), nil
 }
 
-// Sqrt returns the square root of a number.
-// NOTE: will return for NaN for negative values of a
-func (ns *Namespace) Sqrt(a interface{}) (float64, error) {
-	af, err := cast.ToFloat64E(a)
+// Max returns the greater of two numbers.
+func (ns *Namespace) Max(a, b interface{}) (float64, error) {
+	af, erra := cast.ToFloat64E(a)
+	bf, errb := cast.ToFloat64E(b)
 
-	if err != nil {
-		return 0, errors.New("Sqrt operator can't be used with non integer or float value")
+	if erra != nil || errb != nil {
+		return 0, errors.New("Max operator can't be used with non-float value")
 	}
 
-	return math.Sqrt(af), nil
+	return math.Max(af, bf), nil
+}
+
+// Min returns the smaller of two numbers.
+func (ns *Namespace) Min(a, b interface{}) (float64, error) {
+	af, erra := cast.ToFloat64E(a)
+	bf, errb := cast.ToFloat64E(b)
+
+	if erra != nil || errb != nil {
+		return 0, errors.New("Min operator can't be used with non-float value")
+	}
+
+	return math.Min(af, bf), nil
 }
 
 // Mod returns a % b.
@@ -135,6 +146,16 @@ func (ns *Namespace) Round(x interface{}) (float64, error) {
 	}
 
 	return _round(xf), nil
+}
+
+// Sqrt returns the square root of a number.
+func (ns *Namespace) Sqrt(a interface{}) (float64, error) {
+	af, err := cast.ToFloat64E(a)
+	if err != nil {
+		return 0, errors.New("Sqrt operator can't be used with non integer or float value")
+	}
+
+	return math.Sqrt(af), nil
 }
 
 // Sub subtracts two numbers.

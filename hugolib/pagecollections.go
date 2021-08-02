@@ -20,6 +20,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/common/paths"
+
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -98,7 +100,7 @@ func newPageCollections(m *pageMap) *PageCollections {
 
 // This is an adapter func for the old API with Kind as first argument.
 // This is invoked when you do .Site.GetPage. We drop the Kind and fails
-// if there are more than 2 arguments, which would be ambigous.
+// if there are more than 2 arguments, which would be ambiguous.
 func (c *PageCollections) getPageOldVersion(ref ...string) (page.Page, error) {
 	var refs []string
 	for _, r := range ref {
@@ -187,7 +189,7 @@ func (c *PageCollections) getSectionOrPage(ref string) (*contentNode, string) {
 	langSuffix := "." + m.s.Lang()
 
 	// Trim both extension and any language code.
-	name := helpers.PathNoExt(filename)
+	name := paths.PathNoExt(filename)
 	name = strings.TrimSuffix(name, langSuffix)
 
 	// These are reserved bundle names and will always be stored by their owning
@@ -205,7 +207,6 @@ func (c *PageCollections) getSectionOrPage(ref string) (*contentNode, string) {
 	}
 
 	return m.getPage(s, name), name
-
 }
 
 // For Ref/Reflink and .Site.GetPage do simple name lookups for the potentially ambigous myarticle.md and /myarticle.md,
@@ -245,8 +246,8 @@ func (c *PageCollections) getContentNode(context page.Page, isReflink bool, ref 
 			base = context.SectionsPath()
 		} else {
 			meta := context.File().FileInfo().Meta()
-			base = filepath.ToSlash(filepath.Dir(meta.Path()))
-			if meta.Classifier() == files.ContentClassLeaf {
+			base = filepath.ToSlash(filepath.Dir(meta.Path))
+			if meta.Classifier == files.ContentClassLeaf {
 				// Bundles are stored in subfolders e.g. blog/mybundle/index.md,
 				// so if the user has not explicitly asked to go up,
 				// look on the "blog" level.
@@ -292,7 +293,7 @@ func (c *PageCollections) getContentNode(context page.Page, isReflink bool, ref 
 	getByName := func(s string) (*contentNode, error) {
 		n := m.pageReverseIndex.Get(s)
 		if n != nil {
-			if n == ambigousContentNode {
+			if n == ambiguousContentNode {
 				return nil, fmt.Errorf("page reference %q is ambiguous", ref)
 			}
 			return n, nil
@@ -303,11 +304,11 @@ func (c *PageCollections) getContentNode(context page.Page, isReflink bool, ref 
 
 	var module string
 	if context != nil && !context.File().IsZero() {
-		module = context.File().FileInfo().Meta().Module()
+		module = context.File().FileInfo().Meta().Module
 	}
 
 	if module == "" && !c.pageMap.s.home.File().IsZero() {
-		module = c.pageMap.s.home.File().FileInfo().Meta().Module()
+		module = c.pageMap.s.home.File().FileInfo().Meta().Module
 	}
 
 	if module != "" {
@@ -326,7 +327,6 @@ func (c *PageCollections) getContentNode(context page.Page, isReflink bool, ref 
 
 	// Ref/relref supports this potentially ambigous lookup.
 	return getByName(path.Base(name))
-
 }
 
 func (*PageCollections) findPagesByKindIn(kind string, inPages page.Pages) page.Pages {

@@ -39,7 +39,6 @@ func FormatFromString(formatStr string) Format {
 	if strings.Contains(formatStr, ".") {
 		// Assume a filename
 		formatStr = strings.TrimPrefix(filepath.Ext(formatStr), ".")
-
 	}
 	switch formatStr {
 	case "yaml", "yml":
@@ -55,13 +54,12 @@ func FormatFromString(formatStr string) Format {
 	}
 
 	return ""
-
 }
 
 // FormatFromMediaType gets the Format given a MIME type, empty string
 // if unknown.
 func FormatFromMediaType(m media.Type) Format {
-	for _, suffix := range m.Suffixes {
+	for _, suffix := range m.Suffixes() {
 		if f := FormatFromString(suffix); f != "" {
 			return f
 		}

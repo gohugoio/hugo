@@ -23,7 +23,8 @@ If you navigate to https://gohugo.io and look in the Chrome developer network co
 ## 1. Configure Netlify Output Formats
 
 Add a new custom media type and two new output formats to `config.toml`. For more on output formats in Hugo, see [Custom Output Formats](/templates/output-formats/).
-```bash
+
+```toml
 [outputs]
 home = [ "HTML", "RSS", "REDIR", "HEADERS" ]
 

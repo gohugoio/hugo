@@ -17,6 +17,30 @@ toc: true
 
 See [images.Filter](#filter) for how to apply these filters to an image.
 
+### Overlay
+
+{{< new-in "0.80.0" >}}
+
+{{% funcsig %}}
+images.Overlay SRC X Y
+{{% /funcsig %}}
+
+Overlay creates a filter that overlays the source image at position x y, e.g:
+
+
+```go-html-template
+{{ $logoFilter := (images.Overlay $logo 50 50 ) }}
+{{ $img := $img | images.Filter $logoFilter }}
+```
+
+A shorter version of the above, if you only need to apply the filter once:
+
+```go-html-template
+{{ $img := $img.Filter (images.Overlay $logo 50 50 )}}
+```
+
+The above will overlay `$logo` in the upper left corner of `$img` (at position `x=50, y=50`).
+
 ### Brightness
 
 {{% funcsig %}}

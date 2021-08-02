@@ -16,6 +16,7 @@ package resources
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/gohugoio/hugo/hugofs/glob"
 	"github.com/gohugoio/hugo/media"
@@ -23,8 +24,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cast"
-
-	"strings"
 
 	"github.com/gohugoio/hugo/common/maps"
 )
@@ -131,7 +130,7 @@ func AssignMetadata(metadata []map[string]interface{}, resources ...resource.Res
 				if found {
 					m := maps.ToStringMap(params)
 					// Needed for case insensitive fetching of params values
-					maps.ToLower(m)
+					maps.PrepareParams(m)
 					ma.updateParams(m)
 				}
 			}

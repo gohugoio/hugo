@@ -41,7 +41,7 @@ func SetEnvVars(oldVars *[]string, keyValues ...string) {
 }
 
 func SplitEnvVar(v string) (string, string) {
-	parts := strings.Split(v, "=")
+	parts := strings.SplitN(v, "=", 2)
 	return parts[0], parts[1]
 }
 

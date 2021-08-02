@@ -19,7 +19,10 @@ import (
 	"html/template"
 	"time"
 
+	"github.com/gohugoio/hugo/identity"
+
 	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/hugofs"
 
@@ -63,8 +66,8 @@ func (p *nopPage) RSSLink() template.URL {
 
 func (p *nopPage) Author() Author {
 	return Author{}
-
 }
+
 func (p *nopPage) Authors() AuthorList {
 	return nil
 }
@@ -116,6 +119,7 @@ func (p *nopPage) Description() string {
 func (p *nopPage) RefFrom(argsm map[string]interface{}, source interface{}) (string, error) {
 	return "", nil
 }
+
 func (p *nopPage) RelRefFrom(argsm map[string]interface{}, source interface{}) (string, error) {
 	return "", nil
 }
@@ -167,6 +171,10 @@ func (p *nopPage) FuzzyWordCount() int {
 }
 
 func (p *nopPage) GetPage(ref string) (Page, error) {
+	return nil, nil
+}
+
+func (p *nopPage) GetPageWithTemplateInfo(info tpl.Info, ref string) (Page, error) {
 	return nil, nil
 }
 
@@ -349,6 +357,7 @@ func (p *nopPage) PublishDate() (t time.Time) {
 func (p *nopPage) PrevInSection() Page {
 	return nil
 }
+
 func (p *nopPage) NextInSection() Page {
 	return nil
 }
@@ -483,4 +492,8 @@ func (p *nopPage) Weight() int {
 
 func (p *nopPage) WordCount() int {
 	return 0
+}
+
+func (p *nopPage) GetIdentity() identity.Identity {
+	return identity.NewPathIdentity("content", "foo/bar.md")
 }

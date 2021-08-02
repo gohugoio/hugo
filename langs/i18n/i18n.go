@@ -14,104 +14,184 @@
 package i18n
 
 import (
+	"fmt"
+	"reflect"
+	"strings"
+
+	"github.com/spf13/cast"
+
+	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 
-	"github.com/nicksnyder/go-i18n/i18n/bundle"
-	"github.com/nicksnyder/go-i18n/i18n/translation"
+	"github.com/gohugoio/go-i18n/v2/i18n"
 )
 
-var (
-	i18nWarningLogger = helpers.NewDistinctFeedbackLogger()
-)
+type translateFunc func(translationID string, templateData interface{}) string
+
+var i18nWarningLogger = helpers.NewDistinctErrorLogger()
 
 // Translator handles i18n translations.
 type Translator struct {
-	translateFuncs map[string]bundle.TranslateFunc
+	translateFuncs map[string]translateFunc
 	cfg            config.Provider
-	logger         *loggers.Logger
+	logger         loggers.Logger
 }
 
 // NewTranslator creates a new Translator for the given language bundle and configuration.
-func NewTranslator(b *bundle.Bundle, cfg config.Provider, logger *loggers.Logger) Translator {
-	t := Translator{cfg: cfg, logger: logger, translateFuncs: make(map[string]bundle.TranslateFunc)}
+func NewTranslator(b *i18n.Bundle, cfg config.Provider, logger loggers.Logger) Translator {
+	t := Translator{cfg: cfg, logger: logger, translateFuncs: make(map[string]translateFunc)}
 	t.initFuncs(b)
 	return t
 }
 
 // Func gets the translate func for the given language, or for the default
 // configured language if not found.
-func (t Translator) Func(lang string) bundle.TranslateFunc {
+func (t Translator) Func(lang string) translateFunc {
 	if f, ok := t.translateFuncs[lang]; ok {
 		return f
 	}
-	t.logger.INFO.Printf("Translation func for language %v not found, use default.", lang)
+	t.logger.Infof("Translation func for language %v not found, use default.", lang)
 	if f, ok := t.translateFuncs[t.cfg.GetString("defaultContentLanguage")]; ok {
 		return f
 	}
-	t.logger.INFO.Println("i18n not initialized; if you need string translations, check that you have a bundle in /i18n that matches the site language or the default language.")
-	return func(translationID string, args ...interface{}) string {
+
+	t.logger.Infoln("i18n not initialized; if you need string translations, check that you have a bundle in /i18n that matches the site language or the default language.")
+	return func(translationID string, args interface{}) string {
 		return ""
 	}
-
 }
 
-func (t Translator) initFuncs(bndl *bundle.Bundle) {
-	defaultContentLanguage := t.cfg.GetString("defaultContentLanguage")
-
-	defaultT, err := bndl.Tfunc(defaultContentLanguage)
-	if err != nil {
-		t.logger.INFO.Printf("No translation bundle found for default language %q", defaultContentLanguage)
-	}
-
-	translations := bndl.Translations()
-
+func (t Translator) initFuncs(bndl *i18n.Bundle) {
 	enableMissingTranslationPlaceholders := t.cfg.GetBool("enableMissingTranslationPlaceholders")
 	for _, lang := range bndl.LanguageTags() {
 		currentLang := lang
+		currentLangStr := currentLang.String()
+		// This may be pt-BR; make it case insensitive.
+		currentLangKey := strings.ToLower(strings.TrimPrefix(currentLangStr, artificialLangTagPrefix))
+		localizer := i18n.NewLocalizer(bndl, currentLangStr)
+		t.translateFuncs[currentLangKey] = func(translationID string, templateData interface{}) string {
+			pluralCount := getPluralCount(templateData)
 
-		t.translateFuncs[currentLang] = func(translationID string, args ...interface{}) string {
-			tFunc, err := bndl.Tfunc(currentLang)
-			if err != nil {
-				t.logger.WARN.Printf("could not load translations for language %q (%s), will use default content language.\n", lang, err)
+			if templateData != nil {
+				tp := reflect.TypeOf(templateData)
+				if hreflect.IsInt(tp.Kind()) {
+					// This was how go-i18n worked in v1,
+					// and we keep it like this to avoid breaking
+					// lots of sites in the wild.
+					templateData = intCount(cast.ToInt(templateData))
+				}
 			}
 
-			translated := tFunc(translationID, args...)
-			if translated != translationID {
+			translated, translatedLang, err := localizer.LocalizeWithTag(&i18n.LocalizeConfig{
+				MessageID:    translationID,
+				TemplateData: templateData,
+				PluralCount:  pluralCount,
+			})
+
+			sameLang := currentLang == translatedLang
+
+			if err == nil && sameLang {
 				return translated
 			}
-			// If there is no translation for translationID,
-			// then Tfunc returns translationID itself.
-			// But if user set same translationID and translation, we should check
-			// if it really untranslated:
-			if isIDTranslated(translations, currentLang, translationID) {
-				return translated
+
+			if err != nil && sameLang && translated != "" {
+				// See #8492
+				// TODO(bep) this needs to be improved/fixed upstream,
+				// but currently we get an error even if the fallback to
+				// "other" succeeds.
+				if fmt.Sprintf("%T", err) == "i18n.pluralFormNotFoundError" {
+					return translated
+				}
+			}
+
+			if _, ok := err.(*i18n.MessageNotFoundErr); !ok {
+				t.logger.Warnf("Failed to get translated string for language %q and ID %q: %s", currentLangStr, translationID, err)
 			}
 
 			if t.cfg.GetBool("logI18nWarnings") {
-				i18nWarningLogger.Printf("i18n|MISSING_TRANSLATION|%s|%s", currentLang, translationID)
+				i18nWarningLogger.Printf("i18n|MISSING_TRANSLATION|%s|%s", currentLangStr, translationID)
 			}
+
 			if enableMissingTranslationPlaceholders {
 				return "[i18n] " + translationID
 			}
-			if defaultT != nil {
-				translated := defaultT(translationID, args...)
-				if translated != translationID {
-					return translated
-				}
-				if isIDTranslated(translations, defaultContentLanguage, translationID) {
-					return translated
-				}
-			}
-			return ""
+
+			return translated
 		}
 	}
 }
 
-// If the translation map contains translationID for specified currentLang,
-// then the translationID is actually translated.
-func isIDTranslated(translations map[string]map[string]translation.Translation, lang, id string) bool {
-	_, contains := translations[lang][id]
-	return contains
+// intCount wraps the Count method.
+type intCount int
+
+func (c intCount) Count() int {
+	return int(c)
+}
+
+const countFieldName = "Count"
+
+// getPluralCount gets the plural count as a string (floats) or an integer.
+// If v is nil, nil is returned.
+func getPluralCount(v interface{}) interface{} {
+	if v == nil {
+		// i18n called without any argument, make sure it does not
+		// get any plural count.
+		return nil
+	}
+
+	switch v := v.(type) {
+	case map[string]interface{}:
+		for k, vv := range v {
+			if strings.EqualFold(k, countFieldName) {
+				return toPluralCountValue(vv)
+			}
+		}
+	default:
+		vv := reflect.Indirect(reflect.ValueOf(v))
+		if vv.Kind() == reflect.Interface && !vv.IsNil() {
+			vv = vv.Elem()
+		}
+		tp := vv.Type()
+
+		if tp.Kind() == reflect.Struct {
+			f := vv.FieldByName(countFieldName)
+			if f.IsValid() {
+				return toPluralCountValue(f.Interface())
+			}
+			m := vv.MethodByName(countFieldName)
+			if m.IsValid() && m.Type().NumIn() == 0 && m.Type().NumOut() == 1 {
+				c := m.Call(nil)
+				return toPluralCountValue(c[0].Interface())
+			}
+		}
+	}
+
+	return toPluralCountValue(v)
+
+}
+
+// go-i18n expects floats to be represented by string.
+func toPluralCountValue(in interface{}) interface{} {
+	k := reflect.TypeOf(in).Kind()
+	switch {
+	case hreflect.IsFloat(k):
+		f := cast.ToString(in)
+		if !strings.Contains(f, ".") {
+			f += ".0"
+		}
+		return f
+	case k == reflect.String:
+		if _, err := cast.ToFloat64E(in); err == nil {
+			return in
+		}
+		// A non-numeric value.
+		return nil
+	default:
+		if i, err := cast.ToIntE(in); err == nil {
+			return i
+		}
+		return nil
+	}
 }

@@ -127,7 +127,6 @@ Partial Site Global: {{ site.Params.COLOR }}|{{ site.Params.COLORS.YELLOW }}
 `)
 
 	writeToFs(t, fs, "config.toml", caseMixingSiteConfigTOML)
-
 }
 
 func TestCaseInsensitiveConfigurationVariations(t *testing.T) {
@@ -184,7 +183,6 @@ Page2: {{ $page2.Params.ColoR }}
 `)
 
 	sites, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
-
 	if err != nil {
 		t.Fatalf("Failed to create sites: %s", err)
 	}

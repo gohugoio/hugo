@@ -66,6 +66,9 @@ tabspace
 
 	testlines, expectlines := strings.Split(tests, "\n"), strings.Split(expect, "\n")
 
+	testlines = append(testlines, "Trailing Space ")
+	expectlines = append(expectlines, "trailing-space")
+
 	if len(testlines) != len(expectlines) {
 		panic("test setup failed")
 	}
@@ -88,7 +91,6 @@ func TestSanitizeAnchorNameAsciiOnly(t *testing.T) {
 
 	c.Assert(sanitizeAnchorNameString("god is神真美好 good", goldmark_config.AutoHeadingIDTypeGitHubAscii), qt.Equals, "god-is-good")
 	c.Assert(sanitizeAnchorNameString("Resumé", goldmark_config.AutoHeadingIDTypeGitHubAscii), qt.Equals, "resume")
-
 }
 
 func TestSanitizeAnchorNameBlackfriday(t *testing.T) {
@@ -103,7 +105,6 @@ func BenchmarkSanitizeAnchorName(b *testing.B) {
 		result := sanitizeAnchorName(input, goldmark_config.AutoHeadingIDTypeGitHub)
 		if len(result) != 24 {
 			b.Fatalf("got %d", len(result))
-
 		}
 	}
 }
@@ -115,7 +116,6 @@ func BenchmarkSanitizeAnchorNameAsciiOnly(b *testing.B) {
 		result := sanitizeAnchorName(input, goldmark_config.AutoHeadingIDTypeGitHubAscii)
 		if len(result) != 12 {
 			b.Fatalf("got %d", len(result))
-
 		}
 	}
 }
@@ -127,7 +127,6 @@ func BenchmarkSanitizeAnchorNameBlackfriday(b *testing.B) {
 		result := sanitizeAnchorName(input, goldmark_config.AutoHeadingIDTypeBlackfriday)
 		if len(result) != 24 {
 			b.Fatalf("got %d", len(result))
-
 		}
 	}
 }

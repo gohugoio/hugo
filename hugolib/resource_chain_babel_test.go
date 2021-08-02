@@ -14,15 +14,18 @@
 package hugolib
 
 import (
+	"bytes"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"runtime"
 	"testing"
 
-	"github.com/gohugoio/hugo/htesting"
+	"github.com/gohugoio/hugo/config"
 
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/common/hexec"
+
+	jww "github.com/spf13/jwalterweatherman"
+
+	"github.com/gohugoio/hugo/htesting"
 
 	qt "github.com/frankban/quicktest"
 
@@ -32,12 +35,8 @@ import (
 )
 
 func TestResourceChainBabel(t *testing.T) {
-	if !isCI() {
+	if !htesting.IsCI() {
 		t.Skip("skip (relative) long running modules test when running locally")
-	}
-
-	if runtime.GOOS == "windows" {
-		t.Skip("skip npm test on Windows")
 	}
 
 	wd, _ := os.Getwd()
@@ -76,14 +75,26 @@ class Car {
 }
 `
 
+	js2 := `
+/* A Car2 */
+class Car2 {
+  constructor(brand) {
+    this.carname = brand;
+  }
+}
+`
+
 	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-test-babel")
 	c.Assert(err, qt.IsNil)
 	defer clean()
 
-	v := viper.New()
+	var logBuf bytes.Buffer
+	logger := loggers.NewBasicLoggerForWriter(jww.LevelInfo, &logBuf)
+
+	v := config.New()
 	v.Set("workingDir", workDir)
 	v.Set("disableKinds", []string{"taxonomy", "term", "page"})
-	b := newTestSitesBuilder(t).WithLogger(loggers.NewWarningLogger())
+	b := newTestSitesBuilder(t).WithLogger(logger)
 
 	// Need to use OS fs for this.
 	b.Fs = hugofs.NewDefault(v)
@@ -96,24 +107,30 @@ class Car {
 {{ $transpiled := resources.Get "js/main.js" | babel -}}
 Transpiled: {{ $transpiled.Content | safeJS }}
 
+{{ $transpiled := resources.Get "js/main2.js" | babel (dict "sourceMap" "inline") -}}
+Transpiled2: {{ $transpiled.Content | safeJS }}
+
+{{ $transpiled := resources.Get "js/main2.js" | babel (dict "sourceMap" "external") -}}
+Transpiled3: {{ $transpiled.Permalink }}
+
 `)
 
 	jsDir := filepath.Join(workDir, "assets", "js")
 	b.Assert(os.MkdirAll(jsDir, 0777), qt.IsNil)
 	b.WithSourceFile("assets/js/main.js", js)
+	b.WithSourceFile("assets/js/main2.js", js2)
 	b.WithSourceFile("package.json", packageJSON)
 	b.WithSourceFile("babel.config.js", babelConfig)
 
 	b.Assert(os.Chdir(workDir), qt.IsNil)
-	_, err = exec.Command("npm", "install").CombinedOutput()
+	cmd, _ := hexec.SafeCommand("npm", "install")
+	_, err = cmd.CombinedOutput()
 	b.Assert(err, qt.IsNil)
 
-	out, err := captureStderr(func() error {
-		return b.BuildE(BuildCfg{})
+	b.Build(BuildCfg{})
 
-	})
 	// Make sure Node sees this.
-	b.Assert(out, qt.Contains, "Hugo Environment: production")
+	b.Assert(logBuf.String(), qt.Contains, "babel: Hugo Environment: production")
 	b.Assert(err, qt.IsNil)
 
 	b.AssertFileContent("public/index.html", `
@@ -123,5 +140,21 @@ var Car = function Car(brand) {
  this.carname = brand;
 };
 `)
+	b.AssertFileContent("public/index.html", `
+var Car2 = function Car2(brand) {
+ _classCallCheck(this, Car2);
 
+ this.carname = brand;
+};
+`)
+	b.AssertFileContent("public/js/main2.js", `
+var Car2 = function Car2(brand) {
+ _classCallCheck(this, Car2);
+
+ this.carname = brand;
+};
+`)
+	b.AssertFileContent("public/js/main2.js.map", `{"version":3,`)
+	b.AssertFileContent("public/index.html", `
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozL`)
 }

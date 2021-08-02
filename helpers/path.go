@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -36,49 +35,8 @@ import (
 	"github.com/spf13/afero"
 )
 
-var (
-	// ErrThemeUndefined is returned when a theme has not be defined by the user.
-	ErrThemeUndefined = errors.New("no theme set")
-)
-
-// filepathPathBridge is a bridge for common functionality in filepath vs path
-type filepathPathBridge interface {
-	Base(in string) string
-	Clean(in string) string
-	Dir(in string) string
-	Ext(in string) string
-	Join(elem ...string) string
-	Separator() string
-}
-
-type filepathBridge struct {
-}
-
-func (filepathBridge) Base(in string) string {
-	return filepath.Base(in)
-}
-
-func (filepathBridge) Clean(in string) string {
-	return filepath.Clean(in)
-}
-
-func (filepathBridge) Dir(in string) string {
-	return filepath.Dir(in)
-}
-
-func (filepathBridge) Ext(in string) string {
-	return filepath.Ext(in)
-}
-
-func (filepathBridge) Join(elem ...string) string {
-	return filepath.Join(elem...)
-}
-
-func (filepathBridge) Separator() string {
-	return FilePathSeparator
-}
-
-var fpb filepathBridge
+// ErrThemeUndefined is returned when a theme has not be defined by the user.
+var ErrThemeUndefined = errors.New("no theme set")
 
 // MakePath takes a string with any characters and replace it
 // so the string could be used in a path.
@@ -130,7 +88,7 @@ func ishex(c rune) bool {
 
 // UnicodeSanitize sanitizes string to be used in Hugo URL's, allowing only
 // a predefined set of special Unicode characters.
-// If RemovePathAccents configuration flag is enabled, Uniccode accents
+// If RemovePathAccents configuration flag is enabled, Unicode accents
 // are also removed.
 // Spaces will be replaced with a single hyphen, and sequential hyphens will be reduced to one.
 func (p *PathSpec) UnicodeSanitize(s string) string {
@@ -161,15 +119,7 @@ func (p *PathSpec) UnicodeSanitize(s string) string {
 	return string(target)
 }
 
-// ReplaceExtension takes a path and an extension, strips the old extension
-// and returns the path with the new extension.
-func ReplaceExtension(path string, newExt string) string {
-	f, _ := fileAndExt(path, fpb)
-	return f + "." + newExt
-}
-
 func makePathRelative(inPath string, possibleDirectories ...string) (string, error) {
-
 	for _, currentPath := range possibleDirectories {
 		if strings.HasPrefix(inPath, currentPath) {
 			return strings.TrimPrefix(inPath, currentPath), nil
@@ -213,146 +163,6 @@ func GetDottedRelativePath(inPath string) string {
 	}
 
 	return dottedPath
-}
-
-// ExtNoDelimiter takes a path and returns the extension, excluding the delmiter, i.e. "md".
-func ExtNoDelimiter(in string) string {
-	return strings.TrimPrefix(Ext(in), ".")
-}
-
-// Ext takes a path and returns the extension, including the delmiter, i.e. ".md".
-func Ext(in string) string {
-	_, ext := fileAndExt(in, fpb)
-	return ext
-}
-
-// PathAndExt is the same as FileAndExt, but it uses the path package.
-func PathAndExt(in string) (string, string) {
-	return fileAndExt(in, pb)
-}
-
-// FileAndExt takes a path and returns the file and extension separated,
-// the extension including the delmiter, i.e. ".md".
-func FileAndExt(in string) (string, string) {
-	return fileAndExt(in, fpb)
-}
-
-// FileAndExtNoDelimiter takes a path and returns the file and extension separated,
-// the extension excluding the delmiter, e.g "md".
-func FileAndExtNoDelimiter(in string) (string, string) {
-	file, ext := fileAndExt(in, fpb)
-	return file, strings.TrimPrefix(ext, ".")
-}
-
-// Filename takes a file path, strips out the extension,
-// and returns the name of the file.
-func Filename(in string) (name string) {
-	name, _ = fileAndExt(in, fpb)
-	return
-}
-
-// PathNoExt takes a path, strips out the extension,
-// and returns the name of the file.
-func PathNoExt(in string) string {
-	return strings.TrimSuffix(in, path.Ext(in))
-}
-
-// FileAndExt returns the filename and any extension of a file path as
-// two separate strings.
-//
-// If the path, in, contains a directory name ending in a slash,
-// then both name and ext will be empty strings.
-//
-// If the path, in, is either the current directory, the parent
-// directory or the root directory, or an empty string,
-// then both name and ext will be empty strings.
-//
-// If the path, in, represents the path of a file without an extension,
-// then name will be the name of the file and ext will be an empty string.
-//
-// If the path, in, represents a filename with an extension,
-// then name will be the filename minus any extension - including the dot
-// and ext will contain the extension - minus the dot.
-func fileAndExt(in string, b filepathPathBridge) (name string, ext string) {
-	ext = b.Ext(in)
-	base := b.Base(in)
-
-	return extractFilename(in, ext, base, b.Separator()), ext
-}
-
-func extractFilename(in, ext, base, pathSeparator string) (name string) {
-
-	// No file name cases. These are defined as:
-	// 1. any "in" path that ends in a pathSeparator
-	// 2. any "base" consisting of just an pathSeparator
-	// 3. any "base" consisting of just an empty string
-	// 4. any "base" consisting of just the current directory i.e. "."
-	// 5. any "base" consisting of just the parent directory i.e. ".."
-	if (strings.LastIndex(in, pathSeparator) == len(in)-1) || base == "" || base == "." || base == ".." || base == pathSeparator {
-		name = "" // there is NO filename
-	} else if ext != "" { // there was an Extension
-		// return the filename minus the extension (and the ".")
-		name = base[:strings.LastIndex(base, ".")]
-	} else {
-		// no extension case so just return base, which willi
-		// be the filename
-		name = base
-	}
-	return
-
-}
-
-// GetRelativePath returns the relative path of a given path.
-func GetRelativePath(path, base string) (final string, err error) {
-	if filepath.IsAbs(path) && base == "" {
-		return "", errors.New("source: missing base directory")
-	}
-	name := filepath.Clean(path)
-	base = filepath.Clean(base)
-
-	name, err = filepath.Rel(base, name)
-	if err != nil {
-		return "", err
-	}
-
-	if strings.HasSuffix(filepath.FromSlash(path), FilePathSeparator) && !strings.HasSuffix(name, FilePathSeparator) {
-		name += FilePathSeparator
-	}
-	return name, nil
-}
-
-// PathPrep prepares the path using the uglify setting to create paths on
-// either the form /section/name/index.html or /section/name.html.
-func PathPrep(ugly bool, in string) string {
-	if ugly {
-		return Uglify(in)
-	}
-	return PrettifyPath(in)
-}
-
-// PrettifyPath is the same as PrettifyURLPath but for file paths.
-//     /section/name.html       becomes /section/name/index.html
-//     /section/name/           becomes /section/name/index.html
-//     /section/name/index.html becomes /section/name/index.html
-func PrettifyPath(in string) string {
-	return prettifyPath(in, fpb)
-}
-
-func prettifyPath(in string, b filepathPathBridge) string {
-	if filepath.Ext(in) == "" {
-		// /section/name/  -> /section/name/index.html
-		if len(in) < 2 {
-			return b.Separator()
-		}
-		return b.Join(in, "index.html")
-	}
-	name, ext := fileAndExt(in, b)
-	if name == "index" {
-		// /section/name/index.html -> /section/name/index.html
-		return b.Clean(in)
-	}
-	// /section/name.html -> /section/name/index.html
-	return b.Join(b.Dir(in), name, "index"+ext)
 }
 
 type NamedSlice struct {
@@ -474,21 +284,18 @@ func ExtractRootPaths(paths []string) []string {
 		r[i] = root
 	}
 	return r
-
 }
 
 // FindCWD returns the current working directory from where the Hugo
 // executable is run.
 func FindCWD() (string, error) {
 	serverFile, err := filepath.Abs(os.Args[0])
-
 	if err != nil {
 		return "", fmt.Errorf("can't get absolute path for executable: %v", err)
 	}
 
 	path := filepath.Dir(serverFile)
 	realFile, err := filepath.EvalSymlinks(serverFile)
-
 	if err != nil {
 		if _, err = os.Stat(serverFile + ".exe"); err == nil {
 			realFile = filepath.Clean(serverFile + ".exe")
@@ -516,7 +323,6 @@ func SymbolicWalk(fs afero.Fs, root string, walker hugofs.WalkFunc) error {
 	})
 
 	return w.Walk()
-
 }
 
 // LstatIfPossible can be used to call Lstat if possible, else Stat.
@@ -555,7 +361,6 @@ func OpenFilesForWriting(fs afero.Fs, filenames ...string) (io.WriteCloser, erro
 	}
 
 	return hugio.NewMultiWriteCloser(writeClosers...), nil
-
 }
 
 // OpenFileForWriting opens or creates the given file. If the target directory
@@ -598,7 +403,6 @@ func GetCacheDir(fs afero.Fs, cfg config.Provider) (string, error) {
 
 	// Fall back to a cache in /tmp.
 	return GetTempDir("hugo_cache", fs), nil
-
 }
 
 func getCacheDir(cfg config.Provider) string {
@@ -608,13 +412,14 @@ func getCacheDir(cfg config.Provider) string {
 		return addTrailingFileSeparator(cacheDir)
 	}
 
-	// Both of these are fairly distinctive OS env keys used by Netlify.
-	if os.Getenv("DEPLOY_PRIME_URL") != "" && os.Getenv("PULL_REQUEST") != "" {
+	// See Issue #8714.
+	// Turns out that Cloudflare also sets NETLIFY=true in its build environment,
+	// but all of these 3 should not give any false positives.
+	if os.Getenv("NETLIFY") == "true" && os.Getenv("PULL_REQUEST") != "" && os.Getenv("DEPLOY_PRIME_URL") != "" {
 		// Netlify's cache behaviour is not documented, the currently best example
 		// is this project:
 		// https://github.com/philhawksworth/content-shards/blob/master/gulpfile.js
 		return "/opt/build/cache/hugo_cache/"
-
 	}
 
 	// This will fall back to an hugo_cache folder in the tmp dir, which should work fine for most CI

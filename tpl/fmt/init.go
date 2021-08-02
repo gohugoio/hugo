@@ -57,6 +57,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Erroridf,
+			[]string{"erroridf"},
+			[][2]string{
+				{`{{ erroridf "my-err-id" "%s." "failed" }}`, ``},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Warnf,
 			[]string{"warnf"},
 			[][2]string{

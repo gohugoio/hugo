@@ -21,7 +21,7 @@ toc: true
 
 You can combine modules in any combination you like, and even mount directories from non-Hugo projects, forming a big, virtual union file system.
 
-Hugo Modules is powered by Go Modules. For more information about Go Modules, see:
+Hugo Modules are powered by Go Modules. For more information about Go Modules, see:
 
 - [https://github.com/golang/go/wiki/Modules](https://github.com/golang/go/wiki/Modules)
 - [https://blog.golang.org/using-go-modules](https://blog.golang.org/using-go-modules)

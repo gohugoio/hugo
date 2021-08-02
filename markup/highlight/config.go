@@ -50,6 +50,10 @@ type Config struct {
 	LineNos            bool
 	LineNumbersInTable bool
 
+	// When set, add links to line numbers
+	AnchorLineNos bool
+	LineAnchors   string
+
 	// Start the line numbers from this value (default is 1).
 	LineNoStart int
 
@@ -63,12 +67,17 @@ type Config struct {
 }
 
 func (cfg Config) ToHTMLOptions() []html.Option {
-	var options = []html.Option{
+	var lineAnchors string
+	if cfg.LineAnchors != "" {
+		lineAnchors = cfg.LineAnchors + "-"
+	}
+	options := []html.Option{
 		html.TabWidth(cfg.TabWidth),
 		html.WithLineNumbers(cfg.LineNos),
 		html.BaseLineNumber(cfg.LineNoStart),
 		html.LineNumbersInTable(cfg.LineNumbersInTable),
 		html.WithClasses(!cfg.NoClasses),
+		html.LinkableLineNumbers(cfg.AnchorLineNos, lineAnchors),
 	}
 
 	if cfg.Hl_Lines != "" {
@@ -117,7 +126,6 @@ func ApplyLegacyConfig(cfg config.Provider, conf *Config) error {
 	}
 
 	return nil
-
 }
 
 func parseOptions(in string) (map[string]interface{}, error) {
@@ -147,7 +155,7 @@ func parseOptions(in string) (map[string]interface{}, error) {
 	return opts, nil
 }
 
-// startLine compansates for https://github.com/alecthomas/chroma/issues/30
+// startLine compensates for https://github.com/alecthomas/chroma/issues/30
 func hlLinesToRanges(startLine int, s string) ([][2]int, error) {
 	var ranges [][2]int
 	s = strings.TrimSpace(s)
@@ -190,5 +198,4 @@ func hlLinesToRanges(startLine int, s string) ([][2]int, error) {
 		ranges = append(ranges, r)
 	}
 	return ranges, nil
-
 }

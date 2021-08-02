@@ -14,15 +14,37 @@
 package publisher
 
 import (
-	"regexp"
-
-	"github.com/gohugoio/hugo/helpers"
-	"golang.org/x/net/html"
-
 	"bytes"
+	"regexp"
 	"sort"
 	"strings"
 	"sync"
+	"unicode"
+	"unicode/utf8"
+
+	"golang.org/x/net/html"
+
+	"github.com/gohugoio/hugo/helpers"
+)
+
+const eof = -1
+
+var (
+	htmlJsonFixer = strings.NewReplacer(", ", "\n")
+	jsonAttrRe    = regexp.MustCompile(`'?(.*?)'?:.*`)
+	classAttrRe   = regexp.MustCompile(`(?i)^class$|transition`)
+
+	skipInnerElementRe = regexp.MustCompile(`(?i)^(pre|textarea|script|style)`)
+	skipAllElementRe   = regexp.MustCompile(`(?i)^!DOCTYPE`)
+	endTagRe           = regexp.MustCompile(`(?i)<\/\s*([a-zA-Z]+)\s*>$`)
+
+	exceptionList = map[string]bool{
+		"thead": true,
+		"tbody": true,
+		"tfoot": true,
+		"td":    true,
+		"tr":    true,
+	}
 )
 
 func newHTMLElementsCollector() *htmlElementsCollector {
@@ -31,10 +53,15 @@ func newHTMLElementsCollector() *htmlElementsCollector {
 	}
 }
 
-func newHTMLElementsCollectorWriter(collector *htmlElementsCollector) *cssClassCollectorWriter {
-	return &cssClassCollectorWriter{
+func newHTMLElementsCollectorWriter(collector *htmlElementsCollector) *htmlElementsCollectorWriter {
+	w := &htmlElementsCollectorWriter{
 		collector: collector,
+		state:     htmlLexStart,
 	}
+
+	w.defaultLexElementInside = w.lexElementInside(htmlLexStart)
+
+	return w
 }
 
 // HTMLElements holds lists of tags and attribute values for classes and id.
@@ -52,121 +79,12 @@ func (h *HTMLElements) Merge(other HTMLElements) {
 	h.Tags = helpers.UniqueStringsReuse(h.Tags)
 	h.Classes = helpers.UniqueStringsReuse(h.Classes)
 	h.IDs = helpers.UniqueStringsReuse(h.IDs)
-
 }
 
 func (h *HTMLElements) Sort() {
 	sort.Strings(h.Tags)
 	sort.Strings(h.Classes)
 	sort.Strings(h.IDs)
-}
-
-type cssClassCollectorWriter struct {
-	collector *htmlElementsCollector
-	buff      bytes.Buffer
-
-	isCollecting bool
-	dropValue    bool
-	inQuote      bool
-}
-
-func (w *cssClassCollectorWriter) Write(p []byte) (n int, err error) {
-	n = len(p)
-	i := 0
-
-	for i < len(p) {
-		if !w.isCollecting {
-			for ; i < len(p); i++ {
-				b := p[i]
-				if b == '<' {
-					w.startCollecting()
-					break
-				}
-			}
-		}
-
-		if w.isCollecting {
-			for ; i < len(p); i++ {
-				b := p[i]
-				w.toggleIfQuote(b)
-				if !w.inQuote && b == '>' {
-					w.endCollecting(false)
-					break
-				}
-				w.buff.WriteByte(b)
-			}
-
-			if !w.isCollecting {
-				if w.dropValue {
-					w.buff.Reset()
-				} else {
-					// First check if we have processed this element before.
-					w.collector.mu.RLock()
-
-					// See https://github.com/dominikh/go-tools/issues/723
-					//lint:ignore S1030 This construct avoids memory allocation for the string.
-					seen := w.collector.elementSet[string(w.buff.Bytes())]
-					w.collector.mu.RUnlock()
-					if seen {
-						w.buff.Reset()
-						continue
-					}
-
-					s := w.buff.String()
-
-					w.buff.Reset()
-
-					if strings.HasPrefix(s, "</") {
-						continue
-					}
-
-					s, tagName := w.insertStandinHTMLElement(s)
-					el := parseHTMLElement(s)
-					el.Tag = tagName
-
-					w.collector.mu.Lock()
-					w.collector.elementSet[s] = true
-					if el.Tag != "" {
-						w.collector.elements = append(w.collector.elements, el)
-					}
-					w.collector.mu.Unlock()
-				}
-			}
-		}
-	}
-
-	return
-}
-
-// The net/html parser does not handle single table elemnts as input, e.g. tbody.
-// We only care about the element/class/ids, so just store away the original tag name
-// and pretend it's a <div>.
-func (c *cssClassCollectorWriter) insertStandinHTMLElement(el string) (string, string) {
-	tag := el[1:]
-	spacei := strings.Index(tag, " ")
-	if spacei != -1 {
-		tag = tag[:spacei]
-	}
-	newv := strings.Replace(el, tag, "div", 1)
-	return newv, strings.ToLower(tag)
-
-}
-
-func (c *cssClassCollectorWriter) endCollecting(drop bool) {
-	c.isCollecting = false
-	c.inQuote = false
-	c.dropValue = drop
-}
-
-func (c *cssClassCollectorWriter) startCollecting() {
-	c.isCollecting = true
-	c.dropValue = false
-}
-
-func (c *cssClassCollectorWriter) toggleIfQuote(b byte) {
-	if isQuote(b) {
-		c.inQuote = !c.inQuote
-	}
 }
 
 type htmlElement struct {
@@ -187,7 +105,6 @@ type htmlElementsCollector struct {
 }
 
 func (c *htmlElementsCollector) getHTMLElements() HTMLElements {
-
 	var (
 		classes []string
 		ids     []string
@@ -213,36 +130,273 @@ func (c *htmlElementsCollector) getHTMLElements() HTMLElements {
 	return els
 }
 
-func isQuote(b byte) bool {
-	return b == '"' || b == '\''
+type htmlElementsCollectorWriter struct {
+	collector *htmlElementsCollector
+
+	r     rune   // Current rune
+	width int    // The width in bytes of r
+	input []byte // The current slice written to Write
+	pos   int    // The current position in input
+
+	err error
+
+	inQuote rune
+
+	buff bytes.Buffer
+
+	// Current state
+	state htmlCollectorStateFunc
+
+	// Precompiled state funcs
+	defaultLexElementInside htmlCollectorStateFunc
 }
 
-var (
-	htmlJsonFixer = strings.NewReplacer(", ", "\n")
-	jsonAttrRe    = regexp.MustCompile(`'?(.*?)'?:.*`)
-)
-
-func parseHTMLElement(elStr string) (el htmlElement) {
-	elStr = strings.TrimSpace(elStr)
-	if !strings.HasSuffix(elStr, ">") {
-		elStr += ">"
+// Write collects HTML elements from p, which must contain complete runes.
+func (w *htmlElementsCollectorWriter) Write(p []byte) (int, error) {
+	if p == nil {
+		return 0, nil
 	}
+
+	w.input = p
+
+	for {
+		w.r = w.next()
+		if w.r == eof || w.r == utf8.RuneError {
+			break
+		}
+		w.state = w.state(w)
+	}
+
+	w.pos = 0
+	w.input = nil
+
+	return len(p), nil
+}
+
+func (l *htmlElementsCollectorWriter) backup() {
+	l.pos -= l.width
+	l.r, _ = utf8.DecodeRune(l.input[l.pos:])
+}
+
+func (w *htmlElementsCollectorWriter) consumeBuffUntil(condition func() bool, resolve htmlCollectorStateFunc) htmlCollectorStateFunc {
+	var s htmlCollectorStateFunc
+	s = func(*htmlElementsCollectorWriter) htmlCollectorStateFunc {
+		w.buff.WriteRune(w.r)
+		if condition() {
+			w.buff.Reset()
+			return resolve
+		}
+		return s
+	}
+	return s
+}
+
+func (w *htmlElementsCollectorWriter) consumeRuneUntil(condition func(r rune) bool, resolve htmlCollectorStateFunc) htmlCollectorStateFunc {
+	var s htmlCollectorStateFunc
+	s = func(*htmlElementsCollectorWriter) htmlCollectorStateFunc {
+		if condition(w.r) {
+			return resolve
+		}
+		return s
+	}
+	return s
+}
+
+// Starts with e.g. "<body " or "<div"
+func (w *htmlElementsCollectorWriter) lexElementInside(resolve htmlCollectorStateFunc) htmlCollectorStateFunc {
+	var s htmlCollectorStateFunc
+	s = func(w *htmlElementsCollectorWriter) htmlCollectorStateFunc {
+		w.buff.WriteRune(w.r)
+
+		// Skip any text inside a quote.
+		if w.r == '\'' || w.r == '"' {
+			if w.inQuote == w.r {
+				w.inQuote = 0
+			} else if w.inQuote == 0 {
+				w.inQuote = w.r
+			}
+		}
+
+		if w.inQuote != 0 {
+			return s
+		}
+
+		if w.r == '>' {
+
+			// Work with the bytes slice as long as it's practical,
+			// to save memory allocations.
+			b := w.buff.Bytes()
+
+			defer func() {
+				w.buff.Reset()
+			}()
+
+			// First check if we have processed this element before.
+			w.collector.mu.RLock()
+
+			seen := w.collector.elementSet[string(b)]
+			w.collector.mu.RUnlock()
+			if seen {
+				return resolve
+			}
+
+			s := w.buff.String()
+
+			if s == "" {
+				return resolve
+			}
+
+			// Parse each collected element.
+			el, err := parseHTMLElement(s)
+			if err != nil {
+				w.err = err
+				return resolve
+			}
+
+			// Write this tag to the element set.
+			w.collector.mu.Lock()
+			w.collector.elementSet[s] = true
+			w.collector.elements = append(w.collector.elements, el)
+			w.collector.mu.Unlock()
+
+			return resolve
+
+		}
+
+		return s
+	}
+
+	return s
+}
+
+func (l *htmlElementsCollectorWriter) next() rune {
+	if l.pos >= len(l.input) {
+		l.width = 0
+		return eof
+	}
+
+	runeValue, runeWidth := utf8.DecodeRune(l.input[l.pos:])
+
+	l.width = runeWidth
+	l.pos += l.width
+	return runeValue
+}
+
+// returns the next state in HTML element scanner.
+type htmlCollectorStateFunc func(*htmlElementsCollectorWriter) htmlCollectorStateFunc
+
+// At "<", buffer empty.
+// Potentially starting a HTML element.
+func htmlLexElementStart(w *htmlElementsCollectorWriter) htmlCollectorStateFunc {
+	if w.r == '>' || unicode.IsSpace(w.r) {
+		if w.buff.Len() < 2 || bytes.HasPrefix(w.buff.Bytes(), []byte("</")) {
+			w.buff.Reset()
+			return htmlLexStart
+		}
+
+		tagName := w.buff.Bytes()[1:]
+
+		switch {
+		case skipInnerElementRe.Match(tagName):
+			// pre, script etc. We collect classes etc. on the surrounding
+			// element, but skip the inner content.
+			w.backup()
+
+			// tagName will be overwritten, so make a copy.
+			tagNameCopy := make([]byte, len(tagName))
+			copy(tagNameCopy, tagName)
+
+			return w.lexElementInside(
+				w.consumeBuffUntil(
+					func() bool {
+						if w.r != '>' {
+							return false
+						}
+						m := endTagRe.FindSubmatch(w.buff.Bytes())
+						if m == nil {
+							return false
+						}
+						return bytes.EqualFold(m[1], tagNameCopy)
+					},
+					htmlLexStart,
+				))
+		case skipAllElementRe.Match(tagName):
+			// E.g. "<!DOCTYPE ..."
+			w.buff.Reset()
+			return w.consumeRuneUntil(func(r rune) bool {
+				return r == '>'
+			}, htmlLexStart)
+		default:
+			w.backup()
+			return w.defaultLexElementInside
+		}
+	}
+
+	w.buff.WriteRune(w.r)
+
+	// If it's a comment, skip to its end.
+	if w.r == '-' && bytes.Equal(w.buff.Bytes(), []byte("<!--")) {
+		w.buff.Reset()
+		return htmlLexToEndOfComment
+	}
+
+	return htmlLexElementStart
+}
+
+// Entry state func.
+// Looks for a opening bracket, '<'.
+func htmlLexStart(w *htmlElementsCollectorWriter) htmlCollectorStateFunc {
+	if w.r == '<' {
+		w.backup()
+		w.buff.Reset()
+		return htmlLexElementStart
+	}
+
+	return htmlLexStart
+}
+
+// After "<!--", buff empty.
+func htmlLexToEndOfComment(w *htmlElementsCollectorWriter) htmlCollectorStateFunc {
+	w.buff.WriteRune(w.r)
+
+	if w.r == '>' && bytes.HasSuffix(w.buff.Bytes(), []byte("-->")) {
+		// Done, start looking for HTML elements again.
+		return htmlLexStart
+	}
+
+	return htmlLexToEndOfComment
+}
+
+func parseHTMLElement(elStr string) (el htmlElement, err error) {
+
+	tagName := parseStartTag(elStr)
+
+	el.Tag = strings.ToLower(tagName)
+	tagNameToParse := el.Tag
+
+	// The net/html parser does not handle single table elements as input, e.g. tbody.
+	// We only care about the element/class/ids, so just store away the original tag name
+	// and pretend it's a <div>.
+	if exceptionList[el.Tag] {
+		elStr = strings.Replace(elStr, tagName, "div", 1)
+		tagNameToParse = "div"
+	}
+
 	n, err := html.Parse(strings.NewReader(elStr))
 	if err != nil {
 		return
 	}
+
 	var walk func(*html.Node)
 	walk = func(n *html.Node) {
-		if n.Type == html.ElementNode && strings.Contains(elStr, n.Data) {
-			el.Tag = n.Data
-
+		if n.Type == html.ElementNode && n.Data == tagNameToParse {
 			for _, a := range n.Attr {
 				switch {
 				case strings.EqualFold(a.Key, "id"):
 					// There should be only one, but one never knows...
 					el.IDs = append(el.IDs, a.Val)
 				default:
-					if strings.EqualFold(a.Key, "class") {
+					if classAttrRe.MatchString(a.Key) {
 						el.Classes = append(el.Classes, strings.Fields(a.Val)...)
 					} else {
 						key := strings.ToLower(a.Key)
@@ -257,7 +411,6 @@ func parseHTMLElement(elStr string) (el htmlElement) {
 							val = strings.Join(lines, "\n")
 							val = jsonAttrRe.ReplaceAllString(val, "$1")
 							el.Classes = append(el.Classes, strings.Fields(val)...)
-
 						}
 					}
 				}
@@ -272,4 +425,19 @@ func parseHTMLElement(elStr string) (el htmlElement) {
 	walk(n)
 
 	return
+}
+
+// Variants of s
+//    <body class="b a">
+//    <div>
+func parseStartTag(s string) string {
+	spaceIndex := strings.IndexFunc(s, func(r rune) bool {
+		return unicode.IsSpace(r)
+	})
+
+	if spaceIndex == -1 {
+		return s[1 : len(s)-1]
+	}
+
+	return s[1:spaceIndex]
 }

@@ -110,7 +110,6 @@ func (c *Cache) Prune(force bool) (int, error) {
 }
 
 func (c *Cache) pruneRootDir(force bool) (int, error) {
-
 	info, err := c.Fs.Stat(c.pruneAllRootDir)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -124,5 +123,4 @@ func (c *Cache) pruneRootDir(force bool) (int, error) {
 	}
 
 	return hugofs.MakeReadableAndRemoveAllModulePkgDir(c.Fs, c.pruneAllRootDir)
-
 }

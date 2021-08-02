@@ -80,3 +80,7 @@ func (fs noOpFs) Chmod(name string, mode os.FileMode) error {
 func (fs noOpFs) Chtimes(name string, atime time.Time, mtime time.Time) error {
 	return errNoOp
 }
+
+func (fs *noOpFs) Chown(name string, uid int, gid int) error {
+	return errNoOp
+}

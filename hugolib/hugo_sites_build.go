@@ -33,8 +33,6 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/gohugoio/hugo/resources/resource"
-
 	"github.com/gohugoio/hugo/output"
 
 	"github.com/pkg/errors"
@@ -46,11 +44,14 @@ import (
 // Build builds all sites. If filesystem events are provided,
 // this is considered to be a potential partial rebuild.
 func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
-
 	if h.running {
 		// Make sure we don't trigger rebuilds in parallel.
 		h.runningMu.Lock()
 		defer h.runningMu.Unlock()
+	} else {
+		defer func() {
+			h.Close()
+		}()
 	}
 
 	ctx, task := trace.NewTask(context.Background(), "Build")
@@ -72,7 +73,6 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		to <- h.pickOneAndLogTheRest(errors)
 
 		close(to)
-
 	}(errCollector, errs)
 
 	if h.Metrics != nil {
@@ -162,9 +162,8 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		var b bytes.Buffer
 		h.Metrics.WriteMetrics(&b)
 
-		h.Log.FEEDBACK.Printf("\nTemplate Metrics:\n\n")
-		h.Log.FEEDBACK.Print(b.String())
-		h.Log.FEEDBACK.Println()
+		h.Log.Printf("\nTemplate Metrics:\n\n")
+		h.Log.Println(b.String())
 	}
 
 	select {
@@ -183,13 +182,12 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		return err
 	}
 
-	errorCount := h.Log.ErrorCounter.Count()
+	errorCount := h.Log.LogCounters().ErrorCounter.Count()
 	if errorCount > 0 {
 		return fmt.Errorf("logged %d error(s)", errorCount)
 	}
 
 	return nil
-
 }
 
 // Build lifecycle methods below.
@@ -245,11 +243,9 @@ func (h *HugoSites) process(config *BuildCfg, init func(config *BuildCfg) error,
 	}
 
 	return firstSite.process(*config)
-
 }
 
 func (h *HugoSites) assemble(bcfg *BuildCfg) error {
-
 	if len(h.Sites) > 1 {
 		// The first is initialized during process; initialize the rest
 		for _, site := range h.Sites[1:] {
@@ -272,7 +268,6 @@ func (h *HugoSites) assemble(bcfg *BuildCfg) error {
 	}
 
 	return nil
-
 }
 
 func (h *HugoSites) render(config *BuildCfg) error {
@@ -330,7 +325,6 @@ func (h *HugoSites) render(config *BuildCfg) error {
 			}
 
 		}
-
 	}
 
 	if !config.SkipRender {
@@ -352,14 +346,49 @@ func (h *HugoSites) postProcess() error {
 		return err
 	}
 
-	var toPostProcess []resource.OriginProvider
-	for _, s := range h.Sites {
-		for _, v := range s.ResourceSpec.PostProcessResources {
-			toPostProcess = append(toPostProcess, v)
+	// This will only be set when js.Build have been triggered with
+	// imports that resolves to the project or a module.
+	// Write a jsconfig.json file to the project's /asset directory
+	// to help JS intellisense in VS Code etc.
+	if !h.ResourceSpec.BuildConfig.NoJSConfigInAssets && h.BaseFs.Assets.Dirs != nil {
+		fi, err := h.BaseFs.Assets.Fs.Stat("")
+		if err != nil {
+			h.Log.Warnf("Failed to resolve jsconfig.json dir: %s", err)
+		} else {
+			m := fi.(hugofs.FileMetaInfo).Meta()
+			assetsDir := m.SourceRoot
+			if strings.HasPrefix(assetsDir, h.ResourceSpec.WorkingDir) {
+				if jsConfig := h.ResourceSpec.JSConfigBuilder.Build(assetsDir); jsConfig != nil {
+
+					b, err := json.MarshalIndent(jsConfig, "", " ")
+					if err != nil {
+						h.Log.Warnf("Failed to create jsconfig.json: %s", err)
+					} else {
+						filename := filepath.Join(assetsDir, "jsconfig.json")
+						if h.running {
+							h.skipRebuildForFilenamesMu.Lock()
+							h.skipRebuildForFilenames[filename] = true
+							h.skipRebuildForFilenamesMu.Unlock()
+						}
+						// Make sure it's  written to the OS fs as this is used by
+						// editors.
+						if err := afero.WriteFile(hugofs.Os, filename, b, 0666); err != nil {
+							h.Log.Warnf("Failed to write jsconfig.json: %s", err)
+						}
+					}
+				}
+			}
+
 		}
 	}
 
+	var toPostProcess []postpub.PostPublishedResource
+	for _, r := range h.ResourceSpec.PostProcessResources {
+		toPostProcess = append(toPostProcess, r)
+	}
+
 	if len(toPostProcess) == 0 {
+		// Nothing more to do.
 		return nil
 	}
 
@@ -367,7 +396,6 @@ func (h *HugoSites) postProcess() error {
 	g, _ := workers.Start(context.Background())
 
 	handleFile := func(filename string) error {
-
 		content, err := afero.ReadFile(h.BaseFs.PublishFs, filename)
 		if err != nil {
 			return err
@@ -410,7 +438,6 @@ func (h *HugoSites) postProcess() error {
 		}
 
 		return nil
-
 	}
 
 	_ = afero.Walk(h.BaseFs.PublishFs, "", func(path string, info os.FileInfo, err error) error {
@@ -435,7 +462,6 @@ func (h *HugoSites) postProcess() error {
 	}
 
 	return g.Wait()
-
 }
 
 type publishStats struct {
@@ -479,5 +505,4 @@ func (h *HugoSites) writeBuildStats() error {
 	}
 
 	return nil
-
 }

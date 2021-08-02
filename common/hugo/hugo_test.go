@@ -32,8 +32,8 @@ func TestHugoInfo(t *testing.T) {
 	c.Assert(hugoInfo.Environment, qt.Equals, "production")
 	c.Assert(string(hugoInfo.Generator()), qt.Contains, fmt.Sprintf("Hugo %s", hugoInfo.Version()))
 	c.Assert(hugoInfo.IsProduction(), qt.Equals, true)
+	c.Assert(hugoInfo.IsExtended(), qt.Equals, IsExtended)
 
 	devHugoInfo := NewInfo("development")
 	c.Assert(devHugoInfo.IsProduction(), qt.Equals, false)
-
 }

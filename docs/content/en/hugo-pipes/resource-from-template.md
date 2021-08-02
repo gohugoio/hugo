@@ -18,7 +18,7 @@ draft: false
 
 In order to use Hugo Pipes function on an asset file containing Go Template magic the function `resources.ExecuteAsTemplate` must be used.
 
-The function takes three arguments, the resource object, the resource target path and the template context.
+The function takes three arguments: the resource target path, the template context, and the resource object.
 
 ```go-html-template
 // assets/sass/template.scss

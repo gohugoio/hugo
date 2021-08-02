@@ -31,6 +31,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gohugoio/hugo/common/paths"
+
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/livereload"
@@ -185,7 +187,7 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 						// port set explicitly by user -- he/she probably meant it!
 						err = newSystemErrorF("Server startup failed: %s", err)
 					}
-					c.logger.FEEDBACK.Println("port", sc.serverPort, "already in use, attempting to use an available port")
+					c.logger.Println("port", sc.serverPort, "already in use, attempting to use an available port")
 					sp, err := helpers.FindAvailablePort()
 					if err != nil {
 						err = newSystemError("Unable to find alternative port to use:", err)
@@ -228,19 +230,30 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 		}
 
 		return err
-
 	}
 
 	if err := memStats(); err != nil {
 		jww.WARN.Println("memstats error:", err)
 	}
 
+	// silence errors in cobra so we can handle them here
+	cmd.SilenceErrors = true
+
 	c, err := initializeConfig(true, true, &sc.hugoBuilderCommon, sc, cfgInit)
 	if err != nil {
+		cmd.PrintErrln("Error:", err.Error())
 		return err
 	}
 
-	if err := c.serverBuild(); err != nil {
+	err = func() error {
+		defer c.timeTrack(time.Now(), "Built")
+		err := c.serverBuild()
+		if err != nil {
+			cmd.PrintErrln("Error:", err.Error())
+		}
+		return err
+	}()
+	if err != nil {
 		return err
 	}
 
@@ -261,8 +274,7 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 		for _, group := range watchGroups {
 			jww.FEEDBACK.Printf("Watching for changes in %s\n", group)
 		}
-		watcher, err := c.newWatcher(watchDirs...)
-
+		watcher, err := c.newWatcher(sc.poll, watchDirs...)
 		if err != nil {
 			return err
 		}
@@ -272,13 +284,12 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 	}
 
 	return c.serve(sc)
-
 }
 
 func getRootWatchDirsStr(baseDir string, watchDirs []string) string {
 	relWatchDirs := make([]string, len(watchDirs))
 	for i, dir := range watchDirs {
-		relWatchDirs[i], _ = helpers.GetRelativePath(dir, baseDir)
+		relWatchDirs[i], _ = paths.GetRelativePath(dir, baseDir)
 	}
 
 	return strings.Join(helpers.UniqueStringsSorted(helpers.ExtractRootPaths(relWatchDirs)), ",")
@@ -301,7 +312,6 @@ func (f *fileServer) rewriteRequest(r *http.Request, toPath string) *http.Reques
 	r2.Header.Set("X-Rewrite-Original-URI", r.URL.RequestURI())
 
 	return r2
-
 }
 
 func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, error) {
@@ -350,14 +360,16 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 					w.WriteHeader(500)
 					r, err := f.errorTemplate(err)
 					if err != nil {
-						f.c.logger.ERROR.Println(err)
+						f.c.logger.Errorln(err)
 					}
 
 					port = 1313
 					if !f.c.paused {
 						port = f.c.Cfg.GetInt("liveReloadPort")
 					}
-					fmt.Fprint(w, injectLiveReloadScript(r, port))
+					lr := *u
+					lr.Host = fmt.Sprintf("%s:%d", lr.Hostname(), port)
+					fmt.Fprint(w, injectLiveReloadScript(r, lr))
 
 					return
 				}
@@ -376,23 +388,40 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 			}
 
 			if redirect := f.c.serverConfig.MatchRedirect(requestURI); !redirect.IsZero() {
+				doRedirect := true
 				// This matches Netlify's behaviour and is needed for SPA behaviour.
 				// See https://docs.netlify.com/routing/redirects/rewrites-proxies/
-				if redirect.Status == 200 {
-					if r2 := f.rewriteRequest(r, strings.TrimPrefix(redirect.To, u.Path)); r2 != nil {
-						requestURI = redirect.To
-						r = r2
+				if !redirect.Force {
+					path := filepath.Clean(strings.TrimPrefix(requestURI, u.Path))
+					fi, err := f.c.hugo().BaseFs.PublishFs.Stat(path)
+					if err == nil {
+						if fi.IsDir() {
+							// There will be overlapping directories, so we
+							// need to check for a file.
+							_, err = f.c.hugo().BaseFs.PublishFs.Stat(filepath.Join(path, "index.html"))
+							doRedirect = err != nil
+						} else {
+							doRedirect = false
+						}
 					}
-				} else {
-					w.Header().Set("Content-Type", "")
-					http.Redirect(w, r, redirect.To, redirect.Status)
-					return
+				}
+
+				if doRedirect {
+					if redirect.Status == 200 {
+						if r2 := f.rewriteRequest(r, strings.TrimPrefix(redirect.To, u.Path)); r2 != nil {
+							requestURI = redirect.To
+							r = r2
+						}
+					} else {
+						w.Header().Set("Content-Type", "")
+						http.Redirect(w, r, redirect.To, redirect.Status)
+						return
+					}
 				}
 
 			}
 
 			if f.c.fastRenderMode && f.c.buildErr == nil {
-
 				if strings.HasSuffix(requestURI, "/") || strings.HasSuffix(requestURI, "html") || strings.HasSuffix(requestURI, "htm") {
 					if !f.c.visitedURLs.Contains(requestURI) {
 						// If not already on stack, re-render that single page.
@@ -416,7 +445,6 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 
 	fileserver := decorate(http.FileServer(fs))
 	mu := http.NewServeMux()
-
 	if u.Path == "" || u.Path == "/" {
 		mu.Handle("/", fileserver)
 	} else {
@@ -433,8 +461,8 @@ var logErrorRe = regexp.MustCompile(`(?s)ERROR \d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{
 func removeErrorPrefixFromLog(content string) string {
 	return logErrorRe.ReplaceAllLiteralString(content, "")
 }
-func (c *commandeer) serve(s *serverCmd) error {
 
+func (c *commandeer) serve(s *serverCmd) error {
 	isMultiHost := c.hugo().IsMultihost()
 
 	var (
@@ -476,21 +504,26 @@ func (c *commandeer) serve(s *serverCmd) error {
 		livereload.Initialize()
 	}
 
-	var sigs = make(chan os.Signal, 1)
+	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
 	for i := range baseURLs {
 		mu, serverURL, endpoint, err := srv.createEndpoint(i)
 
 		if doLiveReload {
-			mu.HandleFunc("/livereload.js", livereload.ServeJS)
-			mu.HandleFunc("/livereload", livereload.Handler)
+			u, err := url.Parse(helpers.SanitizeURL(baseURLs[i]))
+			if err != nil {
+				return err
+			}
+
+			mu.HandleFunc(u.Path+"/livereload.js", livereload.ServeJS)
+			mu.HandleFunc(u.Path+"/livereload", livereload.Handler)
 		}
 		jww.FEEDBACK.Printf("Web Server is available at %s (bind address %s)\n", serverURL, s.serverInterface)
 		go func() {
 			err = http.ListenAndServe(endpoint, mu)
 			if err != nil {
-				c.logger.ERROR.Printf("Error: %s\n", err.Error())
+				c.logger.Errorf("Error: %s\n", err.Error())
 				os.Exit(1)
 			}
 		}()
@@ -506,6 +539,8 @@ func (c *commandeer) serve(s *serverCmd) error {
 	} else {
 		<-sigs
 	}
+
+	c.hugo().Close()
 
 	return nil
 }

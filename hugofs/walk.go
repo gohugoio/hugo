@@ -37,7 +37,7 @@ type Walkway struct {
 	root     string
 	basePath string
 
-	logger *loggers.Logger
+	logger loggers.Logger
 
 	// May be pre-set
 	fi         FileMetaInfo
@@ -59,7 +59,7 @@ type WalkwayConfig struct {
 	Root     string
 	BasePath string
 
-	Logger *loggers.Logger
+	Logger loggers.Logger
 
 	// One or both of these may be pre-set.
 	Info       FileMetaInfo
@@ -73,7 +73,7 @@ type WalkwayConfig struct {
 func NewWalkway(cfg WalkwayConfig) *Walkway {
 	var fs afero.Fs
 	if cfg.Info != nil {
-		fs = cfg.Info.Meta().Fs()
+		fs = cfg.Info.Meta().Fs
 	} else {
 		fs = cfg.Fs
 	}
@@ -98,7 +98,8 @@ func NewWalkway(cfg WalkwayConfig) *Walkway {
 		hookPre:    cfg.HookPre,
 		hookPost:   cfg.HookPost,
 		logger:     logger,
-		seen:       make(map[string]bool)}
+		seen:       make(map[string]bool),
+	}
 }
 
 func (w *Walkway) Walk() error {
@@ -134,7 +135,6 @@ func (w *Walkway) Walk() error {
 	}
 
 	return w.walk(w.root, fi, w.dirEntries, w.walkFn)
-
 }
 
 // if the filesystem supports it, use Lstat, else use fs.Stat
@@ -158,15 +158,15 @@ func (w *Walkway) checkErr(filename string, err error) bool {
 		// The file may be removed in process.
 		// This may be a ERROR situation, but it is not possible
 		// to determine as a general case.
-		w.logger.WARN.Printf("File %q not found, skipping.", filename)
+		w.logger.Warnf("File %q not found, skipping.", filename)
 		return true
 	}
 
 	return false
 }
 
-func logUnsupportedSymlink(filename string, logger *loggers.Logger) {
-	logger.WARN.Printf("Unsupported symlink found in %q, skipping.", filename)
+func logUnsupportedSymlink(filename string, logger loggers.Logger) {
+	logger.Warnf("Unsupported symlink found in %q, skipping.", filename)
 }
 
 // walk recursively descends path, calling walkFn.
@@ -184,7 +184,7 @@ func (w *Walkway) walk(path string, info FileMetaInfo, dirEntries []FileMetaInfo
 	}
 
 	meta := info.Meta()
-	filename := meta.Filename()
+	filename := meta.Filename
 
 	if dirEntries == nil {
 		f, err := w.fs.Open(path)
@@ -206,7 +206,7 @@ func (w *Walkway) walk(path string, info FileMetaInfo, dirEntries []FileMetaInfo
 
 		dirEntries = fileInfosToFileMetaInfos(fis)
 
-		if !meta.IsOrdered() {
+		if !meta.IsOrdered {
 			sort.Slice(dirEntries, func(i, j int) bool {
 				fii := dirEntries[i]
 				fij := dirEntries[j]
@@ -214,7 +214,7 @@ func (w *Walkway) walk(path string, info FileMetaInfo, dirEntries []FileMetaInfo
 				fim, fjm := fii.Meta(), fij.Meta()
 
 				// Pull bundle headers to the top.
-				ficlass, fjclass := fim.Classifier(), fjm.Classifier()
+				ficlass, fjclass := fim.Classifier, fjm.Classifier
 				if ficlass != fjclass {
 					return ficlass < fjclass
 				}
@@ -222,20 +222,20 @@ func (w *Walkway) walk(path string, info FileMetaInfo, dirEntries []FileMetaInfo
 				// With multiple content dirs with different languages,
 				// there can be duplicate files, and a weight will be added
 				// to the closest one.
-				fiw, fjw := fim.Weight(), fjm.Weight()
+				fiw, fjw := fim.Weight, fjm.Weight
 				if fiw != fjw {
 					return fiw > fjw
 				}
 
 				// Explicit order set.
-				fio, fjo := fim.Ordinal(), fjm.Ordinal()
+				fio, fjo := fim.Ordinal, fjm.Ordinal
 				if fio != fjo {
 					return fio < fjo
 				}
 
 				// When we walk into a symlink, we keep the reference to
 				// the original name.
-				fin, fjn := fim.Name(), fjm.Name()
+				fin, fjn := fim.Name, fjm.Name
 				if fin != "" && fjn != "" {
 					return fin < fjn
 				}
@@ -252,7 +252,7 @@ func (w *Walkway) walk(path string, info FileMetaInfo, dirEntries []FileMetaInfo
 		meta := fim.Meta()
 
 		// Note that we use the original Name even if it's a symlink.
-		name := meta.Name()
+		name := meta.Name
 		if name == "" {
 			name = fim.Name()
 		}
@@ -267,13 +267,13 @@ func (w *Walkway) walk(path string, info FileMetaInfo, dirEntries []FileMetaInfo
 			pathMeta = strings.TrimPrefix(pathn, w.basePath)
 		}
 
-		meta[metaKeyPath] = normalizeFilename(pathMeta)
-		meta[metaKeyPathWalk] = pathn
+		meta.Path = normalizeFilename(pathMeta)
+		meta.PathWalk = pathn
 
-		if fim.IsDir() && w.isSeen(meta.Filename()) {
+		if fim.IsDir() && w.isSeen(meta.Filename) {
 			// Prevent infinite recursion
 			// Possible cyclic reference
-			meta[metaKeySkipDir] = true
+			meta.SkipDir = true
 		}
 	}
 
@@ -291,11 +291,11 @@ func (w *Walkway) walk(path string, info FileMetaInfo, dirEntries []FileMetaInfo
 		fim := fi.(FileMetaInfo)
 		meta := fim.Meta()
 
-		if meta.SkipDir() {
+		if meta.SkipDir {
 			continue
 		}
 
-		err := w.walk(meta.GetString(metaKeyPathWalk), fim, nil, walkFn)
+		err := w.walk(meta.PathWalk, fim, nil, walkFn)
 		if err != nil {
 			if !fi.IsDir() || err != filepath.SkipDir {
 				return err

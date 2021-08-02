@@ -51,7 +51,6 @@ func Append(to interface{}, from ...interface{}) (interface{}, error) {
 				} else if !fromt.AssignableTo(tot) {
 					// Fall back to a []interface{} slice.
 					return appendToInterfaceSliceFromValues(tov, fromv)
-
 				}
 			}
 		}

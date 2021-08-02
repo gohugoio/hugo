@@ -16,13 +16,14 @@ package langs
 import (
 	"testing"
 
+	"github.com/gohugoio/hugo/config"
+
 	qt "github.com/frankban/quicktest"
-	"github.com/spf13/viper"
 )
 
 func TestGetGlobalOnlySetting(t *testing.T) {
 	c := qt.New(t)
-	v := viper.New()
+	v := config.New()
 	v.Set("defaultContentLanguageInSubdir", true)
 	v.Set("contentDir", "content")
 	v.Set("paginatePath", "page")
@@ -37,7 +38,7 @@ func TestGetGlobalOnlySetting(t *testing.T) {
 func TestLanguageParams(t *testing.T) {
 	c := qt.New(t)
 
-	v := viper.New()
+	v := config.New()
 	v.Set("p1", "p1cfg")
 	v.Set("contentDir", "content")
 

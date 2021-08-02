@@ -26,7 +26,6 @@ func NewPathIdentity(typ, pat string) PathIdentity {
 type Identities map[Identity]Provider
 
 func (ids Identities) search(depth int, id Identity) Provider {
-
 	if v, found := ids[id.GetIdentity()]; found {
 		return v
 	}
@@ -64,11 +63,16 @@ type Identity interface {
 
 // Manager manages identities, and is itself a Provider of Identity.
 type Manager interface {
-	IdentitiesProvider
-	Provider
+	SearchProvider
 	Add(ids ...Provider)
-	Search(id Identity) Provider
 	Reset()
+}
+
+// SearchProvider provides access to the chained set of identities.
+type SearchProvider interface {
+	Provider
+	IdentitiesProvider
+	Search(id Identity) Provider
 }
 
 // A PathIdentity is a common identity identified by a type and a path, e.g. "layouts" and "_default/single.html".
@@ -129,6 +133,8 @@ func (im *identityManager) Reset() {
 	im.Unlock()
 }
 
+// TODO(bep) these identities are currently only read on server reloads
+// so there should be no concurrency issues, but that may change.
 func (im *identityManager) GetIdentities() Identities {
 	im.Lock()
 	defer im.Unlock()

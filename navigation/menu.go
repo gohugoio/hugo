@@ -14,22 +14,25 @@
 package navigation
 
 import (
-	"github.com/gohugoio/hugo/common/maps"
-	"github.com/gohugoio/hugo/common/types"
-	"github.com/gohugoio/hugo/compare"
-
 	"html/template"
 	"sort"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/types"
+	"github.com/gohugoio/hugo/compare"
+
 	"github.com/spf13/cast"
 )
+
+var smc = newMenuCache()
 
 // MenuEntry represents a menu item defined in either Page front matter
 // or in the site config.
 type MenuEntry struct {
 	ConfiguredURL string // The URL value from front matter / config.
 	Page          Page
+	PageRef       string // The path to the page, only relevant for site config.
 	Name          string
 	Menu          string
 	Identifier    string
@@ -39,18 +42,23 @@ type MenuEntry struct {
 	Weight        int
 	Parent        string
 	Children      Menu
+	Params        maps.Params
 }
 
 func (m *MenuEntry) URL() string {
-	if m.ConfiguredURL != "" {
-		return m.ConfiguredURL
-	}
 
+	// Check page first.
+	// In Hugo 0.86.0 we added `pageRef`,
+	// a way to connect menu items in site config to pages.
+	// This means that you now can have both a Page
+	// and a configured URL.
+	// Having the configured URL as a fallback if the Page isn't found
+	// is obviously more useful, especially in multilingual sites.
 	if !types.IsNil(m.Page) {
 		return m.Page.RelPermalink()
 	}
 
-	return ""
+	return m.ConfiguredURL
 }
 
 // A narrow version of page.Page.
@@ -60,6 +68,8 @@ type Page interface {
 	Section() string
 	Weight() int
 	IsPage() bool
+	IsSection() bool
+	IsAncestor(other interface{}) (bool, error)
 	Params() maps.Params
 }
 
@@ -103,8 +113,18 @@ func (m *MenuEntry) IsEqual(inme *MenuEntry) bool {
 // IsSameResource returns whether the two menu entries points to the same
 // resource (URL).
 func (m *MenuEntry) IsSameResource(inme *MenuEntry) bool {
+	if m.isSamePage(inme.Page) {
+		return m.Page == inme.Page
+	}
 	murl, inmeurl := m.URL(), inme.URL()
 	return murl != "" && inmeurl != "" && murl == inmeurl
+}
+
+func (m *MenuEntry) isSamePage(p Page) bool {
+	if !types.IsNil(m.Page) && !types.IsNil(p) {
+		return m.Page == p
+	}
+	return false
 }
 
 func (m *MenuEntry) MarshallMap(ime map[string]interface{}) {
@@ -113,6 +133,8 @@ func (m *MenuEntry) MarshallMap(ime map[string]interface{}) {
 		switch loki {
 		case "url":
 			m.ConfiguredURL = cast.ToString(v)
+		case "pageref":
+			m.PageRef = cast.ToString(v)
 		case "weight":
 			m.Weight = cast.ToInt(v)
 		case "name":
@@ -127,6 +149,9 @@ func (m *MenuEntry) MarshallMap(ime map[string]interface{}) {
 			m.Identifier = cast.ToString(v)
 		case "parent":
 			m.Parent = cast.ToString(v)
+		case "params":
+			m.Params = maps.MustToParamsAndPrepare(v)
+
 		}
 	}
 }
@@ -201,27 +226,39 @@ func (m Menu) Limit(n int) Menu {
 
 // ByWeight sorts the menu by the weight defined in the menu configuration.
 func (m Menu) ByWeight() Menu {
-	menuEntryBy(defaultMenuEntrySort).Sort(m)
-	return m
+	const key = "menuSort.ByWeight"
+	menus, _ := smc.get(key, menuEntryBy(defaultMenuEntrySort).Sort, m)
+
+	return menus
 }
 
 // ByName sorts the menu by the name defined in the menu configuration.
 func (m Menu) ByName() Menu {
+	const key = "menuSort.ByName"
 	title := func(m1, m2 *MenuEntry) bool {
 		return compare.LessStrings(m1.Name, m2.Name)
 	}
 
-	menuEntryBy(title).Sort(m)
-	return m
+	menus, _ := smc.get(key, menuEntryBy(title).Sort, m)
+
+	return menus
 }
 
 // Reverse reverses the order of the menu entries.
 func (m Menu) Reverse() Menu {
-	for i, j := 0, len(m)-1; i < j; i, j = i+1, j-1 {
-		m[i], m[j] = m[j], m[i]
+	const key = "menuSort.Reverse"
+	reverseFunc := func(menu Menu) {
+		for i, j := 0, len(menu)-1; i < j; i, j = i+1, j-1 {
+			menu[i], menu[j] = menu[j], menu[i]
+		}
 	}
+	menus, _ := smc.get(key, reverseFunc, m)
 
-	return m
+	return menus
+}
+
+func (m Menu) Clone() Menu {
+	return append(Menu(nil), m...)
 }
 
 func (m *MenuEntry) Title() string {

@@ -89,7 +89,7 @@ func (proc *pagesProcessor) Wait() error {
 }
 
 func (proc *pagesProcessor) getProcFromFi(fi hugofs.FileMetaInfo) pagesCollectorProcessorProvider {
-	if p, found := proc.procs[fi.Meta().Lang()]; found {
+	if p, found := proc.procs[fi.Meta().Lang]; found {
 		return p
 	}
 	return defaultPageProcessor
@@ -151,12 +151,11 @@ func (p *sitePagesProcessor) copyFile(fim hugofs.FileMetaInfo) error {
 
 	s := p.m.s
 
-	target := filepath.Join(s.PathSpec.GetTargetLanguageBasePath(), meta.Path())
+	target := filepath.Join(s.PathSpec.GetTargetLanguageBasePath(), meta.Path)
 
 	defer f.Close()
 
 	return s.publish(&s.PathSpec.ProcessingStats.Files, target, f)
-
 }
 
 func (p *sitePagesProcessor) doProcess(item interface{}) error {
@@ -172,7 +171,7 @@ func (p *sitePagesProcessor) doProcess(item interface{}) error {
 		}
 		meta := v.Meta()
 
-		classifier := meta.Classifier()
+		classifier := meta.Classifier
 		switch classifier {
 		case files.ContentClassContent:
 			if err := m.AddFilesBundle(v); err != nil {
@@ -189,10 +188,9 @@ func (p *sitePagesProcessor) doProcess(item interface{}) error {
 		panic(fmt.Sprintf("unrecognized item type in Process: %T", item))
 	}
 	return nil
-
 }
 
 func (p *sitePagesProcessor) shouldSkip(fim hugofs.FileMetaInfo) bool {
 	// TODO(ep) unify
-	return p.m.s.SourceSpec.DisabledLanguages[fim.Meta().Lang()]
+	return p.m.s.SourceSpec.DisabledLanguages[fim.Meta().Lang]
 }

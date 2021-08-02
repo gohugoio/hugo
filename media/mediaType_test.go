@@ -14,15 +14,12 @@
 package media
 
 import (
+	"encoding/json"
+	"sort"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/google/go-cmp/cmp"
 )
-
-var eq = qt.CmpEquals(cmp.Comparer(func(m1, m2 Type) bool {
-	return m1.Type() == m2.Type()
-}))
 
 func TestDefaultTypes(t *testing.T) {
 	c := qt.New(t)
@@ -40,6 +37,9 @@ func TestDefaultTypes(t *testing.T) {
 		{CSVType, "text", "csv", "csv", "text/csv", "text/csv"},
 		{HTMLType, "text", "html", "html", "text/html", "text/html"},
 		{JavascriptType, "application", "javascript", "js", "application/javascript", "application/javascript"},
+		{TypeScriptType, "application", "typescript", "ts", "application/typescript", "application/typescript"},
+		{TSXType, "text", "tsx", "tsx", "text/tsx", "text/tsx"},
+		{JSXType, "text", "jsx", "jsx", "text/jsx", "text/jsx"},
 		{JSONType, "application", "json", "json", "application/json", "application/json"},
 		{RSSType, "application", "rss", "xml", "application/rss+xml", "application/rss+xml"},
 		{SVGType, "image", "svg", "svg", "image/svg+xml", "image/svg+xml"},
@@ -50,16 +50,13 @@ func TestDefaultTypes(t *testing.T) {
 	} {
 		c.Assert(test.tp.MainType, qt.Equals, test.expectedMainType)
 		c.Assert(test.tp.SubType, qt.Equals, test.expectedSubType)
-		c.Assert(test.tp.Suffix(), qt.Equals, test.expectedSuffix)
-		c.Assert(test.tp.Delimiter, qt.Equals, defaultDelimiter)
 
 		c.Assert(test.tp.Type(), qt.Equals, test.expectedType)
 		c.Assert(test.tp.String(), qt.Equals, test.expectedString)
 
 	}
 
-	c.Assert(len(DefaultTypes), qt.Equals, 23)
-
+	c.Assert(len(DefaultTypes), qt.Equals, 28)
 }
 
 func TestGetByType(t *testing.T) {
@@ -69,25 +66,25 @@ func TestGetByType(t *testing.T) {
 
 	mt, found := types.GetByType("text/HTML")
 	c.Assert(found, qt.Equals, true)
-	c.Assert(HTMLType, eq, mt)
+	c.Assert(HTMLType, qt.Equals, mt)
 
 	_, found = types.GetByType("text/nono")
 	c.Assert(found, qt.Equals, false)
 
 	mt, found = types.GetByType("application/rss+xml")
 	c.Assert(found, qt.Equals, true)
-	c.Assert(RSSType, eq, mt)
+	c.Assert(RSSType, qt.Equals, mt)
 
 	mt, found = types.GetByType("application/rss")
 	c.Assert(found, qt.Equals, true)
-	c.Assert(RSSType, eq, mt)
+	c.Assert(RSSType, qt.Equals, mt)
 }
 
 func TestGetByMainSubType(t *testing.T) {
 	c := qt.New(t)
 	f, found := DefaultTypes.GetByMainSubType("text", "plain")
 	c.Assert(found, qt.Equals, true)
-	c.Assert(TextType, eq, f)
+	c.Assert(f, qt.Equals, TextType)
 	_, found = DefaultTypes.GetByMainSubType("foo", "plain")
 	c.Assert(found, qt.Equals, false)
 }
@@ -102,55 +99,86 @@ func TestBySuffix(t *testing.T) {
 
 func TestGetFirstBySuffix(t *testing.T) {
 	c := qt.New(t)
-	f, found := DefaultTypes.GetFirstBySuffix("xml")
-	c.Assert(found, qt.Equals, true)
-	c.Assert(f, eq, Type{MainType: "application", SubType: "rss", mimeSuffix: "xml", Delimiter: ".", Suffixes: []string{"xml"}, fileSuffix: "xml"})
+
+	types := DefaultTypes
+
+	// Issue #8406
+	geoJSON := newMediaTypeWithMimeSuffix("application", "geo", "json", []string{"geojson", "gjson"})
+	types = append(types, geoJSON)
+	sort.Sort(types)
+
+	check := func(suffix string, expectedType Type) {
+		t, f, found := types.GetFirstBySuffix(suffix)
+		c.Assert(found, qt.Equals, true)
+		c.Assert(f, qt.Equals, SuffixInfo{
+			Suffix:     suffix,
+			FullSuffix: "." + suffix})
+		c.Assert(t, qt.Equals, expectedType)
+	}
+
+	check("js", JavascriptType)
+	check("json", JSONType)
+	check("geojson", geoJSON)
+	check("gjson", geoJSON)
+
 }
 
 func TestFromTypeString(t *testing.T) {
 	c := qt.New(t)
 	f, err := fromString("text/html")
 	c.Assert(err, qt.IsNil)
-	c.Assert(f.Type(), eq, HTMLType.Type())
+	c.Assert(f.Type(), qt.Equals, HTMLType.Type())
 
 	f, err = fromString("application/custom")
 	c.Assert(err, qt.IsNil)
-	c.Assert(f, eq, Type{MainType: "application", SubType: "custom", mimeSuffix: "", fileSuffix: ""})
+	c.Assert(f, qt.Equals, Type{MainType: "application", SubType: "custom", mimeSuffix: ""})
 
 	f, err = fromString("application/custom+sfx")
 	c.Assert(err, qt.IsNil)
-	c.Assert(f, eq, Type{MainType: "application", SubType: "custom", mimeSuffix: "sfx"})
+	c.Assert(f, qt.Equals, Type{MainType: "application", SubType: "custom", mimeSuffix: "sfx"})
 
 	_, err = fromString("noslash")
 	c.Assert(err, qt.Not(qt.IsNil))
 
 	f, err = fromString("text/xml; charset=utf-8")
 	c.Assert(err, qt.IsNil)
-	c.Assert(f, eq, Type{MainType: "text", SubType: "xml", mimeSuffix: ""})
-	c.Assert(f.Suffix(), qt.Equals, "")
+
+	c.Assert(f, qt.Equals, Type{MainType: "text", SubType: "xml", mimeSuffix: ""})
+
+}
+
+func TestFromStringAndExt(t *testing.T) {
+	c := qt.New(t)
+	f, err := FromStringAndExt("text/html", "html")
+	c.Assert(err, qt.IsNil)
+	c.Assert(f, qt.Equals, HTMLType)
+	f, err = FromStringAndExt("text/html", ".html")
+	c.Assert(err, qt.IsNil)
+	c.Assert(f, qt.Equals, HTMLType)
 }
 
 // Add a test for the SVG case
 // https://github.com/gohugoio/hugo/issues/4920
 func TestFromExtensionMultipleSuffixes(t *testing.T) {
 	c := qt.New(t)
-	tp, found := DefaultTypes.GetBySuffix("svg")
+	tp, si, found := DefaultTypes.GetBySuffix("svg")
 	c.Assert(found, qt.Equals, true)
 	c.Assert(tp.String(), qt.Equals, "image/svg+xml")
-	c.Assert(tp.fileSuffix, qt.Equals, "svg")
-	c.Assert(tp.FullSuffix(), qt.Equals, ".svg")
-	tp, found = DefaultTypes.GetByType("image/svg+xml")
+	c.Assert(si.Suffix, qt.Equals, "svg")
+	c.Assert(si.FullSuffix, qt.Equals, ".svg")
+	c.Assert(tp.FirstSuffix.Suffix, qt.Equals, si.Suffix)
+	c.Assert(tp.FirstSuffix.FullSuffix, qt.Equals, si.FullSuffix)
+	ftp, found := DefaultTypes.GetByType("image/svg+xml")
 	c.Assert(found, qt.Equals, true)
-	c.Assert(tp.String(), qt.Equals, "image/svg+xml")
+	c.Assert(ftp.String(), qt.Equals, "image/svg+xml")
 	c.Assert(found, qt.Equals, true)
-	c.Assert(tp.FullSuffix(), qt.Equals, ".svg")
 
 }
 
 func TestDecodeTypes(t *testing.T) {
 	c := qt.New(t)
 
-	var tests = []struct {
+	tests := []struct {
 		name        string
 		maps        []map[string]interface{}
 		shouldError bool
@@ -161,55 +189,68 @@ func TestDecodeTypes(t *testing.T) {
 			[]map[string]interface{}{
 				{
 					"application/json": map[string]interface{}{
-						"suffixes": []string{"jasn"}}}},
+						"suffixes": []string{"jasn"},
+					},
+				},
+			},
 			false,
 			func(t *testing.T, name string, tt Types) {
 				c.Assert(len(tt), qt.Equals, len(DefaultTypes))
-				json, found := tt.GetBySuffix("jasn")
+				json, si, found := tt.GetBySuffix("jasn")
 				c.Assert(found, qt.Equals, true)
 				c.Assert(json.String(), qt.Equals, "application/json")
-				c.Assert(json.FullSuffix(), qt.Equals, ".jasn")
-			}},
+				c.Assert(si.FullSuffix, qt.Equals, ".jasn")
+			},
+		},
 		{
 			"MIME suffix in key, multiple file suffixes, custom delimiter",
 			[]map[string]interface{}{
 				{
 					"application/hugo+hg": map[string]interface{}{
-						"suffixes":  []string{"hg1", "hg2"},
+						"suffixes":  []string{"hg1", "hG2"},
 						"Delimiter": "_",
-					}}},
+					},
+				},
+			},
 			false,
 			func(t *testing.T, name string, tt Types) {
 				c.Assert(len(tt), qt.Equals, len(DefaultTypes)+1)
-				hg, found := tt.GetBySuffix("hg2")
+				hg, si, found := tt.GetBySuffix("hg2")
 				c.Assert(found, qt.Equals, true)
 				c.Assert(hg.mimeSuffix, qt.Equals, "hg")
-				c.Assert(hg.Suffix(), qt.Equals, "hg2")
-				c.Assert(hg.FullSuffix(), qt.Equals, "_hg2")
+				c.Assert(hg.FirstSuffix.Suffix, qt.Equals, "hg1")
+				c.Assert(hg.FirstSuffix.FullSuffix, qt.Equals, "_hg1")
+				c.Assert(si.Suffix, qt.Equals, "hg2")
+				c.Assert(si.FullSuffix, qt.Equals, "_hg2")
 				c.Assert(hg.String(), qt.Equals, "application/hugo+hg")
 
-				hg, found = tt.GetByType("application/hugo+hg")
+				_, found = tt.GetByType("application/hugo+hg")
 				c.Assert(found, qt.Equals, true)
 
-			}},
+			},
+		},
 		{
 			"Add custom media type",
 			[]map[string]interface{}{
 				{
 					"text/hugo+hgo": map[string]interface{}{
-						"Suffixes": []string{"hgo2"}}}},
+						"Suffixes": []string{"hgo2"},
+					},
+				},
+			},
 			false,
-			func(t *testing.T, name string, tt Types) {
-				c.Assert(len(tt), qt.Equals, len(DefaultTypes)+1)
+			func(t *testing.T, name string, tp Types) {
+				c.Assert(len(tp), qt.Equals, len(DefaultTypes)+1)
 				// Make sure we have not broken the default config.
 
-				_, found := tt.GetBySuffix("json")
+				_, _, found := tp.GetBySuffix("json")
 				c.Assert(found, qt.Equals, true)
 
-				hugo, found := tt.GetBySuffix("hgo2")
+				hugo, _, found := tp.GetBySuffix("hgo2")
 				c.Assert(found, qt.Equals, true)
 				c.Assert(hugo.String(), qt.Equals, "text/hugo+hgo")
-			}},
+			},
+		},
 	}
 
 	for _, test := range tests {
@@ -220,5 +261,36 @@ func TestDecodeTypes(t *testing.T) {
 			c.Assert(err, qt.IsNil)
 			test.assert(t, test.name, result)
 		}
+	}
+}
+
+func TestToJSON(t *testing.T) {
+	c := qt.New(t)
+	b, err := json.Marshal(MPEGType)
+	c.Assert(err, qt.IsNil)
+	c.Assert(string(b), qt.Equals, `{"mainType":"video","subType":"mpeg","delimiter":".","firstSuffix":{"suffix":"mpg","fullSuffix":".mpg"},"type":"video/mpeg","string":"video/mpeg","suffixes":["mpg","mpeg"]}`)
+}
+
+func BenchmarkTypeOps(b *testing.B) {
+	mt := MPEGType
+	mts := DefaultTypes
+	for i := 0; i < b.N; i++ {
+		ff := mt.FirstSuffix
+		_ = ff.FullSuffix
+		_ = mt.IsZero()
+		c, err := mt.MarshalJSON()
+		if c == nil || err != nil {
+			b.Fatal("failed")
+		}
+		_ = mt.String()
+		_ = ff.Suffix
+		_ = mt.Suffixes
+		_ = mt.Type()
+		_ = mts.BySuffix("xml")
+		_, _ = mts.GetByMainSubType("application", "xml")
+		_, _, _ = mts.GetBySuffix("xml")
+		_, _ = mts.GetByType("application")
+		_, _, _ = mts.GetFirstBySuffix("xml")
+
 	}
 }

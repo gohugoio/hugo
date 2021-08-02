@@ -18,6 +18,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/herrors"
@@ -62,7 +63,7 @@ func (d Decoder) UnmarshalToMap(data []byte, f Format) (map[string]interface{}, 
 		return m, nil
 	}
 
-	err := d.unmarshal(data, f, &m)
+	err := d.UnmarshalTo(data, f, &m)
 
 	return m, err
 }
@@ -104,7 +105,7 @@ func (d Decoder) UnmarshalStringTo(data string, typ interface{}) (interface{}, e
 	case float64:
 		return cast.ToFloat64E(data)
 	default:
-		return nil, errors.Errorf("unmarshal: %T not supportedd", typ)
+		return nil, errors.Errorf("unmarshal: %T not supported", typ)
 	}
 }
 
@@ -118,17 +119,15 @@ func (d Decoder) Unmarshal(data []byte, f Format) (interface{}, error) {
 		default:
 			return make(map[string]interface{}), nil
 		}
-
 	}
 	var v interface{}
-	err := d.unmarshal(data, f, &v)
+	err := d.UnmarshalTo(data, f, &v)
 
 	return v, err
 }
 
-// unmarshal unmarshals data in format f into v.
-func (d Decoder) unmarshal(data []byte, f Format, v interface{}) error {
-
+// UnmarshalTo unmarshals data in format f into v.
+func (d Decoder) UnmarshalTo(data []byte, f Format, v interface{}) error {
 	var err error
 
 	switch f {
@@ -155,15 +154,17 @@ func (d Decoder) unmarshal(data []byte, f Format, v interface{}) error {
 		case *interface{}:
 			ptr = *v.(*interface{})
 		default:
-			return errors.Errorf("unknown type %T in YAML unmarshal", v)
+			// Not a map.
 		}
 
-		if mm, changed := stringifyMapKeys(ptr); changed {
-			switch v.(type) {
-			case *map[string]interface{}:
-				*v.(*map[string]interface{}) = mm.(map[string]interface{})
-			case *interface{}:
-				*v.(*interface{}) = mm
+		if ptr != nil {
+			if mm, changed := stringifyMapKeys(ptr); changed {
+				switch v.(type) {
+				case *map[string]interface{}:
+					*v.(*map[string]interface{}) = mm.(map[string]interface{})
+				case *interface{}:
+					*v.(*interface{}) = mm
+				}
 			}
 		}
 	case CSV:
@@ -178,7 +179,6 @@ func (d Decoder) unmarshal(data []byte, f Format, v interface{}) error {
 	}
 
 	return toFileError(f, errors.Wrap(err, "unmarshal failed"))
-
 }
 
 func (d Decoder) unmarshalCSV(data []byte, v interface{}) error {
@@ -200,7 +200,14 @@ func (d Decoder) unmarshalCSV(data []byte, v interface{}) error {
 	}
 
 	return nil
+}
 
+func parseORGDate(s string) string {
+	r := regexp.MustCompile(`[<\[](\d{4}-\d{2}-\d{2}) .*[>\]]`)
+	if m := r.FindStringSubmatch(s); m != nil {
+		return m[1]
+	}
+	return s
 }
 
 func (d Decoder) unmarshalORG(data []byte, v interface{}) error {
@@ -218,6 +225,8 @@ func (d Decoder) unmarshalORG(data []byte, v interface{}) error {
 		} else if k == "tags" || k == "categories" || k == "aliases" {
 			jww.WARN.Printf("Please use '#+%s[]:' notation, automatic conversion is deprecated.", k)
 			frontMatter[k] = strings.Fields(v)
+		} else if k == "date" {
+			frontMatter[k] = parseORGDate(v)
 		} else {
 			frontMatter[k] = v
 		}
@@ -242,7 +251,6 @@ func toFileError(f Format, err error) error {
 //
 // Inspired by https://github.com/stripe/stripe-mock, MIT licensed
 func stringifyMapKeys(in interface{}) (interface{}, bool) {
-
 	switch in := in.(type) {
 	case []interface{}:
 		for i, v := range in {

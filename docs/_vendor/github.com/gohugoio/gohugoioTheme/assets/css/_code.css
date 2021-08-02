@@ -9,12 +9,6 @@
   margin: 0;
 }
 
-pre, .pre  {
-  overflow-x: auto;
-  overflow-y: hidden;
-  overflow:   scroll;
-}
-
 code {
     padding: 0.2em;
     margin: 0;
@@ -23,15 +17,13 @@ code {
     border-radius: 3px;
 }
 
-
-pre  code {
+pre code {
   display: block;
   padding: 1.5em 1.5em;
   font-size: .875rem;
   line-height: 2;
   overflow-x: auto;
 }
-
 
 pre {
   background-color: #fff;

@@ -58,8 +58,8 @@ const (
 	cmLeafSeparator   = "__hl_"
 )
 
-// Used to mark ambigous keys in reverse index lookups.
-var ambigousContentNode = &contentNode{}
+// Used to mark ambiguous keys in reverse index lookups.
+var ambiguousContentNode = &contentNode{}
 
 func newContentMap(cfg contentMapConfig) *contentMap {
 	m := &contentMap{
@@ -86,8 +86,8 @@ func newContentMap(cfg contentMapConfig) *contentMap {
 	addToReverseMap := func(k string, n *contentNode, m map[interface{}]*contentNode) {
 		k = strings.ToLower(k)
 		existing, found := m[k]
-		if found && existing != ambigousContentNode {
-			m[k] = ambigousContentNode
+		if found && existing != ambiguousContentNode {
+			m[k] = ambiguousContentNode
 		} else if !found {
 			m[k] = n
 		}
@@ -95,21 +95,23 @@ func newContentMap(cfg contentMapConfig) *contentMap {
 
 	m.pageReverseIndex = &contentTreeReverseIndex{
 		t: []*contentTree{m.pages, m.sections, m.taxonomies},
-		initFn: func(t *contentTree, m map[interface{}]*contentNode) {
-			t.Walk(func(s string, v interface{}) bool {
-				n := v.(*contentNode)
-				if n.p != nil && !n.p.File().IsZero() {
-					meta := n.p.File().FileInfo().Meta()
-					if meta.Path() != meta.PathFile() {
-						// Keep track of the original mount source.
-						mountKey := filepath.ToSlash(filepath.Join(meta.Module(), meta.PathFile()))
-						addToReverseMap(mountKey, n, m)
+		contentTreeReverseIndexMap: &contentTreeReverseIndexMap{
+			initFn: func(t *contentTree, m map[interface{}]*contentNode) {
+				t.Walk(func(s string, v interface{}) bool {
+					n := v.(*contentNode)
+					if n.p != nil && !n.p.File().IsZero() {
+						meta := n.p.File().FileInfo().Meta()
+						if meta.Path != meta.PathFile() {
+							// Keep track of the original mount source.
+							mountKey := filepath.ToSlash(filepath.Join(meta.Module, meta.PathFile()))
+							addToReverseMap(mountKey, n, m)
+						}
 					}
-				}
-				k := strings.TrimPrefix(strings.TrimSuffix(path.Base(s), cmLeafSeparator), cmBranchSeparator)
-				addToReverseMap(k, n, m)
-				return false
-			})
+					k := strings.TrimPrefix(strings.TrimSuffix(path.Base(s), cmLeafSeparator), cmBranchSeparator)
+					addToReverseMap(k, n, m)
+					return false
+				})
+			},
 		},
 	}
 
@@ -128,7 +130,7 @@ type cmInsertKeyBuilder struct {
 }
 
 func (b cmInsertKeyBuilder) ForPage(s string) *cmInsertKeyBuilder {
-	//fmt.Println("ForPage:", s, "baseKey:", b.baseKey, "key:", b.key)
+	// fmt.Println("ForPage:", s, "baseKey:", b.baseKey, "key:", b.key)
 	baseKey := b.baseKey
 	b.baseKey = s
 
@@ -152,7 +154,7 @@ func (b cmInsertKeyBuilder) ForPage(s string) *cmInsertKeyBuilder {
 }
 
 func (b cmInsertKeyBuilder) ForResource(s string) *cmInsertKeyBuilder {
-	//fmt.Println("ForResource:", s, "baseKey:", b.baseKey, "key:", b.key)
+	// fmt.Println("ForResource:", s, "baseKey:", b.baseKey, "key:", b.key)
 
 	baseKey := helpers.AddTrailingSlash(b.baseKey)
 	s = strings.TrimPrefix(s, baseKey)
@@ -196,9 +198,9 @@ func (b *cmInsertKeyBuilder) WithFile(fi hugofs.FileMetaInfo) *cmInsertKeyBuilde
 	b.newTopLevel()
 	m := b.m
 	meta := fi.Meta()
-	p := cleanTreeKey(meta.Path())
+	p := cleanTreeKey(meta.Path)
 	bundlePath := m.getBundleDir(meta)
-	isBundle := meta.Classifier().IsBundle()
+	isBundle := meta.Classifier.IsBundle()
 	if isBundle {
 		panic("not implemented")
 	}
@@ -209,7 +211,7 @@ func (b *cmInsertKeyBuilder) WithFile(fi hugofs.FileMetaInfo) *cmInsertKeyBuilde
 		return b
 	}
 
-	id := k + m.reduceKeyPart(p, fi.Meta().Path())
+	id := k + m.reduceKeyPart(p, fi.Meta().Path)
 	b.tree = b.m.resources
 	b.key = id
 	b.baseKey = p
@@ -285,7 +287,6 @@ func (c *contentBundleViewInfo) sections() []string {
 	}
 
 	return []string{c.name.plural, c.termKey}
-
 }
 
 func (c *contentBundleViewInfo) term() string {
@@ -346,7 +347,7 @@ func (m *contentMap) AddFiles(fis ...hugofs.FileMetaInfo) error {
 func (m *contentMap) AddFilesBundle(header hugofs.FileMetaInfo, resources ...hugofs.FileMetaInfo) error {
 	var (
 		meta       = header.Meta()
-		classifier = meta.Classifier()
+		classifier = meta.Classifier
 		isBranch   = classifier == files.ContentClassBranch
 		bundlePath = m.getBundleDir(meta)
 
@@ -386,12 +387,11 @@ func (m *contentMap) AddFilesBundle(header hugofs.FileMetaInfo, resources ...hug
 	}
 
 	for _, r := range resources {
-		rb := b.ForResource(cleanTreeKey(r.Meta().Path()))
+		rb := b.ForResource(cleanTreeKey(r.Meta().Path))
 		rb.Insert(&contentNode{fi: r})
 	}
 
 	return nil
-
 }
 
 func (m *contentMap) CreateMissingNodes() error {
@@ -460,15 +460,14 @@ func (m *contentMap) CreateMissingNodes() error {
 	}
 
 	return nil
-
 }
 
-func (m *contentMap) getBundleDir(meta hugofs.FileMeta) string {
-	dir := cleanTreeKey(filepath.Dir(meta.Path()))
+func (m *contentMap) getBundleDir(meta *hugofs.FileMeta) string {
+	dir := cleanTreeKey(filepath.Dir(meta.Path))
 
-	switch meta.Classifier() {
+	switch meta.Classifier {
 	case files.ContentClassContent:
-		return path.Join(dir, meta.TranslationBaseName())
+		return path.Join(dir, meta.TranslationBaseName)
 	default:
 		return dir
 	}
@@ -477,7 +476,7 @@ func (m *contentMap) getBundleDir(meta hugofs.FileMeta) string {
 func (m *contentMap) newContentNodeFromFi(fi hugofs.FileMetaInfo) *contentNode {
 	return &contentNode{
 		fi:   fi,
-		path: strings.TrimPrefix(filepath.ToSlash(fi.Meta().Path()), "/"),
+		path: strings.TrimPrefix(filepath.ToSlash(fi.Meta().Path), "/"),
 	}
 }
 
@@ -609,7 +608,6 @@ func (m *contentMap) deleteBundleMatching(matches func(b *contentNode) bool) {
 	if s != "" {
 		m.resources.Delete(s)
 	}
-
 }
 
 // Deletes any empty root section that's not backed by a content file.
@@ -684,7 +682,6 @@ func (m *contentMap) splitKey(k string) []string {
 	}
 
 	return strings.Split(k, "/")[1:]
-
 }
 
 func (m *contentMap) testDump() string {
@@ -699,7 +696,6 @@ func (m *contentMap) testDump() string {
 	}
 
 	for i, r := range []*contentTree{m.pages, m.sections} {
-
 		r.Walk(func(s string, v interface{}) bool {
 			c := v.(*contentNode)
 			cpToString := func(c *contentNode) string {
@@ -708,7 +704,7 @@ func (m *contentMap) testDump() string {
 					sb.WriteString("|p:" + c.p.Title())
 				}
 				if c.fi != nil {
-					sb.WriteString("|f:" + filepath.ToSlash(c.fi.Meta().Path()))
+					sb.WriteString("|f:" + filepath.ToSlash(c.fi.Meta().Path))
 				}
 				return sb.String()
 			}
@@ -720,15 +716,14 @@ func (m *contentMap) testDump() string {
 				resourcesPrefix += cmLeafSeparator
 
 				m.pages.WalkPrefix(s+cmBranchSeparator, func(s string, v interface{}) bool {
-					sb.WriteString("\t - P: " + filepath.ToSlash((v.(*contentNode).fi.(hugofs.FileMetaInfo)).Meta().Filename()) + "\n")
+					sb.WriteString("\t - P: " + filepath.ToSlash((v.(*contentNode).fi.(hugofs.FileMetaInfo)).Meta().Filename) + "\n")
 					return false
 				})
 			}
 
 			m.resources.WalkPrefix(resourcesPrefix, func(s string, v interface{}) bool {
-				sb.WriteString("\t - R: " + filepath.ToSlash((v.(*contentNode).fi.(hugofs.FileMetaInfo)).Meta().Filename()) + "\n")
+				sb.WriteString("\t - R: " + filepath.ToSlash((v.(*contentNode).fi.(hugofs.FileMetaInfo)).Meta().Filename) + "\n")
 				return false
-
 			})
 
 			return false
@@ -736,7 +731,6 @@ func (m *contentMap) testDump() string {
 	}
 
 	return sb.String()
-
 }
 
 type contentMapConfig struct {
@@ -785,7 +779,6 @@ func (b *contentNode) rootSection() string {
 		return b.path
 	}
 	return b.path[:firstSlash]
-
 }
 
 type contentTree struct {
@@ -828,6 +821,13 @@ var (
 		}
 		return n.p.m.noRender()
 	}
+
+	contentTreeNoLinkFilter = func(s string, n *contentNode) bool {
+		if n.p == nil {
+			return true
+		}
+		return n.p.m.noLink()
+	}
 )
 
 func (c *contentTree) WalkQuery(query pageMapQuery, walkFn contentTreeNodeCallback) {
@@ -863,6 +863,13 @@ func (c contentTrees) WalkRenderable(fn contentTreeNodeCallback) {
 	}
 }
 
+func (c contentTrees) WalkLinkable(fn contentTreeNodeCallback) {
+	query := pageMapQuery{Filter: contentTreeNoLinkFilter}
+	for _, tree := range c {
+		tree.WalkQuery(query, fn)
+	}
+}
+
 func (c contentTrees) Walk(fn contentTreeNodeCallback) {
 	for _, tree := range c {
 		tree.Walk(func(s string, v interface{}) bool {
@@ -890,7 +897,6 @@ func (c *contentTree) WalkBelow(prefix string, fn radix.WalkFn) {
 		}
 		return fn(s, v)
 	})
-
 }
 
 func (c *contentTree) getMatch(matches func(b *contentNode) bool) string {
@@ -1030,10 +1036,19 @@ func (c *contentTreeRef) getSections() page.Pages {
 
 type contentTreeReverseIndex struct {
 	t []*contentTree
-	m map[interface{}]*contentNode
+	*contentTreeReverseIndexMap
+}
 
+type contentTreeReverseIndexMap struct {
+	m      map[interface{}]*contentNode
 	init   sync.Once
 	initFn func(*contentTree, map[interface{}]*contentNode)
+}
+
+func (c *contentTreeReverseIndex) Reset() {
+	c.contentTreeReverseIndexMap = &contentTreeReverseIndexMap{
+		initFn: c.initFn,
+	}
 }
 
 func (c *contentTreeReverseIndex) Get(key interface{}) *contentNode {

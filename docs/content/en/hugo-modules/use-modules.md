@@ -36,13 +36,13 @@ Also see the [CLI Doc](/commands/hugo_mod_init/).
 The easiest way to use a Module for a theme is to import it in the config.
 
 1. Initialize the hugo module system: `hugo mod init github.com/<your_user>/<your_project>`
-2. Import the theme in your `config.toml`:
+2. Import the theme:
 
-```toml
+{{< code-toggle file="config" >}}
 [module]
   [[module.imports]]
-    path = "github.com/spf13/hyde/"
-```
+    path = "github.com/spf13/hyde"
+{{< /code-toggle >}}
 
 ## Update Modules
 
@@ -89,6 +89,7 @@ replace github.com/bep/hugotestmods/mypartials => /Users/bep/hugotestmods/mypart
 
 If you have the `hugo server` running, the configuration will be reloaded and `/Users/bep/hugotestmods/mypartials` put on the watch list.
 
+Note that since v.0.77.0 you can use modules config [`replacements`](https://gohugo.io/hugo-modules/configuration/#module-config-top-level) option. {{< new-in "0.77.0" >}}
 
 ## Print Dependency Graph
 
@@ -120,7 +121,7 @@ Note that:
 
 * You can run `hugo mod vendor` on any level in the module tree.
 * Vendoring will not store modules stored in your `themes` folder.
-* Most commands accept a `--ignoreVendor` flag, which will then run as if the none of the `_vendor` folders in the module tree existed.
+* Most commands accept a `--ignoreVendorPaths` flag, which will then not use the vendored modules in `_vendor` for the module paths matching the [Glob](https://github.com/gobwas/glob) pattern given. Note that before Hugo 0.75 this flag was named `--ignoreVendor` and was a "all or nothing". {{< new-in "0.75.0" >}}
 
 Also see the [CLI Doc](/commands/hugo_mod_vendor/).
 

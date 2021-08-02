@@ -51,7 +51,7 @@ The example below is a bit contrived, but it illustrates the flexibility of data
 
 `jacopastorius.toml` contains the content below. `johnpatitucci.toml` contains a similar list:
 
-```
+{{< code-toggle file="jacopastorius" >}}
 discography = [
 "1974 – Modern American Music … Period! The Criteria Sessions",
 "1974 – Jaco",
@@ -69,7 +69,7 @@ discography = [
 "2003 - Punk Jazz: The Jaco Pastorius Anthology (compilation)",
 "2007 - The Essential Jaco Pastorius (compilation)"
 ]
-```
+{{< /code-toggle >}}
 
 The list of bass players can be accessed via `.Site.Data.jazz.bass`, a single bass player by adding the filename without the suffix, e.g. `.Site.Data.jazz.bass.jacopastorius`.
 
@@ -114,19 +114,10 @@ You can use the following code to render the `Short Description` in your layout:
 
 Note the use of the [`markdownify` template function][markdownify]. This will send the description through the Blackfriday Markdown rendering engine.
 
-<!-- begin "Data-drive Content" page -->
 
-## Data-Driven Content
+## Get Remote Data
 
-In addition to the [data files](/extras/datafiles/) feature, Hugo also has a "data-driven content" feature, which lets you load any [JSON](https://www.json.org/) or [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) file from nearly any resource.
-
-Data-driven content currently consists of two functions, `getJSON` and `getCSV`, which are available in all template files.
-
-## Implementation details
-
-### Call the Functions with a URL
-
-In your template, call the functions like this:
+Use `getJSON` or `getCSV` to get remote data:
 
 ```
 {{ $dataJ := getJSON "url" }}
@@ -155,19 +146,18 @@ This will resolve internally to the following:
 {{ $gistJ := getJSON "https://api.github.com/users/GITHUB_USERNAME/gists" }}
 ```
 
-Finally, you can range over an array. This example will output the
-first 5 gists for a GitHub user:
+### Add HTTP headers
+
+{{< new-in "0.84.0" >}} Both `getJSON` and `getCSV` takes an optional map as the last argument, e.g.:
 
 ```
-<ul>
-  {{ $urlPre := "https://api.github.com" }}
-  {{ $gistJ := getJSON $urlPre "/users/GITHUB_USERNAME/gists" }}
-  {{ range first 5 $gistJ }}
-    {{ if .public }}
-      <li><a href="{{ .html_url }}" target="_blank">{{ .description }}</a></li>
-    {{ end }}
-  {{ end }}
-</ul>
+{{ $data := getJSON "https://example.org/api" (dict "Authorization" "Bearer abcd")  }}
+```
+
+If you need multiple values for the same header key, use a slice:
+
+```
+{{ $data := getJSON "https://example.org/api" (dict "X-List" (slice "a" "b" "c"))  }}
 ```
 
 ### Example for CSV files
