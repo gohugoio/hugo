@@ -70,5 +70,3 @@ require (
 )
 
 go 1.16
-
-replace github.com/bep/gotranslators => /Users/bep/dev/go/bep/gotranslators
