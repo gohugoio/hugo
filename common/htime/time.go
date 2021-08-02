@@ -21,7 +21,7 @@ import (
 
 	toml "github.com/pelletier/go-toml/v2"
 
-	"github.com/go-playground/locales"
+	"github.com/gohugoio/locales"
 )
 
 var (

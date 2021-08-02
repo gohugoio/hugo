@@ -12,7 +12,6 @@ require (
 	github.com/bep/gitmap v1.1.2
 	github.com/bep/godartsass v0.12.0
 	github.com/bep/golibsass v1.0.0
-	github.com/bep/gotranslators v0.2.0
 	github.com/bep/gowebp v0.1.0
 	github.com/bep/tmc v0.5.1
 	github.com/cli/safeexec v1.0.0
@@ -24,10 +23,11 @@ require (
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/getkin/kin-openapi v0.68.0
 	github.com/ghodss/yaml v1.0.0
-	github.com/go-playground/locales v0.13.0
 	github.com/gobuffalo/flect v0.2.3
 	github.com/gobwas/glob v0.2.3
 	github.com/gohugoio/go-i18n/v2 v2.1.3-0.20210430103248-4c28c89f8013
+	github.com/gohugoio/locales v0.14.0
+	github.com/gohugoio/localescompressed v0.14.0
 	github.com/gohugoio/testmodBuilder/mods v0.0.0-20190520184928-c56af20f2e95
 	github.com/google/go-cmp v0.5.6
 	github.com/gorilla/websocket v1.4.2
@@ -70,3 +70,5 @@ require (
 )
 
 go 1.16
+
+replace github.com/bep/gotranslators => /Users/bep/dev/go/bep/gotranslators

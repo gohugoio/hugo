@@ -21,8 +21,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	translators "github.com/bep/gotranslators"
-	"github.com/go-playground/locales"
+	translators "github.com/gohugoio/localescompressed"
+	"github.com/gohugoio/locales"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
 )

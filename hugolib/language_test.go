@@ -126,5 +126,14 @@ NumFmt: -98,765.43
 `,
 	)
 
-	b.AssertFileContent("public/nn/index.html", "FormatNumber: 512,50\nFormatPercent: 512,50\u00a0%\nFormatCurrency: 512,50\u00a0USD\nFormatAccounting: 512,50\u00a0kr")
+	b.AssertFileContent("public/nn/index.html", `
+FormatNumber: 512,50
+FormatPercent: 512,50 %
+FormatCurrency: 512,50 USD
+FormatAccounting: 512,50 kr
+FormatNumberCustom: 12,345.68
+
+# We renamed this to FormatNumberCustom in 0.87.0.
+NumFmt: -98,765.43
+`)
 }
