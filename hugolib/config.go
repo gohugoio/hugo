@@ -507,11 +507,5 @@ func (configLoader) loadSiteConfig(cfg config.Provider) (scfg SiteConfig, err er
 }
 
 func (l configLoader) wrapFileError(err error, filename string) error {
-	err, _ = herrors.WithFileContextForFile(
-		err,
-		filename,
-		filename,
-		l.Fs,
-		herrors.SimpleLineMatcher)
-	return err
+	return herrors.WithFileContextForFileDefault(err, filename, l.Fs)
 }
