@@ -1,8 +1,8 @@
 
 ---
 date: 2021-07-30
-title: "Hugo 0.86.1: A couple of Bug Fixes"
-description: "This version fixes a couple of bugs introduced in 0.86.0."
+title: "Hugo 0.86.1: One Bug Fix"
+description: "This version fixes a of bug introduced in 0.86.0."
 categories: ["Releases"]
 images:
 - images/blog/hugo-bug-poster.png
