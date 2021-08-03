@@ -299,8 +299,8 @@ themesDir ("themes")
 timeout (10000)
 : Timeout for generating page contents, in milliseconds (defaults to 10&nbsp;seconds). *Note:* this is used to bail out of recursive content generation, if your pages are slow to generate (e.g., because they require large image processing or depend on remote contents) you might need to raise this limit.
 
-timeZone {{< new-in "0.86.0" >}}
-: The time zone (or location), e.g. `Europe/Oslo`,  used to parse front matter dates without such information and in the [`time` function](/functions/time/).
+timeZone {{< new-in "0.87.0" >}}
+: The time zone (or location), e.g. `Europe/Oslo`,  used to parse front matter dates without such information and in the [`time` function](/functions/time/). The list of valid values may be system dependent, but should include `UTC`, `Local`, and any location in the [IANA Time Zone database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
 title ("")
 : Site title.
