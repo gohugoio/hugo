@@ -71,7 +71,7 @@ func (ns *Namespace) FormatNumber(precision, number interface{}) (string, error)
 }
 
 // FormatPercent formats number with the given precision for the current language.
-// Note that the number is assumbed to be percent.
+// Note that the number is assumed to be a percentage.
 func (ns *Namespace) FormatPercent(precision, number interface{}) (string, error) {
 	p, n, err := ns.castPrecisionNumber(precision, number)
 	if err != nil {
