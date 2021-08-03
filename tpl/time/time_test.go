@@ -14,6 +14,7 @@
 package time
 
 import (
+	"strings"
 	"testing"
 	"time"
 
@@ -27,40 +28,54 @@ func TestTimeLocation(t *testing.T) {
 	ns := New(translators.GetTranslator("en"), loc)
 
 	for i, test := range []struct {
+		name     string
 		value    string
 		location interface{}
 		expect   interface{}
 	}{
-		{"2020-10-20", "", "2020-10-20 00:00:00 +0000 UTC"},
-		{"2020-10-20", nil, "2020-10-20 00:00:00 -0400 AST"},
-		{"2020-10-20", "America/New_York", "2020-10-20 00:00:00 -0400 EDT"},
-		{"2020-01-20", "America/New_York", "2020-01-20 00:00:00 -0500 EST"},
-		{"2020-10-20 20:33:59", "", "2020-10-20 20:33:59 +0000 UTC"},
-		{"2020-10-20 20:33:59", "America/New_York", "2020-10-20 20:33:59 -0400 EDT"},
+		{"Empty location", "2020-10-20", "", "2020-10-20 00:00:00 +0000 UTC"},
+		{"New location", "2020-10-20", nil, "2020-10-20 00:00:00 -0400 AST"},
+		{"New York EDT", "2020-10-20", "America/New_York", "2020-10-20 00:00:00 -0400 EDT"},
+		{"New York EST", "2020-01-20", "America/New_York", "2020-01-20 00:00:00 -0500 EST"},
+		{"Empty location, time", "2020-10-20 20:33:59", "", "2020-10-20 20:33:59 +0000 UTC"},
+		{"New York, time", "2020-10-20 20:33:59", "America/New_York", "2020-10-20 20:33:59 -0400 EDT"},
 		// The following have an explicit offset specified. In this case, it overrides timezone
-		{"2020-09-23T20:33:44-0700", "", "2020-09-23 20:33:44 -0700 -0700"},
-		{"2020-09-23T20:33:44-0700", "America/New_York", "2020-09-23 20:33:44 -0700 -0700"},
-		{"2020-01-20", "invalid-timezone", false}, // unknown time zone invalid-timezone
-		{"invalid-value", "", false},
+		{"Offset minus 0700, empty location", "2020-09-23T20:33:44-0700", "", "2020-09-23 20:33:44 -0700 -0700"},
+		{"Offset plus 0200, empty location", "2020-09-23T20:33:44+0200", "", "2020-09-23 20:33:44 +0200 +0200"},
+
+		{"Offset, New York", "2020-09-23T20:33:44-0700", "America/New_York", "2020-09-23 20:33:44 -0700 -0700"},
+		{"Offset, Oslo", "2020-09-23T20:33:44+0200", "Europe/Oslo", "2020-09-23 20:33:44 +0200 +0200"},
+
+		// Failures.
+		{"Invalid time zone", "2020-01-20", "invalid-timezone", false},
+		{"Invalid time value", "invalid-value", "", false},
 	} {
-		var args []interface{}
-		if test.location != nil {
-			args = append(args, test.location)
-		}
-		result, err := ns.AsTime(test.value, args...)
-		if b, ok := test.expect.(bool); ok && !b {
-			if err == nil {
-				t.Errorf("[%d] AsTime didn't return an expected error, got %v", i, result)
+		t.Run(test.name, func(t *testing.T) {
+			var args []interface{}
+			if test.location != nil {
+				args = append(args, test.location)
 			}
-		} else {
-			if err != nil {
-				t.Errorf("[%d] AsTime failed: %s", i, err)
-				continue
+			result, err := ns.AsTime(test.value, args...)
+			if b, ok := test.expect.(bool); ok && !b {
+				if err == nil {
+					t.Errorf("[%d] AsTime didn't return an expected error, got %v", i, result)
+				}
+			} else {
+				if err != nil {
+					t.Errorf("[%d] AsTime failed: %s", i, err)
+					return
+				}
+
+				// See https://github.com/gohugoio/hugo/issues/8843#issuecomment-891551447
+				// Drop the location string (last element) when comparing,
+				// as that may change depending on the local locale.
+				timeStr := result.(time.Time).String()
+				timeStr = timeStr[:strings.LastIndex(timeStr, " ")]
+				if !strings.HasPrefix(test.expect.(string), timeStr) {
+					t.Errorf("[%d] AsTime got %v but expected %v", i, timeStr, test.expect)
+				}
 			}
-			if result.(time.Time).String() != test.expect {
-				t.Errorf("[%d] AsTime got %v but expected %v", i, result, test.expect)
-			}
-		}
+		})
 	}
 }
 
