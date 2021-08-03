@@ -18,6 +18,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/herrors"
+
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/paths"
@@ -58,7 +60,7 @@ func FromConfigString(config, configType string) (Provider, error) {
 func FromFile(fs afero.Fs, filename string) (Provider, error) {
 	m, err := loadConfigFromFile(fs, filename)
 	if err != nil {
-		return nil, err
+		return nil, herrors.WithFileContextForFileDefault(err, filename, fs)
 	}
 	return NewFrom(m), nil
 }

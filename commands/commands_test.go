@@ -121,7 +121,7 @@ func TestExecute(t *testing.T) {
 		resp := Execute([]string{"new", "site", siteDir, "-e=staging"})
 		c.Assert(resp.Err, qt.IsNil)
 		config := readFileFrom(c, filepath.Join(siteDir, "config.toml"))
-		c.Assert(config, qt.Contains, "baseURL = \"http://example.org/\"")
+		c.Assert(config, qt.Contains, "baseURL = 'http://example.org/'")
 		checkNewSiteInited(c, siteDir)
 	})
 }

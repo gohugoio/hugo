@@ -53,7 +53,7 @@ func TestDateAndSlugFromBaseFilename(t *testing.T) {
 		expecteFDate, err := time.Parse("2006-01-02", test.date)
 		c.Assert(err, qt.IsNil)
 
-		gotDate, gotSlug := dateAndSlugFromBaseFilename(test.name)
+		gotDate, gotSlug := dateAndSlugFromBaseFilename(time.UTC, test.name)
 
 		c.Assert(gotDate, qt.Equals, expecteFDate)
 		c.Assert(gotSlug, qt.Equals, test.slug)
@@ -67,6 +67,7 @@ func newTestFd() *FrontMatterDescriptor {
 		Params:      make(map[string]interface{}),
 		Dates:       &resource.Dates{},
 		PageURLs:    &URLPath{},
+		Location:    time.UTC,
 	}
 }
 

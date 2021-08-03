@@ -437,7 +437,7 @@ func (c *collector) applyThemeConfig(tc *moduleAdapter) error {
 			var err error
 			tc.cfg, err = config.FromFile(c.fs, configFilename)
 			if err != nil {
-				return errors.Wrapf(err, "failed to read module config for %q in %q", tc.Path(), configFilename)
+				return err
 			}
 		}
 

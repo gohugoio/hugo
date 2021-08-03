@@ -49,7 +49,7 @@ type TemplateFuncsNamespace struct {
 	Name string
 
 	// This is the method receiver.
-	Context func(v ...interface{}) interface{}
+	Context func(v ...interface{}) (interface{}, error)
 
 	// Additional info, aliases and examples, per method name.
 	MethodMappings map[string]TemplateFuncMethodMapping
@@ -172,7 +172,10 @@ func (t *TemplateFuncsNamespace) toJSON() ([]byte, error) {
 
 	buf.WriteString(fmt.Sprintf(`%q: {`, t.Name))
 
-	ctx := t.Context()
+	ctx, err := t.Context()
+	if err != nil {
+		return nil, err
+	}
 	ctxType := reflect.TypeOf(ctx)
 	for i := 0; i < ctxType.NumMethod(); i++ {
 		method := ctxType.Method(i)

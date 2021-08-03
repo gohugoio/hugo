@@ -24,7 +24,7 @@ import (
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/niklasfasching/go-org/org"
 
-	"github.com/BurntSushi/toml"
+	toml "github.com/pelletier/go-toml/v2"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"

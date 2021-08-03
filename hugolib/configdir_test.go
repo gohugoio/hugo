@@ -119,10 +119,10 @@ p3 = "p3params_no_production"
 	c.Assert(cfg.GetString("params.p3"), qt.Equals, "p3params_development")
 	c.Assert(cfg.GetString("languages.no.params.p3"), qt.Equals, "p3params_no_development")
 
-	c.Assert(len(cfg.Get("menus.docs").(([]map[string]interface{}))), qt.Equals, 2)
+	c.Assert(len(cfg.Get("menus.docs").([]interface{})), qt.Equals, 2)
 	noMenus := cfg.Get("languages.no.menus.docs")
 	c.Assert(noMenus, qt.Not(qt.IsNil))
-	c.Assert(len(noMenus.(([]map[string]interface{}))), qt.Equals, 1)
+	c.Assert(len(noMenus.([]interface{})), qt.Equals, 1)
 }
 
 func TestLoadConfigDirError(t *testing.T) {

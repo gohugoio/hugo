@@ -177,14 +177,14 @@ func writeReleaseNotes(version string, infosMain, infosDocs gitInfos, to io.Writ
 }
 
 func fetchThemeCount() (int, error) {
-	resp, err := http.Get("https://raw.githubusercontent.com/gohugoio/hugoThemes/master/.gitmodules")
+	resp, err := http.Get("https://raw.githubusercontent.com/gohugoio/hugoThemesSiteBuilder/main/themes.txt")
 	if err != nil {
 		return 0, err
 	}
 	defer resp.Body.Close()
 
 	b, _ := ioutil.ReadAll(resp.Body)
-	return bytes.Count(b, []byte("submodule")), nil
+	return bytes.Count(b, []byte("\n")) - bytes.Count(b, []byte("#")), nil
 }
 
 func writeReleaseNotesToTmpFile(version string, infosMain, infosDocs gitInfos) (string, error) {

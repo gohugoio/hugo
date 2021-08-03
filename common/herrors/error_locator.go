@@ -100,6 +100,17 @@ func WithFileContextForFile(e error, realFilename, filename string, fs afero.Fs,
 	return WithFileContext(e, realFilename, f, matcher)
 }
 
+// WithFileContextForFileDefault tries to add file context using the default line matcher.
+func WithFileContextForFileDefault(err error, filename string, fs afero.Fs) error {
+	err, _ = WithFileContextForFile(
+		err,
+		filename,
+		filename,
+		fs,
+		SimpleLineMatcher)
+	return err
+}
+
 // WithFileContextForFile will try to add a file context with lines matching the given matcher.
 // If no match could be found, the original error is returned with false as the second return value.
 func WithFileContext(e error, realFilename string, r io.Reader, matcher LineMatcherFn) (error, bool) {

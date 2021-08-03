@@ -17,7 +17,12 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
+	"github.com/pkg/errors"
+
+	translators "github.com/gohugoio/localescompressed"
+	"github.com/gohugoio/locales"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
 )
@@ -68,6 +73,16 @@ type Language struct {
 	params    map[string]interface{}
 	paramsMu  sync.Mutex
 	paramsSet bool
+
+	// Used for date formatting etc. We don't want these exported to the
+	// templates.
+	// TODO(bep) do the same for some of the others.
+	translator locales.Translator
+
+	location *time.Location
+
+	// Error during initialization. Will fail the buld.
+	initErr error
 }
 
 func (l *Language) String() string {
@@ -86,8 +101,27 @@ func NewLanguage(lang string, cfg config.Provider) *Language {
 
 	localCfg := config.New()
 	compositeConfig := config.NewCompositeConfig(cfg, localCfg)
+	translator := translators.GetTranslator(lang)
+	if translator == nil {
+		translator = translators.GetTranslator(cfg.GetString("defaultContentLanguage"))
+		if translator == nil {
+			translator = translators.GetTranslator("en")
+		}
+	}
 
-	l := &Language{Lang: lang, ContentDir: cfg.GetString("contentDir"), Cfg: cfg, LocalCfg: localCfg, Provider: compositeConfig, params: params}
+	l := &Language{
+		Lang:       lang,
+		ContentDir: cfg.GetString("contentDir"),
+		Cfg:        cfg, LocalCfg: localCfg,
+		Provider:   compositeConfig,
+		params:     params,
+		translator: translator,
+	}
+
+	if err := l.loadLocation(cfg.GetString("timeZone")); err != nil {
+		l.initErr = err
+	}
+
 	return l
 }
 
@@ -221,4 +255,25 @@ func (l *Language) IsSet(key string) bool {
 		return l.Provider.IsSet(key)
 	}
 	return l.Cfg.IsSet(key)
+}
+
+// Internal access to unexported Language fields.
+// This construct is to prevent them from leaking to the templates.
+
+func GetTranslator(l *Language) locales.Translator {
+	return l.translator
+}
+
+func GetLocation(l *Language) *time.Location {
+	return l.location
+}
+
+func (l *Language) loadLocation(tzStr string) error {
+	location, err := time.LoadLocation(tzStr)
+	if err != nil {
+		return errors.Wrapf(err, "invalid timeZone for language %q", l.Lang)
+	}
+	l.location = location
+
+	return nil
 }

@@ -25,7 +25,7 @@ import (
 
 	"github.com/gohugoio/go-i18n/v2/i18n"
 	"github.com/gohugoio/hugo/helpers"
-	toml "github.com/pelletier/go-toml"
+	toml "github.com/pelletier/go-toml/v2"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"

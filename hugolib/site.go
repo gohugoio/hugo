@@ -1400,17 +1400,25 @@ func (s *Site) getMenusFromConfig() navigation.Menus {
 				s.Log.Errorf("unable to process menus in site config\n")
 				s.Log.Errorln(err)
 			} else {
+				handleErr := func(err error) {
+					if err == nil {
+						return
+					}
+					s.Log.Errorf("unable to process menus in site config\n")
+					s.Log.Errorln(err)
+
+				}
+
 				for _, entry := range m {
 					s.Log.Debugf("found menu: %q, in site config\n", name)
 
 					menuEntry := navigation.MenuEntry{Menu: name}
 					ime, err := maps.ToStringMapE(entry)
-					if err != nil {
-						s.Log.Errorf("unable to process menus in site config\n")
-						s.Log.Errorln(err)
-					}
+					handleErr(err)
 
-					menuEntry.MarshallMap(ime)
+					err = menuEntry.MarshallMap(ime)
+					handleErr(err)
+
 					// TODO(bep) clean up all of this
 					menuEntry.ConfiguredURL = s.Info.createNodeMenuEntryURL(menuEntry.ConfiguredURL)
 

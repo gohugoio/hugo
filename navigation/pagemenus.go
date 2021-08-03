@@ -75,10 +75,14 @@ func PageMenusFromPage(p Page) (PageMenus, error) {
 		return pm, nil
 	}
 
+	var wrapErr = func(err error) error {
+		return errors.Wrapf(err, "unable to process menus for page %q", p.Path())
+	}
+
 	// Could be a structured menu entry
 	menus, err := maps.ToStringMapE(ms)
 	if err != nil {
-		return pm, errors.Wrapf(err, "unable to process menus for %q", p.LinkTitle())
+		return pm, wrapErr(err)
 	}
 
 	for name, menu := range menus {
@@ -86,10 +90,12 @@ func PageMenusFromPage(p Page) (PageMenus, error) {
 		if menu != nil {
 			ime, err := maps.ToStringMapE(menu)
 			if err != nil {
-				return pm, errors.Wrapf(err, "unable to process menus for %q", p.LinkTitle())
+				return pm, wrapErr(err)
 			}
 
-			menuEntry.MarshallMap(ime)
+			if err = menuEntry.MarshallMap(ime); err != nil {
+				return pm, wrapErr(err)
+			}
 		}
 		pm[name] = &menuEntry
 	}

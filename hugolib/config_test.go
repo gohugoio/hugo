@@ -287,13 +287,13 @@ name = "menu-theme"
 					"pl1": "p1-en-main",
 				},
 				"menus": maps.Params{
-					"main": []map[string]interface{}{
-						{
+					"main": []interface{}{
+						map[string]interface{}{
 							"name": "menu-lang-en-main",
 						},
 					},
-					"theme": []map[string]interface{}{
-						{
+					"theme": []interface{}{
+						map[string]interface{}{
 							"name": "menu-lang-en-theme",
 						},
 					},
@@ -307,18 +307,18 @@ name = "menu-theme"
 					"pl2": "p2-nb-theme",
 				},
 				"menus": maps.Params{
-					"main": []map[string]interface{}{
-						{
+					"main": []interface{}{
+						map[string]interface{}{
 							"name": "menu-lang-nb-main",
 						},
 					},
-					"theme": []map[string]interface{}{
-						{
+					"theme": []interface{}{
+						map[string]interface{}{
 							"name": "menu-lang-nb-theme",
 						},
 					},
-					"top": []map[string]interface{}{
-						{
+					"top": []interface{}{
+						map[string]interface{}{
 							"name": "menu-lang-nb-top",
 						},
 					},
@@ -393,8 +393,8 @@ name   = "menu-theme"
 				"en": maps.Params{
 					"languagename": "English",
 					"menus": maps.Params{
-						"main": []map[string]interface{}{
-							{
+						"main": []interface{}{
+							map[string]interface{}{
 								"name": "menu-theme",
 							},
 						},
