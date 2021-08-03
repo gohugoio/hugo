@@ -133,6 +133,9 @@ buildFuture (false)
 caches
 : See [Configure File Caches](#configure-file-caches)
 
+cascade {{< new-in "0.86.0" >}}
+: Pass down down default configuration values (front matter) to pages in the content tree. The options in site config is the same as in page front matter, see [Front Matter Cascade](/content-management/front-matter#front-matter-cascade).
+
 canonifyURLs (false)
 : Enable to turn relative URLs into absolute.
 
@@ -298,6 +301,9 @@ themesDir ("themes")
 
 timeout (10000)
 : Timeout for generating page contents, in milliseconds (defaults to 10&nbsp;seconds). *Note:* this is used to bail out of recursive content generation, if your pages are slow to generate (e.g., because they require large image processing or depend on remote contents) you might need to raise this limit.
+
+timeZone {{< new-in "0.86.0" >}}
+: The time zone (or location), e.g. `Europe/Oslo`,  used to parse front matter dates without such information and in the [`time` function](/functions/time/).
 
 title ("")
 : Site title.
