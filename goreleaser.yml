@@ -1,7 +1,7 @@
 project_name: hugo
 env:
   - GO111MODULE=on
-  - GOPROXY=https://proxy.golang.org
+  - GOPROXY=https://mirrors.aliyun.com/goproxy/
 before:
   hooks:
     - go mod download
