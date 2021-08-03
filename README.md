@@ -1,5 +1,7 @@
 <img src="https://raw.githubusercontent.com/gohugoio/gohugoioTheme/master/static/images/hugo-logo-wide.svg?sanitize=true" alt="Hugo" width="565">
 
+此修改版解决了渲染时对 MathJax 数学公式错误转义的问题。
+
 A Fast and Flexible Static Site Generator built with love by [bep](https://github.com/bep), [spf13](http://spf13.com/) and [friends](https://github.com/gohugoio/hugo/graphs/contributors) in [Go][].
 
 [Website](https://gohugo.io) |
