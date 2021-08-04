@@ -46,7 +46,9 @@ func InterfaceToConfig(in interface{}, format metadecoders.Format, w io.Writer) 
 		return err
 
 	case metadecoders.TOML:
-		return toml.NewEncoder(w).Encode(in)
+		enc := toml.NewEncoder(w)
+		enc.SetIndentTables(true)
+		return enc.Encode(in)
 	case metadecoders.JSON:
 		b, err := json.MarshalIndent(in, "", "   ")
 		if err != nil {

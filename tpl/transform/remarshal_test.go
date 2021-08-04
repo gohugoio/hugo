@@ -30,7 +30,9 @@ func TestRemarshal(t *testing.T) {
 	ns := New(newDeps(v))
 	c := qt.New(t)
 
-	tomlExample := `title = 'Test Metadata'
+	c.Run("Roundtrip variants", func(c *qt.C) {
+
+		tomlExample := `title = 'Test Metadata'
 		
 [[resources]]
   src = '**image-4.png'
@@ -46,7 +48,7 @@ func TestRemarshal(t *testing.T) {
     byline = 'bep'
 `
 
-	yamlExample := `resources:
+		yamlExample := `resources:
 - params:
     byline: picasso
   src: '**image-4.png'
@@ -59,7 +61,7 @@ func TestRemarshal(t *testing.T) {
 title: Test Metadata
 `
 
-	jsonExample := `{
+		jsonExample := `{
    "resources": [
       {
          "params": {
@@ -81,44 +83,37 @@ title: Test Metadata
 }
 `
 
-	variants := []struct {
-		format string
-		data   string
-	}{
-		{"yaml", yamlExample},
-		{"json", jsonExample},
-		{"toml", tomlExample},
-		{"TOML", tomlExample},
-		{"Toml", tomlExample},
-		{" TOML ", tomlExample},
-	}
-
-	for _, v1 := range variants {
-		for _, v2 := range variants {
-			// Both from and to may be the same here, but that is fine.
-			fromTo := qt.Commentf("%s => %s", v2.format, v1.format)
-
-			converted, err := ns.Remarshal(v1.format, v2.data)
-			c.Assert(err, qt.IsNil, fromTo)
-			diff := htesting.DiffStrings(v1.data, converted)
-			if len(diff) > 0 {
-				t.Errorf("[%s] Expected \n%v\ngot\n%v\ndiff:\n%v", fromTo, v1.data, converted, diff)
-			}
-
+		variants := []struct {
+			format string
+			data   string
+		}{
+			{"yaml", yamlExample},
+			{"json", jsonExample},
+			{"toml", tomlExample},
+			{"TOML", tomlExample},
+			{"Toml", tomlExample},
+			{" TOML ", tomlExample},
 		}
-	}
-}
 
-func TestRemarshalComments(t *testing.T) {
-	t.Parallel()
+		for _, v1 := range variants {
+			for _, v2 := range variants {
+				// Both from and to may be the same here, but that is fine.
+				fromTo := qt.Commentf("%s => %s", v2.format, v1.format)
 
-	v := config.New()
-	v.Set("contentDir", "content")
-	ns := New(newDeps(v))
+				converted, err := ns.Remarshal(v1.format, v2.data)
+				c.Assert(err, qt.IsNil, fromTo)
+				diff := htesting.DiffStrings(v1.data, converted)
+				if len(diff) > 0 {
+					t.Errorf("[%s] Expected \n%v\ngot\n%v\ndiff:\n%v", fromTo, v1.data, converted, diff)
+				}
 
-	c := qt.New(t)
+			}
+		}
 
-	input := `
+	})
+
+	c.Run("Comments", func(c *qt.C) {
+		input := `
 Hugo = "Rules"
 		
 # It really does!
@@ -129,56 +124,59 @@ a = "b"
 
 `
 
-	expected := `Hugo = 'Rules'
+		expected := `Hugo = 'Rules'
 [m]
 a = 'b'
 `
 
-	for _, format := range []string{"json", "yaml", "toml"} {
-		fromTo := qt.Commentf("%s => %s", "toml", format)
+		for _, format := range []string{"json", "yaml", "toml"} {
+			fromTo := qt.Commentf("%s => %s", "toml", format)
 
-		converted := input
-		var err error
-		// Do a round-trip conversion
-		for _, toFormat := range []string{format, "toml"} {
-			converted, err = ns.Remarshal(toFormat, converted)
-			c.Assert(err, qt.IsNil, fromTo)
+			converted := input
+			var err error
+			// Do a round-trip conversion
+			for _, toFormat := range []string{format, "toml"} {
+				converted, err = ns.Remarshal(toFormat, converted)
+				c.Assert(err, qt.IsNil, fromTo)
+			}
+
+			diff := htesting.DiffStrings(expected, converted)
+			if len(diff) > 0 {
+				t.Fatalf("[%s] Expected \n%v\ngot\n>>%v\ndiff:\n%v\n", fromTo, expected, converted, diff)
+			}
+		}
+	})
+
+	// Issue 8850
+	c.Run("TOML Indent", func(c *qt.C) {
+		input := `
+
+[params]
+[params.variables]
+a = "b"
+
+`
+
+		converted, err := ns.Remarshal("toml", input)
+		c.Assert(err, qt.IsNil)
+		c.Assert(converted, qt.Equals, "[params]\n  [params.variables]\n    a = 'b'\n\n\n")
+	})
+
+	c.Run("Map input", func(c *qt.C) {
+		input := map[string]interface{}{
+			"hello": "world",
 		}
 
-		diff := htesting.DiffStrings(expected, converted)
-		if len(diff) > 0 {
-			t.Fatalf("[%s] Expected \n%v\ngot\n>>%v\ndiff:\n%v\n", fromTo, expected, converted, diff)
-		}
-	}
-}
+		output, err := ns.Remarshal("toml", input)
+		c.Assert(err, qt.IsNil)
+		c.Assert(output, qt.Equals, "hello = 'world'\n")
+	})
 
-func TestTestRemarshalError(t *testing.T) {
-	t.Parallel()
-	c := qt.New(t)
+	c.Run("Error", func(c *qt.C) {
+		_, err := ns.Remarshal("asdf", "asdf")
+		c.Assert(err, qt.Not(qt.IsNil))
 
-	v := config.New()
-	v.Set("contentDir", "content")
-	ns := New(newDeps(v))
-
-	_, err := ns.Remarshal("asdf", "asdf")
-	c.Assert(err, qt.Not(qt.IsNil))
-
-	_, err = ns.Remarshal("json", "asdf")
-	c.Assert(err, qt.Not(qt.IsNil))
-}
-
-func TestTestRemarshalMapInput(t *testing.T) {
-	t.Parallel()
-	c := qt.New(t)
-	v := config.New()
-	v.Set("contentDir", "content")
-	ns := New(newDeps(v))
-
-	input := map[string]interface{}{
-		"hello": "world",
-	}
-
-	output, err := ns.Remarshal("toml", input)
-	c.Assert(err, qt.IsNil)
-	c.Assert(output, qt.Equals, "hello = 'world'\n")
+		_, err = ns.Remarshal("json", "asdf")
+		c.Assert(err, qt.Not(qt.IsNil))
+	})
 }
