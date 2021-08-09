@@ -29,7 +29,7 @@ func TestTimeLocation(t *testing.T) {
 
 	for i, test := range []struct {
 		name     string
-		value    string
+		value    interface{}
 		location interface{}
 		expect   interface{}
 	}{
@@ -39,6 +39,9 @@ func TestTimeLocation(t *testing.T) {
 		{"New York EST", "2020-01-20", "America/New_York", "2020-01-20 00:00:00 -0500 EST"},
 		{"Empty location, time", "2020-10-20 20:33:59", "", "2020-10-20 20:33:59 +0000 UTC"},
 		{"New York, time", "2020-10-20 20:33:59", "America/New_York", "2020-10-20 20:33:59 -0400 EDT"},
+		{"Nil value", nil, "", "0001-01-01 00:00:00 +0000"},
+		{"Empty value", "", "", "0001-01-01 00:00:00 +0000"},
+
 		// The following have an explicit offset specified. In this case, it overrides timezone
 		{"Offset minus 0700, empty location", "2020-09-23T20:33:44-0700", "", "2020-09-23 20:33:44 -0700 -0700"},
 		{"Offset plus 0200, empty location", "2020-09-23T20:33:44+0200", "", "2020-09-23 20:33:44 +0200 +0200"},
