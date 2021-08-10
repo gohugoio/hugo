@@ -19,8 +19,6 @@ import (
 	"time"
 	_time "time"
 
-	"github.com/gohugoio/hugo/common/hreflect"
-
 	"github.com/gohugoio/hugo/common/htime"
 
 	"github.com/gohugoio/locales"
@@ -45,9 +43,6 @@ type Namespace struct {
 // AsTime converts the textual representation of the datetime string into
 // a time.Time interface.
 func (ns *Namespace) AsTime(v interface{}, args ...interface{}) (interface{}, error) {
-	if !hreflect.IsTruthful(v) {
-		return time.Time{}, nil
-	}
 	loc := ns.location
 	if len(args) > 0 {
 		locStr, err := cast.ToStringE(args[0])
