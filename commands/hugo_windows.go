@@ -13,7 +13,13 @@
 
 package commands
 
-import "github.com/spf13/cobra"
+import (
+	// For time zone lookups on Windows without Go installed.
+	// See #8892
+	_ "time/tzdata"
+
+	"github.com/spf13/cobra"
+)
 
 func init() {
 	// This message to show to Windows users if Hugo is opened from explorer.exe
