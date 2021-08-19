@@ -457,8 +457,10 @@ func TestResourceChainPostProcess(t *testing.T) {
 
 	b := newTestSitesBuilder(t)
 	b.WithConfigFile("toml", `[minify]
+  minifyOutput = true
   [minify.tdewolff]
     [minify.tdewolff.html]
+      keepQuotes = false
       keepWhitespace = false`)
 	b.WithContent("page1.md", "---\ntitle: Page1\n---")
 	b.WithContent("page2.md", "---\ntitle: Page2\n---")
@@ -473,6 +475,9 @@ HELLO: {{ $hello.RelPermalink }}
 HELLO: {{ $hello.RelPermalink }}|Integrity: {{ $hello.Data.Integrity }}|MediaType: {{ $hello.MediaType.Type }}
 HELLO2: Name: {{ $hello.Name }}|Content: {{ $hello.Content }}|Title: {{ $hello.Title }}|ResourceType: {{ $hello.ResourceType }}
 
+// Issue #8884
+<a href="hugo.rocks">foo</a>
+<a href="{{ $hello.RelPermalink }}" integrity="{{ $hello.Data.Integrity}}">Hello</a>
 `+strings.Repeat("a b", rnd.Intn(10)+1)+`
 
 
@@ -484,6 +489,8 @@ End.`)
 		`Start.
 HELLO: /hello.min.a2d1cb24f24b322a7dad520414c523e9.html|Integrity: md5-otHLJPJLMip9rVIEFMUj6Q==|MediaType: text/html
 HELLO2: Name: hello.html|Content: <h1>Hello World!</h1>|Title: hello.html|ResourceType: text
+<a href=hugo.rocks>foo</a>
+<a href="/hello.min.a2d1cb24f24b322a7dad520414c523e9.html" integrity="md5-otHLJPJLMip9rVIEFMUj6Q==">Hello</a>
 End.`)
 
 	b.AssertFileContent("public/page1/index.html", `HELLO: /hello.min.a2d1cb24f24b322a7dad520414c523e9.html`)
