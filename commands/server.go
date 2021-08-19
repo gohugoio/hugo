@@ -266,28 +266,6 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// Watch runs its own server as part of the routine
-	if sc.serverWatch {
-
-		watchDirs, err := c.getDirList()
-		if err != nil {
-			return err
-		}
-
-		watchGroups := helpers.ExtractAndGroupRootPaths(watchDirs)
-
-		for _, group := range watchGroups {
-			jww.FEEDBACK.Printf("Watching for changes in %s\n", group)
-		}
-		watcher, err := c.newWatcher(sc.poll, watchDirs...)
-		if err != nil {
-			return err
-		}
-
-		defer watcher.Close()
-
-	}
-
 	return nil
 }
 
@@ -532,6 +510,28 @@ func (c *commandeer) serve(s *serverCmd) error {
 				os.Exit(1)
 			}
 		}()
+	}
+
+	// Watch runs its own server as part of the routine
+	if s.serverWatch {
+
+		watchDirs, err := c.getDirList()
+		if err != nil {
+			return err
+		}
+
+		watchGroups := helpers.ExtractAndGroupRootPaths(watchDirs)
+
+		for _, group := range watchGroups {
+			jww.FEEDBACK.Printf("Watching for changes in %s\n", group)
+		}
+		watcher, err := c.newWatcher(s.poll, watchDirs...)
+		if err != nil {
+			return err
+		}
+
+		defer watcher.Close()
+
 	}
 
 	jww.FEEDBACK.Println("Press Ctrl+C to stop")
