@@ -104,8 +104,8 @@ void do();
 			th      = newTestHelper(cfg, fs, t)
 		)
 
-		cfg.Set("pygmentsStyle", "bw")
-		cfg.Set("pygmentsUseClasses", false)
+		cfg.Set("markup.highlight.style", "bw")
+		cfg.Set("markup.highlight.noClasses", true)
 
 		writeSource(t, fs, filepath.Join("content", "simple.md"), fmt.Sprintf(`---
 title: Shorty
