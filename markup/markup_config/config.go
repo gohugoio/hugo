@@ -20,6 +20,7 @@ import (
 	"github.com/gohugoio/hugo/markup/asciidocext/asciidocext_config"
 	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
 	"github.com/gohugoio/hugo/markup/highlight"
+	"github.com/gohugoio/hugo/markup/pandoc/pandoc_config"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/gohugoio/hugo/parser"
 	"github.com/mitchellh/mapstructure"
@@ -37,6 +38,7 @@ type Config struct {
 	// Content renderers
 	Goldmark    goldmark_config.Config
 	AsciidocExt asciidocext_config.Config
+	Pandoc      pandoc_config.Config
 }
 
 func Decode(cfg config.Provider) (conf Config, err error) {
@@ -84,6 +86,7 @@ var Default = Config{
 
 	Goldmark:    goldmark_config.Default,
 	AsciidocExt: asciidocext_config.Default,
+	Pandoc:      pandoc_config.Default,
 }
 
 func init() {
