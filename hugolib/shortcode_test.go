@@ -619,8 +619,8 @@ title: "Foo"
 	cfg.Set("uglyURLs", false)
 	cfg.Set("verbose", true)
 
-	cfg.Set("pygmentsUseClasses", true)
-	cfg.Set("pygmentsCodefences", true)
+	cfg.Set("markup.highlight.noClasses", false)
+	cfg.Set("markup.highlight.codeFences", true)
 	cfg.Set("markup", map[string]interface{}{
 		"defaultMarkdownHandler": "blackfriday", // TODO(bep)
 	})

@@ -278,7 +278,6 @@ func (l configLoader) applyConfigDefaults() error {
 		"disablePathToLower":                   false,
 		"hasCJKLanguage":                       false,
 		"enableEmoji":                          false,
-		"pygmentsCodeFencesGuessSyntax":        false,
 		"defaultContentLanguage":               "en",
 		"defaultContentLanguageInSubdir":       false,
 		"enableMissingTranslationPlaceholders": false,
