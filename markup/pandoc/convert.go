@@ -80,7 +80,7 @@ func (c *pandocConverter) getPandocContent(src []byte, ctx converter.DocumentCon
 			"                 Leaving pandoc content unrendered.")
 		return src, nil
 	}
-	args := []string{"--mathjax", "--toc", "--template", "toc", "-s", "--quiet"}
+	args := []string{"--mathjax", "--toc", "-s", "--quiet"}
 	return internal.ExternallyRenderContent(c.cfg, ctx, src, binaryName, args)
 }
 
@@ -102,11 +102,38 @@ func (a *pandocConverter) extractTOC(src []byte) ([]byte, tableofcontents.Root, 
 	if err != nil {
 		return nil, tableofcontents.Root{}, err
 	}
+
 	var (
 		f       func(*html.Node) bool
+		body    *html.Node
 		toc     tableofcontents.Root
 		toVisit []*html.Node
 	)
+
+	f = func(n *html.Node) bool {
+		if n.Type == html.ElementNode && n.Data == "body" {
+			body = n
+			return true
+		}
+		if n.FirstChild != nil {
+			toVisit = append(toVisit, n.FirstChild)
+		}
+		if n.NextSibling != nil && f(n.NextSibling) {
+			return true
+		}
+		for len(toVisit) > 0 {
+			nv := toVisit[0]
+			toVisit = toVisit[1:]
+			if f(nv) {
+				return true
+			}
+		}
+		return false
+	}
+	if !f(node) {
+		return nil, tableofcontents.Root{}, err
+	}
+
 	f = func(n *html.Node) bool {
 		if n.Type == html.ElementNode && n.Data == "nav" && attr(n, "id") == "TOC" {
 			toc = parseTOC(n)
@@ -130,12 +157,12 @@ func (a *pandocConverter) extractTOC(src []byte) ([]byte, tableofcontents.Root, 
 		}
 		return false
 	}
-	f(node)
+	f(body)
 	if err != nil {
 		return nil, tableofcontents.Root{}, err
 	}
 	buf.Reset()
-	err = html.Render(&buf, node)
+	err = html.Render(&buf, body)
 	if err != nil {
 		return nil, tableofcontents.Root{}, err
 	}
