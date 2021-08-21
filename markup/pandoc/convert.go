@@ -110,6 +110,7 @@ func (a *pandocConverter) extractTOC(src []byte) ([]byte, tableofcontents.Root, 
 		toVisit []*html.Node
 	)
 
+	// find body
 	f = func(n *html.Node) bool {
 		if n.Type == html.ElementNode && n.Data == "body" {
 			body = n
@@ -134,6 +135,30 @@ func (a *pandocConverter) extractTOC(src []byte) ([]byte, tableofcontents.Root, 
 		return nil, tableofcontents.Root{}, err
 	}
 
+	// remove by pandoc generated title
+	f = func(n *html.Node) bool {
+		if n.Type == html.ElementNode && n.Data == "header" && attr(n, "id") == "title-block-header" {
+			n.Parent.RemoveChild(n)
+			return true
+		}
+		if n.FirstChild != nil {
+			toVisit = append(toVisit, n.FirstChild)
+		}
+		if n.NextSibling != nil && f(n.NextSibling) {
+			return true
+		}
+		for len(toVisit) > 0 {
+			nv := toVisit[0]
+			toVisit = toVisit[1:]
+			if f(nv) {
+				return true
+			}
+		}
+		return false
+	}
+	f(body)
+
+	// find toc
 	f = func(n *html.Node) bool {
 		if n.Type == html.ElementNode && n.Data == "nav" && attr(n, "id") == "TOC" {
 			toc = parseTOC(n)
@@ -167,8 +192,8 @@ func (a *pandocConverter) extractTOC(src []byte) ([]byte, tableofcontents.Root, 
 		return nil, tableofcontents.Root{}, err
 	}
 	// ltrim <html><head></head><body> and rtrim </body></html> which are added by html.Render
-	res := buf.Bytes()[25:]
-	res = res[:len(res)-14]
+	res := buf.Bytes()[6:]
+	res = res[:len(res)-7]
 	return res, toc, nil
 }
 
