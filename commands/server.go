@@ -261,11 +261,6 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 		s.RegisterMediaTypes()
 	}
 
-	err = c.serve(sc)
-	if err != nil {
-		return err
-	}
-
 	// Watch runs its own server as part of the routine
 	if sc.serverWatch {
 
@@ -288,7 +283,7 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 
 	}
 
-	return nil
+	return c.serve(sc)
 }
 
 func getRootWatchDirsStr(baseDir string, watchDirs []string) string {
