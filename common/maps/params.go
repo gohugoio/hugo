@@ -76,6 +76,14 @@ func (p Params) Merge(pp Params) {
 	p.merge("", pp)
 }
 
+// MergeRoot transfers values from pp to p for new keys where p is the
+// root of the tree.
+// This is done recursively.
+func (p Params) MergeRoot(pp Params) {
+	ms, _ := p.GetMergeStrategy()
+	p.merge(ms, pp)
+}
+
 func (p Params) merge(ps ParamsMergeStrategy, pp Params) {
 	ns, found := p.GetMergeStrategy()
 
