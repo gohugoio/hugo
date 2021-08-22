@@ -155,7 +155,7 @@ description
 
 	// Code fences
 	c.Assert(got, qt.Contains, "<div class=\"highlight\"><pre tabindex=\"0\" class=\"chroma\"><code class=\"language-bash\" data-lang=\"bash\">LINE1\n</code></pre></div>")
-	c.Assert(got, qt.Contains, "Code Fences No Lexer</h2>\n<pre><code class=\"language-moo\" data-lang=\"moo\">LINE1\n</code></pre>")
+	c.Assert(got, qt.Contains, "Code Fences No Lexer</h2>\n<pre tabindex=\"0\"><code class=\"language-moo\" data-lang=\"moo\">LINE1\n</code></pre>")
 
 	// Extensions
 	c.Assert(got, qt.Contains, `Autolink: <a href="https://gohugo.io/">https://gohugo.io/</a>`)
@@ -392,7 +392,7 @@ LINE5
 		c.Assert(result, qt.Equals, `<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">echo</span> <span class="s2">&#34;Hugo Rocks!&#34;</span>
 </code></pre></div>`)
 		result = convertForConfig(c, cfg, `echo "Hugo Rocks!"`, "unknown")
-		c.Assert(result, qt.Equals, "<pre><code class=\"language-unknown\" data-lang=\"unknown\">echo &quot;Hugo Rocks!&quot;\n</code></pre>")
+		c.Assert(result, qt.Equals, "<pre tabindex=\"0\"><code class=\"language-unknown\" data-lang=\"unknown\">echo &quot;Hugo Rocks!&quot;\n</code></pre>")
 	})
 
 	c.Run("Highlight lines, default config", func(c *qt.C) {
@@ -443,7 +443,7 @@ LINE5
 		cfg.LineNumbersInTable = false
 
 		result := convertForConfig(c, cfg, lines, "")
-		c.Assert(result, qt.Contains, "<pre><code>LINE1\n")
+		c.Assert(result, qt.Contains, "<pre tabindex=\"0\"><code>LINE1\n")
 	})
 
 	c.Run("No language, guess syntax", func(c *qt.C) {
