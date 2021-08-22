@@ -153,6 +153,9 @@ name = "menu-top-main"
 baseURL = "http://bep.is/"
 
 # Can not be set in theme.
+disableKinds = ["taxonomy", "term"]
+
+# Can not be set in theme.
 [frontmatter]
 expiryDate = ["date"]
 
@@ -227,6 +230,9 @@ name = "menu-theme"
 		b := buildForStrategy(c, "")
 
 		got := b.Cfg.Get("").(maps.Params)
+
+		// Issue #8866
+		b.Assert(b.Cfg.Get("disableKinds"), qt.IsNil)
 
 		b.Assert(got["params"], qt.DeepEquals, maps.Params{
 			"b": maps.Params{

@@ -172,7 +172,6 @@ func TestDefaultConfigProvider(t *testing.T) {
 
 		c.Assert(cfg.Get(""), qt.DeepEquals, maps.Params{
 			"a": "av",
-			"b": "bv2",
 		})
 	})
 
