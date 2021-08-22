@@ -122,17 +122,17 @@ type preWrapper struct {
 }
 
 func (p preWrapper) Start(code bool, styleAttr string) string {
-	w := &strings.Builder{}
-	fmt.Fprintf(w, `<pre tabindex="0"%s>`, styleAttr)
 	var language string
 	if code {
 		language = p.language
 	}
-	WriteCodeTag(w, language)
+	w := &strings.Builder{}
+	WritePreStart(w, language, styleAttr)
 	return w.String()
 }
 
-func WriteCodeTag(w io.Writer, language string) {
+func WritePreStart(w io.Writer, language, styleAttr string) {
+	fmt.Fprintf(w, `<pre tabindex="0"%s>`, styleAttr)
 	fmt.Fprint(w, "<code")
 	if language != "" {
 		fmt.Fprint(w, ` class="language-`+language+`"`)
@@ -141,6 +141,12 @@ func WriteCodeTag(w io.Writer, language string) {
 	fmt.Fprint(w, ">")
 }
 
+const preEnd = "</code></pre>"
+
 func (p preWrapper) End(code bool) string {
-	return "</code></pre>"
+	return preEnd
+}
+
+func WritePreEnd(w io.Writer) {
+	fmt.Fprint(w, preEnd)
 }
