@@ -19,7 +19,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -159,13 +158,12 @@ func fetchThemeCount() (int, error) {
 	}
 	defer resp.Body.Close()
 
-	b, _ := ioutil.ReadAll(resp.Body)
+	b, _ := io.ReadAll(resp.Body)
 	return bytes.Count(b, []byte("\n")) - bytes.Count(b, []byte("#")), nil
 }
 
 func getReleaseNotesFilename(version string) string {
 	return filepath.FromSlash(fmt.Sprintf("temp/%s-relnotes-ready.md", version))
-
 }
 
 func (r *ReleaseHandler) writeReleaseNotesToTemp(version string, isPatch bool, infosMain, infosDocs gitInfos) (string, error) {

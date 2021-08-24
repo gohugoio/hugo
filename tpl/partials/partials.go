@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"io/ioutil"
 	"reflect"
 	"strings"
 	"sync"
@@ -128,7 +127,7 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 		}
 
 		// We don't care about any template output.
-		w = ioutil.Discard
+		w = io.Discard
 	} else {
 		b := bp.GetBuffer()
 		defer bp.PutBuffer(b)

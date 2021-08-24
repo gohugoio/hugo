@@ -17,7 +17,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -51,7 +50,7 @@ func main() {
 
 		templateName := filepath.ToSlash(strings.TrimPrefix(path, templateFolder+string(os.PathSeparator)))
 
-		templateContent, err := ioutil.ReadFile(path)
+		templateContent, err := os.ReadFile(path)
 		if err != nil {
 			return err
 		}

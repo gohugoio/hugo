@@ -22,7 +22,6 @@ import (
 	_ "image/gif"
 	_ "image/png"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -88,7 +87,7 @@ func (i *imageResource) getExif() *exif.Exif {
 
 		read := func(info filecache.ItemInfo, r io.ReadSeeker) error {
 			meta := &imageMeta{}
-			data, err := ioutil.ReadAll(r)
+			data, err := io.ReadAll(r)
 			if err != nil {
 				return err
 			}

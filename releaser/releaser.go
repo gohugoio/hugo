@@ -17,7 +17,6 @@ package releaser
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -275,7 +274,7 @@ func (r *ReleaseHandler) replaceInFile(filename string, oldNew ...string) error 
 		return nil
 	}
 
-	b, err := ioutil.ReadFile(filename)
+	b, err := os.ReadFile(filename)
 	if err != nil {
 		return err
 	}
@@ -286,7 +285,7 @@ func (r *ReleaseHandler) replaceInFile(filename string, oldNew ...string) error 
 		newContent = re.ReplaceAllString(newContent, oldNew[i+1])
 	}
 
-	return ioutil.WriteFile(filename, []byte(newContent), fi.Mode())
+	return os.WriteFile(filename, []byte(newContent), fi.Mode())
 }
 
 func isCI() bool {

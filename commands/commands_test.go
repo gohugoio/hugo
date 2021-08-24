@@ -15,7 +15,6 @@ package commands
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -390,7 +389,7 @@ Environment: {{ hugo.Environment }}
 
 func writeFile(t *testing.T, filename, content string) {
 	must(t, os.MkdirAll(filepath.Dir(filename), os.FileMode(0755)))
-	must(t, ioutil.WriteFile(filename, []byte(content), os.FileMode(0755)))
+	must(t, os.WriteFile(filename, []byte(content), os.FileMode(0755)))
 }
 
 func must(t *testing.T, err error) {

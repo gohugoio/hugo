@@ -16,7 +16,7 @@ package hugolib
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"testing"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -87,8 +87,8 @@ aliases: [/Ali%d]
 		h.Sites[1].PathSpec.ProcessingStats,
 	}
 
-	stats[0].Table(ioutil.Discard)
-	stats[1].Table(ioutil.Discard)
+	stats[0].Table(io.Discard)
+	stats[1].Table(io.Discard)
 
 	var buff bytes.Buffer
 

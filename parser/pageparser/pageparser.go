@@ -16,7 +16,6 @@ package pageparser
 import (
 	"bytes"
 	"io"
-	"io/ioutil"
 
 	"github.com/gohugoio/hugo/parser/metadecoders"
 	"github.com/pkg/errors"
@@ -100,7 +99,7 @@ func ParseMain(r io.Reader, cfg Config) (Result, error) {
 }
 
 func parseSection(r io.Reader, cfg Config, start stateFunc) (Result, error) {
-	b, err := ioutil.ReadAll(r)
+	b, err := io.ReadAll(r)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read page content")
 	}

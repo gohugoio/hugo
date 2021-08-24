@@ -3,7 +3,7 @@ package releaser
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -124,7 +124,7 @@ func doGitHubRequest(req *http.Request, v interface{}) error {
 	defer resp.Body.Close()
 
 	if isError(resp) {
-		b, _ := ioutil.ReadAll(resp.Body)
+		b, _ := io.ReadAll(resp.Body)
 		return fmt.Errorf("GitHub lookup failed: %s", string(b))
 	}
 

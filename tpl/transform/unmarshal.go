@@ -14,7 +14,7 @@
 package transform
 
 import (
-	"io/ioutil"
+	"io"
 	"strings"
 
 	"github.com/gohugoio/hugo/resources/resource"
@@ -81,7 +81,7 @@ func (ns *Namespace) Unmarshal(args ...interface{}) (interface{}, error) {
 			}
 			defer reader.Close()
 
-			b, err := ioutil.ReadAll(reader)
+			b, err := io.ReadAll(reader)
 			if err != nil {
 				return nil, err
 			}

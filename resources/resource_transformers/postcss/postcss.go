@@ -18,7 +18,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"io"
-	"io/ioutil"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -333,7 +332,7 @@ func (imp *importResolver) importRecursive(
 func (imp *importResolver) resolve() (io.Reader, error) {
 	const importIdentifier = "@import"
 
-	content, err := ioutil.ReadAll(imp.r)
+	content, err := io.ReadAll(imp.r)
 	if err != nil {
 		return nil, err
 	}

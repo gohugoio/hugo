@@ -17,7 +17,6 @@ import (
 	"bufio"
 	"bytes"
 	"io"
-	"io/ioutil"
 	"mime"
 	"net/http"
 	"net/http/httputil"
@@ -98,7 +97,7 @@ func (c *Client) FromRemote(uri string, optionsm map[string]interface{}) (resour
 		return nil, nil
 	}
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to read remote resource %q", uri)
 	}

@@ -15,7 +15,6 @@ package hugio
 
 import (
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -68,7 +67,7 @@ func CopyDir(fs afero.Fs, from, to string, shouldCopy func(filename string) bool
 		return err
 	}
 
-	entries, _ := ioutil.ReadDir(from)
+	entries, _ := os.ReadDir(from)
 	for _, entry := range entries {
 		fromFilename := filepath.Join(from, entry.Name())
 		toFilename := filepath.Join(to, entry.Name())

@@ -22,7 +22,6 @@ import (
 	"go/doc"
 	"go/parser"
 	"go/token"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -135,7 +134,7 @@ func (t goDocFunc) toJSON() ([]byte, error) {
 	}
 	var buf bytes.Buffer
 	buf.WriteString(fmt.Sprintf(`%q:
-    { "Description": %q, "Args": %s, "Aliases": %s, "Examples": %s }	
+    { "Description": %q, "Args": %s, "Aliases": %s, "Examples": %s }
 `, t.Name, t.Description, args, aliases, examples))
 
 	return buf.Bytes(), nil
@@ -239,7 +238,7 @@ func getGetTplPackagesGoDoc() map[string]map[string]methodGoDocInfo {
 			basePath = filepath.Join(pwd, "tpl")
 		}
 
-		files, err := ioutil.ReadDir(basePath)
+		files, err := os.ReadDir(basePath)
 		if err != nil {
 			log.Fatal(err)
 		}

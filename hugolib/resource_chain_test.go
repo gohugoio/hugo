@@ -17,7 +17,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
@@ -181,7 +180,7 @@ moo {
 
 @import "another.css";
 /* foo */
-        
+
 `)
 			} else {
 				// Dart Sass does not follow regular CSS import, but they
@@ -485,7 +484,7 @@ func TestResourceChainPostProcess(t *testing.T) {
 
 	b.WithTemplates(
 		"_default/single.html", `{{ $hello := "<h1>     Hello World!   </h1>" | resources.FromString "hello.html" | minify  | fingerprint "md5" | resources.PostProcess }}
-HELLO: {{ $hello.RelPermalink }}	
+HELLO: {{ $hello.RelPermalink }}
 `,
 		"index.html", `Start.
 {{ $hello := "<h1>     Hello World!   </h1>" | resources.FromString "hello.html" | minify  | fingerprint "md5" | resources.PostProcess }}
@@ -559,7 +558,7 @@ func TestResourceChains(t *testing.T) {
 		switch r.URL.Path {
 		case "/css/styles1.css":
 			w.Header().Set("Content-Type", "text/css")
-			w.Write([]byte(`h1 { 
+			w.Write([]byte(`h1 {
 				font-style: bold;
 			}`))
 			return
@@ -621,7 +620,7 @@ func TestResourceChains(t *testing.T) {
 		case "/post":
 			w.Header().Set("Content-Type", "text/plain")
 			if r.Method == http.MethodPost {
-				body, err := ioutil.ReadAll(r.Body)
+				body, err := io.ReadAll(r.Body)
 				if err != nil {
 					http.Error(w, "Internal server error", http.StatusInternalServerError)
 					return
@@ -745,7 +744,7 @@ T2: Content: {{ $combinedText.Content }}|{{ $combinedText.RelPermalink }}
 {{/* https://github.com/gohugoio/hugo/issues/5269 */}}
 {{ $css := "body { color: blue; }" | resources.FromString "styles.css" }}
 {{ $minified := resources.Get "css/styles1.css" | minify }}
-{{ slice $css $minified | resources.Concat "bundle/mixed.css" }} 
+{{ slice $css $minified | resources.Concat "bundle/mixed.css" }}
 {{/* https://github.com/gohugoio/hugo/issues/5403 */}}
 {{ $d := "function D {} // A comment" | resources.FromString "d.js"}}
 {{ $e := "(function E {})" | resources.FromString "e.js"}}
@@ -876,7 +875,7 @@ Publish 2: {{ $cssPublish2.Permalink }}
 
 Slogan: {{ $toml.slogan }}
 CSV1: {{ $csv1 }} {{ len (index $csv1 0)  }}
-CSV2: {{ $csv2 }}		
+CSV2: {{ $csv2 }}
 XML: {{ $xml.body }}
 `)
 		}, func(b *sitesBuilder) {
@@ -947,7 +946,7 @@ document.getElementById("demo").innerHTML = x * 10;
 			b.WithSourceFile(filepath.Join("assets", "mydata", "json1.json"), `
 {
 "employees":[
-    {"firstName":"John", "lastName":"Doe"}, 
+    {"firstName":"John", "lastName":"Doe"},
     {"firstName":"Anna", "lastName":"Smith"},
     {"firstName":"Peter", "lastName":"Jones"}
 ]
@@ -957,7 +956,7 @@ document.getElementById("demo").innerHTML = x * 10;
 			b.WithSourceFile(filepath.Join("assets", "mydata", "svg1.svg"), `
 <svg height="100" width="100">
   <path d="M 100 100 L 300 100 L 200 100 z"/>
-</svg> 
+</svg>
 `)
 
 			b.WithSourceFile(filepath.Join("assets", "mydata", "xml1.xml"), `
@@ -1115,7 +1114,7 @@ module.exports = {
 h1 {
     @apply text-2xl font-bold;
 }
-  
+
 `
 
 	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-test-postcss")
