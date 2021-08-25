@@ -92,23 +92,3 @@ parts:
       usr/lib/: lib/
     prime:
       - bin/pandoc
-
-  pygments:
-    plugin: nil
-    stage-packages:
-      - python3-pygments
-    organize:
-      usr/bin/: bin/
-      usr/lib/: lib/
-    prime:
-      - bin/pygmentize
-      - lib/python*/site-packages/Pygments-*.dist-info/*
-      - lib/python*/site-packages/pygments/*
-      - bin/python*
-      - -bin/python*m
-      - lib/python*/*
-      - -lib/python*/distutils/*
-      - -lib/python*/email/*
-      - -lib/python*/lib2to3/*
-      - -lib/python*/tkinter/*
-      - -lib/python*/unittest/*
