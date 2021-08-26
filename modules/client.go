@@ -318,7 +318,7 @@ func (c *Client) Get(args ...string) error {
 			}
 			var args []string
 			if update {
-				args = []string{"-u"}
+				args = append(args, "-u")
 			}
 			args = append(args, m.Path)
 			if err := c.get(args...); err != nil {
@@ -333,6 +333,18 @@ func (c *Client) Get(args ...string) error {
 }
 
 func (c *Client) get(args ...string) error {
+	var hasD bool
+	for _, arg := range args {
+		if arg == "-d" {
+			hasD = true
+			break
+		}
+	}
+	if !hasD {
+		// go get without the -d flag does not make sense to us, as
+		// it will try to build and install go packages.
+		args = append([]string{"-d"}, args...)
+	}
 	if err := c.runGo(context.Background(), c.logger.Out(), append([]string{"get"}, args...)...); err != nil {
 		errors.Wrapf(err, "failed to get %q", args)
 	}
@@ -425,31 +437,83 @@ func (c *Client) listGoMods() (goModules, error) {
 		return nil, nil
 	}
 
-	out := ioutil.Discard
-	err := c.runGo(context.Background(), out, "mod", "download")
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to download modules")
+	downloadModules := func(modules ...string) error {
+		args := []string{"mod", "download"}
+		args = append(args, modules...)
+		out := ioutil.Discard
+		err := c.runGo(context.Background(), out, args...)
+		if err != nil {
+			return errors.Wrap(err, "failed to download modules")
+		}
+		return nil
 	}
 
-	b := &bytes.Buffer{}
-	err = c.runGo(context.Background(), b, "list", "-m", "-json", "all")
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to list modules")
+	if err := downloadModules(); err != nil {
+		return nil, err
+	}
+
+	listAndDecodeModules := func(handle func(m *goModule) error, modules ...string) error {
+		b := &bytes.Buffer{}
+		args := []string{"list", "-m", "-json"}
+		if len(modules) > 0 {
+			args = append(args, modules...)
+		} else {
+			args = append(args, "all")
+		}
+		err := c.runGo(context.Background(), b, args...)
+		if err != nil {
+			return errors.Wrap(err, "failed to list modules")
+		}
+
+		dec := json.NewDecoder(b)
+		for {
+			m := &goModule{}
+			if err := dec.Decode(m); err != nil {
+				if err == io.EOF {
+					break
+				}
+				return errors.Wrap(err, "failed to decode modules list")
+			}
+
+			if err := handle(m); err != nil {
+				return err
+			}
+		}
+		return nil
 	}
 
 	var modules goModules
-
-	dec := json.NewDecoder(b)
-	for {
-		m := &goModule{}
-		if err := dec.Decode(m); err != nil {
-			if err == io.EOF {
-				break
-			}
-			return nil, errors.Wrap(err, "failed to decode modules list")
-		}
-
+	err := listAndDecodeModules(func(m *goModule) error {
 		modules = append(modules, m)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// From Go 1.17, go lazy loads transitive dependencies.
+	// That does not work for us.
+	// So, download these modules and update the Dir in the modules list.
+	var modulesToDownload []string
+	for _, m := range modules {
+		if m.Dir == "" {
+			modulesToDownload = append(modulesToDownload, fmt.Sprintf("%s@%s", m.Path, m.Version))
+		}
+	}
+
+	if len(modulesToDownload) > 0 {
+		if err := downloadModules(modulesToDownload...); err != nil {
+			return nil, err
+		}
+		err := listAndDecodeModules(func(m *goModule) error {
+			if mm := modules.GetByPath(m.Path); mm != nil {
+				mm.Dir = m.Dir
+			}
+			return nil
+		}, modulesToDownload...)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return modules, err

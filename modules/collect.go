@@ -252,15 +252,22 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import, disabled bool
 	}
 
 	if moduleDir == "" {
+		var versionQuery string
 		mod = c.gomods.GetByPath(modulePath)
 		if mod != nil {
 			moduleDir = mod.Dir
+			versionQuery = mod.Version
 		}
 
 		if moduleDir == "" {
 			if c.GoModulesFilename != "" && isProbablyModule(modulePath) {
 				// Try to "go get" it and reload the module configuration.
-				if err := c.Get(modulePath); err != nil {
+				if versionQuery == "" {
+					// See https://golang.org/ref/mod#version-queries
+					// This will select the latest release-version (not beta etc.).
+					versionQuery = "upgrade"
+				}
+				if err := c.Get(fmt.Sprintf("%s@%s", modulePath, versionQuery)); err != nil {
 					return nil, err
 				}
 				if err := c.loadModules(); err != nil {

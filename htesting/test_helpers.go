@@ -16,7 +16,9 @@ package htesting
 import (
 	"math/rand"
 	"os"
+	"regexp"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -102,4 +104,29 @@ func IsGitHubAction() bool {
 // e.g. Asciidoc, Pandoc etc.
 func SupportsAll() bool {
 	return IsGitHubAction()
+}
+
+// GoMinorVersion returns the minor version of the current Go version,
+// e.g. 16 for Go 1.16.
+func GoMinorVersion() int {
+	return extractMinorVersionFromGoTag(runtime.Version())
+}
+
+var goMinorVersionRe = regexp.MustCompile(`go1.(\d*)`)
+
+func extractMinorVersionFromGoTag(tag string) int {
+	// The tag may be on the form go1.17, go1.17.5 go1.17rc2 -- or just a commit hash.
+	match := goMinorVersionRe.FindStringSubmatch(tag)
+
+	if len(match) == 2 {
+		i, err := strconv.Atoi(match[1])
+		if err != nil {
+			return -1
+		}
+		return i
+	}
+
+	// a commit hash, not useful.
+	return -1
+
 }
