@@ -14,8 +14,10 @@
 package hugolib
 
 import (
+	"context"
 	"fmt"
 	"path"
+	"runtime/pprof"
 	"strings"
 	"sync"
 
@@ -70,7 +72,7 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 
 	for i := 0; i < numWorkers; i++ {
 		wg.Add(1)
-		go pageRenderer(s, pages, results, wg)
+		go pageRenderer(context.Background(), s, pages, results, wg)
 	}
 
 	cfg := ctx.cfg
@@ -101,6 +103,7 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 }
 
 func pageRenderer(
+	ctx context.Context,
 	s *Site,
 	pages <-chan *pageState,
 	results chan<- error,
@@ -108,40 +111,51 @@ func pageRenderer(
 	defer wg.Done()
 
 	for p := range pages {
-		if p.m.buildConfig.PublishResources {
-			if err := p.renderResources(); err != nil {
-				s.SendError(p.errorf(err, "failed to render page resources"))
-				continue
-			}
-		}
-
-		if !p.render {
-			// Nothing more to do for this page.
-			continue
-		}
-
-		templ, found, err := p.resolveTemplate()
-		if err != nil {
-			s.SendError(p.errorf(err, "failed to resolve template"))
-			continue
-		}
-
-		if !found {
-			s.logMissingLayout("", p.Layout(), p.Kind(), p.f.Name)
-			continue
-		}
-
 		targetPath := p.targetPaths().TargetFilename
+		// Add labels for pprof profiler to localise the cause of load.
+		labels := pprof.Labels(
+			"target_filename", targetPath,
+			"layout", p.Layout(),
+			"kind", p.Kind(),
+			"section", p.Section())
 
-		if err := s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, "page "+p.Title(), targetPath, p, templ); err != nil {
-			results <- err
-		}
-
-		if p.paginator != nil && p.paginator.current != nil {
-			if err := s.renderPaginator(p, templ); err != nil {
-				results <- err
+		pprof.Do(ctx, labels, func(ctx context.Context) {
+			if p.m.buildConfig.PublishResources {
+				if err := p.renderResources(); err != nil {
+					s.SendError(p.errorf(err, "failed to render page resources"))
+					return
+				}
 			}
-		}
+
+			if !p.render {
+				// Nothing more to do for this page.
+				return
+			}
+
+			templ, found, err := p.resolveTemplate()
+			if err != nil {
+				s.SendError(p.errorf(err, "failed to resolve template"))
+				return
+			}
+
+			if !found {
+				s.logMissingLayout("", p.Layout(), p.Kind(), p.f.Name)
+				return
+			}
+
+			ctx = pprof.WithLabels(ctx, pprof.Labels("template", templ.Name()))
+			pprof.Do(ctx, labels, func(ctx context.Context) {
+				if err := s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, "page "+p.Title(), targetPath, p, templ); err != nil {
+					results <- err
+				}
+
+				if p.paginator != nil && p.paginator.current != nil {
+					if err := s.renderPaginator(p, templ); err != nil {
+						results <- err
+					}
+				}
+			})
+		})
 	}
 }
 
