@@ -70,7 +70,7 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 
 	for i := 0; i < numWorkers; i++ {
 		wg.Add(1)
-		go pageRenderer(ctx, s, pages, results, wg)
+		go pageRenderer(s, pages, results, wg)
 	}
 
 	cfg := ctx.cfg
@@ -101,7 +101,6 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 }
 
 func pageRenderer(
-	ctx *siteRenderContext,
 	s *Site,
 	pages <-chan *pageState,
 	results chan<- error,
