@@ -151,7 +151,7 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 		return nil
 	}
 
-	_, modulesConfigFiles, err := l.collectModules(modulesConfig, l.cfg, collectHook)
+	_, modulesConfigFiles, modulesCollectErr := l.collectModules(modulesConfig, l.cfg, collectHook)
 	if err != nil {
 		return l.cfg, configFiles, err
 	}
@@ -164,6 +164,10 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 
 	if err = l.applyConfigAliases(); err != nil {
 		return l.cfg, configFiles, err
+	}
+
+	if err == nil {
+		err = modulesCollectErr
 	}
 
 	return l.cfg, configFiles, err

@@ -309,7 +309,12 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		doWithConfig)
 
 	if err != nil {
-		return err
+		// We should improve the error handling here,
+		// but with hugo mod init and similar there is a chicken and egg situation
+		// with modules already configured in config.toml, so ignore those errors.
+		if mustHaveConfigFile || !moduleNotFoundRe.MatchString(err.Error()) {
+			return err
+		}
 	} else if mustHaveConfigFile && len(configFiles) == 0 {
 		return hugolib.ErrNoConfigFile
 	}
