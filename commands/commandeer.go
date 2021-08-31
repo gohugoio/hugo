@@ -61,6 +61,11 @@ type commandeer struct {
 	logger       loggers.Logger
 	serverConfig *config.Server
 
+	// Loading state
+	mustHaveConfigFile bool
+	failOnInitErr      bool
+	running            bool
+
 	// Currently only set when in "fast render mode". But it seems to
 	// be fast enough that we could maybe just add it for all server modes.
 	changeDetector *fileChangeDetector
@@ -153,7 +158,7 @@ func (c *commandeer) initFs(fs *hugofs.Fs) error {
 	return nil
 }
 
-func newCommandeer(mustHaveConfigFile, running bool, h *hugoBuilderCommon, f flagsToConfigHandler, cfgInit func(c *commandeer) error, subCmdVs ...*cobra.Command) (*commandeer, error) {
+func newCommandeer(mustHaveConfigFile, failOnInitErr, running bool, h *hugoBuilderCommon, f flagsToConfigHandler, cfgInit func(c *commandeer) error, subCmdVs ...*cobra.Command) (*commandeer, error) {
 	var rebuildDebouncer func(f func())
 	if running {
 		// The time value used is tested with mass content replacements in a fairly big Hugo site.
@@ -175,11 +180,17 @@ func newCommandeer(mustHaveConfigFile, running bool, h *hugoBuilderCommon, f fla
 		visitedURLs:         types.NewEvictingStringQueue(10),
 		debounce:            rebuildDebouncer,
 		fullRebuildSem:      semaphore.NewWeighted(1),
+
+		// Init state
+		mustHaveConfigFile: mustHaveConfigFile,
+		failOnInitErr:      failOnInitErr,
+		running:            running,
+
 		// This will be replaced later, but we need something to log to before the configuration is read.
 		logger: loggers.NewLogger(jww.LevelWarn, jww.LevelError, out, ioutil.Discard, running),
 	}
 
-	return c, c.loadConfig(mustHaveConfigFile, running)
+	return c, c.loadConfig()
 }
 
 type fileChangeDetector struct {
@@ -244,7 +255,7 @@ func (f *fileChangeDetector) PrepareNew() {
 	f.current = make(map[string]string)
 }
 
-func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
+func (c *commandeer) loadConfig() error {
 	if c.DepsCfg == nil {
 		c.DepsCfg = &deps.DepsCfg{}
 	}
@@ -256,7 +267,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 
 	cfg := c.DepsCfg
 	c.configured = false
-	cfg.Running = running
+	cfg.Running = c.running
 
 	var dir string
 	if c.h.source != "" {
@@ -270,7 +281,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		sourceFs = c.DepsCfg.Fs.Source
 	}
 
-	environment := c.h.getEnvironment(running)
+	environment := c.h.getEnvironment(c.running)
 
 	doWithConfig := func(cfg config.Provider) error {
 		if c.ftch != nil {
@@ -312,10 +323,10 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		// We should improve the error handling here,
 		// but with hugo mod init and similar there is a chicken and egg situation
 		// with modules already configured in config.toml, so ignore those errors.
-		if mustHaveConfigFile || !moduleNotFoundRe.MatchString(err.Error()) {
+		if c.mustHaveConfigFile || !moduleNotFoundRe.MatchString(err.Error()) {
 			return err
 		}
-	} else if mustHaveConfigFile && len(configFiles) == 0 {
+	} else if c.mustHaveConfigFile && len(configFiles) == 0 {
 		return hugolib.ErrNoConfigFile
 	}
 
@@ -327,7 +338,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 	}
 
 	// Set some commonly used flags
-	c.doLiveReload = running && !c.Cfg.GetBool("disableLiveReload")
+	c.doLiveReload = c.running && !c.Cfg.GetBool("disableLiveReload")
 	c.fastRenderMode = c.doLiveReload && !c.Cfg.GetBool("disableFastRender")
 	c.showErrorInBrowser = c.doLiveReload && !c.Cfg.GetBool("disableBrowserError")
 
@@ -339,7 +350,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		}
 	}
 
-	logger, err := c.createLogger(config, running)
+	logger, err := c.createLogger(config)
 	if err != nil {
 		return err
 	}
@@ -399,7 +410,11 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 
 		var h *hugolib.HugoSites
 
-		h, err = hugolib.NewHugoSites(*c.DepsCfg)
+		var createErr error
+		h, createErr = hugolib.NewHugoSites(*c.DepsCfg)
+		if h == nil || c.failOnInitErr {
+			err = createErr
+		}
 		c.hugoSites = h
 		close(c.created)
 	})

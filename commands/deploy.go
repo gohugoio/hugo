@@ -60,7 +60,7 @@ documentation.
 				c.Set("maxDeletes", cc.maxDeletes)
 				return nil
 			}
-			comm, err := initializeConfig(true, false, &cc.hugoBuilderCommon, cc, cfgInit)
+			comm, err := initializeConfig(true, true, false, &cc.hugoBuilderCommon, cc, cfgInit)
 			if err != nil {
 				return err
 			}
