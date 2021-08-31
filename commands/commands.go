@@ -165,7 +165,7 @@ Complete documentation is available at http://gohugo.io/.`,
 			// prevent cobra printing error so it can be handled here (before the timeTrack prints)
 			cmd.SilenceErrors = true
 
-			c, err := initializeConfig(true, cc.buildWatch, &cc.hugoBuilderCommon, cc, cfgInit)
+			c, err := initializeConfig(true, true, cc.buildWatch, &cc.hugoBuilderCommon, cc, cfgInit)
 			if err != nil {
 				cmd.PrintErrln("Error:", err.Error())
 				return err

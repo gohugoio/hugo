@@ -284,7 +284,7 @@ func (c *modCmd) withHugo(f func(*hugolib.HugoSites) error) error {
 }
 
 func (c *modCmd) initConfig(failOnNoConfig bool) (*commandeer, error) {
-	com, err := initializeConfig(failOnNoConfig, false, &c.hugoBuilderCommon, c, nil)
+	com, err := initializeConfig(failOnNoConfig, false, false, &c.hugoBuilderCommon, c, nil)
 	if err != nil {
 		return nil, err
 	}
