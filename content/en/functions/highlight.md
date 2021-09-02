@@ -22,5 +22,3 @@ deprecated: false
 
 
 [highlight]: /content-management/shortcodes/#highlight
-[installpygments]: /getting-started/installing/#installing-pygments-optional
-[syntax]: /content-management/syntax-highlighting/

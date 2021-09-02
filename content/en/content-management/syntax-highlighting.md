@@ -24,7 +24,7 @@ See [Configure Highlight](/getting-started/configuration-markup#highlight).
 
 ## Generate Syntax Highlighter CSS
 
-If you run with `pygmentsUseClasses=true` in your site config, you need a style sheet.
+If you run with `markup.highlight.noClasses=false` in your site config, you need a style sheet.
 
 You can generate one with Hugo:
 
