@@ -80,8 +80,10 @@ func (ns *Namespace) FormatPercent(precision, number interface{}) (string, error
 	return ns.translator.FmtPercent(n, p), nil
 }
 
-// FormatCurrency returns the currency reprecentation of number for the given currency and precision
+// FormatCurrency returns the currency representation of number for the given currency and precision
 // for the current language.
+//
+// The return value is formatted with at least two decimal places.
 func (ns *Namespace) FormatCurrency(precision, currency, number interface{}) (string, error) {
 	p, n, err := ns.castPrecisionNumber(precision, number)
 	if err != nil {
@@ -94,8 +96,10 @@ func (ns *Namespace) FormatCurrency(precision, currency, number interface{}) (st
 	return ns.translator.FmtCurrency(n, p, c), nil
 }
 
-// FormatAccounting returns the currency reprecentation of number for the given currency and precision
+// FormatAccounting returns the currency representation of number for the given currency and precision
 // for the current language in accounting notation.
+//
+// The return value is formatted with at least two decimal places.
 func (ns *Namespace) FormatAccounting(precision, currency, number interface{}) (string, error) {
 	p, n, err := ns.castPrecisionNumber(precision, number)
 	if err != nil {
