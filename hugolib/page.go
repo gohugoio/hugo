@@ -940,6 +940,20 @@ func (p *pageState) shiftToOutputFormat(isRenderingSite bool, idx int) error {
 		panic(fmt.Sprintf("pageOutput is nil for output idx %d", idx))
 	}
 
+	// We attempt to assign pageContentOutputs while preparing each site
+	// for rendering and before rendering each site. This lets us share
+	// content between page outputs to conserve resources. But if a template
+	// unexpectedly calls a method of a ContentProvider that is not yet
+	// initialized, we assign a LazyContentProvider that performs the
+	// initialization just in time.
+	p.pageOutput.ContentProvider = page.NewLazyContentProvider(func() (page.ContentProvider, error) {
+		cp, err := newPageContentOutput(p, p.pageOutput)
+		if err != nil {
+			return nil, err
+		}
+		return cp, nil
+	})
+
 	// Reset any built paginator. This will trigger when re-rendering pages in
 	// server mode.
 	if isRenderingSite && p.pageOutput.paginator != nil && p.pageOutput.paginator.current != nil {
