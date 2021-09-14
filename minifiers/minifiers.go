@@ -57,16 +57,16 @@ func (m Client) Minify(mediatype media.Type, dst io.Writer, src io.Reader) error
 	return m.m.Minify(mediatype.Type(), dst, src)
 }
 
-// NoOpMinifier implements minify.Minifier [1], but doesn't minify content. This means
+// noopMinifier implements minify.Minifier [1], but doesn't minify content. This means
 // that we can avoid missing minifiers for any MIME types in our minify.M, which
 // causes minify to return errors, while still allowing minification to be
 // disabled for specific types.
 //
 // [1]: https://pkg.go.dev/github.com/tdewolff/minify#Minifier
-type NoOpMinifier struct{}
+type noopMinifier struct{}
 
 // Minify copies r into w without transformation.
-func (m NoOpMinifier) Minify(_ *minify.M, w io.Writer, r io.Reader, _ map[string]string) error {
+func (m noopMinifier) Minify(_ *minify.M, w io.Writer, r io.Reader, _ map[string]string) error {
 	_, err := io.Copy(w, r)
 	return err
 }
@@ -109,42 +109,22 @@ func New(mediaTypes media.Types, outputFormats output.Formats, cfg config.Provid
 // getMinifier returns the appropriate minify.MinifierFunc for the MIME
 // type suffix s, given the config c.
 func getMinifier(c minifyConfig, s string) minify.Minifier {
-	minifiersForSuffixSettings := map[string]struct {
-		disabled bool
-		minifier minify.Minifier
-	}{
-		"css": {
-			disabled: c.DisableCSS,
-			minifier: &c.Tdewolff.CSS,
-		},
-		"js": {
-			disabled: c.DisableJS,
-			minifier: &c.Tdewolff.JS,
-		},
-		"json": {
-			disabled: c.DisableJSON,
-			minifier: &c.Tdewolff.JSON,
-		},
-		"svg": {
-			disabled: c.DisableSVG,
-			minifier: &c.Tdewolff.SVG,
-		},
-		"xml": {
-			disabled: c.DisableXML,
-			minifier: &c.Tdewolff.XML,
-		},
-		"html": {
-			disabled: c.DisableHTML,
-			minifier: &c.Tdewolff.HTML,
-		},
+	switch {
+	case s == "css" && !c.DisableCSS:
+		return &c.Tdewolff.CSS
+	case s == "js" && !c.DisableJS:
+		return &c.Tdewolff.JS
+	case s == "json" && !c.DisableJSON:
+		return &c.Tdewolff.JSON
+	case s == "svg" && !c.DisableSVG:
+		return &c.Tdewolff.SVG
+	case s == "xml" && !c.DisableXML:
+		return &c.Tdewolff.XML
+	case s == "html" && !c.DisableHTML:
+		return &c.Tdewolff.HTML
+	default:
+		return noopMinifier{}
 	}
-
-	f, ok := minifiersForSuffixSettings[s]
-	if !ok || f.disabled {
-		return NoOpMinifier{}
-	}
-
-	return f.minifier
 }
 
 func addMinifier(m *minify.M, mt media.Types, suffix string, min minify.Minifier) {
