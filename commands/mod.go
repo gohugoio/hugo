@@ -71,11 +71,12 @@ Also note that if you configure a positive maxAge for the "modules" file cache, 
 			if all {
 				com, err := c.initConfig(false)
 
-				if err != nil && !moduleNotFoundRe.MatchString(err.Error()) {
+				if err != nil && com == nil {
 					return err
 				}
 
-				_, err = com.hugo().FileCaches.ModulesCache().Prune(true)
+				count, err := com.hugo().FileCaches.ModulesCache().Prune(true)
+				com.logger.Printf("Deleted %d files from module cache.", count)
 				return err
 			}
 			return c.withModsClient(true, func(c *modules.Client) error {
