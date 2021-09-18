@@ -137,7 +137,7 @@ func LoadConfigFromDir(sourceFs afero.Fs, configDir, environment string) (Provid
 
 			var keyPath []string
 
-			if name != "config" {
+			if name != "hugo" && name != "config" {
 				// Can be params.jp, menus.en etc.
 				name, lang := paths.FileAndExtNoDelimiter(name)
 

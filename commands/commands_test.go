@@ -120,7 +120,7 @@ func TestExecute(t *testing.T) {
 		siteDir := filepath.Join(dir, "mysite")
 		resp := Execute([]string{"new", "site", siteDir, "-e=staging"})
 		c.Assert(resp.Err, qt.IsNil)
-		config := readFileFrom(c, filepath.Join(siteDir, "config.toml"))
+		config := readFileFrom(c, filepath.Join(siteDir, "hugo.toml"))
 		c.Assert(config, qt.Contains, "baseURL = 'http://example.org/'")
 		checkNewSiteInited(c, siteDir)
 	})
@@ -133,7 +133,7 @@ func checkNewSiteInited(c *qt.C, basepath string) {
 		filepath.Join(basepath, "archetypes"),
 		filepath.Join(basepath, "static"),
 		filepath.Join(basepath, "data"),
-		filepath.Join(basepath, "config.toml"),
+		filepath.Join(basepath, "hugo.toml"),
 	}
 
 	for _, path := range paths {

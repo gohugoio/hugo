@@ -34,15 +34,14 @@ func TestLoadConfig(t *testing.T) {
 
 	c := qt.New(t)
 
-	loadConfig := func(c *qt.C, configContent string, fromDir bool) config.Provider {
+	loadConfig := func(c *qt.C, configFilename, configContent string, fromDir bool) config.Provider {
 		mm := afero.NewMemMapFs()
-		filename := "config.toml"
 		descriptor := ConfigSourceDescriptor{Fs: mm}
 		if fromDir {
-			filename = filepath.Join("config", "_default", filename)
+			configFilename = filepath.Join("config", "_default", configFilename)
 			descriptor.AbsConfigDir = "config"
 		}
-		writeToFs(t, mm, filename, configContent)
+		writeToFs(t, mm, configFilename, configContent)
 		cfg, _, err := LoadConfig(descriptor)
 		c.Assert(err, qt.IsNil)
 		return cfg
@@ -50,10 +49,29 @@ func TestLoadConfig(t *testing.T) {
 
 	c.Run("Basic", func(c *qt.C) {
 		c.Parallel()
-		// Add a random config variable for testing.
-		// side = page in Norwegian.
-		cfg := loadConfig(c, `PaginatePath = "side"`, false)
+		cfg := loadConfig(c, "hugo.toml", `PaginatePath = "side"`, false)
 		c.Assert(cfg.GetString("paginatePath"), qt.Equals, "side")
+	})
+
+	c.Run("Basic, old config name", func(c *qt.C) {
+		c.Parallel()
+		cfg := loadConfig(c, "config.toml", `PaginatePath = "side"`, false)
+		c.Assert(cfg.GetString("paginatePath"), qt.Equals, "side")
+	})
+
+	c.Run("Both hugo.toml and config.toml", func(c *qt.C) {
+		c.Parallel()
+		mm := afero.NewMemMapFs()
+		descriptor := ConfigSourceDescriptor{Fs: mm}
+		writeToFs(t, mm, "hugo.toml", `title = "Hugo Rocks"`)
+		writeToFs(t, mm, "config.toml", `paginatePath = "side"`)
+
+		cfg, _, err := LoadConfig(descriptor)
+		c.Assert(err, qt.IsNil)
+
+		c.Assert(cfg.GetString("title"), qt.Equals, "Hugo Rocks")
+		c.Assert(cfg.GetString("paginatePath"), qt.Equals, "page")
+
 	})
 
 	// Issue #8763
@@ -64,7 +82,7 @@ func TestLoadConfig(t *testing.T) {
 		}
 		c.Run(testName, func(c *qt.C) {
 			c.Parallel()
-			cfg := loadConfig(c, `[taxonomies]
+			cfg := loadConfig(c, "hugo.toml", `[taxonomies]
 appellation = "appellations"
 vigneron = "vignerons"`, fromDir)
 

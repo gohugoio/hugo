@@ -68,11 +68,15 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 	// use a partial configuration to do its job.
 	defer l.deleteMergeStrategies()
 
-	for _, name := range d.configFilenames() {
+	configFiles, loadAll := d.configFilenames()
+	for _, name := range configFiles {
 		var filename string
 		filename, err := l.loadConfig(name)
 		if err == nil {
 			configFiles = append(configFiles, filename)
+			if !loadAll {
+				break
+			}
 		} else if err != ErrNoConfigFile {
 			return nil, nil, err
 		}
@@ -211,11 +215,13 @@ func (d ConfigSourceDescriptor) configFileDir() string {
 	return d.WorkingDir
 }
 
-func (d ConfigSourceDescriptor) configFilenames() []string {
+func (d ConfigSourceDescriptor) configFilenames() ([]string, bool) {
 	if d.Filename == "" {
-		return []string{"config"}
+		// Pick the first one of these.
+		// We switched from config.toml etc. to hugo.toml in Hugo 0.89.
+		return []string{"hugo", "config"}, false
 	}
-	return strings.Split(d.Filename, ",")
+	return strings.Split(d.Filename, ","), true
 }
 
 // SiteConfig represents the config in .Site.Config.

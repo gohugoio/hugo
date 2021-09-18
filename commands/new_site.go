@@ -139,7 +139,7 @@ func createConfig(fs *hugofs.Fs, inpath string, kind string) (err error) {
 		return err
 	}
 
-	return helpers.WriteToDisk(filepath.Join(inpath, "config."+kind), &buf, fs.Source)
+	return helpers.WriteToDisk(filepath.Join(inpath, "hugo."+kind), &buf, fs.Source)
 }
 
 func nextStepsText() string {
