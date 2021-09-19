@@ -1766,6 +1766,10 @@ func (hr hookRenderer) RenderHeading(w io.Writer, ctx hooks.HeadingContext) erro
 	return hr.templateHandler.Execute(hr.templ, w, ctx)
 }
 
+func (hr hookRenderer) RenderDocument(w io.Writer, ctx hooks.DocumentContext) error {
+	return hr.templateHandler.Execute(hr.templ, w, ctx)
+}
+
 func (s *Site) renderForTemplate(name, outputFormat string, d interface{}, w io.Writer, templ tpl.Template) (err error) {
 	if templ == nil {
 		s.logMissingLayout(name, "", "", outputFormat)

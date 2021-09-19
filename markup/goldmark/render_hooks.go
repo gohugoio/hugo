@@ -124,6 +124,20 @@ func (ctx headingContext) PlainText() string {
 	return ctx.plainText
 }
 
+type documentContext struct {
+	page     interface{}
+	entering bool
+	*attributesHolder
+}
+
+func (ctx documentContext) Page() interface{} {
+	return ctx.page
+}
+
+func (ctx documentContext) Entering() bool {
+	return ctx.entering
+}
+
 type hookedRenderer struct {
 	html.Config
 }
@@ -138,6 +152,7 @@ func (r *hookedRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) 
 	reg.Register(ast.KindAutoLink, r.renderAutoLink)
 	reg.Register(ast.KindImage, r.renderImage)
 	reg.Register(ast.KindHeading, r.renderHeading)
+	reg.Register(ast.KindDocument, r.renderDocument)
 }
 
 func (r *hookedRenderer) renderAttributesForNode(w util.BufWriter, node ast.Node) {
@@ -435,6 +450,42 @@ func (r *hookedRenderer) renderHeadingDefault(w util.BufWriter, source []byte, n
 		_ = w.WriteByte("0123456"[n.Level])
 		_, _ = w.WriteString(">\n")
 	}
+	return ast.WalkContinue, nil
+}
+
+func (r *hookedRenderer) renderDocument(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*ast.Document)
+	var h hooks.Renderers
+
+	ctx, ok := w.(*renderContext)
+	if ok {
+		h = ctx.RenderContext().RenderHooks
+		ok = h.DocumentRenderer != nil
+	}
+
+	if !ok {
+		return r.renderDocumentDefault(w, source, node, entering)
+	}
+
+	// invoked twice: entering is boolean that indicates whether opening or closing
+
+	err := h.DocumentRenderer.RenderDocument(
+		w,
+		documentContext{
+			page:             ctx.DocumentContext().Document,
+			entering:         entering,
+			attributesHolder: &attributesHolder{astAttributes: n.Attributes()},
+		},
+	)
+
+	ctx.AddIdentity(h.DocumentRenderer)
+
+	return ast.WalkContinue, err
+}
+
+func (r *hookedRenderer) renderDocumentDefault(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+
+	// default behaviour is to do nothing
 	return ast.WalkContinue, nil
 }
 

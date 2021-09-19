@@ -63,10 +63,30 @@ type HeadingRenderer interface {
 	identity.Provider
 }
 
+// DocumentContext contains accessors to all attributes that a DocumentRenderer
+// can use at the opening or closing of rendering the document
+type DocumentContext interface {
+	// Page is the page
+	Page() interface{}
+	// Entering is true if opening, false if closing the rendering of the document.
+	Entering() bool
+
+	// Attributes (e.g. CSS classes)
+	AttributesProvider
+}
+
+// DocumentRenderer describes a uniquely identifiable rendering hook.
+type DocumentRenderer interface {
+	// Render writes the rendered content to w using the data in w.
+	RenderDocument(w io.Writer, ctx DocumentContext) error
+	identity.Provider
+}
+
 type Renderers struct {
-	LinkRenderer    LinkRenderer
-	ImageRenderer   LinkRenderer
-	HeadingRenderer HeadingRenderer
+	LinkRenderer     LinkRenderer
+	ImageRenderer    LinkRenderer
+	HeadingRenderer  HeadingRenderer
+	DocumentRenderer DocumentRenderer
 }
 
 func (r Renderers) Eq(other interface{}) bool {
@@ -104,11 +124,19 @@ func (r Renderers) Eq(other interface{}) bool {
 		return false
 	}
 
+	b1, b2 = r.DocumentRenderer == nil, ro.DocumentRenderer == nil
+	if (b1 || b2) && (b1 != b2) {
+		return false
+	}
+	if !b1 && r.DocumentRenderer.GetIdentity() != ro.DocumentRenderer.GetIdentity() {
+		return false
+	}
+
 	return true
 }
 
 func (r Renderers) IsZero() bool {
-	return r.HeadingRenderer == nil && r.LinkRenderer == nil && r.ImageRenderer == nil
+	return r.HeadingRenderer == nil && r.LinkRenderer == nil && r.ImageRenderer == nil && r.DocumentRenderer == nil
 }
 
 func (r Renderers) String() string {

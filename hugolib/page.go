@@ -436,6 +436,18 @@ func (p *pageState) createRenderHooks(f output.Format) (hooks.Renderers, error) 
 			templ:           templ,
 		}
 	}
+	layoutDescriptor.Kind = "render-document"
+	templ, templFound, err = p.s.Tmpl().LookupLayout(layoutDescriptor, f)
+	if err != nil {
+		return renderers, err
+	}
+	if templFound {
+		renderers.DocumentRenderer = hookRenderer{
+			templateHandler: p.s.Tmpl(),
+			SearchProvider:  templ.(identity.SearchProvider),
+			templ:           templ,
+		}
+	}
 
 	return renderers, nil
 }

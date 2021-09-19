@@ -459,6 +459,28 @@ RSTART:Hook Heading: 2:REND
 `)
 }
 
+func TestRenderDocumentHook(t *testing.T) {
+	b := newTestSitesBuilder(t)
+
+	b.WithTemplatesAdded(
+		"index.html", `
+{{ .Content }}
+`, "_default/_markup/render-document.html", `{{ if .Entering }}<div class="markup" data-title=" {{- .Page.Title -}}">{{ else }}</div>{{ end }}`,
+	)
+
+	b.WithContent("_index.md", `---
+title: "render-document"
+---
+# Heading 1
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", `<div class="markup" data-title="render-document"><h1 id="heading-1">Heading 1</h1>
+</div>`,
+	)
+}
+
 // https://github.com/gohugoio/hugo/issues/6882
 func TestRenderStringOnListPage(t *testing.T) {
 	renderStringTempl := `
