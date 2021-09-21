@@ -14,9 +14,6 @@
 package config
 
 import (
-	"os"
-	"runtime"
-	"strconv"
 	"strings"
 )
 
@@ -25,12 +22,7 @@ import (
 // It returns the value in HUGO_NUMWORKERMULTIPLIER OS env variable if set to a
 // positive integer, else the number of logical CPUs.
 func GetNumWorkerMultiplier() int {
-	if gmp := os.Getenv("HUGO_NUMWORKERMULTIPLIER"); gmp != "" {
-		if p, err := strconv.Atoi(gmp); err == nil && p > 0 {
-			return p
-		}
-	}
-	return runtime.NumCPU()
+	return 1
 }
 
 // SetEnvVars sets vars on the form key=value in the oldVars slice.
