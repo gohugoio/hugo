@@ -57,6 +57,20 @@ func (m Client) Minify(mediatype media.Type, dst io.Writer, src io.Reader) error
 	return m.m.Minify(mediatype.Type(), dst, src)
 }
 
+// noopMinifier implements minify.Minifier [1], but doesn't minify content. This means
+// that we can avoid missing minifiers for any MIME types in our minify.M, which
+// causes minify to return errors, while still allowing minification to be
+// disabled for specific types.
+//
+// [1]: https://pkg.go.dev/github.com/tdewolff/minify#Minifier
+type noopMinifier struct{}
+
+// Minify copies r into w without transformation.
+func (m noopMinifier) Minify(_ *minify.M, w io.Writer, r io.Reader, _ map[string]string) error {
+	_, err := io.Copy(w, r)
+	return err
+}
+
 // New creates a new Client with the provided MIME types as the mapping foundation.
 // The HTML minifier is also registered for additional HTML types (AMP etc.) in the
 // provided list of output formats.
@@ -69,47 +83,53 @@ func New(mediaTypes media.Types, outputFormats output.Formats, cfg config.Provid
 	}
 
 	// We use the Type definition of the media types defined in the site if found.
-	if !conf.DisableCSS {
-		addMinifier(m, mediaTypes, "css", &conf.Tdewolff.CSS)
-	}
-	if !conf.DisableJS {
-		addMinifier(m, mediaTypes, "js", &conf.Tdewolff.JS)
-		m.AddRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), &conf.Tdewolff.JS)
-	}
-	if !conf.DisableJSON {
-		addMinifier(m, mediaTypes, "json", &conf.Tdewolff.JSON)
-		m.AddRegexp(regexp.MustCompile(`^(application|text)/(x-|(ld|manifest)\+)?json$`), &conf.Tdewolff.JSON)
-	}
-	if !conf.DisableSVG {
-		addMinifier(m, mediaTypes, "svg", &conf.Tdewolff.SVG)
-	}
-	if !conf.DisableXML {
-		addMinifier(m, mediaTypes, "xml", &conf.Tdewolff.XML)
-	}
+	addMinifier(m, mediaTypes, "css", getMinifier(conf, "css"))
+
+	addMinifier(m, mediaTypes, "js", getMinifier(conf, "js"))
+	m.AddRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), getMinifier(conf, "js"))
+
+	addMinifier(m, mediaTypes, "json", getMinifier(conf, "json"))
+	m.AddRegexp(regexp.MustCompile(`^(application|text)/(x-|(ld|manifest)\+)?json$`), getMinifier(conf, "json"))
+
+	addMinifier(m, mediaTypes, "svg", getMinifier(conf, "svg"))
+
+	addMinifier(m, mediaTypes, "xml", getMinifier(conf, "xml"))
 
 	// HTML
-	if !conf.DisableHTML {
-		addMinifier(m, mediaTypes, "html", &conf.Tdewolff.HTML)
-		for _, of := range outputFormats {
-			if of.IsHTML {
-				m.Add(of.MediaType.Type(), &conf.Tdewolff.HTML)
-			}
+	addMinifier(m, mediaTypes, "html", getMinifier(conf, "html"))
+	for _, of := range outputFormats {
+		if of.IsHTML {
+			m.Add(of.MediaType.Type(), getMinifier(conf, "html"))
 		}
 	}
 
 	return Client{m: m, MinifyOutput: conf.MinifyOutput}, nil
 }
 
+// getMinifier returns the appropriate minify.MinifierFunc for the MIME
+// type suffix s, given the config c.
+func getMinifier(c minifyConfig, s string) minify.Minifier {
+	switch {
+	case s == "css" && !c.DisableCSS:
+		return &c.Tdewolff.CSS
+	case s == "js" && !c.DisableJS:
+		return &c.Tdewolff.JS
+	case s == "json" && !c.DisableJSON:
+		return &c.Tdewolff.JSON
+	case s == "svg" && !c.DisableSVG:
+		return &c.Tdewolff.SVG
+	case s == "xml" && !c.DisableXML:
+		return &c.Tdewolff.XML
+	case s == "html" && !c.DisableHTML:
+		return &c.Tdewolff.HTML
+	default:
+		return noopMinifier{}
+	}
+}
+
 func addMinifier(m *minify.M, mt media.Types, suffix string, min minify.Minifier) {
 	types := mt.BySuffix(suffix)
 	for _, t := range types {
 		m.Add(t.Type(), min)
-	}
-}
-
-func addMinifierFunc(m *minify.M, mt media.Types, suffix string, min minify.MinifierFunc) {
-	types := mt.BySuffix(suffix)
-	for _, t := range types {
-		m.AddFunc(t.Type(), min)
 	}
 }
