@@ -176,7 +176,7 @@ Fortunately Hugo has an easy, embedded and simple solution for this. It's the fl
 
 LiveReload works by injecting JavaScript into the pages Hugo generates. The script creates a connection from the browser's web socket client to the Hugo web socket server.
 
-LiveReload is awesome for development. However, some Hugo users may use `hugo server` in production to instantly display updated content. The following methods make it easy to disable LiveReload:
+The following methods make it easy to disable LiveReload:
 
 ```
 hugo server --watch=false
