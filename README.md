@@ -13,6 +13,24 @@ A Fast and Flexible Static Site Generator built with love by [bep](https://githu
 [![Tests on Linux, MacOS and Windows](https://github.com/gohugoio/hugo/workflows/Test/badge.svg)](https://github.com/gohugoio/hugo/actions?query=workflow%3ATest)
 [![Go Report Card](https://goreportcard.com/badge/github.com/gohugoio/hugo)](https://goreportcard.com/report/github.com/gohugoio/hugo)
 
+Table of Contents
+=================
+
+   * [Overview](#overview)
+         * [Supported Architectures](#supported-architectures)
+   * [Choose How to Install](#choose-how-to-install)
+      * [Install Hugo as Your Site Generator (Binary Install)](#install-hugo-as-your-site-generator-binary-install)
+      * [Build and Install the Binaries from Source (Advanced Install)](#build-and-install-the-binaries-from-source-advanced-install)
+         * [Prerequisite Tools](#prerequisite-tools)
+         * [Fetch from GitHub](#fetch-from-github)
+   * [The Hugo Documentation](#the-hugo-documentation)
+   * [Contributing to Hugo](#contributing-to-hugo)
+      * [Asking Support Questions](#asking-support-questions)
+      * [Reporting Issues](#reporting-issues)
+      * [Submitting Patches](#submitting-patches)
+   * [Dependencies](#dependencies)
+
+
 ## Overview
 
 Hugo is a static HTML and CSS website generator written in [Go][].
