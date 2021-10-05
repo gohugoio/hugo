@@ -175,3 +175,32 @@ func TestSplit(t *testing.T) {
 		c.Assert(result, qt.Equals, test.expect)
 	}
 }
+
+func TestClean(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		path   interface{}
+		expect interface{}
+	}{
+		{filepath.FromSlash(`foo/bar.txt`), `foo/bar.txt`},
+		{filepath.FromSlash(`foo/bar/txt`), `foo/bar/txt`},
+		{filepath.FromSlash(`foo/bar`), `foo/bar`},
+		{filepath.FromSlash(`foo/bar.t`), `foo/bar.t`},
+		{``, `.`},
+		// errors
+		{tstNoStringer{}, false},
+	} {
+
+		result, err := ns.Clean(test.path)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}

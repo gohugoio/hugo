@@ -144,3 +144,15 @@ func (ns *Namespace) Join(elements ...interface{}) (string, error) {
 	}
 	return _path.Join(pathElements...), nil
 }
+
+// Clean replaces the separators used with standard slashes and then
+// extraneous slashes are removed.
+func (ns *Namespace) Clean(path interface{}) (string, error) {
+	spath, err := cast.ToStringE(path)
+
+	if err != nil {
+		return "", err
+	}
+	spath = filepath.ToSlash(spath)
+	return _path.Clean(spath), nil
+}
