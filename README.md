@@ -119,8 +119,6 @@ If you are unfamiliar with the contribution process, the Hugo team will help you
 
 For a complete guide to contributing code to Hugo, see the [Contribution Guide](CONTRIBUTING.md).
 
-[![Analytics](https://ga-beacon.appspot.com/UA-7131036-6/hugo/readme)](https://github.com/igrigorik/ga-beacon)
-
 [Go]: https://golang.org/
 [Hugo Documentation]: https://gohugo.io/overview/introduction/
 
