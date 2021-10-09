@@ -1096,7 +1096,7 @@ class-in-b {
 }
 `)
 
-	err = build("newer", true)
+	err = build("never", true)
 
 	err = herrors.UnwrapErrorWithFileContext(err)
 	fe, ok := err.(*herrors.ErrorWithFileContext)
