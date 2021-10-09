@@ -15,11 +15,9 @@ sections_weight: 40
 draft: false
 ---
 
-
 Any asset file can be processed using `resources.PostCSS` which takes for argument the resource object and a slice of options listed below. 
 
 The resource will be processed using the project's or theme's own `postcss.config.js` or any file set with the `config` option.
-
 
 ```go-html-template
 {{ $css := resources.Get "css/main.css" }}
@@ -31,6 +29,7 @@ Hugo Pipe's PostCSS requires the `postcss-cli` JavaScript package to be installe
 
 If you are using the Hugo Snap package, PostCSS and plugin(s) need to be installed locally within your Hugo site directory, e.g., `npm install postcss-cli` without the `-g` flag.
 {{% /note %}}
+
 ### Options
 
 config [string]
@@ -48,7 +47,7 @@ Hugo will look for imports relative to the module mount and will respect theme o
 _If no configuration file is used:_
 
 use [string]
-: List of PostCSS plugins to use
+: Space-delimited list of PostCSS plugins to use
 
 parser [string]
 : Custom PostCSS parser
@@ -60,7 +59,11 @@ syntax [string]
 : Custom postcss syntax
 
 ```go-html-template
-{{ $style := resources.Get "css/main.css" | resources.PostCSS (dict "config" "customPostCSS.js" "noMap" true) }}
+{{ $options := dict "config" "customPostCSS.js" "noMap" true }}
+{{ $style := resources.Get "css/main.css" | resources.PostCSS $options }}
+
+{{ $options := dict "use" "autoprefixer postcss-color-alpha" }}
+{{ $style := resources.Get "css/main.css" | resources.PostCSS $options }}
 ```
 
 ## Check Hugo Environment from postcss.config.js
