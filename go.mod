@@ -21,7 +21,7 @@ require (
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/frankban/quicktest v1.13.1
 	github.com/fsnotify/fsnotify v1.4.9
-	github.com/getkin/kin-openapi v0.75.0
+	github.com/getkin/kin-openapi v0.78.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/gobuffalo/flect v0.2.3
 	github.com/gobwas/glob v0.2.3
