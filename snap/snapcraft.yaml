@@ -10,6 +10,13 @@ base: core20
 confinement: strict
 grade: devel # "devel" or "stable"
 
+package-repositories:
+  - type: apt
+    components: [main]
+    suites: [focal]
+    key-id: 9FD3B784BC1C6FC31A8A0A1C1655A0AB68576280
+    url: https://deb.nodesource.com/node_16.x
+
 apps:
   hugo:
     command: bin/hugo
