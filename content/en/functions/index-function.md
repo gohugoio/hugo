@@ -38,6 +38,14 @@ The function takes multiple indices as arguments, and this can be used to get ne
 {{ index $map "c" "e" }} => 20
 ```
 
+You may write multiple indices as a slice:
+
+```go-text-template
+{{ $map := dict "a" 100 "b" 200 "c" (dict "d" 10 "e" 20) }}
+{{ $slice := slice "c" "e" }}
+{{ index $map $slice }} => 20
+```
+
 ## Example: Load Data from a Path Based on Front Matter Params
 
 Assume you want to add a `location = ""` field to your front matter for every article written in `content/vacations/`. You want to use this field to populate information about the location at the bottom of the article in your `single.html` template. You also have a directory in `data/locations/` that looks like the following:
