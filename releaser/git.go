@@ -23,7 +23,7 @@ import (
 	"github.com/gohugoio/hugo/common/hexec"
 )
 
-var issueRe = regexp.MustCompile(`(?i)[Updates?|Closes?|Fix.*|See] #(\d+)`)
+var issueRe = regexp.MustCompile(`(?i)(?:Updates?|Closes?|Fix.*|See) #(\d+)`)
 
 const (
 	notesChanges    = "notesChanges"
