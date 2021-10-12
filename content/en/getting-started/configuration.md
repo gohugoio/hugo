@@ -319,7 +319,7 @@ Default number of elements per page in [pagination](/templates/pagination/).
 
 **Default value:** "page"
 
-The path element used during pagination (https://example.com/page/2).
+The path element used during pagination (`https://example.com/page/2`).
 
 ### permalinks
 See [Content Management](/content-management/urls/#permalinks).

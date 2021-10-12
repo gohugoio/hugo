@@ -1,7 +1,8 @@
 ---
 title: chomp
+toc: true
 description: Removes any trailing newline characters.
-godocref: Removes any trailing newline characters.
+godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
