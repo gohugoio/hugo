@@ -117,10 +117,11 @@ Note the use of the [`markdownify` template function][markdownify]. This will se
 
 ## Get Remote Data
 
-Use `getJSON` or `getCSV` to get remote data:
+Use `getJSON`, `getXML` or `getCSV` to get remote data:
 
 ```
 {{ $dataJ := getJSON "url" }}
+{{ $dataX := getXML "url" }}
 {{ $dataC := getCSV "separator" "url" }}
 ```
 
@@ -188,6 +189,22 @@ For `getCSV`, the one-character-long separator must be placed in the first posit
 {{< /code >}}
 
 The expression `{{index $r number}}` must be used to output the nth-column from the current row.
+
+### Example for XML files
+
+The `getXML` function works similar to `getJSON`, the following is an example to read and display an RSS feed:
+
+```
+{{ with getXML "https://example.com/rss.xml" }}
+{{ range .rss.channel.item }}
+    <strong>{{ .title | plainify | htmlUnescape }}</strong><br />
+    <p>{{ .description | plainify | htmlUnescape }}</p>
+    {{ $link := .link | plainify | htmlUnescape }}
+    <a href="{{ $link }}">{{ $link }}</a><br />
+    <hr>
+{{ end }}
+{{ end }}
+```
 
 ### Cache URLs
 

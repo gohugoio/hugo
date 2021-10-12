@@ -44,6 +44,7 @@ var defaultCacheConfig = Config{
 const (
 	cacheKeyGetJSON = "getjson"
 	cacheKeyGetCSV  = "getcsv"
+	cacheKeyGetXML  = "getxml"
 	cacheKeyImages  = "images"
 	cacheKeyAssets  = "assets"
 	cacheKeyModules = "modules"
@@ -62,6 +63,7 @@ var defaultCacheConfigs = Configs{
 	},
 	cacheKeyGetJSON: defaultCacheConfig,
 	cacheKeyGetCSV:  defaultCacheConfig,
+	cacheKeyGetXML:  defaultCacheConfig,
 	cacheKeyImages: {
 		MaxAge: -1,
 		Dir:    resourcesGenDir,
@@ -94,6 +96,11 @@ func (f Caches) GetJSONCache() *Cache {
 // GetCSVCache gets the file cache for getCSV.
 func (f Caches) GetCSVCache() *Cache {
 	return f[cacheKeyGetCSV]
+}
+
+// GetXMLCache gets the file cache for getXML.
+func (f Caches) GetXMLCache() *Cache {
+	return f[cacheKeyGetXML]
 }
 
 // ImageCache gets the file cache for processed images.
