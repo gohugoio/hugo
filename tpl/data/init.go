@@ -38,6 +38,12 @@ func init() {
 			[]string{"getJSON"},
 			[][2]string{},
 		)
+
+		ns.AddMethodMapping(ctx.GetXML,
+			[]string{"getXML"},
+			[][2]string{},
+		)
+
 		return ns
 	}
 

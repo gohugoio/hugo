@@ -212,6 +212,96 @@ func TestGetJSON(t *testing.T) {
 	}
 }
 
+func TestGetXML(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	for i, test := range []struct {
+		url     string
+		content string
+		expect  interface{}
+	}{
+		{
+			`http://success/`,
+			`<?xml version="1.0" encoding="UTF-8" ?><root><gomeetup>Sydney</gomeetup><gomeetup>San Francisco</gomeetup><gomeetup>Stockholm</gomeetup></root>`,
+			"SydneySan FranciscoStockholm",
+		},
+		{
+			`http://malformed/`,
+			`<?xml version="1.0" encoding="UTF-8" ?><root><gomeetup>Sydney</gomeetup><gomeetup>San Francisco</gomeetup><gomeetup>Stockholm</gomeetup>`,
+			false,
+		},
+		{
+			`http://nofound/404`,
+			``,
+			false,
+		},
+		// Locals
+		{
+			"pass/semi",
+			`<?xml version="1.0" encoding="UTF-8" ?><root><gomeetup>Sydney</gomeetup><gomeetup>San Francisco</gomeetup><gomeetup>Stockholm</gomeetup></root>`,
+			"SydneySan FranciscoStockholm",
+		},
+		{
+			"fail/no-file",
+			"",
+			false,
+		},
+		{
+			`pass/üńīçøðê-url.xml`,
+			`<?xml version="1.0" encoding="UTF-8" ?><root><gomeetup>Sydney</gomeetup><gomeetup>San Francisco</gomeetup><gomeetup>Stockholm</gomeetup></root>`,
+			"SydneySan FranciscoStockholm",
+		},
+	} {
+
+		c.Run(test.url, func(c *qt.C) {
+
+			msg := qt.Commentf("Test %d", i)
+			ns := newTestNs()
+
+			// Setup HTTP test server
+			var srv *httptest.Server
+			srv, ns.client = getTestServer(func(w http.ResponseWriter, r *http.Request) {
+				if !hasHeaderValue(r.Header, "Accept", "application/xml") {
+					http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+					return
+				}
+
+				if r.URL.Path == "/404" {
+					http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+					return
+				}
+
+				w.Header().Add("Content-type", "application/xml")
+
+				w.Write([]byte(test.content))
+			})
+			defer func() { srv.Close() }()
+
+			// Setup local test file for schema-less URLs
+			if !strings.Contains(test.url, ":") && !strings.HasPrefix(test.url, "fail/") {
+				f, err := ns.deps.Fs.Source.Create(filepath.Join(ns.deps.Cfg.GetString("workingDir"), test.url))
+				c.Assert(err, qt.IsNil, msg)
+				f.WriteString(test.content)
+				f.Close()
+			}
+
+			// Get on with it
+			got, _ := ns.GetXML(test.url)
+
+			if _, ok := test.expect.(bool); ok {
+				c.Assert(int(ns.deps.Log.LogCounters().ErrorCounter.Count()), qt.Equals, 1)
+				return
+			}
+
+			c.Assert(int(ns.deps.Log.LogCounters().ErrorCounter.Count()), qt.Equals, 0, msg)
+			c.Assert(got.InnerText(), qt.Not(qt.IsNil), msg)
+			c.Assert(got.InnerText(), qt.DeepEquals, test.expect)
+
+		})
+	}
+}
+
 func TestHeaders(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)

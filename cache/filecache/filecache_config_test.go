@@ -92,8 +92,11 @@ dir = "/path/to/c1"
 [caches.getCSV]
 maxAge = 3456
 dir = "/path/to/c2"
-[caches.images]
+[caches.getXML]
+maxAge = 3456
 dir = "/path/to/c3"
+[caches.images]
+dir = "/path/to/c4"
 
 `
 

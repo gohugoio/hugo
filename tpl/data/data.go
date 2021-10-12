@@ -30,6 +30,7 @@ import (
 	"github.com/gohugoio/hugo/common/constants"
 	"github.com/gohugoio/hugo/common/loggers"
 
+	"github.com/antchfx/xmlquery"
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/cache/filecache"
@@ -43,6 +44,7 @@ func New(deps *deps.Deps) *Namespace {
 		deps:         deps,
 		cacheGetCSV:  deps.FileCaches.GetCSVCache(),
 		cacheGetJSON: deps.FileCaches.GetJSONCache(),
+		cacheGetXML:  deps.FileCaches.GetXMLCache(),
 		client:       http.DefaultClient,
 	}
 }
@@ -53,6 +55,7 @@ type Namespace struct {
 
 	cacheGetJSON *filecache.Cache
 	cacheGetCSV  *filecache.Cache
+	cacheGetXML  *filecache.Cache
 
 	client *http.Client
 }
@@ -122,6 +125,38 @@ func (ns *Namespace) GetJSON(args ...interface{}) (interface{}, error) {
 	err = ns.getResource(cache, unmarshal, req)
 	if err != nil {
 		ns.deps.Log.(loggers.IgnorableLogger).Errorsf(constants.ErrRemoteGetJSON, "Failed to get JSON resource %q: %s", url, err)
+		return nil, nil
+	}
+
+	return v, nil
+}
+
+// GetXML expects one or n-parts of a URL to a resource which can either be a local or a remote one.
+// GetXML returns nil or parsed XML to use in a short code.
+func (ns *Namespace) GetXML(args ...interface{}) (*xmlquery.Node, error) {
+	var v *xmlquery.Node
+	url, headers := toURLAndHeaders(args)
+	cache := ns.cacheGetXML
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, _errors.Wrapf(err, "Failed to create request for getXML resource %s", url)
+	}
+
+	unmarshal := func(b []byte) (bool, error) {
+		v, err = xmlquery.Parse(bytes.NewReader(b))
+		if err != nil {
+			return true, err
+		}
+		return false, nil
+	}
+
+	addUserProvidedHeaders(headers, req)
+	addDefaultHeaders(req, "application/xml")
+
+	err = ns.getResource(cache, unmarshal, req)
+	if err != nil {
+		ns.deps.Log.(loggers.IgnorableLogger).Errorsf(constants.ErrRemoteGetXML, "Failed to get XML resource %q: %s", url, err)
 		return nil, nil
 	}
 

@@ -22,4 +22,5 @@ const (
 	// IDs for remote errors in tpl/data.
 	ErrRemoteGetJSON = "error-remote-getjson"
 	ErrRemoteGetCSV  = "error-remote-getcsv"
+	ErrRemoteGetXML  = "error-remote-getxml"
 )
