@@ -62,6 +62,7 @@ There are a few alternatives to commenting on static sites for those who do not 
 * [Remark](https://github.com/umputun/remark) (Open source, Golang, Easy to run docker)
 * [Commento](https://commento.io/) (Open Source, available as a service, local install, or docker image)
 * [Hyvor Talk](https://talk.hyvor.com/) (Available as a service)
+* [Cactus Comments](https://cactus.chat/) (Open Source, Matrix appservice, Docker install)
 
 
 [configuration]: /getting-started/configuration/
