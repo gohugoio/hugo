@@ -29,7 +29,7 @@ For other approaches learning Hugo like book or a video tutorial refer to the [e
 ## Step 1: Install Hugo
 
 {{% note %}}
-`Homebrew` and `MacPorts`, package managers for `macOS`,  can be installed from [brew.sh](https://brew.sh/) or [macports.org](https://www.macports.org/) respectively. See [install](/getting-started/installing), as there is also full support for other operating systems such as Linux and Windows.
+`Homebrew` and `MacPorts`, package managers for `macOS`, can be installed from [brew.sh](https://brew.sh/) or [macports.org](https://www.macports.org/) respectively. Read our [full install instructions](/getting-started/installing) for information on other officially packaged versions of Hugo for Linux, Windows and more.
 {{% /note %}}
 
 ```bash
