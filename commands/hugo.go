@@ -870,7 +870,7 @@ func (c *commandeer) newWatcher(pollIntervalStr string, dirList ...string) (*wat
 					livereload.ForceRefresh()
 				}
 			case err := <-watcher.Errors():
-				if err != nil {
+				if err != nil && !os.IsNotExist(err) {
 					c.logger.Errorln("Error while watching:", err)
 				}
 			}

@@ -1193,7 +1193,7 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 
 		filenamesChanged = helpers.UniqueStringsReuse(filenamesChanged)
 
-		if err := s.readAndProcessContent(filenamesChanged...); err != nil {
+		if err := s.readAndProcessContent(*config, filenamesChanged...); err != nil {
 			return err
 		}
 
@@ -1207,7 +1207,7 @@ func (s *Site) process(config BuildCfg) (err error) {
 		err = errors.Wrap(err, "initialize")
 		return
 	}
-	if err = s.readAndProcessContent(); err != nil {
+	if err = s.readAndProcessContent(config); err != nil {
 		err = errors.Wrap(err, "readAndProcessContent")
 		return
 	}
@@ -1376,8 +1376,8 @@ func (s *Site) eventToIdentity(e fsnotify.Event) (identity.PathIdentity, bool) {
 	return identity.PathIdentity{}, false
 }
 
-func (s *Site) readAndProcessContent(filenames ...string) error {
-	sourceSpec := source.NewSourceSpec(s.PathSpec, s.BaseFs.Content.Fs)
+func (s *Site) readAndProcessContent(buildConfig BuildCfg, filenames ...string) error {
+	sourceSpec := source.NewSourceSpec(s.PathSpec, buildConfig.ContentInclusionFilter, s.BaseFs.Content.Fs)
 
 	proc := newPagesProcessor(s.h, sourceSpec)
 

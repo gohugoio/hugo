@@ -46,7 +46,7 @@ func NewTranslationProvider() *TranslationProvider {
 
 // Update updates the i18n func in the provided Deps.
 func (tp *TranslationProvider) Update(d *deps.Deps) error {
-	spec := source.NewSourceSpec(d.PathSpec, nil)
+	spec := source.NewSourceSpec(d.PathSpec, nil, nil)
 
 	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)

@@ -15,6 +15,7 @@ package glob
 
 import (
 	"path/filepath"
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -70,6 +71,40 @@ func TestGetGlob(t *testing.T) {
 	g, err := GetGlob("**.JSON")
 	c.Assert(err, qt.IsNil)
 	c.Assert(g.Match("data/my.json"), qt.Equals, true)
+}
+
+func TestFilenameFilter(t *testing.T) {
+	c := qt.New(t)
+
+	excludeAlmostAllJSON, err := NewFilenameFilter([]string{"a/b/c/foo.json"}, []string{"**.json"})
+	c.Assert(err, qt.IsNil)
+	c.Assert(excludeAlmostAllJSON.Match(filepath.FromSlash("data/my.json")), qt.Equals, false)
+	c.Assert(excludeAlmostAllJSON.Match(filepath.FromSlash("a/b/c/foo.json")), qt.Equals, true)
+	c.Assert(excludeAlmostAllJSON.Match(filepath.FromSlash("a/b/c/foo.bar")), qt.Equals, false)
+
+	nopFilter, err := NewFilenameFilter(nil, nil)
+	c.Assert(err, qt.IsNil)
+	c.Assert(nopFilter.Match("ab.txt"), qt.Equals, true)
+
+	includeOnlyFilter, err := NewFilenameFilter([]string{"**.json", "**.jpg"}, nil)
+	c.Assert(err, qt.IsNil)
+	c.Assert(includeOnlyFilter.Match("ab.json"), qt.Equals, true)
+	c.Assert(includeOnlyFilter.Match("ab.jpg"), qt.Equals, true)
+	c.Assert(includeOnlyFilter.Match("ab.gif"), qt.Equals, false)
+
+	exlcudeOnlyFilter, err := NewFilenameFilter(nil, []string{"**.json", "**.jpg"})
+	c.Assert(err, qt.IsNil)
+	c.Assert(exlcudeOnlyFilter.Match("ab.json"), qt.Equals, false)
+	c.Assert(exlcudeOnlyFilter.Match("ab.jpg"), qt.Equals, false)
+	c.Assert(exlcudeOnlyFilter.Match("ab.gif"), qt.Equals, true)
+
+	var nilFilter *FilenameFilter
+	c.Assert(nilFilter.Match("ab.gif"), qt.Equals, true)
+
+	funcFilter := NewFilenameFilterForInclusionFunc(func(s string) bool { return strings.HasSuffix(s, ".json") })
+	c.Assert(funcFilter.Match("ab.json"), qt.Equals, true)
+	c.Assert(funcFilter.Match("ab.bson"), qt.Equals, false)
+
 }
 
 func BenchmarkGetGlob(b *testing.B) {
