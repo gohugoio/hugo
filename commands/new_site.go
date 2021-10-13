@@ -102,7 +102,7 @@ func (n *newSiteCmd) doNewSite(fs *hugofs.Fs, basepath string, force bool) error
 
 	// Create a default archetype file.
 	helpers.SafeWriteToDisk(filepath.Join(archeTypePath, "default.md"),
-		strings.NewReader(create.ArchetypeTemplateTemplate), fs.Source)
+		strings.NewReader(create.DefaultArchetypeTemplateTemplate), fs.Source)
 
 	jww.FEEDBACK.Printf("Congratulations! Your new Hugo site is created in %s.\n\n", basepath)
 	jww.FEEDBACK.Println(nextStepsText())

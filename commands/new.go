@@ -80,17 +80,7 @@ func (n *newCmd) newContent(cmd *cobra.Command, args []string) error {
 		return newUserError("path needs to be provided")
 	}
 
-	createPath := args[0]
-
-	var kind string
-
-	createPath, kind = newContentPathSection(c.hugo(), createPath)
-
-	if n.contentType != "" {
-		kind = n.contentType
-	}
-
-	return create.NewContent(c.hugo(), kind, createPath)
+	return create.NewContent(c.hugo(), n.contentType, args[0])
 }
 
 func mkdir(x ...string) {

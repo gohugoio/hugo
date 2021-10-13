@@ -22,6 +22,8 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/gohugoio/hugo/hugofs/glob"
+
 	"github.com/fsnotify/fsnotify"
 
 	"github.com/gohugoio/hugo/identity"
@@ -677,6 +679,9 @@ type BuildCfg struct {
 	// Recently visited URLs. This is used for partial re-rendering.
 	RecentlyVisited map[string]bool
 
+	// Can be set to build only with a sub set of the content source.
+	ContentInclusionFilter *glob.FilenameFilter
+
 	testCounters *testCounters
 }
 
@@ -819,7 +824,7 @@ func (h *HugoSites) Pages() page.Pages {
 }
 
 func (h *HugoSites) loadData(fis []hugofs.FileMetaInfo) (err error) {
-	spec := source.NewSourceSpec(h.PathSpec, nil)
+	spec := source.NewSourceSpec(h.PathSpec, nil, nil)
 
 	h.data = make(map[string]interface{})
 	for _, fi := range fis {

@@ -19,6 +19,8 @@ import (
 	"regexp"
 	"runtime"
 
+	"github.com/gohugoio/hugo/hugofs/glob"
+
 	"github.com/gohugoio/hugo/langs"
 	"github.com/spf13/afero"
 
@@ -33,8 +35,7 @@ type SourceSpec struct {
 
 	SourceFs afero.Fs
 
-	// This is set if the ignoreFiles config is set.
-	ignoreFilesRe []*regexp.Regexp
+	shouldInclude func(filename string) bool
 
 	Languages              map[string]interface{}
 	DefaultContentLanguage string
@@ -42,7 +43,7 @@ type SourceSpec struct {
 }
 
 // NewSourceSpec initializes SourceSpec using languages the given filesystem and PathSpec.
-func NewSourceSpec(ps *helpers.PathSpec, fs afero.Fs) *SourceSpec {
+func NewSourceSpec(ps *helpers.PathSpec, inclusionFilter *glob.FilenameFilter, fs afero.Fs) *SourceSpec {
 	cfg := ps.Cfg
 	defaultLang := cfg.GetString("defaultContentLanguage")
 	languages := cfg.GetStringMap("languages")
@@ -72,8 +73,19 @@ func NewSourceSpec(ps *helpers.PathSpec, fs afero.Fs) *SourceSpec {
 
 		}
 	}
+	shouldInclude := func(filename string) bool {
+		if !inclusionFilter.Match(filename) {
+			return false
+		}
+		for _, r := range regexps {
+			if r.MatchString(filename) {
+				return false
+			}
+		}
+		return true
+	}
 
-	return &SourceSpec{ignoreFilesRe: regexps, PathSpec: ps, SourceFs: fs, Languages: languages, DefaultContentLanguage: defaultLang, DisabledLanguages: disabledLangsSet}
+	return &SourceSpec{shouldInclude: shouldInclude, PathSpec: ps, SourceFs: fs, Languages: languages, DefaultContentLanguage: defaultLang, DisabledLanguages: disabledLangsSet}
 }
 
 // IgnoreFile returns whether a given file should be ignored.
@@ -97,24 +109,16 @@ func (s *SourceSpec) IgnoreFile(filename string) bool {
 		}
 	}
 
-	if len(s.ignoreFilesRe) == 0 {
-		return false
-	}
-
-	for _, re := range s.ignoreFilesRe {
-		if re.MatchString(filename) {
-			return true
-		}
+	if !s.shouldInclude(filename) {
+		return true
 	}
 
 	if runtime.GOOS == "windows" {
 		// Also check the forward slash variant if different.
 		unixFilename := filepath.ToSlash(filename)
 		if unixFilename != filename {
-			for _, re := range s.ignoreFilesRe {
-				if re.MatchString(unixFilename) {
-					return true
-				}
+			if !s.shouldInclude(unixFilename) {
+				return true
 			}
 		}
 	}

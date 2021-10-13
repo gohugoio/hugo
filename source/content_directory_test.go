@@ -57,7 +57,7 @@ func TestIgnoreDotFilesAndDirectories(t *testing.T) {
 		ps, err := helpers.NewPathSpec(fs, v, nil)
 		c.Assert(err, qt.IsNil)
 
-		s := NewSourceSpec(ps, fs.Source)
+		s := NewSourceSpec(ps, nil, fs.Source)
 
 		if ignored := s.IgnoreFile(filepath.FromSlash(test.path)); test.ignore != ignored {
 			t.Errorf("[%d] File not ignored", i)

@@ -102,6 +102,42 @@ func (b *BaseFs) RelContentDir(filename string) string {
 	return filename
 }
 
+// AbsProjectContentDir tries to create a TODO1
+func (b *BaseFs) AbsProjectContentDir(filename string) (string, string) {
+	isAbs := filepath.IsAbs(filename)
+	for _, dir := range b.SourceFilesystems.Content.Dirs {
+		meta := dir.Meta()
+		if meta.Module != "project" {
+			continue
+		}
+		if isAbs {
+			if strings.HasPrefix(filename, meta.Filename) {
+				return strings.TrimPrefix(filename, meta.Filename), filename
+			}
+		} else {
+			contentDir := strings.TrimPrefix(strings.TrimPrefix(meta.Filename, meta.BaseDir), filePathSeparator)
+			if strings.HasPrefix(filename, contentDir) {
+				relFilename := strings.TrimPrefix(filename, contentDir)
+				absFilename := filepath.Join(meta.Filename, relFilename)
+				return relFilename, absFilename
+			}
+		}
+
+	}
+
+	if !isAbs {
+		// A filename on the form "posts/mypage.md", put it inside
+		// the first content folder, usually <workDir>/content.
+		// The Dirs are ordered with the most important last, so pick that.
+		contentDirs := b.SourceFilesystems.Content.Dirs
+		firstContentDir := contentDirs[len(contentDirs)-1].Meta().Filename
+		return filename, filepath.Join(firstContentDir, filename)
+
+	}
+
+	return "", ""
+}
+
 // ResolveJSConfigFile resolves the JS-related config file to a absolute
 // filename. One example of such would be postcss.config.js.
 func (fs *BaseFs) ResolveJSConfigFile(name string) string {
