@@ -5,6 +5,8 @@
 # crane digest golang:1.16-alpine https://github.com/google/go-containerregistry/blob/main/cmd/crane/README.md
 # sha256:78181bcf43be59a818e23095f21b3818f456895c3f1f2daaabdfd1af75cedd1f
 # Pinning by SHA
+# The original version before the SHA was golang:1.16-alpine
+
 FROM golang@sha256:78181bcf43be59a818e23095f21b3818f456895c3f1f2daaabdfd1af75cedd1f AS build
 
 # Optionally set HUGO_BUILD_TAGS to "extended" or "nodeploy" when building like so:
@@ -32,6 +34,7 @@ RUN mage hugo && mage install
 # crane digest alpine:3.12
 # sha256:a296b4c6f6ee2b88f095b61e95c7ef4f51ba25598835b4978c9256d8c8ace48a
 # Pinning by SHA
+# The original version before the SHA was alpine:3.12
 
 FROM alpine@sha256:a296b4c6f6ee2b88f095b61e95c7ef4f51ba25598835b4978c9256d8c8ace48a
 
