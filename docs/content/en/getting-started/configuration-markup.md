@@ -132,6 +132,7 @@ The features currently supported are:
 * `image`
 * `link`
 * `heading` {{< new-in "0.71.0" >}}
+* `document` {{< new-in "0.89.0" >}}
 
 You can define [Output-Format-](/templates/output-formats) and [language-](/content-management/multilingual/)specific templates if needed. Your `layouts` folder may look like this:
 
@@ -141,7 +142,9 @@ layouts
     └── _markup
         ├── render-image.html
         ├── render-image.rss.xml
-        └── render-link.html
+        ├── render-link.html
+        ├── render-heading.html
+        └── render-document.html
 ```
 
 Some use cases for the above:
@@ -152,6 +155,7 @@ Some use cases for the above:
 * Add [header links](https://remysharp.com/2014/08/08/automatic-permalinks-for-blog-posts).
 
 ### Render Hook Templates
+#### render-link and render-image
 
 The `render-link` and `render-image` templates will receive this context:
 
@@ -170,6 +174,8 @@ Text
 PlainText
 : The plain variant of the above.
 
+#### render-heading
+
 The `render-heading` template will receive this context:
 
 Page
@@ -186,6 +192,21 @@ Text
 
 PlainText
 : The plain variant of the above.
+
+Attributes (map) {{< new-in "0.82.0" >}}
+: A map of attributes (e.g. `id`, `class`)
+
+#### render-document {{< new-in "0.89.0" >}}
+
+The `render-document` template is invoked twice: once before processing of the markdown starts; and once when processing of the markdown ends.
+The `render-document` template will receive this context:
+
+Page
+: The [Page] being rendered.
+
+Entering
+: true - processing of the markdown about to start
+: false - processing of the markdown has completed
 
 Attributes (map) {{< new-in "0.82.0" >}}
 : A map of attributes (e.g. `id`, `class`)
@@ -235,3 +256,41 @@ The rendered html will be
 ```html
 <h3 id="section-a">Section A <a href="#section-a">¶</a></h3>
 ```
+
+#### render-document example
+
+`render-document` may be used to modify the generated html.
+Given this template file
+
+{{< code file="layouts/_default/_markup/render-document.html" >}}
+{{ if .Entering }}<div class="markup" data-title="{{- .Page.Title -}}">{{ else }}</div>{{ end }}
+{{< /code >}}
+
+And this markdown
+
+```md
+---
+title: "render-document"
+---
+# Heading 1
+```
+
+The rendered html will be
+
+```html
+<div class="markup" data-title="render-document"><h1 id="heading-1">Heading 1</h1>
+</div>
+```
+
+`render-document` may establish some initial conditions, which persist for the processing of the markdown
+and which may be retrieved by some other markdown render hook, for example, the `render-heading` template.
+Given this template file
+
+{{< code file="layouts/_default/_markup/render-document.html" >}}
+{{ if .Entering }} {{ .Page.Scratch.Set "todayMsg" "Choices have consequences" }} {{ end }}
+{{< /code >}}
+
+`render-heading` template can retrieve `todayMsg` with the following snippet:
+{{< code file="layouts/_default/_markup/render-heading.html" >}}
+{{ .Page.Scratch.Get "todayMsg" }}
+{{< /code >}}
