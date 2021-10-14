@@ -84,6 +84,8 @@ builds:
       - linux
     goarch:
       - amd64
+    hooks:
+      post: ./goreleaser-hook-post-linux.sh
 release:
   draft: true
 

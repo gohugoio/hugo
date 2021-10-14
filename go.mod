@@ -17,11 +17,11 @@ require (
 	github.com/cli/safeexec v1.0.0
 	github.com/disintegration/gift v1.2.1
 	github.com/dustin/go-humanize v1.0.0
-	github.com/evanw/esbuild v0.12.24
+	github.com/evanw/esbuild v0.12.29
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/frankban/quicktest v1.13.1
 	github.com/fsnotify/fsnotify v1.4.9
-	github.com/getkin/kin-openapi v0.75.0
+	github.com/getkin/kin-openapi v0.78.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/gobuffalo/flect v0.2.3
 	github.com/gobwas/glob v0.2.3
@@ -35,7 +35,7 @@ require (
 	github.com/kylelemons/godebug v1.1.0
 	github.com/kyokomi/emoji/v2 v2.2.8
 	github.com/magefile/mage v1.11.0
-	github.com/mattn/go-isatty v0.0.13
+	github.com/mattn/go-isatty v0.0.14
 	github.com/miekg/mmark v1.3.6
 	github.com/mitchellh/hashstructure v1.1.0
 	github.com/mitchellh/mapstructure v1.4.1
