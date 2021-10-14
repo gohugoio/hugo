@@ -2,7 +2,6 @@
 title: lower
 linktitle: lower
 description: Converts all characters in the provided string to lowercase.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

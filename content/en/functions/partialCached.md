@@ -2,7 +2,6 @@
 title: partialCached
 linktitle: partialCached
 description: Allows for caching of partials that do not need to be re-rendered on every invocation.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

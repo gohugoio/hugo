@@ -2,7 +2,6 @@
 title: range
 linktitle:
 description: Iterates over a map, array, or slice.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

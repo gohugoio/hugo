@@ -1,7 +1,6 @@
 ---
 title: .Scratch
 description: Acts as a "scratchpad" to store and manipulate data.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

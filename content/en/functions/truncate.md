@@ -2,7 +2,6 @@
 title: truncate
 # linktitle: truncate
 description: Truncates a text to a max length without cutting words or leaving unclosed HTML tags.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

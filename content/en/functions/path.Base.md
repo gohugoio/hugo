@@ -1,7 +1,6 @@
 ---
 title: path.Base
 description: Base returns the last element of a path.
-godocref:
 date: 2018-11-28
 publishdate: 2018-11-28
 lastmod: 2018-11-28

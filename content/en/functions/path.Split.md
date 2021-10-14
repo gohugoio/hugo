@@ -1,7 +1,6 @@
 ---
 title: path.Split
 description: Split path immediately following the final slash.
-godocref:
 date: 2018-11-28
 publishdate: 2018-11-28
 lastmod: 2018-11-28

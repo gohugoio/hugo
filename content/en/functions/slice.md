@@ -2,7 +2,6 @@
 title: slice
 # linktitle: slice
 description: Creates a slice (array) of all passed arguments.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

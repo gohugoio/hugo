@@ -2,7 +2,6 @@
 title: templates.Exists
 linktitle: ""
 description: "Checks whether a template file exists under the given path relative to the `layouts` directory."
-godocref: ""
 date: 2018-11-01
 publishdate: 2018-11-01
 lastmod: 2018-11-01

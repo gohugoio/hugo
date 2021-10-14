@@ -1,7 +1,6 @@
 ---
 title: .RenderString
 description: "Renders markup to HTML."
-godocref:
 date: 2019-12-18
 categories: [functions]
 menu:

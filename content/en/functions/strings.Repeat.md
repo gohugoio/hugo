@@ -2,7 +2,6 @@
 title: strings.Repeat
 # linktitle:
 description: Returns INPUT repeated COUNT times.
-godocref:
 date: 2018-05-31
 publishdate: 2018-05-31
 lastmod: 2018-05-31

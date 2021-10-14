@@ -1,7 +1,6 @@
 ---
 title: absLangURL
 description: Adds the absolute URL with correct language prefix according to site configuration for multilingual.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

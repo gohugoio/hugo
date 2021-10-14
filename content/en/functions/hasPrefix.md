@@ -2,7 +2,6 @@
 title: hasprefix
 linktitle: hasPrefix
 description: Tests whether a string begins with prefix.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

@@ -1,7 +1,6 @@
 ---
 title: strings.Count
 description: Returns the number of non-overlapping instances of a substring within a string.
-godocref:
 date: 2020-09-07
 publishdate: 2020-09-07
 lastmod: 2020-09-07

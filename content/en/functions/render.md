@@ -1,7 +1,6 @@
 ---
 title: .Render
 description: Takes a view to apply when rendering content.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

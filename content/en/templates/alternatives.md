@@ -2,7 +2,6 @@
 title: DEPRECATED - Alternative Templating Languages
 linktitle: Alternative Templating
 description: DEPRECATED - Support for Ace & Amber templating has been removed in version 0.62
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-20

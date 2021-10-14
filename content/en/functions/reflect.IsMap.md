@@ -1,7 +1,6 @@
 ---
 title: reflect.IsMap
 description: Reports if a value is a map.
-godocref:
 date: 2018-11-28
 publishdate: 2018-11-28
 lastmod: 2018-11-28

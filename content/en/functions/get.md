@@ -1,7 +1,6 @@
 ---
 title: .Get
 description: Accesses positional and ordered parameters in shortcode declaration.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -29,7 +28,3 @@ When accessing a named parameter that does not exist, `.Get` returns an empty st
 ```
 
 [sc]: /templates/shortcode-templates/
-
-
-
-

@@ -1,7 +1,6 @@
 ---
 title: apply
 description: Given a map, array, or slice, `apply` returns a new slice with a function applied over it.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

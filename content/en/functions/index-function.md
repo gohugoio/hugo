@@ -2,7 +2,6 @@
 title: index
 linktitle: index
 description: Looks up the index(es) or key(s) of the data structure passed into it.
-godocref: https://golang.org/pkg/text/template/#hdr-Functions
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

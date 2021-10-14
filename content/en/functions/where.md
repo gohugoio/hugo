@@ -2,7 +2,6 @@
 title: where
 # linktitle: where
 description: Filters an array to only the elements containing a matching value for a given field.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

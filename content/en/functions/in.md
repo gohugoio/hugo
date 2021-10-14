@@ -2,7 +2,6 @@
 title: in
 linktitle:
 description: Checks if an element is in an array or slice--or a substring in a string---and returns a boolean.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

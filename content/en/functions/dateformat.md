@@ -1,7 +1,6 @@
 ---
 title: time.Format
 description: Converts a date/time to a localized string.
-godocref: https://golang.org/pkg/time/
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
