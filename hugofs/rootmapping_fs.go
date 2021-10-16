@@ -142,6 +142,13 @@ func (r RootMapping) filename(name string) string {
 	return filepath.Join(r.To, strings.TrimPrefix(name, r.From))
 }
 
+func (r RootMapping) trimFrom(name string) string {
+	if name == "" {
+		return ""
+	}
+	return strings.TrimPrefix(name, r.From)
+}
+
 // A RootMappingFs maps several roots into one. Note that the root of this filesystem
 // is directories only, and they will be returned in Readdir and Readdirnames
 // in the order given.
@@ -170,7 +177,12 @@ func (fs *RootMappingFs) Dirs(base string) ([]FileMetaInfo, error) {
 			p = strings.TrimLeft(p, filepathSeparator)
 			return p
 		})
-		fs := decorateDirs(bfs, r.Meta)
+
+		fs := bfs
+		if r.Meta.InclusionFilter != nil {
+			fs = newFilenameFilterFs(fs, r.To, r.Meta.InclusionFilter)
+		}
+		fs = decorateDirs(fs, r.Meta)
 		fi, err := fs.Stat("")
 		if err != nil {
 			return nil, errors.Wrap(err, "RootMappingFs.Dirs")
@@ -368,6 +380,10 @@ func (fs *RootMappingFs) collectDirEntries(prefix string) ([]os.FileInfo, error)
 		for _, fi := range direntries {
 			meta := fi.(FileMetaInfo).Meta()
 			meta.Merge(rm.Meta)
+			if !rm.Meta.InclusionFilter.Match(strings.TrimPrefix(meta.Filename, meta.SourceRoot), fi.IsDir()) {
+				continue
+			}
+
 			if fi.IsDir() {
 				name := fi.Name()
 				if seen[name] {
@@ -508,7 +524,14 @@ func (fs *RootMappingFs) doLstat(name string) ([]FileMetaInfo, error) {
 	}
 
 	fileCount := 0
+	var wasFiltered bool
 	for _, root := range roots {
+		meta := root.fi.Meta()
+		if !meta.InclusionFilter.Match(strings.TrimPrefix(meta.Filename, meta.SourceRoot), root.fi.IsDir()) {
+			wasFiltered = true
+			continue
+		}
+
 		if !root.fi.IsDir() {
 			fileCount++
 		}
@@ -518,6 +541,9 @@ func (fs *RootMappingFs) doLstat(name string) ([]FileMetaInfo, error) {
 	}
 
 	if fileCount == 0 {
+		if wasFiltered {
+			return nil, os.ErrNotExist
+		}
 		// Dir only.
 		return []FileMetaInfo{newDirNameOnlyFileInfo(name, roots[0].Meta, fs.virtualDirOpener(name))}, nil
 	}
@@ -531,6 +557,9 @@ func (fs *RootMappingFs) doLstat(name string) ([]FileMetaInfo, error) {
 }
 
 func (fs *RootMappingFs) statRoot(root RootMapping, name string) (FileMetaInfo, bool, error) {
+	if !root.Meta.InclusionFilter.Match(root.trimFrom(name), root.fi.IsDir()) {
+		return nil, false, os.ErrNotExist
+	}
 	filename := root.filename(name)
 
 	fi, b, err := lstatIfPossible(fs.Fs, filename)
@@ -586,16 +615,23 @@ func (f *rootMappingFile) Name() string {
 
 func (f *rootMappingFile) Readdir(count int) ([]os.FileInfo, error) {
 	if f.File != nil {
+
 		fis, err := f.File.Readdir(count)
 		if err != nil {
 			return nil, err
 		}
 
-		for i, fi := range fis {
-			fis[i] = decorateFileInfo(fi, f.fs, nil, "", "", f.meta)
+		var result []os.FileInfo
+		for _, fi := range fis {
+			fim := decorateFileInfo(fi, f.fs, nil, "", "", f.meta)
+			meta := fim.Meta()
+			if f.meta.InclusionFilter.Match(strings.TrimPrefix(meta.Filename, meta.SourceRoot), fim.IsDir()) {
+				result = append(result, fim)
+			}
 		}
-		return fis, nil
+		return result, nil
 	}
+
 	return f.fs.collectDirEntries(f.name)
 }
 

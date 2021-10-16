@@ -20,6 +20,8 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/gohugoio/hugo/hugofs/glob"
+
 	"github.com/gohugoio/hugo/config"
 
 	qt "github.com/frankban/quicktest"
@@ -482,4 +484,71 @@ func TestRootMappingFsOsBase(t *testing.T) {
 	}
 
 	c.Assert(getDirnames("static/a/b/c"), qt.DeepEquals, []string{"d4", "f-1.txt", "f-2.txt", "f-3.txt", "ms-1.txt"})
+}
+
+func TestRootMappingFileFilter(t *testing.T) {
+	c := qt.New(t)
+	fs := NewBaseFileDecorator(afero.NewMemMapFs())
+
+	for _, lang := range []string{"no", "en", "fr"} {
+		for i := 1; i <= 3; i++ {
+			c.Assert(afero.WriteFile(fs, filepath.Join(lang, fmt.Sprintf("my%s%d.txt", lang, i)), []byte("some text file for"+lang), 0755), qt.IsNil)
+		}
+	}
+
+	for _, lang := range []string{"no", "en", "fr"} {
+		for i := 1; i <= 3; i++ {
+			c.Assert(afero.WriteFile(fs, filepath.Join(lang, "sub", fmt.Sprintf("mysub%s%d.txt", lang, i)), []byte("some text file for"+lang), 0755), qt.IsNil)
+		}
+	}
+
+	rm := []RootMapping{
+		{
+			From: "content",
+			To:   "no",
+			Meta: &FileMeta{Lang: "no", InclusionFilter: glob.MustNewFilenameFilter(nil, []string{"**.txt"})},
+		},
+		{
+			From: "content",
+			To:   "en",
+			Meta: &FileMeta{Lang: "en"},
+		},
+		{
+			From: "content",
+			To:   "fr",
+			Meta: &FileMeta{Lang: "fr", InclusionFilter: glob.MustNewFilenameFilter(nil, []string{"**.txt"})},
+		},
+	}
+
+	rfs, err := NewRootMappingFs(fs, rm...)
+	c.Assert(err, qt.IsNil)
+
+	assertExists := func(filename string, shouldExist bool) {
+		c.Helper()
+		filename = filepath.Clean(filename)
+		_, err1 := rfs.Stat(filename)
+		f, err2 := rfs.Open(filename)
+		if shouldExist {
+			c.Assert(err1, qt.IsNil)
+			c.Assert(err2, qt.IsNil)
+			c.Assert(f.Close(), qt.IsNil)
+		} else {
+			c.Assert(err1, qt.Not(qt.IsNil))
+			c.Assert(err2, qt.Not(qt.IsNil))
+		}
+	}
+
+	assertExists("content/myno1.txt", false)
+	assertExists("content/myen1.txt", true)
+	assertExists("content/myfr1.txt", false)
+
+	dirEntriesSub, err := afero.ReadDir(rfs, filepath.Join("content", "sub"))
+	c.Assert(err, qt.IsNil)
+	c.Assert(len(dirEntriesSub), qt.Equals, 3)
+
+	dirEntries, err := afero.ReadDir(rfs, "content")
+
+	c.Assert(err, qt.IsNil)
+	c.Assert(len(dirEntries), qt.Equals, 4)
+
 }

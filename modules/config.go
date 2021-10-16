@@ -379,6 +379,11 @@ type Mount struct {
 
 	Lang string // any language code associated with this mount.
 
+	// Include only files matching the given Glob patterns (string or slice).
+	IncludeFiles interface{}
+
+	// Exclude all files matching the given Glob patterns (string or slice).
+	ExcludeFiles interface{}
 }
 
 func (m Mount) Component() string {

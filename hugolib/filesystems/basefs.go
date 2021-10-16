@@ -25,6 +25,9 @@ import (
 	"sync"
 
 	"github.com/gohugoio/hugo/htesting"
+	"github.com/gohugoio/hugo/hugofs/glob"
+
+	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/rogpeppe/go-internal/lockedfile"
@@ -127,7 +130,8 @@ func (b *BaseFs) RelContentDir(filename string) string {
 	return filename
 }
 
-// AbsProjectContentDir tries to create a TODO1
+// AbsProjectContentDir tries to construct a filename below the most
+// relevant content directory.
 func (b *BaseFs) AbsProjectContentDir(filename string) (string, string) {
 	isAbs := filepath.IsAbs(filename)
 	for _, dir := range b.SourceFilesystems.Content.Dirs {
@@ -623,6 +627,14 @@ func (b *sourceFilesystemsBuilder) createModFs(
 			mountWeight++
 		}
 
+		inclusionFilter, err := glob.NewFilenameFilter(
+			types.ToStringSlicePreserveString(mount.IncludeFiles),
+			types.ToStringSlicePreserveString(mount.ExcludeFiles),
+		)
+		if err != nil {
+			return err
+		}
+
 		base, filename := absPathify(mount.Source)
 
 		rm := hugofs.RootMapping{
@@ -631,9 +643,10 @@ func (b *sourceFilesystemsBuilder) createModFs(
 			ToBasedir: base,
 			Module:    md.Module.Path(),
 			Meta: &hugofs.FileMeta{
-				Watch:      md.Watch(),
-				Weight:     mountWeight,
-				Classifier: files.ContentClassContent,
+				Watch:           md.Watch(),
+				Weight:          mountWeight,
+				Classifier:      files.ContentClassContent,
+				InclusionFilter: inclusionFilter,
 			},
 		}
 
