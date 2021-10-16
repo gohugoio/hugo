@@ -23,6 +23,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/hugofs/glob"
+
 	"github.com/gohugoio/hugo/hugofs/files"
 	"golang.org/x/text/unicode/norm"
 
@@ -76,6 +78,9 @@ type FileMeta struct {
 	Fs           afero.Fs
 	OpenFunc     func() (afero.File, error)
 	JoinStatFunc func(name string) (FileMetaInfo, error)
+
+	// Include only files or directories that match.
+	InclusionFilter *glob.FilenameFilter
 }
 
 func (m *FileMeta) Copy() *FileMeta {
@@ -95,9 +100,16 @@ func (m *FileMeta) Merge(from *FileMeta) {
 
 	for i := 0; i < dstv.NumField(); i++ {
 		v := dstv.Field(i)
+		if !v.CanSet() {
+			continue
+		}
 		if !hreflect.IsTruthfulValue(v) {
 			v.Set(srcv.Field(i))
 		}
+	}
+
+	if m.InclusionFilter == nil {
+		m.InclusionFilter = from.InclusionFilter
 	}
 }
 

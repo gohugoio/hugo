@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2021 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@ package glob
 
 import (
 	"path/filepath"
-	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -67,51 +66,38 @@ func TestNormalizePath(t *testing.T) {
 }
 
 func TestGetGlob(t *testing.T) {
-	c := qt.New(t)
-	g, err := GetGlob("**.JSON")
-	c.Assert(err, qt.IsNil)
-	c.Assert(g.Match("data/my.json"), qt.Equals, true)
-}
-
-func TestFilenameFilter(t *testing.T) {
-	c := qt.New(t)
-
-	excludeAlmostAllJSON, err := NewFilenameFilter([]string{"a/b/c/foo.json"}, []string{"**.json"})
-	c.Assert(err, qt.IsNil)
-	c.Assert(excludeAlmostAllJSON.Match(filepath.FromSlash("data/my.json")), qt.Equals, false)
-	c.Assert(excludeAlmostAllJSON.Match(filepath.FromSlash("a/b/c/foo.json")), qt.Equals, true)
-	c.Assert(excludeAlmostAllJSON.Match(filepath.FromSlash("a/b/c/foo.bar")), qt.Equals, false)
-
-	nopFilter, err := NewFilenameFilter(nil, nil)
-	c.Assert(err, qt.IsNil)
-	c.Assert(nopFilter.Match("ab.txt"), qt.Equals, true)
-
-	includeOnlyFilter, err := NewFilenameFilter([]string{"**.json", "**.jpg"}, nil)
-	c.Assert(err, qt.IsNil)
-	c.Assert(includeOnlyFilter.Match("ab.json"), qt.Equals, true)
-	c.Assert(includeOnlyFilter.Match("ab.jpg"), qt.Equals, true)
-	c.Assert(includeOnlyFilter.Match("ab.gif"), qt.Equals, false)
-
-	exlcudeOnlyFilter, err := NewFilenameFilter(nil, []string{"**.json", "**.jpg"})
-	c.Assert(err, qt.IsNil)
-	c.Assert(exlcudeOnlyFilter.Match("ab.json"), qt.Equals, false)
-	c.Assert(exlcudeOnlyFilter.Match("ab.jpg"), qt.Equals, false)
-	c.Assert(exlcudeOnlyFilter.Match("ab.gif"), qt.Equals, true)
-
-	var nilFilter *FilenameFilter
-	c.Assert(nilFilter.Match("ab.gif"), qt.Equals, true)
-
-	funcFilter := NewFilenameFilterForInclusionFunc(func(s string) bool { return strings.HasSuffix(s, ".json") })
-	c.Assert(funcFilter.Match("ab.json"), qt.Equals, true)
-	c.Assert(funcFilter.Match("ab.bson"), qt.Equals, false)
-
+	for _, cache := range []*globCache{defaultGlobCache, filenamesGlobCache} {
+		c := qt.New(t)
+		g, err := cache.GetGlob("**.JSON")
+		c.Assert(err, qt.IsNil)
+		c.Assert(g.Match("data/my.jSon"), qt.Equals, true)
+	}
 }
 
 func BenchmarkGetGlob(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		_, err := GetGlob("**/foo")
-		if err != nil {
-			b.Fatal(err)
-		}
+
+	runBench := func(name string, cache *globCache, search string) {
+		b.Run(name, func(b *testing.B) {
+			g, err := GetGlob("**/foo")
+			if err != nil {
+				b.Fatal(err)
+			}
+			for i := 0; i < b.N; i++ {
+				_ = g.Match(search)
+			}
+		})
 	}
+
+	runBench("Default cache", defaultGlobCache, "abcde")
+	runBench("Filenames cache, lowercase searchs", filenamesGlobCache, "abcde")
+	runBench("Filenames cache, mixed case searchs", filenamesGlobCache, "abCDe")
+
+	b.Run("GetGlob", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			_, err := GetGlob("**/foo")
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
 }

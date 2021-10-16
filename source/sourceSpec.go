@@ -74,7 +74,7 @@ func NewSourceSpec(ps *helpers.PathSpec, inclusionFilter *glob.FilenameFilter, f
 		}
 	}
 	shouldInclude := func(filename string) bool {
-		if !inclusionFilter.Match(filename) {
+		if !inclusionFilter.Match(filename, false) {
 			return false
 		}
 		for _, r := range regexps {

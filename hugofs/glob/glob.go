@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2021 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 package glob
 
 import (
+	"os"
 	"path"
 	"path/filepath"
 	"runtime"
@@ -24,6 +25,8 @@ import (
 	"github.com/gobwas/glob/syntax"
 )
 
+const filepathSeparator = string(os.PathSeparator)
+
 var (
 	isWindows        = runtime.GOOS == "windows"
 	defaultGlobCache = &globCache{
@@ -33,7 +36,7 @@ var (
 	}
 
 	filenamesGlobCache = &globCache{
-		isCaseSensitive: true, // TODO(bep) bench
+		isCaseSensitive: false, // As long as the search strings are all lower case, this does not allocate.
 		isWindows:       isWindows,
 		cache:           make(map[string]globErr),
 	}
@@ -160,79 +163,4 @@ func HasGlobChar(s string) bool {
 		}
 	}
 	return false
-}
-
-type FilenameFilter struct {
-	shouldInclude func(filename string) bool
-	inclusions    []glob.Glob
-	exclusions    []glob.Glob
-	isWindows     bool
-}
-
-// NewFilenameFilter creates a new Glob where the Match method will
-// return true if the file should be exluded.
-// Note that the inclusions will be checked first.
-func NewFilenameFilter(inclusions, exclusions []string) (*FilenameFilter, error) {
-	filter := &FilenameFilter{isWindows: isWindows}
-
-	for _, include := range inclusions {
-		g, err := filenamesGlobCache.GetGlob(filepath.FromSlash(include))
-		if err != nil {
-			return nil, err
-		}
-		filter.inclusions = append(filter.inclusions, g)
-	}
-	for _, exclude := range exclusions {
-		g, err := filenamesGlobCache.GetGlob(filepath.FromSlash(exclude))
-		if err != nil {
-			return nil, err
-		}
-		filter.exclusions = append(filter.exclusions, g)
-	}
-
-	return filter, nil
-}
-
-// NewFilenameFilterForInclusionFunc create a new filter using the provided inclusion func.
-func NewFilenameFilterForInclusionFunc(shouldInclude func(filename string) bool) *FilenameFilter {
-	return &FilenameFilter{shouldInclude: shouldInclude, isWindows: isWindows}
-}
-
-// Match returns whether filename should be included.
-func (f *FilenameFilter) Match(filename string) bool {
-	if f == nil {
-		return true
-	}
-
-	if f.shouldInclude != nil {
-		if f.shouldInclude(filename) {
-			return true
-		}
-		if f.isWindows {
-			// The Glob matchers below handles this by themselves,
-			// for the shouldInclude we need to take some extra steps
-			// to make this robust.
-			winFilename := filepath.FromSlash(filename)
-			if filename != winFilename {
-				if f.shouldInclude(winFilename) {
-					return true
-				}
-			}
-		}
-
-	}
-
-	for _, inclusion := range f.inclusions {
-		if inclusion.Match(filename) {
-			return true
-		}
-	}
-
-	for _, exclusion := range f.exclusions {
-		if exclusion.Match(filename) {
-			return false
-		}
-	}
-
-	return f.inclusions == nil && f.shouldInclude == nil
 }
