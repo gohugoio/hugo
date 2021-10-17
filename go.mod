@@ -5,7 +5,6 @@ require (
 	github.com/PuerkitoBio/purell v1.1.1
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/alecthomas/chroma v0.9.4
-	github.com/alecthomas/repr v0.0.0-20181024024818-d37bc2a10ba1 // indirect
 	github.com/armon/go-radix v1.0.0
 	github.com/aws/aws-sdk-go v1.40.8
 	github.com/bep/debounce v1.2.0
@@ -21,7 +20,7 @@ require (
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/frankban/quicktest v1.13.1
 	github.com/fsnotify/fsnotify v1.5.1
-	github.com/getkin/kin-openapi v0.78.0
+	github.com/getkin/kin-openapi v0.79.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/gobuffalo/flect v0.2.3
 	github.com/gobwas/glob v0.2.3
