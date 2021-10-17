@@ -30,6 +30,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gohugoio/hugo/hugofs/files"
+
 	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -1200,12 +1202,16 @@ func partitionDynamicEvents(sourceFs *filesystems.SourceFilesystems, events []fs
 func pickOneWriteOrCreatePath(events []fsnotify.Event) string {
 	name := ""
 
-	// Some editors (for example notepad.exe on Windows) triggers a change
-	// both for directory and file. So we pick the longest path, which should
-	// be the file itself.
 	for _, ev := range events {
-		if (ev.Op&fsnotify.Write == fsnotify.Write || ev.Op&fsnotify.Create == fsnotify.Create) && len(ev.Name) > len(name) {
-			name = ev.Name
+		if ev.Op&fsnotify.Write == fsnotify.Write || ev.Op&fsnotify.Create == fsnotify.Create {
+			if files.IsIndexContentFile(ev.Name) {
+				return ev.Name
+			}
+
+			if files.IsContentFile(ev.Name) {
+				name = ev.Name
+			}
+
 		}
 	}
 
