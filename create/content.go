@@ -53,6 +53,12 @@ draft: true
 // NewContent creates a new content file in h (or a full bundle if the archetype is a directory)
 // in targetPath.
 func NewContent(h *hugolib.HugoSites, kind, targetPath string) error {
+	unlock, err := h.BaseFs.LockBuild()
+	if err != nil {
+		return fmt.Errorf("failed to acquire a build lock: %s", err)
+	}
+	defer unlock()
+
 	cf := hugolib.NewContentFactory(h)
 
 	if kind == "" {
@@ -138,7 +144,7 @@ func (b *contentBuilder) buildDir() error {
 
 	}
 
-	if err := b.h.Build(hugolib.BuildCfg{SkipRender: true, ContentInclusionFilter: contentInclusionFilter}); err != nil {
+	if err := b.h.Build(hugolib.BuildCfg{NoBuildLock: true, SkipRender: true, ContentInclusionFilter: contentInclusionFilter}); err != nil {
 		return err
 	}
 
@@ -200,7 +206,7 @@ func (b *contentBuilder) buildFile() error {
 		})
 	}
 
-	if err := b.h.Build(hugolib.BuildCfg{SkipRender: true, ContentInclusionFilter: contentInclusionFilter}); err != nil {
+	if err := b.h.Build(hugolib.BuildCfg{NoBuildLock: true, SkipRender: true, ContentInclusionFilter: contentInclusionFilter}); err != nil {
 		return err
 	}
 

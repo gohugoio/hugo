@@ -25,6 +25,18 @@ import (
 	"github.com/spf13/afero"
 )
 
+// IsTest reports whether we're running as a test.
+var IsTest bool
+
+func init() {
+	for _, arg := range os.Args {
+		if strings.HasPrefix(arg, "-test.") {
+			IsTest = true
+			break
+		}
+	}
+}
+
 // CreateTempDir creates a temp dir in the given filesystem and
 // returns the dirnam and a func that removes it when done.
 func CreateTempDir(fs afero.Fs, prefix string) (string, func(), error) {

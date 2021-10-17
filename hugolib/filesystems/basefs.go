@@ -24,7 +24,10 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/htesting"
+
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/rogpeppe/go-internal/lockedfile"
 
 	"github.com/gohugoio/hugo/hugofs/files"
 
@@ -36,6 +39,13 @@ import (
 
 	"github.com/gohugoio/hugo/hugolib/paths"
 	"github.com/spf13/afero"
+)
+
+const (
+	// Used to control concurrency between multiple Hugo instances, e.g.
+	// a running server and building new content with 'hugo new'.
+	// It's placed in the project root.
+	lockFileBuild = ".hugo_build.lock"
 )
 
 var filePathSeparator = string(filepath.Separator)
@@ -56,6 +66,21 @@ type BaseFs struct {
 	PublishFs afero.Fs
 
 	theBigFs *filesystemsCollector
+
+	// Locks.
+	buildMu      *lockedfile.Mutex // <project>/.hugo_build.lock
+	buildMuTests sync.Mutex        // Used in tests.
+}
+
+// Tries to acquire a build lock.
+func (fs *BaseFs) LockBuild() (unlock func(), err error) {
+	if htesting.IsTest {
+		fs.buildMuTests.Lock()
+		return func() {
+			fs.buildMuTests.Unlock()
+		}, nil
+	}
+	return fs.buildMu.Lock()
 }
 
 // TODO(bep) we can get regular files in here and that is fine, but
@@ -402,6 +427,7 @@ func NewBase(p *paths.Paths, logger loggers.Logger, options ...func(*BaseFs) err
 	b := &BaseFs{
 		SourceFs:  sourceFs,
 		PublishFs: publishFs,
+		buildMu:   lockedfile.MutexAt(filepath.Join(p.WorkingDir, lockFileBuild)),
 	}
 
 	for _, opt := range options {

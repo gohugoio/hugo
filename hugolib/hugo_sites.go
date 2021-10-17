@@ -70,9 +70,6 @@ type HugoSites struct {
 	// If this is running in the dev server.
 	running bool
 
-	// Serializes rebuilds when server is running.
-	runningMu sync.Mutex
-
 	// Render output formats for all sites.
 	renderFormats output.Formats
 
@@ -681,6 +678,9 @@ type BuildCfg struct {
 
 	// Can be set to build only with a sub set of the content source.
 	ContentInclusionFilter *glob.FilenameFilter
+
+	// Set when the buildlock is already acquired (e.g. the archetype content builder).
+	NoBuildLock bool
 
 	testCounters *testCounters
 }
