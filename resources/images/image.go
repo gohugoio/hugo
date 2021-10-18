@@ -204,29 +204,6 @@ func (p *ImageProcessor) ApplyFiltersFromConfig(src image.Image, conf ImageConfi
 		filters = append(filters, gift.Rotate(float32(conf.Rotate), color.Transparent, gift.NearestNeighborInterpolation))
 	}
 
-	switch conf.Action {
-	case "resize":
-		filters = append(filters, gift.Resize(conf.Width, conf.Height, conf.Filter))
-	case "fill":
-		if conf.AnchorStr == smartCropIdentifier {
-			bounds, err := p.smartCrop(src, conf.Width, conf.Height, conf.Filter)
-			if err != nil {
-				return nil, err
-			}
-
-			// First crop it, then resize it.
-			filters = append(filters, gift.Crop(bounds))
-			filters = append(filters, gift.Resize(conf.Width, conf.Height, conf.Filter))
-
-		} else {
-			filters = append(filters, gift.ResizeToFill(conf.Width, conf.Height, conf.Filter, conf.Anchor))
-		}
-	case "fit":
-		filters = append(filters, gift.ResizeToFit(conf.Width, conf.Height, conf.Filter))
-	default:
-		return nil, errors.Errorf("unsupported action: %q", conf.Action)
-	}
-
 	img, err := p.Filter(src, filters...)
 	if err != nil {
 		return nil, err
