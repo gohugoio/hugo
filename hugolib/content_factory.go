@@ -113,11 +113,6 @@ func (f ContentFactory) CreateContentPlaceHolder(filename string) (string, error
 	filename = filepath.Clean(filename)
 	_, abs := f.h.AbsProjectContentDir(filename)
 
-	contentDir := filepath.Dir(abs)
-	if err := f.h.Fs.Source.MkdirAll(contentDir, 0777); err != nil {
-		return "", err
-	}
-
 	// This will be overwritten later, just write a placholder to get
 	// the paths correct.
 	placeholder := `---
@@ -130,11 +125,7 @@ _build:
 
 `
 
-	if err := afero.WriteFile(f.h.Fs.Source, abs, []byte(placeholder), 0777); err != nil {
-		return "", err
-	}
-
-	return abs, nil
+	return abs, afero.SafeWriteReader(f.h.Fs.Source, abs, strings.NewReader(placeholder))
 }
 
 // NewContentFactory creates a new ContentFactory for h.
