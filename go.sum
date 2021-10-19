@@ -195,6 +195,8 @@ github.com/evanw/esbuild v0.12.29 h1:HaHyfc1AomxfdgaWOTrZfR8qpC14oiXgWNex5OM432g
 github.com/evanw/esbuild v0.12.29/go.mod h1:GG+zjdi59yh3ehDn4ZWfPcATxjPDUH53iU4ZJbp7dkY=
 github.com/evanw/esbuild v0.13.5 h1:WJorZaBq1woAPUbO1T5jfb6seTkdSqHF/N21H2gEZtQ=
 github.com/evanw/esbuild v0.13.5/go.mod h1:GG+zjdi59yh3ehDn4ZWfPcATxjPDUH53iU4ZJbp7dkY=
+github.com/evanw/esbuild v0.13.8 h1:RPtlw0G2P2BRJ57NZqF4gM6SB8/QpU/maEE97poypXc=
+github.com/evanw/esbuild v0.13.8/go.mod h1:GG+zjdi59yh3ehDn4ZWfPcATxjPDUH53iU4ZJbp7dkY=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fortytw2/leaktest v1.3.0 h1:u8491cBMTQ8ft8aeV+adlcytMZylmA5nnwwkRZjI8vw=
 github.com/fortytw2/leaktest v1.3.0/go.mod h1:jDsjWgpAGjm2CA7WthBh/CdZYEPF31XHquHwclZch5g=
