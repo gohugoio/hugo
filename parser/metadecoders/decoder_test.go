@@ -38,6 +38,7 @@ func TestUnmarshalToMap(t *testing.T) {
 		{"a: Easy!\nb:\n  c: 2\n  d: [3, 4]", YAML, map[string]interface{}{"a": "Easy!", "b": map[string]interface{}{"c": 2, "d": []interface{}{3, 4}}}},
 		{"a:\n  true: 1\n  false: 2", YAML, map[string]interface{}{"a": map[string]interface{}{"true": 1, "false": 2}}},
 		{`{ "a": "b" }`, JSON, expect},
+		{`<a>b</a>`, XML, expect},
 		{`#+a: b`, ORG, expect},
 		// errors
 		{`a = b`, TOML, false},
@@ -72,6 +73,7 @@ func TestUnmarshalToInterface(t *testing.T) {
 		{`#+DATE: <2020-06-26 Fri>`, ORG, map[string]interface{}{"date": "2020-06-26"}},
 		{`a = "b"`, TOML, expect},
 		{`a: "b"`, YAML, expect},
+		{`<a>b</a>`, XML, expect},
 		{`a,b,c`, CSV, [][]string{{"a", "b", "c"}}},
 		{"a: Easy!\nb:\n  c: 2\n  d: [3, 4]", YAML, map[string]interface{}{"a": "Easy!", "b": map[string]interface{}{"c": 2, "d": []interface{}{3, 4}}}},
 		// errors

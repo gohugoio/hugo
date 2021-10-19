@@ -29,6 +29,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 	jww "github.com/spf13/jwalterweatherman"
+	"github.com/vanbroup/xml2map"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -135,6 +136,15 @@ func (d Decoder) UnmarshalTo(data []byte, f Format, v interface{}) error {
 		err = d.unmarshalORG(data, v)
 	case JSON:
 		err = json.Unmarshal(data, v)
+	case XML:
+		var xmlValue map[string]interface{}
+		xmlValue, err = xml2map.NewDecoder(bytes.NewReader(data)).Decode()
+		switch v.(type) {
+		case *map[string]interface{}:
+			*v.(*map[string]interface{}) = xmlValue
+		case *interface{}:
+			*v.(*interface{}) = xmlValue
+		}
 	case TOML:
 		err = toml.Unmarshal(data, v)
 	case YAML:
