@@ -422,7 +422,7 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 					errMsg = ". You need to install Babel, see https://gohugo.io/hugo-pipes/babel/"
 				}
 
-				return errors.New(msg + errMsg)
+				return errors.Wrap(err, msg+errMsg)
 			}
 
 			return errors.Wrap(err, msg)
