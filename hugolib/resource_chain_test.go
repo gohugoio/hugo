@@ -696,6 +696,8 @@ func TestResourcesMatch(t *testing.T) {
 	b.WithContent("page.md", "")
 
 	b.WithSourceFile(
+		"assets/images/img1.png", "png",
+		"assets/images/img2.jpg", "jpg",
 		"assets/jsons/data1.json", "json1 content",
 		"assets/jsons/data2.json", "json2 content",
 		"assets/jsons/data3.xml", "xml content",
@@ -704,7 +706,9 @@ func TestResourcesMatch(t *testing.T) {
 	b.WithTemplates("index.html", `
 {{ $jsons := (resources.Match "jsons/*.json") }}
 {{ $json := (resources.GetMatch "jsons/*.json") }}
-{{ printf "JSONS: %d"  (len $jsons) }}
+{{ printf "jsonsMatch: %d"  (len $jsons) }}
+{{ printf "imagesByType: %d"  (len (resources.ByType "image") ) }}
+{{ printf "applicationByType: %d"  (len (resources.ByType "application") ) }}
 JSON: {{ $json.RelPermalink }}: {{ $json.Content }}
 {{ range $jsons }}
 {{- .RelPermalink }}: {{ .Content }}
@@ -715,7 +719,10 @@ JSON: {{ $json.RelPermalink }}: {{ $json.Content }}
 
 	b.AssertFileContent("public/index.html",
 		"JSON: /jsons/data1.json: json1 content",
-		"JSONS: 2", "/jsons/data1.json: json1 content")
+		"jsonsMatch: 2",
+		"imagesByType: 2",
+		"applicationByType: 3",
+		"/jsons/data1.json: json1 content")
 }
 
 func TestResourceMinifyDisabled(t *testing.T) {

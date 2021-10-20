@@ -21,7 +21,7 @@ import (
 	"github.com/spf13/cast"
 )
 
-func TestStringTypes(t *testing.T) {
+func TestRenderedString(t *testing.T) {
 	c := qt.New(t)
 
 	// Validate that it will behave like a string in Hugo settings.
