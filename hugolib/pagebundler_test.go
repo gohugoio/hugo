@@ -553,7 +553,8 @@ HEADLESS {{< myShort >}}
 
 	headlessResources := headless.Resources()
 	c.Assert(len(headlessResources), qt.Equals, 3)
-	c.Assert(len(headlessResources.Match("l*")), qt.Equals, 2)
+	res := headlessResources.Match("l*")
+	c.Assert(len(res), qt.Equals, 2)
 	pageResource := headlessResources.GetMatch("p*")
 	c.Assert(pageResource, qt.Not(qt.IsNil))
 	p := pageResource.(page.Page)

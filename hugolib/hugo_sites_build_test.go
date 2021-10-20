@@ -397,6 +397,8 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	c.Assert(bundleFr, qt.Not(qt.IsNil))
 	c.Assert(len(bundleFr.Resources()), qt.Equals, 1)
 	logoFr := bundleFr.Resources().GetMatch("logo*")
+	logoFrGet := bundleFr.Resources().Get("logo.png")
+	c.Assert(logoFrGet, qt.Equals, logoFr)
 	c.Assert(logoFr, qt.Not(qt.IsNil))
 	b.AssertFileContent("public/fr/bundles/b1/index.html", "Resources: image/png: /blog/fr/bundles/b1/logo.png")
 	b.AssertFileContent("public/fr/bundles/b1/logo.png", "PNG Data")
