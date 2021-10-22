@@ -742,6 +742,7 @@ theme_param="themevalue2"
 		b := newB(c)
 
 		b.WithEnviron(
+			"HUGO_ENABLEGITINFO", "false",
 			// imaging.anchor is a string, and it's not possible
 			// to set a child attribute.
 			"HUGO_IMAGING_ANCHOR_FOO", "top",
