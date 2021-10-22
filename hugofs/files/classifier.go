@@ -38,7 +38,7 @@ var (
 	contentFileExtensions = []string{
 		"html", "htm",
 		"mdown", "markdown", "md",
-		"asciidoc", "adoc", "ad",
+		"asciidocext", "asciidoc", "adoc", "ad",
 		"rest", "rst",
 		"mmark",
 		"org",

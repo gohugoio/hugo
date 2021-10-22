@@ -33,7 +33,7 @@ The current list of content formats in Hugo:
 | Blackfriday | blackfriday  |Blackfriday will eventually be deprecated.|
 |MMark|mmark|Mmark is deprecated and will be removed in a future release.|
 |Emacs Org-Mode|org|See [go-org](https://github.com/niklasfasching/go-org).|
-|AsciiDoc|asciidocext, adoc, ad|Needs [Asciidoctor][ascii] installed.|
+|AsciiDoc|asciidocext, asciidoc, adoc, ad|Needs [Asciidoctor][ascii] installed.|
 |RST|rst|Needs [RST](http://docutils.sourceforge.net/rst.html) installed.|
 |Pandoc|pandoc, pdc|Needs [Pandoc](https://www.pandoc.org/) installed.|
 |HTML|html, htm|To be treated as a content file, with layout, shortcodes etc., it must have front matter. If not, it will be copied as-is.|
