@@ -40,10 +40,11 @@ func TestNewContent(t *testing.T) {
 		name     string
 		kind     string
 		path     string
-		expected []string
+		expected interface{}
 	}{
 		{"Post", "post", "post/sample-1.md", []string{`title = "Post Arch title"`, `test = "test1"`, "date = \"2015-01-12T19:20:04-07:00\""}},
 		{"Post org-mode", "post", "post/org-1.org", []string{`#+title: ORG-1`}},
+		{"Post, unknown content filetype", "post", "post/sample-1.pdoc", false},
 		{"Empty date", "emptydate", "post/sample-ed.md", []string{`title = "Empty Date Arch title"`, `test = "test1"`}},
 		{"Archetype file not found", "stump", "stump/sample-2.md", []string{`title: "Sample 2"`}}, // no archetype file
 		{"No archetype", "", "sample-3.md", []string{`title: "Sample 3"`}},                        // no archetype
@@ -80,14 +81,24 @@ func TestNewContent(t *testing.T) {
 			h, err := hugolib.NewHugoSites(deps.DepsCfg{Cfg: cfg, Fs: fs})
 			c.Assert(err, qt.IsNil)
 
-			c.Assert(create.NewContent(h, cas.kind, cas.path), qt.IsNil)
+			err = create.NewContent(h, cas.kind, cas.path)
+
+			if b, ok := cas.expected.(bool); ok && !b {
+				if !b {
+					c.Assert(err, qt.Not(qt.IsNil))
+				}
+				return
+			}
+
+			c.Assert(err, qt.IsNil)
 
 			fname := filepath.FromSlash(cas.path)
 			if !strings.HasPrefix(fname, "content") {
 				fname = filepath.Join("content", fname)
 			}
 			content := readFileFromFs(c, fs.Source, fname)
-			for _, v := range cas.expected {
+
+			for _, v := range cas.expected.([]string) {
 				found := strings.Contains(content, v)
 				if !found {
 					c.Fatalf("[%d] %q missing from output:\n%q", i, v, content)
