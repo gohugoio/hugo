@@ -136,6 +136,11 @@ func ToTimeInDefaultLocationE(i interface{}, location *time.Location) (tim time.
 		return vv.AsTime(location), nil
 	case toml.LocalDateTime:
 		return vv.AsTime(location), nil
+	// issue #8895
+	// datetimes parsed by `go-toml` have empty zone name
+	// convert back them into string and use `cast`
+	case time.Time:
+		i = vv.Format(time.RFC3339)
 	}
 	return cast.ToTimeInDefaultLocationE(i, location)
 }
