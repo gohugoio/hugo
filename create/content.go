@@ -92,7 +92,7 @@ func NewContent(h *hugolib.HugoSites, kind, targetPath string) error {
 	}
 
 	if !files.IsContentFile(b.targetPath) {
-		return errors.Errorf("target path  %q is not a kown content format", b.targetPath)
+		return errors.Errorf("target path %q is not a known content format", b.targetPath)
 	}
 
 	return b.buildFile()
