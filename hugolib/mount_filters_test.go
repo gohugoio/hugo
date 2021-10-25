@@ -62,7 +62,7 @@ includeFiles = "/mydata/**"
 [[module.mounts]]
 source = 'assets'
 target = 'assets'
-excludeFiles = "/**exclude.*"
+excludeFiles = ["/**exclude.*", "/moooo.*"]
 [[module.mounts]]
 source = 'i18n'
 target = 'i18n'
