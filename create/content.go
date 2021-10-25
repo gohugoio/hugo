@@ -91,6 +91,10 @@ func NewContent(h *hugolib.HugoSites, kind, targetPath string) error {
 		return errors.Errorf("failed to resolve %q to a archetype template", targetPath)
 	}
 
+	if !files.IsContentFile(b.targetPath) {
+		return errors.Errorf("target path  %q is not a kown content format", b.targetPath)
+	}
+
 	return b.buildFile()
 
 }
