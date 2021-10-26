@@ -1668,6 +1668,9 @@
         "failureLevel": "fatal",
         "workingFolderCurrent": false,
         "preserveTOC": false
+      },
+      "pandoc": {
+        "preserveTOC": false
       }
     },
     "mergeStrategy": {
