@@ -735,10 +735,9 @@ func assetGoldenDirs(c *qt.C, dir1, dir2 string) {
 
 		if !goldenEqual(nrgba1, nrgba2) {
 			switch fi1.Name() {
-			case "gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_4c320010919da2d8b63ed24818b4d8e1.png",
-				"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_9d4c2220235b3c2d9fa6506be571560f.png",
-				"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_c74bb417b961e09cf1aac2130b7b9b85.png",
-				"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_300x200_fill_gaussian_smart1_2.png":
+			case "gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_73c19c5f80881858a85aa23cd0ca400d.png",
+				"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_ae631e5252bb5d7b92bc766ad1a89069.png",
+				"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_d1bbfa2629bffb90118cacce3fcfb924.png":
 				c.Log("expectedly differs from golden due to dithering:", fi1.Name())
 			default:
 				c.Errorf("resulting image differs from golden: %s", fi1.Name())
