@@ -63,7 +63,7 @@ func (ns *Namespace) AsTime(v interface{}, args ...interface{}) (interface{}, er
 // the other form or returns it of the time.Time value. These are formatted
 // with the layout string
 func (ns *Namespace) Format(layout string, v interface{}) (string, error) {
-	t, err := cast.ToTimeE(v)
+	t, err := htime.ToTimeInDefaultLocationE(v, ns.location)
 	if err != nil {
 		return "", err
 	}
