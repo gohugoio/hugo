@@ -16,11 +16,11 @@ require (
 	github.com/cli/safeexec v1.0.0
 	github.com/disintegration/gift v1.2.1
 	github.com/dustin/go-humanize v1.0.0
-	github.com/evanw/esbuild v0.13.10
+	github.com/evanw/esbuild v0.13.11
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/frankban/quicktest v1.14.0
 	github.com/fsnotify/fsnotify v1.5.1
-	github.com/getkin/kin-openapi v0.79.0
+	github.com/getkin/kin-openapi v0.80.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/gobuffalo/flect v0.2.3
 	github.com/gobwas/glob v0.2.3
