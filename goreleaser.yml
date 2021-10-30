@@ -19,10 +19,6 @@ builds:
       - darwin
       - linux
       - windows
-      - freebsd
-      - netbsd
-      - openbsd
-      - dragonfly
     goarch:
       - amd64
       - 386
@@ -33,7 +29,22 @@ builds:
     ignore:
       - goos: darwin
         goarch: 386
-
+  -
+      binary: hugo
+      id: hugo_unix
+      ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }} -X github.com/gohugoio/hugo/common/hugo.vendorInfo=gohugoio
+      env:
+        - CGO_ENABLED=0
+      flags:
+        - -buildmode
+        - exe
+      goos:
+        - freebsd
+        - netbsd
+        - openbsd
+        - dragonfly
+      goarch:
+        - amd64
   -
     binary: hugo
     id: hugo_extended_windows
@@ -92,7 +103,7 @@ release:
 archives:
   -
     id: "hugo"
-    builds: ['hugo']
+    builds: ['hugo', 'hugo_unix']
     format: tar.gz
     format_overrides:
       - goos: windows
