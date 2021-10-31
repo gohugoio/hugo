@@ -37,7 +37,7 @@ How to automate the "publish at intervals" part depends on your situation:
 
 Also see this Twitter thread:
 
-{{< tweet 962380712027590657 >}}
+{{< tweet user="ChrisShort" id="962380712027590657" >}}
 
 [^date-hierarchy]: See [Configure Dates](https://gohugo.io/getting-started/configuration/#configure-dates) for the order in which the different date variables are complemented by each other when not explicitly set.
 
