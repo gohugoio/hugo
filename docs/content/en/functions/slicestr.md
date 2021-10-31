@@ -2,7 +2,6 @@
 title: slicestr
 # linktitle:
 description: Creates a slice of a half-open range, including start and end indices.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -24,4 +23,3 @@ The `end` index can be omitted; it defaults to the string's length.
 
 * `{{slicestr "BatMan" 3}}` → "Man"
 * `{{slicestr "BatMan" 0 3}}` → "Bat"
-

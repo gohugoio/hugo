@@ -2,7 +2,6 @@
 title: int
 linktitle: int
 description: Creates an `int` from the argument passed into the function.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

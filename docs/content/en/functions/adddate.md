@@ -1,7 +1,6 @@
 ---
 title: .AddDate
 description: Returns the time corresponding to adding the given number of years, months, and days passed to the function.
-godocref: https://golang.org/pkg/time/#Time.AddDate
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

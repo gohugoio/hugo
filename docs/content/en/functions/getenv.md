@@ -1,7 +1,6 @@
 ---
 title: getenv
 description: Returns the value of an environment variable.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

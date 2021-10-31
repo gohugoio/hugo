@@ -36,7 +36,7 @@ config [string]
 : Path to the PostCSS configuration file
 
 noMap [bool]
-: Default is `true`. Disable the default inline sourcemaps
+: Default is `false`. Disable the default inline sourcemaps
 
 inlineImports [bool] {{< new-in "0.66.0" >}}
 : Default is `false`. Enable inlining of @import statements. It does so recursively, but will only import a file once.

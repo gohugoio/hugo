@@ -1,7 +1,6 @@
 ---
 title: findRE
 description: Returns a list of strings that match the regular expression.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

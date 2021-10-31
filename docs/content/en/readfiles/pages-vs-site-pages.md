@@ -1,8 +1,8 @@
 * A _regular_ page is a "post" page or a "content" page.
   * A _leaf bundle_ is a regular page.
 * A _list_ page can list _regular_ pages and other _list_ pages. Some
-  examples are: homepage, section pages, _taxonomy term_ (`/tags/`) and
-  _taxonomy_ (`/tags/foo/`) pages.
+  examples are: homepage, section pages, _taxonomy_ (`/tags/`) and
+  _term_ (`/tags/foo/`) pages.
   * A _branch bundle_ is a _list_ page.
 
 `.Site.Pages`

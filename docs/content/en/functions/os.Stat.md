@@ -1,7 +1,6 @@
 ---
 title: os.Stat
 description: Gets a file information of a given path.
-godocref:
 date: 2018-08-07
 publishdate: 2018-08-07
 lastmod: 2018-08-07

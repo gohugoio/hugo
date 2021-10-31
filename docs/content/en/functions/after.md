@@ -1,7 +1,6 @@
 ---
 title: after
 description: "`after` slices an array to only the items after the <em>N</em>th item."
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

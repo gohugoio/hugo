@@ -1,7 +1,6 @@
 ---
 title: dict
 description: Creates a dictionary from a list of key and value pairs.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-26

@@ -2,7 +2,6 @@
 title: first
 linktitle: first
 description: "Slices an array to only the first _N_ elements."
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

@@ -1,8 +1,8 @@
 
 ---
 date: 2021-09-04
-title: "Hugo 0.88.1: A couple of Bug Fixes"
-description: "This version fixes a couple of bugs introduced in 0.88.0."
+title: "Hugo 0.88.1: One Fix"
+description: "This version fixes a release issue introduced in 0.88.0."
 categories: ["Releases"]
 images:
 - images/blog/hugo-bug-poster.png

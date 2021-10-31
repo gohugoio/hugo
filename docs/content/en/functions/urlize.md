@@ -10,7 +10,6 @@ menu:
   docs:
     parent: "functions"
 keywords: [urls,strings]
-godocref:
 signature: ["urlize INPUT"]
 hugoversion:
 deprecated: false

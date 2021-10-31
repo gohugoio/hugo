@@ -47,29 +47,27 @@ Disqus has its own [internal template](https://gohugo.io/templates/internal/#dis
 {{ template "_internal/disqus.html" . }}
 ```
 
-## Comments Alternatives
+## Alternatives
 
-There are a few alternatives to commenting on static sites for those who do not want to use Disqus:
+These are some alternatives to Disqus:
 
+* [Cactus Comments](https://cactus.chat/docs/integrations/hugo/) (Open Source, Matrix appservice, Docker install)
+* [Commento](https://commento.io/) (Open Source, available as a service, local install, or docker image)
+* [Graph Comment](https://graphcomment.com/)
+* [Hyvor Talk](https://talk.hyvor.com/) (Available as a service)
+* [IntenseDebate](https://intensedebate.com/)
+* [Isso](https://posativ.org/isso/) (Self-hosted, Python) ([tutorial][issotutorial])
+* [Muut](https://muut.com/)
+* [Remark42](https://remark42.com/) (Open source, Golang, Easy to run docker)
 * [Staticman](https://staticman.net/)
 * [Talkyard](https://www.talkyard.io/blog-comments) (Open source, & serverless hosting)
-* [IntenseDebate](https://intensedebate.com/)
-* [Graph Comment][]
-* [Muut](https://muut.com/)
-* [Isso](https://posativ.org/isso/) (Self-hosted, Python)
-    * [Tutorial on Implementing Isso with Hugo][issotutorial]
 * [Utterances](https://utteranc.es/) (Open source, GitHub comments widget built on GitHub issues)
-* [Remark](https://github.com/umputun/remark) (Open source, Golang, Easy to run docker)
-* [Commento](https://commento.io/) (Open Source, available as a service, local install, or docker image)
-* [Hyvor Talk](https://talk.hyvor.com/) (Available as a service)
-
 
 [configuration]: /getting-started/configuration/
 [disquspartial]: /templates/partials/#disqus
 [disqussetup]: https://disqus.com/profile/signup/
 [forum]: https://discourse.gohugo.io
 [front matter]: /content-management/front-matter/
-[Graph Comment]: https://graphcomment.com/
 [kaijuissue]: https://github.com/spf13/kaiju/issues/new
 [issotutorial]: https://stiobhart.net/2017-02-24-isso-comments/
 [partials]: /templates/partials/

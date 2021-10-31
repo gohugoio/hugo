@@ -2,7 +2,6 @@
 title: sort
 # linktitle: sort
 description: Sorts maps, arrays, and slices and returns a sorted slice.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -62,4 +61,3 @@ Authors: {{ range sort .Site.Params.authors "lastName" "desc" }}{{ .lastName }} 
 
 → Outputs Authors: Perkins Linsley Bergevin
 ```
-

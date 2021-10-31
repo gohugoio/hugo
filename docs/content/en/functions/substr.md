@@ -2,7 +2,6 @@
 title: substr
 # linktitle:
 description: Extracts parts of a string from a specified character's position and returns the specified number of characters.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

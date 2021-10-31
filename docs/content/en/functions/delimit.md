@@ -1,7 +1,6 @@
 ---
 title: delimit
 description: Loops through any array, slice, or map and returns a string of all the values separated by a delimiter.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

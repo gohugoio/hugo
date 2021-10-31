@@ -1,7 +1,6 @@
 ---
 title: Image Functions
 description: The images namespace provides a list of filters and other image related functions.
-godocref:
 date: 2017-02-01
 categories: [functions]
 aliases: [/functions/imageconfig/]

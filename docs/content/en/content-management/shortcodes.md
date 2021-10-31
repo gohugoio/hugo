@@ -2,7 +2,6 @@
 title: Shortcodes
 linktitle:
 description: Shortcodes are simple snippets inside your content files calling built-in or custom templates.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2019-11-07

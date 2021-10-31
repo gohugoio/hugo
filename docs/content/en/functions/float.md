@@ -2,7 +2,6 @@
 title: float
 linktitle: float
 description: Creates a `float` from the argument passed into the function.
-godocref:
 date: 2017-09-28
 publishdate: 2017-09-28
 lastmod: 2017-09-28

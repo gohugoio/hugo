@@ -2,7 +2,6 @@
 title: safeHTML
 # linktitle:
 description: Declares a provided string as a "safe" HTML document to avoid escaping by Go templates.
-godocref: https://golang.org/src/html/template/content.go?s=1374:1385#L25
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

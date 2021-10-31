@@ -1,7 +1,6 @@
 ---
 title: .Param
 description: Calls page or site variables into your template.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-04-30

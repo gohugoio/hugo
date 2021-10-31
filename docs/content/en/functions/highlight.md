@@ -2,7 +2,6 @@
 title: highlight
 linktitle: highlight
 description: Takes a string of code and language declaration and uses Chroma to return syntax-highlighted HTML.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

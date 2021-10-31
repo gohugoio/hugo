@@ -1,7 +1,6 @@
 ---
 title: path.Join
 description: Join path elements into a single path.
-godocref:
 date: 2018-11-28
 publishdate: 2018-11-28
 lastmod: 2018-11-28

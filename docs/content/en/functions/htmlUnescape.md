@@ -2,7 +2,6 @@
 title: htmlUnescape
 linktitle: htmlUnescape
 description: Returns the given string with HTML escape codes un-escaped.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
