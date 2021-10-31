@@ -2,7 +2,6 @@
 title: pluralize
 linktitle: pluralize
 description: Pluralizes the given word according to a set of common English pluralization rules
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -22,4 +21,3 @@ aliases: []
 ```
 {{ "cat" | pluralize }} → "cats"
 ```
-

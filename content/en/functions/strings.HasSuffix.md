@@ -1,7 +1,6 @@
 ---
 title: strings.HasSuffix
 description: Determine whether or not a given string ends with the provided trailing suffix string.
-godocref:
 date: 2019-08-13
 publishdate: 2019-08-13
 lastmod: 2019-08-13

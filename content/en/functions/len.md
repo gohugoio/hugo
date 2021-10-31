@@ -2,7 +2,6 @@
 title: len
 linktitle: len
 description: Returns the length of a variable according to its type.
-godocref: https://golang.org/pkg/builtin/#len
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-04-18

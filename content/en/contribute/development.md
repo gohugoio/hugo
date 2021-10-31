@@ -336,7 +336,7 @@ pick 33c8973 Begin workflow
 pick 3502f2e Refactoring and typo fixes
 ```
 
-In the case above we should merge the last to commits in the commit of this tutorial (`Add "How to contribute to Hugo" tutorial`). You can "squash" commits, i.e. merge two or more commits into a single one.
+In the case above we should merge the last two commits in the commit of this tutorial (`Add "How to contribute to Hugo" tutorial`). You can "squash" commits, i.e. merge two or more commits into a single one.
 
 All operations are written before the commit message. Replace "pick" with an operation. In this case `squash` or `s` for short:
 

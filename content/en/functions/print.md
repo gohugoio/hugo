@@ -2,7 +2,6 @@
 title: print
 linktitle: print
 description: Prints the default representation of the given arguments using the standard `fmt.Print` function.
-godocref: https://golang.org/pkg/fmt/
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

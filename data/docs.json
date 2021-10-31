@@ -3972,13 +3972,13 @@
               "-12,346"
             ],
             [
-              "{{ -98765.4321 | lang.NumFmt 2 }}",
+              "{{ -98765.4321 | lang.FormatNumberCustom 2 }}",
               "-98,765.43"
             ]
           ]
         },
         "FormatPercent": {
-          "Description": "FormatPercent formats number with the given precision for the current language.\nNote that the number is assumbed to be percent.",
+          "Description": "FormatPercent formats number with the given precision for the current language.\nNote that the number is assumed to be a percentage.",
           "Args": [
             "precision",
             "number"

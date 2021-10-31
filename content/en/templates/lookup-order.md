@@ -2,7 +2,6 @@
 title: Hugo's Lookup Order
 linktitle: Template Lookup Order
 description: Hugo searches for the layout to use for a given page in a well defined order, starting from the most specific.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-07-05

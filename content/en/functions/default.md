@@ -2,7 +2,6 @@
 title: default
 description: Allows setting a default value that can be returned if a first value is not set.
 qref: "Returns a default value if a value is not set when checked."
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

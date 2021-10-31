@@ -2,7 +2,6 @@
 title: Shortcodes
 linktitle:
 description: Shortcodes are simple snippets inside your content files calling built-in or custom templates.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2019-11-07
@@ -435,7 +434,6 @@ To learn more about creating custom shortcodes, see the [shortcode template docu
 [Instagram]: https://www.instagram.com/
 [pagevariables]: /variables/page/
 [partials]: /templates/partials/
-[Pygments]: https://pygments.org/
 [quickstart]: /getting-started/quick-start/
 [sctemps]: /templates/shortcode-templates/
 [scvars]: /variables/shortcodes/

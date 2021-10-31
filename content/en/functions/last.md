@@ -2,7 +2,6 @@
 title: last
 linktitle: last
 description: "slices an array to only the last <em>N</em>th elements."
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

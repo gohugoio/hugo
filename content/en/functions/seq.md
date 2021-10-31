@@ -2,7 +2,6 @@
 title: seq
 # linktitle:
 description: Creates a sequence of integers.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
