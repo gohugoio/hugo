@@ -2,7 +2,6 @@
 title: eq
 linktitle: eq
 description: Returns the boolean truth of arg1 == arg2.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

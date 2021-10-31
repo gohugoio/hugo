@@ -319,7 +319,7 @@ Default number of elements per page in [pagination](/templates/pagination/).
 
 **Default value:** "page"
 
-The path element used during pagination (https://example.com/page/2).
+The path element used during pagination (`https://example.com/page/2`).
 
 ### permalinks
 See [Content Management](/content-management/urls/#permalinks).
@@ -346,7 +346,7 @@ Enable this to make all relative URLs relative to content root. Note that this d
 
 **Default value:** "ERROR"
 
-When using `ref` or `relref` to resolve page links and a link cannot resolved, it will be logged with this logg level. Valid values are `ERROR` (default) or `WARNING`. Any `ERROR` will fail the build (`exit -1`).
+When using `ref` or `relref` to resolve page links and a link cannot resolved, it will be logged with this log level. Valid values are `ERROR` (default) or `WARNING`. Any `ERROR` will fail the build (`exit -1`).
 
 ### refLinksNotFoundURL
 URL to be used as a placeholder when a page reference cannot be found in `ref` or `relref`. Is used as-is.
@@ -450,7 +450,7 @@ noJSConfigInAssets {{< new-in "0.78.0" >}}
 
 {{< new-in "0.67.0" >}}
 
-This is only relevant when running `hugo server`, and it allows to set HTTP headers during development, which allows you to test out your Content Security Policy and similar. The configuration format matches [Netlify's](https://docs.netlify.com/routing/headers/#syntax-for-the-netlify-configuration-file) with slighly more powerful [Glob matching](https://github.com/gobwas/glob):
+This is only relevant when running `hugo server`, and it allows to set HTTP headers during development, which allows you to test out your Content Security Policy and similar. The configuration format matches [Netlify's](https://docs.netlify.com/routing/headers/#syntax-for-the-netlify-configuration-file) with slightly more powerful [Glob matching](https://github.com/gobwas/glob):
 
 
 {{< code-toggle file="config">}}

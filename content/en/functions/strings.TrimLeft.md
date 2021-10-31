@@ -1,7 +1,6 @@
 ---
 title: strings.TrimLeft
 description: Returns a slice of a given string with all leading characters contained in the cutset removed.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

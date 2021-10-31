@@ -1,7 +1,6 @@
 ---
 title: strings.TrimSuffix
 description: Returns a given string s without the provided trailing suffix string. If s doesn't end with suffix, s is returned unchanged.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

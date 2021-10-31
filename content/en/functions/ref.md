@@ -2,7 +2,6 @@
 title: ref
 linktitle: ref
 description: Returns the absolute permalink to a page.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2020-09-05

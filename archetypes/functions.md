@@ -1,7 +1,6 @@
 ---
 linktitle: ""
 description: ""
-godocref: ""
 publishdate: ""
 lastmod: ""
 categories: [functions]

@@ -2,7 +2,6 @@
 title: humanize
 linktitle:
 description: Returns the humanized version of an argument with the first letter capitalized.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

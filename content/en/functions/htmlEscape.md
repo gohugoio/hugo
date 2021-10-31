@@ -2,7 +2,6 @@
 title: htmlEscape
 linktitle:
 description: Returns the given string with the reserved HTML codes escaped.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

@@ -1,7 +1,6 @@
 ---
 title: .Format
 description: Formats built-in Hugo dates---`.Date`, `.PublishDate`, and `.Lastmod`---according to Go's layout string.
-godocref: https://golang.org/pkg/time/#example_Time_Format
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

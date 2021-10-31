@@ -1,7 +1,6 @@
 ---
 title: replaceRE
 description: Replaces all occurrences of a regular expression with the replacement pattern.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2020-09-07

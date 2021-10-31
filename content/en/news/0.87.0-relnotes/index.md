@@ -1,18 +1,18 @@
 
 ---
 date: 2021-08-03
-title: "0.87.0"
-description: "0.87.0"
+title: "Localized Time and Dates and Numbers"
+description: "Hugo 0.87.0 brings time zone support, localized time and dates and numbers backed by CLDR, and more."
 categories: ["Releases"]
 ---
 
-	Hugo `0.87` brings two long sought-after features: Default time zone support (per language if needed) for dates without zone offset or location info, and localized time and dates and numbers (backed by [CLDR](https://en.wikipedia.org/wiki/Common_Locale_Data_Repository)).
+Hugo `0.87` brings two long sought-after features: Default time zone support (per language if needed) for dates without zone offset or location info, and localized time and dates and numbers (backed by [CLDR](https://en.wikipedia.org/wiki/Common_Locale_Data_Repository)).
 
 For more information, see:
 
 * The [time zone config](https://gohugo.io/getting-started/configuration/#timezone) documentation.
 * The [time.Format](https://gohugo.io/functions/dateformat/) documentation. This function will now give you localized dates (with weekdays and months in the current language). It supports all of Go's layout syntax, but also some predefined constants, e.g. `{{ .Date | time.Format ":date_long" }}`.
-* A set of new [localized number formatting ](https://gohugo.io/functions/lang/)
+* A set of new [localized number formatting ](https://gohugo.io/functions/lang/) functions.
 
 Also in this release, we have switched to using [go-toml](https://github.com/pelletier/go-toml) for all things TOML in Hugo. A big thanks to [@pelletier](https://github.com/pelletier) for his work on the `v2` version. It's both faster than what we had and [TOML v1.0.0](https://toml.io/en/v1.0.0) compliant.
 

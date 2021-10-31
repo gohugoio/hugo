@@ -2,7 +2,6 @@
 title: hugo
 linktitle: hugo
 description: The `hugo` function provides easy access to Hugo-related data.
-godocref:
 date: 2019-01-31
 publishdate: 2019-01-31
 lastmod: 2019-01-31
@@ -50,4 +49,3 @@ hugo.IsProduction
 {{% note "Use the Hugo Generator Tag" %}}
 We highly recommend using `hugo.Generator` in your website's `<head>`. `hugo.Generator` is included by default in all themes hosted on [themes.gohugo.io](https://themes.gohugo.io). The generator tag allows the Hugo team to track the usage and popularity of Hugo.
 {{% /note %}}
-

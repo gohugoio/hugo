@@ -2,7 +2,6 @@
 title: hmac
 linktitle: hmac
 description: Compute the cryptographic checksum of a message.
-godocref:
 date: 2020-05-29
 publishdate: 2020-05-29
 lastmod: 2020-05-29

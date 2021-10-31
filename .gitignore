@@ -4,3 +4,4 @@ node_modules
 nohup.out
 .DS_Store
 trace.out
+.hugo_build.lock

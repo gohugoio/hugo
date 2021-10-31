@@ -1,7 +1,6 @@
 ---
 title: path.Ext
 description: Ext returns the file name extension of a path.
-godocref:
 date: 2018-11-28
 publishdate: 2018-11-28
 lastmod: 2018-11-28
