@@ -589,47 +589,99 @@ if (!doNotTrack) {
 	{`shortcodes/relref.html`, `{{ relref . .Params }}`},
 	{`shortcodes/twitter.html`, `{{- $pc := .Page.Site.Config.Privacy.Twitter -}}
 {{- if not $pc.Disable -}}
-{{- if $pc.Simple -}}
-{{ template "_internal/shortcodes/twitter_simple.html" . }}
-{{- else -}}
-{{- $url := printf "https://api.twitter.com/1/statuses/oembed.json?id=%v&dnt=%t" (index .Params 0) $pc.EnableDNT -}}
-{{- $json := getJSON $url -}}
-{{ $json.html | safeHTML }}
+  {{- if $pc.Simple -}}
+    {{- template "_internal/shortcodes/twitter_simple.html" . -}}
+  {{- else -}}
+    {{- $msg1 := "The %q shortcode requires two named parameters: user and id. See %s" -}}
+    {{- $msg2 := "The %q shortcode will soon require two named parameters: user and id. See %s" -}}
+    {{- if .IsNamedParams -}}
+      {{- $id := .Get "id" -}}
+      {{- $user := .Get "user" -}}
+      {{- if and $id $user -}}
+        {{- template "render-tweet" (dict "id" $id "user" $user "dnt" $pc.EnableDNT) -}}
+      {{- else -}}
+        {{- errorf $msg1 .Name .Position -}}
+      {{- end -}}
+    {{- else -}}
+      {{- $id := .Get 1 -}}
+      {{- $user := .Get 0 -}}
+      {{- if eq 1 (len .Params) -}}
+        {{- $id = .Get 0 -}}
+        {{- $user = "x" -}} {{/* This triggers a redirect. It works, but may not work forever. */}}
+        {{- warnf $msg2 .Name .Position -}}
+      {{- end -}}
+      {{- template "render-tweet" (dict "id" $id "user" $user "dnt" $pc.EnableDNT) -}}
+    {{- end -}}
+  {{- end -}}
 {{- end -}}
-{{- end -}}`},
+
+{{- define "render-tweet" -}}
+  {{- $url := printf "https://twitter.com/%v/status/%v" .user .id -}}
+  {{- $query := querify "url" $url "dnt" .dnt -}}
+  {{- $request := printf "https://publish.twitter.com/oembed?%s" $query -}}
+  {{- $json := getJSON $request -}}
+  {{- $json.html | safeHTML -}}
+{{- end -}}
+`},
 	{`shortcodes/twitter_simple.html`, `{{- $pc := .Page.Site.Config.Privacy.Twitter -}}
 {{- $sc := .Page.Site.Config.Services.Twitter -}}
 {{- if not $pc.Disable -}}
-{{- $id := .Get 0 -}}
-{{- $json := getJSON "https://api.twitter.com/1/statuses/oembed.json?id=" $id "&omit_script=true" -}}
-{{- if not $sc.DisableInlineCSS -}}
-{{ template "__h_simple_twitter_css" $ }}
-{{- end -}}
-{{ $json.html | safeHTML }}
+  {{- $msg1 := "The %q shortcode requires two named parameters: user and id. See %s" -}}
+  {{- $msg2 := "The %q shortcode will soon require two named parameters: user and id. See %s" -}}
+  {{- if .IsNamedParams -}}
+    {{- $id := .Get "id" -}}
+    {{- $user := .Get "user" -}}
+    {{- if and $id $user -}}
+      {{- template "render-simple-tweet" (dict "id" $id "user" $user "dnt" $pc.EnableDNT "disableInlineCSS" $sc.DisableInlineCSS "ctx" .) -}}
+    {{- else -}}
+      {{- errorf $msg1 .Name .Position -}}
+    {{- end -}}
+  {{- else -}}
+    {{- $id := .Get 1 -}}
+    {{- $user := .Get 0 -}}
+    {{- if eq 1 (len .Params) -}}
+      {{- $id = .Get 0 -}}
+      {{- $user = "x" -}} {{/* This triggers a redirect. It works, but may not work forever. */}}
+      {{- warnf $msg2 .Name .Position -}}
+    {{- end -}}
+    {{- template "render-simple-tweet" (dict "id" $id "user" $user "dnt" $pc.EnableDNT "disableInlineCSS" $sc.DisableInlineCSS "ctx" .) -}}
+  {{- end -}}
 {{- end -}}
 
-{{ define "__h_simple_twitter_css" }}
-{{ if not (.Page.Scratch.Get "__h_simple_twitter_css") }}
-{{/* Only include once */}}
-{{  .Page.Scratch.Set "__h_simple_twitter_css" true }}
-<style type="text/css">
-  .twitter-tweet {
-  font: 14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
-  border-left: 4px solid #2b7bb9;
-  padding-left: 1.5em;
-  color: #555;
-}
-  .twitter-tweet a {
-  color: #2b7bb9;
-  text-decoration: none;
-}
-  blockquote.twitter-tweet a:hover,
-  blockquote.twitter-tweet a:focus {
-  text-decoration: underline;
-}
-</style>
-{{ end }}
-{{ end }}`},
+{{- define "render-simple-tweet" -}}
+  {{- $url := printf "https://twitter.com/%v/status/%v" .user .id -}}
+  {{- $query := querify "url" $url "dnt" .dnt "omit_script" true -}}
+  {{- $request := printf "https://publish.twitter.com/oembed?%s" $query -}}
+  {{- $json := getJSON $request -}}
+  {{- if not .disableInlineCSS -}}
+    {{- template "__h_simple_twitter_css" .ctx -}}
+  {{- end }}
+  {{ $json.html | safeHTML -}}
+{{- end -}}
+
+{{- define "__h_simple_twitter_css" -}}
+  {{- if not (.Page.Scratch.Get "__h_simple_twitter_css") -}}
+    {{/* Only include once */}}
+    {{- .Page.Scratch.Set "__h_simple_twitter_css" true }}
+    <style type="text/css">
+      .twitter-tweet {
+        font: 14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+        border-left: 4px solid #2b7bb9;
+        padding-left: 1.5em;
+        color: #555;
+      }
+      .twitter-tweet a {
+        color: #2b7bb9;
+        text-decoration: none;
+      }
+      blockquote.twitter-tweet a:hover,
+      blockquote.twitter-tweet a:focus {
+        text-decoration: underline;
+      }
+    </style>
+  {{- end -}}
+{{- end -}}
+`},
 	{`shortcodes/vimeo.html`, `{{- $pc := .Page.Site.Config.Privacy.Vimeo -}}
 {{- if not $pc.Disable -}}
 {{- if $pc.Simple -}}
