@@ -88,6 +88,14 @@
         ]
       },
       {
+        "Name": "ArmAsm",
+        "Aliases": [
+          "S",
+          "armasm",
+          "s"
+        ]
+      },
+      {
         "Name": "Awk",
         "Aliases": [
           "awk",
@@ -131,6 +139,15 @@
           "shell",
           "zsh",
           "zshrc"
+        ]
+      },
+      {
+        "Name": "BashSession",
+        "Aliases": [
+          "bash-session",
+          "console",
+          "sh-session",
+          "shell-session"
         ]
       },
       {
@@ -434,6 +451,13 @@
         "Name": "Factor",
         "Aliases": [
           "factor"
+        ]
+      },
+      {
+        "Name": "Fennel",
+        "Aliases": [
+          "fennel",
+          "fnl"
         ]
       },
       {
@@ -803,6 +827,15 @@
         ]
       },
       {
+        "Name": "Meson",
+        "Aliases": [
+          "build",
+          "meson",
+          "meson.build",
+          "txt"
+        ]
+      },
+      {
         "Name": "Metal",
         "Aliases": [
           "metal"
@@ -923,6 +956,19 @@
         "Aliases": [
           "m",
           "octave"
+        ]
+      },
+      {
+        "Name": "OnesEnterprise",
+        "Aliases": [
+          "1S",
+          "1S:Enterprise",
+          "EPF",
+          "ERF",
+          "epf",
+          "erf",
+          "ones",
+          "onesenterprise"
         ]
       },
       {
@@ -1267,6 +1313,13 @@
         "Name": "SCSS",
         "Aliases": [
           "scss"
+        ]
+      },
+      {
+        "Name": "Sieve",
+        "Aliases": [
+          "sieve",
+          "siv"
         ]
       },
       {
@@ -3903,7 +3956,7 @@
       },
       "lang": {
         "FormatAccounting": {
-          "Description": "FormatAccounting returns the currency reprecentation of number for the given currency and precision\nfor the current language in accounting notation.",
+          "Description": "FormatAccounting returns the currency representation of number for the given currency and precision\nfor the current language in accounting notation.\n\nThe return value is formatted with at least two decimal places.",
           "Args": [
             "precision",
             "currency",
@@ -3918,7 +3971,7 @@
           ]
         },
         "FormatCurrency": {
-          "Description": "FormatCurrency returns the currency reprecentation of number for the given currency and precision\nfor the current language.",
+          "Description": "FormatCurrency returns the currency representation of number for the given currency and precision\nfor the current language.\n\nThe return value is formatted with at least two decimal places.",
           "Args": [
             "precision",
             "currency",
@@ -3947,7 +4000,7 @@
           ]
         },
         "FormatNumberCustom": {
-          "Description": "FormatNumberCustom formats a number with the given precision using the\nnegative, decimal, and grouping options.  The `options`\nparameter is a string consisting of `\u003cnegative\u003e \u003cdecimal\u003e \u003cgrouping\u003e`.  The\ndefault `options` value is `- . ,`.\n\nNote that numbers are rounded up at 5 or greater.\nSo, with precision set to 0, 1.5 becomes `2`, and 1.4 becomes `1`.\n\nFor a simpler function that adapts to the current language, see FormatNumberCustom.",
+          "Description": "FormatNumberCustom formats a number with the given precision using the\nnegative, decimal, and grouping options.  The `options`\nparameter is a string consisting of `\u003cnegative\u003e \u003cdecimal\u003e \u003cgrouping\u003e`.  The\ndefault `options` value is `- . ,`.\n\nNote that numbers are rounded up at 5 or greater.\nSo, with precision set to 0, 1.5 becomes `2`, and 1.4 becomes `1`.\n\nFor a simpler function that adapts to the current language, see FormatNumber.",
           "Args": [
             "precision",
             "number",
@@ -4326,6 +4379,12 @@
       },
       "path": {
         "Base": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Clean": {
           "Description": "",
           "Args": null,
           "Aliases": null,
