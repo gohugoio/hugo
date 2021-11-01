@@ -120,7 +120,7 @@ type FileInfo struct {
 	translationBaseName string
 	contentBaseName     string
 	section             string
-	isLeafBundle        bool
+	classifier          files.ContentClass
 
 	uniqueID string
 
@@ -199,12 +199,12 @@ func (fi *FileInfo) init() {
 		relDir := strings.Trim(fi.relDir, helpers.FilePathSeparator)
 		parts := strings.Split(relDir, helpers.FilePathSeparator)
 		var section string
-		if (!fi.isLeafBundle && len(parts) == 1) || len(parts) > 1 {
+		if (fi.classifier != files.ContentClassLeaf && len(parts) == 1) || len(parts) > 1 {
 			section = parts[0]
 		}
 		fi.section = section
 
-		if fi.isLeafBundle && len(parts) > 0 {
+		if fi.classifier.IsBundle() && len(parts) > 0 {
 			fi.contentBaseName = parts[len(parts)-1]
 		} else {
 			fi.contentBaseName = fi.translationBaseName
@@ -238,7 +238,6 @@ func (sp *SourceSpec) NewFileInfo(fi hugofs.FileMetaInfo) (*FileInfo, error) {
 
 	filename := m.Filename
 	relPath := m.Path
-	isLeafBundle := m.Classifier == files.ContentClassLeaf
 
 	if relPath == "" {
 		return nil, errors.Errorf("no Path provided by %v (%T)", m, m.Fs)
@@ -287,7 +286,7 @@ func (sp *SourceSpec) NewFileInfo(fi hugofs.FileMetaInfo) (*FileInfo, error) {
 		name:                name,
 		baseName:            baseName, // BaseFileName()
 		translationBaseName: translationBaseName,
-		isLeafBundle:        isLeafBundle,
+		classifier:          m.Classifier,
 	}
 
 	return f, nil
