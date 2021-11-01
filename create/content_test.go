@@ -50,6 +50,8 @@ func TestNewContent(t *testing.T) {
 		{"No archetype", "", "sample-3.md", []string{`title: "Sample 3"`}},                        // no archetype
 		{"Empty archetype", "product", "product/sample-4.md", []string{`title = "SAMPLE-4"`}},     // empty archetype front matter
 		{"Filenames", "filenames", "content/mypage/index.md", []string{"title = \"INDEX\"\n+++\n\n\nContentBaseName: mypage"}},
+		{"Branch Name", "name", "content/tags/tag-a/_index.md", []string{"+++\ntitle = 'Tag A'\n+++"}},
+
 		{"Lang 1", "lang", "post/lang-1.md", []string{`Site Lang: en|Name: Lang 1|i18n: Hugo Rocks!`}},
 		{"Lang 2", "lang", "post/lang-2.en.md", []string{`Site Lang: en|Name: Lang 2|i18n: Hugo Rocks!`}},
 		{"Lang nn file", "lang", "content/post/lang-3.nn.md", []string{`Site Lang: nn|Name: Lang 3|i18n: Hugo Rokkar!`}},
@@ -273,6 +275,12 @@ title: Test
 		{
 			path:    filepath.Join("archetypes", "post.org"),
 			content: "#+title: {{ .BaseFileName  | upper }}",
+		},
+		{
+			path: filepath.Join("archetypes", "name.md"),
+			content: `+++
+title = '{{ replace .Name "-" " " | title }}'
++++`,
 		},
 		{
 			path: filepath.Join("archetypes", "product.md"),
