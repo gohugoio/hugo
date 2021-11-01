@@ -123,9 +123,13 @@ func (f TimeFormatter) Format(t time.Time, layout string) string {
 	dayIdx := t.Weekday()
 
 	s = strings.ReplaceAll(s, longMonthNames[monthIdx], f.ltr.MonthWide(t.Month()))
-	s = strings.ReplaceAll(s, shortMonthNames[monthIdx], f.ltr.MonthAbbreviated(t.Month()))
+	if !strings.Contains(s, f.ltr.MonthWide(t.Month())) {
+		s = strings.ReplaceAll(s, shortMonthNames[monthIdx], f.ltr.MonthAbbreviated(t.Month()))
+	}
 	s = strings.ReplaceAll(s, longDayNames[dayIdx], f.ltr.WeekdayWide(t.Weekday()))
-	s = strings.ReplaceAll(s, shortDayNames[dayIdx], f.ltr.WeekdayAbbreviated(t.Weekday()))
+	if !strings.Contains(s, f.ltr.WeekdayWide(t.Weekday())) {
+		s = strings.ReplaceAll(s, shortDayNames[dayIdx], f.ltr.WeekdayAbbreviated(t.Weekday()))
+	}
 
 	return s
 }
