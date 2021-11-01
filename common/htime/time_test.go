@@ -17,8 +17,8 @@ import (
 	"testing"
 	"time"
 
-	translators "github.com/gohugoio/localescompressed"
 	qt "github.com/frankban/quicktest"
+	translators "github.com/gohugoio/localescompressed"
 )
 
 func TestTimeFormatter(t *testing.T) {
@@ -26,6 +26,12 @@ func TestTimeFormatter(t *testing.T) {
 
 	june06, _ := time.Parse("2006-Jan-02", "2018-Jun-06")
 	june06 = june06.Add(7777 * time.Second)
+
+	jan06, _ := time.Parse("2006-Jan-02", "2018-Jan-06")
+	jan06 = jan06.Add(32 * time.Second)
+
+	mondayNovemberFirst, _ := time.Parse("2006-Jan-02", "2021-11-01")
+	mondayNovemberFirst = mondayNovemberFirst.Add(33 * time.Second)
 
 	c.Run("Norsk nynorsk", func(c *qt.C) {
 		f := NewTimeFormatter(translators.GetTranslator("nn"))
@@ -71,6 +77,37 @@ func TestTimeFormatter(t *testing.T) {
 		c.Assert(f.Format(june06, "Monday Jan 2 2006"), qt.Equals, "Wednesday Jun 6 2018")
 		c.Assert(f.Format(june06, "Mon January 2 2006"), qt.Equals, "Wed June 6 2018")
 		c.Assert(f.Format(june06, "Mon Mon"), qt.Equals, "Wed Wed")
+	})
+
+	c.Run("Weekdays German", func(c *qt.C) {
+		tr := translators.GetTranslator("de")
+		f := NewTimeFormatter(tr)
+
+		// Issue #9107
+		for i, weekDayWideGerman := range []string{"Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"} {
+			date := mondayNovemberFirst.Add(time.Duration(i*24) * time.Hour)
+			c.Assert(tr.WeekdayWide(date.Weekday()), qt.Equals, weekDayWideGerman)
+			c.Assert(f.Format(date, "Monday"), qt.Equals, weekDayWideGerman)
+		}
+
+		for i, weekDayAbbreviatedGerman := range []string{"Mo.", "Di.", "Mi.", "Do.", "Fr.", "Sa.", "So."} {
+			date := mondayNovemberFirst.Add(time.Duration(i*24) * time.Hour)
+			c.Assert(tr.WeekdayAbbreviated(date.Weekday()), qt.Equals, weekDayAbbreviatedGerman)
+			c.Assert(f.Format(date, "Mon"), qt.Equals, weekDayAbbreviatedGerman)
+		}
+	})
+
+	c.Run("Months German", func(c *qt.C) {
+		tr := translators.GetTranslator("de")
+		f := NewTimeFormatter(tr)
+
+		// Issue #9107
+		for i, monthWideNorway := range []string{"Januar", "Februar", "März", "April", "Mai", "Juni", "Juli"} {
+			date := jan06.Add(time.Duration(i*24*31) * time.Hour)
+			c.Assert(tr.MonthWide(date.Month()), qt.Equals, monthWideNorway)
+			c.Assert(f.Format(date, "January"), qt.Equals, monthWideNorway)
+		}
+
 	})
 
 }
