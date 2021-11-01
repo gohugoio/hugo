@@ -20,8 +20,8 @@ import (
 	"strconv"
 	"strings"
 
-	translators "github.com/gohugoio/localescompressed"
 	"github.com/gohugoio/locales"
+	translators "github.com/gohugoio/localescompressed"
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/deps"
@@ -138,7 +138,7 @@ func (ns *Namespace) castPrecisionNumber(precision, number interface{}) (uint64,
 // Note that numbers are rounded up at 5 or greater.
 // So, with precision set to 0, 1.5 becomes `2`, and 1.4 becomes `1`.
 //
-// For a simpler function that adapts to the current language, see FormatNumberCustom.
+// For a simpler function that adapts to the current language, see FormatNumber.
 func (ns *Namespace) FormatNumberCustom(precision, number interface{}, options ...interface{}) (string, error) {
 	prec, err := cast.ToIntE(precision)
 	if err != nil {
