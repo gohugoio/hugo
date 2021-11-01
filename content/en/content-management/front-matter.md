@@ -128,8 +128,7 @@ type
 : the type of the content; this value will be automatically derived from the directory (i.e., the [section][]) if not specified in front matter.
 
 url
-: the full path to the content from the web root. It makes no assumptions about the path of the content file. It also ignores any language prefixes of
-the multilingual feature.
+: the full path to the content from the web root. It makes no assumptions about the path of the content file. See [URL Management](/content-management/urls/#set-url-in-front-matter).
 
 videos
 : an array of paths to videos related to the page; used by the `opengraph` [internal template](/templates/internal) to populate `og:video`.
