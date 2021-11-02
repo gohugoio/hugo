@@ -123,7 +123,7 @@ toLower
 
 This feature has been in the back log and requested by many for a long time. The development got this recent kick start from this Twitter thread:
 
-{{< tweet 898398437527363585 >}}
+{{< tweet user="scott_lowe" id="898398437527363585" >}}
 
 Scott S. Lowe removed the "Related Content" section built using the `intersect` template function on tags, and the build time dropped from 30 seconds to less than 2 seconds on his 1700 content page sized blog.
 

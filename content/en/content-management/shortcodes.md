@@ -310,15 +310,15 @@ Assuming that standard Hugo pretty URLs are turned on.
 You want to include a single tweet into your blog post? Everything you need is the URL of the tweet:
 
 ```
-https://twitter.com/spf13/status/877500564405444608
+https://twitter.com/SanDiegoZoo/status/1453110110599868418
 ```
 
 #### Example `tweet` Input
 
-Pass the tweet's ID from the URL as a parameter to the `tweet` shortcode:
+Pass the tweet's user (case-insensitive) and id from the URL as parameters to the `tweet` shortcode.
 
 {{< code file="example-tweet-input.md" >}}
-{{</* tweet 877500564405444608 */>}}
+{{</* tweet user="SanDiegoZoo" id="1453110110599868418" */>}}
 {{< /code >}}
 
 #### Example `tweet` Output
@@ -326,14 +326,14 @@ Pass the tweet's ID from the URL as a parameter to the `tweet` shortcode:
 Using the preceding `tweet` example, the following HTML will be added to your rendered website's markup:
 
 {{< output file="example-tweet-output.html" >}}
-{{< tweet 877500564405444608 >}}
+{{< tweet user="SanDiegoZoo" id="1453110110599868418" >}}
 {{< /output >}}
 
 #### Example `tweet` Display
 
 Using the preceding `tweet` example, the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
 
-{{< tweet 877500564405444608 >}}
+{{< tweet user="SanDiegoZoo" id="1453110110599868418" >}}
 
 ### `vimeo`
 
