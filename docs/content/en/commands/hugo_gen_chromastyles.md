@@ -9,9 +9,9 @@ Generate CSS stylesheet for the Chroma code highlighter
 
 ### Synopsis
 
-Generate CSS stylesheet for the Chroma code highlighter for a given style. This stylesheet is needed if pygmentsUseClasses is enabled in config.
+Generate CSS stylesheet for the Chroma code highlighter for a given style. This stylesheet is needed if markup.highlight.noClasses is disabled in config.
 
-See https://help.farbox.com/pygments.html for preview of available styles
+See https://xyproto.github.io/splash/docs/all.html for a preview of the available styles
 
 ```
 hugo gen chromastyles [flags]
@@ -23,7 +23,7 @@ hugo gen chromastyles [flags]
   -h, --help                    help for chromastyles
       --highlightStyle string   style used for highlighting lines (see https://github.com/alecthomas/chroma) (default "bg:#ffffcc")
       --linesStyle string       style used for line numbers (see https://github.com/alecthomas/chroma)
-      --style string            highlighter style (see https://help.farbox.com/pygments.html) (default "friendly")
+      --style string            highlighter style (see https://xyproto.github.io/splash/docs/) (default "friendly")
 ```
 
 ### Options inherited from parent commands
