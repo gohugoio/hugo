@@ -1,12 +1,11 @@
 
 ---
 date: 2021-11-02
-title: "0.89.0"
-description: "0.89.0"
+title: "Fine Grained File Filters"
+description: "Hugo 0.89.0 brings fine grained file filters, archetype rewrite, dependency refresh, and more ..."
 categories: ["Releases"]
 ---
 
-	
 This release is a dependency refresh (the new Goldmark verion comes with a lot of bug fixes, as one example), many bug fixes, but also some nice new features:
 
 We have added the [configuration settings](https://gohugo.io/hugo-modules/configuration/#module-config-mounts) **includeFiles** and **excludeFiles** to the mount configuration. This allows fine grained control over what files to include, and it works for all of Hugo's file systems (including `/static`).
