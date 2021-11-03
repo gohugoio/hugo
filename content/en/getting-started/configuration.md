@@ -351,6 +351,17 @@ When using `ref` or `relref` to resolve page links and a link cannot resolved, i
 ### refLinksNotFoundURL
 URL to be used as a placeholder when a page reference cannot be found in `ref` or `relref`. Is used as-is.
 
+### removePathAccents
+
+**Default value:** false
+
+Removes [non-spacing marks](https://www.compart.com/en/unicode/category/Mn) from [composite characters](https://en.wikipedia.org/wiki/Precomposed_character) in content paths.
+
+```text
+content/post/hügó.md --> https://example.org/post/hugo/
+```
+
+
 ### rssLimit
 
 Maximum number of items in the RSS feed.
