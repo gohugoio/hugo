@@ -65,7 +65,7 @@ audio
 : an array of paths to audio files related to the page; used by the `opengraph` [internal template](/templates/internal) to populate `og:audio`.
 
 cascade
-: a map of Front Matter keys whose values are passed down to the page's descendents unless overwritten by self or a closer ancestor's cascade. See [Front Matter Cascade](#front-matter-cascade) for details.
+: a map of Front Matter keys whose values are passed down to the page's descendants unless overwritten by self or a closer ancestor's cascade. See [Front Matter Cascade](#front-matter-cascade) for details.
 
 date
 : the datetime assigned to this page. This is usually fetched from the `date` field in front matter, but this behaviour is configurable.
@@ -156,7 +156,7 @@ show_comments: false
 
 ## Front Matter Cascade
 
-Any node or section can pass down to descendents a set of Front Matter values as long as defined underneath the reserved `cascade` Front Matter key.
+Any node or section can pass down to descendants a set of Front Matter values as long as defined underneath the reserved `cascade` Front Matter key.
 
 ### Target Specific Pages
 
@@ -201,9 +201,9 @@ cascade:
   banner: images/typewriter.jpg
 {{</ code-toggle >}}
 
-With the above example the Blog section page and its descendents will return `images/typewriter.jpg` when `.Params.banner` is invoked unless:
+With the above example the Blog section page and its descendants will return `images/typewriter.jpg` when `.Params.banner` is invoked unless:
 
-- Said descendent has its own `banner` value set 
+- Said descendant has its own `banner` value set 
 - Or a closer ancestor node has its own `cascade.banner` value set.
 
 

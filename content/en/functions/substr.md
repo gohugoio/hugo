@@ -22,7 +22,7 @@ It normally takes two parameters: `start` and `length`. It can also take one par
 
 To extract characters from the end of the string, use a negative start number.
 
-In addition, borrowing from the extended behavior described at https://php.net substr, if `length` is given and is negative, that number of characters will be omitted from the end of string.
+If `length` is given and is negative, that number of characters will be omitted from the end of string.
 
 ```
 {{ substr "abcdef" 0 }} → "abcdef"

@@ -20,7 +20,7 @@ aliases: []
 `.GetPage` returns a page of a given `path`. Both `Site` and `Page` implements this method. The `Page` variant will, if given a relative path -- i.e. a path without a leading `/` -- try look for the page relative to the current page.
 
 {{% note %}}
-**Note:** We overhauled and simplified the `.GetPage` API in Hugo 0.45. Before that you needed to provide a `Kind` attribute in addition to the path, e.g. `{{ .Site.GetPage "section" "blog" }}`. This will still work, but is now superflous.
+**Note:** We overhauled and simplified the `.GetPage` API in Hugo 0.45. Before that you needed to provide a `Kind` attribute in addition to the path, e.g. `{{ .Site.GetPage "section" "blog" }}`. This will still work, but is now superfluous.
 {{% /note %}}
 
 
@@ -28,7 +28,7 @@ aliases: []
 {{ with .Site.GetPage "/blog" }}{{ .Title }}{{ end }}
 ```
 
-This method wil return `nil` when no page could be found, so the above will not print anything if the blog section is not found.
+This method will return `nil` when no page could be found, so the above will not print anything if the blog section is not found.
 
 To find a regular page in the blog section::
 
