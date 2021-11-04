@@ -165,7 +165,7 @@ func TestResolveComponentInAssets(t *testing.T) {
 
 			bfs := hugofs.DecorateBasePathFs(afero.NewBasePathFs(mfs, baseDir).(*afero.BasePathFs))
 
-			got := resolveComponentInAssets(bfs, test.impPath)
+			got := resolveComponentInFs(bfs, test.impPath)
 
 			gotPath := ""
 			if got != nil {

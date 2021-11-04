@@ -19,6 +19,7 @@ import (
 	"image"
 	"io"
 	"path"
+	"path/filepath"
 	"strings"
 	"sync"
 
@@ -96,6 +97,12 @@ type ResourceTransformationCtx struct {
 
 	// This is the relative target path to the resource. Unix styled slashes.
 	InPath string
+
+	// The component type (e.g. "content") if the source is a file.
+	Component string
+
+	// The base directory inside Component if the source is a file.
+	ComponentBase string
 
 	// The relative target path to the transformed resource. Unix styled slashes.
 	OutPath string
@@ -371,6 +378,13 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 
 	tctx.InPath = r.target.TargetPath()
 	tctx.SourcePath = tctx.InPath
+
+	if r.target.getFileInfo() != nil {
+		meta := r.target.getFileInfo().Meta()
+		mp := filepath.FromSlash(meta.Path)
+		tctx.Component = meta.Component
+		tctx.ComponentBase = strings.TrimSuffix(strings.TrimSuffix(mp, tctx.SourcePath), "/")
+	}
 
 	counter := 0
 	writeToFileCache := false

@@ -596,14 +596,6 @@ func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesys
 	return collector, err
 }
 
-func (b *sourceFilesystemsBuilder) isContentMount(mnt modules.Mount) bool {
-	return strings.HasPrefix(mnt.Target, files.ComponentFolderContent)
-}
-
-func (b *sourceFilesystemsBuilder) isStaticMount(mnt modules.Mount) bool {
-	return strings.HasPrefix(mnt.Target, files.ComponentFolderStatic)
-}
-
 func (b *sourceFilesystemsBuilder) createModFs(
 	collector *filesystemsCollector,
 	md mountsDescriptor) error {
@@ -637,6 +629,11 @@ func (b *sourceFilesystemsBuilder) createModFs(
 
 		base, filename := absPathify(mount.Source)
 
+		component := files.ResolveComponentFolder(mount.Target)
+		if component == "" {
+			return errors.Errorf("failed to resolve  component folder for mount %q", mount.Target)
+		}
+
 		rm := hugofs.RootMapping{
 			From:      mount.Target,
 			To:        filename,
@@ -645,12 +642,13 @@ func (b *sourceFilesystemsBuilder) createModFs(
 			Meta: &hugofs.FileMeta{
 				Watch:           md.Watch(),
 				Weight:          mountWeight,
+				Component:       component,
 				Classifier:      files.ContentClassContent,
 				InclusionFilter: inclusionFilter,
 			},
 		}
 
-		isContentMount := b.isContentMount(mount)
+		isContentMount := component == files.ComponentFolderContent
 
 		lang := mount.Lang
 		if lang == "" && isContentMount {
@@ -659,13 +657,15 @@ func (b *sourceFilesystemsBuilder) createModFs(
 
 		rm.Meta.Lang = lang
 
-		if isContentMount {
+		switch component {
+		case files.ComponentFolderContent:
 			fromToContent = append(fromToContent, rm)
-		} else if b.isStaticMount(mount) {
+		case files.ComponentFolderStatic:
 			fromToStatic = append(fromToStatic, rm)
-		} else {
+		default:
 			fromTo = append(fromTo, rm)
 		}
+
 	}
 
 	modBase := collector.sourceProject

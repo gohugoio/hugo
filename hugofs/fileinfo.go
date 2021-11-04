@@ -66,6 +66,7 @@ type FileMeta struct {
 	IsRootFile bool
 	Watch      bool
 
+	Component  string
 	Classifier files.ContentClass
 
 	SkipDir bool

@@ -22,6 +22,8 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/gohugoio/hugo/hugofs/files"
+
 	"github.com/pkg/errors"
 
 	"github.com/spf13/afero"
@@ -86,12 +88,21 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	opts.contents = string(src)
 	opts.mediaType = ctx.InMediaType
 
+	resolveFs := t.c.rs.Assets.Fs
+
+	if ctx.Component == files.ComponentFolderContent {
+		// Create a filesystem restricted to the base dir of this content
+		// resource and look there first before falling back to /assets.
+		contenFs := afero.NewBasePathFs(t.c.rs.Content.Fs, ctx.ComponentBase)
+		resolveFs = afero.NewCopyOnWriteFs(t.c.rs.Assets.Fs, contenFs)
+	}
+
 	buildOptions, err := toBuildOptions(opts)
 	if err != nil {
 		return err
 	}
 
-	buildOptions.Plugins, err = createBuildPlugins(t.c, opts)
+	buildOptions.Plugins, err = createBuildPlugins(resolveFs, t.c, opts)
 	if err != nil {
 		return err
 	}
@@ -112,7 +123,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 				return errors.Errorf("inject: absolute paths not supported, must be relative to /assets")
 			}
 
-			m := resolveComponentInAssets(t.c.rs.Assets.Fs, impPath)
+			m := resolveComponentInFs(resolveFs, impPath)
 
 			if m == nil {
 				return errors.Errorf("inject: file %q not found", ext)

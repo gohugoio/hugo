@@ -143,7 +143,7 @@ func loaderFromFilename(filename string) api.Loader {
 	return api.LoaderJS
 }
 
-func resolveComponentInAssets(fs afero.Fs, impPath string) *hugofs.FileMeta {
+func resolveComponentInFs(fs afero.Fs, impPath string) *hugofs.FileMeta {
 	findFirst := func(base string) *hugofs.FileMeta {
 		// This is the most common sub-set of ESBuild's default extensions.
 		// We assume that imports of JSON, CSS etc. will be using their full
@@ -192,9 +192,7 @@ func resolveComponentInAssets(fs afero.Fs, impPath string) *hugofs.FileMeta {
 	return m
 }
 
-func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
-	fs := c.rs.Assets
-
+func createBuildPlugins(resolveFs afero.Fs, c *Client, opts Options) ([]api.Plugin, error) {
 	resolveImport := func(args api.OnResolveArgs) (api.OnResolveResult, error) {
 		impPath := args.Path
 		if opts.Shims != nil {
@@ -206,7 +204,8 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 		isStdin := args.Importer == stdinImporter
 		var relDir string
 		if !isStdin {
-			rel, found := fs.MakePathRelative(args.Importer)
+			// TODO1
+			rel, found := c.rs.Assets.MakePathRelative(args.Importer)
 			if !found {
 				// Not in any of the /assets folders.
 				// This is an import from a node_modules, let
@@ -224,7 +223,7 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 			impPath = filepath.Join(relDir, impPath)
 		}
 
-		m := resolveComponentInAssets(fs.Fs, impPath)
+		m := resolveComponentInFs(resolveFs, impPath)
 
 		if m != nil {
 			// Store the source root so we can create a jsconfig.json
