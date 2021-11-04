@@ -56,11 +56,6 @@ func NewContent(h *hugolib.HugoSites, kind, targetPath string) error {
 	if h.BaseFs.Content.Dirs == nil {
 		return errors.New("no existing content directory configured for this project")
 	}
-	unlock, err := h.BaseFs.LockBuild()
-	if err != nil {
-		return fmt.Errorf("failed to acquire a build lock: %s", err)
-	}
-	defer unlock()
 
 	cf := hugolib.NewContentFactory(h)
 
@@ -83,19 +78,39 @@ func NewContent(h *hugolib.HugoSites, kind, targetPath string) error {
 
 	b.setArcheTypeFilenameToUse(ext)
 
-	if b.isDir {
-		return b.buildDir()
+	withBuildLock := func() (string, error) {
+		unlock, err := h.BaseFs.LockBuild()
+		if err != nil {
+			return "", fmt.Errorf("failed to acquire a build lock: %s", err)
+		}
+		defer unlock()
+
+		if b.isDir {
+			return "", b.buildDir()
+		}
+
+		if ext == "" {
+			return "", errors.Errorf("failed to resolve %q to a archetype template", targetPath)
+		}
+
+		if !files.IsContentFile(b.targetPath) {
+			return "", errors.Errorf("target path %q is not a known content format", b.targetPath)
+		}
+
+		return b.buildFile()
+
 	}
 
-	if ext == "" {
-		return errors.Errorf("failed to resolve %q to a archetype template", targetPath)
+	filename, err := withBuildLock()
+	if err != nil {
+		return err
 	}
 
-	if !files.IsContentFile(b.targetPath) {
-		return errors.Errorf("target path %q is not a known content format", b.targetPath)
+	if filename != "" {
+		return b.openInEditorIfConfigured(filename)
 	}
 
-	return b.buildFile()
+	return nil
 
 }
 
@@ -195,15 +210,15 @@ func (b *contentBuilder) buildDir() error {
 	return nil
 }
 
-func (b *contentBuilder) buildFile() error {
+func (b *contentBuilder) buildFile() (string, error) {
 	contentPlaceholderAbsFilename, err := b.cf.CreateContentPlaceHolder(b.targetPath)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	usesSite, err := b.usesSiteVar(b.archetypeFilename)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	var contentInclusionFilter *glob.FilenameFilter
@@ -216,16 +231,16 @@ func (b *contentBuilder) buildFile() error {
 	}
 
 	if err := b.h.Build(hugolib.BuildCfg{NoBuildLock: true, SkipRender: true, ContentInclusionFilter: contentInclusionFilter}); err != nil {
-		return err
+		return "", err
 	}
 
 	if err := b.applyArcheType(contentPlaceholderAbsFilename, b.archetypeFilename); err != nil {
-		return err
+		return "", err
 	}
 
 	b.h.Log.Infof("Content %q created", contentPlaceholderAbsFilename)
 
-	return b.openInEditorIfConfigured(contentPlaceholderAbsFilename)
+	return contentPlaceholderAbsFilename, nil
 }
 
 func (b *contentBuilder) setArcheTypeFilenameToUse(ext string) {
