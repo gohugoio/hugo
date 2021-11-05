@@ -4,6 +4,7 @@ require (
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
 	github.com/PuerkitoBio/purell v1.1.1
 	github.com/alecthomas/chroma v0.10.0
+	github.com/alexsergivan/transliterator v1.0.0
 	github.com/armon/go-radix v1.0.0
 	github.com/aws/aws-sdk-go v1.43.31
 	github.com/bep/debounce v1.2.0

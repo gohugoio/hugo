@@ -253,6 +253,42 @@ func TestPlainify(t *testing.T) {
 	}
 }
 
+func TestTransliterate(t *testing.T) {
+	t.Parallel()
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{T: t},
+	).Build()
+
+	v := config.New()
+	ns := transform.New(&deps.Deps{Cfg: v})
+
+	for _, test := range []struct {
+		s      any
+		lang   any
+		expect any
+	}{
+		{"çđħłƚŧ", "en", "cdhllt"},
+		{"ÄÖÜäöüß", "en", "AOUaouss"},
+		{"Hugo", "en", "Hugo"},
+		{"çđħłƚŧ", "de", "cdhllt"},
+		{"ÄÖÜäöüß", "de", "AeOeUeaeoeuess"},
+		{"Hugo", "de", "Hugo"},
+		{tstNoStringer{}, "en", false},
+	} {
+
+		v.Set("defaultContentLanguage", test.lang)
+		result, err := ns.Transliterate(test.s)
+
+		if bb, ok := test.expect.(bool); ok && !bb {
+			b.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		b.Assert(err, qt.IsNil)
+		b.Assert(result, qt.Equals, test.expect)
+	}
+}
+
 func newDeps(cfg config.Provider) *deps.Deps {
 	cfg.Set("contentDir", "content")
 	cfg.Set("i18nDir", "i18n")

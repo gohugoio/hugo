@@ -20,6 +20,7 @@ import (
 
 	"github.com/alecthomas/chroma/lexers"
 	"github.com/gohugoio/hugo/cache/namedmemcache"
+	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/highlight"
 
@@ -146,4 +147,14 @@ func (ns *Namespace) Plainify(s any) (string, error) {
 
 func (ns *Namespace) Reset() {
 	ns.cache.Clear()
+}
+
+// Transliterate converts Unicode to ASCII.
+func (ns *Namespace) Transliterate(s interface{}) (string, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", err
+	}
+	lang := ns.deps.Cfg.GetString("defaultContentLanguage")
+	return text.Transliterate(ss, lang), nil
 }

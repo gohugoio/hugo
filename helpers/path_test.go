@@ -36,32 +36,38 @@ import (
 func TestMakePath(t *testing.T) {
 	c := qt.New(t)
 	tests := []struct {
-		input         string
-		expected      string
-		removeAccents bool
+		input             string
+		expected          string
+		removeAccents     bool
+		transliteratePath bool
 	}{
-		{"dot.slash/backslash\\underscore_pound#plus+hyphen-", "dot.slash/backslash\\underscore_pound#plus+hyphen-", true},
-		{"abcXYZ0123456789", "abcXYZ0123456789", true},
-		{"%20 %2", "%20-2", true},
-		{"foo- bar", "foo-bar", true},
-		{"  Foo bar  ", "Foo-bar", true},
-		{"Foo.Bar/foo_Bar-Foo", "Foo.Bar/foo_Bar-Foo", true},
-		{"fOO,bar:foobAR", "fOObarfoobAR", true},
-		{"FOo/BaR.html", "FOo/BaR.html", true},
-		{"трям/трям", "трям/трям", true},
-		{"은행", "은행", true},
-		{"Банковский кассир", "Банковскии-кассир", true},
+		{"dot.slash/backslash\\underscore_pound#plus+hyphen-", "dot.slash/backslash\\underscore_pound#plus+hyphen-", true, false},
+		{"abcXYZ0123456789", "abcXYZ0123456789", true, false},
+		{"%20 %2", "%20-2", true, false},
+		{"foo- bar", "foo-bar", true, false},
+		{"  Foo bar  ", "Foo-bar", true, false},
+		{"Foo.Bar/foo_Bar-Foo", "Foo.Bar/foo_Bar-Foo", true, false},
+		{"fOO,bar:foobAR", "fOObarfoobAR", true, false},
+		{"FOo/BaR.html", "FOo/BaR.html", true, false},
+		{"трям/трям", "трям/трям", true, false},
+		{"은행", "은행", true, false},
+		{"Банковский кассир", "Банковскии-кассир", true, false},
 		// Issue #1488
-		{"संस्कृत", "संस्कृत", false},
-		{"a%C3%B1ame", "a%C3%B1ame", false},         // Issue #1292
-		{"this+is+a+test", "this+is+a+test", false}, // Issue #1290
-		{"~foo", "~foo", false},                     // Issue #2177
-		{"foo--bar", "foo--bar", true},              // Issue #7288
+		{"संस्कृत", "संस्कृत", false, false},
+		{"a%C3%B1ame", "a%C3%B1ame", false, false},         // Issue #1292
+		{"this+is+a+test", "this+is+a+test", false, false}, // Issue #1290
+		{"~foo", "~foo", false, false},                     // Issue #2177
+		{"foo--bar", "foo--bar", true, false},              // Issue #7288
+		{"äđéħƚößŧü", "äđéħƚößŧü", false, false},
+		{"äđéħƚößŧü", "ađeħƚoßŧu", true, false},
+		{"äđéħƚößŧü", "adehlosstu", false, true},
+		{"äđéħƚößŧü", "adehlosstu", true, true},
 	}
 
 	for _, test := range tests {
 		v := newTestCfg()
 		v.Set("removePathAccents", test.removeAccents)
+		v.Set("transliteratePath", test.transliteratePath)
 
 		l := langs.NewDefaultLanguage(v)
 		p, err := NewPathSpec(hugofs.NewMem(v), l, nil)

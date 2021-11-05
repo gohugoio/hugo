@@ -18,6 +18,7 @@ import (
 	"sync"
 	"unicode"
 
+	"github.com/alexsergivan/transliterator"
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
@@ -60,4 +61,10 @@ func Puts(s string) string {
 		return s
 	}
 	return s + "\n"
+}
+
+// Transliterate converts Unicode to ASCII.
+func Transliterate(s string, lang string) string {
+	trans := transliterator.NewTransliterator(nil)
+	return trans.Transliterate(s, strings.ToLower(lang[:2]))
 }

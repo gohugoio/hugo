@@ -431,6 +431,31 @@ Site title.
 
 See [Configure Title Case](#configure-title-case)
 
+### transliteratePath
+
+**Default value:** false
+
+Converts path characters from Unicode to ASCII using rules predefined for your site's `defaultContentLanguage`, or using default rules if language-specific rules do not exist.
+
+Hugo provides language-specific transliteration rules for Bosnian (bs), Bulgarian (bg), Catalan (ca), Croatian (hr), Danish (da), Esperanto (eo), German (de), Hungarian (hu), Macedonian (mk), Norwegian Bokmål (nb), Russian (ru), Serbian (sr), Slovenian (sl), Swedish (sv), and Ukrainian (uk).
+
+Hugo ignores the `removePathAccents` setting if you enable `transliteratePath`.
+
+For a site with English (en) as the default content language:
+
+```text
+content/Hugo.md --> https://example.org/hugo/
+content/çđħłƚŧ.md --> https://example.org/cdhllt/
+content/áéíñóú.md --> https://example.org/aeinou/
+content/ÄÖÜäöüß.md --> https://example.org/AOUaouss/
+```
+
+For a site with German (de) as the default content language:
+
+```text
+content/ÄÖÜäöüß.md --> https://example.org/AeOeUeaeoeuess/
+```
+
 ### uglyURLs
 When enabled, creates URL of the form `/filename.html` instead of `/filename/`.
 

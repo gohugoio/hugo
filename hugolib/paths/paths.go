@@ -59,6 +59,7 @@ type Paths struct {
 
 	DisablePathToLower bool
 	RemovePathAccents  bool
+	TransliteratePath  bool
 	UglyURLs           bool
 	CanonifyURLs       bool
 
@@ -153,6 +154,7 @@ func New(fs *hugofs.Fs, cfg config.Provider) (*Paths, error) {
 
 		DisablePathToLower: cfg.GetBool("disablePathToLower"),
 		RemovePathAccents:  cfg.GetBool("removePathAccents"),
+		TransliteratePath:  cfg.GetBool("transliteratePath"),
 		UglyURLs:           cfg.GetBool("uglyURLs"),
 		CanonifyURLs:       cfg.GetBool("canonifyURLs"),
 
