@@ -147,15 +147,7 @@ archives:
     files:
       - README.md
       - LICENSE
-universal_binaries:
-  -
-    id: 'hugo'
-    name_template: 'hugo'
-    replace: true
-  -
-    id: 'hugo_extended_darwin'
-    name_template: 'hugo'
-    replace: true
+
 nfpms:
   -
     id: "hugo"
