@@ -93,6 +93,11 @@ func addTranslationFile(bundle *i18n.Bundle, r source.File) error {
 	lang := paths.Filename(name)
 	tag := language.Make(lang)
 	if tag == language.Und {
+		try := artificialLangTagPrefix + lang
+		_, err = language.Parse(try)
+		if err != nil {
+			return _errors.Errorf("%q %s.", try, err)
+		}
 		name = artificialLangTagPrefix + name
 	}
 

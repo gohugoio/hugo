@@ -701,10 +701,13 @@ Data: {{ .Site.Data }}
 
 	createSymlinks := func(baseDir, id string) {
 		for _, dir := range files.ComponentFolders {
-			c.Assert(os.Chdir(filepath.Join(baseDir, dir)), qt.IsNil)
-			c.Assert(os.Symlink("real", fmt.Sprintf("realsym%s", id)), qt.IsNil)
-			c.Assert(os.Chdir(filepath.Join(baseDir, dir, "real")), qt.IsNil)
-			c.Assert(os.Symlink("data.toml", fmt.Sprintf(filepath.FromSlash("datasym%s.toml"), id)), qt.IsNil)
+			// Issue #9119: private use language tags cannot exceed 8 characters.
+			if dir != "i18n" {
+				c.Assert(os.Chdir(filepath.Join(baseDir, dir)), qt.IsNil)
+				c.Assert(os.Symlink("real", fmt.Sprintf("realsym%s", id)), qt.IsNil)
+				c.Assert(os.Chdir(filepath.Join(baseDir, dir, "real")), qt.IsNil)
+				c.Assert(os.Symlink("data.toml", fmt.Sprintf(filepath.FromSlash("datasym%s.toml"), id)), qt.IsNil)
+			}
 		}
 	}
 
