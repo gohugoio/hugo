@@ -1,0 +1,9 @@
+{{/* Example: {{< get-release-notes tag="v0.89.2" >}} */}}
+{{ $endpoint := "https://api.github.com/repos/gohugoio/hugo/releases/tags/" }}
+{{ $tag := .Get "tag" }}
+{{ $request := print $endpoint $tag }}
+{{ with getJSON $request }}
+  {{ .body | $.Page.RenderString }}
+{{ else }}
+  {{ errorf "The %q shortcode was unable to retrieve %q. See %s" .Name $request .Position }}
+{{ end }}
