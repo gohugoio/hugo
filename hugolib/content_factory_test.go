@@ -57,4 +57,22 @@ Hello World.
 		b.Assert(buf.String(), qt.Contains, `title: "Mypage"`)
 	})
 
+	// Issue #9129
+	c.Run("Content in both project and theme", func(c *qt.C) {
+		b := newTestSitesBuilder(c)
+		b.WithConfigFile("toml", `
+theme = 'ipsum'		
+`)
+
+		themeDir := filepath.Join("themes", "ipsum")
+		b.WithSourceFile("content/posts/foo.txt", `Hello.`)
+		b.WithSourceFile(filepath.Join(themeDir, "content/posts/foo.txt"), `Hello.`)
+		b.CreateSites()
+		cf := NewContentFactory(b.H)
+		abs, err := cf.CreateContentPlaceHolder(filepath.FromSlash("posts/test.md"))
+		b.Assert(err, qt.IsNil)
+		b.Assert(abs, qt.Equals, filepath.FromSlash("content/posts/test.md"))
+
+	})
+
 }
