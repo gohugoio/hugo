@@ -35,7 +35,7 @@ import (
 )
 
 // TODO(bep) clean this up. Export the test site builder in Hugolib or something.
-func TestNewContent(t *testing.T) {
+func TestNewContentFromFile(t *testing.T) {
 	cases := []struct {
 		name     string
 		kind     string

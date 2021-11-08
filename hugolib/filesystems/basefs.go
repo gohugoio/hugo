@@ -157,11 +157,14 @@ func (b *BaseFs) AbsProjectContentDir(filename string) (string, string) {
 	if !isAbs {
 		// A filename on the form "posts/mypage.md", put it inside
 		// the first content folder, usually <workDir>/content.
-		// The Dirs are ordered with the most important last, so pick that.
+		// Pick the last project dir (which is probably the most important one).
 		contentDirs := b.SourceFilesystems.Content.Dirs
-		firstContentDir := contentDirs[len(contentDirs)-1].Meta().Filename
-		return filename, filepath.Join(firstContentDir, filename)
-
+		for i := len(contentDirs) - 1; i >= 0; i-- {
+			meta := contentDirs[i].Meta()
+			if meta.Module == "project" {
+				return filename, filepath.Join(meta.Filename, filename)
+			}
+		}
 	}
 
 	return "", ""
