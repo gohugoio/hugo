@@ -15,6 +15,9 @@
 package debug
 
 import (
+	"reflect"
+	"sort"
+
 	"github.com/sanity-io/litter"
 
 	"github.com/gohugoio/hugo/deps"
@@ -37,4 +40,44 @@ type Namespace struct {
 // so don't depend on a specific output.
 func (ns *Namespace) Dump(val interface{}) string {
 	return litter.Sdump(val)
+}
+
+// List returns the fields and methods of the struct/pointer or keys of the map.
+func (ns *Namespace) List(val interface{}) []string {
+	values := make([]string, 0)
+
+	v := reflect.ValueOf(val)
+
+	// If the type is struct
+	if v.Kind() == reflect.Struct {
+		for i := 0; i < v.NumField(); i++ {
+			values = append(values, v.Type().Field(i).Name)
+		}
+
+		for i := 0; i < v.NumMethod(); i++ {
+			values = append(values, v.Type().Method(i).Name)
+		}
+	}
+
+	// If the type is pointer
+	if v.Kind() == reflect.Ptr {
+		for i := 0; i < reflect.Indirect(v).NumField(); i++ {
+			values = append(values, v.Elem().Type().Field(i).Name)
+		}
+
+		for i := 0; i < v.NumMethod(); i++ {
+			values = append(values, v.Type().Method(i).Name)
+		}
+	}
+
+	// If the type is map
+	if v.Kind() == reflect.Map {
+		iter := v.MapRange()
+		for iter.Next() {
+			values = append(values, iter.Key().String())
+		}
+	}
+
+	sort.Strings(values)
+	return values
 }
