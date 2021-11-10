@@ -467,7 +467,7 @@ This is only relevant when running `hugo server`, and it allows to set HTTP head
 {{< code-toggle file="config">}}
 [server]
 [[server.headers]]
-for = "/**.html"
+for = "/**"
 
 [server.headers.values]
 X-Frame-Options = "DENY"
@@ -482,7 +482,7 @@ Since this is is "development only", it may make sense to put it below the `deve
 
 {{< code-toggle file="config/development/server">}}
 [[headers]]
-for = "/**.html"
+for = "/**"
 
 [headers.values]
 X-Frame-Options = "DENY"
