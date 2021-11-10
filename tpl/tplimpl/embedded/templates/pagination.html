@@ -5,6 +5,7 @@
 
 {{- $page := . }}
 {{- $format := "default" }}
+{{- $class := slice -}}
 
 {{- if reflect.IsMap . }}
   {{- with .page }}
@@ -15,11 +16,18 @@
   {{- with .format }}
     {{- $format = lower . }}
   {{- end }}
+  {{- with .class -}}
+    {{- if reflect.IsSlice -}}
+      {{- $class = . -}}
+    {{- else -}}
+      {{- $class = slice .class -}}
+    {{- end -}}
+  {{- end -}}
 {{- end }}
 
 {{- if in $validFormats $format }}
   {{- if gt $page.Paginator.TotalPages 1 }}
-    <ul class="pagination pagination-{{ $format }}">
+    <ul class="pagination pagination-{{ $format }} {{ delimit $class " " }}">
       {{- partial (printf "partials/inline/pagination/%s" $format) $page }}
     </ul>
   {{- end }}
