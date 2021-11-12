@@ -207,6 +207,9 @@ func (b *contentBuilder) buildDir() error {
 		in.Close()
 		out.Close()
 	}
+
+	b.h.Log.Printf("Content dir %q created", filepath.Join(baseDir, b.targetPath))
+
 	return nil
 }
 
