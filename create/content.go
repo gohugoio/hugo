@@ -252,7 +252,8 @@ func (b *contentBuilder) setArcheTypeFilenameToUse(ext string) {
 	if b.kind != "" {
 		pathsToCheck = append(pathsToCheck, b.kind+ext)
 	}
-	pathsToCheck = append(pathsToCheck, "default"+ext, "default")
+
+	pathsToCheck = append(pathsToCheck, "default"+ext)
 
 	for _, p := range pathsToCheck {
 		fi, err := b.archeTypeFs.Stat(p)
