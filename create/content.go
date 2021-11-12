@@ -238,7 +238,7 @@ func (b *contentBuilder) buildFile() (string, error) {
 		return "", err
 	}
 
-	b.h.Log.Infof("Content %q created", contentPlaceholderAbsFilename)
+	b.h.Log.Printf("Content %q created", contentPlaceholderAbsFilename)
 
 	return contentPlaceholderAbsFilename, nil
 }
@@ -335,7 +335,7 @@ func (b *contentBuilder) openInEditorIfConfigured(filename string) error {
 		return nil
 	}
 
-	b.h.Log.Infof("Editing %q with %q ...\n", filename, editor)
+	b.h.Log.Printf("Editing %q with %q ...\n", filename, editor)
 
 	cmd, err := hexec.SafeCommand(editor, filename)
 	if err != nil {
