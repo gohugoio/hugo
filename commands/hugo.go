@@ -765,7 +765,9 @@ func (c *commandeer) partialReRender(urls ...string) error {
 	for _, url := range urls {
 		visited[url] = true
 	}
-	return c.hugo().Build(hugolib.BuildCfg{NoBuildLock: true, RecentlyVisited: visited, PartialReRender: true, ErrRecovery: c.wasError})
+
+	// Note: We do not set NoBuildLock as the file lock is not acquired at this stage.
+	return c.hugo().Build(hugolib.BuildCfg{NoBuildLock: false, RecentlyVisited: visited, PartialReRender: true, ErrRecovery: c.wasError})
 }
 
 func (c *commandeer) fullRebuild(changeType string) {
