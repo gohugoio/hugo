@@ -845,6 +845,10 @@ func (c *commandeer) newWatcher(pollIntervalStr string, dirList ...string) (*wat
 		c.logger.Printf("Use watcher with poll interval %v", pollInterval)
 	}
 
+	if pollInterval == 0 {
+		pollInterval = 500 * time.Millisecond
+	}
+
 	watcher, err := watcher.New(500*time.Millisecond, pollInterval, poll)
 	if err != nil {
 		return nil, err
