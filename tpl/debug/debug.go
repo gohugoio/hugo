@@ -51,22 +51,30 @@ func (ns *Namespace) List(val interface{}) []string {
 	// If the type is struct
 	if v.Kind() == reflect.Struct {
 		for i := 0; i < v.NumField(); i++ {
-			values = append(values, v.Type().Field(i).Name)
+			if v.Type().Field(i).IsExported() {
+				values = append(values, v.Type().Field(i).Name)
+			}
 		}
 
 		for i := 0; i < v.NumMethod(); i++ {
-			values = append(values, v.Type().Method(i).Name)
+			if v.Type().Method(i).IsExported() {
+				values = append(values, v.Type().Method(i).Name)
+			}
 		}
 	}
 
 	// If the type is pointer
 	if v.Kind() == reflect.Ptr {
 		for i := 0; i < reflect.Indirect(v).NumField(); i++ {
-			values = append(values, v.Elem().Type().Field(i).Name)
+			if v.Elem().Type().Field(i).IsExported() {
+				values = append(values, v.Elem().Type().Field(i).Name)
+			}
 		}
 
 		for i := 0; i < v.NumMethod(); i++ {
-			values = append(values, v.Type().Method(i).Name)
+			if v.Type().Method(i).IsExported() {
+				values = append(values, v.Type().Method(i).Name)
+			}
 		}
 	}
 

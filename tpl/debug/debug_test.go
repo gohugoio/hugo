@@ -35,22 +35,22 @@ func TestList(t *testing.T) {
 	t.Run("struct", func(t *testing.T) {
 		c := qt.New(t)
 		result := ns.List(user)
+		c.Assert(len(result), qt.Equals, 4)
 		c.Assert(result[0], qt.Equals, "GetName")
 		c.Assert(result[1], qt.Equals, "GetPhone")
 		c.Assert(result[2], qt.Equals, "Name")
 		c.Assert(result[3], qt.Equals, "Phone")
-		c.Assert(result[4], qt.Equals, "city")
 	})
 
 	t.Run("pointer", func(t *testing.T) {
 		c := qt.New(t)
 		result := ns.List(&user)
+		c.Assert(len(result), qt.Equals, 5)
 		c.Assert(result[0], qt.Equals, "GetName")
 		c.Assert(result[1], qt.Equals, "GetPhone")
 		c.Assert(result[2], qt.Equals, "GetPhoneAndCity")
 		c.Assert(result[3], qt.Equals, "Name")
 		c.Assert(result[4], qt.Equals, "Phone")
-		c.Assert(result[5], qt.Equals, "city")
 	})
 
 	t.Run("map", func(t *testing.T) {
