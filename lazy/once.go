@@ -30,15 +30,15 @@ type onceMore struct {
 	done uint32
 }
 
-func (t *onceMore) Do(f func()) {
+func (t *onceMore) Do(f func() error) error {
 	if atomic.LoadUint32(&t.done) == 1 {
-		return
+		return nil
 	}
 
 	// f may call this Do and we would get a deadlock.
 	locked := atomic.CompareAndSwapUint32(&t.lock, 0, 1)
 	if !locked {
-		return
+		return nil
 	}
 	defer atomic.StoreUint32(&t.lock, 0)
 
@@ -47,10 +47,10 @@ func (t *onceMore) Do(f func()) {
 
 	// Double check
 	if t.done == 1 {
-		return
+		return nil
 	}
 	defer atomic.StoreUint32(&t.done, 1)
-	f()
+	return f()
 }
 
 func (t *onceMore) InProgress() bool {

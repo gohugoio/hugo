@@ -73,6 +73,7 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 	}
 
 	cp := &pageContentOutput{
+		mu:                &sync.RWMutex{},
 		dependencyTracker: dependencyTracker,
 		p:                 p,
 		f:                 po.f,
@@ -191,7 +192,7 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 			cp.summary = helpers.BytesToHTML(html)
 		}
 
-		cp.content = helpers.BytesToHTML(cp.workContent)
+		cp.setContent(helpers.BytesToHTML(cp.workContent))
 
 		return nil
 	}
@@ -211,7 +212,7 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 	}
 
 	cp.initPlain = cp.initMain.Branch(func() (interface{}, error) {
-		cp.plain = helpers.StripHTML(string(cp.content))
+		cp.plain = helpers.StripHTML(string(cp.getContent()))
 		cp.plainWords = strings.Fields(cp.plain)
 		cp.setWordCounts(p.m.isCJKLanguage)
 
@@ -263,6 +264,9 @@ type pageContentOutput struct {
 	contentPlaceholders map[string]string
 
 	// Content sections
+	//
+	// content is only goroutine safe if retrieved via getContent and set
+	// via setContent.
 	content         template.HTML
 	summary         template.HTML
 	tableOfContents template.HTML
@@ -274,12 +278,27 @@ type pageContentOutput struct {
 	fuzzyWordCount int
 	wordCount      int
 	readingTime    int
+	mu             *sync.RWMutex
 }
 
 func (p *pageContentOutput) trackDependency(id identity.Provider) {
 	if p.dependencyTracker != nil {
 		p.dependencyTracker.Add(id)
 	}
+}
+
+// getContent enables safe concurrent read access to p.content
+func (p *pageContentOutput) getContent() template.HTML {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+	return p.content
+}
+
+// setContent enables safe concurrent write access to p.content
+func (p *pageContentOutput) setContent(c template.HTML) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	p.content = c
 }
 
 func (p *pageContentOutput) Reset() {
@@ -293,7 +312,7 @@ func (p *pageContentOutput) Reset() {
 
 func (p *pageContentOutput) Content() (interface{}, error) {
 	if p.p.s.initInit(p.initMain, p.p) {
-		return p.content, nil
+		return p.getContent(), nil
 	}
 	return nil, nil
 }
@@ -305,7 +324,7 @@ func (p *pageContentOutput) FuzzyWordCount() int {
 
 func (p *pageContentOutput) Len() int {
 	p.p.s.initInit(p.initMain, p.p)
-	return len(p.content)
+	return len(p.getContent())
 }
 
 func (p *pageContentOutput) Plain() string {

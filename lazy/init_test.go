@@ -14,7 +14,6 @@
 package lazy
 
 import (
-	"context"
 	"errors"
 	"math/rand"
 	"strings"
@@ -107,53 +106,6 @@ func TestInit(t *testing.T) {
 	}
 }
 
-func TestInitAddWithTimeout(t *testing.T) {
-	c := qt.New(t)
-
-	init := New().AddWithTimeout(100*time.Millisecond, func(ctx context.Context) (interface{}, error) {
-		return nil, nil
-	})
-
-	_, err := init.Do()
-
-	c.Assert(err, qt.IsNil)
-}
-
-func TestInitAddWithTimeoutTimeout(t *testing.T) {
-	c := qt.New(t)
-
-	init := New().AddWithTimeout(100*time.Millisecond, func(ctx context.Context) (interface{}, error) {
-		time.Sleep(500 * time.Millisecond)
-		select {
-		case <-ctx.Done():
-			return nil, nil
-		default:
-		}
-		t.Fatal("slept")
-		return nil, nil
-	})
-
-	_, err := init.Do()
-
-	c.Assert(err, qt.Not(qt.IsNil))
-
-	c.Assert(err.Error(), qt.Contains, "timed out")
-
-	time.Sleep(1 * time.Second)
-}
-
-func TestInitAddWithTimeoutError(t *testing.T) {
-	c := qt.New(t)
-
-	init := New().AddWithTimeout(100*time.Millisecond, func(ctx context.Context) (interface{}, error) {
-		return nil, errors.New("failed")
-	})
-
-	_, err := init.Do()
-
-	c.Assert(err, qt.Not(qt.IsNil))
-}
-
 type T struct {
 	sync.Mutex
 	V1 string
@@ -219,4 +171,25 @@ func TestInitBranchOrder(t *testing.T) {
 	wg.Wait()
 
 	c.Assert(state.V2, qt.Equals, "ABAB")
+}
+
+// Sometimes need to call the same *Init's Do method multiple times, e.g., when
+// hugo server is running. In these cases, we need to make sure that an error
+// returned by an earlier call does not persist in memory for later calls.
+// See issue 7043
+func TestAvoidRepeatDoError(t *testing.T) {
+	r := false
+	i := New().Add(func() (interface{}, error) {
+		if r {
+			return nil, nil
+		}
+		return nil, errors.New("r is false")
+	})
+	_, err := i.Do()
+	r = true
+	_, err = i.Do()
+	if err != nil {
+		t.Errorf("expected a nil error but got: %v", err)
+	}
+
 }

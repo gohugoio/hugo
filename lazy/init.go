@@ -35,7 +35,6 @@ type Init struct {
 
 	init onceMore
 	out  interface{}
-	err  error
 	f    func() (interface{}, error)
 }
 
@@ -45,13 +44,6 @@ func (ini *Init) Add(initFn func() (interface{}, error)) *Init {
 		ini = New()
 	}
 	return ini.add(false, initFn)
-}
-
-// AddWithTimeout is same as Add, but with a timeout that aborts initialization.
-func (ini *Init) AddWithTimeout(timeout time.Duration, f func(ctx context.Context) (interface{}, error)) *Init {
-	return ini.Add(func() (interface{}, error) {
-		return ini.withTimeout(timeout, f)
-	})
 }
 
 // Branch creates a new dependency branch based on an existing and adds
@@ -76,15 +68,17 @@ func (ini *Init) Do() (interface{}, error) {
 		panic("init is nil")
 	}
 
-	ini.init.Do(func() {
+	var err error
+
+	err = ini.init.Do(func() error {
 		prev := ini.prev
+		var e error
 		if prev != nil {
 			// A branch. Initialize the ancestors.
 			if prev.shouldInitialize() {
-				_, err := prev.Do()
-				if err != nil {
-					ini.err = err
-					return
+				_, e = prev.Do()
+				if e != nil {
+					return e
 				}
 			} else if prev.inProgress() {
 				// Concurrent initialization. The following init func
@@ -94,23 +88,26 @@ func (ini *Init) Do() (interface{}, error) {
 		}
 
 		if ini.f != nil {
-			ini.out, ini.err = ini.f()
+			ini.out, e = ini.f()
+			if e != nil {
+				return e
+			}
 		}
 
 		for _, child := range ini.children {
 			if child.shouldInitialize() {
-				_, err := child.Do()
-				if err != nil {
-					ini.err = err
-					return
+				_, e = child.Do()
+				if e != nil {
+					return e
 				}
 			}
 		}
+		return nil
 	})
 
 	ini.wait()
 
-	return ini.out, ini.err
+	return ini.out, err
 }
 
 // TODO(bep) investigate if we can use sync.Cond for this.
@@ -172,15 +169,10 @@ func (ini *Init) withTimeout(timeout time.Duration, f func(ctx context.Context) 
 	defer cancel()
 	c := make(chan verr, 1)
 
-	go func() {
+	go func(cv chan verr) {
 		v, err := f(ctx)
-		select {
-		case <-ctx.Done():
-			return
-		default:
-			c <- verr{v: v, err: err}
-		}
-	}()
+		c <- verr{v: v, err: err}
+	}(c)
 
 	select {
 	case <-ctx.Done():
