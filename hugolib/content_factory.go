@@ -93,25 +93,28 @@ func (f ContentFactory) AppplyArchetypeTemplate(w io.Writer, p page.Page, archet
 
 }
 
-func (f ContentFactory) SectionFromFilename(filename string) string {
+func (f ContentFactory) SectionFromFilename(filename string) (string, error) {
 	filename = filepath.Clean(filename)
-	rel, _ := f.h.AbsProjectContentDir(filename)
-	if rel == "" {
-		return ""
+	rel, _, err := f.h.AbsProjectContentDir(filename)
+	if err != nil {
+		return "", err
 	}
 
 	parts := strings.Split(helpers.ToSlashTrimLeading(rel), "/")
 	if len(parts) < 2 {
-		return ""
+		return "", nil
 	}
-	return parts[0]
+	return parts[0], nil
 }
 
 // CreateContentPlaceHolder creates a content placeholder file inside the
 // best matching content directory.
 func (f ContentFactory) CreateContentPlaceHolder(filename string) (string, error) {
 	filename = filepath.Clean(filename)
-	_, abs := f.h.AbsProjectContentDir(filename)
+	_, abs, err := f.h.AbsProjectContentDir(filename)
+	if err != nil {
+		return "", err
+	}
 
 	// This will be overwritten later, just write a placholder to get
 	// the paths correct.

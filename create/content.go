@@ -60,7 +60,11 @@ func NewContent(h *hugolib.HugoSites, kind, targetPath string) error {
 	cf := hugolib.NewContentFactory(h)
 
 	if kind == "" {
-		kind = cf.SectionFromFilename(targetPath)
+		var err error
+		kind, err = cf.SectionFromFilename(targetPath)
+		if err != nil {
+			return err
+		}
 	}
 
 	b := &contentBuilder{
