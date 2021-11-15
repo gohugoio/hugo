@@ -162,13 +162,21 @@ Complete documentation is available at http://gohugo.io/.`,
 				return nil
 			}
 
-			c, err := initializeConfig(true, cc.buildWatch, &cc.hugoBuilderCommon, cc, cfgInit)
+			// prevent cobra printing error so it can be handled here (before the timeTrack prints)
+			cmd.SilenceErrors = true
+
+			c, err := initializeConfig(true, true, cc.buildWatch, &cc.hugoBuilderCommon, cc, cfgInit)
 			if err != nil {
+				cmd.PrintErrln("Error:", err.Error())
 				return err
 			}
 			cc.c = c
 
-			return c.build()
+			err = c.build()
+			if err != nil {
+				cmd.PrintErrln("Error:", err.Error())
+			}
+			return err
 		},
 	})
 
@@ -204,6 +212,7 @@ type hugoBuilderCommon struct {
 	environment string
 
 	buildWatch bool
+	poll       string
 
 	gc bool
 
@@ -291,6 +300,7 @@ func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&cc.baseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
 	cmd.Flags().Bool("enableGitInfo", false, "add Git revision, date and author info to the pages")
 	cmd.Flags().BoolVar(&cc.gc, "gc", false, "enable to run some cleanup tasks (remove unused cache files) after the build")
+	cmd.Flags().StringVar(&cc.poll, "poll", "", "set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes")
 
 	cmd.Flags().Bool("templateMetrics", false, "display metrics about template executions")
 	cmd.Flags().Bool("templateMetricsHints", false, "calculate some improvement hints when combined with --templateMetrics")

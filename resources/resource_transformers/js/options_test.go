@@ -14,7 +14,12 @@
 package js
 
 import (
+	"path/filepath"
 	"testing"
+
+	"github.com/gohugoio/hugo/hugofs"
+
+	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/media"
 
@@ -126,4 +131,49 @@ func TestToBuildOptions(t *testing.T) {
 			Loader: api.LoaderJS,
 		},
 	})
+}
+
+func TestResolveComponentInAssets(t *testing.T) {
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		name    string
+		files   []string
+		impPath string
+		expect  string
+	}{
+		{"Basic, extension", []string{"foo.js", "bar.js"}, "foo.js", "foo.js"},
+		{"Basic, no extension", []string{"foo.js", "bar.js"}, "foo", "foo.js"},
+		{"Basic, no extension, typescript", []string{"foo.ts", "bar.js"}, "foo", "foo.ts"},
+		{"Not found", []string{"foo.js", "bar.js"}, "moo.js", ""},
+		{"Not found, double js extension", []string{"foo.js.js", "bar.js"}, "foo.js", ""},
+		{"Index file, folder only", []string{"foo/index.js", "bar.js"}, "foo", "foo/index.js"},
+		{"Index file, folder and index", []string{"foo/index.js", "bar.js"}, "foo/index", "foo/index.js"},
+		{"Index file, folder and index and suffix", []string{"foo/index.js", "bar.js"}, "foo/index.js", "foo/index.js"},
+
+		// Issue #8949
+		{"Check file before directory", []string{"foo.js", "foo/index.js"}, "foo", "foo.js"},
+	} {
+
+		c.Run(test.name, func(c *qt.C) {
+			baseDir := "assets"
+			mfs := afero.NewMemMapFs()
+
+			for _, filename := range test.files {
+				c.Assert(afero.WriteFile(mfs, filepath.Join(baseDir, filename), []byte("let foo='bar';"), 0777), qt.IsNil)
+			}
+
+			bfs := hugofs.DecorateBasePathFs(afero.NewBasePathFs(mfs, baseDir).(*afero.BasePathFs))
+
+			got := resolveComponentInAssets(bfs, test.impPath)
+
+			gotPath := ""
+			if got != nil {
+				gotPath = filepath.ToSlash(got.Path)
+			}
+
+			c.Assert(gotPath, qt.Equals, test.expect)
+		})
+
+	}
 }

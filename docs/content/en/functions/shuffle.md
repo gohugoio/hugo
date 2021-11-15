@@ -2,7 +2,6 @@
 title: shuffle
 # linktitle:
 description: Returns a random permutation of a given array or slice.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-04-30

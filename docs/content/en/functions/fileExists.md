@@ -3,7 +3,6 @@ title: "fileExists"
 linktitle: "fileExists"
 date: 2017-08-31T22:38:22+02:00
 description: Checks whether a file exists under the given path.
-godocref:
 publishdate: 2017-08-31T22:38:22+02:00
 lastmod: 2017-08-31T22:38:22+02:00
 categories: [functions]

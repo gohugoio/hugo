@@ -2,7 +2,6 @@
 title: Introduction to Hugo Templating
 linktitle: Introduction
 description: Hugo uses Go's `html/template` and `text/template` libraries as the basis for the templating.
-godocref: https://golang.org/pkg/html/template/
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-25
@@ -66,6 +65,22 @@ Accessing the Page Parameter `bar` defined in a piece of content's [front matter
 
 ```go-html-template
 {{ if or (isset .Params "alt") (isset .Params "caption") }} Caption {{ end }}
+```
+
+#### A Single Statement Can be Split over Multiple Lines
+
+```go-html-template
+{{ if or 
+  (isset .Params "alt") 
+  (isset .Params "caption")
+}}
+```
+
+#### Raw String Literals Can Include Newlines
+
+```go-html-template
+{{ $msg := `Line one.
+Line two.` }}
 ```
 
 ## Variables {#variables}

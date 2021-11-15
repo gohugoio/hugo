@@ -22,6 +22,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/common/paths"
+
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/resources/images/exif"
@@ -136,13 +138,13 @@ func (ctx *ResourceTransformationCtx) PublishSourceMap(content string) error {
 // extension, e.g. ".scss"
 func (ctx *ResourceTransformationCtx) ReplaceOutPathExtension(newExt string) {
 	dir, file := path.Split(ctx.InPath)
-	base, _ := helpers.PathAndExt(file)
+	base, _ := paths.PathAndExt(file)
 	ctx.OutPath = path.Join(dir, (base + newExt))
 }
 
 func (ctx *ResourceTransformationCtx) addPathIdentifier(inPath, identifier string) string {
 	dir, file := path.Split(inPath)
-	base, ext := helpers.PathAndExt(file)
+	base, ext := paths.PathAndExt(file)
 	return path.Join(dir, (base + identifier + ext))
 }
 
@@ -420,7 +422,7 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 					errMsg = ". You need to install Babel, see https://gohugo.io/hugo-pipes/babel/"
 				}
 
-				return errors.New(msg + errMsg)
+				return errors.Wrap(err, msg+errMsg)
 			}
 
 			return errors.Wrap(err, msg)

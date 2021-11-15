@@ -101,6 +101,12 @@ ignoreImports {{< new-in "0.80.0" >}}
 disable
 : Set to `true` to disable the module while keeping any version info in the `go.*` files.
 
+noMounts {{< new-in "0.84.2" >}}
+:  Do not mount any folder in this import.
+
+noVendor
+:  Never vendor this import (only allowed in main project).
+
 {{< gomodules-info >}}
 
 
@@ -148,4 +154,16 @@ target
 
 lang
 : The language code, e.g. "en". Only relevant for `content` mounts, and `static` mounts when in multihost mode.
+
+includeFiles (string or slice)
+: One or more [glob](https://github.com/gobwas/glob) patterns matching files or directories to include. If `excludeFiles` is not set, the files matching `includeFiles` will be the files mounted. 
+
+The glob patterns are matched to the filenames starting from the `source` root, they should have Unix styled slashes even on Windows, `/` matches the mount root and `**` can be used as a  super-asterisk to match recursively down all directories, e.g `/posts/**.jpg`.
+
+The search is case-insensitive.
+
+{{< new-in "0.89.0" >}}
+
+excludeFiles (string or slice)
+: One or more glob patterns matching files to exclude.
 

@@ -15,25 +15,6 @@
         ]
       },
       {
-        "Name": "AL",
-        "Aliases": [
-          "al",
-          "dal"
-        ]
-      },
-      {
-        "Name": "ANTLR",
-        "Aliases": [
-          "antlr"
-        ]
-      },
-      {
-        "Name": "APL",
-        "Aliases": [
-          "apl"
-        ]
-      },
-      {
         "Name": "ActionScript",
         "Aliases": [
           "actionscript",
@@ -59,9 +40,22 @@
         ]
       },
       {
+        "Name": "AL",
+        "Aliases": [
+          "al",
+          "dal"
+        ]
+      },
+      {
         "Name": "Angular2",
         "Aliases": [
           "ng2"
+        ]
+      },
+      {
+        "Name": "ANTLR",
+        "Aliases": [
+          "antlr"
         ]
       },
       {
@@ -72,6 +66,12 @@
           "apacheconf",
           "conf",
           "htaccess"
+        ]
+      },
+      {
+        "Name": "APL",
+        "Aliases": [
+          "apl"
         ]
       },
       {
@@ -88,18 +88,20 @@
         ]
       },
       {
+        "Name": "ArmAsm",
+        "Aliases": [
+          "S",
+          "armasm",
+          "s"
+        ]
+      },
+      {
         "Name": "Awk",
         "Aliases": [
           "awk",
           "gawk",
           "mawk",
           "nawk"
-        ]
-      },
-      {
-        "Name": "BNF",
-        "Aliases": [
-          "bnf"
         ]
       },
       {
@@ -140,6 +142,15 @@
         ]
       },
       {
+        "Name": "BashSession",
+        "Aliases": [
+          "bash-session",
+          "console",
+          "sh-session",
+          "shell-session"
+        ]
+      },
+      {
         "Name": "Batchfile",
         "Aliases": [
           "bat",
@@ -167,6 +178,12 @@
         ]
       },
       {
+        "Name": "BNF",
+        "Aliases": [
+          "bnf"
+        ]
+      },
+      {
         "Name": "Brainfuck",
         "Aliases": [
           "b",
@@ -179,7 +196,8 @@
         "Aliases": [
           "c",
           "h",
-          "idc"
+          "idc",
+          "x[bp]m"
         ]
       },
       {
@@ -205,37 +223,6 @@
           "hh",
           "hpp",
           "hxx"
-        ]
-      },
-      {
-        "Name": "CFEngine3",
-        "Aliases": [
-          "cf",
-          "cf3",
-          "cfengine3"
-        ]
-      },
-      {
-        "Name": "CMake",
-        "Aliases": [
-          "cmake",
-          "txt"
-        ]
-      },
-      {
-        "Name": "COBOL",
-        "Aliases": [
-          "COB",
-          "CPY",
-          "cob",
-          "cobol",
-          "cpy"
-        ]
-      },
-      {
-        "Name": "CSS",
-        "Aliases": [
-          "css"
         ]
       },
       {
@@ -273,6 +260,20 @@
         ]
       },
       {
+        "Name": "CFEngine3",
+        "Aliases": [
+          "cf",
+          "cf3",
+          "cfengine3"
+        ]
+      },
+      {
+        "Name": "cfstatement",
+        "Aliases": [
+          "cfs"
+        ]
+      },
+      {
         "Name": "ChaiScript",
         "Aliases": [
           "chai",
@@ -293,6 +294,23 @@
         "Aliases": [
           "clj",
           "clojure"
+        ]
+      },
+      {
+        "Name": "CMake",
+        "Aliases": [
+          "cmake",
+          "txt"
+        ]
+      },
+      {
+        "Name": "COBOL",
+        "Aliases": [
+          "COB",
+          "CPY",
+          "cob",
+          "cobol",
+          "cpy"
         ]
       },
       {
@@ -326,6 +344,12 @@
         ]
       },
       {
+        "Name": "CSS",
+        "Aliases": [
+          "css"
+        ]
+      },
+      {
         "Name": "Cython",
         "Aliases": [
           "cython",
@@ -340,12 +364,6 @@
         "Aliases": [
           "d",
           "di"
-        ]
-      },
-      {
-        "Name": "DTD",
-        "Aliases": [
-          "dtd"
         ]
       },
       {
@@ -374,6 +392,12 @@
         "Aliases": [
           "docker",
           "dockerfile"
+        ]
+      },
+      {
+        "Name": "DTD",
+        "Aliases": [
+          "dtd"
         ]
       },
       {
@@ -424,17 +448,16 @@
         ]
       },
       {
-        "Name": "FSharp",
-        "Aliases": [
-          "fs",
-          "fsharp",
-          "fsi"
-        ]
-      },
-      {
         "Name": "Factor",
         "Aliases": [
           "factor"
+        ]
+      },
+      {
+        "Name": "Fennel",
+        "Aliases": [
+          "fennel",
+          "fnl"
         ]
       },
       {
@@ -465,6 +488,22 @@
         ]
       },
       {
+        "Name": "FortranFixed",
+        "Aliases": [
+          "F",
+          "f",
+          "fortranfixed"
+        ]
+      },
+      {
+        "Name": "FSharp",
+        "Aliases": [
+          "fs",
+          "fsharp",
+          "fsi"
+        ]
+      },
+      {
         "Name": "GAS",
         "Aliases": [
           "S",
@@ -478,15 +517,6 @@
         "Aliases": [
           "gd",
           "gdscript"
-        ]
-      },
-      {
-        "Name": "GLSL",
-        "Aliases": [
-          "frag",
-          "geo",
-          "glsl",
-          "vert"
         ]
       },
       {
@@ -520,6 +550,15 @@
           "cucumber",
           "feature",
           "gherkin"
+        ]
+      },
+      {
+        "Name": "GLSL",
+        "Aliases": [
+          "frag",
+          "geo",
+          "glsl",
+          "vert"
         ]
       },
       {
@@ -558,37 +597,21 @@
         ]
       },
       {
+        "Name": "Groff",
+        "Aliases": [
+          "1p",
+          "3pm",
+          "[1-9]",
+          "groff",
+          "man",
+          "nroff"
+        ]
+      },
+      {
         "Name": "Groovy",
         "Aliases": [
           "gradle",
           "groovy"
-        ]
-      },
-      {
-        "Name": "HCL",
-        "Aliases": [
-          "hcl"
-        ]
-      },
-      {
-        "Name": "HLB",
-        "Aliases": [
-          "hlb"
-        ]
-      },
-      {
-        "Name": "HTML",
-        "Aliases": [
-          "htm",
-          "html",
-          "xhtml",
-          "xslt"
-        ]
-      },
-      {
-        "Name": "HTTP",
-        "Aliases": [
-          "http"
         ]
       },
       {
@@ -614,9 +637,36 @@
         ]
       },
       {
+        "Name": "HCL",
+        "Aliases": [
+          "hcl"
+        ]
+      },
+      {
         "Name": "Hexdump",
         "Aliases": [
           "hexdump"
+        ]
+      },
+      {
+        "Name": "HLB",
+        "Aliases": [
+          "hlb"
+        ]
+      },
+      {
+        "Name": "HTML",
+        "Aliases": [
+          "htm",
+          "html",
+          "xhtml",
+          "xslt"
+        ]
+      },
+      {
+        "Name": "HTTP",
+        "Aliases": [
+          "http"
         ]
       },
       {
@@ -624,17 +674,6 @@
         "Aliases": [
           "hy",
           "hylang"
-        ]
-      },
-      {
-        "Name": "INI",
-        "Aliases": [
-          "cfg",
-          "dosini",
-          "editorconfig",
-          "gitconfig",
-          "inf",
-          "ini"
         ]
       },
       {
@@ -653,6 +692,17 @@
         ]
       },
       {
+        "Name": "INI",
+        "Aliases": [
+          "cfg",
+          "dosini",
+          "editorconfig",
+          "gitconfig",
+          "inf",
+          "ini"
+        ]
+      },
+      {
         "Name": "Io",
         "Aliases": [
           "io"
@@ -663,12 +713,6 @@
         "Aliases": [
           "ijs",
           "j"
-        ]
-      },
-      {
-        "Name": "JSON",
-        "Aliases": [
-          "json"
         ]
       },
       {
@@ -684,6 +728,12 @@
           "js",
           "jsm",
           "mjs"
+        ]
+      },
+      {
+        "Name": "JSON",
+        "Aliases": [
+          "json"
         ]
       },
       {
@@ -707,17 +757,17 @@
         ]
       },
       {
-        "Name": "LLVM",
-        "Aliases": [
-          "ll",
-          "llvm"
-        ]
-      },
-      {
         "Name": "Lighttpd configuration file",
         "Aliases": [
           "lighttpd",
           "lighty"
+        ]
+      },
+      {
+        "Name": "LLVM",
+        "Aliases": [
+          "ll",
+          "llvm"
         ]
       },
       {
@@ -728,16 +778,18 @@
         ]
       },
       {
-        "Name": "MLIR",
-        "Aliases": [
-          "mlir"
-        ]
-      },
-      {
         "Name": "Mako",
         "Aliases": [
           "mako",
           "mao"
+        ]
+      },
+      {
+        "Name": "markdown",
+        "Aliases": [
+          "markdown",
+          "md",
+          "mkd"
         ]
       },
       {
@@ -769,6 +821,27 @@
         ]
       },
       {
+        "Name": "mcfunction",
+        "Aliases": [
+          "mcfunction"
+        ]
+      },
+      {
+        "Name": "Meson",
+        "Aliases": [
+          "build",
+          "meson",
+          "meson.build",
+          "txt"
+        ]
+      },
+      {
+        "Name": "Metal",
+        "Aliases": [
+          "metal"
+        ]
+      },
+      {
         "Name": "MiniZinc",
         "Aliases": [
           "MZN",
@@ -776,6 +849,12 @@
           "fzn",
           "minizinc",
           "mzn"
+        ]
+      },
+      {
+        "Name": "MLIR",
+        "Aliases": [
+          "mlir"
         ]
       },
       {
@@ -802,17 +881,17 @@
         ]
       },
       {
-        "Name": "MySQL",
-        "Aliases": [
-          "mysql",
-          "sql"
-        ]
-      },
-      {
         "Name": "Myghty",
         "Aliases": [
           "myghty",
           "myt"
+        ]
+      },
+      {
+        "Name": "MySQL",
+        "Aliases": [
+          "mysql",
+          "sql"
         ]
       },
       {
@@ -852,16 +931,6 @@
         ]
       },
       {
-        "Name": "OCaml",
-        "Aliases": [
-          "ml",
-          "mli",
-          "mll",
-          "mly",
-          "ocaml"
-        ]
-      },
-      {
         "Name": "Objective-C",
         "Aliases": [
           "h",
@@ -873,10 +942,33 @@
         ]
       },
       {
+        "Name": "OCaml",
+        "Aliases": [
+          "ml",
+          "mli",
+          "mll",
+          "mly",
+          "ocaml"
+        ]
+      },
+      {
         "Name": "Octave",
         "Aliases": [
           "m",
           "octave"
+        ]
+      },
+      {
+        "Name": "OnesEnterprise",
+        "Aliases": [
+          "1S",
+          "1S:Enterprise",
+          "EPF",
+          "ERF",
+          "epf",
+          "erf",
+          "ones",
+          "onesenterprise"
         ]
       },
       {
@@ -891,36 +983,6 @@
         "Aliases": [
           "org",
           "orgmode"
-        ]
-      },
-      {
-        "Name": "PHP",
-        "Aliases": [
-          "inc",
-          "php",
-          "php3",
-          "php4",
-          "php5",
-          "php[345]"
-        ]
-      },
-      {
-        "Name": "PHTML",
-        "Aliases": [
-          "phtml"
-        ]
-      },
-      {
-        "Name": "PL/pgSQL",
-        "Aliases": [
-          "plpgsql"
-        ]
-      },
-      {
-        "Name": "POVRay",
-        "Aliases": [
-          "inc",
-          "pov"
         ]
       },
       {
@@ -940,6 +1002,26 @@
         ]
       },
       {
+        "Name": "PHP",
+        "Aliases": [
+          "inc",
+          "php",
+          "php3",
+          "php4",
+          "php5",
+          "php[345]"
+        ]
+      },
+      {
+        "Name": "PHTML",
+        "Aliases": [
+          "inc",
+          "php",
+          "php[345]",
+          "phtml"
+        ]
+      },
+      {
         "Name": "Pig",
         "Aliases": [
           "pig"
@@ -953,9 +1035,31 @@
         ]
       },
       {
+        "Name": "PL/pgSQL",
+        "Aliases": [
+          "plpgsql"
+        ]
+      },
+      {
+        "Name": "plaintext",
+        "Aliases": [
+          "no-highlight",
+          "plain",
+          "text",
+          "txt"
+        ]
+      },
+      {
         "Name": "Pony",
         "Aliases": [
           "pony"
+        ]
+      },
+      {
+        "Name": "PostgreSQL SQL dialect",
+        "Aliases": [
+          "postgres",
+          "postgresql"
         ]
       },
       {
@@ -968,10 +1072,17 @@
         ]
       },
       {
-        "Name": "PostgreSQL SQL dialect",
+        "Name": "POVRay",
         "Aliases": [
-          "postgres",
-          "postgresql"
+          "inc",
+          "pov"
+        ]
+      },
+      {
+        "Name": "PowerQuery",
+        "Aliases": [
+          "powerquery",
+          "pq"
         ]
       },
       {
@@ -1016,8 +1127,14 @@
       {
         "Name": "Python",
         "Aliases": [
+          "bazel",
+          "bzl",
+          "jy",
           "py",
+          "py3",
+          "pyi",
           "python",
+          "python3",
           "pyw",
           "sage",
           "sc",
@@ -1025,10 +1142,10 @@
         ]
       },
       {
-        "Name": "Python 3",
+        "Name": "Python 2",
         "Aliases": [
-          "py3",
-          "python3"
+          "py2",
+          "python2"
         ]
       },
       {
@@ -1076,12 +1193,55 @@
         ]
       },
       {
+        "Name": "Raku",
+        "Aliases": [
+          "6pl",
+          "6pm",
+          "nqp",
+          "p6",
+          "p6l",
+          "p6m",
+          "perl6",
+          "pl",
+          "pl6",
+          "pm",
+          "pm6",
+          "raku",
+          "rakudoc",
+          "rakumod",
+          "rakutest",
+          "t"
+        ]
+      },
+      {
+        "Name": "react",
+        "Aliases": [
+          "jsx",
+          "react"
+        ]
+      },
+      {
         "Name": "ReasonML",
         "Aliases": [
           "re",
           "reason",
           "reasonml",
           "rei"
+        ]
+      },
+      {
+        "Name": "reg",
+        "Aliases": [
+          "reg",
+          "registry"
+        ]
+      },
+      {
+        "Name": "reStructuredText",
+        "Aliases": [
+          "rest",
+          "restructuredtext",
+          "rst"
         ]
       },
       {
@@ -1121,32 +1281,6 @@
         ]
       },
       {
-        "Name": "SCSS",
-        "Aliases": [
-          "scss"
-        ]
-      },
-      {
-        "Name": "SPARQL",
-        "Aliases": [
-          "rq",
-          "sparql"
-        ]
-      },
-      {
-        "Name": "SQL",
-        "Aliases": [
-          "sql"
-        ]
-      },
-      {
-        "Name": "SYSTEMD",
-        "Aliases": [
-          "service",
-          "systemd"
-        ]
-      },
-      {
         "Name": "Sass",
         "Aliases": [
           "sass"
@@ -1173,6 +1307,19 @@
           "sci",
           "scilab",
           "tst"
+        ]
+      },
+      {
+        "Name": "SCSS",
+        "Aliases": [
+          "scss"
+        ]
+      },
+      {
+        "Name": "Sieve",
+        "Aliases": [
+          "sieve",
+          "siv"
         ]
       },
       {
@@ -1204,6 +1351,19 @@
         ]
       },
       {
+        "Name": "SPARQL",
+        "Aliases": [
+          "rq",
+          "sparql"
+        ]
+      },
+      {
+        "Name": "SQL",
+        "Aliases": [
+          "sql"
+        ]
+      },
+      {
         "Name": "SquidConf",
         "Aliases": [
           "conf",
@@ -1228,9 +1388,51 @@
         ]
       },
       {
+        "Name": "Svelte",
+        "Aliases": [
+          "svelte"
+        ]
+      },
+      {
         "Name": "Swift",
         "Aliases": [
           "swift"
+        ]
+      },
+      {
+        "Name": "SYSTEMD",
+        "Aliases": [
+          "automount",
+          "device",
+          "dnssd",
+          "link",
+          "mount",
+          "netdev",
+          "network",
+          "path",
+          "scope",
+          "service",
+          "slice",
+          "socket",
+          "swap",
+          "systemd",
+          "target",
+          "timer"
+        ]
+      },
+      {
+        "Name": "systemverilog",
+        "Aliases": [
+          "sv",
+          "svh",
+          "systemverilog"
+        ]
+      },
+      {
+        "Name": "TableGen",
+        "Aliases": [
+          "tablegen",
+          "td"
         ]
       },
       {
@@ -1239,19 +1441,6 @@
           "ASM",
           "asm",
           "tasm"
-        ]
-      },
-      {
-        "Name": "TOML",
-        "Aliases": [
-          "toml"
-        ]
-      },
-      {
-        "Name": "TableGen",
-        "Aliases": [
-          "tablegen",
-          "td"
         ]
       },
       {
@@ -1266,15 +1455,6 @@
         "Aliases": [
           "csh",
           "tcsh"
-        ]
-      },
-      {
-        "Name": "TeX",
-        "Aliases": [
-          "aux",
-          "latex",
-          "tex",
-          "toc"
         ]
       },
       {
@@ -1299,9 +1479,24 @@
         ]
       },
       {
+        "Name": "TeX",
+        "Aliases": [
+          "aux",
+          "latex",
+          "tex",
+          "toc"
+        ]
+      },
+      {
         "Name": "Thrift",
         "Aliases": [
           "thrift"
+        ]
+      },
+      {
+        "Name": "TOML",
+        "Aliases": [
+          "toml"
         ]
       },
       {
@@ -1375,6 +1570,13 @@
         ]
       },
       {
+        "Name": "verilog",
+        "Aliases": [
+          "v",
+          "verilog"
+        ]
+      },
+      {
         "Name": "VHDL",
         "Aliases": [
           "vhd",
@@ -1388,6 +1590,13 @@
           "gvimrc",
           "vim",
           "vimrc"
+        ]
+      },
+      {
+        "Name": "vue",
+        "Aliases": [
+          "vue",
+          "vuejs"
         ]
       },
       {
@@ -1433,79 +1642,6 @@
         "Name": "Zig",
         "Aliases": [
           "zig"
-        ]
-      },
-      {
-        "Name": "cfstatement",
-        "Aliases": [
-          "cfs"
-        ]
-      },
-      {
-        "Name": "markdown",
-        "Aliases": [
-          "markdown",
-          "md",
-          "mkd"
-        ]
-      },
-      {
-        "Name": "mcfunction",
-        "Aliases": [
-          "mcfunction"
-        ]
-      },
-      {
-        "Name": "plaintext",
-        "Aliases": [
-          "no-highlight",
-          "plain",
-          "text",
-          "txt"
-        ]
-      },
-      {
-        "Name": "reStructuredText",
-        "Aliases": [
-          "rest",
-          "restructuredtext",
-          "rst"
-        ]
-      },
-      {
-        "Name": "react",
-        "Aliases": [
-          "jsx",
-          "react"
-        ]
-      },
-      {
-        "Name": "reg",
-        "Aliases": [
-          "reg",
-          "registry"
-        ]
-      },
-      {
-        "Name": "systemverilog",
-        "Aliases": [
-          "sv",
-          "svh",
-          "systemverilog"
-        ]
-      },
-      {
-        "Name": "verilog",
-        "Aliases": [
-          "v",
-          "verilog"
-        ]
-      },
-      {
-        "Name": "vue",
-        "Aliases": [
-          "vue",
-          "vuejs"
         ]
       }
     ]
@@ -1592,6 +1728,68 @@
         "bibliography": "data/bibliography.json"
       }
     },
+    "mergeStrategy": {
+      "build": {
+        "_merge": "none"
+      },
+      "caches": {
+        "_merge": "none"
+      },
+      "cascade": {
+        "_merge": "none"
+      },
+      "frontmatter": {
+        "_merge": "none"
+      },
+      "imaging": {
+        "_merge": "none"
+      },
+      "languages": {
+        "_merge": "none",
+        "en": {
+          "_merge": "none",
+          "menus": {
+            "_merge": "shallow"
+          },
+          "params": {
+            "_merge": "deep"
+          }
+        }
+      },
+      "markup": {
+        "_merge": "none"
+      },
+      "mediatypes": {
+        "_merge": "shallow"
+      },
+      "menus": {
+        "_merge": "shallow"
+      },
+      "minify": {
+        "_merge": "none"
+      },
+      "module": {
+        "_merge": "none"
+      },
+      "outputformats": {
+        "_merge": "shallow"
+      },
+      "params": {
+        "_merge": "deep"
+      },
+      "permalinks": {
+        "_merge": "none"
+      },
+      "related": {
+        "_merge": "none"
+      },
+      "sitemap": {
+        "_merge": "none"
+      },
+      "taxonomies": {
+        "_merge": "none"
+      }
+    },
     "minify": {
       "minifyOutput": false,
       "disableHTML": false,
@@ -1608,7 +1806,7 @@
           "keepDocumentTags": true,
           "keepEndTags": true,
           "keepQuotes": false,
-          "keepWhitespace": false
+          "keepWhitespace": true
         },
         "css": {
           "keepCSS2": true,
@@ -1619,7 +1817,8 @@
           "keepVarNames": false
         },
         "json": {
-          "precision": 0
+          "precision": 0,
+          "keepNumbers": false
         },
         "svg": {
           "precision": 0
@@ -1658,6 +1857,20 @@
         "string": "application/json",
         "suffixes": [
           "json"
+        ]
+      },
+      {
+        "mainType": "application",
+        "subType": "manifest",
+        "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "webmanifest",
+          "fullSuffix": ".webmanifest"
+        },
+        "type": "application/manifest+json",
+        "string": "application/manifest+json",
+        "suffixes": [
+          "webmanifest"
         ]
       },
       {
@@ -2141,6 +2354,20 @@
         "isHTML": false,
         "noUgly": true,
         "notAlternative": false,
+        "permalinkable": false,
+        "weight": 0
+      },
+      {
+        "mediaType": "application/manifest+json",
+        "name": "WebAppManifest",
+        "path": "",
+        "baseName": "manifest",
+        "rel": "manifest",
+        "protocol": "",
+        "isPlainText": true,
+        "isHTML": false,
+        "noUgly": false,
+        "notAlternative": true,
         "permalinkable": false,
         "weight": 0
       }
@@ -3149,6 +3376,10 @@
             [
               "\u003ca href=\"https://www.google.com?{{ (querify \"q\" \"test\" \"page\" 3) | safeURL }}\"\u003eSearch\u003c/a\u003e",
               "\u003ca href=\"https://www.google.com?page=3\u0026amp;q=test\"\u003eSearch\u003c/a\u003e"
+            ],
+            [
+              "{{ slice \"foo\" 1 \"bar\" 2 | querify | safeHTML }}",
+              "bar=2\u0026foo=1"
             ]
           ]
         },
@@ -3342,7 +3573,7 @@
           "Description": "GetCSV expects a data separator and one or n-parts of a URL to a resource which\ncan either be a local or a remote one.\nThe data separator can be a comma, semi-colon, pipe, etc, but only one character.\nIf you provide multiple parts for the URL they will be joined together to the final URL.\nGetCSV returns nil or a slice slice to use in a short code.",
           "Args": [
             "sep",
-            "urlParts"
+            "args"
           ],
           "Aliases": [
             "getCSV"
@@ -3352,7 +3583,7 @@
         "GetJSON": {
           "Description": "GetJSON expects one or n-parts of a URL to a resource which can either be a local or a remote one.\nIf you provide multiple parts they will be joined together to the final URL.\nGetJSON returns nil or parsed JSON to use in a short code.",
           "Args": [
-            "urlParts"
+            "args"
           ],
           "Aliases": [
             "getJSON"
@@ -3443,6 +3674,23 @@
           "Examples": [
             [
               "{{ errorf \"%s.\" \"failed\" }}",
+              ""
+            ]
+          ]
+        },
+        "Erroridf": {
+          "Description": "Erroridf formats according to a format specifier and logs an ERROR and\nan information text that the error with the given ID can be suppressed in config.\nIt returns an empty string.",
+          "Args": [
+            "id",
+            "format",
+            "a"
+          ],
+          "Aliases": [
+            "erroridf"
+          ],
+          "Examples": [
+            [
+              "{{ erroridf \"my-err-id\" \"%s.\" \"failed\" }}",
               ""
             ]
           ]
@@ -3712,14 +3960,52 @@
         }
       },
       "lang": {
-        "Merge": {
-          "Description": "",
-          "Args": null,
+        "FormatAccounting": {
+          "Description": "FormatAccounting returns the currency representation of number for the given currency and precision\nfor the current language in accounting notation.\n\nThe return value is formatted with at least two decimal places.",
+          "Args": [
+            "precision",
+            "currency",
+            "number"
+          ],
           "Aliases": null,
-          "Examples": null
+          "Examples": [
+            [
+              "{{ 512.5032 | lang.FormatAccounting 2 \"NOK\" }}",
+              "NOK512.50"
+            ]
+          ]
         },
-        "NumFmt": {
-          "Description": "NumFmt formats a number with the given precision using the\nnegative, decimal, and grouping options.  The `options`\nparameter is a string consisting of `\u003cnegative\u003e \u003cdecimal\u003e \u003cgrouping\u003e`.  The\ndefault `options` value is `- . ,`.\n\nNote that numbers are rounded up at 5 or greater.\nSo, with precision set to 0, 1.5 becomes `2`, and 1.4 becomes `1`.",
+        "FormatCurrency": {
+          "Description": "FormatCurrency returns the currency representation of number for the given currency and precision\nfor the current language.\n\nThe return value is formatted with at least two decimal places.",
+          "Args": [
+            "precision",
+            "currency",
+            "number"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ 512.5032 | lang.FormatCurrency 2 \"USD\" }}",
+              "$512.50"
+            ]
+          ]
+        },
+        "FormatNumber": {
+          "Description": "FormatNumber formats number with the given precision for the current language.",
+          "Args": [
+            "precision",
+            "number"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ 512.5032 | lang.FormatNumber 2 }}",
+              "512.50"
+            ]
+          ]
+        },
+        "FormatNumberCustom": {
+          "Description": "FormatNumberCustom formats a number with the given precision using the\nnegative, decimal, and grouping options.  The `options`\nparameter is a string consisting of `\u003cnegative\u003e \u003cdecimal\u003e \u003cgrouping\u003e`.  The\ndefault `options` value is `- . ,`.\n\nNote that numbers are rounded up at 5 or greater.\nSo, with precision set to 0, 1.5 becomes `2`, and 1.4 becomes `1`.\n\nFor a simpler function that adapts to the current language, see FormatNumber.",
           "Args": [
             "precision",
             "number",
@@ -3728,26 +4014,52 @@
           "Aliases": null,
           "Examples": [
             [
-              "{{ lang.NumFmt 2 12345.6789 }}",
+              "{{ lang.FormatNumberCustom 2 12345.6789 }}",
               "12,345.68"
             ],
             [
-              "{{ lang.NumFmt 2 12345.6789 \"- , .\" }}",
+              "{{ lang.FormatNumberCustom 2 12345.6789 \"- , .\" }}",
               "12.345,68"
             ],
             [
-              "{{ lang.NumFmt 6 -12345.6789 \"- .\" }}",
+              "{{ lang.FormatNumberCustom 6 -12345.6789 \"- .\" }}",
               "-12345.678900"
             ],
             [
-              "{{ lang.NumFmt 0 -12345.6789 \"- . ,\" }}",
+              "{{ lang.FormatNumberCustom 0 -12345.6789 \"- . ,\" }}",
               "-12,346"
             ],
             [
-              "{{ -98765.4321 | lang.NumFmt 2 }}",
+              "{{ -98765.4321 | lang.FormatNumberCustom 2 }}",
               "-98,765.43"
             ]
           ]
+        },
+        "FormatPercent": {
+          "Description": "FormatPercent formats number with the given precision for the current language.\nNote that the number is assumed to be a percentage.",
+          "Args": [
+            "precision",
+            "number"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ 512.5032 | lang.FormatPercent 2 }}",
+              "512.50%"
+            ]
+          ]
+        },
+        "Merge": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "NumFmt": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
         },
         "Translate": {
           "Description": "Translate returns a translated string for id.",
@@ -3834,6 +4146,34 @@
             ]
           ]
         },
+        "Max": {
+          "Description": "Max returns the greater of two numbers.",
+          "Args": [
+            "a",
+            "b"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{math.Max 1 2 }}",
+              "2"
+            ]
+          ]
+        },
+        "Min": {
+          "Description": "Min returns the smaller of two numbers.",
+          "Args": [
+            "a",
+            "b"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{math.Min 1 2 }}",
+              "1"
+            ]
+          ]
+        },
         "Mod": {
           "Description": "Mod returns a % b.",
           "Args": [
@@ -3912,7 +4252,7 @@
           ]
         },
         "Sqrt": {
-          "Description": "Sqrt returns the square root of a number.\nNOTE: will return for NaN for negative values of a",
+          "Description": "Sqrt returns the square root of a number.",
           "Args": [
             "a"
           ],
@@ -4044,6 +4384,12 @@
       },
       "path": {
         "Base": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Clean": {
           "Description": "",
           "Args": null,
           "Aliases": null,

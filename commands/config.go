@@ -21,6 +21,9 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"time"
+
+	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/gohugoio/hugo/parser"
 	"github.com/gohugoio/hugo/parser/metadecoders"
@@ -28,7 +31,6 @@ import (
 	"github.com/gohugoio/hugo/modules"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var _ cmder = (*configCmd)(nil)
@@ -60,7 +62,7 @@ func (b *commandsBuilder) newConfigCmd() *configCmd {
 }
 
 func (c *configCmd) printMounts(cmd *cobra.Command, args []string) error {
-	cfg, err := initializeConfig(true, false, &c.hugoBuilderCommon, c, nil)
+	cfg, err := initializeConfig(true, false, false, &c.hugoBuilderCommon, c, nil)
 	if err != nil {
 		return err
 	}
@@ -68,7 +70,7 @@ func (c *configCmd) printMounts(cmd *cobra.Command, args []string) error {
 	allModules := cfg.Cfg.Get("allmodules").(modules.Modules)
 
 	for _, m := range allModules {
-		if err := parser.InterfaceToConfig(&modMounts{m: m}, metadecoders.JSON, os.Stdout); err != nil {
+		if err := parser.InterfaceToConfig(&modMounts{m: m, verbose: c.verbose}, metadecoders.JSON, os.Stdout); err != nil {
 			return err
 		}
 	}
@@ -76,12 +78,12 @@ func (c *configCmd) printMounts(cmd *cobra.Command, args []string) error {
 }
 
 func (c *configCmd) printConfig(cmd *cobra.Command, args []string) error {
-	cfg, err := initializeConfig(true, false, &c.hugoBuilderCommon, c, nil)
+	cfg, err := initializeConfig(true, false, false, &c.hugoBuilderCommon, c, nil)
 	if err != nil {
 		return err
 	}
 
-	allSettings := cfg.Cfg.(*viper.Viper).AllSettings()
+	allSettings := cfg.Cfg.Get("").(maps.Params)
 
 	// We need to clean up this, but we store objects in the config that
 	// isn't really interesting to the end user, so filter these.
@@ -114,7 +116,8 @@ func (c *configCmd) printConfig(cmd *cobra.Command, args []string) error {
 }
 
 type modMounts struct {
-	m modules.Module
+	verbose bool
+	m       modules.Module
 }
 
 type modMount struct {
@@ -134,13 +137,49 @@ func (m *modMounts) MarshalJSON() ([]byte, error) {
 		})
 	}
 
+	var ownerPath string
+	if m.m.Owner() != nil {
+		ownerPath = m.m.Owner().Path()
+	}
+
+	if m.verbose {
+		config := m.m.Config()
+		return json.Marshal(&struct {
+			Path        string                 `json:"path"`
+			Version     string                 `json:"version"`
+			Time        time.Time              `json:"time"`
+			Owner       string                 `json:"owner"`
+			Dir         string                 `json:"dir"`
+			Meta        map[string]interface{} `json:"meta"`
+			HugoVersion modules.HugoVersion    `json:"hugoVersion"`
+
+			Mounts []modMount `json:"mounts"`
+		}{
+			Path:        m.m.Path(),
+			Version:     m.m.Version(),
+			Time:        m.m.Time(),
+			Owner:       ownerPath,
+			Dir:         m.m.Dir(),
+			Meta:        config.Params,
+			HugoVersion: config.HugoVersion,
+			Mounts:      mounts,
+		})
+	}
+
 	return json.Marshal(&struct {
-		Path   string     `json:"path"`
-		Dir    string     `json:"dir"`
-		Mounts []modMount `json:"mounts"`
+		Path    string     `json:"path"`
+		Version string     `json:"version"`
+		Time    time.Time  `json:"time"`
+		Owner   string     `json:"owner"`
+		Dir     string     `json:"dir"`
+		Mounts  []modMount `json:"mounts"`
 	}{
-		Path:   m.m.Path(),
-		Dir:    m.m.Dir(),
-		Mounts: mounts,
+		Path:    m.m.Path(),
+		Version: m.m.Version(),
+		Time:    m.m.Time(),
+		Owner:   ownerPath,
+		Dir:     m.m.Dir(),
+		Mounts:  mounts,
 	})
+
 }

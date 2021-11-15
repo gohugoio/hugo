@@ -149,13 +149,13 @@ func (m *ModulesConfig) finalize(logger loggers.Logger) error {
 
 func filterUnwantedMounts(mounts []Mount) []Mount {
 	// Remove duplicates
-	seen := make(map[Mount]bool)
+	seen := make(map[string]bool)
 	tmp := mounts[:0]
 	for _, m := range mounts {
-		if !seen[m] {
+		if !seen[m.key()] {
 			tmp = append(tmp, m)
 		}
-		seen[m] = true
+		seen[m.key()] = true
 	}
 	return tmp
 }
@@ -252,15 +252,22 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import, disabled bool
 	}
 
 	if moduleDir == "" {
+		var versionQuery string
 		mod = c.gomods.GetByPath(modulePath)
 		if mod != nil {
 			moduleDir = mod.Dir
+			versionQuery = mod.Version
 		}
 
 		if moduleDir == "" {
 			if c.GoModulesFilename != "" && isProbablyModule(modulePath) {
 				// Try to "go get" it and reload the module configuration.
-				if err := c.Get(modulePath); err != nil {
+				if versionQuery == "" {
+					// See https://golang.org/ref/mod#version-queries
+					// This will select the latest release-version (not beta etc.).
+					versionQuery = "upgrade"
+				}
+				if err := c.Get(fmt.Sprintf("%s@%s", modulePath, versionQuery)); err != nil {
 					return nil, err
 				}
 				if err := c.loadModules(); err != nil {
@@ -354,6 +361,11 @@ func (c *collector) addAndRecurse(owner *moduleAdapter, disabled bool) error {
 }
 
 func (c *collector) applyMounts(moduleImport Import, mod *moduleAdapter) error {
+	if moduleImport.NoMounts {
+		mod.mounts = nil
+		return nil
+	}
+
 	mounts := moduleImport.Mounts
 
 	modConfig := mod.Config()
@@ -396,17 +408,16 @@ func (c *collector) applyMounts(moduleImport Import, mod *moduleAdapter) error {
 func (c *collector) applyThemeConfig(tc *moduleAdapter) error {
 	var (
 		configFilename string
-		cfg            config.Provider
 		themeCfg       map[string]interface{}
-		hasConfig      bool
+		hasConfigFile  bool
 		err            error
 	)
 
 	// Viper supports more, but this is the sub-set supported by Hugo.
 	for _, configFormats := range config.ValidConfigFileExtensions {
 		configFilename = filepath.Join(tc.Dir(), "config."+configFormats)
-		hasConfig, _ = afero.Exists(c.fs, configFilename)
-		if hasConfig {
+		hasConfigFile, _ = afero.Exists(c.fs, configFilename)
+		if hasConfigFile {
 			break
 		}
 	}
@@ -424,24 +435,42 @@ func (c *collector) applyThemeConfig(tc *moduleAdapter) error {
 		if err != nil {
 			c.logger.Warnf("Failed to read module config for %q in %q: %s", tc.Path(), themeTOML, err)
 		} else {
-			maps.ToLower(themeCfg)
+			maps.PrepareParams(themeCfg)
 		}
 	}
 
-	if hasConfig {
+	if hasConfigFile {
 		if configFilename != "" {
 			var err error
-			cfg, err = config.FromFile(c.fs, configFilename)
+			tc.cfg, err = config.FromFile(c.fs, configFilename)
 			if err != nil {
-				return errors.Wrapf(err, "failed to read module config for %q in %q", tc.Path(), configFilename)
+				return err
 			}
 		}
 
-		tc.configFilename = configFilename
-		tc.cfg = cfg
+		tc.configFilenames = append(tc.configFilenames, configFilename)
+
 	}
 
-	config, err := decodeConfig(cfg, c.moduleConfig.replacementsMap)
+	// Also check for a config dir, which we overlay on top of the file configuration.
+	configDir := filepath.Join(tc.Dir(), "config")
+	dcfg, dirnames, err := config.LoadConfigFromDir(c.fs, configDir, c.ccfg.Environment)
+	if err != nil {
+		return err
+	}
+
+	if len(dirnames) > 0 {
+		tc.configFilenames = append(tc.configFilenames, dirnames...)
+
+		if hasConfigFile {
+			// Set will overwrite existing keys.
+			tc.cfg.Set("", dcfg.Get(""))
+		} else {
+			tc.cfg = dcfg
+		}
+	}
+
+	config, err := decodeConfig(tc.cfg, c.moduleConfig.replacementsMap)
 	if err != nil {
 		return err
 	}

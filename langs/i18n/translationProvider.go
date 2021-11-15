@@ -17,13 +17,15 @@ import (
 	"encoding/json"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/paths"
+
 	"github.com/gohugoio/hugo/common/herrors"
 	"golang.org/x/text/language"
 	yaml "gopkg.in/yaml.v2"
 
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/go-i18n/v2/i18n"
-	toml "github.com/pelletier/go-toml"
+	"github.com/gohugoio/hugo/helpers"
+	toml "github.com/pelletier/go-toml/v2"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
@@ -44,7 +46,7 @@ func NewTranslationProvider() *TranslationProvider {
 
 // Update updates the i18n func in the provided Deps.
 func (tp *TranslationProvider) Update(d *deps.Deps) error {
-	spec := source.NewSourceSpec(d.PathSpec, nil)
+	spec := source.NewSourceSpec(d.PathSpec, nil, nil)
 
 	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
@@ -88,7 +90,7 @@ func addTranslationFile(bundle *i18n.Bundle, r source.File) error {
 	f.Close()
 
 	name := r.LogicalName()
-	lang := helpers.Filename(name)
+	lang := paths.Filename(name)
 	tag := language.Make(lang)
 	if tag == language.Und {
 		name = artificialLangTagPrefix + name
@@ -124,7 +126,7 @@ func errWithFileContext(inerr error, r source.File) error {
 	}
 
 	meta := fim.Meta()
-	realFilename := meta.Filename()
+	realFilename := meta.Filename
 	f, err := meta.Open()
 	if err != nil {
 		return inerr

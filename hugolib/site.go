@@ -29,6 +29,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/types"
+
+	"github.com/gohugoio/hugo/common/paths"
+
 	"github.com/gohugoio/hugo/common/constants"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -77,7 +81,6 @@ import (
 
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
-	"github.com/spf13/viper"
 )
 
 // Site contains all the information relevant for constructing a static
@@ -100,7 +103,7 @@ import (
 type Site struct {
 
 	// The owning container. When multiple languages, there will be multiple
-	// sites.
+	// sites .
 	h *HugoSites
 
 	*PageCollections
@@ -110,7 +113,8 @@ type Site struct {
 	Sections Taxonomy
 	Info     *SiteInfo
 
-	language *langs.Language
+	language   *langs.Language
+	siteBucket *pagesMapBucket
 
 	siteCfg siteConfigHolder
 
@@ -385,6 +389,7 @@ func (s *Site) reset() *Site {
 		frontmatterHandler:     s.frontmatterHandler,
 		mediaTypesConfig:       s.mediaTypesConfig,
 		language:               s.language,
+		siteBucket:             s.siteBucket,
 		h:                      s.h,
 		publisher:              s.publisher,
 		siteConfigConfig:       s.siteConfigConfig,
@@ -501,9 +506,9 @@ But this also means that your site configuration may not do what you expect. If 
 	var relatedContentConfig related.Config
 
 	if cfg.Language.IsSet("related") {
-		relatedContentConfig, err = related.DecodeConfig(cfg.Language.Get("related"))
+		relatedContentConfig, err = related.DecodeConfig(cfg.Language.GetParams("related"))
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "failed to decode related config")
 		}
 	} else {
 		relatedContentConfig = related.DefaultConfig
@@ -522,13 +527,9 @@ But this also means that your site configuration may not do what you expect. If 
 	timeout := 30 * time.Second
 	if cfg.Language.IsSet("timeout") {
 		v := cfg.Language.Get("timeout")
-		if n := cast.ToInt(v); n > 0 {
-			timeout = time.Duration(n) * time.Millisecond
-		} else {
-			d, err := time.ParseDuration(cast.ToString(v))
-			if err == nil {
-				timeout = d
-			}
+		d, err := types.ToDurationE(v)
+		if err == nil {
+			timeout = d
 		}
 	}
 
@@ -540,9 +541,23 @@ But this also means that your site configuration may not do what you expect. If 
 		enableEmoji:      cfg.Language.Cfg.GetBool("enableEmoji"),
 	}
 
-	s := &Site{
+	var siteBucket *pagesMapBucket
+	if cfg.Language.IsSet("cascade") {
+		var err error
+		cascade, err := page.DecodeCascade(cfg.Language.Get("cascade"))
+		if err != nil {
+			return nil, errors.Errorf("failed to decode cascade config: %s", err)
+		}
 
+		siteBucket = &pagesMapBucket{
+			cascade: cascade,
+		}
+
+	}
+
+	s := &Site{
 		language:      cfg.Language,
+		siteBucket:    siteBucket,
 		disabledKinds: disabledKinds,
 
 		outputFormats:       outputFormats,
@@ -574,7 +589,8 @@ func NewSite(cfg deps.DepsCfg) (*Site, error) {
 		return nil, err
 	}
 
-	if err = applyDeps(cfg, s); err != nil {
+	var l configLoader
+	if err = l.applyDeps(cfg, s); err != nil {
 		return nil, err
 	}
 
@@ -586,11 +602,11 @@ func NewSite(cfg deps.DepsCfg) (*Site, error) {
 // Note: This is mainly used in single site tests.
 // TODO(bep) test refactor -- remove
 func NewSiteDefaultLang(withTemplate ...func(templ tpl.TemplateManager) error) (*Site, error) {
-	v := viper.New()
-	if err := loadDefaultSettingsFor(v); err != nil {
+	l := configLoader{cfg: config.New()}
+	if err := l.applyConfigDefaults(); err != nil {
 		return nil, err
 	}
-	return newSiteForLang(langs.NewDefaultLanguage(v), withTemplate...)
+	return newSiteForLang(langs.NewDefaultLanguage(l.cfg), withTemplate...)
 }
 
 // NewEnglishSite creates a new site in English language.
@@ -598,11 +614,11 @@ func NewSiteDefaultLang(withTemplate ...func(templ tpl.TemplateManager) error) (
 // Note: This is mainly used in single site tests.
 // TODO(bep) test refactor -- remove
 func NewEnglishSite(withTemplate ...func(templ tpl.TemplateManager) error) (*Site, error) {
-	v := viper.New()
-	if err := loadDefaultSettingsFor(v); err != nil {
+	l := configLoader{cfg: config.New()}
+	if err := l.applyConfigDefaults(); err != nil {
 		return nil, err
 	}
-	return newSiteForLang(langs.NewLanguage("en", v), withTemplate...)
+	return newSiteForLang(langs.NewLanguage("en", l.cfg), withTemplate...)
 }
 
 // newSiteForLang creates a new site in the given language.
@@ -1007,7 +1023,7 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 
 	changeIdentities := make(identity.Identities)
 
-	s.Log.Debug().Printf("Rebuild for events %q", events)
+	s.Log.Debugf("Rebuild for events %q", events)
 
 	h := s.h
 
@@ -1026,7 +1042,7 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 		sourceFilesChanged = make(map[string]bool)
 
 		// prevent spamming the log on changes
-		logger = helpers.NewDistinctFeedbackLogger()
+		logger = helpers.NewDistinctErrorLogger()
 	)
 
 	var cachePartitions []string
@@ -1177,7 +1193,7 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 
 		filenamesChanged = helpers.UniqueStringsReuse(filenamesChanged)
 
-		if err := s.readAndProcessContent(filenamesChanged...); err != nil {
+		if err := s.readAndProcessContent(*config, filenamesChanged...); err != nil {
 			return err
 		}
 
@@ -1191,7 +1207,7 @@ func (s *Site) process(config BuildCfg) (err error) {
 		err = errors.Wrap(err, "initialize")
 		return
 	}
-	if err = s.readAndProcessContent(); err != nil {
+	if err = s.readAndProcessContent(config); err != nil {
 		err = errors.Wrap(err, "readAndProcessContent")
 		return
 	}
@@ -1314,7 +1330,7 @@ func (s *Site) initializeSiteInfo() error {
 				return vvv
 			}
 		default:
-			m := cast.ToStringMapBool(v)
+			m := maps.ToStringMapBool(v)
 			uglyURLs = func(p page.Page) bool {
 				return m[p.Section()]
 			}
@@ -1360,8 +1376,8 @@ func (s *Site) eventToIdentity(e fsnotify.Event) (identity.PathIdentity, bool) {
 	return identity.PathIdentity{}, false
 }
 
-func (s *Site) readAndProcessContent(filenames ...string) error {
-	sourceSpec := source.NewSourceSpec(s.PathSpec, s.BaseFs.Content.Fs)
+func (s *Site) readAndProcessContent(buildConfig BuildCfg, filenames ...string) error {
+	sourceSpec := source.NewSourceSpec(s.PathSpec, buildConfig.ContentInclusionFilter, s.BaseFs.Content.Fs)
 
 	proc := newPagesProcessor(s.h, sourceSpec)
 
@@ -1384,17 +1400,25 @@ func (s *Site) getMenusFromConfig() navigation.Menus {
 				s.Log.Errorf("unable to process menus in site config\n")
 				s.Log.Errorln(err)
 			} else {
+				handleErr := func(err error) {
+					if err == nil {
+						return
+					}
+					s.Log.Errorf("unable to process menus in site config\n")
+					s.Log.Errorln(err)
+
+				}
+
 				for _, entry := range m {
-					s.Log.Debug().Printf("found menu: %q, in site config\n", name)
+					s.Log.Debugf("found menu: %q, in site config\n", name)
 
 					menuEntry := navigation.MenuEntry{Menu: name}
 					ime, err := maps.ToStringMapE(entry)
-					if err != nil {
-						s.Log.Errorf("unable to process menus in site config\n")
-						s.Log.Errorln(err)
-					}
+					handleErr(err)
 
-					menuEntry.MarshallMap(ime)
+					err = menuEntry.MarshallMap(ime)
+					handleErr(err)
+
 					// TODO(bep) clean up all of this
 					menuEntry.ConfiguredURL = s.Info.createNodeMenuEntryURL(menuEntry.ConfiguredURL)
 
@@ -1418,7 +1442,7 @@ func (s *SiteInfo) createNodeMenuEntryURL(in string) string {
 	menuEntryURL := in
 	menuEntryURL = helpers.SanitizeURLKeepTrailingSlash(s.s.PathSpec.URLize(menuEntryURL))
 	if !s.canonifyURLs {
-		menuEntryURL = helpers.AddContextRoot(s.s.PathSpec.BaseURL.String(), menuEntryURL)
+		menuEntryURL = paths.AddContextRoot(s.s.PathSpec.BaseURL.String(), menuEntryURL)
 	}
 	return menuEntryURL
 }
@@ -1436,6 +1460,10 @@ func (s *Site) assembleMenus() {
 	menuConfig := s.getMenusFromConfig()
 	for name, menu := range menuConfig {
 		for _, me := range menu {
+			if types.IsNil(me.Page) && me.PageRef != "" {
+				// Try to resolve the page.
+				me.Page, _ = s.getPageNew(nil, me.PageRef)
+			}
 			flat[twoD{name, me.KeyName()}] = me
 		}
 	}
@@ -1646,7 +1674,7 @@ func (s *Site) lookupLayouts(layouts ...string) tpl.Template {
 }
 
 func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath string, d interface{}, templ tpl.Template) error {
-	s.Log.Debug().Printf("Render XML for %q to %q", name, targetPath)
+	s.Log.Debugf("Render XML for %q to %q", name, targetPath)
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 
@@ -1668,7 +1696,7 @@ func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath st
 }
 
 func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath string, p *pageState, templ tpl.Template) error {
-	s.Log.Debug().Printf("Render %s to %q", name, targetPath)
+	s.Log.Debugf("Render %s to %q", name, targetPath)
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 

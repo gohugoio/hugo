@@ -51,6 +51,7 @@ hugo [flags]
       --noChmod                    don't sync permission mode of files
       --noTimes                    don't sync modification time of files
       --path-warnings              print warnings on duplicate target paths etc.
+      --poll string                set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes
       --print-mem                  print memory usage to screen at intervals
       --quiet                      build in quiet mode
       --renderToMemory             render to memory (only useful for benchmark testing)
@@ -68,6 +69,7 @@ hugo [flags]
 ### SEE ALSO
 
 * [hugo check](/commands/hugo_check/)	 - Contains some verification checks
+* [hugo completion](/commands/hugo_completion/)	 - generate the autocompletion script for the specified shell
 * [hugo config](/commands/hugo_config/)	 - Print the site configuration
 * [hugo convert](/commands/hugo_convert/)	 - Convert your content to different formats
 * [hugo deploy](/commands/hugo_deploy/)	 - Deploy your site to a Cloud provider.

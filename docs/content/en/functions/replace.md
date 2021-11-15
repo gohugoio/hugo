@@ -1,7 +1,6 @@
 ---
 title: replace
 description: Replaces all occurrences of the search string with the replacement string.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2020-09-07
@@ -27,4 +26,3 @@ The number of replacements can be limited with an optional `LIMIT` parameter.
 
 {{ replace "aabbaabb" "a" "z" 2 }} → "zzbbaabb"
 ```
-

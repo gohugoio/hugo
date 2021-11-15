@@ -18,8 +18,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/config"
+
 	"github.com/gohugoio/hugo/resources/resource"
-	"github.com/spf13/viper"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -52,7 +53,7 @@ func TestDateAndSlugFromBaseFilename(t *testing.T) {
 		expecteFDate, err := time.Parse("2006-01-02", test.date)
 		c.Assert(err, qt.IsNil)
 
-		gotDate, gotSlug := dateAndSlugFromBaseFilename(test.name)
+		gotDate, gotSlug := dateAndSlugFromBaseFilename(time.UTC, test.name)
 
 		c.Assert(gotDate, qt.Equals, expecteFDate)
 		c.Assert(gotSlug, qt.Equals, test.slug)
@@ -66,13 +67,14 @@ func newTestFd() *FrontMatterDescriptor {
 		Params:      make(map[string]interface{}),
 		Dates:       &resource.Dates{},
 		PageURLs:    &URLPath{},
+		Location:    time.UTC,
 	}
 }
 
 func TestFrontMatterNewConfig(t *testing.T) {
 	c := qt.New(t)
 
-	cfg := viper.New()
+	cfg := config.New()
 
 	cfg.Set("frontmatter", map[string]interface{}{
 		"date":        []string{"publishDate", "LastMod"},
@@ -89,7 +91,7 @@ func TestFrontMatterNewConfig(t *testing.T) {
 	c.Assert(fc.publishDate, qt.DeepEquals, []string{"date"})
 
 	// Default
-	cfg = viper.New()
+	cfg = config.New()
 	fc, err = newFrontmatterConfig(cfg)
 	c.Assert(err, qt.IsNil)
 	c.Assert(fc.date, qt.DeepEquals, []string{"date", "publishdate", "pubdate", "published", "lastmod", "modified"})
@@ -117,7 +119,7 @@ func TestFrontMatterDatesHandlers(t *testing.T) {
 
 	for _, handlerID := range []string{":filename", ":fileModTime", ":git"} {
 
-		cfg := viper.New()
+		cfg := config.New()
 
 		cfg.Set("frontmatter", map[string]interface{}{
 			"date": []string{handlerID, "date"},
@@ -157,7 +159,7 @@ func TestFrontMatterDatesCustomConfig(t *testing.T) {
 
 	c := qt.New(t)
 
-	cfg := viper.New()
+	cfg := config.New()
 	cfg.Set("frontmatter", map[string]interface{}{
 		"date":        []string{"mydate"},
 		"lastmod":     []string{"publishdate"},
@@ -204,7 +206,7 @@ func TestFrontMatterDatesDefaultKeyword(t *testing.T) {
 
 	c := qt.New(t)
 
-	cfg := viper.New()
+	cfg := config.New()
 
 	cfg.Set("frontmatter", map[string]interface{}{
 		"date":        []string{"mydate", ":default"},

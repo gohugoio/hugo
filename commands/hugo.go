@@ -30,6 +30,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gohugoio/hugo/hugofs/files"
+
+	"github.com/gohugoio/hugo/common/types"
+
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/resources/page"
@@ -114,11 +118,11 @@ func Execute(args []string) Response {
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
-func initializeConfig(mustHaveConfigFile, running bool,
+func initializeConfig(mustHaveConfigFile, failOnInitErr, running bool,
 	h *hugoBuilderCommon,
 	f flagsToConfigHandler,
 	cfgInit func(c *commandeer) error) (*commandeer, error) {
-	c, err := newCommandeer(mustHaveConfigFile, running, h, f, cfgInit)
+	c, err := newCommandeer(mustHaveConfigFile, failOnInitErr, running, h, f, cfgInit)
 	if err != nil {
 		return nil, err
 	}
@@ -126,7 +130,7 @@ func initializeConfig(mustHaveConfigFile, running bool,
 	return c, nil
 }
 
-func (c *commandeer) createLogger(cfg config.Provider, running bool) (loggers.Logger, error) {
+func (c *commandeer) createLogger(cfg config.Provider) (loggers.Logger, error) {
 	var (
 		logHandle       = ioutil.Discard
 		logThreshold    = jww.LevelWarn
@@ -170,7 +174,7 @@ func (c *commandeer) createLogger(cfg config.Provider, running bool) (loggers.Lo
 	loggers.InitGlobalLogger(stdoutThreshold, logThreshold, outHandle, logHandle)
 	helpers.InitLoggers()
 
-	return loggers.NewLogger(stdoutThreshold, logThreshold, outHandle, logHandle, running), nil
+	return loggers.NewLogger(stdoutThreshold, logThreshold, outHandle, logHandle, c.running), nil
 }
 
 func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
@@ -276,7 +280,8 @@ func isTerminal() bool {
 	return terminal.IsTerminal(os.Stdout)
 }
 
-func (c *commandeer) fullBuild() error {
+func (c *commandeer) fullBuild(noBuildLock bool) error {
+
 	var (
 		g         errgroup.Group
 		langCount map[string]uint64
@@ -301,7 +306,7 @@ func (c *commandeer) fullBuild() error {
 		return nil
 	}
 	buildSitesFunc := func() error {
-		if err := c.buildSites(); err != nil {
+		if err := c.buildSites(noBuildLock); err != nil {
 			return errors.Wrap(err, "Error building site")
 		}
 		return nil
@@ -494,7 +499,7 @@ func (c *commandeer) build() error {
 		}
 	}()
 
-	if err := c.fullBuild(); err != nil {
+	if err := c.fullBuild(false); err != nil {
 		return err
 	}
 
@@ -523,7 +528,7 @@ func (c *commandeer) build() error {
 
 		c.logger.Printf("Watching for changes in %s%s{%s}\n", baseWatchDir, helpers.FilePathSeparator, rootWatchDirs)
 		c.logger.Println("Press Ctrl+C to stop")
-		watcher, err := c.newWatcher(watchDirs...)
+		watcher, err := c.newWatcher(c.h.poll, watchDirs...)
 		checkErr(c.Logger, err)
 		defer watcher.Close()
 
@@ -537,7 +542,6 @@ func (c *commandeer) build() error {
 }
 
 func (c *commandeer) serverBuild() error {
-	defer c.timeTrack(time.Now(), "Built")
 
 	stopProfiling, err := c.initProfiling()
 	if err != nil {
@@ -550,7 +554,7 @@ func (c *commandeer) serverBuild() error {
 		}
 	}()
 
-	if err := c.fullBuild(); err != nil {
+	if err := c.fullBuild(false); err != nil {
 		return err
 	}
 
@@ -696,7 +700,7 @@ func (c *commandeer) getDirList() ([]string, error) {
 				return filepath.SkipDir
 			}
 
-			filenames = append(filenames, fi.Meta().Filename())
+			filenames = append(filenames, fi.Meta().Filename)
 		}
 
 		return nil
@@ -705,7 +709,7 @@ func (c *commandeer) getDirList() ([]string, error) {
 	watchFiles := c.hugo().PathSpec.BaseFs.WatchDirs()
 	for _, fi := range watchFiles {
 		if !fi.IsDir() {
-			filenames = append(filenames, fi.Meta().Filename())
+			filenames = append(filenames, fi.Meta().Filename)
 			continue
 		}
 
@@ -720,8 +724,8 @@ func (c *commandeer) getDirList() ([]string, error) {
 	return filenames, nil
 }
 
-func (c *commandeer) buildSites() (err error) {
-	return c.hugo().Build(hugolib.BuildCfg{})
+func (c *commandeer) buildSites(noBuildLock bool) (err error) {
+	return c.hugo().Build(hugolib.BuildCfg{NoBuildLock: noBuildLock})
 }
 
 func (c *commandeer) handleBuildErr(err error, msg string) {
@@ -735,7 +739,6 @@ func (c *commandeer) handleBuildErr(err error, msg string) {
 }
 
 func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
-	defer c.timeTrack(time.Now(), "Total")
 
 	c.buildErr = nil
 	visited := c.visitedURLs.PeekAllSet()
@@ -750,7 +753,7 @@ func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 			visited[home] = true
 		}
 	}
-	return c.hugo().Build(hugolib.BuildCfg{RecentlyVisited: visited, ErrRecovery: c.wasError}, events...)
+	return c.hugo().Build(hugolib.BuildCfg{NoBuildLock: true, RecentlyVisited: visited, ErrRecovery: c.wasError}, events...)
 }
 
 func (c *commandeer) partialReRender(urls ...string) error {
@@ -762,7 +765,9 @@ func (c *commandeer) partialReRender(urls ...string) error {
 	for _, url := range urls {
 		visited[url] = true
 	}
-	return c.hugo().Build(hugolib.BuildCfg{RecentlyVisited: visited, PartialReRender: true, ErrRecovery: c.wasError})
+
+	// Note: We do not set NoBuildLock as the file lock is not acquired at this stage.
+	return c.hugo().Build(hugolib.BuildCfg{NoBuildLock: false, RecentlyVisited: visited, PartialReRender: true, ErrRecovery: c.wasError})
 }
 
 func (c *commandeer) fullRebuild(changeType string) {
@@ -792,7 +797,7 @@ func (c *commandeer) fullRebuild(changeType string) {
 		defer c.timeTrack(time.Now(), "Rebuilt")
 
 		c.commandeerHugoState = newCommandeerHugoState()
-		err := c.loadConfig(true, true)
+		err := c.loadConfig()
 		if err != nil {
 			// Set the processing on pause until the state is recovered.
 			c.paused = true
@@ -809,7 +814,7 @@ func (c *commandeer) fullRebuild(changeType string) {
 				return
 			}
 
-			err = c.buildSites()
+			err = c.buildSites(true)
 			if err != nil {
 				c.logger.Errorln(err)
 			} else if !c.h.buildWatch && !c.Cfg.GetBool("disableLiveReload") {
@@ -820,7 +825,7 @@ func (c *commandeer) fullRebuild(changeType string) {
 }
 
 // newWatcher creates a new watcher to watch filesystem events.
-func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
+func (c *commandeer) newWatcher(pollIntervalStr string, dirList ...string) (*watcher.Batcher, error) {
 	if runtime.GOOS == "darwin" {
 		tweakLimit()
 	}
@@ -830,7 +835,21 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 		return nil, err
 	}
 
-	watcher, err := watcher.New(1 * time.Second)
+	var pollInterval time.Duration
+	poll := pollIntervalStr != ""
+	if poll {
+		pollInterval, err = types.ToDurationE(pollIntervalStr)
+		if err != nil {
+			return nil, fmt.Errorf("invalid value for flag poll: %s", err)
+		}
+		c.logger.Printf("Use watcher with poll interval %v", pollInterval)
+	}
+
+	if pollInterval == 0 {
+		pollInterval = 500 * time.Millisecond
+	}
+
+	watcher, err := watcher.New(500*time.Millisecond, pollInterval, poll)
 	if err != nil {
 		return nil, err
 	}
@@ -854,13 +873,19 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 		for {
 			select {
 			case evs := <-watcher.Events:
+				unlock, err := c.hugo().BaseFs.LockBuild()
+				if err != nil {
+					c.logger.Errorln("Failed to acquire a build lock: %s", err)
+					return
+				}
 				c.handleEvents(watcher, staticSyncer, evs, configSet)
 				if c.showErrorInBrowser && c.errCount() > 0 {
 					// Need to reload browser to show the error
 					livereload.ForceRefresh()
 				}
-			case err := <-watcher.Errors:
-				if err != nil {
+				unlock()
+			case err := <-watcher.Errors():
+				if err != nil && !os.IsNotExist(err) {
 					c.logger.Errorln("Error while watching:", err)
 				}
 			}
@@ -1112,9 +1137,13 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 
 		c.printChangeDetected("")
 		c.changeDetector.PrepareNew()
-		if err := c.rebuildSites(dynamicEvents); err != nil {
-			c.handleBuildErr(err, "Rebuild failed")
-		}
+
+		func() {
+			defer c.timeTrack(time.Now(), "Total")
+			if err := c.rebuildSites(dynamicEvents); err != nil {
+				c.handleBuildErr(err, "Rebuild failed")
+			}
+		}()
 
 		if doLiveReload {
 			if len(partitionedEvents.ContentEvents) == 0 && len(partitionedEvents.AssetEvents) > 0 {
@@ -1179,12 +1208,16 @@ func partitionDynamicEvents(sourceFs *filesystems.SourceFilesystems, events []fs
 func pickOneWriteOrCreatePath(events []fsnotify.Event) string {
 	name := ""
 
-	// Some editors (for example notepad.exe on Windows) triggers a change
-	// both for directory and file. So we pick the longest path, which should
-	// be the file itself.
 	for _, ev := range events {
-		if (ev.Op&fsnotify.Write == fsnotify.Write || ev.Op&fsnotify.Create == fsnotify.Create) && len(ev.Name) > len(name) {
-			name = ev.Name
+		if ev.Op&fsnotify.Write == fsnotify.Write || ev.Op&fsnotify.Create == fsnotify.Create {
+			if files.IsIndexContentFile(ev.Name) {
+				return ev.Name
+			}
+
+			if files.IsContentFile(ev.Name) {
+				name = ev.Name
+			}
+
 		}
 	}
 

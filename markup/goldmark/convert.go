@@ -310,49 +310,52 @@ func newHighlighting(cfg highlight.Config) goldmark.Extender {
 		),
 
 		hl.WithWrapperRenderer(func(w util.BufWriter, ctx hl.CodeBlockContext, entering bool) {
-			l, hasLang := ctx.Language()
 			var language string
-			if hasLang {
+			if l, hasLang := ctx.Language(); hasLang {
 				language = string(l)
 			}
 
-			if entering {
-				if !ctx.Highlighted() {
-					w.WriteString(`<pre>`)
-					highlight.WriteCodeTag(w, language)
-					return
-				}
-
-				w.WriteString(`<div class="highlight`)
-
-				var attributes []ast.Attribute
-				if ctx.Attributes() != nil {
-					attributes = ctx.Attributes().All()
-				}
-
-				if attributes != nil {
-					class, found := ctx.Attributes().GetString("class")
-					if found {
-						w.WriteString(" ")
-						w.Write(util.EscapeHTML(class.([]byte)))
-
-					}
-					_, _ = w.WriteString("\"")
-					renderAttributes(w, true, attributes...)
+			if ctx.Highlighted() {
+				if entering {
+					writeDivStart(w, ctx)
 				} else {
-					_, _ = w.WriteString("\"")
+					writeDivEnd(w)
 				}
-
-				w.WriteString(">")
-				return
+			} else {
+				if entering {
+					highlight.WritePreStart(w, language, "")
+				} else {
+					highlight.WritePreEnd(w)
+				}
 			}
-
-			if !ctx.Highlighted() {
-				w.WriteString(`</code></pre>`)
-				return
-			}
-
-			w.WriteString("</div>")
 		}),
 	)
+}
+
+func writeDivStart(w util.BufWriter, ctx hl.CodeBlockContext) {
+	w.WriteString(`<div class="highlight`)
+
+	var attributes []ast.Attribute
+	if ctx.Attributes() != nil {
+		attributes = ctx.Attributes().All()
+	}
+
+	if attributes != nil {
+		class, found := ctx.Attributes().GetString("class")
+		if found {
+			w.WriteString(" ")
+			w.Write(util.EscapeHTML(class.([]byte)))
+
+		}
+		_, _ = w.WriteString("\"")
+		renderAttributes(w, true, attributes...)
+	} else {
+		_, _ = w.WriteString("\"")
+	}
+
+	w.WriteString(">")
+}
+
+func writeDivEnd(w util.BufWriter) {
+	w.WriteString("</div>")
 }

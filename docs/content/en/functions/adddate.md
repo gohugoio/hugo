@@ -1,7 +1,6 @@
 ---
 title: .AddDate
 description: Returns the time corresponding to adding the given number of years, months, and days passed to the function.
-godocref: https://golang.org/pkg/time/#Time.AddDate
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -34,7 +33,7 @@ link = "https://twitter.com/spf13"
 date = "2017-01-07T00:00:00Z"
 {{< /code-toggle >}}
 
-Let's assume you want to grab Tweets from the last two years and present them in a random order. In conjunction with the [`where`](/functions/where/) and [`now`](/functions/now/) functions, you can limit our range to the last two years via `now.AddDate -2 0 0`, which represents a point in time 2 years, 0 days, and 0 hours before the time of your last site build.
+Let's assume you want to grab Tweets from the last two years and present them in a random order. In conjunction with the [`where`](/functions/where/) and [`now`](/functions/now/) functions, you can limit our range to the last two years via `now.AddDate -2 0 0`, which represents a point in time 2 years, 0 months, and 0 days before the time of your last site build.
 
 {{< code file="partials/templates/random-tweets.html" download="tweets.html" >}}
 {{ range where $.Site.Data.tweets.tweet "date" "ge" (now.AddDate -2 0 0) | shuffle }}

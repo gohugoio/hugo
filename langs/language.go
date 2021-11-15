@@ -17,10 +17,14 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
+	"github.com/pkg/errors"
+
+	translators "github.com/gohugoio/localescompressed"
+	"github.com/gohugoio/locales"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
-	"github.com/spf13/cast"
 )
 
 // These are the settings that should only be looked up in the global Viper
@@ -55,7 +59,14 @@ type Language struct {
 	// absolute directory reference. It is what we get.
 	ContentDir string
 
+	// Global config.
 	Cfg config.Provider
+
+	// Language specific config.
+	LocalCfg config.Provider
+
+	// Composite config.
+	config.Provider
 
 	// These are params declared in the [params] section of the language merged with the
 	// site's params, the most specific (language) wins on duplicate keys.
@@ -63,10 +74,15 @@ type Language struct {
 	paramsMu  sync.Mutex
 	paramsSet bool
 
-	// These are config values, i.e. the settings declared outside of the [params] section of the language.
-	// This is the map Hugo looks in when looking for configuration values (baseURL etc.).
-	// Values in this map can also be fetched from the params map above.
-	settings map[string]interface{}
+	// Used for date formatting etc. We don't want these exported to the
+	// templates.
+	// TODO(bep) do the same for some of the others.
+	translator locales.Translator
+
+	location *time.Location
+
+	// Error during initialization. Will fail the buld.
+	initErr error
 }
 
 func (l *Language) String() string {
@@ -81,9 +97,31 @@ func NewLanguage(lang string, cfg config.Provider) *Language {
 	for k, v := range cfg.GetStringMap("params") {
 		params[k] = v
 	}
-	maps.ToLower(params)
+	maps.PrepareParams(params)
 
-	l := &Language{Lang: lang, ContentDir: cfg.GetString("contentDir"), Cfg: cfg, params: params, settings: make(map[string]interface{})}
+	localCfg := config.New()
+	compositeConfig := config.NewCompositeConfig(cfg, localCfg)
+	translator := translators.GetTranslator(lang)
+	if translator == nil {
+		translator = translators.GetTranslator(cfg.GetString("defaultContentLanguage"))
+		if translator == nil {
+			translator = translators.GetTranslator("en")
+		}
+	}
+
+	l := &Language{
+		Lang:       lang,
+		ContentDir: cfg.GetString("contentDir"),
+		Cfg:        cfg, LocalCfg: localCfg,
+		Provider:   compositeConfig,
+		params:     params,
+		translator: translator,
+	}
+
+	if err := l.loadLocation(cfg.GetString("timeZone")); err != nil {
+		l.initErr = err
+	}
+
 	return l
 }
 
@@ -133,7 +171,7 @@ func (l *Language) Params() maps.Params {
 	l.paramsMu.Lock()
 	defer l.paramsMu.Unlock()
 	if !l.paramsSet {
-		maps.ToLower(l.params)
+		maps.PrepareParams(l.params)
 		l.paramsSet = true
 	}
 	return l.params
@@ -183,42 +221,6 @@ func (l *Language) SetParam(k string, v interface{}) {
 	l.params[k] = v
 }
 
-// GetBool returns the value associated with the key as a boolean.
-func (l *Language) GetBool(key string) bool { return cast.ToBool(l.Get(key)) }
-
-// GetString returns the value associated with the key as a string.
-func (l *Language) GetString(key string) string { return cast.ToString(l.Get(key)) }
-
-// GetInt returns the value associated with the key as an int.
-func (l *Language) GetInt(key string) int { return cast.ToInt(l.Get(key)) }
-
-// GetStringMap returns the value associated with the key as a map of interfaces.
-func (l *Language) GetStringMap(key string) map[string]interface{} {
-	return maps.ToStringMap(l.Get(key))
-}
-
-// GetStringMapString returns the value associated with the key as a map of strings.
-func (l *Language) GetStringMapString(key string) map[string]string {
-	return cast.ToStringMapString(l.Get(key))
-}
-
-// GetStringSlice returns the value associated with the key as a slice of strings.
-func (l *Language) GetStringSlice(key string) []string {
-	return cast.ToStringSlice(l.Get(key))
-}
-
-// Get returns a value associated with the key relying on specified language.
-// Get is case-insensitive for a key.
-//
-// Get returns an interface. For a specific value use one of the Get____ methods.
-func (l *Language) Get(key string) interface{} {
-	local := l.GetLocal(key)
-	if local != nil {
-		return local
-	}
-	return l.Cfg.Get(key)
-}
-
 // GetLocal gets a configuration value set on language level. It will
 // not fall back to any global value.
 // It will return nil if a value with the given key cannot be found.
@@ -228,31 +230,50 @@ func (l *Language) GetLocal(key string) interface{} {
 	}
 	key = strings.ToLower(key)
 	if !globalOnlySettings[key] {
-		if v, ok := l.settings[key]; ok {
-			return v
-		}
+		return l.LocalCfg.Get(key)
 	}
 	return nil
 }
 
-// Set sets the value for the key in the language's params.
-func (l *Language) Set(key string, value interface{}) {
-	if l == nil {
-		panic("language not set")
+func (l *Language) Set(k string, v interface{}) {
+	k = strings.ToLower(k)
+	if globalOnlySettings[k] {
+		return
 	}
-	key = strings.ToLower(key)
-	l.settings[key] = value
+	l.Provider.Set(k, v)
+}
+
+// Merge is currently not supported for Language.
+func (l *Language) Merge(key string, value interface{}) {
+	panic("Not supported")
 }
 
 // IsSet checks whether the key is set in the language or the related config store.
 func (l *Language) IsSet(key string) bool {
 	key = strings.ToLower(key)
-
-	key = strings.ToLower(key)
 	if !globalOnlySettings[key] {
-		if _, ok := l.settings[key]; ok {
-			return true
-		}
+		return l.Provider.IsSet(key)
 	}
 	return l.Cfg.IsSet(key)
+}
+
+// Internal access to unexported Language fields.
+// This construct is to prevent them from leaking to the templates.
+
+func GetTranslator(l *Language) locales.Translator {
+	return l.translator
+}
+
+func GetLocation(l *Language) *time.Location {
+	return l.location
+}
+
+func (l *Language) loadLocation(tzStr string) error {
+	location, err := time.LoadLocation(tzStr)
+	if err != nil {
+		return errors.Wrapf(err, "invalid timeZone for language %q", l.Lang)
+	}
+	l.location = location
+
+	return nil
 }

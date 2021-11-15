@@ -80,7 +80,7 @@ func (f *Filesystem) captureFiles() error {
 		}
 
 		meta := fi.Meta()
-		filename := meta.Filename()
+		filename := meta.Filename
 
 		b, err := f.shouldRead(filename, fi)
 		if err != nil {
@@ -105,7 +105,7 @@ func (f *Filesystem) captureFiles() error {
 }
 
 func (f *Filesystem) shouldRead(filename string, fi hugofs.FileMetaInfo) (bool, error) {
-	ignore := f.SourceSpec.IgnoreFile(fi.Meta().Filename())
+	ignore := f.SourceSpec.IgnoreFile(fi.Meta().Filename)
 
 	if fi.IsDir() {
 		if ignore {

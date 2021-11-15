@@ -20,6 +20,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/common/paths"
+
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -187,7 +189,7 @@ func (c *PageCollections) getSectionOrPage(ref string) (*contentNode, string) {
 	langSuffix := "." + m.s.Lang()
 
 	// Trim both extension and any language code.
-	name := helpers.PathNoExt(filename)
+	name := paths.PathNoExt(filename)
 	name = strings.TrimSuffix(name, langSuffix)
 
 	// These are reserved bundle names and will always be stored by their owning
@@ -244,8 +246,8 @@ func (c *PageCollections) getContentNode(context page.Page, isReflink bool, ref 
 			base = context.SectionsPath()
 		} else {
 			meta := context.File().FileInfo().Meta()
-			base = filepath.ToSlash(filepath.Dir(meta.Path()))
-			if meta.Classifier() == files.ContentClassLeaf {
+			base = filepath.ToSlash(filepath.Dir(meta.Path))
+			if meta.Classifier == files.ContentClassLeaf {
 				// Bundles are stored in subfolders e.g. blog/mybundle/index.md,
 				// so if the user has not explicitly asked to go up,
 				// look on the "blog" level.
@@ -302,11 +304,11 @@ func (c *PageCollections) getContentNode(context page.Page, isReflink bool, ref 
 
 	var module string
 	if context != nil && !context.File().IsZero() {
-		module = context.File().FileInfo().Meta().Module()
+		module = context.File().FileInfo().Meta().Module
 	}
 
 	if module == "" && !c.pageMap.s.home.File().IsZero() {
-		module = c.pageMap.s.home.File().FileInfo().Meta().Module()
+		module = c.pageMap.s.home.File().FileInfo().Meta().Module
 	}
 
 	if module != "" {

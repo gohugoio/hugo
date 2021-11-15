@@ -19,6 +19,8 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/gohugoio/hugo/config"
+
 	"github.com/gohugoio/hugo/modules"
 
 	"github.com/gohugoio/hugo/langs"
@@ -28,8 +30,6 @@ import (
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
-
-	"github.com/spf13/viper"
 )
 
 func TestEmptySourceFilesystem(t *testing.T) {
@@ -60,7 +60,7 @@ func TestUnicodeNorm(t *testing.T) {
 	}
 
 	ss := newTestSourceSpec()
-	fi := hugofs.NewFileMetaInfo(nil, hugofs.FileMeta{})
+	fi := hugofs.NewFileMetaInfo(nil, hugofs.NewFileMeta())
 
 	for i, path := range paths {
 		base := fmt.Sprintf("base%d", i)
@@ -76,8 +76,8 @@ func TestUnicodeNorm(t *testing.T) {
 	}
 }
 
-func newTestConfig() *viper.Viper {
-	v := viper.New()
+func newTestConfig() config.Provider {
+	v := config.New()
 	v.Set("contentDir", "content")
 	v.Set("dataDir", "data")
 	v.Set("i18nDir", "i18n")
@@ -106,5 +106,5 @@ func newTestSourceSpec() *SourceSpec {
 	if err != nil {
 		panic(err)
 	}
-	return NewSourceSpec(ps, fs.Source)
+	return NewSourceSpec(ps, nil, fs.Source)
 }

@@ -2,7 +2,6 @@
 title: now
 linktitle: now
 description: Returns the current local time 
-godocref: https://godoc.org/time#Time
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-04-30

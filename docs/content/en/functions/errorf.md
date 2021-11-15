@@ -30,4 +30,22 @@ Both functions return an empty string, so the messages are only printed to the c
 {{ warnf "You should update the shortcodes in %q" .Path }}
 ```
 
-Note that `errorf` and `warnf` support all the formatting verbs of the [fmt](https://golang.org/pkg/fmt/) package.
+Note that `errorf`, `erroridf`, and `warnf` support all the formatting verbs of the [fmt](https://golang.org/pkg/fmt/) package.
+
+## Suppress errors
+
+Sometimes it may make sense to let the user suppress an ERROR and make the build succeed.
+
+You can do this by using the `erroridf` function. This functions takes an error ID as the first argument.
+
+```
+{{ erroridf "my-custom-error" "You should consider fixing this." }}
+```  
+
+This will produce:
+
+```
+ERROR 2021/06/07 17:47:38 You should consider fixing this.
+If you feel that this should not be logged as an ERROR, you can ignore it by adding this to your site config:
+ignoreErrors = ["my-custom-error"]
+```

@@ -17,6 +17,8 @@
 package modules
 
 import (
+	"time"
+
 	"github.com/gohugoio/hugo/config"
 )
 
@@ -30,10 +32,10 @@ type Module interface {
 	// The decoded module config and mounts.
 	Config() Config
 
-	// Optional configuration filename (e.g. "/themes/mytheme/config.json").
+	// Optional configuration filenames (e.g. "/themes/mytheme/config.json").
 	// This will be added to the special configuration watch list when in
 	// server mode.
-	ConfigFilename() string
+	ConfigFilenames() []string
 
 	// Directory holding files for this module.
 	Dir() string
@@ -65,6 +67,9 @@ type Module interface {
 	// The module version.
 	Version() string
 
+	// Time version was created.
+	Time() time.Time
+
 	// Whether this module's dir is a watch candidate.
 	Watch() bool
 }
@@ -82,9 +87,9 @@ type moduleAdapter struct {
 
 	mounts []Mount
 
-	configFilename string
-	cfg            config.Provider
-	config         Config
+	configFilenames []string
+	cfg             config.Provider
+	config          Config
 
 	// Set if a Go module.
 	gomod *goModule
@@ -98,8 +103,8 @@ func (m *moduleAdapter) Config() Config {
 	return m.config
 }
 
-func (m *moduleAdapter) ConfigFilename() string {
-	return m.configFilename
+func (m *moduleAdapter) ConfigFilenames() []string {
+	return m.configFilenames
 }
 
 func (m *moduleAdapter) Dir() string {
@@ -152,6 +157,15 @@ func (m *moduleAdapter) Version() string {
 		return m.version
 	}
 	return m.gomod.Version
+}
+
+func (m *moduleAdapter) Time() time.Time {
+	if !m.IsGoMod() || m.gomod.Time == nil {
+		return time.Time{}
+	}
+
+	return *m.gomod.Time
+
 }
 
 func (m *moduleAdapter) Watch() bool {

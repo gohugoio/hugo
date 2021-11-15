@@ -371,22 +371,22 @@ func TestTransform(t *testing.T) {
 		resizedPublished1, err := img.Resize("40x40")
 		c.Assert(err, qt.IsNil)
 		c.Assert(resizedPublished1.Height(), qt.Equals, 40)
-		c.Assert(resizedPublished1.RelPermalink(), qt.Equals, "/gopher.changed_hu2e827f5a78333ebc04166dd643235dea_1462_40x40_resize_linear_2.png")
-		assertShouldExist(c, spec, "public/gopher.changed_hu2e827f5a78333ebc04166dd643235dea_1462_40x40_resize_linear_2.png", true)
+		c.Assert(resizedPublished1.RelPermalink(), qt.Equals, "/gopher.changed_hu2e827f5a78333ebc04166dd643235dea_1462_40x40_resize_linear_3.png")
+		assertShouldExist(c, spec, "public/gopher.changed_hu2e827f5a78333ebc04166dd643235dea_1462_40x40_resize_linear_3.png", true)
 
 		// Permalink called.
 		resizedPublished2, err := img.Resize("30x30")
 		c.Assert(err, qt.IsNil)
 		c.Assert(resizedPublished2.Height(), qt.Equals, 30)
-		c.Assert(resizedPublished2.Permalink(), qt.Equals, "https://example.com/gopher.changed_hu2e827f5a78333ebc04166dd643235dea_1462_30x30_resize_linear_2.png")
-		assertShouldExist(c, spec, "public/gopher.changed_hu2e827f5a78333ebc04166dd643235dea_1462_30x30_resize_linear_2.png", true)
+		c.Assert(resizedPublished2.Permalink(), qt.Equals, "https://example.com/gopher.changed_hu2e827f5a78333ebc04166dd643235dea_1462_30x30_resize_linear_3.png")
+		assertShouldExist(c, spec, "public/gopher.changed_hu2e827f5a78333ebc04166dd643235dea_1462_30x30_resize_linear_3.png", true)
 
 		// Not published because none of RelPermalink or Permalink was called.
 		resizedNotPublished, err := img.Resize("50x50")
 		c.Assert(err, qt.IsNil)
 		c.Assert(resizedNotPublished.Height(), qt.Equals, 50)
 		// c.Assert(resized.RelPermalink(), qt.Equals, "/gopher.changed_hu2e827f5a78333ebc04166dd643235dea_1462_50x50_resize_linear_2.png")
-		assertShouldExist(c, spec, "public/gopher.changed_hu2e827f5a78333ebc04166dd643235dea_1462_50x50_resize_linear_2.png", false)
+		assertShouldExist(c, spec, "public/gopher.changed_hu2e827f5a78333ebc04166dd643235dea_1462_50x50_resize_linear_3.png", false)
 
 		assertNoDuplicateWrites(c, spec)
 	})

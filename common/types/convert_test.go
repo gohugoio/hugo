@@ -16,6 +16,7 @@ package types
 import (
 	"encoding/json"
 	"testing"
+	"time"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -35,4 +36,14 @@ func TestToString(t *testing.T) {
 
 	c.Assert(ToString([]byte("Hugo")), qt.Equals, "Hugo")
 	c.Assert(ToString(json.RawMessage("Hugo")), qt.Equals, "Hugo")
+}
+
+func TestToDuration(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(ToDuration("200ms"), qt.Equals, 200*time.Millisecond)
+	c.Assert(ToDuration("200"), qt.Equals, 200*time.Millisecond)
+	c.Assert(ToDuration("4m"), qt.Equals, 4*time.Minute)
+	c.Assert(ToDuration("asdfadf"), qt.Equals, time.Duration(0))
+
 }

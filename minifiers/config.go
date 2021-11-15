@@ -35,7 +35,7 @@ var defaultTdewolffConfig = tdewolffConfig{
 		KeepConditionalComments: true,
 		KeepEndTags:             true,
 		KeepDefaultAttrVals:     true,
-		KeepWhitespace:          false,
+		KeepWhitespace:          true,
 	},
 	CSS: css.Minifier{
 		Precision: 0,
@@ -99,10 +99,10 @@ func decodeConfig(cfg config.Provider) (conf minifyConfig, err error) {
 
 	// Handle upstream renames.
 	if td, found := m["tdewolff"]; found {
-		tdm := cast.ToStringMap(td)
+		tdm := maps.ToStringMap(td)
 		for _, key := range []string{"css", "svg"} {
 			if v, found := tdm[key]; found {
-				vm := cast.ToStringMap(v)
+				vm := maps.ToStringMap(v)
 				if vv, found := vm["decimal"]; found {
 					vvi := cast.ToInt(vv)
 					if vvi > 0 {

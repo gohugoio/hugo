@@ -79,7 +79,7 @@ func (s *Site) writeDestAlias(path, permalink string, outputFormat output.Format
 func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, outputFormat output.Format, p page.Page) (err error) {
 	handler := newAliasHandler(s.Tmpl(), s.Log, allowRoot)
 
-	s.Log.Debug().Println("creating alias:", path, "redirecting to", permalink)
+	s.Log.Debugln("creating alias:", path, "redirecting to", permalink)
 
 	targetPath, err := handler.targetPathAlias(path)
 	if err != nil {

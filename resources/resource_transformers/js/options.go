@@ -20,9 +20,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/spf13/afero"
-
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/pkg/errors"
+	"github.com/spf13/afero"
 
 	"github.com/evanw/esbuild/pkg/api"
 
@@ -30,7 +30,6 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/media"
 	"github.com/mitchellh/mapstructure"
-	"github.com/spf13/cast"
 )
 
 const (
@@ -144,12 +143,16 @@ func loaderFromFilename(filename string) api.Loader {
 	return api.LoaderJS
 }
 
-func resolveComponentInAssets(fs afero.Fs, impPath string) hugofs.FileMeta {
-	findFirst := func(base string) hugofs.FileMeta {
+func resolveComponentInAssets(fs afero.Fs, impPath string) *hugofs.FileMeta {
+	findFirst := func(base string) *hugofs.FileMeta {
 		// This is the most common sub-set of ESBuild's default extensions.
 		// We assume that imports of JSON, CSS etc. will be using their full
 		// name with extension.
 		for _, ext := range []string{".js", ".ts", ".tsx", ".jsx"} {
+			if strings.HasSuffix(impPath, ext) {
+				// Import of foo.js.js need the full name.
+				return nil
+			}
 			if fi, err := fs.Stat(base + ext); err == nil {
 				return fi.(hugofs.FileMetaInfo).Meta()
 			}
@@ -159,9 +162,23 @@ func resolveComponentInAssets(fs afero.Fs, impPath string) hugofs.FileMeta {
 		return nil
 	}
 
-	var m hugofs.FileMeta
+	var m *hugofs.FileMeta
 
-	// First the path as is.
+	// See issue #8949.
+	// We need to check if this is a regular file imported without an extension.
+	// There may be ambigous situations where both foo.js and foo/index.js exists.
+	// This import order is in line with both how Node and ESBuild's native
+	// import resolver works.
+	// This was fixed in Hugo 0.88.
+
+	// It may be a regular file imported without an extension, e.g.
+	// foo or foo/index.
+	m = findFirst(impPath)
+	if m != nil {
+		return m
+	}
+
+	// Finally check the path as is.
 	fi, err := fs.Stat(impPath)
 
 	if err == nil {
@@ -170,9 +187,6 @@ func resolveComponentInAssets(fs afero.Fs, impPath string) hugofs.FileMeta {
 		} else {
 			m = fi.(hugofs.FileMetaInfo).Meta()
 		}
-	} else {
-		// It may be a regular file imported without an extension.
-		m = findFirst(impPath)
 	}
 
 	return m
@@ -218,8 +232,8 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 			// This should be a small number of elements, and when
 			// in server mode, we may get stale entries on renames etc.,
 			// but that shouldn't matter too much.
-			c.rs.JSConfigBuilder.AddSourceRoot(m.SourceRoot())
-			return api.OnResolveResult{Path: m.Filename(), Namespace: nsImportHugo}, nil
+			c.rs.JSConfigBuilder.AddSourceRoot(m.SourceRoot)
+			return api.OnResolveResult{Path: m.Filename, Namespace: nsImportHugo}, nil
 		}
 
 		// Fall back to ESBuild's resolve.
@@ -348,7 +362,7 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 
 	var defines map[string]string
 	if opts.Defines != nil {
-		defines = cast.ToStringMapString(opts.Defines)
+		defines = maps.ToStringMapString(opts.Defines)
 	}
 
 	// By default we only need to specify outDir and no outFile

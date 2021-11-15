@@ -59,7 +59,7 @@ This release represents **{{ len .All }} contributions by {{ len $contribsPerAut
 {{- $u3 := index $contribsPerAuthor 2 -}}
 {{- $u4 := index $contribsPerAuthor 3 -}}
 {{- $u1.AuthorLink }} leads the Hugo development with a significant amount of contributions, but also a big shoutout to {{ $u2.AuthorLink }}, {{ $u3.AuthorLink }}, and {{ $u4.AuthorLink }} for their ongoing contributions.
-And a big thanks to [@digitalcraftsman](https://github.com/digitalcraftsman) for his relentless work on keeping the themes site in pristine condition.
+And thanks to [@digitalcraftsman](https://github.com/digitalcraftsman) for his ongoing work on keeping the themes site in pristine condition.
 {{ end }}
 Many have also been busy writing and fixing the documentation in [hugoDocs](https://github.com/gohugoio/hugoDocs),
 which has received **{{ len .Docs }} contributions by {{ len $docsContribsPerAuthor }} contributors**.
@@ -178,14 +178,14 @@ func writeReleaseNotes(version string, infosMain, infosDocs gitInfos, to io.Writ
 }
 
 func fetchThemeCount() (int, error) {
-	resp, err := http.Get("https://raw.githubusercontent.com/gohugoio/hugoThemes/master/.gitmodules")
+	resp, err := http.Get("https://raw.githubusercontent.com/gohugoio/hugoThemesSiteBuilder/main/themes.txt")
 	if err != nil {
 		return 0, err
 	}
 	defer resp.Body.Close()
 
 	b, _ := ioutil.ReadAll(resp.Body)
-	return bytes.Count(b, []byte("submodule")), nil
+	return bytes.Count(b, []byte("\n")) - bytes.Count(b, []byte("#")), nil
 }
 
 func writeReleaseNotesToTmpFile(version string, infosMain, infosDocs gitInfos) (string, error) {

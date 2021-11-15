@@ -37,7 +37,6 @@ import (
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/spf13/afero"
-	"github.com/spf13/viper"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
@@ -786,7 +785,7 @@ func TestPageWithLastmodFromGitInfo(t *testing.T) {
 	c := qt.New(t)
 
 	// We need to use the OS fs for this.
-	cfg := viper.New()
+	cfg := config.New()
 	fs := hugofs.NewFrom(hugofs.Os, cfg)
 	fs.Destination = &afero.MemMapFs{}
 
@@ -1066,7 +1065,7 @@ func TestChompBOM(t *testing.T) {
 
 func TestPageWithEmoji(t *testing.T) {
 	for _, enableEmoji := range []bool{true, false} {
-		v := viper.New()
+		v := config.New()
 		v.Set("enableEmoji", enableEmoji)
 
 		b := newTestSitesBuilder(t).WithViper(v)
@@ -1732,12 +1731,12 @@ $$$
 
 	// Blackfriday does not support this extended attribute syntax.
 	b.AssertFileContent("public/page1/index.html",
-		`<pre><code class="language-bash {hl_lines=[1]}" data-lang="bash {hl_lines=[1]}">SHORT</code></pre>`,
-		`<pre><code class="language-bash {hl_lines=[1]}" data-lang="bash {hl_lines=[1]}">MARKDOWN`,
+		`<pre tabindex="0"><code class="language-bash {hl_lines=[1]}" data-lang="bash {hl_lines=[1]}">SHORT</code></pre>`,
+		`<pre tabindex="0"><code class="language-bash {hl_lines=[1]}" data-lang="bash {hl_lines=[1]}">MARKDOWN`,
 	)
 
 	b.AssertFileContent("public/page2/index.html",
-		`<pre><code class="language-bash {hl_lines=[1]}" data-lang="bash {hl_lines=[1]}">SHORT`,
+		`<pre tabindex="0"><code class="language-bash {hl_lines=[1]}" data-lang="bash {hl_lines=[1]}">SHORT`,
 	)
 }
 

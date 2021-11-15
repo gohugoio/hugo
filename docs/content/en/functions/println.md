@@ -2,7 +2,6 @@
 title: println
 linktitle: println
 description: Prints the default representation of the given argument using the standard `fmt.Print` function and enforces a linebreak.
-godocref: https://golang.org/pkg/fmt/
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

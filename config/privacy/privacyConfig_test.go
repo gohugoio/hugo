@@ -18,7 +18,6 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config"
-	"github.com/spf13/viper"
 )
 
 func TestDecodeConfigFromTOML(t *testing.T) {
@@ -94,7 +93,7 @@ PrivacyENhanced = true
 func TestDecodeConfigDefault(t *testing.T) {
 	c := qt.New(t)
 
-	pc, err := DecodeConfig(viper.New())
+	pc, err := DecodeConfig(config.New())
 	c.Assert(err, qt.IsNil)
 	c.Assert(pc, qt.Not(qt.IsNil))
 	c.Assert(pc.YouTube.PrivacyEnhanced, qt.Equals, false)

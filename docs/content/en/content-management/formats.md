@@ -152,7 +152,6 @@ Markdown syntax is simple enough to learn in a single sitting. The following are
 [mmark]: https://github.com/mmarkdown/mmark
 [org]: https://orgmode.org/
 [pandoc]: https://www.pandoc.org/
-[Pygments]: https://pygments.org/
 [rest]: https://docutils.sourceforge.io/rst.html
 [sc]: /content-management/shortcodes/
 [sct]: /templates/shortcode-templates/

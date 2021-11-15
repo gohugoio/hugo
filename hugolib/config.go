@@ -21,6 +21,7 @@ import (
 	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/gohugoio/hugo/common/maps"
+	cpaths "github.com/gohugoio/hugo/common/paths"
 
 	"github.com/gobwas/glob"
 	hglob "github.com/gohugoio/hugo/hugofs/glob"
@@ -43,34 +44,139 @@ import (
 	"github.com/gohugoio/hugo/config/services"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/afero"
-	"github.com/spf13/viper"
 )
 
-// SiteConfig represents the config in .Site.Config.
-type SiteConfig struct {
-	// This contains all privacy related settings that can be used to
-	// make the YouTube template etc. GDPR compliant.
-	Privacy privacy.Config
+var ErrNoConfigFile = errors.New("Unable to locate config file or config directory. Perhaps you need to create a new site.\n       Run `hugo help new` for details.\n")
 
-	// Services contains config for services such as Google Analytics etc.
-	Services services.Config
+// LoadConfig loads Hugo configuration into a new Viper and then adds
+// a set of defaults.
+func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provider) error) (config.Provider, []string, error) {
+
+	if d.Environment == "" {
+		d.Environment = hugo.EnvironmentProduction
+	}
+
+	if len(d.Environ) == 0 && !hugo.IsRunningAsTest() {
+		d.Environ = os.Environ()
+	}
+
+	var configFiles []string
+
+	l := configLoader{ConfigSourceDescriptor: d, cfg: config.New()}
+	// Make sure we always do this, even in error situations,
+	// as we have commands (e.g. "hugo mod init") that will
+	// use a partial configuration to do its job.
+	defer l.deleteMergeStrategies()
+
+	for _, name := range d.configFilenames() {
+		var filename string
+		filename, err := l.loadConfig(name)
+		if err == nil {
+			configFiles = append(configFiles, filename)
+		} else if err != ErrNoConfigFile {
+			return nil, nil, err
+		}
+	}
+
+	if d.AbsConfigDir != "" {
+		dcfg, dirnames, err := config.LoadConfigFromDir(l.Fs, d.AbsConfigDir, l.Environment)
+		if err == nil {
+			if len(dirnames) > 0 {
+				l.cfg.Set("", dcfg.Get(""))
+				configFiles = append(configFiles, dirnames...)
+			}
+		} else if err != ErrNoConfigFile {
+			if len(dirnames) > 0 {
+				return nil, nil, l.wrapFileError(err, dirnames[0])
+			}
+			return nil, nil, err
+		}
+	}
+
+	if err := l.applyConfigDefaults(); err != nil {
+		return l.cfg, configFiles, err
+	}
+
+	l.cfg.SetDefaultMergeStrategy()
+
+	// We create languages based on the settings, so we need to make sure that
+	// all configuration is loaded/set before doing that.
+	for _, d := range doWithConfig {
+		if err := d(l.cfg); err != nil {
+			return l.cfg, configFiles, err
+		}
+	}
+
+	// Config deprecations.
+	// We made this a Glob pattern in Hugo 0.75, we don't need both.
+	if l.cfg.GetBool("ignoreVendor") {
+		helpers.Deprecated("--ignoreVendor", "--ignoreVendorPaths **", true)
+		l.cfg.Set("ignoreVendorPaths", "**")
+	}
+
+	if l.cfg.GetString("markup.defaultMarkdownHandler") == "blackfriday" {
+		helpers.Deprecated("markup.defaultMarkdownHandler=blackfriday", "See https://gohugo.io//content-management/formats/#list-of-content-formats", false)
+
+	}
+
+	// Some settings are used before we're done collecting all settings,
+	// so apply OS environment both before and after.
+	if err := l.applyOsEnvOverrides(d.Environ); err != nil {
+		return l.cfg, configFiles, err
+	}
+
+	modulesConfig, err := l.loadModulesConfig()
+	if err != nil {
+		return l.cfg, configFiles, err
+	}
+
+	// Need to run these after the modules are loaded, but before
+	// they are finalized.
+	collectHook := func(m *modules.ModulesConfig) error {
+		// We don't need the merge strategy configuration anymore,
+		// remove it so it doesn't accidentaly show up in other settings.
+		l.deleteMergeStrategies()
+
+		if err := l.loadLanguageSettings(nil); err != nil {
+			return err
+		}
+
+		mods := m.ActiveModules
+
+		// Apply default project mounts.
+		if err := modules.ApplyProjectConfigDefaults(l.cfg, mods[0]); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	_, modulesConfigFiles, modulesCollectErr := l.collectModules(modulesConfig, l.cfg, collectHook)
+	if err != nil {
+		return l.cfg, configFiles, err
+	}
+
+	configFiles = append(configFiles, modulesConfigFiles...)
+
+	if err := l.applyOsEnvOverrides(d.Environ); err != nil {
+		return l.cfg, configFiles, err
+	}
+
+	if err = l.applyConfigAliases(); err != nil {
+		return l.cfg, configFiles, err
+	}
+
+	if err == nil {
+		err = modulesCollectErr
+	}
+
+	return l.cfg, configFiles, err
 }
 
-func loadSiteConfig(cfg config.Provider) (scfg SiteConfig, err error) {
-	privacyConfig, err := privacy.DecodeConfig(cfg)
-	if err != nil {
-		return
-	}
-
-	servicesConfig, err := services.DecodeConfig(cfg)
-	if err != nil {
-		return
-	}
-
-	scfg.Privacy = privacyConfig
-	scfg.Services = servicesConfig
-
-	return
+// LoadConfigDefault is a convenience method to load the default "config.toml" config.
+func LoadConfigDefault(fs afero.Fs) (config.Provider, error) {
+	v, _, err := LoadConfig(ConfigSourceDescriptor{Fs: fs, Filename: "config.toml"})
+	return v, err
 }
 
 // ConfigSourceDescriptor describes where to find the config (e.g. config.toml etc.).
@@ -98,13 +204,6 @@ type ConfigSourceDescriptor struct {
 	Environ []string
 }
 
-func (d ConfigSourceDescriptor) configFilenames() []string {
-	if d.Filename == "" {
-		return []string{"config"}
-	}
-	return strings.Split(d.Filename, ",")
-}
-
 func (d ConfigSourceDescriptor) configFileDir() string {
 	if d.Path != "" {
 		return d.Path
@@ -112,178 +211,226 @@ func (d ConfigSourceDescriptor) configFileDir() string {
 	return d.WorkingDir
 }
 
-// LoadConfigDefault is a convenience method to load the default "config.toml" config.
-func LoadConfigDefault(fs afero.Fs) (*viper.Viper, error) {
-	v, _, err := LoadConfig(ConfigSourceDescriptor{Fs: fs, Filename: "config.toml"})
-	return v, err
+func (d ConfigSourceDescriptor) configFilenames() []string {
+	if d.Filename == "" {
+		return []string{"config"}
+	}
+	return strings.Split(d.Filename, ",")
 }
 
-var ErrNoConfigFile = errors.New("Unable to locate config file or config directory. Perhaps you need to create a new site.\n       Run `hugo help new` for details.\n")
+// SiteConfig represents the config in .Site.Config.
+type SiteConfig struct {
+	// This contains all privacy related settings that can be used to
+	// make the YouTube template etc. GDPR compliant.
+	Privacy privacy.Config
 
-// LoadConfig loads Hugo configuration into a new Viper and then adds
-// a set of defaults.
-func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provider) error) (*viper.Viper, []string, error) {
-	if d.Environment == "" {
-		d.Environment = hugo.EnvironmentProduction
-	}
-
-	if len(d.Environ) == 0 {
-		d.Environ = os.Environ()
-	}
-
-	var configFiles []string
-
-	v := viper.New()
-	l := configLoader{ConfigSourceDescriptor: d}
-
-	for _, name := range d.configFilenames() {
-		var filename string
-		filename, err := l.loadConfig(name, v)
-		if err == nil {
-			configFiles = append(configFiles, filename)
-		} else if err != ErrNoConfigFile {
-			return nil, nil, err
-		}
-	}
-
-	if d.AbsConfigDir != "" {
-		dirnames, err := l.loadConfigFromConfigDir(v)
-		if err == nil {
-			configFiles = append(configFiles, dirnames...)
-		} else if err != ErrNoConfigFile {
-			return nil, nil, err
-		}
-	}
-
-	if err := loadDefaultSettingsFor(v); err != nil {
-		return v, configFiles, err
-	}
-
-	// We create languages based on the settings, so we need to make sure that
-	// all configuration is loaded/set before doing that.
-	for _, d := range doWithConfig {
-		if err := d(v); err != nil {
-			return v, configFiles, err
-		}
-	}
-
-	// This is invoked both after we load the main config and at the end
-	// to support OS env override of config options used in the module collector.
-	applyOsEnvOverrides := func() error {
-		if d.Environ == nil {
-			return nil
-		}
-
-		const delim = "__env__delim"
-
-		// Extract all that start with the HUGO prefix.
-		// The delimiter is the following rune, usually "_".
-		const hugoEnvPrefix = "HUGO"
-		var hugoEnv []types.KeyValueStr
-		for _, v := range d.Environ {
-			key, val := config.SplitEnvVar(v)
-			if strings.HasPrefix(key, hugoEnvPrefix) {
-				delimiterAndKey := strings.TrimPrefix(key, hugoEnvPrefix)
-				if len(delimiterAndKey) < 2 {
-					continue
-				}
-				// Allow delimiters to be case sensitive.
-				// It turns out there isn't that many allowed special
-				// chars in environment variables when used in Bash and similar,
-				// so variables on the form HUGOxPARAMSxFOO=bar is one option.
-				key := strings.ReplaceAll(delimiterAndKey[1:], delimiterAndKey[:1], delim)
-				key = strings.ToLower(key)
-				hugoEnv = append(hugoEnv, types.KeyValueStr{
-					Key:   key,
-					Value: val,
-				})
-
-			}
-		}
-
-		for _, env := range hugoEnv {
-			existing, nestedKey, owner, err := maps.GetNestedParamFn(env.Key, delim, v.Get)
-			if err != nil {
-				return err
-			}
-
-			if existing != nil {
-				val, err := metadecoders.Default.UnmarshalStringTo(env.Value, existing)
-				if err != nil {
-					continue
-				}
-
-				if owner != nil {
-					owner[nestedKey] = val
-				} else {
-					v.Set(env.Key, val)
-				}
-			} else if nestedKey != "" {
-				owner[nestedKey] = env.Value
-			} else {
-				v.Set(env.Key, env.Value)
-			}
-		}
-
-		return nil
-
-	}
-
-	if err := applyOsEnvOverrides(); err != nil {
-		return v, configFiles, err
-	}
-
-	// We made this a Glob pattern in Hugo 0.75, we don't need both.
-	if v.GetBool("ignoreVendor") {
-		helpers.Deprecated("--ignoreVendor", "--ignoreVendorPaths **", false)
-		v.Set("ignoreVendorPaths", "**")
-	}
-
-	modulesConfig, err := l.loadModulesConfig(v)
-	if err != nil {
-		return v, configFiles, err
-	}
-
-	// Need to run these after the modules are loaded, but before
-	// they are finalized.
-	collectHook := func(m *modules.ModulesConfig) error {
-		if err := loadLanguageSettings(v, nil); err != nil {
-			return err
-		}
-
-		mods := m.ActiveModules
-
-		// Apply default project mounts.
-		if err := modules.ApplyProjectConfigDefaults(v, mods[0]); err != nil {
-			return err
-		}
-
-		return nil
-	}
-
-	_, modulesConfigFiles, err := l.collectModules(modulesConfig, v, collectHook)
-
-	if err == nil && len(modulesConfigFiles) > 0 {
-		configFiles = append(configFiles, modulesConfigFiles...)
-	}
-
-	if err := applyOsEnvOverrides(); err != nil {
-		return v, configFiles, err
-	}
-
-	return v, configFiles, err
-}
-
-func loadLanguageSettings(cfg config.Provider, oldLangs langs.Languages) error {
-	_, err := langs.LoadLanguageSettings(cfg, oldLangs)
-	return err
+	// Services contains config for services such as Google Analytics etc.
+	Services services.Config
 }
 
 type configLoader struct {
+	cfg config.Provider
 	ConfigSourceDescriptor
 }
 
-func (l configLoader) loadConfig(configName string, v *viper.Viper) (string, error) {
+// Handle some legacy values.
+func (l configLoader) applyConfigAliases() error {
+	aliases := []types.KeyValueStr{{Key: "taxonomies", Value: "indexes"}}
+
+	for _, alias := range aliases {
+		if l.cfg.IsSet(alias.Key) {
+			vv := l.cfg.Get(alias.Key)
+			l.cfg.Set(alias.Value, vv)
+		}
+	}
+
+	return nil
+}
+
+func (l configLoader) applyConfigDefaults() error {
+	defaultSettings := maps.Params{
+		"cleanDestinationDir":                  false,
+		"watch":                                false,
+		"resourceDir":                          "resources",
+		"publishDir":                           "public",
+		"themesDir":                            "themes",
+		"buildDrafts":                          false,
+		"buildFuture":                          false,
+		"buildExpired":                         false,
+		"environment":                          hugo.EnvironmentProduction,
+		"uglyURLs":                             false,
+		"verbose":                              false,
+		"ignoreCache":                          false,
+		"canonifyURLs":                         false,
+		"relativeURLs":                         false,
+		"removePathAccents":                    false,
+		"titleCaseStyle":                       "AP",
+		"taxonomies":                           maps.Params{"tag": "tags", "category": "categories"},
+		"permalinks":                           maps.Params{},
+		"sitemap":                              maps.Params{"priority": -1, "filename": "sitemap.xml"},
+		"disableLiveReload":                    false,
+		"pluralizeListTitles":                  true,
+		"forceSyncStatic":                      false,
+		"footnoteAnchorPrefix":                 "",
+		"footnoteReturnLinkContents":           "",
+		"newContentEditor":                     "",
+		"paginate":                             10,
+		"paginatePath":                         "page",
+		"summaryLength":                        70,
+		"rssLimit":                             -1,
+		"sectionPagesMenu":                     "",
+		"disablePathToLower":                   false,
+		"hasCJKLanguage":                       false,
+		"enableEmoji":                          false,
+		"defaultContentLanguage":               "en",
+		"defaultContentLanguageInSubdir":       false,
+		"enableMissingTranslationPlaceholders": false,
+		"enableGitInfo":                        false,
+		"ignoreFiles":                          make([]string, 0),
+		"disableAliases":                       false,
+		"debug":                                false,
+		"disableFastRender":                    false,
+		"timeout":                              "30s",
+		"enableInlineShortcodes":               false,
+	}
+
+	l.cfg.SetDefaults(defaultSettings)
+
+	return nil
+}
+
+func (l configLoader) applyOsEnvOverrides(environ []string) error {
+	if len(environ) == 0 {
+		return nil
+	}
+
+	const delim = "__env__delim"
+
+	// Extract all that start with the HUGO prefix.
+	// The delimiter is the following rune, usually "_".
+	const hugoEnvPrefix = "HUGO"
+	var hugoEnv []types.KeyValueStr
+	for _, v := range environ {
+		key, val := config.SplitEnvVar(v)
+		if strings.HasPrefix(key, hugoEnvPrefix) {
+			delimiterAndKey := strings.TrimPrefix(key, hugoEnvPrefix)
+			if len(delimiterAndKey) < 2 {
+				continue
+			}
+			// Allow delimiters to be case sensitive.
+			// It turns out there isn't that many allowed special
+			// chars in environment variables when used in Bash and similar,
+			// so variables on the form HUGOxPARAMSxFOO=bar is one option.
+			key := strings.ReplaceAll(delimiterAndKey[1:], delimiterAndKey[:1], delim)
+			key = strings.ToLower(key)
+			hugoEnv = append(hugoEnv, types.KeyValueStr{
+				Key:   key,
+				Value: val,
+			})
+
+		}
+	}
+
+	for _, env := range hugoEnv {
+		existing, nestedKey, owner, err := maps.GetNestedParamFn(env.Key, delim, l.cfg.Get)
+		if err != nil {
+			return err
+		}
+
+		if existing != nil {
+			val, err := metadecoders.Default.UnmarshalStringTo(env.Value, existing)
+			if err != nil {
+				continue
+			}
+
+			if owner != nil {
+				owner[nestedKey] = val
+			} else {
+				l.cfg.Set(env.Key, val)
+			}
+		} else if nestedKey != "" {
+			owner[nestedKey] = env.Value
+		} else {
+			// The container does not exist yet.
+			l.cfg.Set(strings.ReplaceAll(env.Key, delim, "."), env.Value)
+		}
+	}
+
+	return nil
+}
+
+func (l configLoader) collectModules(modConfig modules.Config, v1 config.Provider, hookBeforeFinalize func(m *modules.ModulesConfig) error) (modules.Modules, []string, error) {
+	workingDir := l.WorkingDir
+	if workingDir == "" {
+		workingDir = v1.GetString("workingDir")
+	}
+
+	themesDir := paths.AbsPathify(l.WorkingDir, v1.GetString("themesDir"))
+
+	var ignoreVendor glob.Glob
+	if s := v1.GetString("ignoreVendorPaths"); s != "" {
+		ignoreVendor, _ = hglob.GetGlob(hglob.NormalizePath(s))
+	}
+
+	filecacheConfigs, err := filecache.DecodeConfig(l.Fs, v1)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	v1.Set("filecacheConfigs", filecacheConfigs)
+
+	var configFilenames []string
+
+	hook := func(m *modules.ModulesConfig) error {
+		for _, tc := range m.ActiveModules {
+			if len(tc.ConfigFilenames()) > 0 {
+				if tc.Watch() {
+					configFilenames = append(configFilenames, tc.ConfigFilenames()...)
+				}
+
+				// Merge from theme config into v1 based on configured
+				// merge strategy.
+				v1.Merge("", tc.Cfg().Get(""))
+
+			}
+		}
+
+		if hookBeforeFinalize != nil {
+			return hookBeforeFinalize(m)
+		}
+
+		return nil
+	}
+
+	modulesClient := modules.NewClient(modules.ClientConfig{
+		Fs:                 l.Fs,
+		Logger:             l.Logger,
+		HookBeforeFinalize: hook,
+		WorkingDir:         workingDir,
+		ThemesDir:          themesDir,
+		Environment:        l.Environment,
+		CacheDir:           filecacheConfigs.CacheDirModules(),
+		ModuleConfig:       modConfig,
+		IgnoreVendor:       ignoreVendor,
+	})
+
+	v1.Set("modulesClient", modulesClient)
+
+	moduleConfig, err := modulesClient.Collect()
+
+	// Avoid recreating these later.
+	v1.Set("allModules", moduleConfig.ActiveModules)
+
+	if moduleConfig.GoModulesFilename != "" {
+		// We want to watch this for changes and trigger rebuild on version
+		// changes etc.
+		configFilenames = append(configFilenames, moduleConfig.GoModulesFilename)
+	}
+
+	return moduleConfig.ActiveModules, configFilenames, err
+}
+
+func (l configLoader) loadConfig(configName string) (string, error) {
 	baseDir := l.configFileDir()
 	var baseFilename string
 	if filepath.IsAbs(configName) {
@@ -293,7 +440,7 @@ func (l configLoader) loadConfig(configName string, v *viper.Viper) (string, err
 	}
 
 	var filename string
-	if helpers.ExtNoDelimiter(configName) != "" {
+	if cpaths.ExtNoDelimiter(configName) != "" {
 		exists, _ := helpers.Exists(baseFilename, l.Fs)
 		if exists {
 			filename = baseFilename
@@ -318,126 +465,26 @@ func (l configLoader) loadConfig(configName string, v *viper.Viper) (string, err
 		return "", l.wrapFileError(err, filename)
 	}
 
-	if err = v.MergeConfigMap(m); err != nil {
-		return "", l.wrapFileError(err, filename)
-	}
+	// Set overwrites keys of the same name, recursively.
+	l.cfg.Set("", m)
 
 	return filename, nil
 }
 
-func (l configLoader) wrapFileError(err error, filename string) error {
-	err, _ = herrors.WithFileContextForFile(
-		err,
-		filename,
-		filename,
-		l.Fs,
-		herrors.SimpleLineMatcher)
+func (l configLoader) deleteMergeStrategies() {
+	l.cfg.WalkParams(func(params ...config.KeyParams) bool {
+		params[len(params)-1].Params.DeleteMergeStrategy()
+		return false
+	})
+}
+
+func (l configLoader) loadLanguageSettings(oldLangs langs.Languages) error {
+	_, err := langs.LoadLanguageSettings(l.cfg, oldLangs)
 	return err
 }
 
-func (l configLoader) loadConfigFromConfigDir(v *viper.Viper) ([]string, error) {
-	sourceFs := l.Fs
-	configDir := l.AbsConfigDir
-
-	if _, err := sourceFs.Stat(configDir); err != nil {
-		// Config dir does not exist.
-		return nil, nil
-	}
-
-	defaultConfigDir := filepath.Join(configDir, "_default")
-	environmentConfigDir := filepath.Join(configDir, l.Environment)
-
-	var configDirs []string
-	// Merge from least to most specific.
-	for _, dir := range []string{defaultConfigDir, environmentConfigDir} {
-		if _, err := sourceFs.Stat(dir); err == nil {
-			configDirs = append(configDirs, dir)
-		}
-	}
-
-	if len(configDirs) == 0 {
-		return nil, nil
-	}
-
-	// Keep track of these so we can watch them for changes.
-	var dirnames []string
-
-	for _, configDir := range configDirs {
-		err := afero.Walk(sourceFs, configDir, func(path string, fi os.FileInfo, err error) error {
-			if fi == nil || err != nil {
-				return nil
-			}
-
-			if fi.IsDir() {
-				dirnames = append(dirnames, path)
-				return nil
-			}
-
-			if !config.IsValidConfigFilename(path) {
-				return nil
-			}
-
-			name := helpers.Filename(filepath.Base(path))
-
-			item, err := metadecoders.Default.UnmarshalFileToMap(sourceFs, path)
-			if err != nil {
-				return l.wrapFileError(err, path)
-			}
-
-			var keyPath []string
-
-			if name != "config" {
-				// Can be params.jp, menus.en etc.
-				name, lang := helpers.FileAndExtNoDelimiter(name)
-
-				keyPath = []string{name}
-
-				if lang != "" {
-					keyPath = []string{"languages", lang}
-					switch name {
-					case "menu", "menus":
-						keyPath = append(keyPath, "menus")
-					case "params":
-						keyPath = append(keyPath, "params")
-					}
-				}
-			}
-
-			root := item
-			if len(keyPath) > 0 {
-				root = make(map[string]interface{})
-				m := root
-				for i, key := range keyPath {
-					if i >= len(keyPath)-1 {
-						m[key] = item
-					} else {
-						nm := make(map[string]interface{})
-						m[key] = nm
-						m = nm
-					}
-				}
-			}
-
-			// Migrate menu => menus etc.
-			config.RenameKeys(root)
-
-			if err := v.MergeConfigMap(root); err != nil {
-				return l.wrapFileError(err, path)
-			}
-
-			return nil
-		})
-		if err != nil {
-			return nil, err
-		}
-
-	}
-
-	return dirnames, nil
-}
-
-func (l configLoader) loadModulesConfig(v1 *viper.Viper) (modules.Config, error) {
-	modConfig, err := modules.DecodeConfig(v1)
+func (l configLoader) loadModulesConfig() (modules.Config, error) {
+	modConfig, err := modules.DecodeConfig(l.cfg)
 	if err != nil {
 		return modules.Config{}, err
 	}
@@ -445,211 +492,23 @@ func (l configLoader) loadModulesConfig(v1 *viper.Viper) (modules.Config, error)
 	return modConfig, nil
 }
 
-func (l configLoader) collectModules(modConfig modules.Config, v1 *viper.Viper, hookBeforeFinalize func(m *modules.ModulesConfig) error) (modules.Modules, []string, error) {
-	workingDir := l.WorkingDir
-	if workingDir == "" {
-		workingDir = v1.GetString("workingDir")
-	}
-
-	themesDir := paths.AbsPathify(l.WorkingDir, v1.GetString("themesDir"))
-
-	var ignoreVendor glob.Glob
-	if s := v1.GetString("ignoreVendorPaths"); s != "" {
-		ignoreVendor, _ = hglob.GetGlob(hglob.NormalizePath(s))
-	}
-
-	filecacheConfigs, err := filecache.DecodeConfig(l.Fs, v1)
+func (configLoader) loadSiteConfig(cfg config.Provider) (scfg SiteConfig, err error) {
+	privacyConfig, err := privacy.DecodeConfig(cfg)
 	if err != nil {
-		return nil, nil, err
-	}
-
-	v1.Set("filecacheConfigs", filecacheConfigs)
-
-	var configFilenames []string
-
-	hook := func(m *modules.ModulesConfig) error {
-		for _, tc := range m.ActiveModules {
-			if tc.ConfigFilename() != "" {
-				if tc.Watch() {
-					configFilenames = append(configFilenames, tc.ConfigFilename())
-				}
-				if err := l.applyThemeConfig(v1, tc); err != nil {
-					return err
-				}
-			}
-		}
-
-		if hookBeforeFinalize != nil {
-			return hookBeforeFinalize(m)
-		}
-
-		return nil
-	}
-
-	modulesClient := modules.NewClient(modules.ClientConfig{
-		Fs:                 l.Fs,
-		Logger:             l.Logger,
-		HookBeforeFinalize: hook,
-		WorkingDir:         workingDir,
-		ThemesDir:          themesDir,
-		CacheDir:           filecacheConfigs.CacheDirModules(),
-		ModuleConfig:       modConfig,
-		IgnoreVendor:       ignoreVendor,
-	})
-
-	v1.Set("modulesClient", modulesClient)
-
-	moduleConfig, err := modulesClient.Collect()
-
-	// Avoid recreating these later.
-	v1.Set("allModules", moduleConfig.ActiveModules)
-
-	if moduleConfig.GoModulesFilename != "" {
-		// We want to watch this for changes and trigger rebuild on version
-		// changes etc.
-		configFilenames = append(configFilenames, moduleConfig.GoModulesFilename)
-	}
-
-	return moduleConfig.ActiveModules, configFilenames, err
-}
-
-func (l configLoader) applyThemeConfig(v1 *viper.Viper, theme modules.Module) error {
-	const (
-		paramsKey    = "params"
-		languagesKey = "languages"
-		menuKey      = "menus"
-	)
-
-	v2 := theme.Cfg()
-
-	for _, key := range []string{paramsKey, "outputformats", "mediatypes"} {
-		l.mergeStringMapKeepLeft("", key, v1, v2)
-	}
-
-	// Only add params and new menu entries, we do not add language definitions.
-	if v1.IsSet(languagesKey) && v2.IsSet(languagesKey) {
-		v1Langs := v1.GetStringMap(languagesKey)
-		for k := range v1Langs {
-			langParamsKey := languagesKey + "." + k + "." + paramsKey
-			l.mergeStringMapKeepLeft(paramsKey, langParamsKey, v1, v2)
-		}
-		v2Langs := v2.GetStringMap(languagesKey)
-		for k := range v2Langs {
-			if k == "" {
-				continue
-			}
-
-			langMenuKey := languagesKey + "." + k + "." + menuKey
-			if v2.IsSet(langMenuKey) {
-				// Only add if not in the main config.
-				v2menus := v2.GetStringMap(langMenuKey)
-				for k, v := range v2menus {
-					menuEntry := menuKey + "." + k
-					menuLangEntry := langMenuKey + "." + k
-					if !v1.IsSet(menuEntry) && !v1.IsSet(menuLangEntry) {
-						v1.Set(menuLangEntry, v)
-					}
-				}
-			}
-		}
-	}
-
-	// Add menu definitions from theme not found in project
-	if v2.IsSet(menuKey) {
-		v2menus := v2.GetStringMap(menuKey)
-		for k, v := range v2menus {
-			menuEntry := menuKey + "." + k
-			if !v1.IsSet(menuEntry) {
-				v1.SetDefault(menuEntry, v)
-			}
-		}
-	}
-
-	return nil
-}
-
-func (configLoader) mergeStringMapKeepLeft(rootKey, key string, v1, v2 config.Provider) {
-	if !v2.IsSet(key) {
 		return
 	}
 
-	if !v1.IsSet(key) && !(rootKey != "" && rootKey != key && v1.IsSet(rootKey)) {
-		v1.Set(key, v2.Get(key))
+	servicesConfig, err := services.DecodeConfig(cfg)
+	if err != nil {
 		return
 	}
 
-	m1 := v1.GetStringMap(key)
-	m2 := v2.GetStringMap(key)
+	scfg.Privacy = privacyConfig
+	scfg.Services = servicesConfig
 
-	for k, v := range m2 {
-		if _, found := m1[k]; !found {
-			if rootKey != "" && v1.IsSet(rootKey+"."+k) {
-				continue
-			}
-			m1[k] = v
-		}
-	}
+	return
 }
 
-func loadDefaultSettingsFor(v *viper.Viper) error {
-	v.RegisterAlias("indexes", "taxonomies")
-
-	/*
-
-		TODO(bep) from 0.56 these are configured as module mounts.
-			v.SetDefault("contentDir", "content")
-			v.SetDefault("layoutDir", "layouts")
-			v.SetDefault("assetDir", "assets")
-			v.SetDefault("staticDir", "static")
-			v.SetDefault("dataDir", "data")
-			v.SetDefault("i18nDir", "i18n")
-			v.SetDefault("archetypeDir", "archetypes")
-	*/
-
-	v.SetDefault("cleanDestinationDir", false)
-	v.SetDefault("watch", false)
-	v.SetDefault("resourceDir", "resources")
-	v.SetDefault("publishDir", "public")
-	v.SetDefault("themesDir", "themes")
-	v.SetDefault("buildDrafts", false)
-	v.SetDefault("buildFuture", false)
-	v.SetDefault("buildExpired", false)
-	v.SetDefault("environment", hugo.EnvironmentProduction)
-	v.SetDefault("uglyURLs", false)
-	v.SetDefault("verbose", false)
-	v.SetDefault("ignoreCache", false)
-	v.SetDefault("canonifyURLs", false)
-	v.SetDefault("relativeURLs", false)
-	v.SetDefault("removePathAccents", false)
-	v.SetDefault("titleCaseStyle", "AP")
-	v.SetDefault("taxonomies", map[string]string{"tag": "tags", "category": "categories"})
-	v.SetDefault("permalinks", make(map[string]string))
-	v.SetDefault("sitemap", config.Sitemap{Priority: -1, Filename: "sitemap.xml"})
-	v.SetDefault("disableLiveReload", false)
-	v.SetDefault("pluralizeListTitles", true)
-	v.SetDefault("forceSyncStatic", false)
-	v.SetDefault("footnoteAnchorPrefix", "")
-	v.SetDefault("footnoteReturnLinkContents", "")
-	v.SetDefault("newContentEditor", "")
-	v.SetDefault("paginate", 10)
-	v.SetDefault("paginatePath", "page")
-	v.SetDefault("summaryLength", 70)
-	v.SetDefault("rssLimit", -1)
-	v.SetDefault("sectionPagesMenu", "")
-	v.SetDefault("disablePathToLower", false)
-	v.SetDefault("hasCJKLanguage", false)
-	v.SetDefault("enableEmoji", false)
-	v.SetDefault("pygmentsCodeFencesGuessSyntax", false)
-	v.SetDefault("defaultContentLanguage", "en")
-	v.SetDefault("defaultContentLanguageInSubdir", false)
-	v.SetDefault("enableMissingTranslationPlaceholders", false)
-	v.SetDefault("enableGitInfo", false)
-	v.SetDefault("ignoreFiles", make([]string, 0))
-	v.SetDefault("disableAliases", false)
-	v.SetDefault("debug", false)
-	v.SetDefault("disableFastRender", false)
-	v.SetDefault("timeout", "30s")
-	v.SetDefault("enableInlineShortcodes", false)
-
-	return nil
+func (l configLoader) wrapFileError(err error, filename string) error {
+	return herrors.WithFileContextForFileDefault(err, filename, l.Fs)
 }

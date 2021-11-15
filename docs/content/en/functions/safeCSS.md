@@ -1,7 +1,6 @@
 ---
 title: safeCSS
 description: Declares the provided string as a known "safe" CSS string.
-godocref: https://golang.org/src/html/template/content.go?s=919:929#L15
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-26
@@ -33,4 +32,3 @@ Example: Given `style = "color: red;"` defined in the front matter of your `.md`
 {{% note "ZgotmplZ" %}}
 "ZgotmplZ" is a special value that indicates that unsafe content reached a CSS or URL context.
 {{% /note %}}
-

@@ -1,7 +1,6 @@
 ---
 title: Math
 description: Hugo provides mathematical operators in templates.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2020-02-23

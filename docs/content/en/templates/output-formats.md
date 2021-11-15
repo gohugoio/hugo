@@ -123,6 +123,9 @@ The following is the full list of configuration options for output formats and t
 `permalinkable`
 : make `.Permalink` and `.RelPermalink` return the rendering Output Format rather than main ([see below](#link-to-output-formats)). This is enabled by default for `HTML` and `AMP`. **Default:** `false`.
 
+`weight`
+: Setting this to a non-zero value will be used as the first sort criteria.
+
 ## Output Formats for Pages
 
 A `Page` in Hugo can be rendered to multiple *output formats* on the file

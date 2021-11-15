@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2021 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,8 +14,10 @@
 package glob
 
 import (
+	"os"
 	"path"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 
@@ -23,44 +25,100 @@ import (
 	"github.com/gobwas/glob/syntax"
 )
 
+const filepathSeparator = string(os.PathSeparator)
+
+var (
+	isWindows        = runtime.GOOS == "windows"
+	defaultGlobCache = &globCache{
+		isCaseSensitive: false,
+		isWindows:       isWindows,
+		cache:           make(map[string]globErr),
+	}
+
+	filenamesGlobCache = &globCache{
+		isCaseSensitive: false, // As long as the search strings are all lower case, this does not allocate.
+		isWindows:       isWindows,
+		cache:           make(map[string]globErr),
+	}
+)
+
 type globErr struct {
 	glob glob.Glob
 	err  error
 }
 
-var (
-	globCache = make(map[string]globErr)
-	globMu    sync.RWMutex
-)
+type globCache struct {
+	// Config
+	isCaseSensitive bool
+	isWindows       bool
 
-type caseInsensitiveGlob struct {
-	g glob.Glob
+	// Cache
+	sync.RWMutex
+	cache map[string]globErr
 }
 
-func (g caseInsensitiveGlob) Match(s string) bool {
-	return g.g.Match(strings.ToLower(s))
-
-}
-func GetGlob(pattern string) (glob.Glob, error) {
+func (gc *globCache) GetGlob(pattern string) (glob.Glob, error) {
 	var eg globErr
 
-	globMu.RLock()
+	gc.RLock()
 	var found bool
-	eg, found = globCache[pattern]
-	globMu.RUnlock()
+	eg, found = gc.cache[pattern]
+	gc.RUnlock()
 	if found {
 		return eg.glob, eg.err
 	}
 
+	var g glob.Glob
 	var err error
-	g, err := glob.Compile(strings.ToLower(pattern), '/')
-	eg = globErr{caseInsensitiveGlob{g: g}, err}
 
-	globMu.Lock()
-	globCache[pattern] = eg
-	globMu.Unlock()
+	pattern = filepath.ToSlash(pattern)
+
+	if gc.isCaseSensitive {
+		g, err = glob.Compile(pattern, '/')
+	} else {
+		g, err = glob.Compile(strings.ToLower(pattern), '/')
+
+	}
+
+	eg = globErr{
+		globDecorator{
+			g:               g,
+			isCaseSensitive: gc.isCaseSensitive,
+			isWindows:       gc.isWindows},
+		err,
+	}
+
+	gc.Lock()
+	gc.cache[pattern] = eg
+	gc.Unlock()
 
 	return eg.glob, eg.err
+}
+
+type globDecorator struct {
+	// Whether both pattern and the strings to match will be matched
+	// by their original case.
+	isCaseSensitive bool
+
+	// On Windows we may get filenames with Windows slashes to match,
+	// which wee need to normalize.
+	isWindows bool
+
+	g glob.Glob
+}
+
+func (g globDecorator) Match(s string) bool {
+	if g.isWindows {
+		s = filepath.ToSlash(s)
+	}
+	if !g.isCaseSensitive {
+		s = strings.ToLower(s)
+	}
+	return g.g.Match(s)
+}
+
+func GetGlob(pattern string) (glob.Glob, error) {
+	return defaultGlobCache.GetGlob(pattern)
 }
 
 func NormalizePath(p string) string {

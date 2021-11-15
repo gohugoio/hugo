@@ -96,7 +96,7 @@ All the methods below, e.g. `.Site.RegularPages` can also be reached via the glo
 : top-level directories of the site.
 
 .Site.Taxonomies
-: the [taxonomies](/taxonomies/usage/) for the entire site.  Also see section [Taxonomies elsewhere](#taxonomies-elsewhere).
+: the [taxonomies](/taxonomies/usage/) for the entire site. Also see section [Use `.Site.Taxonomies` Outside of Taxonomy Templates](/variables/taxonomy/#use-sitetaxonomies-outside-of-taxonomy-templates).
 
 .Site.Title
 : a string representing the title of the site.
@@ -127,7 +127,7 @@ You can use `.Site.Params` in a [partial template](/templates/partials/) to call
 
 ### `.Site.Pages` compared to `.Pages`
 
-{{< readfile file="/content/en/readfiles/pages-vs-site-pages.md" markdown="true" >}}
+{{< getcontent path="readfiles/pages-vs-site-pages.md" >}}
 
 
 

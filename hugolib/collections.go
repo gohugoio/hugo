@@ -28,7 +28,6 @@ var (
 // implementations have no value on their own.
 
 // Slice is not meant to be used externally. It's a bridge function
-// for the template functions. See collections.Slice.
 func (p *pageState) Slice(items interface{}) (interface{}, error) {
 	return page.ToPages(items)
 }

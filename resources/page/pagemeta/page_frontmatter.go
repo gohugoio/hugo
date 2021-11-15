@@ -17,6 +17,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/htime"
+	"github.com/gohugoio/hugo/common/paths"
+
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -68,6 +71,9 @@ type FrontMatterDescriptor struct {
 
 	// This is the Page's Slug etc.
 	PageURLs *URLPath
+
+	// The Location to use to parse dates without time zone info.
+	Location *time.Location
 }
 
 var dateFieldAliases = map[string][]string{
@@ -117,17 +123,15 @@ func (f FrontMatterHandler) IsDateKey(key string) bool {
 // A Zero date is a signal that the name can not be parsed.
 // This follows the format as outlined in Jekyll, https://jekyllrb.com/docs/posts/:
 // "Where YEAR is a four-digit number, MONTH and DAY are both two-digit numbers"
-func dateAndSlugFromBaseFilename(name string) (time.Time, string) {
-	withoutExt, _ := helpers.FileAndExt(name)
+func dateAndSlugFromBaseFilename(location *time.Location, name string) (time.Time, string) {
+	withoutExt, _ := paths.FileAndExt(name)
 
 	if len(withoutExt) < 10 {
 		// This can not be a date.
 		return time.Time{}, ""
 	}
 
-	// Note: Hugo currently have no custom timezone support.
-	// We will have to revisit this when that is in place.
-	d, err := time.Parse("2006-01-02", withoutExt[:10])
+	d, err := htime.ToTimeInDefaultLocationE(withoutExt[:10], location)
 	if err != nil {
 		return time.Time{}, ""
 	}
@@ -368,7 +372,7 @@ func (f *frontmatterFieldHandlers) newDateFieldHandler(key string, setter func(d
 			return false, nil
 		}
 
-		date, err := cast.ToTimeE(v)
+		date, err := htime.ToTimeInDefaultLocationE(v, d.Location)
 		if err != nil {
 			return false, nil
 		}
@@ -386,7 +390,7 @@ func (f *frontmatterFieldHandlers) newDateFieldHandler(key string, setter func(d
 
 func (f *frontmatterFieldHandlers) newDateFilenameHandler(setter func(d *FrontMatterDescriptor, t time.Time)) frontMatterFieldHandler {
 	return func(d *FrontMatterDescriptor) (bool, error) {
-		date, slug := dateAndSlugFromBaseFilename(d.BaseFilename)
+		date, slug := dateAndSlugFromBaseFilename(d.Location, d.BaseFilename)
 		if date.IsZero() {
 			return false, nil
 		}

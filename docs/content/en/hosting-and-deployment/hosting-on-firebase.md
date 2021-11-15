@@ -28,7 +28,6 @@ aliases: []
 
 Go to the [Firebase console][console] and create a new project (unless you already have a project). You will need to globally install `firebase-tools` (node.js):
 
-
 ```
 npm install -g firebase-tools
 ```
@@ -88,4 +87,3 @@ firebase deploy --token $FIREBASE_DEPLOY_TOKEN
 [console]: https://console.firebase.google.com
 [Quick Start]: /getting-started/quick-start/
 [signup]: https://console.firebase.google.com/
-[Wercker]: /hosting-and-deployment/deployment-with-wercker/

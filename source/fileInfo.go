@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2021 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+
+	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/gohugoio/hugo/hugofs/files"
 
@@ -118,7 +120,7 @@ type FileInfo struct {
 	translationBaseName string
 	contentBaseName     string
 	section             string
-	isLeafBundle        bool
+	classifier          files.ContentClass
 
 	uniqueID string
 
@@ -197,12 +199,12 @@ func (fi *FileInfo) init() {
 		relDir := strings.Trim(fi.relDir, helpers.FilePathSeparator)
 		parts := strings.Split(relDir, helpers.FilePathSeparator)
 		var section string
-		if (!fi.isLeafBundle && len(parts) == 1) || len(parts) > 1 {
+		if (fi.classifier != files.ContentClassLeaf && len(parts) == 1) || len(parts) > 1 {
 			section = parts[0]
 		}
 		fi.section = section
 
-		if fi.isLeafBundle && len(parts) > 0 {
+		if fi.classifier.IsBundle() && len(parts) > 0 {
 			fi.contentBaseName = parts[len(parts)-1]
 		} else {
 			fi.contentBaseName = fi.translationBaseName
@@ -223,9 +225,9 @@ func NewTestFile(filename string) *FileInfo {
 }
 
 func (sp *SourceSpec) NewFileInfoFrom(path, filename string) (*FileInfo, error) {
-	meta := hugofs.FileMeta{
-		"filename": filename,
-		"path":     path,
+	meta := &hugofs.FileMeta{
+		Filename: filename,
+		Path:     path,
 	}
 
 	return sp.NewFileInfo(hugofs.NewFileMetaInfo(nil, meta))
@@ -234,16 +236,15 @@ func (sp *SourceSpec) NewFileInfoFrom(path, filename string) (*FileInfo, error) 
 func (sp *SourceSpec) NewFileInfo(fi hugofs.FileMetaInfo) (*FileInfo, error) {
 	m := fi.Meta()
 
-	filename := m.Filename()
-	relPath := m.Path()
-	isLeafBundle := m.Classifier() == files.ContentClassLeaf
+	filename := m.Filename
+	relPath := m.Path
 
 	if relPath == "" {
-		return nil, errors.Errorf("no Path provided by %v (%T)", m, m.Fs())
+		return nil, errors.Errorf("no Path provided by %v (%T)", m, m.Fs)
 	}
 
 	if filename == "" {
-		return nil, errors.Errorf("no Filename provided by %v (%T)", m, m.Fs())
+		return nil, errors.Errorf("no Filename provided by %v (%T)", m, m.Fs)
 	}
 
 	relDir := filepath.Dir(relPath)
@@ -254,8 +255,8 @@ func (sp *SourceSpec) NewFileInfo(fi hugofs.FileMetaInfo) (*FileInfo, error) {
 		relDir = relDir + helpers.FilePathSeparator
 	}
 
-	lang := m.Lang()
-	translationBaseName := m.GetString("translationBaseName")
+	lang := m.Lang
+	translationBaseName := m.TranslationBaseName
 
 	dir, name := filepath.Split(relPath)
 	if !strings.HasSuffix(dir, helpers.FilePathSeparator) {
@@ -263,7 +264,7 @@ func (sp *SourceSpec) NewFileInfo(fi hugofs.FileMetaInfo) (*FileInfo, error) {
 	}
 
 	ext := strings.ToLower(strings.TrimPrefix(filepath.Ext(name), "."))
-	baseName := helpers.Filename(name)
+	baseName := paths.Filename(name)
 
 	if translationBaseName == "" {
 		// This is usually provided by the filesystem. But this FileInfo is also
@@ -285,7 +286,7 @@ func (sp *SourceSpec) NewFileInfo(fi hugofs.FileMetaInfo) (*FileInfo, error) {
 		name:                name,
 		baseName:            baseName, // BaseFileName()
 		translationBaseName: translationBaseName,
-		isLeafBundle:        isLeafBundle,
+		classifier:          m.Classifier,
 	}
 
 	return f, nil

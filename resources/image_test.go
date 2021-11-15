@@ -28,6 +28,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/resources/images/webp"
+
+	"github.com/gohugoio/hugo/common/paths"
+
 	"github.com/spf13/afero"
 
 	"github.com/disintegration/gift"
@@ -145,7 +149,7 @@ func TestImageTransformFormat(t *testing.T) {
 	assertExtWidthHeight := func(img resource.Image, ext string, w, h int) {
 		c.Helper()
 		c.Assert(img, qt.Not(qt.IsNil))
-		c.Assert(helpers.Ext(img.RelPermalink()), qt.Equals, ext)
+		c.Assert(paths.Ext(img.RelPermalink()), qt.Equals, ext)
 		c.Assert(img.Width(), qt.Equals, w)
 		c.Assert(img.Height(), qt.Equals, h)
 	}
@@ -173,36 +177,6 @@ func TestImageTransformFormat(t *testing.T) {
 	c.Assert(imageGif.MediaType().String(), qt.Equals, "image/gif")
 
 	assertFileCache(c, fileCache, path.Base(imageGif.RelPermalink()), 225, 141)
-}
-
-// https://github.com/gohugoio/hugo/issues/4261
-func TestImageTransformLongFilename(t *testing.T) {
-	c := qt.New(t)
-
-	image := fetchImage(c, "1234567890qwertyuiopasdfghjklzxcvbnm5to6eeeeee7via8eleph.jpg")
-	c.Assert(image, qt.Not(qt.IsNil))
-
-	resized, err := image.Resize("200x")
-	c.Assert(err, qt.IsNil)
-	c.Assert(resized, qt.Not(qt.IsNil))
-	c.Assert(resized.Width(), qt.Equals, 200)
-	c.Assert(resized.RelPermalink(), qt.Equals, "/a/_hu59e56ffff1bc1d8d122b1403d34e039f_90587_65b757a6e14debeae720fe8831f0a9bc.jpg")
-	resized, err = resized.Resize("100x")
-	c.Assert(err, qt.IsNil)
-	c.Assert(resized, qt.Not(qt.IsNil))
-	c.Assert(resized.Width(), qt.Equals, 100)
-	c.Assert(resized.RelPermalink(), qt.Equals, "/a/_hu59e56ffff1bc1d8d122b1403d34e039f_90587_c876768085288f41211f768147ba2647.jpg")
-}
-
-// Issue 6137
-func TestImageTransformUppercaseExt(t *testing.T) {
-	c := qt.New(t)
-	image := fetchImage(c, "sunrise.JPG")
-
-	resized, err := image.Resize("200x")
-	c.Assert(err, qt.IsNil)
-	c.Assert(resized, qt.Not(qt.IsNil))
-	c.Assert(resized.Width(), qt.Equals, 200)
 }
 
 // https://github.com/gohugoio/hugo/issues/5730
@@ -248,6 +222,70 @@ func TestImagePermalinkPublishOrder(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestImageBugs(t *testing.T) {
+	c := qt.New(t)
+
+	// Issue #4261
+	c.Run("Transform long filename", func(c *qt.C) {
+		image := fetchImage(c, "1234567890qwertyuiopasdfghjklzxcvbnm5to6eeeeee7via8eleph.jpg")
+		c.Assert(image, qt.Not(qt.IsNil))
+
+		resized, err := image.Resize("200x")
+		c.Assert(err, qt.IsNil)
+		c.Assert(resized, qt.Not(qt.IsNil))
+		c.Assert(resized.Width(), qt.Equals, 200)
+		c.Assert(resized.RelPermalink(), qt.Equals, "/a/_hu59e56ffff1bc1d8d122b1403d34e039f_90587_65b757a6e14debeae720fe8831f0a9bc.jpg")
+		resized, err = resized.Resize("100x")
+		c.Assert(err, qt.IsNil)
+		c.Assert(resized, qt.Not(qt.IsNil))
+		c.Assert(resized.Width(), qt.Equals, 100)
+		c.Assert(resized.RelPermalink(), qt.Equals, "/a/_hu59e56ffff1bc1d8d122b1403d34e039f_90587_c876768085288f41211f768147ba2647.jpg")
+
+	})
+
+	// Issue #6137
+	c.Run("Transform upper case extension", func(c *qt.C) {
+		image := fetchImage(c, "sunrise.JPG")
+
+		resized, err := image.Resize("200x")
+		c.Assert(err, qt.IsNil)
+		c.Assert(resized, qt.Not(qt.IsNil))
+		c.Assert(resized.Width(), qt.Equals, 200)
+
+	})
+
+	// Issue #7955
+	c.Run("Fill with smartcrop", func(c *qt.C) {
+		sunset := fetchImage(c, "sunset.jpg")
+
+		for _, test := range []struct {
+			originalDimensions string
+			targetWH           int
+		}{
+			{"408x403", 400},
+			{"425x403", 400},
+			{"459x429", 400},
+			{"476x442", 400},
+			{"544x403", 400},
+			{"476x468", 400},
+			{"578x585", 550},
+			{"578x598", 550},
+		} {
+			c.Run(test.originalDimensions, func(c *qt.C) {
+				image, err := sunset.Resize(test.originalDimensions)
+				c.Assert(err, qt.IsNil)
+				resized, err := image.Fill(fmt.Sprintf("%dx%d smart", test.targetWH, test.targetWH))
+				c.Assert(err, qt.IsNil)
+				c.Assert(resized, qt.Not(qt.IsNil))
+				c.Assert(resized.Width(), qt.Equals, test.targetWH)
+				c.Assert(resized.Height(), qt.Equals, test.targetWH)
+			})
+
+		}
+
+	})
 }
 
 func TestImageTransformConcurrent(t *testing.T) {
@@ -326,7 +364,7 @@ func TestImageResize8BitPNG(t *testing.T) {
 	resized, err := image.Resize("800x")
 	c.Assert(err, qt.IsNil)
 	c.Assert(resized.MediaType().Type(), qt.Equals, "image/png")
-	c.Assert(resized.RelPermalink(), qt.Equals, "/a/gohugoio_hu0e1b9e4a4be4d6f86c7b37b9ccce3fbc_73886_800x0_resize_linear_2.png")
+	c.Assert(resized.RelPermalink(), qt.Equals, "/a/gohugoio_hu0e1b9e4a4be4d6f86c7b37b9ccce3fbc_73886_800x0_resize_linear_3.png")
 	c.Assert(resized.Width(), qt.Equals, 800)
 }
 
@@ -343,7 +381,7 @@ func TestImageResizeInSubPath(t *testing.T) {
 	resized, err := image.Resize("101x101")
 	c.Assert(err, qt.IsNil)
 	c.Assert(resized.MediaType().Type(), qt.Equals, "image/png")
-	c.Assert(resized.RelPermalink(), qt.Equals, "/a/sub/gohugoio2_hu0e1b9e4a4be4d6f86c7b37b9ccce3fbc_73886_101x101_resize_linear_2.png")
+	c.Assert(resized.RelPermalink(), qt.Equals, "/a/sub/gohugoio2_hu0e1b9e4a4be4d6f86c7b37b9ccce3fbc_73886_101x101_resize_linear_3.png")
 	c.Assert(resized.Width(), qt.Equals, 101)
 	c.Assert(resized.Exif(), qt.IsNil)
 
@@ -359,7 +397,7 @@ func TestImageResizeInSubPath(t *testing.T) {
 
 	resizedAgain, err := image.Resize("101x101")
 	c.Assert(err, qt.IsNil)
-	c.Assert(resizedAgain.RelPermalink(), qt.Equals, "/a/sub/gohugoio2_hu0e1b9e4a4be4d6f86c7b37b9ccce3fbc_73886_101x101_resize_linear_2.png")
+	c.Assert(resizedAgain.RelPermalink(), qt.Equals, "/a/sub/gohugoio2_hu0e1b9e4a4be4d6f86c7b37b9ccce3fbc_73886_101x101_resize_linear_3.png")
 	c.Assert(resizedAgain.Width(), qt.Equals, 101)
 	assertImageFile(c, image.(specProvider).getSpec().BaseFs.PublishFs, publishedImageFilename, 101, 101)
 }
@@ -514,6 +552,47 @@ func goldenEqual(img1, img2 *image.NRGBA) bool {
 	return true
 }
 
+// Issue #8729
+func TestImageOperationsGoldenWebp(t *testing.T) {
+	if !webp.Supports() {
+		t.Skip("skip webp test")
+	}
+	c := qt.New(t)
+	c.Parallel()
+
+	devMode := false
+
+	testImages := []string{"fuzzy-cirlcle.png"}
+
+	spec, workDir := newTestResourceOsFs(c)
+	defer func() {
+		if !devMode {
+			os.Remove(workDir)
+		}
+	}()
+
+	if devMode {
+		fmt.Println(workDir)
+	}
+
+	for _, imageName := range testImages {
+		image := fetchImageForSpec(spec, c, imageName)
+		imageWebp, err := image.Resize("200x webp")
+		c.Assert(err, qt.IsNil)
+		c.Assert(imageWebp.Width(), qt.Equals, 200)
+	}
+
+	if devMode {
+		return
+	}
+
+	dir1 := filepath.Join(workDir, "resources/_gen/images")
+	dir2 := filepath.FromSlash("testdata/golden_webp")
+
+	assetGoldenDirs(c, dir1, dir2)
+
+}
+
 func TestImageOperationsGolden(t *testing.T) {
 	c := qt.New(t)
 	c.Parallel()
@@ -622,6 +701,12 @@ func TestImageOperationsGolden(t *testing.T) {
 	dir1 := filepath.Join(workDir, "resources/_gen/images")
 	dir2 := filepath.FromSlash("testdata/golden")
 
+	assetGoldenDirs(c, dir1, dir2)
+
+}
+
+func assetGoldenDirs(c *qt.C, dir1, dir2 string) {
+
 	// The two dirs above should now be the same.
 	dirinfos1, err := ioutil.ReadDir(dir1)
 	c.Assert(err, qt.IsNil)
@@ -650,13 +735,12 @@ func TestImageOperationsGolden(t *testing.T) {
 
 		if !goldenEqual(nrgba1, nrgba2) {
 			switch fi1.Name() {
-			case "gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_4c320010919da2d8b63ed24818b4d8e1.png",
-				"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_9d4c2220235b3c2d9fa6506be571560f.png",
-				"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_c74bb417b961e09cf1aac2130b7b9b85.png",
-				"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_300x200_fill_gaussian_smart1_2.png":
+			case "gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_73c19c5f80881858a85aa23cd0ca400d.png",
+				"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_ae631e5252bb5d7b92bc766ad1a89069.png",
+				"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_d1bbfa2629bffb90118cacce3fcfb924.png":
 				c.Log("expectedly differs from golden due to dithering:", fi1.Name())
 			default:
-				t.Errorf("resulting image differs from golden: %s", fi1.Name())
+				c.Errorf("resulting image differs from golden: %s", fi1.Name())
 			}
 		}
 

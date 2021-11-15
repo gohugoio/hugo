@@ -14,6 +14,7 @@
 package goldmark
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -59,6 +60,10 @@ https://github.com/gohugoio/hugo/issues/6528
 [Live Demo here!](https://docuapi.netlify.com/)
 
 [I'm an inline-style link with title](https://www.google.com "Google's Homepage")
+<https://foo.bar/>
+https://bar.baz/
+<fake@example.com>
+<mailto:fake2@example.com>
 
 
 ## Code Fences
@@ -132,8 +137,14 @@ description
 	b := convert(c, mconf, content)
 	got := string(b.Bytes())
 
+	fmt.Println(got)
+
 	// Links
-	//	c.Assert(got, qt.Contains, `<a href="https://docuapi.netlify.com/">Live Demo here!</a>`)
+	c.Assert(got, qt.Contains, `<a href="https://docuapi.netlify.com/">Live Demo here!</a>`)
+	c.Assert(got, qt.Contains, `<a href="https://foo.bar/">https://foo.bar/</a>`)
+	c.Assert(got, qt.Contains, `<a href="https://bar.baz/">https://bar.baz/</a>`)
+	c.Assert(got, qt.Contains, `<a href="mailto:fake@example.com">fake@example.com</a>`)
+	c.Assert(got, qt.Contains, `<a href="mailto:fake2@example.com">mailto:fake2@example.com</a></p>`)
 
 	// Header IDs
 	c.Assert(got, qt.Contains, `<h2 id="custom">Custom ID</h2>`, qt.Commentf(got))
@@ -143,8 +154,8 @@ description
 	c.Assert(got, qt.Contains, `<h2 id="神真美好-2">神真美好</h2>`, qt.Commentf(got))
 
 	// Code fences
-	c.Assert(got, qt.Contains, "<div class=\"highlight\"><pre class=\"chroma\"><code class=\"language-bash\" data-lang=\"bash\">LINE1\n</code></pre></div>")
-	c.Assert(got, qt.Contains, "Code Fences No Lexer</h2>\n<pre><code class=\"language-moo\" data-lang=\"moo\">LINE1\n</code></pre>")
+	c.Assert(got, qt.Contains, "<div class=\"highlight\"><pre tabindex=\"0\" class=\"chroma\"><code class=\"language-bash\" data-lang=\"bash\">LINE1\n</code></pre></div>")
+	c.Assert(got, qt.Contains, "Code Fences No Lexer</h2>\n<pre tabindex=\"0\"><code class=\"language-moo\" data-lang=\"moo\">LINE1\n</code></pre>")
 
 	// Extensions
 	c.Assert(got, qt.Contains, `Autolink: <a href="https://gohugo.io/">https://gohugo.io/</a>`)
@@ -378,10 +389,10 @@ LINE5
 
 		result := convertForConfig(c, cfg, `echo "Hugo Rocks!"`, "bash")
 		// TODO(bep) there is a whitespace mismatch (\n) between this and the highlight template func.
-		c.Assert(result, qt.Equals, `<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">echo</span> <span class="s2">&#34;Hugo Rocks!&#34;</span>
+		c.Assert(result, qt.Equals, `<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">echo</span> <span class="s2">&#34;Hugo Rocks!&#34;</span>
 </code></pre></div>`)
 		result = convertForConfig(c, cfg, `echo "Hugo Rocks!"`, "unknown")
-		c.Assert(result, qt.Equals, "<pre><code class=\"language-unknown\" data-lang=\"unknown\">echo &quot;Hugo Rocks!&quot;\n</code></pre>")
+		c.Assert(result, qt.Equals, "<pre tabindex=\"0\"><code class=\"language-unknown\" data-lang=\"unknown\">echo &quot;Hugo Rocks!&quot;\n</code></pre>")
 	})
 
 	c.Run("Highlight lines, default config", func(c *qt.C) {
@@ -389,7 +400,7 @@ LINE5
 		cfg.NoClasses = false
 
 		result := convertForConfig(c, cfg, lines, `bash {linenos=table,hl_lines=[2 "4-5"],linenostart=3}`)
-		c.Assert(result, qt.Contains, "<div class=\"highlight\"><div class=\"chroma\">\n<table class=\"lntable\"><tr><td class=\"lntd\">\n<pre class=\"chroma\"><code><span class")
+		c.Assert(result, qt.Contains, "<div class=\"highlight\"><div class=\"chroma\">\n<table class=\"lntable\"><tr><td class=\"lntd\">\n<pre tabindex=\"0\" class=\"chroma\"><code><span class")
 		c.Assert(result, qt.Contains, "<span class=\"hl\"><span class=\"lnt\">4")
 
 		result = convertForConfig(c, cfg, lines, "bash {linenos=inline,hl_lines=[2]}")
@@ -432,7 +443,7 @@ LINE5
 		cfg.LineNumbersInTable = false
 
 		result := convertForConfig(c, cfg, lines, "")
-		c.Assert(result, qt.Contains, "<pre><code>LINE1\n")
+		c.Assert(result, qt.Contains, "<pre tabindex=\"0\"><code>LINE1\n")
 	})
 
 	c.Run("No language, guess syntax", func(c *qt.C) {

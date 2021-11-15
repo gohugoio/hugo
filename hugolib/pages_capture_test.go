@@ -51,7 +51,7 @@ func TestPagesCapture(t *testing.T) {
 
 	ps, err := helpers.NewPathSpec(hugofs.NewFrom(fs, cfg), cfg, loggers.NewErrorLogger())
 	c.Assert(err, qt.IsNil)
-	sourceSpec := source.NewSourceSpec(ps, fs)
+	sourceSpec := source.NewSourceSpec(ps, nil, fs)
 
 	t.Run("Collect", func(t *testing.T) {
 		c := qt.New(t)

@@ -1,7 +1,6 @@
 ---
 title: strings.RuneCount
 description: Determines the number of runes in a string.
-godocref:
 date: 2018-06-01
 publishdate: 2018-06-01
 lastmod: 2018-06-01

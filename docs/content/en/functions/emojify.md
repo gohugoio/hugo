@@ -1,7 +1,6 @@
 ---
 title: emojify
 description: Runs a string through the Emoji emoticons processor.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

@@ -8,7 +8,7 @@ categories: ["Releases"]
 
 	Hugo `0.42` adds **Theme Components**. This is a really powerful new way of building your Hugo sites with reusable components. This is both **Theme Composition** and **Theme Inheritance**.
 
->Read more about Theme Components in the [Hugo Documentation](https://gohugo.io/themes/theme-components/).
+>Read more about Theme Components in the [Hugo Documentation](https://gohugo.io/hugo-modules/theme-components/).
 
 The feature above was implemented by [@bep](https://github.com/bep), the funny Norwegian, with great design help from the Hugo community. But that implementation would not have been possible without [Afero](https://github.com/spf13/afero), [Steve Francia's](https://github.com/spf13) virtual file system. Hugo is built on top of Afero and many other fast and solid Go projects, and if you look at the combined contribution log of the Hugo project and its many open source dependencies, the total amount of contributions is staggering. A big thank you to them all!
 

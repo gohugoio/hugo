@@ -18,9 +18,29 @@ import (
 	"fmt"
 	"html/template"
 	"reflect"
+	"time"
 
 	"github.com/spf13/cast"
 )
+
+// ToDuration converts v to time.Duration.
+// See ToDurationE if you need to handle errors.
+func ToDuration(v interface{}) time.Duration {
+	d, _ := ToDurationE(v)
+	return d
+}
+
+// ToDurationE converts v to time.Duration.
+func ToDurationE(v interface{}) (time.Duration, error) {
+	if n := cast.ToInt(v); n > 0 {
+		return time.Duration(n) * time.Millisecond, nil
+	}
+	d, err := time.ParseDuration(cast.ToString(v))
+	if err != nil {
+		return 0, fmt.Errorf("cannot convert %v to time.Duration", v)
+	}
+	return d, nil
+}
 
 // ToStringSlicePreserveString is the same as ToStringSlicePreserveStringE,
 // but it never fails.

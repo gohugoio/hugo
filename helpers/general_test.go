@@ -19,7 +19,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/config"
 
 	"github.com/gohugoio/hugo/common/loggers"
 
@@ -29,7 +29,7 @@ import (
 
 func TestResolveMarkup(t *testing.T) {
 	c := qt.New(t)
-	cfg := viper.New()
+	cfg := config.New()
 	spec, err := NewContentSpec(cfg, loggers.NewErrorLogger(), afero.NewMemMapFs())
 	c.Assert(err, qt.IsNil)
 

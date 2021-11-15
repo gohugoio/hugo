@@ -30,7 +30,7 @@ import (
 
 type translateFunc func(translationID string, templateData interface{}) string
 
-var i18nWarningLogger = helpers.NewDistinctFeedbackLogger()
+var i18nWarningLogger = helpers.NewDistinctErrorLogger()
 
 // Translator handles i18n translations.
 type Translator struct {

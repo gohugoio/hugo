@@ -35,7 +35,7 @@ func TestGlob(t *testing.T) {
 	collect := func(pattern string) []string {
 		var paths []string
 		h := func(fi FileMetaInfo) (bool, error) {
-			paths = append(paths, fi.Meta().Path())
+			paths = append(paths, fi.Meta().Path)
 			return false, nil
 		}
 		err := Glob(fs, pattern, h)

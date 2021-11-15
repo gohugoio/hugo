@@ -16,8 +16,9 @@ package org
 import (
 	"testing"
 
+	"github.com/gohugoio/hugo/config"
+
 	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/spf13/viper"
 
 	"github.com/gohugoio/hugo/markup/converter"
 
@@ -28,7 +29,7 @@ func TestConvert(t *testing.T) {
 	c := qt.New(t)
 	p, err := Provider.New(converter.ProviderConfig{
 		Logger: loggers.NewErrorLogger(),
-		Cfg:    viper.New(),
+		Cfg:    config.New(),
 	})
 	c.Assert(err, qt.IsNil)
 	conv, err := p.New(converter.DocumentContext{})

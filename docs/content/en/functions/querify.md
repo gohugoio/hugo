@@ -10,7 +10,6 @@ menu:
   docs:
     parent: "functions"
 keywords: [urls]
-godocref:
 signature: ["querify KEY VALUE [KEY VALUE]...", "querify COLLECTION"]
 hugoversion:
 deprecated: false

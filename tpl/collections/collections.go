@@ -380,7 +380,7 @@ func (ns *Namespace) IsSet(a interface{}, key interface{}) (bool, error) {
 			return av.MapIndex(kv).IsValid(), nil
 		}
 	default:
-		helpers.DistinctFeedbackLog.Printf("WARNING: calling IsSet with unsupported type %q (%T) will always return false.\n", av.Kind(), a)
+		helpers.DistinctErrorLog.Printf("WARNING: calling IsSet with unsupported type %q (%T) will always return false.\n", av.Kind(), a)
 	}
 
 	return false, nil

@@ -22,10 +22,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/spf13/viper"
 )
 
 func TestServer(t *testing.T) {
@@ -101,7 +101,7 @@ func TestFixURL(t *testing.T) {
 		t.Run(test.TestName, func(t *testing.T) {
 			b := newCommandsBuilder()
 			s := b.newServerCmd()
-			v := viper.New()
+			v := config.New()
 			baseURL := test.CLIBaseURL
 			v.Set("baseURL", test.CfgBaseURL)
 			s.serverAppend = test.AppendPort

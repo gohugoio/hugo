@@ -14,9 +14,12 @@
 package navigation
 
 import (
+	"fmt"
 	"html/template"
 	"sort"
 	"strings"
+
+	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
@@ -32,6 +35,7 @@ var smc = newMenuCache()
 type MenuEntry struct {
 	ConfiguredURL string // The URL value from front matter / config.
 	Page          Page
+	PageRef       string // The path to the page, only relevant for site config.
 	Name          string
 	Menu          string
 	Identifier    string
@@ -45,24 +49,31 @@ type MenuEntry struct {
 }
 
 func (m *MenuEntry) URL() string {
-	if m.ConfiguredURL != "" {
-		return m.ConfiguredURL
-	}
 
+	// Check page first.
+	// In Hugo 0.86.0 we added `pageRef`,
+	// a way to connect menu items in site config to pages.
+	// This means that you now can have both a Page
+	// and a configured URL.
+	// Having the configured URL as a fallback if the Page isn't found
+	// is obviously more useful, especially in multilingual sites.
 	if !types.IsNil(m.Page) {
 		return m.Page.RelPermalink()
 	}
 
-	return ""
+	return m.ConfiguredURL
 }
 
 // A narrow version of page.Page.
 type Page interface {
 	LinkTitle() string
 	RelPermalink() string
+	Path() string
 	Section() string
 	Weight() int
 	IsPage() bool
+	IsSection() bool
+	IsAncestor(other interface{}) (bool, error)
 	Params() maps.Params
 }
 
@@ -106,16 +117,29 @@ func (m *MenuEntry) IsEqual(inme *MenuEntry) bool {
 // IsSameResource returns whether the two menu entries points to the same
 // resource (URL).
 func (m *MenuEntry) IsSameResource(inme *MenuEntry) bool {
+	if m.isSamePage(inme.Page) {
+		return m.Page == inme.Page
+	}
 	murl, inmeurl := m.URL(), inme.URL()
 	return murl != "" && inmeurl != "" && murl == inmeurl
 }
 
-func (m *MenuEntry) MarshallMap(ime map[string]interface{}) {
+func (m *MenuEntry) isSamePage(p Page) bool {
+	if !types.IsNil(m.Page) && !types.IsNil(p) {
+		return m.Page == p
+	}
+	return false
+}
+
+func (m *MenuEntry) MarshallMap(ime map[string]interface{}) error {
+	var err error
 	for k, v := range ime {
 		loki := strings.ToLower(k)
 		switch loki {
 		case "url":
 			m.ConfiguredURL = cast.ToString(v)
+		case "pageref":
+			m.PageRef = cast.ToString(v)
 		case "weight":
 			m.Weight = cast.ToInt(v)
 		case "name":
@@ -131,9 +155,19 @@ func (m *MenuEntry) MarshallMap(ime map[string]interface{}) {
 		case "parent":
 			m.Parent = cast.ToString(v)
 		case "params":
-			m.Params = maps.ToStringMap(v)
+			var ok bool
+			m.Params, ok = maps.ToParamsAndPrepare(v)
+			if !ok {
+				err = fmt.Errorf("cannot convert %T to Params", v)
+			}
 		}
 	}
+
+	if err != nil {
+		return errors.Wrapf(err, "failed to marshal menu entry %q", m.KeyName())
+	}
+
+	return nil
 }
 
 func (m Menu) Add(me *MenuEntry) Menu {

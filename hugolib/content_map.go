@@ -101,9 +101,9 @@ func newContentMap(cfg contentMapConfig) *contentMap {
 					n := v.(*contentNode)
 					if n.p != nil && !n.p.File().IsZero() {
 						meta := n.p.File().FileInfo().Meta()
-						if meta.Path() != meta.PathFile() {
+						if meta.Path != meta.PathFile() {
 							// Keep track of the original mount source.
-							mountKey := filepath.ToSlash(filepath.Join(meta.Module(), meta.PathFile()))
+							mountKey := filepath.ToSlash(filepath.Join(meta.Module, meta.PathFile()))
 							addToReverseMap(mountKey, n, m)
 						}
 					}
@@ -198,9 +198,9 @@ func (b *cmInsertKeyBuilder) WithFile(fi hugofs.FileMetaInfo) *cmInsertKeyBuilde
 	b.newTopLevel()
 	m := b.m
 	meta := fi.Meta()
-	p := cleanTreeKey(meta.Path())
+	p := cleanTreeKey(meta.Path)
 	bundlePath := m.getBundleDir(meta)
-	isBundle := meta.Classifier().IsBundle()
+	isBundle := meta.Classifier.IsBundle()
 	if isBundle {
 		panic("not implemented")
 	}
@@ -211,7 +211,7 @@ func (b *cmInsertKeyBuilder) WithFile(fi hugofs.FileMetaInfo) *cmInsertKeyBuilde
 		return b
 	}
 
-	id := k + m.reduceKeyPart(p, fi.Meta().Path())
+	id := k + m.reduceKeyPart(p, fi.Meta().Path)
 	b.tree = b.m.resources
 	b.key = id
 	b.baseKey = p
@@ -347,7 +347,7 @@ func (m *contentMap) AddFiles(fis ...hugofs.FileMetaInfo) error {
 func (m *contentMap) AddFilesBundle(header hugofs.FileMetaInfo, resources ...hugofs.FileMetaInfo) error {
 	var (
 		meta       = header.Meta()
-		classifier = meta.Classifier()
+		classifier = meta.Classifier
 		isBranch   = classifier == files.ContentClassBranch
 		bundlePath = m.getBundleDir(meta)
 
@@ -387,7 +387,7 @@ func (m *contentMap) AddFilesBundle(header hugofs.FileMetaInfo, resources ...hug
 	}
 
 	for _, r := range resources {
-		rb := b.ForResource(cleanTreeKey(r.Meta().Path()))
+		rb := b.ForResource(cleanTreeKey(r.Meta().Path))
 		rb.Insert(&contentNode{fi: r})
 	}
 
@@ -462,12 +462,12 @@ func (m *contentMap) CreateMissingNodes() error {
 	return nil
 }
 
-func (m *contentMap) getBundleDir(meta hugofs.FileMeta) string {
-	dir := cleanTreeKey(filepath.Dir(meta.Path()))
+func (m *contentMap) getBundleDir(meta *hugofs.FileMeta) string {
+	dir := cleanTreeKey(filepath.Dir(meta.Path))
 
-	switch meta.Classifier() {
+	switch meta.Classifier {
 	case files.ContentClassContent:
-		return path.Join(dir, meta.TranslationBaseName())
+		return path.Join(dir, meta.TranslationBaseName)
 	default:
 		return dir
 	}
@@ -476,7 +476,7 @@ func (m *contentMap) getBundleDir(meta hugofs.FileMeta) string {
 func (m *contentMap) newContentNodeFromFi(fi hugofs.FileMetaInfo) *contentNode {
 	return &contentNode{
 		fi:   fi,
-		path: strings.TrimPrefix(filepath.ToSlash(fi.Meta().Path()), "/"),
+		path: strings.TrimPrefix(filepath.ToSlash(fi.Meta().Path), "/"),
 	}
 }
 
@@ -704,7 +704,7 @@ func (m *contentMap) testDump() string {
 					sb.WriteString("|p:" + c.p.Title())
 				}
 				if c.fi != nil {
-					sb.WriteString("|f:" + filepath.ToSlash(c.fi.Meta().Path()))
+					sb.WriteString("|f:" + filepath.ToSlash(c.fi.Meta().Path))
 				}
 				return sb.String()
 			}
@@ -716,13 +716,13 @@ func (m *contentMap) testDump() string {
 				resourcesPrefix += cmLeafSeparator
 
 				m.pages.WalkPrefix(s+cmBranchSeparator, func(s string, v interface{}) bool {
-					sb.WriteString("\t - P: " + filepath.ToSlash((v.(*contentNode).fi.(hugofs.FileMetaInfo)).Meta().Filename()) + "\n")
+					sb.WriteString("\t - P: " + filepath.ToSlash((v.(*contentNode).fi.(hugofs.FileMetaInfo)).Meta().Filename) + "\n")
 					return false
 				})
 			}
 
 			m.resources.WalkPrefix(resourcesPrefix, func(s string, v interface{}) bool {
-				sb.WriteString("\t - R: " + filepath.ToSlash((v.(*contentNode).fi.(hugofs.FileMetaInfo)).Meta().Filename()) + "\n")
+				sb.WriteString("\t - R: " + filepath.ToSlash((v.(*contentNode).fi.(hugofs.FileMetaInfo)).Meta().Filename) + "\n")
 				return false
 			})
 

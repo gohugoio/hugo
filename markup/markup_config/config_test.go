@@ -16,7 +16,7 @@ package markup_config
 import (
 	"testing"
 
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/config"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -26,7 +26,7 @@ func TestConfig(t *testing.T) {
 
 	c.Run("Decode", func(c *qt.C) {
 		c.Parallel()
-		v := viper.New()
+		v := config.New()
 
 		v.Set("markup", map[string]interface{}{
 			"goldmark": map[string]interface{}{
@@ -55,7 +55,7 @@ func TestConfig(t *testing.T) {
 
 	c.Run("legacy", func(c *qt.C) {
 		c.Parallel()
-		v := viper.New()
+		v := config.New()
 
 		v.Set("blackfriday", map[string]interface{}{
 			"angledQuotes": true,

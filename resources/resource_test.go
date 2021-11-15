@@ -19,7 +19,6 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/spf13/afero"
 
@@ -189,11 +188,10 @@ func TestResourcesGetMatch(t *testing.T) {
 func BenchmarkResourcesMatch(b *testing.B) {
 	resources := benchResources(b)
 	prefixes := []string{"abc*", "jkl*", "nomatch*", "sub/*"}
-	rnd := rand.New(rand.NewSource(time.Now().Unix()))
 
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			resources.Match(prefixes[rnd.Intn(len(prefixes))])
+			resources.Match(prefixes[rand.Intn(len(prefixes))])
 		}
 	})
 }

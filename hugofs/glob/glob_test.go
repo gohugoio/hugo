@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2021 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -66,17 +66,38 @@ func TestNormalizePath(t *testing.T) {
 }
 
 func TestGetGlob(t *testing.T) {
-	c := qt.New(t)
-	g, err := GetGlob("**.JSON")
-	c.Assert(err, qt.IsNil)
-	c.Assert(g.Match("data/my.json"), qt.Equals, true)
+	for _, cache := range []*globCache{defaultGlobCache, filenamesGlobCache} {
+		c := qt.New(t)
+		g, err := cache.GetGlob("**.JSON")
+		c.Assert(err, qt.IsNil)
+		c.Assert(g.Match("data/my.jSon"), qt.Equals, true)
+	}
 }
 
 func BenchmarkGetGlob(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		_, err := GetGlob("**/foo")
-		if err != nil {
-			b.Fatal(err)
-		}
+
+	runBench := func(name string, cache *globCache, search string) {
+		b.Run(name, func(b *testing.B) {
+			g, err := GetGlob("**/foo")
+			if err != nil {
+				b.Fatal(err)
+			}
+			for i := 0; i < b.N; i++ {
+				_ = g.Match(search)
+			}
+		})
 	}
+
+	runBench("Default cache", defaultGlobCache, "abcde")
+	runBench("Filenames cache, lowercase searchs", filenamesGlobCache, "abcde")
+	runBench("Filenames cache, mixed case searchs", filenamesGlobCache, "abCDe")
+
+	b.Run("GetGlob", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			_, err := GetGlob("**/foo")
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
 }

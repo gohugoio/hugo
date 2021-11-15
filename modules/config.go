@@ -15,6 +15,7 @@ package modules
 
 import (
 	"fmt"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -367,6 +368,7 @@ type Import struct {
 	pathProjectReplaced bool   // Set when Path is replaced in project config.
 	IgnoreConfig        bool   // Ignore any config in config.toml (will still folow imports).
 	IgnoreImports       bool   // Do not follow any configured imports.
+	NoMounts            bool   // Do not mount any folder in this import.
 	NoVendor            bool   // Never vendor this import (only allowed in main project).
 	Disable             bool   // Turn off this module.
 	Mounts              []Mount
@@ -378,6 +380,16 @@ type Mount struct {
 
 	Lang string // any language code associated with this mount.
 
+	// Include only files matching the given Glob patterns (string or slice).
+	IncludeFiles interface{}
+
+	// Exclude all files matching the given Glob patterns (string or slice).
+	ExcludeFiles interface{}
+}
+
+// Used as key to remove duplicates.
+func (m Mount) key() string {
+	return path.Join(m.Lang, m.Source, m.Target)
 }
 
 func (m Mount) Component() string {

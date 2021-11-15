@@ -1,7 +1,6 @@
 ---
 title: countrunes
 description: Determines the number of runes in a string excluding any whitespace.
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

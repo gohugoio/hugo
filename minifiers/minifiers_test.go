@@ -19,16 +19,16 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gohugoio/hugo/media"
-
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/output"
-	"github.com/spf13/viper"
+	"github.com/tdewolff/minify/v2/html"
 )
 
 func TestNew(t *testing.T) {
 	c := qt.New(t)
-	v := viper.New()
+	v := config.New()
 	m, _ := New(media.DefaultTypes, output.DefaultFormats, v)
 
 	var rawJS string
@@ -76,7 +76,7 @@ func TestNew(t *testing.T) {
 
 func TestConfigureMinify(t *testing.T) {
 	c := qt.New(t)
-	v := viper.New()
+	v := config.New()
 	v.Set("minify", map[string]interface{}{
 		"disablexml": true,
 		"tdewolff": map[string]interface{}{
@@ -93,9 +93,9 @@ func TestConfigureMinify(t *testing.T) {
 		expectedMinString string
 		errorExpected     bool
 	}{
-		{media.HTMLType, "<hello> Hugo! </hello>", "<hello> Hugo! </hello>", false}, // configured minifier
-		{media.CSSType, " body { color: blue; }  ", "body{color:blue}", false},      // default minifier
-		{media.XMLType, " <hello>  Hugo!   </hello>  ", "", true},                   // disable Xml minification
+		{media.HTMLType, "<hello> Hugo! </hello>", "<hello> Hugo! </hello>", false},            // configured minifier
+		{media.CSSType, " body { color: blue; }  ", "body{color:blue}", false},                 // default minifier
+		{media.XMLType, " <hello>  Hugo!   </hello>  ", " <hello>  Hugo!   </hello>  ", false}, // disable Xml minification
 	} {
 		var b bytes.Buffer
 		if !test.errorExpected {
@@ -110,7 +110,7 @@ func TestConfigureMinify(t *testing.T) {
 
 func TestJSONRoundTrip(t *testing.T) {
 	c := qt.New(t)
-	v := viper.New()
+	v := config.New()
 	m, _ := New(media.DefaultTypes, output.DefaultFormats, v)
 
 	for _, test := range []string{`{
@@ -148,7 +148,7 @@ func TestJSONRoundTrip(t *testing.T) {
 
 func TestBugs(t *testing.T) {
 	c := qt.New(t)
-	v := viper.New()
+	v := config.New()
 	m, _ := New(media.DefaultTypes, output.DefaultFormats, v)
 
 	for _, test := range []struct {
@@ -171,7 +171,7 @@ func TestBugs(t *testing.T) {
 // Renamed to Precision in v2.7.0. Check that we support both.
 func TestDecodeConfigDecimalIsNowPrecision(t *testing.T) {
 	c := qt.New(t)
-	v := viper.New()
+	v := config.New()
 	v.Set("minify", map[string]interface{}{
 		"disablexml": true,
 		"tdewolff": map[string]interface{}{
@@ -188,5 +188,33 @@ func TestDecodeConfigDecimalIsNowPrecision(t *testing.T) {
 
 	c.Assert(err, qt.IsNil)
 	c.Assert(conf.Tdewolff.CSS.Precision, qt.Equals, 3)
+
+}
+
+// Issue 8771
+func TestDecodeConfigKeepWhitespace(t *testing.T) {
+	c := qt.New(t)
+	v := config.New()
+	v.Set("minify", map[string]interface{}{
+		"tdewolff": map[string]interface{}{
+			"html": map[string]interface{}{
+				"keepEndTags": false,
+			},
+		},
+	})
+
+	conf, err := decodeConfig(v)
+
+	c.Assert(err, qt.IsNil)
+	c.Assert(conf.Tdewolff.HTML, qt.DeepEquals,
+		html.Minifier{
+			KeepComments:            false,
+			KeepConditionalComments: true,
+			KeepDefaultAttrVals:     true,
+			KeepDocumentTags:        true,
+			KeepEndTags:             false,
+			KeepQuotes:              false,
+			KeepWhitespace:          true},
+	)
 
 }

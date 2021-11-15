@@ -52,7 +52,7 @@ as you see fit.`,
 
 // newTheme creates a new Hugo theme template
 func (n *newThemeCmd) newTheme(cmd *cobra.Command, args []string) error {
-	c, err := initializeConfig(false, false, &n.hugoBuilderCommon, n, nil)
+	c, err := initializeConfig(false, false, false, &n.hugoBuilderCommon, n, nil)
 	if err != nil {
 		return err
 	}

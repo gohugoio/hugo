@@ -37,9 +37,9 @@ func createGenChromaStyles() *genChromaStyles {
 		baseCmd: newBaseCmd(&cobra.Command{
 			Use:   "chromastyles",
 			Short: "Generate CSS stylesheet for the Chroma code highlighter",
-			Long: `Generate CSS stylesheet for the Chroma code highlighter for a given style. This stylesheet is needed if pygmentsUseClasses is enabled in config.
+			Long: `Generate CSS stylesheet for the Chroma code highlighter for a given style. This stylesheet is needed if markup.highlight.noClasses is disabled in config.
 
-See https://help.farbox.com/pygments.html for preview of available styles`,
+See https://xyproto.github.io/splash/docs/all.html for a preview of the available styles`,
 		}),
 	}
 
@@ -47,7 +47,7 @@ See https://help.farbox.com/pygments.html for preview of available styles`,
 		return g.generate()
 	}
 
-	g.cmd.PersistentFlags().StringVar(&g.style, "style", "friendly", "highlighter style (see https://help.farbox.com/pygments.html)")
+	g.cmd.PersistentFlags().StringVar(&g.style, "style", "friendly", "highlighter style (see https://xyproto.github.io/splash/docs/)")
 	g.cmd.PersistentFlags().StringVar(&g.highlightStyle, "highlightStyle", "bg:#ffffcc", "style used for highlighting lines (see https://github.com/alecthomas/chroma)")
 	g.cmd.PersistentFlags().StringVar(&g.linesStyle, "linesStyle", "", "style used for line numbers (see https://github.com/alecthomas/chroma)")
 

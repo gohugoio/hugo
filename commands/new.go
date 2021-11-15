@@ -71,7 +71,7 @@ func (n *newCmd) newContent(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	c, err := initializeConfig(true, false, &n.hugoBuilderCommon, n, cfgInit)
+	c, err := initializeConfig(true, true, false, &n.hugoBuilderCommon, n, cfgInit)
 	if err != nil {
 		return err
 	}
@@ -80,17 +80,7 @@ func (n *newCmd) newContent(cmd *cobra.Command, args []string) error {
 		return newUserError("path needs to be provided")
 	}
 
-	createPath := args[0]
-
-	var kind string
-
-	createPath, kind = newContentPathSection(c.hugo(), createPath)
-
-	if n.contentType != "" {
-		kind = n.contentType
-	}
-
-	return create.NewContent(c.hugo(), kind, createPath)
+	return create.NewContent(c.hugo(), n.contentType, args[0])
 }
 
 func mkdir(x ...string) {
@@ -118,7 +108,7 @@ func newContentPathSection(h *hugolib.HugoSites, path string) (string, string) {
 
 	if h != nil {
 		for _, dir := range h.BaseFs.Content.Dirs {
-			createpath = strings.TrimPrefix(createpath, dir.Meta().Filename())
+			createpath = strings.TrimPrefix(createpath, dir.Meta().Filename)
 		}
 	}
 

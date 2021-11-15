@@ -1,8 +1,8 @@
 * A _regular_ page is a "post" page or a "content" page.
   * A _leaf bundle_ is a regular page.
 * A _list_ page can list _regular_ pages and other _list_ pages. Some
-  examples are: homepage, section pages, _taxonomy term_ (`/tags/`) and
-  _taxonomy_ (`/tags/foo/`) pages.
+  examples are: homepage, section pages, _taxonomy_ (`/tags/`) and
+  _term_ (`/tags/foo/`) pages.
   * A _branch bundle_ is a _list_ page.
 
 `.Site.Pages`
@@ -27,9 +27,7 @@ the current _list_ page:
     current _list_ page. This **excludes** regular pages in nested sections/_list_ pages (those are subdirectories with an `_index.md` file.
 
 `.RegularPagesRecursive`
-: Collection of **all** _regular_ pages under a _list_ page. This **includes** regular pages in nested sections/_list_ pages.
-
-This feature was added in Hugo version 0.68.0
+: {{< new-in "0.68.0" >}} Collection of **all** _regular_ pages under a _list_ page. This **includes** regular pages in nested sections/_list_ pages.
 
 Note
 : From the scope of _regular_ pages, `.Pages` and

@@ -224,8 +224,8 @@ if (!doNotTrack) {
 {{- if .IsPage }}
 {{- $iso8601 := "2006-01-02T15:04:05-07:00" -}}
 <meta property="article:section" content="{{ .Section }}" />
-{{ with .PublishDate }}<meta property="article:published_time" content="{{ .Format $iso8601 }}" />{{ end }}
-{{ with .Lastmod }}<meta property="article:modified_time" content="{{ .Format $iso8601 }}" />{{ end }}
+{{ with .PublishDate }}<meta property="article:published_time" {{ .Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />{{ end }}
+{{ with .Lastmod }}<meta property="article:modified_time" {{ .Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />{{ end }}
 {{- end -}}
 
 {{- with .Params.audio }}<meta property="og:audio" content="{{ . }}" />{{ end }}
@@ -248,59 +248,168 @@ if (!doNotTrack) {
 {{- /* Facebook Page Admin ID for Domain Insights */}}
 {{- with .Site.Social.facebook_admin }}<meta property="fb:admins" content="{{ . }}" />{{ end }}
 `},
-	{`pagination.html`, `{{ $pag := $.Paginator }}
-{{ if gt $pag.TotalPages 1 -}}
-<ul class="pagination">
-  {{ with $pag.First -}}
-  <li class="page-item">
-    <a href="{{ .URL }}" class="page-link" aria-label="First"><span aria-hidden="true">&laquo;&laquo;</span></a>
-  </li>
-  {{ end -}}
-  <li class="page-item{{ if not $pag.HasPrev }} disabled{{ end }}">
-    <a {{ if $pag.HasPrev }}href="{{ $pag.Prev.URL }}"{{ end }} class="page-link" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
-  </li>
-  {{- $ellipsed := false -}}
-  {{- $shouldEllipse := false -}}
-  {{- range $pag.Pagers -}}
-  {{- $right := sub .TotalPages .PageNumber -}}
-  {{- $showNumber := or (le .PageNumber 3) (eq $right 0) -}}
-  {{- $showNumber := or $showNumber (le .TotalPages 5) -}}{{/* Issue #7523 */}}
-  {{- $showNumber := or $showNumber (and (gt .PageNumber (sub $pag.PageNumber 2)) (lt .PageNumber (add $pag.PageNumber 2))) -}}
-  {{- if $showNumber -}}
-    {{- $ellipsed = false -}}
-    {{- $shouldEllipse = false -}}
-  {{- else -}}
-    {{- $shouldEllipse = not $ellipsed -}}
-    {{- $ellipsed = true -}}
-  {{- end -}}
-  {{- if $showNumber }}
-  <li class="page-item{{ if eq . $pag }} active{{ end }}">
-    <a class="page-link" href="{{ .URL }}">{{ .PageNumber }}</a>
-  </li>
-  {{- else if $shouldEllipse }}
-  <li class="page-item disabled">
-    <span aria-hidden="true">&nbsp;&hellip;&nbsp;</span>
-  </li>
-  {{- end -}}
+	{`pagination.html`, `{{- $validFormats := slice "default" "terse" }}
+
+{{- $msg1 := "When passing a map to the internal pagination template, one of the elements must be named 'page', and it must be set to the context of the current page." }}
+{{- $msg2 := "The 'format' specified in the map passed to the internal pagination template is invalid. Valid choices are: %s." }}
+
+{{- $page := . }}
+{{- $format := "default" }}
+
+{{- if reflect.IsMap . }}
+  {{- with .page }}
+    {{- $page = . }}
+  {{- else }}
+    {{- errorf $msg1 }}
   {{- end }}
-  <li class="page-item{{ if not $pag.HasNext }} disabled{{ end }}">
-    <a {{ if $pag.HasNext }}href="{{ $pag.Next.URL }}"{{ end }} class="page-link" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
-  </li>
-  {{- with $pag.Last }}
-  <li class="page-item">
-    <a href="{{ .URL }}" class="page-link" aria-label="Last"><span aria-hidden="true">&raquo;&raquo;</span></a>
-  </li>
+  {{- with .format }}
+    {{- $format = lower . }}
   {{- end }}
-</ul>
-{{ end }}
+{{- end }}
+
+{{- if in $validFormats $format }}
+  {{- if gt $page.Paginator.TotalPages 1 }}
+    <ul class="pagination pagination-{{ $format }}">
+      {{- partial (printf "partials/inline/pagination/%s" $format) $page }}
+    </ul>
+  {{- end }}
+{{- else }}
+  {{- errorf $msg2 (delimit $validFormats ", ") }}
+{{- end -}}
+
+{{/* Format: default
+{{/* --------------------------------------------------------------------- */}}
+{{- define "partials/inline/pagination/default" }}
+  {{- with .Paginator }}
+    {{- $currentPageNumber := .PageNumber }}
+
+    {{- with .First }}
+      {{- if ne $currentPageNumber .PageNumber }}
+      <li class="page-item">
+        <a href="{{ .URL }}" aria-label="First" class="page-link" role="button"><span aria-hidden="true">&laquo;&laquo;</span></a>
+      </li>
+      {{- else }}
+      <li class="page-item disabled">
+        <a href="#" aria-disabled="true" aria-label="First" class="page-link" role="button" tabindex="-1"><span aria-hidden="true">&laquo;&laquo;</span></a>
+      </li>
+      {{- end }}
+    {{- end }}
+
+    {{- with .Prev }}
+      <li class="page-item">
+        <a href="{{ .URL }}" aria-label="Previous" class="page-link" role="button"><span aria-hidden="true">&laquo;</span></a>
+      </li>
+    {{- else }}
+      <li class="page-item disabled">
+        <a href="#" aria-disabled="true" aria-label="Previous" class="page-link" role="button" tabindex="-1"><span aria-hidden="true">&laquo;</span></a>
+      </li>
+    {{- end }}
+
+    {{- $slots := 5 }}
+    {{- $start := math.Max 1 (sub .PageNumber (math.Floor (div $slots 2))) }}
+    {{- $end := math.Min .TotalPages (sub (add $start $slots) 1) }}
+    {{- if lt (add (sub $end $start) 1) $slots }}
+      {{- $start = math.Max 1 (add (sub $end $slots) 1) }}
+    {{- end }}
+
+    {{- range $k := seq $start $end }}
+      {{- if eq $.Paginator.PageNumber $k }}
+      <li class="page-item active">
+        <a href="#" aria-current="page" aria-label="Page {{ $k }}" class="page-link" role="button">{{ $k }}</a>
+      </li>
+      {{- else }}
+      <li class="page-item">
+        <a href="{{ (index $.Paginator.Pagers (sub $k 1)).URL }}" aria-label="Page {{ $k }}" class="page-link" role="button">{{ $k }}</a>
+      </li>
+      {{- end }}
+    {{- end }}
+
+    {{- with .Next }}
+      <li class="page-item">
+        <a href="{{ .URL }}" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
+      </li>
+    {{- else }}
+      <li class="page-item disabled">
+        <a href="#" aria-disabled="true" aria-label="Next" class="page-link" role="button" tabindex="-1"><span aria-hidden="true">&raquo;</span></a>
+      </li>
+    {{- end }}
+
+    {{- with .Last }}
+      {{- if ne $currentPageNumber .PageNumber }}
+      <li class="page-item">
+        <a href="{{ .URL }}" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
+      </li>
+      {{- else }}
+      <li class="page-item disabled">
+        <a href="#" aria-disabled="true" aria-label="Last" class="page-link" role="button" tabindex="-1"><span aria-hidden="true">&raquo;&raquo;</span></a>
+      </li>
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end -}}
+
+{{/* Format: terse
+{{/* --------------------------------------------------------------------- */}}
+{{- define "partials/inline/pagination/terse" }}
+  {{- with .Paginator }}
+    {{- $currentPageNumber := .PageNumber }}
+
+    {{- with .First }}
+      {{- if ne $currentPageNumber .PageNumber }}
+      <li class="page-item">
+        <a href="{{ .URL }}" aria-label="First" class="page-link" role="button"><span aria-hidden="true">&laquo;&laquo;</span></a>
+      </li>
+      {{- end }}
+    {{- end }}
+
+    {{- with .Prev }}
+      <li class="page-item">
+        <a href="{{ .URL }}" aria-label="Previous" class="page-link" role="button"><span aria-hidden="true">&laquo;</span></a>
+      </li>
+    {{- end }}
+
+    {{- $slots := 3 }}
+    {{- $start := math.Max 1 (sub .PageNumber (math.Floor (div $slots 2))) }}
+    {{- $end := math.Min .TotalPages (sub (add $start $slots) 1) }}
+    {{- if lt (add (sub $end $start) 1) $slots }}
+      {{- $start = math.Max 1 (add (sub $end $slots) 1) }}
+    {{- end }}
+
+    {{- range $k := seq $start $end }}
+      {{- if eq $.Paginator.PageNumber $k }}
+      <li class="page-item active">
+        <a href="#" aria-current="page" aria-label="Page {{ $k }}" class="page-link" role="button">{{ $k }}</a>
+      </li>
+      {{- else }}
+      <li class="page-item">
+        <a href="{{ (index $.Paginator.Pagers (sub $k 1)).URL }}" aria-label="Page {{ $k }}" class="page-link" role="button">{{ $k }}</a>
+      </li>
+      {{- end }}
+    {{- end }}
+
+    {{- with .Next }}
+      <li class="page-item">
+        <a href="{{ .URL }}" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
+      </li>
+    {{- end }}
+
+    {{- with .Last }}
+      {{- if ne $currentPageNumber .PageNumber }}
+      <li class="page-item">
+        <a href="{{ .URL }}" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
+      </li>
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end -}}
 `},
 	{`schema.html`, `<meta itemprop="name" content="{{ .Title }}">
 <meta itemprop="description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}">
 
 {{- if .IsPage -}}
 {{- $iso8601 := "2006-01-02T15:04:05-07:00" -}}
-{{ with .PublishDate }}<meta itemprop="datePublished" content="{{ .Format $iso8601 }}" />{{ end}}
-{{ with .Lastmod }}<meta itemprop="dateModified" content="{{ .Format $iso8601 }}" />{{ end}}
+{{ with .PublishDate }}<meta itemprop="datePublished" {{ .Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />{{ end}}
+{{ with .Lastmod }}<meta itemprop="dateModified" {{ .Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />{{ end}}
 <meta itemprop="wordCount" content="{{ .WordCount }}">
 
 {{- with $.Params.images -}}
@@ -387,63 +496,90 @@ if (!doNotTrack) {
 	{`shortcodes/gist.html`, `<script type="application/javascript" src="https://gist.github.com/{{ index .Params 0 }}/{{ index .Params 1 }}.js{{if len .Params | eq 3 }}?file={{ index .Params 2 }}{{end}}"></script>
 `},
 	{`shortcodes/highlight.html`, `{{ if len .Params | eq 2 }}{{ highlight (trim .Inner "\n\r") (.Get 0) (.Get 1) }}{{ else }}{{ highlight (trim .Inner "\n\r") (.Get 0) "" }}{{ end }}`},
-	{`shortcodes/instagram.html`, `{{- $pc := .Page.Site.Config.Privacy.Instagram -}}
+	{`shortcodes/instagram.html`, `{{- $pc := site.Config.Privacy.Instagram -}}
 {{- if not $pc.Disable -}}
-{{- if $pc.Simple -}}
-{{ template "_internal/shortcodes/instagram_simple.html" . }}
-{{- else -}}
-{{ $id := .Get 0 }}
-{{ $hideCaption := cond (eq (.Get 1) "hidecaption") "1" "0" }}
-{{ with getJSON "https://api.instagram.com/oembed/?url=https://instagram.com/p/" $id "/&hidecaption=" $hideCaption  }}{{ .html | safeHTML }}{{ end }}
-{{- end -}}
+  {{ $accessToken := site.Config.Services.Instagram.AccessToken }}
+  {{- if not $accessToken -}}
+    {{- erroridf "error-missing-instagram-accesstoken" "instagram shortcode: Missing config value for services.instagram.accessToken. This can be set in config.toml, but it is recommended to configure this via the HUGO_SERVICES_INSTAGRAM_ACCESSTOKEN OS environment variable. If you are using a Client Access Token, remember that you must combine it with your App ID using a pipe symbol (<APPID>|<CLIENTTOKEN>) otherwise the request will fail." -}}
+  {{- else -}}
+    {{- if $pc.Simple -}}
+      {{ template "_internal/shortcodes/instagram_simple.html" . }}
+    {{- else -}}
+      {{ $id := .Get 0 }}
+      {{ $hideCaption := cond (eq (.Get 1) "hidecaption") "1" "0" }}
+      {{ $headers := dict "Authorization" (printf "Bearer %s" $accessToken) }}
+      {{ with getJSON "https://graph.facebook.com/v8.0/instagram_oembed/?url=https://instagram.com/p/" $id "/&hidecaption=" $hideCaption $headers }}
+        {{ .html | safeHTML }}
+      {{ end }}
+    {{- end -}}
+  {{- end -}}
 {{- end -}}`},
 	{`shortcodes/instagram_simple.html`, `{{- $pc := .Page.Site.Config.Privacy.Instagram -}}
 {{- $sc := .Page.Site.Config.Services.Instagram -}}
 {{- if not $pc.Disable -}}
-{{- $id := .Get 0 -}}
-{{- $item := getJSON "https://api.instagram.com/oembed/?url=https://www.instagram.com/p/" $id "/&amp;maxwidth=640&amp;omitscript=true" -}}
-{{- $class1 := "__h_instagram" -}}
-{{- $class2 := "s_instagram_simple" -}}
-{{- $hideCaption := (eq (.Get 1) "hidecaption") -}}
-{{ with $item }}
-{{- $mediaURL := printf "https://instagram.com/p/%s/" $id | safeURL -}}
-{{- if not $sc.DisableInlineCSS -}}
-{{ template "__h_simple_instagram_css" $ }}
-{{- end -}}
-<div class="{{ $class1 }} {{ $class2 }} card" style="max-width: {{ $item.thumbnail_width }}px">
-	<div class="card-header">
-    <a href="{{ $item.author_url | safeURL }}" class="card-link">{{ $item.author_name }}</a>
-  </div>
-	<a href="{{ $mediaURL }}" rel="noopener" target="_blank"><img class="card-img-top img-fluid" src="{{ $item.thumbnail_url }}" width="{{ $item.thumbnail_width }}"  height="{{ $item.thumbnail_height }}" alt="Instagram Image"></a>
-	<div class="card-body">
-		{{ if not $hideCaption }}<p class="card-text"><a href="{{ $item.author_url | safeURL }}" class="card-link">{{ $item.author_name }}</a> {{ $item.title}}</p>{{ end }}
-		<a href="{{ $item.author_url | safeURL }}" class="card-link">View More on Instagram</a>
-	</div>
-</div>
-{{ end }}
+  {{ $accessToken := site.Config.Services.Instagram.AccessToken }}
+  {{- if not $accessToken -}}
+    {{- erroridf "error-missing-instagram-accesstoken" "instagram shortcode: Missing config value for services.instagram.accessToken. This can be set in config.toml, but it is recommended to configure this via the HUGO_SERVICES_INSTAGRAM_ACCESSTOKEN OS environment variable. If you are using a Client Access Token, remember that you must combine it with your App ID using a pipe symbol (<APPID>|<CLIENTTOKEN>) otherwise the request will fail." -}}
+  {{- else -}}
+    {{- $id := .Get 0 -}}
+    {{- $headers := dict "Authorization" (printf "Bearer %s" $accessToken) -}}
+    {{- $item := getJSON "https://graph.facebook.com/v8.0/instagram_oembed/?url=https://instagram.com/p/" $id "/&amp;maxwidth=640&amp;omitscript=true" $headers -}}
+    {{- $class1 := "__h_instagram" -}}
+    {{- $class2 := "s_instagram_simple" -}}
+    {{- $hideCaption := (eq (.Get 1) "hidecaption") -}}
+    {{ with $item }}
+      {{- $mediaURL := printf "https://instagram.com/p/%s/" $id | safeURL -}}
+      {{- if not $sc.DisableInlineCSS -}}
+        {{ template "__h_simple_instagram_css" $ }}
+      {{- end -}}
+      <div class="{{ $class1 }} {{ $class2 }} card" style="max-width: {{ $item.thumbnail_width }}px">
+        <div class="card-header">
+          <a href="{{ $item.author_url | safeURL }}" class="card-link">
+            {{ $item.author_name }}
+          </a>
+        </div>
+        <a href="{{ $mediaURL }}" rel="noopener" target="_blank">
+          <img class="card-img-top img-fluid" src="{{ $item.thumbnail_url }}" width="{{ $item.thumbnail_width }}"  height="{{ $item.thumbnail_height }}" alt="Instagram Image">
+        </a>
+        <div class="card-body">
+          {{ if not $hideCaption }}
+            <p class="card-text">
+              <a href="{{ $item.author_url | safeURL }}" class="card-link">
+                {{ $item.author_name }}
+              </a>
+              {{ $item.title}}
+            </p>
+          {{ end }}
+          <a href="{{ $item.author_url | safeURL }}" class="card-link">
+            View More on Instagram
+          </a>
+        </div>
+      </div>
+    {{ end }}
+  {{- end -}}
 {{- end -}}
 
 {{ define "__h_simple_instagram_css" }}
-{{ if not (.Page.Scratch.Get "__h_simple_instagram_css") }}
-{{/* Only include once */}}
-{{  .Page.Scratch.Set "__h_simple_instagram_css" true }}
-<style type="text/css">
-   .__h_instagram.card {
+  {{ if not (.Page.Scratch.Get "__h_simple_instagram_css") }}
+    {{/* Only include once */}}
+    {{  .Page.Scratch.Set "__h_simple_instagram_css" true }}
+    <style type="text/css">
+      .__h_instagram.card {
       font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
       font-size: 14px;
       border: 1px solid rgb(219, 219, 219);
       padding: 0;
-	  margin-top: 30px;
-   }
-   .__h_instagram.card .card-header, .__h_instagram.card .card-body {
+      margin-top: 30px;
+      }
+      .__h_instagram.card .card-header, .__h_instagram.card .card-body {
       padding: 10px 10px 10px;
-   }
-   .__h_instagram.card img {
+      }
+      .__h_instagram.card img {
       width: 100%;
-    	height: auto;
-   }
-</style>
-{{ end }}
+      	height: auto;
+      }
+    </style>
+  {{ end }}
 {{ end }}`},
 	{`shortcodes/param.html`, `{{- $name := (.Get 0) -}}
 {{- with $name -}}
@@ -453,47 +589,99 @@ if (!doNotTrack) {
 	{`shortcodes/relref.html`, `{{ relref . .Params }}`},
 	{`shortcodes/twitter.html`, `{{- $pc := .Page.Site.Config.Privacy.Twitter -}}
 {{- if not $pc.Disable -}}
-{{- if $pc.Simple -}}
-{{ template "_internal/shortcodes/twitter_simple.html" . }}
-{{- else -}}
-{{- $url := printf "https://api.twitter.com/1/statuses/oembed.json?id=%v&dnt=%t" (index .Params 0) $pc.EnableDNT -}}
-{{- $json := getJSON $url -}}
-{{ $json.html | safeHTML }}
+  {{- if $pc.Simple -}}
+    {{- template "_internal/shortcodes/twitter_simple.html" . -}}
+  {{- else -}}
+    {{- $msg1 := "The %q shortcode requires two named parameters: user and id. See %s" -}}
+    {{- $msg2 := "The %q shortcode will soon require two named parameters: user and id. See %s" -}}
+    {{- if .IsNamedParams -}}
+      {{- $id := .Get "id" -}}
+      {{- $user := .Get "user" -}}
+      {{- if and $id $user -}}
+        {{- template "render-tweet" (dict "id" $id "user" $user "dnt" $pc.EnableDNT) -}}
+      {{- else -}}
+        {{- errorf $msg1 .Name .Position -}}
+      {{- end -}}
+    {{- else -}}
+      {{- $id := .Get 1 -}}
+      {{- $user := .Get 0 -}}
+      {{- if eq 1 (len .Params) -}}
+        {{- $id = .Get 0 -}}
+        {{- $user = "x" -}} {{/* This triggers a redirect. It works, but may not work forever. */}}
+        {{- warnf $msg2 .Name .Position -}}
+      {{- end -}}
+      {{- template "render-tweet" (dict "id" $id "user" $user "dnt" $pc.EnableDNT) -}}
+    {{- end -}}
+  {{- end -}}
 {{- end -}}
-{{- end -}}`},
+
+{{- define "render-tweet" -}}
+  {{- $url := printf "https://twitter.com/%v/status/%v" .user .id -}}
+  {{- $query := querify "url" $url "dnt" .dnt -}}
+  {{- $request := printf "https://publish.twitter.com/oembed?%s" $query -}}
+  {{- $json := getJSON $request -}}
+  {{- $json.html | safeHTML -}}
+{{- end -}}
+`},
 	{`shortcodes/twitter_simple.html`, `{{- $pc := .Page.Site.Config.Privacy.Twitter -}}
 {{- $sc := .Page.Site.Config.Services.Twitter -}}
 {{- if not $pc.Disable -}}
-{{- $id := .Get 0 -}}
-{{- $json := getJSON "https://api.twitter.com/1/statuses/oembed.json?id=" $id "&omit_script=true" -}}
-{{- if not $sc.DisableInlineCSS -}}
-{{ template "__h_simple_twitter_css" $ }}
-{{- end -}}
-{{ $json.html | safeHTML }}
+  {{- $msg1 := "The %q shortcode requires two named parameters: user and id. See %s" -}}
+  {{- $msg2 := "The %q shortcode will soon require two named parameters: user and id. See %s" -}}
+  {{- if .IsNamedParams -}}
+    {{- $id := .Get "id" -}}
+    {{- $user := .Get "user" -}}
+    {{- if and $id $user -}}
+      {{- template "render-simple-tweet" (dict "id" $id "user" $user "dnt" $pc.EnableDNT "disableInlineCSS" $sc.DisableInlineCSS "ctx" .) -}}
+    {{- else -}}
+      {{- errorf $msg1 .Name .Position -}}
+    {{- end -}}
+  {{- else -}}
+    {{- $id := .Get 1 -}}
+    {{- $user := .Get 0 -}}
+    {{- if eq 1 (len .Params) -}}
+      {{- $id = .Get 0 -}}
+      {{- $user = "x" -}} {{/* This triggers a redirect. It works, but may not work forever. */}}
+      {{- warnf $msg2 .Name .Position -}}
+    {{- end -}}
+    {{- template "render-simple-tweet" (dict "id" $id "user" $user "dnt" $pc.EnableDNT "disableInlineCSS" $sc.DisableInlineCSS "ctx" .) -}}
+  {{- end -}}
 {{- end -}}
 
-{{ define "__h_simple_twitter_css" }}
-{{ if not (.Page.Scratch.Get "__h_simple_twitter_css") }}
-{{/* Only include once */}}
-{{  .Page.Scratch.Set "__h_simple_twitter_css" true }}
-<style type="text/css">
-  .twitter-tweet {
-  font: 14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
-  border-left: 4px solid #2b7bb9;
-  padding-left: 1.5em;
-  color: #555;
-}
-  .twitter-tweet a {
-  color: #2b7bb9;
-  text-decoration: none;
-}
-  blockquote.twitter-tweet a:hover,
-  blockquote.twitter-tweet a:focus {
-  text-decoration: underline;
-}
-</style>
-{{ end }}
-{{ end }}`},
+{{- define "render-simple-tweet" -}}
+  {{- $url := printf "https://twitter.com/%v/status/%v" .user .id -}}
+  {{- $query := querify "url" $url "dnt" .dnt "omit_script" true -}}
+  {{- $request := printf "https://publish.twitter.com/oembed?%s" $query -}}
+  {{- $json := getJSON $request -}}
+  {{- if not .disableInlineCSS -}}
+    {{- template "__h_simple_twitter_css" .ctx -}}
+  {{- end }}
+  {{ $json.html | safeHTML -}}
+{{- end -}}
+
+{{- define "__h_simple_twitter_css" -}}
+  {{- if not (.Page.Scratch.Get "__h_simple_twitter_css") -}}
+    {{/* Only include once */}}
+    {{- .Page.Scratch.Set "__h_simple_twitter_css" true }}
+    <style type="text/css">
+      .twitter-tweet {
+        font: 14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+        border-left: 4px solid #2b7bb9;
+        padding-left: 1.5em;
+        color: #555;
+      }
+      .twitter-tweet a {
+        color: #2b7bb9;
+        text-decoration: none;
+      }
+      blockquote.twitter-tweet a:hover,
+      blockquote.twitter-tweet a:focus {
+        text-decoration: underline;
+      }
+    </style>
+  {{- end -}}
+{{- end -}}
+`},
 	{`shortcodes/vimeo.html`, `{{- $pc := .Page.Site.Config.Privacy.Vimeo -}}
 {{- if not $pc.Disable -}}
 {{- if $pc.Simple -}}

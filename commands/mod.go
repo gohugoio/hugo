@@ -71,11 +71,12 @@ Also note that if you configure a positive maxAge for the "modules" file cache, 
 			if all {
 				com, err := c.initConfig(false)
 
-				if err != nil && !moduleNotFoundRe.MatchString(err.Error()) {
+				if err != nil && com == nil {
 					return err
 				}
 
-				_, err = com.hugo().FileCaches.ModulesCache().Prune(true)
+				count, err := com.hugo().FileCaches.ModulesCache().Prune(true)
+				com.logger.Printf("Deleted %d files from module cache.", count)
 				return err
 			}
 			return c.withModsClient(true, func(c *modules.Client) error {
@@ -284,7 +285,7 @@ func (c *modCmd) withHugo(f func(*hugolib.HugoSites) error) error {
 }
 
 func (c *modCmd) initConfig(failOnNoConfig bool) (*commandeer, error) {
-	com, err := initializeConfig(failOnNoConfig, false, &c.hugoBuilderCommon, c, nil)
+	com, err := initializeConfig(failOnNoConfig, false, false, &c.hugoBuilderCommon, c, nil)
 	if err != nil {
 		return nil, err
 	}

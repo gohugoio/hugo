@@ -34,12 +34,12 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/spf13/afero"
-	"github.com/spf13/viper"
+	
 )
 
 func TestScpGetLocal(t *testing.T) {
 	t.Parallel()
-	v := viper.New()
+	v := config.New()
 	fs := hugofs.NewMem(v)
 	ps := helpers.FilePathSeparator
 
@@ -144,7 +144,7 @@ func TestScpGetRemoteParallel(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 
 	for _, ignoreCache := range []bool{false} {
-		cfg := viper.New()
+		cfg := config.New()
 		cfg.Set("ignoreCache", ignoreCache)
 		cfg.Set("contentDir", "content")
 
@@ -213,17 +213,17 @@ func newDeps(cfg config.Provider) *deps.Deps {
 	}
 
 	return &deps.Deps{
-		Cfg:              cfg,
-		Fs:               fs,
-		FileCaches:       fileCaches,
-		ContentSpec:      cs,
-		Log:              logger,
-		DistinctErrorLog: helpers.NewDistinctLogger(logger.Error()),
+		Cfg:         cfg,
+		Fs:          fs,
+		FileCaches:  fileCaches,
+		ContentSpec: cs,
+		Log:         logger,
+		LogDistinct: helpers.NewDistinctLogger(logger),
 	}
 }
 
 func newTestNs() *Namespace {
-	v := viper.New()
+	v := config.New()
 	v.Set("contentDir", "content")
 	return New(newDeps(v))
 }

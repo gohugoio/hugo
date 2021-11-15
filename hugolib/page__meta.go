@@ -22,6 +22,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gohugoio/hugo/langs"
+
 	"github.com/gobuffalo/flect"
 	"github.com/gohugoio/hugo/markup/converter"
 
@@ -336,38 +338,14 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 
 	if frontmatter != nil {
 		// Needed for case insensitive fetching of params values
-		maps.ToLower(frontmatter)
+		maps.PrepareParams(frontmatter)
 		if p.bucket != nil {
 			// Check for any cascade define on itself.
 			if cv, found := frontmatter["cascade"]; found {
-				if v, err := maps.ToSliceStringMap(cv); err == nil {
-					p.bucket.cascade = make(map[page.PageMatcher]maps.Params)
-
-					for _, vv := range v {
-						var m page.PageMatcher
-						if mv, found := vv["_target"]; found {
-							err := page.DecodePageMatcher(mv, &m)
-							if err != nil {
-								return err
-							}
-						}
-						c, found := p.bucket.cascade[m]
-						if found {
-							// Merge
-							for k, v := range vv {
-								if _, found := c[k]; !found {
-									c[k] = v
-								}
-							}
-						} else {
-							p.bucket.cascade[m] = vv
-						}
-
-					}
-				} else {
-					p.bucket.cascade = map[page.PageMatcher]maps.Params{
-						{}: maps.ToStringMap(cv),
-					}
+				var err error
+				p.bucket.cascade, err = page.DecodeCascade(cv)
+				if err != nil {
+					return err
 				}
 			}
 		}
@@ -420,6 +398,7 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 		BaseFilename:  contentBaseName,
 		ModTime:       mtime,
 		GitAuthorDate: gitAuthorDate,
+		Location:      langs.GetLocation(pm.s.Language()),
 	}
 
 	// Handle the date separately
@@ -738,7 +717,7 @@ func (p *pageMeta) applyDefaultValues(n *contentNode) error {
 	} else {
 		source := p.File()
 		if fi, ok := source.(*fileInfo); ok {
-			class := fi.FileInfo().Meta().Classifier()
+			class := fi.FileInfo().Meta().Classifier
 			switch class {
 			case files.ContentClassBranch, files.ContentClassLeaf:
 				p.bundleType = class

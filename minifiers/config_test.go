@@ -16,14 +16,14 @@ package minifiers
 import (
 	"testing"
 
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/config"
 
 	qt "github.com/frankban/quicktest"
 )
 
 func TestConfig(t *testing.T) {
 	c := qt.New(t)
-	v := viper.New()
+	v := config.New()
 
 	v.Set("minify", map[string]interface{}{
 		"disablexml": true,
@@ -53,7 +53,7 @@ func TestConfig(t *testing.T) {
 
 func TestConfigLegacy(t *testing.T) {
 	c := qt.New(t)
-	v := viper.New()
+	v := config.New()
 
 	// This was a bool < Hugo v0.58.
 	v.Set("minify", true)

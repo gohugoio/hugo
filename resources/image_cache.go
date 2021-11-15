@@ -72,7 +72,7 @@ func (c *imageCache) getOrCreate(
 	// For the file cache we want to generate and store it once if possible.
 	fileKeyPath := relTarget
 	if fi := parent.root.getFileInfo(); fi != nil {
-		fileKeyPath.dir = filepath.ToSlash(filepath.Dir(fi.Meta().Path()))
+		fileKeyPath.dir = filepath.ToSlash(filepath.Dir(fi.Meta().Path))
 	}
 	fileKey := fileKeyPath.path()
 

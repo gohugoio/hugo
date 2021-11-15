@@ -167,11 +167,16 @@ Most Hugo builds are so fast that you may not notice the change unless looking d
 Hugo injects the LiveReload `<script>` before the closing `</body>` in your templates and will therefore not work if this tag is not present..
 {{% /note %}}
 
+### Redirect automatically to the page you just saved
+
+When you are working with more than one document and want to see the markup as real-time as possible it's not ideal to keep jumping between them. 
+Fortunately Hugo has an easy, embedded and simple solution for this. It's the flag `--navigateToChanged`.
+
 ### Disable LiveReload
 
 LiveReload works by injecting JavaScript into the pages Hugo generates. The script creates a connection from the browser's web socket client to the Hugo web socket server.
 
-LiveReload is awesome for development. However, some Hugo users may use `hugo server` in production to instantly display updated content. The following methods make it easy to disable LiveReload:
+The following methods make it easy to disable LiveReload:
 
 ```
 hugo server --watch=false

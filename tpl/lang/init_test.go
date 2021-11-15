@@ -16,6 +16,9 @@ package lang
 import (
 	"testing"
 
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/langs"
+
 	"github.com/gohugoio/hugo/htesting/hqt"
 
 	qt "github.com/frankban/quicktest"
@@ -29,7 +32,9 @@ func TestInit(t *testing.T) {
 	var ns *internal.TemplateFuncsNamespace
 
 	for _, nsf := range internal.TemplateFuncsNamespaceRegistry {
-		ns = nsf(&deps.Deps{})
+		ns = nsf(&deps.Deps{
+			Language: langs.NewDefaultLanguage(config.New()),
+		})
 		if ns.Name == name {
 			found = true
 			break
@@ -37,5 +42,7 @@ func TestInit(t *testing.T) {
 	}
 
 	c.Assert(found, qt.Equals, true)
-	c.Assert(ns.Context(), hqt.IsSameType, &Namespace{})
+	ctx, err := ns.Context()
+	c.Assert(err, qt.IsNil)
+	c.Assert(ctx, hqt.IsSameType, &Namespace{})
 }

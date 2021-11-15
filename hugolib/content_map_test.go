@@ -19,7 +19,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/gohugoio/hugo/htesting/hqt"
 
@@ -51,9 +51,9 @@ func BenchmarkContentMap(b *testing.B) {
 				meta := fi.Meta()
 				// We have a more elaborate filesystem setup in the
 				// real flow, so simulate this here.
-				meta["lang"] = lang
-				meta["path"] = meta.Filename()
-				meta["classifier"] = files.ClassifyContentFile(fi.Name(), meta.GetOpener())
+				meta.Lang = lang
+				meta.Path = meta.Filename
+				meta.Classifier = files.ClassifyContentFile(fi.Name(), meta.OpenFunc)
 			})
 	}
 
@@ -109,10 +109,10 @@ func TestContentMap(t *testing.T) {
 				meta := fi.Meta()
 				// We have a more elaborate filesystem setup in the
 				// real flow, so simulate this here.
-				meta["lang"] = lang
-				meta["path"] = meta.Filename()
-				meta["classifier"] = files.ClassifyContentFile(fi.Name(), meta.GetOpener())
-				meta["translationBaseName"] = helpers.Filename(fi.Name())
+				meta.Lang = lang
+				meta.Path = meta.Filename
+				meta.TranslationBaseName = paths.Filename(fi.Name())
+				meta.Classifier = files.ClassifyContentFile(fi.Name(), meta.OpenFunc)
 			})
 	}
 
@@ -127,7 +127,7 @@ func TestContentMap(t *testing.T) {
 
 		header := writeFile(c, fs, "blog/a/index.md", "page")
 
-		c.Assert(header.Meta().Lang(), qt.Equals, "en")
+		c.Assert(header.Meta().Lang, qt.Equals, "en")
 
 		resources := []hugofs.FileMetaInfo{
 			writeFile(c, fs, "blog/a/b/data.json", "data"),

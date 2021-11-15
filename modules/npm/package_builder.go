@@ -29,7 +29,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
 
-	"github.com/spf13/cast"
+	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/gohugoio/hugo/helpers"
 )
@@ -80,12 +80,12 @@ func Pack(fs afero.Fs, fis []hugofs.FileMetaInfo) error {
 	}
 
 	meta := fi.(hugofs.FileMetaInfo).Meta()
-	masterFilename := meta.Filename()
+	masterFilename := meta.Filename
 	f, err := meta.Open()
 	if err != nil {
 		return errors.Wrap(err, "npm pack: failed to open package file")
 	}
-	b = newPackageBuilder(meta.Module(), f)
+	b = newPackageBuilder(meta.Module, f)
 	f.Close()
 
 	for _, fi := range fis {
@@ -100,7 +100,7 @@ func Pack(fs afero.Fs, fis []hugofs.FileMetaInfo) error {
 
 		meta := fi.(hugofs.FileMetaInfo).Meta()
 
-		if meta.Filename() == masterFilename {
+		if meta.Filename == masterFilename {
 			continue
 		}
 
@@ -108,7 +108,7 @@ func Pack(fs afero.Fs, fis []hugofs.FileMetaInfo) error {
 		if err != nil {
 			return errors.Wrap(err, "npm pack: failed to open package file")
 		}
-		b.Add(meta.Module(), f)
+		b.Add(meta.Module, f)
 		f.Close()
 	}
 
@@ -122,7 +122,7 @@ func Pack(fs afero.Fs, fis []hugofs.FileMetaInfo) error {
 	var commentsm map[string]interface{}
 	comments, found := b.originalPackageJSON["comments"]
 	if found {
-		commentsm = cast.ToStringMap(comments)
+		commentsm = maps.ToStringMap(comments)
 	} else {
 		commentsm = make(map[string]interface{})
 	}
@@ -205,7 +205,7 @@ func (b *packageBuilder) addm(source string, m map[string]interface{}) {
 	// These packages will be added by order of import (project, module1, module2...),
 	// so that should at least give the project control over the situation.
 	if devDeps, found := m[devDependenciesKey]; found {
-		mm := cast.ToStringMapString(devDeps)
+		mm := maps.ToStringMapString(devDeps)
 		for k, v := range mm {
 			if _, added := b.devDependencies[k]; !added {
 				b.devDependencies[k] = v
@@ -215,7 +215,7 @@ func (b *packageBuilder) addm(source string, m map[string]interface{}) {
 	}
 
 	if deps, found := m[dependenciesKey]; found {
-		mm := cast.ToStringMapString(deps)
+		mm := maps.ToStringMapString(deps)
 		for k, v := range mm {
 			if _, added := b.dependencies[k]; !added {
 				b.dependencies[k] = v

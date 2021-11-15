@@ -31,6 +31,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gohugoio/hugo/common/paths"
+
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/livereload"
@@ -234,12 +236,24 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 		jww.WARN.Println("memstats error:", err)
 	}
 
-	c, err := initializeConfig(true, true, &sc.hugoBuilderCommon, sc, cfgInit)
+	// silence errors in cobra so we can handle them here
+	cmd.SilenceErrors = true
+
+	c, err := initializeConfig(true, true, true, &sc.hugoBuilderCommon, sc, cfgInit)
 	if err != nil {
+		cmd.PrintErrln("Error:", err.Error())
 		return err
 	}
 
-	if err := c.serverBuild(); err != nil {
+	err = func() error {
+		defer c.timeTrack(time.Now(), "Built")
+		err := c.serverBuild()
+		if err != nil {
+			cmd.PrintErrln("Error:", err.Error())
+		}
+		return err
+	}()
+	if err != nil {
 		return err
 	}
 
@@ -260,7 +274,7 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 		for _, group := range watchGroups {
 			jww.FEEDBACK.Printf("Watching for changes in %s\n", group)
 		}
-		watcher, err := c.newWatcher(watchDirs...)
+		watcher, err := c.newWatcher(sc.poll, watchDirs...)
 		if err != nil {
 			return err
 		}
@@ -275,7 +289,7 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 func getRootWatchDirsStr(baseDir string, watchDirs []string) string {
 	relWatchDirs := make([]string, len(watchDirs))
 	for i, dir := range watchDirs {
-		relWatchDirs[i], _ = helpers.GetRelativePath(dir, baseDir)
+		relWatchDirs[i], _ = paths.GetRelativePath(dir, baseDir)
 	}
 
 	return strings.Join(helpers.UniqueStringsSorted(helpers.ExtractRootPaths(relWatchDirs)), ",")

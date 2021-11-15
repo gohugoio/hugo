@@ -28,7 +28,7 @@ type hugoHTMLRenderer struct {
 }
 
 // BlockCode renders a given text as a block of code.
-// Pygments is used if it is setup to handle code fences.
+// Chroma is used if it is setup to handle code fences.
 func (r *hugoHTMLRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string) {
 	if r.c.cfg.MarkupConfig.Highlight.CodeFences {
 		str := strings.Trim(string(text), "\n\r")

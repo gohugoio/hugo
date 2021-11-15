@@ -43,13 +43,13 @@ func LoadLanguageSettings(cfg config.Provider, oldLangs Languages) (c LanguagesC
 
 	var languages map[string]interface{}
 
-	languagesFromConfig := cfg.GetStringMap("languages")
+	languagesFromConfig := cfg.GetParams("languages")
 	disableLanguages := cfg.GetStringSlice("disableLanguages")
 
 	if len(disableLanguages) == 0 {
 		languages = languagesFromConfig
 	} else {
-		languages = make(map[string]interface{})
+		languages = make(maps.Params)
 		for k, v := range languagesFromConfig {
 			for _, disabled := range disableLanguages {
 				if disabled == defaultLang {
@@ -57,7 +57,7 @@ func LoadLanguageSettings(cfg config.Provider, oldLangs Languages) (c LanguagesC
 				}
 
 				if strings.EqualFold(k, disabled) {
-					v.(map[string]interface{})["disabled"] = true
+					v.(maps.Params)["disabled"] = true
 					break
 				}
 			}
@@ -161,6 +161,12 @@ func LoadLanguageSettings(cfg config.Provider, oldLangs Languages) (c LanguagesC
 		}
 	}
 
+	for _, language := range c.Languages {
+		if language.initErr != nil {
+			return c, language.initErr
+		}
+	}
+
 	return c, nil
 }
 
@@ -193,9 +199,13 @@ func toSortedLanguages(cfg config.Provider, l map[string]interface{}) (Languages
 			case "params":
 				m := maps.ToStringMap(v)
 				// Needed for case insensitive fetching of params values
-				maps.ToLower(m)
+				maps.PrepareParams(m)
 				for k, vv := range m {
 					language.SetParam(k, vv)
+				}
+			case "timezone":
+				if err := language.loadLocation(cast.ToString(v)); err != nil {
+					return nil, err
 				}
 			}
 

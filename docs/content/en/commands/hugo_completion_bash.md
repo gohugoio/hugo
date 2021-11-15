@@ -1,0 +1,62 @@
+---
+title: "hugo completion bash"
+slug: hugo_completion_bash
+url: /commands/hugo_completion_bash/
+---
+## hugo completion bash
+
+generate the autocompletion script for bash
+
+### Synopsis
+
+
+Generate the autocompletion script for the bash shell.
+
+This script depends on the 'bash-completion' package.
+If it is not installed already, you can install it via your OS's package manager.
+
+To load completions in your current shell session:
+$ source <(hugo completion bash)
+
+To load completions for every new session, execute once:
+Linux:
+  $ hugo completion bash > /etc/bash_completion.d/hugo
+MacOS:
+  $ hugo completion bash > /usr/local/etc/bash_completion.d/hugo
+
+You will need to start a new shell for this setup to take effect.
+  
+
+```
+hugo completion bash
+```
+
+### Options
+
+```
+  -h, --help              help for bash
+      --no-descriptions   disable completion descriptions
+```
+
+### Options inherited from parent commands
+
+```
+      --config string              config file (default is path/config.yaml|json|toml)
+      --configDir string           config dir (default "config")
+      --debug                      debug output
+  -e, --environment string         build environment
+      --ignoreVendor               ignores any _vendor directory
+      --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
+      --log                        enable Logging
+      --logFile string             log File path (if set, logging enabled automatically)
+      --quiet                      build in quiet mode
+  -s, --source string              filesystem path to read files relative from
+      --themesDir string           filesystem path to themes directory
+  -v, --verbose                    verbose output
+      --verboseLog                 verbose logging
+```
+
+### SEE ALSO
+
+* [hugo completion](/commands/hugo_completion/)	 - generate the autocompletion script for the specified shell
+

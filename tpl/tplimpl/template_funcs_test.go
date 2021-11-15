@@ -37,13 +37,13 @@ import (
 	"github.com/gohugoio/hugo/tpl/internal"
 	"github.com/gohugoio/hugo/tpl/partials"
 	"github.com/spf13/afero"
-	"github.com/spf13/viper"
+	
 )
 
 var logger = loggers.NewErrorLogger()
 
 func newTestConfig() config.Provider {
-	v := viper.New()
+	v := config.New()
 	v.Set("contentDir", "content")
 	v.Set("dataDir", "data")
 	v.Set("i18nDir", "i18n")
@@ -206,7 +206,7 @@ func BenchmarkPartialCached(b *testing.B) {
 
 func doBenchmarkPartial(b *testing.B, f func(ns *partials.Namespace) error) {
 	c := qt.New(b)
-	config := newDepsConfig(viper.New())
+	config := newDepsConfig(config.New())
 	config.WithTemplate = func(templ tpl.TemplateManager) error {
 		err := templ.AddTemplate("partials/bench1", `{{ shuffle (seq 1 10) }}`)
 		if err != nil {

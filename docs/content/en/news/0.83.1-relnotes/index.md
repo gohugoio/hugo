@@ -1,8 +1,8 @@
 
 ---
 date: 2021-05-02
-title: "Hugo 0.83.1: A couple of Bug Fixes"
-description: "This version fixes a couple of bugs introduced in 0.83.0."
+title: "Hugo 0.83.1: One Bug Fix"
+description: "This version fixes an issue introduced in 0.83.0."
 categories: ["Releases"]
 images:
 - images/blog/hugo-bug-poster.png

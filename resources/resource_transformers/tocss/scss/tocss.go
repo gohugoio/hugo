@@ -55,7 +55,7 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	for _, ip := range options.from.IncludePaths {
 		info, err := t.c.workFs.Stat(filepath.Clean(ip))
 		if err == nil {
-			filename := info.(hugofs.FileMetaInfo).Meta().Filename()
+			filename := info.(hugofs.FileMetaInfo).Meta().Filename
 			options.to.IncludePaths = append(options.to.IncludePaths, filename)
 		}
 	}
@@ -105,7 +105,7 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 			fi, err := t.c.sfs.Fs.Stat(filenameToCheck)
 			if err == nil {
 				if fim, ok := fi.(hugofs.FileMetaInfo); ok {
-					return fim.Meta().Filename(), "", true
+					return fim.Meta().Filename, "", true
 				}
 			}
 		}

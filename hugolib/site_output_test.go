@@ -19,13 +19,13 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/output"
-	"github.com/spf13/viper"
 )
 
 func TestSiteWithPageOutputs(t *testing.T) {
@@ -333,7 +333,7 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 			page.KindSection: []string{"JSON"},
 		}
 
-		cfg := viper.New()
+		cfg := config.New()
 		cfg.Set("outputs", outputsConfig)
 
 		outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
@@ -358,7 +358,7 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 	// Issue #4528
 	t.Run("Mixed case", func(t *testing.T) {
 		c := qt.New(t)
-		cfg := viper.New()
+		cfg := config.New()
 
 		outputsConfig := map[string]interface{}{
 			// Note that we in Hugo 0.53.0 renamed this Kind to "taxonomy",
@@ -380,7 +380,7 @@ func TestCreateSiteOutputFormatsInvalidConfig(t *testing.T) {
 		page.KindHome: []string{"FOO", "JSON"},
 	}
 
-	cfg := viper.New()
+	cfg := config.New()
 	cfg.Set("outputs", outputsConfig)
 
 	_, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
@@ -394,7 +394,7 @@ func TestCreateSiteOutputFormatsEmptyConfig(t *testing.T) {
 		page.KindHome: []string{},
 	}
 
-	cfg := viper.New()
+	cfg := config.New()
 	cfg.Set("outputs", outputsConfig)
 
 	outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
@@ -409,7 +409,7 @@ func TestCreateSiteOutputFormatsCustomFormats(t *testing.T) {
 		page.KindHome: []string{},
 	}
 
-	cfg := viper.New()
+	cfg := config.New()
 	cfg.Set("outputs", outputsConfig)
 
 	var (

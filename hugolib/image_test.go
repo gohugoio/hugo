@@ -21,11 +21,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/htesting"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/spf13/viper"
 )
 
 // We have many tests for the different resize operations etc. in the resource package,
@@ -38,7 +38,7 @@ func TestImageOps(t *testing.T) {
 	defer clean()
 
 	newBuilder := func(timeout interface{}) *sitesBuilder {
-		v := viper.New()
+		v := config.New()
 		v.Set("workingDir", workDir)
 		v.Set("baseURL", "https://example.org")
 		v.Set("timeout", timeout)

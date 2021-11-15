@@ -2,7 +2,6 @@
 title: safeHTMLAttr
 # linktitle: safeHTMLAttr
 description: Declares the provided string as a safe HTML attribute.
-godocref: https://golang.org/src/html/template/content.go?s=1661:1676#L33
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -29,4 +28,3 @@ Example: Given a site-wide `config.toml` that contains this menu entry:
 
 * <span class="bad">`<a href="{{ .URL }}">` &rarr; `<a href="#ZgotmplZ">`</span>
 * <span class="good">`<a {{ printf "href=%q" .URL | safeHTMLAttr }}>` &rarr; `<a href="irc://irc.freenode.net/#golang">`</span>
-

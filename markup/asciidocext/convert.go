@@ -276,7 +276,7 @@ func parseTOC(doc *html.Node) tableofcontents.Root {
 						continue
 					}
 					href := attr(c, "href")[1:]
-					toc.AddAt(tableofcontents.Header{
+					toc.AddAt(tableofcontents.Heading{
 						Text: nodeContent(c),
 						ID:   href,
 					}, row, level)
