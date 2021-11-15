@@ -132,7 +132,7 @@ func (b *BaseFs) RelContentDir(filename string) string {
 
 // AbsProjectContentDir tries to construct a filename below the most
 // relevant content directory.
-func (b *BaseFs) AbsProjectContentDir(filename string) (string, string) {
+func (b *BaseFs) AbsProjectContentDir(filename string) (string, string, error) {
 	isAbs := filepath.IsAbs(filename)
 	for _, dir := range b.SourceFilesystems.Content.Dirs {
 		meta := dir.Meta()
@@ -141,14 +141,14 @@ func (b *BaseFs) AbsProjectContentDir(filename string) (string, string) {
 		}
 		if isAbs {
 			if strings.HasPrefix(filename, meta.Filename) {
-				return strings.TrimPrefix(filename, meta.Filename), filename
+				return strings.TrimPrefix(filename, meta.Filename), filename, nil
 			}
 		} else {
 			contentDir := strings.TrimPrefix(strings.TrimPrefix(meta.Filename, meta.BaseDir), filePathSeparator)
 			if strings.HasPrefix(filename, contentDir) {
 				relFilename := strings.TrimPrefix(filename, contentDir)
 				absFilename := filepath.Join(meta.Filename, relFilename)
-				return relFilename, absFilename
+				return relFilename, absFilename, nil
 			}
 		}
 
@@ -162,12 +162,12 @@ func (b *BaseFs) AbsProjectContentDir(filename string) (string, string) {
 		for i := len(contentDirs) - 1; i >= 0; i-- {
 			meta := contentDirs[i].Meta()
 			if meta.Module == "project" {
-				return filename, filepath.Join(meta.Filename, filename)
+				return filename, filepath.Join(meta.Filename, filename), nil
 			}
 		}
 	}
 
-	return "", ""
+	return "", "", errors.Errorf("could not determine content directory for %q", filename)
 }
 
 // ResolveJSConfigFile resolves the JS-related config file to a absolute
