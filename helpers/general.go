@@ -85,11 +85,16 @@ func FirstUpper(s string) string {
 // UniqueStrings returns a new slice with any duplicates removed.
 func UniqueStrings(s []string) []string {
 	unique := make([]string, 0, len(s))
-	set := map[string]interface{}{}
-	for _, val := range s {
-		if _, ok := set[val]; !ok {
+	for i, val := range s {
+		var seen bool
+		for j := 0; j < i; j++ {
+			if s[j] == val {
+				seen = true
+				break
+			}
+		}
+		if !seen {
 			unique = append(unique, val)
-			set[val] = val
 		}
 	}
 	return unique
@@ -98,12 +103,19 @@ func UniqueStrings(s []string) []string {
 // UniqueStringsReuse returns a slice with any duplicates removed.
 // It will modify the input slice.
 func UniqueStringsReuse(s []string) []string {
-	set := map[string]interface{}{}
 	result := s[:0]
-	for _, val := range s {
-		if _, ok := set[val]; !ok {
+	for i, val := range s {
+		var seen bool
+
+		for j := 0; j < i; j++ {
+			if s[j] == val {
+				seen = true
+				break
+			}
+		}
+
+		if !seen {
 			result = append(result, val)
-			set[val] = val
 		}
 	}
 	return result
