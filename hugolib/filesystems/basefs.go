@@ -136,7 +136,7 @@ func (b *BaseFs) AbsProjectContentDir(filename string) (string, string, error) {
 	isAbs := filepath.IsAbs(filename)
 	for _, dir := range b.SourceFilesystems.Content.Dirs {
 		meta := dir.Meta()
-		if meta.Module != "project" {
+		if !meta.IsProject {
 			continue
 		}
 		if isAbs {
@@ -161,7 +161,7 @@ func (b *BaseFs) AbsProjectContentDir(filename string) (string, string, error) {
 		contentDirs := b.SourceFilesystems.Content.Dirs
 		for i := len(contentDirs) - 1; i >= 0; i-- {
 			meta := contentDirs[i].Meta()
-			if meta.Module == "project" {
+			if meta.IsProject {
 				return filename, filepath.Join(meta.Filename, filename), nil
 			}
 		}
@@ -645,6 +645,7 @@ func (b *sourceFilesystemsBuilder) createModFs(
 			To:        filename,
 			ToBasedir: base,
 			Module:    md.Module.Path(),
+			IsProject: md.isMainProject,
 			Meta: &hugofs.FileMeta{
 				Watch:           md.Watch(),
 				Weight:          mountWeight,

@@ -62,6 +62,7 @@ func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 		rm.Meta.BaseDir = rm.ToBasedir
 		rm.Meta.MountRoot = rm.path
 		rm.Meta.Module = rm.Module
+		rm.Meta.IsProject = rm.IsProject
 
 		meta := rm.Meta.Copy()
 
@@ -118,6 +119,7 @@ type RootMapping struct {
 	To        string    // The source directory or file.
 	ToBasedir string    // The base of To. May be empty if an absolute path was provided.
 	Module    string    // The module path/ID.
+	IsProject bool      // Whether this is a mount in the main project.
 	Meta      *FileMeta // File metadata (lang etc.)
 
 	fi   FileMetaInfo
