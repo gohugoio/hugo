@@ -1,3 +1,4 @@
+# reference: https://docs.github.com/en/actions/publishing-packages/publishing-docker-images#publishing-images-to-docker-hub
 name: Publish Docker Image
 on:
   workflow_dispatch:
@@ -9,10 +10,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Publish to Registry
-        uses: HurricanKai/Publish-Docker-Github-Action@master
+      - name: Log in to Docker Hub
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         with:
-          name: l1990790120/hugo
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-          tagging: true
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: l1990790120/hugo
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      
+      
+      # - name: Publish to Registry
+      #   uses: HurricanKai/Publish-Docker-Github-Action@master
+      #   with:
+      #     name: l1990790120/hugo
+      #     username: ${{ secrets.DOCKER_USERNAME }}
+      #     password: ${{ secrets.DOCKER_PASSWORD }}
+      #     tagging: true
