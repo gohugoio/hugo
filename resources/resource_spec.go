@@ -17,6 +17,7 @@ import (
 	"errors"
 	"fmt"
 	"mime"
+	"net/http"
 	"os"
 	"path"
 	"path/filepath"
@@ -80,6 +81,7 @@ func NewSpec(
 		PathSpec:      s,
 		Logger:        logger,
 		ErrorSender:   errorHandler,
+		HTTPClient:    http.DefaultClient,
 		imaging:       imaging,
 		incr:          incr,
 		MediaTypes:    mimeTypes,
@@ -111,6 +113,8 @@ type Spec struct {
 
 	Logger      loggers.Logger
 	ErrorSender herrors.ErrorSender
+
+	HTTPClient *http.Client
 
 	TextTemplates tpl.TemplateParseFinder
 

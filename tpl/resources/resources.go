@@ -199,6 +199,12 @@ func (ns *Namespace) FromString(targetPathIn, contentIn interface{}) (resource.R
 	return ns.createClient.FromString(targetPath, content)
 }
 
+// FromRemote creates a Resource from a URL.
+// If you provide multiple parts they will be joined together to the final URL.
+func (ns *Namespace) FromRemote(args ...interface{}) (resource.Resource, error) {
+	return ns.createClient.FromRemote(args...)
+}
+
 // ExecuteAsTemplate creates a Resource from a Go template, parsed and executed with
 // the given data, and published to the relative target path.
 func (ns *Namespace) ExecuteAsTemplate(args ...interface{}) (resource.Resource, error) {
