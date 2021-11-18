@@ -16,6 +16,11 @@
 package create
 
 import (
+	"bytes"
+	"io/ioutil"
+	"mime"
+	"net/http"
+	"net/url"
 	"path"
 	"path/filepath"
 	"strings"
@@ -25,8 +30,14 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/types"
+	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
+
+	"github.com/pkg/errors"
+	"github.com/spf13/cast"
 )
 
 // Client contains methods to create Resource objects.
@@ -125,4 +136,128 @@ func (c *Client) FromString(targetPath, content string) (resource.Resource, erro
 				RelTargetFilename: filepath.Clean(targetPath),
 			})
 	})
+}
+
+// FromRemote expects one or n-parts of a URL to a resource
+// If you provide multiple parts they will be joined together to the final URL.
+func (c *Client) FromRemote(args ...interface{}) (resource.Resource, error) {
+	uri, headers := toURLAndHeaders(args)
+	resourceID := helpers.MD5String(uri)
+
+	return c.rs.ResourceCache.GetOrCreate(path.Join(resources.CACHE_OTHER, resourceID), func() (resource.Resource, error) {
+		req, err := http.NewRequest("GET", uri, nil)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Failed to create request for resource %s", uri)
+		}
+		addUserProvidedHeaders(headers, req)
+		res, err := c.rs.HTTPClient.Do(req)
+		if err != nil {
+			return nil, err
+		}
+
+		if res.StatusCode < 200 || res.StatusCode > 299 {
+			return nil, errors.Errorf("Failed to retrieve remote resource: %s", http.StatusText(res.StatusCode))
+		}
+
+		body, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Failed to read remote resource %s", uri)
+		}
+
+		var contentType string
+		if arr, _ := mime.ExtensionsByType(res.Header.Get("Content-Type")); len(arr) == 1 {
+			contentType = arr[0]
+		}
+
+		// If content type was not determined by header, look for a file extention
+		if contentType == "" {
+			if u, err := url.Parse(uri); err == nil {
+				c.rs.Logger.Printf("uri parsed %#v", u)
+				if ext := filepath.Ext(u.Path); ext != "" {
+					contentType = ext
+				}
+			}
+		}
+
+		// If content type was not determined by header or file extention, try using content itself
+		if contentType == "" {
+			if ct := http.DetectContentType(body); ct != "application/octet-stream" {
+				if arr, _ := mime.ExtensionsByType(ct); arr != nil {
+					contentType = arr[0]
+				}
+			}
+		}
+
+		resourceID = resourceID + contentType
+
+		return c.rs.New(
+			resources.ResourceSourceDescriptor{
+				Fs:          c.rs.FileCaches.AssetsCache().Fs,
+				LazyPublish: true,
+				OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
+					return hugio.NewReadSeekerNoOpCloser(bytes.NewReader(body)), nil
+				},
+				RelTargetFilename: filepath.Clean(resourceID),
+			})
+	})
+}
+
+func addDefaultHeaders(req *http.Request, accepts ...string) {
+	for _, accept := range accepts {
+		if !hasHeaderValue(req.Header, "Accept", accept) {
+			req.Header.Add("Accept", accept)
+		}
+	}
+	if !hasHeaderKey(req.Header, "User-Agent") {
+		req.Header.Add("User-Agent", "Hugo Static Site Generator")
+	}
+}
+
+func addUserProvidedHeaders(headers map[string]interface{}, req *http.Request) {
+	if headers == nil {
+		return
+	}
+	for key, val := range headers {
+		vals := types.ToStringSlicePreserveString(val)
+		for _, s := range vals {
+			req.Header.Add(key, s)
+		}
+	}
+}
+
+func hasHeaderValue(m http.Header, key, value string) bool {
+	var s []string
+	var ok bool
+
+	if s, ok = m[key]; !ok {
+		return false
+	}
+
+	for _, v := range s {
+		if v == value {
+			return true
+		}
+	}
+	return false
+}
+
+func hasHeaderKey(m http.Header, key string) bool {
+	_, ok := m[key]
+	return ok
+}
+
+func toURLAndHeaders(urlParts []interface{}) (string, map[string]interface{}) {
+	if len(urlParts) == 0 {
+		return "", nil
+	}
+
+	// The last argument may be a map.
+	headers, err := maps.ToStringMapE(urlParts[len(urlParts)-1])
+	if err == nil {
+		urlParts = urlParts[:len(urlParts)-1]
+	} else {
+		headers = nil
+	}
+
+	return strings.Join(cast.ToStringSlice(urlParts), ""), headers
 }
