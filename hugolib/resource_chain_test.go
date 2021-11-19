@@ -445,8 +445,8 @@ FIT: images/sunset.jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_2
 CSS integrity Data first: sha256-od9YaHw8nMOL8mUy97Sy8sKwMV3N4hI3aVmZXATxH&#43;8= /styles.min.a1df58687c3c9cc38bf26532f7b4b2f2c2b0315dcde212376959995c04f11fef.css
 CSS integrity Data last:  /styles2.min.1cfc52986836405d37f9998a63fd6dd8608e8c410e5e3db1daaa30f78bc273ba.css sha256-HPxSmGg2QF03&#43;ZmKY/1t2GCOjEEOXj2x2qow94vCc7o=
 
-SUNSET REMOTE: %[1]s.jpg|/%[1]s.a9bf1d944e19c0f382e0d8f51de690f7d0bc8fa97390c4242a86c3e5c0737e71.jpg|900|90587
-FIT REMOTE: %[1]s.jpg|/%[1]s_hu59e56ffff1bc1d8d122b1403d34e039f_0_200x200_fit_q75_box.jpg|200
+SUNSET REMOTE: sunset_%[1]s.jpg|/sunset_%[1]s.a9bf1d944e19c0f382e0d8f51de690f7d0bc8fa97390c4242a86c3e5c0737e71.jpg|900|90587
+FIT REMOTE: sunset_%[1]s.jpg|/sunset_%[1]s_hu59e56ffff1bc1d8d122b1403d34e039f_0_200x200_fit_q75_box.jpg|200
 
 `, helpers.MD5String(ts.URL+"/sunset.jpg")))
 
@@ -596,6 +596,7 @@ func TestResourceChains(t *testing.T) {
 			return
 
 		case "/mydata/svg1.svg":
+			w.Header().Set("Content-Disposition", `attachment; filename="image.svg"`)
 			w.Write([]byte(`
 				<svg height="100" width="100">
 					<path d="M1e2 1e2H3e2 2e2z"/>
@@ -687,6 +688,18 @@ Min HTML Remote: {{ ( resources.FromRemote "%[1]s/mydata/html1.html" | resources
 			b.AssertFileContent("public/index.html", `Min SVG again: <svg height="100" width="100"><path d="M1e2 1e2H3e2 2e2z"/></svg>`)
 			b.AssertFileContent("public/index.html", `Min HTML: <html><a href=#>Cool</a></html>`)
 			b.AssertFileContent("public/index.html", `Min HTML Remote: <html><a href=#>Cool</a></html>`)
+		}},
+
+		{"remote", func() bool { return true }, func(b *sitesBuilder) {
+			b.WithTemplates("home.html", fmt.Sprintf(`
+{{$js := resources.FromRemote "%[1]s/js/script1.js" }}
+Remote Filename: {{ $js.RelPermalink }}
+{{$svg := resources.FromRemote "%[1]s/mydata/svg1.svg" }}
+Remote Content-Disposition: {{ $svg.RelPermalink }}
+`, ts.URL))
+		}, func(b *sitesBuilder) {
+			b.AssertFileContent("public/index.html", `Remote Filename: /script1_`)
+			b.AssertFileContent("public/index.html", `Remote Content-Disposition: /image_`)
 		}},
 
 		{"concat", func() bool { return true }, func(b *sitesBuilder) {

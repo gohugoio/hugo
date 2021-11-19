@@ -142,6 +142,11 @@ func (c *Client) FromString(targetPath, content string) (resource.Resource, erro
 // If you provide multiple parts they will be joined together to the final URL.
 func (c *Client) FromRemote(args ...interface{}) (resource.Resource, error) {
 	uri, headers := toURLAndHeaders(args)
+	rURL, err := url.Parse(uri)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Failed to parse URL for resource %s", uri)
+	}
+
 	resourceID := helpers.MD5String(uri)
 
 	return c.rs.ResourceCache.GetOrCreate(path.Join(resources.CACHE_OTHER, resourceID), func() (resource.Resource, error) {
@@ -164,6 +169,13 @@ func (c *Client) FromRemote(args ...interface{}) (resource.Resource, error) {
 			return nil, errors.Wrapf(err, "Failed to read remote resource %s", uri)
 		}
 
+		filename := path.Base(rURL.Path)
+		if _, params, _ := mime.ParseMediaType(res.Header.Get("Content-Disposition")); params != nil {
+			if _, ok := params["filename"]; ok {
+				filename = params["filename"]
+			}
+		}
+
 		var contentType string
 		if arr, _ := mime.ExtensionsByType(res.Header.Get("Content-Type")); len(arr) == 1 {
 			contentType = arr[0]
@@ -171,11 +183,8 @@ func (c *Client) FromRemote(args ...interface{}) (resource.Resource, error) {
 
 		// If content type was not determined by header, look for a file extention
 		if contentType == "" {
-			if u, err := url.Parse(uri); err == nil {
-				c.rs.Logger.Printf("uri parsed %#v", u)
-				if ext := filepath.Ext(u.Path); ext != "" {
-					contentType = ext
-				}
+			if ext := filepath.Ext(filename); ext != "" {
+				contentType = ext
 			}
 		}
 
@@ -188,7 +197,7 @@ func (c *Client) FromRemote(args ...interface{}) (resource.Resource, error) {
 			}
 		}
 
-		resourceID = resourceID + contentType
+		resourceID = filename[:len(filename)-len(filepath.Ext(filename))] + "_" + resourceID + contentType
 
 		return c.rs.New(
 			resources.ResourceSourceDescriptor{
@@ -198,6 +207,7 @@ func (c *Client) FromRemote(args ...interface{}) (resource.Resource, error) {
 					return hugio.NewReadSeekerNoOpCloser(bytes.NewReader(body)), nil
 				},
 				RelTargetFilename: filepath.Clean(resourceID),
+				SourceFilename:    filename,
 			})
 	})
 }
