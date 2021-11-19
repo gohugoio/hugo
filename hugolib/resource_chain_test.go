@@ -389,7 +389,9 @@ func TestResourceChainBasic(t *testing.T) {
 	t.Parallel()
 
 	ts := httptest.NewServer(http.FileServer(http.Dir("testdata/")))
-	defer ts.Close()
+	t.Cleanup(func() {
+		ts.Close()
+	})
 
 	b := newTestSitesBuilder(t)
 	b.WithTemplatesAdded("index.html", fmt.Sprintf(`
@@ -611,7 +613,9 @@ func TestResourceChains(t *testing.T) {
 		http.Error(w, "Not found", http.StatusNotFound)
 		return
 	}))
-	//defer ts.Close()
+	t.Cleanup(func() {
+		ts.Close()
+	})
 
 	tests := []struct {
 		name      string
