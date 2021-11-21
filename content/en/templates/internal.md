@@ -209,7 +209,6 @@ To add Twitter card metadata, include the following line between the `<head>` ta
 ## The Internal Templates
 
 * `_internal/disqus.html`
-* `_internal/google_news.html`
 * `_internal/google_analytics.html`
 * `_internal/google_analytics_async.html`
 * `_internal/opengraph.html`
