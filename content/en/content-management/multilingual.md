@@ -307,11 +307,14 @@ Hugo uses [go-i18n] to support string translations. [See the project's source re
 
 Translations are collected from the `themes/<THEME>/i18n/` folder (built into the theme), as well as translations present in `i18n/` at the root of your project. In the `i18n`, the translations will be merged and take precedence over what is in the theme folder. Language files should be named according to [RFC 5646] with names such as `en-US.toml`, `fr.toml`, etc.
 
-{{% note %}}
-From **Hugo 0.31** you no longer need to use a valid language code. It can be anything.
+Artificial languages with private use subtags as defined in [RFC 5646 &#167; 2.2.7](https://datatracker.ietf.org/doc/html/rfc5646#section-2.2.7) are also supported. You may omit the `art-x-` prefix for brevity. For example:
 
-See [this issue](https://github.com/gohugoio/hugo/issues/3564)
-{{% /note %}}
+```text
+art-x-hugolang
+hugolang
+```
+
+Private use subtags must not exceed 8 alphanumeric characters.
 
 ### Query basic translation
 
