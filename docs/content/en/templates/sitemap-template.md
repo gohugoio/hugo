@@ -27,6 +27,9 @@ A sitemap is a `Page` and therefore has all the [page variables][pagevars] avail
 `.Sitemap.ChangeFreq`
 : The page change frequency
 
+`.Sitemap.Hidden`
+: Whether the page should be hidden from the generated sitemap
+
 `.Sitemap.Priority`
 : The priority of the page
 
@@ -46,10 +49,12 @@ For multilingual sites, we also create a Sitemap index. You can provide a custom
 This template respects the version 0.9 of the [Sitemap Protocol](https://www.sitemaps.org/protocol.html).
 
 ```xml
-{{ printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>" | safeHTML }}
+{{ printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   {{ range .Data.Pages }}
+    {{- if not .Sitemap.Hidden -}}
+      {{- if .Permalink -}}
   <url>
     <loc>{{ .Permalink }}</loc>{{ if not .Lastmod.IsZero }}
     <lastmod>{{ safeHTML ( .Lastmod.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ end }}{{ with .Sitemap.ChangeFreq }}
@@ -57,15 +62,17 @@ This template respects the version 0.9 of the [Sitemap Protocol](https://www.sit
     <priority>{{ .Sitemap.Priority }}</priority>{{ end }}{{ if .IsTranslated }}{{ range .Translations }}
     <xhtml:link
                 rel="alternate"
-                hreflang="{{ .Lang }}"
+                hreflang="{{ .Language.Lang }}"
                 href="{{ .Permalink }}"
                 />{{ end }}
     <xhtml:link
                 rel="alternate"
-                hreflang="{{ .Lang }}"
+                hreflang="{{ .Language.Lang }}"
                 href="{{ .Permalink }}"
                 />{{ end }}
   </url>
+      {{- end -}}
+    {{- end -}}
   {{ end }}
 </urlset>
 ```
@@ -90,11 +97,12 @@ This is used to create a Sitemap index in multilingual mode:
 
 ## Configure `sitemap.xml`
 
-Defaults for `<changefreq>`, `<priority>` and `filename` values can be set in the site's config file, e.g.:
+Defaults for `<changefreq>`, `hidden`, `<priority>` and `filename` values can be set in the site's config file, e.g.:
 
 {{< code-toggle file="config" >}}
 [sitemap]
   changefreq = "monthly"
+  hidden = true
   priority = 0.5
   filename = "sitemap.xml"
 {{</ code-toggle >}}
