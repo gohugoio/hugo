@@ -200,9 +200,13 @@ if (!doNotTrack) {
 {{ end }}
 {{- end -}}
 `},
-	{`google_news.html`, `{{ if .IsPage }}{{ with .Params.news_keywords }}
-  <meta name="news_keywords" content="{{ range $i, $kw := first 10 . }}{{ if $i }},{{ end }}{{ $kw }}{{ end }}" />
-{{ end }}{{ end }}`},
+	{`google_news.html`, `{{- warnf "The google_news internal template will be removed in a future release. Please remove calls to this template. See https://github.com/gohugoio/hugo/issues/9172 for additional information." -}}
+{{- if .IsPage -}}
+  {{- with .Params.news_keywords -}}
+  <meta name="news_keywords" content="{{ range $i, $kw := first 10 . }}{{ if $i }},{{ end }}{{ $kw }}{{ end }}">
+  {{- end -}}
+{{- end -}}
+`},
 	{`opengraph.html`, `<meta property="og:title" content="{{ .Title }}" />
 <meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}" />
 <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}" />
