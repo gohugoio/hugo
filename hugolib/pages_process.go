@@ -162,7 +162,7 @@ func (p *sitePagesProcessor) doProcess(item interface{}) error {
 	m := p.m
 	switch v := item.(type) {
 	case *fileinfoBundle:
-		if err := m.AddFilesBundle(v.header, v.resources...); err != nil {
+		if err := m.ProcessFilesBundle(v.header, v.resources...); err != nil {
 			return err
 		}
 	case hugofs.FileMetaInfo:
@@ -174,7 +174,7 @@ func (p *sitePagesProcessor) doProcess(item interface{}) error {
 		classifier := meta.Classifier
 		switch classifier {
 		case files.ContentClassContent:
-			if err := m.AddFilesBundle(v); err != nil {
+			if err := m.ProcessFilesBundle(v); err != nil {
 				return err
 			}
 		case files.ContentClassFile:

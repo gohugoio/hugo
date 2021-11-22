@@ -31,6 +31,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/parser/pageparser"
 	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/resources/page/pagemeta"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/spf13/cast"
 
@@ -166,6 +167,11 @@ func (m *pageMap) newPageFromContentNode(n *contentNode, parentBucket *pagesMapB
 
 	if err := metaProvider.applyDefaultValues(n); err != nil {
 		return nil, err
+	}
+
+	if n.fi.Meta().Lang != m.s.Language().Lang && metaProvider.IgnoreOnLangMerge() {
+		metaProvider.buildConfig.Render = pagemeta.Never
+		metaProvider.buildConfig.List = pagemeta.Never
 	}
 
 	ps.init.Add(func() (interface{}, error) {
@@ -607,6 +613,36 @@ func (m *pageMap) attachPageToViews(s string, b *contentNode) {
 			m.taxonomyEntries.Insert(key, bv)
 		}
 	}
+}
+
+func (m *pageMap) ProcessFilesBundle(header hugofs.FileMetaInfo, resources ...hugofs.FileMetaInfo) error {
+	m.AddFilesBundle(header, resources...)
+
+	if !m.s.Language().IsSet("mergeLangContentTo") {
+		return nil;
+	}
+
+	lang := m.s.Language().Get("mergeLangContentTo")
+	switch v := lang.(type) {
+	case string:
+		translated := false
+		for _, tr := range header.Meta().Translations {
+			if tr == v {
+				translated = true
+			}
+		}
+		if !translated {
+			for _, s := range m.s.h.Sites {
+				if s.Lang() == v {
+					s.pageMap.AddFilesBundle(header, resources...)
+				}
+			}
+		}
+	default:
+		fmt.Println("mergeLangContent is set for", m.s.Language().Lang, "language, but is not a string, ignoring")
+	}
+
+	return nil
 }
 
 type pageMapQuery struct {

@@ -124,6 +124,8 @@ type pageMeta struct {
 	renderingConfigOverrides map[string]interface{}
 	contentConverterInit     sync.Once
 	contentConverter         converter.Converter
+
+	ignoreOnLangMerge bool
 }
 
 func (p *pageMeta) Aliases() []string {
@@ -499,6 +501,8 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 		case "draft":
 			draft = new(bool)
 			*draft = cast.ToBool(v)
+		case "ignoreonlangmerge":
+			pm.ignoreOnLangMerge = cast.ToBool(v)
 		case "layout":
 			pm.layout = cast.ToString(v)
 			pm.params[loki] = pm.layout
@@ -782,6 +786,10 @@ func (m *pageMeta) outputFormats() output.Formats {
 
 func (p *pageMeta) Slug() string {
 	return p.urlPaths.Slug
+}
+
+func (p *pageMeta) IgnoreOnLangMerge() bool {
+	return p.ignoreOnLangMerge
 }
 
 func getParam(m resource.ResourceParamsProvider, key string, stringToLower bool) interface{} {
