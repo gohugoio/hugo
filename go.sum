@@ -95,6 +95,14 @@ github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym
 github.com/GeertJohan/go.incremental v1.0.0/go.mod h1:6fAjUhbVuX1KcMD3c8TEgVUqmo4seqhv0i0kdATSkM0=
 github.com/GeertJohan/go.rice v1.0.0/go.mod h1:eH6gbSOAUv07dQuZVnBmoDP8mgsM1rtixis4Tib9if0=
 github.com/GoogleCloudPlatform/cloudsql-proxy v0.0.0-20191009163259-e802c2cb94ae/go.mod h1:mjwGPas4yKduTyubHvD1Atl9r1rUq8DfVy+gkVvZ+oo=
+github.com/OhYee/go-plantuml v1.0.0 h1:tUuEzthNj2Yowj8pTkj9OHTV5S67ldKev4GMLFt/SVw=
+github.com/OhYee/go-plantuml v1.0.0/go.mod h1:ZniuWd2h+zF98XfuaOH5HQGFcQCshIFeLIpy8xDSQYk=
+github.com/OhYee/goldmark-fenced_codeblock_extension v1.0.0 h1:dtGLlVJME9HR3Wid4aTGOrjkAEhIDtfVd5SIiimHMR4=
+github.com/OhYee/goldmark-fenced_codeblock_extension v1.0.0/go.mod h1:TgT24ZLKYmY/piPvGTYzERDUDE3EnwIPc4k606lAlkw=
+github.com/OhYee/goldmark-plantuml v1.0.3 h1:389cHtH62y5dkR6koDIwHGVjumEDRoqZHDeGDKII50s=
+github.com/OhYee/goldmark-plantuml v1.0.3/go.mod h1:zE5P5zsEryMcwTTM5UP+tqB0fSxlb9f2shF7tyOeRB4=
+github.com/OhYee/goutils v1.1.0 h1:E9BMk4oowjbgrYq+30Xq0MwzT2bJ8WC11NVEUom+YFc=
+github.com/OhYee/goutils v1.1.0/go.mod h1:RqaQ1bD+sQAq7zQ/1vAtaojWoFznhAFdWDsMZr7SgkA=
 github.com/PuerkitoBio/purell v1.1.1 h1:WEQqlqaGbrPkxLJWfBwQmfEAE1Z7ONdDLqrN38tNFfI=
 github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 h1:d+Bc7a5rLufV/sSk/8dngufqelfh6jnri85riMAaF/M=
@@ -510,6 +518,7 @@ github.com/valyala/fasttemplate v1.0.1/go.mod h1:UQGH1tvbgY+Nz5t2n7tXsz52dQxojPU
 github.com/yuin/goldmark v1.1.22/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
+github.com/yuin/goldmark v1.1.30/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
