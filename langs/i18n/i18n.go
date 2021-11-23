@@ -20,6 +20,7 @@ import (
 
 	"github.com/spf13/cast"
 
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
@@ -37,11 +38,31 @@ type Translator struct {
 	translateFuncs map[string]translateFunc
 	cfg            config.Provider
 	logger         loggers.Logger
+	mergeMap       map[string]string
+}
+
+func MakeMergeMap(cfg config.Provider) map[string]string {
+	var m = make(map[string]string)
+	langs := cfg.GetParams("languages")
+	for k, l := range langs {
+		if lv, ok := l.(maps.Params); ok {
+			switch v := lv.Get("mergelangcontentto").(type) {
+			case string:
+				m[v] = k
+			case []string:
+				for _, vv := range v {
+					m[vv] = k
+				}
+			}
+		}
+	}
+
+	return m
 }
 
 // NewTranslator creates a new Translator for the given language bundle and configuration.
 func NewTranslator(b *i18n.Bundle, cfg config.Provider, logger loggers.Logger) Translator {
-	t := Translator{cfg: cfg, logger: logger, translateFuncs: make(map[string]translateFunc)}
+	t := Translator{cfg: cfg, logger: logger, translateFuncs: make(map[string]translateFunc), mergeMap: MakeMergeMap(cfg)}
 	t.initFuncs(b)
 	return t
 }
@@ -52,6 +73,14 @@ func (t Translator) Func(lang string) translateFunc {
 	if f, ok := t.translateFuncs[lang]; ok {
 		return f
 	}
+
+	if m, ok := t.mergeMap[lang]; ok {
+		t.logger.Infof("Translation func for language %v not found, use merged %v.", lang, m)
+		if f, ok := t.translateFuncs[m]; ok {
+			return f
+		}
+	}
+
 	t.logger.Infof("Translation func for language %v not found, use default.", lang)
 	if f, ok := t.translateFuncs[t.cfg.GetString("defaultContentLanguage")]; ok {
 		return f
