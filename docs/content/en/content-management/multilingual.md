@@ -480,14 +480,36 @@ While translating a Hugo website, it can be handy to have a visual indicator of 
 Hugo will generate your website with these missing translation placeholders. It might not be suitable for production environments.
 {{% /note %}}
 
-For merging of content from other languages (i.e. missing content translations), see [lang.Merge](/functions/lang.merge/).
-
 To track down missing translation strings, run Hugo with the `--i18n-warnings` flag:
 
 ```
  hugo --i18n-warnings | grep i18n
 i18n|MISSING_TRANSLATION|en|wordCount
 ```
+
+To merge content from other language, you can use **experimental** `mergeLangContentTo` config option, or [lang.Merge](/functions/lang.merge/) function in your templates. Here is an example to fill missing Spanish content with English:
+{{< code-toggle file="config" >}}
+defaultContentLanguage = "en"
+
+[languages]
+[languages.en]
+title = "My blog"
+mergeLangContentTo = "es"
+
+[languages.es]
+title = "Mi blog"
+{{< /code-toggle >}}
+
+In this example, if you have the following content:
+```
+posts
+├── one.md
+├── one.es.md
+└── two.md
+```
+hugo will behave as if there was `two.es.md` with contents of `two.md`. In case of more than two languages a slice can be used instead: `mergeLangContentTo = ["es", "de"]`.
+
+[lang.Merge](/functions/lang.merge/) does not affect site content, and is used to fill page lists with content from other languages without copying it.
 
 ## Multilingual Themes support
 
