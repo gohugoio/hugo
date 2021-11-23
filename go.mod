@@ -24,9 +24,6 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/gobuffalo/flect v0.2.3
 	github.com/gobwas/glob v0.2.3
-	github.com/gohugoio/go-i18n/v2 v2.1.3-0.20210430103248-4c28c89f8013
-	github.com/gohugoio/locales v0.14.0
-	github.com/gohugoio/localescompressed v0.14.0
 	github.com/gohugoio/testmodBuilder/mods v0.0.0-20190520184928-c56af20f2e95
 	github.com/google/go-cmp v0.5.6
 	github.com/gorilla/websocket v1.4.2
