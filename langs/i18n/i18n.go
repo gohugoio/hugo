@@ -49,9 +49,9 @@ func MakeMergeMap(cfg config.Provider) map[string]string {
 			switch v := lv.Get("mergelangcontentto").(type) {
 			case string:
 				m[v] = k
-			case []string:
+			case []interface{}:
 				for _, vv := range v {
-					m[vv] = k
+					m[vv.(string)] = k
 				}
 			}
 		}
