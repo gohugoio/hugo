@@ -189,4 +189,4 @@ func newTestConfig() config.Provider {
 	cfg.Set("assetDir", "assets")
 
 	return cfg
-}
+} 
