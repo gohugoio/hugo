@@ -692,9 +692,9 @@ Min HTML Remote: {{ ( resources.Get "%[1]s/mydata/html1.html" | resources.Minify
 
 		{"remote", func() bool { return true }, func(b *sitesBuilder) {
 			b.WithTemplates("home.html", fmt.Sprintf(`
-{{$js := resources.Get "%[1]s/js/script1.js" }}
+{{$js := resources.Get "%[1]s" "/js/script1.js" }}
 Remote Filename: {{ $js.RelPermalink }}
-{{$svg := resources.Get "%[1]s/mydata/svg1.svg" }}
+{{$svg := resources.Get "%[1]s" "/mydata/svg1.svg" }}
 Remote Content-Disposition: {{ $svg.RelPermalink }}
 `, ts.URL))
 		}, func(b *sitesBuilder) {
