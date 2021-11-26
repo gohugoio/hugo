@@ -108,16 +108,24 @@ func (ns *Namespace) getscssClientDartSass() (*dartsass.Client, error) {
 	return ns.scssClientDartSass, err
 }
 
-// Get locates the filename given in Hugo's assets filesystem
-// and creates a Resource object that can be used for further transformations.
-func (ns *Namespace) Get(filename interface{}) (resource.Resource, error) {
-	filenamestr, err := cast.ToStringE(filename)
+// Get locates the filename given in Hugo's assets filesystem or downloads
+// a file from an URL and creates a Resource object that can be used for
+// further transformations.
+//
+// If you provide multiple parts as a postfix to an URL they will be joined
+// together to the final URL.
+func (ns *Namespace) Get(args ...interface{}) (resource.Resource, error) {
+	if len(args) == 0 {
+		return nil, errors.New("must provide a filename or URL")
+	}
+
+	filenamestr, err := cast.ToStringE(args[0])
 	if err != nil {
 		return nil, err
 	}
 
 	if u, err := url.Parse(filenamestr); err == nil && u.Scheme != "" {
-		return ns.FromRemote(filenamestr)
+		return ns.createClient.FromRemote(args...)
 	}
 
 	filenamestr = filepath.Clean(filenamestr)
@@ -202,12 +210,6 @@ func (ns *Namespace) FromString(targetPathIn, contentIn interface{}) (resource.R
 	}
 
 	return ns.createClient.FromString(targetPath, content)
-}
-
-// FromRemote creates a Resource from a URL.
-// If you provide multiple parts they will be joined together to the final URL.
-func (ns *Namespace) FromRemote(args ...interface{}) (resource.Resource, error) {
-	return ns.createClient.FromRemote(args...)
 }
 
 // ExecuteAsTemplate creates a Resource from a Go template, parsed and executed with

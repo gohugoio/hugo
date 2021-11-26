@@ -411,7 +411,7 @@ FIT: {{ $fit.Name }}|{{ $fit.RelPermalink }}|{{ $fit.Width }}
 CSS integrity Data first: {{ $cssFingerprinted1.Data.Integrity }} {{ $cssFingerprinted1.RelPermalink }}
 CSS integrity Data last:  {{ $cssFingerprinted2.RelPermalink }} {{ $cssFingerprinted2.Data.Integrity }}
 
-{{ $rimg := resources.FromRemote "%[1]s/sunset.jpg" }}
+{{ $rimg := resources.Get "%[1]s/sunset.jpg" }}
 {{ $rfit := $rimg.Fit "200x200" }}
 {{ $rfit2 := $rfit.Fit "100x200" }}
 {{ $rimg = $rimg | fingerprint }}
@@ -665,14 +665,14 @@ Min CSS Remote: {{ ( resources.Get "%[1]s/css/styles1.css" | minify ).Content }}
 Min JS: {{ ( resources.Get "js/script1.js" | resources.Minify ).Content | safeJS }}
 Min JS Remote: {{ ( resources.Get "%[1]s/js/script1.js" | minify ).Content }}
 Min JSON: {{ ( resources.Get "mydata/json1.json" | resources.Minify ).Content | safeHTML }}
-Min JSON Remote: {{ ( resources.FromRemote "%[1]s/mydata/json1.json" | resources.Minify ).Content | safeHTML }}
+Min JSON Remote: {{ ( resources.Get "%[1]s/mydata/json1.json" | resources.Minify ).Content | safeHTML }}
 Min XML: {{ ( resources.Get "mydata/xml1.xml" | resources.Minify ).Content | safeHTML }}
-Min XML Remote: {{ ( resources.FromRemote "%[1]s/mydata/xml1.xml" | resources.Minify ).Content | safeHTML }}
+Min XML Remote: {{ ( resources.Get "%[1]s/mydata/xml1.xml" | resources.Minify ).Content | safeHTML }}
 Min SVG: {{ ( resources.Get "mydata/svg1.svg" | resources.Minify ).Content | safeHTML }}
-Min SVG Remote: {{ ( resources.FromRemote "%[1]s/mydata/svg1.svg" | resources.Minify ).Content | safeHTML }}
+Min SVG Remote: {{ ( resources.Get "%[1]s/mydata/svg1.svg" | resources.Minify ).Content | safeHTML }}
 Min SVG again: {{ ( resources.Get "mydata/svg1.svg" | resources.Minify ).Content | safeHTML }}
 Min HTML: {{ ( resources.Get "mydata/html1.html" | resources.Minify ).Content | safeHTML }}
-Min HTML Remote: {{ ( resources.FromRemote "%[1]s/mydata/html1.html" | resources.Minify ).Content | safeHTML }}
+Min HTML Remote: {{ ( resources.Get "%[1]s/mydata/html1.html" | resources.Minify ).Content | safeHTML }}
 `, ts.URL))
 		}, func(b *sitesBuilder) {
 			b.AssertFileContent("public/index.html", `Min CSS: h1{font-style:bold}`)
@@ -692,9 +692,9 @@ Min HTML Remote: {{ ( resources.FromRemote "%[1]s/mydata/html1.html" | resources
 
 		{"remote", func() bool { return true }, func(b *sitesBuilder) {
 			b.WithTemplates("home.html", fmt.Sprintf(`
-{{$js := resources.FromRemote "%[1]s/js/script1.js" }}
+{{$js := resources.Get "%[1]s/js/script1.js" }}
 Remote Filename: {{ $js.RelPermalink }}
-{{$svg := resources.FromRemote "%[1]s/mydata/svg1.svg" }}
+{{$svg := resources.Get "%[1]s/mydata/svg1.svg" }}
 Remote Content-Disposition: {{ $svg.RelPermalink }}
 `, ts.URL))
 		}, func(b *sitesBuilder) {
