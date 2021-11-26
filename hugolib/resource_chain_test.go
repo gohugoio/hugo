@@ -661,9 +661,9 @@ T6: {{ $bundle1.Permalink }}
 `)
 			b.WithTemplates("home.html", fmt.Sprintf(`
 Min CSS: {{ ( resources.Get "css/styles1.css" | minify ).Content }}
-Min CSS Remote: {{ ( resources.FromRemote "%[1]s/css/styles1.css" | minify ).Content }}
+Min CSS Remote: {{ ( resources.Get "%[1]s/css/styles1.css" | minify ).Content }}
 Min JS: {{ ( resources.Get "js/script1.js" | resources.Minify ).Content | safeJS }}
-Min JS Remote: {{ ( resources.FromRemote "%[1]s/js/script1.js" | minify ).Content }}
+Min JS Remote: {{ ( resources.Get "%[1]s/js/script1.js" | minify ).Content }}
 Min JSON: {{ ( resources.Get "mydata/json1.json" | resources.Minify ).Content | safeHTML }}
 Min JSON Remote: {{ ( resources.FromRemote "%[1]s/mydata/json1.json" | resources.Minify ).Content | safeHTML }}
 Min XML: {{ ( resources.Get "mydata/xml1.xml" | resources.Minify ).Content | safeHTML }}

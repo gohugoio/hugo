@@ -16,6 +16,7 @@ package resources
 
 import (
 	"fmt"
+	"net/url"
 	"path/filepath"
 	"sync"
 
@@ -113,6 +114,10 @@ func (ns *Namespace) Get(filename interface{}) (resource.Resource, error) {
 	filenamestr, err := cast.ToStringE(filename)
 	if err != nil {
 		return nil, err
+	}
+
+	if u, err := url.Parse(filenamestr); err == nil && u.Scheme != "" {
+		return ns.FromRemote(filenamestr)
 	}
 
 	filenamestr = filepath.Clean(filenamestr)
