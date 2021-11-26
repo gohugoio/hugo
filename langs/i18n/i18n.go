@@ -38,24 +38,27 @@ type Translator struct {
 	translateFuncs map[string]translateFunc
 	cfg            config.Provider
 	logger         loggers.Logger
-	mergeMap       map[string]string
+	mergeMap       map[string][]string
 }
 
-func MakeMergeMap(cfg config.Provider) map[string]string {
-	var m = make(map[string]string)
+func MakeMergeMap(cfg config.Provider) map[string][]string {
+	var m = make(map[string][]string)
 	langs := cfg.GetParams("languages")
 	for k, l := range langs {
 		if lv, ok := l.(maps.Params); ok {
-			switch v := lv.Get("mergelangcontentto").(type) {
+			switch v := lv.Get("mergelangcontent").(type) {
 			case string:
-				m[v] = k
+				m[k] = []string{ v }
 			case []interface{}:
+				m[k] = make([]string, 0)
 				for _, vv := range v {
-					m[vv.(string)] = k
+					m[k] = append(m[k], vv.(string))
 				}
 			}
 		}
 	}
+
+	fmt.Printf("Merge map %+v\n", m)
 
 	return m
 }
@@ -75,9 +78,11 @@ func (t Translator) Func(lang string) translateFunc {
 	}
 
 	if m, ok := t.mergeMap[lang]; ok {
-		t.logger.Infof("Translation func for language %v not found, use merged %v.", lang, m)
-		if f, ok := t.translateFuncs[m]; ok {
-			return f
+		for _, mm := range m {
+			if f, ok := t.translateFuncs[mm]; ok {
+				t.logger.Infof("Translation func for language %v not found, use merged %v.", lang, mm)
+				return f
+			}
 		}
 	}
 

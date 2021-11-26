@@ -47,6 +47,7 @@ import (
 
 	"github.com/gohugoio/hugo/markup/converter"
 
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/gohugoio/hugo/common/maps"
@@ -1873,4 +1874,50 @@ func shouldBuild(buildFuture bool, buildExpired bool, buildDrafts bool, Draft bo
 		return false
 	}
 	return true
+}
+
+func (s *Site) shouldMerge(header hugofs.FileMetaInfo) bool {
+	// Not if no such setting
+	if !s.Language().IsSet("mergeLangContent") {
+		return false
+	}
+
+	// No merging to self
+	lang := s.Language().Lang
+	if lang == header.Meta().Lang {
+		return false
+	}
+
+	// Not if translated, also make map
+	m := make(map[string]bool)
+	for _, tr := range header.Meta().Translations {
+		if tr == lang {
+			return false
+		}
+		m[tr] = true
+	}
+
+	setting := s.Language().Get("mergeLangContent")
+	switch conf := setting.(type) {
+	case string:
+		// Ok if header matches config
+		return conf == header.Meta().Lang
+	case []interface{}:
+		for _, l := range conf {
+			if v, ok := l.(string); ok {
+				// Ok if header matches config
+				if v == header.Meta().Lang {
+					return true
+				}
+
+				// Priority check
+				if _, kk := m[v]; kk {
+					return false
+				}
+
+			}
+		}
+	}
+
+	return false
 }

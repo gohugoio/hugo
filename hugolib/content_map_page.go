@@ -618,45 +618,13 @@ func (m *pageMap) attachPageToViews(s string, b *contentNode) {
 func (m *pageMap) ProcessFilesBundle(header hugofs.FileMetaInfo, resources ...hugofs.FileMetaInfo) error {
 	m.AddFilesBundle(header, resources...)
 
-	if !m.s.Language().IsSet("mergeLangContentTo") {
-		return nil;
-	}
-
-	lang := m.s.Language().Get("mergeLangContentTo")
-
-	switch v := lang.(type) {
-	case string:
-		m.MergeLang(v, header, resources...)
-	case []interface{}:
-		for _, l := range v {
-			switch vv := l.(type) {
-			case string:
-				m.MergeLang(vv, header, resources...)
-			default:
-				fmt.Printf("mergeLangContentTo should only contain strings, not %T = %+v\n", l, l)
-			}
+	for _, s := range m.s.h.Sites {
+		if s.shouldMerge(header) {
+			s.pageMap.AddFilesBundle(header, resources...)
 		}
-	default:
-		fmt.Printf("mergeLangContentTo should be a string or array of strings, %T = %+v provided\n", lang, lang)
 	}
 
 	return nil
-}
-
-func (m *pageMap) MergeLang(lang string, header hugofs.FileMetaInfo, resources ...hugofs.FileMetaInfo) {
-	translated := false
-	for _, tr := range header.Meta().Translations {
-		if tr == lang {
-			translated = true
-		}
-	}
-	if !translated {
-		for _, s := range m.s.h.Sites {
-			if s.Lang() == lang {
-				s.pageMap.AddFilesBundle(header, resources...)
-			}
-		}
-	}
 }
 
 type pageMapQuery struct {
