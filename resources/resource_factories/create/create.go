@@ -156,7 +156,7 @@ func (c *Client) FromRemote(args ...interface{}) (resource.Resource, error) {
 
 	resourceID := helpers.MD5String(uri)
 
-	return c.rs.ResourceCache.GetOrCreate(path.Join(resources.CACHE_OTHER, resourceID), func() (resource.Resource, error) {
+	return c.rs.ResourceCache.GetOrCreate(resources.ResourceCacheKey(resourceID), func() (resource.Resource, error) {
 		req, err := http.NewRequest("GET", uri, nil)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to create request for resource %s", uri)
@@ -190,7 +190,7 @@ func (c *Client) FromRemote(args ...interface{}) (resource.Resource, error) {
 
 		// If content type was not determined by header, look for a file extention
 		if contentType == "" {
-			if ext := filepath.Ext(filename); ext != "" {
+			if ext := path.Ext(filename); ext != "" {
 				contentType = ext
 			}
 		}
@@ -204,7 +204,7 @@ func (c *Client) FromRemote(args ...interface{}) (resource.Resource, error) {
 			}
 		}
 
-		resourceID = filename[:len(filename)-len(filepath.Ext(filename))] + "_" + resourceID + contentType
+		resourceID = filename[:len(filename)-len(path.Ext(filename))] + "_" + resourceID + contentType
 
 		return c.rs.New(
 			resources.ResourceSourceDescriptor{
@@ -214,7 +214,6 @@ func (c *Client) FromRemote(args ...interface{}) (resource.Resource, error) {
 					return hugio.NewReadSeekerNoOpCloser(bytes.NewReader(body)), nil
 				},
 				RelTargetFilename: filepath.Clean(resourceID),
-				SourceFilename:    filename,
 			})
 	})
 }
