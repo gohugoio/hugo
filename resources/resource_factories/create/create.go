@@ -151,7 +151,7 @@ func (c *Client) FromRemote(args ...interface{}) (resource.Resource, error) {
 	uri, headers := toURLAndHeaders(args)
 	rURL, err := url.Parse(uri)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to parse URL for resource %s", uri)
+		return nil, errors.Wrapf(err, "failed to parse URL for resource %s", uri)
 	}
 
 	resourceID := helpers.MD5String(uri)
@@ -159,7 +159,7 @@ func (c *Client) FromRemote(args ...interface{}) (resource.Resource, error) {
 	return c.rs.ResourceCache.GetOrCreate(path.Join(resources.CACHE_OTHER, resourceID), func() (resource.Resource, error) {
 		req, err := http.NewRequest("GET", uri, nil)
 		if err != nil {
-			return nil, errors.Wrapf(err, "Failed to create request for resource %s", uri)
+			return nil, errors.Wrapf(err, "failed to create request for resource %s", uri)
 		}
 		addUserProvidedHeaders(headers, req)
 		res, err := c.httpClient.Do(req)
@@ -168,12 +168,12 @@ func (c *Client) FromRemote(args ...interface{}) (resource.Resource, error) {
 		}
 
 		if res.StatusCode < 200 || res.StatusCode > 299 {
-			return nil, errors.Errorf("Failed to retrieve remote resource: %s", http.StatusText(res.StatusCode))
+			return nil, errors.Errorf("failed to retrieve remote resource: %s", http.StatusText(res.StatusCode))
 		}
 
 		body, err := ioutil.ReadAll(res.Body)
 		if err != nil {
-			return nil, errors.Wrapf(err, "Failed to read remote resource %s", uri)
+			return nil, errors.Wrapf(err, "failed to read remote resource %s", uri)
 		}
 
 		filename := path.Base(rURL.Path)
