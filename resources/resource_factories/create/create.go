@@ -24,6 +24,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gohugoio/hugo/hugofs/glob"
 
@@ -43,12 +44,18 @@ import (
 // Client contains methods to create Resource objects.
 // tasks to Resource objects.
 type Client struct {
-	rs *resources.Spec
+	rs         *resources.Spec
+	httpClient *http.Client
 }
 
 // New creates a new Client with the given specification.
 func New(rs *resources.Spec) *Client {
-	return &Client{rs: rs}
+	return &Client{
+		rs: rs,
+		httpClient: &http.Client{
+			Timeout: 10 * time.Second,
+		},
+	}
 }
 
 // Get creates a new Resource by opening the given filename in the assets filesystem.
@@ -155,7 +162,7 @@ func (c *Client) FromRemote(args ...interface{}) (resource.Resource, error) {
 			return nil, errors.Wrapf(err, "Failed to create request for resource %s", uri)
 		}
 		addUserProvidedHeaders(headers, req)
-		res, err := c.rs.HTTPClient.Do(req)
+		res, err := c.httpClient.Do(req)
 		if err != nil {
 			return nil, err
 		}
