@@ -609,9 +609,16 @@ func TestResourceChains(t *testing.T) {
 					<a href=#>Cool</a>
 				</html>`))
 			return
+
+		case "/authenticated/":
+			if r.Header.Get("Authorization") != "Bearer abcd" {
+				http.Error(w, "Forbidden", http.StatusForbidden)
+				return
+			}
+			w.Write([]byte(`Welcome`))
+			return
 		}
 
-		http.Error(w, "Not found", http.StatusNotFound)
 		return
 	}))
 	t.Cleanup(func() {
@@ -696,10 +703,13 @@ Min HTML Remote: {{ ( resources.Get "%[1]s/mydata/html1.html" | resources.Minify
 Remote Filename: {{ $js.RelPermalink }}
 {{$svg := resources.Get "%[1]s" "/mydata/svg1.svg" }}
 Remote Content-Disposition: {{ $svg.RelPermalink }}
+{{$svg := resources.Get "%[1]s" "/authenticated/" (dict "Authorization" "Bearer abcd") }}
+Remote Authorization: {{ $svg.Content }}
 `, ts.URL))
 		}, func(b *sitesBuilder) {
 			b.AssertFileContent("public/index.html", `Remote Filename: /script1_`)
 			b.AssertFileContent("public/index.html", `Remote Content-Disposition: /image_`)
+			b.AssertFileContent("public/index.html", `Remote Authorization: Welcome`)
 		}},
 
 		{"concat", func() bool { return true }, func(b *sitesBuilder) {
