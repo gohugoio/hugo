@@ -154,7 +154,7 @@ func (c *Client) FromRemote(args ...interface{}) (resource.Resource, error) {
 		return nil, errors.Wrapf(err, "failed to parse URL for resource %s", uri)
 	}
 
-	resourceID := helpers.MD5String(uri)
+	resourceID := helpers.HashString(args...)
 
 	return c.rs.ResourceCache.GetOrCreate(resources.ResourceCacheKey(resourceID), func() (resource.Resource, error) {
 		req, err := http.NewRequest("GET", uri, nil)
