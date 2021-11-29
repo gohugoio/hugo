@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
@@ -448,7 +449,7 @@ CSS integrity Data last:  /styles2.min.1cfc52986836405d37f9998a63fd6dd8608e8c410
 SUNSET REMOTE: sunset_%[1]s.jpg|/sunset_%[1]s.a9bf1d944e19c0f382e0d8f51de690f7d0bc8fa97390c4242a86c3e5c0737e71.jpg|900|90587
 FIT REMOTE: sunset_%[1]s.jpg|/sunset_%[1]s_hu59e56ffff1bc1d8d122b1403d34e039f_0_200x200_fit_q75_box.jpg|200
 
-`, helpers.HashString(ts.URL+"/sunset.jpg")))
+`, helpers.HashString(ts.URL+"/sunset.jpg", map[string]interface{}{})))
 
 		b.AssertFileContent("public/styles.min.a1df58687c3c9cc38bf26532f7b4b2f2c2b0315dcde212376959995c04f11fef.css", "body{background-color:#add8e6}")
 		b.AssertFileContent("public//styles2.min.1cfc52986836405d37f9998a63fd6dd8608e8c410e5e3db1daaa30f78bc273ba.css", "body{background-color:orange}")
@@ -611,14 +612,28 @@ func TestResourceChains(t *testing.T) {
 			return
 
 		case "/authenticated/":
-			if r.Header.Get("Authorization") != "Bearer abcd" {
-				http.Error(w, "Forbidden", http.StatusForbidden)
+			if r.Header.Get("Authorization") == "Bearer abcd" {
+				w.Write([]byte(`Welcome`))
 				return
 			}
-			w.Write([]byte(`Welcome`))
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+
+		case "/post":
+			if r.Method == http.MethodPost {
+				body, err := ioutil.ReadAll(r.Body)
+				if err != nil {
+					http.Error(w, "Internal server error", http.StatusInternalServerError)
+					return
+				}
+				w.Write(body)
+				return
+			}
+			http.Error(w, "Bad request", http.StatusBadRequest)
 			return
 		}
 
+		http.Error(w, "Not found", http.StatusNotFound)
 		return
 	}))
 	t.Cleanup(func() {
@@ -699,17 +714,20 @@ Min HTML Remote: {{ ( resources.Get "%[1]s/mydata/html1.html" | resources.Minify
 
 		{"remote", func() bool { return true }, func(b *sitesBuilder) {
 			b.WithTemplates("home.html", fmt.Sprintf(`
-{{$js := resources.Get "%[1]s" "/js/script1.js" }}
+{{$js := resources.Get "%[1]s/js/script1.js" }}
 Remote Filename: {{ $js.RelPermalink }}
-{{$svg := resources.Get "%[1]s" "/mydata/svg1.svg" }}
+{{$svg := resources.Get "%[1]s/mydata/svg1.svg" }}
 Remote Content-Disposition: {{ $svg.RelPermalink }}
-{{$svg := resources.Get "%[1]s" "/authenticated/" (dict "Authorization" "Bearer abcd") }}
-Remote Authorization: {{ $svg.Content }}
+{{$auth := resources.Get "%[1]s/authenticated/" (dict "headers" (dict "Authorization" "Bearer abcd")) }}
+Remote Authorization: {{ $auth.Content }}
+{{$post := resources.Get "%[1]s/post" (dict "method" "post" "body" "Request body") }}
+Remote POST: {{ $post.Content }}
 `, ts.URL))
 		}, func(b *sitesBuilder) {
 			b.AssertFileContent("public/index.html", `Remote Filename: /script1_`)
 			b.AssertFileContent("public/index.html", `Remote Content-Disposition: /image_`)
 			b.AssertFileContent("public/index.html", `Remote Authorization: Welcome`)
+			b.AssertFileContent("public/index.html", `Remote POST: Request body`)
 		}},
 
 		{"concat", func() bool { return true }, func(b *sitesBuilder) {

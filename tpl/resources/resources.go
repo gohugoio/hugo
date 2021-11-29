@@ -112,10 +112,9 @@ func (ns *Namespace) getscssClientDartSass() (*dartsass.Client, error) {
 // a file from an URL and creates a Resource object that can be used for
 // further transformations.
 //
-// If you provide multiple parts as a postfix to an URL they will be joined
-// together to the final URL.
+// For URLs an additional argument with options can be provided.
 func (ns *Namespace) Get(args ...interface{}) (resource.Resource, error) {
-	if len(args) == 0 {
+	if len(args) != 1 && len(args) != 2 {
 		return nil, errors.New("must provide a filename or URL")
 	}
 
@@ -125,7 +124,14 @@ func (ns *Namespace) Get(args ...interface{}) (resource.Resource, error) {
 	}
 
 	if u, err := url.Parse(filenamestr); err == nil && u.Scheme != "" {
-		return ns.createClient.FromRemote(args...)
+		if len(args) == 2 {
+			options, err := maps.ToStringMapE(args[1])
+			if err != nil {
+				return nil, err
+			}
+			return ns.createClient.FromRemote(filenamestr, options)
+		}
+		return ns.createClient.FromRemote(filenamestr, nil)
 	}
 
 	filenamestr = filepath.Clean(filenamestr)

@@ -17,6 +17,8 @@ package create
 
 import (
 	"bytes"
+	"fmt"
+	"io"
 	"io/ioutil"
 	"mime"
 	"net/http"
@@ -38,7 +40,6 @@ import (
 	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/pkg/errors"
-	"github.com/spf13/cast"
 )
 
 // Client contains methods to create Resource objects.
@@ -147,21 +148,33 @@ func (c *Client) FromString(targetPath, content string) (resource.Resource, erro
 
 // FromRemote expects one or n-parts of a URL to a resource
 // If you provide multiple parts they will be joined together to the final URL.
-func (c *Client) FromRemote(args ...interface{}) (resource.Resource, error) {
-	uri, headers := toURLAndHeaders(args)
+func (c *Client) FromRemote(uri string, options map[string]interface{}) (resource.Resource, error) {
 	rURL, err := url.Parse(uri)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to parse URL for resource %s", uri)
 	}
 
-	resourceID := helpers.HashString(args...)
+	resourceID := helpers.HashString(uri, options)
 
 	return c.rs.ResourceCache.GetOrCreate(resources.ResourceCacheKey(resourceID), func() (resource.Resource, error) {
-		req, err := http.NewRequest("GET", uri, nil)
+		method, reqBody, err := getMethodAndBody(options)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to get method or body for resource %s", uri)
+		}
+
+		req, err := http.NewRequest(method, uri, reqBody)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to create request for resource %s", uri)
 		}
-		addUserProvidedHeaders(headers, req)
+		addDefaultHeaders(req)
+
+		if _, ok := options["headers"]; ok {
+			headers, err := maps.ToStringMapE(options["headers"])
+			if err != nil {
+				return nil, errors.Wrapf(err, "failed to parse request headers for resource %s", uri)
+			}
+			addUserProvidedHeaders(headers, req)
+		}
 		res, err := c.httpClient.Do(req)
 		if err != nil {
 			return nil, err
@@ -262,18 +275,31 @@ func hasHeaderKey(m http.Header, key string) bool {
 	return ok
 }
 
-func toURLAndHeaders(urlParts []interface{}) (string, map[string]interface{}) {
-	if len(urlParts) == 0 {
-		return "", nil
+func getMethodAndBody(options map[string]interface{}) (string, io.Reader, error) {
+	if options == nil {
+		return "GET", nil, nil
 	}
 
-	// The last argument may be a map.
-	headers, err := maps.ToStringMapE(urlParts[len(urlParts)-1])
-	if err == nil {
-		urlParts = urlParts[:len(urlParts)-1]
-	} else {
-		headers = nil
+	if method, ok := options["method"].(string); ok {
+		method = strings.ToUpper(method)
+		switch method {
+		case "GET", "DELETE", "HEAD", "OPTIONS":
+			return method, nil, nil
+		case "POST", "PUT", "PATCH":
+			var body []byte
+			if _, ok := options["body"]; ok {
+				switch b := options["body"].(type) {
+				case string:
+					body = []byte(b)
+				case []byte:
+					body = b
+				}
+			}
+			return method, bytes.NewBuffer(body), nil
+		}
+
+		return "", nil, fmt.Errorf("invalid HTTP method %q", method)
 	}
 
-	return strings.Join(cast.ToStringSlice(urlParts), ""), headers
+	return "GET", nil, nil
 }
