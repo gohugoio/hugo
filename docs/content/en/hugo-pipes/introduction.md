@@ -29,37 +29,30 @@ In order to process an asset with Hugo Pipes, it must be retrieved as a resource
 {{ $remoteStyle := resources.Get "https://www.example.com/styles.scss" }}
 ```
 
-When using an URL the functions accepts [variadic arguments][variadic]:
+#### Request options
+
+When using an URL, the `resources.Get` function takes an optional options map as the last argument, e.g.:
 
 ```
-{{ $resource := resources.Get "url" "arg1" "arg2" "arg n" }}
-```
-
-All passed arguments will be joined to the final URL:
-
-```
-{{ $urlPre := "https://api.github.com" }}
-{{ $resource := resources.Get $urlPre "/users/GITHUB_USERNAME/gists" }}
-```
-
-This will resolve internally to the following:
-
-```
-{{ $resource := resources.Get "https://api.github.com/users/GITHUB_USERNAME/gists" }}
-```
-
-#### Add HTTP headers
-
-When using an URL, the `resources.Get` function takes an optional map as the last argument, e.g.:
-
-```
-{{ $resource := resources.Get "https://example.org/api" (dict "Authorization" "Bearer abcd")  }}
+{{ $resource := resources.Get "https://example.org/api" (dict "headers" (dict "Authorization" "Bearer abcd"))  }}
 ```
 
 If you need multiple values for the same header key, use a slice:
 
 ```
-{{ $resource := resources.Get "https://example.org/api" (dict "X-List" (slice "a" "b" "c"))  }}
+{{ $resource := resources.Get "https://example.org/api"  (dict "headers" (dict "X-List" (slice "a" "b" "c")))  }}
+```
+
+You can also change the request method and set the request body:
+
+```
+{{ $postResponse := resources.Get "https://example.org/api"  (dict 
+    "method" "post"
+    "body" `{"complete": true}` 
+    "headers" (dict 
+        "Content-Type" "application/json"
+    )
+)}}
 ```
 
 ### Asset publishing
