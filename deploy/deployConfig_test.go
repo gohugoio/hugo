@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !nodeploy
 // +build !nodeploy
 
 package deploy
@@ -21,7 +22,6 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config"
-	
 )
 
 func TestDecodeConfigFromTOML(t *testing.T) {
@@ -168,4 +168,34 @@ func TestDecodeConfigDefault(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	c.Assert(len(dcfg.Targets), qt.Equals, 0)
 	c.Assert(len(dcfg.Matchers), qt.Equals, 0)
+}
+
+func TestEmptyTarget(t *testing.T) {
+	c := qt.New(t)
+
+	tomlConfig := `
+[deployment]
+[[deployment.targets]]
+`
+	cfg, err := config.FromConfigString(tomlConfig, "toml")
+	c.Assert(err, qt.IsNil)
+
+	_, err = decodeConfig(cfg)
+	c.Assert(err, qt.Not(qt.IsNil))
+}
+
+func TestEmptyMatcher(t *testing.T) {
+	c := qt.New(t)
+
+	tomlConfig := `
+[deployment]
+[[deployment.matchers]]
+`
+	cfg, err := config.FromConfigString(tomlConfig, "toml")
+	c.Assert(err, qt.IsNil)
+
+	_, err = decodeConfig(cfg)
+	c.Assert(err, qt.Not(qt.IsNil))
+
+	fmt.Printf("JMM-1: %s", err)
 }
