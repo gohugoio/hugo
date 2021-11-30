@@ -20,12 +20,39 @@ aliases: [/assets/]
 
 Asset files must be stored in the asset directory. This is `/assets` by default, but can be configured via the configuration file's `assetDir` key.
 
-### From file to resource
+### From file or URL to resource
 
-In order to process an asset with Hugo Pipes, it must be retrieved as a resource using `resources.Get`, which takes one argument: the filepath of the file relative to the asset directory.
+In order to process an asset with Hugo Pipes, it must be retrieved as a resource using `resources.Get`. The first argument can be the filepath of the file relative to the asset directory or the URL of the file.
 
 ```go-html-template
 {{ $style := resources.Get "sass/main.scss" }}
+{{ $remoteStyle := resources.Get "https://www.example.com/styles.scss" }}
+```
+
+#### Request options
+
+When using an URL, the `resources.Get` function takes an optional options map as the last argument, e.g.:
+
+```
+{{ $resource := resources.Get "https://example.org/api" (dict "headers" (dict "Authorization" "Bearer abcd"))  }}
+```
+
+If you need multiple values for the same header key, use a slice:
+
+```
+{{ $resource := resources.Get "https://example.org/api"  (dict "headers" (dict "X-List" (slice "a" "b" "c")))  }}
+```
+
+You can also change the request method and set the request body:
+
+```
+{{ $postResponse := resources.Get "https://example.org/api"  (dict 
+    "method" "post"
+    "body" `{"complete": true}` 
+    "headers" (dict 
+        "Content-Type" "application/json"
+    )
+)}}
 ```
 
 ### Asset publishing
