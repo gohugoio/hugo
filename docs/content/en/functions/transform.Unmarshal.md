@@ -45,3 +45,23 @@ Example:
 ```go-html-template
 {{ $csv := "a;b;c" | transform.Unmarshal (dict "delimiter" ";") }}
 ```
+
+## XML data
+
+{{% warning "Order of XML elements" %}}
+The order of XML elements and data structures is not preserved. An XML element is an order-dependent collection of anonymous values, while a data structure is an order-independent collection of named values.
+{{% /warning %}}
+
+The following example lists the items of an RSS feed:
+
+```
+{{ with resources.Get "https://example.com/rss.xml" | transform.Unmarshal }}
+    {{ range .rss.channel.item }}
+        <strong>{{ .title | plainify | htmlUnescape }}</strong><br />
+        <p>{{ .description | plainify | htmlUnescape }}</p>
+        {{ $link := .link | plainify | htmlUnescape }}
+        <a href="{{ $link }}">{{ $link }}</a><br />
+        <hr>
+    {{ end }}
+{{ end }}
+```
