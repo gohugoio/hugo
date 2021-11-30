@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !nodeploy
 // +build !nodeploy
 
 package deploy
@@ -24,6 +25,7 @@ import (
 	hglob "github.com/gohugoio/hugo/hugofs/glob"
 	"github.com/gohugoio/hugo/media"
 	"github.com/mitchellh/mapstructure"
+	"github.com/pkg/errors"
 )
 
 const deploymentConfigKey = "deployment"
@@ -124,12 +126,18 @@ func decodeConfig(cfg config.Provider) (deployConfig, error) {
 		return dcfg, err
 	}
 	for _, tgt := range dcfg.Targets {
+		if tgt == nil {
+			return dcfg, errors.New("empty deployment target")
+		}
 		if err := tgt.parseIncludeExclude(); err != nil {
 			return dcfg, err
 		}
 	}
 	var err error
 	for _, m := range dcfg.Matchers {
+		if m == nil {
+			return dcfg, errors.New("empty deployment matcher")
+		}
 		m.re, err = regexp.Compile(m.Pattern)
 		if err != nil {
 			return dcfg, fmt.Errorf("invalid deployment.matchers.pattern: %v", err)
