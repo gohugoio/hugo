@@ -166,6 +166,12 @@ Enable to turn relative URLs into absolute.
 
 The directory from where Hugo reads content files. {{% module-mounts-note %}}
 
+### copyright
+
+**Default value:** ""
+
+Copyright notice for your site, typically displayed in the footer.
+
 ### dataDir
 
 **Default value:** "data"
@@ -274,6 +280,12 @@ If true, auto-detect Chinese/Japanese/Korean Languages in the content. This will
 
 ### imaging
 See [Image Processing Config](/content-management/image-processing/#image-processing-config).
+
+### languageCode
+
+**Default value:**  ""
+
+A language tag as defined by [RFC 5646](https://datatracker.ietf.org/doc/html/rfc5646). The internal [RSS template](https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/rss.xml) populates its `<language>` element with this value. The value is not used elsewhere.
 
 ### languages
 See [Configure Languages](/content-management/multilingual/#configure-languages).
