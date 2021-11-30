@@ -156,7 +156,10 @@ func (c *Client) FromRemote(uri string, options map[string]interface{}) (resourc
 
 	resourceID := helpers.HashString(uri, options)
 
-	return c.rs.ResourceCache.GetOrCreate(resources.ResourceCacheKey(resourceID), func() (resource.Resource, error) {
+	// This caches to memory and will, in server mode, not be evicted unless the resourceID changes
+	// or the server restarts.
+	// There is ongoing work to improve this.
+	return c.rs.ResourceCache.GetOrCreate(resourceID, func() (resource.Resource, error) {
 		method, reqBody, err := getMethodAndBody(options)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to get method or body for resource %s", uri)
