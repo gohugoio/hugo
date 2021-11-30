@@ -16,6 +16,7 @@ package resources
 
 import (
 	"fmt"
+	"net/url"
 	"path/filepath"
 	"sync"
 
@@ -107,12 +108,30 @@ func (ns *Namespace) getscssClientDartSass() (*dartsass.Client, error) {
 	return ns.scssClientDartSass, err
 }
 
-// Get locates the filename given in Hugo's assets filesystem
-// and creates a Resource object that can be used for further transformations.
-func (ns *Namespace) Get(filename interface{}) (resource.Resource, error) {
-	filenamestr, err := cast.ToStringE(filename)
+// Get locates the filename given in Hugo's assets filesystem or downloads
+// a file from an URL and creates a Resource object that can be used for
+// further transformations.
+//
+// For URLs an additional argument with options can be provided.
+func (ns *Namespace) Get(args ...interface{}) (resource.Resource, error) {
+	if len(args) != 1 && len(args) != 2 {
+		return nil, errors.New("must provide a filename or URL")
+	}
+
+	filenamestr, err := cast.ToStringE(args[0])
 	if err != nil {
 		return nil, err
+	}
+
+	if u, err := url.Parse(filenamestr); err == nil && u.Scheme != "" {
+		if len(args) == 2 {
+			options, err := maps.ToStringMapE(args[1])
+			if err != nil {
+				return nil, err
+			}
+			return ns.createClient.FromRemote(filenamestr, options)
+		}
+		return ns.createClient.FromRemote(filenamestr, nil)
 	}
 
 	filenamestr = filepath.Clean(filenamestr)

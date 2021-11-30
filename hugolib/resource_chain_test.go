@@ -17,7 +17,10 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"math/rand"
+	"net/http"
+	"net/http/httptest"
 	"os"
 
 	"github.com/gohugoio/hugo/config"
@@ -35,6 +38,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/herrors"
 
+	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/htesting"
 
 	qt "github.com/frankban/quicktest"
@@ -385,8 +389,13 @@ T1: {{ $r.Content }}
 func TestResourceChainBasic(t *testing.T) {
 	t.Parallel()
 
+	ts := httptest.NewServer(http.FileServer(http.Dir("testdata/")))
+	t.Cleanup(func() {
+		ts.Close()
+	})
+
 	b := newTestSitesBuilder(t)
-	b.WithTemplatesAdded("index.html", `
+	b.WithTemplatesAdded("index.html", fmt.Sprintf(`
 {{ $hello := "<h1>     Hello World!   </h1>" | resources.FromString "hello.html" | fingerprint "sha512" | minify  | fingerprint }}
 {{ $cssFingerprinted1 := "body {  background-color: lightblue; }" | resources.FromString "styles.css" |  minify  | fingerprint }}
 {{ $cssFingerprinted2 := "body {  background-color: orange; }" | resources.FromString "styles2.css" |  minify  | fingerprint }}
@@ -403,7 +412,14 @@ FIT: {{ $fit.Name }}|{{ $fit.RelPermalink }}|{{ $fit.Width }}
 CSS integrity Data first: {{ $cssFingerprinted1.Data.Integrity }} {{ $cssFingerprinted1.RelPermalink }}
 CSS integrity Data last:  {{ $cssFingerprinted2.RelPermalink }} {{ $cssFingerprinted2.Data.Integrity }}
 
-`)
+{{ $rimg := resources.Get "%[1]s/sunset.jpg" }}
+{{ $rfit := $rimg.Fit "200x200" }}
+{{ $rfit2 := $rfit.Fit "100x200" }}
+{{ $rimg = $rimg | fingerprint }}
+SUNSET REMOTE: {{ $rimg.Name }}|{{ $rimg.RelPermalink }}|{{ $rimg.Width }}|{{ len $rimg.Content }}
+FIT REMOTE: {{ $rfit.Name }}|{{ $rfit.RelPermalink }}|{{ $rfit.Width }}
+
+`, ts.URL))
 
 	fs := b.Fs.Source
 
@@ -424,12 +440,16 @@ CSS integrity Data last:  {{ $cssFingerprinted2.RelPermalink }} {{ $cssFingerpri
 		b.Build(BuildCfg{})
 
 		b.AssertFileContent("public/index.html",
-			`
+			fmt.Sprintf(`
 SUNSET: images/sunset.jpg|/images/sunset.a9bf1d944e19c0f382e0d8f51de690f7d0bc8fa97390c4242a86c3e5c0737e71.jpg|900|90587
 FIT: images/sunset.jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x200_fit_q75_box.jpg|200
 CSS integrity Data first: sha256-od9YaHw8nMOL8mUy97Sy8sKwMV3N4hI3aVmZXATxH&#43;8= /styles.min.a1df58687c3c9cc38bf26532f7b4b2f2c2b0315dcde212376959995c04f11fef.css
 CSS integrity Data last:  /styles2.min.1cfc52986836405d37f9998a63fd6dd8608e8c410e5e3db1daaa30f78bc273ba.css sha256-HPxSmGg2QF03&#43;ZmKY/1t2GCOjEEOXj2x2qow94vCc7o=
-`)
+
+SUNSET REMOTE: sunset_%[1]s.jpg|/sunset_%[1]s.a9bf1d944e19c0f382e0d8f51de690f7d0bc8fa97390c4242a86c3e5c0737e71.jpg|900|90587
+FIT REMOTE: sunset_%[1]s.jpg|/sunset_%[1]s_hu59e56ffff1bc1d8d122b1403d34e039f_0_200x200_fit_q75_box.jpg|200
+
+`, helpers.HashString(ts.URL+"/sunset.jpg", map[string]interface{}{})))
 
 		b.AssertFileContent("public/styles.min.a1df58687c3c9cc38bf26532f7b4b2f2c2b0315dcde212376959995c04f11fef.css", "body{background-color:#add8e6}")
 		b.AssertFileContent("public//styles2.min.1cfc52986836405d37f9998a63fd6dd8608e8c410e5e3db1daaa30f78bc273ba.css", "body{background-color:orange}")
@@ -537,6 +557,89 @@ func TestResourceChains(t *testing.T) {
 
 	c := qt.New(t)
 
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/css/styles1.css":
+			w.Header().Set("Content-Type", "text/css")
+			w.Write([]byte(`h1 { 
+				font-style: bold;
+			}`))
+			return
+
+		case "/js/script1.js":
+			w.Write([]byte(`var x; x = 5, document.getElementById("demo").innerHTML = x * 10`))
+			return
+
+		case "/mydata/json1.json":
+			w.Write([]byte(`{
+				"employees": [
+					{
+						"firstName": "John",
+						"lastName": "Doe"
+					},
+					{
+						"firstName": "Anna",
+						"lastName": "Smith"
+					},
+					{
+						"firstName": "Peter",
+						"lastName": "Jones"
+					}
+				]
+			}`))
+			return
+
+		case "/mydata/xml1.xml":
+			w.Write([]byte(`
+				<hello>
+					<world>Hugo Rocks!</<world>
+				</hello>`))
+			return
+
+		case "/mydata/svg1.svg":
+			w.Header().Set("Content-Disposition", `attachment; filename="image.svg"`)
+			w.Write([]byte(`
+				<svg height="100" width="100">
+					<path d="M1e2 1e2H3e2 2e2z"/>
+				</svg>`))
+			return
+
+		case "/mydata/html1.html":
+			w.Write([]byte(`
+				<html>
+					<a href=#>Cool</a>
+				</html>`))
+			return
+
+		case "/authenticated/":
+			if r.Header.Get("Authorization") == "Bearer abcd" {
+				w.Write([]byte(`Welcome`))
+				return
+			}
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+
+		case "/post":
+			if r.Method == http.MethodPost {
+				body, err := ioutil.ReadAll(r.Body)
+				if err != nil {
+					http.Error(w, "Internal server error", http.StatusInternalServerError)
+					return
+				}
+				w.Write(body)
+				return
+			}
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			return
+		}
+
+		http.Error(w, "Not found", http.StatusNotFound)
+		return
+	}))
+	t.Cleanup(func() {
+		ts.Close()
+	})
+
 	tests := []struct {
 		name      string
 		shouldRun func() bool
@@ -578,25 +681,53 @@ T6: {{ $bundle1.Permalink }}
     [minify.tdewolff.html]
       keepWhitespace = false
 `)
-			b.WithTemplates("home.html", `
+			b.WithTemplates("home.html", fmt.Sprintf(`
 Min CSS: {{ ( resources.Get "css/styles1.css" | minify ).Content }}
+Min CSS Remote: {{ ( resources.Get "%[1]s/css/styles1.css" | minify ).Content }}
 Min JS: {{ ( resources.Get "js/script1.js" | resources.Minify ).Content | safeJS }}
+Min JS Remote: {{ ( resources.Get "%[1]s/js/script1.js" | minify ).Content }}
 Min JSON: {{ ( resources.Get "mydata/json1.json" | resources.Minify ).Content | safeHTML }}
+Min JSON Remote: {{ ( resources.Get "%[1]s/mydata/json1.json" | resources.Minify ).Content | safeHTML }}
 Min XML: {{ ( resources.Get "mydata/xml1.xml" | resources.Minify ).Content | safeHTML }}
+Min XML Remote: {{ ( resources.Get "%[1]s/mydata/xml1.xml" | resources.Minify ).Content | safeHTML }}
 Min SVG: {{ ( resources.Get "mydata/svg1.svg" | resources.Minify ).Content | safeHTML }}
+Min SVG Remote: {{ ( resources.Get "%[1]s/mydata/svg1.svg" | resources.Minify ).Content | safeHTML }}
 Min SVG again: {{ ( resources.Get "mydata/svg1.svg" | resources.Minify ).Content | safeHTML }}
 Min HTML: {{ ( resources.Get "mydata/html1.html" | resources.Minify ).Content | safeHTML }}
-
-
-`)
+Min HTML Remote: {{ ( resources.Get "%[1]s/mydata/html1.html" | resources.Minify ).Content | safeHTML }}
+`, ts.URL))
 		}, func(b *sitesBuilder) {
 			b.AssertFileContent("public/index.html", `Min CSS: h1{font-style:bold}`)
+			b.AssertFileContent("public/index.html", `Min CSS Remote: h1{font-style:bold}`)
 			b.AssertFileContent("public/index.html", `Min JS: var x;x=5,document.getElementById(&#34;demo&#34;).innerHTML=x*10`)
+			b.AssertFileContent("public/index.html", `Min JS Remote: var x;x=5,document.getElementById(&#34;demo&#34;).innerHTML=x*10`)
 			b.AssertFileContent("public/index.html", `Min JSON: {"employees":[{"firstName":"John","lastName":"Doe"},{"firstName":"Anna","lastName":"Smith"},{"firstName":"Peter","lastName":"Jones"}]}`)
+			b.AssertFileContent("public/index.html", `Min JSON Remote: {"employees":[{"firstName":"John","lastName":"Doe"},{"firstName":"Anna","lastName":"Smith"},{"firstName":"Peter","lastName":"Jones"}]}`)
 			b.AssertFileContent("public/index.html", `Min XML: <hello><world>Hugo Rocks!</<world></hello>`)
+			b.AssertFileContent("public/index.html", `Min XML Remote: <hello><world>Hugo Rocks!</<world></hello>`)
 			b.AssertFileContent("public/index.html", `Min SVG: <svg height="100" width="100"><path d="M1e2 1e2H3e2 2e2z"/></svg>`)
+			b.AssertFileContent("public/index.html", `Min SVG Remote: <svg height="100" width="100"><path d="M1e2 1e2H3e2 2e2z"/></svg>`)
 			b.AssertFileContent("public/index.html", `Min SVG again: <svg height="100" width="100"><path d="M1e2 1e2H3e2 2e2z"/></svg>`)
 			b.AssertFileContent("public/index.html", `Min HTML: <html><a href=#>Cool</a></html>`)
+			b.AssertFileContent("public/index.html", `Min HTML Remote: <html><a href=#>Cool</a></html>`)
+		}},
+
+		{"remote", func() bool { return true }, func(b *sitesBuilder) {
+			b.WithTemplates("home.html", fmt.Sprintf(`
+{{$js := resources.Get "%[1]s/js/script1.js" }}
+Remote Filename: {{ $js.RelPermalink }}
+{{$svg := resources.Get "%[1]s/mydata/svg1.svg" }}
+Remote Content-Disposition: {{ $svg.RelPermalink }}
+{{$auth := resources.Get "%[1]s/authenticated/" (dict "headers" (dict "Authorization" "Bearer abcd")) }}
+Remote Authorization: {{ $auth.Content }}
+{{$post := resources.Get "%[1]s/post" (dict "method" "post" "body" "Request body") }}
+Remote POST: {{ $post.Content }}
+`, ts.URL))
+		}, func(b *sitesBuilder) {
+			b.AssertFileContent("public/index.html", `Remote Filename: /script1_`)
+			b.AssertFileContent("public/index.html", `Remote Content-Disposition: /image_`)
+			b.AssertFileContent("public/index.html", `Remote Authorization: Welcome`)
+			b.AssertFileContent("public/index.html", `Remote POST: Request body`)
 		}},
 
 		{"concat", func() bool { return true }, func(b *sitesBuilder) {
