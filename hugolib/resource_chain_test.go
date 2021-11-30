@@ -872,16 +872,19 @@ Publish 2: {{ $cssPublish2.Permalink }}
 {{ $toml := "slogan = \"Hugo Rocks!\"" | resources.FromString "slogan.toml" | transform.Unmarshal }}
 {{ $csv1 := "\"Hugo Rocks\",\"Hugo is Fast!\"" | resources.FromString "slogans.csv" | transform.Unmarshal }}
 {{ $csv2 := "a;b;c" | transform.Unmarshal (dict "delimiter" ";") }}
+{{ $xml := "<?xml version=\"1.0\" encoding=\"UTF-8\"?><note><to>You</to><from>Me</from><heading>Reminder</heading><body>Do not forget XML</body></note>" | transform.Unmarshal }}
 
 Slogan: {{ $toml.slogan }}
 CSV1: {{ $csv1 }} {{ len (index $csv1 0)  }}
 CSV2: {{ $csv2 }}		
+XML: {{ $xml.note.body }}
 `)
 		}, func(b *sitesBuilder) {
 			b.AssertFileContent("public/index.html",
 				`Slogan: Hugo Rocks!`,
 				`[[Hugo Rocks Hugo is Fast!]] 2`,
 				`CSV2: [[a b c]]`,
+				`XML: Do not forget XML`,
 			)
 		}},
 		{"resources.Get", func() bool { return true }, func(b *sitesBuilder) {

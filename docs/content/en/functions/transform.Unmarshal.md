@@ -1,6 +1,6 @@
 ---
 title: "transform.Unmarshal"
-description: "`transform.Unmarshal` (alias `unmarshal`) parses the input and converts it into a map or an array. Supported formats are JSON, TOML, YAML and CSV."
+description: "`transform.Unmarshal` (alias `unmarshal`) parses the input and converts it into a map or an array. Supported formats are JSON, TOML, YAML, XML and CSV."
 date: 2018-12-23
 categories: [functions]
 menu:

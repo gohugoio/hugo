@@ -24,6 +24,7 @@ import (
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/niklasfasching/go-org/org"
 
+	xml "github.com/clbanning/mxj/v2"
 	toml "github.com/pelletier/go-toml/v2"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -135,6 +136,15 @@ func (d Decoder) UnmarshalTo(data []byte, f Format, v interface{}) error {
 		err = d.unmarshalORG(data, v)
 	case JSON:
 		err = json.Unmarshal(data, v)
+	case XML:
+		var xmlValue map[string]interface{}
+		xmlValue, err = xml.NewMapXml(data)
+		switch v := v.(type) {
+		case *map[string]interface{}:
+			*v = xmlValue
+		case *interface{}:
+			*v = xmlValue
+		}
 	case TOML:
 		err = toml.Unmarshal(data, v)
 	case YAML:
