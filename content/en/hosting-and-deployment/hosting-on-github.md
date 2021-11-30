@@ -89,8 +89,6 @@ For more advanced settings [actions-hugo](https://github.com/marketplace/actions
 ## Github pages setting
 By default, the GitHub action pushes the generated content to the `gh-pages` branch. This means GitHub has to serve your `gh-pages` branch as a GitHub Pages branch. You can change this setting by going to Settings > GitHub Pages, and change the source branch to `gh-pages`.
 
-![Screenshot of the github pages setting for setting source branch](/images/hosting-and-deployment/hosting-on-github/set-correct-branch.jpg)
-
 ## Change baseURL in config.toml
 Don't forget to rename your `baseURL` in `config.toml` with the value `https://<USERNAME>.github.io` for your user repository or `https://<USERNAME>.github.io/<REPOSITORY_NAME>` for a project repository.
 
