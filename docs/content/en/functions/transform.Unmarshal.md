@@ -48,10 +48,6 @@ Example:
 
 ## XML data
 
-{{% warning "Order of XML elements" %}}
-The order of XML elements and data structures is not preserved. An XML element is an order-dependent collection of anonymous values, while a data structure is an order-independent collection of named values.
-{{% /warning %}}
-
 The following example lists the items of an RSS feed:
 
 ```
