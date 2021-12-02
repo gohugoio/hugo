@@ -136,6 +136,7 @@ func (ini *Init) shouldInitialize() bool {
 // Reset resets the current and all its dependencies.
 func (ini *Init) Reset() {
 	mu := ini.init.ResetWithLock()
+	ini.err = nil
 	defer mu.Unlock()
 	for _, d := range ini.children {
 		d.Reset()
