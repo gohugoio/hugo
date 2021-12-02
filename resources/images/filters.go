@@ -33,6 +33,14 @@ func (*Filters) Overlay(src ImageSource, x, y interface{}) gift.Filter {
 	}
 }
 
+// Text creates a filter that draws text with size at position x y.
+func (*Filters) Text(text, color string, size, x, y interface{}) gift.Filter {
+	return filter{
+		Options: newFilterOpts(text, color, size, x, y),
+		Filter:  textFilter{text: cast.ToString(text), color: cast.ToString(color), size: cast.ToFloat64(size), x: cast.ToInt(x), y: cast.ToInt(y)},
+	}
+}
+
 // Brightness creates a filter that changes the brightness of an image.
 // The percentage parameter must be in range (-100, 100).
 func (*Filters) Brightness(percentage interface{}) gift.Filter {
