@@ -26,19 +26,21 @@ import (
 )
 
 func _TestReleaseNotesWriter(t *testing.T) {
+	skipIfNoToken(t)
 	if os.Getenv("CI") != "" {
 		// Travis has an ancient git with no --invert-grep: https://github.com/travis-ci/travis-ci/issues/6328
-		t.Skip("Skip git test on CI to make Travis happy.")
+		t.Skip("Skip git test on CI to make Travis happy..")
 	}
+
 	c := qt.New(t)
 
 	var b bytes.Buffer
 
-	// TODO(bep) consider to query GitHub directly for the gitlog with author info, probably faster.
-	infos, err := getGitInfosBefore("HEAD", "v0.20", "hugo", "", false)
+	// TODO(bep) consider to  query GitHub directly for the gitlog with author info, probably faster.
+	infos, err := getGitInfosBefore("HEAD", "v0.89.0", "hugo", "", false)
 	c.Assert(err, qt.IsNil)
 
-	c.Assert(writeReleaseNotes("0.21", infos, infos, &b), qt.IsNil)
+	c.Assert(writeReleaseNotes("0.89.0", infos, infos, &b), qt.IsNil)
 
 	fmt.Println(b.String())
 }

@@ -181,37 +181,11 @@ func (r *ReleaseHandler) Run() error {
 		return nil
 	}
 
-	// For docs, for now we assume that:
-	// The /docs subtree is up to date and ready to go.
-	// The hugoDocs/dev and hugoDocs/master must be merged manually after release.
-	// TODO(bep) improve this when we see how it works.
-
 	if err := r.bumpVersions(newVersion); err != nil {
 		return err
 	}
 
 	if _, err := r.git("commit", "-a", "-m", fmt.Sprintf("%s Bump versions for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
-		return err
-	}
-
-	releaseNotesFile := getReleaseNotesDocsTempFilename(version, true)
-
-	title, description := version, version
-	if isPatch {
-		title = "Hugo " + version + ": A couple of Bug Fixes"
-		description = "This version fixes a couple of bugs introduced in " + mainVersion.String() + "."
-	}
-
-	// Write the release notes to the docs site as well.
-	docFile, err := r.writeReleaseNotesToDocs(title, description, releaseNotesFile)
-	if err != nil {
-		return err
-	}
-
-	if _, err := r.git("add", docFile); err != nil {
-		return err
-	}
-	if _, err := r.git("commit", "-m", fmt.Sprintf("%s Add release notes to /docs for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
 		return err
 	}
 
@@ -224,6 +198,8 @@ func (r *ReleaseHandler) Run() error {
 			return err
 		}
 	}
+
+	releaseNotesFile := getReleaseNotesDocsTempFilename(version, true)
 
 	if err := r.release(releaseNotesFile); err != nil {
 		return err
