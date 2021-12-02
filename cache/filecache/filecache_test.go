@@ -276,7 +276,7 @@ func TestFileCacheReadOrCreateErrorInRead(t *testing.T) {
 		}
 	}
 
-	cache := NewCache(afero.NewMemMapFs(), 100*time.Hour, "")
+	cache := NewCache(afero.NewMemMapFs(), 100*time.Hour, 0, "")
 
 	const id = "a32"
 
