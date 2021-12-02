@@ -34,20 +34,21 @@ const (
 	cachesConfigKey = "caches"
 
 	resourcesGenDir = ":resourceDir/_gen"
+	cacheDirProject = ":cacheDir/:project"
 )
 
 var defaultCacheConfig = Config{
 	MaxAge: -1, // Never expire
-	Dir:    ":cacheDir/:project",
+	Dir:    cacheDirProject,
 }
 
 const (
-	cacheKeyGetJSON  = "getjson"
-	cacheKeyGetCSV   = "getcsv"
-	cacheKeyImages   = "images"
-	cacheKeyAssets   = "assets"
-	cacheKeyModules  = "modules"
-	cacheGetResource = "getresource"
+	cacheKeyGetJSON     = "getjson"
+	cacheKeyGetCSV      = "getcsv"
+	cacheKeyImages      = "images"
+	cacheKeyAssets      = "assets"
+	cacheKeyModules     = "modules"
+	cacheKeyGetResource = "getresource"
 )
 
 type Configs map[string]Config
@@ -71,7 +72,11 @@ var defaultCacheConfigs = Configs{
 		MaxAge: -1,
 		Dir:    resourcesGenDir,
 	},
-	cacheGetResource: defaultCacheConfig,
+	cacheKeyGetResource: Config{
+		MaxAge:  -1, // Never expire
+		Dir:     cacheDirProject,
+		retries: 3, // Retries on error getting the remote resource.
+	},
 }
 
 type Config struct {
@@ -86,6 +91,10 @@ type Config struct {
 	// Will resources/_gen will get its own composite filesystem that
 	// also checks any theme.
 	isResourceDir bool
+
+	// Number of retries when errors occurs when creating the element,
+	// only used for remote resources.
+	retries int
 }
 
 // GetJSONCache gets the file cache for getJSON.
@@ -115,7 +124,7 @@ func (f Caches) AssetsCache() *Cache {
 
 // GetResourceCache gets the file cache for remote resources.
 func (f Caches) GetResourceCache() *Cache {
-	return f[cacheGetResource]
+	return f[cacheKeyGetResource]
 }
 
 func DecodeConfig(fs afero.Fs, cfg config.Provider) (Configs, error) {

@@ -243,7 +243,6 @@ func (c *Client) FromRemote(uri string, options map[string]interface{}) (resourc
 
 	return c.rs.New(
 		resources.ResourceSourceDescriptor{
-			Fs:          c.rs.FileCaches.AssetsCache().Fs,
 			LazyPublish: true,
 			OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
 				return hugio.NewReadSeekerNoOpCloser(bytes.NewReader(body)), nil
