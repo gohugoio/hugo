@@ -220,3 +220,22 @@ func TestInitBranchOrder(t *testing.T) {
 
 	c.Assert(state.V2, qt.Equals, "ABAB")
 }
+
+// See issue 7043
+func TestResetError(t *testing.T) {
+	c := qt.New(t)
+	r := false
+	i := New().Add(func() (interface{}, error) {
+		if r {
+			return nil, nil
+		}
+		return nil, errors.New("r is false")
+	})
+	_, err := i.Do()
+	c.Assert(err, qt.IsNotNil)
+	i.Reset()
+	r = true
+	_, err = i.Do()
+	c.Assert(err, qt.IsNil)
+
+}
