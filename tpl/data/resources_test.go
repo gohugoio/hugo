@@ -34,7 +34,6 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/spf13/afero"
-	
 )
 
 func TestScpGetLocal(t *testing.T) {
@@ -87,7 +86,7 @@ func TestScpGetRemote(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 	fs := new(afero.MemMapFs)
-	cache := filecache.NewCache(fs, 100, "")
+	cache := filecache.NewCache(fs, 100, 0, "")
 
 	tests := []struct {
 		path    string
