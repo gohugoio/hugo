@@ -55,6 +55,16 @@ You can also change the request method and set the request body:
 )}}
 ```
 
+#### Cache of remote resources
+
+Each downloaded URL will be cached in the default folder `$TMPDIR/hugo_cache/`. The variable `$TMPDIR` will be resolved to your system-dependent temporary directory.
+
+With the command-line flag `--cacheDir`, you can specify any folder on your system as a caching directory.
+
+You can also set `cacheDir` or `caches.getresource` in the [main configuration file][config].
+
+If you don't like caching at all, you can fully disable caching with the command line flag `--ignoreCache`.
+
 ### Asset publishing
 
 Assets will only be published (to `/public`) if `.Permalink` or `.RelPermalink` is used.

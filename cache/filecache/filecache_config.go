@@ -42,11 +42,12 @@ var defaultCacheConfig = Config{
 }
 
 const (
-	cacheKeyGetJSON = "getjson"
-	cacheKeyGetCSV  = "getcsv"
-	cacheKeyImages  = "images"
-	cacheKeyAssets  = "assets"
-	cacheKeyModules = "modules"
+	cacheKeyGetJSON  = "getjson"
+	cacheKeyGetCSV   = "getcsv"
+	cacheKeyImages   = "images"
+	cacheKeyAssets   = "assets"
+	cacheKeyModules  = "modules"
+	cacheGetResource = "getresource"
 )
 
 type Configs map[string]Config
@@ -70,6 +71,7 @@ var defaultCacheConfigs = Configs{
 		MaxAge: -1,
 		Dir:    resourcesGenDir,
 	},
+	cacheGetResource: defaultCacheConfig,
 }
 
 type Config struct {
@@ -109,6 +111,11 @@ func (f Caches) ModulesCache() *Cache {
 // AssetsCache gets the file cache for assets (processed resources, SCSS etc.).
 func (f Caches) AssetsCache() *Cache {
 	return f[cacheKeyAssets]
+}
+
+// GetResourceCache gets the file cache for remote resources.
+func (f Caches) GetResourceCache() *Cache {
+	return f[cacheGetResource]
 }
 
 func DecodeConfig(fs afero.Fs, cfg config.Provider) (Configs, error) {

@@ -50,7 +50,8 @@ maxAge = "11h"
 dir = "/path/to/c2"
 [caches.images]
 dir = "/path/to/c3"
-
+[caches.getResource]
+dir = "/path/to/c4"
 `
 
 	cfg, err := config.FromConfigString(configStr, "toml")
@@ -59,7 +60,7 @@ dir = "/path/to/c3"
 	decoded, err := DecodeConfig(fs, cfg)
 	c.Assert(err, qt.IsNil)
 
-	c.Assert(len(decoded), qt.Equals, 5)
+	c.Assert(len(decoded), qt.Equals, 6)
 
 	c2 := decoded["getcsv"]
 	c.Assert(c2.MaxAge.String(), qt.Equals, "11h0m0s")
@@ -68,6 +69,10 @@ dir = "/path/to/c3"
 	c3 := decoded["images"]
 	c.Assert(c3.MaxAge, qt.Equals, time.Duration(-1))
 	c.Assert(c3.Dir, qt.Equals, filepath.FromSlash("/path/to/c3/filecache/images"))
+
+	c4 := decoded["getresource"]
+	c.Assert(c4.MaxAge, qt.Equals, time.Duration(-1))
+	c.Assert(c4.Dir, qt.Equals, filepath.FromSlash("/path/to/c4/filecache/getresource"))
 }
 
 func TestDecodeConfigIgnoreCache(t *testing.T) {
@@ -94,7 +99,8 @@ maxAge = 3456
 dir = "/path/to/c2"
 [caches.images]
 dir = "/path/to/c3"
-
+[caches.getResource]
+dir = "/path/to/c4"
 `
 
 	cfg, err := config.FromConfigString(configStr, "toml")
@@ -103,7 +109,7 @@ dir = "/path/to/c3"
 	decoded, err := DecodeConfig(fs, cfg)
 	c.Assert(err, qt.IsNil)
 
-	c.Assert(len(decoded), qt.Equals, 5)
+	c.Assert(len(decoded), qt.Equals, 6)
 
 	for _, v := range decoded {
 		c.Assert(v.MaxAge, qt.Equals, time.Duration(0))
@@ -129,7 +135,7 @@ func TestDecodeConfigDefault(t *testing.T) {
 
 	c.Assert(err, qt.IsNil)
 
-	c.Assert(len(decoded), qt.Equals, 5)
+	c.Assert(len(decoded), qt.Equals, 6)
 
 	imgConfig := decoded[cacheKeyImages]
 	jsonConfig := decoded[cacheKeyGetJSON]
