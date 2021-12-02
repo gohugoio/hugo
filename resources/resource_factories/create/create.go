@@ -161,7 +161,7 @@ func (c *Client) FromRemote(uri string, options map[string]interface{}) (resourc
 
 	resourceID := helpers.HashString(uri, options)
 
-	_, httpResponse, err := c.cacheGetResource.GetOrCreateBytes(resourceID, func() ([]byte, error) {
+	_, httpResponse, err := c.cacheGetResource.GetOrCreate(resourceID, func() (io.ReadCloser, error) {
 		method, reqBody, err := getMethodAndBody(options)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to get method or body for resource %s", uri)
@@ -189,13 +189,19 @@ func (c *Client) FromRemote(uri string, options map[string]interface{}) (resourc
 			return nil, errors.Errorf("failed to retrieve remote resource: %s", http.StatusText(res.StatusCode))
 		}
 
-		return httputil.DumpResponse(res, true)
+		httpResponse, err := httputil.DumpResponse(res, true)
+		if err != nil {
+			return nil, err
+		}
+
+		return hugio.ToReadCloser(bytes.NewReader(httpResponse)), nil
 	})
 	if err != nil {
 		return nil, err
 	}
+	defer httpResponse.Close()
 
-	res, err := http.ReadResponse(bufio.NewReader(bytes.NewReader(httpResponse)), nil)
+	res, err := http.ReadResponse(bufio.NewReader(httpResponse), nil)
 	if err != nil {
 		return nil, err
 	}
