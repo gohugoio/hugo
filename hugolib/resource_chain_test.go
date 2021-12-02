@@ -591,9 +591,9 @@ func TestResourceChains(t *testing.T) {
 
 		case "/mydata/xml1.xml":
 			w.Write([]byte(`
-				<hello>
-					<world>Hugo Rocks!</<world>
-				</hello>`))
+					<hello>
+						<world>Hugo Rocks!</<world>
+					</hello>`))
 			return
 
 		case "/mydata/svg1.svg":
@@ -877,7 +877,7 @@ Publish 2: {{ $cssPublish2.Permalink }}
 Slogan: {{ $toml.slogan }}
 CSV1: {{ $csv1 }} {{ len (index $csv1 0)  }}
 CSV2: {{ $csv2 }}		
-XML: {{ $xml.note.body }}
+XML: {{ $xml.body }}
 `)
 		}, func(b *sitesBuilder) {
 			b.AssertFileContent("public/index.html",

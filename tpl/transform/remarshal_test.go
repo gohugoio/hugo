@@ -82,6 +82,25 @@ title: Test Metadata
    "title": "Test Metadata"
 }
 `
+		xmlExample := `<root>
+		  <resources>
+			<params>
+			  <byline>picasso</byline>
+			</params>
+			<src>**image-4.png</src>
+			<title>The Fourth Image!</title>
+		  </resources>
+		  <resources>
+			<name>my-cool-image-:counter</name>
+			<params>
+			  <byline>bep</byline>
+			</params>
+			<src>**.png</src>
+			<title>TOML: The Image #:counter</title>
+		  </resources>
+		  <title>Test Metadata</title>
+		</root>
+		`
 
 		variants := []struct {
 			format string
@@ -93,6 +112,7 @@ title: Test Metadata
 			{"TOML", tomlExample},
 			{"Toml", tomlExample},
 			{" TOML ", tomlExample},
+			{"XML", xmlExample},
 		}
 
 		for _, v1 := range variants {

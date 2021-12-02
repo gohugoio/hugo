@@ -137,8 +137,18 @@ func (d Decoder) UnmarshalTo(data []byte, f Format, v interface{}) error {
 	case JSON:
 		err = json.Unmarshal(data, v)
 	case XML:
+		var xmlRoot xml.Map
+		xmlRoot, err = xml.NewMapXml(data)
+
 		var xmlValue map[string]interface{}
-		xmlValue, err = xml.NewMapXml(data)
+		if err == nil {
+			xmlRootName, err := xmlRoot.Root()
+			if err != nil {
+				return toFileError(f, errors.Wrap(err, "failed to unmarshal XML"))
+			}
+			xmlValue = xmlRoot[xmlRootName].(map[string]interface{})
+		}
+
 		switch v := v.(type) {
 		case *map[string]interface{}:
 			*v = xmlValue

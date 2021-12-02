@@ -48,11 +48,24 @@ Example:
 
 ## XML data
 
+As a convenience, Hugo allows you to access XML data in the same way that you access JSON, TOML, and YAML: you do not need to specify the root node when accessing the data.
+
+To get the contents of `<title>` in the document below, you use `{{ .message.title }}`:
+
+```
+<root>
+    <message>
+        <title>Hugo rocks!</title>
+        <description>Thanks for using Hugo</description>
+    </message>
+</root>
+```
+
 The following example lists the items of an RSS feed:
 
 ```
 {{ with resources.Get "https://example.com/rss.xml" | transform.Unmarshal }}
-    {{ range .rss.channel.item }}
+    {{ range .channel.item }}
         <strong>{{ .title | plainify | htmlUnescape }}</strong><br />
         <p>{{ .description | plainify | htmlUnescape }}</p>
         {{ $link := .link | plainify | htmlUnescape }}
