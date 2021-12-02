@@ -25,11 +25,10 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
-	"time"
 )
 
 const (
-	issueLinkTemplate                        = "[#%d](https://github.com/gohugoio/hugo/issues/%d)"
+	issueLinkTemplate                        = "#%d"
 	linkTemplate                             = "[%s](%s)"
 	releaseNotesMarkdownTemplatePatchRelease = `
 {{ if eq (len .All) 1 }}
@@ -39,9 +38,9 @@ This is a bug-fix release with a couple of important fixes.
 {{ end }}
 {{ range .All }}
 {{- if .GitHubCommit -}}
-* {{ .Subject }} {{ . | commitURL }} {{ . | authorURL }} {{ range .Issues }}{{ . | issue }}{{ end }}
+* {{ .Subject }} {{ .Hash }} {{ . | authorURL }} {{ range .Issues }}{{ . | issue }} {{ end }}
 {{ else -}}
-* {{ .Subject }} {{ range .Issues }}{{ . | issue }}{{ end }}
+* {{ .Subject }} {{ range .Issues }}{{ . | issue }} {{ end }}
 {{ end -}}
 {{- end }}
 
@@ -83,41 +82,17 @@ Hugo now has:
 ## Notes
 {{ template "change-section" . }}
 {{- end -}}
-## Enhancements
-{{ template "change-headers"  .Enhancements -}}
-## Fixes
-{{ template "change-headers"  .Fixes -}}
-
-{{ define "change-headers" }}
-{{ $tmplChanges := index . "templateChanges" -}}
-{{- $outChanges := index . "outChanges" -}}
-{{- $coreChanges := index . "coreChanges" -}}
-{{- $otherChanges := index . "otherChanges" -}}
-{{- with $tmplChanges -}}
-### Templates
+{{ with .All }}
+## Changes
 {{ template "change-section" . }}
-{{- end -}}
-{{- with $outChanges -}}
-### Output
-{{ template "change-section"  . }}
-{{- end -}}
-{{- with $coreChanges -}}
-### Core
-{{ template "change-section" . }}
-{{- end -}}
-{{- with $otherChanges -}}
-### Other
-{{ template "change-section"  . }}
-{{- end -}}
 {{ end }}
-
 
 {{ define "change-section" }}
 {{ range . }}
 {{- if .GitHubCommit -}}
-* {{ .Subject }} {{ . | commitURL }} {{ . | authorURL }} {{ range .Issues }}{{ . | issue }}{{ end }}
+* {{ .Subject }} {{ .Hash }} {{ . | authorURL }} {{ range .Issues }}{{ . | issue }} {{ end }}
 {{ else -}}
-* {{ .Subject }} {{ range .Issues }}{{ . | issue }}{{ end }}
+* {{ .Subject }} {{ range .Issues }}{{ . | issue }} {{ end }}
 {{ end -}}
 {{- end }}
 {{ end }}
@@ -129,7 +104,7 @@ var templateFuncs = template.FuncMap{
 		return !strings.HasSuffix(c.Version, "0")
 	},
 	"issue": func(id int) string {
-		return fmt.Sprintf(issueLinkTemplate, id, id)
+		return fmt.Sprintf(issueLinkTemplate, id)
 	},
 	"commitURL": func(info gitInfo) string {
 		if info.GitHubCommit.HTMLURL == "" {
@@ -147,7 +122,7 @@ var templateFuncs = template.FuncMap{
 
 func writeReleaseNotes(version string, infosMain, infosDocs gitInfos, to io.Writer) error {
 	client := newGitHubAPI("hugo")
-	changes := gitInfosToChangeLog(infosMain, infosDocs)
+	changes := newChangeLog(infosMain, infosDocs)
 	changes.Version = version
 	repo, err := client.fetchRepo()
 	if err == nil {
@@ -264,58 +239,4 @@ func (r *ReleaseHandler) writeReleaseNotesToTemp(version string, isPatch bool, i
 	}
 
 	return name, nil
-}
-
-func (r *ReleaseHandler) writeReleaseNotesToDocs(title, description, sourceFilename string) (string, error) {
-	targetFilename := "index.md"
-	bundleDir := strings.TrimSuffix(filepath.Base(sourceFilename), "-ready.md")
-	contentDir := hugoFilepath("docs/content/en/news/" + bundleDir)
-	targetFullFilename := filepath.Join(contentDir, targetFilename)
-
-	if r.try {
-		fmt.Printf("Write release notes to /docs: Bundle %q Dir: %q\n", bundleDir, contentDir)
-		return targetFullFilename, nil
-	}
-
-	if err := os.MkdirAll(contentDir, os.ModePerm); err != nil {
-		return "", nil
-	}
-
-	b, err := ioutil.ReadFile(sourceFilename)
-	if err != nil {
-		return "", err
-	}
-
-	f, err := os.Create(targetFullFilename)
-	if err != nil {
-		return "", err
-	}
-	defer f.Close()
-
-	fmTail := ""
-	if !strings.HasSuffix(title, ".0") {
-		// Bug fix release
-		fmTail = `
-images:
-- images/blog/hugo-bug-poster.png
-`
-	}
-
-	if _, err := f.WriteString(fmt.Sprintf(`
----
-date: %s
-title: %q
-description: %q
-categories: ["Releases"]%s
----
-
-	`, time.Now().Format("2006-01-02"), title, description, fmTail)); err != nil {
-		return "", err
-	}
-
-	if _, err := f.Write(b); err != nil {
-		return "", err
-	}
-
-	return targetFullFilename, nil
 }
