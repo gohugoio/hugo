@@ -111,6 +111,9 @@ func TestUnmarshal(t *testing.T) {
 		{testContentResource{key: "r1", content: `slogan = "Hugo Rocks!"`, mime: media.TOMLType}, nil, func(m map[string]interface{}) {
 			assertSlogan(m)
 		}},
+		{testContentResource{key: "r1", content: `<root><slogan>Hugo Rocks!</slogan></root>"`, mime: media.XMLType}, nil, func(m map[string]interface{}) {
+			assertSlogan(m)
+		}},
 		{testContentResource{key: "r1", content: `1997,Ford,E350,"ac, abs, moon",3000.00
 1999,Chevy,"Venture ""Extended Edition""","",4900.00`, mime: media.CSVType}, nil, func(r [][]string) {
 			c.Assert(len(r), qt.Equals, 2)

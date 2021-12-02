@@ -30,6 +30,7 @@ func TestFormatFromString(t *testing.T) {
 		{"json", JSON},
 		{"yaml", YAML},
 		{"yml", YAML},
+		{"xml", XML},
 		{"toml", TOML},
 		{"config.toml", TOML},
 		{"tOMl", TOML},
@@ -48,6 +49,7 @@ func TestFormatFromMediaType(t *testing.T) {
 	}{
 		{media.JSONType, JSON},
 		{media.YAMLType, YAML},
+		{media.XMLType, XML},
 		{media.TOMLType, TOML},
 		{media.CalendarType, ""},
 	} {
@@ -70,6 +72,7 @@ func TestFormatFromContentString(t *testing.T) {
 		{`foo:"bar"`, YAML},
 		{`{ "foo": "bar"`, JSON},
 		{`a,b,c"`, CSV},
+		{`<foo>bar</foo>"`, XML},
 		{`asdfasdf`, Format("")},
 		{``, Format("")},
 	} {

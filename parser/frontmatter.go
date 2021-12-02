@@ -23,6 +23,8 @@ import (
 	toml "github.com/pelletier/go-toml/v2"
 
 	yaml "gopkg.in/yaml.v2"
+
+	xml "github.com/clbanning/mxj/v2"
 )
 
 const (
@@ -62,7 +64,14 @@ func InterfaceToConfig(in interface{}, format metadecoders.Format, w io.Writer) 
 
 		_, err = w.Write([]byte{'\n'})
 		return err
+	case metadecoders.XML:
+		b, err := xml.AnyXmlIndent(in, "", "\t", "root")
+		if err != nil {
+			return err
+		}
 
+		_, err = w.Write(b)
+		return err
 	default:
 		return errors.New("unsupported Format provided")
 	}

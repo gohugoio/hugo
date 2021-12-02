@@ -20,6 +20,59 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
+func TestUnmarshalXML(t *testing.T) {
+	c := qt.New(t)
+
+	xmlDoc := `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+	<rss version="2.0"
+		xmlns:atom="http://www.w3.org/2005/Atom">
+		<channel>
+			<title>Example feed</title>
+			<link>https://example.com/</link>
+			<description>Example feed</description>
+			<generator>Hugo -- gohugo.io</generator>
+			<language>en-us</language>
+			<copyright>Example</copyright>
+			<lastBuildDate>Fri, 08 Jan 2021 14:44:10 +0000</lastBuildDate>
+			<atom:link href="https://example.com/feed.xml" rel="self" type="application/rss+xml"/>
+			<item>
+				<title>Example title</title>
+				<link>https://example.com/2021/11/30/example-title/</link>
+				<pubDate>Tue, 30 Nov 2021 15:00:00 +0000</pubDate>
+				<guid>https://example.com/2021/11/30/example-title/</guid>
+				<description>Example description</description>
+			</item>
+		</channel>
+	</rss>`
+
+	expect := map[string]interface{}{
+		"-atom": "http://www.w3.org/2005/Atom", "-version": "2.0",
+		"channel": map[string]interface{}{
+			"copyright":   "Example",
+			"description": "Example feed",
+			"generator":   "Hugo -- gohugo.io",
+			"item": map[string]interface{}{
+				"description": "Example description",
+				"guid":        "https://example.com/2021/11/30/example-title/",
+				"link":        "https://example.com/2021/11/30/example-title/",
+				"pubDate":     "Tue, 30 Nov 2021 15:00:00 +0000",
+				"title":       "Example title"},
+			"language":      "en-us",
+			"lastBuildDate": "Fri, 08 Jan 2021 14:44:10 +0000",
+			"link": []interface{}{"https://example.com/", map[string]interface{}{
+				"-href": "https://example.com/feed.xml",
+				"-rel":  "self",
+				"-type": "application/rss+xml"}},
+			"title": "Example feed",
+		}}
+
+	d := Default
+
+	m, err := d.Unmarshal([]byte(xmlDoc), XML)
+	c.Assert(err, qt.IsNil)
+	c.Assert(m, qt.DeepEquals, expect)
+
+}
 func TestUnmarshalToMap(t *testing.T) {
 	c := qt.New(t)
 
@@ -38,6 +91,7 @@ func TestUnmarshalToMap(t *testing.T) {
 		{"a: Easy!\nb:\n  c: 2\n  d: [3, 4]", YAML, map[string]interface{}{"a": "Easy!", "b": map[string]interface{}{"c": 2, "d": []interface{}{3, 4}}}},
 		{"a:\n  true: 1\n  false: 2", YAML, map[string]interface{}{"a": map[string]interface{}{"true": 1, "false": 2}}},
 		{`{ "a": "b" }`, JSON, expect},
+		{`<root><a>b</a></root>`, XML, expect},
 		{`#+a: b`, ORG, expect},
 		// errors
 		{`a = b`, TOML, false},
@@ -72,6 +126,7 @@ func TestUnmarshalToInterface(t *testing.T) {
 		{`#+DATE: <2020-06-26 Fri>`, ORG, map[string]interface{}{"date": "2020-06-26"}},
 		{`a = "b"`, TOML, expect},
 		{`a: "b"`, YAML, expect},
+		{`<root><a>b</a></root>`, XML, expect},
 		{`a,b,c`, CSV, [][]string{{"a", "b", "c"}}},
 		{"a: Easy!\nb:\n  c: 2\n  d: [3, 4]", YAML, map[string]interface{}{"a": "Easy!", "b": map[string]interface{}{"c": 2, "d": []interface{}{3, 4}}}},
 		// errors
