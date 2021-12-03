@@ -168,7 +168,7 @@ var (
 
 	JSONType           = newMediaType("application", "json", []string{"json"})
 	WebAppManifestType = newMediaTypeWithMimeSuffix("application", "manifest", "json", []string{"webmanifest"})
-	RSSType            = newMediaTypeWithMimeSuffix("application", "rss", "xml", []string{"xml"})
+	RSSType            = newMediaTypeWithMimeSuffix("application", "rss", "xml", []string{"xml", "rss"})
 	XMLType            = newMediaType("application", "xml", []string{"xml"})
 	SVGType            = newMediaTypeWithMimeSuffix("image", "svg", "xml", []string{"svg"})
 	TextType           = newMediaType("text", "plain", []string{"txt"})
