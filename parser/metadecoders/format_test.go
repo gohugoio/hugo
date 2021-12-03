@@ -50,6 +50,7 @@ func TestFormatFromMediaType(t *testing.T) {
 		{media.JSONType, JSON},
 		{media.YAMLType, YAML},
 		{media.XMLType, XML},
+		{media.RSSType, XML},
 		{media.TOMLType, TOML},
 		{media.CalendarType, ""},
 	} {
