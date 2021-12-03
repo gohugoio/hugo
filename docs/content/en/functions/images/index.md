@@ -40,6 +40,28 @@ A shorter version of the above, if you only need to apply the filter once:
 
 The above will overlay `$logo` in the upper left corner of `$img` (at position `x=50, y=50`).
 
+### Text
+
+Using the `Text` filter, you can add text to an image.
+
+{{% funcsig %}}
+images.Text TEXT DICT)
+{{% /funcsig %}}
+
+The following example will add the text `Hugo rocks!` to the image with the specified font, color, size and position.
+
+```
+{{ $font := resources.Get "/fonts/font.ttf" }}
+{{ $img := resources.Get "/images/background.png"}}
+{{ $img = $img.Filter (images.Text "Hugo rocks!" (dict
+    "color" "#ffffff"
+    "size" 60
+    "x" 10
+    "y" 20
+    "font" $font
+))}}
+```
+
 ### Brightness
 
 {{% funcsig %}}
