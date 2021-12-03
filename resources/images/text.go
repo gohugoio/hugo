@@ -83,10 +83,10 @@ func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options)
 
 	// Draw text, consider and include linebreaks
 	maxWidth := dst.Bounds().Dx() - 20
-	fontHeight := face.Metrics().Height.Ceil()
+	fontHeight := face.Metrics().Ascent.Ceil()
 
 	// Correct y position based on font and size
-	f.y = f.y + face.Metrics().Ascent.Ceil()
+	f.y = f.y + fontHeight
 
 	// Start position
 	y := f.y
