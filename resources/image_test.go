@@ -560,7 +560,7 @@ func TestImageOperationsGoldenWebp(t *testing.T) {
 	c := qt.New(t)
 	c.Parallel()
 
-	devMode := false
+	devMode := true
 
 	testImages := []string{"fuzzy-cirlcle.png"}
 
@@ -674,6 +674,7 @@ func TestImageOperationsGolden(t *testing.T) {
 			f.Hue(22),
 			f.Contrast(32.5),
 			f.Overlay(gopher.(images.ImageSource), 20, 30),
+			f.Text("No opions"),
 			f.Text("Hugo rocks!", map[string]interface{}{"x": 10, "y": 20, "size": 15, "color": "#ff0000"}),
 		}
 

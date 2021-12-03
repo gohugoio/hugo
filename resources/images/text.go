@@ -24,7 +24,7 @@ import (
 	"github.com/disintegration/gift"
 
 	"golang.org/x/image/font"
-	"golang.org/x/image/font/gofont/goitalic"
+	"golang.org/x/image/font/gofont/goregular"
 	"golang.org/x/image/font/opentype"
 	"golang.org/x/image/math/fixed"
 )
@@ -39,16 +39,13 @@ type textFilter struct {
 }
 
 func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) {
-	if f.color == "" {
-		f.color = "#000000"
-	}
-
 	color, err := hexStringToColor(f.color)
 	if err != nil {
 		panic(err)
 	}
 
-	ttf := goitalic.TTF
+	// Load and parse font
+	ttf := goregular.TTF
 	if f.font != nil {
 		rs, err := f.font.ReadSeekCloser()
 		if err != nil {
@@ -66,9 +63,7 @@ func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options)
 		panic(err)
 	}
 
-	if f.size == 0 {
-		f.size = 12
-	}
+	// Set font options
 	face, err := opentype.NewFace(otf, &opentype.FaceOptions{
 		Size:    f.size,
 		DPI:     72,
@@ -89,10 +84,15 @@ func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options)
 	// Draw text, consider and include linebreaks
 	maxWidth := dst.Bounds().Dx() - 20
 	fontHeight := face.Metrics().Height.Ceil()
-	y := f.y
 
+	// Correct y position based on font and size
+	f.y = f.y + face.Metrics().Ascent.Ceil()
+
+	// Start position
+	y := f.y
 	d.Dot = fixed.P(f.x, f.y)
 
+	// Draw text and break line at max width
 	parts := strings.Split(f.text, " ")
 	for _, str := range parts {
 		strWith := font.MeasureString(face, str)
