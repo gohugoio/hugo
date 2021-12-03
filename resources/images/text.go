@@ -16,6 +16,10 @@ package images
 import (
 	"image"
 	"image/draw"
+	"io"
+	"strings"
+
+	"github.com/gohugoio/hugo/common/hugio"
 
 	"github.com/disintegration/gift"
 
@@ -31,6 +35,7 @@ type textFilter struct {
 	text, color string
 	x, y        int
 	size        float64
+	font        fontSource
 }
 
 func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) {
@@ -43,7 +48,20 @@ func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options)
 		panic(err)
 	}
 
-	otf, err := opentype.Parse(goitalic.TTF)
+	ttf := goitalic.TTF
+	if f.font != nil {
+		rs, err := f.font.ReadSeekCloser()
+		if err != nil {
+			panic(err)
+		}
+		defer rs.Close()
+		ttf, err = io.ReadAll(rs)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	otf, err := opentype.Parse(ttf)
 	if err != nil {
 		panic(err)
 	}
@@ -60,14 +78,32 @@ func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options)
 		Dst:  dst,
 		Src:  image.NewUniform(color),
 		Face: face,
-		Dot:  fixed.P(f.x, f.y),
 	}
 
 	gift.New().Draw(dst, src)
-	d.DrawString(f.text)
 
+	// Draw text, consider and include linebreaks
+	maxWidth := dst.Bounds().Dx() - 20
+	fontHeight := face.Metrics().Height.Ceil()
+	y := f.y
+
+	d.Dot = fixed.P(f.x, f.y)
+
+	parts := strings.Split(f.text, " ")
+	for _, str := range parts {
+		strWith := font.MeasureString(face, str)
+		if (d.Dot.X.Ceil() + strWith.Ceil()) >= maxWidth {
+			y = y + fontHeight
+			d.Dot = fixed.P(f.x, y)
+		}
+		d.DrawString(str + " ")
+	}
 }
 
 func (f textFilter) Bounds(srcBounds image.Rectangle) image.Rectangle {
 	return image.Rect(0, 0, srcBounds.Dx(), srcBounds.Dy())
+}
+
+type fontSource interface {
+	ReadSeekCloser() (hugio.ReadSeekCloser, error)
 }

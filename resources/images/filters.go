@@ -42,15 +42,21 @@ func (*Filters) Text(text string, options interface{}) gift.Filter {
 		panic(err)
 	}
 
+	tf := textFilter{
+		text:  cast.ToString(text),
+		color: cast.ToString(opt["color"]),
+		size:  cast.ToFloat64(opt["size"]),
+		x:     cast.ToInt(opt["x"]),
+		y:     cast.ToInt(opt["y"]),
+	}
+
+	if w, ok := opt["font"].(fontSource); ok {
+		tf.font = w
+	}
+
 	return filter{
 		Options: newFilterOpts(text, options),
-		Filter: textFilter{
-			text:  cast.ToString(text),
-			color: cast.ToString(opt["color"]),
-			size:  cast.ToFloat64(opt["size"]),
-			x:     cast.ToInt(opt["x"]),
-			y:     cast.ToInt(opt["y"]),
-		},
+		Filter:  tf,
 	}
 }
 
