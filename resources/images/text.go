@@ -65,6 +65,10 @@ func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options)
 	if err != nil {
 		panic(err)
 	}
+
+	if f.size == 0 {
+		f.size = 12
+	}
 	face, err := opentype.NewFace(otf, &opentype.FaceOptions{
 		Size:    f.size,
 		DPI:     72,
