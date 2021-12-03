@@ -15,6 +15,8 @@
 package images
 
 import (
+	"github.com/gohugoio/hugo/common/maps"
+
 	"github.com/disintegration/gift"
 	"github.com/spf13/cast"
 )
@@ -33,11 +35,22 @@ func (*Filters) Overlay(src ImageSource, x, y interface{}) gift.Filter {
 	}
 }
 
-// Text creates a filter that draws text with size at position x y.
-func (*Filters) Text(text, color string, size, x, y interface{}) gift.Filter {
+// Text creates a filter that draws text with the given options.
+func (*Filters) Text(text string, options interface{}) gift.Filter {
+	opt, err := maps.ToStringMapE(options)
+	if err != nil {
+		panic(err)
+	}
+
 	return filter{
-		Options: newFilterOpts(text, color, size, x, y),
-		Filter:  textFilter{text: cast.ToString(text), color: cast.ToString(color), size: cast.ToFloat64(size), x: cast.ToInt(x), y: cast.ToInt(y)},
+		Options: newFilterOpts(text, options),
+		Filter: textFilter{
+			text:  cast.ToString(text),
+			color: cast.ToString(opt["color"]),
+			size:  cast.ToFloat64(opt["size"]),
+			x:     cast.ToInt(opt["x"]),
+			y:     cast.ToInt(opt["y"]),
+		},
 	}
 }
 
