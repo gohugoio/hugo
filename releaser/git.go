@@ -52,7 +52,7 @@ func newChangeLog(infos, docInfos gitInfos) *changeLog {
 
 	for _, info := range infos {
 		// TODO(bep) improve
-		if regexp.MustCompile("(?i)deprecate").MatchString(info.Subject) {
+		if regexp.MustCompile("(?i)deprecate|note").MatchString(info.Subject) {
 			log.Notes = append(log.Notes, info)
 		}
 
