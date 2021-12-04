@@ -560,7 +560,7 @@ func TestImageOperationsGoldenWebp(t *testing.T) {
 	c := qt.New(t)
 	c.Parallel()
 
-	devMode := true
+	devMode := false
 
 	testImages := []string{"fuzzy-cirlcle.png"}
 
