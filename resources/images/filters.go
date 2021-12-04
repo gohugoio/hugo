@@ -38,15 +38,18 @@ func (*Filters) Overlay(src ImageSource, x, y interface{}) gift.Filter {
 // Text creates a filter that draws text with the given options.
 func (*Filters) Text(text string, options ...interface{}) gift.Filter {
 	tf := textFilter{
-		text:  text,
-		color: "#000000",
-		size:  20,
-		x:     1,
-		y:     1,
+		text:        text,
+		color:       "#ffffff",
+		size:        20,
+		x:           10,
+		y:           10,
+		linespacing: 2,
 	}
 
+	var opt map[string]interface{}
 	if len(options) > 0 {
-		opt, err := maps.ToStringMapE(options[0])
+		var err error
+		opt, err = maps.ToStringMapE(options[0])
 		if err != nil {
 			panic(err)
 		}
@@ -61,17 +64,20 @@ func (*Filters) Text(text string, options ...interface{}) gift.Filter {
 				tf.x = cast.ToInt(v)
 			case "y":
 				tf.y = cast.ToInt(v)
+			case "linespacing":
+				tf.y = cast.ToInt(v)
 			}
 
 		}
 
 		if w, ok := opt["font"].(fontSource); ok {
 			tf.font = w
+			opt["font"] = w.Key()
 		}
 	}
 
 	return filter{
-		Options: newFilterOpts(text, options),
+		Options: newFilterOpts(text, opt),
 		Filter:  tf,
 	}
 }

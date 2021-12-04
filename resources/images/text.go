@@ -1,4 +1,4 @@
-// Copyright 2020 The Hugo Authors. All rights reserved.
+// Copyright 2021 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ type textFilter struct {
 	text, color string
 	x, y        int
 	size        float64
+	linespacing int
 	font        fontSource
 }
 
@@ -93,11 +94,11 @@ func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options)
 	d.Dot = fixed.P(f.x, f.y)
 
 	// Draw text and break line at max width
-	parts := strings.Split(f.text, " ")
+	parts := strings.Fields(f.text)
 	for _, str := range parts {
 		strWith := font.MeasureString(face, str)
 		if (d.Dot.X.Ceil() + strWith.Ceil()) >= maxWidth {
-			y = y + fontHeight
+			y = y + fontHeight + f.linespacing
 			d.Dot = fixed.P(f.x, y)
 		}
 		d.DrawString(str + " ")
@@ -110,4 +111,5 @@ func (f textFilter) Bounds(srcBounds image.Rectangle) image.Rectangle {
 
 type fontSource interface {
 	ReadSeekCloser() (hugio.ReadSeekCloser, error)
+	Key() string
 }
