@@ -57,6 +57,7 @@ The following example will add the text `Hugo rocks!` to the image with the spec
     "size" 60
     "x" 10
     "y" 20
+    "linespacing" 2
 ))}}
 ```
 
