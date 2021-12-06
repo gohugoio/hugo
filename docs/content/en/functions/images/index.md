@@ -55,9 +55,9 @@ The following example will add the text `Hugo rocks!` to the image with the spec
 {{ $img = $img.Filter (images.Text "Hugo rocks!" (dict
     "color" "#ffffff"
     "size" 60
+    "linespacing" 2
     "x" 10
     "y" 20
-    "linespacing" 2
 ))}}
 ```
 
