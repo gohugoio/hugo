@@ -59,13 +59,21 @@ func (ns *Namespace) Emojify(s interface{}) (template.HTML, error) {
 
 // Highlight returns a copy of s as an HTML string with syntax
 // highlighting applied.
-func (ns *Namespace) Highlight(s interface{}, lang, opts string) (template.HTML, error) {
+func (ns *Namespace) Highlight(s interface{}, lang string, opts ...interface{}) (template.HTML, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return "", err
 	}
 
-	highlighted, _ := ns.deps.ContentSpec.Converters.Highlight(ss, lang, opts)
+	sopts := ""
+	if len(opts) > 0 {
+		sopts, err = cast.ToStringE(opts[0])
+		if err != nil {
+			return "", err
+		}
+	}
+
+	highlighted, _ := ns.deps.ContentSpec.Converters.Highlight(ss, lang, sopts)
 	return template.HTML(highlighted), nil
 }
 

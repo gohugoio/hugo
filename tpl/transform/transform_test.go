@@ -26,7 +26,6 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/langs"
-	
 )
 
 type tstNoStringer struct{}
@@ -71,10 +70,11 @@ func TestHighlight(t *testing.T) {
 	for _, test := range []struct {
 		s      interface{}
 		lang   string
-		opts   string
+		opts   interface{}
 		expect interface{}
 	}{
 		{"func boo() {}", "go", "", "boo"},
+		{"func boo() {}", "go", nil, "boo"},
 		// Issue #4179
 		{`<Foo attr=" &lt; "></Foo>`, "xml", "", `&amp;lt;`},
 		{tstNoStringer{}, "go", "", false},
