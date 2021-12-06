@@ -587,12 +587,18 @@ Test and document setting params via JSON env var.
 
 ## Ignore Content and Data Files when Rendering
 
-To exclude specific files from the content and data directories when rendering your site, set `ignoreFiles` to one or more regular expressions.
+To exclude specific files from the `content` and `data` directories when rendering your site, set `ignoreFiles` to one or more regular expressions to match against the absolute file path.
 
-For example, to ignore content and data files ending with `.foo` and `.boo`:
+To ignore files ending with `.foo` or `.boo`:
 
-{{< code-toggle >}}
-ignoreFiles = [ "\\.foo$","\\.boo$"]
+{{< code-toggle copy="false" >}}
+ignoreFiles = ['\.foo$', '\.boo$']
+{{< /code-toggle >}}
+
+To ignore a file using the absolute file path:
+
+{{< code-toggle copy="false" >}}
+ignoreFiles = ['^/home/user/project/content/test\.md$']
 {{< /code-toggle >}}
 
 ## Configure Front Matter
