@@ -48,17 +48,15 @@ Using the `Text` filter, you can add text to an image.
 images.Text TEXT DICT)
 {{% /funcsig %}}
 
-The following example will add the text `Hugo rocks!` to the image with the specified font, color, size and position.
+The following example will add the text `Hugo rocks!` to the image with the specified color, size and position.
 
 ```
-{{ $font := resources.Get "/fonts/font.ttf" }}
 {{ $img := resources.Get "/images/background.png"}}
 {{ $img = $img.Filter (images.Text "Hugo rocks!" (dict
     "color" "#ffffff"
     "size" 60
     "x" 10
     "y" 20
-    "font" $font
 ))}}
 ```
 
