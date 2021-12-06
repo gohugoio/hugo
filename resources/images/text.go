@@ -16,10 +16,7 @@ package images
 import (
 	"image"
 	"image/draw"
-	"io"
 	"strings"
-
-	"github.com/gohugoio/hugo/common/hugio"
 
 	"github.com/disintegration/gift"
 
@@ -36,7 +33,6 @@ type textFilter struct {
 	x, y        int
 	size        float64
 	linespacing int
-	font        fontSource
 }
 
 func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) {
@@ -47,18 +43,6 @@ func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options)
 
 	// Load and parse font
 	ttf := goregular.TTF
-	if f.font != nil {
-		rs, err := f.font.ReadSeekCloser()
-		if err != nil {
-			panic(err)
-		}
-		defer rs.Close()
-		ttf, err = io.ReadAll(rs)
-		if err != nil {
-			panic(err)
-		}
-	}
-
 	otf, err := opentype.Parse(ttf)
 	if err != nil {
 		panic(err)
@@ -107,9 +91,4 @@ func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options)
 
 func (f textFilter) Bounds(srcBounds image.Rectangle) image.Rectangle {
 	return image.Rect(0, 0, srcBounds.Dx(), srcBounds.Dy())
-}
-
-type fontSource interface {
-	ReadSeekCloser() (hugio.ReadSeekCloser, error)
-	Key() string
 }

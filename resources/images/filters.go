@@ -48,12 +48,7 @@ func (*Filters) Text(text string, options ...interface{}) gift.Filter {
 
 	var opt map[string]interface{}
 	if len(options) > 0 {
-		var err error
-		opt, err = maps.ToStringMapE(options[0])
-		if err != nil {
-			panic(err)
-		}
-
+		opt := maps.MustToParamsAndPrepare(options[0])
 		for option, v := range opt {
 			switch option {
 			case "color":
@@ -65,14 +60,9 @@ func (*Filters) Text(text string, options ...interface{}) gift.Filter {
 			case "y":
 				tf.y = cast.ToInt(v)
 			case "linespacing":
-				tf.y = cast.ToInt(v)
+				tf.linespacing = cast.ToInt(v)
 			}
 
-		}
-
-		if w, ok := opt["font"].(fontSource); ok {
-			tf.font = w
-			opt["font"] = w.Key()
 		}
 	}
 
