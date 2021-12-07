@@ -151,7 +151,7 @@ Go Templates only ship with a few basic functions but also provide a mechanism f
 <!-- prints true (i.e., since 1 is less than 2) -->
 ```
 
-Note that both examples make use of Go Template's [math functions][].
+Note that both examples make use of Go Template's [math]][] functions.
 
 {{% note "Additional Boolean Operators" %}}
 There are more boolean operators than those listed in the Hugo docs in the [Go Template documentation](https://golang.org/pkg/text/template/#hdr-Functions).
@@ -184,7 +184,7 @@ Example of including a `layouts/partials/header.html` partial:
 
 The `template` function was used to include *partial* templates
 in much older Hugo versions. Now it's useful only for calling
-[*internal* templates][internal_templates]. The syntax is `{{ template
+[*internal* templates][internal templates]. The syntax is `{{ template
 "_internal/<TEMPLATE>.<EXTENSION>" . }}`.
 
 {{% note %}}
@@ -630,48 +630,69 @@ Finally, you can pull "magic constants" out of your layouts as well. The followi
 </nav>
 ```
 
-## Example: Show Only Upcoming Events
+## Example: Show Future Events
 
-Go allows you to do more than what's shown here. Using Hugo's [`where` function][where] and Go built-ins, we can list only the items from `content/events/` whose date (set in a content file's [front matter][]) is in the future. The following is an example [partial template][partials]:
+Given the following content structure and [front matter]:
 
-{{< code file="layouts/partials/upcoming-events.html" download="upcoming-events.html" >}}
-<h4>Upcoming Events</h4>
-<ul class="upcoming-events">
-{{ range where .Pages.ByDate "Section" "events" }}
-    {{ if ge .Date.Unix now.Unix }}
-        <li>
-        <!-- add span for event type -->
-          <span>{{ .Type | title }} —</span>
-          {{ .Title }} on
-        <!-- add span for event date -->
-          <span>{{ .Date.Format "2 January at 3:04pm" }}</span>
-          at {{ .Params.place }}
-        </li>
+```text
+content/
+└── events/
+    ├── event-1.md
+    ├── event-2.md
+    └── event-3.md
+```
+
+{{< code-toggle file="content/events/event-1.md" copy="false" >}}
+title = 'Event 1'
+date = 2021-12-06T10:37:16-08:00
+draft = false
+start_date = 2021-12-05T09:00:00-08:00
+end_date = 2021-12-05T11:00:00-08:00
+{{< /code-toggle >}}
+
+This [partial template][partials] renders future events:
+
+{{< code file="layouts/partials/future-events.html" >}}
+<h2>Future Events</h2>
+<ul>
+  {{ range where site.RegularPages "Type" "events" }}
+    {{ if gt (.Params.start_date | time.AsTime) now }}
+      {{ $startDate := .Params.start_date | time.Format ":date_medium" }}
+      <li>
+        <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a> - {{ $startDate }}
+      </li>
     {{ end }}
-{{ end }}
+  {{ end }}
 </ul>
 {{< /code >}}
 
+If you restrict front matter to the TOML format, and omit quotation marks surrounding date fields, you can perform date comparisons without casting.
 
-[`where` function]: /functions/where/
-[config]: /getting-started/configuration/
+{{< code file="layouts/partials/future-events.html" >}}
+<h2>Future Events</h2>
+<ul>
+  {{ range where (where site.RegularPages "Type" "events") "Params.start_date" "gt" now }}
+    {{ $startDate := .Params.start_date | time.Format ":date_medium" }}
+    <li>
+      <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a> - {{ $startDate }}
+    </li>
+  {{ end }}
+</ul>
+{{< /code >}}
+
+[config]: {{< relref "getting-started/configuration" >}}
 [dotdoc]: https://golang.org/pkg/text/template/#hdr-Variables
-[first]: /functions/first/
-[front matter]: /content-management/front-matter/
-[functions]: /functions/ "See the full list of Hugo's templating functions with a quick start reference guide and basic and advanced examples."
-[Go html/template]: https://golang.org/pkg/html/template/ "Godocs references for Go's html templating"
-[gohtmltemplate]: https://golang.org/pkg/html/template/ "Godocs references for Go's html templating"
-[index]: /functions/index-function/
-[math functions]: /functions/math/
-[partials]: /templates/partials/ "Link to the partial templates page inside of the templating section of the Hugo docs"
-[internal_templates]: /templates/internal/
-[relpermalink]: /variables/page/
-[safehtml]: /functions/safehtml/
-[sitevars]: /variables/site/
-[pagevars]: /variables/page/
-[variables]: /variables/ "See the full extent of page-, site-, and other variables that Hugo make available to you in your templates."
-[where]: /functions/where/
-[with]: /functions/with/
-[godocsindex]: https://golang.org/pkg/text/template/ "Godocs page for index function"
-[param]: /functions/param/
-[isset]: /functions/isset/
+[first]: {{< relref "functions/first" >}}
+[front matter]: {{< relref "content-management/front-matter" >}}
+[functions]: {{< relref "functions" >}}
+[internal templates]: {{< relref "templates/internal" >}}
+[isset]: {{< relref "functions/isset" >}}
+[math]: {{< relref "functions/math" >}}
+[pagevars]: {{< relref "variables/page" >}}
+[param]: {{< relref "functions/param" >}}
+[partials]: {{< relref "templates/partials" >}}
+[relpermalink]: {{< relref "variables/page#page-variables" >}}
+[safehtml]: {{< relref "functions/safehtml" >}}
+[sitevars]: {{< relref "variables/site" >}}
+[variables]: {{< relref "variables" >}}
+[with]: {{< relref "functions/with" >}}
