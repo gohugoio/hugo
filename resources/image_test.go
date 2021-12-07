@@ -597,6 +597,8 @@ func TestImageOperationsGolden(t *testing.T) {
 	c := qt.New(t)
 	c.Parallel()
 
+	// Note, if you're enabling this on a MacOS M1 (ARM) you need to run the test with GOARCH=amd64.
+	// GOARCH=amd64 go test -timeout 30s -run "^TestImageOperationsGolden$" ./resources -v
 	devMode := false
 
 	testImages := []string{"sunset.jpg", "gohugoio8.png", "gohugoio24.png"}
