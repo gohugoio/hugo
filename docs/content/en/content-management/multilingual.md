@@ -494,10 +494,10 @@ defaultContentLanguage = "en"
 [languages]
 [languages.en]
 title = "My blog"
-mergeLangContentTo = "es"
 
 [languages.es]
 title = "Mi blog"
+mergeLangContent = "en"
 {{< /code-toggle >}}
 
 In this example, if you have the following content:
@@ -507,7 +507,7 @@ posts
 ├── one.es.md
 └── two.md
 ```
-hugo will behave as if there was `two.es.md` with contents of `two.md`. In case of more than two languages a slice can be used instead: `mergeLangContentTo = ["es", "de"]`.
+hugo will behave as if there was `two.es.md` with contents of `two.md`. A slice can also be used to merge `de`, and `en` only if there is no `de` translation: `mergeLangContent = ["de", "en"]`.
 
 [lang.Merge](/functions/lang.merge/) does not affect site content, and is used to fill page lists with content from other languages without copying it.
 
