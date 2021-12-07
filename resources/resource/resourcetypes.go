@@ -155,11 +155,7 @@ type OpenReadSeekCloser func() (hugio.ReadSeekCloser, error)
 // ReadSeekCloserResource is a Resource that supports loading its content.
 type ReadSeekCloserResource interface {
 	MediaType() media.Type
-	ReadSeekCloserProvider
-}
-
-type ReadSeekCloserProvider interface {
-	ReadSeekCloser() (hugio.ReadSeekCloser, error)
+	hugio.ReadSeekCloserProvider
 }
 
 // LengthProvider is a Resource that provides a length

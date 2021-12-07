@@ -15,7 +15,11 @@
 package images
 
 import (
+	"fmt"
+
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/disintegration/gift"
 	"github.com/spf13/cast"
@@ -61,6 +65,21 @@ func (*Filters) Text(text string, options ...interface{}) gift.Filter {
 				tf.y = cast.ToInt(v)
 			case "linespacing":
 				tf.linespacing = cast.ToInt(v)
+			case "font":
+				fontSource, ok1 := v.(hugio.ReadSeekCloserProvider)
+				identifier, ok2 := v.(resource.Identifier)
+
+				if !(ok1 && ok2) {
+					panic(fmt.Sprintf("invalid text font source: %T", v))
+				}
+
+				tf.fontSource = fontSource
+
+				// The input value isn't hashable and will not make a stable key.
+				// Replace it with a string in the map used as basis for the
+				// hash string.
+				opt["font"] = identifier.Key()
+
 			}
 		}
 	}
