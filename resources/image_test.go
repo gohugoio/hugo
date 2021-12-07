@@ -674,6 +674,9 @@ func TestImageOperationsGolden(t *testing.T) {
 			f.Hue(22),
 			f.Contrast(32.5),
 			f.Overlay(gopher.(images.ImageSource), 20, 30),
+			f.Text("No options"),
+			f.Text("This long text is to test line breaks. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."),
+			f.Text("Hugo rocks!", map[string]interface{}{"x": 30, "y": 30, "size": 15, "color": "#ff0000"}),
 		}
 
 		resized, err := orig.Fill("400x200 center")

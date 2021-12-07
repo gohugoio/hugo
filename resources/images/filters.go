@@ -15,6 +15,8 @@
 package images
 
 import (
+	"github.com/gohugoio/hugo/common/maps"
+
 	"github.com/disintegration/gift"
 	"github.com/spf13/cast"
 )
@@ -30,6 +32,43 @@ func (*Filters) Overlay(src ImageSource, x, y interface{}) gift.Filter {
 	return filter{
 		Options: newFilterOpts(src.Key(), x, y),
 		Filter:  overlayFilter{src: src, x: cast.ToInt(x), y: cast.ToInt(y)},
+	}
+}
+
+// Text creates a filter that draws text with the given options.
+func (*Filters) Text(text string, options ...interface{}) gift.Filter {
+	tf := textFilter{
+		text:        text,
+		color:       "#ffffff",
+		size:        20,
+		x:           10,
+		y:           10,
+		linespacing: 2,
+	}
+
+	var opt map[string]interface{}
+	if len(options) > 0 {
+		opt := maps.MustToParamsAndPrepare(options[0])
+		for option, v := range opt {
+			switch option {
+			case "color":
+				tf.color = cast.ToString(v)
+			case "size":
+				tf.size = cast.ToFloat64(v)
+			case "x":
+				tf.x = cast.ToInt(v)
+			case "y":
+				tf.y = cast.ToInt(v)
+			case "linespacing":
+				tf.linespacing = cast.ToInt(v)
+			}
+
+		}
+	}
+
+	return filter{
+		Options: newFilterOpts(text, opt),
+		Filter:  tf,
 	}
 }
 
