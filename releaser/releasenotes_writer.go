@@ -163,53 +163,21 @@ func fetchThemeCount() (int, error) {
 	return bytes.Count(b, []byte("\n")) - bytes.Count(b, []byte("#")), nil
 }
 
-func getReleaseNotesDocsTempDirAndName(version string, final bool) (string, string) {
-	if final {
-		return hugoFilepath("temp"), fmt.Sprintf("%s-relnotes-ready.md", version)
-	}
-	return hugoFilepath("temp"), fmt.Sprintf("%s-relnotes.md", version)
-}
+func getReleaseNotesFilename(version string) string {
+	return filepath.FromSlash(fmt.Sprintf("temp/%s-relnotes-ready.md", version))
 
-func getReleaseNotesDocsTempFilename(version string, final bool) string {
-	return filepath.Join(getReleaseNotesDocsTempDirAndName(version, final))
-}
-
-func (r *ReleaseHandler) releaseNotesState(version string) (releaseNotesState, error) {
-	docsTempPath, name := getReleaseNotesDocsTempDirAndName(version, false)
-	_, err := os.Stat(filepath.Join(docsTempPath, name))
-
-	if err == nil {
-		return releaseNotesCreated, nil
-	}
-
-	docsTempPath, name = getReleaseNotesDocsTempDirAndName(version, true)
-	_, err = os.Stat(filepath.Join(docsTempPath, name))
-
-	if err == nil {
-		return releaseNotesReady, nil
-	}
-
-	if !os.IsNotExist(err) {
-		return releaseNotesNone, err
-	}
-
-	return releaseNotesNone, nil
 }
 
 func (r *ReleaseHandler) writeReleaseNotesToTemp(version string, isPatch bool, infosMain, infosDocs gitInfos) (string, error) {
-	docsTempPath, name := getReleaseNotesDocsTempDirAndName(version, isPatch)
+	filename := getReleaseNotesFilename(version)
 
 	var w io.WriteCloser
 
 	if !r.try {
-		os.Mkdir(docsTempPath, os.ModePerm)
-
-		f, err := os.Create(filepath.Join(docsTempPath, name))
+		f, err := os.Create(filename)
 		if err != nil {
 			return "", err
 		}
-
-		name = f.Name()
 
 		defer f.Close()
 
@@ -223,5 +191,5 @@ func (r *ReleaseHandler) writeReleaseNotesToTemp(version string, isPatch bool, i
 		return "", err
 	}
 
-	return name, nil
+	return filename, nil
 }
