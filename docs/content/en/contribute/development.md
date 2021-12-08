@@ -154,7 +154,7 @@ go install
 Hugo relies on [mage](https://github.com/magefile/mage) for some convenient build and test targets. If you don't already have it, get it:
 
 ```
-go get github.com/magefile/mage
+go install github.com/magefile/mage@latest
 ```
 
 ### Fork the repository

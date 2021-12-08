@@ -229,7 +229,7 @@ See https://github.com/disintegration/imaging for more. If you want to trade qua
 
 By default the images is encoded in the source format, but you can set the target format as an option.
 
-Valid values are `jpg`, `png`, `tif`, `bmp`, `gif` and `webp`.
+Valid values are `bmp`, `gif`, `jpeg`, `jpg`, `png`, `tif`, `tiff`, and `webp`.
 
 ```go
 {{ $image.Resize "600x jpg" }}

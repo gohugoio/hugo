@@ -2,27 +2,41 @@
 title: "fileExists"
 linktitle: "fileExists"
 date: 2017-08-31T22:38:22+02:00
-description: Checks whether a file exists under the given path.
+description: Checks for file or directory existence.
 publishdate: 2017-08-31T22:38:22+02:00
-lastmod: 2017-08-31T22:38:22+02:00
+lastmod: 2021-11-26
 categories: [functions]
 menu:
   docs:
     parent: "functions"
-signature: ["fileExists PATH"]
+signature: ["os.FileExists PATH","fileExists PATH"]
 workson: []
 hugoversion:
-relatedfuncs: []
+relatedfuncs: ['os.ReadDir','os.ReadFile','os.Stat']
 deprecated: false
 aliases: []
 ---
+The `os.FileExists` function attempts to resolve the path relative to the root of your project directory. If a matching file or directory is not found, it will attempt to resolve the path relative to the [`contentDir`]({{< relref "getting-started/configuration#contentdir">}}). A leading path separator (`/`) is optional.
 
-`fileExists` allows you to check if a file exists under a given path, e.g. before inserting code into a template:
+With this directory structure:
 
+```text
+content/
+├── about.md
+├── contact.md
+└── news/
+    ├── article-1.md
+    └── article-2.md
 ```
-{{ if (fileExists "static/img/banner.jpg") -}}
-<img src="{{ "img/banner.jpg" | absURL }}" />
-{{- end }}
-```
 
-In the example above, a banner from the `static` folder should be shown if the given path points to an existing file.
+The function returns these values:
+
+```go-html-template
+{{ os.FileExists "content" }} --> true
+{{ os.FileExists "content/news" }} --> true
+{{ os.FileExists "content/news/article-1" }} --> false
+{{ os.FileExists "content/news/article-1.md" }} --> true
+{{ os.FileExists "news" }} --> true
+{{ os.FileExists "news/article-1" }} --> false
+{{ os.FileExists "news/article-1.md" }} --> true
+```

@@ -69,7 +69,7 @@ Hugo also ships with an internal template for [Disqus comments][disqus], a popul
 To use Hugo's Disqus template, you first need to set a single configuration value:
 
 {{< code-toggle file="config" >}}
-disqusShortname = "yourdiscussshortname"
+disqusShortname = "your-disqus-shortname"
 {{</ code-toggle >}}
 
 You also have the option to set the following in the front matter for a given piece of content:
@@ -209,7 +209,6 @@ To add Twitter card metadata, include the following line between the `<head>` ta
 ## The Internal Templates
 
 * `_internal/disqus.html`
-* `_internal/google_news.html`
 * `_internal/google_analytics.html`
 * `_internal/google_analytics_async.html`
 * `_internal/opengraph.html`

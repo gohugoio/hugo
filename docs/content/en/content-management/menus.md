@@ -12,7 +12,7 @@ menu:
   docs:
     parent: "content-management"
     weight: 120
-weight: 120	#rem
+weight: 120
 aliases: [/extras/menus/]
 toc: true
 ---
@@ -48,31 +48,24 @@ If all you need to do is add an entry to a menu, the simple form works well.
 
 #### A Single Menu
 
-```
----
+{{< code-toggle >}}
 menu: "main"
----
-```
+{{< /code-toggle >}}
 
 #### Multiple Menus
 
-```
----
+{{< code-toggle >}}
 menu: ["main", "footer"]
----
-```
+{{< /code-toggle >}}
 
 #### Advanced
 
-
-```
----
+{{< code-toggle >}}
 menu:
   docs:
     parent: 'extras'
     weight: 20
----
-```
+{{< /code-toggle >}}
 
 ## Add Non-content Entries to a Menu
 
@@ -115,7 +108,7 @@ In this example, the top level of the menu is defined in your [site `config` fil
 
 ## Params
 
-You can also add user-defined content to menu items via the `params` field. 
+You can also add user-defined content to menu items via the `params` field.
 
 A common use case is to define a custom param to add a css class to a specific menu item.
 
@@ -129,7 +122,6 @@ A common use case is to define a custom param to add a css class to a specific m
     [menu.main.params]
       class = "highlight-menu-item"
 {{</ code-toggle >}}
-
 
 ## Render Menus
 
