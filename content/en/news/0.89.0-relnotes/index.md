@@ -1,13 +1,12 @@
 
 ---
 date: 2021-11-02
-title: "0.89.0"
-description: "0.89.0"
+title: "Fine Grained File Filters"
+description: "Hugo 0.89.0 brings fine grained file filters, archetype rewrite, dependency refresh, and more ..."
 categories: ["Releases"]
 ---
 
-	
-This release is a dependency refresh (the new Goldmark verion comes with a lot of bug fixes, as one example), many bug fixes, but also some nice new features:
+This release is a dependency refresh (the new Goldmark version comes with a lot of bug fixes, as one example), many bug fixes, but also some nice new features:
 
 We have added the [configuration settings](https://gohugo.io/hugo-modules/configuration/#module-config-mounts) **includeFiles** and **excludeFiles** to the mount configuration. This allows fine grained control over what files to include, and it works for all of Hugo's file systems (including `/static`).
 
@@ -17,7 +16,7 @@ We have also [reimplemented archetypes](https://github.com/gohugoio/hugo/pull/90
 hugo new content/en/posts/my-first-post.md
 ```
 
-This release represents **50 contributions by 13 contributors** to the main Hugo code base.[@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@dependabot[bot]](https://github.com/apps/dependabot), [@jmooring](https://github.com/jmooring), and [@anthonyfok](https://github.com/anthonyfok) for their ongoing contributions.
+This release represents **50 contributions by 13 contributors** to the main Hugo code base. [@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@dependabot[bot]](https://github.com/apps/dependabot), [@jmooring](https://github.com/jmooring), and [@anthonyfok](https://github.com/anthonyfok) for their ongoing contributions.
 And thanks to [@digitalcraftsman](https://github.com/digitalcraftsman) for his ongoing work on keeping the themes site in pristine condition.
 
 Many have also been busy writing and fixing the documentation in [hugoDocs](https://github.com/gohugoio/hugoDocs),
@@ -35,10 +34,10 @@ Hugo now has:
 
 * Hugo now writes an empty file named `.hugo_build.lock` to the root of the project when building (also when doing `hugo new mypost.md` and other commands that requires a build). We recommend you just leave this file alone. Put it in `.gitignore` or similar if you don't want the file in your source repository.
 * We have updated to ESBuild `v0.13.12`. The release notes for [v0.13.0](https://github.com/evanw/esbuild/releases/tag/v0.13.0) mentions a potential breaking change.
-* We now only build AMD64 release binaries (see [this issue](https://github.com/gohugoio/hugo/issues/9102)) for the Unix OSes (e.g. NetBSD). If need, say, a binary for ARM64, you need to build it yourself.
-* We now build only one release binary/archive for MacOS, see [this issue](https://github.com/gohugoio/hugo/issues/9035) that works on both Intel and the new Arm M1 systems.
+* We now only build AMD64 release binaries (see [this issue](https://github.com/gohugoio/hugo/issues/9102)) for the Unix OSes (e.g. NetBSD). If you need, say, a binary for ARM64, you need to build it yourself.
+* We now build only one release binary/archive for MacOS (see [this issue](https://github.com/gohugoio/hugo/issues/9035)) that works on both Intel and the new Arm M1 systems.
 * `.File.ContentBaseName` now returns the owning directory name for all bundles (branch an leaf). This is a bug fix, but worth mentioning. See [this issue](https://github.com/gohugoio/hugo/issues/9112).
-* We have updated the Twitter shortcode to use Twitter's new API. See [thiss issue] for details.
+* We have updated the Twitter shortcode to use Twitter's new API. See [this issue](https://github.com/gohugoio/hugo/pull/9106) for details.
 
 ## Enhancements
 
@@ -105,8 +104,3 @@ Hugo now has:
 * Fix the "page picker" logic in --navigateToChanged [096f5e19](https://github.com/gohugoio/hugo/commit/096f5e19217e985bccbf6c539e1b220541ffa6f6) [@bep](https://github.com/bep) [#9051](https://github.com/gohugoio/hugo/issues/9051)
 * Fix a typo on OpenBSD [c7957c90](https://github.com/gohugoio/hugo/commit/c7957c90e83ff2b2cc958bd61486a244f0fd8891) [@nabbisen](https://github.com/nabbisen) 
 * Fix value of useResourceCacheWhen in TestResourceChainPostCSS [e6e44b7c](https://github.com/gohugoio/hugo/commit/e6e44b7c41a9b517ffc3775ea0a6aec2b1d4591b) [@jmooring](https://github.com/jmooring) 
-
-
-
-
-

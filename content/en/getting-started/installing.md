@@ -516,6 +516,14 @@ For the latest version, the Hugo package maintained by [@daftaupe](https://githu
 
 See the [related discussion in the Hugo forums][redhatforum].
 
+### openSUSE Tumbleweed
+
+openSUSE maintains an [official package](https://software.opensuse.org/package/hugo) for the Tumbleweed rolling release distribution, it may be installed with:
+
+````
+sudo zypper install hugo
+````
+
 ### Solus
 
 Solus includes Hugo in its package repository, it may be installed with:
