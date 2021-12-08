@@ -163,21 +163,6 @@ func fetchThemeCount() (int, error) {
 	return bytes.Count(b, []byte("\n")) - bytes.Count(b, []byte("#")), nil
 }
 
-func writeReleaseNotesToTmpFile(version string, infosMain, infosDocs gitInfos) (string, error) {
-	f, err := ioutil.TempFile("", "hugorelease")
-	if err != nil {
-		return "", err
-	}
-
-	defer f.Close()
-
-	if err := writeReleaseNotes(version, infosMain, infosDocs, f); err != nil {
-		return "", err
-	}
-
-	return f.Name(), nil
-}
-
 func getReleaseNotesDocsTempDirAndName(version string, final bool) (string, string) {
 	if final {
 		return hugoFilepath("temp"), fmt.Sprintf("%s-relnotes-ready.md", version)

@@ -25,14 +25,6 @@ import (
 
 var issueRe = regexp.MustCompile(`(?i)(?:Updates?|Closes?|Fix.*|See) #(\d+)`)
 
-const (
-	notesChanges    = "notesChanges"
-	templateChanges = "templateChanges"
-	coreChanges     = "coreChanges"
-	outChanges      = "outChanges"
-	otherChanges    = "otherChanges"
-)
-
 type changeLog struct {
 	Version string
 	Notes   gitInfos
