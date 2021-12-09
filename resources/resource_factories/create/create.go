@@ -18,7 +18,6 @@ package create
 import (
 	"bufio"
 	"bytes"
-	"context"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -181,13 +180,6 @@ func (c *Client) FromRemote(uri string, options map[string]interface{}) (resourc
 			}
 			addUserProvidedHeaders(headers, req)
 		}
-
-		// Workaround for https://github.com/golang/go/issues/49366
-		// This is the entire lifetime of the request.
-		ctx, cancel := context.WithTimeout(req.Context(), 30*time.Second)
-		defer cancel()
-
-		req = req.WithContext(ctx)
 
 		res, err := c.httpClient.Do(req)
 		if err != nil {
