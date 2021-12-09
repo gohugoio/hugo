@@ -35,7 +35,6 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/cache/filecache"
-	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
@@ -155,7 +154,6 @@ func (c *Client) FromString(targetPath, content string) (resource.Resource, erro
 // FromRemote expects one or n-parts of a URL to a resource
 // If you provide multiple parts they will be joined together to the final URL.
 func (c *Client) FromRemote(uri string, options map[string]interface{}) (resource.Resource, error) {
-	defer herrors.Recover()
 	rURL, err := url.Parse(uri)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to parse URL for resource %s", uri)

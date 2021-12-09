@@ -29,7 +29,6 @@ import (
 	"github.com/bep/gitmap"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources/resource"
-	
 
 	"github.com/gohugoio/hugo/navigation"
 
@@ -119,6 +118,10 @@ type testPage struct {
 
 	currentSection *testPage
 	sectionEntries []string
+}
+
+func (p *testPage) Err() error {
+	return nil
 }
 
 func (p *testPage) Aliases() []string {

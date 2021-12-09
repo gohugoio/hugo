@@ -230,6 +230,10 @@ func (l *genericResource) Content() (interface{}, error) {
 	return l.content, nil
 }
 
+func (r *genericResource) Err() error {
+	return nil
+}
+
 func (l *genericResource) Data() interface{} {
 	return l.data
 }

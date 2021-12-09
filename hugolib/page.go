@@ -129,6 +129,10 @@ type pageState struct {
 	*pageCommon
 }
 
+func (p *pageState) Err() error {
+	return nil
+}
+
 // Eq returns whether the current page equals the given page.
 // This is what's invoked when doing `{{ if eq $page $otherPage }}`
 func (p *pageState) Eq(other interface{}) bool {
