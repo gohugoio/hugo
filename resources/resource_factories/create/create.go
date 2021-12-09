@@ -35,6 +35,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/cache/filecache"
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
@@ -154,6 +155,7 @@ func (c *Client) FromString(targetPath, content string) (resource.Resource, erro
 // FromRemote expects one or n-parts of a URL to a resource
 // If you provide multiple parts they will be joined together to the final URL.
 func (c *Client) FromRemote(uri string, options map[string]interface{}) (resource.Resource, error) {
+	defer herrors.Recover()
 	rURL, err := url.Parse(uri)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to parse URL for resource %s", uri)
@@ -186,8 +188,10 @@ func (c *Client) FromRemote(uri string, options map[string]interface{}) (resourc
 			return nil, err
 		}
 
-		if res.StatusCode < 200 || res.StatusCode > 299 {
-			return nil, errors.Errorf("failed to retrieve remote resource: %s", http.StatusText(res.StatusCode))
+		if res.StatusCode != http.StatusNotFound {
+			if res.StatusCode < 200 || res.StatusCode > 299 {
+				return nil, errors.Errorf("failed to retrieve remote resource: %s", http.StatusText(res.StatusCode))
+			}
 		}
 
 		httpResponse, err := httputil.DumpResponse(res, true)
@@ -205,6 +209,11 @@ func (c *Client) FromRemote(uri string, options map[string]interface{}) (resourc
 	res, err := http.ReadResponse(bufio.NewReader(httpResponse), nil)
 	if err != nil {
 		return nil, err
+	}
+
+	if res.StatusCode == http.StatusNotFound {
+		// Not found. This matches how looksup for local resources work.
+		return nil, nil
 	}
 
 	body, err := ioutil.ReadAll(res.Body)
