@@ -167,6 +167,10 @@ func (r *resourceAdapter) Content() (interface{}, error) {
 	return r.target.Content()
 }
 
+func (r *resourceAdapter) Err() error {
+	return nil
+}
+
 func (r *resourceAdapter) Data() interface{} {
 	r.init(false, false)
 	return r.target.Data()

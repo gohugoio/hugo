@@ -113,30 +113,40 @@ func (ns *Namespace) getscssClientDartSass() (*dartsass.Client, error) {
 // further transformations.
 //
 // For URLs an additional argument with options can be provided.
-func (ns *Namespace) Get(args ...interface{}) (resource.Resource, error) {
-	if len(args) != 1 && len(args) != 2 {
-		return nil, errors.New("must provide a filename or URL")
-	}
-
-	filenamestr, err := cast.ToStringE(args[0])
-	if err != nil {
-		return nil, err
-	}
-
-	if u, err := url.Parse(filenamestr); err == nil && u.Scheme != "" {
-		if len(args) == 2 {
-			options, err := maps.ToStringMapE(args[1])
-			if err != nil {
-				return nil, err
-			}
-			return ns.createClient.FromRemote(filenamestr, options)
+func (ns *Namespace) Get(args ...interface{}) resource.Resource {
+	get := func(args ...interface{}) (resource.Resource, error) {
+		if len(args) != 1 && len(args) != 2 {
+			return nil, errors.New("must provide a filename or URL")
 		}
-		return ns.createClient.FromRemote(filenamestr, nil)
+
+		filenamestr, err := cast.ToStringE(args[0])
+		if err != nil {
+			return nil, err
+		}
+
+		if u, err := url.Parse(filenamestr); err == nil && u.Scheme != "" {
+			if len(args) == 2 {
+				options, err := maps.ToStringMapE(args[1])
+				if err != nil {
+					return nil, err
+				}
+				return ns.createClient.FromRemote(filenamestr, options)
+			}
+			return ns.createClient.FromRemote(filenamestr, nil)
+		}
+
+		filenamestr = filepath.Clean(filenamestr)
+
+		return ns.createClient.Get(filenamestr)
 	}
 
-	filenamestr = filepath.Clean(filenamestr)
+	r, err := get(args...)
+	if err != nil {
+		// This allows the client to reason about the .Err in the template.
+		return resources.NewErrorResource(errors.Wrap(err, "error calling resources.Get"))
+	}
+	return r
 
-	return ns.createClient.Get(filenamestr)
 }
 
 // GetMatch finds the first Resource matching the given pattern, or nil if none found.
