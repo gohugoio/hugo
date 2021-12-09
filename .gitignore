@@ -1,4 +1,5 @@
 /.idea
+/.vscode
 /public
 node_modules
 nohup.out
