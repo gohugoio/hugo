@@ -43,6 +43,8 @@ The return value from `resources.Get` includes an `.Err` method that will be set
 {{ end }}
 ```
 
+Note that if you do not handle `.Err` yourself, Hugo will fail the build the first time you start using the `Resource` object.
+
 ### Remote Options
 
 When fetching a remote `Resource`, `resources.Get` takes an optional options map as the last argument, e.g.:
