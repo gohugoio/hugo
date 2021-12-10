@@ -49,19 +49,19 @@ Note that if you do not handle `.Err` yourself, Hugo will fail the build the fir
 
 When fetching a remote `Resource`, `resources.Get` takes an optional options map as the last argument, e.g.:
 
-```
+```go-html-template
 {{ $resource := resources.Get "https://example.org/api" (dict "headers" (dict "Authorization" "Bearer abcd"))  }}
 ```
 
 If you need multiple values for the same header key, use a slice:
 
-```
+```go-html-template
 {{ $resource := resources.Get "https://example.org/api"  (dict "headers" (dict "X-List" (slice "a" "b" "c")))  }}
 ```
 
 You can also change the request method and set the request body:
 
-```
+```go-html-template
 {{ $postResponse := resources.Get "https://example.org/api"  (dict 
     "method" "post"
     "body" `{"complete": true}` 
@@ -87,6 +87,7 @@ Assets will only be published (to `/public`) if `.Permalink` or `.RelPermalink` 
 ## Go Pipes
 
 For improved readability, the Hugo Pipes examples of this documentation will be written using [Go Pipes](/templates/introduction/#pipes):
+
 ```go-html-template
 {{ $style := resources.Get "sass/main.scss" | resources.ToCSS | resources.Minify | resources.Fingerprint }}
 <link rel="stylesheet" href="{{ $style.Permalink }}">
@@ -98,6 +99,7 @@ Each Hugo Pipes `resources` transformation method uses a __camelCased__ alias (`
 Non-transformation methods deprived of such aliases are `resources.Get`, `resources.FromString`, `resources.ExecuteAsTemplate` and `resources.Concat`.
 
 The example above can therefore also be written as follows:
+
 ```go-html-template
 {{ $style := resources.Get "sass/main.scss" | toCSS | minify | fingerprint }}
 <link rel="stylesheet" href="{{ $style.Permalink }}">
