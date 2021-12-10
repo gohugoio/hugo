@@ -13,6 +13,7 @@ menu:
 weight: 01
 sections_weight: 01
 draft: false
+toc: true
 aliases: [/assets/]
 ---
 
