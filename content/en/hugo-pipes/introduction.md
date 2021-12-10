@@ -31,7 +31,7 @@ In order to process an asset with Hugo Pipes, it must be retrieved as a `Resourc
 
 {{< new-in "0.90.1" >}}
 
-The return value from `resources.Get` includes an `.Err` method that will be set if the call failed. If you want to just log any error as a `WARNING` you can use a construct similar to the one below.
+The return value from `resources.Get` includes an `.Err` method that will return an error if the call failed. If you want to just log any error as a `WARNING` you can use a construct similar to the one below.
 
 ```go-html-template
 {{ with resources.Get "https://gohugo.io/images/gohugoio-card-1.png" }}
