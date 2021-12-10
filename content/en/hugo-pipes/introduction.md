@@ -16,22 +16,36 @@ draft: false
 aliases: [/assets/]
 ---
 
-### Asset directory
+## Get Resource with resources.Get
 
-Asset files must be stored in the asset directory. This is `/assets` by default, but can be configured via the configuration file's `assetDir` key.
-
-### From file or URL to resource
-
-In order to process an asset with Hugo Pipes, it must be retrieved as a resource using `resources.Get`. The first argument can be the filepath of the file relative to the asset directory or the URL of the file.
+In order to process an asset with Hugo Pipes, it must be retrieved as a `Resource` using `resources.Get`. The first argument can be either a local the path to file relative to the `asset` directory/directories or a remote URL.
 
 ```go-html-template
-{{ $style := resources.Get "sass/main.scss" }}
-{{ $remoteStyle := resources.Get "https://www.example.com/styles.scss" }}
+{{ $local := resources.Get "sass/main.scss" }}
+{{ $remote := resources.Get "https://www.example.com/styles.scss" }}
 ```
 
-#### Request options
+`resources.Get` will always return `nil` if the resource could not be found.
 
-When using an URL, the `resources.Get` function takes an optional options map as the last argument, e.g.:
+### Error Handling
+
+{{ new-in "0.90.1" }}
+
+The return value from `resources.Get` includes an `.Err` method that will be set if the call failed. If you want to just log any error as a `WARNING` you can use a construct similar to the one below.
+
+```htmlbars
+{{ with resources.Get "https://gohugo.io/images/gohugoio-card-1.png" }}
+  {{ with .Err }}
+    {{ warnf "%s" . }}
+  {{ else }}
+    <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
+  {{ end }}
+{{ end }}
+```
+
+### Remote Options
+
+When fetching a remote `Resource`, `resources.Get` takes an optional options map as the last argument, e.g.:
 
 ```
 {{ $resource := resources.Get "https://example.org/api" (dict "headers" (dict "Authorization" "Bearer abcd"))  }}
@@ -55,21 +69,20 @@ You can also change the request method and set the request body:
 )}}
 ```
 
-#### Cache of remote resources
+### Caching of Remote Resources
 
-Each downloaded URL will be cached in the default folder `$TMPDIR/hugo_cache/`. The variable `$TMPDIR` will be resolved to your system-dependent temporary directory.
+Remote resources fetched with `resources.Get` will be cached on disk. See [Configure File Caches](/getting-started/configuration/#configure-file-caches) for details.
 
-With the command-line flag `--cacheDir`, you can specify any folder on your system as a caching directory.
+## Asset directory
 
-You can also set `cacheDir` or `caches.getresource` in the [main configuration file][config].
+Asset files must be stored in the asset directory. This is `/assets` by default, but can be configured via the configuration file's `assetDir` key.
 
-If you don't like caching at all, you can fully disable caching with the command line flag `--ignoreCache`.
 
-### Asset publishing
+### Asset Publishing
 
-Assets will only be published (to `/public`) if `.Permalink` or `.RelPermalink` is used.
+Assets will only be published (to `/public`) if `.Permalink` or `.RelPermalink` is used. You can use `.Content` to inline the asset.
 
-### Go Pipes
+## Go Pipes
 
 For improved readability, the Hugo Pipes examples of this documentation will be written using [Go Pipes](/templates/introduction/#pipes):
 ```go-html-template
@@ -77,7 +90,7 @@ For improved readability, the Hugo Pipes examples of this documentation will be 
 <link rel="stylesheet" href="{{ $style.Permalink }}">
 ```
 
-### Method aliases
+## Method aliases
 
 Each Hugo Pipes `resources` transformation method uses a __camelCased__ alias (`toCSS` for `resources.ToCSS`).
 Non-transformation methods deprived of such aliases are `resources.Get`, `resources.FromString`, `resources.ExecuteAsTemplate` and `resources.Concat`.
@@ -88,7 +101,7 @@ The example above can therefore also be written as follows:
 <link rel="stylesheet" href="{{ $style.Permalink }}">
 ```
 
-### Caching
+## Caching
 
 Hugo Pipes invocations are cached based on the entire _pipe chain_.
 
