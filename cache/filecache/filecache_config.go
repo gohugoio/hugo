@@ -73,9 +73,8 @@ var defaultCacheConfigs = Configs{
 		Dir:    resourcesGenDir,
 	},
 	cacheKeyGetResource: Config{
-		MaxAge:  -1, // Never expire
-		Dir:     cacheDirProject,
-		retries: 3, // Retries on error getting the remote resource.
+		MaxAge: -1, // Never expire
+		Dir:    cacheDirProject,
 	},
 }
 
@@ -91,10 +90,6 @@ type Config struct {
 	// Will resources/_gen will get its own composite filesystem that
 	// also checks any theme.
 	isResourceDir bool
-
-	// Number of retries when errors occurs when creating the element,
-	// only used for remote resources.
-	retries int
 }
 
 // GetJSONCache gets the file cache for getJSON.

@@ -48,9 +48,6 @@ type Cache struct {
 	// 0 is effectively turning this cache off.
 	maxAge time.Duration
 
-	// Number of retries on create error.
-	retries int
-
 	// When set, we just remove this entire root directory on expiration.
 	pruneAllRootDir string
 
@@ -87,12 +84,11 @@ type ItemInfo struct {
 }
 
 // NewCache creates a new file cache with the given filesystem and max age.
-func NewCache(fs afero.Fs, maxAge time.Duration, retries int, pruneAllRootDir string) *Cache {
+func NewCache(fs afero.Fs, maxAge time.Duration, pruneAllRootDir string) *Cache {
 	return &Cache{
 		Fs:              fs,
 		nlocker:         &lockTracker{Locker: locker.NewLocker(), seen: make(map[string]struct{})},
 		maxAge:          maxAge,
-		retries:         retries,
 		pruneAllRootDir: pruneAllRootDir,
 	}
 }
@@ -184,14 +180,7 @@ func (c *Cache) GetOrCreate(id string, create func() (io.ReadCloser, error)) (It
 		err error
 	)
 
-	for i := -1; i < c.retries; i++ {
-		r, err = create()
-		if err == nil || c.retries == 0 {
-			break
-		}
-		time.Sleep(1 * time.Second)
-	}
-
+	r, err = create()
 	if err != nil {
 		return info, nil, err
 	}
@@ -227,14 +216,7 @@ func (c *Cache) GetOrCreateBytes(id string, create func() ([]byte, error)) (Item
 		err error
 	)
 
-	for i := -1; i < c.retries; i++ {
-		b, err = create()
-		if err == nil || c.retries == 0 {
-			break
-		}
-		time.Sleep(1 * time.Second)
-	}
-
+	b, err = create()
 	if err != nil {
 		return info, nil, err
 	}
@@ -388,7 +370,7 @@ func NewCaches(p *helpers.PathSpec) (Caches, error) {
 			pruneAllRootDir = "pkg"
 		}
 
-		m[k] = NewCache(bfs, v.MaxAge, v.retries, pruneAllRootDir)
+		m[k] = NewCache(bfs, v.MaxAge, pruneAllRootDir)
 	}
 
 	return m, nil

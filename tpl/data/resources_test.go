@@ -86,7 +86,7 @@ func TestScpGetRemote(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 	fs := new(afero.MemMapFs)
-	cache := filecache.NewCache(fs, 100, 0, "")
+	cache := filecache.NewCache(fs, 100, "")
 
 	tests := []struct {
 		path    string
