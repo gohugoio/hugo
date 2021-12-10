@@ -126,8 +126,8 @@ github.com/armon/go-radix v1.0.0/go.mod h1:ufUuZ+zHj4x4TnLV4JWEpy2hxWSpsRywHrMgI
 github.com/aws/aws-sdk-go v1.15.27/go.mod h1:mFuSZ37Z9YOHbQEwBWztmVzqXrEkub65tZoCYDt7FT0=
 github.com/aws/aws-sdk-go v1.19.18/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/aws/aws-sdk-go v1.31.13/go.mod h1:5zCpMtNQVjRREroY7sYe8lOMRSxkhG6MZveU8YkpAk0=
-github.com/aws/aws-sdk-go v1.41.14 h1:zJnJ8Y964DjyRE55UVoMKgOG4w5i88LpN6xSpBX7z84=
-github.com/aws/aws-sdk-go v1.41.14/go.mod h1:585smgzpB/KqRA+K3y/NL/oYRqQvpNJYvLm+LY1U59Q=
+github.com/aws/aws-sdk-go v1.42.22 h1:EwcM7/+Ytg6xK+jbeM2+f9OELHqPiEiEKetT/GgAr7I=
+github.com/aws/aws-sdk-go v1.42.22/go.mod h1:585smgzpB/KqRA+K3y/NL/oYRqQvpNJYvLm+LY1U59Q=
 github.com/bep/debounce v1.2.0 h1:wXds8Kq8qRfwAOpAxHrJDbCXgC5aHSzgQb/0gKsHQqo=
 github.com/bep/debounce v1.2.0/go.mod h1:H8yggRPQKLUhUoqrJC1bO2xNya7vanpDl7xR3ISbCJ0=
 github.com/bep/gitmap v1.1.2 h1:zk04w1qc1COTZPPYWDQHvns3y1afOsdRfraFQ3qI840=
@@ -199,8 +199,6 @@ github.com/envoyproxy/go-control-plane v0.9.9-0.20210512163311-63b5d3c536b0 h1:d
 github.com/envoyproxy/go-control-plane v0.9.9-0.20210512163311-63b5d3c536b0/go.mod h1:hliV/p42l8fGbc6Y9bQ70uLwIvmJyVE5k4iMKlh8wCQ=
 github.com/envoyproxy/protoc-gen-validate v0.1.0 h1:EQciDnbrYxy13PgWoY8AqoxGiPrpgBZ1R8UNe3ddc+A=
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
-github.com/evanw/esbuild v0.13.12 h1:q8fmywXq1vIKlbA6XSxdU9LCLzMdrsD3wfM2gz2d8JU=
-github.com/evanw/esbuild v0.13.12/go.mod h1:GG+zjdi59yh3ehDn4ZWfPcATxjPDUH53iU4ZJbp7dkY=
 github.com/evanw/esbuild v0.14.2 h1:vAvIfHk0SxXE6OV+LzZHnlvUk6RigWOFAl7GyS7J9tY=
 github.com/evanw/esbuild v0.14.2/go.mod h1:GG+zjdi59yh3ehDn4ZWfPcATxjPDUH53iU4ZJbp7dkY=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
