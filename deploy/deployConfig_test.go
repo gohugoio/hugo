@@ -196,6 +196,4 @@ func TestEmptyMatcher(t *testing.T) {
 
 	_, err = decodeConfig(cfg)
 	c.Assert(err, qt.Not(qt.IsNil))
-
-	fmt.Printf("JMM-1: %s", err)
 }
