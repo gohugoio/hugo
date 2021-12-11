@@ -34,6 +34,9 @@ var (
 	imageFormats = map[string]Format{
 		".jpg":  JPEG,
 		".jpeg": JPEG,
+		".jpe":  JPEG,
+		".jif":  JPEG,
+		".jfif": JPEG,
 		".png":  PNG,
 		".tif":  TIFF,
 		".tiff": TIFF,

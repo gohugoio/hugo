@@ -177,7 +177,7 @@ var (
 
 	// Common image types
 	PNGType  = newMediaType("image", "png", []string{"png"})
-	JPEGType = newMediaType("image", "jpeg", []string{"jpg", "jpeg"})
+	JPEGType = newMediaType("image", "jpeg", []string{"jpg", "jpeg", "jpe", "jif", "jfif"})
 	GIFType  = newMediaType("image", "gif", []string{"gif"})
 	TIFFType = newMediaType("image", "tiff", []string{"tif", "tiff"})
 	BMPType  = newMediaType("image", "bmp", []string{"bmp"})

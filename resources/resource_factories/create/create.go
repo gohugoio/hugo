@@ -226,28 +226,30 @@ func (c *Client) FromRemote(uri string, options map[string]interface{}) (resourc
 		}
 	}
 
-	var contentType string
+	var extension string
 	if arr, _ := mime.ExtensionsByType(res.Header.Get("Content-Type")); len(arr) == 1 {
-		contentType = arr[0]
+		extension = arr[0]
 	}
 
-	// If content type was not determined by header, look for a file extention
-	if contentType == "" {
+	// If extension was not determined by header, look for a file extention
+	if extension == "" {
 		if ext := path.Ext(filename); ext != "" {
-			contentType = ext
+			extension = ext
 		}
 	}
 
-	// If content type was not determined by header or file extention, try using content itself
-	if contentType == "" {
+	// If extension was not determined by header or file extention, try using content itself
+	if extension == "" {
 		if ct := http.DetectContentType(body); ct != "application/octet-stream" {
-			if arr, _ := mime.ExtensionsByType(ct); arr != nil {
-				contentType = arr[0]
+			if ct == "image/jpeg" {
+				extension = ".jpg"
+			} else if arr, _ := mime.ExtensionsByType(ct); arr != nil {
+				extension = arr[0]
 			}
 		}
 	}
 
-	resourceID = filename[:len(filename)-len(path.Ext(filename))] + "_" + resourceID + contentType
+	resourceID = filename[:len(filename)-len(path.Ext(filename))] + "_" + resourceID + extension
 
 	return c.rs.New(
 		resources.ResourceSourceDescriptor{
