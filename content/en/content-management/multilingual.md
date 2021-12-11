@@ -1,6 +1,6 @@
 ---
 title: Multilingual Mode
-linktitle: Multilingual and i18n
+linktitle: Multilingual
 description: Hugo supports the creation of websites with multiple languages side by side.
 date: 2017-01-10
 publishdate: 2017-01-10
