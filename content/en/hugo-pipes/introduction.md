@@ -1,5 +1,6 @@
 ---
 title: Hugo Pipes Introduction
+linkTitle: Hugo Pipes
 description: Hugo Pipes is Hugo's asset processing set of functions.
 date: 2018-07-14
 publishdate: 2018-07-14
