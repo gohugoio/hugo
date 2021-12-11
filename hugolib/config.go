@@ -110,7 +110,7 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 	// Config deprecations.
 	// We made this a Glob pattern in Hugo 0.75, we don't need both.
 	if l.cfg.GetBool("ignoreVendor") {
-		helpers.Deprecated("--ignoreVendor", "--ignoreVendorPaths **", true)
+		helpers.Deprecated("--ignoreVendor", "Use --ignoreVendorPaths \"**\"", true)
 		l.cfg.Set("ignoreVendorPaths", "**")
 	}
 
