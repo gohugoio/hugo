@@ -47,9 +47,9 @@
   {{ end }}
   {{ partial "site-manifest.html" . }}
   {{- partial "head-additions.html" . -}}
-  {{- template "_internal/opengraph.html" . -}}
+  {{- partial "opengraph/opengraph.html" . -}}
   {{- template "_internal/schema.html" . -}}
-  {{- template "_internal/twitter_cards.html" . -}}
+  {{- partial "opengraph/twitter_cards.html" . -}}
 
   {{ if eq (getenv "HUGO_ENV") "production" | or (eq .Site.Params.env "production")  }}
   {{ partial "gtag" . }}
