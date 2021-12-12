@@ -43,7 +43,7 @@ dir = ":cacheDir/:project"
 maxAge = -1
 [caches.images]
 dir = ":cacheDir/images"
-maxAge = -1
+maxAge = "1440h"
 [caches.assets]
 dir = ":resourceDir/_gen"
 maxAge = -1
