@@ -1775,7 +1775,13 @@
       "permalinks": {
         "_merge": "none"
       },
+      "privacy": {
+        "_merge": "none"
+      },
       "related": {
+        "_merge": "none"
+      },
+      "security": {
         "_merge": "none"
       },
       "sitemap": {
@@ -1821,6 +1827,32 @@
         "xml": {
           "keepWhitespace": false
         }
+      }
+    },
+    "security": {
+      "enableInlineShortcodes": false,
+      "exec": {
+        "allow": [
+          "^go$",
+          "^npx$",
+          "^postcss$"
+        ],
+        "osEnv": [
+          "(?i)^(PATH|PATHEXT|APPDATA|TMP|TEMP|TERM)$"
+        ]
+      },
+      "funcs": {
+        "getenv": [
+          "^HUGO_"
+        ]
+      },
+      "http": {
+        "methods": [
+          "(?i)GET|POST"
+        ],
+        "urls": [
+          ".*"
+        ]
       }
     }
   },
@@ -1966,7 +1998,10 @@
         "string": "image/jpeg",
         "suffixes": [
           "jpg",
-          "jpeg"
+          "jpeg",
+          "jpe",
+          "jif",
+          "jfif"
         ]
       },
       {
