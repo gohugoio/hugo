@@ -24,6 +24,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/spf13/afero"
@@ -64,7 +65,7 @@ type ContentSpec struct {
 
 // NewContentSpec returns a ContentSpec initialized
 // with the appropriate fields from the given config.Provider.
-func NewContentSpec(cfg config.Provider, logger loggers.Logger, contentFs afero.Fs) (*ContentSpec, error) {
+func NewContentSpec(cfg config.Provider, logger loggers.Logger, contentFs afero.Fs, ex *hexec.Exec) (*ContentSpec, error) {
 	spec := &ContentSpec{
 		summaryLength: cfg.GetInt("summaryLength"),
 		BuildFuture:   cfg.GetBool("buildFuture"),
@@ -78,6 +79,7 @@ func NewContentSpec(cfg config.Provider, logger loggers.Logger, contentFs afero.
 		Cfg:       cfg,
 		ContentFs: contentFs,
 		Logger:    logger,
+		Exec:      ex,
 	})
 	if err != nil {
 		return nil, err

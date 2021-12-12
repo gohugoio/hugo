@@ -56,6 +56,10 @@ func (ns *Namespace) Getenv(key interface{}) (string, error) {
 		return "", nil
 	}
 
+	if err = ns.deps.ExecHelper.Sec().CheckAllowedGetEnv(skey); err != nil {
+		return "", err
+	}
+
 	return _os.Getenv(skey), nil
 }
 

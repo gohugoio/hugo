@@ -21,8 +21,10 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/config/security"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/markup_config"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
@@ -280,20 +282,28 @@ func TestAsciidoctorAttributes(t *testing.T) {
 	c.Assert(args[4], qt.Equals, "--no-header-footer")
 }
 
+func getProvider(c *qt.C, mconf markup_config.Config) converter.Provider {
+	sc := security.DefaultConfig
+	sc.Exec.Allow = security.NewWhitelist("asciidoctor")
+
+	p, err := Provider.New(
+		converter.ProviderConfig{
+			MarkupConfig: mconf,
+			Logger:       loggers.NewErrorLogger(),
+			Exec:         hexec.New(sc),
+		},
+	)
+	c.Assert(err, qt.IsNil)
+	return p
+}
+
 func TestConvert(t *testing.T) {
 	if !Supports() {
 		t.Skip("asciidoctor not installed")
 	}
 	c := qt.New(t)
 
-	mconf := markup_config.Default
-	p, err := Provider.New(
-		converter.ProviderConfig{
-			MarkupConfig: mconf,
-			Logger:       loggers.NewErrorLogger(),
-		},
-	)
-	c.Assert(err, qt.IsNil)
+	p := getProvider(c, markup_config.Default)
 
 	conv, err := p.New(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)
@@ -308,14 +318,8 @@ func TestTableOfContents(t *testing.T) {
 		t.Skip("asciidoctor not installed")
 	}
 	c := qt.New(t)
-	mconf := markup_config.Default
-	p, err := Provider.New(
-		converter.ProviderConfig{
-			MarkupConfig: mconf,
-			Logger:       loggers.NewErrorLogger(),
-		},
-	)
-	c.Assert(err, qt.IsNil)
+	p := getProvider(c, markup_config.Default)
+
 	conv, err := p.New(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)
 	r, err := conv.Convert(converter.RenderContext{Src: []byte(`:toc: macro
@@ -390,14 +394,7 @@ func TestTableOfContentsWithCode(t *testing.T) {
 		t.Skip("asciidoctor not installed")
 	}
 	c := qt.New(t)
-	mconf := markup_config.Default
-	p, err := Provider.New(
-		converter.ProviderConfig{
-			MarkupConfig: mconf,
-			Logger:       loggers.NewErrorLogger(),
-		},
-	)
-	c.Assert(err, qt.IsNil)
+	p := getProvider(c, markup_config.Default)
 	conv, err := p.New(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)
 	r, err := conv.Convert(converter.RenderContext{Src: []byte(`:toc: auto
@@ -433,13 +430,8 @@ func TestTableOfContentsPreserveTOC(t *testing.T) {
 	c := qt.New(t)
 	mconf := markup_config.Default
 	mconf.AsciidocExt.PreserveTOC = true
-	p, err := Provider.New(
-		converter.ProviderConfig{
-			MarkupConfig: mconf,
-			Logger:       loggers.NewErrorLogger(),
-		},
-	)
-	c.Assert(err, qt.IsNil)
+	p := getProvider(c, mconf)
+
 	conv, err := p.New(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)
 	r, err := conv.Convert(converter.RenderContext{Src: []byte(`:toc:

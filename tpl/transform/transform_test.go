@@ -241,7 +241,7 @@ func newDeps(cfg config.Provider) *deps.Deps {
 
 	l := langs.NewLanguage("en", cfg)
 
-	cs, err := helpers.NewContentSpec(l, loggers.NewErrorLogger(), afero.NewMemMapFs())
+	cs, err := helpers.NewContentSpec(l, loggers.NewErrorLogger(), afero.NewMemMapFs(), nil)
 	if err != nil {
 		panic(err)
 	}

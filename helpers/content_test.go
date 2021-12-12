@@ -110,7 +110,7 @@ func TestNewContentSpec(t *testing.T) {
 	cfg.Set("buildExpired", true)
 	cfg.Set("buildDrafts", true)
 
-	spec, err := NewContentSpec(cfg, loggers.NewErrorLogger(), afero.NewMemMapFs())
+	spec, err := NewContentSpec(cfg, loggers.NewErrorLogger(), afero.NewMemMapFs(), nil)
 
 	c.Assert(err, qt.IsNil)
 	c.Assert(spec.summaryLength, qt.Equals, 32)

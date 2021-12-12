@@ -32,8 +32,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gohugoio/hugo/common/hexec"
-
 	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/gohugoio/hugo/common/herrors"
@@ -387,8 +385,6 @@ T1: {{ $r.Content }}
 }
 
 func TestResourceChainBasic(t *testing.T) {
-	t.Parallel()
-
 	ts := httptest.NewServer(http.FileServer(http.Dir("testdata/")))
 	t.Cleanup(func() {
 		ts.Close()
@@ -1184,8 +1180,8 @@ class-in-b {
 	b.WithSourceFile("postcss.config.js", postcssConfig)
 
 	b.Assert(os.Chdir(workDir), qt.IsNil)
-	cmd, err := hexec.SafeCommand("npm", "install")
-	_, err = cmd.CombinedOutput()
+	cmd := b.NpmInstall()
+	err = cmd.Run()
 	b.Assert(err, qt.IsNil)
 	b.Build(BuildCfg{})
 

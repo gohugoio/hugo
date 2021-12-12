@@ -88,3 +88,10 @@ func GetGID() uint64 {
 // We will, at least to begin with, make some Hugo features (SCSS with libsass) optional,
 // and this error is used to signal those situations.
 var ErrFeatureNotAvailable = errors.New("this feature is not available in your current Hugo version, see https://goo.gl/YMrWcn for more information")
+
+// Must panics if err != nil.
+func Must(err error) {
+	if err != nil {
+		panic(err)
+	}
+}

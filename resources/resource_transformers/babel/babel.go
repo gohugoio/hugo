@@ -23,7 +23,6 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/cli/safeexec"
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
 
@@ -59,8 +58,8 @@ func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
 	return
 }
 
-func (opts Options) toArgs() []string {
-	var args []string
+func (opts Options) toArgs() []interface{} {
+	var args []interface{}
 
 	// external is not a known constant on the babel command line
 	// .sourceMaps must be a boolean, "inline", "both", or undefined
@@ -115,21 +114,12 @@ func (t *babelTransformation) Key() internal.ResourceTransformationKey {
 // npm install -g @babel/preset-env
 // Instead of installing globally, you can also install everything as a dev-dependency (--save-dev instead of -g)
 func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
-	const localBabelPath = "node_modules/.bin/"
 	const binaryName = "babel"
 
-	// Try first in the project's node_modules.
-	csiBinPath := filepath.Join(t.rs.WorkingDir, localBabelPath, binaryName)
+	ex := t.rs.ExecHelper
 
-	binary := csiBinPath
-
-	if _, err := safeexec.LookPath(binary); err != nil {
-		// Try PATH
-		binary = binaryName
-		if _, err := safeexec.LookPath(binary); err != nil {
-			// This may be on a CI server etc. Will fall back to pre-built assets.
-			return herrors.ErrFeatureNotAvailable
-		}
+	if err := ex.Sec().CheckAllowedExec(binaryName); err != nil {
+		return err
 	}
 
 	var configFile string
@@ -157,11 +147,11 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 
 	ctx.ReplaceOutPathExtension(".js")
 
-	var cmdArgs []string
+	var cmdArgs []interface{}
 
 	if configFile != "" {
 		logger.Infoln("babel: use config file", configFile)
-		cmdArgs = []string{"--config-file", configFile}
+		cmdArgs = []interface{}{"--config-file", configFile}
 	}
 
 	if optArgs := t.options.toArgs(); len(optArgs) > 0 {
@@ -178,18 +168,27 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	}
 
 	cmdArgs = append(cmdArgs, "--out-file="+compileOutput.Name())
+	stderr := io.MultiWriter(infoW, &errBuf)
+	cmdArgs = append(cmdArgs, hexec.WithStderr(stderr))
+	cmdArgs = append(cmdArgs, hexec.WithStdout(stderr))
+	cmdArgs = append(cmdArgs, hexec.WithEnviron(hugo.GetExecEnviron(t.rs.WorkingDir, t.rs.Cfg, t.rs.BaseFs.Assets.Fs)))
+
 	defer os.Remove(compileOutput.Name())
 
-	cmd, err := hexec.SafeCommand(binary, cmdArgs...)
+	// ARGA [--no-install babel --config-file /private/var/folders/_g/j3j21hts4fn7__h04w2x8gb40000gn/T/hugo-test-babel812882892/babel.config.js --source-maps --filename=js/main2.js --out-file=/var/folders/_g/j3j21hts4fn7__h04w2x8gb40000gn/T/compileOut-2237820197.js]
+	//      [--no-install babel --config-file /private/var/folders/_g/j3j21hts4fn7__h04w2x8gb40000gn/T/hugo-test-babel332846848/babel.config.js --filename=js/main.js --out-file=/var/folders/_g/j3j21hts4fn7__h04w2x8gb40000gn/T/compileOut-1451390834.js 0x10304ee60 0x10304ed60 0x10304f060]
+	cmd, err := ex.Npx(binaryName, cmdArgs...)
+
 	if err != nil {
+		if hexec.IsNotFound(err) {
+			// This may be on a CI server etc. Will fall back to pre-built assets.
+			return herrors.ErrFeatureNotAvailable
+		}
 		return err
 	}
 
-	cmd.Stderr = io.MultiWriter(infoW, &errBuf)
-	cmd.Stdout = cmd.Stderr
-	cmd.Env = hugo.GetExecEnviron(t.rs.WorkingDir, t.rs.Cfg, t.rs.BaseFs.Assets.Fs)
-
 	stdin, err := cmd.StdinPipe()
+
 	if err != nil {
 		return err
 	}
@@ -201,6 +200,9 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 
 	err = cmd.Run()
 	if err != nil {
+		if hexec.IsNotFound(err) {
+			return herrors.ErrFeatureNotAvailable
+		}
 		return errors.Wrap(err, errBuf.String())
 	}
 

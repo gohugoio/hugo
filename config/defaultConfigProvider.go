@@ -44,6 +44,8 @@ var (
 		"permalinks":    true,
 		"related":       true,
 		"sitemap":       true,
+		"privacy":       true,
+		"security":      true,
 		"taxonomies":    true,
 	}
 

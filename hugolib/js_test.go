@@ -20,7 +20,6 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/config"
 
 	"github.com/gohugoio/hugo/htesting"
@@ -123,10 +122,9 @@ TS2: {{ template "print" $ts2 }}
 
 	b.WithSourceFile("assets/js/included.js", includedJS)
 
-	cmd, err := hexec.SafeCommand("npm", "install")
+	cmd := b.NpmInstall()
+	err = cmd.Run()
 	b.Assert(err, qt.IsNil)
-	out, err := cmd.CombinedOutput()
-	b.Assert(err, qt.IsNil, qt.Commentf(string(out)))
 
 	b.Build(BuildCfg{})
 
@@ -195,8 +193,8 @@ require github.com/gohugoio/hugoTestProjectJSModImports v0.9.0 // indirect
 }`)
 
 	b.Assert(os.Chdir(workDir), qt.IsNil)
-	cmd, _ := hexec.SafeCommand("npm", "install")
-	_, err = cmd.CombinedOutput()
+	cmd := b.NpmInstall()
+	err = cmd.Run()
 	b.Assert(err, qt.IsNil)
 
 	b.Build(BuildCfg{})

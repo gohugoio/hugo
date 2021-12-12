@@ -154,6 +154,9 @@ func (c *Client) FromString(targetPath, content string) (resource.Resource, erro
 // FromRemote expects one or n-parts of a URL to a resource
 // If you provide multiple parts they will be joined together to the final URL.
 func (c *Client) FromRemote(uri string, options map[string]interface{}) (resource.Resource, error) {
+	if err := c.validateFromRemoteArgs(uri, options); err != nil {
+		return nil, err
+	}
 	rURL, err := url.Parse(uri)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to parse URL for resource %s", uri)
@@ -260,6 +263,19 @@ func (c *Client) FromRemote(uri string, options map[string]interface{}) (resourc
 			RelTargetFilename: filepath.Clean(resourceID),
 		})
 
+}
+
+func (c *Client) validateFromRemoteArgs(uri string, options map[string]interface{}) error {
+	if err := c.rs.ExecHelper.Sec().CheckAllowedHTTPURL(uri); err != nil {
+		return err
+	}
+
+	if method, ok := options["method"].(string); ok {
+		if err := c.rs.ExecHelper.Sec().CheckAllowedHTTPMethod(method); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func addDefaultHeaders(req *http.Request, accepts ...string) {

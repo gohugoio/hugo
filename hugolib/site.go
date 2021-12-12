@@ -120,8 +120,6 @@ type Site struct {
 
 	disabledKinds map[string]bool
 
-	enableInlineShortcodes bool
-
 	// Output formats defined in site config per Page Kind, or some defaults
 	// if not set.
 	// Output formats defined in Page front matter will override these.
@@ -378,25 +376,24 @@ func (s *Site) isEnabled(kind string) bool {
 // reset returns a new Site prepared for rebuild.
 func (s *Site) reset() *Site {
 	return &Site{
-		Deps:                   s.Deps,
-		disabledKinds:          s.disabledKinds,
-		titleFunc:              s.titleFunc,
-		relatedDocsHandler:     s.relatedDocsHandler.Clone(),
-		siteRefLinker:          s.siteRefLinker,
-		outputFormats:          s.outputFormats,
-		rc:                     s.rc,
-		outputFormatsConfig:    s.outputFormatsConfig,
-		frontmatterHandler:     s.frontmatterHandler,
-		mediaTypesConfig:       s.mediaTypesConfig,
-		language:               s.language,
-		siteBucket:             s.siteBucket,
-		h:                      s.h,
-		publisher:              s.publisher,
-		siteConfigConfig:       s.siteConfigConfig,
-		enableInlineShortcodes: s.enableInlineShortcodes,
-		init:                   s.init,
-		PageCollections:        s.PageCollections,
-		siteCfg:                s.siteCfg,
+		Deps:                s.Deps,
+		disabledKinds:       s.disabledKinds,
+		titleFunc:           s.titleFunc,
+		relatedDocsHandler:  s.relatedDocsHandler.Clone(),
+		siteRefLinker:       s.siteRefLinker,
+		outputFormats:       s.outputFormats,
+		rc:                  s.rc,
+		outputFormatsConfig: s.outputFormatsConfig,
+		frontmatterHandler:  s.frontmatterHandler,
+		mediaTypesConfig:    s.mediaTypesConfig,
+		language:            s.language,
+		siteBucket:          s.siteBucket,
+		h:                   s.h,
+		publisher:           s.publisher,
+		siteConfigConfig:    s.siteConfigConfig,
+		init:                s.init,
+		PageCollections:     s.PageCollections,
+		siteCfg:             s.siteCfg,
 	}
 }
 
@@ -564,8 +561,7 @@ But this also means that your site configuration may not do what you expect. If 
 		outputFormatsConfig: siteOutputFormatsConfig,
 		mediaTypesConfig:    siteMediaTypesConfig,
 
-		enableInlineShortcodes: cfg.Language.GetBool("enableInlineShortcodes"),
-		siteCfg:                siteConfig,
+		siteCfg: siteConfig,
 
 		titleFunc: titleFunc,
 

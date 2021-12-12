@@ -33,8 +33,13 @@ const transformationName = "tocss-dart"
 
 func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) (*Client, error) {
 	if !Supports() {
-		return &Client{dartSassNoAvailable: true}, nil
+		return &Client{dartSassNotAvailable: true}, nil
 	}
+
+	if err := rs.ExecHelper.Sec().CheckAllowedExec(dartSassEmbeddedBinaryName); err != nil {
+		return nil, err
+	}
+
 	transpiler, err := godartsass.Start(godartsass.Options{})
 	if err != nil {
 		return nil, err
@@ -43,15 +48,15 @@ func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) (*Client, error) 
 }
 
 type Client struct {
-	dartSassNoAvailable bool
-	rs                  *resources.Spec
-	sfs                 *filesystems.SourceFilesystem
-	workFs              afero.Fs
-	transpiler          *godartsass.Transpiler
+	dartSassNotAvailable bool
+	rs                   *resources.Spec
+	sfs                  *filesystems.SourceFilesystem
+	workFs               afero.Fs
+	transpiler           *godartsass.Transpiler
 }
 
 func (c *Client) ToCSS(res resources.ResourceTransformer, args map[string]interface{}) (resource.Resource, error) {
-	if c.dartSassNoAvailable {
+	if c.dartSassNotAvailable {
 		return res.Transform(resources.NewFeatureNotAvailableTransformer(transformationName, args))
 	}
 	return res.Transform(&transform{c: c, optsm: args})

@@ -24,6 +24,7 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/config/security"
 
 	"github.com/gohugoio/hugo/common/types"
 
@@ -88,6 +89,9 @@ func (ns *Namespace) GetCSV(sep string, args ...interface{}) (d [][]string, err 
 
 	err = ns.getResource(cache, unmarshal, req)
 	if err != nil {
+		if security.IsAccessDenied(err) {
+			return nil, err
+		}
 		ns.deps.Log.(loggers.IgnorableLogger).Errorsf(constants.ErrRemoteGetCSV, "Failed to get CSV resource %q: %s", url, err)
 		return nil, nil
 	}
@@ -121,6 +125,9 @@ func (ns *Namespace) GetJSON(args ...interface{}) (interface{}, error) {
 
 	err = ns.getResource(cache, unmarshal, req)
 	if err != nil {
+		if security.IsAccessDenied(err) {
+			return nil, err
+		}
 		ns.deps.Log.(loggers.IgnorableLogger).Errorsf(constants.ErrRemoteGetJSON, "Failed to get JSON resource %q: %s", url, err)
 		return nil, nil
 	}

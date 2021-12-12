@@ -16,6 +16,7 @@ package converter
 import (
 	"bytes"
 
+	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/identity"
@@ -32,6 +33,7 @@ type ProviderConfig struct {
 	Cfg       config.Provider // Site config
 	ContentFs afero.Fs
 	Logger    loggers.Logger
+	Exec      *hexec.Exec
 	Highlight func(code, lang, optsStr string) (string, error)
 }
 

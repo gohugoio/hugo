@@ -18,6 +18,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/gohugoio/hugo/common/maps"
@@ -41,6 +42,7 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/privacy"
+	"github.com/gohugoio/hugo/config/security"
 	"github.com/gohugoio/hugo/config/services"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/afero"
@@ -377,6 +379,12 @@ func (l configLoader) collectModules(modConfig modules.Config, v1 config.Provide
 		return nil, nil, err
 	}
 
+	secConfig, err := security.DecodeConfig(v1)
+	if err != nil {
+		return nil, nil, err
+	}
+	ex := hexec.New(secConfig)
+
 	v1.Set("filecacheConfigs", filecacheConfigs)
 
 	var configFilenames []string
@@ -405,6 +413,7 @@ func (l configLoader) collectModules(modConfig modules.Config, v1 config.Provide
 	modulesClient := modules.NewClient(modules.ClientConfig{
 		Fs:                 l.Fs,
 		Logger:             l.Logger,
+		Exec:               ex,
 		HookBeforeFinalize: hook,
 		WorkingDir:         workingDir,
 		ThemesDir:          themesDir,

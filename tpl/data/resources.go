@@ -38,6 +38,13 @@ var (
 // getRemote loads the content of a remote file. This method is thread safe.
 func (ns *Namespace) getRemote(cache *filecache.Cache, unmarshal func([]byte) (bool, error), req *http.Request) error {
 	url := req.URL.String()
+	if err := ns.deps.ExecHelper.Sec().CheckAllowedHTTPURL(url); err != nil {
+		return err
+	}
+	if err := ns.deps.ExecHelper.Sec().CheckAllowedHTTPMethod("GET"); err != nil {
+		return err
+	}
+	
 	var headers bytes.Buffer
 	req.Header.Write(&headers)
 	id := helpers.MD5String(url + headers.String())

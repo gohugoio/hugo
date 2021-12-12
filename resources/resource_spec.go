@@ -26,6 +26,7 @@ import (
 	"github.com/gohugoio/hugo/resources/jsconfig"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hexec"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/identity"
@@ -51,6 +52,7 @@ func NewSpec(
 	incr identity.Incrementer,
 	logger loggers.Logger,
 	errorHandler herrors.ErrorSender,
+	execHelper *hexec.Exec,
 	outputFormats output.Formats,
 	mimeTypes media.Types) (*Spec, error) {
 	imgConfig, err := images.DecodeConfig(s.Cfg.GetStringMap("imaging"))
@@ -81,6 +83,7 @@ func NewSpec(
 		Logger:        logger,
 		ErrorSender:   errorHandler,
 		imaging:       imaging,
+		ExecHelper:    execHelper,
 		incr:          incr,
 		MediaTypes:    mimeTypes,
 		OutputFormats: outputFormats,
@@ -119,6 +122,8 @@ type Spec struct {
 
 	// Holds default filter settings etc.
 	imaging *images.ImageProcessor
+
+	ExecHelper *hexec.Exec
 
 	incr          identity.Incrementer
 	imageCache    *imageCache

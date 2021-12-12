@@ -50,7 +50,7 @@ func newTestCfg() config.Provider {
 
 func newTestContentSpec() *ContentSpec {
 	v := config.New()
-	spec, err := NewContentSpec(v, loggers.NewErrorLogger(), afero.NewMemMapFs())
+	spec, err := NewContentSpec(v, loggers.NewErrorLogger(), afero.NewMemMapFs(), nil)
 	if err != nil {
 		panic(err)
 	}

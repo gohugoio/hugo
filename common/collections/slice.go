@@ -64,3 +64,13 @@ func Slice(args ...interface{}) interface{} {
 	}
 	return slice.Interface()
 }
+
+// StringSliceToInterfaceSlice converts ss to []interface{}.
+func StringSliceToInterfaceSlice(ss []string) []interface{} {
+	result := make([]interface{}, len(ss))
+	for i, s := range ss {
+		result[i] = s
+	}
+	return result
+
+}

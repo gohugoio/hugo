@@ -18,7 +18,7 @@ import (
 	"bytes"
 	"runtime"
 
-	"github.com/cli/safeexec"
+	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/htesting"
 
 	"github.com/gohugoio/hugo/identity"
@@ -48,7 +48,11 @@ type rstConverter struct {
 }
 
 func (c *rstConverter) Convert(ctx converter.RenderContext) (converter.Result, error) {
-	return converter.Bytes(c.getRstContent(ctx.Src, c.ctx)), nil
+	b, err := c.getRstContent(ctx.Src, c.ctx)
+	if err != nil {
+		return nil, err
+	}
+	return converter.Bytes(b), nil
 }
 
 func (c *rstConverter) Supports(feature identity.Identity) bool {
@@ -57,31 +61,38 @@ func (c *rstConverter) Supports(feature identity.Identity) bool {
 
 // getRstContent calls the Python script rst2html as an external helper
 // to convert reStructuredText content to HTML.
-func (c *rstConverter) getRstContent(src []byte, ctx converter.DocumentContext) []byte {
+func (c *rstConverter) getRstContent(src []byte, ctx converter.DocumentContext) ([]byte, error) {
 	logger := c.cfg.Logger
-	path := getRstExecPath()
+	binaryName, binaryPath := getRstBinaryNameAndPath()
 
-	if path == "" {
+	if binaryName == "" {
 		logger.Println("rst2html / rst2html.py not found in $PATH: Please install.\n",
 			"                 Leaving reStructuredText content unrendered.")
-		return src
+		return src, nil
 	}
 
-	logger.Infoln("Rendering", ctx.DocumentName, "with", path, "...")
+	logger.Infoln("Rendering", ctx.DocumentName, "with", binaryName, "...")
 
 	var result []byte
+	var err error
+
 	// certain *nix based OSs wrap executables in scripted launchers
 	// invoking binaries on these OSs via python interpreter causes SyntaxError
 	// invoke directly so that shebangs work as expected
 	// handle Windows manually because it doesn't do shebangs
 	if runtime.GOOS == "windows" {
-		python := internal.GetPythonExecPath()
-		args := []string{path, "--leave-comments", "--initial-header-level=2"}
-		result = internal.ExternallyRenderContent(c.cfg, ctx, src, python, args)
+		pythonBinary, _ := internal.GetPythonBinaryAndExecPath()
+		args := []string{binaryPath, "--leave-comments", "--initial-header-level=2"}
+		result, err = internal.ExternallyRenderContent(c.cfg, ctx, src, pythonBinary, args)
 	} else {
 		args := []string{"--leave-comments", "--initial-header-level=2"}
-		result = internal.ExternallyRenderContent(c.cfg, ctx, src, path, args)
+		result, err = internal.ExternallyRenderContent(c.cfg, ctx, src, binaryName, args)
 	}
+
+	if err != nil {
+		return nil, err
+	}
+
 	// TODO(bep) check if rst2html has a body only option.
 	bodyStart := bytes.Index(result, []byte("<body>\n"))
 	if bodyStart < 0 {
@@ -96,24 +107,29 @@ func (c *rstConverter) getRstContent(src []byte, ctx converter.DocumentContext) 
 		}
 	}
 
-	return result[bodyStart+7 : bodyEnd]
+	return result[bodyStart+7 : bodyEnd], err
 }
 
-func getRstExecPath() string {
-	path, err := safeexec.LookPath("rst2html")
-	if err != nil {
-		path, err = safeexec.LookPath("rst2html.py")
-		if err != nil {
-			return ""
+var rst2Binaries = []string{"rst2html", "rst2html.py"}
+
+func getRstBinaryNameAndPath() (string, string) {
+	for _, candidate := range rst2Binaries {
+		if pth := hexec.LookPath(candidate); pth != "" {
+			return candidate, pth
 		}
 	}
-	return path
+	return "", ""
 }
 
-// Supports returns whether rst is installed on this computer.
+// Supports returns whether rst is (or should be) installed on this computer.
 func Supports() bool {
+	name, _ := getRstBinaryNameAndPath()
+	hasBin := name != ""
 	if htesting.SupportsAll() {
+		if !hasBin {
+			panic("rst not installed")
+		}
 		return true
 	}
-	return getRstExecPath() != ""
+	return hasBin
 }

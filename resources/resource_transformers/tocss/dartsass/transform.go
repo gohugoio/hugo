@@ -21,9 +21,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/cli/safeexec"
-
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/media"
 
@@ -38,16 +37,18 @@ import (
 	"github.com/bep/godartsass"
 )
 
-// See https://github.com/sass/dart-sass-embedded/issues/24
-const stdinPlaceholder = "HUGOSTDIN"
+const (
+	// See https://github.com/sass/dart-sass-embedded/issues/24
+	stdinPlaceholder           = "HUGOSTDIN"
+	dartSassEmbeddedBinaryName = "dart-sass-embedded"
+)
 
 // Supports returns whether dart-sass-embedded is found in $PATH.
 func Supports() bool {
 	if htesting.SupportsAll() {
 		return true
 	}
-	p, err := safeexec.LookPath("dart-sass-embedded")
-	return err == nil && p != ""
+	return hexec.InPath(dartSassEmbeddedBinaryName)
 }
 
 type transform struct {

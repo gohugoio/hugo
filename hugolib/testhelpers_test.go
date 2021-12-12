@@ -18,6 +18,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/gohugoio/hugo/config/security"
 	"github.com/gohugoio/hugo/htesting"
 
 	"github.com/gohugoio/hugo/output"
@@ -30,6 +31,7 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
@@ -789,6 +791,16 @@ func (s *sitesBuilder) GetPageRel(p page.Page, ref string) page.Page {
 	p, err := s.H.Sites[0].getPageNew(p, ref)
 	s.Assert(err, qt.IsNil)
 	return p
+}
+
+func (s *sitesBuilder) NpmInstall() hexec.Runner {
+	sc := security.DefaultConfig
+	sc.Exec.Allow = security.NewWhitelist("npm")
+	ex := hexec.New(sc)
+	command, err := ex.New("npm", "install")
+	s.Assert(err, qt.IsNil)
+	return command
+
 }
 
 func newTestHelper(cfg config.Provider, fs *hugofs.Fs, t testing.TB) testHelper {

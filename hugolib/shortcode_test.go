@@ -619,6 +619,12 @@ title: "Foo"
 	cfg.Set("uglyURLs", false)
 	cfg.Set("verbose", true)
 
+	cfg.Set("security", map[string]interface{}{
+		"exec": map[string]interface{}{
+			"allow": []string{"^python$", "^rst2html.*", "^asciidoctor$"},
+		},
+	})
+
 	cfg.Set("markup.highlight.noClasses", false)
 	cfg.Set("markup.highlight.codeFences", true)
 	cfg.Set("markup", map[string]interface{}{

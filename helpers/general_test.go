@@ -30,7 +30,7 @@ import (
 func TestResolveMarkup(t *testing.T) {
 	c := qt.New(t)
 	cfg := config.New()
-	spec, err := NewContentSpec(cfg, loggers.NewErrorLogger(), afero.NewMemMapFs())
+	spec, err := NewContentSpec(cfg, loggers.NewErrorLogger(), afero.NewMemMapFs(), nil)
 	c.Assert(err, qt.IsNil)
 
 	for i, this := range []struct {

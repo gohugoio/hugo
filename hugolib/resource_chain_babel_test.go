@@ -21,8 +21,6 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 
-	"github.com/gohugoio/hugo/common/hexec"
-
 	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/gohugoio/hugo/htesting"
@@ -51,7 +49,7 @@ func TestResourceChainBabel(t *testing.T) {
 
   "devDependencies": {
     "@babel/cli": "7.8.4",
-    "@babel/core": "7.9.0",
+    "@babel/core": "7.9.0",	
     "@babel/preset-env": "7.9.5"
   }
 }
@@ -94,6 +92,12 @@ class Car2 {
 	v := config.New()
 	v.Set("workingDir", workDir)
 	v.Set("disableKinds", []string{"taxonomy", "term", "page"})
+	v.Set("security", map[string]interface{}{
+		"exec": map[string]interface{}{
+			"allow": []string{"^npx$", "^babel$"},
+		},
+	})
+
 	b := newTestSitesBuilder(t).WithLogger(logger)
 
 	// Need to use OS fs for this.
@@ -123,8 +127,8 @@ Transpiled3: {{ $transpiled.Permalink }}
 	b.WithSourceFile("babel.config.js", babelConfig)
 
 	b.Assert(os.Chdir(workDir), qt.IsNil)
-	cmd, _ := hexec.SafeCommand("npm", "install")
-	_, err = cmd.CombinedOutput()
+	cmd := b.NpmInstall()
+	err = cmd.Run()
 	b.Assert(err, qt.IsNil)
 
 	b.Build(BuildCfg{})
