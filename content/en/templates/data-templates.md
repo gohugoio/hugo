@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-03-12
 categories: [templates]
-keywords: [data,dynamic,csv,json,toml,yaml]
+keywords: [data,dynamic,csv,json,toml,yaml,xml]
 menu:
   docs:
     parent: "templates"
@@ -20,7 +20,7 @@ toc: true
 
 <!-- begin data files -->
 
-Hugo supports loading data from YAML, JSON, and TOML files located in the `data` directory in the root of your Hugo project.
+Hugo supports loading data from YAML, JSON, XML, and TOML files located in the `data` directory in the root of your Hugo project.
 
 {{< youtube FyPgSuwIMWQ >}}
 
@@ -28,7 +28,7 @@ Hugo supports loading data from YAML, JSON, and TOML files located in the `data`
 
 The `data` folder is where you can store additional data for Hugo to use when generating your site. Data files aren't used to generate standalone pages; rather, they're meant to be supplemental to content files. This feature can extend the content in case your front matter fields grow out of control. Or perhaps you want to show a larger dataset in a template (see example below). In both cases, it's a good idea to outsource the data in their own files.
 
-These files must be YAML, JSON, or TOML files (using the `.yml`, `.yaml`, `.json`, or `.toml` extension). The data will be accessible as a `map` in the `.Site.Data` variable.
+These files must be YAML, JSON, XML, or TOML files (using the `.yml`, `.yaml`, `.json`, `.xml`, or `.toml` extension). The data will be accessible as a `map` in the `.Site.Data` variable.
 
 ## Data Files in Themes
 
@@ -95,7 +95,7 @@ Discover a new favorite bass player? Just add another `.toml` file in the same d
 
 ## Example: Accessing Named Values in a Data File
 
-Assume you have the following data structure in your `User0123.[yml|toml|json]` data file located directly in `data/`:
+Assume you have the following data structure in your `User0123.[yml|toml|xml|json]` data file located directly in `data/`:
 
 {{< code-toggle file="User0123" >}}
 Name: User0123
@@ -232,6 +232,7 @@ If you change any local file and the LiveReload is triggered, Hugo will read the
 * [YAML Spec][yaml]
 * [JSON Spec][json]
 * [CSV Spec][csv]
+* [XML Spec][xml]
 
 [config]: /getting-started/configuration/
 [csv]: https://tools.ietf.org/html/rfc4180
@@ -247,3 +248,4 @@ If you change any local file and the LiveReload is triggered, Hugo will read the
 [variadic]: https://en.wikipedia.org/wiki/Variadic_function
 [vars]: /variables/
 [yaml]: https://yaml.org/spec/
+[xml]: https://www.w3.org/XML/

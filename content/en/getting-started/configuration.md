@@ -686,6 +686,9 @@ maxAge = -1
 [caches.getcsv]
 dir = ":cacheDir/:project"
 maxAge = -1
+[caches.getresource]
+dir = ":cacheDir/:project"
+maxAge = -1
 [caches.images]
 dir = ":resourceDir/_gen"
 maxAge = -1

@@ -1893,7 +1893,8 @@
         "type": "application/rss+xml",
         "string": "application/rss+xml",
         "suffixes": [
-          "xml"
+          "xml",
+          "rss"
         ]
       },
       {
@@ -3880,6 +3881,12 @@
           "Aliases": null,
           "Examples": null
         },
+        "Text": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "UnsharpMask": {
           "Description": "",
           "Args": null,
@@ -4517,9 +4524,9 @@
           "Examples": null
         },
         "Get": {
-          "Description": "Get locates the filename given in Hugo's assets filesystem\nand creates a Resource object that can be used for further transformations.",
+          "Description": "Get locates the filename given in Hugo's assets filesystem or downloads\na file from an URL and creates a Resource object that can be used for\nfurther transformations.\n\nFor URLs an additional argument with options can be provided.",
           "Args": [
-            "filename"
+            "args"
           ],
           "Aliases": null,
           "Examples": []
