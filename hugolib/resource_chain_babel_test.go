@@ -133,27 +133,9 @@ Transpiled3: {{ $transpiled.Permalink }}
 	b.Assert(logBuf.String(), qt.Contains, "babel: Hugo Environment: production")
 	b.Assert(err, qt.IsNil)
 
-	b.AssertFileContent("public/index.html", `
-var Car = function Car(brand) {
- _classCallCheck(this, Car);
-
- this.carname = brand;
-};
-`)
-	b.AssertFileContent("public/index.html", `
-var Car2 = function Car2(brand) {
- _classCallCheck(this, Car2);
-
- this.carname = brand;
-};
-`)
-	b.AssertFileContent("public/js/main2.js", `
-var Car2 = function Car2(brand) {
- _classCallCheck(this, Car2);
-
- this.carname = brand;
-};
-`)
+	b.AssertFileContent("public/index.html", `var Car =`)
+	b.AssertFileContent("public/index.html", `var Car2 =`)
+	b.AssertFileContent("public/js/main2.js", `var Car2 =`)
 	b.AssertFileContent("public/js/main2.js.map", `{"version":3,`)
 	b.AssertFileContent("public/index.html", `
 //# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozL`)
