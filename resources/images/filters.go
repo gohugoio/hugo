@@ -66,6 +66,9 @@ func (*Filters) Text(text string, options ...interface{}) gift.Filter {
 			case "linespacing":
 				tf.linespacing = cast.ToInt(v)
 			case "font":
+				if err, ok := v.(error); ok {
+					panic(fmt.Sprintf("invalid font source: %s", err))
+				}
 				fontSource, ok1 := v.(hugio.ReadSeekCloserProvider)
 				identifier, ok2 := v.(resource.Identifier)
 

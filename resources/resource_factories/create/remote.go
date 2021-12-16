@@ -29,6 +29,7 @@ import (
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/mitchellh/mapstructure"
@@ -99,7 +100,7 @@ func (c *Client) FromRemote(uri string, optionsm map[string]interface{}) (resour
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to read remote resource %s", uri)
+		return nil, errors.Wrapf(err, "failed to read remote resource %q", uri)
 	}
 
 	filename := path.Base(rURL.Path)
@@ -109,33 +110,30 @@ func (c *Client) FromRemote(uri string, optionsm map[string]interface{}) (resour
 		}
 	}
 
-	var extension string
+	var extensionHint string
+
 	if arr, _ := mime.ExtensionsByType(res.Header.Get("Content-Type")); len(arr) == 1 {
-		extension = arr[0]
+		extensionHint = arr[0]
 	}
 
-	// If extension was not determined by header, look for a file extention
-	if extension == "" {
+	// Look for a file extention
+	if extensionHint == "" {
 		if ext := path.Ext(filename); ext != "" {
-			extension = ext
+			extensionHint = ext
 		}
 	}
 
-	// If extension was not determined by header or file extention, try using content itself
-	if extension == "" {
-		if ct := http.DetectContentType(body); ct != "application/octet-stream" {
-			if ct == "image/jpeg" {
-				extension = ".jpg"
-			} else if arr, _ := mime.ExtensionsByType(ct); arr != nil {
-				extension = arr[0]
-			}
-		}
+	// Now resolve the media type primarily using the content.
+	mediaType := media.FromContent(c.rs.MediaTypes, extensionHint, body)
+	if mediaType.IsZero() {
+		return nil, errors.Errorf("failed to resolve media type for remote resource %q", uri)
 	}
 
-	resourceID = filename[:len(filename)-len(path.Ext(filename))] + "_" + resourceID + extension
+	resourceID = filename[:len(filename)-len(path.Ext(filename))] + "_" + resourceID + mediaType.FirstSuffix.FullSuffix
 
 	return c.rs.New(
 		resources.ResourceSourceDescriptor{
+			MediaType:   mediaType,
 			LazyPublish: true,
 			OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
 				return hugio.NewReadSeekerNoOpCloser(bytes.NewReader(body)), nil

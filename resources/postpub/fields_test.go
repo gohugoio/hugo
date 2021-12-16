@@ -36,6 +36,7 @@ func TestCreatePlaceholders(t *testing.T) {
 		"Suffixes":    "pre_foo.Suffixes_post",
 		"Delimiter":   "pre_foo.Delimiter_post",
 		"FirstSuffix": "pre_foo.FirstSuffix_post",
+		"IsText":      "pre_foo.IsText_post",
 		"String":      "pre_foo.String_post",
 		"Type":        "pre_foo.Type_post",
 		"MainType":    "pre_foo.MainType_post",

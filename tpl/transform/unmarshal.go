@@ -95,6 +95,10 @@ func (ns *Namespace) Unmarshal(args ...interface{}) (interface{}, error) {
 		return nil, errors.Errorf("type %T not supported", data)
 	}
 
+	if dataStr == "" {
+		return nil, errors.New("no data to transform")
+	}
+
 	key := helpers.MD5String(dataStr)
 
 	return ns.cache.GetOrCreate(key, func() (interface{}, error) {

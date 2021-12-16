@@ -37,7 +37,6 @@ import (
 	"github.com/gohugoio/hugo/tpl/internal"
 	"github.com/gohugoio/hugo/tpl/partials"
 	"github.com/spf13/afero"
-	
 )
 
 var logger = loggers.NewErrorLogger()

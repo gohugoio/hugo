@@ -110,30 +110,21 @@ func (ns *Namespace) getscssClientDartSass() (*dartsass.Client, error) {
 // Get locates the filename given in Hugo's assets filesystem and
 // creates a Resource object that can be used for
 // further transformations.
-func (ns *Namespace) Get(filename interface{}) resource.Resource {
-	get := func(args ...interface{}) (resource.Resource, error) {
-		filenamestr, err := cast.ToStringE(filename)
-		if err != nil {
-			return nil, err
-		}
-		return ns.createClient.Get(filepath.Clean(filenamestr))
-	}
-
-	r, err := get(filename)
+func (ns *Namespace) Get(filename interface{}) (resource.Resource, error) {
+	filenamestr, err := cast.ToStringE(filename)
 	if err != nil {
-		// This allows the client to reason about the .Err in the template.
-		// This is not as relevant for local resources as remotes, but
-		// it makes this method work the same way as resources.GetRemote.
-		return resources.NewErrorResource(errors.Wrap(err, "error calling resources.Get"))
+		return nil, err
 	}
-	return r
-
+	return ns.createClient.Get(filepath.Clean(filenamestr))
 }
 
 // GetRemote gets the URL (via HTTP(s)) in the first argument in args and creates Resource object that can be used for
 // further transformations.
 //
 // A second argument may be provided with an option map.
+//
+// Note: This method does not return any error as a second argument,
+// for any error situations the error can be checked in .Err.
 func (ns *Namespace) GetRemote(args ...interface{}) resource.Resource {
 	get := func(args ...interface{}) (resource.Resource, error) {
 		if len(args) < 1 {

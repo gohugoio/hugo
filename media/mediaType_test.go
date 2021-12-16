@@ -15,10 +15,14 @@ package media
 
 import (
 	"encoding/json"
+	"io/ioutil"
+	"path/filepath"
 	"sort"
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/paths"
 )
 
 func TestDefaultTypes(t *testing.T) {
@@ -47,6 +51,8 @@ func TestDefaultTypes(t *testing.T) {
 		{XMLType, "application", "xml", "xml", "application/xml", "application/xml"},
 		{TOMLType, "application", "toml", "toml", "application/toml", "application/toml"},
 		{YAMLType, "application", "yaml", "yaml", "application/yaml", "application/yaml"},
+		{TrueTypeFontType, "font", "ttf", "ttf", "font/ttf", "font/ttf"},
+		{OpenTypeFontType, "font", "otf", "otf", "font/otf", "font/otf"},
 	} {
 		c.Assert(test.tp.MainType, qt.Equals, test.expectedMainType)
 		c.Assert(test.tp.SubType, qt.Equals, test.expectedSubType)
@@ -56,7 +62,7 @@ func TestDefaultTypes(t *testing.T) {
 
 	}
 
-	c.Assert(len(DefaultTypes), qt.Equals, 28)
+	c.Assert(len(DefaultTypes), qt.Equals, 30)
 }
 
 func TestGetByType(t *testing.T) {
@@ -173,6 +179,26 @@ func TestFromExtensionMultipleSuffixes(t *testing.T) {
 	c.Assert(ftp.String(), qt.Equals, "image/svg+xml")
 	c.Assert(found, qt.Equals, true)
 
+}
+
+func TestFromContent(t *testing.T) {
+	c := qt.New(t)
+
+	files, err := filepath.Glob("./testdata/resource.*")
+	c.Assert(err, qt.IsNil)
+	mtypes := DefaultTypes
+
+	for _, filename := range files {
+		c.Run(filepath.Base(filename), func(c *qt.C) {
+			content, err := ioutil.ReadFile(filename)
+			c.Assert(err, qt.IsNil)
+			ext := strings.TrimPrefix(paths.Ext(filename), ".")
+			expected, _, found := mtypes.GetFirstBySuffix(ext)
+			c.Assert(found, qt.IsTrue)
+			got := FromContent(mtypes, ext, content)
+			c.Assert(got, qt.Equals, expected)
+		})
+	}
 }
 
 func TestDecodeTypes(t *testing.T) {

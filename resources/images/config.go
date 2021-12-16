@@ -20,6 +20,7 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/media"
 
 	"github.com/pkg/errors"
 
@@ -43,6 +44,15 @@ var (
 		".bmp":  BMP,
 		".gif":  GIF,
 		".webp": WEBP,
+	}
+
+	imageFormatsBySubType = map[string]Format{
+		media.JPEGType.SubType: JPEG,
+		media.PNGType.SubType:  PNG,
+		media.TIFFType.SubType: TIFF,
+		media.BMPType.SubType:  BMP,
+		media.GIFType.SubType:  GIF,
+		media.WEBPType.SubType: WEBP,
 	}
 
 	// Add or increment if changes to an image format's processing requires
@@ -99,6 +109,11 @@ var imageFilters = map[string]gift.Resampling{
 
 func ImageFormatFromExt(ext string) (Format, bool) {
 	f, found := imageFormats[ext]
+	return f, found
+}
+
+func ImageFormatFromMediaSubType(sub string) (Format, bool) {
+	f, found := imageFormatsBySubType[sub]
 	return f, found
 }
 
