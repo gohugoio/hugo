@@ -408,10 +408,10 @@ FIT: {{ $fit.Name }}|{{ $fit.RelPermalink }}|{{ $fit.Width }}
 CSS integrity Data first: {{ $cssFingerprinted1.Data.Integrity }} {{ $cssFingerprinted1.RelPermalink }}
 CSS integrity Data last:  {{ $cssFingerprinted2.RelPermalink }} {{ $cssFingerprinted2.Data.Integrity }}
 
-{{ $rimg := resources.Get "%[1]s/sunset.jpg" }}
-{{ $remotenotfound := resources.Get "%[1]s/notfound.jpg" }}
+{{ $rimg := resources.GetRemote "%[1]s/sunset.jpg" }}
+{{ $remotenotfound := resources.GetRemote "%[1]s/notfound.jpg" }}
 {{ $localnotfound := resources.Get "images/notfound.jpg" }}
-{{ $gopherprotocol := resources.Get "gopher://example.org" }}
+{{ $gopherprotocol := resources.GetRemote "gopher://example.org" }}
 {{ $rfit := $rimg.Fit "200x200" }}
 {{ $rfit2 := $rfit.Fit "100x200" }}
 {{ $rimg = $rimg | fingerprint }}
@@ -453,8 +453,8 @@ SUNSET REMOTE: sunset_%[1]s.jpg|/sunset_%[1]s.a9bf1d944e19c0f382e0d8f51de690f7d0
 FIT REMOTE: sunset_%[1]s.jpg|/sunset_%[1]s_hu59e56ffff1bc1d8d122b1403d34e039f_0_200x200_fit_q75_box.jpg|200
 REMOTE NOT FOUND: OK
 LOCAL NOT FOUND: OK
-PRINT PROTOCOL ERROR1: error calling resources.Get: Get "gopher://example.org": unsupported protocol scheme "gopher"
-PRINT PROTOCOL ERROR2: error calling resources.Get: Get "gopher://example.org": unsupported protocol scheme "gopher"
+PRINT PROTOCOL ERROR1: error calling resources.GetRemote: Get "gopher://example.org": unsupported protocol scheme "gopher"
+PRINT PROTOCOL ERROR2: error calling resources.GetRemote: Get "gopher://example.org": unsupported protocol scheme "gopher"
 
 
 `, helpers.HashString(ts.URL+"/sunset.jpg", map[string]interface{}{})))
@@ -691,18 +691,18 @@ T6: {{ $bundle1.Permalink }}
 `)
 			b.WithTemplates("home.html", fmt.Sprintf(`
 Min CSS: {{ ( resources.Get "css/styles1.css" | minify ).Content }}
-Min CSS Remote: {{ ( resources.Get "%[1]s/css/styles1.css" | minify ).Content }}
+Min CSS Remote: {{ ( resources.GetRemote "%[1]s/css/styles1.css" | minify ).Content }}
 Min JS: {{ ( resources.Get "js/script1.js" | resources.Minify ).Content | safeJS }}
-Min JS Remote: {{ ( resources.Get "%[1]s/js/script1.js" | minify ).Content }}
+Min JS Remote: {{ ( resources.GetRemote "%[1]s/js/script1.js" | minify ).Content }}
 Min JSON: {{ ( resources.Get "mydata/json1.json" | resources.Minify ).Content | safeHTML }}
-Min JSON Remote: {{ ( resources.Get "%[1]s/mydata/json1.json" | resources.Minify ).Content | safeHTML }}
+Min JSON Remote: {{ ( resources.GetRemote "%[1]s/mydata/json1.json" | resources.Minify ).Content | safeHTML }}
 Min XML: {{ ( resources.Get "mydata/xml1.xml" | resources.Minify ).Content | safeHTML }}
-Min XML Remote: {{ ( resources.Get "%[1]s/mydata/xml1.xml" | resources.Minify ).Content | safeHTML }}
+Min XML Remote: {{ ( resources.GetRemote "%[1]s/mydata/xml1.xml" | resources.Minify ).Content | safeHTML }}
 Min SVG: {{ ( resources.Get "mydata/svg1.svg" | resources.Minify ).Content | safeHTML }}
-Min SVG Remote: {{ ( resources.Get "%[1]s/mydata/svg1.svg" | resources.Minify ).Content | safeHTML }}
+Min SVG Remote: {{ ( resources.GetRemote "%[1]s/mydata/svg1.svg" | resources.Minify ).Content | safeHTML }}
 Min SVG again: {{ ( resources.Get "mydata/svg1.svg" | resources.Minify ).Content | safeHTML }}
 Min HTML: {{ ( resources.Get "mydata/html1.html" | resources.Minify ).Content | safeHTML }}
-Min HTML Remote: {{ ( resources.Get "%[1]s/mydata/html1.html" | resources.Minify ).Content | safeHTML }}
+Min HTML Remote: {{ ( resources.GetRemote "%[1]s/mydata/html1.html" | resources.Minify ).Content | safeHTML }}
 `, ts.URL))
 		}, func(b *sitesBuilder) {
 			b.AssertFileContent("public/index.html", `Min CSS: h1{font-style:bold}`)
@@ -722,13 +722,13 @@ Min HTML Remote: {{ ( resources.Get "%[1]s/mydata/html1.html" | resources.Minify
 
 		{"remote", func() bool { return true }, func(b *sitesBuilder) {
 			b.WithTemplates("home.html", fmt.Sprintf(`
-{{$js := resources.Get "%[1]s/js/script1.js" }}
+{{$js := resources.GetRemote "%[1]s/js/script1.js" }}
 Remote Filename: {{ $js.RelPermalink }}
-{{$svg := resources.Get "%[1]s/mydata/svg1.svg" }}
+{{$svg := resources.GetRemote "%[1]s/mydata/svg1.svg" }}
 Remote Content-Disposition: {{ $svg.RelPermalink }}
-{{$auth := resources.Get "%[1]s/authenticated/" (dict "headers" (dict "Authorization" "Bearer abcd")) }}
+{{$auth := resources.GetRemote "%[1]s/authenticated/" (dict "headers" (dict "Authorization" "Bearer abcd")) }}
 Remote Authorization: {{ $auth.Content }}
-{{$post := resources.Get "%[1]s/post" (dict "method" "post" "body" "Request body") }}
+{{$post := resources.GetRemote "%[1]s/post" (dict "method" "post" "body" "Request body") }}
 Remote POST: {{ $post.Content }}
 `, ts.URL))
 		}, func(b *sitesBuilder) {

@@ -16,7 +16,6 @@ package resources
 
 import (
 	"fmt"
-	"net/url"
 	"path/filepath"
 	"sync"
 
@@ -108,42 +107,61 @@ func (ns *Namespace) getscssClientDartSass() (*dartsass.Client, error) {
 	return ns.scssClientDartSass, err
 }
 
-// Get locates the filename given in Hugo's assets filesystem or downloads
-// a file from an URL and creates a Resource object that can be used for
+// Get locates the filename given in Hugo's assets filesystem and
+// creates a Resource object that can be used for
+// further transformations.
+func (ns *Namespace) Get(filename interface{}) resource.Resource {
+	get := func(args ...interface{}) (resource.Resource, error) {
+		filenamestr, err := cast.ToStringE(filename)
+		if err != nil {
+			return nil, err
+		}
+		return ns.createClient.Get(filepath.Clean(filenamestr))
+	}
+
+	r, err := get(filename)
+	if err != nil {
+		// This allows the client to reason about the .Err in the template.
+		// This is not as relevant for local resources as remotes, but
+		// it makes this method work the same way as resources.GetRemote.
+		return resources.NewErrorResource(errors.Wrap(err, "error calling resources.Get"))
+	}
+	return r
+
+}
+
+// GetRemote gets the URL (via HTTP(s)) in the first argument in args and creates Resource object that can be used for
 // further transformations.
 //
-// For URLs an additional argument with options can be provided.
-func (ns *Namespace) Get(args ...interface{}) resource.Resource {
+// A second argument may be provided with an option map.
+func (ns *Namespace) GetRemote(args ...interface{}) resource.Resource {
 	get := func(args ...interface{}) (resource.Resource, error) {
-		if len(args) != 1 && len(args) != 2 {
-			return nil, errors.New("must provide a filename or URL")
+		if len(args) < 1 {
+			return nil, errors.New("must provide an URL")
 		}
 
-		filenamestr, err := cast.ToStringE(args[0])
+		urlstr, err := cast.ToStringE(args[0])
 		if err != nil {
 			return nil, err
 		}
 
-		if u, err := url.Parse(filenamestr); err == nil && u.Scheme != "" {
-			if len(args) == 2 {
-				options, err := maps.ToStringMapE(args[1])
-				if err != nil {
-					return nil, err
-				}
-				return ns.createClient.FromRemote(filenamestr, options)
+		var options map[string]interface{}
+
+		if len(args) > 1 {
+			options, err = maps.ToStringMapE(args[1])
+			if err != nil {
+				return nil, err
 			}
-			return ns.createClient.FromRemote(filenamestr, nil)
 		}
 
-		filenamestr = filepath.Clean(filenamestr)
+		return ns.createClient.FromRemote(urlstr, options)
 
-		return ns.createClient.Get(filenamestr)
 	}
 
 	r, err := get(args...)
 	if err != nil {
 		// This allows the client to reason about the .Err in the template.
-		return resources.NewErrorResource(errors.Wrap(err, "error calling resources.Get"))
+		return resources.NewErrorResource(errors.Wrap(err, "error calling resources.GetRemote"))
 	}
 	return r
 

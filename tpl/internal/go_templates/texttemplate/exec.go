@@ -783,6 +783,8 @@ func (s *state) validateType(value reflect.Value, typ reflect.Type) reflect.Valu
 			}
 		case reflect.PtrTo(value.Type()).AssignableTo(typ) && value.CanAddr():
 			value = value.Addr()
+		case value.IsZero():
+			s.errorf("got <nil>, expected %s", typ)
 		default:
 			s.errorf("wrong type for value; expected %s; got %s", typ, value.Type())
 		}

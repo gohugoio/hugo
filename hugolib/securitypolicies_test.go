@@ -148,19 +148,19 @@ func TestSecurityPolicies(t *testing.T) {
 		testVariant(c, cb, `(?s).*"dart-sass-embedded" is not whitelisted in policy "security\.exec\.allow".*`)
 	})
 
-	c.Run("resources.Get, OK", func(c *qt.C) {
+	c.Run("resources.GetRemote, OK", func(c *qt.C) {
 		c.Parallel()
-		httpTestVariant(c, `{{ $json := resources.Get "%[1]s/fruits.json" }}{{ $json.Content }}`, "", nil)
+		httpTestVariant(c, `{{ $json := resources.GetRemote "%[1]s/fruits.json" }}{{ $json.Content }}`, "", nil)
 	})
 
-	c.Run("resources.Get, denied method", func(c *qt.C) {
+	c.Run("resources.GetRemote, denied method", func(c *qt.C) {
 		c.Parallel()
-		httpTestVariant(c, `{{ $json := resources.Get "%[1]s/fruits.json" (dict "method" "DELETE" ) }}{{ $json.Content }}`, `(?s).*"DELETE" is not whitelisted in policy "security\.http\.method".*`, nil)
+		httpTestVariant(c, `{{ $json := resources.GetRemote "%[1]s/fruits.json" (dict "method" "DELETE" ) }}{{ $json.Content }}`, `(?s).*"DELETE" is not whitelisted in policy "security\.http\.method".*`, nil)
 	})
 
-	c.Run("resources.Get, denied URL", func(c *qt.C) {
+	c.Run("resources.GetRemote, denied URL", func(c *qt.C) {
 		c.Parallel()
-		httpTestVariant(c, `{{ $json := resources.Get "%[1]s/fruits.json" }}{{ $json.Content }}`, `(?s).*is not whitelisted in policy "security\.http\.urls".*`,
+		httpTestVariant(c, `{{ $json := resources.GetRemote "%[1]s/fruits.json" }}{{ $json.Content }}`, `(?s).*is not whitelisted in policy "security\.http\.urls".*`,
 			func(b *sitesBuilder) {
 				b.WithConfigFile("toml", `
 [security]		
