@@ -15,7 +15,6 @@ package modules
 
 import (
 	"fmt"
-	"path"
 	"path/filepath"
 	"strings"
 
@@ -389,7 +388,7 @@ type Mount struct {
 
 // Used as key to remove duplicates.
 func (m Mount) key() string {
-	return path.Join(m.Lang, m.Source, m.Target)
+	return strings.Join([]string{m.Lang, m.Source, m.Target}, "/")
 }
 
 func (m Mount) Component() string {
