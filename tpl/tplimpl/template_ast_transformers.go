@@ -112,6 +112,10 @@ func getParseTree(templ tpl.Template) *parse.Tree {
 }
 
 const (
+	// We parse this template and modify the nodes in order to assign
+	// the return value of a partial to a contextWrapper via Set. We use
+	// "range" over a one-element slice so we can shift dot to the
+	// partial's argument, Arg, while allowing Arg to be falsy.
 	partialReturnWrapperTempl = `{{ $_hugo_dot := $ }}{{ $ := .Arg }}{{ range (slice .Arg) }}{{ $_hugo_dot.Set ("PLACEHOLDER") }}{{ end }}`
 )
 
