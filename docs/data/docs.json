@@ -1833,6 +1833,7 @@
       "enableInlineShortcodes": false,
       "exec": {
         "allow": [
+          "^dart-sass-embedded$",
           "^go$",
           "^npx$",
           "^postcss$"
@@ -1984,6 +1985,34 @@
         "suffixes": [
           "yaml",
           "yml"
+        ]
+      },
+      {
+        "mainType": "font",
+        "subType": "otf",
+        "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "otf",
+          "fullSuffix": ".otf"
+        },
+        "type": "font/otf",
+        "string": "font/otf",
+        "suffixes": [
+          "otf"
+        ]
+      },
+      {
+        "mainType": "font",
+        "subType": "ttf",
+        "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "ttf",
+          "fullSuffix": ".ttf"
+        },
+        "type": "font/ttf",
+        "string": "font/ttf",
+        "suffixes": [
+          "ttf"
         ]
       },
       {
@@ -4559,9 +4588,9 @@
           "Examples": null
         },
         "Get": {
-          "Description": "Get locates the filename given in Hugo's assets filesystem or downloads\na file from an URL and creates a Resource object that can be used for\nfurther transformations.\n\nFor URLs an additional argument with options can be provided.",
+          "Description": "Get locates the filename given in Hugo's assets filesystem and\ncreates a Resource object that can be used for\nfurther transformations.",
           "Args": [
-            "args"
+            "filename"
           ],
           "Aliases": null,
           "Examples": []
@@ -4571,6 +4600,14 @@
           "Args": null,
           "Aliases": null,
           "Examples": null
+        },
+        "GetRemote": {
+          "Description": "GetRemote gets the URL (via HTTP(s)) in the first argument in args and creates Resource object that can be used for\nfurther transformations.\n\nA second argument may be provided with an option map.\n\nNote: This method does not return any error as a second argument,\nfor any error situations the error can be checked in .Err.",
+          "Args": [
+            "args"
+          ],
+          "Aliases": null,
+          "Examples": []
         },
         "Match": {
           "Description": "",
