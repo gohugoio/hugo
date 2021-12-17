@@ -18,22 +18,22 @@ toc: true
 aliases: [/assets/]
 ---
 
-## Get Resource with resources.Get
+## Get Resource with resources.Get andresources.GetRemote
 
 In order to process an asset with Hugo Pipes, it must be retrieved as a `Resource` using `resources.Get`. The first argument can be either a local the path to file relative to the `asset` directory/directories or a remote URL.
 
 ```go-html-template
 {{ $local := resources.Get "sass/main.scss" }}
-{{ $remote := resources.Get "https://www.example.com/styles.scss" }}
+{{ $remote := resources.GetRemote "https://www.example.com/styles.scss" }}
 ```
 
-`resources.Get` will always return `nil` if the resource could not be found.
+`resources.Get` and `resources.GetRemote` will always return `nil` if the resource could not be found.
 
 ### Error Handling
 
-{{< new-in "0.90.1" >}}
+{{< new-in "0.91.0" >}}
 
-The return value from `resources.Get` includes an `.Err` method that will return an error if the call failed. If you want to just log any error as a `WARNING` you can use a construct similar to the one below.
+The return value from `resources.GetRemote` includes an `.Err` method that will return an error if the call failed. If you want to just log any error as a `WARNING` you can use a construct similar to the one below.
 
 ```go-html-template
 {{ with resources.Get "https://gohugo.io/images/gohugoio-card-1.png" }}
