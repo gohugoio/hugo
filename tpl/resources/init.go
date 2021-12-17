@@ -38,6 +38,11 @@ func init() {
 			[][2]string{},
 		)
 
+		ns.AddMethodMapping(ctx.GetRemote,
+			nil,
+			[][2]string{},
+		)
+
 		// Add aliases for the most common transformations.
 
 		ns.AddMethodMapping(ctx.Fingerprint,
