@@ -25,7 +25,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gohugoio/hugo/common/hreflect"
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -121,10 +120,6 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 	var w io.Writer
 
 	if info.HasReturn {
-		if !hreflect.IsTruthful(context) {
-			// TODO(bep) we need to fix this, but it is non-trivial.
-			return nil, errors.New("partial that returns a value needs a non-zero argument.")
-		}
 		// Wrap the context sent to the template to capture the return value.
 		// Note that the template is rewritten to make sure that the dot (".")
 		// and the $ variable points to Arg.
