@@ -51,6 +51,7 @@ func TestDefaultTypes(t *testing.T) {
 		{XMLType, "application", "xml", "xml", "application/xml", "application/xml"},
 		{TOMLType, "application", "toml", "toml", "application/toml", "application/toml"},
 		{YAMLType, "application", "yaml", "yaml", "application/yaml", "application/yaml"},
+		{PDFType, "application", "pdf", "pdf", "application/pdf", "application/pdf"},
 		{TrueTypeFontType, "font", "ttf", "ttf", "font/ttf", "font/ttf"},
 		{OpenTypeFontType, "font", "otf", "otf", "font/otf", "font/otf"},
 	} {
@@ -62,7 +63,7 @@ func TestDefaultTypes(t *testing.T) {
 
 	}
 
-	c.Assert(len(DefaultTypes), qt.Equals, 30)
+	c.Assert(len(DefaultTypes), qt.Equals, 31)
 }
 
 func TestGetByType(t *testing.T) {
@@ -118,7 +119,8 @@ func TestGetFirstBySuffix(t *testing.T) {
 		c.Assert(found, qt.Equals, true)
 		c.Assert(f, qt.Equals, SuffixInfo{
 			Suffix:     suffix,
-			FullSuffix: "." + suffix})
+			FullSuffix: "." + suffix,
+		})
 		c.Assert(t, qt.Equals, expectedType)
 	}
 
@@ -126,7 +128,6 @@ func TestGetFirstBySuffix(t *testing.T) {
 	check("json", JSONType)
 	check("geojson", geoJSON)
 	check("gjson", geoJSON)
-
 }
 
 func TestFromTypeString(t *testing.T) {
@@ -150,7 +151,6 @@ func TestFromTypeString(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 
 	c.Assert(f, qt.Equals, Type{MainType: "text", SubType: "xml", mimeSuffix: ""})
-
 }
 
 func TestFromStringAndExt(t *testing.T) {
@@ -178,7 +178,6 @@ func TestFromExtensionMultipleSuffixes(t *testing.T) {
 	c.Assert(found, qt.Equals, true)
 	c.Assert(ftp.String(), qt.Equals, "image/svg+xml")
 	c.Assert(found, qt.Equals, true)
-
 }
 
 func TestFromContent(t *testing.T) {
@@ -189,7 +188,8 @@ func TestFromContent(t *testing.T) {
 	mtypes := DefaultTypes
 
 	for _, filename := range files {
-		c.Run(filepath.Base(filename), func(c *qt.C) {
+		name := filepath.Base(filename)
+		c.Run(name, func(c *qt.C) {
 			content, err := ioutil.ReadFile(filename)
 			c.Assert(err, qt.IsNil)
 			ext := strings.TrimPrefix(paths.Ext(filename), ".")
@@ -252,7 +252,6 @@ func TestDecodeTypes(t *testing.T) {
 
 				_, found = tt.GetByType("application/hugo+hg")
 				c.Assert(found, qt.Equals, true)
-
 			},
 		},
 		{
