@@ -169,7 +169,6 @@ func (m Type) IsText() bool {
 	switch m.SubType {
 	case "javascript", "json", "rss", "xml", "svg", TOMLType.SubType, YAMLType.SubType:
 		return true
-
 	}
 	return false
 }
@@ -239,6 +238,9 @@ var (
 	TrueTypeFontType = newMediaType("font", "ttf", []string{"ttf"})
 	OpenTypeFontType = newMediaType("font", "otf", []string{"otf"})
 
+	// Common document types
+	PDFType = newMediaType("application", "pdf", []string{"pdf"})
+
 	// Common video types
 	AVIType  = newMediaType("video", "x-msvideo", []string{"avi"})
 	MPEGType = newMediaType("video", "mpeg", []string{"mpg", "mpeg"})
@@ -282,6 +284,7 @@ var DefaultTypes = Types{
 	GPPType,
 	OpenTypeFontType,
 	TrueTypeFontType,
+	PDFType,
 }
 
 func init() {
