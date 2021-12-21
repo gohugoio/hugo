@@ -274,6 +274,8 @@ var DefaultTypes = Types{
 	YAMLType,
 	TOMLType,
 	PNGType,
+	GIFType,
+	BMPType,
 	JPEGType,
 	WEBPType,
 	AVIType,
@@ -289,6 +291,15 @@ var DefaultTypes = Types{
 
 func init() {
 	sort.Sort(DefaultTypes)
+
+	// Sanity check.
+	seen := make(map[Type]bool)
+	for _, t := range DefaultTypes {
+		if seen[t] {
+			panic(fmt.Sprintf("MediaType %s duplicated in list", t))
+		}
+		seen[t] = true
+	}
 }
 
 // Types is a slice of media types.
