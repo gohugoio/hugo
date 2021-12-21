@@ -22,15 +22,14 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-
-	"github.com/gohugoio/hugo/config"
-
-	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/dartsass"
-
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/gohugoio/hugo/config"
+
+	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/dartsass"
 
 	jww "github.com/spf13/jwalterweatherman"
 
@@ -57,7 +56,6 @@ func TestSCSSWithIncludePaths(t *testing.T) {
 		{"libsass", func() bool { return scss.Supports() }},
 		{"dartsass", func() bool { return dartsass.Supports() }},
 	} {
-
 		c.Run(test.name, func(c *qt.C) {
 			if !test.supports() {
 				c.Skip(fmt.Sprintf("Skip %s", test.name))
@@ -107,9 +105,7 @@ T1: {{ $r.Content }}
 
 			b.AssertFileContent(filepath.Join(workDir, "public/index.html"), `T1: moo{color:#fff}`)
 		})
-
 	}
-
 }
 
 func TestSCSSWithRegularCSSImport(t *testing.T) {
@@ -122,7 +118,6 @@ func TestSCSSWithRegularCSSImport(t *testing.T) {
 		{"libsass", func() bool { return scss.Supports() }},
 		{"dartsass", func() bool { return dartsass.Supports() }},
 	} {
-
 		c.Run(test.name, func(c *qt.C) {
 			if !test.supports() {
 				c.Skip(fmt.Sprintf("Skip %s", test.name))
@@ -202,11 +197,9 @@ moo {
 }
 
 /* foo */`)
-
 			}
 		})
 	}
-
 }
 
 func TestSCSSWithThemeOverrides(t *testing.T) {
@@ -219,7 +212,6 @@ func TestSCSSWithThemeOverrides(t *testing.T) {
 		{"libsass", func() bool { return scss.Supports() }},
 		{"dartsass", func() bool { return dartsass.Supports() }},
 	} {
-
 		c.Run(test.name, func(c *qt.C) {
 			if !test.supports() {
 				c.Skip(fmt.Sprintf("Skip %s", test.name))
@@ -319,7 +311,6 @@ T1: {{ $r.Content }}
 			)
 		})
 	}
-
 }
 
 // https://github.com/gohugoio/hugo/issues/6274
@@ -333,7 +324,6 @@ func TestSCSSWithIncludePathsSass(t *testing.T) {
 		{"libsass", func() bool { return scss.Supports() }},
 		{"dartsass", func() bool { return dartsass.Supports() }},
 	} {
-
 		c.Run(test.name, func(c *qt.C) {
 			if !test.supports() {
 				c.Skip(fmt.Sprintf("Skip %s", test.name))
@@ -620,6 +610,7 @@ func TestResourceChains(t *testing.T) {
 			return
 
 		case "/authenticated/":
+			w.Header().Set("Content-Type", "text/plain")
 			if r.Header.Get("Authorization") == "Bearer abcd" {
 				w.Write([]byte(`Welcome`))
 				return
@@ -628,6 +619,7 @@ func TestResourceChains(t *testing.T) {
 			return
 
 		case "/post":
+			w.Header().Set("Content-Type", "text/plain")
 			if r.Method == http.MethodPost {
 				body, err := ioutil.ReadAll(r.Body)
 				if err != nil {
@@ -1247,8 +1239,8 @@ class-in-b {
 	// TODO(bep) for some reason, we have starting to get
 	// execute of template failed: template: index.html:5:25
 	// on CI (GitHub action).
-	//b.Assert(fe.Position().LineNumber, qt.Equals, 5)
-	//b.Assert(fe.Error(), qt.Contains, filepath.Join(workDir, "assets/css/components/b.css:4:1"))
+	// b.Assert(fe.Position().LineNumber, qt.Equals, 5)
+	// b.Assert(fe.Error(), qt.Contains, filepath.Join(workDir, "assets/css/components/b.css:4:1"))
 
 	// Remove PostCSS
 	b.Assert(os.RemoveAll(filepath.Join(workDir, "node_modules")), qt.IsNil)

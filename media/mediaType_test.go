@@ -15,7 +15,6 @@ package media
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"sort"
@@ -194,11 +193,35 @@ func TestFromContent(t *testing.T) {
 			content, err := ioutil.ReadFile(filename)
 			c.Assert(err, qt.IsNil)
 			ext := strings.TrimPrefix(paths.Ext(filename), ".")
-			fmt.Println("=>", ext)
+			var exts []string
+			if ext == "jpg" {
+				exts = append(exts, "foo", "bar", "jpg")
+			} else {
+				exts = []string{ext}
+			}
 			expected, _, found := mtypes.GetFirstBySuffix(ext)
 			c.Assert(found, qt.IsTrue)
-			got := FromContent(mtypes, ext, content)
+			got := FromContent(mtypes, exts, content)
 			c.Assert(got, qt.Equals, expected)
+		})
+	}
+}
+
+func TestFromContentFakes(t *testing.T) {
+	c := qt.New(t)
+
+	files, err := filepath.Glob("./testdata/fake.*")
+	c.Assert(err, qt.IsNil)
+	mtypes := DefaultTypes
+
+	for _, filename := range files {
+		name := filepath.Base(filename)
+		c.Run(name, func(c *qt.C) {
+			content, err := ioutil.ReadFile(filename)
+			c.Assert(err, qt.IsNil)
+			ext := strings.TrimPrefix(paths.Ext(filename), ".")
+			got := FromContent(mtypes, []string{ext}, content)
+			c.Assert(got, qt.Equals, zero)
 		})
 	}
 }
