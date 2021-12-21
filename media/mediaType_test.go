@@ -15,6 +15,7 @@ package media
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"sort"
@@ -63,7 +64,7 @@ func TestDefaultTypes(t *testing.T) {
 
 	}
 
-	c.Assert(len(DefaultTypes), qt.Equals, 31)
+	c.Assert(len(DefaultTypes), qt.Equals, 33)
 }
 
 func TestGetByType(t *testing.T) {
@@ -193,6 +194,7 @@ func TestFromContent(t *testing.T) {
 			content, err := ioutil.ReadFile(filename)
 			c.Assert(err, qt.IsNil)
 			ext := strings.TrimPrefix(paths.Ext(filename), ".")
+			fmt.Println("=>", ext)
 			expected, _, found := mtypes.GetFirstBySuffix(ext)
 			c.Assert(found, qt.IsTrue)
 			got := FromContent(mtypes, ext, content)
