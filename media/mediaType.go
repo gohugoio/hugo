@@ -28,6 +28,8 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+var zero Type
+
 const (
 	defaultDelimiter = "."
 )
@@ -64,16 +66,14 @@ type SuffixInfo struct {
 // FromContent resolve the Type primarily using http.DetectContentType.
 // If http.DetectContentType resolves to application/octet-stream, a zero Type is returned.
 // If http.DetectContentType  resolves to text/plain or application/xml, we try to get more specific using types and ext.
-func FromContent(types Types, ext string, content []byte) Type {
-	ext = strings.TrimPrefix(ext, ".")
+func FromContent(types Types, extensionHints []string, content []byte) Type {
 	t := strings.Split(http.DetectContentType(content), ";")[0]
-	var m Type
 	if t == "application/octet-stream" {
-		return m
+		return zero
 	}
 
 	var found bool
-	m, found = types.GetByType(t)
+	m, found := types.GetByType(t)
 	if !found {
 		if t == "text/xml" {
 			// This is how it's configured in Hugo by default.
@@ -81,19 +81,36 @@ func FromContent(types Types, ext string, content []byte) Type {
 		}
 	}
 
-	if !found || ext == "" {
-		return m
+	if !found {
+		return zero
 	}
 
-	if m.Type() == "text/plain" || m.Type() == "application/xml" {
-		// http.DetectContentType isn't brilliant when it comes to common text formats, so we need to do better.
-		// For now we say that if it's detected to be a text format and the extension/content type in header reports
-		// it to be a text format, then we use that.
-		mm, _, found := types.GetFirstBySuffix(ext)
-		if found && mm.IsText() {
-			return mm
+	var mm Type
+
+	for _, extension := range extensionHints {
+		extension = strings.TrimPrefix(extension, ".")
+		mm, _, found = types.GetFirstBySuffix(extension)
+		if found {
+			break
 		}
 	}
+
+	if found {
+		if m == mm {
+			return m
+		}
+
+		if m.IsText() && mm.IsText() {
+			// http.DetectContentType isn't brilliant when it comes to common text formats, so we need to do better.
+			// For now we say that if it's detected to be a text format and the extension/content type in header reports
+			// it to be a text format, then we use that.
+			return mm
+		}
+
+		// E.g. an image with a *.js extension.
+		return zero
+	}
+
 	return m
 }
 
