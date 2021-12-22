@@ -90,6 +90,8 @@ func NewClient(cfg ClientConfig) *Client {
 		"GOPRIVATE", mcfg.Private,
 		"GONOPROXY", mcfg.NoProxy,
 		"GOPATH", cfg.CacheDir,
+		// GOCACHE was introduced in Go 1.15. This matches the location derived from GOPATH above.
+		"GOCACHE", filepath.Join(cfg.CacheDir, "pkg", "mod"),
 	)
 
 	logger := cfg.Logger
