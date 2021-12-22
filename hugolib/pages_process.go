@@ -115,17 +115,24 @@ type sitePagesProcessor struct {
 	m           *pageMap
 	errorSender herrors.ErrorSender
 
+	ctx       context.Context
 	itemChan  chan interface{}
 	itemGroup *errgroup.Group
 }
 
 func (p *sitePagesProcessor) Process(item interface{}) error {
-	p.itemChan <- item
+	select {
+	case <-p.ctx.Done():
+		return nil
+	default:
+		p.itemChan <- item
+	}
 	return nil
 }
 
 func (p *sitePagesProcessor) Start(ctx context.Context) context.Context {
 	p.itemGroup, ctx = errgroup.WithContext(ctx)
+	p.ctx = ctx
 	p.itemGroup.Go(func() error {
 		for item := range p.itemChan {
 			if err := p.doProcess(item); err != nil {
