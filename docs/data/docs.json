@@ -1839,7 +1839,7 @@
           "^postcss$"
         ],
         "osEnv": [
-          "(?i)^(PATH|PATHEXT|APPDATA|HOME|TMP|TEMP|TERM)$"
+          "(?i)^(PATH|PATHEXT|APPDATA|TMP|TEMP|TERM)$"
         ]
       },
       "funcs": {
