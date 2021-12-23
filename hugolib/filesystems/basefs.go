@@ -428,6 +428,11 @@ func NewBase(p *paths.Paths, logger loggers.Logger, options ...func(*BaseFs) err
 		logger = loggers.NewWarningLogger()
 	}
 
+	// Make sure we always have the /public folder ready to use.
+	if err := fs.Destination.MkdirAll(p.AbsPublishDir, 0777); err != nil && !os.IsExist(err) {
+		return nil, err
+	}
+
 	publishFs := hugofs.NewBaseFileDecorator(afero.NewBasePathFs(fs.Destination, p.AbsPublishDir))
 	sourceFs := hugofs.NewBaseFileDecorator(afero.NewBasePathFs(fs.Source, p.WorkingDir))
 
