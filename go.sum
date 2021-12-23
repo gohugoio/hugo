@@ -199,14 +199,6 @@ github.com/envoyproxy/go-control-plane v0.9.9-0.20210512163311-63b5d3c536b0 h1:d
 github.com/envoyproxy/go-control-plane v0.9.9-0.20210512163311-63b5d3c536b0/go.mod h1:hliV/p42l8fGbc6Y9bQ70uLwIvmJyVE5k4iMKlh8wCQ=
 github.com/envoyproxy/protoc-gen-validate v0.1.0 h1:EQciDnbrYxy13PgWoY8AqoxGiPrpgBZ1R8UNe3ddc+A=
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
-github.com/evanw/esbuild v0.13.12 h1:q8fmywXq1vIKlbA6XSxdU9LCLzMdrsD3wfM2gz2d8JU=
-github.com/evanw/esbuild v0.13.12/go.mod h1:GG+zjdi59yh3ehDn4ZWfPcATxjPDUH53iU4ZJbp7dkY=
-github.com/evanw/esbuild v0.14.2 h1:vAvIfHk0SxXE6OV+LzZHnlvUk6RigWOFAl7GyS7J9tY=
-github.com/evanw/esbuild v0.14.2/go.mod h1:GG+zjdi59yh3ehDn4ZWfPcATxjPDUH53iU4ZJbp7dkY=
-github.com/evanw/esbuild v0.14.5 h1:Gh/vGvDL/g++7erzQZofohZqFBzQblWfLdtYCf15zcQ=
-github.com/evanw/esbuild v0.14.5/go.mod h1:GG+zjdi59yh3ehDn4ZWfPcATxjPDUH53iU4ZJbp7dkY=
-github.com/evanw/esbuild v0.14.7 h1:At4sSDNq+beZA+z6GUA/sRoqHys9qxKH1RT05eN6Kpo=
-github.com/evanw/esbuild v0.14.7/go.mod h1:GG+zjdi59yh3ehDn4ZWfPcATxjPDUH53iU4ZJbp7dkY=
 github.com/evanw/esbuild v0.14.8 h1:klNT2CPoaBAWw2S3+j4joPWVqbwJBDUrOf+F+dGZ4EM=
 github.com/evanw/esbuild v0.14.8/go.mod h1:GG+zjdi59yh3ehDn4ZWfPcATxjPDUH53iU4ZJbp7dkY=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
