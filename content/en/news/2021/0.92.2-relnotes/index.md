@@ -1,5 +1,5 @@
 ---
-title: "Fixes the \"stuck on build\" bug"
+title: "Fixes the “Stuck on Build” Bug"
 description: "Hugo 0.92.2 is the last release before Christmas!"
 date: 2021-12-23T17:47:41+01:00
 ---
