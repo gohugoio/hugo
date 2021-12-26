@@ -37,10 +37,10 @@ The `GitInfo` object contains the following fields:
 : the abbreviated commit hash (e.g., `866cbcc`)
 
 .AuthorName
-: the author's name, respecting `.mailmap`
+: the author's name, respecting [`.mailmap`](https://git-scm.com/docs/gitmailmap)
 
 .AuthorEmail
-: the author's email address, respecting `.mailmap`
+: the author's email address, respecting [`.mailmap`](https://git-scm.com/docs/gitmailmap)
 
 .AuthorDate
 : the author date
