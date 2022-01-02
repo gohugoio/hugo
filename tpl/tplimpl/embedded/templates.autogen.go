@@ -129,6 +129,12 @@ var EmbeddedTemplates = [][2]string{
 if (!doNotTrack) {
 	window.dataLayer = window.dataLayer || [];
 	function gtag(){dataLayer.push(arguments);}
+	{{- if $pc.DefaultGtagStorageDenied }}
+	gtag('consent', 'default', {
+		'ad_storage': 'denied',
+		'analytics_storage': 'denied'
+	});
+	{{- end }}
 	gtag('js', new Date());
 	gtag('config', '{{ . }}', { 'anonymize_ip': {{- $pc.AnonymizeIP -}} });
 }

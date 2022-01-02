@@ -53,6 +53,9 @@ type GoogleAnalytics struct {
 
 	// Enabling this will make it so the users' IP addresses are anonymized within Google Analytics.
 	AnonymizeIP bool
+
+	// Enabling this will default gtag's storage consent to 'denied'
+	DefaultGtagStorageDenied bool
 }
 
 // Instagram holds the privacy configuration settings related to the Instagram shortcode.
