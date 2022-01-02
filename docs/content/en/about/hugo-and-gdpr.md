@@ -42,6 +42,7 @@ disable = false
 respectDoNotTrack = false
 anonymizeIP = false
 useSessionStorage = false
+defaultGtagStorageDenied = false
 [privacy.instagram]
 disable = false
 simple = false
@@ -93,8 +94,16 @@ useSessionStorage
 : Enabling this will disable the use of Cookies and use Session Storage to Store the GA Client ID.
 
 {{% warning %}}
-`useSessionStorage` is not supported when using Google Analytics v4 (gtag.js).
+`useSessionStorage` is not supported when using Google Analytics v4 (gtag.js). To disable cookies for Google Analytics v4 see `defaultGtagStorageDenied`.
 {{% /warning %}}
+
+defaultGtagStorageDenied
+: Enabling this will default Gtag's storage consent to 'denied'. [See here](https://developers.google.com/tag-platform/devguides/consent#configure_default_behavior) for documentation on what this does.
+
+{{% warning %}}
+`defaultGtagStorageDenied` will not revoke consent for people who have already been to your site without this enabled. [See here](https://developers.google.com/tag-platform/devguides/consent) for Google's documentation on how to change values.
+{{% /warning %}}
+
 ### Instagram
 
 simple
