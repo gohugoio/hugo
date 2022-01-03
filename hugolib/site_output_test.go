@@ -324,6 +324,36 @@ baseName = "customdelimbase"
 	c.Assert(outputs.Get("CUS").RelPermalink(), qt.Equals, "/blog/customdelimbase_del")
 }
 
+// Issue 8030
+func TestGetOutputFormatRel(t *testing.T) {
+	b := newTestSitesBuilder(t).
+		WithSimpleConfigFileAndSettings(map[string]interface{}{
+			"outputFormats": map[string]interface{}{
+				"humansTXT": map[string]interface{}{
+					"name":        "HUMANS",
+					"mediaType":   "text/plain",
+					"baseName":    "humans",
+					"isPlainText": true,
+					"rel":         "author",
+				},
+			},
+		}).WithTemplates("index.html", `
+{{- with ($.Site.GetPage "humans").OutputFormats.Get "humans" -}}
+<link rel="{{ .Rel }}" type="{{ .MediaType.String }}" href="{{ .Permalink }}">
+{{- end -}}
+`).WithContent("humans.md", `---
+outputs:
+- HUMANS
+---
+This is my content.
+`)
+
+	b.Build(BuildCfg{})
+	b.AssertFileContent("public/index.html", `
+<link rel="author" type="text/plain" href="/humans.txt">
+`)
+}
+
 func TestCreateSiteOutputFormats(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		c := qt.New(t)
