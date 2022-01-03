@@ -92,6 +92,39 @@ title: My Site
 `)
 }
 
+func TestInternalTemplatesAudioVideos(t *testing.T) {
+	config := `
+baseURL = "https://example.org"
+`
+	b := newTestSitesBuilder(t).WithConfigFile("toml", config)
+
+	b.WithContent("mypage.md", `---
+title: My Page
+audio: ["pageaudio1.mp3", "pageaudio2.mp3"]
+videos: ["pagevideo1.mp4", "pagevideo2.mp4"]
+date: 2021-02-26T18:02:00+01:00
+lastmod: 2021-05-22T19:25:00+01:00
+---
+`)
+
+	b.WithTemplatesAdded("_default/single.html", `
+
+{{ template "_internal/opengraph.html" . }}
+
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/mypage/index.html", `
+<meta property="article:published_time" content="2021-02-26T18:02:00+01:00" />
+<meta property="article:modified_time" content="2021-05-22T19:25:00+01:00" />
+<meta property="og:audio" content="https://example.org/pageaudio1.mp3" />
+<meta property="og:audio" content="https://example.org/pageaudio2.mp3" />
+<meta property="og:video" content="https://example.org/pagevideo1.mp4" />
+<meta property="og:video" content="https://example.org/pagevideo2.mp4" />
+`)
+}
+
 // Just some simple test of the embedded templates to avoid
 // https://github.com/gohugoio/hugo/issues/4757 and similar.
 func TestEmbeddedTemplates(t *testing.T) {
