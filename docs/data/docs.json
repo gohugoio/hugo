@@ -1917,6 +1917,20 @@
       },
       {
         "mainType": "application",
+        "subType": "pdf",
+        "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "pdf",
+          "fullSuffix": ".pdf"
+        },
+        "type": "application/pdf",
+        "string": "application/pdf",
+        "suffixes": [
+          "pdf"
+        ]
+      },
+      {
+        "mainType": "application",
         "subType": "rss",
         "delimiter": ".",
         "firstSuffix": {
@@ -2013,6 +2027,34 @@
         "string": "font/ttf",
         "suffixes": [
           "ttf"
+        ]
+      },
+      {
+        "mainType": "image",
+        "subType": "bmp",
+        "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "bmp",
+          "fullSuffix": ".bmp"
+        },
+        "type": "image/bmp",
+        "string": "image/bmp",
+        "suffixes": [
+          "bmp"
+        ]
+      },
+      {
+        "mainType": "image",
+        "subType": "gif",
+        "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "gif",
+          "fullSuffix": ".gif"
+        },
+        "type": "image/gif",
+        "string": "image/gif",
+        "suffixes": [
+          "gif"
         ]
       },
       {
