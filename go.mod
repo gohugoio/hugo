@@ -36,7 +36,6 @@ require (
 	github.com/kyokomi/emoji/v2 v2.2.8
 	github.com/magefile/mage v1.11.0
 	github.com/mattn/go-isatty v0.0.14
-	github.com/miekg/mmark v1.3.6
 	github.com/mitchellh/hashstructure v1.1.0
 	github.com/mitchellh/mapstructure v1.4.3
 	github.com/muesli/smartcrop v0.3.0

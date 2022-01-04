@@ -215,9 +215,6 @@ func (c *ContentSpec) ResolveMarkup(in string) string {
 	case "html", "htm":
 		return "html"
 	default:
-		if in == "mmark" {
-			Deprecated("Markup type mmark", "See https://gohugo.io//content-management/formats/#list-of-content-formats", true)
-		}
 		if conv := c.Converters.Get(in); conv != nil {
 			return conv.Name()
 		}
