@@ -191,7 +191,7 @@ func (c *Client) Tidy() error {
 //
 // We, by default, use the /_vendor folder first, if found. To disable,
 // run with
-//    hugo --ignoreVendor
+//    hugo --ignoreVendorPaths=".*"
 //
 // Given a module tree, Hugo will pick the first module for a given path,
 // meaning that if the top-level module is vendored, that will be the full

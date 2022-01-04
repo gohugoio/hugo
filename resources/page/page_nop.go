@@ -338,6 +338,10 @@ func (p *nopPage) Path() string {
 	return ""
 }
 
+func (p *nopPage) Pathc() string {
+	return ""
+}
+
 func (p *nopPage) Permalink() string {
 	return ""
 }

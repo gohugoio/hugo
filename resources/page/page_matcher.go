@@ -59,7 +59,7 @@ func (m PageMatcher) Matches(p Page) bool {
 	if m.Path != "" {
 		g, err := glob.GetGlob(m.Path)
 		// TODO(bep) Path() vs filepath vs leading slash.
-		p := strings.ToLower(filepath.ToSlash(p.Path()))
+		p := strings.ToLower(filepath.ToSlash(p.Pathc()))
 		if !(strings.HasPrefix(p, "/")) {
 			p = "/" + p
 		}
@@ -104,7 +104,6 @@ func DecodeCascade(in interface{}) (map[PageMatcher]maps.Params, error) {
 	}
 
 	return cascade, nil
-
 }
 
 // DecodePageMatcher decodes m into v.

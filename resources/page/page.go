@@ -180,6 +180,9 @@ type PageMetaProvider interface {
 	// to the source of this Page. It will be relative to any content root.
 	Path() string
 
+	// This is just a temporary bridge method. Use Path in templates.
+	Pathc() string
+
 	// The slug, typically defined in front matter.
 	Slug() string
 
@@ -392,5 +395,4 @@ type DeprecatedWarningPageMethods1 interface {
 
 // Move here to trigger ERROR instead of WARNING.
 // TODO(bep) create wrappers and put into the Page once it has some methods.
-type DeprecatedErrorPageMethods interface {
-}
+type DeprecatedErrorPageMethods interface{}

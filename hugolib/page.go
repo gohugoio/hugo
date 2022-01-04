@@ -145,7 +145,7 @@ func (p *pageState) Eq(other interface{}) bool {
 }
 
 func (p *pageState) GetIdentity() identity.Identity {
-	return identity.NewPathIdentity(files.ComponentFolderContent, filepath.FromSlash(p.Path()))
+	return identity.NewPathIdentity(files.ComponentFolderContent, filepath.FromSlash(p.Pathc()))
 }
 
 func (p *pageState) GitInfo() *gitmap.GitInfo {
@@ -895,8 +895,8 @@ func (p *pageState) pathOrTitle() string {
 		return p.File().Filename()
 	}
 
-	if p.Path() != "" {
-		return p.Path()
+	if p.Pathc() != "" {
+		return p.Pathc()
 	}
 
 	return p.Title()
