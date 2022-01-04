@@ -1,0 +1,33 @@
+name: 'Close stale issues and PRs'
+on:
+  schedule:
+    - cron: '30 1 * * *'
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@04a1828bc18ada028d85a0252a47cd2963a91abe
+        with:
+          days-before-issue-stale: 120
+          days-before-pr-stale: 90
+          days-before-issue-close: -1
+          days-before-pr-close: -1
+          stale-issue-message: >
+            This issue has been automatically marked as stale because it has not had
+            recent activity. The resources of the Hugo team are limited, and so we are asking for your help.
+
+            If this is a **bug** and you can still reproduce this error on the <code>master</code> branch, please reply with all of the information you have about it in order to keep the issue open.
+
+            If this is a **feature request**, and you feel that it is still relevant and valuable, please tell us why.
+
+            This issue will automatically be closed in the near future if no further activity occurs. Thank you for all your contributions.
+          stale-pr-message: This PR has been automatically marked as stale because it has not had
+            recent activity. The resources of the Hugo team are limited, and so we are asking for your help.
+
+            Please check https://github.com/gohugoio/hugo/blob/master/CONTRIBUTING.md#code-contribution and verify that this code contribution fits with the description. If yes, tell is in a comment.
+
+            This PR will automatically be closed in the near future if no further activity occurs. Thank you for all your contributions.
+          stale-issue-label: 'Stale'
+          exempt-issue-labels: 'Keep,Security'
+          stale-pr-label: 'Stale'
+          exempt-pr-labels: 'Keep,Security'
