@@ -42,7 +42,6 @@ hugo [flags]
   -h, --help                       help for hugo
       --i18n-warnings              print missing translations
       --ignoreCache                ignores the cache directory
-      --ignoreVendor               ignores any _vendor directory
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
   -l, --layoutDir string           filesystem path to layout directory
       --log                        enable Logging
