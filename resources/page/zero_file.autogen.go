@@ -35,54 +35,54 @@ func (zeroFile) IsZero() bool {
 }
 
 func (z zeroFile) Path() (o0 string) {
-	z.log.Println(".File.Path on zero object. Wrap it in if or with: {{ with .File }}{{ .Path }}{{ end }}")
+	z.log.Warnln(".File.Path on zero object. Wrap it in if or with: {{ with .File }}{{ .Path }}{{ end }}")
 	return
 }
 func (z zeroFile) Section() (o0 string) {
-	z.log.Println(".File.Section on zero object. Wrap it in if or with: {{ with .File }}{{ .Section }}{{ end }}")
+	z.log.Warnln(".File.Section on zero object. Wrap it in if or with: {{ with .File }}{{ .Section }}{{ end }}")
 	return
 }
 func (z zeroFile) Lang() (o0 string) {
-	z.log.Println(".File.Lang on zero object. Wrap it in if or with: {{ with .File }}{{ .Lang }}{{ end }}")
+	z.log.Warnln(".File.Lang on zero object. Wrap it in if or with: {{ with .File }}{{ .Lang }}{{ end }}")
 	return
 }
 func (z zeroFile) Filename() (o0 string) {
-	z.log.Println(".File.Filename on zero object. Wrap it in if or with: {{ with .File }}{{ .Filename }}{{ end }}")
+	z.log.Warnln(".File.Filename on zero object. Wrap it in if or with: {{ with .File }}{{ .Filename }}{{ end }}")
 	return
 }
 func (z zeroFile) Dir() (o0 string) {
-	z.log.Println(".File.Dir on zero object. Wrap it in if or with: {{ with .File }}{{ .Dir }}{{ end }}")
+	z.log.Warnln(".File.Dir on zero object. Wrap it in if or with: {{ with .File }}{{ .Dir }}{{ end }}")
 	return
 }
 func (z zeroFile) Extension() (o0 string) {
-	z.log.Println(".File.Extension on zero object. Wrap it in if or with: {{ with .File }}{{ .Extension }}{{ end }}")
+	z.log.Warnln(".File.Extension on zero object. Wrap it in if or with: {{ with .File }}{{ .Extension }}{{ end }}")
 	return
 }
 func (z zeroFile) Ext() (o0 string) {
-	z.log.Println(".File.Ext on zero object. Wrap it in if or with: {{ with .File }}{{ .Ext }}{{ end }}")
+	z.log.Warnln(".File.Ext on zero object. Wrap it in if or with: {{ with .File }}{{ .Ext }}{{ end }}")
 	return
 }
 func (z zeroFile) LogicalName() (o0 string) {
-	z.log.Println(".File.LogicalName on zero object. Wrap it in if or with: {{ with .File }}{{ .LogicalName }}{{ end }}")
+	z.log.Warnln(".File.LogicalName on zero object. Wrap it in if or with: {{ with .File }}{{ .LogicalName }}{{ end }}")
 	return
 }
 func (z zeroFile) BaseFileName() (o0 string) {
-	z.log.Println(".File.BaseFileName on zero object. Wrap it in if or with: {{ with .File }}{{ .BaseFileName }}{{ end }}")
+	z.log.Warnln(".File.BaseFileName on zero object. Wrap it in if or with: {{ with .File }}{{ .BaseFileName }}{{ end }}")
 	return
 }
 func (z zeroFile) TranslationBaseName() (o0 string) {
-	z.log.Println(".File.TranslationBaseName on zero object. Wrap it in if or with: {{ with .File }}{{ .TranslationBaseName }}{{ end }}")
+	z.log.Warnln(".File.TranslationBaseName on zero object. Wrap it in if or with: {{ with .File }}{{ .TranslationBaseName }}{{ end }}")
 	return
 }
 func (z zeroFile) ContentBaseName() (o0 string) {
-	z.log.Println(".File.ContentBaseName on zero object. Wrap it in if or with: {{ with .File }}{{ .ContentBaseName }}{{ end }}")
+	z.log.Warnln(".File.ContentBaseName on zero object. Wrap it in if or with: {{ with .File }}{{ .ContentBaseName }}{{ end }}")
 	return
 }
 func (z zeroFile) UniqueID() (o0 string) {
-	z.log.Println(".File.UniqueID on zero object. Wrap it in if or with: {{ with .File }}{{ .UniqueID }}{{ end }}")
+	z.log.Warnln(".File.UniqueID on zero object. Wrap it in if or with: {{ with .File }}{{ .UniqueID }}{{ end }}")
 	return
 }
 func (z zeroFile) FileInfo() (o0 hugofs.FileMetaInfo) {
-	z.log.Println(".File.FileInfo on zero object. Wrap it in if or with: {{ with .File }}{{ .FileInfo }}{{ end }}")
+	z.log.Warnln(".File.FileInfo on zero object. Wrap it in if or with: {{ with .File }}{{ .FileInfo }}{{ end }}")
 	return
 }

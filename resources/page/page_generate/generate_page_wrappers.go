@@ -26,6 +26,7 @@ import (
 
 	"github.com/gohugoio/hugo/codegen"
 	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/gohugoio/hugo/source"
 )
 
@@ -87,6 +88,8 @@ func generateMarshalJSON(c *codegen.Inspector) error {
 
 		// Leave this out for now. We need to revisit the author issue.
 		reflect.TypeOf((*page.AuthorProvider)(nil)).Elem(),
+
+		reflect.TypeOf((*resource.ErrProvider)(nil)).Elem(),
 
 		// navigation.PageMenus
 
@@ -163,7 +166,7 @@ func generateDeprecatedWrappers(c *codegen.Inspector) error {
 			}
 		}
 
-		return fmt.Sprintf("helpers.Deprecated(%q, %q, false)", "Page."+name, alternative)
+		return fmt.Sprintf("helpers.Deprecated(%q, %q, true)", "Page."+name, alternative)
 	}
 
 	var buff bytes.Buffer
@@ -214,7 +217,9 @@ func generateFileIsZeroWrappers(c *codegen.Inspector) error {
 	warning := func(name string, tp reflect.Type) string {
 		msg := fmt.Sprintf(".File.%s on zero object. Wrap it in if or with: {{ with .File }}{{ .%s }}{{ end }}", name, name)
 
-		return fmt.Sprintf("z.log.Println(%q)", msg)
+		// We made this a Warning in 0.92.0.
+		// When we remove this construct in 0.93.0, people will get a nil pointer.
+		return fmt.Sprintf("z.log.Warnln(%q)", msg)
 	}
 
 	var buff bytes.Buffer
