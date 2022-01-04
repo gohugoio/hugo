@@ -199,7 +199,6 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"forceSyncStatic",
 		"noTimes",
 		"noChmod",
-		"ignoreVendor",
 		"ignoreVendorPaths",
 		"templateMetrics",
 		"templateMetricsHints",
@@ -281,7 +280,6 @@ func isTerminal() bool {
 }
 
 func (c *commandeer) fullBuild(noBuildLock bool) error {
-
 	var (
 		g         errgroup.Group
 		langCount map[string]uint64
@@ -542,7 +540,6 @@ func (c *commandeer) build() error {
 }
 
 func (c *commandeer) serverBuild() error {
-
 	stopProfiling, err := c.initProfiling()
 	if err != nil {
 		return err
@@ -739,7 +736,6 @@ func (c *commandeer) handleBuildErr(err error, msg string) {
 }
 
 func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
-
 	c.buildErr = nil
 	visited := c.visitedURLs.PeekAllSet()
 	if c.fastRenderMode {

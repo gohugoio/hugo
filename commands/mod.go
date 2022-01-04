@@ -96,7 +96,7 @@ func (b *commandsBuilder) newModCmd() *modCmd {
 
 	const commonUsage = `
 Note that Hugo will always start out by resolving the components defined in the site
-configuration, provided by a _vendor directory (if no --ignoreVendor flag provided),
+configuration, provided by a _vendor directory (if no --ignoreVendorPaths flag provided),
 Go Modules, or a folder inside the themes directory, in that order.
 
 See https://gohugo.io/hugo-modules/ for more information.

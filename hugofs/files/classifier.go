@@ -40,7 +40,6 @@ var (
 		"mdown", "markdown", "md",
 		"asciidoc", "adoc", "ad",
 		"rest", "rst",
-		"mmark",
 		"org",
 		"pandoc", "pdc",
 	}

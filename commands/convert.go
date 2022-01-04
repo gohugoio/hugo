@@ -142,7 +142,7 @@ func (cc *convertCmd) convertAndSavePage(p page.Page, site *hugolib.Site, target
 		return nil
 	}
 
-	errMsg := fmt.Errorf("Error processing file %q", p.Path())
+	errMsg := fmt.Errorf("Error processing file %q", p.File().Path())
 
 	site.Log.Infoln("Attempting to convert", p.File().Filename())
 
@@ -185,10 +185,10 @@ func (cc *convertCmd) convertAndSavePage(p page.Page, site *hugolib.Site, target
 	newFilename := p.File().Filename()
 
 	if cc.outputDir != "" {
-		contentDir := strings.TrimSuffix(newFilename, p.Path())
+		contentDir := strings.TrimSuffix(newFilename, p.File().Path())
 		contentDir = filepath.Base(contentDir)
 
-		newFilename = filepath.Join(cc.outputDir, contentDir, p.Path())
+		newFilename = filepath.Join(cc.outputDir, contentDir, p.File().Path())
 	}
 
 	fs := hugofs.Os

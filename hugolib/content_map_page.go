@@ -403,7 +403,7 @@ func (m *pageMap) assembleResources(s string, p *pageState, parentBucket *pagesM
 			if err != nil {
 				return true
 			}
-			rp.m.resourcePath = filepath.ToSlash(strings.TrimPrefix(rp.Path(), p.File().Dir()))
+			rp.m.resourcePath = filepath.ToSlash(strings.TrimPrefix(rp.File().Path(), p.File().Dir()))
 			r = rp
 
 		case files.ContentClassFile:
@@ -468,7 +468,6 @@ func (m *pageMap) assembleSections() error {
 
 		kind := page.KindSection
 		if s == "/" {
-
 			kind = page.KindHome
 		}
 
@@ -580,7 +579,7 @@ func (m *pageMap) attachPageToViews(s string, b *contentNode) {
 		w := getParamToLower(b.p, viewName.plural+"_weight")
 		weight, err := cast.ToIntE(w)
 		if err != nil {
-			m.s.Log.Errorf("Unable to convert taxonomy weight %#v to int for %q", w, b.p.Path())
+			m.s.Log.Errorf("Unable to convert taxonomy weight %#v to int for %q", w, b.p.Pathc())
 			// weight will equal zero, so let the flow continue
 		}
 

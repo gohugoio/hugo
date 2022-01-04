@@ -414,6 +414,10 @@ func (p *testPage) Path() string {
 	return p.path
 }
 
+func (p *testPage) Pathc() string {
+	return p.path
+}
+
 func (p *testPage) Permalink() string {
 	panic("not implemented")
 }

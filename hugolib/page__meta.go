@@ -233,6 +233,24 @@ func (p *pageMeta) Params() maps.Params {
 
 func (p *pageMeta) Path() string {
 	if !p.File().IsZero() {
+		const example = `
+  {{ $path := "" }}
+  {{ with .File }}
+	{{ $path = .Path }}
+  {{ else }}
+	{{ $path = .Path }}
+  {{ end }}
+`
+		helpers.Deprecated(".Path when the page is backed by a file", "We plan to use Path for a canonical source path and you probably want to check the source is a file. To get the current behaviour, you can use a construct simlar to the below:\n"+example, false)
+
+	}
+
+	return p.Pathc()
+}
+
+// This is just a bridge method, use Path in templates.
+func (p *pageMeta) Pathc() string {
+	if !p.File().IsZero() {
 		return p.File().Path()
 	}
 	return p.SectionsPath()
@@ -759,7 +777,7 @@ func (p *pageMeta) newContentConverter(ps *pageState, markup string, renderingCo
 		converter.DocumentContext{
 			Document:        newPageForRenderHook(ps),
 			DocumentID:      id,
-			DocumentName:    p.Path(),
+			DocumentName:    p.File().Path(),
 			Filename:        filename,
 			ConfigOverrides: renderingConfigOverrides,
 		},
