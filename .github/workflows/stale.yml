@@ -8,8 +8,8 @@ jobs:
     steps:
       - uses: actions/stale@04a1828bc18ada028d85a0252a47cd2963a91abe
         with:
-          days-before-issue-stale: 120
-          days-before-pr-stale: 90
+          days-before-issue-stale: 600
+          days-before-pr-stale: 200
           days-before-issue-close: -1
           days-before-pr-close: -1
           stale-issue-message: >
