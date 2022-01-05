@@ -41,8 +41,10 @@ func Parse(s string, parseOpts ...func(b *pathBase)) Path {
 
 func parse(s string, parseOpts ...func(b *pathBase)) (*pathBase, error) {
 	p := &pathBase{
-		component: files.ComponentFolderContent,
-		posBase:   -1,
+		component:        files.ComponentFolderContent,
+		posContainerLow:  -1,
+		posContainerHigh: -1,
+		posSectionHigh:   -1,
 	}
 
 	for _, opt := range parseOpts {
@@ -74,7 +76,7 @@ func parse(s string, parseOpts ...func(b *pathBase)) (*pathBase, error) {
 
 		switch c {
 		case '.':
-			if p.posBase == -1 {
+			if p.posContainerHigh == -1 {
 				var high int
 				if len(p.identifiers) > 0 {
 					high = p.identifiers[len(p.identifiers)-1].Low - 1
@@ -84,8 +86,13 @@ func parse(s string, parseOpts ...func(b *pathBase)) (*pathBase, error) {
 				p.identifiers = append(p.identifiers, types.LowHigh{Low: i + 1, High: high})
 			}
 		case '/':
-			if p.posBase == -1 {
-				p.posBase = i + 1
+			if p.posContainerHigh == -1 {
+				p.posContainerHigh = i + 1
+			} else if p.posContainerLow == -1 {
+				p.posContainerLow = i + 1
+			}
+			if i > 0 {
+				p.posSectionHigh = i
 			}
 		}
 	}
@@ -94,7 +101,7 @@ func parse(s string, parseOpts ...func(b *pathBase)) (*pathBase, error) {
 
 	if p.isContent {
 		id := p.identifiers[len(p.identifiers)-1]
-		b := p.s[p.posBase : id.Low-1]
+		b := p.s[p.posContainerHigh : id.Low-1]
 		switch b {
 		case "index":
 			p.bundleType = BundleTypeLeaf
@@ -111,6 +118,8 @@ func parse(s string, parseOpts ...func(b *pathBase)) (*pathBase, error) {
 type Path interface {
 	identity.Identity
 	Component() string
+	Container() string
+	Section() string
 	Name() string
 	NameNoExt() string
 	NameNoIdentifier() string
@@ -148,7 +157,9 @@ const (
 type pathBase struct {
 	s string
 
-	posBase int
+	posContainerLow  int
+	posContainerHigh int
+	posSectionHigh   int
 
 	component  string
 	isContent  bool
@@ -184,14 +195,28 @@ func (p *pathBase) Component() string {
 	return p.component
 }
 
+func (p *pathBase) Container() string {
+	if p.posContainerLow == -1 {
+		return ""
+	}
+	return p.s[p.posContainerLow : p.posContainerHigh-1]
+}
+
+func (p *pathBase) Section() string {
+	if p.posSectionHigh == -1 {
+		return ""
+	}
+	return p.s[1:p.posSectionHigh]
+}
+
 func (p *pathBase) IsContent() bool {
 	return p.isContent
 }
 
 // Name returns the last element of path.
 func (p *pathBase) Name() string {
-	if p.posBase > 0 {
-		return p.s[p.posBase:]
+	if p.posContainerHigh > 0 {
+		return p.s[p.posContainerHigh:]
 	}
 	return p.s
 }
@@ -199,23 +224,23 @@ func (p *pathBase) Name() string {
 // Name returns the last element of path withhout any extension.
 func (p *pathBase) NameNoExt() string {
 	if i := p.identifierIndex(0); i != -1 {
-		return p.s[p.posBase : p.identifiers[i].Low-1]
+		return p.s[p.posContainerHigh : p.identifiers[i].Low-1]
 	}
-	return p.s[p.posBase:]
+	return p.s[p.posContainerHigh:]
 }
 
 func (p *pathBase) NameNoIdentifier() string {
 	if len(p.identifiers) > 0 {
-		return p.s[p.posBase : p.identifiers[len(p.identifiers)-1].Low-1]
+		return p.s[p.posContainerHigh : p.identifiers[len(p.identifiers)-1].Low-1]
 	}
 	if i := p.identifierIndex(0); i != -1 {
 	}
-	return p.s[p.posBase:]
+	return p.s[p.posContainerHigh:]
 }
 
 func (p *pathBase) Dir() string {
-	if p.posBase > 0 {
-		return p.s[:p.posBase-1]
+	if p.posContainerHigh > 0 {
+		return p.s[:p.posContainerHigh-1]
 	}
 	return "/"
 }
@@ -235,7 +260,7 @@ func (p *pathBase) Base() string {
 		high := id.Low - 1
 		if p.isContent {
 			if p.IsBundle() {
-				high = p.posBase - 1
+				high = p.posContainerHigh - 1
 			}
 		}
 
