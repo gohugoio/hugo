@@ -19,7 +19,6 @@ import (
 	"sync"
 
 	"github.com/gohugoio/hugo/common/paths"
-	"github.com/gohugoio/hugo/htesting"
 
 	"github.com/gohugoio/hugo/hugofs/files"
 
@@ -168,9 +167,7 @@ func (fi *FileInfo) LogicalName() string {
 
 // BaseFileName returns a file's name without extension (ie. "page.sv").
 func (fi *FileInfo) BaseFileName() string {
-	htesting.Println("===>l", fi.p().Base())
-
-	return fi.baseName
+	return fi.p().NameNoExt()
 }
 
 // TranslationBaseName returns a file's translation base name without the

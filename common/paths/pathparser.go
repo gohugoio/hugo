@@ -112,10 +112,11 @@ type Path interface {
 	identity.Identity
 	Component() string
 	Name() string
+	NameNoExt() string
+	NameNoIdentifier() string
 	Base() string
 	Dir() string
 	Ext() string
-	Slice(bottom, top int) string
 	Identifiers() []string
 	Identifier(i int) string
 	IsContent() bool
@@ -195,65 +196,28 @@ func (p *pathBase) Name() string {
 	return p.s
 }
 
+// Name returns the last element of path withhout any extension.
+func (p *pathBase) NameNoExt() string {
+	if i := p.identifierIndex(0); i != -1 {
+		return p.s[p.posBase : p.identifiers[i].Low-1]
+	}
+	return p.s[p.posBase:]
+}
+
+func (p *pathBase) NameNoIdentifier() string {
+	if len(p.identifiers) > 0 {
+		return p.s[p.posBase : p.identifiers[len(p.identifiers)-1].Low-1]
+	}
+	if i := p.identifierIndex(0); i != -1 {
+	}
+	return p.s[p.posBase:]
+}
+
 func (p *pathBase) Dir() string {
 	if p.posBase > 0 {
 		return p.s[:p.posBase-1]
 	}
 	return "/"
-}
-
-func (p *pathBase) Slice(bottom, top int) string {
-	if bottom == 0 && top == 0 {
-		return p.s
-	}
-
-	if bottom < 0 {
-		bottom = 0
-	}
-
-	if top < 0 {
-		top = 0
-	}
-
-	if bottom > len(p.identifiers)+1 {
-		bottom = len(p.identifiers) + 1
-	}
-
-	if top > len(p.identifiers)+1 {
-		top = len(p.identifiers) + 1
-	}
-
-	// 0 : posBase
-	// posBase : identifier[0].Low
-	// identifier[n].Low : identifier[n].High
-	var low, high int
-	if bottom == 1 {
-		low = p.posBase
-	} else if bottom > 1 {
-		low = p.identifiers[len(p.identifiers)-bottom+1].Low
-	}
-
-	if top == 0 {
-		high = len(p.s)
-	} else if top > 0 {
-		i := top
-		distance := len(p.identifiers) - i
-		if distance <= 0 {
-			if distance == 0 {
-				high = p.identifiers[len(p.identifiers)-1].Low - 1
-			} else {
-				high = p.posBase - 1
-			}
-		} else {
-			high = p.identifiers[i].High
-		}
-	}
-
-	if low > high {
-		return ""
-	}
-
-	return p.s[low:high]
 }
 
 // For content files, Base returns the path without any identifiers (extension, language code etc.).
@@ -320,9 +284,18 @@ func (p *pathBase) IsLeafBundle() bool {
 }
 
 func (p *pathBase) identifierAsString(i int) string {
-	if i < 0 || i >= len(p.identifiers) {
+	i = p.identifierIndex(i)
+	if i == -1 {
 		return ""
 	}
+
 	id := p.identifiers[i]
 	return p.s[id.Low:id.High]
+}
+
+func (p *pathBase) identifierIndex(i int) int {
+	if i < 0 || i >= len(p.identifiers) {
+		return -1
+	}
+	return i
 }

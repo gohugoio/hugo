@@ -45,6 +45,8 @@ func TestParse(t *testing.T) {
 			"/A/B.txt",
 			func(c *qt.C, p Path) {
 				c.Assert(p.Name(), qt.Equals, "b.txt")
+				c.Assert(p.NameNoExt(), qt.Equals, "b")
+				c.Assert(p.NameNoIdentifier(), qt.Equals, "b")
 				c.Assert(p.Base(), qt.Equals, "/a/b.txt")
 				c.Assert(p.Ext(), qt.Equals, "txt")
 			},
@@ -65,6 +67,7 @@ func TestParse(t *testing.T) {
 			"/a/b",
 			func(c *qt.C, p Path) {
 				c.Assert(p.Name(), qt.Equals, "b")
+				c.Assert(p.NameNoExt(), qt.Equals, "b")
 				c.Assert(p.Base(), qt.Equals, "/a/b")
 				c.Assert(p.Ext(), qt.Equals, "")
 			},
@@ -83,6 +86,7 @@ func TestParse(t *testing.T) {
 			"/a/b.a.b.c.txt",
 			func(c *qt.C, p Path) {
 				c.Assert(p.Name(), qt.Equals, "b.a.b.c.txt")
+				c.Assert(p.NameNoIdentifier(), qt.Equals, "b")
 				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"txt", "c", "b", "a"})
 				c.Assert(p.Base(), qt.Equals, "/a/b.txt")
 				c.Assert(p.Ext(), qt.Equals, "txt")
@@ -95,6 +99,8 @@ func TestParse(t *testing.T) {
 				c.Assert(p.Base(), qt.Equals, "/a/b")
 				c.Assert(p.Dir(), qt.Equals, "/a/b")
 				c.Assert(p.Ext(), qt.Equals, "md")
+				c.Assert(p.NameNoExt(), qt.Equals, "index.no")
+				c.Assert(p.NameNoIdentifier(), qt.Equals, "index")
 				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"md", "no"})
 				c.Assert(p.IsLeafBundle(), qt.IsTrue)
 				c.Assert(p.IsBundle(), qt.IsTrue)
@@ -123,46 +129,7 @@ func TestParse(t *testing.T) {
 				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"txt", "no"})
 			},
 		},
-		{
-			"Slice",
-			"/a/b/index.txt",
-			func(c *qt.C, p Path) {
-				c.Assert(p.Slice(0, 0), qt.Equals, "/a/b/index.txt")
-				c.Assert(p.Slice(1, 0), qt.Equals, "index.txt")
-				c.Assert(p.Slice(2, 0), qt.Equals, "txt")
-				c.Assert(p.Slice(3, 0), qt.Equals, "txt")
-				c.Assert(p.Slice(4, 0), qt.Equals, "txt")
 
-				c.Assert(p.Slice(0, 1), qt.Equals, "/a/b/index")
-				c.Assert(p.Slice(0, 2), qt.Equals, "/a/b")
-				c.Assert(p.Slice(0, 3), qt.Equals, "/a/b")
-				c.Assert(p.Slice(0, 4), qt.Equals, "/a/b")
-
-				c.Assert(p.Slice(1, 1), qt.Equals, "index")
-				c.Assert(p.Slice(1, 2), qt.Equals, "")
-				c.Assert(p.Slice(1, 3), qt.Equals, "")
-			},
-		},
-		{
-			"Slice, language",
-			"/a/b/index.no.txt",
-			func(c *qt.C, p Path) {
-				c.Assert(p.Slice(0, 0), qt.Equals, "/a/b/index.no.txt")
-				c.Assert(p.Slice(1, 0), qt.Equals, "index.no.txt")
-				c.Assert(p.Slice(2, 0), qt.Equals, "no.txt")
-				c.Assert(p.Slice(3, 0), qt.Equals, "txt")
-				c.Assert(p.Slice(4, 0), qt.Equals, "txt")
-
-				c.Assert(p.Slice(0, 1), qt.Equals, "/a/b/index.no")
-				c.Assert(p.Slice(0, 2), qt.Equals, "/a/b/index")
-				c.Assert(p.Slice(0, 3), qt.Equals, "/a/b")
-				c.Assert(p.Slice(0, 4), qt.Equals, "/a/b")
-
-				c.Assert(p.Slice(1, 1), qt.Equals, "index.no")
-				c.Assert(p.Slice(1, 2), qt.Equals, "index")
-				c.Assert(p.Slice(1, 3), qt.Equals, "")
-			},
-		},
 		{
 			"Empty",
 			"",
