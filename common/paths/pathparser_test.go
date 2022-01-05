@@ -125,6 +125,26 @@ func TestParse(t *testing.T) {
 		},
 		{
 			"Slice",
+			"/a/b/index.txt",
+			func(c *qt.C, p Path) {
+				c.Assert(p.Slice(0, 0), qt.Equals, "/a/b/index.txt")
+				c.Assert(p.Slice(1, 0), qt.Equals, "index.txt")
+				c.Assert(p.Slice(2, 0), qt.Equals, "txt")
+				c.Assert(p.Slice(3, 0), qt.Equals, "txt")
+				c.Assert(p.Slice(4, 0), qt.Equals, "txt")
+
+				c.Assert(p.Slice(0, 1), qt.Equals, "/a/b/index")
+				c.Assert(p.Slice(0, 2), qt.Equals, "/a/b")
+				c.Assert(p.Slice(0, 3), qt.Equals, "/a/b")
+				c.Assert(p.Slice(0, 4), qt.Equals, "/a/b")
+
+				c.Assert(p.Slice(1, 1), qt.Equals, "index")
+				c.Assert(p.Slice(1, 2), qt.Equals, "")
+				c.Assert(p.Slice(1, 3), qt.Equals, "")
+			},
+		},
+		{
+			"Slice, language",
 			"/a/b/index.no.txt",
 			func(c *qt.C, p Path) {
 				c.Assert(p.Slice(0, 0), qt.Equals, "/a/b/index.no.txt")
@@ -140,7 +160,7 @@ func TestParse(t *testing.T) {
 
 				c.Assert(p.Slice(1, 1), qt.Equals, "index.no")
 				c.Assert(p.Slice(1, 2), qt.Equals, "index")
-				c.Assert(p.Slice(1, 3), qt.Equals, "index")
+				c.Assert(p.Slice(1, 3), qt.Equals, "")
 			},
 		},
 		{

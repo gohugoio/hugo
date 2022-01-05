@@ -20,7 +20,6 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/types"
-	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/identity"
 )
@@ -216,28 +215,42 @@ func (p *pathBase) Slice(bottom, top int) string {
 		top = 0
 	}
 
-	if bottom > len(p.identifiers) {
-		bottom = len(p.identifiers)
+	if bottom > len(p.identifiers)+1 {
+		bottom = len(p.identifiers) + 1
 	}
 
-	if top > len(p.identifiers) {
-		top = len(p.identifiers)
+	if top > len(p.identifiers)+1 {
+		top = len(p.identifiers) + 1
 	}
 
-	if top == bottom {
-		return ""
-	}
-
-	htesting.Println(bottom, "=>", top, len(p.identifiers))
-
+	// 0 : posBase
+	// posBase : identifier[0].Low
+	// identifier[n].Low : identifier[n].High
 	var low, high int
-	if bottom > 0 {
-		low = p.identifiers[bottom-1].Low
+	if bottom == 1 {
+		low = p.posBase
+	} else if bottom > 1 {
+		low = p.identifiers[len(p.identifiers)-bottom+1].Low
 	}
-	if top > 0 {
-		high = p.identifiers[top-1].High
-	} else {
+
+	if top == 0 {
 		high = len(p.s)
+	} else if top > 0 {
+		i := top
+		distance := len(p.identifiers) - i
+		if distance <= 0 {
+			if distance == 0 {
+				high = p.identifiers[len(p.identifiers)-1].Low - 1
+			} else {
+				high = p.posBase - 1
+			}
+		} else {
+			high = p.identifiers[i].High
+		}
+	}
+
+	if low > high {
+		return ""
 	}
 
 	return p.s[low:high]
