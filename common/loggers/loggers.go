@@ -29,8 +29,11 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-// Counts ERROR logs to the global jww logger.
-var GlobalErrorCounter *jww.Counter
+var (
+	// Counts ERROR logs to the global jww logger.
+	GlobalErrorCounter *jww.Counter
+	PanicOnWarning     bool
+)
 
 func init() {
 	GlobalErrorCounter = &jww.Counter{}
@@ -130,12 +133,20 @@ func (l *logger) Info() *log.Logger {
 	return l.INFO
 }
 
+const panicOnWarningMessage = "Warning trapped. Remvove the --panicOnWarning flag to continue."
+
 func (l *logger) Warnf(format string, v ...interface{}) {
 	l.WARN.Printf(format, v...)
+	if PanicOnWarning {
+		panic(panicOnWarningMessage)
+	}
 }
 
 func (l *logger) Warnln(v ...interface{}) {
 	l.WARN.Println(v...)
+	if PanicOnWarning {
+		panic(panicOnWarningMessage)
+	}
 }
 
 func (l *logger) Warn() *log.Logger {
