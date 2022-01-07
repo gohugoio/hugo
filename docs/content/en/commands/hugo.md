@@ -49,6 +49,7 @@ hugo [flags]
       --minify                     minify any supported output format (HTML, XML etc.)
       --noChmod                    don't sync permission mode of files
       --noTimes                    don't sync modification time of files
+      --panicOnWarning             panic on first WARNING log
       --path-warnings              print warnings on duplicate target paths etc.
       --poll string                set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes
       --print-mem                  print memory usage to screen at intervals
