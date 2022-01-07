@@ -21,7 +21,7 @@ hugo new site [path] [flags]
 
 ```
       --force           init inside non-empty directory
-  -f, --format string   config & frontmatter format (default "toml")
+  -f, --format string   config file format (default "toml")
   -h, --help            help for site
 ```
 
