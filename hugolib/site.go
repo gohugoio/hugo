@@ -24,12 +24,14 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gohugoio/hugo/common/types"
+	"golang.org/x/text/unicode/norm"
 
 	"github.com/gohugoio/hugo/common/paths"
 
@@ -948,6 +950,10 @@ func (s *Site) filterFileEvents(events []fsnotify.Event) []fsnotify.Event {
 		}
 		if !isRegular {
 			continue
+		}
+
+		if runtime.GOOS == "darwin" { // When a file system is HFS+, its filepath is in NFD form.
+			ev.Name = norm.NFC.String(ev.Name)
 		}
 
 		filtered = append(filtered, ev)
