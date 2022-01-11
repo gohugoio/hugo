@@ -88,6 +88,7 @@ An example table listing the dependencies:
   <thead>
     <tr>
       <th scope="col">#</th>
+      <th scope="col">Owner</th>
       <th scope="col">Path</th>
       <th scope="col">Version</th>
       <th scope="col">Time</th>
@@ -98,7 +99,7 @@ An example table listing the dependencies:
     {{ range $index, $element := hugo.Deps }}
     <tr>
       <th scope="row">{{ add $index 1 }}</th>
-      <td>{{ with $element.Owner }}{{.Path }}{{ else }}PROJECT{{ end }}</td>
+      <td>{{ with $element.Owner }}{{.Path }}{{ end }}</td>
       <td>
         {{ $element.Path }}
         {{ with $element.Replace}}
