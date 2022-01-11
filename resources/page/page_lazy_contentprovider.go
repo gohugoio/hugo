@@ -49,6 +49,10 @@ func NewLazyContentProvider(f func() (ContentProvider, error)) *LazyContentProvi
 	return &lcp
 }
 
+func (lcp *LazyContentProvider) Reset() {
+	lcp.init.Reset()
+}
+
 func (lcp *LazyContentProvider) Content() (interface{}, error) {
 	lcp.init.Do()
 	return lcp.cp.Content()
@@ -67,35 +71,29 @@ func (lcp *LazyContentProvider) PlainWords() []string {
 func (lcp *LazyContentProvider) Summary() template.HTML {
 	lcp.init.Do()
 	return lcp.cp.Summary()
-
 }
 
 func (lcp *LazyContentProvider) Truncated() bool {
 	lcp.init.Do()
 	return lcp.cp.Truncated()
-
 }
 
 func (lcp *LazyContentProvider) FuzzyWordCount() int {
 	lcp.init.Do()
 	return lcp.cp.FuzzyWordCount()
-
 }
 
 func (lcp *LazyContentProvider) WordCount() int {
 	lcp.init.Do()
 	return lcp.cp.WordCount()
-
 }
 
 func (lcp *LazyContentProvider) ReadingTime() int {
 	lcp.init.Do()
 	return lcp.cp.ReadingTime()
-
 }
 
 func (lcp *LazyContentProvider) Len() int {
 	lcp.init.Do()
 	return lcp.cp.Len()
-
 }
