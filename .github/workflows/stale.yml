@@ -1,4 +1,4 @@
-name: 'Close stale issues and PRs'
+name: 'Close stale and lock closed issues and PRs'
 on:
   schedule:
     - cron: '30 1 * * *'
@@ -6,6 +6,18 @@ jobs:
   stale:
     runs-on: ubuntu-latest
     steps:
+      - uses: dessant/lock-threads@08e671be8ac8944d0e132aa71d0ae8ccfb347675
+        with:
+          issue-inactive-days: 7
+          add-issue-labels: 'Outdated'
+          issue-comment: >
+            This issue has been automatically locked since there
+            has not been any recent activity after it was closed.
+            Please open a new issue for related bugs.
+          pr-comment: >
+            This pull request has been automatically locked since there
+            has not been any recent activity after it was closed.
+            Please open a new issue for related bugs.
       - uses: actions/stale@04a1828bc18ada028d85a0252a47cd2963a91abe
         with:
           days-before-issue-stale: 600
