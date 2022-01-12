@@ -18,25 +18,32 @@ toc: true
 aliases: [/assets/]
 ---
 
-## Get Resource with resources.Get
+## Get Resource with resources.Get and resources.GetRemote
 
-In order to process an asset with Hugo Pipes, it must be retrieved as a `Resource` using `resources.Get`. The first argument can be either a local the path to file relative to the `asset` directory/directories or a remote URL.
+In order to process an asset with Hugo Pipes, it must be retrieved as a `Resource` using `resources.Get` or `resources.GetRemote`.
+
+With `resources.Get`, the first argument is a local path relative to the `assets` directory/directories:
 
 ```go-html-template
 {{ $local := resources.Get "sass/main.scss" }}
-{{ $remote := resources.Get "https://www.example.com/styles.scss" }}
 ```
 
-`resources.Get` will always return `nil` if the resource could not be found.
+With `resources.GetRemote`, the first argument is a remote URL:
+
+```go-html-template
+{{ $remote := resources.GetRemote "https://www.example.com/styles.scss" }}
+```
+
+`resources.Get` and `resources.GetRemote` return `nil` if the resource is not found.
 
 ### Error Handling
 
-{{< new-in "0.90.1" >}}
+{{< new-in "0.91.0" >}}
 
-The return value from `resources.Get` includes an `.Err` method that will return an error if the call failed. If you want to just log any error as a `WARNING` you can use a construct similar to the one below.
+The return value from `resources.GetRemote` includes an `.Err` method that will return an error if the call failed. If you want to just log any error as a `WARNING` you can use a construct similar to the one below.
 
 ```go-html-template
-{{ with resources.Get "https://gohugo.io/images/gohugoio-card-1.png" }}
+{{ with resources.GetRemote "https://gohugo.io/images/gohugoio-card-1.png" }}
   {{ with .Err }}
     {{ warnf "%s" . }}
   {{ else }}
@@ -49,22 +56,22 @@ Note that if you do not handle `.Err` yourself, Hugo will fail the build the fir
 
 ### Remote Options
 
-When fetching a remote `Resource`, `resources.Get` takes an optional options map as the last argument, e.g.:
+When fetching a remote `Resource`, `resources.GetRemote` takes an optional options map as the last argument, e.g.:
 
 ```go-html-template
-{{ $resource := resources.Get "https://example.org/api" (dict "headers" (dict "Authorization" "Bearer abcd"))  }}
+{{ $resource := resources.GetRemote "https://example.org/api" (dict "headers" (dict "Authorization" "Bearer abcd"))  }}
 ```
 
 If you need multiple values for the same header key, use a slice:
 
 ```go-html-template
-{{ $resource := resources.Get "https://example.org/api"  (dict "headers" (dict "X-List" (slice "a" "b" "c")))  }}
+{{ $resource := resources.GetRemote "https://example.org/api"  (dict "headers" (dict "X-List" (slice "a" "b" "c")))  }}
 ```
 
 You can also change the request method and set the request body:
 
 ```go-html-template
-{{ $postResponse := resources.Get "https://example.org/api"  (dict 
+{{ $postResponse := resources.GetRemote "https://example.org/api"  (dict 
     "method" "post"
     "body" `{"complete": true}` 
     "headers" (dict 
@@ -75,16 +82,15 @@ You can also change the request method and set the request body:
 
 ### Caching of Remote Resources
 
-Remote resources fetched with `resources.Get` will be cached on disk. See [Configure File Caches](/getting-started/configuration/#configure-file-caches) for details.
+Remote resources fetched with `resources.GetRemote` will be cached on disk. See [Configure File Caches](/getting-started/configuration/#configure-file-caches) for details.
 
 ## Asset directory
 
 Asset files must be stored in the asset directory. This is `/assets` by default, but can be configured via the configuration file's `assetDir` key.
 
-
 ### Asset Publishing
 
-Assets will only be published (to `/public`) if `.Permalink` or `.RelPermalink` is used. You can use `.Content` to inline the asset.
+Hugo publishes assets to the to the `publishDir` (typically `public`) when you invoke `.Permalink`, `.RelPermalink`, or `.Publish`. You can use `.Content` to inline the asset.
 
 ## Go Pipes
 

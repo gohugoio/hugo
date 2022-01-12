@@ -21,14 +21,29 @@ Hugo produces static output, so once built, the runtime is the browser (assuming
 
 But when developing and building your site, the runtime is the `hugo` executable. Securing a runtime can be [a real challenge](https://blog.logrocket.com/how-to-protect-your-node-js-applications-from-malicious-dependencies-5f2e60ea08f9/).
 
-**Hugo's main approach is that of sandboxing:**
+**Hugo's main approach is that of sandboxing and a security policy with strict defaults:**
 
 * Hugo has a virtual file system and only the main project (not third-party components) is allowed to mount directories or files outside the project root.
 * Only the main project can walk symbolic links.
 * User-defined components have only read-access to the filesystem.
-* We shell out to some external binaries to support [Asciidoctor](/content-management/formats/#list-of-content-formats) and similar, but those binaries and their flags are predefined. General functions to run arbitrary external OS commands have been [discussed](https://github.com/gohugoio/hugo/issues/796), but not implemented because of security concerns.
+* We shell out to some external binaries to support [Asciidoctor](/content-management/formats/#list-of-content-formats) and similar, but those binaries and their flags are predefined and disabled by default (see [Security Policy](#security-policy)). General functions to run arbitrary external OS commands have been [discussed](https://github.com/gohugoio/hugo/issues/796), but not implemented because of security concerns.
 
-Hugo will soon introduce a concept of _Content Source Plugins_ (AKA _Pages from Data_), but the above will still hold true.
+
+## Security Policy
+
+{{< new-in "0.91.0" >}}
+
+Hugo has a built-in security policy that restricts access to [os/exec](https://pkg.go.dev/os/exec), remote communication and similar.
+
+The default configuration is listed below. And build using features not whitelisted in the security policy will faill with a detailed message about what needs to be done. Most of these settings are whitelists (string or slice, [Regular Expressions](https://pkg.go.dev/regexp) or `none` which matches nothing).
+
+{{< code-toggle config="security" />}}
+
+Note that these and other config settings in Hugo can be overridden by the OS environment. If you want to block all remote HTTP fetching of data:
+
+```
+HUGO_SECURITY_HTTP_URLS=none hugo 
+```
 
 ## Dependency Security
 

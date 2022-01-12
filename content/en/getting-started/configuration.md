@@ -381,6 +381,10 @@ Maximum number of items in the RSS feed.
 ### sectionPagesMenu
 See ["Section Menu for Lazy Bloggers"](/templates/menu-templates/#section-menu-for-lazy-bloggers).
 
+### security
+
+See [Security Policy](/about/security-model/#security-policy)
+
 ### sitemap
 Default [sitemap configuration](/templates/sitemap-template/#configure-sitemapxml).
 
