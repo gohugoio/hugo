@@ -53,8 +53,8 @@ The example below is a bit contrived, but it illustrates the flexibility of data
 
 {{< code-toggle file="jacopastorius" >}}
 discography = [
-"1974 – Modern American Music … Period! The Criteria Sessions",
-"1974 – Jaco",
+"1974 - Modern American Music … Period! The Criteria Sessions",
+"1974 - Jaco",
 "1976 - Jaco Pastorius",
 "1981 - Word of Mouth",
 "1981 - The Birthday Concert (released in 1995)",

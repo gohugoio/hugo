@@ -33,6 +33,9 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 .Aliases
 : aliases of this page
 
+.BundleType
+: the [bundle] type: `leaf`, `branch`, or an empty string if the page is not a bundle.
+
 .Content
 : the content itself, defined below the front matter.
 
@@ -305,3 +308,4 @@ The top-level key will be preferred. Therefore, the following method, when appli
 
 [gitinfo]: /variables/git/
 [File Variables]: /variables/files/
+[bundle]: {{< relref "content-management/page-bundles" >}}
