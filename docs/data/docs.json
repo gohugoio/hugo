@@ -3861,6 +3861,12 @@
         }
       },
       "hugo": {
+        "Deps": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "Generator": {
           "Description": "",
           "Args": null,
