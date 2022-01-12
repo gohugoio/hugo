@@ -305,7 +305,7 @@ bgColor = "#ffffff"
 # disk space reasons more than anything.
 # If you want it all, put ".*" in this config setting.
 # Note that if neither this or ExcludeFields is set, Hugo will return a small
-# default set.
+# default set: GPS|Exif|Exposure[M|P|B]|Contrast|Resolution|Sharp|JPEG|Metering|Sensing|Saturation|ColorSpace|Flash|WhiteBalance
 includeFields = ""
 
 # Regexp matching the Exif fields you want to exclude. This may be easier to use

@@ -128,7 +128,7 @@ images.GaussianBlur SIGMA
 
 GaussianBlur creates a filter that applies a gaussian blur to an image.
 
-### Grayscale
+## Grayscale
 
 {{% funcsig %}}
 images.Grayscale
