@@ -241,7 +241,7 @@ func (p *pageMeta) Path() string {
 	{{ $path = .Path }}
   {{ end }}
 `
-		helpers.Deprecated(".Path when the page is backed by a file", "We plan to use Path for a canonical source path and you probably want to check the source is a file. To get the current behaviour, you can use a construct simlar to the below:\n"+example, false)
+		helpers.Deprecated(".Path when the page is backed by a file", "We plan to use Path for a canonical source path and you probably want to check the source is a file. To get the current behaviour, you can use a construct similar to the one below:\n"+example, false)
 
 	}
 
