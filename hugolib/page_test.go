@@ -768,6 +768,69 @@ Here is the last report for commits in the year 2016. It covers hrev50718-hrev50
 `)
 }
 
+// Issue 9383
+func TestRenderStringForRegularPageTranslations(t *testing.T) {
+	c := qt.New(t)
+	b := newTestSitesBuilder(t)
+	b.WithLogger(loggers.NewBasicLoggerForWriter(jwalterweatherman.LevelDebug, os.Stderr))
+
+	b.WithConfigFile("toml",
+		`baseurl = "https://example.org/"
+title = "My Site"
+
+defaultContentLanguage = "ru"
+defaultContentLanguageInSubdir = true
+
+[languages.ru]
+contentDir = 'content/ru'
+weight = 1
+
+[languages.en]
+weight = 2
+contentDir = 'content/en'
+
+[outputs]
+home = ["HTML", "JSON"]`)
+
+	b.WithTemplates("index.html", `
+{{- range .Site.Home.Translations -}}
+	<p>{{- .RenderString "foo" -}}</p>
+{{- end -}}
+{{- range .Site.Home.AllTranslations -}}
+	<p>{{- .RenderString "bar" -}}</p>
+{{- end -}}
+`, "_default/single.html",
+		`{{ .Content }}`,
+		"index.json",
+		`{"Title": "My Site"}`,
+	)
+
+	b.WithContent(
+		"ru/a.md",
+		"",
+		"en/a.md",
+		"",
+	)
+
+	err := b.BuildE(BuildCfg{})
+	c.Assert(err, qt.Equals, nil)
+
+	b.AssertFileContent("public/ru/index.html", `
+<p>foo</p>
+<p>foo</p>
+<p>bar</p>
+<p>bar</p>
+`)
+
+	b.AssertFileContent("public/en/index.html", `
+<p>foo</p>
+<p>foo</p>
+<p>bar</p>
+<p>bar</p>
+`)
+
+}
+
 // Issue 8919
 func TestContentProviderWithCustomOutputFormat(t *testing.T) {
 	b := newTestSitesBuilder(t)

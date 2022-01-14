@@ -635,7 +635,19 @@ func (p *pageState) RenderString(args ...interface{}) (template.HTML, error) {
 		}
 	}
 
-	c, err := p.pageOutput.cp.renderContentWithConverter(conv, []byte(s), false)
+	var cp *pageContentOutput
+
+	// If the current content provider is not yet initialized, do so now.
+	if lcp, ok := p.pageOutput.ContentProvider.(*page.LazyContentProvider); ok {
+		c := lcp.Init()
+		if pco, ok := c.(*pageContentOutput); ok {
+			cp = pco
+		}
+	} else {
+		cp = p.pageOutput.cp
+	}
+
+	c, err := cp.renderContentWithConverter(conv, []byte(s), false)
 	if err != nil {
 		return "", p.wrapError(err)
 	}

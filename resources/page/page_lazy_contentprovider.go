@@ -49,6 +49,11 @@ func NewLazyContentProvider(f func() (ContentProvider, error)) *LazyContentProvi
 	return &lcp
 }
 
+func (lcp *LazyContentProvider) Init() ContentProvider {
+	lcp.init.Do()
+	return lcp.cp
+}
+
 func (lcp *LazyContentProvider) Reset() {
 	lcp.init.Reset()
 }
