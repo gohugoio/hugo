@@ -359,8 +359,8 @@ Min HTML Remote: {{ ( resources.GetRemote "%[1]s/mydata/html1.html" | resources.
 		}, func(b *sitesBuilder) {
 			b.AssertFileContent("public/index.html", `Min CSS: h1{font-style:bold}`)
 			b.AssertFileContent("public/index.html", `Min CSS Remote: h1{font-style:bold}`)
-			b.AssertFileContent("public/index.html", `Min JS: var x;x=5,document.getElementById(&#34;demo&#34;).innerHTML=x*10`)
-			b.AssertFileContent("public/index.html", `Min JS Remote: var x;x=5,document.getElementById(&#34;demo&#34;).innerHTML=x*10`)
+			b.AssertFileContent("public/index.html", `Min JS: var x=5;document.getElementById(&#34;demo&#34;).innerHTML=x*10`)
+			b.AssertFileContent("public/index.html", `Min JS Remote: var x=5;document.getElementById(&#34;demo&#34;).innerHTML=x*10`)
 			b.AssertFileContent("public/index.html", `Min JSON: {"employees":[{"firstName":"John","lastName":"Doe"},{"firstName":"Anna","lastName":"Smith"},{"firstName":"Peter","lastName":"Jones"}]}`)
 			b.AssertFileContent("public/index.html", `Min JSON Remote: {"employees":[{"firstName":"John","lastName":"Doe"},{"firstName":"Anna","lastName":"Smith"},{"firstName":"Peter","lastName":"Jones"}]}`)
 			b.AssertFileContent("public/index.html", `Min XML: <hello><world>Hugo Rocks!</<world></hello>`)
