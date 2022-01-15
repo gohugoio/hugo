@@ -37,9 +37,6 @@ import (
 	"github.com/gohugoio/hugo/config"
 )
 
-// SummaryDivider denotes where content summarization should end. The default is "<!--more-->".
-var SummaryDivider = []byte("<!--more-->")
-
 var (
 	openingPTag        = []byte("<p>")
 	closingPTag        = []byte("</p>")

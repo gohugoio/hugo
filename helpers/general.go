@@ -258,12 +258,6 @@ func compareStringSlices(a, b []string) bool {
 	return true
 }
 
-// LogPrinter is the common interface of the JWWs loggers.
-type LogPrinter interface {
-	// Println is the only common method that works in all of JWWs loggers.
-	Println(a ...interface{})
-}
-
 // DistinctLogger ignores duplicate log statements.
 type DistinctLogger struct {
 	loggers.Logger
