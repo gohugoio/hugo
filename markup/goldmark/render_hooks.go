@@ -148,8 +148,9 @@ var (
 
 	// Attributes with special meaning that does not make sense to render in HTML.
 	attributeExcludes = map[string]bool{
-		"linenos":     true,
 		"hl_lines":    true,
+		"hl_style":    true,
+		"linenos":     true,
 		"linenostart": true,
 	}
 )
