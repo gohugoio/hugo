@@ -35,9 +35,6 @@ import (
 	"github.com/spf13/afero"
 )
 
-// ErrThemeUndefined is returned when a theme has not be defined by the user.
-var ErrThemeUndefined = errors.New("no theme set")
-
 // MakePath takes a string with any characters and replace it
 // so the string could be used in a path.
 // It does so by creating a Unicode-sanitized string, with the spaces replaced,
@@ -454,16 +451,6 @@ func IsDir(path string, fs afero.Fs) (bool, error) {
 // IsEmpty checks if a given path is empty.
 func IsEmpty(path string, fs afero.Fs) (bool, error) {
 	return afero.IsEmpty(fs, path)
-}
-
-// FileContains checks if a file contains a specified string.
-func FileContains(filename string, subslice []byte, fs afero.Fs) (bool, error) {
-	return afero.FileContainsBytes(fs, filename, subslice)
-}
-
-// FileContainsAny checks if a file contains any of the specified strings.
-func FileContainsAny(filename string, subslices [][]byte, fs afero.Fs) (bool, error) {
-	return afero.FileContainsAnyBytes(fs, filename, subslices)
 }
 
 // Exists checks if a file or directory exists.
