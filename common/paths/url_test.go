@@ -14,40 +14,10 @@
 package paths
 
 import (
-	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
 )
-
-func TestSanitizeURL(t *testing.T) {
-	tests := []struct {
-		input    string
-		expected string
-	}{
-		{"http://foo.bar/", "http://foo.bar"},
-		{"http://foo.bar", "http://foo.bar"},          // issue #1105
-		{"http://foo.bar/zoo/", "http://foo.bar/zoo"}, // issue #931
-	}
-
-	for i, test := range tests {
-		o1 := SanitizeURL(test.input)
-		o2 := SanitizeURLKeepTrailingSlash(test.input)
-
-		expected2 := test.expected
-
-		if strings.HasSuffix(test.input, "/") && !strings.HasSuffix(expected2, "/") {
-			expected2 += "/"
-		}
-
-		if o1 != test.expected {
-			t.Errorf("[%d] 1: Expected %#v, got %#v\n", i, test.expected, o1)
-		}
-		if o2 != expected2 {
-			t.Errorf("[%d] 2: Expected %#v, got %#v\n", i, expected2, o2)
-		}
-	}
-}
 
 func TestMakePermalink(t *testing.T) {
 	type test struct {
