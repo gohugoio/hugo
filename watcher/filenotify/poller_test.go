@@ -221,8 +221,7 @@ func BenchmarkPoller(b *testing.B) {
 }
 
 func prepareTestDirWithSomeFiles(c *qt.C, id string) string {
-	dir, err := ioutil.TempDir("", fmt.Sprintf("test-poller-dir-%s", id))
-	c.Assert(err, qt.IsNil)
+	dir := c.TempDir()
 	c.Assert(os.MkdirAll(filepath.Join(dir, subdir1), 0777), qt.IsNil)
 	c.Assert(os.MkdirAll(filepath.Join(dir, subdir2), 0777), qt.IsNil)
 
@@ -233,10 +232,6 @@ func prepareTestDirWithSomeFiles(c *qt.C, id string) string {
 	for i := 0; i < 3; i++ {
 		c.Assert(ioutil.WriteFile(filepath.Join(dir, subdir2, fmt.Sprintf("file%d", i)), []byte("hello2"), 0600), qt.IsNil)
 	}
-
-	c.Cleanup(func() {
-		os.RemoveAll(dir)
-	})
 
 	return dir
 }

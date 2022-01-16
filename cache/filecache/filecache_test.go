@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -44,13 +43,8 @@ func TestFileCache(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	tempWorkingDir, err := ioutil.TempDir("", "hugo_filecache_test_work")
-	c.Assert(err, qt.IsNil)
-	defer os.Remove(tempWorkingDir)
-
-	tempCacheDir, err := ioutil.TempDir("", "hugo_filecache_test_cache")
-	c.Assert(err, qt.IsNil)
-	defer os.Remove(tempCacheDir)
+	tempWorkingDir := t.TempDir()
+	tempCacheDir := t.TempDir()
 
 	osfs := afero.NewOsFs()
 

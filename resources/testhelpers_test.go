@@ -3,7 +3,6 @@ package resources
 import (
 	"image"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -105,8 +104,7 @@ func newTestResourceOsFs(c *qt.C) (*Spec, string) {
 	cfg := createTestCfg()
 	cfg.Set("baseURL", "https://example.com")
 
-	workDir, err := ioutil.TempDir("", "hugores")
-	c.Assert(err, qt.IsNil)
+	workDir := c.TempDir()
 	c.Assert(workDir, qt.Not(qt.Equals), "")
 
 	if runtime.GOOS == "darwin" && !strings.HasPrefix(workDir, "/private") {

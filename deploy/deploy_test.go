@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !nodeploy
 // +build !nodeploy
 
 package deploy
@@ -519,15 +520,9 @@ type fsTest struct {
 // 1. An in-memory afero.Fs paired with an in-memory Go CDK bucket.
 // 2. A filesystem-based afero.Fs paired with an filesystem-based Go CDK bucket.
 // It returns the pair of tests and a cleanup function.
-func initFsTests() ([]*fsTest, func(), error) {
-	tmpfsdir, err := ioutil.TempDir("", "fs")
-	if err != nil {
-		return nil, nil, err
-	}
-	tmpbucketdir, err := ioutil.TempDir("", "bucket")
-	if err != nil {
-		return nil, nil, err
-	}
+func initFsTests(t *testing.T) ([]*fsTest, func(), error) {
+	tmpfsdir := t.TempDir()
+	tmpbucketdir := t.TempDir()
 
 	memfs := afero.NewMemMapFs()
 	membucket := memblob.OpenBucket(nil)
@@ -545,8 +540,6 @@ func initFsTests() ([]*fsTest, func(), error) {
 	cleanup := func() {
 		membucket.Close()
 		filebucket.Close()
-		os.RemoveAll(tmpfsdir)
-		os.RemoveAll(tmpbucketdir)
 	}
 	return tests, cleanup, nil
 }
@@ -555,7 +548,7 @@ func initFsTests() ([]*fsTest, func(), error) {
 // correctly.
 func TestEndToEndSync(t *testing.T) {
 	ctx := context.Background()
-	tests, cleanup, err := initFsTests()
+	tests, cleanup, err := initFsTests(t)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -642,7 +635,7 @@ func TestEndToEndSync(t *testing.T) {
 // TestMaxDeletes verifies that the "maxDeletes" flag is working correctly.
 func TestMaxDeletes(t *testing.T) {
 	ctx := context.Background()
-	tests, cleanup, err := initFsTests()
+	tests, cleanup, err := initFsTests(t)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -770,8 +763,8 @@ func TestIncludeExclude(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		t.Run(fmt.Sprintf("include %q exclude %q", test.Include, test.Exclude), func(t *testing.T) {
-			fsTests, cleanup, err := initFsTests()
+		t.Run(fmt.Sprintf("include %s exclude %s", test.Include, test.Exclude), func(t *testing.T) {
+			fsTests, cleanup, err := initFsTests(t)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -840,7 +833,7 @@ func TestIncludeExcludeRemoteDelete(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("include %q exclude %q", test.Include, test.Exclude), func(t *testing.T) {
-			fsTests, cleanup, err := initFsTests()
+			fsTests, cleanup, err := initFsTests(t)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -896,7 +889,7 @@ func TestIncludeExcludeRemoteDelete(t *testing.T) {
 func TestCompression(t *testing.T) {
 	ctx := context.Background()
 
-	tests, cleanup, err := initFsTests()
+	tests, cleanup, err := initFsTests(t)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -955,7 +948,7 @@ func TestCompression(t *testing.T) {
 // attribute for matcher works.
 func TestMatching(t *testing.T) {
 	ctx := context.Background()
-	tests, cleanup, err := initFsTests()
+	tests, cleanup, err := initFsTests(t)
 	if err != nil {
 		t.Fatal(err)
 	}
