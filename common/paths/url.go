@@ -18,8 +18,6 @@ import (
 	"net/url"
 	"path"
 	"strings"
-
-	"github.com/PuerkitoBio/purell"
 )
 
 type pathBridge struct{}
@@ -49,40 +47,6 @@ func (pathBridge) Separator() string {
 }
 
 var pb pathBridge
-
-func sanitizeURLWithFlags(in string, f purell.NormalizationFlags) string {
-	s, err := purell.NormalizeURLString(in, f)
-	if err != nil {
-		return in
-	}
-
-	// Temporary workaround for the bug fix and resulting
-	// behavioral change in purell.NormalizeURLString():
-	// a leading '/' was inadvertently added to relative links,
-	// but no longer, see #878.
-	//
-	// I think the real solution is to allow Hugo to
-	// make relative URL with relative path,
-	// e.g. "../../post/hello-again/", as wished by users
-	// in issues #157, #622, etc., without forcing
-	// relative URLs to begin with '/'.
-	// Once the fixes are in, let's remove this kludge
-	// and restore SanitizeURL() to the way it was.
-	//                         -- @anthonyfok, 2015-02-16
-	//
-	// Begin temporary kludge
-	u, err := url.Parse(s)
-	if err != nil {
-		panic(err)
-	}
-	if len(u.Path) > 0 && !strings.HasPrefix(u.Path, "/") {
-		u.Path = "/" + u.Path
-	}
-	return u.String()
-	// End temporary kludge
-
-	// return s
-}
 
 // MakePermalink combines base URL with content path to create full URL paths.
 // Example
