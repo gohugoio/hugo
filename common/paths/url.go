@@ -22,8 +22,7 @@ import (
 	"github.com/PuerkitoBio/purell"
 )
 
-type pathBridge struct {
-}
+type pathBridge struct{}
 
 func (pathBridge) Base(in string) string {
 	return path.Base(in)
@@ -83,17 +82,6 @@ func sanitizeURLWithFlags(in string, f purell.NormalizationFlags) string {
 	// End temporary kludge
 
 	// return s
-
-}
-
-// SanitizeURL sanitizes the input URL string.
-func SanitizeURL(in string) string {
-	return sanitizeURLWithFlags(in, purell.FlagsSafe|purell.FlagRemoveTrailingSlash|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
-}
-
-// SanitizeURLKeepTrailingSlash is the same as SanitizeURL, but will keep any trailing slash.
-func SanitizeURLKeepTrailingSlash(in string) string {
-	return sanitizeURLWithFlags(in, purell.FlagsSafe|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
 }
 
 // MakePermalink combines base URL with content path to create full URL paths.
@@ -125,16 +113,6 @@ func MakePermalink(host, plink string) *url.URL {
 	}
 
 	return base
-}
-
-// IsAbsURL determines whether the given path points to an absolute URL.
-func IsAbsURL(path string) bool {
-	url, err := url.Parse(path)
-	if err != nil {
-		return false
-	}
-
-	return url.IsAbs() || strings.HasPrefix(path, "//")
 }
 
 // AddContextRoot adds the context root to an URL if it's not already set.

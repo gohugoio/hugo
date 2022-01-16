@@ -226,27 +226,3 @@ func TestFileAndExt(t *testing.T) {
 		}
 	}
 }
-
-func TestFindCWD(t *testing.T) {
-	type test struct {
-		expectedDir string
-		expectedErr error
-	}
-
-	// cwd, _ := os.Getwd()
-	data := []test{
-		//{cwd, nil},
-		// Commenting this out. It doesn't work properly.
-		// There's a good reason why we don't use os.Getwd(), it doesn't actually work the way we want it to.
-		// I really don't know a better way to test this function. - SPF 2014.11.04
-	}
-	for i, d := range data {
-		dir, err := FindCWD()
-		if d.expectedDir != dir {
-			t.Errorf("Test %d failed. Expected %q but got %q", i, d.expectedDir, dir)
-		}
-		if d.expectedErr != err {
-			t.Errorf("Test %d failed. Expected %q but got %q", i, d.expectedErr, err)
-		}
-	}
-}
