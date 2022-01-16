@@ -111,15 +111,25 @@ func (ns *Namespace) lookupFunc(fname string) (reflect.Value, bool) {
 
 	ss := strings.SplitN(fname, ".", 2)
 
-	// namespace
+	// Namespace
 	nv, found := ns.lookupFunc(ss[0])
 	if !found {
 		return reflect.Value{}, false
 	}
 
+	fn, ok := nv.Interface().(func(...interface{}) (interface{}, error))
+	if !ok {
+		return reflect.Value{}, false
+	}
+	v, err := fn()
+	if err != nil {
+		panic(err)
+	}
+	nv = reflect.ValueOf(v)
+
 	// method
 	m := nv.MethodByName(ss[1])
-	// if reflect.DeepEqual(m, reflect.Value{}) {
+
 	if m.Kind() == reflect.Invalid {
 		return reflect.Value{}, false
 	}
