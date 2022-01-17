@@ -40,6 +40,10 @@ func TestMakePath(t *testing.T) {
 		expected      string
 		removeAccents bool
 	}{
+		{"dot.slash/backslash\\underscore_pound#plus+hyphen-", "dot.slash/backslash\\underscore_pound#plus+hyphen-", true},
+		{"abcXYZ0123456789", "abcXYZ0123456789", true},
+		{"%20 %2", "%20-2", true},
+		{"foo- bar", "foo-bar", true},
 		{"  Foo bar  ", "Foo-bar", true},
 		{"Foo.Bar/foo_Bar-Foo", "Foo.Bar/foo_Bar-Foo", true},
 		{"fOO,bar:foobAR", "fOObarfoobAR", true},
@@ -52,7 +56,7 @@ func TestMakePath(t *testing.T) {
 		{"a%C3%B1ame", "a%C3%B1ame", false},         // Issue #1292
 		{"this+is+a+test", "this+is+a+test", false}, // Issue #1290
 		{"~foo", "~foo", false},                     // Issue #2177
-
+		{"foo--bar", "foo--bar", true},              // Issue #7288
 	}
 
 	for _, test := range tests {
