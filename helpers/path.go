@@ -87,7 +87,8 @@ func ishex(c rune) bool {
 // a predefined set of special Unicode characters.
 // If RemovePathAccents configuration flag is enabled, Unicode accents
 // are also removed.
-// Spaces will be replaced with a single hyphen, and sequential hyphens will be reduced to one.
+// Hyphens in the original input are maintained.
+// Spaces will be replaced with a single hyphen, and sequential replacement hyphens will be reduced to one.
 func (p *PathSpec) UnicodeSanitize(s string) string {
 	if p.RemovePathAccents {
 		s = text.RemoveAccentsString(s)
@@ -95,20 +96,30 @@ func (p *PathSpec) UnicodeSanitize(s string) string {
 
 	source := []rune(s)
 	target := make([]rune, 0, len(source))
-	var prependHyphen bool
+	var (
+		prependHyphen bool
+		wasHyphen     bool
+	)
 
 	for i, r := range source {
-		isAllowed := r == '.' || r == '/' || r == '\\' || r == '_' || r == '#' || r == '+' || r == '~'
+		isAllowed := r == '.' || r == '/' || r == '\\' || r == '_' || r == '#' || r == '+' || r == '~' || r == '-'
 		isAllowed = isAllowed || unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r)
 		isAllowed = isAllowed || (r == '%' && i+2 < len(source) && ishex(source[i+1]) && ishex(source[i+2]))
 
 		if isAllowed {
+			// track explicit hyphen in input; no need to add a new hyphen if
+			// we just saw one.
+			wasHyphen = r == '-'
+
 			if prependHyphen {
-				target = append(target, '-')
+				// if currently have a hyphen, don't prepend an extra one
+				if !wasHyphen {
+					target = append(target, '-')
+				}
 				prependHyphen = false
 			}
 			target = append(target, r)
-		} else if len(target) > 0 && (r == '-' || unicode.IsSpace(r)) {
+		} else if len(target) > 0 && !wasHyphen && unicode.IsSpace(r) {
 			prependHyphen = true
 		}
 	}
