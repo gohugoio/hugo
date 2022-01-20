@@ -161,26 +161,12 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 		}
 
 		if cp.p.source.hasSummaryDivider {
-			if isHTML {
-				src := p.source.parsed.Input()
-
-				// Use the summary sections as they are provided by the user.
-				if p.source.posSummaryEnd != -1 {
-					cp.summary = helpers.BytesToHTML(src[p.source.posMainContent:p.source.posSummaryEnd])
-				}
-
-				if cp.p.source.posBodyStart != -1 {
-					cp.workContent = src[cp.p.source.posBodyStart:]
-				}
-
+			summary, content, err := splitUserDefinedSummaryAndContent(cp.p.m.markup, cp.workContent)
+			if err != nil {
+				cp.p.s.Log.Errorf("Failed to set user defined summary for page %q: %s", cp.p.pathOrTitle(), err)
 			} else {
-				summary, content, err := splitUserDefinedSummaryAndContent(cp.p.m.markup, cp.workContent)
-				if err != nil {
-					cp.p.s.Log.Errorf("Failed to set user defined summary for page %q: %s", cp.p.pathOrTitle(), err)
-				} else {
-					cp.workContent = content
-					cp.summary = helpers.BytesToHTML(summary)
-				}
+				cp.workContent = content
+				cp.summary = helpers.BytesToHTML(summary)
 			}
 		} else if cp.p.m.summary != "" {
 			b, err := cp.renderContent([]byte(cp.p.m.summary), false)
@@ -743,6 +729,12 @@ func splitUserDefinedSummaryAndContent(markup string, c []byte) (summary []byte,
 	start := bytes.LastIndex(c[:startDivider], []byte("<"+startTag))
 	end := bytes.Index(c[startDivider:], []byte("</"+startTag))
 
+	// We don't add tags to the divider in HTML, so set the indexes to the
+	// "not found" value
+	if markup == "html" {
+		start, end = -1, -1
+	}
+
 	if start == -1 {
 		start = startDivider
 	} else {
@@ -777,7 +769,13 @@ func splitUserDefinedSummaryAndContent(markup string, c []byte) (summary []byte,
 		return
 	}
 
-	content = bytes.TrimSpace(withoutDivider)
+	// For HTML, do not include the pre-divider summary in the content. Do so
+	// for other markups.
+	if markup == "html" {
+		content = bytes.TrimSpace(withoutDivider[start:])
+	} else {
+		content = bytes.TrimSpace(withoutDivider)
+	}
 
 	return
 }

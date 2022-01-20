@@ -2001,3 +2001,75 @@ Page1: {{ $p1.Path }}
 
 	b.AssertFileContent("public/index.html", "Lang: no", filepath.FromSlash("Page1: a/B/C/Page1.md"))
 }
+
+// Issue #6513
+func TestHTMLManualSummaryShortcodes(t *testing.T) {
+	b := newTestSitesBuilder(t).WithSimpleConfigFile()
+	c := qt.New(t)
+
+	b.WithTemplatesAdded(
+		`_default/single.html`,
+		`{{ .Content }}`,
+		`shortcodes/ten.html`,
+		`10`,
+	)
+
+	b.WithContent(
+		`posts/htmlwithmore.html`,
+		`
+---
+title: HTML with a manual summary
+---
+summary
+<!--more-->
+{{< ten >}}
+`,
+		`posts/htmlwithnomore.html`,
+		`
+---
+title: HTML with a frontmatter summary
+summary: summary
+---
+{{< ten >}}
+`,
+		`posts/mdwithmore.md`,
+		`
+---
+title: MD with a manual summary
+---
+summary
+<!--more-->
+{{< ten >}}
+`,
+		`posts/mdwithnomore.md`,
+		`
+---
+title: MD with a frontmatter summary
+summary: summary
+---
+{{< ten >}}
+`,
+	)
+
+	err := b.BuildE(BuildCfg{})
+
+	c.Assert(err, qt.Equals, nil)
+	// Not including the summary in the content for HTML pages
+	b.AssertFileContent(
+		"public/posts/htmlwithmore/index.html",
+		`10`,
+	)
+	b.AssertFileContent(
+		"public/posts/htmlwithnomore/index.html",
+		`10`,
+	)
+	b.AssertFileContent(
+		"public/posts/mdwithmore/index.html",
+		`<p>summary</p>
+10`,
+	)
+	b.AssertFileContent(
+		"public/posts/mdwithnomore/index.html",
+		`10`,
+	)
+}
