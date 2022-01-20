@@ -35,6 +35,7 @@ import (
 
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/config"
+	"github.com/microcosm-cc/bluemonday"
 )
 
 var (
@@ -112,35 +113,24 @@ func StripHTML(s string) string {
 	if !strings.ContainsAny(s, "<>") {
 		return s
 	}
+
 	s = stripHTMLReplacer.Replace(s)
 
-	// Walk through the string removing all tags
 	b := bp.GetBuffer()
 	defer bp.PutBuffer(b)
-	var inTag, isSpace, wasSpace bool
+	var isSpace, wasSpace bool
 	for _, r := range s {
-		if !inTag {
-			isSpace = false
-		}
+		isSpace = unicode.IsSpace(r)
 
-		switch {
-		case r == '<':
-			inTag = true
-		case r == '>':
-			inTag = false
-		case unicode.IsSpace(r):
-			isSpace = true
-			fallthrough
-		default:
-			if !inTag && (!isSpace || (isSpace && !wasSpace)) {
-				b.WriteRune(r)
-			}
+		if !isSpace || (isSpace && !wasSpace) {
+			b.WriteRune(r)
 		}
-
 		wasSpace = isSpace
-
 	}
-	return b.String()
+
+	s = b.String()
+	p := bluemonday.StrictPolicy() //strip all HTML elements and their attributes
+	return p.Sanitize(s)
 }
 
 // stripEmptyNav strips out empty <nav> tags from content.

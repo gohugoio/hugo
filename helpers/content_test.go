@@ -73,7 +73,7 @@ func TestStripHTML(t *testing.T) {
 .
 More text here.</p>
 
-<p>Some more text</p>`, "Summary Next Line.  . More text here.\nSome more text\n"},
+<p>Some more text</p>`, "Summary Next Line.    . More text here.\nSome more text\n"},
 	}
 	for i, d := range data {
 		output := StripHTML(d.input)

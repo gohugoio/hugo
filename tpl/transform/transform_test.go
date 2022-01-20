@@ -219,6 +219,12 @@ func TestPlainify(t *testing.T) {
 		expect interface{}
 	}{
 		{"<em>Note:</em> blah <b>blah</b>", "Note: blah blah"},
+		{"<div data-action='click->my-controller#doThing'>qwe</div>", "qwe"},
+		{"Hello, World!", "Hello, World!"},
+		{"foo&amp;bar", "foo&amp;bar"},
+		{`Hello <a href="www.example.com/">World</a>!`, "Hello World!"},
+		{"Foo <textarea>Bar</textarea> Baz", "Foo Bar Baz"},
+		{"Foo <!-- Bar --> Baz", "Foo  Baz"},
 		// errors
 		{tstNoStringer{}, false},
 	} {
