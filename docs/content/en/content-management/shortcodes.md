@@ -337,7 +337,7 @@ Using the preceding `tweet` example, the following simulates the displayed exper
 
 ### `vimeo`
 
-Adding a video from [Vimeo][] is equivalent to the [YouTube Input shortcode][].
+Adding a video from [Vimeo][] is similar to the [YouTube Input shortcode][].
 
 ```
 https://vimeo.com/channels/staffpicks/146022717
@@ -375,7 +375,7 @@ Using the preceding `vimeo` example, the following simulates the displayed exper
 
 ### `youtube`
 
-The `youtube` shortcode embeds a responsive video player for [YouTube videos][]. Only the ID of the video is required, e.g.:
+The `youtube` shortcode can be used to embed a responsive video player, or add a linked thumbnail for [YouTube videos][]. Only the ID of the video is required, e.g.:
 
 ```
 https://www.youtube.com/watch?v=w7Ft2ymGmfc
@@ -390,33 +390,92 @@ Copy the YouTube video ID that follows `v=` in the video's URL and pass it to th
 {{</* youtube w7Ft2ymGmfc */>}}
 {{< /code >}}
 
-Furthermore, you can automatically start playback of the embedded video by setting the `autoplay` parameter to `true`. Remember that you can't mix named and unnamed parameters, so you'll need to assign the yet unnamed video id to the parameter `id`:
+#### Example `youtube` Display
+
+The following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup. The video is also included in the [Quick Start of the Hugo documentation][quickstart].
+
+{{< youtube w7Ft2ymGmfc >}}
+
+#### Additional Playback Options
+
+You can automatically start playback of the embedded video by setting the `autoplay` parameter to `true`. Remember that you can't mix named and unnamed parameters, so you'll need to assign the yet unnamed video id to the parameter `id`:
 
 
 {{< code file="example-youtube-input-with-autoplay.md" >}}
 {{</* youtube id="w7Ft2ymGmfc" autoplay="true" */>}}
 {{< /code >}}
 
-For [accessibility reasons](https://dequeuniversity.com/tips/provide-iframe-titles), it's best to provide a title for your YouTube video.  You  can do this using the shortcode by providing a `title` parameter. If no title is provided, a default of "YouTube Video" will be used.
+For [accessibility reasons](https://dequeuniversity.com/tips/provide-iframe-titles), it's best to provide a title for your YouTube video.  You  can do this using the shortcode by providing a `title` parameter. If no title is provided, a default value of "YouTube Video" will be used.
 
 {{< code file="example-youtube-input-with-title.md" >}}
 {{</* youtube id="w7Ft2ymGmfc" title="A New Hugo Site in Under Two Minutes" */>}}
 {{< /code >}}
 
+You're also able to set the start and end timestamps using the `start` and `end` parameters. Values should be in seconds from the start of the video. In the following example, the embedded video will play from the 90-second mark until the 6-minute mark:
+
+{{< code file="example-youtube-input-with-start-end.md" >}}
+{{</* youtube id="w7Ft2ymGmfc" start=90 end=360 */>}}
+{{< /code >}}
 
 #### Example `youtube` Output
 
 Using the preceding `youtube` example, the following HTML will be added to your rendered website's markup:
 
 {{< code file="example-youtube-output.html" >}}
-{{< youtube id="w7Ft2ymGmfc" autoplay="true" >}}
+{{< youtube id="w7Ft2ymGmfc" start=90 end=360 >}}
 {{< /code >}}
 
-#### Example `youtube` Display
+The `youtube` shortcode can also use the following named parameters:
 
-Using the preceding `youtube` example (without `autoplay="true"`), the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup. The video is also include in the [Quick Start of the Hugo documentation][quickstart].
+linkthumbnail
+: When set to `"true"`, the video will be embeded as a thumbnail linked to the YouTube video, instead of embedding a responsive video player. In this case, all other parameters are ignored.
 
-{{< youtube w7Ft2ymGmfc >}}
+loop
+: When set to `"true"`, If the player is loading a single video, it will play the video again and again. If the player is loading a playlist, it will play the entire playlist and then start again at the first video.
+
+controls
+: Set to `"false"` to not display the player controls in the video player.
+
+disablekb
+: Setting the parameter's value to `"true"` causes the player to not respond to keyboard controls.
+
+language
+: Set the player's interface language. The interface language is used for tooltips in the player and also affects the default caption track. The parameter's value is an [ISO 639-1 two-letter language code](http://www.loc.gov/standards/iso639-2/php/code_list.php) or a fully specified locale, such as `fr` or `fr-ca`.
+
+playlist
+: a comma-separated list of video IDs to play.
+
+listtype
+: When the parameter’s value is set to `"playlist"` then, in conjunction with the `list` parameter, identifies the content that will load in the player.
+
+list
+: If the `listType` parameter's value is `"playlist"`, then the list parameter value specifies a YouTube playlist ID. Make sure the parameter value begins with the letter PL.
+
+enablejsapi
+: Setting this parameter to `"true"` enables a player to be controlled via API calls. The API could be either the [IFrame Player API](https://developers.google.com/youtube/iframe_api_reference) or the [JavaScript Player API](https://developers.google.com/youtube/js_api_reference).
+
+fs
+: Setting this parameter to `"false"` prevents the fullscreen button from displaying in the player
+
+novideoannotations
+: Setting novideoannotations to `"true"` causes video annotations to not be shown by default.
+
+modestbranding
+: Set the parameter value to `"true"` to prevent the YouTube logo from displaying in the control bar.
+
+ccloadpolicy
+: Setting the parameter's value to `"true"` causes closed captions to be shown by default, even if the user has turned captions off. The default behavior is based on user preference.
+
+color
+: This parameter specifies the color that will be used in the player's video progress bar to highlight the amount of the video that the viewer has already seen. Valid parameter values are `"red"` and `"white"`, and, by default, the player uses the color red in the video progress bar.
+
+Note: Setting the color parameter to white will disable the modestbranding option.
+
+playsinline
+: This parameter controls whether videos play inline or fullscreen on iOS. Setting the value to `"true"` Results in inline playback for mobile browsers and for WebViews created with the [allowsInlineMediaPlayback](https://developer.apple.com/documentation/webkit/wkwebviewconfiguration/1614793-allowsinlinemediaplayback?language=objc) property set to YES.
+
+notwidescreen
+: Setting the parameter's value to `"true"` causes the player to display in 4:3 ratio, instead of widescreen ratio.
 
 ## Privacy Config
 

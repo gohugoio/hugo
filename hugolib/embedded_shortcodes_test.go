@@ -190,6 +190,31 @@ func TestShortcodeYoutube(t *testing.T) {
 			`{{< youtube id="w7Ft2ymGmfc" title="A New Hugo Site in Under Two Minutes" >}}`,
 			"(?s)\n<div style=\".*?\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\" style=\".*?\" allowfullscreen title=\"A New Hugo Site in Under Two Minutes\">.*?</iframe>.*?</div>",
 		},
+		// set start (using named params, as string)
+		{
+			`{{< youtube id="w7Ft2ymGmfc" start="5" >}}`,
+			"(?s)\n<div style=\".*?\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\\?start=5\" style=\".*?\" allowfullscreen title=\"YouTube Video\">.*?</iframe>.*?</div>\n",
+		},
+		// set class, start and end (using named params, start and end are ints)
+		{
+			`{{< youtube id="w7Ft2ymGmfc" class="video" start=5 end=10 >}}`,
+			"(?s)\n<div class=\"video\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\\?start=5&amp;end=10\".*?allowfullscreen title=\"YouTube Video\">.*?</iframe>.*?</div>",
+		},
+		// set class, start, autoplay, and end (using named params)
+		{
+			`{{< youtube id="w7Ft2ymGmfc" class="video" start=5 end=10 autoplay="true" >}}`,
+			"(?s)\n<div class=\"video\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\\?autoplay=1&amp;start=5&amp;end=10\".*?allowfullscreen title=\"YouTube Video\">.*?</iframe>.*?</div>",
+		},
+		// set linkthumbnail
+		{
+			`{{< youtube id="w7Ft2ymGmfc" linkthumbnail="true" >}}`,
+			"(?s)\n<div class=\".*?s_video_simple.*?\">.*?<img src=\"https://img.youtube.com/vi/w7Ft2ymGmfc/maxresdefault.jpg\" srcset=\"https://img.youtube.com/vi/w7Ft2ymGmfc/hqdefault.jpg 1x https://img.youtube.com/vi/w7Ft2ymGmfc/maxresdefault.jpg 2x\" alt=\"YouTube Video\"/>.*?</div>",
+		},
+		// set all additional parameters, including notwidescreen
+		{
+			`{{< youtube id="w7Ft2ymGmfc" start=5 end=10 loop="true" controls="false" disablekb="true" language="fr-ca" playlist="ZICu88Gxl0c,eNV4eSMztmg,74NGImio7oQ" listtype="playlist" list="PLOU2XLYxmsIKQPrmzi3ZXep2rlMnmQwjQ" enablejsapi="true" fs="false" novideoannotations="true" modestbranding="true" ccloadpolicy="true" color="white" playsinline="true" notwidescreen="true">}}`,
+			"(?s)\n<div style=\".*?padding-bottom: 75%;.*?\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\\?start=5&amp;end=10&amp;cc_load_policy=1&amp;color=white&amp;controls=0&amp;disablekb=1&amp;enablejsapi=1&amp;fs=0&amp;hl=fr-ca&amp;iv_load_policy=3&amp;listType=playlist&amp;list=PLOU2XLYxmsIKQPrmzi3ZXep2rlMnmQwjQ&amp;loop=1&amp;modestbranding=1&amp;playlist=ZICu88Gxl0c%2CeNV4eSMztmg%2C74NGImio7oQ&amp;playsinline=1\".*?style=\".*?\".*?allowfullscreen title=\"YouTube Video\">.*?</iframe>.*?</div>",
+		},
 	} {
 		var (
 			cfg, fs = newTestCfg()

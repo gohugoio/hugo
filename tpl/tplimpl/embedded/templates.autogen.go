@@ -728,11 +728,85 @@ if (!doNotTrack) {
 {{- $id := .Get "id" | default (.Get 0) -}}
 {{- $class := .Get "class" | default (.Get 1) -}}
 {{- $title := .Get "title" | default "YouTube Video" }}
-<div {{ with $class }}class="{{ . }}"{{ else }}style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;"{{ end }}>
-  <iframe src="https://{{ $ytHost }}/embed/{{ $id }}{{ with .Get "autoplay" }}{{ if eq . "true" }}?autoplay=1{{ end }}{{ end }}" {{ if not $class }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" {{ end }}allowfullscreen title="{{ $title }}"></iframe>
-</div>
+
+{{- if eq (.Get "linkthumbnail") "true" -}}
+{{ template "_internal/shortcodes/youtube_linkthumbnail.html" . }}
+{{- else -}}
+
+{{- $padding_bottom := "56.25%" -}}{{- if eq (.Get "notwidescreen") "true"}}{{$padding_bottom = "75%"}}{{end -}}
+
+{{- $params := slice -}}
+{{- if eq (.Get "autoplay") "true" -}}
+    {{- $params = $params | append (querify "autoplay" 1) -}}
+{{- end -}}
+{{- with (.Get "start") -}}
+    {{- $params = $params | append (querify "start" (. | int)) -}}
+{{- end -}}
+{{- with (.Get "end") -}}
+    {{- $params = $params | append (querify "end" (. | int)) -}}
+{{- end }}
+{{- if eq (.Get "ccloadpolicy") "true" -}}
+    {{- $params = $params | append (querify "cc_load_policy" 1) -}}
+{{- end }}
+{{- if eq (.Get "color") "white" -}}
+    {{- $params = $params | append (querify "color" "white") -}}
+{{- end }}
+{{- if eq (.Get "controls") "false" -}}
+    {{- $params = $params | append (querify "controls" 0) -}}
+{{- end }}
+{{- if eq (.Get "disablekb") "true" -}}
+    {{- $params = $params | append (querify "disablekb" 1) -}}
+{{- end }}
+{{- if eq (.Get "enablejsapi") "true" -}}
+    {{- $params = $params | append (querify "enablejsapi" 1) -}}
+{{- end }}
+{{- if eq (.Get "fs") "false" -}}
+    {{- $params = $params | append (querify "fs" 0) -}}
+{{- end }}
+{{- with (.Get "language") -}}
+    {{- $params = $params | append (querify "hl" .) -}}
+{{- end }}
+{{- if eq (.Get "novideoannotations") "true" -}}
+    {{- $params = $params | append (querify "iv_load_policy" 3) -}}
+{{- end }}
+{{- if and (eq (.Get "listtype") "playlist") (.Get "list") -}}
+    {{- $params = $params | append (querify "listType" "playlist") | append (querify "list" (.Get "list")) -}}
+{{- end }}
+{{- if eq (.Get "loop") "true" -}}
+    {{- $params = $params | append (querify "loop" 1) -}}
+{{- end }}
+{{- if eq (.Get "modestbranding") "true" -}}
+    {{- $params = $params | append (querify "modestbranding" 1) -}}
+{{- end }}
+{{- if (.Get "playlist") -}}
+    {{- $params = $params | append (querify "playlist" (.Get "playlist")) -}}
+{{- end }}
+{{- if eq (.Get "playsinline") "true" -}}
+    {{- $params = $params | append (querify "playsinline" 1) -}}
+{{- end }}
+
+<div {{ with $class }}class="{{ . }}"{{ else }}style="position: relative; padding-bottom: {{$padding_bottom}}; height: 0; overflow: hidden;"{{ end }}>
+    <iframe src="https://{{ $ytHost }}/embed/{{ $id }}{{ with $params }}?{{ delimit $params "&" | safeURL }}{{ end }}" {{ if not $class }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" {{ end }}allowfullscreen title="{{ $title }}"></iframe>
+  </div>
 {{ end -}}
-`},
+{{ end -}}`},
+	{`shortcodes/youtube_linkthumbnail.html`, `{{- $id := .Get "id" | default (.Get 0) -}}
+{{- $class := .Get "class" | default (.Get 1) -}}
+{{- $title := .Get "title" | default "YouTube Video" }}
+{{ $hasClass := $class }}
+{{ $class := $class | default "__h_video" }}
+{{ if not $hasClass }}
+{{/* If class is set, assume the user wants to provide his own styles. */}}
+{{ template "__h_simple_css" $ }}
+{{ end }}
+{{ $secondClass := "s_video_simple" }}
+<div class="{{ $secondClass }} {{ $class }}">
+    {{ $tb := printf "https://img.youtube.com/vi/%s/" $id }}
+    <a href="https://youtube.com/watch?v={{ $id | safeHTMLAttr }} " target="_blank">
+         <img src="{{ printf "%smaxresdefault.jpg" $tb}}" srcset="{{ printf "%shqdefault.jpg" $tb }} 1x {{ printf "%smaxresdefault.jpg" $tb}} 2x" alt="{{ $title }}"/>
+         <div class="play">{{ template "__h_simple_icon_play" $ }}</div>
+    </a>
+</div>`},
 	{`twitter_cards.html`, `{{- with $.Params.images -}}
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="{{ index . 0 | absURL }}"/>
