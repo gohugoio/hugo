@@ -1,0 +1,17 @@
+{{- $id := .Get "id" | default (.Get 0) -}}
+{{- $class := .Get "class" | default (.Get 1) -}}
+{{- $title := .Get "title" | default "YouTube Video" }}
+{{ $hasClass := $class }}
+{{ $class := $class | default "__h_video" }}
+{{ if not $hasClass }}
+{{/* If class is set, assume the user wants to provide his own styles. */}}
+{{ template "__h_simple_css" $ }}
+{{ end }}
+{{ $secondClass := "s_video_simple" }}
+<div class="{{ $secondClass }} {{ $class }}">
+    {{ $tb := printf "https://img.youtube.com/vi/%s/" $id }}
+    <a href="https://youtube.com/watch?v={{ $id | safeHTMLAttr }} " target="_blank">
+         <img src="{{ printf "%smaxresdefault.jpg" $tb}}" srcset="{{ printf "%shqdefault.jpg" $tb }} 1x {{ printf "%smaxresdefault.jpg" $tb}} 2x" alt="{{ $title }}"/>
+         <div class="play">{{ template "__h_simple_icon_play" $ }}</div>
+    </a>
+</div>
