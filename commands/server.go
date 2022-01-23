@@ -519,7 +519,7 @@ func (c *commandeer) serve(s *serverCmd) error {
 			mu.HandleFunc(u.Path+"/livereload.js", livereload.ServeJS)
 			mu.HandleFunc(u.Path+"/livereload", livereload.Handler)
 		}
-		jww.FEEDBACK.Printf("Web Server is available at %s (bind address %s)\n", serverURL, s.serverInterface)
+		jww.FEEDBACK.Printf("Web Server is available at http:%s (bind address %s)\n", serverURL, s.serverInterface)
 		go func() {
 			err = http.ListenAndServe(endpoint, mu)
 			if err != nil {
