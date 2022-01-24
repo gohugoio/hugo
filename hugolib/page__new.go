@@ -20,7 +20,6 @@ import (
 	"github.com/gohugoio/hugo/common/hugo"
 
 	"github.com/gohugoio/hugo/common/maps"
-	"github.com/gohugoio/hugo/source"
 
 	"github.com/gohugoio/hugo/output"
 
@@ -65,15 +64,6 @@ func newPageBase(metaProvider *pageMeta) (*pageState, error) {
 
 	siteAdapter := pageSiteAdapter{s: s, p: ps}
 
-	deprecatedWarningPage := struct {
-		source.FileWithoutOverlap
-		page.DeprecatedWarningPageMethods1
-	}{
-		FileWithoutOverlap:            metaProvider.File(),
-		DeprecatedWarningPageMethods1: &pageDeprecatedWarning{p: ps},
-	}
-
-	ps.DeprecatedWarningPageMethods = page.NewDeprecatedWarningPage(deprecatedWarningPage)
 	ps.pageMenus = &pageMenus{p: ps}
 	ps.PageMenusProvider = ps.pageMenus
 	ps.GetPageProvider = siteAdapter

@@ -47,7 +47,6 @@ const header = `// Copyright 2019 The Hugo Authors. All rights reserved.
 `
 
 var (
-	fileInterfaceDeprecated = reflect.TypeOf((*source.FileWithoutOverlap)(nil)).Elem()
 	pageInterfaceDeprecated = reflect.TypeOf((*page.DeprecatedWarningPageMethods)(nil)).Elem()
 	pageInterface           = reflect.TypeOf((*page.Page)(nil)).Elem()
 
@@ -155,15 +154,9 @@ func generateDeprecatedWrappers(c *codegen.Inspector) error {
 	}
 
 	deprecated := func(name string, tp reflect.Type) string {
-		var alternative string
-		if tp == fileInterfaceDeprecated {
-			alternative = "Use .File." + name
-		} else {
-			var found bool
-			alternative, found = reasons[name]
-			if !found {
-				panic(fmt.Sprintf("no deprecated reason found for %q", name))
-			}
+		alternative, found := reasons[name]
+		if !found {
+			panic(fmt.Sprintf("no deprecated reason found for %q", name))
 		}
 
 		return fmt.Sprintf("helpers.Deprecated(%q, %q, true)", "Page."+name, alternative)
@@ -171,7 +164,7 @@ func generateDeprecatedWrappers(c *codegen.Inspector) error {
 
 	var buff bytes.Buffer
 
-	methods := c.MethodsFromTypes([]reflect.Type{fileInterfaceDeprecated, pageInterfaceDeprecated}, nil)
+	methods := c.MethodsFromTypes([]reflect.Type{pageInterfaceDeprecated}, nil)
 
 	for _, m := range methods {
 		fmt.Fprint(&buff, m.Declaration("*pageDeprecated"))
@@ -181,7 +174,8 @@ func generateDeprecatedWrappers(c *codegen.Inspector) error {
 
 	}
 
-	pkgImports := append(methods.Imports(), "github.com/gohugoio/hugo/helpers")
+	pkgImports := methods.Imports()
+	// pkgImports := append(methods.Imports(), "github.com/gohugoio/hugo/helpers")
 
 	fmt.Fprintf(f, `%s
 

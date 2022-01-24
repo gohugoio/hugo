@@ -15,13 +15,6 @@
 
 package page
 
-import (
-	"github.com/gohugoio/hugo/common/hugo"
-	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/hugofs"
-	"html/template"
-)
-
 // NewDeprecatedWarningPage adds deprecation warnings to the given implementation.
 func NewDeprecatedWarningPage(p DeprecatedWarningPageMethods) DeprecatedWarningPageMethods {
 	return &pageDeprecated{p: p}
@@ -29,69 +22,4 @@ func NewDeprecatedWarningPage(p DeprecatedWarningPageMethods) DeprecatedWarningP
 
 type pageDeprecated struct {
 	p DeprecatedWarningPageMethods
-}
-
-func (p *pageDeprecated) Filename() string {
-	helpers.Deprecated("Page.Filename", "Use .File.Filename", true)
-	return p.p.Filename()
-}
-func (p *pageDeprecated) Dir() string {
-	helpers.Deprecated("Page.Dir", "Use .File.Dir", true)
-	return p.p.Dir()
-}
-func (p *pageDeprecated) IsDraft() bool {
-	helpers.Deprecated("Page.IsDraft", "Use .Draft.", true)
-	return p.p.IsDraft()
-}
-func (p *pageDeprecated) Extension() string {
-	helpers.Deprecated("Page.Extension", "Use .File.Extension", true)
-	return p.p.Extension()
-}
-func (p *pageDeprecated) Hugo() hugo.Info {
-	helpers.Deprecated("Page.Hugo", "Use the global hugo function.", true)
-	return p.p.Hugo()
-}
-func (p *pageDeprecated) Ext() string {
-	helpers.Deprecated("Page.Ext", "Use .File.Ext", true)
-	return p.p.Ext()
-}
-func (p *pageDeprecated) LanguagePrefix() string {
-	helpers.Deprecated("Page.LanguagePrefix", "Use .Site.LanguagePrefix.", true)
-	return p.p.LanguagePrefix()
-}
-func (p *pageDeprecated) GetParam(arg0 string) interface{} {
-	helpers.Deprecated("Page.GetParam", "Use .Param or .Params.myParam.", true)
-	return p.p.GetParam(arg0)
-}
-func (p *pageDeprecated) LogicalName() string {
-	helpers.Deprecated("Page.LogicalName", "Use .File.LogicalName", true)
-	return p.p.LogicalName()
-}
-func (p *pageDeprecated) BaseFileName() string {
-	helpers.Deprecated("Page.BaseFileName", "Use .File.BaseFileName", true)
-	return p.p.BaseFileName()
-}
-func (p *pageDeprecated) RSSLink() template.URL {
-	helpers.Deprecated("Page.RSSLink", "Use the Output Format's link, e.g. something like:\n    {{ with .OutputFormats.Get \"RSS\" }}{{ .RelPermalink }}{{ end }}", true)
-	return p.p.RSSLink()
-}
-func (p *pageDeprecated) TranslationBaseName() string {
-	helpers.Deprecated("Page.TranslationBaseName", "Use .File.TranslationBaseName", true)
-	return p.p.TranslationBaseName()
-}
-func (p *pageDeprecated) URL() string {
-	helpers.Deprecated("Page.URL", "Use .Permalink or .RelPermalink. If what you want is the front matter URL value, use .Params.url", true)
-	return p.p.URL()
-}
-func (p *pageDeprecated) ContentBaseName() string {
-	helpers.Deprecated("Page.ContentBaseName", "Use .File.ContentBaseName", true)
-	return p.p.ContentBaseName()
-}
-func (p *pageDeprecated) UniqueID() string {
-	helpers.Deprecated("Page.UniqueID", "Use .File.UniqueID", true)
-	return p.p.UniqueID()
-}
-func (p *pageDeprecated) FileInfo() hugofs.FileMetaInfo {
-	helpers.Deprecated("Page.FileInfo", "Use .File.FileInfo", true)
-	return p.p.FileInfo()
 }

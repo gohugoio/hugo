@@ -24,7 +24,6 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/tpl"
 
-	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/compare"
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -379,18 +378,7 @@ type TreeProvider interface {
 // DeprecatedWarningPageMethods lists deprecated Page methods that will trigger
 // a WARNING if invoked.
 // This was added in Hugo 0.55.
-type DeprecatedWarningPageMethods interface {
-	source.FileWithoutOverlap
-	DeprecatedWarningPageMethods1
-}
-
-type DeprecatedWarningPageMethods1 interface {
-	IsDraft() bool
-	Hugo() hugo.Info
-	LanguagePrefix() string
-	GetParam(key string) interface{}
-	RSSLink() template.URL
-	URL() string
+type DeprecatedWarningPageMethods interface { // This was emptied in Hugo 0.93.0.
 }
 
 // Move here to trigger ERROR instead of WARNING.
