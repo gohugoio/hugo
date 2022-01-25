@@ -48,9 +48,6 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 .Description
 : the description for the page.
 
-.Dir
-: the path of the folder containing this content file. The path is relative to the `content` folder.
-
 .Draft
 : a boolean, `true` if the content is marked as a draft in the front matter.
 
@@ -62,9 +59,6 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 
 .FuzzyWordCount
 : the approximate number of words in the content.
-
-.Hugo
-: see [Hugo Variables](/variables/hugo/).
 
 .IsHome
 : `true` in the context of the [homepage](/templates/homepage/).
@@ -184,9 +178,6 @@ https://remarkjs.com)
 
 .Type
 : the [content type](/content-management/types/) of the content (e.g., `posts`).
-
-.UniqueID (deprecated)
-: the MD5-checksum of the content file's path. This variable is deprecated and will be removed, use `.File.UniqueID` instead.
 
 .Weight
 : assigned weight (in the front matter) to this content, used in sorting.
