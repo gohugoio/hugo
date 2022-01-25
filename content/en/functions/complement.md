@@ -15,7 +15,7 @@ aliases: []
 Example:
 
 ```go-html-template
-{{ $pages := .Site.RegularPages | first 50 }}
+{{ $pages := site.RegularPages | first 50 }}
 {{ $news := where $pages "Type" "news" | first 5 }}
 {{ $blog := where $pages "Type" "blog" | first 5 }}
 {{ $other := $pages | complement $news $blog | first 10 }}
