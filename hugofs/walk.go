@@ -270,7 +270,7 @@ func (w *Walkway) walk(path string, info FileMetaInfo, dirEntries []FileMetaInfo
 		meta.Path = normalizeFilename(pathMeta)
 		meta.PathWalk = pathn
 
-		if fim.IsDir() && w.isSeen(meta.Filename) {
+		if fim.IsDir() && meta.IsSymlink && w.isSeen(meta.Filename) {
 			// Prevent infinite recursion
 			// Possible cyclic reference
 			meta.SkipDir = true

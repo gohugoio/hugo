@@ -33,7 +33,6 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugolib/paths"
 	"github.com/gohugoio/hugo/modules"
-	
 )
 
 func initConfig(fs afero.Fs, cfg config.Provider) error {
@@ -152,7 +151,7 @@ theme = ["atheme"]
 	checkFileCount(bfs.Data.Fs, "", c, 11)       // 7 + 4 themes
 	checkFileCount(bfs.Archetypes.Fs, "", c, 10) // 8 + 2 themes
 	checkFileCount(bfs.Assets.Fs, "", c, 9)
-	checkFileCount(bfs.Work, "", c, 82)
+	checkFileCount(bfs.Work, "", c, 90)
 
 	c.Assert(bfs.IsData(filepath.Join(workingDir, "mydata", "file1.txt")), qt.Equals, true)
 	c.Assert(bfs.IsI18n(filepath.Join(workingDir, "myi18n", "file1.txt")), qt.Equals, true)
