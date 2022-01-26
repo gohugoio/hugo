@@ -18,6 +18,7 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/gohugoio/hugo/config"
 
@@ -54,6 +55,60 @@ func TestResolveMarkup(t *testing.T) {
 		result := spec.ResolveMarkup(this.in)
 		if result != this.expect {
 			t.Errorf("[%d] got %s but expected %s", i, result, this.expect)
+		}
+	}
+}
+
+func TestDistinctLoggerDoesNotLockOnWarningPanic(t *testing.T) {
+	// Testing to make sure logger mutex doesn't lock if warnings cause panics.
+	// func Warnf() of DistinctLogger is defined in general.go
+	l := NewDistinctLogger(loggers.NewWarningLogger())
+
+	// Set PanicOnWarning to true to reproduce issue 9380
+	// Ensure global variable loggers.PanicOnWarning is reset to old value after test
+	if loggers.PanicOnWarning == false {
+		loggers.PanicOnWarning = true
+		defer func() {
+			loggers.PanicOnWarning = false
+		}()
+	}
+
+	// Establish timeout in case a lock occurs:
+	timeIsUp := make(chan bool)
+	timeOutSeconds := 1
+	go func() {
+		time.Sleep(time.Second * time.Duration(timeOutSeconds))
+		timeIsUp <- true
+	}()
+
+	// Attempt to run multiple logging threads in parallel
+	counterC := make(chan int)
+	goroutines := 5
+
+	for i := 0; i < goroutines; i++ {
+		go func() {
+			defer func() {
+				// Intentional panic successfully recovered - notify counter channel
+				recover()
+				counterC <- 1
+			}()
+
+			l.Warnf("Placeholder template message: %v", "In this test, logging a warning causes a panic.")
+		}()
+	}
+
+	// All goroutines should complete before timeout
+	var counter int
+	for {
+		select {
+		case <-counterC:
+			counter++
+			if counter == goroutines {
+				return
+			}
+		case <-timeIsUp:
+			t.Errorf("Unable to log warnings with --panicOnWarning within alloted time of: %v seconds. Investigate possible mutex locking on panic in distinct warning logger.", timeOutSeconds)
+			return
 		}
 	}
 }
