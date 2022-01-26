@@ -1134,3 +1134,39 @@ P1: {{ $p1.Title }}|{{ $p1.RelPermalink }}|Filename: {{ $p1.File.Filename }}
 
 	b.AssertFileContent("public/index.html", "P1: Abs|/p1/", "Filename: "+contentFilename)
 }
+
+// Issue 9426
+func TestMountSameSource(t *testing.T) {
+	config := `baseURL = 'https://example.org/'
+languageCode = 'en-us'
+title = 'Hugo GitHub Issue #9426'
+
+disableKinds = ['RSS','sitemap','taxonomy','term']
+
+[[module.mounts]]
+source = "content"
+target = "content"
+
+[[module.mounts]]
+source = "extra-content"
+target = "content/resources-a"
+
+[[module.mounts]]
+source = "extra-content"
+target = "content/resources-b"
+`
+	b := newTestSitesBuilder(t).WithConfigFile("toml", config)
+
+	b.WithContent("p1.md", "")
+
+	b.WithSourceFile(
+		"extra-content/_index.md", "",
+		"extra-content/subdir/_index.md", "",
+		"extra-content/subdir/about.md", "",
+	)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/resources-a/subdir/about/index.html", "Single")
+	b.AssertFileContent("public/resources-b/subdir/about/index.html", "Single")
+}
