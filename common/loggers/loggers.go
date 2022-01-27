@@ -133,7 +133,7 @@ func (l *logger) Info() *log.Logger {
 	return l.INFO
 }
 
-const panicOnWarningMessage = "Warning trapped. Remvove the --panicOnWarning flag to continue."
+const panicOnWarningMessage = "Warning trapped. Remove the --panicOnWarning flag to continue."
 
 func (l *logger) Warnf(format string, v ...interface{}) {
 	l.WARN.Printf(format, v...)
