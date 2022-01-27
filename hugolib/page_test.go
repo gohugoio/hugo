@@ -772,7 +772,7 @@ Here is the last report for commits in the year 2016. It covers hrev50718-hrev50
 func TestRenderStringForRegularPageTranslations(t *testing.T) {
 	c := qt.New(t)
 	b := newTestSitesBuilder(t)
-	b.WithLogger(loggers.NewBasicLoggerForWriter(jwalterweatherman.LevelDebug, os.Stderr))
+	b.WithLogger(loggers.NewBasicLoggerForWriter(jwalterweatherman.LevelError, os.Stderr))
 
 	b.WithConfigFile("toml",
 		`baseurl = "https://example.org/"
@@ -828,7 +828,6 @@ home = ["HTML", "JSON"]`)
 <p>bar</p>
 <p>bar</p>
 `)
-
 }
 
 // Issue 8919

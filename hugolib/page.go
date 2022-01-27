@@ -16,14 +16,11 @@ package hugolib
 import (
 	"bytes"
 	"fmt"
-	"html/template"
 	"os"
 	"path"
 	"path/filepath"
 	"sort"
 	"strings"
-
-	"github.com/mitchellh/mapstructure"
 
 	"github.com/gohugoio/hugo/identity"
 
@@ -47,7 +44,6 @@ import (
 
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/source"
-	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/text"
@@ -593,104 +589,11 @@ var defaultRenderStringOpts = renderStringOpts{
 	Markup:  "", // Will inherit the page's value when not set.
 }
 
-func (p *pageState) RenderString(args ...interface{}) (template.HTML, error) {
-	if len(args) < 1 || len(args) > 2 {
-		return "", errors.New("want 1 or 2 arguments")
-	}
-
-	var s string
-	opts := defaultRenderStringOpts
-	sidx := 1
-
-	if len(args) == 1 {
-		sidx = 0
-	} else {
-		m, ok := args[0].(map[string]interface{})
-		if !ok {
-			return "", errors.New("first argument must be a map")
-		}
-
-		if err := mapstructure.WeakDecode(m, &opts); err != nil {
-			return "", errors.WithMessage(err, "failed to decode options")
-		}
-	}
-
-	var err error
-	s, err = cast.ToStringE(args[sidx])
-	if err != nil {
-		return "", err
-	}
-
-	if err = p.pageOutput.initRenderHooks(); err != nil {
-		return "", err
-	}
-
-	conv := p.getContentConverter()
-	if opts.Markup != "" && opts.Markup != p.m.markup {
-		var err error
-		// TODO(bep) consider cache
-		conv, err = p.m.newContentConverter(p, opts.Markup, nil)
-		if err != nil {
-			return "", p.wrapError(err)
-		}
-	}
-
-	var cp *pageContentOutput
-
-	// If the current content provider is not yet initialized, do so now.
-	if lcp, ok := p.pageOutput.ContentProvider.(*page.LazyContentProvider); ok {
-		c := lcp.Init()
-		if pco, ok := c.(*pageContentOutput); ok {
-			cp = pco
-		}
-	} else {
-		cp = p.pageOutput.cp
-	}
-
-	c, err := cp.renderContentWithConverter(conv, []byte(s), false)
-	if err != nil {
-		return "", p.wrapError(err)
-	}
-
-	b := c.Bytes()
-
-	if opts.Display == "inline" {
-		// We may have to rethink this in the future when we get other
-		// renderers.
-		b = p.s.ContentSpec.TrimShortHTML(b)
-	}
-
-	return template.HTML(string(b)), nil
-}
-
 func (p *pageState) addDependency(dep identity.Provider) {
 	if !p.s.running() || p.pageOutput.cp == nil {
 		return
 	}
 	p.pageOutput.cp.dependencyTracker.Add(dep)
-}
-
-func (p *pageState) RenderWithTemplateInfo(info tpl.Info, layout ...string) (template.HTML, error) {
-	p.addDependency(info)
-	return p.Render(layout...)
-}
-
-func (p *pageState) Render(layout ...string) (template.HTML, error) {
-	templ, found, err := p.resolveTemplate(layout...)
-	if err != nil {
-		return "", p.wrapError(err)
-	}
-
-	if !found {
-		return "", nil
-	}
-
-	p.addDependency(templ.(tpl.Info))
-	res, err := executeToString(p.s.Tmpl(), templ, p)
-	if err != nil {
-		return "", p.wrapError(errors.Wrapf(err, "failed to execute template %q v", layout))
-	}
-	return template.HTML(res), nil
 }
 
 // wrapError adds some more context to the given error if possible/needed
@@ -993,13 +896,16 @@ func (p *pageState) shiftToOutputFormat(isRenderingSite bool, idx int) error {
 		if lcp, ok := (p.pageOutput.ContentProvider.(*page.LazyContentProvider)); ok {
 			lcp.Reset()
 		} else {
-			p.pageOutput.ContentProvider = page.NewLazyContentProvider(func() (page.ContentProvider, error) {
+			lcp = page.NewLazyContentProvider(func() (page.OutputFormatContentProvider, error) {
 				cp, err := newPageContentOutput(p, p.pageOutput)
 				if err != nil {
 					return nil, err
 				}
 				return cp, nil
 			})
+			p.pageOutput.ContentProvider = lcp
+			p.pageOutput.TableOfContentsProvider = lcp
+			p.pageOutput.PageRenderProvider = lcp
 		}
 	}
 
