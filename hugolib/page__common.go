@@ -64,7 +64,6 @@ type pageCommon struct {
 	maps.Scratcher
 	navigation.PageMenusProvider
 	page.AuthorProvider
-	page.PageRenderProvider
 	page.AlternativeOutputFormatsProvider
 	page.ChildCareProvider
 	page.FileProvider

@@ -86,7 +86,6 @@ func newPageBase(metaProvider *pageMeta) (*pageState, error) {
 	ps.Eqer = ps
 	ps.TranslationKeyProvider = ps
 	ps.ShortcodeInfoProvider = ps
-	ps.PageRenderProvider = ps
 	ps.AlternativeOutputFormatsProvider = ps
 
 	return ps, nil

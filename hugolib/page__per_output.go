@@ -24,6 +24,9 @@ import (
 	"unicode/utf8"
 
 	"github.com/gohugoio/hugo/identity"
+	"github.com/mitchellh/mapstructure"
+	"github.com/pkg/errors"
+	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 
@@ -94,7 +97,7 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 			}
 		}()
 
-		if err := po.initRenderHooks(); err != nil {
+		if err := po.cp.initRenderHooks(); err != nil {
 			return err
 		}
 
@@ -347,6 +350,145 @@ func (p *pageContentOutput) Truncated() bool {
 func (p *pageContentOutput) WordCount() int {
 	p.p.s.initInit(p.initPlain, p.p)
 	return p.wordCount
+}
+
+func (p *pageContentOutput) RenderString(args ...interface{}) (template.HTML, error) {
+	if len(args) < 1 || len(args) > 2 {
+		return "", errors.New("want 1 or 2 arguments")
+	}
+
+	var s string
+	opts := defaultRenderStringOpts
+	sidx := 1
+
+	if len(args) == 1 {
+		sidx = 0
+	} else {
+		m, ok := args[0].(map[string]interface{})
+		if !ok {
+			return "", errors.New("first argument must be a map")
+		}
+
+		if err := mapstructure.WeakDecode(m, &opts); err != nil {
+			return "", errors.WithMessage(err, "failed to decode options")
+		}
+	}
+
+	var err error
+	s, err = cast.ToStringE(args[sidx])
+	if err != nil {
+		return "", err
+	}
+
+	if err = p.initRenderHooks(); err != nil {
+		return "", err
+	}
+
+	conv := p.p.getContentConverter()
+	if opts.Markup != "" && opts.Markup != p.p.m.markup {
+		var err error
+		// TODO(bep) consider cache
+		conv, err = p.p.m.newContentConverter(p.p, opts.Markup, nil)
+		if err != nil {
+			return "", p.p.wrapError(err)
+		}
+	}
+
+	c, err := p.renderContentWithConverter(conv, []byte(s), false)
+	if err != nil {
+		return "", p.p.wrapError(err)
+	}
+
+	b := c.Bytes()
+
+	if opts.Display == "inline" {
+		// We may have to rethink this in the future when we get other
+		// renderers.
+		b = p.p.s.ContentSpec.TrimShortHTML(b)
+	}
+
+	return template.HTML(string(b)), nil
+}
+
+func (p *pageContentOutput) RenderWithTemplateInfo(info tpl.Info, layout ...string) (template.HTML, error) {
+	p.p.addDependency(info)
+	return p.Render(layout...)
+}
+
+func (p *pageContentOutput) Render(layout ...string) (template.HTML, error) {
+	templ, found, err := p.p.resolveTemplate(layout...)
+	if err != nil {
+		return "", p.p.wrapError(err)
+	}
+
+	if !found {
+		return "", nil
+	}
+
+	p.p.addDependency(templ.(tpl.Info))
+
+	// Make sure to send the *pageState and not the *pageContentOutput to the template.
+	res, err := executeToString(p.p.s.Tmpl(), templ, p.p)
+	if err != nil {
+		return "", p.p.wrapError(errors.Wrapf(err, "failed to execute template %q v", layout))
+	}
+	return template.HTML(res), nil
+}
+
+func (p *pageContentOutput) initRenderHooks() error {
+	if p == nil {
+		return nil
+	}
+
+	var initErr error
+
+	p.renderHooks.init.Do(func() {
+		ps := p.p
+
+		c := ps.getContentConverter()
+		if c == nil || !c.Supports(converter.FeatureRenderHooks) {
+			return
+		}
+
+		h, err := ps.createRenderHooks(p.f)
+		if err != nil {
+			initErr = err
+			return
+		}
+		p.renderHooks.hooks = h
+
+		if !p.renderHooksHaveVariants || h.IsZero() {
+			// Check if there is a different render hooks template
+			// for any of the other page output formats.
+			// If not, we can reuse this.
+			for _, po := range ps.pageOutputs {
+				if po.f.Name != p.f.Name {
+					h2, err := ps.createRenderHooks(po.f)
+					if err != nil {
+						initErr = err
+						return
+					}
+
+					if h2.IsZero() {
+						continue
+					}
+
+					if p.renderHooks.hooks.IsZero() {
+						p.renderHooks.hooks = h2
+					}
+
+					p.renderHooksHaveVariants = !h2.Eq(p.renderHooks.hooks)
+
+					if p.renderHooksHaveVariants {
+						break
+					}
+
+				}
+			}
+		}
+	})
+
+	return initErr
 }
 
 func (p *pageContentOutput) setAutoSummary() error {
