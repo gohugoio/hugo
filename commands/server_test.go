@@ -58,10 +58,14 @@ func TestServer(t *testing.T) {
 		c.Assert(err, qt.IsNil)
 	}()
 
-	// There is no way to know exactly when the server is ready for connections.
-	// We could improve by something like https://golang.org/pkg/net/http/httptest/#Server
-	// But for now, let us sleep and pray!
-	time.Sleep(2 * time.Second)
+	// Wait for the server to become ready or fail on timeout
+	k := time.NewTimer(5 * time.Second)
+	select {
+	case <-k.C:
+		t.Error("hugo server took too long to respond")
+	case <-scmd.ready:
+		break
+	}
 
 	resp, err := http.Get("http://localhost:1331/")
 	c.Assert(err, qt.IsNil)

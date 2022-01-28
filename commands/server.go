@@ -48,6 +48,9 @@ type serverCmd struct {
 	// Can be used to stop the server. Useful in tests
 	stop <-chan bool
 
+	// Sent to when the server is ready for connections. Used for testing
+	ready chan struct{}
+
 	disableLiveReload bool
 	navigateToChanged bool
 	renderToDisk      bool
@@ -68,8 +71,17 @@ func (b *commandsBuilder) newServerCmd() *serverCmd {
 	return b.newServerCmdSignaled(nil)
 }
 
+// newServerCmdSignaled takes a channel used to stop the server and returns
+// data required to run the hugo server command. Also returns a channel that
+// the command sends to when the server is ready.
 func (b *commandsBuilder) newServerCmdSignaled(stop <-chan bool) *serverCmd {
-	cc := &serverCmd{stop: stop}
+	cc := &serverCmd{
+		stop: stop,
+		// Buffered channel so the server can keep running without blocking
+		// on the receiver. We only expect a single receiver, the caller of
+		// newServerCmdSignaled.
+		ready: make(chan struct{}, 1),
+	}
 
 	cc.baseBuilderCmd = b.newBuilderCmd(&cobra.Command{
 		Use:     "server",
@@ -530,6 +542,8 @@ func (c *commandeer) serve(s *serverCmd) error {
 	}
 
 	jww.FEEDBACK.Println("Press Ctrl+C to stop")
+
+	s.ready <- struct{}{}
 
 	if s.stop != nil {
 		select {
