@@ -768,16 +768,20 @@ func (p *pageMeta) newContentConverter(ps *pageState, markup string, renderingCo
 
 	var id string
 	var filename string
+	var path string
 	if !p.f.IsZero() {
 		id = p.f.UniqueID()
 		filename = p.f.Filename()
+		path = p.f.Path()
+	} else {
+		path = p.Pathc()
 	}
 
 	cpp, err := cp.New(
 		converter.DocumentContext{
 			Document:        newPageForRenderHook(ps),
 			DocumentID:      id,
-			DocumentName:    p.File().Path(),
+			DocumentName:    path,
 			Filename:        filename,
 			ConfigOverrides: renderingConfigOverrides,
 		},

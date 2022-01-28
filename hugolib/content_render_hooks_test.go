@@ -18,6 +18,7 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/loggers"
 )
 
 func TestRenderHookEditNestedPartial(t *testing.T) {
@@ -483,4 +484,16 @@ func TestRenderStringOnListPage(t *testing.T) {
 	} {
 		b.AssertFileContent("public/"+filename, `<strong>Hello</strong>`)
 	}
+}
+
+// Issue 9433
+func TestRenderStringOnPageNotBackedByAFile(t *testing.T) {
+	t.Parallel()
+	logger := loggers.NewWarningLogger()
+	b := newTestSitesBuilder(t).WithLogger(logger).WithConfigFile("toml", `
+disableKinds = ["page", "section", "taxonomy", "term"]	
+`)
+	b.WithTemplates("index.html", `{{ .RenderString "**Hello**" }}`).WithContent("p1.md", "")
+	b.BuildE(BuildCfg{})
+	b.Assert(int(logger.LogCounters().WarnCounter.Count()), qt.Equals, 0)
 }
