@@ -46,7 +46,7 @@ import (
 
 type serverCmd struct {
 	// Can be used to stop the server. Useful in tests
-	stop <-chan bool
+	stop <-chan struct{}
 
 	// Sent to when the server is ready for connections. Used for testing
 	ready chan struct{}
@@ -74,7 +74,7 @@ func (b *commandsBuilder) newServerCmd() *serverCmd {
 // newServerCmdSignaled takes a channel used to stop the server and returns
 // data required to run the hugo server command. Also returns a channel that
 // the command sends to when the server is ready.
-func (b *commandsBuilder) newServerCmdSignaled(stop <-chan bool) *serverCmd {
+func (b *commandsBuilder) newServerCmdSignaled(stop <-chan struct{}) *serverCmd {
 	cc := &serverCmd{
 		stop: stop,
 		// Buffered channel so the server can keep running without blocking

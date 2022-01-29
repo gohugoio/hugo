@@ -45,7 +45,7 @@ func TestServer(t *testing.T) {
 		os.RemoveAll(dir)
 	}()
 
-	stop := make(chan bool)
+	stop := make(chan struct{})
 
 	b := newCommandsBuilder()
 	scmd := b.newServerCmdSignaled(stop)
@@ -76,7 +76,7 @@ func TestServer(t *testing.T) {
 	c.Assert(homeContent, qt.Contains, "Environment: development")
 
 	// Stop the server.
-	stop <- true
+	stop <- struct{}{}
 }
 
 func TestFixURL(t *testing.T) {
