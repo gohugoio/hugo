@@ -6,7 +6,7 @@ require (
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/alecthomas/chroma v0.9.4
 	github.com/armon/go-radix v1.0.0
-	github.com/aws/aws-sdk-go v1.41.14
+	github.com/aws/aws-sdk-go v1.42.44
 	github.com/bep/debounce v1.2.0
 	github.com/bep/gitmap v1.1.2
 	github.com/bep/godartsass v0.12.0
@@ -42,7 +42,7 @@ require (
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/niklasfasching/go-org v1.6.0
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/pelletier/go-toml/v2 v2.0.0-beta.3.0.20210727221244-fa0796069526
+	github.com/pelletier/go-toml/v2 v2.0.0-beta.6
 	github.com/pkg/errors v0.9.1
 	github.com/rogpeppe/go-internal v1.8.0
 	github.com/russross/blackfriday v1.6.0
@@ -60,7 +60,7 @@ require (
 	github.com/yuin/goldmark-highlighting v0.0.0-20200307114337-60d527fdb691
 	gocloud.dev v0.20.0
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
-	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d
+	golang.org/x/net v0.0.0-20211216030914-fe4d6282115f
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/text v0.3.7
 	google.golang.org/api v0.63.0
