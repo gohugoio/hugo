@@ -1,6 +1,7 @@
 module github.com/gohugoio/hugo
 
 require (
+	cloud.google.com/go/iam v0.1.1 // indirect
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
 	github.com/PuerkitoBio/purell v1.1.1
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
@@ -42,7 +43,7 @@ require (
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/niklasfasching/go-org v1.6.0
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/pelletier/go-toml/v2 v2.0.0-beta.3.0.20210727221244-fa0796069526
+	github.com/pelletier/go-toml/v2 v2.0.0-beta.6
 	github.com/pkg/errors v0.9.1
 	github.com/rogpeppe/go-internal v1.8.0
 	github.com/russross/blackfriday v1.6.0
@@ -63,7 +64,7 @@ require (
 	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/text v0.3.7
-	google.golang.org/api v0.63.0
+	google.golang.org/api v0.66.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
