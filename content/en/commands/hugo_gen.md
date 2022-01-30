@@ -33,7 +33,6 @@ A collection of several useful generators.
 ### SEE ALSO
 
 * [hugo](/commands/hugo/)	 - hugo builds your site
-* [hugo gen autocomplete](/commands/hugo_gen_autocomplete/)	 - Generate shell autocompletion script for Hugo
 * [hugo gen chromastyles](/commands/hugo_gen_chromastyles/)	 - Generate CSS stylesheet for the Chroma code highlighter
 * [hugo gen doc](/commands/hugo_gen_doc/)	 - Generate Markdown documentation for the Hugo CLI.
 * [hugo gen man](/commands/hugo_gen_man/)	 - Generate man pages for the Hugo CLI
