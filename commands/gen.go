@@ -31,7 +31,6 @@ func newGenCmd() *genCmd {
 	})
 
 	cc.cmd.AddCommand(
-		newGenautocompleteCmd().getCommand(),
 		newGenDocCmd().getCommand(),
 		newGenManCmd().getCommand(),
 		createGenDocsHelper().getCommand(),

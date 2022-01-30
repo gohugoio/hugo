@@ -65,7 +65,7 @@ parts:
       ldd hugo || :
 
       echo " * Building shell completion..."
-      ./hugo gen autocomplete --completionfile=hugo-completion
+      ./hugo completion bash > hugo-completion
 
       echo " * Installing to ${SNAPCRAFT_PART_INSTALL}..."
       install -d $SNAPCRAFT_PART_INSTALL/bin
