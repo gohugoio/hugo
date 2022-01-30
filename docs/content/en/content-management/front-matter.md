@@ -184,7 +184,7 @@ path
 : A [Glob](https://github.com/gobwas/glob) pattern matching the content path below /content. Expects Unix-styled slashes. Note that this is the virtual path, so it starts at the mount root. The matching support double-asterisks so you can match for patterns like `/blog/*/**` to match anything from the third level and down.
 
 kind
-: The Page's Kind, e.g. "section".
+: A Glob pattern matching the Page's Kind(s), e.g. "{home,section}".
 
 lang
 : A Glob pattern matching the Page's language, e.g. "{en,sv}".
