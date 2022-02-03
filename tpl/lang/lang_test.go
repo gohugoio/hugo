@@ -1,6 +1,7 @@
 package lang
 
 import (
+	"math"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -102,6 +103,13 @@ func TestFormatNumbers(t *testing.T) {
 		got, err := nsEn.FormatAccounting(2, "USD", 20000)
 		c.Assert(err, qt.IsNil)
 		c.Assert(got, qt.Equals, "$20,000.00")
+	})
+
+	c.Run("FormatUnit", func(c *qt.C) {
+		c.Parallel()
+		got, err := nsEn.FormatUnit(math.Pow10(10), 1000, []string{"", "K"})
+		c.Assert(err, qt.IsNil)
+		c.Assert(got, qt.Equals, "10000000.00 K")
 	})
 
 	c.Run("FormatFileSize", func(c *qt.C) {

@@ -267,7 +267,10 @@ func (ns *Namespace) FormatUnit(_amount, _base, _units interface{}) (result inte
 		return
 	}
 	units := cast.ToStringSlice(_units)
-	unit := math.Floor(math.Log(amount) / math.Log(base))
+	unit := math.Min(
+		math.Floor(math.Log(amount)/math.Log(base)),
+		float64(len(units)-1),
+	)
 	result = fmt.Sprintf("%.2f %s", amount/math.Pow(base, unit), units[int(unit)])
 	return
 }
