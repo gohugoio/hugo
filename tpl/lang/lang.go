@@ -268,13 +268,13 @@ func (ns *Namespace) FormatUnit(_amount, _base, _units interface{}) (result inte
 	}
 	units := cast.ToStringSlice(_units)
 	unit := math.Floor(math.Log(amount) / math.Log(base))
-	result = fmt.Sprintf("%g %s", amount/math.Pow(base, unit), units[int(unit)])
+	result = fmt.Sprintf("%.2f %s", amount/math.Pow(base, unit), units[int(unit)])
 	return
 }
 
 // FormatFileSize format file size on IEEE 1541-2002
-func (ns *Namespace) FormatFileSize(_amount interface{}) (result interface{}, err error) {
-	return ns.FormatUnit(_amount, 1024, []string{
+func (ns *Namespace) FormatFileSize(amount interface{}) (result interface{}, err error) {
+	return ns.FormatUnit(amount, 1024, []string{
 		"B",
 		"KiB", "MiB", "GiB", "TiB",
 		"PiB", "EiB", "ZiB", "YiB",

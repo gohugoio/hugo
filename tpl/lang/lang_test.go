@@ -3,9 +3,9 @@ package lang
 import (
 	"testing"
 
-	translators "github.com/gohugoio/localescompressed"
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
+	translators "github.com/gohugoio/localescompressed"
 )
 
 func TestNumFmt(t *testing.T) {
@@ -104,4 +104,10 @@ func TestFormatNumbers(t *testing.T) {
 		c.Assert(got, qt.Equals, "$20,000.00")
 	})
 
+	c.Run("FormatFileSize", func(c *qt.C) {
+		c.Parallel()
+		got, err := nsEn.FormatFileSize(1024<<8 + 512)
+		c.Assert(err, qt.IsNil)
+		c.Assert(got, qt.Equals, "256.50 KiB")
+	})
 }
