@@ -256,3 +256,27 @@ func (ns *Namespace) Merge(p2, p1 interface{}) (interface{}, error) {
 	}
 	return merger.MergeByLanguageInterface(p2)
 }
+
+// FormatUnit format any base unit
+func (ns *Namespace) FormatUnit(_amount, _base, _units interface{}) (result interface{}, err error) {
+	var amount, base float64
+	if amount, err = cast.ToFloat64E(_amount); err != nil {
+		return
+	}
+	if base, err = cast.ToFloat64E(_base); err != nil {
+		return
+	}
+	units := cast.ToStringSlice(_units)
+	unit := math.Floor(math.Log(amount) / math.Log(base))
+	result = fmt.Sprintf("%g %s", amount/math.Pow(base, unit), units[int(unit)])
+	return
+}
+
+// FormatFileSize format file size on IEEE 1541-2002
+func (ns *Namespace) FormatFileSize(_amount interface{}) (result interface{}, err error) {
+	return ns.FormatUnit(_amount, 1024, []string{
+		"B",
+		"KiB", "MiB", "GiB", "TiB",
+		"PiB", "EiB", "ZiB", "YiB",
+	})
+}
