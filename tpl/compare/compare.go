@@ -95,10 +95,7 @@ func (n *Namespace) Eq(first interface{}, others ...interface{}) bool {
 	if n.caseInsensitive {
 		panic("caseInsensitive not implemented for Eq")
 	}
-	if len(others) == 0 {
-		panic("missing arguments for comparison")
-	}
-
+	n.checkComparisonArgCount(1, others...)
 	normalize := func(v interface{}) interface{} {
 		if types.IsNil(v) {
 			return nil
@@ -145,6 +142,7 @@ func (n *Namespace) Eq(first interface{}, others ...interface{}) bool {
 
 // Ne returns the boolean truth of arg1 != arg2 && arg1 != arg3 && arg1 != arg4.
 func (n *Namespace) Ne(first interface{}, others ...interface{}) bool {
+	n.checkComparisonArgCount(1, others...)
 	for _, other := range others {
 		if n.Eq(first, other) {
 			return false
@@ -155,6 +153,7 @@ func (n *Namespace) Ne(first interface{}, others ...interface{}) bool {
 
 // Ge returns the boolean truth of arg1 >= arg2 && arg1 >= arg3 && arg1 >= arg4.
 func (n *Namespace) Ge(first interface{}, others ...interface{}) bool {
+	n.checkComparisonArgCount(1, others...)
 	for _, other := range others {
 		left, right := n.compareGet(first, other)
 		if !(left >= right) {
@@ -166,6 +165,7 @@ func (n *Namespace) Ge(first interface{}, others ...interface{}) bool {
 
 // Gt returns the boolean truth of arg1 > arg2 && arg1 > arg3 && arg1 > arg4.
 func (n *Namespace) Gt(first interface{}, others ...interface{}) bool {
+	n.checkComparisonArgCount(1, others...)
 	for _, other := range others {
 		left, right := n.compareGet(first, other)
 		if !(left > right) {
@@ -177,6 +177,7 @@ func (n *Namespace) Gt(first interface{}, others ...interface{}) bool {
 
 // Le returns the boolean truth of arg1 <= arg2 && arg1 <= arg3 && arg1 <= arg4.
 func (n *Namespace) Le(first interface{}, others ...interface{}) bool {
+	n.checkComparisonArgCount(1, others...)
 	for _, other := range others {
 		left, right := n.compareGet(first, other)
 		if !(left <= right) {
@@ -188,11 +189,19 @@ func (n *Namespace) Le(first interface{}, others ...interface{}) bool {
 
 // Lt returns the boolean truth of arg1 < arg2 && arg1 < arg3 && arg1 < arg4.
 func (n *Namespace) Lt(first interface{}, others ...interface{}) bool {
+	n.checkComparisonArgCount(1, others...)
 	for _, other := range others {
 		left, right := n.compareGet(first, other)
 		if !(left < right) {
 			return false
 		}
+	}
+	return true
+}
+
+func (n *Namespace) checkComparisonArgCount(min int, others ...interface{}) bool {
+	if len(others) < min {
+		panic("missing arguments for comparison")
 	}
 	return true
 }

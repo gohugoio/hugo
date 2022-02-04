@@ -440,3 +440,20 @@ func TestConditional(t *testing.T) {
 	c.Assert(n.Conditional(true, a, b), qt.Equals, a)
 	c.Assert(n.Conditional(false, a, b), qt.Equals, b)
 }
+
+// Issue 9462
+func TestComparisonArgCount(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New(false)
+
+	panicMsg := "missing arguments for comparison"
+
+	c.Assert(func() { ns.Eq(1) }, qt.PanicMatches, panicMsg)
+	c.Assert(func() { ns.Ge(1) }, qt.PanicMatches, panicMsg)
+	c.Assert(func() { ns.Gt(1) }, qt.PanicMatches, panicMsg)
+	c.Assert(func() { ns.Le(1) }, qt.PanicMatches, panicMsg)
+	c.Assert(func() { ns.Lt(1) }, qt.PanicMatches, panicMsg)
+	c.Assert(func() { ns.Ne(1) }, qt.PanicMatches, panicMsg)
+}
