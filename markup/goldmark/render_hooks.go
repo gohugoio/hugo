@@ -161,7 +161,8 @@ func renderAttributes(w util.BufWriter, skipClass bool, attributes ...ast.Attrib
 			continue
 		}
 
-		if attributeExcludes[string(attr.Name)] {
+		a := strings.ToLower(string(attr.Name))
+		if attributeExcludes[a] || strings.HasPrefix(a, "on") {
 			continue
 		}
 
