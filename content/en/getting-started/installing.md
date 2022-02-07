@@ -500,7 +500,7 @@ sudo pacman -Syu hugo
 
 ### Fedora, Red Hat and CentOS
 
-Fedora maintains an [official package for Hugo](https://apps.fedoraproject.org/packages/hugo) which may be installed with:
+Fedora maintains an [official package for Hugo](https://packages.fedoraproject.org/pkgs/hugo/hugo) which may be installed with:
 
     sudo dnf install hugo
 
