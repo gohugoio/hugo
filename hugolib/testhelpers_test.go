@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image/jpeg"
 	"io"
+	"io/fs"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -700,6 +701,34 @@ func (s *sitesBuilder) AssertFileContentFn(filename string, f func(s string) boo
 	if !f(content) {
 		s.Fatalf("Assert failed for %q in content\n%s", filename, content)
 	}
+}
+
+// Helper to migrate tests to new format.
+func (s *sitesBuilder) DumpTxtar() string {
+	var sb strings.Builder
+
+	skipRe := regexp.MustCompile(`^(public|resources|package-lock.json|go.sum)`)
+
+	afero.Walk(s.Fs.Source, s.workingDir, func(path string, info fs.FileInfo, err error) error {
+		rel := strings.TrimPrefix(path, s.workingDir+"/")
+		if skipRe.MatchString(rel) {
+			if info.IsDir() {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if info == nil || info.IsDir() {
+			return nil
+		}
+		sb.WriteString(fmt.Sprintf("-- %s --\n", rel))
+		b, err := afero.ReadFile(s.Fs.Source, path)
+		s.Assert(err, qt.IsNil)
+		sb.WriteString(strings.TrimSpace(string(b)))
+		sb.WriteString("\n")
+		return nil
+	})
+
+	return sb.String()
 }
 
 func (s *sitesBuilder) AssertHome(matches ...string) {
