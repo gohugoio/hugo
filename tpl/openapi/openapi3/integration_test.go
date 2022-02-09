@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2021 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,15 +11,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hugolib
+package openapi3_test
 
 import (
 	"strings"
 	"testing"
+
+	"github.com/gohugoio/hugo/hugolib"
+
+	qt "github.com/frankban/quicktest"
 )
 
-func TestOpenAPI3(t *testing.T) {
-	const openapi3Yaml = `openapi: 3.0.0
+func TestUnmarshal(t *testing.T) {
+	c := qt.New(t)
+
+	files := `
+-- assets/api/myapi.yaml --
+openapi: 3.0.0
 info:
   title: Sample API
   description: Optional multiline or single-line description in [CommonMark](http://commonmark.org/help/) or HTML.
@@ -43,26 +51,26 @@ paths:
                 type: array
                 items: 
                   type: string
-`
-
-	b := newTestSitesBuilder(t).Running()
-	b.WithSourceFile("assets/api/myapi.yaml", openapi3Yaml)
-
-	b.WithTemplatesAdded("index.html", `
+-- config.toml --
+baseURL = 'http://example.com/'
+-- layouts/index.html --
 {{ $api := resources.Get "api/myapi.yaml" | openapi3.Unmarshal }}
-
 API: {{ $api.Info.Title | safeHTML }}
+  `
 
-
-`)
-
-	b.Build(BuildCfg{})
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           c,
+			Running:     true,
+			TxtarString: files,
+		},
+	).Build()
 
 	b.AssertFileContent("public/index.html", `API: Sample API`)
 
-	b.EditFiles("assets/api/myapi.yaml", strings.Replace(openapi3Yaml, "Sample API", "Hugo API", -1))
-
-	b.Build(BuildCfg{})
+	b.
+		EditFileReplace("assets/api/myapi.yaml", func(s string) string { return strings.ReplaceAll(s, "Sample API", "Hugo API") }).
+		Build()
 
 	b.AssertFileContent("public/index.html", `API: Hugo API`)
 }
