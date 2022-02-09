@@ -117,6 +117,7 @@ func (h *HugoSites) getContentMaps() *pageMaps {
 // Only used in tests.
 type testCounters struct {
 	contentRenderCounter uint64
+	pageRenderCounter    uint64
 }
 
 func (h *testCounters) IncrContentRender() {
@@ -124,6 +125,13 @@ func (h *testCounters) IncrContentRender() {
 		return
 	}
 	atomic.AddUint64(&h.contentRenderCounter, 1)
+}
+
+func (h *testCounters) IncrPageRender() {
+	if h == nil {
+		return
+	}
+	atomic.AddUint64(&h.pageRenderCounter, 1)
 }
 
 type fatalErrorHandler struct {
