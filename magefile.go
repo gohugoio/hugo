@@ -1,3 +1,4 @@
+//go:build mage
 // +build mage
 
 package main
@@ -79,7 +80,7 @@ func flagEnv() map[string]string {
 // Generate autogen packages
 func Generate() error {
 	generatorPackages := []string{
-		"tpl/tplimpl/embedded/generate",
+		//"tpl/tplimpl/embedded/generate",
 		//"resources/page/generate",
 	}
 
