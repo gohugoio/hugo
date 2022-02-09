@@ -1719,6 +1719,7 @@ func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath st
 
 func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath string, p *pageState, templ tpl.Template) error {
 	s.Log.Debugf("Render %s to %q", name, targetPath)
+	s.h.IncrPageRender()
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 
