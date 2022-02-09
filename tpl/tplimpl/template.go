@@ -14,7 +14,10 @@
 package tplimpl
 
 import (
+	"bytes"
+	"embed"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -39,8 +42,6 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/pkg/errors"
-
-	"github.com/gohugoio/hugo/tpl/tplimpl/embedded"
 
 	htmltemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
@@ -664,12 +665,29 @@ func (t *templateHandler) extractIdentifiers(line string) []string {
 	return identifiers
 }
 
+//go:embed embedded/templates/*
+var embededTemplatesFs embed.FS
+
 func (t *templateHandler) loadEmbedded() error {
-	for _, kv := range embedded.EmbeddedTemplates {
-		name, templ := kv[0], kv[1]
+	return fs.WalkDir(embededTemplatesFs, ".", func(path string, d fs.DirEntry, err error) error {
+		if d == nil || d.IsDir() {
+			return nil
+		}
+
+		templb, err := embededTemplatesFs.ReadFile(path)
+		if err != nil {
+			return err
+		}
+
+		// Get the newlines on Windows in line with how we had it back when we used Go Generate
+		// to write the templates to Go files.
+		templ := string(bytes.ReplaceAll(templb, []byte("\r\n"), []byte("\n")))
+		name := strings.TrimPrefix(filepath.ToSlash(path), "embedded/templates/")
+
 		if err := t.AddTemplate(internalPathPrefix+name, templ); err != nil {
 			return err
 		}
+
 		if aliases, found := embeddedTemplatesAliases[name]; found {
 			// TODO(bep) avoid reparsing these aliases
 			for _, alias := range aliases {
@@ -679,8 +697,9 @@ func (t *templateHandler) loadEmbedded() error {
 				}
 			}
 		}
-	}
-	return nil
+
+		return nil
+	})
 }
 
 func (t *templateHandler) loadTemplates() error {
