@@ -713,32 +713,6 @@ JSON: {{ $json.RelPermalink }}: {{ $json.Content }}
 		"JSONS: 2", "/jsons/data1.json: json1 content")
 }
 
-func TestExecuteAsTemplateWithLanguage(t *testing.T) {
-	b := newMultiSiteTestDefaultBuilder(t)
-	indexContent := `
-Lang: {{ site.Language.Lang }}
-{{ $templ := "{{T \"hello\"}}" | resources.FromString "f1.html" }}
-{{ $helloResource := $templ | resources.ExecuteAsTemplate (print "f%s.html" .Lang) . }}
-Hello1: {{T "hello"}}
-Hello2: {{ $helloResource.Content }}
-LangURL: {{ relLangURL "foo" }}
-`
-	b.WithTemplatesAdded("index.html", indexContent)
-	b.WithTemplatesAdded("index.fr.html", indexContent)
-
-	b.Build(BuildCfg{})
-
-	b.AssertFileContent("public/en/index.html", `
-Hello1: Hello
-Hello2: Hello
-`)
-
-	b.AssertFileContent("public/fr/index.html", `
-Hello1: Bonjour
-Hello2: Bonjour
-`)
-}
-
 func TestResourceChainPostCSS(t *testing.T) {
 	if !htesting.IsCI() {
 		t.Skip("skip (relative) long running modules test when running locally")
