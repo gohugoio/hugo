@@ -14,7 +14,6 @@
 package hugolib
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -27,18 +26,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gohugoio/hugo/config"
-
-	jww "github.com/spf13/jwalterweatherman"
-
-	"github.com/gohugoio/hugo/common/herrors"
-
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/htesting"
 
 	qt "github.com/frankban/quicktest"
-
-	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/scss"
@@ -711,194 +701,6 @@ JSON: {{ $json.RelPermalink }}: {{ $json.Content }}
 	b.AssertFileContent("public/index.html",
 		"JSON: /jsons/data1.json: json1 content",
 		"JSONS: 2", "/jsons/data1.json: json1 content")
-}
-
-func TestResourceChainPostCSS(t *testing.T) {
-	if !htesting.IsCI() {
-		t.Skip("skip (relative) long running modules test when running locally")
-	}
-
-	wd, _ := os.Getwd()
-	defer func() {
-		os.Chdir(wd)
-	}()
-
-	c := qt.New(t)
-
-	packageJSON := `{
-  "scripts": {},
-
-  "devDependencies": {
-    "postcss-cli": "7.1.0",
-    "tailwindcss": "1.2.0"
-  }
-}
-`
-
-	postcssConfig := `
-console.error("Hugo Environment:", process.env.HUGO_ENVIRONMENT );
-// https://github.com/gohugoio/hugo/issues/7656
-console.error("package.json:", process.env.HUGO_FILE_PACKAGE_JSON );
-console.error("PostCSS Config File:", process.env.HUGO_FILE_POSTCSS_CONFIG_JS );
-
-
-module.exports = {
-  plugins: [
-    require('tailwindcss')
-  ]
-}
-`
-
-	tailwindCss := `
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@import "components/all.css";
-
-h1 {
-    @apply text-2xl font-bold;
-}
-  
-`
-
-	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-test-postcss")
-	c.Assert(err, qt.IsNil)
-	defer clean()
-
-	var logBuf bytes.Buffer
-
-	newTestBuilder := func(v config.Provider) *sitesBuilder {
-		v.Set("workingDir", workDir)
-		v.Set("disableKinds", []string{"taxonomy", "term", "page"})
-		logger := loggers.NewBasicLoggerForWriter(jww.LevelInfo, &logBuf)
-		b := newTestSitesBuilder(t).WithLogger(logger)
-		// Need to use OS fs for this.
-		b.Fs = hugofs.NewDefault(v)
-		b.WithWorkingDir(workDir)
-		b.WithViper(v)
-
-		b.WithContent("p1.md", "")
-		b.WithTemplates("index.html", `
-{{ $options := dict "inlineImports" true }}
-{{ $styles := resources.Get "css/styles.css" | resources.PostCSS $options }}
-Styles RelPermalink: {{ $styles.RelPermalink }}
-{{ $cssContent := $styles.Content }}
-Styles Content: Len: {{ len $styles.Content }}|
-
-`)
-
-		return b
-	}
-
-	b := newTestBuilder(config.New())
-
-	cssDir := filepath.Join(workDir, "assets", "css", "components")
-	b.Assert(os.MkdirAll(cssDir, 0777), qt.IsNil)
-
-	b.WithSourceFile("assets/css/styles.css", tailwindCss)
-	b.WithSourceFile("assets/css/components/all.css", `
-@import "a.css";
-@import "b.css";
-`, "assets/css/components/a.css", `
-class-in-a {
-	color: blue;
-}
-`, "assets/css/components/b.css", `
-@import "a.css";
-
-class-in-b {
-	color: blue;
-}
-`)
-
-	b.WithSourceFile("package.json", packageJSON)
-	b.WithSourceFile("postcss.config.js", postcssConfig)
-
-	b.Assert(os.Chdir(workDir), qt.IsNil)
-	cmd := b.NpmInstall()
-	err = cmd.Run()
-	b.Assert(err, qt.IsNil)
-	b.Build(BuildCfg{})
-
-	// Make sure Node sees this.
-	b.Assert(logBuf.String(), qt.Contains, "Hugo Environment: production")
-	b.Assert(logBuf.String(), qt.Contains, filepath.FromSlash(fmt.Sprintf("PostCSS Config File: %s/postcss.config.js", workDir)))
-	b.Assert(logBuf.String(), qt.Contains, filepath.FromSlash(fmt.Sprintf("package.json: %s/package.json", workDir)))
-
-	b.AssertFileContent("public/index.html", `
-Styles RelPermalink: /css/styles.css
-Styles Content: Len: 770878|
-`)
-
-	assertCss := func(b *sitesBuilder) {
-		content := b.FileContent("public/css/styles.css")
-
-		b.Assert(strings.Contains(content, "class-in-a"), qt.Equals, true)
-		b.Assert(strings.Contains(content, "class-in-b"), qt.Equals, true)
-	}
-
-	assertCss(b)
-
-	build := func(s string, shouldFail bool) error {
-		b.Assert(os.RemoveAll(filepath.Join(workDir, "public")), qt.IsNil)
-
-		v := config.New()
-		v.Set("build", map[string]interface{}{
-			"useResourceCacheWhen": s,
-		})
-
-		b = newTestBuilder(v)
-
-		b.Assert(os.RemoveAll(filepath.Join(workDir, "public")), qt.IsNil)
-
-		err := b.BuildE(BuildCfg{})
-		if shouldFail {
-			b.Assert(err, qt.Not(qt.IsNil))
-		} else {
-			b.Assert(err, qt.IsNil)
-			assertCss(b)
-		}
-
-		return err
-	}
-
-	build("always", false)
-	build("fallback", false)
-
-	// Introduce a syntax error in an import
-	b.WithSourceFile("assets/css/components/b.css", `@import "a.css";
-
-class-in-b {
-	@apply asdf;
-}
-`)
-
-	err = build("never", true)
-
-	err = herrors.UnwrapErrorWithFileContext(err)
-	_, ok := err.(*herrors.ErrorWithFileContext)
-	b.Assert(ok, qt.Equals, true)
-
-	// TODO(bep) for some reason, we have starting to get
-	// execute of template failed: template: index.html:5:25
-	// on CI (GitHub action).
-	// b.Assert(fe.Position().LineNumber, qt.Equals, 5)
-	// b.Assert(fe.Error(), qt.Contains, filepath.Join(workDir, "assets/css/components/b.css:4:1"))
-
-	// Remove PostCSS
-	b.Assert(os.RemoveAll(filepath.Join(workDir, "node_modules")), qt.IsNil)
-
-	build("always", false)
-	build("fallback", false)
-	build("never", true)
-
-	// Remove cache
-	b.Assert(os.RemoveAll(filepath.Join(workDir, "resources")), qt.IsNil)
-
-	build("always", true)
-	build("fallback", true)
-	build("never", true)
 }
 
 func TestResourceMinifyDisabled(t *testing.T) {
