@@ -869,7 +869,7 @@ func (c *commandeer) newWatcher(pollIntervalStr string, dirList ...string) (*wat
 		for {
 			select {
 			case evs := <-watcher.Events:
-				unlock, err := c.hugo().BaseFs.LockBuild()
+				unlock, err := c.buildLock()
 				if err != nil {
 					c.logger.Errorln("Failed to acquire a build lock: %s", err)
 					return
