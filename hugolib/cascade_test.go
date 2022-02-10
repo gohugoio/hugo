@@ -52,6 +52,43 @@ func BenchmarkCascade(b *testing.B) {
 	}
 }
 
+func BenchmarkCascadeTarget(b *testing.B) {
+	files := `
+-- content/_index.md --
+background = 'yosemite.jpg'
+[cascade._target]
+kind = '{section,term}'
+-- content/posts/_index.md --
+-- content/posts/funny/_index.md --
+`
+
+	for i := 1; i < 100; i++ {
+		files += "\n-- content/posts/p1.md --\n"
+	}
+
+	for i := 1; i < 100; i++ {
+		files += "\n-- content/posts/funny/pf1.md --\n"
+	}
+
+	b.Run("Kind", func(b *testing.B) {
+		cfg := IntegrationTestConfig{
+			T:           b,
+			TxtarString: files,
+		}
+		builders := make([]*IntegrationTestBuilder, b.N)
+
+		for i, _ := range builders {
+			builders[i] = NewIntegrationTestBuilder(cfg)
+		}
+
+		b.ResetTimer()
+
+		for i := 0; i < b.N; i++ {
+			builders[i].Build()
+		}
+	})
+}
+
 func TestCascadeConfig(t *testing.T) {
 	c := qt.New(t)
 
@@ -106,13 +143,10 @@ cascade:
 					"draft":         bool(false),
 					"iscjklanguage": bool(false),
 				})
-
 			}
-
 		})
 
 	}
-
 }
 
 func TestCascade(t *testing.T) {
