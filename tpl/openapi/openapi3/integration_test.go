@@ -18,12 +18,10 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/hugolib"
-
-	qt "github.com/frankban/quicktest"
 )
 
 func TestUnmarshal(t *testing.T) {
-	c := qt.New(t)
+	t.Parallel()
 
 	files := `
 -- assets/api/myapi.yaml --
@@ -60,7 +58,7 @@ API: {{ $api.Info.Title | safeHTML }}
 
 	b := hugolib.NewIntegrationTestBuilder(
 		hugolib.IntegrationTestConfig{
-			T:           c,
+			T:           t,
 			Running:     true,
 			TxtarString: files,
 		},

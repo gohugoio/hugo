@@ -16,7 +16,6 @@ package babel_test
 import (
 	"testing"
 
-	qt "github.com/frankban/quicktest"
 	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/gohugoio/hugo/htesting"
@@ -27,8 +26,6 @@ func TestTransformBabel(t *testing.T) {
 	if !htesting.IsCI() {
 		t.Skip("Skip long running test when running locally")
 	}
-
-	c := qt.New(t)
 
 	files := `
 -- assets/js/main.js --
@@ -81,7 +78,7 @@ Transpiled3: {{ $transpiled.Permalink }}
 
 	b := hugolib.NewIntegrationTestBuilder(
 		hugolib.IntegrationTestConfig{
-			T:               c,
+			T:               t,
 			TxtarString:     files,
 			NeedsOsFS:       true,
 			NeedsNpmInstall: true,
