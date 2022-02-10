@@ -16,13 +16,11 @@ package templates_test
 import (
 	"testing"
 
-	qt "github.com/frankban/quicktest"
-
 	"github.com/gohugoio/hugo/hugolib"
 )
 
 func TestExecuteAsTemplateMultipleLanguages(t *testing.T) {
-	c := qt.New(t)
+	t.Parallel()
 
 	files := `
 -- config.toml --
@@ -63,7 +61,7 @@ LangURL: {{ relLangURL "foo" }}
 
 	b := hugolib.NewIntegrationTestBuilder(
 		hugolib.IntegrationTestConfig{
-			T:           c,
+			T:           t,
 			TxtarString: files,
 		}).Build()
 

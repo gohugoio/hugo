@@ -16,8 +16,6 @@ package dartsass_test
 import (
 	"testing"
 
-	qt "github.com/frankban/quicktest"
-
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/dartsass"
 )
@@ -26,8 +24,6 @@ func TestTransformIncludePaths(t *testing.T) {
 	if !dartsass.Supports() {
 		t.Skip()
 	}
-
-	c := qt.New(t)
 
 	files := `
 -- assets/scss/main.scss --
@@ -47,7 +43,7 @@ T1: {{ $r.Content }}
 
 	b := hugolib.NewIntegrationTestBuilder(
 		hugolib.IntegrationTestConfig{
-			T:           c,
+			T:           t,
 			TxtarString: files,
 			NeedsOsFS:   true,
 		}).Build()
@@ -59,7 +55,6 @@ func TestTransformImportRegularCSS(t *testing.T) {
 	if !dartsass.Supports() {
 		t.Skip()
 	}
-	c := qt.New(t)
 
 	files := `
 -- assets/scss/_moo.scss --
@@ -88,7 +83,7 @@ T1: {{ $r.Content | safeHTML }}
 
 	b := hugolib.NewIntegrationTestBuilder(
 		hugolib.IntegrationTestConfig{
-			T:           c,
+			T:           t,
 			TxtarString: files,
 			NeedsOsFS:   true,
 		},
@@ -113,8 +108,6 @@ func TestTransformThemeOverrides(t *testing.T) {
 	if !dartsass.Supports() {
 		t.Skip()
 	}
-
-	c := qt.New(t)
 
 	files := `
 -- assets/scss/components/_boo.scss --
@@ -163,7 +156,7 @@ zoo {
 
 	b := hugolib.NewIntegrationTestBuilder(
 		hugolib.IntegrationTestConfig{
-			T:           c,
+			T:           t,
 			TxtarString: files,
 			NeedsOsFS:   true,
 		},
