@@ -68,7 +68,6 @@ hugo [flags]
 
 ### SEE ALSO
 
-* [hugo check](/commands/hugo_check/)	 - Contains some verification checks
 * [hugo completion](/commands/hugo_completion/)	 - generate the autocompletion script for the specified shell
 * [hugo config](/commands/hugo_config/)	 - Print the site configuration
 * [hugo convert](/commands/hugo_convert/)	 - Convert your content to different formats
