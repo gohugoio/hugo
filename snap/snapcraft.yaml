@@ -8,7 +8,7 @@ description: |
 license: "Apache-2.0"
 base: core20
 confinement: strict
-grade: devel # "devel" or "stable"
+grade: stable # "devel" or "stable"
 
 package-repositories:
   - type: apt
