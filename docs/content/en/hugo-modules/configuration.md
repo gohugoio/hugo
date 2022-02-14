@@ -42,7 +42,7 @@ private
 : Comma separated glob list matching paths that should be treated as private.
 
 replacements {{< new-in "0.77.0" >}}
-: A comma separated (or a slice) list of module path to directory replacement mapping, e.g. `"github.com/bep/myprettytheme -> ../..,github.com/bep/shortcodes -> /some/path`. This is mostly useful for temporary locally development of a module, and then it makes sense to set it as an OS environment variable, e.g: `env HUGO_MODULE_REPLACEMENTS="github.com/bep/myprettytheme -> ../.."`. Any relative path is relate to [themesDir](https://gohugo.io/getting-started/configuration/#all-configuration-settings), and absolute paths are allowed.
+: A comma separated (or a slice) list of module path to directory replacement mapping, e.g. `github.com/bep/myprettytheme -> ../..,github.com/bep/shortcodes -> /some/path`. This is mostly useful for temporary locally development of a module, and then it makes sense to set it as an OS environment variable, e.g: `env HUGO_MODULE_REPLACEMENTS="github.com/bep/myprettytheme -> ../.."`. Any relative path is relate to [themesDir](https://gohugo.io/getting-started/configuration/#all-configuration-settings), and absolute paths are allowed.
 
 Note that the above terms maps directly to their counterparts in Go Modules. Some of these setting may be natural to set as OS environment variables. To set the proxy server to use, as an example:
 
