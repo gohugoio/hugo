@@ -154,7 +154,7 @@ description
 	c.Assert(got, qt.Contains, `<h2 id="神真美好-2">神真美好</h2>`, qt.Commentf(got))
 
 	// Code fences
-	c.Assert(got, qt.Contains, "<div class=\"highlight\"><pre tabindex=\"0\" class=\"chroma\"><code class=\"language-bash\" data-lang=\"bash\">LINE1\n</code></pre></div>")
+	c.Assert(got, qt.Contains, "<div class=\"highlight\"><pre tabindex=\"0\" class=\"chroma\"><code class=\"language-bash\" data-lang=\"bash\"><span class=\"line\"><span class=\"cl\">LINE1\n</span></span></code></pre></div>")
 	c.Assert(got, qt.Contains, "Code Fences No Lexer</h2>\n<pre tabindex=\"0\"><code class=\"language-moo\" data-lang=\"moo\">LINE1\n</code></pre>")
 
 	// Extensions
@@ -263,8 +263,10 @@ func TestConvertAttributes(t *testing.T) {
 				conf.Highlight.CodeFences = true
 			},
 			"```bash {linenos=table .myclass id=\"myid\"}\necho 'foo';\n````\n{ .adfadf }",
-			[]string{"div class=\"highlight myclass\" id=\"myid\"><div s",
-				"table style"},
+			[]string{
+				"div class=\"highlight myclass\" id=\"myid\"><div s",
+				"table style",
+			},
 		},
 		{
 			"Paragraph",
@@ -326,10 +328,8 @@ func TestConvertAttributes(t *testing.T) {
 			for _, s := range cast.ToStringSlice(test.expect) {
 				c.Assert(got, qt.Contains, s)
 			}
-
 		})
 	}
-
 }
 
 func TestConvertIssues(t *testing.T) {
@@ -389,8 +389,7 @@ LINE5
 
 		result := convertForConfig(c, cfg, `echo "Hugo Rocks!"`, "bash")
 		// TODO(bep) there is a whitespace mismatch (\n) between this and the highlight template func.
-		c.Assert(result, qt.Equals, `<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">echo</span> <span class="s2">&#34;Hugo Rocks!&#34;</span>
-</code></pre></div>`)
+		c.Assert(result, qt.Equals, "<div class=\"highlight\"><pre tabindex=\"0\" class=\"chroma\"><code class=\"language-bash\" data-lang=\"bash\"><span class=\"line\"><span class=\"cl\"><span class=\"nb\">echo</span> <span class=\"s2\">&#34;Hugo Rocks!&#34;</span>\n</span></span></code></pre></div>")
 		result = convertForConfig(c, cfg, `echo "Hugo Rocks!"`, "unknown")
 		c.Assert(result, qt.Equals, "<pre tabindex=\"0\"><code class=\"language-unknown\" data-lang=\"unknown\">echo &quot;Hugo Rocks!&quot;\n</code></pre>")
 	})
@@ -404,7 +403,7 @@ LINE5
 		c.Assert(result, qt.Contains, "<span class=\"hl\"><span class=\"lnt\">4")
 
 		result = convertForConfig(c, cfg, lines, "bash {linenos=inline,hl_lines=[2]}")
-		c.Assert(result, qt.Contains, "<span class=\"ln\">2</span>LINE2\n</span>")
+		c.Assert(result, qt.Contains, "<span class=\"ln\">2</span><span class=\"cl\">LINE2\n</span></span>")
 		c.Assert(result, qt.Not(qt.Contains), "<table")
 
 		result = convertForConfig(c, cfg, lines, "bash {linenos=true,hl_lines=[2]}")
@@ -431,7 +430,7 @@ LINE5
 		cfg.LineNumbersInTable = false
 
 		result := convertForConfig(c, cfg, lines, "bash")
-		c.Assert(result, qt.Contains, "<span class=\"ln\">2</span>LINE2\n<")
+		c.Assert(result, qt.Contains, "<span class=\"ln\">2</span><span class=\"cl\">LINE2\n</span>")
 		result = convertForConfig(c, cfg, lines, "bash {linenos=table}")
 		c.Assert(result, qt.Contains, "<span class=\"lnt\">1\n</span>")
 	})
@@ -454,6 +453,6 @@ LINE5
 		cfg.LineNumbersInTable = false
 
 		result := convertForConfig(c, cfg, lines, "")
-		c.Assert(result, qt.Contains, "<span class=\"ln\">2</span>LINE2\n<")
+		c.Assert(result, qt.Contains, "<span class=\"ln\">2</span><span class=\"cl\">LINE2\n</span></span>")
 	})
 }

@@ -1914,8 +1914,8 @@ Link with URL as text
 	b.AssertFileContent("public/page/index.html",
 		`<nav id="TableOfContents">
 <li><a href="#shortcode-t-short-in-header">Shortcode T-SHORT in header</a></li>
-<code class="language-bash" data-lang="bash"><span class="hl">SHORT
-<code class="language-bash" data-lang="bash"><span class="hl">MARKDOWN
+<code class="language-bash" data-lang="bash"><span class="line hl"><span class="cl">SHORT
+<code class="language-bash" data-lang="bash"><span class="line hl"><span class="cl">MARKDOWN
 <p><a href="https://google.com">https://google.com</a></p>
 `)
 }
