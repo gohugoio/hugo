@@ -58,6 +58,7 @@ hugo server [flags]
       --noChmod                don't sync permission mode of files
       --noHTTPCache            prevent HTTP caching
       --noTimes                don't sync modification time of files
+      --panicOnWarning         panic on first WARNING log
       --path-warnings          print warnings on duplicate target paths etc.
       --poll string            set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes
   -p, --port int               port on which the server will listen (default 1313)
@@ -77,7 +78,6 @@ hugo server [flags]
       --configDir string           config dir (default "config")
       --debug                      debug output
   -e, --environment string         build environment
-      --ignoreVendor               ignores any _vendor directory
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --log                        enable Logging
       --logFile string             log File path (if set, logging enabled automatically)

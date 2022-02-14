@@ -9,7 +9,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-keywords: [filtering,lists]
+keywords: [collections,intersect,union,complement]
 signature: ["union SET1 SET2"]
 workson: []
 hugoversion: 0.20

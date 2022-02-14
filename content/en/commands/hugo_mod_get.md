@@ -30,7 +30,7 @@ Install the latest versions of all module dependencies:
 Run "go help get" for more information. All flags available for "go get" is also relevant here.
 
 Note that Hugo will always start out by resolving the components defined in the site
-configuration, provided by a _vendor directory (if no --ignoreVendor flag provided),
+configuration, provided by a _vendor directory (if no --ignoreVendorPaths flag provided),
 Go Modules, or a folder inside the themes directory, in that order.
 
 See https://gohugo.io/hugo-modules/ for more information.
@@ -54,7 +54,6 @@ hugo mod get [flags]
       --configDir string           config dir (default "config")
       --debug                      debug output
   -e, --environment string         build environment
-      --ignoreVendor               ignores any _vendor directory
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --log                        enable Logging
       --logFile string             log File path (if set, logging enabled automatically)

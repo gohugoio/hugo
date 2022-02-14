@@ -33,26 +33,25 @@ This allows a theme's end user to copy a partial's contents into a file of the s
 
 All partials for your Hugo project are located in a single `layouts/partials` directory. For better organization, you can create multiple subdirectories within `partials` as well:
 
-```
-.
-└── layouts
-    └── partials
-        ├── footer
-        │   ├── scripts.html
-        │   └── site-footer.html
-        ├── head
-        │   ├── favicons.html
-        │   ├── metadata.html
-        │   ├── prerender.html
-        │   └── twitter.html
-        └── header
-            ├── site-header.html
-            └── site-nav.html
+```txt
+layouts/
+└── partials/
+    ├── footer/
+    │   ├── scripts.html
+    │   └── site-footer.html
+    ├── head/
+    │   ├── favicons.html
+    │   ├── metadata.html
+    │   ├── prerender.html
+    │   └── twitter.html
+    └── header/
+        ├── site-header.html
+        └── site-nav.html
 ```
 
 All partials are called within your templates using the following pattern:
 
-```
+```go-html-template
 {{ partial "<PATH>/<PARTIAL>.html" . }}
 ```
 
@@ -66,7 +65,7 @@ One of the most common mistakes with new Hugo users is failing to pass a context
 
 As shown in the above example directory structure, you can nest your directories within `partials` for better source organization. You only need to call the nested partial's path relative to the `partials` directory:
 
-```
+```go-html-template
 {{ partial "header/site-header.html" . }}
 {{ partial "footer/scripts.html" . }}
 ```
@@ -81,22 +80,8 @@ This means the partial will *only* be able to access those variables. The partia
 
 In addition to outputting markup, partials can be used to return a value of any type. In order to return a value, a partial must include a lone `return` statement.
 
-## Inline partials
-
-{{< new-in "0.74.0" >}}
-
-You can also define partials inline in the template. But remember that template namespace is global, so you need to make sure that the names are unique to avoid conflicts.
-
-```go-html-template
-Value: {{ partial "my-inline-partial" . }}
-
-{{ define "partials/my-inline-partial" }}
-{{ $value := 32 }}
-{{ return $value }}
-{{ end }}
-```
-
 ### Example GetFeatured
+
 ```go-html-template
 {{/* layouts/partials/GetFeatured.html */}}
 {{ return first . (where site.RegularPages "Params.featured" true) }}
@@ -108,7 +93,9 @@ Value: {{ partial "my-inline-partial" . }}
   [...]
 {{ end }}
 ```
+
 ### Example GetImage
+
 ```go-html-template
 {{/* layouts/partials/GetImage.html */}}
 {{ $image := false }}
@@ -132,11 +119,26 @@ Value: {{ partial "my-inline-partial" . }}
 Only one `return` statement is allowed per partial file.
 {{% /note %}}
 
+## Inline Partials
+
+{{< new-in "0.74.0" >}}
+
+You can also define partials inline in the template. But remember that template namespace is global, so you need to make sure that the names are unique to avoid conflicts.
+
+```go-html-template
+Value: {{ partial "my-inline-partial" . }}
+
+{{ define "partials/my-inline-partial" }}
+{{ $value := 32 }}
+{{ return $value }}
+{{ end }}
+```
+
 ## Cached Partials
 
 The [`partialCached` template function][partialcached] can offer significant performance gains for complex templates that don't need to be re-rendered on every invocation. The simplest usage is as follows:
 
-```
+```go-html-template
 {{ partialCached "footer.html" . }}
 ```
 
@@ -144,13 +146,13 @@ You can also pass additional parameters to `partialCached` to create *variants* 
 
 For example, you can tell Hugo to only render the partial `footer.html` once per section:
 
-```
+```go-html-template
 {{ partialCached "footer.html" . .Section }}
 ```
 
 If you need to pass additional parameters to create unique variants, you can pass as many variant parameters as you need:
 
-```
+```go-html-template
 {{ partialCached "footer.html" . .Params.country .Params.province }}
 ```
 
