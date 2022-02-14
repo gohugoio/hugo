@@ -89,13 +89,13 @@ func TestShortcodeHighlight(t *testing.T) {
 			`{{< highlight java >}}
 void do();
 {{< /highlight >}}`,
-			`(?s)<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java"`,
+			`(?s)<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java"`,
 		},
 		{
 			`{{< highlight java "style=friendly" >}}
 void do();
 {{< /highlight >}}`,
-			`(?s)<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">`,
+			`(?s)<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java">`,
 		},
 	} {
 

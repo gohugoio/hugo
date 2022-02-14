@@ -168,6 +168,12 @@
         ]
       },
       {
+        "Name": "Bicep",
+        "Aliases": [
+          "bicep"
+        ]
+      },
+      {
         "Name": "BlitzBasic",
         "Aliases": [
           "b3d",
@@ -972,6 +978,19 @@
         ]
       },
       {
+        "Name": "OpenEdge ABL",
+        "Aliases": [
+          "abl",
+          "cls",
+          "i",
+          "openedge",
+          "openedgeabl",
+          "p",
+          "progress",
+          "w"
+        ]
+      },
+      {
         "Name": "OpenSCAD",
         "Aliases": [
           "openscad",
@@ -1047,6 +1066,13 @@
           "plain",
           "text",
           "txt"
+        ]
+      },
+      {
+        "Name": "Plutus Core",
+        "Aliases": [
+          "plc",
+          "plutus-core"
         ]
       },
       {
@@ -1608,8 +1634,11 @@
       {
         "Name": "XML",
         "Aliases": [
+          "csproj",
+          "fsproj",
           "rss",
           "svg",
+          "vcxproj",
           "wsdl",
           "wsf",
           "xml",
@@ -1636,6 +1665,12 @@
         "Name": "YANG",
         "Aliases": [
           "yang"
+        ]
+      },
+      {
+        "Name": "Zed",
+        "Aliases": [
+          "zed"
         ]
       },
       {
@@ -1870,7 +1905,9 @@
         "type": "application/javascript",
         "string": "application/javascript",
         "suffixes": [
-          "js"
+          "js",
+          "jsm",
+          "mjs"
         ]
       },
       {

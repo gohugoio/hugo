@@ -43,7 +43,7 @@ User-Agent: foo
 		h := New(cfg)
 
 		result, _ := h.Highlight(`echo "Hugo Rocks!"`, "bash", "")
-		c.Assert(result, qt.Equals, `<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">echo</span> <span class="s2">&#34;Hugo Rocks!&#34;</span></code></pre></div>`)
+		c.Assert(result, qt.Equals, `<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;Hugo Rocks!&#34;</span></span></span></code></pre></div>`)
 		result, _ = h.Highlight(`echo "Hugo Rocks!"`, "unknown", "")
 		c.Assert(result, qt.Equals, `<pre tabindex="0"><code class="language-unknown" data-lang="unknown">echo &#34;Hugo Rocks!&#34;</code></pre>`)
 	})
@@ -58,7 +58,7 @@ User-Agent: foo
 		c.Assert(result, qt.Contains, "<span class=\"hl\"><span class=\"lnt\">4")
 
 		result, _ = h.Highlight(lines, "bash", "linenos=inline,hl_lines=2")
-		c.Assert(result, qt.Contains, "<span class=\"ln\">2</span>LINE2\n</span>")
+		c.Assert(result, qt.Contains, "<span class=\"ln\">2</span><span class=\"cl\">LINE2\n</span></span>")
 		c.Assert(result, qt.Not(qt.Contains), "<table")
 
 		result, _ = h.Highlight(lines, "bash", "linenos=true,hl_lines=2")
@@ -101,7 +101,7 @@ User-Agent: foo
 		h := New(cfg)
 
 		result, _ := h.Highlight(lines, "bash", "")
-		c.Assert(result, qt.Contains, "<span class=\"ln\">2</span>LINE2\n<")
+		c.Assert(result, qt.Contains, "<span class=\"cl\">LINE2\n</span></span>")
 		result, _ = h.Highlight(lines, "bash", "linenos=table")
 		c.Assert(result, qt.Contains, "<span class=\"lnt\">1\n</span>")
 	})
@@ -125,7 +125,7 @@ User-Agent: foo
 		h := New(cfg)
 
 		result, _ := h.Highlight(lines, "", "")
-		c.Assert(result, qt.Contains, "<span class=\"ln\">2</span>LINE2\n<")
+		c.Assert(result, qt.Contains, "<span class=\"cl\">LINE2\n</span></span>")
 	})
 
 	c.Run("No language, Escape HTML string", func(c *qt.C) {
