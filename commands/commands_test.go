@@ -197,6 +197,7 @@ func TestFlags(t *testing.T) {
 				"--renderToDisk",
 				"--source=mysource",
 				"--printPathWarnings",
+				"--printUnusedTemplates",
 			},
 			check: func(c *qt.C, sc *serverCmd) {
 				c.Assert(sc, qt.Not(qt.IsNil))

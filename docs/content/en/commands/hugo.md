@@ -53,6 +53,7 @@ hugo [flags]
       --printI18nWarnings          print missing translations
       --printMemoryUsage           print memory usage to screen at intervals
       --printPathWarnings          print warnings on duplicate target paths etc.
+      --printUnusedTemplates       print warnings on unused templates.
       --quiet                      build in quiet mode
       --renderToMemory             render to memory (only useful for benchmark testing)
   -s, --source string              filesystem path to read files relative from

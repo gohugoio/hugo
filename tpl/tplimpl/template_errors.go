@@ -34,6 +34,14 @@ type templateInfo struct {
 	realFilename string
 }
 
+func (t templateInfo) Name() string {
+	return t.name
+}
+
+func (t templateInfo) Filename() string {
+	return t.realFilename
+}
+
 func (t templateInfo) IsZero() bool {
 	return t.name == ""
 }

@@ -31,6 +31,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/common/types"
 
@@ -217,6 +218,7 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"force",
 		"gc",
 		"printI18nWarnings",
+		"printUnusedTemplates",
 		"invalidateCDN",
 		"layoutDir",
 		"logFile",
@@ -501,7 +503,6 @@ func (c *commandeer) build() error {
 		return err
 	}
 
-	// TODO(bep) Feedback?
 	if !c.h.quiet {
 		fmt.Println()
 		c.hugo().PrintProcessingStats(os.Stdout)
@@ -512,6 +513,11 @@ func (c *commandeer) build() error {
 			if dupes != "" {
 				c.logger.Warnln("Duplicate target paths:", dupes)
 			}
+		}
+
+		unusedTemplates := c.hugo().Tmpl().(tpl.UnusedTemplatesProvider).UnusedTemplates()
+		for _, unusedTemplate := range unusedTemplates {
+			c.logger.Warnf("Template %s is unused, source file %s", unusedTemplate.Name(), unusedTemplate.Filename())
 		}
 	}
 

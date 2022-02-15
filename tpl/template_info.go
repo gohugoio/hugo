@@ -27,6 +27,11 @@ type Info interface {
 	identity.Provider
 }
 
+type FileInfo interface {
+	Name() string
+	Filename() string
+}
+
 type InfoManager interface {
 	ParseInfo() ParseInfo
 
@@ -63,10 +68,6 @@ type ParseInfo struct {
 
 func (info ParseInfo) IsZero() bool {
 	return info.Config.Version == 0
-}
-
-// Info holds some info extracted from a parsed template.
-type Info1 struct {
 }
 
 type ParseConfig struct {
