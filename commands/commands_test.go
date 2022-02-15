@@ -190,7 +190,7 @@ func TestFlags(t *testing.T) {
 				"--navigateToChanged",
 				"--disableLiveReload",
 				"--noHTTPCache",
-				"--i18n-warnings",
+				"--printI18nWarnings",
 				"--destination=/tmp/mydestination",
 				"-b=https://example.com/b/",
 				"--port=1366",
@@ -223,7 +223,7 @@ func TestFlags(t *testing.T) {
 				// The flag is named printPathWarnings
 				c.Assert(cfg.GetBool("logPathWarnings"), qt.Equals, true)
 
-				// The flag is named i18n-warnings
+				// The flag is named printI18nWarnings
 				c.Assert(cfg.GetBool("logI18nWarnings"), qt.Equals, true)
 			},
 		},

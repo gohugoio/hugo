@@ -216,7 +216,7 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"dryRun",
 		"force",
 		"gc",
-		"i18n-warnings",
+		"printI18nWarnings",
 		"invalidateCDN",
 		"layoutDir",
 		"logFile",
@@ -243,7 +243,7 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 
 	// Set some "config aliases"
 	setValueFromFlag(cmd.Flags(), "destination", cfg, "publishDir", false)
-	setValueFromFlag(cmd.Flags(), "i18n-warnings", cfg, "logI18nWarnings", false)
+	setValueFromFlag(cmd.Flags(), "printI18nWarnings", cfg, "logI18nWarnings", false)
 	setValueFromFlag(cmd.Flags(), "printPathWarnings", cfg, "logPathWarnings", false)
 }
 
