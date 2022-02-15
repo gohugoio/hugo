@@ -40,7 +40,6 @@ hugo [flags]
       --forceSyncStatic            copy all files when static is changed.
       --gc                         enable to run some cleanup tasks (remove unused cache files) after the build
   -h, --help                       help for hugo
-      --i18n-warnings              print missing translations
       --ignoreCache                ignores the cache directory
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
   -l, --layoutDir string           filesystem path to layout directory
@@ -51,6 +50,7 @@ hugo [flags]
       --noTimes                    don't sync modification time of files
       --panicOnWarning             panic on first WARNING log
       --poll string                set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes
+      --printI18nWarnings          print missing translations
       --printMemoryUsage           print memory usage to screen at intervals
       --printPathWarnings          print warnings on duplicate target paths etc.
       --quiet                      build in quiet mode

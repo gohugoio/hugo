@@ -47,7 +47,6 @@ hugo server [flags]
       --forceSyncStatic        copy all files when static is changed.
       --gc                     enable to run some cleanup tasks (remove unused cache files) after the build
   -h, --help                   help for server
-      --i18n-warnings          print missing translations
       --ignoreCache            ignores the cache directory
   -l, --layoutDir string       filesystem path to layout directory
       --liveReloadPort int     port for live reloading (i.e. 443 in HTTPS proxy situations) (default -1)
@@ -61,6 +60,7 @@ hugo server [flags]
       --panicOnWarning         panic on first WARNING log
       --poll string            set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes
   -p, --port int               port on which the server will listen (default 1313)
+      --printI18nWarnings      print missing translations
       --printMemoryUsage       print memory usage to screen at intervals
       --printPathWarnings      print warnings on duplicate target paths etc.
       --renderToDisk           render to Destination path (default is render to memory & serve from there)
