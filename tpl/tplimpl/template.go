@@ -257,7 +257,6 @@ func (t *templateExec) Execute(templ tpl.Template, wr io.Writer, data interface{
 	return execErr
 }
 
-// TODO1
 func (t *templateExec) UnusedTemplates() []tpl.FileInfo {
 	if t.templateUsageTracker == nil {
 		return nil
