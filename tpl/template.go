@@ -44,6 +44,11 @@ type TemplateFinder interface {
 	TemplateLookupVariant
 }
 
+// UnusedTemplatesProvider lists unused templates if the build is configured to track those.
+type UnusedTemplatesProvider interface {
+	UnusedTemplates() []FileInfo
+}
+
 // TemplateHandler finds and executes templates.
 type TemplateHandler interface {
 	TemplateFinder

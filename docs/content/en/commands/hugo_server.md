@@ -63,6 +63,7 @@ hugo server [flags]
       --printI18nWarnings      print missing translations
       --printMemoryUsage       print memory usage to screen at intervals
       --printPathWarnings      print warnings on duplicate target paths etc.
+      --printUnusedTemplates   print warnings on unused templates.
       --renderToDisk           render to Destination path (default is render to memory & serve from there)
       --templateMetrics        display metrics about template executions
       --templateMetricsHints   calculate some improvement hints when combined with --templateMetrics
