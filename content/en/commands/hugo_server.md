@@ -59,10 +59,10 @@ hugo server [flags]
       --noHTTPCache            prevent HTTP caching
       --noTimes                don't sync modification time of files
       --panicOnWarning         panic on first WARNING log
-      --path-warnings          print warnings on duplicate target paths etc.
       --poll string            set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes
   -p, --port int               port on which the server will listen (default 1313)
-      --print-mem              print memory usage to screen at intervals
+      --printMemoryUsage       print memory usage to screen at intervals
+      --printPathWarnings      print warnings on duplicate target paths etc.
       --renderToDisk           render to Destination path (default is render to memory & serve from there)
       --templateMetrics        display metrics about template executions
       --templateMetricsHints   calculate some improvement hints when combined with --templateMetrics
