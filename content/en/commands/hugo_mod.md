@@ -49,6 +49,7 @@ See https://gohugo.io/hugo-modules/ for more information.
       --printI18nWarnings      print missing translations
       --printMemoryUsage       print memory usage to screen at intervals
       --printPathWarnings      print warnings on duplicate target paths etc.
+      --printUnusedTemplates   print warnings on unused templates.
       --templateMetrics        display metrics about template executions
       --templateMetricsHints   calculate some improvement hints when combined with --templateMetrics
   -t, --theme strings          themes to use (located in /themes/THEMENAME/)
