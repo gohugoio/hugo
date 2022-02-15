@@ -305,10 +305,10 @@ func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolP("noTimes", "", false, "don't sync modification time of files")
 	cmd.Flags().BoolP("noChmod", "", false, "don't sync permission mode of files")
 	cmd.Flags().BoolP("i18n-warnings", "", false, "print missing translations")
-	cmd.Flags().BoolP("path-warnings", "", false, "print warnings on duplicate target paths etc.")
+	cmd.Flags().BoolP("printPathWarnings", "", false, "print warnings on duplicate target paths etc.")
 	cmd.Flags().StringVarP(&cc.cpuprofile, "profile-cpu", "", "", "write cpu profile to `file`")
 	cmd.Flags().StringVarP(&cc.memprofile, "profile-mem", "", "", "write memory profile to `file`")
-	cmd.Flags().BoolVarP(&cc.printm, "print-mem", "", false, "print memory usage to screen at intervals")
+	cmd.Flags().BoolVarP(&cc.printm, "printMemoryUsage", "", false, "print memory usage to screen at intervals")
 	cmd.Flags().StringVarP(&cc.mutexprofile, "profile-mutex", "", "", "write Mutex profile to `file`")
 	cmd.Flags().StringVarP(&cc.traceprofile, "trace", "", "", "write trace to `file` (not useful in general)")
 

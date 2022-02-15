@@ -196,7 +196,7 @@ func TestFlags(t *testing.T) {
 				"--port=1366",
 				"--renderToDisk",
 				"--source=mysource",
-				"--path-warnings",
+				"--printPathWarnings",
 			},
 			check: func(c *qt.C, sc *serverCmd) {
 				c.Assert(sc, qt.Not(qt.IsNil))
@@ -220,7 +220,7 @@ func TestFlags(t *testing.T) {
 
 				c.Assert(cfg.GetBool("gc"), qt.Equals, true)
 
-				// The flag is named path-warnings
+				// The flag is named printPathWarnings
 				c.Assert(cfg.GetBool("logPathWarnings"), qt.Equals, true)
 
 				// The flag is named i18n-warnings
