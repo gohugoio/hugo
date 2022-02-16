@@ -57,6 +57,9 @@ func (a *attributesHolder) Attributes() map[string]string {
 	a.attributesInit.Do(func() {
 		a.attributes = make(map[string]string)
 		for _, attr := range a.astAttributes {
+			if strings.HasPrefix(string(attr.Name), "on") {
+				continue
+			}
 			a.attributes[string(attr.Name)] = string(util.EscapeHTML(attr.Value.([]byte)))
 		}
 	})
