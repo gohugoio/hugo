@@ -24,6 +24,7 @@ import (
 	"reflect"
 	"strings"
 	"sync"
+	"time"
 
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 
@@ -42,6 +43,13 @@ var TestTemplateProvider deps.ResourceProvider
 type partialCacheKey struct {
 	name    string
 	variant interface{}
+}
+
+func (k partialCacheKey) templateName() string {
+	if !strings.HasPrefix(k.name, "partials/") {
+		return "partials/" + k.name
+	}
+	return k.name
 }
 
 // partialCache represents a cache of partials protected by a mutex.
@@ -211,6 +219,7 @@ func createKey(name string, variants ...interface{}) (partialCacheKey, error) {
 var errUnHashable = errors.New("unhashable")
 
 func (ns *Namespace) getOrCreate(key partialCacheKey, context interface{}) (result interface{}, err error) {
+	start := time.Now()
 	defer func() {
 		if r := recover(); r != nil {
 			err = r.(error)
@@ -226,8 +235,19 @@ func (ns *Namespace) getOrCreate(key partialCacheKey, context interface{}) (resu
 	ns.cachedPartials.RUnlock()
 
 	if ok {
+		if ns.deps.Metrics != nil {
+			ns.deps.Metrics.TrackValue(key.templateName(), p, true)
+			// The templates that gets executed is measued in Execute.
+			// We need to track the time spent in the cache to
+			// get the totals correct.
+			ns.deps.Metrics.MeasureSince(key.templateName(), start)
+
+		}
 		return p, nil
 	}
+
+	ns.cachedPartials.Lock()
+	defer ns.cachedPartials.Unlock()
 
 	var name string
 	name, p, err = ns.include(key.name, context)
@@ -236,14 +256,7 @@ func (ns *Namespace) getOrCreate(key partialCacheKey, context interface{}) (resu
 	}
 
 	if ns.deps.Metrics != nil {
-		ns.deps.Metrics.TrackValue(name, p, true)
-	}
-
-	ns.cachedPartials.Lock()
-	defer ns.cachedPartials.Unlock()
-	// Double-check.
-	if p2, ok := ns.cachedPartials.p[key]; ok {
-		return p2, nil
+		ns.deps.Metrics.TrackValue(name, p, false)
 	}
 	ns.cachedPartials.p[key] = p
 

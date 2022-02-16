@@ -17,6 +17,7 @@ package math
 import (
 	"errors"
 	"math"
+	"sync/atomic"
 
 	_math "github.com/gohugoio/hugo/common/math"
 
@@ -161,4 +162,15 @@ func (ns *Namespace) Sqrt(a interface{}) (float64, error) {
 // Sub subtracts two numbers.
 func (ns *Namespace) Sub(a, b interface{}) (interface{}, error) {
 	return _math.DoArithmetic(a, b, '-')
+}
+
+var counter uint64
+
+// Counter increments and returns a global counter.
+// This was originally added to be used in tests where now.UnixNano did not
+// have the needed precision (especially on Windows).
+// Note that given the parallel nature of Hugo, you cannot use this to get sequences of numbers,
+// and the counter will reset on new builds.
+func (ns *Namespace) Counter() uint64 {
+	return atomic.AddUint64(&counter, uint64(1))
 }
