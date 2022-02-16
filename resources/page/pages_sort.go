@@ -124,6 +124,10 @@ var (
 		return compare.LessStrings(p1.Title(), p2.Title())
 	}
 
+	lessPageTitleLength = func(p1, p2 Page) bool {
+		return len(p1.Title()) < len(p2.Title())
+	}
+
 	lessPageLinkTitle = func(p1, p2 Page) bool {
 		return compare.LessStrings(p1.LinkTitle(), p2.LinkTitle())
 	}
@@ -176,6 +180,18 @@ func (p Pages) ByTitle() Pages {
 	const key = "pageSort.ByTitle"
 
 	pages, _ := spc.get(key, pageBy(lessPageTitle).Sort, p)
+	return pages
+}
+
+// ByTitleLength sorts the Pages by title length and returns a copy.
+//
+// Adjacent invocations on the same receiver will return a cached result.
+//
+// This may safely be executed  in parallel.
+func (p Pages) ByTitleLength() Pages {
+	const key = "pageSort.ByTitleLength"
+
+	pages, _ := spc.get(key, pageBy(lessPageTitleLength).Sort, p)
 	return pages
 }
 

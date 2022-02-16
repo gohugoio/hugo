@@ -312,6 +312,20 @@ Lower weight gets higher precedence. So content with lower weight will come firs
 </ul>
 {{< /code >}}
 
+### By Title Length
+
+{{< code file="layouts/partials/by-title-length.html" >}}
+<ul>
+    <!-- ranges through content in ascending order according to the length of the "title" field set in front matter -->
+    {{ range .Pages.ByTitleLength }}
+        <li>
+            <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
+            <time>{{ .Date.Format "Mon, Jan 2, 2006" }}</time>
+        </li>
+    {{ end }}
+</ul>
+{{< /code >}}
+
 ### By Link Title
 
 {{< code file="layouts/partials/by-link-title.html" >}}
