@@ -118,7 +118,7 @@ func TestSortByN(t *testing.T) {
 		{(Pages).ByExpiryDate, func(p Pages) bool { return p[0].ExpiryDate() == d4 }},
 		{(Pages).ByLastmod, func(p Pages) bool { return p[1].Lastmod() == d3 }},
 		{(Pages).ByLength, func(p Pages) bool { return p[0].(resource.LengthProvider).Len() == len(p[0].(*testPage).content) }},
-		{(Pages).ByTitleLength, func(p Pages) bool { return p[0].Title() == "b" }},
+		{(Pages).ByTitleLength, func(p Pages) bool { return p[0].Title() == "b" && p[3].Title() == "cde" }},
 	} {
 		setSortVals([4]time.Time{d1, d2, d3, d4}, [4]string{"b", "ab", "cde", "fg"}, [4]int{0, 3, 2, 1}, p)
 
