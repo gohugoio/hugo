@@ -18,14 +18,14 @@ import (
 	"github.com/gohugoio/hugo/tpl/internal"
 )
 
-const name = "partials"
+const namespaceName = "partials"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
 		ctx := New(d)
 
 		ns := &internal.TemplateFuncsNamespace{
-			Name:    name,
+			Name:    namespaceName,
 			Context: func(args ...interface{}) (interface{}, error) { return ctx, nil },
 		}
 

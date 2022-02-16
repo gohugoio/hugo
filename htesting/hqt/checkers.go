@@ -63,7 +63,7 @@ type stringChecker struct {
 	argNames
 }
 
-// Check implements Checker.Check by checking that got and args[0] represents the same normalized text (whitespace etc. trimmed).
+// Check implements Checker.Check by checking that got and args[0] represents the same normalized text (whitespace etc. removed).
 func (c *stringChecker) Check(got interface{}, args []interface{}, note func(key string, value interface{})) (err error) {
 	s1, s2 := cast.ToString(got), cast.ToString(args[0])
 
@@ -81,11 +81,12 @@ func (c *stringChecker) Check(got interface{}, args []interface{}, note func(key
 }
 
 func normalizeString(s string) string {
+	s = strings.ReplaceAll(s, "\r\n", "\n")
+
 	lines := strings.Split(strings.TrimSpace(s), "\n")
 	for i, line := range lines {
-		lines[i] = strings.TrimSpace(line)
+		lines[i] = strings.Join(strings.Fields(strings.TrimSpace(line)), "")
 	}
-
 	return strings.Join(lines, "\n")
 }
 

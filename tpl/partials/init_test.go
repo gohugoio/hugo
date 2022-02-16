@@ -33,7 +33,7 @@ func TestInit(t *testing.T) {
 			BuildStartListeners: &deps.Listeners{},
 			Log:                 loggers.NewErrorLogger(),
 		})
-		if ns.Name == name {
+		if ns.Name == namespaceName {
 			found = true
 			break
 		}
