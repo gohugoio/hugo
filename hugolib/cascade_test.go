@@ -63,11 +63,11 @@ kind = '{section,term}'
 `
 
 	for i := 1; i < 100; i++ {
-		files += "\n-- content/posts/p1.md --\n"
+		files += fmt.Sprintf("\n-- content/posts/p%d.md --\n", i+1)
 	}
 
 	for i := 1; i < 100; i++ {
-		files += "\n-- content/posts/funny/pf1.md --\n"
+		files += fmt.Sprintf("\n-- content/posts/funny/pf%d.md --\n", i+1)
 	}
 
 	b.Run("Kind", func(b *testing.B) {
