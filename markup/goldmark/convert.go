@@ -47,8 +47,7 @@ import (
 // Provider is the package entry point.
 var Provider converter.ProviderProvider = provide{}
 
-type provide struct {
-}
+type provide struct{}
 
 func (p provide) New(cfg converter.ProviderConfig) (converter.Provider, error) {
 	md := newMarkdown(cfg)
@@ -199,8 +198,19 @@ func (b *bufWriter) Flush() error {
 
 type renderContext struct {
 	*bufWriter
-	pos int
+	positions []int
 	renderContextData
+}
+
+func (ctx *renderContext) pushPos(n int) {
+	ctx.positions = append(ctx.positions, n)
+}
+
+func (ctx *renderContext) popPos() int {
+	i := len(ctx.positions) - 1
+	p := ctx.positions[i]
+	ctx.positions = ctx.positions[:i]
+	return p
 }
 
 type renderContextData interface {
