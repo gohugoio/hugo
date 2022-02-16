@@ -20,6 +20,7 @@ import (
 	"github.com/gohugoio/hugo/hugolib"
 )
 
+// Issue 9463
 func TestAttributeExclusion(t *testing.T) {
 	t.Parallel()
 
@@ -55,9 +56,42 @@ foo
 	).Build()
 
 	b.AssertFileContent("public/p1/index.html", `
-<h2 class="a" id="heading">
-<blockquote class="b">
-<div class="highlight" id="c">
+		<h2 class="a" id="heading">
+		<blockquote class="b">
+		<div class="highlight" id="c">
+	`)
+}
+
+// Issue 9511
+func TestAttributeExclusionWithRenderHook(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- content/p1.md --
+---
+title: "p1"
+---
+## Heading {onclick="alert('renderhook')" data-foo="bar"}
+-- layouts/_default/single.html --
+{{ .Content }}
+-- layouts/_default/_markup/render-heading.html --
+<h{{ .Level }}
+  {{- range $k, $v := .Attributes -}}
+    {{- printf " %s=%q" $k $v | safeHTMLAttr -}}
+  {{- end -}}
+>{{ .Text | safeHTML }}</h{{ .Level }}>
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   false,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", `
+		<h2 data-foo="bar" id="heading">Heading</h2>
 	`)
 }
 
