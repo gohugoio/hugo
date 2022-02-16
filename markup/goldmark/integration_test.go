@@ -61,6 +61,42 @@ foo
 	`)
 }
 
+// Issue 9504
+func TestLinkInTitle(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+-- content/p1.md --
+---
+title: "p1"
+---
+## Hello [Test](https://example.com)
+-- layouts/_default/single.html --
+{{ .Content }}
+-- layouts/_default/_markup/render-heading.html --
+<h{{ .Level }} id="{{ .Anchor | safeURL }}">
+  {{ .Text | safeHTML }}
+  <a class="anchor" href="#{{ .Anchor | safeURL }}">#</a>
+</h{{ .Level }}>
+-- layouts/_default/_markup/render-link.html --
+<a href="{{ .Destination | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}>{{ .Text | safeHTML }}</a>
+
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   false,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html",
+		"<h2 id=\"hello-testhttpsexamplecom\">\n  Hello <a href=\"https://example.com\">Test</a>\n\n  <a class=\"anchor\" href=\"#hello-testhttpsexamplecom\">#</a>\n</h2>",
+	)
+}
+
 func BenchmarkSiteWithRenderHooks(b *testing.B) {
 	files := `
 -- config.toml --

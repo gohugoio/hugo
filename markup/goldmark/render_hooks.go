@@ -144,16 +144,13 @@ func (r *hookedRenderer) renderAttributesForNode(w util.BufWriter, node ast.Node
 	renderAttributes(w, false, node.Attributes()...)
 }
 
-var (
-
-	// Attributes with special meaning that does not make sense to render in HTML.
-	attributeExcludes = map[string]bool{
-		"hl_lines":    true,
-		"hl_style":    true,
-		"linenos":     true,
-		"linenostart": true,
-	}
-)
+// Attributes with special meaning that does not make sense to render in HTML.
+var attributeExcludes = map[string]bool{
+	"hl_lines":    true,
+	"hl_style":    true,
+	"linenos":     true,
+	"linenostart": true,
+}
 
 func renderAttributes(w util.BufWriter, skipClass bool, attributes ...ast.Attribute) {
 	for _, attr := range attributes {
@@ -197,12 +194,13 @@ func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.N
 
 	if entering {
 		// Store the current pos so we can capture the rendered text.
-		ctx.pos = ctx.Buffer.Len()
+		ctx.pushPos(ctx.Buffer.Len())
 		return ast.WalkContinue, nil
 	}
 
-	text := ctx.Buffer.Bytes()[ctx.pos:]
-	ctx.Buffer.Truncate(ctx.pos)
+	pos := ctx.popPos()
+	text := ctx.Buffer.Bytes()[pos:]
+	ctx.Buffer.Truncate(pos)
 
 	err := h.ImageRenderer.RenderLink(
 		w,
@@ -263,12 +261,13 @@ func (r *hookedRenderer) renderLink(w util.BufWriter, source []byte, node ast.No
 
 	if entering {
 		// Store the current pos so we can capture the rendered text.
-		ctx.pos = ctx.Buffer.Len()
+		ctx.pushPos(ctx.Buffer.Len())
 		return ast.WalkContinue, nil
 	}
 
-	text := ctx.Buffer.Bytes()[ctx.pos:]
-	ctx.Buffer.Truncate(ctx.pos)
+	pos := ctx.popPos()
+	text := ctx.Buffer.Bytes()[pos:]
+	ctx.Buffer.Truncate(pos)
 
 	err := h.LinkRenderer.RenderLink(
 		w,
@@ -395,12 +394,13 @@ func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast
 
 	if entering {
 		// Store the current pos so we can capture the rendered text.
-		ctx.pos = ctx.Buffer.Len()
+		ctx.pushPos(ctx.Buffer.Len())
 		return ast.WalkContinue, nil
 	}
 
-	text := ctx.Buffer.Bytes()[ctx.pos:]
-	ctx.Buffer.Truncate(ctx.pos)
+	pos := ctx.popPos()
+	text := ctx.Buffer.Bytes()[pos:]
+	ctx.Buffer.Truncate(pos)
 	// All ast.Heading nodes are guaranteed to have an attribute called "id"
 	// that is an array of bytes that encode a valid string.
 	anchori, _ := n.AttributeString("id")
@@ -440,8 +440,7 @@ func (r *hookedRenderer) renderHeadingDefault(w util.BufWriter, source []byte, n
 	return ast.WalkContinue, nil
 }
 
-type links struct {
-}
+type links struct{}
 
 // Extend implements goldmark.Extender.
 func (e *links) Extend(m goldmark.Markdown) {
