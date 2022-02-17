@@ -281,15 +281,10 @@ func (t *templateExec) UnusedTemplates() []tpl.FileInfo {
 
 	for _, ts := range t.main.templates {
 		ti := ts.info
-		if strings.HasPrefix(ti.name, "_internal/") {
+		if strings.HasPrefix(ti.name, "_internal/") || ti.realFilename == "" {
 			continue
 		}
-		if strings.HasPrefix(ti.name, "partials/inline/pagination") {
-			// TODO(bep) we need to fix this. These are internal partials, but
-			// they may also be defined in the project, which currently could
-			// lead to some false negatives.
-			continue
-		}
+
 		if _, found := t.templateUsageTracker[ti.name]; !found {
 			unused = append(unused, ti)
 		}
@@ -740,6 +735,7 @@ func (t *templateHandler) extractIdentifiers(line string) []string {
 }
 
 //go:embed embedded/templates/*
+//go:embed embedded/templates/_default/*
 var embededTemplatesFs embed.FS
 
 func (t *templateHandler) loadEmbedded() error {
@@ -757,9 +753,19 @@ func (t *templateHandler) loadEmbedded() error {
 		// to write the templates to Go files.
 		templ := string(bytes.ReplaceAll(templb, []byte("\r\n"), []byte("\n")))
 		name := strings.TrimPrefix(filepath.ToSlash(path), "embedded/templates/")
+		templateName := name
 
-		if err := t.AddTemplate(internalPathPrefix+name, templ); err != nil {
-			return err
+		// For the render hooks it does not make sense to preseve the
+		// double _indternal double book-keeping,
+		// just add it if its now provided by the user.
+		if !strings.Contains(path, "_default/_markup") {
+			templateName = internalPathPrefix + name
+		}
+
+		if _, found := t.Lookup(templateName); !found {
+			if err := t.AddTemplate(templateName, templ); err != nil {
+				return err
+			}
 		}
 
 		if aliases, found := embeddedTemplatesAliases[name]; found {

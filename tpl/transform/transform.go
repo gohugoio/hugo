@@ -19,6 +19,9 @@ import (
 	"html/template"
 
 	"github.com/gohugoio/hugo/cache/namedmemcache"
+	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/markup/converter/hooks"
+	"github.com/gohugoio/hugo/markup/highlight"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -65,16 +68,26 @@ func (ns *Namespace) Highlight(s interface{}, lang string, opts ...interface{}) 
 		return "", err
 	}
 
-	sopts := ""
+	var optsv interface{}
 	if len(opts) > 0 {
-		sopts, err = cast.ToStringE(opts[0])
-		if err != nil {
-			return "", err
-		}
+		optsv = opts[0]
 	}
 
-	highlighted, _ := ns.deps.ContentSpec.Converters.Highlight(ss, lang, sopts)
+	hl := ns.deps.ContentSpec.Converters.GetHighlighter()
+	highlighted, _ := hl.Highlight(ss, lang, optsv)
 	return template.HTML(highlighted), nil
+}
+
+// HighlightCodeBlock highlights a code block on the form received in the codeblock render hooks.
+func (ns *Namespace) HighlightCodeBlock(ctx hooks.CodeblockContext, opts ...interface{}) (highlight.HightlightResult, error) {
+	var optsv interface{}
+	if len(opts) > 0 {
+		optsv = opts[0]
+	}
+
+	hl := ns.deps.ContentSpec.Converters.GetHighlighter()
+
+	return hl.HighlightCodeBlock(ctx, optsv)
 }
 
 // HTMLEscape returns a copy of s with reserved HTML characters escaped.
@@ -100,20 +113,22 @@ func (ns *Namespace) HTMLUnescape(s interface{}) (string, error) {
 
 // Markdownify renders a given input from Markdown to HTML.
 func (ns *Namespace) Markdownify(s interface{}) (template.HTML, error) {
+	defer herrors.Recover()
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return "", err
 	}
 
-	b, err := ns.deps.ContentSpec.RenderMarkdown([]byte(ss))
-	if err != nil {
-		return "", err
+	home := ns.deps.Site.Home()
+	if home == nil {
+		panic("home must not be nil")
 	}
+	sss, err := home.RenderString(ss)
 
 	// Strip if this is a short inline type of text.
-	b = ns.deps.ContentSpec.TrimShortHTML(b)
+	bb := ns.deps.ContentSpec.TrimShortHTML([]byte(sss))
 
-	return helpers.BytesToHTML(b), nil
+	return helpers.BytesToHTML(bb), nil
 }
 
 // Plainify returns a copy of s with all HTML tags removed.
@@ -124,4 +139,8 @@ func (ns *Namespace) Plainify(s interface{}) (string, error) {
 	}
 
 	return helpers.StripHTML(ss), nil
+}
+
+func (ns *Namespace) Reset() {
+	ns.cache.Clear()
 }

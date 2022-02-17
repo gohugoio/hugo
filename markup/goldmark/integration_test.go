@@ -36,12 +36,12 @@ func TestAttributeExclusion(t *testing.T) {
 ---
 title: "p1"
 ---
-## Heading {class="a" onclick="alert('heading')" linenos="inline"}
+## Heading {class="a" onclick="alert('heading')"}
 
 > Blockquote
-{class="b" ondblclick="alert('blockquote')" LINENOS="inline"}
+{class="b" ondblclick="alert('blockquote')"}
 
-~~~bash {id="c" onmouseover="alert('code fence')"}
+~~~bash {id="c" onmouseover="alert('code fence')" LINENOS=true}
 foo
 ~~~
 -- layouts/_default/single.html --
@@ -96,6 +96,63 @@ title: "p1"
 	`)
 }
 
+func TestAttributesDefaultRenderer(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- content/p1.md --
+---
+title: "p1"
+---
+## Heading Attribute Which Needs Escaping { class="a < b" }
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   false,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", `
+class="a &lt; b"
+	`)
+}
+
+// Issue 9558.
+func TestAttributesHookNoEscape(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- content/p1.md --
+---
+title: "p1"
+---
+## Heading Attribute Which Needs Escaping { class="Smith & Wesson" }
+-- layouts/_default/_markup/render-heading.html --
+plain: |{{- range $k, $v := .Attributes -}}{{ $k }}: {{ $v }}|{{ end }}|
+safeHTML: |{{- range $k, $v := .Attributes -}}{{ $k }}: {{ $v | safeHTML }}|{{ end }}|
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   false,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", `
+plain: |class: Smith &amp; Wesson|id: heading-attribute-which-needs-escaping|
+safeHTML: |class: Smith & Wesson|id: heading-attribute-which-needs-escaping|
+	`)
+}
+
 // Issue 9504
 func TestLinkInTitle(t *testing.T) {
 	t.Parallel()
@@ -129,6 +186,84 @@ title: "p1"
 
 	b.AssertFileContent("public/p1/index.html",
 		"<h2 id=\"hello-testhttpsexamplecom\">\n  Hello <a href=\"https://example.com\">Test</a>\n\n  <a class=\"anchor\" href=\"#hello-testhttpsexamplecom\">#</a>\n</h2>",
+	)
+}
+
+func TestHighlight(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+[markup]
+[markup.highlight]
+anchorLineNos = false
+codeFences = true
+guessSyntax = false
+hl_Lines = ''
+lineAnchors = ''
+lineNoStart = 1
+lineNos = false
+lineNumbersInTable = true
+noClasses = false
+style = 'monokai'
+tabWidth = 4
+-- layouts/_default/single.html --
+{{ .Content }}
+-- content/p1.md --
+---
+title: "p1"
+---
+
+## Code Fences
+
+§§§bash
+LINE1
+§§§
+
+## Code Fences No Lexer
+
+§§§moo
+LINE1
+§§§
+
+## Code Fences Simple Attributes
+
+§§A§bash { .myclass id="myid" }
+LINE1
+§§A§
+
+## Code Fences Line Numbers
+
+§§§bash {linenos=table,hl_lines=[8,"15-17"],linenostart=199}
+LINE1
+LINE2
+LINE3
+LINE4
+LINE5
+LINE6
+LINE7
+LINE8
+§§§
+
+
+
+
+`
+
+	// Code fences
+	files = strings.ReplaceAll(files, "§§§", "```")
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html",
+		"<div class=\"highlight\"><pre tabindex=\"0\" class=\"chroma\"><code class=\"language-bash\" data-lang=\"bash\"><span class=\"line\"><span class=\"cl\">LINE1\n</span></span></code></pre></div>",
+		"Code Fences No Lexer</h2>\n<pre tabindex=\"0\"><code class=\"language-moo\" data-lang=\"moo\">LINE1\n</code></pre>",
+		"lnt",
 	)
 }
 

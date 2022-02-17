@@ -314,7 +314,7 @@ Content.
 	nnSect := nnSite.getPage(page.KindSection, "sect")
 	c.Assert(nnSect, qt.Not(qt.IsNil))
 	c.Assert(len(nnSect.Pages()), qt.Equals, 12)
-	nnHome, _ := nnSite.Info.Home()
+	nnHome := nnSite.Info.Home()
 	c.Assert(nnHome.RelPermalink(), qt.Equals, "/nn/")
 }
 

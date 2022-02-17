@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package transform
+package transform_test
 
 import (
 	"fmt"
@@ -19,7 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/hugolib"
+	"github.com/gohugoio/hugo/tpl/transform"
 
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -80,12 +81,14 @@ func (t testContentResource) Key() string {
 }
 
 func TestUnmarshal(t *testing.T) {
-	v := config.New()
-	ns := New(newDeps(v))
-	c := qt.New(t)
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{T: t},
+	).Build()
+
+	ns := transform.New(b.H.Deps)
 
 	assertSlogan := func(m map[string]interface{}) {
-		c.Assert(m["slogan"], qt.Equals, "Hugo Rocks!")
+		b.Assert(m["slogan"], qt.Equals, "Hugo Rocks!")
 	}
 
 	for _, test := range []struct {
@@ -116,24 +119,24 @@ func TestUnmarshal(t *testing.T) {
 		}},
 		{testContentResource{key: "r1", content: `1997,Ford,E350,"ac, abs, moon",3000.00
 1999,Chevy,"Venture ""Extended Edition""","",4900.00`, mime: media.CSVType}, nil, func(r [][]string) {
-			c.Assert(len(r), qt.Equals, 2)
+			b.Assert(len(r), qt.Equals, 2)
 			first := r[0]
-			c.Assert(len(first), qt.Equals, 5)
-			c.Assert(first[1], qt.Equals, "Ford")
+			b.Assert(len(first), qt.Equals, 5)
+			b.Assert(first[1], qt.Equals, "Ford")
 		}},
 		{testContentResource{key: "r1", content: `a;b;c`, mime: media.CSVType}, map[string]interface{}{"delimiter": ";"}, func(r [][]string) {
-			c.Assert([][]string{{"a", "b", "c"}}, qt.DeepEquals, r)
+			b.Assert([][]string{{"a", "b", "c"}}, qt.DeepEquals, r)
 		}},
 		{"a,b,c", nil, func(r [][]string) {
-			c.Assert([][]string{{"a", "b", "c"}}, qt.DeepEquals, r)
+			b.Assert([][]string{{"a", "b", "c"}}, qt.DeepEquals, r)
 		}},
 		{"a;b;c", map[string]interface{}{"delimiter": ";"}, func(r [][]string) {
-			c.Assert([][]string{{"a", "b", "c"}}, qt.DeepEquals, r)
+			b.Assert([][]string{{"a", "b", "c"}}, qt.DeepEquals, r)
 		}},
 		{testContentResource{key: "r1", content: `
 % This is a comment
 a;b;c`, mime: media.CSVType}, map[string]interface{}{"DElimiter": ";", "Comment": "%"}, func(r [][]string) {
-			c.Assert([][]string{{"a", "b", "c"}}, qt.DeepEquals, r)
+			b.Assert([][]string{{"a", "b", "c"}}, qt.DeepEquals, r)
 		}},
 		// errors
 		{"thisisnotavaliddataformat", nil, false},
@@ -144,7 +147,7 @@ a;b;c`, mime: media.CSVType}, map[string]interface{}{"DElimiter": ";", "Comment"
 		{tstNoStringer{}, nil, false},
 	} {
 
-		ns.cache.Clear()
+		ns.Reset()
 
 		var args []interface{}
 
@@ -156,29 +159,32 @@ a;b;c`, mime: media.CSVType}, map[string]interface{}{"DElimiter": ";", "Comment"
 
 		result, err := ns.Unmarshal(args...)
 
-		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+		if bb, ok := test.expect.(bool); ok && !bb {
+			b.Assert(err, qt.Not(qt.IsNil))
 		} else if fn, ok := test.expect.(func(m map[string]interface{})); ok {
-			c.Assert(err, qt.IsNil)
+			b.Assert(err, qt.IsNil)
 			m, ok := result.(map[string]interface{})
-			c.Assert(ok, qt.Equals, true)
+			b.Assert(ok, qt.Equals, true)
 			fn(m)
 		} else if fn, ok := test.expect.(func(r [][]string)); ok {
-			c.Assert(err, qt.IsNil)
+			b.Assert(err, qt.IsNil)
 			r, ok := result.([][]string)
-			c.Assert(ok, qt.Equals, true)
+			b.Assert(ok, qt.Equals, true)
 			fn(r)
 		} else {
-			c.Assert(err, qt.IsNil)
-			c.Assert(result, qt.Equals, test.expect)
+			b.Assert(err, qt.IsNil)
+			b.Assert(result, qt.Equals, test.expect)
 		}
 
 	}
 }
 
 func BenchmarkUnmarshalString(b *testing.B) {
-	v := config.New()
-	ns := New(newDeps(v))
+	bb := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{T: b},
+	).Build()
+
+	ns := transform.New(bb.H.Deps)
 
 	const numJsons = 100
 
@@ -200,8 +206,11 @@ func BenchmarkUnmarshalString(b *testing.B) {
 }
 
 func BenchmarkUnmarshalResource(b *testing.B) {
-	v := config.New()
-	ns := New(newDeps(v))
+	bb := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{T: b},
+	).Build()
+
+	ns := transform.New(bb.H.Deps)
 
 	const numJsons = 100
 

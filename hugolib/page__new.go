@@ -17,6 +17,8 @@ import (
 	"html/template"
 	"strings"
 
+	"go.uber.org/atomic"
+
 	"github.com/gohugoio/hugo/common/hugo"
 
 	"github.com/gohugoio/hugo/common/maps"
@@ -36,7 +38,8 @@ func newPageBase(metaProvider *pageMeta) (*pageState, error) {
 	s := metaProvider.s
 
 	ps := &pageState{
-		pageOutput: nopPageOutput,
+		pageOutput:                        nopPageOutput,
+		pageOutputTemplateVariationsState: atomic.NewUint32(0),
 		pageCommon: &pageCommon{
 			FileProvider:            metaProvider,
 			AuthorProvider:          metaProvider,

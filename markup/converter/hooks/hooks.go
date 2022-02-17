@@ -14,15 +14,17 @@
 package hooks
 
 import (
-	"fmt"
 	"io"
-	"strings"
 
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/markup/internal/attributes"
 )
 
+var _ AttributesOptionsSliceProvider = (*attributes.AttributesHolder)(nil)
+
 type AttributesProvider interface {
-	Attributes() map[string]string
+	Attributes() map[string]interface{}
 }
 
 type LinkContext interface {
@@ -33,8 +35,27 @@ type LinkContext interface {
 	PlainText() string
 }
 
+type CodeblockContext interface {
+	AttributesProvider
+	Options() map[string]interface{}
+	Lang() string
+	Code() string
+	Ordinal() int
+	Page() interface{}
+}
+
+type AttributesOptionsSliceProvider interface {
+	AttributesSlice() []attributes.Attribute
+	OptionsSlice() []attributes.Attribute
+}
+
 type LinkRenderer interface {
 	RenderLink(w io.Writer, ctx LinkContext) error
+	identity.Provider
+}
+
+type CodeBlockRenderer interface {
+	RenderCodeblock(w hugio.FlexiWriter, ctx CodeblockContext) error
 	identity.Provider
 }
 
@@ -63,70 +84,13 @@ type HeadingRenderer interface {
 	identity.Provider
 }
 
-type Renderers struct {
-	LinkRenderer    LinkRenderer
-	ImageRenderer   LinkRenderer
-	HeadingRenderer HeadingRenderer
-}
+type RendererType int
 
-func (r Renderers) Eq(other interface{}) bool {
-	ro, ok := other.(Renderers)
-	if !ok {
-		return false
-	}
+const (
+	LinkRendererType RendererType = iota + 1
+	ImageRendererType
+	HeadingRendererType
+	CodeBlockRendererType
+)
 
-	if r.IsZero() || ro.IsZero() {
-		return r.IsZero() && ro.IsZero()
-	}
-
-	var b1, b2 bool
-	b1, b2 = r.ImageRenderer == nil, ro.ImageRenderer == nil
-	if (b1 || b2) && (b1 != b2) {
-		return false
-	}
-	if !b1 && r.ImageRenderer.GetIdentity() != ro.ImageRenderer.GetIdentity() {
-		return false
-	}
-
-	b1, b2 = r.LinkRenderer == nil, ro.LinkRenderer == nil
-	if (b1 || b2) && (b1 != b2) {
-		return false
-	}
-	if !b1 && r.LinkRenderer.GetIdentity() != ro.LinkRenderer.GetIdentity() {
-		return false
-	}
-
-	b1, b2 = r.HeadingRenderer == nil, ro.HeadingRenderer == nil
-	if (b1 || b2) && (b1 != b2) {
-		return false
-	}
-	if !b1 && r.HeadingRenderer.GetIdentity() != ro.HeadingRenderer.GetIdentity() {
-		return false
-	}
-
-	return true
-}
-
-func (r Renderers) IsZero() bool {
-	return r.HeadingRenderer == nil && r.LinkRenderer == nil && r.ImageRenderer == nil
-}
-
-func (r Renderers) String() string {
-	if r.IsZero() {
-		return "<zero>"
-	}
-
-	var sb strings.Builder
-
-	if r.LinkRenderer != nil {
-		sb.WriteString(fmt.Sprintf("LinkRenderer<%s>|", r.LinkRenderer.GetIdentity()))
-	}
-	if r.HeadingRenderer != nil {
-		sb.WriteString(fmt.Sprintf("HeadingRenderer<%s>|", r.HeadingRenderer.GetIdentity()))
-	}
-	if r.ImageRenderer != nil {
-		sb.WriteString(fmt.Sprintf("ImageRenderer<%s>|", r.ImageRenderer.GetIdentity()))
-	}
-
-	return sb.String()
-}
+type GetRendererFunc func(t RendererType, id interface{}) interface{}

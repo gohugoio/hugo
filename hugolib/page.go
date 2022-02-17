@@ -22,6 +22,8 @@ import (
 	"sort"
 	"strings"
 
+	"go.uber.org/atomic"
+
 	"github.com/gohugoio/hugo/identity"
 
 	"github.com/gohugoio/hugo/markup/converter"
@@ -47,7 +49,6 @@ import (
 
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/text"
-	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -118,11 +119,18 @@ type pageState struct {
 	// formats (for all sites).
 	pageOutputs []*pageOutput
 
+	// Used to determine if we can reuse content across output formats.
+	pageOutputTemplateVariationsState *atomic.Uint32
+
 	// This will be shifted out when we start to render a new output format.
 	*pageOutput
 
 	// Common for all output formats.
 	*pageCommon
+}
+
+func (p *pageState) reusePageOutputContent() bool {
+	return p.pageOutputTemplateVariationsState.Load() == 1
 }
 
 func (p *pageState) Err() error {
@@ -392,56 +400,6 @@ func (ps *pageState) initCommonProviders(pp pagePaths) error {
 	ps.SitesProvider = ps.s.Info
 
 	return nil
-}
-
-func (p *pageState) createRenderHooks(f output.Format) (hooks.Renderers, error) {
-	layoutDescriptor := p.getLayoutDescriptor()
-	layoutDescriptor.RenderingHook = true
-	layoutDescriptor.LayoutOverride = false
-	layoutDescriptor.Layout = ""
-
-	var renderers hooks.Renderers
-
-	layoutDescriptor.Kind = "render-link"
-	templ, templFound, err := p.s.Tmpl().LookupLayout(layoutDescriptor, f)
-	if err != nil {
-		return renderers, err
-	}
-	if templFound {
-		renderers.LinkRenderer = hookRenderer{
-			templateHandler: p.s.Tmpl(),
-			SearchProvider:  templ.(identity.SearchProvider),
-			templ:           templ,
-		}
-	}
-
-	layoutDescriptor.Kind = "render-image"
-	templ, templFound, err = p.s.Tmpl().LookupLayout(layoutDescriptor, f)
-	if err != nil {
-		return renderers, err
-	}
-	if templFound {
-		renderers.ImageRenderer = hookRenderer{
-			templateHandler: p.s.Tmpl(),
-			SearchProvider:  templ.(identity.SearchProvider),
-			templ:           templ,
-		}
-	}
-
-	layoutDescriptor.Kind = "render-heading"
-	templ, templFound, err = p.s.Tmpl().LookupLayout(layoutDescriptor, f)
-	if err != nil {
-		return renderers, err
-	}
-	if templFound {
-		renderers.HeadingRenderer = hookRenderer{
-			templateHandler: p.s.Tmpl(),
-			SearchProvider:  templ.(identity.SearchProvider),
-			templ:           templ,
-		}
-	}
-
-	return renderers, nil
 }
 
 func (p *pageState) getLayoutDescriptor() output.LayoutDescriptor {
@@ -867,7 +825,7 @@ func (p *pageState) shiftToOutputFormat(isRenderingSite bool, idx int) error {
 
 	if isRenderingSite {
 		cp := p.pageOutput.cp
-		if cp == nil {
+		if cp == nil && p.reusePageOutputContent() {
 			// Look for content to reuse.
 			for i := 0; i < len(p.pageOutputs); i++ {
 				if i == idx {
@@ -875,7 +833,7 @@ func (p *pageState) shiftToOutputFormat(isRenderingSite bool, idx int) error {
 				}
 				po := p.pageOutputs[i]
 
-				if po.cp != nil && po.cp.reuse {
+				if po.cp != nil {
 					cp = po.cp
 					break
 				}

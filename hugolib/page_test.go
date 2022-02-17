@@ -428,8 +428,7 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 
 			assertFunc(t, e.ext, s.RegularPages())
 
-			home, err := s.Info.Home()
-			b.Assert(err, qt.IsNil)
+			home := s.Info.Home()
 			b.Assert(home, qt.Not(qt.IsNil))
 			b.Assert(home.File().Path(), qt.Equals, homePath)
 			b.Assert(content(home), qt.Contains, "Home Page Content")
@@ -1286,7 +1285,7 @@ func TestTranslationKey(t *testing.T) {
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 2)
 
-	home, _ := s.Info.Home()
+	home := s.Info.Home()
 	c.Assert(home, qt.Not(qt.IsNil))
 	c.Assert(home.TranslationKey(), qt.Equals, "home")
 	c.Assert(s.RegularPages()[0].TranslationKey(), qt.Equals, "page/k1")

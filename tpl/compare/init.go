@@ -40,14 +40,14 @@ func init() {
 		ns.AddMethodMapping(ctx.Eq,
 			[]string{"eq"},
 			[][2]string{
-				{`{{ if eq .Section "blog" }}current{{ end }}`, `current`},
+				{`{{ if eq .Section "blog" }}current-section{{ end }}`, `current-section`},
 			},
 		)
 
 		ns.AddMethodMapping(ctx.Ge,
 			[]string{"ge"},
 			[][2]string{
-				{`{{ if ge .Hugo.Version "0.36" }}Reasonable new Hugo version!{{ end }}`, `Reasonable new Hugo version!`},
+				{`{{ if ge hugo.Version "0.80" }}Reasonable new Hugo version!{{ end }}`, `Reasonable new Hugo version!`},
 			},
 		)
 
