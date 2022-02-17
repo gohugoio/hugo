@@ -16,6 +16,7 @@
 package tplimpl
 
 import (
+	"context"
 	"reflect"
 	"strings"
 
@@ -61,8 +62,9 @@ import (
 )
 
 var (
-	_    texttemplate.ExecHelper = (*templateExecHelper)(nil)
-	zero reflect.Value
+	_                texttemplate.ExecHelper = (*templateExecHelper)(nil)
+	zero             reflect.Value
+	contextInterface = reflect.TypeOf((*context.Context)(nil)).Elem()
 )
 
 type templateExecHelper struct {
@@ -70,14 +72,27 @@ type templateExecHelper struct {
 	funcs   map[string]reflect.Value
 }
 
-func (t *templateExecHelper) GetFunc(tmpl texttemplate.Preparer, name string) (reflect.Value, bool) {
+func (t *templateExecHelper) GetFunc(ctx context.Context, tmpl texttemplate.Preparer, name string) (fn reflect.Value, firstArg reflect.Value, found bool) {
 	if fn, found := t.funcs[name]; found {
-		return fn, true
+		if fn.Type().NumIn() > 0 {
+			first := fn.Type().In(0)
+			if first.Implements(contextInterface) {
+				// TODO(bep) check if we can void this conversion every time -- and if that matters.
+				// The first argument may be context.Context. This is never provided by the end user, but it's used to pass down
+				// contextual information, e.g. the top level data context (e.g. Page).
+				return fn, reflect.ValueOf(ctx), true
+			}
+		}
+
+		return fn, zero, true
 	}
-	return zero, false
+	return zero, zero, false
 }
 
-func (t *templateExecHelper) GetMapValue(tmpl texttemplate.Preparer, receiver, key reflect.Value) (reflect.Value, bool) {
+func (t *templateExecHelper) Init(ctx context.Context, tmpl texttemplate.Preparer) {
+}
+
+func (t *templateExecHelper) GetMapValue(ctx context.Context, tmpl texttemplate.Preparer, receiver, key reflect.Value) (reflect.Value, bool) {
 	if params, ok := receiver.Interface().(maps.Params); ok {
 		// Case insensitive.
 		keystr := strings.ToLower(key.String())
@@ -93,10 +108,11 @@ func (t *templateExecHelper) GetMapValue(tmpl texttemplate.Preparer, receiver, k
 	return v, v.IsValid()
 }
 
-func (t *templateExecHelper) GetMethod(tmpl texttemplate.Preparer, receiver reflect.Value, name string) (method reflect.Value, firstArg reflect.Value) {
+func (t *templateExecHelper) GetMethod(ctx context.Context, tmpl texttemplate.Preparer, receiver reflect.Value, name string) (method reflect.Value, firstArg reflect.Value) {
 	if t.running {
 		// This is a hot path and receiver.MethodByName really shows up in the benchmarks,
 		// so we maintain a list of method names with that signature.
+		// TODO(bep) I have a branch that makes this construct superflous.
 		switch name {
 		case "GetPage", "Render":
 			if info, ok := tmpl.(tpl.Info); ok {
@@ -107,7 +123,21 @@ func (t *templateExecHelper) GetMethod(tmpl texttemplate.Preparer, receiver refl
 		}
 	}
 
-	return receiver.MethodByName(name), zero
+	fn := receiver.MethodByName(name)
+	if !fn.IsValid() {
+		return zero, zero
+	}
+
+	if fn.Type().NumIn() > 0 {
+		first := fn.Type().In(0)
+		if first.Implements(contextInterface) {
+			// The first argument may be context.Context. This is never provided by the end user, but it's used to pass down
+			// contextual information, e.g. the top level data context (e.g. Page).
+			return fn, reflect.ValueOf(ctx)
+		}
+	}
+
+	return fn, zero
 }
 
 func newTemplateExecuter(d *deps.Deps) (texttemplate.Executer, map[string]reflect.Value) {

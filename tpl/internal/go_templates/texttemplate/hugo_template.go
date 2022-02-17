@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2022 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 package template
 
 import (
+	"context"
 	"io"
 	"reflect"
 
@@ -39,14 +40,15 @@ type Preparer interface {
 
 // ExecHelper allows some custom eval hooks.
 type ExecHelper interface {
-	GetFunc(tmpl Preparer, name string) (reflect.Value, bool)
-	GetMethod(tmpl Preparer, receiver reflect.Value, name string) (method reflect.Value, firstArg reflect.Value)
-	GetMapValue(tmpl Preparer, receiver, key reflect.Value) (reflect.Value, bool)
+	Init(ctx context.Context, tmpl Preparer)
+	GetFunc(ctx context.Context, tmpl Preparer, name string) (reflect.Value, reflect.Value, bool)
+	GetMethod(ctx context.Context, tmpl Preparer, receiver reflect.Value, name string) (method reflect.Value, firstArg reflect.Value)
+	GetMapValue(ctx context.Context, tmpl Preparer, receiver, key reflect.Value) (reflect.Value, bool)
 }
 
 // Executer executes a given template.
 type Executer interface {
-	Execute(p Preparer, wr io.Writer, data interface{}) error
+	ExecuteWithContext(ctx context.Context, p Preparer, wr io.Writer, data interface{}) error
 }
 
 type executer struct {
@@ -55,6 +57,48 @@ type executer struct {
 
 func NewExecuter(helper ExecHelper) Executer {
 	return &executer{helper: helper}
+}
+
+type (
+	dataContextKeyType    string
+	hasLockContextKeyType string
+)
+
+const (
+	// The data object passed to Execute or ExecuteWithContext gets stored with this key if not already set.
+	DataContextKey = dataContextKeyType("data")
+	// Used in partialCached to signal to nested templates that a lock is already taken.
+	HasLockContextKey = hasLockContextKeyType("hasLock")
+)
+
+// Note: The context is currently not fully implemeted in Hugo. This is a work in progress.
+func (t *executer) ExecuteWithContext(ctx context.Context, p Preparer, wr io.Writer, data interface{}) error {
+	tmpl, err := p.Prepare()
+	if err != nil {
+		return err
+	}
+
+	if v := ctx.Value(DataContextKey); v == nil {
+		ctx = context.WithValue(ctx, DataContextKey, data)
+	}
+
+	value, ok := data.(reflect.Value)
+	if !ok {
+		value = reflect.ValueOf(data)
+	}
+
+	state := &state{
+		ctx:    ctx,
+		helper: t.helper,
+		prep:   p,
+		tmpl:   tmpl,
+		wr:     wr,
+		vars:   []variable{{"$", value}},
+	}
+
+	t.helper.Init(ctx, p)
+
+	return tmpl.executeWithState(state, value)
 }
 
 func (t *executer) Execute(p Preparer, wr io.Writer, data interface{}) error {
@@ -77,7 +121,6 @@ func (t *executer) Execute(p Preparer, wr io.Writer, data interface{}) error {
 	}
 
 	return tmpl.executeWithState(state, value)
-
 }
 
 // Prepare returns a template ready for execution.
@@ -101,8 +144,9 @@ func (t *Template) executeWithState(state *state, value reflect.Value) (err erro
 // can execute in parallel.
 type state struct {
 	tmpl   *Template
-	prep   Preparer   // Added for Hugo.
-	helper ExecHelper // Added for Hugo.
+	ctx    context.Context // Added for Hugo. The orignal data context.
+	prep   Preparer        // Added for Hugo.
+	helper ExecHelper      // Added for Hugo.
 	wr     io.Writer
 	node   parse.Node // current node, for errors
 	vars   []variable // push-down stack of variable values.
@@ -114,10 +158,11 @@ func (s *state) evalFunction(dot reflect.Value, node *parse.IdentifierNode, cmd 
 	name := node.Ident
 
 	var function reflect.Value
+	// Added for Hugo.
+	var first reflect.Value
 	var ok bool
 	if s.helper != nil {
-		// Added for Hugo.
-		function, ok = s.helper.GetFunc(s.prep, name)
+		function, first, ok = s.helper.GetFunc(s.ctx, s.prep, name)
 	}
 
 	if !ok {
@@ -126,6 +171,9 @@ func (s *state) evalFunction(dot reflect.Value, node *parse.IdentifierNode, cmd 
 
 	if !ok {
 		s.errorf("%q is not a defined function", name)
+	}
+	if first != zero {
+		return s.evalCall(dot, function, cmd, name, args, final, first)
 	}
 	return s.evalCall(dot, function, cmd, name, args, final)
 }
@@ -159,7 +207,7 @@ func (s *state) evalField(dot reflect.Value, fieldName string, node parse.Node, 
 	var first reflect.Value
 	var method reflect.Value
 	if s.helper != nil {
-		method, first = s.helper.GetMethod(s.prep, ptr, fieldName)
+		method, first = s.helper.GetMethod(s.ctx, s.prep, ptr, fieldName)
 	} else {
 		method = ptr.MethodByName(fieldName)
 	}
@@ -198,7 +246,7 @@ func (s *state) evalField(dot reflect.Value, fieldName string, node parse.Node, 
 			var result reflect.Value
 			if s.helper != nil {
 				// Added for Hugo.
-				result, _ = s.helper.GetMapValue(s.prep, receiver, nameVal)
+				result, _ = s.helper.GetMapValue(s.ctx, s.prep, receiver, nameVal)
 			} else {
 				result = receiver.MapIndex(nameVal)
 			}

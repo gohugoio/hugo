@@ -75,6 +75,34 @@ partialCached: foo
 `)
 }
 
+// Issue 9519
+func TestIncludeCachedRecursion(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+baseURL = 'http://example.com/'
+-- layouts/index.html --
+{{ partials.IncludeCached "p1.html" . }}
+-- layouts/partials/p1.html --
+{{ partials.IncludeCached "p2.html" . }}
+-- layouts/partials/p2.html --
+P2
+
+  `
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", `
+P2
+`)
+}
+
 func TestIncludeCacheHints(t *testing.T) {
 	t.Parallel()
 
