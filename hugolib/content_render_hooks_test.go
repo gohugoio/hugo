@@ -231,8 +231,8 @@ SHORT3|
 	b.AssertFileContent("public/blog/p3/index.html", `PARTIAL3`)
 	// We may add type template support later, keep this for then. b.AssertFileContent("public/docs/docs1/index.html", `Link docs section: Docs 1|END`)
 	b.AssertFileContent("public/blog/p4/index.html", `<p>IMAGE: Cool Page With Image||/images/Dragster.jpg|Title: image title|Text: Drag Racing|END</p>`)
-	// The regular markdownify func currently gets regular links.
-	b.AssertFileContent("public/blog/p5/index.html", "Inner Link: <a href=\"https://www.google.com\" title=\"Google's Homepage\">Inner Link</a>\n</div>")
+	// markdownify
+	b.AssertFileContent("public/blog/p5/index.html", "Inner Link: |https://www.google.com|Title: Google's Homepage|Text: Inner Link|END")
 
 	b.AssertFileContent("public/blog/p6/index.html",
 		"Inner Inline: Inner Link: With RenderString|https://www.gohugo.io|Title: Hugo's Homepage|Text: Inner Link|END",

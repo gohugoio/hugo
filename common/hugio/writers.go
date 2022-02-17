@@ -18,6 +18,14 @@ import (
 	"io/ioutil"
 )
 
+// As implemented by strings.Builder.
+type FlexiWriter interface {
+	io.Writer
+	io.ByteWriter
+	WriteString(s string) (int, error)
+	WriteRune(r rune) (int, error)
+}
+
 type multiWriteCloser struct {
 	io.Writer
 	closers []io.WriteCloser

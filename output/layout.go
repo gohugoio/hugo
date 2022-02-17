@@ -31,9 +31,15 @@ var reservedSections = map[string]bool{
 type LayoutDescriptor struct {
 	Type    string
 	Section string
-	Kind    string
-	Lang    string
-	Layout  string
+
+	// E.g. "page", but also used for the _markup render kinds, e.g. "render-image".
+	Kind string
+
+	// Comma-separated list of kind variants, e.g. "go,json" as variants which would find "render-codeblock-go.html"
+	KindVariants string
+
+	Lang   string
+	Layout string
 	// LayoutOverride indicates what we should only look for the above layout.
 	LayoutOverride bool
 
@@ -139,6 +145,12 @@ func resolvePageTemplate(d LayoutDescriptor, f Format) []string {
 	}
 
 	if d.RenderingHook {
+		if d.KindVariants != "" {
+			// Add the more specific variants first.
+			for _, variant := range strings.Split(d.KindVariants, ",") {
+				b.addLayoutVariations(d.Kind + "-" + variant)
+			}
+		}
 		b.addLayoutVariations(d.Kind)
 		b.addSectionType()
 	}

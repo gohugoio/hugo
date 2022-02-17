@@ -38,6 +38,7 @@ import (
 	_ "github.com/gohugoio/hugo/tpl/crypto"
 	_ "github.com/gohugoio/hugo/tpl/data"
 	_ "github.com/gohugoio/hugo/tpl/debug"
+	_ "github.com/gohugoio/hugo/tpl/diagrams"
 	_ "github.com/gohugoio/hugo/tpl/encoding"
 	_ "github.com/gohugoio/hugo/tpl/fmt"
 	_ "github.com/gohugoio/hugo/tpl/hugo"

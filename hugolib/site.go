@@ -30,6 +30,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/modules"
 	"golang.org/x/text/unicode/norm"
@@ -54,12 +55,11 @@ import (
 
 	"github.com/gohugoio/hugo/common/maps"
 
-	"github.com/pkg/errors"
-
 	"github.com/gohugoio/hugo/common/text"
 
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/publisher"
+	"github.com/pkg/errors"
 	_errors "github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/langs"
@@ -1773,19 +1773,23 @@ var infoOnMissingLayout = map[string]bool{
 	"404": true,
 }
 
-// hookRenderer is the canonical implementation of all hooks.ITEMRenderer,
+// hookRendererTemplate is the canonical implementation of all hooks.ITEMRenderer,
 // where ITEM is the thing being hooked.
-type hookRenderer struct {
+type hookRendererTemplate struct {
 	templateHandler tpl.TemplateHandler
 	identity.SearchProvider
 	templ tpl.Template
 }
 
-func (hr hookRenderer) RenderLink(w io.Writer, ctx hooks.LinkContext) error {
+func (hr hookRendererTemplate) RenderLink(w io.Writer, ctx hooks.LinkContext) error {
 	return hr.templateHandler.Execute(hr.templ, w, ctx)
 }
 
-func (hr hookRenderer) RenderHeading(w io.Writer, ctx hooks.HeadingContext) error {
+func (hr hookRendererTemplate) RenderHeading(w io.Writer, ctx hooks.HeadingContext) error {
+	return hr.templateHandler.Execute(hr.templ, w, ctx)
+}
+
+func (hr hookRendererTemplate) RenderCodeblock(w hugio.FlexiWriter, ctx hooks.CodeblockContext) error {
 	return hr.templateHandler.Execute(hr.templ, w, ctx)
 }
 

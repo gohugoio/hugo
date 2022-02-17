@@ -39,11 +39,8 @@ func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, erro
 		return nil, err
 	}
 
-	if cfg.Highlight == nil {
-		h := highlight.New(markupConfig.Highlight)
-		cfg.Highlight = func(code, lang, optsStr string) (string, error) {
-			return h.Highlight(code, lang, optsStr)
-		}
+	if cfg.Highlighter == nil {
+		cfg.Highlighter = highlight.New(markupConfig.Highlight)
 	}
 
 	cfg.MarkupConfig = markupConfig
@@ -95,7 +92,7 @@ type ConverterProvider interface {
 	Get(name string) converter.Provider
 	// Default() converter.Provider
 	GetMarkupConfig() markup_config.Config
-	Highlight(code, lang, optsStr string) (string, error)
+	GetHighlighter() highlight.Highlighter
 }
 
 type converterRegistry struct {
@@ -112,8 +109,8 @@ func (r *converterRegistry) Get(name string) converter.Provider {
 	return r.converters[strings.ToLower(name)]
 }
 
-func (r *converterRegistry) Highlight(code, lang, optsStr string) (string, error) {
-	return r.config.Highlight(code, lang, optsStr)
+func (r *converterRegistry) GetHighlighter() highlight.Highlighter {
+	return r.config.Highlighter
 }
 
 func (r *converterRegistry) GetMarkupConfig() markup_config.Config {

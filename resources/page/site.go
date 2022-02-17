@@ -32,6 +32,7 @@ type Site interface {
 	Language() *langs.Language
 	RegularPages() Pages
 	Pages() Pages
+	Home() Page
 	IsServer() bool
 	ServerPort() int
 	Title() string
@@ -87,6 +88,10 @@ func (t testSite) IsServer() bool {
 
 func (t testSite) Language() *langs.Language {
 	return t.l
+}
+
+func (t testSite) Home() Page {
+	return nil
 }
 
 func (t testSite) Pages() Pages {

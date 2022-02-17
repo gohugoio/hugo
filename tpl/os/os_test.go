@@ -11,34 +11,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package os
+package os_test
 
 import (
 	"path/filepath"
 	"testing"
 
-	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/hugolib"
+	"github.com/gohugoio/hugo/tpl/os"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/hugofs"
-	"github.com/spf13/afero"
 )
 
 func TestReadFile(t *testing.T) {
 	t.Parallel()
-	c := qt.New(t)
 
-	workingDir := "/home/hugo"
+	b := newFileTestBuilder(t).Build()
 
-	v := config.New()
-	v.Set("workingDir", workingDir)
+	// helpers.PrintFs(b.H.PathSpec.BaseFs.Work, "", _os.Stdout)
 
-	// f := newTestFuncsterWithViper(v)
-	ns := New(&deps.Deps{Fs: hugofs.NewMem(v)})
-
-	afero.WriteFile(ns.deps.Fs.Source, filepath.Join(workingDir, "/f/f1.txt"), []byte("f1-content"), 0755)
-	afero.WriteFile(ns.deps.Fs.Source, filepath.Join("/home", "f2.txt"), []byte("f2-content"), 0755)
+	ns := os.New(b.H.Deps)
 
 	for _, test := range []struct {
 		filename string
@@ -53,13 +45,13 @@ func TestReadFile(t *testing.T) {
 
 		result, err := ns.ReadFile(test.filename)
 
-		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+		if bb, ok := test.expect.(bool); ok && !bb {
+			b.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		c.Assert(err, qt.IsNil)
-		c.Assert(result, qt.Equals, test.expect)
+		b.Assert(err, qt.IsNil)
+		b.Assert(result, qt.Equals, test.expect)
 	}
 }
 
@@ -67,15 +59,8 @@ func TestFileExists(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	workingDir := "/home/hugo"
-
-	v := config.New()
-	v.Set("workingDir", workingDir)
-
-	ns := New(&deps.Deps{Fs: hugofs.NewMem(v)})
-
-	afero.WriteFile(ns.deps.Fs.Source, filepath.Join(workingDir, "/f/f1.txt"), []byte("f1-content"), 0755)
-	afero.WriteFile(ns.deps.Fs.Source, filepath.Join("/home", "f2.txt"), []byte("f2-content"), 0755)
+	b := newFileTestBuilder(t).Build()
+	ns := os.New(b.H.Deps)
 
 	for _, test := range []struct {
 		filename string
@@ -101,15 +86,8 @@ func TestFileExists(t *testing.T) {
 
 func TestStat(t *testing.T) {
 	t.Parallel()
-	c := qt.New(t)
-	workingDir := "/home/hugo"
-
-	v := config.New()
-	v.Set("workingDir", workingDir)
-
-	ns := New(&deps.Deps{Fs: hugofs.NewMem(v)})
-
-	afero.WriteFile(ns.deps.Fs.Source, filepath.Join(workingDir, "/f/f1.txt"), []byte("f1-content"), 0755)
+	b := newFileTestBuilder(t).Build()
+	ns := os.New(b.H.Deps)
 
 	for _, test := range []struct {
 		filename string
@@ -123,11 +101,28 @@ func TestStat(t *testing.T) {
 		result, err := ns.Stat(test.filename)
 
 		if test.expect == nil {
-			c.Assert(err, qt.Not(qt.IsNil))
+			b.Assert(err, qt.Not(qt.IsNil))
 			continue
 		}
 
-		c.Assert(err, qt.IsNil)
-		c.Assert(result.Size(), qt.Equals, test.expect)
+		b.Assert(err, qt.IsNil)
+		b.Assert(result.Size(), qt.Equals, test.expect)
 	}
+}
+
+func newFileTestBuilder(t *testing.T) *hugolib.IntegrationTestBuilder {
+	files := `
+-- f/f1.txt --
+f1-content
+-- home/f2.txt --
+f2-content
+	`
+
+	return hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			WorkingDir:  "/mywork",
+		},
+	)
 }

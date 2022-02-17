@@ -27,8 +27,7 @@ import (
 // Provider is the package entry point.
 var Provider converter.ProviderProvider = provide{}
 
-type provide struct {
-}
+type provide struct{}
 
 func (p provide) New(cfg converter.ProviderConfig) (converter.Provider, error) {
 	return converter.NewProvider("org", func(ctx converter.DocumentContext) (converter.Converter, error) {

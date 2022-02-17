@@ -30,6 +30,7 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/markup/converter"
+	"github.com/gohugoio/hugo/markup/converter/hooks"
 
 	"github.com/gohugoio/hugo/markup"
 
@@ -47,8 +48,8 @@ var (
 // ContentSpec provides functionality to render markdown content.
 type ContentSpec struct {
 	Converters          markup.ConverterProvider
-	MardownConverter    converter.Converter // Markdown converter with no document context
 	anchorNameSanitizer converter.AnchorNameSanitizer
+	getRenderer         func(t hooks.RendererType, id interface{}) interface{}
 
 	// SummaryLength is the length of the summary that Hugo extracts from a content.
 	summaryLength int
@@ -88,7 +89,6 @@ func NewContentSpec(cfg config.Provider, logger loggers.Logger, contentFs afero.
 	if err != nil {
 		return nil, err
 	}
-	spec.MardownConverter = conv
 	if as, ok := conv.(converter.AnchorNameSanitizer); ok {
 		spec.anchorNameSanitizer = as
 	} else {
@@ -190,14 +190,6 @@ func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 	newcontent = append(content[:startOfTOC], content[endOfTOC:]...)
 	toc = append(replacement, origContent[startOfTOC+len(first):endOfTOC]...)
 	return
-}
-
-func (c *ContentSpec) RenderMarkdown(src []byte) ([]byte, error) {
-	b, err := c.MardownConverter.Convert(converter.RenderContext{Src: src})
-	if err != nil {
-		return nil, err
-	}
-	return b.Bytes(), nil
 }
 
 func (c *ContentSpec) SanitizeAnchorName(s string) string {

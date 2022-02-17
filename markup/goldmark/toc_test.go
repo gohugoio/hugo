@@ -18,6 +18,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/markup_config"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -26,6 +27,8 @@ import (
 
 	qt "github.com/frankban/quicktest"
 )
+
+var nopGetRenderer = func(t hooks.RendererType, id interface{}) interface{} { return nil }
 
 func TestToc(t *testing.T) {
 	c := qt.New(t)
@@ -58,7 +61,7 @@ And then some.
 	c.Assert(err, qt.IsNil)
 	conv, err := p.New(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)
-	b, err := conv.Convert(converter.RenderContext{Src: []byte(content), RenderTOC: true})
+	b, err := conv.Convert(converter.RenderContext{Src: []byte(content), RenderTOC: true, GetRenderer: nopGetRenderer})
 	c.Assert(err, qt.IsNil)
 	got := b.(converter.TableOfContentsProvider).TableOfContents().ToHTML(2, 3, false)
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
@@ -108,7 +111,7 @@ func TestEscapeToc(t *testing.T) {
 		"# `echo codeblock`",
 	}, "\n")
 	// content := ""
-	b, err := safeConv.Convert(converter.RenderContext{Src: []byte(content), RenderTOC: true})
+	b, err := safeConv.Convert(converter.RenderContext{Src: []byte(content), RenderTOC: true, GetRenderer: nopGetRenderer})
 	c.Assert(err, qt.IsNil)
 	got := b.(converter.TableOfContentsProvider).TableOfContents().ToHTML(1, 2, false)
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
@@ -120,7 +123,7 @@ func TestEscapeToc(t *testing.T) {
   </ul>
 </nav>`, qt.Commentf(got))
 
-	b, err = unsafeConv.Convert(converter.RenderContext{Src: []byte(content), RenderTOC: true})
+	b, err = unsafeConv.Convert(converter.RenderContext{Src: []byte(content), RenderTOC: true, GetRenderer: nopGetRenderer})
 	c.Assert(err, qt.IsNil)
 	got = b.(converter.TableOfContentsProvider).TableOfContents().ToHTML(1, 2, false)
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">

@@ -20,6 +20,7 @@ import (
 
 	"github.com/spf13/cast"
 
+	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
 
 	"github.com/gohugoio/hugo/markup/highlight"
@@ -41,9 +42,18 @@ func convert(c *qt.C, mconf markup_config.Config, content string) converter.Resu
 		},
 	)
 	c.Assert(err, qt.IsNil)
+	h := highlight.New(mconf.Highlight)
+
+	getRenderer := func(t hooks.RendererType, id interface{}) interface{} {
+		if t == hooks.CodeBlockRendererType {
+			return h
+		}
+		return nil
+	}
+
 	conv, err := p.New(converter.DocumentContext{DocumentID: "thedoc"})
 	c.Assert(err, qt.IsNil)
-	b, err := conv.Convert(converter.RenderContext{RenderTOC: true, Src: []byte(content)})
+	b, err := conv.Convert(converter.RenderContext{RenderTOC: true, Src: []byte(content), GetRenderer: getRenderer})
 	c.Assert(err, qt.IsNil)
 
 	return b
@@ -372,12 +382,21 @@ LINE5
 			},
 		)
 
+		h := highlight.New(conf)
+
+		getRenderer := func(t hooks.RendererType, id interface{}) interface{} {
+			if t == hooks.CodeBlockRendererType {
+				return h
+			}
+			return nil
+		}
+
 		content := "```" + language + "\n" + code + "\n```"
 
 		c.Assert(err, qt.IsNil)
 		conv, err := p.New(converter.DocumentContext{})
 		c.Assert(err, qt.IsNil)
-		b, err := conv.Convert(converter.RenderContext{Src: []byte(content)})
+		b, err := conv.Convert(converter.RenderContext{Src: []byte(content), GetRenderer: getRenderer})
 		c.Assert(err, qt.IsNil)
 
 		return string(b.Bytes())
@@ -391,7 +410,7 @@ LINE5
 		// TODO(bep) there is a whitespace mismatch (\n) between this and the highlight template func.
 		c.Assert(result, qt.Equals, "<div class=\"highlight\"><pre tabindex=\"0\" class=\"chroma\"><code class=\"language-bash\" data-lang=\"bash\"><span class=\"line\"><span class=\"cl\"><span class=\"nb\">echo</span> <span class=\"s2\">&#34;Hugo Rocks!&#34;</span>\n</span></span></code></pre></div>")
 		result = convertForConfig(c, cfg, `echo "Hugo Rocks!"`, "unknown")
-		c.Assert(result, qt.Equals, "<pre tabindex=\"0\"><code class=\"language-unknown\" data-lang=\"unknown\">echo &quot;Hugo Rocks!&quot;\n</code></pre>")
+		c.Assert(result, qt.Equals, "<pre tabindex=\"0\"><code class=\"language-unknown\" data-lang=\"unknown\">echo &#34;Hugo Rocks!&#34;\n</code></pre>")
 	})
 
 	c.Run("Highlight lines, default config", func(c *qt.C) {
