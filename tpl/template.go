@@ -14,6 +14,7 @@
 package tpl
 
 import (
+	"context"
 	"io"
 	"reflect"
 	"regexp"
@@ -53,6 +54,7 @@ type UnusedTemplatesProvider interface {
 type TemplateHandler interface {
 	TemplateFinder
 	Execute(t Template, wr io.Writer, data interface{}) error
+	ExecuteWithContext(ctx context.Context, t Template, wr io.Writer, data interface{}) error
 	LookupLayout(d output.LayoutDescriptor, f output.Format) (Template, bool, error)
 	HasTemplate(name string) bool
 }
@@ -143,4 +145,21 @@ func extractBaseOf(err string) string {
 // TemplateFuncGetter allows to find a template func by name.
 type TemplateFuncGetter interface {
 	GetFunc(name string) (reflect.Value, bool)
+}
+
+// GetDataFromContext returns the template data context (usually .Page) from ctx if set.
+// NOte: This is not fully implemented yet.
+func GetDataFromContext(ctx context.Context) interface{} {
+	return ctx.Value(texttemplate.DataContextKey)
+}
+
+func GetHasLockFromContext(ctx context.Context) bool {
+	if v := ctx.Value(texttemplate.HasLockContextKey); v != nil {
+		return v.(bool)
+	}
+	return false
+}
+
+func SetHasLockInContext(ctx context.Context, hasLock bool) context.Context {
+	return context.WithValue(ctx, texttemplate.HasLockContextKey, hasLock)
 }

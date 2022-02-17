@@ -15,6 +15,7 @@ package tplimpl
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"path/filepath"
 	"reflect"
@@ -145,8 +146,7 @@ func TestPartialCached(t *testing.T) {
 	partial := `Now: {{ now.UnixNano }}`
 	name := "testing"
 
-	var data struct {
-	}
+	var data struct{}
 
 	v := newTestConfig()
 
@@ -168,19 +168,19 @@ func TestPartialCached(t *testing.T) {
 
 	ns := partials.New(de)
 
-	res1, err := ns.IncludeCached(name, &data)
+	res1, err := ns.IncludeCached(context.Background(), name, &data)
 	c.Assert(err, qt.IsNil)
 
 	for j := 0; j < 10; j++ {
 		time.Sleep(2 * time.Nanosecond)
-		res2, err := ns.IncludeCached(name, &data)
+		res2, err := ns.IncludeCached(context.Background(), name, &data)
 		c.Assert(err, qt.IsNil)
 
 		if !reflect.DeepEqual(res1, res2) {
 			t.Fatalf("cache mismatch")
 		}
 
-		res3, err := ns.IncludeCached(name, &data, fmt.Sprintf("variant%d", j))
+		res3, err := ns.IncludeCached(context.Background(), name, &data, fmt.Sprintf("variant%d", j))
 		c.Assert(err, qt.IsNil)
 
 		if reflect.DeepEqual(res1, res3) {
@@ -191,14 +191,14 @@ func TestPartialCached(t *testing.T) {
 
 func BenchmarkPartial(b *testing.B) {
 	doBenchmarkPartial(b, func(ns *partials.Namespace) error {
-		_, err := ns.Include("bench1")
+		_, err := ns.Include(context.Background(), "bench1")
 		return err
 	})
 }
 
 func BenchmarkPartialCached(b *testing.B) {
 	doBenchmarkPartial(b, func(ns *partials.Namespace) error {
-		_, err := ns.IncludeCached("bench1", nil)
+		_, err := ns.IncludeCached(context.Background(), "bench1", nil)
 		return err
 	})
 }

@@ -15,6 +15,7 @@ package tplimpl
 
 import (
 	"bytes"
+	"context"
 	"embed"
 	"io"
 	"io/fs"
@@ -225,6 +226,10 @@ func (t templateExec) Clone(d *deps.Deps) *templateExec {
 }
 
 func (t *templateExec) Execute(templ tpl.Template, wr io.Writer, data interface{}) error {
+	return t.ExecuteWithContext(context.Background(), templ, wr, data)
+}
+
+func (t *templateExec) ExecuteWithContext(ctx context.Context, templ tpl.Template, wr io.Writer, data interface{}) error {
 	if rlocker, ok := templ.(types.RLocker); ok {
 		rlocker.RLock()
 		defer rlocker.RUnlock()
@@ -249,11 +254,10 @@ func (t *templateExec) Execute(templ tpl.Template, wr io.Writer, data interface{
 		}
 	}
 
-	execErr := t.executor.Execute(templ, wr, data)
+	execErr := t.executor.ExecuteWithContext(ctx, templ, wr, data)
 	if execErr != nil {
 		execErr = t.addFileContext(templ, execErr)
 	}
-
 	return execErr
 }
 
