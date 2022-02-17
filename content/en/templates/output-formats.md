@@ -112,7 +112,7 @@ The following is the full list of configuration options for output formats and t
 : use Go's plain text templates parser for the templates. **Default:** `false`.
 
 `isHTML`
-: used in situations only relevant for `HTML`-type formats; e.g., page aliases.
+: used in situations only relevant for `HTML`-type formats; e.g., page aliases. **Default:** `false`.
 
 `noUgly`
 : used to turn off ugly URLs If `uglyURLs` is set to `true` in your site. **Default:** `false`.
