@@ -167,6 +167,13 @@ baseURL = 'http://example.com/'
 -- layouts/index.html --
 -- layouts/_default/single.html --
 {{ partialCached "heavy.html" "foo" }}
+{{ partialCached "easy1.html" "bar" }}
+{{ partialCached "easy1.html" "baz" }}
+{{ partialCached "easy2.html" "baz" }}
+-- layouts/partials/easy1.html --
+ABCD
+-- layouts/partials/easy2.html --
+ABCDE
 -- layouts/partials/heavy.html --
 {{ $result := slice }}
 {{ range site.RegularPages }}
