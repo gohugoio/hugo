@@ -295,6 +295,12 @@ type Config struct {
 	NoProxy string
 	// Configures GOPRIVATE.
 	Private string
+
+	// Set the workspace file to use, e.g. hugo.work.
+	// Enables Go "Workspace" mode.
+	// Requires Go 1.18+
+	// See https://tip.golang.org/doc/go1.18
+	Workspace string
 }
 
 // hasModuleImport reports whether the project config have one or more
