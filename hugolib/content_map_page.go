@@ -135,6 +135,12 @@ func (m *pageMap) newPageFromContentNode(n *contentNode, parentBucket *pagesMapB
 	}
 	ps.gitInfo = gi
 
+	owners, err := s.h.codeownersForPage(ps)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to load CODEOWNERS")
+	}
+	ps.codeowners = owners
+
 	r, err := content()
 	if err != nil {
 		return nil, err

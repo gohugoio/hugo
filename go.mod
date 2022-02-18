@@ -31,6 +31,7 @@ require (
 	github.com/gohugoio/testmodBuilder/mods v0.0.0-20190520184928-c56af20f2e95
 	github.com/google/go-cmp v0.5.6
 	github.com/gorilla/websocket v1.4.2
+	github.com/hairyhenderson/go-codeowners v0.2.3-0.20201026200250-cdc7c0759690 // indirect
 	github.com/jdkato/prose v1.2.1
 	github.com/kylelemons/godebug v1.1.0
 	github.com/kyokomi/emoji/v2 v2.2.8
@@ -48,7 +49,7 @@ require (
 	github.com/russross/blackfriday v1.6.0
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 	github.com/sanity-io/litter v1.5.1
-	github.com/spf13/afero v1.6.0
+	github.com/spf13/afero v1.8.1
 	github.com/spf13/cast v1.4.1
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/fsync v0.9.0

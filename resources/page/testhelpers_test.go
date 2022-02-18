@@ -252,6 +252,10 @@ func (p *testPage) GitInfo() *gitmap.GitInfo {
 	return nil
 }
 
+func (p *testPage) Codeowners() []string {
+	return nil
+}
+
 func (p *testPage) HasMenuCurrent(menuID string, me *navigation.MenuEntry) bool {
 	panic("not implemented")
 }

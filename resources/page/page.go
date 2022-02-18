@@ -107,6 +107,7 @@ type GetPageProvider interface {
 // GitInfoProvider provides Git info.
 type GitInfoProvider interface {
 	GitInfo() *gitmap.GitInfo
+	Codeowners() []string
 }
 
 // InSectionPositioner provides section navigation.

@@ -148,6 +148,10 @@ func (p *pageState) GitInfo() *gitmap.GitInfo {
 	return p.gitInfo
 }
 
+func (p *pageState) Codeowners() []string {
+	return p.codeowners
+}
+
 // GetTerms gets the terms defined on this page in the given taxonomy.
 // The pages returned will be ordered according to the front matter.
 func (p *pageState) GetTerms(taxonomy string) page.Pages {

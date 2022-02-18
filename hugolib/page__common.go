@@ -103,7 +103,8 @@ type pageCommon struct {
 	pageContent
 
 	// Set if feature enabled and this is in a Git repo.
-	gitInfo *gitmap.GitInfo
+	gitInfo    *gitmap.GitInfo
+	codeowners []string
 
 	// Positional navigation
 	posNextPrev        *nextPrev
