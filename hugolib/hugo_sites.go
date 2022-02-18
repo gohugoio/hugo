@@ -75,7 +75,8 @@ type HugoSites struct {
 
 	*deps.Deps
 
-	gitInfo *gitInfo
+	gitInfo       *gitInfo
+	codeownerInfo *codeownerInfo
 
 	// As loaded from the /data dirs
 	data map[string]interface{}
@@ -174,7 +175,7 @@ type hugoSitesInit struct {
 	// Performs late initialization (before render) of the templates.
 	layouts *lazy.Init
 
-	// Loads the Git info for all the pages if enabled.
+	// Loads the Git info and CODEOWNERS for all the pages if enabled.
 	gitInfo *lazy.Init
 
 	// Maps page translations.
@@ -206,6 +207,18 @@ func (h *HugoSites) gitInfoForPage(p page.Page) (*gitmap.GitInfo, error) {
 	}
 
 	return h.gitInfo.forPage(p), nil
+}
+
+func (h *HugoSites) codeownersForPage(p page.Page) ([]string, error) {
+	if _, err := h.init.gitInfo.Do(); err != nil {
+		return nil, err
+	}
+
+	if h.codeownerInfo == nil {
+		return nil, nil
+	}
+
+	return h.codeownerInfo.forPage(p), nil
 }
 
 func (h *HugoSites) siteInfos() page.Sites {
@@ -416,6 +429,13 @@ func (h *HugoSites) loadGitInfo() error {
 			h.Log.Errorln("Failed to read Git log:", err)
 		} else {
 			h.gitInfo = gi
+		}
+
+		co, err := newCodeowners(h.Cfg)
+		if err != nil {
+			h.Log.Errorln("Failed to read CODEOWNERS:", err)
+		} else {
+			h.codeownerInfo = co
 		}
 	}
 	return nil

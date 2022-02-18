@@ -194,6 +194,10 @@ func (p *nopPage) GitInfo() *gitmap.GitInfo {
 	return nil
 }
 
+func (p *nopPage) Codeowners() []string {
+	return nil
+}
+
 func (p *nopPage) HasMenuCurrent(menuID string, me *navigation.MenuEntry) bool {
 	return false
 }
