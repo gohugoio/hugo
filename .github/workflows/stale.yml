@@ -21,6 +21,7 @@ jobs:
             Please open a new issue for related bugs.
       - uses: actions/stale@04a1828bc18ada028d85a0252a47cd2963a91abe
         with:
+          operations-per-run: 90
           days-before-issue-stale: 365
           days-before-pr-stale: 200
           days-before-issue-close: 21
