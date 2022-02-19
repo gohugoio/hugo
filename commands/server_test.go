@@ -25,6 +25,8 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/htesting"
+	"github.com/gohugoio/hugo/hugofs"
 	"golang.org/x/net/context"
 	"golang.org/x/sync/errgroup"
 
@@ -193,6 +195,172 @@ func runServerTest(c *qt.C, getHome bool, config string, args ...string) (result
 
 	return
 
+}
+
+// Should be able to interrupt the hugo server command after the server detects
+// a configuration change and the configuration is malformed.
+// Issue 8340
+func TestInterruptAfterBadConfig(t *testing.T) {
+	// Test failure takes the form of a timeout, so ensure there's a timeout
+	bail := time.After(time.Duration(30) * time.Second)
+
+	c := qt.New(t)
+	dir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-cli")
+	defer clean()
+
+	cfgStr := `
+
+baseURL = "https://example.org"
+title = "Hugo Commands"
+
+`
+	os.MkdirAll(filepath.Join(dir, "public"), 0777)
+	os.MkdirAll(filepath.Join(dir, "data"), 0777)
+	os.MkdirAll(filepath.Join(dir, "layouts"), 0777)
+
+	writeFile(t, filepath.Join(dir, "config.toml"), cfgStr)
+	writeFile(t, filepath.Join(dir, "content", "p1.md"), `
+---
+title: "P1"
+weight: 1
+---
+
+Content
+
+`)
+	c.Assert(err, qt.IsNil)
+
+	port := 1331
+
+	b := newCommandsBuilder()
+	stop := make(chan bool)
+	done := make(chan struct{})
+	scmd := b.newServerCmdSignaled(stop)
+
+	cmd := scmd.getCommand()
+	cmd.SetArgs([]string{
+		"-s=" + dir,
+		fmt.Sprintf("-p=%d", port),
+		"-d=" + filepath.Join(dir, "public"),
+	})
+
+	go func(n chan struct{}) {
+		_, err = cmd.ExecuteC()
+		c.Assert(err, qt.IsNil)
+		done <- struct{}{}
+	}(done)
+
+	// Wait for the server to be ready
+	time.Sleep(2 * time.Second)
+
+	// Break the config file
+	writeFile(t, filepath.Join(dir, "config.toml"), `
+
+baseURL = "https://example.org"
+title = "Hugo Commands"
+theme = "notarealtheme
+
+`)
+
+	// Wait for the server to make the change
+	time.Sleep(2 * time.Second)
+
+	go func() {
+		// don't block on stopping the server
+		stop <- true
+	}()
+
+	select {
+	case <-done:
+		return
+	case <-bail:
+		t.Fatal("test timed out waiting for the server to stop")
+	}
+
+}
+
+func TestFixBadConfig(t *testing.T) {
+	// Test failure takes the form of a timeout, so ensure there's a timeout
+	bail := time.After(time.Duration(30) * time.Second)
+	c := qt.New(t)
+	dir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-cli")
+	defer clean()
+
+	cfgStr := `
+
+baseURL = "https://example.org"
+title = "Hugo Commands"
+
+`
+	os.MkdirAll(filepath.Join(dir, "public"), 0777)
+	os.MkdirAll(filepath.Join(dir, "data"), 0777)
+	os.MkdirAll(filepath.Join(dir, "layouts"), 0777)
+
+	writeFile(t, filepath.Join(dir, "config.toml"), cfgStr)
+	writeFile(t, filepath.Join(dir, "content", "p1.md"), `
+---
+title: "P1"
+weight: 1
+---
+
+Content
+
+`)
+	c.Assert(err, qt.IsNil)
+
+	port := 1331
+
+	b := newCommandsBuilder()
+	b.logging = true
+	stop := make(chan bool)
+	done := make(chan struct{})
+	scmd := b.newServerCmdSignaled(stop)
+
+	cmd := scmd.getCommand()
+	cmd.SetArgs([]string{
+		"-s=" + dir,
+		fmt.Sprintf("-p=%d", port),
+		"-d=" + filepath.Join(dir, "public"),
+	})
+
+	go func(n chan struct{}) {
+		_, err = cmd.ExecuteC()
+		c.Assert(err, qt.IsNil)
+		done <- struct{}{}
+	}(done)
+
+	// Wait for the server to be ready
+	time.Sleep(2 * time.Second)
+
+	// Break the config file
+	writeFile(t, filepath.Join(dir, "config.toml"), `
+
+baseURL = "https://example.org"
+title = "Hugo Commands"
+theme = "notarealtheme
+
+`)
+
+	// Wait for the server to make the change
+	time.Sleep(2 * time.Second)
+
+	// Fix the config file
+	writeFile(t, filepath.Join(dir, "config.toml"), cfgStr)
+
+	// Wait for the FS watcher to respond
+	time.Sleep(2 * time.Second)
+
+	go func() {
+		// don't block on stopping the server
+		stop <- true
+	}()
+
+	select {
+	case <-done:
+		return
+	case <-bail:
+		t.Fatal("test timed out waiting for the server to stop")
+	}
 }
 
 func TestFixURL(t *testing.T) {

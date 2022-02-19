@@ -777,6 +777,7 @@ func (c *commandeer) partialReRender(urls ...string) error {
 }
 
 func (c *commandeer) fullRebuild(changeType string) {
+	c.created.Reset()
 	if changeType == configChangeGoMod {
 		// go.mod may be changed during the build itself, and
 		// we really want to prevent superfluous builds.
@@ -802,15 +803,16 @@ func (c *commandeer) fullRebuild(changeType string) {
 
 		defer c.timeTrack(time.Now(), "Rebuilt")
 
-		c.commandeerHugoState = newCommandeerHugoState()
 		err := c.loadConfig()
 		if err != nil {
 			// Set the processing on pause until the state is recovered.
 			c.paused = true
+			c.created.Close()
 			c.handleBuildErr(err, "Failed to reload config")
 
 		} else {
 			c.paused = false
+			c.created.Close()
 		}
 
 		if !c.paused {
@@ -885,6 +887,10 @@ func (c *commandeer) newWatcher(pollIntervalStr string, dirList ...string) (*wat
 					return
 				}
 				c.handleEvents(watcher, staticSyncer, evs, configSet)
+				// We might be reloading the configuration in a separate
+				// goroutine, so make sure the config is ready before we
+				// read from it.
+				c.created.Wait()
 				if c.showErrorInBrowser && c.errCount() > 0 {
 					// Need to reload browser to show the error
 					livereload.ForceRefresh()
