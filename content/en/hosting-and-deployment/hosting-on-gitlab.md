@@ -49,8 +49,8 @@ pages:
   artifacts:
     paths:
     - public
-  only:
-  - master
+  rules:
+  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 {{< /code >}}
 
 {{% note %}}
