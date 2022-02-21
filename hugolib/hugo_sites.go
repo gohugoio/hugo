@@ -390,6 +390,9 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 	}
 
 	h.Deps = sites[0].Deps
+	if h.Deps == nil {
+		return nil, initErr
+	}
 
 	// Only needed in server mode.
 	// TODO(bep) clean up the running vs watching terms

@@ -29,12 +29,33 @@ import (
 )
 
 func TestServer(t *testing.T) {
-	if isWindowsCI() {
-		// TODO(bep) not sure why server tests have started to fail on the Windows CI server.
-		t.Skip("Skip server test on appveyor")
-	}
 	c := qt.New(t)
-	dir, clean, err := createSimpleTestSite(t, testSiteConfig{})
+
+	homeContent, err := runServerTestAndGetHome(c, "")
+
+	c.Assert(err, qt.IsNil)
+	c.Assert(homeContent, qt.Contains, "List: Hugo Commands")
+	c.Assert(homeContent, qt.Contains, "Environment: development")
+}
+
+// Issue 9518
+func TestServerPanicOnConfigError(t *testing.T) {
+	c := qt.New(t)
+
+	config := `
+[markup]
+[markup.highlight]
+linenos='table'
+`
+
+	_, err := runServerTestAndGetHome(c, config)
+
+	c.Assert(err, qt.IsNotNil)
+	c.Assert(err.Error(), qt.Contains, "cannot parse 'Highlight.LineNos' as bool:")
+}
+
+func runServerTestAndGetHome(c *qt.C, config string) (string, error) {
+	dir, clean, err := createSimpleTestSite(c, testSiteConfig{configTOML: config})
 	defer clean()
 	c.Assert(err, qt.IsNil)
 
@@ -45,6 +66,7 @@ func TestServer(t *testing.T) {
 		os.RemoveAll(dir)
 	}()
 
+	errors := make(chan error)
 	stop := make(chan bool)
 
 	b := newCommandsBuilder()
@@ -54,25 +76,30 @@ func TestServer(t *testing.T) {
 	cmd.SetArgs([]string{"-s=" + dir, fmt.Sprintf("-p=%d", port)})
 
 	go func() {
-		_, err = cmd.ExecuteC()
-		c.Assert(err, qt.IsNil)
+		_, err := cmd.ExecuteC()
+		if err != nil {
+			errors <- err
+		}
 	}()
 
+	select {
 	// There is no way to know exactly when the server is ready for connections.
 	// We could improve by something like https://golang.org/pkg/net/http/httptest/#Server
 	// But for now, let us sleep and pray!
-	time.Sleep(2 * time.Second)
+	case <-time.After(2 * time.Second):
+	case err := <-errors:
+		return "", err
+	}
 
 	resp, err := http.Get("http://localhost:1331/")
 	c.Assert(err, qt.IsNil)
 	defer resp.Body.Close()
 	homeContent := helpers.ReaderToString(resp.Body)
 
-	c.Assert(homeContent, qt.Contains, "List: Hugo Commands")
-	c.Assert(homeContent, qt.Contains, "Environment: development")
-
 	// Stop the server.
 	stop <- true
+
+	return homeContent, nil
 }
 
 func TestFixURL(t *testing.T) {
