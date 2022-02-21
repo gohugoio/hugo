@@ -15,6 +15,7 @@ package goldmark_test
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/hugolib"
@@ -131,7 +132,7 @@ title: "p1"
 	)
 }
 
-func BenchmarkSiteWithRenderHooks(b *testing.B) {
+func BenchmarkRenderHooks(b *testing.B) {
 	files := `
 -- config.toml --
 -- layouts/_default/_markup/render-heading.html --
@@ -159,10 +160,87 @@ B.
 
 C.
 
-## Hello3 [Test](https://example.com)
+## Hello4 [Test](https://example.com)
 
 D.
+
+[Test](https://example.com)
+
+## Hello5
+
+
 `
+
+	for i := 1; i < 100; i++ {
+		files += fmt.Sprintf("\n-- content/posts/p%d.md --\n"+content, i+1)
+	}
+
+	cfg := hugolib.IntegrationTestConfig{
+		T:           b,
+		TxtarString: files,
+	}
+	builders := make([]*hugolib.IntegrationTestBuilder, b.N)
+
+	for i := range builders {
+		builders[i] = hugolib.NewIntegrationTestBuilder(cfg)
+	}
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		builders[i].Build()
+	}
+}
+
+func BenchmarkCodeblocks(b *testing.B) {
+	files := `
+-- config.toml --
+[markup]
+  [markup.highlight]
+    anchorLineNos = false
+    codeFences = true
+    guessSyntax = false
+    hl_Lines = ''
+    lineAnchors = ''
+    lineNoStart = 1
+    lineNos = false
+    lineNumbersInTable = true
+    noClasses = true
+    style = 'monokai'
+    tabWidth = 4
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	content := `
+
+FENCEgo
+package main
+import "fmt"
+func main() {
+    fmt.Println("hello world")
+}
+FENCE
+
+FENCEbash
+#!/bin/bash
+# Usage: Hello World Bash Shell Script Using Variables
+# Author: Vivek Gite
+# -------------------------------------------------
+ 
+# Define bash shell variable called var 
+# Avoid spaces around the assignment operator (=)
+var="Hello World"
+ 
+# print it 
+echo "$var"
+ 
+# Another way of printing it
+printf "%s\n" "$var"
+FENCE
+`
+
+	content = strings.ReplaceAll(content, "FENCE", "```")
 
 	for i := 1; i < 100; i++ {
 		files += fmt.Sprintf("\n-- content/posts/p%d.md --\n"+content, i+1)
