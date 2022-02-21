@@ -422,7 +422,7 @@ func (c *commandeer) loadConfig() error {
 		}
 		c.hugoSites = h
 		// TODO(bep) improve.
-		if c.buildLock == nil {
+		if c.buildLock == nil && h != nil {
 			c.buildLock = h.LockBuild
 		}
 		close(c.created)
