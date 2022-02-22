@@ -39,7 +39,7 @@ The `image` resource can also be retrieved from a [global resource]({{< relref "
 
 ## Image Processing Methods
 
-The `image` resource implements the  `Resize`, `Fit`, `Fill`, and `Filter` methods, each returning a transformed image using the specified dimensions and processing options. 
+The `image` resource implements the  `Resize`, `Fit`, `Fill`, `Crop`, and `Filter` methods, each returning a transformed image using the specified dimensions and processing options. 
 
 {{% note %}}
 Metadata (EXIF, IPTC, XMP, etc.) is not preserved during image transformation. Use the [`Exif`](#exif) method with the _original_ image to extract EXIF metadata from JPEG or TIFF images.
@@ -70,10 +70,18 @@ Scale down the image to fit the given dimensions while maintaining aspect ratio.
 
 ### Fill
 
-Resize and crop the image to match the given dimensions. Both height and width are required.
+Crop and resize the image to match the given dimensions. Both height and width are required.
 
 ```go
 {{ $image := $resource.Fill "600x400" }}
+```
+
+### Crop
+
+Crop the image to match the given dimensions without resizing. Both height and width are required.
+
+```go
+{{ $image := $resource.Crop "400x400" }}
 ```
 
 ### Filter
@@ -203,7 +211,7 @@ Rotates an image by the given angle counter-clockwise. The rotation will be perf
 
 ### Anchor
 
-Only relevant for the `Fill` method. This is useful for thumbnail generation where the main motive is located in, say, the left corner.
+Only relevant for the `Crop` and `Fill` methods. This is useful for thumbnail generation where the main motive is located in, say, the left corner.
 
 Valid values are `Smart`, `Center`, `TopLeft`, `Top`, `TopRight`, `Left`, `Right`, `BottomLeft`, `Bottom`, `BottomRight`.
 
@@ -249,6 +257,8 @@ _The photo of the sunset used in the examples below is Copyright [Bjørn Erik Pe
 
 {{< imgproc sunset Fit "90x90" />}}
 
+{{< imgproc sunset Crop "250x250 center" />}}
+
 {{< imgproc sunset Resize "300x q10" />}}
 
 This is the shortcode used in the examples above:
@@ -286,7 +296,7 @@ quality = 75
 # Valid values are "picture", "photo", "drawing", "icon", or "text".
 hint = "photo"
 
-# Anchor used when cropping pictures.
+# Anchor used when cropping pictures with either .Fill or .Crop
 # Default is "smart" which does Smart Cropping, using https://github.com/muesli/smartcrop
 # Smart Cropping is content aware and tries to find the best crop for each image.
 # Valid values are Smart, Center, TopLeft, Top, TopRight, Left, Right, BottomLeft, Bottom, BottomRight
@@ -323,11 +333,13 @@ disableLatLong = false
 
 ## Smart Cropping of Images
 
-By default, Hugo will use [Smartcrop](https://github.com/muesli/smartcrop), a library created by [muesli](https://github.com/muesli), when cropping images with `.Fill`. You can set the anchor point manually, but in most cases the smart option will make a good choice. And we will work with the library author to improve this in the future.
+By default, Hugo will use [Smartcrop](https://github.com/muesli/smartcrop), a library created by [muesli](https://github.com/muesli), when cropping images with `.Fill` or `.Crop`. You can set the anchor point manually, but in most cases the smart option will make a good choice. And we will work with the library author to improve this in the future.
 
-An example using the sunset image from above:
+Examples using the sunset image from above:
 
 {{< imgproc sunset Fill "200x200 smart" />}}
+
+{{< imgproc sunset Crop "200x200 smart" />}}
 
 ## Image Processing Performance Consideration
 
