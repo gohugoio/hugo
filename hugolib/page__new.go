@@ -41,6 +41,7 @@ func newPageBase(metaProvider *pageMeta) (*pageState, error) {
 			FileProvider:            metaProvider,
 			AuthorProvider:          metaProvider,
 			Scratcher:               maps.NewScratcher(),
+			store:                   maps.NewScratch(),
 			Positioner:              page.NopPage,
 			InSectionPositioner:     page.NopPage,
 			ResourceMetaProvider:    metaProvider,

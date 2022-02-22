@@ -1769,7 +1769,7 @@ Summary: In Chinese, 好 means good.
 	b.AssertFileContent("public/p6/index.html", "WordCount: 7\nFuzzyWordCount: 100\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: false\nLen Summary: 637\nLen Content: 652")
 }
 
-func TestScratchSite(t *testing.T) {
+func TestScratch(t *testing.T) {
 	t.Parallel()
 
 	b := newTestSitesBuilder(t)
@@ -1794,6 +1794,50 @@ title: Scratch Me!
 
 	b.AssertFileContent("public/index.html", "B: bv")
 	b.AssertFileContent("public/scratchme/index.html", "C: cv")
+}
+
+func TestScratchRebuild(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+-- content/p1.md --
+---
+title: "p1"
+---
+{{< scratchme >}}
+-- layouts/shortcodes/foo.html --
+notused
+-- layouts/shortcodes/scratchme.html --
+{{ .Page.Scratch.Set "scratch" "foo" }}
+{{ .Page.Store.Set "scratch" "bar" }}
+-- layouts/_default/single.html --
+{{ .Content }}
+Scratch: {{ .Scratch.Get "scratch" }}|
+Store: {{ .Store.Get "scratch" }}|
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			Running:     true,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", `
+Scratch: foo|
+Store: bar|
+	`)
+
+	b.EditFiles("layouts/shortcodes/foo.html", "edit")
+
+	b.Build()
+
+	b.AssertFileContent("public/p1/index.html", `
+Scratch: |
+Store: bar|
+	`)
 }
 
 func TestPageParam(t *testing.T) {

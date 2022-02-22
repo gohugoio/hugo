@@ -418,6 +418,10 @@ func (p *nopPage) Scratch() *maps.Scratch {
 	return nil
 }
 
+func (p *nopPage) Store() *maps.Scratch {
+	return nil
+}
+
 func (p *nopPage) RelatedKeywords(cfg related.IndexConfig) ([]related.Keyword, error) {
 	return nil, nil
 }

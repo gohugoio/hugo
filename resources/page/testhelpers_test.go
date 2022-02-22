@@ -498,6 +498,10 @@ func (p *testPage) Scratch() *maps.Scratch {
 	panic("not implemented")
 }
 
+func (p *testPage) Store() *maps.Scratch {
+	panic("not implemented")
+}
+
 func (p *testPage) RelatedKeywords(cfg related.IndexConfig) ([]related.Keyword, error) {
 	v, err := p.Param(cfg.Name)
 	if err != nil {
