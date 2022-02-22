@@ -60,6 +60,9 @@ type pageCommon struct {
 	// Lazily initialized dependencies.
 	init *lazy.Init
 
+	// Store holds state that survives server rebuilds.
+	store *maps.Scratch
+
 	// All of these represents the common parts of a page.Page
 	maps.Scratcher
 	navigation.PageMenusProvider
@@ -132,6 +135,10 @@ type pageCommon struct {
 
 	// Set in fast render mode to force render a given page.
 	forceRender bool
+}
+
+func (p *pageCommon) Store() *maps.Scratch {
+	return p.store
 }
 
 type pagePages struct {
