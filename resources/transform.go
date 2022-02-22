@@ -176,6 +176,10 @@ func (r *resourceAdapter) Data() interface{} {
 	return r.target.Data()
 }
 
+func (r *resourceAdapter) Crop(spec string) (resource.Image, error) {
+	return r.getImageOps().Crop(spec)
+}
+
 func (r *resourceAdapter) Fill(spec string) (resource.Image, error) {
 	return r.getImageOps().Fill(spec)
 }

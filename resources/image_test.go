@@ -137,6 +137,22 @@ func TestImageTransformBasic(t *testing.T) {
 	filledAgain, err := image.Fill("200x100 bottomLeft")
 	c.Assert(err, qt.IsNil)
 	c.Assert(filled, eq, filledAgain)
+
+	cropped, err := image.Crop("300x300 topRight")
+	c.Assert(err, qt.IsNil)
+	c.Assert(cropped.RelPermalink(), qt.Equals, "/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_300x300_crop_q68_linear_topright.jpg")
+	assertWidthHeight(cropped, 300, 300)
+
+	smartcropped, err := image.Crop("200x200 smart")
+	c.Assert(err, qt.IsNil)
+	c.Assert(smartcropped.RelPermalink(), qt.Equals, fmt.Sprintf("/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x200_crop_q68_linear_smart%d.jpg", 1))
+	assertWidthHeight(smartcropped, 200, 200)
+
+	// Check cache
+	croppedAgain, err := image.Crop("300x300 topRight")
+	c.Assert(err, qt.IsNil)
+	c.Assert(cropped, eq, croppedAgain)
+
 }
 
 func TestImageTransformFormat(t *testing.T) {
