@@ -181,6 +181,19 @@ func (i *imageResource) Resize(spec string) (resource.Image, error) {
 	})
 }
 
+// Crop the image to the specified dimensions without resizing using the given anchor point.
+// Space delimited config: 200x300 TopLeft
+func (i *imageResource) Crop(spec string) (resource.Image, error) {
+	conf, err := i.decodeImageConfig("crop", spec)
+	if err != nil {
+		return nil, err
+	}
+
+	return i.doWithImageConfig(conf, func(src image.Image) (image.Image, error) {
+		return i.Proc.ApplyFiltersFromConfig(src, conf)
+	})
+}
+
 // Fit scales down the image using the specified resample filter to fit the specified
 // maximum width and height.
 func (i *imageResource) Fit(spec string) (resource.Image, error) {

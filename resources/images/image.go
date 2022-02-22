@@ -207,6 +207,21 @@ func (p *ImageProcessor) ApplyFiltersFromConfig(src image.Image, conf ImageConfi
 	switch conf.Action {
 	case "resize":
 		filters = append(filters, gift.Resize(conf.Width, conf.Height, conf.Filter))
+	case "crop":
+		if conf.AnchorStr == smartCropIdentifier {
+			bounds, err := p.smartCrop(src, conf.Width, conf.Height, conf.Filter)
+			if err != nil {
+				return nil, err
+			}
+
+			// First crop using the bounds returned by smartCrop.
+			filters = append(filters, gift.Crop(bounds))
+			// Then center crop the image to get an image the desired size without resizing.
+			filters = append(filters, gift.CropToSize(conf.Width, conf.Height, gift.CenterAnchor))
+
+		} else {
+			filters = append(filters, gift.CropToSize(conf.Width, conf.Height, conf.Anchor))
+		}
 	case "fill":
 		if conf.AnchorStr == smartCropIdentifier {
 			bounds, err := p.smartCrop(src, conf.Width, conf.Height, conf.Filter)

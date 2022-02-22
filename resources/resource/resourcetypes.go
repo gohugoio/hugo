@@ -62,6 +62,7 @@ type Image interface {
 type ImageOps interface {
 	Height() int
 	Width() int
+	Crop(spec string) (Image, error)
 	Fill(spec string) (Image, error)
 	Fit(spec string) (Image, error)
 	Resize(spec string) (Image, error)
