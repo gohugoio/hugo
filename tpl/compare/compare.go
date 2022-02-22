@@ -16,13 +16,14 @@ package compare
 
 import (
 	"fmt"
+	"github.com/gohugoio/hugo/common/types"
 	"reflect"
 	"strconv"
 	"time"
 
 	"github.com/gohugoio/hugo/compare"
 
-	"github.com/gohugoio/hugo/common/types"
+	_ "github.com/gohugoio/hugo/common/types"
 )
 
 // New returns a new instance of the compare-namespaced template functions.
@@ -58,6 +59,19 @@ func (*Namespace) Default(dflt interface{}, given ...interface{}) (interface{}, 
 	}
 
 	set := false
+	set = DefaultHelper(given)
+
+	if set {
+		return given[0], nil
+	}
+
+	return dflt, nil
+}
+
+func DefaultHelper(given []interface{}) bool {
+
+	set := false
+	g := reflect.ValueOf(given[0])
 
 	switch g.Kind() {
 	case reflect.Bool:
@@ -82,12 +96,7 @@ func (*Namespace) Default(dflt interface{}, given ...interface{}) (interface{}, 
 	default:
 		set = !g.IsNil()
 	}
-
-	if set {
-		return given[0], nil
-	}
-
-	return dflt, nil
+	return set
 }
 
 // Eq returns the boolean truth of arg1 == arg2 || arg1 == arg3 || arg1 == arg4.
