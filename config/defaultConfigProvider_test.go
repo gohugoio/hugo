@@ -21,8 +21,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/spf13/viper"
-
 	"github.com/gohugoio/hugo/common/para"
 
 	"github.com/gohugoio/hugo/common/maps"
@@ -205,7 +203,6 @@ func TestDefaultConfigProvider(t *testing.T) {
 
 	// Issue #8679
 	c.Run("Merge typed maps", func(c *qt.C) {
-
 		for _, left := range []interface{}{
 			map[string]string{
 				"c": "cv1",
@@ -249,7 +246,6 @@ func TestDefaultConfigProvider(t *testing.T) {
 				"b": "bv1",
 			},
 		} {
-
 			for _, right := range []interface{}{
 				map[string]string{
 					"b": "bv2",
@@ -277,9 +273,7 @@ func TestDefaultConfigProvider(t *testing.T) {
 					},
 				})
 			}
-
 		}
-
 	})
 
 	// Issue #8701
@@ -396,13 +390,6 @@ func BenchmarkDefaultConfigProvider(b *testing.B) {
 			b.Fatal("Get failed")
 		}
 	}
-
-	b.Run("Viper", func(b *testing.B) {
-		v := viper.New()
-		for i := 0; i < b.N; i++ {
-			runMethods(b, v)
-		}
-	})
 
 	b.Run("Custom", func(b *testing.B) {
 		cfg := New()
