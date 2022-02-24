@@ -279,6 +279,16 @@ func TestConvertAttributes(t *testing.T) {
 			},
 		},
 		{
+			"Code block, CodeFences=true,lineanchors",
+			func(conf *markup_config.Config) {
+				withBlockAttributes(conf)
+				conf.Highlight.CodeFences = true
+				conf.Highlight.NoClasses = false
+			},
+			"```bash {linenos=table, anchorlinenos=true, lineanchors=org-coderef--xyz}\necho 'foo';\n```",
+			"<div class=\"highlight\"><div class=\"chroma\">\n<table class=\"lntable\"><tr><td class=\"lntd\">\n<pre tabindex=\"0\" class=\"chroma\"><code><span class=\"lnt\" id=\"org-coderef--xyz-1\"><a style=\"outline: none; text-decoration:none; color:inherit\" href=\"#org-coderef--xyz-1\">1</a>\n</span></code></pre></td>\n<td class=\"lntd\">\n<pre tabindex=\"0\" class=\"chroma\"><code class=\"language-bash\" data-lang=\"bash\"><span class=\"line\"><span class=\"cl\"><span class=\"nb\">echo</span> <span class=\"s1\">&#39;foo&#39;</span><span class=\"p\">;</span>\n</span></span></code></pre></td></tr></table>\n</div>\n</div>",
+		},
+		{
 			"Paragraph",
 			withBlockAttributes,
 			"\nHi there.\n{.myclass }",
