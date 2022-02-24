@@ -15,6 +15,7 @@
 package transform
 
 import (
+	"context"
 	"html"
 	"html/template"
 
@@ -112,7 +113,7 @@ func (ns *Namespace) HTMLUnescape(s interface{}) (string, error) {
 }
 
 // Markdownify renders a given input from Markdown to HTML.
-func (ns *Namespace) Markdownify(s interface{}) (template.HTML, error) {
+func (ns *Namespace) Markdownify(ctx context.Context, s interface{}) (template.HTML, error) {
 	defer herrors.Recover()
 	ss, err := cast.ToStringE(s)
 	if err != nil {
@@ -123,7 +124,7 @@ func (ns *Namespace) Markdownify(s interface{}) (template.HTML, error) {
 	if home == nil {
 		panic("home must not be nil")
 	}
-	sss, err := home.RenderString(ss)
+	sss, err := home.RenderString(ctx, ss)
 
 	// Strip if this is a short inline type of text.
 	bb := ns.deps.ContentSpec.TrimShortHTML([]byte(sss))

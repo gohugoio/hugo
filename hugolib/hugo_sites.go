@@ -190,7 +190,7 @@ func (h *hugoSitesInit) Reset() {
 }
 
 func (h *HugoSites) Data() map[string]interface{} {
-	if _, err := h.init.data.Do(); err != nil {
+	if _, err := h.init.data.Do(context.TODO()); err != nil {
 		h.SendError(errors.Wrap(err, "failed to load data"))
 		return nil
 	}
@@ -198,7 +198,7 @@ func (h *HugoSites) Data() map[string]interface{} {
 }
 
 func (h *HugoSites) gitInfoForPage(p page.Page) (*gitmap.GitInfo, error) {
-	if _, err := h.init.gitInfo.Do(); err != nil {
+	if _, err := h.init.gitInfo.Do(context.TODO()); err != nil {
 		return nil, err
 	}
 
@@ -210,7 +210,7 @@ func (h *HugoSites) gitInfoForPage(p page.Page) (*gitmap.GitInfo, error) {
 }
 
 func (h *HugoSites) codeownersForPage(p page.Page) ([]string, error) {
-	if _, err := h.init.gitInfo.Do(); err != nil {
+	if _, err := h.init.gitInfo.Do(context.TODO()); err != nil {
 		return nil, err
 	}
 
@@ -359,7 +359,7 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 		donec: make(chan bool),
 	}
 
-	h.init.data.Add(func() (interface{}, error) {
+	h.init.data.Add(func(ctx context.Context) (interface{}, error) {
 		err := h.loadData(h.PathSpec.BaseFs.Data.Dirs)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to load data")
@@ -367,7 +367,7 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 		return nil, nil
 	})
 
-	h.init.layouts.Add(func() (interface{}, error) {
+	h.init.layouts.Add(func(ctx context.Context) (interface{}, error) {
 		for _, s := range h.Sites {
 			if err := s.Tmpl().(tpl.TemplateManager).MarkReady(); err != nil {
 				return nil, err
@@ -376,7 +376,7 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 		return nil, nil
 	})
 
-	h.init.translations.Add(func() (interface{}, error) {
+	h.init.translations.Add(func(ctx context.Context) (interface{}, error) {
 		if len(h.Sites) > 1 {
 			allTranslations := pagesToTranslationsMap(h.Sites)
 			assignTranslationsToPages(allTranslations, h.Sites)
@@ -385,7 +385,7 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 		return nil, nil
 	})
 
-	h.init.gitInfo.Add(func() (interface{}, error) {
+	h.init.gitInfo.Add(func(ctx context.Context) (interface{}, error) {
 		err := h.loadGitInfo()
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to load Git info")

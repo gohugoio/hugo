@@ -17,6 +17,7 @@ package internal
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"go/doc"
@@ -49,7 +50,7 @@ type TemplateFuncsNamespace struct {
 	Name string
 
 	// This is the method receiver.
-	Context func(v ...interface{}) (interface{}, error)
+	Context func(ctx context.Context, v ...interface{}) (interface{}, error)
 
 	// Additional info, aliases and examples, per method name.
 	MethodMappings map[string]TemplateFuncMethodMapping
@@ -172,7 +173,7 @@ func (t *TemplateFuncsNamespace) toJSON() ([]byte, error) {
 
 	buf.WriteString(fmt.Sprintf(`%q: {`, t.Name))
 
-	ctx, err := t.Context()
+	ctx, err := t.Context(context.Background())
 	if err != nil {
 		return nil, err
 	}

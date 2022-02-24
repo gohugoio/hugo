@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"os"
 	"path"
@@ -352,7 +353,7 @@ func (p *pageState) String() string {
 // IsTranslated returns whether this content file is translated to
 // other language(s).
 func (p *pageState) IsTranslated() bool {
-	p.s.h.init.translations.Do()
+	p.s.h.init.translations.Do(context.TODO())
 	return len(p.translations) > 0
 }
 
@@ -376,13 +377,13 @@ func (p *pageState) TranslationKey() string {
 
 // AllTranslations returns all translations, including the current Page.
 func (p *pageState) AllTranslations() page.Pages {
-	p.s.h.init.translations.Do()
+	p.s.h.init.translations.Do(context.TODO())
 	return p.allTranslations
 }
 
 // Translations returns the translations excluding the current Page.
 func (p *pageState) Translations() page.Pages {
-	p.s.h.init.translations.Do()
+	p.s.h.init.translations.Do(context.TODO())
 	return p.translations
 }
 
@@ -462,7 +463,7 @@ func (p *pageState) initOutputFormat(isRenderingSite bool, idx int) error {
 
 // Must be run after the site section tree etc. is built and ready.
 func (p *pageState) initPage() error {
-	if _, err := p.init.Do(); err != nil {
+	if _, err := p.init.Do(context.TODO()); err != nil {
 		return err
 	}
 	return nil

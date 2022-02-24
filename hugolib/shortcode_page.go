@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"context"
 	"html/template"
 
 	"github.com/gohugoio/hugo/resources/page"
@@ -50,7 +51,7 @@ func (p *pageForShortcode) page() page.Page {
 	return p.PageWithoutContent.(page.Page)
 }
 
-func (p *pageForShortcode) TableOfContents() template.HTML {
+func (p *pageForShortcode) TableOfContents(context.Context) template.HTML {
 	p.p.enablePlaceholders()
 	return p.toc
 }

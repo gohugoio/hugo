@@ -14,6 +14,8 @@
 package diagrams
 
 import (
+	"context"
+
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/tpl/internal"
 )
@@ -22,13 +24,13 @@ const name = "diagrams"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		ctx := &Diagrams{
+		diag := &Diagrams{
 			d: d,
 		}
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
-			Context: func(args ...interface{}) (interface{}, error) { return ctx, nil },
+			Context: func(ctx context.Context, args ...interface{}) (interface{}, error) { return diag, nil },
 		}
 
 		return ns

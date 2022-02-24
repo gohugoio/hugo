@@ -1,4 +1,4 @@
-// Copyright 2017 The Hugo Authors. All rights reserved.
+// Copyright 2022 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,30 +11,42 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package images
+// Package page provides template functions for accessing the current Page object,
+// the entry level context for the current template.
+package page
 
 import (
 	"context"
 
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/tpl"
+
 	"github.com/gohugoio/hugo/tpl/internal"
 )
 
-const name = "images"
+const name = "page"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		ctx := New(d)
-
 		ns := &internal.TemplateFuncsNamespace{
-			Name:    name,
-			Context: func(cctx context.Context, args ...interface{}) (interface{}, error) { return ctx, nil },
-		}
+			Name: name,
+			Context: func(ctx context.Context, args ...interface{}) (interface{}, error) {
+				v := tpl.GetDataFromContext(ctx)
+				if v == nil {
+					return nil, nil
+				}
 
-		ns.AddMethodMapping(ctx.Config,
-			[]string{"imageConfig"},
-			[][2]string{},
-		)
+				// There is one case where the context value is not a Page,
+				// and that is the sitemap context.
+				// We will eventually fix that.
+				if p, ok := v.(page.Page); ok {
+					return p, nil
+				}
+
+				return nil, nil
+			},
+		}
 
 		return ns
 	}

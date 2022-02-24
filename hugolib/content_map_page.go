@@ -174,7 +174,7 @@ func (m *pageMap) newPageFromContentNode(n *contentNode, parentBucket *pagesMapB
 		return nil, err
 	}
 
-	ps.init.Add(func() (interface{}, error) {
+	ps.init.Add(func(ctx context.Context) (interface{}, error) {
 		pp, err := newPagePaths(s, ps, metaProvider)
 		if err != nil {
 			return nil, err

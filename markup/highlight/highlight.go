@@ -14,6 +14,7 @@
 package highlight
 
 import (
+	"context"
 	"fmt"
 	gohtml "html"
 	"html/template"
@@ -108,15 +109,15 @@ func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts i
 	}, nil
 }
 
-func (h chromaHighlighter) RenderCodeblock(w hugio.FlexiWriter, ctx hooks.CodeblockContext) error {
+func (h chromaHighlighter) RenderCodeblock(ctx context.Context, w hugio.FlexiWriter, ctxt hooks.CodeblockContext) error {
 	cfg := h.cfg
-	attributes := ctx.(hooks.AttributesOptionsSliceProvider).AttributesSlice()
+	attributes := ctxt.(hooks.AttributesOptionsSliceProvider).AttributesSlice()
 
-	if err := applyOptionsFromMap(ctx.Options(), &cfg); err != nil {
+	if err := applyOptionsFromMap(ctxt.Options(), &cfg); err != nil {
 		return err
 	}
 
-	return highlight(w, ctx.Code(), ctx.Lang(), attributes, cfg)
+	return highlight(w, ctxt.Code(), ctxt.Lang(), attributes, cfg)
 }
 
 var id = identity.NewPathIdentity("chroma", "highlight")

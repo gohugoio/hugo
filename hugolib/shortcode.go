@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"html/template"
 	"path"
@@ -272,6 +273,7 @@ const (
 )
 
 func renderShortcode(
+	ctx context.Context,
 	level int,
 	s *Site,
 	tplVariants tpl.TemplateVariants,
@@ -333,7 +335,7 @@ func renderShortcode(
 			case string:
 				inner += innerData
 			case *shortcode:
-				s, more, err := renderShortcode(level+1, s, tplVariants, innerData, data, p)
+				s, more, err := renderShortcode(ctx, level+1, s, tplVariants, innerData, data, p)
 				if err != nil {
 					return "", false, err
 				}
@@ -350,7 +352,7 @@ func renderShortcode(
 		// shortcode.
 		if sc.doMarkup && (level > 0 || sc.configVersion() == 1) {
 			var err error
-			b, err := p.pageOutput.cp.renderContent([]byte(inner), false)
+			b, err := p.pageOutput.cp.renderContent(ctx, []byte(inner), false)
 			if err != nil {
 				return "", false, err
 			}
@@ -386,7 +388,7 @@ func renderShortcode(
 
 	}
 
-	result, err := renderShortcodeWithPage(s.Tmpl(), tmpl, data)
+	result, err := renderShortcodeWithPage(ctx, s.Tmpl(), tmpl, data)
 
 	if err != nil && sc.isInline {
 		fe := herrors.ToFileError("html", err)
@@ -402,7 +404,7 @@ func (s *shortcodeHandler) hasShortcodes() bool {
 	return s != nil && len(s.shortcodes) > 0
 }
 
-func (s *shortcodeHandler) renderShortcodesForPage(p *pageState, f output.Format) (map[string]string, bool, error) {
+func (s *shortcodeHandler) renderShortcodesForPage(ctx context.Context, p *pageState, f output.Format) (map[string]string, bool, error) {
 	rendered := make(map[string]string)
 
 	tplVariants := tpl.TemplateVariants{
@@ -413,7 +415,7 @@ func (s *shortcodeHandler) renderShortcodesForPage(p *pageState, f output.Format
 	var hasVariants bool
 
 	for _, v := range s.shortcodes {
-		s, more, err := renderShortcode(0, s.s, tplVariants, v, nil, p)
+		s, more, err := renderShortcode(ctx, 0, s.s, tplVariants, v, nil, p)
 		if err != nil {
 			err = p.parseError(errors.Wrapf(err, "failed to render shortcode %q", v.name), p.source.parsed.Input(), v.pos)
 			return nil, false, err
@@ -633,11 +635,11 @@ func replaceShortcodeTokens(source []byte, replacements map[string]string) ([]by
 	return source, nil
 }
 
-func renderShortcodeWithPage(h tpl.TemplateHandler, tmpl tpl.Template, data *ShortcodeWithPage) (string, error) {
+func renderShortcodeWithPage(ctx context.Context, h tpl.TemplateHandler, tmpl tpl.Template, data *ShortcodeWithPage) (string, error) {
 	buffer := bp.GetBuffer()
 	defer bp.PutBuffer(buffer)
 
-	err := h.Execute(tmpl, buffer, data)
+	err := h.ExecuteWithContext(ctx, tmpl, buffer, data)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to process shortcode")
 	}

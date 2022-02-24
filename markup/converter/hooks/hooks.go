@@ -14,6 +14,7 @@
 package hooks
 
 import (
+	"context"
 	"io"
 
 	"github.com/gohugoio/hugo/common/hugio"
@@ -50,12 +51,12 @@ type AttributesOptionsSliceProvider interface {
 }
 
 type LinkRenderer interface {
-	RenderLink(w io.Writer, ctx LinkContext) error
+	RenderLink(context.Context, io.Writer, LinkContext) error
 	identity.Provider
 }
 
 type CodeBlockRenderer interface {
-	RenderCodeblock(w hugio.FlexiWriter, ctx CodeblockContext) error
+	RenderCodeblock(context.Context, hugio.FlexiWriter, CodeblockContext) error
 	identity.Provider
 }
 
@@ -80,7 +81,7 @@ type HeadingContext interface {
 // HeadingRenderer describes a uniquely identifiable rendering hook.
 type HeadingRenderer interface {
 	// Render writes the rendered content to w using the data in w.
-	RenderHeading(w io.Writer, ctx HeadingContext) error
+	RenderHeading(context.Context, io.Writer, HeadingContext) error
 	identity.Provider
 }
 

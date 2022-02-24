@@ -153,6 +153,10 @@ func GetDataFromContext(ctx context.Context) interface{} {
 	return ctx.Value(texttemplate.DataContextKey)
 }
 
+func SetDataInContext(ctx context.Context, data interface{}) context.Context {
+	return context.WithValue(ctx, texttemplate.DataContextKey, data)
+}
+
 func GetHasLockFromContext(ctx context.Context) bool {
 	if v := ctx.Value(texttemplate.HasLockContextKey); v != nil {
 		return v.(bool)

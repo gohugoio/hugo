@@ -15,6 +15,7 @@ package converter
 
 import (
 	"bytes"
+	"context"
 
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
@@ -128,6 +129,7 @@ type DocumentContext struct {
 
 // RenderContext holds contextual information about the content to render.
 type RenderContext struct {
+	Ctx       context.Context
 	Src       []byte
 	RenderTOC bool
 

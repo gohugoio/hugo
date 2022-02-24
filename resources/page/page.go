@@ -16,6 +16,7 @@
 package page
 
 import (
+	"context"
 	"html/template"
 
 	"github.com/gohugoio/hugo/identity"
@@ -75,15 +76,15 @@ type ChildCareProvider interface {
 
 // ContentProvider provides the content related values for a Page.
 type ContentProvider interface {
-	Content() (interface{}, error)
-	Plain() string
-	PlainWords() []string
-	Summary() template.HTML
-	Truncated() bool
-	FuzzyWordCount() int
-	WordCount() int
-	ReadingTime() int
-	Len() int
+	Content(ctx context.Context) (interface{}, error)
+	Plain(ctx context.Context) string
+	PlainWords(ctx context.Context) []string
+	Summary(ctx context.Context) template.HTML
+	Truncated(ctx context.Context) bool
+	FuzzyWordCount(ctx context.Context) int
+	WordCount(ctx context.Context) int
+	ReadingTime(ctx context.Context) int
+	Len(ctx context.Context) int
 }
 
 // FileProvider provides the source file.
@@ -216,8 +217,8 @@ type PageMetaProvider interface {
 
 // PageRenderProvider provides a way for a Page to render content.
 type PageRenderProvider interface {
-	Render(layout ...string) (template.HTML, error)
-	RenderString(args ...interface{}) (template.HTML, error)
+	Render(ctx context.Context, layout ...string) (template.HTML, error)
+	RenderString(ctx context.Context, args ...interface{}) (template.HTML, error)
 }
 
 // PageWithoutContent is the Page without any of the content methods.
@@ -330,7 +331,7 @@ type SitesProvider interface {
 
 // TableOfContentsProvider provides the table of contents for a Page.
 type TableOfContentsProvider interface {
-	TableOfContents() template.HTML
+	TableOfContents(ctx context.Context) template.HTML
 }
 
 // TranslationsProvider provides access to any translations.

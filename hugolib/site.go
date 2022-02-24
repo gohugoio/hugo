@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"io"
@@ -174,7 +175,7 @@ type Site struct {
 }
 
 func (s *Site) Taxonomies() TaxonomyList {
-	s.init.taxonomies.Do()
+	s.init.taxonomies.Do(context.TODO())
 	return s.taxonomies
 }
 
@@ -215,8 +216,8 @@ func (init *siteInit) Reset() {
 	init.taxonomies.Reset()
 }
 
-func (s *Site) initInit(init *lazy.Init, pctx pageContext) bool {
-	_, err := init.Do()
+func (s *Site) initInit(ctx context.Context, init *lazy.Init, pctx pageContext) bool {
+	_, err := init.Do(ctx)
 	if err != nil {
 		s.h.FatalError(pctx.wrapError(err))
 	}
@@ -228,7 +229,7 @@ func (s *Site) prepareInits() {
 
 	var init lazy.Init
 
-	s.init.prevNext = init.Branch(func() (interface{}, error) {
+	s.init.prevNext = init.Branch(func(ctx context.Context) (interface{}, error) {
 		regularPages := s.RegularPages()
 		for i, p := range regularPages {
 			np, ok := p.(nextPrevProvider)
@@ -255,7 +256,7 @@ func (s *Site) prepareInits() {
 		return nil, nil
 	})
 
-	s.init.prevNextInSection = init.Branch(func() (interface{}, error) {
+	s.init.prevNextInSection = init.Branch(func(ctx context.Context) (interface{}, error) {
 		var sections page.Pages
 		s.home.treeRef.m.collectSectionsRecursiveIncludingSelf(pageMapQuery{Prefix: s.home.treeRef.key}, func(n *contentNode) {
 			sections = append(sections, n.p)
@@ -312,12 +313,12 @@ func (s *Site) prepareInits() {
 		return nil, nil
 	})
 
-	s.init.menus = init.Branch(func() (interface{}, error) {
+	s.init.menus = init.Branch(func(ctx context.Context) (interface{}, error) {
 		s.assembleMenus()
 		return nil, nil
 	})
 
-	s.init.taxonomies = init.Branch(func() (interface{}, error) {
+	s.init.taxonomies = init.Branch(func(ctx context.Context) (interface{}, error) {
 		err := s.pageMap.assembleTaxonomies()
 		return nil, err
 	})
@@ -328,7 +329,7 @@ type siteRenderingContext struct {
 }
 
 func (s *Site) Menus() navigation.Menus {
-	s.init.menus.Do()
+	s.init.menus.Do(context.TODO())
 	return s.menus
 }
 
@@ -1781,16 +1782,16 @@ type hookRendererTemplate struct {
 	templ tpl.Template
 }
 
-func (hr hookRendererTemplate) RenderLink(w io.Writer, ctx hooks.LinkContext) error {
-	return hr.templateHandler.Execute(hr.templ, w, ctx)
+func (hr hookRendererTemplate) RenderLink(ctx context.Context, w io.Writer, rctx hooks.LinkContext) error {
+	return hr.templateHandler.ExecuteWithContext(ctx, hr.templ, w, rctx)
 }
 
-func (hr hookRendererTemplate) RenderHeading(w io.Writer, ctx hooks.HeadingContext) error {
-	return hr.templateHandler.Execute(hr.templ, w, ctx)
+func (hr hookRendererTemplate) RenderHeading(ctx context.Context, w io.Writer, rctx hooks.HeadingContext) error {
+	return hr.templateHandler.ExecuteWithContext(ctx, hr.templ, w, rctx)
 }
 
-func (hr hookRendererTemplate) RenderCodeblock(w hugio.FlexiWriter, ctx hooks.CodeblockContext) error {
-	return hr.templateHandler.Execute(hr.templ, w, ctx)
+func (hr hookRendererTemplate) RenderCodeblock(ctx context.Context, w hugio.FlexiWriter, rctx hooks.CodeblockContext) error {
+	return hr.templateHandler.ExecuteWithContext(ctx, hr.templ, w, rctx)
 }
 
 func (s *Site) renderForTemplate(name, outputFormat string, d interface{}, w io.Writer, templ tpl.Template) (err error) {
@@ -1799,7 +1800,9 @@ func (s *Site) renderForTemplate(name, outputFormat string, d interface{}, w io.
 		return nil
 	}
 
-	if err = s.Tmpl().Execute(templ, w, d); err != nil {
+	ctx := tpl.SetDataInContext(context.Background(), d)
+
+	if err = s.Tmpl().ExecuteWithContext(ctx, templ, w, d); err != nil {
 		return _errors.Wrapf(err, "render of %q failed", name)
 	}
 	return

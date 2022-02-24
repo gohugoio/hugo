@@ -226,7 +226,8 @@ func (t templateExec) Clone(d *deps.Deps) *templateExec {
 }
 
 func (t *templateExec) Execute(templ tpl.Template, wr io.Writer, data interface{}) error {
-	return t.ExecuteWithContext(context.Background(), templ, wr, data)
+	return errors.New("Please use ExecuteWithContext")
+	// return t.ExecuteWithContext(context.Background(), templ, wr, data)
 }
 
 func (t *templateExec) ExecuteWithContext(ctx context.Context, templ tpl.Template, wr io.Writer, data interface{}) error {

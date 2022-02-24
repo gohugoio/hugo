@@ -14,6 +14,8 @@
 package encoding
 
 import (
+	"context"
+
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/tpl/internal"
 )
@@ -22,14 +24,14 @@ const name = "encoding"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		ctx := New()
+		ec := New()
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
-			Context: func(args ...interface{}) (interface{}, error) { return ctx, nil },
+			Context: func(ctx context.Context, args ...interface{}) (interface{}, error) { return ec, nil },
 		}
 
-		ns.AddMethodMapping(ctx.Base64Decode,
+		ns.AddMethodMapping(ec.Base64Decode,
 			[]string{"base64Decode"},
 			[][2]string{
 				{`{{ "SGVsbG8gd29ybGQ=" | base64Decode }}`, `Hello world`},
@@ -37,14 +39,14 @@ func init() {
 			},
 		)
 
-		ns.AddMethodMapping(ctx.Base64Encode,
+		ns.AddMethodMapping(ec.Base64Encode,
 			[]string{"base64Encode"},
 			[][2]string{
 				{`{{ "Hello world" | base64Encode }}`, `SGVsbG8gd29ybGQ=`},
 			},
 		)
 
-		ns.AddMethodMapping(ctx.Jsonify,
+		ns.AddMethodMapping(ec.Jsonify,
 			[]string{"jsonify"},
 			[][2]string{
 				{`{{ (slice "A" "B" "C") | jsonify }}`, `["A","B","C"]`},
