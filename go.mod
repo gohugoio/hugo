@@ -1,6 +1,7 @@
 module github.com/gohugoio/hugo
 
 require (
+	cloud.google.com/go/iam v0.2.0 // indirect
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
 	github.com/PuerkitoBio/purell v1.1.1
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
@@ -28,7 +29,7 @@ require (
 	github.com/gobwas/glob v0.2.3
 	github.com/gohugoio/go-i18n/v2 v2.1.3-0.20210430103248-4c28c89f8013
 	github.com/gohugoio/locales v0.14.0
-	github.com/gohugoio/localescompressed v0.15.0
+	github.com/gohugoio/localescompressed v1.0.0
 	github.com/gohugoio/testmodBuilder/mods v0.0.0-20190520184928-c56af20f2e95
 	github.com/google/go-cmp v0.5.7
 	github.com/gorilla/websocket v1.4.2
@@ -65,8 +66,7 @@ require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/text v0.3.7
 	golang.org/x/tools v0.1.9
-	google.golang.org/api v0.63.0
-	google.golang.org/grpc v1.43.0 // indirect
+	google.golang.org/api v0.70.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
