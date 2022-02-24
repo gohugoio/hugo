@@ -1420,14 +1420,14 @@ func (s *Site) getMenusFromConfig() navigation.Menus {
 		for name, menu := range menus {
 			m, err := cast.ToSliceE(menu)
 			if err != nil {
-				s.Log.Errorf("unable to process menus in site config\n")
+				s.Log.Errorf("menus in site config contain errors\n")
 				s.Log.Errorln(err)
 			} else {
 				handleErr := func(err error) {
 					if err == nil {
 						return
 					}
-					s.Log.Errorf("unable to process menus in site config\n")
+					s.Log.Errorf("menus in site config contain errors\n")
 					s.Log.Errorln(err)
 				}
 
