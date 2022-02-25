@@ -18,7 +18,6 @@ import (
 	gohtml "html"
 	"html/template"
 	"io"
-	"strconv"
 	"strings"
 
 	"github.com/alecthomas/chroma"
@@ -98,6 +97,10 @@ func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts i
 		return HightlightResult{}, err
 	}
 
+	if err := applyOptionsFromCodeBlockContext(ctx, &cfg); err != nil {
+		return HightlightResult{}, err
+	}
+
 	err := highlight(&b, ctx.Code(), ctx.Lang(), attributes, cfg)
 	if err != nil {
 		return HightlightResult{}, err
@@ -116,6 +119,10 @@ func (h chromaHighlighter) RenderCodeblock(w hugio.FlexiWriter, ctx hooks.Codebl
 		return err
 	}
 
+	if err := applyOptionsFromCodeBlockContext(ctx, &cfg); err != nil {
+		return err
+	}
+
 	return highlight(w, ctx.Code(), ctx.Lang(), attributes, cfg)
 }
 
@@ -131,31 +138,6 @@ type HightlightResult struct {
 
 func (h HightlightResult) Highlighted() template.HTML {
 	return h.Body
-}
-
-func (h chromaHighlighter) toHighlightOptionsAttributes(ctx hooks.CodeblockContext) (map[string]interface{}, map[string]interface{}) {
-	attributes := ctx.Attributes()
-	if attributes == nil || len(attributes) == 0 {
-		return nil, nil
-	}
-
-	options := make(map[string]interface{})
-	attrs := make(map[string]interface{})
-
-	for k, v := range attributes {
-		klow := strings.ToLower(k)
-		if chromaHightlightProcessingAttributes[klow] {
-			options[klow] = v
-		} else {
-			attrs[k] = v
-		}
-	}
-	const lineanchorsKey = "lineanchors"
-	if _, found := options[lineanchorsKey]; !found {
-		// Set it to the ordinal.
-		options[lineanchorsKey] = strconv.Itoa(ctx.Ordinal())
-	}
-	return options, attrs
 }
 
 func highlight(w hugio.FlexiWriter, code, lang string, attributes []attributes.Attribute, cfg Config) error {
