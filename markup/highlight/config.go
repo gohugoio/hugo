@@ -23,8 +23,17 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/markup/converter/hooks"
 
 	"github.com/mitchellh/mapstructure"
+)
+
+const (
+	lineanchorsKey = "lineanchors"
+	lineNosKey     = "linenos"
+	hlLinesKey     = "hl_lines"
+	linosStartKey  = "linenostart"
+	noHlKey        = "nohl"
 )
 
 var DefaultConfig = Config{
@@ -38,7 +47,6 @@ var DefaultConfig = Config{
 	TabWidth:           4,
 }
 
-//
 type Config struct {
 	Style string
 
@@ -133,6 +141,16 @@ func applyOptionsFromMap(optsm map[string]interface{}, cfg *Config) error {
 	return mapstructure.WeakDecode(optsm, cfg)
 }
 
+func applyOptionsFromCodeBlockContext(ctx hooks.CodeblockContext, cfg *Config) error {
+	if cfg.LineAnchors == "" {
+		const lineAnchorPrefix = "hl-"
+		// Set it to the ordinal with a prefix.
+		cfg.LineAnchors = fmt.Sprintf("%s%d", lineAnchorPrefix, ctx.Ordinal())
+	}
+
+	return nil
+}
+
 // ApplyLegacyConfig applies legacy config from back when we had
 // Pygments.
 func ApplyLegacyConfig(cfg config.Provider, conf *Config) error {
@@ -190,13 +208,6 @@ func normalizeHighlightOptions(m map[string]interface{}) {
 	if m == nil {
 		return
 	}
-
-	const (
-		lineNosKey    = "linenos"
-		hlLinesKey    = "hl_lines"
-		linosStartKey = "linenostart"
-		noHlKey       = "nohl"
-	)
 
 	baseLineNumber := 1
 	if v, ok := m[linosStartKey]; ok {
