@@ -14,6 +14,8 @@
 package resources
 
 import (
+	"context"
+
 	"github.com/gohugoio/hugo/resources/postpub"
 	"github.com/gohugoio/hugo/resources/resource"
 )
@@ -23,7 +25,7 @@ type transformationKeyer interface {
 }
 
 // PostProcess wraps the given Resource for later processing.
-func (spec *Spec) PostProcess(r resource.Resource) (postpub.PostPublishedResource, error) {
+func (spec *Spec) PostProcess(ctx context.Context, r resource.Resource) (postpub.PostPublishedResource, error) {
 	key := r.(transformationKeyer).TransformationKey()
 	spec.postProcessMu.RLock()
 	result, found := spec.PostProcessResources[key]
@@ -41,7 +43,7 @@ func (spec *Spec) PostProcess(r resource.Resource) (postpub.PostPublishedResourc
 		return result, nil
 	}
 
-	result = postpub.NewPostPublishResource(spec.incr.Incr(), r)
+	result = postpub.NewPostPublishResource(ctx, spec.incr.Incr(), r)
 	if result == nil {
 		panic("got nil result")
 	}

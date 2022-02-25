@@ -76,7 +76,7 @@ type ChildCareProvider interface {
 
 // ContentProvider provides the content related values for a Page.
 type ContentProvider interface {
-	Content(ctx context.Context) (interface{}, error)
+	resource.ContentProvider
 	Plain(ctx context.Context) string
 	PlainWords(ctx context.Context) []string
 	Summary(ctx context.Context) template.HTML
@@ -84,7 +84,7 @@ type ContentProvider interface {
 	FuzzyWordCount(ctx context.Context) int
 	WordCount(ctx context.Context) int
 	ReadingTime(ctx context.Context) int
-	Len(ctx context.Context) int
+	Len() int
 }
 
 // FileProvider provides the source file.
@@ -139,7 +139,7 @@ type PageMetaProvider interface {
 	// The 4 page dates
 	resource.Dated
 
-	// Aliases forms the base for redirects generation.
+	// Aliases forms the base for redirects genxeration.
 	Aliases() []string
 
 	// BundleType returns the bundle type: "leaf", "branch" or an empty string if it is none.

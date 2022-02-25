@@ -14,6 +14,7 @@
 package postpub
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -46,8 +47,9 @@ const (
 	PostProcessSuffix = "__e="
 )
 
-func NewPostPublishResource(id int, r resource.Resource) PostPublishedResource {
+func NewPostPublishResource(ctx context.Context, id int, r resource.Resource) PostPublishedResource {
 	return &PostPublishResource{
+		ctx:      ctx,
 		prefix:   PostProcessPrefix + "_" + strconv.Itoa(id) + "_",
 		delegate: r,
 	}
@@ -55,6 +57,7 @@ func NewPostPublishResource(id int, r resource.Resource) PostPublishedResource {
 
 // postPublishResource holds a Resource to be transformed post publishing.
 type PostPublishResource struct {
+	ctx      context.Context
 	prefix   string
 	delegate resource.Resource
 }
@@ -100,7 +103,7 @@ func (r *PostPublishResource) GetFieldString(pattern string) (string, bool) {
 	case fieldAccessor == "ResourceType":
 		return d.ResourceType(), true
 	case fieldAccessor == "Content":
-		content, err := d.(resource.ContentProvider).Content()
+		content, err := d.(resource.ContentProvider).Content(r.ctx)
 		if err != nil {
 			return "", true
 		}

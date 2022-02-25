@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -666,8 +667,9 @@ func TestGroupedPages(t *testing.T) {
 
 	writeSourcesToSource(t, "content", fs, groupedSources...)
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+	ctx := context.Background()
 
-	rbysection, err := s.RegularPages().GroupBy("Section", "desc")
+	rbysection, err := s.RegularPages().GroupBy(ctx, "Section", "desc")
 	if err != nil {
 		t.Fatalf("Unable to make PageGroup array: %s", err)
 	}
@@ -688,7 +690,7 @@ func TestGroupedPages(t *testing.T) {
 		t.Errorf("PageGroup has unexpected number of pages. Third group should have '%d' pages, got '%d' pages", 2, len(rbysection[2].Pages))
 	}
 
-	bytype, err := s.RegularPages().GroupBy("Type", "asc")
+	bytype, err := s.RegularPages().GroupBy(ctx, "Type", "asc")
 	if err != nil {
 		t.Fatalf("Unable to make PageGroup array: %s", err)
 	}

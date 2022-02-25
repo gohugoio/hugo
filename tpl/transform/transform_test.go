@@ -14,6 +14,7 @@
 package transform_test
 
 import (
+	"context"
 	"html/template"
 	"testing"
 
@@ -162,6 +163,7 @@ func TestMarkdownify(t *testing.T) {
 	).Build()
 
 	ns := transform.New(b.H.Deps)
+	ctx := context.Background()
 
 	for _, test := range []struct {
 		s      interface{}
@@ -172,7 +174,7 @@ func TestMarkdownify(t *testing.T) {
 		{tstNoStringer{}, false},
 	} {
 
-		result, err := ns.Markdownify(test.s)
+		result, err := ns.Markdownify(ctx, test.s)
 
 		if bb, ok := test.expect.(bool); ok && !bb {
 			b.Assert(err, qt.Not(qt.IsNil))
@@ -192,6 +194,7 @@ func TestMarkdownifyBlocksOfText(t *testing.T) {
 	).Build()
 
 	ns := transform.New(b.H.Deps)
+	ctx := context.Background()
 
 	text := `
 #First 
@@ -205,7 +208,7 @@ This is some more text.
 And then some.
 `
 
-	result, err := ns.Markdownify(text)
+	result, err := ns.Markdownify(ctx, text)
 	b.Assert(err, qt.IsNil)
 	b.Assert(result, qt.Equals, template.HTML(
 		"<p>#First</p>\n<p>This is some <em>bold</em> text.</p>\n<h2 id=\"second\">Second</h2>\n<p>This is some more text.</p>\n<p>And then some.</p>\n"))

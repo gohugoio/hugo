@@ -15,7 +15,205 @@
 
 package page
 
-func MarshalPageToJSON(p Page) ([]byte, error) {
-	// TODO1
-	return nil, nil
+import (
+	"context"
+	"encoding/json"
+	"html/template"
+	"time"
+
+	"github.com/bep/gitmap"
+	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/langs"
+	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/navigation"
+	"github.com/gohugoio/hugo/source"
+)
+
+func MarshalPageToJSON(ctx context.Context, p Page) ([]byte, error) {
+	content, err := p.Content(ctx)
+	if err != nil {
+		return nil, err
+	}
+	plain := p.Plain(ctx)
+	plainWords := p.PlainWords(ctx)
+	summary := p.Summary(ctx)
+	truncated := p.Truncated(ctx)
+	fuzzyWordCount := p.FuzzyWordCount(ctx)
+	wordCount := p.WordCount(ctx)
+	readingTime := p.ReadingTime(ctx)
+	length := p.Len()
+	tableOfContents := p.TableOfContents(ctx)
+	rawContent := p.RawContent()
+	resourceType := p.ResourceType()
+	mediaType := p.MediaType()
+	permalink := p.Permalink()
+	relPermalink := p.RelPermalink()
+	name := p.Name()
+	title := p.Title()
+	params := p.Params()
+	data := p.Data()
+	date := p.Date()
+	lastmod := p.Lastmod()
+	publishDate := p.PublishDate()
+	expiryDate := p.ExpiryDate()
+	aliases := p.Aliases()
+	bundleType := p.BundleType()
+	description := p.Description()
+	draft := p.Draft()
+	isHome := p.IsHome()
+	keywords := p.Keywords()
+	kind := p.Kind()
+	layout := p.Layout()
+	linkTitle := p.LinkTitle()
+	isNode := p.IsNode()
+	isPage := p.IsPage()
+	path := p.Path()
+	pathc := p.Pathc()
+	slug := p.Slug()
+	lang := p.Lang()
+	isSection := p.IsSection()
+	section := p.Section()
+	sectionsEntries := p.SectionsEntries()
+	sectionsPath := p.SectionsPath()
+	sitemap := p.Sitemap()
+	typ := p.Type()
+	weight := p.Weight()
+	language := p.Language()
+	file := p.File()
+	gitInfo := p.GitInfo()
+	codeowners := p.Codeowners()
+	outputFormats := p.OutputFormats()
+	alternativeOutputFormats := p.AlternativeOutputFormats()
+	menus := p.Menus()
+	translationKey := p.TranslationKey()
+	isTranslated := p.IsTranslated()
+	allTranslations := p.AllTranslations()
+	translations := p.Translations()
+	store := p.Store()
+	getIdentity := p.GetIdentity()
+
+	s := struct {
+		Content                  interface{}
+		Plain                    string
+		PlainWords               []string
+		Summary                  template.HTML
+		Truncated                bool
+		FuzzyWordCount           int
+		WordCount                int
+		ReadingTime              int
+		Len                      int
+		TableOfContents          template.HTML
+		RawContent               string
+		ResourceType             string
+		MediaType                media.Type
+		Permalink                string
+		RelPermalink             string
+		Name                     string
+		Title                    string
+		Params                   maps.Params
+		Data                     interface{}
+		Date                     time.Time
+		Lastmod                  time.Time
+		PublishDate              time.Time
+		ExpiryDate               time.Time
+		Aliases                  []string
+		BundleType               files.ContentClass
+		Description              string
+		Draft                    bool
+		IsHome                   bool
+		Keywords                 []string
+		Kind                     string
+		Layout                   string
+		LinkTitle                string
+		IsNode                   bool
+		IsPage                   bool
+		Path                     string
+		Pathc                    string
+		Slug                     string
+		Lang                     string
+		IsSection                bool
+		Section                  string
+		SectionsEntries          []string
+		SectionsPath             string
+		Sitemap                  config.Sitemap
+		Type                     string
+		Weight                   int
+		Language                 *langs.Language
+		File                     source.File
+		GitInfo                  *gitmap.GitInfo
+		Codeowners               []string
+		OutputFormats            OutputFormats
+		AlternativeOutputFormats OutputFormats
+		Menus                    navigation.PageMenus
+		TranslationKey           string
+		IsTranslated             bool
+		AllTranslations          Pages
+		Translations             Pages
+		Store                    *maps.Scratch
+		GetIdentity              identity.Identity
+	}{
+		Content:                  content,
+		Plain:                    plain,
+		PlainWords:               plainWords,
+		Summary:                  summary,
+		Truncated:                truncated,
+		FuzzyWordCount:           fuzzyWordCount,
+		WordCount:                wordCount,
+		ReadingTime:              readingTime,
+		Len:                      length,
+		TableOfContents:          tableOfContents,
+		RawContent:               rawContent,
+		ResourceType:             resourceType,
+		MediaType:                mediaType,
+		Permalink:                permalink,
+		RelPermalink:             relPermalink,
+		Name:                     name,
+		Title:                    title,
+		Params:                   params,
+		Data:                     data,
+		Date:                     date,
+		Lastmod:                  lastmod,
+		PublishDate:              publishDate,
+		ExpiryDate:               expiryDate,
+		Aliases:                  aliases,
+		BundleType:               bundleType,
+		Description:              description,
+		Draft:                    draft,
+		IsHome:                   isHome,
+		Keywords:                 keywords,
+		Kind:                     kind,
+		Layout:                   layout,
+		LinkTitle:                linkTitle,
+		IsNode:                   isNode,
+		IsPage:                   isPage,
+		Path:                     path,
+		Pathc:                    pathc,
+		Slug:                     slug,
+		Lang:                     lang,
+		IsSection:                isSection,
+		Section:                  section,
+		SectionsEntries:          sectionsEntries,
+		SectionsPath:             sectionsPath,
+		Sitemap:                  sitemap,
+		Type:                     typ,
+		Weight:                   weight,
+		Language:                 language,
+		File:                     file,
+		GitInfo:                  gitInfo,
+		Codeowners:               codeowners,
+		OutputFormats:            outputFormats,
+		AlternativeOutputFormats: alternativeOutputFormats,
+		Menus:                    menus,
+		TranslationKey:           translationKey,
+		IsTranslated:             isTranslated,
+		AllTranslations:          allTranslations,
+		Translations:             translations,
+		Store:                    store,
+		GetIdentity:              getIdentity,
+	}
+
+	return json.Marshal(&s)
 }

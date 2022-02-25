@@ -15,6 +15,7 @@ package resources
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"image"
 	"io"
@@ -68,6 +69,7 @@ func newResourceAdapter(spec *Spec, lazyPublish bool, target transformableResour
 	return &resourceAdapter{
 		resourceTransformations: &resourceTransformations{},
 		resourceAdapterInner: &resourceAdapterInner{
+			ctx:         context.TODO(),
 			spec:        spec,
 			publishOnce: po,
 			target:      target,
@@ -79,10 +81,13 @@ func newResourceAdapter(spec *Spec, lazyPublish bool, target transformableResour
 // needs to implement.
 type ResourceTransformation interface {
 	Key() internal.ResourceTransformationKey
-	Transform(ctx *ResourceTransformationCtx) error
+	Transform(*ResourceTransformationCtx) error
 }
 
 type ResourceTransformationCtx struct {
+	// The context that started the transformation.
+	Ctx context.Context
+
 	// The content to transform.
 	From io.Reader
 
@@ -159,12 +164,12 @@ type resourceAdapter struct {
 	*resourceAdapterInner
 }
 
-func (r *resourceAdapter) Content() (interface{}, error) {
+func (r *resourceAdapter) Content(ctx context.Context) (interface{}, error) {
 	r.init(false, true)
 	if r.transformationsErr != nil {
 		return nil, r.transformationsErr
 	}
-	return r.target.Content()
+	return r.target.Content(ctx)
 }
 
 func (r *resourceAdapter) Err() error {
@@ -260,11 +265,16 @@ func (r *resourceAdapter) Title() string {
 }
 
 func (r resourceAdapter) Transform(t ...ResourceTransformation) (ResourceTransformer, error) {
+	return r.TransformWithContext(context.Background(), t...)
+}
+
+func (r resourceAdapter) TransformWithContext(ctx context.Context, t ...ResourceTransformation) (ResourceTransformer, error) {
 	r.resourceTransformations = &resourceTransformations{
 		transformations: append(r.transformations, t...),
 	}
 
 	r.resourceAdapterInner = &resourceAdapterInner{
+		ctx:         ctx,
 		spec:        r.spec,
 		publishOnce: &publishOnce{},
 		target:      r.target,
@@ -355,6 +365,7 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 	defer bp.PutBuffer(b2)
 
 	tctx := &ResourceTransformationCtx{
+		Ctx:                   r.ctx,
 		Data:                  make(map[string]interface{}),
 		OpenResourcePublisher: r.target.openPublishFileForWriting,
 	}
@@ -425,7 +436,6 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 					errMsg = ". Check your Hugo installation; you need the extended version to build SCSS/SASS."
 				} else if tr.Key().Name == "tocss-dart" {
 					errMsg = ". You need dart-sass-embedded in your system $PATH."
-
 				} else if tr.Key().Name == "babel" {
 					errMsg = ". You need to install Babel, see https://gohugo.io/hugo-pipes/babel/"
 				}
@@ -441,6 +451,7 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 		if mayBeCachedOnDisk && r.spec.BuildConfig.UseResourceCache(nil) {
 			tryFileCache = true
 		} else {
+
 			err = tr.Transform(tctx)
 			if err != nil && err != herrors.ErrFeatureNotAvailable {
 				return newErr(err)
@@ -577,6 +588,9 @@ func (r *resourceAdapter) initTransform(publish, setContent bool) {
 }
 
 type resourceAdapterInner struct {
+	// The context that started this transformation.
+	ctx context.Context
+
 	target transformableResource
 
 	spec *Spec

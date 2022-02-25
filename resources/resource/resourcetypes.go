@@ -14,6 +14,7 @@
 package resource
 
 import (
+	"context"
 	"image"
 
 	"github.com/gohugoio/hugo/common/maps"
@@ -152,7 +153,7 @@ type ContentProvider interface {
 	// * Page: template.HTML
 	// * JSON: String
 	// * Etc.
-	Content() (interface{}, error)
+	Content(context.Context) (interface{}, error)
 }
 
 // OpenReadSeekCloser allows setting some other way (than reading from a filesystem)

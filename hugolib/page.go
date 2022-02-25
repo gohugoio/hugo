@@ -191,7 +191,7 @@ func (p *pageState) GetTerms(taxonomy string) page.Pages {
 }
 
 func (p *pageState) MarshalJSON() ([]byte, error) {
-	return page.MarshalPageToJSON(p)
+	return page.MarshalPageToJSON(context.TODO(), p)
 }
 
 func (p *pageState) getPages() page.Pages {

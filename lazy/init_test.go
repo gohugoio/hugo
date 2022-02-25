@@ -48,20 +48,22 @@ func TestInit(t *testing.T) {
 
 	var result string
 
-	f1 := func(name string) func() (interface{}, error) {
-		return func() (interface{}, error) {
+	f1 := func(name string) func(ctx context.Context) (interface{}, error) {
+		return func(ctx context.Context) (interface{}, error) {
 			result += name + "|"
 			doWork()
 			return name, nil
 		}
 	}
 
-	f2 := func() func() (interface{}, error) {
-		return func() (interface{}, error) {
+	f2 := func() func(ctx context.Context) (interface{}, error) {
+		return func(ctx context.Context) (interface{}, error) {
 			doWork()
 			return nil, nil
 		}
 	}
+
+	ctx := context.Background()
 
 	root := New()
 
@@ -83,20 +85,20 @@ func TestInit(t *testing.T) {
 			defer wg.Done()
 			var err error
 			if rnd.Intn(10) < 5 {
-				_, err = root.Do()
+				_, err = root.Do(ctx)
 				c.Assert(err, qt.IsNil)
 			}
 
 			// Add a new branch on the fly.
 			if rnd.Intn(10) > 5 {
 				branch := branch1_2.Branch(f2())
-				_, err = branch.Do()
+				_, err = branch.Do(ctx)
 				c.Assert(err, qt.IsNil)
 			} else {
-				_, err = branch1_2_1.Do()
+				_, err = branch1_2_1.Do(ctx)
 				c.Assert(err, qt.IsNil)
 			}
-			_, err = branch1_2.Do()
+			_, err = branch1_2.Do(ctx)
 			c.Assert(err, qt.IsNil)
 		}(i)
 
@@ -114,7 +116,7 @@ func TestInitAddWithTimeout(t *testing.T) {
 		return nil, nil
 	})
 
-	_, err := init.Do()
+	_, err := init.Do(context.Background())
 
 	c.Assert(err, qt.IsNil)
 }
@@ -133,7 +135,7 @@ func TestInitAddWithTimeoutTimeout(t *testing.T) {
 		return nil, nil
 	})
 
-	_, err := init.Do()
+	_, err := init.Do(context.Background())
 
 	c.Assert(err, qt.Not(qt.IsNil))
 
@@ -149,7 +151,7 @@ func TestInitAddWithTimeoutError(t *testing.T) {
 		return nil, errors.New("failed")
 	})
 
-	_, err := init.Do()
+	_, err := init.Do(context.Background())
 
 	c.Assert(err, qt.Not(qt.IsNil))
 }
@@ -178,8 +180,8 @@ func TestInitBranchOrder(t *testing.T) {
 
 	base := New()
 
-	work := func(size int, f func()) func() (interface{}, error) {
-		return func() (interface{}, error) {
+	work := func(size int, f func()) func(context.Context) (interface{}, error) {
+		return func(context.Context) (interface{}, error) {
 			doWorkOfSize(size)
 			if f != nil {
 				f()
@@ -205,13 +207,13 @@ func TestInitBranchOrder(t *testing.T) {
 	}
 
 	var wg sync.WaitGroup
-
+	ctx := context.Background()
 	for _, v := range inits {
 		v := v
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			_, err := v.Do()
+			_, err := v.Do(ctx)
 			c.Assert(err, qt.IsNil)
 		}()
 	}
@@ -225,17 +227,17 @@ func TestInitBranchOrder(t *testing.T) {
 func TestResetError(t *testing.T) {
 	c := qt.New(t)
 	r := false
-	i := New().Add(func() (interface{}, error) {
+	i := New().Add(func(context.Context) (interface{}, error) {
 		if r {
 			return nil, nil
 		}
 		return nil, errors.New("r is false")
 	})
-	_, err := i.Do()
+	ctx := context.Background()
+	_, err := i.Do(ctx)
 	c.Assert(err, qt.IsNotNil)
 	i.Reset()
 	r = true
-	_, err = i.Do()
+	_, err = i.Do(ctx)
 	c.Assert(err, qt.IsNil)
-
 }

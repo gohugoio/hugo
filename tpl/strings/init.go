@@ -24,43 +24,43 @@ const name = "strings"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		ctx := New(d)
+		sc := New(d)
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
-			Context: func(cctx context.Context, args ...interface{}) (interface{}, error) { return ctx, nil },
+			Context: func(ctx context.Context, args ...interface{}) (interface{}, error) { return sc, nil },
 		}
 
-		ns.AddMethodMapping(ctx.Chomp,
+		ns.AddMethodMapping(sc.Chomp,
 			[]string{"chomp"},
 			[][2]string{
 				{`{{chomp "<p>Blockhead</p>\n" | safeHTML }}`, `<p>Blockhead</p>`},
 			},
 		)
 
-		ns.AddMethodMapping(ctx.CountRunes,
+		ns.AddMethodMapping(sc.CountRunes,
 			[]string{"countrunes"},
 			[][2]string{},
 		)
 
-		ns.AddMethodMapping(ctx.RuneCount,
+		ns.AddMethodMapping(sc.RuneCount,
 			nil,
 			[][2]string{},
 		)
 
-		ns.AddMethodMapping(ctx.CountWords,
+		ns.AddMethodMapping(sc.CountWords,
 			[]string{"countwords"},
 			[][2]string{},
 		)
 
-		ns.AddMethodMapping(ctx.Count,
+		ns.AddMethodMapping(sc.Count,
 			nil,
 			[][2]string{
 				{`{{"aabab" | strings.Count "a" }}`, `3`},
 			},
 		)
 
-		ns.AddMethodMapping(ctx.Contains,
+		ns.AddMethodMapping(sc.Contains,
 			nil,
 			[][2]string{
 				{`{{ strings.Contains "abc" "b" }}`, `true`},
@@ -68,7 +68,7 @@ func init() {
 			},
 		)
 
-		ns.AddMethodMapping(ctx.ContainsAny,
+		ns.AddMethodMapping(sc.ContainsAny,
 			nil,
 			[][2]string{
 				{`{{ strings.ContainsAny "abc" "bcd" }}`, `true`},
@@ -76,7 +76,7 @@ func init() {
 			},
 		)
 
-		ns.AddMethodMapping(ctx.FindRE,
+		ns.AddMethodMapping(sc.FindRE,
 			[]string{"findRE"},
 			[][2]string{
 				{
@@ -86,7 +86,7 @@ func init() {
 			},
 		)
 
-		ns.AddMethodMapping(ctx.HasPrefix,
+		ns.AddMethodMapping(sc.HasPrefix,
 			[]string{"hasPrefix"},
 			[][2]string{
 				{`{{ hasPrefix "Hugo" "Hu" }}`, `true`},
@@ -94,14 +94,14 @@ func init() {
 			},
 		)
 
-		ns.AddMethodMapping(ctx.ToLower,
+		ns.AddMethodMapping(sc.ToLower,
 			[]string{"lower"},
 			[][2]string{
 				{`{{lower "BatMan"}}`, `batman`},
 			},
 		)
 
-		ns.AddMethodMapping(ctx.Replace,
+		ns.AddMethodMapping(sc.Replace,
 			[]string{"replace"},
 			[][2]string{
 				{
@@ -115,7 +115,7 @@ func init() {
 			},
 		)
 
-		ns.AddMethodMapping(ctx.ReplaceRE,
+		ns.AddMethodMapping(sc.ReplaceRE,
 			[]string{"replaceRE"},
 			[][2]string{
 				{
@@ -129,7 +129,7 @@ func init() {
 			},
 		)
 
-		ns.AddMethodMapping(ctx.SliceString,
+		ns.AddMethodMapping(sc.SliceString,
 			[]string{"slicestr"},
 			[][2]string{
 				{`{{slicestr "BatMan" 0 3}}`, `Bat`},
@@ -137,12 +137,12 @@ func init() {
 			},
 		)
 
-		ns.AddMethodMapping(ctx.Split,
+		ns.AddMethodMapping(sc.Split,
 			[]string{"split"},
 			[][2]string{},
 		)
 
-		ns.AddMethodMapping(ctx.Substr,
+		ns.AddMethodMapping(sc.Substr,
 			[]string{"substr"},
 			[][2]string{
 				{`{{substr "BatMan" 0 -3}}`, `Bat`},
@@ -150,21 +150,21 @@ func init() {
 			},
 		)
 
-		ns.AddMethodMapping(ctx.Trim,
+		ns.AddMethodMapping(sc.Trim,
 			[]string{"trim"},
 			[][2]string{
 				{`{{ trim "++Batman--" "+-" }}`, `Batman`},
 			},
 		)
 
-		ns.AddMethodMapping(ctx.TrimLeft,
+		ns.AddMethodMapping(sc.TrimLeft,
 			nil,
 			[][2]string{
 				{`{{ "aabbaa" | strings.TrimLeft "a" }}`, `bbaa`},
 			},
 		)
 
-		ns.AddMethodMapping(ctx.TrimPrefix,
+		ns.AddMethodMapping(sc.TrimPrefix,
 			nil,
 			[][2]string{
 				{`{{ "aabbaa" | strings.TrimPrefix "a" }}`, `abbaa`},
@@ -172,14 +172,14 @@ func init() {
 			},
 		)
 
-		ns.AddMethodMapping(ctx.TrimRight,
+		ns.AddMethodMapping(sc.TrimRight,
 			nil,
 			[][2]string{
 				{`{{ "aabbaa" | strings.TrimRight "a" }}`, `aabb`},
 			},
 		)
 
-		ns.AddMethodMapping(ctx.TrimSuffix,
+		ns.AddMethodMapping(sc.TrimSuffix,
 			nil,
 			[][2]string{
 				{`{{ "aabbaa" | strings.TrimSuffix "a" }}`, `aabba`},
@@ -187,7 +187,7 @@ func init() {
 			},
 		)
 
-		ns.AddMethodMapping(ctx.Title,
+		ns.AddMethodMapping(sc.Title,
 			[]string{"title"},
 			[][2]string{
 				{`{{title "Bat man"}}`, `Bat Man`},
@@ -195,14 +195,14 @@ func init() {
 			},
 		)
 
-		ns.AddMethodMapping(ctx.FirstUpper,
+		ns.AddMethodMapping(sc.FirstUpper,
 			nil,
 			[][2]string{
 				{`{{ "hugo rocks!" | strings.FirstUpper }}`, `Hugo rocks!`},
 			},
 		)
 
-		ns.AddMethodMapping(ctx.Truncate,
+		ns.AddMethodMapping(sc.Truncate,
 			[]string{"truncate"},
 			[][2]string{
 				{`{{ "this is a very long text" | truncate 10 " ..." }}`, `this is a ...`},
@@ -210,14 +210,14 @@ func init() {
 			},
 		)
 
-		ns.AddMethodMapping(ctx.Repeat,
+		ns.AddMethodMapping(sc.Repeat,
 			nil,
 			[][2]string{
 				{`{{ "yo" | strings.Repeat 4 }}`, `yoyoyoyo`},
 			},
 		)
 
-		ns.AddMethodMapping(ctx.ToUpper,
+		ns.AddMethodMapping(sc.ToUpper,
 			[]string{"upper"},
 			[][2]string{
 				{`{{upper "BatMan"}}`, `BATMAN`},

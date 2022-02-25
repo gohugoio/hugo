@@ -15,6 +15,8 @@
 package templates
 
 import (
+	"context"
+
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/internal"
@@ -60,11 +62,11 @@ func (t *executeAsTemplateTransform) Transform(ctx *resources.ResourceTransforma
 
 	ctx.OutPath = t.targetPath
 
-	return t.t.Tmpl().Execute(templ, ctx.To, t.data)
+	return t.t.Tmpl().ExecuteWithContext(ctx.Ctx, templ, ctx.To, t.data)
 }
 
-func (c *Client) ExecuteAsTemplate(res resources.ResourceTransformer, targetPath string, data interface{}) (resource.Resource, error) {
-	return res.Transform(&executeAsTemplateTransform{
+func (c *Client) ExecuteAsTemplate(ctx context.Context, res resources.ResourceTransformer, targetPath string, data interface{}) (resource.Resource, error) {
+	return res.TransformWithContext(ctx, &executeAsTemplateTransform{
 		rs:         c.rs,
 		targetPath: helpers.ToSlashTrimLeading(targetPath),
 		t:          c.t,

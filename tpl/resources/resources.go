@@ -15,6 +15,7 @@
 package resources
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 	"sync"
@@ -101,7 +102,6 @@ func (ns *Namespace) getscssClientDartSass() (*dartsass.Client, error) {
 			return
 		}
 		ns.deps.BuildClosers.Add(ns.scssClientDartSass)
-
 	})
 
 	return ns.scssClientDartSass, err
@@ -146,7 +146,6 @@ func (ns *Namespace) GetRemote(args ...interface{}) resource.Resource {
 		}
 
 		return ns.createClient.FromRemote(urlstr, options)
-
 	}
 
 	r, err := get(args...)
@@ -155,7 +154,6 @@ func (ns *Namespace) GetRemote(args ...interface{}) resource.Resource {
 		return resources.NewErrorResource(errors.Wrap(err, "error calling resources.GetRemote"))
 	}
 	return r
-
 }
 
 // GetMatch finds the first Resource matching the given pattern, or nil if none found.
@@ -239,7 +237,7 @@ func (ns *Namespace) FromString(targetPathIn, contentIn interface{}) (resource.R
 
 // ExecuteAsTemplate creates a Resource from a Go template, parsed and executed with
 // the given data, and published to the relative target path.
-func (ns *Namespace) ExecuteAsTemplate(args ...interface{}) (resource.Resource, error) {
+func (ns *Namespace) ExecuteAsTemplate(ctx context.Context, args ...interface{}) (resource.Resource, error) {
 	if len(args) != 3 {
 		return nil, fmt.Errorf("must provide targetPath, the template data context and a Resource object")
 	}
@@ -254,7 +252,7 @@ func (ns *Namespace) ExecuteAsTemplate(args ...interface{}) (resource.Resource, 
 		return nil, fmt.Errorf("type %T not supported in Resource transformations", args[2])
 	}
 
-	return ns.templatesClient.ExecuteAsTemplate(r, targetPath, data)
+	return ns.templatesClient.ExecuteAsTemplate(ctx, r, targetPath, data)
 }
 
 // Fingerprint transforms the given Resource with a MD5 hash of the content in
@@ -358,7 +356,6 @@ func (ns *Namespace) ToCSS(args ...interface{}) (resource.Resource, error) {
 	}
 
 	return client.ToCSS(r, m)
-
 }
 
 // PostCSS processes the given Resource with PostCSS
@@ -378,8 +375,8 @@ func (ns *Namespace) PostCSS(args ...interface{}) (resource.Resource, error) {
 	return ns.postcssClient.Process(r, options)
 }
 
-func (ns *Namespace) PostProcess(r resource.Resource) (postpub.PostPublishedResource, error) {
-	return ns.deps.ResourceSpec.PostProcess(r)
+func (ns *Namespace) PostProcess(ctx context.Context, r resource.Resource) (postpub.PostPublishedResource, error) {
+	return ns.deps.ResourceSpec.PostProcess(ctx, r)
 }
 
 // Babel processes the given Resource with Babel.

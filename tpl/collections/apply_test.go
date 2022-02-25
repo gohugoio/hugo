@@ -72,22 +72,23 @@ func TestApply(t *testing.T) {
 	ns := New(d)
 
 	strings := []interface{}{"a\n", "b\n"}
+	ctx := context.Background()
 
-	result, err := ns.Apply(strings, "print", "a", "b", "c")
+	result, err := ns.Apply(ctx, strings, "print", "a", "b", "c")
 	c.Assert(err, qt.IsNil)
 	c.Assert(result, qt.DeepEquals, []interface{}{"abc", "abc"})
 
-	_, err = ns.Apply(strings, "apply", ".")
+	_, err = ns.Apply(ctx, strings, "apply", ".")
 	c.Assert(err, qt.Not(qt.IsNil))
 
 	var nilErr *error
-	_, err = ns.Apply(nilErr, "chomp", ".")
+	_, err = ns.Apply(ctx, nilErr, "chomp", ".")
 	c.Assert(err, qt.Not(qt.IsNil))
 
-	_, err = ns.Apply(strings, "dobedobedo", ".")
+	_, err = ns.Apply(ctx, strings, "dobedobedo", ".")
 	c.Assert(err, qt.Not(qt.IsNil))
 
-	_, err = ns.Apply(strings, "foo.Chomp", "c\n")
+	_, err = ns.Apply(ctx, strings, "foo.Chomp", "c\n")
 	if err == nil {
 		t.Errorf("apply with unknown func should fail")
 	}

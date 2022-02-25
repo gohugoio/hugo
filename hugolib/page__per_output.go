@@ -282,8 +282,9 @@ func (p *pageContentOutput) FuzzyWordCount(ctx context.Context) int {
 	return p.fuzzyWordCount
 }
 
-func (p *pageContentOutput) Len(ctx context.Context) int {
-	p.p.s.initInit(ctx, p.initMain, p.p)
+func (p *pageContentOutput) Len() int {
+	// TODO1 move this and use the raw content.
+	p.p.s.initInit(context.TODO(), p.initMain, p.p)
 	return len(p.content)
 }
 
@@ -404,7 +405,7 @@ func (p *pageContentOutput) Render(ctx context.Context, layout ...string) (templ
 	p.p.addDependency(templ.(tpl.Info))
 
 	// Make sure to send the *pageState and not the *pageContentOutput to the template.
-	res, err := executeToString(p.p.s.Tmpl(), templ, p.p)
+	res, err := executeToString(ctx, p.p.s.Tmpl(), templ, p.p)
 	if err != nil {
 		return "", p.p.wrapError(errors.Wrapf(err, "failed to execute template %q v", layout))
 	}
@@ -622,10 +623,10 @@ func (t targetPathsHolder) targetPaths() page.TargetPaths {
 	return t.paths
 }
 
-func executeToString(h tpl.TemplateHandler, templ tpl.Template, data interface{}) (string, error) {
+func executeToString(ctx context.Context, h tpl.TemplateHandler, templ tpl.Template, data interface{}) (string, error) {
 	b := bp.GetBuffer()
 	defer bp.PutBuffer(b)
-	if err := h.Execute(templ, b, data); err != nil {
+	if err := h.ExecuteWithContext(ctx, templ, b, data); err != nil {
 		return "", err
 	}
 	return b.String(), nil

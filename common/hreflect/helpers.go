@@ -17,6 +17,7 @@
 package hreflect
 
 import (
+	"context"
 	"reflect"
 
 	"github.com/gohugoio/hugo/common/types"
@@ -123,4 +124,23 @@ func indirectInterface(v reflect.Value) reflect.Value {
 		return reflect.Value{}
 	}
 	return v.Elem()
+}
+
+var ContextInterface = reflect.TypeOf((*context.Context)(nil)).Elem()
+
+func CallMethodByName(cxt context.Context, name string, v reflect.Value) []reflect.Value {
+	fn := v.MethodByName(name)
+	var args []reflect.Value
+	tp := fn.Type()
+	if tp.NumIn() > 0 {
+		if tp.NumIn() > 1 {
+			panic("not supported")
+		}
+		first := tp.In(0)
+		if first.Implements(ContextInterface) {
+			args = append(args, reflect.ValueOf(cxt))
+		}
+	}
+
+	return fn.Call(args)
 }

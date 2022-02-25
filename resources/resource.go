@@ -14,6 +14,7 @@
 package resources
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -100,6 +101,7 @@ type ResourceTransformer interface {
 
 type Transformer interface {
 	Transform(...ResourceTransformation) (ResourceTransformer, error)
+	TransformWithContext(context.Context, ...ResourceTransformation) (ResourceTransformer, error)
 }
 
 func NewFeatureNotAvailableTransformer(key string, elements ...interface{}) ResourceTransformation {
@@ -112,7 +114,7 @@ type transformerNotAvailable struct {
 	key internal.ResourceTransformationKey
 }
 
-func (t transformerNotAvailable) Transform(ctx *ResourceTransformationCtx) error {
+func (t transformerNotAvailable) Transform(*ResourceTransformationCtx) error {
 	return herrors.ErrFeatureNotAvailable
 }
 
@@ -158,8 +160,7 @@ type baseResource interface {
 	baseResourceInternal
 }
 
-type commonResource struct {
-}
+type commonResource struct{}
 
 // Slice is not meant to be used externally. It's a bridge function
 // for the template functions. See collections.Slice.
@@ -225,7 +226,7 @@ func (l *genericResource) Clone() resource.Resource {
 	return l.clone()
 }
 
-func (l *genericResource) Content() (interface{}, error) {
+func (l *genericResource) Content(ctx context.Context) (interface{}, error) {
 	if err := l.initContent(); err != nil {
 		return nil, err
 	}

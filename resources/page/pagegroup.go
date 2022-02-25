@@ -14,6 +14,7 @@
 package page
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"reflect"
@@ -24,6 +25,7 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/common/collections"
+	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/compare"
 
 	"github.com/gohugoio/hugo/resources/resource"
@@ -100,7 +102,7 @@ var (
 
 // GroupBy groups by the value in the given field or method name and with the given order.
 // Valid values for order is asc, desc, rev and reverse.
-func (p Pages) GroupBy(key string, order ...string) (PagesGroup, error) {
+func (p Pages) GroupBy(ctx context.Context, key string, order ...string) (PagesGroup, error) {
 	if len(p) < 1 {
 		return nil, nil
 	}
@@ -146,7 +148,7 @@ func (p Pages) GroupBy(key string, order ...string) (PagesGroup, error) {
 		case reflect.StructField:
 			fv = ppv.Elem().FieldByName(key)
 		case reflect.Method:
-			fv = ppv.MethodByName(key).Call([]reflect.Value{})[0]
+			fv = hreflect.CallMethodByName(ctx, key, ppv)[0]
 		}
 		if !fv.IsValid() {
 			continue

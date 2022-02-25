@@ -14,6 +14,7 @@
 package resources
 
 import (
+	"context"
 	"image"
 
 	"github.com/gohugoio/hugo/common/hugio"
@@ -56,7 +57,7 @@ func (e *errorResource) ReadSeekCloser() (hugio.ReadSeekCloser, error) {
 	panic(e.error)
 }
 
-func (e *errorResource) Content() (interface{}, error) {
+func (e *errorResource) Content(context.Context) (interface{}, error) {
 	panic(e.error)
 }
 
@@ -129,5 +130,9 @@ func (e *errorResource) DecodeImage() (image.Image, error) {
 }
 
 func (e *errorResource) Transform(...ResourceTransformation) (ResourceTransformer, error) {
+	panic(e.error)
+}
+
+func (e *errorResource) TransformWithContext(context.Context, ...ResourceTransformation) (ResourceTransformer, error) {
 	panic(e.error)
 }

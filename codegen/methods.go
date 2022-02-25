@@ -373,7 +373,7 @@ func (m Methods) ToMarshalJSON(receiver, pkgPath string, excludes ...string) (st
 	what := firstToUpper(trimAsterisk(receiver))
 	pgkName := path.Base(pkgPath)
 
-	fmt.Fprintf(&sb, "func Marshal%sToJSON(%s %s) ([]byte, error) {\n", what, r, receiver)
+	fmt.Fprintf(&sb, "func Marshal%sToJSON(ctx context.Context, %s %s) ([]byte, error) {\n", what, r, receiver)
 
 	var methods Methods
 	excludeRes := make([]*regexp.Regexp, len(excludes))
@@ -383,8 +383,12 @@ func (m Methods) ToMarshalJSON(receiver, pkgPath string, excludes ...string) (st
 	}
 
 	for _, method := range m {
-		// Exclude methods with arguments and incompatible return values
-		if len(method.In) > 0 || len(method.Out) == 0 || len(method.Out) > 2 {
+		if len(method.In) == 1 {
+			// Alow context.Context as input.
+			if method.In[0] != "context.Context" {
+				continue
+			}
+		} else if len(method.In) > 0 || len(method.Out) == 0 || len(method.Out) > 2 {
 			continue
 		}
 
@@ -404,11 +408,15 @@ func (m Methods) ToMarshalJSON(receiver, pkgPath string, excludes ...string) (st
 	}
 
 	for _, method := range methods {
+		var arg string
+		if len(method.In) == 1 {
+			arg = "ctx"
+		}
 		varn := varName(method.Name)
 		if len(method.Out) == 1 {
-			fmt.Fprintf(&sb, "\t%s := %s.%s()\n", varn, r, method.Name)
+			fmt.Fprintf(&sb, "\t%s := %s.%s(%s)\n", varn, r, method.Name, arg)
 		} else {
-			fmt.Fprintf(&sb, "\t%s, err := %s.%s()\n", varn, r, method.Name)
+			fmt.Fprintf(&sb, "\t%s, err := %s.%s(%s)\n", varn, r, method.Name, arg)
 			fmt.Fprint(&sb, "\tif err != nil {\n\t\treturn nil, err\n\t}\n")
 		}
 	}

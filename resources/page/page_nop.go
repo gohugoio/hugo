@@ -271,7 +271,7 @@ func (p *nopPage) Lastmod() (t time.Time) {
 	return
 }
 
-func (p *nopPage) Len(context.Context) int {
+func (p *nopPage) Len() int {
 	return 0
 }
 
