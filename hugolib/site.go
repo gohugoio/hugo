@@ -1798,6 +1798,10 @@ func (hr hookRendererTemplate) ResolvePosition(ctx interface{}) text.Position {
 	return hr.resolvePosition(ctx)
 }
 
+func (hr hookRendererTemplate) IsDefaultCodeBlockRenderer() bool {
+	return false
+}
+
 func (s *Site) renderForTemplate(name, outputFormat string, d interface{}, w io.Writer, templ tpl.Template) (err error) {
 	if templ == nil {
 		s.logMissingLayout(name, "", "", outputFormat)

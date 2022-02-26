@@ -50,7 +50,8 @@ type AttributesOwnerType int
 
 const (
 	AttributesOwnerGeneral AttributesOwnerType = iota
-	AttributesOwnerCodeBlock
+	AttributesOwnerCodeBlockChroma
+	AttributesOwnerCodeBlockCustom
 )
 
 func New(astAttributes []ast.Attribute, ownerType AttributesOwnerType) *AttributesHolder {
@@ -99,7 +100,7 @@ func New(astAttributes []ast.Attribute, ownerType AttributesOwnerType) *Attribut
 			panic(fmt.Sprintf("not implemented: %T", vvv))
 		}
 
-		if ownerType == AttributesOwnerCodeBlock && chromaHightlightProcessingAttributes[nameLower] {
+		if ownerType == AttributesOwnerCodeBlockChroma && chromaHightlightProcessingAttributes[nameLower] {
 			attr := Attribute{Name: string(v.Name), Value: vv}
 			opts = append(opts, attr)
 		} else {

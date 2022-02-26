@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/alecthomas/chroma/lexers"
 	htext "github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
@@ -61,8 +61,6 @@ func (r *htmlRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
 }
 
 func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
-	defer herrors.Recover()
-
 	ctx := w.(*render.Context)
 
 	if entering {
@@ -92,17 +90,26 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 	if n.b.Info != nil {
 		info = n.b.Info.Segment.Value(src)
 	}
+
+	attrtp := attributes.AttributesOwnerCodeBlockCustom
+	if isd, ok := renderer.(hooks.IsDefaultCodeBlockRendererProvider); (ok && isd.IsDefaultCodeBlockRenderer()) || lexers.Get(lang) != nil {
+		// We say that this is a Chroma code block if it's the default code block renderer
+		// or if the language is supported by Chroma.
+		attrtp = attributes.AttributesOwnerCodeBlockChroma
+	}
+
+	// IsDefaultCodeBlockRendererProvider
 	attrs := getAttributes(n.b, info)
 	cbctx := &codeBlockContext{
 		page:             ctx.DocumentContext().Document,
 		lang:             lang,
 		code:             s,
 		ordinal:          ordinal,
-		AttributesHolder: attributes.New(attrs, attributes.AttributesOwnerCodeBlock),
+		AttributesHolder: attributes.New(attrs, attrtp),
 	}
 
 	cbctx.createPos = func() htext.Position {
-		if resolver, ok := renderer.(hooks.ElementPositionRevolver); ok {
+		if resolver, ok := renderer.(hooks.ElementPositionResolver); ok {
 			return resolver.ResolvePosition(cbctx)
 		}
 		return htext.Position{

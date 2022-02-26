@@ -14,6 +14,7 @@
 package codeblocks_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/hugolib"
@@ -176,7 +177,7 @@ Position: {{ .Position | safeHTML }}
 }
 
 // Issue 9571
-func TestOptionsNonChroma(t *testing.T) {
+func TestAttributesChroma(t *testing.T) {
 	t.Parallel()
 
 	files := `
@@ -188,23 +189,27 @@ title: "p1"
 
 ##   Code
 
-§§§bash {style=monokai}
+§§§LANGUAGE {style=monokai}
 echo "p1";
 §§§
 -- layouts/_default/single.html --
 {{ .Content }}
 -- layouts/_default/_markup/render-codeblock.html --
-Style: {{ .Attributes }}|
+Attributes: {{ .Attributes }}|Options: {{ .Options }}|
 
 
 `
+	testLanguage := func(language, expect string) {
+		b := hugolib.NewIntegrationTestBuilder(
+			hugolib.IntegrationTestConfig{
+				T:           t,
+				TxtarString: strings.ReplaceAll(files, "LANGUAGE", language),
+			},
+		).Build()
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+		b.AssertFileContent("public/p1/index.html", expect)
+	}
 
-	b.AssertFileContent("public/p1/index.html", "asdfadf")
+	testLanguage("bash", "Attributes: map[]|Options: map[style:monokai]|")
+	testLanguage("hugo", "Attributes: map[style:monokai]|Options: map[]|")
 }
