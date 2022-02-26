@@ -28,6 +28,9 @@ import (
 )
 
 func NewIntegrationTestBuilder(conf IntegrationTestConfig) *IntegrationTestBuilder {
+	// Code fences.
+	conf.TxtarString = strings.ReplaceAll(conf.TxtarString, "§§§", "```")
+
 	data := txtar.Parse([]byte(conf.TxtarString))
 
 	c, ok := conf.T.(*qt.C)

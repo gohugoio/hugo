@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"fmt"
 
+	htext "github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
 	"github.com/gohugoio/hugo/markup/internal/attributes"
@@ -75,7 +76,8 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 		line := n.b.Lines().At(i)
 		buff.Write(line.Value(src))
 	}
-	text := buff.String()
+
+	text := htext.Chomp(buff.String())
 
 	var info []byte
 	if n.b.Info != nil {
