@@ -14,6 +14,7 @@
 package codeblocks_test
 
 import (
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -173,7 +174,7 @@ Position: {{ .Position | safeHTML }}
 		},
 	).Build()
 
-	b.AssertFileContent("public/p1/index.html", "Position: \"content/p1.md:7:1\"")
+	b.AssertFileContent("public/p1/index.html", filepath.FromSlash("Position: \"content/p1.md:7:1\""))
 }
 
 // Issue 9571
