@@ -29,15 +29,15 @@ import (
 )
 
 type (
-	diagrams     struct{}
-	htmlRenderer struct{}
+	codeBlocksExtension struct{}
+	htmlRenderer        struct{}
 )
 
 func New() goldmark.Extender {
-	return &diagrams{}
+	return &codeBlocksExtension{}
 }
 
-func (e *diagrams) Extend(m goldmark.Markdown) {
+func (e *codeBlocksExtension) Extend(m goldmark.Markdown) {
 	m.Parser().AddOptions(
 		parser.WithASTTransformers(
 			util.Prioritized(&Transformer{}, 100),
