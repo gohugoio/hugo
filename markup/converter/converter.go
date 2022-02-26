@@ -128,9 +128,13 @@ type DocumentContext struct {
 
 // RenderContext holds contextual information about the content to render.
 type RenderContext struct {
-	Src       []byte
+	// Src is the content to render.
+	Src []byte
+
+	// Whether to render TableOfContents.
 	RenderTOC bool
 
+	// GerRenderer provides hook renderers on demand.
 	GetRenderer hooks.GetRendererFunc
 }
 

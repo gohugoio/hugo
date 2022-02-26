@@ -141,3 +141,70 @@ echo "p1";
 
 	b.AssertFileContent("public/p1/index.html", "|echo \"p1\";|")
 }
+
+func TestCodePosition(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+-- content/p1.md --
+---
+title: "p1"
+---
+
+##   Code
+
+§§§
+echo "p1";
+§§§
+-- layouts/_default/single.html --
+{{ .Content }}
+-- layouts/_default/_markup/render-codeblock.html --
+Position: {{ .Position | safeHTML }}
+
+
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", "Position: \"content/p1.md:7:1\"")
+}
+
+// Issue 9571
+func TestOptionsNonChroma(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+-- content/p1.md --
+---
+title: "p1"
+---
+
+##   Code
+
+§§§bash {style=monokai}
+echo "p1";
+§§§
+-- layouts/_default/single.html --
+{{ .Content }}
+-- layouts/_default/_markup/render-codeblock.html --
+Style: {{ .Attributes }}|
+
+
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", "asdfadf")
+}
