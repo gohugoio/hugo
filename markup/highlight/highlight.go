@@ -61,6 +61,7 @@ type Highlighter interface {
 	Highlight(code, lang string, opts interface{}) (string, error)
 	HighlightCodeBlock(ctx hooks.CodeblockContext, opts interface{}) (HightlightResult, error)
 	hooks.CodeBlockRenderer
+	hooks.IsDefaultCodeBlockRendererProvider
 }
 
 type chromaHighlighter struct {
@@ -127,6 +128,10 @@ func (h chromaHighlighter) RenderCodeblock(w hugio.FlexiWriter, ctx hooks.Codebl
 	code := text.Puts(ctx.Code())
 
 	return highlight(w, code, ctx.Lang(), attributes, cfg)
+}
+
+func (h chromaHighlighter) IsDefaultCodeBlockRenderer() bool {
+	return true
 }
 
 var id = identity.NewPathIdentity("chroma", "highlight")

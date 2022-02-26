@@ -90,11 +90,11 @@ type HeadingRenderer interface {
 	identity.Provider
 }
 
-// ElementPositionRevolver provides a way to resolve the start Position
+// ElementPositionResolver provides a way to resolve the start Position
 // of a markdown element in the original source document.
 // This may be both slow and aproximate, so should only be
 // used for error logging.
-type ElementPositionRevolver interface {
+type ElementPositionResolver interface {
 	ResolvePosition(ctx interface{}) text.Position
 }
 
