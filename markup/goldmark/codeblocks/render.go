@@ -16,7 +16,9 @@ package codeblocks
 import (
 	"bytes"
 	"fmt"
+	"sync"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	htext "github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
@@ -59,6 +61,8 @@ func (r *htmlRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
 }
 
 func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	defer herrors.Recover()
+
 	ctx := w.(*render.Context)
 
 	if entering {
@@ -67,6 +71,11 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 
 	n := node.(*codeBlock)
 	lang := string(n.b.Language(src))
+	renderer := ctx.RenderContext().GetRenderer(hooks.CodeBlockRendererType, lang)
+	if renderer == nil {
+		return ast.WalkStop, fmt.Errorf("no code renderer found for %q", lang)
+	}
+
 	ordinal := n.ordinal
 
 	var buff bytes.Buffer
@@ -77,30 +86,37 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 		buff.Write(line.Value(src))
 	}
 
-	text := htext.Chomp(buff.String())
+	s := htext.Chomp(buff.String())
 
 	var info []byte
 	if n.b.Info != nil {
 		info = n.b.Info.Segment.Value(src)
 	}
 	attrs := getAttributes(n.b, info)
-
-	v := ctx.RenderContext().GetRenderer(hooks.CodeBlockRendererType, lang)
-	if v == nil {
-		return ast.WalkStop, fmt.Errorf("no code renderer found for %q", lang)
+	cbctx := &codeBlockContext{
+		page:             ctx.DocumentContext().Document,
+		lang:             lang,
+		code:             s,
+		ordinal:          ordinal,
+		AttributesHolder: attributes.New(attrs, attributes.AttributesOwnerCodeBlock),
 	}
 
-	cr := v.(hooks.CodeBlockRenderer)
+	cbctx.createPos = func() htext.Position {
+		if resolver, ok := renderer.(hooks.ElementPositionRevolver); ok {
+			return resolver.ResolvePosition(cbctx)
+		}
+		return htext.Position{
+			Filename:     ctx.DocumentContext().Filename,
+			LineNumber:   0,
+			ColumnNumber: 0,
+		}
+	}
+
+	cr := renderer.(hooks.CodeBlockRenderer)
 
 	err := cr.RenderCodeblock(
 		w,
-		codeBlockContext{
-			page:             ctx.DocumentContext().Document,
-			lang:             lang,
-			code:             text,
-			ordinal:          ordinal,
-			AttributesHolder: attributes.New(attrs, attributes.AttributesOwnerCodeBlock),
-		},
+		cbctx,
 	)
 
 	ctx.AddIdentity(cr)
@@ -113,23 +129,37 @@ type codeBlockContext struct {
 	lang    string
 	code    string
 	ordinal int
+
+	// This is only used in error situations and is expensive to create,
+	// to deleay creation until needed.
+	pos       htext.Position
+	posInit   sync.Once
+	createPos func() htext.Position
+
 	*attributes.AttributesHolder
 }
 
-func (c codeBlockContext) Page() interface{} {
+func (c *codeBlockContext) Page() interface{} {
 	return c.page
 }
 
-func (c codeBlockContext) Lang() string {
+func (c *codeBlockContext) Lang() string {
 	return c.lang
 }
 
-func (c codeBlockContext) Code() string {
+func (c *codeBlockContext) Code() string {
 	return c.code
 }
 
-func (c codeBlockContext) Ordinal() int {
+func (c *codeBlockContext) Ordinal() int {
 	return c.ordinal
+}
+
+func (c *codeBlockContext) Position() htext.Position {
+	c.posInit.Do(func() {
+		c.pos = c.createPos()
+	})
+	return c.pos
 }
 
 func getAttributes(node *ast.FencedCodeBlock, infostr []byte) []ast.Attribute {

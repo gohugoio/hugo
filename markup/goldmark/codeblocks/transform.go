@@ -40,6 +40,7 @@ func (*Transformer) Transform(doc *ast.Document, reader text.Reader, pctx parser
 		}
 
 		codeBlocks = append(codeBlocks, cb)
+
 		return ast.WalkContinue, nil
 	})
 

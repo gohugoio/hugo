@@ -17,6 +17,7 @@ import (
 	"io"
 
 	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/internal/attributes"
 )
@@ -37,6 +38,7 @@ type LinkContext interface {
 
 type CodeblockContext interface {
 	AttributesProvider
+	text.Positioner
 	Options() map[string]interface{}
 	Lang() string
 	Code() string
@@ -57,6 +59,10 @@ type LinkRenderer interface {
 type CodeBlockRenderer interface {
 	RenderCodeblock(w hugio.FlexiWriter, ctx CodeblockContext) error
 	identity.Provider
+}
+
+type IsDefaultCodeBlockRendererProvider interface {
+	IsDefaultCodeBlockRenderer() bool
 }
 
 // HeadingContext contains accessors to all attributes that a HeadingRenderer
@@ -82,6 +88,14 @@ type HeadingRenderer interface {
 	// Render writes the rendered content to w using the data in w.
 	RenderHeading(w io.Writer, ctx HeadingContext) error
 	identity.Provider
+}
+
+// ElementPositionRevolver provides a way to resolve the start Position
+// of a markdown element in the original source document.
+// This may be both slow and aproximate, so should only be
+// used for error logging.
+type ElementPositionRevolver interface {
+	ResolvePosition(ctx interface{}) text.Position
 }
 
 type RendererType int

@@ -23,6 +23,7 @@ import (
 	"sync"
 	"unicode/utf8"
 
+	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
@@ -430,6 +431,25 @@ func (p *pageContentOutput) initRenderHooks() error {
 		renderCache := make(map[cacheKey]interface{})
 		var renderCacheMu sync.Mutex
 
+		resolvePosition := func(ctx interface{}) text.Position {
+			var offset int
+
+			switch v := ctx.(type) {
+			case hooks.CodeblockContext:
+				offset = bytes.Index(p.p.source.parsed.Input(), []byte(v.Code()))
+			}
+
+			pos := p.p.posFromInput(p.p.source.parsed.Input(), offset)
+
+			if pos.LineNumber > 0 {
+				// Move up to the code fence delimiter.
+				// This is in line with how we report on shortcodes.
+				pos.LineNumber = pos.LineNumber - 1
+			}
+
+			return pos
+		}
+
 		p.renderHooks.getRenderer = func(tp hooks.RendererType, id interface{}) interface{} {
 			renderCacheMu.Lock()
 			defer renderCacheMu.Unlock()
@@ -510,6 +530,7 @@ func (p *pageContentOutput) initRenderHooks() error {
 				templateHandler: p.p.s.Tmpl(),
 				SearchProvider:  templ.(identity.SearchProvider),
 				templ:           templ,
+				resolvePosition: resolvePosition,
 			}
 			renderCache[key] = r
 			return r
