@@ -25,6 +25,7 @@ import (
 	"github.com/alecthomas/chroma/lexers"
 	"github.com/alecthomas/chroma/styles"
 	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/internal/attributes"
@@ -123,7 +124,9 @@ func (h chromaHighlighter) RenderCodeblock(w hugio.FlexiWriter, ctx hooks.Codebl
 		return err
 	}
 
-	return highlight(w, ctx.Code(), ctx.Lang(), attributes, cfg)
+	code := text.Puts(ctx.Code())
+
+	return highlight(w, code, ctx.Lang(), attributes, cfg)
 }
 
 var id = identity.NewPathIdentity("chroma", "highlight")

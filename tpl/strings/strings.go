@@ -21,6 +21,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 
@@ -119,7 +120,7 @@ func (ns *Namespace) Chomp(s interface{}) (interface{}, error) {
 		return "", err
 	}
 
-	res := strings.TrimRight(ss, "\r\n")
+	res := text.Chomp(ss)
 	switch s.(type) {
 	case template.HTML:
 		return template.HTML(res), nil

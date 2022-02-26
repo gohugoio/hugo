@@ -26,3 +26,18 @@ func TestRemoveAccents(t *testing.T) {
 	c.Assert(string(RemoveAccents([]byte("Hugo Rocks!"))), qt.Equals, "Hugo Rocks!")
 	c.Assert(string(RemoveAccentsString("Resumé")), qt.Equals, "Resume")
 }
+
+func TestChomp(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(Chomp("\nA\n"), qt.Equals, "\nA")
+	c.Assert(Chomp("A\r\n"), qt.Equals, "A")
+}
+
+func TestPuts(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(Puts("A"), qt.Equals, "A\n")
+	c.Assert(Puts("\nA\n"), qt.Equals, "\nA\n")
+	c.Assert(Puts(""), qt.Equals, "")
+}

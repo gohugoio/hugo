@@ -113,3 +113,34 @@ Go Language: golang|
 		"<h2 id=\"bash-code\">Bash Code</h2>\n<div class=\"highlight blue\"><pre tabindex=\"0\" class=\"chroma\"><code class=\"language-bash\" data-lang=\"bash\"><span class=\"line\"><span class=\"ln\">32</span><span class=\"cl\"><span class=\"nb\">echo</span> <span class=\"s2\">&#34;l1&#34;</span><span class=\"p\">;</span>\n</span></span><span class=\"line hl\"><span class=\"ln\">33</span>",
 	)
 }
+
+func TestCodeChomp(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+-- content/p1.md --
+---
+title: "p1"
+---
+
+§§§bash
+echo "p1";
+§§§
+-- layouts/_default/single.html --
+{{ .Content }}
+-- layouts/_default/_markup/render-codeblock.html --
+|{{ .Code | safeHTML }}|
+
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   false,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", "|echo \"p1\";|")
+}
