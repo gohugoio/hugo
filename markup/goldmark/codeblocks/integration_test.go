@@ -14,7 +14,6 @@
 package codeblocks_test
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/hugolib"
@@ -54,25 +53,25 @@ title: "p1"
 
 ## Ascii Diagram
 
-CODE_FENCEgoat { width="600" }
+§§§goat { width="600" }
 --->
-CODE_FENCE
+§§§
 
 ## Go Code
 
-CODE_FENCEgo
+§§§go
 fmt.Println("Hello, World!");
-CODE_FENCE
+§§§
 
 ## Golang Code
 
-CODE_FENCEgolang
+§§§golang
 fmt.Println("Hello, Golang!");
-CODE_FENCE
+§§§
 
 ## Bash Code
 
-CODE_FENCEbash { linenos=inline,hl_lines=[2,"5-6"],linenostart=32 class=blue }
+§§§bash { linenos=inline,hl_lines=[2,"5-6"],linenostart=32 class=blue }
 echo "l1";
 echo "l2";
 echo "l3";
@@ -81,10 +80,8 @@ echo "l5";
 echo "l6";
 echo "l7";
 echo "l8";
-CODE_FENCE
+§§§
 `
-
-	files = strings.ReplaceAll(files, "CODE_FENCE", "```")
 
 	b := hugolib.NewIntegrationTestBuilder(
 		hugolib.IntegrationTestConfig{

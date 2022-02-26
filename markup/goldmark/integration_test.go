@@ -250,9 +250,6 @@ LINE8
 
 `
 
-	// Code fences
-	files = strings.ReplaceAll(files, "§§§", "```")
-
 	b := hugolib.NewIntegrationTestBuilder(
 		hugolib.IntegrationTestConfig{
 			T:           t,
