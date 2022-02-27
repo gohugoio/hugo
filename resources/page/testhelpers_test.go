@@ -252,7 +252,7 @@ func (p *testPage) GitInfo() *gitmap.GitInfo {
 	return nil
 }
 
-func (p *testPage) Codeowners() []string {
+func (p *testPage) CodeOwners() []string {
 	return nil
 }
 

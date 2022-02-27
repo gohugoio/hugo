@@ -156,7 +156,7 @@ func (p *pageState) GitInfo() *gitmap.GitInfo {
 	return p.gitInfo
 }
 
-func (p *pageState) Codeowners() []string {
+func (p *pageState) CodeOwners() []string {
 	return p.codeowners
 }
 

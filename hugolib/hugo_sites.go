@@ -431,7 +431,7 @@ func (h *HugoSites) loadGitInfo() error {
 			h.gitInfo = gi
 		}
 
-		co, err := newCodeowners(h.Cfg)
+		co, err := newCodeOwners(h.Cfg)
 		if err != nil {
 			h.Log.Errorln("Failed to read CODEOWNERS:", err)
 		} else {

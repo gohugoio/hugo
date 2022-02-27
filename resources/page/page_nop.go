@@ -194,7 +194,7 @@ func (p *nopPage) GitInfo() *gitmap.GitInfo {
 	return nil
 }
 
-func (p *nopPage) Codeowners() []string {
+func (p *nopPage) CodeOwners() []string {
 	return nil
 }
 

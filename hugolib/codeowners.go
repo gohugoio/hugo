@@ -26,7 +26,7 @@ import (
 
 var afs = afero.NewOsFs()
 
-func findCodeownersFile(dir string) (io.Reader, error) {
+func findCodeOwnersFile(dir string) (io.Reader, error) {
 	for _, p := range []string{".", "docs", ".github", ".gitlab"} {
 		f := path.Join(dir, p, "CODEOWNERS")
 
@@ -52,10 +52,10 @@ func (c *codeownerInfo) forPage(p page.Page) []string {
 	return c.owners.Owners(p.File().Filename())
 }
 
-func newCodeowners(cfg config.Provider) (*codeownerInfo, error) {
+func newCodeOwners(cfg config.Provider) (*codeownerInfo, error) {
 	workingDir := cfg.GetString("workingDir")
 
-	r, err := findCodeownersFile(workingDir)
+	r, err := findCodeOwnersFile(workingDir)
 	if err != nil || r == nil {
 		return nil, err
 	}
