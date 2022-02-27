@@ -2,7 +2,7 @@
 {{ $height := .Attributes.height }}
 {{ $class := .Attributes.class | default "" }}
 <div class="goat svg-container {{ $class }}">
-  {{ with diagrams.Goat .Code }}
+  {{ with diagrams.Goat .Inner }}
     <svg
       xmlns="http://www.w3.org/2000/svg"
       font-family="Menlo,Lucida Console,monospace"

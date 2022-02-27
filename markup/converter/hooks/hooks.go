@@ -40,8 +40,8 @@ type CodeblockContext interface {
 	AttributesProvider
 	text.Positioner
 	Options() map[string]interface{}
-	Lang() string
-	Code() string
+	Type() string
+	Inner() string
 	Ordinal() int
 	Page() interface{}
 }

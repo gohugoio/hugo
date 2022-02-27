@@ -40,12 +40,12 @@ func TestCodeblocks(t *testing.T) {
     style = 'monokai'
     tabWidth = 4
 -- layouts/_default/_markup/render-codeblock-goat.html --
-{{ $diagram := diagrams.Goat .Code }}
+{{ $diagram := diagrams.Goat .Inner }}
 Goat SVG:{{ substr $diagram.SVG 0 100 | safeHTML }}  }}|
 Goat Attribute: {{ .Attributes.width}}|
 -- layouts/_default/_markup/render-codeblock-go.html --
-Go Code: {{ .Code | safeHTML }}|
-Go Language: {{ .Lang }}|
+Go Code: {{ .Inner | safeHTML }}|
+Go Language: {{ .Type }}|
 -- layouts/_default/single.html --
 {{ .Content }}
 -- content/p1.md --
@@ -129,7 +129,7 @@ echo "p1";
 -- layouts/_default/single.html --
 {{ .Content }}
 -- layouts/_default/_markup/render-codeblock.html --
-|{{ .Code | safeHTML }}|
+|{{ .Inner | safeHTML }}|
 
 `
 

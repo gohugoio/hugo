@@ -103,7 +103,7 @@ func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts i
 		return HightlightResult{}, err
 	}
 
-	err := highlight(&b, ctx.Code(), ctx.Lang(), attributes, cfg)
+	err := highlight(&b, ctx.Inner(), ctx.Type(), attributes, cfg)
 	if err != nil {
 		return HightlightResult{}, err
 	}
@@ -125,9 +125,9 @@ func (h chromaHighlighter) RenderCodeblock(w hugio.FlexiWriter, ctx hooks.Codebl
 		return err
 	}
 
-	code := text.Puts(ctx.Code())
+	code := text.Puts(ctx.Inner())
 
-	return highlight(w, code, ctx.Lang(), attributes, cfg)
+	return highlight(w, code, ctx.Type(), attributes, cfg)
 }
 
 func (h chromaHighlighter) IsDefaultCodeBlockRenderer() bool {
