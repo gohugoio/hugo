@@ -95,6 +95,16 @@ func TestHighlight(t *testing.T) {
 	}
 }
 
+func TestCanHighlight(t *testing.T) {
+	t.Parallel()
+
+	c := qt.New(t)
+	ns := &transform.Namespace{}
+
+	c.Assert(ns.CanHighlight("go"), qt.Equals, true)
+	c.Assert(ns.CanHighlight("foo"), qt.Equals, false)
+}
+
 func TestHTMLEscape(t *testing.T) {
 	t.Parallel()
 	b := hugolib.NewIntegrationTestBuilder(
