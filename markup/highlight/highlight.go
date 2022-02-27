@@ -75,7 +75,7 @@ func (h chromaHighlighter) Highlight(code, lang string, opts interface{}) (strin
 	}
 	var b strings.Builder
 
-	if err := highlight(&b, code, lang, nil, cfg); err != nil {
+	if _, _, err := highlight(&b, code, lang, nil, cfg); err != nil {
 		return "", err
 	}
 
@@ -103,13 +103,15 @@ func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts i
 		return HightlightResult{}, err
 	}
 
-	err := highlight(&b, ctx.Inner(), ctx.Type(), attributes, cfg)
+	low, high, err := highlight(&b, ctx.Inner(), ctx.Type(), attributes, cfg)
 	if err != nil {
 		return HightlightResult{}, err
 	}
 
 	return HightlightResult{
-		Body: template.HTML(b.String()),
+		highlighted: template.HTML(b.String()),
+		innerLow:    low,
+		innerHigh:   high,
 	}, nil
 }
 
@@ -127,7 +129,8 @@ func (h chromaHighlighter) RenderCodeblock(w hugio.FlexiWriter, ctx hooks.Codebl
 
 	code := text.Puts(ctx.Inner())
 
-	return highlight(w, code, ctx.Type(), attributes, cfg)
+	_, _, err := highlight(w, code, ctx.Type(), attributes, cfg)
+	return err
 }
 
 func (h chromaHighlighter) IsDefaultCodeBlockRenderer() bool {
@@ -141,14 +144,22 @@ func (h chromaHighlighter) GetIdentity() identity.Identity {
 }
 
 type HightlightResult struct {
-	Body template.HTML
+	innerLow    int
+	innerHigh   int
+	highlighted template.HTML
 }
 
-func (h HightlightResult) Highlighted() template.HTML {
-	return h.Body
+func (h HightlightResult) Wrapped() template.HTML {
+	return h.highlighted
 }
 
-func highlight(w hugio.FlexiWriter, code, lang string, attributes []attributes.Attribute, cfg Config) error {
+func (h HightlightResult) Inner() template.HTML {
+	return h.highlighted[h.innerLow:h.innerHigh]
+}
+
+func highlight(fw hugio.FlexiWriter, code, lang string, attributes []attributes.Attribute, cfg Config) (int, int, error) {
+	var low, high int
+
 	var lexer chroma.Lexer
 	if lang != "" {
 		lexer = lexers.Get(lang)
@@ -162,12 +173,14 @@ func highlight(w hugio.FlexiWriter, code, lang string, attributes []attributes.A
 		lang = strings.ToLower(lexer.Config().Name)
 	}
 
+	w := &byteCountFlexiWriter{delegate: fw}
+
 	if lexer == nil {
-		wrapper := getPreWrapper(lang)
+		wrapper := getPreWrapper(lang, w)
 		fmt.Fprint(w, wrapper.Start(true, ""))
 		fmt.Fprint(w, gohtml.EscapeString(code))
 		fmt.Fprint(w, wrapper.End(true))
-		return nil
+		return low, high, nil
 	}
 
 	style := styles.Get(cfg.Style)
@@ -178,42 +191,44 @@ func highlight(w hugio.FlexiWriter, code, lang string, attributes []attributes.A
 
 	iterator, err := lexer.Tokenise(nil, code)
 	if err != nil {
-		return err
+		return 0, 0, err
 	}
 
 	options := cfg.ToHTMLOptions()
-	options = append(options, getHtmlPreWrapper(lang))
+	preWrapper := getPreWrapper(lang, w)
+	options = append(options, html.WithPreWrapper(preWrapper))
 
 	formatter := html.New(options...)
 
 	writeDivStart(w, attributes)
+
 	if err := formatter.Format(w, style, iterator); err != nil {
-		return err
+		return 0, 0, err
 	}
 	writeDivEnd(w)
 
-	return nil
+	return preWrapper.low, preWrapper.high, nil
 }
 
-func getPreWrapper(language string) preWrapper {
-	return preWrapper{language: language}
-}
-
-func getHtmlPreWrapper(language string) html.Option {
-	return html.WithPreWrapper(getPreWrapper(language))
+func getPreWrapper(language string, writeCounter *byteCountFlexiWriter) *preWrapper {
+	return &preWrapper{language: language, writeCounter: writeCounter}
 }
 
 type preWrapper struct {
-	language string
+	low          int
+	high         int
+	writeCounter *byteCountFlexiWriter
+	language     string
 }
 
-func (p preWrapper) Start(code bool, styleAttr string) string {
+func (p *preWrapper) Start(code bool, styleAttr string) string {
 	var language string
 	if code {
 		language = p.language
 	}
 	w := &strings.Builder{}
 	WritePreStart(w, language, styleAttr)
+	p.low = p.writeCounter.counter + w.Len()
 	return w.String()
 }
 
@@ -229,7 +244,8 @@ func WritePreStart(w io.Writer, language, styleAttr string) {
 
 const preEnd = "</code></pre>"
 
-func (p preWrapper) End(code bool) string {
+func (p *preWrapper) End(code bool) string {
+	p.high = p.writeCounter.counter
 	return preEnd
 }
 
@@ -257,4 +273,32 @@ func writeDivStart(w hugio.FlexiWriter, attrs []attributes.Attribute) {
 
 func writeDivEnd(w hugio.FlexiWriter) {
 	w.WriteString("</div>")
+}
+
+type byteCountFlexiWriter struct {
+	delegate hugio.FlexiWriter
+	counter  int
+}
+
+func (w *byteCountFlexiWriter) Write(p []byte) (int, error) {
+	n, err := w.delegate.Write(p)
+	w.counter += n
+	return n, err
+}
+
+func (w *byteCountFlexiWriter) WriteByte(c byte) error {
+	w.counter++
+	return w.delegate.WriteByte(c)
+}
+
+func (w *byteCountFlexiWriter) WriteString(s string) (int, error) {
+	n, err := w.delegate.WriteString(s)
+	w.counter += n
+	return n, err
+}
+
+func (w *byteCountFlexiWriter) WriteRune(r rune) (int, error) {
+	n, err := w.delegate.WriteRune(r)
+	w.counter += n
+	return n, err
 }
