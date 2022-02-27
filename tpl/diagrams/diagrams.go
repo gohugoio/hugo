@@ -25,12 +25,12 @@ import (
 )
 
 type SVGDiagram interface {
+	// Wrapped returns the diagram as an SVG, including the <svg> container.
+	Wrapped() template.HTML
+
 	// Inner returns the inner markup of the SVG.
 	// This allows for the <svg> container to be created manually.
 	Inner() template.HTML
-
-	// SVG returns the diagram as an SVG, including the <svg> container.
-	SVG() template.HTML
 
 	// Width returns the width of the SVG.
 	Width() int
@@ -47,7 +47,7 @@ func (d goatDiagram) Inner() template.HTML {
 	return template.HTML(d.d.Body)
 }
 
-func (d goatDiagram) SVG() template.HTML {
+func (d goatDiagram) Wrapped() template.HTML {
 	return template.HTML(d.d.String())
 }
 
