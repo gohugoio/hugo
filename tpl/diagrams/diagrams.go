@@ -25,9 +25,17 @@ import (
 )
 
 type SVGDiagram interface {
-	Body() template.HTML
+	// Inner returns the inner markup of the SVG.
+	// This allows for the <svg> container to be created manually.
+	Inner() template.HTML
+
+	// SVG returns the diagram as an SVG, including the <svg> container.
 	SVG() template.HTML
+
+	// Width returns the width of the SVG.
 	Width() int
+
+	// Height returns the height of the SVG.
 	Height() int
 }
 
@@ -35,7 +43,7 @@ type goatDiagram struct {
 	d goat.SVG
 }
 
-func (d goatDiagram) Body() template.HTML {
+func (d goatDiagram) Inner() template.HTML {
 	return template.HTML(d.d.Body)
 }
 
