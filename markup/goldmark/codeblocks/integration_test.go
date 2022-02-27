@@ -41,7 +41,7 @@ func TestCodeblocks(t *testing.T) {
     tabWidth = 4
 -- layouts/_default/_markup/render-codeblock-goat.html --
 {{ $diagram := diagrams.Goat .Inner }}
-Goat SVG:{{ substr $diagram.SVG 0 100 | safeHTML }}  }}|
+Goat SVG:{{ substr $diagram.Wrapped 0 100 | safeHTML }}  }}|
 Goat Attribute: {{ .Attributes.width}}|
 -- layouts/_default/_markup/render-codeblock-go.html --
 Go Code: {{ .Inner | safeHTML }}|
