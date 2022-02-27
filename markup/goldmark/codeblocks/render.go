@@ -150,11 +150,11 @@ func (c *codeBlockContext) Page() interface{} {
 	return c.page
 }
 
-func (c *codeBlockContext) Lang() string {
+func (c *codeBlockContext) Type() string {
 	return c.lang
 }
 
-func (c *codeBlockContext) Code() string {
+func (c *codeBlockContext) Inner() string {
 	return c.code
 }
 

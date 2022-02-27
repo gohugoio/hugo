@@ -436,7 +436,7 @@ func (p *pageContentOutput) initRenderHooks() error {
 
 			switch v := ctx.(type) {
 			case hooks.CodeblockContext:
-				offset = bytes.Index(p.p.source.parsed.Input(), []byte(v.Code()))
+				offset = bytes.Index(p.p.source.parsed.Input(), []byte(v.Inner()))
 			}
 
 			pos := p.p.posFromInput(p.p.source.parsed.Input(), offset)
