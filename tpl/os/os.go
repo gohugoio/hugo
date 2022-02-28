@@ -28,9 +28,17 @@ import (
 
 // New returns a new instance of the os-namespaced template functions.
 func New(d *deps.Deps) *Namespace {
+	var readFileFs, workFs afero.Fs
+
+	// The docshelper script does not have or need all the dependencies set up.
+	if d.PathSpec != nil {
+		readFileFs = afero.NewReadOnlyFs(afero.NewCopyOnWriteFs(d.PathSpec.BaseFs.Content.Fs, d.PathSpec.BaseFs.Work))
+		workFs = d.PathSpec.BaseFs.Work
+	}
+
 	return &Namespace{
-		readFileFs: afero.NewReadOnlyFs(afero.NewCopyOnWriteFs(d.PathSpec.BaseFs.Content.Fs, d.PathSpec.BaseFs.Work)),
-		workFs:     d.PathSpec.BaseFs.Work,
+		readFileFs: readFileFs,
+		workFs:     workFs,
 		deps:       d,
 	}
 }

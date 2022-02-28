@@ -163,6 +163,10 @@ func (namespaces TemplateFuncsNamespaces) MarshalJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+var ignoreFuncs = map[string]bool{
+	"Reset": true,
+}
+
 func (t *TemplateFuncsNamespace) toJSON() ([]byte, error) {
 	var buf bytes.Buffer
 
@@ -179,6 +183,9 @@ func (t *TemplateFuncsNamespace) toJSON() ([]byte, error) {
 	ctxType := reflect.TypeOf(ctx)
 	for i := 0; i < ctxType.NumMethod(); i++ {
 		method := ctxType.Method(i)
+		if ignoreFuncs[method.Name] {
+			continue
+		}
 		f := goDocFunc{
 			Name: method.Name,
 		}
