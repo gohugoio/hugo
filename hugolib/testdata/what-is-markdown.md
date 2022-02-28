@@ -4986,7 +4986,7 @@ by itself should be a paragraph followed by a nested sublist.
 Since it is well established Markdown practice to allow lists to
 interrupt paragraphs inside list items, the [principle of
 uniformity] requires us to allow this outside list items as
-well.  ([reStructuredText](http://docutils.sourceforge.net/rst.html)
+well.  ([reStructuredText](https://docutils.sourceforge.net/rst.html)
 takes a different approach, requiring blank lines before lists
 even inside other list items.)
 
