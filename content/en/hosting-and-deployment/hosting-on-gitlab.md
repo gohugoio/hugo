@@ -1,7 +1,7 @@
 ---
 title: Host on GitLab
 linktitle: Host on GitLab
-description: GitLab makes it incredibly easy to build, deploy, and host your Hugo website via their free GitLab Pages service, which provides native support for Hugo.
+description: GitLab makes it easy to build, deploy, and host your Hugo website via their free GitLab Pages service, which provides native support for Hugo.
 date: 2016-06-23
 publishdate: 2016-06-23
 lastmod: 2017-11-16
@@ -20,25 +20,23 @@ wip: false
 aliases: [/tutorials/hosting-on-gitlab/]
 ---
 
-[GitLab](https://gitlab.com/) makes it incredibly easy to build, deploy, and host your Hugo website via their free GitLab Pages service, which provides [native support for Hugo, as well as numerous other static site generators](https://gitlab.com/pages/hugo).
-
 ## Assumptions
 
 * Working familiarity with Git for version control
-* Completion of the Hugo [Quick Start][]
+* Completion of the Hugo [Quick Start]
 * A [GitLab account](https://gitlab.com/users/sign_in)
 * A Hugo website on your local machine that you are ready to publish
 
-## Create .gitlab-ci.yml
+## BaseURL
 
-```
-cd your-hugo-site
-```
+The `baseURL` in your [site configuration](/getting-started/configuration/) must reflect the full URL of your GitLab pages repository if you are using the default GitLab Pages URL (e.g., `https://<YourUsername>.gitlab.io/<your-hugo-site>/`) and not a custom domain.
 
-In the root directory of your Hugo site, create a `.gitlab-ci.yml` file. The `.gitlab-ci.yml` configures the GitLab CI on how to build your page. Simply add the content below.
+## Configure GitLab CI/CD
+
+Define your [CI/CD](https://docs.gitlab.com/ee/ci/quick_start/) jobs by creating a `.gitlab-ci.yml` file in the root of your project.
 
 {{< code file=".gitlab-ci.yml" >}}
-image: registry.gitlab.com/pages/hugo:latest
+image: registry.gitlab.com/pages/hugo/hugo_extended:latest
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
@@ -49,19 +47,19 @@ pages:
   artifacts:
     paths:
     - public
-  only:
-  - master
+  rules:
+  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 {{< /code >}}
 
 {{% note %}}
-All available Hugo versions are listed [here](https://gitlab.com/pages/hugo/container_registry)
+See [this list](https://gitlab.com/pages/hugo/container_registry) if you wish to use a particular Hugo version to build your site.
 {{% /note %}}
 
 ## Push Your Hugo Website to GitLab
 
 Next, create a new repository on GitLab. It is *not* necessary to make the repository public. In addition, you might want to add `/public` to your .gitignore file, as there is no need to push compiled assets to GitLab or keep your output website in version control.
 
-```
+```bash
 # initialize new git repository
 git init
 
@@ -80,10 +78,6 @@ git push -u origin master
 That's it! You can now follow the CI agent building your page at `https://gitlab.com/<YourUsername>/<your-hugo-site>/pipelines`.
 
 After the build has passed, your new website is available at `https://<YourUsername>.gitlab.io/<your-hugo-site>/`.
-
-{{% note %}}
-Make sure your `baseURL` key-value in your [site configuration](/getting-started/configuration/) reflects the full URL of your GitLab pages repository if you're using the default GitLab Pages URL (e.g., `https://<YourUsername>.gitlab.io/<your-hugo-site>/`) and not a custom domain.
-{{% /note %}}
 
 ## Next Steps
 
