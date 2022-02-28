@@ -12,7 +12,69 @@ toc: true
 ---
 
 
+{{< new-in "0.93.0" >}}
+
+
+## GoAT Diagrams (Ascii)
+
+Hugo supports [GoAT](https://github.com/bep/goat) natively. This means that this code block:
+
+```
+    ```goat
+
+   .---.       .-.        .-.       .-.                                       .-.
+   | A +----->| 1 +<---->| 2 |<----+ 4 +------------------.                  | 8 |
+   '---'       '-'        '+'       '-'                    |                  '-'
+                           |         ^                     |                   ^
+                           v         |                     v                   |
+                          .-.      .-+-.        .-.      .-+-.      .-.       .+.       .---.
+                         | 3 +---->| B |<----->| 5 +---->| C +---->| 6 +---->| 7 |<---->| D |
+                          '-'      '---'        '-'      '---'      '-'       '-'       '---'
+    ```
+```
+
+Will be rendered as:
+
+```goat
+
+   .---.       .-.        .-.       .-.                                       .-.
+   | A +----->| 1 +<---->| 2 |<----+ 4 +------------------.                  | 8 |
+   '---'       '-'        '+'       '-'                    |                  '-'
+                           |         ^                     |                   ^
+                           v         |                     v                   |
+                          .-.      .-+-.        .-.      .-+-.      .-.       .+.       .---.
+                         | 3 +---->| B |<----->| 5 +---->| C +---->| 6 +---->| 7 |<---->| D |
+                          '-'      '---'        '-'      '---'      '-'       '-'       '---'
+```
+
+
+
+
+
 ## Mermaid Diagrams
+
+Hugo currently does not provide default templates for Mermaid diagrams. But you can easily add your own. One way to do it would be to create ` layouts/_default/_markup/render-codeblock-mermaid.html`:
+
+
+```go-html-template
+<div class="mermaid">
+  {{- .Inner | safeHTML }}
+</div>
+{{ .Page.Store.Set "hasMermaid" true }}
+```
+
+And then include this snippet at the bottom of the content template (below `.Content`):
+
+```go-html-template
+{{ if .Page.Store.Get "hasMermaid" }}
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: true });
+  </script>
+{{ end }}
+```
+
+With that you can use the `mermaid` language in Markdown code blocks:
 
 ```mermaid
 sequenceDiagram
