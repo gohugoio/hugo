@@ -1688,6 +1688,7 @@
         "style": "monokai",
         "codeFences": true,
         "noClasses": true,
+        "noHl": false,
         "lineNos": false,
         "lineNumbersInTable": true,
         "anchorLineNos": false,
@@ -1850,7 +1851,8 @@
         },
         "js": {
           "precision": 0,
-          "keepVarNames": false
+          "keepVarNames": false,
+          "noNullishOperator": false
         },
         "json": {
           "precision": 0,
@@ -3206,8 +3208,8 @@
           ],
           "Examples": [
             [
-              "{{ if eq .Section \"blog\" }}current{{ end }}",
-              "current"
+              "{{ if eq .Section \"blog\" }}current-section{{ end }}",
+              "current-section"
             ]
           ]
         },
@@ -3222,7 +3224,7 @@
           ],
           "Examples": [
             [
-              "{{ if ge .Hugo.Version \"0.36\" }}Reasonable new Hugo version!{{ end }}",
+              "{{ if ge hugo.Version \"0.80\" }}Reasonable new Hugo version!{{ end }}",
               "Reasonable new Hugo version!"
             ]
           ]
@@ -3745,6 +3747,14 @@
           ]
         }
       },
+      "diagrams": {
+        "Goat": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        }
+      },
       "encoding": {
         "Base64Decode": {
           "Description": "Base64Decode returns the base64 decoding of the given content.",
@@ -4255,6 +4265,12 @@
             ]
           ]
         },
+        "Counter": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "Div": {
           "Description": "Div divides two numbers.",
           "Args": [
@@ -4505,8 +4521,9 @@
       },
       "partials": {
         "Include": {
-          "Description": "Include executes the named partial.\nIf the partial contains a return statement, that value will be returned.\nElse, the rendered output will be returned:\nA string if the partial is a text/template, or template.HTML when html/template.",
+          "Description": "Include executes the named partial.\nIf the partial contains a return statement, that value will be returned.\nElse, the rendered output will be returned:\nA string if the partial is a text/template, or template.HTML when html/template.\nNote that ctx is provided by Hugo, not the end user.",
           "Args": [
+            "ctx",
             "name",
             "contextList"
           ],
@@ -4521,8 +4538,9 @@
           ]
         },
         "IncludeCached": {
-          "Description": "IncludeCached executes and caches partial templates.  The cache is created with name+variants as the key.",
+          "Description": "IncludeCached executes and caches partial templates.  The cache is created with name+variants as the key.\nNote that ctx is provided by Hugo, not the end user.",
           "Args": [
+            "ctx",
             "name",
             "context",
             "variants"
@@ -4842,6 +4860,12 @@
           "Examples": null
         },
         "Data": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Home": {
           "Description": "",
           "Args": null,
           "Aliases": null,
@@ -5418,6 +5442,12 @@
         }
       },
       "transform": {
+        "CanHighlight": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "Emojify": {
           "Description": "Emojify returns a copy of s with all emoji codes replaced with actual emojis.\n\nSee http://www.emoji-cheat-sheet.com/",
           "Args": [
@@ -5494,6 +5524,12 @@
             "highlight"
           ],
           "Examples": []
+        },
+        "HighlightCodeBlock": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
         },
         "Markdownify": {
           "Description": "Markdownify renders a given input from Markdown to HTML.",
