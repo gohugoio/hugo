@@ -35,7 +35,7 @@ hugo [flags]
       --debug                      debug output
   -d, --destination string         filesystem path to write files to
       --disableKinds strings       disable different kind of pages (home, RSS etc.)
-      --enableGitInfo              add Git revision, date and author info to the pages
+      --enableGitInfo              add Git revision, date, author, and CODEOWNERS info to the pages
   -e, --environment string         build environment
       --forceSyncStatic            copy all files when static is changed.
       --gc                         enable to run some cleanup tasks (remove unused cache files) after the build
@@ -69,7 +69,7 @@ hugo [flags]
 
 ### SEE ALSO
 
-* [hugo completion](/commands/hugo_completion/)	 - generate the autocompletion script for the specified shell
+* [hugo completion](/commands/hugo_completion/)	 - Generate the autocompletion script for the specified shell
 * [hugo config](/commands/hugo_config/)	 - Print the site configuration
 * [hugo convert](/commands/hugo_convert/)	 - Convert your content to different formats
 * [hugo deploy](/commands/hugo_deploy/)	 - Deploy your site to a Cloud provider.
