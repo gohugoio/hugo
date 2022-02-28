@@ -5,18 +5,19 @@ url: /commands/hugo_completion_fish/
 ---
 ## hugo completion fish
 
-generate the autocompletion script for fish
+Generate the autocompletion script for fish
 
 ### Synopsis
-
 
 Generate the autocompletion script for the fish shell.
 
 To load completions in your current shell session:
-$ hugo completion fish | source
+
+	hugo completion fish | source
 
 To load completions for every new session, execute once:
-$ hugo completion fish > ~/.config/fish/completions/hugo.fish
+
+	hugo completion fish > ~/.config/fish/completions/hugo.fish
 
 You will need to start a new shell for this setup to take effect.
 
@@ -51,5 +52,5 @@ hugo completion fish [flags]
 
 ### SEE ALSO
 
-* [hugo completion](/commands/hugo_completion/)	 - generate the autocompletion script for the specified shell
+* [hugo completion](/commands/hugo_completion/)	 - Generate the autocompletion script for the specified shell
 

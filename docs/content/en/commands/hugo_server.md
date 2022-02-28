@@ -43,7 +43,7 @@ hugo server [flags]
       --disableFastRender      enables full re-renders on changes
       --disableKinds strings   disable different kind of pages (home, RSS etc.)
       --disableLiveReload      watch without enabling live browser reload on rebuild
-      --enableGitInfo          add Git revision, date and author info to the pages
+      --enableGitInfo          add Git revision, date, author, and CODEOWNERS info to the pages
       --forceSyncStatic        copy all files when static is changed.
       --gc                     enable to run some cleanup tasks (remove unused cache files) after the build
   -h, --help                   help for server
