@@ -73,7 +73,7 @@ type Config struct {
 	Hl_Lines string
 
 	// A parsed and ready to use list of line ranges.
-	HL_lines_parsed [][2]int
+	HL_lines_parsed [][2]int `json:"-"`
 
 	// TabWidth sets the number of characters for a tab. Defaults to 4.
 	TabWidth int
