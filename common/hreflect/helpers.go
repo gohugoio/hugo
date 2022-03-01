@@ -17,6 +17,7 @@
 package hreflect
 
 import (
+	"context"
 	"reflect"
 
 	"github.com/gohugoio/hugo/common/types"
@@ -124,3 +125,5 @@ func indirectInterface(v reflect.Value) reflect.Value {
 	}
 	return v.Elem()
 }
+
+var ContextInterface = reflect.TypeOf((*context.Context)(nil)).Elem()
