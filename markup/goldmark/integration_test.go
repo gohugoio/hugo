@@ -394,3 +394,32 @@ FENCE
 		builders[i].Build()
 	}
 }
+
+// Issue 9594
+func TestQuotesInImgAltAttr(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+[markup.goldmark.extensions]
+  typographer = false
+-- content/p1.md --
+---
+title: "p1"
+---
+!["a"](b.jpg)
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", `
+		<img src="b.jpg" alt="&quot;a&quot;">
+	`)
+}
