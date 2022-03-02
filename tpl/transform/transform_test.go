@@ -15,6 +15,7 @@ package transform_test
 
 import (
 	"html/template"
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -81,6 +82,8 @@ func TestHighlight(t *testing.T) {
 		// Issue #4179
 		{`<Foo attr=" &lt; "></Foo>`, "xml", "", `&amp;lt;`},
 		{tstNoStringer{}, "go", "", false},
+		// Issue #9591
+		{strings.Repeat("AAA	\n", 10), "bash", template.HTML("linenos=true,noClasses=false"), "line"},
 	} {
 
 		result, err := ns.Highlight(test.s, test.lang, test.opts)

@@ -122,10 +122,13 @@ func applyOptions(opts interface{}, cfg *Config) error {
 	switch vv := opts.(type) {
 	case map[string]interface{}:
 		return applyOptionsFromMap(vv, cfg)
-	case string:
-		return applyOptionsFromString(vv, cfg)
+	default:
+		s, err := cast.ToStringE(opts)
+		if err != nil {
+			return err
+		}
+		return applyOptionsFromString(s, cfg)
 	}
-	return nil
 }
 
 func applyOptionsFromString(opts string, cfg *Config) error {
