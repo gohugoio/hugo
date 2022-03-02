@@ -233,21 +233,14 @@ func (ns *Namespace) getOrCreate(ctx context.Context, key partialCacheKey, conte
 		}
 	}()
 
-	// We may already have a write lock.
-	hasLock := tpl.GetHasLockFromContext(ctx)
-
-	if !hasLock {
-		ns.cachedPartials.RLock()
-	}
+	ns.cachedPartials.RLock()
 	p, ok := ns.cachedPartials.p[key]
-	if !hasLock {
-		ns.cachedPartials.RUnlock()
-	}
+	ns.cachedPartials.RUnlock()
 
 	if ok {
 		if ns.deps.Metrics != nil {
 			ns.deps.Metrics.TrackValue(key.templateName(), p, true)
-			// The templates that gets executed is measued in Execute.
+			// The templates that gets executed is measured in Execute.
 			// We need to track the time spent in the cache to
 			// get the totals correct.
 			ns.deps.Metrics.MeasureSince(key.templateName(), start)
@@ -256,21 +249,28 @@ func (ns *Namespace) getOrCreate(ctx context.Context, key partialCacheKey, conte
 		return p, nil
 	}
 
-	if !hasLock {
-		ns.cachedPartials.Lock()
-		defer ns.cachedPartials.Unlock()
-		ctx = tpl.SetHasLockInContext(ctx, true)
-	}
-
-	var name string
-	name, p, err = ns.include(ctx, key.name, context)
+	// This needs to be done outside the lock.
+	// See #9588
+	_, p, err = ns.include(ctx, key.name, context)
 	if err != nil {
 		return nil, err
 	}
 
-	if ns.deps.Metrics != nil {
-		ns.deps.Metrics.TrackValue(name, p, false)
+	ns.cachedPartials.Lock()
+	defer ns.cachedPartials.Unlock()
+	// Double-check.
+	if p2, ok := ns.cachedPartials.p[key]; ok {
+		if ns.deps.Metrics != nil {
+			ns.deps.Metrics.TrackValue(key.templateName(), p, true)
+			ns.deps.Metrics.MeasureSince(key.templateName(), start)
+		}
+		return p2, nil
+
 	}
+	if ns.deps.Metrics != nil {
+		ns.deps.Metrics.TrackValue(key.templateName(), p, false)
+	}
+
 	ns.cachedPartials.p[key] = p
 
 	return p, nil
