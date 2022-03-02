@@ -103,6 +103,44 @@ P2
 `)
 }
 
+// Issue #588
+func TestIncludeCachedRecursionShortcode(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+baseURL = 'http://example.com/'
+-- content/_index.md --
+---
+title: "Index"
+---
+{{< short >}}
+-- layouts/index.html --
+{{ partials.IncludeCached "p1.html" . }}
+-- layouts/partials/p1.html --
+{{ .Content }}
+{{ partials.IncludeCached "p2.html" . }}
+-- layouts/partials/p2.html --
+-- layouts/shortcodes/short.html --
+SHORT
+{{ partials.IncludeCached "p2.html" . }}
+P2
+
+  `
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", `
+SHORT
+P2
+`)
+}
+
 func TestIncludeCacheHints(t *testing.T) {
 	t.Parallel()
 
