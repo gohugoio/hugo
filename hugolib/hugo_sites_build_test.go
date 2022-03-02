@@ -83,14 +83,14 @@ func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 		c.Assert(frRelPerm, qt.Equals, "/blog/fr/sect/doc1/")
 
 		// should have a redirect on top level.
-		b.AssertFileContent("public/index.html", `<meta http-equiv="refresh" content="0; url=http://example.com/blog/fr" />`)
+		b.AssertFileContent("public/index.html", `<meta http-equiv="refresh" content="0; url=http://example.com/blog/fr">`)
 	} else {
 		// Main language in root
 		c.Assert(frPerm, qt.Equals, "http://example.com/blog/sect/doc1/")
 		c.Assert(frRelPerm, qt.Equals, "/blog/sect/doc1/")
 
 		// should have redirect back to root
-		b.AssertFileContent("public/fr/index.html", `<meta http-equiv="refresh" content="0; url=http://example.com/blog" />`)
+		b.AssertFileContent("public/fr/index.html", `<meta http-equiv="refresh" content="0; url=http://example.com/blog">`)
 	}
 	b.AssertFileContent(pathMod("public/fr/index.html"), "Home", "Bonjour")
 	b.AssertFileContent("public/en/index.html", "Home", "Hello")

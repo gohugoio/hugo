@@ -1653,11 +1653,11 @@ tags:
 				th.assertFileContent(pathFunc("public/post/test0.dot/index.html"), "some content")
 
 				if uglyURLs {
-					th.assertFileContent("public/post/page/1.html", `canonical" href="/post.html"/`)
+					th.assertFileContent("public/post/page/1.html", `canonical" href="/post.html"`)
 					th.assertFileContent("public/post.html", `<body>P1|URL: /post.html|Next: /post/page/2.html</body>`)
 					th.assertFileContent("public/post/page/2.html", `<body>P2|URL: /post/page/2.html|Next: /post/page/3.html</body>`)
 				} else {
-					th.assertFileContent("public/post/page/1/index.html", `canonical" href="/post/"/`)
+					th.assertFileContent("public/post/page/1/index.html", `canonical" href="/post/"`)
 					th.assertFileContent("public/post/index.html", `<body>P1|URL: /post/|Next: /post/page/2/</body>`)
 					th.assertFileContent("public/post/page/2/index.html", `<body>P2|URL: /post/page/2/|Next: /post/page/3/</body>`)
 					th.assertFileContent("public/tags/.net/index.html", `<body>P1|URL: /tags/.net/|Next: /tags/.net/page/2/</body>`)
