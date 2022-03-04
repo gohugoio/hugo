@@ -33,7 +33,8 @@ func New(d *deps.Deps) *Namespace {
 	// The docshelper script does not have or need all the dependencies set up.
 	if d.PathSpec != nil {
 		readFileFs = afero.NewReadOnlyFs(afero.NewCopyOnWriteFs(d.PathSpec.BaseFs.Content.Fs, d.PathSpec.BaseFs.Work))
-		workFs = d.PathSpec.BaseFs.Work
+		// See #9599
+		workFs = d.PathSpec.BaseFs.WorkDir
 	}
 
 	return &Namespace{

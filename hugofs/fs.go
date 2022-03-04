@@ -41,6 +41,7 @@ type Fs struct {
 
 	// WorkingDir is a read-only file system
 	// restricted to the project working dir.
+	// TODO(bep) get rid of this (se BaseFs)
 	WorkingDir *afero.BasePathFs
 }
 
