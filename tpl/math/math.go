@@ -32,14 +32,14 @@ func New() *Namespace {
 // Namespace provides template functions for the "math" namespace.
 type Namespace struct{}
 
-// Add adds two numbers.
-func (ns *Namespace) Add(a, b interface{}) (interface{}, error) {
-	return _math.DoArithmetic(a, b, '+')
+// Add adds the two numbers num1 and num2.
+func (ns *Namespace) Add(num1, num2 interface{}) (interface{}, error) {
+	return _math.DoArithmetic(num1, num2, '+')
 }
 
-// Ceil returns the least integer value greater than or equal to x.
-func (ns *Namespace) Ceil(x interface{}) (float64, error) {
-	xf, err := cast.ToFloat64E(x)
+// Ceil returns the least integer value greater than or equal to num.
+func (ns *Namespace) Ceil(num interface{}) (float64, error) {
+	xf, err := cast.ToFloat64E(num)
 	if err != nil {
 		return 0, errors.New("Ceil operator can't be used with non-float value")
 	}
@@ -47,14 +47,14 @@ func (ns *Namespace) Ceil(x interface{}) (float64, error) {
 	return math.Ceil(xf), nil
 }
 
-// Div divides two numbers.
-func (ns *Namespace) Div(a, b interface{}) (interface{}, error) {
-	return _math.DoArithmetic(a, b, '/')
+// Div divides num1 by num2.
+func (ns *Namespace) Div(num1, num2 interface{}) (interface{}, error) {
+	return _math.DoArithmetic(num1, num2, '/')
 }
 
-// Floor returns the greatest integer value less than or equal to x.
-func (ns *Namespace) Floor(x interface{}) (float64, error) {
-	xf, err := cast.ToFloat64E(x)
+// Floor returns the greatest integer value less than or equal to num.
+func (ns *Namespace) Floor(num interface{}) (float64, error) {
+	xf, err := cast.ToFloat64E(num)
 	if err != nil {
 		return 0, errors.New("Floor operator can't be used with non-float value")
 	}
@@ -62,9 +62,9 @@ func (ns *Namespace) Floor(x interface{}) (float64, error) {
 	return math.Floor(xf), nil
 }
 
-// Log returns the natural logarithm of a number.
-func (ns *Namespace) Log(a interface{}) (float64, error) {
-	af, err := cast.ToFloat64E(a)
+// Log returns the natural logarithm of num.
+func (ns *Namespace) Log(num interface{}) (float64, error) {
+	af, err := cast.ToFloat64E(num)
 	if err != nil {
 		return 0, errors.New("Log operator can't be used with non integer or float value")
 	}
@@ -72,10 +72,10 @@ func (ns *Namespace) Log(a interface{}) (float64, error) {
 	return math.Log(af), nil
 }
 
-// Max returns the greater of two numbers.
-func (ns *Namespace) Max(a, b interface{}) (float64, error) {
-	af, erra := cast.ToFloat64E(a)
-	bf, errb := cast.ToFloat64E(b)
+// Max returns the greater of num1 or num2.
+func (ns *Namespace) Max(num1, num2 interface{}) (float64, error) {
+	af, erra := cast.ToFloat64E(num1)
+	bf, errb := cast.ToFloat64E(num2)
 
 	if erra != nil || errb != nil {
 		return 0, errors.New("Max operator can't be used with non-float value")
@@ -84,10 +84,10 @@ func (ns *Namespace) Max(a, b interface{}) (float64, error) {
 	return math.Max(af, bf), nil
 }
 
-// Min returns the smaller of two numbers.
-func (ns *Namespace) Min(a, b interface{}) (float64, error) {
-	af, erra := cast.ToFloat64E(a)
-	bf, errb := cast.ToFloat64E(b)
+// Min returns the smaller of two num1 or num2.
+func (ns *Namespace) Min(num1, num2 interface{}) (float64, error) {
+	af, erra := cast.ToFloat64E(num1)
+	bf, errb := cast.ToFloat64E(num2)
 
 	if erra != nil || errb != nil {
 		return 0, errors.New("Min operator can't be used with non-float value")
@@ -96,10 +96,10 @@ func (ns *Namespace) Min(a, b interface{}) (float64, error) {
 	return math.Min(af, bf), nil
 }
 
-// Mod returns a % b.
-func (ns *Namespace) Mod(a, b interface{}) (int64, error) {
-	ai, erra := cast.ToInt64E(a)
-	bi, errb := cast.ToInt64E(b)
+// Mod returns num1 % num2.
+func (ns *Namespace) Mod(num1, num2 interface{}) (int64, error) {
+	ai, erra := cast.ToInt64E(num1)
+	bi, errb := cast.ToInt64E(num2)
 
 	if erra != nil || errb != nil {
 		return 0, errors.New("modulo operator can't be used with non integer value")
@@ -112,9 +112,9 @@ func (ns *Namespace) Mod(a, b interface{}) (int64, error) {
 	return ai % bi, nil
 }
 
-// ModBool returns the boolean of a % b.  If a % b == 0, return true.
-func (ns *Namespace) ModBool(a, b interface{}) (bool, error) {
-	res, err := ns.Mod(a, b)
+// ModBool returns the boolean of num1 % num2.  If  num1 % num2 == 0, return true.
+func (ns *Namespace) ModBool(num1, num2 interface{}) (bool, error) {
+	res, err := ns.Mod(num1, num2)
 	if err != nil {
 		return false, err
 	}
@@ -122,15 +122,15 @@ func (ns *Namespace) ModBool(a, b interface{}) (bool, error) {
 	return res == int64(0), nil
 }
 
-// Mul multiplies two numbers.
-func (ns *Namespace) Mul(a, b interface{}) (interface{}, error) {
-	return _math.DoArithmetic(a, b, '*')
+// Mul multiplies num1 with num2.
+func (ns *Namespace) Mul(num1, num2 interface{}) (interface{}, error) {
+	return _math.DoArithmetic(num1, num2, '*')
 }
 
-// Pow returns a raised to the power of b.
-func (ns *Namespace) Pow(a, b interface{}) (float64, error) {
-	af, erra := cast.ToFloat64E(a)
-	bf, errb := cast.ToFloat64E(b)
+// Pow returns num1 raised to the power of num2.
+func (ns *Namespace) Pow(num1, num2 interface{}) (float64, error) {
+	af, erra := cast.ToFloat64E(num1)
+	bf, errb := cast.ToFloat64E(num2)
 
 	if erra != nil || errb != nil {
 		return 0, errors.New("Pow operator can't be used with non-float value")
@@ -139,9 +139,9 @@ func (ns *Namespace) Pow(a, b interface{}) (float64, error) {
 	return math.Pow(af, bf), nil
 }
 
-// Round returns the nearest integer, rounding half away from zero.
-func (ns *Namespace) Round(x interface{}) (float64, error) {
-	xf, err := cast.ToFloat64E(x)
+// Round returns the nearest integer of num, rounding half away from zero.
+func (ns *Namespace) Round(num interface{}) (float64, error) {
+	xf, err := cast.ToFloat64E(num)
 	if err != nil {
 		return 0, errors.New("Round operator can't be used with non-float value")
 	}
@@ -149,9 +149,9 @@ func (ns *Namespace) Round(x interface{}) (float64, error) {
 	return _round(xf), nil
 }
 
-// Sqrt returns the square root of a number.
-func (ns *Namespace) Sqrt(a interface{}) (float64, error) {
-	af, err := cast.ToFloat64E(a)
+// Sqrt returns the square root of a num.
+func (ns *Namespace) Sqrt(num interface{}) (float64, error) {
+	af, err := cast.ToFloat64E(num)
 	if err != nil {
 		return 0, errors.New("Sqrt operator can't be used with non integer or float value")
 	}
@@ -159,9 +159,9 @@ func (ns *Namespace) Sqrt(a interface{}) (float64, error) {
 	return math.Sqrt(af), nil
 }
 
-// Sub subtracts two numbers.
-func (ns *Namespace) Sub(a, b interface{}) (interface{}, error) {
-	return _math.DoArithmetic(a, b, '-')
+// Sub subtracts num2 fron num1.
+func (ns *Namespace) Sub(num1, num2 interface{}) (interface{}, error) {
+	return _math.DoArithmetic(num1, num2, '-')
 }
 
 var counter uint64

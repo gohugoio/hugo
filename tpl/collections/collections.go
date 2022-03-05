@@ -49,13 +49,13 @@ type Namespace struct {
 	deps *deps.Deps
 }
 
-// After returns all the items after the first N in a rangeable list.
-func (ns *Namespace) After(index interface{}, seq interface{}) (interface{}, error) {
-	if index == nil || seq == nil {
+// After returns all the items after the first num in seq.
+func (ns *Namespace) After(num interface{}, seq interface{}) (interface{}, error) {
+	if num == nil || seq == nil {
 		return nil, errors.New("both limit and seq must be provided")
 	}
 
-	indexv, err := cast.ToIntE(index)
+	indexv, err := cast.ToIntE(num)
 	if err != nil {
 		return nil, err
 	}
