@@ -104,14 +104,33 @@ func (ns *Namespace) ReadFile(i any) (string, error) {
 	return readFile(ns.readFileFs, s)
 }
 
-// ReadDir lists the directory contents relative to the configured WorkingDir.
-func (ns *Namespace) ReadDir(i any) ([]_os.FileInfo, error) {
-	path, err := cast.ToStringE(i)
+// ReadDir lists the directory contents relative to the configured WorkingDir or a provided Filesystem.
+func (ns *Namespace) ReadDir(params ...any) ([]_os.FileInfo, error) {
+	if len(params) > 2 {
+		return nil, fmt.Errorf("incorrect number of parameters, expected 1 or 2")
+	}
+
+	path, err := cast.ToStringE(params[0])
 	if err != nil {
 		return nil, err
 	}
 
-	list, err := afero.ReadDir(ns.workFs, path)
+	fs := ns.workFs
+
+	if len(params) == 2 {
+		filesystem, err := cast.ToStringE(params[1])
+		if err != nil {
+			return nil, err
+		}
+
+		fs, err = ns.deps.BaseFs.GetFilesystemByName(filesystem)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	list, err := afero.ReadDir(fs, path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read directory %q: %s", path, err)
 	}

@@ -196,6 +196,28 @@ func (fs *BaseFs) ResolveJSConfigFile(name string) string {
 	return ""
 }
 
+func (fs *BaseFs) GetFilesystemByName(name string) (afero.Fs, error) {
+	switch name {
+	case files.ComponentFolderArchetypes:
+		return fs.SourceFilesystems.Archetypes.Fs, nil
+	case files.ComponentFolderContent:
+		return fs.SourceFilesystems.Content.Fs, nil
+	case files.ComponentFolderStatic:
+		// TODO(lukeryannetnz) static
+		return nil, errors.New("static folder is not yet supported")
+	case files.ComponentFolderLayouts:
+		return fs.SourceFilesystems.Layouts.Fs, nil
+	case files.ComponentFolderData:
+		return fs.SourceFilesystems.Data.Fs, nil
+	case files.ComponentFolderAssets:
+		return fs.SourceFilesystems.Assets.Fs, nil
+	case files.ComponentFolderI18n:
+		return fs.SourceFilesystems.I18n.Fs, nil
+	default:
+		return nil, fmt.Errorf("filesystem name not recognised: %s", name)
+	}
+}
+
 // SourceFilesystems contains the different source file systems. These can be
 // composite file systems (theme and project etc.), and they have all root
 // set to the source type the provides: data, i18n, static, layouts.

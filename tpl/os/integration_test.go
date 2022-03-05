@@ -20,7 +20,7 @@ import (
 )
 
 // Issue 9599
-func TestReadDirWorkDir(t *testing.T) {
+func TestReadDir(t *testing.T) {
 	t.Parallel()
 
 	files := `
@@ -30,13 +30,36 @@ theme = "mytheme"
 Hello project!
 -- themes/mytheme/mytheme.txt --
 Hello theme!
+-- themes/mytheme/archetypes/mytheme-default.md --
+draft: true
+-- archetypes/default.md --
+draft: true
+-- content/content-example.md --
+draft: true
+-- layouts/404.html --
+<html></html>
+-- data/data.csv --
+1,2,3
+-- assets/asset.jpg --
+YWJjMTIzIT8kKiYoKSctPUB+
+-- i18n/en-NZ.yaml --
+summarized: "summarised"
 -- layouts/index.html --
+{{ $archetypeentries := (readDir "." "archetypes") }}
+START archteypes:|{{ range $entry := $archetypeentries }}{{ if not $entry.IsDir }}{{ $entry.Name }}|{{ end }}{{ end }}:END:
+{{ $content := (readDir "." "content") }}
+START content:|{{ range $entry := $content }}{{ if not $entry.IsDir }}{{ $entry.Name }}|{{ end }}{{ end }}:END:
+{{ $layouts := (readDir "." "layouts") }}
+START layouts:|{{ range $entry := $layouts }}{{ if not $entry.IsDir }}{{ $entry.Name }}|{{ end }}{{ end }}:END:
+{{ $data := (readDir "." "data") }}
+START data:|{{ range $entry := $data }}{{ if not $entry.IsDir }}{{ $entry.Name }}|{{ end }}{{ end }}:END:
+{{ $assets := (readDir "." "assets") }}
+START assets:|{{ range $entry := $assets }}{{ if not $entry.IsDir }}{{ $entry.Name }}|{{ end }}{{ end }}:END:
+{{ $i18n := (readDir "." "i18n") }}
+START i18n:|{{ range $entry := $i18n }}{{ if not $entry.IsDir }}{{ $entry.Name }}|{{ end }}{{ end }}:END:
 {{ $entries := (readDir ".") }}
-START:|{{ range $entry := $entries }}{{ if not $entry.IsDir }}{{ $entry.Name }}|{{ end }}{{ end }}:END:
-
-
-  `
-
+START work:|{{ range $entry := $entries }}{{ if not $entry.IsDir }}{{ $entry.Name }}|{{ end }}{{ end }}:END:
+`
 	b := hugolib.NewIntegrationTestBuilder(
 		hugolib.IntegrationTestConfig{
 			T:           t,
@@ -45,7 +68,12 @@ START:|{{ range $entry := $entries }}{{ if not $entry.IsDir }}{{ $entry.Name }}|
 		},
 	).Build()
 
-	b.AssertFileContent("public/index.html", `
-START:|config.toml|myproject.txt|:END:
-`)
+	b.AssertFileContent("public/index.html",
+		"START archteypes:|default.md|mytheme-default.md|:END:",
+		"START content:|content-example.md|:END:",
+		"START layouts:|404.html|index.html|:END:",
+		"START data:|data.csv|:END:",
+		"START assets:|asset.jpg|:END:",
+		"START i18n:|en-NZ.yaml|:END:",
+		"START work:|config.toml|myproject.txt|:END:")
 }
