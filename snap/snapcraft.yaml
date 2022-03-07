@@ -22,6 +22,11 @@ plugs:
     interface: system-files
     read:
     - /etc/gitconfig
+  user-gitconfig:
+    interface: personal-files
+    read:
+    - $HOME/.gitconfig
+    - $HOME/.config/git/config
     
 apps:
   hugo:
@@ -32,6 +37,7 @@ apps:
       - network-bind
       - removable-media
       - system-gitconfig
+      - user-gitconfig
 
 parts:
   git:
