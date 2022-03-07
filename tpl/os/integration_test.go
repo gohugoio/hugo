@@ -49,3 +49,5 @@ START:|{{ range $entry := $entries }}{{ if not $entry.IsDir }}{{ $entry.Name }}|
 START:|config.toml|myproject.txt|:END:
 `)
 }
+
+// Issue 9609

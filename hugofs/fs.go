@@ -67,18 +67,25 @@ func NewFrom(fs afero.Fs, cfg config.Provider) *Fs {
 	return newFs(fs, cfg)
 }
 
+func NewForWorkingDir(base afero.Fs, workingDir string) *Fs {
+	return &Fs{
+		Source:      base,
+		Destination: base,
+		Os:          &afero.OsFs{},
+		WorkingDir:  getWorkingDirFs(base, workingDir),
+	}
+}
+
 func newFs(base afero.Fs, cfg config.Provider) *Fs {
 	return &Fs{
 		Source:      base,
 		Destination: base,
 		Os:          &afero.OsFs{},
-		WorkingDir:  getWorkingDirFs(base, cfg),
+		WorkingDir:  getWorkingDirFs(base, cfg.GetString("workingDir")),
 	}
 }
 
-func getWorkingDirFs(base afero.Fs, cfg config.Provider) *afero.BasePathFs {
-	workingDir := cfg.GetString("workingDir")
-
+func getWorkingDirFs(base afero.Fs, workingDir string) *afero.BasePathFs {
 	if workingDir != "" {
 		return afero.NewBasePathFs(afero.NewReadOnlyFs(base), workingDir).(*afero.BasePathFs)
 	}

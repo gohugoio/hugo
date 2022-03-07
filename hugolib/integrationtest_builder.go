@@ -265,7 +265,7 @@ func (s *IntegrationTestBuilder) initBuilder() {
 
 		logger := loggers.NewBasicLoggerForWriter(s.Cfg.LogLevel, &s.logBuff)
 
-		fs := hugofs.NewFrom(afs, config.New())
+		fs := hugofs.NewForWorkingDir(afs, s.Cfg.WorkingDir)
 
 		for _, f := range s.data.Files {
 			filename := filepath.Join(s.Cfg.WorkingDir, f.Name)
