@@ -38,7 +38,7 @@ This is a bug-fix release with a couple of important fixes.
 {{ end }}
 {{ range .All }}
 {{- if .GitHubCommit -}}
-* {{ .Subject }} {{ .Hash }} {{ . | authorURL }} {{ range .Issues }}{{ . | issue }} {{ end }}
+* {{ .Subject }} {{ .Hash }} {{ . | author }} {{ range .Issues }}{{ . | issue }} {{ end }}
 {{ else -}}
 * {{ .Subject }} {{ range .Issues }}{{ . | issue }} {{ end }}
 {{ end -}}
@@ -90,7 +90,7 @@ Hugo now has:
 {{ define "change-section" }}
 {{ range . }}
 {{- if .GitHubCommit -}}
-* {{ .Subject }} {{ .Hash }} {{ . | authorURL }} {{ range .Issues }}{{ . | issue }} {{ end }}
+* {{ .Subject }} {{ .Hash }} {{ . | author }} {{ range .Issues }}{{ . | issue }} {{ end }}
 {{ else -}}
 * {{ .Subject }} {{ range .Issues }}{{ . | issue }} {{ end }}
 {{ end -}}
@@ -112,11 +112,8 @@ var templateFuncs = template.FuncMap{
 		}
 		return fmt.Sprintf(linkTemplate, info.Hash, info.GitHubCommit.HTMLURL)
 	},
-	"authorURL": func(info gitInfo) string {
-		if info.GitHubCommit.Author.Login == "" {
-			return ""
-		}
-		return fmt.Sprintf(linkTemplate, "@"+info.GitHubCommit.Author.Login, info.GitHubCommit.Author.HTMLURL)
+	"author": func(info gitInfo) string {
+		return "@" + info.GitHubCommit.Author.Login
 	},
 }
 
@@ -165,7 +162,6 @@ func fetchThemeCount() (int, error) {
 
 func getReleaseNotesFilename(version string) string {
 	return filepath.FromSlash(fmt.Sprintf("temp/%s-relnotes-ready.md", version))
-
 }
 
 func (r *ReleaseHandler) writeReleaseNotesToTemp(version string, isPatch bool, infosMain, infosDocs gitInfos) (string, error) {
