@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/hreflect"
 )
 
 type TestStruct struct {
@@ -59,7 +60,7 @@ func (e *execHelper) GetMethod(ctx context.Context, tmpl Preparer, receiver refl
 	if name != "Hello1" {
 		return zero, zero
 	}
-	m := receiver.MethodByName("Hello2")
+	m := hreflect.GetMethodByName(receiver, "Hello2")
 	return m, reflect.ValueOf("v2")
 }
 

@@ -160,7 +160,7 @@ func getPluralCount(v interface{}) interface{} {
 			if f.IsValid() {
 				return toPluralCountValue(f.Interface())
 			}
-			m := vv.MethodByName(countFieldName)
+			m := hreflect.GetMethodByName(vv, countFieldName)
 			if m.IsValid() && m.Type().NumIn() == 0 && m.Type().NumOut() == 1 {
 				c := m.Call(nil)
 				return toPluralCountValue(c[0].Interface())
@@ -169,7 +169,6 @@ func getPluralCount(v interface{}) interface{} {
 	}
 
 	return toPluralCountValue(v)
-
 }
 
 // go-i18n expects floats to be represented by string.

@@ -20,9 +20,9 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/gohugoio/hugo/tpl"
-
+	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/tpl"
 
 	template "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
@@ -111,9 +111,6 @@ func (t *templateExecHelper) GetMapValue(ctx context.Context, tmpl texttemplate.
 
 func (t *templateExecHelper) GetMethod(ctx context.Context, tmpl texttemplate.Preparer, receiver reflect.Value, name string) (method reflect.Value, firstArg reflect.Value) {
 	if t.running {
-		// This is a hot path and receiver.MethodByName really shows up in the benchmarks,
-		// so we maintain a list of method names with that signature.
-		// TODO(bep) I have a branch that makes this construct superflous.
 		switch name {
 		case "GetPage", "Render":
 			if info, ok := tmpl.(tpl.Info); ok {
@@ -124,7 +121,7 @@ func (t *templateExecHelper) GetMethod(ctx context.Context, tmpl texttemplate.Pr
 		}
 	}
 
-	fn := receiver.MethodByName(name)
+	fn := hreflect.GetMethodByName(receiver, name)
 	if !fn.IsValid() {
 		return zero, zero
 	}

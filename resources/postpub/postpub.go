@@ -21,6 +21,7 @@ import (
 
 	"github.com/spf13/cast"
 
+	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -125,7 +126,7 @@ func (r *PostPublishResource) fieldToString(receiver interface{}, path string) s
 	default:
 		v := receiverv.FieldByName(fieldname)
 		if !v.IsValid() {
-			method := receiverv.MethodByName(fieldname)
+			method := hreflect.GetMethodByName(receiverv, fieldname)
 			if method.IsValid() {
 				vals := method.Call(nil)
 				if len(vals) > 0 {

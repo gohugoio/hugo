@@ -19,6 +19,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/maps"
 )
 
@@ -300,8 +301,9 @@ func evaluateSubElem(obj reflect.Value, elemName string) (reflect.Value, error) 
 		objPtr = objPtr.Addr()
 	}
 
-	mt, ok := objPtr.Type().MethodByName(elemName)
-	if ok {
+	index := hreflect.GetMethodIndexByName(objPtr.Type(), elemName)
+	if index != -1 {
+		mt := objPtr.Type().Method(index)
 		switch {
 		case mt.PkgPath != "":
 			return zero, fmt.Errorf("%s is an unexported method of type %s", elemName, typ)
@@ -513,5 +515,5 @@ func toTimeUnix(v reflect.Value) int64 {
 	if v.Type() != timeType {
 		panic("coding error: argument must be time.Time type reflect Value")
 	}
-	return v.MethodByName("Unix").Call([]reflect.Value{})[0].Int()
+	return hreflect.GetMethodByName(v, "Unix").Call([]reflect.Value{})[0].Int()
 }
