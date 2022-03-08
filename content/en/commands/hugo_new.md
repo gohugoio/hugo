@@ -35,11 +35,10 @@ hugo new [path] [flags]
   -d, --destination string     filesystem path to write files to
       --disableKinds strings   disable different kind of pages (home, RSS etc.)
       --editor string          edit new content with this editor, if provided
-      --enableGitInfo          add Git revision, date and author info to the pages
+      --enableGitInfo          add Git revision, date, author, and CODEOWNERS info to the pages
       --forceSyncStatic        copy all files when static is changed.
       --gc                     enable to run some cleanup tasks (remove unused cache files) after the build
   -h, --help                   help for new
-      --i18n-warnings          print missing translations
       --ignoreCache            ignores the cache directory
   -k, --kind string            content type to create
   -l, --layoutDir string       filesystem path to layout directory
@@ -47,9 +46,11 @@ hugo new [path] [flags]
       --noChmod                don't sync permission mode of files
       --noTimes                don't sync modification time of files
       --panicOnWarning         panic on first WARNING log
-      --path-warnings          print warnings on duplicate target paths etc.
       --poll string            set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes
-      --print-mem              print memory usage to screen at intervals
+      --printI18nWarnings      print missing translations
+      --printMemoryUsage       print memory usage to screen at intervals
+      --printPathWarnings      print warnings on duplicate target paths etc.
+      --printUnusedTemplates   print warnings on unused templates.
       --templateMetrics        display metrics about template executions
       --templateMetricsHints   calculate some improvement hints when combined with --templateMetrics
   -t, --theme strings          themes to use (located in /themes/THEMENAME/)

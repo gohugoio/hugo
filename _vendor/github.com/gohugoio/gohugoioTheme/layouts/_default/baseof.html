@@ -58,6 +58,7 @@
 </head>
 
 <body class="ma0 sans-serif bg-primary-color-light{{ with getenv "HUGO_ENV" }} {{ . }}{{ end }}">
+  {{ partial "hooks/after-body-start" . }}
   {{ block "nav" . }}{{ partial "site-nav.html" . }}{{ end }}
   {{ block "header" . }}{{ end }}
   <main role="main" class="content-with-sidebar min-vh-100 pb7 pb0-ns">
@@ -65,6 +66,9 @@
   </main>
 
   {{ block "footer" . }}{{ partialCached "site-footer.html" . }}{{ end }}
+  
+  {{ partial "hooks/before-body-end" . }}
+  
 
 </body>
 

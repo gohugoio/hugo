@@ -18,12 +18,12 @@ toc: true
 
 They are stored in a reserved Front Matter object named `_build` with the following defaults:
 
-```yaml
+{{< code-toggle >}}
 _build:
   render: always
   list: always
   publishResources: true
-```
+{{< /code-toggle >}}
 
 #### render
 If `always`, the page will be treated as a published page, holding its dedicated output files (`index.html`, etc...) and permalink.

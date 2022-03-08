@@ -42,7 +42,7 @@ Worth mentioning is also the ongoing work that [@rdwatters](//github.com/rdwatte
 *   Hugo `0.20` is built with Go 1.8.1.
 *   Add `.Site.Params.mainSections` that defaults to the section with the most pages. Plan is to get themes to use this instead of the hardcoded `blog` in `where` clauses. [#3206](//github.com/gohugoio/hugo/issues/3206)
 *   File extension is now configurable. [#320](//github.com/gohugoio/hugo/issues/320)
-*   Impove `markdownify` template function performance. [#3292](//github.com/gohugoio/hugo/issues/3292)
+*   Improve `markdownify` template function performance. [#3292](//github.com/gohugoio/hugo/issues/3292)
 *   Add taxonomy terms’ pages to `.Data.Pages` [#2826](//github.com/gohugoio/hugo/issues/2826)
 *   Change `RSS` description from full `.Content` to `.Summary`.
 *   Ignore “.” dirs in `hugo --cleanDestinationDir` [#3202](//github.com/gohugoio/hugo/issues/3202)

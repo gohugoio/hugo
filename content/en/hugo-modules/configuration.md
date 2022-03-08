@@ -23,6 +23,7 @@ proxy = "direct"
 noProxy = "none"
 private = "*.*"
 replacements = ""
+workspace = ""
 {{< /code-toggle >}}
 
 
@@ -40,6 +41,9 @@ noProxy
 
 private
 : Comma separated glob list matching paths that should be treated as private.
+
+workspace {{< new-in "0.83.0" >}}
+The workspace file to use. This enables Go workspace mode. Note that this can also be set via OS env, e.g. `export HUGO_MODULE_WORKSPACE=/my/hugo.work` This only works with Go 1.18+.
 
 replacements {{< new-in "0.77.0" >}}
 : A comma separated (or a slice) list of module path to directory replacement mapping, e.g. `github.com/bep/myprettytheme -> ../..,github.com/bep/shortcodes -> /some/path`. This is mostly useful for temporary locally development of a module, and then it makes sense to set it as an OS environment variable, e.g: `env HUGO_MODULE_REPLACEMENTS="github.com/bep/myprettytheme -> ../.."`. Any relative path is relate to [themesDir](https://gohugo.io/getting-started/configuration/#all-configuration-settings), and absolute paths are allowed.

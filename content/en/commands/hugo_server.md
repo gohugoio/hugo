@@ -43,11 +43,10 @@ hugo server [flags]
       --disableFastRender      enables full re-renders on changes
       --disableKinds strings   disable different kind of pages (home, RSS etc.)
       --disableLiveReload      watch without enabling live browser reload on rebuild
-      --enableGitInfo          add Git revision, date and author info to the pages
+      --enableGitInfo          add Git revision, date, author, and CODEOWNERS info to the pages
       --forceSyncStatic        copy all files when static is changed.
       --gc                     enable to run some cleanup tasks (remove unused cache files) after the build
   -h, --help                   help for server
-      --i18n-warnings          print missing translations
       --ignoreCache            ignores the cache directory
   -l, --layoutDir string       filesystem path to layout directory
       --liveReloadPort int     port for live reloading (i.e. 443 in HTTPS proxy situations) (default -1)
@@ -59,10 +58,12 @@ hugo server [flags]
       --noHTTPCache            prevent HTTP caching
       --noTimes                don't sync modification time of files
       --panicOnWarning         panic on first WARNING log
-      --path-warnings          print warnings on duplicate target paths etc.
       --poll string            set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes
   -p, --port int               port on which the server will listen (default 1313)
-      --print-mem              print memory usage to screen at intervals
+      --printI18nWarnings      print missing translations
+      --printMemoryUsage       print memory usage to screen at intervals
+      --printPathWarnings      print warnings on duplicate target paths etc.
+      --printUnusedTemplates   print warnings on unused templates.
       --renderToDisk           render to Destination path (default is render to memory & serve from there)
       --templateMetrics        display metrics about template executions
       --templateMetricsHints   calculate some improvement hints when combined with --templateMetrics

@@ -38,7 +38,7 @@ Hugo now has:
 ## Enhancements
 
 * Add `templates.Exists` template function. This can be used to check if a template, e.g. a partial, exists in the project or any of the themes in use. [0ba19c57](https://github.com/gohugoio/hugo/commit/0ba19c57f180c33b41c64335ea1d1c89335d34c0) [@bep](https://github.com/bep) [#5010](https://github.com/gohugoio/hugo/issues/5010)
-* Remove superflous loop [0afa2897](https://github.com/gohugoio/hugo/commit/0afa2897a0cf90f4348929ef432202efddc183a0) [@bep](https://github.com/bep) 
+* Remove superfluous loop [0afa2897](https://github.com/gohugoio/hugo/commit/0afa2897a0cf90f4348929ef432202efddc183a0) [@bep](https://github.com/bep) 
 * Update Chroma [b5d13ca1](https://github.com/gohugoio/hugo/commit/b5d13ca16bf106c1bc29c2a5295cd231d1bf13fd) [@bep](https://github.com/bep) [#5019](https://github.com/gohugoio/hugo/issues/5019)
 * Make resources fetched via `resources.Get` and similar language agnostic [6b02f5c0](https://github.com/gohugoio/hugo/commit/6b02f5c0f4e0ba1730aebc5a590a111548233bd5) [@bep](https://github.com/bep) [#5017](https://github.com/gohugoio/hugo/issues/5017)
 * Improve SCSS project vs themes import resolution [f219ac09](https://github.com/gohugoio/hugo/commit/f219ac09f6b7e26d84599401512233d77c1bdb4c) [@bep](https://github.com/bep) [#5008](https://github.com/gohugoio/hugo/issues/5008)
