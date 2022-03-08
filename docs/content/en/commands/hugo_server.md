@@ -64,7 +64,8 @@ hugo server [flags]
       --printMemoryUsage       print memory usage to screen at intervals
       --printPathWarnings      print warnings on duplicate target paths etc.
       --printUnusedTemplates   print warnings on unused templates.
-      --renderToDisk           render to Destination path (default is render to memory & serve from there)
+      --renderStaticToDisk     serve static files from disk and dynamic files from memory
+      --renderToDisk           serve all files from disk (default is from memory)
       --templateMetrics        display metrics about template executions
       --templateMetricsHints   calculate some improvement hints when combined with --templateMetrics
   -t, --theme strings          themes to use (located in /themes/THEMENAME/)
