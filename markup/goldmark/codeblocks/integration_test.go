@@ -164,6 +164,43 @@ fmt.Println("Hello, World!");
 	)
 }
 
+func TestCodeblocksBugs(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+-- layouts/_default/_markup/render-codeblock.html --
+{{ .Position | safeHTML }}
+-- layouts/_default/single.html --
+{{ .Content }}
+-- content/p1.md --
+---
+title: "p1"
+---
+
+## Issue 9627
+
+§§§text
+{{</* foo */>}}
+§§§
+
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   false,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", `
+# Issue 9627: For the Position in code blocks we try to match the .Inner with the original source. This isn't always possible.
+p1.md:0:0
+	`,
+	)
+}
+
 func TestCodeChomp(t *testing.T) {
 	t.Parallel()
 

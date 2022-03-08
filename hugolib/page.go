@@ -784,6 +784,11 @@ func (p *pageState) posFromPage(offset int) text.Position {
 }
 
 func (p *pageState) posFromInput(input []byte, offset int) text.Position {
+	if offset < 0 {
+		return text.Position{
+			Filename: p.pathOrTitle(),
+		}
+	}
 	lf := []byte("\n")
 	input = input[:offset]
 	lineNumber := bytes.Count(input, lf) + 1
