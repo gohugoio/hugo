@@ -19,6 +19,7 @@ package hreflect
 import (
 	"context"
 	"reflect"
+	"sync"
 
 	"github.com/gohugoio/hugo/common/types"
 )
@@ -113,6 +114,58 @@ func IsTruthfulValue(val reflect.Value) (truth bool) {
 	}
 
 	return
+}
+
+type methodKey struct {
+	typ  reflect.Type
+	name string
+}
+
+type methods struct {
+	sync.RWMutex
+	cache map[methodKey]int
+}
+
+var methodCache = &methods{cache: make(map[methodKey]int)}
+
+// GetMethodByName is the samve as reflect.Value.MethodByName, but it caches the
+// type lookup.
+func GetMethodByName(v reflect.Value, name string) reflect.Value {
+	index := GetMethodIndexByName(v.Type(), name)
+
+	if index == -1 {
+		return reflect.Value{}
+	}
+
+	return v.Method(index)
+}
+
+// GetMethodIndexByName returns the index of the method with the given name, or
+// -1 if no such method exists.
+func GetMethodIndexByName(tp reflect.Type, name string) int {
+	k := methodKey{tp, name}
+	methodCache.RLock()
+	index, found := methodCache.cache[k]
+	methodCache.RUnlock()
+	if found {
+		return index
+	}
+
+	methodCache.Lock()
+	defer methodCache.Unlock()
+
+	m, ok := tp.MethodByName(name)
+	index = m.Index
+	if !ok {
+		index = -1
+	}
+	methodCache.cache[k] = index
+
+	if !ok {
+		return -1
+	}
+
+	return m.Index
 }
 
 // Based on: https://github.com/golang/go/blob/178a2c42254166cffed1b25fb1d3c7a5727cada6/src/text/template/exec.go#L931

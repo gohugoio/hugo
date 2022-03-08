@@ -131,7 +131,7 @@ func (ns *Namespace) lookupFunc(fname string) (reflect.Value, bool) {
 	nv = reflect.ValueOf(v)
 
 	// method
-	m := nv.MethodByName(ss[1])
+	m := hreflect.GetMethodByName(nv, ss[1])
 
 	if m.Kind() == reflect.Invalid {
 		return reflect.Value{}, false
