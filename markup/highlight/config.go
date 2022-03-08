@@ -43,7 +43,7 @@ var DefaultConfig = Config{
 	LineNoStart:        1,
 	CodeFences:         true,
 	NoClasses:          true,
-	LineNumbersInTable: true,
+	LineNumbersInTable: false,
 	TabWidth:           4,
 }
 

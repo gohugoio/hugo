@@ -450,8 +450,7 @@ LINE5
 		c.Assert(result, qt.Not(qt.Contains), "<table")
 
 		result = convertForConfig(c, cfg, lines, "bash {linenos=true,hl_lines=[2]}")
-		c.Assert(result, qt.Contains, "<table")
-		c.Assert(result, qt.Contains, "<span class=\"hl\"><span class=\"lnt\">2\n</span>")
+		c.Assert(result, qt.Contains, "<span class=\"line hl\"><span class=\"ln\">2</span>")
 	})
 
 	c.Run("Highlight lines, linenumbers default on", func(c *qt.C) {
@@ -460,7 +459,7 @@ LINE5
 		cfg.LineNos = true
 
 		result := convertForConfig(c, cfg, lines, "bash")
-		c.Assert(result, qt.Contains, "<span class=\"lnt\">2\n</span>")
+		c.Assert(result, qt.Contains, "<span class=\"ln\">2</span>")
 
 		result = convertForConfig(c, cfg, lines, "bash {linenos=false,hl_lines=[2]}")
 		c.Assert(result, qt.Not(qt.Contains), "class=\"lnt\"")

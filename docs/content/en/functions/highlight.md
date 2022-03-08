@@ -35,8 +35,8 @@ lineNos
 Display a number at the beginning of each line.
 
 lineNumbersInTable
-: Boolean. Default is `true`.\
-Render the highlighted code in an HTML table with two cells. The left table cell contains the line numbers. The right table cell contains the code, allowing a user to select and copy the code without line numbers. Irrelevant if `lineNos` is false.
+: Boolean. Default is `false`.\
+Render the highlighted code in an HTML table with two cells. The left table cell contains the line numbers. The right table cell contains the code. Irrelevant if `lineNos` is false.
 
 anchorLineNos
 : Boolean. Default is `false`.\
