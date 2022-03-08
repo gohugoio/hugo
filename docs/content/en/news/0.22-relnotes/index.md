@@ -74,7 +74,7 @@ Also, considerable work has been put into writing automated benchmark tests for 
 
 ### Docs
 * Rewrite “Archetypes” article [@davidturnbull](https://github.com/davidturnbull) [#3543](https://github.com/gohugoio/hugo/pull/3543/) 
-* Remove Unmaintaned Frontends from Tools. [f41f7282](https://github.com/gohugoio/hugo/commit/f41f72822251c9a31031fd5b3dda585c57c8b028) [@onedrawingperday](https://github.com/onedrawingperday) 
+* Remove Unmaintained Frontends from Tools. [f41f7282](https://github.com/gohugoio/hugo/commit/f41f72822251c9a31031fd5b3dda585c57c8b028) [@onedrawingperday](https://github.com/onedrawingperday) 
 
 ## Fixes
 

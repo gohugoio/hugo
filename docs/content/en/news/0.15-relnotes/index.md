@@ -80,7 +80,7 @@ Huge thanks to all who participated in this release. A special thanks to [@bep](
 ## Bugfixes
 - Fix data races in page sorting and page reversal. These operations are now also cached. [#1293](https://github.com/spf13/hugo/issues/1293)
 - `page.HasMenuCurrent()` and `node.HasMenuCurrent()` now work correctly in multi-level nested menus.
-- Support `Fish and Chips` style section titles. Previously, this would end up as  `Fish And Chips`. Now, the first character is made toupper, but the rest are preserved as-is. [#1176](https://github.com/spf13/hugo/issues/1176)
+- Support `Fish and Chips` style section titles. Previously, this would end up as  `Fish And Chips`. Now, the first character is made to upper, but the rest are preserved as-is. [#1176](https://github.com/spf13/hugo/issues/1176)
 - Hugo now removes superfluous p-tags around shortcodes. [#1148](https://github.com/spf13/hugo/issues/1148)
 
 ## Notices
