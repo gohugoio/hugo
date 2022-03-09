@@ -423,3 +423,70 @@ title: "p1"
 		<img src="b.jpg" alt="&quot;a&quot;">
 	`)
 }
+
+func TestLinkifyProtocol(t *testing.T) {
+	t.Parallel()
+
+	runTest := func(protocol string, withHook bool) *hugolib.IntegrationTestBuilder {
+
+		files := `
+-- config.toml --
+[markup.goldmark]
+[markup.goldmark.extensions]
+linkify = true
+linkifyProtocol = "PROTOCOL"
+-- content/p1.md --
+---
+title: "p1"
+---
+Link no procol: www.example.org
+Link http procol: http://www.example.org
+Link https procol: https://www.example.org
+
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+		files = strings.ReplaceAll(files, "PROTOCOL", protocol)
+
+		if withHook {
+			files += `-- layouts/_default/_markup/render-link.html --
+<a href="{{ .Destination | safeURL }}">{{ .Text | safeHTML }}</a>`
+		}
+
+		return hugolib.NewIntegrationTestBuilder(
+			hugolib.IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		).Build()
+
+	}
+
+	for _, withHook := range []bool{false, true} {
+
+		b := runTest("https", withHook)
+
+		b.AssertFileContent("public/p1/index.html",
+			"Link no procol: <a href=\"https://www.example.org\">www.example.org</a>",
+			"Link http procol: <a href=\"http://www.example.org\">http://www.example.org</a>",
+			"Link https procol: <a href=\"https://www.example.org\">https://www.example.org</a></p>",
+		)
+
+		b = runTest("http", withHook)
+
+		b.AssertFileContent("public/p1/index.html",
+			"Link no procol: <a href=\"http://www.example.org\">www.example.org</a>",
+			"Link http procol: <a href=\"http://www.example.org\">http://www.example.org</a>",
+			"Link https procol: <a href=\"https://www.example.org\">https://www.example.org</a></p>",
+		)
+
+		b = runTest("gopher", withHook)
+
+		b.AssertFileContent("public/p1/index.html",
+			"Link no procol: <a href=\"gopher://www.example.org\">www.example.org</a>",
+			"Link http procol: <a href=\"http://www.example.org\">http://www.example.org</a>",
+			"Link https procol: <a href=\"https://www.example.org\">https://www.example.org</a></p>",
+		)
+
+	}
+}

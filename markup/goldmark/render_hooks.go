@@ -18,6 +18,7 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/markup/converter/hooks"
+	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
 	"github.com/gohugoio/hugo/markup/internal/attributes"
 
@@ -30,8 +31,9 @@ import (
 
 var _ renderer.SetOptioner = (*hookedRenderer)(nil)
 
-func newLinkRenderer() renderer.NodeRenderer {
+func newLinkRenderer(cfg goldmark_config.Config) renderer.NodeRenderer {
 	r := &hookedRenderer{
+		linkifyProtocol: []byte(cfg.Extensions.LinkifyProtocol),
 		Config: html.Config{
 			Writer: html.DefaultWriter,
 		},
@@ -39,8 +41,8 @@ func newLinkRenderer() renderer.NodeRenderer {
 	return r
 }
 
-func newLinks() goldmark.Extender {
-	return &links{}
+func newLinks(cfg goldmark_config.Config) goldmark.Extender {
+	return &links{cfg: cfg}
 }
 
 type linkContext struct {
@@ -105,6 +107,7 @@ func (ctx headingContext) PlainText() string {
 }
 
 type hookedRenderer struct {
+	linkifyProtocol []byte
 	html.Config
 }
 
@@ -279,7 +282,7 @@ func (r *hookedRenderer) renderAutoLink(w util.BufWriter, source []byte, node as
 		return r.renderAutoLinkDefault(w, source, node, entering)
 	}
 
-	url := string(n.URL(source))
+	url := string(r.autoLinkURL(n, source))
 	label := string(n.Label(source))
 	if n.AutoLinkType == ast.AutoLinkEmail && !strings.HasPrefix(strings.ToLower(url), "mailto:") {
 		url = "mailto:" + url
@@ -310,8 +313,9 @@ func (r *hookedRenderer) renderAutoLinkDefault(w util.BufWriter, source []byte, 
 	if !entering {
 		return ast.WalkContinue, nil
 	}
+
 	_, _ = w.WriteString(`<a href="`)
-	url := n.URL(source)
+	url := r.autoLinkURL(n, source)
 	label := n.Label(source)
 	if n.AutoLinkType == ast.AutoLinkEmail && !bytes.HasPrefix(bytes.ToLower(url), []byte("mailto:")) {
 		_, _ = w.WriteString("mailto:")
@@ -327,6 +331,17 @@ func (r *hookedRenderer) renderAutoLinkDefault(w util.BufWriter, source []byte, 
 	_, _ = w.Write(util.EscapeHTML(label))
 	_, _ = w.WriteString(`</a>`)
 	return ast.WalkContinue, nil
+}
+
+func (r *hookedRenderer) autoLinkURL(n *ast.AutoLink, source []byte) []byte {
+	url := n.URL(source)
+	if len(n.Protocol) > 0 && !bytes.Equal(n.Protocol, r.linkifyProtocol) {
+		// The CommonMark spec says "http" is the correct protocol for links,
+		// but this doesn't make much sense (the fact that they should care about the rendered output).
+		// Note that n.Protocol is not set if protocol is provided by user.
+		url = append(r.linkifyProtocol, url[len(n.Protocol):]...)
+	}
+	return url
 }
 
 func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
@@ -394,11 +409,13 @@ func (r *hookedRenderer) renderHeadingDefault(w util.BufWriter, source []byte, n
 	return ast.WalkContinue, nil
 }
 
-type links struct{}
+type links struct {
+	cfg goldmark_config.Config
+}
 
 // Extend implements goldmark.Extender.
 func (e *links) Extend(m goldmark.Markdown) {
 	m.Renderer().AddOptions(renderer.WithNodeRenderers(
-		util.Prioritized(newLinkRenderer(), 100),
+		util.Prioritized(newLinkRenderer(e.cfg), 100),
 	))
 }
