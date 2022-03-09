@@ -19,6 +19,7 @@ import (
 	"html/template"
 	"io"
 	"strings"
+	"sync"
 
 	"github.com/alecthomas/chroma"
 	"github.com/alecthomas/chroma/formatters/html"
@@ -59,7 +60,7 @@ func New(cfg Config) Highlighter {
 
 type Highlighter interface {
 	Highlight(code, lang string, opts interface{}) (string, error)
-	HighlightCodeBlock(ctx hooks.CodeblockContext, opts interface{}) (HightlightResult, error)
+	HighlightCodeBlock(ctx hooks.CodeblockContext, opts interface{}) (*HightlightResult, error)
 	hooks.CodeBlockRenderer
 	hooks.IsDefaultCodeBlockRendererProvider
 }
@@ -87,6 +88,7 @@ func (h chromaHighlighter) Highlight(code, lang string, opts interface{}) (strin
 
 	hr := HightlightResult{
 		highlighted: template.HTML(b.String()),
+		inline:      true,
 		innerLow:    low,
 		innerHigh:   high,
 	}
@@ -95,7 +97,7 @@ func (h chromaHighlighter) Highlight(code, lang string, opts interface{}) (strin
 
 }
 
-func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts interface{}) (HightlightResult, error) {
+func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts interface{}) (*HightlightResult, error) {
 	cfg := h.cfg
 
 	var b strings.Builder
@@ -104,25 +106,26 @@ func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts i
 	options := ctx.Options()
 
 	if err := applyOptionsFromMap(options, &cfg); err != nil {
-		return HightlightResult{}, err
+		return nil, err
 	}
 
 	// Apply these last so the user can override them.
 	if err := applyOptions(opts, &cfg); err != nil {
-		return HightlightResult{}, err
+		return nil, err
 	}
 
 	if err := applyOptionsFromCodeBlockContext(ctx, &cfg); err != nil {
-		return HightlightResult{}, err
+		return nil, err
 	}
 
 	low, high, err := highlight(&b, ctx.Inner(), ctx.Type(), attributes, cfg)
 	if err != nil {
-		return HightlightResult{}, err
+		return nil, err
 	}
 
-	return HightlightResult{
+	return &HightlightResult{
 		highlighted: template.HTML(b.String()),
+		inline:      cfg.Hl_inline,
 		innerLow:    low,
 		innerHigh:   high,
 	}, nil
@@ -157,17 +160,32 @@ func (h chromaHighlighter) GetIdentity() identity.Identity {
 }
 
 type HightlightResult struct {
-	innerLow    int
-	innerHigh   int
 	highlighted template.HTML
+
+	inline bool
+
+	innerLow  int
+	innerHigh int
+
+	innerInit sync.Once
+	inner     template.HTML
 }
 
-func (h HightlightResult) Wrapped() template.HTML {
+func (h *HightlightResult) Wrapped() template.HTML {
 	return h.highlighted
 }
 
-func (h HightlightResult) Inner() template.HTML {
-	return h.highlighted[h.innerLow:h.innerHigh]
+func (h *HightlightResult) Inner() template.HTML {
+	h.innerInit.Do(func() {
+		inner := string(h.highlighted[h.innerLow:h.innerHigh])
+		if h.inline {
+			inner = strings.Replace(inner, `<span class="line">`, `<span class="chroma inline">`, 1)
+			inner = strings.Replace(inner, "display:flex;", "", -1)
+		}
+		h.inner = template.HTML(inner)
+
+	})
+	return h.inner
 }
 
 func highlight(fw hugio.FlexiWriter, code, lang string, attributes []attributes.Attribute, cfg Config) (int, int, error) {

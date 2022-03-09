@@ -33,7 +33,9 @@ noClasses = false
 title: "p1"
 ---
 
-Inline:{{< highlight emacs "hl_inline=true" >}}(message "this highlight shortcode"){{< /highlight >}}:End.
+Inline Classes:{{< highlight emacs "hl_inline=true" >}}abc{{< /highlight >}}:End.
+Inline No Classes:{{< highlight emacs "hl_inline=true,noClasses=true" >}}abc{{< /highlight >}}:End.
+
 
 -- layouts/_default/single.html --
 {{ .Content }}
@@ -47,7 +49,8 @@ Inline:{{< highlight emacs "hl_inline=true" >}}(message "this highlight shortcod
 		},
 	).Build()
 
-	b.AssertFileContent("public/p1/index.html", `
-	<p>Inline:<span class="line"><span class="cl"><span class="p">(</span><span class="nf">message</span> <span class="s">&#34;this highlight shortcode&#34;</span><span class="p">)</span></span></span>:End.</p>
-	`)
+	b.AssertFileContent("public/p1/index.html",
+		"<p>Inline Classes:<span class=\"chroma inline\"><span class=\"cl\"><span class=\"nv\">abc</span></span></span>:End.",
+		"Inline No Classes:<span style=\"\"><span>abc</span></span>:End.",
+	)
 }

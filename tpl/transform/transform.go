@@ -80,7 +80,7 @@ func (ns *Namespace) Highlight(s interface{}, lang string, opts ...interface{}) 
 }
 
 // HighlightCodeBlock highlights a code block on the form received in the codeblock render hooks.
-func (ns *Namespace) HighlightCodeBlock(ctx hooks.CodeblockContext, opts ...interface{}) (highlight.HightlightResult, error) {
+func (ns *Namespace) HighlightCodeBlock(ctx hooks.CodeblockContext, opts ...interface{}) (*highlight.HightlightResult, error) {
 	var optsv interface{}
 	if len(opts) > 0 {
 		optsv = opts[0]
