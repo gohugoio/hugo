@@ -35,7 +35,7 @@ var defaultTdewolffConfig = tdewolffConfig{
 		KeepConditionalComments: true,
 		KeepEndTags:             true,
 		KeepDefaultAttrVals:     true,
-		KeepWhitespace:          true,
+		KeepWhitespace:          false,
 	},
 	CSS: css.Minifier{
 		Precision: 0,
