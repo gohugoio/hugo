@@ -424,7 +424,7 @@ Feel free to [open an issue][newissue] if you think you found a bug or you have 
 [docscontrib]: /contribute/documentation/
 [forums]: https://discourse.gohugo.io
 [gitbook]: https://git-scm.com/
-[gobootcamp]: http://www.golangbootcamp.com/book/get_setup
+[gobootcamp]: https://www.golangbootcamp.com/book/get_setup
 [godl]: https://golang.org/dl/
 [goinstall]: https://golang.org/doc/install
 [gvm]: https://github.com/moovweb/gvm

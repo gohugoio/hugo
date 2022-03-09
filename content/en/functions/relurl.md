@@ -3,7 +3,6 @@ title: relURL
 description: Creates a baseURL-relative URL.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
@@ -31,7 +30,7 @@ The last two examples may look strange but can be very useful. For example, the 
 {{< code file="layouts/partials/schemaorg-metadata.html" download="schemaorg-metadata.html" >}}
 <script type="application/ld+json">
 {
-    "@context" : "http://schema.org",
+    "@context" : "https://schema.org",
     "@type" : "BlogPosting",
     "image" : {{ apply .Params.images "absURL" "." }}
 }
@@ -46,5 +45,5 @@ The above uses the [apply function][] and also exposes how the Go template parse
 
 [apply function]: /functions/apply/
 [configuration]: /getting-started/configuration/
-[jsonld]: https://developers.google.com/search/docs/guides/intro-structured-data
+[jsonld]: https://developers.google.com/search/docs/advanced/structured-data/intro-structured-data
 [safejs]: /functions/safejs
