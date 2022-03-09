@@ -20,7 +20,6 @@ import (
 
 	"github.com/alecthomas/chroma/lexers"
 	"github.com/gohugoio/hugo/cache/namedmemcache"
-	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/highlight"
 
@@ -119,20 +118,18 @@ func (ns *Namespace) HTMLUnescape(s interface{}) (string, error) {
 
 // Markdownify renders a given input from Markdown to HTML.
 func (ns *Namespace) Markdownify(s interface{}) (template.HTML, error) {
-	defer herrors.Recover()
-	ss, err := cast.ToStringE(s)
-	if err != nil {
-		return "", err
-	}
 
 	home := ns.deps.Site.Home()
 	if home == nil {
 		panic("home must not be nil")
 	}
-	sss, err := home.RenderString(ss)
+	ss, err := home.RenderString(s)
+	if err != nil {
+		return "", err
+	}
 
 	// Strip if this is a short inline type of text.
-	bb := ns.deps.ContentSpec.TrimShortHTML([]byte(sss))
+	bb := ns.deps.ContentSpec.TrimShortHTML([]byte(ss))
 
 	return helpers.BytesToHTML(bb), nil
 }

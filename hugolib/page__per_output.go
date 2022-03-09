@@ -24,6 +24,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/gohugoio/hugo/common/text"
+	"github.com/gohugoio/hugo/common/types/hstring"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
@@ -351,8 +352,16 @@ func (p *pageContentOutput) RenderString(args ...interface{}) (template.HTML, er
 		}
 	}
 
+	contentToRender := args[sidx]
+
+	if _, ok := contentToRender.(hstring.RenderedString); ok {
+		// This content is already rendered, this is potentially
+		// a infinite recursion.
+		return "", errors.New("text is already rendered, repeating it may cause infinite recursion")
+	}
+
 	var err error
-	s, err = cast.ToStringE(args[sidx])
+	s, err = cast.ToStringE(contentToRender)
 	if err != nil {
 		return "", err
 	}
@@ -515,7 +524,6 @@ func (p *pageContentOutput) initRenderHooks() error {
 					}
 				}
 			}
-
 			if !found1 {
 				if tp == hooks.CodeBlockRendererType {
 					// No user provided tempplate for code blocks, so we use the native Go code version -- which is also faster.

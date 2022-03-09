@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/types/hstring"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
 	"github.com/gohugoio/hugo/markup/internal/attributes"
@@ -47,7 +48,7 @@ type linkContext struct {
 	page        interface{}
 	destination string
 	title       string
-	text        string
+	text        hstring.RenderedString
 	plainText   string
 }
 
@@ -63,7 +64,7 @@ func (ctx linkContext) Page() interface{} {
 	return ctx.page
 }
 
-func (ctx linkContext) Text() string {
+func (ctx linkContext) Text() hstring.RenderedString {
 	return ctx.text
 }
 
@@ -79,7 +80,7 @@ type headingContext struct {
 	page      interface{}
 	level     int
 	anchor    string
-	text      string
+	text      hstring.RenderedString
 	plainText string
 	*attributes.AttributesHolder
 }
@@ -96,7 +97,7 @@ func (ctx headingContext) Anchor() string {
 	return ctx.anchor
 }
 
-func (ctx headingContext) Text() string {
+func (ctx headingContext) Text() hstring.RenderedString {
 	return ctx.text
 }
 
@@ -153,7 +154,7 @@ func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.N
 			page:        ctx.DocumentContext().Document,
 			destination: string(n.Destination),
 			title:       string(n.Title),
-			text:        string(text),
+			text:        hstring.RenderedString(text),
 			plainText:   string(n.Text(source)),
 		},
 	)
@@ -223,7 +224,7 @@ func (r *hookedRenderer) renderLink(w util.BufWriter, source []byte, node ast.No
 			page:        ctx.DocumentContext().Document,
 			destination: string(n.Destination),
 			title:       string(n.Title),
-			text:        string(text),
+			text:        hstring.RenderedString(text),
 			plainText:   string(n.Text(source)),
 		},
 	)
@@ -290,7 +291,7 @@ func (r *hookedRenderer) renderAutoLink(w util.BufWriter, source []byte, node as
 		linkContext{
 			page:        ctx.DocumentContext().Document,
 			destination: url,
-			text:        label,
+			text:        hstring.RenderedString(label),
 			plainText:   label,
 		},
 	)
@@ -366,7 +367,7 @@ func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast
 			page:             ctx.DocumentContext().Document,
 			level:            n.Level,
 			anchor:           string(anchor),
-			text:             string(text),
+			text:             hstring.RenderedString(text),
 			plainText:        string(n.Text(source)),
 			AttributesHolder: attributes.New(n.Attributes(), attributes.AttributesOwnerGeneral),
 		},
