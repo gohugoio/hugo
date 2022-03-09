@@ -72,6 +72,9 @@ type Config struct {
 	// A space separated list of line numbers, e.g. “3-8 10-20”.
 	Hl_Lines string
 
+	// If set, the markup will not be wrapped in any container.
+	Hl_inline bool
+
 	// A parsed and ready to use list of line ranges.
 	HL_lines_parsed [][2]int `json:"-"`
 
