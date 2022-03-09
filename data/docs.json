@@ -1695,6 +1695,7 @@
         "lineAnchors": "",
         "lineNoStart": 1,
         "hl_Lines": "",
+        "hl_inline": false,
         "tabWidth": 4,
         "guessSyntax": false
       },
@@ -1843,7 +1844,7 @@
           "keepDocumentTags": true,
           "keepEndTags": true,
           "keepQuotes": false,
-          "keepWhitespace": true
+          "keepWhitespace": false
         },
         "css": {
           "keepCSS2": true,
