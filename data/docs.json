@@ -1724,6 +1724,7 @@
           "table": true,
           "strikethrough": true,
           "linkify": true,
+          "linkifyProtocol": "https",
           "taskList": true
         }
       },
@@ -1843,7 +1844,7 @@
           "keepDocumentTags": true,
           "keepEndTags": true,
           "keepQuotes": false,
-          "keepWhitespace": true
+          "keepWhitespace": false
         },
         "css": {
           "keepCSS2": true,
@@ -3299,6 +3300,7 @@
         "Apply": {
           "Description": "Apply takes a map, array, or slice and returns a new slice with the function fname applied over it.",
           "Args": [
+            "ctx",
             "seq",
             "fname",
             "args"
