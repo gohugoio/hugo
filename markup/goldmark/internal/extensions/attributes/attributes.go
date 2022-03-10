@@ -8,7 +8,7 @@ import (
 	"github.com/yuin/goldmark/util"
 )
 
-// This extenion is based on/inspired by https://github.com/mdigger/goldmark-attributes
+// This extension is based on/inspired by https://github.com/mdigger/goldmark-attributes
 // MIT License
 // Copyright (c) 2019 Dmitry Sedykh
 

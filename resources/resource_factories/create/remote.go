@@ -125,7 +125,7 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 		}
 	}
 
-	// Look for a file extention. If it's .txt, look for a more specific.
+	// Look for a file extension. If it's .txt, look for a more specific.
 	if extensionHints == nil || extensionHints[0] == ".txt" {
 		if ext := path.Ext(filename); ext != "" {
 			extensionHints = []string{ext}

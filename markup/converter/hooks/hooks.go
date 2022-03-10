@@ -93,7 +93,7 @@ type HeadingRenderer interface {
 
 // ElementPositionResolver provides a way to resolve the start Position
 // of a markdown element in the original source document.
-// This may be both slow and aproximate, so should only be
+// This may be both slow and approximate, so should only be
 // used for error logging.
 type ElementPositionResolver interface {
 	ResolvePosition(ctx any) text.Position
