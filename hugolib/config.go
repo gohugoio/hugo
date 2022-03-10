@@ -128,7 +128,7 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 	// they are finalized.
 	collectHook := func(m *modules.ModulesConfig) error {
 		// We don't need the merge strategy configuration anymore,
-		// remove it so it doesn't accidentaly show up in other settings.
+		// remove it so it doesn't accidentally show up in other settings.
 		l.deleteMergeStrategies()
 
 		if err := l.loadLanguageSettings(nil); err != nil {

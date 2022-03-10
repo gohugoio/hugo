@@ -70,7 +70,7 @@ func (m PageMatcher) Matches(p Page) bool {
 	return true
 }
 
-// DecodeCascade decodes in which could be eiter a map or a slice of maps.
+// DecodeCascade decodes in which could be either a map or a slice of maps.
 func DecodeCascade(in any) (map[PageMatcher]maps.Params, error) {
 	m, err := maps.ToSliceStringMap(in)
 	if err != nil {
