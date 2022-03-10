@@ -35,12 +35,12 @@ type ContentFactory struct {
 
 	// We parse the archetype templates as Go templates, so we need
 	// to replace any shortcode with a temporary placeholder.
-	shortocdeReplacerPre  *strings.Replacer
-	shortocdeReplacerPost *strings.Replacer
+	shortcodeReplacerPre  *strings.Replacer
+	shortcodeReplacerPost *strings.Replacer
 }
 
-// AppplyArchetypeFilename archetypeFilename to w as a template using the given Page p as the foundation for the data context.
-func (f ContentFactory) AppplyArchetypeFilename(w io.Writer, p page.Page, archetypeKind, archetypeFilename string) error {
+// ApplyArchetypeFilename archetypeFilename to w as a template using the given Page p as the foundation for the data context.
+func (f ContentFactory) ApplyArchetypeFilename(w io.Writer, p page.Page, archetypeKind, archetypeFilename string) error {
 
 	fi, err := f.h.SourceFilesystems.Archetypes.Fs.Stat(archetypeFilename)
 	if err != nil {
@@ -57,12 +57,12 @@ func (f ContentFactory) AppplyArchetypeFilename(w io.Writer, p page.Page, archet
 
 	}
 
-	return f.AppplyArchetypeTemplate(w, p, archetypeKind, string(templateSource))
+	return f.ApplyArchetypeTemplate(w, p, archetypeKind, string(templateSource))
 
 }
 
-// AppplyArchetypeFilename templateSource to w as a template using the given Page p as the foundation for the data context.
-func (f ContentFactory) AppplyArchetypeTemplate(w io.Writer, p page.Page, archetypeKind, templateSource string) error {
+// ApplyArchetypeTemplate templateSource to w as a template using the given Page p as the foundation for the data context.
+func (f ContentFactory) ApplyArchetypeTemplate(w io.Writer, p page.Page, archetypeKind, templateSource string) error {
 	ps := p.(*pageState)
 	if archetypeKind == "" {
 		archetypeKind = p.Type()
@@ -75,7 +75,7 @@ func (f ContentFactory) AppplyArchetypeTemplate(w io.Writer, p page.Page, archet
 		File: p.File(),
 	}
 
-	templateSource = f.shortocdeReplacerPre.Replace(templateSource)
+	templateSource = f.shortcodeReplacerPre.Replace(templateSource)
 
 	templ, err := ps.s.TextTmpl().Parse("archetype.md", string(templateSource))
 	if err != nil {
@@ -87,7 +87,7 @@ func (f ContentFactory) AppplyArchetypeTemplate(w io.Writer, p page.Page, archet
 		return errors.Wrapf(err, "failed to execute archetype template: %s", err)
 	}
 
-	_, err = io.WriteString(w, f.shortocdeReplacerPost.Replace(result))
+	_, err = io.WriteString(w, f.shortcodeReplacerPost.Replace(result))
 
 	return err
 
@@ -116,7 +116,7 @@ func (f ContentFactory) CreateContentPlaceHolder(filename string) (string, error
 		return "", err
 	}
 
-	// This will be overwritten later, just write a placholder to get
+	// This will be overwritten later, just write a placeholder to get
 	// the paths correct.
 	placeholder := `---
 title: "Content Placeholder"
@@ -135,12 +135,12 @@ _build:
 func NewContentFactory(h *HugoSites) ContentFactory {
 	return ContentFactory{
 		h: h,
-		shortocdeReplacerPre: strings.NewReplacer(
+		shortcodeReplacerPre: strings.NewReplacer(
 			"{{<", "{x{<",
 			"{{%", "{x{%",
 			">}}", ">}x}",
 			"%}}", "%}x}"),
-		shortocdeReplacerPost: strings.NewReplacer(
+		shortcodeReplacerPost: strings.NewReplacer(
 			"{x{<", "{{<",
 			"{x{%", "{{%",
 			">}x}", ">}}",

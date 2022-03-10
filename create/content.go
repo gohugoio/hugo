@@ -283,10 +283,10 @@ func (b *contentBuilder) applyArcheType(contentFilename, archetypeFilename strin
 	defer f.Close()
 
 	if archetypeFilename == "" {
-		return b.cf.AppplyArchetypeTemplate(f, p, b.kind, DefaultArchetypeTemplateTemplate)
+		return b.cf.ApplyArchetypeTemplate(f, p, b.kind, DefaultArchetypeTemplateTemplate)
 	}
 
-	return b.cf.AppplyArchetypeFilename(f, p, b.kind, archetypeFilename)
+	return b.cf.ApplyArchetypeFilename(f, p, b.kind, archetypeFilename)
 
 }
 
