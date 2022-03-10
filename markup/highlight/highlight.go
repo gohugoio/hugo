@@ -75,24 +75,11 @@ func (h chromaHighlighter) Highlight(code, lang string, opts interface{}) (strin
 	}
 	var b strings.Builder
 
-	low, high, err := highlight(&b, code, lang, nil, cfg)
-
-	if err != nil {
+	if _, _, err := highlight(&b, code, lang, nil, cfg); err != nil {
 		return "", err
 	}
 
-	if !cfg.Hl_inline {
-		return b.String(), nil
-	}
-
-	hr := HightlightResult{
-		highlighted: template.HTML(b.String()),
-		innerLow:    low,
-		innerHigh:   high,
-	}
-
-	return string(hr.Inner()), nil
-
+	return b.String(), nil
 }
 
 func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts interface{}) (HightlightResult, error) {

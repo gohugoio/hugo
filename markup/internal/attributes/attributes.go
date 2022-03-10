@@ -38,7 +38,6 @@ var chromaHightlightProcessingAttributes = map[string]bool{
 	"nohl":               true,
 	"style":              true,
 	"tabWidth":           true,
-	"hl_inline":          true, // New in 0.94.0.
 }
 
 func init() {
