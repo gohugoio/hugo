@@ -18,6 +18,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/text"
+	"github.com/gohugoio/hugo/common/types/hstring"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/internal/attributes"
 )
@@ -32,7 +33,7 @@ type LinkContext interface {
 	Page() interface{}
 	Destination() string
 	Title() string
-	Text() string
+	Text() hstring.RenderedString
 	PlainText() string
 }
 
@@ -75,7 +76,7 @@ type HeadingContext interface {
 	// Anchor is the HTML id assigned to the heading.
 	Anchor() string
 	// Text is the rendered (HTML) heading text, excluding the heading marker.
-	Text() string
+	Text() hstring.RenderedString
 	// PlainText is the unrendered version of Text.
 	PlainText() string
 

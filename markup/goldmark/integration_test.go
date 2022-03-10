@@ -18,6 +18,8 @@ import (
 	"strings"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
+
 	"github.com/gohugoio/hugo/hugolib"
 )
 
@@ -393,6 +395,49 @@ FENCE
 	for i := 0; i < b.N; i++ {
 		builders[i].Build()
 	}
+}
+
+// Iisse #8959
+func TestHookInfiniteRecursion(t *testing.T) {
+	t.Parallel()
+
+	for _, renderFunc := range []string{"markdownify", ".Page.RenderString"} {
+		t.Run(renderFunc, func(t *testing.T) {
+
+			files := `
+-- config.toml --
+-- layouts/_default/_markup/render-link.html --
+<a href="{{ .Destination | safeURL }}">{{ .Text | RENDERFUNC }}</a>	
+-- layouts/_default/single.html --
+{{ .Content }}
+-- content/p1.md --
+---
+title: "p1"
+---
+
+https://example.org
+
+a@b.com
+		
+			
+			`
+
+			files = strings.ReplaceAll(files, "RENDERFUNC", renderFunc)
+
+			b, err := hugolib.NewIntegrationTestBuilder(
+				hugolib.IntegrationTestConfig{
+					T:           t,
+					TxtarString: files,
+				},
+			).BuildE()
+
+			b.Assert(err, qt.IsNotNil)
+			b.Assert(err.Error(), qt.Contains, "text is already rendered, repeating it may cause infinite recursion")
+
+		})
+
+	}
+
 }
 
 // Issue 9594
