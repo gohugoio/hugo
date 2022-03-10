@@ -1695,7 +1695,6 @@
         "lineAnchors": "",
         "lineNoStart": 1,
         "hl_Lines": "",
-        "hl_inline": false,
         "tabWidth": 4,
         "guessSyntax": false
       },
@@ -1725,6 +1724,7 @@
           "table": true,
           "strikethrough": true,
           "linkify": true,
+          "linkifyProtocol": "https",
           "taskList": true
         }
       },
