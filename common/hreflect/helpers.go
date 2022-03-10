@@ -128,7 +128,7 @@ type methods struct {
 
 var methodCache = &methods{cache: make(map[methodKey]int)}
 
-// GetMethodByName is the samve as reflect.Value.MethodByName, but it caches the
+// GetMethodByName is the same as reflect.Value.MethodByName, but it caches the
 // type lookup.
 func GetMethodByName(v reflect.Value, name string) reflect.Value {
 	index := GetMethodIndexByName(v.Type(), name)
