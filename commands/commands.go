@@ -186,10 +186,6 @@ Complete documentation is available at http://gohugo.io/.`,
 	_ = cc.cmd.PersistentFlags().SetAnnotation("config", cobra.BashCompFilenameExt, config.ValidConfigFileExtensions)
 
 	cc.cmd.PersistentFlags().BoolVarP(&cc.verbose, "verbose", "v", false, "verbose output")
-	cc.cmd.PersistentFlags().BoolVarP(&cc.debug, "debug", "", false, "debug output")
-	cc.cmd.PersistentFlags().BoolVar(&cc.logging, "log", false, "enable Logging")
-	cc.cmd.PersistentFlags().StringVar(&cc.logFile, "logFile", "", "log File path (if set, logging enabled automatically)")
-	cc.cmd.PersistentFlags().BoolVar(&cc.verboseLog, "verboseLog", false, "verbose logging")
 
 	cc.cmd.Flags().BoolVarP(&cc.buildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 
@@ -222,11 +218,8 @@ type hugoBuilderCommon struct {
 	printm       bool
 
 	// TODO(bep) var vs string
-	logging    bool
-	verbose    bool
-	verboseLog bool
-	debug      bool
-	quiet      bool
+	verbose bool
+	quiet   bool
 
 	cfgFile string
 	cfgDir  string

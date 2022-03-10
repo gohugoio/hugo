@@ -135,7 +135,6 @@ func (c *commandeer) createLogger(cfg config.Provider) (loggers.Logger, error) {
 	var (
 		logHandle       = ioutil.Discard
 		logThreshold    = jww.LevelWarn
-		logFile         = cfg.GetString("logFile")
 		outHandle       = ioutil.Discard
 		stdoutThreshold = jww.LevelWarn
 	)
@@ -144,32 +143,8 @@ func (c *commandeer) createLogger(cfg config.Provider) (loggers.Logger, error) {
 		outHandle = os.Stdout
 	}
 
-	if c.h.verboseLog || c.h.logging || (c.h.logFile != "") {
-		var err error
-		if logFile != "" {
-			logHandle, err = os.OpenFile(logFile, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
-			if err != nil {
-				return nil, newSystemError("Failed to open log file:", logFile, err)
-			}
-		} else {
-			logHandle, err = ioutil.TempFile("", "hugo")
-			if err != nil {
-				return nil, newSystemError(err)
-			}
-		}
-	} else if !c.h.quiet && cfg.GetBool("verbose") {
+	if !c.h.quiet && cfg.GetBool("verbose") {
 		stdoutThreshold = jww.LevelInfo
-	}
-
-	if cfg.GetBool("debug") {
-		stdoutThreshold = jww.LevelDebug
-	}
-
-	if c.h.verboseLog {
-		logThreshold = jww.LevelInfo
-		if cfg.GetBool("debug") {
-			logThreshold = jww.LevelDebug
-		}
 	}
 
 	loggers.InitGlobalLogger(stdoutThreshold, logThreshold, outHandle, logHandle)
@@ -180,9 +155,7 @@ func (c *commandeer) createLogger(cfg config.Provider) (loggers.Logger, error) {
 
 func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 	persFlagKeys := []string{
-		"debug",
 		"verbose",
-		"logFile",
 		// Moved from vars
 	}
 	flagKeys := []string{
@@ -221,7 +194,6 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"printUnusedTemplates",
 		"invalidateCDN",
 		"layoutDir",
-		"logFile",
 		"maxDeletes",
 		"quiet",
 		"renderToMemory",
