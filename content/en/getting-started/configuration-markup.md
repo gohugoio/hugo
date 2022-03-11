@@ -261,7 +261,7 @@ Type (string)
 : The type of code block. This will be the programming language, e.g. `bash`, when doing code highlighting.
 
 Attributes (map)
-: Attributes passed in from Markdown (e.g. `{ attrName1=attrValue1 attrName2="attr Value 2"}`).
+: Attributes passed in from Markdown (e.g. `{ attrName1=attrValue1 attrName2="attr Value 2" }`).
 
 Options (map)
 : Chroma highlighting processing options. This will only be filled if `Type` is a known [Chroma Lexer](/content-management/syntax-highlighting/#list-of-chroma-highlighting-languages).
