@@ -35,9 +35,6 @@ type Fs struct {
 	// Destination is Hugo's destination file system.
 	Destination afero.Fs
 
-	// Destination used for `renderStaticToDisk`
-	DestinationStatic afero.Fs
-
 	// Os is an OS file system.
 	// NOTE: Field is currently unused.
 	Os afero.Fs
@@ -72,11 +69,10 @@ func NewFrom(fs afero.Fs, cfg config.Provider) *Fs {
 
 func newFs(base afero.Fs, cfg config.Provider) *Fs {
 	return &Fs{
-		Source:            base,
-		Destination:       base,
-		DestinationStatic: base,
-		Os:                &afero.OsFs{},
-		WorkingDir:        getWorkingDirFs(base, cfg),
+		Source:      base,
+		Destination: base,
+		Os:          &afero.OsFs{},
+		WorkingDir:  getWorkingDirFs(base, cfg),
 	}
 }
 
