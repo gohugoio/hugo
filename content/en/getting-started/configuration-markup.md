@@ -132,6 +132,7 @@ The features currently supported are:
 * `image`
 * `link`
 * `heading` {{< new-in "0.71.0" >}}
+* `code blocks`{{< new-in "0.83.0" >}}
 
 You can define [Output-Format-](/templates/output-formats) and [language-](/content-management/multilingual/)specific templates if needed. Your `layouts` folder may look like this:
 
@@ -142,6 +143,8 @@ layouts
         ├── render-image.html
         ├── render-image.rss.xml
         └── render-link.html
+        └── render-codeblock.html
+        └── render-codeblock-bash.html
 ```
 
 Some use cases for the above:
@@ -235,3 +238,42 @@ The rendered html will be
 ```html
 <h3 id="section-a">Section A <a href="#section-a">¶</a></h3>
 ```
+
+## Render Hooks for Code Blocks
+
+{{< new-in "0.83.0" >}}
+
+You can add a hook template for either all code blocks or for a specific type/language (`bash` in the example below):
+
+```bash
+layouts
+└── _default
+    └── _markup
+        └── render-codeblock.html
+        └── render-codeblock-bash.html
+```
+
+The default behaviour for these code blocks is to do [Code Highlighting](/content-management/syntax-highlighting/#highlighting-in-code-fences), but since you can pass attributes to these code blocks, they can be used for almost anything. One example would be the built-in [GoAT Diagrams](/content-management/diagrams/#goat-diagrams-ascii).
+
+The context (the ".") you receive in a code block template contains:
+
+Type (string)
+: The type of code block. This will be the programming language, e.g. `bash`, when doing code highlighting.
+
+Attributes (map)
+: Attributes passed in from Markdown.
+
+Options (map)
+: Chroma highlighting processing options. This will only be filled if `Type` is a known [Chroma Lexer](/content-management/syntax-highlighting/#list-of-chroma-highlighting-languages).
+
+Inner (string)
+: The text between the code fences.
+
+Ordinal (string)
+: Zero-based ordinal for all code blocks in the current document.
+
+Page
+: The owning `Page`.
+
+Position
+: Useful in error logging as it prints the filename and position (linenumber, column), e.g. `{{ errorf "error in code block: %s" .Position }}`.
