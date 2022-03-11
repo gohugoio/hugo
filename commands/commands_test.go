@@ -366,6 +366,8 @@ URL = "hugocloud://hugotestbucket"
 	writeFile(t, filepath.Join(d, "config", "testing", "params.toml"), `myparam="paramtesting"`)
 	writeFile(t, filepath.Join(d, "config", "production", "params.toml"), `myparam="paramproduction"`)
 
+	writeFile(t, filepath.Join(d, "static", "myfile.txt"), `Hello World!`)
+
 	writeFile(t, filepath.Join(d, contentDir, "p1.md"), `
 ---
 title: "P1"

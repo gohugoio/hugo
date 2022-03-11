@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"testing"
@@ -31,11 +32,11 @@ import (
 func TestServer(t *testing.T) {
 	c := qt.New(t)
 
-	homeContent, err := runServerTestAndGetHome(c, "")
+	r := runServerTest(c, "")
 
-	c.Assert(err, qt.IsNil)
-	c.Assert(homeContent, qt.Contains, "List: Hugo Commands")
-	c.Assert(homeContent, qt.Contains, "Environment: development")
+	c.Assert(r.err, qt.IsNil)
+	c.Assert(r.homeContent, qt.Contains, "List: Hugo Commands")
+	c.Assert(r.homeContent, qt.Contains, "Environment: development")
 }
 
 // Issue 9518
@@ -48,13 +49,60 @@ func TestServerPanicOnConfigError(t *testing.T) {
 linenos='table'
 `
 
-	_, err := runServerTestAndGetHome(c, config)
+	r := runServerTest(c, config)
 
-	c.Assert(err, qt.IsNotNil)
-	c.Assert(err.Error(), qt.Contains, "cannot parse 'Highlight.LineNos' as bool:")
+	c.Assert(r.err, qt.IsNotNil)
+	c.Assert(r.err.Error(), qt.Contains, "cannot parse 'Highlight.LineNos' as bool:")
 }
 
-func runServerTestAndGetHome(c *qt.C, config string) (string, error) {
+func TestServerFlags(t *testing.T) {
+	c := qt.New(t)
+
+	assertPublic := func(c *qt.C, r serverTestResult, renderStaticToDisk bool) {
+		c.Assert(r.err, qt.IsNil)
+		c.Assert(r.homeContent, qt.Contains, "Environment: development")
+		c.Assert(r.publicDirnames["myfile.txt"], qt.Equals, renderStaticToDisk)
+
+	}
+
+	for _, test := range []struct {
+		flag   string
+		assert func(c *qt.C, r serverTestResult)
+	}{
+		{"", func(c *qt.C, r serverTestResult) {
+			assertPublic(c, r, false)
+		}},
+		{"--renderToDisk", func(c *qt.C, r serverTestResult) {
+			assertPublic(c, r, true)
+		}},
+	} {
+		c.Run(test.flag, func(c *qt.C) {
+			config := `
+baseURL="https://example.org"
+`
+
+			var args []string
+			if test.flag != "" {
+				args = strings.Split(test.flag, "=")
+			}
+
+			r := runServerTest(c, config, args...)
+
+			test.assert(c, r)
+
+		})
+
+	}
+
+}
+
+type serverTestResult struct {
+	err            error
+	homeContent    string
+	publicDirnames map[string]bool
+}
+
+func runServerTest(c *qt.C, config string, args ...string) (result serverTestResult) {
 	dir, clean, err := createSimpleTestSite(c, testSiteConfig{configTOML: config})
 	defer clean()
 	c.Assert(err, qt.IsNil)
@@ -73,7 +121,8 @@ func runServerTestAndGetHome(c *qt.C, config string) (string, error) {
 	scmd := b.newServerCmdSignaled(stop)
 
 	cmd := scmd.getCommand()
-	cmd.SetArgs([]string{"-s=" + dir, fmt.Sprintf("-p=%d", port)})
+	args = append([]string{"-s=" + dir, fmt.Sprintf("-p=%d", port)}, args...)
+	cmd.SetArgs(args)
 
 	go func() {
 		_, err := cmd.ExecuteC()
@@ -88,7 +137,8 @@ func runServerTestAndGetHome(c *qt.C, config string) (string, error) {
 	// But for now, let us sleep and pray!
 	case <-time.After(2 * time.Second):
 	case err := <-errors:
-		return "", err
+		result.err = err
+		return
 	}
 
 	resp, err := http.Get("http://localhost:1331/")
@@ -99,7 +149,17 @@ func runServerTestAndGetHome(c *qt.C, config string) (string, error) {
 	// Stop the server.
 	stop <- true
 
-	return homeContent, nil
+	result.homeContent = homeContent
+
+	pubFiles, err := os.ReadDir(filepath.Join(dir, "public"))
+	c.Assert(err, qt.IsNil)
+	result.publicDirnames = make(map[string]bool)
+	for _, f := range pubFiles {
+		result.publicDirnames[f.Name()] = true
+	}
+
+	return
+
 }
 
 func TestFixURL(t *testing.T) {
