@@ -13,9 +13,6 @@ menu:
     weight: 20
 ---
 
-
-
-
 {{< new-in "0.62.0" >}} Note that this is only supported with the [Goldmark](#goldmark) renderer.
 
 
@@ -165,7 +162,7 @@ Options (map)
 Inner (string)
 : The text between the code fences.
 
-Ordinal (string)
+Ordinal (integer)
 : Zero-based ordinal for all code blocks in the current document.
 
 Page
