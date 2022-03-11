@@ -48,16 +48,15 @@ type serverCmd struct {
 	// Can be used to stop the server. Useful in tests
 	stop <-chan bool
 
-	disableLiveReload  bool
-	navigateToChanged  bool
-	renderToDisk       bool
-	renderStaticToDisk bool
-	serverAppend       bool
-	serverInterface    string
-	serverPort         int
-	liveReloadPort     int
-	serverWatch        bool
-	noHTTPCache        bool
+	disableLiveReload bool
+	navigateToChanged bool
+	renderToDisk      bool
+	serverAppend      bool
+	serverInterface   string
+	serverPort        int
+	liveReloadPort    int
+	serverWatch       bool
+	noHTTPCache       bool
 
 	disableFastRender   bool
 	disableBrowserError bool
@@ -102,7 +101,6 @@ of a second, you will be able to save and see your changes nearly instantly.`,
 	cc.cmd.Flags().BoolVar(&cc.renderToDisk, "renderToDisk", false, "render to Destination path (default is render to memory & serve from there)")
 	cc.cmd.Flags().BoolVar(&cc.disableFastRender, "disableFastRender", false, "enables full re-renders on changes")
 	cc.cmd.Flags().BoolVar(&cc.disableBrowserError, "disableBrowserError", false, "do not show build errors in the browser")
-	cc.cmd.Flags().BoolVar(&cc.renderStaticToDisk, "renderStaticToDisk", false, "render static files to disk but dynamic files render to memory.")
 
 	cc.cmd.Flags().String("memstats", "", "log memory usage to this file")
 	cc.cmd.Flags().String("meminterval", "100ms", "interval to poll memory usage (requires --memstats), valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".")
@@ -143,7 +141,6 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 
 	cfgInit := func(c *commandeer) error {
 		c.Set("renderToMemory", !sc.renderToDisk)
-		c.Set("renderStaticToDisk", sc.renderStaticToDisk)
 		if cmd.Flags().Changed("navigateToChanged") {
 			c.Set("navigateToChanged", sc.navigateToChanged)
 		}
@@ -335,8 +332,6 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 	if i == 0 {
 		if f.s.renderToDisk {
 			jww.FEEDBACK.Println("Serving pages from " + absPublishDir)
-		} else if f.s.renderStaticToDisk {
-			jww.FEEDBACK.Println("Serving pages from memory and static files from " + absPublishDir)
 		} else {
 			jww.FEEDBACK.Println("Serving pages from memory")
 		}
