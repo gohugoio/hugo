@@ -535,3 +535,33 @@ Link https procol: https://www.example.org
 
 	}
 }
+
+// Issue 9650
+func TestRenderingOfHtmlComments(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+[markup.goldmark.renderer]
+unsafe = true
+-- content/p1.md --
+---
+title: "p1"
+---
+a <!-- b --> c
+
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContentExact("public/p1/index.html",
+		"<p>a <!-- b --> c</p>",
+	)
+}

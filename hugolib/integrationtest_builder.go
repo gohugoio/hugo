@@ -133,6 +133,14 @@ func (s *IntegrationTestBuilder) AssertFileContent(filename string, matches ...s
 	}
 }
 
+func (s *IntegrationTestBuilder) AssertFileContentExact(filename string, matches ...string) {
+	s.Helper()
+	content := s.FileContent(filename)
+	for _, m := range matches {
+		s.Assert(content, qt.Contains, m, qt.Commentf(m))
+	}
+}
+
 func (s *IntegrationTestBuilder) AssertDestinationExists(filename string, b bool) {
 	checker := qt.IsTrue
 	if !b {
