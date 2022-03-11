@@ -241,7 +241,7 @@ The rendered html will be
 
 ## Render Hooks for Code Blocks
 
-{{< new-in "0.83.0" >}}
+{{< new-in "0.93.0" >}}
 
 You can add a hook template for either all code blocks or for a specific type/language (`bash` in the example below):
 
