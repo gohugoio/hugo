@@ -29,7 +29,7 @@ The hook kinds currently supported are:
 
 You can define [Output-Format-](/templates/output-formats) and [language-](/content-management/multilingual/)specific templates if needed. Your `layouts` folder may look like this:
 
-```bash
+```goat { class="black f7" }
 layouts
 └── _default
     └── _markup
@@ -138,7 +138,7 @@ The rendered html will be
 
 You can add a hook template for either all code blocks or for a specific type/language (`bash` in the example below):
 
-```bash
+```goat { class="black f7" }
 layouts
 └── _default
     └── _markup
