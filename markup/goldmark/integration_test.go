@@ -536,8 +536,7 @@ Link https procol: https://www.example.org
 	}
 }
 
-// Issue 9650
-func TestRenderingOfHtmlComments(t *testing.T) {
+func TestGoldmarkBugs(t *testing.T) {
 	t.Parallel()
 
 	files := `
@@ -548,7 +547,15 @@ unsafe = true
 ---
 title: "p1"
 ---
+
+## Issue 9650
+
 a <!-- b --> c
+
+## Issue 9658
+
+- This is a list item <!-- Comment: an innocent-looking comment -->
+
 
 -- layouts/_default/single.html --
 {{ .Content }}
@@ -562,6 +569,9 @@ a <!-- b --> c
 	).Build()
 
 	b.AssertFileContentExact("public/p1/index.html",
+		// Issue 9650
 		"<p>a <!-- b --> c</p>",
+		// Issue 9658 (crash)
+		"<li>This is a list item <!-- Comment: an innocent-looking comment --></li>",
 	)
 }
