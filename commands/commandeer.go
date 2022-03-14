@@ -94,6 +94,7 @@ type commandeer struct {
 	languagesConfigured bool
 	languages           langs.Languages
 	doLiveReload        bool
+	renderStaticToDisk  bool
 	fastRenderMode      bool
 	showErrorInBrowser  bool
 	wasError            bool
@@ -375,8 +376,9 @@ func (c *commandeer) loadConfig() error {
 	}
 
 	createMemFs := config.GetBool("renderToMemory")
+	c.renderStaticToDisk = config.GetBool("renderStaticToDisk")
 
-	if createMemFs {
+	if createMemFs && !c.renderStaticToDisk {
 		// Rendering to memoryFS, publish to Root regardless of publishDir.
 		config.Set("publishDir", "/")
 	}
@@ -387,6 +389,14 @@ func (c *commandeer) loadConfig() error {
 		if c.destinationFs != nil {
 			// Need to reuse the destination on server rebuilds.
 			fs.Destination = c.destinationFs
+		} else if createMemFs && c.renderStaticToDisk {
+			// Writes the dynamic output on memory,
+			// while serve others directly from publishDir
+			publishDir := config.GetString("publishDir")
+			writableFs := afero.NewBasePathFs(afero.NewMemMapFs(), publishDir)
+			publicFs := afero.NewOsFs()
+			fs.Destination = afero.NewCopyOnWriteFs(afero.NewReadOnlyFs(publicFs), writableFs)
+			fs.DestinationStatic = publicFs
 		} else if createMemFs {
 			// Hugo writes the output to memory instead of the disk.
 			fs.Destination = new(afero.MemMapFs)
@@ -404,11 +414,13 @@ func (c *commandeer) loadConfig() error {
 
 			changeDetector.PrepareNew()
 			fs.Destination = hugofs.NewHashingFs(fs.Destination, changeDetector)
+			fs.DestinationStatic = hugofs.NewHashingFs(fs.DestinationStatic, changeDetector)
 			c.changeDetector = changeDetector
 		}
 
 		if c.Cfg.GetBool("logPathWarnings") {
 			fs.Destination = hugofs.NewCreateCountingFs(fs.Destination)
+			fs.DestinationStatic = hugofs.NewCreateCountingFs(fs.DestinationStatic)
 		}
 
 		// To debug hard-to-find path issues.

@@ -71,6 +71,9 @@ type BaseFs struct {
 	// A read-only filesystem starting from the project workDir.
 	WorkDir afero.Fs
 
+	// The filesystem used for renderStaticToDisk.
+	PublishFsStatic afero.Fs
+
 	theBigFs *filesystemsCollector
 
 	// Locks.
@@ -438,15 +441,17 @@ func NewBase(p *paths.Paths, logger loggers.Logger, options ...func(*BaseFs) err
 
 	publishFs := hugofs.NewBaseFileDecorator(afero.NewBasePathFs(fs.Destination, p.AbsPublishDir))
 	sourceFs := hugofs.NewBaseFileDecorator(afero.NewBasePathFs(fs.Source, p.WorkingDir))
+	publishFsStatic := afero.NewBasePathFs(fs.Source, p.AbsPublishDir)
 
 	// Same as sourceFs, but no decoration. This is what's used by os.ReadDir etc.
 	workDir := afero.NewBasePathFs(afero.NewReadOnlyFs(fs.Source), p.WorkingDir)
 
 	b := &BaseFs{
-		SourceFs:  sourceFs,
-		WorkDir:   workDir,
-		PublishFs: publishFs,
-		buildMu:   lockedfile.MutexAt(filepath.Join(p.WorkingDir, lockFileBuild)),
+		SourceFs:        sourceFs,
+		WorkDir:         workDir,
+		PublishFs:       publishFs,
+		PublishFsStatic: publishFsStatic,
+		buildMu:         lockedfile.MutexAt(filepath.Join(p.WorkingDir, lockFileBuild)),
 	}
 
 	for _, opt := range options {
