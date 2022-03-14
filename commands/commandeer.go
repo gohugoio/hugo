@@ -419,8 +419,9 @@ func (c *commandeer) loadConfig() error {
 		}
 
 		if c.Cfg.GetBool("logPathWarnings") {
+			// Note that we only care about the "dynamic creates" here,
+			// so skip the static fs.
 			fs.Destination = hugofs.NewCreateCountingFs(fs.Destination)
-			fs.DestinationStatic = hugofs.NewCreateCountingFs(fs.DestinationStatic)
 		}
 
 		// To debug hard-to-find path issues.

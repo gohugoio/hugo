@@ -107,10 +107,10 @@ of a second, you will be able to save and see your changes nearly instantly.`,
 	cc.cmd.Flags().BoolVarP(&cc.serverAppend, "appendPort", "", true, "append port to baseURL")
 	cc.cmd.Flags().BoolVar(&cc.disableLiveReload, "disableLiveReload", false, "watch without enabling live browser reload on rebuild")
 	cc.cmd.Flags().BoolVar(&cc.navigateToChanged, "navigateToChanged", false, "navigate to changed content file on live browser reload")
-	cc.cmd.Flags().BoolVar(&cc.renderToDisk, "renderToDisk", false, "render to Destination path (default is render to memory & serve from there)")
+	cc.cmd.Flags().BoolVar(&cc.renderToDisk, "renderToDisk", false, "serve all files from disk (default is from memory)")
+	cc.cmd.Flags().BoolVar(&cc.renderStaticToDisk, "renderStaticToDisk", false, "serve static files from disk and dynamic files from memory")
 	cc.cmd.Flags().BoolVar(&cc.disableFastRender, "disableFastRender", false, "enables full re-renders on changes")
 	cc.cmd.Flags().BoolVar(&cc.disableBrowserError, "disableBrowserError", false, "do not show build errors in the browser")
-	cc.cmd.Flags().BoolVar(&cc.renderStaticToDisk, "renderStaticToDisk", false, "render static files to disk but dynamic files render to memory.")
 
 	cc.cmd.Flags().String("memstats", "", "log memory usage to this file")
 	cc.cmd.Flags().String("meminterval", "100ms", "interval to poll memory usage (requires --memstats), valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".")
