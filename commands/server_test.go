@@ -25,6 +25,8 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
+	"golang.org/x/net/context"
+	"golang.org/x/sync/errgroup"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -107,14 +109,14 @@ func runServerTest(c *qt.C, config string, args ...string) (result serverTestRes
 	defer clean()
 	c.Assert(err, qt.IsNil)
 
-	// Let us hope that this port is available on all systems ...
-	port := 1331
+	sp, err := helpers.FindAvailablePort()
+	c.Assert(err, qt.IsNil)
+	port := sp.Port
 
 	defer func() {
 		os.RemoveAll(dir)
 	}()
 
-	errors := make(chan error)
 	stop := make(chan bool)
 
 	b := newCommandsBuilder()
@@ -124,24 +126,26 @@ func runServerTest(c *qt.C, config string, args ...string) (result serverTestRes
 	args = append([]string{"-s=" + dir, fmt.Sprintf("-p=%d", port)}, args...)
 	cmd.SetArgs(args)
 
-	go func() {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	wg, ctx := errgroup.WithContext(ctx)
+
+	wg.Go(func() error {
 		_, err := cmd.ExecuteC()
-		if err != nil {
-			errors <- err
-		}
-	}()
+		return err
+	})
 
 	select {
 	// There is no way to know exactly when the server is ready for connections.
 	// We could improve by something like https://golang.org/pkg/net/http/httptest/#Server
 	// But for now, let us sleep and pray!
 	case <-time.After(2 * time.Second):
-	case err := <-errors:
-		result.err = err
+	case <-ctx.Done():
+		result.err = wg.Wait()
 		return
 	}
 
-	resp, err := http.Get("http://localhost:1331/")
+	resp, err := http.Get(fmt.Sprintf("http://localhost:%d/", port))
 	c.Assert(err, qt.IsNil)
 	defer resp.Body.Close()
 	homeContent := helpers.ReaderToString(resp.Body)
@@ -158,6 +162,7 @@ func runServerTest(c *qt.C, config string, args ...string) (result serverTestRes
 		result.publicDirnames[f.Name()] = true
 	}
 
+	result.err = wg.Wait()
 	return
 
 }

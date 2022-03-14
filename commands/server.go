@@ -15,6 +15,7 @@ package commands
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"net"
@@ -32,6 +33,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/paths"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/pkg/errors"
 
@@ -139,7 +141,7 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 
 	var serverCfgInit sync.Once
 
-	cfgInit := func(c *commandeer) error {
+	cfgInit := func(c *commandeer) (rerr error) {
 		c.Set("renderToMemory", !sc.renderToDisk)
 		if cmd.Flags().Changed("navigateToChanged") {
 			c.Set("navigateToChanged", sc.navigateToChanged)
@@ -162,15 +164,13 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 			return nil
 		}
 
-		var err error
-
 		// We can only do this once.
 		serverCfgInit.Do(func() {
 			serverPorts = make([]int, 1)
 
 			if c.languages.IsMultihost() {
 				if !sc.serverAppend {
-					err = newSystemError("--appendPort=false not supported when in multihost mode")
+					rerr = newSystemError("--appendPort=false not supported when in multihost mode")
 				}
 				serverPorts = make([]int, len(c.languages))
 			}
@@ -185,12 +185,14 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 				} else {
 					if i == 0 && sc.cmd.Flags().Changed("port") {
 						// port set explicitly by user -- he/she probably meant it!
-						err = newSystemErrorF("Server startup failed: %s", err)
+						rerr = newSystemErrorF("Server startup failed: %s", err)
+						return
 					}
 					c.logger.Println("port", sc.serverPort, "already in use, attempting to use an available port")
 					sp, err := helpers.FindAvailablePort()
 					if err != nil {
-						err = newSystemError("Unable to find alternative port to use:", err)
+						rerr = newSystemError("Unable to find alternative port to use:", err)
+						return
 					}
 					serverPorts[i] = sp.Port
 				}
@@ -198,6 +200,10 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 				currentServerPort = serverPorts[i] + 1
 			}
 		})
+
+		if rerr != nil {
+			return
+		}
 
 		c.serverPorts = serverPorts
 
@@ -229,7 +235,7 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 			}
 		}
 
-		return err
+		return
 	}
 
 	if err := memStats(); err != nil {
@@ -506,9 +512,15 @@ func (c *commandeer) serve(s *serverCmd) error {
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	var servers []*http.Server
 
 	for i := range baseURLs {
 		mu, serverURL, endpoint, err := srv.createEndpoint(i)
+		srv := &http.Server{
+			Addr:    endpoint,
+			Handler: mu,
+		}
+		servers = append(servers, srv)
 
 		if doLiveReload {
 			u, err := url.Parse(helpers.SanitizeURL(baseURLs[i]))
@@ -521,8 +533,8 @@ func (c *commandeer) serve(s *serverCmd) error {
 		}
 		jww.FEEDBACK.Printf("Web Server is available at %s (bind address %s)\n", serverURL, s.serverInterface)
 		go func() {
-			err = http.ListenAndServe(endpoint, mu)
-			if err != nil {
+			err = srv.ListenAndServe()
+			if err != nil && err != http.ErrServerClosed {
 				c.logger.Errorf("Error: %s\n", err.Error())
 				os.Exit(1)
 			}
@@ -542,7 +554,17 @@ func (c *commandeer) serve(s *serverCmd) error {
 
 	c.hugo().Close()
 
-	return nil
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	wg, ctx := errgroup.WithContext(ctx)
+	for _, srv := range servers {
+		srv := srv
+		wg.Go(func() error {
+			return srv.Shutdown(ctx)
+		})
+	}
+
+	return wg.Wait()
 }
 
 // fixURL massages the baseURL into a form needed for serving
