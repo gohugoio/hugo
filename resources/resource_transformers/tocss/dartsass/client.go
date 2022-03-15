@@ -16,6 +16,7 @@
 package dartsass
 
 import (
+	"fmt"
 	"io"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -77,6 +78,9 @@ func (c *Client) toCSS(args godartsass.Args, src io.Reader) (godartsass.Result, 
 
 	res, err := c.transpiler.Execute(args)
 	if err != nil {
+		if err.Error() == "unexpected EOF" {
+			return res, fmt.Errorf("got unexpected EOF when executing %q. The user running hugo must have read and execute permissions on this program. With execute permissions only, this error is thrown.", dartSassEmbeddedBinaryName)
+		}
 		return res, err
 	}
 
