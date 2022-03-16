@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build go1.13
 // +build go1.13
 
 package template_test
@@ -41,11 +42,7 @@ func main() {
 	t.Used()
 }
 `
-	td, err := os.MkdirTemp("", "text_template_TestDeadCodeElimination")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(td)
+	td := t.TempDir()
 
 	if err := os.WriteFile(filepath.Join(td, "x.go"), []byte(prog), 0644); err != nil {
 		t.Fatal(err)

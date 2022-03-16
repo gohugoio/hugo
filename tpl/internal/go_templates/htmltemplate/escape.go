@@ -46,7 +46,7 @@ func escapeTemplate(tmpl *Template, node parse.Node, name string) error {
 
 // evalArgs formats the list of arguments into a string. It is equivalent to
 // fmt.Sprint(args...), except that it deferences all pointers.
-func evalArgs(args ...interface{}) string {
+func evalArgs(args ...any) string {
 	// Optimization for simple common case of a single string argument.
 	if len(args) == 1 {
 		if s, ok := args[0].(string); ok {
@@ -98,6 +98,15 @@ type escaper struct {
 	actionNodeEdits   map[*parse.ActionNode][]string
 	templateNodeEdits map[*parse.TemplateNode]string
 	textNodeEdits     map[*parse.TextNode][]byte
+	// rangeContext holds context about the current range loop.
+	rangeContext *rangeContext
+}
+
+// rangeContext holds information about the current range loop.
+type rangeContext struct {
+	outer     *rangeContext // outer loop
+	breaks    []context     // context at each break action
+	continues []context     // context at each continue action
 }
 
 // makeEscaper creates a blank escaper for the given set.
@@ -110,6 +119,7 @@ func makeEscaper(n *nameSpace) escaper {
 		map[*parse.ActionNode][]string{},
 		map[*parse.TemplateNode]string{},
 		map[*parse.TextNode][]byte{},
+		nil,
 	}
 }
 
@@ -125,8 +135,16 @@ func (e *escaper) escape(c context, n parse.Node) context {
 	switch n := n.(type) {
 	case *parse.ActionNode:
 		return e.escapeAction(c, n)
+	case *parse.BreakNode:
+		c.n = n
+		e.rangeContext.breaks = append(e.rangeContext.breaks, c)
+		return context{state: stateDead}
 	case *parse.CommentNode:
 		return c
+	case *parse.ContinueNode:
+		c.n = n
+		e.rangeContext.continues = append(e.rangeContext.breaks, c)
+		return context{state: stateDead}
 	case *parse.IfNode:
 		return e.escapeBranch(c, &n.BranchNode, "if")
 	case *parse.ListNode:
@@ -428,6 +446,12 @@ func join(a, b context, node parse.Node, nodeName string) context {
 	if b.state == stateError {
 		return b
 	}
+	if a.state == stateDead {
+		return b
+	}
+	if b.state == stateDead {
+		return a
+	}
 	if a.eq(b) {
 		return a
 	}
@@ -467,14 +491,27 @@ func join(a, b context, node parse.Node, nodeName string) context {
 
 // escapeBranch escapes a branch template node: "if", "range" and "with".
 func (e *escaper) escapeBranch(c context, n *parse.BranchNode, nodeName string) context {
+	if nodeName == "range" {
+		e.rangeContext = &rangeContext{outer: e.rangeContext}
+	}
 	c0 := e.escapeList(c, n.List)
-	if nodeName == "range" && c0.state != stateError {
+	if nodeName == "range" {
+		if c0.state != stateError {
+			c0 = joinRange(c0, e.rangeContext)
+		}
+		e.rangeContext = e.rangeContext.outer
+		if c0.state == stateError {
+			return c0
+		}
+
 		// The "true" branch of a "range" node can execute multiple times.
 		// We check that executing n.List once results in the same context
 		// as executing n.List twice.
+		e.rangeContext = &rangeContext{outer: e.rangeContext}
 		c1, _ := e.escapeListConditionally(c0, n.List, nil)
 		c0 = join(c0, c1, n, nodeName)
 		if c0.state == stateError {
+			e.rangeContext = e.rangeContext.outer
 			// Make clear that this is a problem on loop re-entry
 			// since developers tend to overlook that branch when
 			// debugging templates.
@@ -482,9 +519,37 @@ func (e *escaper) escapeBranch(c context, n *parse.BranchNode, nodeName string) 
 			c0.err.Description = "on range loop re-entry: " + c0.err.Description
 			return c0
 		}
+		c0 = joinRange(c0, e.rangeContext)
+		e.rangeContext = e.rangeContext.outer
+		if c0.state == stateError {
+			return c0
+		}
 	}
 	c1 := e.escapeList(c, n.ElseList)
 	return join(c0, c1, n, nodeName)
+}
+
+func joinRange(c0 context, rc *rangeContext) context {
+	// Merge contexts at break and continue statements into overall body context.
+	// In theory we could treat breaks differently from continues, but for now it is
+	// enough to treat them both as going back to the start of the loop (which may then stop).
+	for _, c := range rc.breaks {
+		c0 = join(c0, c, c.n, "range")
+		if c0.state == stateError {
+			c0.err.Line = c.n.(*parse.BreakNode).Line
+			c0.err.Description = "at range loop break: " + c0.err.Description
+			return c0
+		}
+	}
+	for _, c := range rc.continues {
+		c0 = join(c0, c, c.n, "range")
+		if c0.state == stateError {
+			c0.err.Line = c.n.(*parse.ContinueNode).Line
+			c0.err.Description = "at range loop continue: " + c0.err.Description
+			return c0
+		}
+	}
+	return c0
 }
 
 // escapeList escapes a list template node.
@@ -494,6 +559,9 @@ func (e *escaper) escapeList(c context, n *parse.ListNode) context {
 	}
 	for _, m := range n.Nodes {
 		c = e.escape(c, m)
+		if c.state == stateDead {
+			break
+		}
 	}
 	return c
 }
@@ -504,6 +572,7 @@ func (e *escaper) escapeList(c context, n *parse.ListNode) context {
 // which is the same as whether e was updated.
 func (e *escaper) escapeListConditionally(c context, n *parse.ListNode, filter func(*escaper, context) bool) (context, bool) {
 	e1 := makeEscaper(e.ns)
+	e1.rangeContext = e.rangeContext
 	// Make type inferences available to f.
 	for k, v := range e.output {
 		e1.output[k] = v
@@ -866,7 +935,7 @@ func HTMLEscapeString(s string) string {
 
 // HTMLEscaper returns the escaped HTML equivalent of the textual
 // representation of its arguments.
-func HTMLEscaper(args ...interface{}) string {
+func HTMLEscaper(args ...any) string {
 	return template.HTMLEscaper(args...)
 }
 
@@ -882,12 +951,12 @@ func JSEscapeString(s string) string {
 
 // JSEscaper returns the escaped JavaScript equivalent of the textual
 // representation of its arguments.
-func JSEscaper(args ...interface{}) string {
+func JSEscaper(args ...any) string {
 	return template.JSEscaper(args...)
 }
 
 // URLQueryEscaper returns the escaped value of the textual representation of
 // its arguments in a form suitable for embedding in a URL query.
-func URLQueryEscaper(args ...interface{}) string {
+func URLQueryEscaper(args ...any) string {
 	return template.URLQueryEscaper(args...)
 }

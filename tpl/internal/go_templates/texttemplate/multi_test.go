@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build go1.13 && !windows
 // +build go1.13,!windows
 
 package template
@@ -453,4 +454,14 @@ func TestIssue19294(t *testing.T) {
 			t.Fatalf("iteration %d: got %q; expected %q", i, buf.String(), "stylesheet")
 		}
 	}
+}
+
+// Issue 48436
+func TestAddToZeroTemplate(t *testing.T) {
+	tree, err := parse.Parse("c", cloneText3, "", "", nil, builtins())
+	if err != nil {
+		t.Fatal(err)
+	}
+	var tmpl Template
+	tmpl.AddParseTree("x", tree["c"])
 }

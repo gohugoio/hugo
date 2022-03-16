@@ -17,8 +17,7 @@ import (
 )
 
 func main() {
-	// TODO(bep) git checkout tag
-	// The current is built with Go version 2f0da6d9e29d9b9d5a4d10427ca9f71d12bbacc8 / go1.16
+	// The current is built with Go tag go1.18 4aa1efed4853ea067d665a952eee77c52faac774
 	fmt.Println("Forking ...")
 	defer fmt.Println("Done ...")
 
@@ -40,7 +39,7 @@ func main() {
 
 const (
 	// TODO(bep)
-	goSource = "/Users/bep/dev/go/dump/go/src"
+	goSource = "/Users/bep/dev/go/misc/go/src"
 	forkRoot = "../../tpl/internal/go_templates"
 )
 
