@@ -54,11 +54,11 @@ Use the [installation instructions in the Hugo documentation](https://gohugo.io/
 #### Prerequisite Tools
 
 * [Git](https://git-scm.com/)
-* [Go (we test it with the last 2 major versions; but note that Hugo 0.81.0 only builds with >= Go 1.16.)](https://golang.org/dl/)
+* [Go (we test it with the last 2 major versions; but note that Hugo 0.95.0 only builds with >= Go 1.18.)](https://golang.org/dl/)
 
 #### Fetch from GitHub
 
-Since Hugo 0.48, Hugo uses the Go Modules support built into Go 1.11 to build. The easiest is to clone Hugo in a directory outside of `GOPATH`, as in the following example:
+To fetch and build the source from GitHub:
 
 ```bash
 mkdir $HOME/src
