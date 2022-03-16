@@ -28,7 +28,7 @@ jobs:
       with:
         python-version: '3.x'
     - name: Install Mage
-      run: go get github.com/magefile/mage@07afc7d24f4d6d6442305d49552f04fbda5ccb3e
+      run: go install github.com/magefile/mage@07afc7d24f4d6d6442305d49552f04fbda5ccb3e
     - name: Install asciidoctor
       uses: reitzig/actions-asciidoctor@7570212ae20b63653481675fb1ff62d1073632b0
     - name: Checkout code
