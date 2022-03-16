@@ -75,9 +75,10 @@ title: "P1"
 -- layouts/partials/counter.html --
 {{ if .Scratch.Get "counter" }}{{ .Scratch.Add "counter" 1 }}{{ else }}{{ .Scratch.Set "counter" 1 }}{{ end }}{{ return true }}
 -- layouts/_default/single.html --
-{{/* Note no spaces in {{continue}} or {{break}}, see https://github.com/golang/go/issues/51670 */}}
 continue:{{ range seq 5 }}{{ if eq . 2 }}{{continue}}{{ end }}{{ . }}{{ end }}:END:
 break:{{ range seq 5 }}{{ if eq . 2 }}{{break}}{{ end }}{{ . }}{{ end }}:END:
+continue2:{{ range seq 5 }}{{ if eq . 2 }}{{ continue }}{{ end }}{{ . }}{{ end }}:END:
+break2:{{ range seq 5 }}{{ if eq . 2 }}{{ break }}{{ end }}{{ . }}{{ end }}:END:
 
 counter1: {{ partial "counter.html" . }}/{{ .Scratch.Get "counter" }}
 and1: {{ if (and false (partial "counter.html" .)) }}true{{ else }}false{{ end }}
@@ -103,6 +104,8 @@ counter2: {{ .Scratch.Get "counter" }}
 	b.AssertFileContent("public/p1/index.html", `
 continue:1345:END:
 break:1:END:
+continue2:1345:END:
+break2:1:END:
 counter1: true/1
 and1: false
 or1: true

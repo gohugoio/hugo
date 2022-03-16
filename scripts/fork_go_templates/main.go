@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	// The current is built with Go tag go1.18 4aa1efed4853ea067d665a952eee77c52faac774
+	// The current is built with 41a82aa9c3 text/template/parse: allow space after continue or break
 	fmt.Println("Forking ...")
 	defer fmt.Println("Done ...")
 
