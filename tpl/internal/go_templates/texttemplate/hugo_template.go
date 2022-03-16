@@ -161,21 +161,23 @@ func (s *state) evalFunction(dot reflect.Value, node *parse.IdentifierNode, cmd 
 	// Added for Hugo.
 	var first reflect.Value
 	var ok bool
+	var isBuiltin bool
 	if s.helper != nil {
+		isBuiltin = name == "and" || name == "or"
 		function, first, ok = s.helper.GetFunc(s.ctx, s.prep, name)
 	}
 
 	if !ok {
-		function, ok = findFunction(name, s.tmpl)
+		function, isBuiltin, ok = findFunction(name, s.tmpl)
 	}
 
 	if !ok {
 		s.errorf("%q is not a defined function", name)
 	}
 	if first != zero {
-		return s.evalCall(dot, function, cmd, name, args, final, first)
+		return s.evalCall(dot, function, isBuiltin, cmd, name, args, final, first)
 	}
-	return s.evalCall(dot, function, cmd, name, args, final)
+	return s.evalCall(dot, function, isBuiltin, cmd, name, args, final)
 }
 
 // evalField evaluates an expression like (.Field) or (.Field arg1 arg2).
@@ -200,9 +202,10 @@ func (s *state) evalField(dot reflect.Value, fieldName string, node parse.Node, 
 	// Unless it's an interface, need to get to a value of type *T to guarantee
 	// we see all methods of T and *T.
 	ptr := receiver
-	if ptr.Kind() != reflect.Interface && ptr.Kind() != reflect.Ptr && ptr.CanAddr() {
+	if ptr.Kind() != reflect.Interface && ptr.Kind() != reflect.Pointer && ptr.CanAddr() {
 		ptr = ptr.Addr()
 	}
+
 	// Added for Hugo.
 	var first reflect.Value
 	var method reflect.Value
@@ -214,21 +217,27 @@ func (s *state) evalField(dot reflect.Value, fieldName string, node parse.Node, 
 
 	if method.IsValid() {
 		if first != zero {
-			return s.evalCall(dot, method, node, fieldName, args, final, first)
+			return s.evalCall(dot, method, false, node, fieldName, args, final, first)
 		}
 
-		return s.evalCall(dot, method, node, fieldName, args, final)
+		return s.evalCall(dot, method, false, node, fieldName, args, final)
 	}
 
+	if method := ptr.MethodByName(fieldName); method.IsValid() {
+		return s.evalCall(dot, method, false, node, fieldName, args, final)
+	}
 	hasArgs := len(args) > 1 || final != missingVal
 	// It's not a method; must be a field of a struct or an element of a map.
 	switch receiver.Kind() {
 	case reflect.Struct:
 		tField, ok := receiver.Type().FieldByName(fieldName)
 		if ok {
-			field := receiver.FieldByIndex(tField.Index)
-			if tField.PkgPath != "" { // field is unexported
+			field, err := receiver.FieldByIndexErr(tField.Index)
+			if !tField.IsExported() {
 				s.errorf("%s is an unexported field of struct type %s", fieldName, typ)
+			}
+			if err != nil {
+				s.errorf("%v", err)
 			}
 			// If it's a function, we must call it.
 			if hasArgs {
@@ -262,7 +271,7 @@ func (s *state) evalField(dot reflect.Value, fieldName string, node parse.Node, 
 			}
 			return result
 		}
-	case reflect.Ptr:
+	case reflect.Pointer:
 		etyp := receiver.Type().Elem()
 		if etyp.Kind() == reflect.Struct {
 			if _, ok := etyp.FieldByName(fieldName); !ok {
@@ -282,17 +291,18 @@ func (s *state) evalField(dot reflect.Value, fieldName string, node parse.Node, 
 // evalCall executes a function or method call. If it's a method, fun already has the receiver bound, so
 // it looks just like a function call. The arg list, if non-nil, includes (in the manner of the shell), arg[0]
 // as the function itself.
-func (s *state) evalCall(dot, fun reflect.Value, node parse.Node, name string, args []parse.Node, final reflect.Value, first ...reflect.Value) reflect.Value {
+func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node, name string, args []parse.Node, final reflect.Value, first ...reflect.Value) reflect.Value {
 	if args != nil {
 		args = args[1:] // Zeroth arg is function name/node; not passed to function.
 	}
+
 	typ := fun.Type()
 	numFirst := len(first)
-	numIn := len(args) + numFirst // // Added for Hugo
+	numIn := len(args) + numFirst // Added for Hugo
 	if final != missingVal {
 		numIn++
 	}
-	numFixed := len(args) + len(first)
+	numFixed := len(args) + len(first) // Adjusted for Hugo
 	if typ.IsVariadic() {
 		numFixed = typ.NumIn() - 1 // last arg is the variadic one.
 		if numIn < numFixed {
@@ -305,20 +315,51 @@ func (s *state) evalCall(dot, fun reflect.Value, node parse.Node, name string, a
 		// TODO: This could still be a confusing error; maybe goodFunc should provide info.
 		s.errorf("can't call method/function %q with %d results", name, typ.NumOut())
 	}
+
+	unwrap := func(v reflect.Value) reflect.Value {
+		if v.Type() == reflectValueType {
+			v = v.Interface().(reflect.Value)
+		}
+		return v
+	}
+
+	// Special case for builtin and/or, which short-circuit.
+	if isBuiltin && (name == "and" || name == "or") {
+		argType := typ.In(0)
+		var v reflect.Value
+		for _, arg := range args {
+			v = s.evalArg(dot, argType, arg).Interface().(reflect.Value)
+			if truth(v) == (name == "or") {
+				// This value was already unwrapped
+				// by the .Interface().(reflect.Value).
+				return v
+			}
+		}
+		if final != missingVal {
+			// The last argument to and/or is coming from
+			// the pipeline. We didn't short circuit on an earlier
+			// argument, so we are going to return this one.
+			// We don't have to evaluate final, but we do
+			// have to check its type. Then, since we are
+			// going to return it, we have to unwrap it.
+			v = unwrap(s.validateType(final, argType))
+		}
+		return v
+	}
+
 	// Build the arg list.
 	argv := make([]reflect.Value, numIn)
 	// Args must be evaluated. Fixed args first.
-	i := len(first)
-	for ; i < numFixed && i < len(args)+numFirst; i++ {
-		argv[i] = s.evalArg(dot, typ.In(i), args[i-numFirst])
+	i := len(first)                                     // Adjusted for Hugo.
+	for ; i < numFixed && i < len(args)+numFirst; i++ { // Adjusted for Hugo.
+		argv[i] = s.evalArg(dot, typ.In(i), args[i-numFirst]) // Adjusted for Hugo.
 	}
 	// Now the ... args.
 	if typ.IsVariadic() {
 		argType := typ.In(typ.NumIn() - 1).Elem() // Argument is a slice.
-		for ; i < len(args)+numFirst; i++ {
-			argv[i] = s.evalArg(dot, argType, args[i-numFirst])
+		for ; i < len(args)+numFirst; i++ {       // Adjusted for Hugo.
+			argv[i] = s.evalArg(dot, argType, args[i-numFirst]) // Adjusted for Hugo.
 		}
-
 	}
 	// Add final value if necessary.
 	if final != missingVal {
@@ -347,12 +388,9 @@ func (s *state) evalCall(dot, fun reflect.Value, node parse.Node, name string, a
 	// error to the caller.
 	if err != nil {
 		s.at(node)
-		s.errorf("error calling %s: %v", name, err)
+		s.errorf("error calling %s: %w", name, err)
 	}
-	if v.Type() == reflectValueType {
-		v = v.Interface().(reflect.Value)
-	}
-	return v
+	return unwrap(v)
 }
 
 func isTrue(val reflect.Value) (truth, ok bool) {

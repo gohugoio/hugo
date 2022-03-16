@@ -59,3 +59,56 @@ title: "P1"
 	b.Assert(names, qt.DeepEquals, []string{"_default/single.json", "baseof.json", "partials/unusedpartial.html", "post/single.html", "shortcodes/unusedshortcode.html"})
 	b.Assert(unused[0].Filename(), qt.Equals, filepath.Join(b.Cfg.WorkingDir, "layouts/_default/single.json"))
 }
+
+// Verify that the new keywords in Go 1.18 is available.
+func TestGo18Constructs(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+baseURL = 'http://example.com/'
+disableKinds = ["section", "home", "rss", "taxonomy",  "term", "rss"]
+-- content/p1.md --
+---
+title: "P1"
+---
+-- layouts/partials/counter.html --
+{{ if .Scratch.Get "counter" }}{{ .Scratch.Add "counter" 1 }}{{ else }}{{ .Scratch.Set "counter" 1 }}{{ end }}{{ return true }}
+-- layouts/_default/single.html --
+{{/* Note no spaces in {{continue}} or {{break}}, see https://github.com/golang/go/issues/51670 */}}
+continue:{{ range seq 5 }}{{ if eq . 2 }}{{continue}}{{ end }}{{ . }}{{ end }}:END:
+break:{{ range seq 5 }}{{ if eq . 2 }}{{break}}{{ end }}{{ . }}{{ end }}:END:
+
+counter1: {{ partial "counter.html" . }}/{{ .Scratch.Get "counter" }}
+and1: {{ if (and false (partial "counter.html" .)) }}true{{ else }}false{{ end }}
+or1: {{ if (or true (partial "counter.html" .)) }}true{{ else }}false{{ end }}
+and2: {{ if (and true (partial "counter.html" .)) }}true{{ else }}false{{ end }}
+or2: {{ if (or false (partial "counter.html" .)) }}true{{ else }}false{{ end }}
+
+
+counter2: {{ .Scratch.Get "counter" }}
+
+
+	`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   true,
+		},
+	)
+	b.Build()
+
+	b.AssertFileContent("public/p1/index.html", `
+continue:1345:END:
+break:1:END:
+counter1: true/1
+and1: false
+or1: true
+and2: true
+or2: true
+counter2: 3
+`)
+
+}
