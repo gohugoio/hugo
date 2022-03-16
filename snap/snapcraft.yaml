@@ -38,7 +38,7 @@ parts:
 
   hugo:
     plugin: nil
-    build-snaps: [go/1.16/stable]
+    build-snaps: [go/1.18/stable]
     source: .
     override-build: |
       set -ex

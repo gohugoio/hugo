@@ -7,7 +7,7 @@ jobs:
       GO111MODULE: on
     strategy:
       matrix:
-        go-version: [1.16.x, 1.17.x]
+        go-version: [1.17.x, 1.18.x]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:

@@ -1,6 +1,6 @@
 defaults: &defaults
   docker:
-      - image: bepsays/ci-goreleaser:1.1700.600
+      - image: bepsays/ci-goreleaser:1.1800.000
   environment:
     CGO_ENABLED: "0"
 
