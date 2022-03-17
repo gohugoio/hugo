@@ -49,7 +49,7 @@ type typeChecker struct {
 }
 
 // Check implements Checker.Check by checking that got and args[0] is of the same type.
-func (c *typeChecker) Check(got interface{}, args []interface{}, note func(key string, value interface{})) (err error) {
+func (c *typeChecker) Check(got any, args []any, note func(key string, value any)) (err error) {
 	if want := args[0]; reflect.TypeOf(got) != reflect.TypeOf(want) {
 		if _, ok := got.(error); ok && want == nil {
 			return errors.New("got non-nil error")
@@ -64,7 +64,7 @@ type stringChecker struct {
 }
 
 // Check implements Checker.Check by checking that got and args[0] represents the same normalized text (whitespace etc. removed).
-func (c *stringChecker) Check(got interface{}, args []interface{}, note func(key string, value interface{})) (err error) {
+func (c *stringChecker) Check(got any, args []any, note func(key string, value any)) (err error) {
 	s1, s2 := cast.ToString(got), cast.ToString(args[0])
 
 	if s1 == s2 {
@@ -93,12 +93,12 @@ func normalizeString(s string) string {
 // DeepAllowUnexported creates an option to allow compare of unexported types
 // in the given list of types.
 // see https://github.com/google/go-cmp/issues/40#issuecomment-328615283
-func DeepAllowUnexported(vs ...interface{}) cmp.Option {
+func DeepAllowUnexported(vs ...any) cmp.Option {
 	m := make(map[reflect.Type]struct{})
 	for _, v := range vs {
 		structTypes(reflect.ValueOf(v), m)
 	}
-	var typs []interface{}
+	var typs []any
 	for t := range m {
 		typs = append(typs, reflect.New(t).Elem().Interface())
 	}

@@ -128,7 +128,7 @@ type Exec struct {
 
 // New will fail if name is not allowed according to the configured security policy.
 // Else a configured Runner will be returned ready to be Run.
-func (e *Exec) New(name string, arg ...interface{}) (Runner, error) {
+func (e *Exec) New(name string, arg ...any) (Runner, error) {
 	if err := e.sc.CheckAllowedExec(name); err != nil {
 		return nil, err
 	}
@@ -146,8 +146,8 @@ func (e *Exec) New(name string, arg ...interface{}) (Runner, error) {
 }
 
 // Npx is a convenience method to create a Runner running npx --no-install <name> <args.
-func (e *Exec) Npx(name string, arg ...interface{}) (Runner, error) {
-	arg = append(arg[:0], append([]interface{}{"--no-install", name}, arg[0:]...)...)
+func (e *Exec) Npx(name string, arg ...any) (Runner, error) {
+	arg = append(arg[:0], append([]any{"--no-install", name}, arg[0:]...)...)
 	return e.New("npx", arg...)
 }
 
@@ -205,7 +205,7 @@ type commandeer struct {
 	env  []string
 }
 
-func (c *commandeer) command(arg ...interface{}) (*cmdWrapper, error) {
+func (c *commandeer) command(arg ...any) (*cmdWrapper, error) {
 	if c == nil {
 		return nil, nil
 	}

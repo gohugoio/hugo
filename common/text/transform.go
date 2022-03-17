@@ -24,7 +24,7 @@ import (
 )
 
 var accentTransformerPool = &sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		return transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
 	},
 }

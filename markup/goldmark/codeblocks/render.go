@@ -132,7 +132,7 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 }
 
 type codeBlockContext struct {
-	page    interface{}
+	page    any
 	lang    string
 	code    string
 	ordinal int
@@ -146,7 +146,7 @@ type codeBlockContext struct {
 	*attributes.AttributesHolder
 }
 
-func (c *codeBlockContext) Page() interface{} {
+func (c *codeBlockContext) Page() any {
 	return c.page
 }
 

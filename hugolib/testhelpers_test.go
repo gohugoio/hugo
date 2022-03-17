@@ -173,7 +173,7 @@ func (s *sitesBuilder) WithEnviron(env ...string) *sitesBuilder {
 	return s
 }
 
-func (s *sitesBuilder) WithConfigTemplate(data interface{}, format, configTemplate string) *sitesBuilder {
+func (s *sitesBuilder) WithConfigTemplate(data any, format, configTemplate string) *sitesBuilder {
 	s.T.Helper()
 
 	if format == "" {
@@ -279,10 +279,10 @@ func (s *sitesBuilder) WithSimpleConfigFile() *sitesBuilder {
 
 func (s *sitesBuilder) WithSimpleConfigFileAndBaseURL(baseURL string) *sitesBuilder {
 	s.T.Helper()
-	return s.WithSimpleConfigFileAndSettings(map[string]interface{}{"baseURL": baseURL})
+	return s.WithSimpleConfigFileAndSettings(map[string]any{"baseURL": baseURL})
 }
 
-func (s *sitesBuilder) WithSimpleConfigFileAndSettings(settings interface{}) *sitesBuilder {
+func (s *sitesBuilder) WithSimpleConfigFileAndSettings(settings any) *sitesBuilder {
 	s.T.Helper()
 	var buf bytes.Buffer
 	parser.InterfaceToConfig(settings, metadecoders.TOML, &buf)
@@ -690,7 +690,7 @@ hello:
 	}
 }
 
-func (s *sitesBuilder) Fatalf(format string, args ...interface{}) {
+func (s *sitesBuilder) Fatalf(format string, args ...any) {
 	s.T.Helper()
 	s.T.Fatalf(format, args...)
 }
@@ -784,7 +784,7 @@ func (s *sitesBuilder) FileContent(filename string) string {
 	return readDestination(s.T, s.Fs, filename)
 }
 
-func (s *sitesBuilder) AssertObject(expected string, object interface{}) {
+func (s *sitesBuilder) AssertObject(expected string, object any) {
 	s.T.Helper()
 	got := s.dumper.Sdump(object)
 	expected = strings.TrimSpace(expected)

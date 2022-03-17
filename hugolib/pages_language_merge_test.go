@@ -76,7 +76,7 @@ func TestMergeLanguages(t *testing.T) {
 	c.Assert(len(enBundle.Resources()), qt.Equals, 6)
 	c.Assert(len(nnBundle.Resources()), qt.Equals, 2)
 
-	var ri interface{} = nnBundle.Resources()
+	var ri any = nnBundle.Resources()
 
 	// This looks less ugly in the templates ...
 	mergedNNResources := ri.(resource.ResourcesLanguageMerger).MergeByLanguage(enBundle.Resources())

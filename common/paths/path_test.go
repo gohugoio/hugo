@@ -24,7 +24,7 @@ func TestGetRelativePath(t *testing.T) {
 	tests := []struct {
 		path   string
 		base   string
-		expect interface{}
+		expect any
 	}{
 		{filepath.FromSlash("/a/b"), filepath.FromSlash("/a"), filepath.FromSlash("b")},
 		{filepath.FromSlash("/a/b/c/"), filepath.FromSlash("/a"), filepath.FromSlash("b/c/")},

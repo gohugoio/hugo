@@ -240,7 +240,7 @@ func (r *Spec) newGenericResourceWithBase(
 		mediaType:              mediaType,
 		resourceType:           resourceType,
 		spec:                   r,
-		params:                 make(map[string]interface{}),
+		params:                 make(map[string]any),
 		name:                   baseFilename,
 		title:                  baseFilename,
 		resourceContent:        &resourceContent{},

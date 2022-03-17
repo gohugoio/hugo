@@ -62,7 +62,7 @@ type Config struct {
 	FootnoteReturnLinkContents string
 }
 
-func UpdateConfig(b Config, m map[string]interface{}) (Config, error) {
+func UpdateConfig(b Config, m map[string]any) (Config, error) {
 	if err := mapstructure.Decode(m, &b); err != nil {
 		return b, errors.WithMessage(err, "failed to decode rendering config")
 	}

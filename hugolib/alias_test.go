@@ -51,13 +51,13 @@ func TestAlias(t *testing.T) {
 		fileSuffix string
 		urlPrefix  string
 		urlSuffix  string
-		settings   map[string]interface{}
+		settings   map[string]any
 	}{
-		{"/index.html", "http://example.com", "/", map[string]interface{}{"baseURL": "http://example.com"}},
-		{"/index.html", "http://example.com/some/path", "/", map[string]interface{}{"baseURL": "http://example.com/some/path"}},
-		{"/index.html", "http://example.com", "/", map[string]interface{}{"baseURL": "http://example.com", "canonifyURLs": true}},
-		{"/index.html", "../..", "/", map[string]interface{}{"relativeURLs": true}},
-		{".html", "", ".html", map[string]interface{}{"uglyURLs": true}},
+		{"/index.html", "http://example.com", "/", map[string]any{"baseURL": "http://example.com"}},
+		{"/index.html", "http://example.com/some/path", "/", map[string]any{"baseURL": "http://example.com/some/path"}},
+		{"/index.html", "http://example.com", "/", map[string]any{"baseURL": "http://example.com", "canonifyURLs": true}},
+		{"/index.html", "../..", "/", map[string]any{"relativeURLs": true}},
+		{".html", "", ".html", map[string]any{"uglyURLs": true}},
 	}
 
 	for _, test := range tests {

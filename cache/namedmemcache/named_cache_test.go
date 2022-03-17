@@ -28,7 +28,7 @@ func TestNamedCache(t *testing.T) {
 	cache := New()
 
 	counter := 0
-	create := func() (interface{}, error) {
+	create := func() (any, error) {
 		counter++
 		return counter, nil
 	}
@@ -58,8 +58,8 @@ func TestNamedCacheConcurrent(t *testing.T) {
 
 	cache := New()
 
-	create := func(i int) func() (interface{}, error) {
-		return func() (interface{}, error) {
+	create := func(i int) func() (any, error) {
+		return func() (any, error) {
 			return i, nil
 		}
 	}

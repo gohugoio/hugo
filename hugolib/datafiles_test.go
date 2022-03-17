@@ -33,10 +33,10 @@ func TestDataDir(t *testing.T) {
 	equivDataDirs[0].addSource("data/test/a.json", `{ "b" : { "c1": "red" , "c2": "blue" } }`)
 	equivDataDirs[1].addSource("data/test/a.yaml", "b:\n  c1: red\n  c2: blue")
 	equivDataDirs[2].addSource("data/test/a.toml", "[b]\nc1 = \"red\"\nc2 = \"blue\"\n")
-	expected := map[string]interface{}{
-		"test": map[string]interface{}{
-			"a": map[string]interface{}{
-				"b": map[string]interface{}{
+	expected := map[string]any{
+		"test": map[string]any{
+			"a": map[string]any{
+				"b": map[string]any{
 					"c1": "red",
 					"c2": "blue",
 				},
@@ -56,10 +56,10 @@ func TestDataDirNumeric(t *testing.T) {
 	equivDataDirs[0].addSource("data/test/a.json", `{ "b" : { "c1": 1.7 , "c2": 2.9 } }`)
 	equivDataDirs[1].addSource("data/test/a.yaml", "b:\n  c1: 1.7\n  c2: 2.9")
 	equivDataDirs[2].addSource("data/test/a.toml", "[b]\nc1 = 1.7\nc2 = 2.9\n")
-	expected := map[string]interface{}{
-		"test": map[string]interface{}{
-			"a": map[string]interface{}{
-				"b": map[string]interface{}{
+	expected := map[string]any{
+		"test": map[string]any{
+			"a": map[string]any{
+				"b": map[string]any{
 					"c1": 1.7,
 					"c2": 2.9,
 				},
@@ -75,10 +75,10 @@ func TestDataDirBoolean(t *testing.T) {
 	equivDataDirs[0].addSource("data/test/a.json", `{ "b" : { "c1": true , "c2": false } }`)
 	equivDataDirs[1].addSource("data/test/a.yaml", "b:\n  c1: true\n  c2: false")
 	equivDataDirs[2].addSource("data/test/a.toml", "[b]\nc1 = true\nc2 = false\n")
-	expected := map[string]interface{}{
-		"test": map[string]interface{}{
-			"a": map[string]interface{}{
-				"b": map[string]interface{}{
+	expected := map[string]any{
+		"test": map[string]any{
+			"a": map[string]any{
+				"b": map[string]any{
 					"c1": true,
 					"c2": false,
 				},
@@ -102,13 +102,13 @@ func TestDataDirTwoFiles(t *testing.T) {
 	equivDataDirs[2].addSource("data/test.toml", "hello = [\"world\", \"foo\"]")
 
 	expected :=
-		map[string]interface{}{
-			"test": map[string]interface{}{
-				"hello": []interface{}{
+		map[string]any{
+			"test": map[string]any{
+				"hello": []any{
 					"world",
 					"foo",
 				},
-				"foo": map[string]interface{}{
+				"foo": map[string]any{
 					"bar": "foofoo",
 				},
 			},
@@ -138,11 +138,11 @@ func TestDataDirOverriddenValue(t *testing.T) {
 	equivDataDirs[2].addSource("data/test.toml", "v1 = \"1\"")
 
 	expected :=
-		map[string]interface{}{
-			"a": map[string]interface{}{"a": "1"},
-			"test": map[string]interface{}{
-				"v1": map[string]interface{}{"v1-2": "2"},
-				"v2": map[string]interface{}{"v2": []interface{}{"2", "3"}},
+		map[string]any{
+			"a": map[string]any{"a": "1"},
+			"test": map[string]any{
+				"v1": map[string]any{"v1-2": "2"},
+				"v2": map[string]any{"v2": []any{"2", "3"}},
 			},
 		}
 
@@ -162,11 +162,11 @@ func TestDataDirArrayAtTopLevelOfFile(t *testing.T) {
 `)
 
 	expected :=
-		map[string]interface{}{
-			"test": []interface{}{
-				map[string]interface{}{"hello": "world"},
-				map[string]interface{}{"what": "time"},
-				map[string]interface{}{"is": "lunch?"},
+		map[string]any{
+			"test": []any{
+				map[string]any{"hello": "world"},
+				map[string]any{"what": "time"},
+				map[string]any{"is": "lunch?"},
 			},
 		}
 
@@ -183,12 +183,12 @@ func TestDataDirMultipleSources(t *testing.T) {
 	dd.addSource("data/test/second.yaml", "tender: 2")
 
 	expected :=
-		map[string]interface{}{
-			"test": map[string]interface{}{
-				"first": map[string]interface{}{
+		map[string]any{
+			"test": map[string]any{
+				"first": map[string]any{
 					"bar": 1,
 				},
-				"second": map[string]interface{}{
+				"second": map[string]any{
 					"tender": 2,
 				},
 			},
@@ -213,14 +213,14 @@ func TestDataDirMultipleSourcesCommingled(t *testing.T) {
 	// 1. A theme uses the same key; the main data folder wins
 	// 2. A sub folder uses the same key: the sub folder wins
 	expected :=
-		map[string]interface{}{
-			"a": map[string]interface{}{
-				"b1": map[string]interface{}{
+		map[string]any{
+			"a": map[string]any{
+				"b1": map[string]any{
 					"c1": "data/a/b1",
 					"c2": "mytheme/data/a/b1",
 				},
 				"b2": "data/a",
-				"b3": []interface{}{"x", "y", "z"},
+				"b3": []any{"x", "y", "z"},
 			},
 		}
 
@@ -239,10 +239,10 @@ func TestDataDirCollidingChildArrays(t *testing.T) {
 	// 1. A theme uses the same key; the main data folder wins
 	// 2. A sub folder uses the same key: the sub folder wins
 	expected :=
-		map[string]interface{}{
-			"a": map[string]interface{}{
+		map[string]any{
+			"a": map[string]any{
 				"b1": "data/a",
-				"b2": []interface{}{"1", "2", "3"},
+				"b2": []any{"1", "2", "3"},
 			},
 		}
 
@@ -257,9 +257,9 @@ func TestDataDirCollidingTopLevelArrays(t *testing.T) {
 	dd.addSource("data/a/b1.json", `["1", "2", "3"]`)
 
 	expected :=
-		map[string]interface{}{
-			"a": map[string]interface{}{
-				"b1": []interface{}{"1", "2", "3"},
+		map[string]any{
+			"a": map[string]any{
+				"b1": []any{"1", "2", "3"},
 			},
 		}
 
@@ -277,11 +277,11 @@ func TestDataDirCollidingMapsAndArrays(t *testing.T) {
 	dd.addSource("data/b.json", `["x", "y", "z"]`)
 
 	expected :=
-		map[string]interface{}{
-			"a": map[string]interface{}{
+		map[string]any{
+			"a": map[string]any{
 				"music": "Queen's Rebuke",
 			},
-			"b": []interface{}{"x", "y", "z"},
+			"b": []any{"x", "y", "z"},
 		}
 
 	doTestDataDir(t, dd, expected, "theme", "mytheme")
@@ -297,9 +297,9 @@ func TestDataDirNestedDirectories(t *testing.T) {
 	dd.addSource("data/test1/20/05/b.json", `{ "artist" : "Charlie Parker" }`)
 
 	expected :=
-		map[string]interface{}{
-			"a":     []interface{}{"1", "2", "3"},
-			"test1": map[string]interface{}{"20": map[string]interface{}{"05": map[string]interface{}{"b": map[string]interface{}{"artist": "Charlie Parker"}}, "06": map[string]interface{}{"a": map[string]interface{}{"artist": "Michael Brecker"}}}},
+		map[string]any{
+			"a":     []any{"1", "2", "3"},
+			"test1": map[string]any{"20": map[string]any{"05": map[string]any{"b": map[string]any{"artist": "Charlie Parker"}}, "06": map[string]any{"a": map[string]any{"artist": "Michael Brecker"}}}},
 		}
 
 	doTestDataDir(t, dd, expected, "theme", "mytheme")
@@ -313,7 +313,7 @@ func (d *dataDir) addSource(path, content string) {
 	d.sources = append(d.sources, [2]string{path, content})
 }
 
-func doTestEquivalentDataDirs(t *testing.T, equivDataDirs []dataDir, expected interface{}, configKeyValues ...interface{}) {
+func doTestEquivalentDataDirs(t *testing.T, equivDataDirs []dataDir, expected any, configKeyValues ...any) {
 	for i, dd := range equivDataDirs {
 		err := doTestDataDirImpl(t, dd, expected, configKeyValues...)
 		if err != "" {
@@ -322,14 +322,14 @@ func doTestEquivalentDataDirs(t *testing.T, equivDataDirs []dataDir, expected in
 	}
 }
 
-func doTestDataDir(t *testing.T, dd dataDir, expected interface{}, configKeyValues ...interface{}) {
+func doTestDataDir(t *testing.T, dd dataDir, expected any, configKeyValues ...any) {
 	err := doTestDataDirImpl(t, dd, expected, configKeyValues...)
 	if err != "" {
 		t.Error(err)
 	}
 }
 
-func doTestDataDirImpl(t *testing.T, dd dataDir, expected interface{}, configKeyValues ...interface{}) (err string) {
+func doTestDataDirImpl(t *testing.T, dd dataDir, expected any, configKeyValues ...any) (err string) {
 	cfg, fs := newTestCfg()
 
 	for i := 0; i < len(configKeyValues); i += 2 {

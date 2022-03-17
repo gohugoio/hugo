@@ -43,7 +43,7 @@ var TestTemplateProvider deps.ResourceProvider
 
 type partialCacheKey struct {
 	name    string
-	variant interface{}
+	variant any
 }
 
 func (k partialCacheKey) templateName() string {
@@ -56,18 +56,18 @@ func (k partialCacheKey) templateName() string {
 // partialCache represents a cache of partials protected by a mutex.
 type partialCache struct {
 	sync.RWMutex
-	p map[partialCacheKey]interface{}
+	p map[partialCacheKey]any
 }
 
 func (p *partialCache) clear() {
 	p.Lock()
 	defer p.Unlock()
-	p.p = make(map[partialCacheKey]interface{})
+	p.p = make(map[partialCacheKey]any)
 }
 
 // New returns a new instance of the templates-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
-	cache := &partialCache{p: make(map[partialCacheKey]interface{})}
+	cache := &partialCache{p: make(map[partialCacheKey]any)}
 	deps.BuildStartListeners.Add(
 		func() {
 			cache.clear()
@@ -87,12 +87,12 @@ type Namespace struct {
 
 // contextWrapper makes room for a return value in a partial invocation.
 type contextWrapper struct {
-	Arg    interface{}
-	Result interface{}
+	Arg    any
+	Result any
 }
 
 // Set sets the return value and returns an empty string.
-func (c *contextWrapper) Set(in interface{}) string {
+func (c *contextWrapper) Set(in any) string {
 	c.Result = in
 	return ""
 }
@@ -102,7 +102,7 @@ func (c *contextWrapper) Set(in interface{}) string {
 // Else, the rendered output will be returned:
 // A string if the partial is a text/template, or template.HTML when html/template.
 // Note that ctx is provided by Hugo, not the end user.
-func (ns *Namespace) Include(ctx context.Context, name string, contextList ...interface{}) (interface{}, error) {
+func (ns *Namespace) Include(ctx context.Context, name string, contextList ...any) (any, error) {
 	name, result, err := ns.include(ctx, name, contextList...)
 	if err != nil {
 		return result, err
@@ -117,8 +117,8 @@ func (ns *Namespace) Include(ctx context.Context, name string, contextList ...in
 
 // include is a helper function that lookups and executes the named partial.
 // Returns the final template name and the rendered output.
-func (ns *Namespace) include(ctx context.Context, name string, dataList ...interface{}) (string, interface{}, error) {
-	var data interface{}
+func (ns *Namespace) include(ctx context.Context, name string, dataList ...any) (string, any, error) {
+	var data any
 	if len(dataList) > 0 {
 		data = dataList[0]
 	}
@@ -167,7 +167,7 @@ func (ns *Namespace) include(ctx context.Context, name string, dataList ...inter
 		return "", nil, err
 	}
 
-	var result interface{}
+	var result any
 
 	if ctx, ok := data.(*contextWrapper); ok {
 		result = ctx.Result
@@ -182,7 +182,7 @@ func (ns *Namespace) include(ctx context.Context, name string, dataList ...inter
 
 // IncludeCached executes and caches partial templates.  The cache is created with name+variants as the key.
 // Note that ctx is provided by Hugo, not the end user.
-func (ns *Namespace) IncludeCached(ctx context.Context, name string, context interface{}, variants ...interface{}) (interface{}, error) {
+func (ns *Namespace) IncludeCached(ctx context.Context, name string, context any, variants ...any) (any, error) {
 	key, err := createKey(name, variants...)
 	if err != nil {
 		return nil, err
@@ -198,8 +198,8 @@ func (ns *Namespace) IncludeCached(ctx context.Context, name string, context int
 	return result, err
 }
 
-func createKey(name string, variants ...interface{}) (partialCacheKey, error) {
-	var variant interface{}
+func createKey(name string, variants ...any) (partialCacheKey, error) {
+	var variant any
 
 	if len(variants) > 1 {
 		variant = helpers.HashString(variants...)
@@ -221,7 +221,7 @@ func createKey(name string, variants ...interface{}) (partialCacheKey, error) {
 
 var errUnHashable = errors.New("unhashable")
 
-func (ns *Namespace) getOrCreate(ctx context.Context, key partialCacheKey, context interface{}) (result interface{}, err error) {
+func (ns *Namespace) getOrCreate(ctx context.Context, key partialCacheKey, context any) (result any, err error) {
 	start := time.Now()
 	defer func() {
 		if r := recover(); r != nil {

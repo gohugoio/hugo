@@ -25,10 +25,10 @@ func TestConfig(t *testing.T) {
 	c := qt.New(t)
 	v := config.New()
 
-	v.Set("minify", map[string]interface{}{
+	v.Set("minify", map[string]any{
 		"disablexml": true,
-		"tdewolff": map[string]interface{}{
-			"html": map[string]interface{}{
+		"tdewolff": map[string]any{
+			"html": map[string]any{
 				"keepwhitespace": false,
 			},
 		},

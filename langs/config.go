@@ -41,7 +41,7 @@ func LoadLanguageSettings(cfg config.Provider, oldLangs Languages) (c LanguagesC
 		cfg.Set("defaultContentLanguage", defaultLang)
 	}
 
-	var languages map[string]interface{}
+	var languages map[string]any
 
 	languagesFromConfig := cfg.GetParams("languages")
 	disableLanguages := cfg.GetStringSlice("disableLanguages")
@@ -170,7 +170,7 @@ func LoadLanguageSettings(cfg config.Provider, oldLangs Languages) (c LanguagesC
 	return c, nil
 }
 
-func toSortedLanguages(cfg config.Provider, l map[string]interface{}) (Languages, error) {
+func toSortedLanguages(cfg config.Provider, l map[string]any) (Languages, error) {
 	languages := make(Languages, len(l))
 	i := 0
 

@@ -27,10 +27,10 @@ func TestBasicNSArithmetic(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
-		fn     func(a, b interface{}) (interface{}, error)
-		a      interface{}
-		b      interface{}
-		expect interface{}
+		fn     func(a, b any) (any, error)
+		a      any
+		b      any
+		expect any
 	}{
 		{ns.Add, 4, 2, int64(6)},
 		{ns.Add, 1.0, "foo", false},
@@ -60,8 +60,8 @@ func TestCeil(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
-		x      interface{}
-		expect interface{}
+		x      any
+		expect any
 	}{
 		{0.1, 1.0},
 		{0.5, 1.0},
@@ -93,8 +93,8 @@ func TestFloor(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
-		x      interface{}
-		expect interface{}
+		x      any
+		expect any
 	}{
 		{0.1, 0.0},
 		{0.5, 0.0},
@@ -126,8 +126,8 @@ func TestLog(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
-		a      interface{}
-		expect interface{}
+		a      any
+		expect any
 	}{
 		{1, float64(0)},
 		{3, float64(1.0986)},
@@ -167,8 +167,8 @@ func TestSqrt(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
-		a      interface{}
-		expect interface{}
+		a      any
+		expect any
 	}{
 		{81, float64(9)},
 		{0.25, float64(0.5)},
@@ -206,9 +206,9 @@ func TestMod(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
-		a      interface{}
-		b      interface{}
-		expect interface{}
+		a      any
+		b      any
+		expect any
 	}{
 		{3, 2, int64(1)},
 		{3, 1, int64(0)},
@@ -246,9 +246,9 @@ func TestModBool(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
-		a      interface{}
-		b      interface{}
-		expect interface{}
+		a      any
+		b      any
+		expect any
 	}{
 		{3, 3, true},
 		{3, 2, false},
@@ -292,8 +292,8 @@ func TestRound(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
-		x      interface{}
-		expect interface{}
+		x      any
+		expect any
 	}{
 		{0.1, 0.0},
 		{0.5, 1.0},
@@ -325,9 +325,9 @@ func TestPow(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
-		a      interface{}
-		b      interface{}
-		expect interface{}
+		a      any
+		b      any
+		expect any
 	}{
 		{0, 0, float64(1)},
 		{2, 0, float64(1)},
@@ -365,9 +365,9 @@ func TestMax(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
-		a      interface{}
-		b      interface{}
-		expect interface{}
+		a      any
+		b      any
+		expect any
 	}{
 		{-1, -1, float64(-1)},
 		{-1, 0, float64(0)},
@@ -404,9 +404,9 @@ func TestMin(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
-		a      interface{}
-		b      interface{}
-		expect interface{}
+		a      any
+		b      any
+		expect any
 	}{
 		{-1, -1, float64(-1)},
 		{-1, 0, float64(-1)},

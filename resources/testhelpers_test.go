@@ -70,7 +70,7 @@ func newTestResourceSpec(desc specDescriptor) *Spec {
 	cfg := createTestCfg()
 	cfg.Set("baseURL", baseURL)
 
-	imagingCfg := map[string]interface{}{
+	imagingCfg := map[string]any{
 		"resampleFilter": "linear",
 		"quality":        68,
 		"anchor":         "left",

@@ -51,7 +51,7 @@ type Namespace struct {
 // Emojify returns a copy of s with all emoji codes replaced with actual emojis.
 //
 // See http://www.emoji-cheat-sheet.com/
-func (ns *Namespace) Emojify(s interface{}) (template.HTML, error) {
+func (ns *Namespace) Emojify(s any) (template.HTML, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return "", err
@@ -62,13 +62,13 @@ func (ns *Namespace) Emojify(s interface{}) (template.HTML, error) {
 
 // Highlight returns a copy of s as an HTML string with syntax
 // highlighting applied.
-func (ns *Namespace) Highlight(s interface{}, lang string, opts ...interface{}) (template.HTML, error) {
+func (ns *Namespace) Highlight(s any, lang string, opts ...any) (template.HTML, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return "", err
 	}
 
-	var optsv interface{}
+	var optsv any
 	if len(opts) > 0 {
 		optsv = opts[0]
 	}
@@ -79,8 +79,8 @@ func (ns *Namespace) Highlight(s interface{}, lang string, opts ...interface{}) 
 }
 
 // HighlightCodeBlock highlights a code block on the form received in the codeblock render hooks.
-func (ns *Namespace) HighlightCodeBlock(ctx hooks.CodeblockContext, opts ...interface{}) (highlight.HightlightResult, error) {
-	var optsv interface{}
+func (ns *Namespace) HighlightCodeBlock(ctx hooks.CodeblockContext, opts ...any) (highlight.HightlightResult, error) {
+	var optsv any
 	if len(opts) > 0 {
 		optsv = opts[0]
 	}
@@ -96,7 +96,7 @@ func (ns *Namespace) CanHighlight(lang string) bool {
 }
 
 // HTMLEscape returns a copy of s with reserved HTML characters escaped.
-func (ns *Namespace) HTMLEscape(s interface{}) (string, error) {
+func (ns *Namespace) HTMLEscape(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return "", err
@@ -107,7 +107,7 @@ func (ns *Namespace) HTMLEscape(s interface{}) (string, error) {
 
 // HTMLUnescape returns a copy of with HTML escape requences converted to plain
 // text.
-func (ns *Namespace) HTMLUnescape(s interface{}) (string, error) {
+func (ns *Namespace) HTMLUnescape(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return "", err
@@ -117,7 +117,7 @@ func (ns *Namespace) HTMLUnescape(s interface{}) (string, error) {
 }
 
 // Markdownify renders a given input from Markdown to HTML.
-func (ns *Namespace) Markdownify(s interface{}) (template.HTML, error) {
+func (ns *Namespace) Markdownify(s any) (template.HTML, error) {
 
 	home := ns.deps.Site.Home()
 	if home == nil {
@@ -135,7 +135,7 @@ func (ns *Namespace) Markdownify(s interface{}) (template.HTML, error) {
 }
 
 // Plainify returns a copy of s with all HTML tags removed.
-func (ns *Namespace) Plainify(s interface{}) (string, error) {
+func (ns *Namespace) Plainify(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return "", err

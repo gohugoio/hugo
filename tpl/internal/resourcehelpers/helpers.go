@@ -26,7 +26,7 @@ import (
 )
 
 // We allow string or a map as the first argument in some cases.
-func ResolveIfFirstArgIsString(args []interface{}) (resources.ResourceTransformer, string, bool) {
+func ResolveIfFirstArgIsString(args []any) (resources.ResourceTransformer, string, bool) {
 	if len(args) != 2 {
 		return nil, "", false
 	}
@@ -41,7 +41,7 @@ func ResolveIfFirstArgIsString(args []interface{}) (resources.ResourceTransforme
 }
 
 // This roundabout way of doing it is needed to get both pipeline behaviour and options as arguments.
-func ResolveArgs(args []interface{}) (resources.ResourceTransformer, map[string]interface{}, error) {
+func ResolveArgs(args []any) (resources.ResourceTransformer, map[string]any, error) {
 	if len(args) == 0 {
 		return nil, nil, errors.New("no Resource provided in transformation")
 	}
@@ -56,7 +56,7 @@ func ResolveArgs(args []interface{}) (resources.ResourceTransformer, map[string]
 
 	r, ok := args[1].(resources.ResourceTransformer)
 	if !ok {
-		if _, ok := args[1].(map[string]interface{}); !ok {
+		if _, ok := args[1].(map[string]any); !ok {
 			return nil, nil, fmt.Errorf("no Resource provided in transformation")
 		}
 		return nil, nil, fmt.Errorf("type %T not supported in Resource transformations", args[0])

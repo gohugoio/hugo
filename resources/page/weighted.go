@@ -65,11 +65,11 @@ func (w WeightedPage) String() string {
 
 // Slice is not meant to be used externally. It's a bridge function
 // for the template functions. See collections.Slice.
-func (p WeightedPage) Slice(in interface{}) (interface{}, error) {
+func (p WeightedPage) Slice(in any) (any, error) {
 	switch items := in.(type) {
 	case WeightedPages:
 		return items, nil
-	case []interface{}:
+	case []any:
 		weighted := make(WeightedPages, len(items))
 		for i, v := range items {
 			g, ok := v.(WeightedPage)

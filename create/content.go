@@ -346,7 +346,7 @@ func (b *contentBuilder) openInEditorIfConfigured(filename string) error {
 	editorExec := strings.Fields(editor)[0]
 	editorFlags := strings.Fields(editor)[1:]
 
-	var args []interface{}
+	var args []any
 	for _, editorFlag := range editorFlags {
 		args = append(args, editorFlag)
 	}

@@ -35,7 +35,7 @@ func newPagesProcessor(h *HugoSites, sp *source.SourceSpec) *pagesProcessor {
 		procs[s.Lang()] = &sitePagesProcessor{
 			m:           s.pageMap,
 			errorSender: s.h,
-			itemChan:    make(chan interface{}, config.GetNumWorkerMultiplier()*2),
+			itemChan:    make(chan any, config.GetNumWorkerMultiplier()*2),
 		}
 	}
 	return &pagesProcessor{
@@ -44,7 +44,7 @@ func newPagesProcessor(h *HugoSites, sp *source.SourceSpec) *pagesProcessor {
 }
 
 type pagesCollectorProcessorProvider interface {
-	Process(item interface{}) error
+	Process(item any) error
 	Start(ctx context.Context) context.Context
 	Wait() error
 }
@@ -54,7 +54,7 @@ type pagesProcessor struct {
 	procs map[string]pagesCollectorProcessorProvider
 }
 
-func (proc *pagesProcessor) Process(item interface{}) error {
+func (proc *pagesProcessor) Process(item any) error {
 	switch v := item.(type) {
 	// Page bundles mapped to their language.
 	case pageBundles:
@@ -97,7 +97,7 @@ func (proc *pagesProcessor) getProcFromFi(fi hugofs.FileMetaInfo) pagesCollector
 
 type nopPageProcessor int
 
-func (nopPageProcessor) Process(item interface{}) error {
+func (nopPageProcessor) Process(item any) error {
 	return nil
 }
 
@@ -116,11 +116,11 @@ type sitePagesProcessor struct {
 	errorSender herrors.ErrorSender
 
 	ctx       context.Context
-	itemChan  chan interface{}
+	itemChan  chan any
 	itemGroup *errgroup.Group
 }
 
-func (p *sitePagesProcessor) Process(item interface{}) error {
+func (p *sitePagesProcessor) Process(item any) error {
 	select {
 	case <-p.ctx.Done():
 		return nil
@@ -165,7 +165,7 @@ func (p *sitePagesProcessor) copyFile(fim hugofs.FileMetaInfo) error {
 	return s.publish(&s.PathSpec.ProcessingStats.Files, target, f)
 }
 
-func (p *sitePagesProcessor) doProcess(item interface{}) error {
+func (p *sitePagesProcessor) doProcess(item any) error {
 	m := p.m
 	switch v := item.(type) {
 	case *fileinfoBundle:

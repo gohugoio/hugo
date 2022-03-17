@@ -26,11 +26,11 @@ import (
 var _ AttributesOptionsSliceProvider = (*attributes.AttributesHolder)(nil)
 
 type AttributesProvider interface {
-	Attributes() map[string]interface{}
+	Attributes() map[string]any
 }
 
 type LinkContext interface {
-	Page() interface{}
+	Page() any
 	Destination() string
 	Title() string
 	Text() hstring.RenderedString
@@ -40,11 +40,11 @@ type LinkContext interface {
 type CodeblockContext interface {
 	AttributesProvider
 	text.Positioner
-	Options() map[string]interface{}
+	Options() map[string]any
 	Type() string
 	Inner() string
 	Ordinal() int
-	Page() interface{}
+	Page() any
 }
 
 type AttributesOptionsSliceProvider interface {
@@ -70,7 +70,7 @@ type IsDefaultCodeBlockRendererProvider interface {
 // can use to render a heading.
 type HeadingContext interface {
 	// Page is the page containing the heading.
-	Page() interface{}
+	Page() any
 	// Level is the level of the header (i.e. 1 for top-level, 2 for sub-level, etc.).
 	Level() int
 	// Anchor is the HTML id assigned to the heading.
@@ -96,7 +96,7 @@ type HeadingRenderer interface {
 // This may be both slow and aproximate, so should only be
 // used for error logging.
 type ElementPositionResolver interface {
-	ResolvePosition(ctx interface{}) text.Position
+	ResolvePosition(ctx any) text.Position
 }
 
 type RendererType int
@@ -108,4 +108,4 @@ const (
 	CodeBlockRendererType
 )
 
-type GetRendererFunc func(t RendererType, id interface{}) interface{}
+type GetRendererFunc func(t RendererType, id any) any

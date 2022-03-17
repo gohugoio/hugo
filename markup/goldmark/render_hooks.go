@@ -47,7 +47,7 @@ func newLinks(cfg goldmark_config.Config) goldmark.Extender {
 }
 
 type linkContext struct {
-	page        interface{}
+	page        any
 	destination string
 	title       string
 	text        hstring.RenderedString
@@ -62,7 +62,7 @@ func (ctx linkContext) Resolved() bool {
 	return false
 }
 
-func (ctx linkContext) Page() interface{} {
+func (ctx linkContext) Page() any {
 	return ctx.page
 }
 
@@ -79,7 +79,7 @@ func (ctx linkContext) Title() string {
 }
 
 type headingContext struct {
-	page      interface{}
+	page      any
 	level     int
 	anchor    string
 	text      hstring.RenderedString
@@ -87,7 +87,7 @@ type headingContext struct {
 	*attributes.AttributesHolder
 }
 
-func (ctx headingContext) Page() interface{} {
+func (ctx headingContext) Page() any {
 	return ctx.page
 }
 
@@ -112,7 +112,7 @@ type hookedRenderer struct {
 	html.Config
 }
 
-func (r *hookedRenderer) SetOption(name renderer.OptionName, value interface{}) {
+func (r *hookedRenderer) SetOption(name renderer.OptionName, value any) {
 	r.Config.SetOption(name, value)
 }
 

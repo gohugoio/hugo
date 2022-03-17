@@ -17,5 +17,5 @@ package collections
 
 // Grouper defines a very generic way to group items by a given key.
 type Grouper interface {
-	Group(key interface{}, items interface{}) (interface{}, error)
+	Group(key any, items any) (any, error)
 }

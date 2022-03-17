@@ -27,7 +27,7 @@ func TestBuild(t *testing.T) {
 	c := qt.New(t)
 
 	v := New()
-	v.Set("build", map[string]interface{}{
+	v.Set("build", map[string]any{
 		"useResourceCacheWhen": "always",
 	})
 
@@ -35,7 +35,7 @@ func TestBuild(t *testing.T) {
 
 	c.Assert(b.UseResourceCacheWhen, qt.Equals, "always")
 
-	v.Set("build", map[string]interface{}{
+	v.Set("build", map[string]any{
 		"useResourceCacheWhen": "foo",
 	})
 

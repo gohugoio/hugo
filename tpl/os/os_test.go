@@ -34,7 +34,7 @@ func TestReadFile(t *testing.T) {
 
 	for _, test := range []struct {
 		filename string
-		expect   interface{}
+		expect   any
 	}{
 		{filepath.FromSlash("/f/f1.txt"), "f1-content"},
 		{filepath.FromSlash("f/f1.txt"), "f1-content"},
@@ -64,7 +64,7 @@ func TestFileExists(t *testing.T) {
 
 	for _, test := range []struct {
 		filename string
-		expect   interface{}
+		expect   any
 	}{
 		{filepath.FromSlash("/f/f1.txt"), true},
 		{filepath.FromSlash("f/f1.txt"), true},
@@ -91,7 +91,7 @@ func TestStat(t *testing.T) {
 
 	for _, test := range []struct {
 		filename string
-		expect   interface{}
+		expect   any
 	}{
 		{filepath.FromSlash("/f/f1.txt"), int64(10)},
 		{filepath.FromSlash("f/f1.txt"), int64(10)},

@@ -70,7 +70,7 @@ type pageMeta struct {
 	bundleType files.ContentClass
 
 	// Params contains configuration defined in the params section of page frontmatter.
-	params map[string]interface{}
+	params map[string]any
 
 	title     string
 	linkTitle string
@@ -110,7 +110,7 @@ type pageMeta struct {
 
 	// This is the raw front matter metadata that is going to be assigned to
 	// the Resources above.
-	resourcesMetadata []map[string]interface{}
+	resourcesMetadata []map[string]any
 
 	f source.File
 
@@ -121,7 +121,7 @@ type pageMeta struct {
 
 	s *Site
 
-	renderingConfigOverrides map[string]interface{}
+	renderingConfigOverrides map[string]any
 	contentConverterInit     sync.Once
 	contentConverter         converter.Converter
 }
@@ -223,7 +223,7 @@ func (p *pageMeta) IsPage() bool {
 //
 // This method is also implemented on SiteInfo.
 // TODO(bep) interface
-func (p *pageMeta) Param(key interface{}) (interface{}, error) {
+func (p *pageMeta) Param(key any) (any, error) {
 	return resource.Param(p, p.s.Info.Params(), key)
 }
 
@@ -347,7 +347,7 @@ func (pm *pageMeta) mergeBucketCascades(b1, b2 *pagesMapBucket) {
 	}
 }
 
-func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, frontmatter map[string]interface{}) error {
+func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, frontmatter map[string]any) error {
 	pm.params = make(maps.Params)
 
 	if frontmatter == nil && (parentBucket == nil || parentBucket.cascade == nil) {
@@ -368,7 +368,7 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 			}
 		}
 	} else {
-		frontmatter = make(map[string]interface{})
+		frontmatter = make(map[string]any)
 	}
 
 	var cascade map[page.PageMatcher]maps.Params
@@ -546,22 +546,22 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 			pm.translationKey = cast.ToString(v)
 			pm.params[loki] = pm.translationKey
 		case "resources":
-			var resources []map[string]interface{}
+			var resources []map[string]any
 			handled := true
 
 			switch vv := v.(type) {
-			case []map[interface{}]interface{}:
+			case []map[any]any:
 				for _, vvv := range vv {
 					resources = append(resources, maps.ToStringMap(vvv))
 				}
-			case []map[string]interface{}:
+			case []map[string]any:
 				resources = append(resources, vv...)
-			case []interface{}:
+			case []any:
 				for _, vvv := range vv {
 					switch vvvv := vvv.(type) {
-					case map[interface{}]interface{}:
+					case map[any]any:
 						resources = append(resources, maps.ToStringMap(vvvv))
-					case map[string]interface{}:
+					case map[string]any:
 						resources = append(resources, vvvv)
 					}
 				}
@@ -591,14 +591,14 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 				pm.params[loki] = vv
 			default: // handle array of strings as well
 				switch vvv := vv.(type) {
-				case []interface{}:
+				case []any:
 					if len(vvv) > 0 {
 						switch vvv[0].(type) {
-						case map[interface{}]interface{}: // Proper parsing structured array from YAML based FrontMatter
+						case map[any]any:
 							pm.params[loki] = vvv
-						case map[string]interface{}: // Proper parsing structured array from JSON based FrontMatter
+						case map[string]any:
 							pm.params[loki] = vvv
-						case []interface{}:
+						case []any:
 							pm.params[loki] = vvv
 						default:
 							a := make([]string, len(vvv))
@@ -744,7 +744,7 @@ func (p *pageMeta) applyDefaultValues(n *contentNode) error {
 	}
 
 	if !p.f.IsZero() {
-		var renderingConfigOverrides map[string]interface{}
+		var renderingConfigOverrides map[string]any
 		bfParam := getParamToLower(p, "blackfriday")
 		if bfParam != nil {
 			renderingConfigOverrides = maps.ToStringMap(bfParam)
@@ -757,7 +757,7 @@ func (p *pageMeta) applyDefaultValues(n *contentNode) error {
 	return nil
 }
 
-func (p *pageMeta) newContentConverter(ps *pageState, markup string, renderingConfigOverrides map[string]interface{}) (converter.Converter, error) {
+func (p *pageMeta) newContentConverter(ps *pageState, markup string, renderingConfigOverrides map[string]any) (converter.Converter, error) {
 	if ps == nil {
 		panic("no Page provided")
 	}
@@ -806,7 +806,7 @@ func (p *pageMeta) Slug() string {
 	return p.urlPaths.Slug
 }
 
-func getParam(m resource.ResourceParamsProvider, key string, stringToLower bool) interface{} {
+func getParam(m resource.ResourceParamsProvider, key string, stringToLower bool) any {
 	v := m.Params()[strings.ToLower(key)]
 
 	if v == nil {
@@ -837,6 +837,6 @@ func getParam(m resource.ResourceParamsProvider, key string, stringToLower bool)
 	}
 }
 
-func getParamToLower(m resource.ResourceParamsProvider, key string) interface{} {
+func getParamToLower(m resource.ResourceParamsProvider, key string) any {
 	return getParam(m, key, true)
 }

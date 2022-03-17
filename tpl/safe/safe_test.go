@@ -29,8 +29,8 @@ func TestCSS(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
-		a      interface{}
-		expect interface{}
+		a      any
+		expect any
 	}{
 		{`a[href =~ "//example.com"]#foo`, template.CSS(`a[href =~ "//example.com"]#foo`)},
 		// errors
@@ -56,8 +56,8 @@ func TestHTML(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
-		a      interface{}
-		expect interface{}
+		a      any
+		expect any
 	}{
 		{`Hello, <b>World</b> &amp;tc!`, template.HTML(`Hello, <b>World</b> &amp;tc!`)},
 		// errors
@@ -83,8 +83,8 @@ func TestHTMLAttr(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
-		a      interface{}
-		expect interface{}
+		a      any
+		expect any
 	}{
 		{` dir="ltr"`, template.HTMLAttr(` dir="ltr"`)},
 		// errors
@@ -109,8 +109,8 @@ func TestJS(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
-		a      interface{}
-		expect interface{}
+		a      any
+		expect any
 	}{
 		{`c && alert("Hello, World!");`, template.JS(`c && alert("Hello, World!");`)},
 		// errors
@@ -136,8 +136,8 @@ func TestJSStr(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
-		a      interface{}
-		expect interface{}
+		a      any
+		expect any
 	}{
 		{`Hello, World & O'Reilly\x21`, template.JSStr(`Hello, World & O'Reilly\x21`)},
 		// errors
@@ -163,8 +163,8 @@ func TestURL(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
-		a      interface{}
-		expect interface{}
+		a      any
+		expect any
 	}{
 		{`greeting=H%69&addressee=(World)`, template.URL(`greeting=H%69&addressee=(World)`)},
 		// errors
@@ -190,8 +190,8 @@ func TestSanitizeURL(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
-		a      interface{}
-		expect interface{}
+		a      any
+		expect any
 	}{
 		{"http://foo/../../bar", "http://foo/bar"},
 		// errors

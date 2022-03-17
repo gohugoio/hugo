@@ -294,12 +294,12 @@ func TestShortcodeTweet(t *testing.T) {
 	t.Parallel()
 
 	for i, this := range []struct {
-		privacy            map[string]interface{}
+		privacy            map[string]any
 		in, resp, expected string
 	}{
 		{
-			map[string]interface{}{
-				"twitter": map[string]interface{}{
+			map[string]any{
+				"twitter": map[string]any{
 					"simple": true,
 				},
 			},
@@ -308,8 +308,8 @@ func TestShortcodeTweet(t *testing.T) {
 			`.twitter-tweet a`,
 		},
 		{
-			map[string]interface{}{
-				"twitter": map[string]interface{}{
+			map[string]any{
+				"twitter": map[string]any{
 					"simple": false,
 				},
 			},
@@ -318,8 +318,8 @@ func TestShortcodeTweet(t *testing.T) {
 			`(?s)<blockquote class="twitter-tweet"><p lang="en" dir="ltr">Hugo 0.15 will have 30%\+ faster render times thanks to this commit <a href="https://t.co/FfzhM8bNhT">https://t.co/FfzhM8bNhT</a>  <a href="https://twitter.com/hashtag/gohugo\?src=hash&amp;ref_src=twsrc%5Etfw">#gohugo</a> <a href="https://twitter.com/hashtag/golang\?src=hash&amp;ref_src=twsrc%5Etfw">#golang</a> <a href="https://t.co/ITbMNU2BUf">https://t.co/ITbMNU2BUf</a></p>&mdash; Steve Francia \(@spf13\) <a href="https://twitter.com/spf13/status/666616452582129664\?ref_src=twsrc%5Etfw">November 17, 2015</a></blockquote>\s*<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>`,
 		},
 		{
-			map[string]interface{}{
-				"twitter": map[string]interface{}{
+			map[string]any{
+				"twitter": map[string]any{
 					"simple": false,
 				},
 			},
@@ -330,8 +330,8 @@ func TestShortcodeTweet(t *testing.T) {
 	} {
 		// overload getJSON to return mock API response from Twitter
 		tweetFuncMap := template.FuncMap{
-			"getJSON": func(urlParts ...interface{}) interface{} {
-				var v interface{}
+			"getJSON": func(urlParts ...any) any {
+				var v any
 				err := json.Unmarshal([]byte(this.resp), &v)
 				if err != nil {
 					t.Fatalf("[%d] unexpected error in json.Unmarshal: %s", i, err)
@@ -382,13 +382,13 @@ func TestShortcodeInstagram(t *testing.T) {
 	} {
 		// overload getJSON to return mock API response from Instagram
 		instagramFuncMap := template.FuncMap{
-			"getJSON": func(args ...interface{}) interface{} {
-				headers := args[len(args)-1].(map[string]interface{})
+			"getJSON": func(args ...any) any {
+				headers := args[len(args)-1].(map[string]any)
 				auth := headers["Authorization"]
 				if auth != "Bearer dummytoken" {
 					return fmt.Errorf("invalid access token: %q", auth)
 				}
-				var v interface{}
+				var v any
 				err := json.Unmarshal([]byte(this.resp), &v)
 				if err != nil {
 					return fmt.Errorf("[%d] unexpected error in json.Unmarshal: %s", i, err)

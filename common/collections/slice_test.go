@@ -46,8 +46,8 @@ type tstSlicer struct {
 	TheName string
 }
 
-func (p *tstSlicerIn1) Slice(in interface{}) (interface{}, error) {
-	items := in.([]interface{})
+func (p *tstSlicerIn1) Slice(in any) (any, error) {
+	items := in.([]any)
 	result := make(testSlicerInterfaces, len(items))
 	for i, v := range items {
 		switch vv := v.(type) {
@@ -60,8 +60,8 @@ func (p *tstSlicerIn1) Slice(in interface{}) (interface{}, error) {
 	return result, nil
 }
 
-func (p *tstSlicerIn2) Slice(in interface{}) (interface{}, error) {
-	items := in.([]interface{})
+func (p *tstSlicerIn2) Slice(in any) (any, error) {
+	items := in.([]any)
 	result := make(testSlicerInterfaces, len(items))
 	for i, v := range items {
 		switch vv := v.(type) {
@@ -82,8 +82,8 @@ func (p *tstSlicerIn2) Name() string {
 	return p.TheName
 }
 
-func (p *tstSlicer) Slice(in interface{}) (interface{}, error) {
-	items := in.([]interface{})
+func (p *tstSlicer) Slice(in any) (any, error) {
+	items := in.([]any)
 	result := make(tstSlicers, len(items))
 	for i, v := range items {
 		switch vv := v.(type) {
@@ -103,17 +103,17 @@ func TestSlice(t *testing.T) {
 	c := qt.New(t)
 
 	for i, test := range []struct {
-		args     []interface{}
-		expected interface{}
+		args     []any
+		expected any
 	}{
-		{[]interface{}{"a", "b"}, []string{"a", "b"}},
-		{[]interface{}{&tstSlicer{"a"}, &tstSlicer{"b"}}, tstSlicers{&tstSlicer{"a"}, &tstSlicer{"b"}}},
-		{[]interface{}{&tstSlicer{"a"}, "b"}, []interface{}{&tstSlicer{"a"}, "b"}},
-		{[]interface{}{}, []interface{}{}},
-		{[]interface{}{nil}, []interface{}{nil}},
-		{[]interface{}{5, "b"}, []interface{}{5, "b"}},
-		{[]interface{}{&tstSlicerIn1{"a"}, &tstSlicerIn2{"b"}}, testSlicerInterfaces{&tstSlicerIn1{"a"}, &tstSlicerIn2{"b"}}},
-		{[]interface{}{&tstSlicerIn1{"a"}, &tstSlicer{"b"}}, []interface{}{&tstSlicerIn1{"a"}, &tstSlicer{"b"}}},
+		{[]any{"a", "b"}, []string{"a", "b"}},
+		{[]any{&tstSlicer{"a"}, &tstSlicer{"b"}}, tstSlicers{&tstSlicer{"a"}, &tstSlicer{"b"}}},
+		{[]any{&tstSlicer{"a"}, "b"}, []any{&tstSlicer{"a"}, "b"}},
+		{[]any{}, []any{}},
+		{[]any{nil}, []any{nil}},
+		{[]any{5, "b"}, []any{5, "b"}},
+		{[]any{&tstSlicerIn1{"a"}, &tstSlicerIn2{"b"}}, testSlicerInterfaces{&tstSlicerIn1{"a"}, &tstSlicerIn2{"b"}}},
+		{[]any{&tstSlicerIn1{"a"}, &tstSlicer{"b"}}, []any{&tstSlicerIn1{"a"}, &tstSlicer{"b"}}},
 	} {
 		errMsg := qt.Commentf("[%d] %v", i, test.args)
 

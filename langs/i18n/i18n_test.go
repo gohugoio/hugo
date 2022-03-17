@@ -41,7 +41,7 @@ var logger = loggers.NewErrorLogger()
 type i18nTest struct {
 	name                             string
 	data                             map[string][]byte
-	args                             interface{}
+	args                             any
 	lang, id, expected, expectedFlag string
 }
 
@@ -179,7 +179,7 @@ one = "One minute to read"
 other = "{{ .Count }} minutes to read"
 `),
 		},
-		args:         map[string]interface{}{"Count": 1},
+		args:         map[string]any{"Count": 1},
 		lang:         "en",
 		id:           "readingTime",
 		expected:     "One minute to read",
@@ -207,7 +207,7 @@ one = "One minute to read"
 other = "{{ .Count }} minutes to read"
 `),
 		},
-		args:         map[string]interface{}{"Count": 21},
+		args:         map[string]any{"Count": 21},
 		lang:         "en",
 		id:           "readingTime",
 		expected:     "21 minutes to read",
@@ -426,7 +426,7 @@ func doTestI18nTranslate(t testing.TB, test i18nTest, cfg config.Provider) strin
 }
 
 type countField struct {
-	Count interface{}
+	Count any
 }
 
 type noCountField struct {
@@ -436,21 +436,21 @@ type noCountField struct {
 type countMethod struct {
 }
 
-func (c countMethod) Count() interface{} {
+func (c countMethod) Count() any {
 	return 32.5
 }
 
 func TestGetPluralCount(t *testing.T) {
 	c := qt.New(t)
 
-	c.Assert(getPluralCount(map[string]interface{}{"Count": 32}), qt.Equals, 32)
-	c.Assert(getPluralCount(map[string]interface{}{"Count": 1}), qt.Equals, 1)
-	c.Assert(getPluralCount(map[string]interface{}{"Count": 1.5}), qt.Equals, "1.5")
-	c.Assert(getPluralCount(map[string]interface{}{"Count": "32"}), qt.Equals, "32")
-	c.Assert(getPluralCount(map[string]interface{}{"Count": "32.5"}), qt.Equals, "32.5")
-	c.Assert(getPluralCount(map[string]interface{}{"count": 32}), qt.Equals, 32)
-	c.Assert(getPluralCount(map[string]interface{}{"Count": "32"}), qt.Equals, "32")
-	c.Assert(getPluralCount(map[string]interface{}{"Counts": 32}), qt.Equals, nil)
+	c.Assert(getPluralCount(map[string]any{"Count": 32}), qt.Equals, 32)
+	c.Assert(getPluralCount(map[string]any{"Count": 1}), qt.Equals, 1)
+	c.Assert(getPluralCount(map[string]any{"Count": 1.5}), qt.Equals, "1.5")
+	c.Assert(getPluralCount(map[string]any{"Count": "32"}), qt.Equals, "32")
+	c.Assert(getPluralCount(map[string]any{"Count": "32.5"}), qt.Equals, "32.5")
+	c.Assert(getPluralCount(map[string]any{"count": 32}), qt.Equals, 32)
+	c.Assert(getPluralCount(map[string]any{"Count": "32"}), qt.Equals, "32")
+	c.Assert(getPluralCount(map[string]any{"Counts": 32}), qt.Equals, nil)
 	c.Assert(getPluralCount("foo"), qt.Equals, nil)
 	c.Assert(getPluralCount(countField{Count: 22}), qt.Equals, 22)
 	c.Assert(getPluralCount(countField{Count: 1.5}), qt.Equals, "1.5")

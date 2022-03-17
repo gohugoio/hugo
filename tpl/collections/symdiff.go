@@ -22,7 +22,7 @@ import (
 
 // SymDiff returns the symmetric difference of s1 and s2.
 // Arguments must be either a slice or an array of comparable types.
-func (ns *Namespace) SymDiff(s2, s1 interface{}) (interface{}, error) {
+func (ns *Namespace) SymDiff(s2, s1 any) (any, error) {
 	ids1, err := collectIdentities(s1)
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func (ns *Namespace) SymDiff(s2, s1 interface{}) (interface{}, error) {
 	var slice reflect.Value
 	var sliceElemType reflect.Type
 
-	for i, s := range []interface{}{s1, s2} {
+	for i, s := range []any{s1, s2} {
 		v := reflect.ValueOf(s)
 
 		switch v.Kind() {

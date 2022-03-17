@@ -25,9 +25,9 @@ import (
 )
 
 // Apply takes a map, array, or slice and returns a new slice with the function fname applied over it.
-func (ns *Namespace) Apply(ctx context.Context, seq interface{}, fname string, args ...interface{}) (interface{}, error) {
+func (ns *Namespace) Apply(ctx context.Context, seq any, fname string, args ...any) (any, error) {
 	if seq == nil {
-		return make([]interface{}, 0), nil
+		return make([]any, 0), nil
 	}
 
 	if fname == "apply" {
@@ -47,7 +47,7 @@ func (ns *Namespace) Apply(ctx context.Context, seq interface{}, fname string, a
 
 	switch seqv.Kind() {
 	case reflect.Array, reflect.Slice:
-		r := make([]interface{}, seqv.Len())
+		r := make([]any, seqv.Len())
 		for i := 0; i < seqv.Len(); i++ {
 			vv := seqv.Index(i)
 
@@ -65,10 +65,10 @@ func (ns *Namespace) Apply(ctx context.Context, seq interface{}, fname string, a
 	}
 }
 
-func applyFnToThis(ctx context.Context, fn, this reflect.Value, args ...interface{}) (reflect.Value, error) {
+func applyFnToThis(ctx context.Context, fn, this reflect.Value, args ...any) (reflect.Value, error) {
 	num := fn.Type().NumIn()
 	if num > 0 && fn.Type().In(0).Implements(hreflect.ContextInterface) {
-		args = append([]interface{}{ctx}, args...)
+		args = append([]any{ctx}, args...)
 	}
 
 	n := make([]reflect.Value, len(args))
@@ -120,7 +120,7 @@ func (ns *Namespace) lookupFunc(fname string) (reflect.Value, bool) {
 		return reflect.Value{}, false
 	}
 
-	fn, ok := nv.Interface().(func(...interface{}) (interface{}, error))
+	fn, ok := nv.Interface().(func(...any) (any, error))
 	if !ok {
 		return reflect.Value{}, false
 	}

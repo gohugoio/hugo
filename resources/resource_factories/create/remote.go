@@ -38,7 +38,7 @@ import (
 
 // FromRemote expects one or n-parts of a URL to a resource
 // If you provide multiple parts they will be joined together to the final URL.
-func (c *Client) FromRemote(uri string, optionsm map[string]interface{}) (resource.Resource, error) {
+func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resource, error) {
 	rURL, err := url.Parse(uri)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to parse URL for resource %s", uri)
@@ -174,7 +174,7 @@ func addDefaultHeaders(req *http.Request, accepts ...string) {
 	}
 }
 
-func addUserProvidedHeaders(headers map[string]interface{}, req *http.Request) {
+func addUserProvidedHeaders(headers map[string]any, req *http.Request) {
 	if headers == nil {
 		return
 	}
@@ -209,7 +209,7 @@ func hasHeaderKey(m http.Header, key string) bool {
 
 type fromRemoteOptions struct {
 	Method  string
-	Headers map[string]interface{}
+	Headers map[string]any
 	Body    []byte
 }
 
@@ -220,7 +220,7 @@ func (o fromRemoteOptions) BodyReader() io.Reader {
 	return bytes.NewBuffer(o.Body)
 }
 
-func decodeRemoteOptions(optionsm map[string]interface{}) (fromRemoteOptions, error) {
+func decodeRemoteOptions(optionsm map[string]any) (fromRemoteOptions, error) {
 	options := fromRemoteOptions{
 		Method: "GET",
 	}

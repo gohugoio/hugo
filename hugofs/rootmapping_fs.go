@@ -203,7 +203,7 @@ func (fs *RootMappingFs) Dirs(base string) ([]FileMetaInfo, error) {
 // Filter creates a copy of this filesystem with only mappings matching a filter.
 func (fs RootMappingFs) Filter(f func(m RootMapping) bool) *RootMappingFs {
 	rootMapToReal := radix.New()
-	fs.rootMapToReal.Walk(func(b string, v interface{}) bool {
+	fs.rootMapToReal.Walk(func(b string, v any) bool {
 		rms := v.([]RootMapping)
 		var nrms []RootMapping
 		for _, rm := range rms {
@@ -250,7 +250,7 @@ func (fs *RootMappingFs) Stat(name string) (os.FileInfo, error) {
 
 func (fs *RootMappingFs) hasPrefix(prefix string) bool {
 	hasPrefix := false
-	fs.rootMapToReal.WalkPrefix(prefix, func(b string, v interface{}) bool {
+	fs.rootMapToReal.WalkPrefix(prefix, func(b string, v any) bool {
 		hasPrefix = true
 		return true
 	})
@@ -277,7 +277,7 @@ func (fs *RootMappingFs) getRoots(key string) (string, []RootMapping) {
 
 func (fs *RootMappingFs) debug() {
 	fmt.Println("debug():")
-	fs.rootMapToReal.Walk(func(s string, v interface{}) bool {
+	fs.rootMapToReal.Walk(func(s string, v any) bool {
 		fmt.Println("Key", s)
 		return false
 	})
@@ -285,7 +285,7 @@ func (fs *RootMappingFs) debug() {
 
 func (fs *RootMappingFs) getRootsWithPrefix(prefix string) []RootMapping {
 	var roots []RootMapping
-	fs.rootMapToReal.WalkPrefix(prefix, func(b string, v interface{}) bool {
+	fs.rootMapToReal.WalkPrefix(prefix, func(b string, v any) bool {
 		roots = append(roots, v.([]RootMapping)...)
 		return false
 	})
@@ -295,7 +295,7 @@ func (fs *RootMappingFs) getRootsWithPrefix(prefix string) []RootMapping {
 
 func (fs *RootMappingFs) getAncestors(prefix string) []keyRootMappings {
 	var roots []keyRootMappings
-	fs.rootMapToReal.WalkPath(prefix, func(s string, v interface{}) bool {
+	fs.rootMapToReal.WalkPath(prefix, func(s string, v any) bool {
 		if strings.HasPrefix(prefix, s+filepathSeparator) {
 			roots = append(roots, keyRootMappings{
 				key:   s,
@@ -416,7 +416,7 @@ func (fs *RootMappingFs) collectDirEntries(prefix string) ([]os.FileInfo, error)
 
 	// Next add any file mounts inside the given directory.
 	prefixInside := prefix + filepathSeparator
-	fs.rootMapToReal.WalkPrefix(prefixInside, func(s string, v interface{}) bool {
+	fs.rootMapToReal.WalkPrefix(prefixInside, func(s string, v any) bool {
 		if (strings.Count(s, filepathSeparator) - level) != 1 {
 			// This directory is not part of the current, but we
 			// need to include the first name part to make it

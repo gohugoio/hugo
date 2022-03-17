@@ -73,7 +73,7 @@ type Page interface {
 	Weight() int
 	IsPage() bool
 	IsSection() bool
-	IsAncestor(other interface{}) (bool, error)
+	IsAncestor(other any) (bool, error)
 	Params() maps.Params
 }
 
@@ -131,7 +131,7 @@ func (m *MenuEntry) isSamePage(p Page) bool {
 	return false
 }
 
-func (m *MenuEntry) MarshallMap(ime map[string]interface{}) error {
+func (m *MenuEntry) MarshallMap(ime map[string]any) error {
 	var err error
 	for k, v := range ime {
 		loki := strings.ToLower(k)

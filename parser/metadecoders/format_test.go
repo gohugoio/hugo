@@ -64,7 +64,7 @@ func TestFormatFromContentString(t *testing.T) {
 
 	for i, test := range []struct {
 		data   string
-		expect interface{}
+		expect any
 	}{
 		{`foo = "bar"`, TOML},
 		{`   foo = "bar"`, TOML},

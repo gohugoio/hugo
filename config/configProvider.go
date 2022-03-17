@@ -24,12 +24,12 @@ type Provider interface {
 	GetInt(key string) int
 	GetBool(key string) bool
 	GetParams(key string) maps.Params
-	GetStringMap(key string) map[string]interface{}
+	GetStringMap(key string) map[string]any
 	GetStringMapString(key string) map[string]string
 	GetStringSlice(key string) []string
-	Get(key string) interface{}
-	Set(key string, value interface{})
-	Merge(key string, value interface{})
+	Get(key string) any
+	Set(key string, value any)
+	Merge(key string, value any)
 	SetDefaults(params maps.Params)
 	SetDefaultMergeStrategy()
 	WalkParams(walkFn func(params ...KeyParams) bool)

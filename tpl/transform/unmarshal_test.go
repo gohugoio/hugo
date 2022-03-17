@@ -87,34 +87,34 @@ func TestUnmarshal(t *testing.T) {
 
 	ns := transform.New(b.H.Deps)
 
-	assertSlogan := func(m map[string]interface{}) {
+	assertSlogan := func(m map[string]any) {
 		b.Assert(m["slogan"], qt.Equals, "Hugo Rocks!")
 	}
 
 	for _, test := range []struct {
-		data    interface{}
-		options interface{}
-		expect  interface{}
+		data    any
+		options any
+		expect  any
 	}{
-		{`{ "slogan": "Hugo Rocks!" }`, nil, func(m map[string]interface{}) {
+		{`{ "slogan": "Hugo Rocks!" }`, nil, func(m map[string]any) {
 			assertSlogan(m)
 		}},
-		{`slogan: "Hugo Rocks!"`, nil, func(m map[string]interface{}) {
+		{`slogan: "Hugo Rocks!"`, nil, func(m map[string]any) {
 			assertSlogan(m)
 		}},
-		{`slogan = "Hugo Rocks!"`, nil, func(m map[string]interface{}) {
+		{`slogan = "Hugo Rocks!"`, nil, func(m map[string]any) {
 			assertSlogan(m)
 		}},
-		{testContentResource{key: "r1", content: `slogan: "Hugo Rocks!"`, mime: media.YAMLType}, nil, func(m map[string]interface{}) {
+		{testContentResource{key: "r1", content: `slogan: "Hugo Rocks!"`, mime: media.YAMLType}, nil, func(m map[string]any) {
 			assertSlogan(m)
 		}},
-		{testContentResource{key: "r1", content: `{ "slogan": "Hugo Rocks!" }`, mime: media.JSONType}, nil, func(m map[string]interface{}) {
+		{testContentResource{key: "r1", content: `{ "slogan": "Hugo Rocks!" }`, mime: media.JSONType}, nil, func(m map[string]any) {
 			assertSlogan(m)
 		}},
-		{testContentResource{key: "r1", content: `slogan = "Hugo Rocks!"`, mime: media.TOMLType}, nil, func(m map[string]interface{}) {
+		{testContentResource{key: "r1", content: `slogan = "Hugo Rocks!"`, mime: media.TOMLType}, nil, func(m map[string]any) {
 			assertSlogan(m)
 		}},
-		{testContentResource{key: "r1", content: `<root><slogan>Hugo Rocks!</slogan></root>"`, mime: media.XMLType}, nil, func(m map[string]interface{}) {
+		{testContentResource{key: "r1", content: `<root><slogan>Hugo Rocks!</slogan></root>"`, mime: media.XMLType}, nil, func(m map[string]any) {
 			assertSlogan(m)
 		}},
 		{testContentResource{key: "r1", content: `1997,Ford,E350,"ac, abs, moon",3000.00
@@ -124,18 +124,18 @@ func TestUnmarshal(t *testing.T) {
 			b.Assert(len(first), qt.Equals, 5)
 			b.Assert(first[1], qt.Equals, "Ford")
 		}},
-		{testContentResource{key: "r1", content: `a;b;c`, mime: media.CSVType}, map[string]interface{}{"delimiter": ";"}, func(r [][]string) {
+		{testContentResource{key: "r1", content: `a;b;c`, mime: media.CSVType}, map[string]any{"delimiter": ";"}, func(r [][]string) {
 			b.Assert([][]string{{"a", "b", "c"}}, qt.DeepEquals, r)
 		}},
 		{"a,b,c", nil, func(r [][]string) {
 			b.Assert([][]string{{"a", "b", "c"}}, qt.DeepEquals, r)
 		}},
-		{"a;b;c", map[string]interface{}{"delimiter": ";"}, func(r [][]string) {
+		{"a;b;c", map[string]any{"delimiter": ";"}, func(r [][]string) {
 			b.Assert([][]string{{"a", "b", "c"}}, qt.DeepEquals, r)
 		}},
 		{testContentResource{key: "r1", content: `
 % This is a comment
-a;b;c`, mime: media.CSVType}, map[string]interface{}{"DElimiter": ";", "Comment": "%"}, func(r [][]string) {
+a;b;c`, mime: media.CSVType}, map[string]any{"DElimiter": ";", "Comment": "%"}, func(r [][]string) {
 			b.Assert([][]string{{"a", "b", "c"}}, qt.DeepEquals, r)
 		}},
 		// errors
@@ -149,21 +149,21 @@ a;b;c`, mime: media.CSVType}, map[string]interface{}{"DElimiter": ";", "Comment"
 
 		ns.Reset()
 
-		var args []interface{}
+		var args []any
 
 		if test.options != nil {
-			args = []interface{}{test.options, test.data}
+			args = []any{test.options, test.data}
 		} else {
-			args = []interface{}{test.data}
+			args = []any{test.data}
 		}
 
 		result, err := ns.Unmarshal(args...)
 
 		if bb, ok := test.expect.(bool); ok && !bb {
 			b.Assert(err, qt.Not(qt.IsNil))
-		} else if fn, ok := test.expect.(func(m map[string]interface{})); ok {
+		} else if fn, ok := test.expect.(func(m map[string]any)); ok {
 			b.Assert(err, qt.IsNil)
-			m, ok := result.(map[string]interface{})
+			m, ok := result.(map[string]any)
 			b.Assert(ok, qt.Equals, true)
 			fn(m)
 		} else if fn, ok := test.expect.(func(r [][]string)); ok {

@@ -54,7 +54,7 @@ func (ns *Namespace) Unmarshal(r resource.UnmarshableResource) (*kopenapi3.T, er
 		return nil, errors.New("no Key set in Resource")
 	}
 
-	v, err := ns.cache.GetOrCreate(key, func() (interface{}, error) {
+	v, err := ns.cache.GetOrCreate(key, func() (any, error) {
 		f := metadecoders.FormatFromMediaType(r.MediaType())
 		if f == "" {
 			return nil, errors.Errorf("MIME %q not supported", r.MediaType())

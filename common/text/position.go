@@ -69,7 +69,7 @@ func createPositionStringFormatter(formatStr string) func(p Position) string {
 	format := replacer.Replace(formatStr)
 
 	f := func(pos Position) string {
-		args := make([]interface{}, len(identifiersFound))
+		args := make([]any, len(identifiersFound))
 		for i, id := range identifiersFound {
 			switch id {
 			case ":file":

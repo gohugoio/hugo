@@ -56,7 +56,7 @@ func (e *errorResource) ReadSeekCloser() (hugio.ReadSeekCloser, error) {
 	panic(e.error)
 }
 
-func (e *errorResource) Content() (interface{}, error) {
+func (e *errorResource) Content() (any, error) {
 	panic(e.error)
 }
 
@@ -88,7 +88,7 @@ func (e *errorResource) Params() maps.Params {
 	panic(e.error)
 }
 
-func (e *errorResource) Data() interface{} {
+func (e *errorResource) Data() any {
 	panic(e.error)
 }
 
@@ -116,7 +116,7 @@ func (e *errorResource) Resize(spec string) (resource.Image, error) {
 	panic(e.error)
 }
 
-func (e *errorResource) Filter(filters ...interface{}) (resource.Image, error) {
+func (e *errorResource) Filter(filters ...any) (resource.Image, error) {
 	panic(e.error)
 }
 

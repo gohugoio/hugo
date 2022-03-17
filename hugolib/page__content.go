@@ -111,7 +111,7 @@ type pageContentMap struct {
 	hasNonMarkdownShortcode bool
 
 	//  *shortcode, pageContentReplacement or pageparser.Item
-	items []interface{}
+	items []any
 }
 
 func (p *pageContentMap) AddBytes(item pageparser.Item) {

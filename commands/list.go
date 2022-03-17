@@ -32,7 +32,7 @@ type listCmd struct {
 	*baseBuilderCmd
 }
 
-func (lc *listCmd) buildSites(config map[string]interface{}) (*hugolib.HugoSites, error) {
+func (lc *listCmd) buildSites(config map[string]any) (*hugolib.HugoSites, error) {
 	cfgInit := func(c *commandeer) error {
 		for key, value := range config {
 			c.Set(key, value)
@@ -75,7 +75,7 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 			Short: "List all drafts",
 			Long:  `List all of the drafts in your content directory.`,
 			RunE: func(cmd *cobra.Command, args []string) error {
-				sites, err := cc.buildSites(map[string]interface{}{"buildDrafts": true})
+				sites, err := cc.buildSites(map[string]any{"buildDrafts": true})
 				if err != nil {
 					return newSystemError("Error building sites", err)
 				}
@@ -94,7 +94,7 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 			Short: "List all posts dated in the future",
 			Long:  `List all of the posts in your content directory which will be posted in the future.`,
 			RunE: func(cmd *cobra.Command, args []string) error {
-				sites, err := cc.buildSites(map[string]interface{}{"buildFuture": true})
+				sites, err := cc.buildSites(map[string]any{"buildFuture": true})
 				if err != nil {
 					return newSystemError("Error building sites", err)
 				}
@@ -122,7 +122,7 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 			Short: "List all posts already expired",
 			Long:  `List all of the posts in your content directory which has already expired.`,
 			RunE: func(cmd *cobra.Command, args []string) error {
-				sites, err := cc.buildSites(map[string]interface{}{"buildExpired": true})
+				sites, err := cc.buildSites(map[string]any{"buildExpired": true})
 				if err != nil {
 					return newSystemError("Error building sites", err)
 				}
@@ -150,7 +150,7 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 			Short: "List all posts",
 			Long:  `List all of the posts in your content directory, include drafts, future and expired pages.`,
 			RunE: func(cmd *cobra.Command, args []string) error {
-				sites, err := cc.buildSites(map[string]interface{}{
+				sites, err := cc.buildSites(map[string]any{
 					"buildExpired": true,
 					"buildDrafts":  true,
 					"buildFuture":  true,

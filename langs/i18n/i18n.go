@@ -28,7 +28,7 @@ import (
 	"github.com/gohugoio/go-i18n/v2/i18n"
 )
 
-type translateFunc func(translationID string, templateData interface{}) string
+type translateFunc func(translationID string, templateData any) string
 
 var i18nWarningLogger = helpers.NewDistinctErrorLogger()
 
@@ -58,7 +58,7 @@ func (t Translator) Func(lang string) translateFunc {
 	}
 
 	t.logger.Infoln("i18n not initialized; if you need string translations, check that you have a bundle in /i18n that matches the site language or the default language.")
-	return func(translationID string, args interface{}) string {
+	return func(translationID string, args any) string {
 		return ""
 	}
 }
@@ -71,7 +71,7 @@ func (t Translator) initFuncs(bndl *i18n.Bundle) {
 		// This may be pt-BR; make it case insensitive.
 		currentLangKey := strings.ToLower(strings.TrimPrefix(currentLangStr, artificialLangTagPrefix))
 		localizer := i18n.NewLocalizer(bndl, currentLangStr)
-		t.translateFuncs[currentLangKey] = func(translationID string, templateData interface{}) string {
+		t.translateFuncs[currentLangKey] = func(translationID string, templateData any) string {
 			pluralCount := getPluralCount(templateData)
 
 			if templateData != nil {
@@ -134,7 +134,7 @@ const countFieldName = "Count"
 
 // getPluralCount gets the plural count as a string (floats) or an integer.
 // If v is nil, nil is returned.
-func getPluralCount(v interface{}) interface{} {
+func getPluralCount(v any) any {
 	if v == nil {
 		// i18n called without any argument, make sure it does not
 		// get any plural count.
@@ -142,7 +142,7 @@ func getPluralCount(v interface{}) interface{} {
 	}
 
 	switch v := v.(type) {
-	case map[string]interface{}:
+	case map[string]any:
 		for k, vv := range v {
 			if strings.EqualFold(k, countFieldName) {
 				return toPluralCountValue(vv)
@@ -172,7 +172,7 @@ func getPluralCount(v interface{}) interface{} {
 }
 
 // go-i18n expects floats to be represented by string.
-func toPluralCountValue(in interface{}) interface{} {
+func toPluralCountValue(in any) any {
 	k := reflect.TypeOf(in).Kind()
 	switch {
 	case hreflect.IsFloat(k):

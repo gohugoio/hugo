@@ -28,7 +28,7 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
-var nopGetRenderer = func(t hooks.RendererType, id interface{}) interface{} { return nil }
+var nopGetRenderer = func(t hooks.RendererType, id any) any { return nil }
 
 func TestToc(t *testing.T) {
 	c := qt.New(t)

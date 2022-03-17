@@ -49,7 +49,7 @@ type (
 	tstEqerType2 string
 )
 
-func (t tstEqerType2) Eq(other interface{}) bool {
+func (t tstEqerType2) Eq(other any) bool {
 	return cast.ToString(t) == cast.ToString(other)
 }
 
@@ -57,7 +57,7 @@ func (t tstEqerType2) String() string {
 	return string(t)
 }
 
-func (t tstEqerType1) Eq(other interface{}) bool {
+func (t tstEqerType1) Eq(other any) bool {
 	return cast.ToString(t) == cast.ToString(other)
 }
 
@@ -91,9 +91,9 @@ func TestDefaultFunc(t *testing.T) {
 	ns := New(false)
 
 	for i, test := range []struct {
-		dflt   interface{}
-		given  interface{}
-		expect interface{}
+		dflt   any
+		given  any
+		expect any
 	}{
 		{true, false, false},
 		{"5", 0, "5"},
@@ -149,33 +149,33 @@ func TestCompare(t *testing.T) {
 
 	n := New(false)
 
-	twoEq := func(a, b interface{}) bool {
+	twoEq := func(a, b any) bool {
 		return n.Eq(a, b)
 	}
 
-	twoGt := func(a, b interface{}) bool {
+	twoGt := func(a, b any) bool {
 		return n.Gt(a, b)
 	}
 
-	twoLt := func(a, b interface{}) bool {
+	twoLt := func(a, b any) bool {
 		return n.Lt(a, b)
 	}
 
-	twoGe := func(a, b interface{}) bool {
+	twoGe := func(a, b any) bool {
 		return n.Ge(a, b)
 	}
 
-	twoLe := func(a, b interface{}) bool {
+	twoLe := func(a, b any) bool {
 		return n.Le(a, b)
 	}
 
-	twoNe := func(a, b interface{}) bool {
+	twoNe := func(a, b any) bool {
 		return n.Ne(a, b)
 	}
 
 	for _, test := range []struct {
 		tstCompareType
-		funcUnderTest func(a, b interface{}) bool
+		funcUnderTest func(a, b any) bool
 	}{
 		{tstGt, twoGt},
 		{tstLt, twoLt},
@@ -188,10 +188,10 @@ func TestCompare(t *testing.T) {
 	}
 }
 
-func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b interface{}) bool) {
+func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b any) bool) {
 	for i, test := range []struct {
-		left            interface{}
-		right           interface{}
+		left            any
+		right           any
 		expectIndicator int
 	}{
 		{5, 8, -1},
@@ -272,16 +272,16 @@ func TestEqualExtend(t *testing.T) {
 	ns := New(false)
 
 	for _, test := range []struct {
-		first  interface{}
-		others []interface{}
+		first  any
+		others []any
 		expect bool
 	}{
-		{1, []interface{}{1, 2}, true},
-		{1, []interface{}{2, 1}, true},
-		{1, []interface{}{2, 3}, false},
-		{tstEqerType1("a"), []interface{}{tstEqerType1("a"), tstEqerType1("b")}, true},
-		{tstEqerType1("a"), []interface{}{tstEqerType1("b"), tstEqerType1("a")}, true},
-		{tstEqerType1("a"), []interface{}{tstEqerType1("b"), tstEqerType1("c")}, false},
+		{1, []any{1, 2}, true},
+		{1, []any{2, 1}, true},
+		{1, []any{2, 3}, false},
+		{tstEqerType1("a"), []any{tstEqerType1("a"), tstEqerType1("b")}, true},
+		{tstEqerType1("a"), []any{tstEqerType1("b"), tstEqerType1("a")}, true},
+		{tstEqerType1("a"), []any{tstEqerType1("b"), tstEqerType1("c")}, false},
 	} {
 
 		result := ns.Eq(test.first, test.others...)
@@ -297,13 +297,13 @@ func TestNotEqualExtend(t *testing.T) {
 	ns := New(false)
 
 	for _, test := range []struct {
-		first  interface{}
-		others []interface{}
+		first  any
+		others []any
 		expect bool
 	}{
-		{1, []interface{}{2, 3}, true},
-		{1, []interface{}{2, 1}, false},
-		{1, []interface{}{1, 2}, false},
+		{1, []any{2, 3}, true},
+		{1, []any{2, 1}, false},
+		{1, []any{1, 2}, false},
 	} {
 		result := ns.Ne(test.first, test.others...)
 		c.Assert(result, qt.Equals, test.expect)
@@ -317,14 +317,14 @@ func TestGreaterEqualExtend(t *testing.T) {
 	ns := New(false)
 
 	for _, test := range []struct {
-		first  interface{}
-		others []interface{}
+		first  any
+		others []any
 		expect bool
 	}{
-		{5, []interface{}{2, 3}, true},
-		{5, []interface{}{5, 5}, true},
-		{3, []interface{}{4, 2}, false},
-		{3, []interface{}{2, 4}, false},
+		{5, []any{2, 3}, true},
+		{5, []any{5, 5}, true},
+		{3, []any{4, 2}, false},
+		{3, []any{2, 4}, false},
 	} {
 		result := ns.Ge(test.first, test.others...)
 		c.Assert(result, qt.Equals, test.expect)
@@ -338,13 +338,13 @@ func TestGreaterThanExtend(t *testing.T) {
 	ns := New(false)
 
 	for _, test := range []struct {
-		first  interface{}
-		others []interface{}
+		first  any
+		others []any
 		expect bool
 	}{
-		{5, []interface{}{2, 3}, true},
-		{5, []interface{}{5, 4}, false},
-		{3, []interface{}{4, 2}, false},
+		{5, []any{2, 3}, true},
+		{5, []any{5, 4}, false},
+		{3, []any{4, 2}, false},
 	} {
 		result := ns.Gt(test.first, test.others...)
 		c.Assert(result, qt.Equals, test.expect)
@@ -358,14 +358,14 @@ func TestLessEqualExtend(t *testing.T) {
 	ns := New(false)
 
 	for _, test := range []struct {
-		first  interface{}
-		others []interface{}
+		first  any
+		others []any
 		expect bool
 	}{
-		{1, []interface{}{2, 3}, true},
-		{1, []interface{}{1, 2}, true},
-		{2, []interface{}{1, 2}, false},
-		{3, []interface{}{2, 4}, false},
+		{1, []any{2, 3}, true},
+		{1, []any{1, 2}, true},
+		{2, []any{1, 2}, false},
+		{3, []any{2, 4}, false},
 	} {
 		result := ns.Le(test.first, test.others...)
 		c.Assert(result, qt.Equals, test.expect)
@@ -379,14 +379,14 @@ func TestLessThanExtend(t *testing.T) {
 	ns := New(false)
 
 	for _, test := range []struct {
-		first  interface{}
-		others []interface{}
+		first  any
+		others []any
 		expect bool
 	}{
-		{1, []interface{}{2, 3}, true},
-		{1, []interface{}{1, 2}, false},
-		{2, []interface{}{1, 2}, false},
-		{3, []interface{}{2, 4}, false},
+		{1, []any{2, 3}, true},
+		{1, []any{1, 2}, false},
+		{2, []any{1, 2}, false},
+		{3, []any{2, 4}, false},
 	} {
 		result := ns.Lt(test.first, test.others...)
 		c.Assert(result, qt.Equals, test.expect)

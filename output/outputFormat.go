@@ -292,7 +292,7 @@ func (formats Formats) FromFilename(filename string) (f Format, found bool) {
 
 // DecodeFormats takes a list of output format configurations and merges those,
 // in the order given, with the Hugo defaults as the last resort.
-func DecodeFormats(mediaTypes media.Types, maps ...map[string]interface{}) (Formats, error) {
+func DecodeFormats(mediaTypes media.Types, maps ...map[string]any) (Formats, error) {
 	f := make(Formats, len(DefaultFormats))
 	copy(f, DefaultFormats)
 
@@ -334,12 +334,12 @@ func DecodeFormats(mediaTypes media.Types, maps ...map[string]interface{}) (Form
 	return f, nil
 }
 
-func decode(mediaTypes media.Types, input interface{}, output *Format) error {
+func decode(mediaTypes media.Types, input any, output *Format) error {
 	config := &mapstructure.DecoderConfig{
 		Metadata:         nil,
 		Result:           output,
 		WeaklyTypedInput: true,
-		DecodeHook: func(a reflect.Type, b reflect.Type, c interface{}) (interface{}, error) {
+		DecodeHook: func(a reflect.Type, b reflect.Type, c any) (any, error) {
 			if a.Kind() == reflect.Map {
 				dataVal := reflect.Indirect(reflect.ValueOf(c))
 				for _, key := range dataVal.MapKeys() {

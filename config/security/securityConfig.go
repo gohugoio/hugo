@@ -147,15 +147,15 @@ func (c Config) CheckAllowedHTTPMethod(method string) error {
 }
 
 // ToSecurityMap converts c to a map with 'security' as the root key.
-func (c Config) ToSecurityMap() map[string]interface{} {
+func (c Config) ToSecurityMap() map[string]any {
 	// Take it to JSON and back to get proper casing etc.
 	asJson, err := json.Marshal(c)
 	herrors.Must(err)
-	m := make(map[string]interface{})
+	m := make(map[string]any)
 	herrors.Must(json.Unmarshal(asJson, &m))
 
 	// Add the root
-	sec := map[string]interface{}{
+	sec := map[string]any{
 		"security": m,
 	}
 	return sec
@@ -196,7 +196,7 @@ func stringSliceToWhitelistHook() mapstructure.DecodeHookFuncType {
 	return func(
 		f reflect.Type,
 		t reflect.Type,
-		data interface{}) (interface{}, error) {
+		data any) (any, error) {
 
 		if t != reflect.TypeOf(Whitelist{}) {
 			return data, nil

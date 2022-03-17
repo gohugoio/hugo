@@ -39,11 +39,11 @@ type Site interface {
 	Sites() Sites
 	Hugo() hugo.Info
 	BaseURL() template.URL
-	Taxonomies() interface{}
+	Taxonomies() any
 	LastChange() time.Time
 	Menus() navigation.Menus
 	Params() maps.Params
-	Data() map[string]interface{}
+	Data() map[string]any
 }
 
 // Sites represents an ordered list of sites (languages).
@@ -106,7 +106,7 @@ func (t testSite) Menus() navigation.Menus {
 	return nil
 }
 
-func (t testSite) Taxonomies() interface{} {
+func (t testSite) Taxonomies() any {
 	return nil
 }
 
@@ -118,7 +118,7 @@ func (t testSite) Params() maps.Params {
 	return nil
 }
 
-func (t testSite) Data() map[string]interface{} {
+func (t testSite) Data() map[string]any {
 	return nil
 }
 

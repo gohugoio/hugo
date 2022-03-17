@@ -66,7 +66,7 @@ type ImageOps interface {
 	Fill(spec string) (Image, error)
 	Fit(spec string) (Image, error)
 	Resize(spec string) (Image, error)
-	Filter(filters ...interface{}) (Image, error)
+	Filter(filters ...any) (Image, error)
 	Exif() *exif.Exif
 
 	// Internal
@@ -119,7 +119,7 @@ type ResourceParamsProvider interface {
 type ResourceDataProvider interface {
 	// Resource specific data set by Hugo.
 	// One example would be.Data.Digest for fingerprinted resources.
-	Data() interface{}
+	Data() any
 }
 
 // ResourcesLanguageMerger describes an interface for merging resources from a
@@ -127,7 +127,7 @@ type ResourceDataProvider interface {
 type ResourcesLanguageMerger interface {
 	MergeByLanguage(other Resources) Resources
 	// Needed for integration with the tpl package.
-	MergeByLanguageInterface(other interface{}) (interface{}, error)
+	MergeByLanguageInterface(other any) (any, error)
 }
 
 // Identifier identifies a resource.
@@ -152,7 +152,7 @@ type ContentProvider interface {
 	// * Page: template.HTML
 	// * JSON: String
 	// * Etc.
-	Content() (interface{}, error)
+	Content() (any, error)
 }
 
 // OpenReadSeekCloser allows setting some other way (than reading from a filesystem)

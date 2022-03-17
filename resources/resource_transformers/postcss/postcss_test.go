@@ -31,14 +31,14 @@ import (
 // Issue 6166
 func TestDecodeOptions(t *testing.T) {
 	c := qt.New(t)
-	opts1, err := DecodeOptions(map[string]interface{}{
+	opts1, err := DecodeOptions(map[string]any{
 		"no-map": true,
 	})
 
 	c.Assert(err, qt.IsNil)
 	c.Assert(opts1.NoMap, qt.Equals, true)
 
-	opts2, err := DecodeOptions(map[string]interface{}{
+	opts2, err := DecodeOptions(map[string]any{
 		"noMap": true,
 	})
 

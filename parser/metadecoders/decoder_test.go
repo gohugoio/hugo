@@ -45,13 +45,13 @@ func TestUnmarshalXML(t *testing.T) {
 		</channel>
 	</rss>`
 
-	expect := map[string]interface{}{
+	expect := map[string]any{
 		"-atom": "http://www.w3.org/2005/Atom", "-version": "2.0",
-		"channel": map[string]interface{}{
+		"channel": map[string]any{
 			"copyright":   "Example",
 			"description": "Example feed",
 			"generator":   "Hugo -- gohugo.io",
-			"item": map[string]interface{}{
+			"item": map[string]any{
 				"description": "Example description",
 				"guid":        "https://example.com/2021/11/30/example-title/",
 				"link":        "https://example.com/2021/11/30/example-title/",
@@ -59,7 +59,7 @@ func TestUnmarshalXML(t *testing.T) {
 				"title":       "Example title"},
 			"language":      "en-us",
 			"lastBuildDate": "Fri, 08 Jan 2021 14:44:10 +0000",
-			"link": []interface{}{"https://example.com/", map[string]interface{}{
+			"link": []any{"https://example.com/", map[string]any{
 				"-href": "https://example.com/feed.xml",
 				"-rel":  "self",
 				"-type": "application/rss+xml"}},
@@ -76,20 +76,20 @@ func TestUnmarshalXML(t *testing.T) {
 func TestUnmarshalToMap(t *testing.T) {
 	c := qt.New(t)
 
-	expect := map[string]interface{}{"a": "b"}
+	expect := map[string]any{"a": "b"}
 
 	d := Default
 
 	for i, test := range []struct {
 		data   string
 		format Format
-		expect interface{}
+		expect any
 	}{
 		{`a = "b"`, TOML, expect},
 		{`a: "b"`, YAML, expect},
 		// Make sure we get all string keys, even for YAML
-		{"a: Easy!\nb:\n  c: 2\n  d: [3, 4]", YAML, map[string]interface{}{"a": "Easy!", "b": map[string]interface{}{"c": 2, "d": []interface{}{3, 4}}}},
-		{"a:\n  true: 1\n  false: 2", YAML, map[string]interface{}{"a": map[string]interface{}{"true": 1, "false": 2}}},
+		{"a: Easy!\nb:\n  c: 2\n  d: [3, 4]", YAML, map[string]any{"a": "Easy!", "b": map[string]any{"c": 2, "d": []any{3, 4}}}},
+		{"a:\n  true: 1\n  false: 2", YAML, map[string]any{"a": map[string]any{"true": 1, "false": 2}}},
 		{`{ "a": "b" }`, JSON, expect},
 		{`<root><a>b</a></root>`, XML, expect},
 		{`#+a: b`, ORG, expect},
@@ -111,24 +111,24 @@ func TestUnmarshalToMap(t *testing.T) {
 func TestUnmarshalToInterface(t *testing.T) {
 	c := qt.New(t)
 
-	expect := map[string]interface{}{"a": "b"}
+	expect := map[string]any{"a": "b"}
 
 	d := Default
 
 	for i, test := range []struct {
 		data   string
 		format Format
-		expect interface{}
+		expect any
 	}{
-		{`[ "Brecker", "Blake", "Redman" ]`, JSON, []interface{}{"Brecker", "Blake", "Redman"}},
+		{`[ "Brecker", "Blake", "Redman" ]`, JSON, []any{"Brecker", "Blake", "Redman"}},
 		{`{ "a": "b" }`, JSON, expect},
 		{`#+a: b`, ORG, expect},
-		{`#+DATE: <2020-06-26 Fri>`, ORG, map[string]interface{}{"date": "2020-06-26"}},
+		{`#+DATE: <2020-06-26 Fri>`, ORG, map[string]any{"date": "2020-06-26"}},
 		{`a = "b"`, TOML, expect},
 		{`a: "b"`, YAML, expect},
 		{`<root><a>b</a></root>`, XML, expect},
 		{`a,b,c`, CSV, [][]string{{"a", "b", "c"}}},
-		{"a: Easy!\nb:\n  c: 2\n  d: [3, 4]", YAML, map[string]interface{}{"a": "Easy!", "b": map[string]interface{}{"c": 2, "d": []interface{}{3, 4}}}},
+		{"a: Easy!\nb:\n  c: 2\n  d: [3, 4]", YAML, map[string]any{"a": "Easy!", "b": map[string]any{"c": 2, "d": []any{3, 4}}}},
 		// errors
 		{`a = "`, TOML, false},
 	} {
@@ -149,20 +149,20 @@ func TestUnmarshalStringTo(t *testing.T) {
 
 	d := Default
 
-	expectMap := map[string]interface{}{"a": "b"}
+	expectMap := map[string]any{"a": "b"}
 
 	for i, test := range []struct {
 		data   string
-		to     interface{}
-		expect interface{}
+		to     any
+		expect any
 	}{
 		{"a string", "string", "a string"},
-		{`{ "a": "b" }`, make(map[string]interface{}), expectMap},
+		{`{ "a": "b" }`, make(map[string]any), expectMap},
 		{"32", int64(1234), int64(32)},
 		{"32", int(1234), int(32)},
 		{"3.14159", float64(1), float64(3.14159)},
-		{"[3,7,9]", []interface{}{}, []interface{}{3, 7, 9}},
-		{"[3.1,7.2,9.3]", []interface{}{}, []interface{}{3.1, 7.2, 9.3}},
+		{"[3,7,9]", []any{}, []any{3, 7, 9}},
+		{"[3.1,7.2,9.3]", []any{}, []any{3.1, 7.2, 9.3}},
 	} {
 		msg := qt.Commentf("%d: %T", i, test.to)
 		m, err := d.UnmarshalStringTo(test.data, test.to)
@@ -178,43 +178,43 @@ func TestUnmarshalStringTo(t *testing.T) {
 
 func TestStringifyYAMLMapKeys(t *testing.T) {
 	cases := []struct {
-		input    interface{}
-		want     interface{}
+		input    any
+		want     any
 		replaced bool
 	}{
 		{
-			map[interface{}]interface{}{"a": 1, "b": 2},
-			map[string]interface{}{"a": 1, "b": 2},
+			map[any]any{"a": 1, "b": 2},
+			map[string]any{"a": 1, "b": 2},
 			true,
 		},
 		{
-			map[interface{}]interface{}{"a": []interface{}{1, map[interface{}]interface{}{"b": 2}}},
-			map[string]interface{}{"a": []interface{}{1, map[string]interface{}{"b": 2}}},
+			map[any]any{"a": []any{1, map[any]any{"b": 2}}},
+			map[string]any{"a": []any{1, map[string]any{"b": 2}}},
 			true,
 		},
 		{
-			map[interface{}]interface{}{true: 1, "b": false},
-			map[string]interface{}{"true": 1, "b": false},
+			map[any]any{true: 1, "b": false},
+			map[string]any{"true": 1, "b": false},
 			true,
 		},
 		{
-			map[interface{}]interface{}{1: "a", 2: "b"},
-			map[string]interface{}{"1": "a", "2": "b"},
+			map[any]any{1: "a", 2: "b"},
+			map[string]any{"1": "a", "2": "b"},
 			true,
 		},
 		{
-			map[interface{}]interface{}{"a": map[interface{}]interface{}{"b": 1}},
-			map[string]interface{}{"a": map[string]interface{}{"b": 1}},
+			map[any]any{"a": map[any]any{"b": 1}},
+			map[string]any{"a": map[string]any{"b": 1}},
 			true,
 		},
 		{
-			map[string]interface{}{"a": map[string]interface{}{"b": 1}},
-			map[string]interface{}{"a": map[string]interface{}{"b": 1}},
+			map[string]any{"a": map[string]any{"b": 1}},
+			map[string]any{"a": map[string]any{"b": 1}},
 			false,
 		},
 		{
-			[]interface{}{map[interface{}]interface{}{1: "a", 2: "b"}},
-			[]interface{}{map[string]interface{}{"1": "a", "2": "b"}},
+			[]any{map[any]any{1: "a", 2: "b"}},
+			[]any{map[string]any{"1": "a", "2": "b"}},
 			false,
 		},
 	}
@@ -235,18 +235,18 @@ func TestStringifyYAMLMapKeys(t *testing.T) {
 }
 
 func BenchmarkStringifyMapKeysStringsOnlyInterfaceMaps(b *testing.B) {
-	maps := make([]map[interface{}]interface{}, b.N)
+	maps := make([]map[any]any, b.N)
 	for i := 0; i < b.N; i++ {
-		maps[i] = map[interface{}]interface{}{
-			"a": map[interface{}]interface{}{
+		maps[i] = map[any]any{
+			"a": map[any]any{
 				"b": 32,
 				"c": 43,
-				"d": map[interface{}]interface{}{
+				"d": map[any]any{
 					"b": 32,
 					"c": 43,
 				},
 			},
-			"b": []interface{}{"a", "b"},
+			"b": []any{"a", "b"},
 			"c": "d",
 		}
 	}
@@ -257,16 +257,16 @@ func BenchmarkStringifyMapKeysStringsOnlyInterfaceMaps(b *testing.B) {
 }
 
 func BenchmarkStringifyMapKeysStringsOnlyStringMaps(b *testing.B) {
-	m := map[string]interface{}{
-		"a": map[string]interface{}{
+	m := map[string]any{
+		"a": map[string]any{
 			"b": 32,
 			"c": 43,
-			"d": map[string]interface{}{
+			"d": map[string]any{
 				"b": 32,
 				"c": 43,
 			},
 		},
-		"b": []interface{}{"a", "b"},
+		"b": []any{"a", "b"},
 		"c": "d",
 	}
 
@@ -277,18 +277,18 @@ func BenchmarkStringifyMapKeysStringsOnlyStringMaps(b *testing.B) {
 }
 
 func BenchmarkStringifyMapKeysIntegers(b *testing.B) {
-	maps := make([]map[interface{}]interface{}, b.N)
+	maps := make([]map[any]any, b.N)
 	for i := 0; i < b.N; i++ {
-		maps[i] = map[interface{}]interface{}{
-			1: map[interface{}]interface{}{
+		maps[i] = map[any]any{
+			1: map[any]any{
 				4: 32,
 				5: 43,
-				6: map[interface{}]interface{}{
+				6: map[any]any{
 					7: 32,
 					8: 43,
 				},
 			},
-			2: []interface{}{"a", "b"},
+			2: []any{"a", "b"},
 			3: "d",
 		}
 	}

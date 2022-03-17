@@ -184,7 +184,7 @@ a = "b"
 	})
 
 	c.Run("Map input", func(c *qt.C) {
-		input := map[string]interface{}{
+		input := map[string]any{
 			"hello": "world",
 		}
 

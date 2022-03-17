@@ -30,8 +30,8 @@ func TestBase64Decode(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
-		v      interface{}
-		expect interface{}
+		v      any
+		expect any
 	}{
 		{"YWJjMTIzIT8kKiYoKSctPUB+", "abc123!?$*&()'-=@~"},
 		// errors
@@ -57,8 +57,8 @@ func TestBase64Encode(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
-		v      interface{}
-		expect interface{}
+		v      any
+		expect any
 	}{
 		{"YWJjMTIzIT8kKiYoKSctPUB+", "WVdKak1USXpJVDhrS2lZb0tTY3RQVUIr"},
 		// errors
@@ -83,9 +83,9 @@ func TestJsonify(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
-		opts   interface{}
-		v      interface{}
-		expect interface{}
+		opts   any
+		v      any
+		expect any
 	}{
 		{nil, []string{"a", "b"}, template.HTML(`["a","b"]`)},
 		{map[string]string{"indent": "<i>"}, []string{"a", "b"}, template.HTML("[\n<i>\"a\",\n<i>\"b\"\n]")},
@@ -97,7 +97,7 @@ func TestJsonify(t *testing.T) {
 		{nil, math.NaN(), false},
 		{tstNoStringer{}, []string{"a", "b"}, false},
 	} {
-		args := []interface{}{}
+		args := []any{}
 
 		if test.opts != nil {
 			args = append(args, test.opts)

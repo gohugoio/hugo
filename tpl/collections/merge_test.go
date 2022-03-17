@@ -29,56 +29,56 @@ import (
 func TestMerge(t *testing.T) {
 	ns := New(&deps.Deps{})
 
-	simpleMap := map[string]interface{}{"a": 1, "b": 2}
+	simpleMap := map[string]any{"a": 1, "b": 2}
 
 	for i, test := range []struct {
 		name   string
-		params []interface{}
-		expect interface{}
+		params []any
+		expect any
 		isErr  bool
 	}{
 		{
 			"basic",
-			[]interface{}{
-				map[string]interface{}{"a": 42, "c": 3},
-				map[string]interface{}{"a": 1, "b": 2},
+			[]any{
+				map[string]any{"a": 42, "c": 3},
+				map[string]any{"a": 1, "b": 2},
 			},
-			map[string]interface{}{"a": 1, "b": 2, "c": 3},
+			map[string]any{"a": 1, "b": 2, "c": 3},
 			false,
 		},
 		{
 			"multi",
-			[]interface{}{
-				map[string]interface{}{"a": 42, "c": 3, "e": 11},
-				map[string]interface{}{"a": 1, "b": 2},
-				map[string]interface{}{"a": 9, "c": 4, "d": 7},
+			[]any{
+				map[string]any{"a": 42, "c": 3, "e": 11},
+				map[string]any{"a": 1, "b": 2},
+				map[string]any{"a": 9, "c": 4, "d": 7},
 			},
-			map[string]interface{}{"a": 9, "b": 2, "c": 4, "d": 7, "e": 11},
+			map[string]any{"a": 9, "b": 2, "c": 4, "d": 7, "e": 11},
 			false,
 		},
 		{
 			"basic case insensitive",
-			[]interface{}{
-				map[string]interface{}{"A": 42, "c": 3},
-				map[string]interface{}{"a": 1, "b": 2},
+			[]any{
+				map[string]any{"A": 42, "c": 3},
+				map[string]any{"a": 1, "b": 2},
 			},
-			map[string]interface{}{"a": 1, "b": 2, "c": 3},
+			map[string]any{"a": 1, "b": 2, "c": 3},
 			false,
 		},
 		{
 			"nested",
-			[]interface{}{
-				map[string]interface{}{"a": 42, "c": 3, "b": map[string]interface{}{"d": 55, "e": 66, "f": 3}},
-				map[string]interface{}{"a": 1, "b": map[string]interface{}{"d": 1, "e": 2}},
+			[]any{
+				map[string]any{"a": 42, "c": 3, "b": map[string]any{"d": 55, "e": 66, "f": 3}},
+				map[string]any{"a": 1, "b": map[string]any{"d": 1, "e": 2}},
 			},
-			map[string]interface{}{"a": 1, "b": map[string]interface{}{"d": 1, "e": 2, "f": 3}, "c": 3},
+			map[string]any{"a": 1, "b": map[string]any{"d": 1, "e": 2, "f": 3}, "c": 3},
 			false,
 		},
 		{
 			// https://github.com/gohugoio/hugo/issues/6633
 			"params dst",
-			[]interface{}{
-				map[string]interface{}{"a": 42, "c": 3},
+			[]any{
+				map[string]any{"a": 42, "c": 3},
 				maps.Params{"a": 1, "b": 2},
 			},
 			maps.Params{"a": int(1), "b": int(2), "c": int(3)},
@@ -86,8 +86,8 @@ func TestMerge(t *testing.T) {
 		},
 		{
 			"params dst, upper case src",
-			[]interface{}{
-				map[string]interface{}{"a": 42, "C": 3},
+			[]any{
+				map[string]any{"a": 42, "C": 3},
 				maps.Params{"a": 1, "b": 2},
 			},
 			maps.Params{"a": int(1), "b": int(2), "c": int(3)},
@@ -95,26 +95,26 @@ func TestMerge(t *testing.T) {
 		},
 		{
 			"params src",
-			[]interface{}{
+			[]any{
 				maps.Params{"a": 42, "c": 3},
-				map[string]interface{}{"a": 1, "c": 2},
+				map[string]any{"a": 1, "c": 2},
 			},
-			map[string]interface{}{"a": int(1), "c": int(2)},
+			map[string]any{"a": int(1), "c": int(2)},
 			false,
 		},
 		{
 			"params src, upper case dst",
-			[]interface{}{
+			[]any{
 				maps.Params{"a": 42, "c": 3},
-				map[string]interface{}{"a": 1, "C": 2},
+				map[string]any{"a": 1, "C": 2},
 			},
-			map[string]interface{}{"a": int(1), "C": int(2)},
+			map[string]any{"a": int(1), "C": int(2)},
 			false,
 		},
 		{
 			"nested, params dst",
-			[]interface{}{
-				map[string]interface{}{"a": 42, "c": 3, "b": map[string]interface{}{"d": 55, "e": 66, "f": 3}},
+			[]any{
+				map[string]any{"a": 42, "c": 3, "b": map[string]any{"d": 55, "e": 66, "f": 3}},
 				maps.Params{"a": 1, "b": maps.Params{"d": 1, "e": 2}},
 			},
 			maps.Params{"a": 1, "b": maps.Params{"d": 1, "e": 2, "f": 3}, "c": 3},
@@ -123,19 +123,19 @@ func TestMerge(t *testing.T) {
 		{
 			// https://github.com/gohugoio/hugo/issues/7899
 			"matching keys with non-map src value",
-			[]interface{}{
-				map[string]interface{}{"k": "v"},
-				map[string]interface{}{"k": map[string]interface{}{"k2": "v2"}},
+			[]any{
+				map[string]any{"k": "v"},
+				map[string]any{"k": map[string]any{"k2": "v2"}},
 			},
-			map[string]interface{}{"k": map[string]interface{}{"k2": "v2"}},
+			map[string]any{"k": map[string]any{"k2": "v2"}},
 			false,
 		},
-		{"src nil", []interface{}{nil, simpleMap}, simpleMap, false},
+		{"src nil", []any{nil, simpleMap}, simpleMap, false},
 		// Error cases.
-		{"dst not a map", []interface{}{nil, "not a map"}, nil, true},
-		{"src not a map", []interface{}{"not a map", simpleMap}, nil, true},
-		{"different map types", []interface{}{map[int]interface{}{32: "a"}, simpleMap}, nil, true},
-		{"all nil", []interface{}{nil, nil}, nil, true},
+		{"dst not a map", []any{nil, "not a map"}, nil, true},
+		{"src not a map", []any{"not a map", simpleMap}, nil, true},
+		{"different map types", []any{map[int]any{32: "a"}, simpleMap}, nil, true},
+		{"all nil", []any{nil, nil}, nil, true},
 	} {
 
 		test := test
@@ -205,9 +205,9 @@ V22 = "v22_2"
 		c.Assert(
 			merged,
 			qt.DeepEquals,
-			map[string]interface{}{
+			map[string]any{
 				"V1": "v1_1", "V2": "v2_2",
-				"V2s": map[string]interface{}{"V21": "v21_1", "V22": "v22_2"},
+				"V2s": map[string]any{"V21": "v21_1", "V22": "v22_2"},
 			})
 	}
 }
@@ -215,12 +215,12 @@ V22 = "v22_2"
 func TestCaseInsensitiveMapLookup(t *testing.T) {
 	c := qt.New(t)
 
-	m1 := reflect.ValueOf(map[string]interface{}{
+	m1 := reflect.ValueOf(map[string]any{
 		"a": 1,
 		"B": 2,
 	})
 
-	m2 := reflect.ValueOf(map[int]interface{}{
+	m2 := reflect.ValueOf(map[int]any{
 		1: 1,
 		2: 2,
 	})

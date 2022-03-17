@@ -24,7 +24,7 @@ import (
 )
 
 // Where returns a filtered subset of a given data type.
-func (ns *Namespace) Where(seq, key interface{}, args ...interface{}) (interface{}, error) {
+func (ns *Namespace) Where(seq, key any, args ...any) (any, error) {
 	seqv, isNil := indirect(reflect.ValueOf(seq))
 	if isNil {
 		return nil, errors.New("can't iterate over a nil value of type " + reflect.ValueOf(seq).Type().String())
@@ -84,7 +84,7 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 	var ivp, imvp *int64
 	var fvp, fmvp *float64
 	var svp, smvp *string
-	var slv, slmv interface{}
+	var slv, slmv any
 	var ima []int64
 	var fma []float64
 	var sma []string
@@ -353,7 +353,7 @@ func evaluateSubElem(obj reflect.Value, elemName string) (reflect.Value, error) 
 
 // parseWhereArgs parses the end arguments to the where function.  Return a
 // match value and an operator, if one is defined.
-func parseWhereArgs(args ...interface{}) (mv reflect.Value, op string, err error) {
+func parseWhereArgs(args ...any) (mv reflect.Value, op string, err error) {
 	switch len(args) {
 	case 1:
 		mv = reflect.ValueOf(args[0])
@@ -373,7 +373,7 @@ func parseWhereArgs(args ...interface{}) (mv reflect.Value, op string, err error
 
 // checkWhereArray handles the where-matching logic when the seqv value is an
 // Array or Slice.
-func (ns *Namespace) checkWhereArray(seqv, kv, mv reflect.Value, path []string, op string) (interface{}, error) {
+func (ns *Namespace) checkWhereArray(seqv, kv, mv reflect.Value, path []string, op string) (any, error) {
 	rv := reflect.MakeSlice(seqv.Type(), 0, 0)
 
 	for i := 0; i < seqv.Len(); i++ {
@@ -419,7 +419,7 @@ func (ns *Namespace) checkWhereArray(seqv, kv, mv reflect.Value, path []string, 
 }
 
 // checkWhereMap handles the where-matching logic when the seqv value is a Map.
-func (ns *Namespace) checkWhereMap(seqv, kv, mv reflect.Value, path []string, op string) (interface{}, error) {
+func (ns *Namespace) checkWhereMap(seqv, kv, mv reflect.Value, path []string, op string) (any, error) {
 	rv := reflect.MakeMap(seqv.Type())
 	keys := seqv.MapKeys()
 	for _, k := range keys {

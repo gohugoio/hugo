@@ -48,7 +48,7 @@ type ExecHelper interface {
 
 // Executer executes a given template.
 type Executer interface {
-	ExecuteWithContext(ctx context.Context, p Preparer, wr io.Writer, data interface{}) error
+	ExecuteWithContext(ctx context.Context, p Preparer, wr io.Writer, data any) error
 }
 
 type executer struct {
@@ -72,7 +72,7 @@ const (
 )
 
 // Note: The context is currently not fully implemeted in Hugo. This is a work in progress.
-func (t *executer) ExecuteWithContext(ctx context.Context, p Preparer, wr io.Writer, data interface{}) error {
+func (t *executer) ExecuteWithContext(ctx context.Context, p Preparer, wr io.Writer, data any) error {
 	tmpl, err := p.Prepare()
 	if err != nil {
 		return err
@@ -101,7 +101,7 @@ func (t *executer) ExecuteWithContext(ctx context.Context, p Preparer, wr io.Wri
 	return tmpl.executeWithState(state, value)
 }
 
-func (t *executer) Execute(p Preparer, wr io.Writer, data interface{}) error {
+func (t *executer) Execute(p Preparer, wr io.Writer, data any) error {
 	tmpl, err := p.Prepare()
 	if err != nil {
 		return err

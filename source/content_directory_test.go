@@ -29,7 +29,7 @@ func TestIgnoreDotFilesAndDirectories(t *testing.T) {
 	tests := []struct {
 		path                string
 		ignore              bool
-		ignoreFilesRegexpes interface{}
+		ignoreFilesRegexpes any
 	}{
 		{".foobar/", true, nil},
 		{"foobar/.barfoo/", true, nil},

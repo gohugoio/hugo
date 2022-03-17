@@ -27,8 +27,8 @@ func TestToInt(t *testing.T) {
 	ns := New()
 
 	for i, test := range []struct {
-		v      interface{}
-		expect interface{}
+		v      any
+		expect any
 	}{
 		{"1", 1},
 		{template.HTML("2"), 2},
@@ -59,8 +59,8 @@ func TestToString(t *testing.T) {
 	ns := New()
 
 	for i, test := range []struct {
-		v      interface{}
-		expect interface{}
+		v      any
+		expect any
 	}{
 		{1, "1"},
 		{template.HTML("2"), "2"},
@@ -87,8 +87,8 @@ func TestToFloat(t *testing.T) {
 	ns := New()
 
 	for i, test := range []struct {
-		v      interface{}
-		expect interface{}
+		v      any
+		expect any
 	}{
 		{"1", 1.0},
 		{template.HTML("2"), 2.0},

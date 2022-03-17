@@ -57,7 +57,7 @@ func New(rs *resources.Spec) *Client {
 	return &Client{rs: rs}
 }
 
-func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
+func DecodeOptions(m map[string]any) (opts Options, err error) {
 	if m == nil {
 		return
 	}
@@ -165,11 +165,11 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 		}
 	}
 
-	var cmdArgs []interface{}
+	var cmdArgs []any
 
 	if configFile != "" {
 		logger.Infoln("postcss: use config file", configFile)
-		cmdArgs = []interface{}{"--config", configFile}
+		cmdArgs = []any{"--config", configFile}
 	}
 
 	if optArgs := t.options.toArgs(); len(optArgs) > 0 {

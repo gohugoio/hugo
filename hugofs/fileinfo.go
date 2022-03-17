@@ -188,7 +188,7 @@ func (fi *dirNameOnlyFileInfo) IsDir() bool {
 	return true
 }
 
-func (fi *dirNameOnlyFileInfo) Sys() interface{} {
+func (fi *dirNameOnlyFileInfo) Sys() any {
 	return nil
 }
 

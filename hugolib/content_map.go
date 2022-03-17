@@ -83,7 +83,7 @@ func newContentMap(cfg contentMapConfig) *contentMap {
 		m.sections, m.taxonomies,
 	}
 
-	addToReverseMap := func(k string, n *contentNode, m map[interface{}]*contentNode) {
+	addToReverseMap := func(k string, n *contentNode, m map[any]*contentNode) {
 		k = strings.ToLower(k)
 		existing, found := m[k]
 		if found && existing != ambiguousContentNode {
@@ -96,8 +96,8 @@ func newContentMap(cfg contentMapConfig) *contentMap {
 	m.pageReverseIndex = &contentTreeReverseIndex{
 		t: []*contentTree{m.pages, m.sections, m.taxonomies},
 		contentTreeReverseIndexMap: &contentTreeReverseIndexMap{
-			initFn: func(t *contentTree, m map[interface{}]*contentNode) {
-				t.Walk(func(s string, v interface{}) bool {
+			initFn: func(t *contentTree, m map[any]*contentNode) {
+				t.Walk(func(s string, v any) bool {
 					n := v.(*contentNode)
 					if n.p != nil && !n.p.File().IsZero() {
 						meta := n.p.File().FileInfo().Meta()
@@ -396,7 +396,7 @@ func (m *contentMap) AddFilesBundle(header hugofs.FileMetaInfo, resources ...hug
 
 func (m *contentMap) CreateMissingNodes() error {
 	// Create missing home and root sections
-	rootSections := make(map[string]interface{})
+	rootSections := make(map[string]any)
 	trackRootSection := func(s string, b *contentNode) {
 		parts := strings.Split(s, "/")
 		if len(parts) > 2 {
@@ -409,7 +409,7 @@ func (m *contentMap) CreateMissingNodes() error {
 		}
 	}
 
-	m.sections.Walk(func(s string, v interface{}) bool {
+	m.sections.Walk(func(s string, v any) bool {
 		n := v.(*contentNode)
 
 		if s == "/" {
@@ -420,7 +420,7 @@ func (m *contentMap) CreateMissingNodes() error {
 		return false
 	})
 
-	m.pages.Walk(func(s string, v interface{}) bool {
+	m.pages.Walk(func(s string, v any) bool {
 		trackRootSection(s, v.(*contentNode))
 		return false
 	})
@@ -614,7 +614,7 @@ func (m *contentMap) deleteBundleMatching(matches func(b *contentNode) bool) {
 func (m *contentMap) deleteOrphanSections() {
 	var sectionsToDelete []string
 
-	m.sections.Walk(func(s string, v interface{}) bool {
+	m.sections.Walk(func(s string, v any) bool {
 		n := v.(*contentNode)
 
 		if n.fi != nil {
@@ -658,7 +658,7 @@ func (m *contentMap) deleteSectionByPath(s string) {
 }
 
 func (m *contentMap) deletePageByPath(s string) {
-	m.pages.Walk(func(s string, v interface{}) bool {
+	m.pages.Walk(func(s string, v any) bool {
 		fmt.Println("S", s)
 
 		return false
@@ -689,14 +689,14 @@ func (m *contentMap) testDump() string {
 
 	for i, r := range []*contentTree{m.pages, m.sections, m.resources} {
 		sb.WriteString(fmt.Sprintf("Tree %d:\n", i))
-		r.Walk(func(s string, v interface{}) bool {
+		r.Walk(func(s string, v any) bool {
 			sb.WriteString("\t" + s + "\n")
 			return false
 		})
 	}
 
 	for i, r := range []*contentTree{m.pages, m.sections} {
-		r.Walk(func(s string, v interface{}) bool {
+		r.Walk(func(s string, v any) bool {
 			c := v.(*contentNode)
 			cpToString := func(c *contentNode) string {
 				var sb strings.Builder
@@ -715,13 +715,13 @@ func (m *contentMap) testDump() string {
 			if i == 1 {
 				resourcesPrefix += cmLeafSeparator
 
-				m.pages.WalkPrefix(s+cmBranchSeparator, func(s string, v interface{}) bool {
+				m.pages.WalkPrefix(s+cmBranchSeparator, func(s string, v any) bool {
 					sb.WriteString("\t - P: " + filepath.ToSlash((v.(*contentNode).fi.(hugofs.FileMetaInfo)).Meta().Filename) + "\n")
 					return false
 				})
 			}
 
-			m.resources.WalkPrefix(resourcesPrefix, func(s string, v interface{}) bool {
+			m.resources.WalkPrefix(resourcesPrefix, func(s string, v any) bool {
 				sb.WriteString("\t - R: " + filepath.ToSlash((v.(*contentNode).fi.(hugofs.FileMetaInfo)).Meta().Filename) + "\n")
 				return false
 			})
@@ -791,7 +791,7 @@ type contentTrees []*contentTree
 func (t contentTrees) DeletePrefix(prefix string) int {
 	var count int
 	for _, tree := range t {
-		tree.Walk(func(s string, v interface{}) bool {
+		tree.Walk(func(s string, v any) bool {
 			return false
 		})
 		count += tree.DeletePrefix(prefix)
@@ -836,7 +836,7 @@ func (c *contentTree) WalkQuery(query pageMapQuery, walkFn contentTreeNodeCallba
 		filter = contentTreeNoListAlwaysFilter
 	}
 	if query.Prefix != "" {
-		c.WalkBelow(query.Prefix, func(s string, v interface{}) bool {
+		c.WalkBelow(query.Prefix, func(s string, v any) bool {
 			n := v.(*contentNode)
 			if filter != nil && filter(s, n) {
 				return false
@@ -847,7 +847,7 @@ func (c *contentTree) WalkQuery(query pageMapQuery, walkFn contentTreeNodeCallba
 		return
 	}
 
-	c.Walk(func(s string, v interface{}) bool {
+	c.Walk(func(s string, v any) bool {
 		n := v.(*contentNode)
 		if filter != nil && filter(s, n) {
 			return false
@@ -872,7 +872,7 @@ func (c contentTrees) WalkLinkable(fn contentTreeNodeCallback) {
 
 func (c contentTrees) Walk(fn contentTreeNodeCallback) {
 	for _, tree := range c {
-		tree.Walk(func(s string, v interface{}) bool {
+		tree.Walk(func(s string, v any) bool {
 			n := v.(*contentNode)
 			return fn(s, n)
 		})
@@ -881,7 +881,7 @@ func (c contentTrees) Walk(fn contentTreeNodeCallback) {
 
 func (c contentTrees) WalkPrefix(prefix string, fn contentTreeNodeCallback) {
 	for _, tree := range c {
-		tree.WalkPrefix(prefix, func(s string, v interface{}) bool {
+		tree.WalkPrefix(prefix, func(s string, v any) bool {
 			n := v.(*contentNode)
 			return fn(s, n)
 		})
@@ -891,7 +891,7 @@ func (c contentTrees) WalkPrefix(prefix string, fn contentTreeNodeCallback) {
 // WalkBelow walks the tree below the given prefix, i.e. it skips the
 // node with the given prefix as key.
 func (c *contentTree) WalkBelow(prefix string, fn radix.WalkFn) {
-	c.Tree.WalkPrefix(prefix, func(s string, v interface{}) bool {
+	c.Tree.WalkPrefix(prefix, func(s string, v any) bool {
 		if s == prefix {
 			return false
 		}
@@ -901,7 +901,7 @@ func (c *contentTree) WalkBelow(prefix string, fn radix.WalkFn) {
 
 func (c *contentTree) getMatch(matches func(b *contentNode) bool) string {
 	var match string
-	c.Walk(func(s string, v interface{}) bool {
+	c.Walk(func(s string, v any) bool {
 		n, ok := v.(*contentNode)
 		if !ok {
 			return false
@@ -920,7 +920,7 @@ func (c *contentTree) getMatch(matches func(b *contentNode) bool) string {
 
 func (c *contentTree) hasBelow(s1 string) bool {
 	var t bool
-	c.WalkBelow(s1, func(s2 string, v interface{}) bool {
+	c.WalkBelow(s1, func(s2 string, v any) bool {
 		t = true
 		return true
 	})
@@ -928,14 +928,14 @@ func (c *contentTree) hasBelow(s1 string) bool {
 }
 
 func (c *contentTree) printKeys() {
-	c.Walk(func(s string, v interface{}) bool {
+	c.Walk(func(s string, v any) bool {
 		fmt.Println(s)
 		return false
 	})
 }
 
 func (c *contentTree) printKeysPrefix(prefix string) {
-	c.WalkPrefix(prefix, func(s string, v interface{}) bool {
+	c.WalkPrefix(prefix, func(s string, v any) bool {
 		fmt.Println(s)
 		return false
 	})
@@ -1040,9 +1040,9 @@ type contentTreeReverseIndex struct {
 }
 
 type contentTreeReverseIndexMap struct {
-	m      map[interface{}]*contentNode
+	m      map[any]*contentNode
 	init   sync.Once
-	initFn func(*contentTree, map[interface{}]*contentNode)
+	initFn func(*contentTree, map[any]*contentNode)
 }
 
 func (c *contentTreeReverseIndex) Reset() {
@@ -1051,9 +1051,9 @@ func (c *contentTreeReverseIndex) Reset() {
 	}
 }
 
-func (c *contentTreeReverseIndex) Get(key interface{}) *contentNode {
+func (c *contentTreeReverseIndex) Get(key any) *contentNode {
 	c.init.Do(func() {
-		c.m = make(map[interface{}]*contentNode)
+		c.m = make(map[any]*contentNode)
 		for _, tree := range c.t {
 			c.initFn(tree, c.m)
 		}

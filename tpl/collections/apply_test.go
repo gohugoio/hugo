@@ -48,11 +48,11 @@ func (templateFinder) LookupLayout(d output.LayoutDescriptor, f output.Format) (
 	return nil, false, nil
 }
 
-func (templateFinder) Execute(t tpl.Template, wr io.Writer, data interface{}) error {
+func (templateFinder) Execute(t tpl.Template, wr io.Writer, data any) error {
 	return nil
 }
 
-func (templateFinder) ExecuteWithContext(ctx context.Context, t tpl.Template, wr io.Writer, data interface{}) error {
+func (templateFinder) ExecuteWithContext(ctx context.Context, t tpl.Template, wr io.Writer, data any) error {
 	return nil
 }
 
@@ -71,13 +71,13 @@ func TestApply(t *testing.T) {
 	d.SetTmpl(new(templateFinder))
 	ns := New(d)
 
-	strings := []interface{}{"a\n", "b\n"}
+	strings := []any{"a\n", "b\n"}
 
 	ctx := context.Background()
 
 	result, err := ns.Apply(ctx, strings, "print", "a", "b", "c")
 	c.Assert(err, qt.IsNil)
-	c.Assert(result, qt.DeepEquals, []interface{}{"abc", "abc"})
+	c.Assert(result, qt.DeepEquals, []any{"abc", "abc"})
 
 	_, err = ns.Apply(ctx, strings, "apply", ".")
 	c.Assert(err, qt.Not(qt.IsNil))

@@ -107,7 +107,7 @@ PRINT PROTOCOL ERROR1: error calling resources.GetRemote: Get "gopher://example.
 PRINT PROTOCOL ERROR2: error calling resources.GetRemote: Get "gopher://example.org": unsupported protocol scheme "gopher"
 
 
-`, helpers.HashString(ts.URL+"/sunset.jpg", map[string]interface{}{})))
+`, helpers.HashString(ts.URL+"/sunset.jpg", map[string]any{})))
 
 		b.AssertFileContent("public/styles.min.a1df58687c3c9cc38bf26532f7b4b2f2c2b0315dcde212376959995c04f11fef.css", "body{background-color:#add8e6}")
 		b.AssertFileContent("public//styles2.min.1cfc52986836405d37f9998a63fd6dd8608e8c410e5e3db1daaa30f78bc273ba.css", "body{background-color:orange}")

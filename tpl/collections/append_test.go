@@ -29,20 +29,20 @@ func TestAppend(t *testing.T) {
 	ns := New(&deps.Deps{})
 
 	for i, test := range []struct {
-		start    interface{}
-		addend   []interface{}
-		expected interface{}
+		start    any
+		addend   []any
+		expected any
 	}{
-		{[]string{"a", "b"}, []interface{}{"c"}, []string{"a", "b", "c"}},
-		{[]string{"a", "b"}, []interface{}{"c", "d", "e"}, []string{"a", "b", "c", "d", "e"}},
-		{[]string{"a", "b"}, []interface{}{[]string{"c", "d", "e"}}, []string{"a", "b", "c", "d", "e"}},
+		{[]string{"a", "b"}, []any{"c"}, []string{"a", "b", "c"}},
+		{[]string{"a", "b"}, []any{"c", "d", "e"}, []string{"a", "b", "c", "d", "e"}},
+		{[]string{"a", "b"}, []any{[]string{"c", "d", "e"}}, []string{"a", "b", "c", "d", "e"}},
 		// Errors
-		{"", []interface{}{[]string{"a", "b"}}, false},
-		{[]string{"a", "b"}, []interface{}{}, false},
+		{"", []any{[]string{"a", "b"}}, false},
+		{[]string{"a", "b"}, []any{}, false},
 		// No string concatenation.
 		{
 			"ab",
-			[]interface{}{"c"},
+			[]any{"c"},
 			false,
 		},
 	} {

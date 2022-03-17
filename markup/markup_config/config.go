@@ -67,7 +67,7 @@ func Decode(cfg config.Provider) (conf Config, err error) {
 	return
 }
 
-func normalizeConfig(m map[string]interface{}) {
+func normalizeConfig(m map[string]any) {
 	v, err := maps.GetNestedParam("goldmark.parser", ".", m)
 	if err != nil {
 		return
@@ -117,7 +117,7 @@ var Default = Config{
 
 func init() {
 	docsProvider := func() docshelper.DocProvider {
-		return docshelper.DocProvider{"config": map[string]interface{}{"markup": parser.LowerCaseCamelJSONMarshaller{Value: Default}}}
+		return docshelper.DocProvider{"config": map[string]any{"markup": parser.LowerCaseCamelJSONMarshaller{Value: Default}}}
 	}
 	docshelper.AddDocProviderFunc(docsProvider)
 }

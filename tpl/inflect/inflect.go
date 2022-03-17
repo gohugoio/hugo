@@ -38,7 +38,7 @@ type Namespace struct{}
 //     Example:  "my-first-post" -> "My first post"
 //     Example:  "103" -> "103rd"
 //     Example:  52 -> "52nd"
-func (ns *Namespace) Humanize(in interface{}) (string, error) {
+func (ns *Namespace) Humanize(in any) (string, error) {
 	word, err := cast.ToStringE(in)
 	if err != nil {
 		return "", err
@@ -59,7 +59,7 @@ func (ns *Namespace) Humanize(in interface{}) (string, error) {
 }
 
 // Pluralize returns the plural form of a single word.
-func (ns *Namespace) Pluralize(in interface{}) (string, error) {
+func (ns *Namespace) Pluralize(in any) (string, error) {
 	word, err := cast.ToStringE(in)
 	if err != nil {
 		return "", err
@@ -69,7 +69,7 @@ func (ns *Namespace) Pluralize(in interface{}) (string, error) {
 }
 
 // Singularize returns the singular form of a single word.
-func (ns *Namespace) Singularize(in interface{}) (string, error) {
+func (ns *Namespace) Singularize(in any) (string, error) {
 	word, err := cast.ToStringE(in)
 	if err != nil {
 		return "", err

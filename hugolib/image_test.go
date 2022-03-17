@@ -37,7 +37,7 @@ func TestImageOps(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	defer clean()
 
-	newBuilder := func(timeout interface{}) *sitesBuilder {
+	newBuilder := func(timeout any) *sitesBuilder {
 		v := config.New()
 		v.Set("workingDir", workDir)
 		v.Set("baseURL", "https://example.org")

@@ -33,7 +33,7 @@ func (i Item) ValStr() string {
 	return string(i.Val)
 }
 
-func (i Item) ValTyped() interface{} {
+func (i Item) ValTyped() any {
 	str := i.ValStr()
 	if i.isString {
 		// A quoted value that is a string even if it looks like a number etc.

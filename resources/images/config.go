@@ -131,9 +131,9 @@ var defaultImaging = Imaging{
 	Quality:        defaultJPEGQuality,
 }
 
-func DecodeConfig(m map[string]interface{}) (ImagingConfig, error) {
+func DecodeConfig(m map[string]any) (ImagingConfig, error) {
 	if m == nil {
-		m = make(map[string]interface{})
+		m = make(map[string]any)
 	}
 
 	i := ImagingConfig{

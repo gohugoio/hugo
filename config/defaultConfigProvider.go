@@ -84,7 +84,7 @@ type defaultConfigProvider struct {
 	keyCache sync.Map
 }
 
-func (c *defaultConfigProvider) Get(k string) interface{} {
+func (c *defaultConfigProvider) Get(k string) any {
 	if k == "" {
 		return c.root
 	}
@@ -133,7 +133,7 @@ func (c *defaultConfigProvider) GetParams(k string) maps.Params {
 	return v.(maps.Params)
 }
 
-func (c *defaultConfigProvider) GetStringMap(k string) map[string]interface{} {
+func (c *defaultConfigProvider) GetStringMap(k string) map[string]any {
 	v := c.Get(k)
 	return maps.ToStringMap(v)
 }
@@ -148,7 +148,7 @@ func (c *defaultConfigProvider) GetStringSlice(k string) []string {
 	return cast.ToStringSlice(v)
 }
 
-func (c *defaultConfigProvider) Set(k string, v interface{}) {
+func (c *defaultConfigProvider) Set(k string, v any) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -166,7 +166,7 @@ func (c *defaultConfigProvider) Set(k string, v interface{}) {
 	}
 
 	switch vv := v.(type) {
-	case map[string]interface{}, map[interface{}]interface{}, map[string]string:
+	case map[string]any, map[any]any, map[string]string:
 		p := maps.MustToParamsAndPrepare(vv)
 		v = p
 	}
@@ -198,7 +198,7 @@ func (c *defaultConfigProvider) SetDefaults(params maps.Params) {
 	}
 }
 
-func (c *defaultConfigProvider) Merge(k string, v interface{}) {
+func (c *defaultConfigProvider) Merge(k string, v any) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	k = strings.ToLower(k)
@@ -289,7 +289,7 @@ func (c *defaultConfigProvider) Merge(k string, v interface{}) {
 	}
 
 	switch vv := v.(type) {
-	case map[string]interface{}, map[interface{}]interface{}, map[string]string:
+	case map[string]any, map[any]any, map[string]string:
 		p := maps.MustToParamsAndPrepare(vv)
 		v = p
 	}

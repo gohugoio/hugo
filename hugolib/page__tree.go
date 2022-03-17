@@ -25,7 +25,7 @@ type pageTree struct {
 	p *pageState
 }
 
-func (pt pageTree) IsAncestor(other interface{}) (bool, error) {
+func (pt pageTree) IsAncestor(other any) (bool, error) {
 	if pt.p == nil {
 		return false, nil
 	}
@@ -71,7 +71,7 @@ func (pt pageTree) CurrentSection() page.Page {
 	return p.Parent()
 }
 
-func (pt pageTree) IsDescendant(other interface{}) (bool, error) {
+func (pt pageTree) IsDescendant(other any) (bool, error) {
 	if pt.p == nil {
 		return false, nil
 	}
@@ -125,7 +125,7 @@ func (pt pageTree) FirstSection() page.Page {
 	return b.p
 }
 
-func (pt pageTree) InSection(other interface{}) (bool, error) {
+func (pt pageTree) InSection(other any) (bool, error) {
 	if pt.p == nil || types.IsNil(other) {
 		return false, nil
 	}

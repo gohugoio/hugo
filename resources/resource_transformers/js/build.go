@@ -54,7 +54,7 @@ func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) *Client {
 }
 
 type buildTransformation struct {
-	optsm map[string]interface{}
+	optsm map[string]any
 	c     *Client
 }
 
@@ -205,7 +205,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 }
 
 // Process process esbuild transform
-func (c *Client) Process(res resources.ResourceTransformer, opts map[string]interface{}) (resource.Resource, error) {
+func (c *Client) Process(res resources.ResourceTransformer, opts map[string]any) (resource.Resource, error) {
 	return res.Transform(
 		&buildTransformation{c: c, optsm: opts},
 	)

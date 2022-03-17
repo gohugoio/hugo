@@ -53,7 +53,7 @@ func createDefaultOutputFormats(allFormats output.Formats) map[string]output.For
 	return m
 }
 
-func createSiteOutputFormats(allFormats output.Formats, outputs map[string]interface{}, rssDisabled bool) (map[string]output.Formats, error) {
+func createSiteOutputFormats(allFormats output.Formats, outputs map[string]any, rssDisabled bool) (map[string]output.Formats, error) {
 	defaultOutputFormats := createDefaultOutputFormats(allFormats)
 
 	if outputs == nil {

@@ -32,7 +32,7 @@ type Filters struct {
 }
 
 // Overlay creates a filter that overlays src at position x y.
-func (*Filters) Overlay(src ImageSource, x, y interface{}) gift.Filter {
+func (*Filters) Overlay(src ImageSource, x, y any) gift.Filter {
 	return filter{
 		Options: newFilterOpts(src.Key(), x, y),
 		Filter:  overlayFilter{src: src, x: cast.ToInt(x), y: cast.ToInt(y)},
@@ -40,7 +40,7 @@ func (*Filters) Overlay(src ImageSource, x, y interface{}) gift.Filter {
 }
 
 // Text creates a filter that draws text with the given options.
-func (*Filters) Text(text string, options ...interface{}) gift.Filter {
+func (*Filters) Text(text string, options ...any) gift.Filter {
 	tf := textFilter{
 		text:        text,
 		color:       "#ffffff",
@@ -95,7 +95,7 @@ func (*Filters) Text(text string, options ...interface{}) gift.Filter {
 
 // Brightness creates a filter that changes the brightness of an image.
 // The percentage parameter must be in range (-100, 100).
-func (*Filters) Brightness(percentage interface{}) gift.Filter {
+func (*Filters) Brightness(percentage any) gift.Filter {
 	return filter{
 		Options: newFilterOpts(percentage),
 		Filter:  gift.Brightness(cast.ToFloat32(percentage)),
@@ -104,7 +104,7 @@ func (*Filters) Brightness(percentage interface{}) gift.Filter {
 
 // ColorBalance creates a filter that changes the color balance of an image.
 // The percentage parameters for each color channel (red, green, blue) must be in range (-100, 500).
-func (*Filters) ColorBalance(percentageRed, percentageGreen, percentageBlue interface{}) gift.Filter {
+func (*Filters) ColorBalance(percentageRed, percentageGreen, percentageBlue any) gift.Filter {
 	return filter{
 		Options: newFilterOpts(percentageRed, percentageGreen, percentageBlue),
 		Filter:  gift.ColorBalance(cast.ToFloat32(percentageRed), cast.ToFloat32(percentageGreen), cast.ToFloat32(percentageBlue)),
@@ -115,7 +115,7 @@ func (*Filters) ColorBalance(percentageRed, percentageGreen, percentageBlue inte
 // The hue parameter is the angle on the color wheel, typically in range (0, 360).
 // The saturation parameter must be in range (0, 100).
 // The percentage parameter specifies the strength of the effect, it must be in range (0, 100).
-func (*Filters) Colorize(hue, saturation, percentage interface{}) gift.Filter {
+func (*Filters) Colorize(hue, saturation, percentage any) gift.Filter {
 	return filter{
 		Options: newFilterOpts(hue, saturation, percentage),
 		Filter:  gift.Colorize(cast.ToFloat32(hue), cast.ToFloat32(saturation), cast.ToFloat32(percentage)),
@@ -124,7 +124,7 @@ func (*Filters) Colorize(hue, saturation, percentage interface{}) gift.Filter {
 
 // Contrast creates a filter that changes the contrast of an image.
 // The percentage parameter must be in range (-100, 100).
-func (*Filters) Contrast(percentage interface{}) gift.Filter {
+func (*Filters) Contrast(percentage any) gift.Filter {
 	return filter{
 		Options: newFilterOpts(percentage),
 		Filter:  gift.Contrast(cast.ToFloat32(percentage)),
@@ -134,7 +134,7 @@ func (*Filters) Contrast(percentage interface{}) gift.Filter {
 // Gamma creates a filter that performs a gamma correction on an image.
 // The gamma parameter must be positive. Gamma = 1 gives the original image.
 // Gamma less than 1 darkens the image and gamma greater than 1 lightens it.
-func (*Filters) Gamma(gamma interface{}) gift.Filter {
+func (*Filters) Gamma(gamma any) gift.Filter {
 	return filter{
 		Options: newFilterOpts(gamma),
 		Filter:  gift.Gamma(cast.ToFloat32(gamma)),
@@ -142,7 +142,7 @@ func (*Filters) Gamma(gamma interface{}) gift.Filter {
 }
 
 // GaussianBlur creates a filter that applies a gaussian blur to an image.
-func (*Filters) GaussianBlur(sigma interface{}) gift.Filter {
+func (*Filters) GaussianBlur(sigma any) gift.Filter {
 	return filter{
 		Options: newFilterOpts(sigma),
 		Filter:  gift.GaussianBlur(cast.ToFloat32(sigma)),
@@ -158,7 +158,7 @@ func (*Filters) Grayscale() gift.Filter {
 
 // Hue creates a filter that rotates the hue of an image.
 // The hue angle shift is typically in range -180 to 180.
-func (*Filters) Hue(shift interface{}) gift.Filter {
+func (*Filters) Hue(shift any) gift.Filter {
 	return filter{
 		Options: newFilterOpts(shift),
 		Filter:  gift.Hue(cast.ToFloat32(shift)),
@@ -173,7 +173,7 @@ func (*Filters) Invert() gift.Filter {
 }
 
 // Pixelate creates a filter that applies a pixelation effect to an image.
-func (*Filters) Pixelate(size interface{}) gift.Filter {
+func (*Filters) Pixelate(size any) gift.Filter {
 	return filter{
 		Options: newFilterOpts(size),
 		Filter:  gift.Pixelate(cast.ToInt(size)),
@@ -181,7 +181,7 @@ func (*Filters) Pixelate(size interface{}) gift.Filter {
 }
 
 // Saturation creates a filter that changes the saturation of an image.
-func (*Filters) Saturation(percentage interface{}) gift.Filter {
+func (*Filters) Saturation(percentage any) gift.Filter {
 	return filter{
 		Options: newFilterOpts(percentage),
 		Filter:  gift.Saturation(cast.ToFloat32(percentage)),
@@ -189,7 +189,7 @@ func (*Filters) Saturation(percentage interface{}) gift.Filter {
 }
 
 // Sepia creates a filter that produces a sepia-toned version of an image.
-func (*Filters) Sepia(percentage interface{}) gift.Filter {
+func (*Filters) Sepia(percentage any) gift.Filter {
 	return filter{
 		Options: newFilterOpts(percentage),
 		Filter:  gift.Sepia(cast.ToFloat32(percentage)),
@@ -198,7 +198,7 @@ func (*Filters) Sepia(percentage interface{}) gift.Filter {
 
 // Sigmoid creates a filter that changes the contrast of an image using a sigmoidal function and returns the adjusted image.
 // It's a non-linear contrast change useful for photo adjustments as it preserves highlight and shadow detail.
-func (*Filters) Sigmoid(midpoint, factor interface{}) gift.Filter {
+func (*Filters) Sigmoid(midpoint, factor any) gift.Filter {
 	return filter{
 		Options: newFilterOpts(midpoint, factor),
 		Filter:  gift.Sigmoid(cast.ToFloat32(midpoint), cast.ToFloat32(factor)),
@@ -210,7 +210,7 @@ func (*Filters) Sigmoid(midpoint, factor interface{}) gift.Filter {
 // Sigma must be positive. Sharpen radius roughly equals 3 * sigma.
 // The amount parameter controls how much darker and how much lighter the edge borders become. Typically between 0.5 and 1.5.
 // The threshold parameter controls the minimum brightness change that will be sharpened. Typically between 0 and 0.05.
-func (*Filters) UnsharpMask(sigma, amount, threshold interface{}) gift.Filter {
+func (*Filters) UnsharpMask(sigma, amount, threshold any) gift.Filter {
 	return filter{
 		Options: newFilterOpts(sigma, amount, threshold),
 		Filter:  gift.UnsharpMask(cast.ToFloat32(sigma), cast.ToFloat32(amount), cast.ToFloat32(threshold)),
@@ -225,10 +225,10 @@ type filter struct {
 // For cache-busting.
 type filterOpts struct {
 	Version int
-	Vals    interface{}
+	Vals    any
 }
 
-func newFilterOpts(vals ...interface{}) filterOpts {
+func newFilterOpts(vals ...any) filterOpts {
 	return filterOpts{
 		Version: filterAPIVersion,
 		Vals:    vals,

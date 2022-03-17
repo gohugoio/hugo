@@ -274,7 +274,7 @@ func (l *DistinctLogger) Reset() {
 
 // Println will log the string returned from fmt.Sprintln given the arguments,
 // but not if it has been logged before.
-func (l *DistinctLogger) Println(v ...interface{}) {
+func (l *DistinctLogger) Println(v ...any) {
 	// fmt.Sprint doesn't add space between string arguments
 	logStatement := strings.TrimSpace(fmt.Sprintln(v...))
 	l.printIfNotPrinted("println", logStatement, func() {
@@ -284,63 +284,63 @@ func (l *DistinctLogger) Println(v ...interface{}) {
 
 // Printf will log the string returned from fmt.Sprintf given the arguments,
 // but not if it has been logged before.
-func (l *DistinctLogger) Printf(format string, v ...interface{}) {
+func (l *DistinctLogger) Printf(format string, v ...any) {
 	logStatement := fmt.Sprintf(format, v...)
 	l.printIfNotPrinted("printf", logStatement, func() {
 		l.Logger.Printf(format, v...)
 	})
 }
 
-func (l *DistinctLogger) Debugf(format string, v ...interface{}) {
+func (l *DistinctLogger) Debugf(format string, v ...any) {
 	logStatement := fmt.Sprintf(format, v...)
 	l.printIfNotPrinted("debugf", logStatement, func() {
 		l.Logger.Debugf(format, v...)
 	})
 }
 
-func (l *DistinctLogger) Debugln(v ...interface{}) {
+func (l *DistinctLogger) Debugln(v ...any) {
 	logStatement := fmt.Sprint(v...)
 	l.printIfNotPrinted("debugln", logStatement, func() {
 		l.Logger.Debugln(v...)
 	})
 }
 
-func (l *DistinctLogger) Infof(format string, v ...interface{}) {
+func (l *DistinctLogger) Infof(format string, v ...any) {
 	logStatement := fmt.Sprintf(format, v...)
 	l.printIfNotPrinted("info", logStatement, func() {
 		l.Logger.Infof(format, v...)
 	})
 }
 
-func (l *DistinctLogger) Infoln(v ...interface{}) {
+func (l *DistinctLogger) Infoln(v ...any) {
 	logStatement := fmt.Sprint(v...)
 	l.printIfNotPrinted("infoln", logStatement, func() {
 		l.Logger.Infoln(v...)
 	})
 }
 
-func (l *DistinctLogger) Warnf(format string, v ...interface{}) {
+func (l *DistinctLogger) Warnf(format string, v ...any) {
 	logStatement := fmt.Sprintf(format, v...)
 	l.printIfNotPrinted("warnf", logStatement, func() {
 		l.Logger.Warnf(format, v...)
 	})
 }
 
-func (l *DistinctLogger) Warnln(v ...interface{}) {
+func (l *DistinctLogger) Warnln(v ...any) {
 	logStatement := fmt.Sprint(v...)
 	l.printIfNotPrinted("warnln", logStatement, func() {
 		l.Logger.Warnln(v...)
 	})
 }
 
-func (l *DistinctLogger) Errorf(format string, v ...interface{}) {
+func (l *DistinctLogger) Errorf(format string, v ...any) {
 	logStatement := fmt.Sprint(v...)
 	l.printIfNotPrinted("errorf", logStatement, func() {
 		l.Logger.Errorf(format, v...)
 	})
 }
 
-func (l *DistinctLogger) Errorln(v ...interface{}) {
+func (l *DistinctLogger) Errorln(v ...any) {
 	logStatement := fmt.Sprint(v...)
 	l.printIfNotPrinted("errorln", logStatement, func() {
 		l.Logger.Errorln(v...)
@@ -507,7 +507,7 @@ func PrintFs(fs afero.Fs, path string, w io.Writer) {
 
 	afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
 		var filename string
-		var meta interface{}
+		var meta any
 		if fim, ok := info.(hugofs.FileMetaInfo); ok {
 			filename = fim.Meta().Filename
 			meta = fim.Meta()
@@ -519,8 +519,8 @@ func PrintFs(fs afero.Fs, path string, w io.Writer) {
 
 // HashString returns a hash from the given elements.
 // It will panic if the hash cannot be calculated.
-func HashString(elements ...interface{}) string {
-	var o interface{}
+func HashString(elements ...any) string {
+	var o any
 	if len(elements) == 1 {
 		o = elements[0]
 	} else {

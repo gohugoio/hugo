@@ -53,7 +53,7 @@ func Supports() bool {
 }
 
 type transform struct {
-	optsm map[string]interface{}
+	optsm map[string]any
 	c     *Client
 }
 

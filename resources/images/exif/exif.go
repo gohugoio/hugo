@@ -134,7 +134,7 @@ func (d *Decoder) Decode(r io.Reader) (ex *Exif, err error) {
 		lat, long, _ = x.LatLong()
 	}
 
-	walker := &exifWalker{x: x, vals: make(map[string]interface{}), includeMatcher: d.includeFieldsRe, excludeMatcher: d.excludeFieldsrRe}
+	walker := &exifWalker{x: x, vals: make(map[string]any), includeMatcher: d.includeFieldsRe, excludeMatcher: d.excludeFieldsrRe}
 	if err = x.Walk(walker); err != nil {
 		return
 	}
@@ -144,7 +144,7 @@ func (d *Decoder) Decode(r io.Reader) (ex *Exif, err error) {
 	return
 }
 
-func decodeTag(x *_exif.Exif, f _exif.FieldName, t *tiff.Tag) (interface{}, error) {
+func decodeTag(x *_exif.Exif, f _exif.FieldName, t *tiff.Tag) (any, error) {
 	switch t.Format() {
 	case tiff.StringVal, tiff.UndefVal:
 		s := nullString(t.Val)
@@ -158,7 +158,7 @@ func decodeTag(x *_exif.Exif, f _exif.FieldName, t *tiff.Tag) (interface{}, erro
 		return "unknown", nil
 	}
 
-	var rv []interface{}
+	var rv []any
 
 	for i := 0; i < int(t.Count); i++ {
 		switch t.Format() {
@@ -203,7 +203,7 @@ func tryParseDate(x *_exif.Exif, s string) (time.Time, error) {
 
 type exifWalker struct {
 	x              *_exif.Exif
-	vals           map[string]interface{}
+	vals           map[string]any
 	includeMatcher *regexp.Regexp
 	excludeMatcher *regexp.Regexp
 }
@@ -246,10 +246,10 @@ func init() {
 	}
 }
 
-type Tags map[string]interface{}
+type Tags map[string]any
 
 func (v *Tags) UnmarshalJSON(b []byte) error {
-	vv := make(map[string]interface{})
+	vv := make(map[string]any)
 	if err := tcodec.Unmarshal(b, &vv); err != nil {
 		return err
 	}

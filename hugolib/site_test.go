@@ -56,7 +56,7 @@ func TestDraftAndFutureRender(t *testing.T) {
 		{filepath.FromSlash("sect/doc4.md"), "---\ntitle: doc4\ndraft: false\npublishdate: \"2012-05-29\"\n---\n# doc4\n*some content*"},
 	}
 
-	siteSetup := func(t *testing.T, configKeyValues ...interface{}) *Site {
+	siteSetup := func(t *testing.T, configKeyValues ...any) *Site {
 		cfg, fs := newTestCfg()
 
 		cfg.Set("baseURL", "http://auth/bub")
@@ -288,7 +288,7 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 	cfg.Set("verbose", true)
 	cfg.Set("baseURL", "http://auth/bub")
 	cfg.Set("blackfriday",
-		map[string]interface{}{
+		map[string]any{
 			"plainIDAnchors": true,
 		})
 
@@ -364,7 +364,7 @@ func TestMainSections(t *testing.T) {
 		c.Run(fmt.Sprintf("param-%t", paramSet), func(c *qt.C) {
 			v := config.New()
 			if paramSet {
-				v.Set("params", map[string]interface{}{
+				v.Set("params", map[string]any{
 					"mainSections": []string{"a1", "a2"},
 				})
 			}
@@ -882,13 +882,13 @@ func setupLinkingMockSite(t *testing.T) *Site {
 
 	cfg.Set("baseURL", "http://auth/")
 	cfg.Set("uglyURLs", false)
-	cfg.Set("outputs", map[string]interface{}{
+	cfg.Set("outputs", map[string]any{
 		"page": []string{"HTML", "AMP"},
 	})
 	cfg.Set("pluralizeListTitles", false)
 	cfg.Set("canonifyURLs", false)
 	cfg.Set("blackfriday",
-		map[string]interface{}{})
+		map[string]any{})
 	writeSourcesToSource(t, "content", fs, sources...)
 	return buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 }

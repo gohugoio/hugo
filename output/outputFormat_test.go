@@ -145,15 +145,15 @@ func TestDecodeFormats(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		maps        []map[string]interface{}
+		maps        []map[string]any
 		shouldError bool
 		assert      func(t *testing.T, name string, f Formats)
 	}{
 		{
 			"Redefine JSON",
-			[]map[string]interface{}{
+			[]map[string]any{
 				{
-					"JsON": map[string]interface{}{
+					"JsON": map[string]any{
 						"baseName":    "myindex",
 						"isPlainText": "false",
 					},
@@ -171,9 +171,9 @@ func TestDecodeFormats(t *testing.T) {
 		},
 		{
 			"Add XML format with string as mediatype",
-			[]map[string]interface{}{
+			[]map[string]any{
 				{
-					"MYXMLFORMAT": map[string]interface{}{
+					"MYXMLFORMAT": map[string]any{
 						"baseName":  "myxml",
 						"mediaType": "application/xml",
 					},
@@ -194,9 +194,9 @@ func TestDecodeFormats(t *testing.T) {
 		},
 		{
 			"Add format unknown mediatype",
-			[]map[string]interface{}{
+			[]map[string]any{
 				{
-					"MYINVALID": map[string]interface{}{
+					"MYINVALID": map[string]any{
 						"baseName":  "mymy",
 						"mediaType": "application/hugo",
 					},
@@ -208,15 +208,15 @@ func TestDecodeFormats(t *testing.T) {
 		},
 		{
 			"Add and redefine XML format",
-			[]map[string]interface{}{
+			[]map[string]any{
 				{
-					"MYOTHERXMLFORMAT": map[string]interface{}{
+					"MYOTHERXMLFORMAT": map[string]any{
 						"baseName":  "myotherxml",
 						"mediaType": media.XMLType,
 					},
 				},
 				{
-					"MYOTHERXMLFORMAT": map[string]interface{}{
+					"MYOTHERXMLFORMAT": map[string]any{
 						"baseName": "myredefined",
 					},
 				},

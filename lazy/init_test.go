@@ -48,16 +48,16 @@ func TestInit(t *testing.T) {
 
 	var result string
 
-	f1 := func(name string) func() (interface{}, error) {
-		return func() (interface{}, error) {
+	f1 := func(name string) func() (any, error) {
+		return func() (any, error) {
 			result += name + "|"
 			doWork()
 			return name, nil
 		}
 	}
 
-	f2 := func() func() (interface{}, error) {
-		return func() (interface{}, error) {
+	f2 := func() func() (any, error) {
+		return func() (any, error) {
 			doWork()
 			return nil, nil
 		}
@@ -110,7 +110,7 @@ func TestInit(t *testing.T) {
 func TestInitAddWithTimeout(t *testing.T) {
 	c := qt.New(t)
 
-	init := New().AddWithTimeout(100*time.Millisecond, func(ctx context.Context) (interface{}, error) {
+	init := New().AddWithTimeout(100*time.Millisecond, func(ctx context.Context) (any, error) {
 		return nil, nil
 	})
 
@@ -122,7 +122,7 @@ func TestInitAddWithTimeout(t *testing.T) {
 func TestInitAddWithTimeoutTimeout(t *testing.T) {
 	c := qt.New(t)
 
-	init := New().AddWithTimeout(100*time.Millisecond, func(ctx context.Context) (interface{}, error) {
+	init := New().AddWithTimeout(100*time.Millisecond, func(ctx context.Context) (any, error) {
 		time.Sleep(500 * time.Millisecond)
 		select {
 		case <-ctx.Done():
@@ -145,7 +145,7 @@ func TestInitAddWithTimeoutTimeout(t *testing.T) {
 func TestInitAddWithTimeoutError(t *testing.T) {
 	c := qt.New(t)
 
-	init := New().AddWithTimeout(100*time.Millisecond, func(ctx context.Context) (interface{}, error) {
+	init := New().AddWithTimeout(100*time.Millisecond, func(ctx context.Context) (any, error) {
 		return nil, errors.New("failed")
 	})
 
@@ -178,8 +178,8 @@ func TestInitBranchOrder(t *testing.T) {
 
 	base := New()
 
-	work := func(size int, f func()) func() (interface{}, error) {
-		return func() (interface{}, error) {
+	work := func(size int, f func()) func() (any, error) {
+		return func() (any, error) {
 			doWorkOfSize(size)
 			if f != nil {
 				f()
@@ -225,7 +225,7 @@ func TestInitBranchOrder(t *testing.T) {
 func TestResetError(t *testing.T) {
 	c := qt.New(t)
 	r := false
-	i := New().Add(func() (interface{}, error) {
+	i := New().Add(func() (any, error) {
 		if r {
 			return nil, nil
 		}

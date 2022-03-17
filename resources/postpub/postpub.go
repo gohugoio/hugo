@@ -35,7 +35,7 @@ type PostPublishedResource interface {
 	resource.ResourceDataProvider
 	resource.OriginProvider
 
-	MediaType() map[string]interface{}
+	MediaType() map[string]any
 }
 
 const (
@@ -109,13 +109,13 @@ func (r *PostPublishResource) GetFieldString(pattern string) (string, bool) {
 	case strings.HasPrefix(fieldAccessor, "MediaType"):
 		return r.fieldToString(d.MediaType(), fieldAccessor), true
 	case fieldAccessor == "Data.Integrity":
-		return cast.ToString((d.Data().(map[string]interface{})["Integrity"])), true
+		return cast.ToString((d.Data().(map[string]any)["Integrity"])), true
 	default:
 		panic(fmt.Sprintf("unknown field accessor %q", fieldAccessor))
 	}
 }
 
-func (r *PostPublishResource) fieldToString(receiver interface{}, path string) string {
+func (r *PostPublishResource) fieldToString(receiver any, path string) string {
 	fieldname := strings.Split(path, ".")[1]
 
 	receiverv := reflect.ValueOf(receiver)
@@ -143,15 +143,15 @@ func (r *PostPublishResource) fieldToString(receiver interface{}, path string) s
 	}
 }
 
-func (r *PostPublishResource) Data() interface{} {
-	m := map[string]interface{}{
+func (r *PostPublishResource) Data() any {
+	m := map[string]any{
 		"Integrity": "",
 	}
 	insertFieldPlaceholders("Data", m, r.field)
 	return m
 }
 
-func (r *PostPublishResource) MediaType() map[string]interface{} {
+func (r *PostPublishResource) MediaType() map[string]any {
 	m := structToMapWithPlaceholders("MediaType", media.Type{}, r.field)
 	return m
 }
@@ -172,7 +172,7 @@ func (r *PostPublishResource) Params() maps.Params {
 	panic(r.fieldNotSupported("Params"))
 }
 
-func (r *PostPublishResource) Content() (interface{}, error) {
+func (r *PostPublishResource) Content() (any, error) {
 	return r.field("Content"), nil
 }
 

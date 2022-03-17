@@ -176,7 +176,7 @@ func (l *pageLexer) ignore() {
 var lf = []byte("\n")
 
 // nil terminates the parser
-func (l *pageLexer) errorf(format string, args ...interface{}) stateFunc {
+func (l *pageLexer) errorf(format string, args ...any) stateFunc {
 	l.items = append(l.items, Item{tError, l.start, []byte(fmt.Sprintf(format, args...)), true})
 	return nil
 }

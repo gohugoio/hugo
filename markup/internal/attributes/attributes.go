@@ -64,11 +64,11 @@ func New(astAttributes []ast.Attribute, ownerType AttributesOwnerType) *Attribut
 		if strings.HasPrefix(string(nameLower), "on") {
 			continue
 		}
-		var vv interface{}
+		var vv any
 		switch vvv := v.Value.(type) {
 		case bool, float64:
 			vv = vvv
-		case []interface{}:
+		case []any:
 			// Highlight line number hlRanges.
 			var hlRanges [][2]int
 			for _, l := range vvv {
@@ -118,7 +118,7 @@ func New(astAttributes []ast.Attribute, ownerType AttributesOwnerType) *Attribut
 
 type Attribute struct {
 	Name  string
-	Value interface{}
+	Value any
 }
 
 func (a Attribute) ValueString() string {
@@ -134,16 +134,16 @@ type AttributesHolder struct {
 
 	// What we send to the the render hooks.
 	attributesMapInit sync.Once
-	attributesMap     map[string]interface{}
+	attributesMap     map[string]any
 	optionsMapInit    sync.Once
-	optionsMap        map[string]interface{}
+	optionsMap        map[string]any
 }
 
-type Attributes map[string]interface{}
+type Attributes map[string]any
 
-func (a *AttributesHolder) Attributes() map[string]interface{} {
+func (a *AttributesHolder) Attributes() map[string]any {
 	a.attributesMapInit.Do(func() {
-		a.attributesMap = make(map[string]interface{})
+		a.attributesMap = make(map[string]any)
 		for _, v := range a.attributes {
 			a.attributesMap[v.Name] = v.Value
 		}
@@ -151,9 +151,9 @@ func (a *AttributesHolder) Attributes() map[string]interface{} {
 	return a.attributesMap
 }
 
-func (a *AttributesHolder) Options() map[string]interface{} {
+func (a *AttributesHolder) Options() map[string]any {
 	a.optionsMapInit.Do(func() {
-		a.optionsMap = make(map[string]interface{})
+		a.optionsMap = make(map[string]any)
 		for _, v := range a.options {
 			a.optionsMap[v.Name] = v.Value
 		}

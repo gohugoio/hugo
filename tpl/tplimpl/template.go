@@ -118,7 +118,7 @@ func newIdentity(name string) identity.Manager {
 	return identity.NewManager(identity.NewPathIdentity(files.ComponentFolderLayouts, name))
 }
 
-func newStandaloneTextTemplate(funcs map[string]interface{}) tpl.TemplateParseFinder {
+func newStandaloneTextTemplate(funcs map[string]any) tpl.TemplateParseFinder {
 	return &textTemplateWrapperWithLock{
 		RWMutex:  &sync.RWMutex{},
 		Template: texttemplate.New("").Funcs(funcs),
@@ -127,7 +127,7 @@ func newStandaloneTextTemplate(funcs map[string]interface{}) tpl.TemplateParseFi
 
 func newTemplateExec(d *deps.Deps) (*templateExec, error) {
 	exec, funcs := newTemplateExecuter(d)
-	funcMap := make(map[string]interface{})
+	funcMap := make(map[string]any)
 	for k, v := range funcs {
 		funcMap[k] = v.Interface()
 	}
@@ -184,7 +184,7 @@ func newTemplateExec(d *deps.Deps) (*templateExec, error) {
 	return e, nil
 }
 
-func newTemplateNamespace(funcs map[string]interface{}) *templateNamespace {
+func newTemplateNamespace(funcs map[string]any) *templateNamespace {
 	return &templateNamespace{
 		prototypeHTML: htmltemplate.New("").Funcs(funcs),
 		prototypeText: texttemplate.New("").Funcs(funcs),
@@ -225,11 +225,11 @@ func (t templateExec) Clone(d *deps.Deps) *templateExec {
 	return &t
 }
 
-func (t *templateExec) Execute(templ tpl.Template, wr io.Writer, data interface{}) error {
+func (t *templateExec) Execute(templ tpl.Template, wr io.Writer, data any) error {
 	return t.ExecuteWithContext(context.Background(), templ, wr, data)
 }
 
-func (t *templateExec) ExecuteWithContext(ctx context.Context, templ tpl.Template, wr io.Writer, data interface{}) error {
+func (t *templateExec) ExecuteWithContext(ctx context.Context, templ tpl.Template, wr io.Writer, data any) error {
 	if rlocker, ok := templ.(types.RLocker); ok {
 		rlocker.RLock()
 		defer rlocker.RUnlock()

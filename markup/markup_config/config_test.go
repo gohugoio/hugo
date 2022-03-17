@@ -28,13 +28,13 @@ func TestConfig(t *testing.T) {
 		c.Parallel()
 		v := config.New()
 
-		v.Set("markup", map[string]interface{}{
-			"goldmark": map[string]interface{}{
-				"renderer": map[string]interface{}{
+		v.Set("markup", map[string]any{
+			"goldmark": map[string]any{
+				"renderer": map[string]any{
 					"unsafe": true,
 				},
 			},
-			"asciidocext": map[string]interface{}{
+			"asciidocext": map[string]any{
 				"workingFolderCurrent": true,
 				"safeMode":             "save",
 				"extensions":           []string{"asciidoctor-html5s"},
@@ -57,7 +57,7 @@ func TestConfig(t *testing.T) {
 		c.Parallel()
 		v := config.New()
 
-		v.Set("blackfriday", map[string]interface{}{
+		v.Set("blackfriday", map[string]any{
 			"angledQuotes": true,
 		})
 
@@ -66,9 +66,9 @@ func TestConfig(t *testing.T) {
 		v.Set("pygmentsStyle", "hugo")
 		v.Set("pygmentsCodefencesGuessSyntax", true)
 
-		v.Set("markup", map[string]interface{}{
-			"goldmark": map[string]interface{}{
-				"parser": map[string]interface{}{
+		v.Set("markup", map[string]any{
+			"goldmark": map[string]any{
+				"parser": map[string]any{
 					"attribute": false, // Was changed to a struct in 0.81.0
 				},
 			},

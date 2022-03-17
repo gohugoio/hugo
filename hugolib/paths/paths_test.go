@@ -28,9 +28,9 @@ func TestNewPaths(t *testing.T) {
 	v := config.New()
 	fs := hugofs.NewMem(v)
 
-	v.Set("languages", map[string]interface{}{
-		"no": map[string]interface{}{},
-		"en": map[string]interface{}{},
+	v.Set("languages", map[string]any{
+		"no": map[string]any{},
+		"en": map[string]any{},
 	})
 	v.Set("defaultContentLanguageInSubdir", true)
 	v.Set("defaultContentLanguage", "no")

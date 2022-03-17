@@ -25,7 +25,7 @@ import (
 //
 // The reasoning behind this rather clumsy API is so we can do this in the templates:
 //    {{ $c := .Pages | complement $last4 }}
-func (ns *Namespace) Complement(seqs ...interface{}) (interface{}, error) {
+func (ns *Namespace) Complement(seqs ...any) (any, error) {
 	if len(seqs) < 2 {
 		return nil, errors.New("complement needs at least two arguments")
 	}

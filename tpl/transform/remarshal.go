@@ -17,8 +17,8 @@ import (
 // It is not a general purpose YAML to TOML converter etc., and may
 // change without notice if it serves a purpose in the docs.
 // Format is one of json, yaml or toml.
-func (ns *Namespace) Remarshal(format string, data interface{}) (string, error) {
-	var meta map[string]interface{}
+func (ns *Namespace) Remarshal(format string, data any) (string, error) {
+	var meta map[string]any
 
 	format = strings.TrimSpace(strings.ToLower(format))
 
@@ -27,7 +27,7 @@ func (ns *Namespace) Remarshal(format string, data interface{}) (string, error) 
 		return "", err
 	}
 
-	if m, ok := data.(map[string]interface{}); ok {
+	if m, ok := data.(map[string]any); ok {
 		meta = m
 	} else {
 		from, err := cast.ToStringE(data)
@@ -65,10 +65,10 @@ func (ns *Namespace) Remarshal(format string, data interface{}) (string, error) 
 // The unmarshal/marshal dance is extremely type lossy, and we need
 // to make sure that integer types prints as "43" and not "43.0" in
 // all formats, hence this hack.
-func applyMarshalTypes(m map[string]interface{}) {
+func applyMarshalTypes(m map[string]any) {
 	for k, v := range m {
 		switch t := v.(type) {
-		case map[string]interface{}:
+		case map[string]any:
 			applyMarshalTypes(t)
 		case float64:
 			i := int64(t)

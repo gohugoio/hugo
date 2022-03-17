@@ -48,23 +48,23 @@ type Namespace struct {
 }
 
 // Print returns string representation of the passed arguments.
-func (ns *Namespace) Print(a ...interface{}) string {
+func (ns *Namespace) Print(a ...any) string {
 	return _fmt.Sprint(a...)
 }
 
 // Printf returns a formatted string representation of the passed arguments.
-func (ns *Namespace) Printf(format string, a ...interface{}) string {
+func (ns *Namespace) Printf(format string, a ...any) string {
 	return _fmt.Sprintf(format, a...)
 }
 
 // Println returns string representation of the passed arguments ending with a newline.
-func (ns *Namespace) Println(a ...interface{}) string {
+func (ns *Namespace) Println(a ...any) string {
 	return _fmt.Sprintln(a...)
 }
 
 // Errorf formats according to a format specifier and logs an ERROR.
 // It returns an empty string.
-func (ns *Namespace) Errorf(format string, a ...interface{}) string {
+func (ns *Namespace) Errorf(format string, a ...any) string {
 	ns.distinctLogger.Errorf(format, a...)
 	return ""
 }
@@ -72,14 +72,14 @@ func (ns *Namespace) Errorf(format string, a ...interface{}) string {
 // Erroridf formats according to a format specifier and logs an ERROR and
 // an information text that the error with the given ID can be suppressed in config.
 // It returns an empty string.
-func (ns *Namespace) Erroridf(id, format string, a ...interface{}) string {
+func (ns *Namespace) Erroridf(id, format string, a ...any) string {
 	ns.distinctLogger.Errorsf(id, format, a...)
 	return ""
 }
 
 // Warnf formats according to a format specifier and logs a WARNING.
 // It returns an empty string.
-func (ns *Namespace) Warnf(format string, a ...interface{}) string {
+func (ns *Namespace) Warnf(format string, a ...any) string {
 	ns.distinctLogger.Warnf(format, a...)
 	return ""
 }

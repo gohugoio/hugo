@@ -43,9 +43,9 @@ func TestAfter(t *testing.T) {
 	ns := New(&deps.Deps{})
 
 	for i, test := range []struct {
-		index  interface{}
-		seq    interface{}
-		expect interface{}
+		index  any
+		seq    any
+		expect any
 	}{
 		{int(2), []string{"a", "b", "c", "d"}, []string{"c", "d"}},
 		{int32(3), []string{"a", "b"}, []string{}},
@@ -81,7 +81,7 @@ type tstGrouper struct {
 
 type tstGroupers []*tstGrouper
 
-func (g tstGrouper) Group(key interface{}, items interface{}) (interface{}, error) {
+func (g tstGrouper) Group(key any, items any) (any, error) {
 	ilen := reflect.ValueOf(items).Len()
 	return fmt.Sprintf("%v(%d)", key, ilen), nil
 }
@@ -89,7 +89,7 @@ func (g tstGrouper) Group(key interface{}, items interface{}) (interface{}, erro
 type tstGrouper2 struct {
 }
 
-func (g *tstGrouper2) Group(key interface{}, items interface{}) (interface{}, error) {
+func (g *tstGrouper2) Group(key any, items any) (any, error) {
 	ilen := reflect.ValueOf(items).Len()
 	return fmt.Sprintf("%v(%d)", key, ilen), nil
 }
@@ -100,9 +100,9 @@ func TestGroup(t *testing.T) {
 	ns := New(&deps.Deps{})
 
 	for i, test := range []struct {
-		key    interface{}
-		items  interface{}
-		expect interface{}
+		key    any
+		items  any
+		expect any
 	}{
 		{"a", []*tstGrouper{{}, {}}, "a(2)"},
 		{"b", tstGroupers{&tstGrouper{}, &tstGrouper{}}, "b(2)"},
@@ -136,9 +136,9 @@ func TestDelimit(t *testing.T) {
 	ns := New(&deps.Deps{})
 
 	for i, test := range []struct {
-		seq       interface{}
-		delimiter interface{}
-		last      interface{}
+		seq       any
+		delimiter any
+		last      any
 		expect    template.HTML
 	}{
 		{[]string{"class1", "class2", "class3"}, " ", nil, "class1 class2 class3"},
@@ -188,19 +188,19 @@ func TestDictionary(t *testing.T) {
 	ns := New(&deps.Deps{})
 
 	for i, test := range []struct {
-		values []interface{}
-		expect interface{}
+		values []any
+		expect any
 	}{
-		{[]interface{}{"a", "b"}, map[string]interface{}{"a": "b"}},
-		{[]interface{}{[]string{"a", "b"}, "c"}, map[string]interface{}{"a": map[string]interface{}{"b": "c"}}},
+		{[]any{"a", "b"}, map[string]any{"a": "b"}},
+		{[]any{[]string{"a", "b"}, "c"}, map[string]any{"a": map[string]any{"b": "c"}}},
 		{
-			[]interface{}{[]string{"a", "b"}, "c", []string{"a", "b2"}, "c2", "b", "c"},
-			map[string]interface{}{"a": map[string]interface{}{"b": "c", "b2": "c2"}, "b": "c"},
+			[]any{[]string{"a", "b"}, "c", []string{"a", "b2"}, "c2", "b", "c"},
+			map[string]any{"a": map[string]any{"b": "c", "b2": "c2"}, "b": "c"},
 		},
-		{[]interface{}{"a", 12, "b", []int{4}}, map[string]interface{}{"a": 12, "b": []int{4}}},
+		{[]any{"a", 12, "b", []int{4}}, map[string]any{"a": 12, "b": []int{4}}},
 		// errors
-		{[]interface{}{5, "b"}, false},
-		{[]interface{}{"a", "b", "c"}, false},
+		{[]any{5, "b"}, false},
+		{[]any{"a", "b", "c"}, false},
 	} {
 		i := i
 		test := test
@@ -246,9 +246,9 @@ func TestEchoParam(t *testing.T) {
 	ns := New(&deps.Deps{})
 
 	for i, test := range []struct {
-		a      interface{}
-		key    interface{}
-		expect interface{}
+		a      any
+		key    any
+		expect any
 	}{
 		{[]int{1, 2, 3}, 1, int64(2)},
 		{[]uint{1, 2, 3}, 1, uint64(2)},
@@ -260,7 +260,7 @@ func TestEchoParam(t *testing.T) {
 		{map[string]float64{"foo": 1.1, "bar": 2.2, "baz": 3.3}, "bar", float64(2.2)},
 		{map[string]string{"foo": "FOO", "bar": "BAR", "baz": "BAZ"}, "bar", "BAR"},
 		{map[string]TstX{"foo": {A: "a", B: "b"}, "bar": {A: "c", B: "d"}, "baz": {A: "e", B: "f"}}, "bar", ""},
-		{map[string]interface{}{"foo": nil}, "foo", ""},
+		{map[string]any{"foo": nil}, "foo", ""},
 		{(*[]string)(nil), "bar", ""},
 	} {
 		errMsg := qt.Commentf("[%d] %v", i, test)
@@ -278,9 +278,9 @@ func TestFirst(t *testing.T) {
 	ns := New(&deps.Deps{})
 
 	for i, test := range []struct {
-		limit  interface{}
-		seq    interface{}
-		expect interface{}
+		limit  any
+		seq    any
+		expect any
 	}{
 		{int(2), []string{"a", "b", "c"}, []string{"a", "b"}},
 		{int32(3), []string{"a", "b"}, []string{"a", "b"}},
@@ -316,20 +316,20 @@ func TestIn(t *testing.T) {
 	ns := New(&deps.Deps{})
 
 	for i, test := range []struct {
-		l1     interface{}
-		l2     interface{}
+		l1     any
+		l2     any
 		expect bool
 	}{
 		{[]string{"a", "b", "c"}, "b", true},
-		{[]interface{}{"a", "b", "c"}, "b", true},
-		{[]interface{}{"a", "b", "c"}, "d", false},
+		{[]any{"a", "b", "c"}, "b", true},
+		{[]any{"a", "b", "c"}, "d", false},
 		{[]string{"a", "b", "c"}, "d", false},
 		{[]string{"a", "12", "c"}, 12, false},
 		{[]string{"a", "b", "c"}, nil, false},
 		{[]int{1, 2, 4}, 2, true},
-		{[]interface{}{1, 2, 4}, 2, true},
-		{[]interface{}{1, 2, 4}, nil, false},
-		{[]interface{}{nil}, nil, false},
+		{[]any{1, 2, 4}, 2, true},
+		{[]any{1, 2, 4}, nil, false},
+		{[]any{nil}, nil, false},
 		{[]int{1, 2, 4}, 3, false},
 		{[]float64{1.23, 2.45, 4.67}, 1.23, true},
 		{[]float64{1.234567, 2.45, 4.67}, 1.234568, false},
@@ -392,16 +392,16 @@ func TestIntersect(t *testing.T) {
 	ns := New(&deps.Deps{})
 
 	for i, test := range []struct {
-		l1, l2 interface{}
-		expect interface{}
+		l1, l2 any
+		expect any
 	}{
 		{[]string{"a", "b", "c", "c"}, []string{"a", "b", "b"}, []string{"a", "b"}},
 		{[]string{"a", "b"}, []string{"a", "b", "c"}, []string{"a", "b"}},
 		{[]string{"a", "b", "c"}, []string{"d", "e"}, []string{}},
 		{[]string{}, []string{}, []string{}},
-		{[]string{"a", "b"}, nil, []interface{}{}},
-		{nil, []string{"a", "b"}, []interface{}{}},
-		{nil, nil, []interface{}{}},
+		{[]string{"a", "b"}, nil, []any{}},
+		{nil, []string{"a", "b"}, []any{}},
+		{nil, nil, []any{}},
 		{[]string{"1", "2"}, []int{1, 2}, []string{}},
 		{[]int{1, 2}, []string{"1", "2"}, []int{}},
 		{[]int{1, 2, 4}, []int{2, 4}, []int{2, 4}},
@@ -410,45 +410,45 @@ func TestIntersect(t *testing.T) {
 		{[]float64{2.2, 4.4}, []float64{1.1, 2.2, 4.4}, []float64{2.2, 4.4}},
 
 		// []interface{} ∩ []interface{}
-		{[]interface{}{"a", "b", "c"}, []interface{}{"a", "b", "b"}, []interface{}{"a", "b"}},
-		{[]interface{}{1, 2, 3}, []interface{}{1, 2, 2}, []interface{}{1, 2}},
-		{[]interface{}{int8(1), int8(2), int8(3)}, []interface{}{int8(1), int8(2), int8(2)}, []interface{}{int8(1), int8(2)}},
-		{[]interface{}{int16(1), int16(2), int16(3)}, []interface{}{int16(1), int16(2), int16(2)}, []interface{}{int16(1), int16(2)}},
-		{[]interface{}{int32(1), int32(2), int32(3)}, []interface{}{int32(1), int32(2), int32(2)}, []interface{}{int32(1), int32(2)}},
-		{[]interface{}{int64(1), int64(2), int64(3)}, []interface{}{int64(1), int64(2), int64(2)}, []interface{}{int64(1), int64(2)}},
-		{[]interface{}{float32(1), float32(2), float32(3)}, []interface{}{float32(1), float32(2), float32(2)}, []interface{}{float32(1), float32(2)}},
-		{[]interface{}{float64(1), float64(2), float64(3)}, []interface{}{float64(1), float64(2), float64(2)}, []interface{}{float64(1), float64(2)}},
+		{[]any{"a", "b", "c"}, []any{"a", "b", "b"}, []any{"a", "b"}},
+		{[]any{1, 2, 3}, []any{1, 2, 2}, []any{1, 2}},
+		{[]any{int8(1), int8(2), int8(3)}, []any{int8(1), int8(2), int8(2)}, []any{int8(1), int8(2)}},
+		{[]any{int16(1), int16(2), int16(3)}, []any{int16(1), int16(2), int16(2)}, []any{int16(1), int16(2)}},
+		{[]any{int32(1), int32(2), int32(3)}, []any{int32(1), int32(2), int32(2)}, []any{int32(1), int32(2)}},
+		{[]any{int64(1), int64(2), int64(3)}, []any{int64(1), int64(2), int64(2)}, []any{int64(1), int64(2)}},
+		{[]any{float32(1), float32(2), float32(3)}, []any{float32(1), float32(2), float32(2)}, []any{float32(1), float32(2)}},
+		{[]any{float64(1), float64(2), float64(3)}, []any{float64(1), float64(2), float64(2)}, []any{float64(1), float64(2)}},
 
 		// []interface{} ∩ []T
-		{[]interface{}{"a", "b", "c"}, []string{"a", "b", "b"}, []interface{}{"a", "b"}},
-		{[]interface{}{1, 2, 3}, []int{1, 2, 2}, []interface{}{1, 2}},
-		{[]interface{}{int8(1), int8(2), int8(3)}, []int8{1, 2, 2}, []interface{}{int8(1), int8(2)}},
-		{[]interface{}{int16(1), int16(2), int16(3)}, []int16{1, 2, 2}, []interface{}{int16(1), int16(2)}},
-		{[]interface{}{int32(1), int32(2), int32(3)}, []int32{1, 2, 2}, []interface{}{int32(1), int32(2)}},
-		{[]interface{}{int64(1), int64(2), int64(3)}, []int64{1, 2, 2}, []interface{}{int64(1), int64(2)}},
-		{[]interface{}{uint(1), uint(2), uint(3)}, []uint{1, 2, 2}, []interface{}{uint(1), uint(2)}},
-		{[]interface{}{float32(1), float32(2), float32(3)}, []float32{1, 2, 2}, []interface{}{float32(1), float32(2)}},
-		{[]interface{}{float64(1), float64(2), float64(3)}, []float64{1, 2, 2}, []interface{}{float64(1), float64(2)}},
+		{[]any{"a", "b", "c"}, []string{"a", "b", "b"}, []any{"a", "b"}},
+		{[]any{1, 2, 3}, []int{1, 2, 2}, []any{1, 2}},
+		{[]any{int8(1), int8(2), int8(3)}, []int8{1, 2, 2}, []any{int8(1), int8(2)}},
+		{[]any{int16(1), int16(2), int16(3)}, []int16{1, 2, 2}, []any{int16(1), int16(2)}},
+		{[]any{int32(1), int32(2), int32(3)}, []int32{1, 2, 2}, []any{int32(1), int32(2)}},
+		{[]any{int64(1), int64(2), int64(3)}, []int64{1, 2, 2}, []any{int64(1), int64(2)}},
+		{[]any{uint(1), uint(2), uint(3)}, []uint{1, 2, 2}, []any{uint(1), uint(2)}},
+		{[]any{float32(1), float32(2), float32(3)}, []float32{1, 2, 2}, []any{float32(1), float32(2)}},
+		{[]any{float64(1), float64(2), float64(3)}, []float64{1, 2, 2}, []any{float64(1), float64(2)}},
 
 		// []T ∩ []interface{}
-		{[]string{"a", "b", "c"}, []interface{}{"a", "b", "b"}, []string{"a", "b"}},
-		{[]int{1, 2, 3}, []interface{}{1, 2, 2}, []int{1, 2}},
-		{[]int8{1, 2, 3}, []interface{}{int8(1), int8(2), int8(2)}, []int8{1, 2}},
-		{[]int16{1, 2, 3}, []interface{}{int16(1), int16(2), int16(2)}, []int16{1, 2}},
-		{[]int32{1, 2, 3}, []interface{}{int32(1), int32(2), int32(2)}, []int32{1, 2}},
-		{[]int64{1, 2, 3}, []interface{}{int64(1), int64(2), int64(2)}, []int64{1, 2}},
-		{[]float32{1, 2, 3}, []interface{}{float32(1), float32(2), float32(2)}, []float32{1, 2}},
-		{[]float64{1, 2, 3}, []interface{}{float64(1), float64(2), float64(2)}, []float64{1, 2}},
+		{[]string{"a", "b", "c"}, []any{"a", "b", "b"}, []string{"a", "b"}},
+		{[]int{1, 2, 3}, []any{1, 2, 2}, []int{1, 2}},
+		{[]int8{1, 2, 3}, []any{int8(1), int8(2), int8(2)}, []int8{1, 2}},
+		{[]int16{1, 2, 3}, []any{int16(1), int16(2), int16(2)}, []int16{1, 2}},
+		{[]int32{1, 2, 3}, []any{int32(1), int32(2), int32(2)}, []int32{1, 2}},
+		{[]int64{1, 2, 3}, []any{int64(1), int64(2), int64(2)}, []int64{1, 2}},
+		{[]float32{1, 2, 3}, []any{float32(1), float32(2), float32(2)}, []float32{1, 2}},
+		{[]float64{1, 2, 3}, []any{float64(1), float64(2), float64(2)}, []float64{1, 2}},
 
 		// Structs
 		{pagesPtr{p1, p4, p2, p3}, pagesPtr{p4, p2, p2}, pagesPtr{p4, p2}},
 		{pagesVals{p1v, p4v, p2v, p3v}, pagesVals{p1v, p3v, p3v}, pagesVals{p1v, p3v}},
-		{[]interface{}{p1, p4, p2, p3}, []interface{}{p4, p2, p2}, []interface{}{p4, p2}},
-		{[]interface{}{p1v, p4v, p2v, p3v}, []interface{}{p1v, p3v, p3v}, []interface{}{p1v, p3v}},
+		{[]any{p1, p4, p2, p3}, []any{p4, p2, p2}, []any{p4, p2}},
+		{[]any{p1v, p4v, p2v, p3v}, []any{p1v, p3v, p3v}, []any{p1v, p3v}},
 		{pagesPtr{p1, p4, p2, p3}, pagesPtr{}, pagesPtr{}},
 		{pagesVals{}, pagesVals{p1v, p3v, p3v}, pagesVals{}},
-		{[]interface{}{p1, p4, p2, p3}, []interface{}{}, []interface{}{}},
-		{[]interface{}{}, []interface{}{p1v, p3v, p3v}, []interface{}{}},
+		{[]any{p1, p4, p2, p3}, []any{}, []any{}},
+		{[]any{}, []any{p1v, p3v, p3v}, []any{}},
 
 		// errors
 		{"not array or slice", []string{"a"}, false},
@@ -482,23 +482,23 @@ func TestIsSet(t *testing.T) {
 	ns := newTestNs()
 
 	for i, test := range []struct {
-		a      interface{}
-		key    interface{}
+		a      any
+		key    any
 		expect bool
 		isErr  bool
 	}{
-		{[]interface{}{1, 2, 3, 5}, 2, true, false},
-		{[]interface{}{1, 2, 3, 5}, "2", true, false},
-		{[]interface{}{1, 2, 3, 5}, 2.0, true, false},
+		{[]any{1, 2, 3, 5}, 2, true, false},
+		{[]any{1, 2, 3, 5}, "2", true, false},
+		{[]any{1, 2, 3, 5}, 2.0, true, false},
 
-		{[]interface{}{1, 2, 3, 5}, 22, false, false},
+		{[]any{1, 2, 3, 5}, 22, false, false},
 
-		{map[string]interface{}{"a": 1, "b": 2}, "b", true, false},
-		{map[string]interface{}{"a": 1, "b": 2}, "bc", false, false},
+		{map[string]any{"a": 1, "b": 2}, "b", true, false},
+		{map[string]any{"a": 1, "b": 2}, "bc", false, false},
 
 		{time.Now(), "Day", false, false},
 		{nil, "nil", false, false},
-		{[]interface{}{1, 2, 3, 5}, TstX{}, false, true},
+		{[]any{1, 2, 3, 5}, TstX{}, false, true},
 	} {
 		errMsg := qt.Commentf("[%d] %v", i, test)
 
@@ -519,9 +519,9 @@ func TestLast(t *testing.T) {
 	ns := New(&deps.Deps{})
 
 	for i, test := range []struct {
-		limit  interface{}
-		seq    interface{}
-		expect interface{}
+		limit  any
+		seq    any
+		expect any
 	}{
 		{int(2), []string{"a", "b", "c"}, []string{"b", "c"}},
 		{int32(3), []string{"a", "b"}, []string{"a", "b"}},
@@ -558,21 +558,21 @@ func TestQuerify(t *testing.T) {
 	ns := New(&deps.Deps{})
 
 	for i, test := range []struct {
-		params []interface{}
-		expect interface{}
+		params []any
+		expect any
 	}{
-		{[]interface{}{"a", "b"}, "a=b"},
-		{[]interface{}{"a", "b", "c", "d", "f", " &"}, `a=b&c=d&f=+%26`},
-		{[]interface{}{[]string{"a", "b"}}, "a=b"},
-		{[]interface{}{[]string{"a", "b", "c", "d", "f", " &"}}, `a=b&c=d&f=+%26`},
-		{[]interface{}{[]interface{}{"x", "y"}}, `x=y`},
-		{[]interface{}{[]interface{}{"x", 5}}, `x=5`},
+		{[]any{"a", "b"}, "a=b"},
+		{[]any{"a", "b", "c", "d", "f", " &"}, `a=b&c=d&f=+%26`},
+		{[]any{[]string{"a", "b"}}, "a=b"},
+		{[]any{[]string{"a", "b", "c", "d", "f", " &"}}, `a=b&c=d&f=+%26`},
+		{[]any{[]any{"x", "y"}}, `x=y`},
+		{[]any{[]any{"x", 5}}, `x=5`},
 		// errors
-		{[]interface{}{5, "b"}, false},
-		{[]interface{}{"a", "b", "c"}, false},
-		{[]interface{}{[]string{"a", "b", "c"}}, false},
-		{[]interface{}{[]string{"a", "b"}, "c"}, false},
-		{[]interface{}{[]interface{}{"c", "d", "e"}}, false},
+		{[]any{5, "b"}, false},
+		{[]any{"a", "b", "c"}, false},
+		{[]any{[]string{"a", "b", "c"}}, false},
+		{[]any{[]string{"a", "b"}, "c"}, false},
+		{[]any{[]any{"c", "d", "e"}}, false},
 	} {
 		errMsg := qt.Commentf("[%d] %v", i, test.params)
 
@@ -590,7 +590,7 @@ func TestQuerify(t *testing.T) {
 
 func BenchmarkQuerify(b *testing.B) {
 	ns := New(&deps.Deps{})
-	params := []interface{}{"a", "b", "c", "d", "f", " &"}
+	params := []any{"a", "b", "c", "d", "f", " &"}
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -620,28 +620,28 @@ func TestSeq(t *testing.T) {
 	ns := New(&deps.Deps{})
 
 	for i, test := range []struct {
-		args   []interface{}
-		expect interface{}
+		args   []any
+		expect any
 	}{
-		{[]interface{}{-2, 5}, []int{-2, -1, 0, 1, 2, 3, 4, 5}},
-		{[]interface{}{1, 2, 4}, []int{1, 3}},
-		{[]interface{}{1}, []int{1}},
-		{[]interface{}{3}, []int{1, 2, 3}},
-		{[]interface{}{3.2}, []int{1, 2, 3}},
-		{[]interface{}{0}, []int{}},
-		{[]interface{}{-1}, []int{-1}},
-		{[]interface{}{-3}, []int{-1, -2, -3}},
-		{[]interface{}{3, -2}, []int{3, 2, 1, 0, -1, -2}},
-		{[]interface{}{6, -2, 2}, []int{6, 4, 2}},
+		{[]any{-2, 5}, []int{-2, -1, 0, 1, 2, 3, 4, 5}},
+		{[]any{1, 2, 4}, []int{1, 3}},
+		{[]any{1}, []int{1}},
+		{[]any{3}, []int{1, 2, 3}},
+		{[]any{3.2}, []int{1, 2, 3}},
+		{[]any{0}, []int{}},
+		{[]any{-1}, []int{-1}},
+		{[]any{-3}, []int{-1, -2, -3}},
+		{[]any{3, -2}, []int{3, 2, 1, 0, -1, -2}},
+		{[]any{6, -2, 2}, []int{6, 4, 2}},
 		// errors
-		{[]interface{}{1, 0, 2}, false},
-		{[]interface{}{1, -1, 2}, false},
-		{[]interface{}{2, 1, 1}, false},
-		{[]interface{}{2, 1, 1, 1}, false},
-		{[]interface{}{2001}, false},
-		{[]interface{}{}, false},
-		{[]interface{}{0, -1000000}, false},
-		{[]interface{}{tstNoStringer{}}, false},
+		{[]any{1, 0, 2}, false},
+		{[]any{1, -1, 2}, false},
+		{[]any{2, 1, 1}, false},
+		{[]any{2, 1, 1, 1}, false},
+		{[]any{2001}, false},
+		{[]any{}, false},
+		{[]any{0, -1000000}, false},
+		{[]any{tstNoStringer{}}, false},
 		{nil, false},
 	} {
 		errMsg := qt.Commentf("[%d] %v", i, test)
@@ -664,7 +664,7 @@ func TestShuffle(t *testing.T) {
 	ns := New(&deps.Deps{})
 
 	for i, test := range []struct {
-		seq     interface{}
+		seq     any
 		success bool
 	}{
 		{[]string{"a", "b", "c", "d"}, true},
@@ -735,14 +735,14 @@ func TestSlice(t *testing.T) {
 	ns := New(&deps.Deps{})
 
 	for i, test := range []struct {
-		args     []interface{}
-		expected interface{}
+		args     []any
+		expected any
 	}{
-		{[]interface{}{"a", "b"}, []string{"a", "b"}},
-		{[]interface{}{}, []interface{}{}},
-		{[]interface{}{nil}, []interface{}{nil}},
-		{[]interface{}{5, "b"}, []interface{}{5, "b"}},
-		{[]interface{}{tstNoStringer{}}, []tstNoStringer{{}}},
+		{[]any{"a", "b"}, []string{"a", "b"}},
+		{[]any{}, []any{}},
+		{[]any{nil}, []any{nil}},
+		{[]any{5, "b"}, []any{5, "b"}},
+		{[]any{tstNoStringer{}}, []tstNoStringer{{}}},
 	} {
 		errMsg := qt.Commentf("[%d] %v", i, test.args)
 
@@ -759,12 +759,12 @@ func TestUnion(t *testing.T) {
 	ns := New(&deps.Deps{})
 
 	for i, test := range []struct {
-		l1     interface{}
-		l2     interface{}
-		expect interface{}
+		l1     any
+		l2     any
+		expect any
 		isErr  bool
 	}{
-		{nil, nil, []interface{}{}, false},
+		{nil, nil, []any{}, false},
 		{nil, []string{"a", "b"}, []string{"a", "b"}, false},
 		{[]string{"a", "b"}, nil, []string{"a", "b"}, false},
 
@@ -783,36 +783,36 @@ func TestUnion(t *testing.T) {
 		{[]int{2, 4}, []int{1, 2, 4}, []int{2, 4, 1}, false},
 		{[]int{1, 2, 4}, []int{3, 6}, []int{1, 2, 4, 3, 6}, false},
 		{[]float64{2.2, 4.4}, []float64{1.1, 2.2, 4.4}, []float64{2.2, 4.4, 1.1}, false},
-		{[]interface{}{"a", "b", "c", "c"}, []interface{}{"a", "b", "b"}, []interface{}{"a", "b", "c"}, false},
+		{[]any{"a", "b", "c", "c"}, []any{"a", "b", "b"}, []any{"a", "b", "c"}, false},
 
 		// []T ∪ []interface{}
-		{[]string{"1", "2"}, []interface{}{"9"}, []string{"1", "2", "9"}, false},
-		{[]int{2, 4}, []interface{}{1, 2, 4}, []int{2, 4, 1}, false},
-		{[]int8{2, 4}, []interface{}{int8(1), int8(2), int8(4)}, []int8{2, 4, 1}, false},
-		{[]int8{2, 4}, []interface{}{1, 2, 4}, []int8{2, 4, 1}, false},
-		{[]int16{2, 4}, []interface{}{1, 2, 4}, []int16{2, 4, 1}, false},
-		{[]int32{2, 4}, []interface{}{1, 2, 4}, []int32{2, 4, 1}, false},
-		{[]int64{2, 4}, []interface{}{1, 2, 4}, []int64{2, 4, 1}, false},
+		{[]string{"1", "2"}, []any{"9"}, []string{"1", "2", "9"}, false},
+		{[]int{2, 4}, []any{1, 2, 4}, []int{2, 4, 1}, false},
+		{[]int8{2, 4}, []any{int8(1), int8(2), int8(4)}, []int8{2, 4, 1}, false},
+		{[]int8{2, 4}, []any{1, 2, 4}, []int8{2, 4, 1}, false},
+		{[]int16{2, 4}, []any{1, 2, 4}, []int16{2, 4, 1}, false},
+		{[]int32{2, 4}, []any{1, 2, 4}, []int32{2, 4, 1}, false},
+		{[]int64{2, 4}, []any{1, 2, 4}, []int64{2, 4, 1}, false},
 
-		{[]float64{2.2, 4.4}, []interface{}{1.1, 2.2, 4.4}, []float64{2.2, 4.4, 1.1}, false},
-		{[]float32{2.2, 4.4}, []interface{}{1.1, 2.2, 4.4}, []float32{2.2, 4.4, 1.1}, false},
+		{[]float64{2.2, 4.4}, []any{1.1, 2.2, 4.4}, []float64{2.2, 4.4, 1.1}, false},
+		{[]float32{2.2, 4.4}, []any{1.1, 2.2, 4.4}, []float32{2.2, 4.4, 1.1}, false},
 
 		// []interface{} ∪ []T
-		{[]interface{}{"a", "b", "c", "c"}, []string{"a", "b", "d"}, []interface{}{"a", "b", "c", "d"}, false},
-		{[]interface{}{}, []string{}, []interface{}{}, false},
-		{[]interface{}{1, 2}, []int{2, 3}, []interface{}{1, 2, 3}, false},
-		{[]interface{}{1, 2}, []int8{2, 3}, []interface{}{1, 2, 3}, false}, // 28
-		{[]interface{}{uint(1), uint(2)}, []uint{2, 3}, []interface{}{uint(1), uint(2), uint(3)}, false},
-		{[]interface{}{1.1, 2.2}, []float64{2.2, 3.3}, []interface{}{1.1, 2.2, 3.3}, false},
+		{[]any{"a", "b", "c", "c"}, []string{"a", "b", "d"}, []any{"a", "b", "c", "d"}, false},
+		{[]any{}, []string{}, []any{}, false},
+		{[]any{1, 2}, []int{2, 3}, []any{1, 2, 3}, false},
+		{[]any{1, 2}, []int8{2, 3}, []any{1, 2, 3}, false}, // 28
+		{[]any{uint(1), uint(2)}, []uint{2, 3}, []any{uint(1), uint(2), uint(3)}, false},
+		{[]any{1.1, 2.2}, []float64{2.2, 3.3}, []any{1.1, 2.2, 3.3}, false},
 
 		// Structs
 		{pagesPtr{p1, p4}, pagesPtr{p4, p2, p2}, pagesPtr{p1, p4, p2}, false},
 		{pagesVals{p1v}, pagesVals{p3v, p3v}, pagesVals{p1v, p3v}, false},
-		{[]interface{}{p1, p4}, []interface{}{p4, p2, p2}, []interface{}{p1, p4, p2}, false},
-		{[]interface{}{p1v}, []interface{}{p3v, p3v}, []interface{}{p1v, p3v}, false},
+		{[]any{p1, p4}, []any{p4, p2, p2}, []any{p1, p4, p2}, false},
+		{[]any{p1v}, []any{p3v, p3v}, []any{p1v, p3v}, false},
 		// #3686
-		{[]interface{}{p1v}, []interface{}{}, []interface{}{p1v}, false},
-		{[]interface{}{}, []interface{}{p1v}, []interface{}{p1v}, false},
+		{[]any{p1v}, []any{}, []any{p1v}, false},
+		{[]any{}, []any{p1v}, []any{p1v}, false},
 		{pagesPtr{p1}, pagesPtr{}, pagesPtr{p1}, false},
 		{pagesVals{p1v}, pagesVals{}, pagesVals{p1v}, false},
 		{pagesPtr{}, pagesPtr{p1}, pagesPtr{p1}, false},
@@ -847,8 +847,8 @@ func TestUniq(t *testing.T) {
 	c := qt.New(t)
 	ns := New(&deps.Deps{})
 	for i, test := range []struct {
-		l      interface{}
-		expect interface{}
+		l      any
+		expect any
 		isErr  bool
 	}{
 		{[]string{"a", "b", "c"}, []string{"a", "b", "c"}, false},
@@ -860,7 +860,7 @@ func TestUniq(t *testing.T) {
 		{[]int{1, 2, 2, 3}, []int{1, 2, 3}, false},
 		{[]int{1, 2, 3, 2}, []int{1, 2, 3}, false},
 		{[4]int{1, 2, 3, 2}, []int{1, 2, 3}, false},
-		{nil, make([]interface{}, 0), false},
+		{nil, make([]any, 0), false},
 		// Pointers
 		{pagesPtr{p1, p2, p3, p2}, pagesPtr{p1, p2, p3}, false},
 		{pagesPtr{}, pagesPtr{}, false},
@@ -951,7 +951,7 @@ type TstXI interface {
 	TstRv2() string
 }
 
-func ToTstXIs(slice interface{}) []TstXI {
+func ToTstXIs(slice any) []TstXI {
 	s := reflect.ValueOf(slice)
 	if s.Kind() != reflect.Slice {
 		return nil

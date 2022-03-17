@@ -23,7 +23,7 @@ import (
 
 func TestDecodeConfig(t *testing.T) {
 	c := qt.New(t)
-	m := map[string]interface{}{
+	m := map[string]any{
 		"quality":        42,
 		"resampleFilter": "NearestNeighbor",
 		"anchor":         "topLeft",
@@ -37,7 +37,7 @@ func TestDecodeConfig(t *testing.T) {
 	c.Assert(imaging.ResampleFilter, qt.Equals, "nearestneighbor")
 	c.Assert(imaging.Anchor, qt.Equals, "topleft")
 
-	m = map[string]interface{}{}
+	m = map[string]any{}
 
 	imagingConfig, err = DecodeConfig(m)
 	c.Assert(err, qt.IsNil)
@@ -45,30 +45,30 @@ func TestDecodeConfig(t *testing.T) {
 	c.Assert(imaging.ResampleFilter, qt.Equals, "box")
 	c.Assert(imaging.Anchor, qt.Equals, "smart")
 
-	_, err = DecodeConfig(map[string]interface{}{
+	_, err = DecodeConfig(map[string]any{
 		"quality": 123,
 	})
 	c.Assert(err, qt.Not(qt.IsNil))
 
-	_, err = DecodeConfig(map[string]interface{}{
+	_, err = DecodeConfig(map[string]any{
 		"resampleFilter": "asdf",
 	})
 	c.Assert(err, qt.Not(qt.IsNil))
 
-	_, err = DecodeConfig(map[string]interface{}{
+	_, err = DecodeConfig(map[string]any{
 		"anchor": "asdf",
 	})
 	c.Assert(err, qt.Not(qt.IsNil))
 
-	imagingConfig, err = DecodeConfig(map[string]interface{}{
+	imagingConfig, err = DecodeConfig(map[string]any{
 		"anchor": "Smart",
 	})
 	imaging = imagingConfig.Cfg
 	c.Assert(err, qt.IsNil)
 	c.Assert(imaging.Anchor, qt.Equals, "smart")
 
-	imagingConfig, err = DecodeConfig(map[string]interface{}{
-		"exif": map[string]interface{}{
+	imagingConfig, err = DecodeConfig(map[string]any{
+		"exif": map[string]any{
 			"disableLatLong": true,
 		},
 	})
@@ -81,7 +81,7 @@ func TestDecodeConfig(t *testing.T) {
 func TestDecodeImageConfig(t *testing.T) {
 	for i, this := range []struct {
 		in     string
-		expect interface{}
+		expect any
 	}{
 		{"300x400", newImageConfig(300, 400, 75, 0, "box", "smart", "")},
 		{"300x400 #fff", newImageConfig(300, 400, 75, 0, "box", "smart", "fff")},

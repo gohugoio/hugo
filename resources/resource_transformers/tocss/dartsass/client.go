@@ -69,7 +69,7 @@ type Client struct {
 	transpiler           *godartsass.Transpiler
 }
 
-func (c *Client) ToCSS(res resources.ResourceTransformer, args map[string]interface{}) (resource.Resource, error) {
+func (c *Client) ToCSS(res resources.ResourceTransformer, args map[string]any) (resource.Resource, error) {
 	if c.dartSassNotAvailable {
 		return res.Transform(resources.NewFeatureNotAvailableTransformer(transformationName, args))
 	}
@@ -123,7 +123,7 @@ type Options struct {
 	EnableSourceMap bool
 }
 
-func decodeOptions(m map[string]interface{}) (opts Options, err error) {
+func decodeOptions(m map[string]any) (opts Options, err error) {
 	if m == nil {
 		return
 	}

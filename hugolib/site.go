@@ -228,7 +228,7 @@ func (s *Site) prepareInits() {
 
 	var init lazy.Init
 
-	s.init.prevNext = init.Branch(func() (interface{}, error) {
+	s.init.prevNext = init.Branch(func() (any, error) {
 		regularPages := s.RegularPages()
 		for i, p := range regularPages {
 			np, ok := p.(nextPrevProvider)
@@ -255,7 +255,7 @@ func (s *Site) prepareInits() {
 		return nil, nil
 	})
 
-	s.init.prevNextInSection = init.Branch(func() (interface{}, error) {
+	s.init.prevNextInSection = init.Branch(func() (any, error) {
 		var sections page.Pages
 		s.home.treeRef.m.collectSectionsRecursiveIncludingSelf(pageMapQuery{Prefix: s.home.treeRef.key}, func(n *contentNode) {
 			sections = append(sections, n.p)
@@ -312,12 +312,12 @@ func (s *Site) prepareInits() {
 		return nil, nil
 	})
 
-	s.init.menus = init.Branch(func() (interface{}, error) {
+	s.init.menus = init.Branch(func() (any, error) {
 		s.assembleMenus()
 		return nil, nil
 	})
 
-	s.init.taxonomies = init.Branch(func() (interface{}, error) {
+	s.init.taxonomies = init.Branch(func() (any, error) {
 		err := s.pageMap.assembleTaxonomies()
 		return nil, err
 	})
@@ -433,8 +433,8 @@ But this also means that your site configuration may not do what you expect. If 
 	}
 
 	var (
-		mediaTypesConfig    []map[string]interface{}
-		outputFormatsConfig []map[string]interface{}
+		mediaTypesConfig    []map[string]any
+		outputFormatsConfig []map[string]any
 
 		siteOutputFormatsConfig output.Formats
 		siteMediaTypesConfig    media.Types
@@ -473,7 +473,7 @@ But this also means that your site configuration may not do what you expect. If 
 		siteOutputFormatsConfig = tmp
 	}
 
-	var siteOutputs map[string]interface{}
+	var siteOutputs map[string]any
 	if cfg.Language.IsSet("outputs") {
 		siteOutputs = cfg.Language.GetStringMap("outputs")
 
@@ -654,7 +654,7 @@ type SiteInfo struct {
 	hugoInfo     hugo.Info
 	title        string
 	RSSLink      string
-	Author       map[string]interface{}
+	Author       map[string]any
 	LanguageCode string
 	Copyright    string
 
@@ -709,7 +709,7 @@ func (s *SiteInfo) Menus() navigation.Menus {
 }
 
 // TODO(bep) type
-func (s *SiteInfo) Taxonomies() interface{} {
+func (s *SiteInfo) Taxonomies() any {
 	return s.s.Taxonomies()
 }
 
@@ -717,7 +717,7 @@ func (s *SiteInfo) Params() maps.Params {
 	return s.s.Language().Params()
 }
 
-func (s *SiteInfo) Data() map[string]interface{} {
+func (s *SiteInfo) Data() map[string]any {
 	return s.s.h.Data()
 }
 
@@ -786,7 +786,7 @@ type SiteSocial map[string]string
 // Param is a convenience method to do lookups in SiteInfo's Params map.
 //
 // This method is also implemented on Page.
-func (s *SiteInfo) Param(key interface{}) (interface{}, error) {
+func (s *SiteInfo) Param(key any) (any, error) {
 	return resource.Param(s, nil, key)
 }
 
@@ -826,7 +826,7 @@ func (s siteRefLinker) logNotFound(ref, what string, p page.Page, position text.
 	}
 }
 
-func (s *siteRefLinker) refLink(ref string, source interface{}, relative bool, outputFormat string) (string, error) {
+func (s *siteRefLinker) refLink(ref string, source any, relative bool, outputFormat string) (string, error) {
 	p, err := unwrapPage(source)
 	if err != nil {
 		return "", err
@@ -1493,7 +1493,7 @@ func (s *Site) assembleMenus() {
 	sectionPagesMenu := s.Info.sectionPagesMenu
 
 	if sectionPagesMenu != "" {
-		s.pageMap.sections.Walk(func(s string, v interface{}) bool {
+		s.pageMap.sections.Walk(func(s string, v any) bool {
 			p := v.(*contentNode).p
 			if p.IsHome() {
 				return false
@@ -1695,7 +1695,7 @@ func (s *Site) lookupLayouts(layouts ...string) tpl.Template {
 	return nil
 }
 
-func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath string, d interface{}, templ tpl.Template) error {
+func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath string, d any, templ tpl.Template) error {
 	s.Log.Debugf("Render XML for %q to %q", name, targetPath)
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
@@ -1779,7 +1779,7 @@ type hookRendererTemplate struct {
 	templateHandler tpl.TemplateHandler
 	identity.SearchProvider
 	templ           tpl.Template
-	resolvePosition func(ctx interface{}) text.Position
+	resolvePosition func(ctx any) text.Position
 }
 
 func (hr hookRendererTemplate) RenderLink(w io.Writer, ctx hooks.LinkContext) error {
@@ -1794,7 +1794,7 @@ func (hr hookRendererTemplate) RenderCodeblock(w hugio.FlexiWriter, ctx hooks.Co
 	return hr.templateHandler.Execute(hr.templ, w, ctx)
 }
 
-func (hr hookRendererTemplate) ResolvePosition(ctx interface{}) text.Position {
+func (hr hookRendererTemplate) ResolvePosition(ctx any) text.Position {
 	return hr.resolvePosition(ctx)
 }
 
@@ -1802,7 +1802,7 @@ func (hr hookRendererTemplate) IsDefaultCodeBlockRenderer() bool {
 	return false
 }
 
-func (s *Site) renderForTemplate(name, outputFormat string, d interface{}, w io.Writer, templ tpl.Template) (err error) {
+func (s *Site) renderForTemplate(name, outputFormat string, d any, w io.Writer, templ tpl.Template) (err error) {
 	if templ == nil {
 		s.logMissingLayout(name, "", "", outputFormat)
 		return nil
@@ -1871,7 +1871,7 @@ func (s *Site) newPage(
 	parentbBucket *pagesMapBucket,
 	kind, title string,
 	sections ...string) *pageState {
-	m := map[string]interface{}{}
+	m := map[string]any{}
 	if title != "" {
 		m["title"] = title
 	}

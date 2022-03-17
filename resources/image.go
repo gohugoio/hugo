@@ -238,7 +238,7 @@ func (i *imageResource) Fill(spec string) (resource.Image, error) {
 	return img, err
 }
 
-func (i *imageResource) Filter(filters ...interface{}) (resource.Image, error) {
+func (i *imageResource) Filter(filters ...any) (resource.Image, error) {
 	conf := images.GetDefaultImageConfig("filter", i.Proc.Cfg)
 
 	var gfilters []gift.Filter

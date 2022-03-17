@@ -36,7 +36,7 @@ func New() *Namespace {
 type Namespace struct{}
 
 // MD5 hashes the given input and returns its MD5 checksum.
-func (ns *Namespace) MD5(in interface{}) (string, error) {
+func (ns *Namespace) MD5(in any) (string, error) {
 	conv, err := cast.ToStringE(in)
 	if err != nil {
 		return "", err
@@ -47,7 +47,7 @@ func (ns *Namespace) MD5(in interface{}) (string, error) {
 }
 
 // SHA1 hashes the given input and returns its SHA1 checksum.
-func (ns *Namespace) SHA1(in interface{}) (string, error) {
+func (ns *Namespace) SHA1(in any) (string, error) {
 	conv, err := cast.ToStringE(in)
 	if err != nil {
 		return "", err
@@ -58,7 +58,7 @@ func (ns *Namespace) SHA1(in interface{}) (string, error) {
 }
 
 // SHA256 hashes the given input and returns its SHA256 checksum.
-func (ns *Namespace) SHA256(in interface{}) (string, error) {
+func (ns *Namespace) SHA256(in any) (string, error) {
 	conv, err := cast.ToStringE(in)
 	if err != nil {
 		return "", err
@@ -69,7 +69,7 @@ func (ns *Namespace) SHA256(in interface{}) (string, error) {
 }
 
 // HMAC returns a cryptographic hash that uses a key to sign a message.
-func (ns *Namespace) HMAC(h interface{}, k interface{}, m interface{}) (string, error) {
+func (ns *Namespace) HMAC(h any, k any, m any) (string, error) {
 	ha, err := cast.ToStringE(h)
 	if err != nil {
 		return "", err

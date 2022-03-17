@@ -195,11 +195,11 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 	}
 
 	// There may be recursive loops in shortcodes and render hooks.
-	cp.initMain = parent.BranchWithTimeout(p.s.siteCfg.timeout, func(ctx context.Context) (interface{}, error) {
+	cp.initMain = parent.BranchWithTimeout(p.s.siteCfg.timeout, func(ctx context.Context) (any, error) {
 		return nil, initContent()
 	})
 
-	cp.initPlain = cp.initMain.Branch(func() (interface{}, error) {
+	cp.initPlain = cp.initMain.Branch(func() (any, error) {
 		cp.plain = helpers.StripHTML(string(cp.content))
 		cp.plainWords = strings.Fields(cp.plain)
 		cp.setWordCounts(p.m.isCJKLanguage)
@@ -272,7 +272,7 @@ func (p *pageContentOutput) Reset() {
 	p.renderHooks = &renderHooks{}
 }
 
-func (p *pageContentOutput) Content() (interface{}, error) {
+func (p *pageContentOutput) Content() (any, error) {
 	if p.p.s.initInit(p.initMain, p.p) {
 		return p.content, nil
 	}
@@ -330,7 +330,7 @@ func (p *pageContentOutput) WordCount() int {
 	return p.wordCount
 }
 
-func (p *pageContentOutput) RenderString(args ...interface{}) (template.HTML, error) {
+func (p *pageContentOutput) RenderString(args ...any) (template.HTML, error) {
 	if len(args) < 1 || len(args) > 2 {
 		return "", errors.New("want 1 or 2 arguments")
 	}
@@ -342,7 +342,7 @@ func (p *pageContentOutput) RenderString(args ...interface{}) (template.HTML, er
 	if len(args) == 1 {
 		sidx = 0
 	} else {
-		m, ok := args[0].(map[string]interface{})
+		m, ok := args[0].(map[string]any)
 		if !ok {
 			return "", errors.New("first argument must be a map")
 		}
@@ -433,14 +433,14 @@ func (p *pageContentOutput) initRenderHooks() error {
 
 		type cacheKey struct {
 			tp hooks.RendererType
-			id interface{}
+			id any
 			f  output.Format
 		}
 
-		renderCache := make(map[cacheKey]interface{})
+		renderCache := make(map[cacheKey]any)
 		var renderCacheMu sync.Mutex
 
-		resolvePosition := func(ctx interface{}) text.Position {
+		resolvePosition := func(ctx any) text.Position {
 			var offset int
 
 			switch v := ctx.(type) {
@@ -459,7 +459,7 @@ func (p *pageContentOutput) initRenderHooks() error {
 			return pos
 		}
 
-		p.renderHooks.getRenderer = func(tp hooks.RendererType, id interface{}) interface{} {
+		p.renderHooks.getRenderer = func(tp hooks.RendererType, id any) any {
 			renderCacheMu.Lock()
 			defer renderCacheMu.Unlock()
 
@@ -650,7 +650,7 @@ func (t targetPathsHolder) targetPaths() page.TargetPaths {
 	return t.paths
 }
 
-func executeToString(h tpl.TemplateHandler, templ tpl.Template, data interface{}) (string, error) {
+func executeToString(h tpl.TemplateHandler, templ tpl.Template, data any) (string, error) {
 	b := bp.GetBuffer()
 	defer bp.PutBuffer(b)
 	if err := h.Execute(templ, b, data); err != nil {

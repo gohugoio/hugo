@@ -68,7 +68,7 @@ type Deps struct {
 	FileCaches filecache.Caches
 
 	// The translation func to use
-	Translate func(translationID string, templateData interface{}) string `json:"-"`
+	Translate func(translationID string, templateData any) string `json:"-"`
 
 	// The language in use. TODO(bep) consolidate with site
 	Language *langs.Language
@@ -83,7 +83,7 @@ type Deps struct {
 	WithTemplate     func(templ tpl.TemplateManager) error `json:"-"`
 
 	// Used in tests
-	OverloadedTemplateFuncs map[string]interface{}
+	OverloadedTemplateFuncs map[string]any
 
 	translationProvider ResourceProvider
 
@@ -392,7 +392,7 @@ type DepsCfg struct {
 	TemplateProvider ResourceProvider
 	WithTemplate     func(templ tpl.TemplateManager) error
 	// Used in tests
-	OverloadedTemplateFuncs map[string]interface{}
+	OverloadedTemplateFuncs map[string]any
 
 	// i18n handling.
 	TranslationProvider ResourceProvider

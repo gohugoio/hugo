@@ -35,6 +35,6 @@ type Namespace struct {
 // nicely.
 // Also note that the output from Dump may change from Hugo version to the next,
 // so don't depend on a specific output.
-func (ns *Namespace) Dump(val interface{}) string {
+func (ns *Namespace) Dump(val any) string {
 	return litter.Sdump(val)
 }

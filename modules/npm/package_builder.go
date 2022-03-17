@@ -119,12 +119,12 @@ func Pack(fs afero.Fs, fis []hugofs.FileMetaInfo) error {
 	// Replace the dependencies in the original template with the merged set.
 	b.originalPackageJSON[dependenciesKey] = b.dependencies
 	b.originalPackageJSON[devDependenciesKey] = b.devDependencies
-	var commentsm map[string]interface{}
+	var commentsm map[string]any
 	comments, found := b.originalPackageJSON["comments"]
 	if found {
 		commentsm = maps.ToStringMap(comments)
 	} else {
-		commentsm = make(map[string]interface{})
+		commentsm = make(map[string]any)
 	}
 	commentsm[dependenciesKey] = b.dependenciesComments
 	commentsm[devDependenciesKey] = b.devDependenciesComments
@@ -148,10 +148,10 @@ func Pack(fs afero.Fs, fis []hugofs.FileMetaInfo) error {
 
 func newPackageBuilder(source string, first io.Reader) *packageBuilder {
 	b := &packageBuilder{
-		devDependencies:         make(map[string]interface{}),
-		devDependenciesComments: make(map[string]interface{}),
-		dependencies:            make(map[string]interface{}),
-		dependenciesComments:    make(map[string]interface{}),
+		devDependencies:         make(map[string]any),
+		devDependenciesComments: make(map[string]any),
+		dependencies:            make(map[string]any),
+		dependenciesComments:    make(map[string]any),
 	}
 
 	m := b.unmarshal(first)
@@ -169,12 +169,12 @@ type packageBuilder struct {
 	err error
 
 	// The original package.hugo.json.
-	originalPackageJSON map[string]interface{}
+	originalPackageJSON map[string]any
 
-	devDependencies         map[string]interface{}
-	devDependenciesComments map[string]interface{}
-	dependencies            map[string]interface{}
-	dependenciesComments    map[string]interface{}
+	devDependencies         map[string]any
+	devDependenciesComments map[string]any
+	dependencies            map[string]any
+	dependenciesComments    map[string]any
 }
 
 func (b *packageBuilder) Add(source string, r io.Reader) *packageBuilder {
@@ -192,7 +192,7 @@ func (b *packageBuilder) Add(source string, r io.Reader) *packageBuilder {
 	return b
 }
 
-func (b *packageBuilder) addm(source string, m map[string]interface{}) {
+func (b *packageBuilder) addm(source string, m map[string]any) {
 	if source == "" {
 		source = "project"
 	}
@@ -225,8 +225,8 @@ func (b *packageBuilder) addm(source string, m map[string]interface{}) {
 	}
 }
 
-func (b *packageBuilder) unmarshal(r io.Reader) map[string]interface{} {
-	m := make(map[string]interface{})
+func (b *packageBuilder) unmarshal(r io.Reader) map[string]any {
+	m := make(map[string]any)
 	err := json.Unmarshal(helpers.ReaderToBytes(r), &m)
 	if err != nil {
 		b.err = err

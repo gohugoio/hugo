@@ -25,7 +25,7 @@ type pageWrapper interface {
 }
 
 // unwrapPage is used in equality checks and similar.
-func unwrapPage(in interface{}) (page.Page, error) {
+func unwrapPage(in any) (page.Page, error) {
 	switch v := in.(type) {
 	case *pageState:
 		return v, nil
@@ -40,7 +40,7 @@ func unwrapPage(in interface{}) (page.Page, error) {
 	}
 }
 
-func mustUnwrapPage(in interface{}) page.Page {
+func mustUnwrapPage(in any) page.Page {
 	p, err := unwrapPage(in)
 	if err != nil {
 		panic(err)

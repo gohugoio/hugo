@@ -50,7 +50,7 @@ var (
 
 // ShortcodeWithPage is the "." context in a shortcode template.
 type ShortcodeWithPage struct {
-	Params        interface{}
+	Params        any
 	Inner         template.HTML
 	Page          page.Page
 	Parent        *ShortcodeWithPage
@@ -87,13 +87,13 @@ func (scp *ShortcodeWithPage) Site() page.Site {
 
 // Ref is a shortcut to the Ref method on Page. It passes itself as a context
 // to get better error messages.
-func (scp *ShortcodeWithPage) Ref(args map[string]interface{}) (string, error) {
+func (scp *ShortcodeWithPage) Ref(args map[string]any) (string, error) {
 	return scp.Page.RefFrom(args, scp)
 }
 
 // RelRef is a shortcut to the RelRef method on Page. It passes itself as a context
 // to get better error messages.
-func (scp *ShortcodeWithPage) RelRef(args map[string]interface{}) (string, error) {
+func (scp *ShortcodeWithPage) RelRef(args map[string]any) (string, error) {
 	return scp.Page.RelRefFrom(args, scp)
 }
 
@@ -107,7 +107,7 @@ func (scp *ShortcodeWithPage) Scratch() *maps.Scratch {
 }
 
 // Get is a convenience method to look up shortcode parameters by its key.
-func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
+func (scp *ShortcodeWithPage) Get(key any) any {
 	if scp.Params == nil {
 		return nil
 	}
@@ -162,10 +162,10 @@ func createShortcodePlaceholder(id string, ordinal int) string {
 
 type shortcode struct {
 	name      string
-	isInline  bool          // inline shortcode. Any inner will be a Go template.
-	isClosing bool          // whether a closing tag was provided
-	inner     []interface{} // string or nested shortcode
-	params    interface{}   // map or array
+	isInline  bool  // inline shortcode. Any inner will be a Go template.
+	isClosing bool  // whether a closing tag was provided
+	inner     []any // string or nested shortcode
+	params    any   // map or array
 	ordinal   int
 	err       error
 
@@ -214,16 +214,16 @@ func (s shortcode) innerString() string {
 
 func (sc shortcode) String() string {
 	// for testing (mostly), so any change here will break tests!
-	var params interface{}
+	var params any
 	switch v := sc.params.(type) {
-	case map[string]interface{}:
+	case map[string]any:
 		// sort the keys so test assertions won't fail
 		var keys []string
 		for k := range v {
 			keys = append(keys, k)
 		}
 		sort.Strings(keys)
-		tmp := make(map[string]interface{})
+		tmp := make(map[string]any)
 
 		for _, k := range keys {
 			tmp[k] = v[k]
@@ -552,11 +552,11 @@ Loop:
 			} else if pt.Peek().IsShortcodeParamVal() {
 				// named params
 				if sc.params == nil {
-					params := make(map[string]interface{})
+					params := make(map[string]any)
 					params[currItem.ValStr()] = pt.Next().ValTyped()
 					sc.params = params
 				} else {
-					if params, ok := sc.params.(map[string]interface{}); ok {
+					if params, ok := sc.params.(map[string]any); ok {
 						params[currItem.ValStr()] = pt.Next().ValTyped()
 					} else {
 						return sc, errShortCodeIllegalState
@@ -565,11 +565,11 @@ Loop:
 			} else {
 				// positional params
 				if sc.params == nil {
-					var params []interface{}
+					var params []any
 					params = append(params, currItem.ValTyped())
 					sc.params = params
 				} else {
-					if params, ok := sc.params.([]interface{}); ok {
+					if params, ok := sc.params.([]any); ok {
 						params = append(params, currItem.ValTyped())
 						sc.params = params
 					} else {

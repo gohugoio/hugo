@@ -54,13 +54,13 @@ func TestPageMatcher(t *testing.T) {
 
 	c.Run("Decode", func(c *qt.C) {
 		var v PageMatcher
-		c.Assert(DecodePageMatcher(map[string]interface{}{"kind": "foo"}, &v), qt.Not(qt.IsNil))
-		c.Assert(DecodePageMatcher(map[string]interface{}{"kind": "{foo,bar}"}, &v), qt.Not(qt.IsNil))
-		c.Assert(DecodePageMatcher(map[string]interface{}{"kind": "taxonomy"}, &v), qt.IsNil)
-		c.Assert(DecodePageMatcher(map[string]interface{}{"kind": "{taxonomy,foo}"}, &v), qt.IsNil)
-		c.Assert(DecodePageMatcher(map[string]interface{}{"kind": "{taxonomy,term}"}, &v), qt.IsNil)
-		c.Assert(DecodePageMatcher(map[string]interface{}{"kind": "*"}, &v), qt.IsNil)
-		c.Assert(DecodePageMatcher(map[string]interface{}{"kind": "home", "path": filepath.FromSlash("/a/b/**")}, &v), qt.IsNil)
+		c.Assert(DecodePageMatcher(map[string]any{"kind": "foo"}, &v), qt.Not(qt.IsNil))
+		c.Assert(DecodePageMatcher(map[string]any{"kind": "{foo,bar}"}, &v), qt.Not(qt.IsNil))
+		c.Assert(DecodePageMatcher(map[string]any{"kind": "taxonomy"}, &v), qt.IsNil)
+		c.Assert(DecodePageMatcher(map[string]any{"kind": "{taxonomy,foo}"}, &v), qt.IsNil)
+		c.Assert(DecodePageMatcher(map[string]any{"kind": "{taxonomy,term}"}, &v), qt.IsNil)
+		c.Assert(DecodePageMatcher(map[string]any{"kind": "*"}, &v), qt.IsNil)
+		c.Assert(DecodePageMatcher(map[string]any{"kind": "home", "path": filepath.FromSlash("/a/b/**")}, &v), qt.IsNil)
 		c.Assert(v, qt.Equals, PageMatcher{Kind: "home", Path: "/a/b/**"})
 	})
 }

@@ -16,7 +16,7 @@ func newTestPathSpec(fs *hugofs.Fs, v config.Provider) *PathSpec {
 	return ps
 }
 
-func newTestDefaultPathSpec(configKeyValues ...interface{}) *PathSpec {
+func newTestDefaultPathSpec(configKeyValues ...any) *PathSpec {
 	v := config.New()
 	fs := hugofs.NewMem(v)
 	cfg := newTestCfg()

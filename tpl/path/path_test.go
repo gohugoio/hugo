@@ -31,8 +31,8 @@ func TestBase(t *testing.T) {
 	c := qt.New(t)
 
 	for _, test := range []struct {
-		path   interface{}
-		expect interface{}
+		path   any
+		expect any
 	}{
 		{filepath.FromSlash(`foo/bar.txt`), `bar.txt`},
 		{filepath.FromSlash(`foo/bar/txt `), `txt `},
@@ -61,8 +61,8 @@ func TestDir(t *testing.T) {
 	c := qt.New(t)
 
 	for _, test := range []struct {
-		path   interface{}
-		expect interface{}
+		path   any
+		expect any
 	}{
 		{filepath.FromSlash(`foo/bar.txt`), `foo`},
 		{filepath.FromSlash(`foo/bar/txt `), `foo/bar`},
@@ -91,8 +91,8 @@ func TestExt(t *testing.T) {
 	c := qt.New(t)
 
 	for _, test := range []struct {
-		path   interface{}
-		expect interface{}
+		path   any
+		expect any
 	}{
 		{filepath.FromSlash(`foo/bar.json`), `.json`},
 		{`foo.bar.txt `, `.txt `},
@@ -119,21 +119,21 @@ func TestJoin(t *testing.T) {
 	c := qt.New(t)
 
 	for _, test := range []struct {
-		elements interface{}
-		expect   interface{}
+		elements any
+		expect   any
 	}{
 		{
 			[]string{"", "baz", filepath.FromSlash(`foo/bar.txt`)},
 			`baz/foo/bar.txt`,
 		},
 		{
-			[]interface{}{"", "baz", DirFile{"big", "john"}, filepath.FromSlash(`foo/bar.txt`)},
+			[]any{"", "baz", DirFile{"big", "john"}, filepath.FromSlash(`foo/bar.txt`)},
 			`baz/big|john/foo/bar.txt`,
 		},
 		{nil, ""},
 		// errors
 		{tstNoStringer{}, false},
-		{[]interface{}{"", tstNoStringer{}}, false},
+		{[]any{"", tstNoStringer{}}, false},
 	} {
 
 		result, err := ns.Join(test.elements)
@@ -153,8 +153,8 @@ func TestSplit(t *testing.T) {
 	c := qt.New(t)
 
 	for _, test := range []struct {
-		path   interface{}
-		expect interface{}
+		path   any
+		expect any
 	}{
 		{filepath.FromSlash(`foo/bar.txt`), DirFile{`foo/`, `bar.txt`}},
 		{filepath.FromSlash(`foo/bar/txt `), DirFile{`foo/bar/`, `txt `}},
@@ -181,8 +181,8 @@ func TestClean(t *testing.T) {
 	c := qt.New(t)
 
 	for _, test := range []struct {
-		path   interface{}
-		expect interface{}
+		path   any
+		expect any
 	}{
 		{filepath.FromSlash(`foo/bar.txt`), `foo/bar.txt`},
 		{filepath.FromSlash(`foo/bar/txt`), `foo/bar/txt`},

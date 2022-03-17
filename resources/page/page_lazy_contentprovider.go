@@ -48,7 +48,7 @@ func NewLazyContentProvider(f func() (OutputFormatContentProvider, error)) *Lazy
 		init: lazy.New(),
 		cp:   NopPage,
 	}
-	lcp.init.Add(func() (interface{}, error) {
+	lcp.init.Add(func() (any, error) {
 		cp, err := f()
 		if err != nil {
 			return nil, err
@@ -63,7 +63,7 @@ func (lcp *LazyContentProvider) Reset() {
 	lcp.init.Reset()
 }
 
-func (lcp *LazyContentProvider) Content() (interface{}, error) {
+func (lcp *LazyContentProvider) Content() (any, error) {
 	lcp.init.Do()
 	return lcp.cp.Content()
 }
@@ -113,7 +113,7 @@ func (lcp *LazyContentProvider) Render(layout ...string) (template.HTML, error) 
 	return lcp.cp.Render(layout...)
 }
 
-func (lcp *LazyContentProvider) RenderString(args ...interface{}) (template.HTML, error) {
+func (lcp *LazyContentProvider) RenderString(args ...any) (template.HTML, error) {
 	lcp.init.Do()
 	return lcp.cp.RenderString(args...)
 }

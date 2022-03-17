@@ -108,7 +108,7 @@ func (r Resources) MergeByLanguage(r2 Resources) Resources {
 
 // MergeByLanguageInterface is the generic version of MergeByLanguage. It
 // is here just so it can be called from the tpl package.
-func (r Resources) MergeByLanguageInterface(in interface{}) (interface{}, error) {
+func (r Resources) MergeByLanguageInterface(in any) (any, error) {
 	r2, ok := in.(Resources)
 	if !ok {
 		return nil, fmt.Errorf("%T cannot be merged by language", in)

@@ -20,7 +20,7 @@ import (
 
 // DoArithmetic performs arithmetic operations (+,-,*,/) using reflection to
 // determine the type of the two terms.
-func DoArithmetic(a, b interface{}, op rune) (interface{}, error) {
+func DoArithmetic(a, b any, op rune) (any, error) {
 	av := reflect.ValueOf(a)
 	bv := reflect.ValueOf(b)
 	var ai, bi int64

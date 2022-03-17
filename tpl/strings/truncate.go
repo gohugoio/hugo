@@ -40,12 +40,12 @@ type htmlTag struct {
 }
 
 // Truncate truncates a given string to the specified length.
-func (ns *Namespace) Truncate(a interface{}, options ...interface{}) (template.HTML, error) {
+func (ns *Namespace) Truncate(a any, options ...any) (template.HTML, error) {
 	length, err := cast.ToIntE(a)
 	if err != nil {
 		return "", err
 	}
-	var textParam interface{}
+	var textParam any
 	var ellipsis string
 
 	switch len(options) {

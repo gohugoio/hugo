@@ -66,7 +66,7 @@ func (m *pageMap) createMissingTaxonomyNodes() error {
 	if m.cfg.taxonomyDisabled {
 		return nil
 	}
-	m.taxonomyEntries.Walk(func(s string, v interface{}) bool {
+	m.taxonomyEntries.Walk(func(s string, v any) bool {
 		n := v.(*contentNode)
 		vi := n.viewInfo
 		k := cleanSectionTreeKey(vi.name.plural + "/" + vi.termKey)
@@ -174,7 +174,7 @@ func (m *pageMap) newPageFromContentNode(n *contentNode, parentBucket *pagesMapB
 		return nil, err
 	}
 
-	ps.init.Add(func() (interface{}, error) {
+	ps.init.Add(func() (any, error) {
 		pp, err := newPagePaths(s, ps, metaProvider)
 		if err != nil {
 			return nil, err
@@ -271,7 +271,7 @@ func (m *pageMap) newResource(fim hugofs.FileMetaInfo, owner *pageState) (resour
 func (m *pageMap) createSiteTaxonomies() error {
 	m.s.taxonomies = make(TaxonomyList)
 	var walkErr error
-	m.taxonomies.Walk(func(s string, v interface{}) bool {
+	m.taxonomies.Walk(func(s string, v any) bool {
 		n := v.(*contentNode)
 		t := n.viewInfo
 
@@ -285,7 +285,7 @@ func (m *pageMap) createSiteTaxonomies() error {
 				walkErr = errors.Errorf("missing taxonomy: %s", viewName.plural)
 				return true
 			}
-			m.taxonomyEntries.WalkPrefix(s, func(ss string, v interface{}) bool {
+			m.taxonomyEntries.WalkPrefix(s, func(ss string, v any) bool {
 				b2 := v.(*contentNode)
 				info := b2.viewInfo
 				taxonomy.add(info.termKey, page.NewWeightedPage(info.weight, info.ref.p, n.p))
@@ -337,7 +337,7 @@ func (m *pageMap) assemblePages() error {
 		return err
 	}
 
-	m.pages.Walk(func(s string, v interface{}) bool {
+	m.pages.Walk(func(s string, v any) bool {
 		n := v.(*contentNode)
 
 		var shouldBuild bool
@@ -397,7 +397,7 @@ func (m *pageMap) assemblePages() error {
 func (m *pageMap) assembleResources(s string, p *pageState, parentBucket *pagesMapBucket) error {
 	var err error
 
-	m.resources.WalkPrefix(s, func(s string, v interface{}) bool {
+	m.resources.WalkPrefix(s, func(s string, v any) bool {
 		n := v.(*contentNode)
 		meta := n.fi.Meta()
 		classifier := meta.Classifier
@@ -432,7 +432,7 @@ func (m *pageMap) assembleSections() error {
 	var sectionsToDelete []string
 	var err error
 
-	m.sections.Walk(func(s string, v interface{}) bool {
+	m.sections.Walk(func(s string, v any) bool {
 		n := v.(*contentNode)
 		var shouldBuild bool
 
@@ -517,7 +517,7 @@ func (m *pageMap) assembleTaxonomies() error {
 	var taxonomiesToDelete []string
 	var err error
 
-	m.taxonomies.Walk(func(s string, v interface{}) bool {
+	m.taxonomies.Walk(func(s string, v any) bool {
 		n := v.(*contentNode)
 
 		if n.p != nil {
@@ -861,7 +861,7 @@ func (b *pagesMapBucket) getTaxonomyEntries() page.Pages {
 	ref := b.owner.treeRef
 	viewInfo := ref.n.viewInfo
 	prefix := strings.ToLower("/" + viewInfo.name.plural + "/" + viewInfo.termKey + "/")
-	ref.m.taxonomyEntries.WalkPrefix(prefix, func(s string, v interface{}) bool {
+	ref.m.taxonomyEntries.WalkPrefix(prefix, func(s string, v any) bool {
 		n := v.(*contentNode)
 		pas = append(pas, n.viewInfo.ref.p)
 		return false
@@ -967,7 +967,7 @@ func (w *sectionWalker) walkLevel(prefix string, createVisitor func() sectionWal
 
 	visitor := createVisitor()
 
-	w.m.taxonomies.WalkBelow(prefix, func(s string, v interface{}) bool {
+	w.m.taxonomies.WalkBelow(prefix, func(s string, v any) bool {
 		currentLevel := strings.Count(s, "/")
 
 		if currentLevel > level+1 {
@@ -986,7 +986,7 @@ func (w *sectionWalker) walkLevel(prefix string, createVisitor func() sectionWal
 				return true
 			}
 		} else {
-			w.m.taxonomyEntries.WalkPrefix(s, func(ss string, v interface{}) bool {
+			w.m.taxonomyEntries.WalkPrefix(s, func(ss string, v any) bool {
 				n := v.(*contentNode)
 				w.err = visitor.handlePage(ss, n)
 				return w.err != nil
@@ -998,7 +998,7 @@ func (w *sectionWalker) walkLevel(prefix string, createVisitor func() sectionWal
 		return w.err != nil
 	})
 
-	w.m.sections.WalkBelow(prefix, func(s string, v interface{}) bool {
+	w.m.sections.WalkBelow(prefix, func(s string, v any) bool {
 		currentLevel := strings.Count(s, "/")
 		if currentLevel > level+1 {
 			return false
@@ -1010,7 +1010,7 @@ func (w *sectionWalker) walkLevel(prefix string, createVisitor func() sectionWal
 			return true
 		}
 
-		w.m.pages.WalkPrefix(s+cmBranchSeparator, func(s string, v interface{}) bool {
+		w.m.pages.WalkPrefix(s+cmBranchSeparator, func(s string, v any) bool {
 			w.err = visitor.handlePage(s, v.(*contentNode))
 			return w.err != nil
 		})

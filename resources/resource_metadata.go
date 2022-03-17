@@ -43,7 +43,7 @@ type metaAssigner interface {
 	setTitle(title string)
 	setName(name string)
 	setMediaType(mediaType media.Type)
-	updateParams(params map[string]interface{})
+	updateParams(params map[string]any)
 }
 
 const counterPlaceHolder = ":counter"
@@ -53,7 +53,7 @@ const counterPlaceHolder = ":counter"
 // This assignment is additive, but the most specific match needs to be first.
 // The `name` and `title` metadata field support shell-matched collection it got a match in.
 // See https://golang.org/pkg/path/#Match
-func AssignMetadata(metadata []map[string]interface{}, resources ...resource.Resource) error {
+func AssignMetadata(metadata []map[string]any, resources ...resource.Resource) error {
 	counters := make(map[string]int)
 
 	for _, r := range resources {

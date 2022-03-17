@@ -28,7 +28,7 @@ func TestMultiSitesMainLangInRoot(t *testing.T) {
 func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 	c := qt.New(t)
 
-	siteConfig := map[string]interface{}{
+	siteConfig := map[string]any{
 		"DefaultContentLanguage":         "fr",
 		"DefaultContentLanguageInSubdir": defaultInSubDir,
 	}
@@ -1235,7 +1235,7 @@ func writeNewContentFile(t *testing.T, fs afero.Fs, title, date, filename string
 }
 
 type multiSiteTestBuilder struct {
-	configData   interface{}
+	configData   any
 	config       string
 	configFormat string
 
@@ -1251,14 +1251,14 @@ func (b *multiSiteTestBuilder) WithNewConfig(config string) *multiSiteTestBuilde
 	return b
 }
 
-func (b *multiSiteTestBuilder) WithNewConfigData(data interface{}) *multiSiteTestBuilder {
+func (b *multiSiteTestBuilder) WithNewConfigData(data any) *multiSiteTestBuilder {
 	b.WithConfigTemplate(data, b.configFormat, b.config)
 	return b
 }
 
-func newMultiSiteTestBuilder(t testing.TB, configFormat, config string, configData interface{}) *multiSiteTestBuilder {
+func newMultiSiteTestBuilder(t testing.TB, configFormat, config string, configData any) *multiSiteTestBuilder {
 	if configData == nil {
-		configData = map[string]interface{}{
+		configData = map[string]any{
 			"DefaultContentLanguage":         "fr",
 			"DefaultContentLanguageInSubdir": true,
 		}

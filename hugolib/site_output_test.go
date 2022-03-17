@@ -327,9 +327,9 @@ baseName = "customdelimbase"
 // Issue 8030
 func TestGetOutputFormatRel(t *testing.T) {
 	b := newTestSitesBuilder(t).
-		WithSimpleConfigFileAndSettings(map[string]interface{}{
-			"outputFormats": map[string]interface{}{
-				"humansTXT": map[string]interface{}{
+		WithSimpleConfigFileAndSettings(map[string]any{
+			"outputFormats": map[string]any{
+				"humansTXT": map[string]any{
 					"name":        "HUMANS",
 					"mediaType":   "text/plain",
 					"baseName":    "humans",
@@ -358,7 +358,7 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		c := qt.New(t)
 
-		outputsConfig := map[string]interface{}{
+		outputsConfig := map[string]any{
 			page.KindHome:    []string{"HTML", "JSON"},
 			page.KindSection: []string{"JSON"},
 		}
@@ -390,7 +390,7 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 		c := qt.New(t)
 		cfg := config.New()
 
-		outputsConfig := map[string]interface{}{
+		outputsConfig := map[string]any{
 			// Note that we in Hugo 0.53.0 renamed this Kind to "taxonomy",
 			// but keep this test to test the legacy mapping.
 			"taxonomyterm": []string{"JSON"},
@@ -406,7 +406,7 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 func TestCreateSiteOutputFormatsInvalidConfig(t *testing.T) {
 	c := qt.New(t)
 
-	outputsConfig := map[string]interface{}{
+	outputsConfig := map[string]any{
 		page.KindHome: []string{"FOO", "JSON"},
 	}
 
@@ -420,7 +420,7 @@ func TestCreateSiteOutputFormatsInvalidConfig(t *testing.T) {
 func TestCreateSiteOutputFormatsEmptyConfig(t *testing.T) {
 	c := qt.New(t)
 
-	outputsConfig := map[string]interface{}{
+	outputsConfig := map[string]any{
 		page.KindHome: []string{},
 	}
 
@@ -435,7 +435,7 @@ func TestCreateSiteOutputFormatsEmptyConfig(t *testing.T) {
 func TestCreateSiteOutputFormatsCustomFormats(t *testing.T) {
 	c := qt.New(t)
 
-	outputsConfig := map[string]interface{}{
+	outputsConfig := map[string]any{
 		page.KindHome: []string{},
 	}
 

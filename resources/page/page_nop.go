@@ -96,7 +96,7 @@ func (p *nopPage) BundleType() files.ContentClass {
 	return ""
 }
 
-func (p *nopPage) Content() (interface{}, error) {
+func (p *nopPage) Content() (any, error) {
 	return "", nil
 }
 
@@ -108,7 +108,7 @@ func (p *nopPage) CurrentSection() Page {
 	return nil
 }
 
-func (p *nopPage) Data() interface{} {
+func (p *nopPage) Data() any {
 	return nil
 }
 
@@ -120,11 +120,11 @@ func (p *nopPage) Description() string {
 	return ""
 }
 
-func (p *nopPage) RefFrom(argsm map[string]interface{}, source interface{}) (string, error) {
+func (p *nopPage) RefFrom(argsm map[string]any, source any) (string, error) {
 	return "", nil
 }
 
-func (p *nopPage) RelRefFrom(argsm map[string]interface{}, source interface{}) (string, error) {
+func (p *nopPage) RelRefFrom(argsm map[string]any, source any) (string, error) {
 	return "", nil
 }
 
@@ -136,7 +136,7 @@ func (p *nopPage) Draft() bool {
 	return false
 }
 
-func (p *nopPage) Eq(other interface{}) bool {
+func (p *nopPage) Eq(other any) bool {
 	return p == other
 }
 
@@ -182,7 +182,7 @@ func (p *nopPage) GetPageWithTemplateInfo(info tpl.Info, ref string) (Page, erro
 	return nil, nil
 }
 
-func (p *nopPage) GetParam(key string) interface{} {
+func (p *nopPage) GetParam(key string) any {
 	return nil
 }
 
@@ -210,15 +210,15 @@ func (p *nopPage) Hugo() (h hugo.Info) {
 	return
 }
 
-func (p *nopPage) InSection(other interface{}) (bool, error) {
+func (p *nopPage) InSection(other any) (bool, error) {
 	return false, nil
 }
 
-func (p *nopPage) IsAncestor(other interface{}) (bool, error) {
+func (p *nopPage) IsAncestor(other any) (bool, error) {
 	return false, nil
 }
 
-func (p *nopPage) IsDescendant(other interface{}) (bool, error) {
+func (p *nopPage) IsDescendant(other any) (bool, error) {
 	return false, nil
 }
 
@@ -314,15 +314,15 @@ func (p *nopPage) RegularPagesRecursive() Pages {
 	return nil
 }
 
-func (p *nopPage) Paginate(seq interface{}, options ...interface{}) (*Pager, error) {
+func (p *nopPage) Paginate(seq any, options ...any) (*Pager, error) {
 	return nil, nil
 }
 
-func (p *nopPage) Paginator(options ...interface{}) (*Pager, error) {
+func (p *nopPage) Paginator(options ...any) (*Pager, error) {
 	return nil, nil
 }
 
-func (p *nopPage) Param(key interface{}) (interface{}, error) {
+func (p *nopPage) Param(key any) (any, error) {
 	return nil, nil
 }
 
@@ -390,7 +390,7 @@ func (p *nopPage) ReadingTime() int {
 	return 0
 }
 
-func (p *nopPage) Ref(argsm map[string]interface{}) (string, error) {
+func (p *nopPage) Ref(argsm map[string]any) (string, error) {
 	return "", nil
 }
 
@@ -398,7 +398,7 @@ func (p *nopPage) RelPermalink() string {
 	return ""
 }
 
-func (p *nopPage) RelRef(argsm map[string]interface{}) (string, error) {
+func (p *nopPage) RelRef(argsm map[string]any) (string, error) {
 	return "", nil
 }
 
@@ -406,7 +406,7 @@ func (p *nopPage) Render(layout ...string) (template.HTML, error) {
 	return "", nil
 }
 
-func (p *nopPage) RenderString(args ...interface{}) (template.HTML, error) {
+func (p *nopPage) RenderString(args ...any) (template.HTML, error) {
 	return "", nil
 }
 

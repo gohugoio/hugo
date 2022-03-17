@@ -24,7 +24,7 @@ import (
 
 // Scratch is a writable context used for stateful operations in Page/Node rendering.
 type Scratch struct {
-	values map[string]interface{}
+	values map[string]any
 	mu     sync.RWMutex
 }
 
@@ -50,8 +50,8 @@ func NewScratcher() Scratcher {
 // Supports numeric values and strings.
 //
 // If the first add for a key is an array or slice, then the next value(s) will be appended.
-func (c *Scratch) Add(key string, newAddend interface{}) (string, error) {
-	var newVal interface{}
+func (c *Scratch) Add(key string, newAddend any) (string, error) {
+	var newVal any
 	c.mu.RLock()
 	existingAddend, found := c.values[key]
 	c.mu.RUnlock()
@@ -82,7 +82,7 @@ func (c *Scratch) Add(key string, newAddend interface{}) (string, error) {
 
 // Set stores a value with the given key in the Node context.
 // This value can later be retrieved with Get.
-func (c *Scratch) Set(key string, value interface{}) string {
+func (c *Scratch) Set(key string, value any) string {
 	c.mu.Lock()
 	c.values[key] = value
 	c.mu.Unlock()
@@ -98,7 +98,7 @@ func (c *Scratch) Delete(key string) string {
 }
 
 // Get returns a value previously set by Add or Set.
-func (c *Scratch) Get(key string) interface{} {
+func (c *Scratch) Get(key string) any {
 	c.mu.RLock()
 	val := c.values[key]
 	c.mu.RUnlock()
@@ -109,7 +109,7 @@ func (c *Scratch) Get(key string) interface{} {
 // Values returns the raw backing map. Note that you should just use
 // this method on the locally scoped Scratch instances you obtain via newScratch, not
 // .Page.Scratch etc., as that will lead to concurrency issues.
-func (c *Scratch) Values() map[string]interface{} {
+func (c *Scratch) Values() map[string]any {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.values
@@ -117,14 +117,14 @@ func (c *Scratch) Values() map[string]interface{} {
 
 // SetInMap stores a value to a map with the given key in the Node context.
 // This map can later be retrieved with GetSortedMapValues.
-func (c *Scratch) SetInMap(key string, mapKey string, value interface{}) string {
+func (c *Scratch) SetInMap(key string, mapKey string, value any) string {
 	c.mu.Lock()
 	_, found := c.values[key]
 	if !found {
-		c.values[key] = make(map[string]interface{})
+		c.values[key] = make(map[string]any)
 	}
 
-	c.values[key].(map[string]interface{})[mapKey] = value
+	c.values[key].(map[string]any)[mapKey] = value
 	c.mu.Unlock()
 	return ""
 }
@@ -134,14 +134,14 @@ func (c *Scratch) DeleteInMap(key string, mapKey string) string {
 	c.mu.Lock()
 	_, found := c.values[key]
 	if found {
-		delete(c.values[key].(map[string]interface{}), mapKey)
+		delete(c.values[key].(map[string]any), mapKey)
 	}
 	c.mu.Unlock()
 	return ""
 }
 
 // GetSortedMapValues returns a sorted map previously filled with SetInMap.
-func (c *Scratch) GetSortedMapValues(key string) interface{} {
+func (c *Scratch) GetSortedMapValues(key string) any {
 	c.mu.RLock()
 
 	if c.values[key] == nil {
@@ -149,7 +149,7 @@ func (c *Scratch) GetSortedMapValues(key string) interface{} {
 		return nil
 	}
 
-	unsortedMap := c.values[key].(map[string]interface{})
+	unsortedMap := c.values[key].(map[string]any)
 	c.mu.RUnlock()
 	var keys []string
 	for mapKey := range unsortedMap {
@@ -158,7 +158,7 @@ func (c *Scratch) GetSortedMapValues(key string) interface{} {
 
 	sort.Strings(keys)
 
-	sortedArray := make([]interface{}, len(unsortedMap))
+	sortedArray := make([]any, len(unsortedMap))
 	for i, mapKey := range keys {
 		sortedArray[i] = unsortedMap[mapKey]
 	}
@@ -168,5 +168,5 @@ func (c *Scratch) GetSortedMapValues(key string) interface{} {
 
 // NewScratch returns a new instance of Scratch.
 func NewScratch() *Scratch {
-	return &Scratch{values: make(map[string]interface{})}
+	return &Scratch{values: make(map[string]any)}
 }

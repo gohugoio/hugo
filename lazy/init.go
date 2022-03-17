@@ -38,13 +38,13 @@ type Init struct {
 	children []*Init
 
 	init onceMore
-	out  interface{}
+	out  any
 	err  error
-	f    func() (interface{}, error)
+	f    func() (any, error)
 }
 
 // Add adds a func as a new child dependency.
-func (ini *Init) Add(initFn func() (interface{}, error)) *Init {
+func (ini *Init) Add(initFn func() (any, error)) *Init {
 	if ini == nil {
 		ini = New()
 	}
@@ -58,15 +58,15 @@ func (ini *Init) InitCount() int {
 }
 
 // AddWithTimeout is same as Add, but with a timeout that aborts initialization.
-func (ini *Init) AddWithTimeout(timeout time.Duration, f func(ctx context.Context) (interface{}, error)) *Init {
-	return ini.Add(func() (interface{}, error) {
+func (ini *Init) AddWithTimeout(timeout time.Duration, f func(ctx context.Context) (any, error)) *Init {
+	return ini.Add(func() (any, error) {
 		return ini.withTimeout(timeout, f)
 	})
 }
 
 // Branch creates a new dependency branch based on an existing and adds
 // the given dependency as a child.
-func (ini *Init) Branch(initFn func() (interface{}, error)) *Init {
+func (ini *Init) Branch(initFn func() (any, error)) *Init {
 	if ini == nil {
 		ini = New()
 	}
@@ -74,14 +74,14 @@ func (ini *Init) Branch(initFn func() (interface{}, error)) *Init {
 }
 
 // BranchdWithTimeout is same as Branch, but with a timeout.
-func (ini *Init) BranchWithTimeout(timeout time.Duration, f func(ctx context.Context) (interface{}, error)) *Init {
-	return ini.Branch(func() (interface{}, error) {
+func (ini *Init) BranchWithTimeout(timeout time.Duration, f func(ctx context.Context) (any, error)) *Init {
+	return ini.Branch(func() (any, error) {
 		return ini.withTimeout(timeout, f)
 	})
 }
 
 // Do initializes the entire dependency graph.
-func (ini *Init) Do() (interface{}, error) {
+func (ini *Init) Do() (any, error) {
 	if ini == nil {
 		panic("init is nil")
 	}
@@ -154,7 +154,7 @@ func (ini *Init) Reset() {
 	}
 }
 
-func (ini *Init) add(branch bool, initFn func() (interface{}, error)) *Init {
+func (ini *Init) add(branch bool, initFn func() (any, error)) *Init {
 	ini.mu.Lock()
 	defer ini.mu.Unlock()
 
@@ -179,7 +179,7 @@ func (ini *Init) checkDone() {
 	}
 }
 
-func (ini *Init) withTimeout(timeout time.Duration, f func(ctx context.Context) (interface{}, error)) (interface{}, error) {
+func (ini *Init) withTimeout(timeout time.Duration, f func(ctx context.Context) (any, error)) (any, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	c := make(chan verr, 1)
@@ -203,6 +203,6 @@ func (ini *Init) withTimeout(timeout time.Duration, f func(ctx context.Context) 
 }
 
 type verr struct {
-	v   interface{}
+	v   any
 	err error
 }

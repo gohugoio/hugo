@@ -34,7 +34,7 @@ func TestDefaultConfigProvider(t *testing.T) {
 	c.Run("Set and get", func(c *qt.C) {
 		cfg := New()
 		var k string
-		var v interface{}
+		var v any
 
 		k, v = "foo", "bar"
 		cfg.Set(k, v)
@@ -55,7 +55,7 @@ func TestDefaultConfigProvider(t *testing.T) {
 	c.Run("Set and get map", func(c *qt.C) {
 		cfg := New()
 
-		cfg.Set("foo", map[string]interface{}{
+		cfg.Set("foo", map[string]any{
 			"bar": "baz",
 		})
 
@@ -63,14 +63,14 @@ func TestDefaultConfigProvider(t *testing.T) {
 			"bar": "baz",
 		})
 
-		c.Assert(cfg.GetStringMap("foo"), qt.DeepEquals, map[string]interface{}{"bar": string("baz")})
+		c.Assert(cfg.GetStringMap("foo"), qt.DeepEquals, map[string]any{"bar": string("baz")})
 		c.Assert(cfg.GetStringMapString("foo"), qt.DeepEquals, map[string]string{"bar": string("baz")})
 	})
 
 	c.Run("Set and get nested", func(c *qt.C) {
 		cfg := New()
 
-		cfg.Set("a", map[string]interface{}{
+		cfg.Set("a", map[string]any{
 			"B": "bv",
 		})
 		cfg.Set("a.c", "cv")
@@ -86,7 +86,7 @@ func TestDefaultConfigProvider(t *testing.T) {
 			"a": "av",
 		})
 
-		cfg.Set("b", map[string]interface{}{
+		cfg.Set("b", map[string]any{
 			"b": "bv",
 		})
 
@@ -99,7 +99,7 @@ func TestDefaultConfigProvider(t *testing.T) {
 
 		cfg.Set("a", "av")
 
-		cfg.Set("", map[string]interface{}{
+		cfg.Set("", map[string]any{
 			"a": "av2",
 			"b": "bv2",
 		})
@@ -113,7 +113,7 @@ func TestDefaultConfigProvider(t *testing.T) {
 
 		cfg.Set("a", "av")
 
-		cfg.Set("", map[string]interface{}{
+		cfg.Set("", map[string]any{
 			"b": "bv2",
 		})
 
@@ -124,14 +124,14 @@ func TestDefaultConfigProvider(t *testing.T) {
 
 		cfg = New()
 
-		cfg.Set("", map[string]interface{}{
-			"foo": map[string]interface{}{
+		cfg.Set("", map[string]any{
+			"foo": map[string]any{
 				"a": "av",
 			},
 		})
 
-		cfg.Set("", map[string]interface{}{
-			"foo": map[string]interface{}{
+		cfg.Set("", map[string]any{
+			"foo": map[string]any{
 				"b": "bv2",
 			},
 		})
@@ -145,11 +145,11 @@ func TestDefaultConfigProvider(t *testing.T) {
 	c.Run("Merge default strategy", func(c *qt.C) {
 		cfg := New()
 
-		cfg.Set("a", map[string]interface{}{
+		cfg.Set("a", map[string]any{
 			"B": "bv",
 		})
 
-		cfg.Merge("a", map[string]interface{}{
+		cfg.Merge("a", map[string]any{
 			"B": "bv2",
 			"c": "cv2",
 		})
@@ -163,7 +163,7 @@ func TestDefaultConfigProvider(t *testing.T) {
 
 		cfg.Set("a", "av")
 
-		cfg.Merge("", map[string]interface{}{
+		cfg.Merge("", map[string]any{
 			"a": "av2",
 			"b": "bv2",
 		})
@@ -176,16 +176,16 @@ func TestDefaultConfigProvider(t *testing.T) {
 	c.Run("Merge shallow", func(c *qt.C) {
 		cfg := New()
 
-		cfg.Set("a", map[string]interface{}{
+		cfg.Set("a", map[string]any{
 			"_merge": "shallow",
 			"B":      "bv",
-			"c": map[string]interface{}{
+			"c": map[string]any{
 				"b": "bv",
 			},
 		})
 
-		cfg.Merge("a", map[string]interface{}{
-			"c": map[string]interface{}{
+		cfg.Merge("a", map[string]any{
+			"c": map[string]any{
 				"d": "dv2",
 			},
 			"e": "ev2",
@@ -203,20 +203,20 @@ func TestDefaultConfigProvider(t *testing.T) {
 
 	// Issue #8679
 	c.Run("Merge typed maps", func(c *qt.C) {
-		for _, left := range []interface{}{
+		for _, left := range []any{
 			map[string]string{
 				"c": "cv1",
 			},
-			map[string]interface{}{
+			map[string]any{
 				"c": "cv1",
 			},
-			map[interface{}]interface{}{
+			map[any]any{
 				"c": "cv1",
 			},
 		} {
 			cfg := New()
 
-			cfg.Set("", map[string]interface{}{
+			cfg.Set("", map[string]any{
 				"b": left,
 			})
 
@@ -235,27 +235,27 @@ func TestDefaultConfigProvider(t *testing.T) {
 			})
 		}
 
-		for _, left := range []interface{}{
+		for _, left := range []any{
 			map[string]string{
 				"b": "bv1",
 			},
-			map[string]interface{}{
+			map[string]any{
 				"b": "bv1",
 			},
-			map[interface{}]interface{}{
+			map[any]any{
 				"b": "bv1",
 			},
 		} {
-			for _, right := range []interface{}{
+			for _, right := range []any{
 				map[string]string{
 					"b": "bv2",
 					"c": "cv2",
 				},
-				map[string]interface{}{
+				map[string]any{
 					"b": "bv2",
 					"c": "cv2",
 				},
-				map[interface{}]interface{}{
+				map[any]any{
 					"b": "bv2",
 					"c": "cv2",
 				},
@@ -280,12 +280,12 @@ func TestDefaultConfigProvider(t *testing.T) {
 	c.Run("Prevent _merge only maps", func(c *qt.C) {
 		cfg := New()
 
-		cfg.Set("", map[string]interface{}{
+		cfg.Set("", map[string]any{
 			"B": "bv",
 		})
 
-		cfg.Merge("", map[string]interface{}{
-			"c": map[string]interface{}{
+		cfg.Merge("", map[string]any{
+			"c": map[string]any{
 				"_merge": "shallow",
 				"d":      "dv2",
 			},
@@ -299,7 +299,7 @@ func TestDefaultConfigProvider(t *testing.T) {
 	c.Run("IsSet", func(c *qt.C) {
 		cfg := New()
 
-		cfg.Set("a", map[string]interface{}{
+		cfg.Set("a", map[string]any{
 			"B": "bv",
 		})
 
@@ -357,15 +357,15 @@ func TestDefaultConfigProvider(t *testing.T) {
 
 func BenchmarkDefaultConfigProvider(b *testing.B) {
 	type cfger interface {
-		Get(key string) interface{}
-		Set(key string, value interface{})
+		Get(key string) any
+		Set(key string, value any)
 		IsSet(key string) bool
 	}
 
-	newMap := func() map[string]interface{} {
-		return map[string]interface{}{
-			"a": map[string]interface{}{
-				"b": map[string]interface{}{
+	newMap := func() map[string]any {
+		return map[string]any{
+			"a": map[string]any{
+				"b": map[string]any{
 					"c": 32,
 					"d": 43,
 				},

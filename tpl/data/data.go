@@ -63,7 +63,7 @@ type Namespace struct {
 // The data separator can be a comma, semi-colon, pipe, etc, but only one character.
 // If you provide multiple parts for the URL they will be joined together to the final URL.
 // GetCSV returns nil or a slice slice to use in a short code.
-func (ns *Namespace) GetCSV(sep string, args ...interface{}) (d [][]string, err error) {
+func (ns *Namespace) GetCSV(sep string, args ...any) (d [][]string, err error) {
 	url, headers := toURLAndHeaders(args)
 	cache := ns.cacheGetCSV
 
@@ -102,8 +102,8 @@ func (ns *Namespace) GetCSV(sep string, args ...interface{}) (d [][]string, err 
 // GetJSON expects one or n-parts of a URL to a resource which can either be a local or a remote one.
 // If you provide multiple parts they will be joined together to the final URL.
 // GetJSON returns nil or parsed JSON to use in a short code.
-func (ns *Namespace) GetJSON(args ...interface{}) (interface{}, error) {
-	var v interface{}
+func (ns *Namespace) GetJSON(args ...any) (any, error) {
+	var v any
 	url, headers := toURLAndHeaders(args)
 	cache := ns.cacheGetJSON
 
@@ -146,7 +146,7 @@ func addDefaultHeaders(req *http.Request, accepts ...string) {
 	}
 }
 
-func addUserProvidedHeaders(headers map[string]interface{}, req *http.Request) {
+func addUserProvidedHeaders(headers map[string]any, req *http.Request) {
 	if headers == nil {
 		return
 	}
@@ -179,7 +179,7 @@ func hasHeaderKey(m http.Header, key string) bool {
 	return ok
 }
 
-func toURLAndHeaders(urlParts []interface{}) (string, map[string]interface{}) {
+func toURLAndHeaders(urlParts []any) (string, map[string]any) {
 	if len(urlParts) == 0 {
 		return "", nil
 	}

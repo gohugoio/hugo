@@ -55,7 +55,7 @@ type Namespace struct {
 
 // Config returns the image.Config for the specified path relative to the
 // working directory.
-func (ns *Namespace) Config(path interface{}) (image.Config, error) {
+func (ns *Namespace) Config(path any) (image.Config, error) {
 	filename, err := cast.ToStringE(path)
 	if err != nil {
 		return image.Config{}, err
@@ -92,7 +92,7 @@ func (ns *Namespace) Config(path interface{}) (image.Config, error) {
 	return config, nil
 }
 
-func (ns *Namespace) Filter(args ...interface{}) (resource.Image, error) {
+func (ns *Namespace) Filter(args ...any) (resource.Image, error) {
 	if len(args) < 2 {
 		return nil, errors.New("must provide an image and one or more filters")
 	}

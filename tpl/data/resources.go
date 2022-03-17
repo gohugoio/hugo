@@ -44,7 +44,7 @@ func (ns *Namespace) getRemote(cache *filecache.Cache, unmarshal func([]byte) (b
 	if err := ns.deps.ExecHelper.Sec().CheckAllowedHTTPMethod("GET"); err != nil {
 		return err
 	}
-	
+
 	var headers bytes.Buffer
 	req.Header.Write(&headers)
 	id := helpers.MD5String(url + headers.String())

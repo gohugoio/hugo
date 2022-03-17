@@ -46,7 +46,7 @@ func numberToFloat(v reflect.Value) (float64, error) {
 // normalizes different numeric types if isNumber
 // or get the hash values if not Comparable (such as map or struct)
 // to make them comparable
-func normalize(v reflect.Value) interface{} {
+func normalize(v reflect.Value) any {
 	k := v.Kind()
 
 	switch {
@@ -67,8 +67,8 @@ func normalize(v reflect.Value) interface{} {
 
 // collects identities from the slices in seqs into a set. Numeric values are normalized,
 // pointers unwrapped.
-func collectIdentities(seqs ...interface{}) (map[interface{}]bool, error) {
-	seen := make(map[interface{}]bool)
+func collectIdentities(seqs ...any) (map[any]bool, error) {
+	seen := make(map[any]bool)
 	for _, seq := range seqs {
 		v := reflect.ValueOf(seq)
 		switch v.Kind() {
@@ -167,7 +167,7 @@ func convertNumber(v reflect.Value, to reflect.Kind) (reflect.Value, error) {
 	return n, nil
 }
 
-func newSliceElement(items interface{}) interface{} {
+func newSliceElement(items any) any {
 	tp := reflect.TypeOf(items)
 	if tp == nil {
 		return nil

@@ -52,7 +52,7 @@ func (pages Pages) ToResources() resource.Resources {
 }
 
 // ToPages tries to convert seq into Pages.
-func ToPages(seq interface{}) (Pages, error) {
+func ToPages(seq any) (Pages, error) {
 	if seq == nil {
 		return Pages{}, nil
 	}
@@ -72,7 +72,7 @@ func ToPages(seq interface{}) (Pages, error) {
 			pages[i] = vv
 		}
 		return pages, nil
-	case []interface{}:
+	case []any:
 		pages := make(Pages, len(v))
 		success := true
 		for i, vv := range v {
@@ -91,7 +91,7 @@ func ToPages(seq interface{}) (Pages, error) {
 	return nil, fmt.Errorf("cannot convert type %T to Pages", seq)
 }
 
-func (p Pages) Group(key interface{}, in interface{}) (interface{}, error) {
+func (p Pages) Group(key any, in any) (any, error) {
 	pages, err := ToPages(in)
 	if err != nil {
 		return nil, err
@@ -105,7 +105,7 @@ func (p Pages) Len() int {
 }
 
 // ProbablyEq wraps compare.ProbablyEqer
-func (pages Pages) ProbablyEq(other interface{}) bool {
+func (pages Pages) ProbablyEq(other any) bool {
 	otherPages, ok := other.(Pages)
 	if !ok {
 		return false

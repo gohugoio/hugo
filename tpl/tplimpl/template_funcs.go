@@ -174,7 +174,7 @@ func newTemplateExecuter(d *deps.Deps) (texttemplate.Executer, map[string]reflec
 	), funcsv
 }
 
-func createFuncMap(d *deps.Deps) map[string]interface{} {
+func createFuncMap(d *deps.Deps) map[string]any {
 	funcMap := template.FuncMap{}
 
 	// Merge the namespace funcs

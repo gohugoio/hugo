@@ -52,7 +52,7 @@ func (df DirFile) String() string {
 // it is empty if there is no dot.
 // The input path is passed into filepath.ToSlash converting any Windows slashes
 // to forward slashes.
-func (ns *Namespace) Ext(path interface{}) (string, error) {
+func (ns *Namespace) Ext(path any) (string, error) {
 	spath, err := cast.ToStringE(path)
 	if err != nil {
 		return "", err
@@ -70,7 +70,7 @@ func (ns *Namespace) Ext(path interface{}) (string, error) {
 // slash.
 // The input path is passed into filepath.ToSlash converting any Windows slashes
 // to forward slashes.
-func (ns *Namespace) Dir(path interface{}) (string, error) {
+func (ns *Namespace) Dir(path any) (string, error) {
 	spath, err := cast.ToStringE(path)
 	if err != nil {
 		return "", err
@@ -85,7 +85,7 @@ func (ns *Namespace) Dir(path interface{}) (string, error) {
 // If the path consists entirely of slashes, Base returns "/".
 // The input path is passed into filepath.ToSlash converting any Windows slashes
 // to forward slashes.
-func (ns *Namespace) Base(path interface{}) (string, error) {
+func (ns *Namespace) Base(path any) (string, error) {
 	spath, err := cast.ToStringE(path)
 	if err != nil {
 		return "", err
@@ -101,7 +101,7 @@ func (ns *Namespace) Base(path interface{}) (string, error) {
 // The input path is passed into filepath.ToSlash converting any Windows slashes
 // to forward slashes.
 // The returned values have the property that path = dir+file.
-func (ns *Namespace) Split(path interface{}) (DirFile, error) {
+func (ns *Namespace) Split(path any) (DirFile, error) {
 	spath, err := cast.ToStringE(path)
 	if err != nil {
 		return DirFile{}, err
@@ -118,7 +118,7 @@ func (ns *Namespace) Split(path interface{}) (DirFile, error) {
 // to forward slashes.
 // The result is Cleaned; in particular,
 // all empty strings are ignored.
-func (ns *Namespace) Join(elements ...interface{}) (string, error) {
+func (ns *Namespace) Join(elements ...any) (string, error) {
 	var pathElements []string
 	for _, elem := range elements {
 		switch v := elem.(type) {
@@ -126,7 +126,7 @@ func (ns *Namespace) Join(elements ...interface{}) (string, error) {
 			for _, e := range v {
 				pathElements = append(pathElements, filepath.ToSlash(e))
 			}
-		case []interface{}:
+		case []any:
 			for _, e := range v {
 				elemStr, err := cast.ToStringE(e)
 				if err != nil {
@@ -147,7 +147,7 @@ func (ns *Namespace) Join(elements ...interface{}) (string, error) {
 
 // Clean replaces the separators used with standard slashes and then
 // extraneous slashes are removed.
-func (ns *Namespace) Clean(path interface{}) (string, error) {
+func (ns *Namespace) Clean(path any) (string, error) {
 	spath, err := cast.ToStringE(path)
 
 	if err != nil {

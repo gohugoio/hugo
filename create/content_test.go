@@ -40,7 +40,7 @@ func TestNewContentFromFile(t *testing.T) {
 		name     string
 		kind     string
 		path     string
-		expected interface{}
+		expected any
 	}{
 		{"Post", "post", "post/sample-1.md", []string{`title = "Post Arch title"`, `test = "test1"`, "date = \"2015-01-12T19:20:04-07:00\""}},
 		{"Post org-mode", "post", "post/org-1.org", []string{`#+title: ORG-1`}},
@@ -368,7 +368,7 @@ Some text.
 	return nil
 }
 
-func cContains(c *qt.C, v interface{}, matches ...string) {
+func cContains(c *qt.C, v any, matches ...string) {
 	for _, m := range matches {
 		c.Assert(v, qt.Contains, m)
 	}

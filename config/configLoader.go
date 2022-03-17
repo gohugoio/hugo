@@ -67,11 +67,11 @@ func FromFile(fs afero.Fs, filename string) (Provider, error) {
 
 // FromFileToMap is the same as FromFile, but it returns the config values
 // as a simple map.
-func FromFileToMap(fs afero.Fs, filename string) (map[string]interface{}, error) {
+func FromFileToMap(fs afero.Fs, filename string) (map[string]any, error) {
 	return loadConfigFromFile(fs, filename)
 }
 
-func readConfig(format metadecoders.Format, data []byte) (map[string]interface{}, error) {
+func readConfig(format metadecoders.Format, data []byte) (map[string]any, error) {
 	m, err := metadecoders.Default.UnmarshalToMap(data, format)
 	if err != nil {
 		return nil, err
@@ -82,7 +82,7 @@ func readConfig(format metadecoders.Format, data []byte) (map[string]interface{}
 	return m, nil
 }
 
-func loadConfigFromFile(fs afero.Fs, filename string) (map[string]interface{}, error) {
+func loadConfigFromFile(fs afero.Fs, filename string) (map[string]any, error) {
 	m, err := metadecoders.Default.UnmarshalFileToMap(fs, filename)
 	if err != nil {
 		return nil, err
@@ -156,13 +156,13 @@ func LoadConfigFromDir(sourceFs afero.Fs, configDir, environment string) (Provid
 
 			root := item
 			if len(keyPath) > 0 {
-				root = make(map[string]interface{})
+				root = make(map[string]any)
 				m := root
 				for i, key := range keyPath {
 					if i >= len(keyPath)-1 {
 						m[key] = item
 					} else {
-						nm := make(map[string]interface{})
+						nm := make(map[string]any)
 						m[key] = nm
 						m = nm
 					}
@@ -203,6 +203,6 @@ func init() {
 
 // RenameKeys renames config keys in m recursively according to a global Hugo
 // alias definition.
-func RenameKeys(m map[string]interface{}) {
+func RenameKeys(m map[string]any) {
 	keyAliases.Rename(m)
 }

@@ -73,8 +73,8 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 							"/": ":filename/",
 						})
 
-						cfg.Set("outputFormats", map[string]interface{}{
-							"CUSTOMO": map[string]interface{}{
+						cfg.Set("outputFormats", map[string]any{
+							"CUSTOMO": map[string]any{
 								"mediaType":     "text/html",
 								"baseName":      "cindex",
 								"path":          "cpath",
@@ -82,7 +82,7 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 							},
 						})
 
-						cfg.Set("outputs", map[string]interface{}{
+						cfg.Set("outputs", map[string]any{
 							"home":    []string{"HTML", "CUSTOMO"},
 							"page":    []string{"HTML", "CUSTOMO"},
 							"section": []string{"HTML", "CUSTOMO"},
@@ -705,8 +705,8 @@ func newTestBundleSources(t testing.TB) (*hugofs.Fs, config.Provider) {
 	cfg.Set("workingDir", workDir)
 	cfg.Set("contentDir", "base")
 	cfg.Set("baseURL", "https://example.com")
-	cfg.Set("mediaTypes", map[string]interface{}{
-		"bepsays/bep": map[string]interface{}{
+	cfg.Set("mediaTypes", map[string]any{
+		"bepsays/bep": map[string]any{
 			"suffixes": []string{"bep"},
 		},
 	})
@@ -873,12 +873,12 @@ func newTestBundleSourcesMultilingual(t *testing.T) (*hugofs.Fs, config.Provider
 	cfg.Set("baseURL", "https://example.com")
 	cfg.Set("defaultContentLanguage", "en")
 
-	langConfig := map[string]interface{}{
-		"en": map[string]interface{}{
+	langConfig := map[string]any{
+		"en": map[string]any{
 			"weight":       1,
 			"languageName": "English",
 		},
-		"nn": map[string]interface{}{
+		"nn": map[string]any{
 			"weight":       2,
 			"languageName": "Nynorsk",
 		},

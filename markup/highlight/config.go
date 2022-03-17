@@ -115,12 +115,12 @@ func (cfg Config) ToHTMLOptions() []html.Option {
 	return options
 }
 
-func applyOptions(opts interface{}, cfg *Config) error {
+func applyOptions(opts any, cfg *Config) error {
 	if opts == nil {
 		return nil
 	}
 	switch vv := opts.(type) {
-	case map[string]interface{}:
+	case map[string]any:
 		return applyOptionsFromMap(vv, cfg)
 	default:
 		s, err := cast.ToStringE(opts)
@@ -139,7 +139,7 @@ func applyOptionsFromString(opts string, cfg *Config) error {
 	return mapstructure.WeakDecode(optsm, cfg)
 }
 
-func applyOptionsFromMap(optsm map[string]interface{}, cfg *Config) error {
+func applyOptionsFromMap(optsm map[string]any, cfg *Config) error {
 	normalizeHighlightOptions(optsm)
 	return mapstructure.WeakDecode(optsm, cfg)
 }
@@ -184,9 +184,9 @@ func ApplyLegacyConfig(cfg config.Provider, conf *Config) error {
 	return nil
 }
 
-func parseHightlightOptions(in string) (map[string]interface{}, error) {
+func parseHightlightOptions(in string) (map[string]any, error) {
 	in = strings.Trim(in, " ")
-	opts := make(map[string]interface{})
+	opts := make(map[string]any)
 
 	if in == "" {
 		return opts, nil
@@ -207,7 +207,7 @@ func parseHightlightOptions(in string) (map[string]interface{}, error) {
 	return opts, nil
 }
 
-func normalizeHighlightOptions(m map[string]interface{}) {
+func normalizeHighlightOptions(m map[string]any) {
 	if m == nil {
 		return
 	}

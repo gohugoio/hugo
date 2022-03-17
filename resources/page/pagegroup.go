@@ -39,7 +39,7 @@ var (
 // PageGroup represents a group of pages, grouped by the key.
 // The key is typically a year or similar.
 type PageGroup struct {
-	Key interface{}
+	Key any
 	Pages
 }
 
@@ -112,7 +112,7 @@ func (p Pages) GroupBy(key string, order ...string) (PagesGroup, error) {
 		direction = "desc"
 	}
 
-	var ft interface{}
+	var ft any
 	index := hreflect.GetMethodIndexByName(pagePtrType, key)
 	if index != -1 {
 		m := pagePtrType.Method(index)
@@ -347,7 +347,7 @@ func (p Pages) GroupByParamDate(key string, format string, order ...string) (Pag
 }
 
 // ProbablyEq wraps compare.ProbablyEqer
-func (p PageGroup) ProbablyEq(other interface{}) bool {
+func (p PageGroup) ProbablyEq(other any) bool {
 	otherP, ok := other.(PageGroup)
 	if !ok {
 		return false
@@ -362,11 +362,11 @@ func (p PageGroup) ProbablyEq(other interface{}) bool {
 
 // Slice is not meant to be used externally. It's a bridge function
 // for the template functions. See collections.Slice.
-func (p PageGroup) Slice(in interface{}) (interface{}, error) {
+func (p PageGroup) Slice(in any) (any, error) {
 	switch items := in.(type) {
 	case PageGroup:
 		return items, nil
-	case []interface{}:
+	case []any:
 		groups := make(PagesGroup, len(items))
 		for i, v := range items {
 			g, ok := v.(PageGroup)
@@ -391,7 +391,7 @@ func (psg PagesGroup) Len() int {
 }
 
 // ProbablyEq wraps compare.ProbablyEqer
-func (psg PagesGroup) ProbablyEq(other interface{}) bool {
+func (psg PagesGroup) ProbablyEq(other any) bool {
 	otherPsg, ok := other.(PagesGroup)
 	if !ok {
 		return false
@@ -411,7 +411,7 @@ func (psg PagesGroup) ProbablyEq(other interface{}) bool {
 }
 
 // ToPagesGroup tries to convert seq into a PagesGroup.
-func ToPagesGroup(seq interface{}) (PagesGroup, error) {
+func ToPagesGroup(seq any) (PagesGroup, error) {
 	switch v := seq.(type) {
 	case nil:
 		return nil, nil
@@ -419,7 +419,7 @@ func ToPagesGroup(seq interface{}) (PagesGroup, error) {
 		return v, nil
 	case []PageGroup:
 		return PagesGroup(v), nil
-	case []interface{}:
+	case []any:
 		l := len(v)
 		if l == 0 {
 			break

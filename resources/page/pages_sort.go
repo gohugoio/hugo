@@ -322,7 +322,7 @@ func (p Pages) Reverse() Pages {
 // Adjacent invocations on the same receiver with the same paramsKey will return a cached result.
 //
 // This may safely be executed  in parallel.
-func (p Pages) ByParam(paramsKey interface{}) Pages {
+func (p Pages) ByParam(paramsKey any) Pages {
 	paramsKeyStr := cast.ToString(paramsKey)
 	key := "pageSort.ByParam." + paramsKeyStr
 
@@ -338,7 +338,7 @@ func (p Pages) ByParam(paramsKey interface{}) Pages {
 			return true
 		}
 
-		isNumeric := func(v interface{}) bool {
+		isNumeric := func(v any) bool {
 			switch v.(type) {
 			case uint8, uint16, uint32, uint64, int, int8, int16, int32, int64, float32, float64:
 				return true

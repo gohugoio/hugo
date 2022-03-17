@@ -62,7 +62,7 @@ func IsFloat(kind reflect.Kind) bool {
 
 // IsTruthful returns whether in represents a truthful value.
 // See IsTruthfulValue
-func IsTruthful(in interface{}) bool {
+func IsTruthful(in any) bool {
 	switch v := in.(type) {
 	case reflect.Value:
 		return IsTruthfulValue(v)

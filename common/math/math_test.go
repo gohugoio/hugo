@@ -24,10 +24,10 @@ func TestDoArithmetic(t *testing.T) {
 	c := qt.New(t)
 
 	for _, test := range []struct {
-		a      interface{}
-		b      interface{}
+		a      any
+		b      any
 		op     rune
-		expect interface{}
+		expect any
 	}{
 		{3, 2, '+', int64(5)},
 		{3, 2, '-', int64(1)},

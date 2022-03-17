@@ -25,5 +25,5 @@ func TestKeyValues(t *testing.T) {
 	kv := NewKeyValuesStrings("key", "a1", "a2")
 
 	c.Assert(kv.KeyString(), qt.Equals, "key")
-	c.Assert(kv.Values, qt.DeepEquals, []interface{}{"a1", "a2"})
+	c.Assert(kv.Values, qt.DeepEquals, []any{"a1", "a2"})
 }

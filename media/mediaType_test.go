@@ -231,15 +231,15 @@ func TestDecodeTypes(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		maps        []map[string]interface{}
+		maps        []map[string]any
 		shouldError bool
 		assert      func(t *testing.T, name string, tt Types)
 	}{
 		{
 			"Redefine JSON",
-			[]map[string]interface{}{
+			[]map[string]any{
 				{
-					"application/json": map[string]interface{}{
+					"application/json": map[string]any{
 						"suffixes": []string{"jasn"},
 					},
 				},
@@ -255,9 +255,9 @@ func TestDecodeTypes(t *testing.T) {
 		},
 		{
 			"MIME suffix in key, multiple file suffixes, custom delimiter",
-			[]map[string]interface{}{
+			[]map[string]any{
 				{
-					"application/hugo+hg": map[string]interface{}{
+					"application/hugo+hg": map[string]any{
 						"suffixes":  []string{"hg1", "hG2"},
 						"Delimiter": "_",
 					},
@@ -281,9 +281,9 @@ func TestDecodeTypes(t *testing.T) {
 		},
 		{
 			"Add custom media type",
-			[]map[string]interface{}{
+			[]map[string]any{
 				{
-					"text/hugo+hgo": map[string]interface{}{
+					"text/hugo+hgo": map[string]any{
 						"Suffixes": []string{"hgo2"},
 					},
 				},

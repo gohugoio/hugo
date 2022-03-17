@@ -28,7 +28,7 @@ var (
 // implementations have no value on their own.
 
 // Slice is not meant to be used externally. It's a bridge function
-func (p *pageState) Slice(items interface{}) (interface{}, error) {
+func (p *pageState) Slice(items any) (any, error) {
 	return page.ToPages(items)
 }
 
@@ -37,7 +37,7 @@ func (p *pageState) Slice(items interface{}) (interface{}, error) {
 // Group creates a PageGroup from a key and a Pages object
 // This method is not meant for external use. It got its non-typed arguments to satisfy
 // a very generic interface in the tpl package.
-func (p *pageState) Group(key interface{}, in interface{}) (interface{}, error) {
+func (p *pageState) Group(key any, in any) (any, error) {
 	pages, err := page.ToPages(in)
 	if err != nil {
 		return nil, err

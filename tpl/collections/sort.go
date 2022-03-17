@@ -27,7 +27,7 @@ import (
 var sortComp = compare.New(true)
 
 // Sort returns a sorted sequence.
-func (ns *Namespace) Sort(seq interface{}, args ...interface{}) (interface{}, error) {
+func (ns *Namespace) Sort(seq any, args ...any) (any, error) {
 	if seq == nil {
 		return nil, errors.New("sequence must be provided")
 	}
@@ -167,7 +167,7 @@ func (p pairList) Less(i, j int) bool {
 }
 
 // sorts a pairList and returns a slice of sorted values
-func (p pairList) sort() interface{} {
+func (p pairList) sort() any {
 	if p.SortAsc {
 		sort.Sort(p)
 	} else {

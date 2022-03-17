@@ -251,7 +251,7 @@ Content.
 	c.Assert(contentStr, qt.Contains, "SVP3-RELREF: /sv/sect/p-sv-3/")
 
 	// Test RelRef with and without language indicator.
-	nn3RefArgs := map[string]interface{}{
+	nn3RefArgs := map[string]any{
 		"path": "/sect/page3.md",
 		"lang": "nn",
 	}

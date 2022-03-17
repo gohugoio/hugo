@@ -48,27 +48,27 @@ func TestComplement(t *testing.T) {
 	sp2_2 := StructWithSlicePointers{xb, xe}
 
 	for i, test := range []struct {
-		s        interface{}
-		t        []interface{}
-		expected interface{}
+		s        any
+		t        []any
+		expected any
 	}{
-		{[]string{"a", "b", "c"}, []interface{}{[]string{"c", "d"}}, []string{"a", "b"}},
-		{[]string{"a", "b", "c"}, []interface{}{[]string{"c", "d"}, []string{"a", "b"}}, []string{}},
-		{[]interface{}{"a", "b", nil}, []interface{}{[]string{"a", "d"}}, []interface{}{"b", nil}},
-		{[]int{1, 2, 3, 4, 5}, []interface{}{[]int{1, 3}, []string{"a", "b"}, []int{1, 2}}, []int{4, 5}},
-		{[]int{1, 2, 3, 4, 5}, []interface{}{[]int64{1, 3}}, []int{2, 4, 5}},
-		{s1, []interface{}{s2}, []TstX{{A: "a"}, {A: "d"}}},
-		{sp1, []interface{}{sp2}, []*StructWithSlice{xa, xd}},
-		{sp1_2, []interface{}{sp2_2}, StructWithSlicePointers{xa, xd}},
+		{[]string{"a", "b", "c"}, []any{[]string{"c", "d"}}, []string{"a", "b"}},
+		{[]string{"a", "b", "c"}, []any{[]string{"c", "d"}, []string{"a", "b"}}, []string{}},
+		{[]any{"a", "b", nil}, []any{[]string{"a", "d"}}, []any{"b", nil}},
+		{[]int{1, 2, 3, 4, 5}, []any{[]int{1, 3}, []string{"a", "b"}, []int{1, 2}}, []int{4, 5}},
+		{[]int{1, 2, 3, 4, 5}, []any{[]int64{1, 3}}, []int{2, 4, 5}},
+		{s1, []any{s2}, []TstX{{A: "a"}, {A: "d"}}},
+		{sp1, []any{sp2}, []*StructWithSlice{xa, xd}},
+		{sp1_2, []any{sp2_2}, StructWithSlicePointers{xa, xd}},
 
 		// Errors
-		{[]string{"a", "b", "c"}, []interface{}{"error"}, false},
-		{"error", []interface{}{[]string{"c", "d"}, []string{"a", "b"}}, false},
-		{[]string{"a", "b", "c"}, []interface{}{[][]string{{"c", "d"}}}, false},
+		{[]string{"a", "b", "c"}, []any{"error"}, false},
+		{"error", []any{[]string{"c", "d"}, []string{"a", "b"}}, false},
+		{[]string{"a", "b", "c"}, []any{[][]string{{"c", "d"}}}, false},
 		{
-			[]interface{}{[][]string{{"c", "d"}}},
-			[]interface{}{[]string{"c", "d"}, []string{"a", "b"}},
-			[]interface{}{[][]string{{"c", "d"}}},
+			[]any{[][]string{{"c", "d"}}},
+			[]any{[]string{"c", "d"}, []string{"a", "b"}},
+			[]any{[][]string{{"c", "d"}}},
 		},
 	} {
 

@@ -33,7 +33,7 @@ func New() *Namespace {
 type Namespace struct{}
 
 // Base64Decode returns the base64 decoding of the given content.
-func (ns *Namespace) Base64Decode(content interface{}) (string, error) {
+func (ns *Namespace) Base64Decode(content any) (string, error) {
 	conv, err := cast.ToStringE(content)
 	if err != nil {
 		return "", err
@@ -44,7 +44,7 @@ func (ns *Namespace) Base64Decode(content interface{}) (string, error) {
 }
 
 // Base64Encode returns the base64 encoding of the given content.
-func (ns *Namespace) Base64Encode(content interface{}) (string, error) {
+func (ns *Namespace) Base64Encode(content any) (string, error) {
 	conv, err := cast.ToStringE(content)
 	if err != nil {
 		return "", err
@@ -58,7 +58,7 @@ func (ns *Namespace) Base64Encode(content interface{}) (string, error) {
 // "prefix" and "indent".  Each JSON element in the output will begin on a new
 // line beginning with prefix followed by one or more copies of indent according
 // to the indentation nesting.
-func (ns *Namespace) Jsonify(args ...interface{}) (template.HTML, error) {
+func (ns *Namespace) Jsonify(args ...any) (template.HTML, error) {
 	var (
 		b   []byte
 		err error

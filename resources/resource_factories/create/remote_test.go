@@ -24,21 +24,21 @@ func TestDecodeRemoteOptions(t *testing.T) {
 
 	for _, test := range []struct {
 		name    string
-		args    map[string]interface{}
+		args    map[string]any
 		want    fromRemoteOptions
 		wantErr bool
 	}{
 		{
 			"POST",
-			map[string]interface{}{
+			map[string]any{
 				"meThod": "PoST",
-				"headers": map[string]interface{}{
+				"headers": map[string]any{
 					"foo": "bar",
 				},
 			},
 			fromRemoteOptions{
 				Method: "POST",
-				Headers: map[string]interface{}{
+				Headers: map[string]any{
 					"foo": "bar",
 				},
 			},
@@ -46,7 +46,7 @@ func TestDecodeRemoteOptions(t *testing.T) {
 		},
 		{
 			"Body",
-			map[string]interface{}{
+			map[string]any{
 				"meThod": "POST",
 				"body":   []byte("foo"),
 			},
@@ -58,7 +58,7 @@ func TestDecodeRemoteOptions(t *testing.T) {
 		},
 		{
 			"Body, string",
-			map[string]interface{}{
+			map[string]any{
 				"meThod": "POST",
 				"body":   "foo",
 			},

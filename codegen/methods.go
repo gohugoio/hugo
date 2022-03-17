@@ -505,7 +505,7 @@ func typeName(name, pkg string) string {
 
 func uniqueNonEmptyStrings(s []string) []string {
 	var unique []string
-	set := map[string]interface{}{}
+	set := map[string]any{}
 	for _, val := range s {
 		if val == "" {
 			continue

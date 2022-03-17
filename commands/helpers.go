@@ -53,15 +53,15 @@ func (c commandError) isUserError() bool {
 	return c.userError
 }
 
-func newUserError(a ...interface{}) commandError {
+func newUserError(a ...any) commandError {
 	return commandError{s: fmt.Sprintln(a...), userError: true}
 }
 
-func newSystemError(a ...interface{}) commandError {
+func newSystemError(a ...any) commandError {
 	return commandError{s: fmt.Sprintln(a...), userError: false}
 }
 
-func newSystemErrorF(format string, a ...interface{}) commandError {
+func newSystemErrorF(format string, a ...any) commandError {
 	return commandError{s: fmt.Sprintf(format, a...), userError: false}
 }
 

@@ -40,7 +40,7 @@ type Namespace struct {
 // is not.  "Set" in this context means non-zero for numeric types and times;
 // non-zero length for strings, arrays, slices, and maps;
 // any boolean or struct value; or non-nil for any other types.
-func (*Namespace) Default(dflt interface{}, given ...interface{}) (interface{}, error) {
+func (*Namespace) Default(dflt any, given ...any) (any, error) {
 	// given is variadic because the following construct will not pass a piped
 	// argument when the key is missing:  {{ index . "key" | default "foo" }}
 	// The Go template will complain that we got 1 argument when we expected 2.
@@ -91,12 +91,12 @@ func (*Namespace) Default(dflt interface{}, given ...interface{}) (interface{}, 
 }
 
 // Eq returns the boolean truth of arg1 == arg2 || arg1 == arg3 || arg1 == arg4.
-func (n *Namespace) Eq(first interface{}, others ...interface{}) bool {
+func (n *Namespace) Eq(first any, others ...any) bool {
 	if n.caseInsensitive {
 		panic("caseInsensitive not implemented for Eq")
 	}
 	n.checkComparisonArgCount(1, others...)
-	normalize := func(v interface{}) interface{} {
+	normalize := func(v any) any {
 		if types.IsNil(v) {
 			return nil
 		}
@@ -141,7 +141,7 @@ func (n *Namespace) Eq(first interface{}, others ...interface{}) bool {
 }
 
 // Ne returns the boolean truth of arg1 != arg2 && arg1 != arg3 && arg1 != arg4.
-func (n *Namespace) Ne(first interface{}, others ...interface{}) bool {
+func (n *Namespace) Ne(first any, others ...any) bool {
 	n.checkComparisonArgCount(1, others...)
 	for _, other := range others {
 		if n.Eq(first, other) {
@@ -152,7 +152,7 @@ func (n *Namespace) Ne(first interface{}, others ...interface{}) bool {
 }
 
 // Ge returns the boolean truth of arg1 >= arg2 && arg1 >= arg3 && arg1 >= arg4.
-func (n *Namespace) Ge(first interface{}, others ...interface{}) bool {
+func (n *Namespace) Ge(first any, others ...any) bool {
 	n.checkComparisonArgCount(1, others...)
 	for _, other := range others {
 		left, right := n.compareGet(first, other)
@@ -164,7 +164,7 @@ func (n *Namespace) Ge(first interface{}, others ...interface{}) bool {
 }
 
 // Gt returns the boolean truth of arg1 > arg2 && arg1 > arg3 && arg1 > arg4.
-func (n *Namespace) Gt(first interface{}, others ...interface{}) bool {
+func (n *Namespace) Gt(first any, others ...any) bool {
 	n.checkComparisonArgCount(1, others...)
 	for _, other := range others {
 		left, right := n.compareGet(first, other)
@@ -176,7 +176,7 @@ func (n *Namespace) Gt(first interface{}, others ...interface{}) bool {
 }
 
 // Le returns the boolean truth of arg1 <= arg2 && arg1 <= arg3 && arg1 <= arg4.
-func (n *Namespace) Le(first interface{}, others ...interface{}) bool {
+func (n *Namespace) Le(first any, others ...any) bool {
 	n.checkComparisonArgCount(1, others...)
 	for _, other := range others {
 		left, right := n.compareGet(first, other)
@@ -188,7 +188,7 @@ func (n *Namespace) Le(first interface{}, others ...interface{}) bool {
 }
 
 // Lt returns the boolean truth of arg1 < arg2 && arg1 < arg3 && arg1 < arg4.
-func (n *Namespace) Lt(first interface{}, others ...interface{}) bool {
+func (n *Namespace) Lt(first any, others ...any) bool {
 	n.checkComparisonArgCount(1, others...)
 	for _, other := range others {
 		left, right := n.compareGet(first, other)
@@ -199,7 +199,7 @@ func (n *Namespace) Lt(first interface{}, others ...interface{}) bool {
 	return true
 }
 
-func (n *Namespace) checkComparisonArgCount(min int, others ...interface{}) bool {
+func (n *Namespace) checkComparisonArgCount(min int, others ...any) bool {
 	if len(others) < min {
 		panic("missing arguments for comparison")
 	}
@@ -208,14 +208,14 @@ func (n *Namespace) checkComparisonArgCount(min int, others ...interface{}) bool
 
 // Conditional can be used as a ternary operator.
 // It returns a if condition, else b.
-func (n *Namespace) Conditional(condition bool, a, b interface{}) interface{} {
+func (n *Namespace) Conditional(condition bool, a, b any) any {
 	if condition {
 		return a
 	}
 	return b
 }
 
-func (ns *Namespace) compareGet(a interface{}, b interface{}) (float64, float64) {
+func (ns *Namespace) compareGet(a any, b any) (float64, float64) {
 	if ac, ok := a.(compare.Comparer); ok {
 		c := ac.Compare(b)
 		if c < 0 {

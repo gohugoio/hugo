@@ -408,7 +408,7 @@ func (c *collector) applyMounts(moduleImport Import, mod *moduleAdapter) error {
 func (c *collector) applyThemeConfig(tc *moduleAdapter) error {
 	var (
 		configFilename string
-		themeCfg       map[string]interface{}
+		themeCfg       map[string]any
 		hasConfigFile  bool
 		err            error
 	)
@@ -487,7 +487,7 @@ func (c *collector) applyThemeConfig(tc *moduleAdapter) error {
 		}
 
 		if config.Params == nil {
-			config.Params = make(map[string]interface{})
+			config.Params = make(map[string]any)
 		}
 
 		for k, v := range themeCfg {

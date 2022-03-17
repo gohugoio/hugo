@@ -262,7 +262,7 @@ func (idx *InvertedIndex) SearchDoc(doc Document, indices ...string) ([]Document
 }
 
 // ToKeywords returns a Keyword slice of the given input.
-func (cfg IndexConfig) ToKeywords(v interface{}) ([]Keyword, error) {
+func (cfg IndexConfig) ToKeywords(v any) ([]Keyword, error) {
 	var (
 		keywords []Keyword
 		toLower  = cfg.ToLower

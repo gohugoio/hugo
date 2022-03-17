@@ -18,7 +18,6 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config"
-	
 )
 
 func TestDecodeConfigFromTOML(t *testing.T) {

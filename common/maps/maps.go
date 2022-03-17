@@ -24,12 +24,12 @@ import (
 )
 
 // ToStringMapE converts in to map[string]interface{}.
-func ToStringMapE(in interface{}) (map[string]interface{}, error) {
+func ToStringMapE(in any) (map[string]any, error) {
 	switch vv := in.(type) {
 	case Params:
 		return vv, nil
 	case map[string]string:
-		var m = map[string]interface{}{}
+		var m = map[string]any{}
 		for k, v := range vv {
 			m[k] = v
 		}
@@ -43,7 +43,7 @@ func ToStringMapE(in interface{}) (map[string]interface{}, error) {
 // ToParamsAndPrepare converts in to Params and prepares it for use.
 // If in is nil, an empty map is returned.
 // See PrepareParams.
-func ToParamsAndPrepare(in interface{}) (Params, bool) {
+func ToParamsAndPrepare(in any) (Params, bool) {
 	if types.IsNil(in) {
 		return Params{}, true
 	}
@@ -56,7 +56,7 @@ func ToParamsAndPrepare(in interface{}) (Params, bool) {
 }
 
 // MustToParamsAndPrepare calls ToParamsAndPrepare and panics if it fails.
-func MustToParamsAndPrepare(in interface{}) Params {
+func MustToParamsAndPrepare(in any) Params {
 	if p, ok := ToParamsAndPrepare(in); ok {
 		return p
 	} else {
@@ -65,13 +65,13 @@ func MustToParamsAndPrepare(in interface{}) Params {
 }
 
 // ToStringMap converts in to map[string]interface{}.
-func ToStringMap(in interface{}) map[string]interface{} {
+func ToStringMap(in any) map[string]any {
 	m, _ := ToStringMapE(in)
 	return m
 }
 
 // ToStringMapStringE converts in to map[string]string.
-func ToStringMapStringE(in interface{}) (map[string]string, error) {
+func ToStringMapStringE(in any) (map[string]string, error) {
 	m, err := ToStringMapE(in)
 	if err != nil {
 		return nil, err
@@ -80,26 +80,26 @@ func ToStringMapStringE(in interface{}) (map[string]string, error) {
 }
 
 // ToStringMapString converts in to map[string]string.
-func ToStringMapString(in interface{}) map[string]string {
+func ToStringMapString(in any) map[string]string {
 	m, _ := ToStringMapStringE(in)
 	return m
 }
 
 // ToStringMapBool converts in to bool.
-func ToStringMapBool(in interface{}) map[string]bool {
+func ToStringMapBool(in any) map[string]bool {
 	m, _ := ToStringMapE(in)
 	return cast.ToStringMapBool(m)
 }
 
 // ToSliceStringMap converts in to []map[string]interface{}.
-func ToSliceStringMap(in interface{}) ([]map[string]interface{}, error) {
+func ToSliceStringMap(in any) ([]map[string]any, error) {
 	switch v := in.(type) {
-	case []map[string]interface{}:
+	case []map[string]any:
 		return v, nil
-	case []interface{}:
-		var s []map[string]interface{}
+	case []any:
+		var s []map[string]any
 		for _, entry := range v {
-			if vv, ok := entry.(map[string]interface{}); ok {
+			if vv, ok := entry.(map[string]any); ok {
 				s = append(s, vv)
 			}
 		}
@@ -146,7 +146,7 @@ func (r KeyRenamer) getNewKey(keyPath string) string {
 
 // Rename renames the keys in the given map according
 // to the patterns in the current KeyRenamer.
-func (r KeyRenamer) Rename(m map[string]interface{}) {
+func (r KeyRenamer) Rename(m map[string]any) {
 	r.renamePath("", m)
 }
 
@@ -158,15 +158,15 @@ func (KeyRenamer) keyPath(k1, k2 string) string {
 	return k1 + "/" + k2
 }
 
-func (r KeyRenamer) renamePath(parentKeyPath string, m map[string]interface{}) {
+func (r KeyRenamer) renamePath(parentKeyPath string, m map[string]any) {
 	for key, val := range m {
 		keyPath := r.keyPath(parentKeyPath, key)
 		switch val.(type) {
-		case map[interface{}]interface{}:
+		case map[any]any:
 			val = cast.ToStringMap(val)
-			r.renamePath(keyPath, val.(map[string]interface{}))
-		case map[string]interface{}:
-			r.renamePath(keyPath, val.(map[string]interface{}))
+			r.renamePath(keyPath, val.(map[string]any))
+		case map[string]any:
+			r.renamePath(keyPath, val.(map[string]any))
 		}
 
 		newKey := r.getNewKey(keyPath)

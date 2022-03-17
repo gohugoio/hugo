@@ -47,7 +47,7 @@ func (c *compositeConfig) GetInt(key string) int {
 	return c.base.GetInt(key)
 }
 
-func (c *compositeConfig) Merge(key string, value interface{}) {
+func (c *compositeConfig) Merge(key string, value any) {
 	c.layer.Merge(key, value)
 }
 
@@ -58,7 +58,7 @@ func (c *compositeConfig) GetParams(key string) maps.Params {
 	return c.base.GetParams(key)
 }
 
-func (c *compositeConfig) GetStringMap(key string) map[string]interface{} {
+func (c *compositeConfig) GetStringMap(key string) map[string]any {
 	if c.layer.IsSet(key) {
 		return c.layer.GetStringMap(key)
 	}
@@ -79,7 +79,7 @@ func (c *compositeConfig) GetStringSlice(key string) []string {
 	return c.base.GetStringSlice(key)
 }
 
-func (c *compositeConfig) Get(key string) interface{} {
+func (c *compositeConfig) Get(key string) any {
 	if c.layer.IsSet(key) {
 		return c.layer.Get(key)
 	}
@@ -100,7 +100,7 @@ func (c *compositeConfig) GetString(key string) string {
 	return c.base.GetString(key)
 }
 
-func (c *compositeConfig) Set(key string, value interface{}) {
+func (c *compositeConfig) Set(key string, value any) {
 	c.layer.Set(key, value)
 }
 

@@ -43,11 +43,11 @@ func TestWhere(t *testing.T) {
 	d6 := d5.Add(1 * time.Hour)
 
 	type testt struct {
-		seq    interface{}
-		key    interface{}
+		seq    any
+		key    any
 		op     string
-		match  interface{}
-		expect interface{}
+		match  any
+		expect any
 	}
 
 	createTestVariants := func(test testt) []testt {
@@ -150,11 +150,11 @@ func TestWhere(t *testing.T) {
 		// Issue #8353
 		// String type mismatch.
 		{
-			seq: []map[string]interface{}{
+			seq: []map[string]any{
 				{"a": "1", "b": "2"}, {"a": "3", "b": template.HTML("4")}, {"a": "5", "x": "4"},
 			},
 			key: "b", match: "4",
-			expect: []map[string]interface{}{
+			expect: []map[string]any{
 				{"a": "3", "b": template.HTML("4")},
 			},
 		},
@@ -184,9 +184,9 @@ func TestWhere(t *testing.T) {
 			expect: []TstParams{{params: maps.Params{"i": 1, "color": "blue"}}, {params: maps.Params{"i": 3, "color": "blue"}}},
 		},
 		{
-			seq: []TstParams{{params: maps.Params{"nested": map[string]interface{}{"color": "indigo"}}}, {params: maps.Params{"nested": map[string]interface{}{"color": "blue"}}}},
+			seq: []TstParams{{params: maps.Params{"nested": map[string]any{"color": "indigo"}}}, {params: maps.Params{"nested": map[string]any{"color": "blue"}}}},
 			key: ".Params.NEsTED.COLOR", match: "blue",
-			expect: []TstParams{{params: maps.Params{"nested": map[string]interface{}{"color": "blue"}}}},
+			expect: []TstParams{{params: maps.Params{"nested": map[string]any{"color": "blue"}}}},
 		},
 		{
 			seq: []TstParams{{params: maps.Params{"i": 0, "color": "indigo"}}, {params: maps.Params{"i": 1, "color": "blue"}}, {params: maps.Params{"i": 2, "color": "green"}}, {params: maps.Params{"i": 3, "color": "blue"}}},
@@ -206,12 +206,12 @@ func TestWhere(t *testing.T) {
 		{
 			seq: []maps.Params{
 				{
-					"a": map[string]interface{}{
+					"a": map[string]any{
 						"b": "b1",
 					},
 				},
 				{
-					"a": map[string]interface{}{
+					"a": map[string]any{
 						"b": "b2",
 					},
 				},
@@ -219,7 +219,7 @@ func TestWhere(t *testing.T) {
 			key: "A.B", match: "b2",
 			expect: []maps.Params{
 				{
-					"a": map[string]interface{}{
+					"a": map[string]any{
 						"b": "b2",
 					},
 				},
@@ -598,38 +598,38 @@ func TestWhere(t *testing.T) {
 			expect: false,
 		},
 		{
-			seq: map[string]interface{}{
-				"foo": []interface{}{map[interface{}]interface{}{"a": 1, "b": 2}},
-				"bar": []interface{}{map[interface{}]interface{}{"a": 3, "b": 4}},
-				"zap": []interface{}{map[interface{}]interface{}{"a": 5, "b": 6}},
+			seq: map[string]any{
+				"foo": []any{map[any]any{"a": 1, "b": 2}},
+				"bar": []any{map[any]any{"a": 3, "b": 4}},
+				"zap": []any{map[any]any{"a": 5, "b": 6}},
 			},
 			key: "b", op: "in", match: ns.Slice(3, 4, 5),
-			expect: map[string]interface{}{
-				"bar": []interface{}{map[interface{}]interface{}{"a": 3, "b": 4}},
+			expect: map[string]any{
+				"bar": []any{map[any]any{"a": 3, "b": 4}},
 			},
 		},
 		{
-			seq: map[string]interface{}{
-				"foo": []interface{}{map[interface{}]interface{}{"a": 1, "b": 2}},
-				"bar": []interface{}{map[interface{}]interface{}{"a": 3, "b": 4}},
-				"zap": []interface{}{map[interface{}]interface{}{"a": 5, "b": 6}},
+			seq: map[string]any{
+				"foo": []any{map[any]any{"a": 1, "b": 2}},
+				"bar": []any{map[any]any{"a": 3, "b": 4}},
+				"zap": []any{map[any]any{"a": 5, "b": 6}},
 			},
 			key: "b", op: ">", match: 3,
-			expect: map[string]interface{}{
-				"bar": []interface{}{map[interface{}]interface{}{"a": 3, "b": 4}},
-				"zap": []interface{}{map[interface{}]interface{}{"a": 5, "b": 6}},
+			expect: map[string]any{
+				"bar": []any{map[any]any{"a": 3, "b": 4}},
+				"zap": []any{map[any]any{"a": 5, "b": 6}},
 			},
 		},
 		{
-			seq: map[string]interface{}{
-				"foo": []interface{}{maps.Params{"a": 1, "b": 2}},
-				"bar": []interface{}{maps.Params{"a": 3, "b": 4}},
-				"zap": []interface{}{maps.Params{"a": 5, "b": 6}},
+			seq: map[string]any{
+				"foo": []any{maps.Params{"a": 1, "b": 2}},
+				"bar": []any{maps.Params{"a": 3, "b": 4}},
+				"zap": []any{maps.Params{"a": 5, "b": 6}},
 			},
 			key: "B", op: ">", match: 3,
-			expect: map[string]interface{}{
-				"bar": []interface{}{maps.Params{"a": 3, "b": 4}},
-				"zap": []interface{}{maps.Params{"a": 5, "b": 6}},
+			expect: map[string]any{
+				"bar": []any{maps.Params{"a": 3, "b": 4}},
+				"zap": []any{maps.Params{"a": 5, "b": 6}},
 			},
 		},
 	} {
@@ -639,7 +639,7 @@ func TestWhere(t *testing.T) {
 			name := fmt.Sprintf("%d/%d %T %s %s", i, j, test.seq, test.op, test.key)
 			name = strings.ReplaceAll(name, "[]", "slice-of-")
 			t.Run(name, func(t *testing.T) {
-				var results interface{}
+				var results any
 				var err error
 
 				if len(test.op) > 0 {
@@ -788,10 +788,10 @@ func TestCheckCondition(t *testing.T) {
 		{reflect.ValueOf(123), reflect.ValueOf(123), "op", expect{false, true}},
 
 		// Issue #3718
-		{reflect.ValueOf([]interface{}{"a"}), reflect.ValueOf([]string{"a", "b"}), "intersect", expect{true, false}},
-		{reflect.ValueOf([]string{"a"}), reflect.ValueOf([]interface{}{"a", "b"}), "intersect", expect{true, false}},
-		{reflect.ValueOf([]interface{}{1, 2}), reflect.ValueOf([]int{1}), "intersect", expect{true, false}},
-		{reflect.ValueOf([]int{1}), reflect.ValueOf([]interface{}{1, 2}), "intersect", expect{true, false}},
+		{reflect.ValueOf([]any{"a"}), reflect.ValueOf([]string{"a", "b"}), "intersect", expect{true, false}},
+		{reflect.ValueOf([]string{"a"}), reflect.ValueOf([]any{"a", "b"}), "intersect", expect{true, false}},
+		{reflect.ValueOf([]any{1, 2}), reflect.ValueOf([]int{1}), "intersect", expect{true, false}},
+		{reflect.ValueOf([]int{1}), reflect.ValueOf([]any{1, 2}), "intersect", expect{true, false}},
 	} {
 		result, err := ns.checkCondition(test.value, test.match, test.op)
 		if test.expect.isError {
@@ -822,7 +822,7 @@ func TestEvaluateSubElem(t *testing.T) {
 	for i, test := range []struct {
 		value  reflect.Value
 		key    string
-		expect interface{}
+		expect any
 	}{
 		{reflect.ValueOf(tstx), "A", "foo"},
 		{reflect.ValueOf(&tstx), "TstRp", "rfoo"},

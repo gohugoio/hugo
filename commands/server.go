@@ -304,7 +304,7 @@ func getRootWatchDirsStr(baseDir string, watchDirs []string) string {
 type fileServer struct {
 	baseURLs      []string
 	roots         []string
-	errorTemplate func(err interface{}) (io.Reader, error)
+	errorTemplate func(err any) (io.Reader, error)
 	c             *commandeer
 	s             *serverCmd
 }
@@ -497,7 +497,7 @@ func (c *commandeer) serve(s *serverCmd) error {
 		roots:    roots,
 		c:        c,
 		s:        s,
-		errorTemplate: func(ctx interface{}) (io.Reader, error) {
+		errorTemplate: func(ctx any) (io.Reader, error) {
 			b := &bytes.Buffer{}
 			err := c.hugo().Tmpl().Execute(templ, b, ctx)
 			return b, err

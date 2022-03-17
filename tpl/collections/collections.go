@@ -50,7 +50,7 @@ type Namespace struct {
 }
 
 // After returns all the items after the first N in a rangeable list.
-func (ns *Namespace) After(index interface{}, seq interface{}) (interface{}, error) {
+func (ns *Namespace) After(index any, seq any) (any, error) {
 	if index == nil || seq == nil {
 		return nil, errors.New("both limit and seq must be provided")
 	}
@@ -86,7 +86,7 @@ func (ns *Namespace) After(index interface{}, seq interface{}) (interface{}, err
 
 // Delimit takes a given sequence and returns a delimited HTML string.
 // If last is passed to the function, it will be used as the final delimiter.
-func (ns *Namespace) Delimit(seq, delimiter interface{}, last ...interface{}) (template.HTML, error) {
+func (ns *Namespace) Delimit(seq, delimiter any, last ...any) (template.HTML, error) {
 	d, err := cast.ToStringE(delimiter)
 	if err != nil {
 		return "", err
@@ -146,12 +146,12 @@ func (ns *Namespace) Delimit(seq, delimiter interface{}, last ...interface{}) (t
 // walking the parameters and treating them as key-value pairs.  The number
 // of parameters must be even.
 // The keys can be string slices, which will create the needed nested structure.
-func (ns *Namespace) Dictionary(values ...interface{}) (map[string]interface{}, error) {
+func (ns *Namespace) Dictionary(values ...any) (map[string]any, error) {
 	if len(values)%2 != 0 {
 		return nil, errors.New("invalid dictionary call")
 	}
 
-	root := make(map[string]interface{})
+	root := make(map[string]any)
 
 	for i := 0; i < len(values); i += 2 {
 		dict := root
@@ -162,12 +162,12 @@ func (ns *Namespace) Dictionary(values ...interface{}) (map[string]interface{}, 
 		case []string:
 			for i := 0; i < len(v)-1; i++ {
 				key = v[i]
-				var m map[string]interface{}
+				var m map[string]any
 				v, found := dict[key]
 				if found {
-					m = v.(map[string]interface{})
+					m = v.(map[string]any)
 				} else {
-					m = make(map[string]interface{})
+					m = make(map[string]any)
 					dict[key] = m
 				}
 				dict = m
@@ -184,7 +184,7 @@ func (ns *Namespace) Dictionary(values ...interface{}) (map[string]interface{}, 
 
 // EchoParam returns a given value if it is set; otherwise, it returns an
 // empty string.
-func (ns *Namespace) EchoParam(a, key interface{}) interface{} {
+func (ns *Namespace) EchoParam(a, key any) any {
 	av, isNil := indirect(reflect.ValueOf(a))
 	if isNil {
 		return ""
@@ -227,7 +227,7 @@ func (ns *Namespace) EchoParam(a, key interface{}) interface{} {
 }
 
 // First returns the first N items in a rangeable list.
-func (ns *Namespace) First(limit interface{}, seq interface{}) (interface{}, error) {
+func (ns *Namespace) First(limit any, seq any) (any, error) {
 	if limit == nil || seq == nil {
 		return nil, errors.New("both limit and seq must be provided")
 	}
@@ -262,7 +262,7 @@ func (ns *Namespace) First(limit interface{}, seq interface{}) (interface{}, err
 }
 
 // In returns whether v is in the set l.  l may be an array or slice.
-func (ns *Namespace) In(l interface{}, v interface{}) (bool, error) {
+func (ns *Namespace) In(l any, v any) (bool, error) {
 	if l == nil || v == nil {
 		return false, nil
 	}
@@ -301,9 +301,9 @@ func (ns *Namespace) In(l interface{}, v interface{}) (bool, error) {
 
 // Intersect returns the common elements in the given sets, l1 and l2.  l1 and
 // l2 must be of the same type and may be either arrays or slices.
-func (ns *Namespace) Intersect(l1, l2 interface{}) (interface{}, error) {
+func (ns *Namespace) Intersect(l1, l2 any) (any, error) {
 	if l1 == nil || l2 == nil {
-		return make([]interface{}, 0), nil
+		return make([]any, 0), nil
 	}
 
 	var ins *intersector
@@ -313,19 +313,19 @@ func (ns *Namespace) Intersect(l1, l2 interface{}) (interface{}, error) {
 
 	switch l1v.Kind() {
 	case reflect.Array, reflect.Slice:
-		ins = &intersector{r: reflect.MakeSlice(l1v.Type(), 0, 0), seen: make(map[interface{}]bool)}
+		ins = &intersector{r: reflect.MakeSlice(l1v.Type(), 0, 0), seen: make(map[any]bool)}
 		switch l2v.Kind() {
 		case reflect.Array, reflect.Slice:
 			for i := 0; i < l1v.Len(); i++ {
 				l1vv := l1v.Index(i)
 				if !l1vv.Type().Comparable() {
-					return make([]interface{}, 0), errors.New("intersect does not support slices or arrays of uncomparable types")
+					return make([]any, 0), errors.New("intersect does not support slices or arrays of uncomparable types")
 				}
 
 				for j := 0; j < l2v.Len(); j++ {
 					l2vv := l2v.Index(j)
 					if !l2vv.Type().Comparable() {
-						return make([]interface{}, 0), errors.New("intersect does not support slices or arrays of uncomparable types")
+						return make([]any, 0), errors.New("intersect does not support slices or arrays of uncomparable types")
 					}
 
 					ins.handleValuePair(l1vv, l2vv)
@@ -342,7 +342,7 @@ func (ns *Namespace) Intersect(l1, l2 interface{}) (interface{}, error) {
 
 // Group groups a set of elements by the given key.
 // This is currently only supported for Pages.
-func (ns *Namespace) Group(key interface{}, items interface{}) (interface{}, error) {
+func (ns *Namespace) Group(key any, items any) (any, error) {
 	if key == nil {
 		return nil, errors.New("nil is not a valid key to group by")
 	}
@@ -362,7 +362,7 @@ func (ns *Namespace) Group(key interface{}, items interface{}) (interface{}, err
 
 // IsSet returns whether a given array, channel, slice, or map has a key
 // defined.
-func (ns *Namespace) IsSet(a interface{}, key interface{}) (bool, error) {
+func (ns *Namespace) IsSet(a any, key any) (bool, error) {
 	av := reflect.ValueOf(a)
 	kv := reflect.ValueOf(key)
 
@@ -387,7 +387,7 @@ func (ns *Namespace) IsSet(a interface{}, key interface{}) (bool, error) {
 }
 
 // Last returns the last N items in a rangeable list.
-func (ns *Namespace) Last(limit interface{}, seq interface{}) (interface{}, error) {
+func (ns *Namespace) Last(limit any, seq any) (any, error) {
 	if limit == nil || seq == nil {
 		return nil, errors.New("both limit and seq must be provided")
 	}
@@ -422,7 +422,7 @@ func (ns *Namespace) Last(limit interface{}, seq interface{}) (interface{}, erro
 }
 
 // Querify encodes the given parameters in URL-encoded form ("bar=baz&foo=quux") sorted by key.
-func (ns *Namespace) Querify(params ...interface{}) (string, error) {
+func (ns *Namespace) Querify(params ...any) (string, error) {
 	qs := url.Values{}
 
 	if len(params) == 1 {
@@ -438,7 +438,7 @@ func (ns *Namespace) Querify(params ...interface{}) (string, error) {
 
 			return qs.Encode(), nil
 
-		case []interface{}:
+		case []any:
 			params = v
 
 		default:
@@ -463,7 +463,7 @@ func (ns *Namespace) Querify(params ...interface{}) (string, error) {
 }
 
 // Reverse creates a copy of slice and reverses it.
-func (ns *Namespace) Reverse(slice interface{}) (interface{}, error) {
+func (ns *Namespace) Reverse(slice any) (any, error) {
 	if slice == nil {
 		return nil, nil
 	}
@@ -493,7 +493,7 @@ func (ns *Namespace) Reverse(slice interface{}) (interface{}, error) {
 //     -3 => -1, -2, -3
 //     1 4 => 1, 2, 3, 4
 //     1 -2 => 1, 0, -1, -2
-func (ns *Namespace) Seq(args ...interface{}) ([]int, error) {
+func (ns *Namespace) Seq(args ...any) ([]int, error) {
 	if len(args) < 1 || len(args) > 3 {
 		return nil, errors.New("invalid number of arguments to Seq")
 	}
@@ -561,7 +561,7 @@ func (ns *Namespace) Seq(args ...interface{}) ([]int, error) {
 }
 
 // Shuffle returns the given rangeable list in a randomised order.
-func (ns *Namespace) Shuffle(seq interface{}) (interface{}, error) {
+func (ns *Namespace) Shuffle(seq any) (any, error) {
 	if seq == nil {
 		return nil, errors.New("both count and seq must be provided")
 	}
@@ -591,7 +591,7 @@ func (ns *Namespace) Shuffle(seq interface{}) (interface{}, error) {
 }
 
 // Slice returns a slice of all passed arguments.
-func (ns *Namespace) Slice(args ...interface{}) interface{} {
+func (ns *Namespace) Slice(args ...any) any {
 	if len(args) == 0 {
 		return args
 	}
@@ -601,7 +601,7 @@ func (ns *Namespace) Slice(args ...interface{}) interface{} {
 
 type intersector struct {
 	r    reflect.Value
-	seen map[interface{}]bool
+	seen map[any]bool
 }
 
 func (i *intersector) appendIfNotSeen(v reflect.Value) {
@@ -638,9 +638,9 @@ func (i *intersector) handleValuePair(l1vv, l2vv reflect.Value) {
 // l2 must be of the same type and may be either arrays or slices.
 // If l1 and l2 aren't of the same type then l1 will be returned.
 // If either l1 or l2 is nil then the non-nil list will be returned.
-func (ns *Namespace) Union(l1, l2 interface{}) (interface{}, error) {
+func (ns *Namespace) Union(l1, l2 any) (any, error) {
 	if l1 == nil && l2 == nil {
-		return []interface{}{}, nil
+		return []any{}, nil
 	} else if l1 == nil && l2 != nil {
 		return l2, nil
 	} else if l1 != nil && l2 == nil {
@@ -656,7 +656,7 @@ func (ns *Namespace) Union(l1, l2 interface{}) (interface{}, error) {
 	case reflect.Array, reflect.Slice:
 		switch l2v.Kind() {
 		case reflect.Array, reflect.Slice:
-			ins = &intersector{r: reflect.MakeSlice(l1v.Type(), 0, 0), seen: make(map[interface{}]bool)}
+			ins = &intersector{r: reflect.MakeSlice(l1v.Type(), 0, 0), seen: make(map[any]bool)}
 
 			if l1v.Type() != l2v.Type() &&
 				l1v.Type().Elem().Kind() != reflect.Interface &&
@@ -673,7 +673,7 @@ func (ns *Namespace) Union(l1, l2 interface{}) (interface{}, error) {
 				l1vv, isNil = indirectInterface(l1v.Index(i))
 
 				if !l1vv.Type().Comparable() {
-					return []interface{}{}, errors.New("union does not support slices or arrays of uncomparable types")
+					return []any{}, errors.New("union does not support slices or arrays of uncomparable types")
 				}
 
 				if !isNil {
@@ -721,9 +721,9 @@ func (ns *Namespace) Union(l1, l2 interface{}) (interface{}, error) {
 
 // Uniq takes in a slice or array and returns a slice with subsequent
 // duplicate elements removed.
-func (ns *Namespace) Uniq(seq interface{}) (interface{}, error) {
+func (ns *Namespace) Uniq(seq any) (any, error) {
 	if seq == nil {
-		return make([]interface{}, 0), nil
+		return make([]any, 0), nil
 	}
 
 	v := reflect.ValueOf(seq)
@@ -739,7 +739,7 @@ func (ns *Namespace) Uniq(seq interface{}) (interface{}, error) {
 		return nil, errors.Errorf("type %T not supported", seq)
 	}
 
-	seen := make(map[interface{}]bool)
+	seen := make(map[any]bool)
 
 	for i := 0; i < v.Len(); i++ {
 		ev, _ := indirectInterface(v.Index(i))
@@ -756,7 +756,7 @@ func (ns *Namespace) Uniq(seq interface{}) (interface{}, error) {
 }
 
 // KeyVals creates a key and values wrapper.
-func (ns *Namespace) KeyVals(key interface{}, vals ...interface{}) (types.KeyValues, error) {
+func (ns *Namespace) KeyVals(key any, vals ...any) (types.KeyValues, error) {
 	return types.KeyValues{Key: key, Values: vals}, nil
 }
 

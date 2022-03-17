@@ -38,7 +38,7 @@ type PageGenealogist interface {
 
 	// Template example:
 	// {{ $related := .RegularPages.RelatedIndices . "tags" "date" }}
-	RelatedIndices(doc related.Document, indices ...interface{}) (Pages, error)
+	RelatedIndices(doc related.Document, indices ...any) (Pages, error)
 
 	// Template example:
 	// {{ $related := .RegularPages.RelatedTo ( keyVals "tags" "hugo", "rocks")  ( keyVals "date" .Date ) }}
@@ -62,7 +62,7 @@ func (p Pages) Related(doc related.Document) (Pages, error) {
 
 // RelatedIndices searches the given indices with the search keywords from the
 // supplied document.
-func (p Pages) RelatedIndices(doc related.Document, indices ...interface{}) (Pages, error) {
+func (p Pages) RelatedIndices(doc related.Document, indices ...any) (Pages, error) {
 	indicesStr, err := cast.ToStringSliceE(indices)
 	if err != nil {
 		return nil, err

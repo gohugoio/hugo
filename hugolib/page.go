@@ -79,7 +79,7 @@ type pageContext interface {
 }
 
 // wrapErr adds some context to the given error if possible.
-func wrapErr(err error, ctx interface{}) error {
+func wrapErr(err error, ctx any) error {
 	if pc, ok := ctx.(pageContext); ok {
 		return pc.wrapError(err)
 	}
@@ -139,7 +139,7 @@ func (p *pageState) Err() error {
 
 // Eq returns whether the current page equals the given page.
 // This is what's invoked when doing `{{ if eq $page $otherPage }}`
-func (p *pageState) Eq(other interface{}) bool {
+func (p *pageState) Eq(other any) bool {
 	pp, err := unwrapPage(other)
 	if err != nil {
 		return false
@@ -600,7 +600,7 @@ func (p *pageState) mapContent(bucket *pagesMapBucket, meta *pageMeta) error {
 	s := p.shortcodeState
 
 	rn := &pageContentMap{
-		items: make([]interface{}, 0, 20),
+		items: make([]any, 0, 20),
 	}
 
 	iter := p.source.parsed.Iterator()
@@ -737,12 +737,12 @@ Loop:
 	return nil
 }
 
-func (p *pageState) errorf(err error, format string, a ...interface{}) error {
+func (p *pageState) errorf(err error, format string, a ...any) error {
 	if herrors.UnwrapErrorWithFileContext(err) != nil {
 		// More isn't always better.
 		return err
 	}
-	args := append([]interface{}{p.Language().Lang, p.pathOrTitle()}, a...)
+	args := append([]any{p.Language().Lang, p.pathOrTitle()}, a...)
 	format = "[%s] page %q: " + format
 	if err == nil {
 		errors.Errorf(format, args...)

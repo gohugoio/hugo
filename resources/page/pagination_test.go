@@ -254,8 +254,8 @@ func TestProbablyEqualPageLists(t *testing.T) {
 	ninePagesByWeight, _ := createTestPages(9).GroupBy("Weight", "asc")
 
 	for i, this := range []struct {
-		v1     interface{}
-		v2     interface{}
+		v1     any
+		v2     any
 		expect bool
 	}{
 		{nil, nil, true},

@@ -43,7 +43,7 @@ func init() {
 	os.Setenv("GO111MODULE", "on")
 }
 
-func runWith(env map[string]string, cmd string, inArgs ...interface{}) error {
+func runWith(env map[string]string, cmd string, inArgs ...any) error {
 	s := argsToStrings(inArgs...)
 	return sh.RunWith(env, cmd, s...)
 }
@@ -324,7 +324,7 @@ func TestCoverHTML() error {
 	return sh.Run(goexe, "tool", "cover", "-html="+coverAll)
 }
 
-func runCmd(env map[string]string, cmd string, args ...interface{}) error {
+func runCmd(env map[string]string, cmd string, args ...any) error {
 	if mg.Verbose() {
 		return runWith(env, cmd, args...)
 	}
@@ -361,7 +361,7 @@ func buildTags() string {
 	return "none"
 }
 
-func argsToStrings(v ...interface{}) []string {
+func argsToStrings(v ...any) []string {
 	var args []string
 	for _, arg := range v {
 		switch v := arg.(type) {

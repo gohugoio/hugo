@@ -27,8 +27,8 @@ import (
 
 // PaginatorProvider provides two ways to create a page paginator.
 type PaginatorProvider interface {
-	Paginator(options ...interface{}) (*Pager, error)
-	Paginate(seq interface{}, options ...interface{}) (*Pager, error)
+	Paginator(options ...any) (*Pager, error)
+	Paginate(seq any, options ...any) (*Pager, error)
 }
 
 // Pager represents one of the elements in a paginator.
@@ -207,7 +207,7 @@ func splitPages(pages Pages, size int) []paginatedElement {
 
 func splitPageGroups(pageGroups PagesGroup, size int) []paginatedElement {
 	type keyPage struct {
-		key  interface{}
+		key  any
 		page Page
 	}
 
@@ -229,7 +229,7 @@ func splitPageGroups(pageGroups PagesGroup, size int) []paginatedElement {
 
 		var (
 			pg         PagesGroup
-			key        interface{}
+			key        any
 			groupIndex = -1
 		)
 
@@ -248,7 +248,7 @@ func splitPageGroups(pageGroups PagesGroup, size int) []paginatedElement {
 	return split
 }
 
-func ResolvePagerSize(cfg config.Provider, options ...interface{}) (int, error) {
+func ResolvePagerSize(cfg config.Provider, options ...any) (int, error) {
 	if len(options) == 0 {
 		return cfg.GetInt("paginate"), nil
 	}
@@ -266,7 +266,7 @@ func ResolvePagerSize(cfg config.Provider, options ...interface{}) (int, error) 
 	return pas, nil
 }
 
-func Paginate(td TargetPathDescriptor, seq interface{}, pagerSize int) (*Paginator, error) {
+func Paginate(td TargetPathDescriptor, seq any, pagerSize int) (*Paginator, error) {
 	if pagerSize <= 0 {
 		return nil, errors.New("'paginate' configuration setting must be positive to paginate")
 	}
@@ -296,7 +296,7 @@ func Paginate(td TargetPathDescriptor, seq interface{}, pagerSize int) (*Paginat
 // It may return false positives.
 // The motivation behind this is to avoid potential costly reflect.DeepEqual
 // when "probably" is good enough.
-func probablyEqualPageLists(a1 interface{}, a2 interface{}) bool {
+func probablyEqualPageLists(a1 any, a2 any) bool {
 	if a1 == nil || a2 == nil {
 		return a1 == a2
 	}

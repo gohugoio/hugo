@@ -71,7 +71,7 @@ func (m PageMatcher) Matches(p Page) bool {
 }
 
 // DecodeCascade decodes in which could be eiter a map or a slice of maps.
-func DecodeCascade(in interface{}) (map[PageMatcher]maps.Params, error) {
+func DecodeCascade(in any) (map[PageMatcher]maps.Params, error) {
 	m, err := maps.ToSliceStringMap(in)
 	if err != nil {
 		return map[PageMatcher]maps.Params{
@@ -106,7 +106,7 @@ func DecodeCascade(in interface{}) (map[PageMatcher]maps.Params, error) {
 }
 
 // DecodePageMatcher decodes m into v.
-func DecodePageMatcher(m interface{}, v *PageMatcher) error {
+func DecodePageMatcher(m any, v *PageMatcher) error {
 	if err := mapstructure.WeakDecode(m, v); err != nil {
 		return err
 	}

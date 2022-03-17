@@ -110,7 +110,7 @@ func (ns *Namespace) getscssClientDartSass() (*dartsass.Client, error) {
 // Get locates the filename given in Hugo's assets filesystem and
 // creates a Resource object that can be used for
 // further transformations.
-func (ns *Namespace) Get(filename interface{}) (resource.Resource, error) {
+func (ns *Namespace) Get(filename any) (resource.Resource, error) {
 	filenamestr, err := cast.ToStringE(filename)
 	if err != nil {
 		return nil, err
@@ -125,8 +125,8 @@ func (ns *Namespace) Get(filename interface{}) (resource.Resource, error) {
 //
 // Note: This method does not return any error as a second argument,
 // for any error situations the error can be checked in .Err.
-func (ns *Namespace) GetRemote(args ...interface{}) resource.Resource {
-	get := func(args ...interface{}) (resource.Resource, error) {
+func (ns *Namespace) GetRemote(args ...any) resource.Resource {
+	get := func(args ...any) (resource.Resource, error) {
 		if len(args) < 1 {
 			return nil, errors.New("must provide an URL")
 		}
@@ -136,7 +136,7 @@ func (ns *Namespace) GetRemote(args ...interface{}) resource.Resource {
 			return nil, err
 		}
 
-		var options map[string]interface{}
+		var options map[string]any
 
 		if len(args) > 1 {
 			options, err = maps.ToStringMapE(args[1])
@@ -163,7 +163,7 @@ func (ns *Namespace) GetRemote(args ...interface{}) resource.Resource {
 // It looks for files in the assets file system.
 //
 // See Match for a more complete explanation about the rules used.
-func (ns *Namespace) GetMatch(pattern interface{}) (resource.Resource, error) {
+func (ns *Namespace) GetMatch(pattern any) (resource.Resource, error) {
 	patternStr, err := cast.ToStringE(pattern)
 	if err != nil {
 		return nil, err
@@ -188,7 +188,7 @@ func (ns *Namespace) GetMatch(pattern interface{}) (resource.Resource, error) {
 // It looks for files in the assets file system.
 //
 // See Match for a more complete explanation about the rules used.
-func (ns *Namespace) Match(pattern interface{}) (resource.Resources, error) {
+func (ns *Namespace) Match(pattern any) (resource.Resources, error) {
 	patternStr, err := cast.ToStringE(pattern)
 	if err != nil {
 		return nil, err
@@ -199,7 +199,7 @@ func (ns *Namespace) Match(pattern interface{}) (resource.Resources, error) {
 
 // Concat concatenates a slice of Resource objects. These resources must
 // (currently) be of the same Media Type.
-func (ns *Namespace) Concat(targetPathIn interface{}, r interface{}) (resource.Resource, error) {
+func (ns *Namespace) Concat(targetPathIn any, r any) (resource.Resource, error) {
 	targetPath, err := cast.ToStringE(targetPathIn)
 	if err != nil {
 		return nil, err
@@ -224,7 +224,7 @@ func (ns *Namespace) Concat(targetPathIn interface{}, r interface{}) (resource.R
 }
 
 // FromString creates a Resource from a string published to the relative target path.
-func (ns *Namespace) FromString(targetPathIn, contentIn interface{}) (resource.Resource, error) {
+func (ns *Namespace) FromString(targetPathIn, contentIn any) (resource.Resource, error) {
 	targetPath, err := cast.ToStringE(targetPathIn)
 	if err != nil {
 		return nil, err
@@ -239,7 +239,7 @@ func (ns *Namespace) FromString(targetPathIn, contentIn interface{}) (resource.R
 
 // ExecuteAsTemplate creates a Resource from a Go template, parsed and executed with
 // the given data, and published to the relative target path.
-func (ns *Namespace) ExecuteAsTemplate(args ...interface{}) (resource.Resource, error) {
+func (ns *Namespace) ExecuteAsTemplate(args ...any) (resource.Resource, error) {
 	if len(args) != 3 {
 		return nil, fmt.Errorf("must provide targetPath, the template data context and a Resource object")
 	}
@@ -259,7 +259,7 @@ func (ns *Namespace) ExecuteAsTemplate(args ...interface{}) (resource.Resource, 
 
 // Fingerprint transforms the given Resource with a MD5 hash of the content in
 // the RelPermalink and Permalink.
-func (ns *Namespace) Fingerprint(args ...interface{}) (resource.Resource, error) {
+func (ns *Namespace) Fingerprint(args ...any) (resource.Resource, error) {
 	if len(args) < 1 || len(args) > 2 {
 		return nil, errors.New("must provide a Resource and (optional) crypto algo")
 	}
@@ -292,7 +292,7 @@ func (ns *Namespace) Minify(r resources.ResourceTransformer) (resource.Resource,
 
 // ToCSS converts the given Resource to CSS. You can optional provide an Options
 // object or a target path (string) as first argument.
-func (ns *Namespace) ToCSS(args ...interface{}) (resource.Resource, error) {
+func (ns *Namespace) ToCSS(args ...any) (resource.Resource, error) {
 	const (
 		// Transpiler implementation can be controlled from the client by
 		// setting the 'transpiler' option.
@@ -303,7 +303,7 @@ func (ns *Namespace) ToCSS(args ...interface{}) (resource.Resource, error) {
 
 	var (
 		r          resources.ResourceTransformer
-		m          map[string]interface{}
+		m          map[string]any
 		targetPath string
 		err        error
 		ok         bool
@@ -346,7 +346,7 @@ func (ns *Namespace) ToCSS(args ...interface{}) (resource.Resource, error) {
 	}
 
 	if m == nil {
-		m = make(map[string]interface{})
+		m = make(map[string]any)
 	}
 	if targetPath != "" {
 		m["targetPath"] = targetPath
@@ -362,7 +362,7 @@ func (ns *Namespace) ToCSS(args ...interface{}) (resource.Resource, error) {
 }
 
 // PostCSS processes the given Resource with PostCSS
-func (ns *Namespace) PostCSS(args ...interface{}) (resource.Resource, error) {
+func (ns *Namespace) PostCSS(args ...any) (resource.Resource, error) {
 	r, m, err := resourcehelpers.ResolveArgs(args)
 	if err != nil {
 		return nil, err
@@ -383,7 +383,7 @@ func (ns *Namespace) PostProcess(r resource.Resource) (postpub.PostPublishedReso
 }
 
 // Babel processes the given Resource with Babel.
-func (ns *Namespace) Babel(args ...interface{}) (resource.Resource, error) {
+func (ns *Namespace) Babel(args ...any) (resource.Resource, error) {
 	r, m, err := resourcehelpers.ResolveArgs(args)
 	if err != nil {
 		return nil, err

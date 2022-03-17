@@ -75,7 +75,7 @@ type ChildCareProvider interface {
 
 // ContentProvider provides the content related values for a Page.
 type ContentProvider interface {
-	Content() (interface{}, error)
+	Content() (any, error)
 	Plain() string
 	PlainWords() []string
 	Summary() template.HTML
@@ -174,7 +174,7 @@ type PageMetaProvider interface {
 	IsPage() bool
 
 	// Param looks for a param in Page and then in Site config.
-	Param(key interface{}) (interface{}, error)
+	Param(key any) (any, error)
 
 	// Path gets the relative path, including file name and extension if relevant,
 	// to the source of this Page. It will be relative to any content root.
@@ -217,7 +217,7 @@ type PageMetaProvider interface {
 // PageRenderProvider provides a way for a Page to render content.
 type PageRenderProvider interface {
 	Render(layout ...string) (template.HTML, error)
-	RenderString(args ...interface{}) (template.HTML, error)
+	RenderString(args ...any) (template.HTML, error)
 }
 
 // PageWithoutContent is the Page without any of the content methods.
@@ -302,10 +302,10 @@ type RawContentProvider interface {
 
 // RefProvider provides the methods needed to create reflinks to pages.
 type RefProvider interface {
-	Ref(argsm map[string]interface{}) (string, error)
-	RefFrom(argsm map[string]interface{}, source interface{}) (string, error)
-	RelRef(argsm map[string]interface{}) (string, error)
-	RelRefFrom(argsm map[string]interface{}, source interface{}) (string, error)
+	Ref(argsm map[string]any) (string, error)
+	RefFrom(argsm map[string]any, source any) (string, error)
+	RelRef(argsm map[string]any) (string, error)
+	RelRefFrom(argsm map[string]any, source any) (string, error)
 }
 
 // RelatedKeywordsProvider allows a Page to be indexed.
@@ -352,7 +352,7 @@ type TreeProvider interface {
 
 	// IsAncestor returns whether the current page is an ancestor of the given
 	// Note that this method is not relevant for taxonomy lists and taxonomy terms pages.
-	IsAncestor(other interface{}) (bool, error)
+	IsAncestor(other any) (bool, error)
 
 	// CurrentSection returns the page's current section or the page itself if home or a section.
 	// Note that this will return nil for pages that is not regular, home or section pages.
@@ -360,7 +360,7 @@ type TreeProvider interface {
 
 	// IsDescendant returns whether the current page is a descendant of the given
 	// Note that this method is not relevant for taxonomy lists and taxonomy terms pages.
-	IsDescendant(other interface{}) (bool, error)
+	IsDescendant(other any) (bool, error)
 
 	// FirstSection returns the section on level 1 below home, e.g. "/docs".
 	// For the home page, this will return itself.
@@ -369,7 +369,7 @@ type TreeProvider interface {
 	// InSection returns whether the given page is in the current section.
 	// Note that this will always return false for pages that are
 	// not either regular, home or section pages.
-	InSection(other interface{}) (bool, error)
+	InSection(other any) (bool, error)
 
 	// Parent returns a section's parent section or a page's section.
 	// To get a section's subsections, see Page's Sections method.
@@ -387,9 +387,8 @@ type TreeProvider interface {
 // DeprecatedWarningPageMethods lists deprecated Page methods that will trigger
 // a WARNING if invoked.
 // This was added in Hugo 0.55.
-type DeprecatedWarningPageMethods interface { // This was emptied in Hugo 0.93.0.
-}
+type DeprecatedWarningPageMethods any // This was emptied in Hugo 0.93.0.
 
 // Move here to trigger ERROR instead of WARNING.
 // TODO(bep) create wrappers and put into the Page once it has some methods.
-type DeprecatedErrorPageMethods interface{}
+type DeprecatedErrorPageMethods any

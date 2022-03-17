@@ -134,7 +134,7 @@ func (f TimeFormatter) Format(t time.Time, layout string) string {
 	return s
 }
 
-func ToTimeInDefaultLocationE(i interface{}, location *time.Location) (tim time.Time, err error) {
+func ToTimeInDefaultLocationE(i any, location *time.Location) (tim time.Time, err error) {
 	switch vv := i.(type) {
 	case toml.LocalDate:
 		return vv.AsTime(location), nil

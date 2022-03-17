@@ -40,19 +40,19 @@ type Provider interface {
 	WriteMetrics(w io.Writer)
 
 	// TrackValue tracks the value for diff calculations etc.
-	TrackValue(key string, value interface{}, cached bool)
+	TrackValue(key string, value any, cached bool)
 
 	// Reset clears the metric store.
 	Reset()
 }
 
 type diff struct {
-	baseline interface{}
+	baseline any
 	count    int
 	simSum   int
 }
 
-func (d *diff) add(v interface{}) *diff {
+func (d *diff) add(v any) *diff {
 	if types.IsNil(d.baseline) {
 		d.baseline = v
 		d.count = 1
@@ -103,7 +103,7 @@ func (s *Store) Reset() {
 }
 
 // TrackValue tracks the value for diff calculations etc.
-func (s *Store) TrackValue(key string, value interface{}, cached bool) {
+func (s *Store) TrackValue(key string, value any, cached bool) {
 	if !s.calculateHints {
 		return
 	}
@@ -207,7 +207,7 @@ func (b bySum) Less(i, j int) bool { return b[i].sum > b[j].sum }
 
 // howSimilar is a naive diff implementation that returns
 // a number between 0-100 indicating how similar a and b are.
-func howSimilar(a, b interface{}) int {
+func howSimilar(a, b any) int {
 	t1, t2 := reflect.TypeOf(a), reflect.TypeOf(b)
 	if t1 != t2 {
 		return 0

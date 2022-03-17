@@ -29,28 +29,28 @@ func TestIndex(t *testing.T) {
 	ns := New(&deps.Deps{})
 
 	for i, test := range []struct {
-		item    interface{}
-		indices []interface{}
-		expect  interface{}
+		item    any
+		indices []any
+		expect  any
 		isErr   bool
 	}{
-		{[]int{0, 1}, []interface{}{0}, 0, false},
-		{[]int{0, 1}, []interface{}{9}, nil, false}, // index out of range
+		{[]int{0, 1}, []any{0}, 0, false},
+		{[]int{0, 1}, []any{9}, nil, false}, // index out of range
 		{[]uint{0, 1}, nil, []uint{0, 1}, false},
-		{[][]int{{1, 2}, {3, 4}}, []interface{}{0, 0}, 1, false},
-		{map[int]int{1: 10, 2: 20}, []interface{}{1}, 10, false},
-		{map[int]int{1: 10, 2: 20}, []interface{}{0}, 0, false},
-		{map[string]map[string]string{"a": {"b": "c"}}, []interface{}{"a", "b"}, "c", false},
-		{[]map[string]map[string]string{{"a": {"b": "c"}}}, []interface{}{0, "a", "b"}, "c", false},
-		{map[string]map[string]interface{}{"a": {"b": []string{"c", "d"}}}, []interface{}{"a", "b", 1}, "d", false},
-		{map[string]map[string]string{"a": {"b": "c"}}, []interface{}{[]string{"a", "b"}}, "c", false},
-		{maps.Params{"a": "av"}, []interface{}{"A"}, "av", false},
-		{maps.Params{"a": map[string]interface{}{"b": "bv"}}, []interface{}{"A", "B"}, "bv", false},
+		{[][]int{{1, 2}, {3, 4}}, []any{0, 0}, 1, false},
+		{map[int]int{1: 10, 2: 20}, []any{1}, 10, false},
+		{map[int]int{1: 10, 2: 20}, []any{0}, 0, false},
+		{map[string]map[string]string{"a": {"b": "c"}}, []any{"a", "b"}, "c", false},
+		{[]map[string]map[string]string{{"a": {"b": "c"}}}, []any{0, "a", "b"}, "c", false},
+		{map[string]map[string]any{"a": {"b": []string{"c", "d"}}}, []any{"a", "b", 1}, "d", false},
+		{map[string]map[string]string{"a": {"b": "c"}}, []any{[]string{"a", "b"}}, "c", false},
+		{maps.Params{"a": "av"}, []any{"A"}, "av", false},
+		{maps.Params{"a": map[string]any{"b": "bv"}}, []any{"A", "B"}, "bv", false},
 		// errors
 		{nil, nil, nil, true},
-		{[]int{0, 1}, []interface{}{"1"}, nil, true},
-		{[]int{0, 1}, []interface{}{nil}, nil, true},
-		{tstNoStringer{}, []interface{}{0}, nil, true},
+		{[]int{0, 1}, []any{"1"}, nil, true},
+		{[]int{0, 1}, []any{nil}, nil, true},
+		{tstNoStringer{}, []any{0}, nil, true},
 	} {
 		c.Run(fmt.Sprint(i), func(c *qt.C) {
 			errMsg := qt.Commentf("[%d] %v", i, test)

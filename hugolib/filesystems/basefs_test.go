@@ -314,12 +314,12 @@ func TestStaticFsMultiHost(t *testing.T) {
 	v.Set("theme", "t1")
 	v.Set("defaultContentLanguage", "en")
 
-	langConfig := map[string]interface{}{
-		"no": map[string]interface{}{
+	langConfig := map[string]any{
+		"no": map[string]any{
 			"staticDir": "static_no",
 			"baseURL":   "https://example.org/no/",
 		},
-		"en": map[string]interface{}{
+		"en": map[string]any{
 			"baseURL": "https://example.org/en/",
 		},
 	}
@@ -362,17 +362,17 @@ func TestMakePathRelative(t *testing.T) {
 	c.Assert(fs.Source.MkdirAll(filepath.Join(workDir, "static", "d2"), 0777), qt.IsNil)
 	c.Assert(fs.Source.MkdirAll(filepath.Join(workDir, "dust", "d2"), 0777), qt.IsNil)
 
-	moduleCfg := map[string]interface{}{
-		"mounts": []interface{}{
-			map[string]interface{}{
+	moduleCfg := map[string]any{
+		"mounts": []any{
+			map[string]any{
 				"source": "dist",
 				"target": "static/mydist",
 			},
-			map[string]interface{}{
+			map[string]any{
 				"source": "dust",
 				"target": "static/foo/bar",
 			},
-			map[string]interface{}{
+			map[string]any{
 				"source": "static",
 				"target": "static",
 			},

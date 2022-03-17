@@ -21,11 +21,11 @@ import (
 // in collections.Slice template func to get types such as Pages, PageGroups etc.
 // instead of the less useful []interface{}.
 type Slicer interface {
-	Slice(items interface{}) (interface{}, error)
+	Slice(items any) (any, error)
 }
 
 // Slice returns a slice of all passed arguments.
-func Slice(args ...interface{}) interface{} {
+func Slice(args ...any) any {
 	if len(args) == 0 {
 		return args
 	}
@@ -66,8 +66,8 @@ func Slice(args ...interface{}) interface{} {
 }
 
 // StringSliceToInterfaceSlice converts ss to []interface{}.
-func StringSliceToInterfaceSlice(ss []string) []interface{} {
-	result := make([]interface{}, len(ss))
+func StringSliceToInterfaceSlice(ss []string) []any {
+	result := make([]any, len(ss))
 	for i, s := range ss {
 		result[i] = s
 	}

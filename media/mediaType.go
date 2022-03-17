@@ -450,7 +450,7 @@ Note that you can still get the Media Type's suffix from a template: {{ $mediaTy
 
 // DecodeTypes takes a list of media type configurations and merges those,
 // in the order given, with the Hugo defaults as the last resort.
-func DecodeTypes(mms ...map[string]interface{}) (Types, error) {
+func DecodeTypes(mms ...map[string]any) (Types, error) {
 	var m Types
 
 	// Maps type string to Type. Type string is the full application/svg+xml.

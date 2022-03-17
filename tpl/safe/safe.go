@@ -31,43 +31,43 @@ func New() *Namespace {
 type Namespace struct{}
 
 // CSS returns a given string as html/template CSS content.
-func (ns *Namespace) CSS(a interface{}) (template.CSS, error) {
+func (ns *Namespace) CSS(a any) (template.CSS, error) {
 	s, err := cast.ToStringE(a)
 	return template.CSS(s), err
 }
 
 // HTML returns a given string as html/template HTML content.
-func (ns *Namespace) HTML(a interface{}) (template.HTML, error) {
+func (ns *Namespace) HTML(a any) (template.HTML, error) {
 	s, err := cast.ToStringE(a)
 	return template.HTML(s), err
 }
 
 // HTMLAttr returns a given string as html/template HTMLAttr content.
-func (ns *Namespace) HTMLAttr(a interface{}) (template.HTMLAttr, error) {
+func (ns *Namespace) HTMLAttr(a any) (template.HTMLAttr, error) {
 	s, err := cast.ToStringE(a)
 	return template.HTMLAttr(s), err
 }
 
 // JS returns the given string as a html/template JS content.
-func (ns *Namespace) JS(a interface{}) (template.JS, error) {
+func (ns *Namespace) JS(a any) (template.JS, error) {
 	s, err := cast.ToStringE(a)
 	return template.JS(s), err
 }
 
 // JSStr returns the given string as a html/template JSStr content.
-func (ns *Namespace) JSStr(a interface{}) (template.JSStr, error) {
+func (ns *Namespace) JSStr(a any) (template.JSStr, error) {
 	s, err := cast.ToStringE(a)
 	return template.JSStr(s), err
 }
 
 // URL returns a given string as html/template URL content.
-func (ns *Namespace) URL(a interface{}) (template.URL, error) {
+func (ns *Namespace) URL(a any) (template.URL, error) {
 	s, err := cast.ToStringE(a)
 	return template.URL(s), err
 }
 
 // SanitizeURL returns a given string as html/template URL content.
-func (ns *Namespace) SanitizeURL(a interface{}) (string, error) {
+func (ns *Namespace) SanitizeURL(a any) (string, error) {
 	s, err := cast.ToStringE(a)
 	return helpers.SanitizeURL(s), err
 }

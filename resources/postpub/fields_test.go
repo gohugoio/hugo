@@ -30,7 +30,7 @@ func TestCreatePlaceholders(t *testing.T) {
 		return "pre_" + s + "_post"
 	})
 
-	c.Assert(m, qt.DeepEquals, map[string]interface{}{
+	c.Assert(m, qt.DeepEquals, map[string]any{
 		"IsZero":      "pre_foo.IsZero_post",
 		"MarshalJSON": "pre_foo.MarshalJSON_post",
 		"Suffixes":    "pre_foo.Suffixes_post",

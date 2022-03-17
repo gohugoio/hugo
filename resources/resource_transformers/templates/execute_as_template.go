@@ -44,7 +44,7 @@ type executeAsTemplateTransform struct {
 	rs         *resources.Spec
 	t          tpl.TemplatesProvider
 	targetPath string
-	data       interface{}
+	data       any
 }
 
 func (t *executeAsTemplateTransform) Key() internal.ResourceTransformationKey {
@@ -63,7 +63,7 @@ func (t *executeAsTemplateTransform) Transform(ctx *resources.ResourceTransforma
 	return t.t.Tmpl().Execute(templ, ctx.To, t.data)
 }
 
-func (c *Client) ExecuteAsTemplate(res resources.ResourceTransformer, targetPath string, data interface{}) (resource.Resource, error) {
+func (c *Client) ExecuteAsTemplate(res resources.ResourceTransformer, targetPath string, data any) (resource.Resource, error) {
 	return res.Transform(&executeAsTemplateTransform{
 		rs:         c.rs,
 		targetPath: helpers.ToSlashTrimLeading(targetPath),

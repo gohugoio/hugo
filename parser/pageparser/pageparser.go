@@ -42,7 +42,7 @@ func Parse(r io.Reader, cfg Config) (Result, error) {
 
 type ContentFrontMatter struct {
 	Content           []byte
-	FrontMatter       map[string]interface{}
+	FrontMatter       map[string]any
 	FrontMatterFormat metadecoders.Format
 }
 

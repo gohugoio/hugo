@@ -63,7 +63,7 @@ type Diagrams struct {
 	d *deps.Deps
 }
 
-func (d *Diagrams) Goat(v interface{}) SVGDiagram {
+func (d *Diagrams) Goat(v any) SVGDiagram {
 	var r io.Reader
 
 	switch vv := v.(type) {

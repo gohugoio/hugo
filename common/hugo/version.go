@@ -58,13 +58,13 @@ func (h VersionString) String() string {
 }
 
 // Compare implements the compare.Comparer interface.
-func (h VersionString) Compare(other interface{}) int {
+func (h VersionString) Compare(other any) int {
 	v := MustParseVersion(h.String())
 	return compareVersionsWithSuffix(v.Number, v.PatchLevel, v.Suffix, other)
 }
 
 // Eq implements the compare.Eqer interface.
-func (h VersionString) Eq(other interface{}) bool {
+func (h VersionString) Eq(other any) bool {
 	s, err := cast.ToStringE(other)
 	if err != nil {
 		return false
@@ -171,15 +171,15 @@ func version(version float32, patchVersion int, suffix string) string {
 // running Hugo version.
 // It returns -1 if the given version is less than, 0 if equal and 1 if greater than
 // the running version.
-func CompareVersion(version interface{}) int {
+func CompareVersion(version any) int {
 	return compareVersionsWithSuffix(CurrentVersion.Number, CurrentVersion.PatchLevel, CurrentVersion.Suffix, version)
 }
 
-func compareVersions(inVersion float32, inPatchVersion int, in interface{}) int {
+func compareVersions(inVersion float32, inPatchVersion int, in any) int {
 	return compareVersionsWithSuffix(inVersion, inPatchVersion, "", in)
 }
 
-func compareVersionsWithSuffix(inVersion float32, inPatchVersion int, suffix string, in interface{}) int {
+func compareVersionsWithSuffix(inVersion float32, inPatchVersion int, suffix string, in any) int {
 	var c int
 	switch d := in.(type) {
 	case float64:

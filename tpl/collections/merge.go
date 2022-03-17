@@ -26,7 +26,7 @@ import (
 // Merge creates a copy of the final parameter and merges the preceding
 // parameters into it in reverse order.
 // Currently only maps are supported. Key handling is case insensitive.
-func (ns *Namespace) Merge(params ...interface{}) (interface{}, error) {
+func (ns *Namespace) Merge(params ...any) (any, error) {
 	if len(params) < 2 {
 		return nil, errors.New("merge requires at least two parameters")
 	}
@@ -45,7 +45,7 @@ func (ns *Namespace) Merge(params ...interface{}) (interface{}, error) {
 }
 
 // merge creates a copy of dst and merges src into it.
-func (ns *Namespace) merge(src, dst interface{}) (interface{}, error) {
+func (ns *Namespace) merge(src, dst any) (any, error) {
 	vdst, vsrc := reflect.ValueOf(dst), reflect.ValueOf(src)
 
 	if vdst.Kind() != reflect.Map {

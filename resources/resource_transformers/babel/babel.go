@@ -50,7 +50,7 @@ type Options struct {
 }
 
 // DecodeOptions decodes options to and generates command flags
-func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
+func DecodeOptions(m map[string]any) (opts Options, err error) {
 	if m == nil {
 		return
 	}
@@ -58,8 +58,8 @@ func DecodeOptions(m map[string]interface{}) (opts Options, err error) {
 	return
 }
 
-func (opts Options) toArgs() []interface{} {
-	var args []interface{}
+func (opts Options) toArgs() []any {
+	var args []any
 
 	// external is not a known constant on the babel command line
 	// .sourceMaps must be a boolean, "inline", "both", or undefined
@@ -147,11 +147,11 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 
 	ctx.ReplaceOutPathExtension(".js")
 
-	var cmdArgs []interface{}
+	var cmdArgs []any
 
 	if configFile != "" {
 		logger.Infoln("babel: use config file", configFile)
-		cmdArgs = []interface{}{"--config-file", configFile}
+		cmdArgs = []any{"--config-file", configFile}
 	}
 
 	if optArgs := t.options.toArgs(); len(optArgs) > 0 {

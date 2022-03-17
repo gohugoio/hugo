@@ -335,7 +335,7 @@ Banner: post.jpg`,
 }
 
 func newCascadeTestBuilder(t testing.TB, langs []string) *sitesBuilder {
-	p := func(m map[string]interface{}) string {
+	p := func(m map[string]any) string {
 		var yamlStr string
 
 		if len(m) > 0 {
@@ -392,76 +392,76 @@ defaultContentLanguageInSubDir = false
 		}
 
 		withContent(
-			"_index.md", p(map[string]interface{}{
+			"_index.md", p(map[string]any{
 				"title": "Home",
-				"cascade": map[string]interface{}{
+				"cascade": map[string]any{
 					"title":   "Cascade Home",
 					"ICoN":    "home.png",
 					"outputs": []string{"HTML"},
 					"weight":  42,
 				},
 			}),
-			"p1.md", p(map[string]interface{}{
+			"p1.md", p(map[string]any{
 				"title": "p1",
 			}),
-			"p2.md", p(map[string]interface{}{}),
-			"sect1/_index.md", p(map[string]interface{}{
+			"p2.md", p(map[string]any{}),
+			"sect1/_index.md", p(map[string]any{
 				"title": "Sect1",
 				"type":  "stype",
-				"cascade": map[string]interface{}{
+				"cascade": map[string]any{
 					"title":      "Cascade Sect1",
 					"icon":       "sect1.png",
 					"type":       "stype",
 					"categories": []string{"catsect1"},
 				},
 			}),
-			"sect1/s1_2/_index.md", p(map[string]interface{}{
+			"sect1/s1_2/_index.md", p(map[string]any{
 				"title": "Sect1_2",
 			}),
-			"sect1/s1_2/p1.md", p(map[string]interface{}{
+			"sect1/s1_2/p1.md", p(map[string]any{
 				"title": "Sect1_2_p1",
 			}),
-			"sect1/s1_2/p2.md", p(map[string]interface{}{
+			"sect1/s1_2/p2.md", p(map[string]any{
 				"title": "Sect1_2_p2",
 			}),
-			"sect2/_index.md", p(map[string]interface{}{
+			"sect2/_index.md", p(map[string]any{
 				"title": "Sect2",
 			}),
-			"sect2/p1.md", p(map[string]interface{}{
+			"sect2/p1.md", p(map[string]any{
 				"title":      "Sect2_p1",
 				"categories": []string{"cool", "funny", "sad"},
 				"tags":       []string{"blue", "green"},
 			}),
-			"sect2/p2.md", p(map[string]interface{}{}),
-			"sect3/p1.md", p(map[string]interface{}{}),
+			"sect2/p2.md", p(map[string]any{}),
+			"sect3/p1.md", p(map[string]any{}),
 
 			// No front matter, see #6855
 			"sect3/nofrontmatter.md", `**Hello**`,
 			"sectnocontent/p1.md", `**Hello**`,
 			"sectnofrontmatter/_index.md", `**Hello**`,
 
-			"sect4/_index.md", p(map[string]interface{}{
+			"sect4/_index.md", p(map[string]any{
 				"title": "Sect4",
-				"cascade": map[string]interface{}{
+				"cascade": map[string]any{
 					"weight":  52,
 					"outputs": []string{"RSS"},
 				},
 			}),
-			"sect4/p1.md", p(map[string]interface{}{}),
-			"p2.md", p(map[string]interface{}{}),
-			"bundle1/index.md", p(map[string]interface{}{}),
-			"bundle1/bp1.md", p(map[string]interface{}{}),
-			"categories/_index.md", p(map[string]interface{}{
+			"sect4/p1.md", p(map[string]any{}),
+			"p2.md", p(map[string]any{}),
+			"bundle1/index.md", p(map[string]any{}),
+			"bundle1/bp1.md", p(map[string]any{}),
+			"categories/_index.md", p(map[string]any{
 				"title": "My Categories",
-				"cascade": map[string]interface{}{
+				"cascade": map[string]any{
 					"title":  "Cascade Category",
 					"icoN":   "cat.png",
 					"weight": 12,
 				},
 			}),
-			"categories/cool/_index.md", p(map[string]interface{}{}),
-			"categories/sad/_index.md", p(map[string]interface{}{
-				"cascade": map[string]interface{}{
+			"categories/cool/_index.md", p(map[string]any{}),
+			"categories/sad/_index.md", p(map[string]any{
+				"cascade": map[string]any{
 					"icon":   "sad.png",
 					"weight": 32,
 				},

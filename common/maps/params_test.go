@@ -20,13 +20,13 @@ import (
 )
 
 func TestGetNestedParam(t *testing.T) {
-	m := map[string]interface{}{
+	m := map[string]any{
 		"string":          "value",
 		"first":           1,
 		"with_underscore": 2,
-		"nested": map[string]interface{}{
+		"nested": map[string]any{
 			"color": "blue",
-			"nestednested": map[string]interface{}{
+			"nestednested": map[string]any{
 				"color": "green",
 			},
 		},
@@ -34,7 +34,7 @@ func TestGetNestedParam(t *testing.T) {
 
 	c := qt.New(t)
 
-	must := func(keyStr, separator string, candidates ...Params) interface{} {
+	must := func(keyStr, separator string, candidates ...Params) any {
 		v, err := GetNestedParam(keyStr, separator, candidates...)
 		c.Assert(err, qt.IsNil)
 		return v
@@ -53,14 +53,14 @@ func TestGetNestedParam(t *testing.T) {
 func TestGetNestedParamFnNestedNewKey(t *testing.T) {
 	c := qt.New(t)
 
-	nested := map[string]interface{}{
+	nested := map[string]any{
 		"color": "blue",
 	}
-	m := map[string]interface{}{
+	m := map[string]any{
 		"nested": nested,
 	}
 
-	existing, nestedKey, owner, err := GetNestedParamFn("nested.new", ".", func(key string) interface{} {
+	existing, nestedKey, owner, err := GetNestedParamFn("nested.new", ".", func(key string) any {
 		return m[key]
 	})
 

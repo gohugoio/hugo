@@ -31,7 +31,7 @@ func NewTestResourceSpec() (*resources.Spec, error) {
 	cfg.Set("baseURL", "https://example.org")
 	cfg.Set("publishDir", "public")
 
-	imagingCfg := map[string]interface{}{
+	imagingCfg := map[string]any{
 		"resampleFilter": "linear",
 		"quality":        68,
 		"anchor":         "left",

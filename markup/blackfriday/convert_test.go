@@ -158,7 +158,7 @@ func TestGetHTMLRendererAnchors(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	conv, err := p.New(converter.DocumentContext{
 		DocumentID: "testid",
-		ConfigOverrides: map[string]interface{}{
+		ConfigOverrides: map[string]any{
 			"plainIDAnchors": false,
 			"footnotes":      true,
 		},

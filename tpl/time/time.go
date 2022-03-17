@@ -42,7 +42,7 @@ type Namespace struct {
 
 // AsTime converts the textual representation of the datetime string into
 // a time.Time interface.
-func (ns *Namespace) AsTime(v interface{}, args ...interface{}) (interface{}, error) {
+func (ns *Namespace) AsTime(v any, args ...any) (any, error) {
 	loc := ns.location
 	if len(args) > 0 {
 		locStr, err := cast.ToStringE(args[0])
@@ -62,7 +62,7 @@ func (ns *Namespace) AsTime(v interface{}, args ...interface{}) (interface{}, er
 // Format converts the textual representation of the datetime string into
 // the other form or returns it of the time.Time value. These are formatted
 // with the layout string
-func (ns *Namespace) Format(layout string, v interface{}) (string, error) {
+func (ns *Namespace) Format(layout string, v any) (string, error) {
 	t, err := htime.ToTimeInDefaultLocationE(v, ns.location)
 	if err != nil {
 		return "", err
@@ -82,7 +82,7 @@ func (ns *Namespace) Now() _time.Time {
 // such as "300ms", "-1.5h" or "2h45m".
 // Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
 // See https://golang.org/pkg/time/#ParseDuration
-func (ns *Namespace) ParseDuration(in interface{}) (_time.Duration, error) {
+func (ns *Namespace) ParseDuration(in any) (_time.Duration, error) {
 	s, err := cast.ToStringE(in)
 	if err != nil {
 		return 0, err
@@ -109,7 +109,7 @@ var durationUnits = map[string]_time.Duration{
 
 // Duration converts the given number to a time.Duration.
 // Unit is one of nanosecond/ns, microsecond/us/µs, millisecond/ms, second/s, minute/m or hour/h.
-func (ns *Namespace) Duration(unit interface{}, number interface{}) (_time.Duration, error) {
+func (ns *Namespace) Duration(unit any, number any) (_time.Duration, error) {
 	unitStr, err := cast.ToStringE(unit)
 	if err != nil {
 		return 0, err
