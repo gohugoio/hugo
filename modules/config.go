@@ -402,11 +402,8 @@ func (m Mount) Component() string {
 }
 
 func (m Mount) ComponentAndName() (string, string) {
-	k := strings.Index(m.Target, fileSeparator)
-	if k == -1 {
-		return m.Target, ""
-	}
-	return m.Target[:k], m.Target[k+1:]
+	c, n, _ := strings.Cut(m.Target, fileSeparator)
+	return c, n
 }
 
 func getStaticDirs(cfg config.Provider) []string {
