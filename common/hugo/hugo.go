@@ -21,6 +21,7 @@ import (
 	"runtime/debug"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -37,13 +38,6 @@ const (
 )
 
 var (
-	// commitHash contains the current Git revision.
-	// Use mage to build to make sure this gets set.
-	commitHash string
-
-	// buildDate contains the date of the current build.
-	buildDate string
-
 	// vendorInfo contains vendor notes about the current build.
 	vendorInfo string
 )
@@ -90,6 +84,17 @@ func NewInfo(environment string, deps []*Dependency) Info {
 	if environment == "" {
 		environment = EnvironmentProduction
 	}
+	var (
+		commitHash string
+		buildDate  string
+	)
+
+	bi := getBuildInfo()
+	if bi != nil {
+		commitHash = bi.Revision
+		buildDate = bi.RevisionTime
+	}
+
 	return Info{
 		CommitHash:  commitHash,
 		BuildDate:   buildDate,
@@ -125,6 +130,52 @@ func GetExecEnviron(workDir string, cfg config.Provider, fs afero.Fs) []string {
 	return env
 }
 
+type buildInfo struct {
+	VersionControlSystem string
+	Revision             string
+	RevisionTime         string
+	Modified             bool
+
+	GoOS   string
+	GoArch string
+
+	*debug.BuildInfo
+}
+
+var bInfo *buildInfo
+var bInfoInit sync.Once
+
+func getBuildInfo() *buildInfo {
+	bInfoInit.Do(func() {
+		bi, ok := debug.ReadBuildInfo()
+		if !ok {
+			return
+		}
+
+		bInfo = &buildInfo{BuildInfo: bi}
+
+		for _, s := range bInfo.Settings {
+			switch s.Key {
+			case "vcs":
+				bInfo.VersionControlSystem = s.Value
+			case "vcs.revision":
+				bInfo.Revision = s.Value
+			case "vcs.time":
+				bInfo.RevisionTime = s.Value
+			case "vcs.modified":
+				bInfo.Modified = s.Value == "true"
+			case "GOOS":
+				bInfo.GoOS = s.Value
+			case "GOARCH":
+				bInfo.GoArch = s.Value
+			}
+		}
+
+	})
+
+	return bInfo
+}
+
 // GetDependencyList returns a sorted dependency list on the format package="version".
 // It includes both Go dependencies and (a manually maintained) list of C(++) dependencies.
 func GetDependencyList() []string {
@@ -143,8 +194,8 @@ func GetDependencyList() []string {
 		)
 	}
 
-	bi, ok := debug.ReadBuildInfo()
-	if !ok {
+	bi := getBuildInfo()
+	if bi == nil {
 		return deps
 	}
 

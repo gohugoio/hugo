@@ -131,16 +131,21 @@ func BuildVersionString() string {
 	program := "hugo"
 
 	version := "v" + CurrentVersion.String()
-	if commitHash != "" {
-		version += "-" + strings.ToUpper(commitHash)
+
+	bi := getBuildInfo()
+	if bi == nil {
+		return version
+	}
+	if bi.Revision != "" {
+		version += "-" + bi.Revision
 	}
 	if IsExtended {
 		version += "+extended"
 	}
 
-	osArch := runtime.GOOS + "/" + runtime.GOARCH
+	osArch := bi.GoOS + "/" + bi.GoArch
 
-	date := buildDate
+	date := bi.RevisionTime
 	if date == "" {
 		date = "unknown"
 	}

@@ -25,10 +25,10 @@ import (
 
 const (
 	packageName  = "github.com/gohugoio/hugo"
-	noGitLdflags = "-X $PACKAGE/common/hugo.buildDate=$BUILD_DATE"
+	noGitLdflags = "-X github.com/gohugoio/hugo/common/hugo.vendorInfo=mage"
 )
 
-var ldflags = "-X $PACKAGE/common/hugo.commitHash=$COMMIT_HASH -X $PACKAGE/common/hugo.buildDate=$BUILD_DATE"
+var ldflags = noGitLdflags
 
 // allow user to override go executable by running as GOEXE=xxx make ... on unix-like systems
 var goexe = "go"
