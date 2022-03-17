@@ -18,6 +18,7 @@ package dartsass
 import (
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugolib/filesystems"
@@ -41,7 +42,19 @@ func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) (*Client, error) 
 		return nil, err
 	}
 
-	transpiler, err := godartsass.Start(godartsass.Options{})
+	transpiler, err := godartsass.Start(godartsass.Options{
+		LogEventHandler: func(event godartsass.LogEvent) {
+			message := strings.ReplaceAll(event.Message, stdinPrefix, "")
+			switch event.Type {
+			case godartsass.LogEventTypeDebug:
+				// Log as Info for now, we may adjust this if it gets too chatty.
+				rs.Logger.Infof("Dart Sass: %s", message)
+			default:
+				// The rest are either deprecations or @warn statements.
+				rs.Logger.Warnf("Dart Sass: %s", message)
+			}
+		},
+	})
 	if err != nil {
 		return nil, err
 	}

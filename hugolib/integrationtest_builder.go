@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"testing"
@@ -96,6 +97,12 @@ func (b *lockingBuffer) Write(p []byte) (n int, err error) {
 func (s *IntegrationTestBuilder) AssertLogContains(text string) {
 	s.Helper()
 	s.Assert(s.logBuff.String(), qt.Contains, text)
+}
+
+func (s *IntegrationTestBuilder) AssertLogMatches(expression string) {
+	s.Helper()
+	re := regexp.MustCompile(expression)
+	s.Assert(re.MatchString(s.logBuff.String()), qt.IsTrue, qt.Commentf(s.logBuff.String()))
 }
 
 func (s *IntegrationTestBuilder) AssertBuildCountData(count int) {

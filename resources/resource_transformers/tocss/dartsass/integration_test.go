@@ -18,6 +18,7 @@ import (
 
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/dartsass"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 func TestTransformIncludePaths(t *testing.T) {
@@ -163,4 +164,35 @@ zoo {
 	).Build()
 
 	b.AssertFileContent("public/index.html", `T1: moo{color:#ccc}boo{color:green}zoo{color:pink}`)
+}
+
+func TestTransformLogging(t *testing.T) {
+	if !dartsass.Supports() {
+		t.Skip()
+	}
+
+	files := `
+-- assets/scss/main.scss --
+@warn "foo";
+@debug "bar";
+
+-- config.toml --
+disableKinds = ["term", "taxonomy", "section", "page"]
+-- layouts/index.html --
+{{ $cssOpts := (dict  "transpiler" "dartsass" ) }}
+{{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts   }}
+T1: {{ $r.Content }}
+	`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   true,
+			LogLevel:    jww.LevelInfo,
+		}).Build()
+
+	b.AssertLogMatches(`WARN.*Dart Sass: foo`)
+	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:1:0: bar`)
+
 }

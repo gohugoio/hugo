@@ -39,7 +39,8 @@ import (
 
 const (
 	// See https://github.com/sass/dart-sass-embedded/issues/24
-	stdinPlaceholder           = "HUGOSTDIN"
+	// Note: This prefix must be all lower case.
+	stdinPrefix                = "hugostdin:"
 	dartSassEmbeddedBinaryName = "dart-sass-embedded"
 )
 
@@ -75,9 +76,14 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 	}
 
 	baseDir := path.Dir(ctx.SourcePath)
+	filename := stdinPrefix
+
+	if ctx.SourcePath != "" {
+		filename += t.c.sfs.RealFilename(ctx.SourcePath)
+	}
 
 	args := godartsass.Args{
-		URL:          stdinPlaceholder,
+		URL:          filename,
 		IncludePaths: t.c.sfs.RealDirs(baseDir),
 		ImportResolver: importResolver{
 			baseDir: baseDir,
@@ -106,11 +112,8 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 			start := sassErr.Span.Start
 			context := strings.TrimSpace(sassErr.Span.Context)
 			filename, _ := urlToFilename(sassErr.Span.Url)
-			if filename == stdinPlaceholder {
-				if ctx.SourcePath == "" {
-					return sassErr
-				}
-				filename = t.c.sfs.RealFilename(ctx.SourcePath)
+			if strings.HasPrefix(filename, stdinPrefix) {
+				filename = filename[len(stdinPrefix):]
 			}
 
 			offsetMatcher := func(m herrors.LineMatcher) bool {
