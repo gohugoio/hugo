@@ -107,15 +107,14 @@ func applyFnToThis(ctx context.Context, fn, this reflect.Value, args ...any) (re
 }
 
 func (ns *Namespace) lookupFunc(fname string) (reflect.Value, bool) {
-	if !strings.ContainsRune(fname, '.') {
+	namespace, methodName, ok := strings.Cut(fname, ".")
+	if !ok {
 		templ := ns.deps.Tmpl().(tpl.TemplateFuncGetter)
 		return templ.GetFunc(fname)
 	}
 
-	ss := strings.SplitN(fname, ".", 2)
-
 	// Namespace
-	nv, found := ns.lookupFunc(ss[0])
+	nv, found := ns.lookupFunc(namespace)
 	if !found {
 		return reflect.Value{}, false
 	}
@@ -131,7 +130,7 @@ func (ns *Namespace) lookupFunc(fname string) (reflect.Value, bool) {
 	nv = reflect.ValueOf(v)
 
 	// method
-	m := hreflect.GetMethodByName(nv, ss[1])
+	m := hreflect.GetMethodByName(nv, methodName)
 
 	if m.Kind() == reflect.Invalid {
 		return reflect.Value{}, false
