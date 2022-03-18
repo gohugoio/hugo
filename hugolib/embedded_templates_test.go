@@ -25,7 +25,8 @@ baseURL = "https://example.org"
 
 [params]
 images=["siteimg1.jpg", "siteimg2.jpg"]
-
+[taxonomies]
+series="series"
 `
 	b := newTestSitesBuilder(t).WithConfigFile("toml", config)
 
@@ -33,6 +34,7 @@ images=["siteimg1.jpg", "siteimg2.jpg"]
 title: My Bundle
 date: 2021-02-26T18:02:00-01:00
 lastmod: 2021-05-22T19:25:00-01:00
+tags: ["test1", "test2"]
 ---
 `)
 
@@ -41,11 +43,14 @@ title: My Page
 images: ["pageimg1.jpg", "pageimg2.jpg"]
 date: 2021-02-26T18:02:00+01:00
 lastmod: 2021-05-22T19:25:00+01:00
+tags: ["test1", "test2"]
+series: ["series1", "series2"]
 ---
 `)
 
 	b.WithContent("mysite.md", `---
 title: My Site
+tags: ["test1", "test2"]
 ---
 `)
 
@@ -72,7 +77,7 @@ title: My Site
 <meta itemprop="image" content="https://example.org/mybundle/featured-sunset.jpg">
 <meta itemprop="datePublished" content="2021-02-26T18:02:00-01:00" />
 <meta itemprop="dateModified" content="2021-05-22T19:25:00-01:00" />
-
+<meta itemprop="keywords" content="test1,test2,series1,series2" />
 `)
 	b.AssertFileContent("public/mypage/index.html", `
 <meta name="twitter:image" content="https://example.org/pageimg1.jpg"/>
@@ -84,11 +89,13 @@ title: My Site
 <meta itemprop="image" content="https://example.org/pageimg2.jpg">
 <meta itemprop="datePublished" content="2021-02-26T18:02:00+01:00" />
 <meta itemprop="dateModified" content="2021-05-22T19:25:00+01:00" />
+<meta itemprop="keywords" content="test1,test2,series1,series2" />
 `)
 	b.AssertFileContent("public/mysite/index.html", `
 <meta name="twitter:image" content="https://example.org/siteimg1.jpg"/>
 <meta property="og:image" content="https://example.org/siteimg1.jpg"/>
 <meta itemprop="image" content="https://example.org/siteimg1.jpg"/>
+<meta itemprop="keywords" content="test1,test2,series1,series2" />
 `)
 }
 
