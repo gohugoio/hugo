@@ -169,7 +169,7 @@ func testGoFlags() string {
 		return ""
 	}
 
-	return "-test.short"
+	return "-timeout=1m"
 }
 
 // Run tests in 32-bit mode

@@ -34,7 +34,7 @@ import (
 func TestServer(t *testing.T) {
 	c := qt.New(t)
 
-	r := runServerTest(c, "")
+	r := runServerTest(c, true, "")
 
 	c.Assert(r.err, qt.IsNil)
 	c.Assert(r.homeContent, qt.Contains, "List: Hugo Commands")
@@ -51,7 +51,7 @@ func TestServerPanicOnConfigError(t *testing.T) {
 linenos='table'
 `
 
-	r := runServerTest(c, config)
+	r := runServerTest(c, false, config)
 
 	c.Assert(r.err, qt.IsNotNil)
 	c.Assert(r.err.Error(), qt.Contains, "cannot parse 'Highlight.LineNos' as bool:")
@@ -88,7 +88,7 @@ baseURL="https://example.org"
 				args = strings.Split(test.flag, "=")
 			}
 
-			r := runServerTest(c, config, args...)
+			r := runServerTest(c, true, config, args...)
 
 			test.assert(c, r)
 
@@ -104,7 +104,7 @@ type serverTestResult struct {
 	publicDirnames map[string]bool
 }
 
-func runServerTest(c *qt.C, config string, args ...string) (result serverTestResult) {
+func runServerTest(c *qt.C, getHome bool, config string, args ...string) (result serverTestResult) {
 	dir, clean, err := createSimpleTestSite(c, testSiteConfig{configTOML: config})
 	defer clean()
 	c.Assert(err, qt.IsNil)
@@ -135,34 +135,32 @@ func runServerTest(c *qt.C, config string, args ...string) (result serverTestRes
 		return err
 	})
 
-	select {
-	// There is no way to know exactly when the server is ready for connections.
-	// We could improve by something like https://golang.org/pkg/net/http/httptest/#Server
-	// But for now, let us sleep and pray!
-	case <-time.After(2 * time.Second):
-	case <-ctx.Done():
-		result.err = wg.Wait()
-		return
+	if getHome {
+		// Esp. on slow CI machines, we need to wait a little before the web
+		// server is ready.
+		time.Sleep(567 * time.Millisecond)
+		resp, err := http.Get(fmt.Sprintf("http://localhost:%d/", port))
+		c.Check(err, qt.IsNil)
+		if err == nil {
+			defer resp.Body.Close()
+			result.homeContent = helpers.ReaderToString(resp.Body)
+		}
 	}
 
-	resp, err := http.Get(fmt.Sprintf("http://localhost:%d/", port))
-	c.Assert(err, qt.IsNil)
-	defer resp.Body.Close()
-	homeContent := helpers.ReaderToString(resp.Body)
-
-	// Stop the server.
-	stop <- true
-
-	result.homeContent = homeContent
+	select {
+	case <-stop:
+	case stop <- true:
+	}
 
 	pubFiles, err := os.ReadDir(filepath.Join(dir, "public"))
-	c.Assert(err, qt.IsNil)
+	c.Check(err, qt.IsNil)
 	result.publicDirnames = make(map[string]bool)
 	for _, f := range pubFiles {
 		result.publicDirnames[f.Name()] = true
 	}
 
 	result.err = wg.Wait()
+
 	return
 
 }

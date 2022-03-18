@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"errors"
 	"io/ioutil"
+	"net"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -88,7 +89,8 @@ type commandeer struct {
 	// Used in cases where we get flooded with events in server mode.
 	debounce func(f func())
 
-	serverPorts         []int
+	serverPorts []serverPortListener
+
 	languagesConfigured bool
 	languages           langs.Languages
 	doLiveReload        bool
@@ -103,6 +105,11 @@ type commandeer struct {
 
 	// Any error from the last build.
 	buildErr error
+}
+
+type serverPortListener struct {
+	p  int
+	ln net.Listener
 }
 
 func newCommandeerHugoState() *commandeerHugoState {
@@ -420,6 +427,7 @@ func (c *commandeer) loadConfig() error {
 		if h == nil || c.failOnInitErr {
 			err = createErr
 		}
+
 		c.hugoSites = h
 		// TODO(bep) improve.
 		if c.buildLock == nil && h != nil {
