@@ -62,6 +62,21 @@ func FindAvailablePort() (*net.TCPAddr, error) {
 	return nil, err
 }
 
+// TCPListen starts listening on a valid TCP port.
+func TCPListen() (net.Listener, *net.TCPAddr, error) {
+	l, err := net.Listen("tcp", ":0")
+	if err != nil {
+		return nil, nil, err
+	}
+	addr := l.Addr()
+	if a, ok := addr.(*net.TCPAddr); ok {
+		return l, a, nil
+	}
+	l.Close()
+	return nil, nil, fmt.Errorf("unable to obtain a valid tcp port: %v", addr)
+
+}
+
 // InStringArray checks if a string is an element of a slice of strings
 // and returns a boolean value.
 func InStringArray(arr []string, el string) bool {
