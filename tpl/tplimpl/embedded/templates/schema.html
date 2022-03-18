@@ -20,10 +20,10 @@
 {{- end -}}
 {{- end -}}
 
-{{ $keywords := .Params.tags }}
+{{ $keywords := slice }}
 {{- range $plural, $terms := .Site.Taxonomies -}}
-    {{ range $term, $val := $terms }}
-        {{- $keywords = $keywords | append $term -}}
+    {{ range $.Page.Param $plural}}
+        {{ $keywords = $keywords | append . }}
     {{ end }}
 {{- end -}}
 <meta itemprop="keywords" content="{{ if .IsPage}}{{ delimit $keywords "," }}{{ end }}" />

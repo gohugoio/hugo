@@ -27,6 +27,8 @@ baseURL = "https://example.org"
 images=["siteimg1.jpg", "siteimg2.jpg"]
 [taxonomies]
 series="series"
+category="categories"
+tag="tags"
 `
 	b := newTestSitesBuilder(t).WithConfigFile("toml", config)
 
@@ -77,7 +79,7 @@ tags: ["test1", "test2"]
 <meta itemprop="image" content="https://example.org/mybundle/featured-sunset.jpg">
 <meta itemprop="datePublished" content="2021-02-26T18:02:00-01:00" />
 <meta itemprop="dateModified" content="2021-05-22T19:25:00-01:00" />
-<meta itemprop="keywords" content="test1,test2,series1,series2" />
+<meta itemprop="keywords" content="test1,test2" />
 `)
 	b.AssertFileContent("public/mypage/index.html", `
 <meta name="twitter:image" content="https://example.org/pageimg1.jpg"/>
@@ -89,13 +91,13 @@ tags: ["test1", "test2"]
 <meta itemprop="image" content="https://example.org/pageimg2.jpg">
 <meta itemprop="datePublished" content="2021-02-26T18:02:00+01:00" />
 <meta itemprop="dateModified" content="2021-05-22T19:25:00+01:00" />
-<meta itemprop="keywords" content="test1,test2,series1,series2" />
+<meta itemprop="keywords" content="series1,series2,test1,test2" />
 `)
 	b.AssertFileContent("public/mysite/index.html", `
 <meta name="twitter:image" content="https://example.org/siteimg1.jpg"/>
 <meta property="og:image" content="https://example.org/siteimg1.jpg"/>
 <meta itemprop="image" content="https://example.org/siteimg1.jpg"/>
-<meta itemprop="keywords" content="test1,test2,series1,series2" />
+<meta itemprop="keywords" content="test1,test2" />
 `)
 }
 
