@@ -20,6 +20,7 @@
 {{- end -}}
 {{- end -}}
 
+<!-- Output all taxonomies as schema.org keywords -->
 {{ $keywords := slice }}
 {{- range $plural, $terms := .Site.Taxonomies -}}
     {{ range $.Page.Param $plural}}
