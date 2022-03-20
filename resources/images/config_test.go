@@ -80,25 +80,33 @@ func TestDecodeConfig(t *testing.T) {
 
 func TestDecodeImageConfig(t *testing.T) {
 	for i, this := range []struct {
+		action string
 		in     string
 		expect any
 	}{
-		{"300x400", newImageConfig(300, 400, 75, 0, "box", "smart", "")},
-		{"300x400 #fff", newImageConfig(300, 400, 75, 0, "box", "smart", "fff")},
-		{"100x200 bottomRight", newImageConfig(100, 200, 75, 0, "box", "BottomRight", "")},
-		{"10x20 topleft Lanczos", newImageConfig(10, 20, 75, 0, "Lanczos", "topleft", "")},
-		{"linear left 10x r180", newImageConfig(10, 0, 75, 180, "linear", "left", "")},
-		{"x20 riGht Cosine q95", newImageConfig(0, 20, 95, 0, "cosine", "right", "")},
+		{"resize", "300x400", newImageConfig("resize", 300, 400, 75, 0, "box", "smart", "")},
+		{"resize", "300x400 #fff", newImageConfig("resize", 300, 400, 75, 0, "box", "smart", "fff")},
+		{"resize", "100x200 bottomRight", newImageConfig("resize", 100, 200, 75, 0, "box", "BottomRight", "")},
+		{"resize", "10x20 topleft Lanczos", newImageConfig("resize", 10, 20, 75, 0, "Lanczos", "topleft", "")},
+		{"resize", "linear left 10x r180", newImageConfig("resize", 10, 0, 75, 180, "linear", "left", "")},
+		{"resize", "x20 riGht Cosine q95", newImageConfig("resize", 0, 20, 95, 0, "cosine", "right", "")},
+		{"crop", "300x400", newImageConfig("crop", 300, 400, 75, 0, "box", "smart", "")},
+		{"fill", "300x400", newImageConfig("fill", 300, 400, 75, 0, "box", "smart", "")},
+		{"fit", "300x400", newImageConfig("fit", 300, 400, 75, 0, "box", "smart", "")},
 
-		{"", false},
-		{"foo", false},
+		{"resize", "", false},
+		{"resize", "foo", false},
+		{"crop", "100x", false},
+		{"fill", "100x", false},
+		{"fit", "100x", false},
+		{"foo", "100x", false},
 	} {
 
 		cfg, err := DecodeConfig(nil)
 		if err != nil {
 			t.Fatal(err)
 		}
-		result, err := DecodeImageConfig("resize", this.in, cfg, PNG)
+		result, err := DecodeImageConfig(this.action, this.in, cfg, PNG)
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
 				t.Errorf("[%d] parseImageConfig didn't return an expected error", i)
@@ -114,8 +122,8 @@ func TestDecodeImageConfig(t *testing.T) {
 	}
 }
 
-func newImageConfig(width, height, quality, rotate int, filter, anchor, bgColor string) ImageConfig {
-	var c ImageConfig = GetDefaultImageConfig("resize", ImagingConfig{})
+func newImageConfig(action string, width, height, quality, rotate int, filter, anchor, bgColor string) ImageConfig {
+	var c ImageConfig = GetDefaultImageConfig(action, ImagingConfig{})
 	c.TargetFormat = PNG
 	c.Hint = 2
 	c.Width = width
