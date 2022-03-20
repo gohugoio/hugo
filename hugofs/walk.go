@@ -224,13 +224,8 @@ func (w *Walkway) walk(path string, info FileMetaInfo, dirEntries []FileMetaInfo
 				// to the closest one.
 				fiw, fjw := fim.Weight, fjm.Weight
 				if fiw != fjw {
-					return fiw > fjw
-				}
 
-				// Explicit order set.
-				fio, fjo := fim.Ordinal, fjm.Ordinal
-				if fio != fjo {
-					return fio < fjo
+					return fiw > fjw
 				}
 
 				// When we walk into a symlink, we keep the reference to

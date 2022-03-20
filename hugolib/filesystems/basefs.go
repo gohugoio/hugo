@@ -602,6 +602,7 @@ func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesys
 			Module:        mod,
 			dir:           dir,
 			isMainProject: isMainProject,
+			ordinal:       j,
 		}
 		j++
 	}
@@ -635,12 +636,12 @@ func (b *sourceFilesystemsBuilder) createModFs(
 		return md.dir, paths.AbsPathify(md.dir, path)
 	}
 
-	for _, mount := range md.Mounts() {
+	for i, mount := range md.Mounts() {
 
-		mountWeight := 1
-		if md.isMainProject {
-			mountWeight++
-		}
+		// Add more weight to early mounts.
+		// When two mounts contain the same filename,
+		// the first entry wins.
+		mountWeight := (10 + md.ordinal) * (len(md.Mounts()) - i)
 
 		inclusionFilter, err := glob.NewFilenameFilter(
 			types.ToStringSlicePreserveString(mount.IncludeFiles),
@@ -829,6 +830,7 @@ type mountsDescriptor struct {
 	modules.Module
 	dir           string
 	isMainProject bool
+	ordinal       int
 }
 
 func (b *sourceFilesystemsBuilder) createOverlayFs(collector *filesystemsCollector, mounts []mountsDescriptor) error {

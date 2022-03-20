@@ -15,7 +15,6 @@ package hugofs
 
 import (
 	"os"
-	"path"
 
 	"github.com/spf13/afero"
 )
@@ -56,32 +55,20 @@ func (fs *languageCompositeFs) Open(name string) (afero.File, error) {
 // LanguageDirsMerger implements the afero.DirsMerger interface, which is used
 // to merge two directories.
 var LanguageDirsMerger = func(lofi, bofi []os.FileInfo) ([]os.FileInfo, error) {
-	m := make(map[string]FileMetaInfo)
-
-	getKey := func(fim FileMetaInfo) string {
-		return path.Join(fim.Meta().Lang, fim.Name())
-	}
-
-	for _, fi := range lofi {
-		fim := fi.(FileMetaInfo)
-		m[getKey(fim)] = fim
-	}
-
-	for _, fi := range bofi {
-		fim := fi.(FileMetaInfo)
-		key := getKey(fim)
-		_, found := m[key]
+	for _, fi1 := range bofi {
+		fim1 := fi1.(FileMetaInfo)
+		var found bool
+		for _, fi2 := range lofi {
+			fim2 := fi2.(FileMetaInfo)
+			if fi1.Name() == fi2.Name() && fim1.Meta().Lang == fim2.Meta().Lang {
+				found = true
+				break
+			}
+		}
 		if !found {
-			m[key] = fim
+			lofi = append(lofi, fi1)
 		}
 	}
 
-	merged := make([]os.FileInfo, len(m))
-	i := 0
-	for _, v := range m {
-		merged[i] = v
-		i++
-	}
-
-	return merged, nil
+	return lofi, nil
 }
