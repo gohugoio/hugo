@@ -253,8 +253,17 @@ func DecodeImageConfig(action, config string, defaults ImagingConfig, sourceForm
 		}
 	}
 
-	if c.Width == 0 && c.Height == 0 {
-		return c, errors.New("must provide Width or Height")
+	switch c.Action {
+	case "crop", "fill", "fit":
+		if c.Width == 0 || c.Height == 0 {
+			return c, errors.New("must provide Width and Height")
+		}
+	case "resize":
+		if c.Width == 0 && c.Height == 0 {
+			return c, errors.New("must provide Width or Height")
+		}
+	default:
+		return c, errors.Errorf("BUG: unknown action %q encountered while decoding image configuration", c.Action)
 	}
 
 	if c.FilterStr == "" {
