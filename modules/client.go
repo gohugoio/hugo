@@ -305,8 +305,9 @@ func (c *Client) Vendor() error {
 
 // Get runs "go get" with the supplied arguments.
 func (c *Client) Get(args ...string) error {
-	if len(args) == 0 || (len(args) == 1 && args[0] == "-u") {
+	if len(args) == 0 || (len(args) == 1 && strings.Contains(args[0], "-u")) {
 		update := len(args) != 0
+		patch := update && (args[0] == "-u=patch") //
 
 		// We need to be explicit about the modules to get.
 		for _, m := range c.moduleConfig.Imports {
@@ -318,10 +319,14 @@ func (c *Client) Get(args ...string) error {
 				continue
 			}
 			var args []string
-			if update {
+
+			if update && !patch {
 				args = append(args, "-u")
+			} else if update && patch {
+				args = append(args, "-u=patch")
 			}
 			args = append(args, m.Path)
+
 			if err := c.get(args...); err != nil {
 				return err
 			}
