@@ -60,7 +60,6 @@ type FileMeta struct {
 	Module     string
 
 	Weight     int
-	Ordinal    int
 	IsOrdered  bool
 	IsSymlink  bool
 	IsRootFile bool

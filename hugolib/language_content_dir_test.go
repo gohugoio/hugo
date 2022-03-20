@@ -403,3 +403,124 @@ Page: /fr/event/page2/|ev-fr2
 Page: /fr/other/page1/|other-fr1
 Page: /fr/other/page2/|other-fr2`)
 }
+
+// Issue 9693
+func TestContentMountMerge(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+baseURL = 'https://example.org/'
+languageCode = 'en-us'
+title = 'Hugo Forum Topic #37225'
+theme = 'mytheme'
+
+disableKinds = ['sitemap','RSS','taxonomy','term']
+defaultContentLanguage = 'en'
+defaultContentLanguageInSubdir = true
+
+[languages.en]
+languageName = 'English'
+weight = 1
+[languages.de]
+languageName = 'Deutsch'
+weight = 2
+[languages.nl]
+languageName = 'Nederlands'
+weight = 3
+
+# EN content
+[[module.mounts]]
+source = 'content/en'
+target = 'content'
+lang = 'en'
+
+# DE content
+[[module.mounts]]
+source = 'content/de'
+target = 'content'
+lang = 'de'
+
+# This fills in the gaps in DE content with EN content
+[[module.mounts]]
+source = 'content/en'
+target = 'content'
+lang = 'de'
+
+# NL content
+[[module.mounts]]
+source = 'content/nl'
+target = 'content'
+lang = 'nl'
+
+# This should fill in the gaps in NL content with EN content
+[[module.mounts]]
+source = 'content/en'
+target = 'content'
+lang = 'nl'
+
+-- content/de/_index.md --
+---
+title: "home (de)"
+---
+-- content/de/p1.md --
+---
+title: "p1 (de)"
+---
+-- content/en/_index.md --
+---
+title: "home (en)"
+---
+-- content/en/p1.md --
+---
+title: "p1 (en)"
+---
+-- content/en/p2.md --
+---
+title: "p2 (en)"
+---
+-- content/en/p3.md --
+---
+title: "p3 (en)"
+---
+-- content/nl/_index.md --
+---
+title: "home (nl)"
+---
+-- content/nl/p1.md --
+---
+title: "p1 (nl)"
+---
+-- content/nl/p3.md --
+---
+title: "p3 (nl)"
+---
+-- layouts/home.html --
+{{ .Title }}: {{ site.Language.Lang }}: {{ range site.RegularPages }}{{ .Title }}|{{ end }}:END
+-- themes/mytheme/config.toml --
+[[module.mounts]]
+source = 'content/nlt'
+target = 'content'
+lang = 'nl'
+-- themes/mytheme/content/nlt/p3.md --
+---
+title: "p3 theme (nl)"
+---
+-- themes/mytheme/content/nlt/p4.md --
+---
+title: "p4 theme (nl)"
+---
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/nl/index.html", `home (nl): nl: p1 (nl)|p2 (en)|p3 (nl)|p4 theme (nl)|:END`)
+	b.AssertFileContent("public/de/index.html", `home (de): de: p1 (de)|p2 (en)|p3 (en)|:END`)
+	b.AssertFileContent("public/en/index.html", `home (en): en: p1 (en)|p2 (en)|p3 (en)|:END`)
+
+}
