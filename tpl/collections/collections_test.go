@@ -985,7 +985,5 @@ func newDeps(cfg config.Provider) *deps.Deps {
 }
 
 func newTestNs() *Namespace {
-	v := config.New()
-	v.Set("contentDir", "content")
-	return New(newDeps(v))
+	return New(newDeps(config.NewWithTestDefaults()))
 }

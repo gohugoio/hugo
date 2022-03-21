@@ -121,6 +121,10 @@ func NewFilterFs(fs afero.Fs) (afero.Fs, error) {
 	return ffs, nil
 }
 
+var (
+	_ FilesystemUnwrapper = (*FilterFs)(nil)
+)
+
 // FilterFs is an ordered composite filesystem.
 type FilterFs struct {
 	fs afero.Fs
@@ -139,6 +143,10 @@ func (fs *FilterFs) Chtimes(n string, a, m time.Time) error {
 
 func (fs *FilterFs) Chown(n string, uid, gid int) error {
 	return syscall.EPERM
+}
+
+func (fs *FilterFs) UnwrapFilesystem() afero.Fs {
+	return fs.fs
 }
 
 func (fs *FilterFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {

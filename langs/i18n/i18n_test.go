@@ -500,16 +500,7 @@ func newDepsConfig(tp *TranslationProvider, cfg config.Provider, fs *hugofs.Fs) 
 }
 
 func getConfig() config.Provider {
-	v := config.New()
-	v.Set("defaultContentLanguage", "en")
-	v.Set("contentDir", "content")
-	v.Set("dataDir", "data")
-	v.Set("i18nDir", "i18n")
-	v.Set("layoutDir", "layouts")
-	v.Set("archetypeDir", "archetypes")
-	v.Set("assetDir", "assets")
-	v.Set("resourceDir", "resources")
-	v.Set("publishDir", "public")
+	v := config.NewWithTestDefaults()
 	langs.LoadLanguageSettings(v, nil)
 	mod, err := modules.CreateProjectModule(v)
 	if err != nil {

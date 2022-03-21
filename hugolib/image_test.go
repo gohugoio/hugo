@@ -38,7 +38,7 @@ func TestImageOps(t *testing.T) {
 	defer clean()
 
 	newBuilder := func(timeout any) *sitesBuilder {
-		v := config.New()
+		v := config.NewWithTestDefaults()
 		v.Set("workingDir", workDir)
 		v.Set("baseURL", "https://example.org")
 		v.Set("timeout", timeout)
@@ -141,7 +141,7 @@ IMG SHORTCODE: /images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_129x239_r
 
 	assertImages := func() {
 		b.Helper()
-		b.AssertFileContent(filepath.Join(workDir, "public/index.html"), imgExpect)
+		b.AssertFileContent("public/index.html", imgExpect)
 		b.AssertImage(350, 219, "public/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_350x0_resize_q75_box.a86fe88d894e5db613f6aa8a80538fefc25b20fa24ba0d782c057adcef616f56.jpg")
 		b.AssertImage(129, 239, "public/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_129x239_resize_q75_box.jpg")
 	}

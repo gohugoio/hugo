@@ -22,8 +22,6 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 
-	"github.com/gohugoio/hugo/htesting"
-
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -38,15 +36,13 @@ import (
 func TestExecute(t *testing.T) {
 	c := qt.New(t)
 
-	createSite := func(c *qt.C) (string, func()) {
-		dir, clean, err := createSimpleTestSite(t, testSiteConfig{})
-		c.Assert(err, qt.IsNil)
-		return dir, clean
+	createSite := func(c *qt.C) string {
+		dir := createSimpleTestSite(t, testSiteConfig{})
+		return dir
 	}
 
 	c.Run("hugo", func(c *qt.C) {
-		dir, clean := createSite(c)
-		defer clean()
+		dir := createSite(c)
 		resp := Execute([]string{"-s=" + dir})
 		c.Assert(resp.Err, qt.IsNil)
 		result := resp.Result
@@ -56,8 +52,7 @@ func TestExecute(t *testing.T) {
 	})
 
 	c.Run("hugo, set environment", func(c *qt.C) {
-		dir, clean := createSite(c)
-		defer clean()
+		dir := createSite(c)
 		resp := Execute([]string{"-s=" + dir, "-e=staging"})
 		c.Assert(resp.Err, qt.IsNil)
 		result := resp.Result
@@ -65,9 +60,8 @@ func TestExecute(t *testing.T) {
 	})
 
 	c.Run("convert toJSON", func(c *qt.C) {
-		dir, clean := createSite(c)
+		dir := createSite(c)
 		output := filepath.Join(dir, "myjson")
-		defer clean()
 		resp := Execute([]string{"convert", "toJSON", "-s=" + dir, "-e=staging", "-o=" + output})
 		c.Assert(resp.Err, qt.IsNil)
 		converted := readFileFrom(c, filepath.Join(output, "content", "p1.md"))
@@ -75,8 +69,7 @@ func TestExecute(t *testing.T) {
 	})
 
 	c.Run("config, set environment", func(c *qt.C) {
-		dir, clean := createSite(c)
-		defer clean()
+		dir := createSite(c)
 		out, err := captureStdout(func() error {
 			resp := Execute([]string{"config", "-s=" + dir, "-e=staging"})
 			return resp.Err
@@ -86,16 +79,14 @@ func TestExecute(t *testing.T) {
 	})
 
 	c.Run("deploy, environment set", func(c *qt.C) {
-		dir, clean := createSite(c)
-		defer clean()
+		dir := createSite(c)
 		resp := Execute([]string{"deploy", "-s=" + dir, "-e=staging", "--target=mydeployment", "--dryRun"})
 		c.Assert(resp.Err, qt.Not(qt.IsNil))
 		c.Assert(resp.Err.Error(), qt.Contains, `no driver registered for "hugocloud"`)
 	})
 
 	c.Run("list", func(c *qt.C) {
-		dir, clean := createSite(c)
-		defer clean()
+		dir := createSite(c)
 		out, err := captureStdout(func() error {
 			resp := Execute([]string{"list", "all", "-s=" + dir, "-e=staging"})
 			return resp.Err
@@ -105,8 +96,7 @@ func TestExecute(t *testing.T) {
 	})
 
 	c.Run("new theme", func(c *qt.C) {
-		dir, clean := createSite(c)
-		defer clean()
+		dir := createSite(c)
 		themesDir := filepath.Join(dir, "mythemes")
 		resp := Execute([]string{"new", "theme", "mytheme", "-s=" + dir, "-e=staging", "--themesDir=" + themesDir})
 		c.Assert(resp.Err, qt.IsNil)
@@ -115,8 +105,7 @@ func TestExecute(t *testing.T) {
 	})
 
 	c.Run("new site", func(c *qt.C) {
-		dir, clean := createSite(c)
-		defer clean()
+		dir := createSite(c)
 		siteDir := filepath.Join(dir, "mysite")
 		resp := Execute([]string{"new", "site", siteDir, "-e=staging"})
 		c.Assert(resp.Err, qt.IsNil)
@@ -167,7 +156,7 @@ func TestFlags(t *testing.T) {
 			name: "ignoreVendorPaths",
 			args: []string{"server", "--ignoreVendorPaths=github.com/**"},
 			check: func(c *qt.C, cmd *serverCmd) {
-				cfg := config.New()
+				cfg := config.NewWithTestDefaults()
 				cmd.flagsToConfig(cfg)
 				c.Assert(cfg.Get("ignoreVendorPaths"), qt.Equals, "github.com/**")
 			},
@@ -208,7 +197,7 @@ func TestFlags(t *testing.T) {
 				c.Assert(sc.serverPort, qt.Equals, 1366)
 				c.Assert(sc.environment, qt.Equals, "testing")
 
-				cfg := config.New()
+				cfg := config.NewWithTestDefaults()
 				sc.flagsToConfig(cfg)
 				c.Assert(cfg.GetString("publishDir"), qt.Equals, "/tmp/mydestination")
 				c.Assert(cfg.GetString("contentDir"), qt.Equals, "mycontent")
@@ -253,14 +242,8 @@ func TestFlags(t *testing.T) {
 func TestCommandsExecute(t *testing.T) {
 	c := qt.New(t)
 
-	dir, clean, err := createSimpleTestSite(t, testSiteConfig{})
-	c.Assert(err, qt.IsNil)
-
-	dirOut, clean2, err := htesting.CreateTempDir(hugofs.Os, "hugo-cli-out")
-	c.Assert(err, qt.IsNil)
-
-	defer clean()
-	defer clean2()
+	dir := createSimpleTestSite(t, testSiteConfig{})
+	dirOut := t.TempDir()
 
 	sourceFlag := fmt.Sprintf("-s=%s", dir)
 
@@ -297,29 +280,35 @@ func TestCommandsExecute(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		b := newCommandsBuilder().addAll().build()
-		hugoCmd := b.getCommand()
-		test.flags = append(test.flags, "--quiet")
-		hugoCmd.SetArgs(append(test.commands, test.flags...))
-
-		// TODO(bep) capture output and add some simple asserts
-		// TODO(bep) misspelled subcommands does not return an error. We should investigate this
-		// but before that, check for "Error: unknown command".
-
-		_, err := hugoCmd.ExecuteC()
-		if test.expectErrToContain != "" {
-			c.Assert(err, qt.Not(qt.IsNil))
-			c.Assert(err.Error(), qt.Contains, test.expectErrToContain)
-		} else {
-			c.Assert(err, qt.IsNil)
+		name := "hugo"
+		if len(test.commands) > 0 {
+			name = test.commands[0]
 		}
+		c.Run(name, func(c *qt.C) {
+			b := newCommandsBuilder().addAll().build()
+			hugoCmd := b.getCommand()
+			test.flags = append(test.flags, "--quiet")
+			hugoCmd.SetArgs(append(test.commands, test.flags...))
 
-		// Assert that we have not left any development debug artifacts in
-		// the code.
-		if b.c != nil {
-			_, ok := b.c.destinationFs.(types.DevMarker)
-			c.Assert(ok, qt.Equals, false)
-		}
+			// TODO(bep) capture output and add some simple asserts
+			// TODO(bep) misspelled subcommands does not return an error. We should investigate this
+			// but before that, check for "Error: unknown command".
+
+			_, err := hugoCmd.ExecuteC()
+			if test.expectErrToContain != "" {
+				c.Assert(err, qt.Not(qt.IsNil))
+				c.Assert(err.Error(), qt.Contains, test.expectErrToContain)
+			} else {
+				c.Assert(err, qt.IsNil)
+			}
+
+			// Assert that we have not left any development debug artifacts in
+			// the code.
+			if b.c != nil {
+				_, ok := b.c.publishDirFs.(types.DevMarker)
+				c.Assert(ok, qt.Equals, false)
+			}
+		})
 
 	}
 }
@@ -329,11 +318,8 @@ type testSiteConfig struct {
 	contentDir string
 }
 
-func createSimpleTestSite(t testing.TB, cfg testSiteConfig) (string, func(), error) {
-	d, clean, e := htesting.CreateTempDir(hugofs.Os, "hugo-cli")
-	if e != nil {
-		return "", nil, e
-	}
+func createSimpleTestSite(t testing.TB, cfg testSiteConfig) string {
+	dir := t.TempDir()
 
 	cfgStr := `
 
@@ -352,23 +338,23 @@ title = "Hugo Commands"
 		contentDir = cfg.contentDir
 	}
 
-	os.MkdirAll(filepath.Join(d, "public"), 0777)
+	os.MkdirAll(filepath.Join(dir, "public"), 0777)
 
 	// Just the basic. These are for CLI tests, not site testing.
-	writeFile(t, filepath.Join(d, "config.toml"), cfgStr)
-	writeFile(t, filepath.Join(d, "config", "staging", "params.toml"), `myparam="paramstaging"`)
-	writeFile(t, filepath.Join(d, "config", "staging", "deployment.toml"), `
+	writeFile(t, filepath.Join(dir, "config.toml"), cfgStr)
+	writeFile(t, filepath.Join(dir, "config", "staging", "params.toml"), `myparam="paramstaging"`)
+	writeFile(t, filepath.Join(dir, "config", "staging", "deployment.toml"), `
 [[targets]]
 name = "mydeployment"
 URL = "hugocloud://hugotestbucket"
 `)
 
-	writeFile(t, filepath.Join(d, "config", "testing", "params.toml"), `myparam="paramtesting"`)
-	writeFile(t, filepath.Join(d, "config", "production", "params.toml"), `myparam="paramproduction"`)
+	writeFile(t, filepath.Join(dir, "config", "testing", "params.toml"), `myparam="paramtesting"`)
+	writeFile(t, filepath.Join(dir, "config", "production", "params.toml"), `myparam="paramproduction"`)
 
-	writeFile(t, filepath.Join(d, "static", "myfile.txt"), `Hello World!`)
+	writeFile(t, filepath.Join(dir, "static", "myfile.txt"), `Hello World!`)
 
-	writeFile(t, filepath.Join(d, contentDir, "p1.md"), `
+	writeFile(t, filepath.Join(dir, contentDir, "p1.md"), `
 ---
 title: "P1"
 weight: 1
@@ -378,20 +364,20 @@ Content
 
 `)
 
-	writeFile(t, filepath.Join(d, "layouts", "_default", "single.html"), `
+	writeFile(t, filepath.Join(dir, "layouts", "_default", "single.html"), `
 
 Single: {{ .Title }}
 
 `)
 
-	writeFile(t, filepath.Join(d, "layouts", "_default", "list.html"), `
+	writeFile(t, filepath.Join(dir, "layouts", "_default", "list.html"), `
 
 List: {{ .Title }}
 Environment: {{ hugo.Environment }}
 
 `)
 
-	return d, clean, nil
+	return dir
 }
 
 func writeFile(t testing.TB, filename, content string) {

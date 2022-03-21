@@ -75,6 +75,11 @@ func NewFrom(params maps.Params) Provider {
 	}
 }
 
+// NewWithTestDefaults is used in tests only.
+func NewWithTestDefaults() Provider {
+	return SetBaseTestDefaults(New())
+}
+
 // defaultConfigProvider is a Provider backed by a map where all keys are lower case.
 // All methods are thread safe.
 type defaultConfigProvider struct {

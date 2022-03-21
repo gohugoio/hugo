@@ -262,7 +262,7 @@ Position: {{ .Position | safeHTML }}
 		},
 	).Build()
 
-	b.AssertFileContent("public/p1/index.html", filepath.FromSlash("Position: \"content/p1.md:7:1\""))
+	b.AssertFileContent("public/p1/index.html", filepath.FromSlash("Position: \"/content/p1.md:7:1\""))
 }
 
 // Issue 9571

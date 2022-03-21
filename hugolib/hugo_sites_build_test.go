@@ -489,7 +489,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 				c.Assert(enSite.RegularPages()[0].Title(), qt.Equals, "new_en_2")
 				c.Assert(enSite.RegularPages()[1].Title(), qt.Equals, "new_en_1")
 
-				rendered := readDestination(t, fs, "public/en/new1/index.html")
+				rendered := readWorkingDir(t, fs, "public/en/new1/index.html")
 				c.Assert(strings.Contains(rendered, "new_en_1"), qt.Equals, true)
 			},
 		},
@@ -503,7 +503,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 			[]fsnotify.Event{{Name: filepath.FromSlash("content/sect/doc1.en.md"), Op: fsnotify.Write}},
 			func(t *testing.T) {
 				c.Assert(len(enSite.RegularPages()), qt.Equals, 6)
-				doc1 := readDestination(t, fs, "public/en/sect/doc1-slug/index.html")
+				doc1 := readWorkingDir(t, fs, "public/en/sect/doc1-slug/index.html")
 				c.Assert(strings.Contains(doc1, "CHANGED"), qt.Equals, true)
 			},
 		},
@@ -521,7 +521,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 			func(t *testing.T) {
 				c.Assert(len(enSite.RegularPages()), qt.Equals, 6, qt.Commentf("Rename"))
 				c.Assert(enSite.RegularPages()[1].Title(), qt.Equals, "new_en_1")
-				rendered := readDestination(t, fs, "public/en/new1renamed/index.html")
+				rendered := readWorkingDir(t, fs, "public/en/new1renamed/index.html")
 				c.Assert(rendered, qt.Contains, "new_en_1")
 			},
 		},
@@ -538,7 +538,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 				c.Assert(len(enSite.RegularPages()), qt.Equals, 6)
 				c.Assert(len(enSite.AllPages()), qt.Equals, 34)
 				c.Assert(len(frSite.RegularPages()), qt.Equals, 5)
-				doc1 := readDestination(t, fs, "public/en/sect/doc1-slug/index.html")
+				doc1 := readWorkingDir(t, fs, "public/en/sect/doc1-slug/index.html")
 				c.Assert(strings.Contains(doc1, "Template Changed"), qt.Equals, true)
 			},
 		},
@@ -555,9 +555,9 @@ func TestMultiSitesRebuild(t *testing.T) {
 				c.Assert(len(enSite.RegularPages()), qt.Equals, 6)
 				c.Assert(len(enSite.AllPages()), qt.Equals, 34)
 				c.Assert(len(frSite.RegularPages()), qt.Equals, 5)
-				docEn := readDestination(t, fs, "public/en/sect/doc1-slug/index.html")
+				docEn := readWorkingDir(t, fs, "public/en/sect/doc1-slug/index.html")
 				c.Assert(strings.Contains(docEn, "Hello"), qt.Equals, true)
-				docFr := readDestination(t, fs, "public/fr/sect/doc1/index.html")
+				docFr := readWorkingDir(t, fs, "public/fr/sect/doc1/index.html")
 				c.Assert(strings.Contains(docFr, "Salut"), qt.Equals, true)
 
 				homeEn := enSite.getPage(page.KindHome)
@@ -700,7 +700,7 @@ END
 
 func checkContent(s *sitesBuilder, filename string, matches ...string) {
 	s.T.Helper()
-	content := readDestination(s.T, s.Fs, filename)
+	content := readWorkingDir(s.T, s.Fs, filename)
 	for _, match := range matches {
 		if !strings.Contains(content, match) {
 			s.Fatalf("No match for\n%q\nin content for %s\n%q\nDiff:\n%s", match, filename, content, htesting.DiffStrings(content, match))
@@ -1170,13 +1170,13 @@ func writeToFs(t testing.TB, fs afero.Fs, filename, content string) {
 	}
 }
 
-func readDestination(t testing.TB, fs *hugofs.Fs, filename string) string {
+func readWorkingDir(t testing.TB, fs *hugofs.Fs, filename string) string {
 	t.Helper()
-	return readFileFromFs(t, fs.Destination, filename)
+	return readFileFromFs(t, fs.WorkingDirReadOnly, filename)
 }
 
-func destinationExists(fs *hugofs.Fs, filename string) bool {
-	b, err := helpers.Exists(filename, fs.Destination)
+func workingDirExists(fs *hugofs.Fs, filename string) bool {
+	b, err := helpers.Exists(filename, fs.WorkingDirReadOnly)
 	if err != nil {
 		panic(err)
 	}

@@ -184,7 +184,7 @@ dir = "/"
 }
 
 func newTestConfig() config.Provider {
-	cfg := config.New()
+	cfg := config.NewWithTestDefaults()
 	cfg.Set("workingDir", filepath.FromSlash("/my/cool/hugoproject"))
 	cfg.Set("contentDir", "content")
 	cfg.Set("dataDir", "data")

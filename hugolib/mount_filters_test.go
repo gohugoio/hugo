@@ -101,13 +101,13 @@ Resources: {{ resources.Match "**.js" }}
 
 	assertExists := func(name string, shouldExist bool) {
 		b.Helper()
-		b.Assert(b.CheckExists(filepath.Join(workingDir, name)), qt.Equals, shouldExist)
+		b.Assert(b.CheckExists(name), qt.Equals, shouldExist)
 	}
 
 	assertExists("public/a/b/p1/index.html", true)
 	assertExists("public/a/c/p2/index.html", false)
 
-	b.AssertFileContent(filepath.Join(workingDir, "public", "index.html"), `
+	b.AssertFileContent(filepath.Join("public", "index.html"), `
 Data: map[mydata:map[b:map[b1:bval]]]:END	
 Template: false
 Resource1: js/include.js:END

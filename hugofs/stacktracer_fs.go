@@ -24,8 +24,11 @@ import (
 	"github.com/spf13/afero"
 )
 
-// Make sure we don't accidentally use this in the real Hugo.
-var _ types.DevMarker = (*stacktracerFs)(nil)
+var (
+	//  Make sure we don't accidentally use this in the real Hugo.
+	_ types.DevMarker     = (*stacktracerFs)(nil)
+	_ FilesystemUnwrapper = (*stacktracerFs)(nil)
+)
 
 // NewStacktracerFs wraps the given fs printing stack traces for file creates
 // matching the given regexp pattern.
@@ -43,6 +46,10 @@ type stacktracerFs struct {
 }
 
 func (fs *stacktracerFs) DevOnly() {
+}
+
+func (fs *stacktracerFs) UnwrapFilesystem() afero.Fs {
+	return fs.Fs
 }
 
 func (fs *stacktracerFs) onCreate(filename string) {

@@ -224,8 +224,8 @@ Content.
 	nnSite := b.H.Sites[1]
 	svSite := b.H.Sites[2]
 
-	b.AssertFileContent("/my/project/public/en/mystatic/file1.yaml", "en")
-	b.AssertFileContent("/my/project/public/nn/mystatic/file1.yaml", "nn")
+	b.AssertFileContent("public/en/mystatic/file1.yaml", "en")
+	b.AssertFileContent("public/nn/mystatic/file1.yaml", "nn")
 
 	// dumpPages(nnSite.RegularPages()...)
 
@@ -300,16 +300,16 @@ Content.
 	c.Assert(len(bundleSv.Resources()), qt.Equals, 4)
 	c.Assert(len(bundleEn.Resources()), qt.Equals, 4)
 
-	b.AssertFileContent("/my/project/public/en/sect/mybundle/index.html", "image/png: /en/sect/mybundle/logo.png")
-	b.AssertFileContent("/my/project/public/nn/sect/mybundle/index.html", "image/png: /nn/sect/mybundle/logo.png")
-	b.AssertFileContent("/my/project/public/sv/sect/mybundle/index.html", "image/png: /sv/sect/mybundle/logo.png")
+	b.AssertFileContent("public/en/sect/mybundle/index.html", "image/png: /en/sect/mybundle/logo.png")
+	b.AssertFileContent("public/nn/sect/mybundle/index.html", "image/png: /nn/sect/mybundle/logo.png")
+	b.AssertFileContent("public/sv/sect/mybundle/index.html", "image/png: /sv/sect/mybundle/logo.png")
 
-	b.AssertFileContent("/my/project/public/sv/sect/mybundle/featured.png", "PNG Data for sv")
-	b.AssertFileContent("/my/project/public/nn/sect/mybundle/featured.png", "PNG Data for nn")
-	b.AssertFileContent("/my/project/public/en/sect/mybundle/featured.png", "PNG Data for en")
-	b.AssertFileContent("/my/project/public/en/sect/mybundle/logo.png", "PNG Data")
-	b.AssertFileContent("/my/project/public/sv/sect/mybundle/logo.png", "PNG Data")
-	b.AssertFileContent("/my/project/public/nn/sect/mybundle/logo.png", "PNG Data")
+	b.AssertFileContent("public/sv/sect/mybundle/featured.png", "PNG Data for sv")
+	b.AssertFileContent("public/nn/sect/mybundle/featured.png", "PNG Data for nn")
+	b.AssertFileContent("public/en/sect/mybundle/featured.png", "PNG Data for en")
+	b.AssertFileContent("public/en/sect/mybundle/logo.png", "PNG Data")
+	b.AssertFileContent("public/sv/sect/mybundle/logo.png", "PNG Data")
+	b.AssertFileContent("public/nn/sect/mybundle/logo.png", "PNG Data")
 
 	nnSect := nnSite.getPage(page.KindSection, "sect")
 	c.Assert(nnSect, qt.Not(qt.IsNil))

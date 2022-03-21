@@ -74,7 +74,7 @@ func (ns *Namespace) Config(path any) (image.Config, error) {
 		return config, nil
 	}
 
-	f, err := ns.deps.Fs.WorkingDir.Open(filename)
+	f, err := ns.deps.Fs.WorkingDirReadOnly.Open(filename)
 	if err != nil {
 		return image.Config{}, err
 	}

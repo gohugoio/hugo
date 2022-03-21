@@ -122,8 +122,10 @@ func (n *newSiteCmd) newSite(cmd *cobra.Command, args []string) error {
 	}
 
 	forceNew, _ := cmd.Flags().GetBool("force")
-
-	return n.doNewSite(hugofs.NewDefault(config.New()), createpath, forceNew)
+	cfg := config.New()
+	cfg.Set("workingDir", createpath)
+	cfg.Set("publishDir", "public")
+	return n.doNewSite(hugofs.NewDefault(cfg), createpath, forceNew)
 }
 
 func createConfig(fs *hugofs.Fs, inpath string, kind string) (err error) {

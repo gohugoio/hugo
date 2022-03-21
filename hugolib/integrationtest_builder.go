@@ -47,6 +47,8 @@ func NewIntegrationTestBuilder(conf IntegrationTestConfig) *IntegrationTestBuild
 		if doClean {
 			c.Cleanup(clean)
 		}
+	} else if conf.WorkingDir == "" {
+		conf.WorkingDir = helpers.FilePathSeparator
 	}
 
 	return &IntegrationTestBuilder{
@@ -157,7 +159,7 @@ func (s *IntegrationTestBuilder) AssertDestinationExists(filename string, b bool
 }
 
 func (s *IntegrationTestBuilder) destinationExists(filename string) bool {
-	b, err := helpers.Exists(filename, s.fs.Destination)
+	b, err := helpers.Exists(filename, s.fs.PublishDir)
 	if err != nil {
 		panic(err)
 	}
@@ -258,11 +260,7 @@ func (s *IntegrationTestBuilder) RenameFile(old, new string) *IntegrationTestBui
 
 func (s *IntegrationTestBuilder) FileContent(filename string) string {
 	s.Helper()
-	filename = filepath.FromSlash(filename)
-	if !strings.HasPrefix(filename, s.Cfg.WorkingDir) {
-		filename = filepath.Join(s.Cfg.WorkingDir, filename)
-	}
-	return s.readDestination(s, s.fs, filename)
+	return s.readWorkingDir(s, s.fs, filepath.FromSlash(filename))
 }
 
 func (s *IntegrationTestBuilder) initBuilder() {
@@ -279,8 +277,6 @@ func (s *IntegrationTestBuilder) initBuilder() {
 		}
 
 		logger := loggers.NewBasicLoggerForWriter(s.Cfg.LogLevel, &s.logBuff)
-
-		fs := hugofs.NewFrom(afs, config.New())
 
 		for _, f := range s.data.Files {
 			filename := filepath.Join(s.Cfg.WorkingDir, f.Name)
@@ -301,9 +297,11 @@ func (s *IntegrationTestBuilder) initBuilder() {
 			},
 		)
 
-		s.Assert(err, qt.IsNil)
-
 		cfg.Set("workingDir", s.Cfg.WorkingDir)
+
+		fs := hugofs.NewFrom(afs, cfg)
+
+		s.Assert(err, qt.IsNil)
 
 		depsCfg := deps.DepsCfg{Cfg: cfg, Fs: fs, Running: s.Cfg.Running, Logger: logger}
 		sites, err := NewHugoSites(depsCfg)
@@ -400,9 +398,9 @@ func (s *IntegrationTestBuilder) changeEvents() []fsnotify.Event {
 	return events
 }
 
-func (s *IntegrationTestBuilder) readDestination(t testing.TB, fs *hugofs.Fs, filename string) string {
+func (s *IntegrationTestBuilder) readWorkingDir(t testing.TB, fs *hugofs.Fs, filename string) string {
 	t.Helper()
-	return s.readFileFromFs(t, fs.Destination, filename)
+	return s.readFileFromFs(t, fs.WorkingDirReadOnly, filename)
 }
 
 func (s *IntegrationTestBuilder) readFileFromFs(t testing.TB, fs afero.Fs, filename string) string {

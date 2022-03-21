@@ -33,8 +33,16 @@ type DuplicatesReporter interface {
 	ReportDuplicates() string
 }
 
+var (
+	_ FilesystemUnwrapper = (*createCountingFs)(nil)
+)
+
 func NewCreateCountingFs(fs afero.Fs) afero.Fs {
 	return &createCountingFs{Fs: fs, fileCount: make(map[string]int)}
+}
+
+func (fs *createCountingFs) UnwrapFilesystem() afero.Fs {
+	return fs.Fs
 }
 
 // ReportDuplicates reports filenames written more than once.

@@ -75,7 +75,7 @@ func initConfig(fs afero.Fs, cfg config.Provider) error {
 
 func TestNewBaseFs(t *testing.T) {
 	c := qt.New(t)
-	v := config.New()
+	v := config.NewWithTestDefaults()
 
 	fs := hugofs.NewMem(v)
 
@@ -181,7 +181,7 @@ theme = ["atheme"]
 }
 
 func createConfig() config.Provider {
-	v := config.New()
+	v := config.NewWithTestDefaults()
 	v.Set("contentDir", "mycontent")
 	v.Set("i18nDir", "myi18n")
 	v.Set("staticDir", "mystatic")
@@ -219,21 +219,18 @@ func TestNewBaseFsEmpty(t *testing.T) {
 func TestRealDirs(t *testing.T) {
 	c := qt.New(t)
 	v := createConfig()
+	root, themesDir := t.TempDir(), t.TempDir()
+	v.Set("workingDir", root)
+	v.Set("themesDir", themesDir)
+	v.Set("theme", "mytheme")
+
 	fs := hugofs.NewDefault(v)
 	sfs := fs.Source
 
-	root, err := afero.TempDir(sfs, "", "realdir")
-	c.Assert(err, qt.IsNil)
-	themesDir, err := afero.TempDir(sfs, "", "themesDir")
-	c.Assert(err, qt.IsNil)
 	defer func() {
 		os.RemoveAll(root)
 		os.RemoveAll(themesDir)
 	}()
-
-	v.Set("workingDir", root)
-	v.Set("themesDir", themesDir)
-	v.Set("theme", "mytheme")
 
 	c.Assert(sfs.MkdirAll(filepath.Join(root, "myassets", "scss", "sf1"), 0755), qt.IsNil)
 	c.Assert(sfs.MkdirAll(filepath.Join(root, "myassets", "scss", "sf2"), 0755), qt.IsNil)

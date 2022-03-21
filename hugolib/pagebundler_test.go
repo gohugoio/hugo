@@ -127,22 +127,22 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 
 						// Check both output formats
 						rel, filename := relFilename("/a/1/", "index.html")
-						b.AssertFileContent(filepath.Join("/work/public", filename),
+						b.AssertFileContent(filepath.Join("public", filename),
 							"TheContent",
 							"Single RelPermalink: "+rel,
 						)
 
 						rel, filename = relFilename("/cpath/a/1/", "cindex.html")
 
-						b.AssertFileContent(filepath.Join("/work/public", filename),
+						b.AssertFileContent(filepath.Join("public", filename),
 							"TheContent",
 							"Single RelPermalink: "+rel,
 						)
 
-						b.AssertFileContent(filepath.FromSlash("/work/public/images/hugo-logo.png"), "content")
+						b.AssertFileContent(filepath.FromSlash("public/images/hugo-logo.png"), "content")
 
 						// This should be just copied to destination.
-						b.AssertFileContent(filepath.FromSlash("/work/public/assets/pic1.png"), "content")
+						b.AssertFileContent(filepath.FromSlash("public/assets/pic1.png"), "content")
 
 						leafBundle1 := s.getPage(page.KindPage, "b/my-bundle/index.md")
 						c.Assert(leafBundle1, qt.Not(qt.IsNil))
@@ -159,8 +159,8 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 						c.Assert(rootBundle, qt.Not(qt.IsNil))
 						c.Assert(rootBundle.Parent().IsHome(), qt.Equals, true)
 						if !ugly {
-							b.AssertFileContent(filepath.FromSlash("/work/public/root/index.html"), "Single RelPermalink: "+relURLBase+"/root/")
-							b.AssertFileContent(filepath.FromSlash("/work/public/cpath/root/cindex.html"), "Single RelPermalink: "+relURLBase+"/cpath/root/")
+							b.AssertFileContent(filepath.FromSlash("public/root/index.html"), "Single RelPermalink: "+relURLBase+"/root/")
+							b.AssertFileContent(filepath.FromSlash("public/cpath/root/cindex.html"), "Single RelPermalink: "+relURLBase+"/cpath/root/")
 						}
 
 						leafBundle2 := s.getPage(page.KindPage, "a/b/index.md")
@@ -202,17 +202,17 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 						}
 
 						if ugly {
-							b.AssertFileContent("/work/public/2017/pageslug.html",
+							b.AssertFileContent("public/2017/pageslug.html",
 								relPermalinker("Single RelPermalink: %s/2017/pageslug.html"),
 								permalinker("Single Permalink: %s/2017/pageslug.html"),
 								relPermalinker("Sunset RelPermalink: %s/2017/pageslug/sunset1.jpg"),
 								permalinker("Sunset Permalink: %s/2017/pageslug/sunset1.jpg"))
 						} else {
-							b.AssertFileContent("/work/public/2017/pageslug/index.html",
+							b.AssertFileContent("public/2017/pageslug/index.html",
 								relPermalinker("Sunset RelPermalink: %s/2017/pageslug/sunset1.jpg"),
 								permalinker("Sunset Permalink: %s/2017/pageslug/sunset1.jpg"))
 
-							b.AssertFileContent("/work/public/cpath/2017/pageslug/cindex.html",
+							b.AssertFileContent("public/cpath/2017/pageslug/cindex.html",
 								relPermalinker("Single RelPermalink: %s/cpath/2017/pageslug/"),
 								relPermalinker("Short Sunset RelPermalink: %s/cpath/2017/pageslug/sunset2.jpg"),
 								relPermalinker("Sunset RelPermalink: %s/cpath/2017/pageslug/sunset1.jpg"),
@@ -220,15 +220,15 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 							)
 						}
 
-						b.AssertFileContent(filepath.FromSlash("/work/public/2017/pageslug/c/logo.png"), "content")
-						b.AssertFileContent(filepath.FromSlash("/work/public/cpath/2017/pageslug/c/logo.png"), "content")
-						c.Assert(b.CheckExists("/work/public/cpath/cpath/2017/pageslug/c/logo.png"), qt.Equals, false)
+						b.AssertFileContent(filepath.FromSlash("public/2017/pageslug/c/logo.png"), "content")
+						b.AssertFileContent(filepath.FromSlash("public/cpath/2017/pageslug/c/logo.png"), "content")
+						c.Assert(b.CheckExists("public/cpath/cpath/2017/pageslug/c/logo.png"), qt.Equals, false)
 
 						// Custom media type defined in site config.
 						c.Assert(len(leafBundle1.Resources().ByType("bepsays")), qt.Equals, 1)
 
 						if ugly {
-							b.AssertFileContent(filepath.FromSlash("/work/public/2017/pageslug.html"),
+							b.AssertFileContent(filepath.FromSlash("public/2017/pageslug.html"),
 								"TheContent",
 								relPermalinker("Sunset RelPermalink: %s/2017/pageslug/sunset1.jpg"),
 								permalinker("Sunset Permalink: %s/2017/pageslug/sunset1.jpg"),
@@ -247,18 +247,18 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 
 							// https://github.com/gohugoio/hugo/issues/5882
 							b.AssertFileContent(
-								filepath.FromSlash("/work/public/2017/pageslug.html"), "0: Page RelPermalink: |")
+								filepath.FromSlash("public/2017/pageslug.html"), "0: Page RelPermalink: |")
 
-							b.AssertFileContent(filepath.FromSlash("/work/public/cpath/2017/pageslug.html"), "TheContent")
+							b.AssertFileContent(filepath.FromSlash("public/cpath/2017/pageslug.html"), "TheContent")
 
 							// 은행
-							b.AssertFileContent(filepath.FromSlash("/work/public/c/은행/logo-은행.png"), "은행 PNG")
+							b.AssertFileContent(filepath.FromSlash("public/c/은행/logo-은행.png"), "은행 PNG")
 
 						} else {
-							b.AssertFileContent(filepath.FromSlash("/work/public/2017/pageslug/index.html"), "TheContent")
-							b.AssertFileContent(filepath.FromSlash("/work/public/cpath/2017/pageslug/cindex.html"), "TheContent")
-							b.AssertFileContent(filepath.FromSlash("/work/public/2017/pageslug/index.html"), "Single Title")
-							b.AssertFileContent(filepath.FromSlash("/work/public/root/index.html"), "Single Title")
+							b.AssertFileContent(filepath.FromSlash("public/2017/pageslug/index.html"), "TheContent")
+							b.AssertFileContent(filepath.FromSlash("public/cpath/2017/pageslug/cindex.html"), "TheContent")
+							b.AssertFileContent(filepath.FromSlash("public/2017/pageslug/index.html"), "Single Title")
+							b.AssertFileContent(filepath.FromSlash("public/root/index.html"), "Single Title")
 
 						}
 					})
@@ -397,23 +397,24 @@ func TestPageBundlerSiteWitSymbolicLinksInContent(t *testing.T) {
 	}()
 
 	c := qt.New(t)
-	// We need to use the OS fs for this.
-	cfg := config.New()
-	fs := hugofs.NewFrom(hugofs.Os, cfg)
 
-	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugosym")
+	// We need to use the OS fs for this.
+	workingDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugosym")
 	c.Assert(err, qt.IsNil)
+	cfg := config.NewWithTestDefaults()
+	cfg.Set("workingDir", workingDir)
+	fs := hugofs.NewFrom(hugofs.Os, cfg)
 
 	contentDirName := "content"
 
-	contentDir := filepath.Join(workDir, contentDirName)
+	contentDir := filepath.Join(workingDir, contentDirName)
 	c.Assert(os.MkdirAll(filepath.Join(contentDir, "a"), 0777), qt.IsNil)
 
 	for i := 1; i <= 3; i++ {
-		c.Assert(os.MkdirAll(filepath.Join(workDir, fmt.Sprintf("symcontent%d", i)), 0777), qt.IsNil)
+		c.Assert(os.MkdirAll(filepath.Join(workingDir, fmt.Sprintf("symcontent%d", i)), 0777), qt.IsNil)
 	}
 
-	c.Assert(os.MkdirAll(filepath.Join(workDir, "symcontent2", "a1"), 0777), qt.IsNil)
+	c.Assert(os.MkdirAll(filepath.Join(workingDir, "symcontent2", "a1"), 0777), qt.IsNil)
 
 	// Symlinked sections inside content.
 	os.Chdir(contentDir)
@@ -431,11 +432,11 @@ func TestPageBundlerSiteWitSymbolicLinksInContent(t *testing.T) {
 	// Create a circular symlink. Will print some warnings.
 	c.Assert(os.Symlink(filepath.Join("..", contentDirName), filepath.FromSlash("circus")), qt.IsNil)
 
-	c.Assert(os.Chdir(workDir), qt.IsNil)
+	c.Assert(os.Chdir(workingDir), qt.IsNil)
 
 	defer clean()
 
-	cfg.Set("workingDir", workDir)
+	cfg.Set("workingDir", workingDir)
 	cfg.Set("contentDir", contentDirName)
 	cfg.Set("baseURL", "https://example.com")
 
@@ -488,9 +489,9 @@ TheContent.
 	c.Assert(len(a1Bundle.Resources()), qt.Equals, 2)
 	c.Assert(len(a1Bundle.Resources().ByType(pageResourceType)), qt.Equals, 1)
 
-	b.AssertFileContent(filepath.FromSlash(workDir+"/public/a/page/index.html"), "TheContent")
-	b.AssertFileContent(filepath.FromSlash(workDir+"/public/symbolic1/s1/index.html"), "TheContent")
-	b.AssertFileContent(filepath.FromSlash(workDir+"/public/symbolic2/a1/index.html"), "TheContent")
+	b.AssertFileContent(filepath.FromSlash("public/a/page/index.html"), "TheContent")
+	b.AssertFileContent(filepath.FromSlash("public/symbolic1/s1/index.html"), "TheContent")
+	b.AssertFileContent(filepath.FromSlash("public/symbolic2/a1/index.html"), "TheContent")
 }
 
 func TestPageBundlerHeadless(t *testing.T) {
@@ -563,12 +564,12 @@ HEADLESS {{< myShort >}}
 
 	th := newTestHelper(s.Cfg, s.Fs, t)
 
-	th.assertFileContent(filepath.FromSlash(workDir+"/public/s1/index.html"), "TheContent")
-	th.assertFileContent(filepath.FromSlash(workDir+"/public/s1/l1.png"), "PNG")
+	th.assertFileContent(filepath.FromSlash("public/s1/index.html"), "TheContent")
+	th.assertFileContent(filepath.FromSlash("public/s1/l1.png"), "PNG")
 
-	th.assertFileNotExist(workDir + "/public/s2/index.html")
+	th.assertFileNotExist("public/s2/index.html")
 	// But the bundled resources needs to be published
-	th.assertFileContent(filepath.FromSlash(workDir+"/public/s2/l1.png"), "PNG")
+	th.assertFileContent(filepath.FromSlash("public/s2/l1.png"), "PNG")
 
 	// No headless bundles here, please.
 	// https://github.com/gohugoio/hugo/issues/6492
@@ -1321,7 +1322,7 @@ func TestPageBundlerHome(t *testing.T) {
 	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-bundler-home")
 	c.Assert(err, qt.IsNil)
 
-	cfg := config.New()
+	cfg := config.NewWithTestDefaults()
 	cfg.Set("workingDir", workDir)
 	fs := hugofs.NewFrom(hugofs.Os, cfg)
 

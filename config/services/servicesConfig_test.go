@@ -54,7 +54,7 @@ disableInlineCSS = true
 func TestUseSettingsFromRootIfSet(t *testing.T) {
 	c := qt.New(t)
 
-	cfg := config.New()
+	cfg := config.NewWithTestDefaults()
 	cfg.Set("disqusShortname", "root_short")
 	cfg.Set("googleAnalytics", "ga_root")
 

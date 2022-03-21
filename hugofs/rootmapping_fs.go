@@ -151,6 +151,10 @@ func (r RootMapping) trimFrom(name string) string {
 	return strings.TrimPrefix(name, r.From)
 }
 
+var (
+	_ FilesystemUnwrapper = (*RootMappingFs)(nil)
+)
+
 // A RootMappingFs maps several roots into one. Note that the root of this filesystem
 // is directories only, and they will be returned in Readdir and Readdirnames
 // in the order given.
@@ -198,6 +202,10 @@ func (fs *RootMappingFs) Dirs(base string) ([]FileMetaInfo, error) {
 	}
 
 	return fss, nil
+}
+
+func (fs *RootMappingFs) UnwrapFilesystem() afero.Fs {
+	return fs.Fs
 }
 
 // Filter creates a copy of this filesystem with only mappings matching a filter.

@@ -38,8 +38,8 @@ import (
 
 	"github.com/gohugoio/hugo/modules"
 
+	hpaths "github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugofs"
-
 	"github.com/gohugoio/hugo/hugolib/paths"
 	"github.com/spf13/afero"
 )
@@ -68,11 +68,11 @@ type BaseFs struct {
 	// This usually maps to /my-project/public.
 	PublishFs afero.Fs
 
-	// A read-only filesystem starting from the project workDir.
-	WorkDir afero.Fs
-
 	// The filesystem used for renderStaticToDisk.
 	PublishFsStatic afero.Fs
+
+	// A read-only filesystem starting from the project workDir.
+	WorkDir afero.Fs
 
 	theBigFs *filesystemsCollector
 
@@ -434,21 +434,13 @@ func NewBase(p *paths.Paths, logger loggers.Logger, options ...func(*BaseFs) err
 		logger = loggers.NewWarningLogger()
 	}
 
-	// Make sure we always have the /public folder ready to use.
-	if err := fs.Destination.MkdirAll(p.AbsPublishDir, 0777); err != nil && !os.IsExist(err) {
-		return nil, err
-	}
-
-	publishFs := hugofs.NewBaseFileDecorator(afero.NewBasePathFs(fs.Destination, p.AbsPublishDir))
+	publishFs := hugofs.NewBaseFileDecorator(fs.PublishDir)
 	sourceFs := hugofs.NewBaseFileDecorator(afero.NewBasePathFs(fs.Source, p.WorkingDir))
-	publishFsStatic := afero.NewBasePathFs(fs.Source, p.AbsPublishDir)
-
-	// Same as sourceFs, but no decoration. This is what's used by os.ReadDir etc.
-	workDir := afero.NewBasePathFs(afero.NewReadOnlyFs(fs.Source), p.WorkingDir)
+	publishFsStatic := fs.PublishDirStatic
 
 	b := &BaseFs{
 		SourceFs:        sourceFs,
-		WorkDir:         workDir,
+		WorkDir:         fs.WorkingDirReadOnly,
 		PublishFs:       publishFs,
 		PublishFsStatic: publishFsStatic,
 		buildMu:         lockedfile.MutexAt(filepath.Join(p.WorkingDir, lockFileBuild)),
@@ -638,7 +630,7 @@ func (b *sourceFilesystemsBuilder) createModFs(
 		if filepath.IsAbs(path) {
 			return "", path
 		}
-		return md.dir, paths.AbsPathify(md.dir, path)
+		return md.dir, hpaths.AbsPathify(md.dir, path)
 	}
 
 	for i, mount := range md.Mounts() {

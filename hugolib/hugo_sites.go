@@ -597,7 +597,7 @@ func (h *HugoSites) reset(config *BuildCfg) {
 	if config.ResetState {
 		for i, s := range h.Sites {
 			h.Sites[i] = s.reset()
-			if r, ok := s.Fs.Destination.(hugofs.Reseter); ok {
+			if r, ok := s.Fs.PublishDir.(hugofs.Reseter); ok {
 				r.Reset()
 			}
 		}

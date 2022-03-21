@@ -40,7 +40,7 @@ import (
 
 func TestScpGetLocal(t *testing.T) {
 	t.Parallel()
-	v := config.New()
+	v := config.NewWithTestDefaults()
 	fs := hugofs.NewMem(v)
 	ps := helpers.FilePathSeparator
 
@@ -145,9 +145,8 @@ func TestScpGetRemoteParallel(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 
 	for _, ignoreCache := range []bool{false} {
-		cfg := config.New()
+		cfg := config.NewWithTestDefaults()
 		cfg.Set("ignoreCache", ignoreCache)
-		cfg.Set("contentDir", "content")
 
 		ns := New(newDeps(cfg))
 		ns.client = cl
@@ -227,7 +226,5 @@ func newDeps(cfg config.Provider) *deps.Deps {
 }
 
 func newTestNs() *Namespace {
-	v := config.New()
-	v.Set("contentDir", "content")
-	return New(newDeps(v))
+	return New(newDeps(config.NewWithTestDefaults()))
 }

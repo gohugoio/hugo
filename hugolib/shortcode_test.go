@@ -1212,7 +1212,7 @@ title: "Hugo Rocks!"
 func TestShortcodeEmoji(t *testing.T) {
 	t.Parallel()
 
-	v := config.New()
+	v := config.NewWithTestDefaults()
 	v.Set("enableEmoji", true)
 
 	builder := newTestSitesBuilder(t).WithViper(v)
@@ -1277,7 +1277,7 @@ func TestShortcodeRef(t *testing.T) {
 		t.Run(fmt.Sprintf("plainIDAnchors=%t", plainIDAnchors), func(t *testing.T) {
 			t.Parallel()
 
-			v := config.New()
+			v := config.NewWithTestDefaults()
 			v.Set("baseURL", "https://example.org")
 			v.Set("blackfriday", map[string]any{
 				"plainIDAnchors": plainIDAnchors,

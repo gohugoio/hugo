@@ -17,9 +17,8 @@ func newTestPathSpec(fs *hugofs.Fs, v config.Provider) *PathSpec {
 }
 
 func newTestDefaultPathSpec(configKeyValues ...any) *PathSpec {
-	v := config.New()
-	fs := hugofs.NewMem(v)
 	cfg := newTestCfg()
+	fs := hugofs.NewMem(cfg)
 
 	for i := 0; i < len(configKeyValues); i += 2 {
 		cfg.Set(configKeyValues[i].(string), configKeyValues[i+1])
@@ -28,15 +27,7 @@ func newTestDefaultPathSpec(configKeyValues ...any) *PathSpec {
 }
 
 func newTestCfg() config.Provider {
-	v := config.New()
-	v.Set("contentDir", "content")
-	v.Set("dataDir", "data")
-	v.Set("i18nDir", "i18n")
-	v.Set("layoutDir", "layouts")
-	v.Set("assetDir", "assets")
-	v.Set("resourceDir", "resources")
-	v.Set("publishDir", "public")
-	v.Set("archetypeDir", "archetypes")
+	v := config.NewWithTestDefaults()
 	langs.LoadLanguageSettings(v, nil)
 	langs.LoadLanguageSettings(v, nil)
 	mod, err := modules.CreateProjectModule(v)
@@ -49,7 +40,7 @@ func newTestCfg() config.Provider {
 }
 
 func newTestContentSpec() *ContentSpec {
-	v := config.New()
+	v := config.NewWithTestDefaults()
 	spec, err := NewContentSpec(v, loggers.NewErrorLogger(), afero.NewMemMapFs(), nil)
 	if err != nil {
 		panic(err)

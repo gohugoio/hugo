@@ -82,7 +82,7 @@ func TestNSConfig(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	v := config.New()
+	v := config.NewWithTestDefaults()
 	v.Set("workingDir", "/a/b")
 
 	ns := New(&deps.Deps{Fs: hugofs.NewMem(v)})

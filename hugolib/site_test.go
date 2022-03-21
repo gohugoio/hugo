@@ -336,7 +336,7 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 	}
 
 	for _, test := range tests {
-		content := readDestination(t, fs, test.doc)
+		content := readWorkingDir(t, fs, test.doc)
 
 		if content != test.expected {
 			t.Errorf("%s content expected:\n%q\ngot:\n%q", test.doc, test.expected, content)
@@ -362,7 +362,7 @@ func TestMainSections(t *testing.T) {
 	c := qt.New(t)
 	for _, paramSet := range []bool{false, true} {
 		c.Run(fmt.Sprintf("param-%t", paramSet), func(c *qt.C) {
-			v := config.New()
+			v := config.NewWithTestDefaults()
 			if paramSet {
 				v.Set("params", map[string]any{
 					"mainSections": []string{"a1", "a2"},

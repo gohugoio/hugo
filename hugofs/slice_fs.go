@@ -24,9 +24,10 @@ import (
 )
 
 var (
-	_ afero.Fs      = (*SliceFs)(nil)
-	_ afero.Lstater = (*SliceFs)(nil)
-	_ afero.File    = (*sliceDir)(nil)
+	_ afero.Fs             = (*SliceFs)(nil)
+	_ afero.Lstater        = (*SliceFs)(nil)
+	_ FilesystemsUnwrapper = (*SliceFs)(nil)
+	_ afero.File           = (*sliceDir)(nil)
 )
 
 func NewSliceFs(dirs ...FileMetaInfo) (afero.Fs, error) {
@@ -50,6 +51,14 @@ func NewSliceFs(dirs ...FileMetaInfo) (afero.Fs, error) {
 // SliceFs is an ordered composite filesystem.
 type SliceFs struct {
 	dirs []FileMetaInfo
+}
+
+func (fs *SliceFs) UnwrapFilesystems() []afero.Fs {
+	var fss []afero.Fs
+	for _, dir := range fs.dirs {
+		fss = append(fss, dir.Meta().Fs)
+	}
+	return fss
 }
 
 func (fs *SliceFs) Chmod(n string, m os.FileMode) error {

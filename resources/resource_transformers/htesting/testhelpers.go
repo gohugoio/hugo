@@ -27,9 +27,7 @@ import (
 )
 
 func NewTestResourceSpec() (*resources.Spec, error) {
-	cfg := config.New()
-	cfg.Set("baseURL", "https://example.org")
-	cfg.Set("publishDir", "public")
+	cfg := config.NewWithTestDefaults()
 
 	imagingCfg := map[string]any{
 		"resampleFilter": "linear",

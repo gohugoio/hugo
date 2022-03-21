@@ -16,14 +16,13 @@ package langs
 import (
 	"testing"
 
-	"github.com/gohugoio/hugo/config"
-
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/config"
 )
 
 func TestGetGlobalOnlySetting(t *testing.T) {
 	c := qt.New(t)
-	v := config.New()
+	v := config.NewWithTestDefaults()
 	v.Set("defaultContentLanguageInSubdir", true)
 	v.Set("contentDir", "content")
 	v.Set("paginatePath", "page")
@@ -38,7 +37,7 @@ func TestGetGlobalOnlySetting(t *testing.T) {
 func TestLanguageParams(t *testing.T) {
 	c := qt.New(t)
 
-	v := config.New()
+	v := config.NewWithTestDefaults()
 	v.Set("p1", "p1cfg")
 	v.Set("contentDir", "content")
 

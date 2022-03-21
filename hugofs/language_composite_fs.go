@@ -20,11 +20,14 @@ import (
 )
 
 var (
-	_ afero.Fs      = (*languageCompositeFs)(nil)
-	_ afero.Lstater = (*languageCompositeFs)(nil)
+	_ afero.Fs             = (*languageCompositeFs)(nil)
+	_ afero.Lstater        = (*languageCompositeFs)(nil)
+	_ FilesystemsUnwrapper = (*languageCompositeFs)(nil)
 )
 
 type languageCompositeFs struct {
+	base    afero.Fs
+	overlay afero.Fs
 	*afero.CopyOnWriteFs
 }
 
@@ -33,7 +36,11 @@ type languageCompositeFs struct {
 // to the target filesystem. This information is available in Readdir, Stat etc. via the
 // special LanguageFileInfo FileInfo implementation.
 func NewLanguageCompositeFs(base, overlay afero.Fs) afero.Fs {
-	return &languageCompositeFs{afero.NewCopyOnWriteFs(base, overlay).(*afero.CopyOnWriteFs)}
+	return &languageCompositeFs{base, overlay, afero.NewCopyOnWriteFs(base, overlay).(*afero.CopyOnWriteFs)}
+}
+
+func (fs *languageCompositeFs) UnwrapFilesystems() []afero.Fs {
+	return []afero.Fs{fs.base, fs.overlay}
 }
 
 // Open takes the full path to the file in the target filesystem. If it is a directory, it gets merged

@@ -30,6 +30,10 @@ func NewNoSymlinkFs(fs afero.Fs, logger loggers.Logger, allowFiles bool) afero.F
 	return &noSymlinkFs{Fs: fs, logger: logger, allowFiles: allowFiles}
 }
 
+var (
+	_ FilesystemUnwrapper = (*noSymlinkFs)(nil)
+)
+
 // noSymlinkFs is a filesystem that prevents symlinking.
 type noSymlinkFs struct {
 	allowFiles bool // block dirs only
@@ -65,6 +69,10 @@ func (f *noSymlinkFile) Readdirnames(count int) ([]string, error) {
 		return nil, err
 	}
 	return fileInfosToNames(dirs), nil
+}
+
+func (fs *noSymlinkFs) UnwrapFilesystem() afero.Fs {
+	return fs.Fs
 }
 
 func (fs *noSymlinkFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {

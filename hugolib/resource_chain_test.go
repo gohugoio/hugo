@@ -137,7 +137,7 @@ Edited content.
 
 `)
 
-		b.Assert(b.Fs.Destination.Remove("public"), qt.IsNil)
+		b.Assert(b.Fs.WorkingDirWritable.Remove("public"), qt.IsNil)
 		b.H.ResourceSpec.ClearCaches()
 
 	}

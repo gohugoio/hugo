@@ -256,55 +256,6 @@ func TestIsDir(t *testing.T) {
 	}
 }
 
-func TestIsEmpty(t *testing.T) {
-	zeroSizedFile, _ := createZeroSizedFileInTempDir()
-	defer deleteFileInTempDir(zeroSizedFile)
-	nonZeroSizedFile, _ := createNonZeroSizedFileInTempDir()
-	defer deleteFileInTempDir(nonZeroSizedFile)
-	emptyDirectory, _ := createEmptyTempDir()
-	defer deleteTempDir(emptyDirectory)
-	nonEmptyZeroLengthFilesDirectory, _ := createTempDirWithZeroLengthFiles()
-	defer deleteTempDir(nonEmptyZeroLengthFilesDirectory)
-	nonEmptyNonZeroLengthFilesDirectory, _ := createTempDirWithNonZeroLengthFiles()
-	defer deleteTempDir(nonEmptyNonZeroLengthFilesDirectory)
-	nonExistentFile := os.TempDir() + "/this-file-does-not-exist.txt"
-	nonExistentDir := os.TempDir() + "/this/directory/does/not/exist/"
-
-	fileDoesNotExist := fmt.Errorf("%q path does not exist", nonExistentFile)
-	dirDoesNotExist := fmt.Errorf("%q path does not exist", nonExistentDir)
-
-	type test struct {
-		input          string
-		expectedResult bool
-		expectedErr    error
-	}
-
-	data := []test{
-		{zeroSizedFile.Name(), true, nil},
-		{nonZeroSizedFile.Name(), false, nil},
-		{emptyDirectory, true, nil},
-		{nonEmptyZeroLengthFilesDirectory, false, nil},
-		{nonEmptyNonZeroLengthFilesDirectory, false, nil},
-		{nonExistentFile, false, fileDoesNotExist},
-		{nonExistentDir, false, dirDoesNotExist},
-	}
-	for i, d := range data {
-		exists, err := IsEmpty(d.input, new(afero.OsFs))
-		if d.expectedResult != exists {
-			t.Errorf("Test %d failed. Expected result %t got %t", i, d.expectedResult, exists)
-		}
-		if d.expectedErr != nil {
-			if d.expectedErr.Error() != err.Error() {
-				t.Errorf("Test %d failed. Expected %q(%#v) got %q(%#v)", i, d.expectedErr, d.expectedErr, err, err)
-			}
-		} else {
-			if d.expectedErr != err {
-				t.Errorf("Test %d failed. Expected %q(%#v) got %q(%#v)", i, d.expectedErr, d.expectedErr, err, err)
-			}
-		}
-	}
-}
-
 func createZeroSizedFileInTempDir() (*os.File, error) {
 	filePrefix := "_path_test_"
 	f, e := ioutil.TempFile("", filePrefix) // dir is os.TempDir()
@@ -343,51 +294,6 @@ func createEmptyTempDir() (string, error) {
 		// no directory to delete - it was never created
 		return "", e
 	}
-	return d, nil
-}
-
-func createTempDirWithZeroLengthFiles() (string, error) {
-	d, dirErr := createEmptyTempDir()
-	if dirErr != nil {
-		return "", dirErr
-	}
-	filePrefix := "_path_test_"
-	_, fileErr := ioutil.TempFile(d, filePrefix) // dir is os.TempDir()
-	if fileErr != nil {
-		// if there was an error no file was created.
-		// but we need to remove the directory to clean-up
-		deleteTempDir(d)
-		return "", fileErr
-	}
-	// the dir now has one, zero length file in it
-	return d, nil
-}
-
-func createTempDirWithNonZeroLengthFiles() (string, error) {
-	d, dirErr := createEmptyTempDir()
-	if dirErr != nil {
-		return "", dirErr
-	}
-	filePrefix := "_path_test_"
-	f, fileErr := ioutil.TempFile(d, filePrefix) // dir is os.TempDir()
-	if fileErr != nil {
-		// if there was an error no file was created.
-		// but we need to remove the directory to clean-up
-		deleteTempDir(d)
-		return "", fileErr
-	}
-	byteString := []byte("byteString")
-
-	fileErr = ioutil.WriteFile(f.Name(), byteString, 0644)
-	if fileErr != nil {
-		// delete the file
-		deleteFileInTempDir(f)
-		// also delete the directory
-		deleteTempDir(d)
-		return "", fileErr
-	}
-
-	// the dir now has one, zero length file in it
 	return d, nil
 }
 

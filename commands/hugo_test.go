@@ -36,12 +36,10 @@ title = "Hugo Commands"
 contentDir = "thisdoesnotexist"
 
 `
-	dir, clean, err := createSimpleTestSite(t, testSiteConfig{configTOML: cfgStr, contentDir: contentDir})
-	c.Assert(err, qt.IsNil)
-	defer clean()
+	dir := createSimpleTestSite(t, testSiteConfig{configTOML: cfgStr, contentDir: contentDir})
 
 	cmd.SetArgs([]string{"-s=" + dir, "-c=" + contentDir})
 
-	_, err = cmd.ExecuteC()
+	_, err := cmd.ExecuteC()
 	c.Assert(err, qt.IsNil)
 }

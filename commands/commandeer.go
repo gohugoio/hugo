@@ -30,6 +30,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/common/paths"
 
 	jww "github.com/spf13/jwalterweatherman"
 
@@ -42,6 +43,7 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/bep/debounce"
+	"github.com/bep/overlayfs"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -73,8 +75,10 @@ type commandeer struct {
 	// be fast enough that we could maybe just add it for all server modes.
 	changeDetector *fileChangeDetector
 
-	// We need to reuse this on server rebuilds.
-	destinationFs afero.Fs
+	// We need to reuse these on server rebuilds.
+	// These 2 will be different if --renderStaticToDisk is set.
+	publishDirFs       afero.Fs
+	publishDirServerFs afero.Fs
 
 	h    *hugoBuilderCommon
 	ftch flagsToConfigHandler
@@ -162,7 +166,8 @@ func (c *commandeer) Set(key string, value any) {
 }
 
 func (c *commandeer) initFs(fs *hugofs.Fs) error {
-	c.destinationFs = fs.Destination
+	c.publishDirFs = fs.PublishDir
+	c.publishDirServerFs = fs.PublishDirServer
 	c.DepsCfg.Fs = fs
 
 	return nil
@@ -378,28 +383,63 @@ func (c *commandeer) loadConfig() error {
 	createMemFs := config.GetBool("renderToMemory")
 	c.renderStaticToDisk = config.GetBool("renderStaticToDisk")
 
-	if createMemFs && !c.renderStaticToDisk {
+	if createMemFs {
 		// Rendering to memoryFS, publish to Root regardless of publishDir.
 		config.Set("publishDir", "/")
+		config.Set("publishDirStatic", "/")
+	} else if c.renderStaticToDisk {
+		// Hybrid, render dynamic content to Root.
+		config.Set("publishDirStatic", config.Get("publishDir"))
+		config.Set("publishDir", "/")
+
 	}
 
 	c.fsCreate.Do(func() {
 		fs := hugofs.NewFrom(sourceFs, config)
 
-		if c.destinationFs != nil {
+		if c.publishDirFs != nil {
 			// Need to reuse the destination on server rebuilds.
-			fs.Destination = c.destinationFs
-		} else if createMemFs && c.renderStaticToDisk {
-			// Writes the dynamic output on memory,
-			// while serve others directly from publishDir
+			fs.PublishDir = c.publishDirFs
+			fs.PublishDirServer = c.publishDirServerFs
+		} else {
 			publishDir := config.GetString("publishDir")
-			writableFs := afero.NewBasePathFs(afero.NewMemMapFs(), publishDir)
-			publicFs := afero.NewOsFs()
-			fs.Destination = afero.NewCopyOnWriteFs(afero.NewReadOnlyFs(publicFs), writableFs)
-			fs.DestinationStatic = publicFs
-		} else if createMemFs {
-			// Hugo writes the output to memory instead of the disk.
-			fs.Destination = new(afero.MemMapFs)
+			publishDirStatic := config.GetString("publishDirStatic")
+			workingDir := config.GetString("workingDir")
+			absPublishDir := paths.AbsPathify(workingDir, publishDir)
+			absPublishDirStatic := paths.AbsPathify(workingDir, publishDirStatic)
+
+			if c.renderStaticToDisk {
+				// Writes the dynamic output oton memory,
+				// while serve others directly from /public on disk.
+				dynamicFs := afero.NewMemMapFs()
+				staticFs := afero.NewBasePathFs(afero.NewOsFs(), absPublishDirStatic)
+
+				// Serve from both the static and dynamic fs,
+				// the first will take priority.
+				// THis is a read-only filesystem,
+				// we do all the writes to
+				// fs.Destination and fs.DestinationStatic.
+				fs.PublishDirServer = overlayfs.New(
+					overlayfs.Options{
+						Fss: []afero.Fs{
+							dynamicFs,
+							staticFs,
+						},
+					},
+				)
+				fs.PublishDir = dynamicFs
+				fs.PublishDirStatic = staticFs
+			} else if createMemFs {
+				// Hugo writes the output to memory instead of the disk.
+				fs.PublishDir = new(afero.MemMapFs)
+				fs.PublishDirServer = fs.PublishDir
+				fs.PublishDirStatic = fs.PublishDir
+			} else {
+				// Write everything to disk.
+				fs.PublishDir = afero.NewBasePathFs(afero.NewOsFs(), absPublishDir)
+				fs.PublishDirServer = fs.PublishDir
+				fs.PublishDirStatic = fs.PublishDir
+			}
 		}
 
 		if c.fastRenderMode {
@@ -413,15 +453,15 @@ func (c *commandeer) loadConfig() error {
 			}
 
 			changeDetector.PrepareNew()
-			fs.Destination = hugofs.NewHashingFs(fs.Destination, changeDetector)
-			fs.DestinationStatic = hugofs.NewHashingFs(fs.DestinationStatic, changeDetector)
+			fs.PublishDir = hugofs.NewHashingFs(fs.PublishDir, changeDetector)
+			fs.PublishDirStatic = hugofs.NewHashingFs(fs.PublishDirStatic, changeDetector)
 			c.changeDetector = changeDetector
 		}
 
 		if c.Cfg.GetBool("logPathWarnings") {
 			// Note that we only care about the "dynamic creates" here,
 			// so skip the static fs.
-			fs.Destination = hugofs.NewCreateCountingFs(fs.Destination)
+			fs.PublishDir = hugofs.NewCreateCountingFs(fs.PublishDir)
 		}
 
 		// To debug hard-to-find path issues.

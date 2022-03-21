@@ -23,6 +23,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"path"
 	"path/filepath"
 	"regexp"
 	"runtime"
@@ -148,7 +149,7 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 	var serverCfgInit sync.Once
 
 	cfgInit := func(c *commandeer) (rerr error) {
-		c.Set("renderToMemory", !sc.renderToDisk)
+		c.Set("renderToMemory", !(sc.renderToDisk || sc.renderStaticToDisk))
 		c.Set("renderStaticToDisk", sc.renderStaticToDisk)
 		if cmd.Flags().Changed("navigateToChanged") {
 			c.Set("navigateToChanged", sc.navigateToChanged)
@@ -330,13 +331,18 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 	port := f.c.serverPorts[i].p
 	listener := f.c.serverPorts[i].ln
 
+	// For logging only.
+	// TODO(bep) consolidate.
 	publishDir := f.c.Cfg.GetString("publishDir")
+	publishDirStatic := f.c.Cfg.GetString("publishDirStatic")
+	workingDir := f.c.Cfg.GetString("workingDir")
 
 	if root != "" {
 		publishDir = filepath.Join(publishDir, root)
+		publishDirStatic = filepath.Join(publishDirStatic, root)
 	}
-
-	absPublishDir := f.c.hugo().PathSpec.AbsPathify(publishDir)
+	absPublishDir := paths.AbsPathify(workingDir, publishDir)
+	absPublishDirStatic := paths.AbsPathify(workingDir, publishDirStatic)
 
 	jww.FEEDBACK.Printf("Environment: %q", f.c.hugo().Deps.Site.Hugo().Environment)
 
@@ -344,14 +350,14 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 		if f.s.renderToDisk {
 			jww.FEEDBACK.Println("Serving pages from " + absPublishDir)
 		} else if f.s.renderStaticToDisk {
-			jww.FEEDBACK.Println("Serving pages from memory and static files from " + absPublishDir)
+			jww.FEEDBACK.Println("Serving pages from memory and static files from " + absPublishDirStatic)
 		} else {
 			jww.FEEDBACK.Println("Serving pages from memory")
 		}
 	}
 
-	httpFs := afero.NewHttpFs(f.c.destinationFs)
-	fs := filesOnlyFs{httpFs.Dir(absPublishDir)}
+	httpFs := afero.NewHttpFs(f.c.publishDirServerFs)
+	fs := filesOnlyFs{httpFs.Dir(path.Join("/", root))}
 
 	if i == 0 && f.c.fastRenderMode {
 		jww.FEEDBACK.Println("Running in Fast Render Mode. For full rebuilds on change: hugo server --disableFastRender")

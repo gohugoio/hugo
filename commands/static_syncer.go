@@ -40,11 +40,7 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 	c := s.c
 
 	syncFn := func(sourceFs *filesystems.SourceFilesystem) (uint64, error) {
-		publishDir := c.hugo().PathSpec.PublishDir
-		// If root, remove the second '/'
-		if publishDir == "//" {
-			publishDir = helpers.FilePathSeparator
-		}
+		publishDir := helpers.FilePathSeparator
 
 		if sourceFs.PublishFolder != "" {
 			publishDir = filepath.Join(publishDir, sourceFs.PublishFolder)
@@ -55,9 +51,9 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 		syncer.NoChmod = c.Cfg.GetBool("noChmod")
 		syncer.ChmodFilter = chmodFilter
 		syncer.SrcFs = sourceFs.Fs
-		syncer.DestFs = c.Fs.Destination
+		syncer.DestFs = c.Fs.PublishDir
 		if c.renderStaticToDisk {
-			syncer.DestFs = c.Fs.DestinationStatic
+			syncer.DestFs = c.Fs.PublishDirStatic
 		}
 
 		// prevent spamming the log on changes
@@ -101,19 +97,14 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 			if ev.Op&fsnotify.Rename == fsnotify.Rename || ev.Op&fsnotify.Remove == fsnotify.Remove {
 				if _, err := sourceFs.Fs.Stat(relPath); os.IsNotExist(err) {
 					// If file doesn't exist in any static dir, remove it
-					toRemove := filepath.Join(publishDir, relPath)
+					logger.Println("File no longer exists in static dir, removing", relPath)
+					_ = c.Fs.PublishDirStatic.RemoveAll(relPath)
 
-					logger.Println("File no longer exists in static dir, removing", toRemove)
-					if c.renderStaticToDisk {
-						_ = c.Fs.DestinationStatic.RemoveAll(toRemove)
-					} else {
-						_ = c.Fs.Destination.RemoveAll(toRemove)
-					}
 				} else if err == nil {
 					// If file still exists, sync it
 					logger.Println("Syncing", relPath, "to", publishDir)
 
-					if err := syncer.Sync(filepath.Join(publishDir, relPath), relPath); err != nil {
+					if err := syncer.Sync(relPath, relPath); err != nil {
 						c.logger.Errorln(err)
 					}
 				} else {

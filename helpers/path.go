@@ -459,9 +459,17 @@ func IsDir(path string, fs afero.Fs) (bool, error) {
 	return afero.IsDir(fs, path)
 }
 
-// IsEmpty checks if a given path is empty.
+// IsEmpty checks if a given path is empty, meaning it doesn't contain any regular files.
 func IsEmpty(path string, fs afero.Fs) (bool, error) {
-	return afero.IsEmpty(fs, path)
+	var hasFile bool
+	err := afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
+		if info.IsDir() {
+			return nil
+		}
+		hasFile = true
+		return filepath.SkipDir
+	})
+	return !hasFile, err
 }
 
 // Exists checks if a file or directory exists.

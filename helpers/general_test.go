@@ -20,9 +20,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gohugoio/hugo/config"
-
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/config"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/spf13/afero"
@@ -30,7 +29,7 @@ import (
 
 func TestResolveMarkup(t *testing.T) {
 	c := qt.New(t)
-	cfg := config.New()
+	cfg := config.NewWithTestDefaults()
 	spec, err := NewContentSpec(cfg, loggers.NewErrorLogger(), afero.NewMemMapFs(), nil)
 	c.Assert(err, qt.IsNil)
 

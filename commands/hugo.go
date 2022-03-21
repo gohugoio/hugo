@@ -508,7 +508,7 @@ func (c *commandeer) build() error {
 		c.hugo().PrintProcessingStats(os.Stdout)
 		fmt.Println()
 
-		if createCounter, ok := c.destinationFs.(hugofs.DuplicatesReporter); ok {
+		if createCounter, ok := c.publishDirFs.(hugofs.DuplicatesReporter); ok {
 			dupes := createCounter.ReportDuplicates()
 			if dupes != "" {
 				c.logger.Warnln("Duplicate target paths:", dupes)
@@ -634,11 +634,7 @@ func chmodFilter(dst, src os.FileInfo) bool {
 }
 
 func (c *commandeer) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint64, error) {
-	publishDir := c.hugo().PathSpec.PublishDir
-	// If root, remove the second '/'
-	if publishDir == "//" {
-		publishDir = helpers.FilePathSeparator
-	}
+	publishDir := helpers.FilePathSeparator
 
 	if sourceFs.PublishFolder != "" {
 		publishDir = filepath.Join(publishDir, sourceFs.PublishFolder)
@@ -651,9 +647,9 @@ func (c *commandeer) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint6
 	syncer.NoChmod = c.Cfg.GetBool("noChmod")
 	syncer.ChmodFilter = chmodFilter
 	syncer.SrcFs = fs
-	syncer.DestFs = c.Fs.Destination
+	syncer.DestFs = c.Fs.PublishDir
 	if c.renderStaticToDisk {
-		syncer.DestFs = c.Fs.DestinationStatic
+		syncer.DestFs = c.Fs.PublishDirStatic
 	}
 	// Now that we are using a unionFs for the static directories
 	// We can effectively clean the publishDir on initial sync

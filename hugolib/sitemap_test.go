@@ -80,7 +80,7 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 		"<loc>http://auth/bub/categories/hugo/</loc>",
 	)
 
-	content := readDestination(th, th.Fs, outputSitemap)
+	content := readWorkingDir(th, th.Fs, outputSitemap)
 	c.Assert(content, qt.Not(qt.Contains), "404")
 	c.Assert(content, qt.Not(qt.Contains), "<loc></loc>")
 }

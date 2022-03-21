@@ -18,10 +18,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/gohugoio/hugo/hugolib/paths"
-
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
+	hpaths "github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/cobra"
@@ -243,14 +242,14 @@ func (cc *hugoBuilderCommon) timeTrack(start time.Time, name string) {
 
 func (cc *hugoBuilderCommon) getConfigDir(baseDir string) string {
 	if cc.cfgDir != "" {
-		return paths.AbsPathify(baseDir, cc.cfgDir)
+		return hpaths.AbsPathify(baseDir, cc.cfgDir)
 	}
 
 	if v, found := os.LookupEnv("HUGO_CONFIGDIR"); found {
-		return paths.AbsPathify(baseDir, v)
+		return hpaths.AbsPathify(baseDir, v)
 	}
 
-	return paths.AbsPathify(baseDir, "config")
+	return hpaths.AbsPathify(baseDir, "config")
 }
 
 func (cc *hugoBuilderCommon) getEnvironment(isServer bool) string {

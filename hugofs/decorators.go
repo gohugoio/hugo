@@ -23,6 +23,10 @@ import (
 	"github.com/spf13/afero"
 )
 
+var (
+	_ FilesystemUnwrapper = (*baseFileDecoratorFs)(nil)
+)
+
 func decorateDirs(fs afero.Fs, meta *FileMeta) afero.Fs {
 	ffs := &baseFileDecoratorFs{Fs: fs}
 
@@ -149,6 +153,10 @@ func evalSymlinks(fs afero.Fs, filename string) (string, os.FileInfo, error) {
 type baseFileDecoratorFs struct {
 	afero.Fs
 	decorate func(fi os.FileInfo, filename string) (os.FileInfo, error)
+}
+
+func (fs *baseFileDecoratorFs) UnwrapFilesystem() afero.Fs {
+	return fs.Fs
 }
 
 func (fs *baseFileDecoratorFs) Stat(name string) (os.FileInfo, error) {
