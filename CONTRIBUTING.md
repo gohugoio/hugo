@@ -126,7 +126,7 @@ go install
 For some convenient build and test targets, you also will want to install Mage:
 
 ```bash
-go get github.com/magefile/mage
+go install github.com/magefile/mage
 ```
 
 Now, to make a change to Hugo's source:
