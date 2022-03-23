@@ -69,7 +69,7 @@ func (ns *Namespace) SHA256(in any) (string, error) {
 }
 
 // HMAC returns a cryptographic hash that uses a key to sign a message.
-func (ns *Namespace) HMAC(h any, k any, m any) (string, error) {
+func (ns *Namespace) HMAC(h any, k any, m any, e ...any) (string, error) {
 	ha, err := cast.ToStringE(h)
 	if err != nil {
 		return "", err
@@ -105,5 +105,21 @@ func (ns *Namespace) HMAC(h any, k any, m any) (string, error) {
 		return "", err
 	}
 
-	return hex.EncodeToString(mac.Sum(nil)[:]), nil
+	var encoding = "hex"
+	if len(e) > 0 && e[0] != nil {
+		encoding, err = cast.ToStringE(e[0])
+		if err != nil {
+			return "", err
+		}
+	}
+
+	switch encoding {
+	case "binary":
+		return string(mac.Sum(nil)[:]), nil
+	case "hex":
+		return hex.EncodeToString(mac.Sum(nil)[:]), nil
+	default:
+		return "", fmt.Errorf("%q is not a supported encoding method", encoding)
+	}
+
 }
