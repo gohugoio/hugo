@@ -94,6 +94,7 @@ type testPage struct {
 	linkTitle   string
 	lang        string
 	section     string
+	environment string
 
 	content string
 
@@ -166,6 +167,10 @@ func (p *testPage) CurrentSection() Page {
 
 func (p *testPage) Data() any {
 	return p.data
+}
+
+func (p *testPage) Environment() string {
+	return p.environment
 }
 
 func (p *testPage) Sitemap() config.Sitemap {

@@ -120,6 +120,10 @@ func (p *nopPage) Description() string {
 	return ""
 }
 
+func (p *nopPage) Environment() string {
+	return ""
+}
+
 func (p *nopPage) RefFrom(argsm map[string]any, source any) (string, error) {
 	return "", nil
 }

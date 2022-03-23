@@ -167,6 +167,10 @@ func (p *pageMeta) Description() string {
 	return p.description
 }
 
+func (p *pageMeta) Environment() string {
+	return p.s.Environment()
+}
+
 func (p *pageMeta) Lang() string {
 	return p.s.Lang()
 }
