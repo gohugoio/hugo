@@ -30,6 +30,8 @@ plugs:
     
 apps:
   hugo:
+    environment:
+      HOME: $SNAP_REAL_HOME
     command: bin/hugo
     completer: hugo-completion
     plugs:
