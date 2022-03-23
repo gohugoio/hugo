@@ -107,20 +107,25 @@ func TestHMAC(t *testing.T) {
 	ns := New()
 
 	for i, test := range []struct {
-		hash   any
-		key    any
-		msg    any
-		expect any
+		hash     any
+		key      any
+		msg      any
+		encoding any
+		expect   any
 	}{
-		{"md5", "Secret key", "Hello world, gophers!", "36eb69b6bf2de96b6856fdee8bf89754"},
-		{"sha1", "Secret key", "Hello world, gophers!", "84a76647de6cd47ac6ae4258e3753f711172ce68"},
-		{"sha256", "Secret key", "Hello world, gophers!", "b6d11b6c53830b9d87036272ca9fe9d19306b8f9d8aa07b15da27d89e6e34f40"},
-		{"sha512", "Secret key", "Hello world, gophers!", "dc3e586cd936865e2abc4c12665e9cc568b2dad714df3c9037cbea159d036cfc4209da9e3fcd30887ff441056941966899f6fb7eec9646ff9ddb592595a8eb7f"},
-		{"", t, "", false},
+		{"md5", "Secret key", "Hello world, gophers!", nil, "36eb69b6bf2de96b6856fdee8bf89754"},
+		{"sha1", "Secret key", "Hello world, gophers!", nil, "84a76647de6cd47ac6ae4258e3753f711172ce68"},
+		{"sha256", "Secret key", "Hello world, gophers!", nil, "b6d11b6c53830b9d87036272ca9fe9d19306b8f9d8aa07b15da27d89e6e34f40"},
+		{"sha512", "Secret key", "Hello world, gophers!", nil, "dc3e586cd936865e2abc4c12665e9cc568b2dad714df3c9037cbea159d036cfc4209da9e3fcd30887ff441056941966899f6fb7eec9646ff9ddb592595a8eb7f"},
+		{"md5", "Secret key", "Hello world, gophers!", "hex", "36eb69b6bf2de96b6856fdee8bf89754"},
+		{"md5", "Secret key", "Hello world, gophers!", "binary", "6\xebi\xb6\xbf-\xe9khV\xfd\xee\x8b\xf8\x97T"},
+		{"md5", "Secret key", "Hello world, gophers!", "foo", false},
+		{"md5", "Secret key", "Hello world, gophers!", "", false},
+		{"", t, "", nil, false},
 	} {
-		errMsg := qt.Commentf("[%d] %v, %v, %v", i, test.hash, test.key, test.msg)
+		errMsg := qt.Commentf("[%d] %v, %v, %v, %v", i, test.hash, test.key, test.msg, test.encoding)
 
-		result, err := ns.HMAC(test.hash, test.key, test.msg)
+		result, err := ns.HMAC(test.hash, test.key, test.msg, test.encoding)
 
 		if b, ok := test.expect.(bool); ok && !b {
 			c.Assert(err, qt.Not(qt.IsNil), errMsg)
