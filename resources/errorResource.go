@@ -19,9 +19,7 @@ import (
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/media"
-
 	"github.com/gohugoio/hugo/resources/images/exif"
-
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
@@ -40,94 +38,94 @@ var (
 )
 
 // NewErrorResource wraps err in a Resource where all but the Err method will panic.
-func NewErrorResource(err error) resource.Resource {
-	return &errorResource{error: err}
+func NewErrorResource(err resource.ResourceError) resource.Resource {
+	return &errorResource{ResourceError: err}
 }
 
 type errorResource struct {
-	error
+	resource.ResourceError
 }
 
-func (e *errorResource) Err() error {
-	return e.error
+func (e *errorResource) Err() resource.ResourceError {
+	return e.ResourceError
 }
 
 func (e *errorResource) ReadSeekCloser() (hugio.ReadSeekCloser, error) {
-	panic(e.error)
+	panic(e.ResourceError)
 }
 
 func (e *errorResource) Content() (any, error) {
-	panic(e.error)
+	panic(e.ResourceError)
 }
 
 func (e *errorResource) ResourceType() string {
-	panic(e.error)
+	panic(e.ResourceError)
 }
 
 func (e *errorResource) MediaType() media.Type {
-	panic(e.error)
+	panic(e.ResourceError)
 }
 
 func (e *errorResource) Permalink() string {
-	panic(e.error)
+	panic(e.ResourceError)
 }
 
 func (e *errorResource) RelPermalink() string {
-	panic(e.error)
+	panic(e.ResourceError)
 }
 
 func (e *errorResource) Name() string {
-	panic(e.error)
+	panic(e.ResourceError)
 }
 
 func (e *errorResource) Title() string {
-	panic(e.error)
+	panic(e.ResourceError)
 }
 
 func (e *errorResource) Params() maps.Params {
-	panic(e.error)
+	panic(e.ResourceError)
 }
 
 func (e *errorResource) Data() any {
-	panic(e.error)
+	panic(e.ResourceError)
 }
 
 func (e *errorResource) Height() int {
-	panic(e.error)
+	panic(e.ResourceError)
 }
 
 func (e *errorResource) Width() int {
-	panic(e.error)
+	panic(e.ResourceError)
 }
 
 func (e *errorResource) Crop(spec string) (resource.Image, error) {
-	panic(e.error)
+	panic(e.ResourceError)
 }
 
 func (e *errorResource) Fill(spec string) (resource.Image, error) {
-	panic(e.error)
+	panic(e.ResourceError)
 }
 
 func (e *errorResource) Fit(spec string) (resource.Image, error) {
-	panic(e.error)
+	panic(e.ResourceError)
 }
 
 func (e *errorResource) Resize(spec string) (resource.Image, error) {
-	panic(e.error)
+	panic(e.ResourceError)
 }
 
 func (e *errorResource) Filter(filters ...any) (resource.Image, error) {
-	panic(e.error)
+	panic(e.ResourceError)
 }
 
 func (e *errorResource) Exif() *exif.Exif {
-	panic(e.error)
+	panic(e.ResourceError)
 }
 
 func (e *errorResource) DecodeImage() (image.Image, error) {
-	panic(e.error)
+	panic(e.ResourceError)
 }
 
 func (e *errorResource) Transform(...ResourceTransformation) (ResourceTransformer, error) {
-	panic(e.error)
+	panic(e.ResourceError)
 }

@@ -48,7 +48,7 @@ var (
 // PageNop implements Page, but does nothing.
 type nopPage int
 
-func (p *nopPage) Err() error {
+func (p *nopPage) Err() resource.ResourceError {
 	return nil
 }
 

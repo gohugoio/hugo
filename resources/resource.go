@@ -233,7 +233,7 @@ func (l *genericResource) Content() (any, error) {
 	return l.content, nil
 }
 
-func (r *genericResource) Err() error {
+func (r *genericResource) Err() resource.ResourceError {
 	return nil
 }
 

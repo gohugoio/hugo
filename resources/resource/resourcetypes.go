@@ -24,6 +24,11 @@ import (
 	"github.com/gohugoio/hugo/common/hugio"
 )
 
+var (
+	_ ResourceDataProvider = (*resourceError)(nil)
+	_ ResourceError        = (*resourceError)(nil)
+)
+
 // Cloner is an internal template and not meant for use in the templates. It
 // may change without notice.
 type Cloner interface {
@@ -37,9 +42,33 @@ type OriginProvider interface {
 	GetFieldString(pattern string) (string, bool)
 }
 
+// NewResourceError creates a new ResourceError.
+func NewResourceError(err error, data any) ResourceError {
+	return &resourceError{
+		error: err,
+		data:  data,
+	}
+}
+
+type resourceError struct {
+	error
+	data any
+}
+
+// The data associated with this error.
+func (e *resourceError) Data() any {
+	return e.data
+}
+
+// ResourceError is the error return from .Err in Resource in error situations.
+type ResourceError interface {
+	error
+	ResourceDataProvider
+}
+
 // ErrProvider provides an Err.
 type ErrProvider interface {
-	Err() error
+	Err() ResourceError
 }
 
 // Resource represents a linkable resource, i.e. a content page, image etc.

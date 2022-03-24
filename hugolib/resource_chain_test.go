@@ -35,7 +35,19 @@ import (
 )
 
 func TestResourceChainBasic(t *testing.T) {
-	ts := httptest.NewServer(http.FileServer(http.Dir("testdata/")))
+	failIfHandler := func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/fail.jpg" {
+				http.Error(w, "{ msg: failed }", 500)
+				return
+			}
+			h.ServeHTTP(w, r)
+
+		})
+	}
+	ts := httptest.NewServer(
+		failIfHandler(http.FileServer(http.Dir("testdata/"))),
+	)
 	t.Cleanup(func() {
 		ts.Close()
 	})
@@ -58,6 +70,7 @@ FIT: {{ $fit.Name }}|{{ $fit.RelPermalink }}|{{ $fit.Width }}
 CSS integrity Data first: {{ $cssFingerprinted1.Data.Integrity }} {{ $cssFingerprinted1.RelPermalink }}
 CSS integrity Data last:  {{ $cssFingerprinted2.RelPermalink }} {{ $cssFingerprinted2.Data.Integrity }}
 
+{{ $failedImg := resources.GetRemote "%[1]s/fail.jpg" }}
 {{ $rimg := resources.GetRemote "%[1]s/sunset.jpg" }}
 {{ $remotenotfound := resources.GetRemote "%[1]s/notfound.jpg" }}
 {{ $localnotfound := resources.Get "images/notfound.jpg" }}
@@ -71,7 +84,8 @@ REMOTE NOT FOUND: {{ if $remotenotfound }}FAILED{{ else}}OK{{ end }}
 LOCAL NOT FOUND: {{ if $localnotfound }}FAILED{{ else}}OK{{ end }}
 PRINT PROTOCOL ERROR1: {{ with $gopherprotocol }}{{ . | safeHTML }}{{ end }}
 PRINT PROTOCOL ERROR2: {{ with $gopherprotocol }}{{ .Err | safeHTML }}{{ end }}
-
+PRINT PROTOCOL ERROR DETAILS: {{ with $gopherprotocol }}Err: {{ .Err | safeHTML }}{{ with .Err }}|{{ with .Data }}Body: {{ .Body }}|StatusCode: {{ .StatusCode }}{{ end }}|{{ end }}{{ end }}
+FAILED REMOTE ERROR DETAILS CONTENT: {{ with $failedImg.Err }}|{{ . }}|{{ with .Data }}Body: {{ .Body }}|StatusCode: {{ .StatusCode }}|ContentLength: {{ .ContentLength }}|ContentType: {{ .ContentType }}{{ end }}{{ end }}|
 `, ts.URL))
 
 	fs := b.Fs.Source
@@ -103,8 +117,9 @@ SUNSET REMOTE: sunset_%[1]s.jpg|/sunset_%[1]s.a9bf1d944e19c0f382e0d8f51de690f7d0
 FIT REMOTE: sunset_%[1]s.jpg|/sunset_%[1]s_hu59e56ffff1bc1d8d122b1403d34e039f_0_200x200_fit_q75_box.jpg|200
 REMOTE NOT FOUND: OK
 LOCAL NOT FOUND: OK
-PRINT PROTOCOL ERROR1: error calling resources.GetRemote: Get "gopher://example.org": unsupported protocol scheme "gopher"
-PRINT PROTOCOL ERROR2: error calling resources.GetRemote: Get "gopher://example.org": unsupported protocol scheme "gopher"
+PRINT PROTOCOL ERROR DETAILS: Err: error calling resources.GetRemote: Get "gopher://example.org": unsupported protocol scheme "gopher"||
+FAILED REMOTE ERROR DETAILS CONTENT: |failed to fetch remote resource: Internal Server Error|Body: { msg: failed }
+|StatusCode: 500|ContentLength: 16|ContentType: text/plain; charset=utf-8|
 
 
 `, helpers.HashString(ts.URL+"/sunset.jpg", map[string]any{})))

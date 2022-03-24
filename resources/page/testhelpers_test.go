@@ -120,7 +120,7 @@ type testPage struct {
 	sectionEntries []string
 }
 
-func (p *testPage) Err() error {
+func (p *testPage) Err() resource.ResourceError {
 	return nil
 }
 
