@@ -167,7 +167,7 @@ func (r *resourceAdapter) Content() (any, error) {
 	return r.target.Content()
 }
 
-func (r *resourceAdapter) Err() error {
+func (r *resourceAdapter) Err() resource.ResourceError {
 	return nil
 }
 

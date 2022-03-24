@@ -36,6 +36,41 @@ import (
 	"github.com/pkg/errors"
 )
 
+type HTTPError struct {
+	error
+	Data map[string]any
+
+	StatusCode int
+	Body       string
+}
+
+func toHTTPError(err error, res *http.Response) *HTTPError {
+	if err == nil {
+		panic("err is nil")
+	}
+	if res == nil {
+		return &HTTPError{
+			error: err,
+			Data:  map[string]any{},
+		}
+	}
+
+	var body []byte
+	body, _ = ioutil.ReadAll(res.Body)
+
+	return &HTTPError{
+		error: err,
+		Data: map[string]any{
+			"StatusCode":       res.StatusCode,
+			"Status":           res.Status,
+			"Body":             string(body),
+			"TransferEncoding": res.TransferEncoding,
+			"ContentLength":    res.ContentLength,
+			"ContentType":      res.Header.Get("Content-Type"),
+		},
+	}
+}
+
 // FromRemote expects one or n-parts of a URL to a resource
 // If you provide multiple parts they will be joined together to the final URL.
 func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resource, error) {
@@ -70,15 +105,16 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 			return nil, err
 		}
 
-		if res.StatusCode != http.StatusNotFound {
-			if res.StatusCode < 200 || res.StatusCode > 299 {
-				return nil, errors.Errorf("failed to fetch remote resource: %s", http.StatusText(res.StatusCode))
-			}
-		}
-
 		httpResponse, err := httputil.DumpResponse(res, true)
 		if err != nil {
-			return nil, err
+			return nil, toHTTPError(err, res)
+		}
+
+		if res.StatusCode != http.StatusNotFound {
+			if res.StatusCode < 200 || res.StatusCode > 299 {
+				return nil, toHTTPError(errors.Errorf("failed to fetch remote resource: %s", http.StatusText(res.StatusCode)), res)
+
+			}
 		}
 
 		return hugio.ToReadCloser(bytes.NewReader(httpResponse)), nil

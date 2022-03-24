@@ -151,8 +151,13 @@ func (ns *Namespace) GetRemote(args ...any) resource.Resource {
 
 	r, err := get(args...)
 	if err != nil {
-		// This allows the client to reason about the .Err in the template.
-		return resources.NewErrorResource(errors.Wrap(err, "error calling resources.GetRemote"))
+		switch v := err.(type) {
+		case *create.HTTPError:
+			return resources.NewErrorResource(resource.NewResourceError(v, v.Data))
+		default:
+			return resources.NewErrorResource(resource.NewResourceError(errors.Wrap(err, "error calling resources.GetRemote"), make(map[string]any)))
+		}
+
 	}
 	return r
 

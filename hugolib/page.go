@@ -133,7 +133,7 @@ func (p *pageState) reusePageOutputContent() bool {
 	return p.pageOutputTemplateVariationsState.Load() == 1
 }
 
-func (p *pageState) Err() error {
+func (p *pageState) Err() resource.ResourceError {
 	return nil
 }
 
