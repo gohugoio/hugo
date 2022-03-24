@@ -978,7 +978,7 @@ func (h *HugoSites) readData(f source.File) (any, error) {
 	defer file.Close()
 	content := helpers.ReaderToBytes(file)
 
-	format := metadecoders.FormatFromString(f.Extension())
+	format := metadecoders.FormatFromString(f.Ext())
 	return metadecoders.Default.Unmarshal(content, format)
 }
 
