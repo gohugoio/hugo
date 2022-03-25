@@ -42,7 +42,7 @@ The default configuration is listed below. Any build using features not in the a
 Note that these and other config settings in Hugo can be overridden by the OS environment. If you want to block all remote HTTP fetching of data:
 
 ```
-HUGO_SECURITY_HTTP_URLS=none hugo 
+HUGO_SECURITY_HTTP_URLS=none hugo
 ```
 
 ## Dependency Security
