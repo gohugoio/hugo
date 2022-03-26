@@ -560,4 +560,4 @@ Now that you've installed Hugo, read the [Quick Start guide][quickstart] and exp
 [Scoop]: https://scoop.sh/
 [snaps]: https://snapcraft.io/docs/installing-snapd
 [windowsarch]: https://esupport.trendmicro.com/en-us/home/pages/technical-support/1038680.aspx
-[Windows Environment Variables Editor]: http://eveditor.com/
+[Windows Environment Variables Editor]: https://eveditor.com/
