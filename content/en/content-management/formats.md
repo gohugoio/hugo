@@ -4,7 +4,6 @@ linktitle: Content Formats
 description: Both HTML and Markdown are supported content formats.
 date: 2017-01-10
 publishdate: 2017-01-10
-lastmod: 2017-04-06
 categories: [content management]
 keywords: [markdown,asciidoc,mmark,pandoc,content format]
 menu:
@@ -27,19 +26,18 @@ You can put any file type into your `/content` directories, but Hugo uses the `m
 
 The current list of content formats in Hugo:
 
-| Name  | Markup identifiers | Comment | 
+| Name  | Markup identifiers | Comment |
 | ------------- | ------------- |-------------|
 | Goldmark  | md, markdown, goldmark  |Note that you can set the default handler of `md` and `markdown` to something else, see [Configure Markup](/getting-started/configuration-markup/).{{< new-in "0.60.0" >}} |
 | Blackfriday | blackfriday  |Blackfriday will eventually be deprecated.|
 |MMark|mmark|Mmark is deprecated and will be removed in a future release.|
 |Emacs Org-Mode|org|See [go-org](https://github.com/niklasfasching/go-org).|
 |AsciiDoc|asciidocext, adoc, ad|Needs [Asciidoctor][ascii] installed.|
-|RST|rst|Needs [RST](http://docutils.sourceforge.net/rst.html) installed.|
+|RST|rst|Needs [RST](https://docutils.sourceforge.net/rst.html) installed.|
 |Pandoc|pandoc, pdc|Needs [Pandoc](https://www.pandoc.org/) installed.|
 |HTML|html, htm|To be treated as a content file, with layout, shortcodes etc., it must have front matter. If not, it will be copied as-is.|
 
 The `markup identifier` is fetched from either the `markup` variable in front matter or from the file extension. For markup-related configuration, see [Configure Markup](/getting-started/configuration-markup/).
-
 
 ## External Helpers
 
@@ -149,7 +147,6 @@ Markdown syntax is simple enough to learn in a single sitting. The following are
 [mdguide]: https://www.markdownguide.org/
 [mdtutorial]: https://www.markdowntutorial.com/
 [Miek Gieben's website]: https://miek.nl/2016/march/05/mmark-syntax-document/
-[mmark]: https://github.com/mmarkdown/mmark
 [org]: https://orgmode.org/
 [pandoc]: https://www.pandoc.org/
 [rest]: https://docutils.sourceforge.io/rst.html

@@ -17,9 +17,9 @@
             {{ $recent := ($byLastMod | last 30).Reverse }}
             {{ $leastRecent := $byLastMod | first 10 }}            
             <h2 id="last-updated">Last Updated</h2>
-            {{ partial "maintenance-pages-table" $recent }}
+            {{ partial "maintenance-pages-table.html" $recent }}
             <h2 id="least-recently-updated">Least Recently Updated</h2>
-            {{ partial "maintenance-pages-table" $leastRecent }}
+            {{ partial "maintenance-pages-table.html" $leastRecent }}
 
             {{/* Don't think this is possible with where directly. Should investigate. */}}
             {{ .Scratch.Set "todos" slice }}
@@ -29,7 +29,7 @@
                  {{ end }}
             {{ end }}
             <h2 id="todos">Pages marked with TODO</h2>
-            {{ partial "maintenance-pages-table" (.Scratch.Get "todos") }}
+            {{ partial "maintenance-pages-table.html" (.Scratch.Get "todos") }}
 
             <h2 id="dependencies">Dependencies</h2>
             <table class="collapse ba br2 b--black-10 pv2 ph3">
