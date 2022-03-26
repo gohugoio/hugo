@@ -25,14 +25,9 @@ An example appending single values:
 
 The same example appending a slice to a slice:
 
-
 ```go-html-template
 {{ $s := slice "a" "b" "c" }}
 {{ $s = $s | append (slice "d" "e") }}
 ```
 
 The `append` function works for all types, including `Pages`.
-
-
-
-

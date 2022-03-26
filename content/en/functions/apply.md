@@ -64,13 +64,13 @@ If you have `post-tag-list.html` and `post-tag-link.html` as [partials][], you *
   Tags:
   {{ $len := len . }}
   {{ if eq $len 1 }}
-    {{ partial "post-tag-link" (index . 0) }}
+    {{ partial "post-tag-link.html" (index . 0) }}
   {{ else }}
     {{ $last := sub $len 1 }}
     {{ range first $last . }}
-      {{ partial "post-tag-link" . }},
+      {{ partial "post-tag-link.html" . }},
     {{ end }}
-    {{ partial "post-tag-link" (index . $last) }}
+    {{ partial "post-tag-link.html" (index . $last) }}
   {{ end }}
 </div>
 {{ end }}
@@ -89,7 +89,7 @@ This first version of `layouts/partials/post-tag-list.html` separates all of the
     <div class="tags-list">
       Tags:
       {{ $sort := sort . }}
-      {{ $links := apply $sort "partial" "post-tag-link" "." }}
+      {{ $links := apply $sort "partial" "post-tag-link.html" "." }}
       {{ $clean := apply $links "chomp" "." }}
       {{ delimit $clean ", " }}
     </div>
@@ -102,7 +102,7 @@ Now in the completed version, you can sort the tags, convert the tags to links w
     {{ with .Params.tags }}
     <div class="tags-list">
       Tags:
-      {{ delimit (apply (apply (sort .) "partial" "post-tag-link" ".") "chomp" ".") ", " }}
+      {{ delimit (apply (apply (sort .) "partial" "post-tag-link.html" ".") "chomp" ".") ", " }}
     </div>
     {{ end }}
 {{< /code >}}

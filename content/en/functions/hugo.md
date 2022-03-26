@@ -4,7 +4,6 @@ linktitle: hugo
 description: The `hugo` function provides easy access to Hugo-related data.
 date: 2019-01-31
 publishdate: 2019-01-31
-lastmod: 2019-01-31
 keywords: []
 categories: [functions]
 menu:
@@ -60,17 +59,17 @@ hugo.Deps
 
 `hugo.Deps` returns a list of dependencies for a project (either Hugo Modules or local theme components).
 
-Eeach dependency contains:
+Each dependency contains:
 
 Path (string)
 : Returns the path to this module. This will either be the module path, e.g. "github.com/gohugoio/myshortcodes", or the path below your /theme folder, e.g. "mytheme".
 
 Version (string)
 :  The module version.
-	
+
 Vendor (bool)
 : Whether this dependency is vendored.
- 
+
 Time (time.Time)
 : Time version was created.
 
