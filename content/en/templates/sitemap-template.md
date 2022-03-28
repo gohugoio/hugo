@@ -38,13 +38,13 @@ Set the default values for [change frequency] and [priority], and the name of th
 {{</ code-toggle >}}
 
 changefreq
-: How frequently a page is likely to change. Valid values are `always`, `hourly`, `daily`, `weekly`, `monthly`, `yearly`, and `never`. Default is `""` (omitted from rendered sitemap).
+: How frequently a page is likely to change. Valid values are `always`, `hourly`, `daily`, `weekly`, `monthly`, `yearly`, and `never`. Default is `""` (change frequency omitted from rendered sitemap).
 
 filename
 : The name of the generated file. Default is `sitemap.xml`.
 
 priority
-: The priority of a page relative to any other page on the site. Valid values range from 0.0 to 1.0. Default is `-1` (omitted from rendered sitemap).
+: The priority of a page relative to any other page on the site. Valid values range from 0.0 to 1.0. Default is `-1` (priority omitted from rendered sitemap).
 
 ## Override Default Values
 
