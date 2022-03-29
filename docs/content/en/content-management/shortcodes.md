@@ -307,7 +307,7 @@ Assuming that standard Hugo pretty URLs are turned on.
 
 ### `tweet`
 
-You want to include a single tweet into your blog post? Everything you need is the URL of the tweet:
+You want to include a single tweet into your blog post? Everything you need is in the URL of the tweet:
 
 ```
 https://twitter.com/SanDiegoZoo/status/1453110110599868418
