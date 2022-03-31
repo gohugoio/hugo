@@ -31,7 +31,7 @@ import (
 // config and not per language.
 // This list may not be complete, but contains only settings that we know
 // will be looked up in both.
-// This isn't perfect, but it is ultimately the user who shoots him/herself in
+// This isn't perfect, but it is ultimately the user who shoots them/herself in
 // the foot.
 // See the pathSpec.
 var globalOnlySettings = map[string]bool{

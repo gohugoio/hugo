@@ -85,7 +85,7 @@ type Vimeo struct {
 	EnableDNT bool
 
 	// If simple mode is enabled, only a thumbnail is fetched from i.vimeocdn.com and
-	// shown with a play button overlaid. If a user clicks the button, he/she will
+	// shown with a play button overlaid. If a user clicks the button, they/they will
 	// be taken to the video page on vimeo.com in a new browser tab.
 	Simple bool
 }

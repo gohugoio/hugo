@@ -18,8 +18,8 @@ embedded throughout Hugo.
 
 Hugo continues its trend of each release being faster than the last. It's quite a challenge to consistently add
 significant new functionality and simultaneously dramatically improve performance. {{<gh "@bep">}} has made it
-his personal mission to apply the Go mantra of "Enable more. Do less" to Hugo. Hugo's consistent improvement
-is a testament to his brilliance and his dedication to his craft. Hugo additionally benefits from the
+their personal mission to apply the Go mantra of "Enable more. Do less" to Hugo. Hugo's consistent improvement
+is a testament to their brilliance and their dedication to their craft. Hugo additionally benefits from the
 performance improvements from the Go team in the Go 1.7 release.
 
 This release represents **over 300 contributions by over 70 contributors** to

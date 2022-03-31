@@ -224,7 +224,7 @@ The `.Params` variable is particularly useful for the introduction of user-defin
 ---
 ...
 affiliatelink: "http://www.my-book-link.here"
-recommendedby: "My Mother"
+recommendedby: "My Parent"
 ...
 ---
 ```
@@ -242,7 +242,7 @@ This template would render as follows, assuming you've set [`uglyURLs`](/content
 
 {{< output file="yourbaseurl/review/book01/index.html" >}}
 <h3><a href="http://www.my-book-link.here">Buy this book</a></h3>
-<p>It was recommended by my Mother.</p>
+<p>It was recommended by my Parent.</p>
 {{< /output >}}
 
 {{% note %}}

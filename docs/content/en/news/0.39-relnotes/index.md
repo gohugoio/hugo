@@ -7,7 +7,7 @@ categories: ["Releases"]
 ---
 
 	
-**Nat King Cole** was a fantastic American jazz pianist. When his bass player had visited the bar a little too often, he started with his percussive	piano playing to keep the tempo flowing. Oscar Peterson called it _"Nat's stabilizers"_. This release is the software equivalent of that. We have been doing frequent main releases this year, but looking back, the patch releases that followed them seemed unneeded. And looking at the regressions, most of them stem from the `commands` package, a package that before this release was filled with globals and high coupling. This package is now rewritten and accompanied with decent test coverage.
+**Nat King Cole** was a fantastic American jazz pianist. When their bass player had visited the bar a little too often, they started with their percussive	piano playing to keep the tempo flowing. Oscar Peterson called it _"Nat's stabilizers"_. This release is the software equivalent of that. We have been doing frequent main releases this year, but looking back, the patch releases that followed them seemed unneeded. And looking at the regressions, most of them stem from the `commands` package, a package that before this release was filled with globals and high coupling. This package is now rewritten and accompanied with decent test coverage.
 
 But this release isn't all boring and technical: It includes several important bug fixes, several useful new template functions, and `Resource.Content` allows you to get any resource's content without having to fiddle with file paths and `readFile`.
 

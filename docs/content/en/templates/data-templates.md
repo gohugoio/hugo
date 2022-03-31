@@ -99,7 +99,7 @@ Assume you have the following data structure in your `User0123.[yml|toml|xml|jso
 
 {{< code-toggle file="User0123" >}}
 Name: User0123
-"Short Description": "He is a **jolly good** fellow."
+"Short Description": "They is a **jolly good** fellow."
 Achievements:
   - "Can create a Key, Value list from Data File"
   - "Learns Hugo"

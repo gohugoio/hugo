@@ -187,7 +187,7 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 					c.serverPorts[i] = serverPortListener{ln: l, p: currentServerPort}
 				} else {
 					if i == 0 && sc.cmd.Flags().Changed("port") {
-						// port set explicitly by user -- he/she probably meant it!
+						// port set explicitly by user -- they/they probably meant it!
 						rerr = newSystemErrorF("Server startup failed: %s", err)
 						return
 					}

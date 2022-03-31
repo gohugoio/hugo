@@ -32,7 +32,7 @@ Hugo now has:
 - 137+ themes
 
 {{< gh "@bep" >}} once again took the lead of Hugo and contributed a significant amount of additions.
-Also a big shoutout to {{< gh "@digitalcraftsman" >}} for his relentless work on keeping the documentation and the themes site in pristine condition,
+Also a big shoutout to {{< gh "@digitalcraftsman" >}} for their relentless work on keeping the documentation and the themes site in pristine condition,
 and also a big thanks to {{< gh "@moorereason" >}} and {{< gh "@bogem" >}} for their contributions.
 
 We wish you all a Merry Christmas and a Happy New Year.<br>

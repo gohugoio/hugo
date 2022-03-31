@@ -28,10 +28,10 @@ including...
   ecosystem.
 
 {{< gh "@bep" >}} led the development of Hugo for the 3rd consecutive release
-with nearly half of the contributions to 0.16 in addition to his considerable
+with nearly half of the contributions to 0.16 in addition to their considerable
 contributions as lead maintainer. {{< gh "@anthonyfok" >}}, {{< gh
 "@DigitalCraftsman" >}}, {{< gh "@MooreReason" >}} all made significant
-contributions. A special thanks to {{< gh "@abourget" >}} for his considerable
+contributions. A special thanks to {{< gh "@abourget" >}} for their considerable
 work on multilingual support. Due to its broad impact we wanted to spend more
 time testing it and it will be included in Hugo's next release.
 

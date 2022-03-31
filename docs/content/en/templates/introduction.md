@@ -538,7 +538,7 @@ Do **not** try to comment out Go Template code using HTML comments.
 {{% /note %}}
 
 ```go-html-template
-<!-- {{ $author := "Emma Goldman" }} was a great woman. -->
+<!-- {{ $author := "Emma Goldman" }} was a great person. -->
 {{ $author }}
 ```
 
