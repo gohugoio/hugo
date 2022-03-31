@@ -208,7 +208,7 @@ func DecodeConfig(fs afero.Fs, cfg config.Provider) (Configs, error) {
 
 		if !strings.HasPrefix(v.Dir, "_gen") {
 			// We do cache eviction (file removes) and since the user can set
-			// their/their own cache directory, we really want to make sure
+			// their own cache directory, we really want to make sure
 			// we do not delete any files that do not belong to this cache.
 			// We do add the cache name as the root, but this is an extra safe
 			// guard. We skip the files inside /resources/_gen/ because
