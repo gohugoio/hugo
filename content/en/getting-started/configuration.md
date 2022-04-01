@@ -254,18 +254,6 @@ Enable generation of `robots.txt` file.
 
 See [Front matter Configuration](#configure-front-matter).
 
-### footnoteAnchorPrefix
-
-**Default value:**  ""
-
-Prefix for footnote anchors.
-
-###  footnoteReturnLinkContents
-
-**Default value:**  ""
-
-Text to display for footnote return links.
-
 ### googleAnalytics
 
 **Default value:**  ""
@@ -568,7 +556,6 @@ The following is a typical example of a configuration file. The values nested un
 {{< code-toggle file="config">}}
 baseURL: "https://yoursite.example.com/"
 title: "My Hugo Site"
-footnoteReturnLinkContents: "↩"
 permalinks:
   posts: /:year/:month/:title/
 params:
