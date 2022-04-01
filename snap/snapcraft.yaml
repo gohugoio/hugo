@@ -17,14 +17,29 @@ package-repositories:
     key-id: 9FD3B784BC1C6FC31A8A0A1C1655A0AB68576280
     url: https://deb.nodesource.com/node_16.x
 
+plugs:
+  system-gitconfig:
+    interface: system-files
+    read:
+    - /etc/gitconfig
+  user-gitconfig:
+    interface: personal-files
+    read:
+    - $HOME/.gitconfig
+    - $HOME/.config/git/config
+    
 apps:
   hugo:
+    environment:
+      HOME: $SNAP_REAL_HOME
     command: bin/hugo
     completer: hugo-completion
     plugs:
       - home
       - network-bind
       - removable-media
+      - system-gitconfig
+      - user-gitconfig
 
 parts:
   git:
