@@ -94,7 +94,7 @@ type testPage struct {
 	linkTitle   string
 	lang        string
 	section     string
-	environment string
+	site        testSite
 
 	content string
 
@@ -167,10 +167,6 @@ func (p *testPage) CurrentSection() Page {
 
 func (p *testPage) Data() any {
 	return p.data
-}
-
-func (p *testPage) Environment() string {
-	return p.environment
 }
 
 func (p *testPage) Sitemap() config.Sitemap {
@@ -537,7 +533,7 @@ func (p *testPage) SectionsPath() string {
 }
 
 func (p *testPage) Site() Site {
-	panic("not implemented")
+	return p.site
 }
 
 func (p *testPage) Sites() Sites {

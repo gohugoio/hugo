@@ -14,6 +14,7 @@
 package page
 
 import (
+	"github.com/gohugoio/hugo/common/hugo"
 	"path/filepath"
 	"testing"
 
@@ -22,10 +23,12 @@ import (
 
 func TestPageMatcher(t *testing.T) {
 	c := qt.New(t)
+	developmentTestSite := testSite{h: hugo.NewInfo("development", nil)}
+	productionTestSite := testSite{h: hugo.NewInfo("production", nil)}
 
 	p1, p2, p3 :=
-		&testPage{path: "/p1", kind: "section", lang: "en", environment: "development"},
-		&testPage{path: "p2", kind: "page", lang: "no", environment: "production"},
+		&testPage{path: "/p1", kind: "section", lang: "en", site: developmentTestSite},
+		&testPage{path: "p2", kind: "page", lang: "no", site: productionTestSite},
 		&testPage{path: "p3", kind: "page", lang: "en"}
 
 	c.Run("Matches", func(c *qt.C) {

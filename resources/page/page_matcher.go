@@ -72,7 +72,7 @@ func (m PageMatcher) Matches(p Page) bool {
 
 	if m.Environment != "" {
 		g, err := glob.GetGlob(m.Environment)
-		if err == nil && !g.Match(p.Environment()) {
+		if err == nil && !g.Match(p.Site().Hugo().Environment) {
 			return false
 		}
 	}

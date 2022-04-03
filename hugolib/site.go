@@ -1897,10 +1897,6 @@ func (s *Site) shouldBuild(p page.Page) bool {
 		s.BuildDrafts, p.Draft(), p.PublishDate(), p.ExpiryDate())
 }
 
-func (s *Site) Environment() string {
-	return s.Info.Hugo().Environment
-}
-
 func shouldBuild(buildFuture bool, buildExpired bool, buildDrafts bool, Draft bool,
 	publishDate time.Time, expiryDate time.Time) bool {
 	if !(buildDrafts || !Draft) {

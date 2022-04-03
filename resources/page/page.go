@@ -151,9 +151,6 @@ type PageMetaProvider interface {
 	// Whether this is a draft. Will only be true if run with the --buildDrafts (-D) flag.
 	Draft() bool
 
-	// Environment returns the build environment.
-	Environment() string
-
 	// IsHome returns whether this is the home page.
 	IsHome() bool
 
