@@ -21,6 +21,7 @@ import (
 	"compress/gzip"
 	"context"
 	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -72,6 +73,8 @@ type Deployer struct {
 type deploySummary struct {
 	NumLocal, NumRemote, NumUploads, NumDeletes int
 }
+
+var metaMD5Hash = "md5chksum" // the meta key to store md5hash in
 
 // New constructs a new *Deployer.
 func New(cfg config.Provider, localFs afero.Fs) (*Deployer, error) {
@@ -314,6 +317,7 @@ func doSingleUpload(ctx context.Context, bucket *blob.Bucket, upload *fileToUplo
 		CacheControl:    upload.Local.CacheControl(),
 		ContentEncoding: upload.Local.ContentEncoding(),
 		ContentType:     upload.Local.ContentType(),
+		Metadata:        map[string]string{strings.ToLower(metaMD5Hash): hex.EncodeToString(upload.Local.MD5())},
 	}
 	w, err := bucket.NewWriter(ctx, upload.Local.SlashPath, opts)
 	if err != nil {
