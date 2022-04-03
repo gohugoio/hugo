@@ -570,7 +570,7 @@ func walkRemote(ctx context.Context, bucket *blob.Bucket, include, exclude glob.
 			jww.INFO.Printf("  remote dropping %q due to exclude\n", obj.Key)
 			continue
 		}
-		// If the remote didn't give us an MD5, compute one.
+		// If the remote didn't give us an MD5, use remote attributes MD5, if that doesn't exist compute one.
 		// This can happen for some providers (e.g., fileblob, which uses the
 		// local filesystem), but not for the most common Cloud providers
 		// (S3, GCS, Azure). Although, it can happen for S3 if the blob was uploaded
@@ -578,13 +578,25 @@ func walkRemote(ctx context.Context, bucket *blob.Bucket, include, exclude glob.
 		// Although it's unfortunate to have to read the file, it's likely better
 		// than assuming a delta and re-uploading it.
 		if len(obj.MD5) == 0 {
-			r, err := bucket.NewReader(ctx, obj.Key, nil)
+			var attrMD5 []byte
+			attrs, err := bucket.Attributes(ctx, obj.Key)
 			if err == nil {
-				h := md5.New()
-				if _, err := io.Copy(h, r); err == nil {
-					obj.MD5 = h.Sum(nil)
+				md5String, exists := attrs.Metadata[strings.ToLower(metaMD5Hash)]
+				if exists {
+					attrMD5, err = hex.DecodeString(md5String)
 				}
-				r.Close()
+			}
+			if len(attrMD5) == 0 {
+				r, err := bucket.NewReader(ctx, obj.Key, nil)
+				if err == nil {
+					h := md5.New()
+					if _, err := io.Copy(h, r); err == nil {
+						obj.MD5 = h.Sum(nil)
+					}
+					r.Close()
+				}
+			} else {
+				obj.MD5 = attrMD5
 			}
 		}
 		retval[obj.Key] = obj
