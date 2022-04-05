@@ -14,9 +14,10 @@
 package page
 
 import (
-	"github.com/gohugoio/hugo/common/hugo"
 	"path/filepath"
 	"testing"
+
+	"github.com/gohugoio/hugo/common/hugo"
 
 	qt "github.com/frankban/quicktest"
 )

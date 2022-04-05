@@ -21,15 +21,13 @@ import (
 
 	"github.com/gohugoio/hugo/common/htime"
 
-	"github.com/gohugoio/locales"
-
 	"github.com/spf13/cast"
 )
 
 // New returns a new instance of the time-namespaced template functions.
-func New(translator locales.Translator, location *time.Location) *Namespace {
+func New(timeFormatter htime.TimeFormatter, location *time.Location) *Namespace {
 	return &Namespace{
-		timeFormatter: htime.NewTimeFormatter(translator),
+		timeFormatter: timeFormatter,
 		location:      location,
 	}
 }

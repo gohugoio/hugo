@@ -26,6 +26,7 @@ import (
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/compare"
+	"github.com/gohugoio/hugo/langs"
 
 	"github.com/gohugoio/hugo/resources/resource"
 )
@@ -219,7 +220,7 @@ func (p Pages) GroupByParam(key string, order ...string) (PagesGroup, error) {
 	return r, nil
 }
 
-func (p Pages) groupByDateField(sorter func(p Pages) Pages, formatter func(p Page) string, order ...string) (PagesGroup, error) {
+func (p Pages) groupByDateField(format string, sorter func(p Pages) Pages, getDate func(p Page) time.Time, order ...string) (PagesGroup, error) {
 	if len(p) < 1 {
 		return nil, nil
 	}
@@ -234,16 +235,24 @@ func (p Pages) groupByDateField(sorter func(p Pages) Pages, formatter func(p Pag
 		return nil, nil
 	}
 
-	date := formatter(sp[0].(Page))
+	firstPage := sp[0].(Page)
+	date := getDate(firstPage)
+
+	// Pages may be a mix of multiple languages, so we need to use the language
+	// for the currently rendered Site.
+	currentSite := firstPage.Site().Current()
+	formatter := langs.GetTimeFormatter(currentSite.Language())
+	formatted := formatter.Format(date, format)
 	var r []PageGroup
-	r = append(r, PageGroup{Key: date, Pages: make(Pages, 0)})
+	r = append(r, PageGroup{Key: formatted, Pages: make(Pages, 0)})
 	r[0].Pages = append(r[0].Pages, sp[0])
 
 	i := 0
 	for _, e := range sp[1:] {
-		date = formatter(e.(Page))
-		if r[i].Key.(string) != date {
-			r = append(r, PageGroup{Key: date})
+		date = getDate(e.(Page))
+		formatted := formatter.Format(date, format)
+		if r[i].Key.(string) != formatted {
+			r = append(r, PageGroup{Key: formatted})
 			i++
 		}
 		r[i].Pages = append(r[i].Pages, e)
@@ -259,10 +268,10 @@ func (p Pages) GroupByDate(format string, order ...string) (PagesGroup, error) {
 	sorter := func(p Pages) Pages {
 		return p.ByDate()
 	}
-	formatter := func(p Page) string {
-		return p.Date().Format(format)
+	getDate := func(p Page) time.Time {
+		return p.Date()
 	}
-	return p.groupByDateField(sorter, formatter, order...)
+	return p.groupByDateField(format, sorter, getDate, order...)
 }
 
 // GroupByPublishDate groups by the given page's PublishDate value in
@@ -273,10 +282,10 @@ func (p Pages) GroupByPublishDate(format string, order ...string) (PagesGroup, e
 	sorter := func(p Pages) Pages {
 		return p.ByPublishDate()
 	}
-	formatter := func(p Page) string {
-		return p.PublishDate().Format(format)
+	getDate := func(p Page) time.Time {
+		return p.PublishDate()
 	}
-	return p.groupByDateField(sorter, formatter, order...)
+	return p.groupByDateField(format, sorter, getDate, order...)
 }
 
 // GroupByExpiryDate groups by the given page's ExpireDate value in
@@ -287,10 +296,10 @@ func (p Pages) GroupByExpiryDate(format string, order ...string) (PagesGroup, er
 	sorter := func(p Pages) Pages {
 		return p.ByExpiryDate()
 	}
-	formatter := func(p Page) string {
-		return p.ExpiryDate().Format(format)
+	getDate := func(p Page) time.Time {
+		return p.ExpiryDate()
 	}
-	return p.groupByDateField(sorter, formatter, order...)
+	return p.groupByDateField(format, sorter, getDate, order...)
 }
 
 // GroupByLastmod groups by the given page's Lastmod value in
@@ -301,10 +310,10 @@ func (p Pages) GroupByLastmod(format string, order ...string) (PagesGroup, error
 	sorter := func(p Pages) Pages {
 		return p.ByLastmod()
 	}
-	formatter := func(p Page) string {
-		return p.Lastmod().Format(format)
+	getDate := func(p Page) time.Time {
+		return p.Lastmod()
 	}
-	return p.groupByDateField(sorter, formatter, order...)
+	return p.groupByDateField(format, sorter, getDate, order...)
 }
 
 // GroupByParamDate groups by a date set as a param on the page in
@@ -340,10 +349,10 @@ func (p Pages) GroupByParamDate(key string, format string, order ...string) (Pag
 		pageBy(pdate).Sort(r)
 		return r
 	}
-	formatter := func(p Page) string {
-		return dates[p].Format(format)
+	getDate := func(p Page) time.Time {
+		return dates[p]
 	}
-	return p.groupByDateField(sorter, formatter, order...)
+	return p.groupByDateField(format, sorter, getDate, order...)
 }
 
 // ProbablyEq wraps compare.ProbablyEqer

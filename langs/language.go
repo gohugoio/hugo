@@ -21,6 +21,7 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/locales"
@@ -77,7 +78,8 @@ type Language struct {
 	// Used for date formatting etc. We don't want these exported to the
 	// templates.
 	// TODO(bep) do the same for some of the others.
-	translator locales.Translator
+	translator    locales.Translator
+	timeFormatter htime.TimeFormatter
 
 	location *time.Location
 
@@ -113,9 +115,10 @@ func NewLanguage(lang string, cfg config.Provider) *Language {
 		Lang:       lang,
 		ContentDir: cfg.GetString("contentDir"),
 		Cfg:        cfg, LocalCfg: localCfg,
-		Provider:   compositeConfig,
-		params:     params,
-		translator: translator,
+		Provider:      compositeConfig,
+		params:        params,
+		translator:    translator,
+		timeFormatter: htime.NewTimeFormatter(translator),
 	}
 
 	if err := l.loadLocation(cfg.GetString("timeZone")); err != nil {
@@ -259,6 +262,10 @@ func (l *Language) IsSet(key string) bool {
 
 // Internal access to unexported Language fields.
 // This construct is to prevent them from leaking to the templates.
+
+func GetTimeFormatter(l *Language) htime.TimeFormatter {
+	return l.timeFormatter
+}
 
 func GetTranslator(l *Language) locales.Translator {
 	return l.translator
