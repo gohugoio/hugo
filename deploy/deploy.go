@@ -74,7 +74,7 @@ type deploySummary struct {
 	NumLocal, NumRemote, NumUploads, NumDeletes int
 }
 
-var metaMD5Hash = "md5chksum" // the meta key to store md5hash in
+const metaMD5Hash = "md5chksum" // the meta key to store md5hash in
 
 // New constructs a new *Deployer.
 func New(cfg config.Provider, localFs afero.Fs) (*Deployer, error) {
@@ -317,7 +317,7 @@ func doSingleUpload(ctx context.Context, bucket *blob.Bucket, upload *fileToUplo
 		CacheControl:    upload.Local.CacheControl(),
 		ContentEncoding: upload.Local.ContentEncoding(),
 		ContentType:     upload.Local.ContentType(),
-		Metadata:        map[string]string{strings.ToLower(metaMD5Hash): hex.EncodeToString(upload.Local.MD5())},
+		Metadata:        map[string]string{metaMD5Hash: hex.EncodeToString(upload.Local.MD5())},
 	}
 	w, err := bucket.NewWriter(ctx, upload.Local.SlashPath, opts)
 	if err != nil {
@@ -581,9 +581,9 @@ func walkRemote(ctx context.Context, bucket *blob.Bucket, include, exclude glob.
 			var attrMD5 []byte
 			attrs, err := bucket.Attributes(ctx, obj.Key)
 			if err == nil {
-				md5String, exists := attrs.Metadata[strings.ToLower(metaMD5Hash)]
+				md5String, exists := attrs.Metadata[metaMD5Hash]
 				if exists {
-					attrMD5, err = hex.DecodeString(md5String)
+					attrMD5, _ = hex.DecodeString(md5String)
 				}
 			}
 			if len(attrMD5) == 0 {
