@@ -18,18 +18,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gohugoio/hugo/htesting/hqt"
-	"github.com/gohugoio/hugo/source"
-
 	"github.com/gohugoio/hugo/resources/resource"
+	"github.com/google/go-cmp/cmp"
 
 	qt "github.com/frankban/quicktest"
 )
 
-var eq = qt.CmpEquals(hqt.DeepAllowUnexported(
-	&testPage{},
-	&source.FileInfo{},
-))
+var eq = qt.CmpEquals(
+	cmp.Comparer(func(p1, p2 testPage) bool {
+		return p1.path == p2.path && p1.weight == p2.weight
+	}),
+)
 
 func TestDefaultSort(t *testing.T) {
 	t.Parallel()

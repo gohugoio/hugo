@@ -738,6 +738,11 @@ func (s *SiteInfo) Sites() page.Sites {
 	return s.s.h.siteInfos()
 }
 
+// Current returns the currently rendered Site.
+func (s *SiteInfo) Current() page.Site {
+	return s.s.h.currentSite.Info
+}
+
 func (s *SiteInfo) String() string {
 	return fmt.Sprintf("Site(%q)", s.title)
 }

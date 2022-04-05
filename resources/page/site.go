@@ -37,6 +37,7 @@ type Site interface {
 	ServerPort() int
 	Title() string
 	Sites() Sites
+	Current() Site
 	Hugo() hugo.Info
 	BaseURL() template.URL
 	Taxonomies() any
@@ -80,6 +81,10 @@ func (t testSite) Title() string {
 
 func (t testSite) Sites() Sites {
 	return nil
+}
+
+func (t testSite) Current() Site {
+	return t
 }
 
 func (t testSite) IsServer() bool {

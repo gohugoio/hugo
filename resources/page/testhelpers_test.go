@@ -64,6 +64,7 @@ func newTestPageWithFile(filename string) *testPage {
 		currentSection: &testPage{
 			sectionEntries: []string{"a", "b", "c"},
 		},
+		site: testSite{l: langs.NewDefaultLanguage(config.New())},
 	}
 }
 

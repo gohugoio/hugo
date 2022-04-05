@@ -73,6 +73,9 @@ type HugoSites struct {
 	// Render output formats for all sites.
 	renderFormats output.Formats
 
+	// The currently rendered Site.
+	currentSite *Site
+
 	*deps.Deps
 
 	gitInfo       *gitInfo

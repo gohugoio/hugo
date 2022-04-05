@@ -289,6 +289,7 @@ func (h *HugoSites) render(config *BuildCfg) error {
 
 	i := 0
 	for _, s := range h.Sites {
+		h.currentSite = s
 		for siteOutIdx, renderFormat := range s.renderFormats {
 			siteRenderContext.outIdx = siteOutIdx
 			siteRenderContext.sitesOutIdx = i
