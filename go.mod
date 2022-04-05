@@ -21,7 +21,7 @@ require (
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/frankban/quicktest v1.14.3
 	github.com/fsnotify/fsnotify v1.5.1
-	github.com/getkin/kin-openapi v0.93.0
+	github.com/getkin/kin-openapi v0.94.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/gobuffalo/flect v0.2.4
 	github.com/gobwas/glob v0.2.3
@@ -47,7 +47,7 @@ require (
 	github.com/rogpeppe/go-internal v1.8.1
 	github.com/russross/blackfriday v1.6.0
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
-	github.com/sanity-io/litter v1.5.2
+	github.com/sanity-io/litter v1.5.4
 	github.com/spf13/afero v1.8.1
 	github.com/spf13/cast v1.4.1
 	github.com/spf13/cobra v1.4.0
