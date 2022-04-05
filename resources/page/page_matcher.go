@@ -37,6 +37,9 @@ type PageMatcher struct {
 
 	// A Glob pattern matching the Page's language, e.g. "{en,sv}".
 	Lang string
+
+	// A Glob pattern matching the Page's Environment, e.g. "{production,development}".
+	Environment string
 }
 
 // Matches returns whether p matches this matcher.
@@ -63,6 +66,13 @@ func (m PageMatcher) Matches(p Page) bool {
 			p = "/" + p
 		}
 		if err == nil && !g.Match(p) {
+			return false
+		}
+	}
+
+	if m.Environment != "" {
+		g, err := glob.GetGlob(m.Environment)
+		if err == nil && !g.Match(p.Site().Hugo().Environment) {
 			return false
 		}
 	}

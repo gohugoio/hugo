@@ -550,6 +550,32 @@ S1|p1:|p2:p2|
 `)
 	})
 
+	c.Run("slice with environment _target", func(c *qt.C) {
+		b := newBuilder(c)
+
+		b.WithContent("_index.md", `+++
+title = "Home"
+[[cascade]]
+p1 = "p1"
+[cascade._target]
+path="**p1**"
+environment="testing"
+[[cascade]]
+p2 = "p2"
+[cascade._target]
+kind="section"
+environment="production"
++++
+`)
+
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/index.html", `
+P1|p1:|p2:|
+S1|p1:|p2:p2|
+`)
+	})
+
 	c.Run("slice with yaml _target", func(c *qt.C) {
 		b := newBuilder(c)
 
