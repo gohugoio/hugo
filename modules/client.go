@@ -282,6 +282,15 @@ func (c *Client) Vendor() error {
 			}
 		}
 
+		// Include the config directory if present.
+		configDir := filepath.Join(dir, "config")
+		_, err = c.fs.Stat(configDir)
+		if err == nil {
+			if err := hugio.CopyDir(c.fs, configDir, filepath.Join(vendorDir, t.Path(), "config"), nil); err != nil {
+				return errors.Wrap(err, "failed to copy config dir to vendor dir")
+			}
+		}
+
 		// Also include any theme.toml or config.* files in the root.
 		configFiles, _ := afero.Glob(c.fs, filepath.Join(dir, "config.*"))
 		configFiles = append(configFiles, filepath.Join(dir, "theme.toml"))
