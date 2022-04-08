@@ -16,7 +16,6 @@ hugoversion:
 relatedfuncs: []
 deprecated: false
 aliases: []
-needsexamples: false
 ---
 
 ```
