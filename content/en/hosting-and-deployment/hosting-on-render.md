@@ -4,7 +4,6 @@ linktitle: Host on Render
 description: Host your Hugo site for free with Render's global CDN, fully-managed SSL and auto deploys from GitHub.
 date: 2019-06-06
 publishdate: 2019-06-06
-lastmod: 2020-01-01
 categories: [hosting and deployment]
 keywords: [hosting,deployment]
 authors: [Anurag Goel]
@@ -87,6 +86,5 @@ Render automatically downloads all Git submodules defined in your Git repo on ev
 ## Support
 
 Chat with Render developers at https://render.com/chat or email `support@render.com` if you need help.
-
 
 [Quick Start]: /getting-started/quick-start/

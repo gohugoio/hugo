@@ -1,5 +1,5 @@
 ---
-title: Ordere and Grouping Hugo Lists
+title: Ordering and Grouping Hugo Lists
 linktitle: List Ordering and Grouping
 description: You can group or order your content in both your templating and content front matter.
 date: 2017-02-01
@@ -19,7 +19,7 @@ toc: true
 notes: This was originally going to be a separate page on the new docs site but it now makes more sense to keep everything within the templates/lists page. - rdwatters, 2017-03-12.
 ---
 
-In Hugo, A list template is any template that will be used to render multiple pieces of content in a single HTML page.
+In Hugo, a list template is any template that will be used to render multiple pieces of content in a single HTML page.
 
 ## Example List Templates
 

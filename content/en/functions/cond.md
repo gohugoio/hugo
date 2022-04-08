@@ -11,7 +11,6 @@ hugoversion: 0.27
 relatedfuncs: [default]
 toc: false
 draft: false
-needsexamples: false
 ---
 
 `cond` returns *VAR1* if *CONTROL* is true, or *VAR2* if it is not.
