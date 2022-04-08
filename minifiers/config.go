@@ -44,7 +44,8 @@ var defaultTdewolffConfig = tdewolffConfig{
 	JS:   js.Minifier{},
 	JSON: json.Minifier{},
 	SVG: svg.Minifier{
-		Precision: 0,
+		KeepComments: false,
+		Precision:    0,
 	},
 	XML: xml.Minifier{
 		KeepWhitespace: false,
