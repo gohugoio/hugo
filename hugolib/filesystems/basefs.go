@@ -24,6 +24,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/bep/overlayfs"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugofs/glob"
 
@@ -145,12 +146,14 @@ func (b *BaseFs) AbsProjectContentDir(filename string) (string, string, error) {
 		if !meta.IsProject {
 			continue
 		}
+
 		if isAbs {
 			if strings.HasPrefix(filename, meta.Filename) {
 				return strings.TrimPrefix(filename, meta.Filename), filename, nil
 			}
 		} else {
-			contentDir := strings.TrimPrefix(strings.TrimPrefix(meta.Filename, meta.BaseDir), filePathSeparator)
+			contentDir := strings.TrimPrefix(strings.TrimPrefix(meta.Filename, meta.BaseDir), filePathSeparator) + filePathSeparator
+
 			if strings.HasPrefix(filename, contentDir) {
 				relFilename := strings.TrimPrefix(filename, contentDir)
 				absFilename := filepath.Join(meta.Filename, relFilename)
@@ -163,14 +166,14 @@ func (b *BaseFs) AbsProjectContentDir(filename string) (string, string, error) {
 	if !isAbs {
 		// A filename on the form "posts/mypage.md", put it inside
 		// the first content folder, usually <workDir>/content.
-		// Pick the last project dir (which is probably the most important one).
-		contentDirs := b.SourceFilesystems.Content.Dirs
-		for i := len(contentDirs) - 1; i >= 0; i-- {
-			meta := contentDirs[i].Meta()
+		// Pick the first project dir (which is probably the most important one).
+		for _, dir := range b.SourceFilesystems.Content.Dirs {
+			meta := dir.Meta()
 			if meta.IsProject {
 				return filename, filepath.Join(meta.Filename, filename), nil
 			}
 		}
+
 	}
 
 	return "", "", errors.Errorf("could not determine content directory for %q", filename)
@@ -260,10 +263,16 @@ type SourceFilesystem struct {
 // The order is content, static and then assets.
 // TODO(bep) check usage
 func (s SourceFilesystems) ContentStaticAssetFs(lang string) afero.Fs {
-	staticFs := s.StaticFs(lang)
+	return overlayfs.New(
+		overlayfs.Options{
+			Fss: []afero.Fs{
+				s.Content.Fs,
+				s.StaticFs(lang),
+				s.Assets.Fs,
+			},
+		},
+	)
 
-	base := afero.NewCopyOnWriteFs(s.Assets.Fs, staticFs)
-	return afero.NewCopyOnWriteFs(base, s.Content.Fs)
 }
 
 // StaticFs returns the static filesystem for the given language.
@@ -491,7 +500,6 @@ func (b *sourceFilesystemsBuilder) newSourceFilesystem(name string, fs afero.Fs,
 
 func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 	if b.theBigFs == nil {
-
 		theBigFs, err := b.createMainOverlayFs(b.p)
 		if err != nil {
 			return nil, errors.Wrap(err, "create main fs")
@@ -509,8 +517,6 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 
 		return b.newSourceFilesystem(componentID, afero.NewBasePathFs(b.theBigFs.overlayMounts, componentID), dirs)
 	}
-
-	b.theBigFs.finalizeDirs()
 
 	b.result.Archetypes = createView(files.ComponentFolderArchetypes)
 	b.result.Layouts = createView(files.ComponentFolderLayouts)
@@ -566,9 +572,12 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 }
 
 func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesystemsCollector, error) {
-	var staticFsMap map[string]afero.Fs
+	var staticFsMap map[string]*overlayfs.OverlayFs
 	if b.p.Cfg.GetBool("multihost") {
-		staticFsMap = make(map[string]afero.Fs)
+		staticFsMap = make(map[string]*overlayfs.OverlayFs)
+		for _, l := range b.p.Languages {
+			staticFsMap[l.Lang] = overlayfs.New(overlayfs.Options{})
+		}
 	}
 
 	collector := &filesystemsCollector{
@@ -576,35 +585,33 @@ func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesys
 		sourceModules:     hugofs.NewNoSymlinkFs(b.sourceFs, b.logger, false),
 		overlayDirs:       make(map[string][]hugofs.FileMetaInfo),
 		staticPerLanguage: staticFsMap,
+
+		overlayMounts:        overlayfs.New(overlayfs.Options{}),
+		overlayMountsContent: overlayfs.New(overlayfs.Options{DirsMerger: hugofs.LanguageDirsMerger}),
+		overlayMountsStatic:  overlayfs.New(overlayfs.Options{DirsMerger: hugofs.LanguageDirsMerger}),
+		overlayFull:          overlayfs.New(overlayfs.Options{}),
+		overlayResources:     overlayfs.New(overlayfs.Options{FirstWritable: true}),
 	}
 
 	mods := p.AllModules
 
-	if len(mods) == 0 {
-		return collector, nil
-	}
+	mounts := make([]mountsDescriptor, len(mods))
 
-	modsReversed := make([]mountsDescriptor, len(mods))
-
-	// The theme components are ordered from left to right.
-	// We need to revert it to get the
-	// overlay logic below working as expected, with the project on top.
-	j := 0
-	for i := len(mods) - 1; i >= 0; i-- {
+	for i := 0; i < len(mods); i++ {
 		mod := mods[i]
 		dir := mod.Dir()
 
 		isMainProject := mod.Owner() == nil
-		modsReversed[j] = mountsDescriptor{
+		mounts[i] = mountsDescriptor{
 			Module:        mod,
 			dir:           dir,
 			isMainProject: isMainProject,
-			ordinal:       j,
+			ordinal:       i,
 		}
-		j++
+
 	}
 
-	err := b.createOverlayFs(collector, modsReversed)
+	err := b.createOverlayFs(collector, mounts)
 
 	return collector, err
 }
@@ -617,137 +624,143 @@ func (b *sourceFilesystemsBuilder) isStaticMount(mnt modules.Mount) bool {
 	return strings.HasPrefix(mnt.Target, files.ComponentFolderStatic)
 }
 
-func (b *sourceFilesystemsBuilder) createModFs(
+func (b *sourceFilesystemsBuilder) createOverlayFs(
 	collector *filesystemsCollector,
-	md mountsDescriptor) error {
-	var (
-		fromTo        []hugofs.RootMapping
-		fromToContent []hugofs.RootMapping
-		fromToStatic  []hugofs.RootMapping
-	)
+	mounts []mountsDescriptor) error {
 
-	absPathify := func(path string) (string, string) {
-		if filepath.IsAbs(path) {
-			return "", path
+	if len(mounts) == 0 {
+		appendNopIfEmpty := func(ofs *overlayfs.OverlayFs) *overlayfs.OverlayFs {
+			if ofs.NumFilesystems() > 0 {
+				return ofs
+			}
+			return ofs.Append(hugofs.NoOpFs)
 		}
-		return md.dir, hpaths.AbsPathify(md.dir, path)
+		collector.overlayMounts = appendNopIfEmpty(collector.overlayMounts)
+		collector.overlayMountsContent = appendNopIfEmpty(collector.overlayMountsContent)
+		collector.overlayMountsStatic = appendNopIfEmpty(collector.overlayMountsStatic)
+		collector.overlayFull = appendNopIfEmpty(collector.overlayFull)
+		collector.overlayResources = appendNopIfEmpty(collector.overlayResources)
+
+		return nil
 	}
 
-	for i, mount := range md.Mounts() {
-
-		// Add more weight to early mounts.
-		// When two mounts contain the same filename,
-		// the first entry wins.
-		mountWeight := (10 + md.ordinal) * (len(md.Mounts()) - i)
-
-		inclusionFilter, err := glob.NewFilenameFilter(
-			types.ToStringSlicePreserveString(mount.IncludeFiles),
-			types.ToStringSlicePreserveString(mount.ExcludeFiles),
+	for _, md := range mounts {
+		var (
+			fromTo        []hugofs.RootMapping
+			fromToContent []hugofs.RootMapping
+			fromToStatic  []hugofs.RootMapping
 		)
+
+		absPathify := func(path string) (string, string) {
+			if filepath.IsAbs(path) {
+				return "", path
+			}
+			return md.dir, hpaths.AbsPathify(md.dir, path)
+		}
+
+		for i, mount := range md.Mounts() {
+
+			// Add more weight to early mounts.
+			// When two mounts contain the same filename,
+			// the first entry wins.
+			mountWeight := (10 + md.ordinal) * (len(md.Mounts()) - i)
+
+			inclusionFilter, err := glob.NewFilenameFilter(
+				types.ToStringSlicePreserveString(mount.IncludeFiles),
+				types.ToStringSlicePreserveString(mount.ExcludeFiles),
+			)
+			if err != nil {
+				return err
+			}
+
+			base, filename := absPathify(mount.Source)
+
+			rm := hugofs.RootMapping{
+				From:      mount.Target,
+				To:        filename,
+				ToBasedir: base,
+				Module:    md.Module.Path(),
+				IsProject: md.isMainProject,
+				Meta: &hugofs.FileMeta{
+					Watch:           md.Watch(),
+					Weight:          mountWeight,
+					Classifier:      files.ContentClassContent,
+					InclusionFilter: inclusionFilter,
+				},
+			}
+
+			isContentMount := b.isContentMount(mount)
+
+			lang := mount.Lang
+			if lang == "" && isContentMount {
+				lang = b.p.DefaultContentLanguage
+			}
+
+			rm.Meta.Lang = lang
+
+			if isContentMount {
+				fromToContent = append(fromToContent, rm)
+			} else if b.isStaticMount(mount) {
+				fromToStatic = append(fromToStatic, rm)
+			} else {
+				fromTo = append(fromTo, rm)
+			}
+		}
+
+		modBase := collector.sourceProject
+		if !md.isMainProject {
+			modBase = collector.sourceModules
+		}
+		sourceStatic := hugofs.NewNoSymlinkFs(modBase, b.logger, true)
+
+		rmfs, err := hugofs.NewRootMappingFs(modBase, fromTo...)
+		if err != nil {
+			return err
+		}
+		rmfsContent, err := hugofs.NewRootMappingFs(modBase, fromToContent...)
+		if err != nil {
+			return err
+		}
+		rmfsStatic, err := hugofs.NewRootMappingFs(sourceStatic, fromToStatic...)
 		if err != nil {
 			return err
 		}
 
-		base, filename := absPathify(mount.Source)
+		// We need to keep the ordered list of directories for watching and
+		// some special merge operations (data, i18n).
+		collector.addDirs(rmfs)
+		collector.addDirs(rmfsContent)
+		collector.addDirs(rmfsStatic)
 
-		rm := hugofs.RootMapping{
-			From:      mount.Target,
-			To:        filename,
-			ToBasedir: base,
-			Module:    md.Module.Path(),
-			IsProject: md.isMainProject,
-			Meta: &hugofs.FileMeta{
-				Watch:           md.Watch(),
-				Weight:          mountWeight,
-				Classifier:      files.ContentClassContent,
-				InclusionFilter: inclusionFilter,
-			},
-		}
+		if collector.staticPerLanguage != nil {
+			for _, l := range b.p.Languages {
+				lang := l.Lang
 
-		isContentMount := b.isContentMount(mount)
+				lfs := rmfsStatic.Filter(func(rm hugofs.RootMapping) bool {
+					rlang := rm.Meta.Lang
+					return rlang == "" || rlang == lang
+				})
 
-		lang := mount.Lang
-		if lang == "" && isContentMount {
-			lang = b.p.DefaultContentLanguage
-		}
+				bfs := afero.NewBasePathFs(lfs, files.ComponentFolderStatic)
+				collector.staticPerLanguage[lang] = collector.staticPerLanguage[lang].Append(bfs)
 
-		rm.Meta.Lang = lang
-
-		if isContentMount {
-			fromToContent = append(fromToContent, rm)
-		} else if b.isStaticMount(mount) {
-			fromToStatic = append(fromToStatic, rm)
-		} else {
-			fromTo = append(fromTo, rm)
-		}
-	}
-
-	modBase := collector.sourceProject
-	if !md.isMainProject {
-		modBase = collector.sourceModules
-	}
-	sourceStatic := hugofs.NewNoSymlinkFs(modBase, b.logger, true)
-
-	rmfs, err := hugofs.NewRootMappingFs(modBase, fromTo...)
-	if err != nil {
-		return err
-	}
-	rmfsContent, err := hugofs.NewRootMappingFs(modBase, fromToContent...)
-	if err != nil {
-		return err
-	}
-	rmfsStatic, err := hugofs.NewRootMappingFs(sourceStatic, fromToStatic...)
-	if err != nil {
-		return err
-	}
-
-	// We need to keep the ordered list of directories for watching and
-	// some special merge operations (data, i18n).
-	collector.addDirs(rmfs)
-	collector.addDirs(rmfsContent)
-	collector.addDirs(rmfsStatic)
-
-	if collector.staticPerLanguage != nil {
-		for _, l := range b.p.Languages {
-			lang := l.Lang
-
-			lfs := rmfsStatic.Filter(func(rm hugofs.RootMapping) bool {
-				rlang := rm.Meta.Lang
-				return rlang == "" || rlang == lang
-			})
-
-			bfs := afero.NewBasePathFs(lfs, files.ComponentFolderStatic)
-
-			sfs, found := collector.staticPerLanguage[lang]
-			if found {
-				collector.staticPerLanguage[lang] = afero.NewCopyOnWriteFs(sfs, bfs)
-			} else {
-				collector.staticPerLanguage[lang] = bfs
 			}
 		}
-	}
 
-	getResourcesDir := func() string {
-		if md.isMainProject {
-			return b.p.AbsResourcesDir
+		getResourcesDir := func() string {
+			if md.isMainProject {
+				return b.p.AbsResourcesDir
+			}
+			_, filename := absPathify(files.FolderResources)
+			return filename
 		}
-		_, filename := absPathify(files.FolderResources)
-		return filename
-	}
 
-	if collector.overlayMounts == nil {
-		collector.overlayMounts = rmfs
-		collector.overlayMountsContent = rmfsContent
-		collector.overlayMountsStatic = rmfsStatic
-		collector.overlayFull = afero.NewBasePathFs(modBase, md.dir)
-		collector.overlayResources = afero.NewBasePathFs(modBase, getResourcesDir())
-	} else {
+		collector.overlayMounts = collector.overlayMounts.Append(rmfs)
+		collector.overlayMountsContent = collector.overlayMountsContent.Append(rmfsContent)
+		collector.overlayMountsStatic = collector.overlayMountsStatic.Append(rmfsStatic)
+		collector.overlayFull = collector.overlayFull.Append(afero.NewBasePathFs(modBase, md.dir))
+		collector.overlayResources = collector.overlayResources.Append(afero.NewBasePathFs(modBase, getResourcesDir()))
 
-		collector.overlayMounts = afero.NewCopyOnWriteFs(collector.overlayMounts, rmfs)
-		collector.overlayMountsContent = hugofs.NewLanguageCompositeFs(collector.overlayMountsContent, rmfsContent)
-		collector.overlayMountsStatic = hugofs.NewLanguageCompositeFs(collector.overlayMountsStatic, rmfsStatic)
-		collector.overlayFull = afero.NewCopyOnWriteFs(collector.overlayFull, afero.NewBasePathFs(modBase, md.dir))
-		collector.overlayResources = afero.NewCopyOnWriteFs(collector.overlayResources, afero.NewBasePathFs(modBase, getResourcesDir()))
 	}
 
 	return nil
@@ -777,18 +790,18 @@ type filesystemsCollector struct {
 	sourceProject afero.Fs // Source for project folders
 	sourceModules afero.Fs // Source for modules/themes
 
-	overlayMounts        afero.Fs
-	overlayMountsContent afero.Fs
-	overlayMountsStatic  afero.Fs
-	overlayFull          afero.Fs
-	overlayResources     afero.Fs
+	overlayMounts        *overlayfs.OverlayFs
+	overlayMountsContent *overlayfs.OverlayFs
+	overlayMountsStatic  *overlayfs.OverlayFs
+	overlayFull          *overlayfs.OverlayFs
+	overlayResources     *overlayfs.OverlayFs
 
 	// Maps component type (layouts, static, content etc.) an ordered list of
 	// directories representing the overlay filesystems above.
 	overlayDirs map[string][]hugofs.FileMetaInfo
 
 	// Set if in multihost mode
-	staticPerLanguage map[string]afero.Fs
+	staticPerLanguage map[string]*overlayfs.OverlayFs
 
 	finalizerInit sync.Once
 }
@@ -807,15 +820,6 @@ func (c *filesystemsCollector) addDir(rfs *hugofs.RootMappingFs, componentFolder
 	}
 }
 
-func (c *filesystemsCollector) finalizeDirs() {
-	c.finalizerInit.Do(func() {
-		// Order the directories from top to bottom (project, theme a, theme ...).
-		for _, dirs := range c.overlayDirs {
-			c.reverseFis(dirs)
-		}
-	})
-}
-
 func (c *filesystemsCollector) reverseFis(fis []hugofs.FileMetaInfo) {
 	for i := len(fis)/2 - 1; i >= 0; i-- {
 		opp := len(fis) - 1 - i
@@ -828,21 +832,4 @@ type mountsDescriptor struct {
 	dir           string
 	isMainProject bool
 	ordinal       int
-}
-
-func (b *sourceFilesystemsBuilder) createOverlayFs(collector *filesystemsCollector, mounts []mountsDescriptor) error {
-	if len(mounts) == 0 {
-		return nil
-	}
-
-	err := b.createModFs(collector, mounts[0])
-	if err != nil {
-		return err
-	}
-
-	if len(mounts) == 1 {
-		return nil
-	}
-
-	return b.createOverlayFs(collector, mounts[1:])
 }

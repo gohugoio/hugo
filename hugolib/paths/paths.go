@@ -53,9 +53,6 @@ type Paths struct {
 	// pagination path handling
 	PaginatePath string
 
-	// TODO1 check usage
-	PublishDir string
-
 	// When in multihost mode, this returns a list of base paths below PublishDir
 	// for each language.
 	MultihostTargetBasePaths []string
@@ -184,9 +181,6 @@ func New(fs *hugofs.Fs, cfg config.Provider) (*Paths, error) {
 	if cfg.IsSet("modulesClient") {
 		p.ModulesClient = cfg.Get("modulesClient").(*modules.Client)
 	}
-
-	// TODO(bep) remove this, eventually
-	p.PublishDir = absPublishDir
 
 	return p, nil
 }

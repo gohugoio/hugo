@@ -27,6 +27,38 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
+func TestDataFromTheme(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+[module]
+[[module.imports]]
+path = "mytheme"
+-- data/a.toml --
+d1 = "d1main"
+d2 = "d2main"
+-- themes/mytheme/data/a.toml --
+d1 = "d1theme"
+d2 = "d2theme"
+d3 = "d3theme"
+-- layouts/index.html --
+d1: {{ site.Data.a.d1  }}|d2: {{ site.Data.a.d2 }}|d3: {{ site.Data.a.d3  }}
+
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", `
+d1: d1main|d2: d2main|d3: d3theme
+	`)
+}
+
 func TestDataDir(t *testing.T) {
 	t.Parallel()
 	equivDataDirs := make([]dataDir, 3)

@@ -777,6 +777,8 @@ weight = 2
 				}
 			}
 
+			c.Logf("Checking %d:%d %q", i, j, id)
+
 			statCheck(componentFs, fmt.Sprintf("realsym%s", id), true)
 			statCheck(componentFs, fmt.Sprintf("real/datasym%s.toml", id), false)
 
