@@ -112,6 +112,7 @@ func (f ContentFactory) SectionFromFilename(filename string) (string, error) {
 func (f ContentFactory) CreateContentPlaceHolder(filename string) (string, error) {
 	filename = filepath.Clean(filename)
 	_, abs, err := f.h.AbsProjectContentDir(filename)
+
 	if err != nil {
 		return "", err
 	}

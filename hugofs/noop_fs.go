@@ -38,11 +38,11 @@ func (fs noOpFs) Create(name string) (afero.File, error) {
 }
 
 func (fs noOpFs) Mkdir(name string, perm os.FileMode) error {
-	return errNoOp
+	return nil
 }
 
 func (fs noOpFs) MkdirAll(path string, perm os.FileMode) error {
-	return errNoOp
+	return nil
 }
 
 func (fs noOpFs) Open(name string) (afero.File, error) {
@@ -54,11 +54,11 @@ func (fs noOpFs) OpenFile(name string, flag int, perm os.FileMode) (afero.File, 
 }
 
 func (fs noOpFs) Remove(name string) error {
-	return errNoOp
+	return nil
 }
 
 func (fs noOpFs) RemoveAll(path string) error {
-	return errNoOp
+	return nil
 }
 
 func (fs noOpFs) Rename(oldname string, newname string) error {
