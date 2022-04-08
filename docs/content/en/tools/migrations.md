@@ -4,7 +4,7 @@ linktitle: Migrations
 description: A list of community-developed tools for migrating from your existing static site generator or content management system to Hugo.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
+lastmod: 2022-03-26
 keywords: [migrations,jekyll,wordpress,drupal,ghost,contentful]
 menu:
   docs:
@@ -47,9 +47,9 @@ Alternatively, you can use the new [Jekyll import command](/commands/hugo_import
 ## WordPress
 
 - [wordpress-to-hugo-exporter](https://github.com/SchumacherFM/wordpress-to-hugo-exporter) - A one-click WordPress plugin that converts all posts, pages, taxonomies, metadata, and settings to Markdown and YAML which can be dropped into Hugo. (Note: If you have trouble using this plugin, you can [export your site for Jekyll](https://wordpress.org/plugins/jekyll-exporter/) and use Hugo's built in Jekyll converter listed above.)
-- [exitwp-for-hugo](https://github.com/wooni005/exitwp-for-hugo) - A python script which works with the xml export from WordPress and converts WordPress pages and posts to Markdown and YAML for hugo.
 - [blog2md](https://github.com/palaniraja/blog2md) - Works with [exported xml](https://en.support.wordpress.com/export/) file of your free YOUR-TLD.wordpress.com website. It also saves approved comments to `YOUR-POST-NAME-comments.md` file along with posts.
 - [wordhugopress](https://github.com/nantipov/wordhugopress) - A small utility written in Java, exports the entire WordPress site from the database and resource (e.g. images) files stored locally or remotely. Therefore, migration from the backup files is possible. Supports merging of the multiple WordPress sites into a single Hugo one.
+- [wpxr-to-static](https://github.com/danielfdickinson/wpxr-to-static) - WordPress eXtended RSS to Static Generator Conversion, Python3 program to convert WordPress XML Export (WPXR) format files to Hugo Markdown files (with YAML metadata) and a `config.toml` for the site. Inspired by [exitwp-for-hugo](https://github.com/wooni005/exitwp-for-hugo) (a Python 2 \[EOL] script which works with the xml export from WordPress and converts WordPress pages and posts to Markdown and YAML for hugo).
 
 ## Medium
 

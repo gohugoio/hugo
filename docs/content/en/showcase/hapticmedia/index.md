@@ -18,7 +18,7 @@ Hugo addresses all these needs, coupled with [Forestry.io](https://forestry.io/)
 - The **multilingual** content support, especially simple to setup.
 - The **multiple environments** support (develop, staging, test, production, ...).
 - Although a hard start with the Go language, the power of the **Hugo's templating**.
-- The **partial layouts**, including the `internals` (e.g. social metas).
+- The **partial layouts**, including the `internals` (e.g. social meta tags).
 - The **build time**, unbeatable ⚡️⚡️⚡️.
 
 
@@ -30,4 +30,3 @@ Hugo addresses all these needs, coupled with [Forestry.io](https://forestry.io/)
 - **[Forestry.io](https://forestry.io)** for the content management.
 
 **All of these tools allow our editor to manage the blog's content without having to worry about its technical aspect, which is managed by the developers.**
-

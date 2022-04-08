@@ -25,7 +25,7 @@ The hook kinds currently supported are:
 * `image`
 * `link`
 * `heading` {{< new-in "0.71.0" >}}
-* `codeblock`{{< new-in "0.83.0" >}}
+* `codeblock`{{< new-in "0.93.0" >}}
 
 You can define [Output-Format-](/templates/output-formats) and [language-](/content-management/multilingual/)specific templates if needed. Your `layouts` folder may look like this:
 
