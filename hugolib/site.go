@@ -739,7 +739,12 @@ func (s *SiteInfo) Sites() page.Sites {
 }
 
 // Current returns the currently rendered Site.
+// If that isn't set yet, which is the situation before we start rendering,
+// if will return the Site itself.
 func (s *SiteInfo) Current() page.Site {
+	if s.s.h.currentSite == nil {
+		return s
+	}
 	return s.s.h.currentSite.Info
 }
 

@@ -53,13 +53,16 @@ type mapKeyByInt struct{ mapKeyValues }
 
 func (s mapKeyByInt) Less(i, j int) bool { return s.mapKeyValues[i].Int() < s.mapKeyValues[j].Int() }
 
-type mapKeyByStr struct{ mapKeyValues }
-
-func (s mapKeyByStr) Less(i, j int) bool {
-	return compare.LessStrings(s.mapKeyValues[i].String(), s.mapKeyValues[j].String())
+type mapKeyByStr struct {
+	less func(a, b string) bool
+	mapKeyValues
 }
 
-func sortKeys(v []reflect.Value, order string) []reflect.Value {
+func (s mapKeyByStr) Less(i, j int) bool {
+	return s.less(s.mapKeyValues[i].String(), s.mapKeyValues[j].String())
+}
+
+func sortKeys(examplePage Page, v []reflect.Value, order string) []reflect.Value {
 	if len(v) <= 1 {
 		return v
 	}
@@ -72,10 +75,12 @@ func sortKeys(v []reflect.Value, order string) []reflect.Value {
 			sort.Sort(mapKeyByInt{v})
 		}
 	case reflect.String:
+		stringLess, close := collatorStringLess(examplePage)
+		defer close()
 		if order == "desc" {
-			sort.Sort(sort.Reverse(mapKeyByStr{v}))
+			sort.Sort(sort.Reverse(mapKeyByStr{stringLess, v}))
 		} else {
-			sort.Sort(mapKeyByStr{v})
+			sort.Sort(mapKeyByStr{stringLess, v})
 		}
 	}
 	return v
@@ -161,7 +166,7 @@ func (p Pages) GroupBy(key string, order ...string) (PagesGroup, error) {
 		tmp.SetMapIndex(fv, reflect.Append(tmp.MapIndex(fv), ppv))
 	}
 
-	sortedKeys := sortKeys(tmp.MapKeys(), direction)
+	sortedKeys := sortKeys(p[0], tmp.MapKeys(), direction)
 	r := make([]PageGroup, len(sortedKeys))
 	for i, k := range sortedKeys {
 		r[i] = PageGroup{Key: k.Interface(), Pages: tmp.MapIndex(k).Interface().(Pages)}
@@ -213,7 +218,7 @@ func (p Pages) GroupByParam(key string, order ...string) (PagesGroup, error) {
 	}
 
 	var r []PageGroup
-	for _, k := range sortKeys(tmp.MapKeys(), direction) {
+	for _, k := range sortKeys(p[0], tmp.MapKeys(), direction) {
 		r = append(r, PageGroup{Key: k.Interface(), Pages: tmp.MapIndex(k).Interface().(Pages)})
 	}
 

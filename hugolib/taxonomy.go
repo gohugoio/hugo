@@ -18,6 +18,7 @@ import (
 	"sort"
 
 	"github.com/gohugoio/hugo/compare"
+	"github.com/gohugoio/hugo/langs"
 
 	"github.com/gohugoio/hugo/resources/page"
 )
@@ -39,6 +40,15 @@ type Taxonomy map[string]page.WeightedPages
 // OrderedTaxonomy is another representation of an Taxonomy using an array rather than a map.
 // Important because you can't order a map.
 type OrderedTaxonomy []OrderedTaxonomyEntry
+
+// getOneOPage returns one page in the taxonomy,
+// nil if there is none.
+func (t OrderedTaxonomy) getOneOPage() page.Page {
+	if len(t) == 0 {
+		return nil
+	}
+	return t[0].Pages()[0]
+}
 
 // OrderedTaxonomyEntry is similar to an element of a Taxonomy, but with the key embedded (as name)
 // e.g:  {Name: Technology, page.WeightedPages: TaxonomyPages}
@@ -72,11 +82,18 @@ func (i Taxonomy) TaxonomyArray() OrderedTaxonomy {
 
 // Alphabetical returns an ordered taxonomy sorted by key name.
 func (i Taxonomy) Alphabetical() OrderedTaxonomy {
-	name := func(i1, i2 *OrderedTaxonomyEntry) bool {
-		return compare.LessStrings(i1.Name, i2.Name)
-	}
-
 	ia := i.TaxonomyArray()
+	p := ia.getOneOPage()
+	if p == nil {
+		return ia
+	}
+	currentSite := p.Site().Current()
+	coll := langs.GetCollator(currentSite.Language())
+	coll.Lock()
+	defer coll.Unlock()
+	name := func(i1, i2 *OrderedTaxonomyEntry) bool {
+		return coll.CompareStrings(i1.Name, i2.Name) < 0
+	}
 	oiBy(name).Sort(ia)
 	return ia
 }

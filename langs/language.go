@@ -19,6 +19,9 @@ import (
 	"sync"
 	"time"
 
+	"golang.org/x/text/collate"
+	"golang.org/x/text/language"
+
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/htime"
@@ -80,8 +83,9 @@ type Language struct {
 	// TODO(bep) do the same for some of the others.
 	translator    locales.Translator
 	timeFormatter htime.TimeFormatter
-
-	location *time.Location
+	tag           language.Tag
+	collator      *Collator
+	location      *time.Location
 
 	// Error during initialization. Will fail the buld.
 	initErr error
@@ -111,6 +115,18 @@ func NewLanguage(lang string, cfg config.Provider) *Language {
 		}
 	}
 
+	var coll *Collator
+	tag, err := language.Parse(lang)
+	if err == nil {
+		coll = &Collator{
+			c: collate.New(tag),
+		}
+	} else {
+		coll = &Collator{
+			c: collate.New(language.English),
+		}
+	}
+
 	l := &Language{
 		Lang:       lang,
 		ContentDir: cfg.GetString("contentDir"),
@@ -119,6 +135,8 @@ func NewLanguage(lang string, cfg config.Provider) *Language {
 		params:        params,
 		translator:    translator,
 		timeFormatter: htime.NewTimeFormatter(translator),
+		tag:           tag,
+		collator:      coll,
 	}
 
 	if err := l.loadLocation(cfg.GetString("timeZone")); err != nil {
@@ -275,6 +293,10 @@ func GetLocation(l *Language) *time.Location {
 	return l.location
 }
 
+func GetCollator(l *Language) *Collator {
+	return l.collator
+}
+
 func (l *Language) loadLocation(tzStr string) error {
 	location, err := time.LoadLocation(tzStr)
 	if err != nil {
@@ -283,4 +305,17 @@ func (l *Language) loadLocation(tzStr string) error {
 	l.location = location
 
 	return nil
+}
+
+type Collator struct {
+	sync.Mutex
+	c *collate.Collator
+}
+
+// CompareStrings compares a and b.
+// It returns -1 if a < b, 1 if a > b and 0 if a == b.
+// Note that the Collator is not thread safe, so you may want
+// to aquire a lock on it before calling this method.
+func (c *Collator) CompareStrings(a, b string) int {
+	return c.c.CompareString(a, b)
 }

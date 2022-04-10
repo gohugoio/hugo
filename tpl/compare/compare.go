@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/compare"
+	"github.com/gohugoio/hugo/langs"
 
 	"github.com/gohugoio/hugo/common/types"
 )
@@ -188,15 +189,21 @@ func (n *Namespace) Le(first any, others ...any) bool {
 }
 
 // Lt returns the boolean truth of arg1 < arg2 && arg1 < arg3 && arg1 < arg4.
-func (n *Namespace) Lt(first any, others ...any) bool {
+// The provided collator will be used for string comparisons.
+func (n *Namespace) LtCollate(collator *langs.Collator, first any, others ...any) bool {
 	n.checkComparisonArgCount(1, others...)
 	for _, other := range others {
-		left, right := n.compareGet(first, other)
+		left, right := n.compareGetWithCollator(collator, first, other)
 		if !(left < right) {
 			return false
 		}
 	}
 	return true
+}
+
+// Lt returns the boolean truth of arg1 < arg2 && arg1 < arg3 && arg1 < arg4.
+func (n *Namespace) Lt(first any, others ...any) bool {
+	return n.LtCollate(nil, first, others...)
 }
 
 func (n *Namespace) checkComparisonArgCount(min int, others ...any) bool {
@@ -216,6 +223,10 @@ func (n *Namespace) Conditional(condition bool, a, b any) any {
 }
 
 func (ns *Namespace) compareGet(a any, b any) (float64, float64) {
+	return ns.compareGetWithCollator(nil, a, b)
+}
+
+func (ns *Namespace) compareGetWithCollator(collator *langs.Collator, a any, b any) (float64, float64) {
 	if ac, ok := a.(compare.Comparer); ok {
 		c := ac.Compare(b)
 		if c < 0 {
@@ -296,8 +307,13 @@ func (ns *Namespace) compareGet(a any, b any) (float64, float64) {
 		}
 	}
 
-	if ns.caseInsensitive && leftStr != nil && rightStr != nil {
-		c := compare.Strings(*leftStr, *rightStr)
+	if (ns.caseInsensitive || collator != nil) && leftStr != nil && rightStr != nil {
+		var c int
+		if collator != nil {
+			c = collator.CompareStrings(*leftStr, *rightStr)
+		} else {
+			c = compare.Strings(*leftStr, *rightStr)
+		}
 		if c < 0 {
 			return 0, 1
 		} else if c > 0 {

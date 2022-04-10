@@ -14,10 +14,13 @@
 package langs
 
 import (
+	"sync"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config"
+	"golang.org/x/text/collate"
+	"golang.org/x/text/language"
 )
 
 func TestGetGlobalOnlySetting(t *testing.T) {
@@ -46,4 +49,60 @@ func TestLanguageParams(t *testing.T) {
 
 	c.Assert(lang.Params()["p1"], qt.Equals, "p1p")
 	c.Assert(lang.Get("p1"), qt.Equals, "p1cfg")
+}
+
+func TestCollator(t *testing.T) {
+
+	c := qt.New(t)
+
+	var wg sync.WaitGroup
+
+	coll := &Collator{c: collate.New(language.English, collate.Loose)}
+
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			coll.Lock()
+			defer coll.Unlock()
+			defer wg.Done()
+			for j := 0; j < 10; j++ {
+				k := coll.CompareStrings("abc", "def")
+				c.Assert(k, qt.Equals, -1)
+			}
+		}()
+	}
+	wg.Wait()
+
+}
+
+func BenchmarkCollator(b *testing.B) {
+	s := []string{"foo", "bar", "éntre", "baz", "qux", "quux", "corge", "grault", "garply", "waldo", "fred", "plugh", "xyzzy", "thud"}
+
+	doWork := func(coll *Collator) {
+		for i := 0; i < len(s); i++ {
+			for j := i + 1; j < len(s); j++ {
+				_ = coll.CompareStrings(s[i], s[j])
+			}
+		}
+	}
+
+	b.Run("Single", func(b *testing.B) {
+		coll := &Collator{c: collate.New(language.English, collate.Loose)}
+		for i := 0; i < b.N; i++ {
+			doWork(coll)
+		}
+	})
+
+	b.Run("Para", func(b *testing.B) {
+		b.RunParallel(func(pb *testing.PB) {
+			coll := &Collator{c: collate.New(language.English, collate.Loose)}
+
+			for pb.Next() {
+				coll.Lock()
+				doWork(coll)
+				coll.Unlock()
+			}
+		})
+	})
+
 }
