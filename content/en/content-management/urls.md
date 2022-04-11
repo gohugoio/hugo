@@ -175,7 +175,7 @@ Assuming a `baseURL` of `example.com`, the contents of the auto-generated alias 
 </html>
 ```
 
-The `http-equiv="refresh"` line is what performs the redirect, in 0 seconds in this case. If an end user of your website goes to `https://example.com/posts/my-old-url`, they will now be automatically redirected to the newer, correct URL. The addition of `<meta name="robots" content="noindex">` lets search engine bots know that they should not crawl and index your new alias page.
+The `http-equiv="refresh"` line is what performs the redirect, in 0 seconds in this case. If an end user of your website goes to `https://example.com/posts/my-old-url`, they will now be automatically redirected to the newer, correct URL. The addition of `<meta name="robots" content="noindex">` lets search engine bots know that they should not index your alias page (`https://example.com/posts/my-old-url/`).
 
 ### Customize
 
