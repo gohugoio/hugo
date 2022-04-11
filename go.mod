@@ -28,7 +28,7 @@ require (
 	github.com/gobwas/glob v0.2.3
 	github.com/gohugoio/go-i18n/v2 v2.1.3-0.20210430103248-4c28c89f8013
 	github.com/gohugoio/locales v0.14.0
-	github.com/gohugoio/localescompressed v0.15.0
+	github.com/gohugoio/localescompressed v1.0.1
 	github.com/gohugoio/testmodBuilder/mods v0.0.0-20190520184928-c56af20f2e95
 	github.com/google/go-cmp v0.5.7
 	github.com/gorilla/websocket v1.5.0
@@ -43,7 +43,7 @@ require (
 	github.com/muesli/smartcrop v0.3.0
 	github.com/niklasfasching/go-org v1.6.2
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/pelletier/go-toml/v2 v2.0.0-beta.6
+	github.com/pelletier/go-toml/v2 v2.0.0-beta.7.0.20220408132554-2377ac4bc04c
 	github.com/pkg/errors v0.9.1
 	github.com/rogpeppe/go-internal v1.8.1
 	github.com/russross/blackfriday v1.6.0
