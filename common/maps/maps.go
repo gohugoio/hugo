@@ -109,6 +109,20 @@ func ToSliceStringMap(in any) ([]map[string]any, error) {
 	}
 }
 
+// LookupEqualFold finds key in m with case insensitive equality checks.
+func LookupEqualFold[T any | string](m map[string]T, key string) (T, bool) {
+	if v, found := m[key]; found {
+		return v, true
+	}
+	for k, v := range m {
+		if strings.EqualFold(k, key) {
+			return v, true
+		}
+	}
+	var s T
+	return s, false
+}
+
 type keyRename struct {
 	pattern glob.Glob
 	newKey  string

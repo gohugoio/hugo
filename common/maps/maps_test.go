@@ -171,3 +171,26 @@ func TestRenameKeys(t *testing.T) {
 		t.Errorf("Expected\n%#v, got\n%#v\n", expected, m)
 	}
 }
+
+func TestLookupEqualFold(t *testing.T) {
+	c := qt.New(t)
+
+	m1 := map[string]any{
+		"a": "av",
+		"B": "bv",
+	}
+
+	v, found := LookupEqualFold(m1, "b")
+	c.Assert(found, qt.IsTrue)
+	c.Assert(v, qt.Equals, "bv")
+
+	m2 := map[string]string{
+		"a": "av",
+		"B": "bv",
+	}
+
+	v, found = LookupEqualFold(m2, "b")
+	c.Assert(found, qt.IsTrue)
+	c.Assert(v, qt.Equals, "bv")
+
+}

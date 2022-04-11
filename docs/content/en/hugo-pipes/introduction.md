@@ -53,6 +53,19 @@ With `resources.GetRemote`, the first argument is a remote URL:
 
 `resources.Get` and `resources.GetRemote` return `nil` if the resource is not found.
 
+### Caching
+
+By default, Hugo calculates a cache key based on the `URL` and the `options` (e.g. headers) given.
+
+
+{{< new-in "0.97.0" >}} You can override this by setting a `key` in the options map. This can be used to get more fine grained control over how often a remote resource is fetched, e.g.:
+
+
+```go-html-template
+{{ $cacheKey := print $url (now.Format "2006-01-02") }}
+{{ $resource := resource.GetRemote $url (dict "key" $cacheKey) }}
+```
+
 ### Error Handling
 
 {{< new-in "0.91.0" >}}
