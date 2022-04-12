@@ -43,7 +43,7 @@ require (
 	github.com/muesli/smartcrop v0.3.0
 	github.com/niklasfasching/go-org v1.6.2
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/pelletier/go-toml/v2 v2.0.0-beta.7.0.20220408132554-2377ac4bc04c
+	github.com/pelletier/go-toml/v2 v2.0.0-beta.8
 	github.com/pkg/errors v0.9.1
 	github.com/rogpeppe/go-internal v1.8.1
 	github.com/russross/blackfriday v1.6.0
