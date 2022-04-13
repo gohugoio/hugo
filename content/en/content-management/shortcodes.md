@@ -183,7 +183,7 @@ To demonstrate the remarkably efficiency of Hugo's shortcode feature, we have em
 
 ### `highlight`
 
-This shortcode will convert the source code provided into syntax-highlighted HTML. Read more on [highlighting](/tools/syntax-highlighting/). `highlight` takes exactly one required `language` parameter and requires a closing shortcode.
+This shortcode will convert the source code provided into syntax-highlighted HTML. Read more on [highlighting](/content-management/syntax-highlighting/). `highlight` takes exactly one required `language` parameter and requires a closing shortcode.
 
 #### Example `highlight` Input
 

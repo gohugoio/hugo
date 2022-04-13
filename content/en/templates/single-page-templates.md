@@ -83,7 +83,7 @@ To easily generate new instances of a content type (e.g., new `.md` files in a s
 [dry]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
 [`.Format` function]: /functions/format/
 [front matter]: /content-management/front-matter/
-[pagetaxonomy]: /templates/taxonomy-templates/#displaying-a-single-piece-of-content-s-taxonomies
+[pagetaxonomy]: /templates/taxonomy-templates/#display-a-single-piece-of-contents-taxonomies
 [pagevars]: /variables/page/
 [partials]: /templates/partials/
 [section]: /content-management/sections/

@@ -48,7 +48,7 @@ By default, Hugo will create new content files with at least `date`, `title` (in
 : Stores all the files which need be processed by [Hugo Pipes]({{< ref "/hugo-pipes" >}}). Only the files whose `.Permalink` or `.RelPermalink` are used will be published to the `public` directory. Note: assets directory is not created by default.
 
 [`config`](/getting-started/configuration/)
-: Hugo ships with a large number of [configuration directives](https://gohugo.io/getting-started/configuration/#all-variables-yaml).
+: Hugo ships with a large number of [configuration directives][].
 The [config directory](/getting-started/configuration/#configuration-directory) is where those directives are stored as JSON, YAML, or TOML files. Every root setting object can stand as its own file and structured by environments.
 Projects with minimal settings and no need for environment awareness can use a single `config.toml` file at its root.
 
@@ -76,7 +76,7 @@ resources
 
 
 [archetypes]: /content-management/archetypes/
-[configuration directives]: /getting-started/configuration/#all-variables-yaml
+[configuration directives]: /getting-started/configuration/#all-configuration-settings
 [`content`]: /content-management/organization/
 [content section]: /content-management/sections/
 [content types]: /content-management/types/

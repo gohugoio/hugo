@@ -571,7 +571,7 @@ If there is more than one language defined, the `LanguagePrefix` variable will e
 [lang.FormatAccounting]: /functions/lang/#langformataccounting
 [lang.FormatCurrency]: /functions/lang/#langformatcurrency
 [lang.FormatNumber]: /functions/lang/#langformatnumber
-[lang.FormatNumberCustom]: functions/lang/#langformatnumbercustom
+[lang.FormatNumberCustom]: /functions/lang/#langformatnumbercustom
 [lang.FormatPercent]: /functions/lang/#langformatpercent
 [lang.Merge]: /functions/lang.merge/
 [menus]: /content-management/menus/
