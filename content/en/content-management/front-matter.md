@@ -189,6 +189,9 @@ kind
 lang
 : A Glob pattern matching the Page's language, e.g. "{en,sv}".
 
+environment
+: A Glob pattern matching the build environment, e.g. "{production,development}"
+
 Any of the above can be omitted. 
 
 ### Example

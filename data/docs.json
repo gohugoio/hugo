@@ -1860,6 +1860,7 @@
           "keepNumbers": false
         },
         "svg": {
+          "keepComments": false,
           "precision": 0
         },
         "xml": {
@@ -4665,6 +4666,12 @@
           ],
           "Examples": []
         },
+        "ByType": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "Concat": {
           "Description": "",
           "Args": null,
@@ -4694,7 +4701,7 @@
           "Examples": null
         },
         "Get": {
-          "Description": "Get locates the filename given in Hugo's assets filesystem and\ncreates a Resource object that can be used for\nfurther transformations.",
+          "Description": "Get locates the filename given in Hugo's assets filesystem\nand creates a Resource object that can be used for further transformations.",
           "Args": [
             "filename"
           ],
@@ -4857,6 +4864,12 @@
       },
       "site": {
         "BaseURL": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Current": {
           "Description": "",
           "Args": null,
           "Aliases": null,
