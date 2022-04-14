@@ -207,7 +207,7 @@ func (r *ReleaseHandler) release(releaseNotesFile string) error {
 		return nil
 	}
 
-	args := []string{"--parallelism", "3", "--timeout", "120m", "--rm-dist", "--release-notes", releaseNotesFile}
+	args := []string{"--parallelism", "2", "--timeout", "120m", "--rm-dist", "--release-notes", releaseNotesFile}
 	if r.skipPublish {
 		args = append(args, "--skip-publish")
 	}
