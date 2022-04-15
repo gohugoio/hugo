@@ -421,7 +421,7 @@ In the above example, you may want `{{.Title}}` to point the `title` field you h
 {{ end }}
 {{< /code >}}
 
-{{< new-in "0.87.0" >}} `GroupByDate` accepts the same time layouts as in [time.Format](/functions/dateformat/) and The `.Key` in the result will be localized for the current language.
+{{< new-in "0.97.0" >}} `GroupByDate` accepts the same time layouts as in [time.Format](/functions/dateformat/) and The `.Key` in the result will be localized for the current language.
 
 ### By Publish Date
 
@@ -440,7 +440,7 @@ In the above example, you may want `{{.Title}}` to point the `title` field you h
 {{ end }}
 {{< /code >}}
 
-{{< new-in "0.87.0" >}} `GroupByDate` accepts the same time layouts as in [time.Format](/functions/dateformat/) and The `.Key` in the result will be localized for the current language.
+{{< new-in "0.97.0" >}} `GroupByDate` accepts the same time layouts as in [time.Format](/functions/dateformat/) and The `.Key` in the result will be localized for the current language.
 
 ### By Lastmod
 
@@ -459,7 +459,7 @@ In the above example, you may want `{{.Title}}` to point the `title` field you h
 {{ end }}
 {{< /code >}}
 
-{{< new-in "0.87.0" >}} `GroupByDate` accepts the same time layouts as in [time.Format](/functions/dateformat/) and The `.Key` in the result will be localized for the current language.
+{{< new-in "0.97.0" >}} `GroupByDate` accepts the same time layouts as in [time.Format](/functions/dateformat/) and The `.Key` in the result will be localized for the current language.
 
 ### By Expiry Date
 
@@ -478,7 +478,7 @@ In the above example, you may want `{{.Title}}` to point the `title` field you h
 {{ end }}
 {{< /code >}}
 
-{{< new-in "0.87.0" >}} `GroupByDate` accepts the same time layouts as in [time.Format](/functions/dateformat/) and The `.Key` in the result will be localized for the current language.
+{{< new-in "0.97.0" >}} `GroupByDate` accepts the same time layouts as in [time.Format](/functions/dateformat/) and The `.Key` in the result will be localized for the current language.
 
 ### By Page Parameter
 
