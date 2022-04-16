@@ -65,7 +65,7 @@ type Fs struct {
 // as source and destination file systems.
 func NewDefault(cfg config.Provider) *Fs {
 	fs := Os
-	return newFs(fs, cfg)
+	return newFs(fs, fs, cfg)
 }
 
 // NewMem creates a new Fs with the MemMapFs
@@ -73,17 +73,23 @@ func NewDefault(cfg config.Provider) *Fs {
 // Useful for testing.
 func NewMem(cfg config.Provider) *Fs {
 	fs := &afero.MemMapFs{}
-	return newFs(fs, cfg)
+	return newFs(fs, fs, cfg)
 }
 
 // NewFrom creates a new Fs based on the provided Afero Fs
 // as source and destination file systems.
 // Useful for testing.
 func NewFrom(fs afero.Fs, cfg config.Provider) *Fs {
-	return newFs(fs, cfg)
+	return newFs(fs, fs, cfg)
 }
 
-func newFs(base afero.Fs, cfg config.Provider) *Fs {
+// NewFrom creates a new Fs based on the provided Afero Fss
+// as the source and destination file systems.
+func NewFromSourceAndDestination(source, destination afero.Fs, cfg config.Provider) *Fs {
+	return newFs(source, destination, cfg)
+}
+
+func newFs(source, destination afero.Fs, cfg config.Provider) *Fs {
 	workingDir := cfg.GetString("workingDir")
 	publishDir := cfg.GetString("publishDir")
 	if publishDir == "" {
@@ -91,27 +97,27 @@ func newFs(base afero.Fs, cfg config.Provider) *Fs {
 	}
 
 	// Sanity check
-	if IsOsFs(base) && len(workingDir) < 2 {
+	if IsOsFs(source) && len(workingDir) < 2 {
 		panic("workingDir is too short")
 	}
 
 	absPublishDir := paths.AbsPathify(workingDir, publishDir)
 
 	// Make sure we always have the /public folder ready to use.
-	if err := base.MkdirAll(absPublishDir, 0777); err != nil && !os.IsExist(err) {
+	if err := source.MkdirAll(absPublishDir, 0777); err != nil && !os.IsExist(err) {
 		panic(err)
 	}
 
-	pubFs := afero.NewBasePathFs(base, absPublishDir)
+	pubFs := afero.NewBasePathFs(destination, absPublishDir)
 
 	return &Fs{
-		Source:             base,
+		Source:             source,
 		PublishDir:         pubFs,
 		PublishDirServer:   pubFs,
 		PublishDirStatic:   pubFs,
 		Os:                 &afero.OsFs{},
-		WorkingDirReadOnly: getWorkingDirFsReadOnly(base, workingDir),
-		WorkingDirWritable: getWorkingDirFsWritable(base, workingDir),
+		WorkingDirReadOnly: getWorkingDirFsReadOnly(source, workingDir),
+		WorkingDirWritable: getWorkingDirFsWritable(source, workingDir),
 	}
 }
 
