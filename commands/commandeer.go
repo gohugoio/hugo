@@ -395,23 +395,23 @@ func (c *commandeer) loadConfig() error {
 	}
 
 	c.fsCreate.Do(func() {
-		// Assume both source and destination are using same filesystem.
-		fs := hugofs.NewFromSourceAndDestination(sourceFs, sourceFs, config)
+		fs := hugofs.NewFrom(sourceFs, config)
 
 		if c.publishDirFs != nil {
 			// Need to reuse the destination on server rebuilds.
 			fs.PublishDir = c.publishDirFs
 			fs.PublishDirServer = c.publishDirServerFs
 		} else {
-			if c.renderStaticToDisk {
-				publishDirStatic := config.GetString("publishDirStatic")
-				workingDir := config.GetString("workingDir")
-				absPublishDirStatic := paths.AbsPathify(workingDir, publishDirStatic)
+			publishDir := config.GetString("publishDir")
+			publishDirStatic := config.GetString("publishDirStatic")
+			workingDir := config.GetString("workingDir")
+			absPublishDir := paths.AbsPathify(workingDir, publishDir)
+			absPublishDirStatic := paths.AbsPathify(workingDir, publishDirStatic)
 
-				fs = hugofs.NewFromSourceAndDestination(sourceFs, afero.NewMemMapFs(), config)
-				// Writes the dynamic output to memory,
+			if c.renderStaticToDisk {
+				// Writes the dynamic output oton memory,
 				// while serve others directly from /public on disk.
-				dynamicFs := fs.PublishDir
+				dynamicFs := afero.NewMemMapFs()
 				staticFs := afero.NewBasePathFs(afero.NewOsFs(), absPublishDirStatic)
 
 				// Serve from both the static and dynamic fs,
@@ -427,10 +427,18 @@ func (c *commandeer) loadConfig() error {
 						},
 					},
 				)
+				fs.PublishDir = dynamicFs
 				fs.PublishDirStatic = staticFs
 			} else if createMemFs {
 				// Hugo writes the output to memory instead of the disk.
-				fs = hugofs.NewFromSourceAndDestination(sourceFs, afero.NewMemMapFs(), config)
+				fs.PublishDir = new(afero.MemMapFs)
+				fs.PublishDirServer = fs.PublishDir
+				fs.PublishDirStatic = fs.PublishDir
+			} else {
+				// Write everything to disk.
+				fs.PublishDir = afero.NewBasePathFs(afero.NewOsFs(), absPublishDir)
+				fs.PublishDirServer = fs.PublishDir
+				fs.PublishDirStatic = fs.PublishDir
 			}
 		}
 
