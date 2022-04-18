@@ -31,16 +31,6 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
-func TestServer(t *testing.T) {
-	c := qt.New(t)
-
-	r := runServerTest(c, true, "")
-
-	c.Assert(r.err, qt.IsNil)
-	c.Assert(r.homeContent, qt.Contains, "List: Hugo Commands")
-	c.Assert(r.homeContent, qt.Contains, "Environment: development")
-}
-
 // Issue 9518
 func TestServerPanicOnConfigError(t *testing.T) {
 	c := qt.New(t)
@@ -93,6 +83,42 @@ baseURL="https://example.org"
 
 			r := runServerTest(c, true, config, args...)
 
+			test.assert(c, r)
+
+		})
+
+	}
+
+}
+
+func TestServerBugs(t *testing.T) {
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		name   string
+		flag   string
+		assert func(c *qt.C, r serverTestResult)
+	}{
+		// Issue 9788
+		{"PostProcess, memory", "", func(c *qt.C, r serverTestResult) {
+			c.Assert(r.err, qt.IsNil)
+			c.Assert(r.homeContent, qt.Contains, "PostProcess: /foo.min.css")
+		}},
+		{"PostProcess, disk", "--renderToDisk", func(c *qt.C, r serverTestResult) {
+			c.Assert(r.err, qt.IsNil)
+			c.Assert(r.homeContent, qt.Contains, "PostProcess: /foo.min.css")
+		}},
+	} {
+		c.Run(test.name, func(c *qt.C) {
+			config := `
+baseURL="https://example.org"
+`
+
+			var args []string
+			if test.flag != "" {
+				args = strings.Split(test.flag, "=")
+			}
+			r := runServerTest(c, true, config, args...)
 			test.assert(c, r)
 
 		})
