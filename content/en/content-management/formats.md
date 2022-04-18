@@ -5,7 +5,7 @@ description: Both HTML and Markdown are supported content formats.
 date: 2017-01-10
 publishdate: 2017-01-10
 categories: [content management]
-keywords: [markdown,asciidoc,mmark,pandoc,content format]
+keywords: [markdown,asciidoc,pandoc,content format]
 menu:
   docs:
     parent: "content-management"
@@ -30,7 +30,6 @@ The current list of content formats in Hugo:
 | ------------- | ------------- |-------------|
 | Goldmark  | md, markdown, goldmark  |Note that you can set the default handler of `md` and `markdown` to something else, see [Configure Markup](/getting-started/configuration-markup/).{{< new-in "0.60.0" >}} |
 | Blackfriday | blackfriday  |Blackfriday will eventually be deprecated.|
-|MMark|mmark|Mmark is deprecated and will be removed in a future release.|
 |Emacs Org-Mode|org|See [go-org](https://github.com/niklasfasching/go-org).|
 |AsciiDoc|asciidocext, adoc, ad|Needs [Asciidoctor][ascii] installed.|
 |RST|rst|Needs [RST](https://docutils.sourceforge.io/rst.html) installed.|
@@ -131,7 +130,6 @@ Markdown syntax is simple enough to learn in a single sitting. The following are
 [ascii]: https://asciidoctor.org/
 [bfconfig]: /getting-started/configuration/#configuring-blackfriday-rendering
 [blackfriday]: https://github.com/russross/blackfriday
-[mmark]: https://github.com/miekg/mmark
 [config]: /getting-started/configuration/
 [developer tools]: /tools/
 [emojis]: https://www.webpagefx.com/tools/emoji-cheat-sheet/
@@ -146,7 +144,6 @@ Markdown syntax is simple enough to learn in a single sitting. The following are
 [mdcheatsheet]: https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
 [mdguide]: https://www.markdownguide.org/
 [mdtutorial]: https://www.markdowntutorial.com/
-[Miek Gieben's website]: https://miek.nl/2016/march/05/mmark-syntax-document/
 [org]: https://orgmode.org/
 [pandoc]: https://www.pandoc.org/
 [rest]: https://docutils.sourceforge.io/rst.html
