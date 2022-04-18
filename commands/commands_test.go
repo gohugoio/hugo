@@ -375,6 +375,10 @@ Single: {{ .Title }}
 List: {{ .Title }}
 Environment: {{ hugo.Environment }}
 
+For issue 9788:
+{{ $foo :="abc" | resources.FromString "foo.css" | minify | resources.PostProcess }}
+PostProcess: {{ $foo.RelPermalink }}
+
 `)
 
 	return dir
