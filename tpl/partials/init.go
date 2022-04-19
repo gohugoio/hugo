@@ -38,7 +38,7 @@ func init() {
 			},
 		)
 
-		// TODO(bep) we need the return to be a valid identifier, but
+		// TODO(bep) we need the return to be a valid identifiers, but
 		// should consider another way of adding it.
 		ns.AddMethodMapping(func() string { return "" },
 			[]string{"return"},

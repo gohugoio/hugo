@@ -15,6 +15,7 @@ package template
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"reflect"
 
@@ -255,10 +256,32 @@ func (s *state) evalField(dot reflect.Value, fieldName string, node parse.Node, 
 	panic("not reached")
 }
 
+// TryValue is what gets returned when using the "try" keyword.
+type TryValue struct {
+	// Value is the value returned by the function or method wrapped with "try".
+	// This will always be nil if Err is set.
+	Value any
+	// Err is the error returned by the function or method wrapped with "try".
+	// This will always be nil if Value is set.
+	Err error
+}
+
 // evalCall executes a function or method call. If it's a method, fun already has the receiver bound, so
 // it looks just like a function call. The arg list, if non-nil, includes (in the manner of the shell), arg[0]
 // as the function itself.
-func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node, name string, args []parse.Node, final reflect.Value, first ...reflect.Value) reflect.Value {
+func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node, name string, args []parse.Node, final reflect.Value, first ...reflect.Value) (val reflect.Value) {
+	// Added for Hugo.
+	if name == "try" {
+		defer func() {
+			if r := recover(); r != nil {
+				if err, ok := r.(error); ok {
+					val = reflect.ValueOf(TryValue{nil, err})
+				} else {
+					val = reflect.ValueOf(TryValue{nil, fmt.Errorf("%v", r)})
+				}
+			}
+		}()
+	}
 	if args != nil {
 		args = args[1:] // Zeroth arg is function name/node; not passed to function.
 	}
@@ -369,6 +392,11 @@ func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node
 	// Added for Hugo
 	if s.helper != nil {
 		s.helper.OnCalled(s.ctx, s.prep, name, argv, vv)
+	}
+
+	// Added for Hugo.
+	if name == "try" {
+		return reflect.ValueOf(TryValue{vv.Interface(), nil})
 	}
 
 	return vv
