@@ -24,6 +24,7 @@ import (
 	translators "github.com/gohugoio/localescompressed"
 	"github.com/pkg/errors"
 
+	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/spf13/cast"
 )
@@ -250,6 +251,12 @@ type pagesLanguageMerger interface {
 
 // Merge creates a union of pages from two languages.
 func (ns *Namespace) Merge(p2, p1 any) (any, error) {
+	if !hreflect.IsTruthful(p1) {
+		return p2, nil
+	}
+	if !hreflect.IsTruthful(p2) {
+		return p1, nil
+	}
 	merger, ok := p1.(pagesLanguageMerger)
 	if !ok {
 		return nil, fmt.Errorf("language merge not supported for %T", p1)
