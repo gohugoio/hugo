@@ -131,6 +131,7 @@ func (p *pageMeta) Aliases() []string {
 }
 
 func (p *pageMeta) Author() page.Author {
+	helpers.Deprecated(".Author", "Use taxonomies.", false)
 	authors := p.Authors()
 
 	for _, author := range authors {
@@ -140,6 +141,7 @@ func (p *pageMeta) Author() page.Author {
 }
 
 func (p *pageMeta) Authors() page.AuthorList {
+	helpers.Deprecated(".Authors", "Use taxonomies.", false)
 	authorKeys, ok := p.params["authors"]
 	if !ok {
 		return page.AuthorList{}

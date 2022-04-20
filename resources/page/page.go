@@ -52,7 +52,9 @@ type AlternativeOutputFormatsProvider interface {
 
 // AuthorProvider provides author information.
 type AuthorProvider interface {
+	// Deprecated.
 	Author() Author
+	// Deprecated.
 	Authors() AuthorList
 }
 
@@ -118,6 +120,7 @@ type InSectionPositioner interface {
 
 // InternalDependencies is considered an internal interface.
 type InternalDependencies interface {
+	// GetRelatedDocsHandler is for internal use only.
 	GetRelatedDocsHandler() *RelatedDocsHandler
 }
 
