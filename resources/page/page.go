@@ -184,6 +184,7 @@ type PageMetaProvider interface {
 	Path() string
 
 	// This is just a temporary bridge method. Use Path in templates.
+	// Pathc is for internal usage only.
 	Pathc() string
 
 	// The slug, typically defined in front matter.
@@ -306,14 +307,20 @@ type RawContentProvider interface {
 // RefProvider provides the methods needed to create reflinks to pages.
 type RefProvider interface {
 	Ref(argsm map[string]any) (string, error)
+
+	// RefFrom is for internal use only.
 	RefFrom(argsm map[string]any, source any) (string, error)
+
 	RelRef(argsm map[string]any) (string, error)
+
+	// RefFrom is for internal use only.
 	RelRefFrom(argsm map[string]any, source any) (string, error)
 }
 
 // RelatedKeywordsProvider allows a Page to be indexed.
 type RelatedKeywordsProvider interface {
 	// Make it indexable as a related.Document
+	// RelatedKeywords is meant for internal usage only.
 	RelatedKeywords(cfg related.IndexConfig) ([]related.Keyword, error)
 }
 
