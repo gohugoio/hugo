@@ -30,6 +30,7 @@ type Resources []Resource
 // var _ resource.ResourceFinder = (*Namespace)(nil)
 // ResourcesConverter converts a given slice of Resource objects to Resources.
 type ResourcesConverter interface {
+	// For internal use.
 	ToResources() Resources
 }
 

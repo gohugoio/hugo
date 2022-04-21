@@ -22,11 +22,6 @@ import (
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
-var (
-	_ resource.ResourcesConverter = Pages{}
-	_ compare.ProbablyEqer        = Pages{}
-)
-
 // Pages is a slice of pages. This is the most common list type in Hugo.
 type Pages []Page
 
@@ -149,3 +144,8 @@ func (ps Pages) removeFirstIfFound(p Page) Pages {
 // PagesFactory somehow creates some Pages.
 // We do a lot of lazy Pages initialization in Hugo, so we need a type.
 type PagesFactory func() Pages
+
+var (
+	_ resource.ResourcesConverter = Pages{}
+	_ compare.ProbablyEqer        = Pages{}
+)

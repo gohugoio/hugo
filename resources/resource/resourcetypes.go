@@ -155,7 +155,9 @@ type ResourceDataProvider interface {
 // different language.
 type ResourcesLanguageMerger interface {
 	MergeByLanguage(other Resources) Resources
+
 	// Needed for integration with the tpl package.
+	// For internal use.
 	MergeByLanguageInterface(other any) (any, error)
 }
 
