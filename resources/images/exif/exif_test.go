@@ -56,7 +56,7 @@ func TestExif(t *testing.T) {
 	// Verify that it survives a round-trip to JSON and back.
 	data, err := json.Marshal(x)
 	c.Assert(err, qt.IsNil)
-	x2 := &Exif{}
+	x2 := &ExifInfo{}
 	err = json.Unmarshal(data, x2)
 
 	c.Assert(x2, eq, x)

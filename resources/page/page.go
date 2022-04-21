@@ -161,8 +161,7 @@ type PageMetaProvider interface {
 	// Aliases forms the base for redirects generation.
 	Aliases() []string
 
-	// BundleType returns the bundle type: "leaf", "branch" or an empty string if it is none.
-	// See https://gohugo.io/content-management/page-bundles/
+	// BundleType returns the bundle type: `leaf`, `branch` or an empty string.
 	BundleType() files.ContentClass
 
 	// A configured description.

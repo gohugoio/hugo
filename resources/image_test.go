@@ -40,7 +40,6 @@ import (
 
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/images"
-	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/google/go-cmp/cmp"
 
 	"github.com/gohugoio/hugo/htesting/hqt"
@@ -76,7 +75,7 @@ func TestImageTransformBasic(t *testing.T) {
 
 	fileCache := image.(specProvider).getSpec().FileCaches.ImageCache().Fs
 
-	assertWidthHeight := func(img resource.Image, w, h int) {
+	assertWidthHeight := func(img images.ImageResource, w, h int) {
 		c.Helper()
 		c.Assert(img, qt.Not(qt.IsNil))
 		c.Assert(img.Width(), qt.Equals, w)
@@ -162,7 +161,7 @@ func TestImageTransformFormat(t *testing.T) {
 
 	fileCache := image.(specProvider).getSpec().FileCaches.ImageCache().Fs
 
-	assertExtWidthHeight := func(img resource.Image, ext string, w, h int) {
+	assertExtWidthHeight := func(img images.ImageResource, ext string, w, h int) {
 		c.Helper()
 		c.Assert(img, qt.Not(qt.IsNil))
 		c.Assert(paths.Ext(img.RelPermalink()), qt.Equals, ext)
@@ -210,13 +209,13 @@ func TestImagePermalinkPublishOrder(t *testing.T) {
 				os.Remove(workDir)
 			}()
 
-			check1 := func(img resource.Image) {
+			check1 := func(img images.ImageResource) {
 				resizedLink := "/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_100x50_resize_q75_box.jpg"
 				c.Assert(img.RelPermalink(), qt.Equals, resizedLink)
 				assertImageFile(c, spec.PublishFs, resizedLink, 100, 50)
 			}
 
-			check2 := func(img resource.Image) {
+			check2 := func(img images.ImageResource) {
 				c.Assert(img.RelPermalink(), qt.Equals, "/a/sunset.jpg")
 				assertImageFile(c, spec.PublishFs, "a/sunset.jpg", 900, 562)
 			}
@@ -231,7 +230,7 @@ func TestImagePermalinkPublishOrder(t *testing.T) {
 			resized, err := orignal.Resize("100x50")
 			c.Assert(err, qt.IsNil)
 
-			check1(resized.(resource.Image))
+			check1(resized.(images.ImageResource))
 
 			if !checkOriginalFirst {
 				check2(orignal)
@@ -441,9 +440,9 @@ func TestImageExif(t *testing.T) {
 	c := qt.New(t)
 	fs := afero.NewMemMapFs()
 	spec := newTestResourceSpec(specDescriptor{fs: fs, c: c})
-	image := fetchResourceForSpec(spec, c, "sunset.jpg").(resource.Image)
+	image := fetchResourceForSpec(spec, c, "sunset.jpg").(images.ImageResource)
 
-	getAndCheckExif := func(c *qt.C, image resource.Image) {
+	getAndCheckExif := func(c *qt.C, image images.ImageResource) {
 		x := image.Exif()
 		c.Assert(x, qt.Not(qt.IsNil))
 
@@ -464,22 +463,22 @@ func TestImageExif(t *testing.T) {
 	}
 
 	getAndCheckExif(c, image)
-	image = fetchResourceForSpec(spec, c, "sunset.jpg").(resource.Image)
+	image = fetchResourceForSpec(spec, c, "sunset.jpg").(images.ImageResource)
 	// This will read from file cache.
 	getAndCheckExif(c, image)
 }
 
 func BenchmarkImageExif(b *testing.B) {
-	getImages := func(c *qt.C, b *testing.B, fs afero.Fs) []resource.Image {
+	getImages := func(c *qt.C, b *testing.B, fs afero.Fs) []images.ImageResource {
 		spec := newTestResourceSpec(specDescriptor{fs: fs, c: c})
-		images := make([]resource.Image, b.N)
+		imgs := make([]images.ImageResource, b.N)
 		for i := 0; i < b.N; i++ {
-			images[i] = fetchResourceForSpec(spec, c, "sunset.jpg", strconv.Itoa(i)).(resource.Image)
+			imgs[i] = fetchResourceForSpec(spec, c, "sunset.jpg", strconv.Itoa(i)).(images.ImageResource)
 		}
-		return images
+		return imgs
 	}
 
-	getAndCheckExif := func(c *qt.C, image resource.Image) {
+	getAndCheckExif := func(c *qt.C, image images.ImageResource) {
 		x := image.Exif()
 		c.Assert(x, qt.Not(qt.IsNil))
 		c.Assert(x.Long, qt.Equals, float64(-4.50846))

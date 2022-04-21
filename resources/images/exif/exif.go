@@ -32,10 +32,18 @@ import (
 
 const exifTimeLayout = "2006:01:02 15:04:05"
 
-type Exif struct {
-	Lat  float64
+// ExifInfo holds the decoded Exif data for an Image.
+type ExifInfo struct {
+	// GPS latitude in degrees.
+	Lat float64
+
+	// GPS longitude in degrees.
 	Long float64
+
+	// Image creation date/time.
 	Date time.Time
+
+	// A collection of the available Exif tags for this Image.
 	Tags Tags
 }
 
@@ -106,7 +114,7 @@ func NewDecoder(options ...func(*Decoder) error) (*Decoder, error) {
 	return d, nil
 }
 
-func (d *Decoder) Decode(r io.Reader) (ex *Exif, err error) {
+func (d *Decoder) Decode(r io.Reader) (ex *ExifInfo, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("Exif failed: %v", r)
@@ -139,7 +147,7 @@ func (d *Decoder) Decode(r io.Reader) (ex *Exif, err error) {
 		return
 	}
 
-	ex = &Exif{Lat: lat, Long: long, Date: tm, Tags: walker.vals}
+	ex = &ExifInfo{Lat: lat, Long: long, Date: tm, Tags: walker.vals}
 
 	return
 }

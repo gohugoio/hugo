@@ -156,6 +156,7 @@ func (m *MenuEntry) isSamePage(p Page) bool {
 	return false
 }
 
+// For internal use.
 func (m *MenuEntry) MarshallMap(ime map[string]any) error {
 	var err error
 	for k, v := range ime {

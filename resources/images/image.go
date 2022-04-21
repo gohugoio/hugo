@@ -192,7 +192,7 @@ type ImageProcessor struct {
 	exifDecoder *exif.Decoder
 }
 
-func (p *ImageProcessor) DecodeExif(r io.Reader) (*exif.Exif, error) {
+func (p *ImageProcessor) DecodeExif(r io.Reader) (*exif.ExifInfo, error) {
 	return p.exifDecoder.Decode(r)
 }
 

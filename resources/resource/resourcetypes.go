@@ -14,12 +14,9 @@
 package resource
 
 import (
-	"image"
-
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/media"
-	"github.com/gohugoio/hugo/resources/images/exif"
 
 	"github.com/gohugoio/hugo/common/hugio"
 )
@@ -80,26 +77,6 @@ type Resource interface {
 	ResourceParamsProvider
 	ResourceDataProvider
 	ErrProvider
-}
-
-// Image represents an image resource.
-type Image interface {
-	Resource
-	ImageOps
-}
-
-type ImageOps interface {
-	Height() int
-	Width() int
-	Crop(spec string) (Image, error)
-	Fill(spec string) (Image, error)
-	Fit(spec string) (Image, error)
-	Resize(spec string) (Image, error)
-	Filter(filters ...any) (Image, error)
-	Exif() *exif.Exif
-
-	// Internal
-	DecodeImage() (image.Image, error)
 }
 
 type ResourceTypeProvider interface {

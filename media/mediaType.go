@@ -163,6 +163,7 @@ func (m Type) Type() string {
 	return m.MainType + "/" + m.SubType
 }
 
+// For internal use.
 func (m Type) String() string {
 	return m.Type()
 }
@@ -510,11 +511,13 @@ func DecodeTypes(mms ...map[string]any) (Types, error) {
 }
 
 // IsZero reports whether this Type represents a zero value.
+// For internal use.
 func (m Type) IsZero() bool {
 	return m.SubType == ""
 }
 
 // MarshalJSON returns the JSON encoding of m.
+// For internal use.
 func (m Type) MarshalJSON() ([]byte, error) {
 	type Alias Type
 	return json.Marshal(&struct {
