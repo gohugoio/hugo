@@ -29,21 +29,52 @@ import (
 // Site represents a site in the build. This is currently a very narrow interface,
 // but the actual implementation will be richer, see hugolib.SiteInfo.
 type Site interface {
+	// Returns the Language configured for this Site.
 	Language() *langs.Language
+
+	// Returns all the regular Pages in this Site.
 	RegularPages() Pages
+
+	// Returns all Pages in this Site.
 	Pages() Pages
+
+	// A shortcut to the home page.
 	Home() Page
+
+	// Returns true if we're running in a server.
 	IsServer() bool
+
+	// Returns the server port.
 	ServerPort() int
+
+	// Returns the configured title for this Site.
 	Title() string
+
+	// Returns all Sites for all languages.
 	Sites() Sites
+
+	// Returns Site currently rendering.
 	Current() Site
+
+	// Returns a struct with some information about the build.
 	Hugo() hugo.Info
+
+	// Returns the BaseURL for this Site.
 	BaseURL() template.URL
+
+	// Retuns a taxonomy map.
 	Taxonomies() any
+
+	// Returns the last modification date of the content.
 	LastChange() time.Time
+
+	// Returns the Menus for this site.
 	Menus() navigation.Menus
+
+	// Returns the Params configured for this site.
 	Params() maps.Params
+
+	// Returns a map of all the data inside /data.
 	Data() map[string]any
 }
 

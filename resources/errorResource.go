@@ -19,6 +19,7 @@ import (
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/resources/images"
 	"github.com/gohugoio/hugo/resources/images/exif"
 	"github.com/gohugoio/hugo/resources/resource"
 )
@@ -26,7 +27,7 @@ import (
 var (
 	_ error = (*errorResource)(nil)
 	// Imnage covers all current Resource implementations.
-	_ resource.Image = (*errorResource)(nil)
+	_ images.ImageResource = (*errorResource)(nil)
 	// The list of user facing and exported interfaces in resource.go
 	// Note that if we're missing some interface here, the user will still
 	// get an error, but not as pretty.
@@ -98,27 +99,27 @@ func (e *errorResource) Width() int {
 	panic(e.ResourceError)
 }
 
-func (e *errorResource) Crop(spec string) (resource.Image, error) {
+func (e *errorResource) Crop(spec string) (images.ImageResource, error) {
 	panic(e.ResourceError)
 }
 
-func (e *errorResource) Fill(spec string) (resource.Image, error) {
+func (e *errorResource) Fill(spec string) (images.ImageResource, error) {
 	panic(e.ResourceError)
 }
 
-func (e *errorResource) Fit(spec string) (resource.Image, error) {
+func (e *errorResource) Fit(spec string) (images.ImageResource, error) {
 	panic(e.ResourceError)
 }
 
-func (e *errorResource) Resize(spec string) (resource.Image, error) {
+func (e *errorResource) Resize(spec string) (images.ImageResource, error) {
 	panic(e.ResourceError)
 }
 
-func (e *errorResource) Filter(filters ...any) (resource.Image, error) {
+func (e *errorResource) Filter(filters ...any) (images.ImageResource, error) {
 	panic(e.ResourceError)
 }
 
-func (e *errorResource) Exif() *exif.Exif {
+func (e *errorResource) Exif() *exif.ExifInfo {
 	panic(e.ResourceError)
 }
 

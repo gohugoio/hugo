@@ -29,6 +29,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/resources/images"
 	"github.com/gohugoio/hugo/resources/internal"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -361,7 +362,7 @@ func TestTransform(t *testing.T) {
 		c.Assert(err, qt.IsNil)
 		c.Assert(tr.MediaType(), eq, media.PNGType)
 
-		img, ok := tr.(resource.Image)
+		img, ok := tr.(images.ImageResource)
 		c.Assert(ok, qt.Equals, true)
 
 		c.Assert(img.Width(), qt.Equals, 75)

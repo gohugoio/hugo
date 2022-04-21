@@ -20,9 +20,16 @@ var _ Dated = Dates{}
 // Dated wraps a "dated resource". These are the 4 dates that makes
 // the date logic in Hugo.
 type Dated interface {
+	// Date returns the date of the resource.
 	Date() time.Time
+
+	// Lastmod returns the last modification date of the resource.
 	Lastmod() time.Time
+
+	// PublishDate returns the publish date of the resource.
 	PublishDate() time.Time
+
+	// ExpiryDate returns the expiration date of the resource.
 	ExpiryDate() time.Time
 }
 

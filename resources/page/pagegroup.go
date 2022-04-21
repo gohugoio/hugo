@@ -40,7 +40,10 @@ var (
 // PageGroup represents a group of pages, grouped by the key.
 // The key is typically a year or similar.
 type PageGroup struct {
+	// The key, typically a year or similar.
 	Key any
+
+	// The Pages in this group.
 	Pages
 }
 
@@ -361,6 +364,7 @@ func (p Pages) GroupByParamDate(key string, format string, order ...string) (Pag
 }
 
 // ProbablyEq wraps compare.ProbablyEqer
+// For internal use.
 func (p PageGroup) ProbablyEq(other any) bool {
 	otherP, ok := other.(PageGroup)
 	if !ok {
@@ -374,7 +378,7 @@ func (p PageGroup) ProbablyEq(other any) bool {
 	return p.Pages.ProbablyEq(otherP.Pages)
 }
 
-// Slice is not meant to be used externally. It's a bridge function
+// Slice is for internal use.
 // for the template functions. See collections.Slice.
 func (p PageGroup) Slice(in any) (any, error) {
 	switch items := in.(type) {

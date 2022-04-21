@@ -161,7 +161,7 @@ type baseResource interface {
 type commonResource struct {
 }
 
-// Slice is not meant to be used externally. It's a bridge function
+// Slice is for internal use.
 // for the template functions. See collections.Slice.
 func (commonResource) Slice(in any) (any, error) {
 	switch items := in.(type) {
