@@ -17,12 +17,15 @@ package compare
 // The semantics of equals is that the two value are interchangeable
 // in the Hugo templates.
 type Eqer interface {
+	// Eq returns whether this value is equal to the other.
+	// This is for internal use.
 	Eq(other any) bool
 }
 
 // ProbablyEqer is an equal check that may return false positives, but never
 // a false negative.
 type ProbablyEqer interface {
+	// For internal use.
 	ProbablyEq(other any) bool
 }
 

@@ -78,13 +78,30 @@ type ChildCareProvider interface {
 // ContentProvider provides the content related values for a Page.
 type ContentProvider interface {
 	Content() (any, error)
+
+	// Plain returns the Page Content stripped of HTML markup.
 	Plain() string
+
+	// PlainWords returns a string slice from splitting Plain using https://pkg.go.dev/strings#Fields.
 	PlainWords() []string
+
+	// Summary returns a generated summary of the content.
+	// The breakpoint can be set manually by inserting a summary separator in the source file.
 	Summary() template.HTML
+
+	// Truncated returns whether the Summary  is truncated or not.
 	Truncated() bool
+
+	// FuzzyWordCount returns the approximate number of words in the content.
 	FuzzyWordCount() int
+
+	// WordCount returns the number of words in the content.
 	WordCount() int
+
+	// ReadingTime returns the reading time based on the length of plain text.
 	ReadingTime() int
+
+	// Len returns the length of the content.
 	Len() int
 }
 

@@ -33,19 +33,44 @@ var smc = newMenuCache()
 // MenuEntry represents a menu item defined in either Page front matter
 // or in the site config.
 type MenuEntry struct {
-	ConfiguredURL string // The URL value from front matter / config.
-	Page          Page
-	PageRef       string // The path to the page, only relevant for site config.
-	Name          string
-	Menu          string
-	Identifier    string
-	title         string
-	Pre           template.HTML
-	Post          template.HTML
-	Weight        int
-	Parent        string
-	Children      Menu
-	Params        maps.Params
+	// The URL value from front matter / config.
+	ConfiguredURL string
+
+	// The Page connected to this menu entry.
+	Page Page
+
+	// The path to the page, only relevant for menus defined in site config.
+	PageRef string
+
+	// The name of the menu entry.
+	Name string
+
+	// The menu containing this menu entry.
+	Menu string
+
+	// Used to identify this menu entry.
+	Identifier string
+
+	title string
+
+	// If set, will be rendered before this menu entry.
+	Pre template.HTML
+
+	// If set, will be rendered after this menu entry.
+	Post template.HTML
+
+	// The weight of this menu entry, used for sorting.
+	// Set to a non-zero value, negative or positive.
+	Weight int
+
+	// Identifier of the parent menu entry.
+	Parent string
+
+	// Child entries.
+	Children Menu
+
+	// User defined params.
+	Params maps.Params
 }
 
 func (m *MenuEntry) URL() string {
@@ -170,6 +195,7 @@ func (m *MenuEntry) MarshallMap(ime map[string]any) error {
 	return nil
 }
 
+// This is for internal use only.
 func (m Menu) Add(me *MenuEntry) Menu {
 	m = append(m, me)
 	// TODO(bep)
@@ -271,6 +297,8 @@ func (m Menu) Reverse() Menu {
 	return menus
 }
 
+// Clone clones the menu entries.
+// This is for internal use only.
 func (m Menu) Clone() Menu {
 	return append(Menu(nil), m...)
 }
