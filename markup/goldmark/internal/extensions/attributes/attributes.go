@@ -101,7 +101,7 @@ func (a *transformer) Transform(node *ast.Document, reader text.Reader, pc parse
 			// Attributes for fenced code blocks are handled in their own extension,
 			// but note that we currently only support code block attributes when
 			// CodeFences=true.
-			if node.PreviousSibling().Kind() != ast.KindFencedCodeBlock && !node.HasBlankPreviousLines() {
+			if node.PreviousSibling() != nil && node.PreviousSibling().Kind() != ast.KindFencedCodeBlock && !node.HasBlankPreviousLines() {
 				attributes = append(attributes, node)
 				return ast.WalkSkipChildren, nil
 			}
