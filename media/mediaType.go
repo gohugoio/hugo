@@ -233,6 +233,7 @@ var (
 	TypeScriptType = newMediaType("application", "typescript", []string{"ts"})
 	TSXType        = newMediaType("text", "tsx", []string{"tsx"})
 	JSXType        = newMediaType("text", "jsx", []string{"jsx"})
+	GEMINIType     = newMediaType("text", "gemini", []string{"gmi", "gmni", "gemini"})
 
 	JSONType           = newMediaType("application", "json", []string{"json"})
 	WebAppManifestType = newMediaTypeWithMimeSuffix("application", "manifest", "json", []string{"webmanifest"})
@@ -304,6 +305,7 @@ var DefaultTypes = Types{
 	OpenTypeFontType,
 	TrueTypeFontType,
 	PDFType,
+	GEMINIType,
 }
 
 func init() {

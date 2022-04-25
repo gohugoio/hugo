@@ -135,6 +135,16 @@ var (
 		Weight: 10,
 	}
 
+	GEMINIFormat = Format{
+		Name:          "GEMINI",
+		MediaType:     media.GEMINIType,
+		BaseName:      "index",
+		Protocol:      "gemini://",
+		IsPlainText:   true,
+		IsHTML:        false,
+		Permalinkable: true,
+	}
+
 	JSONFormat = Format{
 		Name:        "JSON",
 		MediaType:   media.JSONType,
@@ -184,6 +194,7 @@ var DefaultFormats = Formats{
 	CSSFormat,
 	CSVFormat,
 	HTMLFormat,
+	GEMINIFormat,
 	JSONFormat,
 	WebAppManifestFormat,
 	RobotsTxtFormat,

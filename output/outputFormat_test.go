@@ -61,6 +61,14 @@ func TestDefaultTypes(t *testing.T) {
 	c.Assert(AMPFormat.IsHTML, qt.Equals, true)
 	c.Assert(AMPFormat.Permalinkable, qt.Equals, true)
 
+	c.Assert(GEMINIFormat.Name, qt.Equals, "GEMINI")
+	c.Assert(GEMINIFormat.MediaType, qt.Equals, media.GEMINIType)
+	c.Assert(GEMINIFormat.Path, qt.HasLen, 0)
+	c.Assert(GEMINIFormat.Protocol, qt.Equals, "gemini://")
+	c.Assert(GEMINIFormat.IsPlainText, qt.Equals, true)
+	c.Assert(GEMINIFormat.IsHTML, qt.Equals, false)
+	c.Assert(GEMINIFormat.Permalinkable, qt.Equals, true)
+
 	c.Assert(RSSFormat.Name, qt.Equals, "RSS")
 	c.Assert(RSSFormat.MediaType, qt.Equals, media.RSSType)
 	c.Assert(RSSFormat.Path, qt.HasLen, 0)

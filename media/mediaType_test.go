@@ -45,6 +45,7 @@ func TestDefaultTypes(t *testing.T) {
 		{TSXType, "text", "tsx", "tsx", "text/tsx", "text/tsx"},
 		{JSXType, "text", "jsx", "jsx", "text/jsx", "text/jsx"},
 		{JSONType, "application", "json", "json", "application/json", "application/json"},
+		{GEMINIType, "text", "gemini", "gemini", "text/gemini", "text/gemini"},
 		{RSSType, "application", "rss", "xml", "application/rss+xml", "application/rss+xml"},
 		{SVGType, "image", "svg", "svg", "image/svg+xml", "image/svg+xml"},
 		{TextType, "text", "plain", "txt", "text/plain", "text/plain"},
