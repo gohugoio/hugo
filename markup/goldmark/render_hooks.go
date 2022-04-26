@@ -107,6 +107,40 @@ func (ctx headingContext) PlainText() string {
 	return ctx.plainText
 }
 
+type listItemContext struct {
+	page       interface{}
+	text       hstring.RenderedString
+	plainText  string
+	offset     int
+	firstChild interface{}
+	parent     interface{}
+	*attributes.AttributesHolder
+}
+
+func (ctx listItemContext) Page() interface{} {
+	return ctx.page
+}
+
+func (ctx listItemContext) Text() hstring.RenderedString {
+	return ctx.text
+}
+
+func (ctx listItemContext) PlainText() string {
+	return ctx.plainText
+}
+
+func (ctx listItemContext) Offset() int {
+	return ctx.offset
+}
+
+func (ctx listItemContext) FirstChild() interface{} {
+	return ctx.firstChild
+}
+
+func (ctx listItemContext) Parent() interface{} {
+	return ctx.parent
+}
+
 type hookedRenderer struct {
 	linkifyProtocol []byte
 	html.Config
@@ -122,6 +156,7 @@ func (r *hookedRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) 
 	reg.Register(ast.KindAutoLink, r.renderAutoLink)
 	reg.Register(ast.KindImage, r.renderImage)
 	reg.Register(ast.KindHeading, r.renderHeading)
+	reg.Register(ast.KindListItem, r.renderListItem)
 }
 
 func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
@@ -406,6 +441,67 @@ func (r *hookedRenderer) renderHeadingDefault(w util.BufWriter, source []byte, n
 		_, _ = w.WriteString("</h")
 		_ = w.WriteByte("0123456"[n.Level])
 		_, _ = w.WriteString(">\n")
+	}
+	return ast.WalkContinue, nil
+}
+
+func (r *hookedRenderer) renderListItem(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*ast.ListItem)
+	n.FirstChild()
+	var hli hooks.ListItemRenderer
+
+	ctx, ok := w.(*render.Context)
+	if ok {
+		h := ctx.RenderContext().GetRenderer(hooks.ListItemRendererType, nil)
+		ok = h != nil
+		if ok {
+			hli = h.(hooks.ListItemRenderer)
+		}
+	}
+
+	if !ok {
+		return r.renderListItemDefault(w, source, node, entering)
+	}
+
+	if entering {
+		// Store the current pos so we can capture the rendered text.
+		ctx.PushPos(ctx.Buffer.Len())
+		return ast.WalkContinue, nil
+	}
+
+	pos := ctx.PopPos()
+	text := ctx.Buffer.Bytes()[pos:]
+	ctx.Buffer.Truncate(pos)
+
+	err := hli.RenderListItem(
+		w,
+		listItemContext{
+			page:             ctx.DocumentContext().Document,
+			text:             hstring.RenderedString(text),
+			plainText:        string(n.Text(source)),
+			offset:           int(n.Offset),
+			firstChild:       n.FirstChild(),
+			parent:           n.Parent(),
+			AttributesHolder: attributes.New(n.Attributes(), attributes.AttributesOwnerGeneral),
+		},
+	)
+
+	ctx.AddIdentity(hli)
+
+	return ast.WalkContinue, err
+}
+
+func (r *hookedRenderer) renderListItemDefault(w util.BufWriter, source []byte, n ast.Node, entering bool) (ast.WalkStatus, error) {
+	if entering {
+		_, _ = w.WriteString("<li>")
+		fc := n.FirstChild()
+		if fc != nil {
+			if _, ok := fc.(*ast.TextBlock); !ok {
+				_ = w.WriteByte('\n')
+			}
+		}
+	} else {
+		_, _ = w.WriteString("</li>\n")
 	}
 	return ast.WalkContinue, nil
 }
