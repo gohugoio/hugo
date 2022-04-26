@@ -39,7 +39,7 @@ require (
 	github.com/magefile/mage v1.13.0
 	github.com/mattn/go-isatty v0.0.14
 	github.com/mitchellh/hashstructure v1.1.0
-	github.com/mitchellh/mapstructure v1.4.3
+	github.com/mitchellh/mapstructure v1.5.0
 	github.com/muesli/smartcrop v0.3.0
 	github.com/niklasfasching/go-org v1.6.2
 	github.com/olekukonko/tablewriter v0.0.5
