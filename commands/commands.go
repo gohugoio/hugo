@@ -18,6 +18,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	hpaths "github.com/gohugoio/hugo/common/paths"
@@ -151,7 +152,7 @@ built with love by spf13 and friends in Go.
 
 Complete documentation is available at https://gohugo.io/.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			defer cc.timeTrack(time.Now(), "Total")
+			defer cc.timeTrack(htime.Now(), "Total")
 			cfgInit := func(c *commandeer) error {
 				if cc.buildWatch {
 					c.Set("disableLiveReload", true)
@@ -210,6 +211,7 @@ type hugoBuilderCommon struct {
 
 	buildWatch bool
 	poll       string
+	clock      string
 
 	gc bool
 
@@ -236,7 +238,7 @@ func (cc *hugoBuilderCommon) timeTrack(start time.Time, name string) {
 	if cc.quiet {
 		return
 	}
-	elapsed := time.Since(start)
+	elapsed := htime.Since(start)
 	fmt.Printf("%s in %v ms\n", name, int(1000*elapsed.Seconds()))
 }
 
@@ -279,6 +281,7 @@ func (cc *hugoBuilderCommon) handleCommonBuilderFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().StringVarP(&cc.environment, "environment", "e", "", "build environment")
 	cmd.PersistentFlags().StringP("themesDir", "", "", "filesystem path to themes directory")
 	cmd.PersistentFlags().StringP("ignoreVendorPaths", "", "", "ignores any _vendor for module paths matching the given Glob pattern")
+	cmd.PersistentFlags().StringVar(&cc.clock, "clock", "", "set clock inside hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00")
 }
 
 func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {

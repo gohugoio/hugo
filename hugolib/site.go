@@ -30,6 +30,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/modules"
@@ -1910,10 +1911,11 @@ func shouldBuild(buildFuture bool, buildExpired bool, buildDrafts bool, Draft bo
 	if !(buildDrafts || !Draft) {
 		return false
 	}
-	if !buildFuture && !publishDate.IsZero() && publishDate.After(time.Now()) {
+	hnow := htime.Now()
+	if !buildFuture && !publishDate.IsZero() && publishDate.After(hnow) {
 		return false
 	}
-	if !buildExpired && !expiryDate.IsZero() && expiryDate.Before(time.Now()) {
+	if !buildExpired && !expiryDate.IsZero() && expiryDate.Before(hnow) {
 		return false
 	}
 	return true

@@ -22,12 +22,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bep/clock"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/markup/asciidocext"
 	"github.com/gohugoio/hugo/markup/rst"
 
 	"github.com/gohugoio/hugo/config"
 
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -1536,7 +1538,6 @@ Content.
 }
 
 func TestShouldBuild(t *testing.T) {
-	t.Parallel()
 	past := time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC)
 	future := time.Date(2037, 11, 17, 20, 34, 58, 651387237, time.UTC)
 	zero := time.Time{}
@@ -1578,6 +1579,54 @@ func TestShouldBuild(t *testing.T) {
 			ps.publishDate, ps.expiryDate)
 		if s != ps.out {
 			t.Errorf("AssertShouldBuild unexpected output with params: %+v", ps)
+		}
+	}
+}
+
+func TestShouldBuildWithClock(t *testing.T) {
+	htime.Clock = clock.Start(time.Date(2021, 11, 17, 20, 34, 58, 651387237, time.UTC))
+	t.Cleanup(func() { htime.Clock = clock.Start(time.Now()) })
+	past := time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC)
+	future := time.Date(2037, 11, 17, 20, 34, 58, 651387237, time.UTC)
+	zero := time.Time{}
+
+	publishSettings := []struct {
+		buildFuture  bool
+		buildExpired bool
+		buildDrafts  bool
+		draft        bool
+		publishDate  time.Time
+		expiryDate   time.Time
+		out          bool
+	}{
+		// publishDate and expiryDate
+		{false, false, false, false, zero, zero, true},
+		{false, false, false, false, zero, future, true},
+		{false, false, false, false, past, zero, true},
+		{false, false, false, false, past, future, true},
+		{false, false, false, false, past, past, false},
+		{false, false, false, false, future, future, false},
+		{false, false, false, false, future, past, false},
+
+		// buildFuture and buildExpired
+		{false, true, false, false, past, past, true},
+		{true, true, false, false, past, past, true},
+		{true, false, false, false, past, past, false},
+		{true, false, false, false, future, future, true},
+		{true, true, false, false, future, future, true},
+		{false, true, false, false, future, past, false},
+
+		// buildDrafts and draft
+		{true, true, false, true, past, future, false},
+		{true, true, true, true, past, future, true},
+		{true, true, true, true, past, future, true},
+	}
+
+	for _, ps := range publishSettings {
+		s := shouldBuild(ps.buildFuture, ps.buildExpired, ps.buildDrafts, ps.draft,
+			ps.publishDate, ps.expiryDate)
+		if s != ps.out {
+			t.Errorf("AssertShouldBuildWithClock unexpected output with params: %+v", ps)
 		}
 	}
 }

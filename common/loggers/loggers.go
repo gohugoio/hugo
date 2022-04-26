@@ -24,6 +24,7 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/terminal"
 
 	jww "github.com/spf13/jwalterweatherman"
@@ -176,7 +177,7 @@ func (l *logger) Out() io.Writer {
 // PrintTimerIfDelayed prints a time statement to the FEEDBACK logger
 // if considerable time is spent.
 func (l *logger) PrintTimerIfDelayed(start time.Time, name string) {
-	elapsed := time.Since(start)
+	elapsed := htime.Since(start)
 	milli := int(1000 * elapsed.Seconds())
 	if milli < 500 {
 		return
@@ -185,7 +186,7 @@ func (l *logger) PrintTimerIfDelayed(start time.Time, name string) {
 }
 
 func (l *logger) PrintTimer(start time.Time, name string) {
-	elapsed := time.Since(start)
+	elapsed := htime.Since(start)
 	milli := int(1000 * elapsed.Seconds())
 	l.Printf("%s in %v ms", name, milli)
 }

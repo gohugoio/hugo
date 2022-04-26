@@ -13,7 +13,11 @@
 
 package resource
 
-import "time"
+import (
+	"time"
+
+	"github.com/gohugoio/hugo/common/htime"
+)
 
 var _ Dated = Dates{}
 
@@ -55,7 +59,8 @@ func IsFuture(d Dated) bool {
 	if d.PublishDate().IsZero() {
 		return false
 	}
-	return d.PublishDate().After(time.Now())
+
+	return d.PublishDate().After(htime.Now())
 }
 
 // IsExpired returns whether the argument is expired.
@@ -63,7 +68,7 @@ func IsExpired(d Dated) bool {
 	if d.ExpiryDate().IsZero() {
 		return false
 	}
-	return d.ExpiryDate().Before(time.Now())
+	return d.ExpiryDate().Before(htime.Now())
 }
 
 // IsZeroDates returns true if all of the dates are zero.

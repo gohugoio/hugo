@@ -99,6 +99,10 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 					return newSystemError("Error building sites", err)
 				}
 
+				if err != nil {
+					return newSystemError("Error building sites", err)
+				}
+
 				writer := csv.NewWriter(os.Stdout)
 				defer writer.Flush()
 
@@ -123,6 +127,10 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 			Long:  `List all of the posts in your content directory which has already expired.`,
 			RunE: func(cmd *cobra.Command, args []string) error {
 				sites, err := cc.buildSites(map[string]any{"buildExpired": true})
+				if err != nil {
+					return newSystemError("Error building sites", err)
+				}
+
 				if err != nil {
 					return newSystemError("Error building sites", err)
 				}

@@ -68,9 +68,9 @@ func (ns *Namespace) Format(layout string, v any) (string, error) {
 	return ns.timeFormatter.Format(t, layout), nil
 }
 
-// Now returns the current local time.
+// Now returns the current local time or `clock` time
 func (ns *Namespace) Now() _time.Time {
-	return _time.Now()
+	return htime.Now()
 }
 
 // ParseDuration parses the duration string s.

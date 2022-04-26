@@ -33,6 +33,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/paths"
 	"golang.org/x/sync/errgroup"
 
@@ -255,7 +256,7 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 	}
 
 	err = func() error {
-		defer c.timeTrack(time.Now(), "Built")
+		defer c.timeTrack(htime.Now(), "Built")
 		err := c.serverBuild()
 		if err != nil {
 			cmd.PrintErrln("Error:", err.Error())
@@ -668,13 +669,13 @@ func memStats() error {
 		go func() {
 			var stats runtime.MemStats
 
-			start := time.Now().UnixNano()
+			start := htime.Now().UnixNano()
 
 			for {
 				runtime.ReadMemStats(&stats)
 				if fileMemStats != nil {
 					fileMemStats.WriteString(fmt.Sprintf("%d\t%d\t%d\t%d\t%d\n",
-						(time.Now().UnixNano()-start)/1000000, stats.HeapSys, stats.HeapAlloc, stats.HeapIdle, stats.HeapReleased))
+						(htime.Now().UnixNano()-start)/1000000, stats.HeapSys, stats.HeapAlloc, stats.HeapIdle, stats.HeapReleased))
 					time.Sleep(interval)
 				} else {
 					break
