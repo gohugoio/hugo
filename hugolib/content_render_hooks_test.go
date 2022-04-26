@@ -98,7 +98,7 @@ Inner Block: {{ .Inner | .Page.RenderString (dict "display" "block" ) }}
 	b.WithTemplatesAdded("_default/_markup/render-image.html", `IMAGE: {{ .Page.Title }}||{{ .Destination | safeURL }}|Title: {{ .Title | safeHTML }}|Text: {{ .Text | safeHTML }}|END`)
 	b.WithTemplatesAdded("_default/_markup/render-heading.html", `HEADING: {{ .Page.Title }}||Level: {{ .Level }}|Anchor: {{ .Anchor | safeURL }}|Text: {{ .Text | safeHTML }}|Attributes: {{ .Attributes }}|END`)
 	b.WithTemplatesAdded("docs/_markup/render-heading.html", `Docs Level: {{ .Level }}|END`)
-
+	b.WithTemplatesAdded("_default/_markup/render-listitem.html", `LISTITEM: {{ .Text | safeHTML }} {{ .Attributes }} {{ .FirstChild }} {{ .Parent }}`)
 	b.WithContent("customview/p1.md", `---
 title: Custom View
 ---
@@ -196,6 +196,13 @@ title: Doc With Heading
 
 # Docs lvl 1
 
+`, "blog/p9.md", `---
+title: With List Items
+---
+- Dog
+- Cat
+- Mouse
+- Bird{ parrot=true }
 `,
 	)
 
@@ -210,7 +217,7 @@ title: No Template
 	}
 	counters := &testCounters{}
 	b.Build(BuildCfg{testCounters: counters})
-	b.Assert(int(counters.contentRenderCounter), qt.Equals, 45)
+	b.Assert(int(counters.contentRenderCounter), qt.Equals, 46)
 
 	b.AssertFileContent("public/blog/p1/index.html", `
 Cool Page|https://www.google.com|Title: Google's Homepage|Text: First Link|END
@@ -265,6 +272,10 @@ SHORT3|
 
 	// https://github.com/gohugoio/hugo/issues/7349
 	b.AssertFileContent("public/docs/p8/index.html", "Docs Level: 1")
+
+	b.AssertFileContent("public/blog/p9/index.html", "LISTITEM: Dog")
+	b.AssertFileContent("public/blog/p9/index.html", "LISTITEM: Cat")
+	b.AssertFileContent("public/blog/p9/index.html", "LISTITEM: Mouse")
 }
 
 func TestRenderHooksDeleteTemplate(t *testing.T) {
