@@ -1903,19 +1903,19 @@ func (s *Site) newPage(
 }
 
 func (s *Site) shouldBuild(p page.Page) bool {
-	return shouldBuild(s.BuildFuture, s.BuildExpired,
+	return shouldBuild(s.BuildTime, s.BuildFuture, s.BuildExpired,
 		s.BuildDrafts, p.Draft(), p.PublishDate(), p.ExpiryDate())
 }
 
-func shouldBuild(buildFuture bool, buildExpired bool, buildDrafts bool, Draft bool,
+func shouldBuild(buildTime time.Time, buildFuture bool, buildExpired bool, buildDrafts bool, Draft bool,
 	publishDate time.Time, expiryDate time.Time) bool {
 	if !(buildDrafts || !Draft) {
 		return false
 	}
-	if !buildFuture && !publishDate.IsZero() && publishDate.After(time.Now()) {
+	if !buildFuture && !publishDate.IsZero() && publishDate.After(buildTime) {
 		return false
 	}
-	if !buildExpired && !expiryDate.IsZero() && expiryDate.Before(time.Now()) {
+	if !buildExpired && !expiryDate.IsZero() && expiryDate.Before(buildTime) {
 		return false
 	}
 	return true

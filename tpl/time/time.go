@@ -25,10 +25,11 @@ import (
 )
 
 // New returns a new instance of the time-namespaced template functions.
-func New(timeFormatter htime.TimeFormatter, location *time.Location) *Namespace {
+func New(timeFormatter htime.TimeFormatter, location *time.Location, buildTime time.Time) *Namespace {
 	return &Namespace{
 		timeFormatter: timeFormatter,
 		location:      location,
+		buildTime:     buildTime,
 	}
 }
 
@@ -36,6 +37,7 @@ func New(timeFormatter htime.TimeFormatter, location *time.Location) *Namespace 
 type Namespace struct {
 	timeFormatter htime.TimeFormatter
 	location      *time.Location
+	buildTime     time.Time
 }
 
 // AsTime converts the textual representation of the datetime string into
@@ -70,8 +72,13 @@ func (ns *Namespace) Format(layout string, v any) (string, error) {
 }
 
 // Now returns the current local time.
+// If `buildTime` flag is set, returns it instead.
 func (ns *Namespace) Now() _time.Time {
-	return _time.Now()
+	// `buildTime` is unset
+	if ns.buildTime.IsZero() {
+		return time.Now()
+	}
+	return ns.buildTime
 }
 
 // ParseDuration parses a duration string.

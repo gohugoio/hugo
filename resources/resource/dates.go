@@ -44,19 +44,19 @@ func (d *Dates) UpdateDateAndLastmodIfAfter(in Dated) {
 }
 
 // IsFuture returns whether the argument represents the future.
-func IsFuture(d Dated) bool {
+func IsFuture(buildTime time.Time, d Dated) bool {
 	if d.PublishDate().IsZero() {
 		return false
 	}
-	return d.PublishDate().After(time.Now())
+	return d.PublishDate().After(buildTime)
 }
 
 // IsExpired returns whether the argument is expired.
-func IsExpired(d Dated) bool {
+func IsExpired(buildTime time.Time, d Dated) bool {
 	if d.ExpiryDate().IsZero() {
 		return false
 	}
-	return d.ExpiryDate().Before(time.Now())
+	return d.ExpiryDate().Before(buildTime)
 }
 
 // IsZeroDates returns true if all of the dates are zero.

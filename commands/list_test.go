@@ -30,13 +30,13 @@ func captureStdout(f func() error) (string, error) {
 func TestListAll(t *testing.T) {
 	c := qt.New(t)
 	dir := createSimpleTestSite(t, testSiteConfig{})
+	t.Cleanup(func (){
+		os.RemoveAll(dir)
+	})
+
 
 	hugoCmd := newCommandsBuilder().addAll().build()
 	cmd := hugoCmd.getCommand()
-
-	defer func() {
-		os.RemoveAll(dir)
-	}()
 
 	cmd.SetArgs([]string{"-s=" + dir, "list", "all"})
 
@@ -65,4 +65,59 @@ func TestListAll(t *testing.T) {
 		"0001-01-01T00:00:00Z", "0001-01-01T00:00:00Z", "0001-01-01T00:00:00Z",
 		"false", "https://example.org/p1/",
 	})
+}
+
+func TestBuildTimeFlag(t *testing.T) {
+	c := qt.New(t)
+	dir := createSimpleTestSite(t, testSiteConfig{})
+
+	writeFile(t, filepath.Join(dir, "content", "future.md"), `
+---
+title: "Future"
+weight: 1
+date: 2100-11-06
+---
+
+Content
+
+`)
+	t.Cleanup(func (){
+		os.RemoveAll(dir)
+	})
+
+
+	hugoCmd := newCommandsBuilder().addAll().build()
+	cmd := hugoCmd.getCommand()
+
+	cmd.SetArgs([]string{"-s=" + dir, "list", "future"})
+
+	out, err := captureStdout(func() error {
+		_, err := cmd.ExecuteC()
+		return err
+	})
+	c.Assert(err, qt.IsNil)
+
+	r := csv.NewReader(strings.NewReader(out))
+
+	res, err := r.Read()
+
+	c.Assert(err, qt.IsNil)
+	c.Assert(res, qt.DeepEquals, []string{
+		filepath.Join("content", "future.md"),
+		"2100-11-06T00:00:00Z",
+	})
+
+	cmd.SetArgs([]string{"-s=" + dir, "list", "future", "--buildTime", "2200-11-06"})
+
+	out, err = captureStdout(func() error {
+		_, err := cmd.ExecuteC()
+		return err
+	})
+	c.Assert(err, qt.IsNil)
+
+	r = csv.NewReader(strings.NewReader(out))
+
+	res, err = r.Read()
+
+	c.Assert(err, qt.IsNotNil, qt.Commentf("EOF"))
 }

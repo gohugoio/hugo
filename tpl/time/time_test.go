@@ -28,7 +28,7 @@ func TestTimeLocation(t *testing.T) {
 	t.Parallel()
 
 	loc, _ := time.LoadLocation("America/Antigua")
-	ns := New(htime.NewTimeFormatter(translators.GetTranslator("en")), loc)
+	ns := New(htime.NewTimeFormatter(translators.GetTranslator("en")), loc, time.Now())
 
 	for i, test := range []struct {
 		name     string
@@ -87,7 +87,7 @@ func TestFormat(t *testing.T) {
 
 	c.Run("UTC", func(c *qt.C) {
 		c.Parallel()
-		ns := New(htime.NewTimeFormatter(translators.GetTranslator("en")), time.UTC)
+		ns := New(htime.NewTimeFormatter(translators.GetTranslator("en")), time.UTC, time.Now())
 
 		for i, test := range []struct {
 			layout string
@@ -130,7 +130,7 @@ func TestFormat(t *testing.T) {
 
 		loc, err := time.LoadLocation("America/Los_Angeles")
 		c.Assert(err, qt.IsNil)
-		ns := New(htime.NewTimeFormatter(translators.GetTranslator("en")), loc)
+		ns := New(htime.NewTimeFormatter(translators.GetTranslator("en")), loc, time.Now())
 
 		d, err := ns.Format(":time_full", "2020-03-09T11:00:00")
 
@@ -144,7 +144,7 @@ func TestFormat(t *testing.T) {
 func TestDuration(t *testing.T) {
 	t.Parallel()
 
-	ns := New(htime.NewTimeFormatter(translators.GetTranslator("en")), time.UTC)
+	ns := New(htime.NewTimeFormatter(translators.GetTranslator("en")), time.UTC, time.Now())
 
 	for i, test := range []struct {
 		unit   any

@@ -21,10 +21,12 @@ import (
 	"bytes"
 	"html/template"
 	"strings"
+	"time"
 	"unicode"
 	"unicode/utf8"
 
 	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/spf13/afero"
@@ -58,17 +60,24 @@ type ContentSpec struct {
 	BuildExpired bool
 	BuildDrafts  bool
 
+	BuildTime time.Time
+
 	Cfg config.Provider
 }
 
 // NewContentSpec returns a ContentSpec initialized
 // with the appropriate fields from the given config.Provider.
 func NewContentSpec(cfg config.Provider, logger loggers.Logger, contentFs afero.Fs, ex *hexec.Exec) (*ContentSpec, error) {
+	buildTime, err := htime.ParseBuildTimeDefaultNow(cfg.GetString("buildTime"))
+	if err != nil {
+		return nil, err
+	}
 	spec := &ContentSpec{
 		summaryLength: cfg.GetInt("summaryLength"),
 		BuildFuture:   cfg.GetBool("buildFuture"),
 		BuildExpired:  cfg.GetBool("buildExpired"),
 		BuildDrafts:   cfg.GetBool("buildDrafts"),
+		BuildTime:     buildTime,
 
 		Cfg: cfg,
 	}

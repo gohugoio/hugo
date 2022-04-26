@@ -190,6 +190,7 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"buildDrafts",
 		"buildFuture",
 		"buildExpired",
+		"buildTime",
 		"uglyURLs",
 		"canonifyURLs",
 		"enableRobotsTXT",
