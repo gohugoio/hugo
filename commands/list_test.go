@@ -34,9 +34,9 @@ func TestListAll(t *testing.T) {
 	hugoCmd := newCommandsBuilder().addAll().build()
 	cmd := hugoCmd.getCommand()
 
-	defer func() {
+	t.Cleanup(func() {
 		os.RemoveAll(dir)
-	}()
+	})
 
 	cmd.SetArgs([]string{"-s=" + dir, "list", "all"})
 

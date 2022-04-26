@@ -29,7 +29,6 @@ import (
 
 // Issue #5662
 func TestHugoWithContentDirOverride(t *testing.T) {
-	t.Parallel()
 	c := qt.New(t)
 
 	files := `
@@ -51,7 +50,6 @@ Page: {{ .Title }}|
 
 // Issue #9794
 func TestHugoStaticFilesMultipleStaticAndManyFolders(t *testing.T) {
-	t.Parallel()
 	c := qt.New(t)
 
 	files := `
@@ -95,6 +93,36 @@ Home.
 
 }
 
+// Issue #8787
+func TestHugoListCommandsWithClockFlag(t *testing.T) {
+	c := qt.New(t)
+
+	files := `
+-- config.toml --
+baseURL = "https://example.org"
+title = "Hugo Commands"
+-- content/past.md --
+---
+title: "Past"
+date: 2000-11-06
+---
+-- content/future.md --
+---
+title: "Future"
+date: 2200-11-06
+---
+-- layouts/_default/single.html --
+Page: {{ .Title }}|
+
+`
+	s := newTestHugoCmdBuilder(c, files, []string{"list", "future"}).Build()
+	p := filepath.Join("content", "future.md")
+	s.AssertStdout(p + ",2200-11-06T00:00:00Z")
+
+	s = newTestHugoCmdBuilder(c, files, []string{"list", "future", "--clock", "2300-11-06"}).Build()
+	s.AssertStdout("")
+}
+
 type testHugoCmdBuilder struct {
 	*qt.C
 
@@ -102,6 +130,7 @@ type testHugoCmdBuilder struct {
 	dir   string
 	files string
 	args  []string
+	out   string
 }
 
 func newTestHugoCmdBuilder(c *qt.C, files string, args []string) *testHugoCmdBuilder {
@@ -127,8 +156,12 @@ func (s *testHugoCmdBuilder) Build() *testHugoCmdBuilder {
 	args := append(s.args, "-s="+s.dir, "--quiet")
 	cmd.SetArgs(args)
 
-	_, err := cmd.ExecuteC()
+	out, err := captureStdout(func() error {
+		_, err := cmd.ExecuteC()
+		return err
+	})
 	s.Assert(err, qt.IsNil)
+	s.out = out
 
 	return s
 }
@@ -148,4 +181,10 @@ func (s *testHugoCmdBuilder) AssertFileContent(filename string, matches ...strin
 			s.Assert(content, qt.Contains, match, qt.Commentf(m))
 		}
 	}
+}
+
+func (s *testHugoCmdBuilder) AssertStdout(match string) {
+	s.Helper()
+	content := strings.TrimSpace(s.out)
+	s.Assert(content, qt.Contains, strings.TrimSpace(match))
 }

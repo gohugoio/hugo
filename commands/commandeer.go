@@ -15,6 +15,7 @@ package commands
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net"
 	"os"
@@ -28,9 +29,11 @@ import (
 	"golang.org/x/sync/semaphore"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/paths"
 
+	"github.com/spf13/cast"
 	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -41,6 +44,7 @@ import (
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/spf13/afero"
 
+	"github.com/bep/clock"
 	"github.com/bep/debounce"
 	"github.com/bep/overlayfs"
 	"github.com/gohugoio/hugo/common/types"
@@ -161,6 +165,20 @@ func (c *commandeer) initFs(fs *hugofs.Fs) error {
 	c.publishDirServerFs = fs.PublishDirServer
 	c.DepsCfg.Fs = fs
 
+	return nil
+}
+
+func (c *commandeer) initClock() error {
+	bt := c.Cfg.GetString("clock")
+	if bt == "" {
+		return nil
+	}
+
+	t, err := cast.StringToDateInDefaultLocation(bt, nil)
+	if err != nil {
+		return fmt.Errorf(`failed to parse "clock" flag: %s`, err)
+	}
+	htime.Clock = clock.Start(t)
 	return nil
 }
 
@@ -340,6 +358,11 @@ func (c *commandeer) loadConfig() error {
 	}
 
 	c.configFiles = configFiles
+
+	err = c.initClock()
+	if err != nil {
+		return err
+	}
 
 	if l, ok := c.Cfg.Get("languagesSorted").(langs.Languages); ok {
 		c.languagesConfigured = true

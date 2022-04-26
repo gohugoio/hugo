@@ -24,6 +24,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugio"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -295,7 +296,7 @@ func (c *Cache) isExpired(modTime time.Time) bool {
 	if c.maxAge < 0 {
 		return false
 	}
-	return c.maxAge == 0 || time.Since(modTime) > c.maxAge
+	return c.maxAge == 0 || htime.Since(modTime) > c.maxAge
 }
 
 // For testing

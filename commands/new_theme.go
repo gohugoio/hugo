@@ -18,8 +18,8 @@ import (
 	"errors"
 	"path/filepath"
 	"strings"
-	"time"
 
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/cobra"
@@ -113,7 +113,7 @@ func (n *newThemeCmd) newTheme(cmd *cobra.Command, args []string) error {
 
 	by := []byte(`The MIT License (MIT)
 
-Copyright (c) ` + time.Now().Format("2006") + ` YOUR_NAME_HERE
+Copyright (c) ` + htime.Now().Format("2006") + ` YOUR_NAME_HERE
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in

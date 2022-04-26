@@ -20,6 +20,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/hugo/source"
@@ -70,7 +71,7 @@ func (f ContentFactory) ApplyArchetypeTemplate(w io.Writer, p page.Page, archety
 
 	d := &archetypeFileData{
 		Type: archetypeKind,
-		Date: time.Now().Format(time.RFC3339),
+		Date: htime.Now().Format(time.RFC3339),
 		Page: p,
 		File: p.File(),
 	}

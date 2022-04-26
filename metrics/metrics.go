@@ -25,6 +25,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/compare"
 	"github.com/gohugoio/hugo/helpers"
@@ -129,7 +130,7 @@ func (s *Store) TrackValue(key string, value any, cached bool) {
 // MeasureSince adds a measurement for key to the metric store.
 func (s *Store) MeasureSince(key string, start time.Time) {
 	s.mu.Lock()
-	s.metrics[key] = append(s.metrics[key], time.Since(start))
+	s.metrics[key] = append(s.metrics[key], htime.Since(start))
 	s.mu.Unlock()
 }
 

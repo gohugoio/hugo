@@ -17,6 +17,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bep/clock"
 	"github.com/spf13/cast"
 
 	toml "github.com/pelletier/go-toml/v2"
@@ -74,6 +75,7 @@ var (
 		"November",
 		"December",
 	}
+	Clock = clock.Start(time.Now())
 )
 
 func NewTimeFormatter(ltr locales.Translator) TimeFormatter {
@@ -147,4 +149,14 @@ func ToTimeInDefaultLocationE(i any, location *time.Location) (tim time.Time, er
 		i = vv.Format(time.RFC3339)
 	}
 	return cast.ToTimeInDefaultLocationE(i, location)
+}
+
+// Now returns time.Now() or time value based on`clock` flag.
+// Use this function to fake time inside hugo.
+func Now() time.Time {
+	return Clock.Now()
+}
+
+func Since(t time.Time) time.Duration {
+	return Clock.Now().Sub(t)
 }
