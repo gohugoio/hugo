@@ -36,7 +36,7 @@ func init() {
 			panic(fmt.Sprintf(`failed to parse "buildTime" flag: %s`, err))
 		}
 
-		ctx := New(langs.GetTranslator(d.Language), langs.GetLocation(d.Language), bt)
+		ctx := New(langs.GetTimeFormatter(d.Language), langs.GetLocation(d.Language), bt)
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name: name,
