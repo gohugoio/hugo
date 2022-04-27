@@ -122,8 +122,8 @@ github.com/aws/aws-sdk-go v1.43.5 h1:N7arnx54E4QyW69c45UW5o8j2DCSjzpoxzJW3yU6OSo
 github.com/aws/aws-sdk-go v1.43.5/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX4oIKwKHZo=
 github.com/bep/debounce v1.2.0 h1:wXds8Kq8qRfwAOpAxHrJDbCXgC5aHSzgQb/0gKsHQqo=
 github.com/bep/debounce v1.2.0/go.mod h1:H8yggRPQKLUhUoqrJC1bO2xNya7vanpDl7xR3ISbCJ0=
-github.com/bep/gitmap v1.1.2 h1:zk04w1qc1COTZPPYWDQHvns3y1afOsdRfraFQ3qI840=
-github.com/bep/gitmap v1.1.2/go.mod h1:g9VRETxFUXNWzMiuxOwcudo6DfZkW9jOsOW0Ft4kYaY=
+github.com/bep/gitmap v1.3.0 h1:SF10pGvxXivWbuPL4yZ1cFLgr6KAttxZf7GCoWYMfPY=
+github.com/bep/gitmap v1.3.0/go.mod h1:n+3W1f/rot2hynsqEGxGMErPRgT41n9CkGuzPvz9cIw=
 github.com/bep/goat v0.5.0 h1:S8jLXHCVy/EHIoCY+btKkmcxcXFd34a0Q63/0D4TKeA=
 github.com/bep/goat v0.5.0/go.mod h1:Md9x7gRxiWKs85yHlVTvHQw9rg86Bm+Y4SuYE8CTH7c=
 github.com/bep/godartsass v0.14.0 h1:pPb6XkpyDEppS+wK0veh7OXDQc4xzOJI9Qcjb743UeQ=
