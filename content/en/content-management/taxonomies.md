@@ -84,7 +84,7 @@ Moonrise Kingdom            <- Value
 
 Hugo natively supports taxonomies.
 
-Without adding a single line to your [site config][config] file, Hugo will automatically create taxonomies for `tags` and `categories`. That would be the same as manually [configuring your taxonomies](#configuring-taxonomies) as below:
+Without adding a single line to your [site config][config] file, Hugo will automatically create taxonomies for `tags` and `categories`. That would be the same as manually [configuring your taxonomies](#configure-taxonomies) as below:
 
 {{< code-toggle copy="false" >}}
 [taxonomies]
@@ -189,7 +189,7 @@ categories_weight = 44
 By using taxonomic weight, the same piece of content can appear in different positions in different taxonomies.
 
 {{% note "Limits to Ordering Taxonomies" %}}
-Currently taxonomies only support the [default `weight => date` ordering of list content](/templates/lists/#default-weight-date). For more information, see the documentation on [taxonomy templates](/templates/taxonomy-templates/).
+Currently taxonomies only support the [default `weight => date` ordering of list content](/templates/lists/#default-weight--date--linktitle--filepath). For more information, see the documentation on [taxonomy templates](/templates/taxonomy-templates/).
 {{% /note %}}
 
 ## Add custom metadata to a Taxonomy or Term
@@ -209,7 +209,7 @@ wikipedia: "https://en.wikipedia.org/wiki/Bruce_Willis"
 [content type]: /content-management/types/
 [documentation on archetypes]: /content-management/archetypes/
 [front matter]: /content-management/front-matter/
-[taxonomy list templates]: /templates/taxonomy-templates/#taxonomy-page-templates
+[taxonomy list templates]: /templates/taxonomy-templates/#taxonomy-list-templates
 [taxonomy templates]: /templates/taxonomy-templates/
 [terms within the taxonomy]: /templates/taxonomy-templates/#taxonomy-terms-templates "See how to order terms associated with a taxonomy"
 [config]: /getting-started/configuration/
