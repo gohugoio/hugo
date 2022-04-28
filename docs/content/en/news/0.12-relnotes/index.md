@@ -18,7 +18,7 @@ This release represents over 90 code commits from 28 different contributors.
 - [views](/templates/views/) support in themes
 - inner [shortcode](/extras/shortcodes/) content now treated as markdown
 - support for header ids in markdown (# header {#myid})
-- [where](/templates/lists/#where) template function to filter lists of content, taxonomies, etc
+- [where](/functions/where/) template function to filter lists of content, taxonomies, etc.
 - [groupby](/templates/list) & [groupbydate](/templates/list) methods to group pages
 - taxonomy [pages list](/taxonomies/methods/) now sortable, filterable, limitable & groupable
 - general cleanup to taxonomies & documentation to make it more clear and consistent

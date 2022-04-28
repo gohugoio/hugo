@@ -1,6 +1,6 @@
 ---
 title: .AddDate
-description: Returns the time corresponding to adding the given number of years, months, and days passed to the function.
+description: Returns the time corresponding to adding the given number of years, months, and days to the given time.Time value.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -17,35 +17,29 @@ deprecated: false
 aliases: []
 ---
 
+```go-html-template
+{{ $d := "2022-01-01" | time.AsTime }}
 
-The `AddDate` function takes three arguments in logical order of `years`, `months`, and `days`.
+{{ $d.AddDate 0 0 1 | time.Format "2006-01-02" }} --> 2022-01-02
+{{ $d.AddDate 0 1 1 | time.Format "2006-01-02" }} --> 2022-02-02
+{{ $d.AddDate 1 1 1 | time.Format "2006-01-02" }} --> 2023-02-02
 
-## Example: Randomized Tweets from the Last 2 Years
+{{ $d.AddDate -1 -1 -1 | time.Format "2006-01-02" }} --> 2020-11-30
+```
 
-Let's assume you have a file at `data/tweets.toml` that contains a list of Tweets to display on your site's homepage. The file is filled with `[[tweet]]` blocks; e.g.---
+{{% note %}}
+When adding months or years, Hugo normalizes the final `time.Time` value if the resulting day does not exist. For example, adding one month to 31 January produces 2 March or 3 March, depending on the year.
 
-{{< code-toggle file="data/tweets" >}}
-[[tweet]]
-name = "Steve Francia"
-twitter_handle = "@spf13"
-quote = "I'm creator of Hugo. #metadocreference"
-link = "https://twitter.com/spf13"
-date = "2017-01-07T00:00:00Z"
-{{< /code-toggle >}}
+See [this explanation](https://github.com/golang/go/issues/31145#issuecomment-479067967) from the Go team.
+{{% /note %}}
 
-Let's assume you want to grab Tweets from the last two years and present them in a random order. In conjunction with the [`where`](/functions/where/) and [`now`](/functions/now/) functions, you can limit our range to the last two years via `now.AddDate -2 0 0`, which represents a point in time 2 years, 0 months, and 0 days before the time of your last site build.
+```go-html-template
+{{ $d := "2023-01-31" | time.AsTime }}
+{{ $d.AddDate 0 1 0 | time.Format "2006-01-02" }} --> 2023-03-03
 
-{{< code file="partials/templates/random-tweets.html" download="tweets.html" >}}
-{{ range where $.Site.Data.tweets.tweet "date" "ge" (now.AddDate -2 0 0) | shuffle }}
-    <div class="item">
-        <blockquote>
-            <p>
-            {{ .quote | safeHTML }}
-            </p>
-            &mdash; {{ .name }} ({{ .twitter_handle }}) <a href="{{ .link }}">
-                {{ dateFormat "January 2, 2006" .date }}
-            </a>
-        </blockquote>
-    </div>
-{{ end }}
-{{< /code >}}
+{{ $d := "2024-01-31" | time.AsTime }}
+{{ $d.AddDate 0 1 0 | time.Format "2006-01-02" }} --> 2024-03-02
+
+{{ $d := "2024-02-29" | time.AsTime }}
+{{ $d.AddDate 1 0 0 | time.Format "2006-01-02" }} --> 2025-03-01
+```

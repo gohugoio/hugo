@@ -13,7 +13,7 @@ menu:
     weight: 20
 ---
 
-{{< new-in "0.62.0" >}} Note that this is only supported with the [Goldmark](#goldmark) renderer.
+{{< new-in "0.62.0" >}} Note that this is only supported with the [Goldmark](/getting-started/configuration-markup#goldmark) renderer.
 
 
 You can override certain parts of the default Markdown rendering to HTML by creating templates with base names `render-{kind}` in `layouts/_default/_markup`.

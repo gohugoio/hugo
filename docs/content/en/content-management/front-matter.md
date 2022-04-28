@@ -92,7 +92,7 @@ keywords
 : the meta keywords for the content.
 
 layout
-: the layout Hugo should select from the [lookup order][lookup] when rendering the content. If a `type` is not specified in the front matter, Hugo will look for the layout of the same name in the layout directory that corresponds with a content's section. See ["Defining a Content Type"][definetype]
+: the layout Hugo should select from the [lookup order][lookup] when rendering the content. If a `type` is not specified in the front matter, Hugo will look for the layout of the same name in the layout directory that corresponds with a content's section. See [Content Types][content type].
 
 lastmod
 : the datetime at which the content was last modified.
@@ -232,10 +232,9 @@ It's possible to set some options for Markdown rendering in a content's front ma
 [config]: /getting-started/configuration/ "Hugo documentation for site configuration"
 [content type]: /content-management/types/
 [contentorg]: /content-management/organization/
-[definetype]: /content-management/types/#defining-a-content-type "Learn how to specify a type and a layout in a content's front matter"
 [headless-bundle]: /content-management/page-bundles/#headless-bundle
 [json]: https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf "Specification for JSON, JavaScript Object Notation"
-[lists]: /templates/lists/#ordering-content "See how to order content in list pages; for example, templates that look to specific _index.md for content and front matter."
+[lists]: /templates/lists/#order-content "See how to order content in list pages; for example, templates that look to specific _index.md for content and front matter."
 [lookup]: /templates/lookup-order/ "Hugo traverses your templates in a specific order when rendering content to allow for DRYer templating."
 [ordering]: /templates/lists/ "Hugo provides multiple ways to sort and order your content in list templates"
 [outputs]: /templates/output-formats/ "With the release of v22, you can output your content to any text format using Hugo's familiar templating"

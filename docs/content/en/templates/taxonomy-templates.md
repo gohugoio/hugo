@@ -25,8 +25,8 @@ Hugo includes support for user-defined groupings of content called **taxonomies*
 
 Hugo provides multiple ways to use taxonomies throughout your project templates:
 
-* Order the way content associated with a taxonomy term is displayed in a [taxonomy list template](#taxonomy-list-template)
-* Order the way the terms for a taxonomy are displayed in a [taxonomy terms template](#taxonomy-terms-template)
+* Order the way content associated with a taxonomy term is displayed in a [taxonomy list template](#taxonomy-list-templates)
+* Order the way the terms for a taxonomy are displayed in a [taxonomy terms template](#taxonomy-terms-templates)
 * List a single content's taxonomy terms within a [single page template][]
 
 ## Taxonomy List Templates
@@ -37,7 +37,7 @@ Taxonomy list page templates are lists and therefore have all the variables and 
 
 See [Template Lookup](/templates/lookup-order/).
 
-## Taxonomy Terms Template
+## Taxonomy Terms Templates
 
 ### Taxonomy Terms Templates Lookup Order
 
@@ -103,7 +103,7 @@ type WeightedPages []WeightedPage
 
 ## Displaying custom metadata in Taxonomy Terms Templates
 
-If you need to display custom metadata for each taxonomy term, you will need to create a page for that term at `/content/<TAXONOMY>/<TERM>/_index.md` and add your metadata in its front matter, [as explained in the taxonomies documentation](/content-management/taxonomies/#add-custom-meta-data-to-a-taxonomy-term). Based on the Actors taxonomy example shown there, within your taxonomy terms template, you may access your custom fields by iterating through the variable `.Pages` as such:
+If you need to display custom metadata for each taxonomy term, you will need to create a page for that term at `/content/<TAXONOMY>/<TERM>/_index.md` and add your metadata in its front matter, [as explained in the taxonomies documentation](/content-management/taxonomies/#add-custom-metadata-to-a-taxonomy-or-term). Based on the Actors taxonomy example shown there, within your taxonomy terms template, you may access your custom fields by iterating through the variable `.Pages` as such:
 
 ```go-html-template
 <ul>
