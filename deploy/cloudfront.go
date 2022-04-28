@@ -21,8 +21,9 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/cloudfront"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/cloudfront"
+	"github.com/aws/aws-sdk-go-v2/service/cloudfront/types"
 	gcaws "gocloud.dev/aws"
 )
 
@@ -33,20 +34,21 @@ func InvalidateCloudFront(ctx context.Context, target *Target) error {
 	if err != nil {
 		return err
 	}
-	sess, _, err := gcaws.NewSessionFromURLParams(u.Query())
+	cfg, err := gcaws.V2ConfigFromURLParams(ctx, u.Query())
 	if err != nil {
 		return err
 	}
+	cf := cloudfront.NewFromConfig(cfg)
 	req := &cloudfront.CreateInvalidationInput{
 		DistributionId: aws.String(target.CloudFrontDistributionID),
-		InvalidationBatch: &cloudfront.InvalidationBatch{
+		InvalidationBatch: &types.InvalidationBatch{
 			CallerReference: aws.String(time.Now().Format("20060102150405")),
-			Paths: &cloudfront.Paths{
-				Items:    []*string{aws.String("/*")},
-				Quantity: aws.Int64(1),
+			Paths: &types.Paths{
+				Items:    []string{"/*"},
+				Quantity: aws.Int32(1),
 			},
 		},
 	}
-	_, err = cloudfront.New(sess).CreateInvalidationWithContext(ctx, req)
+	_, err = cf.CreateInvalidation(ctx, req)
 	return err
 }
