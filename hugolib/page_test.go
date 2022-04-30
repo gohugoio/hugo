@@ -28,6 +28,7 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -1536,9 +1537,8 @@ Content.
 }
 
 func TestShouldBuild(t *testing.T) {
-	t.Parallel()
+	htime.NowOverride = time.Date(2021, 11, 17, 20, 34, 58, 651387237, time.UTC)
 	past := time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC)
-	now := time.Date(2021, 11, 17, 20, 34, 58, 651387237, time.UTC)
 	future := time.Date(2037, 11, 17, 20, 34, 58, 651387237, time.UTC)
 	zero := time.Time{}
 
@@ -1575,7 +1575,7 @@ func TestShouldBuild(t *testing.T) {
 	}
 
 	for _, ps := range publishSettings {
-		s := shouldBuild(now, ps.buildFuture, ps.buildExpired, ps.buildDrafts, ps.draft,
+		s := shouldBuild(ps.buildFuture, ps.buildExpired, ps.buildDrafts, ps.draft,
 			ps.publishDate, ps.expiryDate)
 		if s != ps.out {
 			t.Errorf("AssertShouldBuild unexpected output with params: %+v", ps)

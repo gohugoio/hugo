@@ -15,9 +15,7 @@ package time
 
 import (
 	"errors"
-	"fmt"
 
-	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/tpl/internal"
@@ -31,12 +29,7 @@ func init() {
 			panic("Language must be set")
 		}
 
-		bt, err := htime.ParseBuildTimeDefaultZero(d.Cfg.GetString("buildTime"))
-		if err != nil {
-			panic(fmt.Sprintf(`failed to parse "buildTime" flag: %s`, err))
-		}
-
-		ctx := New(langs.GetTimeFormatter(d.Language), langs.GetLocation(d.Language), bt)
+		ctx := New(langs.GetTimeFormatter(d.Language), langs.GetLocation(d.Language))
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name: name,

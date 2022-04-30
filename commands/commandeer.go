@@ -16,6 +16,7 @@ package commands
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net"
 	"os"
@@ -29,9 +30,11 @@ import (
 	"golang.org/x/sync/semaphore"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/paths"
 
+	"github.com/spf13/cast"
 	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -169,6 +172,21 @@ func (c *commandeer) initFs(fs *hugofs.Fs) error {
 	c.publishDirFs = fs.PublishDir
 	c.publishDirServerFs = fs.PublishDirServer
 	c.DepsCfg.Fs = fs
+
+	return nil
+}
+
+func (c *commandeer) initHTimeNow() error {
+	bt := c.Cfg.GetString("buildTime")
+	if bt == "" {
+		return nil
+	}
+
+	t, err := cast.StringToDateInDefaultLocation(bt, nil)
+	if err != nil {
+		return fmt.Errorf(`failed to parse "buildTime" flag: %s`, err)
+	}
+	htime.NowOverride = t
 
 	return nil
 }
@@ -349,6 +367,11 @@ func (c *commandeer) loadConfig() error {
 	}
 
 	c.configFiles = configFiles
+
+	err = c.initHTimeNow()
+	if err != nil {
+		return err
+	}
 
 	if l, ok := c.Cfg.Get("languagesSorted").(langs.Languages); ok {
 		c.languagesConfigured = true

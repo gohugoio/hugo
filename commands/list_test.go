@@ -30,13 +30,13 @@ func captureStdout(f func() error) (string, error) {
 func TestListAll(t *testing.T) {
 	c := qt.New(t)
 	dir := createSimpleTestSite(t, testSiteConfig{})
-	t.Cleanup(func (){
-		os.RemoveAll(dir)
-	})
-
 
 	hugoCmd := newCommandsBuilder().addAll().build()
 	cmd := hugoCmd.getCommand()
+
+	t.Cleanup(func() {
+		os.RemoveAll(dir)
+	})
 
 	cmd.SetArgs([]string{"-s=" + dir, "list", "all"})
 
@@ -81,10 +81,9 @@ date: 2100-11-06
 Content
 
 `)
-	t.Cleanup(func (){
+	t.Cleanup(func() {
 		os.RemoveAll(dir)
 	})
-
 
 	hugoCmd := newCommandsBuilder().addAll().build()
 	cmd := hugoCmd.getCommand()

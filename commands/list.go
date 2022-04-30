@@ -100,7 +100,7 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 					return newSystemError("Error building sites", err)
 				}
 
-				buildTime, err := htime.ParseBuildTimeDefaultNow(b.buildTime)
+				buildTime := htime.Now()
 				if err != nil {
 					return newSystemError("Error building sites", err)
 				}
@@ -133,7 +133,7 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 					return newSystemError("Error building sites", err)
 				}
 
-				buildTime, err := htime.ParseBuildTimeDefaultNow(b.buildTime)
+				buildTime := htime.Now()
 				if err != nil {
 					return newSystemError("Error building sites", err)
 				}

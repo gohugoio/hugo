@@ -30,6 +30,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/modules"
@@ -1903,19 +1904,20 @@ func (s *Site) newPage(
 }
 
 func (s *Site) shouldBuild(p page.Page) bool {
-	return shouldBuild(s.BuildTime, s.BuildFuture, s.BuildExpired,
+	return shouldBuild(s.BuildFuture, s.BuildExpired,
 		s.BuildDrafts, p.Draft(), p.PublishDate(), p.ExpiryDate())
 }
 
-func shouldBuild(buildTime time.Time, buildFuture bool, buildExpired bool, buildDrafts bool, Draft bool,
+func shouldBuild(buildFuture bool, buildExpired bool, buildDrafts bool, Draft bool,
 	publishDate time.Time, expiryDate time.Time) bool {
 	if !(buildDrafts || !Draft) {
 		return false
 	}
-	if !buildFuture && !publishDate.IsZero() && publishDate.After(buildTime) {
+	hnow := htime.Now()
+	if !buildFuture && !publishDate.IsZero() && publishDate.After(hnow) {
 		return false
 	}
-	if !buildExpired && !expiryDate.IsZero() && expiryDate.Before(buildTime) {
+	if !buildExpired && !expiryDate.IsZero() && expiryDate.Before(hnow) {
 		return false
 	}
 	return true

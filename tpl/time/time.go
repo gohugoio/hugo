@@ -25,11 +25,10 @@ import (
 )
 
 // New returns a new instance of the time-namespaced template functions.
-func New(timeFormatter htime.TimeFormatter, location *time.Location, buildTime time.Time) *Namespace {
+func New(timeFormatter htime.TimeFormatter, location *time.Location) *Namespace {
 	return &Namespace{
 		timeFormatter: timeFormatter,
 		location:      location,
-		buildTime:     buildTime,
 	}
 }
 
@@ -74,11 +73,7 @@ func (ns *Namespace) Format(layout string, v any) (string, error) {
 // Now returns the current local time.
 // If `buildTime` flag is set, returns it instead.
 func (ns *Namespace) Now() _time.Time {
-	// `buildTime` is unset
-	if ns.buildTime.IsZero() {
-		return time.Now()
-	}
-	return ns.buildTime
+	return htime.Now()
 }
 
 // ParseDuration parses a duration string.

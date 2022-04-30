@@ -74,6 +74,7 @@ var (
 		"November",
 		"December",
 	}
+	NowOverride time.Time
 )
 
 func NewTimeFormatter(ltr locales.Translator) TimeFormatter {
@@ -149,20 +150,11 @@ func ToTimeInDefaultLocationE(i any, location *time.Location) (tim time.Time, er
 	return cast.ToTimeInDefaultLocationE(i, location)
 }
 
-// Now returns parsed `buildTime` value, which is passed via cli, or time.Now().
-func ParseBuildTimeDefaultNow(bt string) (time.Time, error) {
-	if bt == "" {
-		return time.Now(), nil
+// Now returns `NowOverride` derived from `buildTime` value, which is passed via cli,
+// or time.Now().
+func Now() time.Time {
+	if NowOverride.IsZero() {
+		return time.Now()
 	}
-
-	return cast.StringToDateInDefaultLocation(bt, nil)
-}
-
-// Now returns parsed `buildTime` value, which is passed via cli, or zero time.
-func ParseBuildTimeDefaultZero(bt string) (time.Time, error) {
-	if bt == "" {
-		return time.Time{}, nil
-	}
-
-	return cast.StringToDateInDefaultLocation(bt, nil)
+	return NowOverride
 }
