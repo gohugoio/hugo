@@ -1538,6 +1538,7 @@ Content.
 
 func TestShouldBuild(t *testing.T) {
 	htime.NowOverride = time.Date(2021, 11, 17, 20, 34, 58, 651387237, time.UTC)
+	t.Cleanup(func() { htime.NowOverride = time.Time{} })
 	past := time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC)
 	future := time.Date(2037, 11, 17, 20, 34, 58, 651387237, time.UTC)
 	zero := time.Time{}
