@@ -372,7 +372,7 @@ func (ns *Namespace) Title(s any) (string, error) {
 	return ns.titleFunc(ss), nil
 }
 
-// FirstUpper returns a string with the first character as upper case.
+// FirstUpper converts s making  the first character upper case.
 func (ns *Namespace) FirstUpper(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
@@ -404,8 +404,8 @@ func (ns *Namespace) ToUpper(s any) (string, error) {
 	return strings.ToUpper(ss), nil
 }
 
-// Trim returns a string with all leading and trailing characters defined
-// contained in cutset removed.
+// Trim returns converts the strings s removing all leading and trailing characters defined
+// contained.
 func (ns *Namespace) Trim(s, cutset any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
@@ -484,7 +484,7 @@ func (ns *Namespace) TrimSuffix(suffix, s any) (string, error) {
 	return strings.TrimSuffix(ss, sx), nil
 }
 
-// Repeat returns a new string consisting of count copies of the string s.
+// Repeat returns a new string consisting of n copies of the string s.
 func (ns *Namespace) Repeat(n, s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {

@@ -57,9 +57,8 @@ func (ns *Namespace) AsTime(v any, args ...any) (any, error) {
 
 }
 
-// Format converts the textual representation of the datetime string into
-// the other form or returns it of the time.Time value. These are formatted
-// with the layout string
+// Format converts the textual representation of the datetime string in v into
+// time.Time if needed and formats it with the given layout.
 func (ns *Namespace) Format(layout string, v any) (string, error) {
 	t, err := htime.ToTimeInDefaultLocationE(v, ns.location)
 	if err != nil {
@@ -74,19 +73,19 @@ func (ns *Namespace) Now() _time.Time {
 	return _time.Now()
 }
 
-// ParseDuration parses a duration string.
+// ParseDuration parses the duration string s.
 // A duration string is a possibly signed sequence of
 // decimal numbers, each with optional fraction and a unit suffix,
 // such as "300ms", "-1.5h" or "2h45m".
 // Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
 // See https://golang.org/pkg/time/#ParseDuration
-func (ns *Namespace) ParseDuration(in any) (_time.Duration, error) {
-	s, err := cast.ToStringE(in)
+func (ns *Namespace) ParseDuration(s any) (_time.Duration, error) {
+	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return 0, err
 	}
 
-	return _time.ParseDuration(s)
+	return _time.ParseDuration(ss)
 }
 
 var durationUnits = map[string]_time.Duration{

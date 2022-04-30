@@ -30,44 +30,44 @@ func New() *Namespace {
 // Namespace provides template functions for the "safe" namespace.
 type Namespace struct{}
 
-// CSS returns a given string as html/template CSS content.
-func (ns *Namespace) CSS(a any) (template.CSS, error) {
-	s, err := cast.ToStringE(a)
-	return template.CSS(s), err
+// CSS returns the string s as html/template CSS content.
+func (ns *Namespace) CSS(s any) (template.CSS, error) {
+	ss, err := cast.ToStringE(s)
+	return template.CSS(ss), err
 }
 
-// HTML returns a given string as html/template HTML content.
-func (ns *Namespace) HTML(a any) (template.HTML, error) {
-	s, err := cast.ToStringE(a)
-	return template.HTML(s), err
+// HTML returns the string s as html/template HTML content.
+func (ns *Namespace) HTML(s any) (template.HTML, error) {
+	ss, err := cast.ToStringE(s)
+	return template.HTML(ss), err
 }
 
-// HTMLAttr returns a given string as html/template HTMLAttr content.
-func (ns *Namespace) HTMLAttr(a any) (template.HTMLAttr, error) {
-	s, err := cast.ToStringE(a)
-	return template.HTMLAttr(s), err
+// HTMLAttr returns the string s as html/template HTMLAttr content.
+func (ns *Namespace) HTMLAttr(s any) (template.HTMLAttr, error) {
+	ss, err := cast.ToStringE(s)
+	return template.HTMLAttr(ss), err
 }
 
 // JS returns the given string as a html/template JS content.
-func (ns *Namespace) JS(a any) (template.JS, error) {
-	s, err := cast.ToStringE(a)
-	return template.JS(s), err
+func (ns *Namespace) JS(s any) (template.JS, error) {
+	ss, err := cast.ToStringE(s)
+	return template.JS(ss), err
 }
 
 // JSStr returns the given string as a html/template JSStr content.
-func (ns *Namespace) JSStr(a any) (template.JSStr, error) {
-	s, err := cast.ToStringE(a)
-	return template.JSStr(s), err
+func (ns *Namespace) JSStr(s any) (template.JSStr, error) {
+	ss, err := cast.ToStringE(s)
+	return template.JSStr(ss), err
 }
 
-// URL returns a given string as html/template URL content.
-func (ns *Namespace) URL(a any) (template.URL, error) {
-	s, err := cast.ToStringE(a)
-	return template.URL(s), err
+// URL returns the string s as html/template URL content.
+func (ns *Namespace) URL(s any) (template.URL, error) {
+	ss, err := cast.ToStringE(s)
+	return template.URL(ss), err
 }
 
-// SanitizeURL returns a given string as html/template URL content.
-func (ns *Namespace) SanitizeURL(a any) (string, error) {
-	s, err := cast.ToStringE(a)
-	return helpers.SanitizeURL(s), err
+// SanitizeURL returns the string s as html/template URL content.
+func (ns *Namespace) SanitizeURL(s any) (string, error) {
+	ss, err := cast.ToStringE(s)
+	return helpers.SanitizeURL(ss), err
 }
