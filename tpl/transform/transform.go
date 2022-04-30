@@ -90,9 +90,9 @@ func (ns *Namespace) HighlightCodeBlock(ctx hooks.CodeblockContext, opts ...any)
 	return hl.HighlightCodeBlock(ctx, optsv)
 }
 
-// CanHighlight returns whether the given language is supported by the Chroma highlighter.
-func (ns *Namespace) CanHighlight(lang string) bool {
-	return lexers.Get(lang) != nil
+// CanHighlight returns whether the given code language is supported by the Chroma highlighter.
+func (ns *Namespace) CanHighlight(language string) bool {
+	return lexers.Get(language) != nil
 }
 
 // HTMLEscape returns a copy of s with reserved HTML characters escaped.
@@ -105,7 +105,7 @@ func (ns *Namespace) HTMLEscape(s any) (string, error) {
 	return html.EscapeString(ss), nil
 }
 
-// HTMLUnescape returns a copy of with HTML escape requences converted to plain
+// HTMLUnescape returns a copy of s with HTML escape requences converted to plain
 // text.
 func (ns *Namespace) HTMLUnescape(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
@@ -116,7 +116,7 @@ func (ns *Namespace) HTMLUnescape(s any) (string, error) {
 	return html.UnescapeString(ss), nil
 }
 
-// Markdownify renders a given input from Markdown to HTML.
+// Markdownify renders s from Markdown to HTML.
 func (ns *Namespace) Markdownify(s any) (template.HTML, error) {
 
 	home := ns.deps.Site.Home()
@@ -144,6 +144,7 @@ func (ns *Namespace) Plainify(s any) (string, error) {
 	return helpers.StripHTML(ss), nil
 }
 
+// For internal use.
 func (ns *Namespace) Reset() {
 	ns.cache.Clear()
 }
