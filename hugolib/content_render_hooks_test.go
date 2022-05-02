@@ -204,8 +204,7 @@ title: With List Items
 - Cat
 - Mouse **Fat**
 - Bird
-  {.parrot}
-{.animals}
+{.animal}
 `, "blog/p10.md", `---
 title: With Ordered List
 ---
@@ -213,7 +212,6 @@ title: With Ordered List
 2. Boat
 3. Plane
 {.transportation}
-
 `,
 	)
 
@@ -287,8 +285,10 @@ SHORT3|
 	b.AssertFileContent("public/blog/p9/index.html", "LISTITEM: Dog")
 	b.AssertFileContent("public/blog/p9/index.html", "LISTITEM: Cat")
 	b.AssertFileContent("public/blog/p9/index.html", "LISTITEM: Mouse <strong>Fat</strong>")
+	b.AssertFileContent("public/blog/p9/index.html", "class:animal")
 
 	b.AssertFileContent("public/blog/p10/index.html", "LIST:")
+	b.AssertFileContent("public/blog/p10/index.html", "class:transportation")
 }
 
 func TestRenderHooksDeleteTemplate(t *testing.T) {
