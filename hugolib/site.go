@@ -1808,6 +1808,10 @@ func (hr hookRendererTemplate) RenderListItem(w io.Writer, ctx hooks.ListItemCon
 	return hr.templateHandler.Execute(hr.templ, w, ctx)
 }
 
+func (hr hookRendererTemplate) RenderList(w io.Writer, ctx hooks.ListContext) error {
+	return hr.templateHandler.Execute(hr.templ, w, ctx)
+}
+
 func (hr hookRendererTemplate) ResolvePosition(ctx any) text.Position {
 	return hr.resolvePosition(ctx)
 }
