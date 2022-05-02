@@ -1,0 +1,8 @@
+{
+    "image": "registry.hansenet.local/tools/hugo-devcontainer:0.97.0",
+    "extensions": [
+        "golang.go",
+        "budparr.language-hugo-vscode",
+        "bungcip.better-toml"
+    ]
+}
