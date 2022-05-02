@@ -146,6 +146,7 @@ type listContext struct {
 	page      interface{}
 	text      hstring.RenderedString
 	plainText string
+	isOrdered bool
 	parent    interface{}
 	*attributes.AttributesHolder
 }
@@ -160,6 +161,10 @@ func (ctx listContext) Text() hstring.RenderedString {
 
 func (ctx listContext) PlainText() string {
 	return ctx.plainText
+}
+
+func (ctx listContext) IsOrdered() bool {
+	return ctx.isOrdered
 }
 
 func (ctx listContext) Parent() interface{} {
@@ -473,7 +478,6 @@ func (r *hookedRenderer) renderHeadingDefault(w util.BufWriter, source []byte, n
 
 func (r *hookedRenderer) renderListItem(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.ListItem)
-	n.FirstChild()
 	var hli hooks.ListItemRenderer
 
 	ctx, ok := w.(*render.Context)
@@ -558,12 +562,11 @@ func (r *hookedRenderer) renderListDefault(w util.BufWriter, source []byte, node
 
 func (r *hookedRenderer) renderList(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.List)
-	n.FirstChild()
 	var hli hooks.ListRenderer
 
 	ctx, ok := w.(*render.Context)
 	if ok {
-		h := ctx.RenderContext().GetRenderer(hooks.ListItemRendererType, nil)
+		h := ctx.RenderContext().GetRenderer(hooks.ListRendererType, nil)
 		ok = h != nil
 		if ok {
 			hli = h.(hooks.ListRenderer)
@@ -586,10 +589,11 @@ func (r *hookedRenderer) renderList(w util.BufWriter, source []byte, node ast.No
 
 	err := hli.RenderList(
 		w,
-		listItemContext{
+		listContext{
 			page:             ctx.DocumentContext().Document,
 			text:             hstring.RenderedString(text),
 			plainText:        string(n.Text(source)),
+			isOrdered:        n.IsOrdered(),
 			parent:           n.Parent(),
 			AttributesHolder: attributes.New(n.Attributes(), attributes.AttributesOwnerGeneral),
 		},
@@ -598,7 +602,6 @@ func (r *hookedRenderer) renderList(w util.BufWriter, source []byte, node ast.No
 	ctx.AddIdentity(hli)
 
 	return ast.WalkContinue, err
-	//return r.renderListDefault(w, source, node, entering)
 }
 
 type links struct {
