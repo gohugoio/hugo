@@ -111,7 +111,7 @@ type ListContext interface {
 	Page() interface{}
 	Text() hstring.RenderedString
 	PlainText() string
-
+	IsOrdered() bool
 	Parent() interface{}
 
 	AttributesProvider

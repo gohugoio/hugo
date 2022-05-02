@@ -494,7 +494,7 @@ func (p *pageContentOutput) initRenderHooks() error {
 			case hooks.ListItemRendererType:
 				layoutDescriptor.Kind = "render-listitem"
 			case hooks.ListRendererType:
-				layoutDescriptor.Kind = "render-listitem"
+				layoutDescriptor.Kind = "render-list"
 			}
 
 			getHookTemplate := func(f output.Format) (tpl.Template, bool) {
