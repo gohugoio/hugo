@@ -15,13 +15,12 @@ package data
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"path/filepath"
 	"time"
-
-	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/cache/filecache"
 
@@ -70,7 +69,7 @@ func (ns *Namespace) getRemote(cache *filecache.Cache, unmarshal func([]byte) (b
 			res.Body.Close()
 
 			if isHTTPError(res) {
-				return nil, errors.Errorf("Failed to retrieve remote file: %s, body: %q", http.StatusText(res.StatusCode), b)
+				return nil, fmt.Errorf("Failed to retrieve remote file: %s, body: %q", http.StatusText(res.StatusCode), b)
 			}
 
 			retry, err = unmarshal(b)

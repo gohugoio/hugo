@@ -19,8 +19,6 @@ import (
 	"errors"
 	"fmt"
 
-	_errors "github.com/pkg/errors"
-
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/resources"
 )
@@ -64,7 +62,7 @@ func ResolveArgs(args []any) (resources.ResourceTransformer, map[string]any, err
 
 	m, err := maps.ToStringMapE(args[0])
 	if err != nil {
-		return nil, nil, _errors.Wrap(err, "invalid options type")
+		return nil, nil, fmt.Errorf("invalid options type: %w", err)
 	}
 
 	return r, m, nil

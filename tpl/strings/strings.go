@@ -16,6 +16,7 @@ package strings
 
 import (
 	"errors"
+	"fmt"
 	"html/template"
 	"regexp"
 	"strings"
@@ -25,7 +26,6 @@ import (
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 
-	_errors "github.com/pkg/errors"
 	"github.com/spf13/cast"
 )
 
@@ -48,7 +48,7 @@ type Namespace struct {
 func (ns *Namespace) CountRunes(s any) (int, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
-		return 0, _errors.Wrap(err, "Failed to convert content to string")
+		return 0, fmt.Errorf("Failed to convert content to string: %w", err)
 	}
 
 	counter := 0
@@ -65,7 +65,7 @@ func (ns *Namespace) CountRunes(s any) (int, error) {
 func (ns *Namespace) RuneCount(s any) (int, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
-		return 0, _errors.Wrap(err, "Failed to convert content to string")
+		return 0, fmt.Errorf("Failed to convert content to string: %w", err)
 	}
 	return utf8.RuneCountInString(ss), nil
 }
@@ -74,12 +74,12 @@ func (ns *Namespace) RuneCount(s any) (int, error) {
 func (ns *Namespace) CountWords(s any) (int, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
-		return 0, _errors.Wrap(err, "Failed to convert content to string")
+		return 0, fmt.Errorf("Failed to convert content to string: %w", err)
 	}
 
 	isCJKLanguage, err := regexp.MatchString(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`, ss)
 	if err != nil {
-		return 0, _errors.Wrap(err, "Failed to match regex pattern against string")
+		return 0, fmt.Errorf("Failed to match regex pattern against string: %w", err)
 	}
 
 	if !isCJKLanguage {
@@ -104,11 +104,11 @@ func (ns *Namespace) CountWords(s any) (int, error) {
 func (ns *Namespace) Count(substr, s any) (int, error) {
 	substrs, err := cast.ToStringE(substr)
 	if err != nil {
-		return 0, _errors.Wrap(err, "Failed to convert substr to string")
+		return 0, fmt.Errorf("Failed to convert substr to string: %w", err)
 	}
 	ss, err := cast.ToStringE(s)
 	if err != nil {
-		return 0, _errors.Wrap(err, "Failed to convert s to string")
+		return 0, fmt.Errorf("Failed to convert s to string: %w", err)
 	}
 	return strings.Count(ss, substrs), nil
 }

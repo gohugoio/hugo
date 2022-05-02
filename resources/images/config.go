@@ -22,7 +22,7 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/media"
 
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/bep/gowebp/libwebp/webpoptions"
 
@@ -158,7 +158,7 @@ func DecodeConfig(m map[string]any) (ImagingConfig, error) {
 	if i.Cfg.Anchor != "" && i.Cfg.Anchor != smartCropIdentifier {
 		anchor, found := anchorPositions[i.Cfg.Anchor]
 		if !found {
-			return i, errors.Errorf("invalid anchor value %q in imaging config", i.Anchor)
+			return i, fmt.Errorf("invalid anchor value %q in imaging config", i.Anchor)
 		}
 		i.Anchor = anchor
 	} else {
@@ -263,7 +263,7 @@ func DecodeImageConfig(action, config string, defaults ImagingConfig, sourceForm
 			return c, errors.New("must provide Width or Height")
 		}
 	default:
-		return c, errors.Errorf("BUG: unknown action %q encountered while decoding image configuration", c.Action)
+		return c, fmt.Errorf("BUG: unknown action %q encountered while decoding image configuration", c.Action)
 	}
 
 	if c.FilterStr == "" {

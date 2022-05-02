@@ -18,8 +18,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/pkg/errors"
-
 	"github.com/gohugoio/hugo/common/hugo"
 
 	"github.com/gohugoio/hugo/config"
@@ -226,7 +224,7 @@ func decodeConfig(cfg config.Provider, pathReplacements map[string]string) (Conf
 			for _, repl := range c.Replacements {
 				parts := strings.Split(repl, "->")
 				if len(parts) != 2 {
-					return c, errors.Errorf(`invalid module.replacements: %q; configure replacement pairs on the form "oldpath->newpath" `, repl)
+					return c, fmt.Errorf(`invalid module.replacements: %q; configure replacement pairs on the form "oldpath->newpath" `, repl)
 				}
 
 				c.replacementsMap[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])

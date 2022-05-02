@@ -35,7 +35,6 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/common/para"
-	"github.com/pkg/errors"
 )
 
 func newPageMaps(h *HugoSites) *pageMaps {
@@ -131,13 +130,13 @@ func (m *pageMap) newPageFromContentNode(n *contentNode, parentBucket *pagesMapB
 
 	gi, err := s.h.gitInfoForPage(ps)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to load Git data")
+		return nil, fmt.Errorf("failed to load Git data: %w", err)
 	}
 	ps.gitInfo = gi
 
 	owners, err := s.h.codeownersForPage(ps)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to load CODEOWNERS")
+		return nil, fmt.Errorf("failed to load CODEOWNERS: %w", err)
 	}
 	ps.codeowners = owners
 
@@ -282,7 +281,7 @@ func (m *pageMap) createSiteTaxonomies() error {
 		} else {
 			taxonomy := m.s.taxonomies[viewName.plural]
 			if taxonomy == nil {
-				walkErr = errors.Errorf("missing taxonomy: %s", viewName.plural)
+				walkErr = fmt.Errorf("missing taxonomy: %s", viewName.plural)
 				return true
 			}
 			m.taxonomyEntries.WalkPrefix(s, func(ss string, v any) bool {

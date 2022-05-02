@@ -146,7 +146,7 @@ baseURL = "https://example.org"
 	_, _, err := LoadConfig(ConfigSourceDescriptor{Fs: mm, Environment: "development", Filename: "hugo.toml", AbsConfigDir: "config"})
 	c.Assert(err, qt.Not(qt.IsNil))
 
-	fe := herrors.UnwrapErrorWithFileContext(err)
+	fe := herrors.UnwrapFileError(err)
 	c.Assert(fe, qt.Not(qt.IsNil))
 	c.Assert(fe.Position().Filename, qt.Equals, filepath.FromSlash("config/development/config.toml"))
 }

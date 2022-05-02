@@ -19,13 +19,12 @@ import (
 	"crypto/sha512"
 	"encoding/base64"
 	"encoding/hex"
+	"fmt"
 	"hash"
 	"html/template"
 	"io"
 
 	"github.com/gohugoio/hugo/resources/internal"
-
-	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -92,7 +91,7 @@ func newHash(algo string) (hash.Hash, error) {
 	case "sha512":
 		return sha512.New(), nil
 	default:
-		return nil, errors.Errorf("unsupported crypto algo: %q, use either md5, sha256, sha384 or sha512", algo)
+		return nil, fmt.Errorf("unsupported crypto algo: %q, use either md5, sha256, sha384 or sha512", algo)
 	}
 }
 

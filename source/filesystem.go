@@ -14,10 +14,9 @@
 package source
 
 import (
+	"fmt"
 	"path/filepath"
 	"sync"
-
-	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/hugofs"
 )
@@ -49,7 +48,7 @@ func (f *Filesystem) Files() ([]File, error) {
 	f.filesInit.Do(func() {
 		err := f.captureFiles()
 		if err != nil {
-			f.filesInitErr = errors.Wrap(err, "capture files")
+			f.filesInitErr = fmt.Errorf("capture files: %w", err)
 		}
 	})
 	return f.files, f.filesInitErr

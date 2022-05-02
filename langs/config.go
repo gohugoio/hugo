@@ -23,7 +23,7 @@ import (
 
 	"github.com/spf13/cast"
 
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/gohugoio/hugo/config"
 )
@@ -72,7 +72,7 @@ func LoadLanguageSettings(cfg config.Provider, oldLangs Languages) (c LanguagesC
 	} else {
 		languages2, err = toSortedLanguages(cfg, languages)
 		if err != nil {
-			return c, errors.Wrap(err, "Failed to parse multilingual config")
+			return c, fmt.Errorf("Failed to parse multilingual config: %w", err)
 		}
 	}
 

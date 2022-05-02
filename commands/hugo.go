@@ -39,9 +39,6 @@ import (
 
 	"github.com/gohugoio/hugo/resources/page"
 
-	"github.com/pkg/errors"
-
-	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/terminal"
@@ -300,14 +297,14 @@ func (c *commandeer) fullBuild(noBuildLock bool) error {
 	copyStaticFunc := func() error {
 		cnt, err := c.copyStatic()
 		if err != nil {
-			return errors.Wrap(err, "Error copying static files")
+			return fmt.Errorf("Error copying static files: %w", err)
 		}
 		langCount = cnt
 		return nil
 	}
 	buildSitesFunc := func() error {
 		if err := c.buildSites(noBuildLock); err != nil {
-			return errors.Wrap(err, "Error building site")
+			return fmt.Errorf("Error building site: %w", err)
 		}
 		return nil
 	}
@@ -354,10 +351,10 @@ func (c *commandeer) initCPUProfile() (func(), error) {
 
 	f, err := os.Create(c.h.cpuprofile)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create CPU profile")
+		return nil, fmt.Errorf("failed to create CPU profile: %w", err)
 	}
 	if err := pprof.StartCPUProfile(f); err != nil {
-		return nil, errors.Wrap(err, "failed to start CPU profile")
+		return nil, fmt.Errorf("failed to start CPU profile: %w", err)
 	}
 	return func() {
 		pprof.StopCPUProfile()
@@ -388,11 +385,11 @@ func (c *commandeer) initTraceProfile() (func(), error) {
 
 	f, err := os.Create(c.h.traceprofile)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create trace file")
+		return nil, fmt.Errorf("failed to create trace file: %w", err)
 	}
 
 	if err := trace.Start(f); err != nil {
-		return nil, errors.Wrap(err, "failed to start trace")
+		return nil, fmt.Errorf("failed to start trace: %w", err)
 	}
 
 	return func() {
@@ -735,9 +732,7 @@ func (c *commandeer) handleBuildErr(err error, msg string) {
 
 	c.logger.Errorln(msg + ":\n")
 	c.logger.Errorln(helpers.FirstUpper(err.Error()))
-	if !c.h.quiet && c.h.verbose {
-		herrors.PrintStackTraceFromErr(err)
-	}
+
 }
 
 func (c *commandeer) rebuildSites(events []fsnotify.Event) error {

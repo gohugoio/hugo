@@ -14,13 +14,12 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/herrors"
-
-	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/paths"
 
@@ -60,7 +59,7 @@ func FromConfigString(config, configType string) (Provider, error) {
 func FromFile(fs afero.Fs, filename string) (Provider, error) {
 	m, err := loadConfigFromFile(fs, filename)
 	if err != nil {
-		return nil, herrors.WithFileContextForFileDefault(err, filename, fs)
+		return nil, herrors.NewFileErrorFromFile(err, filename, filename, fs, herrors.SimpleLineMatcher)
 	}
 	return NewFrom(m), nil
 }
@@ -132,7 +131,7 @@ func LoadConfigFromDir(sourceFs afero.Fs, configDir, environment string) (Provid
 			if err != nil {
 				// This will be used in error reporting, use the most specific value.
 				dirnames = []string{path}
-				return errors.Wrapf(err, "failed to unmarshl config for path %q", path)
+				return fmt.Errorf("failed to unmarshl config for path %q: %w", path, err)
 			}
 
 			var keyPath []string

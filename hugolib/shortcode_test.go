@@ -1340,7 +1340,7 @@ func TestShortcodeNoInner(t *testing.T) {
 
 	b := newTestSitesBuilder(t)
 
-	b.WithContent("page.md", `---
+	b.WithContent("mypage.md", `---
 title: "No Inner!"
 ---
 {{< noinner >}}{{< /noinner >}}
@@ -1350,7 +1350,7 @@ title: "No Inner!"
 		"layouts/shortcodes/noinner.html", `No inner here.`)
 
 	err := b.BuildE(BuildCfg{})
-	b.Assert(err.Error(), qt.Contains, `failed to extract shortcode: shortcode "noinner" has no .Inner, yet a closing tag was provided`)
+	b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`"content/mypage.md:4:21": failed to extract shortcode: shortcode "noinner" has no .Inner, yet a closing tag was provided`))
 }
 
 func TestShortcodeStableOutputFormatTemplates(t *testing.T) {

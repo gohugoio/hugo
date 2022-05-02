@@ -16,35 +16,21 @@ package herrors
 import (
 	"regexp"
 	"strconv"
-
-	"github.com/pkg/errors"
-
-	"github.com/pelletier/go-toml/v2"
 )
 
 var lineNumberExtractors = []lineNumberExtractor{
 	// Template/shortcode parse errors
-	newLineNumberErrHandlerFromRegexp(".*:(\\d+):(\\d*):"),
-	newLineNumberErrHandlerFromRegexp(".*:(\\d+):"),
+	newLineNumberErrHandlerFromRegexp(`:(\d+):(\d*):`),
+	newLineNumberErrHandlerFromRegexp(`:(\d+):`),
 
-	// TOML parse errors
-	tomlLineNumberExtractor,
 	// YAML parse errors
-	newLineNumberErrHandlerFromRegexp("line (\\d+):"),
+	newLineNumberErrHandlerFromRegexp(`line (\d+):`),
 
 	// i18n bundle errors
-	newLineNumberErrHandlerFromRegexp("\\((\\d+),\\s(\\d*)"),
+	newLineNumberErrHandlerFromRegexp(`\((\d+),\s(\d*)`),
 }
 
 type lineNumberExtractor func(e error) (int, int)
-
-var tomlLineNumberExtractor = func(e error) (int, int) {
-	e = errors.Cause(e)
-	if terr, ok := e.(*toml.DecodeError); ok {
-		return terr.Position()
-	}
-	return -1, -1
-}
 
 func newLineNumberErrHandlerFromRegexp(expression string) lineNumberExtractor {
 	re := regexp.MustCompile(expression)
@@ -72,6 +58,6 @@ func extractLineNo(re *regexp.Regexp) lineNumberExtractor {
 			return lno, col
 		}
 
-		return -1, col
+		return 0, col
 	}
 }

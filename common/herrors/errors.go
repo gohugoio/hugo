@@ -19,36 +19,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"runtime"
 	"runtime/debug"
 	"strconv"
-
-	_errors "github.com/pkg/errors"
 )
-
-// As defined in https://godoc.org/github.com/pkg/errors
-type causer interface {
-	Cause() error
-}
-
-type stackTracer interface {
-	StackTrace() _errors.StackTrace
-}
-
-// PrintStackTraceFromErr prints the error's stack trace to stdoud.
-func PrintStackTraceFromErr(err error) {
-	FprintStackTraceFromErr(os.Stdout, err)
-}
-
-// FprintStackTraceFromErr prints the error's stack trace to w.
-func FprintStackTraceFromErr(w io.Writer, err error) {
-	if err, ok := err.(stackTracer); ok {
-		for _, f := range err.StackTrace() {
-			fmt.Fprintf(w, "%+s:%d\n", f, f)
-		}
-	}
-}
 
 // PrintStackTrace prints the current stacktrace to w.
 func PrintStackTrace(w io.Writer) {

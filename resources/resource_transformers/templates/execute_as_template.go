@@ -15,12 +15,13 @@
 package templates
 
 import (
+	"fmt"
+
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/internal"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/gohugoio/hugo/tpl"
-	"github.com/pkg/errors"
 )
 
 // Client contains methods to perform template processing of Resource objects.
@@ -55,7 +56,7 @@ func (t *executeAsTemplateTransform) Transform(ctx *resources.ResourceTransforma
 	tplStr := helpers.ReaderToString(ctx.From)
 	templ, err := t.t.TextTmpl().Parse(ctx.InPath, tplStr)
 	if err != nil {
-		return errors.Wrapf(err, "failed to parse Resource %q as Template:", ctx.InPath)
+		return fmt.Errorf("failed to parse Resource %q as Template:: %w", ctx.InPath, err)
 	}
 
 	ctx.OutPath = t.targetPath

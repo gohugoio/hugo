@@ -24,8 +24,6 @@ import (
 
 	"github.com/gohugoio/hugo/common/paths"
 
-	"github.com/pkg/errors"
-
 	"github.com/gohugoio/hugo/resources/images"
 	"github.com/gohugoio/hugo/resources/images/exif"
 	"github.com/spf13/afero"
@@ -431,10 +429,10 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 					errMsg = ". You need to install Babel, see https://gohugo.io/hugo-pipes/babel/"
 				}
 
-				return errors.Wrap(err, msg+errMsg)
+				return fmt.Errorf(msg+errMsg+": %w", err)
 			}
 
-			return errors.Wrap(err, msg)
+			return fmt.Errorf(msg+": %w", err)
 		}
 
 		var tryFileCache bool
@@ -461,7 +459,7 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 				if err != nil {
 					return newErr(err)
 				}
-				return newErr(errors.Errorf("resource %q not found in file cache", key))
+				return newErr(fmt.Errorf("resource %q not found in file cache", key))
 			}
 			transformedContentr = f
 			updates.sourceFs = cache.fileCache.Fs

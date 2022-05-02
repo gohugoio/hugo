@@ -20,6 +20,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -35,7 +36,6 @@ import (
 
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/deps"
-	_errors "github.com/pkg/errors"
 )
 
 // New returns a new instance of the data-namespaced template functions.
@@ -69,7 +69,7 @@ func (ns *Namespace) GetCSV(sep string, args ...any) (d [][]string, err error) {
 
 	unmarshal := func(b []byte) (bool, error) {
 		if d, err = parseCSV(b, sep); err != nil {
-			err = _errors.Wrapf(err, "failed to parse CSV file %s", url)
+			err = fmt.Errorf("failed to parse CSV file %s: %w", url, err)
 
 			return true, err
 		}
@@ -80,7 +80,7 @@ func (ns *Namespace) GetCSV(sep string, args ...any) (d [][]string, err error) {
 	var req *http.Request
 	req, err = http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, _errors.Wrapf(err, "failed to create request for getCSV for resource %s", url)
+		return nil, fmt.Errorf("failed to create request for getCSV for resource %s: %w", url, err)
 	}
 
 	// Add custom user headers.
@@ -109,7 +109,7 @@ func (ns *Namespace) GetJSON(args ...any) (any, error) {
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, _errors.Wrapf(err, "Failed to create request for getJSON resource %s", url)
+		return nil, fmt.Errorf("Failed to create request for getJSON resource %s: %w", url, err)
 	}
 
 	unmarshal := func(b []byte) (bool, error) {

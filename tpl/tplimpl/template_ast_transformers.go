@@ -14,6 +14,7 @@
 package tplimpl
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -22,10 +23,11 @@ import (
 
 	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 
+	"errors"
+
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/mitchellh/mapstructure"
-	"github.com/pkg/errors"
 )
 
 type templateType int
@@ -239,14 +241,14 @@ func (c *templateContext) collectConfig(n *parse.PipeNode) {
 	}
 
 	if s, ok := cmd.Args[0].(*parse.StringNode); ok {
-		errMsg := "failed to decode $_hugo_config in template"
+		errMsg := "failed to decode $_hugo_config in template: %w"
 		m, err := maps.ToStringMapE(s.Text)
 		if err != nil {
-			c.err = errors.Wrap(err, errMsg)
+			c.err = fmt.Errorf(errMsg, err)
 			return
 		}
 		if err := mapstructure.WeakDecode(m, &c.t.parseInfo.Config); err != nil {
-			c.err = errors.Wrap(err, errMsg)
+			c.err = fmt.Errorf(errMsg, err)
 		}
 	}
 }

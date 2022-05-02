@@ -35,7 +35,7 @@ import (
 
 	"github.com/gohugoio/hugo/output"
 
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/helpers"
@@ -50,7 +50,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 	if !config.NoBuildLock {
 		unlock, err := h.BaseFs.LockBuild()
 		if err != nil {
-			return errors.Wrap(err, "failed to acquire a build lock")
+			return fmt.Errorf("failed to acquire a build lock: %w", err)
 		}
 		defer unlock()
 	}
@@ -99,11 +99,11 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 				if len(events) > 0 {
 					// Rebuild
 					if err := h.initRebuild(conf); err != nil {
-						return errors.Wrap(err, "initRebuild")
+						return fmt.Errorf("initRebuild: %w", err)
 					}
 				} else {
 					if err := h.initSites(conf); err != nil {
-						return errors.Wrap(err, "initSites")
+						return fmt.Errorf("initSites: %w", err)
 					}
 				}
 
@@ -117,7 +117,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 			}
 			trace.WithRegion(ctx, "process", f)
 			if err != nil {
-				return errors.Wrap(err, "process")
+				return fmt.Errorf("process: %w", err)
 			}
 
 			f = func() {

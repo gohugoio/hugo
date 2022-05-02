@@ -15,10 +15,9 @@ package images
 
 import (
 	"encoding/hex"
+	"fmt"
 	"image/color"
 	"strings"
-
-	"github.com/pkg/errors"
 )
 
 // AddColorToPalette adds c as the first color in p if not already there.
@@ -50,7 +49,7 @@ func hexStringToColor(s string) (color.Color, error) {
 	s = strings.TrimPrefix(s, "#")
 
 	if len(s) != 3 && len(s) != 6 {
-		return nil, errors.Errorf("invalid color code: %q", s)
+		return nil, fmt.Errorf("invalid color code: %q", s)
 	}
 
 	s = strings.ToLower(s)

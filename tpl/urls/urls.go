@@ -22,7 +22,6 @@ import (
 
 	"github.com/gohugoio/hugo/common/urls"
 	"github.com/gohugoio/hugo/deps"
-	_errors "github.com/pkg/errors"
 	"github.com/spf13/cast"
 )
 
@@ -55,7 +54,7 @@ func (ns *Namespace) AbsURL(s any) (template.HTML, error) {
 func (ns *Namespace) Parse(rawurl any) (*url.URL, error) {
 	s, err := cast.ToStringE(rawurl)
 	if err != nil {
-		return nil, _errors.Wrap(err, "Error in Parse")
+		return nil, fmt.Errorf("Error in Parse: %w", err)
 	}
 
 	return url.Parse(s)

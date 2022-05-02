@@ -38,9 +38,6 @@ import (
 
 	"github.com/gohugoio/hugo/resources/resource"
 
-	"github.com/pkg/errors"
-	_errors "github.com/pkg/errors"
-
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources/images"
 
@@ -325,7 +322,7 @@ func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src im
 	})
 	if err != nil {
 		if i.root != nil && i.root.getFileInfo() != nil {
-			return nil, errors.Wrapf(err, "image %q", i.root.getFileInfo().Meta().Filename)
+			return nil, fmt.Errorf("image %q: %w", i.root.getFileInfo().Meta().Filename, err)
 		}
 	}
 	return img, nil
@@ -345,7 +342,7 @@ func (i *imageResource) decodeImageConfig(action, spec string) (images.ImageConf
 func (i *imageResource) DecodeImage() (image.Image, error) {
 	f, err := i.ReadSeekCloser()
 	if err != nil {
-		return nil, _errors.Wrap(err, "failed to open image for decode")
+		return nil, fmt.Errorf("failed to open image for decode: %w", err)
 	}
 	defer f.Close()
 	img, _, err := image.Decode(f)

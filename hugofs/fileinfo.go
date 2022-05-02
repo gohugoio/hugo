@@ -28,7 +28,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs/files"
 	"golang.org/x/text/unicode/norm"
 
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/gohugoio/hugo/common/hreflect"
 

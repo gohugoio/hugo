@@ -23,11 +23,12 @@ import (
 	"sync"
 	"unicode/utf8"
 
+	"errors"
+
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/common/types/hstring"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/mitchellh/mapstructure"
-	"github.com/pkg/errors"
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/markup/converter/hooks"
@@ -348,7 +349,7 @@ func (p *pageContentOutput) RenderString(args ...any) (template.HTML, error) {
 		}
 
 		if err := mapstructure.WeakDecode(m, &opts); err != nil {
-			return "", errors.WithMessage(err, "failed to decode options")
+			return "", fmt.Errorf("failed to decode options: %w", err)
 		}
 	}
 
@@ -416,7 +417,7 @@ func (p *pageContentOutput) Render(layout ...string) (template.HTML, error) {
 	// Make sure to send the *pageState and not the *pageContentOutput to the template.
 	res, err := executeToString(p.p.s.Tmpl(), templ, p.p)
 	if err != nil {
-		return "", p.p.wrapError(errors.Wrapf(err, "failed to execute template %q v", layout))
+		return "", p.p.wrapError(fmt.Errorf("failed to execute template %q v: %w", layout, err))
 	}
 	return template.HTML(res), nil
 }

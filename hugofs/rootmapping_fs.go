@@ -21,8 +21,6 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs/files"
 
-	"github.com/pkg/errors"
-
 	radix "github.com/armon/go-radix"
 	"github.com/spf13/afero"
 )
@@ -191,7 +189,7 @@ func (fs *RootMappingFs) Dirs(base string) ([]FileMetaInfo, error) {
 		fs = decorateDirs(fs, r.Meta)
 		fi, err := fs.Stat("")
 		if err != nil {
-			return nil, errors.Wrap(err, "RootMappingFs.Dirs")
+			return nil, fmt.Errorf("RootMappingFs.Dirs: %w", err)
 		}
 
 		if !fi.IsDir() {
@@ -560,7 +558,7 @@ func (fs *RootMappingFs) doLstat(name string) ([]FileMetaInfo, error) {
 
 	if fileCount > 1 {
 		// Not supported by this filesystem.
-		return nil, errors.Errorf("found multiple files with name %q, use .Readdir or the source filesystem directly", name)
+		return nil, fmt.Errorf("found multiple files with name %q, use .Readdir or the source filesystem directly", name)
 	}
 
 	return []FileMetaInfo{roots[0].fi}, nil

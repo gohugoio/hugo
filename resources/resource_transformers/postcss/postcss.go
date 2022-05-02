@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"path"
@@ -36,8 +37,9 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 
+	"errors"
+
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/pkg/errors"
 
 	"github.com/mitchellh/mapstructure"
 
@@ -161,7 +163,7 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 		configFile = t.rs.BaseFs.ResolveJSConfigFile(configFile)
 		if configFile == "" && t.options.Config != "" {
 			// Only fail if the user specified config file is not found.
-			return errors.Errorf("postcss config %q not found:", configFile)
+			return fmt.Errorf("postcss config %q not found:", configFile)
 		}
 	}
 
@@ -388,15 +390,9 @@ func (imp *importResolver) toFileError(output string) error {
 	if err != nil {
 		return inErr
 	}
+
 	realFilename := fi.(hugofs.FileMetaInfo).Meta().Filename
 
-	ferr := herrors.NewFileError("css", -1, file.Offset+1, 1, inErr)
+	return herrors.NewFileErrorFromFile(inErr, file.Filename, realFilename, hugofs.Os, herrors.SimpleLineMatcher)
 
-	werr, ok := herrors.WithFileContextForFile(ferr, realFilename, file.Filename, imp.fs, herrors.SimpleLineMatcher)
-
-	if !ok {
-		return ferr
-	}
-
-	return werr
 }
