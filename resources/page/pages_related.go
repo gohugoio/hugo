@@ -14,11 +14,11 @@
 package page
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/related"
-	"github.com/pkg/errors"
 	"github.com/spf13/cast"
 )
 
@@ -108,7 +108,7 @@ func (p Pages) withInvertedIndex(search func(idx *related.InvertedIndex) ([]rela
 
 	d, ok := p[0].(InternalDependencies)
 	if !ok {
-		return nil, errors.Errorf("invalid type %T in related search", p[0])
+		return nil, fmt.Errorf("invalid type %T in related search", p[0])
 	}
 
 	cache := d.GetRelatedDocsHandler()

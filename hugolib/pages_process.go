@@ -22,7 +22,6 @@ import (
 	"github.com/gohugoio/hugo/source"
 
 	"github.com/gohugoio/hugo/hugofs/files"
-	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/gohugoio/hugo/common/herrors"
@@ -156,7 +155,7 @@ func (p *sitePagesProcessor) copyFile(fim hugofs.FileMetaInfo) error {
 	meta := fim.Meta()
 	f, err := meta.Open()
 	if err != nil {
-		return errors.Wrap(err, "copyFile: failed to open")
+		return fmt.Errorf("copyFile: failed to open: %w", err)
 	}
 
 	s := p.m.s

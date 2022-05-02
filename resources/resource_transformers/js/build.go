@@ -22,13 +22,14 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/text"
 
 	"github.com/gohugoio/hugo/hugolib/filesystems"
 	"github.com/gohugoio/hugo/media"
@@ -109,13 +110,13 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		for i, ext := range opts.Inject {
 			impPath := filepath.FromSlash(ext)
 			if filepath.IsAbs(impPath) {
-				return errors.Errorf("inject: absolute paths not supported, must be relative to /assets")
+				return fmt.Errorf("inject: absolute paths not supported, must be relative to /assets")
 			}
 
 			m := resolveComponentInAssets(t.c.rs.Assets.Fs, impPath)
 
 			if m == nil {
-				return errors.Errorf("inject: file %q not found", ext)
+				return fmt.Errorf("inject: file %q not found", ext)
 			}
 
 			opts.Inject[i] = m.Filename
@@ -157,10 +158,12 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 			}
 
 			if err == nil {
-				fe := herrors.NewFileError("js", 0, loc.Line, loc.Column, errors.New(msg.Text))
-				err, _ := herrors.WithFileContext(fe, path, f, herrors.SimpleLineMatcher)
+				fe := herrors.NewFileError(path, errors.New(msg.Text)).
+					UpdatePosition(text.Position{Offset: -1, LineNumber: loc.Line, ColumnNumber: loc.Column}).
+					UpdateContent(f, herrors.SimpleLineMatcher)
+
 				f.Close()
-				return err
+				return fe
 			}
 
 			return fmt.Errorf("%s", msg.Text)

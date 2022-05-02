@@ -19,8 +19,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/pkg/errors"
-
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/compare"
@@ -190,7 +188,7 @@ func (m *MenuEntry) MarshallMap(ime map[string]any) error {
 	}
 
 	if err != nil {
-		return errors.Wrapf(err, "failed to marshal menu entry %q", m.KeyName())
+		return fmt.Errorf("failed to marshal menu entry %q: %w", m.KeyName(), err)
 	}
 
 	return nil

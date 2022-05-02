@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2022 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,8 +21,6 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/text"
-
-	"github.com/spf13/afero"
 )
 
 // LineMatcher contains the elements used to match an error to a line
@@ -43,8 +41,6 @@ var SimpleLineMatcher = func(m LineMatcher) bool {
 	return m.Position.LineNumber == m.LineNumber
 }
 
-var _ text.Positioner = ErrorContext{}
-
 // ErrorContext contains contextual information about an error. This will
 // typically be the lines surrounding some problem in a file.
 type ErrorContext struct {
@@ -56,123 +52,9 @@ type ErrorContext struct {
 	// The position of the error in the Lines above. 0 based.
 	LinesPos int
 
-	position text.Position
-
 	// The lexer to use for syntax highlighting.
 	// https://gohugo.io/content-management/syntax-highlighting/#list-of-chroma-highlighting-languages
 	ChromaLexer string
-}
-
-// Position returns the text position of this error.
-func (e ErrorContext) Position() text.Position {
-	return e.position
-}
-
-var _ causer = (*ErrorWithFileContext)(nil)
-
-// ErrorWithFileContext is an error with some additional file context related
-// to that error.
-type ErrorWithFileContext struct {
-	cause error
-	ErrorContext
-}
-
-func (e *ErrorWithFileContext) Error() string {
-	pos := e.Position()
-	if pos.IsValid() {
-		return pos.String() + ": " + e.cause.Error()
-	}
-	return e.cause.Error()
-}
-
-func (e *ErrorWithFileContext) Cause() error {
-	return e.cause
-}
-
-// WithFileContextForFile will try to add a file context with lines matching the given matcher.
-// If no match could be found, the original error is returned with false as the second return value.
-func WithFileContextForFile(e error, realFilename, filename string, fs afero.Fs, matcher LineMatcherFn) (error, bool) {
-	f, err := fs.Open(filename)
-	if err != nil {
-		return e, false
-	}
-	defer f.Close()
-	return WithFileContext(e, realFilename, f, matcher)
-}
-
-// WithFileContextForFileDefault tries to add file context using the default line matcher.
-func WithFileContextForFileDefault(err error, filename string, fs afero.Fs) error {
-	err, _ = WithFileContextForFile(
-		err,
-		filename,
-		filename,
-		fs,
-		SimpleLineMatcher)
-	return err
-}
-
-// WithFileContextForFile will try to add a file context with lines matching the given matcher.
-// If no match could be found, the original error is returned with false as the second return value.
-func WithFileContext(e error, realFilename string, r io.Reader, matcher LineMatcherFn) (error, bool) {
-	if e == nil {
-		panic("error missing")
-	}
-	le := UnwrapFileError(e)
-
-	if le == nil {
-		var ok bool
-		if le, ok = ToFileError("", e).(FileError); !ok {
-			return e, false
-		}
-	}
-
-	var errCtx ErrorContext
-
-	posle := le.Position()
-
-	if posle.Offset != -1 {
-		errCtx = locateError(r, le, func(m LineMatcher) bool {
-			if posle.Offset >= m.Offset && posle.Offset < m.Offset+len(m.Line) {
-				lno := posle.LineNumber - m.Position.LineNumber + m.LineNumber
-				m.Position = text.Position{LineNumber: lno}
-			}
-			return matcher(m)
-		})
-	} else {
-		errCtx = locateError(r, le, matcher)
-	}
-
-	pos := &errCtx.position
-
-	if pos.LineNumber == -1 {
-		return e, false
-	}
-
-	pos.Filename = realFilename
-
-	if le.Type() != "" {
-		errCtx.ChromaLexer = chromaLexerFromType(le.Type())
-	} else {
-		errCtx.ChromaLexer = chromaLexerFromFilename(realFilename)
-	}
-
-	return &ErrorWithFileContext{cause: e, ErrorContext: errCtx}, true
-}
-
-// UnwrapErrorWithFileContext tries to unwrap an ErrorWithFileContext from err.
-// It returns nil if this is not possible.
-func UnwrapErrorWithFileContext(err error) *ErrorWithFileContext {
-	for err != nil {
-		switch v := err.(type) {
-		case *ErrorWithFileContext:
-			return v
-		case causer:
-			err = v.Cause()
-		default:
-			return nil
-		}
-	}
-	return nil
 }
 
 func chromaLexerFromType(fileType string) string {
@@ -196,23 +78,23 @@ func chromaLexerFromFilename(filename string) string {
 	return chromaLexerFromType(ext)
 }
 
-func locateErrorInString(src string, matcher LineMatcherFn) ErrorContext {
+func locateErrorInString(src string, matcher LineMatcherFn) (*ErrorContext, text.Position) {
 	return locateError(strings.NewReader(src), &fileError{}, matcher)
 }
 
-func locateError(r io.Reader, le FileError, matches LineMatcherFn) ErrorContext {
+func locateError(r io.Reader, le FileError, matches LineMatcherFn) (*ErrorContext, text.Position) {
 	if le == nil {
 		panic("must provide an error")
 	}
 
-	errCtx := ErrorContext{position: text.Position{LineNumber: -1, ColumnNumber: 1, Offset: -1}, LinesPos: -1}
+	errCtx := &ErrorContext{LinesPos: -1}
+	pos := text.Position{LineNumber: -1, ColumnNumber: 1, Offset: -1}
 
 	b, err := ioutil.ReadAll(r)
 	if err != nil {
-		return errCtx
+		return errCtx, pos
 	}
 
-	pos := &errCtx.position
 	lepos := le.Position()
 
 	lines := strings.Split(string(b), "\n")
@@ -262,5 +144,5 @@ func locateError(r io.Reader, le FileError, matches LineMatcherFn) ErrorContext 
 
 	}
 
-	return errCtx
+	return errCtx, pos
 }

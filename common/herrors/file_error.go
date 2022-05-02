@@ -1,11 +1,11 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2022 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 // http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
+// Unless required by applicable lfmtaw or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
@@ -15,33 +15,116 @@ package herrors
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
+	"path/filepath"
 
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/text"
+	"github.com/pelletier/go-toml/v2"
+	"github.com/spf13/afero"
+	"github.com/tdewolff/parse/v2"
 
-	"github.com/pkg/errors"
+	"errors"
 )
-
-var _ causer = (*fileError)(nil)
 
 // FileError represents an error when handling a file: Parsing a config file,
 // execute a template etc.
 type FileError interface {
 	error
 
+	// ErroContext holds some context information about the error.
+	ErrorContext() *ErrorContext
+
 	text.Positioner
 
-	// A string identifying the type of file, e.g. JSON, TOML, markdown etc.
-	Type() string
+	// UpdatePosition updates the position of the error.
+	UpdatePosition(pos text.Position) FileError
+
+	// UpdateContent updates the error with a new ErrorContext from the content of the file.
+	UpdateContent(r io.Reader, linematcher LineMatcherFn) FileError
 }
 
-var _ FileError = (*fileError)(nil)
+// Unwrapper can unwrap errors created with fmt.Errorf.
+type Unwrapper interface {
+	Unwrap() error
+}
+
+var (
+	_ FileError = (*fileError)(nil)
+	_ Unwrapper = (*fileError)(nil)
+)
+
+func (fe *fileError) UpdatePosition(pos text.Position) FileError {
+	oldFilename := fe.Position().Filename
+	if pos.Filename != "" && fe.fileType == "" {
+		_, fe.fileType = paths.FileAndExtNoDelimiter(filepath.Clean(pos.Filename))
+	}
+	if pos.Filename == "" {
+		pos.Filename = oldFilename
+	}
+	fe.position = pos
+	return fe
+}
+
+func (fe *fileError) UpdateContent(r io.Reader, linematcher LineMatcherFn) FileError {
+	if linematcher == nil {
+		linematcher = SimpleLineMatcher
+	}
+
+	var (
+		contentPos   text.Position
+		posle        = fe.position
+		errorContext *ErrorContext
+	)
+
+	if posle.LineNumber <= 1 && posle.Offset > 0 {
+		// Try to locate the line number from the content if offset is set.
+		errorContext, contentPos = locateError(r, fe, func(m LineMatcher) bool {
+			if posle.Offset >= m.Offset && posle.Offset < m.Offset+len(m.Line) {
+				lno := posle.LineNumber - m.Position.LineNumber + m.LineNumber
+				m.Position = text.Position{LineNumber: lno}
+				return linematcher(m)
+			}
+			return false
+		})
+	} else {
+		errorContext, contentPos = locateError(r, fe, linematcher)
+	}
+
+	if errorContext.ChromaLexer == "" {
+		if fe.fileType != "" {
+			errorContext.ChromaLexer = chromaLexerFromType(fe.fileType)
+		} else {
+			errorContext.ChromaLexer = chromaLexerFromFilename(fe.Position().Filename)
+		}
+	}
+
+	fe.errorContext = errorContext
+
+	if contentPos.LineNumber > 0 {
+		fe.position.LineNumber = contentPos.LineNumber
+	}
+
+	return fe
+
+}
 
 type fileError struct {
-	position text.Position
+	position     text.Position
+	errorContext *ErrorContext
 
 	fileType string
 
 	cause error
+}
+
+type fileErrorWithErrorContext struct {
+	*fileError
+}
+
+func (e *fileError) ErrorContext() *ErrorContext {
+	return e.errorContext
 }
 
 // Position returns the text position of this error.
@@ -49,25 +132,100 @@ func (e fileError) Position() text.Position {
 	return e.position
 }
 
-func (e *fileError) Type() string {
-	return e.fileType
-}
-
 func (e *fileError) Error() string {
-	if e.cause == nil {
-		return ""
+	return fmt.Sprintf("%s: %s", e.position, e.cause)
+}
+
+func (e *fileError) Unwrap() error {
+	return e.cause
+}
+
+// NewFileError creates a new FileError that wraps err.
+// The value for name should identify the file, the best
+// being the full filename to the file on disk.
+func NewFileError(name string, err error) FileError {
+	if err == nil {
+		panic("err is nil")
 	}
-	return e.cause.Error()
-}
 
-func (f *fileError) Cause() error {
-	return f.cause
-}
+	// Filetype is used to determine the Chroma lexer to use.
+	fileType, pos := extractFileTypePos(err)
+	pos.Filename = name
+	if fileType == "" {
+		_, fileType = paths.FileAndExtNoDelimiter(filepath.Clean(name))
+	}
 
-// NewFileError creates a new FileError.
-func NewFileError(fileType string, offset, lineNumber, columnNumber int, err error) FileError {
-	pos := text.Position{Offset: offset, LineNumber: lineNumber, ColumnNumber: columnNumber}
+	if pos.LineNumber < 0 {
+		panic(fmt.Sprintf("invalid line number: %d", pos.LineNumber))
+	}
+
 	return &fileError{cause: err, fileType: fileType, position: pos}
+
+}
+
+// NewFileErrorFromFile is a convenience method to create a new FileError from a file.
+func NewFileErrorFromFile(err error, filename, realFilename string, fs afero.Fs, linematcher LineMatcherFn) FileError {
+	if err == nil {
+		panic("err is nil")
+	}
+	if linematcher == nil {
+		linematcher = SimpleLineMatcher
+	}
+	f, err2 := fs.Open(filename)
+	if err2 != nil {
+		return NewFileError(realFilename, err)
+	}
+	defer f.Close()
+	return NewFileError(realFilename, err).UpdateContent(f, linematcher)
+}
+
+// Cause returns the underlying error or itself if it does not implement Unwrap.
+func Cause(err error) error {
+	if u := errors.Unwrap(err); u != nil {
+		return u
+	}
+	return err
+}
+
+func extractFileTypePos(err error) (string, text.Position) {
+	err = Cause(err)
+	var fileType string
+
+	// Fall back to line/col 1:1 if we cannot find any better information.
+	pos := text.Position{
+		Offset:       -1,
+		LineNumber:   1,
+		ColumnNumber: 1,
+	}
+
+	// JSON errors.
+	offset, typ := extractOffsetAndType(err)
+	if fileType == "" {
+		fileType = typ
+	}
+
+	if offset >= 0 {
+		pos.Offset = offset
+	}
+
+	// The error type from the minifier contains line number and column number.
+	if line, col := exctractLineNumberAndColumnNumber(err); line >= 0 {
+		pos.LineNumber = line
+		pos.ColumnNumber = col
+		return fileType, pos
+	}
+
+	// Look in the error message for the line number.
+	for _, handle := range lineNumberExtractors {
+		lno, col := handle(err)
+		if lno > 0 {
+			pos.ColumnNumber = col
+			pos.LineNumber = lno
+			break
+		}
+	}
+
+	return fileType, pos
 }
 
 // UnwrapFileError tries to unwrap a FileError from err.
@@ -77,49 +235,26 @@ func UnwrapFileError(err error) FileError {
 		switch v := err.(type) {
 		case FileError:
 			return v
-		case causer:
-			err = v.Cause()
 		default:
-			return nil
+			err = errors.Unwrap(err)
 		}
 	}
 	return nil
 }
 
-// ToFileErrorWithOffset will return a new FileError with a line number
-// with the given offset from the original.
-func ToFileErrorWithOffset(fe FileError, offset int) FileError {
-	pos := fe.Position()
-	return ToFileErrorWithLineNumber(fe, pos.LineNumber+offset)
-}
-
-// ToFileErrorWithOffset will return a new FileError with the given line number.
-func ToFileErrorWithLineNumber(fe FileError, lineNumber int) FileError {
-	pos := fe.Position()
-	pos.LineNumber = lineNumber
-	return &fileError{cause: fe, fileType: fe.Type(), position: pos}
-}
-
-// ToFileError will convert the given error to an error supporting
-// the FileError interface.
-func ToFileError(fileType string, err error) FileError {
-	for _, handle := range lineNumberExtractors {
-		lno, col := handle(err)
-		offset, typ := extractOffsetAndType(err)
-		if fileType == "" {
-			fileType = typ
+// UnwrapFileErrorsWithErrorContext tries to unwrap all FileError in err that has an ErrorContext.
+func UnwrapFileErrorsWithErrorContext(err error) []FileError {
+	var errs []FileError
+	for err != nil {
+		if v, ok := err.(FileError); ok && v.ErrorContext() != nil {
+			errs = append(errs, v)
 		}
-
-		if lno > 0 || offset != -1 {
-			return NewFileError(fileType, offset, lno, col, err)
-		}
+		err = errors.Unwrap(err)
 	}
-	// Fall back to the pointing to line number 1.
-	return NewFileError(fileType, -1, 1, 1, err)
+	return errs
 }
 
 func extractOffsetAndType(e error) (int, string) {
-	e = errors.Cause(e)
 	switch v := e.(type) {
 	case *json.UnmarshalTypeError:
 		return int(v.Offset), "json"
@@ -128,4 +263,16 @@ func extractOffsetAndType(e error) (int, string) {
 	default:
 		return -1, ""
 	}
+}
+
+func exctractLineNumberAndColumnNumber(e error) (int, int) {
+	switch v := e.(type) {
+	case *parse.Error:
+		return v.Line, v.Column
+	case *toml.DecodeError:
+		return v.Position()
+
+	}
+
+	return -1, -1
 }

@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2022 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,14 +14,44 @@
 package herrors
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
-	"github.com/pkg/errors"
+	"errors"
+
+	"github.com/gohugoio/hugo/common/text"
 
 	qt "github.com/frankban/quicktest"
 )
 
-func TestToLineNumberError(t *testing.T) {
+func TestNewFileError(t *testing.T) {
+	t.Parallel()
+
+	c := qt.New(t)
+
+	fe := NewFileError("foo.html", errors.New("bar"))
+	c.Assert(fe.Error(), qt.Equals, `"foo.html:1:1": bar`)
+
+	lines := ""
+	for i := 1; i <= 100; i++ {
+		lines += fmt.Sprintf("line %d\n", i)
+	}
+
+	fe.UpdatePosition(text.Position{LineNumber: 32, ColumnNumber: 2})
+	c.Assert(fe.Error(), qt.Equals, `"foo.html:32:2": bar`)
+	fe.UpdatePosition(text.Position{LineNumber: 0, ColumnNumber: 0, Offset: 212})
+	fe.UpdateContent(strings.NewReader(lines), SimpleLineMatcher)
+	c.Assert(fe.Error(), qt.Equals, `"foo.html:32:0": bar`)
+	errorContext := fe.ErrorContext()
+	c.Assert(errorContext, qt.IsNotNil)
+	c.Assert(errorContext.Lines, qt.DeepEquals, []string{"line 30", "line 31", "line 32", "line 33", "line 34"})
+	c.Assert(errorContext.LinesPos, qt.Equals, 2)
+	c.Assert(errorContext.ChromaLexer, qt.Equals, "go-html-template")
+
+}
+
+func TestNewFileErrorExtractFromMessage(t *testing.T) {
 	t.Parallel()
 
 	c := qt.New(t)
@@ -37,18 +67,16 @@ func TestToLineNumberError(t *testing.T) {
 		{errors.New("parse failed: template: _default/bundle-resource-meta.html:11: unexpected in operand"), 0, 11, 1},
 		{errors.New(`failed:: template: _default/bundle-resource-meta.html:2:7: executing "main" at <.Titles>`), 0, 2, 7},
 		{errors.New(`failed to load translations: (6, 7): was expecting token =, but got "g" instead`), 0, 6, 7},
+		{errors.New(`execute of template failed: template: index.html:2:5: executing "index.html" at <partial "foo.html" .>: error calling partial: "/layouts/partials/foo.html:3:6": execute of template failed: template: partials/foo.html:3:6: executing "partials/foo.html" at <.ThisDoesNotExist>: can't evaluate field ThisDoesNotExist in type *hugolib.pageStat`), 0, 2, 5},
 	} {
 
-		got := ToFileError("template", test.in)
+		got := NewFileError("test.txt", test.in)
 
 		errMsg := qt.Commentf("[%d][%T]", i, got)
-		le, ok := got.(FileError)
-		c.Assert(ok, qt.Equals, true)
 
-		c.Assert(ok, qt.Equals, true, errMsg)
-		pos := le.Position()
+		pos := got.Position()
 		c.Assert(pos.LineNumber, qt.Equals, test.lineNumber, errMsg)
 		c.Assert(pos.ColumnNumber, qt.Equals, test.columnNumber, errMsg)
-		c.Assert(errors.Cause(got), qt.Not(qt.IsNil))
+		c.Assert(errors.Unwrap(got), qt.Not(qt.IsNil))
 	}
 }

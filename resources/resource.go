@@ -31,7 +31,7 @@ import (
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/source"
 
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
@@ -633,7 +633,7 @@ func (fi *resourceFileInfo) hash() (string, error) {
 		var f hugio.ReadSeekCloser
 		f, err = fi.ReadSeekCloser()
 		if err != nil {
-			err = errors.Wrap(err, "failed to open source file")
+			err = fmt.Errorf("failed to open source file: %w", err)
 			return
 		}
 		defer f.Close()

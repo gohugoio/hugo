@@ -169,8 +169,7 @@ func (s *IntegrationTestBuilder) destinationExists(filename string) bool {
 }
 
 func (s *IntegrationTestBuilder) AssertIsFileError(err error) {
-	var ferr *herrors.ErrorWithFileContext
-	s.Assert(err, qt.ErrorAs, &ferr)
+	s.Assert(err, qt.ErrorAs, new(herrors.FileError))
 }
 
 func (s *IntegrationTestBuilder) AssertRenderCountContent(count int) {

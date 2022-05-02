@@ -14,7 +14,6 @@
 package commands
 
 import (
-	"bytes"
 	"errors"
 	"io/ioutil"
 	"net"
@@ -141,19 +140,11 @@ func (c *commandeer) getErrorWithContext() any {
 
 	m := make(map[string]any)
 
-	m["Error"] = errors.New(removeErrorPrefixFromLog(c.logger.Errors()))
+	//xwm["Error"] = errors.New(cleanErrorLog(removeErrorPrefixFromLog(c.logger.Errors())))
+	m["Error"] = errors.New(cleanErrorLog(removeErrorPrefixFromLog(c.logger.Errors())))
 	m["Version"] = hugo.BuildVersionString()
-
-	fe := herrors.UnwrapErrorWithFileContext(c.buildErr)
-	if fe != nil {
-		m["File"] = fe
-	}
-
-	if c.h.verbose {
-		var b bytes.Buffer
-		herrors.FprintStackTraceFromErr(&b, c.buildErr)
-		m["StackTrace"] = b.String()
-	}
+	ferrors := herrors.UnwrapFileErrorsWithErrorContext(c.buildErr)
+	m["Files"] = ferrors
 
 	return m
 }

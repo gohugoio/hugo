@@ -16,8 +16,6 @@ package collections
 import (
 	"fmt"
 	"reflect"
-
-	"github.com/pkg/errors"
 )
 
 // SymDiff returns the symmetric difference of s1 and s2.
@@ -54,7 +52,7 @@ func (ns *Namespace) SymDiff(s2, s1 any) (any, error) {
 				if ids1[key] != ids2[key] {
 					v, err := convertValue(ev, sliceElemType)
 					if err != nil {
-						return nil, errors.WithMessage(err, "symdiff: failed to convert value")
+						return nil, fmt.Errorf("symdiff: failed to convert value: %w", err)
 					}
 					slice = reflect.Append(slice, v)
 				}

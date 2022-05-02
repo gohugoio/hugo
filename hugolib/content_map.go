@@ -23,7 +23,6 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/hugo/resources/page"
-	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/hugofs/files"
 
@@ -207,7 +206,7 @@ func (b *cmInsertKeyBuilder) WithFile(fi hugofs.FileMetaInfo) *cmInsertKeyBuilde
 
 	p, k := b.getBundle(p)
 	if k == "" {
-		b.err = errors.Errorf("no bundle header found for %q", bundlePath)
+		b.err = fmt.Errorf("no bundle header found for %q", bundlePath)
 		return b
 	}
 

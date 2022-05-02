@@ -34,11 +34,12 @@ import (
 	"strings"
 	"sync"
 
+	"errors"
+
 	"github.com/dustin/go-humanize"
 	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/media"
-	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	jww "github.com/spf13/jwalterweatherman"
 	"golang.org/x/text/unicode/norm"

@@ -59,8 +59,6 @@ import (
 
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/publisher"
-	"github.com/pkg/errors"
-	_errors "github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/langs"
 
@@ -508,7 +506,7 @@ But this also means that your site configuration may not do what you expect. If 
 	if cfg.Language.IsSet("related") {
 		relatedContentConfig, err = related.DecodeConfig(cfg.Language.GetParams("related"))
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to decode related config")
+			return nil, fmt.Errorf("failed to decode related config: %w", err)
 		}
 	} else {
 		relatedContentConfig = related.DefaultConfig
@@ -546,7 +544,7 @@ But this also means that your site configuration may not do what you expect. If 
 		var err error
 		cascade, err := page.DecodeCascade(cfg.Language.Get("cascade"))
 		if err != nil {
-			return nil, errors.Errorf("failed to decode cascade config: %s", err)
+			return nil, fmt.Errorf("failed to decode cascade config: %s", err)
 		}
 
 		siteBucket = &pagesMapBucket{
@@ -1211,11 +1209,11 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 
 func (s *Site) process(config BuildCfg) (err error) {
 	if err = s.initialize(); err != nil {
-		err = errors.Wrap(err, "initialize")
+		err = fmt.Errorf("initialize: %w", err)
 		return
 	}
 	if err = s.readAndProcessContent(config); err != nil {
-		err = errors.Wrap(err, "readAndProcessContent")
+		err = fmt.Errorf("readAndProcessContent: %w", err)
 		return
 	}
 	return err
@@ -1534,7 +1532,7 @@ func (s *Site) assembleMenus() {
 
 		for name, me := range p.pageMenus.menus() {
 			if _, ok := flat[twoD{name, me.KeyName()}]; ok {
-				err := p.wrapError(errors.Errorf("duplicate menu entry with identifier %q in menu %q", me.KeyName(), name))
+				err := p.wrapError(fmt.Errorf("duplicate menu entry with identifier %q in menu %q", me.KeyName(), name))
 				s.Log.Warnln(err)
 				continue
 			}
@@ -1819,7 +1817,7 @@ func (s *Site) renderForTemplate(name, outputFormat string, d any, w io.Writer, 
 	}
 
 	if err = s.Tmpl().Execute(templ, w, d); err != nil {
-		return _errors.Wrapf(err, "render of %q failed", name)
+		return fmt.Errorf("render of %q failed: %w", name, err)
 	}
 	return
 }

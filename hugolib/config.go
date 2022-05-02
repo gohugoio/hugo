@@ -33,11 +33,12 @@ import (
 
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
+	"errors"
+
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/modules"
-	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/privacy"
@@ -510,5 +511,5 @@ func (configLoader) loadSiteConfig(cfg config.Provider) (scfg SiteConfig, err er
 }
 
 func (l configLoader) wrapFileError(err error, filename string) error {
-	return herrors.WithFileContextForFileDefault(err, filename, l.Fs)
+	return herrors.NewFileErrorFromFile(err, filename, filename, l.Fs, herrors.SimpleLineMatcher)
 }

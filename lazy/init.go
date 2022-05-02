@@ -19,7 +19,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/pkg/errors"
+	"errors"
 )
 
 // New creates a new empty Init.

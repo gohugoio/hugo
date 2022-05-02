@@ -14,11 +14,10 @@
 package hugofs
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/pkg/errors"
 
 	"github.com/spf13/afero"
 )
@@ -232,7 +231,7 @@ func (l *baseFileDecoratorFile) Readdir(c int) (ofi []os.FileInfo, err error) {
 		}
 		fi, err = l.fs.decorate(fi, filename)
 		if err != nil {
-			return nil, errors.Wrap(err, "decorate")
+			return nil, fmt.Errorf("decorate: %w", err)
 		}
 		fisp = append(fisp, fi)
 	}

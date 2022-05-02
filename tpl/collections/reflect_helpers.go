@@ -18,8 +18,9 @@ import (
 	"reflect"
 	"time"
 
+	"errors"
+
 	"github.com/mitchellh/hashstructure"
-	"github.com/pkg/errors"
 )
 
 var (
@@ -103,7 +104,7 @@ func convertValue(v reflect.Value, to reflect.Type) (reflect.Value, error) {
 	case isNumber(kind):
 		return convertNumber(v, kind)
 	default:
-		return reflect.Value{}, errors.Errorf("%s is not assignable to %s", v.Type(), to)
+		return reflect.Value{}, fmt.Errorf("%s is not assignable to %s", v.Type(), to)
 	}
 }
 

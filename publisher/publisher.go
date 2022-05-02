@@ -15,6 +15,7 @@ package publisher
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"net/url"
 	"sync/atomic"
@@ -104,7 +105,7 @@ func (p DestinationPublisher) Publish(d Descriptor) error {
 		defer bp.PutBuffer(b)
 
 		if err := transformers.Apply(b, d.Src); err != nil {
-			return err
+			return fmt.Errorf("failed to process %q: %w", d.TargetPath, err)
 		}
 
 		// This is now what we write to disk.

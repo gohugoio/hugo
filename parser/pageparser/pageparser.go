@@ -15,11 +15,11 @@ package pageparser
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
 
 	"github.com/gohugoio/hugo/parser/metadecoders"
-	"github.com/pkg/errors"
 )
 
 // Result holds the parse result.
@@ -102,7 +102,7 @@ func ParseMain(r io.Reader, cfg Config) (Result, error) {
 func parseSection(r io.Reader, cfg Config, start stateFunc) (Result, error) {
 	b, err := ioutil.ReadAll(r)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to read page content")
+		return nil, fmt.Errorf("failed to read page content: %w", err)
 	}
 	return parseBytes(b, cfg, start)
 }

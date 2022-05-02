@@ -14,7 +14,7 @@
 package hugolib
 
 import (
-	"github.com/pkg/errors"
+	"fmt"
 
 	"github.com/gohugoio/hugo/resources/page"
 )
@@ -36,7 +36,7 @@ func unwrapPage(in any) (page.Page, error) {
 	case nil:
 		return nil, nil
 	default:
-		return nil, errors.Errorf("unwrapPage: %T not supported", in)
+		return nil, fmt.Errorf("unwrapPage: %T not supported", in)
 	}
 }
 

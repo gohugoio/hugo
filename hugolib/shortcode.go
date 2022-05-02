@@ -27,8 +27,9 @@ import (
 
 	"github.com/gohugoio/hugo/helpers"
 
+	"errors"
+
 	"github.com/gohugoio/hugo/common/herrors"
-	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/parser/pageparser"
 	"github.com/gohugoio/hugo/resources/page"
@@ -269,6 +270,7 @@ const (
 	innerNewlineRegexp = "\n"
 	innerCleanupRegexp = `\A<p>(.*)</p>\n\z`
 	innerCleanupExpand = "$1"
+	pageFileErrorName  = "page.md"
 )
 
 func renderShortcode(
@@ -297,9 +299,10 @@ func renderShortcode(
 			var err error
 			tmpl, err = s.TextTmpl().Parse(templName, templStr)
 			if err != nil {
-				fe := herrors.ToFileError("html", err)
-				l1, l2 := p.posOffset(sc.pos).LineNumber, fe.Position().LineNumber
-				fe = herrors.ToFileErrorWithLineNumber(fe, l1+l2-1)
+				fe := herrors.NewFileError(pageFileErrorName, err)
+				pos := fe.Position()
+				pos.LineNumber += p.posOffset(sc.pos).LineNumber
+				fe = fe.UpdatePosition(pos)
 				return "", false, p.wrapError(fe)
 			}
 
@@ -308,7 +311,7 @@ func renderShortcode(
 			var found bool
 			tmpl, found = s.TextTmpl().Lookup(templName)
 			if !found {
-				return "", false, errors.Errorf("no earlier definition of shortcode %q found", sc.name)
+				return "", false, fmt.Errorf("no earlier definition of shortcode %q found", sc.name)
 			}
 		}
 	} else {
@@ -389,9 +392,10 @@ func renderShortcode(
 	result, err := renderShortcodeWithPage(s.Tmpl(), tmpl, data)
 
 	if err != nil && sc.isInline {
-		fe := herrors.ToFileError("html", err)
-		l1, l2 := p.posFromPage(sc.pos).LineNumber, fe.Position().LineNumber
-		fe = herrors.ToFileErrorWithLineNumber(fe, l1+l2-1)
+		fe := herrors.NewFileError("shortcode.md", err)
+		pos := fe.Position()
+		pos.LineNumber += p.posOffset(sc.pos).LineNumber
+		fe = fe.UpdatePosition(pos)
 		return "", false, fe
 	}
 
@@ -415,7 +419,7 @@ func (s *shortcodeHandler) renderShortcodesForPage(p *pageState, f output.Format
 	for _, v := range s.shortcodes {
 		s, more, err := renderShortcode(0, s.s, tplVariants, v, nil, p)
 		if err != nil {
-			err = p.parseError(errors.Wrapf(err, "failed to render shortcode %q", v.name), p.source.parsed.Input(), v.pos)
+			err = p.parseError(fmt.Errorf("failed to render shortcode %q: %w", v.name, err), p.source.parsed.Input(), v.pos)
 			return nil, false, err
 		}
 		hasVariants = hasVariants || more
@@ -447,9 +451,10 @@ func (s *shortcodeHandler) extractShortcode(ordinal, level int, pt *pageparser.I
 	cnt := 0
 	nestedOrdinal := 0
 	nextLevel := level + 1
+	const errorPrefix = "failed to extract shortcode"
 
 	fail := func(err error, i pageparser.Item) error {
-		return s.parseError(err, pt.Input(), i.Pos)
+		return s.parseError(fmt.Errorf("%s: %w", errorPrefix, err), pt.Input(), i.Pos)
 	}
 
 Loop:
@@ -508,7 +513,7 @@ Loop:
 						// return that error, more specific
 						continue
 					}
-					return sc, fail(errors.Errorf("shortcode %q has no .Inner, yet a closing tag was provided", next.Val), next)
+					return sc, fail(fmt.Errorf("shortcode %q has no .Inner, yet a closing tag was provided", next.Val), next)
 				}
 			}
 			if next.IsRightShortcodeDelim() {
@@ -538,7 +543,7 @@ Loop:
 			// Used to check if the template expects inner content.
 			templs := s.s.Tmpl().LookupVariants(sc.name)
 			if templs == nil {
-				return nil, errors.Errorf("template for shortcode %q not found", sc.name)
+				return nil, fmt.Errorf("%s: template for shortcode %q not found", errorPrefix, sc.name)
 			}
 
 			sc.info = templs[0].(tpl.Info)
@@ -639,7 +644,7 @@ func renderShortcodeWithPage(h tpl.TemplateHandler, tmpl tpl.Template, data *Sho
 
 	err := h.Execute(tmpl, buffer, data)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to process shortcode")
+		return "", fmt.Errorf("failed to process shortcode: %w", err)
 	}
 	return buffer.String(), nil
 }

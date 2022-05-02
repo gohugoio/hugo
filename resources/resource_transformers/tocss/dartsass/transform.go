@@ -120,18 +120,8 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 				return m.Offset+len(m.Line) >= start.Offset && strings.Contains(m.Line, context)
 			}
 
-			ferr, ok := herrors.WithFileContextForFile(
-				herrors.NewFileError("scss", -1, -1, start.Column, sassErr),
-				filename,
-				filename,
-				hugofs.Os,
-				offsetMatcher)
+			return herrors.NewFileErrorFromFile(sassErr, filename, filename, hugofs.Os, offsetMatcher)
 
-			if !ok {
-				return sassErr
-			}
-
-			return ferr
 		}
 		return err
 	}

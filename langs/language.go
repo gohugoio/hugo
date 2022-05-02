@@ -14,6 +14,7 @@
 package langs
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 	"sync"
@@ -21,8 +22,6 @@ import (
 
 	"golang.org/x/text/collate"
 	"golang.org/x/text/language"
-
-	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/maps"
@@ -311,7 +310,7 @@ func GetCollator(l *Language) *Collator {
 func (l *Language) loadLocation(tzStr string) error {
 	location, err := time.LoadLocation(tzStr)
 	if err != nil {
-		return errors.Wrapf(err, "invalid timeZone for language %q", l.Lang)
+		return fmt.Errorf("invalid timeZone for language %q: %w", l.Lang, err)
 	}
 	l.location = location
 

@@ -16,6 +16,7 @@ package create
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"mime"
@@ -34,7 +35,6 @@ import (
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/mitchellh/mapstructure"
-	"github.com/pkg/errors"
 )
 
 type HTTPError struct {
@@ -77,7 +77,7 @@ func toHTTPError(err error, res *http.Response) *HTTPError {
 func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resource, error) {
 	rURL, err := url.Parse(uri)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to parse URL for resource %s", uri)
+		return nil, fmt.Errorf("failed to parse URL for resource %s: %w", uri, err)
 	}
 
 	resourceID := calculateResourceID(uri, optionsm)
@@ -85,7 +85,7 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 	_, httpResponse, err := c.cacheGetResource.GetOrCreate(resourceID, func() (io.ReadCloser, error) {
 		options, err := decodeRemoteOptions(optionsm)
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to decode options for resource %s", uri)
+			return nil, fmt.Errorf("failed to decode options for resource %s: %w", uri, err)
 		}
 		if err := c.validateFromRemoteArgs(uri, options); err != nil {
 			return nil, err
@@ -93,7 +93,7 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 
 		req, err := http.NewRequest(options.Method, uri, options.BodyReader())
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to create request for resource %s", uri)
+			return nil, fmt.Errorf("failed to create request for resource %s: %w", uri, err)
 		}
 		addDefaultHeaders(req)
 
@@ -113,7 +113,7 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 
 		if res.StatusCode != http.StatusNotFound {
 			if res.StatusCode < 200 || res.StatusCode > 299 {
-				return nil, toHTTPError(errors.Errorf("failed to fetch remote resource: %s", http.StatusText(res.StatusCode)), res)
+				return nil, toHTTPError(fmt.Errorf("failed to fetch remote resource: %s", http.StatusText(res.StatusCode)), res)
 
 			}
 		}
@@ -137,7 +137,7 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to read remote resource %q", uri)
+		return nil, fmt.Errorf("failed to read remote resource %q: %w", uri, err)
 	}
 
 	filename := path.Base(rURL.Path)
@@ -172,7 +172,7 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 	// Now resolve the media type primarily using the content.
 	mediaType := media.FromContent(c.rs.MediaTypes, extensionHints, body)
 	if mediaType.IsZero() {
-		return nil, errors.Errorf("failed to resolve media type for remote resource %q", uri)
+		return nil, fmt.Errorf("failed to resolve media type for remote resource %q", uri)
 	}
 
 	resourceID = filename[:len(filename)-len(path.Ext(filename))] + "_" + resourceID + mediaType.FirstSuffix.FullSuffix
