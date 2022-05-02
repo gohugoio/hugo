@@ -98,7 +98,7 @@ Inner Block: {{ .Inner | .Page.RenderString (dict "display" "block" ) }}
 	b.WithTemplatesAdded("_default/_markup/render-image.html", `IMAGE: {{ .Page.Title }}||{{ .Destination | safeURL }}|Title: {{ .Title | safeHTML }}|Text: {{ .Text | safeHTML }}|END`)
 	b.WithTemplatesAdded("_default/_markup/render-heading.html", `HEADING: {{ .Page.Title }}||Level: {{ .Level }}|Anchor: {{ .Anchor | safeURL }}|Text: {{ .Text | safeHTML }}|Attributes: {{ .Attributes }}|END`)
 	b.WithTemplatesAdded("docs/_markup/render-heading.html", `Docs Level: {{ .Level }}|END`)
-	b.WithTemplatesAdded("_default/_markup/render-listitem.html", `LISTITEM: {{ .Text | safeHTML }} {{ .Attributes }} {{ .FirstChild }} {{ .Parent }}`)
+	b.WithTemplatesAdded("_default/_markup/render-listitem.html", `LISTITEM: {{ .Text | safeHTML }} {{ .Attributes }}`)
 	b.WithContent("customview/p1.md", `---
 title: Custom View
 ---
@@ -201,8 +201,8 @@ title: With List Items
 ---
 - Dog
 - Cat
-- Mouse
-- Bird{ parrot=true }
+- Mouse **Fat**
+- Bird{.parrot}
 `,
 	)
 
@@ -275,7 +275,7 @@ SHORT3|
 
 	b.AssertFileContent("public/blog/p9/index.html", "LISTITEM: Dog")
 	b.AssertFileContent("public/blog/p9/index.html", "LISTITEM: Cat")
-	b.AssertFileContent("public/blog/p9/index.html", "LISTITEM: Mouse")
+	b.AssertFileContent("public/blog/p9/index.html", "LISTITEM: Mouse <strong>Fat</strong>")
 }
 
 func TestRenderHooksDeleteTemplate(t *testing.T) {
