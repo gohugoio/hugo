@@ -64,7 +64,7 @@ These are some alternatives to Disqus:
 * [Utterances](https://utteranc.es/) (Open source, GitHub comments widget built on GitHub issues)
 
 [configuration]: /getting-started/configuration/
-[disquspartial]: /templates/partials/#disqus
+[disquspartial]: /templates/internal/#disqus
 [disqussetup]: https://disqus.com/profile/signup/
 [forum]: https://discourse.gohugo.io
 [front matter]: /content-management/front-matter/

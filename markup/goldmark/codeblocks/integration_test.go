@@ -302,3 +302,51 @@ Attributes: {{ .Attributes }}|Options: {{ .Options }}|
 	testLanguage("bash", "Attributes: map[]|Options: map[style:monokai]|")
 	testLanguage("hugo", "Attributes: map[style:monokai]|Options: map[]|")
 }
+
+func TestPanics(t *testing.T) {
+
+	files := `
+-- config.toml --
+[markup]
+[markup.goldmark]
+[markup.goldmark.parser]
+autoHeadingID = true
+autoHeadingIDType = "github"
+[markup.goldmark.parser.attribute]
+block = true
+title = true
+-- content/p1.md --
+---
+title: "p1"
+---
+
+BLOCK
+
+Common
+
+-- layouts/_default/single.html --
+{{ .Content }}
+
+
+`
+
+	for _, test := range []struct {
+		name     string
+		markdown string
+	}{
+		{"issue-9819", "asdf\n: {#myid}"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			b := hugolib.NewIntegrationTestBuilder(
+				hugolib.IntegrationTestConfig{
+					T:           t,
+					TxtarString: strings.ReplaceAll(files, "BLOCK", test.markdown),
+				},
+			).Build()
+
+			b.AssertFileContent("public/p1/index.html", "Common")
+		})
+	}
+
+}

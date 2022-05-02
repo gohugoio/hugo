@@ -416,7 +416,6 @@ Feel free to [open an issue][newissue] if you think you found a bug or you have 
 * [Code School and GitHub's "Try Git" Tutorial][trygit] (Free)
 * [The Git Book][gitbook] (Free)
 * [Go Bootcamp][gobootcamp]
-* [GitHub Pull Request Tutorial, Thinkful][thinkful]
 
 
 [codecademy]: https://www.codecademy.com/learn/learn-git
@@ -432,5 +431,4 @@ Feel free to [open an issue][newissue] if you think you found a bug or you have 
 [newissue]: https://github.com/gohugoio/hugo/issues/new
 [releases]: /getting-started/
 [setupgopath]: https://golang.org/doc/code.html#Workspaces
-[thinkful]: https://www.thinkful.com/learn/github-pull-request-tutorial/
 [trygit]: https://try.github.io/levels/1/challenges/1

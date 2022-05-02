@@ -49,12 +49,12 @@ import (
 )
 
 var (
-	_ resource.Image  = (*imageResource)(nil)
-	_ resource.Source = (*imageResource)(nil)
-	_ resource.Cloner = (*imageResource)(nil)
+	_ images.ImageResource = (*imageResource)(nil)
+	_ resource.Source      = (*imageResource)(nil)
+	_ resource.Cloner      = (*imageResource)(nil)
 )
 
-// ImageResource represents an image resource.
+// imageResource represents an image resource.
 type imageResource struct {
 	*images.Image
 
@@ -70,14 +70,14 @@ type imageResource struct {
 }
 
 type imageMeta struct {
-	Exif *exif.Exif
+	Exif *exif.ExifInfo
 }
 
-func (i *imageResource) Exif() *exif.Exif {
+func (i *imageResource) Exif() *exif.ExifInfo {
 	return i.root.getExif()
 }
 
-func (i *imageResource) getExif() *exif.Exif {
+func (i *imageResource) getExif() *exif.ExifInfo {
 	i.metaInit.Do(func() {
 		supportsExif := i.Format == images.JPEG || i.Format == images.TIFF
 		if !supportsExif {
@@ -137,6 +137,7 @@ func (i *imageResource) getExif() *exif.Exif {
 	return i.meta.Exif
 }
 
+// Cloneis for internal use.
 func (i *imageResource) Clone() resource.Resource {
 	gr := i.baseResource.Clone().(baseResource)
 	return &imageResource{
@@ -170,7 +171,7 @@ func (i *imageResource) cloneWithUpdates(u *transformationUpdate) (baseResource,
 // Resize resizes the image to the specified width and height using the specified resampling
 // filter and returns the transformed image. If one of width or height is 0, the image aspect
 // ratio is preserved.
-func (i *imageResource) Resize(spec string) (resource.Image, error) {
+func (i *imageResource) Resize(spec string) (images.ImageResource, error) {
 	conf, err := i.decodeImageConfig("resize", spec)
 	if err != nil {
 		return nil, err
@@ -182,8 +183,8 @@ func (i *imageResource) Resize(spec string) (resource.Image, error) {
 }
 
 // Crop the image to the specified dimensions without resizing using the given anchor point.
-// Space delimited config: 200x300 TopLeft
-func (i *imageResource) Crop(spec string) (resource.Image, error) {
+// Space delimited config, e.g. `200x300 TopLeft`.
+func (i *imageResource) Crop(spec string) (images.ImageResource, error) {
 	conf, err := i.decodeImageConfig("crop", spec)
 	if err != nil {
 		return nil, err
@@ -196,7 +197,7 @@ func (i *imageResource) Crop(spec string) (resource.Image, error) {
 
 // Fit scales down the image using the specified resample filter to fit the specified
 // maximum width and height.
-func (i *imageResource) Fit(spec string) (resource.Image, error) {
+func (i *imageResource) Fit(spec string) (images.ImageResource, error) {
 	conf, err := i.decodeImageConfig("fit", spec)
 	if err != nil {
 		return nil, err
@@ -209,8 +210,8 @@ func (i *imageResource) Fit(spec string) (resource.Image, error) {
 
 // Fill scales the image to the smallest possible size that will cover the specified dimensions,
 // crops the resized image to the specified dimensions using the given anchor point.
-// Space delimited config: 200x300 TopLeft
-func (i *imageResource) Fill(spec string) (resource.Image, error) {
+// Space delimited config, e.g. `200x300 TopLeft`.
+func (i *imageResource) Fill(spec string) (images.ImageResource, error) {
 	conf, err := i.decodeImageConfig("fill", spec)
 	if err != nil {
 		return nil, err
@@ -238,7 +239,7 @@ func (i *imageResource) Fill(spec string) (resource.Image, error) {
 	return img, err
 }
 
-func (i *imageResource) Filter(filters ...any) (resource.Image, error) {
+func (i *imageResource) Filter(filters ...any) (images.ImageResource, error) {
 	conf := images.GetDefaultImageConfig("filter", i.Proc.Cfg)
 
 	var gfilters []gift.Filter
@@ -264,7 +265,7 @@ const imageProcWorkers = 1
 
 var imageProcSem = make(chan bool, imageProcWorkers)
 
-func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src image.Image) (image.Image, error)) (resource.Image, error) {
+func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src image.Image) (image.Image, error)) (images.ImageResource, error) {
 	img, err := i.getSpec().imageCache.getOrCreate(i, conf, func() (*imageResource, image.Image, error) {
 		imageProcSem <- true
 		defer func() {

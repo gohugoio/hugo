@@ -17,7 +17,7 @@ deprecated: false
 aliases: []
 ---
 
-`absLangURL` and `relLangURL` functions are similar to their [`absURL`](/functions/absurl/) and [`relURL`](/functions/relurl/) relatives but will add the correct language prefix when the site is configured with more than one language. (See [Configuring Multilingual][multiliconfig].)
+`absLangURL` and `relLangURL` functions are similar to their [`absURL`](/functions/absurl/) and [`relURL`](/functions/relurl/) relatives but will add the correct language prefix when the site is configured with more than one language. (See [Configure Languages][multiliconfig].)
 
 So for a site  `baseURL` set to `https://example.com/hugo/` and the current language is `en`:
 
@@ -26,4 +26,4 @@ So for a site  `baseURL` set to `https://example.com/hugo/` and the current lang
 {{ "blog/" | relLangURL }} → "/hugo/en/blog/"
 ```
 
-[multiliconfig]: /content-management/multilingual/#configuring-multilingual-mode
+[multiliconfig]: /content-management/multilingual/#configure-languages

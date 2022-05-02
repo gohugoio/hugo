@@ -20,6 +20,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/output"
+	"github.com/gohugoio/hugo/resources/images"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/spf13/afero"
@@ -131,19 +132,19 @@ func newTestResourceOsFs(c *qt.C) (*Spec, string) {
 	return spec, workDir
 }
 
-func fetchSunset(c *qt.C) resource.Image {
+func fetchSunset(c *qt.C) images.ImageResource {
 	return fetchImage(c, "sunset.jpg")
 }
 
-func fetchImage(c *qt.C, name string) resource.Image {
+func fetchImage(c *qt.C, name string) images.ImageResource {
 	spec := newTestResourceSpec(specDescriptor{c: c})
 	return fetchImageForSpec(spec, c, name)
 }
 
-func fetchImageForSpec(spec *Spec, c *qt.C, name string) resource.Image {
+func fetchImageForSpec(spec *Spec, c *qt.C, name string) images.ImageResource {
 	r := fetchResourceForSpec(spec, c, name)
 
-	img := r.(resource.Image)
+	img := r.(images.ImageResource)
 
 	c.Assert(img, qt.Not(qt.IsNil))
 	c.Assert(img.(specProvider).getSpec(), qt.Not(qt.IsNil))

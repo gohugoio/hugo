@@ -86,7 +86,7 @@ Here is a review of the front matter fields automatically generated for you usin
 `{{.Content}}`
 : an extended description of the new function; examples are not only welcomed but encouraged.
 
-In the body of your function, expand the short description used in the front matter. Include as many examples as possible, and leverage the Hugo docs [`code` shortcode](#adding-code-blocks). If you are unable to add examples but would like to solicit help from the Hugo community, add `needsexample: true` to your front matter.
+In the body of your function, expand the short description used in the front matter. Include as many examples as possible, and leverage the Hugo docs [`code` shortcode](#add-code-blocks). If you are unable to add examples but would like to solicit help from the Hugo community, add `needsexample: true` to your front matter.
 
 ## Add Code Blocks
 

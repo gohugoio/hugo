@@ -268,7 +268,7 @@ If true, auto-detect Chinese/Japanese/Korean Languages in the content. This will
 
 ### imaging
 
-See [Image Processing Config](/content-management/image-processing/#image-processing-config).
+See [Image Processing Config](/content-management/image-processing/#imaging-configuration).
 
 ### languageCode
 
@@ -390,13 +390,13 @@ See ["Section Menu for Lazy Bloggers"](/templates/menu-templates/#section-menu-f
 See [Security Policy](/about/security-model/#security-policy)
 
 ### sitemap
-Default [sitemap configuration](/templates/sitemap-template/#configure-sitemapxml).
+Default [sitemap configuration](/templates/sitemap-template/#configuration).
 
 ### summaryLength
 
 **Default value:** 70
 
-The length of text in words to show in a [`.Summary`](/content-management/summaries/#hugo-defined-automatic-summary-splitting).
+The length of text in words to show in a [`.Summary`](/content-management/summaries/#automatic-summary-splitting).
 
 ### taxonomies
 See [Configure Taxonomies](/content-management/taxonomies#configure-taxonomies).

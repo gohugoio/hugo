@@ -27,7 +27,7 @@ var (
 // here as it makes it easier to get an idea of "type coverage". These
 // implementations have no value on their own.
 
-// Slice is not meant to be used externally. It's a bridge function
+// Slice is for internal use.
 func (p *pageState) Slice(items any) (any, error) {
 	return page.ToPages(items)
 }

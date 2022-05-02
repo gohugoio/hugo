@@ -26,6 +26,7 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/gohugoio/hugo/resources/images"
 	"github.com/gohugoio/hugo/resources/images/exif"
 	"github.com/spf13/afero"
 
@@ -176,19 +177,19 @@ func (r *resourceAdapter) Data() any {
 	return r.target.Data()
 }
 
-func (r *resourceAdapter) Crop(spec string) (resource.Image, error) {
+func (r *resourceAdapter) Crop(spec string) (images.ImageResource, error) {
 	return r.getImageOps().Crop(spec)
 }
 
-func (r *resourceAdapter) Fill(spec string) (resource.Image, error) {
+func (r *resourceAdapter) Fill(spec string) (images.ImageResource, error) {
 	return r.getImageOps().Fill(spec)
 }
 
-func (r *resourceAdapter) Fit(spec string) (resource.Image, error) {
+func (r *resourceAdapter) Fit(spec string) (images.ImageResource, error) {
 	return r.getImageOps().Fit(spec)
 }
 
-func (r *resourceAdapter) Filter(filters ...any) (resource.Image, error) {
+func (r *resourceAdapter) Filter(filters ...any) (images.ImageResource, error) {
 	return r.getImageOps().Filter(filters...)
 }
 
@@ -196,7 +197,7 @@ func (r *resourceAdapter) Height() int {
 	return r.getImageOps().Height()
 }
 
-func (r *resourceAdapter) Exif() *exif.Exif {
+func (r *resourceAdapter) Exif() *exif.ExifInfo {
 	return r.getImageOps().Exif()
 }
 
@@ -241,7 +242,7 @@ func (r *resourceAdapter) RelPermalink() string {
 	return r.target.RelPermalink()
 }
 
-func (r *resourceAdapter) Resize(spec string) (resource.Image, error) {
+func (r *resourceAdapter) Resize(spec string) (images.ImageResource, error) {
 	return r.getImageOps().Resize(spec)
 }
 
@@ -281,8 +282,8 @@ func (r *resourceAdapter) DecodeImage() (image.Image, error) {
 	return r.getImageOps().DecodeImage()
 }
 
-func (r *resourceAdapter) getImageOps() resource.ImageOps {
-	img, ok := r.target.(resource.ImageOps)
+func (r *resourceAdapter) getImageOps() images.ImageResourceOps {
+	img, ok := r.target.(images.ImageResourceOps)
 	if !ok {
 		panic(fmt.Sprintf("%T is not an image", r.target))
 	}
