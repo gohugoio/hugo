@@ -98,8 +98,8 @@ Inner Block: {{ .Inner | .Page.RenderString (dict "display" "block" ) }}
 	b.WithTemplatesAdded("_default/_markup/render-image.html", `IMAGE: {{ .Page.Title }}||{{ .Destination | safeURL }}|Title: {{ .Title | safeHTML }}|Text: {{ .Text | safeHTML }}|END`)
 	b.WithTemplatesAdded("_default/_markup/render-heading.html", `HEADING: {{ .Page.Title }}||Level: {{ .Level }}|Anchor: {{ .Anchor | safeURL }}|Text: {{ .Text | safeHTML }}|Attributes: {{ .Attributes }}|END`)
 	b.WithTemplatesAdded("docs/_markup/render-heading.html", `Docs Level: {{ .Level }}|END`)
-	b.WithTemplatesAdded("_default/_markup/render-list.html", `LIST: {{ .Text | safeHTML }} {{ .Attributes }} {{ .IsOrdered }} `)
-	b.WithTemplatesAdded("_default/_markup/render-listitem.html", `LISTITEM: {{ .Text | safeHTML }} {{ .Attributes }}`)
+	b.WithTemplatesAdded("_default/_markup/render-list.html", `LIST: {{ .Text | safeHTML }}|{{ .Attributes }}|{{ .IsOrdered }} `)
+	b.WithTemplatesAdded("_default/_markup/render-listitem.html", `LISTITEM: {{ .Text | safeHTML }}`)
 	b.WithContent("customview/p1.md", `---
 title: Custom View
 ---
@@ -203,7 +203,9 @@ title: With List Items
 - Dog
 - Cat
 - Mouse **Fat**
-- Bird{.parrot}
+- Bird
+  {.parrot}
+{.animals}
 `, "blog/p10.md", `---
 title: With Ordered List
 ---
