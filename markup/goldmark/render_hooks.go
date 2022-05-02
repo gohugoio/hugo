@@ -115,7 +115,6 @@ type listItemContext struct {
 	offset     int
 	firstChild interface{}
 	parent     interface{}
-	*attributes.AttributesHolder
 }
 
 func (ctx listItemContext) Page() interface{} {
@@ -506,13 +505,12 @@ func (r *hookedRenderer) renderListItem(w util.BufWriter, source []byte, node as
 	err := hli.RenderListItem(
 		w,
 		listItemContext{
-			page:             ctx.DocumentContext().Document,
-			text:             hstring.RenderedString(text),
-			plainText:        string(n.Text(source)),
-			offset:           int(n.Offset),
-			firstChild:       n.FirstChild(),
-			parent:           n.Parent(),
-			AttributesHolder: attributes.New(n.Attributes(), attributes.AttributesOwnerGeneral),
+			page:       ctx.DocumentContext().Document,
+			text:       hstring.RenderedString(text),
+			plainText:  string(n.Text(source)),
+			offset:     int(n.Offset),
+			firstChild: n.FirstChild(),
+			parent:     n.Parent(),
 		},
 	)
 

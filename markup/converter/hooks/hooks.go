@@ -98,8 +98,6 @@ type ListItemContext interface {
 	Offset() int
 	FirstChild() interface{}
 	Parent() interface{}
-
-	AttributesProvider
 }
 
 type ListItemRenderer interface {
