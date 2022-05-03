@@ -1,5 +1,7 @@
 on: [push, pull_request]
 name: Test
+permissions:
+  contents: read
 jobs:
   test:
     env:
