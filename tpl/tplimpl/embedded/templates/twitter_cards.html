@@ -17,8 +17,8 @@
 {{- end -}}
 {{- end -}}
 {{- end }}
-<meta name="twitter:title" content="{{ .Title }}"/>
-<meta name="twitter:description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end -}}"/>
+<meta name="twitter:title" content="{{ template "_internal/helpers/plain_title.html" . }}"/>
+<meta name="twitter:description" content="{{ template "_internal/helpers/plain_description_or_summary.html" . }}"/>
 {{ with .Site.Social.twitter -}}
 <meta name="twitter:site" content="@{{ . }}"/>
 {{ end -}}
