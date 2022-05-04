@@ -29,7 +29,6 @@ import (
 
 // Issue #5662
 func TestHugoWithContentDirOverride(t *testing.T) {
-	t.Parallel()
 	c := qt.New(t)
 
 	files := `
@@ -51,7 +50,6 @@ Page: {{ .Title }}|
 
 // Issue #9794
 func TestHugoStaticFilesMultipleStaticAndManyFolders(t *testing.T) {
-	t.Parallel()
 	c := qt.New(t)
 
 	files := `
@@ -97,7 +95,6 @@ Home.
 
 // Issue #8787
 func TestHugoListCommandsWithBuildTimeFlag(t *testing.T) {
-	// t.Parallel()
 	c := qt.New(t)
 
 	files := `
