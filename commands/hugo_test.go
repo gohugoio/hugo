@@ -116,7 +116,8 @@ Page: {{ .Title }}|
 
 `
 	s := newTestHugoCmdBuilder(c, files, []string{"list", "future"}).Build()
-	s.AssertStdout("content/future.md,2200-11-06T00:00:00Z")
+	p := filepath.Join("content", "future.md")
+	s.AssertStdout(p + ",2200-11-06T00:00:00Z")
 
 	s = newTestHugoCmdBuilder(c, files, []string{"list", "future", "--buildTime", "2300-11-06"}).Build()
 	s.AssertStdout("")
