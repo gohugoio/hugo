@@ -13,7 +13,11 @@
 
 package resource
 
-import "time"
+import (
+	"time"
+
+	"github.com/gohugoio/hugo/common/htime"
+)
 
 var _ Dated = Dates{}
 
@@ -44,19 +48,20 @@ func (d *Dates) UpdateDateAndLastmodIfAfter(in Dated) {
 }
 
 // IsFuture returns whether the argument represents the future.
-func IsFuture(buildTime time.Time, d Dated) bool {
+func IsFuture(d Dated) bool {
 	if d.PublishDate().IsZero() {
 		return false
 	}
-	return d.PublishDate().After(buildTime)
+
+	return d.PublishDate().After(htime.Now())
 }
 
 // IsExpired returns whether the argument is expired.
-func IsExpired(buildTime time.Time, d Dated) bool {
+func IsExpired(d Dated) bool {
 	if d.ExpiryDate().IsZero() {
 		return false
 	}
-	return d.ExpiryDate().Before(buildTime)
+	return d.ExpiryDate().Before(htime.Now())
 }
 
 // IsZeroDates returns true if all of the dates are zero.

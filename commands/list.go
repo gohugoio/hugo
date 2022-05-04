@@ -20,7 +20,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/spf13/cobra"
@@ -100,7 +99,6 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 					return newSystemError("Error building sites", err)
 				}
 
-				buildTime := htime.Now()
 				if err != nil {
 					return newSystemError("Error building sites", err)
 				}
@@ -109,7 +107,7 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 				defer writer.Flush()
 
 				for _, p := range sites.Pages() {
-					if resource.IsFuture(buildTime, p) {
+					if resource.IsFuture(p) {
 						err := writer.Write([]string{
 							strings.TrimPrefix(p.File().Filename(), sites.WorkingDir+string(os.PathSeparator)),
 							p.PublishDate().Format(time.RFC3339),
@@ -133,7 +131,6 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 					return newSystemError("Error building sites", err)
 				}
 
-				buildTime := htime.Now()
 				if err != nil {
 					return newSystemError("Error building sites", err)
 				}
@@ -142,7 +139,7 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 				defer writer.Flush()
 
 				for _, p := range sites.Pages() {
-					if resource.IsExpired(buildTime, p) {
+					if resource.IsExpired(p) {
 						err := writer.Write([]string{
 							strings.TrimPrefix(p.File().Filename(), sites.WorkingDir+string(os.PathSeparator)),
 							p.ExpiryDate().Format(time.RFC3339),

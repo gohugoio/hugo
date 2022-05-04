@@ -1263,7 +1263,6 @@ func newMultiSiteTestBuilder(t testing.TB, configFormat, config string, configDa
 		configData = map[string]any{
 			"DefaultContentLanguage":         "fr",
 			"DefaultContentLanguageInSubdir": true,
-			"BuildTime":                      "2021-11-06",
 		}
 	}
 
