@@ -5,7 +5,7 @@ require (
 	github.com/PuerkitoBio/purell v1.1.1
 	github.com/alecthomas/chroma v0.10.0
 	github.com/armon/go-radix v1.0.0
-	github.com/aws/aws-sdk-go v1.43.5
+	github.com/aws/aws-sdk-go v1.44.7
 	github.com/bep/debounce v1.2.0
 	github.com/bep/gitmap v1.1.2
 	github.com/bep/goat v0.5.0
@@ -100,7 +100,6 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/google/wire v0.5.0 // indirect
-	github.com/googleapis/gax-go v2.0.2+incompatible // indirect
 	github.com/googleapis/gax-go/v2 v2.3.0 // indirect
 	github.com/googleapis/go-type-adapters v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
