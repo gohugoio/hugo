@@ -519,6 +519,8 @@ func (r *hookedRenderer) renderListItem(w util.BufWriter, source []byte, node as
 	return ast.WalkContinue, err
 }
 
+// Fall back to the default Goldmark render funcs. Method below borrowed from:
+// https://github.com/yuin/goldmark/blob/5588d92a56fe1642791cf4aa8e9eae8227cfeecd/renderer/html/html.go#L353
 func (r *hookedRenderer) renderListItemDefault(w util.BufWriter, source []byte, n ast.Node, entering bool) (ast.WalkStatus, error) {
 	if entering {
 		_, _ = w.WriteString("<li>")
@@ -534,6 +536,8 @@ func (r *hookedRenderer) renderListItemDefault(w util.BufWriter, source []byte, 
 	return ast.WalkContinue, nil
 }
 
+// Fall back to the default Goldmark render funcs. Method below borrowed from:
+// https://github.com/yuin/goldmark/blob/5588d92a56fe1642791cf4aa8e9eae8227cfeecd/renderer/html/html.go#L324
 func (r *hookedRenderer) renderListDefault(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.List)
 	tag := "ul"
