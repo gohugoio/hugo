@@ -99,7 +99,7 @@ Inner Block: {{ .Inner | .Page.RenderString (dict "display" "block" ) }}
 	b.WithTemplatesAdded("_default/_markup/render-heading.html", `HEADING: {{ .Page.Title }}||Level: {{ .Level }}|Anchor: {{ .Anchor | safeURL }}|Text: {{ .Text | safeHTML }}|Attributes: {{ .Attributes }}|END`)
 	b.WithTemplatesAdded("docs/_markup/render-heading.html", `Docs Level: {{ .Level }}|END`)
 	b.WithTemplatesAdded("_default/_markup/render-list.html", `LIST: {{ .Text | safeHTML }}|{{ .Attributes }}|{{ .IsOrdered }} `)
-	b.WithTemplatesAdded("_default/_markup/render-listitem.html", `LISTITEM: {{ .Text | safeHTML }}`)
+	b.WithTemplatesAdded("_default/_markup/render-listitem.html", `LISTITEM: {{ .Text | safeHTML }} {{ .IsFirst }} {{ .IsLast }} `)
 	b.WithContent("customview/p1.md", `---
 title: Custom View
 ---

@@ -95,8 +95,8 @@ type ListItemContext interface {
 	Page() interface{}
 	Text() hstring.RenderedString
 	PlainText() string
-	Offset() int
-	FirstChild() interface{}
+	IsFirst() bool
+	IsLast() bool
 	Parent() interface{}
 }
 

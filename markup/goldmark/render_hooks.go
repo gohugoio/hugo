@@ -109,12 +109,12 @@ func (ctx headingContext) PlainText() string {
 }
 
 type listItemContext struct {
-	page       interface{}
-	text       hstring.RenderedString
-	plainText  string
-	offset     int
-	firstChild interface{}
-	parent     interface{}
+	page      interface{}
+	text      hstring.RenderedString
+	plainText string
+	isFirst   bool
+	isLast    bool
+	parent    interface{}
 }
 
 func (ctx listItemContext) Page() interface{} {
@@ -129,12 +129,12 @@ func (ctx listItemContext) PlainText() string {
 	return ctx.plainText
 }
 
-func (ctx listItemContext) Offset() int {
-	return ctx.offset
+func (ctx listItemContext) IsFirst() bool {
+	return ctx.isFirst
 }
 
-func (ctx listItemContext) FirstChild() interface{} {
-	return ctx.firstChild
+func (ctx listItemContext) IsLast() bool {
+	return ctx.isLast
 }
 
 func (ctx listItemContext) Parent() interface{} {
@@ -505,12 +505,12 @@ func (r *hookedRenderer) renderListItem(w util.BufWriter, source []byte, node as
 	err := hli.RenderListItem(
 		w,
 		listItemContext{
-			page:       ctx.DocumentContext().Document,
-			text:       hstring.RenderedString(text),
-			plainText:  string(n.Text(source)),
-			offset:     int(n.Offset),
-			firstChild: n.FirstChild(),
-			parent:     n.Parent(),
+			page:      ctx.DocumentContext().Document,
+			text:      hstring.RenderedString(text),
+			plainText: string(n.Text(source)),
+			isFirst:   n.PreviousSibling() == nil,
+			isLast:    n.NextSibling() == nil,
+			parent:    n.Parent(),
 		},
 	)
 
