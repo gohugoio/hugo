@@ -210,7 +210,7 @@ type hugoBuilderCommon struct {
 
 	buildWatch bool
 	poll       string
-	buildTime  string
+	clock      string
 
 	gc bool
 
@@ -280,7 +280,7 @@ func (cc *hugoBuilderCommon) handleCommonBuilderFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().StringVarP(&cc.environment, "environment", "e", "", "build environment")
 	cmd.PersistentFlags().StringP("themesDir", "", "", "filesystem path to themes directory")
 	cmd.PersistentFlags().StringP("ignoreVendorPaths", "", "", "ignores any _vendor for module paths matching the given Glob pattern")
-	cmd.PersistentFlags().StringVar(&cc.buildTime, "buildTime", "", "fake build datetime, e.g. --buildTime 2021-11-06T22:30:00.00+09:00")
+	cmd.PersistentFlags().StringVar(&cc.clock, "clock", "", "set clock inside hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00")
 }
 
 func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {

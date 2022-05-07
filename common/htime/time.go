@@ -17,6 +17,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bep/clock"
 	"github.com/spf13/cast"
 
 	toml "github.com/pelletier/go-toml/v2"
@@ -74,7 +75,7 @@ var (
 		"November",
 		"December",
 	}
-	NowOverride time.Time
+	Clock = clock.Start(time.Now())
 )
 
 func NewTimeFormatter(ltr locales.Translator) TimeFormatter {
@@ -150,11 +151,8 @@ func ToTimeInDefaultLocationE(i any, location *time.Location) (tim time.Time, er
 	return cast.ToTimeInDefaultLocationE(i, location)
 }
 
-// Now returns `NowOverride` derived from `buildTime` value, which is passed via cli,
-// or time.Now().
+// Now returns time.Now() or time value based on`clock` flag.
+// Use this function to fake time inside hugo.
 func Now() time.Time {
-	if NowOverride.IsZero() {
-		return time.Now()
-	}
-	return NowOverride
+	return Clock.Now()
 }

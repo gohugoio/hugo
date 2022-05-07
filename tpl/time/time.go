@@ -36,7 +36,6 @@ func New(timeFormatter htime.TimeFormatter, location *time.Location) *Namespace 
 type Namespace struct {
 	timeFormatter htime.TimeFormatter
 	location      *time.Location
-	buildTime     time.Time
 }
 
 // AsTime converts the textual representation of the datetime string into
@@ -70,8 +69,7 @@ func (ns *Namespace) Format(layout string, v any) (string, error) {
 	return ns.timeFormatter.Format(t, layout), nil
 }
 
-// Now returns the current local time.
-// If `buildTime` flag is set, returns it instead.
+// Now returns the current local time or `clock` time
 func (ns *Namespace) Now() _time.Time {
 	return htime.Now()
 }

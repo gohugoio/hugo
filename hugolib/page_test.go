@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bep/clock"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/markup/asciidocext"
 	"github.com/gohugoio/hugo/markup/rst"
@@ -1582,9 +1583,9 @@ func TestShouldBuild(t *testing.T) {
 	}
 }
 
-func TestShouldBuildWithNowOverride(t *testing.T) {
-	htime.NowOverride = time.Date(2021, 11, 17, 20, 34, 58, 651387237, time.UTC)
-	t.Cleanup(func() { htime.NowOverride = time.Time{} })
+func TestShouldBuildWithClock(t *testing.T) {
+	htime.Clock = clock.Start(time.Date(2021, 11, 17, 20, 34, 58, 651387237, time.UTC))
+	t.Cleanup(func() { htime.Clock = clock.Start(time.Now()) })
 	past := time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC)
 	future := time.Date(2037, 11, 17, 20, 34, 58, 651387237, time.UTC)
 	zero := time.Time{}
@@ -1625,7 +1626,7 @@ func TestShouldBuildWithNowOverride(t *testing.T) {
 		s := shouldBuild(ps.buildFuture, ps.buildExpired, ps.buildDrafts, ps.draft,
 			ps.publishDate, ps.expiryDate)
 		if s != ps.out {
-			t.Errorf("AssertShouldBuildWithNowOverride unexpected output with params: %+v", ps)
+			t.Errorf("AssertShouldBuildWithClock unexpected output with params: %+v", ps)
 		}
 	}
 }

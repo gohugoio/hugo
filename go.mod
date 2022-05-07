@@ -76,6 +76,7 @@ require (
 	github.com/Azure/azure-pipeline-go v0.2.2 // indirect
 	github.com/Azure/azure-storage-blob-go v0.9.0 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
+	github.com/bep/clock v0.1.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
 	github.com/dlclark/regexp2 v1.4.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect

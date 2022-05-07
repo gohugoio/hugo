@@ -45,6 +45,7 @@ import (
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/spf13/afero"
 
+	"github.com/bep/clock"
 	"github.com/bep/debounce"
 	"github.com/bep/overlayfs"
 	"github.com/gohugoio/hugo/common/types"
@@ -176,18 +177,17 @@ func (c *commandeer) initFs(fs *hugofs.Fs) error {
 	return nil
 }
 
-func (c *commandeer) initHTimeNow() error {
-	bt := c.Cfg.GetString("buildTime")
+func (c *commandeer) initClock() error {
+	bt := c.Cfg.GetString("clock")
 	if bt == "" {
 		return nil
 	}
 
 	t, err := cast.StringToDateInDefaultLocation(bt, nil)
 	if err != nil {
-		return fmt.Errorf(`failed to parse "buildTime" flag: %s`, err)
+		return fmt.Errorf(`failed to parse "clock" flag: %s`, err)
 	}
-	htime.NowOverride = t
-
+	htime.Clock = clock.Start(t)
 	return nil
 }
 
@@ -368,7 +368,7 @@ func (c *commandeer) loadConfig() error {
 
 	c.configFiles = configFiles
 
-	err = c.initHTimeNow()
+	err = c.initClock()
 	if err != nil {
 		return err
 	}

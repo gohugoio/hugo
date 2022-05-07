@@ -94,7 +94,7 @@ Home.
 }
 
 // Issue #8787
-func TestHugoListCommandsWithBuildTimeFlag(t *testing.T) {
+func TestHugoListCommandsWithClockFlag(t *testing.T) {
 	c := qt.New(t)
 
 	files := `
@@ -119,7 +119,7 @@ Page: {{ .Title }}|
 	p := filepath.Join("content", "future.md")
 	s.AssertStdout(p + ",2200-11-06T00:00:00Z")
 
-	s = newTestHugoCmdBuilder(c, files, []string{"list", "future", "--buildTime", "2300-11-06"}).Build()
+	s = newTestHugoCmdBuilder(c, files, []string{"list", "future", "--clock", "2300-11-06"}).Build()
 	s.AssertStdout("")
 }
 
