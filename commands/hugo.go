@@ -33,6 +33,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/tpl"
 
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -683,7 +684,7 @@ func (c *commandeer) firstPathSpec() *helpers.PathSpec {
 }
 
 func (c *commandeer) timeTrack(start time.Time, name string) {
-	elapsed := time.Since(start)
+	elapsed := htime.Since(start)
 	c.logger.Printf("%s in %v ms", name, int(1000*elapsed.Seconds()))
 }
 
@@ -796,7 +797,7 @@ func (c *commandeer) fullRebuild(changeType string) {
 			time.Sleep(2 * time.Second)
 		}()
 
-		defer c.timeTrack(time.Now(), "Rebuilt")
+		defer c.timeTrack(htime.Now(), "Rebuilt")
 
 		c.commandeerHugoState = newCommandeerHugoState()
 		err := c.loadConfig()
@@ -906,7 +907,7 @@ func (c *commandeer) printChangeDetected(typ string) {
 
 	c.logger.Println(msg)
 	const layout = "2006-01-02 15:04:05.000 -0700"
-	c.logger.Println(time.Now().Format(layout))
+	c.logger.Println(htime.Now().Format(layout))
 }
 
 const (
@@ -1141,7 +1142,7 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 		c.changeDetector.PrepareNew()
 
 		func() {
-			defer c.timeTrack(time.Now(), "Total")
+			defer c.timeTrack(htime.Now(), "Total")
 			if err := c.rebuildSites(dynamicEvents); err != nil {
 				c.handleBuildErr(err, "Rebuild failed")
 			}

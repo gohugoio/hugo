@@ -156,3 +156,7 @@ func ToTimeInDefaultLocationE(i any, location *time.Location) (tim time.Time, er
 func Now() time.Time {
 	return Clock.Now()
 }
+
+func Since(t time.Time) time.Duration {
+	return Clock.Now().Sub(t)
+}

@@ -34,6 +34,7 @@ import (
 )
 
 func init() {
+	// htime.Now cannot be used here
 	rand.Seed(time.Now().UTC().UnixNano())
 }
 
