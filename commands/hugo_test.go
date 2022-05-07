@@ -21,7 +21,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bep/clock"
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
 	"golang.org/x/tools/txtar"
@@ -29,6 +31,7 @@ import (
 
 // Issue #5662
 func TestHugoWithContentDirOverride(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	files := `
@@ -50,6 +53,7 @@ Page: {{ .Title }}|
 
 // Issue #9794
 func TestHugoStaticFilesMultipleStaticAndManyFolders(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	files := `
@@ -95,12 +99,15 @@ Home.
 
 // Issue #8787
 func TestHugoListCommandsWithClockFlag(t *testing.T) {
+	t.Cleanup(func() { htime.Clock = clock.System() })
+
 	c := qt.New(t)
 
 	files := `
 -- config.toml --
 baseURL = "https://example.org"
 title = "Hugo Commands"
+timeZone = "UTC"
 -- content/past.md --
 ---
 title: "Past"
@@ -115,7 +122,9 @@ date: 2200-11-06
 Page: {{ .Title }}|
 
 `
-	s := newTestHugoCmdBuilder(c, files, []string{"list", "future"}).Build()
+	s := newTestHugoCmdBuilder(c, files, []string{"list", "future"})
+	s.captureOut = true
+	s.Build()
 	p := filepath.Join("content", "future.md")
 	s.AssertStdout(p + ",2200-11-06T00:00:00Z")
 
@@ -130,7 +139,9 @@ type testHugoCmdBuilder struct {
 	dir   string
 	files string
 	args  []string
-	out   string
+
+	captureOut bool
+	out        string
 }
 
 func newTestHugoCmdBuilder(c *qt.C, files string, args []string) *testHugoCmdBuilder {
@@ -156,12 +167,17 @@ func (s *testHugoCmdBuilder) Build() *testHugoCmdBuilder {
 	args := append(s.args, "-s="+s.dir, "--quiet")
 	cmd.SetArgs(args)
 
-	out, err := captureStdout(func() error {
+	if s.captureOut {
+		out, err := captureStdout(func() error {
+			_, err := cmd.ExecuteC()
+			return err
+		})
+		s.Assert(err, qt.IsNil)
+		s.out = out
+	} else {
 		_, err := cmd.ExecuteC()
-		return err
-	})
-	s.Assert(err, qt.IsNil)
-	s.out = out
+		s.Assert(err, qt.IsNil)
+	}
 
 	return s
 }

@@ -98,13 +98,12 @@ type commandeer struct {
 
 	serverPorts []serverPortListener
 
-	languagesConfigured bool
-	languages           langs.Languages
-	doLiveReload        bool
-	renderStaticToDisk  bool
-	fastRenderMode      bool
-	showErrorInBrowser  bool
-	wasError            bool
+	languages          langs.Languages
+	doLiveReload       bool
+	renderStaticToDisk bool
+	fastRenderMode     bool
+	showErrorInBrowser bool
+	wasError           bool
 
 	configured bool
 	paused     bool
@@ -168,16 +167,17 @@ func (c *commandeer) initFs(fs *hugofs.Fs) error {
 	return nil
 }
 
-func (c *commandeer) initClock() error {
+func (c *commandeer) initClock(loc *time.Location) error {
 	bt := c.Cfg.GetString("clock")
 	if bt == "" {
 		return nil
 	}
 
-	t, err := cast.StringToDateInDefaultLocation(bt, nil)
+	t, err := cast.StringToDateInDefaultLocation(bt, loc)
 	if err != nil {
 		return fmt.Errorf(`failed to parse "clock" flag: %s`, err)
 	}
+
 	htime.Clock = clock.Start(t)
 	return nil
 }
@@ -359,14 +359,15 @@ func (c *commandeer) loadConfig() error {
 
 	c.configFiles = configFiles
 
-	err = c.initClock()
-	if err != nil {
-		return err
+	var ok bool
+	c.languages, ok = c.Cfg.Get("languagesSorted").(langs.Languages)
+	if !ok {
+		panic("languages not configured")
 	}
 
-	if l, ok := c.Cfg.Get("languagesSorted").(langs.Languages); ok {
-		c.languagesConfigured = true
-		c.languages = l
+	err = c.initClock(langs.GetLocation(c.languages[0]))
+	if err != nil {
+		return err
 	}
 
 	// Set some commonly used flags
