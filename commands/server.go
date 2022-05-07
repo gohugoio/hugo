@@ -166,11 +166,6 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 			c.Set("watch", true)
 		}
 
-		// TODO(bep) yes, we should fix.
-		if !c.languagesConfigured {
-			return nil
-		}
-
 		// We can only do this once.
 		serverCfgInit.Do(func() {
 			c.serverPorts = make([]serverPortListener, 1)

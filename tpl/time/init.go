@@ -28,7 +28,6 @@ func init() {
 		if d.Language == nil {
 			panic("Language must be set")
 		}
-
 		ctx := New(langs.GetTimeFormatter(d.Language), langs.GetLocation(d.Language))
 
 		ns := &internal.TemplateFuncsNamespace{

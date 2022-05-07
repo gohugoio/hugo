@@ -75,7 +75,8 @@ var (
 		"November",
 		"December",
 	}
-	Clock = clock.Start(time.Now())
+
+	Clock = clock.System()
 )
 
 func NewTimeFormatter(ltr locales.Translator) TimeFormatter {
@@ -151,12 +152,12 @@ func ToTimeInDefaultLocationE(i any, location *time.Location) (tim time.Time, er
 	return cast.ToTimeInDefaultLocationE(i, location)
 }
 
-// Now returns time.Now() or time value based on`clock` flag.
+// Now returns time.Now() or time value based on the `clock` flag.
 // Use this function to fake time inside hugo.
 func Now() time.Time {
 	return Clock.Now()
 }
 
 func Since(t time.Time) time.Duration {
-	return Clock.Now().Sub(t)
+	return Clock.Since(t)
 }
