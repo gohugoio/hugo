@@ -43,3 +43,33 @@ baseURL = 'http://example.com/'
 	[foo foo foo]
 `)
 }
+
+// Issue 9865
+func TestSortStable(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+-- layouts/index.html --
+{{ $values := slice (dict "a" 1 "b" 2) (dict "a" 3 "b" 1) (dict "a" 2 "b" 0) (dict "a" 1 "b" 0) (dict "a" 3 "b" 1) (dict "a" 2 "b" 2) (dict "a" 2 "b" 1) (dict "a" 0 "b" 3) (dict "a" 3 "b" 3) (dict "a" 0 "b" 0) (dict "a" 0 "b" 0) (dict "a" 2 "b" 0) (dict "a" 1 "b" 2) (dict "a" 1 "b" 1) (dict "a" 3 "b" 0) (dict "a" 2 "b" 0) (dict "a" 3 "b" 0) (dict "a" 3 "b" 0) (dict "a" 3 "b" 0) (dict "a" 3 "b" 1) }}
+Asc:  {{ sort (sort $values "b" "asc") "a" "asc" }}
+Desc: {{ sort (sort $values "b" "desc") "a" "desc" }}
+
+  `
+
+	for i := 0; i < 4; i++ {
+
+		b := hugolib.NewIntegrationTestBuilder(
+			hugolib.IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		).Build()
+
+		b.AssertFileContent("public/index.html", `
+Asc:  [map[a:0 b:0] map[a:0 b:0] map[a:0 b:3] map[a:1 b:0] map[a:1 b:1] map[a:1 b:2] map[a:1 b:2] map[a:2 b:0] map[a:2 b:0] map[a:2 b:0] map[a:2 b:1] map[a:2 b:2] map[a:3 b:0] map[a:3 b:0] map[a:3 b:0] map[a:3 b:0] map[a:3 b:1] map[a:3 b:1] map[a:3 b:1] map[a:3 b:3]]
+Desc: [map[a:3 b:3] map[a:3 b:1] map[a:3 b:1] map[a:3 b:1] map[a:3 b:0] map[a:3 b:0] map[a:3 b:0] map[a:3 b:0] map[a:2 b:2] map[a:2 b:1] map[a:2 b:0] map[a:2 b:0] map[a:2 b:0] map[a:1 b:2] map[a:1 b:2] map[a:1 b:1] map[a:1 b:0] map[a:0 b:3] map[a:0 b:0] map[a:0 b:0]]
+`)
+
+	}
+}
