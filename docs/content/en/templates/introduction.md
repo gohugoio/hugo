@@ -107,19 +107,7 @@ The custom variables need to be prefixed with `$`.
 {{ $address := "123 Main St." }}
 {{ $address }}
 ```
-
-{{% warning %}}
-For Hugo v0.47 and older versions, variables defined inside `if`
-conditionals and similar are not visible on the outside.
-See [https://github.com/golang/go/issues/10608](https://github.com/golang/go/issues/10608).
-
-Hugo has created a workaround for this issue in [Scratch](/functions/scratch).
-{{% /warning %}}
-
-For **Hugo v0.48** and newer, variables can be re-defined using the
-new `=` operator (new in Go 1.11).
-
-Below example will work only in these newer Hugo versions. The example
+Vriables can be re-defined using the `=` operator. The example below
 prints "Var is Hugo Home" on the home page, and "Var is Hugo Page" on
 all other pages:
 
