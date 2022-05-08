@@ -3264,6 +3264,12 @@
           ],
           "Examples": []
         },
+        "LtCollate": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "Ne": {
           "Description": "Ne returns the boolean truth of arg1 != arg2 \u0026\u0026 arg1 != arg3 \u0026\u0026 arg1 != arg4.",
           "Args": [
@@ -3645,6 +3651,12 @@
         }
       },
       "crypto": {
+        "FNV32a": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "HMAC": {
           "Description": "HMAC returns a cryptographic hash that uses a key to sign a message.",
           "Args": [
