@@ -27,10 +27,10 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -235,7 +235,7 @@ func (t *templateExec) ExecuteWithContext(ctx context.Context, templ tpl.Templat
 		defer rlocker.RUnlock()
 	}
 	if t.Metrics != nil {
-		defer t.Metrics.MeasureSince(templ.Name(), htime.Now())
+		defer t.Metrics.MeasureSince(templ.Name(), time.Now())
 	}
 
 	if t.templateUsageTracker != nil {

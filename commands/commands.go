@@ -18,7 +18,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	hpaths "github.com/gohugoio/hugo/common/paths"
@@ -152,7 +151,7 @@ built with love by spf13 and friends in Go.
 
 Complete documentation is available at https://gohugo.io/.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			defer cc.timeTrack(htime.Now(), "Total")
+			defer cc.timeTrack(time.Now(), "Total")
 			cfgInit := func(c *commandeer) error {
 				if cc.buildWatch {
 					c.Set("disableLiveReload", true)
@@ -238,7 +237,7 @@ func (cc *hugoBuilderCommon) timeTrack(start time.Time, name string) {
 	if cc.quiet {
 		return
 	}
-	elapsed := htime.Since(start)
+	elapsed := time.Since(start)
 	fmt.Printf("%s in %v ms\n", name, int(1000*elapsed.Seconds()))
 }
 

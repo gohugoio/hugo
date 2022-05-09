@@ -23,7 +23,6 @@ import (
 	"time"
 
 	"github.com/bep/debounce"
-	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/spf13/cast"
@@ -506,7 +505,7 @@ func (c *collector) applyThemeConfig(tc *moduleAdapter) error {
 }
 
 func (c *collector) collect() {
-	defer c.logger.PrintTimerIfDelayed(htime.Now(), "hugo: collected modules")
+	defer c.logger.PrintTimerIfDelayed(time.Now(), "hugo: collected modules")
 	d := debounce.New(2 * time.Second)
 	d(func() {
 		c.logger.Println("hugo: downloading modules …")
