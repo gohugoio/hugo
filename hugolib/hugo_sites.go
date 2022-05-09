@@ -727,6 +727,10 @@ type BuildCfg struct {
 // For regular builds, this will allways return true.
 // TODO(bep) rename/work this.
 func (cfg *BuildCfg) shouldRender(p *pageState) bool {
+	if p == nil {
+		return false
+	}
+
 	if p.forceRender {
 		return true
 	}
