@@ -25,8 +25,8 @@ import (
 	"reflect"
 	"strings"
 	"sync"
+	"time"
 
-	"github.com/gohugoio/hugo/common/htime"
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -222,7 +222,7 @@ func createKey(name string, variants ...any) (partialCacheKey, error) {
 var errUnHashable = errors.New("unhashable")
 
 func (ns *Namespace) getOrCreate(ctx context.Context, key partialCacheKey, context any) (result any, err error) {
-	start := htime.Now()
+	start := time.Now()
 	defer func() {
 		if r := recover(); r != nil {
 			err = r.(error)

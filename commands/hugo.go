@@ -681,7 +681,11 @@ func (c *commandeer) firstPathSpec() *helpers.PathSpec {
 }
 
 func (c *commandeer) timeTrack(start time.Time, name string) {
-	elapsed := htime.Since(start)
+	// Note the use of time.Since here and time.Now in the callers.
+	// We have a htime.Sinnce, but that may be adjusted to the future,
+	// and that does not make sense here, esp. when used before the
+	// global Clock is initialized.
+	elapsed := time.Since(start)
 	c.logger.Printf("%s in %v ms", name, int(1000*elapsed.Seconds()))
 }
 
@@ -792,7 +796,7 @@ func (c *commandeer) fullRebuild(changeType string) {
 			time.Sleep(2 * time.Second)
 		}()
 
-		defer c.timeTrack(htime.Now(), "Rebuilt")
+		defer c.timeTrack(time.Now(), "Rebuilt")
 
 		c.commandeerHugoState = newCommandeerHugoState()
 		err := c.loadConfig()
@@ -1137,7 +1141,7 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 		c.changeDetector.PrepareNew()
 
 		func() {
-			defer c.timeTrack(htime.Now(), "Total")
+			defer c.timeTrack(time.Now(), "Total")
 			if err := c.rebuildSites(dynamicEvents); err != nil {
 				c.handleBuildErr(err, "Rebuild failed")
 			}

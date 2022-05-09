@@ -251,7 +251,7 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 	}
 
 	err = func() error {
-		defer c.timeTrack(htime.Now(), "Built")
+		defer c.timeTrack(time.Now(), "Built")
 		err := c.serverBuild()
 		if err != nil {
 			cmd.PrintErrln("Error:", err.Error())
