@@ -116,8 +116,13 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 				filename = filename[len(stdinPrefix):]
 			}
 
-			offsetMatcher := func(m herrors.LineMatcher) bool {
-				return m.Offset+len(m.Line) >= start.Offset && strings.Contains(m.Line, context)
+			offsetMatcher := func(m herrors.LineMatcher) int {
+				if m.Offset+len(m.Line) >= start.Offset && strings.Contains(m.Line, context) {
+					// We found the line, but return 0 to signal that we want to determine
+					// the column from the error.
+					return 0
+				}
+				return -1
 			}
 
 			return herrors.NewFileErrorFromFile(sassErr, filename, filename, hugofs.Os, offsetMatcher)

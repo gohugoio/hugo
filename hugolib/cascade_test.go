@@ -77,7 +77,7 @@ kind = '{section,term}'
 		}
 		builders := make([]*IntegrationTestBuilder, b.N)
 
-		for i, _ := range builders {
+		for i := range builders {
 			builders[i] = NewIntegrationTestBuilder(cfg)
 		}
 

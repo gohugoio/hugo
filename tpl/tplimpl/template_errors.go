@@ -59,6 +59,6 @@ func (info templateInfo) errWithFileContext(what string, err error) error {
 		return err
 	}
 	defer f.Close()
-	return fe.UpdateContent(f, herrors.SimpleLineMatcher)
+	return fe.UpdateContent(f, nil)
 
 }

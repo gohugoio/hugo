@@ -736,10 +736,7 @@ func (c *commandeer) buildSites(noBuildLock bool) (err error) {
 
 func (c *commandeer) handleBuildErr(err error, msg string) {
 	c.buildErr = err
-
-	c.logger.Errorln(msg + ":\n")
-	c.logger.Errorln(helpers.FirstUpper(err.Error()))
-
+	c.logger.Errorln(msg + ": " + cleanErrorLog(err.Error()))
 }
 
 func (c *commandeer) rebuildSites(events []fsnotify.Event) error {

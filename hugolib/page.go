@@ -572,25 +572,23 @@ func (p *pageState) wrapError(err error) error {
 
 	filename := p.File().Filename()
 
-	if ferr := herrors.UnwrapFileError(err); ferr != nil {
+	// Check if it's already added.
+	for _, ferr := range herrors.UnwrapFileErrors(err) {
 		errfilename := ferr.Position().Filename
-		if ferr.ErrorContext() != nil || errfilename == "" || !(errfilename == pageFileErrorName || filepath.IsAbs(errfilename)) {
+		if errfilename == filename {
+			if ferr.ErrorContext() == nil {
+				f, ioerr := p.s.SourceSpec.Fs.Source.Open(filename)
+				if ioerr != nil {
+					return err
+				}
+				defer f.Close()
+				ferr.UpdateContent(f, nil)
+			}
 			return err
 		}
-		if filepath.IsAbs(errfilename) {
-			filename = errfilename
-		}
-		f, ferr2 := p.s.SourceSpec.Fs.Source.Open(filename)
-		if ferr2 != nil {
-			return err
-		}
-		defer f.Close()
-		pos := ferr.Position()
-		pos.Filename = filename
-		return ferr.UpdatePosition(pos).UpdateContent(f, herrors.SimpleLineMatcher)
 	}
 
-	return herrors.NewFileErrorFromFile(err, filename, filename, p.s.SourceSpec.Fs.Source, herrors.SimpleLineMatcher)
+	return herrors.NewFileErrorFromFile(err, filename, filename, p.s.SourceSpec.Fs.Source, herrors.NopLineMatcher)
 
 }
 
@@ -644,8 +642,10 @@ Loop:
 			m, err := metadecoders.Default.UnmarshalToMap(it.Val, f)
 			if err != nil {
 				if fe, ok := err.(herrors.FileError); ok {
-					// Offset the starting position of front matter.
 					pos := fe.Position()
+					// Apply the error to the content file.
+					pos.Filename = p.File().Filename()
+					// Offset the starting position of front matter.
 					offset := iter.LineNumber() - 1
 					if f == metadecoders.YAML {
 						offset -= 1
@@ -788,7 +788,7 @@ func (p *pageState) outputFormat() (f output.Format) {
 
 func (p *pageState) parseError(err error, input []byte, offset int) error {
 	pos := p.posFromInput(input, offset)
-	return herrors.NewFileError("page.md", err).UpdatePosition(pos)
+	return herrors.NewFileError(p.File().Filename(), err).UpdatePosition(pos)
 }
 
 func (p *pageState) pathOrTitle() string {

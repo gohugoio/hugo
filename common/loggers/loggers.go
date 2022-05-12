@@ -240,6 +240,11 @@ func NewBasicLoggerForWriter(t jww.Threshold, w io.Writer) Logger {
 	return newLogger(t, jww.LevelError, w, ioutil.Discard, false)
 }
 
+// RemoveANSIColours removes all ANSI colours from the given string.
+func RemoveANSIColours(s string) string {
+	return ansiColorRe.ReplaceAllString(s, "")
+}
+
 var (
 	ansiColorRe = regexp.MustCompile("(?s)\\033\\[\\d*(;\\d*)*m")
 	errorRe     = regexp.MustCompile("^(ERROR|FATAL|WARN)")

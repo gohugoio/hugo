@@ -46,3 +46,15 @@ func TestLoggerToWriterWithPrefix(t *testing.T) {
 
 	c.Assert(b.String(), qt.Equals, "myprefix: Hello Hugo!\n")
 }
+
+func TestRemoveANSIColours(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(RemoveANSIColours(""), qt.Equals, "")
+	c.Assert(RemoveANSIColours("\033[31m"), qt.Equals, "")
+	c.Assert(RemoveANSIColours("\033[31mHello"), qt.Equals, "Hello")
+	c.Assert(RemoveANSIColours("\033[31mHello\033[0m"), qt.Equals, "Hello")
+	c.Assert(RemoveANSIColours("\033[31mHello\033[0m World"), qt.Equals, "Hello World")
+	c.Assert(RemoveANSIColours("\033[31mHello\033[0m World\033[31m!"), qt.Equals, "Hello World!")
+	c.Assert(RemoveANSIColours("\x1b[90m 5 |"), qt.Equals, " 5 |")
+}

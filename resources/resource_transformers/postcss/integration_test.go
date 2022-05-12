@@ -22,7 +22,6 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
 )
@@ -116,7 +115,7 @@ func TestTransformPostCSS(t *testing.T) {
 
 	b.AssertFileContent("public/index.html", `
 Styles RelPermalink: /css/styles.css
-Styles Content: Len: 770875|
+Styles Content: Len: 770917|
 `)
 
 }
@@ -138,13 +137,6 @@ func TestTransformPostCSSError(t *testing.T) {
 		}).BuildE()
 
 	s.AssertIsFileError(err)
-	fe := herrors.UnwrapFileError(err)
-	pos := fe.Position()
-	c.Assert(strings.TrimPrefix(pos.Filename, s.H.WorkingDir), qt.Equals, filepath.FromSlash("/assets/css/components/a.css"))
-	c.Assert(pos.LineNumber, qt.Equals, 4)
-	errctx := fe.ErrorContext()
-	c.Assert(errctx, qt.IsNotNil)
-	c.Assert(errctx.Lines, qt.DeepEquals, []string{"/* Another comment. */", "class-in-a {", "\t@apply foo;", "}", ""})
-	c.Assert(errctx.ChromaLexer, qt.Equals, "css")
+	c.Assert(err.Error(), qt.Contains, "a.css:4:2")
 
 }

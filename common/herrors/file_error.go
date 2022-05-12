@@ -73,37 +73,40 @@ func (fe *fileError) UpdateContent(r io.Reader, linematcher LineMatcherFn) FileE
 	}
 
 	var (
-		contentPos   text.Position
-		posle        = fe.position
-		errorContext *ErrorContext
+		posle = fe.position
+		ectx  *ErrorContext
 	)
 
 	if posle.LineNumber <= 1 && posle.Offset > 0 {
 		// Try to locate the line number from the content if offset is set.
-		errorContext, contentPos = locateError(r, fe, func(m LineMatcher) bool {
+		ectx = locateError(r, fe, func(m LineMatcher) int {
 			if posle.Offset >= m.Offset && posle.Offset < m.Offset+len(m.Line) {
 				lno := posle.LineNumber - m.Position.LineNumber + m.LineNumber
 				m.Position = text.Position{LineNumber: lno}
 				return linematcher(m)
 			}
-			return false
+			return -1
 		})
 	} else {
-		errorContext, contentPos = locateError(r, fe, linematcher)
+		ectx = locateError(r, fe, linematcher)
 	}
 
-	if errorContext.ChromaLexer == "" {
+	if ectx.ChromaLexer == "" {
 		if fe.fileType != "" {
-			errorContext.ChromaLexer = chromaLexerFromType(fe.fileType)
+			ectx.ChromaLexer = chromaLexerFromType(fe.fileType)
 		} else {
-			errorContext.ChromaLexer = chromaLexerFromFilename(fe.Position().Filename)
+			ectx.ChromaLexer = chromaLexerFromFilename(fe.Position().Filename)
 		}
 	}
 
-	fe.errorContext = errorContext
+	fe.errorContext = ectx
 
-	if contentPos.LineNumber > 0 {
-		fe.position.LineNumber = contentPos.LineNumber
+	if ectx.Position.LineNumber > 0 {
+		fe.position.LineNumber = ectx.Position.LineNumber
+	}
+
+	if ectx.Position.ColumnNumber > 0 {
+		fe.position.ColumnNumber = ectx.Position.ColumnNumber
 	}
 
 	return fe
@@ -144,10 +147,6 @@ func (e *fileError) Unwrap() error {
 // The value for name should identify the file, the best
 // being the full filename to the file on disk.
 func NewFileError(name string, err error) FileError {
-	if err == nil {
-		panic("err is nil")
-	}
-
 	// Filetype is used to determine the Chroma lexer to use.
 	fileType, pos := extractFileTypePos(err)
 	pos.Filename = name
@@ -155,10 +154,17 @@ func NewFileError(name string, err error) FileError {
 		_, fileType = paths.FileAndExtNoDelimiter(filepath.Clean(name))
 	}
 
-	if pos.LineNumber < 0 {
-		panic(fmt.Sprintf("invalid line number: %d", pos.LineNumber))
-	}
+	return &fileError{cause: err, fileType: fileType, position: pos}
 
+}
+
+// NewFileErrorFromPos will use the filename and line number from pos to create a new FileError, wrapping err.
+func NewFileErrorFromPos(pos text.Position, err error) FileError {
+	// Filetype is used to determine the Chroma lexer to use.
+	fileType, _ := extractFileTypePos(err)
+	if fileType == "" {
+		_, fileType = paths.FileAndExtNoDelimiter(filepath.Clean(pos.Filename))
+	}
 	return &fileError{cause: err, fileType: fileType, position: pos}
 
 }
@@ -191,7 +197,7 @@ func extractFileTypePos(err error) (string, text.Position) {
 	err = Cause(err)
 	var fileType string
 
-	// Fall back to line/col 1:1 if we cannot find any better information.
+	// Default to line 1 col 1 if we don't find any better.
 	pos := text.Position{
 		Offset:       -1,
 		LineNumber:   1,
@@ -240,6 +246,18 @@ func UnwrapFileError(err error) FileError {
 		}
 	}
 	return nil
+}
+
+// UnwrapFileErrors tries to unwrap all FileError.
+func UnwrapFileErrors(err error) []FileError {
+	var errs []FileError
+	for err != nil {
+		if v, ok := err.(FileError); ok {
+			errs = append(errs, v)
+		}
+		err = errors.Unwrap(err)
+	}
+	return errs
 }
 
 // UnwrapFileErrorsWithErrorContext tries to unwrap all FileError in err that has an ErrorContext.

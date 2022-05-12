@@ -138,6 +138,6 @@ func errWithFileContext(inerr error, r source.File) error {
 	}
 	defer f.Close()
 
-	return herrors.NewFileError(realFilename, inerr).UpdateContent(f, herrors.SimpleLineMatcher)
+	return herrors.NewFileError(realFilename, inerr).UpdateContent(f, nil)
 
 }

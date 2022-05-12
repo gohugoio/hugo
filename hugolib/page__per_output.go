@@ -417,7 +417,7 @@ func (p *pageContentOutput) Render(layout ...string) (template.HTML, error) {
 	// Make sure to send the *pageState and not the *pageContentOutput to the template.
 	res, err := executeToString(p.p.s.Tmpl(), templ, p.p)
 	if err != nil {
-		return "", p.p.wrapError(fmt.Errorf("failed to execute template %q v: %w", layout, err))
+		return "", p.p.wrapError(fmt.Errorf("failed to execute template %s: %w", templ.Name(), err))
 	}
 	return template.HTML(res), nil
 }

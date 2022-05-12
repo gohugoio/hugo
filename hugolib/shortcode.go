@@ -270,7 +270,6 @@ const (
 	innerNewlineRegexp = "\n"
 	innerCleanupRegexp = `\A<p>(.*)</p>\n\z`
 	innerCleanupExpand = "$1"
-	pageFileErrorName  = "page.md"
 )
 
 func renderShortcode(
@@ -299,7 +298,7 @@ func renderShortcode(
 			var err error
 			tmpl, err = s.TextTmpl().Parse(templName, templStr)
 			if err != nil {
-				fe := herrors.NewFileError(pageFileErrorName, err)
+				fe := herrors.NewFileError(p.File().Filename(), err)
 				pos := fe.Position()
 				pos.LineNumber += p.posOffset(sc.pos).LineNumber
 				fe = fe.UpdatePosition(pos)
@@ -392,7 +391,7 @@ func renderShortcode(
 	result, err := renderShortcodeWithPage(s.Tmpl(), tmpl, data)
 
 	if err != nil && sc.isInline {
-		fe := herrors.NewFileError("shortcode.md", err)
+		fe := herrors.NewFileError(p.File().Filename(), err)
 		pos := fe.Position()
 		pos.LineNumber += p.posOffset(sc.pos).LineNumber
 		fe = fe.UpdatePosition(pos)

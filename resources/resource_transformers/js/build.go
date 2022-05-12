@@ -137,6 +137,12 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 				return errors.New(msg.Text)
 			}
 			path := loc.File
+			if path == stdinImporter {
+				path = ctx.SourcePath
+			}
+
+			errorMessage := msg.Text
+			errorMessage = strings.ReplaceAll(errorMessage, nsImportHugo+":", "")
 
 			var (
 				f   afero.File
@@ -158,15 +164,16 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 			}
 
 			if err == nil {
-				fe := herrors.NewFileError(path, errors.New(msg.Text)).
+				fe := herrors.
+					NewFileError(path, errors.New(errorMessage)).
 					UpdatePosition(text.Position{Offset: -1, LineNumber: loc.Line, ColumnNumber: loc.Column}).
-					UpdateContent(f, herrors.SimpleLineMatcher)
+					UpdateContent(f, nil)
 
 				f.Close()
 				return fe
 			}
 
-			return fmt.Errorf("%s", msg.Text)
+			return fmt.Errorf("%s", errorMessage)
 		}
 
 		var errors []error

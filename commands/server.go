@@ -469,14 +469,26 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 	return mu, listener, u.String(), endpoint, nil
 }
 
-var logErrorRe = regexp.MustCompile(`(?s)ERROR \d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2} `)
+var (
+	logErrorRe                    = regexp.MustCompile(`(?s)ERROR \d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2} `)
+	logDuplicateTemplateExecuteRe = regexp.MustCompile(`: template: .*?:\d+:\d+: executing ".*?"`)
+	logDuplicateTemplateParseRe   = regexp.MustCompile(`: template: .*?:\d+:\d*`)
+)
 
 func removeErrorPrefixFromLog(content string) string {
 	return logErrorRe.ReplaceAllLiteralString(content, "")
 }
+
+var logReplacer = strings.NewReplacer(
+	"can't", "can’t", // Chroma lexer does'nt do well with "can't"
+	"*hugolib.pageState", "page.Page", // Page is the public interface.
+)
+
 func cleanErrorLog(content string) string {
-	content = strings.ReplaceAll(content, "Rebuild failed:\n", "")
-	content = strings.ReplaceAll(content, "\n", "")
+	content = strings.ReplaceAll(content, "\n", " ")
+	content = logReplacer.Replace(content)
+	content = logDuplicateTemplateExecuteRe.ReplaceAllString(content, "")
+	content = logDuplicateTemplateParseRe.ReplaceAllString(content, "")
 	seen := make(map[string]bool)
 	parts := strings.Split(content, ": ")
 	keep := make([]string, 0, len(parts))
@@ -515,7 +527,7 @@ func (c *commandeer) serve(s *serverCmd) error {
 		c:        c,
 		s:        s,
 		errorTemplate: func(ctx any) (io.Reader, error) {
-			templ, found := c.hugo().Tmpl().Lookup("server/error.html")
+			templ, found := c.hugo().Tmpl().Lookup("_server/error.html")
 			if !found {
 				panic("template server/error.html not found")
 			}

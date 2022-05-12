@@ -368,7 +368,8 @@ func (imp *importResolver) shouldImport(s string) bool {
 }
 
 func (imp *importResolver) toFileError(output string) error {
-	inErr := errors.New(strings.TrimSpace(output))
+	output = strings.TrimSpace(loggers.RemoveANSIColours(output))
+	inErr := errors.New(output)
 
 	match := cssSyntaxErrorRe.FindStringSubmatch(output)
 	if match == nil {

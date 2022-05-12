@@ -968,7 +968,7 @@ func (h *HugoSites) errWithFileContext(err error, f source.File) error {
 	}
 	realFilename := fim.Meta().Filename
 
-	return herrors.NewFileErrorFromFile(err, realFilename, realFilename, h.SourceSpec.Fs.Source, herrors.SimpleLineMatcher)
+	return herrors.NewFileErrorFromFile(err, realFilename, realFilename, h.SourceSpec.Fs.Source, nil)
 
 }
 

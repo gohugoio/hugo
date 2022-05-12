@@ -34,11 +34,22 @@ type LineMatcher struct {
 }
 
 // LineMatcherFn is used to match a line with an error.
-type LineMatcherFn func(m LineMatcher) bool
+// It returns the column number or 0 if the line was found, but column could not be determinde. Returns -1 if no line match.
+type LineMatcherFn func(m LineMatcher) int
 
 // SimpleLineMatcher simply matches by line number.
-var SimpleLineMatcher = func(m LineMatcher) bool {
-	return m.Position.LineNumber == m.LineNumber
+var SimpleLineMatcher = func(m LineMatcher) int {
+	if m.Position.LineNumber == m.LineNumber {
+		// We found the line, but don't know the column.
+		return 0
+	}
+	return -1
+}
+
+// NopLineMatcher is a matcher that always returns 1.
+// This will effectively give line 1, column 1.
+var NopLineMatcher = func(m LineMatcher) int {
+	return 1
 }
 
 // ErrorContext contains contextual information about an error. This will
@@ -51,6 +62,10 @@ type ErrorContext struct {
 
 	// The position of the error in the Lines above. 0 based.
 	LinesPos int
+
+	// The position of the content in the file. Note that this may be different from the error's position set
+	// in FileError.
+	Position text.Position
 
 	// The lexer to use for syntax highlighting.
 	// https://gohugo.io/content-management/syntax-highlighting/#list-of-chroma-highlighting-languages
@@ -78,30 +93,23 @@ func chromaLexerFromFilename(filename string) string {
 	return chromaLexerFromType(ext)
 }
 
-func locateErrorInString(src string, matcher LineMatcherFn) (*ErrorContext, text.Position) {
+func locateErrorInString(src string, matcher LineMatcherFn) *ErrorContext {
 	return locateError(strings.NewReader(src), &fileError{}, matcher)
 }
 
-func locateError(r io.Reader, le FileError, matches LineMatcherFn) (*ErrorContext, text.Position) {
+func locateError(r io.Reader, le FileError, matches LineMatcherFn) *ErrorContext {
 	if le == nil {
 		panic("must provide an error")
 	}
 
-	errCtx := &ErrorContext{LinesPos: -1}
-	pos := text.Position{LineNumber: -1, ColumnNumber: 1, Offset: -1}
+	ectx := &ErrorContext{LinesPos: -1, Position: text.Position{Offset: -1}}
 
 	b, err := ioutil.ReadAll(r)
 	if err != nil {
-		return errCtx, pos
+		return ectx
 	}
-
-	lepos := le.Position()
 
 	lines := strings.Split(string(b), "\n")
-
-	if lepos.ColumnNumber >= 0 {
-		pos.ColumnNumber = lepos.ColumnNumber
-	}
 
 	lineNo := 0
 	posBytes := 0
@@ -115,34 +123,36 @@ func locateError(r io.Reader, le FileError, matches LineMatcherFn) (*ErrorContex
 			Offset:     posBytes,
 			Line:       line,
 		}
-		if errCtx.LinesPos == -1 && matches(m) {
-			pos.LineNumber = lineNo
+		v := matches(m)
+		if ectx.LinesPos == -1 && v != -1 {
+			ectx.Position.LineNumber = lineNo
+			ectx.Position.ColumnNumber = v
 			break
 		}
 
 		posBytes += len(line)
 	}
 
-	if pos.LineNumber != -1 {
-		low := pos.LineNumber - 3
+	if ectx.Position.LineNumber > 0 {
+		low := ectx.Position.LineNumber - 3
 		if low < 0 {
 			low = 0
 		}
 
-		if pos.LineNumber > 2 {
-			errCtx.LinesPos = 2
+		if ectx.Position.LineNumber > 2 {
+			ectx.LinesPos = 2
 		} else {
-			errCtx.LinesPos = pos.LineNumber - 1
+			ectx.LinesPos = ectx.Position.LineNumber - 1
 		}
 
-		high := pos.LineNumber + 2
+		high := ectx.Position.LineNumber + 2
 		if high > len(lines) {
 			high = len(lines)
 		}
 
-		errCtx.Lines = lines[low:high]
+		ectx.Lines = lines[low:high]
 
 	}
 
-	return errCtx, pos
+	return ectx
 }
