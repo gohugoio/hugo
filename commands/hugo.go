@@ -33,6 +33,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/tpl"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/types"
 
@@ -742,6 +743,12 @@ func (c *commandeer) handleBuildErr(err error, msg string) {
 }
 
 func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
+	if c.buildErr != nil {
+		ferrs := herrors.UnwrapFileErrorsWithErrorContext(c.buildErr)
+		for _, err := range ferrs {
+			events = append(events, fsnotify.Event{Name: err.Position().Filename, Op: fsnotify.Write})
+		}
+	}
 	c.buildErr = nil
 	visited := c.visitedURLs.PeekAllSet()
 	if c.fastRenderMode {
