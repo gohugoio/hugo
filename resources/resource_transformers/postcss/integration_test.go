@@ -22,19 +22,15 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
 )
 
-func TestTransformPostCSS(t *testing.T) {
-	if !htesting.IsCI() {
-		t.Skip("Skip long running test when running locally")
-	}
-
-	c := qt.New(t)
-
-	files := `
+const postCSSIntegrationTestFiles = `
 -- assets/css/components/a.css --
+/* A comment. */
+/* Another comment. */
 class-in-a {
 	color: blue;
 }
@@ -98,51 +94,57 @@ module.exports = {
 
 `
 
-	c.Run("Success", func(c *qt.C) {
-		b := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:               c,
-				NeedsOsFS:       true,
-				NeedsNpmInstall: true,
-				LogLevel:        jww.LevelInfo,
-				TxtarString:     files,
-			}).Build()
+func TestTransformPostCSS(t *testing.T) {
+	if !htesting.IsCI() {
+		t.Skip("Skip long running test when running locally")
+	}
 
-		b.AssertLogContains("Hugo Environment: production")
-		b.AssertLogContains(filepath.FromSlash(fmt.Sprintf("PostCSS Config File: %s/postcss.config.js", b.Cfg.WorkingDir)))
-		b.AssertLogContains(filepath.FromSlash(fmt.Sprintf("package.json: %s/package.json", b.Cfg.WorkingDir)))
-
-		b.AssertFileContent("public/index.html", `
-Styles RelPermalink: /css/styles.css
-Styles Content: Len: 770875|
-`)
-	})
-
-	c.Run("Error", func(c *qt.C) {
-		s, err := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:               c,
-				NeedsOsFS:       true,
-				NeedsNpmInstall: true,
-				TxtarString:     strings.ReplaceAll(files, "color: blue;", "@apply foo;"), // Syntax error
-			}).BuildE()
-		s.AssertIsFileError(err)
-	})
-}
-
-// bookmark2
-func TestIntegrationTestTemplate(t *testing.T) {
 	c := qt.New(t)
-
-	files := ``
 
 	b := hugolib.NewIntegrationTestBuilder(
 		hugolib.IntegrationTestConfig{
 			T:               c,
-			NeedsOsFS:       false,
-			NeedsNpmInstall: false,
-			TxtarString:     files,
+			NeedsOsFS:       true,
+			NeedsNpmInstall: true,
+			LogLevel:        jww.LevelInfo,
+			TxtarString:     postCSSIntegrationTestFiles,
 		}).Build()
 
-	b.Assert(true, qt.IsTrue)
+	b.AssertLogContains("Hugo Environment: production")
+	b.AssertLogContains(filepath.FromSlash(fmt.Sprintf("PostCSS Config File: %s/postcss.config.js", b.Cfg.WorkingDir)))
+	b.AssertLogContains(filepath.FromSlash(fmt.Sprintf("package.json: %s/package.json", b.Cfg.WorkingDir)))
+
+	b.AssertFileContent("public/index.html", `
+Styles RelPermalink: /css/styles.css
+Styles Content: Len: 770875|
+`)
+
+}
+
+// 9880
+func TestTransformPostCSSError(t *testing.T) {
+	if !htesting.IsCI() {
+		t.Skip("Skip long running test when running locally")
+	}
+
+	c := qt.New(t)
+
+	s, err := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:               c,
+			NeedsOsFS:       true,
+			NeedsNpmInstall: true,
+			TxtarString:     strings.ReplaceAll(postCSSIntegrationTestFiles, "color: blue;", "@apply foo;"), // Syntax error
+		}).BuildE()
+
+	s.AssertIsFileError(err)
+	fe := herrors.UnwrapFileError(err)
+	pos := fe.Position()
+	c.Assert(strings.TrimPrefix(pos.Filename, s.H.WorkingDir), qt.Equals, filepath.FromSlash("/assets/css/components/a.css"))
+	c.Assert(pos.LineNumber, qt.Equals, 4)
+	errctx := fe.ErrorContext()
+	c.Assert(errctx, qt.IsNotNil)
+	c.Assert(errctx.Lines, qt.DeepEquals, []string{"/* Another comment. */", "class-in-a {", "\t@apply foo;", "}", ""})
+	c.Assert(errctx.ChromaLexer, qt.Equals, "css")
+
 }

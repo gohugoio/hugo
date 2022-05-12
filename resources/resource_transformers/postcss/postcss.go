@@ -28,6 +28,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/common/hugo"
 
@@ -38,8 +39,6 @@ import (
 	"github.com/spf13/cast"
 
 	"errors"
-
-	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/mitchellh/mapstructure"
 
@@ -391,8 +390,19 @@ func (imp *importResolver) toFileError(output string) error {
 		return inErr
 	}
 
-	realFilename := fi.(hugofs.FileMetaInfo).Meta().Filename
+	meta := fi.(hugofs.FileMetaInfo).Meta()
+	realFilename := meta.Filename
+	f, err := meta.Open()
+	if err != nil {
+		return inErr
+	}
+	defer f.Close()
 
-	return herrors.NewFileErrorFromFile(inErr, file.Filename, realFilename, hugofs.Os, herrors.SimpleLineMatcher)
+	ferr := herrors.NewFileError(realFilename, inErr)
+	pos := ferr.Position()
+	pos.LineNumber = file.Offset + 1
+	return ferr.UpdatePosition(pos).UpdateContent(f, nil)
+
+	//return herrors.NewFileErrorFromFile(inErr, file.Filename, realFilename, hugofs.Os, herrors.SimpleLineMatcher)
 
 }
