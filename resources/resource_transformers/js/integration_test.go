@@ -93,7 +93,7 @@ module github.com/gohugoio/tests/testHugoModules
 		
 go 1.16
 		
-require github.com/gohugoio/hugoTestProjectJSModImports v0.9.0 // indirect
+require github.com/gohugoio/hugoTestProjectJSModImports v0.10.0 // indirect
 -- package.json --
 {
 	"dependencies": {
@@ -124,7 +124,7 @@ shim cwd
 `)
 
 	// React JSX, verify the shimming.
-	b.AssertFileContent("public/js/like.js", filepath.FromSlash(`@v0.9.0/assets/js/shims/react.js
+	b.AssertFileContent("public/js/like.js", filepath.FromSlash(`@v0.10.0/assets/js/shims/react.js
 module.exports = window.ReactDOM;
 `))
 }
