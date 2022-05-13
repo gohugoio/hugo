@@ -20,7 +20,7 @@ import (
 	"path/filepath"
 	"reflect"
 
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/gohugoio/hugo/common/maps"
 
@@ -55,15 +55,15 @@ var (
 
 func Generate(c *codegen.Inspector) error {
 	if err := generateMarshalJSON(c); err != nil {
-		return errors.Wrap(err, "failed to generate JSON marshaler")
+		return fmt.Errorf("failed to generate JSON marshaler: %w", err)
 	}
 
 	if err := generateDeprecatedWrappers(c); err != nil {
-		return errors.Wrap(err, "failed to generate deprecate wrappers")
+		return fmt.Errorf("failed to generate deprecate wrappers: %w", err)
 	}
 
 	if err := generateFileIsZeroWrappers(c); err != nil {
-		return errors.Wrap(err, "failed to generate file wrappers")
+		return fmt.Errorf("failed to generate file wrappers: %w", err)
 	}
 
 	return nil

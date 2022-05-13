@@ -26,8 +26,9 @@ import (
 
 	"github.com/gohugoio/hugo/common/hexec"
 
+	"errors"
+
 	"github.com/gohugoio/hugo/common/hugo"
-	"github.com/pkg/errors"
 )
 
 const commitPrefix = "releaser:"
@@ -217,7 +218,7 @@ func (r *ReleaseHandler) release(releaseNotesFile string) error {
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	if err != nil {
-		return errors.Wrap(err, "goreleaser failed")
+		return fmt.Errorf("goreleaser failed: %w", err)
 	}
 	return nil
 }

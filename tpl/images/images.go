@@ -18,7 +18,7 @@ import (
 	"image"
 	"sync"
 
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/gohugoio/hugo/resources/images"
 

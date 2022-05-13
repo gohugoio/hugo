@@ -21,7 +21,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bep/clock"
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
 	"golang.org/x/tools/txtar"
@@ -95,6 +97,41 @@ Home.
 
 }
 
+// Issue #8787
+func TestHugoListCommandsWithClockFlag(t *testing.T) {
+	t.Cleanup(func() { htime.Clock = clock.System() })
+
+	c := qt.New(t)
+
+	files := `
+-- config.toml --
+baseURL = "https://example.org"
+title = "Hugo Commands"
+timeZone = "UTC"
+-- content/past.md --
+---
+title: "Past"
+date: 2000-11-06
+---
+-- content/future.md --
+---
+title: "Future"
+date: 2200-11-06
+---
+-- layouts/_default/single.html --
+Page: {{ .Title }}|
+
+`
+	s := newTestHugoCmdBuilder(c, files, []string{"list", "future"})
+	s.captureOut = true
+	s.Build()
+	p := filepath.Join("content", "future.md")
+	s.AssertStdout(p + ",2200-11-06T00:00:00Z")
+
+	s = newTestHugoCmdBuilder(c, files, []string{"list", "future", "--clock", "2300-11-06"}).Build()
+	s.AssertStdout("")
+}
+
 type testHugoCmdBuilder struct {
 	*qt.C
 
@@ -102,6 +139,9 @@ type testHugoCmdBuilder struct {
 	dir   string
 	files string
 	args  []string
+
+	captureOut bool
+	out        string
 }
 
 func newTestHugoCmdBuilder(c *qt.C, files string, args []string) *testHugoCmdBuilder {
@@ -127,8 +167,17 @@ func (s *testHugoCmdBuilder) Build() *testHugoCmdBuilder {
 	args := append(s.args, "-s="+s.dir, "--quiet")
 	cmd.SetArgs(args)
 
-	_, err := cmd.ExecuteC()
-	s.Assert(err, qt.IsNil)
+	if s.captureOut {
+		out, err := captureStdout(func() error {
+			_, err := cmd.ExecuteC()
+			return err
+		})
+		s.Assert(err, qt.IsNil)
+		s.out = out
+	} else {
+		_, err := cmd.ExecuteC()
+		s.Assert(err, qt.IsNil)
+	}
 
 	return s
 }
@@ -148,4 +197,10 @@ func (s *testHugoCmdBuilder) AssertFileContent(filename string, matches ...strin
 			s.Assert(content, qt.Contains, match, qt.Commentf(m))
 		}
 	}
+}
+
+func (s *testHugoCmdBuilder) AssertStdout(match string) {
+	s.Helper()
+	content := strings.TrimSpace(s.out)
+	s.Assert(content, qt.Contains, strings.TrimSpace(match))
 }

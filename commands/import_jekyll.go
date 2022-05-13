@@ -28,6 +28,7 @@ import (
 
 	"github.com/gohugoio/hugo/parser/pageparser"
 
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugio"
 
 	"github.com/gohugoio/hugo/parser/metadecoders"
@@ -362,12 +363,12 @@ func parseJekyllFilename(filename string) (time.Time, string, error) {
 	re := regexp.MustCompile(`(\d+-\d+-\d+)-(.+)\..*`)
 	r := re.FindAllStringSubmatch(filename, -1)
 	if len(r) == 0 {
-		return time.Now(), "", errors.New("filename not match")
+		return htime.Now(), "", errors.New("filename not match")
 	}
 
 	postDate, err := time.Parse("2006-1-2", r[0][1])
 	if err != nil {
-		return time.Now(), "", err
+		return htime.Now(), "", err
 	}
 
 	postName := r[0][2]

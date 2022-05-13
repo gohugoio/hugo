@@ -177,9 +177,9 @@ func (p pairList) Less(i, j int) bool {
 // sorts a pairList and returns a slice of sorted values
 func (p pairList) sort() any {
 	if p.SortAsc {
-		sort.Sort(p)
+		sort.Stable(p)
 	} else {
-		sort.Sort(sort.Reverse(p))
+		sort.Stable(sort.Reverse(p))
 	}
 	sorted := reflect.MakeSlice(p.SliceType, len(p.Pairs), len(p.Pairs))
 	for i, v := range p.Pairs {

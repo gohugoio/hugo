@@ -2,6 +2,7 @@ package hugolib
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -17,14 +18,15 @@ type testSiteBuildErrorAsserter struct {
 	c    *qt.C
 }
 
-func (t testSiteBuildErrorAsserter) getFileError(err error) *herrors.ErrorWithFileContext {
+func (t testSiteBuildErrorAsserter) getFileError(err error) herrors.FileError {
 	t.c.Assert(err, qt.Not(qt.IsNil), qt.Commentf(t.name))
-	ferr := herrors.UnwrapErrorWithFileContext(err)
-	t.c.Assert(ferr, qt.Not(qt.IsNil))
-	return ferr
+	fe := herrors.UnwrapFileError(err)
+	t.c.Assert(fe, qt.Not(qt.IsNil))
+	return fe
 }
 
 func (t testSiteBuildErrorAsserter) assertLineNumber(lineNumber int, err error) {
+	t.c.Helper()
 	fe := t.getFileError(err)
 	t.c.Assert(fe.Position().LineNumber, qt.Equals, lineNumber, qt.Commentf(err.Error()))
 }
@@ -87,7 +89,6 @@ func TestSiteBuildErrors(t *testing.T) {
 				fe := a.getFileError(err)
 				a.c.Assert(fe.Position().LineNumber, qt.Equals, 5)
 				a.c.Assert(fe.Position().ColumnNumber, qt.Equals, 1)
-				a.c.Assert(fe.ChromaLexer, qt.Equals, "go-html-template")
 				a.assertErrorMessage("\"layouts/foo/single.html:5:1\": parse failed: template: foo/single.html:5: unexpected \"}\" in operand", fe.Error())
 			},
 		},
@@ -101,7 +102,6 @@ func TestSiteBuildErrors(t *testing.T) {
 				fe := a.getFileError(err)
 				a.c.Assert(fe.Position().LineNumber, qt.Equals, 5)
 				a.c.Assert(fe.Position().ColumnNumber, qt.Equals, 14)
-				a.c.Assert(fe.ChromaLexer, qt.Equals, "go-html-template")
 				a.assertErrorMessage("\"layouts/_default/single.html:5:14\": execute of template failed", fe.Error())
 			},
 		},
@@ -115,7 +115,6 @@ func TestSiteBuildErrors(t *testing.T) {
 				fe := a.getFileError(err)
 				a.c.Assert(fe.Position().LineNumber, qt.Equals, 5)
 				a.c.Assert(fe.Position().ColumnNumber, qt.Equals, 14)
-				a.c.Assert(fe.ChromaLexer, qt.Equals, "go-html-template")
 				a.assertErrorMessage("\"layouts/_default/single.html:5:14\": execute of template failed", fe.Error())
 			},
 		},
@@ -130,18 +129,17 @@ func TestSiteBuildErrors(t *testing.T) {
 			},
 		},
 		{
-			name:     "Shortode execute failed",
+			name:     "Shortcode execute failed",
 			fileType: shortcode,
 			fileFixer: func(content string) string {
 				return strings.Replace(content, ".Title", ".Titles", 1)
 			},
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				fe := a.getFileError(err)
-				a.c.Assert(fe.Position().LineNumber, qt.Equals, 7)
-				a.c.Assert(fe.ChromaLexer, qt.Equals, "md")
 				// Make sure that it contains both the content file and template
-				a.assertErrorMessage(`content/myyaml.md:7:10": failed to render shortcode "sc"`, fe.Error())
-				a.assertErrorMessage(`shortcodes/sc.html:4:22: executing "shortcodes/sc.html" at <.Page.Titles>: can't evaluate`, fe.Error())
+				a.assertErrorMessage(`"content/myyaml.md:7:10": failed to render shortcode "sc": failed to process shortcode: "layouts/shortcodes/sc.html:4:22": execute of template failed: template: shortcodes/sc.html:4:22: executing "shortcodes/sc.html" at <.Page.Titles>: can't evaluate field Titles in type page.Page`, fe.Error())
+				a.c.Assert(fe.Position().LineNumber, qt.Equals, 7)
+
 			},
 		},
 		{
@@ -154,7 +152,6 @@ func TestSiteBuildErrors(t *testing.T) {
 				fe := a.getFileError(err)
 				a.c.Assert(fe.Position().LineNumber, qt.Equals, 7)
 				a.c.Assert(fe.Position().ColumnNumber, qt.Equals, 10)
-				a.c.Assert(fe.ChromaLexer, qt.Equals, "md")
 				a.assertErrorMessage(`"content/myyaml.md:7:10": failed to extract shortcode: template for shortcode "nono" not found`, fe.Error())
 			},
 		},
@@ -162,10 +159,14 @@ func TestSiteBuildErrors(t *testing.T) {
 			name:     "Invalid YAML front matter",
 			fileType: yamlcontent,
 			fileFixer: func(content string) string {
-				return strings.Replace(content, "title:", "title: %foo", 1)
+				return `---
+title: "My YAML Content"
+foo bar
+---
+`
 			},
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
-				a.assertLineNumber(2, err)
+				a.assertLineNumber(3, err)
 			},
 		},
 		{
@@ -177,7 +178,6 @@ func TestSiteBuildErrors(t *testing.T) {
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				fe := a.getFileError(err)
 				a.c.Assert(fe.Position().LineNumber, qt.Equals, 6)
-				a.c.Assert(fe.ErrorContext.ChromaLexer, qt.Equals, "toml")
 			},
 		},
 		{
@@ -188,9 +188,7 @@ func TestSiteBuildErrors(t *testing.T) {
 			},
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				fe := a.getFileError(err)
-
 				a.c.Assert(fe.Position().LineNumber, qt.Equals, 3)
-				a.c.Assert(fe.ErrorContext.ChromaLexer, qt.Equals, "json")
 			},
 		},
 		{
@@ -211,6 +209,9 @@ func TestSiteBuildErrors(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		if test.name != "Invalid JSON front matter" {
+			continue
+		}
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
@@ -311,6 +312,77 @@ Some content.
 			}
 		})
 	}
+
+}
+
+// Issue 9852
+func TestErrorMinify(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+minify = true
+
+-- layouts/index.html --
+<body>
+<script>=;</script>
+</body>
+
+`
+
+	b, err := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).BuildE()
+
+	fe := herrors.UnwrapFileError(err)
+	b.Assert(fe, qt.IsNotNil)
+	b.Assert(fe.Position().LineNumber, qt.Equals, 2)
+	b.Assert(fe.Position().ColumnNumber, qt.Equals, 9)
+	b.Assert(fe.Error(), qt.Contains, "unexpected = in expression on line 2 and column 9")
+	b.Assert(filepath.ToSlash(fe.Position().Filename), qt.Contains, "hugo-transform-error")
+	b.Assert(os.Remove(fe.Position().Filename), qt.IsNil)
+
+}
+
+func TestErrorNested(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+-- layouts/index.html --
+line 1
+12{{ partial "foo.html" . }}
+line 4
+line 5
+-- layouts/partials/foo.html --
+line 1
+line 2
+123{{ .ThisDoesNotExist }}
+line 4
+`
+
+	b, err := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).BuildE()
+
+	b.Assert(err, qt.IsNotNil)
+	errors := herrors.UnwrapFileErrorsWithErrorContext(err)
+	b.Assert(errors, qt.HasLen, 2)
+	fmt.Println(errors[0])
+	b.Assert(errors[0].Position().LineNumber, qt.Equals, 2)
+	b.Assert(errors[0].Position().ColumnNumber, qt.Equals, 5)
+	b.Assert(errors[0].Error(), qt.Contains, filepath.FromSlash(`"/layouts/index.html:2:5": execute of template failed`))
+	b.Assert(errors[0].ErrorContext().Lines, qt.DeepEquals, []string{"line 1", "12{{ partial \"foo.html\" . }}", "line 4", "line 5"})
+	b.Assert(errors[1].Position().LineNumber, qt.Equals, 3)
+	b.Assert(errors[1].Position().ColumnNumber, qt.Equals, 6)
+	b.Assert(errors[1].ErrorContext().Lines, qt.DeepEquals, []string{"line 1", "line 2", "123{{ .ThisDoesNotExist }}", "line 4"})
+
 }
 
 // https://github.com/gohugoio/hugo/issues/5375

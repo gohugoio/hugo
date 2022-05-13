@@ -14,8 +14,8 @@
 package commands
 
 import (
-	"bytes"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net"
 	"os"
@@ -29,9 +29,11 @@ import (
 	"golang.org/x/sync/semaphore"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/paths"
 
+	"github.com/spf13/cast"
 	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -42,6 +44,7 @@ import (
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/spf13/afero"
 
+	"github.com/bep/clock"
 	"github.com/bep/debounce"
 	"github.com/bep/overlayfs"
 	"github.com/gohugoio/hugo/common/types"
@@ -95,13 +98,12 @@ type commandeer struct {
 
 	serverPorts []serverPortListener
 
-	languagesConfigured bool
-	languages           langs.Languages
-	doLiveReload        bool
-	renderStaticToDisk  bool
-	fastRenderMode      bool
-	showErrorInBrowser  bool
-	wasError            bool
+	languages          langs.Languages
+	doLiveReload       bool
+	renderStaticToDisk bool
+	fastRenderMode     bool
+	showErrorInBrowser bool
+	wasError           bool
 
 	configured bool
 	paused     bool
@@ -141,19 +143,11 @@ func (c *commandeer) getErrorWithContext() any {
 
 	m := make(map[string]any)
 
-	m["Error"] = errors.New(removeErrorPrefixFromLog(c.logger.Errors()))
+	//xwm["Error"] = errors.New(cleanErrorLog(removeErrorPrefixFromLog(c.logger.Errors())))
+	m["Error"] = errors.New(cleanErrorLog(removeErrorPrefixFromLog(c.logger.Errors())))
 	m["Version"] = hugo.BuildVersionString()
-
-	fe := herrors.UnwrapErrorWithFileContext(c.buildErr)
-	if fe != nil {
-		m["File"] = fe
-	}
-
-	if c.h.verbose {
-		var b bytes.Buffer
-		herrors.FprintStackTraceFromErr(&b, c.buildErr)
-		m["StackTrace"] = b.String()
-	}
+	ferrors := herrors.UnwrapFileErrorsWithErrorContext(c.buildErr)
+	m["Files"] = ferrors
 
 	return m
 }
@@ -170,6 +164,21 @@ func (c *commandeer) initFs(fs *hugofs.Fs) error {
 	c.publishDirServerFs = fs.PublishDirServer
 	c.DepsCfg.Fs = fs
 
+	return nil
+}
+
+func (c *commandeer) initClock(loc *time.Location) error {
+	bt := c.Cfg.GetString("clock")
+	if bt == "" {
+		return nil
+	}
+
+	t, err := cast.StringToDateInDefaultLocation(bt, loc)
+	if err != nil {
+		return fmt.Errorf(`failed to parse "clock" flag: %s`, err)
+	}
+
+	htime.Clock = clock.Start(t)
 	return nil
 }
 
@@ -350,9 +359,15 @@ func (c *commandeer) loadConfig() error {
 
 	c.configFiles = configFiles
 
-	if l, ok := c.Cfg.Get("languagesSorted").(langs.Languages); ok {
-		c.languagesConfigured = true
-		c.languages = l
+	var ok bool
+	c.languages, ok = c.Cfg.Get("languagesSorted").(langs.Languages)
+	if !ok {
+		panic("languages not configured")
+	}
+
+	err = c.initClock(langs.GetLocation(c.languages[0]))
+	if err != nil {
+		return err
 	}
 
 	// Set some commonly used flags

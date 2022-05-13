@@ -31,7 +31,6 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/common/hugio"
-	_errors "github.com/pkg/errors"
 	"github.com/spf13/afero"
 )
 
@@ -403,7 +402,7 @@ func GetCacheDir(fs afero.Fs, cfg config.Provider) (string, error) {
 		if !exists {
 			err := fs.MkdirAll(cacheDir, 0777) // Before umask
 			if err != nil {
-				return "", _errors.Wrap(err, "failed to create cache dir")
+				return "", fmt.Errorf("failed to create cache dir: %w", err)
 			}
 		}
 		return cacheDir, nil

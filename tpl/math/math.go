@@ -32,14 +32,14 @@ func New() *Namespace {
 // Namespace provides template functions for the "math" namespace.
 type Namespace struct{}
 
-// Add adds two numbers.
-func (ns *Namespace) Add(a, b any) (any, error) {
-	return _math.DoArithmetic(a, b, '+')
+// Add adds the two addends n1 and n2.
+func (ns *Namespace) Add(n1, n2 any) (any, error) {
+	return _math.DoArithmetic(n1, n2, '+')
 }
 
-// Ceil returns the least integer value greater than or equal to x.
-func (ns *Namespace) Ceil(x any) (float64, error) {
-	xf, err := cast.ToFloat64E(x)
+// Ceil returns the least integer value greater than or equal to n.
+func (ns *Namespace) Ceil(n any) (float64, error) {
+	xf, err := cast.ToFloat64E(n)
 	if err != nil {
 		return 0, errors.New("Ceil operator can't be used with non-float value")
 	}
@@ -47,14 +47,14 @@ func (ns *Namespace) Ceil(x any) (float64, error) {
 	return math.Ceil(xf), nil
 }
 
-// Div divides two numbers.
-func (ns *Namespace) Div(a, b any) (any, error) {
-	return _math.DoArithmetic(a, b, '/')
+// Div divides n1 by n2.
+func (ns *Namespace) Div(n1, n2 any) (any, error) {
+	return _math.DoArithmetic(n1, n2, '/')
 }
 
-// Floor returns the greatest integer value less than or equal to x.
-func (ns *Namespace) Floor(x any) (float64, error) {
-	xf, err := cast.ToFloat64E(x)
+// Floor returns the greatest integer value less than or equal to n.
+func (ns *Namespace) Floor(n any) (float64, error) {
+	xf, err := cast.ToFloat64E(n)
 	if err != nil {
 		return 0, errors.New("Floor operator can't be used with non-float value")
 	}
@@ -62,9 +62,9 @@ func (ns *Namespace) Floor(x any) (float64, error) {
 	return math.Floor(xf), nil
 }
 
-// Log returns the natural logarithm of a number.
-func (ns *Namespace) Log(a any) (float64, error) {
-	af, err := cast.ToFloat64E(a)
+// Log returns the natural logarithm of the number n.
+func (ns *Namespace) Log(n any) (float64, error) {
+	af, err := cast.ToFloat64E(n)
 	if err != nil {
 		return 0, errors.New("Log operator can't be used with non integer or float value")
 	}
@@ -72,10 +72,10 @@ func (ns *Namespace) Log(a any) (float64, error) {
 	return math.Log(af), nil
 }
 
-// Max returns the greater of two numbers.
-func (ns *Namespace) Max(a, b any) (float64, error) {
-	af, erra := cast.ToFloat64E(a)
-	bf, errb := cast.ToFloat64E(b)
+// Max returns the greater of the two numbers n1 or n2.
+func (ns *Namespace) Max(n1, n2 any) (float64, error) {
+	af, erra := cast.ToFloat64E(n1)
+	bf, errb := cast.ToFloat64E(n2)
 
 	if erra != nil || errb != nil {
 		return 0, errors.New("Max operator can't be used with non-float value")
@@ -84,10 +84,10 @@ func (ns *Namespace) Max(a, b any) (float64, error) {
 	return math.Max(af, bf), nil
 }
 
-// Min returns the smaller of two numbers.
-func (ns *Namespace) Min(a, b any) (float64, error) {
-	af, erra := cast.ToFloat64E(a)
-	bf, errb := cast.ToFloat64E(b)
+// Min returns the smaller of two numbers n1 or n2.
+func (ns *Namespace) Min(n1, n2 any) (float64, error) {
+	af, erra := cast.ToFloat64E(n1)
+	bf, errb := cast.ToFloat64E(n2)
 
 	if erra != nil || errb != nil {
 		return 0, errors.New("Min operator can't be used with non-float value")
@@ -96,10 +96,10 @@ func (ns *Namespace) Min(a, b any) (float64, error) {
 	return math.Min(af, bf), nil
 }
 
-// Mod returns a % b.
-func (ns *Namespace) Mod(a, b any) (int64, error) {
-	ai, erra := cast.ToInt64E(a)
-	bi, errb := cast.ToInt64E(b)
+// Mod returns n1 % n2.
+func (ns *Namespace) Mod(n1, n2 any) (int64, error) {
+	ai, erra := cast.ToInt64E(n1)
+	bi, errb := cast.ToInt64E(n2)
 
 	if erra != nil || errb != nil {
 		return 0, errors.New("modulo operator can't be used with non integer value")
@@ -112,9 +112,9 @@ func (ns *Namespace) Mod(a, b any) (int64, error) {
 	return ai % bi, nil
 }
 
-// ModBool returns the boolean of a % b.  If a % b == 0, return true.
-func (ns *Namespace) ModBool(a, b any) (bool, error) {
-	res, err := ns.Mod(a, b)
+// ModBool returns the boolean of n1 % n2.  If n1 % n2 == 0, return true.
+func (ns *Namespace) ModBool(n1, n2 any) (bool, error) {
+	res, err := ns.Mod(n1, n2)
 	if err != nil {
 		return false, err
 	}
@@ -122,15 +122,15 @@ func (ns *Namespace) ModBool(a, b any) (bool, error) {
 	return res == int64(0), nil
 }
 
-// Mul multiplies two numbers.
-func (ns *Namespace) Mul(a, b any) (any, error) {
-	return _math.DoArithmetic(a, b, '*')
+// Mul multiplies the two numbers n1 and n2.
+func (ns *Namespace) Mul(n1, n2 any) (any, error) {
+	return _math.DoArithmetic(n1, n2, '*')
 }
 
-// Pow returns a raised to the power of b.
-func (ns *Namespace) Pow(a, b any) (float64, error) {
-	af, erra := cast.ToFloat64E(a)
-	bf, errb := cast.ToFloat64E(b)
+// Pow returns n1 raised to the power of n2.
+func (ns *Namespace) Pow(n1, n2 any) (float64, error) {
+	af, erra := cast.ToFloat64E(n1)
+	bf, errb := cast.ToFloat64E(n2)
 
 	if erra != nil || errb != nil {
 		return 0, errors.New("Pow operator can't be used with non-float value")
@@ -139,9 +139,9 @@ func (ns *Namespace) Pow(a, b any) (float64, error) {
 	return math.Pow(af, bf), nil
 }
 
-// Round returns the nearest integer, rounding half away from zero.
-func (ns *Namespace) Round(x any) (float64, error) {
-	xf, err := cast.ToFloat64E(x)
+// Round returns the integer nearest to n, rounding half away from zero.
+func (ns *Namespace) Round(n any) (float64, error) {
+	xf, err := cast.ToFloat64E(n)
 	if err != nil {
 		return 0, errors.New("Round operator can't be used with non-float value")
 	}
@@ -149,9 +149,9 @@ func (ns *Namespace) Round(x any) (float64, error) {
 	return _round(xf), nil
 }
 
-// Sqrt returns the square root of a number.
-func (ns *Namespace) Sqrt(a any) (float64, error) {
-	af, err := cast.ToFloat64E(a)
+// Sqrt returns the square root of the number n.
+func (ns *Namespace) Sqrt(n any) (float64, error) {
+	af, err := cast.ToFloat64E(n)
 	if err != nil {
 		return 0, errors.New("Sqrt operator can't be used with non integer or float value")
 	}
@@ -159,9 +159,9 @@ func (ns *Namespace) Sqrt(a any) (float64, error) {
 	return math.Sqrt(af), nil
 }
 
-// Sub subtracts two numbers.
-func (ns *Namespace) Sub(a, b any) (any, error) {
-	return _math.DoArithmetic(a, b, '-')
+// Sub subtracts n2 from n1.
+func (ns *Namespace) Sub(n1, n2 any) (any, error) {
+	return _math.DoArithmetic(n1, n2, '-')
 }
 
 var counter uint64

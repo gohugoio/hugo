@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"context"
 	"embed"
+	"fmt"
 	"io"
 	"io/fs"
 	"os"
@@ -42,7 +43,6 @@ import (
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugofs/files"
-	"github.com/pkg/errors"
 
 	htmltemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
@@ -551,14 +551,10 @@ func (t *templateHandler) addFileContext(templ tpl.Template, inerr error) error 
 		}
 		defer f.Close()
 
-		fe, ok := herrors.WithFileContext(inErr, info.realFilename, f, lineMatcher)
-		if ok {
-			return fe, true
-		}
-		return inErr, false
+		return herrors.NewFileError(info.realFilename, inErr).UpdateContent(f, lineMatcher), true
 	}
 
-	inerr = errors.Wrap(inerr, "execute of template failed")
+	inerr = fmt.Errorf("execute of template failed: %w", inerr)
 
 	if err, ok := checkFilename(ts.info, inerr); ok {
 		return err
@@ -736,6 +732,7 @@ func (t *templateHandler) extractIdentifiers(line string) []string {
 
 //go:embed embedded/templates/*
 //go:embed embedded/templates/_default/*
+//go:embed embedded/templates/server/*
 var embededTemplatesFs embed.FS
 
 func (t *templateHandler) loadEmbedded() error {
@@ -755,10 +752,10 @@ func (t *templateHandler) loadEmbedded() error {
 		name := strings.TrimPrefix(filepath.ToSlash(path), "embedded/templates/")
 		templateName := name
 
-		// For the render hooks it does not make sense to preseve the
+		// For the render hooks and the server templates it does not make sense to preseve the
 		// double _indternal double book-keeping,
 		// just add it if its now provided by the user.
-		if !strings.Contains(path, "_default/_markup") {
+		if !strings.Contains(path, "_default/_markup") && !strings.HasPrefix(name, "server/") {
 			templateName = internalPathPrefix + name
 		}
 

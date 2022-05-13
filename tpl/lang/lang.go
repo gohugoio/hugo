@@ -20,9 +20,10 @@ import (
 	"strconv"
 	"strings"
 
+	"errors"
+
 	"github.com/gohugoio/locales"
 	translators "github.com/gohugoio/localescompressed"
-	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/deps"
@@ -49,7 +50,7 @@ func (ns *Namespace) Translate(id any, args ...any) (string, error) {
 
 	if len(args) > 0 {
 		if len(args) > 1 {
-			return "", errors.Errorf("wrong number of arguments, expecting at most 2, got %d", len(args)+1)
+			return "", fmt.Errorf("wrong number of arguments, expecting at most 2, got %d", len(args)+1)
 		}
 		templateData = args[0]
 	}

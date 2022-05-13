@@ -39,8 +39,9 @@ import (
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
+	"errors"
+
 	"github.com/gohugoio/hugo/parser/pageparser"
-	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/output"
 
@@ -482,7 +483,7 @@ func (p *pageState) renderResources() (err error) {
 
 			src, ok := r.(resource.Source)
 			if !ok {
-				err = errors.Errorf("Resource %T does not support resource.Source", src)
+				err = fmt.Errorf("Resource %T does not support resource.Source", src)
 				return
 			}
 
@@ -560,23 +561,37 @@ func (p *pageState) addDependency(dep identity.Provider) {
 
 // wrapError adds some more context to the given error if possible/needed
 func (p *pageState) wrapError(err error) error {
-	if _, ok := err.(*herrors.ErrorWithFileContext); ok {
-		// Preserve the first file context.
-		return err
-	}
-	var filename string
-	if !p.File().IsZero() {
-		filename = p.File().Filename()
+	if err == nil {
+		panic("wrapError with nil")
 	}
 
-	err, _ = herrors.WithFileContextForFile(
-		err,
-		filename,
-		filename,
-		p.s.SourceSpec.Fs.Source,
-		herrors.SimpleLineMatcher)
+	if p.File().IsZero() {
+		// No more details to add.
+		return fmt.Errorf("%q: %w", p.Pathc(), err)
+	}
 
-	return err
+	filename := p.File().Filename()
+
+	if ferr := herrors.UnwrapFileError(err); ferr != nil {
+		errfilename := ferr.Position().Filename
+		if ferr.ErrorContext() != nil || errfilename == "" || !(errfilename == pageFileErrorName || filepath.IsAbs(errfilename)) {
+			return err
+		}
+		if filepath.IsAbs(errfilename) {
+			filename = errfilename
+		}
+		f, ferr2 := p.s.SourceSpec.Fs.Source.Open(filename)
+		if ferr2 != nil {
+			return err
+		}
+		defer f.Close()
+		pos := ferr.Position()
+		pos.Filename = filename
+		return ferr.UpdatePosition(pos).UpdateContent(f, herrors.SimpleLineMatcher)
+	}
+
+	return herrors.NewFileErrorFromFile(err, filename, filename, p.s.SourceSpec.Fs.Source, herrors.SimpleLineMatcher)
+
 }
 
 func (p *pageState) getContentConverter() converter.Converter {
@@ -606,6 +621,9 @@ func (p *pageState) mapContent(bucket *pagesMapBucket, meta *pageMeta) error {
 	iter := p.source.parsed.Iterator()
 
 	fail := func(err error, i pageparser.Item) error {
+		if fe, ok := err.(herrors.FileError); ok {
+			return fe
+		}
 		return p.parseError(err, iter.Input(), i.Pos)
 	}
 
@@ -626,7 +644,17 @@ Loop:
 			m, err := metadecoders.Default.UnmarshalToMap(it.Val, f)
 			if err != nil {
 				if fe, ok := err.(herrors.FileError); ok {
-					return herrors.ToFileErrorWithOffset(fe, iter.LineNumber()-1)
+					// Offset the starting position of front matter.
+					pos := fe.Position()
+					offset := iter.LineNumber() - 1
+					if f == metadecoders.YAML {
+						offset -= 1
+					}
+					pos.LineNumber += offset
+
+					fe.UpdatePosition(pos)
+
+					return fe
 				} else {
 					return err
 				}
@@ -682,7 +710,7 @@ Loop:
 
 			currShortcode, err := s.extractShortcode(ordinal, 0, iter)
 			if err != nil {
-				return fail(errors.Wrap(err, "failed to extract shortcode"), it)
+				return fail(err, it)
 			}
 
 			currShortcode.pos = it.Pos
@@ -715,7 +743,7 @@ Loop:
 		case it.IsEOF():
 			break Loop
 		case it.IsError():
-			err := fail(errors.WithStack(errors.New(it.ValStr())), it)
+			err := fail(errors.New(it.ValStr()), it)
 			currShortcode.err = err
 			return err
 
@@ -738,17 +766,17 @@ Loop:
 }
 
 func (p *pageState) errorf(err error, format string, a ...any) error {
-	if herrors.UnwrapErrorWithFileContext(err) != nil {
+	if herrors.UnwrapFileError(err) != nil {
 		// More isn't always better.
 		return err
 	}
 	args := append([]any{p.Language().Lang, p.pathOrTitle()}, a...)
-	format = "[%s] page %q: " + format
+	args = append(args, err)
+	format = "[%s] page %q: " + format + ": %w"
 	if err == nil {
-		errors.Errorf(format, args...)
 		return fmt.Errorf(format, args...)
 	}
-	return errors.Wrapf(err, format, args...)
+	return fmt.Errorf(format, args...)
 }
 
 func (p *pageState) outputFormat() (f output.Format) {
@@ -759,12 +787,8 @@ func (p *pageState) outputFormat() (f output.Format) {
 }
 
 func (p *pageState) parseError(err error, input []byte, offset int) error {
-	if herrors.UnwrapFileError(err) != nil {
-		// Use the most specific location.
-		return err
-	}
 	pos := p.posFromInput(input, offset)
-	return herrors.NewFileError("md", -1, pos.LineNumber, pos.ColumnNumber, err)
+	return herrors.NewFileError("page.md", err).UpdatePosition(pos)
 }
 
 func (p *pageState) pathOrTitle() string {

@@ -28,9 +28,10 @@ import (
 	"github.com/gohugoio/hugo/hugofs/files"
 	"golang.org/x/text/unicode/norm"
 
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/gohugoio/hugo/common/hreflect"
+	"github.com/gohugoio/hugo/common/htime"
 
 	"github.com/spf13/afero"
 )
@@ -203,7 +204,7 @@ func newDirNameOnlyFileInfo(name string, meta *FileMeta, fileOpener func() (afer
 	m.IsOrdered = false
 
 	return NewFileMetaInfo(
-		&dirNameOnlyFileInfo{name: base, modTime: time.Now()},
+		&dirNameOnlyFileInfo{name: base, modTime: htime.Now()},
 		m,
 	)
 }

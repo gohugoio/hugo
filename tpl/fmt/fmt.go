@@ -47,39 +47,39 @@ type Namespace struct {
 	distinctLogger loggers.IgnorableLogger
 }
 
-// Print returns string representation of the passed arguments.
-func (ns *Namespace) Print(a ...any) string {
-	return _fmt.Sprint(a...)
+// Print returns a string representation args.
+func (ns *Namespace) Print(args ...any) string {
+	return _fmt.Sprint(args...)
 }
 
-// Printf returns a formatted string representation of the passed arguments.
-func (ns *Namespace) Printf(format string, a ...any) string {
-	return _fmt.Sprintf(format, a...)
+// Printf returns a formatted string representation of args.
+func (ns *Namespace) Printf(format string, args ...any) string {
+	return _fmt.Sprintf(format, args...)
 }
 
-// Println returns string representation of the passed arguments ending with a newline.
-func (ns *Namespace) Println(a ...any) string {
-	return _fmt.Sprintln(a...)
+// Println returns string representation of args  ending with a newline.
+func (ns *Namespace) Println(args ...any) string {
+	return _fmt.Sprintln(args...)
 }
 
-// Errorf formats according to a format specifier and logs an ERROR.
+// Errorf formats args according to a format specifier and logs an ERROR.
 // It returns an empty string.
-func (ns *Namespace) Errorf(format string, a ...any) string {
-	ns.distinctLogger.Errorf(format, a...)
+func (ns *Namespace) Errorf(format string, args ...any) string {
+	ns.distinctLogger.Errorf(format, args...)
 	return ""
 }
 
-// Erroridf formats according to a format specifier and logs an ERROR and
+// Erroridf formats args according to a format specifier and logs an ERROR and
 // an information text that the error with the given ID can be suppressed in config.
 // It returns an empty string.
-func (ns *Namespace) Erroridf(id, format string, a ...any) string {
-	ns.distinctLogger.Errorsf(id, format, a...)
+func (ns *Namespace) Erroridf(id, format string, args ...any) string {
+	ns.distinctLogger.Errorsf(id, format, args...)
 	return ""
 }
 
-// Warnf formats according to a format specifier and logs a WARNING.
+// Warnf formats args according to a format specifier and logs a WARNING.
 // It returns an empty string.
-func (ns *Namespace) Warnf(format string, a ...any) string {
-	ns.distinctLogger.Warnf(format, a...)
+func (ns *Namespace) Warnf(format string, args ...any) string {
+	ns.distinctLogger.Warnf(format, args...)
 	return ""
 }

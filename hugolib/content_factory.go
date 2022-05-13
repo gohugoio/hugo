@@ -14,18 +14,19 @@
 package hugolib
 
 import (
+	"fmt"
 	"io"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/hugo/source"
 
 	"github.com/gohugoio/hugo/resources/page"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 )
 
@@ -48,12 +49,12 @@ func (f ContentFactory) ApplyArchetypeFilename(w io.Writer, p page.Page, archety
 	}
 
 	if fi.IsDir() {
-		return errors.Errorf("archetype directory (%q) not supported", archetypeFilename)
+		return fmt.Errorf("archetype directory (%q) not supported", archetypeFilename)
 	}
 
 	templateSource, err := afero.ReadFile(f.h.SourceFilesystems.Archetypes.Fs, archetypeFilename)
 	if err != nil {
-		return errors.Wrapf(err, "failed to read archetype file %q: %s", archetypeFilename, err)
+		return fmt.Errorf("failed to read archetype file %q: %s: %w", archetypeFilename, err, err)
 
 	}
 
@@ -70,7 +71,7 @@ func (f ContentFactory) ApplyArchetypeTemplate(w io.Writer, p page.Page, archety
 
 	d := &archetypeFileData{
 		Type: archetypeKind,
-		Date: time.Now().Format(time.RFC3339),
+		Date: htime.Now().Format(time.RFC3339),
 		Page: p,
 		File: p.File(),
 	}
@@ -79,12 +80,12 @@ func (f ContentFactory) ApplyArchetypeTemplate(w io.Writer, p page.Page, archety
 
 	templ, err := ps.s.TextTmpl().Parse("archetype.md", string(templateSource))
 	if err != nil {
-		return errors.Wrapf(err, "failed to parse archetype template: %s", err)
+		return fmt.Errorf("failed to parse archetype template: %s: %w", err, err)
 	}
 
 	result, err := executeToString(ps.s.Tmpl(), templ, d)
 	if err != nil {
-		return errors.Wrapf(err, "failed to execute archetype template: %s", err)
+		return fmt.Errorf("failed to execute archetype template: %s: %w", err, err)
 	}
 
 	_, err = io.WriteString(w, f.shortcodeReplacerPost.Replace(result))

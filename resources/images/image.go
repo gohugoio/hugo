@@ -34,8 +34,9 @@ import (
 	"golang.org/x/image/bmp"
 	"golang.org/x/image/tiff"
 
+	"errors"
+
 	"github.com/gohugoio/hugo/common/hugio"
-	"github.com/pkg/errors"
 )
 
 func NewImage(f Format, proc *ImageProcessor, img image.Image, s Spec) *Image {
@@ -163,7 +164,7 @@ func (i *Image) initConfig() error {
 	})
 
 	if err != nil {
-		return errors.Wrap(err, "failed to load image config")
+		return fmt.Errorf("failed to load image config: %w", err)
 	}
 
 	return nil
@@ -239,7 +240,7 @@ func (p *ImageProcessor) ApplyFiltersFromConfig(src image.Image, conf ImageConfi
 	case "fit":
 		filters = append(filters, gift.ResizeToFit(conf.Width, conf.Height, conf.Filter))
 	default:
-		return nil, errors.Errorf("unsupported action: %q", conf.Action)
+		return nil, fmt.Errorf("unsupported action: %q", conf.Action)
 	}
 
 	img, err := p.Filter(src, filters...)

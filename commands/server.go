@@ -33,10 +33,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/paths"
 	"golang.org/x/sync/errgroup"
-
-	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/livereload"
 
@@ -165,11 +164,6 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 		}
 		if sc.serverWatch {
 			c.Set("watch", true)
-		}
-
-		// TODO(bep) yes, we should fix.
-		if !c.languagesConfigured {
-			return nil
 		}
 
 		// We can only do this once.
@@ -366,7 +360,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 	// We're only interested in the path
 	u, err := url.Parse(baseURL)
 	if err != nil {
-		return nil, nil, "", "", errors.Wrap(err, "Invalid baseURL")
+		return nil, nil, "", "", fmt.Errorf("Invalid baseURL: %w", err)
 	}
 
 	decorate := func(h http.Handler) http.Handler {
@@ -480,6 +474,21 @@ var logErrorRe = regexp.MustCompile(`(?s)ERROR \d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{
 func removeErrorPrefixFromLog(content string) string {
 	return logErrorRe.ReplaceAllLiteralString(content, "")
 }
+func cleanErrorLog(content string) string {
+	content = strings.ReplaceAll(content, "Rebuild failed:\n", "")
+	content = strings.ReplaceAll(content, "\n", "")
+	seen := make(map[string]bool)
+	parts := strings.Split(content, ": ")
+	keep := make([]string, 0, len(parts))
+	for _, part := range parts {
+		if seen[part] {
+			continue
+		}
+		seen[part] = true
+		keep = append(keep, part)
+	}
+	return strings.Join(keep, ": ")
+}
 
 func (c *commandeer) serve(s *serverCmd) error {
 	isMultiHost := c.hugo().IsMultihost()
@@ -500,17 +509,16 @@ func (c *commandeer) serve(s *serverCmd) error {
 		roots = []string{""}
 	}
 
-	templ, err := c.hugo().TextTmpl().Parse("__default_server_error", buildErrorTemplate)
-	if err != nil {
-		return err
-	}
-
 	srv := &fileServer{
 		baseURLs: baseURLs,
 		roots:    roots,
 		c:        c,
 		s:        s,
 		errorTemplate: func(ctx any) (io.Reader, error) {
+			templ, found := c.hugo().Tmpl().Lookup("server/error.html")
+			if !found {
+				panic("template server/error.html not found")
+			}
 			b := &bytes.Buffer{}
 			err := c.hugo().Tmpl().Execute(templ, b, ctx)
 			return b, err
@@ -627,7 +635,7 @@ func (sc *serverCmd) fixURL(cfg config.Provider, s string, port int) (string, er
 		if strings.Contains(u.Host, ":") {
 			u.Host, _, err = net.SplitHostPort(u.Host)
 			if err != nil {
-				return "", errors.Wrap(err, "Failed to split baseURL hostpost")
+				return "", fmt.Errorf("Failed to split baseURL hostpost: %w", err)
 			}
 		}
 		u.Host += fmt.Sprintf(":%d", port)
@@ -656,13 +664,13 @@ func memStats() error {
 		go func() {
 			var stats runtime.MemStats
 
-			start := time.Now().UnixNano()
+			start := htime.Now().UnixNano()
 
 			for {
 				runtime.ReadMemStats(&stats)
 				if fileMemStats != nil {
 					fileMemStats.WriteString(fmt.Sprintf("%d\t%d\t%d\t%d\t%d\n",
-						(time.Now().UnixNano()-start)/1000000, stats.HeapSys, stats.HeapAlloc, stats.HeapIdle, stats.HeapReleased))
+						(htime.Now().UnixNano()-start)/1000000, stats.HeapSys, stats.HeapAlloc, stats.HeapIdle, stats.HeapReleased))
 					time.Sleep(interval)
 				} else {
 					break

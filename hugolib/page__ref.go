@@ -19,7 +19,6 @@ import (
 	"github.com/gohugoio/hugo/common/text"
 
 	"github.com/mitchellh/mapstructure"
-	"github.com/pkg/errors"
 )
 
 func newPageRef(p *pageState) pageRef {
@@ -77,7 +76,7 @@ func (p pageRef) decodeRefArgs(args map[string]any) (refArgs, *Site, error) {
 func (p pageRef) ref(argsm map[string]any, source any) (string, error) {
 	args, s, err := p.decodeRefArgs(argsm)
 	if err != nil {
-		return "", errors.Wrap(err, "invalid arguments to Ref")
+		return "", fmt.Errorf("invalid arguments to Ref: %w", err)
 	}
 
 	if s == nil {
@@ -94,7 +93,7 @@ func (p pageRef) ref(argsm map[string]any, source any) (string, error) {
 func (p pageRef) relRef(argsm map[string]any, source any) (string, error) {
 	args, s, err := p.decodeRefArgs(argsm)
 	if err != nil {
-		return "", errors.Wrap(err, "invalid arguments to Ref")
+		return "", fmt.Errorf("invalid arguments to Ref: %w", err)
 	}
 
 	if s == nil {

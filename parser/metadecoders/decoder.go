@@ -26,7 +26,6 @@ import (
 
 	xml "github.com/clbanning/mxj/v2"
 	toml "github.com/pelletier/go-toml/v2"
-	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 	jww "github.com/spf13/jwalterweatherman"
@@ -74,7 +73,7 @@ func (d Decoder) UnmarshalToMap(data []byte, f Format) (map[string]any, error) {
 func (d Decoder) UnmarshalFileToMap(fs afero.Fs, filename string) (map[string]any, error) {
 	format := FormatFromString(filename)
 	if format == "" {
-		return nil, errors.Errorf("%q is not a valid configuration format", filename)
+		return nil, fmt.Errorf("%q is not a valid configuration format", filename)
 	}
 
 	data, err := afero.ReadFile(fs, filename)
@@ -106,7 +105,7 @@ func (d Decoder) UnmarshalStringTo(data string, typ any) (any, error) {
 	case float64:
 		return cast.ToFloat64E(data)
 	default:
-		return nil, errors.Errorf("unmarshal: %T not supported", typ)
+		return nil, fmt.Errorf("unmarshal: %T not supported", typ)
 	}
 }
 
@@ -144,7 +143,7 @@ func (d Decoder) UnmarshalTo(data []byte, f Format, v any) error {
 		if err == nil {
 			xmlRootName, err := xmlRoot.Root()
 			if err != nil {
-				return toFileError(f, errors.Wrap(err, "failed to unmarshal XML"))
+				return toFileError(f, data, fmt.Errorf("failed to unmarshal XML: %w", err))
 			}
 			xmlValue = xmlRoot[xmlRootName].(map[string]any)
 		}
@@ -160,7 +159,7 @@ func (d Decoder) UnmarshalTo(data []byte, f Format, v any) error {
 	case YAML:
 		err = yaml.Unmarshal(data, v)
 		if err != nil {
-			return toFileError(f, errors.Wrap(err, "failed to unmarshal YAML"))
+			return toFileError(f, data, fmt.Errorf("failed to unmarshal YAML: %w", err))
 		}
 
 		// To support boolean keys, the YAML package unmarshals maps to
@@ -191,14 +190,14 @@ func (d Decoder) UnmarshalTo(data []byte, f Format, v any) error {
 		return d.unmarshalCSV(data, v)
 
 	default:
-		return errors.Errorf("unmarshal of format %q is not supported", f)
+		return fmt.Errorf("unmarshal of format %q is not supported", f)
 	}
 
 	if err == nil {
 		return nil
 	}
 
-	return toFileError(f, errors.Wrap(err, "unmarshal failed"))
+	return toFileError(f, data, fmt.Errorf("unmarshal failed: %w", err))
 }
 
 func (d Decoder) unmarshalCSV(data []byte, v any) error {
@@ -215,7 +214,7 @@ func (d Decoder) unmarshalCSV(data []byte, v any) error {
 	case *any:
 		*v.(*any) = records
 	default:
-		return errors.Errorf("CSV cannot be unmarshaled into %T", v)
+		return fmt.Errorf("CSV cannot be unmarshaled into %T", v)
 
 	}
 
@@ -260,8 +259,8 @@ func (d Decoder) unmarshalORG(data []byte, v any) error {
 	return nil
 }
 
-func toFileError(f Format, err error) error {
-	return herrors.ToFileError(string(f), err)
+func toFileError(f Format, data []byte, err error) error {
+	return herrors.NewFileError(fmt.Sprintf("_stream.%s", f), err).UpdateContent(bytes.NewReader(data), nil)
 }
 
 // stringifyMapKeys recurses into in and changes all instances of
