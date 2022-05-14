@@ -130,7 +130,7 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 	ctx.AddIdentity(cr)
 
 	if err != nil {
-		return ast.WalkContinue, herrors.NewFileErrorFromPos(cbctx.createPos(), err)
+		return ast.WalkContinue, herrors.NewFileErrorFromPos(err, cbctx.createPos())
 	}
 
 	return ast.WalkContinue, nil

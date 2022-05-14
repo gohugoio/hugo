@@ -588,7 +588,7 @@ func (p *pageState) wrapError(err error) error {
 		}
 	}
 
-	return herrors.NewFileErrorFromFile(err, filename, filename, p.s.SourceSpec.Fs.Source, herrors.NopLineMatcher)
+	return herrors.NewFileErrorFromFile(err, filename, p.s.SourceSpec.Fs.Source, herrors.NopLineMatcher)
 
 }
 
@@ -788,7 +788,7 @@ func (p *pageState) outputFormat() (f output.Format) {
 
 func (p *pageState) parseError(err error, input []byte, offset int) error {
 	pos := p.posFromInput(input, offset)
-	return herrors.NewFileError(p.File().Filename(), err).UpdatePosition(pos)
+	return herrors.NewFileError(err, p.File().Filename()).UpdatePosition(pos)
 }
 
 func (p *pageState) pathOrTitle() string {

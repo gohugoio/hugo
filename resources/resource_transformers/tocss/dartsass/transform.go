@@ -125,7 +125,7 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 				return -1
 			}
 
-			return herrors.NewFileErrorFromFile(sassErr, filename, filename, hugofs.Os, offsetMatcher)
+			return herrors.NewFileErrorFromFile(sassErr, filename, hugofs.Os, offsetMatcher)
 
 		}
 		return err

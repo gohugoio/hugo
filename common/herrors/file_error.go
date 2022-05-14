@@ -142,7 +142,7 @@ func (e *fileError) Unwrap() error {
 // NewFileError creates a new FileError that wraps err.
 // The value for name should identify the file, the best
 // being the full filename to the file on disk.
-func NewFileError(name string, err error) FileError {
+func NewFileError(err error, name string) FileError {
 	// Filetype is used to determine the Chroma lexer to use.
 	fileType, pos := extractFileTypePos(err)
 	pos.Filename = name
@@ -155,7 +155,7 @@ func NewFileError(name string, err error) FileError {
 }
 
 // NewFileErrorFromPos will use the filename and line number from pos to create a new FileError, wrapping err.
-func NewFileErrorFromPos(pos text.Position, err error) FileError {
+func NewFileErrorFromPos(err error, pos text.Position) FileError {
 	// Filetype is used to determine the Chroma lexer to use.
 	fileType, _ := extractFileTypePos(err)
 	if fileType == "" {
@@ -165,20 +165,52 @@ func NewFileErrorFromPos(pos text.Position, err error) FileError {
 
 }
 
-// NewFileErrorFromFile is a convenience method to create a new FileError from a file.
-func NewFileErrorFromFile(err error, filename, realFilename string, fs afero.Fs, linematcher LineMatcherFn) FileError {
+func NewFileErrorFromFileInPos(err error, pos text.Position, fs afero.Fs, linematcher LineMatcherFn) FileError {
 	if err == nil {
 		panic("err is nil")
 	}
-	if linematcher == nil {
-		linematcher = SimpleLineMatcher
-	}
-	f, err2 := fs.Open(filename)
+	f, realFilename, err2 := openFile(pos.Filename, fs)
 	if err2 != nil {
-		return NewFileError(realFilename, err)
+		return NewFileErrorFromPos(err, pos)
+	}
+	pos.Filename = realFilename
+	defer f.Close()
+	return NewFileErrorFromPos(err, pos).UpdateContent(f, linematcher)
+}
+
+// NewFileErrorFromFile is a convenience method to create a new FileError from a file.
+func NewFileErrorFromFile(err error, filename string, fs afero.Fs, linematcher LineMatcherFn) FileError {
+	if err == nil {
+		panic("err is nil")
+	}
+	f, realFilename, err2 := openFile(filename, fs)
+	if err2 != nil {
+		return NewFileError(err, realFilename)
 	}
 	defer f.Close()
-	return NewFileError(realFilename, err).UpdateContent(f, linematcher)
+	return NewFileError(err, realFilename).UpdateContent(f, linematcher)
+}
+
+func openFile(filename string, fs afero.Fs) (afero.File, string, error) {
+	realFilename := filename
+
+	// We want the most specific filename possible in the error message.
+	fi, err2 := fs.Stat(filename)
+	if err2 == nil {
+		if s, ok := fi.(interface {
+			Filename() string
+		}); ok {
+			realFilename = s.Filename()
+		}
+
+	}
+
+	f, err2 := fs.Open(filename)
+	if err2 != nil {
+		return nil, realFilename, err2
+	}
+
+	return f, realFilename, nil
 }
 
 // Cause returns the underlying error or itself if it does not implement Unwrap.
