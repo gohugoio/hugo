@@ -44,6 +44,10 @@ URL imports (e.g. `@import url('https://fonts.googleapis.com/css?family=Open+San
 Note that this import routine does not care about the CSS spec, so you can have @import anywhere in the file.
 Hugo will look for imports relative to the module mount and will respect theme overrides.
 
+skipInlineImportsNotFound [bool] {{< new-in "0.99.0" >}}
+
+Before Hugo 0.99.0 when `inlineImports` was enabled and we failed to resolve an import, we logged it as a warning. We now fail the build. If you have regular CSS imports in your CSS that you want to preserve, you can either use imports with URL or media queries (Hugo does not try to resolve those) or set `skipInlineImportsNotFound` to true.
+
 _If no configuration file is used:_
 
 use [string]
