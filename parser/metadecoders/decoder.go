@@ -260,7 +260,7 @@ func (d Decoder) unmarshalORG(data []byte, v any) error {
 }
 
 func toFileError(f Format, data []byte, err error) error {
-	return herrors.NewFileError(fmt.Sprintf("_stream.%s", f), err).UpdateContent(bytes.NewReader(data), nil)
+	return herrors.NewFileError(err, fmt.Sprintf("_stream.%s", f)).UpdateContent(bytes.NewReader(data), nil)
 }
 
 // stringifyMapKeys recurses into in and changes all instances of

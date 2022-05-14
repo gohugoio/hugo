@@ -298,7 +298,7 @@ func renderShortcode(
 			var err error
 			tmpl, err = s.TextTmpl().Parse(templName, templStr)
 			if err != nil {
-				fe := herrors.NewFileError(p.File().Filename(), err)
+				fe := herrors.NewFileError(err, p.File().Filename())
 				pos := fe.Position()
 				pos.LineNumber += p.posOffset(sc.pos).LineNumber
 				fe = fe.UpdatePosition(pos)
@@ -391,7 +391,7 @@ func renderShortcode(
 	result, err := renderShortcodeWithPage(s.Tmpl(), tmpl, data)
 
 	if err != nil && sc.isInline {
-		fe := herrors.NewFileError(p.File().Filename(), err)
+		fe := herrors.NewFileError(err, p.File().Filename())
 		pos := fe.Position()
 		pos.LineNumber += p.posOffset(sc.pos).LineNumber
 		fe = fe.UpdatePosition(pos)

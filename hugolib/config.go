@@ -511,5 +511,5 @@ func (configLoader) loadSiteConfig(cfg config.Provider) (scfg SiteConfig, err er
 }
 
 func (l configLoader) wrapFileError(err error, filename string) error {
-	return herrors.NewFileErrorFromFile(err, filename, filename, l.Fs, nil)
+	return herrors.NewFileErrorFromFile(err, filename, l.Fs, nil)
 }

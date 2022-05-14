@@ -48,7 +48,7 @@ class-in-b {
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import "components/all.css";
+  @import "components/all.css";
 h1 {
 	@apply text-2xl font-bold;
 }
@@ -138,5 +138,51 @@ func TestTransformPostCSSError(t *testing.T) {
 
 	s.AssertIsFileError(err)
 	c.Assert(err.Error(), qt.Contains, "a.css:4:2")
+
+}
+
+// #9895
+func TestTransformPostCSSImportError(t *testing.T) {
+	if !htesting.IsCI() {
+		t.Skip("Skip long running test when running locally")
+	}
+
+	c := qt.New(t)
+
+	s, err := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:               c,
+			NeedsOsFS:       true,
+			NeedsNpmInstall: true,
+			LogLevel:        jww.LevelInfo,
+			TxtarString:     strings.ReplaceAll(postCSSIntegrationTestFiles, `@import "components/all.css";`, `@import "components/doesnotexist.css";`),
+		}).BuildE()
+
+	s.AssertIsFileError(err)
+	c.Assert(err.Error(), qt.Contains, "styles.css:4:3")
+	c.Assert(err.Error(), qt.Contains, filepath.FromSlash(`failed to resolve CSS @import "css/components/doesnotexist.css"`))
+
+}
+
+func TestTransformPostCSSImporSkipInlineImportsNotFound(t *testing.T) {
+	if !htesting.IsCI() {
+		t.Skip("Skip long running test when running locally")
+	}
+
+	c := qt.New(t)
+
+	files := strings.ReplaceAll(postCSSIntegrationTestFiles, `@import "components/all.css";`, `@import "components/doesnotexist.css";`)
+	files = strings.ReplaceAll(files, `{{ $options := dict "inlineImports" true }}`, `{{ $options := dict "inlineImports" true "skipInlineImportsNotFound" true }}`)
+
+	s := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:               c,
+			NeedsOsFS:       true,
+			NeedsNpmInstall: true,
+			LogLevel:        jww.LevelInfo,
+			TxtarString:     files,
+		}).Build()
+
+	s.AssertFileContent("public/css/styles.css", filepath.FromSlash(`@import "components/doesnotexist.css";`))
 
 }

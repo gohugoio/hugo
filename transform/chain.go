@@ -113,9 +113,9 @@ func (c *Chain) Apply(to io.Writer, from io.Reader) error {
 				filename = tempfile.Name()
 				defer tempfile.Close()
 				_, _ = io.Copy(tempfile, fb.from)
-				return herrors.NewFileErrorFromFile(err, filename, filename, hugofs.Os, nil)
+				return herrors.NewFileErrorFromFile(err, filename, hugofs.Os, nil)
 			}
-			return herrors.NewFileError(filename, err).UpdateContent(fb.from, nil)
+			return herrors.NewFileError(err, filename).UpdateContent(fb.from, nil)
 
 		}
 	}

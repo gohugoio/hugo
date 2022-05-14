@@ -139,6 +139,17 @@ type fileInfoMeta struct {
 	m *FileMeta
 }
 
+type filenameProvider interface {
+	Filename() string
+}
+
+var _ filenameProvider = (*fileInfoMeta)(nil)
+
+// Filename returns the full filename.
+func (fi *fileInfoMeta) Filename() string {
+	return fi.m.Filename
+}
+
 // Name returns the file's name. Note that we follow symlinks,
 // if supported by the file system, and the Name given here will be the
 // name of the symlink, which is what Hugo needs in all situations.
