@@ -122,10 +122,6 @@ type fileError struct {
 	cause error
 }
 
-type fileErrorWithErrorContext struct {
-	*fileError
-}
-
 func (e *fileError) ErrorContext() *ErrorContext {
 	return e.errorContext
 }
