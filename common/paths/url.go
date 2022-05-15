@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"net/url"
 	"path"
+	"path/filepath"
 	"strings"
 )
 
@@ -151,4 +152,30 @@ func Uglify(in string) string {
 	}
 	// /section/name.html -> /section/name.html
 	return path.Clean(in)
+}
+
+// UrlToFilename converts the URL s to a filename.
+// If ParseRequestURI fails, the input is just converted to OS specific slashes and returned.
+func UrlToFilename(s string) (string, bool) {
+	u, err := url.ParseRequestURI(s)
+
+	if err != nil {
+		return filepath.FromSlash(s), false
+	}
+
+	p := u.Path
+
+	if p == "" {
+		p, _ = url.QueryUnescape(u.Opaque)
+		return filepath.FromSlash(p), true
+	}
+
+	p = filepath.FromSlash(p)
+
+	if u.Host != "" {
+		// C:\data\file.txt
+		p = strings.ToUpper(u.Host) + ":" + p
+	}
+
+	return p, true
 }

@@ -53,7 +53,7 @@ func (t templateInfo) resolveType() templateType {
 
 func (info templateInfo) errWithFileContext(what string, err error) error {
 	err = fmt.Errorf(what+": %w", err)
-	fe := herrors.NewFileError(err, info.realFilename)
+	fe := herrors.NewFileErrorFromName(err, info.realFilename)
 	f, err := info.fs.Open(info.filename)
 	if err != nil {
 		return err

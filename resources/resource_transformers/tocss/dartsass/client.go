@@ -20,7 +20,9 @@ import (
 	"io"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugolib/filesystems"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -33,6 +35,10 @@ import (
 // used as part of the cache key.
 const transformationName = "tocss-dart"
 
+// See https://github.com/sass/dart-sass-embedded/issues/24
+// Note: This prefix must be all lower case.
+const dartSassStdinPrefix = "hugostdin:"
+
 func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) (*Client, error) {
 	if !Supports() {
 		return &Client{dartSassNotAvailable: true}, nil
@@ -44,7 +50,7 @@ func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) (*Client, error) 
 
 	transpiler, err := godartsass.Start(godartsass.Options{
 		LogEventHandler: func(event godartsass.LogEvent) {
-			message := strings.ReplaceAll(event.Message, stdinPrefix, "")
+			message := strings.ReplaceAll(event.Message, dartSassStdinPrefix, "")
 			switch event.Type {
 			case godartsass.LogEventTypeDebug:
 				// Log as Info for now, we may adjust this if it gets too chatty.
@@ -94,7 +100,7 @@ func (c *Client) toCSS(args godartsass.Args, src io.Reader) (godartsass.Result, 
 		if err.Error() == "unexpected EOF" {
 			return res, fmt.Errorf("got unexpected EOF when executing %q. The user running hugo must have read and execute permissions on this program. With execute permissions only, this error is thrown.", dartSassEmbeddedBinaryName)
 		}
-		return res, err
+		return res, herrors.NewFileErrorFromFileInErr(err, hugofs.Os, herrors.OffsetMatcher)
 	}
 
 	return res, err
