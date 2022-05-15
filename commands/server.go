@@ -522,18 +522,20 @@ func (c *commandeer) serve(s *serverCmd) error {
 		roots = []string{""}
 	}
 
+	templHandler := c.hugo().Tmpl()
+	errTempl, found := templHandler.Lookup("_server/error.html")
+	if !found {
+		panic("template server/error.html not found")
+	}
+
 	srv := &fileServer{
 		baseURLs: baseURLs,
 		roots:    roots,
 		c:        c,
 		s:        s,
 		errorTemplate: func(ctx any) (io.Reader, error) {
-			templ, found := c.hugo().Tmpl().Lookup("_server/error.html")
-			if !found {
-				panic("template server/error.html not found")
-			}
 			b := &bytes.Buffer{}
-			err := c.hugo().Tmpl().Execute(templ, b, ctx)
+			err := templHandler.Execute(errTempl, b, ctx)
 			return b, err
 		},
 	}
@@ -579,16 +581,37 @@ func (c *commandeer) serve(s *serverCmd) error {
 
 	jww.FEEDBACK.Println("Press Ctrl+C to stop")
 
-	if s.stop != nil {
-		select {
-		case <-sigs:
-		case <-s.stop:
+	err := func() error {
+		if s.stop != nil {
+			for {
+				select {
+				case <-sigs:
+					return nil
+				case <-s.stop:
+					return nil
+				case <-ctx.Done():
+					return ctx.Err()
+				}
+			}
+		} else {
+			for {
+				select {
+				case <-sigs:
+					return nil
+				case <-ctx.Done():
+					return ctx.Err()
+				}
+			}
 		}
-	} else {
-		<-sigs
+	}()
+
+	if err != nil {
+		jww.ERROR.Println("Error:", err)
 	}
 
-	c.hugo().Close()
+	if h := c.hugoTry(); h != nil {
+		h.Close()
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

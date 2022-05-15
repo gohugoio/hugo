@@ -75,7 +75,7 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 		if err == nil {
 			configFiles = append(configFiles, filename)
 		} else if err != ErrNoConfigFile {
-			return nil, nil, err
+			return nil, nil, l.wrapFileError(err, filename)
 		}
 	}
 
@@ -463,7 +463,7 @@ func (l configLoader) loadConfig(configName string) (string, error) {
 
 	m, err := config.FromFileToMap(l.Fs, filename)
 	if err != nil {
-		return "", l.wrapFileError(err, filename)
+		return filename, err
 	}
 
 	// Set overwrites keys of the same name, recursively.
@@ -511,5 +511,12 @@ func (configLoader) loadSiteConfig(cfg config.Provider) (scfg SiteConfig, err er
 }
 
 func (l configLoader) wrapFileError(err error, filename string) error {
+	fe := herrors.UnwrapFileError(err)
+	if fe != nil {
+		pos := fe.Position()
+		pos.Filename = filename
+		fe.UpdatePosition(pos)
+		return err
+	}
 	return herrors.NewFileErrorFromFile(err, filename, l.Fs, nil)
 }
