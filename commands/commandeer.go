@@ -130,6 +130,15 @@ func (c *commandeerHugoState) hugo() *hugolib.HugoSites {
 	return c.hugoSites
 }
 
+func (c *commandeerHugoState) hugoTry() *hugolib.HugoSites {
+	select {
+	case <-c.created:
+		return c.hugoSites
+	case <-time.After(time.Millisecond * 100):
+		return nil
+	}
+}
+
 func (c *commandeer) errCount() int {
 	return int(c.logger.LogCounters().ErrorCounter.Count())
 }

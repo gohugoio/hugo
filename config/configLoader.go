@@ -59,6 +59,13 @@ func FromConfigString(config, configType string) (Provider, error) {
 func FromFile(fs afero.Fs, filename string) (Provider, error) {
 	m, err := loadConfigFromFile(fs, filename)
 	if err != nil {
+		fe := herrors.UnwrapFileError(err)
+		if fe != nil {
+			pos := fe.Position()
+			pos.Filename = filename
+			fe.UpdatePosition(pos)
+			return nil, err
+		}
 		return nil, herrors.NewFileErrorFromFile(err, filename, fs, nil)
 	}
 	return NewFrom(m), nil
