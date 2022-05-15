@@ -19,6 +19,8 @@ import (
 	"io"
 	"path/filepath"
 
+	"github.com/bep/godartsass"
+	"github.com/bep/golibsass/libsass/libsasserrors"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/pelletier/go-toml/v2"
@@ -132,7 +134,22 @@ func (e fileError) Position() text.Position {
 }
 
 func (e *fileError) Error() string {
-	return fmt.Sprintf("%s: %s", e.position, e.cause)
+	return fmt.Sprintf("%s: %s", e.position, e.causeString())
+}
+
+func (e *fileError) causeString() string {
+	if e.cause == nil {
+		return ""
+	}
+	switch v := e.cause.(type) {
+	// Avoid repeating the file info in the error message.
+	case godartsass.SassError:
+		return v.Message
+	case libsasserrors.Error:
+		return v.Message
+	default:
+		return v.Error()
+	}
 }
 
 func (e *fileError) Unwrap() error {
@@ -140,9 +157,17 @@ func (e *fileError) Unwrap() error {
 }
 
 // NewFileError creates a new FileError that wraps err.
+// It will try to extract the filename and line number from err.
+func NewFileError(err error) FileError {
+	// Filetype is used to determine the Chroma lexer to use.
+	fileType, pos := extractFileTypePos(err)
+	return &fileError{cause: err, fileType: fileType, position: pos}
+}
+
+// NewFileErrorFromName creates a new FileError that wraps err.
 // The value for name should identify the file, the best
 // being the full filename to the file on disk.
-func NewFileError(err error, name string) FileError {
+func NewFileErrorFromName(err error, name string) FileError {
 	// Filetype is used to determine the Chroma lexer to use.
 	fileType, pos := extractFileTypePos(err)
 	pos.Filename = name
@@ -165,6 +190,23 @@ func NewFileErrorFromPos(err error, pos text.Position) FileError {
 
 }
 
+func NewFileErrorFromFileInErr(err error, fs afero.Fs, linematcher LineMatcherFn) FileError {
+	fe := NewFileError(err)
+	pos := fe.Position()
+	if pos.Filename == "" {
+		return fe
+	}
+
+	f, realFilename, err2 := openFile(pos.Filename, fs)
+	if err2 != nil {
+		return fe
+	}
+
+	pos.Filename = realFilename
+	defer f.Close()
+	return fe.UpdateContent(f, linematcher)
+}
+
 func NewFileErrorFromFileInPos(err error, pos text.Position, fs afero.Fs, linematcher LineMatcherFn) FileError {
 	if err == nil {
 		panic("err is nil")
@@ -185,10 +227,10 @@ func NewFileErrorFromFile(err error, filename string, fs afero.Fs, linematcher L
 	}
 	f, realFilename, err2 := openFile(filename, fs)
 	if err2 != nil {
-		return NewFileError(err, realFilename)
+		return NewFileErrorFromName(err, realFilename)
 	}
 	defer f.Close()
-	return NewFileError(err, realFilename).UpdateContent(f, linematcher)
+	return NewFileErrorFromName(err, realFilename).UpdateContent(f, linematcher)
 }
 
 func openFile(filename string, fs afero.Fs) (afero.File, string, error) {
@@ -223,7 +265,14 @@ func Cause(err error) error {
 
 func extractFileTypePos(err error) (string, text.Position) {
 	err = Cause(err)
+
 	var fileType string
+
+	// LibSass, DartSass
+	if pos := extractPosition(err); pos.LineNumber > 0 || pos.Offset > 0 {
+		_, fileType = paths.FileAndExtNoDelimiter(pos.Filename)
+		return fileType, pos
+	}
 
 	// Default to line 1 col 1 if we don't find any better.
 	pos := text.Position{
@@ -257,6 +306,10 @@ func extractFileTypePos(err error) (string, text.Position) {
 			pos.LineNumber = lno
 			break
 		}
+	}
+
+	if fileType == "" && pos.Filename != "" {
+		_, fileType = paths.FileAndExtNoDelimiter(pos.Filename)
 	}
 
 	return fileType, pos
@@ -321,4 +374,21 @@ func exctractLineNumberAndColumnNumber(e error) (int, int) {
 	}
 
 	return -1, -1
+}
+
+func extractPosition(e error) (pos text.Position) {
+	switch v := e.(type) {
+	case godartsass.SassError:
+		span := v.Span
+		start := span.Start
+		filename, _ := paths.UrlToFilename(span.Url)
+		pos.Filename = filename
+		pos.Offset = start.Offset
+		pos.ColumnNumber = start.Column
+	case libsasserrors.Error:
+		pos.Filename = v.File
+		pos.LineNumber = v.Line
+		pos.ColumnNumber = v.Column
+	}
+	return
 }

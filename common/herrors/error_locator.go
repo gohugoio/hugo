@@ -52,6 +52,16 @@ var NopLineMatcher = func(m LineMatcher) int {
 	return 1
 }
 
+// OffsetMatcher is a line matcher that matches by offset.
+var OffsetMatcher = func(m LineMatcher) int {
+	if m.Offset+len(m.Line) >= m.Position.Offset {
+		// We found the line, but return 0 to signal that we want to determine
+		// the column from the error.
+		return 0
+	}
+	return -1
+}
+
 // ErrorContext contains contextual information about an error. This will
 // typically be the lines surrounding some problem in a file.
 type ErrorContext struct {

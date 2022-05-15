@@ -165,7 +165,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 
 			if err == nil {
 				fe := herrors.
-					NewFileError(errors.New(errorMessage), path).
+					NewFileErrorFromName(errors.New(errorMessage), path).
 					UpdatePosition(text.Position{Offset: -1, LineNumber: loc.Line, ColumnNumber: loc.Column}).
 					UpdateContent(f, nil)
 

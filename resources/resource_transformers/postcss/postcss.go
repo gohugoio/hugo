@@ -314,7 +314,7 @@ func (imp *importResolver) importRecursive(
 					LineNumber:   offset + 1,
 					ColumnNumber: column + 1,
 				}
-				return 0, "", herrors.NewFileErrorFromFileInPos(fmt.Errorf("failed to resolve CSS @import %q", filename), pos, imp.fs, nil)
+				return 0, "", herrors.NewFileErrorFromFileInPos(fmt.Errorf("failed to resolve CSS @import \"%s\"", filename), pos, imp.fs, nil)
 			}
 
 			i--
@@ -421,7 +421,7 @@ func (imp *importResolver) toFileError(output string) error {
 	}
 	defer f.Close()
 
-	ferr := herrors.NewFileError(inErr, realFilename)
+	ferr := herrors.NewFileErrorFromName(inErr, realFilename)
 	pos := ferr.Position()
 	pos.LineNumber = file.Offset + 1
 	return ferr.UpdatePosition(pos).UpdateContent(f, nil)

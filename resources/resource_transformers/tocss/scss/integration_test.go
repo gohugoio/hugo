@@ -14,6 +14,8 @@
 package scss_test
 
 import (
+	"path/filepath"
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -133,7 +135,7 @@ moo {
 -- config.toml --
 theme = 'mytheme'
 -- layouts/index.html --
-{{ $cssOpts := (dict "includePaths" (slice "node_modules/foo" ) "transpiler" "dartsass" ) }}
+{{ $cssOpts := (dict "includePaths" (slice "node_modules/foo" ) ) }}
 {{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts  | minify  }}
 T1: {{ $r.Content }}
 -- themes/mytheme/assets/scss/components/_boo.scss --
@@ -170,4 +172,76 @@ zoo {
 		}).Build()
 
 	b.AssertFileContent("public/index.html", `T1: moo{color:#ccc}boo{color:green}zoo{color:pink}`)
+}
+
+func TestTransformErrors(t *testing.T) {
+	if !scss.Supports() {
+		t.Skip()
+	}
+
+	c := qt.New(t)
+
+	const filesTemplate = `
+-- config.toml --
+theme = 'mytheme'
+-- assets/scss/components/_foo.scss --
+/* comment line 1 */
+$foocolor: #ccc;
+
+foo {
+	color: $foocolor;
+}
+-- themes/mytheme/assets/scss/main.scss --
+/* comment line 1 */
+/* comment line 2 */
+@import "components/foo";
+/* comment line 4 */
+
+$maincolor: #eee;
+
+body {
+	color: $maincolor;
+}
+
+-- layouts/index.html --
+{{ $cssOpts := dict }}
+{{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts  | minify  }}
+T1: {{ $r.Content }}
+
+	`
+
+	c.Run("error in main", func(c *qt.C) {
+		b, err := hugolib.NewIntegrationTestBuilder(
+			hugolib.IntegrationTestConfig{
+				T:           c,
+				TxtarString: strings.Replace(filesTemplate, "$maincolor: #eee;", "$maincolor #eee;", 1),
+				NeedsOsFS:   true,
+			}).BuildE()
+
+		b.Assert(err, qt.IsNotNil)
+		b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`themes/mytheme/assets/scss/main.scss:6:1": expected ':' after $maincolor in assignment statement`))
+		fe := b.AssertIsFileError(err)
+		b.Assert(fe.ErrorContext(), qt.IsNotNil)
+		b.Assert(fe.ErrorContext().Lines, qt.DeepEquals, []string{"/* comment line 4 */", "", "$maincolor #eee;", "", "body {"})
+		b.Assert(fe.ErrorContext().ChromaLexer, qt.Equals, "scss")
+
+	})
+
+	c.Run("error in import", func(c *qt.C) {
+		b, err := hugolib.NewIntegrationTestBuilder(
+			hugolib.IntegrationTestConfig{
+				T:           c,
+				TxtarString: strings.Replace(filesTemplate, "$foocolor: #ccc;", "$foocolor #ccc;", 1),
+				NeedsOsFS:   true,
+			}).BuildE()
+
+		b.Assert(err, qt.IsNotNil)
+		b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`assets/scss/components/_foo.scss:2:1": expected ':' after $foocolor in assignment statement`))
+		fe := b.AssertIsFileError(err)
+		b.Assert(fe.ErrorContext(), qt.IsNotNil)
+		b.Assert(fe.ErrorContext().Lines, qt.DeepEquals, []string{"/* comment line 1 */", "$foocolor #ccc;", "", "foo {"})
+		b.Assert(fe.ErrorContext().ChromaLexer, qt.Equals, "scss")
+
+	})
+
 }

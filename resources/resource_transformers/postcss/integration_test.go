@@ -183,6 +183,6 @@ func TestTransformPostCSSImporSkipInlineImportsNotFound(t *testing.T) {
 			TxtarString:     files,
 		}).Build()
 
-	s.AssertFileContent("public/css/styles.css", filepath.FromSlash(`@import "components/doesnotexist.css";`))
+	s.AssertFileContent("public/css/styles.css", `@import "components/doesnotexist.css";`)
 
 }

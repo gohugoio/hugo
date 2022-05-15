@@ -482,6 +482,7 @@ func removeErrorPrefixFromLog(content string) string {
 var logReplacer = strings.NewReplacer(
 	"can't", "can’t", // Chroma lexer does'nt do well with "can't"
 	"*hugolib.pageState", "page.Page", // Page is the public interface.
+	"Rebuild failed:", "",
 )
 
 func cleanErrorLog(content string) string {

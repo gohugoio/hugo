@@ -788,7 +788,7 @@ func (p *pageState) outputFormat() (f output.Format) {
 
 func (p *pageState) parseError(err error, input []byte, offset int) error {
 	pos := p.posFromInput(input, offset)
-	return herrors.NewFileError(err, p.File().Filename()).UpdatePosition(pos)
+	return herrors.NewFileErrorFromName(err, p.File().Filename()).UpdatePosition(pos)
 }
 
 func (p *pageState) pathOrTitle() string {
