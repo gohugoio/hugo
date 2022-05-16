@@ -107,7 +107,7 @@ The custom variables need to be prefixed with `$`.
 {{ $address := "123 Main St." }}
 {{ $address }}
 ```
-Vriables can be re-defined using the `=` operator. The example below
+Variables can be re-defined using the `=` operator. The example below
 prints "Var is Hugo Home" on the home page, and "Var is Hugo Page" on
 all other pages:
 
