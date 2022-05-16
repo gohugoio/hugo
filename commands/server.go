@@ -35,6 +35,8 @@ import (
 
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/hugolib"
+	"github.com/gohugoio/hugo/tpl"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/gohugoio/hugo/livereload"
@@ -522,11 +524,25 @@ func (c *commandeer) serve(s *serverCmd) error {
 		roots = []string{""}
 	}
 
-	templHandler := c.hugo().Tmpl()
-	errTempl, found := templHandler.Lookup("_server/error.html")
-	if !found {
-		panic("template server/error.html not found")
+	// Cache it here. The HugoSites object may be unavaialble later on due to intermitent configuration errors.
+	// To allow the en user to change the error template while the server is running, we use
+	// the freshest template we can provide.
+	var (
+		errTempl     tpl.Template
+		templHandler tpl.TemplateHandler
+	)
+	getErrorTemplateAndHandler := func(h *hugolib.HugoSites) (tpl.Template, tpl.TemplateHandler) {
+		if h == nil {
+			return errTempl, templHandler
+		}
+		templHandler := h.Tmpl()
+		errTempl, found := templHandler.Lookup("_server/error.html")
+		if !found {
+			panic("template server/error.html not found")
+		}
+		return errTempl, templHandler
 	}
+	errTempl, templHandler = getErrorTemplateAndHandler(c.hugo())
 
 	srv := &fileServer{
 		baseURLs: baseURLs,
@@ -534,8 +550,11 @@ func (c *commandeer) serve(s *serverCmd) error {
 		c:        c,
 		s:        s,
 		errorTemplate: func(ctx any) (io.Reader, error) {
+			// hugoTry does not block, getErrorTemplateAndHandler will fall back
+			// to cached values if nil.
+			templ, handler := getErrorTemplateAndHandler(c.hugoTry())
 			b := &bytes.Buffer{}
-			err := templHandler.Execute(errTempl, b, ctx)
+			err := handler.Execute(templ, b, ctx)
 			return b, err
 		},
 	}
