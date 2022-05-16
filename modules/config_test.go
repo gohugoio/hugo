@@ -33,9 +33,9 @@ func TestConfigHugoVersionIsValid(t *testing.T) {
 		{HugoVersion{Min: "0.33.0"}, true},
 		{HugoVersion{Min: "0.56.0-DEV"}, true},
 		{HugoVersion{Min: "0.33.0", Max: "0.55.0"}, false},
-		{HugoVersion{Min: "0.33.0", Max: "0.99.0"}, true},
+		{HugoVersion{Min: "0.33.0", Max: "0.199.0"}, true},
 	} {
-		c.Assert(test.in.IsValid(), qt.Equals, test.expect)
+		c.Assert(test.in.IsValid(), qt.Equals, test.expect, qt.Commentf("%#v", test.in))
 	}
 }
 

@@ -16,7 +16,9 @@ package hugo
 import (
 	"fmt"
 	"io"
+	"math"
 	"runtime"
+	"strconv"
 	"strings"
 
 	"github.com/gohugoio/hugo/compare"
@@ -25,8 +27,9 @@ import (
 
 // Version represents the Hugo build version.
 type Version struct {
-	// Major and minor version.
-	Number float32
+	Major int
+
+	Minor int
 
 	// Increment this for bug releases
 	PatchLevel int
@@ -42,12 +45,17 @@ var (
 )
 
 func (v Version) String() string {
-	return version(v.Number, v.PatchLevel, v.Suffix)
+	return version(v.Major, v.Minor, v.PatchLevel, v.Suffix)
 }
 
 // Version returns the Hugo version.
 func (v Version) Version() VersionString {
 	return VersionString(v.String())
+}
+
+// Compare implements the compare.Comparer interface.
+func (h Version) Compare(other any) int {
+	return compareVersions(h, other)
 }
 
 // VersionString represents a Hugo version string.
@@ -60,7 +68,7 @@ func (h VersionString) String() string {
 // Compare implements the compare.Comparer interface.
 func (h VersionString) Compare(other any) int {
 	v := MustParseVersion(h.String())
-	return compareVersionsWithSuffix(v.Number, v.PatchLevel, v.Suffix, other)
+	return compareVersions(v, other)
 }
 
 // Eq implements the compare.Eqer interface.
@@ -84,10 +92,7 @@ func ParseVersion(s string) (Version, error) {
 		}
 	}
 
-	v, p := parseVersion(s)
-
-	vv.Number = v
-	vv.PatchLevel = p
+	vv.Major, vv.Minor, vv.PatchLevel = parseVersion(s)
 
 	return vv, nil
 }
@@ -110,18 +115,20 @@ func (v Version) ReleaseVersion() Version {
 
 // Next returns the next Hugo release version.
 func (v Version) Next() Version {
-	return Version{Number: v.Number + 0.01}
+	return Version{Major: v.Major, Minor: v.Minor + 1}
 }
 
 // Prev returns the previous Hugo release version.
 func (v Version) Prev() Version {
-	return Version{Number: v.Number - 0.01}
+	return Version{Major: v.Major, Minor: v.Minor - 1}
 }
 
 // NextPatchLevel returns the next patch/bugfix Hugo version.
 // This will be a patch increment on the previous Hugo version.
 func (v Version) NextPatchLevel(level int) Version {
-	return Version{Number: v.Number - 0.01, PatchLevel: level}
+	prev := v.Prev()
+	prev.PatchLevel = level
+	return prev
 }
 
 // BuildVersionString creates a version string. This is what you see when
@@ -160,11 +167,11 @@ func BuildVersionString() string {
 	return versionString
 }
 
-func version(version float32, patchVersion int, suffix string) string {
-	if patchVersion > 0 || version > 0.53 {
-		return fmt.Sprintf("%.2f.%d%s", version, patchVersion, suffix)
+func version(major, minor, patch int, suffix string) string {
+	if patch > 0 || minor > 53 {
+		return fmt.Sprintf("%d.%d.%d%s", major, minor, patch, suffix)
 	}
-	return fmt.Sprintf("%.2f%s", version, suffix)
+	return fmt.Sprintf("%d.%d%s", major, minor, suffix)
 }
 
 // CompareVersion compares the given version string or number against the
@@ -172,26 +179,41 @@ func version(version float32, patchVersion int, suffix string) string {
 // It returns -1 if the given version is less than, 0 if equal and 1 if greater than
 // the running version.
 func CompareVersion(version any) int {
-	return compareVersionsWithSuffix(CurrentVersion.Number, CurrentVersion.PatchLevel, CurrentVersion.Suffix, version)
+	return compareVersions(CurrentVersion, version)
 }
 
-func compareVersions(inVersion float32, inPatchVersion int, in any) int {
-	return compareVersionsWithSuffix(inVersion, inPatchVersion, "", in)
-}
-
-func compareVersionsWithSuffix(inVersion float32, inPatchVersion int, suffix string, in any) int {
+func compareVersions(inVersion Version, in any) int {
 	var c int
 	switch d := in.(type) {
 	case float64:
-		c = compareFloatVersions(inVersion, float32(d))
+		c = compareFloatWithVersion(d, inVersion)
 	case float32:
-		c = compareFloatVersions(inVersion, d)
+		c = compareFloatWithVersion(float64(d), inVersion)
 	case int:
-		c = compareFloatVersions(inVersion, float32(d))
+		c = compareFloatWithVersion(float64(d), inVersion)
 	case int32:
-		c = compareFloatVersions(inVersion, float32(d))
+		c = compareFloatWithVersion(float64(d), inVersion)
 	case int64:
-		c = compareFloatVersions(inVersion, float32(d))
+		c = compareFloatWithVersion(float64(d), inVersion)
+	case Version:
+		if d.Major == inVersion.Major && d.Minor == inVersion.Minor && d.PatchLevel == inVersion.PatchLevel {
+			return strings.Compare(inVersion.Suffix, d.Suffix)
+		}
+		if d.Major > inVersion.Major {
+			return 1
+		} else if d.Major < inVersion.Major {
+			return -1
+		}
+		if d.Minor > inVersion.Minor {
+			return 1
+		} else if d.Minor < inVersion.Minor {
+			return -1
+		}
+		if d.PatchLevel > inVersion.PatchLevel {
+			return 1
+		} else if d.PatchLevel < inVersion.PatchLevel {
+			return -1
+		}
 	default:
 		s, err := cast.ToStringE(in)
 		if err != nil {
@@ -202,50 +224,55 @@ func compareVersionsWithSuffix(inVersion float32, inPatchVersion int, suffix str
 		if err != nil {
 			return -1
 		}
+		return inVersion.Compare(v)
 
-		if v.Number == inVersion && v.PatchLevel == inPatchVersion {
-			return strings.Compare(suffix, v.Suffix)
-		}
-
-		if v.Number < inVersion || (v.Number == inVersion && v.PatchLevel < inPatchVersion) {
-			return -1
-		}
-
-		return 1
-	}
-
-	if c == 0 && suffix != "" {
-		return 1
 	}
 
 	return c
 }
 
-func parseVersion(s string) (float32, int) {
-	var (
-		v float32
-		p int
-	)
-
-	if strings.Count(s, ".") == 2 {
-		li := strings.LastIndex(s, ".")
-		p = cast.ToInt(s[li+1:])
-		s = s[:li]
+func parseVersion(s string) (int, int, int) {
+	var major, minor, patch int
+	parts := strings.Split(s, ".")
+	if len(parts) > 0 {
+		major, _ = strconv.Atoi(parts[0])
+	}
+	if len(parts) > 1 {
+		minor, _ = strconv.Atoi(parts[1])
+	}
+	if len(parts) > 2 {
+		patch, _ = strconv.Atoi(parts[2])
 	}
 
-	v = float32(cast.ToFloat64(s))
-
-	return v, p
+	return major, minor, patch
 }
 
-func compareFloatVersions(version float32, v float32) int {
-	if v == version {
+// compareFloatWithVersion compares v1 with v2.
+// It returns -1 if v1 is less than v2, 0 if v1 is equal to v2 and 1 if v1 is greater than v2.
+func compareFloatWithVersion(v1 float64, v2 Version) int {
+	mf, minf := math.Modf(v1)
+	v1maj := int(mf)
+	v1min := int(minf * 100)
+
+	if v2.Major == v1maj && v2.Minor == v1min {
 		return 0
 	}
-	if v < version {
+
+	if v1maj > v2.Major {
+		return 1
+
+	}
+
+	if v1maj < v2.Major {
 		return -1
 	}
-	return 1
+
+	if v1min > v2.Minor {
+		return 1
+	}
+
+	return -1
+
 }
 
 func GoMinorVersion() int {
