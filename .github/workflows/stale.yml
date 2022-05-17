@@ -23,9 +23,9 @@ jobs:
         with:
           operations-per-run: 999
           days-before-issue-stale: 365
-          days-before-pr-stale: 200
-          days-before-issue-close: 21
-          days-before-pr-close: 21
+          days-before-pr-stale: 365
+          days-before-issue-close: 56
+          days-before-pr-close: 56
           stale-issue-message: >
             This issue has been automatically marked as stale because it has not had
             recent activity. The resources of the Hugo team are limited, and so we are asking for your help.
