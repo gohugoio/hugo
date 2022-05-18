@@ -168,6 +168,14 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 			c.Set("watch", true)
 		}
 
+		// TODO(bep) see issue 9901
+		// cfgInit is called twice, before and after the languages have been initialized.
+		// The servers (below) can not be initialized before we
+		// know if we're configured in a multihost setup.
+		if len(c.languages) == 0 {
+			return nil
+		}
+
 		// We can only do this once.
 		serverCfgInit.Do(func() {
 			c.serverPorts = make([]serverPortListener, 1)
