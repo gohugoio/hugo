@@ -200,6 +200,7 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"forceSyncStatic",
 		"noTimes",
 		"noChmod",
+		"noBuildLock",
 		"ignoreVendorPaths",
 		"templateMetrics",
 		"templateMetricsHints",
