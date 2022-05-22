@@ -103,8 +103,8 @@ func (p PagesGroup) Reverse() PagesGroup {
 }
 
 var (
-	errorType   = reflect.TypeOf((*error)(nil)).Elem()
-	pagePtrType = reflect.TypeOf((*Page)(nil)).Elem()
+	errorType   = hreflect.TypeOf[error]()
+	pagePtrType = hreflect.TypeOf[Page]()
 	pagesType   = reflect.TypeOf(Pages{})
 )
 

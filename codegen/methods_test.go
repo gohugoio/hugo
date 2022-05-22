@@ -22,13 +22,14 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hreflect"
 )
 
 func TestMethods(t *testing.T) {
 	var (
-		zeroIE     = reflect.TypeOf((*IEmbed)(nil)).Elem()
-		zeroIEOnly = reflect.TypeOf((*IEOnly)(nil)).Elem()
-		zeroI      = reflect.TypeOf((*I)(nil)).Elem()
+		zeroIE     = hreflect.TypeOf[IEmbed]()
+		zeroIEOnly = hreflect.TypeOf[IEOnly]()
+		zeroI      = hreflect.TypeOf[I]()
 	)
 
 	dir, _ := os.Getwd()

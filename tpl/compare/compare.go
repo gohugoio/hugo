@@ -23,6 +23,7 @@ import (
 	"github.com/gohugoio/hugo/compare"
 	"github.com/gohugoio/hugo/langs"
 
+	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/types"
 )
 
@@ -337,7 +338,7 @@ func (ns *Namespace) compareGetWithCollator(collator *langs.Collator, a any, b a
 	return left, right
 }
 
-var timeType = reflect.TypeOf((*time.Time)(nil)).Elem()
+var timeType = hreflect.TypeOf[time.Time]()
 
 func toTimeUnix(v reflect.Value) int64 {
 	if v.Kind() == reflect.Interface {

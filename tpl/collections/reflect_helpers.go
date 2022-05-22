@@ -20,13 +20,14 @@ import (
 
 	"errors"
 
+	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/mitchellh/hashstructure"
 )
 
 var (
 	zero      reflect.Value
-	errorType = reflect.TypeOf((*error)(nil)).Elem()
-	timeType  = reflect.TypeOf((*time.Time)(nil)).Elem()
+	errorType = hreflect.TypeOf[error]()
+	timeType  = hreflect.TypeOf[time.Time]()
 )
 
 func numberToFloat(v reflect.Value) (float64, error) {

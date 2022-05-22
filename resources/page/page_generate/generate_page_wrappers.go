@@ -22,6 +22,7 @@ import (
 
 	"errors"
 
+	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/gohugoio/hugo/codegen"
@@ -47,8 +48,8 @@ const header = `// Copyright 2019 The Hugo Authors. All rights reserved.
 `
 
 var (
-	pageInterfaceDeprecated = reflect.TypeOf((*page.DeprecatedWarningPageMethods)(nil)).Elem()
-	pageInterface           = reflect.TypeOf((*page.Page)(nil)).Elem()
+	pageInterfaceDeprecated = hreflect.TypeOf[page.DeprecatedWarningPageMethods]()
+	pageInterface           = hreflect.TypeOf[page.Page]()
 
 	packageDir = filepath.FromSlash("resources/page")
 )

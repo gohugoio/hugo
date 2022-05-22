@@ -65,7 +65,7 @@ import (
 var (
 	_                texttemplate.ExecHelper = (*templateExecHelper)(nil)
 	zero             reflect.Value
-	contextInterface = reflect.TypeOf((*context.Context)(nil)).Elem()
+	contextInterface = hreflect.TypeOf[context.Context]()
 )
 
 type templateExecHelper struct {

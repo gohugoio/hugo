@@ -71,7 +71,7 @@ func IsTruthful(in any) bool {
 	}
 }
 
-var zeroType = reflect.TypeOf((*types.Zeroer)(nil)).Elem()
+var zeroType = TypeOf[types.Zeroer]()
 
 // IsTruthfulValue returns whether the given value has a meaningful truth value.
 // This is based on template.IsTrue in Go's stdlib, but also considers
@@ -114,6 +114,11 @@ func IsTruthfulValue(val reflect.Value) (truth bool) {
 	}
 
 	return
+}
+
+// TypeOf returns the type of the interface T.
+func TypeOf[T any]() reflect.Type {
+	return reflect.TypeOf((*T)(nil)).Elem()
 }
 
 type methodKey struct {
