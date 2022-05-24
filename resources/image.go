@@ -134,9 +134,18 @@ func (i *imageResource) getExif() *exif.ExifInfo {
 	return i.meta.Exif
 }
 
-// Cloneis for internal use.
+// Clone is for internal use.
 func (i *imageResource) Clone() resource.Resource {
 	gr := i.baseResource.Clone().(baseResource)
+	return &imageResource{
+		root:         i.root,
+		Image:        i.WithSpec(gr),
+		baseResource: gr,
+	}
+}
+
+func (i *imageResource) cloneTo(targetPath string) resource.Resource {
+	gr := i.baseResource.cloneTo(targetPath).(baseResource)
 	return &imageResource{
 		root:         i.root,
 		Image:        i.WithSpec(gr),

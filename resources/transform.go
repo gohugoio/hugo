@@ -42,6 +42,7 @@ import (
 
 var (
 	_ resource.ContentResource        = (*resourceAdapter)(nil)
+	_ resourceCopier                  = (*resourceAdapter)(nil)
 	_ resource.ReadSeekCloserResource = (*resourceAdapter)(nil)
 	_ resource.Resource               = (*resourceAdapter)(nil)
 	_ resource.Source                 = (*resourceAdapter)(nil)
@@ -173,6 +174,19 @@ func (r *resourceAdapter) Err() resource.ResourceError {
 func (r *resourceAdapter) Data() any {
 	r.init(false, false)
 	return r.target.Data()
+}
+
+func (r resourceAdapter) cloneTo(targetPath string) resource.Resource {
+	newtTarget := r.target.cloneTo(targetPath)
+	newInner := &resourceAdapterInner{
+		spec:   r.spec,
+		target: newtTarget.(transformableResource),
+	}
+	if r.resourceAdapterInner.publishOnce != nil {
+		newInner.publishOnce = &publishOnce{}
+	}
+	r.resourceAdapterInner = newInner
+	return &r
 }
 
 func (r *resourceAdapter) Crop(spec string) (images.ImageResource, error) {
@@ -596,6 +610,7 @@ type transformableResource interface {
 	resource.ContentProvider
 	resource.Resource
 	resource.Identifier
+	resourceCopier
 }
 
 type transformationUpdate struct {
