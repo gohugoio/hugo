@@ -861,8 +861,13 @@ func (c *commandeer) newWatcher(pollIntervalStr string, dirList ...string) (*wat
 		return nil, err
 	}
 
+	spec := c.hugo().Deps.SourceSpec
+
 	for _, d := range dirList {
 		if d != "" {
+			if spec.IgnoreFile(d) {
+				continue
+			}
 			_ = watcher.Add(d)
 		}
 	}
