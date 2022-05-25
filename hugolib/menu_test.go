@@ -524,3 +524,67 @@ Blog|HasMenuCurrent: false|Page: Page(/blog/_index.md)
 Blog|IsMenuCurrent: false|Page: Page(/blog/_index.md)
 `)
 }
+
+// Issue 9846
+func TestMenuHasMenuCurrentSection(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+disableKinds = ['RSS','sitemap','taxonomy','term']
+[[menu.main]]
+name = 'Home'
+pageRef = '/'
+weight = 1
+
+[[menu.main]]
+name = 'Tests'
+pageRef = '/tests'
+weight = 2
+[[menu.main]]
+name = 'Test 1'
+pageRef = '/tests/test-1'
+parent = 'Tests'
+weight = 1
+
+-- content/tests/test-1.md --
+---
+title: "Test 1"
+---
+-- layouts/_default/list.html --
+{{ range site.Menus.main }}
+{{ .Name }}|{{ .URL }}|IsMenuCurrent = {{ $.IsMenuCurrent "main" . }}|HasMenuCurrent = {{ $.HasMenuCurrent "main" . }}|
+{{ range .Children }}
+{{ .Name }}|{{ .URL }}|IsMenuCurrent = {{ $.IsMenuCurrent "main" . }}|HasMenuCurrent = {{ $.HasMenuCurrent "main" . }}|
+{{ end }}
+{{ end }}
+
+{{/* Some tests for issue 9925 */}}
+{{ $page := .Site.GetPage "tests/test-1" }}
+{{ $section := site.GetPage "tests" }}
+
+Home IsAncestor Self: {{ site.Home.IsAncestor site.Home }}
+Home IsDescendant Self: {{ site.Home.IsDescendant site.Home }}
+Section IsAncestor Self: {{ $section.IsAncestor $section }}
+Section IsDescendant Self: {{ $section.IsDescendant $section}}
+Page IsAncestor Self: {{ $page.IsAncestor $page }}
+Page IsDescendant Self: {{ $page.IsDescendant $page}}
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/tests/index.html", `
+Tests|/tests/|IsMenuCurrent = true|HasMenuCurrent = false
+Home IsAncestor Self: false
+Home IsDescendant Self: false
+Section IsAncestor Self: false
+Section IsDescendant Self: false
+Page IsAncestor Self: false
+Page IsDescendant Self: false
+`)
+}
