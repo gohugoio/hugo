@@ -26,6 +26,7 @@ import (
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/markup/asciidocext"
 	"github.com/gohugoio/hugo/markup/rst"
+	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/config"
 
@@ -40,7 +41,6 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/helpers"
 )
 
 const (
@@ -351,7 +351,7 @@ func normalizeExpected(ext, str string) string {
 	default:
 		return str
 	case "html":
-		return strings.Trim(helpers.StripHTML(str), " ")
+		return strings.Trim(tpl.StripHTML(str), " ")
 	case "ad":
 		paragraphs := strings.Split(str, "</p>")
 		expected := ""
@@ -1736,6 +1736,7 @@ Len Summary: {{ len .Summary }}
 Len Content: {{ len .Content }}
 
 SUMMARY:{{ .Summary }}:{{ len .Summary }}:END
+
 `}
 
 	b := newTestSitesBuilder(t)

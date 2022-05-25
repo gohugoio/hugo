@@ -201,7 +201,7 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 	})
 
 	cp.initPlain = cp.initMain.Branch(func() (any, error) {
-		cp.plain = helpers.StripHTML(string(cp.content))
+		cp.plain = tpl.StripHTML(string(cp.content))
 		cp.plainWords = strings.Fields(cp.plain)
 		cp.setWordCounts(p.m.isCJKLanguage)
 

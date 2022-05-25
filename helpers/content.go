@@ -34,7 +34,6 @@ import (
 
 	"github.com/gohugoio/hugo/markup"
 
-	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/config"
 )
 
@@ -102,45 +101,6 @@ func NewContentSpec(cfg config.Provider, logger loggers.Logger, contentFs afero.
 	}
 
 	return spec, nil
-}
-
-var stripHTMLReplacer = strings.NewReplacer("\n", " ", "</p>", "\n", "<br>", "\n", "<br />", "\n")
-
-// StripHTML accepts a string, strips out all HTML tags and returns it.
-func StripHTML(s string) string {
-	// Shortcut strings with no tags in them
-	if !strings.ContainsAny(s, "<>") {
-		return s
-	}
-	s = stripHTMLReplacer.Replace(s)
-
-	// Walk through the string removing all tags
-	b := bp.GetBuffer()
-	defer bp.PutBuffer(b)
-	var inTag, isSpace, wasSpace bool
-	for _, r := range s {
-		if !inTag {
-			isSpace = false
-		}
-
-		switch {
-		case r == '<':
-			inTag = true
-		case r == '>':
-			inTag = false
-		case unicode.IsSpace(r):
-			isSpace = true
-			fallthrough
-		default:
-			if !inTag && (!isSpace || (isSpace && !wasSpace)) {
-				b.WriteRune(r)
-			}
-		}
-
-		wasSpace = isSpace
-
-	}
-	return b.String()
 }
 
 // stripEmptyNav strips out empty <nav> tags from content.
