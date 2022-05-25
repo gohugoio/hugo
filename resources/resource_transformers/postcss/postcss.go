@@ -170,7 +170,7 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 		configFile = t.rs.BaseFs.ResolveJSConfigFile(configFile)
 		if configFile == "" && t.options.Config != "" {
 			// Only fail if the user specified config file is not found.
-			return fmt.Errorf("postcss config %q not found:", configFile)
+			return fmt.Errorf("postcss config %q not found:", t.options.Config)
 		}
 	}
 
