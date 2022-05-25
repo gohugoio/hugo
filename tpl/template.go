@@ -18,9 +18,14 @@ import (
 	"io"
 	"reflect"
 	"regexp"
+	"strings"
+	"unicode"
+
+	bp "github.com/gohugoio/hugo/bufferpool"
 
 	"github.com/gohugoio/hugo/output"
 
+	htmltemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 )
 
@@ -162,4 +167,45 @@ func GetHasLockFromContext(ctx context.Context) bool {
 
 func SetHasLockInContext(ctx context.Context, hasLock bool) context.Context {
 	return context.WithValue(ctx, texttemplate.HasLockContextKey, hasLock)
+}
+
+const hugoNewLinePlaceholder = "___hugonl_"
+
+var (
+	stripHTMLReplacerPre = strings.NewReplacer("\n", " ", "</p>", hugoNewLinePlaceholder, "<br>", hugoNewLinePlaceholder, "<br />", hugoNewLinePlaceholder)
+	whitespaceRe         = regexp.MustCompile(`\s+`)
+)
+
+// StripHTML strips out all HTML tags in s.
+func StripHTML(s string) string {
+	// Shortcut strings with no tags in them
+	if !strings.ContainsAny(s, "<>") {
+		return s
+	}
+
+	pre := stripHTMLReplacerPre.Replace(s)
+	preReplaced := pre != s
+
+	s = htmltemplate.StripTags(pre)
+
+	if preReplaced {
+		s = strings.ReplaceAll(s, hugoNewLinePlaceholder, "\n")
+	}
+
+	var wasSpace bool
+	b := bp.GetBuffer()
+	defer bp.PutBuffer(b)
+	for _, r := range s {
+		isSpace := unicode.IsSpace(r)
+		if !(isSpace && wasSpace) {
+			b.WriteRune(r)
+		}
+		wasSpace = isSpace
+	}
+
+	if b.Len() > 0 {
+		s = b.String()
+	}
+
+	return s
 }

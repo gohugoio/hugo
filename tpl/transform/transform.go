@@ -22,6 +22,7 @@ import (
 	"github.com/gohugoio/hugo/cache/namedmemcache"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/highlight"
+	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -141,7 +142,7 @@ func (ns *Namespace) Plainify(s any) (string, error) {
 		return "", err
 	}
 
-	return helpers.StripHTML(ss), nil
+	return tpl.StripHTML(ss), nil
 }
 
 // For internal use.
