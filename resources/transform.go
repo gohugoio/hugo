@@ -297,7 +297,11 @@ func (r *resourceAdapter) DecodeImage() (image.Image, error) {
 func (r *resourceAdapter) getImageOps() images.ImageResourceOps {
 	img, ok := r.target.(images.ImageResourceOps)
 	if !ok {
-		panic(fmt.Sprintf("%T is not an image", r.target))
+		if r.MediaType().SubType == "svg" {
+			panic("this method is only available for raster images. To determine if an image is SVG, you can do {{ if eq .MediaType.SubType \"svg\" }}{{ end }}")
+		}
+		fmt.Println(r.MediaType().SubType)
+		panic("this method is only available for image resources")
 	}
 	r.init(false, false)
 	return img

@@ -17,11 +17,13 @@ import (
 	"strings"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugolib"
 )
 
 // Issue 8931
 func TestImageCache(t *testing.T) {
+	t.Parallel()
 
 	files := `
 -- config.toml --
@@ -65,5 +67,30 @@ bmp: {{ $bmp.RelPermalink }}|{{ $bmp.MediaType }}|
 	b.Build()
 
 	assertImages()
+
+}
+
+func TestSVGError(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+-- assets/circle.svg --
+<svg height="100" width="100"><circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="red" /></svg> 
+-- layouts/index.html --
+{{ $svg := resources.Get "circle.svg" }}
+Width: {{ $svg.Width }}	
+`
+
+	b, err := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   true,
+			Running:     true,
+		}).BuildE()
+
+	b.Assert(err, qt.IsNotNil)
+	b.Assert(err.Error(), qt.Contains, `error calling Width: this method is only available for raster images. To determine if an image is SVG, you can do {{ if eq .MediaType.SubType "svg" }}{{ end }}`)
 
 }
