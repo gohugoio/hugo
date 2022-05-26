@@ -18,7 +18,7 @@ import (
 	"html"
 	"html/template"
 
-	"github.com/alecthomas/chroma/lexers"
+	"github.com/alecthomas/chroma/v2/lexers"
 	"github.com/gohugoio/hugo/cache/namedmemcache"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/highlight"

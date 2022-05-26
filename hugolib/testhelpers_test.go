@@ -853,7 +853,7 @@ func (th testHelper) assertFileContentRegexp(filename string, matches ...string)
 		r := regexp.MustCompile(match)
 		matches := r.MatchString(content)
 		if !matches {
-			fmt.Println(match+":\n", content)
+			fmt.Println("Expected to match regexp:\n"+match+"\nGot:\n", content)
 		}
 		th.Assert(matches, qt.Equals, true)
 	}
