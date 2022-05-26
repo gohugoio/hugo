@@ -36,7 +36,7 @@ import (
 
 	"github.com/gohugoio/hugo/markup/converter"
 
-	"github.com/alecthomas/chroma/lexers"
+	"github.com/alecthomas/chroma/v2/lexers"
 	"github.com/gohugoio/hugo/lazy"
 
 	bp "github.com/gohugoio/hugo/bufferpool"

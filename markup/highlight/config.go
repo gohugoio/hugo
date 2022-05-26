@@ -19,7 +19,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/alecthomas/chroma/formatters/html"
+	"github.com/alecthomas/chroma/v2/formatters/html"
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/config"
