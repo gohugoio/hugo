@@ -33,6 +33,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/tpl"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/types"
 
@@ -199,6 +200,7 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"forceSyncStatic",
 		"noTimes",
 		"noChmod",
+		"noBuildLock",
 		"ignoreVendorPaths",
 		"templateMetrics",
 		"templateMetricsHints",
@@ -735,13 +737,16 @@ func (c *commandeer) buildSites(noBuildLock bool) (err error) {
 
 func (c *commandeer) handleBuildErr(err error, msg string) {
 	c.buildErr = err
-
-	c.logger.Errorln(msg + ":\n")
-	c.logger.Errorln(helpers.FirstUpper(err.Error()))
-
+	c.logger.Errorln(msg + ": " + cleanErrorLog(err.Error()))
 }
 
 func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
+	if c.buildErr != nil {
+		ferrs := herrors.UnwrapFileErrorsWithErrorContext(c.buildErr)
+		for _, err := range ferrs {
+			events = append(events, fsnotify.Event{Name: err.Position().Filename, Op: fsnotify.Write})
+		}
+	}
 	c.buildErr = nil
 	visited := c.visitedURLs.PeekAllSet()
 	if c.fastRenderMode {
@@ -856,8 +861,13 @@ func (c *commandeer) newWatcher(pollIntervalStr string, dirList ...string) (*wat
 		return nil, err
 	}
 
+	spec := c.hugo().Deps.SourceSpec
+
 	for _, d := range dirList {
 		if d != "" {
+			if spec.IgnoreFile(d) {
+				continue
+			}
 			_ = watcher.Add(d)
 		}
 	}

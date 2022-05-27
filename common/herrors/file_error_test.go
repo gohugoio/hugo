@@ -30,7 +30,7 @@ func TestNewFileError(t *testing.T) {
 
 	c := qt.New(t)
 
-	fe := NewFileError("foo.html", errors.New("bar"))
+	fe := NewFileErrorFromName(errors.New("bar"), "foo.html")
 	c.Assert(fe.Error(), qt.Equals, `"foo.html:1:1": bar`)
 
 	lines := ""
@@ -41,7 +41,7 @@ func TestNewFileError(t *testing.T) {
 	fe.UpdatePosition(text.Position{LineNumber: 32, ColumnNumber: 2})
 	c.Assert(fe.Error(), qt.Equals, `"foo.html:32:2": bar`)
 	fe.UpdatePosition(text.Position{LineNumber: 0, ColumnNumber: 0, Offset: 212})
-	fe.UpdateContent(strings.NewReader(lines), SimpleLineMatcher)
+	fe.UpdateContent(strings.NewReader(lines), nil)
 	c.Assert(fe.Error(), qt.Equals, `"foo.html:32:0": bar`)
 	errorContext := fe.ErrorContext()
 	c.Assert(errorContext, qt.IsNotNil)
@@ -70,7 +70,7 @@ func TestNewFileErrorExtractFromMessage(t *testing.T) {
 		{errors.New(`execute of template failed: template: index.html:2:5: executing "index.html" at <partial "foo.html" .>: error calling partial: "/layouts/partials/foo.html:3:6": execute of template failed: template: partials/foo.html:3:6: executing "partials/foo.html" at <.ThisDoesNotExist>: can't evaluate field ThisDoesNotExist in type *hugolib.pageStat`), 0, 2, 5},
 	} {
 
-		got := NewFileError("test.txt", test.in)
+		got := NewFileErrorFromName(test.in, "test.txt")
 
 		errMsg := qt.Commentf("[%d][%T]", i, got)
 

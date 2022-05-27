@@ -42,6 +42,7 @@ import (
 
 var (
 	_ resource.ContentResource        = (*resourceAdapter)(nil)
+	_ resourceCopier                  = (*resourceAdapter)(nil)
 	_ resource.ReadSeekCloserResource = (*resourceAdapter)(nil)
 	_ resource.Resource               = (*resourceAdapter)(nil)
 	_ resource.Source                 = (*resourceAdapter)(nil)
@@ -175,6 +176,19 @@ func (r *resourceAdapter) Data() any {
 	return r.target.Data()
 }
 
+func (r resourceAdapter) cloneTo(targetPath string) resource.Resource {
+	newtTarget := r.target.cloneTo(targetPath)
+	newInner := &resourceAdapterInner{
+		spec:   r.spec,
+		target: newtTarget.(transformableResource),
+	}
+	if r.resourceAdapterInner.publishOnce != nil {
+		newInner.publishOnce = &publishOnce{}
+	}
+	r.resourceAdapterInner = newInner
+	return &r
+}
+
 func (r *resourceAdapter) Crop(spec string) (images.ImageResource, error) {
 	return r.getImageOps().Crop(spec)
 }
@@ -283,7 +297,11 @@ func (r *resourceAdapter) DecodeImage() (image.Image, error) {
 func (r *resourceAdapter) getImageOps() images.ImageResourceOps {
 	img, ok := r.target.(images.ImageResourceOps)
 	if !ok {
-		panic(fmt.Sprintf("%T is not an image", r.target))
+		if r.MediaType().SubType == "svg" {
+			panic("this method is only available for raster images. To determine if an image is SVG, you can do {{ if eq .MediaType.SubType \"svg\" }}{{ end }}")
+		}
+		fmt.Println(r.MediaType().SubType)
+		panic("this method is only available for image resources")
 	}
 	r.init(false, false)
 	return img
@@ -596,6 +614,7 @@ type transformableResource interface {
 	resource.ContentProvider
 	resource.Resource
 	resource.Identifier
+	resourceCopier
 }
 
 type transformationUpdate struct {

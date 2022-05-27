@@ -76,18 +76,24 @@ type BaseFs struct {
 	theBigFs *filesystemsCollector
 
 	// Locks.
-	buildMu      *lockedfile.Mutex // <project>/.hugo_build.lock
-	buildMuTests sync.Mutex        // Used in tests.
+	buildMu Lockable // <project>/.hugo_build.lock
+}
+
+type Lockable interface {
+	Lock() (unlock func(), err error)
+}
+
+type fakeLockfileMutex struct {
+	mu sync.Mutex
+}
+
+func (f *fakeLockfileMutex) Lock() (func(), error) {
+	f.mu.Lock()
+	return func() { f.mu.Unlock() }, nil
 }
 
 // Tries to acquire a build lock.
 func (fs *BaseFs) LockBuild() (unlock func(), err error) {
-	if htesting.IsTest {
-		fs.buildMuTests.Lock()
-		return func() {
-			fs.buildMuTests.Unlock()
-		}, nil
-	}
 	return fs.buildMu.Lock()
 }
 
@@ -445,12 +451,19 @@ func NewBase(p *paths.Paths, logger loggers.Logger, options ...func(*BaseFs) err
 	sourceFs := hugofs.NewBaseFileDecorator(afero.NewBasePathFs(fs.Source, p.WorkingDir))
 	publishFsStatic := fs.PublishDirStatic
 
+	var buildMu Lockable
+	if p.Cfg.GetBool("noBuildLock") || htesting.IsTest {
+		buildMu = &fakeLockfileMutex{}
+	} else {
+		buildMu = lockedfile.MutexAt(filepath.Join(p.WorkingDir, lockFileBuild))
+	}
+
 	b := &BaseFs{
 		SourceFs:        sourceFs,
 		WorkDir:         fs.WorkingDirReadOnly,
 		PublishFs:       publishFs,
 		PublishFsStatic: publishFsStatic,
-		buildMu:         lockedfile.MutexAt(filepath.Join(p.WorkingDir, lockFileBuild)),
+		buildMu:         buildMu,
 	}
 
 	for _, opt := range options {

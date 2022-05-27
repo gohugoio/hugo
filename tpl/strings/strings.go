@@ -25,6 +25,7 @@ import (
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/spf13/cast"
 )
@@ -52,7 +53,7 @@ func (ns *Namespace) CountRunes(s any) (int, error) {
 	}
 
 	counter := 0
-	for _, r := range helpers.StripHTML(ss) {
+	for _, r := range tpl.StripHTML(ss) {
 		if !helpers.IsWhitespace(r) {
 			counter++
 		}
@@ -83,11 +84,11 @@ func (ns *Namespace) CountWords(s any) (int, error) {
 	}
 
 	if !isCJKLanguage {
-		return len(strings.Fields(helpers.StripHTML((ss)))), nil
+		return len(strings.Fields(tpl.StripHTML(ss))), nil
 	}
 
 	counter := 0
-	for _, word := range strings.Fields(helpers.StripHTML(ss)) {
+	for _, word := range strings.Fields(tpl.StripHTML(ss)) {
 		runeCount := utf8.RuneCountInString(word)
 		if len(word) == runeCount {
 			counter++

@@ -60,6 +60,7 @@ func TestShouldImport(t *testing.T) {
 		{input: `@import 'navigation.css';`, expect: true},
 		{input: `@import url("navigation.css");`, expect: false},
 		{input: `@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,400i,800,800i&display=swap');`, expect: false},
+		{input: `@import "printstyle.css" print;`, expect: false},
 	} {
 		c.Assert(imp.shouldImport(test.input), qt.Equals, test.expect)
 	}
@@ -88,12 +89,12 @@ A_STYLE2
 @import "b.css";
 LOCAL_STYLE
 @import "c.css";
-@import "e.css";
-@import "missing.css";`)
+@import "e.css";`)
 
 	imp := newImportResolver(
 		mainStyles,
 		"styles.css",
+		Options{},
 		fs, loggers.NewErrorLogger(),
 	)
 
@@ -108,8 +109,7 @@ C_STYLE
 A_STYLE1
 A_STYLE2
 LOCAL_STYLE
-E_STYLE
-@import "missing.css";`)
+E_STYLE`)
 
 	dline := imp.linemap[3]
 	c.Assert(dline, qt.DeepEquals, fileOffset{
@@ -151,6 +151,7 @@ LOCAL_STYLE
 		imp := newImportResolver(
 			strings.NewReader(mainStyles),
 			"styles.css",
+			Options{},
 			fs, logger,
 		)
 

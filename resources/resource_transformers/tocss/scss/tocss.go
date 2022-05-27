@@ -20,10 +20,13 @@ import (
 	"fmt"
 	"io"
 	"path"
+
 	"path/filepath"
 	"strings"
 
 	"github.com/bep/golibsass/libsass"
+	"github.com/bep/golibsass/libsass/libsasserrors"
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/media"
@@ -136,7 +139,14 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 
 	res, err := t.c.toCSS(options.to, ctx.To, ctx.From)
 	if err != nil {
-		return err
+		if sasserr, ok := err.(libsasserrors.Error); ok {
+			if sasserr.File == "stdin" && ctx.SourcePath != "" {
+				sasserr.File = t.c.sfs.RealFilename(ctx.SourcePath)
+				err = sasserr
+			}
+		}
+		return herrors.NewFileErrorFromFileInErr(err, hugofs.Os, nil)
+
 	}
 
 	if options.from.EnableSourceMap && res.SourceMapContent != "" {
@@ -180,7 +190,7 @@ func (c *Client) toCSS(options libsass.Options, dst io.Writer, src io.Reader) (l
 
 	res, err = transpiler.Execute(in)
 	if err != nil {
-		return res, fmt.Errorf("SCSS processing failed: %w", err)
+		return res, err
 	}
 
 	out := res.CSS

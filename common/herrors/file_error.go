@@ -19,6 +19,8 @@ import (
 	"io"
 	"path/filepath"
 
+	"github.com/bep/godartsass"
+	"github.com/bep/golibsass/libsass/libsasserrors"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/pelletier/go-toml/v2"
@@ -73,37 +75,40 @@ func (fe *fileError) UpdateContent(r io.Reader, linematcher LineMatcherFn) FileE
 	}
 
 	var (
-		contentPos   text.Position
-		posle        = fe.position
-		errorContext *ErrorContext
+		posle = fe.position
+		ectx  *ErrorContext
 	)
 
 	if posle.LineNumber <= 1 && posle.Offset > 0 {
 		// Try to locate the line number from the content if offset is set.
-		errorContext, contentPos = locateError(r, fe, func(m LineMatcher) bool {
+		ectx = locateError(r, fe, func(m LineMatcher) int {
 			if posle.Offset >= m.Offset && posle.Offset < m.Offset+len(m.Line) {
 				lno := posle.LineNumber - m.Position.LineNumber + m.LineNumber
 				m.Position = text.Position{LineNumber: lno}
 				return linematcher(m)
 			}
-			return false
+			return -1
 		})
 	} else {
-		errorContext, contentPos = locateError(r, fe, linematcher)
+		ectx = locateError(r, fe, linematcher)
 	}
 
-	if errorContext.ChromaLexer == "" {
+	if ectx.ChromaLexer == "" {
 		if fe.fileType != "" {
-			errorContext.ChromaLexer = chromaLexerFromType(fe.fileType)
+			ectx.ChromaLexer = chromaLexerFromType(fe.fileType)
 		} else {
-			errorContext.ChromaLexer = chromaLexerFromFilename(fe.Position().Filename)
+			ectx.ChromaLexer = chromaLexerFromFilename(fe.Position().Filename)
 		}
 	}
 
-	fe.errorContext = errorContext
+	fe.errorContext = ectx
 
-	if contentPos.LineNumber > 0 {
-		fe.position.LineNumber = contentPos.LineNumber
+	if ectx.Position.LineNumber > 0 {
+		fe.position.LineNumber = ectx.Position.LineNumber
+	}
+
+	if ectx.Position.ColumnNumber > 0 {
+		fe.position.ColumnNumber = ectx.Position.ColumnNumber
 	}
 
 	return fe
@@ -119,10 +124,6 @@ type fileError struct {
 	cause error
 }
 
-type fileErrorWithErrorContext struct {
-	*fileError
-}
-
 func (e *fileError) ErrorContext() *ErrorContext {
 	return e.errorContext
 }
@@ -133,7 +134,22 @@ func (e fileError) Position() text.Position {
 }
 
 func (e *fileError) Error() string {
-	return fmt.Sprintf("%s: %s", e.position, e.cause)
+	return fmt.Sprintf("%s: %s", e.position, e.causeString())
+}
+
+func (e *fileError) causeString() string {
+	if e.cause == nil {
+		return ""
+	}
+	switch v := e.cause.(type) {
+	// Avoid repeating the file info in the error message.
+	case godartsass.SassError:
+		return v.Message
+	case libsasserrors.Error:
+		return v.Message
+	default:
+		return v.Error()
+	}
 }
 
 func (e *fileError) Unwrap() error {
@@ -141,13 +157,17 @@ func (e *fileError) Unwrap() error {
 }
 
 // NewFileError creates a new FileError that wraps err.
+// It will try to extract the filename and line number from err.
+func NewFileError(err error) FileError {
+	// Filetype is used to determine the Chroma lexer to use.
+	fileType, pos := extractFileTypePos(err)
+	return &fileError{cause: err, fileType: fileType, position: pos}
+}
+
+// NewFileErrorFromName creates a new FileError that wraps err.
 // The value for name should identify the file, the best
 // being the full filename to the file on disk.
-func NewFileError(name string, err error) FileError {
-	if err == nil {
-		panic("err is nil")
-	}
-
+func NewFileErrorFromName(err error, name string) FileError {
 	// Filetype is used to determine the Chroma lexer to use.
 	fileType, pos := extractFileTypePos(err)
 	pos.Filename = name
@@ -155,28 +175,84 @@ func NewFileError(name string, err error) FileError {
 		_, fileType = paths.FileAndExtNoDelimiter(filepath.Clean(name))
 	}
 
-	if pos.LineNumber < 0 {
-		panic(fmt.Sprintf("invalid line number: %d", pos.LineNumber))
-	}
-
 	return &fileError{cause: err, fileType: fileType, position: pos}
 
 }
 
-// NewFileErrorFromFile is a convenience method to create a new FileError from a file.
-func NewFileErrorFromFile(err error, filename, realFilename string, fs afero.Fs, linematcher LineMatcherFn) FileError {
+// NewFileErrorFromPos will use the filename and line number from pos to create a new FileError, wrapping err.
+func NewFileErrorFromPos(err error, pos text.Position) FileError {
+	// Filetype is used to determine the Chroma lexer to use.
+	fileType, _ := extractFileTypePos(err)
+	if fileType == "" {
+		_, fileType = paths.FileAndExtNoDelimiter(filepath.Clean(pos.Filename))
+	}
+	return &fileError{cause: err, fileType: fileType, position: pos}
+
+}
+
+func NewFileErrorFromFileInErr(err error, fs afero.Fs, linematcher LineMatcherFn) FileError {
+	fe := NewFileError(err)
+	pos := fe.Position()
+	if pos.Filename == "" {
+		return fe
+	}
+
+	f, realFilename, err2 := openFile(pos.Filename, fs)
+	if err2 != nil {
+		return fe
+	}
+
+	pos.Filename = realFilename
+	defer f.Close()
+	return fe.UpdateContent(f, linematcher)
+}
+
+func NewFileErrorFromFileInPos(err error, pos text.Position, fs afero.Fs, linematcher LineMatcherFn) FileError {
 	if err == nil {
 		panic("err is nil")
 	}
-	if linematcher == nil {
-		linematcher = SimpleLineMatcher
-	}
-	f, err2 := fs.Open(filename)
+	f, realFilename, err2 := openFile(pos.Filename, fs)
 	if err2 != nil {
-		return NewFileError(realFilename, err)
+		return NewFileErrorFromPos(err, pos)
+	}
+	pos.Filename = realFilename
+	defer f.Close()
+	return NewFileErrorFromPos(err, pos).UpdateContent(f, linematcher)
+}
+
+// NewFileErrorFromFile is a convenience method to create a new FileError from a file.
+func NewFileErrorFromFile(err error, filename string, fs afero.Fs, linematcher LineMatcherFn) FileError {
+	if err == nil {
+		panic("err is nil")
+	}
+	f, realFilename, err2 := openFile(filename, fs)
+	if err2 != nil {
+		return NewFileErrorFromName(err, realFilename)
 	}
 	defer f.Close()
-	return NewFileError(realFilename, err).UpdateContent(f, linematcher)
+	return NewFileErrorFromName(err, realFilename).UpdateContent(f, linematcher)
+}
+
+func openFile(filename string, fs afero.Fs) (afero.File, string, error) {
+	realFilename := filename
+
+	// We want the most specific filename possible in the error message.
+	fi, err2 := fs.Stat(filename)
+	if err2 == nil {
+		if s, ok := fi.(interface {
+			Filename() string
+		}); ok {
+			realFilename = s.Filename()
+		}
+
+	}
+
+	f, err2 := fs.Open(filename)
+	if err2 != nil {
+		return nil, realFilename, err2
+	}
+
+	return f, realFilename, nil
 }
 
 // Cause returns the underlying error or itself if it does not implement Unwrap.
@@ -189,9 +265,16 @@ func Cause(err error) error {
 
 func extractFileTypePos(err error) (string, text.Position) {
 	err = Cause(err)
+
 	var fileType string
 
-	// Fall back to line/col 1:1 if we cannot find any better information.
+	// LibSass, DartSass
+	if pos := extractPosition(err); pos.LineNumber > 0 || pos.Offset > 0 {
+		_, fileType = paths.FileAndExtNoDelimiter(pos.Filename)
+		return fileType, pos
+	}
+
+	// Default to line 1 col 1 if we don't find any better.
 	pos := text.Position{
 		Offset:       -1,
 		LineNumber:   1,
@@ -225,6 +308,10 @@ func extractFileTypePos(err error) (string, text.Position) {
 		}
 	}
 
+	if fileType == "" && pos.Filename != "" {
+		_, fileType = paths.FileAndExtNoDelimiter(pos.Filename)
+	}
+
 	return fileType, pos
 }
 
@@ -240,6 +327,18 @@ func UnwrapFileError(err error) FileError {
 		}
 	}
 	return nil
+}
+
+// UnwrapFileErrors tries to unwrap all FileError.
+func UnwrapFileErrors(err error) []FileError {
+	var errs []FileError
+	for err != nil {
+		if v, ok := err.(FileError); ok {
+			errs = append(errs, v)
+		}
+		err = errors.Unwrap(err)
+	}
+	return errs
 }
 
 // UnwrapFileErrorsWithErrorContext tries to unwrap all FileError in err that has an ErrorContext.
@@ -275,4 +374,21 @@ func exctractLineNumberAndColumnNumber(e error) (int, int) {
 	}
 
 	return -1, -1
+}
+
+func extractPosition(e error) (pos text.Position) {
+	switch v := e.(type) {
+	case godartsass.SassError:
+		span := v.Span
+		start := span.Start
+		filename, _ := paths.UrlToFilename(span.Url)
+		pos.Filename = filename
+		pos.Offset = start.Offset
+		pos.ColumnNumber = start.Column
+	case libsasserrors.Error:
+		pos.Filename = v.File
+		pos.LineNumber = v.Line
+		pos.ColumnNumber = v.Column
+	}
+	return
 }

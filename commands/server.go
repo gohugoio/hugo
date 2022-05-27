@@ -35,6 +35,8 @@ import (
 
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/hugolib"
+	"github.com/gohugoio/hugo/tpl"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/gohugoio/hugo/livereload"
@@ -164,6 +166,14 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 		}
 		if sc.serverWatch {
 			c.Set("watch", true)
+		}
+
+		// TODO(bep) see issue 9901
+		// cfgInit is called twice, before and after the languages have been initialized.
+		// The servers (below) can not be initialized before we
+		// know if we're configured in a multihost setup.
+		if len(c.languages) == 0 {
+			return nil
 		}
 
 		// We can only do this once.
@@ -469,14 +479,27 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 	return mu, listener, u.String(), endpoint, nil
 }
 
-var logErrorRe = regexp.MustCompile(`(?s)ERROR \d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2} `)
+var (
+	logErrorRe                    = regexp.MustCompile(`(?s)ERROR \d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2} `)
+	logDuplicateTemplateExecuteRe = regexp.MustCompile(`: template: .*?:\d+:\d+: executing ".*?"`)
+	logDuplicateTemplateParseRe   = regexp.MustCompile(`: template: .*?:\d+:\d*`)
+)
 
 func removeErrorPrefixFromLog(content string) string {
 	return logErrorRe.ReplaceAllLiteralString(content, "")
 }
+
+var logReplacer = strings.NewReplacer(
+	"can't", "can’t", // Chroma lexer does'nt do well with "can't"
+	"*hugolib.pageState", "page.Page", // Page is the public interface.
+	"Rebuild failed:", "",
+)
+
 func cleanErrorLog(content string) string {
-	content = strings.ReplaceAll(content, "Rebuild failed:\n", "")
-	content = strings.ReplaceAll(content, "\n", "")
+	content = strings.ReplaceAll(content, "\n", " ")
+	content = logReplacer.Replace(content)
+	content = logDuplicateTemplateExecuteRe.ReplaceAllString(content, "")
+	content = logDuplicateTemplateParseRe.ReplaceAllString(content, "")
 	seen := make(map[string]bool)
 	parts := strings.Split(content, ": ")
 	keep := make([]string, 0, len(parts))
@@ -509,18 +532,37 @@ func (c *commandeer) serve(s *serverCmd) error {
 		roots = []string{""}
 	}
 
+	// Cache it here. The HugoSites object may be unavaialble later on due to intermitent configuration errors.
+	// To allow the en user to change the error template while the server is running, we use
+	// the freshest template we can provide.
+	var (
+		errTempl     tpl.Template
+		templHandler tpl.TemplateHandler
+	)
+	getErrorTemplateAndHandler := func(h *hugolib.HugoSites) (tpl.Template, tpl.TemplateHandler) {
+		if h == nil {
+			return errTempl, templHandler
+		}
+		templHandler := h.Tmpl()
+		errTempl, found := templHandler.Lookup("_server/error.html")
+		if !found {
+			panic("template server/error.html not found")
+		}
+		return errTempl, templHandler
+	}
+	errTempl, templHandler = getErrorTemplateAndHandler(c.hugo())
+
 	srv := &fileServer{
 		baseURLs: baseURLs,
 		roots:    roots,
 		c:        c,
 		s:        s,
 		errorTemplate: func(ctx any) (io.Reader, error) {
-			templ, found := c.hugo().Tmpl().Lookup("server/error.html")
-			if !found {
-				panic("template server/error.html not found")
-			}
+			// hugoTry does not block, getErrorTemplateAndHandler will fall back
+			// to cached values if nil.
+			templ, handler := getErrorTemplateAndHandler(c.hugoTry())
 			b := &bytes.Buffer{}
-			err := c.hugo().Tmpl().Execute(templ, b, ctx)
+			err := handler.Execute(templ, b, ctx)
 			return b, err
 		},
 	}
@@ -566,16 +608,37 @@ func (c *commandeer) serve(s *serverCmd) error {
 
 	jww.FEEDBACK.Println("Press Ctrl+C to stop")
 
-	if s.stop != nil {
-		select {
-		case <-sigs:
-		case <-s.stop:
+	err := func() error {
+		if s.stop != nil {
+			for {
+				select {
+				case <-sigs:
+					return nil
+				case <-s.stop:
+					return nil
+				case <-ctx.Done():
+					return ctx.Err()
+				}
+			}
+		} else {
+			for {
+				select {
+				case <-sigs:
+					return nil
+				case <-ctx.Done():
+					return ctx.Err()
+				}
+			}
 		}
-	} else {
-		<-sigs
+	}()
+
+	if err != nil {
+		jww.ERROR.Println("Error:", err)
 	}
 
-	c.hugo().Close()
+	if h := c.hugoTry(); h != nil {
+		h.Close()
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

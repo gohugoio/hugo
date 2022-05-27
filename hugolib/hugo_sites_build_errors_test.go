@@ -347,12 +347,20 @@ minify = true
 
 }
 
-func TestErrorNested(t *testing.T) {
+func TestErrorNestedRender(t *testing.T) {
 	t.Parallel()
 
 	files := `
 -- config.toml --
+-- content/_index.md --
+---
+title: "Home"
+---
 -- layouts/index.html --
+line 1
+line 2
+1{{ .Render "myview" }}
+-- layouts/_default/myview.html --
 line 1
 12{{ partial "foo.html" . }}
 line 4
@@ -373,15 +381,237 @@ line 4
 
 	b.Assert(err, qt.IsNotNil)
 	errors := herrors.UnwrapFileErrorsWithErrorContext(err)
+	b.Assert(errors, qt.HasLen, 4)
+	b.Assert(errors[0].Position().LineNumber, qt.Equals, 3)
+	b.Assert(errors[0].Position().ColumnNumber, qt.Equals, 4)
+	b.Assert(errors[0].Error(), qt.Contains, filepath.FromSlash(`"/layouts/index.html:3:4": execute of template failed`))
+	b.Assert(errors[0].ErrorContext().Lines, qt.DeepEquals, []string{"line 1", "line 2", "1{{ .Render \"myview\" }}"})
+	b.Assert(errors[2].Position().LineNumber, qt.Equals, 2)
+	b.Assert(errors[2].Position().ColumnNumber, qt.Equals, 5)
+	b.Assert(errors[2].ErrorContext().Lines, qt.DeepEquals, []string{"line 1", "12{{ partial \"foo.html\" . }}", "line 4", "line 5"})
+
+	b.Assert(errors[3].Position().LineNumber, qt.Equals, 3)
+	b.Assert(errors[3].Position().ColumnNumber, qt.Equals, 6)
+	b.Assert(errors[3].ErrorContext().Lines, qt.DeepEquals, []string{"line 1", "line 2", "123{{ .ThisDoesNotExist }}", "line 4"})
+
+}
+
+func TestErrorNestedShortocde(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+-- content/_index.md --
+---
+title: "Home"
+---
+
+## Hello
+{{< hello >}}
+
+-- layouts/index.html --
+line 1
+line 2
+{{ .Content }}
+line 5
+-- layouts/shortcodes/hello.html --
+line 1
+12{{ partial "foo.html" . }}
+line 4
+line 5
+-- layouts/partials/foo.html --
+line 1
+line 2
+123{{ .ThisDoesNotExist }}
+line 4
+`
+
+	b, err := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).BuildE()
+
+	b.Assert(err, qt.IsNotNil)
+	errors := herrors.UnwrapFileErrorsWithErrorContext(err)
+
+	b.Assert(errors, qt.HasLen, 3)
+
+	b.Assert(errors[0].Position().LineNumber, qt.Equals, 6)
+	b.Assert(errors[0].Position().ColumnNumber, qt.Equals, 1)
+	b.Assert(errors[0].ErrorContext().ChromaLexer, qt.Equals, "md")
+	b.Assert(errors[0].Error(), qt.Contains, filepath.FromSlash(`"/content/_index.md:6:1": failed to render shortcode "hello": failed to process shortcode: "/layouts/shortcodes/hello.html:2:5":`))
+	b.Assert(errors[0].ErrorContext().Lines, qt.DeepEquals, []string{"", "## Hello", "{{< hello >}}", ""})
+	b.Assert(errors[1].ErrorContext().Lines, qt.DeepEquals, []string{"line 1", "12{{ partial \"foo.html\" . }}", "line 4", "line 5"})
+	b.Assert(errors[2].ErrorContext().Lines, qt.DeepEquals, []string{"line 1", "line 2", "123{{ .ThisDoesNotExist }}", "line 4"})
+
+}
+
+func TestErrorRenderHookHeading(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+-- content/_index.md --
+---
+title: "Home"
+---
+
+## Hello
+
+-- layouts/index.html --
+line 1
+line 2
+{{ .Content }}
+line 5
+-- layouts/_default/_markup/render-heading.html --
+line 1
+12{{ .Levels }}
+line 4
+line 5
+`
+
+	b, err := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).BuildE()
+
+	b.Assert(err, qt.IsNotNil)
+	errors := herrors.UnwrapFileErrorsWithErrorContext(err)
+
 	b.Assert(errors, qt.HasLen, 2)
-	fmt.Println(errors[0])
-	b.Assert(errors[0].Position().LineNumber, qt.Equals, 2)
-	b.Assert(errors[0].Position().ColumnNumber, qt.Equals, 5)
-	b.Assert(errors[0].Error(), qt.Contains, filepath.FromSlash(`"/layouts/index.html:2:5": execute of template failed`))
-	b.Assert(errors[0].ErrorContext().Lines, qt.DeepEquals, []string{"line 1", "12{{ partial \"foo.html\" . }}", "line 4", "line 5"})
-	b.Assert(errors[1].Position().LineNumber, qt.Equals, 3)
-	b.Assert(errors[1].Position().ColumnNumber, qt.Equals, 6)
-	b.Assert(errors[1].ErrorContext().Lines, qt.DeepEquals, []string{"line 1", "line 2", "123{{ .ThisDoesNotExist }}", "line 4"})
+	b.Assert(errors[0].Error(), qt.Contains, filepath.FromSlash(`"/content/_index.md:1:1": "/layouts/_default/_markup/render-heading.html:2:5": execute of template failed`))
+
+}
+
+func TestErrorRenderHookCodeblock(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+-- content/_index.md --
+---
+title: "Home"
+---
+
+## Hello
+
+§§§ foo
+bar
+§§§
+
+
+-- layouts/index.html --
+line 1
+line 2
+{{ .Content }}
+line 5
+-- layouts/_default/_markup/render-codeblock-foo.html --
+line 1
+12{{ .Foo }}
+line 4
+line 5
+`
+
+	b, err := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).BuildE()
+
+	b.Assert(err, qt.IsNotNil)
+	errors := herrors.UnwrapFileErrorsWithErrorContext(err)
+
+	b.Assert(errors, qt.HasLen, 2)
+	first := errors[0]
+	b.Assert(first.Error(), qt.Contains, filepath.FromSlash(`"/content/_index.md:7:1": "/layouts/_default/_markup/render-codeblock-foo.html:2:5": execute of template failed`))
+
+}
+
+func TestErrorInBaseTemplate(t *testing.T) {
+	t.Parallel()
+
+	filesTemplate := `
+-- config.toml --
+-- content/_index.md --
+---
+title: "Home"
+---
+-- layouts/baseof.html --
+line 1 base
+line 2 base
+{{ block "main" . }}empty{{ end }}
+line 4 base
+{{ block "toc" . }}empty{{ end }}
+-- layouts/index.html --
+{{ define "main" }}
+line 2 index
+line 3 index
+line 4 index
+{{ end }}
+{{ define "toc" }}
+TOC: {{ partial "toc.html" . }}
+{{ end }}
+-- layouts/partials/toc.html --
+toc line 1
+toc line 2
+toc line 3
+toc line 4
+
+
+
+
+`
+
+	t.Run("base template", func(t *testing.T) {
+		files := strings.Replace(filesTemplate, "line 4 base", "123{{ .ThisDoesNotExist \"abc\" }}", 1)
+
+		b, err := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		).BuildE()
+
+		b.Assert(err, qt.IsNotNil)
+		b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`render of "home" failed: "/layouts/baseof.html:4:6"`))
+
+	})
+
+	t.Run("index template", func(t *testing.T) {
+		files := strings.Replace(filesTemplate, "line 3 index", "1234{{ .ThisDoesNotExist \"abc\" }}", 1)
+
+		b, err := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		).BuildE()
+
+		b.Assert(err, qt.IsNotNil)
+		b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`render of "home" failed: "/layouts/index.html:3:7"`))
+
+	})
+
+	t.Run("partial from define", func(t *testing.T) {
+		files := strings.Replace(filesTemplate, "toc line 2", "12345{{ .ThisDoesNotExist \"abc\" }}", 1)
+
+		b, err := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		).BuildE()
+
+		b.Assert(err, qt.IsNotNil)
+		b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`render of "home" failed: "/layouts/index.html:7:8": execute of template failed`))
+		b.Assert(err.Error(), qt.Contains, `execute of template failed: template: partials/toc.html:2:8: executing "partials/toc.html"`)
+
+	})
 
 }
 

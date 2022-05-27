@@ -281,6 +281,10 @@ func howSimilarStrings(a, b string) int {
 		}
 	}
 
+	if common == 0 && common == len(af) {
+		return 100
+	}
+
 	return int(math.Floor((float64(common) / float64(len(af)) * 100)))
 }
 

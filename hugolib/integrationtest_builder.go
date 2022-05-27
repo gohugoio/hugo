@@ -168,8 +168,9 @@ func (s *IntegrationTestBuilder) destinationExists(filename string) bool {
 	return b
 }
 
-func (s *IntegrationTestBuilder) AssertIsFileError(err error) {
+func (s *IntegrationTestBuilder) AssertIsFileError(err error) herrors.FileError {
 	s.Assert(err, qt.ErrorAs, new(herrors.FileError))
+	return herrors.UnwrapFileError(err)
 }
 
 func (s *IntegrationTestBuilder) AssertRenderCountContent(count int) {

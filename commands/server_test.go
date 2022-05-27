@@ -41,7 +41,7 @@ func TestServerPanicOnConfigError(t *testing.T) {
 linenos='table'
 `
 
-	r := runServerTest(c, false, config)
+	r := runServerTest(c, 0, config)
 
 	c.Assert(r.err, qt.IsNotNil)
 	c.Assert(r.err.Error(), qt.Contains, "cannot parse 'Highlight.LineNos' as bool:")
@@ -52,7 +52,7 @@ func TestServerFlags(t *testing.T) {
 
 	assertPublic := func(c *qt.C, r serverTestResult, renderStaticToDisk bool) {
 		c.Assert(r.err, qt.IsNil)
-		c.Assert(r.homeContent, qt.Contains, "Environment: development")
+		c.Assert(r.homesContent[0], qt.Contains, "Environment: development")
 		c.Assert(r.publicDirnames["myfile.txt"], qt.Equals, renderStaticToDisk)
 
 	}
@@ -81,7 +81,7 @@ baseURL="https://example.org"
 				args = strings.Split(test.flag, "=")
 			}
 
-			r := runServerTest(c, true, config, args...)
+			r := runServerTest(c, 1, config, args...)
 
 			test.assert(c, r)
 
@@ -95,30 +95,52 @@ func TestServerBugs(t *testing.T) {
 	c := qt.New(t)
 
 	for _, test := range []struct {
-		name   string
-		flag   string
-		assert func(c *qt.C, r serverTestResult)
+		name       string
+		config     string
+		flag       string
+		numservers int
+		assert     func(c *qt.C, r serverTestResult)
 	}{
 		// Issue 9788
-		{"PostProcess, memory", "", func(c *qt.C, r serverTestResult) {
+		{"PostProcess, memory", "", "", 1, func(c *qt.C, r serverTestResult) {
 			c.Assert(r.err, qt.IsNil)
-			c.Assert(r.homeContent, qt.Contains, "PostProcess: /foo.min.css")
+			c.Assert(r.homesContent[0], qt.Contains, "PostProcess: /foo.min.css")
 		}},
-		{"PostProcess, disk", "--renderToDisk", func(c *qt.C, r serverTestResult) {
+		{"PostProcess, disk", "", "--renderToDisk", 1, func(c *qt.C, r serverTestResult) {
 			c.Assert(r.err, qt.IsNil)
-			c.Assert(r.homeContent, qt.Contains, "PostProcess: /foo.min.css")
+			c.Assert(r.homesContent[0], qt.Contains, "PostProcess: /foo.min.css")
+		}},
+		// Isue 9901
+		{"Multihost", `
+defaultContentLanguage = 'en'
+[languages]
+[languages.en]
+baseURL = 'https://example.com'
+title = 'My blog'
+weight = 1
+[languages.fr]
+baseURL = 'https://example.fr'
+title = 'Mon blogue'
+weight = 2
+`, "", 2, func(c *qt.C, r serverTestResult) {
+			c.Assert(r.err, qt.IsNil)
+			for i, s := range []string{"My blog", "Mon blogue"} {
+				c.Assert(r.homesContent[i], qt.Contains, s)
+			}
 		}},
 	} {
 		c.Run(test.name, func(c *qt.C) {
-			config := `
+			if test.config == "" {
+				test.config = `
 baseURL="https://example.org"
 `
+			}
 
 			var args []string
 			if test.flag != "" {
 				args = strings.Split(test.flag, "=")
 			}
-			r := runServerTest(c, true, config, args...)
+			r := runServerTest(c, test.numservers, test.config, args...)
 			test.assert(c, r)
 
 		})
@@ -129,11 +151,11 @@ baseURL="https://example.org"
 
 type serverTestResult struct {
 	err            error
-	homeContent    string
+	homesContent   []string
 	publicDirnames map[string]bool
 }
 
-func runServerTest(c *qt.C, getHome bool, config string, args ...string) (result serverTestResult) {
+func runServerTest(c *qt.C, getNumHomes int, config string, args ...string) (result serverTestResult) {
 	dir := createSimpleTestSite(c, testSiteConfig{configTOML: config})
 
 	sp, err := helpers.FindAvailablePort()
@@ -162,16 +184,21 @@ func runServerTest(c *qt.C, getHome bool, config string, args ...string) (result
 		return err
 	})
 
-	if getHome {
+	if getNumHomes > 0 {
 		// Esp. on slow CI machines, we need to wait a little before the web
 		// server is ready.
 		time.Sleep(567 * time.Millisecond)
-		resp, err := http.Get(fmt.Sprintf("http://localhost:%d/", port))
-		c.Check(err, qt.IsNil)
-		c.Check(resp.StatusCode, qt.Equals, http.StatusOK)
-		if err == nil {
-			defer resp.Body.Close()
-			result.homeContent = helpers.ReaderToString(resp.Body)
+		result.homesContent = make([]string, getNumHomes)
+		for i := 0; i < getNumHomes; i++ {
+			func() {
+				resp, err := http.Get(fmt.Sprintf("http://localhost:%d/", port+i))
+				c.Check(err, qt.IsNil)
+				c.Check(resp.StatusCode, qt.Equals, http.StatusOK)
+				if err == nil {
+					defer resp.Body.Close()
+					result.homesContent[i] = helpers.ReaderToString(resp.Body)
+				}
+			}()
 		}
 	}
 
