@@ -48,7 +48,7 @@ func TestDecodeConfig(t *testing.T) {
 
 [module.hugoVersion]
 min = "0.54.2"
-max = "0.99.0"
+max = "0.199.0"
 extended = true
 
 [[module.mounts]]
