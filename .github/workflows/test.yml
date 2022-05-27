@@ -75,7 +75,8 @@ jobs:
     - name: Test
       run: |
         mage -v test
-        mage -v check;
+      env:
+        HUGO_BUILD_TAGS: extended
     - name: Build Docs
       env:
         HUGO_BUILD_TAGS: extended
