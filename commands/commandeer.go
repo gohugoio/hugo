@@ -369,12 +369,13 @@ func (c *commandeer) loadConfig() error {
 	c.configFiles = configFiles
 
 	var ok bool
+	loc := time.Local
 	c.languages, ok = c.Cfg.Get("languagesSorted").(langs.Languages)
-	if !ok {
-		panic("languages not configured")
+	if ok {
+		loc = langs.GetLocation(c.languages[0])
 	}
 
-	err = c.initClock(langs.GetLocation(c.languages[0]))
+	err = c.initClock(loc)
 	if err != nil {
 		return err
 	}
