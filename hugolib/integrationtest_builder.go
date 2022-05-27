@@ -41,13 +41,15 @@ func NewIntegrationTestBuilder(conf IntegrationTestConfig) *IntegrationTestBuild
 	}
 
 	if conf.NeedsOsFS {
-		tempDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-integration-test")
-		c.Assert(err, qt.IsNil)
-		conf.WorkingDir = filepath.Join(tempDir, conf.WorkingDir)
-		if !conf.PrintAndKeepTempDir {
-			c.Cleanup(clean)
-		} else {
-			fmt.Println("\nUsing WorkingDir dir:", conf.WorkingDir)
+		if !filepath.IsAbs(conf.WorkingDir) {
+			tempDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-integration-test")
+			c.Assert(err, qt.IsNil)
+			conf.WorkingDir = filepath.Join(tempDir, conf.WorkingDir)
+			if !conf.PrintAndKeepTempDir {
+				c.Cleanup(clean)
+			} else {
+				fmt.Println("\nUsing WorkingDir dir:", conf.WorkingDir)
+			}
 		}
 	} else if conf.WorkingDir == "" {
 		conf.WorkingDir = helpers.FilePathSeparator

@@ -20,6 +20,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/gohugoio/hugo/resources/internal"
@@ -267,7 +268,10 @@ func (l *genericResource) Data() any {
 }
 
 func (l *genericResource) Key() string {
-	return l.RelPermalink()
+	if l.spec.BasePath == "" {
+		return l.RelPermalink()
+	}
+	return strings.TrimPrefix(l.RelPermalink(), l.spec.BasePath)
 }
 
 func (l *genericResource) MediaType() media.Type {
