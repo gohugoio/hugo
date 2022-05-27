@@ -60,7 +60,7 @@ func New(rs *resources.Spec) *Client {
 	return &Client{rs: rs}
 }
 
-func DecodeOptions(m map[string]any) (opts Options, err error) {
+func decodeOptions(m map[string]any) (opts Options, err error) {
 	if m == nil {
 		return
 	}
@@ -82,8 +82,8 @@ type Client struct {
 }
 
 // Process transforms the given Resource with the PostCSS processor.
-func (c *Client) Process(res resources.ResourceTransformer, options Options) (resource.Resource, error) {
-	return res.Transform(&postcssTransformation{rs: c.rs, options: options})
+func (c *Client) Process(res resources.ResourceTransformer, options map[string]any) (resource.Resource, error) {
+	return res.Transform(&postcssTransformation{rs: c.rs, optionsm: options})
 }
 
 // Some of the options from https://github.com/postcss/postcss-cli
@@ -137,12 +137,12 @@ func (opts Options) toArgs() []string {
 }
 
 type postcssTransformation struct {
-	options Options
-	rs      *resources.Spec
+	optionsm map[string]any
+	rs       *resources.Spec
 }
 
 func (t *postcssTransformation) Key() internal.ResourceTransformationKey {
-	return internal.NewResourceTransformationKey("postcss", t.options)
+	return internal.NewResourceTransformationKey("postcss", t.optionsm)
 }
 
 // Transform shells out to postcss-cli to do the heavy lifting.
@@ -157,8 +157,17 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	var configFile string
 	logger := t.rs.Logger
 
-	if t.options.Config != "" {
-		configFile = t.options.Config
+	var options Options
+	if t.optionsm != nil {
+		var err error
+		options, err = decodeOptions(t.optionsm)
+		if err != nil {
+			return err
+		}
+	}
+
+	if options.Config != "" {
+		configFile = options.Config
 	} else {
 		configFile = "postcss.config.js"
 	}
@@ -168,9 +177,9 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	// We need an absolute filename to the config file.
 	if !filepath.IsAbs(configFile) {
 		configFile = t.rs.BaseFs.ResolveJSConfigFile(configFile)
-		if configFile == "" && t.options.Config != "" {
+		if configFile == "" && options.Config != "" {
 			// Only fail if the user specified config file is not found.
-			return fmt.Errorf("postcss config %q not found:", t.options.Config)
+			return fmt.Errorf("postcss config %q not found:", options.Config)
 		}
 	}
 
@@ -181,7 +190,7 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 		cmdArgs = []any{"--config", configFile}
 	}
 
-	if optArgs := t.options.toArgs(); len(optArgs) > 0 {
+	if optArgs := options.toArgs(); len(optArgs) > 0 {
 		cmdArgs = append(cmdArgs, collections.StringSliceToInterfaceSlice(optArgs)...)
 	}
 
@@ -212,11 +221,11 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	imp := newImportResolver(
 		ctx.From,
 		ctx.InPath,
-		t.options,
+		options,
 		t.rs.Assets.Fs, t.rs.Logger,
 	)
 
-	if t.options.InlineImports {
+	if options.InlineImports {
 		var err error
 		src, err = imp.resolve()
 		if err != nil {
