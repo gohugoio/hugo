@@ -257,7 +257,8 @@ var (
 	OpenTypeFontType = newMediaType("font", "otf", []string{"otf"})
 
 	// Common document types
-	PDFType = newMediaType("application", "pdf", []string{"pdf"})
+	PDFType      = newMediaType("application", "pdf", []string{"pdf"})
+	MarkdownType = newMediaType("text", "markdown", []string{"md", "markdown"})
 
 	// Common video types
 	AVIType  = newMediaType("video", "x-msvideo", []string{"avi"})
@@ -278,6 +279,7 @@ var DefaultTypes = Types{
 	SCSSType,
 	SASSType,
 	HTMLType,
+	MarkdownType,
 	JavascriptType,
 	TypeScriptType,
 	TSXType,

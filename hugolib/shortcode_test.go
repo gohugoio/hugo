@@ -909,3 +909,36 @@ outputs: ["html", "css", "csv", "json"]
 
 	}
 }
+
+// #9821
+func TestShortcodeMarkdownOutputFormat(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+-- content/p1.md --
+---
+title: "p1"
+---
+{{< foo >}}
+-- layouts/shortcodes/foo.md --
+§§§
+<x
+§§§
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			Running:     true,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", `
+<x
+	`)
+
+}
