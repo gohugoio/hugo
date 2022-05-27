@@ -133,6 +133,14 @@ var (
 		Weight: 10,
 	}
 
+	MarkdownFormat = Format{
+		Name:        "MARKDOWN",
+		MediaType:   media.MarkdownType,
+		BaseName:    "index",
+		Rel:         "alternate",
+		IsPlainText: true,
+	}
+
 	JSONFormat = Format{
 		Name:        "JSON",
 		MediaType:   media.JSONType,
@@ -183,6 +191,7 @@ var DefaultFormats = Formats{
 	CSVFormat,
 	HTMLFormat,
 	JSONFormat,
+	MarkdownFormat,
 	WebAppManifestFormat,
 	RobotsTxtFormat,
 	RSSFormat,
