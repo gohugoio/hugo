@@ -236,7 +236,7 @@ T1: {{ $r.Content }}
 			}).BuildE()
 
 		b.Assert(err, qt.IsNotNil)
-		b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`assets/scss/components/_foo.scss:2:1": expected ':' after $foocolor in assignment statement`))
+		b.Assert(err.Error(), qt.Contains, `assets/scss/components/_foo.scss:2:1": expected ':' after $foocolor in assignment statement`)
 		fe := b.AssertIsFileError(err)
 		b.Assert(fe.ErrorContext(), qt.IsNotNil)
 		b.Assert(fe.ErrorContext().Lines, qt.DeepEquals, []string{"/* comment line 1 */", "$foocolor #ccc;", "", "foo {"})

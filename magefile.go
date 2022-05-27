@@ -144,13 +144,6 @@ func Docker() error {
 
 // Run tests and linters
 func Check() {
-	if strings.Contains(runtime.Version(), "1.8") {
-		// Go 1.8 doesn't play along with go test ./... and /vendor.
-		// We could fix that, but that would take time.
-		fmt.Printf("Skip Check on %s\n", runtime.Version())
-		return
-	}
-
 	if runtime.GOARCH == "amd64" && runtime.GOOS != "darwin" {
 		mg.Deps(Test386)
 	} else {

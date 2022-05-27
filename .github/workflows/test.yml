@@ -72,10 +72,11 @@ jobs:
         echo "6ae442129dbb3334bc21ef851261da6c0c1b560da790ca2e1350871d00ab816d  sass_embedded-1.0.0-beta.6-windows-x64.zip" | sha256sum -c;
         unzip sass_embedded-1.0.0-beta.6-windows-x64.zip;
         echo  "$env:GITHUB_WORKSPACE/sass_embedded/" | Out-File -FilePath $Env:GITHUB_PATH -Encoding utf-8 -Append
-    - name: Test
+    - name: Check
       run: |
-        mage -v test
         mage -v check;
+      env:
+        HUGO_BUILD_TAGS: extended
     - name: Build Docs
       env:
         HUGO_BUILD_TAGS: extended
