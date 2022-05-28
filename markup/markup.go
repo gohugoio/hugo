@@ -25,7 +25,6 @@ import (
 	"github.com/gohugoio/hugo/markup/org"
 
 	"github.com/gohugoio/hugo/markup/asciidocext"
-	"github.com/gohugoio/hugo/markup/blackfriday"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/pandoc"
 	"github.com/gohugoio/hugo/markup/rst"
@@ -66,9 +65,6 @@ func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, erro
 	if err := add(goldmark.Provider); err != nil {
 		return nil, err
 	}
-	if err := add(blackfriday.Provider); err != nil {
-		return nil, err
-	}
 	if err := add(asciidocext.Provider, "ad", "adoc"); err != nil {
 		return nil, err
 	}
@@ -96,7 +92,7 @@ type ConverterProvider interface {
 }
 
 type converterRegistry struct {
-	// Maps name (md, markdown, blackfriday etc.) to a converter provider.
+	// Maps name (md, markdown, goldmark etc.) to a converter provider.
 	// Note that this is also used for aliasing, so the same converter
 	// may be registered multiple times.
 	// All names are lower case.

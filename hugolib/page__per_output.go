@@ -375,7 +375,7 @@ func (p *pageContentOutput) RenderString(args ...any) (template.HTML, error) {
 	if opts.Markup != "" && opts.Markup != p.p.m.markup {
 		var err error
 		// TODO(bep) consider cache
-		conv, err = p.p.m.newContentConverter(p.p, opts.Markup, nil)
+		conv, err = p.p.m.newContentConverter(p.p, opts.Markup)
 		if err != nil {
 			return "", p.p.wrapError(err)
 		}
