@@ -38,7 +38,7 @@ type pageContent struct {
 	source rawPageContent
 }
 
-// returns the content to be processed by Blackfriday or similar.
+// returns the content to be processed by Goldmark or similar.
 func (p pageContent) contentToRender(renderedShortcodes map[string]string) []byte {
 	source := p.source.parsed.Input()
 

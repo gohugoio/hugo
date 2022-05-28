@@ -174,7 +174,7 @@ type shortcode struct {
 	templs []tpl.Template // All output formats
 
 	// If set, the rendered shortcode is sent as part of the surrounding content
-	// to Blackfriday and similar.
+	// to Goldmark and similar.
 	// Before Hug0 0.55 we didn't send any shortcode output to the markup
 	// renderer, and this flag told Hugo to process the {{ .Inner }} content
 	// separately.
@@ -182,7 +182,7 @@ type shortcode struct {
 	//    {{ $_hugo_config := `{ "version": 1 }`}}
 	doMarkup bool
 
-	// the placeholder in the source when passed to Blackfriday etc.
+	// the placeholder in the source when passed to Goldmark etc.
 	// This also identifies the rendered shortcode.
 	placeholder string
 

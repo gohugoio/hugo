@@ -600,7 +600,7 @@ func (p *pageState) getContentConverter() converter.Converter {
 			// Only used for shortcode inner content.
 			markup = "markdown"
 		}
-		p.m.contentConverter, err = p.m.newContentConverter(p, markup, p.m.renderingConfigOverrides)
+		p.m.contentConverter, err = p.m.newContentConverter(p, markup)
 	})
 
 	if err != nil {
@@ -698,7 +698,7 @@ Loop:
 			p.source.hasSummaryDivider = true
 
 			if meta.markup != "html" {
-				// The content will be rendered by Blackfriday or similar,
+				// The content will be rendered by Goldmark or similar,
 				// and we need to track the summary.
 				rn.AddReplacement(internalSummaryDividerPre, it)
 			}

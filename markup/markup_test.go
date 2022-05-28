@@ -43,5 +43,4 @@ func TestConverterRegistry(t *testing.T) {
 	checkName("rst")
 	checkName("pandoc")
 	checkName("org")
-	checkName("blackfriday")
 }
