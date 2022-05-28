@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+
+	"github.com/yuin/goldmark/util"
 )
 
 type Item struct {
@@ -64,7 +66,11 @@ func (i Item) ValTyped() any {
 }
 
 func (i Item) IsText() bool {
-	return i.Type == tText
+	return i.Type == tText || i.Type == tIndentation
+}
+
+func (i Item) IsIndentation() bool {
+	return i.Type == tIndentation
 }
 
 func (i Item) IsNonWhitespace() bool {
@@ -125,6 +131,8 @@ func (i Item) String() string {
 		return "EOF"
 	case i.Type == tError:
 		return string(i.Val)
+	case i.Type == tIndentation:
+		return fmt.Sprintf("%s:[%s]", i.Type, util.VisualizeSpaces(i.Val))
 	case i.Type > tKeywordMarker:
 		return fmt.Sprintf("<%s>", i.Val)
 	case len(i.Val) > 50:
@@ -158,6 +166,8 @@ const (
 	tScNameInline
 	tScParam
 	tScParamVal
+
+	tIndentation
 
 	tText // plain text
 

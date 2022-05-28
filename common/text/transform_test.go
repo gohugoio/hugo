@@ -41,3 +41,21 @@ func TestPuts(t *testing.T) {
 	c.Assert(Puts("\nA\n"), qt.Equals, "\nA\n")
 	c.Assert(Puts(""), qt.Equals, "")
 }
+
+func TestVisitLinesAfter(t *testing.T) {
+	const lines = `line 1
+line 2
+
+line 3`
+
+	var collected []string
+
+	VisitLinesAfter(lines, func(s string) {
+		collected = append(collected, s)
+	})
+
+	c := qt.New(t)
+
+	c.Assert(collected, qt.DeepEquals, []string{"line 1\n", "line 2\n", "\n", "line 3"})
+
+}

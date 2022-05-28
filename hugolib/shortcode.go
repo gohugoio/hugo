@@ -170,6 +170,8 @@ type shortcode struct {
 	ordinal   int
 	err       error
 
+	indentation string // indentation from source.
+
 	info   tpl.Info       // One of the output formats (arbitrary)
 	templs []tpl.Template // All output formats
 
@@ -398,6 +400,22 @@ func renderShortcode(
 		return "", false, fe
 	}
 
+	if len(sc.inner) == 0 && len(sc.indentation) > 0 {
+		b := bp.GetBuffer()
+		i := 0
+		text.VisitLinesAfter(result, func(line string) {
+			// The first line is correctly indented.
+			if i > 0 {
+				b.WriteString(sc.indentation)
+			}
+			i++
+			b.WriteString(line)
+		})
+
+		result = b.String()
+		bp.PutBuffer(b)
+	}
+
 	return result, hasVariants, err
 }
 
@@ -446,6 +464,15 @@ func (s *shortcodeHandler) extractShortcode(ordinal, level int, pt *pageparser.I
 		panic("handler nil")
 	}
 	sc := &shortcode{ordinal: ordinal}
+
+	// Back up one to identify any indentation.
+	if pt.Pos() > 0 {
+		pt.Backup()
+		item := pt.Next()
+		if item.IsIndentation() {
+			sc.indentation = string(item.Val)
+		}
+	}
 
 	cnt := 0
 	nestedOrdinal := 0

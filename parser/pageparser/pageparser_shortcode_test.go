@@ -51,6 +51,9 @@ var shortCodeLexerTests = []lexerTest{
 
 	{"simple with markup", `{{% sc1 %}}`, []Item{tstLeftMD, tstSC1, tstRightMD, tstEOF}},
 	{"with spaces", `{{<     sc1     >}}`, []Item{tstLeftNoMD, tstSC1, tstRightNoMD, tstEOF}},
+	{"indented on new line", "Hello\n    {{% sc1 %}}", []Item{nti(tText, "Hello\n"), nti(tIndentation, "    "), tstLeftMD, tstSC1, tstRightMD, tstEOF}},
+	{"indented on new line tab", "Hello\n\t{{% sc1 %}}", []Item{nti(tText, "Hello\n"), nti(tIndentation, "\t"), tstLeftMD, tstSC1, tstRightMD, tstEOF}},
+	{"indented on first line", "    {{% sc1 %}}", []Item{nti(tIndentation, "    "), tstLeftMD, tstSC1, tstRightMD, tstEOF}},
 	{"mismatched rightDelim", `{{< sc1 %}}`, []Item{
 		tstLeftNoMD, tstSC1,
 		nti(tError, "unrecognized character in shortcode action: U+0025 '%'. Note: Parameters with non-alphanumeric args must be quoted"),

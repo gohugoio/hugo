@@ -149,6 +149,11 @@ func (t *Iterator) Backup() {
 	t.lastPos--
 }
 
+// Pos returns the current position in the input.
+func (t *Iterator) Pos() int {
+	return t.lastPos
+}
+
 // check for non-error and non-EOF types coming next
 func (t *Iterator) IsValueNext() bool {
 	i := t.Peek()

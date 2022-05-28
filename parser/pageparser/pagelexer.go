@@ -120,6 +120,7 @@ func (l *pageLexer) next() rune {
 	runeValue, runeWidth := utf8.DecodeRune(l.input[l.pos:])
 	l.width = runeWidth
 	l.pos += l.width
+
 	return runeValue
 }
 
@@ -137,8 +138,34 @@ func (l *pageLexer) backup() {
 
 // sends an item back to the client.
 func (l *pageLexer) emit(t ItemType) {
+	defer func() {
+		l.start = l.pos
+	}()
+
+	if t == tText {
+		// Identify any trailing whitespace/intendation.
+		// We currently only care about the last one.
+		for i := l.pos - 1; i >= l.start; i-- {
+			b := l.input[i]
+			if b != ' ' && b != '\t' && b != '\r' && b != '\n' {
+				break
+			}
+			if i == l.start && b != '\n' {
+				l.items = append(l.items, Item{tIndentation, l.start, l.input[l.start:l.pos], false})
+				return
+			} else if b == '\n' && i < l.pos-1 {
+				l.items = append(l.items, Item{t, l.start, l.input[l.start : i+1], false})
+				l.items = append(l.items, Item{tIndentation, i + 1, l.input[i+1 : l.pos], false})
+				return
+			} else if b == '\n' && i == l.pos-1 {
+				break
+			}
+
+		}
+	}
+
 	l.items = append(l.items, Item{t, l.start, l.input[l.start:l.pos], false})
-	l.start = l.pos
+
 }
 
 // sends a string item back to the client.

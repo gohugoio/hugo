@@ -942,3 +942,76 @@ title: "p1"
 	`)
 
 }
+
+func TestShortcodePreserveIndentation(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+-- content/p1.md --
+---
+title: "p1"
+---
+
+## List With Indented Shortcodes
+
+1. List 1
+    {{% mark1 %}}
+	1. Item Mark1 1
+	1. Item Mark1 2
+	{{% mark2 %}}
+	{{% /mark1 %}}
+-- layouts/shortcodes/mark1.md --
+{{ .Inner }}
+-- layouts/shortcodes/mark2.md --
+1. Item Mark2 1
+1. Item Mark2 2
+   1. Item Mark2 2-1
+1. Item Mark2 3
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			Running:     true,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", "<ol>\n<li>\n<p>List 1</p>\n<ol>\n<li>Item Mark1 1</li>\n<li>Item Mark1 2</li>\n<li>Item Mark2 1</li>\n<li>Item Mark2 2\n<ol>\n<li>Item Mark2 2-1</li>\n</ol>\n</li>\n<li>Item Mark2 3</li>\n</ol>\n</li>\n</ol>")
+
+}
+
+func TestShortcodeCodeblockIndent(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+-- content/p1.md --
+---
+title: "p1"
+---
+
+## Code block
+
+    {{% code %}}
+
+-- layouts/shortcodes/code.md --
+echo "foo";
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			Running:     true,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", "<pre><code>echo &quot;foo&quot;;\n</code></pre>")
+
+}
