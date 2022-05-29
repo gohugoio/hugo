@@ -297,6 +297,58 @@ func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 	}
 }
 
+func BenchmarkShortcodesInSite(b *testing.B) {
+	files := `
+-- config.toml --
+-- layouts/shortcodes/mark1.md --
+{{ .Inner }}
+-- layouts/shortcodes/mark2.md --
+1. Item Mark2 1
+1. Item Mark2 2
+   1. Item Mark2 2-1
+1. Item Mark2 3
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	content := `
+---
+title: "Markdown Shortcode"
+---
+
+## List
+
+1. List 1
+	{{§ mark1 §}}
+	1. Item Mark1 1
+	1. Item Mark1 2
+	{{§ mark2 §}}
+	{{§ /mark1 §}}
+
+`
+
+	for i := 1; i < 100; i++ {
+		files += fmt.Sprintf("\n-- content/posts/p%d.md --\n"+content, i+1)
+	}
+	files = strings.ReplaceAll(files, "§", "%")
+
+	cfg := IntegrationTestConfig{
+		T:           b,
+		TxtarString: files,
+	}
+	builders := make([]*IntegrationTestBuilder, b.N)
+
+	for i := range builders {
+		builders[i] = NewIntegrationTestBuilder(cfg)
+	}
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		builders[i].Build()
+	}
+}
+
 func TestReplaceShortcodeTokens(t *testing.T) {
 	t.Parallel()
 	for i, this := range []struct {
