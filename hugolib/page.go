@@ -336,7 +336,7 @@ func (p *pageState) HasShortcode(name string) bool {
 		return false
 	}
 
-	return p.shortcodeState.nameSet[name]
+	return p.shortcodeState.hasName(name)
 }
 
 func (p *pageState) Site() page.Site {
@@ -610,13 +610,30 @@ func (p *pageState) getContentConverter() converter.Converter {
 }
 
 func (p *pageState) mapContent(bucket *pagesMapBucket, meta *pageMeta) error {
-	s := p.shortcodeState
-
-	rn := &pageContentMap{
+	p.cmap = &pageContentMap{
 		items: make([]any, 0, 20),
 	}
 
-	iter := p.source.parsed.Iterator()
+	return p.mapContentForResult(
+		p.source.parsed,
+		p.shortcodeState,
+		p.cmap,
+		meta.markup,
+		func(m map[string]interface{}) error {
+			return meta.setMetadata(bucket, p, m)
+		},
+	)
+}
+
+func (p *pageState) mapContentForResult(
+	result pageparser.Result,
+	s *shortcodeHandler,
+	rn *pageContentMap,
+	markup string,
+	withFrontMatter func(map[string]any) error,
+) error {
+
+	iter := result.Iterator()
 
 	fail := func(err error, i pageparser.Item) error {
 		if fe, ok := err.(herrors.FileError); ok {
@@ -660,8 +677,10 @@ Loop:
 				}
 			}
 
-			if err := meta.setMetadata(bucket, p, m); err != nil {
-				return err
+			if withFrontMatter != nil {
+				if err := withFrontMatter(m); err != nil {
+					return err
+				}
 			}
 
 			frontMatterSet = true
@@ -697,7 +716,7 @@ Loop:
 			p.source.posBodyStart = posBody
 			p.source.hasSummaryDivider = true
 
-			if meta.markup != "html" {
+			if markup != "html" {
 				// The content will be rendered by Goldmark or similar,
 				// and we need to track the summary.
 				rn.AddReplacement(internalSummaryDividerPre, it)
@@ -720,7 +739,7 @@ Loop:
 			}
 
 			if currShortcode.name != "" {
-				s.nameSet[currShortcode.name] = true
+				s.addName(currShortcode.name)
 			}
 
 			if currShortcode.params == nil {
@@ -752,15 +771,13 @@ Loop:
 		}
 	}
 
-	if !frontMatterSet {
+	if !frontMatterSet && withFrontMatter != nil {
 		// Page content without front matter. Assign default front matter from
 		// cascades etc.
-		if err := meta.setMetadata(bucket, p, nil); err != nil {
+		if err := withFrontMatter(nil); err != nil {
 			return err
 		}
 	}
-
-	p.cmap = rn
 
 	return nil
 }

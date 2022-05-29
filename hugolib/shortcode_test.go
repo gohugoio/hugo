@@ -107,15 +107,9 @@ title: "Shortcodes Galore!"
 			t.Parallel()
 			c := qt.New(t)
 
-			counter := 0
-			placeholderFunc := func() string {
-				counter++
-				return fmt.Sprintf("HAHA%s-%dHBHB", shortcodePlaceholderPrefix, counter)
-			}
-
 			p, err := pageparser.ParseMain(strings.NewReader(test.input), pageparser.Config{})
 			c.Assert(err, qt.IsNil)
-			handler := newShortcodeHandler(nil, s, placeholderFunc)
+			handler := newShortcodeHandler(nil, s)
 			iter := p.Iterator()
 
 			short, err := handler.extractShortcode(0, 0, iter)

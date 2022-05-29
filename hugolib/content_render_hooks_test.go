@@ -18,7 +18,6 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/common/loggers"
 )
 
 func TestRenderHookEditNestedPartial(t *testing.T) {
@@ -427,73 +426,4 @@ Image:
 <p>Some regular <strong>markup</strong>.</p>
 <p>html-image: image.jpg|Text: Hello<br> Goodbye|Plain: Hello GoodbyeEND</p>
 `)
-}
-
-func TestRenderString(t *testing.T) {
-	b := newTestSitesBuilder(t)
-
-	b.WithTemplates("index.html", `
-{{ $p := site.GetPage "p1.md" }}
-{{ $optBlock := dict "display" "block" }}
-{{ $optOrg := dict "markup" "org" }}
-RSTART:{{ "**Bold Markdown**" | $p.RenderString }}:REND
-RSTART:{{  "**Bold Block Markdown**" | $p.RenderString  $optBlock }}:REND
-RSTART:{{  "/italic org mode/" | $p.RenderString  $optOrg }}:REND
-RSTART:{{ "## Header2" | $p.RenderString }}:REND
-
-
-`, "_default/_markup/render-heading.html", "Hook Heading: {{ .Level }}")
-
-	b.WithContent("p1.md", `---
-title: "p1"
----
-`,
-	)
-
-	b.Build(BuildCfg{})
-
-	b.AssertFileContent("public/index.html", `
-RSTART:<strong>Bold Markdown</strong>:REND
-RSTART:<p><strong>Bold Block Markdown</strong></p>
-RSTART:<em>italic org mode</em>:REND
-RSTART:Hook Heading: 2:REND
-`)
-}
-
-// https://github.com/gohugoio/hugo/issues/6882
-func TestRenderStringOnListPage(t *testing.T) {
-	renderStringTempl := `
-{{ .RenderString "**Hello**" }}
-`
-	b := newTestSitesBuilder(t)
-	b.WithContent("mysection/p1.md", `FOO`)
-	b.WithTemplates(
-		"index.html", renderStringTempl,
-		"_default/list.html", renderStringTempl,
-		"_default/single.html", renderStringTempl,
-	)
-
-	b.Build(BuildCfg{})
-
-	for _, filename := range []string{
-		"index.html",
-		"mysection/index.html",
-		"categories/index.html",
-		"tags/index.html",
-		"mysection/p1/index.html",
-	} {
-		b.AssertFileContent("public/"+filename, `<strong>Hello</strong>`)
-	}
-}
-
-// Issue 9433
-func TestRenderStringOnPageNotBackedByAFile(t *testing.T) {
-	t.Parallel()
-	logger := loggers.NewWarningLogger()
-	b := newTestSitesBuilder(t).WithLogger(logger).WithConfigFile("toml", `
-disableKinds = ["page", "section", "taxonomy", "term"]	
-`)
-	b.WithTemplates("index.html", `{{ .RenderString "**Hello**" }}`).WithContent("p1.md", "")
-	b.BuildE(BuildCfg{})
-	b.Assert(int(logger.LogCounters().WarnCounter.Count()), qt.Equals, 0)
 }

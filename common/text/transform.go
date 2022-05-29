@@ -64,11 +64,12 @@ func Puts(s string) string {
 
 // VisitLinesAfter calls the given function for each line, including newlines, in the given string.
 func VisitLinesAfter(s string, fn func(line string)) {
-	high := strings.Index(s, "\n")
+	high := strings.IndexRune(s, '\n')
 	for high != -1 {
 		fn(s[:high+1])
 		s = s[high+1:]
-		high = strings.Index(s, "\n")
+
+		high = strings.IndexRune(s, '\n')
 	}
 
 	if s != "" {

@@ -250,13 +250,14 @@ type shortcodeHandler struct {
 	shortcodes []*shortcode
 
 	// All the shortcode names in this set.
-	nameSet map[string]bool
+	nameSet   map[string]bool
+	nameSetMu sync.RWMutex
 
 	// Configuration
 	enableInlineShortcodes bool
 }
 
-func newShortcodeHandler(p *pageState, s *Site, placeholderFunc func() string) *shortcodeHandler {
+func newShortcodeHandler(p *pageState, s *Site) *shortcodeHandler {
 	sh := &shortcodeHandler{
 		p:                      p,
 		s:                      s,
@@ -423,6 +424,28 @@ func (s *shortcodeHandler) hasShortcodes() bool {
 	return s != nil && len(s.shortcodes) > 0
 }
 
+func (s *shortcodeHandler) addName(name string) {
+	s.nameSetMu.Lock()
+	defer s.nameSetMu.Unlock()
+	s.nameSet[name] = true
+}
+
+func (s *shortcodeHandler) transferNames(in *shortcodeHandler) {
+	s.nameSetMu.Lock()
+	defer s.nameSetMu.Unlock()
+	for k := range in.nameSet {
+		s.nameSet[k] = true
+	}
+
+}
+
+func (s *shortcodeHandler) hasName(name string) bool {
+	s.nameSetMu.RLock()
+	defer s.nameSetMu.RUnlock()
+	_, ok := s.nameSet[name]
+	return ok
+}
+
 func (s *shortcodeHandler) renderShortcodesForPage(p *pageState, f output.Format) (map[string]string, bool, error) {
 	rendered := make(map[string]string)
 
@@ -503,7 +526,7 @@ Loop:
 				nested, err := s.extractShortcode(nestedOrdinal, nextLevel, pt)
 				nestedOrdinal++
 				if nested != nil && nested.name != "" {
-					s.nameSet[nested.name] = true
+					s.addName(nested.name)
 				}
 
 				if err == nil {

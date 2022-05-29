@@ -59,3 +59,18 @@ line 3`
 	c.Assert(collected, qt.DeepEquals, []string{"line 1\n", "line 2\n", "\n", "line 3"})
 
 }
+
+func BenchmarkVisitLinesAfter(b *testing.B) {
+	const lines = `line 1
+	line 2
+	
+	line 3`
+
+	for i := 0; i < b.N; i++ {
+		VisitLinesAfter(lines, func(s string) {
+
+		})
+
+	}
+
+}

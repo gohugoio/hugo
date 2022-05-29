@@ -39,12 +39,12 @@ type pageContent struct {
 }
 
 // returns the content to be processed by Goldmark or similar.
-func (p pageContent) contentToRender(renderedShortcodes map[string]string) []byte {
-	source := p.source.parsed.Input()
+func (p pageContent) contentToRender(parsed pageparser.Result, pm *pageContentMap, renderedShortcodes map[string]string) []byte {
+	source := parsed.Input()
 
 	c := make([]byte, 0, len(source)+(len(source)/10))
 
-	for _, it := range p.cmap.items {
+	for _, it := range pm.items {
 		switch v := it.(type) {
 		case pageparser.Item:
 			c = append(c, source[v.Pos:v.Pos+len(v.Val)]...)

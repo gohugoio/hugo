@@ -163,7 +163,7 @@ func (m *pageMap) newPageFromContentNode(n *contentNode, parentBucket *pagesMapB
 		},
 	}
 
-	ps.shortcodeState = newShortcodeHandler(ps, ps.s, nil)
+	ps.shortcodeState = newShortcodeHandler(ps, ps.s)
 
 	if err := ps.mapContent(parentBucket, metaProvider); err != nil {
 		return nil, ps.wrapError(err)

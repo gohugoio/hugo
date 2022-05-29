@@ -25,9 +25,11 @@ import (
 
 	"errors"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/common/types/hstring"
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/parser/pageparser"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cast"
 
@@ -117,7 +119,7 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 			p.pageOutputTemplateVariationsState.Store(2)
 		}
 
-		cp.workContent = p.contentToRender(cp.contentPlaceholders)
+		cp.workContent = p.contentToRender(p.source.parsed, p.cmap, cp.contentPlaceholders)
 
 		isHTML := cp.p.m.markup == "html"
 
@@ -332,11 +334,12 @@ func (p *pageContentOutput) WordCount() int {
 }
 
 func (p *pageContentOutput) RenderString(args ...any) (template.HTML, error) {
+	defer herrors.Recover()
 	if len(args) < 1 || len(args) > 2 {
 		return "", errors.New("want 1 or 2 arguments")
 	}
 
-	var s string
+	var contentToRender string
 	opts := defaultRenderStringOpts
 	sidx := 1
 
@@ -353,16 +356,16 @@ func (p *pageContentOutput) RenderString(args ...any) (template.HTML, error) {
 		}
 	}
 
-	contentToRender := args[sidx]
+	contentToRenderv := args[sidx]
 
-	if _, ok := contentToRender.(hstring.RenderedString); ok {
+	if _, ok := contentToRenderv.(hstring.RenderedString); ok {
 		// This content is already rendered, this is potentially
 		// a infinite recursion.
 		return "", errors.New("text is already rendered, repeating it may cause infinite recursion")
 	}
 
 	var err error
-	s, err = cast.ToStringE(contentToRender)
+	contentToRender, err = cast.ToStringE(contentToRenderv)
 	if err != nil {
 		return "", err
 	}
@@ -381,20 +384,79 @@ func (p *pageContentOutput) RenderString(args ...any) (template.HTML, error) {
 		}
 	}
 
-	c, err := p.renderContentWithConverter(conv, []byte(s), false)
-	if err != nil {
-		return "", p.p.wrapError(err)
-	}
+	var rendered []byte
 
-	b := c.Bytes()
+	if strings.Contains(contentToRender, "{{") {
+		// Probably a shortcode.
+		parsed, err := pageparser.ParseMain(strings.NewReader(contentToRender), pageparser.Config{})
+		if err != nil {
+			return "", err
+		}
+		pm := &pageContentMap{
+			items: make([]any, 0, 20),
+		}
+		s := newShortcodeHandler(p.p, p.p.s)
+
+		if err := p.p.mapContentForResult(
+			parsed,
+			s,
+			pm,
+			opts.Markup,
+			nil,
+		); err != nil {
+			return "", err
+		}
+
+		placeholders, hasShortcodeVariants, err := s.renderShortcodesForPage(p.p, p.f)
+		if err != nil {
+			return "", err
+		}
+
+		if hasShortcodeVariants {
+			p.p.pageOutputTemplateVariationsState.Store(2)
+		}
+
+		b, err := p.renderContentWithConverter(conv, p.p.contentToRender(parsed, pm, placeholders), false)
+		if err != nil {
+			return "", p.p.wrapError(err)
+		}
+		rendered = b.Bytes()
+
+		if p.placeholdersEnabled {
+			// ToC was accessed via .Page.TableOfContents in the shortcode,
+			// at a time when the ToC wasn't ready.
+			if _, err := p.p.Content(); err != nil {
+				return "", err
+			}
+			placeholders[tocShortcodePlaceholder] = string(p.tableOfContents)
+		}
+
+		if pm.hasNonMarkdownShortcode || p.placeholdersEnabled {
+			rendered, err = replaceShortcodeTokens(rendered, placeholders)
+			if err != nil {
+				return "", err
+			}
+		}
+
+		// We need a consolidated view in $page.HasShortcode
+		p.p.shortcodeState.transferNames(s)
+
+	} else {
+		c, err := p.renderContentWithConverter(conv, []byte(contentToRender), false)
+		if err != nil {
+			return "", p.p.wrapError(err)
+		}
+
+		rendered = c.Bytes()
+	}
 
 	if opts.Display == "inline" {
 		// We may have to rethink this in the future when we get other
 		// renderers.
-		b = p.p.s.ContentSpec.TrimShortHTML(b)
+		rendered = p.p.s.ContentSpec.TrimShortHTML(rendered)
 	}
 
-	return template.HTML(string(b)), nil
+	return template.HTML(string(rendered)), nil
 }
 
 func (p *pageContentOutput) RenderWithTemplateInfo(info tpl.Info, layout ...string) (template.HTML, error) {
