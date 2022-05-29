@@ -46,7 +46,6 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/pelletier/go-toml/v2 v2.0.0-beta.7.0.20220408132554-2377ac4bc04c
 	github.com/rogpeppe/go-internal v1.8.1
-	github.com/russross/blackfriday v1.6.0
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 	github.com/sanity-io/litter v1.5.5
 	github.com/spf13/afero v1.8.2
