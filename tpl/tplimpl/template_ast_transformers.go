@@ -272,7 +272,7 @@ func (c *templateContext) collectInner(n *parse.CommandNode) {
 			idents = nt.Ident
 		}
 
-		if c.hasIdent(idents, "Inner") {
+		if c.hasIdent(idents, "Inner") || c.hasIdent(idents, "InnerDeindent") {
 			c.t.parseInfo.IsInner = true
 			break
 		}

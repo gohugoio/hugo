@@ -62,12 +62,39 @@ type ShortcodeWithPage struct {
 	// this ordinal will represent the position of this shortcode in the page content.
 	Ordinal int
 
+	// Indentation before the opening shortcode in the source.
+	indentation string
+
+	innerDeindentInit sync.Once
+	innerDeindent     template.HTML
+
 	// pos is the position in bytes in the source file. Used for error logging.
 	posInit   sync.Once
 	posOffset int
 	pos       text.Position
 
 	scratch *maps.Scratch
+}
+
+// InnerDeindent returns the (potentially de-indented) inner content of the shortcode.
+func (scp *ShortcodeWithPage) InnerDeindent() template.HTML {
+	if scp.indentation == "" {
+		return scp.Inner
+	}
+	scp.innerDeindentInit.Do(func() {
+		b := bp.GetBuffer()
+		text.VisitLinesAfter(string(scp.Inner), func(s string) {
+			if strings.HasPrefix(s, scp.indentation) {
+				b.WriteString(strings.TrimPrefix(s, scp.indentation))
+			} else {
+				b.WriteString(s)
+			}
+		})
+		scp.innerDeindent = template.HTML(b.String())
+		bp.PutBuffer(b)
+	})
+
+	return scp.innerDeindent
 }
 
 // Position returns this shortcode's detailed position. Note that this information
@@ -326,7 +353,7 @@ func renderShortcode(
 		hasVariants = hasVariants || more
 	}
 
-	data := &ShortcodeWithPage{Ordinal: sc.ordinal, posOffset: sc.pos, Params: sc.params, Page: newPageForShortcode(p), Parent: parent, Name: sc.name}
+	data := &ShortcodeWithPage{Ordinal: sc.ordinal, posOffset: sc.pos, indentation: sc.indentation, Params: sc.params, Page: newPageForShortcode(p), Parent: parent, Name: sc.name}
 	if sc.params != nil {
 		data.IsNamedParams = reflect.TypeOf(sc.params).Kind() == reflect.Map
 	}
