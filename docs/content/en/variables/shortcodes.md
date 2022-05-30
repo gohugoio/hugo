@@ -45,4 +45,8 @@ toc: false
 [markdownshortcode]: /content-management/shortcodes/#shortcodes-with-markdown
 [shortcodes]: /templates/shortcode-templates/
 
+.InnerDeindent {{< new-in "0.100.0" >}}
+: Gets the `.Inner` with any indentation removed. This is what's used in the built-in `{{</* highlight */>}}` shortcode.
+
+
 

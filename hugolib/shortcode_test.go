@@ -1009,3 +1009,47 @@ echo "foo";
 	b.AssertFileContent("public/p1/index.html", "<pre><code>echo &quot;foo&quot;;\n</code></pre>")
 
 }
+
+func TestShortcodeHighlightDeindent(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+[markup]
+[markup.highlight]
+codeFences = true
+noClasses = false
+-- content/p1.md --
+---
+title: "p1"
+---
+
+## Indent 5 Spaces
+
+     {{< highlight bash >}}
+     line 1;
+     line 2;
+     line 3;
+     {{< /highlight >}}
+
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			Running:     true,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", `
+<pre><code> <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">line 1<span class="p">;</span>
+</span></span><span class="line"><span class="cl">line 2<span class="p">;</span>
+</span></span><span class="line"><span class="cl">line 3<span class="p">;</span></span></span></code></pre></div>
+</code></pre>
+
+	`)
+
+}
