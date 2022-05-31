@@ -544,10 +544,10 @@ Hugo will generate your website with these missing translation placeholders. It 
 
 For merging of content from other languages (i.e. missing content translations), see [lang.Merge].
 
-To track down missing translation strings, run Hugo with the `--i18n-warnings` flag:
+To track down missing translation strings, run Hugo with the `--printI18nWarnings` flag:
 
 ```bash
-hugo --i18n-warnings | grep i18n
+hugo --printI18nWarnings | grep i18n
 i18n|MISSING_TRANSLATION|en|wordCount
 ```
 
