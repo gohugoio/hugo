@@ -54,6 +54,7 @@ hugo server [flags]
       --memstats string        log memory usage to this file
       --minify                 minify any supported output format (HTML, XML etc.)
       --navigateToChanged      navigate to changed content file on live browser reload
+      --noBuildLock            don't create .hugo_build.lock file
       --noChmod                don't sync permission mode of files
       --noHTTPCache            prevent HTTP caching
       --noTimes                don't sync modification time of files
