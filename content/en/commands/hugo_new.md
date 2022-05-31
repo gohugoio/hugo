@@ -43,6 +43,7 @@ hugo new [path] [flags]
   -k, --kind string            content type to create
   -l, --layoutDir string       filesystem path to layout directory
       --minify                 minify any supported output format (HTML, XML etc.)
+      --noBuildLock            don't create .hugo_build.lock file
       --noChmod                don't sync permission mode of files
       --noTimes                don't sync modification time of files
       --panicOnWarning         panic on first WARNING log
