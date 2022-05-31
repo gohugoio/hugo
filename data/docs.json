@@ -1728,24 +1728,6 @@
           "taskList": true
         }
       },
-      "blackFriday": {
-        "smartypants": true,
-        "smartypantsQuotesNBSP": false,
-        "angledQuotes": false,
-        "fractions": true,
-        "hrefTargetBlank": false,
-        "nofollowLinks": false,
-        "noreferrerLinks": false,
-        "smartDashes": true,
-        "latexDashes": true,
-        "taskLists": true,
-        "plainIDAnchors": true,
-        "extensions": null,
-        "extensionsMask": null,
-        "skipHTML": false,
-        "footnoteAnchorPrefix": "",
-        "footnoteReturnLinkContents": ""
-      },
       "asciidocExt": {
         "backend": "html5",
         "extensions": [],
@@ -2230,6 +2212,21 @@
       },
       {
         "mainType": "text",
+        "subType": "markdown",
+        "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "md",
+          "fullSuffix": ".md"
+        },
+        "type": "text/markdown",
+        "string": "text/markdown",
+        "suffixes": [
+          "md",
+          "markdown"
+        ]
+      },
+      {
+        "mainType": "text",
         "subType": "plain",
         "delimiter": ".",
         "firstSuffix": {
@@ -2447,6 +2444,20 @@
       {
         "mediaType": "application/json",
         "name": "JSON",
+        "path": "",
+        "baseName": "index",
+        "rel": "alternate",
+        "protocol": "",
+        "isPlainText": true,
+        "isHTML": false,
+        "noUgly": false,
+        "notAlternative": false,
+        "permalinkable": false,
+        "weight": 0
+      },
+      {
+        "mediaType": "text/markdown",
+        "name": "MARKDOWN",
         "path": "",
         "baseName": "index",
         "rel": "alternate",
@@ -3116,7 +3127,7 @@
     "funcs": {
       "cast": {
         "ToFloat": {
-          "Description": "ToFloat converts the given value to a float.",
+          "Description": "ToFloat converts v to a float.",
           "Args": [
             "v"
           ],
@@ -3131,7 +3142,7 @@
           ]
         },
         "ToInt": {
-          "Description": "ToInt converts the given value to an int.",
+          "Description": "ToInt converts v to an int.",
           "Args": [
             "v"
           ],
@@ -3146,7 +3157,7 @@
           ]
         },
         "ToString": {
-          "Description": "ToString converts the given value to a string.",
+          "Description": "ToString converts v to a string.",
           "Args": [
             "v"
           ],
@@ -3652,10 +3663,17 @@
       },
       "crypto": {
         "FNV32a": {
-          "Description": "",
-          "Args": null,
+          "Description": "FNV32a hashes using fnv32a algorithm",
+          "Args": [
+            "in"
+          ],
           "Aliases": null,
-          "Examples": null
+          "Examples": [
+            [
+              "{{ crypto.FNV32a \"Hugo Rocks!!\" }}",
+              "1515779328"
+            ]
+          ]
         },
         "HMAC": {
           "Description": "HMAC returns a cryptographic hash that uses a key to sign a message.",
@@ -3828,10 +3846,10 @@
       },
       "fmt": {
         "Errorf": {
-          "Description": "Errorf formats according to a format specifier and logs an ERROR.\nIt returns an empty string.",
+          "Description": "Errorf formats args according to a format specifier and logs an ERROR.\nIt returns an empty string.",
           "Args": [
             "format",
-            "a"
+            "args"
           ],
           "Aliases": [
             "errorf"
@@ -3844,11 +3862,11 @@
           ]
         },
         "Erroridf": {
-          "Description": "Erroridf formats according to a format specifier and logs an ERROR and\nan information text that the error with the given ID can be suppressed in config.\nIt returns an empty string.",
+          "Description": "Erroridf formats args according to a format specifier and logs an ERROR and\nan information text that the error with the given ID can be suppressed in config.\nIt returns an empty string.",
           "Args": [
             "id",
             "format",
-            "a"
+            "args"
           ],
           "Aliases": [
             "erroridf"
@@ -3861,9 +3879,9 @@
           ]
         },
         "Print": {
-          "Description": "Print returns string representation of the passed arguments.",
+          "Description": "Print returns a string representation args.",
           "Args": [
-            "a"
+            "args"
           ],
           "Aliases": [
             "print"
@@ -3876,10 +3894,10 @@
           ]
         },
         "Printf": {
-          "Description": "Printf returns a formatted string representation of the passed arguments.",
+          "Description": "Printf returns a formatted string representation of args.",
           "Args": [
             "format",
-            "a"
+            "args"
           ],
           "Aliases": [
             "printf"
@@ -3892,9 +3910,9 @@
           ]
         },
         "Println": {
-          "Description": "Println returns string representation of the passed arguments ending with a newline.",
+          "Description": "Println returns string representation of args  ending with a newline.",
           "Args": [
-            "a"
+            "args"
           ],
           "Aliases": [
             "println"
@@ -3907,10 +3925,10 @@
           ]
         },
         "Warnf": {
-          "Description": "Warnf formats according to a format specifier and logs a WARNING.\nIt returns an empty string.",
+          "Description": "Warnf formats args according to a format specifier and logs a WARNING.\nIt returns an empty string.",
           "Args": [
             "format",
-            "a"
+            "args"
           ],
           "Aliases": [
             "warnf"
@@ -4253,10 +4271,10 @@
       },
       "math": {
         "Add": {
-          "Description": "Add adds two numbers.",
+          "Description": "Add adds the two addends n1 and n2.",
           "Args": [
-            "a",
-            "b"
+            "n1",
+            "n2"
           ],
           "Aliases": [
             "add"
@@ -4269,9 +4287,9 @@
           ]
         },
         "Ceil": {
-          "Description": "Ceil returns the least integer value greater than or equal to x.",
+          "Description": "Ceil returns the least integer value greater than or equal to n.",
           "Args": [
-            "x"
+            "n"
           ],
           "Aliases": null,
           "Examples": [
@@ -4288,10 +4306,10 @@
           "Examples": null
         },
         "Div": {
-          "Description": "Div divides two numbers.",
+          "Description": "Div divides n1 by n2.",
           "Args": [
-            "a",
-            "b"
+            "n1",
+            "n2"
           ],
           "Aliases": [
             "div"
@@ -4304,9 +4322,9 @@
           ]
         },
         "Floor": {
-          "Description": "Floor returns the greatest integer value less than or equal to x.",
+          "Description": "Floor returns the greatest integer value less than or equal to n.",
           "Args": [
-            "x"
+            "n"
           ],
           "Aliases": null,
           "Examples": [
@@ -4317,9 +4335,9 @@
           ]
         },
         "Log": {
-          "Description": "Log returns the natural logarithm of a number.",
+          "Description": "Log returns the natural logarithm of the number n.",
           "Args": [
-            "a"
+            "n"
           ],
           "Aliases": null,
           "Examples": [
@@ -4330,10 +4348,10 @@
           ]
         },
         "Max": {
-          "Description": "Max returns the greater of two numbers.",
+          "Description": "Max returns the greater of the two numbers n1 or n2.",
           "Args": [
-            "a",
-            "b"
+            "n1",
+            "n2"
           ],
           "Aliases": null,
           "Examples": [
@@ -4344,10 +4362,10 @@
           ]
         },
         "Min": {
-          "Description": "Min returns the smaller of two numbers.",
+          "Description": "Min returns the smaller of two numbers n1 or n2.",
           "Args": [
-            "a",
-            "b"
+            "n1",
+            "n2"
           ],
           "Aliases": null,
           "Examples": [
@@ -4358,10 +4376,10 @@
           ]
         },
         "Mod": {
-          "Description": "Mod returns a % b.",
+          "Description": "Mod returns n1 % n2.",
           "Args": [
-            "a",
-            "b"
+            "n1",
+            "n2"
           ],
           "Aliases": [
             "mod"
@@ -4374,10 +4392,10 @@
           ]
         },
         "ModBool": {
-          "Description": "ModBool returns the boolean of a % b.  If a % b == 0, return true.",
+          "Description": "ModBool returns the boolean of n1 % n2.  If n1 % n2 == 0, return true.",
           "Args": [
-            "a",
-            "b"
+            "n1",
+            "n2"
           ],
           "Aliases": [
             "modBool"
@@ -4390,10 +4408,10 @@
           ]
         },
         "Mul": {
-          "Description": "Mul multiplies two numbers.",
+          "Description": "Mul multiplies the two numbers n1 and n2.",
           "Args": [
-            "a",
-            "b"
+            "n1",
+            "n2"
           ],
           "Aliases": [
             "mul"
@@ -4406,10 +4424,10 @@
           ]
         },
         "Pow": {
-          "Description": "Pow returns a raised to the power of b.",
+          "Description": "Pow returns n1 raised to the power of n2.",
           "Args": [
-            "a",
-            "b"
+            "n1",
+            "n2"
           ],
           "Aliases": [
             "pow"
@@ -4422,9 +4440,9 @@
           ]
         },
         "Round": {
-          "Description": "Round returns the nearest integer, rounding half away from zero.",
+          "Description": "Round returns the integer nearest to n, rounding half away from zero.",
           "Args": [
-            "x"
+            "n"
           ],
           "Aliases": null,
           "Examples": [
@@ -4435,9 +4453,9 @@
           ]
         },
         "Sqrt": {
-          "Description": "Sqrt returns the square root of a number.",
+          "Description": "Sqrt returns the square root of the number n.",
           "Args": [
-            "a"
+            "n"
           ],
           "Aliases": null,
           "Examples": [
@@ -4448,10 +4466,10 @@
           ]
         },
         "Sub": {
-          "Description": "Sub subtracts two numbers.",
+          "Description": "Sub subtracts n2 from n1.",
           "Args": [
-            "a",
-            "b"
+            "n1",
+            "n2"
           ],
           "Aliases": [
             "sub"
@@ -4690,6 +4708,12 @@
           "Aliases": null,
           "Examples": null
         },
+        "Copy": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "ExecuteAsTemplate": {
           "Description": "",
           "Args": null,
@@ -4779,9 +4803,9 @@
       },
       "safe": {
         "CSS": {
-          "Description": "CSS returns a given string as html/template CSS content.",
+          "Description": "CSS returns the string s as html/template CSS content.",
           "Args": [
-            "a"
+            "s"
           ],
           "Aliases": [
             "safeCSS"
@@ -4794,9 +4818,9 @@
           ]
         },
         "HTML": {
-          "Description": "HTML returns a given string as html/template HTML content.",
+          "Description": "HTML returns the string s as html/template HTML content.",
           "Args": [
-            "a"
+            "s"
           ],
           "Aliases": [
             "safeHTML"
@@ -4813,9 +4837,9 @@
           ]
         },
         "HTMLAttr": {
-          "Description": "HTMLAttr returns a given string as html/template HTMLAttr content.",
+          "Description": "HTMLAttr returns the string s as html/template HTMLAttr content.",
           "Args": [
-            "a"
+            "s"
           ],
           "Aliases": [
             "safeHTMLAttr"
@@ -4825,7 +4849,7 @@
         "JS": {
           "Description": "JS returns the given string as a html/template JS content.",
           "Args": [
-            "a"
+            "s"
           ],
           "Aliases": [
             "safeJS"
@@ -4840,7 +4864,7 @@
         "JSStr": {
           "Description": "JSStr returns the given string as a html/template JSStr content.",
           "Args": [
-            "a"
+            "s"
           ],
           "Aliases": [
             "safeJSStr"
@@ -4848,9 +4872,9 @@
           "Examples": []
         },
         "SanitizeURL": {
-          "Description": "SanitizeURL returns a given string as html/template URL content.",
+          "Description": "SanitizeURL returns the string s as html/template URL content.",
           "Args": [
-            "a"
+            "s"
           ],
           "Aliases": [
             "sanitizeURL",
@@ -4859,9 +4883,9 @@
           "Examples": []
         },
         "URL": {
-          "Description": "URL returns a given string as html/template URL content.",
+          "Description": "URL returns the string s as html/template URL content.",
           "Args": [
-            "a"
+            "s"
           ],
           "Aliases": [
             "safeURL"
@@ -5076,7 +5100,7 @@
           ]
         },
         "FirstUpper": {
-          "Description": "FirstUpper returns a string with the first character as upper case.",
+          "Description": "FirstUpper converts s making  the first character upper case.",
           "Args": [
             "s"
           ],
@@ -5115,7 +5139,7 @@
           "Examples": null
         },
         "Repeat": {
-          "Description": "Repeat returns a new string consisting of count copies of the string s.",
+          "Description": "Repeat returns a new string consisting of n copies of the string s.",
           "Args": [
             "n",
             "s"
@@ -5281,7 +5305,7 @@
           ]
         },
         "Trim": {
-          "Description": "Trim returns a string with all leading and trailing characters defined\ncontained in cutset removed.",
+          "Description": "Trim returns converts the strings s removing all leading and trailing characters defined\ncontained.",
           "Args": [
             "s",
             "cutset"
@@ -5432,7 +5456,7 @@
           ]
         },
         "Format": {
-          "Description": "Format converts the textual representation of the datetime string into\nthe other form or returns it of the time.Time value. These are formatted\nwith the layout string",
+          "Description": "Format converts the textual representation of the datetime string in v into\ntime.Time if needed and formats it with the given layout.",
           "Args": [
             "layout",
             "v"
@@ -5448,7 +5472,7 @@
           ]
         },
         "Now": {
-          "Description": "Now returns the current local time.",
+          "Description": "Now returns the current local time or `clock` time",
           "Args": null,
           "Aliases": [
             "now"
@@ -5456,9 +5480,9 @@
           "Examples": []
         },
         "ParseDuration": {
-          "Description": "ParseDuration parses a duration string.\nA duration string is a possibly signed sequence of\ndecimal numbers, each with optional fraction and a unit suffix,\nsuch as \"300ms\", \"-1.5h\" or \"2h45m\".\nValid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".\nSee https://golang.org/pkg/time/#ParseDuration",
+          "Description": "ParseDuration parses the duration string s.\nA duration string is a possibly signed sequence of\ndecimal numbers, each with optional fraction and a unit suffix,\nsuch as \"300ms\", \"-1.5h\" or \"2h45m\".\nValid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".\nSee https://golang.org/pkg/time/#ParseDuration",
           "Args": [
-            "in"
+            "s"
           ],
           "Aliases": null,
           "Examples": [
@@ -5515,7 +5539,7 @@
           ]
         },
         "HTMLUnescape": {
-          "Description": "HTMLUnescape returns a copy of with HTML escape requences converted to plain\ntext.",
+          "Description": "HTMLUnescape returns a copy of s with HTML escape requences converted to plain\ntext.",
           "Args": [
             "s"
           ],
@@ -5560,7 +5584,7 @@
           "Examples": null
         },
         "Markdownify": {
-          "Description": "Markdownify renders a given input from Markdown to HTML.",
+          "Description": "Markdownify renders s from Markdown to HTML.",
           "Args": [
             "s"
           ],
@@ -5625,9 +5649,9 @@
       },
       "urls": {
         "AbsLangURL": {
-          "Description": "AbsLangURL takes a given string and converts it to an absolute URL according\nto a page's position in the project directory structure and the current\nlanguage.",
+          "Description": "AbsLangURL the string s and converts it to an absolute URL according\nto a page's position in the project directory structure and the current\nlanguage.",
           "Args": [
-            "a"
+            "s"
           ],
           "Aliases": [
             "absLangURL"
@@ -5635,9 +5659,9 @@
           "Examples": []
         },
         "AbsURL": {
-          "Description": "AbsURL takes a given string and converts it to an absolute URL.",
+          "Description": "AbsURL takes the string s and converts it to an absolute URL.",
           "Args": [
-            "a"
+            "s"
           ],
           "Aliases": [
             "absURL"
@@ -5645,9 +5669,9 @@
           "Examples": []
         },
         "Anchorize": {
-          "Description": "Anchorize creates sanitized anchor names that are compatible with Blackfriday.",
+          "Description": "Anchorize creates sanitized anchor name version of the string s that is compatible\nwith how your configured markdown renderer does it.",
           "Args": [
-            "a"
+            "s"
           ],
           "Aliases": [
             "anchorize"
@@ -5666,9 +5690,9 @@
           "Examples": null
         },
         "Ref": {
-          "Description": "Ref returns the absolute URL path to a given content item.",
+          "Description": "Ref returns the absolute URL path to a given content item from Page p.",
           "Args": [
-            "in",
+            "p",
             "args"
           ],
           "Aliases": [
@@ -5677,9 +5701,9 @@
           "Examples": []
         },
         "RelLangURL": {
-          "Description": "RelLangURL takes a given string and prepends the relative path according to a\npage's position in the project directory structure and the current language.",
+          "Description": "RelLangURL takes the string s and prepends the relative path according to a\npage's position in the project directory structure and the current language.",
           "Args": [
-            "a"
+            "s"
           ],
           "Aliases": [
             "relLangURL"
@@ -5687,9 +5711,9 @@
           "Examples": []
         },
         "RelRef": {
-          "Description": "RelRef returns the relative URL path to a given content item.",
+          "Description": "RelRef returns the relative URL path to a given content item from Page p.",
           "Args": [
-            "in",
+            "p",
             "args"
           ],
           "Aliases": [
@@ -5698,9 +5722,9 @@
           "Examples": []
         },
         "RelURL": {
-          "Description": "RelURL takes a given string and prepends the relative path according to a\npage's position in the project directory structure.",
+          "Description": "RelURL takes the string s and prepends the relative path according to a\npage's position in the project directory structure.",
           "Args": [
-            "a"
+            "s"
           ],
           "Aliases": [
             "relURL"
@@ -5708,9 +5732,9 @@
           "Examples": []
         },
         "URLize": {
-          "Description": "URLize returns the given argument formatted as URL.",
+          "Description": "URLize returns the the strings s formatted as an URL.",
           "Args": [
-            "a"
+            "s"
           ],
           "Aliases": [
             "urlize"
