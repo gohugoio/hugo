@@ -83,7 +83,7 @@ To make the contribution process as seamless as possible, we ask for the followi
 
 ### Git Commit Message Guidelines
 
-This [blog article](http://chris.beams.io/posts/git-commit/) is a good resource for learning how to write good commit messages,
+This [blog article](https://cbea.ms/git-commit/) is a good resource for learning how to write good commit messages,
 the most important part being that each commit message should have a title/subject in imperative mood starting with a capital letter and no trailing period:
 *"js: Return error when option x is not set"*, **NOT** *"returning some error."*
 
