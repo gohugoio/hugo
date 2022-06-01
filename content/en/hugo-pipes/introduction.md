@@ -60,7 +60,7 @@ With `resources.GetRemote`, the first argument is a remote URL:
 `resources.Copy` allows you to copy almost any Hugo `Resource` (the one exception is the `Page`), possibly most useful for renaming things:
 
 ```go-html-template
-{{ $resized := $image.Resize "400x400" |  resources.Copy "images/mynewname.jpg" } }}
+{{ $resized := $image.Resize "400x400" |  resources.Copy "images/mynewname.jpg" }}
 <img src="{{ $resized.RelPermalink }}">
 ```
 
