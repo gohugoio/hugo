@@ -25,7 +25,6 @@ import (
 
 	"errors"
 
-	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/common/types/hstring"
 	"github.com/gohugoio/hugo/identity"
@@ -334,7 +333,6 @@ func (p *pageContentOutput) WordCount() int {
 }
 
 func (p *pageContentOutput) RenderString(args ...any) (template.HTML, error) {
-	defer herrors.Recover()
 	if len(args) < 1 || len(args) > 2 {
 		return "", errors.New("want 1 or 2 arguments")
 	}
