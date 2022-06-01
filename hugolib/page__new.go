@@ -66,6 +66,8 @@ func newPageBase(metaProvider *pageMeta) (*pageState, error) {
 		},
 	}
 
+	ps.shortcodeState = newShortcodeHandler(ps, ps.s)
+
 	siteAdapter := pageSiteAdapter{s: s, p: ps}
 
 	ps.pageMenus = &pageMenus{p: ps}

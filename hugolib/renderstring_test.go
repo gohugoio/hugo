@@ -158,5 +158,35 @@ Page Type: *hugolib.pageForShortcode`,
 		)
 
 	})
+}
+
+// Issue 9959
+func TestRenderStringWithShortcodeInPageWithNoContentFile(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+-- layouts/shortcodes/myshort.html --
+Page Kind: {{ .Page.Kind }}
+-- layouts/index.html --
+Short: {{ .RenderString "{{< myshort >}}" }}
+Has myshort: {{ .HasShortcode "myshort" }}
+Has other: {{ .HasShortcode "other" }}
+
+	`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html",
+		`
+Page Kind: home
+Has myshort: true
+Has other: false
+`)
 
 }

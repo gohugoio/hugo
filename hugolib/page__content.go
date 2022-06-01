@@ -33,8 +33,6 @@ type pageContent struct {
 
 	cmap *pageContentMap
 
-	shortcodeState *shortcodeHandler
-
 	source rawPageContent
 }
 

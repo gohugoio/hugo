@@ -102,6 +102,9 @@ type pageCommon struct {
 	// The parsed page content.
 	pageContent
 
+	// Keeps track of the shortcodes on a page.
+	shortcodeState *shortcodeHandler
+
 	// Set if feature enabled and this is in a Git repo.
 	gitInfo    *gitmap.GitInfo
 	codeowners []string
