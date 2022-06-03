@@ -127,6 +127,10 @@ func initializeConfig(mustHaveConfigFile, failOnInitErr, running bool,
 		return nil, err
 	}
 
+	for _, s := range c.hugo().Sites {
+		s.RegisterMediaTypes()
+	}
+
 	return c, nil
 }
 
