@@ -10,7 +10,6 @@
 {{- if ge $limit 1 -}}
 {{- $pages = $pages | first $limit -}}
 {{- end -}}
-{{- $lastModPage := (sort $pages "Lastmod" "desc") | first 1 }}
 {{- printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
@@ -21,8 +20,7 @@
     <language>{{.}}</language>{{end}}{{ with .Site.Author.email }}
     <managingEditor>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</managingEditor>{{end}}{{ with .Site.Author.email }}
     <webMaster>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</webMaster>{{end}}{{ with .Site.Copyright }}
-    <copyright>{{.}}</copyright>{{end}}
-    {{- with index $lastModPage 0 -}}{{- if not .Lastmod.IsZero -}}
+    <copyright>{{.}}</copyright>{{end}}{{- with index $pages.ByLastmod.Reverse 0 -}}{{- if not .Lastmod.IsZero -}}
     <lastBuildDate>{{ .Lastmod.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</lastBuildDate>
     {{- end -}}{{- end -}}
     {{- with .OutputFormats.Get "RSS" -}}
