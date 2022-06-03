@@ -272,10 +272,6 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	for _, s := range c.hugo().Sites {
-		s.RegisterMediaTypes()
-	}
-
 	// Watch runs its own server as part of the routine
 	if sc.serverWatch {
 
