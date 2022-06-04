@@ -8,8 +8,9 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-keywords: [path]
+keywords: [path, clean]
 signature: ["path.Clean PATH"]
+relatedfuncs: [path.Base, path.BaseName, path.Dir, path.Ext, path.Join, path.Split]
 ---
 
 `path.Clean` replaces path separators with slashes (`/`) and removes extraneous separators, including trailing separators.
