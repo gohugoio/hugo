@@ -12,7 +12,7 @@ keywords: [path, split]
 signature: ["path.Split PATH"]
 workson: []
 hugoversion: "0.39"
-relatedfuncs: [path.Split]
+relatedfuncs: [path.Base, path.BaseName, path.Clean, path.Dir, path.Ext, path.Join]
 deprecated: false
 ---
 

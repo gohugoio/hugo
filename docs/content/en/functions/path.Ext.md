@@ -12,7 +12,7 @@ keywords: [path, ext, extension]
 signature: ["path.Ext PATH"]
 workson: []
 hugoversion: "0.40"
-relatedfuncs: [path.Base, path.Dir, path.Split]
+relatedfuncs: [path.Base, path.BaseName, path.Clean, path.Dir, path.Join, path.Split]
 deprecated: false
 ---
 
