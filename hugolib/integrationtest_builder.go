@@ -197,7 +197,10 @@ func (s *IntegrationTestBuilder) Build() *IntegrationTestBuilder {
 
 func (s *IntegrationTestBuilder) BuildE() (*IntegrationTestBuilder, error) {
 	s.Helper()
-	s.initBuilder()
+	if err := s.initBuilder(); err != nil {
+		return s, err
+	}
+
 	err := s.build(BuildCfg{})
 	return s, err
 }
@@ -267,7 +270,8 @@ func (s *IntegrationTestBuilder) FileContent(filename string) string {
 	return s.readWorkingDir(s, s.fs, filepath.FromSlash(filename))
 }
 
-func (s *IntegrationTestBuilder) initBuilder() {
+func (s *IntegrationTestBuilder) initBuilder() error {
+	var initErr error
 	s.builderInit.Do(func() {
 		var afs afero.Fs
 		if s.Cfg.NeedsOsFS {
@@ -320,7 +324,10 @@ func (s *IntegrationTestBuilder) initBuilder() {
 
 		depsCfg := deps.DepsCfg{Cfg: cfg, Fs: fs, Running: s.Cfg.Running, Logger: logger}
 		sites, err := NewHugoSites(depsCfg)
-		s.Assert(err, qt.IsNil)
+		if err != nil {
+			initErr = err
+			return
+		}
 
 		s.H = sites
 		s.fs = fs
@@ -338,6 +345,8 @@ func (s *IntegrationTestBuilder) initBuilder() {
 
 		}
 	})
+
+	return initErr
 }
 
 func (s *IntegrationTestBuilder) absFilename(filename string) string {

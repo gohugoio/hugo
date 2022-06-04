@@ -14,6 +14,7 @@
 package markup
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/gohugoio/hugo/markup/highlight"
@@ -43,6 +44,8 @@ func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, erro
 	}
 
 	cfg.MarkupConfig = markupConfig
+	defaultHandler := cfg.MarkupConfig.DefaultMarkdownHandler
+	var defaultFound bool
 
 	add := func(p converter.ProviderProvider, aliases ...string) error {
 		c, err := p.New(cfg)
@@ -54,8 +57,9 @@ func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, erro
 
 		aliases = append(aliases, name)
 
-		if strings.EqualFold(name, cfg.MarkupConfig.DefaultMarkdownHandler) {
+		if strings.EqualFold(name, defaultHandler) {
 			aliases = append(aliases, "markdown")
+			defaultFound = true
 		}
 
 		addConverter(converters, c, aliases...)
@@ -76,6 +80,14 @@ func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, erro
 	}
 	if err := add(org.Provider); err != nil {
 		return nil, err
+	}
+
+	if !defaultFound {
+		msg := "markup: Configured defaultMarkdownHandler %q not found."
+		if defaultHandler == "blackfriday" {
+			msg += " Did you mean to use goldmark? Blackfriday was removed in Hugo v0.100.0."
+		}
+		return nil, fmt.Errorf(msg, defaultHandler)
 	}
 
 	return &converterRegistry{
