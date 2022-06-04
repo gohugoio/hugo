@@ -12,7 +12,7 @@ keywords: [path, dir]
 signature: ["path.Dir PATH"]
 workson: []
 hugoversion: "0.40"
-relatedfuncs: [path.Base, path.Ext, path.Split]
+relatedfuncs: [path.Base, path.BaseName, path.Clean, path.Ext, path.Join, path.Split]
 deprecated: false
 ---
 

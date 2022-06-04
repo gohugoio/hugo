@@ -56,6 +56,36 @@ func TestBase(t *testing.T) {
 	}
 }
 
+func TestBaseName(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		path   any
+		expect any
+	}{
+		{filepath.FromSlash(`foo/bar.txt`), `bar`},
+		{filepath.FromSlash(`foo/bar/txt `), `txt `},
+		{filepath.FromSlash(`foo/bar.t`), `bar`},
+		{`foo.bar.txt`, `foo.bar`},
+		{`.x`, ``},
+		{``, `.`},
+		// errors
+		{tstNoStringer{}, false},
+	} {
+
+		result, err := ns.BaseName(test.path)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}
+
 func TestDir(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
