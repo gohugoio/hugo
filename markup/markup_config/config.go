@@ -14,6 +14,8 @@
 package markup_config
 
 import (
+	"fmt"
+
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/docshelper"
@@ -49,6 +51,16 @@ func Decode(cfg config.Provider) (conf Config, err error) {
 	normalizeConfig(m)
 
 	err = mapstructure.WeakDecode(m, &conf)
+
+	handler := conf.DefaultMarkdownHandler
+	if handler != "goldmark" {
+		format := `invalid defaultMarkdownHandler "%s"; use "goldmark"`
+		if handler == "blackfriday" {
+			format += `: "blackfriday" has been removed since v0.100.0`
+		}
+		err = fmt.Errorf(format, handler)
+	}
+
 	if err != nil {
 		return
 	}
