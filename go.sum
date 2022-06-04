@@ -463,8 +463,8 @@ github.com/niklasfasching/go-org v1.6.2 h1:kQBIZlfL4oRNApJCrBgaeNBfzxWzP6XlC7/b7
 github.com/niklasfasching/go-org v1.6.2/go.mod h1:wn76Xgu4/KRe43WZhsgZjxYMaloSrl3BSweGV74SwHs=
 github.com/olekukonko/tablewriter v0.0.5 h1:P2Ga83D34wi1o9J6Wh1mRuqd4mF/x/lgBS7N7AbDhec=
 github.com/olekukonko/tablewriter v0.0.5/go.mod h1:hPp6KlRPjbx+hW8ykQs1w3UBbZlj6HuIJcUGPhkA7kY=
-github.com/pelletier/go-toml/v2 v2.0.0-beta.7.0.20220408132554-2377ac4bc04c h1:tgrA7vMkP4q9diPCg3u4Ka4/g3fvkifBu1y9DL+uy7M=
-github.com/pelletier/go-toml/v2 v2.0.0-beta.7.0.20220408132554-2377ac4bc04c/go.mod h1:r9LEWfGN8R5k0VXJ+0BkIe7MYkRdwZOjgMj2KwnJFUo=
+github.com/pelletier/go-toml/v2 v2.0.1 h1:8e3L2cCQzLFi2CR4g7vGFuFxX7Jl1kKX8gW+iV0GUKU=
+github.com/pelletier/go-toml/v2 v2.0.1/go.mod h1:r9LEWfGN8R5k0VXJ+0BkIe7MYkRdwZOjgMj2KwnJFUo=
 github.com/pkg/diff v0.0.0-20210226163009-20ebb0f2a09e/go.mod h1:pJLUxLENpZxwdsKMEsNbx1VGcRFpLqf3715MtcvvzbA=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
