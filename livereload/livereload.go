@@ -62,7 +62,13 @@ var upgrader = &websocket.Upgrader{
 			return false
 		}
 
-		if u.Host == r.Host {
+		rHost := r.Host
+		// For Github codespace in browser #9936
+		if forwardedHost := r.Header.Get("X-Forwarded-Host"); forwardedHost != "" {
+			rHost = forwardedHost
+		}
+
+		if u.Host == rHost {
 			return true
 		}
 
