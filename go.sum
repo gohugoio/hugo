@@ -248,7 +248,6 @@ github.com/frankban/quicktest v1.14.2/go.mod h1:mgiwOwqx65TmIk1wJ6Q7wvnVMocbUork
 github.com/frankban/quicktest v1.14.3 h1:FJKSZTDHjyhriyC81FLQ0LY93eSai0ZyR/ZIkd3ZUKE=
 github.com/frankban/quicktest v1.14.3/go.mod h1:mgiwOwqx65TmIk1wJ6Q7wvnVMocbUorkibMOrVTHZps=
 github.com/fsnotify/fsnotify v1.5.1/go.mod h1:T3375wBYaZdLLcVNkcVbzGHY7f1l/uK5T5Ai1i3InKU=
-github.com/fsnotify/fsnotify v1.5.3/go.mod h1:T3375wBYaZdLLcVNkcVbzGHY7f1l/uK5T5Ai1i3InKU=
 github.com/fsnotify/fsnotify v1.5.4 h1:jRbGcIw6P2Meqdwuo0H1p6JVLbL5DHKAKlYndzMwVZI=
 github.com/fsnotify/fsnotify v1.5.4/go.mod h1:OVB6XrOHzAwXMpEM7uPOzcehqUV2UqJxmVXmkdnm1bU=
 github.com/getkin/kin-openapi v0.94.0 h1:bAxg2vxgnHHHoeefVdmGbR+oxtJlcv5HsJJa3qmAHuo=
@@ -511,10 +510,10 @@ github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.7.1 h1:5TQK59W5E3v0r2duFAb7P95B6hEeOyEnHRa8MjYSMTY=
 github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
-github.com/tdewolff/minify/v2 v2.11.5 h1:wfRJ6JMmu87Azx+Lj7NcCTg8D/L/92SNuYF5fv31fjg=
-github.com/tdewolff/minify/v2 v2.11.5/go.mod h1:ZR6VK7tbgF0XXBVwDHXrbqM4tGYchBpdwhsbKeDmAww=
-github.com/tdewolff/parse/v2 v2.5.31 h1:PrJN/trWTUYaYxg7jRpKnKXpBK4kBjT9rAFhFAh2Lus=
-github.com/tdewolff/parse/v2 v2.5.31/go.mod h1:WzaJpRSbwq++EIQHYIRTpbYKNA3gn9it1Ik++q4zyho=
+github.com/tdewolff/minify/v2 v2.11.9 h1:1q5728c0QICKlp2X1n7OiaiiFFzCzsq7uxAkv+eykT8=
+github.com/tdewolff/minify/v2 v2.11.9/go.mod h1:XHKhaRF/vTa3EP4JX8oZ2CO4crGEtVOiSoqUED953wM=
+github.com/tdewolff/parse/v2 v2.5.33 h1:D75KlhAeCSQg4Na8cWKehJdPJoZxwdpRbTZw7lZFWNQ=
+github.com/tdewolff/parse/v2 v2.5.33/go.mod h1:WzaJpRSbwq++EIQHYIRTpbYKNA3gn9it1Ik++q4zyho=
 github.com/tdewolff/test v1.0.6 h1:76mzYJQ83Op284kMT+63iCNCI7NEERsIN8dLM+RiKr4=
 github.com/tdewolff/test v1.0.6/go.mod h1:6DAvZliBAAnD7rhVgwaM7DE5/d9NMOAJ09SqYqeK4QE=
 github.com/ugorji/go v1.1.7/go.mod h1:kZn38zHttfInRq0xu/PH0az30d+z6vm202qpg1oXVMw=
