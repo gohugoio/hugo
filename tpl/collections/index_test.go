@@ -18,6 +18,8 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/langs"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
@@ -26,7 +28,7 @@ import (
 func TestIndex(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
-	ns := New(&deps.Deps{})
+	ns := New(&deps.Deps{Language: langs.NewDefaultLanguage(config.New())})
 
 	for i, test := range []struct {
 		item    any

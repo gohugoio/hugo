@@ -214,3 +214,62 @@ func TestTimeOnError(t *testing.T) {
 	b.Assert(b.BuildE(BuildCfg{}), qt.Not(qt.IsNil))
 
 }
+
+func TestTOMLDates(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+timeZone = "America/Los_Angeles"
+-- content/_index.md --
+---
+date: "2020-10-20"
+---
+-- content/p1.md --
++++
+title = "TOML Date with UTC offset"
+date = 2021-08-16T06:00:00+00:00
++++
+
+
+## Foo
+-- data/mydata.toml --
+date = 2020-10-20
+talks = [
+	{ date = 2017-01-23, name = "Past talk 1" },
+	{ date = 2017-01-24, name = "Past talk 2" },
+	{ date = 2017-01-26, name = "Past talk 3" },
+	{ date = 2050-02-12, name = "Future talk 1" },
+	{ date = 2050-02-13, name = "Future talk 2" },
+]
+-- layouts/index.html --
+{{ $futureTalks := where site.Data.mydata.talks "date" ">" now }}
+{{ $pastTalks := where site.Data.mydata.talks "date" "<" now }}
+
+{{ $homeDate := site.Home.Date }}
+{{ $p1Date := (site.GetPage "p1").Date }}
+Future talks: {{ len $futureTalks }}
+Past talks: {{ len $pastTalks }}
+
+Home's Date should be greater than past: {{ gt $homeDate (index $pastTalks 0).date }}
+Home's Date should be less than future: {{ lt $homeDate (index $futureTalks 0).date }}
+Home's Date should be equal mydata date: {{ eq $homeDate site.Data.mydata.date }}
+Full time: {{ $p1Date | time.Format ":time_full" }}
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", `
+Future talks: 2
+Past talks: 3
+Home's Date should be greater than past: true
+Home's Date should be less than future: true
+Home's Date should be equal mydata date: true
+Full time: 6:00:00 am UTC
+`)
+}

@@ -88,7 +88,7 @@ func TestDefaultFunc(t *testing.T) {
 
 	then := time.Now()
 	now := time.Now()
-	ns := New(false)
+	ns := New(time.UTC, false)
 
 	for i, test := range []struct {
 		dflt   any
@@ -147,7 +147,7 @@ func TestDefaultFunc(t *testing.T) {
 func TestCompare(t *testing.T) {
 	t.Parallel()
 
-	n := New(false)
+	n := New(time.UTC, false)
 
 	twoEq := func(a, b any) bool {
 		return n.Eq(a, b)
@@ -269,7 +269,7 @@ func TestEqualExtend(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New(false)
+	ns := New(time.UTC, false)
 
 	for _, test := range []struct {
 		first  any
@@ -294,7 +294,7 @@ func TestNotEqualExtend(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New(false)
+	ns := New(time.UTC, false)
 
 	for _, test := range []struct {
 		first  any
@@ -314,7 +314,7 @@ func TestGreaterEqualExtend(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New(false)
+	ns := New(time.UTC, false)
 
 	for _, test := range []struct {
 		first  any
@@ -335,7 +335,7 @@ func TestGreaterThanExtend(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New(false)
+	ns := New(time.UTC, false)
 
 	for _, test := range []struct {
 		first  any
@@ -355,7 +355,7 @@ func TestLessEqualExtend(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New(false)
+	ns := New(time.UTC, false)
 
 	for _, test := range []struct {
 		first  any
@@ -376,7 +376,7 @@ func TestLessThanExtend(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New(false)
+	ns := New(time.UTC, false)
 
 	for _, test := range []struct {
 		first  any
@@ -395,7 +395,7 @@ func TestLessThanExtend(t *testing.T) {
 
 func TestCase(t *testing.T) {
 	c := qt.New(t)
-	n := New(false)
+	n := New(time.UTC, false)
 
 	c.Assert(n.Eq("az", "az"), qt.Equals, true)
 	c.Assert(n.Eq("az", stringType("az")), qt.Equals, true)
@@ -403,7 +403,7 @@ func TestCase(t *testing.T) {
 
 func TestStringType(t *testing.T) {
 	c := qt.New(t)
-	n := New(true)
+	n := New(time.UTC, true)
 
 	c.Assert(n.Lt("az", "Za"), qt.Equals, true)
 	c.Assert(n.Gt("ab", "Ab"), qt.Equals, true)
@@ -411,11 +411,12 @@ func TestStringType(t *testing.T) {
 
 func TestTimeUnix(t *testing.T) {
 	t.Parallel()
+	n := New(time.UTC, false)
 	var sec int64 = 1234567890
 	tv := reflect.ValueOf(time.Unix(sec, 0))
 	i := 1
 
-	res := toTimeUnix(tv)
+	res := n.toTimeUnix(tv)
 	if sec != res {
 		t.Errorf("[%d] timeUnix got %v but expected %v", i, res, sec)
 	}
@@ -428,13 +429,13 @@ func TestTimeUnix(t *testing.T) {
 			}
 		}()
 		iv := reflect.ValueOf(sec)
-		toTimeUnix(iv)
+		n.toTimeUnix(iv)
 	}(t)
 }
 
 func TestConditional(t *testing.T) {
 	c := qt.New(t)
-	n := New(false)
+	n := New(time.UTC, false)
 	a, b := "a", "b"
 
 	c.Assert(n.Conditional(true, a, b), qt.Equals, a)
@@ -446,7 +447,7 @@ func TestComparisonArgCount(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New(false)
+	ns := New(time.UTC, false)
 
 	panicMsg := "missing arguments for comparison"
 
