@@ -214,3 +214,32 @@ func TestTimeOnError(t *testing.T) {
 	b.Assert(b.BuildE(BuildCfg{}), qt.Not(qt.IsNil))
 
 }
+
+// Issue 8895
+func TestDateTomlTimeZone(t *testing.T) {
+	b := newTestSitesBuilder(t)
+
+	dateWithQuote := `+++
+title = "String"
+date = "2021-08-16T06:00:00+00:00"
++++
+`
+	dateWithoutQuote := `+++
+title = "Date"
+date = 2021-08-16T06:00:00+00:00
++++
+`
+
+	b.WithContent(
+		"string.md", dateWithQuote,
+		"date.md", dateWithoutQuote,
+	)
+
+	b.WithTemplatesAdded("_default/single.html", `Date: {{ .Date | time.Format ":time_long" }}`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/date/index.html", `Date: 6:00:00 am UTC`)
+	b.AssertFileContent("public/string/index.html", `Date: 6:00:00 am UTC`)
+
+}
