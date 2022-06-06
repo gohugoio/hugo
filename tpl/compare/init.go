@@ -15,6 +15,7 @@ package compare
 
 import (
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/tpl/internal"
 )
 
@@ -22,7 +23,11 @@ const name = "compare"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		ctx := New(false)
+		if d.Language == nil {
+			panic("language must be set")
+		}
+
+		ctx := New(langs.GetLocation(d.Language), false)
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,

@@ -31,6 +31,8 @@ import (
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/langs"
+	"github.com/gohugoio/hugo/tpl/compare"
 	"github.com/spf13/cast"
 )
 
@@ -41,14 +43,24 @@ func init() {
 
 // New returns a new instance of the collections-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
+	if deps.Language == nil {
+		panic("language must be set")
+	}
+
+	loc := langs.GetLocation(deps.Language)
+
 	return &Namespace{
-		deps: deps,
+		loc:      loc,
+		sortComp: compare.New(loc, true),
+		deps:     deps,
 	}
 }
 
 // Namespace provides template functions for the "collections" namespace.
 type Namespace struct {
-	deps *deps.Deps
+	loc      *time.Location
+	sortComp *compare.Namespace
+	deps     *deps.Deps
 }
 
 // After returns all the items after the first N in a rangeable list.

@@ -107,11 +107,10 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			fmv := mv.Float()
 			fmvp = &fmv
 		case reflect.Struct:
-			switch v.Type() {
-			case timeType:
-				iv := toTimeUnix(v)
+			if hreflect.IsTime(v.Type()) {
+				iv := ns.toTimeUnix(v)
 				ivp = &iv
-				imv := toTimeUnix(mv)
+				imv := ns.toTimeUnix(mv)
 				imvp = &imv
 			}
 		case reflect.Array, reflect.Slice:
@@ -167,12 +166,11 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 				}
 			}
 		case reflect.Struct:
-			switch v.Type() {
-			case timeType:
-				iv := toTimeUnix(v)
+			if hreflect.IsTime(v.Type()) {
+				iv := ns.toTimeUnix(v)
 				ivp = &iv
 				for i := 0; i < mv.Len(); i++ {
-					ima = append(ima, toTimeUnix(mv.Index(i)))
+					ima = append(ima, ns.toTimeUnix(mv.Index(i)))
 				}
 			}
 		case reflect.Array, reflect.Slice:
@@ -508,12 +506,10 @@ func toString(v reflect.Value) (string, error) {
 	return "", errors.New("unable to convert value to string")
 }
 
-func toTimeUnix(v reflect.Value) int64 {
-	if v.Kind() == reflect.Interface {
-		return toTimeUnix(v.Elem())
-	}
-	if v.Type() != timeType {
+func (ns *Namespace) toTimeUnix(v reflect.Value) int64 {
+	t, ok := hreflect.AsTime(v, ns.loc)
+	if !ok {
 		panic("coding error: argument must be time.Time type reflect Value")
 	}
-	return hreflect.GetMethodByName(v, "Unix").Call([]reflect.Value{})[0].Int()
+	return t.Unix()
 }

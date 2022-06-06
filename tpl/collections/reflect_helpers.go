@@ -16,7 +16,6 @@ package collections
 import (
 	"fmt"
 	"reflect"
-	"time"
 
 	"errors"
 
@@ -26,7 +25,6 @@ import (
 var (
 	zero      reflect.Value
 	errorType = reflect.TypeOf((*error)(nil)).Elem()
-	timeType  = reflect.TypeOf((*time.Time)(nil)).Elem()
 )
 
 func numberToFloat(v reflect.Value) (float64, error) {

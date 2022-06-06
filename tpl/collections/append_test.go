@@ -18,7 +18,9 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/langs"
 )
 
 // Also see tests in common/collection.
@@ -26,7 +28,7 @@ func TestAppend(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New(&deps.Deps{})
+	ns := New(&deps.Deps{Language: langs.NewDefaultLanguage(config.New())})
 
 	for i, test := range []struct {
 		start    any
