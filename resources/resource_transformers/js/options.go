@@ -132,6 +132,7 @@ var extensionToLoaderMap = map[string]api.Loader{
 	".css":  api.LoaderCSS,
 	".json": api.LoaderJSON,
 	".txt":  api.LoaderText,
+	".svg":	 api.LoaderText,
 }
 
 func loaderFromFilename(filename string) api.Loader {
