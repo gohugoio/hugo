@@ -108,11 +108,6 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 		}
 	}
 
-	// Config deprecations.
-	if l.cfg.GetString("markup.defaultMarkdownHandler") == "blackfriday" {
-		helpers.Deprecated("markup.defaultMarkdownHandler=blackfriday", "See https://gohugo.io//content-management/formats/#list-of-content-formats", false)
-	}
-
 	// Some settings are used before we're done collecting all settings,
 	// so apply OS environment both before and after.
 	if err := l.applyOsEnvOverrides(d.Environ); err != nil {

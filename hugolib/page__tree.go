@@ -36,6 +36,9 @@ func (pt pageTree) IsAncestor(other any) (bool, error) {
 	}
 
 	ref1, ref2 := pt.p.getTreeRef(), tp.getTreeRef()
+	if ref1 != nil && ref2 != nil && ref1.key == ref2.key {
+		return false, nil
+	}
 
 	if ref1 != nil && ref1.key == "/" {
 		return true, nil
@@ -48,10 +51,6 @@ func (pt pageTree) IsAncestor(other any) (bool, error) {
 		}
 
 		return ref1.n.p.IsHome(), nil
-	}
-
-	if ref1.key == ref2.key {
-		return true, nil
 	}
 
 	if strings.HasPrefix(ref2.key, ref1.key) {
@@ -82,6 +81,9 @@ func (pt pageTree) IsDescendant(other any) (bool, error) {
 	}
 
 	ref1, ref2 := pt.p.getTreeRef(), tp.getTreeRef()
+	if ref1 != nil && ref2 != nil && ref1.key == ref2.key {
+		return false, nil
+	}
 
 	if ref2 != nil && ref2.key == "/" {
 		return true, nil
@@ -94,10 +96,6 @@ func (pt pageTree) IsDescendant(other any) (bool, error) {
 		}
 
 		return ref2.n.p.IsHome(), nil
-	}
-
-	if ref1.key == ref2.key {
-		return true, nil
 	}
 
 	if strings.HasPrefix(ref1.key, ref2.key) {

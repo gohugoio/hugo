@@ -14,6 +14,7 @@
 package markup
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/gohugoio/hugo/markup/highlight"
@@ -25,7 +26,6 @@ import (
 	"github.com/gohugoio/hugo/markup/org"
 
 	"github.com/gohugoio/hugo/markup/asciidocext"
-	"github.com/gohugoio/hugo/markup/blackfriday"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/pandoc"
 	"github.com/gohugoio/hugo/markup/rst"
@@ -44,6 +44,8 @@ func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, erro
 	}
 
 	cfg.MarkupConfig = markupConfig
+	defaultHandler := cfg.MarkupConfig.DefaultMarkdownHandler
+	var defaultFound bool
 
 	add := func(p converter.ProviderProvider, aliases ...string) error {
 		c, err := p.New(cfg)
@@ -55,8 +57,9 @@ func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, erro
 
 		aliases = append(aliases, name)
 
-		if strings.EqualFold(name, cfg.MarkupConfig.DefaultMarkdownHandler) {
+		if strings.EqualFold(name, defaultHandler) {
 			aliases = append(aliases, "markdown")
+			defaultFound = true
 		}
 
 		addConverter(converters, c, aliases...)
@@ -64,9 +67,6 @@ func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, erro
 	}
 
 	if err := add(goldmark.Provider); err != nil {
-		return nil, err
-	}
-	if err := add(blackfriday.Provider); err != nil {
 		return nil, err
 	}
 	if err := add(asciidocext.Provider, "ad", "adoc"); err != nil {
@@ -80,6 +80,14 @@ func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, erro
 	}
 	if err := add(org.Provider); err != nil {
 		return nil, err
+	}
+
+	if !defaultFound {
+		msg := "markup: Configured defaultMarkdownHandler %q not found."
+		if defaultHandler == "blackfriday" {
+			msg += " Did you mean to use goldmark? Blackfriday was removed in Hugo v0.100.0."
+		}
+		return nil, fmt.Errorf(msg, defaultHandler)
 	}
 
 	return &converterRegistry{
@@ -96,7 +104,7 @@ type ConverterProvider interface {
 }
 
 type converterRegistry struct {
-	// Maps name (md, markdown, blackfriday etc.) to a converter provider.
+	// Maps name (md, markdown, goldmark etc.) to a converter provider.
 	// Note that this is also used for aliasing, so the same converter
 	// may be registered multiple times.
 	// All names are lower case.

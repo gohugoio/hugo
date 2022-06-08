@@ -47,6 +47,7 @@ hugo [flags]
       --log                        enable Logging
       --logFile string             log File path (if set, logging enabled automatically)
       --minify                     minify any supported output format (HTML, XML etc.)
+      --noBuildLock                don't create .hugo_build.lock file
       --noChmod                    don't sync permission mode of files
       --noTimes                    don't sync modification time of files
       --panicOnWarning             panic on first WARNING log

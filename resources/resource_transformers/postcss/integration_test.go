@@ -23,6 +23,7 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/htesting"
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugolib"
 )
 
@@ -55,6 +56,9 @@ h1 {
 
 -- config.toml --
 disablekinds = ['taxonomy', 'term', 'page']
+baseURL = "https://example.com"
+[build]
+useResourceCacheWhen = 'never'
 -- content/p1.md --
 -- data/hugo.toml --
 slogan = "Hugo Rocks!"
@@ -99,24 +103,39 @@ func TestTransformPostCSS(t *testing.T) {
 	}
 
 	c := qt.New(t)
+	tempDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-integration-test")
+	c.Assert(err, qt.IsNil)
+	c.Cleanup(clean)
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:               c,
-			NeedsOsFS:       true,
-			NeedsNpmInstall: true,
-			LogLevel:        jww.LevelInfo,
-			TxtarString:     postCSSIntegrationTestFiles,
-		}).Build()
+	for _, s := range []string{"never", "always"} {
 
-	b.AssertLogContains("Hugo Environment: production")
-	b.AssertLogContains(filepath.FromSlash(fmt.Sprintf("PostCSS Config File: %s/postcss.config.js", b.Cfg.WorkingDir)))
-	b.AssertLogContains(filepath.FromSlash(fmt.Sprintf("package.json: %s/package.json", b.Cfg.WorkingDir)))
+		repl := strings.NewReplacer(
+			"https://example.com",
+			"https://example.com/foo",
+			"useResourceCacheWhen = 'never'",
+			fmt.Sprintf("useResourceCacheWhen = '%s'", s),
+		)
 
-	b.AssertFileContent("public/index.html", `
-Styles RelPermalink: /css/styles.css
+		files := repl.Replace(postCSSIntegrationTestFiles)
+
+		fmt.Println("===>", s, files)
+
+		b := hugolib.NewIntegrationTestBuilder(
+			hugolib.IntegrationTestConfig{
+				T:               c,
+				NeedsOsFS:       true,
+				NeedsNpmInstall: true,
+				LogLevel:        jww.LevelInfo,
+				WorkingDir:      tempDir,
+				TxtarString:     files,
+			}).Build()
+
+		b.AssertFileContent("public/index.html", `
+Styles RelPermalink: /foo/css/styles.css
 Styles Content: Len: 770917|
 `)
+
+	}
 
 }
 
@@ -184,5 +203,42 @@ func TestTransformPostCSSImporSkipInlineImportsNotFound(t *testing.T) {
 		}).Build()
 
 	s.AssertFileContent("public/css/styles.css", `@import "components/doesnotexist.css";`)
+
+}
+
+// Issue 9787
+func TestTransformPostCSSResourceCacheWithPathInBaseURL(t *testing.T) {
+	if !htesting.IsCI() {
+		t.Skip("Skip long running test when running locally")
+	}
+
+	c := qt.New(t)
+	tempDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-integration-test")
+	c.Assert(err, qt.IsNil)
+	c.Cleanup(clean)
+
+	for i := 0; i < 2; i++ {
+		files := postCSSIntegrationTestFiles
+
+		if i == 1 {
+			files = strings.ReplaceAll(files, "https://example.com", "https://example.com/foo")
+			files = strings.ReplaceAll(files, "useResourceCacheWhen = 'never'", "	useResourceCacheWhen = 'always'")
+		}
+
+		b := hugolib.NewIntegrationTestBuilder(
+			hugolib.IntegrationTestConfig{
+				T:               c,
+				NeedsOsFS:       true,
+				NeedsNpmInstall: true,
+				LogLevel:        jww.LevelInfo,
+				TxtarString:     files,
+				WorkingDir:      tempDir,
+			}).Build()
+
+		b.AssertFileContent("public/index.html", `
+Styles Content: Len: 770917
+`)
+
+	}
 
 }

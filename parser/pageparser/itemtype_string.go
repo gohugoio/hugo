@@ -4,9 +4,36 @@ package pageparser
 
 import "strconv"
 
-const _ItemType_name = "tErrortEOFTypeHTMLStartTypeLeadSummaryDividerTypeFrontMatterYAMLTypeFrontMatterTOMLTypeFrontMatterJSONTypeFrontMatterORGTypeEmojiTypeIgnoretLeftDelimScNoMarkuptRightDelimScNoMarkuptLeftDelimScWithMarkuptRightDelimScWithMarkuptScClosetScNametScNameInlinetScParamtScParamValtTexttKeywordMarker"
+func _() {
+	// An "invalid array index" compiler error signifies that the constant values have changed.
+	// Re-run the stringer command to generate them again.
+	var x [1]struct{}
+	_ = x[tError-0]
+	_ = x[tEOF-1]
+	_ = x[TypeLeadSummaryDivider-2]
+	_ = x[TypeFrontMatterYAML-3]
+	_ = x[TypeFrontMatterTOML-4]
+	_ = x[TypeFrontMatterJSON-5]
+	_ = x[TypeFrontMatterORG-6]
+	_ = x[TypeEmoji-7]
+	_ = x[TypeIgnore-8]
+	_ = x[tLeftDelimScNoMarkup-9]
+	_ = x[tRightDelimScNoMarkup-10]
+	_ = x[tLeftDelimScWithMarkup-11]
+	_ = x[tRightDelimScWithMarkup-12]
+	_ = x[tScClose-13]
+	_ = x[tScName-14]
+	_ = x[tScNameInline-15]
+	_ = x[tScParam-16]
+	_ = x[tScParamVal-17]
+	_ = x[tIndentation-18]
+	_ = x[tText-19]
+	_ = x[tKeywordMarker-20]
+}
 
-var _ItemType_index = [...]uint16{0, 6, 10, 23, 45, 64, 83, 102, 120, 129, 139, 159, 180, 202, 225, 233, 240, 253, 261, 272, 277, 291}
+const _ItemType_name = "tErrortEOFTypeLeadSummaryDividerTypeFrontMatterYAMLTypeFrontMatterTOMLTypeFrontMatterJSONTypeFrontMatterORGTypeEmojiTypeIgnoretLeftDelimScNoMarkuptRightDelimScNoMarkuptLeftDelimScWithMarkuptRightDelimScWithMarkuptScClosetScNametScNameInlinetScParamtScParamValtIndentationtTexttKeywordMarker"
+
+var _ItemType_index = [...]uint16{0, 6, 10, 32, 51, 70, 89, 107, 116, 126, 146, 167, 189, 212, 220, 227, 240, 248, 259, 271, 276, 290}
 
 func (i ItemType) String() string {
 	if i < 0 || i >= ItemType(len(_ItemType_index)-1) {

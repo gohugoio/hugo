@@ -18,6 +18,7 @@ import (
 	"fmt"
 	_path "path"
 	"path/filepath"
+	"strings"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/spf13/cast"
@@ -92,6 +93,21 @@ func (ns *Namespace) Base(path any) (string, error) {
 	}
 	spath = filepath.ToSlash(spath)
 	return _path.Base(spath), nil
+}
+
+// BaseName returns the last element of path, removing the extension if present.
+// Trailing slashes are removed before extracting the last element.
+// If the path is empty, Base returns ".".
+// If the path consists entirely of slashes, Base returns "/".
+// The input path is passed into filepath.ToSlash converting any Windows slashes
+// to forward slashes.
+func (ns *Namespace) BaseName(path any) (string, error) {
+	spath, err := cast.ToStringE(path)
+	if err != nil {
+		return "", err
+	}
+	spath = filepath.ToSlash(spath)
+	return strings.TrimSuffix(_path.Base(spath), _path.Ext(spath)), nil
 }
 
 // Split splits path immediately following the final slash,

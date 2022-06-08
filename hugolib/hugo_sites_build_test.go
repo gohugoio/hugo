@@ -365,11 +365,6 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	c.Assert(frTags["FRtag1"], qt.Not(qt.IsNil))
 	b.AssertFileContent("public/fr/plaques/FRtag1/index.html", "FRtag1|Bonjour|http://example.com/blog/fr/plaques/FRtag1/")
 
-	// Check Blackfriday config
-	c.Assert(strings.Contains(content(doc1fr), "&laquo;"), qt.Equals, true)
-	c.Assert(strings.Contains(content(doc1en), "&laquo;"), qt.Equals, false)
-	c.Assert(strings.Contains(content(doc1en), "&ldquo;"), qt.Equals, true)
-
 	// en and nn have custom site menus
 	c.Assert(len(frSite.Menus()), qt.Equals, 0)
 	c.Assert(len(enSite.Menus()), qt.Equals, 1)
@@ -796,39 +791,6 @@ categories: ["mycat"]
 	}
 }
 
-// https://github.com/gohugoio/hugo/issues/5777
-func TestTableOfContentsInShortcodes(t *testing.T) {
-	t.Parallel()
-
-	b := newMultiSiteTestDefaultBuilder(t)
-
-	b.WithTemplatesAdded("layouts/shortcodes/toc.html", tocShortcode)
-	b.WithTemplatesAdded("layouts/shortcodes/wrapper.html", "{{ .Inner }}")
-	b.WithContent("post/simple.en.md", tocPageSimple)
-	b.WithContent("post/variants1.en.md", tocPageVariants1)
-	b.WithContent("post/variants2.en.md", tocPageVariants2)
-
-	b.WithContent("post/withSCInHeading.en.md", tocPageWithShortcodesInHeadings)
-
-	b.CreateSites().Build(BuildCfg{})
-
-	b.AssertFileContent("public/en/post/simple/index.html",
-		tocPageSimpleExpected,
-		// Make sure it is inserted twice
-		`TOC1: <nav id="TableOfContents">`,
-		`TOC2: <nav id="TableOfContents">`,
-	)
-
-	b.AssertFileContentFn("public/en/post/variants1/index.html", func(s string) bool {
-		return strings.Count(s, "TableOfContents") == 4
-	})
-	b.AssertFileContentFn("public/en/post/variants2/index.html", func(s string) bool {
-		return strings.Count(s, "TableOfContents") == 6
-	})
-
-	b.AssertFileContent("public/en/post/withSCInHeading/index.html", tocPageWithShortcodesInHeadingsExpected)
-}
-
 var tocShortcode = `
 TOC1: {{ .Page.TableOfContents }}
 
@@ -970,12 +932,6 @@ enableRobotsTXT = true
 [permalinks]
 other = "/somewhere/else/:filename"
 
-# TODO(bep)
-[markup]
-  defaultMarkdownHandler = "blackfriday"
-[markup.blackfriday]
-angledQuotes = true
-
 [Taxonomies]
 tag = "tags"
 
@@ -984,8 +940,6 @@ tag = "tags"
 weight = 10
 title = "In English"
 languageName = "English"
-[Languages.en.blackfriday]
-angledQuotes = false
 [[Languages.en.menu.main]]
 url    = "/"
 name   = "Home"
@@ -1031,12 +985,6 @@ enableRobotsTXT: true
 permalinks:
     other: "/somewhere/else/:filename"
 
-# TODO(bep)
-markup:
-  defaultMarkdownHandler: blackfriday
-  blackFriday:
-    angledQuotes: true
-
 Taxonomies:
     tag: "tags"
 
@@ -1045,8 +993,6 @@ Languages:
         weight: 10
         title: "In English"
         languageName: "English"
-        blackfriday:
-            angledQuotes: false
         menu:
             main:
                 - url: "/"
@@ -1092,12 +1038,6 @@ var multiSiteJSONConfigTemplate = `
   "permalinks": {
     "other": "/somewhere/else/:filename"
   },
-  "markup": {
-		"defaultMarkdownHandler": "blackfriday",
-		"blackfriday": {
-	    "angledQuotes": true
-	  }
-   },
   "Taxonomies": {
     "tag": "tags"
   },
@@ -1106,9 +1046,6 @@ var multiSiteJSONConfigTemplate = `
       "weight": 10,
       "title": "In English",
       "languageName": "English",
-      "blackfriday": {
-        "angledQuotes": false
-      },
 	  "menu": {
         "main": [
 			{

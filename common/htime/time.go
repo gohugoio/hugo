@@ -20,8 +20,6 @@ import (
 	"github.com/bep/clock"
 	"github.com/spf13/cast"
 
-	toml "github.com/pelletier/go-toml/v2"
-
 	"github.com/gohugoio/locales"
 )
 
@@ -139,13 +137,12 @@ func (f TimeFormatter) Format(t time.Time, layout string) string {
 
 func ToTimeInDefaultLocationE(i any, location *time.Location) (tim time.Time, err error) {
 	switch vv := i.(type) {
-	case toml.LocalDate:
-		return vv.AsTime(location), nil
-	case toml.LocalDateTime:
+	case AsTimeProvider:
 		return vv.AsTime(location), nil
 	// issue #8895
 	// datetimes parsed by `go-toml` have empty zone name
 	// convert back them into string and use `cast`
+	// TODO(bep) add tests, make sure we really need this.
 	case time.Time:
 		i = vv.Format(time.RFC3339)
 	}
@@ -160,4 +157,9 @@ func Now() time.Time {
 
 func Since(t time.Time) time.Duration {
 	return Clock.Since(t)
+}
+
+// AsTimeProvider is implemented by go-toml's LocalDate and LocalDateTime.
+type AsTimeProvider interface {
+	AsTime(zone *time.Location) time.Time
 }

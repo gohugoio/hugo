@@ -12,7 +12,7 @@ keywords: [path, join]
 signature: ["path.Join ELEMENT..."]
 workson: []
 hugoversion: "0.39"
-relatedfuncs: [path.Split]
+relatedfuncs: [path.Base, path.BaseName, path.Clean, path.Dir, path.Ext, path.Split]
 deprecated: false
 ---
 

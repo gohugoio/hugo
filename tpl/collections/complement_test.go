@@ -17,7 +17,9 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/langs"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -34,7 +36,7 @@ func TestComplement(t *testing.T) {
 
 	c := qt.New(t)
 
-	ns := New(&deps.Deps{})
+	ns := New(&deps.Deps{Language: langs.NewDefaultLanguage(config.New())})
 
 	s1 := []TstX{{A: "a"}, {A: "b"}, {A: "d"}, {A: "e"}}
 	s2 := []TstX{{A: "b"}, {A: "e"}}

@@ -405,15 +405,8 @@ func (ns *Namespace) PostCSS(args ...any) (resource.Resource, error) {
 	if err != nil {
 		return nil, err
 	}
-	var options postcss.Options
-	if m != nil {
-		options, err = postcss.DecodeOptions(m)
-		if err != nil {
-			return nil, err
-		}
-	}
 
-	return ns.postcssClient.Process(r, options)
+	return ns.postcssClient.Process(r, m)
 }
 
 func (ns *Namespace) PostProcess(r resource.Resource) (postpub.PostPublishedResource, error) {
