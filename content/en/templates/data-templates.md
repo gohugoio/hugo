@@ -112,7 +112,7 @@ You can use the following code to render the `Short Description` in your layout:
 <div>Short Description of {{.Site.Data.User0123.Name}}: <p>{{ index .Site.Data.User0123 "Short Description" | markdownify }}</p></div>
 ```
 
-Note the use of the [`markdownify` template function][markdownify]. This will send the description through the Blackfriday Markdown rendering engine.
+Note the use of the [`markdownify` template function][markdownify]. This will send the description through the Markdown rendering engine.
 
 
 ## Get Remote Data

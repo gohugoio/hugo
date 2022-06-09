@@ -10,7 +10,7 @@ siteURL: https://www.tomango.co.uk
 
 siteSource: https://github.com/trys/tomango-2018
 
-byline: "[Trys Mudford](http://www.trysmudford.com), Lead Developer, Tomango"
+byline: "[Trys Mudford](https://www.trysmudford.com), Lead Developer, Tomango"
 
 ---
 
