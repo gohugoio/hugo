@@ -16,6 +16,7 @@ package resources
 import (
 	"fmt"
 	"image"
+	"image/gif"
 	"io/ioutil"
 	"math/big"
 	"math/rand"
@@ -24,6 +25,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strconv"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -641,7 +643,7 @@ func TestImageOperationsGolden(t *testing.T) {
 			resized, err := orig.Resize(resizeSpec)
 			c.Assert(err, qt.IsNil)
 			rel := resized.RelPermalink()
-			c.Log("resize", rel)
+
 			c.Assert(rel, qt.Not(qt.Equals), "")
 		}
 	}
@@ -652,7 +654,15 @@ func TestImageOperationsGolden(t *testing.T) {
 		resized, err := orig.Resize(resizeSpec)
 		c.Assert(err, qt.IsNil)
 		rel := resized.RelPermalink()
-		c.Log("resize", rel)
+		c.Assert(rel, qt.Not(qt.Equals), "")
+	}
+
+	// Animated GIF
+	orig = fetchImageForSpec(spec, c, "giphy.gif")
+	for _, resizeSpec := range []string{"200x", "512x"} {
+		resized, err := orig.Resize(resizeSpec)
+		c.Assert(err, qt.IsNil)
+		rel := resized.RelPermalink()
 		c.Assert(rel, qt.Not(qt.Equals), "")
 	}
 
@@ -663,7 +673,6 @@ func TestImageOperationsGolden(t *testing.T) {
 			resized, err := orig.Resize(resizeSpec)
 			c.Assert(err, qt.IsNil)
 			rel := resized.RelPermalink()
-			c.Log("resize", rel)
 			c.Assert(rel, qt.Not(qt.Equals), "")
 		}
 
@@ -671,7 +680,6 @@ func TestImageOperationsGolden(t *testing.T) {
 			resized, err := orig.Fill(fillSpec)
 			c.Assert(err, qt.IsNil)
 			rel := resized.RelPermalink()
-			c.Log("fill", rel)
 			c.Assert(rel, qt.Not(qt.Equals), "")
 		}
 
@@ -679,7 +687,6 @@ func TestImageOperationsGolden(t *testing.T) {
 			resized, err := orig.Fit(fitSpec)
 			c.Assert(err, qt.IsNil)
 			rel := resized.RelPermalink()
-			c.Log("fit", rel)
 			c.Assert(rel, qt.Not(qt.Equals), "")
 		}
 
@@ -713,14 +720,12 @@ func TestImageOperationsGolden(t *testing.T) {
 			resized, err := resized.Filter(filter)
 			c.Assert(err, qt.IsNil)
 			rel := resized.RelPermalink()
-			c.Logf("filter: %v %s", filter, rel)
 			c.Assert(rel, qt.Not(qt.Equals), "")
 		}
 
 		resized, err = resized.Filter(filters[0:4])
 		c.Assert(err, qt.IsNil)
 		rel := resized.RelPermalink()
-		c.Log("filter all", rel)
 		c.Assert(rel, qt.Not(qt.Equals), "")
 	}
 
@@ -753,24 +758,47 @@ func assetGoldenDirs(c *qt.C, dir1, dir2 string) {
 		f2, err := os.Open(filepath.Join(dir2, fi2.Name()))
 		c.Assert(err, qt.IsNil)
 
-		img1, _, err := image.Decode(f1)
-		c.Assert(err, qt.IsNil)
-		img2, _, err := image.Decode(f2)
-		c.Assert(err, qt.IsNil)
+		decodeAll := func(f *os.File) []image.Image {
+			var images []image.Image
 
-		nrgba1 := image.NewNRGBA(img1.Bounds())
-		gift.New().Draw(nrgba1, img1)
-		nrgba2 := image.NewNRGBA(img2.Bounds())
-		gift.New().Draw(nrgba2, img2)
+			if strings.HasSuffix(f.Name(), ".gif") {
+				gif, err := gif.DecodeAll(f)
+				c.Assert(err, qt.IsNil)
+				images = make([]image.Image, len(gif.Image))
+				for i, img := range gif.Image {
+					images[i] = img
+				}
+			} else {
+				img, _, err := image.Decode(f)
+				c.Assert(err, qt.IsNil)
+				images = append(images, img)
+			}
+			return images
+		}
 
-		if !goldenEqual(nrgba1, nrgba2) {
-			switch fi1.Name() {
-			case "gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_73c19c5f80881858a85aa23cd0ca400d.png",
-				"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_ae631e5252bb5d7b92bc766ad1a89069.png",
-				"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_d1bbfa2629bffb90118cacce3fcfb924.png":
-				c.Log("expectedly differs from golden due to dithering:", fi1.Name())
-			default:
-				c.Errorf("resulting image differs from golden: %s", fi1.Name())
+		imgs1 := decodeAll(f1)
+		imgs2 := decodeAll(f2)
+		c.Assert(len(imgs1), qt.Equals, len(imgs2))
+
+	LOOP:
+		for i, img1 := range imgs1 {
+			img2 := imgs2[i]
+			nrgba1 := image.NewNRGBA(img1.Bounds())
+			gift.New().Draw(nrgba1, img1)
+			nrgba2 := image.NewNRGBA(img2.Bounds())
+			gift.New().Draw(nrgba2, img2)
+
+			if !goldenEqual(nrgba1, nrgba2) {
+				switch fi1.Name() {
+				case "gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_73c19c5f80881858a85aa23cd0ca400d.png",
+					"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_ae631e5252bb5d7b92bc766ad1a89069.png",
+					"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_d1bbfa2629bffb90118cacce3fcfb924.png",
+					"giphy_hu3eafc418e52414ace6236bf1d31f82e1_52213_200x0_resize_box.gif":
+					c.Log("expectedly differs from golden due to dithering:", fi1.Name())
+				default:
+					c.Errorf("resulting image differs from golden: %s", fi1.Name())
+					break LOOP
+				}
 			}
 		}
 
