@@ -646,6 +646,16 @@ func TestImageOperationsGolden(t *testing.T) {
 		}
 	}
 
+	// A simple Gif file (no animation).
+	orig := fetchImageForSpec(spec, c, "gohugoio-card.gif")
+	for _, resizeSpec := range []string{"100x", "220x"} {
+		resized, err := orig.Resize(resizeSpec)
+		c.Assert(err, qt.IsNil)
+		rel := resized.RelPermalink()
+		c.Log("resize", rel)
+		c.Assert(rel, qt.Not(qt.Equals), "")
+	}
+
 	for _, img := range testImages {
 
 		orig := fetchImageForSpec(spec, c, img)
