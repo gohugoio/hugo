@@ -83,7 +83,7 @@ func createPositionStringFormatter(formatStr string) func(p Position) string {
 
 		msg := fmt.Sprintf(format, args...)
 
-		if terminal.IsTerminal(os.Stdout) {
+		if terminal.PrintANSIColors(os.Stdout) {
 			return terminal.Notice(msg)
 		}
 
