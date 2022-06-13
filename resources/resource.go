@@ -128,6 +128,9 @@ type resourceCopier interface {
 
 // Copy copies r to the targetPath given.
 func Copy(r resource.Resource, targetPath string) resource.Resource {
+	if r.Err() != nil {
+		panic(fmt.Sprintf("Resource has an .Err: %s", r.Err()))
+	}
 	return r.(resourceCopier).cloneTo(targetPath)
 }
 
