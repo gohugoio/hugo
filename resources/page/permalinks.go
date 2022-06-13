@@ -72,18 +72,19 @@ func NewPermalinkExpander(ps *helpers.PathSpec) (PermalinkExpander, error) {
 	p := PermalinkExpander{ps: ps}
 
 	p.knownPermalinkAttributes = map[string]pageToPermaAttribute{
-		"year":        p.pageToPermalinkDate,
-		"month":       p.pageToPermalinkDate,
-		"monthname":   p.pageToPermalinkDate,
-		"day":         p.pageToPermalinkDate,
-		"weekday":     p.pageToPermalinkDate,
-		"weekdayname": p.pageToPermalinkDate,
-		"yearday":     p.pageToPermalinkDate,
-		"section":     p.pageToPermalinkSection,
-		"sections":    p.pageToPermalinkSections,
-		"title":       p.pageToPermalinkTitle,
-		"slug":        p.pageToPermalinkSlugElseTitle,
-		"filename":    p.pageToPermalinkFilename,
+		"year":           p.pageToPermalinkDate,
+		"month":          p.pageToPermalinkDate,
+		"monthname":      p.pageToPermalinkDate,
+		"day":            p.pageToPermalinkDate,
+		"weekday":        p.pageToPermalinkDate,
+		"weekdayname":    p.pageToPermalinkDate,
+		"yearday":        p.pageToPermalinkDate,
+		"section":        p.pageToPermalinkSection,
+		"sections":       p.pageToPermalinkSections,
+		"title":          p.pageToPermalinkTitle,
+		"slug":           p.pageToPermalinkSlugElseTitle,
+		"slugorfilename": p.pageToPermalinkSlugElseFilename,
+		"filename":       p.pageToPermalinkFilename,
 	}
 
 	patterns := ps.Cfg.GetStringMapString("permalinks")
@@ -264,6 +265,14 @@ func (l PermalinkExpander) pageToPermalinkSlugElseTitle(p Page, a string) (strin
 		return l.ps.URLize(p.Slug()), nil
 	}
 	return l.pageToPermalinkTitle(p, a)
+}
+
+// if the page has a slug, return the slug, else return the filename
+func (l PermalinkExpander) pageToPermalinkSlugElseFilename(p Page, a string) (string, error) {
+	if p.Slug() != "" {
+		return l.ps.URLize(p.Slug()), nil
+	}
+	return l.pageToPermalinkFilename(p, a)
 }
 
 func (l PermalinkExpander) pageToPermalinkSection(p Page, _ string) (string, error) {
