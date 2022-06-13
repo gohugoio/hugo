@@ -290,7 +290,7 @@ func InitGlobalLogger(stdoutThreshold, logThreshold jww.Threshold, outHandle, lo
 }
 
 func getLogWriters(outHandle, logHandle io.Writer) (io.Writer, io.Writer) {
-	isTerm := terminal.IsTerminal(os.Stdout)
+	isTerm := terminal.PrintANSIColors(os.Stdout)
 	if logHandle != ioutil.Discard && isTerm {
 		// Remove any Ansi coloring from log output
 		logHandle = ansiCleaner{w: logHandle}
