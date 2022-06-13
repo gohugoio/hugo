@@ -91,6 +91,9 @@ The following is a list of values that can be used in a `permalink` definition i
 `:slug`
 : the content's slug (or title if no slug is provided in the front matter)
 
+`:slugorfilename`
+: the content's slug (or filename if no slug is provided in the front matter)
+
 `:filename`
 : the content's filename (without extension)
 
