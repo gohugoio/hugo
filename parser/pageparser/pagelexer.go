@@ -312,6 +312,20 @@ func (s *sectionHandlers) skip() int {
 }
 
 func createSectionHandlers(l *pageLexer) *sectionHandlers {
+	internalLinkHandler := &sectionHandler{
+		l: l,
+		skipFunc: func(l *pageLexer) int {
+			return l.index(leftDelimInternalLink)
+		},
+		lexFunc: func(origin stateFunc, l *pageLexer) (stateFunc, bool) {
+			if !l.isInternalLinkStart() {
+				return origin, false
+			}
+
+			return lexInternalLinkLeftDelim, true
+		},
+	}
+
 	shortCodeHandler := &sectionHandler{
 		l: l,
 		skipFunc: func(l *pageLexer) int {
@@ -370,7 +384,7 @@ func createSectionHandlers(l *pageLexer) *sectionHandlers {
 		},
 	}
 
-	handlers := []*sectionHandler{shortCodeHandler, summaryDividerHandler}
+	handlers := []*sectionHandler{internalLinkHandler, shortCodeHandler, summaryDividerHandler}
 
 	if l.cfg.EnableEmoji {
 		emojiHandler := &sectionHandler{
