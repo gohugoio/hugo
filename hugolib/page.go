@@ -646,12 +646,12 @@ func (p *pageState) mapContentForResult(
 	// … it's safe to keep some "global" state
 	var currShortcode shortcode
 	var ordinal int
+	var innerLinkOrdinal int = 0
 	var frontMatterSet bool
 
 Loop:
 	for {
 		it := iter.Next()
-
 		switch {
 		case it.Type == pageparser.TypeIgnore:
 		case it.IsFrontMatter():
@@ -750,8 +750,67 @@ Loop:
 			currShortcode.placeholder = createShortcodePlaceholder("s", ordinal)
 			ordinal++
 			s.shortcodes = append(s.shortcodes, currShortcode)
-
 			rn.AddShortcode(currShortcode)
+
+		//Handle internal links
+		case it.IsInternalLinkLeftDelimiter():
+			next := iter.Next()
+			var iLLink pageparser.Item
+			if next.IsInternalLinkLink() {
+				iLLink = next
+			} else {
+				err := fail(errors.New("Expecting internal link link"), next)
+				return err
+			}
+
+			if !next.IsInternalLinkLabel() {
+				// Label and link, without pipe |
+				next = iter.Next()
+			}
+			if !next.IsInternalLinkLabel() {
+				err := fail(errors.New("Expecting internal link label"), next)
+				return err
+			}
+
+			iLLabel := next
+			iLBeginningMd := "[" + iLLabel.ValStr() + "]("
+
+			rn.AddReplacement([]byte(iLBeginningMd), it)
+			var params []string
+			params = append(params, iLLink.ValStr())
+			placeholder := createShortcodePlaceholder("inLink", innerLinkOrdinal)
+			innerLinkOrdinal++
+			sc := &shortcode{
+				name:        "relref",
+				isInline:    false,
+				isClosing:   false,
+				params:      params,
+				ordinal:     0,
+				err:         nil,
+				indentation: "",
+				doMarkup:    true,
+				placeholder: placeholder,
+				pos:         it.Pos,
+				length:      iter.Current().Pos - it.Pos,
+			}
+			templs := s.s.Tmpl().LookupVariants(sc.name)
+			if templs == nil {
+				err := fail(errors.New("Internal link, no return from template"), it)
+				return err
+			}
+
+			sc.info = templs[0].(tpl.Info)
+			sc.templs = templs
+
+			s.shortcodes = append(s.shortcodes, sc)
+			rn.AddShortcode(sc)
+
+		case it.IsInternalLinkLabel(), it.IsInternalLinkLink():
+		case it.IsInternalLinkRightDelimiter():
+			//TODO: must be in case it.IsInternalLinkLeftDelimiter() to check for error
+			//Could be at the end, but must before check the docs on the possible syntax
+			//of internal links
+			rn.AddReplacement([]byte(")"), it)
 
 		case it.Type == pageparser.TypeEmoji:
 			if emoji := helpers.Emoji(it.ValStr()); emoji != nil {
