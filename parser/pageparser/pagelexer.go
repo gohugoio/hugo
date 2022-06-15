@@ -48,6 +48,8 @@ type pageLexer struct {
 
 	lexerShortcodeState
 
+	lexerInternalLinkState
+
 	// items delivered to client
 	items Items
 }
