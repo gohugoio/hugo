@@ -33,11 +33,12 @@ func _() {
 	_ = x[tRightDelimInternalLink-22]
 	_ = x[tInternalLinkLabel-23]
 	_ = x[tInternalLinkLink-24]
+	_ = x[tInternalLinkLinkLabel-25]
 }
 
-const _ItemType_name = "tErrortEOFTypeLeadSummaryDividerTypeFrontMatterYAMLTypeFrontMatterTOMLTypeFrontMatterJSONTypeFrontMatterORGTypeEmojiTypeIgnoretLeftDelimScNoMarkuptRightDelimScNoMarkuptLeftDelimScWithMarkuptRightDelimScWithMarkuptScClosetScNametScNameInlinetScParamtScParamValtIndentationtTexttKeywordMarkertLeftDelimInternalLinktRightDelimInternalLinktInternalLinkLabeltInternalLinkLink"
+const _ItemType_name = "tErrortEOFTypeLeadSummaryDividerTypeFrontMatterYAMLTypeFrontMatterTOMLTypeFrontMatterJSONTypeFrontMatterORGTypeEmojiTypeIgnoretLeftDelimScNoMarkuptRightDelimScNoMarkuptLeftDelimScWithMarkuptRightDelimScWithMarkuptScClosetScNametScNameInlinetScParamtScParamValtIndentationtTexttKeywordMarkertLeftDelimInternalLinktRightDelimInternalLinktInternalLinkLabeltInternalLinkLinktInternalLinkLinkLabel"
 
-var _ItemType_index = [...]uint16{0, 6, 10, 32, 51, 70, 89, 107, 116, 126, 146, 167, 189, 212, 220, 227, 240, 248, 259, 271, 276, 290, 312, 335, 353, 370}
+var _ItemType_index = [...]uint16{0, 6, 10, 32, 51, 70, 89, 107, 116, 126, 146, 167, 189, 212, 220, 227, 240, 248, 259, 271, 276, 290, 312, 335, 353, 370, 392}
 
 func (i ItemType) String() string {
 	if i < 0 || i >= ItemType(len(_ItemType_index)-1) {
