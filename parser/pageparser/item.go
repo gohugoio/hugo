@@ -173,6 +173,12 @@ const (
 
 	// preserved for later - keywords come after this
 	tKeywordMarker
+
+	// internal links
+	tLeftDelimInternalLink
+	tRightDelimInternalLink
+	tInternalLinkLabel
+	tInternalLinkLink
 )
 
 var (
