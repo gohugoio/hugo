@@ -39,8 +39,8 @@ func lexInternalLinkLeftDelim(l *pageLexer) stateFunc {
 func lexInternalLinkRightDelim(l *pageLexer) stateFunc {
 
 	word := string(l.input[l.start:l.pos])
-
 	l.internalLinkLabel = word
+
 	if !l.internalLinkHasLabel {
 		//Is both link&label
 		l.internalLinkLink = word
@@ -68,12 +68,12 @@ func lexInsideInternalLink(l *pageLexer) stateFunc {
 			return l.errorf("internal link cannot have two or more pipes |")
 		}
 		l.internalLinkHasLabel = true
-		word := string(l.input[l.start:l.pos])
+		word := string(l.input[l.start:(l.pos - 1)])
 		l.internalLinkLink = word
 		l.emit(tInternalLinkLink)
 		return lexInsideInternalLink
 	default:
-		l.ignore()
+
 		return lexInsideInternalLink
 	}
 
