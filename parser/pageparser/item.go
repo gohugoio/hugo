@@ -109,6 +109,22 @@ func (i Item) IsShortcodeMarkupDelimiter() bool {
 	return i.Type == tLeftDelimScWithMarkup || i.Type == tRightDelimScWithMarkup
 }
 
+func (i Item) IsInternalLinkLeftDelimiter() bool {
+	return i.Type == tLeftDelimInternalLink
+}
+
+func (i Item) IsInternalLinkRightDelimiter() bool {
+	return i.Type == tRightDelimInternalLink
+}
+
+func (i Item) IsInternalLinkLink() bool {
+	return i.Type == tInternalLinkLink || i.Type == tInternalLinkLinkLabel
+}
+
+func (i Item) IsInternalLinkLabel() bool {
+	return i.Type == tInternalLinkLabel || i.Type == tInternalLinkLinkLabel
+}
+
 func (i Item) IsFrontMatter() bool {
 	return i.Type >= TypeFrontMatterYAML && i.Type <= TypeFrontMatterORG
 }
