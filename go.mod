@@ -15,11 +15,11 @@ require (
 	github.com/bep/gowebp v0.1.0
 	github.com/bep/overlayfs v0.6.0
 	github.com/bep/tmc v0.5.1
-	github.com/clbanning/mxj/v2 v2.5.5
+	github.com/clbanning/mxj/v2 v2.5.6
 	github.com/cli/safeexec v1.0.0
 	github.com/disintegration/gift v1.2.1
 	github.com/dustin/go-humanize v1.0.0
-	github.com/evanw/esbuild v0.14.42
+	github.com/evanw/esbuild v0.14.43
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/frankban/quicktest v1.14.3
 	github.com/fsnotify/fsnotify v1.5.4
