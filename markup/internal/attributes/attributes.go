@@ -30,6 +30,7 @@ var chromaHightlightProcessingAttributes = map[string]bool{
 	"anchorLineNos":      true,
 	"guessSyntax":        true,
 	"hl_Lines":           true,
+	"hl_inline":          true,
 	"lineAnchors":        true,
 	"lineNos":            true,
 	"lineNoStart":        true,

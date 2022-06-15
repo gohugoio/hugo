@@ -88,6 +88,7 @@ func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts a
 	var b strings.Builder
 
 	attributes := ctx.(hooks.AttributesOptionsSliceProvider).AttributesSlice()
+
 	options := ctx.Options()
 
 	if err := applyOptionsFromMap(options, &cfg); err != nil {
@@ -108,8 +109,13 @@ func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts a
 		return HightlightResult{}, err
 	}
 
+	highlighted := b.String()
+	if high == 0 {
+		high = len(highlighted)
+	}
+
 	return HightlightResult{
-		highlighted: template.HTML(b.String()),
+		highlighted: template.HTML(highlighted),
 		innerLow:    low,
 		innerHigh:   high,
 	}, nil
@@ -117,6 +123,7 @@ func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts a
 
 func (h chromaHighlighter) RenderCodeblock(w hugio.FlexiWriter, ctx hooks.CodeblockContext) error {
 	cfg := h.cfg
+
 	attributes := ctx.(hooks.AttributesOptionsSliceProvider).AttributesSlice()
 
 	if err := applyOptionsFromMap(ctx.Options(), &cfg); err != nil {
@@ -158,8 +165,6 @@ func (h HightlightResult) Inner() template.HTML {
 }
 
 func highlight(fw hugio.FlexiWriter, code, lang string, attributes []attributes.Attribute, cfg Config) (int, int, error) {
-	var low, high int
-
 	var lexer chroma.Lexer
 	if lang != "" {
 		lexer = lexers.Get(lang)
@@ -176,11 +181,15 @@ func highlight(fw hugio.FlexiWriter, code, lang string, attributes []attributes.
 	w := &byteCountFlexiWriter{delegate: fw}
 
 	if lexer == nil {
-		wrapper := getPreWrapper(lang, w)
-		fmt.Fprint(w, wrapper.Start(true, ""))
-		fmt.Fprint(w, gohtml.EscapeString(code))
-		fmt.Fprint(w, wrapper.End(true))
-		return low, high, nil
+		if cfg.Hl_inline {
+			fmt.Fprint(w, fmt.Sprintf("<code%s>%s</code>", inlineCodeAttrs(lang), gohtml.EscapeString(code)))
+		} else {
+			preWrapper := getPreWrapper(lang, w)
+			fmt.Fprint(w, preWrapper.Start(true, ""))
+			fmt.Fprint(w, gohtml.EscapeString(code))
+			fmt.Fprint(w, preWrapper.End(true))
+		}
+		return 0, 0, nil
 	}
 
 	style := styles.Get(cfg.Style)
@@ -194,20 +203,51 @@ func highlight(fw hugio.FlexiWriter, code, lang string, attributes []attributes.
 		return 0, 0, err
 	}
 
+	if !cfg.Hl_inline {
+		writeDivStart(w, attributes)
+	}
+
 	options := cfg.ToHTMLOptions()
-	preWrapper := getPreWrapper(lang, w)
-	options = append(options, html.WithPreWrapper(preWrapper))
+	var wrapper html.PreWrapper
+
+	if cfg.Hl_inline {
+		wrapper = startEnd{
+			start: func(code bool, styleAttr string) string {
+				if code {
+					return fmt.Sprintf(`<code%s>`, inlineCodeAttrs(lang))
+				}
+				return ``
+			},
+			end: func(code bool) string {
+				if code {
+					return `</code>`
+				}
+
+				return ``
+			},
+		}
+
+	} else {
+		wrapper = getPreWrapper(lang, w)
+	}
+
+	options = append(options, html.WithPreWrapper(wrapper))
 
 	formatter := html.New(options...)
-
-	writeDivStart(w, attributes)
 
 	if err := formatter.Format(w, style, iterator); err != nil {
 		return 0, 0, err
 	}
-	writeDivEnd(w)
 
-	return preWrapper.low, preWrapper.high, nil
+	if !cfg.Hl_inline {
+		writeDivEnd(w)
+	}
+
+	if p, ok := wrapper.(*preWrapper); ok {
+		return p.low, p.high, nil
+	}
+
+	return 0, 0, nil
 }
 
 func getPreWrapper(language string, writeCounter *byteCountFlexiWriter) *preWrapper {
@@ -232,6 +272,12 @@ func (p *preWrapper) Start(code bool, styleAttr string) string {
 	return w.String()
 }
 
+func inlineCodeAttrs(lang string) string {
+	if lang == "" {
+	}
+	return fmt.Sprintf(` class="code-inline language-%s"`, lang)
+}
+
 func WritePreStart(w io.Writer, language, styleAttr string) {
 	fmt.Fprintf(w, `<pre tabindex="0"%s>`, styleAttr)
 	fmt.Fprint(w, "<code")
@@ -247,6 +293,19 @@ const preEnd = "</code></pre>"
 func (p *preWrapper) End(code bool) string {
 	p.high = p.writeCounter.counter
 	return preEnd
+}
+
+type startEnd struct {
+	start func(code bool, styleAttr string) string
+	end   func(code bool) string
+}
+
+func (s startEnd) Start(code bool, styleAttr string) string {
+	return s.start(code, styleAttr)
+}
+
+func (s startEnd) End(code bool) string {
+	return s.end(code)
 }
 
 func WritePreEnd(w io.Writer) {
