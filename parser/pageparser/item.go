@@ -179,6 +179,7 @@ const (
 	tRightDelimInternalLink
 	tInternalLinkLabel
 	tInternalLinkLink
+	tInternalLinkLinkLabel
 )
 
 var (
