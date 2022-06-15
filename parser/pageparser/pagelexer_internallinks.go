@@ -14,22 +14,16 @@
 package pageparser
 
 type lexerInternalLinkState struct {
-	currLeftDelimItem  ItemType
-	currRightDelimItem ItemType
-	// isInline           bool
-	// currShortcodeName  string          // is only set when a shortcode is in opened state
-	// closingState       int             // > 0 = on its way to be closed
-	// elementStepNum     int             // step number in element
-	// paramElements      int             // number of elements (name + value = 2) found first
-	// openShortcodes     map[string]bool // set of shortcodes in open state
-
+	internalLinkLink     string
+	internalLinkHasLabel bool
+	internalLinkLabel    string
 }
 
 // Shortcode syntax
 var (
-	leftDelimInternalLink  = []byte("[[")
-	rightDelimInternalLink = []byte("]]")
-	textDelimiter          = []byte("|")
+	leftDelimInternalLink      = []byte("[[")
+	rightDelimInternalLink     = []byte("]]")
+	LabelDelimiterInternalLink = []byte("|")
 )
 
 func (l *pageLexer) isInternalLinkStart() bool {
@@ -43,6 +37,18 @@ func lexInternalLinkLeftDelim(l *pageLexer) stateFunc {
 }
 
 func lexInternalLinkRightDelim(l *pageLexer) stateFunc {
+
+	word := string(l.input[l.start:l.pos])
+
+	l.internalLinkLabel = word
+	if !l.internalLinkHasLabel {
+		//Is both link&label
+		l.internalLinkLink = word
+		l.emit(tInternalLinkLinkLabel)
+	} else {
+		l.emit(tInternalLinkLabel)
+	}
+
 	l.pos += len(rightDelimInternalLink)
 	l.emit(tRightDelimInternalLink)
 	return lexMainSection
@@ -53,27 +59,22 @@ func lexInsideInternalLink(l *pageLexer) stateFunc {
 	if l.hasPrefix(rightDelimInternalLink) {
 		return lexInternalLinkRightDelim
 	}
+
 	switch r := l.next(); {
 	case r == eof:
-		// eol is allowed inside shortcodes; this may go to end of document before it fails
 		return l.errorf("unclosed internal link")
-	case isSpace(r), isEndOfLine(r):
-		l.ignore()
-		return lexInsideInternalLink
 	case r == '|':
-		/*	l.consumeSpace()
-			l.ignore()
-			peek := l.peek()
-			if peek == '"' || peek == '\\' {
-				return lexShortcodeQuotedParamVal(l, peek != '\\', tScParamVal)
-			} else if peek == '`' {
-				return lexShortCodeParamRawStringVal(l, tScParamVal)
-			}
-			return lexShortcodeParamVal*/
-		l.ignore()
+		if l.internalLinkHasLabel {
+			return l.errorf("internal link cannot have two or more pipes |")
+		}
+		l.internalLinkHasLabel = true
+		word := string(l.input[l.start:l.pos])
+		l.internalLinkLink = word
+		l.emit(tInternalLinkLink)
 		return lexInsideInternalLink
 	default:
-		return l.errorf("unrecognized character in shortcode action: %#U. Note: Parameters with non-alphanumeric args must be quoted", r)
+		l.ignore()
+		return lexInsideInternalLink
 	}
-	return lexInsideInternalLink
+
 }
