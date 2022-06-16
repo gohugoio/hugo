@@ -53,6 +53,17 @@ With `resources.GetRemote`, the first argument is a remote URL:
 
 `resources.Get` and `resources.GetRemote` return `nil` if the resource is not found.
 
+## Copy a Resource
+
+{{< new-in "0.100.0" >}}
+
+`resources.Copy` allows you to copy almost any Hugo `Resource` (the one exception is the `Page`), possibly most useful for renaming things:
+
+```go-html-template
+{{ $resized := $image.Resize "400x400" |  resources.Copy "images/mynewname.jpg" }}
+<img src="{{ $resized.RelPermalink }}">
+```
+
 ### Caching
 
 By default, Hugo calculates a cache key based on the `URL` and the `options` (e.g. headers) given.

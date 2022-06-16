@@ -43,7 +43,7 @@ To use the `readFile` function in your templates, make sure the path is relative
 
 ### `readFile` Example: Add a Project File to Content
 
-As `readFile` is a function, it is only available to you in your templates and not your content. However, we can create a simple [shortcode template][sct] that calls `readFile`, passes the first argument through the function, and then allows an optional second argument to send the file through the Blackfriday markdown processor. The pattern for adding this shortcode to your content will be as follows:
+As `readFile` is a function, it is only available to you in your templates and not your content. However, we can create a simple [shortcode template][sct] that calls `readFile`, passes the first argument through the function, and then allows an optional second argument to send the file through the markdown processor. The pattern for adding this shortcode to your content will be as follows:
 
 ```
 {{</* readfile file="/path/to/local/file.txt" markdown="true" */>}}
