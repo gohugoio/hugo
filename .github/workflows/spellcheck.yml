@@ -5,12 +5,15 @@ on: # rebuild any PRs and main branch changes
       - "dependabot/**"
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   spellcheck:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: streetsidesoftware/cspell-action@3bc52c39528d0214a947ff7f8b5c23ad3273435b
+      - uses: actions/checkout@v3
+      - uses: streetsidesoftware/cspell-action@v2
         with:
           inline: warning
           strict: false
