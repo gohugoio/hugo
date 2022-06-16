@@ -29,7 +29,6 @@ The current list of content formats in Hugo:
 | Name  | Markup identifiers | Comment |
 | ------------- | ------------- |-------------|
 | Goldmark  | md, markdown, goldmark  |Note that you can set the default handler of `md` and `markdown` to something else, see [Configure Markup](/getting-started/configuration-markup/).{{< new-in "0.60.0" >}} |
-| Blackfriday | blackfriday  |Blackfriday will eventually be deprecated.|
 |Emacs Org-Mode|org|See [go-org](https://github.com/niklasfasching/go-org).|
 |AsciiDoc|asciidocext, adoc, ad|Needs [Asciidoctor][ascii] installed.|
 |RST|rst|Needs [RST](https://docutils.sourceforge.io/rst.html) installed.|
@@ -128,8 +127,6 @@ Markdown syntax is simple enough to learn in a single sitting. The following are
 
 [`emojify` function]: /functions/emojify/
 [ascii]: https://asciidoctor.org/
-[bfconfig]: /getting-started/configuration/#configuring-blackfriday-rendering
-[blackfriday]: https://github.com/russross/blackfriday
 [config]: /getting-started/configuration/
 [developer tools]: /tools/
 [emojis]: https://www.webpagefx.com/tools/emoji-cheat-sheet/
