@@ -217,7 +217,7 @@ You can assign content-specific `weight` in the front matter of your content. Th
 
 ## Override Global Markdown Configuration
 
-It's possible to set some options for Markdown rendering in a content's front matter as an override to the [BlackFriday rendering options set in your project configuration][config].
+It's possible to set some options for Markdown rendering in a content's front matter as an override to the [Rendering options set in your project configuration][config].
 
 ## Front Matter Format Specs
 
