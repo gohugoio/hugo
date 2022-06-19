@@ -57,7 +57,11 @@ type pandocConverter struct {
 }
 
 func (c *pandocConverter) Convert(ctx converter.RenderContext) (converter.Result, error) {
-	content, toc, err := c.extractTOC(c.getPandocContent(ctx.Src, c.ctx))
+	contentWithToc, err := c.getPandocContent(ctx.Src, c.ctx)
+	if err != nil {
+		return nil, err
+	}
+	content, toc, err := c.extractTOC(contentWithToc)
 	if err != nil {
 		return nil, err
 	}
