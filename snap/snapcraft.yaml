@@ -18,16 +18,16 @@ package-repositories:
     url: https://deb.nodesource.com/node_16.x
 
 plugs:
-  system-gitconfig:
+  etc-gitconfig:
     interface: system-files
     read:
     - /etc/gitconfig
-  user-gitconfig:
+  gitconfig:
     interface: personal-files
     read:
     - $HOME/.gitconfig
     - $HOME/.config/git/config
-    
+
 apps:
   hugo:
     environment:
