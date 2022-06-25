@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"fmt"
+	"math/rand"
 	"strings"
 	"testing"
 
@@ -319,4 +320,108 @@ The content.
 	b.WithTemplatesAdded("_default/list.html", "HTML List: "+commonTemplate)
 
 	b.CreateSites().Build(BuildCfg{})
+}
+
+func BenchmarkBaseline(b *testing.B) {
+	files := `
+-- config.toml --
+baseURL = "https://example.com"
+defaultContentLanguage = 'en'
+
+[module]
+[[module.mounts]]
+source = 'content/en'
+target = 'content/en'
+lang = 'en'
+[[module.mounts]]
+source = 'content/nn'
+target = 'content/nn'
+lang = 'nn'
+[[module.mounts]]
+source = 'content/no'
+target = 'content/no'
+lang = 'no'
+[[module.mounts]]
+source = 'content/sv'
+target = 'content/sv'
+lang = 'sv'
+[[module.mounts]]
+source = 'layouts'
+target = 'layouts'
+
+[languages]
+[languages.en]
+title = "English"
+weight = 1
+[languages.nn]
+title = "Nynorsk"
+weight = 2
+[languages.no]
+title = "Norsk"
+weight = 3
+[languages.sv]
+title = "Svenska"
+weight = 4
+-- layouts/_default/list.html --
+{{ .Title }}
+{{ .Content }}
+-- layouts/_default/single.html --
+{{ .Title }}
+{{ .Content }}
+-- layouts/shortcodes/myshort.html --
+{{ .Inner }}
+`
+
+	contentTemplate := `
+---
+title: "Page %d"
+date: "2018-01-01"
+weight: %d
+---
+
+## Heading 1
+
+Duis nisi reprehenderit nisi cupidatat cillum aliquip ea id eu esse commodo et.
+
+## Heading 2
+
+Aliqua labore enim et sint anim amet excepteur ea dolore.
+
+{{< myshort >}}
+Hello, World!
+{{< /myshort >}}
+
+Aliqua labore enim et sint anim amet excepteur ea dolore.
+
+
+`
+
+	for _, lang := range []string{"en", "nn", "no", "sv"} {
+		files += fmt.Sprintf("\n-- content/%s/_index.md --\n"+contentTemplate, lang, 1, 1, 1)
+		for i, root := range []string{"", "foo", "bar", "baz"} {
+			for j, section := range []string{"posts", "posts/funny", "posts/science", "posts/politics", "posts/world", "posts/technology", "posts/world/news", "posts/world/news/europe"} {
+				n := i + j + 1
+				files += fmt.Sprintf("\n-- content/%s/%s/%s/_index.md --\n"+contentTemplate, lang, root, section, n, n, n)
+				for k := 1; k < rand.Intn(30)+1; k++ {
+					n := n + k
+					files += fmt.Sprintf("\n-- content/%s/%s/%s/p%d.md --\n"+contentTemplate, lang, root, section, n, n, n)
+				}
+			}
+		}
+	}
+
+	cfg := IntegrationTestConfig{
+		T:           b,
+		TxtarString: files,
+	}
+	builders := make([]*IntegrationTestBuilder, b.N)
+
+	for i := range builders {
+		builders[i] = NewIntegrationTestBuilder(cfg)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		builders[i].Build()
+	}
 }
