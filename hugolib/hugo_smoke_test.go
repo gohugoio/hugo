@@ -322,7 +322,36 @@ The content.
 	b.CreateSites().Build(BuildCfg{})
 }
 
+// This is just a test to verify that BenchmarkBaseline is working as intended.
+func TestBenchmarkBaseline(t *testing.T) {
+	cfg := IntegrationTestConfig{
+		T:           t,
+		TxtarString: benchmarkBaselineFiles(),
+	}
+	b := NewIntegrationTestBuilder(cfg).Build()
+
+	b.Assert(len(b.H.Sites), qt.Equals, 4)
+
+}
+
 func BenchmarkBaseline(b *testing.B) {
+	cfg := IntegrationTestConfig{
+		T:           b,
+		TxtarString: benchmarkBaselineFiles(),
+	}
+	builders := make([]*IntegrationTestBuilder, b.N)
+
+	for i := range builders {
+		builders[i] = NewIntegrationTestBuilder(cfg)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		builders[i].Build()
+	}
+}
+
+func benchmarkBaselineFiles() string {
 	files := `
 -- config.toml --
 baseURL = "https://example.com"
@@ -410,18 +439,5 @@ Aliqua labore enim et sint anim amet excepteur ea dolore.
 		}
 	}
 
-	cfg := IntegrationTestConfig{
-		T:           b,
-		TxtarString: files,
-	}
-	builders := make([]*IntegrationTestBuilder, b.N)
-
-	for i := range builders {
-		builders[i] = NewIntegrationTestBuilder(cfg)
-	}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		builders[i].Build()
-	}
+	return files
 }
