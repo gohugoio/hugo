@@ -38,8 +38,8 @@ apps:
       - home
       - network-bind
       - removable-media
-      - system-gitconfig
-      - user-gitconfig
+      - etc-gitconfig
+      - gitconfig
 
 parts:
   git:
