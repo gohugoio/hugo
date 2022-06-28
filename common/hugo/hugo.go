@@ -38,6 +38,8 @@ const (
 )
 
 var (
+	// buildDate allows vendor-specified build date when .git/ is unavailable.
+	buildDate string
 	// vendorInfo contains vendor notes about the current build.
 	vendorInfo string
 )
