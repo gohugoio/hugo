@@ -62,12 +62,6 @@ parts:
       export GOPATH=$(realpath ../go)
       export PATH=$GOPATH/bin:$PATH
 
-      echo ' * Running "go install -v github.com/magefile/mage"...'
-      go install -v github.com/magefile/mage
-
-      #echo ' * Running "mage -v test"...'
-      #mage -v test
-
       echo " * SNAPCRAFT_IMAGE_INFO=${SNAPCRAFT_IMAGE_INFO=}"
       # Example: SNAPCRAFT_IMAGE_INFO='{"build_url": "https://launchpad.net/~gohugoio/+snap/hugo-extended-dev/+build/344022"}'
       export HUGO_BUILD_TAGS=""
@@ -75,7 +69,7 @@ parts:
         HUGO_BUILD_TAGS="extended"
       fi
       echo " * Building hugo (HUGO_BUILD_TAGS=\"$HUGO_BUILD_TAGS\")..."
-      [ "$SNAPCRAFT_PROJECT_GRADE" = "stable" ] && mage -v hugoNoGitInfo || mage -v hugo
+      go build -v -ldflags '-X github.com/gohugoio/hugo/common/hugo.vendorInfo=snap' -tags "$HUGO_BUILD_TAGS"
       ./hugo version
       ldd hugo || :
 
