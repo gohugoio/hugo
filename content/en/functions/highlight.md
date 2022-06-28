@@ -54,6 +54,10 @@ hl_Lines
 : String. Default is `""`.\
 A space-separated list of lines to emphasize within the highlighted code. To emphasize lines 2, 3, 4, and 7, set this value to `2-4 7`. This option is independent of the `lineNoStart` option.
 
+hl_inline
+: Boolean. Default is `false`.\
+Render the highlighted code without a wrapping container.
+
 style
 : String. Default is `monokai`.\
 The CSS styles to apply to the highlighted code. See the [style gallery] for examples. Case-sensitive.
