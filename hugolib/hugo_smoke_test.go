@@ -331,6 +331,10 @@ func TestBenchmarkBaseline(t *testing.T) {
 	b := NewIntegrationTestBuilder(cfg).Build()
 
 	b.Assert(len(b.H.Sites), qt.Equals, 4)
+	b.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 161)
+	b.Assert(len(b.H.Sites[0].Pages()), qt.Equals, 197)
+	b.Assert(len(b.H.Sites[2].RegularPages()), qt.Equals, 158)
+	b.Assert(len(b.H.Sites[2].Pages()), qt.Equals, 194)
 
 }
 
@@ -352,6 +356,9 @@ func BenchmarkBaseline(b *testing.B) {
 }
 
 func benchmarkBaselineFiles() string {
+
+	rnd := rand.New(rand.NewSource(32))
+
 	files := `
 -- config.toml --
 baseURL = "https://example.com"
@@ -431,7 +438,7 @@ Aliqua labore enim et sint anim amet excepteur ea dolore.
 			for j, section := range []string{"posts", "posts/funny", "posts/science", "posts/politics", "posts/world", "posts/technology", "posts/world/news", "posts/world/news/europe"} {
 				n := i + j + 1
 				files += fmt.Sprintf("\n-- content/%s/%s/%s/_index.md --\n"+contentTemplate, lang, root, section, n, n, n)
-				for k := 1; k < rand.Intn(30)+1; k++ {
+				for k := 1; k < rnd.Intn(30)+1; k++ {
 					n := n + k
 					files += fmt.Sprintf("\n-- content/%s/%s/%s/p%d.md --\n"+contentTemplate, lang, root, section, n, n, n)
 				}
