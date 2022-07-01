@@ -114,6 +114,7 @@ TableOfContents: {{ .Page.TableOfContents }}
 Page Type: {{ printf "%T" .Page }}
 -- layouts/_default/single.html --
 {{ .RenderString "Markdown: {{% mark2 %}}|HTML: {{< myhthml >}}|Inline: {{< foo.inline >}}{{ site.Title }}{{< /foo.inline >}}|" }}
+{{ .RenderString "Commented out shortcode: {{< mark1 >}}Render As Is: {{</* thisdoesnotexist */>}}{{< /mark1 >}}||" }}
 HasShortcode: mark2:{{ .HasShortcode "mark2" }}:true
 HasShortcode: foo:{{ .HasShortcode "foo" }}:false
 
@@ -136,7 +137,9 @@ HTML: Title: P1
 Inline: Hugo Rocks!
 HasShortcode: mark2:true:true
 HasShortcode: foo:false:false
-Page Type: *hugolib.pageForShortcode`,
+Page Type: *hugolib.pageForShortcode
+Commented out shortcode: Render As Is: {{< thisdoesnotexist >}}||
+`,
 		)
 
 	})
