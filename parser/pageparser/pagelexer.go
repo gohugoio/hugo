@@ -54,7 +54,7 @@ type pageLexer struct {
 
 // Implement the Result interface
 func (l *pageLexer) Iterator() *Iterator {
-	return l.newIterator()
+	return NewIterator(l.items)
 }
 
 func (l *pageLexer) Input() []byte {
@@ -83,10 +83,6 @@ func newPageLexer(input []byte, stateStart stateFunc, cfg Config) *pageLexer {
 	lexer.sectionHandlers = createSectionHandlers(lexer)
 
 	return lexer
-}
-
-func (l *pageLexer) newIterator() *Iterator {
-	return &Iterator{l: l, lastPos: -1}
 }
 
 // main loop
@@ -136,6 +132,13 @@ func (l *pageLexer) backup() {
 	l.pos -= l.width
 }
 
+func (l *pageLexer) append(item Item) {
+	if item.Pos() < len(l.input) {
+		item.firstByte = l.input[item.Pos()]
+	}
+	l.items = append(l.items, item)
+}
+
 // sends an item back to the client.
 func (l *pageLexer) emit(t ItemType) {
 	defer func() {
@@ -151,11 +154,11 @@ func (l *pageLexer) emit(t ItemType) {
 				break
 			}
 			if i == l.start && b != '\n' {
-				l.items = append(l.items, Item{tIndentation, l.start, l.input[l.start:l.pos], false})
+				l.append(Item{Type: tIndentation, low: l.start, high: l.pos})
 				return
 			} else if b == '\n' && i < l.pos-1 {
-				l.items = append(l.items, Item{t, l.start, l.input[l.start : i+1], false})
-				l.items = append(l.items, Item{tIndentation, i + 1, l.input[i+1 : l.pos], false})
+				l.append(Item{Type: t, low: l.start, high: i + 1})
+				l.append(Item{Type: tIndentation, low: i + 1, high: l.pos})
 				return
 			} else if b == '\n' && i == l.pos-1 {
 				break
@@ -164,13 +167,13 @@ func (l *pageLexer) emit(t ItemType) {
 		}
 	}
 
-	l.items = append(l.items, Item{t, l.start, l.input[l.start:l.pos], false})
+	l.append(Item{Type: t, low: l.start, high: l.pos})
 
 }
 
 // sends a string item back to the client.
 func (l *pageLexer) emitString(t ItemType) {
-	l.items = append(l.items, Item{t, l.start, l.input[l.start:l.pos], true})
+	l.append(Item{Type: t, low: l.start, high: l.pos, isString: true})
 	l.start = l.pos
 }
 
@@ -180,14 +183,33 @@ func (l *pageLexer) isEOF() bool {
 
 // special case, do not send '\\' back to client
 func (l *pageLexer) ignoreEscapesAndEmit(t ItemType, isString bool) {
-	val := bytes.Map(func(r rune) rune {
+	i := l.start
+	k := i
+
+	var segments []lowHigh
+
+	for i < l.pos {
+		r, w := utf8.DecodeRune(l.input[i:l.pos])
 		if r == '\\' {
-			return -1
+			if i > k {
+				segments = append(segments, lowHigh{k, i})
+			}
+			l.append(Item{Type: TypeIgnore, low: i, high: i + w})
+			k = i + w
 		}
-		return r
-	}, l.input[l.start:l.pos])
-	l.items = append(l.items, Item{t, l.start, val, isString})
+		i += w
+	}
+
+	if k < l.pos {
+		segments = append(segments, lowHigh{k, l.pos})
+	}
+
+	if len(segments) > 0 {
+		l.append(Item{Type: t, segments: segments})
+	}
+
 	l.start = l.pos
+
 }
 
 // gets the current value (for debugging and error handling)
@@ -204,7 +226,7 @@ var lf = []byte("\n")
 
 // nil terminates the parser
 func (l *pageLexer) errorf(format string, args ...any) stateFunc {
-	l.items = append(l.items, Item{tError, l.start, []byte(fmt.Sprintf(format, args...)), true})
+	l.append(Item{Type: tError, Err: fmt.Errorf(format, args...)})
 	return nil
 }
 

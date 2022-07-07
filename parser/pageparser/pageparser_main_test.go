@@ -14,27 +14,29 @@
 package pageparser
 
 import (
-	"fmt"
 	"testing"
+
+	qt "github.com/frankban/quicktest"
 )
 
 func TestMain(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	mainTests := []lexerTest{
-		{"emoji #1", "Some text with :emoji:", []Item{nti(tText, "Some text with "), nti(TypeEmoji, ":emoji:"), tstEOF}},
-		{"emoji #2", "Some text with :emoji: and some text.", []Item{nti(tText, "Some text with "), nti(TypeEmoji, ":emoji:"), nti(tText, " and some text."), tstEOF}},
-		{"looks like an emoji #1", "Some text and then :emoji", []Item{nti(tText, "Some text and then "), nti(tText, ":"), nti(tText, "emoji"), tstEOF}},
-		{"looks like an emoji #2", "Some text and then ::", []Item{nti(tText, "Some text and then "), nti(tText, ":"), nti(tText, ":"), tstEOF}},
-		{"looks like an emoji #3", ":Some :text", []Item{nti(tText, ":"), nti(tText, "Some "), nti(tText, ":"), nti(tText, "text"), tstEOF}},
+		{"emoji #1", "Some text with :emoji:", []typeText{nti(tText, "Some text with "), nti(TypeEmoji, ":emoji:"), tstEOF}},
+		{"emoji #2", "Some text with :emoji: and some text.", []typeText{nti(tText, "Some text with "), nti(TypeEmoji, ":emoji:"), nti(tText, " and some text."), tstEOF}},
+		{"looks like an emoji #1", "Some text and then :emoji", []typeText{nti(tText, "Some text and then "), nti(tText, ":"), nti(tText, "emoji"), tstEOF}},
+		{"looks like an emoji #2", "Some text and then ::", []typeText{nti(tText, "Some text and then "), nti(tText, ":"), nti(tText, ":"), tstEOF}},
+		{"looks like an emoji #3", ":Some :text", []typeText{nti(tText, ":"), nti(tText, "Some "), nti(tText, ":"), nti(tText, "text"), tstEOF}},
 	}
 
 	for i, test := range mainTests {
 		items := collectWithConfig([]byte(test.input), false, lexMainSection, Config{EnableEmoji: true})
-		if !equal(items, test.items) {
-			got := crLfReplacer.Replace(fmt.Sprint(items))
-			expected := crLfReplacer.Replace(fmt.Sprint(test.items))
-			t.Errorf("[%d] %s: got\n\t%v\nexpected\n\t%v", i, test.name, got, expected)
+		if !equal(test.input, items, test.items) {
+			got := itemsToString(items, []byte(test.input))
+			expected := testItemsToString(test.items)
+			c.Assert(got, qt.Equals, expected, qt.Commentf("Test %d: %s", i, test.name))
 		}
 	}
 }

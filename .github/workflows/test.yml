@@ -50,6 +50,7 @@ jobs:
     - if: matrix.os == 'windows-latest'
       run: |
         choco install pandoc
+        choco install mingw --version 10.2.0 --allow-downgrade
     - run: pandoc -v
     - if: matrix.os == 'ubuntu-latest'
       name: Install dart-sass-embedded Linux
