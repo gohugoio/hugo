@@ -45,7 +45,7 @@ func (p pageContent) contentToRender(parsed pageparser.Result, pm *pageContentMa
 	for _, it := range pm.items {
 		switch v := it.(type) {
 		case pageparser.Item:
-			c = append(c, source[v.Pos:v.Pos+len(v.Val)]...)
+			c = append(c, source[v.Pos():v.Pos()+len(v.Val(source))]...)
 		case pageContentReplacement:
 			c = append(c, v.val...)
 		case *shortcode:

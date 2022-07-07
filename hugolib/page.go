@@ -639,7 +639,7 @@ func (p *pageState) mapContentForResult(
 		if fe, ok := err.(herrors.FileError); ok {
 			return fe
 		}
-		return p.parseError(err, iter.Input(), i.Pos)
+		return p.parseError(err, result.Input(), i.Pos())
 	}
 
 	// the parser is guaranteed to return items in proper order or fail, so …
@@ -656,14 +656,14 @@ Loop:
 		case it.Type == pageparser.TypeIgnore:
 		case it.IsFrontMatter():
 			f := pageparser.FormatFromFrontMatterType(it.Type)
-			m, err := metadecoders.Default.UnmarshalToMap(it.Val, f)
+			m, err := metadecoders.Default.UnmarshalToMap(it.Val(result.Input()), f)
 			if err != nil {
 				if fe, ok := err.(herrors.FileError); ok {
 					pos := fe.Position()
 					// Apply the error to the content file.
 					pos.Filename = p.File().Filename()
 					// Offset the starting position of front matter.
-					offset := iter.LineNumber() - 1
+					offset := iter.LineNumber(result.Input()) - 1
 					if f == metadecoders.YAML {
 						offset -= 1
 					}
@@ -687,7 +687,7 @@ Loop:
 
 			next := iter.Peek()
 			if !next.IsDone() {
-				p.source.posMainContent = next.Pos
+				p.source.posMainContent = next.Pos()
 			}
 
 			if !p.s.shouldBuild(p) {
@@ -699,10 +699,10 @@ Loop:
 			posBody := -1
 			f := func(item pageparser.Item) bool {
 				if posBody == -1 && !item.IsDone() {
-					posBody = item.Pos
+					posBody = item.Pos()
 				}
 
-				if item.IsNonWhitespace() {
+				if item.IsNonWhitespace(result.Input()) {
 					p.truncated = true
 
 					// Done
@@ -712,7 +712,7 @@ Loop:
 			}
 			iter.PeekWalk(f)
 
-			p.source.posSummaryEnd = it.Pos
+			p.source.posSummaryEnd = it.Pos()
 			p.source.posBodyStart = posBody
 			p.source.hasSummaryDivider = true
 
@@ -727,13 +727,13 @@ Loop:
 			// let extractShortcode handle left delim (will do so recursively)
 			iter.Backup()
 
-			currShortcode, err := s.extractShortcode(ordinal, 0, iter)
+			currShortcode, err := s.extractShortcode(ordinal, 0, result.Input(), iter)
 			if err != nil {
 				return fail(err, it)
 			}
 
-			currShortcode.pos = it.Pos
-			currShortcode.length = iter.Current().Pos - it.Pos
+			currShortcode.pos = it.Pos()
+			currShortcode.length = iter.Current().Pos() - it.Pos()
 			if currShortcode.placeholder == "" {
 				currShortcode.placeholder = createShortcodePlaceholder("s", currShortcode.ordinal)
 			}
@@ -754,7 +754,7 @@ Loop:
 			rn.AddShortcode(currShortcode)
 
 		case it.Type == pageparser.TypeEmoji:
-			if emoji := helpers.Emoji(it.ValStr()); emoji != nil {
+			if emoji := helpers.Emoji(it.ValStr(result.Input())); emoji != nil {
 				rn.AddReplacement(emoji, it)
 			} else {
 				rn.AddBytes(it)
@@ -762,7 +762,7 @@ Loop:
 		case it.IsEOF():
 			break Loop
 		case it.IsError():
-			err := fail(errors.New(it.ValStr()), it)
+			err := fail(errors.New(it.ValStr(result.Input())), it)
 			currShortcode.err = err
 			return err
 
