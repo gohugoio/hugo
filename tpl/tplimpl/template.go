@@ -153,7 +153,7 @@ func newTemplateExec(d *deps.Deps) (*templateExec, error) {
 		Deps:                d,
 		layoutHandler:       output.NewLayoutHandler(),
 		layoutsFs:           d.BaseFs.Layouts.Fs,
-		layoutTemplateCache: make(map[layoutCacheKey]tpl.Template),
+		layoutTemplateCache: make(map[layoutCacheKey]layoutCacheEntry),
 
 		templateUsageTracker: templateUsageTracker,
 	}
@@ -328,7 +328,7 @@ type templateHandler struct {
 
 	layoutHandler *output.LayoutHandler
 
-	layoutTemplateCache   map[layoutCacheKey]tpl.Template
+	layoutTemplateCache   map[layoutCacheKey]layoutCacheEntry
 	layoutTemplateCacheMu sync.RWMutex
 
 	*deps.Deps
@@ -357,6 +357,12 @@ type templateHandler struct {
 	templateUsageTrackerMu sync.Mutex
 }
 
+type layoutCacheEntry struct {
+	found bool
+	templ tpl.Template
+	err   error
+}
+
 // AddTemplate parses and adds a template to the collection.
 // Templates with name prefixed with "_text" will be handled as plain
 // text templates.
@@ -382,7 +388,7 @@ func (t *templateHandler) LookupLayout(d output.LayoutDescriptor, f output.Forma
 	t.layoutTemplateCacheMu.RLock()
 	if cacheVal, found := t.layoutTemplateCache[key]; found {
 		t.layoutTemplateCacheMu.RUnlock()
-		return cacheVal, true, nil
+		return cacheVal.templ, cacheVal.found, cacheVal.err
 	}
 	t.layoutTemplateCacheMu.RUnlock()
 
@@ -390,12 +396,10 @@ func (t *templateHandler) LookupLayout(d output.LayoutDescriptor, f output.Forma
 	defer t.layoutTemplateCacheMu.Unlock()
 
 	templ, found, err := t.findLayout(d, f)
-	if err == nil && found {
-		t.layoutTemplateCache[key] = templ
-		return templ, true, nil
-	}
+	cacheVal := layoutCacheEntry{found: found, templ: templ, err: err}
+	t.layoutTemplateCache[key] = cacheVal
+	return cacheVal.templ, cacheVal.found, cacheVal.err
 
-	return nil, false, err
 }
 
 // This currently only applies to shortcodes and what we get here is the
