@@ -33,7 +33,7 @@ If you are using the Hugo Snap package, PostCSS and plugin(s) need to be install
 ### Options
 
 config [string]
-: Path to the PostCSS configuration file
+: Set a custom directory to look for a config file
 
 noMap [bool]
 : Default is `false`. Disable the default inline sourcemaps
@@ -63,7 +63,7 @@ syntax [string]
 : Custom postcss syntax
 
 ```go-html-template
-{{ $options := dict "config" "customPostCSS.js" "noMap" true }}
+{{ $options := dict "config" "/path/to/custom-config-directory" "noMap" true }}
 {{ $style := resources.Get "css/main.css" | resources.PostCSS $options }}
 
 {{ $options := dict "use" "autoprefixer postcss-color-alpha" }}
