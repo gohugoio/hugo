@@ -208,9 +208,9 @@ type hugoBuilderCommon struct {
 	baseURL     string
 	environment string
 
-	buildWatch bool
-	poll       string
-	clock      string
+	buildWatch     bool
+	poll           string
+	clock          string
 
 	gc bool
 

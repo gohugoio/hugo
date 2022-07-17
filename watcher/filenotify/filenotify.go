@@ -38,12 +38,3 @@ func NewPollingWatcher(interval time.Duration) FileWatcher {
 		errors:   make(chan error),
 	}
 }
-
-// NewEventWatcher returns an fs-event based file watcher
-func NewEventWatcher() (FileWatcher, error) {
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		return nil, err
-	}
-	return &fsNotifyWatcher{watcher}, nil
-}

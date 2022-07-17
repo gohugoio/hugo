@@ -18,3 +18,11 @@ func (w *fsNotifyWatcher) Events() <-chan fsnotify.Event {
 func (w *fsNotifyWatcher) Errors() <-chan error {
 	return w.Watcher.Errors
 }
+
+func NewFsNotifyWatcher() (FileWatcher, error) {
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		return nil, err
+	}
+	return &fsNotifyWatcher{watcher}, nil
+}

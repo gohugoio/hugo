@@ -835,10 +835,6 @@ func (c *commandeer) fullRebuild(changeType string) {
 
 // newWatcher creates a new watcher to watch filesystem events.
 func (c *commandeer) newWatcher(pollIntervalStr string, dirList ...string) (*watcher.Batcher, error) {
-	if runtime.GOOS == "darwin" {
-		tweakLimit()
-	}
-
 	staticSyncer, err := newStaticSyncer(c)
 	if err != nil {
 		return nil, err

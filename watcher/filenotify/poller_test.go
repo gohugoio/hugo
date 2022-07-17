@@ -221,7 +221,7 @@ func BenchmarkPoller(b *testing.B) {
 }
 
 func prepareTestDirWithSomeFiles(c *qt.C, id string) string {
-	dir, err := ioutil.TempDir("", fmt.Sprintf("test-poller-dir-%s", id))
+	dir, err := ioutil.TempDir("", fmt.Sprintf("test-filenotify-dir-%s", id))
 	c.Assert(err, qt.IsNil)
 	c.Assert(os.MkdirAll(filepath.Join(dir, subdir1), 0777), qt.IsNil)
 	c.Assert(os.MkdirAll(filepath.Join(dir, subdir2), 0777), qt.IsNil)
@@ -247,7 +247,7 @@ func preparePollTest(c *qt.C, poll bool) (string, FileWatcher) {
 		w = NewPollingWatcher(watchWaitTime)
 	} else {
 		var err error
-		w, err = NewEventWatcher()
+		w, err = NewFsNotifyWatcher()
 		c.Assert(err, qt.IsNil)
 	}
 
