@@ -149,7 +149,7 @@ See [Configure File Caches](#configure-file-caches)
 
 {{< new-in "0.86.0" >}}
 
-Pass down down default configuration values (front matter) to pages in the content tree. The options in site config is the same as in page front matter, see [Front Matter Cascade](/content-management/front-matter#front-matter-cascade).
+Pass down default configuration values (front matter) to pages in the content tree. The options in site config is the same as in page front matter, see [Front Matter Cascade](/content-management/front-matter#front-matter-cascade).
 
 ### canonifyURLs
 
