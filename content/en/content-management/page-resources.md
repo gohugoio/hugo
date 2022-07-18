@@ -131,7 +131,7 @@ name
 : Sets the value returned in `Name`.
 
 {{% warning %}}
-The methods `Match` and `GetMatch` use `Name` to match the resources.
+The methods `Match`, `Get` and `GetMatch` use `Name` to match the resources.
 {{%/ warning %}}
 
 title
