@@ -281,7 +281,6 @@ func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 			results, err := replaceShortcodeTokens(currIn.in, currIn.replacements)
 			if err != nil {
 				b.Fatalf("[%d] failed: %s", i, err)
-				continue
 			}
 			if len(results) != len(currIn.expect) {
 				b.Fatalf("[%d] replaceShortcodeTokens, got \n%q but expected \n%q", j, results, currIn.expect)
