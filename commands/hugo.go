@@ -284,10 +284,6 @@ func setValueFromFlag(flags *flag.FlagSet, key string, cfg config.Provider, targ
 	}
 }
 
-func isTerminal() bool {
-	return terminal.IsTerminal(os.Stdout)
-}
-
 func (c *commandeer) fullBuild(noBuildLock bool) error {
 	var (
 		g         errgroup.Group
@@ -297,7 +293,7 @@ func (c *commandeer) fullBuild(noBuildLock bool) error {
 	if !c.h.quiet {
 		fmt.Println("Start building sites … ")
 		fmt.Println(hugo.BuildVersionString())
-		if isTerminal() {
+		if terminal.IsTerminal(os.Stdout) {
 			defer func() {
 				fmt.Print(showCursor + clearLine)
 			}()

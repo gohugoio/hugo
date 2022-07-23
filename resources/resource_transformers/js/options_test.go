@@ -150,11 +150,16 @@ func TestResolveComponentInAssets(t *testing.T) {
 		{"Index file, folder only", []string{"foo/index.js", "bar.js"}, "foo", "foo/index.js"},
 		{"Index file, folder and index", []string{"foo/index.js", "bar.js"}, "foo/index", "foo/index.js"},
 		{"Index file, folder and index and suffix", []string{"foo/index.js", "bar.js"}, "foo/index.js", "foo/index.js"},
+		{"Index ESM file, folder only", []string{"foo/index.esm.js", "bar.js"}, "foo", "foo/index.esm.js"},
+		{"Index ESM file, folder and index", []string{"foo/index.esm.js", "bar.js"}, "foo/index", "foo/index.esm.js"},
+		{"Index ESM file, folder and index and suffix", []string{"foo/index.esm.js", "bar.js"}, "foo/index.esm.js", "foo/index.esm.js"},
+		// We added these index.esm.js cases in v0.101.0. The case below is unlikely to happen in the wild, but add a test
+		// to document Hugo's behavior. We pick the file with the name index.js; anything else would be breaking.
+		{"Index and Index ESM file, folder only", []string{"foo/index.esm.js", "foo/index.js", "bar.js"}, "foo", "foo/index.js"},
 
 		// Issue #8949
 		{"Check file before directory", []string{"foo.js", "foo/index.js"}, "foo", "foo.js"},
 	} {
-
 		c.Run(test.name, func(c *qt.C) {
 			baseDir := "assets"
 			mfs := afero.NewMemMapFs()

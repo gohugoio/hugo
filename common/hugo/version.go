@@ -154,6 +154,10 @@ func BuildVersionString() string {
 
 	date := bi.RevisionTime
 	if date == "" {
+		// Accept vendor-specified build date if .git/ is unavailable.
+		date = buildDate
+	}
+	if date == "" {
 		date = "unknown"
 	}
 

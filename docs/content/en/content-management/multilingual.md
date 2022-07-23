@@ -140,31 +140,6 @@ Press Ctrl+C to stop
 
 Live reload and `--navigateToChanged` between the servers work as expected.
 
-### Taxonomies and Blackfriday
-
-Taxonomies and [Blackfriday configuration][config] can also be set per language:
-
-{{< code-toggle file="config" >}}
-[Taxonomies]
-tag = "tags"
-
-[blackfriday]
-angledQuotes = true
-hrefTargetBlank = true
-
-[languages]
-[languages.en]
-weight = 1
-title = "English"
-[languages.en.blackfriday]
-angledQuotes = false
-
-[languages.fr]
-weight = 2
-title = "Français"
-[languages.fr.Taxonomies]
-plaque = "plaques"
-{{</ code-toggle >}}
 
 ## Translate Your Content
 

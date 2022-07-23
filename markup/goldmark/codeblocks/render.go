@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/alecthomas/chroma/lexers"
+	"github.com/alecthomas/chroma/v2/lexers"
 	"github.com/gohugoio/hugo/common/herrors"
 	htext "github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/markup/converter/hooks"

@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2022 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,6 +28,15 @@ const (
 	warningColor = "\033[0;33m%s\033[0m"
 	noticeColor  = "\033[1;36m%s\033[0m"
 )
+
+// PrintANSIColors returns false if NO_COLOR env variable is set,
+// else  IsTerminal(f).
+func PrintANSIColors(f *os.File) bool {
+	if os.Getenv("NO_COLOR") != "" {
+		return false
+	}
+	return IsTerminal(f)
+}
 
 // IsTerminal return true if the file descriptor is terminal and the TERM
 // environment variable isn't a dumb one.

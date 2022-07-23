@@ -17,6 +17,7 @@ import (
 	"strings"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/langs"
 )
@@ -59,6 +60,7 @@ func TestAbsURL(t *testing.T) {
 }
 
 func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool, lang string) {
+	c := qt.New(t)
 	v := newTestCfg()
 	v.Set("multilingual", multilingual)
 	v.Set("defaultContentLanguage", "en")
@@ -69,6 +71,10 @@ func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 		baseURL  string
 		expected string
 	}{
+		// Issue 9994
+		{"foo/bar", "https://example.org/foo/", "https://example.org/foo/MULTIfoo/bar"},
+		{"/foo/bar", "https://example.org/foo/", "https://example.org/MULTIfoo/bar"},
+
 		{"/test/foo", "http://base/", "http://base/MULTItest/foo"},
 		{"/" + lang + "/test/foo", "http://base/", "http://base/" + lang + "/test/foo"},
 		{"", "http://base/ace/", "http://base/ace/MULTI"},
@@ -113,9 +119,8 @@ func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 		} else {
 			expected = strings.Replace(expected, "MULTI", "", 1)
 		}
-		if output != expected {
-			t.Fatalf("Expected %#v, got %#v\n", expected, output)
-		}
+
+		c.Assert(output, qt.Equals, expected)
 	}
 }
 
@@ -132,6 +137,7 @@ func TestRelURL(t *testing.T) {
 }
 
 func doTestRelURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool, lang string) {
+	c := qt.New(t)
 	v := newTestCfg()
 	v.Set("multilingual", multilingual)
 	v.Set("defaultContentLanguage", "en")
@@ -143,13 +149,18 @@ func doTestRelURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 		canonify bool
 		expected string
 	}{
+
+		// Issue 9994
+		{"/foo/bar", "https://example.org/foo/", false, "MULTI/foo/bar"},
+		{"foo/bar", "https://example.org/foo/", false, "/fooMULTI/foo/bar"},
+
 		{"/test/foo", "http://base/", false, "MULTI/test/foo"},
 		{"/" + lang + "/test/foo", "http://base/", false, "/" + lang + "/test/foo"},
 		{lang + "/test/foo", "http://base/", false, "/" + lang + "/test/foo"},
 		{"test.css", "http://base/sub", false, "/subMULTI/test.css"},
 		{"test.css", "http://base/sub", true, "MULTI/test.css"},
 		{"/test/", "http://base/", false, "MULTI/test/"},
-		{"/test/", "http://base/sub/", false, "/subMULTI/test/"},
+		{"test/", "http://base/sub/", false, "/subMULTI/test/"},
 		{"/test/", "http://base/sub/", true, "MULTI/test/"},
 		{"", "http://base/ace/", false, "/aceMULTI/"},
 		{"", "http://base/ace", false, "/aceMULTI"},
@@ -189,9 +200,8 @@ func doTestRelURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 			expected = strings.Replace(expected, "MULTI", "", 1)
 		}
 
-		if output != expected {
-			t.Errorf("[%d][%t] Expected %#v, got %#v\n", i, test.canonify, expected, output)
-		}
+		c.Assert(output, qt.Equals, expected, qt.Commentf("[%d] %s", i, test.input))
+
 	}
 }
 

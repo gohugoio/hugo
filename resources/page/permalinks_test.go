@@ -36,6 +36,7 @@ var testdataPermalinks = []struct {
 	{"/:section/", true, "/blue/"},                                  // Section
 	{"/:title/", true, "/spf13-vim-3.0-release-and-new-website/"},   // Title
 	{"/:slug/", true, "/the-slug/"},                                 // Slug
+	{"/:slugorfilename/", true, "/the-slug/"},                       // Slug or filename
 	{"/:filename/", true, "/test-page/"},                            // Filename
 	{"/:06-:1-:2-:Monday", true, "/12-4-6-Friday"},                  // Dates with Go formatting
 	{"/:2006_01_02_15_04_05.000", true, "/2012_04_06_03_01_59.000"}, // Complicated custom date format
@@ -102,9 +103,13 @@ func TestPermalinkExpansionMultiSection(t *testing.T) {
 	page.section = "blue"
 	page.slug = "The Slug"
 
+	page_slug_fallback := newTestPageWithFile("/page-filename/index.md")
+	page_slug_fallback.title = "Page Title"
+
 	permalinksConfig := map[string]string{
-		"posts": "/:slug",
-		"blog":  "/:section/:year",
+		"posts":   "/:slug",
+		"blog":    "/:section/:year",
+		"recipes": "/:slugorfilename",
 	}
 
 	ps := newTestPathSpec()
@@ -120,6 +125,14 @@ func TestPermalinkExpansionMultiSection(t *testing.T) {
 	expanded, err = expander.Expand("blog", page)
 	c.Assert(err, qt.IsNil)
 	c.Assert(expanded, qt.Equals, "/blue/2012")
+
+	expanded, err = expander.Expand("posts", page_slug_fallback)
+	c.Assert(err, qt.IsNil)
+	c.Assert(expanded, qt.Equals, "/page-title")
+
+	expanded, err = expander.Expand("recipes", page_slug_fallback)
+	c.Assert(err, qt.IsNil)
+	c.Assert(expanded, qt.Equals, "/page-filename")
 }
 
 func TestPermalinkExpansionConcurrent(t *testing.T) {

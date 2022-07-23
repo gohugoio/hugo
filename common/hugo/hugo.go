@@ -38,6 +38,8 @@ const (
 )
 
 var (
+	// buildDate allows vendor-specified build date when .git/ is unavailable.
+	buildDate string
 	// vendorInfo contains vendor notes about the current build.
 	vendorInfo string
 )
@@ -52,6 +54,9 @@ type Info struct {
 	// This can also be set by the user.
 	// It can be any string, but it will be all lower case.
 	Environment string
+
+	// version of go that the Hugo binary was built with
+	GoVersion string
 
 	deps []*Dependency
 }
@@ -87,12 +92,14 @@ func NewInfo(environment string, deps []*Dependency) Info {
 	var (
 		commitHash string
 		buildDate  string
+		goVersion  string
 	)
 
 	bi := getBuildInfo()
 	if bi != nil {
 		commitHash = bi.Revision
 		buildDate = bi.RevisionTime
+		goVersion = bi.GoVersion
 	}
 
 	return Info{
@@ -100,6 +107,7 @@ func NewInfo(environment string, deps []*Dependency) Info {
 		BuildDate:   buildDate,
 		Environment: environment,
 		deps:        deps,
+		GoVersion:   goVersion,
 	}
 }
 

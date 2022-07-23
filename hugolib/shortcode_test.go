@@ -112,7 +112,7 @@ title: "Shortcodes Galore!"
 			handler := newShortcodeHandler(nil, s)
 			iter := p.Iterator()
 
-			short, err := handler.extractShortcode(0, 0, iter)
+			short, err := handler.extractShortcode(0, 0, p.Input(), iter)
 
 			test.check(c, short, err)
 		})
@@ -763,7 +763,7 @@ title: "Hugo Rocks!"
 	)
 }
 
-func TestShortcodeTypedParams(t *testing.T) {
+func TestShortcodeParams(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
@@ -778,6 +778,7 @@ title: "Hugo Rocks!"
 types positional: {{< hello true false 33 3.14 >}}
 types named: {{< hello b1=true b2=false i1=33 f1=3.14 >}}
 types string: {{< hello "true" trues "33" "3.14" >}}
+escaped quoute: {{< hello "hello \"world\"." >}}
 
 
 `).WithTemplatesAdded(
@@ -796,6 +797,7 @@ Get: {{ printf "%v (%T)" $b1 $b1 | safeHTML }}
 		"types positional: - 0: true (bool) - 1: false (bool) - 2: 33 (int) - 3: 3.14 (float64)",
 		"types named: - b1: true (bool) - b2: false (bool) - f1: 3.14 (float64) - i1: 33 (int) Get: true (bool) ",
 		"types string: - 0: true (string) - 1: trues (string) - 2: 33 (string) - 3: 3.14 (string) ",
+		"hello &#34;world&#34;. (string)",
 	)
 }
 

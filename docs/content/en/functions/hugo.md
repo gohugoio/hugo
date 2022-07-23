@@ -27,8 +27,8 @@ hugo.Generator
 hugo.Version
 : the current version of the Hugo binary you are using e.g. `0.63.2`
 
-
-`hugo` returns an instance that contains the following functions:
+hugo.GoVersion
+: returns the version of Go that the Hugo binary was built with. {{< new-in "0.101.0" >}}
 
 hugo.Environment
 : the current running environment as defined through the `--environment` cli tag
@@ -51,7 +51,6 @@ We highly recommend using `hugo.Generator` in your website's `<head>`. `hugo.Gen
 
 hugo.Deps
 : See [hugo.Deps](#hugodeps)
-
 
 ## hugo.Deps
 
