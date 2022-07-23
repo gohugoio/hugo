@@ -1,11 +1,11 @@
-{{- with .Description | $.RenderString | plainify -}}
-{{- . -}}
-{{- else -}}
-{{- if .IsPage -}}
-{{- .Summary | plainify -}}
-{{- else -}}
-{{- with .Site.Params.description | $.RenderString | plainify -}}
-{{- . -}}
-{{- end -}}
-{{- end -}}
-{{- end -}}
+{{ with .Description | $.RenderString | plainify -}}
+{{ . -}}
+{{ else -}}
+{{ if .IsPage -}}
+{{ .Summary | plainify | chomp -}}
+{{ else -}}
+{{ with .Site.Params.description | $.RenderString | plainify -}}
+{{ . -}}
+{{ end -}}
+{{ end -}}
+{{ end -}}
