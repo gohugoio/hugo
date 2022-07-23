@@ -188,7 +188,7 @@ func getAttributes(node *ast.FencedCodeBlock, infostr []byte) []ast.Attribute {
 			}
 		}
 
-		if attrStartIdx > 0 {
+		if attrStartIdx != -1 {
 			n := ast.NewTextBlock() // dummy node for storing attributes
 			attrStr := infostr[attrStartIdx:]
 			if attrs, hasAttr := parser.ParseAttributes(text.NewReader(attrStr)); hasAttr {
