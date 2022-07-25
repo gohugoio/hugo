@@ -285,7 +285,7 @@ Hello, World!
 -- layouts/_default/single.html --
 {{ .Content }}
 -- layouts/_default/_markup/render-codeblock.html --
-Attributes: {{ .Attributes }}
+Attributes: {{ .Attributes }}|Type: {{ .Type }}|
 `
 
 	b := hugolib.NewIntegrationTestBuilder(
@@ -295,7 +295,7 @@ Attributes: {{ .Attributes }}
 		},
 	).Build()
 
-	b.AssertFileContent("public/p1/index.html", "<h2 id=\"issue-10118\">Issue 10118</h2>\nAttributes: map[foo:bar]")
+	b.AssertFileContent("public/p1/index.html", "<h2 id=\"issue-10118\">Issue 10118</h2>\nAttributes: map[foo:bar]|Type: |")
 }
 
 // Issue 9571
