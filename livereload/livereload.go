@@ -43,6 +43,8 @@ import (
 	"net/url"
 	"path/filepath"
 
+	_ "embed"
+
 	"github.com/gorilla/websocket"
 )
 
@@ -152,7 +154,7 @@ func liveReloadJS() []byte {
 
 var (
 	// This is a patched version, see https://github.com/livereload/livereload-js/pull/84
-	// go:embed livereload.js
+	//go:embed livereload.js
 	livereloadJS         string
 	hugoLiveReloadPlugin = fmt.Sprintf(`
 /*
