@@ -43,6 +43,8 @@ import (
 	"net/url"
 	"path/filepath"
 
+	_ "embed"
+
 	"github.com/gorilla/websocket"
 )
 
