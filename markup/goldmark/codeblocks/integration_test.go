@@ -265,6 +265,39 @@ Position: {{ .Position | safeHTML }}
 	b.AssertFileContent("public/p1/index.html", filepath.FromSlash("Position: \"/content/p1.md:7:1\""))
 }
 
+// Issue 10118
+func TestAttributes(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+-- content/p1.md --
+---
+title: "p1"
+---
+
+## Issue 10118
+
+§§§ {foo="bar"}
+Hello, World!
+§§§
+
+-- layouts/_default/single.html --
+{{ .Content }}
+-- layouts/_default/_markup/render-codeblock.html --
+Attributes: {{ .Attributes }}|Type: {{ .Type }}|
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", "<h2 id=\"issue-10118\">Issue 10118</h2>\nAttributes: map[foo:bar]|Type: |")
+}
+
 // Issue 9571
 func TestAttributesChroma(t *testing.T) {
 	t.Parallel()
