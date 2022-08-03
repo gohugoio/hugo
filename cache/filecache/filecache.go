@@ -295,6 +295,9 @@ func (c *Cache) isExpired(modTime time.Time) bool {
 	if c.maxAge < 0 {
 		return false
 	}
+
+	// Note the use of time.Since here.
+	// We cannot use Hugo's global Clock for this.
 	return c.maxAge == 0 || time.Since(modTime) > c.maxAge
 }
 

@@ -34,3 +34,8 @@ func (t *Template) Prepare() (*template.Template, error) {
 	}
 	return t.text, nil
 }
+
+// See https://github.com/golang/go/issues/5884
+func StripTags(html string) string {
+	return stripTags(html)
+}

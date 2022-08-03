@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/gohugoio/hugo/parser"
 	"github.com/gohugoio/hugo/parser/metadecoders"

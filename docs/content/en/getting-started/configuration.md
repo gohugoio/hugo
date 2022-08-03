@@ -121,9 +121,6 @@ The directory where Hugo finds asset files used in [Hugo Pipes](/hugo-pipes/). {
 ### baseURL
 Hostname (and path) to the root, e.g. https://bep.is/
 
-### blackfriday
-See [Configure Blackfriday](/getting-started/configuration-markup#blackfriday)
-
 ### build
 See [Configure Build](#configure-build)
 

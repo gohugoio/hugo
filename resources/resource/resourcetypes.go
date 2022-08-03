@@ -26,8 +26,7 @@ var (
 	_ ResourceError        = (*resourceError)(nil)
 )
 
-// Cloner is an internal template and not meant for use in the templates. It
-// may change without notice.
+// Cloner is for internal use.
 type Cloner interface {
 	Clone() Resource
 }

@@ -28,6 +28,7 @@ import (
 
 	"github.com/gohugoio/hugo/parser/pageparser"
 
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugio"
 
 	"github.com/gohugoio/hugo/parser/metadecoders"
@@ -35,7 +36,6 @@ import (
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/parser"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
@@ -201,12 +201,7 @@ func (i *importCmd) retrieveJekyllPostDir(fs afero.Fs, dir string) (bool, bool) 
 }
 
 func (i *importCmd) createSiteFromJekyll(jekyllRoot, targetDir string, jekyllPostDirs map[string]bool, force bool) error {
-	s, err := hugolib.NewSiteDefaultLang()
-	if err != nil {
-		return err
-	}
-
-	fs := s.Fs.Source
+	fs := &afero.OsFs{}
 	if exists, _ := helpers.Exists(targetDir, fs); exists {
 		if isDir, _ := helpers.IsDir(targetDir, fs); !isDir {
 			return errors.New("target path \"" + targetDir + "\" exists but is not a directory")
@@ -362,12 +357,12 @@ func parseJekyllFilename(filename string) (time.Time, string, error) {
 	re := regexp.MustCompile(`(\d+-\d+-\d+)-(.+)\..*`)
 	r := re.FindAllStringSubmatch(filename, -1)
 	if len(r) == 0 {
-		return time.Now(), "", errors.New("filename not match")
+		return htime.Now(), "", errors.New("filename not match")
 	}
 
 	postDate, err := time.Parse("2006-1-2", r[0][1])
 	if err != nil {
-		return time.Now(), "", err
+		return htime.Now(), "", err
 	}
 
 	postName := r[0][2]

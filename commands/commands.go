@@ -210,6 +210,7 @@ type hugoBuilderCommon struct {
 
 	buildWatch bool
 	poll       string
+	clock      string
 
 	gc bool
 
@@ -279,6 +280,7 @@ func (cc *hugoBuilderCommon) handleCommonBuilderFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().StringVarP(&cc.environment, "environment", "e", "", "build environment")
 	cmd.PersistentFlags().StringP("themesDir", "", "", "filesystem path to themes directory")
 	cmd.PersistentFlags().StringP("ignoreVendorPaths", "", "", "ignores any _vendor for module paths matching the given Glob pattern")
+	cmd.PersistentFlags().StringVar(&cc.clock, "clock", "", "set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00")
 }
 
 func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
@@ -303,6 +305,7 @@ func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolP("forceSyncStatic", "", false, "copy all files when static is changed.")
 	cmd.Flags().BoolP("noTimes", "", false, "don't sync modification time of files")
 	cmd.Flags().BoolP("noChmod", "", false, "don't sync permission mode of files")
+	cmd.Flags().BoolP("noBuildLock", "", false, "don't create .hugo_build.lock file")
 	cmd.Flags().BoolP("printI18nWarnings", "", false, "print missing translations")
 	cmd.Flags().BoolP("printPathWarnings", "", false, "print warnings on duplicate target paths etc.")
 	cmd.Flags().BoolP("printUnusedTemplates", "", false, "print warnings on unused templates.")

@@ -14,8 +14,10 @@
 package dartsass_test
 
 import (
+	"strings"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/dartsass"
 	jww "github.com/spf13/jwalterweatherman"
@@ -194,5 +196,78 @@ T1: {{ $r.Content }}
 
 	b.AssertLogMatches(`WARN.*Dart Sass: foo`)
 	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:1:0: bar`)
+
+}
+
+func TestTransformErrors(t *testing.T) {
+	if !dartsass.Supports() {
+		t.Skip()
+	}
+
+	c := qt.New(t)
+
+	const filesTemplate = `
+-- config.toml --
+-- assets/scss/components/_foo.scss --
+/* comment line 1 */
+$foocolor: #ccc;
+
+foo {
+	color: $foocolor;
+}
+-- assets/scss/main.scss --
+/* comment line 1 */
+/* comment line 2 */
+@import "components/foo";
+/* comment line 4 */
+
+  $maincolor: #eee;
+
+body {
+	color: $maincolor;
+}
+
+-- layouts/index.html --
+{{ $cssOpts := dict "transpiler" "dartsass" }}
+{{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts  | minify  }}
+T1: {{ $r.Content }}
+
+	`
+
+	c.Run("error in main", func(c *qt.C) {
+		b, err := hugolib.NewIntegrationTestBuilder(
+			hugolib.IntegrationTestConfig{
+				T:           c,
+				TxtarString: strings.Replace(filesTemplate, "$maincolor: #eee;", "$maincolor #eee;", 1),
+				NeedsOsFS:   true,
+			}).BuildE()
+
+		b.Assert(err, qt.IsNotNil)
+		b.Assert(err.Error(), qt.Contains, `main.scss:8:13":`)
+		b.Assert(err.Error(), qt.Contains, `: expected ":".`)
+		fe := b.AssertIsFileError(err)
+		b.Assert(fe.ErrorContext(), qt.IsNotNil)
+		b.Assert(fe.ErrorContext().Lines, qt.DeepEquals, []string{"  $maincolor #eee;", "", "body {", "\tcolor: $maincolor;", "}"})
+		b.Assert(fe.ErrorContext().ChromaLexer, qt.Equals, "scss")
+
+	})
+
+	c.Run("error in import", func(c *qt.C) {
+		b, err := hugolib.NewIntegrationTestBuilder(
+			hugolib.IntegrationTestConfig{
+				T:           c,
+				TxtarString: strings.Replace(filesTemplate, "$foocolor: #ccc;", "$foocolor #ccc;", 1),
+				NeedsOsFS:   true,
+			}).BuildE()
+
+		b.Assert(err, qt.IsNotNil)
+		b.Assert(err.Error(), qt.Contains, `_foo.scss:2:10":`)
+		b.Assert(err.Error(), qt.Contains, `: expected ":".`)
+		fe := b.AssertIsFileError(err)
+		b.Assert(fe.ErrorContext(), qt.IsNotNil)
+		b.Assert(fe.ErrorContext().Lines, qt.DeepEquals, []string{"/* comment line 1 */", "$foocolor #ccc;", "", "foo {"})
+		b.Assert(fe.ErrorContext().ChromaLexer, qt.Equals, "scss")
+
+	})
 
 }

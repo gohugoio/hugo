@@ -23,7 +23,6 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/modules"
-	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/hugofs"
 )
@@ -35,6 +34,8 @@ type Paths struct {
 	Cfg config.Provider
 
 	BaseURL
+	BaseURLString       string
+	BaseURLNoPathString string
 
 	// If the baseURL contains a base path, e.g. https://example.com/docs, then "/docs" will be the BasePath.
 	BasePath string
@@ -83,7 +84,7 @@ func New(fs *hugofs.Fs, cfg config.Provider) (*Paths, error) {
 	baseURLstr := cfg.GetString("baseURL")
 	baseURL, err := newBaseURLFromString(baseURLstr)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to create baseURL from %q:", baseURLstr)
+		return nil, fmt.Errorf("Failed to create baseURL from %q:: %w", baseURLstr, err)
 	}
 
 	contentDir := filepath.Clean(cfg.GetString("contentDir"))
@@ -146,10 +147,17 @@ func New(fs *hugofs.Fs, cfg config.Provider) (*Paths, error) {
 		}
 	}
 
+	var baseURLString = baseURL.String()
+	var baseURLNoPath = baseURL.URL()
+	baseURLNoPath.Path = ""
+	var baseURLNoPathString = baseURLNoPath.String()
+
 	p := &Paths{
-		Fs:      fs,
-		Cfg:     cfg,
-		BaseURL: baseURL,
+		Fs:                  fs,
+		Cfg:                 cfg,
+		BaseURL:             baseURL,
+		BaseURLString:       baseURLString,
+		BaseURLNoPathString: baseURLNoPathString,
 
 		DisablePathToLower: cfg.GetBool("disablePathToLower"),
 		RemovePathAccents:  cfg.GetBool("removePathAccents"),

@@ -14,11 +14,12 @@
 package openapi3
 
 import (
+	"fmt"
 	"io/ioutil"
 
 	gyaml "github.com/ghodss/yaml"
 
-	"github.com/pkg/errors"
+	"errors"
 
 	kopenapi3 "github.com/getkin/kin-openapi/openapi3"
 	"github.com/gohugoio/hugo/cache/namedmemcache"
@@ -57,7 +58,7 @@ func (ns *Namespace) Unmarshal(r resource.UnmarshableResource) (*kopenapi3.T, er
 	v, err := ns.cache.GetOrCreate(key, func() (any, error) {
 		f := metadecoders.FormatFromMediaType(r.MediaType())
 		if f == "" {
-			return nil, errors.Errorf("MIME %q not supported", r.MediaType())
+			return nil, fmt.Errorf("MIME %q not supported", r.MediaType())
 		}
 
 		reader, err := r.ReadSeekCloser()

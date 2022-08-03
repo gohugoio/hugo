@@ -95,18 +95,15 @@ Website needs to showcase a few of the hundred "testimonials" available as conte
 
 To avoid setting the build options on every testimonials, one can use [`cascade`]({{< relref "/content-management/front-matter#front-matter-cascade" >}}) on the testimonial section's content file.
 
-```yaml
-#content/testimonials/_index.md
+{{< code-toggle >}}
 title: Testimonials
-# section build options:
 _build:
   render: true
-# children build options with cascade
 cascade:
   _build:
     render: false
     list: true # default
-```
+{{< /code-toggle >}}
 
 ```go-html-template
 {{/* layouts/_defaults/testimonials.html */}}

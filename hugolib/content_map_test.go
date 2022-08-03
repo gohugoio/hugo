@@ -383,8 +383,8 @@ Blog Section: {{ template "print-page" $blog }}
 Blog Sub Section: {{ template "print-page" $blogSub }}
 Page: {{ template "print-page" $page }}
 Bundle: {{ template "print-page" $bundle }}
-IsDescendant: true: {{ $page.IsDescendant $blog }} true: {{ $blogSub.IsDescendant $blog }} true: {{ $bundle.IsDescendant $blog }} true: {{ $page4.IsDescendant $blog }} true: {{ $blog.IsDescendant $home }} true: {{ $blog.IsDescendant $blog }} false: {{ $home.IsDescendant $blog }}
-IsAncestor: true: {{ $blog.IsAncestor $page }} true: {{ $home.IsAncestor $blog }} true: {{ $blog.IsAncestor $blogSub }} true: {{ $blog.IsAncestor $bundle }} true: {{ $blog.IsAncestor $page4 }} true: {{ $home.IsAncestor $page }} true: {{ $blog.IsAncestor $blog }} false: {{ $page.IsAncestor $blog }} false: {{ $blog.IsAncestor $home }}  false: {{ $blogSub.IsAncestor $blog }}
+IsDescendant: true: {{ $page.IsDescendant $blog }} true: {{ $blogSub.IsDescendant $blog }} true: {{ $bundle.IsDescendant $blog }} true: {{ $page4.IsDescendant $blog }} true: {{ $blog.IsDescendant $home }} false: {{ $blog.IsDescendant $blog }} false: {{ $home.IsDescendant $blog }}
+IsAncestor: true: {{ $blog.IsAncestor $page }} true: {{ $home.IsAncestor $blog }} true: {{ $blog.IsAncestor $blogSub }} true: {{ $blog.IsAncestor $bundle }} true: {{ $blog.IsAncestor $page4 }} true: {{ $home.IsAncestor $page }} false: {{ $blog.IsAncestor $blog }} false: {{ $page.IsAncestor $blog }} false: {{ $blog.IsAncestor $home }}  false: {{ $blogSub.IsAncestor $blog }}
 IsDescendant overlap1: false: {{ $overlap1.IsDescendant $overlap2 }}
 IsDescendant overlap2: false: {{ $overlap2.IsDescendant $overlap1 }}
 IsAncestor overlap1: false: {{ $overlap1.IsAncestor $overlap2 }}
@@ -426,8 +426,8 @@ Draft5: {{ if (.Site.GetPage "blog/draftsection/sub/page") }}FOUND{{ end }}|
         Blog Sub Section: Page 3|/blog/subsection/|2019-06-03|Current Section: blog/subsection|Resources: application: /blog/subsection/subdata.json|
         Page: Page 1|/blog/page1/|2019-06-01|Current Section: blog|Resources: 
         Bundle: Page 12|/blog/bundle/|0001-01-01|Current Section: blog|Resources: application: /blog/bundle/data.json|page: |
-        IsDescendant: true: true true: true true: true true: true true: true true: true false: false
-        IsAncestor: true: true true: true true: true true: true true: true true: true true: true false: false false: false  false: false
+        IsDescendant: true: true true: true true: true true: true true: true false: false false: false
+        IsAncestor: true: true true: true true: true true: true true: true true: true false: false false: false false: false  false: false
         IsDescendant overlap1: false: false
         IsDescendant overlap2: false: false
         IsAncestor overlap1: false: false

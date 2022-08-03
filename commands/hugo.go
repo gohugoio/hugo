@@ -33,15 +33,14 @@ import (
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/tpl"
 
+	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/resources/page"
 
-	"github.com/pkg/errors"
-
-	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/terminal"
@@ -128,6 +127,12 @@ func initializeConfig(mustHaveConfigFile, failOnInitErr, running bool,
 		return nil, err
 	}
 
+	if h := c.hugoTry(); h != nil {
+		for _, s := range h.Sites {
+			s.RegisterMediaTypes()
+		}
+	}
+
 	return c, nil
 }
 
@@ -190,6 +195,7 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"buildDrafts",
 		"buildFuture",
 		"buildExpired",
+		"clock",
 		"uglyURLs",
 		"canonifyURLs",
 		"enableRobotsTXT",
@@ -200,6 +206,7 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"forceSyncStatic",
 		"noTimes",
 		"noChmod",
+		"noBuildLock",
 		"ignoreVendorPaths",
 		"templateMetrics",
 		"templateMetricsHints",
@@ -277,10 +284,6 @@ func setValueFromFlag(flags *flag.FlagSet, key string, cfg config.Provider, targ
 	}
 }
 
-func isTerminal() bool {
-	return terminal.IsTerminal(os.Stdout)
-}
-
 func (c *commandeer) fullBuild(noBuildLock bool) error {
 	var (
 		g         errgroup.Group
@@ -290,7 +293,7 @@ func (c *commandeer) fullBuild(noBuildLock bool) error {
 	if !c.h.quiet {
 		fmt.Println("Start building sites … ")
 		fmt.Println(hugo.BuildVersionString())
-		if isTerminal() {
+		if terminal.IsTerminal(os.Stdout) {
 			defer func() {
 				fmt.Print(showCursor + clearLine)
 			}()
@@ -300,14 +303,14 @@ func (c *commandeer) fullBuild(noBuildLock bool) error {
 	copyStaticFunc := func() error {
 		cnt, err := c.copyStatic()
 		if err != nil {
-			return errors.Wrap(err, "Error copying static files")
+			return fmt.Errorf("Error copying static files: %w", err)
 		}
 		langCount = cnt
 		return nil
 	}
 	buildSitesFunc := func() error {
 		if err := c.buildSites(noBuildLock); err != nil {
-			return errors.Wrap(err, "Error building site")
+			return fmt.Errorf("Error building site: %w", err)
 		}
 		return nil
 	}
@@ -354,10 +357,10 @@ func (c *commandeer) initCPUProfile() (func(), error) {
 
 	f, err := os.Create(c.h.cpuprofile)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create CPU profile")
+		return nil, fmt.Errorf("failed to create CPU profile: %w", err)
 	}
 	if err := pprof.StartCPUProfile(f); err != nil {
-		return nil, errors.Wrap(err, "failed to start CPU profile")
+		return nil, fmt.Errorf("failed to start CPU profile: %w", err)
 	}
 	return func() {
 		pprof.StopCPUProfile()
@@ -388,11 +391,11 @@ func (c *commandeer) initTraceProfile() (func(), error) {
 
 	f, err := os.Create(c.h.traceprofile)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create trace file")
+		return nil, fmt.Errorf("failed to create trace file: %w", err)
 	}
 
 	if err := trace.Start(f); err != nil {
-		return nil, errors.Wrap(err, "failed to start trace")
+		return nil, fmt.Errorf("failed to start trace: %w", err)
 	}
 
 	return func() {
@@ -682,6 +685,10 @@ func (c *commandeer) firstPathSpec() *helpers.PathSpec {
 }
 
 func (c *commandeer) timeTrack(start time.Time, name string) {
+	// Note the use of time.Since here and time.Now in the callers.
+	// We have a htime.Sinnce, but that may be adjusted to the future,
+	// and that does not make sense here, esp. when used before the
+	// global Clock is initialized.
 	elapsed := time.Since(start)
 	c.logger.Printf("%s in %v ms", name, int(1000*elapsed.Seconds()))
 }
@@ -732,15 +739,16 @@ func (c *commandeer) buildSites(noBuildLock bool) (err error) {
 
 func (c *commandeer) handleBuildErr(err error, msg string) {
 	c.buildErr = err
-
-	c.logger.Errorln(msg + ":\n")
-	c.logger.Errorln(helpers.FirstUpper(err.Error()))
-	if !c.h.quiet && c.h.verbose {
-		herrors.PrintStackTraceFromErr(err)
-	}
+	c.logger.Errorln(msg + ": " + cleanErrorLog(err.Error()))
 }
 
 func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
+	if c.buildErr != nil {
+		ferrs := herrors.UnwrapFileErrorsWithErrorContext(c.buildErr)
+		for _, err := range ferrs {
+			events = append(events, fsnotify.Event{Name: err.Position().Filename, Op: fsnotify.Write})
+		}
+	}
 	c.buildErr = nil
 	visited := c.visitedURLs.PeekAllSet()
 	if c.fastRenderMode {
@@ -855,8 +863,13 @@ func (c *commandeer) newWatcher(pollIntervalStr string, dirList ...string) (*wat
 		return nil, err
 	}
 
+	spec := c.hugo().Deps.SourceSpec
+
 	for _, d := range dirList {
 		if d != "" {
+			if spec.IgnoreFile(d) {
+				continue
+			}
 			_ = watcher.Add(d)
 		}
 	}
@@ -905,7 +918,7 @@ func (c *commandeer) printChangeDetected(typ string) {
 
 	c.logger.Println(msg)
 	const layout = "2006-01-02 15:04:05.000 -0700"
-	c.logger.Println(time.Now().Format(layout))
+	c.logger.Println(htime.Now().Format(layout))
 }
 
 const (

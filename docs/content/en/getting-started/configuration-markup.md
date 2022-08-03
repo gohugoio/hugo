@@ -24,7 +24,7 @@ Below are all markup related configuration in Hugo with their default settings:
 
 ### Goldmark
 
-[Goldmark](https://github.com/yuin/goldmark/) is from Hugo 0.60 the default library used for Markdown. It's fast, it's [CommonMark](https://spec.commonmark.org/0.29/) compliant and it's very flexible. Note that the feature set of Goldmark vs Blackfriday isn't the same; you gain a lot but also lose some, but we will work to bridge any gap in the upcoming Hugo versions.
+[Goldmark](https://github.com/yuin/goldmark/) is from Hugo 0.60 the default library used for Markdown. It's fast, it's [CommonMark](https://spec.commonmark.org/0.29/) compliant and it's very flexible.
 
 This is the default configuration:
 
@@ -77,16 +77,8 @@ Note that attributes in [code fences](/content-management/syntax-highlighting/#h
 ````
 
 autoHeadingIDType ("github") {{< new-in "0.62.2" >}}
-: The strategy used for creating auto IDs (anchor names). Available types are `github`, `github-ascii` and `blackfriday`. `github` produces GitHub-compatible IDs, `github-ascii` will drop any non-Ascii characters after accent normalization, and `blackfriday` will make the IDs work as with [Blackfriday](#blackfriday), the default Markdown engine before Hugo 0.60. Note that if Goldmark is your default Markdown engine, this is also the strategy used in the [anchorize](/functions/anchorize/) template func.
+: The strategy used for creating auto IDs (anchor names). Available types are `github`, `github-ascii` and `blackfriday`. `github` produces GitHub-compatible IDs, `github-ascii` will drop any non-Ascii characters after accent normalization, and `blackfriday` will make the IDs compatible with [Blackfriday](#blackfriday), the default Markdown engine before Hugo 0.60. Note that if Goldmark is your default Markdown engine, this is also the strategy used in the [anchorize](/functions/anchorize/) template func.
 
-### Blackfriday
-
-
-[Blackfriday](https://github.com/russross/blackfriday) was Hugo's default Markdown rendering engine, now replaced with Goldmark. But you can still use it: Just set `defaultMarkdownHandler` to `blackfriday` in your top level `markup` config.
-
-This is the default config:
-
-{{< code-toggle config="markup.blackFriday" />}}
 
 ### Highlight
 

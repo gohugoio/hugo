@@ -23,8 +23,9 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 
+	"errors"
+
 	"github.com/gohugoio/hugo/output"
-	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
@@ -95,7 +96,7 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 
 	err := <-errs
 	if err != nil {
-		return errors.Wrap(err, "failed to render pages")
+		return fmt.Errorf("failed to render pages: %w", err)
 	}
 	return nil
 }

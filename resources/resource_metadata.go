@@ -22,7 +22,6 @@ import (
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/resource"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/common/maps"
@@ -85,7 +84,7 @@ func AssignMetadata(metadata []map[string]any, resources ...resource.Resource) e
 
 			glob, err := glob.GetGlob(srcKey)
 			if err != nil {
-				return errors.Wrap(err, "failed to match resource with metadata")
+				return fmt.Errorf("failed to match resource with metadata: %w", err)
 			}
 
 			match := glob.Match(resourceSrcKey)

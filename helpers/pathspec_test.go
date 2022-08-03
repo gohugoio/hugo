@@ -32,7 +32,7 @@ func TestNewPathSpecFromConfig(t *testing.T) {
 	v.Set("uglyURLs", true)
 	v.Set("canonifyURLs", true)
 	v.Set("paginatePath", "side")
-	v.Set("baseURL", "http://base.com")
+	v.Set("baseURL", "http://base.com/foo")
 	v.Set("themesDir", "thethemes")
 	v.Set("layoutDir", "thelayouts")
 	v.Set("workingDir", "thework")
@@ -53,7 +53,10 @@ func TestNewPathSpecFromConfig(t *testing.T) {
 	c.Assert(p.Language.Lang, qt.Equals, "no")
 	c.Assert(p.PaginatePath, qt.Equals, "side")
 
-	c.Assert(p.BaseURL.String(), qt.Equals, "http://base.com")
+	c.Assert(p.BaseURL.String(), qt.Equals, "http://base.com/foo")
+	c.Assert(p.BaseURLString, qt.Equals, "http://base.com/foo")
+	c.Assert(p.BaseURLNoPathString, qt.Equals, "http://base.com")
+
 	c.Assert(p.ThemesDir, qt.Equals, "thethemes")
 	c.Assert(p.WorkingDir, qt.Equals, "thework")
 }

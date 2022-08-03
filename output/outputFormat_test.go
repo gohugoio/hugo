@@ -68,7 +68,7 @@ func TestDefaultTypes(t *testing.T) {
 	c.Assert(RSSFormat.NoUgly, qt.Equals, true)
 	c.Assert(CalendarFormat.IsHTML, qt.Equals, false)
 
-	c.Assert(len(DefaultFormats), qt.Equals, 10)
+	c.Assert(len(DefaultFormats), qt.Equals, 11)
 
 }
 

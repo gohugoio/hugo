@@ -20,15 +20,17 @@ import (
 	"fmt"
 	"io"
 	"path"
+
 	"path/filepath"
 	"strings"
 
 	"github.com/bep/golibsass/libsass"
+	"github.com/bep/golibsass/libsass/libsasserrors"
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources"
-	"github.com/pkg/errors"
 )
 
 // Used in tests. This feature requires Hugo to be built with the extended tag.
@@ -137,7 +139,14 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 
 	res, err := t.c.toCSS(options.to, ctx.To, ctx.From)
 	if err != nil {
-		return err
+		if sasserr, ok := err.(libsasserrors.Error); ok {
+			if sasserr.File == "stdin" && ctx.SourcePath != "" {
+				sasserr.File = t.c.sfs.RealFilename(ctx.SourcePath)
+				err = sasserr
+			}
+		}
+		return herrors.NewFileErrorFromFileInErr(err, hugofs.Os, nil)
+
 	}
 
 	if options.from.EnableSourceMap && res.SourceMapContent != "" {
@@ -172,7 +181,7 @@ func (c *Client) toCSS(options libsass.Options, dst io.Writer, src io.Reader) (l
 	in := helpers.ReaderToString(src)
 
 	// See https://github.com/gohugoio/hugo/issues/7059
-	// We need to preserver the regular CSS imports. This is by far
+	// We need to preserve the regular CSS imports. This is by far
 	// a perfect solution, and only works for the main entry file, but
 	// that should cover many use cases, e.g. using SCSS as a preprocessor
 	// for Tailwind.
@@ -181,7 +190,7 @@ func (c *Client) toCSS(options libsass.Options, dst io.Writer, src io.Reader) (l
 
 	res, err = transpiler.Execute(in)
 	if err != nil {
-		return res, errors.Wrap(err, "SCSS processing failed")
+		return res, err
 	}
 
 	out := res.CSS

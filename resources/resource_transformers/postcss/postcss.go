@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"path"
@@ -27,6 +28,8 @@ import (
 
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/common/text"
+	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/common/hugo"
 
@@ -36,8 +39,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 
-	"github.com/gohugoio/hugo/hugofs"
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/mitchellh/mapstructure"
 
@@ -48,16 +50,17 @@ import (
 
 const importIdentifier = "@import"
 
-var cssSyntaxErrorRe = regexp.MustCompile(`> (\d+) \|`)
-
-var shouldImportRe = regexp.MustCompile(`^@import ["'].*["'];?\s*(/\*.*\*/)?$`)
+var (
+	cssSyntaxErrorRe = regexp.MustCompile(`> (\d+) \|`)
+	shouldImportRe   = regexp.MustCompile(`^@import ["'].*["'];?\s*(/\*.*\*/)?$`)
+)
 
 // New creates a new Client with the given specification.
 func New(rs *resources.Spec) *Client {
 	return &Client{rs: rs}
 }
 
-func DecodeOptions(m map[string]any) (opts Options, err error) {
+func decodeOptions(m map[string]any) (opts Options, err error) {
 	if m == nil {
 		return
 	}
@@ -79,8 +82,8 @@ type Client struct {
 }
 
 // Process transforms the given Resource with the PostCSS processor.
-func (c *Client) Process(res resources.ResourceTransformer, options Options) (resource.Resource, error) {
-	return res.Transform(&postcssTransformation{rs: c.rs, options: options})
+func (c *Client) Process(res resources.ResourceTransformer, options map[string]any) (resource.Resource, error) {
+	return res.Transform(&postcssTransformation{rs: c.rs, optionsm: options})
 }
 
 // Some of the options from https://github.com/postcss/postcss-cli
@@ -98,6 +101,12 @@ type Options struct {
 	// Note that this import routine does not care about the CSS spec,
 	// so you can have @import anywhere in the file.
 	InlineImports bool
+
+	// When InlineImports is enabled, we fail the build if an import cannot be resolved.
+	// You can enable this to allow the build to continue and leave the import statement in place.
+	// Note that the inline importer does not process url location or imports with media queries,
+	// so those will be left as-is even without enabling this option.
+	SkipInlineImportsNotFound bool
 
 	// Options for when not using a config file
 	Use         string // List of postcss plugins to use
@@ -128,12 +137,12 @@ func (opts Options) toArgs() []string {
 }
 
 type postcssTransformation struct {
-	options Options
-	rs      *resources.Spec
+	optionsm map[string]any
+	rs       *resources.Spec
 }
 
 func (t *postcssTransformation) Key() internal.ResourceTransformationKey {
-	return internal.NewResourceTransformationKey("postcss", t.options)
+	return internal.NewResourceTransformationKey("postcss", t.optionsm)
 }
 
 // Transform shells out to postcss-cli to do the heavy lifting.
@@ -148,8 +157,17 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	var configFile string
 	logger := t.rs.Logger
 
-	if t.options.Config != "" {
-		configFile = t.options.Config
+	var options Options
+	if t.optionsm != nil {
+		var err error
+		options, err = decodeOptions(t.optionsm)
+		if err != nil {
+			return err
+		}
+	}
+
+	if options.Config != "" {
+		configFile = options.Config
 	} else {
 		configFile = "postcss.config.js"
 	}
@@ -159,9 +177,9 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	// We need an absolute filename to the config file.
 	if !filepath.IsAbs(configFile) {
 		configFile = t.rs.BaseFs.ResolveJSConfigFile(configFile)
-		if configFile == "" && t.options.Config != "" {
+		if configFile == "" && options.Config != "" {
 			// Only fail if the user specified config file is not found.
-			return errors.Errorf("postcss config %q not found:", configFile)
+			return fmt.Errorf("postcss config %q not found:", options.Config)
 		}
 	}
 
@@ -172,7 +190,7 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 		cmdArgs = []any{"--config", configFile}
 	}
 
-	if optArgs := t.options.toArgs(); len(optArgs) > 0 {
+	if optArgs := options.toArgs(); len(optArgs) > 0 {
 		cmdArgs = append(cmdArgs, collections.StringSliceToInterfaceSlice(optArgs)...)
 	}
 
@@ -203,10 +221,11 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	imp := newImportResolver(
 		ctx.From,
 		ctx.InPath,
+		options,
 		t.rs.Assets.Fs, t.rs.Logger,
 	)
 
-	if t.options.InlineImports {
+	if options.InlineImports {
 		var err error
 		src, err = imp.resolve()
 		if err != nil {
@@ -238,6 +257,7 @@ type fileOffset struct {
 type importResolver struct {
 	r      io.Reader
 	inPath string
+	opts   Options
 
 	contentSeen map[string]bool
 	linemap     map[int]fileOffset
@@ -245,12 +265,13 @@ type importResolver struct {
 	logger      loggers.Logger
 }
 
-func newImportResolver(r io.Reader, inPath string, fs afero.Fs, logger loggers.Logger) *importResolver {
+func newImportResolver(r io.Reader, inPath string, opts Options, fs afero.Fs, logger loggers.Logger) *importResolver {
 	return &importResolver{
 		r:      r,
 		inPath: inPath,
 		fs:     fs, logger: logger,
 		linemap: make(map[int]fileOffset), contentSeen: make(map[string]bool),
+		opts: opts,
 	}
 }
 
@@ -281,20 +302,31 @@ func (imp *importResolver) importRecursive(
 	i := 0
 	for offset, line := range lines {
 		i++
-		line = strings.TrimSpace(line)
+		lineTrimmed := strings.TrimSpace(line)
+		column := strings.Index(line, lineTrimmed)
+		line = lineTrimmed
 
 		if !imp.shouldImport(line) {
 			trackLine(i, offset, line)
 		} else {
-			i--
 			path := strings.Trim(strings.TrimPrefix(line, importIdentifier), " \"';")
 			filename := filepath.Join(basePath, path)
 			importContent, hash := imp.contentHash(filename)
+
 			if importContent == nil {
-				trackLine(i, offset, "ERROR")
-				imp.logger.Warnf("postcss: Failed to resolve CSS @import in %q for path %q", inPath, filename)
-				continue
+				if imp.opts.SkipInlineImportsNotFound {
+					trackLine(i, offset, line)
+					continue
+				}
+				pos := text.Position{
+					Filename:     inPath,
+					LineNumber:   offset + 1,
+					ColumnNumber: column + 1,
+				}
+				return 0, "", herrors.NewFileErrorFromFileInPos(fmt.Errorf("failed to resolve CSS @import \"%s\"", filename), pos, imp.fs, nil)
 			}
+
+			i--
 
 			if imp.contentSeen[hash] {
 				i++
@@ -367,7 +399,8 @@ func (imp *importResolver) shouldImport(s string) bool {
 }
 
 func (imp *importResolver) toFileError(output string) error {
-	inErr := errors.New(strings.TrimSpace(output))
+	output = strings.TrimSpace(loggers.RemoveANSIColours(output))
+	inErr := errors.New(output)
 
 	match := cssSyntaxErrorRe.FindStringSubmatch(output)
 	if match == nil {
@@ -388,15 +421,20 @@ func (imp *importResolver) toFileError(output string) error {
 	if err != nil {
 		return inErr
 	}
-	realFilename := fi.(hugofs.FileMetaInfo).Meta().Filename
 
-	ferr := herrors.NewFileError("css", -1, file.Offset+1, 1, inErr)
-
-	werr, ok := herrors.WithFileContextForFile(ferr, realFilename, file.Filename, imp.fs, herrors.SimpleLineMatcher)
-
-	if !ok {
-		return ferr
+	meta := fi.(hugofs.FileMetaInfo).Meta()
+	realFilename := meta.Filename
+	f, err := meta.Open()
+	if err != nil {
+		return inErr
 	}
+	defer f.Close()
 
-	return werr
+	ferr := herrors.NewFileErrorFromName(inErr, realFilename)
+	pos := ferr.Position()
+	pos.LineNumber = file.Offset + 1
+	return ferr.UpdatePosition(pos).UpdateContent(f, nil)
+
+	//return herrors.NewFileErrorFromFile(inErr, file.Filename, realFilename, hugofs.Os, herrors.SimpleLineMatcher)
+
 }

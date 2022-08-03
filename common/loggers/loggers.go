@@ -240,6 +240,11 @@ func NewBasicLoggerForWriter(t jww.Threshold, w io.Writer) Logger {
 	return newLogger(t, jww.LevelError, w, ioutil.Discard, false)
 }
 
+// RemoveANSIColours removes all ANSI colours from the given string.
+func RemoveANSIColours(s string) string {
+	return ansiColorRe.ReplaceAllString(s, "")
+}
+
 var (
 	ansiColorRe = regexp.MustCompile("(?s)\\033\\[\\d*(;\\d*)*m")
 	errorRe     = regexp.MustCompile("^(ERROR|FATAL|WARN)")
@@ -285,7 +290,7 @@ func InitGlobalLogger(stdoutThreshold, logThreshold jww.Threshold, outHandle, lo
 }
 
 func getLogWriters(outHandle, logHandle io.Writer) (io.Writer, io.Writer) {
-	isTerm := terminal.IsTerminal(os.Stdout)
+	isTerm := terminal.PrintANSIColors(os.Stdout)
 	if logHandle != ioutil.Discard && isTerm {
 		// Remove any Ansi coloring from log output
 		logHandle = ansiCleaner{w: logHandle}

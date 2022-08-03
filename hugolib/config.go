@@ -33,11 +33,12 @@ import (
 
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
+	"errors"
+
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/modules"
-	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/privacy"
@@ -74,7 +75,7 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 		if err == nil {
 			configFiles = append(configFiles, filename)
 		} else if err != ErrNoConfigFile {
-			return nil, nil, err
+			return nil, nil, l.wrapFileError(err, filename)
 		}
 	}
 
@@ -105,11 +106,6 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 		if err := d(l.cfg); err != nil {
 			return l.cfg, configFiles, err
 		}
-	}
-
-	// Config deprecations.
-	if l.cfg.GetString("markup.defaultMarkdownHandler") == "blackfriday" {
-		helpers.Deprecated("markup.defaultMarkdownHandler=blackfriday", "See https://gohugo.io//content-management/formats/#list-of-content-formats", false)
 	}
 
 	// Some settings are used before we're done collecting all settings,
@@ -462,7 +458,7 @@ func (l configLoader) loadConfig(configName string) (string, error) {
 
 	m, err := config.FromFileToMap(l.Fs, filename)
 	if err != nil {
-		return "", l.wrapFileError(err, filename)
+		return filename, err
 	}
 
 	// Set overwrites keys of the same name, recursively.
@@ -510,5 +506,12 @@ func (configLoader) loadSiteConfig(cfg config.Provider) (scfg SiteConfig, err er
 }
 
 func (l configLoader) wrapFileError(err error, filename string) error {
-	return herrors.WithFileContextForFileDefault(err, filename, l.Fs)
+	fe := herrors.UnwrapFileError(err)
+	if fe != nil {
+		pos := fe.Position()
+		pos.Filename = filename
+		fe.UpdatePosition(pos)
+		return err
+	}
+	return herrors.NewFileErrorFromFile(err, filename, l.Fs, nil)
 }

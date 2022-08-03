@@ -42,6 +42,7 @@ See https://gohugo.io/hugo-modules/ for more information.
       --ignoreCache            ignores the cache directory
   -l, --layoutDir string       filesystem path to layout directory
       --minify                 minify any supported output format (HTML, XML etc.)
+      --noBuildLock            don't create .hugo_build.lock file
       --noChmod                don't sync permission mode of files
       --noTimes                don't sync modification time of files
       --panicOnWarning         panic on first WARNING log
@@ -59,6 +60,7 @@ See https://gohugo.io/hugo-modules/ for more information.
 ### Options inherited from parent commands
 
 ```
+      --clock string               set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00
       --config string              config file (default is path/config.yaml|json|toml)
       --configDir string           config dir (default "config")
       --debug                      debug output

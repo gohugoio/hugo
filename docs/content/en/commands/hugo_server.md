@@ -54,6 +54,7 @@ hugo server [flags]
       --memstats string        log memory usage to this file
       --minify                 minify any supported output format (HTML, XML etc.)
       --navigateToChanged      navigate to changed content file on live browser reload
+      --noBuildLock            don't create .hugo_build.lock file
       --noChmod                don't sync permission mode of files
       --noHTTPCache            prevent HTTP caching
       --noTimes                don't sync modification time of files
@@ -76,6 +77,7 @@ hugo server [flags]
 ### Options inherited from parent commands
 
 ```
+      --clock string               set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00
       --config string              config file (default is path/config.yaml|json|toml)
       --configDir string           config dir (default "config")
       --debug                      debug output

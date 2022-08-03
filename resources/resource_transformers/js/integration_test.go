@@ -93,7 +93,7 @@ module github.com/gohugoio/tests/testHugoModules
 		
 go 1.16
 		
-require github.com/gohugoio/hugoTestProjectJSModImports v0.9.0 // indirect
+require github.com/gohugoio/hugoTestProjectJSModImports v0.10.0 // indirect
 -- package.json --
 {
 	"dependencies": {
@@ -124,7 +124,7 @@ shim cwd
 `)
 
 	// React JSX, verify the shimming.
-	b.AssertFileContent("public/js/like.js", filepath.FromSlash(`@v0.9.0/assets/js/shims/react.js
+	b.AssertFileContent("public/js/like.js", filepath.FromSlash(`@v0.10.0/assets/js/shims/react.js
 module.exports = window.ReactDOM;
 `))
 }
@@ -208,4 +208,54 @@ TS2: {{ template "print" $ts2 }}
 		var React = __toESM(__require(&#34;react&#34;));
 		function greeter(person) {
 `)
+}
+
+func TestBuildError(t *testing.T) {
+	c := qt.New(t)
+
+	filesTemplate := `
+-- config.toml --
+disableKinds=["page", "section", "taxonomy", "term", "sitemap", "robotsTXT"]
+-- assets/js/main.js --
+// A comment.
+import { hello1, hello2 } from './util1';
+hello1();
+hello2();
+-- assets/js/util1.js --
+/* Some 
+comments.
+*/
+import { hello3 } from './util2';
+export function hello1() {
+	return 'abcd';
+}
+export function hello2() {
+	return hello3();
+}
+-- assets/js/util2.js --
+export function hello3() {
+	return 'efgh';
+}
+-- layouts/index.html --
+{{ $js := resources.Get "js/main.js" | js.Build }}
+JS Content:{{ $js.Content }}:End:
+	
+			`
+
+	c.Run("Import from main not found", func(c *qt.C) {
+		c.Parallel()
+		files := strings.Replace(filesTemplate, "import { hello1, hello2 }", "import { hello1, hello2, FOOBAR }", 1)
+		b, err := hugolib.NewIntegrationTestBuilder(hugolib.IntegrationTestConfig{T: c, NeedsOsFS: true, TxtarString: files}).BuildE()
+		b.Assert(err, qt.IsNotNil)
+		b.Assert(err.Error(), qt.Contains, `main.js:2:25": No matching export`)
+	})
+
+	c.Run("Import from import not found", func(c *qt.C) {
+		c.Parallel()
+		files := strings.Replace(filesTemplate, "import { hello3 } from './util2';", "import { hello3, FOOBAR } from './util2';", 1)
+		b, err := hugolib.NewIntegrationTestBuilder(hugolib.IntegrationTestConfig{T: c, NeedsOsFS: true, TxtarString: files}).BuildE()
+		b.Assert(err, qt.IsNotNil)
+		b.Assert(err.Error(), qt.Contains, `util1.js:4:17": No matching export in`)
+	})
+
 }

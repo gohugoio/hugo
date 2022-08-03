@@ -140,31 +140,6 @@ Press Ctrl+C to stop
 
 Live reload and `--navigateToChanged` between the servers work as expected.
 
-### Taxonomies and Blackfriday
-
-Taxonomies and [Blackfriday configuration][config] can also be set per language:
-
-{{< code-toggle file="config" >}}
-[Taxonomies]
-tag = "tags"
-
-[blackfriday]
-angledQuotes = true
-hrefTargetBlank = true
-
-[languages]
-[languages.en]
-weight = 1
-title = "English"
-[languages.en.blackfriday]
-angledQuotes = false
-
-[languages.fr]
-weight = 2
-title = "Français"
-[languages.fr.Taxonomies]
-plaque = "plaques"
-{{</ code-toggle >}}
 
 ## Translate Your Content
 
@@ -544,10 +519,10 @@ Hugo will generate your website with these missing translation placeholders. It 
 
 For merging of content from other languages (i.e. missing content translations), see [lang.Merge].
 
-To track down missing translation strings, run Hugo with the `--i18n-warnings` flag:
+To track down missing translation strings, run Hugo with the `--printI18nWarnings` flag:
 
 ```bash
-hugo --i18n-warnings | grep i18n
+hugo --printI18nWarnings | grep i18n
 i18n|MISSING_TRANSLATION|en|wordCount
 ```
 

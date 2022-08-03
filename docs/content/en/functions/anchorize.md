@@ -13,7 +13,7 @@ workson: []
 relatedfuncs: [humanize]
 ---
 
-If [Goldmark](https://gohugo.io/getting-started/configuration-markup#goldmark) is set as `defaultMarkdownHandler`, the sanitizing logic adheres to the setting [`markup.goldmark.parser.autoHeadingIDType`](https://gohugo.io/getting-started/configuration-markup#goldmark). If [Blackfriday](https://gohugo.io/getting-started/configuration-markup#blackfriday) is set as `defaultMarkdownHandler`, this template function uses the [`SanitizedAnchorName` logic from Blackfriday](https://github.com/russross/blackfriday#sanitized-anchor-names) (the same applies when `markup.goldmark.parser.autoHeadingIDType` is set to `blackfriday`).
+If [Goldmark](https://gohugo.io/getting-started/configuration-markup#goldmark) is set as `defaultMarkdownHandler`, the sanitizing logic adheres to the setting [`markup.goldmark.parser.autoHeadingIDType`](https://gohugo.io/getting-started/configuration-markup#goldmark).
 
 Since the `defaultMarkdownHandler` and this template function use the same sanitizing logic, you can use the latter to determine the ID of a header for linking with anchor tags.
 
