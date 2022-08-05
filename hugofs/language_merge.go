@@ -14,16 +14,18 @@
 package hugofs
 
 import (
-	"os"
+	"io/fs"
 )
 
 // LanguageDirsMerger implements the overlayfs.DirsMerger func, which is used
 // to merge two directories.
-var LanguageDirsMerger = func(lofi, bofi []os.FileInfo) []os.FileInfo {
-	for _, fi1 := range bofi {
+var LanguageDirsMerger = func(lofi, bofi []fs.DirEntry) []fs.DirEntry {
+	for _, de1 := range bofi {
+		fi1, _ := de1.Info()
 		fim1 := fi1.(FileMetaInfo)
 		var found bool
-		for _, fi2 := range lofi {
+		for _, de2 := range lofi {
+			fi2, _ := de2.Info()
 			fim2 := fi2.(FileMetaInfo)
 			if fi1.Name() == fi2.Name() && fim1.Meta().Lang == fim2.Meta().Lang {
 				found = true
@@ -31,7 +33,7 @@ var LanguageDirsMerger = func(lofi, bofi []os.FileInfo) []os.FileInfo {
 			}
 		}
 		if !found {
-			lofi = append(lofi, fi1)
+			lofi = append(lofi, de1)
 		}
 	}
 

@@ -13,7 +13,7 @@ require (
 	github.com/bep/godartsass v0.14.0
 	github.com/bep/golibsass v1.1.0
 	github.com/bep/gowebp v0.1.0
-	github.com/bep/overlayfs v0.6.0
+	github.com/bep/overlayfs v0.8.0
 	github.com/bep/tmc v0.5.1
 	github.com/clbanning/mxj/v2 v2.5.6
 	github.com/cli/safeexec v1.0.0
@@ -48,7 +48,7 @@ require (
 	github.com/rogpeppe/go-internal v1.8.1
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 	github.com/sanity-io/litter v1.5.5
-	github.com/spf13/afero v1.8.2
+	github.com/spf13/afero v1.9.2
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/fsync v0.9.0
