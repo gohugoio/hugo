@@ -1,0 +1,125 @@
+project = "hugo"
+
+[go_settings]
+    go_proxy = "https://proxy.golang.org"
+    go_exe   = "go"
+
+[build_settings]
+    binary  = "hugo"
+    flags   = ["-buildmode", "exe"]
+    env     = ["CGO_ENABLED=0"]
+    ldflags = "-s -w -X github.com/gohugoio/hugo/common/hugo.vendorInfo=gohugoio"
+    goarm   = "7"
+
+[archive_settings]
+    name_template = "{{ .Project }}_{{ .Tag | trimPrefix `v` }}_{{ .Goos }}-{{ .Goarch }}"
+    extra_files   = [{ source_path = "README.md", target_path = "README.md" }, { source_path = "LICENSE", target_path = "LICENSE" }]
+    [archive_settings.type]
+        format    = "tar.gz"
+        extension = ".tar.gz"
+    [archive_settings.replacements]
+        amd64   = "64bit"
+        386     = "32bit"
+        arm64   = "ARM64"
+        darwin  = "macOS"
+        windows = "Windows"
+
+[release_settings]
+    name                           = "${HUGO_RELEASE_NAME}"
+    type                           = "github"
+    repository                     = "hugo"
+    repository_owner               = "gohugoio"
+    generate_release_notes_on_host = false
+    draft                          = true
+    prerelease                     = true
+
+[[builds]]
+    path = "unix/regular"
+
+    [[builds.os]]
+        goos = "darwin"
+        [[builds.os.archs]]
+            goarch = "universal"
+    [[builds.os]]
+        goos = "linux"
+        [[builds.os.archs]]
+            goarch = "amd64"
+        [[builds.os.archs]]
+            goarch = "arm64"
+        [[builds.os.archs]]
+            goarch = "arm"
+
+    # Unix BSD variants
+    [[builds.os]]
+        goos = "dragonfly"
+        [[builds.os.archs]]
+            goarch = "amd64"
+    [[builds.os]]
+        goos = "freebsd"
+        [[builds.os.archs]]
+            goarch = "amd64"
+    [[builds.os]]
+        goos = "netbsd"
+        [[builds.os.archs]]
+            goarch = "amd64"
+    [[builds.os]]
+        goos = "openbsd"
+        [[builds.os.archs]]
+            goarch = "amd64"
+
+[[builds]]
+    path = "unix/extended"
+
+    [builds.build_settings]
+        flags = ["-buildmode", "exe", "-tags", "extended"]
+        env   = ["CGO_ENABLED=1"]
+
+    [[builds.os]]
+        goos = "darwin"
+        [builds.os.build_settings]
+            env = ["CGO_ENABLED=1", "CC=o64-clang", "CXX=o64-clang++"]
+        [[builds.os.archs]]
+            goarch = "universal"
+    [[builds.os]]
+        goos = "linux"
+        [[builds.os.archs]]
+            goarch = "amd64"
+
+[[builds]]
+    path = "windows/regular"
+
+    [[builds.os]]
+        goos = "windows"
+        [builds.os.build_settings]
+            binary = "hugo.exe"
+        [[builds.os.archs]]
+            goarch = "amd64"
+        [[builds.os.archs]]
+            goarch = "arm64"
+
+[[builds]]
+    path = "windows/extended"
+
+    [builds.build_settings]
+        flags   = ["-buildmode", "exe", "-tags", "extended"]
+        env     = ["CGO_ENABLED=1", "CC=x86_64-w64-mingw32-gcc", "CXX=x86_64-w64-mingw32-g++"]
+        ldflags = "-s -w -X github.com/gohugoio/hugo/common/hugo.vendorInfo=gohugoio -extldflags '-static'"
+
+    [[builds.os]]
+        goos = "windows"
+        [builds.os.build_settings]
+            binary = "hugo.exe"
+        [[builds.os.archs]]
+            goarch = "amd64"
+
+[[archives]]
+    paths = "/builds/unix/**"
+[[archives]]
+    paths = "/builds/windows/**"
+    [archives.archive_settings.type]
+        format    = "zip"
+        extension = ".zip"
+
+[[releases]]
+    paths = "/archives/**"
+    path  = "r1"
