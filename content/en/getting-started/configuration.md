@@ -271,7 +271,10 @@ See [Image Processing Config](/content-management/image-processing/#imaging-conf
 
 **Default value:**  ""
 
-A language tag as defined by [RFC 5646](https://datatracker.ietf.org/doc/html/rfc5646). The internal [RSS template](https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/rss.xml) populates its `<language>` element with this value. The value is not used elsewhere.
+A language tag as defined by [RFC 5646](https://datatracker.ietf.org/doc/html/rfc5646). This value is used to populate:
+
+- The `<language>` element in the internal [RSS template](https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/rss.xml)
+- The `lang` attribute of the `<html>` element in the internal [alias template](https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/alias.html)
 
 ### languages
 
