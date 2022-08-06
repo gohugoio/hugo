@@ -103,7 +103,7 @@ release:
 archives:
   -
     id: "hugo"
-    builds: ['hugo', 'hugo_unix']
+    builds: ['hugo', 'hugo_unix', 'hugo_fat_darwin']
     format: tar.gz
     format_overrides:
       - goos: windows
@@ -126,7 +126,7 @@ archives:
       - LICENSE
   -
     id: "hugo_extended"
-    builds: ['hugo_extended_windows', 'hugo_extended_linux', 'hugo_extended_darwin']
+    builds: ['hugo_extended_windows', 'hugo_extended_linux', 'hugo_extended_fat_darwin']
     format: tar.gz
     format_overrides:
       - goos: windows
@@ -148,6 +148,23 @@ archives:
       - README.md
       - LICENSE
 
+universal_binaries:
+-
+  id: hugo_fat_darwin
+
+  ids:
+  - hugo
+
+  replace: true
+
+-
+  id: hugo_extended_fat_darwin
+
+  ids:
+  - hugo_extended_darwin
+
+  replace: true
+  
 nfpms:
   -
     id: "hugo"

@@ -38,7 +38,6 @@ Hugo may also be compiled from source wherever the Go compiler tool chain can ru
 ## Choose How to Install
 
 If you want to use Hugo as your site generator, simply install the Hugo binaries.
-The Hugo binaries have no external dependencies.
 
 To contribute to the Hugo source code or documentation, you should [fork the Hugo GitHub project](https://github.com/gohugoio/hugo#fork-destination-box) and clone it to your local machine.
 
