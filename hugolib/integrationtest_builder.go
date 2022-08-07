@@ -30,6 +30,12 @@ import (
 )
 
 func NewIntegrationTestBuilder(conf IntegrationTestConfig) *IntegrationTestBuilder {
+	for k, v := range conf.EnviromentVars {
+		orig := os.Getenv(k)
+		os.Setenv(k, v)
+		defer os.Setenv(k, orig)
+	}
+
 	// Code fences.
 	conf.TxtarString = strings.ReplaceAll(conf.TxtarString, "§§§", "```")
 
@@ -488,4 +494,6 @@ type IntegrationTestConfig struct {
 	NeedsNpmInstall bool
 
 	WorkingDir string
+
+	EnviromentVars map[string]string
 }
