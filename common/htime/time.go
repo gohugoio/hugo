@@ -135,18 +135,30 @@ func (f TimeFormatter) Format(t time.Time, layout string) string {
 	return s
 }
 
+// SetLocationIfOffsetMatched is used for `:time_full` format by setting zone name such as "PDT".
+// In some cases, `cast.ToTimeInDefaultLocationE` does not use `location` arg.
+func SetLocationIfOffsetMatched(orig time.Time, location *time.Location) time.Time {
+	year, month, day := orig.Date()
+	hour, min, sec := orig.Clock()
+	challenged := time.Date(year, month, day, hour, min, sec, orig.Nanosecond(), location)
+	_, origOffset := orig.Zone()
+	_, locationOffset := challenged.Zone()
+	if origOffset == locationOffset {
+		return challenged
+	}
+	return orig
+}
+
 func ToTimeInDefaultLocationE(i any, location *time.Location) (tim time.Time, err error) {
 	switch vv := i.(type) {
 	case AsTimeProvider:
 		return vv.AsTime(location), nil
-	// issue #8895
-	// datetimes parsed by `go-toml` have empty zone name
-	// convert back them into string and use `cast`
-	// TODO(bep) add tests, make sure we really need this.
 	case time.Time:
-		i = vv.Format(time.RFC3339)
+		return SetLocationIfOffsetMatched(vv, location), nil
 	}
-	return cast.ToTimeInDefaultLocationE(i, location)
+	tim, err = cast.ToTimeInDefaultLocationE(i, location)
+	tim = SetLocationIfOffsetMatched(tim, location)
+	return tim, err
 }
 
 // Now returns time.Now() or time value based on the `clock` flag.

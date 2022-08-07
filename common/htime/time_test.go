@@ -19,6 +19,7 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	translators "github.com/gohugoio/localescompressed"
+	"github.com/spf13/cast"
 )
 
 func TestTimeFormatter(t *testing.T) {
@@ -110,6 +111,32 @@ func TestTimeFormatter(t *testing.T) {
 
 	})
 
+}
+
+func TestSetLocationIfOffsetMatched(t *testing.T) {
+	c := qt.New(t)
+	la, err := time.LoadLocation("America/Los_Angeles") // offset -7:00
+	c.Assert(err, qt.IsNil)
+
+	tim, err := cast.ToTimeInDefaultLocationE("2021-08-16T06:00:00-07:00", la)
+	c.Assert(err, qt.IsNil)
+
+	before, offset := tim.Zone()
+	c.Assert(before, qt.Equals, "") // `cast` cannot set zone name
+	c.Assert(offset, qt.Equals, -7*60*60)
+
+	res := SetLocationIfOffsetMatched(tim, la)
+	after, offset := res.Zone()
+	c.Assert(after, qt.Equals, "PDT")
+	c.Assert(offset, qt.Equals, -7*60*60)
+
+	tokyo, err := time.LoadLocation("Asia/Tokyo") // offset +9:00
+	c.Assert(err, qt.IsNil)
+
+	unmatched := SetLocationIfOffsetMatched(tim, tokyo)
+	unmatchedName, offset := unmatched.Zone()
+	c.Assert(unmatchedName, qt.Equals, "")
+	c.Assert(offset, qt.Equals, -7*60*60)
 }
 
 func BenchmarkTimeFormatter(b *testing.B) {
