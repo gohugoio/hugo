@@ -26,9 +26,16 @@
 {{- with .Params.audio }}<meta property="og:audio" content="{{ . }}" />{{ end }}
 {{- with .Params.locale }}<meta property="og:locale" content="{{ . }}" />{{ end }}
 {{- with .Site.Params.title }}<meta property="og:site_name" content="{{ . }}" />{{ end }}
-{{- with .Params.videos }}{{- range . }}
-<meta property="og:video" content="{{ . | absURL }}" />
-{{ end }}{{ end }}
+
+{{- with .Params.videos -}}
+{{- range first 6 . }}<meta property="og:video" content="{{ . | absURL }}" />{{ end -}}
+{{- else -}}
+{{- $videos := $.Resources.ByType "video" -}}
+{{- $featured_video := $videos.GetMatch "*feature*" -}}
+{{- if not $featured_video }}{{ $featured_video = $videos.GetMatch "{*cover*,*thumbnail*}" }}{{ end -}}
+{{- with $featured_video -}}
+<meta property="og:video" content="{{ $featured_video.Permalink | absURL }}" />
+{{- end -}}
 
 {{- /* If it is part of a series, link to related articles */}}
 {{- $permalink := .Permalink }}
