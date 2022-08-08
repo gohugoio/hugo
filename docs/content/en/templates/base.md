@@ -72,6 +72,10 @@ From the above base template, you can define a [default list template][hugolists
 
 This replaces the contents of our (basically empty) "main" block with something useful for the list template. In this case, we didn't define a `"title"` block, so the contents from our base template remain unchanged in lists.
 
+{{% note %}}
+Block definitions inside of partials are not currently supported. You must place block definitions and their overrides outside of any partials.
+{{% /note %}}
+
 {{% warning %}}
 Code that you put outside the block definitions *can* break your layout. This even includes HTML comments. For example:
 
@@ -96,6 +100,8 @@ The following shows how you can override both the `"main"` and `"title"` block a
   {{ .Content }}
 {{ end }}
 {{< /code >}}
+
+
 
 [hugolists]: /templates/lists
 [lookup]: /templates/lookup-order/
