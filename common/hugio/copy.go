@@ -17,7 +17,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 
 	"github.com/spf13/afero"
@@ -53,7 +52,7 @@ func CopyFile(fs afero.Fs, from, to string) error {
 
 // CopyDir copies a directory.
 func CopyDir(fs afero.Fs, from, to string, shouldCopy func(filename string) bool) error {
-	fi, err := os.Stat(from)
+	fi, err := fs.Stat(from)
 	if err != nil {
 		return err
 	}
