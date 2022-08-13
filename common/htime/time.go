@@ -141,12 +141,15 @@ func SetLocationIfOffsetMatched(orig time.Time, location *time.Location) time.Ti
 	year, month, day := orig.Date()
 	hour, min, sec := orig.Clock()
 	challenged := time.Date(year, month, day, hour, min, sec, orig.Nanosecond(), location)
-	_, origOffset := orig.Zone()
+	origName, origOffset := orig.Zone()
 	_, locationOffset := challenged.Zone()
 	if origOffset == locationOffset {
 		return challenged
 	}
-	return orig
+	if origName == "UTC" {
+		return orig
+	}
+	return time.Date(year, month, day, hour, min, sec, orig.Nanosecond(), time.FixedZone("", origOffset))
 }
 
 func ToTimeInDefaultLocationE(i any, location *time.Location) (tim time.Time, err error) {

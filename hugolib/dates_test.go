@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"fmt"
+	"time"
 
 	qt "github.com/frankban/quicktest"
 
@@ -277,12 +278,12 @@ Full time: 6:00:00 am UTC
 func TestTOMLTimeZone(t *testing.T) {
 	t.Parallel()
 	type testCase struct {
-		input           string
-		configTimeZone  string
-		environTimeZone string
-		expectedFull    string // :time_full
-		expectedLong    string // :time_long
-		comment         string
+		input          string
+		configTimeZone string
+		localZoneName  string
+		expectedFull   string // :time_full
+		expectedLong   string // :time_long
+		comment        string
 	}
 
 	// America/Los_Angeles: -07:00
@@ -290,203 +291,250 @@ func TestTOMLTimeZone(t *testing.T) {
 	testCases := []testCase{
 		// default
 		{
-			input:           "2021-08-16T06:00:00+00:00",
-			configTimeZone:  "",
-			environTimeZone: "",
-			expectedFull:    "6:00:00 am UTC",
-			expectedLong:    "6:00:00 am UTC",
-			comment:         "zoneinfo `UTC` is always displayed if offset is +00:00",
+			input:          "2021-08-16T06:00:00+00:00",
+			configTimeZone: "",
+			localZoneName:  "",
+			expectedFull:   "6:00:00 am UTC",
+			expectedLong:   "6:00:00 am UTC",
+			comment:        "zoneinfo `UTC` is displayed if offset is +00:00 as default",
 		},
 		{
-			input:           "2021-08-16T06:00:00-07:00",
-			configTimeZone:  "",
-			environTimeZone: "",
-			expectedFull:    "6:00:00 am ",
-			expectedLong:    "6:00:00 am ",
-			comment:         "config not set. no zoninfo",
+			input:          "2021-08-16T06:00:00-07:00",
+			configTimeZone: "",
+			localZoneName:  "",
+			expectedFull:   "6:00:00 am ",
+			expectedLong:   "6:00:00 am ",
+			comment:        "config not set; no zoneinfo",
 		},
 		{
-			input:           "2021-08-16T06:00:00+09:00",
-			configTimeZone:  "",
-			environTimeZone: "",
-			expectedFull:    "6:00:00 am ",
-			expectedLong:    "6:00:00 am ",
-			comment:         "config not set. no zoninfo",
+			input:          "2021-08-16T06:00:00+09:00",
+			configTimeZone: "",
+			localZoneName:  "",
+			expectedFull:   "6:00:00 am ",
+			expectedLong:   "6:00:00 am ",
+			comment:        "config not set; no zoneinfo",
 		},
 
 		// environment variable TZ has no effect
 		{
-			input:           "2021-08-16T06:00:00+00:00",
-			configTimeZone:  "",
-			environTimeZone: "America/Los_Angeles",
-			expectedFull:    "6:00:00 am UTC",
-			expectedLong:    "6:00:00 am UTC",
-			comment:         "zoneinfo `UTC` is always displayed if offset is +00:00",
+			input:          "2021-08-16T06:00:00+00:00",
+			configTimeZone: "",
+			localZoneName:  "America/Los_Angeles",
+			expectedFull:   "6:00:00 am UTC",
+			expectedLong:   "6:00:00 am UTC",
+			comment:        "zoneinfo `UTC` is displayed if offset is +00:00 as default",
 		},
 		{
-			input:           "2021-08-16T06:00:00-07:00",
-			configTimeZone:  "",
-			environTimeZone: "America/Los_Angeles",
-			expectedFull:    "6:00:00 am ",
-			expectedLong:    "6:00:00 am ",
-			comment:         "environ set but config not set, no zoninfo",
+			input:          "2021-08-16T06:00:00-07:00",
+			configTimeZone: "",
+			localZoneName:  "America/Los_Angeles",
+			expectedFull:   "6:00:00 am ",
+			expectedLong:   "6:00:00 am ",
+			comment:        "environ set but config not set; no zoneinfo",
 		},
 		{
-			input:           "2021-08-16T06:00:00+09:00",
-			configTimeZone:  "",
-			environTimeZone: "America/Los_Angeles",
-			expectedFull:    "6:00:00 am ",
-			expectedLong:    "6:00:00 am ",
-			comment:         "environ set but config not set, no zoninfo",
-		},
-		{
-			input:           "2021-08-16T06:00:00+00:00",
-			configTimeZone:  "",
-			environTimeZone: "/usr/share/zoneinfo/America/Los_Angeles",
-			expectedFull:    "6:00:00 am UTC",
-			expectedLong:    "6:00:00 am UTC",
-			comment:         "environ set but config not set, no zoninfo",
-		},
-		{
-			input:           "2021-08-16T06:00:00-07:00",
-			configTimeZone:  "",
-			environTimeZone: "/usr/share/zoneinfo/America/Los_Angeles",
-			expectedFull:    "6:00:00 am ",
-			expectedLong:    "6:00:00 am ",
-			comment:         "environ set but config not set, no zoninfo",
-		},
-		{
-			input:           "2021-08-16T06:00:00+09:00",
-			configTimeZone:  "",
-			environTimeZone: "/usr/share/zoneinfo/America/Los_Angeles",
-			expectedFull:    "6:00:00 am ",
-			expectedLong:    "6:00:00 am ",
-			comment:         "environ set but config not set, no zoninfo",
+			input:          "2021-08-16T06:00:00+09:00",
+			configTimeZone: "",
+			localZoneName:  "America/Los_Angeles",
+			expectedFull:   "6:00:00 am ",
+			expectedLong:   "6:00:00 am ",
+			comment:        "environ set but config not set; no zoneinfo",
 		},
 
 		{
-			input:           "2021-08-16T06:00:00+00:00",
-			configTimeZone:  `timeZone = ""`,
-			environTimeZone: "America/Los_Angeles",
-			expectedFull:    "6:00:00 am UTC",
-			expectedLong:    "6:00:00 am UTC",
-			comment:         "zoneinfo `UTC` is always displayed if offset is +00:00",
+			input:          "2021-08-16T06:00:00+00:00",
+			configTimeZone: `timeZone = ""`,
+			localZoneName:  "America/Los_Angeles",
+			expectedFull:   "6:00:00 am UTC",
+			expectedLong:   "6:00:00 am UTC",
+			comment:        "zoneinfo `UTC` is displayed if offset is +00:00 as default",
 		},
 		{
-			input:           "2021-08-16T06:00:00-07:00",
-			configTimeZone:  `timeZone = ""`,
-			environTimeZone: "America/Los_Angeles",
-			expectedFull:    "6:00:00 am ",
-			expectedLong:    "6:00:00 am ",
-			comment:         "environ set but config set empty string, no zoninfo",
+			input:          "2021-08-16T06:00:00-07:00",
+			configTimeZone: `timeZone = ""`,
+			localZoneName:  "America/Los_Angeles",
+			expectedFull:   "6:00:00 am ",
+			expectedLong:   "6:00:00 am ",
+			comment:        "environ set but timezone in config set to empty string; no zoneinfo",
 		},
 		{
-			input:           "2021-08-16T06:00:00+09:00",
-			configTimeZone:  `timeZone = ""`,
-			environTimeZone: "America/Los_Angeles",
-			expectedFull:    "6:00:00 am ",
-			expectedLong:    "6:00:00 am ",
-			comment:         "environ set but config set empty string, no zoninfo",
+			input:          "2021-08-16T06:00:00+09:00",
+			configTimeZone: `timeZone = ""`,
+			localZoneName:  "America/Los_Angeles",
+			expectedFull:   "6:00:00 am ",
+			expectedLong:   "6:00:00 am ",
+			comment:        "environ set but timezone in config set to empty string; no zoneinfo",
 		},
 
 		{
-			input:           "2021-08-16T06:00:00+00:00",
-			configTimeZone:  `timeZone = "America/Los_Angeles"`,
-			environTimeZone: "",
-			expectedFull:    "6:00:00 am UTC",
-			expectedLong:    "6:00:00 am UTC",
-			comment:         "zoneinfo `UTC` is always displayed if offset is +00:00",
+			input:          "2021-08-16T06:00:00+00:00",
+			configTimeZone: `timeZone = "America/Los_Angeles"`,
+			localZoneName:  "",
+			expectedFull:   "6:00:00 am UTC",
+			expectedLong:   "6:00:00 am UTC",
+			comment:        `config set to "America/Los_Angeles", offset unmatched; show "UTC" as default`,
 		},
 		{
-			input:           "2021-08-16T06:00:00-07:00",
-			configTimeZone:  `timeZone = "America/Los_Angeles"`,
-			environTimeZone: "",
-			expectedFull:    "6:00:00 am Pacific Daylight Time",
-			expectedLong:    "6:00:00 am PDT",
-			comment:         `config set "America/Los_Angeles", offset matched, show zoninfo`,
+			input:          "2021-08-16T06:00:00-07:00",
+			configTimeZone: `timeZone = "America/Los_Angeles"`,
+			localZoneName:  "",
+			expectedFull:   "6:00:00 am Pacific Daylight Time",
+			expectedLong:   "6:00:00 am PDT",
+			comment:        `config set to "America/Los_Angeles", offset matched; show zoneinfo`,
 		},
 		{
-			input:           "2021-08-16T06:00:00+09:00",
-			configTimeZone:  `timeZone = "America/Los_Angeles"`,
-			environTimeZone: "",
-			expectedFull:    "6:00:00 am ",
-			expectedLong:    "6:00:00 am ",
-			comment:         `config set "America/Los_Angeles", offset unmatched, no zoninfo`,
+			input:          "2021-08-16T06:00:00+09:00",
+			configTimeZone: `timeZone = "America/Los_Angeles"`,
+			localZoneName:  "",
+			expectedFull:   "6:00:00 am ",
+			expectedLong:   "6:00:00 am ",
+			comment:        `config set to "America/Los_Angeles", offset unmatched; no zoneinfo`,
+		},
+		{
+			input:          "2021-08-16T06:00:00+02:00",
+			configTimeZone: `timeZone = "Europe/Oslo"`,
+			localZoneName:  "",
+			expectedFull:   "6:00:00 am CEST",
+			expectedLong:   "6:00:00 am CEST",
+			comment:        `config set to "Europe/Oslo", offset matched (summer time); show zoneinfo`,
+		},
+		{
+			input:          "2021-12-16T06:00:00+02:00",
+			configTimeZone: `timeZone = "Europe/Oslo"`,
+			localZoneName:  "",
+			expectedFull:   "6:00:00 am ",
+			expectedLong:   "6:00:00 am ",
+			comment:        `config set to "Europe/Oslo", offset unmatched (standard time); no zoneinfo`,
+		},
+		{
+			input:          "2021-12-16T06:00:00+01:00",
+			configTimeZone: `timeZone = "Europe/Oslo"`,
+			localZoneName:  "",
+			expectedFull:   "6:00:00 am CET",
+			expectedLong:   "6:00:00 am CET",
+			comment:        `config set to "Europe/Oslo", offset matched (standard time); show zoneinfo`,
+		},
+		{
+			input:          "2021-08-16T06:00:00-07:00",
+			configTimeZone: `timeZone = "Mexico/BajaNorte"`,
+			localZoneName:  "",
+			expectedFull:   "6:00:00 am Pacific Daylight Time",
+			expectedLong:   "6:00:00 am PDT",
+			comment:        `config set to "Mexico/BajaNorte", offset matched; show zoneinfo`,
+		},
+		{
+			input:          "2021-08-16T06:00:00+00:00",
+			configTimeZone: `timeZone = "Etc/Greenwich"`,
+			localZoneName:  "",
+			expectedFull:   "6:00:00 am Greenwich Mean Time",
+			expectedLong:   "6:00:00 am GMT",
+			comment:        `zoneinfo "UTC" could be overwritten if time zone offset is +00:00:00 and matched`,
 		},
 
 		// no effect of "TZ"
 		{
-			input:           "2021-08-16T06:00:00+00:00",
-			configTimeZone:  `timeZone = "America/Los_Angeles"`,
-			environTimeZone: "Asia/Tokyo",
-			expectedFull:    "6:00:00 am UTC",
-			expectedLong:    "6:00:00 am UTC",
-			comment:         "zoneinfo `UTC` is always displayed if offset is +00:00",
+			input:          "2021-08-16T06:00:00+00:00",
+			configTimeZone: `timeZone = "America/Los_Angeles"`,
+			localZoneName:  "Asia/Tokyo",
+			expectedFull:   "6:00:00 am UTC",
+			expectedLong:   "6:00:00 am UTC",
+			comment:        `config set to "America/Los_Angeles", offset unmatched; show "UTC" as default`,
 		},
 		{
-			input:           "2021-08-16T06:00:00-07:00",
-			configTimeZone:  `timeZone = "America/Los_Angeles"`,
-			environTimeZone: "Asia/Tokyo",
-			expectedFull:    "6:00:00 am Pacific Daylight Time",
-			expectedLong:    "6:00:00 am PDT",
-			comment:         `config set "America/Los_Angeles", offset matched, show zoninfo`,
+			input:          "2021-08-16T06:00:00-07:00",
+			configTimeZone: `timeZone = "America/Los_Angeles"`,
+			localZoneName:  "Asia/Tokyo",
+			expectedFull:   "6:00:00 am Pacific Daylight Time",
+			expectedLong:   "6:00:00 am PDT",
+			comment:        `config set to "America/Los_Angeles", offset matched; show zoneinfo`,
 		},
 		{
-			input:           "2021-08-16T06:00:00+09:00",
-			configTimeZone:  `timeZone = "America/Los_Angeles"`,
-			environTimeZone: "Asia/Tokyo",
-			expectedFull:    "6:00:00 am ",
-			expectedLong:    "6:00:00 am ",
-			comment:         `config set "America/Los_Angeles", offset unmatched, no zoninfo`,
+			input:          "2021-08-16T06:00:00+09:00",
+			configTimeZone: `timeZone = "America/Los_Angeles"`,
+			localZoneName:  "Asia/Tokyo",
+			expectedFull:   "6:00:00 am ",
+			expectedLong:   "6:00:00 am ",
+			comment:        `config set to "America/Los_Angeles", offset unmatched; no zoneinfo`,
 		},
 
 		// toml string of time is same as above
 		{
-			input:           `"2021-08-16T06:00:00+00:00"`,
-			configTimeZone:  `timeZone = "America/Los_Angeles"`,
-			environTimeZone: "Asia/Tokyo",
-			expectedFull:    "6:00:00 am UTC",
-			expectedLong:    "6:00:00 am UTC",
-			comment:         "zoneinfo `UTC` is always displayed if offset is +00:00",
+			input:          `"2021-08-16T06:00:00+00:00"`,
+			configTimeZone: `timeZone = "America/Los_Angeles"`,
+			localZoneName:  "Asia/Tokyo",
+			expectedFull:   "6:00:00 am ",
+			expectedLong:   "6:00:00 am ",
+			comment:        `config set to "America/Los_Angeles", offset unmatched; show "UTC"`,
 		},
 		{
-			input:           `"2021-08-16T06:00:00-07:00"`,
-			configTimeZone:  `timeZone = "America/Los_Angeles"`,
-			environTimeZone: "Asia/Tokyo",
-			expectedFull:    "6:00:00 am Pacific Daylight Time",
-			expectedLong:    "6:00:00 am PDT",
-			comment:         `config set "America/Los_Angeles", offset matched, show zoninfo`,
+			input:          `"2021-08-16T06:00:00-07:00"`,
+			configTimeZone: `timeZone = "America/Los_Angeles"`,
+			localZoneName:  "Asia/Tokyo",
+			expectedFull:   "6:00:00 am Pacific Daylight Time",
+			expectedLong:   "6:00:00 am PDT",
+			comment:        `config set to "America/Los_Angeles", offset matched, show zoneinfo`,
 		},
 		{
-			input:           `"2021-08-16T06:00:00+09:00"`,
-			configTimeZone:  `timeZone = "America/Los_Angeles"`,
-			environTimeZone: "Asia/Tokyo",
-			expectedFull:    "6:00:00 am ",
-			expectedLong:    "6:00:00 am ",
-			comment:         `config set "America/Los_Angeles", offset unmatched, no zoninfo`,
+			input:          `"2021-08-16T06:00:00+09:00"`,
+			configTimeZone: `timeZone = "America/Los_Angeles"`,
+			localZoneName:  "Asia/Tokyo",
+			expectedFull:   "6:00:00 am ",
+			expectedLong:   "6:00:00 am ",
+			comment:        `config set to "America/Los_Angeles", offset unmatched, no zoneinfo`,
 		},
 
 		// without offset
 		{
-			input:           `"2021-08-16T06:00:00"`,
-			configTimeZone:  `timeZone = "America/Los_Angeles"`,
-			environTimeZone: "Asia/Tokyo",
-			expectedFull:    "6:00:00 am Pacific Daylight Time",
-			expectedLong:    "6:00:00 am PDT",
-			comment:         "NOTE: This does not show `UTC` because of `cast`",
+			input:          `"2021-08-16T06:00:00"`,
+			configTimeZone: `timeZone = "America/Los_Angeles"`,
+			localZoneName:  "Asia/Tokyo",
+			expectedFull:   "6:00:00 am Pacific Daylight Time",
+			expectedLong:   "6:00:00 am PDT",
+			comment:        "NOTE: This does not show `UTC` because `cast.ToTimeInDefaultLocationE` uses `timeZone` value",
 		},
 		{
-			input:           `2021-08-16T06:00:00`,
-			configTimeZone:  `timeZone = "America/Los_Angeles"`,
-			environTimeZone: "Asia/Tokyo",
-			expectedFull:    "6:00:00 am Pacific Daylight Time",
-			expectedLong:    "6:00:00 am PDT",
-			comment:         "NOTE: This does not show `UTC` because of `cast`",
+			input:          `2021-08-16T06:00:00`,
+			configTimeZone: `timeZone = "America/Los_Angeles"`,
+			localZoneName:  "Asia/Tokyo",
+			expectedFull:   "6:00:00 am Pacific Daylight Time",
+			expectedLong:   "6:00:00 am PDT",
+			comment:        "NOTE: This does not show `UTC`. The original value type is AsTimeProvider provided by go-toml.",
+		},
+		{
+			input:          `"2021-08-16"`,
+			configTimeZone: `timeZone = "America/Los_Angeles"`,
+			localZoneName:  "Asia/Tokyo",
+			expectedFull:   "0:00:00 am Pacific Daylight Time",
+			expectedLong:   "0:00:00 am PDT",
+			comment:        "Date only string type, `cast` uses timzeZone value; show zoneinfo",
+		},
+		{
+			input:          `2021-08-16`,
+			configTimeZone: `timeZone = "America/Los_Angeles"`,
+			localZoneName:  "Asia/Tokyo",
+			expectedFull:   "0:00:00 am Pacific Daylight Time",
+			expectedLong:   "0:00:00 am PDT",
+			comment:        "Date only time type, AsTimeProvider; show zoneinfo",
 		},
 	}
 
 	for _, tc := range testCases {
-		files := `
+		name := fmt.Sprintf(`%s;%s;%s`, tc.input, tc.configTimeZone, tc.localZoneName)
+		t.Run(name, func(t *testing.T) {
+			c := qt.New(t)
+
+			// "TZ" (or the other) environment variables detmerine global `time.Local`.
+			// What we really want to test is them (#9996). However,
+			// This initialization can be called only once and hard to test.
+			// Instead of "TZ", we use and change `time.Local`.
+			// It is ok because both `go-toml` and `cast` use the value.
+			origLocal := *time.Local
+			testLoc, err := time.LoadLocation(tc.localZoneName)
+			c.Assert(err, qt.IsNil)
+			time.Local = testLoc
+			defer func() { time.Local = &origLocal }()
+
+			files := `
 -- config.toml --
 %s
 -- content/p.md --
@@ -499,25 +547,23 @@ date = %s
 _{{ $t | time.Format ":time_full" }}_
 _{{ $t | time.Format ":time_long" }}_
 `
-		txtar := fmt.Sprintf(
-			files,
-			tc.configTimeZone,
-			tc.input,
-		)
+			txtar := fmt.Sprintf(
+				files,
+				tc.configTimeZone,
+				tc.input,
+			)
 
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: txtar,
-				EnviromentVars: map[string]string{
-					"TZ": tc.environTimeZone,
+			b := NewIntegrationTestBuilder(
+				IntegrationTestConfig{
+					T:           t,
+					TxtarString: txtar,
 				},
-			},
-		).Build()
+			).Build()
 
-		content := fmt.Sprintf("_%s_\n_%s_", tc.expectedFull, tc.expectedLong)
-		b.AssertFileContent("public/index.html", content)
+			content := fmt.Sprintf("_%s_\n_%s_", tc.expectedFull, tc.expectedLong)
+			b.AssertFileContent("public/index.html", content)
 
+		})
 	}
 
 }
@@ -533,6 +579,9 @@ defaultContentLanguage = 'en'
   [languages.en]
     title = 'English site'
     timeZone = "America/Los_Angeles"
+  [languages.nn]
+    title = 'Norwegian site'
+    timeZone = "Europe/Oslo"
   [languages.ja]
     title = 'Japanese site'
     timeZone = "Asia/Tokyo"
@@ -541,7 +590,11 @@ defaultContentLanguage = 'en'
 title = "English Content"
 date = 2021-08-16T06:00:00-07:00
 +++
-
+-- content/matched.nn.md --
++++
+title = "Norwegian Content"
+date = 2021-08-16T06:00:00+02:00
++++
 -- content/matched.ja.md --
 +++
 title = "Japanese Content"
@@ -550,6 +603,11 @@ date = 2021-08-16T06:00:00+09:00
 -- content/unmatched.en.md --
 +++
 title = "English Content"
+date = 2021-08-16T06:00:00+09:00
++++
+-- content/unmatched.nn.md --
++++
+title = "Norwegian Content"
 date = 2021-08-16T06:00:00+09:00
 +++
 -- content/unmatched.ja.md --
@@ -562,6 +620,11 @@ date = 2021-08-16T06:00:00-07:00
 title = "English Content"
 date = 2021-08-16T06:00:00+00:00
 +++
+-- content/utc.nn.md --
++++
+title = "Norwegian Content"
+date = 2021-08-16T06:00:00+00:00
++++
 -- content/utc.ja.md --
 +++
 title = "Japanese Content"
@@ -570,6 +633,11 @@ date = 2021-08-16T06:00:00+00:00
 -- content/nooffset.en.md --
 +++
 title = "English Content"
+date = "2021-08-16T06:00:00"
++++
+-- content/nooffset.nn.md --
++++
+title = "Norwegian Content"
 date = "2021-08-16T06:00:00"
 +++
 -- content/nooffset.ja.md --
@@ -589,14 +657,18 @@ _{{ .Date | time.Format ":time_full" }}_
 	).Build()
 
 	b.AssertFileContent("public/matched/index.html", `6:00:00 am Pacific Daylight Time`)
+	b.AssertFileContent("public/nn/matched/index.html", `kl. 06:00:00 CEST`)
 	b.AssertFileContent("public/ja/matched/index.html", `6時00分00秒 日本標準時`)
 
 	b.AssertFileContent("public/unmatched/index.html", `6:00:00 am `)
+	b.AssertFileContent("public/nn/unmatched/index.html", `kl. 06:00:00 `)
 	b.AssertFileContent("public/ja/unmatched/index.html", `6時00分00秒`)
 
 	b.AssertFileContent("public/utc/index.html", `6:00:00 am UTC`)
+	b.AssertFileContent("public/nn/utc/index.html", `kl. 06:00:00 UTC`)
 	b.AssertFileContent("public/ja/utc/index.html", `6時00分00秒`)
 
 	b.AssertFileContent("public/nooffset/index.html", `6:00:00 am Pacific Daylight Time`)
+	b.AssertFileContent("public/nn/nooffset/index.html", `kl. 06:00:00 CEST`)
 	b.AssertFileContent("public/ja/nooffset/index.html", `6時00分00秒 日本標準時`)
 }
