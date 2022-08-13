@@ -276,7 +276,6 @@ Full time: 6:00:00 am UTC
 }
 
 func TestTOMLTimeZone(t *testing.T) {
-	t.Parallel()
 	type testCase struct {
 		input          string
 		configTimeZone string
