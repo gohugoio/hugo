@@ -532,7 +532,9 @@ func TestTOMLTimeZone(t *testing.T) {
 			testLoc, err := time.LoadLocation(tc.localZoneName)
 			c.Assert(err, qt.IsNil)
 			time.Local = testLoc
-			defer func() { time.Local = &origLocal }()
+			t.Cleanup(func () {
+				 time.Local = &origLocal
+			})
 
 			files := `
 -- config.toml --
