@@ -157,6 +157,12 @@ Pass down down default configuration values (front matter) to pages in the conte
 
 Enable to turn relative URLs into absolute.
 
+### cleanDestinationDir
+
+**Default value:** false
+
+Remove files from destination not found in static directories.
+
 ### contentDir
 
 **Default value:** "content"
@@ -193,6 +199,12 @@ Render the default content language in subdir, e.g. `content/en/`. The site root
 
 Will disable generation of alias redirects. Note that even if `disableAliases` is set, the aliases themselves are preserved on the page. The motivation with this is to be able to generate 301 redirects in an `.htaccess`, a Netlify `_redirects` file or similar using a custom output format.
 
+### disableFastRender
+
+**Default value:**  false
+
+Enables full re-renders on changes.
+
 ### disableHugoGeneratorInject
 
 **Default value:**  false
@@ -215,7 +227,7 @@ Disable automatic live reloading of browser window.
 
 **Default value:**  false
 
-: Do not convert the url/path to lowercase.
+Do not convert the url/path to lowercase.
 
 ### enableEmoji
 
