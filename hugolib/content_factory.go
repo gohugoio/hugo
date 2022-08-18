@@ -14,18 +14,19 @@
 package hugolib
 
 import (
+	"fmt"
 	"io"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/hugo/source"
 
 	"github.com/gohugoio/hugo/resources/page"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 )
 
@@ -35,12 +36,12 @@ type ContentFactory struct {
 
 	// We parse the archetype templates as Go templates, so we need
 	// to replace any shortcode with a temporary placeholder.
-	shortocdeReplacerPre  *strings.Replacer
-	shortocdeReplacerPost *strings.Replacer
+	shortcodeReplacerPre  *strings.Replacer
+	shortcodeReplacerPost *strings.Replacer
 }
 
-// AppplyArchetypeFilename archetypeFilename to w as a template using the given Page p as the foundation for the data context.
-func (f ContentFactory) AppplyArchetypeFilename(w io.Writer, p page.Page, archetypeKind, archetypeFilename string) error {
+// ApplyArchetypeFilename archetypeFilename to w as a template using the given Page p as the foundation for the data context.
+func (f ContentFactory) ApplyArchetypeFilename(w io.Writer, p page.Page, archetypeKind, archetypeFilename string) error {
 
 	fi, err := f.h.SourceFilesystems.Archetypes.Fs.Stat(archetypeFilename)
 	if err != nil {
@@ -48,21 +49,21 @@ func (f ContentFactory) AppplyArchetypeFilename(w io.Writer, p page.Page, archet
 	}
 
 	if fi.IsDir() {
-		return errors.Errorf("archetype directory (%q) not supported", archetypeFilename)
+		return fmt.Errorf("archetype directory (%q) not supported", archetypeFilename)
 	}
 
 	templateSource, err := afero.ReadFile(f.h.SourceFilesystems.Archetypes.Fs, archetypeFilename)
 	if err != nil {
-		return errors.Wrapf(err, "failed to read archetype file %q: %s", archetypeFilename, err)
+		return fmt.Errorf("failed to read archetype file %q: %s: %w", archetypeFilename, err, err)
 
 	}
 
-	return f.AppplyArchetypeTemplate(w, p, archetypeKind, string(templateSource))
+	return f.ApplyArchetypeTemplate(w, p, archetypeKind, string(templateSource))
 
 }
 
-// AppplyArchetypeFilename templateSource to w as a template using the given Page p as the foundation for the data context.
-func (f ContentFactory) AppplyArchetypeTemplate(w io.Writer, p page.Page, archetypeKind, templateSource string) error {
+// ApplyArchetypeTemplate templateSource to w as a template using the given Page p as the foundation for the data context.
+func (f ContentFactory) ApplyArchetypeTemplate(w io.Writer, p page.Page, archetypeKind, templateSource string) error {
 	ps := p.(*pageState)
 	if archetypeKind == "" {
 		archetypeKind = p.Type()
@@ -70,50 +71,54 @@ func (f ContentFactory) AppplyArchetypeTemplate(w io.Writer, p page.Page, archet
 
 	d := &archetypeFileData{
 		Type: archetypeKind,
-		Date: time.Now().Format(time.RFC3339),
+		Date: htime.Now().Format(time.RFC3339),
 		Page: p,
 		File: p.File(),
 	}
 
-	templateSource = f.shortocdeReplacerPre.Replace(templateSource)
+	templateSource = f.shortcodeReplacerPre.Replace(templateSource)
 
 	templ, err := ps.s.TextTmpl().Parse("archetype.md", string(templateSource))
 	if err != nil {
-		return errors.Wrapf(err, "failed to parse archetype template: %s", err)
+		return fmt.Errorf("failed to parse archetype template: %s: %w", err, err)
 	}
 
 	result, err := executeToString(ps.s.Tmpl(), templ, d)
 	if err != nil {
-		return errors.Wrapf(err, "failed to execute archetype template: %s", err)
+		return fmt.Errorf("failed to execute archetype template: %s: %w", err, err)
 	}
 
-	_, err = io.WriteString(w, f.shortocdeReplacerPost.Replace(result))
+	_, err = io.WriteString(w, f.shortcodeReplacerPost.Replace(result))
 
 	return err
 
 }
 
-func (f ContentFactory) SectionFromFilename(filename string) string {
+func (f ContentFactory) SectionFromFilename(filename string) (string, error) {
 	filename = filepath.Clean(filename)
-	rel, _ := f.h.AbsProjectContentDir(filename)
-	if rel == "" {
-		return ""
+	rel, _, err := f.h.AbsProjectContentDir(filename)
+	if err != nil {
+		return "", err
 	}
 
 	parts := strings.Split(helpers.ToSlashTrimLeading(rel), "/")
 	if len(parts) < 2 {
-		return ""
+		return "", nil
 	}
-	return parts[0]
+	return parts[0], nil
 }
 
 // CreateContentPlaceHolder creates a content placeholder file inside the
 // best matching content directory.
 func (f ContentFactory) CreateContentPlaceHolder(filename string) (string, error) {
 	filename = filepath.Clean(filename)
-	_, abs := f.h.AbsProjectContentDir(filename)
+	_, abs, err := f.h.AbsProjectContentDir(filename)
 
-	// This will be overwritten later, just write a placholder to get
+	if err != nil {
+		return "", err
+	}
+
+	// This will be overwritten later, just write a placeholder to get
 	// the paths correct.
 	placeholder := `---
 title: "Content Placeholder"
@@ -132,12 +137,12 @@ _build:
 func NewContentFactory(h *HugoSites) ContentFactory {
 	return ContentFactory{
 		h: h,
-		shortocdeReplacerPre: strings.NewReplacer(
+		shortcodeReplacerPre: strings.NewReplacer(
 			"{{<", "{x{<",
 			"{{%", "{x{%",
 			">}}", ">}x}",
 			"%}}", "%}x}"),
-		shortocdeReplacerPost: strings.NewReplacer(
+		shortcodeReplacerPost: strings.NewReplacer(
 			"{x{<", "{{<",
 			"{x{%", "{{%",
 			">}x}", ">}}",

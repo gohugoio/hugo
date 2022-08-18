@@ -20,6 +20,7 @@ import (
 
 	qt "github.com/frankban/quicktest"
 
+	"github.com/gohugoio/hugo/common/htime"
 	translators "github.com/gohugoio/localescompressed"
 )
 
@@ -27,13 +28,13 @@ func TestTimeLocation(t *testing.T) {
 	t.Parallel()
 
 	loc, _ := time.LoadLocation("America/Antigua")
-	ns := New(translators.GetTranslator("en"), loc)
+	ns := New(htime.NewTimeFormatter(translators.GetTranslator("en")), loc)
 
 	for i, test := range []struct {
 		name     string
 		value    string
-		location interface{}
-		expect   interface{}
+		location any
+		expect   any
 	}{
 		{"Empty location", "2020-10-20", "", "2020-10-20 00:00:00 +0000 UTC"},
 		{"New location", "2020-10-20", nil, "2020-10-20 00:00:00 -0400 AST"},
@@ -53,7 +54,7 @@ func TestTimeLocation(t *testing.T) {
 		{"Invalid time value", "invalid-value", "", false},
 	} {
 		t.Run(test.name, func(t *testing.T) {
-			var args []interface{}
+			var args []any
 			if test.location != nil {
 				args = append(args, test.location)
 			}
@@ -86,12 +87,12 @@ func TestFormat(t *testing.T) {
 
 	c.Run("UTC", func(c *qt.C) {
 		c.Parallel()
-		ns := New(translators.GetTranslator("en"), time.UTC)
+		ns := New(htime.NewTimeFormatter(translators.GetTranslator("en")), time.UTC)
 
 		for i, test := range []struct {
 			layout string
-			value  interface{}
-			expect interface{}
+			value  any
+			expect any
 		}{
 			{"Monday, Jan 2, 2006", "2015-01-21", "Wednesday, Jan 21, 2015"},
 			{"Monday, Jan 2, 2006", time.Date(2015, time.January, 21, 0, 0, 0, 0, time.UTC), "Wednesday, Jan 21, 2015"},
@@ -129,7 +130,7 @@ func TestFormat(t *testing.T) {
 
 		loc, err := time.LoadLocation("America/Los_Angeles")
 		c.Assert(err, qt.IsNil)
-		ns := New(translators.GetTranslator("en"), loc)
+		ns := New(htime.NewTimeFormatter(translators.GetTranslator("en")), loc)
 
 		d, err := ns.Format(":time_full", "2020-03-09T11:00:00")
 
@@ -143,12 +144,12 @@ func TestFormat(t *testing.T) {
 func TestDuration(t *testing.T) {
 	t.Parallel()
 
-	ns := New(translators.GetTranslator("en"), time.UTC)
+	ns := New(htime.NewTimeFormatter(translators.GetTranslator("en")), time.UTC)
 
 	for i, test := range []struct {
-		unit   interface{}
-		num    interface{}
-		expect interface{}
+		unit   any
+		num    any
+		expect any
 	}{
 		{"nanosecond", 10, 10 * time.Nanosecond},
 		{"ns", 10, 10 * time.Nanosecond},

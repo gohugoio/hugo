@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-03-12
 categories: [templates]
-keywords: [data,dynamic,csv,json,toml,yaml]
+keywords: [data,dynamic,csv,json,toml,yaml,xml]
 menu:
   docs:
     parent: "templates"
@@ -20,7 +20,7 @@ toc: true
 
 <!-- begin data files -->
 
-Hugo supports loading data from YAML, JSON, and TOML files located in the `data` directory in the root of your Hugo project.
+Hugo supports loading data from YAML, JSON, XML, and TOML files located in the `data` directory in the root of your Hugo project.
 
 {{< youtube FyPgSuwIMWQ >}}
 
@@ -28,7 +28,7 @@ Hugo supports loading data from YAML, JSON, and TOML files located in the `data`
 
 The `data` folder is where you can store additional data for Hugo to use when generating your site. Data files aren't used to generate standalone pages; rather, they're meant to be supplemental to content files. This feature can extend the content in case your front matter fields grow out of control. Or perhaps you want to show a larger dataset in a template (see example below). In both cases, it's a good idea to outsource the data in their own files.
 
-These files must be YAML, JSON, or TOML files (using the `.yml`, `.yaml`, `.json`, or `.toml` extension). The data will be accessible as a `map` in the `.Site.Data` variable.
+These files must be YAML, JSON, XML, or TOML files (using the `.yml`, `.yaml`, `.json`, `.xml`, or `.toml` extension). The data will be accessible as a `map` in the `.Site.Data` variable.
 
 ## Data Files in Themes
 
@@ -53,8 +53,8 @@ The example below is a bit contrived, but it illustrates the flexibility of data
 
 {{< code-toggle file="jacopastorius" >}}
 discography = [
-"1974 – Modern American Music … Period! The Criteria Sessions",
-"1974 – Jaco",
+"1974 - Modern American Music … Period! The Criteria Sessions",
+"1974 - Jaco",
 "1976 - Jaco Pastorius",
 "1981 - Word of Mouth",
 "1981 - The Birthday Concert (released in 1995)",
@@ -95,7 +95,7 @@ Discover a new favorite bass player? Just add another `.toml` file in the same d
 
 ## Example: Accessing Named Values in a Data File
 
-Assume you have the following data structure in your `User0123.[yml|toml|json]` data file located directly in `data/`:
+Assume you have the following data structure in your `User0123.[yml|toml|xml|json]` data file located directly in `data/`:
 
 {{< code-toggle file="User0123" >}}
 Name: User0123
@@ -112,7 +112,7 @@ You can use the following code to render the `Short Description` in your layout:
 <div>Short Description of {{.Site.Data.User0123.Name}}: <p>{{ index .Site.Data.User0123 "Short Description" | markdownify }}</p></div>
 ```
 
-Note the use of the [`markdownify` template function][markdownify]. This will send the description through the Blackfriday Markdown rendering engine.
+Note the use of the [`markdownify` template function][markdownify]. This will send the description through the Markdown rendering engine.
 
 
 ## Get Remote Data
@@ -207,7 +207,7 @@ Currently, you can only use those authentication methods that can be put into an
 
 To load local files with `getJSON` and `getCSV`, the source files must reside within Hugo's working directory. The file extension does not matter, but the content does.
 
-It applies the same output logic as above in [Call the Functions with a URL](#call-the-functions-with-a-url).
+It applies the same output logic as above in [Get Remote Data](#get-remote-data).
 
 {{% note %}}
 The local CSV files to be loaded using `getCSV` must be located **outside** of the `data` directory.
@@ -232,6 +232,7 @@ If you change any local file and the LiveReload is triggered, Hugo will read the
 * [YAML Spec][yaml]
 * [JSON Spec][json]
 * [CSV Spec][csv]
+* [XML Spec][xml]
 
 [config]: /getting-started/configuration/
 [csv]: https://tools.ietf.org/html/rfc4180
@@ -247,3 +248,4 @@ If you change any local file and the LiveReload is triggered, Hugo will read the
 [variadic]: https://en.wikipedia.org/wiki/Variadic_function
 [vars]: /variables/
 [yaml]: https://yaml.org/spec/
+[xml]: https://www.w3.org/XML/

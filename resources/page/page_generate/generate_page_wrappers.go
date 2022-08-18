@@ -20,12 +20,13 @@ import (
 	"path/filepath"
 	"reflect"
 
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/gohugoio/hugo/codegen"
 	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/gohugoio/hugo/source"
 )
 
@@ -46,7 +47,6 @@ const header = `// Copyright 2019 The Hugo Authors. All rights reserved.
 `
 
 var (
-	fileInterfaceDeprecated = reflect.TypeOf((*source.FileWithoutOverlap)(nil)).Elem()
 	pageInterfaceDeprecated = reflect.TypeOf((*page.DeprecatedWarningPageMethods)(nil)).Elem()
 	pageInterface           = reflect.TypeOf((*page.Page)(nil)).Elem()
 
@@ -55,15 +55,15 @@ var (
 
 func Generate(c *codegen.Inspector) error {
 	if err := generateMarshalJSON(c); err != nil {
-		return errors.Wrap(err, "failed to generate JSON marshaler")
+		return fmt.Errorf("failed to generate JSON marshaler: %w", err)
 	}
 
 	if err := generateDeprecatedWrappers(c); err != nil {
-		return errors.Wrap(err, "failed to generate deprecate wrappers")
+		return fmt.Errorf("failed to generate deprecate wrappers: %w", err)
 	}
 
 	if err := generateFileIsZeroWrappers(c); err != nil {
-		return errors.Wrap(err, "failed to generate file wrappers")
+		return fmt.Errorf("failed to generate file wrappers: %w", err)
 	}
 
 	return nil
@@ -87,6 +87,8 @@ func generateMarshalJSON(c *codegen.Inspector) error {
 
 		// Leave this out for now. We need to revisit the author issue.
 		reflect.TypeOf((*page.AuthorProvider)(nil)).Elem(),
+
+		reflect.TypeOf((*resource.ErrProvider)(nil)).Elem(),
 
 		// navigation.PageMenus
 
@@ -152,23 +154,17 @@ func generateDeprecatedWrappers(c *codegen.Inspector) error {
 	}
 
 	deprecated := func(name string, tp reflect.Type) string {
-		var alternative string
-		if tp == fileInterfaceDeprecated {
-			alternative = "Use .File." + name
-		} else {
-			var found bool
-			alternative, found = reasons[name]
-			if !found {
-				panic(fmt.Sprintf("no deprecated reason found for %q", name))
-			}
+		alternative, found := reasons[name]
+		if !found {
+			panic(fmt.Sprintf("no deprecated reason found for %q", name))
 		}
 
-		return fmt.Sprintf("helpers.Deprecated(%q, %q, false)", "Page."+name, alternative)
+		return fmt.Sprintf("helpers.Deprecated(%q, %q, true)", "Page."+name, alternative)
 	}
 
 	var buff bytes.Buffer
 
-	methods := c.MethodsFromTypes([]reflect.Type{fileInterfaceDeprecated, pageInterfaceDeprecated}, nil)
+	methods := c.MethodsFromTypes([]reflect.Type{pageInterfaceDeprecated}, nil)
 
 	for _, m := range methods {
 		fmt.Fprint(&buff, m.Declaration("*pageDeprecated"))
@@ -178,7 +174,8 @@ func generateDeprecatedWrappers(c *codegen.Inspector) error {
 
 	}
 
-	pkgImports := append(methods.Imports(), "github.com/gohugoio/hugo/helpers")
+	pkgImports := methods.Imports()
+	// pkgImports := append(methods.Imports(), "github.com/gohugoio/hugo/helpers")
 
 	fmt.Fprintf(f, `%s
 
@@ -214,7 +211,9 @@ func generateFileIsZeroWrappers(c *codegen.Inspector) error {
 	warning := func(name string, tp reflect.Type) string {
 		msg := fmt.Sprintf(".File.%s on zero object. Wrap it in if or with: {{ with .File }}{{ .%s }}{{ end }}", name, name)
 
-		return fmt.Sprintf("z.log.Println(%q)", msg)
+		// We made this a Warning in 0.92.0.
+		// When we remove this construct in 0.93.0, people will get a nil pointer.
+		return fmt.Sprintf("z.log.Warnln(%q)", msg)
 	}
 
 	var buff bytes.Buffer

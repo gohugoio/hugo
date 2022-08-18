@@ -47,9 +47,9 @@
   {{ end }}
   {{ partial "site-manifest.html" . }}
   {{- partial "head-additions.html" . -}}
-  {{- template "_internal/opengraph.html" . -}}
+  {{- partial "opengraph/opengraph.html" . -}}
   {{- template "_internal/schema.html" . -}}
-  {{- template "_internal/twitter_cards.html" . -}}
+  {{- partial "opengraph/twitter_cards.html" . -}}
 
   {{ if eq (getenv "HUGO_ENV") "production" | or (eq .Site.Params.env "production")  }}
   {{ partial "gtag" . }}
@@ -58,6 +58,7 @@
 </head>
 
 <body class="ma0 sans-serif bg-primary-color-light{{ with getenv "HUGO_ENV" }} {{ . }}{{ end }}">
+  {{ partial "hooks/after-body-start" . }}
   {{ block "nav" . }}{{ partial "site-nav.html" . }}{{ end }}
   {{ block "header" . }}{{ end }}
   <main role="main" class="content-with-sidebar min-vh-100 pb7 pb0-ns">
@@ -65,6 +66,17 @@
   </main>
 
   {{ block "footer" . }}{{ partialCached "site-footer.html" . }}{{ end }}
+  
+  {{ partial "hooks/before-body-end" . }}
+  
+
+  {{ if .Page.Store.Get "hasMermaid" }}
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: true });
+  </script>
+{{ end }}
+
 
 </body>
 

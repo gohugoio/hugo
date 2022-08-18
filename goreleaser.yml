@@ -9,7 +9,7 @@ builds:
   -
     binary: hugo
     id: hugo
-    ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }} -X github.com/gohugoio/hugo/common/hugo.vendorInfo=gohugoio
+    ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.vendorInfo=gohugoio
     env:
       - CGO_ENABLED=0
     flags:
@@ -32,7 +32,7 @@ builds:
   -
       binary: hugo
       id: hugo_unix
-      ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }} -X github.com/gohugoio/hugo/common/hugo.vendorInfo=gohugoio
+      ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.vendorInfo=gohugoio
       env:
         - CGO_ENABLED=0
       flags:
@@ -49,7 +49,7 @@ builds:
     binary: hugo
     id: hugo_extended_windows
     ldflags:
-      - -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }} -X github.com/gohugoio/hugo/common/hugo.vendorInfo=gohugoio
+      - -s -w -X github.com/gohugoio/hugo/common/hugo.vendorInfo=gohugoio
       - "-extldflags '-static'"
     env:
       - CGO_ENABLED=1
@@ -66,7 +66,7 @@ builds:
       - amd64
   - binary: hugo
     id: hugo_extended_darwin
-    ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }} -X github.com/gohugoio/hugo/common/hugo.vendorInfo=gohugoio
+    ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.vendorInfo=gohugoio
     env:
       - CGO_ENABLED=1
       - CC=o64-clang
@@ -83,7 +83,7 @@ builds:
       - arm64
   - binary: hugo
     id: hugo_extended_linux
-    ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }} -X github.com/gohugoio/hugo/common/hugo.vendorInfo=gohugoio
+    ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.vendorInfo=gohugoio
     env:
       - CGO_ENABLED=1
     flags:
@@ -103,7 +103,7 @@ release:
 archives:
   -
     id: "hugo"
-    builds: ['hugo', 'hugo_unix']
+    builds: ['hugo', 'hugo_unix', 'hugo_fat_darwin']
     format: tar.gz
     format_overrides:
       - goos: windows
@@ -126,7 +126,7 @@ archives:
       - LICENSE
   -
     id: "hugo_extended"
-    builds: ['hugo_extended_windows', 'hugo_extended_linux', 'hugo_extended_darwin']
+    builds: ['hugo_extended_windows', 'hugo_extended_linux', 'hugo_extended_fat_darwin']
     format: tar.gz
     format_overrides:
       - goos: windows
@@ -148,6 +148,23 @@ archives:
       - README.md
       - LICENSE
 
+universal_binaries:
+-
+  id: hugo_fat_darwin
+
+  ids:
+  - hugo
+
+  replace: true
+
+-
+  id: hugo_extended_fat_darwin
+
+  ids:
+  - hugo_extended_darwin
+
+  replace: true
+  
 nfpms:
   -
     id: "hugo"

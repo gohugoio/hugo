@@ -12,7 +12,7 @@ import (
 func init() {
 	docsProvider := func() docshelper.DocProvider {
 		return docshelper.DocProvider{
-			"output": map[string]interface{}{
+			"output": map[string]any{
 				"formats": DefaultFormats,
 				"layouts": createLayoutExamples(),
 			},
@@ -22,7 +22,7 @@ func init() {
 	docshelper.AddDocProviderFunc(docsProvider)
 }
 
-func createLayoutExamples() interface{} {
+func createLayoutExamples() any {
 	type Example struct {
 		Example      string
 		Kind         string

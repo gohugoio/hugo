@@ -29,7 +29,7 @@ func TestUnwrapPage(t *testing.T) {
 	c.Assert(mustUnwrap(newPageForRenderHook(p)), qt.Equals, p)
 }
 
-func mustUnwrap(v interface{}) page.Page {
+func mustUnwrap(v any) page.Page {
 	p, err := unwrapPage(v)
 	if err != nil {
 		panic(err)

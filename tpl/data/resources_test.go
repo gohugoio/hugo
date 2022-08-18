@@ -22,24 +22,25 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/config/security"
 	"github.com/gohugoio/hugo/modules"
 
 	"github.com/gohugoio/hugo/helpers"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/cache/filecache"
+	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/spf13/afero"
-	
 )
 
 func TestScpGetLocal(t *testing.T) {
 	t.Parallel()
-	v := config.New()
+	v := config.NewWithTestDefaults()
 	fs := hugofs.NewMem(v)
 	ps := helpers.FilePathSeparator
 
@@ -144,9 +145,8 @@ func TestScpGetRemoteParallel(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 
 	for _, ignoreCache := range []bool{false} {
-		cfg := config.New()
+		cfg := config.NewWithTestDefaults()
 		cfg.Set("ignoreCache", ignoreCache)
-		cfg.Set("contentDir", "content")
 
 		ns := New(newDeps(cfg))
 		ns.client = cl
@@ -194,8 +194,10 @@ func newDeps(cfg config.Provider) *deps.Deps {
 	}
 	cfg.Set("allModules", modules.Modules{mod})
 
+	ex := hexec.New(security.DefaultConfig)
+
 	logger := loggers.NewIgnorableLogger(loggers.NewErrorLogger(), "none")
-	cs, err := helpers.NewContentSpec(cfg, logger, afero.NewMemMapFs())
+	cs, err := helpers.NewContentSpec(cfg, logger, afero.NewMemMapFs(), ex)
 	if err != nil {
 		panic(err)
 	}
@@ -216,6 +218,7 @@ func newDeps(cfg config.Provider) *deps.Deps {
 		Cfg:         cfg,
 		Fs:          fs,
 		FileCaches:  fileCaches,
+		ExecHelper:  ex,
 		ContentSpec: cs,
 		Log:         logger,
 		LogDistinct: helpers.NewDistinctLogger(logger),
@@ -223,7 +226,5 @@ func newDeps(cfg config.Provider) *deps.Deps {
 }
 
 func newTestNs() *Namespace {
-	v := config.New()
-	v.Set("contentDir", "content")
-	return New(newDeps(v))
+	return New(newDeps(config.NewWithTestDefaults()))
 }

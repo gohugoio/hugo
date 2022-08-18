@@ -28,11 +28,11 @@ func init() {
 		if d.Language == nil {
 			panic("Language must be set")
 		}
-		ctx := New(langs.GetTranslator(d.Language), langs.GetLocation(d.Language))
+		ctx := New(langs.GetTimeFormatter(d.Language), langs.GetLocation(d.Language))
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name: name,
-			Context: func(args ...interface{}) (interface{}, error) {
+			Context: func(args ...any) (any, error) {
 				// Handle overlapping "time" namespace and func.
 				//
 				// If no args are passed to `time`, assume namespace usage and

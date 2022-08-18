@@ -15,11 +15,8 @@ package modules
 
 import (
 	"fmt"
-	"path"
 	"path/filepath"
 	"strings"
-
-	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/hugo"
 
@@ -227,7 +224,7 @@ func decodeConfig(cfg config.Provider, pathReplacements map[string]string) (Conf
 			for _, repl := range c.Replacements {
 				parts := strings.Split(repl, "->")
 				if len(parts) != 2 {
-					return c, errors.Errorf(`invalid module.replacements: %q; configure replacement pairs on the form "oldpath->newpath" `, repl)
+					return c, fmt.Errorf(`invalid module.replacements: %q; configure replacement pairs on the form "oldpath->newpath" `, repl)
 				}
 
 				c.replacementsMap[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
@@ -271,7 +268,7 @@ type Config struct {
 	Imports []Import
 
 	// Meta info about this module (license information etc.).
-	Params map[string]interface{}
+	Params map[string]any
 
 	// Will be validated against the running Hugo version.
 	HugoVersion HugoVersion
@@ -296,6 +293,12 @@ type Config struct {
 	NoProxy string
 	// Configures GOPRIVATE.
 	Private string
+
+	// Set the workspace file to use, e.g. hugo.work.
+	// Enables Go "Workspace" mode.
+	// Requires Go 1.18+
+	// See https://tip.golang.org/doc/go1.18
+	Workspace string
 }
 
 // hasModuleImport reports whether the project config have one or more
@@ -314,7 +317,7 @@ type HugoVersion struct {
 	// The minimum Hugo version that this module works with.
 	Min hugo.VersionString
 
-	// The maxium Hugo version that this module works with.
+	// The maximum Hugo version that this module works with.
 	Max hugo.VersionString
 
 	// Set if the extended version is needed.
@@ -366,7 +369,7 @@ func (v HugoVersion) IsValid() bool {
 type Import struct {
 	Path                string // Module path
 	pathProjectReplaced bool   // Set when Path is replaced in project config.
-	IgnoreConfig        bool   // Ignore any config in config.toml (will still folow imports).
+	IgnoreConfig        bool   // Ignore any config in config.toml (will still follow imports).
 	IgnoreImports       bool   // Do not follow any configured imports.
 	NoMounts            bool   // Do not mount any folder in this import.
 	NoVendor            bool   // Never vendor this import (only allowed in main project).
@@ -381,15 +384,15 @@ type Mount struct {
 	Lang string // any language code associated with this mount.
 
 	// Include only files matching the given Glob patterns (string or slice).
-	IncludeFiles interface{}
+	IncludeFiles any
 
 	// Exclude all files matching the given Glob patterns (string or slice).
-	ExcludeFiles interface{}
+	ExcludeFiles any
 }
 
 // Used as key to remove duplicates.
 func (m Mount) key() string {
-	return path.Join(m.Lang, m.Source, m.Target)
+	return strings.Join([]string{m.Lang, m.Source, m.Target}, "/")
 }
 
 func (m Mount) Component() string {
@@ -397,11 +400,8 @@ func (m Mount) Component() string {
 }
 
 func (m Mount) ComponentAndName() (string, string) {
-	k := strings.Index(m.Target, fileSeparator)
-	if k == -1 {
-		return m.Target, ""
-	}
-	return m.Target[:k], m.Target[k+1:]
+	c, n, _ := strings.Cut(m.Target, fileSeparator)
+	return c, n
 }
 
 func getStaticDirs(cfg config.Provider) []string {

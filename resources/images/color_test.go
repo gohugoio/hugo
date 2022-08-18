@@ -25,7 +25,7 @@ func TestHexStringToColor(t *testing.T) {
 
 	for _, test := range []struct {
 		arg    string
-		expect interface{}
+		expect any
 	}{
 		{"f", false},
 		{"#f", false},

@@ -20,14 +20,13 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/tpl/compare"
 	"github.com/spf13/cast"
 )
 
-var sortComp = compare.New(true)
-
 // Sort returns a sorted sequence.
-func (ns *Namespace) Sort(seq interface{}, args ...interface{}) (interface{}, error) {
+func (ns *Namespace) Sort(seq any, args ...any) (any, error) {
 	if seq == nil {
 		return nil, errors.New("sequence must be provided")
 	}
@@ -47,8 +46,10 @@ func (ns *Namespace) Sort(seq interface{}, args ...interface{}) (interface{}, er
 		return nil, errors.New("can't sort " + reflect.ValueOf(seq).Type().String())
 	}
 
+	collator := langs.GetCollator(ns.deps.Language)
+
 	// Create a list of pairs that will be used to do the sort
-	p := pairList{SortAsc: true, SliceType: sliceType}
+	p := pairList{Collator: collator, sortComp: ns.sortComp, SortAsc: true, SliceType: sliceType}
 	p.Pairs = make([]pair, seqv.Len())
 
 	var sortByField string
@@ -124,6 +125,10 @@ func (ns *Namespace) Sort(seq interface{}, args ...interface{}) (interface{}, er
 			}
 		}
 	}
+
+	collator.Lock()
+	defer collator.Unlock()
+
 	return p.sort(), nil
 }
 
@@ -137,6 +142,8 @@ type pair struct {
 
 // A slice of pairs that implements sort.Interface to sort by Value.
 type pairList struct {
+	Collator  *langs.Collator
+	sortComp  *compare.Namespace
 	Pairs     []pair
 	SortAsc   bool
 	SliceType reflect.Type
@@ -151,27 +158,27 @@ func (p pairList) Less(i, j int) bool {
 	if iv.IsValid() {
 		if jv.IsValid() {
 			// can only call Interface() on valid reflect Values
-			return sortComp.Lt(iv.Interface(), jv.Interface())
+			return p.sortComp.LtCollate(p.Collator, iv.Interface(), jv.Interface())
 		}
 
 		// if j is invalid, test i against i's zero value
-		return sortComp.Lt(iv.Interface(), reflect.Zero(iv.Type()))
+		return p.sortComp.LtCollate(p.Collator, iv.Interface(), reflect.Zero(iv.Type()))
 	}
 
 	if jv.IsValid() {
 		// if i is invalid, test j against j's zero value
-		return sortComp.Lt(reflect.Zero(jv.Type()), jv.Interface())
+		return p.sortComp.LtCollate(p.Collator, reflect.Zero(jv.Type()), jv.Interface())
 	}
 
 	return false
 }
 
 // sorts a pairList and returns a slice of sorted values
-func (p pairList) sort() interface{} {
+func (p pairList) sort() any {
 	if p.SortAsc {
-		sort.Sort(p)
+		sort.Stable(p)
 	} else {
-		sort.Sort(sort.Reverse(p))
+		sort.Stable(sort.Reverse(p))
 	}
 	sorted := reflect.MakeSlice(p.SliceType, len(p.Pairs), len(p.Pairs))
 	for i, v := range p.Pairs {

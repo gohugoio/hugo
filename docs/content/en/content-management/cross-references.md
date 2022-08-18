@@ -126,4 +126,3 @@ refLinksNotFoundURL
 [lists]: /templates/lists/
 [output formats]: /templates/output-formats/
 [shortcode]: /content-management/shortcodes/
-[bfext]: /content-management/formats/#blackfriday-extensions

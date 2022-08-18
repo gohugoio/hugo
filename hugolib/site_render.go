@@ -23,8 +23,9 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 
+	"errors"
+
 	"github.com/gohugoio/hugo/output"
-	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
@@ -95,7 +96,7 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 
 	err := <-errs
 	if err != nil {
-		return errors.Wrap(err, "failed to render pages")
+		return fmt.Errorf("failed to render pages: %w", err)
 	}
 	return nil
 }
@@ -153,7 +154,7 @@ func (s *Site) logMissingLayout(name, layout, kind, outputFormat string) {
 	}
 
 	errMsg := "You should create a template file which matches Hugo Layouts Lookup Rules for this combination."
-	var args []interface{}
+	var args []any
 	msg := "found no layout file for"
 	if outputFormat != "" {
 		msg += " %q"

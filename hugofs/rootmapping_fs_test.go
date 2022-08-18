@@ -20,9 +20,8 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/gohugoio/hugo/hugofs/glob"
-
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/hugofs/glob"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/htesting"
@@ -31,7 +30,7 @@ import (
 
 func TestLanguageRootMapping(t *testing.T) {
 	c := qt.New(t)
-	v := config.New()
+	v := config.NewWithTestDefaults()
 	v.Set("contentDir", "content")
 
 	fs := NewBaseFileDecorator(afero.NewMemMapFs())

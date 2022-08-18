@@ -32,9 +32,9 @@ import (
 type tstNoStringer struct{}
 
 var configTests = []struct {
-	path   interface{}
+	path   any
 	input  []byte
-	expect interface{}
+	expect any
 }{
 	{
 		path:  "a.png",
@@ -82,7 +82,7 @@ func TestNSConfig(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	v := config.New()
+	v := config.NewWithTestDefaults()
 	v.Set("workingDir", "/a/b")
 
 	ns := New(&deps.Deps{Fs: hugofs.NewMem(v)})

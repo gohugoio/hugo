@@ -21,17 +21,21 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/compare"
+	"github.com/gohugoio/hugo/langs"
 
+	"github.com/gohugoio/hugo/common/hreflect"
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/types"
 )
 
 // New returns a new instance of the compare-namespaced template functions.
-func New(caseInsensitive bool) *Namespace {
-	return &Namespace{caseInsensitive: caseInsensitive}
+func New(loc *time.Location, caseInsensitive bool) *Namespace {
+	return &Namespace{loc: loc, caseInsensitive: caseInsensitive}
 }
 
 // Namespace provides template functions for the "compare" namespace.
 type Namespace struct {
+	loc *time.Location
 	// Enable to do case insensitive string compares.
 	caseInsensitive bool
 }
@@ -40,7 +44,7 @@ type Namespace struct {
 // is not.  "Set" in this context means non-zero for numeric types and times;
 // non-zero length for strings, arrays, slices, and maps;
 // any boolean or struct value; or non-nil for any other types.
-func (*Namespace) Default(dflt interface{}, given ...interface{}) (interface{}, error) {
+func (*Namespace) Default(dflt any, given ...any) (any, error) {
 	// given is variadic because the following construct will not pass a piped
 	// argument when the key is missing:  {{ index . "key" | default "foo" }}
 	// The Go template will complain that we got 1 argument when we expected 2.
@@ -91,18 +95,20 @@ func (*Namespace) Default(dflt interface{}, given ...interface{}) (interface{}, 
 }
 
 // Eq returns the boolean truth of arg1 == arg2 || arg1 == arg3 || arg1 == arg4.
-func (n *Namespace) Eq(first interface{}, others ...interface{}) bool {
+func (n *Namespace) Eq(first any, others ...any) bool {
 	if n.caseInsensitive {
 		panic("caseInsensitive not implemented for Eq")
 	}
-	if len(others) == 0 {
-		panic("missing arguments for comparison")
-	}
-
-	normalize := func(v interface{}) interface{} {
+	n.checkComparisonArgCount(1, others...)
+	normalize := func(v any) any {
 		if types.IsNil(v) {
 			return nil
 		}
+
+		if at, ok := v.(htime.AsTimeProvider); ok {
+			return at.AsTime(n.loc)
+		}
+
 		vv := reflect.ValueOf(v)
 		switch vv.Kind() {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
@@ -144,7 +150,8 @@ func (n *Namespace) Eq(first interface{}, others ...interface{}) bool {
 }
 
 // Ne returns the boolean truth of arg1 != arg2 && arg1 != arg3 && arg1 != arg4.
-func (n *Namespace) Ne(first interface{}, others ...interface{}) bool {
+func (n *Namespace) Ne(first any, others ...any) bool {
+	n.checkComparisonArgCount(1, others...)
 	for _, other := range others {
 		if n.Eq(first, other) {
 			return false
@@ -154,7 +161,8 @@ func (n *Namespace) Ne(first interface{}, others ...interface{}) bool {
 }
 
 // Ge returns the boolean truth of arg1 >= arg2 && arg1 >= arg3 && arg1 >= arg4.
-func (n *Namespace) Ge(first interface{}, others ...interface{}) bool {
+func (n *Namespace) Ge(first any, others ...any) bool {
+	n.checkComparisonArgCount(1, others...)
 	for _, other := range others {
 		left, right := n.compareGet(first, other)
 		if !(left >= right) {
@@ -165,7 +173,8 @@ func (n *Namespace) Ge(first interface{}, others ...interface{}) bool {
 }
 
 // Gt returns the boolean truth of arg1 > arg2 && arg1 > arg3 && arg1 > arg4.
-func (n *Namespace) Gt(first interface{}, others ...interface{}) bool {
+func (n *Namespace) Gt(first any, others ...any) bool {
+	n.checkComparisonArgCount(1, others...)
 	for _, other := range others {
 		left, right := n.compareGet(first, other)
 		if !(left > right) {
@@ -176,7 +185,8 @@ func (n *Namespace) Gt(first interface{}, others ...interface{}) bool {
 }
 
 // Le returns the boolean truth of arg1 <= arg2 && arg1 <= arg3 && arg1 <= arg4.
-func (n *Namespace) Le(first interface{}, others ...interface{}) bool {
+func (n *Namespace) Le(first any, others ...any) bool {
+	n.checkComparisonArgCount(1, others...)
 	for _, other := range others {
 		left, right := n.compareGet(first, other)
 		if !(left <= right) {
@@ -187,9 +197,12 @@ func (n *Namespace) Le(first interface{}, others ...interface{}) bool {
 }
 
 // Lt returns the boolean truth of arg1 < arg2 && arg1 < arg3 && arg1 < arg4.
-func (n *Namespace) Lt(first interface{}, others ...interface{}) bool {
+// The provided collator will be used for string comparisons.
+// This is for internal use.
+func (n *Namespace) LtCollate(collator *langs.Collator, first any, others ...any) bool {
+	n.checkComparisonArgCount(1, others...)
 	for _, other := range others {
-		left, right := n.compareGet(first, other)
+		left, right := n.compareGetWithCollator(collator, first, other)
 		if !(left < right) {
 			return false
 		}
@@ -197,16 +210,32 @@ func (n *Namespace) Lt(first interface{}, others ...interface{}) bool {
 	return true
 }
 
+// Lt returns the boolean truth of arg1 < arg2 && arg1 < arg3 && arg1 < arg4.
+func (n *Namespace) Lt(first any, others ...any) bool {
+	return n.LtCollate(nil, first, others...)
+}
+
+func (n *Namespace) checkComparisonArgCount(min int, others ...any) bool {
+	if len(others) < min {
+		panic("missing arguments for comparison")
+	}
+	return true
+}
+
 // Conditional can be used as a ternary operator.
 // It returns a if condition, else b.
-func (n *Namespace) Conditional(condition bool, a, b interface{}) interface{} {
+func (n *Namespace) Conditional(condition bool, a, b any) any {
 	if condition {
 		return a
 	}
 	return b
 }
 
-func (ns *Namespace) compareGet(a interface{}, b interface{}) (float64, float64) {
+func (ns *Namespace) compareGet(a any, b any) (float64, float64) {
+	return ns.compareGetWithCollator(nil, a, b)
+}
+
+func (ns *Namespace) compareGetWithCollator(collator *langs.Collator, a any, b any) (float64, float64) {
 	if ac, ok := a.(compare.Comparer); ok {
 		c := ac.Compare(b)
 		if c < 0 {
@@ -248,9 +277,8 @@ func (ns *Namespace) compareGet(a interface{}, b interface{}) (float64, float64)
 			leftStr = &str
 		}
 	case reflect.Struct:
-		switch av.Type() {
-		case timeType:
-			left = float64(toTimeUnix(av))
+		if hreflect.IsTime(av.Type()) {
+			left = float64(ns.toTimeUnix(av))
 		}
 	case reflect.Bool:
 		left = 0
@@ -276,9 +304,8 @@ func (ns *Namespace) compareGet(a interface{}, b interface{}) (float64, float64)
 			rightStr = &str
 		}
 	case reflect.Struct:
-		switch bv.Type() {
-		case timeType:
-			right = float64(toTimeUnix(bv))
+		if hreflect.IsTime(bv.Type()) {
+			right = float64(ns.toTimeUnix(bv))
 		}
 	case reflect.Bool:
 		right = 0
@@ -287,8 +314,13 @@ func (ns *Namespace) compareGet(a interface{}, b interface{}) (float64, float64)
 		}
 	}
 
-	if ns.caseInsensitive && leftStr != nil && rightStr != nil {
-		c := compare.Strings(*leftStr, *rightStr)
+	if (ns.caseInsensitive || collator != nil) && leftStr != nil && rightStr != nil {
+		var c int
+		if collator != nil {
+			c = collator.CompareStrings(*leftStr, *rightStr)
+		} else {
+			c = compare.Strings(*leftStr, *rightStr)
+		}
 		if c < 0 {
 			return 0, 1
 		} else if c > 0 {
@@ -311,14 +343,10 @@ func (ns *Namespace) compareGet(a interface{}, b interface{}) (float64, float64)
 	return left, right
 }
 
-var timeType = reflect.TypeOf((*time.Time)(nil)).Elem()
-
-func toTimeUnix(v reflect.Value) int64 {
-	if v.Kind() == reflect.Interface {
-		return toTimeUnix(v.Elem())
-	}
-	if v.Type() != timeType {
+func (ns *Namespace) toTimeUnix(v reflect.Value) int64 {
+	t, ok := hreflect.AsTime(v, ns.loc)
+	if !ok {
 		panic("coding error: argument must be time.Time type reflect Value")
 	}
-	return v.MethodByName("Unix").Call([]reflect.Value{})[0].Int()
+	return t.Unix()
 }

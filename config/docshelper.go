@@ -35,7 +35,7 @@ func init() {
 		cfg.Set("languages", lang)
 		cfg.SetDefaultMergeStrategy()
 
-		configHelpers := map[string]interface{}{
+		configHelpers := map[string]any{
 			"mergeStrategy": cfg.Get(""),
 		}
 		return docshelper.DocProvider{"config": configHelpers}

@@ -35,7 +35,7 @@ func TestGetCSV(t *testing.T) {
 		sep     string
 		url     string
 		content string
-		expect  interface{}
+		expect  any
 	}{
 		// Remotes
 		{
@@ -129,12 +129,12 @@ func TestGetJSON(t *testing.T) {
 	for i, test := range []struct {
 		url     string
 		content string
-		expect  interface{}
+		expect  any
 	}{
 		{
 			`http://success/`,
 			`{"gomeetup":["Sydney","San Francisco","Stockholm"]}`,
-			map[string]interface{}{"gomeetup": []interface{}{"Sydney", "San Francisco", "Stockholm"}},
+			map[string]any{"gomeetup": []any{"Sydney", "San Francisco", "Stockholm"}},
 		},
 		{
 			`http://malformed/`,
@@ -150,7 +150,7 @@ func TestGetJSON(t *testing.T) {
 		{
 			"pass/semi",
 			`{"gomeetup":["Sydney","San Francisco","Stockholm"]}`,
-			map[string]interface{}{"gomeetup": []interface{}{"Sydney", "San Francisco", "Stockholm"}},
+			map[string]any{"gomeetup": []any{"Sydney", "San Francisco", "Stockholm"}},
 		},
 		{
 			"fail/no-file",
@@ -160,7 +160,7 @@ func TestGetJSON(t *testing.T) {
 		{
 			`pass/üńīçøðê-url.json`,
 			`{"gomeetup":["Sydney","San Francisco","Stockholm"]}`,
-			map[string]interface{}{"gomeetup": []interface{}{"Sydney", "San Francisco", "Stockholm"}},
+			map[string]any{"gomeetup": []any{"Sydney", "San Francisco", "Stockholm"}},
 		},
 	} {
 
@@ -218,12 +218,12 @@ func TestHeaders(t *testing.T) {
 
 	for _, test := range []struct {
 		name    string
-		headers interface{}
+		headers any
 		assert  func(c *qt.C, headers string)
 	}{
 		{
 			`Misc header variants`,
-			map[string]interface{}{
+			map[string]any{
 				"Accept-Charset": "utf-8",
 				"Max-forwards":   "10",
 				"X-Int":          32,
@@ -254,7 +254,7 @@ func TestHeaders(t *testing.T) {
 		},
 		{
 			`Override User-Agent`,
-			map[string]interface{}{
+			map[string]any{
 				"User-Agent": "007",
 			},
 			func(c *qt.C, headers string) {
@@ -278,7 +278,7 @@ func TestHeaders(t *testing.T) {
 			})
 			defer func() { srv.Close() }()
 
-			testFunc := func(fn func(args ...interface{}) error) {
+			testFunc := func(fn func(args ...any) error) {
 				defer headers.Reset()
 				err := fn("http://example.org/api", "?foo", test.headers)
 
@@ -287,11 +287,11 @@ func TestHeaders(t *testing.T) {
 				test.assert(c, headers.String())
 			}
 
-			testFunc(func(args ...interface{}) error {
+			testFunc(func(args ...any) error {
 				_, err := ns.GetJSON(args...)
 				return err
 			})
-			testFunc(func(args ...interface{}) error {
+			testFunc(func(args ...any) error {
 				_, err := ns.GetCSV(",", args...)
 				return err
 			})
@@ -304,13 +304,13 @@ func TestHeaders(t *testing.T) {
 func TestToURLAndHeaders(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
-	url, headers := toURLAndHeaders([]interface{}{"https://foo?id=", 32})
+	url, headers := toURLAndHeaders([]any{"https://foo?id=", 32})
 	c.Assert(url, qt.Equals, "https://foo?id=32")
 	c.Assert(headers, qt.IsNil)
 
-	url, headers = toURLAndHeaders([]interface{}{"https://foo?id=", 32, map[string]interface{}{"a": "b"}})
+	url, headers = toURLAndHeaders([]any{"https://foo?id=", 32, map[string]any{"a": "b"}})
 	c.Assert(url, qt.Equals, "https://foo?id=32")
-	c.Assert(headers, qt.DeepEquals, map[string]interface{}{"a": "b"})
+	c.Assert(headers, qt.DeepEquals, map[string]any{"a": "b"})
 }
 
 func TestParseCSV(t *testing.T) {

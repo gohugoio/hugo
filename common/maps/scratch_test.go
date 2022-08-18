@@ -90,7 +90,7 @@ func TestScratchAddTypedSliceToInterfaceSlice(t *testing.T) {
 	c := qt.New(t)
 
 	scratch := NewScratch()
-	scratch.Set("slice", []interface{}{})
+	scratch.Set("slice", []any{})
 
 	_, err := scratch.Add("slice", []int{1, 2})
 	c.Assert(err, qt.IsNil)
@@ -107,7 +107,7 @@ func TestScratchAddDifferentTypedSliceToInterfaceSlice(t *testing.T) {
 
 	_, err := scratch.Add("slice", []int{1, 2})
 	c.Assert(err, qt.IsNil)
-	c.Assert(scratch.Get("slice"), qt.DeepEquals, []interface{}{"foo", 1, 2})
+	c.Assert(scratch.Get("slice"), qt.DeepEquals, []any{"foo", 1, 2})
 }
 
 func TestScratchSet(t *testing.T) {
@@ -185,7 +185,7 @@ func TestScratchSetInMap(t *testing.T) {
 	scratch.SetInMap("key", "zyx", "Zyx")
 	scratch.SetInMap("key", "abc", "Abc (updated)")
 	scratch.SetInMap("key", "def", "Def")
-	c.Assert(scratch.GetSortedMapValues("key"), qt.DeepEquals, []interface{}{0: "Abc (updated)", 1: "Def", 2: "Lux", 3: "Zyx"})
+	c.Assert(scratch.GetSortedMapValues("key"), qt.DeepEquals, []any{0: "Abc (updated)", 1: "Def", 2: "Lux", 3: "Zyx"})
 }
 
 func TestScratchDeleteInMap(t *testing.T) {
@@ -199,7 +199,7 @@ func TestScratchDeleteInMap(t *testing.T) {
 	scratch.DeleteInMap("key", "abc")
 	scratch.SetInMap("key", "def", "Def")
 	scratch.DeleteInMap("key", "lmn") // Do nothing
-	c.Assert(scratch.GetSortedMapValues("key"), qt.DeepEquals, []interface{}{0: "Def", 1: "Lux", 2: "Zyx"})
+	c.Assert(scratch.GetSortedMapValues("key"), qt.DeepEquals, []any{0: "Def", 1: "Lux", 2: "Zyx"})
 }
 
 func TestScratchGetSortedMapValues(t *testing.T) {

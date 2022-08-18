@@ -21,9 +21,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/htesting"
-
-	"github.com/cli/safeexec"
 
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/asciidocext/asciidocext_config"
@@ -67,7 +66,11 @@ type asciidocConverter struct {
 }
 
 func (a *asciidocConverter) Convert(ctx converter.RenderContext) (converter.Result, error) {
-	content, toc, err := a.extractTOC(a.getAsciidocContent(ctx.Src, a.ctx))
+	b, err := a.getAsciidocContent(ctx.Src, a.ctx)
+	if err != nil {
+		return nil, err
+	}
+	content, toc, err := a.extractTOC(b)
 	if err != nil {
 		return nil, err
 	}
@@ -83,20 +86,19 @@ func (a *asciidocConverter) Supports(_ identity.Identity) bool {
 
 // getAsciidocContent calls asciidoctor as an external helper
 // to convert AsciiDoc content to HTML.
-func (a *asciidocConverter) getAsciidocContent(src []byte, ctx converter.DocumentContext) []byte {
-	path := getAsciidoctorExecPath()
-	if path == "" {
+func (a *asciidocConverter) getAsciidocContent(src []byte, ctx converter.DocumentContext) ([]byte, error) {
+	if !hasAsciiDoc() {
 		a.cfg.Logger.Errorln("asciidoctor not found in $PATH: Please install.\n",
 			"                 Leaving AsciiDoc content unrendered.")
-		return src
+		return src, nil
 	}
 
 	args := a.parseArgs(ctx)
 	args = append(args, "-")
 
-	a.cfg.Logger.Infoln("Rendering", ctx.DocumentName, "with", path, "using asciidoctor args", args, "...")
+	a.cfg.Logger.Infoln("Rendering", ctx.DocumentName, " using asciidoctor args", args, "...")
 
-	return internal.ExternallyRenderContent(a.cfg, ctx, src, path, args)
+	return internal.ExternallyRenderContent(a.cfg, ctx, src, asciiDocBinaryName, args)
 }
 
 func (a *asciidocConverter) parseArgs(ctx converter.DocumentContext) []string {
@@ -195,12 +197,10 @@ func (a *asciidocConverter) appendArg(args []string, option, value, defaultValue
 	return args
 }
 
-func getAsciidoctorExecPath() string {
-	path, err := safeexec.LookPath("asciidoctor")
-	if err != nil {
-		return ""
-	}
-	return path
+const asciiDocBinaryName = "asciidoctor"
+
+func hasAsciiDoc() bool {
+	return hexec.InPath(asciiDocBinaryName)
 }
 
 // extractTOC extracts the toc from the given src html.
@@ -311,8 +311,12 @@ func nodeContent(node *html.Node) string {
 
 // Supports returns whether Asciidoctor is installed on this computer.
 func Supports() bool {
+	hasBin := hasAsciiDoc()
 	if htesting.SupportsAll() {
+		if !hasBin {
+			panic("asciidoctor not installed")
+		}
 		return true
 	}
-	return getAsciidoctorExecPath() != ""
+	return hasBin
 }

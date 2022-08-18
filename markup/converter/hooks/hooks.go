@@ -14,23 +14,42 @@
 package hooks
 
 import (
-	"fmt"
 	"io"
-	"strings"
 
+	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/common/text"
+	"github.com/gohugoio/hugo/common/types/hstring"
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/markup/internal/attributes"
 )
 
+var _ AttributesOptionsSliceProvider = (*attributes.AttributesHolder)(nil)
+
 type AttributesProvider interface {
-	Attributes() map[string]string
+	Attributes() map[string]any
 }
 
 type LinkContext interface {
-	Page() interface{}
+	Page() any
 	Destination() string
 	Title() string
-	Text() string
+	Text() hstring.RenderedString
 	PlainText() string
+}
+
+type CodeblockContext interface {
+	AttributesProvider
+	text.Positioner
+	Options() map[string]any
+	Type() string
+	Inner() string
+	Ordinal() int
+	Page() any
+}
+
+type AttributesOptionsSliceProvider interface {
+	AttributesSlice() []attributes.Attribute
+	OptionsSlice() []attributes.Attribute
 }
 
 type LinkRenderer interface {
@@ -38,17 +57,26 @@ type LinkRenderer interface {
 	identity.Provider
 }
 
+type CodeBlockRenderer interface {
+	RenderCodeblock(w hugio.FlexiWriter, ctx CodeblockContext) error
+	identity.Provider
+}
+
+type IsDefaultCodeBlockRendererProvider interface {
+	IsDefaultCodeBlockRenderer() bool
+}
+
 // HeadingContext contains accessors to all attributes that a HeadingRenderer
 // can use to render a heading.
 type HeadingContext interface {
 	// Page is the page containing the heading.
-	Page() interface{}
+	Page() any
 	// Level is the level of the header (i.e. 1 for top-level, 2 for sub-level, etc.).
 	Level() int
 	// Anchor is the HTML id assigned to the heading.
 	Anchor() string
 	// Text is the rendered (HTML) heading text, excluding the heading marker.
-	Text() string
+	Text() hstring.RenderedString
 	// PlainText is the unrendered version of Text.
 	PlainText() string
 
@@ -63,70 +91,21 @@ type HeadingRenderer interface {
 	identity.Provider
 }
 
-type Renderers struct {
-	LinkRenderer    LinkRenderer
-	ImageRenderer   LinkRenderer
-	HeadingRenderer HeadingRenderer
+// ElementPositionResolver provides a way to resolve the start Position
+// of a markdown element in the original source document.
+// This may be both slow and approximate, so should only be
+// used for error logging.
+type ElementPositionResolver interface {
+	ResolvePosition(ctx any) text.Position
 }
 
-func (r Renderers) Eq(other interface{}) bool {
-	ro, ok := other.(Renderers)
-	if !ok {
-		return false
-	}
+type RendererType int
 
-	if r.IsZero() || ro.IsZero() {
-		return r.IsZero() && ro.IsZero()
-	}
+const (
+	LinkRendererType RendererType = iota + 1
+	ImageRendererType
+	HeadingRendererType
+	CodeBlockRendererType
+)
 
-	var b1, b2 bool
-	b1, b2 = r.ImageRenderer == nil, ro.ImageRenderer == nil
-	if (b1 || b2) && (b1 != b2) {
-		return false
-	}
-	if !b1 && r.ImageRenderer.GetIdentity() != ro.ImageRenderer.GetIdentity() {
-		return false
-	}
-
-	b1, b2 = r.LinkRenderer == nil, ro.LinkRenderer == nil
-	if (b1 || b2) && (b1 != b2) {
-		return false
-	}
-	if !b1 && r.LinkRenderer.GetIdentity() != ro.LinkRenderer.GetIdentity() {
-		return false
-	}
-
-	b1, b2 = r.HeadingRenderer == nil, ro.HeadingRenderer == nil
-	if (b1 || b2) && (b1 != b2) {
-		return false
-	}
-	if !b1 && r.HeadingRenderer.GetIdentity() != ro.HeadingRenderer.GetIdentity() {
-		return false
-	}
-
-	return true
-}
-
-func (r Renderers) IsZero() bool {
-	return r.HeadingRenderer == nil && r.LinkRenderer == nil && r.ImageRenderer == nil
-}
-
-func (r Renderers) String() string {
-	if r.IsZero() {
-		return "<zero>"
-	}
-
-	var sb strings.Builder
-
-	if r.LinkRenderer != nil {
-		sb.WriteString(fmt.Sprintf("LinkRenderer<%s>|", r.LinkRenderer.GetIdentity()))
-	}
-	if r.HeadingRenderer != nil {
-		sb.WriteString(fmt.Sprintf("HeadingRenderer<%s>|", r.HeadingRenderer.GetIdentity()))
-	}
-	if r.ImageRenderer != nil {
-		sb.WriteString(fmt.Sprintf("ImageRenderer<%s>|", r.ImageRenderer.GetIdentity()))
-	}
-
-	return sb.String()
-}
+type GetRendererFunc func(t RendererType, id any) any

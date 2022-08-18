@@ -1,5 +1,7 @@
 on: [push, pull_request]
 name: Test
+permissions:
+  contents: read
 jobs:
   test:
     env:
@@ -7,7 +9,11 @@ jobs:
       GO111MODULE: on
     strategy:
       matrix:
-        go-version: [1.16.x, 1.17.x]
+        # Note: We upgraded to Go 1.18 in Hugo v0.95.0
+        # Go 1.18 had some breaking changes on the source level which means Hugo cannot be built
+        # with older Go versions, but the improvements in Go 1.18 were too good to pass on (e.g. break and continue).
+        # Note that you don't need Go (or Go 1.18) to run a pre-built binary.
+        go-version: [1.18.x,1.19.x]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -24,7 +30,7 @@ jobs:
       with:
         python-version: '3.x'
     - name: Install Mage
-      run: go get github.com/magefile/mage@07afc7d24f4d6d6442305d49552f04fbda5ccb3e
+      run: go install github.com/magefile/mage@07afc7d24f4d6d6442305d49552f04fbda5ccb3e
     - name: Install asciidoctor
       uses: reitzig/actions-asciidoctor@7570212ae20b63653481675fb1ff62d1073632b0
     - name: Checkout code
@@ -43,8 +49,11 @@ jobs:
         brew install pandoc
     - if: matrix.os == 'windows-latest'
       run: |
-        choco install pandoc
+        Choco-Install -PackageName pandoc
     - run: pandoc -v
+    - if: matrix.os == 'windows-latest'
+      run: |
+        Choco-Install -PackageName mingw -ArgumentList "--version","10.2.0","--allow-downgrade"
     - if: matrix.os == 'ubuntu-latest'
       name: Install dart-sass-embedded Linux
       run: |
@@ -66,10 +75,11 @@ jobs:
         echo "6ae442129dbb3334bc21ef851261da6c0c1b560da790ca2e1350871d00ab816d  sass_embedded-1.0.0-beta.6-windows-x64.zip" | sha256sum -c;
         unzip sass_embedded-1.0.0-beta.6-windows-x64.zip;
         echo  "$env:GITHUB_WORKSPACE/sass_embedded/" | Out-File -FilePath $Env:GITHUB_PATH -Encoding utf-8 -Append
-    - name: Test
+    - name: Check
       run: |
-        mage -v test
         mage -v check;
+      env:
+        HUGO_BUILD_TAGS: extended
     - name: Build Docs
       env:
         HUGO_BUILD_TAGS: extended

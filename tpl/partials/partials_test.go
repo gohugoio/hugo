@@ -21,9 +21,9 @@ import (
 
 func TestCreateKey(t *testing.T) {
 	c := qt.New(t)
-	m := make(map[interface{}]bool)
+	m := make(map[any]bool)
 
-	create := func(name string, variants ...interface{}) partialCacheKey {
+	create := func(name string, variants ...any) partialCacheKey {
 		k, err := createKey(name, variants...)
 		c.Assert(err, qt.IsNil)
 		m[k] = true

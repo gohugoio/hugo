@@ -26,7 +26,7 @@ type pageData struct {
 	data     page.Data
 }
 
-func (p *pageData) Data() interface{} {
+func (p *pageData) Data() any {
 	p.dataInit.Do(func() {
 		p.data = make(page.Data)
 

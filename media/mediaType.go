@@ -17,6 +17,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"sort"
 	"strings"
 
@@ -26,6 +27,8 @@ import (
 
 	"github.com/mitchellh/mapstructure"
 )
+
+var zero Type
 
 const (
 	defaultDelimiter = "."
@@ -58,6 +61,57 @@ type Type struct {
 type SuffixInfo struct {
 	Suffix     string `json:"suffix"`
 	FullSuffix string `json:"fullSuffix"`
+}
+
+// FromContent resolve the Type primarily using http.DetectContentType.
+// If http.DetectContentType resolves to application/octet-stream, a zero Type is returned.
+// If http.DetectContentType  resolves to text/plain or application/xml, we try to get more specific using types and ext.
+func FromContent(types Types, extensionHints []string, content []byte) Type {
+	t := strings.Split(http.DetectContentType(content), ";")[0]
+	if t == "application/octet-stream" {
+		return zero
+	}
+
+	var found bool
+	m, found := types.GetByType(t)
+	if !found {
+		if t == "text/xml" {
+			// This is how it's configured in Hugo by default.
+			m, found = types.GetByType("application/xml")
+		}
+	}
+
+	if !found {
+		return zero
+	}
+
+	var mm Type
+
+	for _, extension := range extensionHints {
+		extension = strings.TrimPrefix(extension, ".")
+		mm, _, found = types.GetFirstBySuffix(extension)
+		if found {
+			break
+		}
+	}
+
+	if found {
+		if m == mm {
+			return m
+		}
+
+		if m.IsText() && mm.IsText() {
+			// http.DetectContentType isn't brilliant when it comes to common text formats, so we need to do better.
+			// For now we say that if it's detected to be a text format and the extension/content type in header reports
+			// it to be a text format, then we use that.
+			return mm
+		}
+
+		// E.g. an image with a *.js extension.
+		return zero
+	}
+
+	return m
 }
 
 // FromStringAndExt creates a Type from a MIME string and a given extension.
@@ -109,6 +163,7 @@ func (m Type) Type() string {
 	return m.MainType + "/" + m.SubType
 }
 
+// For internal use.
 func (m Type) String() string {
 	return m.Type()
 }
@@ -120,6 +175,20 @@ func (m Type) Suffixes() []string {
 	}
 
 	return strings.Split(m.suffixesCSV, ",")
+}
+
+// IsText returns whether this Type is a text format.
+// Note that this may currently return false negatives.
+// TODO(bep) improve
+func (m Type) IsText() bool {
+	if m.MainType == "text" {
+		return true
+	}
+	switch m.SubType {
+	case "javascript", "json", "rss", "xml", "svg", TOMLType.SubType, YAMLType.SubType:
+		return true
+	}
+	return false
 }
 
 func (m *Type) init() {
@@ -161,14 +230,14 @@ var (
 	SASSType       = newMediaType("text", "x-sass", []string{"sass"})
 	CSVType        = newMediaType("text", "csv", []string{"csv"})
 	HTMLType       = newMediaType("text", "html", []string{"html"})
-	JavascriptType = newMediaType("application", "javascript", []string{"js"})
+	JavascriptType = newMediaType("application", "javascript", []string{"js", "jsm", "mjs"})
 	TypeScriptType = newMediaType("application", "typescript", []string{"ts"})
 	TSXType        = newMediaType("text", "tsx", []string{"tsx"})
 	JSXType        = newMediaType("text", "jsx", []string{"jsx"})
 
 	JSONType           = newMediaType("application", "json", []string{"json"})
 	WebAppManifestType = newMediaTypeWithMimeSuffix("application", "manifest", "json", []string{"webmanifest"})
-	RSSType            = newMediaTypeWithMimeSuffix("application", "rss", "xml", []string{"xml"})
+	RSSType            = newMediaTypeWithMimeSuffix("application", "rss", "xml", []string{"xml", "rss"})
 	XMLType            = newMediaType("application", "xml", []string{"xml"})
 	SVGType            = newMediaTypeWithMimeSuffix("image", "svg", "xml", []string{"svg"})
 	TextType           = newMediaType("text", "plain", []string{"txt"})
@@ -177,11 +246,19 @@ var (
 
 	// Common image types
 	PNGType  = newMediaType("image", "png", []string{"png"})
-	JPEGType = newMediaType("image", "jpeg", []string{"jpg", "jpeg"})
+	JPEGType = newMediaType("image", "jpeg", []string{"jpg", "jpeg", "jpe", "jif", "jfif"})
 	GIFType  = newMediaType("image", "gif", []string{"gif"})
 	TIFFType = newMediaType("image", "tiff", []string{"tif", "tiff"})
 	BMPType  = newMediaType("image", "bmp", []string{"bmp"})
 	WEBPType = newMediaType("image", "webp", []string{"webp"})
+
+	// Common font types
+	TrueTypeFontType = newMediaType("font", "ttf", []string{"ttf"})
+	OpenTypeFontType = newMediaType("font", "otf", []string{"otf"})
+
+	// Common document types
+	PDFType      = newMediaType("application", "pdf", []string{"pdf"})
+	MarkdownType = newMediaType("text", "markdown", []string{"md", "markdown"})
 
 	// Common video types
 	AVIType  = newMediaType("video", "x-msvideo", []string{"avi"})
@@ -202,6 +279,7 @@ var DefaultTypes = Types{
 	SCSSType,
 	SASSType,
 	HTMLType,
+	MarkdownType,
 	JavascriptType,
 	TypeScriptType,
 	TSXType,
@@ -216,6 +294,8 @@ var DefaultTypes = Types{
 	YAMLType,
 	TOMLType,
 	PNGType,
+	GIFType,
+	BMPType,
 	JPEGType,
 	WEBPType,
 	AVIType,
@@ -224,10 +304,22 @@ var DefaultTypes = Types{
 	OGGType,
 	WEBMType,
 	GPPType,
+	OpenTypeFontType,
+	TrueTypeFontType,
+	PDFType,
 }
 
 func init() {
 	sort.Sort(DefaultTypes)
+
+	// Sanity check.
+	seen := make(map[Type]bool)
+	for _, t := range DefaultTypes {
+		if seen[t] {
+			panic(fmt.Sprintf("MediaType %s duplicated in list", t))
+		}
+		seen[t] = true
+	}
 }
 
 // Types is a slice of media types.
@@ -361,7 +453,7 @@ Note that you can still get the Media Type's suffix from a template: {{ $mediaTy
 
 // DecodeTypes takes a list of media type configurations and merges those,
 // in the order given, with the Hugo defaults as the last resort.
-func DecodeTypes(mms ...map[string]interface{}) (Types, error) {
+func DecodeTypes(mms ...map[string]any) (Types, error) {
 	var m Types
 
 	// Maps type string to Type. Type string is the full application/svg+xml.
@@ -421,11 +513,13 @@ func DecodeTypes(mms ...map[string]interface{}) (Types, error) {
 }
 
 // IsZero reports whether this Type represents a zero value.
+// For internal use.
 func (m Type) IsZero() bool {
 	return m.SubType == ""
 }
 
 // MarshalJSON returns the JSON encoding of m.
+// For internal use.
 func (m Type) MarshalJSON() ([]byte, error) {
 	type Alias Type
 	return json.Marshal(&struct {

@@ -19,11 +19,12 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/maps"
 )
 
 // Where returns a filtered subset of a given data type.
-func (ns *Namespace) Where(seq, key interface{}, args ...interface{}) (interface{}, error) {
+func (ns *Namespace) Where(seq, key any, args ...any) (any, error) {
 	seqv, isNil := indirect(reflect.ValueOf(seq))
 	if isNil {
 		return nil, errors.New("can't iterate over a nil value of type " + reflect.ValueOf(seq).Type().String())
@@ -83,7 +84,7 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 	var ivp, imvp *int64
 	var fvp, fmvp *float64
 	var svp, smvp *string
-	var slv, slmv interface{}
+	var slv, slmv any
 	var ima []int64
 	var fma []float64
 	var sma []string
@@ -106,11 +107,10 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			fmv := mv.Float()
 			fmvp = &fmv
 		case reflect.Struct:
-			switch v.Type() {
-			case timeType:
-				iv := toTimeUnix(v)
+			if hreflect.IsTime(v.Type()) {
+				iv := ns.toTimeUnix(v)
 				ivp = &iv
-				imv := toTimeUnix(mv)
+				imv := ns.toTimeUnix(mv)
 				imvp = &imv
 			}
 		case reflect.Array, reflect.Slice:
@@ -166,12 +166,11 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 				}
 			}
 		case reflect.Struct:
-			switch v.Type() {
-			case timeType:
-				iv := toTimeUnix(v)
+			if hreflect.IsTime(v.Type()) {
+				iv := ns.toTimeUnix(v)
 				ivp = &iv
 				for i := 0; i < mv.Len(); i++ {
-					ima = append(ima, toTimeUnix(mv.Index(i)))
+					ima = append(ima, ns.toTimeUnix(mv.Index(i)))
 				}
 			}
 		case reflect.Array, reflect.Slice:
@@ -300,8 +299,9 @@ func evaluateSubElem(obj reflect.Value, elemName string) (reflect.Value, error) 
 		objPtr = objPtr.Addr()
 	}
 
-	mt, ok := objPtr.Type().MethodByName(elemName)
-	if ok {
+	index := hreflect.GetMethodIndexByName(objPtr.Type(), elemName)
+	if index != -1 {
+		mt := objPtr.Type().Method(index)
 		switch {
 		case mt.PkgPath != "":
 			return zero, fmt.Errorf("%s is an unexported method of type %s", elemName, typ)
@@ -351,7 +351,7 @@ func evaluateSubElem(obj reflect.Value, elemName string) (reflect.Value, error) 
 
 // parseWhereArgs parses the end arguments to the where function.  Return a
 // match value and an operator, if one is defined.
-func parseWhereArgs(args ...interface{}) (mv reflect.Value, op string, err error) {
+func parseWhereArgs(args ...any) (mv reflect.Value, op string, err error) {
 	switch len(args) {
 	case 1:
 		mv = reflect.ValueOf(args[0])
@@ -371,7 +371,7 @@ func parseWhereArgs(args ...interface{}) (mv reflect.Value, op string, err error
 
 // checkWhereArray handles the where-matching logic when the seqv value is an
 // Array or Slice.
-func (ns *Namespace) checkWhereArray(seqv, kv, mv reflect.Value, path []string, op string) (interface{}, error) {
+func (ns *Namespace) checkWhereArray(seqv, kv, mv reflect.Value, path []string, op string) (any, error) {
 	rv := reflect.MakeSlice(seqv.Type(), 0, 0)
 
 	for i := 0; i < seqv.Len(); i++ {
@@ -417,7 +417,7 @@ func (ns *Namespace) checkWhereArray(seqv, kv, mv reflect.Value, path []string, 
 }
 
 // checkWhereMap handles the where-matching logic when the seqv value is a Map.
-func (ns *Namespace) checkWhereMap(seqv, kv, mv reflect.Value, path []string, op string) (interface{}, error) {
+func (ns *Namespace) checkWhereMap(seqv, kv, mv reflect.Value, path []string, op string) (any, error) {
 	rv := reflect.MakeMap(seqv.Type())
 	keys := seqv.MapKeys()
 	for _, k := range keys {
@@ -506,12 +506,10 @@ func toString(v reflect.Value) (string, error) {
 	return "", errors.New("unable to convert value to string")
 }
 
-func toTimeUnix(v reflect.Value) int64 {
-	if v.Kind() == reflect.Interface {
-		return toTimeUnix(v.Elem())
-	}
-	if v.Type() != timeType {
+func (ns *Namespace) toTimeUnix(v reflect.Value) int64 {
+	t, ok := hreflect.AsTime(v, ns.loc)
+	if !ok {
 		panic("coding error: argument must be time.Time type reflect Value")
 	}
-	return v.MethodByName("Unix").Call([]reflect.Value{})[0].Int()
+	return t.Unix()
 }

@@ -1,3 +1,4 @@
+//go:build mage
 // +build mage
 
 package main
@@ -24,10 +25,10 @@ import (
 
 const (
 	packageName  = "github.com/gohugoio/hugo"
-	noGitLdflags = "-X $PACKAGE/common/hugo.buildDate=$BUILD_DATE"
+	noGitLdflags = "-X github.com/gohugoio/hugo/common/hugo.vendorInfo=mage"
 )
 
-var ldflags = "-X $PACKAGE/common/hugo.commitHash=$COMMIT_HASH -X $PACKAGE/common/hugo.buildDate=$BUILD_DATE"
+var ldflags = noGitLdflags
 
 // allow user to override go executable by running as GOEXE=xxx make ... on unix-like systems
 var goexe = "go"
@@ -42,7 +43,7 @@ func init() {
 	os.Setenv("GO111MODULE", "on")
 }
 
-func runWith(env map[string]string, cmd string, inArgs ...interface{}) error {
+func runWith(env map[string]string, cmd string, inArgs ...any) error {
 	s := argsToStrings(inArgs...)
 	return sh.RunWith(env, cmd, s...)
 }
@@ -79,7 +80,7 @@ func flagEnv() map[string]string {
 // Generate autogen packages
 func Generate() error {
 	generatorPackages := []string{
-		"tpl/tplimpl/embedded/generate",
+		//"tpl/tplimpl/embedded/generate",
 		//"resources/page/generate",
 	}
 
@@ -143,13 +144,6 @@ func Docker() error {
 
 // Run tests and linters
 func Check() {
-	if strings.Contains(runtime.Version(), "1.8") {
-		// Go 1.8 doesn't play along with go test ./... and /vendor.
-		// We could fix that, but that would take time.
-		fmt.Printf("Skip Check on %s\n", runtime.Version())
-		return
-	}
-
 	if runtime.GOARCH == "amd64" && runtime.GOOS != "darwin" {
 		mg.Deps(Test386)
 	} else {
@@ -168,7 +162,7 @@ func testGoFlags() string {
 		return ""
 	}
 
-	return "-test.short"
+	return "-timeout=1m"
 }
 
 // Run tests in 32-bit mode
@@ -323,7 +317,7 @@ func TestCoverHTML() error {
 	return sh.Run(goexe, "tool", "cover", "-html="+coverAll)
 }
 
-func runCmd(env map[string]string, cmd string, args ...interface{}) error {
+func runCmd(env map[string]string, cmd string, args ...any) error {
 	if mg.Verbose() {
 		return runWith(env, cmd, args...)
 	}
@@ -360,7 +354,7 @@ func buildTags() string {
 	return "none"
 }
 
-func argsToStrings(v ...interface{}) []string {
+func argsToStrings(v ...any) []string {
 	var args []string
 	for _, arg := range v {
 		switch v := arg.(type) {

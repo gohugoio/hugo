@@ -29,8 +29,11 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-// Counts ERROR logs to the global jww logger.
-var GlobalErrorCounter *jww.Counter
+var (
+	// Counts ERROR logs to the global jww logger.
+	GlobalErrorCounter *jww.Counter
+	PanicOnWarning     bool
+)
 
 func init() {
 	GlobalErrorCounter = &jww.Counter{}
@@ -55,21 +58,21 @@ func (w prefixWriter) Write(p []byte) (n int, err error) {
 }
 
 type Logger interface {
-	Printf(format string, v ...interface{})
-	Println(v ...interface{})
+	Printf(format string, v ...any)
+	Println(v ...any)
 	PrintTimerIfDelayed(start time.Time, name string)
 	Debug() *log.Logger
-	Debugf(format string, v ...interface{})
-	Debugln(v ...interface{})
+	Debugf(format string, v ...any)
+	Debugln(v ...any)
 	Info() *log.Logger
-	Infof(format string, v ...interface{})
-	Infoln(v ...interface{})
+	Infof(format string, v ...any)
+	Infoln(v ...any)
 	Warn() *log.Logger
-	Warnf(format string, v ...interface{})
-	Warnln(v ...interface{})
+	Warnf(format string, v ...any)
+	Warnln(v ...any)
 	Error() *log.Logger
-	Errorf(format string, v ...interface{})
-	Errorln(v ...interface{})
+	Errorf(format string, v ...any)
+	Errorln(v ...any)
 	Errors() string
 
 	Out() io.Writer
@@ -98,11 +101,11 @@ type logger struct {
 	errors *bytes.Buffer
 }
 
-func (l *logger) Printf(format string, v ...interface{}) {
+func (l *logger) Printf(format string, v ...any) {
 	l.FEEDBACK.Printf(format, v...)
 }
 
-func (l *logger) Println(v ...interface{}) {
+func (l *logger) Println(v ...any) {
 	l.FEEDBACK.Println(v...)
 }
 
@@ -110,19 +113,19 @@ func (l *logger) Debug() *log.Logger {
 	return l.DEBUG
 }
 
-func (l *logger) Debugf(format string, v ...interface{}) {
+func (l *logger) Debugf(format string, v ...any) {
 	l.DEBUG.Printf(format, v...)
 }
 
-func (l *logger) Debugln(v ...interface{}) {
+func (l *logger) Debugln(v ...any) {
 	l.DEBUG.Println(v...)
 }
 
-func (l *logger) Infof(format string, v ...interface{}) {
+func (l *logger) Infof(format string, v ...any) {
 	l.INFO.Printf(format, v...)
 }
 
-func (l *logger) Infoln(v ...interface{}) {
+func (l *logger) Infoln(v ...any) {
 	l.INFO.Println(v...)
 }
 
@@ -130,23 +133,31 @@ func (l *logger) Info() *log.Logger {
 	return l.INFO
 }
 
-func (l *logger) Warnf(format string, v ...interface{}) {
+const panicOnWarningMessage = "Warning trapped. Remove the --panicOnWarning flag to continue."
+
+func (l *logger) Warnf(format string, v ...any) {
 	l.WARN.Printf(format, v...)
+	if PanicOnWarning {
+		panic(panicOnWarningMessage)
+	}
 }
 
-func (l *logger) Warnln(v ...interface{}) {
+func (l *logger) Warnln(v ...any) {
 	l.WARN.Println(v...)
+	if PanicOnWarning {
+		panic(panicOnWarningMessage)
+	}
 }
 
 func (l *logger) Warn() *log.Logger {
 	return l.WARN
 }
 
-func (l *logger) Errorf(format string, v ...interface{}) {
+func (l *logger) Errorf(format string, v ...any) {
 	l.ERROR.Printf(format, v...)
 }
 
-func (l *logger) Errorln(v ...interface{}) {
+func (l *logger) Errorln(v ...any) {
 	l.ERROR.Println(v...)
 }
 
@@ -229,6 +240,11 @@ func NewBasicLoggerForWriter(t jww.Threshold, w io.Writer) Logger {
 	return newLogger(t, jww.LevelError, w, ioutil.Discard, false)
 }
 
+// RemoveANSIColours removes all ANSI colours from the given string.
+func RemoveANSIColours(s string) string {
+	return ansiColorRe.ReplaceAllString(s, "")
+}
+
 var (
 	ansiColorRe = regexp.MustCompile("(?s)\\033\\[\\d*(;\\d*)*m")
 	errorRe     = regexp.MustCompile("^(ERROR|FATAL|WARN)")
@@ -274,7 +290,7 @@ func InitGlobalLogger(stdoutThreshold, logThreshold jww.Threshold, outHandle, lo
 }
 
 func getLogWriters(outHandle, logHandle io.Writer) (io.Writer, io.Writer) {
-	isTerm := terminal.IsTerminal(os.Stdout)
+	isTerm := terminal.PrintANSIColors(os.Stdout)
 	if logHandle != ioutil.Discard && isTerm {
 		// Remove any Ansi coloring from log output
 		logHandle = ansiCleaner{w: logHandle}

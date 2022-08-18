@@ -91,6 +91,9 @@ The following is a list of values that can be used in a `permalink` definition i
 `:slug`
 : the content's slug (or title if no slug is provided in the front matter)
 
+`:slugorfilename`
+: the content's slug (or filename if no slug is provided in the front matter)
+
 `:filename`
 : the content's filename (without extension)
 
@@ -175,9 +178,10 @@ Assuming a `baseURL` of `example.com`, the contents of the auto-generated alias 
 </html>
 ```
 
-The `http-equiv="refresh"` line is what performs the redirect, in 0 seconds in this case. If an end user of your website goes to `https://example.com/posts/my-old-url`, they will now be automatically redirected to the newer, correct URL. The addition of `<meta name="robots" content="noindex">` lets search engine bots know that they should not crawl and index your new alias page.
+The `http-equiv="refresh"` line is what performs the redirect, in 0 seconds in this case. If an end user of your website goes to `https://example.com/posts/my-old-url`, they will now be automatically redirected to the newer, correct URL. The addition of `<meta name="robots" content="noindex">` lets search engine bots know that they should not index your alias page (`https://example.com/posts/my-old-url/`).
 
 ### Customize
+
 You may customize this alias page by creating an `alias.html` template in the
 layouts folder of your site (i.e., `layouts/alias.html`). In this case, the data passed to the template is
 

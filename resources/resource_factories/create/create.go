@@ -16,14 +16,17 @@
 package create
 
 import (
+	"net/http"
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gohugoio/hugo/hugofs/glob"
 
 	"github.com/gohugoio/hugo/hugofs"
 
+	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -32,12 +35,27 @@ import (
 // Client contains methods to create Resource objects.
 // tasks to Resource objects.
 type Client struct {
-	rs *resources.Spec
+	rs               *resources.Spec
+	httpClient       *http.Client
+	cacheGetResource *filecache.Cache
 }
 
 // New creates a new Client with the given specification.
 func New(rs *resources.Spec) *Client {
-	return &Client{rs: rs}
+	return &Client{
+		rs: rs,
+		httpClient: &http.Client{
+			Timeout: 10 * time.Second,
+		},
+		cacheGetResource: rs.FileCaches.GetResourceCache(),
+	}
+}
+
+// Copy copies r to the new targetPath.
+func (c *Client) Copy(r resource.Resource, targetPath string) (resource.Resource, error) {
+	return c.rs.ResourceCache.GetOrCreate(resources.ResourceCacheKey(targetPath), func() (resource.Resource, error) {
+		return resources.Copy(r, targetPath), nil
+	})
 }
 
 // Get creates a new Resource by opening the given filename in the assets filesystem.
@@ -54,26 +72,27 @@ func (c *Client) Get(filename string) (resource.Resource, error) {
 
 // Match gets the resources matching the given pattern from the assets filesystem.
 func (c *Client) Match(pattern string) (resource.Resources, error) {
-	return c.match(pattern, false)
+	return c.match("__match", pattern, nil, false)
+}
+
+func (c *Client) ByType(tp string) resource.Resources {
+	res, err := c.match(path.Join("_byType", tp), "**", func(r resource.Resource) bool { return r.ResourceType() == tp }, false)
+	if err != nil {
+		panic(err)
+	}
+	return res
 }
 
 // GetMatch gets first resource matching the given pattern from the assets filesystem.
 func (c *Client) GetMatch(pattern string) (resource.Resource, error) {
-	res, err := c.match(pattern, true)
+	res, err := c.match("__get-match", pattern, nil, true)
 	if err != nil || len(res) == 0 {
 		return nil, err
 	}
 	return res[0], err
 }
 
-func (c *Client) match(pattern string, firstOnly bool) (resource.Resources, error) {
-	var name string
-	if firstOnly {
-		name = "__get-match"
-	} else {
-		name = "__match"
-	}
-
+func (c *Client) match(name, pattern string, matchFunc func(r resource.Resource) bool, firstOnly bool) (resource.Resources, error) {
 	pattern = glob.NormalizePath(pattern)
 	partitions := glob.FilterGlobParts(strings.Split(pattern, "/"))
 	if len(partitions) == 0 {
@@ -97,6 +116,10 @@ func (c *Client) match(pattern string, firstOnly bool) (resource.Resources, erro
 			})
 			if err != nil {
 				return true, err
+			}
+
+			if matchFunc != nil && !matchFunc(r) {
+				return false, nil
 			}
 
 			res = append(res, r)

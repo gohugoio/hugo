@@ -25,12 +25,12 @@ import (
 func TestNewPaths(t *testing.T) {
 	c := qt.New(t)
 
-	v := config.New()
+	v := config.NewWithTestDefaults()
 	fs := hugofs.NewMem(v)
 
-	v.Set("languages", map[string]interface{}{
-		"no": map[string]interface{}{},
-		"en": map[string]interface{}{},
+	v.Set("languages", map[string]any{
+		"no": map[string]any{},
+		"en": map[string]any{},
 	})
 	v.Set("defaultContentLanguageInSubdir", true)
 	v.Set("defaultContentLanguage", "no")

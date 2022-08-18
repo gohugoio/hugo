@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build go1.13
 // +build go1.13
 
 package template_test
@@ -209,7 +210,7 @@ func (c *testCase) mustNotParse(t *Template, text string) {
 	}
 }
 
-func (c *testCase) mustExecute(t *Template, val interface{}, want string) {
+func (c *testCase) mustExecute(t *Template, val any, want string) {
 	var buf bytes.Buffer
 	err := t.Execute(&buf, val)
 	if err != nil {

@@ -1,35 +1,31 @@
 ---
 title: .Unix
-draft: false
-description: .Unix returns the local Time corresponding to the given Unix time, sec seconds and nsec nanoseconds since January 1, 1970 UTC.
+description: Converts a time.Time value to the number of seconds elapsed since the Unix epoch, excluding leap seconds. The Unix epoch is 00:00:00&nbsp;UTC on 1 January 1970.
 date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 keywords: [dates,time]
 categories: [functions]
 menu:
   docs:
     parent: "functions"
-signature: [".Unix"]
-workson: [times]
-hugoversion:
+signature: [".Unix",".UnixMilli",".UnixMicro",".UnixNano"]
 relatedfuncs: [Format,dateFormat,now,time]
-deprecated: false
-aliases: []
 ---
 
-## Example: Time Passed Since Last Modification
+The `Milli`, `Micro`, and `Nano` variants return the number of milliseconds, microseconds, and nanoseconds (respectively) elapsed since the Unix epoch.
 
-This very simple one-liner uses `now.Unix` to calculate the amount of time that has passed between the `.LastMod` for the current page and the last build of the current page.
+```go-html-template
+.Date.Unix        --> 1637259694
+.ExpiryDate.Unix  --> 1672559999
+.Lastmod.Unix     --> 1637361786
+.PublishDate.Unix --> 1637421261
 
-{{< code file="time-passed.html" >}}
-{{ div (sub now.Unix .Lastmod.Unix) 86400 }}
-{{< /code >}}
+("1970-01-01T00:00:00-00:00" | time.AsTime).Unix --> 0
+("1970-01-01T00:00:42-00:00" | time.AsTime).Unix --> 42
+("1970-04-11T01:48:29-08:00" | time.AsTime).Unix --> 8675309
+("2026-05-02T20:09:31-07:00" | time.AsTime).Unix --> 1777777771
 
-Since both values are integers, they can be subtracted and then divided by the number of seconds in a day (i.e., `60 * 60 * 24 == 86400`).
-
-{{% note %}}
-Hugo's output is *static*. For the example above to be realistic, the site needs to be built every day.
- {{% /note %}}
-
-[partial template]: /templates/partials/
+now.Unix      --> 1637447841
+now.UnixMilli --> 1637447841347
+now.UnixMicro --> 1637447841347378
+now.UnixNano  --> 1637447841347378799
+```

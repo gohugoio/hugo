@@ -45,7 +45,7 @@ includePaths [string slice]
 : Additional SCSS/SASS include paths. Paths must be relative to the project directory.
 
 ```go-html-template
-{{ $options := (dict "targetPath" "style.css" "outputStyle" "compressed" "enableSourceMap" true "includePaths" (slice "node_modules/myscss")) }}
+{{ $options := (dict "targetPath" "style.css" "outputStyle" "compressed" "enableSourceMap" (not hugo.IsProduction) "includePaths" (slice "node_modules/myscss")) }}
 {{ $style := resources.Get "sass/main.scss" | resources.ToCSS $options }}
 ```
 

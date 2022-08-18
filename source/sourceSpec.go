@@ -37,7 +37,7 @@ type SourceSpec struct {
 
 	shouldInclude func(filename string) bool
 
-	Languages              map[string]interface{}
+	Languages              map[string]any
 	DefaultContentLanguage string
 	DisabledLanguages      map[string]bool
 }

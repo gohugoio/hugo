@@ -29,6 +29,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/resources/images"
 	"github.com/gohugoio/hugo/resources/internal"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -70,13 +71,13 @@ func TestTransform(t *testing.T) {
 	// Verify that we publish the same file once only.
 	assertNoDuplicateWrites := func(c *qt.C, spec *Spec) {
 		c.Helper()
-		d := spec.Fs.Destination.(hugofs.DuplicatesReporter)
+		d := spec.Fs.PublishDir.(hugofs.DuplicatesReporter)
 		c.Assert(d.ReportDuplicates(), qt.Equals, "")
 	}
 
 	assertShouldExist := func(c *qt.C, spec *Spec, filename string, should bool) {
 		c.Helper()
-		exists, _ := helpers.Exists(filepath.FromSlash(filename), spec.Fs.Destination)
+		exists, _ := helpers.Exists(filepath.FromSlash(filename), spec.Fs.WorkingDirReadOnly)
 		c.Assert(exists, qt.Equals, should)
 	}
 
@@ -118,7 +119,7 @@ func TestTransform(t *testing.T) {
 		c.Assert(tr.RelPermalink(), qt.Equals, "/f1.csv")
 		assertShouldExist(c, spec, "public/f1.csv", true)
 
-		data := tr.Data().(map[string]interface{})
+		data := tr.Data().(map[string]any)
 		c.Assert(data["mydata"], qt.Equals, "Hugo Rocks!")
 
 		assertNoDuplicateWrites(c, spec)
@@ -211,7 +212,7 @@ func TestTransform(t *testing.T) {
 						in = strings.Replace(in, "blue", "green", 1)
 						ctx.AddOutPathIdentifier("." + "cached")
 						ctx.OutMediaType = media.CSVType
-						ctx.Data = map[string]interface{}{
+						ctx.Data = map[string]any{
 							"Hugo": "Rocks!",
 						}
 						fmt.Fprint(ctx.To, in)
@@ -236,7 +237,7 @@ func TestTransform(t *testing.T) {
 			c.Assert(err, qt.IsNil)
 			c.Assert(content, qt.Equals, "color is green", msg)
 			c.Assert(tr.MediaType(), eq, media.CSVType)
-			c.Assert(tr.Data(), qt.DeepEquals, map[string]interface{}{
+			c.Assert(tr.Data(), qt.DeepEquals, map[string]any{
 				"Hugo": "Rocks!",
 			})
 
@@ -361,7 +362,7 @@ func TestTransform(t *testing.T) {
 		c.Assert(err, qt.IsNil)
 		c.Assert(tr.MediaType(), eq, media.PNGType)
 
-		img, ok := tr.(resource.Image)
+		img, ok := tr.(images.ImageResource)
 		c.Assert(ok, qt.Equals, true)
 
 		c.Assert(img.Width(), qt.Equals, 75)

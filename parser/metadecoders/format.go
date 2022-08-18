@@ -30,6 +30,7 @@ const (
 	TOML Format = "toml"
 	YAML Format = "yaml"
 	CSV  Format = "csv"
+	XML  Format = "xml"
 )
 
 // FormatFromString turns formatStr, typically a file extension without any ".",
@@ -51,6 +52,8 @@ func FormatFromString(formatStr string) Format {
 		return ORG
 	case "csv":
 		return CSV
+	case "xml":
+		return XML
 	}
 
 	return ""
@@ -68,25 +71,30 @@ func FormatFromMediaType(m media.Type) Format {
 	return ""
 }
 
-// FormatFromContentString tries to detect the format (JSON, YAML or TOML)
+// FormatFromContentString tries to detect the format (JSON, YAML, TOML or XML)
 // in the given string.
 // It return an empty string if no format could be detected.
 func (d Decoder) FormatFromContentString(data string) Format {
 	csvIdx := strings.IndexRune(data, d.Delimiter)
 	jsonIdx := strings.Index(data, "{")
 	yamlIdx := strings.Index(data, ":")
+	xmlIdx := strings.Index(data, "<")
 	tomlIdx := strings.Index(data, "=")
 
-	if isLowerIndexThan(csvIdx, jsonIdx, yamlIdx, tomlIdx) {
+	if isLowerIndexThan(csvIdx, jsonIdx, yamlIdx, xmlIdx, tomlIdx) {
 		return CSV
 	}
 
-	if isLowerIndexThan(jsonIdx, yamlIdx, tomlIdx) {
+	if isLowerIndexThan(jsonIdx, yamlIdx, xmlIdx, tomlIdx) {
 		return JSON
 	}
 
-	if isLowerIndexThan(yamlIdx, tomlIdx) {
+	if isLowerIndexThan(yamlIdx, xmlIdx, tomlIdx) {
 		return YAML
+	}
+
+	if isLowerIndexThan(xmlIdx, tomlIdx) {
+		return XML
 	}
 
 	if tomlIdx != -1 {

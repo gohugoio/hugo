@@ -103,17 +103,11 @@ func (p *PathSpec) AbsURL(in string, addLanguage bool) string {
 	}
 
 	if url.IsAbs() || strings.HasPrefix(in, "//") {
+		// It  is already  absolute, return it as is.
 		return in
 	}
 
-	var baseURL string
-	if strings.HasPrefix(in, "/") {
-		u := p.BaseURL.URL()
-		u.Path = ""
-		baseURL = u.String()
-	} else {
-		baseURL = p.BaseURL.String()
-	}
+	baseURL := p.getBaseURLRoot(in)
 
 	if addLanguage {
 		prefix := p.GetLanguagePrefix()
@@ -140,13 +134,22 @@ func (p *PathSpec) AbsURL(in string, addLanguage bool) string {
 			}
 		}
 	}
+
 	return paths.MakePermalink(baseURL, in).String()
 }
 
-// RelURL creates a URL relative to the BaseURL root.
-// Note: The result URL will not include the context root if canonifyURLs is enabled.
+func (p *PathSpec) getBaseURLRoot(path string) string {
+	if strings.HasPrefix(path, "/") {
+		// Treat it as relative to the server root.
+		return p.BaseURLNoPathString
+	} else {
+		// Treat it as relative to the baseURL.
+		return p.BaseURLString
+	}
+}
+
 func (p *PathSpec) RelURL(in string, addLanguage bool) string {
-	baseURL := p.BaseURL.String()
+	baseURL := p.getBaseURLRoot(in)
 	canonifyURLs := p.CanonifyURLs
 	if (!strings.HasPrefix(in, baseURL) && strings.HasPrefix(in, "http")) || strings.HasPrefix(in, "//") {
 		return in

@@ -19,6 +19,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/bep/overlayfs"
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/config"
 	"github.com/spf13/afero"
 )
@@ -26,29 +28,44 @@ import (
 // Os points to the (real) Os filesystem.
 var Os = &afero.OsFs{}
 
-// Fs abstracts the file system to separate source and destination file systems
-// and allows both to be mocked for testing.
+// Fs holds the core filesystems used by Hugo.
 type Fs struct {
 	// Source is Hugo's source file system.
+	// Note that this will always be a "plain" Afero filesystem:
+	// * afero.OsFs when running in production
+	// * afero.MemMapFs for many of the tests.
 	Source afero.Fs
 
-	// Destination is Hugo's destination file system.
-	Destination afero.Fs
+	// PublishDir is where Hugo publishes its rendered content.
+	// It's mounted inside publishDir (default /public).
+	PublishDir afero.Fs
+
+	// PublishDirStatic is the file system used for static files  when --renderStaticToDisk is set.
+	// When this is set, PublishDir is set to write to memory.
+	PublishDirStatic afero.Fs
+
+	// PublishDirServer is the file system used for serving the public directory with Hugo's development server.
+	// This will typically be the same as PublishDir, but not if --renderStaticToDisk is set.
+	PublishDirServer afero.Fs
 
 	// Os is an OS file system.
 	// NOTE: Field is currently unused.
 	Os afero.Fs
 
-	// WorkingDir is a read-only file system
+	// WorkingDirReadOnly is a read-only file system
 	// restricted to the project working dir.
-	WorkingDir *afero.BasePathFs
+	WorkingDirReadOnly afero.Fs
+
+	// WorkingDirWritable is a writable file system
+	// restricted to the project working dir.
+	WorkingDirWritable afero.Fs
 }
 
 // NewDefault creates a new Fs with the OS file system
 // as source and destination file systems.
 func NewDefault(cfg config.Provider) *Fs {
-	fs := &afero.OsFs{}
-	return newFs(fs, cfg)
+	fs := Os
+	return newFs(fs, fs, cfg)
 }
 
 // NewMem creates a new Fs with the MemMapFs
@@ -56,33 +73,66 @@ func NewDefault(cfg config.Provider) *Fs {
 // Useful for testing.
 func NewMem(cfg config.Provider) *Fs {
 	fs := &afero.MemMapFs{}
-	return newFs(fs, cfg)
+	return newFs(fs, fs, cfg)
 }
 
 // NewFrom creates a new Fs based on the provided Afero Fs
 // as source and destination file systems.
 // Useful for testing.
 func NewFrom(fs afero.Fs, cfg config.Provider) *Fs {
-	return newFs(fs, cfg)
+	return newFs(fs, fs, cfg)
 }
 
-func newFs(base afero.Fs, cfg config.Provider) *Fs {
-	return &Fs{
-		Source:      base,
-		Destination: base,
-		Os:          &afero.OsFs{},
-		WorkingDir:  getWorkingDirFs(base, cfg),
-	}
+// NewFrom creates a new Fs based on the provided Afero Fss
+// as the source and destination file systems.
+func NewFromSourceAndDestination(source, destination afero.Fs, cfg config.Provider) *Fs {
+	return newFs(source, destination, cfg)
 }
 
-func getWorkingDirFs(base afero.Fs, cfg config.Provider) *afero.BasePathFs {
+func newFs(source, destination afero.Fs, cfg config.Provider) *Fs {
 	workingDir := cfg.GetString("workingDir")
-
-	if workingDir != "" {
-		return afero.NewBasePathFs(afero.NewReadOnlyFs(base), workingDir).(*afero.BasePathFs)
+	publishDir := cfg.GetString("publishDir")
+	if publishDir == "" {
+		panic("publishDir is empty")
 	}
 
-	return nil
+	// Sanity check
+	if IsOsFs(source) && len(workingDir) < 2 {
+		panic("workingDir is too short")
+	}
+
+	absPublishDir := paths.AbsPathify(workingDir, publishDir)
+
+	// Make sure we always have the /public folder ready to use.
+	if err := source.MkdirAll(absPublishDir, 0777); err != nil && !os.IsExist(err) {
+		panic(err)
+	}
+
+	pubFs := afero.NewBasePathFs(destination, absPublishDir)
+
+	return &Fs{
+		Source:             source,
+		PublishDir:         pubFs,
+		PublishDirServer:   pubFs,
+		PublishDirStatic:   pubFs,
+		Os:                 &afero.OsFs{},
+		WorkingDirReadOnly: getWorkingDirFsReadOnly(source, workingDir),
+		WorkingDirWritable: getWorkingDirFsWritable(source, workingDir),
+	}
+}
+
+func getWorkingDirFsReadOnly(base afero.Fs, workingDir string) afero.Fs {
+	if workingDir == "" {
+		return afero.NewReadOnlyFs(base)
+	}
+	return afero.NewBasePathFs(afero.NewReadOnlyFs(base), workingDir)
+}
+
+func getWorkingDirFsWritable(base afero.Fs, workingDir string) afero.Fs {
+	if workingDir == "" {
+		return base
+	}
+	return afero.NewBasePathFs(base, workingDir)
 }
 
 func isWrite(flag int) bool {
@@ -111,4 +161,65 @@ func MakeReadableAndRemoveAllModulePkgDir(fs afero.Fs, dir string) (int, error) 
 		return nil
 	})
 	return counter, fs.RemoveAll(dir)
+}
+
+// HasOsFs returns whether fs is an OsFs or if it fs wraps an OsFs.
+// TODO(bep) make this nore robust.
+func IsOsFs(fs afero.Fs) bool {
+	var isOsFs bool
+	WalkFilesystems(fs, func(fs afero.Fs) bool {
+		switch base := fs.(type) {
+		case *afero.MemMapFs:
+			isOsFs = false
+		case *afero.OsFs:
+			isOsFs = true
+		case *afero.BasePathFs:
+			_, supportsLstat, _ := base.LstatIfPossible("asdfasdfasdf")
+			isOsFs = supportsLstat
+		}
+		return isOsFs
+	})
+	return isOsFs
+}
+
+// FilesystemsUnwrapper returns the underlying filesystems.
+type FilesystemsUnwrapper interface {
+	UnwrapFilesystems() []afero.Fs
+}
+
+// FilesystemsProvider returns the underlying filesystem.
+type FilesystemUnwrapper interface {
+	UnwrapFilesystem() afero.Fs
+}
+
+// WalkFn is the walk func for WalkFilesystems.
+type WalkFn func(fs afero.Fs) bool
+
+// WalkFilesystems walks fs recursively and calls fn.
+// If fn returns true, walking is stopped.
+func WalkFilesystems(fs afero.Fs, fn WalkFn) bool {
+	if fn(fs) {
+		return true
+	}
+
+	if afs, ok := fs.(FilesystemUnwrapper); ok {
+		if WalkFilesystems(afs.UnwrapFilesystem(), fn) {
+			return true
+		}
+
+	} else if bfs, ok := fs.(FilesystemsUnwrapper); ok {
+		for _, sf := range bfs.UnwrapFilesystems() {
+			if WalkFilesystems(sf, fn) {
+				return true
+			}
+		}
+	} else if cfs, ok := fs.(overlayfs.FilesystemIterator); ok {
+		for i := 0; i < cfs.NumFilesystems(); i++ {
+			if WalkFilesystems(cfs.Filesystem(i), fn) {
+				return true
+			}
+		}
+	}
+
+	return false
 }

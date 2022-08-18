@@ -28,6 +28,7 @@ import (
 
 	"github.com/gohugoio/hugo/parser/pageparser"
 
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugio"
 
 	"github.com/gohugoio/hugo/parser/metadecoders"
@@ -35,7 +36,6 @@ import (
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/parser"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
@@ -201,12 +201,7 @@ func (i *importCmd) retrieveJekyllPostDir(fs afero.Fs, dir string) (bool, bool) 
 }
 
 func (i *importCmd) createSiteFromJekyll(jekyllRoot, targetDir string, jekyllPostDirs map[string]bool, force bool) error {
-	s, err := hugolib.NewSiteDefaultLang()
-	if err != nil {
-		return err
-	}
-
-	fs := s.Fs.Source
+	fs := &afero.OsFs{}
 	if exists, _ := helpers.Exists(targetDir, fs); exists {
 		if isDir, _ := helpers.IsDir(targetDir, fs); !isDir {
 			return errors.New("target path \"" + targetDir + "\" exists but is not a directory")
@@ -235,7 +230,7 @@ func (i *importCmd) createSiteFromJekyll(jekyllRoot, targetDir string, jekyllPos
 	return nil
 }
 
-func (i *importCmd) loadJekyllConfig(fs afero.Fs, jekyllRoot string) map[string]interface{} {
+func (i *importCmd) loadJekyllConfig(fs afero.Fs, jekyllRoot string) map[string]any {
 	path := filepath.Join(jekyllRoot, "_config.yml")
 
 	exists, err := helpers.Exists(path, fs)
@@ -265,7 +260,7 @@ func (i *importCmd) loadJekyllConfig(fs afero.Fs, jekyllRoot string) map[string]
 	return c
 }
 
-func (i *importCmd) createConfigFromJekyll(fs afero.Fs, inpath string, kind metadecoders.Format, jekyllConfig map[string]interface{}) (err error) {
+func (i *importCmd) createConfigFromJekyll(fs afero.Fs, inpath string, kind metadecoders.Format, jekyllConfig map[string]any) (err error) {
 	title := "My New Hugo Site"
 	baseURL := "http://example.org/"
 
@@ -285,7 +280,7 @@ func (i *importCmd) createConfigFromJekyll(fs afero.Fs, inpath string, kind meta
 		}
 	}
 
-	in := map[string]interface{}{
+	in := map[string]any{
 		"baseURL":            baseURL,
 		"title":              title,
 		"languageCode":       "en-us",
@@ -362,12 +357,12 @@ func parseJekyllFilename(filename string) (time.Time, string, error) {
 	re := regexp.MustCompile(`(\d+-\d+-\d+)-(.+)\..*`)
 	r := re.FindAllStringSubmatch(filename, -1)
 	if len(r) == 0 {
-		return time.Now(), "", errors.New("filename not match")
+		return htime.Now(), "", errors.New("filename not match")
 	}
 
 	postDate, err := time.Parse("2006-1-2", r[0][1])
 	if err != nil {
-		return time.Now(), "", err
+		return htime.Now(), "", err
 	}
 
 	postName := r[0][2]
@@ -423,7 +418,7 @@ func convertJekyllPost(path, relPath, targetDir string, draft bool) error {
 	return nil
 }
 
-func convertJekyllMetaData(m interface{}, postName string, postDate time.Time, draft bool) (interface{}, error) {
+func convertJekyllMetaData(m any, postName string, postDate time.Time, draft bool) (any, error) {
 	metadata, err := maps.ToStringMapE(m)
 	if err != nil {
 		return nil, err
@@ -475,7 +470,7 @@ func convertJekyllMetaData(m interface{}, postName string, postDate time.Time, d
 	return metadata, nil
 }
 
-func convertJekyllContent(m interface{}, content string) (string, error) {
+func convertJekyllContent(m any, content string) (string, error) {
 	metadata, _ := maps.ToStringMapE(m)
 
 	lines := strings.Split(content, "\n")

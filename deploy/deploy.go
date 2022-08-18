@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !nodeploy
 // +build !nodeploy
 
 package deploy
@@ -20,6 +21,7 @@ import (
 	"compress/gzip"
 	"context"
 	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -32,11 +34,12 @@ import (
 	"strings"
 	"sync"
 
+	"errors"
+
 	"github.com/dustin/go-humanize"
 	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/media"
-	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	jww "github.com/spf13/jwalterweatherman"
 	"golang.org/x/text/unicode/norm"
@@ -71,6 +74,8 @@ type Deployer struct {
 type deploySummary struct {
 	NumLocal, NumRemote, NumUploads, NumDeletes int
 }
+
+const metaMD5Hash = "md5chksum" // the meta key to store md5hash in
 
 // New constructs a new *Deployer.
 func New(cfg config.Provider, localFs afero.Fs) (*Deployer, error) {
@@ -313,6 +318,7 @@ func doSingleUpload(ctx context.Context, bucket *blob.Bucket, upload *fileToUplo
 		CacheControl:    upload.Local.CacheControl(),
 		ContentEncoding: upload.Local.ContentEncoding(),
 		ContentType:     upload.Local.ContentType(),
+		Metadata:        map[string]string{metaMD5Hash: hex.EncodeToString(upload.Local.MD5())},
 	}
 	w, err := bucket.NewWriter(ctx, upload.Local.SlashPath, opts)
 	if err != nil {
@@ -565,7 +571,7 @@ func walkRemote(ctx context.Context, bucket *blob.Bucket, include, exclude glob.
 			jww.INFO.Printf("  remote dropping %q due to exclude\n", obj.Key)
 			continue
 		}
-		// If the remote didn't give us an MD5, compute one.
+		// If the remote didn't give us an MD5, use remote attributes MD5, if that doesn't exist compute one.
 		// This can happen for some providers (e.g., fileblob, which uses the
 		// local filesystem), but not for the most common Cloud providers
 		// (S3, GCS, Azure). Although, it can happen for S3 if the blob was uploaded
@@ -573,13 +579,25 @@ func walkRemote(ctx context.Context, bucket *blob.Bucket, include, exclude glob.
 		// Although it's unfortunate to have to read the file, it's likely better
 		// than assuming a delta and re-uploading it.
 		if len(obj.MD5) == 0 {
-			r, err := bucket.NewReader(ctx, obj.Key, nil)
+			var attrMD5 []byte
+			attrs, err := bucket.Attributes(ctx, obj.Key)
 			if err == nil {
-				h := md5.New()
-				if _, err := io.Copy(h, r); err == nil {
-					obj.MD5 = h.Sum(nil)
+				md5String, exists := attrs.Metadata[metaMD5Hash]
+				if exists {
+					attrMD5, _ = hex.DecodeString(md5String)
 				}
-				r.Close()
+			}
+			if len(attrMD5) == 0 {
+				r, err := bucket.NewReader(ctx, obj.Key, nil)
+				if err == nil {
+					h := md5.New()
+					if _, err := io.Copy(h, r); err == nil {
+						obj.MD5 = h.Sum(nil)
+					}
+					r.Close()
+				}
+			} else {
+				obj.MD5 = attrMD5
 			}
 		}
 		retval[obj.Key] = obj

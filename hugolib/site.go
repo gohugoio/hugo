@@ -24,12 +24,17 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/htime"
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/types"
+	"github.com/gohugoio/hugo/modules"
+	"golang.org/x/text/unicode/norm"
 
 	"github.com/gohugoio/hugo/common/paths"
 
@@ -51,13 +56,10 @@ import (
 
 	"github.com/gohugoio/hugo/common/maps"
 
-	"github.com/pkg/errors"
-
 	"github.com/gohugoio/hugo/common/text"
 
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/publisher"
-	_errors "github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/langs"
 
@@ -119,8 +121,6 @@ type Site struct {
 	siteCfg siteConfigHolder
 
 	disabledKinds map[string]bool
-
-	enableInlineShortcodes bool
 
 	// Output formats defined in site config per Page Kind, or some defaults
 	// if not set.
@@ -227,7 +227,7 @@ func (s *Site) prepareInits() {
 
 	var init lazy.Init
 
-	s.init.prevNext = init.Branch(func() (interface{}, error) {
+	s.init.prevNext = init.Branch(func() (any, error) {
 		regularPages := s.RegularPages()
 		for i, p := range regularPages {
 			np, ok := p.(nextPrevProvider)
@@ -254,7 +254,7 @@ func (s *Site) prepareInits() {
 		return nil, nil
 	})
 
-	s.init.prevNextInSection = init.Branch(func() (interface{}, error) {
+	s.init.prevNextInSection = init.Branch(func() (any, error) {
 		var sections page.Pages
 		s.home.treeRef.m.collectSectionsRecursiveIncludingSelf(pageMapQuery{Prefix: s.home.treeRef.key}, func(n *contentNode) {
 			sections = append(sections, n.p)
@@ -311,12 +311,12 @@ func (s *Site) prepareInits() {
 		return nil, nil
 	})
 
-	s.init.menus = init.Branch(func() (interface{}, error) {
+	s.init.menus = init.Branch(func() (any, error) {
 		s.assembleMenus()
 		return nil, nil
 	})
 
-	s.init.taxonomies = init.Branch(func() (interface{}, error) {
+	s.init.taxonomies = init.Branch(func() (any, error) {
 		err := s.pageMap.assembleTaxonomies()
 		return nil, err
 	})
@@ -378,25 +378,24 @@ func (s *Site) isEnabled(kind string) bool {
 // reset returns a new Site prepared for rebuild.
 func (s *Site) reset() *Site {
 	return &Site{
-		Deps:                   s.Deps,
-		disabledKinds:          s.disabledKinds,
-		titleFunc:              s.titleFunc,
-		relatedDocsHandler:     s.relatedDocsHandler.Clone(),
-		siteRefLinker:          s.siteRefLinker,
-		outputFormats:          s.outputFormats,
-		rc:                     s.rc,
-		outputFormatsConfig:    s.outputFormatsConfig,
-		frontmatterHandler:     s.frontmatterHandler,
-		mediaTypesConfig:       s.mediaTypesConfig,
-		language:               s.language,
-		siteBucket:             s.siteBucket,
-		h:                      s.h,
-		publisher:              s.publisher,
-		siteConfigConfig:       s.siteConfigConfig,
-		enableInlineShortcodes: s.enableInlineShortcodes,
-		init:                   s.init,
-		PageCollections:        s.PageCollections,
-		siteCfg:                s.siteCfg,
+		Deps:                s.Deps,
+		disabledKinds:       s.disabledKinds,
+		titleFunc:           s.titleFunc,
+		relatedDocsHandler:  s.relatedDocsHandler.Clone(),
+		siteRefLinker:       s.siteRefLinker,
+		outputFormats:       s.outputFormats,
+		rc:                  s.rc,
+		outputFormatsConfig: s.outputFormatsConfig,
+		frontmatterHandler:  s.frontmatterHandler,
+		mediaTypesConfig:    s.mediaTypesConfig,
+		language:            s.language,
+		siteBucket:          s.siteBucket,
+		h:                   s.h,
+		publisher:           s.publisher,
+		siteConfigConfig:    s.siteConfigConfig,
+		init:                s.init,
+		PageCollections:     s.PageCollections,
+		siteCfg:             s.siteCfg,
 	}
 }
 
@@ -433,8 +432,8 @@ But this also means that your site configuration may not do what you expect. If 
 	}
 
 	var (
-		mediaTypesConfig    []map[string]interface{}
-		outputFormatsConfig []map[string]interface{}
+		mediaTypesConfig    []map[string]any
+		outputFormatsConfig []map[string]any
 
 		siteOutputFormatsConfig output.Formats
 		siteMediaTypesConfig    media.Types
@@ -473,7 +472,7 @@ But this also means that your site configuration may not do what you expect. If 
 		siteOutputFormatsConfig = tmp
 	}
 
-	var siteOutputs map[string]interface{}
+	var siteOutputs map[string]any
 	if cfg.Language.IsSet("outputs") {
 		siteOutputs = cfg.Language.GetStringMap("outputs")
 
@@ -508,7 +507,7 @@ But this also means that your site configuration may not do what you expect. If 
 	if cfg.Language.IsSet("related") {
 		relatedContentConfig, err = related.DecodeConfig(cfg.Language.GetParams("related"))
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to decode related config")
+			return nil, fmt.Errorf("failed to decode related config: %w", err)
 		}
 	} else {
 		relatedContentConfig = related.DefaultConfig
@@ -546,7 +545,7 @@ But this also means that your site configuration may not do what you expect. If 
 		var err error
 		cascade, err := page.DecodeCascade(cfg.Language.Get("cascade"))
 		if err != nil {
-			return nil, errors.Errorf("failed to decode cascade config: %s", err)
+			return nil, fmt.Errorf("failed to decode cascade config: %s", err)
 		}
 
 		siteBucket = &pagesMapBucket{
@@ -564,8 +563,7 @@ But this also means that your site configuration may not do what you expect. If 
 		outputFormatsConfig: siteOutputFormatsConfig,
 		mediaTypesConfig:    siteMediaTypesConfig,
 
-		enableInlineShortcodes: cfg.Language.GetBool("enableInlineShortcodes"),
-		siteCfg:                siteConfig,
+		siteCfg: siteConfig,
 
 		titleFunc: titleFunc,
 
@@ -655,7 +653,7 @@ type SiteInfo struct {
 	hugoInfo     hugo.Info
 	title        string
 	RSSLink      string
-	Author       map[string]interface{}
+	Author       map[string]any
 	LanguageCode string
 	Copyright    string
 
@@ -693,12 +691,6 @@ func (s *SiteInfo) AllRegularPages() page.Pages {
 	return s.s.AllRegularPages()
 }
 
-func (s *SiteInfo) Permalinks() map[string]string {
-	// Remove in 0.61
-	helpers.Deprecated(".Site.Permalinks", "", true)
-	return s.permalinks
-}
-
 func (s *SiteInfo) LastChange() time.Time {
 	return s.s.lastmod
 }
@@ -716,7 +708,7 @@ func (s *SiteInfo) Menus() navigation.Menus {
 }
 
 // TODO(bep) type
-func (s *SiteInfo) Taxonomies() interface{} {
+func (s *SiteInfo) Taxonomies() any {
 	return s.s.Taxonomies()
 }
 
@@ -724,7 +716,7 @@ func (s *SiteInfo) Params() maps.Params {
 	return s.s.Language().Params()
 }
 
-func (s *SiteInfo) Data() map[string]interface{} {
+func (s *SiteInfo) Data() map[string]any {
 	return s.s.h.Data()
 }
 
@@ -743,6 +735,16 @@ func (s *SiteInfo) Hugo() hugo.Info {
 // Sites is a convenience method to get all the Hugo sites/languages configured.
 func (s *SiteInfo) Sites() page.Sites {
 	return s.s.h.siteInfos()
+}
+
+// Current returns the currently rendered Site.
+// If that isn't set yet, which is the situation before we start rendering,
+// if will return the Site itself.
+func (s *SiteInfo) Current() page.Site {
+	if s.s.h.currentSite == nil {
+		return s
+	}
+	return s.s.h.currentSite.Info
 }
 
 func (s *SiteInfo) String() string {
@@ -793,7 +795,7 @@ type SiteSocial map[string]string
 // Param is a convenience method to do lookups in SiteInfo's Params map.
 //
 // This method is also implemented on Page.
-func (s *SiteInfo) Param(key interface{}) (interface{}, error) {
+func (s *SiteInfo) Param(key any) (any, error) {
 	return resource.Param(s, nil, key)
 }
 
@@ -829,11 +831,11 @@ func (s siteRefLinker) logNotFound(ref, what string, p page.Page, position text.
 	} else if p == nil {
 		s.errorLogger.Printf("[%s] REF_NOT_FOUND: Ref %q: %s", s.s.Lang(), ref, what)
 	} else {
-		s.errorLogger.Printf("[%s] REF_NOT_FOUND: Ref %q from page %q: %s", s.s.Lang(), ref, p.Path(), what)
+		s.errorLogger.Printf("[%s] REF_NOT_FOUND: Ref %q from page %q: %s", s.s.Lang(), ref, p.Pathc(), what)
 	}
 }
 
-func (s *siteRefLinker) refLink(ref string, source interface{}, relative bool, outputFormat string) (string, error) {
+func (s *siteRefLinker) refLink(ref string, source any, relative bool, outputFormat string) (string, error) {
 	p, err := unwrapPage(source)
 	if err != nil {
 		return "", err
@@ -958,6 +960,10 @@ func (s *Site) filterFileEvents(events []fsnotify.Event) []fsnotify.Event {
 		}
 		if !isRegular {
 			continue
+		}
+
+		if runtime.GOOS == "darwin" { // When a file system is HFS+, its filepath is in NFD form.
+			ev.Name = norm.NFC.String(ev.Name)
 		}
 
 		filtered = append(filtered, ev)
@@ -1204,11 +1210,11 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 
 func (s *Site) process(config BuildCfg) (err error) {
 	if err = s.initialize(); err != nil {
-		err = errors.Wrap(err, "initialize")
+		err = fmt.Errorf("initialize: %w", err)
 		return
 	}
 	if err = s.readAndProcessContent(config); err != nil {
-		err = errors.Wrap(err, "readAndProcessContent")
+		err = fmt.Errorf("readAndProcessContent: %w", err)
 		return
 	}
 	return err
@@ -1337,6 +1343,32 @@ func (s *Site) initializeSiteInfo() error {
 		}
 	}
 
+	// Assemble dependencies to be used in hugo.Deps.
+	// TODO(bep) another reminder: We need to clean up this Site vs HugoSites construct.
+	var deps []*hugo.Dependency
+	var depFromMod func(m modules.Module) *hugo.Dependency
+	depFromMod = func(m modules.Module) *hugo.Dependency {
+		dep := &hugo.Dependency{
+			Path:    m.Path(),
+			Version: m.Version(),
+			Time:    m.Time(),
+			Vendor:  m.Vendor(),
+		}
+
+		// These are pointers, but this all came from JSON so there's no recursive navigation,
+		// so just create new values.
+		if m.Replace() != nil {
+			dep.Replace = depFromMod(m.Replace())
+		}
+		if m.Owner() != nil {
+			dep.Owner = depFromMod(m.Owner())
+		}
+		return dep
+	}
+	for _, m := range s.Paths.AllModules {
+		deps = append(deps, depFromMod(m))
+	}
+
 	s.Info = &SiteInfo{
 		title:                          lang.GetString("title"),
 		Author:                         lang.GetStringMap("author"),
@@ -1355,7 +1387,7 @@ func (s *Site) initializeSiteInfo() error {
 		permalinks:                     permalinks,
 		owner:                          s.h,
 		s:                              s,
-		hugoInfo:                       hugo.NewInfo(s.Cfg.GetString("environment")),
+		hugoInfo:                       hugo.NewInfo(s.Cfg.GetString("environment"), deps),
 	}
 
 	rssOutputFormat, found := s.outputFormats[page.KindHome].GetByName(output.RSSFormat.Name)
@@ -1397,16 +1429,15 @@ func (s *Site) getMenusFromConfig() navigation.Menus {
 		for name, menu := range menus {
 			m, err := cast.ToSliceE(menu)
 			if err != nil {
-				s.Log.Errorf("unable to process menus in site config\n")
+				s.Log.Errorf("menus in site config contain errors\n")
 				s.Log.Errorln(err)
 			} else {
 				handleErr := func(err error) {
 					if err == nil {
 						return
 					}
-					s.Log.Errorf("unable to process menus in site config\n")
+					s.Log.Errorf("menus in site config contain errors\n")
 					s.Log.Errorln(err)
-
 				}
 
 				for _, entry := range m {
@@ -1471,7 +1502,7 @@ func (s *Site) assembleMenus() {
 	sectionPagesMenu := s.Info.sectionPagesMenu
 
 	if sectionPagesMenu != "" {
-		s.pageMap.sections.Walk(func(s string, v interface{}) bool {
+		s.pageMap.sections.Walk(func(s string, v any) bool {
 			p := v.(*contentNode).p
 			if p.IsHome() {
 				return false
@@ -1502,7 +1533,7 @@ func (s *Site) assembleMenus() {
 
 		for name, me := range p.pageMenus.menus() {
 			if _, ok := flat[twoD{name, me.KeyName()}]; ok {
-				err := p.wrapError(errors.Errorf("duplicate menu entry with identifier %q in menu %q", me.KeyName(), name))
+				err := p.wrapError(fmt.Errorf("duplicate menu entry with identifier %q in menu %q", me.KeyName(), name))
 				s.Log.Warnln(err)
 				continue
 			}
@@ -1673,7 +1704,7 @@ func (s *Site) lookupLayouts(layouts ...string) tpl.Template {
 	return nil
 }
 
-func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath string, d interface{}, templ tpl.Template) error {
+func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath string, d any, templ tpl.Template) error {
 	s.Log.Debugf("Render XML for %q to %q", name, targetPath)
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
@@ -1697,6 +1728,7 @@ func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath st
 
 func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath string, p *pageState, templ tpl.Template) error {
 	s.Log.Debugf("Render %s to %q", name, targetPath)
+	s.h.IncrPageRender()
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 
@@ -1750,30 +1782,43 @@ var infoOnMissingLayout = map[string]bool{
 	"404": true,
 }
 
-// hookRenderer is the canonical implementation of all hooks.ITEMRenderer,
+// hookRendererTemplate is the canonical implementation of all hooks.ITEMRenderer,
 // where ITEM is the thing being hooked.
-type hookRenderer struct {
+type hookRendererTemplate struct {
 	templateHandler tpl.TemplateHandler
 	identity.SearchProvider
-	templ tpl.Template
+	templ           tpl.Template
+	resolvePosition func(ctx any) text.Position
 }
 
-func (hr hookRenderer) RenderLink(w io.Writer, ctx hooks.LinkContext) error {
+func (hr hookRendererTemplate) RenderLink(w io.Writer, ctx hooks.LinkContext) error {
 	return hr.templateHandler.Execute(hr.templ, w, ctx)
 }
 
-func (hr hookRenderer) RenderHeading(w io.Writer, ctx hooks.HeadingContext) error {
+func (hr hookRendererTemplate) RenderHeading(w io.Writer, ctx hooks.HeadingContext) error {
 	return hr.templateHandler.Execute(hr.templ, w, ctx)
 }
 
-func (s *Site) renderForTemplate(name, outputFormat string, d interface{}, w io.Writer, templ tpl.Template) (err error) {
+func (hr hookRendererTemplate) RenderCodeblock(w hugio.FlexiWriter, ctx hooks.CodeblockContext) error {
+	return hr.templateHandler.Execute(hr.templ, w, ctx)
+}
+
+func (hr hookRendererTemplate) ResolvePosition(ctx any) text.Position {
+	return hr.resolvePosition(ctx)
+}
+
+func (hr hookRendererTemplate) IsDefaultCodeBlockRenderer() bool {
+	return false
+}
+
+func (s *Site) renderForTemplate(name, outputFormat string, d any, w io.Writer, templ tpl.Template) (err error) {
 	if templ == nil {
 		s.logMissingLayout(name, "", "", outputFormat)
 		return nil
 	}
 
 	if err = s.Tmpl().Execute(templ, w, d); err != nil {
-		return _errors.Wrapf(err, "render of %q failed", name)
+		return fmt.Errorf("render of %q failed: %w", name, err)
 	}
 	return
 }
@@ -1788,10 +1833,10 @@ func (s *Site) lookupTemplate(layouts ...string) (tpl.Template, bool) {
 	return nil, false
 }
 
-func (s *Site) publish(statCounter *uint64, path string, r io.Reader) (err error) {
+func (s *Site) publish(statCounter *uint64, path string, r io.Reader, fs afero.Fs) (err error) {
 	s.PathSpec.ProcessingStats.Incr(statCounter)
 
-	return helpers.WriteToDisk(filepath.Clean(path), r, s.BaseFs.PublishFs)
+	return helpers.WriteToDisk(filepath.Clean(path), r, fs)
 }
 
 func (s *Site) kindFromFileInfoOrSections(fi *fileInfo, sections []string) string {
@@ -1835,7 +1880,7 @@ func (s *Site) newPage(
 	parentbBucket *pagesMapBucket,
 	kind, title string,
 	sections ...string) *pageState {
-	m := map[string]interface{}{}
+	m := map[string]any{}
 	if title != "" {
 		m["title"] = title
 	}
@@ -1866,10 +1911,11 @@ func shouldBuild(buildFuture bool, buildExpired bool, buildDrafts bool, Draft bo
 	if !(buildDrafts || !Draft) {
 		return false
 	}
-	if !buildFuture && !publishDate.IsZero() && publishDate.After(time.Now()) {
+	hnow := htime.Now()
+	if !buildFuture && !publishDate.IsZero() && publishDate.After(hnow) {
 		return false
 	}
-	if !buildExpired && !expiryDate.IsZero() && expiryDate.Before(time.Now()) {
+	if !buildExpired && !expiryDate.IsZero() && expiryDate.Before(hnow) {
 		return false
 	}
 	return true

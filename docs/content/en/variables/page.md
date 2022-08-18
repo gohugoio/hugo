@@ -33,6 +33,9 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 .Aliases
 : aliases of this page
 
+.BundleType
+: the [bundle] type: `leaf`, `branch`, or an empty string if the page is not a bundle.
+
 .Content
 : the content itself, defined below the front matter.
 
@@ -45,9 +48,6 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 .Description
 : the description for the page.
 
-.Dir
-: the path of the folder containing this content file. The path is relative to the `content` folder.
-
 .Draft
 : a boolean, `true` if the content is marked as a draft in the front matter.
 
@@ -59,9 +59,6 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 
 .FuzzyWordCount
 : the approximate number of words in the content.
-
-.Hugo
-: see [Hugo Variables](/variables/hugo/).
 
 .IsHome
 : `true` in the context of the [homepage](/templates/homepage/).
@@ -99,10 +96,10 @@ See also `.ExpiryDate`, `.Date`, `.PublishDate`, and [`.GitInfo`][gitinfo].
 : access when creating links to the content. If set, Hugo will use the `linktitle` from the front matter before `title`.
 
 .Next
-: Points up to the next [regular page](/variables/site/#site-pages) (sorted by Hugo's [default sort](/templates/lists#default-weight-date-linktitle-filepath)). Example: `{{with .Next}}{{.Permalink}}{{end}}`. Calling `.Next` from the first page returns `nil`.
+: Points up to the next [regular page](/variables/site/#site-pages) (sorted by Hugo's [default sort](/templates/lists#default-weight--date--linktitle--filepath)). Example: `{{with .Next}}{{.Permalink}}{{end}}`. Calling `.Next` from the first page returns `nil`.
 
 .NextInSection
-: Points up to the next [regular page](/variables/site/#site-pages) below the same top level section (e.g. in `/blog`)). Pages are sorted by Hugo's [default sort](/templates/lists#default-weight-date-linktitle-filepath). Example: `{{with .NextInSection}}{{.Permalink}}{{end}}`. Calling `.NextInSection` from the first page returns `nil`.
+: Points up to the next [regular page](/variables/site/#site-pages) below the same top level section (e.g. in `/blog`)). Pages are sorted by Hugo's [default sort](/templates/lists#default-weight--date--linktitle--filepath). Example: `{{with .NextInSection}}{{.Permalink}}{{end}}`. Calling `.NextInSection` from the first page returns `nil`.
 
 .OutputFormats
 : contains all formats, including the current format, for a given page. Can be combined the with [`.Get` function](/functions/get/) to grab a specific format. (See [Output Formats](/templates/output-formats/).)
@@ -121,16 +118,13 @@ See also `.ExpiryDate`, `.Date`, `.PublishDate`, and [`.GitInfo`][gitinfo].
 : the slice of strings that results from splitting .Plain into words, as defined in Go's [strings.Fields](https://golang.org/pkg/strings/#Fields).
 
 .Prev
-: Points down to the previous [regular page](/variables/site/#site-pages) (sorted by Hugo's [default sort](/templates/lists#default-weight-date-linktitle-filepath)). Example: `{{if .Prev}}{{.Prev.Permalink}}{{end}}`.  Calling `.Prev` from the last page returns `nil`.
+: Points down to the previous [regular page](/variables/site/#site-pages) (sorted by Hugo's [default sort](/templates/lists#default-weight--date--linktitle--filepath)). Example: `{{if .Prev}}{{.Prev.Permalink}}{{end}}`.  Calling `.Prev` from the last page returns `nil`.
 
 .PrevInSection
-: Points down to the previous [regular page](/variables/site/#site-pages) below the same top level section (e.g. `/blog`). Pages are sorted by Hugo's [default sort](/templates/lists#default-weight-date-linktitle-filepath). Example: `{{if .PrevInSection}}{{.PrevInSection.Permalink}}{{end}}`.  Calling `.PrevInSection` from the last page returns `nil`.
+: Points down to the previous [regular page](/variables/site/#site-pages) below the same top level section (e.g. `/blog`). Pages are sorted by Hugo's [default sort](/templates/lists#default-weight--date--linktitle--filepath). Example: `{{if .PrevInSection}}{{.PrevInSection.Permalink}}{{end}}`.  Calling `.PrevInSection` from the last page returns `nil`.
 
 .PublishDate
 : the date on which the content was or will be published; `.Publishdate` pulls from the `publishdate` field in a content's front matter. See also `.ExpiryDate`, `.Date`, and `.Lastmod`.
-
-.RSSLink (deprecated)
-: link to the page's RSS feed. This is deprecated. You should instead do something like this: `{{ with .OutputFormats.Get "RSS" }}{{ .RelPermalink }}{{ end }}`.
 
 .RawContent
 : raw markdown content without the front matter. Useful with [remarkjs.com](
@@ -181,9 +175,6 @@ https://remarkjs.com)
 
 .Type
 : the [content type](/content-management/types/) of the content (e.g., `posts`).
-
-.UniqueID (deprecated)
-: the MD5-checksum of the content file's path. This variable is deprecated and will be removed, use `.File.UniqueID` instead.
 
 .Weight
 : assigned weight (in the front matter) to this content, used in sorting.
@@ -305,3 +296,4 @@ The top-level key will be preferred. Therefore, the following method, when appli
 
 [gitinfo]: /variables/git/
 [File Variables]: /variables/files/
+[bundle]: {{< relref "content-management/page-bundles" >}}

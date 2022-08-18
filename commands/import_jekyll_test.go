@@ -47,44 +47,44 @@ func TestParseJekyllFilename(t *testing.T) {
 func TestConvertJekyllMetadata(t *testing.T) {
 	c := qt.New(t)
 	testDataList := []struct {
-		metadata interface{}
+		metadata any
 		postName string
 		postDate time.Time
 		draft    bool
 		expect   string
 	}{
 		{
-			map[interface{}]interface{}{},
+			map[any]any{},
 			"testPost", time.Date(2015, 10, 1, 0, 0, 0, 0, time.UTC), false,
 			`{"date":"2015-10-01T00:00:00Z"}`,
 		},
 		{
-			map[interface{}]interface{}{},
+			map[any]any{},
 			"testPost", time.Date(2015, 10, 1, 0, 0, 0, 0, time.UTC), true,
 			`{"date":"2015-10-01T00:00:00Z","draft":true}`,
 		},
 		{
-			map[interface{}]interface{}{"Permalink": "/permalink.html", "layout": "post"},
+			map[any]any{"Permalink": "/permalink.html", "layout": "post"},
 			"testPost", time.Date(2015, 10, 1, 0, 0, 0, 0, time.UTC), false,
 			`{"date":"2015-10-01T00:00:00Z","url":"/permalink.html"}`,
 		},
 		{
-			map[interface{}]interface{}{"permalink": "/permalink.html"},
+			map[any]any{"permalink": "/permalink.html"},
 			"testPost", time.Date(2015, 10, 1, 0, 0, 0, 0, time.UTC), false,
 			`{"date":"2015-10-01T00:00:00Z","url":"/permalink.html"}`,
 		},
 		{
-			map[interface{}]interface{}{"category": nil, "permalink": 123},
+			map[any]any{"category": nil, "permalink": 123},
 			"testPost", time.Date(2015, 10, 1, 0, 0, 0, 0, time.UTC), false,
 			`{"date":"2015-10-01T00:00:00Z"}`,
 		},
 		{
-			map[interface{}]interface{}{"Excerpt_Separator": "sep"},
+			map[any]any{"Excerpt_Separator": "sep"},
 			"testPost", time.Date(2015, 10, 1, 0, 0, 0, 0, time.UTC), false,
 			`{"date":"2015-10-01T00:00:00Z","excerpt_separator":"sep"}`,
 		},
 		{
-			map[interface{}]interface{}{"category": "book", "layout": "post", "Others": "Goods", "Date": "2015-10-01 12:13:11"},
+			map[any]any{"category": "book", "layout": "post", "Others": "Goods", "Date": "2015-10-01 12:13:11"},
 			"testPost", time.Date(2015, 10, 1, 0, 0, 0, 0, time.UTC), false,
 			`{"Others":"Goods","categories":["book"],"date":"2015-10-01T12:13:11Z"}`,
 		},
@@ -102,69 +102,69 @@ func TestConvertJekyllMetadata(t *testing.T) {
 func TestConvertJekyllContent(t *testing.T) {
 	c := qt.New(t)
 	testDataList := []struct {
-		metadata interface{}
+		metadata any
 		content  string
 		expect   string
 	}{
 		{
-			map[interface{}]interface{}{},
+			map[any]any{},
 			"Test content\r\n<!-- more -->\npart2 content", "Test content\n<!--more-->\npart2 content",
 		},
 		{
-			map[interface{}]interface{}{},
+			map[any]any{},
 			"Test content\n<!-- More -->\npart2 content", "Test content\n<!--more-->\npart2 content",
 		},
 		{
-			map[interface{}]interface{}{"excerpt_separator": "<!--sep-->"},
+			map[any]any{"excerpt_separator": "<!--sep-->"},
 			"Test content\n<!--sep-->\npart2 content",
 			"---\nexcerpt_separator: <!--sep-->\n---\nTest content\n<!--more-->\npart2 content",
 		},
-		{map[interface{}]interface{}{}, "{% raw %}text{% endraw %}", "text"},
-		{map[interface{}]interface{}{}, "{%raw%} text2 {%endraw %}", "text2"},
+		{map[any]any{}, "{% raw %}text{% endraw %}", "text"},
+		{map[any]any{}, "{%raw%} text2 {%endraw %}", "text2"},
 		{
-			map[interface{}]interface{}{},
+			map[any]any{},
 			"{% highlight go %}\nvar s int\n{% endhighlight %}",
 			"{{< highlight go >}}\nvar s int\n{{< / highlight >}}",
 		},
 		{
-			map[interface{}]interface{}{},
+			map[any]any{},
 			"{% highlight go linenos hl_lines=\"1 2\" %}\nvar s string\nvar i int\n{% endhighlight %}",
 			"{{< highlight go \"linenos=table,hl_lines=1 2\" >}}\nvar s string\nvar i int\n{{< / highlight >}}",
 		},
 
 		// Octopress image tag
 		{
-			map[interface{}]interface{}{},
+			map[any]any{},
 			"{% img http://placekitten.com/890/280 %}",
 			"{{< figure src=\"http://placekitten.com/890/280\" >}}",
 		},
 		{
-			map[interface{}]interface{}{},
+			map[any]any{},
 			"{% img left http://placekitten.com/320/250 Place Kitten #2 %}",
 			"{{< figure class=\"left\" src=\"http://placekitten.com/320/250\" title=\"Place Kitten #2\" >}}",
 		},
 		{
-			map[interface{}]interface{}{},
+			map[any]any{},
 			"{% img right http://placekitten.com/300/500 150 250 'Place Kitten #3' %}",
 			"{{< figure class=\"right\" src=\"http://placekitten.com/300/500\" width=\"150\" height=\"250\" title=\"Place Kitten #3\" >}}",
 		},
 		{
-			map[interface{}]interface{}{},
+			map[any]any{},
 			"{% img right http://placekitten.com/300/500 150 250 'Place Kitten #4' 'An image of a very cute kitten' %}",
 			"{{< figure class=\"right\" src=\"http://placekitten.com/300/500\" width=\"150\" height=\"250\" title=\"Place Kitten #4\" alt=\"An image of a very cute kitten\" >}}",
 		},
 		{
-			map[interface{}]interface{}{},
+			map[any]any{},
 			"{% img http://placekitten.com/300/500 150 250 'Place Kitten #4' 'An image of a very cute kitten' %}",
 			"{{< figure src=\"http://placekitten.com/300/500\" width=\"150\" height=\"250\" title=\"Place Kitten #4\" alt=\"An image of a very cute kitten\" >}}",
 		},
 		{
-			map[interface{}]interface{}{},
+			map[any]any{},
 			"{% img right /placekitten/300/500 'Place Kitten #4' 'An image of a very cute kitten' %}",
 			"{{< figure class=\"right\" src=\"/placekitten/300/500\" title=\"Place Kitten #4\" alt=\"An image of a very cute kitten\" >}}",
 		},
 		{
-			map[interface{}]interface{}{"category": "book", "layout": "post", "Date": "2015-10-01 12:13:11"},
+			map[any]any{"category": "book", "layout": "post", "Date": "2015-10-01 12:13:11"},
 			"somecontent",
 			"---\nDate: \"2015-10-01 12:13:11\"\ncategory: book\nlayout: post\n---\nsomecontent",
 		},

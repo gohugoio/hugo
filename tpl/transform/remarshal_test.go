@@ -11,13 +11,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package transform
+package transform_test
 
 import (
 	"testing"
 
-	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/htesting"
+	"github.com/gohugoio/hugo/hugolib"
+	"github.com/gohugoio/hugo/tpl/transform"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -25,13 +26,14 @@ import (
 func TestRemarshal(t *testing.T) {
 	t.Parallel()
 
-	v := config.New()
-	v.Set("contentDir", "content")
-	ns := New(newDeps(v))
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{T: t},
+	).Build()
+
+	ns := transform.New(b.H.Deps)
 	c := qt.New(t)
 
 	c.Run("Roundtrip variants", func(c *qt.C) {
-
 		tomlExample := `title = 'Test Metadata'
 		
 [[resources]]
@@ -82,6 +84,25 @@ title: Test Metadata
    "title": "Test Metadata"
 }
 `
+		xmlExample := `<root>
+		  <resources>
+			<params>
+			  <byline>picasso</byline>
+			</params>
+			<src>**image-4.png</src>
+			<title>The Fourth Image!</title>
+		  </resources>
+		  <resources>
+			<name>my-cool-image-:counter</name>
+			<params>
+			  <byline>bep</byline>
+			</params>
+			<src>**.png</src>
+			<title>TOML: The Image #:counter</title>
+		  </resources>
+		  <title>Test Metadata</title>
+		</root>
+		`
 
 		variants := []struct {
 			format string
@@ -93,6 +114,7 @@ title: Test Metadata
 			{"TOML", tomlExample},
 			{"Toml", tomlExample},
 			{" TOML ", tomlExample},
+			{"XML", xmlExample},
 		}
 
 		for _, v1 := range variants {
@@ -109,7 +131,6 @@ title: Test Metadata
 
 			}
 		}
-
 	})
 
 	c.Run("Comments", func(c *qt.C) {
@@ -163,7 +184,7 @@ a = "b"
 	})
 
 	c.Run("Map input", func(c *qt.C) {
-		input := map[string]interface{}{
+		input := map[string]any{
 			"hello": "world",
 		}
 

@@ -25,10 +25,10 @@ func TestTruncate(t *testing.T) {
 
 	var err error
 	cases := []struct {
-		v1    interface{}
-		v2    interface{}
-		v3    interface{}
-		want  interface{}
+		v1    any
+		v2    any
+		v3    any
+		want  any
 		isErr bool
 	}{
 		{10, "I am a test sentence", nil, template.HTML("I am a …"), false},

@@ -50,7 +50,7 @@ func TestRSSOutput(t *testing.T) {
 	th.assertFileContent(filepath.Join("public", "categories", "hugo", rssURI), "<?xml", "rss version", "hugo on RSSTest")
 
 	// RSS Item Limit
-	content := readDestination(t, fs, filepath.Join("public", rssURI))
+	content := readWorkingDir(t, fs, filepath.Join("public", rssURI))
 	c := strings.Count(content, "<item>")
 	if c != rssLimit {
 		t.Errorf("incorrect RSS item count: expected %d, got %d", rssLimit, c)

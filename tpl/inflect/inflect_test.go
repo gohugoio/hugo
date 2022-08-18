@@ -13,9 +13,9 @@ func TestInflect(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
-		fn     func(i interface{}) (string, error)
-		in     interface{}
-		expect interface{}
+		fn     func(i any) (string, error)
+		in     any
+		expect any
 	}{
 		{ns.Humanize, "MyCamel", "My camel"},
 		{ns.Humanize, "óbito", "Óbito"},

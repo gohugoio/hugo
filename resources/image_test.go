@@ -16,6 +16,7 @@ package resources
 import (
 	"fmt"
 	"image"
+	"image/gif"
 	"io/ioutil"
 	"math/big"
 	"math/rand"
@@ -24,6 +25,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strconv"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -40,7 +42,6 @@ import (
 
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/images"
-	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/google/go-cmp/cmp"
 
 	"github.com/gohugoio/hugo/htesting/hqt"
@@ -76,7 +77,7 @@ func TestImageTransformBasic(t *testing.T) {
 
 	fileCache := image.(specProvider).getSpec().FileCaches.ImageCache().Fs
 
-	assertWidthHeight := func(img resource.Image, w, h int) {
+	assertWidthHeight := func(img images.ImageResource, w, h int) {
 		c.Helper()
 		c.Assert(img, qt.Not(qt.IsNil))
 		c.Assert(img.Width(), qt.Equals, w)
@@ -137,6 +138,22 @@ func TestImageTransformBasic(t *testing.T) {
 	filledAgain, err := image.Fill("200x100 bottomLeft")
 	c.Assert(err, qt.IsNil)
 	c.Assert(filled, eq, filledAgain)
+
+	cropped, err := image.Crop("300x300 topRight")
+	c.Assert(err, qt.IsNil)
+	c.Assert(cropped.RelPermalink(), qt.Equals, "/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_300x300_crop_q68_linear_topright.jpg")
+	assertWidthHeight(cropped, 300, 300)
+
+	smartcropped, err := image.Crop("200x200 smart")
+	c.Assert(err, qt.IsNil)
+	c.Assert(smartcropped.RelPermalink(), qt.Equals, fmt.Sprintf("/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x200_crop_q68_linear_smart%d.jpg", 1))
+	assertWidthHeight(smartcropped, 200, 200)
+
+	// Check cache
+	croppedAgain, err := image.Crop("300x300 topRight")
+	c.Assert(err, qt.IsNil)
+	c.Assert(cropped, eq, croppedAgain)
+
 }
 
 func TestImageTransformFormat(t *testing.T) {
@@ -146,7 +163,7 @@ func TestImageTransformFormat(t *testing.T) {
 
 	fileCache := image.(specProvider).getSpec().FileCaches.ImageCache().Fs
 
-	assertExtWidthHeight := func(img resource.Image, ext string, w, h int) {
+	assertExtWidthHeight := func(img images.ImageResource, ext string, w, h int) {
 		c.Helper()
 		c.Assert(img, qt.Not(qt.IsNil))
 		c.Assert(paths.Ext(img.RelPermalink()), qt.Equals, ext)
@@ -194,13 +211,13 @@ func TestImagePermalinkPublishOrder(t *testing.T) {
 				os.Remove(workDir)
 			}()
 
-			check1 := func(img resource.Image) {
+			check1 := func(img images.ImageResource) {
 				resizedLink := "/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_100x50_resize_q75_box.jpg"
 				c.Assert(img.RelPermalink(), qt.Equals, resizedLink)
 				assertImageFile(c, spec.PublishFs, resizedLink, 100, 50)
 			}
 
-			check2 := func(img resource.Image) {
+			check2 := func(img images.ImageResource) {
 				c.Assert(img.RelPermalink(), qt.Equals, "/a/sunset.jpg")
 				assertImageFile(c, spec.PublishFs, "a/sunset.jpg", 900, 562)
 			}
@@ -215,7 +232,7 @@ func TestImagePermalinkPublishOrder(t *testing.T) {
 			resized, err := orignal.Resize("100x50")
 			c.Assert(err, qt.IsNil)
 
-			check1(resized.(resource.Image))
+			check1(resized.(images.ImageResource))
 
 			if !checkOriginalFirst {
 				check2(orignal)
@@ -335,7 +352,7 @@ func TestImageWithMetadata(t *testing.T) {
 
 	image := fetchSunset(c)
 
-	meta := []map[string]interface{}{
+	meta := []map[string]any{
 		{
 			"title": "My Sunset",
 			"name":  "Sunset #:counter",
@@ -425,9 +442,9 @@ func TestImageExif(t *testing.T) {
 	c := qt.New(t)
 	fs := afero.NewMemMapFs()
 	spec := newTestResourceSpec(specDescriptor{fs: fs, c: c})
-	image := fetchResourceForSpec(spec, c, "sunset.jpg").(resource.Image)
+	image := fetchResourceForSpec(spec, c, "sunset.jpg").(images.ImageResource)
 
-	getAndCheckExif := func(c *qt.C, image resource.Image) {
+	getAndCheckExif := func(c *qt.C, image images.ImageResource) {
 		x := image.Exif()
 		c.Assert(x, qt.Not(qt.IsNil))
 
@@ -448,22 +465,22 @@ func TestImageExif(t *testing.T) {
 	}
 
 	getAndCheckExif(c, image)
-	image = fetchResourceForSpec(spec, c, "sunset.jpg").(resource.Image)
+	image = fetchResourceForSpec(spec, c, "sunset.jpg").(images.ImageResource)
 	// This will read from file cache.
 	getAndCheckExif(c, image)
 }
 
 func BenchmarkImageExif(b *testing.B) {
-	getImages := func(c *qt.C, b *testing.B, fs afero.Fs) []resource.Image {
+	getImages := func(c *qt.C, b *testing.B, fs afero.Fs) []images.ImageResource {
 		spec := newTestResourceSpec(specDescriptor{fs: fs, c: c})
-		images := make([]resource.Image, b.N)
+		imgs := make([]images.ImageResource, b.N)
 		for i := 0; i < b.N; i++ {
-			images[i] = fetchResourceForSpec(spec, c, "sunset.jpg", strconv.Itoa(i)).(resource.Image)
+			imgs[i] = fetchResourceForSpec(spec, c, "sunset.jpg", strconv.Itoa(i)).(images.ImageResource)
 		}
-		return images
+		return imgs
 	}
 
-	getAndCheckExif := func(c *qt.C, image resource.Image) {
+	getAndCheckExif := func(c *qt.C, image images.ImageResource) {
 		x := image.Exif()
 		c.Assert(x, qt.Not(qt.IsNil))
 		c.Assert(x.Long, qt.Equals, float64(-4.50846))
@@ -597,6 +614,8 @@ func TestImageOperationsGolden(t *testing.T) {
 	c := qt.New(t)
 	c.Parallel()
 
+	// Note, if you're enabling this on a MacOS M1 (ARM) you need to run the test with GOARCH=amd64.
+	// GOARCH=amd64 go test -timeout 30s -run "^TestImageOperationsGolden$" ./resources -v
 	devMode := false
 
 	testImages := []string{"sunset.jpg", "gohugoio8.png", "gohugoio24.png"}
@@ -624,9 +643,27 @@ func TestImageOperationsGolden(t *testing.T) {
 			resized, err := orig.Resize(resizeSpec)
 			c.Assert(err, qt.IsNil)
 			rel := resized.RelPermalink()
-			c.Log("resize", rel)
+
 			c.Assert(rel, qt.Not(qt.Equals), "")
 		}
+	}
+
+	// A simple Gif file (no animation).
+	orig := fetchImageForSpec(spec, c, "gohugoio-card.gif")
+	for _, resizeSpec := range []string{"100x", "220x"} {
+		resized, err := orig.Resize(resizeSpec)
+		c.Assert(err, qt.IsNil)
+		rel := resized.RelPermalink()
+		c.Assert(rel, qt.Not(qt.Equals), "")
+	}
+
+	// Animated GIF
+	orig = fetchImageForSpec(spec, c, "giphy.gif")
+	for _, resizeSpec := range []string{"200x", "512x"} {
+		resized, err := orig.Resize(resizeSpec)
+		c.Assert(err, qt.IsNil)
+		rel := resized.RelPermalink()
+		c.Assert(rel, qt.Not(qt.Equals), "")
 	}
 
 	for _, img := range testImages {
@@ -636,7 +673,6 @@ func TestImageOperationsGolden(t *testing.T) {
 			resized, err := orig.Resize(resizeSpec)
 			c.Assert(err, qt.IsNil)
 			rel := resized.RelPermalink()
-			c.Log("resize", rel)
 			c.Assert(rel, qt.Not(qt.Equals), "")
 		}
 
@@ -644,7 +680,6 @@ func TestImageOperationsGolden(t *testing.T) {
 			resized, err := orig.Fill(fillSpec)
 			c.Assert(err, qt.IsNil)
 			rel := resized.RelPermalink()
-			c.Log("fill", rel)
 			c.Assert(rel, qt.Not(qt.Equals), "")
 		}
 
@@ -652,7 +687,6 @@ func TestImageOperationsGolden(t *testing.T) {
 			resized, err := orig.Fit(fitSpec)
 			c.Assert(err, qt.IsNil)
 			rel := resized.RelPermalink()
-			c.Log("fit", rel)
 			c.Assert(rel, qt.Not(qt.Equals), "")
 		}
 
@@ -674,6 +708,9 @@ func TestImageOperationsGolden(t *testing.T) {
 			f.Hue(22),
 			f.Contrast(32.5),
 			f.Overlay(gopher.(images.ImageSource), 20, 30),
+			f.Text("No options"),
+			f.Text("This long text is to test line breaks. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."),
+			f.Text("Hugo rocks!", map[string]any{"x": 3, "y": 3, "size": 20, "color": "#fc03b1"}),
 		}
 
 		resized, err := orig.Fill("400x200 center")
@@ -683,14 +720,12 @@ func TestImageOperationsGolden(t *testing.T) {
 			resized, err := resized.Filter(filter)
 			c.Assert(err, qt.IsNil)
 			rel := resized.RelPermalink()
-			c.Logf("filter: %v %s", filter, rel)
 			c.Assert(rel, qt.Not(qt.Equals), "")
 		}
 
 		resized, err = resized.Filter(filters[0:4])
 		c.Assert(err, qt.IsNil)
 		rel := resized.RelPermalink()
-		c.Log("filter all", rel)
 		c.Assert(rel, qt.Not(qt.Equals), "")
 	}
 
@@ -723,24 +758,47 @@ func assetGoldenDirs(c *qt.C, dir1, dir2 string) {
 		f2, err := os.Open(filepath.Join(dir2, fi2.Name()))
 		c.Assert(err, qt.IsNil)
 
-		img1, _, err := image.Decode(f1)
-		c.Assert(err, qt.IsNil)
-		img2, _, err := image.Decode(f2)
-		c.Assert(err, qt.IsNil)
+		decodeAll := func(f *os.File) []image.Image {
+			var images []image.Image
 
-		nrgba1 := image.NewNRGBA(img1.Bounds())
-		gift.New().Draw(nrgba1, img1)
-		nrgba2 := image.NewNRGBA(img2.Bounds())
-		gift.New().Draw(nrgba2, img2)
+			if strings.HasSuffix(f.Name(), ".gif") {
+				gif, err := gif.DecodeAll(f)
+				c.Assert(err, qt.IsNil)
+				images = make([]image.Image, len(gif.Image))
+				for i, img := range gif.Image {
+					images[i] = img
+				}
+			} else {
+				img, _, err := image.Decode(f)
+				c.Assert(err, qt.IsNil)
+				images = append(images, img)
+			}
+			return images
+		}
 
-		if !goldenEqual(nrgba1, nrgba2) {
-			switch fi1.Name() {
-			case "gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_73c19c5f80881858a85aa23cd0ca400d.png",
-				"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_ae631e5252bb5d7b92bc766ad1a89069.png",
-				"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_d1bbfa2629bffb90118cacce3fcfb924.png":
-				c.Log("expectedly differs from golden due to dithering:", fi1.Name())
-			default:
-				c.Errorf("resulting image differs from golden: %s", fi1.Name())
+		imgs1 := decodeAll(f1)
+		imgs2 := decodeAll(f2)
+		c.Assert(len(imgs1), qt.Equals, len(imgs2))
+
+	LOOP:
+		for i, img1 := range imgs1 {
+			img2 := imgs2[i]
+			nrgba1 := image.NewNRGBA(img1.Bounds())
+			gift.New().Draw(nrgba1, img1)
+			nrgba2 := image.NewNRGBA(img2.Bounds())
+			gift.New().Draw(nrgba2, img2)
+
+			if !goldenEqual(nrgba1, nrgba2) {
+				switch fi1.Name() {
+				case "gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_73c19c5f80881858a85aa23cd0ca400d.png",
+					"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_ae631e5252bb5d7b92bc766ad1a89069.png",
+					"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_d1bbfa2629bffb90118cacce3fcfb924.png",
+					"giphy_hu3eafc418e52414ace6236bf1d31f82e1_52213_200x0_resize_box.gif":
+					c.Log("expectedly differs from golden due to dithering:", fi1.Name())
+				default:
+					c.Errorf("resulting image differs from golden: %s", fi1.Name())
+					break LOOP
+				}
 			}
 		}
 

@@ -14,10 +14,9 @@
 package page
 
 import (
+	"fmt"
 	"path/filepath"
 	"strings"
-
-	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/hugofs/glob"
@@ -38,6 +37,9 @@ type PageMatcher struct {
 
 	// A Glob pattern matching the Page's language, e.g. "{en,sv}".
 	Lang string
+
+	// A Glob pattern matching the Page's Environment, e.g. "{production,development}".
+	Environment string
 }
 
 // Matches returns whether p matches this matcher.
@@ -59,7 +61,7 @@ func (m PageMatcher) Matches(p Page) bool {
 	if m.Path != "" {
 		g, err := glob.GetGlob(m.Path)
 		// TODO(bep) Path() vs filepath vs leading slash.
-		p := strings.ToLower(filepath.ToSlash(p.Path()))
+		p := strings.ToLower(filepath.ToSlash(p.Pathc()))
 		if !(strings.HasPrefix(p, "/")) {
 			p = "/" + p
 		}
@@ -68,11 +70,18 @@ func (m PageMatcher) Matches(p Page) bool {
 		}
 	}
 
+	if m.Environment != "" {
+		g, err := glob.GetGlob(m.Environment)
+		if err == nil && !g.Match(p.Site().Hugo().Environment) {
+			return false
+		}
+	}
+
 	return true
 }
 
-// DecodeCascade decodes in which could be eiter a map or a slice of maps.
-func DecodeCascade(in interface{}) (map[PageMatcher]maps.Params, error) {
+// DecodeCascade decodes in which could be either a map or a slice of maps.
+func DecodeCascade(in any) (map[PageMatcher]maps.Params, error) {
 	m, err := maps.ToSliceStringMap(in)
 	if err != nil {
 		return map[PageMatcher]maps.Params{
@@ -104,19 +113,26 @@ func DecodeCascade(in interface{}) (map[PageMatcher]maps.Params, error) {
 	}
 
 	return cascade, nil
-
 }
 
 // DecodePageMatcher decodes m into v.
-func DecodePageMatcher(m interface{}, v *PageMatcher) error {
+func DecodePageMatcher(m any, v *PageMatcher) error {
 	if err := mapstructure.WeakDecode(m, v); err != nil {
 		return err
 	}
 
 	v.Kind = strings.ToLower(v.Kind)
 	if v.Kind != "" {
-		if _, found := kindMap[v.Kind]; !found {
-			return errors.Errorf("%q is not a valid Page Kind", v.Kind)
+		g, _ := glob.GetGlob(v.Kind)
+		found := false
+		for _, k := range kindMap {
+			if g.Match(k) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return fmt.Errorf("%q did not match a valid Page Kind", v.Kind)
 		}
 	}
 

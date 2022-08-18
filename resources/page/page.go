@@ -24,7 +24,6 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/tpl"
 
-	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/compare"
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -53,7 +52,9 @@ type AlternativeOutputFormatsProvider interface {
 
 // AuthorProvider provides author information.
 type AuthorProvider interface {
+	// Deprecated.
 	Author() Author
+	// Deprecated.
 	Authors() AuthorList
 }
 
@@ -76,14 +77,31 @@ type ChildCareProvider interface {
 
 // ContentProvider provides the content related values for a Page.
 type ContentProvider interface {
-	Content() (interface{}, error)
+	Content() (any, error)
+
+	// Plain returns the Page Content stripped of HTML markup.
 	Plain() string
+
+	// PlainWords returns a string slice from splitting Plain using https://pkg.go.dev/strings#Fields.
 	PlainWords() []string
+
+	// Summary returns a generated summary of the content.
+	// The breakpoint can be set manually by inserting a summary separator in the source file.
 	Summary() template.HTML
+
+	// Truncated returns whether the Summary  is truncated or not.
 	Truncated() bool
+
+	// FuzzyWordCount returns the approximate number of words in the content.
 	FuzzyWordCount() int
+
+	// WordCount returns the number of words in the content.
 	WordCount() int
+
+	// ReadingTime returns the reading time based on the length of plain text.
 	ReadingTime() int
+
+	// Len returns the length of the content.
 	Len() int
 }
 
@@ -108,6 +126,7 @@ type GetPageProvider interface {
 // GitInfoProvider provides Git info.
 type GitInfoProvider interface {
 	GitInfo() *gitmap.GitInfo
+	CodeOwners() []string
 }
 
 // InSectionPositioner provides section navigation.
@@ -118,6 +137,7 @@ type InSectionPositioner interface {
 
 // InternalDependencies is considered an internal interface.
 type InternalDependencies interface {
+	// GetRelatedDocsHandler is for internal use only.
 	GetRelatedDocsHandler() *RelatedDocsHandler
 }
 
@@ -141,8 +161,7 @@ type PageMetaProvider interface {
 	// Aliases forms the base for redirects generation.
 	Aliases() []string
 
-	// BundleType returns the bundle type: "leaf", "branch" or an empty string if it is none.
-	// See https://gohugo.io/content-management/page-bundles/
+	// BundleType returns the bundle type: `leaf`, `branch` or an empty string.
 	BundleType() files.ContentClass
 
 	// A configured description.
@@ -174,11 +193,15 @@ type PageMetaProvider interface {
 	IsPage() bool
 
 	// Param looks for a param in Page and then in Site config.
-	Param(key interface{}) (interface{}, error)
+	Param(key any) (any, error)
 
 	// Path gets the relative path, including file name and extension if relevant,
 	// to the source of this Page. It will be relative to any content root.
 	Path() string
+
+	// This is just a temporary bridge method. Use Path in templates.
+	// Pathc is for internal usage only.
+	Pathc() string
 
 	// The slug, typically defined in front matter.
 	Slug() string
@@ -214,7 +237,7 @@ type PageMetaProvider interface {
 // PageRenderProvider provides a way for a Page to render content.
 type PageRenderProvider interface {
 	Render(layout ...string) (template.HTML, error)
-	RenderString(args ...interface{}) (template.HTML, error)
+	RenderString(args ...any) (template.HTML, error)
 }
 
 // PageWithoutContent is the Page without any of the content methods.
@@ -259,7 +282,15 @@ type PageWithoutContent interface {
 	// Helper methods
 	ShortcodeInfoProvider
 	compare.Eqer
+
+	// Scratch returns a Scratch that can be used to store temporary state.
+	// Note that this Scratch gets reset on server rebuilds. See Store() for a variant that survives.
 	maps.Scratcher
+
+	// Store returns a Scratch that can be used to store temporary state.
+	// In contrast to Scratch(), this Scratch is not reset on server rebuilds.
+	Store() *maps.Scratch
+
 	RelatedKeywordsProvider
 
 	// GetTerms gets the terms of a given taxonomy,
@@ -291,15 +322,21 @@ type RawContentProvider interface {
 
 // RefProvider provides the methods needed to create reflinks to pages.
 type RefProvider interface {
-	Ref(argsm map[string]interface{}) (string, error)
-	RefFrom(argsm map[string]interface{}, source interface{}) (string, error)
-	RelRef(argsm map[string]interface{}) (string, error)
-	RelRefFrom(argsm map[string]interface{}, source interface{}) (string, error)
+	Ref(argsm map[string]any) (string, error)
+
+	// RefFrom is for internal use only.
+	RefFrom(argsm map[string]any, source any) (string, error)
+
+	RelRef(argsm map[string]any) (string, error)
+
+	// RefFrom is for internal use only.
+	RelRefFrom(argsm map[string]any, source any) (string, error)
 }
 
 // RelatedKeywordsProvider allows a Page to be indexed.
 type RelatedKeywordsProvider interface {
 	// Make it indexable as a related.Document
+	// RelatedKeywords is meant for internal usage only.
 	RelatedKeywords(cfg related.IndexConfig) ([]related.Keyword, error)
 }
 
@@ -341,7 +378,7 @@ type TreeProvider interface {
 
 	// IsAncestor returns whether the current page is an ancestor of the given
 	// Note that this method is not relevant for taxonomy lists and taxonomy terms pages.
-	IsAncestor(other interface{}) (bool, error)
+	IsAncestor(other any) (bool, error)
 
 	// CurrentSection returns the page's current section or the page itself if home or a section.
 	// Note that this will return nil for pages that is not regular, home or section pages.
@@ -349,7 +386,7 @@ type TreeProvider interface {
 
 	// IsDescendant returns whether the current page is a descendant of the given
 	// Note that this method is not relevant for taxonomy lists and taxonomy terms pages.
-	IsDescendant(other interface{}) (bool, error)
+	IsDescendant(other any) (bool, error)
 
 	// FirstSection returns the section on level 1 below home, e.g. "/docs".
 	// For the home page, this will return itself.
@@ -358,7 +395,7 @@ type TreeProvider interface {
 	// InSection returns whether the given page is in the current section.
 	// Note that this will always return false for pages that are
 	// not either regular, home or section pages.
-	InSection(other interface{}) (bool, error)
+	InSection(other any) (bool, error)
 
 	// Parent returns a section's parent section or a page's section.
 	// To get a section's subsections, see Page's Sections method.
@@ -376,21 +413,8 @@ type TreeProvider interface {
 // DeprecatedWarningPageMethods lists deprecated Page methods that will trigger
 // a WARNING if invoked.
 // This was added in Hugo 0.55.
-type DeprecatedWarningPageMethods interface {
-	source.FileWithoutOverlap
-	DeprecatedWarningPageMethods1
-}
-
-type DeprecatedWarningPageMethods1 interface {
-	IsDraft() bool
-	Hugo() hugo.Info
-	LanguagePrefix() string
-	GetParam(key string) interface{}
-	RSSLink() template.URL
-	URL() string
-}
+type DeprecatedWarningPageMethods any // This was emptied in Hugo 0.93.0.
 
 // Move here to trigger ERROR instead of WARNING.
 // TODO(bep) create wrappers and put into the Page once it has some methods.
-type DeprecatedErrorPageMethods interface {
-}
+type DeprecatedErrorPageMethods any

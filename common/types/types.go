@@ -29,8 +29,8 @@ type RLocker interface {
 
 // KeyValue is a interface{} tuple.
 type KeyValue struct {
-	Key   interface{}
-	Value interface{}
+	Key   any
+	Value any
 }
 
 // KeyValueStr is a string tuple.
@@ -41,8 +41,8 @@ type KeyValueStr struct {
 
 // KeyValues holds an key and a slice of values.
 type KeyValues struct {
-	Key    interface{}
-	Values []interface{}
+	Key    any
+	Values []any
 }
 
 // KeyString returns the key as a string, an empty string if conversion fails.
@@ -57,7 +57,7 @@ func (k KeyValues) String() string {
 // NewKeyValuesStrings takes a given key and slice of values and returns a new
 // KeyValues struct.
 func NewKeyValuesStrings(key string, values ...string) KeyValues {
-	iv := make([]interface{}, len(values))
+	iv := make([]any, len(values))
 	for i := 0; i < len(values); i++ {
 		iv[i] = values[i]
 	}
@@ -71,7 +71,7 @@ type Zeroer interface {
 }
 
 // IsNil reports whether v is nil.
-func IsNil(v interface{}) bool {
+func IsNil(v any) bool {
 	if v == nil {
 		return true
 	}

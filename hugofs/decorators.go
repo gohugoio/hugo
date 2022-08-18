@@ -14,13 +14,16 @@
 package hugofs
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/pkg/errors"
-
 	"github.com/spf13/afero"
+)
+
+var (
+	_ FilesystemUnwrapper = (*baseFileDecoratorFs)(nil)
 )
 
 func decorateDirs(fs afero.Fs, meta *FileMeta) afero.Fs {
@@ -151,6 +154,10 @@ type baseFileDecoratorFs struct {
 	decorate func(fi os.FileInfo, filename string) (os.FileInfo, error)
 }
 
+func (fs *baseFileDecoratorFs) UnwrapFilesystem() afero.Fs {
+	return fs.Fs
+}
+
 func (fs *baseFileDecoratorFs) Stat(name string) (os.FileInfo, error) {
 	fi, err := fs.Fs.Stat(name)
 	if err != nil {
@@ -224,7 +231,7 @@ func (l *baseFileDecoratorFile) Readdir(c int) (ofi []os.FileInfo, err error) {
 		}
 		fi, err = l.fs.decorate(fi, filename)
 		if err != nil {
-			return nil, errors.Wrap(err, "decorate")
+			return nil, fmt.Errorf("decorate: %w", err)
 		}
 		fisp = append(fisp, fi)
 	}

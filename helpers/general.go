@@ -33,8 +33,6 @@ import (
 
 	"github.com/mitchellh/hashstructure"
 
-	"github.com/gohugoio/hugo/hugofs"
-
 	"github.com/gohugoio/hugo/common/hugo"
 
 	"github.com/spf13/afero"
@@ -62,6 +60,21 @@ func FindAvailablePort() (*net.TCPAddr, error) {
 	return nil, err
 }
 
+// TCPListen starts listening on a valid TCP port.
+func TCPListen() (net.Listener, *net.TCPAddr, error) {
+	l, err := net.Listen("tcp", ":0")
+	if err != nil {
+		return nil, nil, err
+	}
+	addr := l.Addr()
+	if a, ok := addr.(*net.TCPAddr); ok {
+		return l, a, nil
+	}
+	l.Close()
+	return nil, nil, fmt.Errorf("unable to obtain a valid tcp port: %v", addr)
+
+}
+
 // InStringArray checks if a string is an element of a slice of strings
 // and returns a boolean value.
 func InStringArray(arr []string, el string) bool {
@@ -85,11 +98,16 @@ func FirstUpper(s string) string {
 // UniqueStrings returns a new slice with any duplicates removed.
 func UniqueStrings(s []string) []string {
 	unique := make([]string, 0, len(s))
-	set := map[string]interface{}{}
-	for _, val := range s {
-		if _, ok := set[val]; !ok {
+	for i, val := range s {
+		var seen bool
+		for j := 0; j < i; j++ {
+			if s[j] == val {
+				seen = true
+				break
+			}
+		}
+		if !seen {
 			unique = append(unique, val)
-			set[val] = val
 		}
 	}
 	return unique
@@ -98,12 +116,19 @@ func UniqueStrings(s []string) []string {
 // UniqueStringsReuse returns a slice with any duplicates removed.
 // It will modify the input slice.
 func UniqueStringsReuse(s []string) []string {
-	set := map[string]interface{}{}
 	result := s[:0]
-	for _, val := range s {
-		if _, ok := set[val]; !ok {
+	for i, val := range s {
+		var seen bool
+
+		for j := 0; j < i; j++ {
+			if s[j] == val {
+				seen = true
+				break
+			}
+		}
+
+		if !seen {
 			result = append(result, val)
-			set[val] = val
 		}
 	}
 	return result
@@ -246,12 +271,6 @@ func compareStringSlices(a, b []string) bool {
 	return true
 }
 
-// LogPrinter is the common interface of the JWWs loggers.
-type LogPrinter interface {
-	// Println is the only common method that works in all of JWWs loggers.
-	Println(a ...interface{})
-}
-
 // DistinctLogger ignores duplicate log statements.
 type DistinctLogger struct {
 	loggers.Logger
@@ -268,7 +287,7 @@ func (l *DistinctLogger) Reset() {
 
 // Println will log the string returned from fmt.Sprintln given the arguments,
 // but not if it has been logged before.
-func (l *DistinctLogger) Println(v ...interface{}) {
+func (l *DistinctLogger) Println(v ...any) {
 	// fmt.Sprint doesn't add space between string arguments
 	logStatement := strings.TrimSpace(fmt.Sprintln(v...))
 	l.printIfNotPrinted("println", logStatement, func() {
@@ -278,61 +297,63 @@ func (l *DistinctLogger) Println(v ...interface{}) {
 
 // Printf will log the string returned from fmt.Sprintf given the arguments,
 // but not if it has been logged before.
-func (l *DistinctLogger) Printf(format string, v ...interface{}) {
+func (l *DistinctLogger) Printf(format string, v ...any) {
 	logStatement := fmt.Sprintf(format, v...)
 	l.printIfNotPrinted("printf", logStatement, func() {
 		l.Logger.Printf(format, v...)
 	})
 }
 
-func (l *DistinctLogger) Debugf(format string, v ...interface{}) {
+func (l *DistinctLogger) Debugf(format string, v ...any) {
 	logStatement := fmt.Sprintf(format, v...)
 	l.printIfNotPrinted("debugf", logStatement, func() {
 		l.Logger.Debugf(format, v...)
 	})
 }
 
-func (l *DistinctLogger) Debugln(v ...interface{}) {
+func (l *DistinctLogger) Debugln(v ...any) {
 	logStatement := fmt.Sprint(v...)
 	l.printIfNotPrinted("debugln", logStatement, func() {
 		l.Logger.Debugln(v...)
 	})
 }
 
-func (l *DistinctLogger) Infof(format string, v ...interface{}) {
+func (l *DistinctLogger) Infof(format string, v ...any) {
 	logStatement := fmt.Sprintf(format, v...)
 	l.printIfNotPrinted("info", logStatement, func() {
 		l.Logger.Infof(format, v...)
 	})
 }
 
-func (l *DistinctLogger) Infoln(v ...interface{}) {
+func (l *DistinctLogger) Infoln(v ...any) {
 	logStatement := fmt.Sprint(v...)
 	l.printIfNotPrinted("infoln", logStatement, func() {
 		l.Logger.Infoln(v...)
 	})
 }
 
-func (l *DistinctLogger) Warnf(format string, v ...interface{}) {
+func (l *DistinctLogger) Warnf(format string, v ...any) {
 	logStatement := fmt.Sprintf(format, v...)
 	l.printIfNotPrinted("warnf", logStatement, func() {
 		l.Logger.Warnf(format, v...)
 	})
 }
-func (l *DistinctLogger) Warnln(v ...interface{}) {
+
+func (l *DistinctLogger) Warnln(v ...any) {
 	logStatement := fmt.Sprint(v...)
 	l.printIfNotPrinted("warnln", logStatement, func() {
 		l.Logger.Warnln(v...)
 	})
 }
-func (l *DistinctLogger) Errorf(format string, v ...interface{}) {
+
+func (l *DistinctLogger) Errorf(format string, v ...any) {
 	logStatement := fmt.Sprint(v...)
 	l.printIfNotPrinted("errorf", logStatement, func() {
 		l.Logger.Errorf(format, v...)
 	})
 }
 
-func (l *DistinctLogger) Errorln(v ...interface{}) {
+func (l *DistinctLogger) Errorln(v ...any) {
 	logStatement := fmt.Sprint(v...)
 	l.printIfNotPrinted("errorln", logStatement, func() {
 		l.Logger.Errorln(v...)
@@ -352,9 +373,10 @@ func (l *DistinctLogger) printIfNotPrinted(level, logStatement string, print fun
 		return
 	}
 	l.Lock()
+	defer l.Unlock()
+	l.m[key] = true // Placing this after print() can cause duplicate warning entries to be logged when --panicOnWarning is true.
 	print()
-	l.m[key] = true
-	l.Unlock()
+
 }
 
 // NewDistinctErrorLogger creates a new DistinctLogger that logs ERRORs
@@ -384,7 +406,6 @@ var (
 func InitLoggers() {
 	DistinctErrorLog.Reset()
 	DistinctWarnLog.Reset()
-
 }
 
 // Deprecated informs about a deprecation, but only once for a given set of arguments' values.
@@ -396,7 +417,11 @@ func Deprecated(item, alternative string, err bool) {
 	if err {
 		DistinctErrorLog.Errorf("%s is deprecated and will be removed in Hugo %s. %s", item, hugo.CurrentVersion.Next().ReleaseVersion(), alternative)
 	} else {
-		DistinctWarnLog.Warnf("%s is deprecated and will be removed in a future release. %s", item, alternative)
+		var warnPanicMessage string
+		if !loggers.PanicOnWarning {
+			warnPanicMessage = "\n\nRe-run Hugo with the flag --panicOnWarning to get a better error message."
+		}
+		DistinctWarnLog.Warnf("%s is deprecated and will be removed in a future release. %s%s", item, alternative, warnPanicMessage)
 	}
 }
 
@@ -494,21 +519,15 @@ func PrintFs(fs afero.Fs, path string, w io.Writer) {
 	}
 
 	afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
-		var filename string
-		var meta interface{}
-		if fim, ok := info.(hugofs.FileMetaInfo); ok {
-			filename = fim.Meta().Filename
-			meta = fim.Meta()
-		}
-		fmt.Fprintf(w, "    %q %q\t\t%v\n", path, filename, meta)
+		fmt.Println(path)
 		return nil
 	})
 }
 
 // HashString returns a hash from the given elements.
 // It will panic if the hash cannot be calculated.
-func HashString(elements ...interface{}) string {
-	var o interface{}
+func HashString(elements ...any) string {
+	var o any
 	if len(elements) == 1 {
 		o = elements[0]
 	} else {

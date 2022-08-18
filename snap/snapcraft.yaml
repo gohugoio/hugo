@@ -17,14 +17,29 @@ package-repositories:
     key-id: 9FD3B784BC1C6FC31A8A0A1C1655A0AB68576280
     url: https://deb.nodesource.com/node_16.x
 
+plugs:
+  etc-gitconfig:
+    interface: system-files
+    read:
+    - /etc/gitconfig
+  gitconfig:
+    interface: personal-files
+    read:
+    - $HOME/.gitconfig
+    - $HOME/.config/git/config
+
 apps:
   hugo:
+    environment:
+      HOME: $SNAP_REAL_HOME
     command: bin/hugo
     completer: hugo-completion
     plugs:
       - home
       - network-bind
       - removable-media
+      - etc-gitconfig
+      - gitconfig
 
 parts:
   git:
@@ -38,7 +53,7 @@ parts:
 
   hugo:
     plugin: nil
-    build-snaps: [go/1.16/stable]
+    build-snaps: [go/1.19/stable]
     source: .
     override-build: |
       set -ex
@@ -47,12 +62,6 @@ parts:
       export GOPATH=$(realpath ../go)
       export PATH=$GOPATH/bin:$PATH
 
-      echo ' * Running "go get -v github.com/magefile/mage"...'
-      go get -v github.com/magefile/mage
-
-      #echo ' * Running "mage -v test"...'
-      #mage -v test
-
       echo " * SNAPCRAFT_IMAGE_INFO=${SNAPCRAFT_IMAGE_INFO=}"
       # Example: SNAPCRAFT_IMAGE_INFO='{"build_url": "https://launchpad.net/~gohugoio/+snap/hugo-extended-dev/+build/344022"}'
       export HUGO_BUILD_TAGS=""
@@ -60,12 +69,12 @@ parts:
         HUGO_BUILD_TAGS="extended"
       fi
       echo " * Building hugo (HUGO_BUILD_TAGS=\"$HUGO_BUILD_TAGS\")..."
-      [ "$SNAPCRAFT_PROJECT_GRADE" = "stable" ] && mage -v hugoNoGitInfo || mage -v hugo
+      go build -v -ldflags '-X github.com/gohugoio/hugo/common/hugo.vendorInfo=snap' -tags "$HUGO_BUILD_TAGS"
       ./hugo version
       ldd hugo || :
 
       echo " * Building shell completion..."
-      ./hugo gen autocomplete --completionfile=hugo-completion
+      ./hugo completion bash > hugo-completion
 
       echo " * Installing to ${SNAPCRAFT_PART_INSTALL}..."
       install -d $SNAPCRAFT_PART_INSTALL/bin

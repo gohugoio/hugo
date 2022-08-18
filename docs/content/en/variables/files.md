@@ -40,7 +40,7 @@ The `.File` object contains the following fields:
 : the filename without extension (e.g., `foo.en`)
 
 .File.Ext
-: the file extension of the content file (e.g., `md`); this can also be called using `.File.Extension` as well. Note that it is *only* the extension without `.`.
+: the file extension of the content file (e.g., `md`).
 
 .File.Lang
 : the language associated with the given file if Hugo's [Multilingual features][multilingual] are enabled (e.g., `en`)

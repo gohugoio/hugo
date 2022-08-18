@@ -20,10 +20,12 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/config/security"
 
 	"github.com/gohugoio/hugo/common/types"
 
@@ -34,7 +36,6 @@ import (
 
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/deps"
-	_errors "github.com/pkg/errors"
 )
 
 // New returns a new instance of the data-namespaced template functions.
@@ -62,13 +63,13 @@ type Namespace struct {
 // The data separator can be a comma, semi-colon, pipe, etc, but only one character.
 // If you provide multiple parts for the URL they will be joined together to the final URL.
 // GetCSV returns nil or a slice slice to use in a short code.
-func (ns *Namespace) GetCSV(sep string, args ...interface{}) (d [][]string, err error) {
+func (ns *Namespace) GetCSV(sep string, args ...any) (d [][]string, err error) {
 	url, headers := toURLAndHeaders(args)
 	cache := ns.cacheGetCSV
 
 	unmarshal := func(b []byte) (bool, error) {
 		if d, err = parseCSV(b, sep); err != nil {
-			err = _errors.Wrapf(err, "failed to parse CSV file %s", url)
+			err = fmt.Errorf("failed to parse CSV file %s: %w", url, err)
 
 			return true, err
 		}
@@ -79,7 +80,7 @@ func (ns *Namespace) GetCSV(sep string, args ...interface{}) (d [][]string, err 
 	var req *http.Request
 	req, err = http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, _errors.Wrapf(err, "failed to create request for getCSV for resource %s", url)
+		return nil, fmt.Errorf("failed to create request for getCSV for resource %s: %w", url, err)
 	}
 
 	// Add custom user headers.
@@ -88,6 +89,9 @@ func (ns *Namespace) GetCSV(sep string, args ...interface{}) (d [][]string, err 
 
 	err = ns.getResource(cache, unmarshal, req)
 	if err != nil {
+		if security.IsAccessDenied(err) {
+			return nil, err
+		}
 		ns.deps.Log.(loggers.IgnorableLogger).Errorsf(constants.ErrRemoteGetCSV, "Failed to get CSV resource %q: %s", url, err)
 		return nil, nil
 	}
@@ -98,14 +102,14 @@ func (ns *Namespace) GetCSV(sep string, args ...interface{}) (d [][]string, err 
 // GetJSON expects one or n-parts of a URL to a resource which can either be a local or a remote one.
 // If you provide multiple parts they will be joined together to the final URL.
 // GetJSON returns nil or parsed JSON to use in a short code.
-func (ns *Namespace) GetJSON(args ...interface{}) (interface{}, error) {
-	var v interface{}
+func (ns *Namespace) GetJSON(args ...any) (any, error) {
+	var v any
 	url, headers := toURLAndHeaders(args)
 	cache := ns.cacheGetJSON
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, _errors.Wrapf(err, "Failed to create request for getJSON resource %s", url)
+		return nil, fmt.Errorf("Failed to create request for getJSON resource %s: %w", url, err)
 	}
 
 	unmarshal := func(b []byte) (bool, error) {
@@ -121,6 +125,9 @@ func (ns *Namespace) GetJSON(args ...interface{}) (interface{}, error) {
 
 	err = ns.getResource(cache, unmarshal, req)
 	if err != nil {
+		if security.IsAccessDenied(err) {
+			return nil, err
+		}
 		ns.deps.Log.(loggers.IgnorableLogger).Errorsf(constants.ErrRemoteGetJSON, "Failed to get JSON resource %q: %s", url, err)
 		return nil, nil
 	}
@@ -139,7 +146,7 @@ func addDefaultHeaders(req *http.Request, accepts ...string) {
 	}
 }
 
-func addUserProvidedHeaders(headers map[string]interface{}, req *http.Request) {
+func addUserProvidedHeaders(headers map[string]any, req *http.Request) {
 	if headers == nil {
 		return
 	}
@@ -172,7 +179,7 @@ func hasHeaderKey(m http.Header, key string) bool {
 	return ok
 }
 
-func toURLAndHeaders(urlParts []interface{}) (string, map[string]interface{}) {
+func toURLAndHeaders(urlParts []any) (string, map[string]any) {
 	if len(urlParts) == 0 {
 		return "", nil
 	}

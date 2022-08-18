@@ -58,7 +58,15 @@ func TestLiveReloadInject(t *testing.T) {
 		c.Assert(apply("foo</BODY>"), qt.Equals, "foo"+expectBase+"</BODY>")
 	})
 
+	c.Run("Html upper", func(c *qt.C) {
+		c.Assert(apply("<html>foo"), qt.Equals, "<html>"+expectBase+warnScript+"foo")
+	})
+
+	c.Run("Html upper with attr", func(c *qt.C) {
+		c.Assert(apply(`<html lang="en">foo`), qt.Equals, `<html lang="en">`+expectBase+warnScript+"foo")
+	})
+
 	c.Run("No match", func(c *qt.C) {
-		c.Assert(apply("<h1>No match</h1>"), qt.Equals, "<h1>No match</h1>")
+		c.Assert(apply("<h1>No match</h1>"), qt.Equals, "<h1>No match</h1>"+expectBase+warnScript)
 	})
 }

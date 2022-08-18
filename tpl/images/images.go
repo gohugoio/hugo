@@ -18,10 +18,9 @@ import (
 	"image"
 	"sync"
 
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/gohugoio/hugo/resources/images"
-	"github.com/gohugoio/hugo/resources/resource"
 
 	// Importing image codecs for image.DecodeConfig
 	_ "image/gif"
@@ -55,7 +54,7 @@ type Namespace struct {
 
 // Config returns the image.Config for the specified path relative to the
 // working directory.
-func (ns *Namespace) Config(path interface{}) (image.Config, error) {
+func (ns *Namespace) Config(path any) (image.Config, error) {
 	filename, err := cast.ToStringE(path)
 	if err != nil {
 		return image.Config{}, err
@@ -74,7 +73,7 @@ func (ns *Namespace) Config(path interface{}) (image.Config, error) {
 		return config, nil
 	}
 
-	f, err := ns.deps.Fs.WorkingDir.Open(filename)
+	f, err := ns.deps.Fs.WorkingDirReadOnly.Open(filename)
 	if err != nil {
 		return image.Config{}, err
 	}
@@ -92,12 +91,12 @@ func (ns *Namespace) Config(path interface{}) (image.Config, error) {
 	return config, nil
 }
 
-func (ns *Namespace) Filter(args ...interface{}) (resource.Image, error) {
+func (ns *Namespace) Filter(args ...any) (images.ImageResource, error) {
 	if len(args) < 2 {
 		return nil, errors.New("must provide an image and one or more filters")
 	}
 
-	img := args[len(args)-1].(resource.Image)
+	img := args[len(args)-1].(images.ImageResource)
 	filtersv := args[:len(args)-1]
 
 	return img.Filter(filtersv...)

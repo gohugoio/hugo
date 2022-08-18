@@ -31,12 +31,8 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/common/hugio"
-	_errors "github.com/pkg/errors"
 	"github.com/spf13/afero"
 )
-
-// ErrThemeUndefined is returned when a theme has not be defined by the user.
-var ErrThemeUndefined = errors.New("no theme set")
 
 // MakePath takes a string with any characters and replace it
 // so the string could be used in a path.
@@ -90,7 +86,8 @@ func ishex(c rune) bool {
 // a predefined set of special Unicode characters.
 // If RemovePathAccents configuration flag is enabled, Unicode accents
 // are also removed.
-// Spaces will be replaced with a single hyphen, and sequential hyphens will be reduced to one.
+// Hyphens in the original input are maintained.
+// Spaces will be replaced with a single hyphen, and sequential replacement hyphens will be reduced to one.
 func (p *PathSpec) UnicodeSanitize(s string) string {
 	if p.RemovePathAccents {
 		s = text.RemoveAccentsString(s)
@@ -98,20 +95,30 @@ func (p *PathSpec) UnicodeSanitize(s string) string {
 
 	source := []rune(s)
 	target := make([]rune, 0, len(source))
-	var prependHyphen bool
+	var (
+		prependHyphen bool
+		wasHyphen     bool
+	)
 
 	for i, r := range source {
-		isAllowed := r == '.' || r == '/' || r == '\\' || r == '_' || r == '#' || r == '+' || r == '~'
+		isAllowed := r == '.' || r == '/' || r == '\\' || r == '_' || r == '#' || r == '+' || r == '~' || r == '-'
 		isAllowed = isAllowed || unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r)
 		isAllowed = isAllowed || (r == '%' && i+2 < len(source) && ishex(source[i+1]) && ishex(source[i+2]))
 
 		if isAllowed {
+			// track explicit hyphen in input; no need to add a new hyphen if
+			// we just saw one.
+			wasHyphen = r == '-'
+
 			if prependHyphen {
-				target = append(target, '-')
+				// if currently have a hyphen, don't prepend an extra one
+				if !wasHyphen {
+					target = append(target, '-')
+				}
 				prependHyphen = false
 			}
 			target = append(target, r)
-		} else if len(target) > 0 && (r == '-' || unicode.IsSpace(r)) {
+		} else if len(target) > 0 && !wasHyphen && unicode.IsSpace(r) {
 			prependHyphen = true
 		}
 	}
@@ -395,7 +402,7 @@ func GetCacheDir(fs afero.Fs, cfg config.Provider) (string, error) {
 		if !exists {
 			err := fs.MkdirAll(cacheDir, 0777) // Before umask
 			if err != nil {
-				return "", _errors.Wrap(err, "failed to create cache dir")
+				return "", fmt.Errorf("failed to create cache dir: %w", err)
 			}
 		}
 		return cacheDir, nil
@@ -451,19 +458,17 @@ func IsDir(path string, fs afero.Fs) (bool, error) {
 	return afero.IsDir(fs, path)
 }
 
-// IsEmpty checks if a given path is empty.
+// IsEmpty checks if a given path is empty, meaning it doesn't contain any regular files.
 func IsEmpty(path string, fs afero.Fs) (bool, error) {
-	return afero.IsEmpty(fs, path)
-}
-
-// FileContains checks if a file contains a specified string.
-func FileContains(filename string, subslice []byte, fs afero.Fs) (bool, error) {
-	return afero.FileContainsBytes(fs, filename, subslice)
-}
-
-// FileContainsAny checks if a file contains any of the specified strings.
-func FileContainsAny(filename string, subslices [][]byte, fs afero.Fs) (bool, error) {
-	return afero.FileContainsAnyBytes(fs, filename, subslices)
+	var hasFile bool
+	err := afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
+		if info.IsDir() {
+			return nil
+		}
+		hasFile = true
+		return filepath.SkipDir
+	})
+	return !hasFile, err
 }
 
 // Exists checks if a file or directory exists.

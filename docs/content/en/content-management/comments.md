@@ -30,7 +30,7 @@ Hugo comes with all the code you need to load Disqus into your templates. Before
 Disqus comments require you set a single value in your [site's configuration file][configuration] like so:
 
 {{< code-toggle copy="false" >}}
-disqusShortname = "yourdiscussshortname"
+disqusShortname = "yourDisqusShortname"
 {{</ code-toggle >}}
 
 For many websites, this is enough configuration. However, you also have the option to set the following in the [front matter][] of a single content file:
@@ -64,7 +64,7 @@ These are some alternatives to Disqus:
 * [Utterances](https://utteranc.es/) (Open source, GitHub comments widget built on GitHub issues)
 
 [configuration]: /getting-started/configuration/
-[disquspartial]: /templates/partials/#disqus
+[disquspartial]: /templates/internal/#disqus
 [disqussetup]: https://disqus.com/profile/signup/
 [forum]: https://discourse.gohugo.io
 [front matter]: /content-management/front-matter/

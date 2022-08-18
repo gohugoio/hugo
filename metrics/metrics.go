@@ -25,11 +25,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gohugoio/hugo/helpers"
-
 	"github.com/gohugoio/hugo/common/types"
-
 	"github.com/gohugoio/hugo/compare"
+	"github.com/gohugoio/hugo/helpers"
 )
 
 // The Provider interface defines an interface for measuring metrics.
@@ -42,21 +40,19 @@ type Provider interface {
 	WriteMetrics(w io.Writer)
 
 	// TrackValue tracks the value for diff calculations etc.
-	TrackValue(key string, value interface{})
+	TrackValue(key string, value any, cached bool)
 
 	// Reset clears the metric store.
 	Reset()
 }
 
 type diff struct {
-	baseline interface{}
+	baseline any
 	count    int
 	simSum   int
 }
 
-var counter = 0
-
-func (d *diff) add(v interface{}) *diff {
+func (d *diff) add(v any) *diff {
 	if types.IsNil(d.baseline) {
 		d.baseline = v
 		d.count = 1
@@ -77,6 +73,8 @@ type Store struct {
 	mu             sync.Mutex
 	diffs          map[string]*diff
 	diffmu         sync.Mutex
+	cached         map[string]int
+	cachedmu       sync.Mutex
 }
 
 // NewProvider returns a new instance of a metric store.
@@ -85,6 +83,7 @@ func NewProvider(calculateHints bool) Provider {
 		calculateHints: calculateHints,
 		metrics:        make(map[string][]time.Duration),
 		diffs:          make(map[string]*diff),
+		cached:         make(map[string]int),
 	}
 }
 
@@ -93,24 +92,24 @@ func (s *Store) Reset() {
 	s.mu.Lock()
 	s.metrics = make(map[string][]time.Duration)
 	s.mu.Unlock()
+
 	s.diffmu.Lock()
 	s.diffs = make(map[string]*diff)
 	s.diffmu.Unlock()
+
+	s.cachedmu.Lock()
+	s.cached = make(map[string]int)
+	s.cachedmu.Unlock()
 }
 
 // TrackValue tracks the value for diff calculations etc.
-func (s *Store) TrackValue(key string, value interface{}) {
+func (s *Store) TrackValue(key string, value any, cached bool) {
 	if !s.calculateHints {
 		return
 	}
 
 	s.diffmu.Lock()
-	var (
-		d     *diff
-		found bool
-	)
-
-	d, found = s.diffs[key]
+	d, found := s.diffs[key]
 
 	if !found {
 		d = &diff{}
@@ -118,8 +117,13 @@ func (s *Store) TrackValue(key string, value interface{}) {
 	}
 
 	d.add(value)
-
 	s.diffmu.Unlock()
+
+	if cached {
+		s.cachedmu.Lock()
+		s.cached[key] = s.cached[key] + 1
+		s.cachedmu.Unlock()
+	}
 }
 
 // MeasureSince adds a measurement for key to the metric store.
@@ -155,17 +159,18 @@ func (s *Store) WriteMetrics(w io.Writer) {
 		}
 
 		avg := time.Duration(int(sum) / len(v))
+		cacheCount := s.cached[k]
 
-		results[i] = result{key: k, count: len(v), max: max, sum: sum, avg: avg, cacheFactor: cacheFactor}
+		results[i] = result{key: k, count: len(v), max: max, sum: sum, avg: avg, cacheCount: cacheCount, cacheFactor: cacheFactor}
 		i++
 	}
 
 	s.mu.Unlock()
 
 	if s.calculateHints {
-		fmt.Fprintf(w, "  %9s  %13s  %12s  %12s  %5s  %s\n", "cache", "cumulative", "average", "maximum", "", "")
-		fmt.Fprintf(w, "  %9s  %13s  %12s  %12s  %5s  %s\n", "potential", "duration", "duration", "duration", "count", "template")
-		fmt.Fprintf(w, "  %9s  %13s  %12s  %12s  %5s  %s\n", "-----", "----------", "--------", "--------", "-----", "--------")
+		fmt.Fprintf(w, "  %13s  %12s  %12s  %9s  %7s  %6s  %5s  %s\n", "cumulative", "average", "maximum", "cache", "percent", "cached", "total", "")
+		fmt.Fprintf(w, "  %13s  %12s  %12s  %9s  %7s  %6s  %5s  %s\n", "duration", "duration", "duration", "potential", "cached", "count", "count", "template")
+		fmt.Fprintf(w, "  %13s  %12s  %12s  %9s  %7s  %6s  %5s  %s\n", "----------", "--------", "--------", "---------", "-------", "------", "-----", "--------")
 	} else {
 		fmt.Fprintf(w, "  %13s  %12s  %12s  %5s  %s\n", "cumulative", "average", "maximum", "", "")
 		fmt.Fprintf(w, "  %13s  %12s  %12s  %5s  %s\n", "duration", "duration", "duration", "count", "template")
@@ -176,7 +181,7 @@ func (s *Store) WriteMetrics(w io.Writer) {
 	sort.Sort(bySum(results))
 	for _, v := range results {
 		if s.calculateHints {
-			fmt.Fprintf(w, "  %9d %13s  %12s  %12s  %5d  %s\n", v.cacheFactor, v.sum, v.avg, v.max, v.count, v.key)
+			fmt.Fprintf(w, "  %13s  %12s  %12s  %9d  %7.f  %6d  %5d  %s\n", v.sum, v.avg, v.max, v.cacheFactor, float64(v.cacheCount)/float64(v.count)*100, v.cacheCount, v.count, v.key)
 		} else {
 			fmt.Fprintf(w, "  %13s  %12s  %12s  %5d  %s\n", v.sum, v.avg, v.max, v.count, v.key)
 		}
@@ -187,6 +192,7 @@ func (s *Store) WriteMetrics(w io.Writer) {
 type result struct {
 	key         string
 	count       int
+	cacheCount  int
 	cacheFactor int
 	sum         time.Duration
 	max         time.Duration
@@ -201,7 +207,7 @@ func (b bySum) Less(i, j int) bool { return b[i].sum > b[j].sum }
 
 // howSimilar is a naive diff implementation that returns
 // a number between 0-100 indicating how similar a and b are.
-func howSimilar(a, b interface{}) int {
+func howSimilar(a, b any) int {
 	t1, t2 := reflect.TypeOf(a), reflect.TypeOf(b)
 	if t1 != t2 {
 		return 0
@@ -273,6 +279,10 @@ func howSimilarStrings(a, b string) int {
 		if m1[key] {
 			common++
 		}
+	}
+
+	if common == 0 && common == len(af) {
+		return 100
 	}
 
 	return int(math.Floor((float64(common) / float64(len(af)) * 100)))

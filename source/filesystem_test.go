@@ -77,15 +77,7 @@ func TestUnicodeNorm(t *testing.T) {
 }
 
 func newTestConfig() config.Provider {
-	v := config.New()
-	v.Set("contentDir", "content")
-	v.Set("dataDir", "data")
-	v.Set("i18nDir", "i18n")
-	v.Set("layoutDir", "layouts")
-	v.Set("archetypeDir", "archetypes")
-	v.Set("resourceDir", "resources")
-	v.Set("publishDir", "public")
-	v.Set("assetDir", "assets")
+	v := config.NewWithTestDefaults()
 	_, err := langs.LoadLanguageSettings(v, nil)
 	if err != nil {
 		panic(err)

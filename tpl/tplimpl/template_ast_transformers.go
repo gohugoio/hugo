@@ -14,6 +14,7 @@
 package tplimpl
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -22,10 +23,11 @@ import (
 
 	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 
+	"errors"
+
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/mitchellh/mapstructure"
-	"github.com/pkg/errors"
 )
 
 type templateType int
@@ -112,7 +114,11 @@ func getParseTree(templ tpl.Template) *parse.Tree {
 }
 
 const (
-	partialReturnWrapperTempl = `{{ $_hugo_dot := $ }}{{ $ := .Arg }}{{ with .Arg }}{{ $_hugo_dot.Set ("PLACEHOLDER") }}{{ end }}`
+	// We parse this template and modify the nodes in order to assign
+	// the return value of a partial to a contextWrapper via Set. We use
+	// "range" over a one-element slice so we can shift dot to the
+	// partial's argument, Arg, while allowing Arg to be falsy.
+	partialReturnWrapperTempl = `{{ $_hugo_dot := $ }}{{ $ := .Arg }}{{ range (slice .Arg) }}{{ $_hugo_dot.Set ("PLACEHOLDER") }}{{ end }}`
 )
 
 var partialReturnWrapper *parse.ListNode
@@ -125,16 +131,18 @@ func init() {
 	partialReturnWrapper = templ.Tree.Root
 }
 
+// wrapInPartialReturnWrapper copies and modifies the parsed nodes of a
+// predefined partial return wrapper to insert those of a user-defined partial.
 func (c *templateContext) wrapInPartialReturnWrapper(n *parse.ListNode) *parse.ListNode {
 	wrapper := partialReturnWrapper.CopyList()
-	withNode := wrapper.Nodes[2].(*parse.WithNode)
-	retn := withNode.List.Nodes[0]
+	rangeNode := wrapper.Nodes[2].(*parse.RangeNode)
+	retn := rangeNode.List.Nodes[0]
 	setCmd := retn.(*parse.ActionNode).Pipe.Cmds[0]
 	setPipe := setCmd.Args[1].(*parse.PipeNode)
 	// Replace PLACEHOLDER with the real return value.
 	// Note that this is a PipeNode, so it will be wrapped in parens.
 	setPipe.Cmds = []*parse.CommandNode{c.returnNode}
-	withNode.List.Nodes = append(n.Nodes, retn)
+	rangeNode.List.Nodes = append(n.Nodes, retn)
 
 	return wrapper
 }
@@ -233,14 +241,14 @@ func (c *templateContext) collectConfig(n *parse.PipeNode) {
 	}
 
 	if s, ok := cmd.Args[0].(*parse.StringNode); ok {
-		errMsg := "failed to decode $_hugo_config in template"
+		errMsg := "failed to decode $_hugo_config in template: %w"
 		m, err := maps.ToStringMapE(s.Text)
 		if err != nil {
-			c.err = errors.Wrap(err, errMsg)
+			c.err = fmt.Errorf(errMsg, err)
 			return
 		}
 		if err := mapstructure.WeakDecode(m, &c.t.parseInfo.Config); err != nil {
-			c.err = errors.Wrap(err, errMsg)
+			c.err = fmt.Errorf(errMsg, err)
 		}
 	}
 }
@@ -264,7 +272,7 @@ func (c *templateContext) collectInner(n *parse.CommandNode) {
 			idents = nt.Ident
 		}
 
-		if c.hasIdent(idents, "Inner") {
+		if c.hasIdent(idents, "Inner") || c.hasIdent(idents, "InnerDeindent") {
 			c.t.parseInfo.IsInner = true
 			break
 		}

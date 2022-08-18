@@ -1,6 +1,6 @@
 ---
 name: 'Bug report'
-labels: 'bug'
+labels: 'Bug, NeedsTriage'
 assignees: ''
 about: Create a report to help us improve
 ---

@@ -23,33 +23,33 @@ import (
 
 func TestInterfaceToConfig(t *testing.T) {
 	cases := []struct {
-		input  interface{}
+		input  any
 		format metadecoders.Format
 		want   []byte
 		isErr  bool
 	}{
 		// TOML
-		{map[string]interface{}{}, metadecoders.TOML, nil, false},
+		{map[string]any{}, metadecoders.TOML, nil, false},
 		{
-			map[string]interface{}{"title": "test' 1"},
+			map[string]any{"title": "test' 1"},
 			metadecoders.TOML,
 			[]byte("title = \"test' 1\"\n"),
 			false,
 		},
 
 		// YAML
-		{map[string]interface{}{}, metadecoders.YAML, []byte("{}\n"), false},
+		{map[string]any{}, metadecoders.YAML, []byte("{}\n"), false},
 		{
-			map[string]interface{}{"title": "test 1"},
+			map[string]any{"title": "test 1"},
 			metadecoders.YAML,
 			[]byte("title: test 1\n"),
 			false,
 		},
 
 		// JSON
-		{map[string]interface{}{}, metadecoders.JSON, []byte("{}\n"), false},
+		{map[string]any{}, metadecoders.JSON, []byte("{}\n"), false},
 		{
-			map[string]interface{}{"title": "test 1"},
+			map[string]any{"title": "test 1"},
 			metadecoders.JSON,
 			[]byte("{\n   \"title\": \"test 1\"\n}\n"),
 			false,
@@ -57,7 +57,7 @@ func TestInterfaceToConfig(t *testing.T) {
 
 		// Errors
 		{nil, metadecoders.TOML, nil, true},
-		{map[string]interface{}{}, "foo", nil, true},
+		{map[string]any{}, "foo", nil, true},
 	}
 
 	for i, c := range cases {

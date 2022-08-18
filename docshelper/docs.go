@@ -17,7 +17,7 @@ package docshelper
 
 type (
 	DocProviderFunc = func() DocProvider
-	DocProvider     map[string]map[string]interface{}
+	DocProvider     map[string]map[string]any
 )
 
 var docProviderFuncs []DocProviderFunc
@@ -44,7 +44,7 @@ func GetDocProvider() DocProvider {
 }
 
 // Shallow merge
-func merge(dst, src map[string]interface{}) {
+func merge(dst, src map[string]any) {
 	for k, v := range src {
 		dst[k] = v
 	}

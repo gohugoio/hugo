@@ -28,7 +28,7 @@ import (
 
 func TestNew(t *testing.T) {
 	c := qt.New(t)
-	v := config.New()
+	v := config.NewWithTestDefaults()
 	m, _ := New(media.DefaultTypes, output.DefaultFormats, v)
 
 	var rawJS string
@@ -76,11 +76,11 @@ func TestNew(t *testing.T) {
 
 func TestConfigureMinify(t *testing.T) {
 	c := qt.New(t)
-	v := config.New()
-	v.Set("minify", map[string]interface{}{
+	v := config.NewWithTestDefaults()
+	v.Set("minify", map[string]any{
 		"disablexml": true,
-		"tdewolff": map[string]interface{}{
-			"html": map[string]interface{}{
+		"tdewolff": map[string]any{
+			"html": map[string]any{
 				"keepwhitespace": true,
 			},
 		},
@@ -110,7 +110,7 @@ func TestConfigureMinify(t *testing.T) {
 
 func TestJSONRoundTrip(t *testing.T) {
 	c := qt.New(t)
-	v := config.New()
+	v := config.NewWithTestDefaults()
 	m, _ := New(media.DefaultTypes, output.DefaultFormats, v)
 
 	for _, test := range []string{`{
@@ -137,8 +137,8 @@ func TestJSONRoundTrip(t *testing.T) {
 }`} {
 
 		var b bytes.Buffer
-		m1 := make(map[string]interface{})
-		m2 := make(map[string]interface{})
+		m1 := make(map[string]any)
+		m2 := make(map[string]any)
 		c.Assert(json.Unmarshal([]byte(test), &m1), qt.IsNil)
 		c.Assert(m.Minify(media.JSONType, &b, strings.NewReader(test)), qt.IsNil)
 		c.Assert(json.Unmarshal(b.Bytes(), &m2), qt.IsNil)
@@ -148,7 +148,7 @@ func TestJSONRoundTrip(t *testing.T) {
 
 func TestBugs(t *testing.T) {
 	c := qt.New(t)
-	v := config.New()
+	v := config.NewWithTestDefaults()
 	m, _ := New(media.DefaultTypes, output.DefaultFormats, v)
 
 	for _, test := range []struct {
@@ -159,7 +159,7 @@ func TestBugs(t *testing.T) {
 		// https://github.com/gohugoio/hugo/issues/5506
 		{media.CSSType, " body { color: rgba(000, 000, 000, 0.7); }", "body{color:rgba(0,0,0,.7)}"},
 		// https://github.com/gohugoio/hugo/issues/8332
-		{media.HTMLType, "<i class='fas fa-tags fa-fw'></i> Tags", `<i class="fas fa-tags fa-fw"></i> Tags`},
+		{media.HTMLType, "<i class='fas fa-tags fa-fw'></i> Tags", `<i class='fas fa-tags fa-fw'></i> Tags`},
 	} {
 		var b bytes.Buffer
 
@@ -171,14 +171,14 @@ func TestBugs(t *testing.T) {
 // Renamed to Precision in v2.7.0. Check that we support both.
 func TestDecodeConfigDecimalIsNowPrecision(t *testing.T) {
 	c := qt.New(t)
-	v := config.New()
-	v.Set("minify", map[string]interface{}{
+	v := config.NewWithTestDefaults()
+	v.Set("minify", map[string]any{
 		"disablexml": true,
-		"tdewolff": map[string]interface{}{
-			"css": map[string]interface{}{
+		"tdewolff": map[string]any{
+			"css": map[string]any{
 				"decimal": 3,
 			},
-			"svg": map[string]interface{}{
+			"svg": map[string]any{
 				"decimal": 3,
 			},
 		},
@@ -191,13 +191,13 @@ func TestDecodeConfigDecimalIsNowPrecision(t *testing.T) {
 
 }
 
-// Issue 8771
+// Issue 9456
 func TestDecodeConfigKeepWhitespace(t *testing.T) {
 	c := qt.New(t)
-	v := config.New()
-	v.Set("minify", map[string]interface{}{
-		"tdewolff": map[string]interface{}{
-			"html": map[string]interface{}{
+	v := config.NewWithTestDefaults()
+	v.Set("minify", map[string]any{
+		"tdewolff": map[string]any{
+			"html": map[string]any{
 				"keepEndTags": false,
 			},
 		},
@@ -214,7 +214,7 @@ func TestDecodeConfigKeepWhitespace(t *testing.T) {
 			KeepDocumentTags:        true,
 			KeepEndTags:             false,
 			KeepQuotes:              false,
-			KeepWhitespace:          true},
+			KeepWhitespace:          false},
 	)
 
 }

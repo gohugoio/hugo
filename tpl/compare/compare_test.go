@@ -49,7 +49,7 @@ type (
 	tstEqerType2 string
 )
 
-func (t tstEqerType2) Eq(other interface{}) bool {
+func (t tstEqerType2) Eq(other any) bool {
 	return cast.ToString(t) == cast.ToString(other)
 }
 
@@ -57,7 +57,7 @@ func (t tstEqerType2) String() string {
 	return string(t)
 }
 
-func (t tstEqerType1) Eq(other interface{}) bool {
+func (t tstEqerType1) Eq(other any) bool {
 	return cast.ToString(t) == cast.ToString(other)
 }
 
@@ -88,12 +88,12 @@ func TestDefaultFunc(t *testing.T) {
 
 	then := time.Now()
 	now := time.Now()
-	ns := New(false)
+	ns := New(time.UTC, false)
 
 	for i, test := range []struct {
-		dflt   interface{}
-		given  interface{}
-		expect interface{}
+		dflt   any
+		given  any
+		expect any
 	}{
 		{true, false, false},
 		{"5", 0, "5"},
@@ -147,35 +147,35 @@ func TestDefaultFunc(t *testing.T) {
 func TestCompare(t *testing.T) {
 	t.Parallel()
 
-	n := New(false)
+	n := New(time.UTC, false)
 
-	twoEq := func(a, b interface{}) bool {
+	twoEq := func(a, b any) bool {
 		return n.Eq(a, b)
 	}
 
-	twoGt := func(a, b interface{}) bool {
+	twoGt := func(a, b any) bool {
 		return n.Gt(a, b)
 	}
 
-	twoLt := func(a, b interface{}) bool {
+	twoLt := func(a, b any) bool {
 		return n.Lt(a, b)
 	}
 
-	twoGe := func(a, b interface{}) bool {
+	twoGe := func(a, b any) bool {
 		return n.Ge(a, b)
 	}
 
-	twoLe := func(a, b interface{}) bool {
+	twoLe := func(a, b any) bool {
 		return n.Le(a, b)
 	}
 
-	twoNe := func(a, b interface{}) bool {
+	twoNe := func(a, b any) bool {
 		return n.Ne(a, b)
 	}
 
 	for _, test := range []struct {
 		tstCompareType
-		funcUnderTest func(a, b interface{}) bool
+		funcUnderTest func(a, b any) bool
 	}{
 		{tstGt, twoGt},
 		{tstLt, twoLt},
@@ -188,10 +188,10 @@ func TestCompare(t *testing.T) {
 	}
 }
 
-func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b interface{}) bool) {
+func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b any) bool) {
 	for i, test := range []struct {
-		left            interface{}
-		right           interface{}
+		left            any
+		right           any
 		expectIndicator int
 	}{
 		{5, 8, -1},
@@ -269,19 +269,19 @@ func TestEqualExtend(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New(false)
+	ns := New(time.UTC, false)
 
 	for _, test := range []struct {
-		first  interface{}
-		others []interface{}
+		first  any
+		others []any
 		expect bool
 	}{
-		{1, []interface{}{1, 2}, true},
-		{1, []interface{}{2, 1}, true},
-		{1, []interface{}{2, 3}, false},
-		{tstEqerType1("a"), []interface{}{tstEqerType1("a"), tstEqerType1("b")}, true},
-		{tstEqerType1("a"), []interface{}{tstEqerType1("b"), tstEqerType1("a")}, true},
-		{tstEqerType1("a"), []interface{}{tstEqerType1("b"), tstEqerType1("c")}, false},
+		{1, []any{1, 2}, true},
+		{1, []any{2, 1}, true},
+		{1, []any{2, 3}, false},
+		{tstEqerType1("a"), []any{tstEqerType1("a"), tstEqerType1("b")}, true},
+		{tstEqerType1("a"), []any{tstEqerType1("b"), tstEqerType1("a")}, true},
+		{tstEqerType1("a"), []any{tstEqerType1("b"), tstEqerType1("c")}, false},
 	} {
 
 		result := ns.Eq(test.first, test.others...)
@@ -294,16 +294,16 @@ func TestNotEqualExtend(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New(false)
+	ns := New(time.UTC, false)
 
 	for _, test := range []struct {
-		first  interface{}
-		others []interface{}
+		first  any
+		others []any
 		expect bool
 	}{
-		{1, []interface{}{2, 3}, true},
-		{1, []interface{}{2, 1}, false},
-		{1, []interface{}{1, 2}, false},
+		{1, []any{2, 3}, true},
+		{1, []any{2, 1}, false},
+		{1, []any{1, 2}, false},
 	} {
 		result := ns.Ne(test.first, test.others...)
 		c.Assert(result, qt.Equals, test.expect)
@@ -314,17 +314,17 @@ func TestGreaterEqualExtend(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New(false)
+	ns := New(time.UTC, false)
 
 	for _, test := range []struct {
-		first  interface{}
-		others []interface{}
+		first  any
+		others []any
 		expect bool
 	}{
-		{5, []interface{}{2, 3}, true},
-		{5, []interface{}{5, 5}, true},
-		{3, []interface{}{4, 2}, false},
-		{3, []interface{}{2, 4}, false},
+		{5, []any{2, 3}, true},
+		{5, []any{5, 5}, true},
+		{3, []any{4, 2}, false},
+		{3, []any{2, 4}, false},
 	} {
 		result := ns.Ge(test.first, test.others...)
 		c.Assert(result, qt.Equals, test.expect)
@@ -335,16 +335,16 @@ func TestGreaterThanExtend(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New(false)
+	ns := New(time.UTC, false)
 
 	for _, test := range []struct {
-		first  interface{}
-		others []interface{}
+		first  any
+		others []any
 		expect bool
 	}{
-		{5, []interface{}{2, 3}, true},
-		{5, []interface{}{5, 4}, false},
-		{3, []interface{}{4, 2}, false},
+		{5, []any{2, 3}, true},
+		{5, []any{5, 4}, false},
+		{3, []any{4, 2}, false},
 	} {
 		result := ns.Gt(test.first, test.others...)
 		c.Assert(result, qt.Equals, test.expect)
@@ -355,17 +355,17 @@ func TestLessEqualExtend(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New(false)
+	ns := New(time.UTC, false)
 
 	for _, test := range []struct {
-		first  interface{}
-		others []interface{}
+		first  any
+		others []any
 		expect bool
 	}{
-		{1, []interface{}{2, 3}, true},
-		{1, []interface{}{1, 2}, true},
-		{2, []interface{}{1, 2}, false},
-		{3, []interface{}{2, 4}, false},
+		{1, []any{2, 3}, true},
+		{1, []any{1, 2}, true},
+		{2, []any{1, 2}, false},
+		{3, []any{2, 4}, false},
 	} {
 		result := ns.Le(test.first, test.others...)
 		c.Assert(result, qt.Equals, test.expect)
@@ -376,17 +376,17 @@ func TestLessThanExtend(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New(false)
+	ns := New(time.UTC, false)
 
 	for _, test := range []struct {
-		first  interface{}
-		others []interface{}
+		first  any
+		others []any
 		expect bool
 	}{
-		{1, []interface{}{2, 3}, true},
-		{1, []interface{}{1, 2}, false},
-		{2, []interface{}{1, 2}, false},
-		{3, []interface{}{2, 4}, false},
+		{1, []any{2, 3}, true},
+		{1, []any{1, 2}, false},
+		{2, []any{1, 2}, false},
+		{3, []any{2, 4}, false},
 	} {
 		result := ns.Lt(test.first, test.others...)
 		c.Assert(result, qt.Equals, test.expect)
@@ -395,7 +395,7 @@ func TestLessThanExtend(t *testing.T) {
 
 func TestCase(t *testing.T) {
 	c := qt.New(t)
-	n := New(false)
+	n := New(time.UTC, false)
 
 	c.Assert(n.Eq("az", "az"), qt.Equals, true)
 	c.Assert(n.Eq("az", stringType("az")), qt.Equals, true)
@@ -403,7 +403,7 @@ func TestCase(t *testing.T) {
 
 func TestStringType(t *testing.T) {
 	c := qt.New(t)
-	n := New(true)
+	n := New(time.UTC, true)
 
 	c.Assert(n.Lt("az", "Za"), qt.Equals, true)
 	c.Assert(n.Gt("ab", "Ab"), qt.Equals, true)
@@ -411,11 +411,12 @@ func TestStringType(t *testing.T) {
 
 func TestTimeUnix(t *testing.T) {
 	t.Parallel()
+	n := New(time.UTC, false)
 	var sec int64 = 1234567890
 	tv := reflect.ValueOf(time.Unix(sec, 0))
 	i := 1
 
-	res := toTimeUnix(tv)
+	res := n.toTimeUnix(tv)
 	if sec != res {
 		t.Errorf("[%d] timeUnix got %v but expected %v", i, res, sec)
 	}
@@ -428,15 +429,32 @@ func TestTimeUnix(t *testing.T) {
 			}
 		}()
 		iv := reflect.ValueOf(sec)
-		toTimeUnix(iv)
+		n.toTimeUnix(iv)
 	}(t)
 }
 
 func TestConditional(t *testing.T) {
 	c := qt.New(t)
-	n := New(false)
+	n := New(time.UTC, false)
 	a, b := "a", "b"
 
 	c.Assert(n.Conditional(true, a, b), qt.Equals, a)
 	c.Assert(n.Conditional(false, a, b), qt.Equals, b)
+}
+
+// Issue 9462
+func TestComparisonArgCount(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New(time.UTC, false)
+
+	panicMsg := "missing arguments for comparison"
+
+	c.Assert(func() { ns.Eq(1) }, qt.PanicMatches, panicMsg)
+	c.Assert(func() { ns.Ge(1) }, qt.PanicMatches, panicMsg)
+	c.Assert(func() { ns.Gt(1) }, qt.PanicMatches, panicMsg)
+	c.Assert(func() { ns.Le(1) }, qt.PanicMatches, panicMsg)
+	c.Assert(func() { ns.Lt(1) }, qt.PanicMatches, panicMsg)
+	c.Assert(func() { ns.Ne(1) }, qt.PanicMatches, panicMsg)
 }

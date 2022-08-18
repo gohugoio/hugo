@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !nodeploy
 // +build !nodeploy
 
 package deploy
@@ -252,7 +253,7 @@ func TestWalkLocal(t *testing.T) {
 			if got, err := walkLocal(fs, nil, nil, nil, media.DefaultTypes); err != nil {
 				t.Fatal(err)
 			} else {
-				expect := map[string]interface{}{}
+				expect := map[string]any{}
 				for _, path := range tc.Expect {
 					if _, ok := got[path]; !ok {
 						t.Errorf("expected %q in results, but was not found", path)
@@ -290,7 +291,7 @@ func TestLocalFile(t *testing.T) {
 		Description         string
 		Path                string
 		Matcher             *matcher
-		MediaTypesConfig    []map[string]interface{}
+		MediaTypesConfig    []map[string]any
 		WantContent         []byte
 		WantSize            int64
 		WantMD5             []byte
@@ -351,9 +352,9 @@ func TestLocalFile(t *testing.T) {
 		{
 			Description: "Custom MediaType",
 			Path:        "foo.hugo",
-			MediaTypesConfig: []map[string]interface{}{
+			MediaTypesConfig: []map[string]any{
 				{
-					"hugo/custom": map[string]interface{}{
+					"hugo/custom": map[string]any{
 						"suffixes": []string{"hugo"},
 					},
 				},

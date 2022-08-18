@@ -29,24 +29,24 @@ func New() *Namespace {
 type Namespace struct {
 }
 
-// ToInt converts the given value to an int.
-func (ns *Namespace) ToInt(v interface{}) (int, error) {
+// ToInt converts v to an int.
+func (ns *Namespace) ToInt(v any) (int, error) {
 	v = convertTemplateToString(v)
 	return _cast.ToIntE(v)
 }
 
-// ToString converts the given value to a string.
-func (ns *Namespace) ToString(v interface{}) (string, error) {
+// ToString converts v to a string.
+func (ns *Namespace) ToString(v any) (string, error) {
 	return _cast.ToStringE(v)
 }
 
-// ToFloat converts the given value to a float.
-func (ns *Namespace) ToFloat(v interface{}) (float64, error) {
+// ToFloat converts v to a float.
+func (ns *Namespace) ToFloat(v any) (float64, error) {
 	v = convertTemplateToString(v)
 	return _cast.ToFloat64E(v)
 }
 
-func convertTemplateToString(v interface{}) interface{} {
+func convertTemplateToString(v any) any {
 	switch vv := v.(type) {
 	case template.HTML:
 		v = string(vv)

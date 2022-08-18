@@ -21,7 +21,7 @@ import (
 // IgnorableLogger is a logger that ignores certain log statements.
 type IgnorableLogger interface {
 	Logger
-	Errorsf(statementID, format string, v ...interface{})
+	Errorsf(statementID, format string, v ...any)
 	Apply(logger Logger) IgnorableLogger
 }
 
@@ -43,7 +43,7 @@ func NewIgnorableLogger(logger Logger, statements ...string) IgnorableLogger {
 }
 
 // Errorsf logs statementID as an ERROR if not configured as ignoreable.
-func (l ignorableLogger) Errorsf(statementID, format string, v ...interface{}) {
+func (l ignorableLogger) Errorsf(statementID, format string, v ...any) {
 	if l.statements[statementID] {
 		// Ignore.
 		return

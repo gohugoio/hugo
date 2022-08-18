@@ -20,8 +20,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/pkg/errors"
-
 	"github.com/mitchellh/mapstructure"
 
 	"github.com/gohugoio/hugo/media"
@@ -135,6 +133,14 @@ var (
 		Weight: 10,
 	}
 
+	MarkdownFormat = Format{
+		Name:        "MARKDOWN",
+		MediaType:   media.MarkdownType,
+		BaseName:    "index",
+		Rel:         "alternate",
+		IsPlainText: true,
+	}
+
 	JSONFormat = Format{
 		Name:        "JSON",
 		MediaType:   media.JSONType,
@@ -185,6 +191,7 @@ var DefaultFormats = Formats{
 	CSVFormat,
 	HTMLFormat,
 	JSONFormat,
+	MarkdownFormat,
 	WebAppManifestFormat,
 	RobotsTxtFormat,
 	RSSFormat,
@@ -292,7 +299,7 @@ func (formats Formats) FromFilename(filename string) (f Format, found bool) {
 
 // DecodeFormats takes a list of output format configurations and merges those,
 // in the order given, with the Hugo defaults as the last resort.
-func DecodeFormats(mediaTypes media.Types, maps ...map[string]interface{}) (Formats, error) {
+func DecodeFormats(mediaTypes media.Types, maps ...map[string]any) (Formats, error) {
 	f := make(Formats, len(DefaultFormats))
 	copy(f, DefaultFormats)
 
@@ -334,12 +341,12 @@ func DecodeFormats(mediaTypes media.Types, maps ...map[string]interface{}) (Form
 	return f, nil
 }
 
-func decode(mediaTypes media.Types, input interface{}, output *Format) error {
+func decode(mediaTypes media.Types, input any, output *Format) error {
 	config := &mapstructure.DecoderConfig{
 		Metadata:         nil,
 		Result:           output,
 		WeaklyTypedInput: true,
-		DecodeHook: func(a reflect.Type, b reflect.Type, c interface{}) (interface{}, error) {
+		DecodeHook: func(a reflect.Type, b reflect.Type, c any) (any, error) {
 			if a.Kind() == reflect.Map {
 				dataVal := reflect.Indirect(reflect.ValueOf(c))
 				for _, key := range dataVal.MapKeys() {
@@ -364,7 +371,7 @@ func decode(mediaTypes media.Types, input interface{}, output *Format) error {
 							}
 							dataVal.SetMapIndex(key, reflect.ValueOf(mediaType))
 						default:
-							return nil, errors.Errorf("invalid output format configuration; wrong type for media type, expected string (e.g. text/html), got %T", vvi)
+							return nil, fmt.Errorf("invalid output format configuration; wrong type for media type, expected string (e.g. text/html), got %T", vvi)
 						}
 					}
 				}
@@ -379,7 +386,7 @@ func decode(mediaTypes media.Types, input interface{}, output *Format) error {
 	}
 
 	if err = decoder.Decode(input); err != nil {
-		return errors.Wrap(err, "failed to decode output format configuration")
+		return fmt.Errorf("failed to decode output format configuration: %w", err)
 	}
 
 	return nil

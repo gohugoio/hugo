@@ -21,7 +21,7 @@ import (
 // Append appends from to a slice to and returns the resulting slice.
 // If length of from is one and the only element is a slice of same type as to,
 // it will be appended.
-func Append(to interface{}, from ...interface{}) (interface{}, error) {
+func Append(to any, from ...any) (any, error) {
 	tov, toIsNil := indirect(reflect.ValueOf(to))
 
 	toIsNil = toIsNil || to == nil
@@ -73,8 +73,8 @@ func Append(to interface{}, from ...interface{}) (interface{}, error) {
 	return tov.Interface(), nil
 }
 
-func appendToInterfaceSliceFromValues(slice1, slice2 reflect.Value) ([]interface{}, error) {
-	var tos []interface{}
+func appendToInterfaceSliceFromValues(slice1, slice2 reflect.Value) ([]any, error) {
+	var tos []any
 
 	for _, slice := range []reflect.Value{slice1, slice2} {
 		for i := 0; i < slice.Len(); i++ {
@@ -85,8 +85,8 @@ func appendToInterfaceSliceFromValues(slice1, slice2 reflect.Value) ([]interface
 	return tos, nil
 }
 
-func appendToInterfaceSlice(tov reflect.Value, from ...interface{}) ([]interface{}, error) {
-	var tos []interface{}
+func appendToInterfaceSlice(tov reflect.Value, from ...any) ([]any, error) {
+	var tos []any
 
 	for i := 0; i < tov.Len(); i++ {
 		tos = append(tos, tov.Index(i).Interface())

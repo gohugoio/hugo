@@ -19,7 +19,6 @@ import (
 	"github.com/gohugoio/hugo/common/text"
 
 	"github.com/mitchellh/mapstructure"
-	"github.com/pkg/errors"
 )
 
 func newPageRef(p *pageState) pageRef {
@@ -30,23 +29,23 @@ type pageRef struct {
 	p *pageState
 }
 
-func (p pageRef) Ref(argsm map[string]interface{}) (string, error) {
+func (p pageRef) Ref(argsm map[string]any) (string, error) {
 	return p.ref(argsm, p.p)
 }
 
-func (p pageRef) RefFrom(argsm map[string]interface{}, source interface{}) (string, error) {
+func (p pageRef) RefFrom(argsm map[string]any, source any) (string, error) {
 	return p.ref(argsm, source)
 }
 
-func (p pageRef) RelRef(argsm map[string]interface{}) (string, error) {
+func (p pageRef) RelRef(argsm map[string]any) (string, error) {
 	return p.relRef(argsm, p.p)
 }
 
-func (p pageRef) RelRefFrom(argsm map[string]interface{}, source interface{}) (string, error) {
+func (p pageRef) RelRefFrom(argsm map[string]any, source any) (string, error) {
 	return p.relRef(argsm, source)
 }
 
-func (p pageRef) decodeRefArgs(args map[string]interface{}) (refArgs, *Site, error) {
+func (p pageRef) decodeRefArgs(args map[string]any) (refArgs, *Site, error) {
 	var ra refArgs
 	err := mapstructure.WeakDecode(args, &ra)
 	if err != nil {
@@ -74,10 +73,10 @@ func (p pageRef) decodeRefArgs(args map[string]interface{}) (refArgs, *Site, err
 	return ra, s, nil
 }
 
-func (p pageRef) ref(argsm map[string]interface{}, source interface{}) (string, error) {
+func (p pageRef) ref(argsm map[string]any, source any) (string, error) {
 	args, s, err := p.decodeRefArgs(argsm)
 	if err != nil {
-		return "", errors.Wrap(err, "invalid arguments to Ref")
+		return "", fmt.Errorf("invalid arguments to Ref: %w", err)
 	}
 
 	if s == nil {
@@ -91,10 +90,10 @@ func (p pageRef) ref(argsm map[string]interface{}, source interface{}) (string, 
 	return s.refLink(args.Path, source, false, args.OutputFormat)
 }
 
-func (p pageRef) relRef(argsm map[string]interface{}, source interface{}) (string, error) {
+func (p pageRef) relRef(argsm map[string]any, source any) (string, error) {
 	args, s, err := p.decodeRefArgs(argsm)
 	if err != nil {
-		return "", errors.Wrap(err, "invalid arguments to Ref")
+		return "", fmt.Errorf("invalid arguments to Ref: %w", err)
 	}
 
 	if s == nil {

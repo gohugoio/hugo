@@ -18,10 +18,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/gohugoio/hugo/hugolib/paths"
-
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
+	hpaths "github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/cobra"
@@ -48,7 +47,6 @@ func (b *commandsBuilder) addAll() *commandsBuilder {
 		newVersionCmd(),
 		newEnvCmd(),
 		b.newConfigCmd(),
-		newCheckCmd(),
 		b.newDeployCmd(),
 		b.newConvertCmd(),
 		b.newNewCmd(),
@@ -131,8 +129,7 @@ type hugoCmd struct {
 
 var _ cmder = (*nilCommand)(nil)
 
-type nilCommand struct {
-}
+type nilCommand struct{}
 
 func (c *nilCommand) getCommand() *cobra.Command {
 	return nil
@@ -152,7 +149,7 @@ func (b *commandsBuilder) newHugoCmd() *hugoCmd {
 Hugo is a Fast and Flexible Static Site Generator
 built with love by spf13 and friends in Go.
 
-Complete documentation is available at http://gohugo.io/.`,
+Complete documentation is available at https://gohugo.io/.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			defer cc.timeTrack(time.Now(), "Total")
 			cfgInit := func(c *commandeer) error {
@@ -213,6 +210,7 @@ type hugoBuilderCommon struct {
 
 	buildWatch bool
 	poll       string
+	clock      string
 
 	gc bool
 
@@ -245,14 +243,14 @@ func (cc *hugoBuilderCommon) timeTrack(start time.Time, name string) {
 
 func (cc *hugoBuilderCommon) getConfigDir(baseDir string) string {
 	if cc.cfgDir != "" {
-		return paths.AbsPathify(baseDir, cc.cfgDir)
+		return hpaths.AbsPathify(baseDir, cc.cfgDir)
 	}
 
 	if v, found := os.LookupEnv("HUGO_CONFIGDIR"); found {
-		return paths.AbsPathify(baseDir, v)
+		return hpaths.AbsPathify(baseDir, v)
 	}
 
-	return paths.AbsPathify(baseDir, "config")
+	return hpaths.AbsPathify(baseDir, "config")
 }
 
 func (cc *hugoBuilderCommon) getEnvironment(isServer bool) string {
@@ -281,8 +279,8 @@ func (cc *hugoBuilderCommon) handleCommonBuilderFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
 	cmd.PersistentFlags().StringVarP(&cc.environment, "environment", "e", "", "build environment")
 	cmd.PersistentFlags().StringP("themesDir", "", "", "filesystem path to themes directory")
-	cmd.PersistentFlags().BoolP("ignoreVendor", "", false, "ignores any _vendor directory")
 	cmd.PersistentFlags().StringP("ignoreVendorPaths", "", "", "ignores any _vendor for module paths matching the given Glob pattern")
+	cmd.PersistentFlags().StringVar(&cc.clock, "clock", "", "set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00")
 }
 
 func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
@@ -297,21 +295,23 @@ func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolP("ignoreCache", "", false, "ignores the cache directory")
 	cmd.Flags().StringP("destination", "d", "", "filesystem path to write files to")
 	cmd.Flags().StringSliceP("theme", "t", []string{}, "themes to use (located in /themes/THEMENAME/)")
-	cmd.Flags().StringVarP(&cc.baseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
-	cmd.Flags().Bool("enableGitInfo", false, "add Git revision, date and author info to the pages")
+	cmd.Flags().StringVarP(&cc.baseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. https://spf13.com/")
+	cmd.Flags().Bool("enableGitInfo", false, "add Git revision, date, author, and CODEOWNERS info to the pages")
 	cmd.Flags().BoolVar(&cc.gc, "gc", false, "enable to run some cleanup tasks (remove unused cache files) after the build")
 	cmd.Flags().StringVar(&cc.poll, "poll", "", "set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes")
-
+	cmd.Flags().BoolVar(&loggers.PanicOnWarning, "panicOnWarning", false, "panic on first WARNING log")
 	cmd.Flags().Bool("templateMetrics", false, "display metrics about template executions")
 	cmd.Flags().Bool("templateMetricsHints", false, "calculate some improvement hints when combined with --templateMetrics")
 	cmd.Flags().BoolP("forceSyncStatic", "", false, "copy all files when static is changed.")
 	cmd.Flags().BoolP("noTimes", "", false, "don't sync modification time of files")
 	cmd.Flags().BoolP("noChmod", "", false, "don't sync permission mode of files")
-	cmd.Flags().BoolP("i18n-warnings", "", false, "print missing translations")
-	cmd.Flags().BoolP("path-warnings", "", false, "print warnings on duplicate target paths etc.")
+	cmd.Flags().BoolP("noBuildLock", "", false, "don't create .hugo_build.lock file")
+	cmd.Flags().BoolP("printI18nWarnings", "", false, "print missing translations")
+	cmd.Flags().BoolP("printPathWarnings", "", false, "print warnings on duplicate target paths etc.")
+	cmd.Flags().BoolP("printUnusedTemplates", "", false, "print warnings on unused templates.")
 	cmd.Flags().StringVarP(&cc.cpuprofile, "profile-cpu", "", "", "write cpu profile to `file`")
 	cmd.Flags().StringVarP(&cc.memprofile, "profile-mem", "", "", "write memory profile to `file`")
-	cmd.Flags().BoolVarP(&cc.printm, "print-mem", "", false, "print memory usage to screen at intervals")
+	cmd.Flags().BoolVarP(&cc.printm, "printMemoryUsage", "", false, "print memory usage to screen at intervals")
 	cmd.Flags().StringVarP(&cc.mutexprofile, "profile-mutex", "", "", "write Mutex profile to `file`")
 	cmd.Flags().StringVarP(&cc.traceprofile, "trace", "", "", "write trace to `file` (not useful in general)")
 

@@ -27,11 +27,11 @@ hugo mod vendor [flags]
 ### Options inherited from parent commands
 
 ```
+      --clock string               set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00
       --config string              config file (default is path/config.yaml|json|toml)
       --configDir string           config dir (default "config")
       --debug                      debug output
   -e, --environment string         build environment
-      --ignoreVendor               ignores any _vendor directory
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --log                        enable Logging
       --logFile string             log File path (if set, logging enabled automatically)

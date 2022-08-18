@@ -14,7 +14,7 @@
 package hugolib
 
 import (
-	"github.com/pkg/errors"
+	"fmt"
 
 	"github.com/gohugoio/hugo/resources/page"
 )
@@ -25,7 +25,7 @@ type pageWrapper interface {
 }
 
 // unwrapPage is used in equality checks and similar.
-func unwrapPage(in interface{}) (page.Page, error) {
+func unwrapPage(in any) (page.Page, error) {
 	switch v := in.(type) {
 	case *pageState:
 		return v, nil
@@ -36,11 +36,11 @@ func unwrapPage(in interface{}) (page.Page, error) {
 	case nil:
 		return nil, nil
 	default:
-		return nil, errors.Errorf("unwrapPage: %T not supported", in)
+		return nil, fmt.Errorf("unwrapPage: %T not supported", in)
 	}
 }
 
-func mustUnwrapPage(in interface{}) page.Page {
+func mustUnwrapPage(in any) page.Page {
 	p, err := unwrapPage(in)
 	if err != nil {
 		panic(err)

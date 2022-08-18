@@ -224,8 +224,8 @@ Content.
 	nnSite := b.H.Sites[1]
 	svSite := b.H.Sites[2]
 
-	b.AssertFileContent("/my/project/public/en/mystatic/file1.yaml", "en")
-	b.AssertFileContent("/my/project/public/nn/mystatic/file1.yaml", "nn")
+	b.AssertFileContent("public/en/mystatic/file1.yaml", "en")
+	b.AssertFileContent("public/nn/mystatic/file1.yaml", "nn")
 
 	// dumpPages(nnSite.RegularPages()...)
 
@@ -251,7 +251,7 @@ Content.
 	c.Assert(contentStr, qt.Contains, "SVP3-RELREF: /sv/sect/p-sv-3/")
 
 	// Test RelRef with and without language indicator.
-	nn3RefArgs := map[string]interface{}{
+	nn3RefArgs := map[string]any{
 		"path": "/sect/page3.md",
 		"lang": "nn",
 	}
@@ -300,21 +300,21 @@ Content.
 	c.Assert(len(bundleSv.Resources()), qt.Equals, 4)
 	c.Assert(len(bundleEn.Resources()), qt.Equals, 4)
 
-	b.AssertFileContent("/my/project/public/en/sect/mybundle/index.html", "image/png: /en/sect/mybundle/logo.png")
-	b.AssertFileContent("/my/project/public/nn/sect/mybundle/index.html", "image/png: /nn/sect/mybundle/logo.png")
-	b.AssertFileContent("/my/project/public/sv/sect/mybundle/index.html", "image/png: /sv/sect/mybundle/logo.png")
+	b.AssertFileContent("public/en/sect/mybundle/index.html", "image/png: /en/sect/mybundle/logo.png")
+	b.AssertFileContent("public/nn/sect/mybundle/index.html", "image/png: /nn/sect/mybundle/logo.png")
+	b.AssertFileContent("public/sv/sect/mybundle/index.html", "image/png: /sv/sect/mybundle/logo.png")
 
-	b.AssertFileContent("/my/project/public/sv/sect/mybundle/featured.png", "PNG Data for sv")
-	b.AssertFileContent("/my/project/public/nn/sect/mybundle/featured.png", "PNG Data for nn")
-	b.AssertFileContent("/my/project/public/en/sect/mybundle/featured.png", "PNG Data for en")
-	b.AssertFileContent("/my/project/public/en/sect/mybundle/logo.png", "PNG Data")
-	b.AssertFileContent("/my/project/public/sv/sect/mybundle/logo.png", "PNG Data")
-	b.AssertFileContent("/my/project/public/nn/sect/mybundle/logo.png", "PNG Data")
+	b.AssertFileContent("public/sv/sect/mybundle/featured.png", "PNG Data for sv")
+	b.AssertFileContent("public/nn/sect/mybundle/featured.png", "PNG Data for nn")
+	b.AssertFileContent("public/en/sect/mybundle/featured.png", "PNG Data for en")
+	b.AssertFileContent("public/en/sect/mybundle/logo.png", "PNG Data")
+	b.AssertFileContent("public/sv/sect/mybundle/logo.png", "PNG Data")
+	b.AssertFileContent("public/nn/sect/mybundle/logo.png", "PNG Data")
 
 	nnSect := nnSite.getPage(page.KindSection, "sect")
 	c.Assert(nnSect, qt.Not(qt.IsNil))
 	c.Assert(len(nnSect.Pages()), qt.Equals, 12)
-	nnHome, _ := nnSite.Info.Home()
+	nnHome := nnSite.Info.Home()
 	c.Assert(nnHome.RelPermalink(), qt.Equals, "/nn/")
 }
 
@@ -402,4 +402,125 @@ Page: /fr/event/page1/|ev-fr1
 Page: /fr/event/page2/|ev-fr2
 Page: /fr/other/page1/|other-fr1
 Page: /fr/other/page2/|other-fr2`)
+}
+
+// Issue 9693
+func TestContentMountMerge(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+baseURL = 'https://example.org/'
+languageCode = 'en-us'
+title = 'Hugo Forum Topic #37225'
+theme = 'mytheme'
+
+disableKinds = ['sitemap','RSS','taxonomy','term']
+defaultContentLanguage = 'en'
+defaultContentLanguageInSubdir = true
+
+[languages.en]
+languageName = 'English'
+weight = 1
+[languages.de]
+languageName = 'Deutsch'
+weight = 2
+[languages.nl]
+languageName = 'Nederlands'
+weight = 3
+
+# EN content
+[[module.mounts]]
+source = 'content/en'
+target = 'content'
+lang = 'en'
+
+# DE content
+[[module.mounts]]
+source = 'content/de'
+target = 'content'
+lang = 'de'
+
+# This fills in the gaps in DE content with EN content
+[[module.mounts]]
+source = 'content/en'
+target = 'content'
+lang = 'de'
+
+# NL content
+[[module.mounts]]
+source = 'content/nl'
+target = 'content'
+lang = 'nl'
+
+# This should fill in the gaps in NL content with EN content
+[[module.mounts]]
+source = 'content/en'
+target = 'content'
+lang = 'nl'
+
+-- content/de/_index.md --
+---
+title: "home (de)"
+---
+-- content/de/p1.md --
+---
+title: "p1 (de)"
+---
+-- content/en/_index.md --
+---
+title: "home (en)"
+---
+-- content/en/p1.md --
+---
+title: "p1 (en)"
+---
+-- content/en/p2.md --
+---
+title: "p2 (en)"
+---
+-- content/en/p3.md --
+---
+title: "p3 (en)"
+---
+-- content/nl/_index.md --
+---
+title: "home (nl)"
+---
+-- content/nl/p1.md --
+---
+title: "p1 (nl)"
+---
+-- content/nl/p3.md --
+---
+title: "p3 (nl)"
+---
+-- layouts/home.html --
+{{ .Title }}: {{ site.Language.Lang }}: {{ range site.RegularPages }}{{ .Title }}|{{ end }}:END
+-- themes/mytheme/config.toml --
+[[module.mounts]]
+source = 'content/nlt'
+target = 'content'
+lang = 'nl'
+-- themes/mytheme/content/nlt/p3.md --
+---
+title: "p3 theme (nl)"
+---
+-- themes/mytheme/content/nlt/p4.md --
+---
+title: "p4 theme (nl)"
+---
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/nl/index.html", `home (nl): nl: p1 (nl)|p2 (en)|p3 (nl)|p4 theme (nl)|:END`)
+	b.AssertFileContent("public/de/index.html", `home (de): de: p1 (de)|p2 (en)|p3 (en)|:END`)
+	b.AssertFileContent("public/en/index.html", `home (en): en: p1 (en)|p2 (en)|p3 (en)|:END`)
+
 }

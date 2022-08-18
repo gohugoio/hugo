@@ -18,12 +18,12 @@ toc: true
 
 They are stored in a reserved Front Matter object named `_build` with the following defaults:
 
-```yaml
+{{< code-toggle >}}
 _build:
   render: always
   list: always
   publishResources: true
-```
+{{< /code-toggle >}}
 
 #### render
 If `always`, the page will be treated as a published page, holding its dedicated output files (`index.html`, etc...) and permalink.
@@ -95,18 +95,15 @@ Website needs to showcase a few of the hundred "testimonials" available as conte
 
 To avoid setting the build options on every testimonials, one can use [`cascade`]({{< relref "/content-management/front-matter#front-matter-cascade" >}}) on the testimonial section's content file.
 
-```yaml
-#content/testimonials/_index.md
+{{< code-toggle >}}
 title: Testimonials
-# section build options:
 _build:
   render: true
-# children build options with cascade
 cascade:
   _build:
     render: false
     list: true # default
-```
+{{< /code-toggle >}}
 
 ```go-html-template
 {{/* layouts/_defaults/testimonials.html */}}

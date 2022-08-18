@@ -24,17 +24,17 @@ import (
 
 // GetParam will return the param with the given key from the Resource,
 // nil if not found.
-func GetParam(r Resource, key string) interface{} {
+func GetParam(r Resource, key string) any {
 	return getParam(r, key, false)
 }
 
 // GetParamToLower is the same as GetParam but it will lower case any string
 // result, including string slices.
-func GetParamToLower(r Resource, key string) interface{} {
+func GetParamToLower(r Resource, key string) any {
 	return getParam(r, key, true)
 }
 
-func getParam(r Resource, key string, stringToLower bool) interface{} {
+func getParam(r Resource, key string, stringToLower bool) any {
 	v := r.Params()[strings.ToLower(key)]
 
 	if v == nil {
@@ -60,9 +60,9 @@ func getParam(r Resource, key string, stringToLower bool) interface{} {
 			return helpers.SliceToLower(val)
 		}
 		return v
-	case map[string]interface{}: // JSON and TOML
+	case map[string]any:
 		return v
-	case map[interface{}]interface{}: // YAML
+	case map[any]any:
 		return v
 	}
 

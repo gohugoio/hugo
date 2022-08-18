@@ -23,17 +23,22 @@ import (
 func TestHugoInfo(t *testing.T) {
 	c := qt.New(t)
 
-	hugoInfo := NewInfo("")
+	hugoInfo := NewInfo("", nil)
 
 	c.Assert(hugoInfo.Version(), qt.Equals, CurrentVersion.Version())
 	c.Assert(fmt.Sprintf("%T", VersionString("")), qt.Equals, fmt.Sprintf("%T", hugoInfo.Version()))
-	c.Assert(hugoInfo.CommitHash, qt.Equals, commitHash)
-	c.Assert(hugoInfo.BuildDate, qt.Equals, buildDate)
+
+	bi := getBuildInfo()
+	if bi != nil {
+		c.Assert(hugoInfo.CommitHash, qt.Equals, bi.Revision)
+		c.Assert(hugoInfo.BuildDate, qt.Equals, bi.RevisionTime)
+		c.Assert(hugoInfo.GoVersion, qt.Equals, bi.GoVersion)
+	}
 	c.Assert(hugoInfo.Environment, qt.Equals, "production")
 	c.Assert(string(hugoInfo.Generator()), qt.Contains, fmt.Sprintf("Hugo %s", hugoInfo.Version()))
 	c.Assert(hugoInfo.IsProduction(), qt.Equals, true)
 	c.Assert(hugoInfo.IsExtended(), qt.Equals, IsExtended)
 
-	devHugoInfo := NewInfo("development")
+	devHugoInfo := NewInfo("development", nil)
 	c.Assert(devHugoInfo.IsProduction(), qt.Equals, false)
 }

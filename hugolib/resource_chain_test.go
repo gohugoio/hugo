@@ -14,379 +14,46 @@
 package hugolib
 
 import (
-	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"math/rand"
+	"net/http"
+	"net/http/httptest"
 	"os"
-
-	"github.com/gohugoio/hugo/config"
-
-	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/dartsass"
-
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/gohugoio/hugo/common/hexec"
-
-	jww "github.com/spf13/jwalterweatherman"
-
-	"github.com/gohugoio/hugo/common/herrors"
-
-	"github.com/gohugoio/hugo/htesting"
+	"github.com/gohugoio/hugo/helpers"
 
 	qt "github.com/frankban/quicktest"
-
-	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/scss"
 )
 
-func TestSCSSWithIncludePaths(t *testing.T) {
-	c := qt.New(t)
-
-	for _, test := range []struct {
-		name     string
-		supports func() bool
-	}{
-		{"libsass", func() bool { return scss.Supports() }},
-		{"dartsass", func() bool { return dartsass.Supports() }},
-	} {
-
-		c.Run(test.name, func(c *qt.C) {
-			if !test.supports() {
-				c.Skip(fmt.Sprintf("Skip %s", test.name))
-			}
-
-			workDir, clean, err := htesting.CreateTempDir(hugofs.Os, fmt.Sprintf("hugo-scss-include-%s", test.name))
-			c.Assert(err, qt.IsNil)
-			defer clean()
-
-			v := config.New()
-			v.Set("workingDir", workDir)
-			b := newTestSitesBuilder(c).WithLogger(loggers.NewErrorLogger())
-			// Need to use OS fs for this.
-			b.Fs = hugofs.NewDefault(v)
-			b.WithWorkingDir(workDir)
-			b.WithViper(v)
-
-			fooDir := filepath.Join(workDir, "node_modules", "foo")
-			scssDir := filepath.Join(workDir, "assets", "scss")
-			c.Assert(os.MkdirAll(fooDir, 0777), qt.IsNil)
-			c.Assert(os.MkdirAll(filepath.Join(workDir, "content", "sect"), 0777), qt.IsNil)
-			c.Assert(os.MkdirAll(filepath.Join(workDir, "data"), 0777), qt.IsNil)
-			c.Assert(os.MkdirAll(filepath.Join(workDir, "i18n"), 0777), qt.IsNil)
-			c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "shortcodes"), 0777), qt.IsNil)
-			c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "_default"), 0777), qt.IsNil)
-			c.Assert(os.MkdirAll(filepath.Join(scssDir), 0777), qt.IsNil)
-
-			b.WithSourceFile(filepath.Join(fooDir, "_moo.scss"), `
-$moolor: #fff;
-
-moo {
-  color: $moolor;
-}
-`)
-
-			b.WithSourceFile(filepath.Join(scssDir, "main.scss"), `
-@import "moo";
-
-`)
-
-			b.WithTemplatesAdded("index.html", fmt.Sprintf(`
-{{ $cssOpts := (dict "includePaths" (slice "node_modules/foo") "transpiler" %q ) }}
-{{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts  | minify  }}
-T1: {{ $r.Content }}
-`, test.name))
-			b.Build(BuildCfg{})
-
-			b.AssertFileContent(filepath.Join(workDir, "public/index.html"), `T1: moo{color:#fff}`)
-		})
-
-	}
-
-}
-
-func TestSCSSWithRegularCSSImport(t *testing.T) {
-	c := qt.New(t)
-
-	for _, test := range []struct {
-		name     string
-		supports func() bool
-	}{
-		{"libsass", func() bool { return scss.Supports() }},
-		{"dartsass", func() bool { return dartsass.Supports() }},
-	} {
-
-		c.Run(test.name, func(c *qt.C) {
-			if !test.supports() {
-				c.Skip(fmt.Sprintf("Skip %s", test.name))
-			}
-
-			workDir, clean, err := htesting.CreateTempDir(hugofs.Os, fmt.Sprintf("hugo-scss-include-regular-%s", test.name))
-			c.Assert(err, qt.IsNil)
-			defer clean()
-
-			v := config.New()
-			v.Set("workingDir", workDir)
-			b := newTestSitesBuilder(c).WithLogger(loggers.NewErrorLogger())
-			// Need to use OS fs for this.
-			b.Fs = hugofs.NewDefault(v)
-			b.WithWorkingDir(workDir)
-			b.WithViper(v)
-
-			scssDir := filepath.Join(workDir, "assets", "scss")
-			c.Assert(os.MkdirAll(filepath.Join(workDir, "content", "sect"), 0777), qt.IsNil)
-			c.Assert(os.MkdirAll(filepath.Join(workDir, "data"), 0777), qt.IsNil)
-			c.Assert(os.MkdirAll(filepath.Join(workDir, "i18n"), 0777), qt.IsNil)
-			c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "shortcodes"), 0777), qt.IsNil)
-			c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "_default"), 0777), qt.IsNil)
-			c.Assert(os.MkdirAll(filepath.Join(scssDir), 0777), qt.IsNil)
-			b.WithSourceFile(filepath.Join(scssDir, "regular.css"), ``)
-			b.WithSourceFile(filepath.Join(scssDir, "another.css"), ``)
-			b.WithSourceFile(filepath.Join(scssDir, "_moo.scss"), `
-$moolor: #fff;
-
-moo {
-  color: $moolor;
-}
-`)
-
-			b.WithSourceFile(filepath.Join(scssDir, "main.scss"), `
-@import "moo";
-@import "regular.css";
-@import "moo";
-@import "another.css";
-
-/* foo */
-`)
-
-			b.WithTemplatesAdded("index.html", fmt.Sprintf(`
-{{ $r := resources.Get "scss/main.scss" |  toCSS (dict "transpiler" %q)  }}
-T1: {{ $r.Content | safeHTML }}
-`, test.name))
-			b.Build(BuildCfg{})
-
-			if test.name == "libsass" {
-				// LibSass does not support regular CSS imports. There
-				// is an open bug about it that probably will never be resolved.
-				// Hugo works around this by preserving them in place:
-				b.AssertFileContent(filepath.Join(workDir, "public/index.html"), `
- T1: moo {
- color: #fff; }
-
-@import "regular.css";
-moo {
- color: #fff; }
-
-@import "another.css";
-/* foo */
-        
-`)
-			} else {
-				// Dart Sass does not follow regular CSS import, but they
-				// get pulled to the top.
-				b.AssertFileContent(filepath.Join(workDir, "public/index.html"), `T1: @import "regular.css";
-@import "another.css";
-moo {
-  color: #fff;
-}
-
-moo {
-  color: #fff;
-}
-
-/* foo */`)
-
-			}
-		})
-	}
-
-}
-
-func TestSCSSWithThemeOverrides(t *testing.T) {
-	c := qt.New(t)
-
-	for _, test := range []struct {
-		name     string
-		supports func() bool
-	}{
-		{"libsass", func() bool { return scss.Supports() }},
-		{"dartsass", func() bool { return dartsass.Supports() }},
-	} {
-
-		c.Run(test.name, func(c *qt.C) {
-			if !test.supports() {
-				c.Skip(fmt.Sprintf("Skip %s", test.name))
-			}
-
-			workDir, clean1, err := htesting.CreateTempDir(hugofs.Os, fmt.Sprintf("hugo-scss-include-theme-overrides-%s", test.name))
-			c.Assert(err, qt.IsNil)
-			defer clean1()
-
-			theme := "mytheme"
-			themesDir := filepath.Join(workDir, "themes")
-			themeDirs := filepath.Join(themesDir, theme)
-			v := config.New()
-			v.Set("workingDir", workDir)
-			v.Set("theme", theme)
-			b := newTestSitesBuilder(c).WithLogger(loggers.NewErrorLogger())
-			// Need to use OS fs for this.
-			b.Fs = hugofs.NewDefault(v)
-			b.WithWorkingDir(workDir)
-			b.WithViper(v)
-
-			fooDir := filepath.Join(workDir, "node_modules", "foo")
-			scssDir := filepath.Join(workDir, "assets", "scss")
-			scssThemeDir := filepath.Join(themeDirs, "assets", "scss")
-			c.Assert(os.MkdirAll(fooDir, 0777), qt.IsNil)
-			c.Assert(os.MkdirAll(filepath.Join(workDir, "content", "sect"), 0777), qt.IsNil)
-			c.Assert(os.MkdirAll(filepath.Join(workDir, "data"), 0777), qt.IsNil)
-			c.Assert(os.MkdirAll(filepath.Join(workDir, "i18n"), 0777), qt.IsNil)
-			c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "shortcodes"), 0777), qt.IsNil)
-			c.Assert(os.MkdirAll(filepath.Join(workDir, "layouts", "_default"), 0777), qt.IsNil)
-			c.Assert(os.MkdirAll(filepath.Join(scssDir, "components"), 0777), qt.IsNil)
-			c.Assert(os.MkdirAll(filepath.Join(scssThemeDir, "components"), 0777), qt.IsNil)
-
-			b.WithSourceFile(filepath.Join(scssThemeDir, "components", "_imports.scss"), `
-@import "moo";
-@import "_boo";
-@import "_zoo";
-
-`)
-
-			b.WithSourceFile(filepath.Join(scssThemeDir, "components", "_moo.scss"), `
-$moolor: #fff;
-
-moo {
-  color: $moolor;
-}
-`)
-
-			// Only in theme.
-			b.WithSourceFile(filepath.Join(scssThemeDir, "components", "_zoo.scss"), `
-$zoolor: pink;
-
-zoo {
-  color: $zoolor;
-}
-`)
-
-			b.WithSourceFile(filepath.Join(scssThemeDir, "components", "_boo.scss"), `
-$boolor: orange;
-
-boo {
-  color: $boolor;
-}
-`)
-
-			b.WithSourceFile(filepath.Join(scssThemeDir, "main.scss"), `
-@import "components/imports";
-
-`)
-
-			b.WithSourceFile(filepath.Join(scssDir, "components", "_moo.scss"), `
-$moolor: #ccc;
-
-moo {
-  color: $moolor;
-}
-`)
-
-			b.WithSourceFile(filepath.Join(scssDir, "components", "_boo.scss"), `
-$boolor: green;
-
-boo {
-  color: $boolor;
-}
-`)
-
-			b.WithTemplatesAdded("index.html", fmt.Sprintf(`
-{{ $cssOpts := (dict "includePaths" (slice "node_modules/foo" ) "transpiler" %q ) }}
-{{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts  | minify  }}
-T1: {{ $r.Content }}
-`, test.name))
-			b.Build(BuildCfg{})
-
-			b.AssertFileContent(
-				filepath.Join(workDir, "public/index.html"),
-				`T1: moo{color:#ccc}boo{color:green}zoo{color:pink}`,
-			)
-		})
-	}
-
-}
-
-// https://github.com/gohugoio/hugo/issues/6274
-func TestSCSSWithIncludePathsSass(t *testing.T) {
-	c := qt.New(t)
-
-	for _, test := range []struct {
-		name     string
-		supports func() bool
-	}{
-		{"libsass", func() bool { return scss.Supports() }},
-		{"dartsass", func() bool { return dartsass.Supports() }},
-	} {
-
-		c.Run(test.name, func(c *qt.C) {
-			if !test.supports() {
-				c.Skip(fmt.Sprintf("Skip %s", test.name))
-			}
-		})
-	}
-	if !scss.Supports() {
-		t.Skip("Skip SCSS")
-	}
-	workDir, clean1, err := htesting.CreateTempDir(hugofs.Os, "hugo-scss-includepaths")
-	c.Assert(err, qt.IsNil)
-	defer clean1()
-
-	v := config.New()
-	v.Set("workingDir", workDir)
-	v.Set("theme", "mytheme")
-	b := newTestSitesBuilder(t).WithLogger(loggers.NewErrorLogger())
-	// Need to use OS fs for this.
-	b.Fs = hugofs.NewDefault(v)
-	b.WithWorkingDir(workDir)
-	b.WithViper(v)
-
-	hulmaDir := filepath.Join(workDir, "node_modules", "hulma")
-	scssDir := filepath.Join(workDir, "themes/mytheme/assets", "scss")
-	c.Assert(os.MkdirAll(hulmaDir, 0777), qt.IsNil)
-	c.Assert(os.MkdirAll(scssDir, 0777), qt.IsNil)
-
-	b.WithSourceFile(filepath.Join(scssDir, "main.scss"), `
-@import "hulma/hulma";
-
-`)
-
-	b.WithSourceFile(filepath.Join(hulmaDir, "hulma.sass"), `
-$hulma: #ccc;
-
-foo
-  color: $hulma;
-
-`)
-
-	b.WithTemplatesAdded("index.html", `
- {{ $scssOptions := (dict "targetPath" "css/styles.css" "enableSourceMap" false "includePaths" (slice "node_modules")) }}
-{{ $r := resources.Get "scss/main.scss" |  toCSS $scssOptions  | minify  }}
-T1: {{ $r.Content }}
-`)
-	b.Build(BuildCfg{})
-
-	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), `T1: foo{color:#ccc}`)
-}
-
 func TestResourceChainBasic(t *testing.T) {
-	t.Parallel()
+	failIfHandler := func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/fail.jpg" {
+				http.Error(w, "{ msg: failed }", 500)
+				return
+			}
+			h.ServeHTTP(w, r)
+
+		})
+	}
+	ts := httptest.NewServer(
+		failIfHandler(http.FileServer(http.Dir("testdata/"))),
+	)
+	t.Cleanup(func() {
+		ts.Close()
+	})
 
 	b := newTestSitesBuilder(t)
-	b.WithTemplatesAdded("index.html", `
+	b.WithTemplatesAdded("index.html", fmt.Sprintf(`
 {{ $hello := "<h1>     Hello World!   </h1>" | resources.FromString "hello.html" | fingerprint "sha512" | minify  | fingerprint }}
 {{ $cssFingerprinted1 := "body {  background-color: lightblue; }" | resources.FromString "styles.css" |  minify  | fingerprint }}
 {{ $cssFingerprinted2 := "body {  background-color: orange; }" | resources.FromString "styles2.css" |  minify  | fingerprint }}
@@ -403,7 +70,23 @@ FIT: {{ $fit.Name }}|{{ $fit.RelPermalink }}|{{ $fit.Width }}
 CSS integrity Data first: {{ $cssFingerprinted1.Data.Integrity }} {{ $cssFingerprinted1.RelPermalink }}
 CSS integrity Data last:  {{ $cssFingerprinted2.RelPermalink }} {{ $cssFingerprinted2.Data.Integrity }}
 
-`)
+{{ $failedImg := resources.GetRemote "%[1]s/fail.jpg" }}
+{{ $rimg := resources.GetRemote "%[1]s/sunset.jpg" }}
+{{ $remotenotfound := resources.GetRemote "%[1]s/notfound.jpg" }}
+{{ $localnotfound := resources.Get "images/notfound.jpg" }}
+{{ $gopherprotocol := resources.GetRemote "gopher://example.org" }}
+{{ $rfit := $rimg.Fit "200x200" }}
+{{ $rfit2 := $rfit.Fit "100x200" }}
+{{ $rimg = $rimg | fingerprint }}
+SUNSET REMOTE: {{ $rimg.Name }}|{{ $rimg.RelPermalink }}|{{ $rimg.Width }}|{{ len $rimg.Content }}
+FIT REMOTE: {{ $rfit.Name }}|{{ $rfit.RelPermalink }}|{{ $rfit.Width }}
+REMOTE NOT FOUND: {{ if $remotenotfound }}FAILED{{ else}}OK{{ end }}
+LOCAL NOT FOUND: {{ if $localnotfound }}FAILED{{ else}}OK{{ end }}
+PRINT PROTOCOL ERROR1: {{ with $gopherprotocol }}{{ . | safeHTML }}{{ end }}
+PRINT PROTOCOL ERROR2: {{ with $gopherprotocol }}{{ .Err | safeHTML }}{{ end }}
+PRINT PROTOCOL ERROR DETAILS: {{ with $gopherprotocol }}Err: {{ .Err | safeHTML }}{{ with .Err }}|{{ with .Data }}Body: {{ .Body }}|StatusCode: {{ .StatusCode }}{{ end }}|{{ end }}{{ end }}
+FAILED REMOTE ERROR DETAILS CONTENT: {{ with $failedImg.Err }}|{{ . }}|{{ with .Data }}Body: {{ .Body }}|StatusCode: {{ .StatusCode }}|ContentLength: {{ .ContentLength }}|ContentType: {{ .ContentType }}{{ end }}{{ end }}|
+`, ts.URL))
 
 	fs := b.Fs.Source
 
@@ -424,12 +107,22 @@ CSS integrity Data last:  {{ $cssFingerprinted2.RelPermalink }} {{ $cssFingerpri
 		b.Build(BuildCfg{})
 
 		b.AssertFileContent("public/index.html",
-			`
+			fmt.Sprintf(`
 SUNSET: images/sunset.jpg|/images/sunset.a9bf1d944e19c0f382e0d8f51de690f7d0bc8fa97390c4242a86c3e5c0737e71.jpg|900|90587
 FIT: images/sunset.jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x200_fit_q75_box.jpg|200
 CSS integrity Data first: sha256-od9YaHw8nMOL8mUy97Sy8sKwMV3N4hI3aVmZXATxH&#43;8= /styles.min.a1df58687c3c9cc38bf26532f7b4b2f2c2b0315dcde212376959995c04f11fef.css
 CSS integrity Data last:  /styles2.min.1cfc52986836405d37f9998a63fd6dd8608e8c410e5e3db1daaa30f78bc273ba.css sha256-HPxSmGg2QF03&#43;ZmKY/1t2GCOjEEOXj2x2qow94vCc7o=
-`)
+
+SUNSET REMOTE: sunset_%[1]s.jpg|/sunset_%[1]s.a9bf1d944e19c0f382e0d8f51de690f7d0bc8fa97390c4242a86c3e5c0737e71.jpg|900|90587
+FIT REMOTE: sunset_%[1]s.jpg|/sunset_%[1]s_hu59e56ffff1bc1d8d122b1403d34e039f_0_200x200_fit_q75_box.jpg|200
+REMOTE NOT FOUND: OK
+LOCAL NOT FOUND: OK
+PRINT PROTOCOL ERROR DETAILS: Err: error calling resources.GetRemote: Get "gopher://example.org": unsupported protocol scheme "gopher"||
+FAILED REMOTE ERROR DETAILS CONTENT: |failed to fetch remote resource: Internal Server Error|Body: { msg: failed }
+|StatusCode: 500|ContentLength: 16|ContentType: text/plain; charset=utf-8|
+
+
+`, helpers.HashString(ts.URL+"/sunset.jpg", map[string]any{})))
 
 		b.AssertFileContent("public/styles.min.a1df58687c3c9cc38bf26532f7b4b2f2c2b0315dcde212376959995c04f11fef.css", "body{background-color:#add8e6}")
 		b.AssertFileContent("public//styles2.min.1cfc52986836405d37f9998a63fd6dd8608e8c410e5e3db1daaa30f78bc273ba.css", "body{background-color:orange}")
@@ -444,7 +137,7 @@ Edited content.
 
 `)
 
-		b.Assert(b.Fs.Destination.Remove("public"), qt.IsNil)
+		b.Assert(b.Fs.WorkingDirWritable.Remove("public"), qt.IsNil)
 		b.H.ResourceSpec.ClearCaches()
 
 	}
@@ -537,6 +230,91 @@ func TestResourceChains(t *testing.T) {
 
 	c := qt.New(t)
 
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/css/styles1.css":
+			w.Header().Set("Content-Type", "text/css")
+			w.Write([]byte(`h1 { 
+				font-style: bold;
+			}`))
+			return
+
+		case "/js/script1.js":
+			w.Write([]byte(`var x; x = 5, document.getElementById("demo").innerHTML = x * 10`))
+			return
+
+		case "/mydata/json1.json":
+			w.Write([]byte(`{
+				"employees": [
+					{
+						"firstName": "John",
+						"lastName": "Doe"
+					},
+					{
+						"firstName": "Anna",
+						"lastName": "Smith"
+					},
+					{
+						"firstName": "Peter",
+						"lastName": "Jones"
+					}
+				]
+			}`))
+			return
+
+		case "/mydata/xml1.xml":
+			w.Write([]byte(`
+					<hello>
+						<world>Hugo Rocks!</<world>
+					</hello>`))
+			return
+
+		case "/mydata/svg1.svg":
+			w.Header().Set("Content-Disposition", `attachment; filename="image.svg"`)
+			w.Write([]byte(`
+				<svg height="100" width="100">
+					<path d="M1e2 1e2H3e2 2e2z"/>
+				</svg>`))
+			return
+
+		case "/mydata/html1.html":
+			w.Write([]byte(`
+				<html>
+					<a href=#>Cool</a>
+				</html>`))
+			return
+
+		case "/authenticated/":
+			w.Header().Set("Content-Type", "text/plain")
+			if r.Header.Get("Authorization") == "Bearer abcd" {
+				w.Write([]byte(`Welcome`))
+				return
+			}
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+
+		case "/post":
+			w.Header().Set("Content-Type", "text/plain")
+			if r.Method == http.MethodPost {
+				body, err := ioutil.ReadAll(r.Body)
+				if err != nil {
+					http.Error(w, "Internal server error", http.StatusInternalServerError)
+					return
+				}
+				w.Write(body)
+				return
+			}
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			return
+		}
+
+		http.Error(w, "Not found", http.StatusNotFound)
+		return
+	}))
+	t.Cleanup(func() {
+		ts.Close()
+	})
+
 	tests := []struct {
 		name      string
 		shouldRun func() bool
@@ -578,25 +356,53 @@ T6: {{ $bundle1.Permalink }}
     [minify.tdewolff.html]
       keepWhitespace = false
 `)
-			b.WithTemplates("home.html", `
+			b.WithTemplates("home.html", fmt.Sprintf(`
 Min CSS: {{ ( resources.Get "css/styles1.css" | minify ).Content }}
+Min CSS Remote: {{ ( resources.GetRemote "%[1]s/css/styles1.css" | minify ).Content }}
 Min JS: {{ ( resources.Get "js/script1.js" | resources.Minify ).Content | safeJS }}
+Min JS Remote: {{ ( resources.GetRemote "%[1]s/js/script1.js" | minify ).Content }}
 Min JSON: {{ ( resources.Get "mydata/json1.json" | resources.Minify ).Content | safeHTML }}
+Min JSON Remote: {{ ( resources.GetRemote "%[1]s/mydata/json1.json" | resources.Minify ).Content | safeHTML }}
 Min XML: {{ ( resources.Get "mydata/xml1.xml" | resources.Minify ).Content | safeHTML }}
+Min XML Remote: {{ ( resources.GetRemote "%[1]s/mydata/xml1.xml" | resources.Minify ).Content | safeHTML }}
 Min SVG: {{ ( resources.Get "mydata/svg1.svg" | resources.Minify ).Content | safeHTML }}
+Min SVG Remote: {{ ( resources.GetRemote "%[1]s/mydata/svg1.svg" | resources.Minify ).Content | safeHTML }}
 Min SVG again: {{ ( resources.Get "mydata/svg1.svg" | resources.Minify ).Content | safeHTML }}
 Min HTML: {{ ( resources.Get "mydata/html1.html" | resources.Minify ).Content | safeHTML }}
-
-
-`)
+Min HTML Remote: {{ ( resources.GetRemote "%[1]s/mydata/html1.html" | resources.Minify ).Content | safeHTML }}
+`, ts.URL))
 		}, func(b *sitesBuilder) {
 			b.AssertFileContent("public/index.html", `Min CSS: h1{font-style:bold}`)
-			b.AssertFileContent("public/index.html", `Min JS: var x;x=5,document.getElementById(&#34;demo&#34;).innerHTML=x*10`)
+			b.AssertFileContent("public/index.html", `Min CSS Remote: h1{font-style:bold}`)
+			b.AssertFileContent("public/index.html", `Min JS: var x=5;document.getElementById(&#34;demo&#34;).innerHTML=x*10`)
+			b.AssertFileContent("public/index.html", `Min JS Remote: var x=5;document.getElementById(&#34;demo&#34;).innerHTML=x*10`)
 			b.AssertFileContent("public/index.html", `Min JSON: {"employees":[{"firstName":"John","lastName":"Doe"},{"firstName":"Anna","lastName":"Smith"},{"firstName":"Peter","lastName":"Jones"}]}`)
+			b.AssertFileContent("public/index.html", `Min JSON Remote: {"employees":[{"firstName":"John","lastName":"Doe"},{"firstName":"Anna","lastName":"Smith"},{"firstName":"Peter","lastName":"Jones"}]}`)
 			b.AssertFileContent("public/index.html", `Min XML: <hello><world>Hugo Rocks!</<world></hello>`)
+			b.AssertFileContent("public/index.html", `Min XML Remote: <hello><world>Hugo Rocks!</<world></hello>`)
 			b.AssertFileContent("public/index.html", `Min SVG: <svg height="100" width="100"><path d="M1e2 1e2H3e2 2e2z"/></svg>`)
+			b.AssertFileContent("public/index.html", `Min SVG Remote: <svg height="100" width="100"><path d="M1e2 1e2H3e2 2e2z"/></svg>`)
 			b.AssertFileContent("public/index.html", `Min SVG again: <svg height="100" width="100"><path d="M1e2 1e2H3e2 2e2z"/></svg>`)
 			b.AssertFileContent("public/index.html", `Min HTML: <html><a href=#>Cool</a></html>`)
+			b.AssertFileContent("public/index.html", `Min HTML Remote: <html><a href=#>Cool</a></html>`)
+		}},
+
+		{"remote", func() bool { return true }, func(b *sitesBuilder) {
+			b.WithTemplates("home.html", fmt.Sprintf(`
+{{$js := resources.GetRemote "%[1]s/js/script1.js" }}
+Remote Filename: {{ $js.RelPermalink }}
+{{$svg := resources.GetRemote "%[1]s/mydata/svg1.svg" }}
+Remote Content-Disposition: {{ $svg.RelPermalink }}
+{{$auth := resources.GetRemote "%[1]s/authenticated/" (dict "headers" (dict "Authorization" "Bearer abcd")) }}
+Remote Authorization: {{ $auth.Content }}
+{{$post := resources.GetRemote "%[1]s/post" (dict "method" "post" "body" "Request body") }}
+Remote POST: {{ $post.Content }}
+`, ts.URL))
+		}, func(b *sitesBuilder) {
+			b.AssertFileContent("public/index.html", `Remote Filename: /script1_`)
+			b.AssertFileContent("public/index.html", `Remote Content-Disposition: /image_`)
+			b.AssertFileContent("public/index.html", `Remote Authorization: Welcome`)
+			b.AssertFileContent("public/index.html", `Remote POST: Request body`)
 		}},
 
 		{"concat", func() bool { return true }, func(b *sitesBuilder) {
@@ -741,16 +547,19 @@ Publish 2: {{ $cssPublish2.Permalink }}
 {{ $toml := "slogan = \"Hugo Rocks!\"" | resources.FromString "slogan.toml" | transform.Unmarshal }}
 {{ $csv1 := "\"Hugo Rocks\",\"Hugo is Fast!\"" | resources.FromString "slogans.csv" | transform.Unmarshal }}
 {{ $csv2 := "a;b;c" | transform.Unmarshal (dict "delimiter" ";") }}
+{{ $xml := "<?xml version=\"1.0\" encoding=\"UTF-8\"?><note><to>You</to><from>Me</from><heading>Reminder</heading><body>Do not forget XML</body></note>" | transform.Unmarshal }}
 
 Slogan: {{ $toml.slogan }}
 CSV1: {{ $csv1 }} {{ len (index $csv1 0)  }}
 CSV2: {{ $csv2 }}		
+XML: {{ $xml.body }}
 `)
 		}, func(b *sitesBuilder) {
 			b.AssertFileContent("public/index.html",
 				`Slogan: Hugo Rocks!`,
 				`[[Hugo Rocks Hugo is Fast!]] 2`,
 				`CSV2: [[a b c]]`,
+				`XML: Do not forget XML`,
 			)
 		}},
 		{"resources.Get", func() bool { return true }, func(b *sitesBuilder) {
@@ -887,6 +696,8 @@ func TestResourcesMatch(t *testing.T) {
 	b.WithContent("page.md", "")
 
 	b.WithSourceFile(
+		"assets/images/img1.png", "png",
+		"assets/images/img2.jpg", "jpg",
 		"assets/jsons/data1.json", "json1 content",
 		"assets/jsons/data2.json", "json2 content",
 		"assets/jsons/data3.xml", "xml content",
@@ -895,7 +706,9 @@ func TestResourcesMatch(t *testing.T) {
 	b.WithTemplates("index.html", `
 {{ $jsons := (resources.Match "jsons/*.json") }}
 {{ $json := (resources.GetMatch "jsons/*.json") }}
-{{ printf "JSONS: %d"  (len $jsons) }}
+{{ printf "jsonsMatch: %d"  (len $jsons) }}
+{{ printf "imagesByType: %d"  (len (resources.ByType "image") ) }}
+{{ printf "applicationByType: %d"  (len (resources.ByType "application") ) }}
 JSON: {{ $json.RelPermalink }}: {{ $json.Content }}
 {{ range $jsons }}
 {{- .RelPermalink }}: {{ .Content }}
@@ -906,221 +719,10 @@ JSON: {{ $json.RelPermalink }}: {{ $json.Content }}
 
 	b.AssertFileContent("public/index.html",
 		"JSON: /jsons/data1.json: json1 content",
-		"JSONS: 2", "/jsons/data1.json: json1 content")
-}
-
-func TestExecuteAsTemplateWithLanguage(t *testing.T) {
-	b := newMultiSiteTestDefaultBuilder(t)
-	indexContent := `
-Lang: {{ site.Language.Lang }}
-{{ $templ := "{{T \"hello\"}}" | resources.FromString "f1.html" }}
-{{ $helloResource := $templ | resources.ExecuteAsTemplate (print "f%s.html" .Lang) . }}
-Hello1: {{T "hello"}}
-Hello2: {{ $helloResource.Content }}
-LangURL: {{ relLangURL "foo" }}
-`
-	b.WithTemplatesAdded("index.html", indexContent)
-	b.WithTemplatesAdded("index.fr.html", indexContent)
-
-	b.Build(BuildCfg{})
-
-	b.AssertFileContent("public/en/index.html", `
-Hello1: Hello
-Hello2: Hello
-`)
-
-	b.AssertFileContent("public/fr/index.html", `
-Hello1: Bonjour
-Hello2: Bonjour
-`)
-}
-
-func TestResourceChainPostCSS(t *testing.T) {
-	if !htesting.IsCI() {
-		t.Skip("skip (relative) long running modules test when running locally")
-	}
-
-	wd, _ := os.Getwd()
-	defer func() {
-		os.Chdir(wd)
-	}()
-
-	c := qt.New(t)
-
-	packageJSON := `{
-  "scripts": {},
-
-  "devDependencies": {
-    "postcss-cli": "7.1.0",
-    "tailwindcss": "1.2.0"
-  }
-}
-`
-
-	postcssConfig := `
-console.error("Hugo Environment:", process.env.HUGO_ENVIRONMENT );
-// https://github.com/gohugoio/hugo/issues/7656
-console.error("package.json:", process.env.HUGO_FILE_PACKAGE_JSON );
-console.error("PostCSS Config File:", process.env.HUGO_FILE_POSTCSS_CONFIG_JS );
-
-
-module.exports = {
-  plugins: [
-    require('tailwindcss')
-  ]
-}
-`
-
-	tailwindCss := `
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@import "components/all.css";
-
-h1 {
-    @apply text-2xl font-bold;
-}
-  
-`
-
-	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-test-postcss")
-	c.Assert(err, qt.IsNil)
-	defer clean()
-
-	var logBuf bytes.Buffer
-
-	newTestBuilder := func(v config.Provider) *sitesBuilder {
-		v.Set("workingDir", workDir)
-		v.Set("disableKinds", []string{"taxonomy", "term", "page"})
-		logger := loggers.NewBasicLoggerForWriter(jww.LevelInfo, &logBuf)
-		b := newTestSitesBuilder(t).WithLogger(logger)
-		// Need to use OS fs for this.
-		b.Fs = hugofs.NewDefault(v)
-		b.WithWorkingDir(workDir)
-		b.WithViper(v)
-
-		b.WithContent("p1.md", "")
-		b.WithTemplates("index.html", `
-{{ $options := dict "inlineImports" true }}
-{{ $styles := resources.Get "css/styles.css" | resources.PostCSS $options }}
-Styles RelPermalink: {{ $styles.RelPermalink }}
-{{ $cssContent := $styles.Content }}
-Styles Content: Len: {{ len $styles.Content }}|
-
-`)
-
-		return b
-	}
-
-	b := newTestBuilder(config.New())
-
-	cssDir := filepath.Join(workDir, "assets", "css", "components")
-	b.Assert(os.MkdirAll(cssDir, 0777), qt.IsNil)
-
-	b.WithSourceFile("assets/css/styles.css", tailwindCss)
-	b.WithSourceFile("assets/css/components/all.css", `
-@import "a.css";
-@import "b.css";
-`, "assets/css/components/a.css", `
-class-in-a {
-	color: blue;
-}
-`, "assets/css/components/b.css", `
-@import "a.css";
-
-class-in-b {
-	color: blue;
-}
-`)
-
-	b.WithSourceFile("package.json", packageJSON)
-	b.WithSourceFile("postcss.config.js", postcssConfig)
-
-	b.Assert(os.Chdir(workDir), qt.IsNil)
-	cmd, err := hexec.SafeCommand("npm", "install")
-	_, err = cmd.CombinedOutput()
-	b.Assert(err, qt.IsNil)
-	b.Build(BuildCfg{})
-
-	// Make sure Node sees this.
-	b.Assert(logBuf.String(), qt.Contains, "Hugo Environment: production")
-	b.Assert(logBuf.String(), qt.Contains, filepath.FromSlash(fmt.Sprintf("PostCSS Config File: %s/postcss.config.js", workDir)))
-	b.Assert(logBuf.String(), qt.Contains, filepath.FromSlash(fmt.Sprintf("package.json: %s/package.json", workDir)))
-
-	b.AssertFileContent("public/index.html", `
-Styles RelPermalink: /css/styles.css
-Styles Content: Len: 770878|
-`)
-
-	assertCss := func(b *sitesBuilder) {
-		content := b.FileContent("public/css/styles.css")
-
-		b.Assert(strings.Contains(content, "class-in-a"), qt.Equals, true)
-		b.Assert(strings.Contains(content, "class-in-b"), qt.Equals, true)
-	}
-
-	assertCss(b)
-
-	build := func(s string, shouldFail bool) error {
-		b.Assert(os.RemoveAll(filepath.Join(workDir, "public")), qt.IsNil)
-
-		v := config.New()
-		v.Set("build", map[string]interface{}{
-			"useResourceCacheWhen": s,
-		})
-
-		b = newTestBuilder(v)
-
-		b.Assert(os.RemoveAll(filepath.Join(workDir, "public")), qt.IsNil)
-
-		err := b.BuildE(BuildCfg{})
-		if shouldFail {
-			b.Assert(err, qt.Not(qt.IsNil))
-		} else {
-			b.Assert(err, qt.IsNil)
-			assertCss(b)
-		}
-
-		return err
-	}
-
-	build("always", false)
-	build("fallback", false)
-
-	// Introduce a syntax error in an import
-	b.WithSourceFile("assets/css/components/b.css", `@import "a.css";
-
-class-in-b {
-	@apply asdf;
-}
-`)
-
-	err = build("never", true)
-
-	err = herrors.UnwrapErrorWithFileContext(err)
-	_, ok := err.(*herrors.ErrorWithFileContext)
-	b.Assert(ok, qt.Equals, true)
-
-	// TODO(bep) for some reason, we have starting to get
-	// execute of template failed: template: index.html:5:25
-	// on CI (GitHub action).
-	//b.Assert(fe.Position().LineNumber, qt.Equals, 5)
-	//b.Assert(fe.Error(), qt.Contains, filepath.Join(workDir, "assets/css/components/b.css:4:1"))
-
-	// Remove PostCSS
-	b.Assert(os.RemoveAll(filepath.Join(workDir, "node_modules")), qt.IsNil)
-
-	build("always", false)
-	build("fallback", false)
-	build("never", true)
-
-	// Remove cache
-	b.Assert(os.RemoveAll(filepath.Join(workDir, "resources")), qt.IsNil)
-
-	build("always", true)
-	build("fallback", true)
-	build("never", true)
+		"jsonsMatch: 2",
+		"imagesByType: 2",
+		"applicationByType: 3",
+		"/jsons/data1.json: json1 content")
 }
 
 func TestResourceMinifyDisabled(t *testing.T) {
@@ -1151,27 +753,4 @@ XML: {{ $xml.Content | safeHTML }}|{{ $xml.RelPermalink }}
 	b.AssertFileContent("public/index.html", `
 XML: <root>   <foo> asdfasdf </foo> </root>|/xml/data.min.3be4fddd19aaebb18c48dd6645215b822df74701957d6d36e59f203f9c30fd9f.xml
 `)
-}
-
-// Issue 8954
-func TestMinifyWithError(t *testing.T) {
-	b := newTestSitesBuilder(t).WithSimpleConfigFile()
-	b.WithSourceFile(
-		"assets/js/test.js", `
-new Date(2002, 04, 11)
-`,
-	)
-	b.WithTemplates("index.html", `
-{{ $js := resources.Get "js/test.js" | minify | fingerprint }}
-<script>
-{{ $js.Content }}
-</script>
-`)
-	b.WithContent("page.md", "")
-
-	err := b.BuildE(BuildCfg{})
-
-	if err == nil || !strings.Contains(err.Error(), "04") {
-		t.Fatalf("expected a message about a legacy octal number, but got: %v", err)
-	}
 }

@@ -23,6 +23,10 @@ import (
 	"github.com/spf13/afero"
 )
 
+var (
+	_ FilesystemUnwrapper = (*filenameFilterFs)(nil)
+)
+
 func newFilenameFilterFs(fs afero.Fs, base string, filter *glob.FilenameFilter) afero.Fs {
 	return &filenameFilterFs{
 		fs:     fs,
@@ -37,6 +41,10 @@ type filenameFilterFs struct {
 	fs   afero.Fs
 
 	filter *glob.FilenameFilter
+}
+
+func (fs *filenameFilterFs) UnwrapFilesystem() afero.Fs {
+	return fs.fs
 }
 
 func (fs *filenameFilterFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {

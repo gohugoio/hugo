@@ -16,19 +16,18 @@ package minifiers
 import (
 	"testing"
 
-	"github.com/gohugoio/hugo/config"
-
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/config"
 )
 
 func TestConfig(t *testing.T) {
 	c := qt.New(t)
-	v := config.New()
+	v := config.NewWithTestDefaults()
 
-	v.Set("minify", map[string]interface{}{
+	v.Set("minify", map[string]any{
 		"disablexml": true,
-		"tdewolff": map[string]interface{}{
-			"html": map[string]interface{}{
+		"tdewolff": map[string]any{
+			"html": map[string]any{
 				"keepwhitespace": false,
 			},
 		},
@@ -53,7 +52,7 @@ func TestConfig(t *testing.T) {
 
 func TestConfigLegacy(t *testing.T) {
 	c := qt.New(t)
-	v := config.New()
+	v := config.NewWithTestDefaults()
 
 	// This was a bool < Hugo v0.58.
 	v.Set("minify", true)

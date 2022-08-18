@@ -14,13 +14,12 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/herrors"
-
-	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/paths"
 
@@ -60,18 +59,25 @@ func FromConfigString(config, configType string) (Provider, error) {
 func FromFile(fs afero.Fs, filename string) (Provider, error) {
 	m, err := loadConfigFromFile(fs, filename)
 	if err != nil {
-		return nil, herrors.WithFileContextForFileDefault(err, filename, fs)
+		fe := herrors.UnwrapFileError(err)
+		if fe != nil {
+			pos := fe.Position()
+			pos.Filename = filename
+			fe.UpdatePosition(pos)
+			return nil, err
+		}
+		return nil, herrors.NewFileErrorFromFile(err, filename, fs, nil)
 	}
 	return NewFrom(m), nil
 }
 
 // FromFileToMap is the same as FromFile, but it returns the config values
 // as a simple map.
-func FromFileToMap(fs afero.Fs, filename string) (map[string]interface{}, error) {
+func FromFileToMap(fs afero.Fs, filename string) (map[string]any, error) {
 	return loadConfigFromFile(fs, filename)
 }
 
-func readConfig(format metadecoders.Format, data []byte) (map[string]interface{}, error) {
+func readConfig(format metadecoders.Format, data []byte) (map[string]any, error) {
 	m, err := metadecoders.Default.UnmarshalToMap(data, format)
 	if err != nil {
 		return nil, err
@@ -82,7 +88,7 @@ func readConfig(format metadecoders.Format, data []byte) (map[string]interface{}
 	return m, nil
 }
 
-func loadConfigFromFile(fs afero.Fs, filename string) (map[string]interface{}, error) {
+func loadConfigFromFile(fs afero.Fs, filename string) (map[string]any, error) {
 	m, err := metadecoders.Default.UnmarshalFileToMap(fs, filename)
 	if err != nil {
 		return nil, err
@@ -132,7 +138,7 @@ func LoadConfigFromDir(sourceFs afero.Fs, configDir, environment string) (Provid
 			if err != nil {
 				// This will be used in error reporting, use the most specific value.
 				dirnames = []string{path}
-				return errors.Wrapf(err, "failed to unmarshl config for path %q", path)
+				return fmt.Errorf("failed to unmarshl config for path %q: %w", path, err)
 			}
 
 			var keyPath []string
@@ -156,13 +162,13 @@ func LoadConfigFromDir(sourceFs afero.Fs, configDir, environment string) (Provid
 
 			root := item
 			if len(keyPath) > 0 {
-				root = make(map[string]interface{})
+				root = make(map[string]any)
 				m := root
 				for i, key := range keyPath {
 					if i >= len(keyPath)-1 {
 						m[key] = item
 					} else {
-						nm := make(map[string]interface{})
+						nm := make(map[string]any)
 						m[key] = nm
 						m = nm
 					}
@@ -203,6 +209,6 @@ func init() {
 
 // RenameKeys renames config keys in m recursively according to a global Hugo
 // alias definition.
-func RenameKeys(m map[string]interface{}) {
+func RenameKeys(m map[string]any) {
 	keyAliases.Rename(m)
 }

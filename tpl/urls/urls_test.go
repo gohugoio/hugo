@@ -34,8 +34,8 @@ func TestParse(t *testing.T) {
 	c := qt.New(t)
 
 	for _, test := range []struct {
-		rawurl interface{}
-		expect interface{}
+		rawurl any
+		expect any
 	}{
 		{
 			"http://www.google.com",

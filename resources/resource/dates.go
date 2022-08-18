@@ -13,16 +13,27 @@
 
 package resource
 
-import "time"
+import (
+	"time"
+
+	"github.com/gohugoio/hugo/common/htime"
+)
 
 var _ Dated = Dates{}
 
 // Dated wraps a "dated resource". These are the 4 dates that makes
 // the date logic in Hugo.
 type Dated interface {
+	// Date returns the date of the resource.
 	Date() time.Time
+
+	// Lastmod returns the last modification date of the resource.
 	Lastmod() time.Time
+
+	// PublishDate returns the publish date of the resource.
 	PublishDate() time.Time
+
+	// ExpiryDate returns the expiration date of the resource.
 	ExpiryDate() time.Time
 }
 
@@ -48,7 +59,8 @@ func IsFuture(d Dated) bool {
 	if d.PublishDate().IsZero() {
 		return false
 	}
-	return d.PublishDate().After(time.Now())
+
+	return d.PublishDate().After(htime.Now())
 }
 
 // IsExpired returns whether the argument is expired.
@@ -56,7 +68,7 @@ func IsExpired(d Dated) bool {
 	if d.ExpiryDate().IsZero() {
 		return false
 	}
-	return d.ExpiryDate().Before(time.Now())
+	return d.ExpiryDate().Before(htime.Now())
 }
 
 // IsZeroDates returns true if all of the dates are zero.

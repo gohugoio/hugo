@@ -21,11 +21,11 @@ import (
 )
 
 // Params is a map where all keys are lower case.
-type Params map[string]interface{}
+type Params map[string]any
 
 // Get does a lower case and nested search in this map.
 // It will return nil if none found.
-func (p Params) Get(indices ...string) interface{} {
+func (p Params) Get(indices ...string) any {
 	v, _, _ := getNested(p, indices)
 	return v
 }
@@ -142,7 +142,7 @@ func (p Params) SetDefaultMergeStrategy(s ParamsMergeStrategy) {
 	p[mergeStrategyKey] = s
 }
 
-func getNested(m map[string]interface{}, indices []string) (interface{}, string, map[string]interface{}) {
+func getNested(m map[string]any, indices []string) (any, string, map[string]any) {
 	if len(indices) == 0 {
 		return nil, "", nil
 	}
@@ -164,7 +164,7 @@ func getNested(m map[string]interface{}, indices []string) (interface{}, string,
 	switch m2 := v.(type) {
 	case Params:
 		return getNested(m2, indices[1:])
-	case map[string]interface{}:
+	case map[string]any:
 		return getNested(m2, indices[1:])
 	default:
 		return nil, "", nil
@@ -175,7 +175,7 @@ func getNested(m map[string]interface{}, indices []string) (interface{}, string,
 // It will first try the exact match and then try to find it as a nested map value,
 // using the given separator, e.g. "mymap.name".
 // It assumes that all the maps given have lower cased keys.
-func GetNestedParam(keyStr, separator string, candidates ...Params) (interface{}, error) {
+func GetNestedParam(keyStr, separator string, candidates ...Params) (any, error) {
 	keyStr = strings.ToLower(keyStr)
 
 	// Try exact match first
@@ -195,7 +195,7 @@ func GetNestedParam(keyStr, separator string, candidates ...Params) (interface{}
 	return nil, nil
 }
 
-func GetNestedParamFn(keyStr, separator string, lookupFn func(key string) interface{}) (interface{}, string, map[string]interface{}, error) {
+func GetNestedParamFn(keyStr, separator string, lookupFn func(key string) any) (any, string, map[string]any, error) {
 	keySegments := strings.Split(keyStr, separator)
 	if len(keySegments) == 0 {
 		return nil, "", nil, nil
@@ -211,7 +211,7 @@ func GetNestedParamFn(keyStr, separator string, lookupFn func(key string) interf
 	}
 
 	switch m := first.(type) {
-	case map[string]interface{}:
+	case map[string]any:
 		v, key, owner := getNested(m, keySegments[1:])
 		return v, key, owner, nil
 	case Params:
@@ -236,7 +236,7 @@ const (
 	mergeStrategyKey = "_merge"
 )
 
-func toMergeStrategy(v interface{}) ParamsMergeStrategy {
+func toMergeStrategy(v any) ParamsMergeStrategy {
 	s := ParamsMergeStrategy(cast.ToString(v))
 	switch s {
 	case ParamsMergeStrategyDeep, ParamsMergeStrategyNone, ParamsMergeStrategyShallow:
@@ -260,13 +260,13 @@ func PrepareParams(m Params) {
 			retyped = true
 		} else {
 			switch vv := v.(type) {
-			case map[interface{}]interface{}:
+			case map[any]any:
 				var p Params = cast.ToStringMap(v)
 				v = p
 				PrepareParams(p)
 				retyped = true
-			case map[string]interface{}:
-				var p Params = v.(map[string]interface{})
+			case map[string]any:
+				var p Params = v.(map[string]any)
 				v = p
 				PrepareParams(p)
 				retyped = true

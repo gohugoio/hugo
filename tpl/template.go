@@ -14,12 +14,18 @@
 package tpl
 
 import (
+	"context"
 	"io"
 	"reflect"
 	"regexp"
+	"strings"
+	"unicode"
+
+	bp "github.com/gohugoio/hugo/bufferpool"
 
 	"github.com/gohugoio/hugo/output"
 
+	htmltemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 )
 
@@ -44,10 +50,16 @@ type TemplateFinder interface {
 	TemplateLookupVariant
 }
 
+// UnusedTemplatesProvider lists unused templates if the build is configured to track those.
+type UnusedTemplatesProvider interface {
+	UnusedTemplates() []FileInfo
+}
+
 // TemplateHandler finds and executes templates.
 type TemplateHandler interface {
 	TemplateFinder
-	Execute(t Template, wr io.Writer, data interface{}) error
+	Execute(t Template, wr io.Writer, data any) error
+	ExecuteWithContext(ctx context.Context, t Template, wr io.Writer, data any) error
 	LookupLayout(d output.LayoutDescriptor, f output.Format) (Template, bool, error)
 	HasTemplate(name string) bool
 }
@@ -138,4 +150,62 @@ func extractBaseOf(err string) string {
 // TemplateFuncGetter allows to find a template func by name.
 type TemplateFuncGetter interface {
 	GetFunc(name string) (reflect.Value, bool)
+}
+
+// GetDataFromContext returns the template data context (usually .Page) from ctx if set.
+// NOte: This is not fully implemented yet.
+func GetDataFromContext(ctx context.Context) any {
+	return ctx.Value(texttemplate.DataContextKey)
+}
+
+func GetHasLockFromContext(ctx context.Context) bool {
+	if v := ctx.Value(texttemplate.HasLockContextKey); v != nil {
+		return v.(bool)
+	}
+	return false
+}
+
+func SetHasLockInContext(ctx context.Context, hasLock bool) context.Context {
+	return context.WithValue(ctx, texttemplate.HasLockContextKey, hasLock)
+}
+
+const hugoNewLinePlaceholder = "___hugonl_"
+
+var (
+	stripHTMLReplacerPre = strings.NewReplacer("\n", " ", "</p>", hugoNewLinePlaceholder, "<br>", hugoNewLinePlaceholder, "<br />", hugoNewLinePlaceholder)
+	whitespaceRe         = regexp.MustCompile(`\s+`)
+)
+
+// StripHTML strips out all HTML tags in s.
+func StripHTML(s string) string {
+	// Shortcut strings with no tags in them
+	if !strings.ContainsAny(s, "<>") {
+		return s
+	}
+
+	pre := stripHTMLReplacerPre.Replace(s)
+	preReplaced := pre != s
+
+	s = htmltemplate.StripTags(pre)
+
+	if preReplaced {
+		s = strings.ReplaceAll(s, hugoNewLinePlaceholder, "\n")
+	}
+
+	var wasSpace bool
+	b := bp.GetBuffer()
+	defer bp.PutBuffer(b)
+	for _, r := range s {
+		isSpace := unicode.IsSpace(r)
+		if !(isSpace && wasSpace) {
+			b.WriteRune(r)
+		}
+		wasSpace = isSpace
+	}
+
+	if b.Len() > 0 {
+		s = b.String()
+	}
+
+	return s
 }

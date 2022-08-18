@@ -16,47 +16,161 @@ package highlight
 import (
 	"fmt"
 	gohtml "html"
+	"html/template"
 	"io"
 	"strings"
 
-	"github.com/alecthomas/chroma"
-	"github.com/alecthomas/chroma/formatters/html"
-	"github.com/alecthomas/chroma/lexers"
-	"github.com/alecthomas/chroma/styles"
-	hl "github.com/yuin/goldmark-highlighting"
+	"github.com/alecthomas/chroma/v2"
+	"github.com/alecthomas/chroma/v2/formatters/html"
+	"github.com/alecthomas/chroma/v2/lexers"
+	"github.com/alecthomas/chroma/v2/styles"
+	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/common/text"
+	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/markup/converter/hooks"
+	"github.com/gohugoio/hugo/markup/internal/attributes"
 )
 
+// Markdown attributes used by the Chroma hightlighter.
+var chromaHightlightProcessingAttributes = map[string]bool{
+	"anchorLineNos":      true,
+	"guessSyntax":        true,
+	"hl_Lines":           true,
+	"lineAnchors":        true,
+	"lineNos":            true,
+	"lineNoStart":        true,
+	"lineNumbersInTable": true,
+	"noClasses":          true,
+	"style":              true,
+	"tabWidth":           true,
+}
+
+func init() {
+	for k, v := range chromaHightlightProcessingAttributes {
+		chromaHightlightProcessingAttributes[strings.ToLower(k)] = v
+	}
+}
+
 func New(cfg Config) Highlighter {
-	return Highlighter{
+	return chromaHighlighter{
 		cfg: cfg,
 	}
 }
 
-type Highlighter struct {
+type Highlighter interface {
+	Highlight(code, lang string, opts any) (string, error)
+	HighlightCodeBlock(ctx hooks.CodeblockContext, opts any) (HightlightResult, error)
+	hooks.CodeBlockRenderer
+	hooks.IsDefaultCodeBlockRendererProvider
+}
+
+type chromaHighlighter struct {
 	cfg Config
 }
 
-func (h Highlighter) Highlight(code, lang, optsStr string) (string, error) {
-	if optsStr == "" {
-		return highlight(code, lang, h.cfg)
-	}
-
+func (h chromaHighlighter) Highlight(code, lang string, opts any) (string, error) {
 	cfg := h.cfg
-	if err := applyOptionsFromString(optsStr, &cfg); err != nil {
+	if err := applyOptions(opts, &cfg); err != nil {
+		return "", err
+	}
+	var b strings.Builder
+
+	if _, _, err := highlight(&b, code, lang, nil, cfg); err != nil {
 		return "", err
 	}
 
-	return highlight(code, lang, cfg)
+	return b.String(), nil
 }
 
-func highlight(code, lang string, cfg Config) (string, error) {
-	w := &strings.Builder{}
+func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts any) (HightlightResult, error) {
+	cfg := h.cfg
+
+	var b strings.Builder
+
+	attributes := ctx.(hooks.AttributesOptionsSliceProvider).AttributesSlice()
+
+	options := ctx.Options()
+
+	if err := applyOptionsFromMap(options, &cfg); err != nil {
+		return HightlightResult{}, err
+	}
+
+	// Apply these last so the user can override them.
+	if err := applyOptions(opts, &cfg); err != nil {
+		return HightlightResult{}, err
+	}
+
+	if err := applyOptionsFromCodeBlockContext(ctx, &cfg); err != nil {
+		return HightlightResult{}, err
+	}
+
+	low, high, err := highlight(&b, ctx.Inner(), ctx.Type(), attributes, cfg)
+	if err != nil {
+		return HightlightResult{}, err
+	}
+
+	highlighted := b.String()
+	if high == 0 {
+		high = len(highlighted)
+	}
+
+	return HightlightResult{
+		highlighted: template.HTML(highlighted),
+		innerLow:    low,
+		innerHigh:   high,
+	}, nil
+}
+
+func (h chromaHighlighter) RenderCodeblock(w hugio.FlexiWriter, ctx hooks.CodeblockContext) error {
+	cfg := h.cfg
+
+	attributes := ctx.(hooks.AttributesOptionsSliceProvider).AttributesSlice()
+
+	if err := applyOptionsFromMap(ctx.Options(), &cfg); err != nil {
+		return err
+	}
+
+	if err := applyOptionsFromCodeBlockContext(ctx, &cfg); err != nil {
+		return err
+	}
+
+	code := text.Puts(ctx.Inner())
+
+	_, _, err := highlight(w, code, ctx.Type(), attributes, cfg)
+	return err
+}
+
+func (h chromaHighlighter) IsDefaultCodeBlockRenderer() bool {
+	return true
+}
+
+var id = identity.NewPathIdentity("chroma", "highlight")
+
+func (h chromaHighlighter) GetIdentity() identity.Identity {
+	return id
+}
+
+type HightlightResult struct {
+	innerLow    int
+	innerHigh   int
+	highlighted template.HTML
+}
+
+func (h HightlightResult) Wrapped() template.HTML {
+	return h.highlighted
+}
+
+func (h HightlightResult) Inner() template.HTML {
+	return h.highlighted[h.innerLow:h.innerHigh]
+}
+
+func highlight(fw hugio.FlexiWriter, code, lang string, attributes []attributes.Attribute, cfg Config) (int, int, error) {
 	var lexer chroma.Lexer
 	if lang != "" {
 		lexer = lexers.Get(lang)
 	}
 
-	if lexer == nil && cfg.GuessSyntax {
+	if lexer == nil && (cfg.GuessSyntax && !cfg.NoHl) {
 		lexer = lexers.Analyse(code)
 		if lexer == nil {
 			lexer = lexers.Fallback
@@ -64,12 +178,18 @@ func highlight(code, lang string, cfg Config) (string, error) {
 		lang = strings.ToLower(lexer.Config().Name)
 	}
 
+	w := &byteCountFlexiWriter{delegate: fw}
+
 	if lexer == nil {
-		wrapper := getPreWrapper(lang)
-		fmt.Fprint(w, wrapper.Start(true, ""))
-		fmt.Fprint(w, gohtml.EscapeString(code))
-		fmt.Fprint(w, wrapper.End(true))
-		return w.String(), nil
+		if cfg.Hl_inline {
+			fmt.Fprint(w, fmt.Sprintf("<code%s>%s</code>", inlineCodeAttrs(lang), gohtml.EscapeString(code)))
+		} else {
+			preWrapper := getPreWrapper(lang, w)
+			fmt.Fprint(w, preWrapper.Start(true, ""))
+			fmt.Fprint(w, gohtml.EscapeString(code))
+			fmt.Fprint(w, preWrapper.End(true))
+		}
+		return 0, 0, nil
 	}
 
 	style := styles.Get(cfg.Style)
@@ -80,55 +200,82 @@ func highlight(code, lang string, cfg Config) (string, error) {
 
 	iterator, err := lexer.Tokenise(nil, code)
 	if err != nil {
-		return "", err
+		return 0, 0, err
+	}
+
+	if !cfg.Hl_inline {
+		writeDivStart(w, attributes)
 	}
 
 	options := cfg.ToHTMLOptions()
-	options = append(options, getHtmlPreWrapper(lang))
+	var wrapper html.PreWrapper
+
+	if cfg.Hl_inline {
+		wrapper = startEnd{
+			start: func(code bool, styleAttr string) string {
+				if code {
+					return fmt.Sprintf(`<code%s>`, inlineCodeAttrs(lang))
+				}
+				return ``
+			},
+			end: func(code bool) string {
+				if code {
+					return `</code>`
+				}
+
+				return ``
+			},
+		}
+
+	} else {
+		wrapper = getPreWrapper(lang, w)
+	}
+
+	options = append(options, html.WithPreWrapper(wrapper))
 
 	formatter := html.New(options...)
 
-	fmt.Fprint(w, `<div class="highlight">`)
 	if err := formatter.Format(w, style, iterator); err != nil {
-		return "", err
+		return 0, 0, err
 	}
-	fmt.Fprint(w, `</div>`)
 
-	return w.String(), nil
-}
-
-func GetCodeBlockOptions() func(ctx hl.CodeBlockContext) []html.Option {
-	return func(ctx hl.CodeBlockContext) []html.Option {
-		var language string
-		if l, ok := ctx.Language(); ok {
-			language = string(l)
-		}
-		return []html.Option{
-			getHtmlPreWrapper(language),
-		}
+	if !cfg.Hl_inline {
+		writeDivEnd(w)
 	}
+
+	if p, ok := wrapper.(*preWrapper); ok {
+		return p.low, p.high, nil
+	}
+
+	return 0, 0, nil
 }
 
-func getPreWrapper(language string) preWrapper {
-	return preWrapper{language: language}
-}
-
-func getHtmlPreWrapper(language string) html.Option {
-	return html.WithPreWrapper(getPreWrapper(language))
+func getPreWrapper(language string, writeCounter *byteCountFlexiWriter) *preWrapper {
+	return &preWrapper{language: language, writeCounter: writeCounter}
 }
 
 type preWrapper struct {
-	language string
+	low          int
+	high         int
+	writeCounter *byteCountFlexiWriter
+	language     string
 }
 
-func (p preWrapper) Start(code bool, styleAttr string) string {
+func (p *preWrapper) Start(code bool, styleAttr string) string {
 	var language string
 	if code {
 		language = p.language
 	}
 	w := &strings.Builder{}
 	WritePreStart(w, language, styleAttr)
+	p.low = p.writeCounter.counter + w.Len()
 	return w.String()
+}
+
+func inlineCodeAttrs(lang string) string {
+	if lang == "" {
+	}
+	return fmt.Sprintf(` class="code-inline language-%s"`, lang)
 }
 
 func WritePreStart(w io.Writer, language, styleAttr string) {
@@ -143,10 +290,74 @@ func WritePreStart(w io.Writer, language, styleAttr string) {
 
 const preEnd = "</code></pre>"
 
-func (p preWrapper) End(code bool) string {
+func (p *preWrapper) End(code bool) string {
+	p.high = p.writeCounter.counter
 	return preEnd
+}
+
+type startEnd struct {
+	start func(code bool, styleAttr string) string
+	end   func(code bool) string
+}
+
+func (s startEnd) Start(code bool, styleAttr string) string {
+	return s.start(code, styleAttr)
+}
+
+func (s startEnd) End(code bool) string {
+	return s.end(code)
 }
 
 func WritePreEnd(w io.Writer) {
 	fmt.Fprint(w, preEnd)
+}
+
+func writeDivStart(w hugio.FlexiWriter, attrs []attributes.Attribute) {
+	w.WriteString(`<div class="highlight`)
+	if attrs != nil {
+		for _, attr := range attrs {
+			if attr.Name == "class" {
+				w.WriteString(" " + attr.ValueString())
+				break
+			}
+		}
+		_, _ = w.WriteString("\"")
+		attributes.RenderAttributes(w, true, attrs...)
+	} else {
+		_, _ = w.WriteString("\"")
+	}
+
+	w.WriteString(">")
+}
+
+func writeDivEnd(w hugio.FlexiWriter) {
+	w.WriteString("</div>")
+}
+
+type byteCountFlexiWriter struct {
+	delegate hugio.FlexiWriter
+	counter  int
+}
+
+func (w *byteCountFlexiWriter) Write(p []byte) (int, error) {
+	n, err := w.delegate.Write(p)
+	w.counter += n
+	return n, err
+}
+
+func (w *byteCountFlexiWriter) WriteByte(c byte) error {
+	w.counter++
+	return w.delegate.WriteByte(c)
+}
+
+func (w *byteCountFlexiWriter) WriteString(s string) (int, error) {
+	n, err := w.delegate.WriteString(s)
+	w.counter += n
+	return n, err
+}
+
+func (w *byteCountFlexiWriter) WriteRune(r rune) (int, error) {
+	n, err := w.delegate.WriteRune(r)
+	w.counter += n
+	return n, err
 }

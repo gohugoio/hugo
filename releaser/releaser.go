@@ -26,21 +26,17 @@ import (
 
 	"github.com/gohugoio/hugo/common/hexec"
 
+	"errors"
+
 	"github.com/gohugoio/hugo/common/hugo"
-	"github.com/pkg/errors"
 )
 
 const commitPrefix = "releaser:"
 
-type releaseNotesState int
-
-const (
-	releaseNotesNone = iota
-	releaseNotesCreated
-	releaseNotesReady
-)
-
 // ReleaseHandler provides functionality to release a new version of Hugo.
+// Test this locally without doing an actual release:
+// go run -tags release main.go release --skip-publish --try -r 0.90.0
+// Or a variation of the above -- the skip-publish flag makes sure that any changes are performed to the local Git only.
 type ReleaseHandler struct {
 	cliVersion string
 
@@ -91,6 +87,8 @@ func (r *ReleaseHandler) Run() error {
 		return errors.New("GITHUB_TOKEN not set, create one here with the repo scope selected: https://github.com/settings/tokens/new")
 	}
 
+	fmt.Printf("Start release from %q\n", wd())
+
 	newVersion, finalVersion := r.calculateVersions()
 
 	version := newVersion.String()
@@ -124,67 +122,36 @@ func (r *ReleaseHandler) Run() error {
 	var (
 		gitCommits     gitInfos
 		gitCommitsDocs gitInfos
-		relNotesState  releaseNotesState
 	)
 
-	relNotesState, err = r.releaseNotesState(version)
+	defer r.gitPush() // TODO(bep)
+
+	gitCommits, err = getGitInfos(changeLogFromTag, "hugo", "", !r.try)
 	if err != nil {
 		return err
 	}
 
-	prepareReleaseNotes := isPatch || relNotesState == releaseNotesNone
-	shouldRelease := isPatch || relNotesState == releaseNotesReady
-
-	defer r.gitPush() // TODO(bep)
-
-	if prepareReleaseNotes || shouldRelease {
-		gitCommits, err = getGitInfos(changeLogFromTag, "hugo", "", !r.try)
-		if err != nil {
-			return err
-		}
-
-		// TODO(bep) explicit tag?
-		gitCommitsDocs, err = getGitInfos("", "hugoDocs", "../hugoDocs", !r.try)
-		if err != nil {
-			return err
-		}
+	// TODO(bep) explicit tag?
+	gitCommitsDocs, err = getGitInfos("", "hugoDocs", "../hugoDocs", !r.try)
+	if err != nil {
+		return err
 	}
 
-	if relNotesState == releaseNotesCreated {
-		fmt.Println("Release notes created, but not ready. Rename to *-ready.md to continue ...")
-		return nil
+	releaseNotesFile, err := r.writeReleaseNotesToTemp(version, isPatch, gitCommits, gitCommitsDocs)
+	if err != nil {
+		return err
 	}
 
-	if prepareReleaseNotes {
-		releaseNotesFile, err := r.writeReleaseNotesToTemp(version, isPatch, gitCommits, gitCommitsDocs)
-		if err != nil {
-			return err
-		}
-
-		if _, err := r.git("add", releaseNotesFile); err != nil {
-			return err
-		}
-
-		commitMsg := fmt.Sprintf("%s Add release notes for %s", commitPrefix, newVersion)
-		if !isPatch {
-			commitMsg += "\n\nRename to *-ready.md to continue."
-		}
-		commitMsg += "\n[ci skip]"
-
-		if _, err := r.git("commit", "-m", commitMsg); err != nil {
-			return err
-		}
+	if _, err := r.git("add", releaseNotesFile); err != nil {
+		return err
 	}
 
-	if !shouldRelease {
-		fmt.Printf("Skip release ... ")
-		return nil
-	}
+	commitMsg := fmt.Sprintf("%s Add release notes for %s", commitPrefix, newVersion)
+	commitMsg += "\n[ci skip]"
 
-	// For docs, for now we assume that:
-	// The /docs subtree is up to date and ready to go.
-	// The hugoDocs/dev and hugoDocs/master must be merged manually after release.
-	// TODO(bep) improve this when we see how it works.
+	if _, err := r.git("commit", "-m", commitMsg); err != nil {
+		return err
+	}
 
 	if err := r.bumpVersions(newVersion); err != nil {
 		return err
@@ -194,28 +161,7 @@ func (r *ReleaseHandler) Run() error {
 		return err
 	}
 
-	releaseNotesFile := getReleaseNotesDocsTempFilename(version, true)
-
-	title, description := version, version
-	if isPatch {
-		title = "Hugo " + version + ": A couple of Bug Fixes"
-		description = "This version fixes a couple of bugs introduced in " + mainVersion.String() + "."
-	}
-
-	// Write the release notes to the docs site as well.
-	docFile, err := r.writeReleaseNotesToDocs(title, description, releaseNotesFile)
-	if err != nil {
-		return err
-	}
-
-	if _, err := r.git("add", docFile); err != nil {
-		return err
-	}
-	if _, err := r.git("commit", "-m", fmt.Sprintf("%s Add release notes to /docs for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
-		return err
-	}
-
-	if _, err := r.git("tag", "-a", tag, "-m", fmt.Sprintf("%s %s [ci skip]", commitPrefix, newVersion)); err != nil {
+	if _, err := r.git("tag", "-a", tag, "-m", fmt.Sprintf("%s %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
 		return err
 	}
 
@@ -262,7 +208,7 @@ func (r *ReleaseHandler) release(releaseNotesFile string) error {
 		return nil
 	}
 
-	args := []string{"--parallelism", "3", "--timeout", "120m", "--rm-dist", "--release-notes", releaseNotesFile}
+	args := []string{"--parallelism", "2", "--timeout", "120m", "--rm-dist", "--release-notes", releaseNotesFile}
 	if r.skipPublish {
 		args = append(args, "--skip-publish")
 	}
@@ -272,7 +218,7 @@ func (r *ReleaseHandler) release(releaseNotesFile string) error {
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	if err != nil {
-		return errors.Wrap(err, "goreleaser failed")
+		return fmt.Errorf("goreleaser failed: %w", err)
 	}
 	return nil
 }
@@ -285,9 +231,9 @@ func (r *ReleaseHandler) bumpVersions(ver hugo.Version) error {
 	}
 
 	if err := r.replaceInFile("common/hugo/version_current.go",
-		`Number:(\s{4,})(.*),`, fmt.Sprintf(`Number:${1}%.2f,`, ver.Number),
-		`PatchLevel:(\s*)(.*),`, fmt.Sprintf(`PatchLevel:${1}%d,`, ver.PatchLevel),
-		`Suffix:(\s{4,})".*",`, fmt.Sprintf(`Suffix:${1}"%s",`, toDev)); err != nil {
+		`Minor:(\s*)(\d*),`, fmt.Sprintf(`Minor:${1}%d,`, ver.Minor),
+		`PatchLevel:(\s*)(\d*),`, fmt.Sprintf(`PatchLevel:${1}%d,`, ver.PatchLevel),
+		`Suffix:(\s*)".*",`, fmt.Sprintf(`Suffix:${1}"%s",`, toDev)); err != nil {
 		return err
 	}
 
@@ -319,8 +265,8 @@ func (r *ReleaseHandler) bumpVersions(ver hugo.Version) error {
 }
 
 func (r *ReleaseHandler) replaceInFile(filename string, oldNew ...string) error {
-	fullFilename := hugoFilepath(filename)
-	fi, err := os.Stat(fullFilename)
+	filename = filepath.FromSlash(filename)
+	fi, err := os.Stat(filename)
 	if err != nil {
 		return err
 	}
@@ -330,7 +276,7 @@ func (r *ReleaseHandler) replaceInFile(filename string, oldNew ...string) error 
 		return nil
 	}
 
-	b, err := ioutil.ReadFile(fullFilename)
+	b, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return err
 	}
@@ -341,17 +287,18 @@ func (r *ReleaseHandler) replaceInFile(filename string, oldNew ...string) error 
 		newContent = re.ReplaceAllString(newContent, oldNew[i+1])
 	}
 
-	return ioutil.WriteFile(fullFilename, []byte(newContent), fi.Mode())
-}
-
-func hugoFilepath(filename string) string {
-	pwd, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-	return filepath.Join(pwd, filename)
+	return ioutil.WriteFile(filename, []byte(newContent), fi.Mode())
 }
 
 func isCI() bool {
 	return os.Getenv("CI") != ""
+}
+
+func wd() string {
+	p, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return p
+
 }

@@ -21,6 +21,8 @@ import (
 	"sync/atomic"
 	"testing"
 
+	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/config/security"
 	"github.com/gohugoio/hugo/hugofs/glob"
 
 	"github.com/gohugoio/hugo/htesting"
@@ -53,7 +55,9 @@ github.com/gohugoio/hugoTestModules1_darwin/modh2_2@v1.4.0 github.com/gohugoio/h
 		ccfg := ClientConfig{
 			Fs:         hugofs.Os,
 			WorkingDir: workingDir,
+			CacheDir:   filepath.Join(workingDir, "modcache"),
 			ThemesDir:  themesDir,
+			Exec:       hexec.New(security.DefaultConfig),
 		}
 
 		withConfig(&ccfg)

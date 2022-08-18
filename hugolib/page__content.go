@@ -33,21 +33,19 @@ type pageContent struct {
 
 	cmap *pageContentMap
 
-	shortcodeState *shortcodeHandler
-
 	source rawPageContent
 }
 
-// returns the content to be processed by Blackfriday or similar.
-func (p pageContent) contentToRender(renderedShortcodes map[string]string) []byte {
-	source := p.source.parsed.Input()
+// returns the content to be processed by Goldmark or similar.
+func (p pageContent) contentToRender(parsed pageparser.Result, pm *pageContentMap, renderedShortcodes map[string]string) []byte {
+	source := parsed.Input()
 
 	c := make([]byte, 0, len(source)+(len(source)/10))
 
-	for _, it := range p.cmap.items {
+	for _, it := range pm.items {
 		switch v := it.(type) {
 		case pageparser.Item:
-			c = append(c, source[v.Pos:v.Pos+len(v.Val)]...)
+			c = append(c, source[v.Pos():v.Pos()+len(v.Val(source))]...)
 		case pageContentReplacement:
 			c = append(c, v.val...)
 		case *shortcode:
@@ -111,7 +109,7 @@ type pageContentMap struct {
 	hasNonMarkdownShortcode bool
 
 	//  *shortcode, pageContentReplacement or pageparser.Item
-	items []interface{}
+	items []any
 }
 
 func (p *pageContentMap) AddBytes(item pageparser.Item) {

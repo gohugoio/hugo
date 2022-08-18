@@ -14,11 +14,11 @@
 package page
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/related"
-	"github.com/pkg/errors"
 	"github.com/spf13/cast"
 )
 
@@ -38,7 +38,7 @@ type PageGenealogist interface {
 
 	// Template example:
 	// {{ $related := .RegularPages.RelatedIndices . "tags" "date" }}
-	RelatedIndices(doc related.Document, indices ...interface{}) (Pages, error)
+	RelatedIndices(doc related.Document, indices ...any) (Pages, error)
 
 	// Template example:
 	// {{ $related := .RegularPages.RelatedTo ( keyVals "tags" "hugo", "rocks")  ( keyVals "date" .Date ) }}
@@ -62,7 +62,7 @@ func (p Pages) Related(doc related.Document) (Pages, error) {
 
 // RelatedIndices searches the given indices with the search keywords from the
 // supplied document.
-func (p Pages) RelatedIndices(doc related.Document, indices ...interface{}) (Pages, error) {
+func (p Pages) RelatedIndices(doc related.Document, indices ...any) (Pages, error) {
 	indicesStr, err := cast.ToStringSliceE(indices)
 	if err != nil {
 		return nil, err
@@ -108,7 +108,7 @@ func (p Pages) withInvertedIndex(search func(idx *related.InvertedIndex) ([]rela
 
 	d, ok := p[0].(InternalDependencies)
 	if !ok {
-		return nil, errors.Errorf("invalid type %T in related search", p[0])
+		return nil, fmt.Errorf("invalid type %T in related search", p[0])
 	}
 
 	cache := d.GetRelatedDocsHandler()

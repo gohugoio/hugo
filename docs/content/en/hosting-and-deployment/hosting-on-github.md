@@ -34,14 +34,16 @@ There are two types of GitHub Pages:
 
 Please refer to the [GitHub Pages documentation][ghorgs] to decide which type of site you would like to create as it will determine which of the below methods to use.
 
+## Branches for GitHub Actions
+
+The GitHub Actions used in these instructions pull source content from the `main` branch and then commit the generated content to the `gh-pages` branch. This applies regardless of what type of GitHub Pages you are using. This is a clean setup as your Hugo files are stored in one branch and your generated files are published into a separate branch.
+
 ## GitHub User or Organization Pages
 
 As mentioned in the [GitHub Pages documentation][ghorgs], you can host a user/organization page in addition to project pages. Here are the key differences in GitHub Pages websites for Users and Organizations:
 
-1. You must use a `<USERNAME>.github.io` to host your **generated** content
-2. Content from the `main` branch will be used to publish your GitHub Pages site
-
-This is a much simpler setup as your Hugo files and generated content are published into two different repositories.
+1. You must create a repository named `<USERNAME>.github.io` or `<ORGANIZATION>.github.io` to host your pages
+2. By default, content from the `main` branch is used to publish GitHub Pages - rather than the `gh-pages` branch which is the default for project sites. However, the GitHub Actions in these instructions publish to the `gh-pages` branch. Therefore, if you are publishing Github pages for a user or organization, you will need to change the publishing branch to `gh-pages`. See the instructions later in this document.
 
 ## Build Hugo With GitHub Action
 
@@ -85,6 +87,14 @@ jobs:
 ```
 
 For more advanced settings [actions-hugo](https://github.com/marketplace/actions/hugo-setup) and [actions-gh-pages](https://github.com/marketplace/actions/github-pages-action).
+
+## Github pages setting
+By default, the GitHub action pushes the generated content to the `gh-pages` branch. This means GitHub has to serve your `gh-pages` branch as a GitHub Pages branch. You can change this setting by going to Settings > GitHub Pages, and change the source branch to `gh-pages`.
+
+## Change baseURL in config.toml
+Don't forget to rename your `baseURL` in `config.toml` with the value `https://<USERNAME>.github.io` for your user repository or `https://<USERNAME>.github.io/<REPOSITORY_NAME>` for a project repository.
+
+Unless this is present in your `config.toml`, your website won't work.
 
 ## Use a Custom Domain
 

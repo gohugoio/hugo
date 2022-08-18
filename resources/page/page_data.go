@@ -21,7 +21,7 @@ import (
 
 // Data represents the .Data element in a Page in Hugo. We make this
 // a type so we can do lazy loading of .Data.Pages
-type Data map[string]interface{}
+type Data map[string]any
 
 // Pages returns the pages stored with key "pages". If this is a func,
 // it will be invoked.

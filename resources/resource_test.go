@@ -244,7 +244,7 @@ func BenchmarkAssignMetadata(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()
 		var resources resource.Resources
-		meta := []map[string]interface{}{
+		meta := []map[string]any{
 			{
 				"title": "Foo #:counter",
 				"name":  "Foo Name #:counter",

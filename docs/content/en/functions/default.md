@@ -18,7 +18,6 @@ relatedfuncs: []
 deprecated: false
 draft: false
 aliases: []
-needsexamples: false
 ---
 
 `default` checks whether a given value is set and returns a default value if it is not. *Set* in this context means different things depending on the data type:

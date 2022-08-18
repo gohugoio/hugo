@@ -1,3 +1,4 @@
+//go:build release
 // +build release
 
 // Copyright 2017-present The Hugo Authors. All rights reserved.

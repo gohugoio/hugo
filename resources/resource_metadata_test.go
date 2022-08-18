@@ -30,10 +30,10 @@ func TestAssignMetadata(t *testing.T) {
 	var resources resource.Resources
 
 	for _, this := range []struct {
-		metaData   []map[string]interface{}
+		metaData   []map[string]any
 		assertFunc func(err error)
 	}{
-		{[]map[string]interface{}{
+		{[]map[string]any{
 			{
 				"title": "My Resource",
 				"name":  "My Name",
@@ -44,7 +44,7 @@ func TestAssignMetadata(t *testing.T) {
 			c.Assert(logo1.Name(), qt.Equals, "My Name")
 			c.Assert(foo2.Name(), qt.Equals, "My Name")
 		}},
-		{[]map[string]interface{}{
+		{[]map[string]any{
 			{
 				"title": "My Logo",
 				"src":   "*loGo*",
@@ -62,11 +62,11 @@ func TestAssignMetadata(t *testing.T) {
 			c.Assert(foo3.Name(), qt.Equals, "My Name")
 			c.Assert(foo3.Title(), qt.Equals, "My Resource")
 		}},
-		{[]map[string]interface{}{
+		{[]map[string]any{
 			{
 				"title": "My Logo",
 				"src":   "*loGo*",
-				"params": map[string]interface{}{
+				"params": map[string]any{
 					"Param1": true,
 					"icon":   "logo",
 				},
@@ -74,7 +74,7 @@ func TestAssignMetadata(t *testing.T) {
 			{
 				"title": "My Resource",
 				"src":   "*",
-				"params": map[string]interface{}{
+				"params": map[string]any{
 					"Param2": true,
 					"icon":   "resource",
 				},
@@ -101,7 +101,7 @@ func TestAssignMetadata(t *testing.T) {
 			c.Assert(icon1, qt.Equals, "logo")
 			c.Assert(icon2, qt.Equals, "resource")
 		}},
-		{[]map[string]interface{}{
+		{[]map[string]any{
 			{
 				"name": "Logo Name #:counter",
 				"src":  "*logo*",
@@ -124,7 +124,7 @@ func TestAssignMetadata(t *testing.T) {
 
 			c.Assert(resources.GetMatch("logo name #1*"), qt.Equals, logo2)
 		}},
-		{[]map[string]interface{}{
+		{[]map[string]any{
 			{
 				"title": "Third Logo #:counter",
 				"src":   "logo3.png",
@@ -143,7 +143,7 @@ func TestAssignMetadata(t *testing.T) {
 			c.Assert(logo1.Title(), qt.Equals, "Other Logo #2")
 			c.Assert(logo1.Name(), qt.Equals, "Name #2")
 		}},
-		{[]map[string]interface{}{
+		{[]map[string]any{
 			{
 				"title": "Third Logo",
 				"src":   "logo3.png",
@@ -162,7 +162,7 @@ func TestAssignMetadata(t *testing.T) {
 			c.Assert(logo1.Title(), qt.Equals, "Other Logo #2")
 			c.Assert(logo1.Name(), qt.Equals, "Name #2")
 		}},
-		{[]map[string]interface{}{
+		{[]map[string]any{
 			{
 				"name": "third-logo",
 				"src":  "logo3.png",
@@ -181,7 +181,7 @@ func TestAssignMetadata(t *testing.T) {
 			c.Assert(logo1.Title(), qt.Equals, "Logo #2")
 			c.Assert(logo1.Name(), qt.Equals, "Name #2")
 		}},
-		{[]map[string]interface{}{
+		{[]map[string]any{
 			{
 				"title": "Third Logo #:counter",
 			},
@@ -189,7 +189,7 @@ func TestAssignMetadata(t *testing.T) {
 			// Missing src
 			c.Assert(err, qt.Not(qt.IsNil))
 		}},
-		{[]map[string]interface{}{
+		{[]map[string]any{
 			{
 				"title": "Title",
 				"src":   "[]",

@@ -24,12 +24,12 @@ type Provider interface {
 	GetInt(key string) int
 	GetBool(key string) bool
 	GetParams(key string) maps.Params
-	GetStringMap(key string) map[string]interface{}
+	GetStringMap(key string) map[string]any
 	GetStringMapString(key string) map[string]string
 	GetStringSlice(key string) []string
-	Get(key string) interface{}
-	Set(key string, value interface{})
-	Merge(key string, value interface{})
+	Get(key string) any
+	Set(key string, value any)
+	Merge(key string, value any)
 	SetDefaults(params maps.Params)
 	SetDefaultMergeStrategy()
 	WalkParams(walkFn func(params ...KeyParams) bool)
@@ -45,13 +45,23 @@ func GetStringSlicePreserveString(cfg Provider, key string) []string {
 }
 
 // SetBaseTestDefaults provides some common config defaults used in tests.
-func SetBaseTestDefaults(cfg Provider) {
-	cfg.Set("resourceDir", "resources")
-	cfg.Set("contentDir", "content")
-	cfg.Set("dataDir", "data")
-	cfg.Set("i18nDir", "i18n")
-	cfg.Set("layoutDir", "layouts")
-	cfg.Set("assetDir", "assets")
-	cfg.Set("archetypeDir", "archetypes")
-	cfg.Set("publishDir", "public")
+func SetBaseTestDefaults(cfg Provider) Provider {
+	setIfNotSet(cfg, "baseURL", "https://example.org")
+	setIfNotSet(cfg, "resourceDir", "resources")
+	setIfNotSet(cfg, "contentDir", "content")
+	setIfNotSet(cfg, "dataDir", "data")
+	setIfNotSet(cfg, "i18nDir", "i18n")
+	setIfNotSet(cfg, "layoutDir", "layouts")
+	setIfNotSet(cfg, "assetDir", "assets")
+	setIfNotSet(cfg, "archetypeDir", "archetypes")
+	setIfNotSet(cfg, "publishDir", "public")
+	setIfNotSet(cfg, "workingDir", "")
+	setIfNotSet(cfg, "defaultContentLanguage", "en")
+	return cfg
+}
+
+func setIfNotSet(cfg Provider, key string, value any) {
+	if !cfg.IsSet(key) {
+		cfg.Set(key, value)
+	}
 }

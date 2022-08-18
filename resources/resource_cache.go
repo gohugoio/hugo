@@ -44,7 +44,7 @@ type ResourceCache struct {
 	sync.RWMutex
 
 	// Either resource.Resource or resource.Resources.
-	cache map[string]interface{}
+	cache map[string]any
 
 	fileCache *filecache.Cache
 
@@ -128,7 +128,7 @@ func newResourceCache(rs *Spec) *ResourceCache {
 	return &ResourceCache{
 		rs:        rs,
 		fileCache: rs.FileCaches.AssetsCache(),
-		cache:     make(map[string]interface{}),
+		cache:     make(map[string]any),
 		nlocker:   locker.NewLocker(),
 	}
 }
@@ -137,7 +137,7 @@ func (c *ResourceCache) clear() {
 	c.Lock()
 	defer c.Unlock()
 
-	c.cache = make(map[string]interface{})
+	c.cache = make(map[string]any)
 	c.nlocker = locker.NewLocker()
 }
 
@@ -151,7 +151,7 @@ func (c *ResourceCache) cleanKey(key string) string {
 	return strings.TrimPrefix(path.Clean(strings.ToLower(key)), "/")
 }
 
-func (c *ResourceCache) get(key string) (interface{}, bool) {
+func (c *ResourceCache) get(key string) (any, bool) {
 	c.RLock()
 	defer c.RUnlock()
 	r, found := c.cache[key]
@@ -159,7 +159,7 @@ func (c *ResourceCache) get(key string) (interface{}, bool) {
 }
 
 func (c *ResourceCache) GetOrCreate(key string, f func() (resource.Resource, error)) (resource.Resource, error) {
-	r, err := c.getOrCreate(key, func() (interface{}, error) { return f() })
+	r, err := c.getOrCreate(key, func() (any, error) { return f() })
 	if r == nil || err != nil {
 		return nil, err
 	}
@@ -167,14 +167,14 @@ func (c *ResourceCache) GetOrCreate(key string, f func() (resource.Resource, err
 }
 
 func (c *ResourceCache) GetOrCreateResources(key string, f func() (resource.Resources, error)) (resource.Resources, error) {
-	r, err := c.getOrCreate(key, func() (interface{}, error) { return f() })
+	r, err := c.getOrCreate(key, func() (any, error) { return f() })
 	if r == nil || err != nil {
 		return nil, err
 	}
 	return r.(resource.Resources), nil
 }
 
-func (c *ResourceCache) getOrCreate(key string, f func() (interface{}, error)) (interface{}, error) {
+func (c *ResourceCache) getOrCreate(key string, f func() (any, error)) (any, error) {
 	key = c.cleanKey(key)
 	// First check in-memory cache.
 	r, found := c.get(key)
@@ -254,7 +254,7 @@ func (c *ResourceCache) writeMeta(key string, meta transformedResourceMetadata) 
 	return fi, fc, err
 }
 
-func (c *ResourceCache) set(key string, r interface{}) {
+func (c *ResourceCache) set(key string, r any) {
 	c.Lock()
 	defer c.Unlock()
 	c.cache[key] = r

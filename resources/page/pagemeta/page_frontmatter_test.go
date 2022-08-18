@@ -63,8 +63,8 @@ func TestDateAndSlugFromBaseFilename(t *testing.T) {
 
 func newTestFd() *FrontMatterDescriptor {
 	return &FrontMatterDescriptor{
-		Frontmatter: make(map[string]interface{}),
-		Params:      make(map[string]interface{}),
+		Frontmatter: make(map[string]any),
+		Params:      make(map[string]any),
 		Dates:       &resource.Dates{},
 		PageURLs:    &URLPath{},
 		Location:    time.UTC,
@@ -76,7 +76,7 @@ func TestFrontMatterNewConfig(t *testing.T) {
 
 	cfg := config.New()
 
-	cfg.Set("frontmatter", map[string]interface{}{
+	cfg.Set("frontmatter", map[string]any{
 		"date":        []string{"publishDate", "LastMod"},
 		"Lastmod":     []string{"publishDate"},
 		"expiryDate":  []string{"lastMod"},
@@ -100,7 +100,7 @@ func TestFrontMatterNewConfig(t *testing.T) {
 	c.Assert(fc.publishDate, qt.DeepEquals, []string{"publishdate", "pubdate", "published", "date"})
 
 	// :default keyword
-	cfg.Set("frontmatter", map[string]interface{}{
+	cfg.Set("frontmatter", map[string]any{
 		"date":        []string{"d1", ":default"},
 		"lastmod":     []string{"d2", ":default"},
 		"expiryDate":  []string{"d3", ":default"},
@@ -121,7 +121,7 @@ func TestFrontMatterDatesHandlers(t *testing.T) {
 
 		cfg := config.New()
 
-		cfg.Set("frontmatter", map[string]interface{}{
+		cfg.Set("frontmatter", map[string]any{
 			"date": []string{handlerID, "date"},
 		})
 
@@ -160,7 +160,7 @@ func TestFrontMatterDatesCustomConfig(t *testing.T) {
 	c := qt.New(t)
 
 	cfg := config.New()
-	cfg.Set("frontmatter", map[string]interface{}{
+	cfg.Set("frontmatter", map[string]any{
 		"date":        []string{"mydate"},
 		"lastmod":     []string{"publishdate"},
 		"publishdate": []string{"publishdate"},
@@ -208,7 +208,7 @@ func TestFrontMatterDatesDefaultKeyword(t *testing.T) {
 
 	cfg := config.New()
 
-	cfg.Set("frontmatter", map[string]interface{}{
+	cfg.Set("frontmatter", map[string]any{
 		"date":        []string{"mydate", ":default"},
 		"publishdate": []string{":default", "mypubdate"},
 	})

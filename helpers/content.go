@@ -24,20 +24,18 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/markup/converter"
+	"github.com/gohugoio/hugo/markup/converter/hooks"
 
 	"github.com/gohugoio/hugo/markup"
 
-	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/config"
 )
-
-// SummaryDivider denotes where content summarization should end. The default is "<!--more-->".
-var SummaryDivider = []byte("<!--more-->")
 
 var (
 	openingPTag        = []byte("<p>")
@@ -49,8 +47,8 @@ var (
 // ContentSpec provides functionality to render markdown content.
 type ContentSpec struct {
 	Converters          markup.ConverterProvider
-	MardownConverter    converter.Converter // Markdown converter with no document context
 	anchorNameSanitizer converter.AnchorNameSanitizer
+	getRenderer         func(t hooks.RendererType, id any) any
 
 	// SummaryLength is the length of the summary that Hugo extracts from a content.
 	summaryLength int
@@ -64,7 +62,7 @@ type ContentSpec struct {
 
 // NewContentSpec returns a ContentSpec initialized
 // with the appropriate fields from the given config.Provider.
-func NewContentSpec(cfg config.Provider, logger loggers.Logger, contentFs afero.Fs) (*ContentSpec, error) {
+func NewContentSpec(cfg config.Provider, logger loggers.Logger, contentFs afero.Fs, ex *hexec.Exec) (*ContentSpec, error) {
 	spec := &ContentSpec{
 		summaryLength: cfg.GetInt("summaryLength"),
 		BuildFuture:   cfg.GetBool("buildFuture"),
@@ -78,6 +76,7 @@ func NewContentSpec(cfg config.Provider, logger loggers.Logger, contentFs afero.
 		Cfg:       cfg,
 		ContentFs: contentFs,
 		Logger:    logger,
+		Exec:      ex,
 	})
 	if err != nil {
 		return nil, err
@@ -89,7 +88,6 @@ func NewContentSpec(cfg config.Provider, logger loggers.Logger, contentFs afero.
 	if err != nil {
 		return nil, err
 	}
-	spec.MardownConverter = conv
 	if as, ok := conv.(converter.AnchorNameSanitizer); ok {
 		spec.anchorNameSanitizer = as
 	} else {
@@ -103,45 +101,6 @@ func NewContentSpec(cfg config.Provider, logger loggers.Logger, contentFs afero.
 	}
 
 	return spec, nil
-}
-
-var stripHTMLReplacer = strings.NewReplacer("\n", " ", "</p>", "\n", "<br>", "\n", "<br />", "\n")
-
-// StripHTML accepts a string, strips out all HTML tags and returns it.
-func StripHTML(s string) string {
-	// Shortcut strings with no tags in them
-	if !strings.ContainsAny(s, "<>") {
-		return s
-	}
-	s = stripHTMLReplacer.Replace(s)
-
-	// Walk through the string removing all tags
-	b := bp.GetBuffer()
-	defer bp.PutBuffer(b)
-	var inTag, isSpace, wasSpace bool
-	for _, r := range s {
-		if !inTag {
-			isSpace = false
-		}
-
-		switch {
-		case r == '<':
-			inTag = true
-		case r == '>':
-			inTag = false
-		case unicode.IsSpace(r):
-			isSpace = true
-			fallthrough
-		default:
-			if !inTag && (!isSpace || (isSpace && !wasSpace)) {
-				b.WriteRune(r)
-			}
-		}
-
-		wasSpace = isSpace
-
-	}
-	return b.String()
 }
 
 // stripEmptyNav strips out empty <nav> tags from content.
@@ -193,14 +152,6 @@ func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 	return
 }
 
-func (c *ContentSpec) RenderMarkdown(src []byte) ([]byte, error) {
-	b, err := c.MardownConverter.Convert(converter.RenderContext{Src: src})
-	if err != nil {
-		return nil, err
-	}
-	return b.Bytes(), nil
-}
-
 func (c *ContentSpec) SanitizeAnchorName(s string) string {
 	return c.anchorNameSanitizer.SanitizeAnchorName(s)
 }
@@ -213,9 +164,6 @@ func (c *ContentSpec) ResolveMarkup(in string) string {
 	case "html", "htm":
 		return "html"
 	default:
-		if in == "mmark" {
-			Deprecated("Markup type mmark", "See https://gohugo.io//content-management/formats/#list-of-content-formats", true)
-		}
 		if conv := c.Converters.Get(in); conv != nil {
 			return conv.Name()
 		}

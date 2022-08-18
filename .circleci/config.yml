@@ -1,6 +1,6 @@
 defaults: &defaults
   docker:
-      - image: bepsays/ci-goreleaser:1.17.2
+      - image: bepsays/ci-goreleaser:1.21900.20000
   environment:
     CGO_ENABLED: "0"
 
@@ -18,7 +18,6 @@ jobs:
                 go mod download
                 sleep 5
                 go mod verify
-                go test -p 1 ./...
       - persist_to_workspace:
           root: .
           paths: .

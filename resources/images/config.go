@@ -20,8 +20,9 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/media"
 
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/bep/gowebp/libwebp/webpoptions"
 
@@ -34,12 +35,24 @@ var (
 	imageFormats = map[string]Format{
 		".jpg":  JPEG,
 		".jpeg": JPEG,
+		".jpe":  JPEG,
+		".jif":  JPEG,
+		".jfif": JPEG,
 		".png":  PNG,
 		".tif":  TIFF,
 		".tiff": TIFF,
 		".bmp":  BMP,
 		".gif":  GIF,
 		".webp": WEBP,
+	}
+
+	imageFormatsBySubType = map[string]Format{
+		media.JPEGType.SubType: JPEG,
+		media.PNGType.SubType:  PNG,
+		media.TIFFType.SubType: TIFF,
+		media.BMPType.SubType:  BMP,
+		media.GIFType.SubType:  GIF,
+		media.WEBPType.SubType: WEBP,
 	}
 
 	// Add or increment if changes to an image format's processing requires
@@ -99,6 +112,11 @@ func ImageFormatFromExt(ext string) (Format, bool) {
 	return f, found
 }
 
+func ImageFormatFromMediaSubType(sub string) (Format, bool) {
+	f, found := imageFormatsBySubType[sub]
+	return f, found
+}
+
 const (
 	defaultJPEGQuality    = 75
 	defaultResampleFilter = "box"
@@ -113,9 +131,9 @@ var defaultImaging = Imaging{
 	Quality:        defaultJPEGQuality,
 }
 
-func DecodeConfig(m map[string]interface{}) (ImagingConfig, error) {
+func DecodeConfig(m map[string]any) (ImagingConfig, error) {
 	if m == nil {
-		m = make(map[string]interface{})
+		m = make(map[string]any)
 	}
 
 	i := ImagingConfig{
@@ -140,7 +158,7 @@ func DecodeConfig(m map[string]interface{}) (ImagingConfig, error) {
 	if i.Cfg.Anchor != "" && i.Cfg.Anchor != smartCropIdentifier {
 		anchor, found := anchorPositions[i.Cfg.Anchor]
 		if !found {
-			return i, errors.Errorf("invalid anchor value %q in imaging config", i.Anchor)
+			return i, fmt.Errorf("invalid anchor value %q in imaging config", i.Anchor)
 		}
 		i.Anchor = anchor
 	} else {
@@ -235,8 +253,17 @@ func DecodeImageConfig(action, config string, defaults ImagingConfig, sourceForm
 		}
 	}
 
-	if c.Width == 0 && c.Height == 0 {
-		return c, errors.New("must provide Width or Height")
+	switch c.Action {
+	case "crop", "fill", "fit":
+		if c.Width == 0 || c.Height == 0 {
+			return c, errors.New("must provide Width and Height")
+		}
+	case "resize":
+		if c.Width == 0 && c.Height == 0 {
+			return c, errors.New("must provide Width or Height")
+		}
+	default:
+		return c, fmt.Errorf("BUG: unknown action %q encountered while decoding image configuration", c.Action)
 	}
 
 	if c.FilterStr == "" {
@@ -346,7 +373,7 @@ func (i ImageConfig) GetKey(format Format) string {
 
 	k += "_" + i.FilterStr
 
-	if strings.EqualFold(i.Action, "fill") {
+	if strings.EqualFold(i.Action, "fill") || strings.EqualFold(i.Action, "crop") {
 		k += "_" + anchor
 	}
 

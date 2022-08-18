@@ -16,7 +16,9 @@ package pandoc
 import (
 	"testing"
 
+	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/config/security"
 
 	"github.com/gohugoio/hugo/markup/converter"
 
@@ -28,7 +30,9 @@ func TestConvert(t *testing.T) {
 		t.Skip("pandoc not installed")
 	}
 	c := qt.New(t)
-	p, err := Provider.New(converter.ProviderConfig{Logger: loggers.NewErrorLogger()})
+	sc := security.DefaultConfig
+	sc.Exec.Allow = security.NewWhitelist("pandoc")
+	p, err := Provider.New(converter.ProviderConfig{Exec: hexec.New(sc), Logger: loggers.NewErrorLogger()})
 	c.Assert(err, qt.IsNil)
 	conv, err := p.New(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)

@@ -29,17 +29,14 @@ func captureStdout(f func() error) (string, error) {
 
 func TestListAll(t *testing.T) {
 	c := qt.New(t)
-	dir, clean, err := createSimpleTestSite(t, testSiteConfig{})
-	defer clean()
-
-	c.Assert(err, qt.IsNil)
+	dir := createSimpleTestSite(t, testSiteConfig{})
 
 	hugoCmd := newCommandsBuilder().addAll().build()
 	cmd := hugoCmd.getCommand()
 
-	defer func() {
+	t.Cleanup(func() {
 		os.RemoveAll(dir)
-	}()
+	})
 
 	cmd.SetArgs([]string{"-s=" + dir, "list", "all"})
 

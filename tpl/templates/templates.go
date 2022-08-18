@@ -34,6 +34,5 @@ type Namespace struct {
 // Note that this is the Unix-styled relative path including filename suffix,
 // e.g. partials/header.html
 func (ns *Namespace) Exists(name string) bool {
-	_, found := ns.deps.Tmpl().Lookup(name)
-	return found
+	return ns.deps.Tmpl().HasTemplate(name)
 }

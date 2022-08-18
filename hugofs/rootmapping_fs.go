@@ -21,8 +21,6 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs/files"
 
-	"github.com/pkg/errors"
-
 	radix "github.com/armon/go-radix"
 	"github.com/spf13/afero"
 )
@@ -62,6 +60,7 @@ func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 		rm.Meta.BaseDir = rm.ToBasedir
 		rm.Meta.MountRoot = rm.path
 		rm.Meta.Module = rm.Module
+		rm.Meta.IsProject = rm.IsProject
 
 		meta := rm.Meta.Copy()
 
@@ -118,6 +117,7 @@ type RootMapping struct {
 	To        string    // The source directory or file.
 	ToBasedir string    // The base of To. May be empty if an absolute path was provided.
 	Module    string    // The module path/ID.
+	IsProject bool      // Whether this is a mount in the main project.
 	Meta      *FileMeta // File metadata (lang etc.)
 
 	fi   FileMetaInfo
@@ -148,6 +148,10 @@ func (r RootMapping) trimFrom(name string) string {
 	}
 	return strings.TrimPrefix(name, r.From)
 }
+
+var (
+	_ FilesystemUnwrapper = (*RootMappingFs)(nil)
+)
 
 // A RootMappingFs maps several roots into one. Note that the root of this filesystem
 // is directories only, and they will be returned in Readdir and Readdirnames
@@ -185,7 +189,7 @@ func (fs *RootMappingFs) Dirs(base string) ([]FileMetaInfo, error) {
 		fs = decorateDirs(fs, r.Meta)
 		fi, err := fs.Stat("")
 		if err != nil {
-			return nil, errors.Wrap(err, "RootMappingFs.Dirs")
+			return nil, fmt.Errorf("RootMappingFs.Dirs: %w", err)
 		}
 
 		if !fi.IsDir() {
@@ -198,10 +202,14 @@ func (fs *RootMappingFs) Dirs(base string) ([]FileMetaInfo, error) {
 	return fss, nil
 }
 
+func (fs *RootMappingFs) UnwrapFilesystem() afero.Fs {
+	return fs.Fs
+}
+
 // Filter creates a copy of this filesystem with only mappings matching a filter.
 func (fs RootMappingFs) Filter(f func(m RootMapping) bool) *RootMappingFs {
 	rootMapToReal := radix.New()
-	fs.rootMapToReal.Walk(func(b string, v interface{}) bool {
+	fs.rootMapToReal.Walk(func(b string, v any) bool {
 		rms := v.([]RootMapping)
 		var nrms []RootMapping
 		for _, rm := range rms {
@@ -248,7 +256,7 @@ func (fs *RootMappingFs) Stat(name string) (os.FileInfo, error) {
 
 func (fs *RootMappingFs) hasPrefix(prefix string) bool {
 	hasPrefix := false
-	fs.rootMapToReal.WalkPrefix(prefix, func(b string, v interface{}) bool {
+	fs.rootMapToReal.WalkPrefix(prefix, func(b string, v any) bool {
 		hasPrefix = true
 		return true
 	})
@@ -275,7 +283,7 @@ func (fs *RootMappingFs) getRoots(key string) (string, []RootMapping) {
 
 func (fs *RootMappingFs) debug() {
 	fmt.Println("debug():")
-	fs.rootMapToReal.Walk(func(s string, v interface{}) bool {
+	fs.rootMapToReal.Walk(func(s string, v any) bool {
 		fmt.Println("Key", s)
 		return false
 	})
@@ -283,7 +291,7 @@ func (fs *RootMappingFs) debug() {
 
 func (fs *RootMappingFs) getRootsWithPrefix(prefix string) []RootMapping {
 	var roots []RootMapping
-	fs.rootMapToReal.WalkPrefix(prefix, func(b string, v interface{}) bool {
+	fs.rootMapToReal.WalkPrefix(prefix, func(b string, v any) bool {
 		roots = append(roots, v.([]RootMapping)...)
 		return false
 	})
@@ -293,7 +301,7 @@ func (fs *RootMappingFs) getRootsWithPrefix(prefix string) []RootMapping {
 
 func (fs *RootMappingFs) getAncestors(prefix string) []keyRootMappings {
 	var roots []keyRootMappings
-	fs.rootMapToReal.WalkPath(prefix, func(s string, v interface{}) bool {
+	fs.rootMapToReal.WalkPath(prefix, func(s string, v any) bool {
 		if strings.HasPrefix(prefix, s+filepathSeparator) {
 			roots = append(roots, keyRootMappings{
 				key:   s,
@@ -414,7 +422,7 @@ func (fs *RootMappingFs) collectDirEntries(prefix string) ([]os.FileInfo, error)
 
 	// Next add any file mounts inside the given directory.
 	prefixInside := prefix + filepathSeparator
-	fs.rootMapToReal.WalkPrefix(prefixInside, func(s string, v interface{}) bool {
+	fs.rootMapToReal.WalkPrefix(prefixInside, func(s string, v any) bool {
 		if (strings.Count(s, filepathSeparator) - level) != 1 {
 			// This directory is not part of the current, but we
 			// need to include the first name part to make it
@@ -550,7 +558,7 @@ func (fs *RootMappingFs) doLstat(name string) ([]FileMetaInfo, error) {
 
 	if fileCount > 1 {
 		// Not supported by this filesystem.
-		return nil, errors.Errorf("found multiple files with name %q, use .Readdir or the source filesystem directly", name)
+		return nil, fmt.Errorf("found multiple files with name %q, use .Readdir or the source filesystem directly", name)
 	}
 
 	return []FileMetaInfo{roots[0].fi}, nil

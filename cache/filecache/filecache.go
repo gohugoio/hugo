@@ -175,7 +175,12 @@ func (c *Cache) GetOrCreate(id string, create func() (io.ReadCloser, error)) (It
 		return info, r, nil
 	}
 
-	r, err := create()
+	var (
+		r   io.ReadCloser
+		err error
+	)
+
+	r, err = create()
 	if err != nil {
 		return info, nil, err
 	}
@@ -206,7 +211,12 @@ func (c *Cache) GetOrCreateBytes(id string, create func() ([]byte, error)) (Item
 		return info, b, err
 	}
 
-	b, err := create()
+	var (
+		b   []byte
+		err error
+	)
+
+	b, err = create()
 	if err != nil {
 		return info, nil, err
 	}
@@ -285,6 +295,9 @@ func (c *Cache) isExpired(modTime time.Time) bool {
 	if c.maxAge < 0 {
 		return false
 	}
+
+	// Note the use of time.Since here.
+	// We cannot use Hugo's global Clock for this.
 	return c.maxAge == 0 || time.Since(modTime) > c.maxAge
 }
 

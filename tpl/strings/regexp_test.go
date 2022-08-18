@@ -25,9 +25,9 @@ func TestFindRE(t *testing.T) {
 
 	for _, test := range []struct {
 		expr    string
-		content interface{}
-		limit   interface{}
-		expect  interface{}
+		content any
+		limit   any
+		expect  any
 	}{
 		{"[G|g]o", "Hugo is a static site generator written in Go.", 2, []string{"go", "Go"}},
 		{"[G|g]o", "Hugo is a static site generator written in Go.", -1, []string{"go", "Go"}},
@@ -55,16 +55,16 @@ func TestReplaceRE(t *testing.T) {
 	c := qt.New(t)
 
 	for _, test := range []struct {
-		pattern interface{}
-		repl    interface{}
-		s       interface{}
-		n       []interface{}
-		expect  interface{}
+		pattern any
+		repl    any
+		s       any
+		n       []any
+		expect  any
 	}{
 		{"^https?://([^/]+).*", "$1", "http://gohugo.io/docs", nil, "gohugo.io"},
 		{"^https?://([^/]+).*", "$2", "http://gohugo.io/docs", nil, ""},
 		{"(ab)", "AB", "aabbaab", nil, "aABbaAB"},
-		{"(ab)", "AB", "aabbaab", []interface{}{1}, "aABbaab"},
+		{"(ab)", "AB", "aabbaab", []any{1}, "aABbaab"},
 		// errors
 		{"(ab", "AB", "aabb", nil, false}, // invalid re
 		{tstNoStringer{}, "$2", "http://gohugo.io/docs", nil, false},

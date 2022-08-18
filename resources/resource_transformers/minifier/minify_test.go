@@ -38,5 +38,5 @@ func TestTransform(t *testing.T) {
 	c.Assert(transformed.RelPermalink(), qt.Equals, "/hugo.min.html")
 	content, err := transformed.(resource.ContentProvider).Content()
 	c.Assert(err, qt.IsNil)
-	c.Assert(content, qt.Equals, "<h1> Hugo Rocks! </h1>")
+	c.Assert(content, qt.Equals, "<h1>Hugo Rocks!</h1>")
 }

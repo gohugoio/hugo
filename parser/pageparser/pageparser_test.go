@@ -14,6 +14,7 @@
 package pageparser
 
 import (
+	"bytes"
 	"strings"
 	"testing"
 
@@ -87,4 +88,16 @@ func TestFormatFromFrontMatterType(t *testing.T) {
 	} {
 		c.Assert(FormatFromFrontMatterType(test.typ), qt.Equals, test.expect)
 	}
+}
+
+func TestIsProbablyItemsSource(t *testing.T) {
+	c := qt.New(t)
+
+	input := ` {{< foo >}} `
+	items := collectStringMain(input)
+
+	c.Assert(IsProbablySourceOfItems([]byte(input), items), qt.IsTrue)
+	c.Assert(IsProbablySourceOfItems(bytes.Repeat([]byte(" "), len(input)), items), qt.IsFalse)
+	c.Assert(IsProbablySourceOfItems([]byte(`{{< foo >}}  `), items), qt.IsFalse)
+	c.Assert(IsProbablySourceOfItems([]byte(``), items), qt.IsFalse)
 }

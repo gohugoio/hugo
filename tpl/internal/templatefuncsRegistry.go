@@ -49,7 +49,7 @@ type TemplateFuncsNamespace struct {
 	Name string
 
 	// This is the method receiver.
-	Context func(v ...interface{}) (interface{}, error)
+	Context func(v ...any) (any, error)
 
 	// Additional info, aliases and examples, per method name.
 	MethodMappings map[string]TemplateFuncMethodMapping
@@ -59,7 +59,7 @@ type TemplateFuncsNamespace struct {
 type TemplateFuncsNamespaces []*TemplateFuncsNamespace
 
 // AddMethodMapping adds a method to a template function namespace.
-func (t *TemplateFuncsNamespace) AddMethodMapping(m interface{}, aliases []string, examples [][2]string) {
+func (t *TemplateFuncsNamespace) AddMethodMapping(m any, aliases []string, examples [][2]string) {
 	if t.MethodMappings == nil {
 		t.MethodMappings = make(map[string]TemplateFuncMethodMapping)
 	}
@@ -88,7 +88,7 @@ func (t *TemplateFuncsNamespace) AddMethodMapping(m interface{}, aliases []strin
 // TemplateFuncMethodMapping represents a mapping of functions to methods for a
 // given namespace.
 type TemplateFuncMethodMapping struct {
-	Method interface{}
+	Method any
 
 	// Any template funcs aliases. This is mainly motivated by keeping
 	// backwards compatibility, but some new template funcs may also make
@@ -104,7 +104,7 @@ type TemplateFuncMethodMapping struct {
 	Examples [][2]string
 }
 
-func methodToName(m interface{}) string {
+func methodToName(m any) string {
 	name := runtime.FuncForPC(reflect.ValueOf(m).Pointer()).Name()
 	name = filepath.Ext(name)
 	name = strings.TrimPrefix(name, ".")
@@ -163,6 +163,10 @@ func (namespaces TemplateFuncsNamespaces) MarshalJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+var ignoreFuncs = map[string]bool{
+	"Reset": true,
+}
+
 func (t *TemplateFuncsNamespace) toJSON() ([]byte, error) {
 	var buf bytes.Buffer
 
@@ -179,6 +183,9 @@ func (t *TemplateFuncsNamespace) toJSON() ([]byte, error) {
 	ctxType := reflect.TypeOf(ctx)
 	for i := 0; i < ctxType.NumMethod(); i++ {
 		method := ctxType.Method(i)
+		if ignoreFuncs[method.Name] {
+			continue
+		}
 		f := goDocFunc{
 			Name: method.Name,
 		}

@@ -31,6 +31,11 @@ type ReadSeekCloser interface {
 	io.Closer
 }
 
+// ReadSeekCloserProvider provides a ReadSeekCloser.
+type ReadSeekCloserProvider interface {
+	ReadSeekCloser() (ReadSeekCloser, error)
+}
+
 // ReadSeekerNoOpCloser implements ReadSeekCloser by doing nothing in Close.
 // TODO(bep) rename this and similar to ReadSeekerNopCloser, naming used in stdlib, which kind of makes sense.
 type ReadSeekerNoOpCloser struct {

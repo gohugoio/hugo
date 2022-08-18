@@ -26,6 +26,7 @@ import (
 	"github.com/gohugoio/hugo/resources/jsconfig"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hexec"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/identity"
@@ -51,6 +52,7 @@ func NewSpec(
 	incr identity.Incrementer,
 	logger loggers.Logger,
 	errorHandler herrors.ErrorSender,
+	execHelper *hexec.Exec,
 	outputFormats output.Formats,
 	mimeTypes media.Types) (*Spec, error) {
 	imgConfig, err := images.DecodeConfig(s.Cfg.GetStringMap("imaging"))
@@ -81,6 +83,7 @@ func NewSpec(
 		Logger:        logger,
 		ErrorSender:   errorHandler,
 		imaging:       imaging,
+		ExecHelper:    execHelper,
 		incr:          incr,
 		MediaTypes:    mimeTypes,
 		OutputFormats: outputFormats,
@@ -119,6 +122,8 @@ type Spec struct {
 
 	// Holds default filter settings etc.
 	imaging *images.ImageProcessor
+
+	ExecHelper *hexec.Exec
 
 	incr          identity.Incrementer
 	imageCache    *imageCache
@@ -235,7 +240,7 @@ func (r *Spec) newGenericResourceWithBase(
 		mediaType:              mediaType,
 		resourceType:           resourceType,
 		spec:                   r,
-		params:                 make(map[string]interface{}),
+		params:                 make(map[string]any),
 		name:                   baseFilename,
 		title:                  baseFilename,
 		resourceContent:        &resourceContent{},
@@ -267,21 +272,28 @@ func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (reso
 		fd.RelTargetFilename = sourceFilename
 	}
 
-	ext := strings.ToLower(filepath.Ext(fd.RelTargetFilename))
-	mimeType, suffixInfo, found := r.MediaTypes.GetFirstBySuffix(strings.TrimPrefix(ext, "."))
-	// TODO(bep) we need to handle these ambiguous types better, but in this context
-	// we most likely want the application/xml type.
-	if suffixInfo.Suffix == "xml" && mimeType.SubType == "rss" {
-		mimeType, found = r.MediaTypes.GetByType("application/xml")
-	}
+	mimeType := fd.MediaType
+	if mimeType.IsZero() {
+		ext := strings.ToLower(filepath.Ext(fd.RelTargetFilename))
+		var (
+			found      bool
+			suffixInfo media.SuffixInfo
+		)
+		mimeType, suffixInfo, found = r.MediaTypes.GetFirstBySuffix(strings.TrimPrefix(ext, "."))
+		// TODO(bep) we need to handle these ambiguous types better, but in this context
+		// we most likely want the application/xml type.
+		if suffixInfo.Suffix == "xml" && mimeType.SubType == "rss" {
+			mimeType, found = r.MediaTypes.GetByType("application/xml")
+		}
 
-	if !found {
-		// A fallback. Note that mime.TypeByExtension is slow by Hugo standards,
-		// so we should configure media types to avoid this lookup for most
-		// situations.
-		mimeStr := mime.TypeByExtension(ext)
-		if mimeStr != "" {
-			mimeType, _ = media.FromStringAndExt(mimeStr, ext)
+		if !found {
+			// A fallback. Note that mime.TypeByExtension is slow by Hugo standards,
+			// so we should configure media types to avoid this lookup for most
+			// situations.
+			mimeStr := mime.TypeByExtension(ext)
+			if mimeStr != "" {
+				mimeType, _ = media.FromStringAndExt(mimeStr, ext)
+			}
 		}
 	}
 
@@ -296,7 +308,7 @@ func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (reso
 		mimeType)
 
 	if mimeType.MainType == "image" {
-		imgFormat, ok := images.ImageFormatFromExt(ext)
+		imgFormat, ok := images.ImageFormatFromMediaSubType(mimeType.SubType)
 		if ok {
 			ir := &imageResource{
 				Image:        images.NewImage(imgFormat, r.imaging, nil, gr),

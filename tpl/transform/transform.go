@@ -18,7 +18,11 @@ import (
 	"html"
 	"html/template"
 
+	"github.com/alecthomas/chroma/v2/lexers"
 	"github.com/gohugoio/hugo/cache/namedmemcache"
+	"github.com/gohugoio/hugo/markup/converter/hooks"
+	"github.com/gohugoio/hugo/markup/highlight"
+	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -48,7 +52,7 @@ type Namespace struct {
 // Emojify returns a copy of s with all emoji codes replaced with actual emojis.
 //
 // See http://www.emoji-cheat-sheet.com/
-func (ns *Namespace) Emojify(s interface{}) (template.HTML, error) {
+func (ns *Namespace) Emojify(s any) (template.HTML, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return "", err
@@ -59,18 +63,41 @@ func (ns *Namespace) Emojify(s interface{}) (template.HTML, error) {
 
 // Highlight returns a copy of s as an HTML string with syntax
 // highlighting applied.
-func (ns *Namespace) Highlight(s interface{}, lang, opts string) (template.HTML, error) {
+func (ns *Namespace) Highlight(s any, lang string, opts ...any) (template.HTML, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return "", err
 	}
 
-	highlighted, _ := ns.deps.ContentSpec.Converters.Highlight(ss, lang, opts)
+	var optsv any
+	if len(opts) > 0 {
+		optsv = opts[0]
+	}
+
+	hl := ns.deps.ContentSpec.Converters.GetHighlighter()
+	highlighted, _ := hl.Highlight(ss, lang, optsv)
 	return template.HTML(highlighted), nil
 }
 
+// HighlightCodeBlock highlights a code block on the form received in the codeblock render hooks.
+func (ns *Namespace) HighlightCodeBlock(ctx hooks.CodeblockContext, opts ...any) (highlight.HightlightResult, error) {
+	var optsv any
+	if len(opts) > 0 {
+		optsv = opts[0]
+	}
+
+	hl := ns.deps.ContentSpec.Converters.GetHighlighter()
+
+	return hl.HighlightCodeBlock(ctx, optsv)
+}
+
+// CanHighlight returns whether the given code language is supported by the Chroma highlighter.
+func (ns *Namespace) CanHighlight(language string) bool {
+	return lexers.Get(language) != nil
+}
+
 // HTMLEscape returns a copy of s with reserved HTML characters escaped.
-func (ns *Namespace) HTMLEscape(s interface{}) (string, error) {
+func (ns *Namespace) HTMLEscape(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return "", err
@@ -79,9 +106,9 @@ func (ns *Namespace) HTMLEscape(s interface{}) (string, error) {
 	return html.EscapeString(ss), nil
 }
 
-// HTMLUnescape returns a copy of with HTML escape requences converted to plain
+// HTMLUnescape returns a copy of s with HTML escape requences converted to plain
 // text.
-func (ns *Namespace) HTMLUnescape(s interface{}) (string, error) {
+func (ns *Namespace) HTMLUnescape(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return "", err
@@ -90,30 +117,35 @@ func (ns *Namespace) HTMLUnescape(s interface{}) (string, error) {
 	return html.UnescapeString(ss), nil
 }
 
-// Markdownify renders a given input from Markdown to HTML.
-func (ns *Namespace) Markdownify(s interface{}) (template.HTML, error) {
-	ss, err := cast.ToStringE(s)
-	if err != nil {
-		return "", err
-	}
+// Markdownify renders s from Markdown to HTML.
+func (ns *Namespace) Markdownify(s any) (template.HTML, error) {
 
-	b, err := ns.deps.ContentSpec.RenderMarkdown([]byte(ss))
+	home := ns.deps.Site.Home()
+	if home == nil {
+		panic("home must not be nil")
+	}
+	ss, err := home.RenderString(s)
 	if err != nil {
 		return "", err
 	}
 
 	// Strip if this is a short inline type of text.
-	b = ns.deps.ContentSpec.TrimShortHTML(b)
+	bb := ns.deps.ContentSpec.TrimShortHTML([]byte(ss))
 
-	return helpers.BytesToHTML(b), nil
+	return helpers.BytesToHTML(bb), nil
 }
 
 // Plainify returns a copy of s with all HTML tags removed.
-func (ns *Namespace) Plainify(s interface{}) (string, error) {
+func (ns *Namespace) Plainify(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return "", err
 	}
 
-	return helpers.StripHTML(ss), nil
+	return tpl.StripHTML(ss), nil
+}
+
+// For internal use.
+func (ns *Namespace) Reset() {
+	ns.cache.Clear()
 }

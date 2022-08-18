@@ -75,7 +75,7 @@ func (b BuildConfig) IsZero() bool {
 	return !b.set
 }
 
-func DecodeBuildConfig(m interface{}) (BuildConfig, error) {
+func DecodeBuildConfig(m any) (BuildConfig, error) {
 	b := defaultBuildConfig
 	if m == nil {
 		return b, nil

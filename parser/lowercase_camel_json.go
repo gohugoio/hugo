@@ -29,7 +29,7 @@ var (
 
 // Code adapted from https://gist.github.com/piersy/b9934790a8892db1a603820c0c23e4a7
 type LowerCaseCamelJSONMarshaller struct {
-	Value interface{}
+	Value any
 }
 
 func (c LowerCaseCamelJSONMarshaller) MarshalJSON() ([]byte, error) {

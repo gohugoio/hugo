@@ -22,7 +22,7 @@ import (
 
 // FindRE returns a list of strings that match the regular expression. By default all matches
 // will be included. The number of matches can be limited with an optional third parameter.
-func (ns *Namespace) FindRE(expr string, content interface{}, limit ...interface{}) ([]string, error) {
+func (ns *Namespace) FindRE(expr string, content any, limit ...any) ([]string, error) {
 	re, err := reCache.Get(expr)
 	if err != nil {
 		return nil, err
@@ -48,7 +48,7 @@ func (ns *Namespace) FindRE(expr string, content interface{}, limit ...interface
 // ReplaceRE returns a copy of s, replacing all matches of the regular
 // expression pattern with the replacement text repl. The number of replacements
 // can be limited with an optional fourth parameter.
-func (ns *Namespace) ReplaceRE(pattern, repl, s interface{}, n ...interface{}) (_ string, err error) {
+func (ns *Namespace) ReplaceRE(pattern, repl, s any, n ...any) (_ string, err error) {
 	sp, err := cast.ToStringE(pattern)
 	if err != nil {
 		return

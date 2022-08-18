@@ -31,21 +31,21 @@ func TestRelated(t *testing.T) {
 		&testPage{
 			title:   "Page 1",
 			pubDate: mustParseDate("2017-01-03"),
-			params: map[string]interface{}{
+			params: map[string]any{
 				"keywords": []string{"hugo", "says"},
 			},
 		},
 		&testPage{
 			title:   "Page 2",
 			pubDate: mustParseDate("2017-01-02"),
-			params: map[string]interface{}{
+			params: map[string]any{
 				"keywords": []string{"hugo", "rocks"},
 			},
 		},
 		&testPage{
 			title:   "Page 3",
 			pubDate: mustParseDate("2017-01-01"),
-			params: map[string]interface{}{
+			params: map[string]any{
 				"keywords": []string{"bep", "says"},
 			},
 		},

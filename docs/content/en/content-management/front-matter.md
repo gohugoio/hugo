@@ -65,7 +65,7 @@ audio
 : an array of paths to audio files related to the page; used by the `opengraph` [internal template](/templates/internal) to populate `og:audio`.
 
 cascade
-: a map of Front Matter keys whose values are passed down to the page's descendents unless overwritten by self or a closer ancestor's cascade. See [Front Matter Cascade](#front-matter-cascade) for details.
+: a map of Front Matter keys whose values are passed down to the page's descendants unless overwritten by self or a closer ancestor's cascade. See [Front Matter Cascade](#front-matter-cascade) for details.
 
 date
 : the datetime assigned to this page. This is usually fetched from the `date` field in front matter, but this behaviour is configurable.
@@ -92,7 +92,7 @@ keywords
 : the meta keywords for the content.
 
 layout
-: the layout Hugo should select from the [lookup order][lookup] when rendering the content. If a `type` is not specified in the front matter, Hugo will look for the layout of the same name in the layout directory that corresponds with a content's section. See ["Defining a Content Type"][definetype]
+: the layout Hugo should select from the [lookup order][lookup] when rendering the content. If a `type` is not specified in the front matter, Hugo will look for the layout of the same name in the layout directory that corresponds with a content's section. See [Content Types][content type].
 
 lastmod
 : the datetime at which the content was last modified.
@@ -128,8 +128,7 @@ type
 : the type of the content; this value will be automatically derived from the directory (i.e., the [section][]) if not specified in front matter.
 
 url
-: the full path to the content from the web root. It makes no assumptions about the path of the content file. It also ignores any language prefixes of
-the multilingual feature.
+: the full path to the content from the web root. It makes no assumptions about the path of the content file. See [URL Management](/content-management/urls/#set-url-in-front-matter).
 
 videos
 : an array of paths to videos related to the page; used by the `opengraph` [internal template](/templates/internal) to populate `og:video`.
@@ -157,7 +156,7 @@ show_comments: false
 
 ## Front Matter Cascade
 
-Any node or section can pass down to descendents a set of Front Matter values as long as defined underneath the reserved `cascade` Front Matter key.
+Any node or section can pass down to descendants a set of Front Matter values as long as defined underneath the reserved `cascade` Front Matter key.
 
 ### Target Specific Pages
 
@@ -185,10 +184,13 @@ path
 : A [Glob](https://github.com/gobwas/glob) pattern matching the content path below /content. Expects Unix-styled slashes. Note that this is the virtual path, so it starts at the mount root. The matching support double-asterisks so you can match for patterns like `/blog/*/**` to match anything from the third level and down.
 
 kind
-: The Page's Kind, e.g. "section".
+: A Glob pattern matching the Page's Kind(s), e.g. "{home,section}".
 
 lang
 : A Glob pattern matching the Page's language, e.g. "{en,sv}".
+
+environment
+: A Glob pattern matching the build environment, e.g. "{production,development}"
 
 Any of the above can be omitted. 
 
@@ -202,9 +204,9 @@ cascade:
   banner: images/typewriter.jpg
 {{</ code-toggle >}}
 
-With the above example the Blog section page and its descendents will return `images/typewriter.jpg` when `.Params.banner` is invoked unless:
+With the above example the Blog section page and its descendants will return `images/typewriter.jpg` when `.Params.banner` is invoked unless:
 
-- Said descendent has its own `banner` value set 
+- Said descendant has its own `banner` value set 
 - Or a closer ancestor node has its own `cascade.banner` value set.
 
 
@@ -215,7 +217,7 @@ You can assign content-specific `weight` in the front matter of your content. Th
 
 ## Override Global Markdown Configuration
 
-It's possible to set some options for Markdown rendering in a content's front matter as an override to the [BlackFriday rendering options set in your project configuration][config].
+It's possible to set some options for Markdown rendering in a content's front matter as an override to the [Rendering options set in your project configuration][config].
 
 ## Front Matter Format Specs
 
@@ -230,10 +232,9 @@ It's possible to set some options for Markdown rendering in a content's front ma
 [config]: /getting-started/configuration/ "Hugo documentation for site configuration"
 [content type]: /content-management/types/
 [contentorg]: /content-management/organization/
-[definetype]: /content-management/types/#defining-a-content-type "Learn how to specify a type and a layout in a content's front matter"
 [headless-bundle]: /content-management/page-bundles/#headless-bundle
 [json]: https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf "Specification for JSON, JavaScript Object Notation"
-[lists]: /templates/lists/#ordering-content "See how to order content in list pages; for example, templates that look to specific _index.md for content and front matter."
+[lists]: /templates/lists/#order-content "See how to order content in list pages; for example, templates that look to specific _index.md for content and front matter."
 [lookup]: /templates/lookup-order/ "Hugo traverses your templates in a specific order when rendering content to allow for DRYer templating."
 [ordering]: /templates/lists/ "Hugo provides multiple ways to sort and order your content in list templates"
 [outputs]: /templates/output-formats/ "With the release of v22, you can output your content to any text format using Hugo's familiar templating"

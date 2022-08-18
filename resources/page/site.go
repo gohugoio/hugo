@@ -29,20 +29,53 @@ import (
 // Site represents a site in the build. This is currently a very narrow interface,
 // but the actual implementation will be richer, see hugolib.SiteInfo.
 type Site interface {
+	// Returns the Language configured for this Site.
 	Language() *langs.Language
+
+	// Returns all the regular Pages in this Site.
 	RegularPages() Pages
+
+	// Returns all Pages in this Site.
 	Pages() Pages
+
+	// A shortcut to the home page.
+	Home() Page
+
+	// Returns true if we're running in a server.
 	IsServer() bool
+
+	// Returns the server port.
 	ServerPort() int
+
+	// Returns the configured title for this Site.
 	Title() string
+
+	// Returns all Sites for all languages.
 	Sites() Sites
+
+	// Returns Site currently rendering.
+	Current() Site
+
+	// Returns a struct with some information about the build.
 	Hugo() hugo.Info
+
+	// Returns the BaseURL for this Site.
 	BaseURL() template.URL
-	Taxonomies() interface{}
+
+	// Retuns a taxonomy map.
+	Taxonomies() any
+
+	// Returns the last modification date of the content.
 	LastChange() time.Time
+
+	// Returns the Menus for this site.
 	Menus() navigation.Menus
+
+	// Returns the Params configured for this site.
 	Params() maps.Params
-	Data() map[string]interface{}
+
+	// Returns a map of all the data inside /data.
+	Data() map[string]any
 }
 
 // Sites represents an ordered list of sites (languages).
@@ -81,12 +114,20 @@ func (t testSite) Sites() Sites {
 	return nil
 }
 
+func (t testSite) Current() Site {
+	return t
+}
+
 func (t testSite) IsServer() bool {
 	return false
 }
 
 func (t testSite) Language() *langs.Language {
 	return t.l
+}
+
+func (t testSite) Home() Page {
+	return nil
 }
 
 func (t testSite) Pages() Pages {
@@ -101,7 +142,7 @@ func (t testSite) Menus() navigation.Menus {
 	return nil
 }
 
-func (t testSite) Taxonomies() interface{} {
+func (t testSite) Taxonomies() any {
 	return nil
 }
 
@@ -113,14 +154,14 @@ func (t testSite) Params() maps.Params {
 	return nil
 }
 
-func (t testSite) Data() map[string]interface{} {
+func (t testSite) Data() map[string]any {
 	return nil
 }
 
 // NewDummyHugoSite creates a new minimal test site.
 func NewDummyHugoSite(cfg config.Provider) Site {
 	return testSite{
-		h: hugo.NewInfo(hugo.EnvironmentProduction),
+		h: hugo.NewInfo(hugo.EnvironmentProduction, nil),
 		l: langs.NewLanguage("en", cfg),
 	}
 }

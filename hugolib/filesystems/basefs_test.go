@@ -33,7 +33,6 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugolib/paths"
 	"github.com/gohugoio/hugo/modules"
-	
 )
 
 func initConfig(fs afero.Fs, cfg config.Provider) error {
@@ -76,7 +75,7 @@ func initConfig(fs afero.Fs, cfg config.Provider) error {
 
 func TestNewBaseFs(t *testing.T) {
 	c := qt.New(t)
-	v := config.New()
+	v := config.NewWithTestDefaults()
 
 	fs := hugofs.NewMem(v)
 
@@ -152,7 +151,7 @@ theme = ["atheme"]
 	checkFileCount(bfs.Data.Fs, "", c, 11)       // 7 + 4 themes
 	checkFileCount(bfs.Archetypes.Fs, "", c, 10) // 8 + 2 themes
 	checkFileCount(bfs.Assets.Fs, "", c, 9)
-	checkFileCount(bfs.Work, "", c, 82)
+	checkFileCount(bfs.Work, "", c, 90)
 
 	c.Assert(bfs.IsData(filepath.Join(workingDir, "mydata", "file1.txt")), qt.Equals, true)
 	c.Assert(bfs.IsI18n(filepath.Join(workingDir, "myi18n", "file1.txt")), qt.Equals, true)
@@ -182,7 +181,7 @@ theme = ["atheme"]
 }
 
 func createConfig() config.Provider {
-	v := config.New()
+	v := config.NewWithTestDefaults()
 	v.Set("contentDir", "mycontent")
 	v.Set("i18nDir", "myi18n")
 	v.Set("staticDir", "mystatic")
@@ -220,21 +219,18 @@ func TestNewBaseFsEmpty(t *testing.T) {
 func TestRealDirs(t *testing.T) {
 	c := qt.New(t)
 	v := createConfig()
+	root, themesDir := t.TempDir(), t.TempDir()
+	v.Set("workingDir", root)
+	v.Set("themesDir", themesDir)
+	v.Set("theme", "mytheme")
+
 	fs := hugofs.NewDefault(v)
 	sfs := fs.Source
 
-	root, err := afero.TempDir(sfs, "", "realdir")
-	c.Assert(err, qt.IsNil)
-	themesDir, err := afero.TempDir(sfs, "", "themesDir")
-	c.Assert(err, qt.IsNil)
 	defer func() {
 		os.RemoveAll(root)
 		os.RemoveAll(themesDir)
 	}()
-
-	v.Set("workingDir", root)
-	v.Set("themesDir", themesDir)
-	v.Set("theme", "mytheme")
 
 	c.Assert(sfs.MkdirAll(filepath.Join(root, "myassets", "scss", "sf1"), 0755), qt.IsNil)
 	c.Assert(sfs.MkdirAll(filepath.Join(root, "myassets", "scss", "sf2"), 0755), qt.IsNil)
@@ -315,12 +311,12 @@ func TestStaticFsMultiHost(t *testing.T) {
 	v.Set("theme", "t1")
 	v.Set("defaultContentLanguage", "en")
 
-	langConfig := map[string]interface{}{
-		"no": map[string]interface{}{
+	langConfig := map[string]any{
+		"no": map[string]any{
 			"staticDir": "static_no",
 			"baseURL":   "https://example.org/no/",
 		},
-		"en": map[string]interface{}{
+		"en": map[string]any{
 			"baseURL": "https://example.org/en/",
 		},
 	}
@@ -363,17 +359,17 @@ func TestMakePathRelative(t *testing.T) {
 	c.Assert(fs.Source.MkdirAll(filepath.Join(workDir, "static", "d2"), 0777), qt.IsNil)
 	c.Assert(fs.Source.MkdirAll(filepath.Join(workDir, "dust", "d2"), 0777), qt.IsNil)
 
-	moduleCfg := map[string]interface{}{
-		"mounts": []interface{}{
-			map[string]interface{}{
+	moduleCfg := map[string]any{
+		"mounts": []any{
+			map[string]any{
 				"source": "dist",
 				"target": "static/mydist",
 			},
-			map[string]interface{}{
+			map[string]any{
 				"source": "dust",
 				"target": "static/foo/bar",
 			},
-			map[string]interface{}{
+			map[string]any{
 				"source": "static",
 				"target": "static",
 			},

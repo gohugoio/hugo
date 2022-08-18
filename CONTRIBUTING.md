@@ -1,5 +1,7 @@
 # Contributing to Hugo
 
+**Note  March 16th 2022:** We are currently very constrained on human resources to do code reviews, so we currently require any new Pull Requests to be limited to bug fixes closing an existing issue. Also, we have updated to Go 1.18, but we will currently not accept any generic rewrites, "interface{} to any" replacements and similar.
+
 We welcome contributions to Hugo of any kind including documentation, themes,
 organization, tutorials, blog posts, bug reports, issues, feature requests,
 feature implementations, pull requests, answering questions on the forum,
@@ -81,18 +83,21 @@ To make the contribution process as seamless as possible, we ask for the followi
 
 ### Git Commit Message Guidelines
 
-This [blog article](http://chris.beams.io/posts/git-commit/) is a good resource for learning how to write good commit messages,
+This [blog article](https://cbea.ms/git-commit/) is a good resource for learning how to write good commit messages,
 the most important part being that each commit message should have a title/subject in imperative mood starting with a capital letter and no trailing period:
-*"Return error on wrong use of the Paginator"*, **NOT** *"returning some error."*
+*"js: Return error when option x is not set"*, **NOT** *"returning some error."*
+
+Most title/subjects should have a lower-cased prefix with a colon and one whitespace. The prefix can be:
+
+* The name of the package where (most of) the changes are made (e.g. `media: Add text/calendar`)
+* If the package name is deeply nested/long, try to shorten it from the left side, e.g. `markup/goldmark` is OK, `resources/resource_transformers/js` can be shortened to `js`.
+* If this commit touches several packages with a common functional topic, use that as a prefix, e.g. `errors: Resolve correct line numbers`)
+* If this commit touches many packages without a common functional topic, prefix with `all:` (e.g. `all: Reformat Go code`)
+* If this is a documentation update, prefix with `docs:`.
+* If nothing of the above applies, just leave the prefix out.
 
 Also, if your commit references one or more GitHub issues, always end your commit message body with *See #1234* or *Fixes #1234*.
 Replace *1234* with the GitHub issue ID. The last example will close the issue when the commit is merged into *master*.
-
-Sometimes it makes sense to prefix the commit message with the package name (or docs folder) all lowercased ending with a colon.
-That is fine, but the rest of the rules above apply.
-So it is "tpl: Add emojify template func", not "tpl: add emojify template func.", and "docs: Document emoji", not "doc: document emoji."
-
-Please use a short and descriptive branch name, e.g. **NOT** "patch-1". It's very common but creates a naming conflict each time when a submission is pulled for a review.
 
 An example:
 
@@ -124,7 +129,7 @@ go install
 For some convenient build and test targets, you also will want to install Mage:
 
 ```bash
-go get github.com/magefile/mage
+go install github.com/magefile/mage
 ```
 
 Now, to make a change to Hugo's source:

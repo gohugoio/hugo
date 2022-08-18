@@ -16,10 +16,12 @@ package converter
 import (
 	"bytes"
 
+	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
+	"github.com/gohugoio/hugo/markup/highlight"
 	"github.com/gohugoio/hugo/markup/markup_config"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/spf13/afero"
@@ -32,7 +34,8 @@ type ProviderConfig struct {
 	Cfg       config.Provider // Site config
 	ContentFs afero.Fs
 	Logger    loggers.Logger
-	Highlight func(code, lang, optsStr string) (string, error)
+	Exec      *hexec.Exec
+	highlight.Highlighter
 }
 
 // ProviderProvider creates converter providers.
@@ -116,18 +119,22 @@ func (b Bytes) Bytes() []byte {
 
 // DocumentContext holds contextual information about the document to convert.
 type DocumentContext struct {
-	Document        interface{} // May be nil. Usually a page.Page
-	DocumentID      string
-	DocumentName    string
-	Filename        string
-	ConfigOverrides map[string]interface{}
+	Document     any // May be nil. Usually a page.Page
+	DocumentID   string
+	DocumentName string
+	Filename     string
 }
 
 // RenderContext holds contextual information about the content to render.
 type RenderContext struct {
-	Src         []byte
-	RenderTOC   bool
-	RenderHooks hooks.Renderers
+	// Src is the content to render.
+	Src []byte
+
+	// Whether to render TableOfContents.
+	RenderTOC bool
+
+	// GerRenderer provides hook renderers on demand.
+	GetRenderer hooks.GetRendererFunc
 }
 
 var FeatureRenderHooks = identity.NewPathIdentity("markup", "renderingHooks")

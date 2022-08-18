@@ -21,14 +21,14 @@ const (
 	FieldNotSupported = "__field_not_supported"
 )
 
-func structToMapWithPlaceholders(root string, in interface{}, createPlaceholder func(s string) string) map[string]interface{} {
+func structToMapWithPlaceholders(root string, in any, createPlaceholder func(s string) string) map[string]any {
 	m := structToMap(in)
 	insertFieldPlaceholders(root, m, createPlaceholder)
 	return m
 }
 
-func structToMap(s interface{}) map[string]interface{} {
-	m := make(map[string]interface{})
+func structToMap(s any) map[string]any {
+	m := make(map[string]any)
 	t := reflect.TypeOf(s)
 
 	for i := 0; i < t.NumMethod(); i++ {
@@ -52,7 +52,7 @@ func structToMap(s interface{}) map[string]interface{} {
 }
 
 // insert placeholder for the templates. Do it very shallow for now.
-func insertFieldPlaceholders(root string, m map[string]interface{}, createPlaceholder func(s string) string) {
+func insertFieldPlaceholders(root string, m map[string]any, createPlaceholder func(s string) string) {
 	for k := range m {
 		m[k] = createPlaceholder(root + "." + k)
 	}

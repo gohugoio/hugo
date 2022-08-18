@@ -41,7 +41,7 @@ func (p *pagePaginator) reset() {
 	p.pagePaginatorInit = &pagePaginatorInit{}
 }
 
-func (p *pagePaginator) Paginate(seq interface{}, options ...interface{}) (*page.Pager, error) {
+func (p *pagePaginator) Paginate(seq any, options ...any) (*page.Pager, error) {
 	var initErr error
 	p.init.Do(func() {
 		pagerSize, err := page.ResolvePagerSize(p.source.s.Cfg, options...)
@@ -68,7 +68,7 @@ func (p *pagePaginator) Paginate(seq interface{}, options ...interface{}) (*page
 	return p.current, nil
 }
 
-func (p *pagePaginator) Paginator(options ...interface{}) (*page.Pager, error) {
+func (p *pagePaginator) Paginator(options ...any) (*page.Pager, error) {
 	var initErr error
 	p.init.Do(func() {
 		pagerSize, err := page.ResolvePagerSize(p.source.s.Cfg, options...)

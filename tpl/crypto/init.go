@@ -26,7 +26,7 @@ func init() {
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
-			Context: func(args ...interface{}) (interface{}, error) { return ctx, nil },
+			Context: func(args ...any) (any, error) { return ctx, nil },
 		}
 
 		ns.AddMethodMapping(ctx.MD5,
@@ -48,6 +48,13 @@ func init() {
 			[]string{"sha256"},
 			[][2]string{
 				{`{{ sha256 "Hello world, gophers!" }}`, `6ec43b78da9669f50e4e422575c54bf87536954ccd58280219c393f2ce352b46`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.FNV32a,
+			nil,
+			[][2]string{
+				{`{{ crypto.FNV32a "Hugo Rocks!!" }}`, `1515779328`},
 			},
 		)
 

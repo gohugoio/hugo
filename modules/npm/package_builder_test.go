@@ -73,7 +73,7 @@ func TestPackageBuilder(t *testing.T) {
 
 	c.Assert(b.Err(), qt.IsNil)
 
-	c.Assert(b.dependencies, qt.DeepEquals, map[string]interface{}{
+	c.Assert(b.dependencies, qt.DeepEquals, map[string]any{
 		"@babel/cli":        "7.8.4",
 		"add1":              "1.1.1",
 		"add3":              "3.1.1",
@@ -83,7 +83,7 @@ func TestPackageBuilder(t *testing.T) {
 		"tailwindcss":       "1.2.0",
 	})
 
-	c.Assert(b.devDependencies, qt.DeepEquals, map[string]interface{}{
+	c.Assert(b.devDependencies, qt.DeepEquals, map[string]any{
 		"tailwindcss":       "1.2.0",
 		"@babel/cli":        "7.8.4",
 		"@babel/core":       "7.9.0",

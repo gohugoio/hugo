@@ -41,8 +41,9 @@ func TestSimilarPercentage(t *testing.T) {
 	c.Assert(howSimilar("Totally different", "Not Same"), qt.Equals, 0)
 	c.Assert(howSimilar(sentence, sentenceReversed), qt.Equals, 14)
 	c.Assert(howSimilar(template.HTML("Hugo Rules"), template.HTML("Hugo Rules")), qt.Equals, 100)
-	c.Assert(howSimilar(map[string]interface{}{"a": 32, "b": 33}, map[string]interface{}{"a": 32, "b": 33}), qt.Equals, 100)
-	c.Assert(howSimilar(map[string]interface{}{"a": 32, "b": 33}, map[string]interface{}{"a": 32, "b": 34}), qt.Equals, 0)
+	c.Assert(howSimilar(map[string]any{"a": 32, "b": 33}, map[string]any{"a": 32, "b": 33}), qt.Equals, 100)
+	c.Assert(howSimilar(map[string]any{"a": 32, "b": 33}, map[string]any{"a": 32, "b": 34}), qt.Equals, 0)
+	c.Assert(howSimilar("\n", ""), qt.Equals, 100)
 }
 
 type testStruct struct {

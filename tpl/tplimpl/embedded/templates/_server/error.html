@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html class="no-js" lang="">
+  <head>
+    <meta charset="utf-8" />
+    <title>Hugo Server: Error</title>
+    <style type="text/css">
+      body {
+        font-family: "Muli", system-ui, -apple-system, "Segoe UI", Roboto,
+          "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif,
+          "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+          "Noto Color Emoji";
+        font-size: 14px;
+        background-color: #272a36;
+      }
+      main {
+        max-width: 100ch;
+        padding: 2ch;
+        margin: auto;
+      }
+
+      .version {
+        font-size: 0.75rem;
+        color: #7c7c7c;
+      }
+
+      hr {
+        margin-bottom: 1rem;
+        border: none;
+        height: 1px;
+        background-color: #3d3d3d;
+      }
+      pre,
+      code {
+        white-space: pre-wrap;
+        white-space: -moz-pre-wrap;
+        white-space: -pre-wrap;
+        white-space: -o-pre-wrap;
+        word-wrap: break-word;
+        font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+      }
+      .error pre {
+        line-height: 1.5;
+      }
+      .filename {
+        color: #eef78a;
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+      .highlight {
+        overflow-x: auto;
+      }
+      a {
+        color: #0594cb;
+        text-decoration: none;
+      }
+      a:hover {
+        color: #ccc;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      {{ $codeStyle := "dracula" }}
+      <div class="error">
+        {{ highlight .Error "apl" (printf "linenos=false,noclasses=true,style=%s" $codeStyle ) }}
+      </div>
+      <hr />
+      {{ range $i, $e := .Files }}
+        {{ if not .ErrorContext }}
+          {{ continue }}
+        {{ end }}
+        {{ $params := printf "noclasses=true,style=%s,linenos=table,hl_lines=%d,linenostart=%d" $codeStyle (add .ErrorContext.LinesPos 1) (sub .Position.LineNumber .ErrorContext.LinesPos) }}
+        {{ $lexer := .ErrorContext.ChromaLexer | default "go-html-template" }}
+        {{ with .Position }}
+          <code class="filename"
+            >{{ printf "%s:%d:%d" .Filename .LineNumber .ColumnNumber }}:</code
+          >
+        {{ end }}
+        {{ highlight (delimit .ErrorContext.Lines "\n") $lexer $params }}
+        <hr />
+      {{ end }}
+      <p class="version">{{ .Version }}</p>
+      <a href="">Reload Page</a>
+    </main>
+  </body>
+</html>

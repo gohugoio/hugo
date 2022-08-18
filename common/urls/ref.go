@@ -17,6 +17,6 @@ package urls
 // args must contain a path, but can also point to the target
 // language or output format.
 type RefLinker interface {
-	Ref(args map[string]interface{}) (string, error)
-	RelRef(args map[string]interface{}) (string, error)
+	Ref(args map[string]any) (string, error)
+	RelRef(args map[string]any) (string, error)
 }

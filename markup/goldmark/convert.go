@@ -16,39 +16,27 @@ package goldmark
 
 import (
 	"bytes"
-	"fmt"
-	"math/bits"
-	"path/filepath"
-	"runtime/debug"
 
+	"github.com/gohugoio/hugo/markup/goldmark/codeblocks"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/extensions/attributes"
-	"github.com/yuin/goldmark/ast"
+	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
 
 	"github.com/gohugoio/hugo/identity"
 
-	"github.com/pkg/errors"
-
-	"github.com/spf13/afero"
-
-	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/markup/converter"
-	"github.com/gohugoio/hugo/markup/highlight"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/yuin/goldmark"
-	hl "github.com/yuin/goldmark-highlighting"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer"
 	"github.com/yuin/goldmark/renderer/html"
 	"github.com/yuin/goldmark/text"
-	"github.com/yuin/goldmark/util"
 )
 
 // Provider is the package entry point.
 var Provider converter.ProviderProvider = provide{}
 
-type provide struct {
-}
+type provide struct{}
 
 func (p provide) New(cfg converter.ProviderConfig) (converter.Provider, error) {
 	md := newMarkdown(cfg)
@@ -98,14 +86,14 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 
 	var (
 		extensions = []goldmark.Extender{
-			newLinks(),
+			newLinks(cfg),
 			newTocExtension(rendererOptions),
 		}
 		parserOptions []parser.Option
 	)
 
 	if mcfg.Highlight.CodeFences {
-		extensions = append(extensions, newHighlighting(mcfg.Highlight))
+		extensions = append(extensions, codeblocks.New())
 	}
 
 	if cfg.Extensions.Table {
@@ -179,69 +167,11 @@ func (c converterResult) GetIdentities() identity.Identities {
 	return c.ids
 }
 
-type bufWriter struct {
-	*bytes.Buffer
-}
-
-const maxInt = 1<<(bits.UintSize-1) - 1
-
-func (b *bufWriter) Available() int {
-	return maxInt
-}
-
-func (b *bufWriter) Buffered() int {
-	return b.Len()
-}
-
-func (b *bufWriter) Flush() error {
-	return nil
-}
-
-type renderContext struct {
-	*bufWriter
-	pos int
-	renderContextData
-}
-
-type renderContextData interface {
-	RenderContext() converter.RenderContext
-	DocumentContext() converter.DocumentContext
-	AddIdentity(id identity.Provider)
-}
-
-type renderContextDataHolder struct {
-	rctx converter.RenderContext
-	dctx converter.DocumentContext
-	ids  identity.Manager
-}
-
-func (ctx *renderContextDataHolder) RenderContext() converter.RenderContext {
-	return ctx.rctx
-}
-
-func (ctx *renderContextDataHolder) DocumentContext() converter.DocumentContext {
-	return ctx.dctx
-}
-
-func (ctx *renderContextDataHolder) AddIdentity(id identity.Provider) {
-	ctx.ids.Add(id)
-}
-
 var converterIdentity = identity.KeyValueIdentity{Key: "goldmark", Value: "converter"}
 
 func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (result converter.Result, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			dir := afero.GetTempDir(hugofs.Os, "hugo_bugs")
-			name := fmt.Sprintf("goldmark_%s.txt", c.ctx.DocumentID)
-			filename := filepath.Join(dir, name)
-			afero.WriteFile(hugofs.Os, filename, ctx.Src, 07555)
-			fmt.Print(string(debug.Stack()))
-			err = errors.Errorf("[BUG] goldmark: %s: create an issue on GitHub attaching the file in: %s", r, filename)
-		}
-	}()
 
-	buf := &bufWriter{Buffer: &bytes.Buffer{}}
+	buf := &render.BufWriter{Buffer: &bytes.Buffer{}}
 	result = buf
 	pctx := c.newParserContext(ctx)
 	reader := text.NewReader(ctx.Src)
@@ -251,15 +181,15 @@ func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (result convert
 		parser.WithContext(pctx),
 	)
 
-	rcx := &renderContextDataHolder{
-		rctx: ctx,
-		dctx: c.ctx,
-		ids:  identity.NewManager(converterIdentity),
+	rcx := &render.RenderContextDataHolder{
+		Rctx: ctx,
+		Dctx: c.ctx,
+		IDs:  identity.NewManager(converterIdentity),
 	}
 
-	w := &renderContext{
-		bufWriter:         buf,
-		renderContextData: rcx,
+	w := &render.Context{
+		BufWriter:   buf,
+		ContextData: rcx,
 	}
 
 	if err := c.md.Renderer().Render(w, ctx.Src, doc); err != nil {
@@ -268,7 +198,7 @@ func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (result convert
 
 	return converterResult{
 		Result: buf,
-		ids:    rcx.ids.GetIdentities(),
+		ids:    rcx.IDs.GetIdentities(),
 		toc:    pctx.TableOfContents(),
 	}, nil
 }
@@ -298,64 +228,4 @@ func (p *parserContext) TableOfContents() tableofcontents.Root {
 		return v.(tableofcontents.Root)
 	}
 	return tableofcontents.Root{}
-}
-
-func newHighlighting(cfg highlight.Config) goldmark.Extender {
-	return hl.NewHighlighting(
-		hl.WithStyle(cfg.Style),
-		hl.WithGuessLanguage(cfg.GuessSyntax),
-		hl.WithCodeBlockOptions(highlight.GetCodeBlockOptions()),
-		hl.WithFormatOptions(
-			cfg.ToHTMLOptions()...,
-		),
-
-		hl.WithWrapperRenderer(func(w util.BufWriter, ctx hl.CodeBlockContext, entering bool) {
-			var language string
-			if l, hasLang := ctx.Language(); hasLang {
-				language = string(l)
-			}
-
-			if ctx.Highlighted() {
-				if entering {
-					writeDivStart(w, ctx)
-				} else {
-					writeDivEnd(w)
-				}
-			} else {
-				if entering {
-					highlight.WritePreStart(w, language, "")
-				} else {
-					highlight.WritePreEnd(w)
-				}
-			}
-		}),
-	)
-}
-
-func writeDivStart(w util.BufWriter, ctx hl.CodeBlockContext) {
-	w.WriteString(`<div class="highlight`)
-
-	var attributes []ast.Attribute
-	if ctx.Attributes() != nil {
-		attributes = ctx.Attributes().All()
-	}
-
-	if attributes != nil {
-		class, found := ctx.Attributes().GetString("class")
-		if found {
-			w.WriteString(" ")
-			w.Write(util.EscapeHTML(class.([]byte)))
-
-		}
-		_, _ = w.WriteString("\"")
-		renderAttributes(w, true, attributes...)
-	} else {
-		_, _ = w.WriteString("\"")
-	}
-
-	w.WriteString(">")
-}
-
-func writeDivEnd(w util.BufWriter) {
-	w.WriteString("</div>")
 }

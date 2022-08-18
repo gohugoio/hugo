@@ -18,18 +18,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gohugoio/hugo/htesting/hqt"
-	"github.com/gohugoio/hugo/source"
-
 	"github.com/gohugoio/hugo/resources/resource"
+	"github.com/google/go-cmp/cmp"
 
 	qt "github.com/frankban/quicktest"
 )
 
-var eq = qt.CmpEquals(hqt.DeepAllowUnexported(
-	&testPage{},
-	&source.FileInfo{},
-))
+var eq = qt.CmpEquals(
+	cmp.Comparer(func(p1, p2 testPage) bool {
+		return p1.path == p2.path && p1.weight == p2.weight
+	}),
+)
 
 func TestDefaultSort(t *testing.T) {
 	t.Parallel()
@@ -157,7 +156,7 @@ func TestPageSortReverse(t *testing.T) {
 func TestPageSortByParam(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
-	var k interface{} = "arbitrarily.nested"
+	var k any = "arbitrarily.nested"
 
 	unsorted := createSortTestPages(10)
 	delete(unsorted[9].Params(), "arbitrarily")
@@ -188,7 +187,7 @@ func TestPageSortByParamNumeric(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	var k interface{} = "arbitrarily.nested"
+	var k any = "arbitrarily.nested"
 
 	n := 10
 	unsorted := createSortTestPages(n)
@@ -198,8 +197,8 @@ func TestPageSortByParamNumeric(t *testing.T) {
 			v = 100.0 - i
 		}
 
-		unsorted[i].(*testPage).params = map[string]interface{}{
-			"arbitrarily": map[string]interface{}{
+		unsorted[i].(*testPage).params = map[string]any{
+			"arbitrarily": map[string]any{
 				"nested": v,
 			},
 		}
@@ -268,8 +267,8 @@ func createSortTestPages(num int) Pages {
 		p := newTestPage()
 		p.path = fmt.Sprintf("/x/y/p%d.md", i)
 		p.title = fmt.Sprintf("Title %d", i%(num+1/2))
-		p.params = map[string]interface{}{
-			"arbitrarily": map[string]interface{}{
+		p.params = map[string]any{
+			"arbitrarily": map[string]any{
 				"nested": ("xyz" + fmt.Sprintf("%v", 100-i)),
 			},
 		}

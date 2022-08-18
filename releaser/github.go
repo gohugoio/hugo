@@ -114,7 +114,7 @@ func (g *gitHubAPI) fetchRepo() (gitHubRepo, error) {
 	return repo, err
 }
 
-func doGitHubRequest(req *http.Request, v interface{}) error {
+func doGitHubRequest(req *http.Request, v any) error {
 	addGitHubToken(req)
 
 	resp, err := http.DefaultClient.Do(req)

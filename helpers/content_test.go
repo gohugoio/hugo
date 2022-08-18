@@ -19,10 +19,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gohugoio/hugo/config"
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/config"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -52,44 +52,6 @@ func TestTrimShortHTML(t *testing.T) {
 	}
 }
 
-func TestStripHTML(t *testing.T) {
-	type test struct {
-		input, expected string
-	}
-	data := []test{
-		{"<h1>strip h1 tag <h1>", "strip h1 tag "},
-		{"<p> strip p tag </p>", " strip p tag "},
-		{"</br> strip br<br>", " strip br\n"},
-		{"</br> strip br2<br />", " strip br2\n"},
-		{"This <strong>is</strong> a\nnewline", "This is a newline"},
-		{"No Tags", "No Tags"},
-		{`<p>Summary Next Line.
-<figure >
-
-        <img src="/not/real" />
-
-
-</figure>
-.
-More text here.</p>
-
-<p>Some more text</p>`, "Summary Next Line.  . More text here.\nSome more text\n"},
-	}
-	for i, d := range data {
-		output := StripHTML(d.input)
-		if d.expected != output {
-			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
-		}
-	}
-}
-
-func BenchmarkStripHTML(b *testing.B) {
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		StripHTML(tstHTMLContent)
-	}
-}
-
 func TestStripEmptyNav(t *testing.T) {
 	c := qt.New(t)
 	cleaned := stripEmptyNav([]byte("do<nav>\n</nav>\n\nbedobedo"))
@@ -102,7 +64,7 @@ func TestBytesToHTML(t *testing.T) {
 }
 
 func TestNewContentSpec(t *testing.T) {
-	cfg := config.New()
+	cfg := config.NewWithTestDefaults()
 	c := qt.New(t)
 
 	cfg.Set("summaryLength", 32)
@@ -110,7 +72,7 @@ func TestNewContentSpec(t *testing.T) {
 	cfg.Set("buildExpired", true)
 	cfg.Set("buildDrafts", true)
 
-	spec, err := NewContentSpec(cfg, loggers.NewErrorLogger(), afero.NewMemMapFs())
+	spec, err := NewContentSpec(cfg, loggers.NewErrorLogger(), afero.NewMemMapFs(), nil)
 
 	c.Assert(err, qt.IsNil)
 	c.Assert(spec.summaryLength, qt.Equals, 32)

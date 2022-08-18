@@ -230,8 +230,8 @@ SHORT3|
 	b.AssertFileContent("public/blog/p3/index.html", `PARTIAL3`)
 	// We may add type template support later, keep this for then. b.AssertFileContent("public/docs/docs1/index.html", `Link docs section: Docs 1|END`)
 	b.AssertFileContent("public/blog/p4/index.html", `<p>IMAGE: Cool Page With Image||/images/Dragster.jpg|Title: image title|Text: Drag Racing|END</p>`)
-	// The regular markdownify func currently gets regular links.
-	b.AssertFileContent("public/blog/p5/index.html", "Inner Link: <a href=\"https://www.google.com\" title=\"Google's Homepage\">Inner Link</a>\n</div>")
+	// markdownify
+	b.AssertFileContent("public/blog/p5/index.html", "Inner Link: |https://www.google.com|Title: Google's Homepage|Text: Inner Link|END")
 
 	b.AssertFileContent("public/blog/p6/index.html",
 		"Inner Inline: Inner Link: With RenderString|https://www.gohugo.io|Title: Hugo's Homepage|Text: Inner Link|END",
@@ -426,61 +426,4 @@ Image:
 <p>Some regular <strong>markup</strong>.</p>
 <p>html-image: image.jpg|Text: Hello<br> Goodbye|Plain: Hello GoodbyeEND</p>
 `)
-}
-
-func TestRenderString(t *testing.T) {
-	b := newTestSitesBuilder(t)
-
-	b.WithTemplates("index.html", `
-{{ $p := site.GetPage "p1.md" }}
-{{ $optBlock := dict "display" "block" }}
-{{ $optOrg := dict "markup" "org" }}
-RSTART:{{ "**Bold Markdown**" | $p.RenderString }}:REND
-RSTART:{{  "**Bold Block Markdown**" | $p.RenderString  $optBlock }}:REND
-RSTART:{{  "/italic org mode/" | $p.RenderString  $optOrg }}:REND
-RSTART:{{ "## Header2" | $p.RenderString }}:REND
-
-
-`, "_default/_markup/render-heading.html", "Hook Heading: {{ .Level }}")
-
-	b.WithContent("p1.md", `---
-title: "p1"
----
-`,
-	)
-
-	b.Build(BuildCfg{})
-
-	b.AssertFileContent("public/index.html", `
-RSTART:<strong>Bold Markdown</strong>:REND
-RSTART:<p><strong>Bold Block Markdown</strong></p>
-RSTART:<em>italic org mode</em>:REND
-RSTART:Hook Heading: 2:REND
-`)
-}
-
-// https://github.com/gohugoio/hugo/issues/6882
-func TestRenderStringOnListPage(t *testing.T) {
-	renderStringTempl := `
-{{ .RenderString "**Hello**" }}
-`
-	b := newTestSitesBuilder(t)
-	b.WithContent("mysection/p1.md", `FOO`)
-	b.WithTemplates(
-		"index.html", renderStringTempl,
-		"_default/list.html", renderStringTempl,
-		"_default/single.html", renderStringTempl,
-	)
-
-	b.Build(BuildCfg{})
-
-	for _, filename := range []string{
-		"index.html",
-		"mysection/index.html",
-		"categories/index.html",
-		"tags/index.html",
-		"mysection/p1/index.html",
-	} {
-		b.AssertFileContent("public/"+filename, `<strong>Hello</strong>`)
-	}
 }

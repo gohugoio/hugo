@@ -32,10 +32,18 @@ import (
 
 const exifTimeLayout = "2006:01:02 15:04:05"
 
-type Exif struct {
-	Lat  float64
+// ExifInfo holds the decoded Exif data for an Image.
+type ExifInfo struct {
+	// GPS latitude in degrees.
+	Lat float64
+
+	// GPS longitude in degrees.
 	Long float64
+
+	// Image creation date/time.
 	Date time.Time
+
+	// A collection of the available Exif tags for this Image.
 	Tags Tags
 }
 
@@ -106,7 +114,7 @@ func NewDecoder(options ...func(*Decoder) error) (*Decoder, error) {
 	return d, nil
 }
 
-func (d *Decoder) Decode(r io.Reader) (ex *Exif, err error) {
+func (d *Decoder) Decode(r io.Reader) (ex *ExifInfo, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("Exif failed: %v", r)
@@ -134,17 +142,17 @@ func (d *Decoder) Decode(r io.Reader) (ex *Exif, err error) {
 		lat, long, _ = x.LatLong()
 	}
 
-	walker := &exifWalker{x: x, vals: make(map[string]interface{}), includeMatcher: d.includeFieldsRe, excludeMatcher: d.excludeFieldsrRe}
+	walker := &exifWalker{x: x, vals: make(map[string]any), includeMatcher: d.includeFieldsRe, excludeMatcher: d.excludeFieldsrRe}
 	if err = x.Walk(walker); err != nil {
 		return
 	}
 
-	ex = &Exif{Lat: lat, Long: long, Date: tm, Tags: walker.vals}
+	ex = &ExifInfo{Lat: lat, Long: long, Date: tm, Tags: walker.vals}
 
 	return
 }
 
-func decodeTag(x *_exif.Exif, f _exif.FieldName, t *tiff.Tag) (interface{}, error) {
+func decodeTag(x *_exif.Exif, f _exif.FieldName, t *tiff.Tag) (any, error) {
 	switch t.Format() {
 	case tiff.StringVal, tiff.UndefVal:
 		s := nullString(t.Val)
@@ -158,7 +166,7 @@ func decodeTag(x *_exif.Exif, f _exif.FieldName, t *tiff.Tag) (interface{}, erro
 		return "unknown", nil
 	}
 
-	var rv []interface{}
+	var rv []any
 
 	for i := 0; i < int(t.Count); i++ {
 		switch t.Format() {
@@ -203,7 +211,7 @@ func tryParseDate(x *_exif.Exif, s string) (time.Time, error) {
 
 type exifWalker struct {
 	x              *_exif.Exif
-	vals           map[string]interface{}
+	vals           map[string]any
 	includeMatcher *regexp.Regexp
 	excludeMatcher *regexp.Regexp
 }
@@ -246,10 +254,10 @@ func init() {
 	}
 }
 
-type Tags map[string]interface{}
+type Tags map[string]any
 
 func (v *Tags) UnmarshalJSON(b []byte) error {
-	vv := make(map[string]interface{})
+	vv := make(map[string]any)
 	if err := tcodec.Unmarshal(b, &vv); err != nil {
 		return err
 	}

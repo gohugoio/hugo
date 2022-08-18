@@ -80,7 +80,7 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 		"<loc>http://auth/bub/categories/hugo/</loc>",
 	)
 
-	content := readDestination(th, th.Fs, outputSitemap)
+	content := readWorkingDir(th, th.Fs, outputSitemap)
 	c.Assert(content, qt.Not(qt.Contains), "404")
 	c.Assert(content, qt.Not(qt.Contains), "<loc></loc>")
 }
@@ -88,7 +88,7 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 func TestParseSitemap(t *testing.T) {
 	t.Parallel()
 	expected := config.Sitemap{Priority: 3.0, Filename: "doo.xml", ChangeFreq: "3"}
-	input := map[string]interface{}{
+	input := map[string]any{
 		"changefreq": "3",
 		"priority":   3.0,
 		"filename":   "doo.xml",

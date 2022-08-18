@@ -1,6 +1,6 @@
 ---
 title: Lists of Content in Hugo
-linktitle: List Page Templates
+linktitle: List Templates
 description: Lists have a specific meaning and usage in Hugo when it comes to rendering your site homepage, section page, taxonomy list, or taxonomy terms list.
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -162,7 +162,7 @@ The default behavior of Hugo is to pluralize list titles; hence the inflection o
 
 ### Section Template
 
-This list template has been modified slightly from a template originally used in [spf13.com](http://spf13.com/). It makes use of [partial templates][partials] for the chrome of the rendered page rather than using a [base template][base]. The examples that follow also use the [content view templates][views] `li.html` or `summary.html`.
+This list template has been modified slightly from a template originally used in [spf13.com](https://spf13.com/). It makes use of [partial templates][partials] for the chrome of the rendered page rather than using a [base template][base]. The examples that follow also use the [content view templates][views] `li.html` or `summary.html`.
 
 {{< code file="layouts/section/posts.html" >}}
 {{ partial "header.html" . }}
@@ -421,6 +421,8 @@ In the above example, you may want `{{.Title}}` to point the `title` field you h
 {{ end }}
 {{< /code >}}
 
+{{< new-in "0.97.0" >}} `GroupByDate` accepts the same time layouts as in [time.Format](/functions/dateformat/) and The `.Key` in the result will be localized for the current language.
+
 ### By Publish Date
 
 {{< code file="layouts/partials/by-page-publish-date.html" >}}
@@ -438,6 +440,7 @@ In the above example, you may want `{{.Title}}` to point the `title` field you h
 {{ end }}
 {{< /code >}}
 
+{{< new-in "0.97.0" >}} `GroupByDate` accepts the same time layouts as in [time.Format](/functions/dateformat/) and The `.Key` in the result will be localized for the current language.
 
 ### By Lastmod
 
@@ -456,6 +459,8 @@ In the above example, you may want `{{.Title}}` to point the `title` field you h
 {{ end }}
 {{< /code >}}
 
+{{< new-in "0.97.0" >}} `GroupByDate` accepts the same time layouts as in [time.Format](/functions/dateformat/) and The `.Key` in the result will be localized for the current language.
+
 ### By Expiry Date
 
 {{< code file="layouts/partials/by-page-expiry-date.html" >}}
@@ -472,6 +477,8 @@ In the above example, you may want `{{.Title}}` to point the `title` field you h
 </ul>
 {{ end }}
 {{< /code >}}
+
+{{< new-in "0.97.0" >}} `GroupByDate` accepts the same time layouts as in [time.Format](/functions/dateformat/) and The `.Key` in the result will be localized for the current language.
 
 ### By Page Parameter
 

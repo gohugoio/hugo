@@ -14,18 +14,20 @@
 package collections
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"reflect"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/tpl"
 )
 
 // Apply takes a map, array, or slice and returns a new slice with the function fname applied over it.
-func (ns *Namespace) Apply(seq interface{}, fname string, args ...interface{}) (interface{}, error) {
+func (ns *Namespace) Apply(ctx context.Context, seq any, fname string, args ...any) (any, error) {
 	if seq == nil {
-		return make([]interface{}, 0), nil
+		return make([]any, 0), nil
 	}
 
 	if fname == "apply" {
@@ -43,15 +45,13 @@ func (ns *Namespace) Apply(seq interface{}, fname string, args ...interface{}) (
 		return nil, errors.New("can't find function " + fname)
 	}
 
-	// fnv := reflect.ValueOf(fn)
-
 	switch seqv.Kind() {
 	case reflect.Array, reflect.Slice:
-		r := make([]interface{}, seqv.Len())
+		r := make([]any, seqv.Len())
 		for i := 0; i < seqv.Len(); i++ {
 			vv := seqv.Index(i)
 
-			vvv, err := applyFnToThis(fnv, vv, args...)
+			vvv, err := applyFnToThis(ctx, fnv, vv, args...)
 			if err != nil {
 				return nil, err
 			}
@@ -65,7 +65,12 @@ func (ns *Namespace) Apply(seq interface{}, fname string, args ...interface{}) (
 	}
 }
 
-func applyFnToThis(fn, this reflect.Value, args ...interface{}) (reflect.Value, error) {
+func applyFnToThis(ctx context.Context, fn, this reflect.Value, args ...any) (reflect.Value, error) {
+	num := fn.Type().NumIn()
+	if num > 0 && fn.Type().In(0).Implements(hreflect.ContextInterface) {
+		args = append([]any{ctx}, args...)
+	}
+
 	n := make([]reflect.Value, len(args))
 	for i, arg := range args {
 		if arg == "." {
@@ -74,8 +79,6 @@ func applyFnToThis(fn, this reflect.Value, args ...interface{}) (reflect.Value, 
 			n[i] = reflect.ValueOf(arg)
 		}
 	}
-
-	num := fn.Type().NumIn()
 
 	if fn.Type().IsVariadic() {
 		num--
@@ -104,22 +107,31 @@ func applyFnToThis(fn, this reflect.Value, args ...interface{}) (reflect.Value, 
 }
 
 func (ns *Namespace) lookupFunc(fname string) (reflect.Value, bool) {
-	if !strings.ContainsRune(fname, '.') {
+	namespace, methodName, ok := strings.Cut(fname, ".")
+	if !ok {
 		templ := ns.deps.Tmpl().(tpl.TemplateFuncGetter)
 		return templ.GetFunc(fname)
 	}
 
-	ss := strings.SplitN(fname, ".", 2)
-
-	// namespace
-	nv, found := ns.lookupFunc(ss[0])
+	// Namespace
+	nv, found := ns.lookupFunc(namespace)
 	if !found {
 		return reflect.Value{}, false
 	}
 
+	fn, ok := nv.Interface().(func(...any) (any, error))
+	if !ok {
+		return reflect.Value{}, false
+	}
+	v, err := fn()
+	if err != nil {
+		panic(err)
+	}
+	nv = reflect.ValueOf(v)
+
 	// method
-	m := nv.MethodByName(ss[1])
-	// if reflect.DeepEqual(m, reflect.Value{}) {
+	m := hreflect.GetMethodByName(nv, methodName)
+
 	if m.Kind() == reflect.Invalid {
 		return reflect.Value{}, false
 	}

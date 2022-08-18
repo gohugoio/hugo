@@ -76,7 +76,7 @@ func TestPageCount(t *testing.T) {
 	writeSourcesToSource(t, "", fs, urlFakeSource...)
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-	_, err := s.Fs.Destination.Open("public/blue")
+	_, err := s.Fs.WorkingDirReadOnly.Open("public/blue")
 	if err != nil {
 		t.Errorf("No indexed rendered.")
 	}
@@ -87,7 +87,7 @@ func TestPageCount(t *testing.T) {
 		"public/sd3/index.html",
 		"public/sd4.html",
 	} {
-		if _, err := s.Fs.Destination.Open(filepath.FromSlash(pth)); err != nil {
+		if _, err := s.Fs.WorkingDirReadOnly.Open(filepath.FromSlash(pth)); err != nil {
 			t.Errorf("No alias rendered: %s", pth)
 		}
 	}

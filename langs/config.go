@@ -23,7 +23,7 @@ import (
 
 	"github.com/spf13/cast"
 
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/gohugoio/hugo/config"
 )
@@ -41,7 +41,7 @@ func LoadLanguageSettings(cfg config.Provider, oldLangs Languages) (c LanguagesC
 		cfg.Set("defaultContentLanguage", defaultLang)
 	}
 
-	var languages map[string]interface{}
+	var languages map[string]any
 
 	languagesFromConfig := cfg.GetParams("languages")
 	disableLanguages := cfg.GetStringSlice("disableLanguages")
@@ -72,7 +72,7 @@ func LoadLanguageSettings(cfg config.Provider, oldLangs Languages) (c LanguagesC
 	} else {
 		languages2, err = toSortedLanguages(cfg, languages)
 		if err != nil {
-			return c, errors.Wrap(err, "Failed to parse multilingual config")
+			return c, fmt.Errorf("Failed to parse multilingual config: %w", err)
 		}
 	}
 
@@ -170,7 +170,7 @@ func LoadLanguageSettings(cfg config.Provider, oldLangs Languages) (c LanguagesC
 	return c, nil
 }
 
-func toSortedLanguages(cfg config.Provider, l map[string]interface{}) (Languages, error) {
+func toSortedLanguages(cfg config.Provider, l map[string]any) (Languages, error) {
 	languages := make(Languages, len(l))
 	i := 0
 

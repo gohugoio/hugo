@@ -22,7 +22,10 @@ import (
 	"github.com/spf13/afero"
 )
 
-var _ afero.Fs = (*md5HashingFs)(nil)
+var (
+	_ afero.Fs            = (*md5HashingFs)(nil)
+	_ FilesystemUnwrapper = (*md5HashingFs)(nil)
+)
 
 // FileHashReceiver will receive the filename an the content's MD5 sum on file close.
 type FileHashReceiver interface {
@@ -43,6 +46,10 @@ type md5HashingFs struct {
 // to write content to file, but that is fine for the "publish content" use case.
 func NewHashingFs(delegate afero.Fs, hashReceiver FileHashReceiver) afero.Fs {
 	return &md5HashingFs{Fs: delegate, hashReceiver: hashReceiver}
+}
+
+func (fs *md5HashingFs) UnwrapFilesystem() afero.Fs {
+	return fs.Fs
 }
 
 func (fs *md5HashingFs) Create(name string) (afero.File, error) {

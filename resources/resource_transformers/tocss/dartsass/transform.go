@@ -16,14 +16,12 @@ package dartsass
 import (
 	"fmt"
 	"io"
-	"net/url"
 	"path"
 	"path/filepath"
 	"strings"
 
-	"github.com/cli/safeexec"
-
-	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/media"
 
@@ -38,20 +36,20 @@ import (
 	"github.com/bep/godartsass"
 )
 
-// See https://github.com/sass/dart-sass-embedded/issues/24
-const stdinPlaceholder = "HUGOSTDIN"
+const (
+	dartSassEmbeddedBinaryName = "dart-sass-embedded"
+)
 
 // Supports returns whether dart-sass-embedded is found in $PATH.
 func Supports() bool {
 	if htesting.SupportsAll() {
 		return true
 	}
-	p, err := safeexec.LookPath("dart-sass-embedded")
-	return err == nil && p != ""
+	return hexec.InPath(dartSassEmbeddedBinaryName)
 }
 
 type transform struct {
-	optsm map[string]interface{}
+	optsm map[string]any
 	c     *Client
 }
 
@@ -74,9 +72,14 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 	}
 
 	baseDir := path.Dir(ctx.SourcePath)
+	filename := dartSassStdinPrefix
+
+	if ctx.SourcePath != "" {
+		filename += t.c.sfs.RealFilename(ctx.SourcePath)
+	}
 
 	args := godartsass.Args{
-		URL:          stdinPlaceholder,
+		URL:          filename,
 		IncludePaths: t.c.sfs.RealDirs(baseDir),
 		ImportResolver: importResolver{
 			baseDir: baseDir,
@@ -101,34 +104,6 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 
 	res, err := t.c.toCSS(args, ctx.From)
 	if err != nil {
-		if sassErr, ok := err.(godartsass.SassError); ok {
-			start := sassErr.Span.Start
-			context := strings.TrimSpace(sassErr.Span.Context)
-			filename, _ := urlToFilename(sassErr.Span.Url)
-			if filename == stdinPlaceholder {
-				if ctx.SourcePath == "" {
-					return sassErr
-				}
-				filename = t.c.sfs.RealFilename(ctx.SourcePath)
-			}
-
-			offsetMatcher := func(m herrors.LineMatcher) bool {
-				return m.Offset+len(m.Line) >= start.Offset && strings.Contains(m.Line, context)
-			}
-
-			ferr, ok := herrors.WithFileContextForFile(
-				herrors.NewFileError("scss", -1, -1, start.Column, sassErr),
-				filename,
-				filename,
-				hugofs.Os,
-				offsetMatcher)
-
-			if !ok {
-				return sassErr
-			}
-
-			return ferr
-		}
 		return err
 	}
 
@@ -155,7 +130,7 @@ type importResolver struct {
 }
 
 func (t importResolver) CanonicalizeURL(url string) (string, error) {
-	filePath, isURL := urlToFilename(url)
+	filePath, isURL := paths.UrlToFilename(url)
 	var prevDir string
 	var pathDir string
 	if isURL {
@@ -201,23 +176,7 @@ func (t importResolver) CanonicalizeURL(url string) (string, error) {
 }
 
 func (t importResolver) Load(url string) (string, error) {
-	filename, _ := urlToFilename(url)
+	filename, _ := paths.UrlToFilename(url)
 	b, err := afero.ReadFile(hugofs.Os, filename)
 	return string(b), err
-}
-
-// TODO(bep) add tests
-func urlToFilename(urls string) (string, bool) {
-	u, err := url.ParseRequestURI(urls)
-	if err != nil {
-		return filepath.FromSlash(urls), false
-	}
-	p := filepath.FromSlash(u.Path)
-
-	if u.Host != "" {
-		// C:\data\file.txt
-		p = strings.ToUpper(u.Host) + ":" + p
-	}
-
-	return p, true
 }

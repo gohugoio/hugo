@@ -39,10 +39,10 @@ type Namespace struct {
 }
 
 // Build processes the given Resource with ESBuild.
-func (ns *Namespace) Build(args ...interface{}) (resource.Resource, error) {
+func (ns *Namespace) Build(args ...any) (resource.Resource, error) {
 	var (
 		r          resources.ResourceTransformer
-		m          map[string]interface{}
+		m          map[string]any
 		targetPath string
 		err        error
 		ok         bool
@@ -58,7 +58,7 @@ func (ns *Namespace) Build(args ...interface{}) (resource.Resource, error) {
 	}
 
 	if targetPath != "" {
-		m = map[string]interface{}{"targetPath": targetPath}
+		m = map[string]any{"targetPath": targetPath}
 	}
 
 	return ns.client.Process(r, m)

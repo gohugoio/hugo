@@ -14,12 +14,12 @@
 package filecache
 
 import (
+	"fmt"
 	"io"
 	"os"
 
 	"github.com/gohugoio/hugo/hugofs"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 )
 
@@ -39,7 +39,7 @@ func (c Caches) Prune() (int, error) {
 			if os.IsNotExist(err) {
 				continue
 			}
-			return counter, errors.Wrapf(err, "failed to prune cache %q", k)
+			return counter, fmt.Errorf("failed to prune cache %q: %w", k, err)
 		}
 
 	}

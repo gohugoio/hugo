@@ -14,19 +14,21 @@
 package hugofs
 
 import (
+	"fmt"
 	"os"
 	"syscall"
 	"time"
 
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/spf13/afero"
 )
 
 var (
-	_ afero.Fs      = (*SliceFs)(nil)
-	_ afero.Lstater = (*SliceFs)(nil)
-	_ afero.File    = (*sliceDir)(nil)
+	_ afero.Fs             = (*SliceFs)(nil)
+	_ afero.Lstater        = (*SliceFs)(nil)
+	_ FilesystemsUnwrapper = (*SliceFs)(nil)
+	_ afero.File           = (*sliceDir)(nil)
 )
 
 func NewSliceFs(dirs ...FileMetaInfo) (afero.Fs, error) {
@@ -52,6 +54,14 @@ type SliceFs struct {
 	dirs []FileMetaInfo
 }
 
+func (fs *SliceFs) UnwrapFilesystems() []afero.Fs {
+	var fss []afero.Fs
+	for _, dir := range fs.dirs {
+		fss = append(fss, dir.Meta().Fs)
+	}
+	return fss
+}
+
 func (fs *SliceFs) Chmod(n string, m os.FileMode) error {
 	return syscall.EPERM
 }
@@ -74,7 +84,7 @@ func (fs *SliceFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {
 		return decorateFileInfo(fi, fs, fs.getOpener(name), "", "", nil), false, nil
 	}
 
-	return nil, false, errors.Errorf("lstat: files not supported: %q", name)
+	return nil, false, fmt.Errorf("lstat: files not supported: %q", name)
 }
 
 func (fs *SliceFs) Mkdir(n string, p os.FileMode) error {

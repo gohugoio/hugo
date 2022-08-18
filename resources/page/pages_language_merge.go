@@ -22,7 +22,7 @@ var _ pagesLanguageMerger = (*Pages)(nil)
 type pagesLanguageMerger interface {
 	MergeByLanguage(other Pages) Pages
 	// Needed for integration with the tpl package.
-	MergeByLanguageInterface(other interface{}) (interface{}, error)
+	MergeByLanguageInterface(other any) (any, error)
 }
 
 // MergeByLanguage supplies missing translations in p1 with values from p2.
@@ -50,7 +50,7 @@ func (p1 Pages) MergeByLanguage(p2 Pages) Pages {
 
 // MergeByLanguageInterface is the generic version of MergeByLanguage. It
 // is here just so it can be called from the tpl package.
-func (p1 Pages) MergeByLanguageInterface(in interface{}) (interface{}, error) {
+func (p1 Pages) MergeByLanguageInterface(in any) (any, error) {
 	if in == nil {
 		return p1, nil
 	}

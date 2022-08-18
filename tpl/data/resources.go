@@ -15,13 +15,12 @@ package data
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"path/filepath"
 	"time"
-
-	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/cache/filecache"
 
@@ -38,6 +37,13 @@ var (
 // getRemote loads the content of a remote file. This method is thread safe.
 func (ns *Namespace) getRemote(cache *filecache.Cache, unmarshal func([]byte) (bool, error), req *http.Request) error {
 	url := req.URL.String()
+	if err := ns.deps.ExecHelper.Sec().CheckAllowedHTTPURL(url); err != nil {
+		return err
+	}
+	if err := ns.deps.ExecHelper.Sec().CheckAllowedHTTPMethod("GET"); err != nil {
+		return err
+	}
+
 	var headers bytes.Buffer
 	req.Header.Write(&headers)
 	id := helpers.MD5String(url + headers.String())
@@ -63,7 +69,7 @@ func (ns *Namespace) getRemote(cache *filecache.Cache, unmarshal func([]byte) (b
 			res.Body.Close()
 
 			if isHTTPError(res) {
-				return nil, errors.Errorf("Failed to retrieve remote file: %s, body: %q", http.StatusText(res.StatusCode), b)
+				return nil, fmt.Errorf("Failed to retrieve remote file: %s, body: %q", http.StatusText(res.StatusCode), b)
 			}
 
 			retry, err = unmarshal(b)

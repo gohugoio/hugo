@@ -14,11 +14,10 @@
 package config
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 	"sync"
-
-	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/types"
 
@@ -87,7 +86,7 @@ type Sitemap struct {
 	Filename   string
 }
 
-func DecodeSitemap(prototype Sitemap, input map[string]interface{}) Sitemap {
+func DecodeSitemap(prototype Sitemap, input map[string]any) Sitemap {
 	for key, value := range input {
 		switch key {
 		case "changefreq":
@@ -177,7 +176,7 @@ func (s *Server) MatchRedirect(pattern string) Redirect {
 
 type Headers struct {
 	For    string
-	Values map[string]interface{}
+	Values map[string]any
 }
 
 type Redirect struct {
@@ -207,7 +206,7 @@ func DecodeServer(cfg Provider) (*Server, error) {
 			// There are some tricky infinite loop situations when dealing
 			// when the target does not have a trailing slash.
 			// This can certainly be handled better, but not time for that now.
-			return nil, errors.Errorf("unsupported redirect to value %q in server config; currently this must be either a remote destination or a local folder, e.g. \"/blog/\" or \"/blog/index.html\"", redir.To)
+			return nil, fmt.Errorf("unsupported redirect to value %q in server config; currently this must be either a remote destination or a local folder, e.g. \"/blog/\" or \"/blog/index.html\"", redir.To)
 		}
 		s.Redirects[i] = redir
 	}

@@ -115,7 +115,7 @@ func IsGitHubAction() bool {
 // SupportsAll reports whether the running system supports all Hugo features,
 // e.g. Asciidoc, Pandoc etc.
 func SupportsAll() bool {
-	return IsGitHubAction()
+	return IsGitHubAction() || os.Getenv("CI_LOCAL") != ""
 }
 
 // GoMinorVersion returns the minor version of the current Go version,

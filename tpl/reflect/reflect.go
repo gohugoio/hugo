@@ -26,11 +26,11 @@ func New() *Namespace {
 type Namespace struct{}
 
 // IsMap reports whether v is a map.
-func (ns *Namespace) IsMap(v interface{}) bool {
+func (ns *Namespace) IsMap(v any) bool {
 	return reflect.ValueOf(v).Kind() == reflect.Map
 }
 
 // IsSlice reports whether v is a slice.
-func (ns *Namespace) IsSlice(v interface{}) bool {
+func (ns *Namespace) IsSlice(v any) bool {
 	return reflect.ValueOf(v).Kind() == reflect.Slice
 }

@@ -52,6 +52,43 @@ func BenchmarkCascade(b *testing.B) {
 	}
 }
 
+func BenchmarkCascadeTarget(b *testing.B) {
+	files := `
+-- content/_index.md --
+background = 'yosemite.jpg'
+[cascade._target]
+kind = '{section,term}'
+-- content/posts/_index.md --
+-- content/posts/funny/_index.md --
+`
+
+	for i := 1; i < 100; i++ {
+		files += fmt.Sprintf("\n-- content/posts/p%d.md --\n", i+1)
+	}
+
+	for i := 1; i < 100; i++ {
+		files += fmt.Sprintf("\n-- content/posts/funny/pf%d.md --\n", i+1)
+	}
+
+	b.Run("Kind", func(b *testing.B) {
+		cfg := IntegrationTestConfig{
+			T:           b,
+			TxtarString: files,
+		}
+		builders := make([]*IntegrationTestBuilder, b.N)
+
+		for i := range builders {
+			builders[i] = NewIntegrationTestBuilder(cfg)
+		}
+
+		b.ResetTimer()
+
+		for i := 0; i < b.N; i++ {
+			builders[i].Build()
+		}
+	})
+}
+
 func TestCascadeConfig(t *testing.T) {
 	c := qt.New(t)
 
@@ -106,13 +143,10 @@ cascade:
 					"draft":         bool(false),
 					"iscjklanguage": bool(false),
 				})
-
 			}
-
 		})
 
 	}
-
 }
 
 func TestCascade(t *testing.T) {
@@ -301,7 +335,7 @@ Banner: post.jpg`,
 }
 
 func newCascadeTestBuilder(t testing.TB, langs []string) *sitesBuilder {
-	p := func(m map[string]interface{}) string {
+	p := func(m map[string]any) string {
 		var yamlStr string
 
 		if len(m) > 0 {
@@ -358,76 +392,76 @@ defaultContentLanguageInSubDir = false
 		}
 
 		withContent(
-			"_index.md", p(map[string]interface{}{
+			"_index.md", p(map[string]any{
 				"title": "Home",
-				"cascade": map[string]interface{}{
+				"cascade": map[string]any{
 					"title":   "Cascade Home",
 					"ICoN":    "home.png",
 					"outputs": []string{"HTML"},
 					"weight":  42,
 				},
 			}),
-			"p1.md", p(map[string]interface{}{
+			"p1.md", p(map[string]any{
 				"title": "p1",
 			}),
-			"p2.md", p(map[string]interface{}{}),
-			"sect1/_index.md", p(map[string]interface{}{
+			"p2.md", p(map[string]any{}),
+			"sect1/_index.md", p(map[string]any{
 				"title": "Sect1",
 				"type":  "stype",
-				"cascade": map[string]interface{}{
+				"cascade": map[string]any{
 					"title":      "Cascade Sect1",
 					"icon":       "sect1.png",
 					"type":       "stype",
 					"categories": []string{"catsect1"},
 				},
 			}),
-			"sect1/s1_2/_index.md", p(map[string]interface{}{
+			"sect1/s1_2/_index.md", p(map[string]any{
 				"title": "Sect1_2",
 			}),
-			"sect1/s1_2/p1.md", p(map[string]interface{}{
+			"sect1/s1_2/p1.md", p(map[string]any{
 				"title": "Sect1_2_p1",
 			}),
-			"sect1/s1_2/p2.md", p(map[string]interface{}{
+			"sect1/s1_2/p2.md", p(map[string]any{
 				"title": "Sect1_2_p2",
 			}),
-			"sect2/_index.md", p(map[string]interface{}{
+			"sect2/_index.md", p(map[string]any{
 				"title": "Sect2",
 			}),
-			"sect2/p1.md", p(map[string]interface{}{
+			"sect2/p1.md", p(map[string]any{
 				"title":      "Sect2_p1",
 				"categories": []string{"cool", "funny", "sad"},
 				"tags":       []string{"blue", "green"},
 			}),
-			"sect2/p2.md", p(map[string]interface{}{}),
-			"sect3/p1.md", p(map[string]interface{}{}),
+			"sect2/p2.md", p(map[string]any{}),
+			"sect3/p1.md", p(map[string]any{}),
 
 			// No front matter, see #6855
 			"sect3/nofrontmatter.md", `**Hello**`,
 			"sectnocontent/p1.md", `**Hello**`,
 			"sectnofrontmatter/_index.md", `**Hello**`,
 
-			"sect4/_index.md", p(map[string]interface{}{
+			"sect4/_index.md", p(map[string]any{
 				"title": "Sect4",
-				"cascade": map[string]interface{}{
+				"cascade": map[string]any{
 					"weight":  52,
 					"outputs": []string{"RSS"},
 				},
 			}),
-			"sect4/p1.md", p(map[string]interface{}{}),
-			"p2.md", p(map[string]interface{}{}),
-			"bundle1/index.md", p(map[string]interface{}{}),
-			"bundle1/bp1.md", p(map[string]interface{}{}),
-			"categories/_index.md", p(map[string]interface{}{
+			"sect4/p1.md", p(map[string]any{}),
+			"p2.md", p(map[string]any{}),
+			"bundle1/index.md", p(map[string]any{}),
+			"bundle1/bp1.md", p(map[string]any{}),
+			"categories/_index.md", p(map[string]any{
 				"title": "My Categories",
-				"cascade": map[string]interface{}{
+				"cascade": map[string]any{
 					"title":  "Cascade Category",
 					"icoN":   "cat.png",
 					"weight": 12,
 				},
 			}),
-			"categories/cool/_index.md", p(map[string]interface{}{}),
-			"categories/sad/_index.md", p(map[string]interface{}{
-				"cascade": map[string]interface{}{
+			"categories/cool/_index.md", p(map[string]any{}),
+			"categories/sad/_index.md", p(map[string]any{
+				"cascade": map[string]any{
 					"icon":   "sad.png",
 					"weight": 32,
 				},
@@ -512,6 +546,32 @@ kind="section"
 
 		b.AssertFileContent("public/index.html", `
 P1|p1:p1|p2:|
+S1|p1:|p2:p2|
+`)
+	})
+
+	c.Run("slice with environment _target", func(c *qt.C) {
+		b := newBuilder(c)
+
+		b.WithContent("_index.md", `+++
+title = "Home"
+[[cascade]]
+p1 = "p1"
+[cascade._target]
+path="**p1**"
+environment="testing"
+[[cascade]]
+p2 = "p2"
+[cascade._target]
+kind="section"
+environment="production"
++++
+`)
+
+		b.Build(BuildCfg{})
+
+		b.AssertFileContent("public/index.html", `
+P1|p1:|p2:|
 S1|p1:|p2:p2|
 `)
 	})

@@ -1,15 +1,16 @@
 package deps
 
 import (
+	"fmt"
 	"sync"
 	"sync/atomic"
 	"time"
 
-	"github.com/pkg/errors"
-
 	"github.com/gohugoio/hugo/cache/filecache"
+	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/config/security"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/langs"
@@ -35,6 +36,8 @@ type Deps struct {
 
 	// Used to log errors that may repeat itself many times.
 	LogDistinct loggers.Logger
+
+	ExecHelper *hexec.Exec
 
 	// The templates to use. This will usually implement the full tpl.TemplateManager.
 	tmpl tpl.TemplateHandler
@@ -64,7 +67,7 @@ type Deps struct {
 	FileCaches filecache.Caches
 
 	// The translation func to use
-	Translate func(translationID string, templateData interface{}) string `json:"-"`
+	Translate func(translationID string, templateData any) string `json:"-"`
 
 	// The language in use. TODO(bep) consolidate with site
 	Language *langs.Language
@@ -79,7 +82,7 @@ type Deps struct {
 	WithTemplate     func(templ tpl.TemplateManager) error `json:"-"`
 
 	// Used in tests
-	OverloadedTemplateFuncs map[string]interface{}
+	OverloadedTemplateFuncs map[string]any
 
 	translationProvider ResourceProvider
 
@@ -182,11 +185,11 @@ func (d *Deps) SetTextTmpl(tmpl tpl.TemplateParseFinder) {
 func (d *Deps) LoadResources() error {
 	// Note that the translations need to be loaded before the templates.
 	if err := d.translationProvider.Update(d); err != nil {
-		return errors.Wrap(err, "loading translations")
+		return fmt.Errorf("loading translations: %w", err)
 	}
 
 	if err := d.templateProvider.Update(d); err != nil {
-		return errors.Wrap(err, "loading templates")
+		return fmt.Errorf("loading templates: %w", err)
 	}
 
 	return nil
@@ -230,25 +233,31 @@ func New(cfg DepsCfg) (*Deps, error) {
 		cfg.OutputFormats = output.DefaultFormats
 	}
 
+	securityConfig, err := security.DecodeConfig(cfg.Cfg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create security config from configuration: %w", err)
+	}
+	execHelper := hexec.New(securityConfig)
+
 	ps, err := helpers.NewPathSpec(fs, cfg.Language, logger)
 	if err != nil {
-		return nil, errors.Wrap(err, "create PathSpec")
+		return nil, fmt.Errorf("create PathSpec: %w", err)
 	}
 
 	fileCaches, err := filecache.NewCaches(ps)
 	if err != nil {
-		return nil, errors.WithMessage(err, "failed to create file caches from configuration")
+		return nil, fmt.Errorf("failed to create file caches from configuration: %w", err)
 	}
 
 	errorHandler := &globalErrHandler{}
 	buildState := &BuildState{}
 
-	resourceSpec, err := resources.NewSpec(ps, fileCaches, buildState, logger, errorHandler, cfg.OutputFormats, cfg.MediaTypes)
+	resourceSpec, err := resources.NewSpec(ps, fileCaches, buildState, logger, errorHandler, execHelper, cfg.OutputFormats, cfg.MediaTypes)
 	if err != nil {
 		return nil, err
 	}
 
-	contentSpec, err := helpers.NewContentSpec(cfg.Language, logger, ps.BaseFs.Content.Fs)
+	contentSpec, err := helpers.NewContentSpec(cfg.Language, logger, ps.BaseFs.Content.Fs, execHelper)
 	if err != nil {
 		return nil, err
 	}
@@ -269,6 +278,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		Fs:                      fs,
 		Log:                     ignorableLogger,
 		LogDistinct:             logDistinct,
+		ExecHelper:              execHelper,
 		templateProvider:        cfg.TemplateProvider,
 		translationProvider:     cfg.TranslationProvider,
 		WithTemplate:            cfg.WithTemplate,
@@ -311,7 +321,7 @@ func (d Deps) ForLanguage(cfg DepsCfg, onCreated func(d *Deps) error) (*Deps, er
 		return nil, err
 	}
 
-	d.ContentSpec, err = helpers.NewContentSpec(l, d.Log, d.BaseFs.Content.Fs)
+	d.ContentSpec, err = helpers.NewContentSpec(l, d.Log, d.BaseFs.Content.Fs, d.ExecHelper)
 	if err != nil {
 		return nil, err
 	}
@@ -322,7 +332,7 @@ func (d Deps) ForLanguage(cfg DepsCfg, onCreated func(d *Deps) error) (*Deps, er
 	// TODO(bep) clean up these inits.
 	resourceCache := d.ResourceSpec.ResourceCache
 	postBuildAssets := d.ResourceSpec.PostBuildAssets
-	d.ResourceSpec, err = resources.NewSpec(d.PathSpec, d.ResourceSpec.FileCaches, d.BuildState, d.Log, d.globalErrHandler, cfg.OutputFormats, cfg.MediaTypes)
+	d.ResourceSpec, err = resources.NewSpec(d.PathSpec, d.ResourceSpec.FileCaches, d.BuildState, d.Log, d.globalErrHandler, d.ExecHelper, cfg.OutputFormats, cfg.MediaTypes)
 	if err != nil {
 		return nil, err
 	}
@@ -381,7 +391,7 @@ type DepsCfg struct {
 	TemplateProvider ResourceProvider
 	WithTemplate     func(templ tpl.TemplateManager) error
 	// Used in tests
-	OverloadedTemplateFuncs map[string]interface{}
+	OverloadedTemplateFuncs map[string]any
 
 	// i18n handling.
 	TranslationProvider ResourceProvider

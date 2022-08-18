@@ -30,7 +30,7 @@ hugo server [flags]
 
 ```
       --appendPort             append port to baseURL (default true)
-  -b, --baseURL string         hostname (and path) to the root, e.g. http://spf13.com/
+  -b, --baseURL string         hostname (and path) to the root, e.g. https://spf13.com/
       --bind string            interface to which the server will bind (default "127.0.0.1")
   -D, --buildDrafts            include content marked as draft
   -E, --buildExpired           include expired content
@@ -43,11 +43,10 @@ hugo server [flags]
       --disableFastRender      enables full re-renders on changes
       --disableKinds strings   disable different kind of pages (home, RSS etc.)
       --disableLiveReload      watch without enabling live browser reload on rebuild
-      --enableGitInfo          add Git revision, date and author info to the pages
+      --enableGitInfo          add Git revision, date, author, and CODEOWNERS info to the pages
       --forceSyncStatic        copy all files when static is changed.
       --gc                     enable to run some cleanup tasks (remove unused cache files) after the build
   -h, --help                   help for server
-      --i18n-warnings          print missing translations
       --ignoreCache            ignores the cache directory
   -l, --layoutDir string       filesystem path to layout directory
       --liveReloadPort int     port for live reloading (i.e. 443 in HTTPS proxy situations) (default -1)
@@ -55,14 +54,19 @@ hugo server [flags]
       --memstats string        log memory usage to this file
       --minify                 minify any supported output format (HTML, XML etc.)
       --navigateToChanged      navigate to changed content file on live browser reload
+      --noBuildLock            don't create .hugo_build.lock file
       --noChmod                don't sync permission mode of files
       --noHTTPCache            prevent HTTP caching
       --noTimes                don't sync modification time of files
-      --path-warnings          print warnings on duplicate target paths etc.
+      --panicOnWarning         panic on first WARNING log
       --poll string            set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes
   -p, --port int               port on which the server will listen (default 1313)
-      --print-mem              print memory usage to screen at intervals
-      --renderToDisk           render to Destination path (default is render to memory & serve from there)
+      --printI18nWarnings      print missing translations
+      --printMemoryUsage       print memory usage to screen at intervals
+      --printPathWarnings      print warnings on duplicate target paths etc.
+      --printUnusedTemplates   print warnings on unused templates.
+      --renderStaticToDisk     serve static files from disk and dynamic files from memory
+      --renderToDisk           serve all files from disk (default is from memory)
       --templateMetrics        display metrics about template executions
       --templateMetricsHints   calculate some improvement hints when combined with --templateMetrics
   -t, --theme strings          themes to use (located in /themes/THEMENAME/)
@@ -73,11 +77,11 @@ hugo server [flags]
 ### Options inherited from parent commands
 
 ```
+      --clock string               set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00
       --config string              config file (default is path/config.yaml|json|toml)
       --configDir string           config dir (default "config")
       --debug                      debug output
   -e, --environment string         build environment
-      --ignoreVendor               ignores any _vendor directory
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --log                        enable Logging
       --logFile string             log File path (if set, logging enabled automatically)

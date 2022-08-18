@@ -14,9 +14,10 @@
 package commands
 
 import (
-	"bytes"
 	"errors"
+	"fmt"
 	"io/ioutil"
+	"net"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -28,8 +29,11 @@ import (
 	"golang.org/x/sync/semaphore"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/common/paths"
 
+	"github.com/spf13/cast"
 	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -40,7 +44,9 @@ import (
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/spf13/afero"
 
+	"github.com/bep/clock"
 	"github.com/bep/debounce"
+	"github.com/bep/overlayfs"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -61,6 +67,8 @@ type commandeer struct {
 	logger       loggers.Logger
 	serverConfig *config.Server
 
+	buildLock func() (unlock func(), err error)
+
 	// Loading state
 	mustHaveConfigFile bool
 	failOnInitErr      bool
@@ -70,8 +78,10 @@ type commandeer struct {
 	// be fast enough that we could maybe just add it for all server modes.
 	changeDetector *fileChangeDetector
 
-	// We need to reuse this on server rebuilds.
-	destinationFs afero.Fs
+	// We need to reuse these on server rebuilds.
+	// These 2 will be different if --renderStaticToDisk is set.
+	publishDirFs       afero.Fs
+	publishDirServerFs afero.Fs
 
 	h    *hugoBuilderCommon
 	ftch flagsToConfigHandler
@@ -86,13 +96,14 @@ type commandeer struct {
 	// Used in cases where we get flooded with events in server mode.
 	debounce func(f func())
 
-	serverPorts         []int
-	languagesConfigured bool
-	languages           langs.Languages
-	doLiveReload        bool
-	fastRenderMode      bool
-	showErrorInBrowser  bool
-	wasError            bool
+	serverPorts []serverPortListener
+
+	languages          langs.Languages
+	doLiveReload       bool
+	renderStaticToDisk bool
+	fastRenderMode     bool
+	showErrorInBrowser bool
+	wasError           bool
 
 	configured bool
 	paused     bool
@@ -101,6 +112,11 @@ type commandeer struct {
 
 	// Any error from the last build.
 	buildErr error
+}
+
+type serverPortListener struct {
+	p  int
+	ln net.Listener
 }
 
 func newCommandeerHugoState() *commandeerHugoState {
@@ -114,37 +130,38 @@ func (c *commandeerHugoState) hugo() *hugolib.HugoSites {
 	return c.hugoSites
 }
 
+func (c *commandeerHugoState) hugoTry() *hugolib.HugoSites {
+	select {
+	case <-c.created:
+		return c.hugoSites
+	case <-time.After(time.Millisecond * 100):
+		return nil
+	}
+}
+
 func (c *commandeer) errCount() int {
 	return int(c.logger.LogCounters().ErrorCounter.Count())
 }
 
-func (c *commandeer) getErrorWithContext() interface{} {
+func (c *commandeer) getErrorWithContext() any {
 	errCount := c.errCount()
 
 	if errCount == 0 {
 		return nil
 	}
 
-	m := make(map[string]interface{})
+	m := make(map[string]any)
 
-	m["Error"] = errors.New(removeErrorPrefixFromLog(c.logger.Errors()))
+	//xwm["Error"] = errors.New(cleanErrorLog(removeErrorPrefixFromLog(c.logger.Errors())))
+	m["Error"] = errors.New(cleanErrorLog(removeErrorPrefixFromLog(c.logger.Errors())))
 	m["Version"] = hugo.BuildVersionString()
-
-	fe := herrors.UnwrapErrorWithFileContext(c.buildErr)
-	if fe != nil {
-		m["File"] = fe
-	}
-
-	if c.h.verbose {
-		var b bytes.Buffer
-		herrors.FprintStackTraceFromErr(&b, c.buildErr)
-		m["StackTrace"] = b.String()
-	}
+	ferrors := herrors.UnwrapFileErrorsWithErrorContext(c.buildErr)
+	m["Files"] = ferrors
 
 	return m
 }
 
-func (c *commandeer) Set(key string, value interface{}) {
+func (c *commandeer) Set(key string, value any) {
 	if c.configured {
 		panic("commandeer cannot be changed")
 	}
@@ -152,9 +169,25 @@ func (c *commandeer) Set(key string, value interface{}) {
 }
 
 func (c *commandeer) initFs(fs *hugofs.Fs) error {
-	c.destinationFs = fs.Destination
+	c.publishDirFs = fs.PublishDir
+	c.publishDirServerFs = fs.PublishDirServer
 	c.DepsCfg.Fs = fs
 
+	return nil
+}
+
+func (c *commandeer) initClock(loc *time.Location) error {
+	bt := c.Cfg.GetString("clock")
+	if bt == "" {
+		return nil
+	}
+
+	t, err := cast.StringToDateInDefaultLocation(bt, loc)
+	if err != nil {
+		return fmt.Errorf(`failed to parse "clock" flag: %s`, err)
+	}
+
+	htime.Clock = clock.Start(t)
 	return nil
 }
 
@@ -335,9 +368,16 @@ func (c *commandeer) loadConfig() error {
 
 	c.configFiles = configFiles
 
-	if l, ok := c.Cfg.Get("languagesSorted").(langs.Languages); ok {
-		c.languagesConfigured = true
-		c.languages = l
+	var ok bool
+	loc := time.Local
+	c.languages, ok = c.Cfg.Get("languagesSorted").(langs.Languages)
+	if ok {
+		loc = langs.GetLocation(c.languages[0])
+	}
+
+	err = c.initClock(loc)
+	if err != nil {
+		return err
 	}
 
 	// Set some commonly used flags
@@ -366,21 +406,57 @@ func (c *commandeer) loadConfig() error {
 	}
 
 	createMemFs := config.GetBool("renderToMemory")
+	c.renderStaticToDisk = config.GetBool("renderStaticToDisk")
 
 	if createMemFs {
 		// Rendering to memoryFS, publish to Root regardless of publishDir.
 		config.Set("publishDir", "/")
+		config.Set("publishDirStatic", "/")
+	} else if c.renderStaticToDisk {
+		// Hybrid, render dynamic content to Root.
+		config.Set("publishDirStatic", config.Get("publishDir"))
+		config.Set("publishDir", "/")
+
 	}
 
 	c.fsCreate.Do(func() {
-		fs := hugofs.NewFrom(sourceFs, config)
+		// Assume both source and destination are using same filesystem.
+		fs := hugofs.NewFromSourceAndDestination(sourceFs, sourceFs, config)
 
-		if c.destinationFs != nil {
+		if c.publishDirFs != nil {
 			// Need to reuse the destination on server rebuilds.
-			fs.Destination = c.destinationFs
-		} else if createMemFs {
-			// Hugo writes the output to memory instead of the disk.
-			fs.Destination = new(afero.MemMapFs)
+			fs.PublishDir = c.publishDirFs
+			fs.PublishDirServer = c.publishDirServerFs
+		} else {
+			if c.renderStaticToDisk {
+				publishDirStatic := config.GetString("publishDirStatic")
+				workingDir := config.GetString("workingDir")
+				absPublishDirStatic := paths.AbsPathify(workingDir, publishDirStatic)
+
+				fs = hugofs.NewFromSourceAndDestination(sourceFs, afero.NewMemMapFs(), config)
+				// Writes the dynamic output to memory,
+				// while serve others directly from /public on disk.
+				dynamicFs := fs.PublishDir
+				staticFs := afero.NewBasePathFs(afero.NewOsFs(), absPublishDirStatic)
+
+				// Serve from both the static and dynamic fs,
+				// the first will take priority.
+				// THis is a read-only filesystem,
+				// we do all the writes to
+				// fs.Destination and fs.DestinationStatic.
+				fs.PublishDirServer = overlayfs.New(
+					overlayfs.Options{
+						Fss: []afero.Fs{
+							dynamicFs,
+							staticFs,
+						},
+					},
+				)
+				fs.PublishDirStatic = staticFs
+			} else if createMemFs {
+				// Hugo writes the output to memory instead of the disk.
+				fs = hugofs.NewFromSourceAndDestination(sourceFs, afero.NewMemMapFs(), config)
+			}
 		}
 
 		if c.fastRenderMode {
@@ -394,12 +470,15 @@ func (c *commandeer) loadConfig() error {
 			}
 
 			changeDetector.PrepareNew()
-			fs.Destination = hugofs.NewHashingFs(fs.Destination, changeDetector)
+			fs.PublishDir = hugofs.NewHashingFs(fs.PublishDir, changeDetector)
+			fs.PublishDirStatic = hugofs.NewHashingFs(fs.PublishDirStatic, changeDetector)
 			c.changeDetector = changeDetector
 		}
 
 		if c.Cfg.GetBool("logPathWarnings") {
-			fs.Destination = hugofs.NewCreateCountingFs(fs.Destination)
+			// Note that we only care about the "dynamic creates" here,
+			// so skip the static fs.
+			fs.PublishDir = hugofs.NewCreateCountingFs(fs.PublishDir)
 		}
 
 		// To debug hard-to-find path issues.
@@ -418,7 +497,12 @@ func (c *commandeer) loadConfig() error {
 		if h == nil || c.failOnInitErr {
 			err = createErr
 		}
+
 		c.hugoSites = h
+		// TODO(bep) improve.
+		if c.buildLock == nil && h != nil {
+			c.buildLock = h.LockBuild
+		}
 		close(c.created)
 	})
 

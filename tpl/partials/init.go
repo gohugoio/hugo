@@ -18,15 +18,15 @@ import (
 	"github.com/gohugoio/hugo/tpl/internal"
 )
 
-const name = "partials"
+const namespaceName = "partials"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
 		ctx := New(d)
 
 		ns := &internal.TemplateFuncsNamespace{
-			Name:    name,
-			Context: func(args ...interface{}) (interface{}, error) { return ctx, nil },
+			Name:    namespaceName,
+			Context: func(args ...any) (any, error) { return ctx, nil },
 		}
 
 		ns.AddMethodMapping(ctx.Include,

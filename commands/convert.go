@@ -31,8 +31,6 @@ import (
 	"github.com/gohugoio/hugo/parser"
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
-	"github.com/pkg/errors"
-
 	"github.com/gohugoio/hugo/hugolib"
 
 	"github.com/spf13/cobra"
@@ -142,7 +140,7 @@ func (cc *convertCmd) convertAndSavePage(p page.Page, site *hugolib.Site, target
 		return nil
 	}
 
-	errMsg := fmt.Errorf("Error processing file %q", p.Path())
+	errMsg := fmt.Errorf("Error processing file %q", p.File().Path())
 
 	site.Log.Infoln("Attempting to convert", p.File().Filename())
 
@@ -185,15 +183,15 @@ func (cc *convertCmd) convertAndSavePage(p page.Page, site *hugolib.Site, target
 	newFilename := p.File().Filename()
 
 	if cc.outputDir != "" {
-		contentDir := strings.TrimSuffix(newFilename, p.Path())
+		contentDir := strings.TrimSuffix(newFilename, p.File().Path())
 		contentDir = filepath.Base(contentDir)
 
-		newFilename = filepath.Join(cc.outputDir, contentDir, p.Path())
+		newFilename = filepath.Join(cc.outputDir, contentDir, p.File().Path())
 	}
 
 	fs := hugofs.Os
 	if err := helpers.WriteToDisk(newFilename, &newContent, fs); err != nil {
-		return errors.Wrapf(err, "Failed to save file %q:", newFilename)
+		return fmt.Errorf("Failed to save file %q:: %w", newFilename, err)
 	}
 
 	return nil
@@ -202,7 +200,7 @@ func (cc *convertCmd) convertAndSavePage(p page.Page, site *hugolib.Site, target
 type parsedFile struct {
 	frontMatterFormat metadecoders.Format
 	frontMatterSource []byte
-	frontMatter       map[string]interface{}
+	frontMatter       map[string]any
 
 	// Everything after Front Matter
 	content []byte

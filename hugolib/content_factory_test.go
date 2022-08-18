@@ -52,7 +52,7 @@ Hello World.
 		b.Assert(p, qt.Not(qt.IsNil))
 
 		var buf bytes.Buffer
-		b.Assert(cf.AppplyArchetypeFilename(&buf, p, "", "post.md"), qt.IsNil)
+		b.Assert(cf.ApplyArchetypeFilename(&buf, p, "", "post.md"), qt.IsNil)
 
 		b.Assert(buf.String(), qt.Contains, `title: "Mypage"`)
 	})

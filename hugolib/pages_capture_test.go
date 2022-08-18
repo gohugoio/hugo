@@ -63,11 +63,11 @@ func TestPagesCapture(t *testing.T) {
 }
 
 type testPagesCollectorProcessor struct {
-	items   []interface{}
+	items   []any
 	waitErr error
 }
 
-func (proc *testPagesCollectorProcessor) Process(item interface{}) error {
+func (proc *testPagesCollectorProcessor) Process(item any) error {
 	proc.items = append(proc.items, item)
 	return nil
 }

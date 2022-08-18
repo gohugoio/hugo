@@ -21,13 +21,13 @@ import "github.com/gohugoio/hugo/helpers"
 // with the target filename and a content hash of the origin to use as cache key.
 type ResourceTransformationKey struct {
 	Name     string
-	elements []interface{}
+	elements []any
 }
 
 // NewResourceTransformationKey creates a new ResourceTransformationKey from the transformation
 // name and elements. We will create a 64 bit FNV hash from the elements, which when combined
 // with the other key elements should be unique for all practical applications.
-func NewResourceTransformationKey(name string, elements ...interface{}) ResourceTransformationKey {
+func NewResourceTransformationKey(name string, elements ...any) ResourceTransformationKey {
 	return ResourceTransformationKey{Name: name, elements: elements}
 }
 

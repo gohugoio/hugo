@@ -17,10 +17,11 @@ import (
 	"html/template"
 	"strings"
 
+	"go.uber.org/atomic"
+
 	"github.com/gohugoio/hugo/common/hugo"
 
 	"github.com/gohugoio/hugo/common/maps"
-	"github.com/gohugoio/hugo/source"
 
 	"github.com/gohugoio/hugo/output"
 
@@ -37,11 +38,13 @@ func newPageBase(metaProvider *pageMeta) (*pageState, error) {
 	s := metaProvider.s
 
 	ps := &pageState{
-		pageOutput: nopPageOutput,
+		pageOutput:                        nopPageOutput,
+		pageOutputTemplateVariationsState: atomic.NewUint32(0),
 		pageCommon: &pageCommon{
 			FileProvider:            metaProvider,
 			AuthorProvider:          metaProvider,
 			Scratcher:               maps.NewScratcher(),
+			store:                   maps.NewScratch(),
 			Positioner:              page.NopPage,
 			InSectionPositioner:     page.NopPage,
 			ResourceMetaProvider:    metaProvider,
@@ -63,17 +66,10 @@ func newPageBase(metaProvider *pageMeta) (*pageState, error) {
 		},
 	}
 
+	ps.shortcodeState = newShortcodeHandler(ps, ps.s)
+
 	siteAdapter := pageSiteAdapter{s: s, p: ps}
 
-	deprecatedWarningPage := struct {
-		source.FileWithoutOverlap
-		page.DeprecatedWarningPageMethods1
-	}{
-		FileWithoutOverlap:            metaProvider.File(),
-		DeprecatedWarningPageMethods1: &pageDeprecatedWarning{p: ps},
-	}
-
-	ps.DeprecatedWarningPageMethods = page.NewDeprecatedWarningPage(deprecatedWarningPage)
 	ps.pageMenus = &pageMenus{p: ps}
 	ps.PageMenusProvider = ps.pageMenus
 	ps.GetPageProvider = siteAdapter
@@ -86,7 +82,6 @@ func newPageBase(metaProvider *pageMeta) (*pageState, error) {
 	ps.Eqer = ps
 	ps.TranslationKeyProvider = ps
 	ps.ShortcodeInfoProvider = ps
-	ps.PageRenderProvider = ps
 	ps.AlternativeOutputFormatsProvider = ps
 
 	return ps, nil
@@ -99,7 +94,7 @@ func newPageBucket(p *pageState) *pagesMapBucket {
 func newPageFromMeta(
 	n *contentNode,
 	parentBucket *pagesMapBucket,
-	meta map[string]interface{},
+	meta map[string]any,
 	metaProvider *pageMeta) (*pageState, error) {
 	if metaProvider.f == nil {
 		metaProvider.f = page.NewZeroFile(metaProvider.s.LogDistinct)
@@ -126,7 +121,7 @@ func newPageFromMeta(
 		return nil, err
 	}
 
-	ps.init.Add(func() (interface{}, error) {
+	ps.init.Add(func() (any, error) {
 		pp, err := newPagePaths(metaProvider.s, ps, metaProvider)
 		if err != nil {
 			return nil, err
@@ -196,7 +191,7 @@ type pageDeprecatedWarning struct {
 func (p *pageDeprecatedWarning) IsDraft() bool          { return p.p.m.draft }
 func (p *pageDeprecatedWarning) Hugo() hugo.Info        { return p.p.s.Info.Hugo() }
 func (p *pageDeprecatedWarning) LanguagePrefix() string { return p.p.s.Info.LanguagePrefix }
-func (p *pageDeprecatedWarning) GetParam(key string) interface{} {
+func (p *pageDeprecatedWarning) GetParam(key string) any {
 	return p.p.m.params[strings.ToLower(key)]
 }
 

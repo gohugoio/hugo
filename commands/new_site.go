@@ -16,13 +16,12 @@ package commands
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"path/filepath"
 	"strings"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/parser/metadecoders"
-
-	_errors "github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/create"
 	"github.com/gohugoio/hugo/helpers"
@@ -52,7 +51,7 @@ Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
 		RunE: cc.newSite,
 	}
 
-	cmd.Flags().StringVarP(&cc.configFormat, "format", "f", "toml", "config & frontmatter format")
+	cmd.Flags().StringVarP(&cc.configFormat, "format", "f", "toml", "config file format")
 	cmd.Flags().Bool("force", false, "init inside non-empty directory")
 
 	cc.baseBuilderCmd = b.newBuilderBasicCmd(cmd)
@@ -94,7 +93,7 @@ func (n *newSiteCmd) doNewSite(fs *hugofs.Fs, basepath string, force bool) error
 
 	for _, dir := range dirs {
 		if err := fs.Source.MkdirAll(dir, 0777); err != nil {
-			return _errors.Wrap(err, "Failed to create dir")
+			return fmt.Errorf("Failed to create dir: %w", err)
 		}
 	}
 
@@ -122,8 +121,10 @@ func (n *newSiteCmd) newSite(cmd *cobra.Command, args []string) error {
 	}
 
 	forceNew, _ := cmd.Flags().GetBool("force")
-
-	return n.doNewSite(hugofs.NewDefault(config.New()), createpath, forceNew)
+	cfg := config.New()
+	cfg.Set("workingDir", createpath)
+	cfg.Set("publishDir", "public")
+	return n.doNewSite(hugofs.NewDefault(cfg), createpath, forceNew)
 }
 
 func createConfig(fs *hugofs.Fs, inpath string, kind string) (err error) {

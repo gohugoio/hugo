@@ -19,7 +19,7 @@ import (
 	"github.com/spf13/cast"
 )
 
-func Param(r ResourceParamsProvider, fallback maps.Params, key interface{}) (interface{}, error) {
+func Param(r ResourceParamsProvider, fallback maps.Params, key any) (any, error) {
 	keyStr, err := cast.ToStringE(key)
 	if err != nil {
 		return nil, err

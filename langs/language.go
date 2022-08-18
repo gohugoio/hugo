@@ -14,17 +14,20 @@
 package langs
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
+	"golang.org/x/text/collate"
+	"golang.org/x/text/language"
 
-	translators "github.com/gohugoio/localescompressed"
-	"github.com/gohugoio/locales"
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/locales"
+	translators "github.com/gohugoio/localescompressed"
 )
 
 // These are the settings that should only be looked up in the global Viper
@@ -51,40 +54,48 @@ type Language struct {
 	Title             string
 	Weight            int
 
+	// For internal use.
 	Disabled bool
 
 	// If set per language, this tells Hugo that all content files without any
 	// language indicator (e.g. my-page.en.md) is in this language.
 	// This is usually a path relative to the working dir, but it can be an
 	// absolute directory reference. It is what we get.
+	// For internal use.
 	ContentDir string
 
 	// Global config.
+	// For internal use.
 	Cfg config.Provider
 
 	// Language specific config.
+	// For internal use.
 	LocalCfg config.Provider
 
 	// Composite config.
+	// For internal use.
 	config.Provider
 
 	// These are params declared in the [params] section of the language merged with the
 	// site's params, the most specific (language) wins on duplicate keys.
-	params    map[string]interface{}
+	params    map[string]any
 	paramsMu  sync.Mutex
 	paramsSet bool
 
 	// Used for date formatting etc. We don't want these exported to the
 	// templates.
 	// TODO(bep) do the same for some of the others.
-	translator locales.Translator
-
-	location *time.Location
+	translator    locales.Translator
+	timeFormatter htime.TimeFormatter
+	tag           language.Tag
+	collator      *Collator
+	location      *time.Location
 
 	// Error during initialization. Will fail the buld.
 	initErr error
 }
 
+// For internal use.
 func (l *Language) String() string {
 	return l.Lang
 }
@@ -93,7 +104,7 @@ func (l *Language) String() string {
 func NewLanguage(lang string, cfg config.Provider) *Language {
 	// Note that language specific params will be overridden later.
 	// We should improve that, but we need to make a copy:
-	params := make(map[string]interface{})
+	params := make(map[string]any)
 	for k, v := range cfg.GetStringMap("params") {
 		params[k] = v
 	}
@@ -109,13 +120,28 @@ func NewLanguage(lang string, cfg config.Provider) *Language {
 		}
 	}
 
+	var coll *Collator
+	tag, err := language.Parse(lang)
+	if err == nil {
+		coll = &Collator{
+			c: collate.New(tag),
+		}
+	} else {
+		coll = &Collator{
+			c: collate.New(language.English),
+		}
+	}
+
 	l := &Language{
 		Lang:       lang,
 		ContentDir: cfg.GetString("contentDir"),
 		Cfg:        cfg, LocalCfg: localCfg,
-		Provider:   compositeConfig,
-		params:     params,
-		translator: translator,
+		Provider:      compositeConfig,
+		params:        params,
+		translator:    translator,
+		timeFormatter: htime.NewTimeFormatter(translator),
+		tag:           tag,
+		collator:      coll,
 	}
 
 	if err := l.loadLocation(cfg.GetString("timeZone")); err != nil {
@@ -212,7 +238,8 @@ func (l Languages) IsMultihost() bool {
 
 // SetParam sets a param with the given key and value.
 // SetParam is case-insensitive.
-func (l *Language) SetParam(k string, v interface{}) {
+// For internal use.
+func (l *Language) SetParam(k string, v any) {
 	l.paramsMu.Lock()
 	defer l.paramsMu.Unlock()
 	if l.paramsSet {
@@ -224,7 +251,8 @@ func (l *Language) SetParam(k string, v interface{}) {
 // GetLocal gets a configuration value set on language level. It will
 // not fall back to any global value.
 // It will return nil if a value with the given key cannot be found.
-func (l *Language) GetLocal(key string) interface{} {
+// For internal use.
+func (l *Language) GetLocal(key string) any {
 	if l == nil {
 		panic("language not set")
 	}
@@ -235,7 +263,8 @@ func (l *Language) GetLocal(key string) interface{} {
 	return nil
 }
 
-func (l *Language) Set(k string, v interface{}) {
+// For internal use.
+func (l *Language) Set(k string, v any) {
 	k = strings.ToLower(k)
 	if globalOnlySettings[k] {
 		return
@@ -244,11 +273,13 @@ func (l *Language) Set(k string, v interface{}) {
 }
 
 // Merge is currently not supported for Language.
-func (l *Language) Merge(key string, value interface{}) {
+// For internal use.
+func (l *Language) Merge(key string, value any) {
 	panic("Not supported")
 }
 
 // IsSet checks whether the key is set in the language or the related config store.
+// For internal use.
 func (l *Language) IsSet(key string) bool {
 	key = strings.ToLower(key)
 	if !globalOnlySettings[key] {
@@ -260,6 +291,10 @@ func (l *Language) IsSet(key string) bool {
 // Internal access to unexported Language fields.
 // This construct is to prevent them from leaking to the templates.
 
+func GetTimeFormatter(l *Language) htime.TimeFormatter {
+	return l.timeFormatter
+}
+
 func GetTranslator(l *Language) locales.Translator {
 	return l.translator
 }
@@ -268,12 +303,29 @@ func GetLocation(l *Language) *time.Location {
 	return l.location
 }
 
+func GetCollator(l *Language) *Collator {
+	return l.collator
+}
+
 func (l *Language) loadLocation(tzStr string) error {
 	location, err := time.LoadLocation(tzStr)
 	if err != nil {
-		return errors.Wrapf(err, "invalid timeZone for language %q", l.Lang)
+		return fmt.Errorf("invalid timeZone for language %q: %w", l.Lang, err)
 	}
 	l.location = location
 
 	return nil
+}
+
+type Collator struct {
+	sync.Mutex
+	c *collate.Collator
+}
+
+// CompareStrings compares a and b.
+// It returns -1 if a < b, 1 if a > b and 0 if a == b.
+// Note that the Collator is not thread safe, so you may want
+// to aquire a lock on it before calling this method.
+func (c *Collator) CompareStrings(a, b string) int {
+	return c.c.CompareString(a, b)
 }

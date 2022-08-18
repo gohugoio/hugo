@@ -109,6 +109,7 @@ func (id KeyValueIdentity) Name() string {
 
 // Provider provides the hashable Identity.
 type Provider interface {
+	// GetIdentity is for internal use.
 	GetIdentity() Identity
 }
 

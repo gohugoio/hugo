@@ -28,6 +28,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/hexec"
 
 	hglob "github.com/gohugoio/hugo/hugofs/glob"
@@ -46,7 +47,8 @@ import (
 
 	"github.com/gohugoio/hugo/common/hugio"
 
-	"github.com/pkg/errors"
+	"errors"
+
 	"github.com/spf13/afero"
 )
 
@@ -79,7 +81,7 @@ func NewClient(cfg ClientConfig) *Client {
 		goModFilename = n
 	}
 
-	env := os.Environ()
+	var env []string
 	mcfg := cfg.ModuleConfig
 
 	config.SetEnvVars(&env,
@@ -87,12 +89,12 @@ func NewClient(cfg ClientConfig) *Client {
 		"GO111MODULE", "on",
 		"GOPROXY", mcfg.Proxy,
 		"GOPRIVATE", mcfg.Private,
-		"GONOPROXY", mcfg.NoProxy)
-
-	if cfg.CacheDir != "" {
-		// Module cache stored below $GOPATH/pkg
-		config.SetEnvVars(&env, "GOPATH", cfg.CacheDir)
-	}
+		"GONOPROXY", mcfg.NoProxy,
+		"GOPATH", cfg.CacheDir,
+		"GOWORK", mcfg.Workspace, // Requires Go 1.18, see https://tip.golang.org/doc/go1.18
+		// GOCACHE was introduced in Go 1.15. This matches the location derived from GOPATH above.
+		"GOCACHE", filepath.Join(cfg.CacheDir, "pkg", "mod"),
+	)
 
 	logger := cfg.Logger
 	if logger == nil {
@@ -191,7 +193,7 @@ func (c *Client) Tidy() error {
 //
 // We, by default, use the /_vendor folder first, if found. To disable,
 // run with
-//    hugo --ignoreVendor
+//    hugo --ignoreVendorPaths=".*"
 //
 // Given a module tree, Hugo will pick the first module for a given path,
 // meaning that if the top-level module is vendored, that will be the full
@@ -240,7 +242,7 @@ func (c *Client) Vendor() error {
 		// See https://github.com/gohugoio/hugo/issues/8239
 		// This is an error situation. We need something to vendor.
 		if t.Mounts() == nil {
-			return errors.Errorf("cannot vendor module %q, need at least one mount", t.Path())
+			return fmt.Errorf("cannot vendor module %q, need at least one mount", t.Path())
 		}
 
 		fmt.Fprintln(&modulesContent, "# "+t.Path()+" "+t.Version())
@@ -252,22 +254,22 @@ func (c *Client) Vendor() error {
 			targetFilename := filepath.Join(vendorDir, t.Path(), mount.Source)
 			fi, err := c.fs.Stat(sourceFilename)
 			if err != nil {
-				return errors.Wrap(err, "failed to vendor module")
+				return fmt.Errorf("failed to vendor module: %w", err)
 			}
 
 			if fi.IsDir() {
 				if err := hugio.CopyDir(c.fs, sourceFilename, targetFilename, nil); err != nil {
-					return errors.Wrap(err, "failed to copy module to vendor dir")
+					return fmt.Errorf("failed to copy module to vendor dir: %w", err)
 				}
 			} else {
 				targetDir := filepath.Dir(targetFilename)
 
 				if err := c.fs.MkdirAll(targetDir, 0755); err != nil {
-					return errors.Wrap(err, "failed to make target dir")
+					return fmt.Errorf("failed to make target dir: %w", err)
 				}
 
 				if err := hugio.CopyFile(c.fs, sourceFilename, targetFilename); err != nil {
-					return errors.Wrap(err, "failed to copy module file to vendor")
+					return fmt.Errorf("failed to copy module file to vendor: %w", err)
 				}
 			}
 		}
@@ -277,7 +279,16 @@ func (c *Client) Vendor() error {
 		_, err := c.fs.Stat(resourcesDir)
 		if err == nil {
 			if err := hugio.CopyDir(c.fs, resourcesDir, filepath.Join(vendorDir, t.Path(), files.FolderResources), nil); err != nil {
-				return errors.Wrap(err, "failed to copy resources to vendor dir")
+				return fmt.Errorf("failed to copy resources to vendor dir: %w", err)
+			}
+		}
+
+		// Include the config directory if present.
+		configDir := filepath.Join(dir, "config")
+		_, err = c.fs.Stat(configDir)
+		if err == nil {
+			if err := hugio.CopyDir(c.fs, configDir, filepath.Join(vendorDir, t.Path(), "config"), nil); err != nil {
+				return fmt.Errorf("failed to copy config dir to vendor dir: %w", err)
 			}
 		}
 
@@ -304,8 +315,9 @@ func (c *Client) Vendor() error {
 
 // Get runs "go get" with the supplied arguments.
 func (c *Client) Get(args ...string) error {
-	if len(args) == 0 || (len(args) == 1 && args[0] == "-u") {
+	if len(args) == 0 || (len(args) == 1 && strings.Contains(args[0], "-u")) {
 		update := len(args) != 0
+		patch := update && (args[0] == "-u=patch") //
 
 		// We need to be explicit about the modules to get.
 		for _, m := range c.moduleConfig.Imports {
@@ -317,10 +329,14 @@ func (c *Client) Get(args ...string) error {
 				continue
 			}
 			var args []string
-			if update {
+
+			if update && !patch {
 				args = append(args, "-u")
+			} else if update && patch {
+				args = append(args, "-u=patch")
 			}
 			args = append(args, m.Path)
+
 			if err := c.get(args...); err != nil {
 				return err
 			}
@@ -346,7 +362,7 @@ func (c *Client) get(args ...string) error {
 		args = append([]string{"-d"}, args...)
 	}
 	if err := c.runGo(context.Background(), c.logger.Out(), append([]string{"get"}, args...)...); err != nil {
-		errors.Wrapf(err, "failed to get %q", args)
+		return fmt.Errorf("failed to get %q: %w", args, err)
 	}
 	return nil
 }
@@ -357,7 +373,7 @@ func (c *Client) get(args ...string) error {
 func (c *Client) Init(path string) error {
 	err := c.runGo(context.Background(), c.logger.Out(), "mod", "init", path)
 	if err != nil {
-		return errors.Wrap(err, "failed to init modules")
+		return fmt.Errorf("failed to init modules: %w", err)
 	}
 
 	c.GoModulesFilename = filepath.Join(c.ccfg.WorkingDir, goModFilename)
@@ -443,7 +459,7 @@ func (c *Client) listGoMods() (goModules, error) {
 		out := ioutil.Discard
 		err := c.runGo(context.Background(), out, args...)
 		if err != nil {
-			return errors.Wrap(err, "failed to download modules")
+			return fmt.Errorf("failed to download modules: %w", err)
 		}
 		return nil
 	}
@@ -462,7 +478,7 @@ func (c *Client) listGoMods() (goModules, error) {
 		}
 		err := c.runGo(context.Background(), b, args...)
 		if err != nil {
-			return errors.Wrap(err, "failed to list modules")
+			return fmt.Errorf("failed to list modules: %w", err)
 		}
 
 		dec := json.NewDecoder(b)
@@ -472,7 +488,7 @@ func (c *Client) listGoMods() (goModules, error) {
 				if err == io.EOF {
 					break
 				}
-				return errors.Wrap(err, "failed to decode modules list")
+				return fmt.Errorf("failed to decode modules list: %w", err)
 			}
 
 			if err := handle(m); err != nil {
@@ -609,15 +625,18 @@ func (c *Client) runGo(
 	}
 
 	stderr := new(bytes.Buffer)
-	cmd, err := hexec.SafeCommandContext(ctx, "go", args...)
+
+	argsv := collections.StringSliceToInterfaceSlice(args)
+	argsv = append(argsv, hexec.WithEnviron(c.environ))
+	argsv = append(argsv, hexec.WithStderr(io.MultiWriter(stderr, os.Stderr)))
+	argsv = append(argsv, hexec.WithStdout(stdout))
+	argsv = append(argsv, hexec.WithDir(c.ccfg.WorkingDir))
+	argsv = append(argsv, hexec.WithContext(ctx))
+
+	cmd, err := c.ccfg.Exec.New("go", argsv...)
 	if err != nil {
 		return err
 	}
-
-	cmd.Env = c.environ
-	cmd.Dir = c.ccfg.WorkingDir
-	cmd.Stdout = stdout
-	cmd.Stderr = io.MultiWriter(stderr, os.Stderr)
 
 	if err := cmd.Run(); err != nil {
 		if ee, ok := err.(*exec.Error); ok && ee.Err == exec.ErrNotFound {
@@ -639,7 +658,7 @@ If you then run 'hugo mod graph' it should resolve itself to the most recent ver
 
 		_, ok := err.(*exec.ExitError)
 		if !ok {
-			return errors.Errorf("failed to execute 'go %v': %s %T", args, err, err)
+			return fmt.Errorf("failed to execute 'go %v': %s %T", args, err, err)
 		}
 
 		// Too old Go version
@@ -648,7 +667,7 @@ If you then run 'hugo mod graph' it should resolve itself to the most recent ver
 			return nil
 		}
 
-		return errors.Errorf("go command failed: %s", stderr)
+		return fmt.Errorf("go command failed: %s", stderr)
 
 	}
 
@@ -688,7 +707,7 @@ func (c *Client) shouldVendor(path string) bool {
 }
 
 func (c *Client) createThemeDirname(modulePath string, isProjectMod bool) (string, error) {
-	invalid := errors.Errorf("invalid module path %q; must be relative to themesDir when defined outside of the project", modulePath)
+	invalid := fmt.Errorf("invalid module path %q; must be relative to themesDir when defined outside of the project", modulePath)
 
 	modulePath = filepath.Clean(modulePath)
 	if filepath.IsAbs(modulePath) {
@@ -726,6 +745,8 @@ type ClientConfig struct {
 
 	// Eg. "production"
 	Environment string
+
+	Exec *hexec.Exec
 
 	CacheDir     string // Module cache
 	ModuleConfig Config

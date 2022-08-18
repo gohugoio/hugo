@@ -2,7 +2,7 @@
 {{- if not $pc.Disable -}}
 {{ if .Site.DisqusShortname }}<div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     {{with .Params.disqus_identifier }}this.page.identifier = '{{ . }}';{{end}}
     {{with .Params.disqus_title }}this.page.title = '{{ . }}';{{end}}
     {{with .Params.disqus_url }}this.page.url = '{{ . | html  }}';{{end}}

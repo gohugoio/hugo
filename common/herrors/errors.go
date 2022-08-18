@@ -19,36 +19,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"runtime"
 	"runtime/debug"
 	"strconv"
-
-	_errors "github.com/pkg/errors"
 )
-
-// As defined in https://godoc.org/github.com/pkg/errors
-type causer interface {
-	Cause() error
-}
-
-type stackTracer interface {
-	StackTrace() _errors.StackTrace
-}
-
-// PrintStackTraceFromErr prints the error's stack trace to stdoud.
-func PrintStackTraceFromErr(err error) {
-	FprintStackTraceFromErr(os.Stdout, err)
-}
-
-// FprintStackTraceFromErr prints the error's stack trace to w.
-func FprintStackTraceFromErr(w io.Writer, err error) {
-	if err, ok := err.(stackTracer); ok {
-		for _, f := range err.StackTrace() {
-			fmt.Fprintf(w, "%+s:%d\n", f, f)
-		}
-	}
-}
 
 // PrintStackTrace prints the current stacktrace to w.
 func PrintStackTrace(w io.Writer) {
@@ -65,7 +39,7 @@ type ErrorSender interface {
 // Recover is a helper function that can be used to capture panics.
 // Put this at the top of a method/function that crashes in a template:
 //     defer herrors.Recover()
-func Recover(args ...interface{}) {
+func Recover(args ...any) {
 	if r := recover(); r != nil {
 		fmt.Println("ERR:", r)
 		args = append(args, "stacktrace from panic: \n"+string(debug.Stack()), "\n")
@@ -88,3 +62,10 @@ func GetGID() uint64 {
 // We will, at least to begin with, make some Hugo features (SCSS with libsass) optional,
 // and this error is used to signal those situations.
 var ErrFeatureNotAvailable = errors.New("this feature is not available in your current Hugo version, see https://goo.gl/YMrWcn for more information")
+
+// Must panics if err != nil.
+func Must(err error) {
+	if err != nil {
+		panic(err)
+	}
+}

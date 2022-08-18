@@ -25,7 +25,7 @@ import (
 // Note that with 2 arguments where both are slices of the same type,
 // the first slice will be appended to the second:
 //     {{ $pages = $pages | append .Site.RegularPages }}
-func (ns *Namespace) Append(args ...interface{}) (interface{}, error) {
+func (ns *Namespace) Append(args ...any) (any, error) {
 	if len(args) < 2 {
 		return nil, errors.New("need at least 2 arguments to append")
 	}

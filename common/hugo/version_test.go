@@ -22,10 +22,10 @@ import (
 func TestHugoVersion(t *testing.T) {
 	c := qt.New(t)
 
-	c.Assert(version(0.15, 0, "-DEV"), qt.Equals, "0.15-DEV")
-	c.Assert(version(0.15, 2, "-DEV"), qt.Equals, "0.15.2-DEV")
+	c.Assert(version(0, 15, 0, "-DEV"), qt.Equals, "0.15-DEV")
+	c.Assert(version(0, 15, 2, "-DEV"), qt.Equals, "0.15.2-DEV")
 
-	v := Version{Number: 0.21, PatchLevel: 0, Suffix: "-DEV"}
+	v := Version{Minor: 21, Suffix: "-DEV"}
 
 	c.Assert(v.ReleaseVersion().String(), qt.Equals, "0.21")
 	c.Assert(v.String(), qt.Equals, "0.21-DEV")
@@ -39,37 +39,36 @@ func TestHugoVersion(t *testing.T) {
 
 	// We started to use full semver versions even for main
 	// releases in v0.54.0
-	v = Version{Number: 0.53, PatchLevel: 0}
+	v = Version{Minor: 53, PatchLevel: 0}
 	c.Assert(v.String(), qt.Equals, "0.53")
 	c.Assert(v.Next().String(), qt.Equals, "0.54.0")
 	c.Assert(v.Next().Next().String(), qt.Equals, "0.55.0")
-	v = Version{Number: 0.54, PatchLevel: 0, Suffix: "-DEV"}
+	v = Version{Minor: 54, PatchLevel: 0, Suffix: "-DEV"}
 	c.Assert(v.String(), qt.Equals, "0.54.0-DEV")
 }
 
 func TestCompareVersions(t *testing.T) {
 	c := qt.New(t)
 
-	c.Assert(compareVersions(0.20, 0, 0.20), qt.Equals, 0)
-	c.Assert(compareVersions(0.20, 0, float32(0.20)), qt.Equals, 0)
-	c.Assert(compareVersions(0.20, 0, float64(0.20)), qt.Equals, 0)
-	c.Assert(compareVersions(0.19, 1, 0.20), qt.Equals, 1)
-	c.Assert(compareVersions(0.19, 3, "0.20.2"), qt.Equals, 1)
-	c.Assert(compareVersions(0.19, 1, 0.01), qt.Equals, -1)
-	c.Assert(compareVersions(0, 1, 3), qt.Equals, 1)
-	c.Assert(compareVersions(0, 1, int32(3)), qt.Equals, 1)
-	c.Assert(compareVersions(0, 1, int64(3)), qt.Equals, 1)
-	c.Assert(compareVersions(0.20, 0, "0.20"), qt.Equals, 0)
-	c.Assert(compareVersions(0.20, 1, "0.20.1"), qt.Equals, 0)
-	c.Assert(compareVersions(0.20, 1, "0.20"), qt.Equals, -1)
-	c.Assert(compareVersions(0.20, 0, "0.20.1"), qt.Equals, 1)
-	c.Assert(compareVersions(0.20, 1, "0.20.2"), qt.Equals, 1)
-	c.Assert(compareVersions(0.21, 1, "0.22.1"), qt.Equals, 1)
-	c.Assert(compareVersions(0.22, 0, "0.22-DEV"), qt.Equals, -1)
-	c.Assert(compareVersions(0.22, 0, "0.22.1-DEV"), qt.Equals, 1)
-	c.Assert(compareVersionsWithSuffix(0.22, 0, "-DEV", "0.22"), qt.Equals, 1)
-	c.Assert(compareVersionsWithSuffix(0.22, 1, "-DEV", "0.22"), qt.Equals, -1)
-	c.Assert(compareVersionsWithSuffix(0.22, 1, "-DEV", "0.22.1-DEV"), qt.Equals, 0)
+	c.Assert(compareVersions(MustParseVersion("0.20.0"), 0.20), qt.Equals, 0)
+	c.Assert(compareVersions(MustParseVersion("0.20.0"), float32(0.20)), qt.Equals, 0)
+	c.Assert(compareVersions(MustParseVersion("0.20.0"), float64(0.20)), qt.Equals, 0)
+	c.Assert(compareVersions(MustParseVersion("0.19.1"), 0.20), qt.Equals, 1)
+	c.Assert(compareVersions(MustParseVersion("0.19.3"), "0.20.2"), qt.Equals, 1)
+	c.Assert(compareVersions(MustParseVersion("0.1"), 3), qt.Equals, 1)
+	c.Assert(compareVersions(MustParseVersion("0.1"), int32(3)), qt.Equals, 1)
+	c.Assert(compareVersions(MustParseVersion("0.1"), int64(3)), qt.Equals, 1)
+	c.Assert(compareVersions(MustParseVersion("0.20"), "0.20"), qt.Equals, 0)
+	c.Assert(compareVersions(MustParseVersion("0.20.1"), "0.20.1"), qt.Equals, 0)
+	c.Assert(compareVersions(MustParseVersion("0.20.1"), "0.20"), qt.Equals, -1)
+	c.Assert(compareVersions(MustParseVersion("0.20.0"), "0.20.1"), qt.Equals, 1)
+	c.Assert(compareVersions(MustParseVersion("0.20.1"), "0.20.2"), qt.Equals, 1)
+	c.Assert(compareVersions(MustParseVersion("0.21.1"), "0.22.1"), qt.Equals, 1)
+	c.Assert(compareVersions(MustParseVersion("0.22.0"), "0.22-DEV"), qt.Equals, -1)
+	c.Assert(compareVersions(MustParseVersion("0.22.0"), "0.22.1-DEV"), qt.Equals, 1)
+	c.Assert(compareVersions(MustParseVersion("0.22.0-DEV"), "0.22"), qt.Equals, 1)
+	c.Assert(compareVersions(MustParseVersion("0.22.1-DEV"), "0.22"), qt.Equals, -1)
+	c.Assert(compareVersions(MustParseVersion("0.22.1-DEV"), "0.22.1-DEV"), qt.Equals, 0)
 }
 
 func TestParseHugoVersion(t *testing.T) {

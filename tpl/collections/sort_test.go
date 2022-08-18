@@ -19,6 +19,8 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/langs"
 
 	"github.com/gohugoio/hugo/deps"
 )
@@ -28,7 +30,9 @@ type stringsSlice []string
 func TestSort(t *testing.T) {
 	t.Parallel()
 
-	ns := New(&deps.Deps{})
+	ns := New(&deps.Deps{
+		Language: langs.NewDefaultLanguage(config.New()),
+	})
 
 	type ts struct {
 		MyInt    int
@@ -40,10 +44,10 @@ func TestSort(t *testing.T) {
 	}
 
 	for i, test := range []struct {
-		seq         interface{}
-		sortByField interface{}
+		seq         any
+		sortByField any
 		sortAsc     string
-		expect      interface{}
+		expect      any
 	}{
 		{[]string{"class1", "class2", "class3"}, nil, "asc", []string{"class1", "class2", "class3"}},
 		{[]string{"class3", "class1", "class2"}, nil, "asc", []string{"class1", "class2", "class3"}},
@@ -205,17 +209,17 @@ func TestSort(t *testing.T) {
 		},
 		// interface slice with missing elements
 		{
-			[]interface{}{
-				map[interface{}]interface{}{"Title": "Foo", "Weight": 10},
-				map[interface{}]interface{}{"Title": "Bar"},
-				map[interface{}]interface{}{"Title": "Zap", "Weight": 5},
+			[]any{
+				map[any]any{"Title": "Foo", "Weight": 10},
+				map[any]any{"Title": "Bar"},
+				map[any]any{"Title": "Zap", "Weight": 5},
 			},
 			"Weight",
 			"asc",
-			[]interface{}{
-				map[interface{}]interface{}{"Title": "Bar"},
-				map[interface{}]interface{}{"Title": "Zap", "Weight": 5},
-				map[interface{}]interface{}{"Title": "Foo", "Weight": 10},
+			[]any{
+				map[any]any{"Title": "Bar"},
+				map[any]any{"Title": "Zap", "Weight": 5},
+				map[any]any{"Title": "Foo", "Weight": 10},
 			},
 		},
 		// test boolean values
@@ -239,7 +243,7 @@ func TestSort(t *testing.T) {
 		{nil, nil, "asc", false},
 	} {
 		t.Run(fmt.Sprintf("test%d", i), func(t *testing.T) {
-			var result interface{}
+			var result any
 			var err error
 			if test.sortByField == nil {
 				result, err = ns.Sort(test.seq)

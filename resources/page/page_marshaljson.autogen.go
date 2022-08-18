@@ -69,6 +69,7 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 	isNode := p.IsNode()
 	isPage := p.IsPage()
 	path := p.Path()
+	pathc := p.Pathc()
 	slug := p.Slug()
 	lang := p.Lang()
 	isSection := p.IsSection()
@@ -91,7 +92,7 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 	getIdentity := p.GetIdentity()
 
 	s := struct {
-		Content                  interface{}
+		Content                  any
 		Plain                    string
 		PlainWords               []string
 		Summary                  template.HTML
@@ -109,7 +110,7 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 		Name                     string
 		Title                    string
 		Params                   maps.Params
-		Data                     interface{}
+		Data                     any
 		Date                     time.Time
 		Lastmod                  time.Time
 		PublishDate              time.Time
@@ -126,6 +127,7 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 		IsNode                   bool
 		IsPage                   bool
 		Path                     string
+		Pathc                    string
 		Slug                     string
 		Lang                     string
 		IsSection                bool
@@ -182,6 +184,7 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 		IsNode:                   isNode,
 		IsPage:                   isPage,
 		Path:                     path,
+		Pathc:                    pathc,
 		Slug:                     slug,
 		Lang:                     lang,
 		IsSection:                isSection,

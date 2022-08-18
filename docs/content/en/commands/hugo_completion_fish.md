@@ -5,18 +5,19 @@ url: /commands/hugo_completion_fish/
 ---
 ## hugo completion fish
 
-generate the autocompletion script for fish
+Generate the autocompletion script for fish
 
 ### Synopsis
-
 
 Generate the autocompletion script for the fish shell.
 
 To load completions in your current shell session:
-$ hugo completion fish | source
+
+	hugo completion fish | source
 
 To load completions for every new session, execute once:
-$ hugo completion fish > ~/.config/fish/completions/hugo.fish
+
+	hugo completion fish > ~/.config/fish/completions/hugo.fish
 
 You will need to start a new shell for this setup to take effect.
 
@@ -35,11 +36,11 @@ hugo completion fish [flags]
 ### Options inherited from parent commands
 
 ```
+      --clock string               set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00
       --config string              config file (default is path/config.yaml|json|toml)
       --configDir string           config dir (default "config")
       --debug                      debug output
   -e, --environment string         build environment
-      --ignoreVendor               ignores any _vendor directory
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --log                        enable Logging
       --logFile string             log File path (if set, logging enabled automatically)
@@ -52,5 +53,5 @@ hugo completion fish [flags]
 
 ### SEE ALSO
 
-* [hugo completion](/commands/hugo_completion/)	 - generate the autocompletion script for the specified shell
+* [hugo completion](/commands/hugo_completion/)	 - Generate the autocompletion script for the specified shell
 

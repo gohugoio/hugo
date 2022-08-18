@@ -43,7 +43,7 @@ func init() {
 
 		}
 
-		return docshelper.DocProvider{"tpl": map[string]interface{}{"funcs": namespaces}}
+		return docshelper.DocProvider{"tpl": map[string]any{"funcs": namespaces}}
 	}
 
 	docshelper.AddDocProviderFunc(docsProvider)

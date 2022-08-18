@@ -393,21 +393,15 @@ Now you need to add Hugo to your Windows PATH settings:
 
 * Right click on the **Start** button.
 * Click on **System**.
-* Click on **Advanced System Settings** on the left.
+* Click on **Advanced System Settings** on the right.
 * Click on the **Environment Variables...** button on the bottom.
-* In the User variables section, find the row that starts with PATH (PATH will be all caps).
-* Double-click on **PATH**.
-* Click the **New...** button.
-* Type in the folder where `hugo.exe` was extracted, which is `C:\Hugo\bin` if you went by the instructions above. *The PATH entry should be the folder where Hugo lives and not the binary.* Press <kbd>Enter</kbd> when you're done typing.
+* In the User variables section, select the row labeled "Path" and click the **Edit...** button.
+* Click the **Browse...** button and select the directory to which `hugo.exe` was extracted, which is `C:\Hugo\bin` if you went by the instructions above. *The path entry should be the folder where Hugo lives and not the binary itself.*
 * Click OK at every window to exit.
-
-{{% note "Path Editor in Windows 10"%}}
-The path editor in Windows 10 was added in the large [November 2015 Update](https://blogs.windows.com/windowsexperience/2015/11/12/first-major-update-for-windows-10-available-today/). You'll need to have that or a later update installed for the above steps to work. You can see what Windows 10 build you have by clicking on the <i class="fa fa-windows"></i>&nbsp;Start button → Settings → System → About. See [here](https://www.howtogeek.com/236195/how-to-find-out-which-build-and-version-of-windows-10-you-have/) for more.)
-{{% /note %}}
 
 #### For Windows 7 and 8.x users:
 
-Windows 7 and 8.1 do not include the easy path editor included in Windows 10, so non-technical users on those platforms are advised to install a free third-party path editor like [Windows Environment Variables Editor][Windows Environment Variables Editor] or [Path Editor](https://patheditor2.codeplex.com/).
+Windows 7 and 8.1 do not include the easy path editor included in Windows 10, so non-technical users on those platforms are advised to install a free third-party path editor like [Windows Environment Variables Editor].
 
 ### Verify the Executable
 
@@ -506,7 +500,7 @@ sudo pacman -Syu hugo
 
 ### Fedora, Red Hat and CentOS
 
-Fedora maintains an [official package for Hugo](https://apps.fedoraproject.org/packages/hugo) which may be installed with:
+Fedora maintains an [official package for Hugo](https://packages.fedoraproject.org/pkgs/hugo/hugo) which may be installed with:
 
     sudo dnf install hugo
 
@@ -515,6 +509,14 @@ For the latest version, the Hugo package maintained by [@daftaupe](https://githu
 * <https://copr.fedorainfracloud.org/coprs/daftaupe/hugo/>
 
 See the [related discussion in the Hugo forums][redhatforum].
+
+### openSUSE Tumbleweed
+
+openSUSE maintains an [official package](https://software.opensuse.org/package/hugo) for the Tumbleweed rolling release distribution, it may be installed with:
+
+````
+sudo zypper install hugo
+````
 
 ### Solus
 
@@ -551,11 +553,10 @@ Now that you've installed Hugo, read the [Quick Start guide][quickstart] and exp
 [installgit]: https://git-scm.com/
 [installgo]: https://golang.org/dl/
 [linuxbrew]: https://docs.brew.sh/Homebrew-on-Linux
-[Path Editor]: https://patheditor2.codeplex.com/
 [quickstart]: /getting-started/quick-start/
 [redhatforum]: https://discourse.gohugo.io/t/solved-fedora-copr-repository-out-of-service/2491
 [releases]: https://github.com/gohugoio/hugo/releases
 [Scoop]: https://scoop.sh/
 [snaps]: https://snapcraft.io/docs/installing-snapd
 [windowsarch]: https://esupport.trendmicro.com/en-us/home/pages/technical-support/1038680.aspx
-[Windows Environment Variables Editor]: http://eveditor.com/
+[Windows Environment Variables Editor]: https://eveditor.com/

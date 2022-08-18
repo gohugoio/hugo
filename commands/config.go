@@ -145,13 +145,13 @@ func (m *modMounts) MarshalJSON() ([]byte, error) {
 	if m.verbose {
 		config := m.m.Config()
 		return json.Marshal(&struct {
-			Path        string                 `json:"path"`
-			Version     string                 `json:"version"`
-			Time        time.Time              `json:"time"`
-			Owner       string                 `json:"owner"`
-			Dir         string                 `json:"dir"`
-			Meta        map[string]interface{} `json:"meta"`
-			HugoVersion modules.HugoVersion    `json:"hugoVersion"`
+			Path        string              `json:"path"`
+			Version     string              `json:"version"`
+			Time        time.Time           `json:"time"`
+			Owner       string              `json:"owner"`
+			Dir         string              `json:"dir"`
+			Meta        map[string]any      `json:"meta"`
+			HugoVersion modules.HugoVersion `json:"hugoVersion"`
 
 			Mounts []modMount `json:"mounts"`
 		}{

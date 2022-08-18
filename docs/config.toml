@@ -2,6 +2,7 @@ baseURL = "https://gohugo.io/"
 paginate =  100
 defaultContentLanguage = "en"
 enableEmoji = true
+timeZone = "Europe/Oslo"
 # Set the unicode character used for the "return" link in page footnotes.
 footnotereturnlinkcontents = "↩"
 languageCode = "en-us"

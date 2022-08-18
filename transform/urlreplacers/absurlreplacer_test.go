@@ -233,4 +233,4 @@ type test struct {
 	expected string
 }
 
-type errorf func(string, ...interface{})
+type errorf func(string, ...any)

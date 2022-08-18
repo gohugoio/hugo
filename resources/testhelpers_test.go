@@ -20,6 +20,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/output"
+	"github.com/gohugoio/hugo/resources/images"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/spf13/afero"
@@ -70,7 +71,7 @@ func newTestResourceSpec(desc specDescriptor) *Spec {
 	cfg := createTestCfg()
 	cfg.Set("baseURL", baseURL)
 
-	imagingCfg := map[string]interface{}{
+	imagingCfg := map[string]any{
 		"resampleFilter": "linear",
 		"quality":        68,
 		"anchor":         "left",
@@ -79,7 +80,7 @@ func newTestResourceSpec(desc specDescriptor) *Spec {
 	cfg.Set("imaging", imagingCfg)
 
 	fs := hugofs.NewFrom(afs, cfg)
-	fs.Destination = hugofs.NewCreateCountingFs(fs.Destination)
+	fs.PublishDir = hugofs.NewCreateCountingFs(fs.PublishDir)
 
 	s, err := helpers.NewPathSpec(fs, cfg, nil)
 	c.Assert(err, qt.IsNil)
@@ -87,7 +88,7 @@ func newTestResourceSpec(desc specDescriptor) *Spec {
 	filecaches, err := filecache.NewCaches(s)
 	c.Assert(err, qt.IsNil)
 
-	spec, err := NewSpec(s, filecaches, nil, nil, nil, output.DefaultFormats, media.DefaultTypes)
+	spec, err := NewSpec(s, filecaches, nil, nil, nil, nil, output.DefaultFormats, media.DefaultTypes)
 	c.Assert(err, qt.IsNil)
 	return spec
 }
@@ -118,7 +119,6 @@ func newTestResourceOsFs(c *qt.C) (*Spec, string) {
 	cfg.Set("workingDir", workDir)
 
 	fs := hugofs.NewFrom(hugofs.NewBaseFileDecorator(hugofs.Os), cfg)
-	fs.Destination = &afero.MemMapFs{}
 
 	s, err := helpers.NewPathSpec(fs, cfg, nil)
 	c.Assert(err, qt.IsNil)
@@ -126,25 +126,25 @@ func newTestResourceOsFs(c *qt.C) (*Spec, string) {
 	filecaches, err := filecache.NewCaches(s)
 	c.Assert(err, qt.IsNil)
 
-	spec, err := NewSpec(s, filecaches, nil, nil, nil, output.DefaultFormats, media.DefaultTypes)
+	spec, err := NewSpec(s, filecaches, nil, nil, nil, nil, output.DefaultFormats, media.DefaultTypes)
 	c.Assert(err, qt.IsNil)
 
 	return spec, workDir
 }
 
-func fetchSunset(c *qt.C) resource.Image {
+func fetchSunset(c *qt.C) images.ImageResource {
 	return fetchImage(c, "sunset.jpg")
 }
 
-func fetchImage(c *qt.C, name string) resource.Image {
+func fetchImage(c *qt.C, name string) images.ImageResource {
 	spec := newTestResourceSpec(specDescriptor{c: c})
 	return fetchImageForSpec(spec, c, name)
 }
 
-func fetchImageForSpec(spec *Spec, c *qt.C, name string) resource.Image {
+func fetchImageForSpec(spec *Spec, c *qt.C, name string) images.ImageResource {
 	r := fetchResourceForSpec(spec, c, name)
 
-	img := r.(resource.Image)
+	img := r.(images.ImageResource)
 
 	c.Assert(img, qt.Not(qt.IsNil))
 	c.Assert(img.(specProvider).getSpec(), qt.Not(qt.IsNil))

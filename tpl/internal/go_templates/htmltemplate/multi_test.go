@@ -4,6 +4,7 @@
 
 // Tests for multiple-template execution, copied from text/template.
 
+//go:build go1.13 && !windows
 // +build go1.13,!windows
 
 package template

@@ -1,6 +1,7 @@
 /hugo
 docs/public*
 /.idea
+.vscode/*
 hugo.exe
 *.test
 *.prof
@@ -25,3 +26,4 @@ resources/sunset.jpg
 
 vendor
 
+.hugo_build.lock

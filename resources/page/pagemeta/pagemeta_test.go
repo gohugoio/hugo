@@ -36,11 +36,11 @@ list = %s
 publishResources = true`
 
 	for _, test := range []struct {
-		args   []interface{}
+		args   []any
 		expect BuildConfig
 	}{
 		{
-			[]interface{}{"true", "true"},
+			[]any{"true", "true"},
 			BuildConfig{
 				Render:           Always,
 				List:             Always,
@@ -48,31 +48,31 @@ publishResources = true`
 				set:              true,
 			},
 		},
-		{[]interface{}{"true", "false"}, BuildConfig{
+		{[]any{"true", "false"}, BuildConfig{
 			Render:           Always,
 			List:             Never,
 			PublishResources: true,
 			set:              true,
 		}},
-		{[]interface{}{`"always"`, `"always"`}, BuildConfig{
+		{[]any{`"always"`, `"always"`}, BuildConfig{
 			Render:           Always,
 			List:             Always,
 			PublishResources: true,
 			set:              true,
 		}},
-		{[]interface{}{`"never"`, `"never"`}, BuildConfig{
+		{[]any{`"never"`, `"never"`}, BuildConfig{
 			Render:           Never,
 			List:             Never,
 			PublishResources: true,
 			set:              true,
 		}},
-		{[]interface{}{`"link"`, `"local"`}, BuildConfig{
+		{[]any{`"link"`, `"local"`}, BuildConfig{
 			Render:           Link,
 			List:             ListLocally,
 			PublishResources: true,
 			set:              true,
 		}},
-		{[]interface{}{`"always"`, `"asdfadf"`}, BuildConfig{
+		{[]any{`"always"`, `"asdfadf"`}, BuildConfig{
 			Render:           Always,
 			List:             Always,
 			PublishResources: true,

@@ -28,7 +28,7 @@ func TestMultiSitesMainLangInRoot(t *testing.T) {
 func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 	c := qt.New(t)
 
-	siteConfig := map[string]interface{}{
+	siteConfig := map[string]any{
 		"DefaultContentLanguage":         "fr",
 		"DefaultContentLanguageInSubdir": defaultInSubDir,
 	}
@@ -83,14 +83,14 @@ func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 		c.Assert(frRelPerm, qt.Equals, "/blog/fr/sect/doc1/")
 
 		// should have a redirect on top level.
-		b.AssertFileContent("public/index.html", `<meta http-equiv="refresh" content="0; url=http://example.com/blog/fr" />`)
+		b.AssertFileContent("public/index.html", `<meta http-equiv="refresh" content="0; url=http://example.com/blog/fr">`)
 	} else {
 		// Main language in root
 		c.Assert(frPerm, qt.Equals, "http://example.com/blog/sect/doc1/")
 		c.Assert(frRelPerm, qt.Equals, "/blog/sect/doc1/")
 
 		// should have redirect back to root
-		b.AssertFileContent("public/fr/index.html", `<meta http-equiv="refresh" content="0; url=http://example.com/blog" />`)
+		b.AssertFileContent("public/fr/index.html", `<meta http-equiv="refresh" content="0; url=http://example.com/blog">`)
 	}
 	b.AssertFileContent(pathMod("public/fr/index.html"), "Home", "Bonjour")
 	b.AssertFileContent("public/en/index.html", "Home", "Hello")
@@ -365,11 +365,6 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	c.Assert(frTags["FRtag1"], qt.Not(qt.IsNil))
 	b.AssertFileContent("public/fr/plaques/FRtag1/index.html", "FRtag1|Bonjour|http://example.com/blog/fr/plaques/FRtag1/")
 
-	// Check Blackfriday config
-	c.Assert(strings.Contains(content(doc1fr), "&laquo;"), qt.Equals, true)
-	c.Assert(strings.Contains(content(doc1en), "&laquo;"), qt.Equals, false)
-	c.Assert(strings.Contains(content(doc1en), "&ldquo;"), qt.Equals, true)
-
 	// en and nn have custom site menus
 	c.Assert(len(frSite.Menus()), qt.Equals, 0)
 	c.Assert(len(enSite.Menus()), qt.Equals, 1)
@@ -397,6 +392,8 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	c.Assert(bundleFr, qt.Not(qt.IsNil))
 	c.Assert(len(bundleFr.Resources()), qt.Equals, 1)
 	logoFr := bundleFr.Resources().GetMatch("logo*")
+	logoFrGet := bundleFr.Resources().Get("logo.png")
+	c.Assert(logoFrGet, qt.Equals, logoFr)
 	c.Assert(logoFr, qt.Not(qt.IsNil))
 	b.AssertFileContent("public/fr/bundles/b1/index.html", "Resources: image/png: /blog/fr/bundles/b1/logo.png")
 	b.AssertFileContent("public/fr/bundles/b1/logo.png", "PNG Data")
@@ -487,7 +484,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 				c.Assert(enSite.RegularPages()[0].Title(), qt.Equals, "new_en_2")
 				c.Assert(enSite.RegularPages()[1].Title(), qt.Equals, "new_en_1")
 
-				rendered := readDestination(t, fs, "public/en/new1/index.html")
+				rendered := readWorkingDir(t, fs, "public/en/new1/index.html")
 				c.Assert(strings.Contains(rendered, "new_en_1"), qt.Equals, true)
 			},
 		},
@@ -501,7 +498,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 			[]fsnotify.Event{{Name: filepath.FromSlash("content/sect/doc1.en.md"), Op: fsnotify.Write}},
 			func(t *testing.T) {
 				c.Assert(len(enSite.RegularPages()), qt.Equals, 6)
-				doc1 := readDestination(t, fs, "public/en/sect/doc1-slug/index.html")
+				doc1 := readWorkingDir(t, fs, "public/en/sect/doc1-slug/index.html")
 				c.Assert(strings.Contains(doc1, "CHANGED"), qt.Equals, true)
 			},
 		},
@@ -519,7 +516,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 			func(t *testing.T) {
 				c.Assert(len(enSite.RegularPages()), qt.Equals, 6, qt.Commentf("Rename"))
 				c.Assert(enSite.RegularPages()[1].Title(), qt.Equals, "new_en_1")
-				rendered := readDestination(t, fs, "public/en/new1renamed/index.html")
+				rendered := readWorkingDir(t, fs, "public/en/new1renamed/index.html")
 				c.Assert(rendered, qt.Contains, "new_en_1")
 			},
 		},
@@ -536,7 +533,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 				c.Assert(len(enSite.RegularPages()), qt.Equals, 6)
 				c.Assert(len(enSite.AllPages()), qt.Equals, 34)
 				c.Assert(len(frSite.RegularPages()), qt.Equals, 5)
-				doc1 := readDestination(t, fs, "public/en/sect/doc1-slug/index.html")
+				doc1 := readWorkingDir(t, fs, "public/en/sect/doc1-slug/index.html")
 				c.Assert(strings.Contains(doc1, "Template Changed"), qt.Equals, true)
 			},
 		},
@@ -553,9 +550,9 @@ func TestMultiSitesRebuild(t *testing.T) {
 				c.Assert(len(enSite.RegularPages()), qt.Equals, 6)
 				c.Assert(len(enSite.AllPages()), qt.Equals, 34)
 				c.Assert(len(frSite.RegularPages()), qt.Equals, 5)
-				docEn := readDestination(t, fs, "public/en/sect/doc1-slug/index.html")
+				docEn := readWorkingDir(t, fs, "public/en/sect/doc1-slug/index.html")
 				c.Assert(strings.Contains(docEn, "Hello"), qt.Equals, true)
-				docFr := readDestination(t, fs, "public/fr/sect/doc1/index.html")
+				docFr := readWorkingDir(t, fs, "public/fr/sect/doc1/index.html")
 				c.Assert(strings.Contains(docFr, "Salut"), qt.Equals, true)
 
 				homeEn := enSite.getPage(page.KindHome)
@@ -698,7 +695,7 @@ END
 
 func checkContent(s *sitesBuilder, filename string, matches ...string) {
 	s.T.Helper()
-	content := readDestination(s.T, s.Fs, filename)
+	content := readWorkingDir(s.T, s.Fs, filename)
 	for _, match := range matches {
 		if !strings.Contains(content, match) {
 			s.Fatalf("No match for\n%q\nin content for %s\n%q\nDiff:\n%s", match, filename, content, htesting.DiffStrings(content, match))
@@ -792,39 +789,6 @@ categories: ["mycat"]
 			c.Assert(len(m2), qt.Equals, 1)
 		})
 	}
-}
-
-// https://github.com/gohugoio/hugo/issues/5777
-func TestTableOfContentsInShortcodes(t *testing.T) {
-	t.Parallel()
-
-	b := newMultiSiteTestDefaultBuilder(t)
-
-	b.WithTemplatesAdded("layouts/shortcodes/toc.html", tocShortcode)
-	b.WithTemplatesAdded("layouts/shortcodes/wrapper.html", "{{ .Inner }}")
-	b.WithContent("post/simple.en.md", tocPageSimple)
-	b.WithContent("post/variants1.en.md", tocPageVariants1)
-	b.WithContent("post/variants2.en.md", tocPageVariants2)
-
-	b.WithContent("post/withSCInHeading.en.md", tocPageWithShortcodesInHeadings)
-
-	b.CreateSites().Build(BuildCfg{})
-
-	b.AssertFileContent("public/en/post/simple/index.html",
-		tocPageSimpleExpected,
-		// Make sure it is inserted twice
-		`TOC1: <nav id="TableOfContents">`,
-		`TOC2: <nav id="TableOfContents">`,
-	)
-
-	b.AssertFileContentFn("public/en/post/variants1/index.html", func(s string) bool {
-		return strings.Count(s, "TableOfContents") == 4
-	})
-	b.AssertFileContentFn("public/en/post/variants2/index.html", func(s string) bool {
-		return strings.Count(s, "TableOfContents") == 6
-	})
-
-	b.AssertFileContent("public/en/post/withSCInHeading/index.html", tocPageWithShortcodesInHeadingsExpected)
 }
 
 var tocShortcode = `
@@ -968,12 +932,6 @@ enableRobotsTXT = true
 [permalinks]
 other = "/somewhere/else/:filename"
 
-# TODO(bep)
-[markup]
-  defaultMarkdownHandler = "blackfriday"
-[markup.blackfriday]
-angledQuotes = true
-
 [Taxonomies]
 tag = "tags"
 
@@ -982,8 +940,6 @@ tag = "tags"
 weight = 10
 title = "In English"
 languageName = "English"
-[Languages.en.blackfriday]
-angledQuotes = false
 [[Languages.en.menu.main]]
 url    = "/"
 name   = "Home"
@@ -1029,12 +985,6 @@ enableRobotsTXT: true
 permalinks:
     other: "/somewhere/else/:filename"
 
-# TODO(bep)
-markup:
-  defaultMarkdownHandler: blackfriday
-  blackFriday:
-    angledQuotes: true
-
 Taxonomies:
     tag: "tags"
 
@@ -1043,8 +993,6 @@ Languages:
         weight: 10
         title: "In English"
         languageName: "English"
-        blackfriday:
-            angledQuotes: false
         menu:
             main:
                 - url: "/"
@@ -1090,12 +1038,6 @@ var multiSiteJSONConfigTemplate = `
   "permalinks": {
     "other": "/somewhere/else/:filename"
   },
-  "markup": {
-		"defaultMarkdownHandler": "blackfriday",
-		"blackfriday": {
-	    "angledQuotes": true
-	  }
-   },
   "Taxonomies": {
     "tag": "tags"
   },
@@ -1104,9 +1046,6 @@ var multiSiteJSONConfigTemplate = `
       "weight": 10,
       "title": "In English",
       "languageName": "English",
-      "blackfriday": {
-        "angledQuotes": false
-      },
 	  "menu": {
         "main": [
 			{
@@ -1168,13 +1107,13 @@ func writeToFs(t testing.TB, fs afero.Fs, filename, content string) {
 	}
 }
 
-func readDestination(t testing.TB, fs *hugofs.Fs, filename string) string {
+func readWorkingDir(t testing.TB, fs *hugofs.Fs, filename string) string {
 	t.Helper()
-	return readFileFromFs(t, fs.Destination, filename)
+	return readFileFromFs(t, fs.WorkingDirReadOnly, filename)
 }
 
-func destinationExists(fs *hugofs.Fs, filename string) bool {
-	b, err := helpers.Exists(filename, fs.Destination)
+func workingDirExists(fs *hugofs.Fs, filename string) bool {
+	b, err := helpers.Exists(filename, fs.WorkingDirReadOnly)
 	if err != nil {
 		panic(err)
 	}
@@ -1235,7 +1174,7 @@ func writeNewContentFile(t *testing.T, fs afero.Fs, title, date, filename string
 }
 
 type multiSiteTestBuilder struct {
-	configData   interface{}
+	configData   any
 	config       string
 	configFormat string
 
@@ -1251,14 +1190,14 @@ func (b *multiSiteTestBuilder) WithNewConfig(config string) *multiSiteTestBuilde
 	return b
 }
 
-func (b *multiSiteTestBuilder) WithNewConfigData(data interface{}) *multiSiteTestBuilder {
+func (b *multiSiteTestBuilder) WithNewConfigData(data any) *multiSiteTestBuilder {
 	b.WithConfigTemplate(data, b.configFormat, b.config)
 	return b
 }
 
-func newMultiSiteTestBuilder(t testing.TB, configFormat, config string, configData interface{}) *multiSiteTestBuilder {
+func newMultiSiteTestBuilder(t testing.TB, configFormat, config string, configData any) *multiSiteTestBuilder {
 	if configData == nil {
-		configData = map[string]interface{}{
+		configData = map[string]any{
 			"DefaultContentLanguage":         "fr",
 			"DefaultContentLanguageInSubdir": true,
 		}

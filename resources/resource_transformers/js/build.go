@@ -22,13 +22,14 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/text"
 
 	"github.com/gohugoio/hugo/hugolib/filesystems"
 	"github.com/gohugoio/hugo/media"
@@ -54,7 +55,7 @@ func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) *Client {
 }
 
 type buildTransformation struct {
-	optsm map[string]interface{}
+	optsm map[string]any
 	c     *Client
 }
 
@@ -109,13 +110,13 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		for i, ext := range opts.Inject {
 			impPath := filepath.FromSlash(ext)
 			if filepath.IsAbs(impPath) {
-				return errors.Errorf("inject: absolute paths not supported, must be relative to /assets")
+				return fmt.Errorf("inject: absolute paths not supported, must be relative to /assets")
 			}
 
 			m := resolveComponentInAssets(t.c.rs.Assets.Fs, impPath)
 
 			if m == nil {
-				return errors.Errorf("inject: file %q not found", ext)
+				return fmt.Errorf("inject: file %q not found", ext)
 			}
 
 			opts.Inject[i] = m.Filename
@@ -136,6 +137,12 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 				return errors.New(msg.Text)
 			}
 			path := loc.File
+			if path == stdinImporter {
+				path = ctx.SourcePath
+			}
+
+			errorMessage := msg.Text
+			errorMessage = strings.ReplaceAll(errorMessage, nsImportHugo+":", "")
 
 			var (
 				f   afero.File
@@ -157,13 +164,16 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 			}
 
 			if err == nil {
-				fe := herrors.NewFileError("js", 0, loc.Line, loc.Column, errors.New(msg.Text))
-				err, _ := herrors.WithFileContext(fe, path, f, herrors.SimpleLineMatcher)
+				fe := herrors.
+					NewFileErrorFromName(errors.New(errorMessage), path).
+					UpdatePosition(text.Position{Offset: -1, LineNumber: loc.Line, ColumnNumber: loc.Column}).
+					UpdateContent(f, nil)
+
 				f.Close()
-				return err
+				return fe
 			}
 
-			return fmt.Errorf("%s", msg.Text)
+			return fmt.Errorf("%s", errorMessage)
 		}
 
 		var errors []error
@@ -205,7 +215,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 }
 
 // Process process esbuild transform
-func (c *Client) Process(res resources.ResourceTransformer, opts map[string]interface{}) (resource.Resource, error) {
+func (c *Client) Process(res resources.ResourceTransformer, opts map[string]any) (resource.Resource, error) {
 	return res.Transform(
 		&buildTransformation{c: c, optsm: opts},
 	)

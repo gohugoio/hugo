@@ -1,7 +1,7 @@
 ---
 title: hmac
 linktitle: hmac
-description: Compute the cryptographic checksum of a message.
+description: Returns a cryptographic hash that uses a key to sign a message.
 date: 2020-05-29
 publishdate: 2020-05-29
 lastmod: 2020-05-29
@@ -10,24 +10,25 @@ menu:
   docs:
     parent: "functions"
 keywords: [hmac,checksum]
-signature: ["hmac HASH_TYPE KEY MESSAGE"]
+signature: ["crypto.HMAC HASH_TYPE KEY MESSAGE [ENCODING]","hmac HASH_TYPE KEY MESSAGE [ENCODING]" ]
 workson: []
 hugoversion:
 relatedfuncs: [hmac]
 deprecated: false
-aliases: [hmac]
+aliases: []
 ---
 
-`hmac` returns a cryptographic hash that uses a key to sign a message.
+Set the `HASH_TYPE` argument to `md5`, `sha1`, `sha256`, or `sha512`.
 
+Set the optional `ENCODING` argument to either `hex` (default) or `binary`.
+
+```go-html-template
+{{ hmac "sha256" "Secret key" "Secret message" }}
+5cceb491f45f8b154e20f3b0a30ed3a6ff3027d373f85c78ffe8983180b03c84
+
+{{ hmac "sha256" "Secret key" "Secret message" "hex" }}
+5cceb491f45f8b154e20f3b0a30ed3a6ff3027d373f85c78ffe8983180b03c84
+
+{{ hmac "sha256" "Secret key" "Secret message" "binary" | base64Encode }}
+XM60kfRfixVOIPOwow7Tpv8wJ9Nz+Fx4/+iYMYCwPIQ=
 ```
-{{ hmac "sha256" "Secret key" "Hello world, gophers!"}},
-<!-- returns the string "b6d11b6c53830b9d87036272ca9fe9d19306b8f9d8aa07b15da27d89e6e34f40"
-```
-
-Supported hash functions:
-
-* md5
-* sha1
-* sha256
-* sha512

@@ -16,11 +16,12 @@ package goldmark
 import (
 	"bytes"
 	"strings"
-	"sync"
 
-	"github.com/spf13/cast"
-
+	"github.com/gohugoio/hugo/common/types/hstring"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
+	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
+	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
+	"github.com/gohugoio/hugo/markup/internal/attributes"
 
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/ast"
@@ -31,8 +32,9 @@ import (
 
 var _ renderer.SetOptioner = (*hookedRenderer)(nil)
 
-func newLinkRenderer() renderer.NodeRenderer {
+func newLinkRenderer(cfg goldmark_config.Config) renderer.NodeRenderer {
 	r := &hookedRenderer{
+		linkifyProtocol: []byte(cfg.Extensions.LinkifyProtocol),
 		Config: html.Config{
 			Writer: html.DefaultWriter,
 		},
@@ -40,34 +42,15 @@ func newLinkRenderer() renderer.NodeRenderer {
 	return r
 }
 
-func newLinks() goldmark.Extender {
-	return &links{}
-}
-
-type attributesHolder struct {
-	// What we get from Goldmark.
-	astAttributes []ast.Attribute
-
-	// What we send to the the render hooks.
-	attributesInit sync.Once
-	attributes     map[string]string
-}
-
-func (a *attributesHolder) Attributes() map[string]string {
-	a.attributesInit.Do(func() {
-		a.attributes = make(map[string]string)
-		for _, attr := range a.astAttributes {
-			a.attributes[string(attr.Name)] = string(util.EscapeHTML(attr.Value.([]byte)))
-		}
-	})
-	return a.attributes
+func newLinks(cfg goldmark_config.Config) goldmark.Extender {
+	return &links{cfg: cfg}
 }
 
 type linkContext struct {
-	page        interface{}
+	page        any
 	destination string
 	title       string
-	text        string
+	text        hstring.RenderedString
 	plainText   string
 }
 
@@ -79,11 +62,11 @@ func (ctx linkContext) Resolved() bool {
 	return false
 }
 
-func (ctx linkContext) Page() interface{} {
+func (ctx linkContext) Page() any {
 	return ctx.page
 }
 
-func (ctx linkContext) Text() string {
+func (ctx linkContext) Text() hstring.RenderedString {
 	return ctx.text
 }
 
@@ -96,15 +79,15 @@ func (ctx linkContext) Title() string {
 }
 
 type headingContext struct {
-	page      interface{}
+	page      any
 	level     int
 	anchor    string
-	text      string
+	text      hstring.RenderedString
 	plainText string
-	*attributesHolder
+	*attributes.AttributesHolder
 }
 
-func (ctx headingContext) Page() interface{} {
+func (ctx headingContext) Page() any {
 	return ctx.page
 }
 
@@ -116,7 +99,7 @@ func (ctx headingContext) Anchor() string {
 	return ctx.anchor
 }
 
-func (ctx headingContext) Text() string {
+func (ctx headingContext) Text() hstring.RenderedString {
 	return ctx.text
 }
 
@@ -125,10 +108,11 @@ func (ctx headingContext) PlainText() string {
 }
 
 type hookedRenderer struct {
+	linkifyProtocol []byte
 	html.Config
 }
 
-func (r *hookedRenderer) SetOption(name renderer.OptionName, value interface{}) {
+func (r *hookedRenderer) SetOption(name renderer.OptionName, value any) {
 	r.Config.SetOption(name, value)
 }
 
@@ -140,53 +124,17 @@ func (r *hookedRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) 
 	reg.Register(ast.KindHeading, r.renderHeading)
 }
 
-func (r *hookedRenderer) renderAttributesForNode(w util.BufWriter, node ast.Node) {
-	renderAttributes(w, false, node.Attributes()...)
-}
-
-var (
-
-	// Attributes with special meaning that does not make sense to render in HTML.
-	attributeExcludes = map[string]bool{
-		"linenos":     true,
-		"hl_lines":    true,
-		"linenostart": true,
-	}
-)
-
-func renderAttributes(w util.BufWriter, skipClass bool, attributes ...ast.Attribute) {
-	for _, attr := range attributes {
-		if skipClass && bytes.Equal(attr.Name, []byte("class")) {
-			continue
-		}
-
-		if attributeExcludes[string(attr.Name)] {
-			continue
-		}
-
-		_, _ = w.WriteString(" ")
-		_, _ = w.Write(attr.Name)
-		_, _ = w.WriteString(`="`)
-
-		switch v := attr.Value.(type) {
-		case []byte:
-			_, _ = w.Write(util.EscapeHTML(v))
-		default:
-			w.WriteString(cast.ToString(v))
-		}
-
-		_ = w.WriteByte('"')
-	}
-}
-
 func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.Image)
-	var h hooks.Renderers
+	var lr hooks.LinkRenderer
 
-	ctx, ok := w.(*renderContext)
+	ctx, ok := w.(*render.Context)
 	if ok {
-		h = ctx.RenderContext().RenderHooks
-		ok = h.ImageRenderer != nil
+		h := ctx.RenderContext().GetRenderer(hooks.ImageRendererType, nil)
+		ok = h != nil
+		if ok {
+			lr = h.(hooks.LinkRenderer)
+		}
 	}
 
 	if !ok {
@@ -195,25 +143,26 @@ func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.N
 
 	if entering {
 		// Store the current pos so we can capture the rendered text.
-		ctx.pos = ctx.Buffer.Len()
+		ctx.PushPos(ctx.Buffer.Len())
 		return ast.WalkContinue, nil
 	}
 
-	text := ctx.Buffer.Bytes()[ctx.pos:]
-	ctx.Buffer.Truncate(ctx.pos)
+	pos := ctx.PopPos()
+	text := ctx.Buffer.Bytes()[pos:]
+	ctx.Buffer.Truncate(pos)
 
-	err := h.ImageRenderer.RenderLink(
+	err := lr.RenderLink(
 		w,
 		linkContext{
 			page:        ctx.DocumentContext().Document,
 			destination: string(n.Destination),
 			title:       string(n.Title),
-			text:        string(text),
+			text:        hstring.RenderedString(text),
 			plainText:   string(n.Text(source)),
 		},
 	)
 
-	ctx.AddIdentity(h.ImageRenderer)
+	ctx.AddIdentity(lr)
 
 	return ast.WalkContinue, err
 }
@@ -230,7 +179,7 @@ func (r *hookedRenderer) renderImageDefault(w util.BufWriter, source []byte, nod
 		_, _ = w.Write(util.EscapeHTML(util.URLEscape(n.Destination, true)))
 	}
 	_, _ = w.WriteString(`" alt="`)
-	_, _ = w.Write(n.Text(source))
+	_, _ = w.Write(util.EscapeHTML(n.Text(source)))
 	_ = w.WriteByte('"')
 	if n.Title != nil {
 		_, _ = w.WriteString(` title="`)
@@ -247,12 +196,15 @@ func (r *hookedRenderer) renderImageDefault(w util.BufWriter, source []byte, nod
 
 func (r *hookedRenderer) renderLink(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.Link)
-	var h hooks.Renderers
+	var lr hooks.LinkRenderer
 
-	ctx, ok := w.(*renderContext)
+	ctx, ok := w.(*render.Context)
 	if ok {
-		h = ctx.RenderContext().RenderHooks
-		ok = h.LinkRenderer != nil
+		h := ctx.RenderContext().GetRenderer(hooks.LinkRendererType, nil)
+		ok = h != nil
+		if ok {
+			lr = h.(hooks.LinkRenderer)
+		}
 	}
 
 	if !ok {
@@ -261,20 +213,21 @@ func (r *hookedRenderer) renderLink(w util.BufWriter, source []byte, node ast.No
 
 	if entering {
 		// Store the current pos so we can capture the rendered text.
-		ctx.pos = ctx.Buffer.Len()
+		ctx.PushPos(ctx.Buffer.Len())
 		return ast.WalkContinue, nil
 	}
 
-	text := ctx.Buffer.Bytes()[ctx.pos:]
-	ctx.Buffer.Truncate(ctx.pos)
+	pos := ctx.PopPos()
+	text := ctx.Buffer.Bytes()[pos:]
+	ctx.Buffer.Truncate(pos)
 
-	err := h.LinkRenderer.RenderLink(
+	err := lr.RenderLink(
 		w,
 		linkContext{
 			page:        ctx.DocumentContext().Document,
 			destination: string(n.Destination),
 			title:       string(n.Title),
-			text:        string(text),
+			text:        hstring.RenderedString(text),
 			plainText:   string(n.Text(source)),
 		},
 	)
@@ -282,7 +235,7 @@ func (r *hookedRenderer) renderLink(w util.BufWriter, source []byte, node ast.No
 	// TODO(bep) I have a working branch that fixes these rather confusing identity types,
 	// but for now it's important that it's not .GetIdentity() that's added here,
 	// to make sure we search the entire chain on changes.
-	ctx.AddIdentity(h.LinkRenderer)
+	ctx.AddIdentity(lr)
 
 	return ast.WalkContinue, err
 }
@@ -315,30 +268,33 @@ func (r *hookedRenderer) renderAutoLink(w util.BufWriter, source []byte, node as
 	}
 
 	n := node.(*ast.AutoLink)
-	var h hooks.Renderers
+	var lr hooks.LinkRenderer
 
-	ctx, ok := w.(*renderContext)
+	ctx, ok := w.(*render.Context)
 	if ok {
-		h = ctx.RenderContext().RenderHooks
-		ok = h.LinkRenderer != nil
+		h := ctx.RenderContext().GetRenderer(hooks.LinkRendererType, nil)
+		ok = h != nil
+		if ok {
+			lr = h.(hooks.LinkRenderer)
+		}
 	}
 
 	if !ok {
 		return r.renderAutoLinkDefault(w, source, node, entering)
 	}
 
-	url := string(n.URL(source))
+	url := string(r.autoLinkURL(n, source))
 	label := string(n.Label(source))
 	if n.AutoLinkType == ast.AutoLinkEmail && !strings.HasPrefix(strings.ToLower(url), "mailto:") {
 		url = "mailto:" + url
 	}
 
-	err := h.LinkRenderer.RenderLink(
+	err := lr.RenderLink(
 		w,
 		linkContext{
 			page:        ctx.DocumentContext().Document,
 			destination: url,
-			text:        label,
+			text:        hstring.RenderedString(label),
 			plainText:   label,
 		},
 	)
@@ -346,7 +302,7 @@ func (r *hookedRenderer) renderAutoLink(w util.BufWriter, source []byte, node as
 	// TODO(bep) I have a working branch that fixes these rather confusing identity types,
 	// but for now it's important that it's not .GetIdentity() that's added here,
 	// to make sure we search the entire chain on changes.
-	ctx.AddIdentity(h.LinkRenderer)
+	ctx.AddIdentity(lr)
 
 	return ast.WalkContinue, err
 }
@@ -358,8 +314,9 @@ func (r *hookedRenderer) renderAutoLinkDefault(w util.BufWriter, source []byte, 
 	if !entering {
 		return ast.WalkContinue, nil
 	}
+
 	_, _ = w.WriteString(`<a href="`)
-	url := n.URL(source)
+	url := r.autoLinkURL(n, source)
 	label := n.Label(source)
 	if n.AutoLinkType == ast.AutoLinkEmail && !bytes.HasPrefix(bytes.ToLower(url), []byte("mailto:")) {
 		_, _ = w.WriteString("mailto:")
@@ -377,14 +334,28 @@ func (r *hookedRenderer) renderAutoLinkDefault(w util.BufWriter, source []byte, 
 	return ast.WalkContinue, nil
 }
 
+func (r *hookedRenderer) autoLinkURL(n *ast.AutoLink, source []byte) []byte {
+	url := n.URL(source)
+	if len(n.Protocol) > 0 && !bytes.Equal(n.Protocol, r.linkifyProtocol) {
+		// The CommonMark spec says "http" is the correct protocol for links,
+		// but this doesn't make much sense (the fact that they should care about the rendered output).
+		// Note that n.Protocol is not set if protocol is provided by user.
+		url = append(r.linkifyProtocol, url[len(n.Protocol):]...)
+	}
+	return url
+}
+
 func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.Heading)
-	var h hooks.Renderers
+	var hr hooks.HeadingRenderer
 
-	ctx, ok := w.(*renderContext)
+	ctx, ok := w.(*render.Context)
 	if ok {
-		h = ctx.RenderContext().RenderHooks
-		ok = h.HeadingRenderer != nil
+		h := ctx.RenderContext().GetRenderer(hooks.HeadingRendererType, nil)
+		ok = h != nil
+		if ok {
+			hr = h.(hooks.HeadingRenderer)
+		}
 	}
 
 	if !ok {
@@ -393,30 +364,31 @@ func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast
 
 	if entering {
 		// Store the current pos so we can capture the rendered text.
-		ctx.pos = ctx.Buffer.Len()
+		ctx.PushPos(ctx.Buffer.Len())
 		return ast.WalkContinue, nil
 	}
 
-	text := ctx.Buffer.Bytes()[ctx.pos:]
-	ctx.Buffer.Truncate(ctx.pos)
+	pos := ctx.PopPos()
+	text := ctx.Buffer.Bytes()[pos:]
+	ctx.Buffer.Truncate(pos)
 	// All ast.Heading nodes are guaranteed to have an attribute called "id"
 	// that is an array of bytes that encode a valid string.
 	anchori, _ := n.AttributeString("id")
 	anchor := anchori.([]byte)
 
-	err := h.HeadingRenderer.RenderHeading(
+	err := hr.RenderHeading(
 		w,
 		headingContext{
 			page:             ctx.DocumentContext().Document,
 			level:            n.Level,
 			anchor:           string(anchor),
-			text:             string(text),
+			text:             hstring.RenderedString(text),
 			plainText:        string(n.Text(source)),
-			attributesHolder: &attributesHolder{astAttributes: n.Attributes()},
+			AttributesHolder: attributes.New(n.Attributes(), attributes.AttributesOwnerGeneral),
 		},
 	)
 
-	ctx.AddIdentity(h.HeadingRenderer)
+	ctx.AddIdentity(hr)
 
 	return ast.WalkContinue, err
 }
@@ -427,7 +399,7 @@ func (r *hookedRenderer) renderHeadingDefault(w util.BufWriter, source []byte, n
 		_, _ = w.WriteString("<h")
 		_ = w.WriteByte("0123456"[n.Level])
 		if n.Attributes() != nil {
-			r.renderAttributesForNode(w, node)
+			attributes.RenderASTAttributes(w, node.Attributes()...)
 		}
 		_ = w.WriteByte('>')
 	} else {
@@ -439,11 +411,12 @@ func (r *hookedRenderer) renderHeadingDefault(w util.BufWriter, source []byte, n
 }
 
 type links struct {
+	cfg goldmark_config.Config
 }
 
 // Extend implements goldmark.Extender.
 func (e *links) Extend(m goldmark.Markdown) {
 	m.Renderer().AddOptions(renderer.WithNodeRenderers(
-		util.Prioritized(newLinkRenderer(), 100),
+		util.Prioritized(newLinkRenderer(e.cfg), 100),
 	))
 }

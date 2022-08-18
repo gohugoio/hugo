@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2022 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/gohugoio/hugo/resources/internal"
@@ -31,7 +32,7 @@ import (
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/source"
 
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
@@ -69,6 +70,9 @@ type ResourceSourceDescriptor struct {
 
 	Fs afero.Fs
 
+	// Set when its known up front, else it's resolved from the target filename.
+	MediaType media.Type
+
 	// The relative target filename without any language code.
 	RelTargetFilename string
 
@@ -99,7 +103,7 @@ type Transformer interface {
 	Transform(...ResourceTransformation) (ResourceTransformer, error)
 }
 
-func NewFeatureNotAvailableTransformer(key string, elements ...interface{}) ResourceTransformation {
+func NewFeatureNotAvailableTransformer(key string, elements ...any) ResourceTransformation {
 	return transformerNotAvailable{
 		key: internal.NewResourceTransformationKey(key, elements...),
 	}
@@ -117,8 +121,22 @@ func (t transformerNotAvailable) Key() internal.ResourceTransformationKey {
 	return t.key
 }
 
+// resourceCopier is for internal use.
+type resourceCopier interface {
+	cloneTo(targetPath string) resource.Resource
+}
+
+// Copy copies r to the targetPath given.
+func Copy(r resource.Resource, targetPath string) resource.Resource {
+	if r.Err() != nil {
+		panic(fmt.Sprintf("Resource has an .Err: %s", r.Err()))
+	}
+	return r.(resourceCopier).cloneTo(targetPath)
+}
+
 type baseResourceResource interface {
 	resource.Cloner
+	resourceCopier
 	resource.ContentProvider
 	resource.Resource
 	resource.Identifier
@@ -158,13 +176,13 @@ type baseResource interface {
 type commonResource struct {
 }
 
-// Slice is not meant to be used externally. It's a bridge function
+// Slice is for internal use.
 // for the template functions. See collections.Slice.
-func (commonResource) Slice(in interface{}) (interface{}, error) {
+func (commonResource) Slice(in any) (any, error) {
 	switch items := in.(type) {
 	case resource.Resources:
 		return items, nil
-	case []interface{}:
+	case []any:
 		groups := make(resource.Resources, len(items))
 		for i, v := range items {
 			g, ok := v.(resource.Resource)
@@ -211,8 +229,8 @@ type genericResource struct {
 
 	title  string
 	name   string
-	params map[string]interface{}
-	data   map[string]interface{}
+	params map[string]any
+	data   map[string]any
 
 	resourceType string
 	mediaType    media.Type
@@ -222,7 +240,21 @@ func (l *genericResource) Clone() resource.Resource {
 	return l.clone()
 }
 
-func (l *genericResource) Content() (interface{}, error) {
+func (l *genericResource) cloneTo(targetPath string) resource.Resource {
+	c := l.clone()
+
+	targetPath = helpers.ToSlashTrimLeading(targetPath)
+	dir, file := path.Split(targetPath)
+
+	c.resourcePathDescriptor = &resourcePathDescriptor{
+		relTargetDirFile: dirFile{dir: dir, file: file},
+	}
+
+	return c
+
+}
+
+func (l *genericResource) Content() (any, error) {
 	if err := l.initContent(); err != nil {
 		return nil, err
 	}
@@ -230,12 +262,19 @@ func (l *genericResource) Content() (interface{}, error) {
 	return l.content, nil
 }
 
-func (l *genericResource) Data() interface{} {
+func (r *genericResource) Err() resource.ResourceError {
+	return nil
+}
+
+func (l *genericResource) Data() any {
 	return l.data
 }
 
 func (l *genericResource) Key() string {
-	return l.RelPermalink()
+	if l.spec.BasePath == "" {
+		return l.RelPermalink()
+	}
+	return strings.TrimPrefix(l.RelPermalink(), l.spec.BasePath)
 }
 
 func (l *genericResource) MediaType() media.Type {
@@ -375,12 +414,12 @@ func (r *genericResource) tryTransformedFileCache(key string, u *transformationU
 	return f
 }
 
-func (r *genericResource) mergeData(in map[string]interface{}) {
+func (r *genericResource) mergeData(in map[string]any) {
 	if len(in) == 0 {
 		return
 	}
 	if r.data == nil {
-		r.data = make(map[string]interface{})
+		r.data = make(map[string]any)
 	}
 	for k, v := range in {
 		if _, found := r.data[k]; !found {
@@ -532,7 +571,7 @@ func (l *genericResource) relTargetPathsForRel(rel string) []string {
 	return targetPaths
 }
 
-func (l *genericResource) updateParams(params map[string]interface{}) {
+func (l *genericResource) updateParams(params map[string]any) {
 	if l.params == nil {
 		l.params = params
 		return
@@ -626,7 +665,7 @@ func (fi *resourceFileInfo) hash() (string, error) {
 		var f hugio.ReadSeekCloser
 		f, err = fi.ReadSeekCloser()
 		if err != nil {
-			err = errors.Wrap(err, "failed to open source file")
+			err = fmt.Errorf("failed to open source file: %w", err)
 			return
 		}
 		defer f.Close()

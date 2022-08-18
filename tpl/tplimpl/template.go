@@ -14,7 +14,12 @@
 package tplimpl
 
 import (
+	"bytes"
+	"context"
+	"embed"
+	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -38,9 +43,6 @@ import (
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugofs/files"
-	"github.com/pkg/errors"
-
-	"github.com/gohugoio/hugo/tpl/tplimpl/embedded"
 
 	htmltemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
@@ -59,6 +61,7 @@ const (
 
 // The identifiers may be truncated in the log, e.g.
 // "executing "main" at <$scaled.SRelPermalin...>: can't evaluate field SRelPermalink in type *resource.Image"
+// We need this to identify position in templates with base templates applied.
 var identifiersRe = regexp.MustCompile(`at \<(.*?)(\.{3})?\>:`)
 
 var embeddedTemplatesAliases = map[string][]string{
@@ -66,10 +69,11 @@ var embeddedTemplatesAliases = map[string][]string{
 }
 
 var (
-	_ tpl.TemplateManager    = (*templateExec)(nil)
-	_ tpl.TemplateHandler    = (*templateExec)(nil)
-	_ tpl.TemplateFuncGetter = (*templateExec)(nil)
-	_ tpl.TemplateFinder     = (*templateExec)(nil)
+	_ tpl.TemplateManager         = (*templateExec)(nil)
+	_ tpl.TemplateHandler         = (*templateExec)(nil)
+	_ tpl.TemplateFuncGetter      = (*templateExec)(nil)
+	_ tpl.TemplateFinder          = (*templateExec)(nil)
+	_ tpl.UnusedTemplatesProvider = (*templateExec)(nil)
 
 	_ tpl.Template = (*templateState)(nil)
 	_ tpl.Info     = (*templateState)(nil)
@@ -115,7 +119,7 @@ func newIdentity(name string) identity.Manager {
 	return identity.NewManager(identity.NewPathIdentity(files.ComponentFolderLayouts, name))
 }
 
-func newStandaloneTextTemplate(funcs map[string]interface{}) tpl.TemplateParseFinder {
+func newStandaloneTextTemplate(funcs map[string]any) tpl.TemplateParseFinder {
 	return &textTemplateWrapperWithLock{
 		RWMutex:  &sync.RWMutex{},
 		Template: texttemplate.New("").Funcs(funcs),
@@ -124,9 +128,14 @@ func newStandaloneTextTemplate(funcs map[string]interface{}) tpl.TemplateParseFi
 
 func newTemplateExec(d *deps.Deps) (*templateExec, error) {
 	exec, funcs := newTemplateExecuter(d)
-	funcMap := make(map[string]interface{})
+	funcMap := make(map[string]any)
 	for k, v := range funcs {
 		funcMap[k] = v.Interface()
+	}
+
+	var templateUsageTracker map[string]templateInfo
+	if d.Cfg.GetBool("printUnusedTemplates") {
+		templateUsageTracker = make(map[string]templateInfo)
 	}
 
 	h := &templateHandler{
@@ -144,7 +153,9 @@ func newTemplateExec(d *deps.Deps) (*templateExec, error) {
 		Deps:                d,
 		layoutHandler:       output.NewLayoutHandler(),
 		layoutsFs:           d.BaseFs.Layouts.Fs,
-		layoutTemplateCache: make(map[layoutCacheKey]tpl.Template),
+		layoutTemplateCache: make(map[layoutCacheKey]layoutCacheEntry),
+
+		templateUsageTracker: templateUsageTracker,
 	}
 
 	if err := h.loadEmbedded(); err != nil {
@@ -174,7 +185,7 @@ func newTemplateExec(d *deps.Deps) (*templateExec, error) {
 	return e, nil
 }
 
-func newTemplateNamespace(funcs map[string]interface{}) *templateNamespace {
+func newTemplateNamespace(funcs map[string]any) *templateNamespace {
 	return &templateNamespace{
 		prototypeHTML: htmltemplate.New("").Funcs(funcs),
 		prototypeText: texttemplate.New("").Funcs(funcs),
@@ -215,7 +226,11 @@ func (t templateExec) Clone(d *deps.Deps) *templateExec {
 	return &t
 }
 
-func (t *templateExec) Execute(templ tpl.Template, wr io.Writer, data interface{}) error {
+func (t *templateExec) Execute(templ tpl.Template, wr io.Writer, data any) error {
+	return t.ExecuteWithContext(context.Background(), templ, wr, data)
+}
+
+func (t *templateExec) ExecuteWithContext(ctx context.Context, templ tpl.Template, wr io.Writer, data any) error {
 	if rlocker, ok := templ.(types.RLocker); ok {
 		rlocker.RLock()
 		defer rlocker.RUnlock()
@@ -224,11 +239,63 @@ func (t *templateExec) Execute(templ tpl.Template, wr io.Writer, data interface{
 		defer t.Metrics.MeasureSince(templ.Name(), time.Now())
 	}
 
-	execErr := t.executor.Execute(templ, wr, data)
+	if t.templateUsageTracker != nil {
+		if ts, ok := templ.(*templateState); ok {
+			t.templateUsageTrackerMu.Lock()
+			if _, found := t.templateUsageTracker[ts.Name()]; !found {
+				t.templateUsageTracker[ts.Name()] = ts.info
+			}
+
+			if !ts.baseInfo.IsZero() {
+				if _, found := t.templateUsageTracker[ts.baseInfo.name]; !found {
+					t.templateUsageTracker[ts.baseInfo.name] = ts.baseInfo
+				}
+			}
+			t.templateUsageTrackerMu.Unlock()
+		}
+	}
+
+	execErr := t.executor.ExecuteWithContext(ctx, templ, wr, data)
 	if execErr != nil {
 		execErr = t.addFileContext(templ, execErr)
 	}
 	return execErr
+}
+
+func (t *templateExec) UnusedTemplates() []tpl.FileInfo {
+	if t.templateUsageTracker == nil {
+		return nil
+	}
+	var unused []tpl.FileInfo
+
+	for _, ti := range t.needsBaseof {
+		if _, found := t.templateUsageTracker[ti.name]; !found {
+			unused = append(unused, ti)
+		}
+	}
+
+	for _, ti := range t.baseof {
+		if _, found := t.templateUsageTracker[ti.name]; !found {
+			unused = append(unused, ti)
+		}
+	}
+
+	for _, ts := range t.main.templates {
+		ti := ts.info
+		if strings.HasPrefix(ti.name, "_internal/") || ti.realFilename == "" {
+			continue
+		}
+
+		if _, found := t.templateUsageTracker[ti.name]; !found {
+			unused = append(unused, ti)
+		}
+	}
+
+	sort.Slice(unused, func(i, j int) bool {
+		return unused[i].Name() < unused[j].Name()
+	})
+
+	return unused
 }
 
 func (t *templateExec) GetFunc(name string) (reflect.Value, bool) {
@@ -261,7 +328,7 @@ type templateHandler struct {
 
 	layoutHandler *output.LayoutHandler
 
-	layoutTemplateCache   map[layoutCacheKey]tpl.Template
+	layoutTemplateCache   map[layoutCacheKey]layoutCacheEntry
 	layoutTemplateCacheMu sync.RWMutex
 
 	*deps.Deps
@@ -284,6 +351,16 @@ type templateHandler struct {
 	// Note that for shortcodes that same information is embedded in the
 	// shortcodeTemplates type.
 	templateInfo map[string]tpl.Info
+
+	// May be nil.
+	templateUsageTracker   map[string]templateInfo
+	templateUsageTrackerMu sync.Mutex
+}
+
+type layoutCacheEntry struct {
+	found bool
+	templ tpl.Template
+	err   error
 }
 
 // AddTemplate parses and adds a template to the collection.
@@ -311,7 +388,7 @@ func (t *templateHandler) LookupLayout(d output.LayoutDescriptor, f output.Forma
 	t.layoutTemplateCacheMu.RLock()
 	if cacheVal, found := t.layoutTemplateCache[key]; found {
 		t.layoutTemplateCacheMu.RUnlock()
-		return cacheVal, true, nil
+		return cacheVal.templ, cacheVal.found, cacheVal.err
 	}
 	t.layoutTemplateCacheMu.RUnlock()
 
@@ -319,12 +396,10 @@ func (t *templateHandler) LookupLayout(d output.LayoutDescriptor, f output.Forma
 	defer t.layoutTemplateCacheMu.Unlock()
 
 	templ, found, err := t.findLayout(d, f)
-	if err == nil && found {
-		t.layoutTemplateCache[key] = templ
-		return templ, true, nil
-	}
+	cacheVal := layoutCacheEntry{found: found, templ: templ, err: err}
+	t.layoutTemplateCache[key] = cacheVal
+	return cacheVal.templ, cacheVal.found, cacheVal.err
 
-	return nil, false, err
 }
 
 // This currently only applies to shortcodes and what we get here is the
@@ -454,25 +529,27 @@ func (t *templateHandler) addFileContext(templ tpl.Template, inerr error) error 
 		return inerr
 	}
 
+	identifiers := t.extractIdentifiers(inerr.Error())
+
 	//lint:ignore ST1008 the error is the main result
 	checkFilename := func(info templateInfo, inErr error) (error, bool) {
 		if info.filename == "" {
 			return inErr, false
 		}
 
-		lineMatcher := func(m herrors.LineMatcher) bool {
+		lineMatcher := func(m herrors.LineMatcher) int {
 			if m.Position.LineNumber != m.LineNumber {
-				return false
+				return -1
 			}
-
-			identifiers := t.extractIdentifiers(m.Error.Error())
 
 			for _, id := range identifiers {
 				if strings.Contains(m.Line, id) {
-					return true
+					// We found the line, but return a 0 to signal to
+					// use the column from the error message.
+					return 0
 				}
 			}
-			return false
+			return -1
 		}
 
 		f, err := t.layoutsFs.Open(info.filename)
@@ -481,14 +558,16 @@ func (t *templateHandler) addFileContext(templ tpl.Template, inerr error) error 
 		}
 		defer f.Close()
 
-		fe, ok := herrors.WithFileContext(inErr, info.realFilename, f, lineMatcher)
-		if ok {
-			return fe, true
+		fe := herrors.NewFileErrorFromName(inErr, info.realFilename)
+		fe.UpdateContent(f, lineMatcher)
+
+		if !fe.ErrorContext().Position.IsValid() {
+			return inErr, false
 		}
-		return inErr, false
+		return fe, true
 	}
 
-	inerr = errors.Wrap(inerr, "execute of template failed")
+	inerr = fmt.Errorf("execute of template failed: %w", inerr)
 
 	if err, ok := checkFilename(ts.info, inerr); ok {
 		return err
@@ -497,6 +576,15 @@ func (t *templateHandler) addFileContext(templ tpl.Template, inerr error) error 
 	err, _ := checkFilename(ts.baseInfo, inerr)
 
 	return err
+}
+
+func (t *templateHandler) extractIdentifiers(line string) []string {
+	m := identifiersRe.FindAllStringSubmatch(line, -1)
+	identifiers := make([]string, len(m))
+	for i := 0; i < len(m); i++ {
+		identifiers[i] = m[i][1]
+	}
+	return identifiers
 }
 
 func (t *templateHandler) addShortcodeVariant(ts *templateState) {
@@ -655,21 +743,41 @@ func (t *templateHandler) applyTemplateTransformers(ns *templateNamespace, ts *t
 	return c, err
 }
 
-func (t *templateHandler) extractIdentifiers(line string) []string {
-	m := identifiersRe.FindAllStringSubmatch(line, -1)
-	identifiers := make([]string, len(m))
-	for i := 0; i < len(m); i++ {
-		identifiers[i] = m[i][1]
-	}
-	return identifiers
-}
+//go:embed embedded/templates/*
+//go:embed embedded/templates/_default/*
+//go:embed embedded/templates/_server/*
+var embededTemplatesFs embed.FS
 
 func (t *templateHandler) loadEmbedded() error {
-	for _, kv := range embedded.EmbeddedTemplates {
-		name, templ := kv[0], kv[1]
-		if err := t.AddTemplate(internalPathPrefix+name, templ); err != nil {
+	return fs.WalkDir(embededTemplatesFs, ".", func(path string, d fs.DirEntry, err error) error {
+		if d == nil || d.IsDir() {
+			return nil
+		}
+
+		templb, err := embededTemplatesFs.ReadFile(path)
+		if err != nil {
 			return err
 		}
+
+		// Get the newlines on Windows in line with how we had it back when we used Go Generate
+		// to write the templates to Go files.
+		templ := string(bytes.ReplaceAll(templb, []byte("\r\n"), []byte("\n")))
+		name := strings.TrimPrefix(filepath.ToSlash(path), "embedded/templates/")
+		templateName := name
+
+		// For the render hooks and the server templates it does not make sense to preseve the
+		// double _indternal double book-keeping,
+		// just add it if its now provided by the user.
+		if !strings.Contains(path, "_default/_markup") && !strings.HasPrefix(name, "_server/") {
+			templateName = internalPathPrefix + name
+		}
+
+		if _, found := t.Lookup(templateName); !found {
+			if err := t.AddTemplate(templateName, templ); err != nil {
+				return err
+			}
+		}
+
 		if aliases, found := embeddedTemplatesAliases[name]; found {
 			// TODO(bep) avoid reparsing these aliases
 			for _, alias := range aliases {
@@ -679,8 +787,9 @@ func (t *templateHandler) loadEmbedded() error {
 				}
 			}
 		}
-	}
-	return nil
+
+		return nil
+	})
 }
 
 func (t *templateHandler) loadTemplates() error {

@@ -59,13 +59,14 @@ path="github.com/gohugoio/hugoTestModule2"
 		return fmt.Sprintf(tomlConfig, workingDir, moduleOpts)
 	}
 
-	newTestBuilder := func(t testing.TB, moduleOpts string) (*sitesBuilder, func()) {
+	newTestBuilder := func(t testing.TB, moduleOpts string) *sitesBuilder {
 		b := newTestSitesBuilder(t)
-		tempDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-modules-variants")
-		b.Assert(err, qt.IsNil)
+		tempDir := t.TempDir()
 		workingDir := filepath.Join(tempDir, "myhugosite")
 		b.Assert(os.MkdirAll(workingDir, 0777), qt.IsNil)
-		b.Fs = hugofs.NewDefault(config.New())
+		cfg := config.NewWithTestDefaults()
+		cfg.Set("workingDir", workingDir)
+		b.Fs = hugofs.NewDefault(cfg)
 		b.WithWorkingDir(workingDir).WithConfigFile("toml", createConfig(workingDir, moduleOpts))
 		b.WithTemplates(
 			"index.html", `
@@ -92,22 +93,18 @@ github.com/gohugoio/hugoTestModule2 v0.0.0-20200131160637-9657d7697877 h1:WLM2bQ
 github.com/gohugoio/hugoTestModule2 v0.0.0-20200131160637-9657d7697877/go.mod h1:CBFZS3khIAXKxReMwq0le8sEl/D8hcXmixlOHVv+Gd0=
 `)
 
-		return b, clean
+		return b
 	}
 
 	t.Run("Target in subfolder", func(t *testing.T) {
-		b, clean := newTestBuilder(t, "ignoreImports=true")
-		defer clean()
-
+		b := newTestBuilder(t, "ignoreImports=true")
 		b.Build(BuildCfg{})
 
 		b.AssertFileContent("public/p1/index.html", `<p>Page|https://bep.is|Title: |Text: A link|END</p>`)
 	})
 
 	t.Run("Ignore config", func(t *testing.T) {
-		b, clean := newTestBuilder(t, "ignoreConfig=true")
-		defer clean()
-
+		b := newTestBuilder(t, "ignoreConfig=true")
 		b.Build(BuildCfg{})
 
 		b.AssertFileContent("public/index.html", `
@@ -117,9 +114,7 @@ JS imported in module: |
 	})
 
 	t.Run("Ignore imports", func(t *testing.T) {
-		b, clean := newTestBuilder(t, "ignoreImports=true")
-		defer clean()
-
+		b := newTestBuilder(t, "ignoreImports=true")
 		b.Build(BuildCfg{})
 
 		b.AssertFileContent("public/index.html", `
@@ -129,8 +124,7 @@ JS imported in module: |
 	})
 
 	t.Run("Create package.json", func(t *testing.T) {
-		b, clean := newTestBuilder(t, "")
-		defer clean()
+		b := newTestBuilder(t, "")
 
 		b.WithSourceFile("package.json", `{
 		"name": "mypack",
@@ -205,8 +199,7 @@ JS imported in module: |
 	})
 
 	t.Run("Create package.json, no default", func(t *testing.T) {
-		b, clean := newTestBuilder(t, "")
-		defer clean()
+		b := newTestBuilder(t, "")
 
 		const origPackageJSON = `{
 		"name": "mypack",
@@ -268,8 +261,7 @@ JS imported in module: |
 	})
 
 	t.Run("Create package.json, no default, no package.json", func(t *testing.T) {
-		b, clean := newTestBuilder(t, "")
-		defer clean()
+		b := newTestBuilder(t, "")
 
 		b.Build(BuildCfg{})
 		b.Assert(npm.Pack(b.H.BaseFs.SourceFs, b.H.BaseFs.Assets.Dirs), qt.IsNil)
@@ -333,11 +325,12 @@ func TestHugoModulesMatrix(t *testing.T) {
 	for _, m := range testmods[:2] {
 		c := qt.New(t)
 
-		v := config.New()
-
 		workingDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-modules-test")
 		c.Assert(err, qt.IsNil)
 		defer clean()
+
+		v := config.NewWithTestDefaults()
+		v.Set("workingDir", workingDir)
 
 		configTemplate := `
 baseURL = "https://example.com"
@@ -670,12 +663,13 @@ func TestModulesSymlinks(t *testing.T) {
 	}()
 
 	c := qt.New(t)
-	// We need to use the OS fs for this.
-	cfg := config.New()
-	fs := hugofs.NewFrom(hugofs.Os, cfg)
-
-	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-mod-sym")
+	workingDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-mod-sym")
 	c.Assert(err, qt.IsNil)
+
+	// We need to use the OS fs for this.
+	cfg := config.NewWithTestDefaults()
+	cfg.Set("workingDir", workingDir)
+	fs := hugofs.NewFrom(hugofs.Os, cfg)
 
 	defer clean()
 
@@ -694,21 +688,24 @@ Data: {{ .Site.Data }}
 	}
 
 	// Create project dirs and files.
-	createDirsAndFiles(workDir)
+	createDirsAndFiles(workingDir)
 	// Create one module inside the default themes folder.
-	themeDir := filepath.Join(workDir, "themes", "mymod")
+	themeDir := filepath.Join(workingDir, "themes", "mymod")
 	createDirsAndFiles(themeDir)
 
 	createSymlinks := func(baseDir, id string) {
 		for _, dir := range files.ComponentFolders {
-			c.Assert(os.Chdir(filepath.Join(baseDir, dir)), qt.IsNil)
-			c.Assert(os.Symlink("real", fmt.Sprintf("realsym%s", id)), qt.IsNil)
-			c.Assert(os.Chdir(filepath.Join(baseDir, dir, "real")), qt.IsNil)
-			c.Assert(os.Symlink("data.toml", fmt.Sprintf(filepath.FromSlash("datasym%s.toml"), id)), qt.IsNil)
+			// Issue #9119: private use language tags cannot exceed 8 characters.
+			if dir != "i18n" {
+				c.Assert(os.Chdir(filepath.Join(baseDir, dir)), qt.IsNil)
+				c.Assert(os.Symlink("real", fmt.Sprintf("realsym%s", id)), qt.IsNil)
+				c.Assert(os.Chdir(filepath.Join(baseDir, dir, "real")), qt.IsNil)
+				c.Assert(os.Symlink("data.toml", fmt.Sprintf(filepath.FromSlash("datasym%s.toml"), id)), qt.IsNil)
+			}
 		}
 	}
 
-	createSymlinks(workDir, "project")
+	createSymlinks(workingDir, "project")
 	createSymlinks(themeDir, "mod")
 
 	config := `
@@ -726,12 +723,12 @@ weight = 2
 
 `
 
-	b := newTestSitesBuilder(t).WithNothingAdded().WithWorkingDir(workDir)
+	b := newTestSitesBuilder(t).WithNothingAdded().WithWorkingDir(workingDir)
 	b.WithLogger(loggers.NewErrorLogger())
 	b.Fs = fs
 
 	b.WithConfigFile("toml", config)
-	c.Assert(os.Chdir(workDir), qt.IsNil)
+	c.Assert(os.Chdir(workingDir), qt.IsNil)
 
 	b.Build(BuildCfg{})
 
@@ -779,6 +776,8 @@ weight = 2
 					c.Assert(err, qt.IsNil)
 				}
 			}
+
+			c.Logf("Checking %d:%d %q", i, j, id)
 
 			statCheck(componentFs, fmt.Sprintf("realsym%s", id), true)
 			statCheck(componentFs, fmt.Sprintf("real/datasym%s.toml", id), false)
@@ -843,7 +842,10 @@ workingDir = %q
 
 	b := newTestSitesBuilder(t).Running()
 
-	b.Fs = hugofs.NewDefault(config.New())
+	cfg := config.NewWithTestDefaults()
+	cfg.Set("workingDir", workingDir)
+
+	b.Fs = hugofs.NewDefault(cfg)
 
 	b.WithWorkingDir(workingDir).WithConfigFile("toml", tomlConfig)
 	b.WithTemplatesAdded("index.html", `
@@ -965,7 +967,9 @@ workingDir = %q
 
 		b := newTestSitesBuilder(c).Running()
 
-		b.Fs = hugofs.NewDefault(config.New())
+		cfg := config.NewWithTestDefaults()
+		cfg.Set("workingDir", workingDir)
+		b.Fs = hugofs.NewDefault(cfg)
 
 		os.MkdirAll(filepath.Join(workingDir, "content", "blog"), 0777)
 
@@ -1064,7 +1068,7 @@ func TestSiteWithGoModButNoModules(t *testing.T) {
 	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-no-mod")
 	c.Assert(err, qt.IsNil)
 
-	cfg := config.New()
+	cfg := config.NewWithTestDefaults()
 	cfg.Set("workingDir", workDir)
 	fs := hugofs.NewFrom(hugofs.Os, cfg)
 
@@ -1090,7 +1094,7 @@ func TestModuleAbsMount(t *testing.T) {
 	absContentDir, clean2, err := htesting.CreateTempDir(hugofs.Os, "hugo-content")
 	c.Assert(err, qt.IsNil)
 
-	cfg := config.New()
+	cfg := config.NewWithTestDefaults()
 	cfg.Set("workingDir", workDir)
 	fs := hugofs.NewFrom(hugofs.Os, cfg)
 
@@ -1130,4 +1134,40 @@ P1: {{ $p1.Title }}|{{ $p1.RelPermalink }}|Filename: {{ $p1.File.Filename }}
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent("public/index.html", "P1: Abs|/p1/", "Filename: "+contentFilename)
+}
+
+// Issue 9426
+func TestMountSameSource(t *testing.T) {
+	config := `baseURL = 'https://example.org/'
+languageCode = 'en-us'
+title = 'Hugo GitHub Issue #9426'
+
+disableKinds = ['RSS','sitemap','taxonomy','term']
+
+[[module.mounts]]
+source = "content"
+target = "content"
+
+[[module.mounts]]
+source = "extra-content"
+target = "content/resources-a"
+
+[[module.mounts]]
+source = "extra-content"
+target = "content/resources-b"
+`
+	b := newTestSitesBuilder(t).WithConfigFile("toml", config)
+
+	b.WithContent("p1.md", "")
+
+	b.WithSourceFile(
+		"extra-content/_index.md", "",
+		"extra-content/subdir/_index.md", "",
+		"extra-content/subdir/about.md", "",
+	)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/resources-a/subdir/about/index.html", "Single")
+	b.AssertFileContent("public/resources-b/subdir/about/index.html", "Single")
 }

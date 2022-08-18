@@ -17,8 +17,12 @@
 package hreflect
 
 import (
+	"context"
 	"reflect"
+	"sync"
+	"time"
 
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/types"
 )
 
@@ -60,7 +64,7 @@ func IsFloat(kind reflect.Kind) bool {
 
 // IsTruthful returns whether in represents a truthful value.
 // See IsTruthfulValue
-func IsTruthful(in interface{}) bool {
+func IsTruthful(in any) bool {
 	switch v := in.(type) {
 	case reflect.Value:
 		return IsTruthfulValue(v)
@@ -114,6 +118,96 @@ func IsTruthfulValue(val reflect.Value) (truth bool) {
 	return
 }
 
+type methodKey struct {
+	typ  reflect.Type
+	name string
+}
+
+type methods struct {
+	sync.RWMutex
+	cache map[methodKey]int
+}
+
+var methodCache = &methods{cache: make(map[methodKey]int)}
+
+// GetMethodByName is the same as reflect.Value.MethodByName, but it caches the
+// type lookup.
+func GetMethodByName(v reflect.Value, name string) reflect.Value {
+	index := GetMethodIndexByName(v.Type(), name)
+
+	if index == -1 {
+		return reflect.Value{}
+	}
+
+	return v.Method(index)
+}
+
+// GetMethodIndexByName returns the index of the method with the given name, or
+// -1 if no such method exists.
+func GetMethodIndexByName(tp reflect.Type, name string) int {
+	k := methodKey{tp, name}
+	methodCache.RLock()
+	index, found := methodCache.cache[k]
+	methodCache.RUnlock()
+	if found {
+		return index
+	}
+
+	methodCache.Lock()
+	defer methodCache.Unlock()
+
+	m, ok := tp.MethodByName(name)
+	index = m.Index
+	if !ok {
+		index = -1
+	}
+	methodCache.cache[k] = index
+
+	if !ok {
+		return -1
+	}
+
+	return m.Index
+}
+
+var (
+	timeType           = reflect.TypeOf((*time.Time)(nil)).Elem()
+	asTimeProviderType = reflect.TypeOf((*htime.AsTimeProvider)(nil)).Elem()
+)
+
+// IsTime returns whether tp is a time.Time type or if it can be converted into one
+// in ToTime.
+func IsTime(tp reflect.Type) bool {
+	if tp == timeType {
+		return true
+	}
+
+	if tp.Implements(asTimeProviderType) {
+		return true
+	}
+	return false
+}
+
+// AsTime returns v as a time.Time if possible.
+// The given location is only used if the value implements AsTimeProvider (e.g. go-toml local).
+// A zero Time and false is returned if this isn't possible.
+// Note that this function does not accept string dates.
+func AsTime(v reflect.Value, loc *time.Location) (time.Time, bool) {
+	if v.Kind() == reflect.Interface {
+		return AsTime(v.Elem(), loc)
+	}
+
+	if v.Type() == timeType {
+		return v.Interface().(time.Time), true
+	}
+
+	if v.Type().Implements(asTimeProviderType) {
+		return v.Interface().(htime.AsTimeProvider).AsTime(loc), true
+	}
+
+	return time.Time{}, false
+}
+
 // Based on: https://github.com/golang/go/blob/178a2c42254166cffed1b25fb1d3c7a5727cada6/src/text/template/exec.go#L931
 func indirectInterface(v reflect.Value) reflect.Value {
 	if v.Kind() != reflect.Interface {
@@ -124,3 +218,5 @@ func indirectInterface(v reflect.Value) reflect.Value {
 	}
 	return v.Elem()
 }
+
+var ContextInterface = reflect.TypeOf((*context.Context)(nil)).Elem()

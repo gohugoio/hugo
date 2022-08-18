@@ -27,11 +27,9 @@ import (
 )
 
 func NewTestResourceSpec() (*resources.Spec, error) {
-	cfg := config.New()
-	cfg.Set("baseURL", "https://example.org")
-	cfg.Set("publishDir", "public")
+	cfg := config.NewWithTestDefaults()
 
-	imagingCfg := map[string]interface{}{
+	imagingCfg := map[string]any{
 		"resampleFilter": "linear",
 		"quality":        68,
 		"anchor":         "left",
@@ -51,7 +49,7 @@ func NewTestResourceSpec() (*resources.Spec, error) {
 		return nil, err
 	}
 
-	spec, err := resources.NewSpec(s, filecaches, nil, nil, nil, output.DefaultFormats, media.DefaultTypes)
+	spec, err := resources.NewSpec(s, filecaches, nil, nil, nil, nil, output.DefaultFormats, media.DefaultTypes)
 	return spec, err
 }
 

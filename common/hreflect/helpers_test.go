@@ -30,6 +30,16 @@ func TestIsTruthful(t *testing.T) {
 	c.Assert(IsTruthful(time.Time{}), qt.Equals, false)
 }
 
+func TestGetMethodByName(t *testing.T) {
+	c := qt.New(t)
+	v := reflect.ValueOf(&testStruct{})
+	tp := v.Type()
+
+	c.Assert(GetMethodIndexByName(tp, "Method1"), qt.Equals, 0)
+	c.Assert(GetMethodIndexByName(tp, "Method3"), qt.Equals, 2)
+	c.Assert(GetMethodIndexByName(tp, "Foo"), qt.Equals, -1)
+}
+
 func BenchmarkIsTruthFul(b *testing.B) {
 	v := reflect.ValueOf("Hugo")
 
@@ -37,6 +47,40 @@ func BenchmarkIsTruthFul(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		if !IsTruthfulValue(v) {
 			b.Fatal("not truthful")
+		}
+	}
+}
+
+type testStruct struct{}
+
+func (t *testStruct) Method1() string {
+	return "Hugo"
+}
+
+func (t *testStruct) Method2() string {
+	return "Hugo"
+}
+
+func (t *testStruct) Method3() string {
+	return "Hugo"
+}
+
+func (t *testStruct) Method4() string {
+	return "Hugo"
+}
+
+func (t *testStruct) Method5() string {
+	return "Hugo"
+}
+
+func BenchmarkGetMethodByName(b *testing.B) {
+	v := reflect.ValueOf(&testStruct{})
+	methods := []string{"Method1", "Method2", "Method3", "Method4", "Method5"}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for _, method := range methods {
+			_ = GetMethodByName(v, method)
 		}
 	}
 }

@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build extended
 // +build extended
 
 package scss
@@ -46,6 +47,7 @@ func (c *Client) ToCSS(res resources.ResourceTransformer, opts Options) (resourc
 	}
 
 	return res.Transform(&toCSSTransformation{c: c, options: internalOptions})
+
 }
 
 type toCSSTransformation struct {
