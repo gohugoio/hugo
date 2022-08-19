@@ -28,7 +28,7 @@ A good rule of thumb is that each piece of content renders in around 1 milliseco
 
 Hugo is designed to work well for any kind of website including blogs, tumbles, and docs.
 
-### Supported Architectures
+## Supported Architectures
 
 Currently, we provide pre-built Hugo binaries for Windows, Linux, FreeBSD, NetBSD, DragonFly BSD, OpenBSD, macOS (Darwin), and [Android](https://gist.github.com/bep/a0d8a26cf6b4f8bc992729b8e50b480b) for x64, i386 and ARM architectures.
 
