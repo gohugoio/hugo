@@ -13,6 +13,14 @@ A Fast and Flexible Static Site Generator built with love by [bep](https://githu
 [![Tests on Linux, MacOS and Windows](https://github.com/gohugoio/hugo/workflows/Test/badge.svg)](https://github.com/gohugoio/hugo/actions?query=workflow%3ATest)
 [![Go Report Card](https://goreportcard.com/badge/github.com/gohugoio/hugo)](https://goreportcard.com/report/github.com/gohugoio/hugo)
 
+* [Overview](#overview)
+* [Supported Architectures](#supported-architectures)
+* [Choose How to Install](#choose-how-to-install)
+   * [Install Hugo as Your Site Generator (Binary Install)](#install-hugo-as-your-site-generator-binary-install)
+   * [Build and Install the Binaries from Source (Advanced Install)](#build-and-install-the-binaries-from-source-advanced-install)
+* [The Hugo Documentation](#the-hugo-documentation)
+* [Contributing to Hugo](#contributing-code-to-hugo)
+* [Dependencies](#dependencies)
 
 ## Overview
 
