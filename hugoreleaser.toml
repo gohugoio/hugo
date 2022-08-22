@@ -34,7 +34,7 @@ project = "hugo"
     prerelease                     = true
 
 [[builds]]
-    path = "unix/regular"
+    path = "container1/unix/regular"
 
     [[builds.os]]
         goos = "darwin"
@@ -68,7 +68,7 @@ project = "hugo"
             goarch = "amd64"
 
 [[builds]]
-    path = "unix/extended"
+    path = "container1/unix/extended"
 
     [builds.build_settings]
         flags = ["-buildmode", "exe", "-tags", "extended"]
@@ -86,7 +86,20 @@ project = "hugo"
             goarch = "amd64"
 
 [[builds]]
-    path = "windows/regular"
+    path = "container2/linux/extended"
+
+    [builds.build_settings]
+        flags = ["-buildmode", "exe", "-tags", "extended"]
+       
+    [[builds.os]]
+        goos = "linux"
+         [builds.os.build_settings]
+            env = ["CGO_ENABLED=1", "CC=aarch64-linux-gnu-gcc"]
+        [[builds.os.archs]]
+            goarch = "amd64"
+
+[[builds]]
+    path = "container1/windows/regular"
 
     [[builds.os]]
         goos = "windows"
@@ -98,7 +111,7 @@ project = "hugo"
             goarch = "arm64"
 
 [[builds]]
-    path = "windows/extended"
+    path = "container1/windows/extended"
 
     [builds.build_settings]
         flags   = ["-buildmode", "exe", "-tags", "extended"]
@@ -113,9 +126,16 @@ project = "hugo"
             goarch = "amd64"
 
 [[archives]]
-    paths = "/builds/unix/**"
+    paths = "/builds/**/unix/regula/**"
 [[archives]]
-    paths = "/builds/windows/**"
+    paths = "/builds/**/unix/extended/**"
+[archives.archive_settings]
+name_template = "{{ .Project }}_{{ .Tag | trimPrefix `v` }}_{{ .Goos }}-{{ .Goarch }}"
+[[archives]]
+    # Only extended builds in container2.
+    paths = "/builds/container2/**"
+[[archives]]
+    paths = "/builds/**/windows/**"
     [archives.archive_settings.type]
         format    = "zip"
         extension = ".zip"
