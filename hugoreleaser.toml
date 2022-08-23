@@ -95,9 +95,9 @@ project = "hugo"
     [[builds.os]]
         goos = "linux"
         [builds.os.build_settings]
-            env = ["CGO_ENABLED=1", "CC=aarch64-linux-gnu-gcc"]
+            env = ["CGO_ENABLED=1", "CC=aarch64-linux-gnu-gcc", "CXX=aarch64-linux-gnu-g++"]
         [[builds.os.archs]]
-            goarch = "amd64"
+            goarch = "arm64"
 
 [[builds]]
     path = "container1/windows/regular"
@@ -155,7 +155,7 @@ project = "hugo"
     path  = "r1"
 
     # The above should allow the following build commands:
-    # hugoreleaser build -tag v1.2.3 -paths "builds/container1/**"
-    # hugoreleaser build -tag v1.2.3 -paths "builds/container2/**"
-    # hugoreleaser archive -tag v1.2.3
-    # hugoreleaser release -tag v1.2.3 -commitish release-1.2.3
+    # hugoreleaser build -paths "builds/container1/**"
+    # hugoreleaser build -paths "builds/container2/**"
+    # hugoreleaser archive 
+    # hugoreleaser release
