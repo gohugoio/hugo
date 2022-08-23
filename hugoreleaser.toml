@@ -9,7 +9,6 @@ project = "hugo"
     flags   = ["-buildmode", "exe"]
     env     = ["CGO_ENABLED=0"]
     ldflags = "-s -w -X github.com/gohugoio/hugo/common/hugo.vendorInfo=gohugoio"
-    goarm   = "7"
 
 [archive_settings]
     name_template = "{{ .Project }}_{{ .Tag | trimPrefix `v` }}_{{ .Goos }}-{{ .Goarch }}"
@@ -48,6 +47,8 @@ project = "hugo"
             goarch = "arm64"
         [[builds.os.archs]]
             goarch = "arm"
+            [builds.os.archs.build_settings]
+                env = ["CGO_ENABLED=0", "GOARM=7"]
 
     # Unix BSD variants
     [[builds.os]]
@@ -126,23 +127,23 @@ project = "hugo"
             goarch = "amd64"
 
 [[archives]]
-    paths = ["/builds/container1/unix/regular/**"]
+    paths = ["builds/container1/unix/regular/**"]
 [[archives]]
-    paths = ["/builds/container1/unix/extended/**"]
+    paths = ["builds/container1/unix/extended/**"]
     [archives.archive_settings]
         name_template = "{{ .Project }}_extended_{{ .Tag | trimPrefix `v` }}_{{ .Goos }}-{{ .Goarch }}"
 [[archives]]
     # Only extended builds in container2.
-    paths = ["/builds/container2/**"]
+    paths = ["builds/container2/**"]
     [archives.archive_settings]
         name_template = "{{ .Project }}_extended_{{ .Tag | trimPrefix `v` }}_{{ .Goos }}-{{ .Goarch }}"
 [[archives]]
-    paths = ["/builds/**/windows/regular/**"]
+    paths = ["builds/**/windows/regular/**"]
     [archives.archive_settings.type]
         format    = "zip"
         extension = ".zip"
 [[archives]]
-    paths = ["/builds/**/windows/extended/**"]
+    paths = ["builds/**/windows/extended/**"]
     [archives.archive_settings]
         name_template = "{{ .Project }}_extended_{{ .Tag | trimPrefix `v` }}_{{ .Goos }}-{{ .Goarch }}"
         [archives.archive_settings.type]
@@ -150,5 +151,11 @@ project = "hugo"
             extension = ".zip"
 
 [[releases]]
-    paths = ["/archives/**"]
+    paths = ["archives/**"]
     path  = "r1"
+
+    # The above should allow the following build commands:
+    # hugoreleaser build -tag v1.2.3 -paths "builds/container1/**"
+    # hugoreleaser build -tag v1.2.3 -paths "builds/container2/**"
+    # hugoreleaser archive -tag v1.2.3
+    # hugoreleaser release -tag v1.2.3 -commitish release-1.2.3
