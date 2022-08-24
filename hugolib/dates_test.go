@@ -327,9 +327,9 @@ func TestTOMLTimeZone(t *testing.T) {
 			input:          "2021-08-16T06:00:00-07:00",
 			configTimeZone: "",
 			localZoneName:  "America/Los_Angeles",
-			expectedFull:   "6:00:00 am ",
-			expectedLong:   "6:00:00 am ",
-			comment:        "environ set but config not set; no zoneinfo",
+			expectedFull:   "6:00:00 am Pacific Daylight Time",
+			expectedLong:   "6:00:00 am PDT",
+			comment:        "environ set, offset matched; show zoneinfo",
 		},
 		{
 			input:          "2021-08-16T06:00:00+09:00",
@@ -352,9 +352,9 @@ func TestTOMLTimeZone(t *testing.T) {
 			input:          "2021-08-16T06:00:00-07:00",
 			configTimeZone: `timeZone = ""`,
 			localZoneName:  "America/Los_Angeles",
-			expectedFull:   "6:00:00 am ",
-			expectedLong:   "6:00:00 am ",
-			comment:        "environ set but timezone in config set to empty string; no zoneinfo",
+			expectedFull:   "6:00:00 am Pacific Daylight Time",
+			expectedLong:   "6:00:00 am PDT",
+			comment:        "environ set, timezone in config set to empty string, offset matched; show zoneinfo",
 		},
 		{
 			input:          "2021-08-16T06:00:00+09:00",
@@ -430,7 +430,7 @@ func TestTOMLTimeZone(t *testing.T) {
 			comment:        `zoneinfo "UTC" could be overwritten if time zone offset is +00:00:00 and matched`,
 		},
 
-		// no effect of "TZ"
+		// no effect of "TZ" if timeZone is set in config
 		{
 			input:          "2021-08-16T06:00:00+00:00",
 			configTimeZone: `timeZone = "America/Los_Angeles"`,
@@ -531,8 +531,8 @@ func TestTOMLTimeZone(t *testing.T) {
 			testLoc, err := time.LoadLocation(tc.localZoneName)
 			c.Assert(err, qt.IsNil)
 			time.Local = testLoc
-			t.Cleanup(func () {
-				 time.Local = &origLocal
+			t.Cleanup(func() {
+				time.Local = &origLocal
 			})
 
 			files := `
