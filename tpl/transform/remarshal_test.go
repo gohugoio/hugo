@@ -180,7 +180,7 @@ a = "b"
 
 		converted, err := ns.Remarshal("toml", input)
 		c.Assert(err, qt.IsNil)
-		c.Assert(converted, qt.Equals, "[params]\n  [params.variables]\n    a = 'b'\n\n\n")
+		c.Assert(converted, qt.Equals, "[params]\n  [params.variables]\n    a = 'b'\n")
 	})
 
 	c.Run("Map input", func(c *qt.C) {
