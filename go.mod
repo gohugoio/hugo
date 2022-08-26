@@ -36,7 +36,7 @@ require (
 	github.com/hairyhenderson/go-codeowners v0.2.3-0.20201026200250-cdc7c0759690
 	github.com/jdkato/prose v1.2.1
 	github.com/kylelemons/godebug v1.1.0
-	github.com/kyokomi/emoji/v2 v2.2.9
+	github.com/kyokomi/emoji/v2 v2.2.10
 	github.com/magefile/mage v1.13.0
 	github.com/mattn/go-isatty v0.0.16
 	github.com/mitchellh/hashstructure v1.1.0
@@ -55,7 +55,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/pflag v1.0.5
 	github.com/tdewolff/minify/v2 v2.12.0
-	github.com/tdewolff/parse/v2 v2.6.1
+	github.com/tdewolff/parse/v2 v2.6.2
 	github.com/yuin/goldmark v1.4.13
 	go.uber.org/atomic v1.9.0
 	gocloud.dev v0.24.0
