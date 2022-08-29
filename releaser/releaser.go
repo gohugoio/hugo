@@ -40,14 +40,17 @@ func New(skipPush, try bool, step int) (*ReleaseHandler, error) {
 	if err != nil {
 		return nil, err
 	}
+	branch = strings.TrimSpace(branch)
+
 	if !strings.HasPrefix(branch, prefix) {
 		return nil, fmt.Errorf("branch %q is not a release branch", branch)
 	}
 
-	logf("Branch: %s\n", branch)
-
 	version := strings.TrimPrefix(branch, prefix)
 	version = strings.TrimPrefix(version, "v")
+
+	logf("Branch: %s|Version: v%s\n", branch, version)
+
 	rh := &ReleaseHandler{branchVersion: version, skipPush: skipPush, try: try, step: step}
 
 	if try {

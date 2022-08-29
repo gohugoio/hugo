@@ -33,7 +33,7 @@ project = "hugo"
         dragonfly = "DragonFlyBSD"
 
 [release_settings]
-    name             = "${HUGO_RELEASE_NAME}"
+    name             = "${HUGORELEASER_TAG}"
     type             = "github"
     repository       = "hugo"
     repository_owner = "gohugoio"
@@ -190,6 +190,8 @@ project = "hugo"
 [[archives]]
     paths = ["builds/**/regular/linux/{arm64,amd64}"]
     [archives.archive_settings]
+        binary_dir  = "/usr/local/bin"
+        extra_files = []
         [archives.archive_settings.type]
             format    = "_plugin"
             extension = ".deb"
@@ -206,6 +208,8 @@ project = "hugo"
 [[archives]]
     paths = ["builds/**/extended/linux/{arm64,amd64}"]
     [archives.archive_settings]
+        binary_dir    = "/usr/local/bin"
+        extra_files   = []
         name_template = "{{ .Project }}_extended_{{ .Tag | trimPrefix `v` }}_{{ .Goos }}-{{ .Goarch }}"
         [archives.archive_settings.type]
             format    = "_plugin"
