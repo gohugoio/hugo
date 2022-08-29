@@ -54,7 +54,7 @@ project = "hugo"
             # The groups will be tested in order until a match is found.
             # The titles will so be listed in the given order in the release note.
             # Any match with ignore=true title will be dropped.
-            { regexp = "Merge commit|Squashed", ignore = true },
+            { regexp = "Merge commit|Squashed|releaser:", ignore = true },
             { title = "Bug fixes", regexp = "fix", ordinal = 10 },
             { title = "Dependency Updates", regexp = "deps", ordinal = 30 },
             { title = "Build Setup", regexp = "(snap|release|update to)", ordinal = 40 },
