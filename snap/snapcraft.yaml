@@ -1,5 +1,4 @@
 name: hugo
-version: git
 issues: https://github.com/gohugoio/hugo/issues
 source-code: https://github.com/gohugoio/hugo.git
 website: https://gohugo.io/
@@ -12,6 +11,7 @@ license: "Apache-2.0"
 base: core20
 confinement: strict
 grade: devel # "devel" or "stable"
+adopt-info: hugo
 
 package-repositories:
   - type: apt
@@ -77,6 +77,9 @@ parts:
     after:
       - git
       - go
+    override-pull: |
+      snapcraftctl pull
+      snapcraftctl set-version "$(git describe --tags --always --match 'v[0-9]*' | sed 's/^v//; s/-/+git/; s/-g/./')"
     override-build: |
       echo "\nStarting override-build:"
       set -ex
