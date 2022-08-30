@@ -10,7 +10,6 @@ description: |
 license: "Apache-2.0"
 base: core20
 confinement: strict
-grade: devel # "devel" or "stable"
 adopt-info: hugo
 
 package-repositories:
@@ -80,6 +79,11 @@ parts:
     override-pull: |
       snapcraftctl pull
       snapcraftctl set-version "$(git describe --tags --always --match 'v[0-9]*' | sed 's/^v//; s/-/+git/; s/-g/./')"
+      if grep -q 'Suffix:\s*""' common/hugo/version_current.go; then
+        snapcraftctl set-grade "stable"
+      else
+        snapcraftctl set-grade "devel"
+      fi
     override-build: |
       echo "\nStarting override-build:"
       set -ex
@@ -104,7 +108,7 @@ parts:
       fi
 
       echo " * Building hugo (HUGO_BUILD_TAGS=\"$HUGO_BUILD_TAGS\")..."
-      go build -v -ldflags '-X github.com/gohugoio/hugo/common/hugo.vendorInfo=snap' -tags "$HUGO_BUILD_TAGS"
+      go build -v -ldflags "-X github.com/gohugoio/hugo/common/hugo.vendorInfo=snap:$(git describe --tags --always --match 'v[0-9]*' | sed 's/^v//; s/-/+git/; s/-g/./')" -tags "$HUGO_BUILD_TAGS"
       ./hugo version
       ldd hugo || :
 
