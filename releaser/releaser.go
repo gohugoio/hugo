@@ -147,16 +147,6 @@ func (r *ReleaseHandler) bumpVersions(ver hugo.Version) error {
 		return err
 	}
 
-	snapcraftGrade := "stable"
-	if ver.Suffix != "" {
-		snapcraftGrade = "devel"
-	}
-	if err := r.replaceInFile("snap/snapcraft.yaml",
-		`version: "(.*)"`, fmt.Sprintf(`version: "%s"`, ver),
-		`grade: (.*) #`, fmt.Sprintf(`grade: %s #`, snapcraftGrade)); err != nil {
-		return err
-	}
-
 	var minVersion string
 	if ver.Suffix != "" {
 		// People use the DEV version in daily use, and we cannot create new themes
