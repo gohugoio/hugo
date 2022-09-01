@@ -39,8 +39,6 @@ import (
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
-	"errors"
-
 	"github.com/gohugoio/hugo/parser/pageparser"
 
 	"github.com/gohugoio/hugo/output"
@@ -762,7 +760,7 @@ Loop:
 		case it.IsEOF():
 			break Loop
 		case it.IsError():
-			err := fail(errors.New(it.ValStr(result.Input())), it)
+			err := fail(it.Err, it)
 			currShortcode.err = err
 			return err
 

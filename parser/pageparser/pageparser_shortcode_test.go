@@ -40,7 +40,6 @@ var (
 	tstParamFloat     = nti(tScParam, "3.14")
 	tstVal            = nti(tScParamVal, "Hello World")
 	tstText           = nti(tText, "Hello World")
-	tstIgnoreEscape   = nti(TypeIgnore, "\\")
 )
 
 var shortCodeLexerTests = []lexerTest{
@@ -179,14 +178,14 @@ var shortCodeLexerTests = []lexerTest{
 		"escaped quotes inside nonescaped quotes",
 		`{{< sc1 param1="Hello \"escaped\" World"  >}}`,
 		[]typeText{
-			tstLeftNoMD, tstSC1, tstParam1, tstIgnoreEscape, tstIgnoreEscape, nti(tScParamVal, `Hello "escaped" World`), tstRightNoMD, tstEOF,
+			tstLeftNoMD, tstSC1, tstParam1, nti(tScParamVal, `Hello "escaped" World`), tstRightNoMD, tstEOF,
 		},
 	},
 	{
 		"escaped quotes inside nonescaped quotes in positional param",
 		`{{< sc1 "Hello \"escaped\" World"  >}}`,
 		[]typeText{
-			tstLeftNoMD, tstSC1, tstIgnoreEscape, tstIgnoreEscape, nti(tScParam, `Hello "escaped" World`), tstRightNoMD, tstEOF,
+			tstLeftNoMD, tstSC1, nti(tScParam, `Hello "escaped" World`), tstRightNoMD, tstEOF,
 		},
 	},
 	{"escaped raw string, named param", `{{< sc1 param1=` + `\` + "`" + "Hello World" + `\` + "`" + ` >}}`, []typeText{
