@@ -168,33 +168,85 @@ title: Shorty
 func TestShortcodeYoutube(t *testing.T) {
 	t.Parallel()
 
-	for _, this := range []struct {
-		in, expected string
+	for i, this := range []struct {
+		privacy            map[string]any
+		in, resp, expected string
 	}{
 		{
+			nil,
 			`{{< youtube w7Ft2ymGmfc >}}`,
-			"(?s)\n<div style=\".*?\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\" style=\".*?\" allowfullscreen title=\"YouTube Video\">.*?</iframe>.*?</div>\n",
+			`{"title":"A New Hugo Site in Under 2 Minutes","author_name":"Dan Hersam","author_url":"https://www.youtube.com/c/DanHersam","type":"video","height":1080,"width":1920,"version":"1.0","provider_name":"YouTube","provider_url":"https://www.youtube.com/","thumbnail_height":360,"thumbnail_width":480,"thumbnail_url":"https://i.ytimg.com/vi/w7Ft2ymGmfc/hqdefault.jpg","html":"\u003ciframe width=\u00221920\u0022 height=\u00221080\u0022 src=\u0022https://www.youtube.com/embed/w7Ft2ymGmfc?feature=oembed\u0022 frameborder=\u00220\u0022 allow=\u0022accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\u0022 allowfullscreen title=\u0022A New Hugo Site in Under 2 Minutes\u0022\u003e\u003c/iframe\u003e"}`,
+			"(?s)\n<div style=\".*?padding-bottom: 56.25%;.*?\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\" style=\".*?\" allowfullscreen title=\"A New Hugo Site in Under 2 Minutes\">.*?</iframe>.*?</div>\n",
 		},
 		// set class
 		{
+			nil,
 			`{{< youtube w7Ft2ymGmfc video>}}`,
-			"(?s)\n<div class=\"video\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\" allowfullscreen title=\"YouTube Video\">.*?</iframe>.*?</div>\n",
+			`{"title":"A New Hugo Site in Under 2 Minutes","author_name":"Dan Hersam","author_url":"https://www.youtube.com/c/DanHersam","type":"video","height":1080,"width":1920,"version":"1.0","provider_name":"YouTube","provider_url":"https://www.youtube.com/","thumbnail_height":360,"thumbnail_width":480,"thumbnail_url":"https://i.ytimg.com/vi/w7Ft2ymGmfc/hqdefault.jpg","html":"\u003ciframe width=\u00221920\u0022 height=\u00221080\u0022 src=\u0022https://www.youtube.com/embed/w7Ft2ymGmfc?feature=oembed\u0022 frameborder=\u00220\u0022 allow=\u0022accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\u0022 allowfullscreen title=\u0022A New Hugo Site in Under 2 Minutes\u0022\u003e\u003c/iframe\u003e"}`,
+			"(?s)\n<div class=\"video\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\" allowfullscreen title=\"A New Hugo Site in Under 2 Minutes\">.*?</iframe>.*?</div>\n",
 		},
 		// set class and autoplay (using named params)
 		{
+			nil,
 			`{{< youtube id="w7Ft2ymGmfc" class="video" autoplay="true" >}}`,
-			"(?s)\n<div class=\"video\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\\?autoplay=1\".*?allowfullscreen title=\"YouTube Video\">.*?</iframe>.*?</div>",
+			`{"title":"A New Hugo Site in Under 2 Minutes","author_name":"Dan Hersam","author_url":"https://www.youtube.com/c/DanHersam","type":"video","height":1080,"width":1920,"version":"1.0","provider_name":"YouTube","provider_url":"https://www.youtube.com/","thumbnail_height":360,"thumbnail_width":480,"thumbnail_url":"https://i.ytimg.com/vi/w7Ft2ymGmfc/hqdefault.jpg","html":"\u003ciframe width=\u00221920\u0022 height=\u00221080\u0022 src=\u0022https://www.youtube.com/embed/w7Ft2ymGmfc?feature=oembed\u0022 frameborder=\u00220\u0022 allow=\u0022accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\u0022 allowfullscreen title=\u0022A New Hugo Site in Under 2 Minutes\u0022\u003e\u003c/iframe\u003e"}`,
+			"(?s)\n<div class=\"video\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\\?autoplay=1\".*?allowfullscreen title=\"A New Hugo Site in Under 2 Minutes\">.*?</iframe>.*?</div>",
 		},
 		// set custom title for accessibility)
 		{
+			nil,
 			`{{< youtube id="w7Ft2ymGmfc" title="A New Hugo Site in Under Two Minutes" >}}`,
+			`{"title":"A New Hugo Site in Under 2 Minutes","author_name":"Dan Hersam","author_url":"https://www.youtube.com/c/DanHersam","type":"video","height":1080,"width":1920,"version":"1.0","provider_name":"YouTube","provider_url":"https://www.youtube.com/","thumbnail_height":360,"thumbnail_width":480,"thumbnail_url":"https://i.ytimg.com/vi/w7Ft2ymGmfc/hqdefault.jpg","html":"\u003ciframe width=\u00221920\u0022 height=\u00221080\u0022 src=\u0022https://www.youtube.com/embed/w7Ft2ymGmfc?feature=oembed\u0022 frameborder=\u00220\u0022 allow=\u0022accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\u0022 allowfullscreen title=\u0022A New Hugo Site in Under 2 Minutes\u0022\u003e\u003c/iframe\u003e"}`,
 			"(?s)\n<div style=\".*?\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\" style=\".*?\" allowfullscreen title=\"A New Hugo Site in Under Two Minutes\">.*?</iframe>.*?</div>",
 		},
+		// 4:3 videos are displayed at that aspect ratio
+		{
+			nil,
+			`{{< youtube Y7dpJ0oseIA >}}`,
+			`{"title":"YouTube","author_name":"YouTube","author_url":"https://www.youtube.com/c/youtube","type":"video","height":1080,"width":1440,"version":"1.0","provider_name":"YouTube","provider_url":"https://www.youtube.com/","thumbnail_height":360,"thumbnail_width":480,"thumbnail_url":"https://i.ytimg.com/vi/Y7dpJ0oseIA/hqdefault.jpg","html":"\u003ciframe width=\u00221440\u0022 height=\u00221080\u0022 src=\u0022https://www.youtube.com/embed/Y7dpJ0oseIA?feature=oembed\u0022 frameborder=\u00220\u0022 allow=\u0022accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\u0022 allowfullscreen title=\u0022YouTube\u0022\u003e\u003c/iframe\u003e"}`,
+			"(?s)\n<div style=\".*?padding-bottom: 75%;.*?\">.*?<iframe src=\"https://www.youtube.com/embed/Y7dpJ0oseIA\" style=\".*?\" allowfullscreen title=\"YouTube\">.*?</iframe>.*?</div>",
+		},
+		// privacy enhanced mode
+		{
+			map[string]any{
+				"youtube": map[string]any{
+					"privacyEnhanced": true,
+				},
+			},
+			`{{< youtube w7Ft2ymGmfc >}}`,
+			`{"title":"A New Hugo Site in Under 2 Minutes","author_name":"Dan Hersam","author_url":"https://www.youtube.com/c/DanHersam","type":"video","height":1080,"width":1920,"version":"1.0","provider_name":"YouTube","provider_url":"https://www.youtube.com/","thumbnail_height":360,"thumbnail_width":480,"thumbnail_url":"https://i.ytimg.com/vi/w7Ft2ymGmfc/hqdefault.jpg","html":"\u003ciframe width=\u00221920\u0022 height=\u00221080\u0022 src=\u0022https://www.youtube.com/embed/w7Ft2ymGmfc?feature=oembed\u0022 frameborder=\u00220\u0022 allow=\u0022accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\u0022 allowfullscreen title=\u0022A New Hugo Site in Under 2 Minutes\u0022\u003e\u003c/iframe\u003e"}`,
+			"(?s)\n<div style=\".*?\">.*?<iframe src=\"https://www.youtube-nocookie.com/embed/w7Ft2ymGmfc\" style=\".*?\" allowfullscreen title=\"A New Hugo Site in Under 2 Minutes\">.*?</iframe>.*</div>\n",
+		},
+		// simple mode provides a link to the Youtube video
+		{
+			map[string]any{
+				"youtube": map[string]any{
+					"simple": true,
+				},
+			},
+			`{{< youtube w7Ft2ymGmfc >}}`,
+			`{"title":"A New Hugo Site in Under 2 Minutes","author_name":"Dan Hersam","author_url":"https://www.youtube.com/c/DanHersam","type":"video","height":1080,"width":1920,"version":"1.0","provider_name":"YouTube","provider_url":"https://www.youtube.com/","thumbnail_height":360,"thumbnail_width":480,"thumbnail_url":"https://i.ytimg.com/vi/w7Ft2ymGmfc/hqdefault.jpg","html":"\u003ciframe width=\u00221920\u0022 height=\u00221080\u0022 src=\u0022https://www.youtube.com/embed/w7Ft2ymGmfc?feature=oembed\u0022 frameborder=\u00220\u0022 allow=\u0022accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\u0022 allowfullscreen title=\u0022A New Hugo Site in Under 2 Minutes\u0022\u003e\u003c/iframe\u003e"}`,
+			"(?s)\n.*?<div class=\"s_video_simple __h_video\">\n<a href=\"https://youtube.com/watch\\?v=w7Ft2ymGmfc\" rel=\"noopener\" target=\"_blank\">\n<img src=\"https://i.ytimg.com/vi/w7Ft2ymGmfc/hqdefault.jpg\" alt=\"A New Hugo Site in Under 2 Minutes\">\n<div class=\"play\"><svg.*</svg></div></a></div>\n",
+		},
 	} {
+		// overload getJSON to return mock API response from YouTube
+		ytFuncMap := template.FuncMap{
+			"getJSON": func(urlParts ...any) any {
+				var v any
+				err := json.Unmarshal([]byte(this.resp), &v)
+				if err != nil {
+					t.Fatalf("[%d] unexpected error in json.Unmarshal: %s", i, err)
+					return err
+				}
+				return v
+			},
+		}
 		var (
 			cfg, fs = newTestCfg()
 			th      = newTestHelper(cfg, fs, t)
 		)
+
+		cfg.Set("privacy", this.privacy)
 
 		writeSource(t, fs, filepath.Join("content", "simple.md"), fmt.Sprintf(`---
 title: Shorty
@@ -202,7 +254,7 @@ title: Shorty
 %s`, this.in))
 		writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), `{{ .Content }}`)
 
-		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg, OverloadedTemplateFuncs: ytFuncMap}, BuildCfg{})
 
 		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), this.expected)
 	}
