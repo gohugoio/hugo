@@ -1,0 +1,21 @@
+{{- $pc := .Page.Site.Config.Privacy.YouTube -}}
+{{- if not $pc.Disable -}}
+{{- $id := .Get "id" | default (.Get 0) -}}
+{{- $url := printf "https://youtube.com/watch?v=%v" $id -}}
+{{- $request := print "https://youtube.com/oembed?" (querify "format" "json" "maxwidth" "1980" "maxheight" "1080" "url" $url) -}}
+{{- $json := getJSON $request -}}
+{{- $class := .Get "class" | default (.Get 1) -}}
+{{- $hasClass := $class -}}
+{{- $class := $class | default "__h_video" -}}
+{{- if not $hasClass -}}
+{{- /* If class is set, assume the user wants to provide his own styles. */ -}}
+{{ template "__h_simple_css" $ }}
+{{- end -}}
+{{- $secondClass := "s_video_simple" }}
+<div class="{{ $secondClass }} {{ $class }}">
+{{- with $json }}
+<a href="{{ $url }}" rel="noopener" target="_blank">
+<img src="{{ .thumbnail_url }}" alt="{{ .title }}">
+<div class="play">{{ template "__h_simple_icon_play" $ }}</div></a></div>
+{{- end -}}
+{{- end -}}

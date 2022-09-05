@@ -64,7 +64,7 @@ simple = true
 		pc.GoogleAnalytics.UseSessionStorage, pc.Instagram.Disable,
 		pc.Instagram.Simple, pc.Twitter.Disable, pc.Twitter.EnableDNT,
 		pc.Twitter.Simple, pc.Vimeo.Disable, pc.Vimeo.EnableDNT, pc.Vimeo.Simple,
-		pc.YouTube.PrivacyEnhanced, pc.YouTube.Disable,
+		pc.YouTube.PrivacyEnhanced, pc.YouTube.Disable, pc.YouTube.Simple,
 	}
 
 	c.Assert(got, qt.All(qt.Equals), true)
