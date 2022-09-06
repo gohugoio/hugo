@@ -56,6 +56,7 @@ simple = false
 [privacy.youtube]
 disable = false
 privacyEnhanced = false
+simple = false
 {{< /code-toggle >}}
 
 
@@ -129,6 +130,9 @@ disableInlineCSS = true
 
 privacyEnhanced
 : When you turn on privacy-enhanced mode, YouTube won’t store information about visitors on your website unless the user plays the embedded video.
+
+simple
+: If simple mode is enabled, the video thumbnail is fetched from YouTube's servers and it is overlayed with a play button. If the user clicks to play the video, it will open in a new tab directly on YouTube's website.
 
 ### Vimeo
 
