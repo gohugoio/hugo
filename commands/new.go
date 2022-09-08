@@ -55,7 +55,7 @@ Ensure you run this within the root directory of your site.`,
 
 	cmd.Flags().StringVarP(&cc.contentType, "kind", "k", "", "content type to create")
 	cmd.Flags().StringVar(&cc.contentEditor, "editor", "", "edit new content with this editor, if provided")
-	cmd.Flags().BoolVarP(&cc.force, "force", "f", false, "allow to override file")
+	cmd.Flags().BoolVarP(&cc.force, "force", "f", false, "overwrite file if it already exists")
 
 	cmd.AddCommand(b.newNewSiteCmd().getCommand())
 	cmd.AddCommand(b.newNewThemeCmd().getCommand())
