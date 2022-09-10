@@ -40,7 +40,6 @@ Note that this is meant for small data sets, e.g. config settings. For larger da
 minify [bool]
 : Let `js.Build` handle the minification.
 
-<<<<<<< HEAD
 inject [slice] {{< new-in "0.81.0" >}}
 : This option allows you to automatically replace a global variable with an import from another file. The path names must be relative to `assets`.  See https://esbuild.github.io/api/#inject
 
@@ -71,16 +70,10 @@ With the above, these imports should work in both scenarios:
 import * as React from 'react'
 import * as ReactDOM from 'react-dom';
 ```
-sourceMap [string, bool] {{< new-in "0.75-DEV" >}}
+sourceMap [string, bool] {{< new-in "0.75.0" >}}
 : Let `js.Build` output sourceMap. Current only inline is supported. true defaults to inline.
-  One of: true, false, `inline`, `external`
-  Default is false
-=======
-sourceMap [string] {{< new-in "0.75-DEV" >}}
-: Let `js.Build` output sourceMap. Current only inline is supported.
-  One of: "", `inline`, `external`
-  Default is ""
->>>>>>> d280bedb7 (js.Build: Update docs to not allow boolean inputs for sourceMap)
+  One of: '`inline`, `external`
+  Default is "" (disabled)
 
 target [string]
 : The language target.
