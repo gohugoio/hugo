@@ -384,7 +384,12 @@ You'll need a place to store the Hugo executable, your [content][], and the gene
 
 1. Download the latest zipped Hugo executable from [Hugo Releases][releases].
 2. Extract all contents to your `..\Hugo\bin` folder.
-3. In PowerShell or your preferred CLI, add the `hugo.exe` executable to your PATH by navigating to `C:\Hugo\bin` (or the location of your hugo.exe file) and use the command `set PATH=%PATH%;C:\Hugo\bin`. If the `hugo` command does not work after a reboot, you may have to run the command prompt as administrator.
+3. Open Windows Command Line (cmd, "DOS") to add the `hugo.exe` executable to your PATH
+    * do `set PATH=%PATH%;C:\Hugo\bin` to have hugo in PATH for the currently opened cmd box
+    * do `setx PATH "%PATH%;C:\Hugo\bin"` to have hugo in PATH for every newly opened cmd box
+      * note: "setx", not "set", plus syntax 'key "val"', not 'key=val'
+
+> You may also use "Git CMD" from the [Git for Windows package](https://gitforwindows.org/) for the native Windows commands [set](https://ss64.com/nt/set.html) and [setx](https://ss64.com/nt/setx.html), but not "Git Bash", PowerShell, or any other "CLI" with different commands
 
 ### Less-technical Users
 
