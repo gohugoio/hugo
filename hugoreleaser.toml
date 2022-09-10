@@ -17,7 +17,7 @@ project = "hugoDocs"
 
     groups = [
       { regexp = "snapcraft:|Merge commit|Squashed", ignore = true },
-      { title = "Typo fixes", regexp = "typoe", ordinal = 20 },
+      { title = "Typo fixes", regexp = "typo", ordinal = 20 },
       { title = "Dependency Updates", regexp = "deps", ordinal = 30 },
       { title = "Improvements", regexp = ".*", ordinal = 10 },
     ]
