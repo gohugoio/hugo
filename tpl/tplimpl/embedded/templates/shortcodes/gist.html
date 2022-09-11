@@ -1,1 +1,3 @@
-<script type="application/javascript" src="https://gist.github.com/{{ index .Params 0 }}/{{ index .Params 1 }}.js{{if len .Params | eq 3 }}?file={{ index .Params 2 }}{{end}}"></script>
+{{- $url := printf "https://gist.github.com/%[1]s/%[2]s.js" .Params -}}
+{{- with .Get 3 }}{{ $url = print $url "?" (querify "file" .) }}{{ end -}}
+<script src="{{ $url }}"></script>

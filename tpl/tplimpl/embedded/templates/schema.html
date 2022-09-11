@@ -1,10 +1,10 @@
 <meta itemprop="name" content="{{ .Title }}">
-<meta itemprop="description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}">
+<meta itemprop="description" content="{{ .Description | default (cond .IsPage .Summary .Site.Params.description) }}}">
 
 {{- if .IsPage -}}
 {{- $iso8601 := "2006-01-02T15:04:05-07:00" -}}
-{{ with .PublishDate }}<meta itemprop="datePublished" {{ .Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />{{ end}}
-{{ with .Lastmod }}<meta itemprop="dateModified" {{ .Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />{{ end}}
+{{ with .PublishDate }}<meta itemprop="datePublished" content="{{ .Format $iso8601 }}" />{{ end}}
+{{ with .Lastmod }}<meta itemprop="dateModified" content="{{ .Format $iso8601 }}" />{{ end}}
 <meta itemprop="wordCount" content="{{ .WordCount }}">
 
 {{- with $.Params.images -}}
@@ -21,5 +21,15 @@
 {{- end -}}
 
 <!-- Output all taxonomies as schema.org keywords -->
-<meta itemprop="keywords" content="{{ if .IsPage}}{{ range $index, $tag := .Params.tags }}{{ $tag }},{{ end }}{{ else }}{{ range $plural, $terms := .Site.Taxonomies }}{{ range $term, $val := $terms }}{{ printf "%s," $term }}{{ end }}{{ end }}{{ end }}" />
+{{- $keywords := slice -}}
+{{- if .Params.tags -}}
+  {{- $keywords = $keywords | append .Params.tags }}
+{{- else -}}
+  {{- range $plural, $terms := .Site.Taxonomies -}}
+    {{- range $term, $value := $terms -}}
+      {{- $keywords = $keywords | append $term -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- with $keywords | uniq }}<meta itemprop="keywords" content='{{ delimit . ", " }}' />{{ end }}
 {{- end -}}
