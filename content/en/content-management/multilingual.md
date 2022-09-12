@@ -4,7 +4,6 @@ linktitle: Multilingual
 description: Hugo supports the creation of websites with multiple languages side by side.
 date: 2017-01-10
 publishdate: 2017-01-10
-lastmod: 2017-01-10
 categories: [content management]
 keywords: [multilingual,i18n, internationalization]
 menu:
@@ -361,7 +360,7 @@ If `.ReadingTime.Count` in the context has value is 1. The result is:
 One minute to read
 ```
 
-In case you need to pass a custom data: (`(dict "Count" numeric_value_only)` is minimum requirment)
+In case you need to pass a custom data: (`(dict "Count" numeric_value_only)` is minimum requirement)
 
 ```go-html-template
 {{ i18n "readingTime" (dict "Count" 25 "FirstArgument" true "SecondArgument" false "Etc" "so on, so far") }}
