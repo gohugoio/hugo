@@ -370,6 +370,11 @@ Single: {{ .Title }}
 
 `)
 
+	writeFile(t, filepath.Join(dir, "layouts", "404.html"), `
+404: {{ .Title }}|Not Found.
+
+`)
+
 	writeFile(t, filepath.Join(dir, "layouts", "_default", "list.html"), `
 
 List: {{ .Title }}
