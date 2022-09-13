@@ -115,6 +115,8 @@ func (f TimeFormatter) Format(t time.Time, layout string) string {
 			return f.ltr.FmtTimeMedium(t)
 		case "time_short":
 			return f.ltr.FmtTimeShort(t)
+		case "iso8601":
+			return t.Format(time.RFC3339)
 		}
 	}
 

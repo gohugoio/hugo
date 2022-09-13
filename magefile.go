@@ -73,7 +73,7 @@ func flagEnv() map[string]string {
 	return map[string]string{
 		"PACKAGE":     packageName,
 		"COMMIT_HASH": hash,
-		"BUILD_DATE":  time.Now().Format("2006-01-02T15:04:05Z0700"),
+		"BUILD_DATE":  time.Now().Format(time.RFC3339),
 	}
 }
 
@@ -268,7 +268,7 @@ func Lint() error {
 	return nil
 }
 
-//  Run go vet linter
+// Run go vet linter
 func Vet() error {
 	if err := sh.Run(goexe, "vet", "./..."); err != nil {
 		return fmt.Errorf("error running go vet: %v", err)

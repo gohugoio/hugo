@@ -110,6 +110,11 @@ func TestTimeFormatter(t *testing.T) {
 
 	})
 
+	c.Run("ISO8601", func(c *qt.C) {
+		tr := translators.GetTranslator("en")
+		f := NewTimeFormatter(tr)
+		c.Assert(f.Format(june06, ":iso8601"), qt.Equals, "2018-06-06T02:09:37Z")
+	})
 }
 
 func BenchmarkTimeFormatter(b *testing.B) {
