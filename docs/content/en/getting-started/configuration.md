@@ -550,6 +550,19 @@ force = false
 
 {{< new-in "0.76.0" >}} Setting `force=true` will make a redirect even if there is existing content in the path. Note that before Hugo 0.76  `force` was the default behaviour, but this is inline with how Netlify does it.
 
+## 404 Server Error Page
+
+{{< new-in "0.103.0" >}}
+
+Hugo will, by default, render all 404 errors when running `hugo server` with the `404.html` template. Note that if you have already added one or more redirects to your [Server Config](#server-config), you need to add the 404 redirect explicitly, e.g:
+
+```toml
+[[redirects]]
+    from   = "/**"
+    to     = "/404.html"
+    status = 404
+```
+
 ## Configure Title Case
 
 Set `titleCaseStyle` to specify the title style used by the [title](/functions/title/) template function and the automatic section titles in Hugo. It defaults to [AP Stylebook](https://www.apstylebook.com/) for title casing, but you can also set it to `Chicago` or `Go` (every word starts with a capital letter).

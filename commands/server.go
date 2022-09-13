@@ -412,12 +412,18 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 				// See https://docs.netlify.com/routing/redirects/rewrites-proxies/
 				if !redirect.Force {
 					path := filepath.Clean(strings.TrimPrefix(requestURI, u.Path))
-					fi, err := f.c.hugo().BaseFs.PublishFs.Stat(path)
+					if root != "" {
+						path = filepath.Join(root, path)
+					}
+					fs := f.c.publishDirServerFs
+
+					fi, err := fs.Stat(path)
+
 					if err == nil {
 						if fi.IsDir() {
 							// There will be overlapping directories, so we
 							// need to check for a file.
-							_, err = f.c.hugo().BaseFs.PublishFs.Stat(filepath.Join(path, "index.html"))
+							_, err = fs.Stat(filepath.Join(path, "index.html"))
 							doRedirect = err != nil
 						} else {
 							doRedirect = false
@@ -426,15 +432,28 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 				}
 
 				if doRedirect {
-					if redirect.Status == 200 {
+					switch redirect.Status {
+					case 404:
+						w.WriteHeader(404)
+						file, err := fs.Open(filepath.FromSlash(strings.TrimPrefix(redirect.To, u.Path)))
+						if err == nil {
+							defer file.Close()
+							io.Copy(w, file)
+						} else {
+							fmt.Fprintln(w, "<h1>Page Not Found</h1>")
+						}
+						return
+					case 200:
 						if r2 := f.rewriteRequest(r, strings.TrimPrefix(redirect.To, u.Path)); r2 != nil {
 							requestURI = redirect.To
 							r = r2
 						}
-					} else {
+						fallthrough
+					default:
 						w.Header().Set("Content-Type", "")
 						http.Redirect(w, r, redirect.To, redirect.Status)
 						return
+
 					}
 				}
 
