@@ -47,7 +47,7 @@ As mentioned in the [GitHub Pages documentation][ghorgs], you can host a user/or
 
 ## Build Hugo With GitHub Action
 
-GitHub executes your software development workflows. Everytime you push your code on the Github repository, Github Actions will build the site automatically.
+GitHub executes your software development workflows. Everytime you push your code on the GitHub repository, Github Actions will build the site automatically.
 
 Create a file in `.github/workflows/gh-pages.yml` containing the following content (based on [actions-hugo](https://github.com/marketplace/actions/hugo-setup)):
 
@@ -62,9 +62,9 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true  # Fetch Hugo themes (true OR recursive)
           fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
@@ -88,10 +88,12 @@ jobs:
 
 For more advanced settings [actions-hugo](https://github.com/marketplace/actions/hugo-setup) and [actions-gh-pages](https://github.com/marketplace/actions/github-pages-action).
 
-## Github pages setting
+## GitHub pages setting
+
 By default, the GitHub action pushes the generated content to the `gh-pages` branch. This means GitHub has to serve your `gh-pages` branch as a GitHub Pages branch. You can change this setting by going to Settings > GitHub Pages, and change the source branch to `gh-pages`.
 
 ## Change baseURL in config.toml
+
 Don't forget to rename your `baseURL` in `config.toml` with the value `https://<USERNAME>.github.io` for your user repository or `https://<USERNAME>.github.io/<REPOSITORY_NAME>` for a project repository.
 
 Unless this is present in your `config.toml`, your website won't work.

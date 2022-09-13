@@ -1,0 +1,29 @@
+project = "hugoDocs"
+
+[release_settings]
+  name             = "${HUGORELEASER_TAG}"
+  type             = "github"
+  repository       = "hugoDocs"
+  repository_owner = "gohugoio"
+
+  draft      = true
+  prerelease = false
+
+  [release_settings.release_notes_settings]
+    generate         = true
+    generate_on_host = false
+    short_threshold  = 10
+    short_title      = "What's Changed"
+
+    groups = [
+      { regexp = "snapcraft:|Merge commit|Merge branch|netlify:|release:|Squashed", ignore = true },
+      { title = "Typo fixes", regexp = "typo", ordinal = 20 },
+      { title = "Dependency Updates", regexp = "deps", ordinal = 30 },
+      { title = "Improvements", regexp = ".*", ordinal = 10 },
+    ]
+
+[[releases]]
+  paths = ["archives/**"]
+  # In this file we have only one release, but path can be used to partition the release step, e.g.:
+  #    hugoreleaser release -paths "releases/myrelease"
+  path = "myrelease"

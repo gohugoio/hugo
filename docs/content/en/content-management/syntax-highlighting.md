@@ -80,6 +80,20 @@ func GetTitleFunc(style string) func(s string) string {
 }
 {{< / highlight >}}
 
+## Highlight Hugo/GO Template Code
+
+For highlighting Hugo/GO template code on your page, add `/*` after the opening double curly braces and `*/` before closing curly braces.
+
+``` go
+{{</*/* myshortcode */*/>}}
+```
+
+Gives this:
+
+``` go
+{{</* myshortcode */>}}
+```
+
 ## Highlight Template Func
 
 See [Highlight](/functions/highlight/).

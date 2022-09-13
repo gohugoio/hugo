@@ -70,6 +70,10 @@ With the above, these imports should work in both scenarios:
 import * as React from 'react'
 import * as ReactDOM from 'react-dom';
 ```
+sourceMap [string, bool] {{< new-in "0.75.0" >}}
+: Let `js.Build` output sourceMap. Current only inline is supported. true defaults to inline.
+  One of: '`inline`, `external`
+  Default is "" (disabled)
 
 target [string]
 : The language target.
@@ -93,7 +97,7 @@ format [string] {{< new-in "0.74.3" >}}
   Default is `iife`, a self-executing function, suitable for inclusion as a <script> tag.
 
 sourceMap
-: Whether to generate source maps. Enum, currently only `inline` (we will improve that).
+: Whether to generate `inline` or `external` sourcemap from esbuild. External sourcemaps will be written to the target with the output file name + ".map". Input sourcemaps can be read from js.Build and node modules and combined into the output sourcemaps.
 
 ### Import JS code from /assets
 
