@@ -4,7 +4,6 @@ linktitle: Configuration
 description: How to configure your Hugo site.
 date: 2013-07-01
 publishdate: 2017-01-02
-lastmod: 2017-03-05
 categories: [getting started,fundamentals]
 keywords: [configuration,toml,yaml,json]
 menu:
@@ -17,7 +16,6 @@ draft: false
 aliases: [/overview/source-directory/,/overview/configuration/]
 toc: true
 ---
-
 
 ## Configuration File
 
@@ -77,6 +75,27 @@ foo = "bar"
 ```
 
 Considering the structure above, when running `hugo --environment staging`, Hugo will use every settings from `config/_default` and merge `staging`'s on top of those.
+
+Let's take an example to understand this better. Let's say you are using Google Analytics for your website. This requires you to specify `googleAnalytics = "G-XXXXXXXX"` in `config.toml`. Now consider the following scenario:
+- You don't want the Analytics code to be loaded in development i.e. in your `localhost`
+- You want to use separate googleAnalytics IDs for your production & staging environments (say):
+  - `G-PPPPPPPP` for production
+  - `G-SSSSSSSS` for staging
+
+This is how you need to configure your `config.toml` files considering the above scenario:
+1. In `_default/config.toml` you don't need to mention `googleAnalytics` parameter at all. This ensures that no Google Analytics code is loaded in your development server i.e. when you run `hugo serve`. This works since, by default Hugo sets `Environment=development` when you run `hugo serve` which uses the config files from `_default` folder
+2. In `production/config.toml` you just need to have one line:
+
+    ```googleAnalytics = "G-PPPPPPPP"```
+
+    You don't need to mention all other parameters like `title`, `baseURL`, `theme` etc. again in this config file. You need to mention only those parameters which are different or new for the production environment. This is due to the fact that Hugo is going to __merge__ this on top of `_default/config.toml`. Now when you run `hugo` (build command), by default hugo sets `Environment=production`, so the `G-PPPPPPPP` analytics code will be there in your production website
+3. Similarly in `staging/config.toml` you just need to have one line:
+
+    ```googleAnalytics = "G-SSSSSSSS"```
+    
+    Now you need to tell Hugo that you are using the staging environment. So your build command should be `hugo --environment staging` which will load the `G-SSSSSSSS` analytics code in your staging website
+
+
 {{% note %}}
 Default environments are __development__ with `hugo server` and __production__ with `hugo`.
 {{%/ note %}}
@@ -149,7 +168,7 @@ See [Configure File Caches](#configure-file-caches)
 
 {{< new-in "0.86.0" >}}
 
-Pass down down default configuration values (front matter) to pages in the content tree. The options in site config is the same as in page front matter, see [Front Matter Cascade](/content-management/front-matter#front-matter-cascade).
+Pass down default configuration values (front matter) to pages in the content tree. The options in site config is the same as in page front matter, see [Front Matter Cascade](/content-management/front-matter#front-matter-cascade).
 
 ### canonifyURLs
 
@@ -271,7 +290,10 @@ See [Image Processing Config](/content-management/image-processing/#imaging-conf
 
 **Default value:**  ""
 
-A language tag as defined by [RFC 5646](https://datatracker.ietf.org/doc/html/rfc5646). The internal [RSS template](https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/rss.xml) populates its `<language>` element with this value. The value is not used elsewhere.
+A language tag as defined by [RFC 5646](https://datatracker.ietf.org/doc/html/rfc5646). This value is used to populate:
+
+- The `<language>` element in the internal [RSS template](https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/rss.xml)
+- The `lang` attribute of the `<html>` element in the internal [alias template](https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/alias.html)
 
 ### languages
 

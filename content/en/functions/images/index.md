@@ -218,6 +218,8 @@ Also see the [Filter Method](/content-management/image-processing/#filter).
 
 Parses the image and returns the height, width, and color model.
 
+The `imageConfig` function takes a single parameter, a file path (_string_) relative to the _project's root directory_, with or without a leading slash.
+
 {{% funcsig %}}
 images.ImageConfig PATH
 {{% /funcsig %}}
