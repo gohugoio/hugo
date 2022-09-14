@@ -36,6 +36,15 @@ A good rule of thumb is that each piece of content renders in around 1 milliseco
 
 Hugo is designed to work well for any kind of website including blogs, tumbles, and docs.
 
+## Sponsors
+
+<a href="https://www.linode.com/?utm_campaign=hugosponsor&utm_medium=banner&utm_source=hugogithub" target="_blank"><img src="https://raw.githubusercontent.com/gohugoio/gohugoioTheme/master/static/images/sponsors/linode-logo_standard_light_medium.png" width="200" alt="Linode"></a>
+<a href="https://esolia.com/post/why-did-esolia-choose-hugo/?utm_campaign=hugosponsor&utm_medium=banner&utm_source=hugogithub" target="_blank"><img src="https://raw.githubusercontent.com/gohugoio/gohugoioTheme/master/static/images/sponsors/esolia-logo.svg?sanitize=true" width="200" alt="Linode"></a>
+<a href="https://buttercms.com/hugo-cms/?utm_campaign=sponsorship&utm_medium=banner&utm_source=hugogithub" target="_blank"><img src="https://raw.githubusercontent.com/gohugoio/gohugoioTheme/master/static/images/sponsors/butter-dark.svg?sanitize=true" width="200" alt="Linode"></a>
+
+
+
+
 ## Supported Architectures
 
 Currently, we provide pre-built Hugo binaries for Windows, Linux, FreeBSD, NetBSD, DragonFly BSD, OpenBSD, macOS (Darwin), and [Android](https://gist.github.com/bep/a0d8a26cf6b4f8bc992729b8e50b480b) for x64, i386 and ARM architectures.
