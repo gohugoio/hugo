@@ -438,7 +438,8 @@ func (h *HugoSites) postProcess() error {
 		return nil
 	}
 
-	for _, filename := range h.Deps.FilenameHasPostProcessPrefix {
+	filenames := helpers.UniqueStrings(h.Deps.FilenameHasPostProcessPrefix)
+	for _, filename := range filenames {
 		filename := filename
 		g.Run(func() error {
 			return handleFile(filename)
