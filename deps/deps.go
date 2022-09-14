@@ -16,6 +16,7 @@ import (
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/resources/postpub"
 
 	"github.com/gohugoio/hugo/metrics"
 	"github.com/gohugoio/hugo/output"
@@ -77,6 +78,10 @@ type Deps struct {
 
 	// All the output formats available for the current site.
 	OutputFormatsConfig output.Formats
+
+	// FilenameHasPostProcessPrefix is a set of filenames in /public that
+	// contains a post-processing prefix.
+	FilenameHasPostProcessPrefix []string
 
 	templateProvider ResourceProvider
 	WithTemplate     func(templ tpl.TemplateManager) error `json:"-"`
@@ -202,6 +207,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 	var (
 		logger = cfg.Logger
 		fs     = cfg.Fs
+		d      *Deps
 	)
 
 	if cfg.TemplateProvider == nil {
@@ -239,6 +245,18 @@ func New(cfg DepsCfg) (*Deps, error) {
 	}
 	execHelper := hexec.New(securityConfig)
 
+	var filenameHasPostProcessPrefixMu sync.Mutex
+	cb := func(name string, match bool) {
+		if !match {
+			return
+		}
+		filenameHasPostProcessPrefixMu.Lock()
+		d.FilenameHasPostProcessPrefix = append(d.FilenameHasPostProcessPrefix, name)
+		filenameHasPostProcessPrefixMu.Unlock()
+
+	}
+	fs.PublishDir = hugofs.NewHasBytesReceiver(fs.PublishDir, cb, []byte(postpub.PostProcessPrefix))
+
 	ps, err := helpers.NewPathSpec(fs, cfg.Language, logger)
 	if err != nil {
 		return nil, fmt.Errorf("create PathSpec: %w", err)
@@ -274,7 +292,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 
 	logDistinct := helpers.NewDistinctLogger(logger)
 
-	d := &Deps{
+	d = &Deps{
 		Fs:                      fs,
 		Log:                     ignorableLogger,
 		LogDistinct:             logDistinct,

@@ -511,12 +511,15 @@ func (c *commandeer) build() error {
 		c.hugo().PrintProcessingStats(os.Stdout)
 		fmt.Println()
 
-		if createCounter, ok := c.publishDirFs.(hugofs.DuplicatesReporter); ok {
-			dupes := createCounter.ReportDuplicates()
-			if dupes != "" {
-				c.logger.Warnln("Duplicate target paths:", dupes)
+		hugofs.WalkFilesystems(c.publishDirFs, func(fs afero.Fs) bool {
+			if dfs, ok := fs.(hugofs.DuplicatesReporter); ok {
+				dupes := dfs.ReportDuplicates()
+				if dupes != "" {
+					c.logger.Warnln("Duplicate target paths:", dupes)
+				}
 			}
-		}
+			return false
+		})
 
 		unusedTemplates := c.hugo().Tmpl().(tpl.UnusedTemplatesProvider).UnusedTemplates()
 		for _, unusedTemplate := range unusedTemplates {

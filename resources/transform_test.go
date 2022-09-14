@@ -71,8 +71,12 @@ func TestTransform(t *testing.T) {
 	// Verify that we publish the same file once only.
 	assertNoDuplicateWrites := func(c *qt.C, spec *Spec) {
 		c.Helper()
-		d := spec.Fs.PublishDir.(hugofs.DuplicatesReporter)
-		c.Assert(d.ReportDuplicates(), qt.Equals, "")
+		hugofs.WalkFilesystems(spec.Fs.PublishDir, func(fs afero.Fs) bool {
+			if dfs, ok := fs.(hugofs.DuplicatesReporter); ok {
+				c.Assert(dfs.ReportDuplicates(), qt.Equals, "")
+			}
+			return false
+		})
 	}
 
 	assertShouldExist := func(c *qt.C, spec *Spec, filename string, should bool) {
