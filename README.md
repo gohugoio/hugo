@@ -14,6 +14,7 @@ A Fast and Flexible Static Site Generator built with love by [bep](https://githu
 [![Go Report Card](https://goreportcard.com/badge/github.com/gohugoio/hugo)](https://goreportcard.com/report/github.com/gohugoio/hugo)
 
 * [Overview](#overview)
+* [Banner Sponsors](#banner-sponsors)
 * [Supported Architectures](#supported-architectures)
 * [Choose How to Install](#choose-how-to-install)
    * [Install Hugo as Your Site Generator (Binary Install)](#install-hugo-as-your-site-generator-binary-install)
@@ -35,6 +36,15 @@ Hugo renders a typical website of moderate size in a fraction of a second.
 A good rule of thumb is that each piece of content renders in around 1 millisecond.
 
 Hugo is designed to work well for any kind of website including blogs, tumbles, and docs.
+
+## Banner Sponsors
+<p>&nbsp;</p>
+<p float="left">
+  <a href="https://www.linode.com/?utm_campaign=hugosponsor&utm_medium=banner&utm_source=hugogithub" target="_blank"><img src="https://raw.githubusercontent.com/gohugoio/gohugoioTheme/master/static/images/sponsors/linode-logo_standard_light_medium.png" width="200" alt="Linode"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="https://esolia.com/post/why-did-esolia-choose-hugo/?utm_campaign=hugosponsor&utm_medium=banner&utm_source=hugogithub" target="_blank"><img src="https://raw.githubusercontent.com/gohugoio/gohugoioTheme/master/static/images/sponsors/esolia-logo.svg?sanitize=true" width="200" alt="eSOLIA"></a>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://buttercms.com/hugo-cms/?utm_campaign=sponsorship&utm_medium=banner&utm_source=hugogithub" target="_blank"><img src="https://raw.githubusercontent.com/gohugoio/gohugoioTheme/master/static/images/sponsors/butter-dark.svg?sanitize=true" width="280" alt="ButterCMS"></a>
+</p>
+<p>&nbsp;</p>
 
 ## Supported Architectures
 
