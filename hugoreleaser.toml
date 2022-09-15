@@ -1,5 +1,15 @@
 project = "hugo"
 
+# In Hugo v0.103.0 we removed the archive name replacements (e.g. amd64 => 64bit).
+# Using standard GOOS/GOARCH values makes it easier for scripts out there,
+# but to prevent breakage in Netlify etc. that has adopted to the old names,
+# we create aliases for the most common variants. 
+# According to download numbers from v0.101.0, these are by a good margin the two most popular:
+# hugo_extended_0.101.0_Linux-64bit.tar.gz  Downloaded 129,016 times
+# hugo_0.101.0_Linux-64bit.tar.gz  Downloaded 87,846 times
+# This replacement will create 2 extra alias archives.
+archive_alias_replacements = { "linux-amd64.tar.gz" = "Linux-64bit.tar.gz" }
+
 [go_settings]
     go_proxy = "https://proxy.golang.org"
     go_exe   = "go"
@@ -19,18 +29,6 @@ project = "hugo"
     [archive_settings.type]
         format    = "tar.gz"
         extension = ".tar.gz"
-    [archive_settings.replacements]
-        amd64     = "64bit"
-        386       = "32bit"
-        arm       = "ARM"
-        arm64     = "ARM64"
-        darwin    = "macOS"
-        linux     = "Linux"
-        windows   = "Windows"
-        openbsd   = "OpenBSD"
-        netbsd    = "NetBSD"
-        freebsd   = "FreeBSD"
-        dragonfly = "DragonFlyBSD"
 
 [release_settings]
     name             = "${HUGORELEASER_TAG}"
