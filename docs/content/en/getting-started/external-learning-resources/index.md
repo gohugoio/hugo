@@ -30,6 +30,12 @@ Hugo in Action is a step-by-step guide to using Hugo to create static websites. 
 
 [Build Websites with Hugo - Fast Web Development with Markdown (2020)](https://pragprog.com/titles/bhhugo/) by Brian P. Hogan.
 
+## Beginner tutorials
+
+### Hugo tutorial by CloudCannon
+
+[Step-by-step written tutorial](https://cloudcannon.com/community/learn/hugo-101/) to teach you the basics of creating a Hugo site. 
+
 ## Video tutorials
 
 ### Video Playlist by Mike Dane

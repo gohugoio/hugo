@@ -3,8 +3,13 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '30 1 * * *'
+permissions:
+  contents: read
 jobs:
   stale:
+    permissions:
+      issues: write
+      pull-requests: write
     runs-on: ubuntu-latest
     steps:
       - uses: dessant/lock-threads@08e671be8ac8944d0e132aa71d0ae8ccfb347675

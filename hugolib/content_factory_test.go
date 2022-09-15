@@ -43,7 +43,7 @@ Hello World.
 `)
 		b.CreateSites()
 		cf := NewContentFactory(b.H)
-		abs, err := cf.CreateContentPlaceHolder(filepath.FromSlash("mcontent/en/blog/mypage.md"))
+		abs, err := cf.CreateContentPlaceHolder(filepath.FromSlash("mcontent/en/blog/mypage.md"), false)
 		b.Assert(err, qt.IsNil)
 		b.Assert(abs, qt.Equals, filepath.FromSlash("/my/work/mcontent/en/blog/mypage.md"))
 		b.Build(BuildCfg{SkipRender: true})
@@ -69,7 +69,7 @@ theme = 'ipsum'
 		b.WithSourceFile(filepath.Join(themeDir, "content/posts/foo.txt"), `Hello.`)
 		b.CreateSites()
 		cf := NewContentFactory(b.H)
-		abs, err := cf.CreateContentPlaceHolder(filepath.FromSlash("posts/test.md"))
+		abs, err := cf.CreateContentPlaceHolder(filepath.FromSlash("posts/test.md"), false)
 		b.Assert(err, qt.IsNil)
 		b.Assert(abs, qt.Equals, filepath.FromSlash("content/posts/test.md"))
 

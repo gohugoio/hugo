@@ -21,6 +21,8 @@ aliases: [/faq/]
 
 Is your markdown file [in draft mode](https://gohugo.io/content-management/front-matter/#front-matter-variables)? When testing, run `hugo server` with the `-D` or `--buildDrafts` [switch](https://gohugo.io/getting-started/usage/#draft-future-and-expired-content).
 
+Is your markdown file part of a [leaf bundle](/content-management/page-bundles/)? If there is an `index.md` file in the same or any parent directory then other markdown files will not be rendered as individual pages.
+
 ## Can I set configuration variables via OS environment?
 
 Yes you can! See [Configure with Environment Variables](/getting-started/configuration/#configure-with-environment-variables).

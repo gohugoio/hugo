@@ -1055,3 +1055,35 @@ title: "p1"
 	`)
 
 }
+
+// Issue 10236.
+func TestShortcodeParamEscapedQuote(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+-- content/p1.md --
+---
+title: "p1"
+---
+
+{{< figure src="/media/spf13.jpg" title="Steve \"Francia\"." >}}
+
+-- layouts/shortcodes/figure.html --
+Title: {{ .Get "title" | safeHTML }}
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			Running:     true,
+			Verbose:     true,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", `Title: Steve "Francia".`)
+
+}

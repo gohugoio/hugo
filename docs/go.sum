@@ -33,3 +33,7 @@ github.com/gohugoio/gohugoioTheme v0.0.0-20211211125852-b85e21c1f3d6 h1:lAgdWrn8
 github.com/gohugoio/gohugoioTheme v0.0.0-20211211125852-b85e21c1f3d6/go.mod h1:kpw3SS48xZvLQGEXKu8u5XHgXkPvL8DX3oGa07+z8Bs=
 github.com/gohugoio/gohugoioTheme v0.0.0-20220228085601-7cfbda06d135 h1:6hVzfE9YhSsZP5t6jWjvVp7MoPm7Y5fEhH/ls4ahhKk=
 github.com/gohugoio/gohugoioTheme v0.0.0-20220228085601-7cfbda06d135/go.mod h1:kpw3SS48xZvLQGEXKu8u5XHgXkPvL8DX3oGa07+z8Bs=
+github.com/gohugoio/gohugoioTheme v0.0.0-20220905093719-cb8b64046950 h1:Ovlh3nuy/aNptYZHmIra2MP+ZUEqiihY0HxvhdaMqGg=
+github.com/gohugoio/gohugoioTheme v0.0.0-20220905093719-cb8b64046950/go.mod h1:kpw3SS48xZvLQGEXKu8u5XHgXkPvL8DX3oGa07+z8Bs=
+github.com/gohugoio/gohugoioTheme v0.0.0-20220912070954-88dcaf003b4d h1:UYJL6RmEepprvlgHvDnFCWtPOvjmqzFCQ90cRDRBO7U=
+github.com/gohugoio/gohugoioTheme v0.0.0-20220912070954-88dcaf003b4d/go.mod h1:kpw3SS48xZvLQGEXKu8u5XHgXkPvL8DX3oGa07+z8Bs=

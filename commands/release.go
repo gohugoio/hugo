@@ -17,8 +17,6 @@
 package commands
 
 import (
-	"errors"
-
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/releaser"
 	"github.com/spf13/cobra"
@@ -29,10 +27,9 @@ var _ cmder = (*releaseCommandeer)(nil)
 type releaseCommandeer struct {
 	cmd *cobra.Command
 
-	version string
-
-	skipPublish bool
-	try         bool
+	step     int
+	skipPush bool
+	try      bool
 }
 
 func createReleaser() cmder {
@@ -50,9 +47,9 @@ func createReleaser() cmder {
 		return r.release()
 	}
 
-	r.cmd.PersistentFlags().StringVarP(&r.version, "rel", "r", "", "new release version, i.e. 0.25.1")
-	r.cmd.PersistentFlags().BoolVarP(&r.skipPublish, "skip-publish", "", false, "skip all publishing pipes of the release")
-	r.cmd.PersistentFlags().BoolVarP(&r.try, "try", "", false, "simulate a release, i.e. no changes")
+	r.cmd.PersistentFlags().BoolVarP(&r.skipPush, "skip-push", "", false, "skip pushing to remote")
+	r.cmd.PersistentFlags().BoolVarP(&r.try, "try", "", false, "no changes")
+	r.cmd.PersistentFlags().IntVarP(&r.step, "step", "", 0, "step to run (1: set new version 2: prepare next dev version)")
 
 	return r
 }
@@ -65,8 +62,10 @@ func (c *releaseCommandeer) flagsToConfig(cfg config.Provider) {
 }
 
 func (r *releaseCommandeer) release() error {
-	if r.version == "" {
-		return errors.New("must set the --rel flag to the relevant version number")
+	rel, err := releaser.New(r.skipPush, r.try, r.step)
+	if err != nil {
+		return err
 	}
-	return releaser.New(r.version, r.skipPublish, r.try).Run()
+
+	return rel.Run()
 }
