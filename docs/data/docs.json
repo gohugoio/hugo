@@ -1650,7 +1650,7 @@
           "^postcss$"
         ],
         "osEnv": [
-          "(?i)^(PATH|PATHEXT|APPDATA|TMP|TEMP|TERM)$"
+          "(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM)$"
         ]
       },
       "funcs": {
