@@ -23,7 +23,6 @@ aliases: []
 {{ .Title | markdownify }}
 ```
 
-*Note*: if you need [Render Hooks][], which `markdownify` doesn't currently
-support, use [.RenderString](/functions/renderstring/) instead.
+{{< new-in "0.93.0" >}} **Note**: `markdownify` now supports [Render Hooks][] just like [.RenderString](/functions/renderstring/).
 
-[Render Hooks]: /getting-started/configuration-markup/#markdown-render-hooks
+[Render Hooks]: /templates/render-hooks/

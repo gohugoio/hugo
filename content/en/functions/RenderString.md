@@ -32,5 +32,4 @@ Some examples:
 {{  "/italic org mode/" | $p.RenderString  $optOrg }}
 ```
 
-
-**Note** that this method is more powerful than the similar [markdownify](/functions/markdownify/) function as it also supports [Render Hooks](/getting-started/configuration-markup/#markdown-render-hooks) and it has options to render other markup formats.
+{{< new-in "0.93.0" >}} **Note**: [markdownify](/functions/markdownify/) uses this function in order to support [Render Hooks](/getting-started/configuration-markup/#markdown-render-hooks).
