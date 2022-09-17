@@ -400,13 +400,14 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 			}
 
 			// Ignore any query params for the operations below.
-			requestURI := strings.TrimSuffix(r.RequestURI, "?"+r.URL.RawQuery)
+			requestURI, _ := url.PathUnescape(strings.TrimSuffix(r.RequestURI, "?"+r.URL.RawQuery))
 
 			for _, header := range f.c.serverConfig.MatchHeaders(requestURI) {
 				w.Header().Set(header.Key, header.Value)
 			}
 
 			if redirect := f.c.serverConfig.MatchRedirect(requestURI); !redirect.IsZero() {
+				// fullName := filepath.Join(dir, filepath.FromSlash(path.Clean("/"+name)))
 				doRedirect := true
 				// This matches Netlify's behaviour and is needed for SPA behaviour.
 				// See https://docs.netlify.com/routing/redirects/rewrites-proxies/

@@ -65,6 +65,19 @@ func TestServer404(t *testing.T) {
 	c.Assert(r.content404, qt.Contains, "404: 404 Page not found|Not Found.")
 }
 
+// Issue 10287.
+func TestServerUnicode(t *testing.T) {
+	c := qt.New(t)
+
+	r := runServerTest(c,
+		serverTestOptions{
+			pathsToGet: []string{"hügö/"},
+		},
+	)
+
+	c.Assert(r.err, qt.IsNil)
+	c.Assert(r.pathsResults["hügö/"], qt.Contains, "This is hügö")
+}
 func TestServerFlags(t *testing.T) {
 	c := qt.New(t)
 
@@ -125,6 +138,10 @@ func TestServerBugs(t *testing.T) {
 		numservers int
 		assert     func(c *qt.C, r serverTestResult)
 	}{
+		{"PostProcess, memory", "", "", 1, func(c *qt.C, r serverTestResult) {
+			c.Assert(r.err, qt.IsNil)
+			c.Assert(r.homesContent[0], qt.Contains, "PostProcess: /foo.min.css")
+		}},
 		// Issue 9788
 		{"PostProcess, memory", "", "", 1, func(c *qt.C, r serverTestResult) {
 			c.Assert(r.err, qt.IsNil)
@@ -187,17 +204,23 @@ type serverTestResult struct {
 	homesContent   []string
 	content404     string
 	publicDirnames map[string]bool
+	pathsResults   map[string]string
 }
 
 type serverTestOptions struct {
 	getNumHomes int
 	test404     bool
 	config      string
+	pathsToGet  []string
 	args        []string
 }
 
-func runServerTest(c *qt.C, opts serverTestOptions) (result serverTestResult) {
+func runServerTest(c *qt.C, opts serverTestOptions) serverTestResult {
 	dir := createSimpleTestSite(c, testSiteConfig{configTOML: opts.config})
+	result := serverTestResult{
+		publicDirnames: make(map[string]bool),
+		pathsResults:   make(map[string]string),
+	}
 
 	sp, err := helpers.FindAvailablePort()
 	c.Assert(err, qt.IsNil)
@@ -228,13 +251,17 @@ func runServerTest(c *qt.C, opts serverTestOptions) (result serverTestResult) {
 	if opts.getNumHomes > 0 {
 		// Esp. on slow CI machines, we need to wait a little before the web
 		// server is ready.
-		time.Sleep(567 * time.Millisecond)
+		wait := 567 * time.Millisecond
+		if os.Getenv("CI") != "" {
+			wait = 2 * time.Second
+		}
+		time.Sleep(wait)
 		result.homesContent = make([]string, opts.getNumHomes)
 		for i := 0; i < opts.getNumHomes; i++ {
 			func() {
 				resp, err := http.Get(fmt.Sprintf("http://localhost:%d/", port+i))
-				c.Check(err, qt.IsNil)
-				c.Check(resp.StatusCode, qt.Equals, http.StatusOK)
+				c.Assert(err, qt.IsNil)
+				c.Assert(resp.StatusCode, qt.Equals, http.StatusOK)
 				if err == nil {
 					defer resp.Body.Close()
 					result.homesContent[i] = helpers.ReaderToString(resp.Body)
@@ -243,10 +270,22 @@ func runServerTest(c *qt.C, opts serverTestOptions) (result serverTestResult) {
 		}
 	}
 
+	for _, path := range opts.pathsToGet {
+		func() {
+			resp, err := http.Get(fmt.Sprintf("http://localhost:%d/%s", port, path))
+			c.Assert(err, qt.IsNil)
+			c.Assert(resp.StatusCode, qt.Equals, http.StatusOK)
+			if err == nil {
+				defer resp.Body.Close()
+				result.pathsResults[path] = helpers.ReaderToString(resp.Body)
+			}
+		}()
+	}
+
 	if opts.test404 {
 		resp, err := http.Get(fmt.Sprintf("http://localhost:%d/this-page-does-not-exist", port))
-		c.Check(err, qt.IsNil)
-		c.Check(resp.StatusCode, qt.Equals, http.StatusNotFound)
+		c.Assert(err, qt.IsNil)
+		c.Assert(resp.StatusCode, qt.Equals, http.StatusNotFound)
 		if err == nil {
 			defer resp.Body.Close()
 			result.content404 = helpers.ReaderToString(resp.Body)
@@ -261,15 +300,14 @@ func runServerTest(c *qt.C, opts serverTestOptions) (result serverTestResult) {
 	}
 
 	pubFiles, err := os.ReadDir(filepath.Join(dir, "public"))
-	c.Check(err, qt.IsNil)
-	result.publicDirnames = make(map[string]bool)
+	c.Assert(err, qt.IsNil)
 	for _, f := range pubFiles {
 		result.publicDirnames[f.Name()] = true
 	}
 
 	result.err = wg.Wait()
 
-	return
+	return result
 
 }
 
