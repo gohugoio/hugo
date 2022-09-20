@@ -45,20 +45,13 @@ googleAnalytics = "G-MEASUREMENT_ID"
 
 ### Use the Google Analytics Template
 
-You can then include the Google Analytics internal template:
+You can then include the Google Analytics internal template in the `<head>` section of your template:
 
-```
-{{ template "_internal/google_analytics.html" . }}
-```
-
-
-```
-{{ template "_internal/google_analytics_async.html" . }}
-```
-
-When using Google Analytics v4 use `_internal/google_analytics.html`.
-
-A `.Site.GoogleAnalytics` variable is also exposed from the config.
+```go-html-template
+{{ if hugo.IsProduction }}
+    {{ template "_internal/google_analytics.html" . }}
+{{ end }}
+ ```
 
 ## Disqus
 
