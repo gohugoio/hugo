@@ -193,7 +193,7 @@ Hugo uses the page title and description for the card's title and description fi
 
 ### Use the Twitter Cards Template
 
-To add Twitter card metadata, include the following line between the `<head>` tags in your templates:
+To add Twitter card metadata, include the following line immediately after the `<head>` element in your templates:
 
 ```
 {{ template "_internal/twitter_cards.html" . }}
