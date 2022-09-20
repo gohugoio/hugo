@@ -53,6 +53,8 @@ You can then include the Google Analytics internal template your template:
 {{ end }}
  ```
 
+If you want to create your own template, you can access the configured ID with `{{ site.Config.Services.GoogleAnalytics.ID }}`.
+
 ## Disqus
 
 Hugo also ships with an internal template for [Disqus comments][disqus], a popular commenting system for both static and dynamic websites. In order to effectively use Disqus, you will need to secure a Disqus "shortname" by [signing up for the free service][disqussignup].
