@@ -45,7 +45,7 @@ googleAnalytics = "G-MEASUREMENT_ID"
 
 ### Use the Google Analytics Template
 
-You can then include the Google Analytics internal template in the `<head>` section of your template:
+You can then include the Google Analytics internal template your template:
 
 ```go-html-template
 {{ if hugo.IsProduction }}
