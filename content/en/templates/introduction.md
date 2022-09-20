@@ -4,7 +4,7 @@ linktitle: Templating
 description: Hugo uses Go's `html/template` and `text/template` libraries as the basis for the templating.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-25
+lastmod: 2022-09-20
 categories: [templates,fundamentals]
 keywords: [go]
 menu:
@@ -70,8 +70,8 @@ Accessing the Page Parameter `bar` defined in a piece of content's [front matter
 #### A Single Statement Can be Split over Multiple Lines
 
 ```go-html-template
-{{ if or 
-  (isset .Params "alt") 
+{{ if or
+  (isset .Params "alt")
   (isset .Params "caption")
 }}
 ```
@@ -139,7 +139,7 @@ Go Templates only ship with a few basic functions but also provide a mechanism f
 <!-- prints true (i.e., since 1 is less than 2) -->
 ```
 
-Note that both examples make use of Go Template's [math]][] functions.
+Note that both examples make use of Go Template's [math][math] functions.
 
 {{% note "Additional Boolean Operators" %}}
 There are more boolean operators than those listed in the Hugo docs in the [Go Template documentation](https://golang.org/pkg/text/template/#hdr-Functions).
@@ -293,7 +293,7 @@ See the [`.Param` function][param].
 #### Example 3: `if`
 
 An alternative (and a more verbose) way of writing `with` is using
-`if`. Here, the `.` does not get rebinded.
+`if`. Here, the `.` does not get rebound.
 
 Below example is "Example 1" rewritten using `if`:
 
@@ -405,7 +405,7 @@ that `{{ . }}` always refers to the **current context**.
 
 - In the top level of your template, this will be the data set made
   available to it.
-- Inside of an iteration, however, it will have the value of the
+- Inside an iteration, however, it will have the value of the
   current item in the loop; i.e., `{{ . }}` will no longer refer to
   the data available to the entire page.
 
@@ -430,7 +430,7 @@ The following shows how to define a variable independent of the context.
 {{< /code >}}
 
 {{% note %}}
-Notice how once we have entered the loop (i.e. `range`), the value of `{{ . }}` has changed. We have defined a variable outside of the loop (`{{$title}}`) that we've assigned a value so that we have access to the value from within the loop as well.
+Notice how once we have entered the loop (i.e. `range`), the value of `{{ . }}` has changed. We have defined a variable outside the loop (`{{$title}}`) that we've assigned a value so that we have access to the value from within the loop as well.
 {{% /note %}}
 
 ### 2. Use `$.` to Access the Global Context
