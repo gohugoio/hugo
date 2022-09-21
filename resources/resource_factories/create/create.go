@@ -93,7 +93,7 @@ func (c *Client) GetMatch(pattern string) (resource.Resource, error) {
 }
 
 func (c *Client) match(name, pattern string, matchFunc func(r resource.Resource) bool, firstOnly bool) (resource.Resources, error) {
-	pattern = glob.NormalizePath(pattern)
+	pattern = glob.NormalizePathCaseSensitive(pattern)
 	partitions := glob.FilterGlobParts(strings.Split(pattern, "/"))
 	if len(partitions) == 0 {
 		partitions = []string{resources.CACHE_OTHER}

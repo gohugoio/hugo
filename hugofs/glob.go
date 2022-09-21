@@ -26,14 +26,14 @@ import (
 // Glob walks the fs and passes all matches to the handle func.
 // The handle func can return true to signal a stop.
 func Glob(fs afero.Fs, pattern string, handle func(fi FileMetaInfo) (bool, error)) error {
-	pattern = glob.NormalizePath(pattern)
+	pattern = glob.NormalizePathCaseSensitive(pattern)
 	if pattern == "" {
 		return nil
 	}
 
-	g, err := glob.GetGlob(pattern)
+	g, err := glob.GetFilenamesGlob(pattern)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	hasSuperAsterisk := strings.Contains(pattern, "**")
