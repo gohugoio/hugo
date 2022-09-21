@@ -30,15 +30,13 @@ const filepathSeparator = string(os.PathSeparator)
 var (
 	isWindows        = runtime.GOOS == "windows"
 	defaultGlobCache = &globCache{
-		isCaseSensitive: false,
-		isWindows:       isWindows,
-		cache:           make(map[string]globErr),
+		isWindows: isWindows,
+		cache:     make(map[string]globErr),
 	}
 
 	filenamesGlobCache = &globCache{
-		isCaseSensitive: false, // As long as the search strings are all lower case, this does not allocate.
-		isWindows:       isWindows,
-		cache:           make(map[string]globErr),
+		isWindows: isWindows,
+		cache:     make(map[string]globErr),
 	}
 )
 
@@ -49,8 +47,7 @@ type globErr struct {
 
 type globCache struct {
 	// Config
-	isCaseSensitive bool
-	isWindows       bool
+	isWindows bool
 
 	// Cache
 	sync.RWMutex
@@ -72,19 +69,12 @@ func (gc *globCache) GetGlob(pattern string) (glob.Glob, error) {
 	var err error
 
 	pattern = filepath.ToSlash(pattern)
-
-	if gc.isCaseSensitive {
-		g, err = glob.Compile(pattern, '/')
-	} else {
-		g, err = glob.Compile(strings.ToLower(pattern), '/')
-
-	}
+	g, err = glob.Compile(strings.ToLower(pattern), '/')
 
 	eg = globErr{
 		globDecorator{
-			g:               g,
-			isCaseSensitive: gc.isCaseSensitive,
-			isWindows:       gc.isWindows},
+			g:         g,
+			isWindows: gc.isWindows},
 		err,
 	}
 
@@ -117,12 +107,48 @@ func (g globDecorator) Match(s string) bool {
 	return g.g.Match(s)
 }
 
+type globDecoratorDouble struct {
+	lowerCase   glob.Glob
+	originalCase glob.Glob
+}
+
+func (g globDecoratorDouble) Match(s string) bool {
+	return g.lowerCase.Match(s) || g.originalCase.Match(s)
+}
+
 func GetGlob(pattern string) (glob.Glob, error) {
 	return defaultGlobCache.GetGlob(pattern)
 }
 
+func GetFilenamesGlob(pattern string) (glob.Glob, error) {
+	lowered := strings.ToLower(pattern)
+	hasUpperCase := pattern != lowered
+	gLowered, err := filenamesGlobCache.GetGlob(lowered)
+	if err != nil {
+		return nil, err
+	}
+
+	if !hasUpperCase {
+		return gLowered, nil
+	}
+
+	gSensitive, err := filenamesGlobCache.GetGlob(pattern)
+	if err != nil {
+		return nil, err
+	}
+	return globDecoratorDouble{
+		lowerCase:   gLowered,
+		originalCase: gSensitive,
+	}, nil
+
+}
+
 func NormalizePath(p string) string {
 	return strings.Trim(path.Clean(filepath.ToSlash(strings.ToLower(p))), "/.")
+}
+
+func NormalizePathCaseSensitive(p string) string {
+	return strings.Trim(path.Clean(filepath.ToSlash(p)), "/.")
 }
 
 // ResolveRootDir takes a normalized path on the form "assets/**.json" and
