@@ -123,6 +123,10 @@ func (e *errorResource) Exif() *exif.ExifInfo {
 	panic(e.ResourceError)
 }
 
+func (e *errorResource) Colors() ([]string, error) {
+	panic(e.ResourceError)
+}
+
 func (e *errorResource) DecodeImage() (image.Image, error) {
 	panic(e.ResourceError)
 }

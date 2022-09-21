@@ -213,6 +213,10 @@ func (r *resourceAdapter) Exif() *exif.ExifInfo {
 	return r.getImageOps().Exif()
 }
 
+func (r *resourceAdapter) Colors() ([]string, error) {
+	return r.getImageOps().Colors()
+}
+
 func (r *resourceAdapter) Key() string {
 	r.init(false, false)
 	return r.target.(resource.Identifier).Key()

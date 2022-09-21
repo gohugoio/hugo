@@ -48,6 +48,10 @@ type ImageResourceOps interface {
 	// Exif returns an ExifInfo object containing Image metadata.
 	Exif() *exif.ExifInfo
 
+	// Colors returns a slice of the most dominant colors in an image
+	// using a simple histogram method.
+	Colors() ([]string, error)
+
 	// Internal
 	DecodeImage() (image.Image, error)
 }

@@ -163,6 +163,19 @@ Sometimes it can be useful to create the filter chain once and then reuse it.
 {{ $image2 := $image2.Filter $filters }}
 ```
 
+### Colors
+
+{{< new-in "0.104.0" >}}
+
+`.Colors` returns a slice of hex string with the dominant colors in the image using a simple histogram method.
+
+```go-html-template
+{{ $colors := $image.Colors }}
+```
+
+This method is fast, but if you also scale down your images, it would be good for performance to extract the colors from the scaled down image.
+
+
 ### Exif
 
 Provides an [Exif] object containing image metadata.
