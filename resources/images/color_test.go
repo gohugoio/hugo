@@ -60,6 +60,30 @@ func TestHexStringToColor(t *testing.T) {
 	}
 }
 
+func TestColorToHexString(t *testing.T) {
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		arg    color.Color
+		expect string
+	}{
+		{color.White, "#ffffff"},
+		{color.Black, "#000000"},
+		{color.RGBA{R: 0x42, G: 0x87, B: 0xf5, A: 0xff}, "#4287f5"},
+	} {
+
+		test := test
+		c.Run(test.expect, func(c *qt.C) {
+			c.Parallel()
+
+			result := ColorToHexString(test.arg)
+
+			c.Assert(result, qt.Equals, test.expect)
+		})
+
+	}
+}
+
 func TestAddColorToPalette(t *testing.T) {
 	c := qt.New(t)
 

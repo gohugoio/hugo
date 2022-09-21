@@ -84,6 +84,10 @@ func TestImageTransformBasic(t *testing.T) {
 		c.Assert(img.Height(), qt.Equals, h)
 	}
 
+	colors, err := image.Colors()
+	c.Assert(err, qt.IsNil)
+	c.Assert(colors, qt.DeepEquals, []string{"#2d2f33", "#a49e93", "#d39e59", "#a76936", "#737a84", "#7c838b"})
+
 	c.Assert(image.RelPermalink(), qt.Equals, "/a/sunset.jpg")
 	c.Assert(image.ResourceType(), qt.Equals, "image")
 	assertWidthHeight(image, 900, 562)
