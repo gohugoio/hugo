@@ -382,22 +382,6 @@ Stuff Here
 {{ end }}
 ```
 
-### Example 4: Internet Explorer Conditional Comments {#ie-conditional-comments}
-
-By default, Go Templates remove HTML comments from output. This has the unfortunate side effect of removing Internet Explorer conditional comments. As a workaround, use something like this:
-
-```go-html-template
-{{ "<!--[if lt IE 9]>" | safeHTML }}
-  <script src="html5shiv.js"></script>
-{{ "<![endif]-->" | safeHTML }}
-```
-
-Alternatively, you can use the backtick (`` ` ``) to quote the IE conditional comments, avoiding the tedious task of escaping every double quotes (`"`) inside, as demonstrated in the [examples](https://golang.org/pkg/text/template/#hdr-Examples) in the Go text/template documentation:
-
-```go-html-template
-{{ `<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"><![endif]-->` | safeHTML }}
-```
-
 ## Context (aka "the dot") {#the-dot}
 
 The most easily overlooked concept to understand about Go Templates is
