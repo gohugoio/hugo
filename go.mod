@@ -38,6 +38,7 @@ require (
 	github.com/kylelemons/godebug v1.1.0
 	github.com/kyokomi/emoji/v2 v2.2.10
 	github.com/magefile/mage v1.13.0
+	github.com/marekm4/color-extractor v1.2.0
 	github.com/mattn/go-isatty v0.0.16
 	github.com/mitchellh/hashstructure v1.1.0
 	github.com/mitchellh/mapstructure v1.5.0
@@ -56,7 +57,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/tdewolff/minify/v2 v2.12.1
 	github.com/tdewolff/parse/v2 v2.6.3
-	github.com/yuin/goldmark v1.4.14
+	github.com/yuin/goldmark v1.4.15
 	go.uber.org/atomic v1.10.0
 	gocloud.dev v0.24.0
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
@@ -91,7 +92,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.4.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.7.0 // indirect
 	github.com/aws/smithy-go v1.8.0 // indirect
-	github.com/cenkalti/dominantcolor v1.0.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/dlclark/regexp2 v1.4.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
@@ -109,7 +109,6 @@ require (
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mailru/easyjson v0.0.0-20190626092158-b2ccc519800e // indirect
-	github.com/marekm4/color-extractor v1.2.0 // indirect
 	github.com/mattn/go-ieproxy v0.0.1 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
