@@ -37,7 +37,7 @@ require (
 	github.com/jdkato/prose v1.2.1
 	github.com/kylelemons/godebug v1.1.0
 	github.com/kyokomi/emoji/v2 v2.2.10
-	github.com/magefile/mage v1.13.0
+	github.com/magefile/mage v1.14.0
 	github.com/marekm4/color-extractor v1.2.0
 	github.com/mattn/go-isatty v0.0.16
 	github.com/mitchellh/hashstructure v1.1.0
