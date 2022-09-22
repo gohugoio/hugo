@@ -25,6 +25,7 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/htesting"
 	"golang.org/x/net/context"
 	"golang.org/x/sync/errgroup"
 
@@ -67,6 +68,11 @@ func TestServer404(t *testing.T) {
 
 // Issue 10287.
 func TestServerUnicode(t *testing.T) {
+	if htesting.IsCI() {
+		// This test is flaky on CI for some reason.
+		// TODO(bep)
+		t.Skip("Skipping test on CI")
+	}
 	c := qt.New(t)
 
 	r := runServerTest(c,
