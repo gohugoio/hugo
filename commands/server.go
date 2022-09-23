@@ -436,7 +436,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 					switch redirect.Status {
 					case 404:
 						w.WriteHeader(404)
-						file, err := fs.Open(filepath.FromSlash(strings.TrimPrefix(redirect.To, u.Path)))
+						file, err := fs.Open(strings.TrimPrefix(redirect.To, u.Path))
 						if err == nil {
 							defer file.Close()
 							io.Copy(w, file)

@@ -57,32 +57,87 @@ func TestServer404(t *testing.T) {
 
 	r := runServerTest(c,
 		serverTestOptions{
-			test404:     true,
+			pathsToGet:  []string{"this/does/not/exist"},
 			getNumHomes: 1,
 		},
 	)
 
 	c.Assert(r.err, qt.IsNil)
-	c.Assert(r.content404, qt.Contains, "404: 404 Page not found|Not Found.")
+	pr := r.pathsResults["this/does/not/exist"]
+	c.Assert(pr.statusCode, qt.Equals, http.StatusNotFound)
+	c.Assert(pr.body, qt.Contains, "404: 404 Page not found|Not Found.")
 }
 
-// Issue 10287.
-func TestServerUnicode(t *testing.T) {
-	if htesting.IsCI() {
-		// This test is flaky on CI for some reason.
+func TestServerPathEncodingIssues(t *testing.T) {
+	if htesting.IsGitHubAction() {
+		// This test is flaky on CI for some reason. Run it on Windows only for now.
 		// TODO(bep)
-		t.Skip("Skipping test on CI")
+		if runtime.GOOS != "windows" {
+			t.Skip("Skipping test on CI")
+		}
 	}
 	c := qt.New(t)
 
-	r := runServerTest(c,
-		serverTestOptions{
-			pathsToGet: []string{"hügö/"},
-		},
-	)
+	// Issue 10287
+	c.Run("Unicode paths", func(c *qt.C) {
+		r := runServerTest(c,
+			serverTestOptions{
+				pathsToGet: []string{"hügö/"},
+			},
+		)
 
-	c.Assert(r.err, qt.IsNil)
-	c.Assert(r.pathsResults["hügö/"], qt.Contains, "This is hügö")
+		c.Assert(r.err, qt.IsNil)
+		c.Assert(r.pathsResults["hügö/"].body, qt.Contains, "This is hügö")
+	})
+
+	// Issue 10314
+	c.Run("Windows multilingual 404", func(c *qt.C) {
+		config := `
+baseURL = 'https://example.org/'
+title = 'Hugo Forum Topic #40568'
+
+defaultContentLanguageInSubdir = true
+
+[languages.en]
+contentDir = 'content/en'
+languageCode = 'en-US'
+languageName = 'English'
+weight = 1
+
+[languages.es]
+contentDir = 'content/es'
+languageCode = 'es-ES'
+languageName = 'Espanol'
+weight = 2
+
+[server]
+[[server.redirects]]
+from = '/en/**'
+to = '/en/404.html'
+status = 404
+
+[[server.redirects]]
+from = '/es/**'
+to = '/es/404.html'
+status = 404
+`
+		r := runServerTest(c,
+			serverTestOptions{
+				config:     config,
+				pathsToGet: []string{"en/this/does/not/exist", "es/this/does/not/exist"},
+			},
+		)
+
+		c.Assert(r.err, qt.IsNil)
+		pr1 := r.pathsResults["en/this/does/not/exist"]
+		pr2 := r.pathsResults["es/this/does/not/exist"]
+		c.Assert(pr1.statusCode, qt.Equals, http.StatusNotFound)
+		c.Assert(pr2.statusCode, qt.Equals, http.StatusNotFound)
+		c.Assert(pr1.body, qt.Contains, "404: 404 Page not found|Not Found.")
+		c.Assert(pr2.body, qt.Contains, "404: 404 Page not found|Not Found.")
+
+	})
+
 }
 func TestServerFlags(t *testing.T) {
 	c := qt.New(t)
@@ -191,12 +246,14 @@ baseURL="https://example.org"
 			opts := serverTestOptions{
 				config:      test.config,
 				getNumHomes: test.numservers,
-				test404:     true,
+				pathsToGet:  []string{"this/does/not/exist"},
 				args:        args,
 			}
 
 			r := runServerTest(c, opts)
-			c.Assert(r.content404, qt.Contains, "404: 404 Page not found|Not Found.")
+			pr := r.pathsResults["this/does/not/exist"]
+			c.Assert(pr.statusCode, qt.Equals, http.StatusNotFound)
+			c.Assert(pr.body, qt.Contains, "404: 404 Page not found|Not Found.")
 			test.assert(c, r)
 
 		})
@@ -210,12 +267,16 @@ type serverTestResult struct {
 	homesContent   []string
 	content404     string
 	publicDirnames map[string]bool
-	pathsResults   map[string]string
+	pathsResults   map[string]pathResult
+}
+
+type pathResult struct {
+	statusCode int
+	body       string
 }
 
 type serverTestOptions struct {
 	getNumHomes int
-	test404     bool
 	config      string
 	pathsToGet  []string
 	args        []string
@@ -225,7 +286,7 @@ func runServerTest(c *qt.C, opts serverTestOptions) serverTestResult {
 	dir := createSimpleTestSite(c, testSiteConfig{configTOML: opts.config})
 	result := serverTestResult{
 		publicDirnames: make(map[string]bool),
-		pathsResults:   make(map[string]string),
+		pathsResults:   make(map[string]pathResult),
 	}
 
 	sp, err := helpers.FindAvailablePort()
@@ -280,22 +341,16 @@ func runServerTest(c *qt.C, opts serverTestOptions) serverTestResult {
 		func() {
 			resp, err := http.Get(fmt.Sprintf("http://localhost:%d/%s", port, path))
 			c.Assert(err, qt.IsNil)
-			c.Assert(resp.StatusCode, qt.Equals, http.StatusOK)
+			pr := pathResult{
+				statusCode: resp.StatusCode,
+			}
+
 			if err == nil {
 				defer resp.Body.Close()
-				result.pathsResults[path] = helpers.ReaderToString(resp.Body)
+				pr.body = helpers.ReaderToString(resp.Body)
 			}
+			result.pathsResults[path] = pr
 		}()
-	}
-
-	if opts.test404 {
-		resp, err := http.Get(fmt.Sprintf("http://localhost:%d/this-page-does-not-exist", port))
-		c.Assert(err, qt.IsNil)
-		c.Assert(resp.StatusCode, qt.Equals, http.StatusNotFound)
-		if err == nil {
-			defer resp.Body.Close()
-			result.content404 = helpers.ReaderToString(resp.Body)
-		}
 	}
 
 	time.Sleep(1 * time.Second)
