@@ -33,11 +33,6 @@ var (
 		isWindows: isWindows,
 		cache:     make(map[string]globErr),
 	}
-
-	filenamesGlobCache = &globCache{
-		isWindows: isWindows,
-		cache:     make(map[string]globErr),
-	}
 )
 
 type globErr struct {
@@ -86,10 +81,6 @@ func (gc *globCache) GetGlob(pattern string) (glob.Glob, error) {
 }
 
 type globDecorator struct {
-	// Whether both pattern and the strings to match will be matched
-	// by their original case.
-	isCaseSensitive bool
-
 	// On Windows we may get filenames with Windows slashes to match,
 	// which wee need to normalize.
 	isWindows bool
@@ -101,14 +92,12 @@ func (g globDecorator) Match(s string) bool {
 	if g.isWindows {
 		s = filepath.ToSlash(s)
 	}
-	if !g.isCaseSensitive {
-		s = strings.ToLower(s)
-	}
+	s = strings.ToLower(s)
 	return g.g.Match(s)
 }
 
 type globDecoratorDouble struct {
-	lowerCase   glob.Glob
+	lowerCase    glob.Glob
 	originalCase glob.Glob
 }
 
@@ -120,34 +109,11 @@ func GetGlob(pattern string) (glob.Glob, error) {
 	return defaultGlobCache.GetGlob(pattern)
 }
 
-func GetFilenamesGlob(pattern string) (glob.Glob, error) {
-	lowered := strings.ToLower(pattern)
-	hasUpperCase := pattern != lowered
-	gLowered, err := filenamesGlobCache.GetGlob(lowered)
-	if err != nil {
-		return nil, err
-	}
-
-	if !hasUpperCase {
-		return gLowered, nil
-	}
-
-	gSensitive, err := filenamesGlobCache.GetGlob(pattern)
-	if err != nil {
-		return nil, err
-	}
-	return globDecoratorDouble{
-		lowerCase:   gLowered,
-		originalCase: gSensitive,
-	}, nil
-
-}
-
 func NormalizePath(p string) string {
-	return strings.Trim(path.Clean(filepath.ToSlash(strings.ToLower(p))), "/.")
+	return strings.ToLower(NormalizePathNoLower(p))
 }
 
-func NormalizePathCaseSensitive(p string) string {
+func NormalizePathNoLower(p string) string {
 	return strings.Trim(path.Clean(filepath.ToSlash(p)), "/.")
 }
 
