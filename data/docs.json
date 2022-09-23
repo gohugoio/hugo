@@ -245,6 +245,13 @@
         ]
       },
       {
+        "Name": "Chapel",
+        "Aliases": [
+          "chapel",
+          "chpl"
+        ]
+      },
+      {
         "Name": "Cheetah",
         "Aliases": [
           "cheetah",
@@ -348,6 +355,13 @@
         ]
       },
       {
+        "Name": "dns",
+        "Aliases": [
+          "zone",
+          "bind"
+        ]
+      },
+      {
         "Name": "Docker",
         "Aliases": [
           "docker",
@@ -437,7 +451,8 @@
       {
         "Name": "Fortran",
         "Aliases": [
-          "fortran"
+          "fortran",
+          "f90"
         ]
       },
       {
@@ -1002,6 +1017,12 @@
         "Name": "PromQL",
         "Aliases": [
           "promql"
+        ]
+      },
+      {
+        "Name": "properties",
+        "Aliases": [
+          "java-properties"
         ]
       },
       {
@@ -1650,7 +1671,7 @@
           "^postcss$"
         ],
         "osEnv": [
-          "(?i)^(PATH|PATHEXT|APPDATA|TMP|TEMP|TERM)$"
+          "(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM)$"
         ]
       },
       "funcs": {
