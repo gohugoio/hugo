@@ -13,8 +13,8 @@ jobs:
         # Go 1.18 had some breaking changes on the source level which means Hugo cannot be built
         # with older Go versions, but the improvements in Go 1.18 were too good to pass on (e.g. break and continue).
         # Note that you don't need Go (or Go 1.18) to run a pre-built binary.
-        go-version: [1.18.x,1.19.x]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        go-version: [1.19.x]
+        os: [windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
     - name: Install Go
@@ -54,39 +54,4 @@ jobs:
     - if: matrix.os == 'windows-latest'
       run: |
         Choco-Install -PackageName mingw -ArgumentList "--version","10.2.0","--allow-downgrade"
-    - if: matrix.os == 'ubuntu-latest'
-      name: Install dart-sass-embedded Linux
-      run: |
-        curl -LJO https://github.com/sass/dart-sass-embedded/releases/download/1.0.0-beta.6/sass_embedded-1.0.0-beta.6-linux-x64.tar.gz;
-        echo "04fc1e5e28d29a4585a701941b6dace56771d94bfbe7f9e4db28d24417ceeec3  sass_embedded-1.0.0-beta.6-linux-x64.tar.gz" | sha256sum -c;
-        tar -xvf sass_embedded-1.0.0-beta.6-linux-x64.tar.gz;
-        echo "$GITHUB_WORKSPACE/sass_embedded/" >> $GITHUB_PATH
-    - if: matrix.os == 'macos-latest'
-      name: Install dart-sass-embedded MacOS
-      run: |
-        curl -LJO https://github.com/sass/dart-sass-embedded/releases/download/1.0.0-beta.6/sass_embedded-1.0.0-beta.6-macos-x64.tar.gz;
-        echo "b3b984675a9b04aa22f6f2302dda4191b507ac2ca124467db2dfe7e58e72fbad  sass_embedded-1.0.0-beta.6-macos-x64.tar.gz" | shasum -a 256 -c;
-        tar -xvf sass_embedded-1.0.0-beta.6-macos-x64.tar.gz;
-        echo "$GITHUB_WORKSPACE/sass_embedded/" >> $GITHUB_PATH
-    - if: matrix.os == 'windows-latest'
-      name: Install dart-sass-embedded Windows
-      run: |
-        curl -LJO https://github.com/sass/dart-sass-embedded/releases/download/1.0.0-beta.6/sass_embedded-1.0.0-beta.6-windows-x64.zip;
-        echo "6ae442129dbb3334bc21ef851261da6c0c1b560da790ca2e1350871d00ab816d  sass_embedded-1.0.0-beta.6-windows-x64.zip" | sha256sum -c;
-        unzip sass_embedded-1.0.0-beta.6-windows-x64.zip;
-        echo  "$env:GITHUB_WORKSPACE/sass_embedded/" | Out-File -FilePath $Env:GITHUB_PATH -Encoding utf-8 -Append
-    - name: Check
-      run: |
-        mage -v check;
-      env:
-        HUGO_BUILD_TAGS: extended
-    - name: Build Docs
-      env:
-        HUGO_BUILD_TAGS: extended
-        HUGO_TIMEOUT: 31000
-        HUGO_IGNOREERRORS: error-remote-getjson
-        HUGO_SERVICES_INSTAGRAM_ACCESSTOKEN: dummytoken
-      run: |
-        mage -v hugo
-        ./hugo -s docs/
-        ./hugo --renderToMemory -s docs/
+    - run:  go test -run TestServerUnicode ./commands     

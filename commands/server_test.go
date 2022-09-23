@@ -71,7 +71,9 @@ func TestServerUnicode(t *testing.T) {
 	if htesting.IsCI() {
 		// This test is flaky on CI for some reason.
 		// TODO(bep)
-		t.Skip("Skipping test on CI")
+		if runtime.GOOS != "windows" {
+			t.Skip("Skipping test on CI")
+		}
 	}
 	c := qt.New(t)
 
