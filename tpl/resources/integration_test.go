@@ -98,3 +98,159 @@ func TestCopyPageShouldFail(t *testing.T) {
 	b.Assert(err, qt.IsNotNil)
 
 }
+
+func TestMatchPatternCaseSensitivity(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+baseURL = "http://example.com/blog"
+-- assets/DIR1/sub/x.txt --
+content in x.txt
+-- assets/dir2/SUB/y.txt --
+content in y.txt
+-- layouts/index.html --
+{{ with resources.GetMatch "does/not/exist.txt" }}
+GetMatch "does/not/exist.txt" matched
+{{ else }}
+GetMatch "does/not/exist.txt" unmatched
+{{ end }}
+
+{{ with resources.GetMatch "DIR1/sub/x.txt" }}
+GetMatch "DIR1/sub/x.txt" | .Content => {{ .Content }}
+GetMatch "DIR1/sub/x.txt" | .Name => {{ .Name }}
+{{ end }}
+
+{{ with resources.GetMatch "dir2/SUB/y.txt" }}
+GetMatch "dir2/SUB/y.txt" | .Content => {{ .Content }}
+GetMatch "dir2/SUB/y.txt" | .Name => {{ .Name }}
+{{ end }}
+
+{{ with resources.GetMatch "dir1/sub/x.txt" }}
+GetMatch "dir1/sub/x.txt" | .Content => {{ .Content }}
+GetMatch "dir1/sub/x.txt" | .Name => {{ .Name }}
+{{ end }}
+
+{{ with resources.GetMatch "dir2/sub/y.txt" }}
+GetMatch "dir2/sub/y.txt" | .Content => {{ .Content }}
+GetMatch "dir2/sub/y.txt" | .Name => {{ .Name }}
+{{ end }}
+
+{{ with resources.GetMatch "DIR1/SUB/X.TXT" }}
+GetMatch "DIR1/SUB/X.TXT" | .Content => {{ .Content }}
+GetMatch "DIR1/SUB/X.TXT" | .Name => {{ .Name }}
+{{ end }}
+
+{{ with resources.GetMatch "DIR2/SUB/Y.TXT" }}
+GetMatch "DIR2/SUB/Y.TXT" | .Content => {{ .Content }}
+GetMatch "DIR2/SUB/Y.TXT" | .Name => {{ .Name }}
+{{ end }}
+
+{{ with resources.GetMatch "DIR1/*/x.txt" }}
+GetMatch "DIR1/*/x.txt" | .Content => {{ .Content }}
+GetMatch "DIR1/*/x.txt" | .Name => {{ .Name }}
+{{ end }}
+
+{{ with resources.GetMatch "dir2/*/y.txt" }}
+GetMatch "dir2/*/y.txt" | .Content => {{ .Content }}
+GetMatch "dir2/*/y.txt" | .Name => {{ .Name }}
+{{ end }}
+
+{{ with resources.GetMatch "dir1/*/x.txt" }}
+GetMatch "dir1/*/x.txt" | .Content => {{ .Content }}
+GetMatch "dir1/*/x.txt" | .Name => {{ .Name }}
+{{ end }}
+
+{{ with resources.GetMatch "DIR2/*/Y.TXT" }}
+GetMatch "DIR2/*/Y.TXT" | .Content => {{ .Content }}
+GetMatch "DIR2/*/Y.TXT" | .Name => {{ .Name }}
+{{ end }}
+
+{{ with resources.GetMatch "DIR1/**/x.txt" }}
+GetMatch "DIR1/**/x.txt" | .Content => {{ .Content }}
+GetMatch "DIR1/**/x.txt" | .Name => {{ .Name }}
+{{ end }}
+
+{{ with resources.GetMatch "dir2/**/y.txt" }}
+GetMatch "dir2/**/y.txt" | .Content => {{ .Content }}
+GetMatch "dir2/**/y.txt" | .Name => {{ .Name }}
+{{ end }}
+
+{{ with resources.GetMatch "dir1/**/x.txt" }}
+GetMatch "dir1/**/x.txt" | .Content => {{ .Content }}
+GetMatch "dir1/**/x.txt" | .Name => {{ .Name }}
+{{ end }}
+
+{{ with resources.GetMatch "DIR2/**/Y.TXT" }}
+GetMatch "DIR2/**/Y.TXT" | .Content => {{ .Content }}
+GetMatch "DIR2/**/Y.TXT" | .Name => {{ .Name }}
+{{ end }}
+
+{{ with resources.Match "**/*.txt" }}
+Match "**/*.txt" | len => {{ len . }}
+{{ end }}
+
+{{ with resources.Match "*/*/*.txt" }}
+Match "*/*/*.txt" | len => {{ len . }}
+{{ end }}
+
+	`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		}).Build()
+
+	want := `
+GetMatch "does/not/exist.txt" unmatched
+
+GetMatch "DIR1/sub/x.txt" | .Content => content in x.txt
+GetMatch "DIR1/sub/x.txt" | .Name => DIR1/sub/x.txt
+
+GetMatch "dir2/SUB/y.txt" | .Content => content in y.txt
+GetMatch "dir2/SUB/y.txt" | .Name => dir2/SUB/y.txt
+
+GetMatch "dir1/sub/x.txt" | .Content => content in x.txt
+GetMatch "dir1/sub/x.txt" | .Name => DIR1/sub/x.txt
+
+GetMatch "dir2/sub/y.txt" | .Content => content in y.txt
+GetMatch "dir2/sub/y.txt" | .Name => dir2/SUB/y.txt
+
+GetMatch "DIR1/SUB/X.TXT" | .Content => content in x.txt
+GetMatch "DIR1/SUB/X.TXT" | .Name => DIR1/sub/x.txt
+
+GetMatch "DIR2/SUB/Y.TXT" | .Content => content in y.txt
+GetMatch "DIR2/SUB/Y.TXT" | .Name => dir2/SUB/y.txt
+
+GetMatch "DIR1/*/x.txt" | .Content => content in x.txt
+GetMatch "DIR1/*/x.txt" | .Name => DIR1/sub/x.txt
+
+GetMatch "dir2/*/y.txt" | .Content => content in y.txt
+GetMatch "dir2/*/y.txt" | .Name => dir2/SUB/y.txt
+
+GetMatch "dir1/*/x.txt" | .Content => content in x.txt
+GetMatch "dir1/*/x.txt" | .Name => DIR1/sub/x.txt
+
+GetMatch "DIR2/*/Y.TXT" | .Content => content in y.txt
+GetMatch "DIR2/*/Y.TXT" | .Name => dir2/SUB/y.txt
+
+GetMatch "DIR1/**/x.txt" | .Content => content in x.txt
+GetMatch "DIR1/**/x.txt" | .Name => DIR1/sub/x.txt
+
+GetMatch "dir2/**/y.txt" | .Content => content in y.txt
+GetMatch "dir2/**/y.txt" | .Name => dir2/SUB/y.txt
+
+GetMatch "dir1/**/x.txt" | .Content => content in x.txt
+GetMatch "dir1/**/x.txt" | .Name => DIR1/sub/x.txt
+
+GetMatch "DIR2/**/Y.TXT" | .Content => content in y.txt
+GetMatch "DIR2/**/Y.TXT" | .Name => dir2/SUB/y.txt
+
+Match "*/*/*.txt" | len => 2
+Match "**/*.txt" | len => 2
+		`
+
+	b.AssertFileContent("public/index.html", want)
+
+}

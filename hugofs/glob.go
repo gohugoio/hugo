@@ -15,6 +15,8 @@ package hugofs
 
 import (
 	"errors"
+	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -69,6 +71,15 @@ func Glob(fs afero.Fs, pattern string, handle func(fi FileMetaInfo) (bool, error
 		return nil
 	}
 
+	root, err = CanonicalizeFilepath(fs, root)
+
+	if os.IsNotExist(err) {
+		// TODO logger
+		return nil
+	} else if err != nil {
+		return err
+	}
+
 	w := NewWalkway(WalkwayConfig{
 		Root:   root,
 		Fs:     fs,
@@ -82,4 +93,78 @@ func Glob(fs afero.Fs, pattern string, handle func(fi FileMetaInfo) (bool, error
 	}
 
 	return nil
+}
+
+// return case-matched path from case-insensitive input
+// before using this, you have to apply `NormalizePath`
+func CanonicalizeFilepath(fs afero.Fs, path string) (string, error) {
+	if path == "." || path == "" {
+		return path, nil
+	}
+	paths := strings.Split(path, "/")
+
+	var ret []string
+
+	for _, p := range paths {
+		dir := filepath.Join(ret...)
+		joined := filepath.Join(dir, p)
+		fi, ok, err := lstatIfPossible(fs, joined)
+
+		if !os.IsNotExist(err) {
+			return "", err
+		}
+
+		if ok {
+			ret = append(ret, fi.Name())
+			continue
+		}
+
+		fi, err = statWithCaseInsensitiveName(fs, dir, p)
+		if err != nil {
+			return "", err
+		}
+
+		ret = append(ret, fi.Name())
+		// ret = append(ret, p)
+	}
+
+	return filepath.Join(ret...), nil
+}
+
+// case-insenstively search in parent dir, and return os.FileInfo
+func statWithCaseInsensitiveName(fs afero.Fs, parent, name string) (os.FileInfo, error) {
+	fi, err := fs.Stat(parent)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !fi.IsDir() {
+		return nil, fmt.Errorf("%s is not directory", parent)
+	}
+
+	f, err := fs.Open(parent)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	names, err := f.Readdirnames(-1)
+
+	if err != nil {
+		return nil, err
+	}
+
+	baseLowered := strings.ToLower(name)
+	for _, name := range names {
+		if baseLowered == strings.ToLower(name) {
+			p := filepath.Join(parent, name)
+			fi, _, err := lstatIfPossible(fs, p)
+			if err != nil {
+				return nil, err
+			}
+			return fi, err
+		}
+	}
+	return nil, os.ErrNotExist
 }
