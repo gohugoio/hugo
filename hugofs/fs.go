@@ -40,8 +40,7 @@ type Fs struct {
 	// It's mounted inside publishDir (default /public).
 	PublishDir afero.Fs
 
-	// PublishDirStatic is the file system used for static files  when --renderStaticToDisk is set.
-	// When this is set, PublishDir is set to write to memory.
+	// PublishDirStatic is the file system used for static files.
 	PublishDirStatic afero.Fs
 
 	// PublishDirServer is the file system used for serving the public directory with Hugo's development server.
@@ -142,7 +141,6 @@ func isWrite(flag int) bool {
 // MakeReadableAndRemoveAllModulePkgDir makes any subdir in dir readable and then
 // removes the root.
 // TODO(bep) move this to a more suitable place.
-//
 func MakeReadableAndRemoveAllModulePkgDir(fs afero.Fs, dir string) (int, error) {
 	// Safe guard
 	if !strings.Contains(dir, "pkg") {

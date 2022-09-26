@@ -67,7 +67,7 @@ type BaseFs struct {
 	// This usually maps to /my-project/public.
 	PublishFs afero.Fs
 
-	// The filesystem used for renderStaticToDisk.
+	// The filesystem used for static files.
 	PublishFsStatic afero.Fs
 
 	// A read-only filesystem starting from the project workDir.
