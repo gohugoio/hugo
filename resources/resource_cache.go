@@ -148,11 +148,7 @@ func (c *ResourceCache) Contains(key string) bool {
 }
 
 func (c *ResourceCache) cleanKey(key string) string {
-	return strings.ToLower(c.cleanKeyNoLower(key))
-}
-
-func (c *ResourceCache) cleanKeyNoLower(key string) string {
-	return strings.TrimPrefix(path.Clean(key), "/")
+	return strings.TrimPrefix(path.Clean(strings.ToLower(key)), "/")
 }
 
 func (c *ResourceCache) get(key string) (any, bool) {
@@ -179,7 +175,7 @@ func (c *ResourceCache) GetOrCreateResources(key string, f func() (resource.Reso
 }
 
 func (c *ResourceCache) getOrCreate(key string, f func() (any, error)) (any, error) {
-	key = c.cleanKeyNoLower(key)
+	key = c.cleanKey(key)
 	// First check in-memory cache.
 	r, found := c.get(key)
 	if found {

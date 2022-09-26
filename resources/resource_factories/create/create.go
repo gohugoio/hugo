@@ -93,6 +93,8 @@ func (c *Client) GetMatch(pattern string) (resource.Resource, error) {
 }
 
 func (c *Client) match(name, pattern string, matchFunc func(r resource.Resource) bool, firstOnly bool) (resource.Resources, error) {
+	// The Glob is case insentivive, but we need to preserve the case to be able to find the correct starting folder
+	// in hugofs.Glob. It is, however, considered best practice and highly recommended to use lower directory names.
 	pattern = glob.NormalizePathNoLower(pattern)
 	partitions := glob.FilterGlobParts(strings.Split(pattern, "/"))
 	if len(partitions) == 0 {
