@@ -2,6 +2,8 @@ package deps
 
 import (
 	"fmt"
+	"path/filepath"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -246,16 +248,30 @@ func New(cfg DepsCfg) (*Deps, error) {
 	execHelper := hexec.New(securityConfig)
 
 	var filenameHasPostProcessPrefixMu sync.Mutex
-	cb := func(name string, match bool) {
+	hashBytesReceiverFunc := func(name string, match bool) {
 		if !match {
 			return
 		}
 		filenameHasPostProcessPrefixMu.Lock()
 		d.FilenameHasPostProcessPrefix = append(d.FilenameHasPostProcessPrefix, name)
 		filenameHasPostProcessPrefixMu.Unlock()
-
 	}
-	fs.PublishDir = hugofs.NewHasBytesReceiver(fs.PublishDir, cb, []byte(postpub.PostProcessPrefix))
+
+	// Skip binary files.
+	hashBytesSHouldCheck := func(name string) bool {
+		ext := strings.TrimPrefix(filepath.Ext(name), ".")
+		mime, _, found := cfg.MediaTypes.GetBySuffix(ext)
+		if !found {
+			return false
+		}
+		switch mime.MainType {
+		case "text", "application":
+			return true
+		default:
+			return false
+		}
+	}
+	fs.PublishDir = hugofs.NewHasBytesReceiver(fs.PublishDir, hashBytesSHouldCheck, hashBytesReceiverFunc, []byte(postpub.PostProcessPrefix))
 
 	ps, err := helpers.NewPathSpec(fs, cfg.Language, logger)
 	if err != nil {

@@ -27,12 +27,13 @@ var (
 
 type hasBytesFs struct {
 	afero.Fs
+	shouldCheck      func(name string) bool
 	hasBytesCallback func(name string, match bool)
 	pattern          []byte
 }
 
-func NewHasBytesReceiver(delegate afero.Fs, hasBytesCallback func(name string, match bool), pattern []byte) afero.Fs {
-	return &hasBytesFs{Fs: delegate, hasBytesCallback: hasBytesCallback, pattern: pattern}
+func NewHasBytesReceiver(delegate afero.Fs, shouldCheck func(name string) bool, hasBytesCallback func(name string, match bool), pattern []byte) afero.Fs {
+	return &hasBytesFs{Fs: delegate, shouldCheck: shouldCheck, hasBytesCallback: hasBytesCallback, pattern: pattern}
 }
 
 func (fs *hasBytesFs) UnwrapFilesystem() afero.Fs {
@@ -56,6 +57,9 @@ func (fs *hasBytesFs) OpenFile(name string, flag int, perm os.FileMode) (afero.F
 }
 
 func (fs *hasBytesFs) wrapFile(f afero.File) afero.File {
+	if !fs.shouldCheck(f.Name()) {
+		return f
+	}
 	return &hasBytesFile{
 		File: f,
 		hbw: &hugio.HasBytesWriter{
