@@ -61,7 +61,7 @@ Hugo currently does not provide default templates for Mermaid diagrams. But you 
 {{ .Page.Store.Set "hasMermaid" true }}
 ```
 
-And then include this snippet at the bottom of the content template (below `.Content`):
+And then include this snippet at the bottom of the content template (**Note**: below `.Content` as the render hook is not processed until `.Content` is executed):
 
 ```go-html-template
 {{ if .Page.Store.Get "hasMermaid" }}
