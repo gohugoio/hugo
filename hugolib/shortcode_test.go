@@ -476,79 +476,58 @@ C-%s`
 func TestShortcodeParentResourcesOnRebuild(t *testing.T) {
 	t.Parallel()
 
-	files := `
--- config.toml --
-baseURL = 'http://example.com/'
--- content/b1/index.md --
----
-title: MyPage
----
-CONTENT
--- content/b1/data.txt --
-b1 data
--- content/b1/p1.md --
----
-title: MyPage
----
-
-SHORTCODE: {{< c >}}
--- content/blog/_index.md --
----
-title: MyPage
----
-
-SHORTCODE: {{< c >}}
--- content/blog/article.md --
----
-title: MyPage
----
-
-SHORTCODE: {{< c >}}
--- content/blog/data-article.txt --
-data article
--- layouts/index.html --
+	b := newTestSitesBuilder(t).Running().WithSimpleConfigFile()
+	b.WithTemplatesAdded(
+		"index.html", `
 {{ $b := .Site.GetPage "b1" }}
-b1 Content: {{ $b.Path }}|{{ $b.Content }}|
+b1 Content: {{ $b.Content }}
 {{$p := $b.Resources.GetMatch "p1*" }}
-p1: {{ $p.Path }}|{{ $p.Content }}|
+Content: {{ $p.Content }}
 {{ $article := .Site.GetPage "blog/article" }}
 Article Content: {{ $article.Content }}
--- layouts/shortcodes/c.html --
-{{ range $i, $e := .Page.Parent.Resources }}{{ $i }}:{{ $.Page.Parent.Path }}: Parent resource: {{ .Name }}: {{ .RelPermalink }}|{{ end }}`
+`,
+		"shortcodes/c.html", `
+{{ range .Page.Parent.Resources }}
+* Parent resource: {{ .Name }}: {{ .RelPermalink }}
+{{ end }}
+`)
 
-	c := qt.New(t)
+	pageContent := `
+---
+title: MyPage
+---
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           c,
-			TxtarString: files,
-			Running:     true,
-		},
-	).Build()
+SHORTCODE: {{< c >}}
+
+`
+
+	b.WithContent("b1/index.md", pageContent,
+		"b1/logo.png", "PNG logo",
+		"b1/p1.md", pageContent,
+		"blog/_index.md", pageContent,
+		"blog/logo-article.png", "PNG logo",
+		"blog/article.md", pageContent,
+	)
+
+	b.Build(BuildCfg{})
 
 	assert := func(matchers ...string) {
-
-		b.AssertFileContent("public/index.html",
-			`
-b1 Content: b1/index.md|
-p1: b1/p1.md|<p>SHORTCODE: 0:b1/index.md: Parent resource: p1.md: |1:b1/index.md: Parent resource: data.txt: /b1/data.txt|</p>
-Article Content: <p>SHORTCODE: 0:blog/_index.md: Parent resource: data-article.txt: /blog/data-article.txt|</p>
-
-`,
+		allMatchers := append(matchers, "Parent resource: logo.png: /b1/logo.png",
+			"Article Content: <p>SHORTCODE: \n\n* Parent resource: logo-article.png: /blog/logo-article.png",
 		)
 
-		for _, m := range matchers {
-			b.AssertFileContent("public/index.html", m)
-		}
+		b.AssertFileContent("public/index.html",
+			allMatchers...,
+		)
 	}
 
 	assert()
 
-	b.EditFileReplace("content/b1/index.md", func(s string) string { return strings.ReplaceAll(s, "CONTENT", "Content Edit") })
+	b.EditFiles("content/b1/index.md", pageContent+" Edit.")
 
-	b.Build()
+	b.Build(BuildCfg{})
 
-	assert("Content Edit")
+	assert("Edit.")
 }
 
 func TestShortcodePreserveOrder(t *testing.T) {
