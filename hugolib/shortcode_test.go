@@ -476,58 +476,79 @@ C-%s`
 func TestShortcodeParentResourcesOnRebuild(t *testing.T) {
 	t.Parallel()
 
-	b := newTestSitesBuilder(t).Running().WithSimpleConfigFile()
-	b.WithTemplatesAdded(
-		"index.html", `
-{{ $b := .Site.GetPage "b1" }}
-b1 Content: {{ $b.Content }}
-{{$p := $b.Resources.GetMatch "p1*" }}
-Content: {{ $p.Content }}
-{{ $article := .Site.GetPage "blog/article" }}
-Article Content: {{ $article.Content }}
-`,
-		"shortcodes/c.html", `
-{{ range .Page.Parent.Resources }}
-* Parent resource: {{ .Name }}: {{ .RelPermalink }}
-{{ end }}
-`)
-
-	pageContent := `
+	files := `
+-- config.toml --
+baseURL = 'http://example.com/'
+-- content/b1/index.md --
+---
+title: MyPage
+---
+CONTENT
+-- content/b1/data.txt --
+b1 data
+-- content/b1/p1.md --
 ---
 title: MyPage
 ---
 
 SHORTCODE: {{< c >}}
+-- content/blog/_index.md --
+---
+title: MyPage
+---
 
-`
+SHORTCODE: {{< c >}}
+-- content/blog/article.md --
+---
+title: MyPage
+---
 
-	b.WithContent("b1/index.md", pageContent,
-		"b1/logo.png", "PNG logo",
-		"b1/p1.md", pageContent,
-		"blog/_index.md", pageContent,
-		"blog/logo-article.png", "PNG logo",
-		"blog/article.md", pageContent,
-	)
+SHORTCODE: {{< c >}}
+-- content/blog/data-article.txt --
+data article
+-- layouts/index.html --
+{{ $b := .Site.GetPage "b1" }}
+b1 Content: {{ $b.Path }}|{{ $b.Content }}|
+{{$p := $b.Resources.GetMatch "p1*" }}
+p1: {{ $p.Path }}|{{ $p.Content }}|
+{{ $article := .Site.GetPage "blog/article" }}
+Article Content: {{ $article.Content }}
+-- layouts/shortcodes/c.html --
+{{ range $i, $e := .Page.Parent.Resources }}{{ $i }}:{{ $.Page.Parent.Path }}: Parent resource: {{ .Name }}: {{ .RelPermalink }}|{{ end }}`
 
-	b.Build(BuildCfg{})
+	c := qt.New(t)
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           c,
+			TxtarString: files,
+			Running:     true,
+		},
+	).Build()
 
 	assert := func(matchers ...string) {
-		allMatchers := append(matchers, "Parent resource: logo.png: /b1/logo.png",
-			"Article Content: <p>SHORTCODE: \n\n* Parent resource: logo-article.png: /blog/logo-article.png",
-		)
 
 		b.AssertFileContent("public/index.html",
-			allMatchers...,
+			`
+b1 Content: b1/index.md|
+p1: b1/p1.md|<p>SHORTCODE: 0:b1/index.md: Parent resource: p1.md: |1:b1/index.md: Parent resource: data.txt: /b1/data.txt|</p>
+Article Content: <p>SHORTCODE: 0:blog/_index.md: Parent resource: data-article.txt: /blog/data-article.txt|</p>
+
+`,
 		)
+
+		for _, m := range matchers {
+			b.AssertFileContent("public/index.html", m)
+		}
 	}
 
 	assert()
 
-	b.EditFiles("content/b1/index.md", pageContent+" Edit.")
+	b.EditFileReplace("content/b1/index.md", func(s string) string { return strings.ReplaceAll(s, "CONTENT", "Content Edit") })
 
-	b.Build(BuildCfg{})
+	b.Build()
 
-	assert("Edit.")
+	assert("Content Edit")
 }
 
 func TestShortcodePreserveOrder(t *testing.T) {
