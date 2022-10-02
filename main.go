@@ -24,8 +24,7 @@ func main() {
 
 	if resp.Err != nil {
 		if resp.IsUserError() {
-			resp.Cmd.Println("")
-			resp.Cmd.Println(resp.Cmd.UsageString())
+			resp.Cmd.Println("\n" + resp.Cmd.UsageString())
 		}
 		os.Exit(-1)
 	}
