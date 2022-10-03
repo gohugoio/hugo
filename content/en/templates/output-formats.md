@@ -117,6 +117,9 @@ The following is the full list of configuration options for output formats and t
 `noUgly`
 : used to turn off ugly URLs If `uglyURLs` is set to `true` in your site. **Default:** `false`.
 
+`ugly`
+: Enable to override the global uglyURLs setting.
+
 `notAlternative`
 : enable if it doesn't make sense to include this format in an `AlternativeOutputFormats` format listing on `Page` (e.g., with `CSS`). Note that we use the term *alternative* and not *alternate* here, as it does not necessarily replace the other format. **Default:** `false`.
 
