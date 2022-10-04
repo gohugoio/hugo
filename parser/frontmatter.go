@@ -109,7 +109,7 @@ func InterfaceToFrontMatter(in any, format metadecoders.Format, w io.Writer) err
 			return err
 		}
 
-		_, err = w.Write([]byte("\n" + tomlDelimLf))
+		_, err = w.Write([]byte(tomlDelimLf))
 		return err
 
 	default:
