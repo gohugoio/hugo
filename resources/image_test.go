@@ -799,7 +799,7 @@ func assetGoldenDirs(c *qt.C, dir1, dir2 string) {
 				case "gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_73c19c5f80881858a85aa23cd0ca400d.png",
 					"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_ae631e5252bb5d7b92bc766ad1a89069.png",
 					"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_d1bbfa2629bffb90118cacce3fcfb924.png",
-					"giphy_hu3eafc418e52414ace6236bf1d31f82e1_52213_200x0_resize_box.gif":
+					"giphy_hu3eafc418e52414ace6236bf1d31f82e1_52213_200x0_resize_box_1.gif":
 					c.Log("expectedly differs from golden due to dithering:", fi1.Name())
 				default:
 					c.Errorf("resulting image differs from golden: %s", fi1.Name())
