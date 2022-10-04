@@ -25,7 +25,6 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/htesting"
 	"golang.org/x/net/context"
 	"golang.org/x/sync/errgroup"
 
@@ -69,20 +68,14 @@ func TestServer404(t *testing.T) {
 }
 
 func TestServerPathEncodingIssues(t *testing.T) {
-	if htesting.IsGitHubAction() {
-		// This test is flaky on CI for some reason. Run it on Windows only for now.
-		// TODO(bep)
-		if runtime.GOOS != "windows" {
-			t.Skip("Skipping test on CI")
-		}
-	}
 	c := qt.New(t)
 
 	// Issue 10287
 	c.Run("Unicode paths", func(c *qt.C) {
 		r := runServerTest(c,
 			serverTestOptions{
-				pathsToGet: []string{"hügö/"},
+				pathsToGet:  []string{"hügö/"},
+				getNumHomes: 1,
 			},
 		)
 
@@ -123,8 +116,9 @@ status = 404
 `
 		r := runServerTest(c,
 			serverTestOptions{
-				config:     config,
-				pathsToGet: []string{"en/this/does/not/exist", "es/this/does/not/exist"},
+				config:      config,
+				pathsToGet:  []string{"en/this/does/not/exist", "es/this/does/not/exist"},
+				getNumHomes: 1,
 			},
 		)
 
