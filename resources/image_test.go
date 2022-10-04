@@ -620,6 +620,8 @@ func TestImageOperationsGolden(t *testing.T) {
 
 	// Note, if you're enabling this on a MacOS M1 (ARM) you need to run the test with GOARCH=amd64.
 	// GOARCH=amd64 go test -timeout 30s -run "^TestImageOperationsGolden$" ./resources -v
+	// The above will print out a folder.
+	// Replace testdata/golden with resources/_gen/images in that folder.
 	devMode := false
 
 	testImages := []string{"sunset.jpg", "gohugoio8.png", "gohugoio24.png"}
@@ -663,7 +665,7 @@ func TestImageOperationsGolden(t *testing.T) {
 
 	// Animated GIF
 	orig = fetchImageForSpec(spec, c, "giphy.gif")
-	for _, resizeSpec := range []string{"200x", "512x"} {
+	for _, resizeSpec := range []string{"200x", "512x", "100x jpg"} {
 		resized, err := orig.Resize(resizeSpec)
 		c.Assert(err, qt.IsNil)
 		rel := resized.RelPermalink()
