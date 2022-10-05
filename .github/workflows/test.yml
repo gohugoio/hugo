@@ -18,9 +18,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
     - name: Install Go
-      uses: actions/setup-go@v3
+      uses: actions/setup-go@268d8c0ca0432bb2cf416faae41297df9d262d7f
       with:
         go-version: ${{ matrix.go-version }}
         check-latest: true
