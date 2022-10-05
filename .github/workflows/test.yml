@@ -17,11 +17,17 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
     - name: Install Go
-      uses: actions/setup-go@268d8c0ca0432bb2cf416faae41297df9d262d7f
+      uses: actions/setup-go@v3
       with:
         go-version: ${{ matrix.go-version }}
+        check-latest: true
         cache: true
+        cache-dependency-path: |
+          **/go.sum
+          **/go.mod
     - name: Install Ruby
       uses: actions/setup-ruby@5f29a1cd8dfebf420691c4c9a0e832e2fae5a526
       with:
@@ -34,8 +40,6 @@ jobs:
       run: go install github.com/magefile/mage@07afc7d24f4d6d6442305d49552f04fbda5ccb3e
     - name: Install asciidoctor
       uses: reitzig/actions-asciidoctor@7570212ae20b63653481675fb1ff62d1073632b0
-    - name: Checkout code
-      uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
     - name: Install docutils
       run: |
         pip install docutils
