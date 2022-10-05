@@ -65,10 +65,10 @@ Image Orig:  /blog/images/pixel.png|image/png|1|1|
 Image Copy1:  /blog/images/copy_hu8aa3346827e49d756ff4e630147c42b5_70_3x4_resize_box_3.png|image/png|3|4|
 Image Copy2:  /blog/images/copy2.png|image/png|3|4
 Image Copy3:  image/png|3|4|
-Orig: /blog/js/foo.js|application/javascript|let foo;|
-Copy1: /blog/js/copies/bar.js|application/javascript|let foo;|
-Copy2: /blog/js/copies/baz.a677329fc6c4ad947e0c7116d91f37a2.js|application/javascript|let foo;|
-Copy3: /blog/js/copies/moo.a677329fc6c4ad947e0c7116d91f37a2.min.js|application/javascript|let foo|
+Orig: /blog/js/foo.js|text/javascript|let foo;|
+Copy1: /blog/js/copies/bar.js|text/javascript|let foo;|
+Copy2: /blog/js/copies/baz.a677329fc6c4ad947e0c7116d91f37a2.js|text/javascript|let foo;|
+Copy3: /blog/js/copies/moo.a677329fc6c4ad947e0c7116d91f37a2.min.js|text/javascript|let foo|
 
 		`)
 
