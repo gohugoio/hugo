@@ -18,9 +18,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - name: Install Go
-      uses: actions/setup-go@37335c7bb261b353407cff977110895fa0b4f7d8
+      uses: actions/setup-go@268d8c0ca0432bb2cf416faae41297df9d262d7f
       with:
         go-version: ${{ matrix.go-version }}
+        cache: true
     - name: Install Ruby
       uses: actions/setup-ruby@5f29a1cd8dfebf420691c4c9a0e832e2fae5a526
       with:
