@@ -165,7 +165,7 @@ func resolveComponentInAssets(fs afero.Fs, impPath string) *hugofs.FileMeta {
 
 	// See issue #8949.
 	// We need to check if this is a regular file imported without an extension.
-	// There may be ambigous situations where both foo.js and foo/index.js exists.
+	// There may be ambiguous situations where both foo.js and foo/index.js exists.
 	// This import order is in line with both how Node and ESBuild's native
 	// import resolver works.
 	// This was fixed in Hugo 0.88.

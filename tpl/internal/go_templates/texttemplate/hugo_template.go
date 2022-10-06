@@ -71,7 +71,7 @@ const (
 	HasLockContextKey = hasLockContextKeyType("hasLock")
 )
 
-// Note: The context is currently not fully implemeted in Hugo. This is a work in progress.
+// Note: The context is currently not fully implemented in Hugo. This is a work in progress.
 func (t *executer) ExecuteWithContext(ctx context.Context, p Preparer, wr io.Writer, data any) error {
 	tmpl, err := p.Prepare()
 	if err != nil {
@@ -144,7 +144,7 @@ func (t *Template) executeWithState(state *state, value reflect.Value) (err erro
 // can execute in parallel.
 type state struct {
 	tmpl   *Template
-	ctx    context.Context // Added for Hugo. The orignal data context.
+	ctx    context.Context // Added for Hugo. The original data context.
 	prep   Preparer        // Added for Hugo.
 	helper ExecHelper      // Added for Hugo.
 	wr     io.Writer

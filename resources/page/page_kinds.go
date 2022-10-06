@@ -23,7 +23,7 @@ const (
 	KindHome    = "home"
 	KindSection = "section"
 
-	// Note tha before Hugo 0.73 these were confusingly named
+	// Note that before Hugo 0.73 these were confusingly named
 	// taxonomy (now: term)
 	// taxonomyTerm (now: taxonomy)
 	KindTaxonomy = "taxonomy"
