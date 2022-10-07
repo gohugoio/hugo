@@ -15,7 +15,6 @@ menu:
 
 {{< new-in "0.62.0" >}} Note that this is only supported with the [Goldmark](/getting-started/configuration-markup#goldmark) renderer.
 
-
 You can override certain parts of the default Markdown rendering to HTML by creating templates with base names `render-{kind}` in `layouts/_default/_markup`.
 
 You can also create type/section specific hooks in `layouts/[type/section]/_markup`, e.g.: `layouts/blog/_markup`.{{< new-in "0.71.0" >}}
@@ -101,7 +100,7 @@ Here is a code example for how the render-link.html template could look:
 ### Image Markdown example:
 
 ```md
-![Text](https://d33wubrfki0l68.cloudfront.net/c38c7334cc3f23585738e40334284fddcaf03d5e/2e17c/images/hugo-logo-wide.svg "Title")
+![Text](https://gohugo.io/images/hugo-logo-wide.svg "Title")
 ```
 
 Here is a code example for how the render-image.html template could look:
