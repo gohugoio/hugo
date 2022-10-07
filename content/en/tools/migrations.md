@@ -29,7 +29,7 @@ Take a look at this list of migration tools if you currently use other blogging 
 
 Alternatively, you can use the new [Jekyll import command](/commands/hugo_import_jekyll/).
 
-- [JekyllToHugo](https://github.com/SenjinDarashiva/JekyllToHugo) - A Small script for converting Jekyll blog posts to a Hugo site.
+- [JekyllToHugo](https://github.com/fredrikloch/JekyllToHugo) - A Small script for converting Jekyll blog posts to a Hugo site.
 - [ConvertToHugo](https://github.com/coderzh/ConvertToHugo) - Convert your blog from Jekyll to Hugo.
 
 ## Ghost
