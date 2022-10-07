@@ -23,7 +23,7 @@ Hugo uses the `config.toml`, `config.yaml`, or `config.json` (if found in the
 site root) as the default site config file.
 
 The user can choose to override that default with one or more site config files
-using the command line `--config` switch.
+using the command-line `--config` switch.
 
 Examples:
 
@@ -548,7 +548,7 @@ status = 200
 force = false
 {{< /code-toggle >}}
 
-{{< new-in "0.76.0" >}} Setting `force=true` will make a redirect even if there is existing content in the path. Note that before Hugo 0.76  `force` was the default behaviour, but this is inline with how Netlify does it.
+{{< new-in "0.76.0" >}} Setting `force=true` will make a redirect even if there is existing content in the path. Note that before Hugo 0.76  `force` was the default behavior, but this is inline with how Netlify does it.
 
 ## 404 Server Error Page
 

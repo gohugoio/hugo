@@ -14,11 +14,9 @@ aliases: [/content/related/,/related/]
 toc: true
 ---
 
-
 Hugo uses a set of factors to identify a page's related content based on Front Matter parameters. This can be tuned to the desired set of indices and parameters or left to Hugo's default [Related Content configuration](#configure-related-content).
 
 ## List Related Content
-
 
 To list up to 5 related pages (which share the same _date_ or _keyword_ parameters) is as simple as including something similar to this partial in your single page template:
 

@@ -31,7 +31,7 @@ noVendor {{< new-in "0.75.0" >}}
 : A optional Glob pattern matching module paths to skip when vendoring, e.g. "github.com/**"
 
 vendorClosest {{< new-in "0.81.0" >}}
-: When enabled, we will pick the vendored module closest to the module using it. The default behaviour is to pick the first. Note that there can still be only one dependency of a given module path, so once it is in use it cannot be redefined.
+: When enabled, we will pick the vendored module closest to the module using it. The default behavior is to pick the first. Note that there can still be only one dependency of a given module path, so once it is in use it cannot be redefined.
 
 proxy
 : Defines the proxy server to use to download remote modules. Default is `direct`, which means "git clone" and similar.

@@ -136,7 +136,7 @@ git submodule update --rebase --remote
 
 ## Next Steps
 
-You now have a live website served over https, distributed through CDN, and configured for continuous deployment. Dig deeper into the Netlify documentation:
+You now have a live website served over HTTPS, distributed through CDN, and configured for continuous deployment. Dig deeper into the Netlify documentation:
 
 1. [Using a Custom Domain][]
 2. [Setting up HTTPS on Custom Domains][httpscustom]

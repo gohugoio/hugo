@@ -16,7 +16,7 @@ draft: false
 ---
 
 
-Any SASS or SCSS file can be transformed into a CSS file using `resources.ToCSS` which takes two arguments, the resource object and a map of options listed below.
+Any Sass or SCSS file can be transformed into a CSS file using `resources.ToCSS` which takes two arguments, the resource object and a map of options listed below.
 
 ```go-html-template
 {{ $sass := resources.Get "sass/main.scss" }}
@@ -42,7 +42,7 @@ enableSourceMap [bool]
 : When enabled, a source map will be generated.
 
 includePaths [string slice]
-: Additional SCSS/SASS include paths. Paths must be relative to the project directory.
+: Additional SCSS/Sass include paths. Paths must be relative to the project directory.
 
 ```go-html-template
 {{ $options := (dict "targetPath" "style.css" "outputStyle" "compressed" "enableSourceMap" (not hugo.IsProduction) "includePaths" (slice "node_modules/myscss")) }}

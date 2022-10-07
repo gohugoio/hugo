@@ -249,7 +249,7 @@ By adding the preceding `hidecaption` example, the following HTML will be added 
 
 #### Example `instagram` Display
 
-Using the preceding `instagram` with `hidecaption` example above, the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
+Using the preceding `instagram` with `hidecaption` example above, the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your style sheets and surrounding markup.
 
 {{< instagram BWNjjyYFxVx hidecaption >}}
 
@@ -414,7 +414,7 @@ Using the preceding `youtube` example, the following HTML will be added to your 
 
 #### Example `youtube` Display
 
-Using the preceding `youtube` example (without `autoplay="true"`), the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup. The video is also include in the [Quick Start of the Hugo documentation][quickstart].
+Using the preceding `youtube` example (without `autoplay="true"`), the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your style sheets and surrounding markup. The video is also include in the [Quick Start of the Hugo documentation][quickstart].
 
 {{< youtube w7Ft2ymGmfc >}}
 

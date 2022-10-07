@@ -117,7 +117,7 @@ simple
 : If simple mode is enabled, a static and no-JS version of a tweet will be built.
 
 
-**Note:** If you use the _simple mode_ for Twitter, you may want to disable the inlines styles provided by Hugo:
+**Note:** If you use the _simple mode_ for Twitter, you may want to disable the inline styles provided by Hugo:
 
  {{< code-toggle file="config">}}
 [services]

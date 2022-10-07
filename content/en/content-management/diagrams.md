@@ -272,6 +272,3 @@ https://arthursonzogni.com/Diagon/#Table
 │LITERAL    = """" character { character } """" .│
 └────────────────────────────────────────────────┘
 ```
-
-
-

@@ -68,7 +68,7 @@ cascade
 : a map of Front Matter keys whose values are passed down to the page's descendants unless overwritten by self or a closer ancestor's cascade. See [Front Matter Cascade](#front-matter-cascade) for details.
 
 date
-: the datetime assigned to this page. This is usually fetched from the `date` field in front matter, but this behaviour is configurable.
+: the datetime assigned to this page. This is usually fetched from the `date` field in front matter, but this behavior is configurable.
 
 description
 : the description for the content.

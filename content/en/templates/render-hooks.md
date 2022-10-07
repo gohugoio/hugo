@@ -145,7 +145,7 @@ layouts
         └── render-codeblock-bash.html
 ```
 
-The default behaviour for these code blocks is to do [Code Highlighting](/content-management/syntax-highlighting/#highlighting-in-code-fences), but since you can pass attributes to these code blocks, they can be used for almost anything. One example would be the built-in [GoAT Diagrams](/content-management/diagrams/#goat-diagrams-ascii) or this [Mermaid Diagram Code Block Hook](/content-management/diagrams/#mermaid-diagrams) example.
+The default behavior for these code blocks is to do [Code Highlighting](/content-management/syntax-highlighting/#highlighting-in-code-fences), but since you can pass attributes to these code blocks, they can be used for almost anything. One example would be the built-in [GoAT Diagrams](/content-management/diagrams/#goat-diagrams-ascii) or this [Mermaid Diagram Code Block Hook](/content-management/diagrams/#mermaid-diagrams) example.
 
 The context (the ".") you receive in a code block template contains:
 

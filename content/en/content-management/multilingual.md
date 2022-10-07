@@ -229,7 +229,7 @@ If using `url`, remember to include the language part as well: `/fr/compagnie/a-
 
 ### Page Bundles
 
-To avoid the burden of having to duplicate files, each Page Bundle inherits the resources of its linked translated pages' bundles except for the content files (markdown files, html files etc...).
+To avoid the burden of having to duplicate files, each Page Bundle inherits the resources of its linked translated pages' bundles except for the content files (Markdown files, HTML files etc...).
 
 Therefore, from within a template, the page will have access to the files from all linked pages' bundles.
 
@@ -570,7 +570,7 @@ If there is more than one language defined, the `LanguagePrefix` variable will e
 
 
 ## Generate multilingual content with `hugo new`
-Currently, `hugo new` is not ready to support generating multilingual content. But there is a [proposal topic](https://github.com/gohugoio/hugo/issues/7732) about this in Github issue to discuss how it should work.
+Currently, `hugo new` is not ready to support generating multilingual content. But there is a [proposal topic](https://github.com/gohugoio/hugo/issues/7732) about this in GitHub issue to discuss how it should work.
 
 
 
