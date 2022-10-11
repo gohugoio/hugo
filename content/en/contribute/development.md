@@ -402,7 +402,7 @@ Last but not least you should accept the contributor license agreement (CLA). A 
 
 ### Automatic builds
 
-We use a GitHub Actions workflow to build and test. This is a matrix build across combinations of operating system (masOS, Windows, and Ubuntu) and Go versions. The workflow is triggered by the submission of a pull request. If you are a first-time contributor, the workflow requires approval from a project maintainer.
+We use a GitHub Actions workflow to build and test. This is a matrix build across combinations of operating system (macOS, Windows, and Ubuntu) and Go versions. The workflow is triggered by the submission of a pull request. If you are a first-time contributor, the workflow requires approval from a project maintainer.
 
 ## Where to start?
 
