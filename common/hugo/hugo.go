@@ -68,7 +68,7 @@ func (i Info) Version() VersionString {
 
 // Generator a Hugo meta generator HTML tag.
 func (i Info) Generator() template.HTML {
-	return template.HTML(fmt.Sprintf(`<meta name="generator" content="Hugo %s" />`, CurrentVersion.String()))
+	return template.HTML(fmt.Sprintf(`<meta name="generator" content="Hugo %s">`, CurrentVersion.String()))
 }
 
 func (i Info) IsProduction() bool {
