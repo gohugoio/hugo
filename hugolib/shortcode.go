@@ -248,12 +248,12 @@ func (sc shortcode) String() string {
 	switch v := sc.params.(type) {
 	case map[string]any:
 		// sort the keys so test assertions won't fail
-		var keys []string
+		keys := make([]string, 0, len(v))
 		for k := range v {
 			keys = append(keys, k)
 		}
 		sort.Strings(keys)
-		tmp := make(map[string]any)
+		tmp := make(map[string]any, len(keys))
 
 		for _, k := range keys {
 			tmp[k] = v[k]
