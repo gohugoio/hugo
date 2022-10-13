@@ -157,7 +157,6 @@ func (c *pagesCollector) isCascadingEdit(dir contentDirKey) (bool, string) {
 	return isCascade, section
 }
 
-// Collect.
 func (c *pagesCollector) Collect() (collectErr error) {
 	c.proc.Start(context.Background())
 	defer func() {

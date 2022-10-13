@@ -1411,7 +1411,7 @@ func (s *Site) eventToIdentity(e fsnotify.Event) (identity.PathIdentity, bool) {
 func (s *Site) readAndProcessContent(buildConfig BuildCfg, filenames ...string) error {
 	sourceSpec := source.NewSourceSpec(s.PathSpec, buildConfig.ContentInclusionFilter, s.BaseFs.Content.Fs)
 
-	proc := newPagesProcessor(s.h, sourceSpec)
+	proc := newPagesProcessor(s.h)
 
 	c := newPagesCollector(sourceSpec, s.h.getContentMaps(), s.Log, s.h.ContentChanges, proc, filenames...)
 

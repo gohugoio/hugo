@@ -1094,9 +1094,6 @@ func (m *contentChangeMap) resolveAndRemove(filename string) (string, bundleDirT
 	// Bundles share resources, so we need to start from the virtual root.
 	relFilename := m.pathSpec.RelContentDir(filename)
 	dir, name := filepath.Split(relFilename)
-	if !strings.HasSuffix(dir, helpers.FilePathSeparator) {
-		dir += helpers.FilePathSeparator
-	}
 
 	if _, found := m.branchBundles[dir]; found {
 		delete(m.branchBundles, dir)

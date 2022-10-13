@@ -19,7 +19,6 @@ import (
 	"path/filepath"
 
 	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/source"
 
 	"github.com/gohugoio/hugo/hugofs/files"
 	"golang.org/x/sync/errgroup"
@@ -28,7 +27,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 )
 
-func newPagesProcessor(h *HugoSites, sp *source.SourceSpec) *pagesProcessor {
+func newPagesProcessor(h *HugoSites) *pagesProcessor {
 	procs := make(map[string]pagesCollectorProcessorProvider)
 	for _, s := range h.Sites {
 		procs[s.Lang()] = &sitePagesProcessor{
