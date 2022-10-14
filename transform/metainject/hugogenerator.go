@@ -25,7 +25,7 @@ import (
 
 var (
 	metaTagsCheck    = regexp.MustCompile(`(?i)<meta\s+name=['|"]?generator['|"]?`)
-	hugoGeneratorTag = fmt.Sprintf(`<meta name="generator" content="Hugo %s" />`, hugo.CurrentVersion)
+	hugoGeneratorTag = fmt.Sprintf(`<meta name="generator" content="Hugo %s">`, hugo.CurrentVersion)
 )
 
 // HugoGenerator injects a meta generator tag for Hugo if none present.
