@@ -197,7 +197,7 @@ With the command-line flag `--cacheDir`, you can specify any folder on your syst
 
 You can also set `cacheDir` in the [main configuration file][config].
 
-If you don't like caching at all, you can fully disable caching with the command line flag `--ignoreCache`.
+If you don't like caching at all, you can fully disable caching with the command-line flag `--ignoreCache`.
 
 ### Authentication When Using REST URLs
 

@@ -19,9 +19,9 @@ aliases: [/faq/]
 
 ## I can't see my content!
 
-Is your markdown file [in draft mode](https://gohugo.io/content-management/front-matter/#front-matter-variables)? When testing, run `hugo server` with the `-D` or `--buildDrafts` [switch](https://gohugo.io/getting-started/usage/#draft-future-and-expired-content).
+Is your Markdown file [in draft mode](https://gohugo.io/content-management/front-matter/#front-matter-variables)? When testing, run `hugo server` with the `-D` or `--buildDrafts` [switch](https://gohugo.io/getting-started/usage/#draft-future-and-expired-content).
 
-Is your markdown file part of a [leaf bundle](/content-management/page-bundles/)? If there is an `index.md` file in the same or any parent directory then other markdown files will not be rendered as individual pages.
+Is your Markdown file part of a [leaf bundle](/content-management/page-bundles/)? If there is an `index.md` file in the same or any parent directory then other Markdown files will not be rendered as individual pages.
 
 ## Can I set configuration variables via OS environment?
 
@@ -49,7 +49,7 @@ Yes you can! Read [this](/hosting-and-deployment/hosting-on-netlify/#configure-h
 
 ## I get "... this feature is not available in your current Hugo version"
 
-If you process `SCSS` or `SASS` to `CSS` in your Hugo project with `libsass` as the transpiler or if you convert images to the `webp` format, you need the Hugo `extended` version, or else you may see an error message similar to the below:
+If you process `SCSS` or `Sass` to `CSS` in your Hugo project with `libsass` as the transpiler or if you convert images to the `webp` format, you need the Hugo `extended` version, or else you may see an error message similar to the below:
 
 ```bash
 error: failed to transform resource: TOCSS: failed to transform "scss/main.scss" (text/x-scss): this feature is not available in your current Hugo version

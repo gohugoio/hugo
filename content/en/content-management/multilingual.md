@@ -59,7 +59,7 @@ weight = 3
 
 Anything not defined in a `languages` block will fall back to the global value for that key (e.g., `copyright` for the English `en` language). This also works for `params`, as demonstrated with `help` above: You will get the value `Aide` in French and `Help` in all the languages without this parameter set.
 
-With the configuration above, all content, sitemap, RSS feeds, paginations,
+With the configuration above, all content, sitemap, RSS feeds, pagination,
 and taxonomy pages will be rendered below `/` in English (your default content language) and then below `/fr` in French.
 
 When working with front matter `Params` in [single page templates], omit the `params` in the key for the translation.
@@ -538,7 +538,6 @@ And do the appropriate changes in the menu code to use the `i18n` tag with the `
     {{- end }}
 </ul>
 {{< /code >}}
-                
 
 ## Missing Translations
 

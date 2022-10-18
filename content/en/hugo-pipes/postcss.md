@@ -3,7 +3,6 @@ title: PostCSS
 description: Hugo Pipes can process CSS files with PostCSS.
 date: 2018-07-14
 publishdate: 2018-07-14
-lastmod: 2018-07-14
 categories: [asset management]
 keywords: []
 menu:
@@ -12,10 +11,9 @@ menu:
     weight: 40
 weight: 40
 sections_weight: 40
-draft: false
 ---
 
-Any asset file can be processed using `resources.PostCSS` which takes for argument the resource object and a slice of options listed below. 
+Any asset file can be processed using `resources.PostCSS` which takes for argument the resource object and a slice of options listed below.
 
 The resource will be processed using the project's or theme's own `postcss.config.js` or any file set with the `config` option.
 

@@ -25,7 +25,6 @@ Since Hugo `0.42` a project can configure a theme as a composite of as many them
 theme = ["my-shortcodes", "base-theme", "hyde"]
 {{< /code-toggle >}}
 
-
 You can even nest this, and have the theme component itself include theme components in its own `config.toml` (theme inheritance).[^1]
 
 The theme definition example above in `config.toml` creates a theme with 3 theme components with precedence from left to right.
@@ -47,8 +46,4 @@ Also note that a component that is part of a theme can have its own configuratio
 
 The same rules apply here: The left-most param/menu etc. with the same ID will win. There are some hidden and experimental namespace support in the above, which we will work to improve in the future, but theme authors are encouraged to create their own namespaces to avoid naming conflicts.
 
-
 [^1]: For themes hosted on the [Hugo Themes Showcase](https://themes.gohugo.io/) components need to be added as git submodules that point to the directory `exampleSite/themes` 
-
-
-

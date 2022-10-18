@@ -3,7 +3,6 @@ title: Fingerprinting and SRI
 description: Hugo Pipes allows Fingerprinting and Subresource Integrity.
 date: 2018-07-14
 publishdate: 2018-07-14
-lastmod: 2018-07-14
 categories: [asset management]
 keywords: []
 menu:
@@ -12,9 +11,7 @@ menu:
     weight: 70
 weight: 70
 sections_weight: 70
-draft: false
 ---
-
 
 Fingerprinting and [SRI](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity) can be applied to any asset file using `resources.Fingerprint` which takes two arguments, the resource object and a [hash function](https://en.wikipedia.org/wiki/Cryptographic_hash_function).
 

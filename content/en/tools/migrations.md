@@ -5,7 +5,7 @@ description: A list of community-developed tools for migrating from your existin
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2022-03-26
-keywords: [migrations,jekyll,wordpress,drupal,ghost,contentful]
+keywords: [migrations, jekyll, wordpress, drupal, ghost, contentful]
 menu:
   docs:
     parent: "tools"
@@ -13,7 +13,7 @@ menu:
 weight: 10
 sections_weight: 10
 draft: false
-aliases: [/developer-tools/migrations/,/developer-tools/migrated/]
+aliases: [/developer-tools/migrations/, /developer-tools/migrated/]
 toc: true
 ---
 
@@ -80,7 +80,6 @@ Alternatively, you can use the new [Jekyll import command](/commands/hugo_import
 
 - [contentful2hugo](https://github.com/ArnoNuyts/contentful2hugo) - A tool to create content-files for Hugo from content on [Contentful](https://www.contentful.com/).
 
-
 ## BlogML
 
-- [BlogML2Hugo](https://github.com/jijiechen/BlogML2Hugo) - A tool that helps you convert BlogML xml file to Hugo markdown files. Users need to take care of links to attachments and images by themselves. This helps the blogs that export BlogML files (e.g. BlogEngine.NET) transform to hugo sites easily.
+- [BlogML2Hugo](https://github.com/jijiechen/BlogML2Hugo) - A tool that helps you convert BlogML xml file to Hugo Markdown files. Users need to take care of links to attachments and images by themselves. This helps the blogs that export BlogML files (e.g. BlogEngine.NET) transform to hugo sites easily.

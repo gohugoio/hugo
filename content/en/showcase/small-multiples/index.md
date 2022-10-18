@@ -18,13 +18,13 @@ Application development has become increasingly complex and there is a strong mo
 
 Libraries like React make this easy, but we also wanted something that was server rendered. This led us to look at React based tools for static site generation such as GatsbyJS. We liked GatsbyJS, but in the end, we didn’t choose it due to the lack of availability of a simple CMS driven data source.
 
-For this, we considered Contentful. Contentful is a beautifully designed application. It’s basically a headless CMS, but it’s not specifically designed for websites and it becomes quite expensive at a commercial level. Their free tier is possibly a good option for personal sites especially with Gatsby. We also evaluated prose.io. This is a free service for editing markdown files in a GitHub repository. It works well, but it’s quite basic and didn’t provide the editing experience we were looking for.
+For this, we considered Contentful. Contentful is a beautifully designed application. It’s basically a headless CMS, but it’s not specifically designed for websites and it becomes quite expensive at a commercial level. Their free tier is possibly a good option for personal sites especially with Gatsby. We also evaluated prose.io. This is a free service for editing Markdown files in a GitHub repository. It works well, but it’s quite basic and didn’t provide the editing experience we were looking for.
 
 At the same time, we started exploring Hugo. Hugo is a static site generator similar to Jekyll, but it’s written in Go. It has excellent support and integration with Netlify and we were immediately blown away by how fast it was.
 
 We had been closely following the redevelopment of the Smashing Magazine website. We knew this was being powered by Hugo and Netlify and this showed us that Hugo could work for a large scale sites.
 
-The deciding factor, however, was the availability of CMS options that integrate well with Hugo. Netlify has an open source project called NetlifyCMS and there are also hosted services like Forestry.io. These both provide a CMS with an editing interface for markdown files and images. There is no database, instead, changes are committed directly back into the GitHub repository.
+The deciding factor, however, was the availability of CMS options that integrate well with Hugo. Netlify has an open source project called NetlifyCMS and there are also hosted services like Forestry.io. These both provide a CMS with an editing interface for Markdown files and images. There is no database, instead, changes are committed directly back into the GitHub repository.
 
 In the end, we chose Hugo on Netlify, with Forestry as our CMS. The site is built and redeployed immediately with Netlify watching for changes to the GitHub repository.
 
@@ -40,7 +40,7 @@ NetlifyCMS was also very new when we first looked at it and this is partly why w
 
 Fortunately, the site is more portable now than it was, or would have been with a dynamic CMS like WordPress, or a fully hosted service like SquareSpace. It should be comparatively easy to swap the publishing functions from Forestry to NetlifyCMS or to change the templates. No part of the pipe-line is tightly coupled, the hosting, the CMS and the templates and the build process can all be updated independently, without changing anything else.
 
-We have complete control over the design and mark-up produced. This means we can implement a better responsive design and have a stronger focus on accessibility and performance.
+We have complete control over the design and markup produced. This means we can implement a better responsive design and have a stronger focus on accessibility and performance.
 
 These technology choices gave us a good performance baseline. It was important to implement a site that took advantage of this. As a data visualisation agency, it can be difficult to optimise for performance with a small bundle size, while also aiming for high-quality visuals and working with large datasets. This meant we spent a lot of time optimising assets making sure there was little blocking the critical path for faster rendering and lazy-load images and videos.
 

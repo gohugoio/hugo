@@ -143,7 +143,7 @@ Remove `--tags extended` if you do not want/need Sass/SCSS support.
 
 1. You know how to open the macOS terminal.
 2. You're running a modern 64-bit Mac.
-3. You will use `~/Sites` as the starting point for your site. (`~/Sites` is used for example purposes. If you are familiar enough with the command line and file system, you should have no issues following along with the instructions.)
+3. You will use `~/Sites` as the starting point for your site. (`~/Sites` is used for example purposes. If you are familiar enough with the command-line and file system, you should have no issues following along with the instructions.)
 
 ### Pick Your Method
 
@@ -161,12 +161,12 @@ There are pros and cons to each of the aforementioned methods:
 
 1. **Package Manager.** Using a package manager is the simplest method and will require the least amount of work to maintain. The drawbacks aren't severe. The default package will be for the most recent release, so it will not have bug fixes until the next release (i.e., unless you install it with the `--HEAD` option in Homebrew). Releases may lag a few days behind because it has to be coordinated with another team. Nevertheless, this is the recommended installation method if you want to work from a stable, widely used source. Package managers work well and they are easy to update.
 
-2. **Tarball.** Downloading and installing from the tarball is also easy, although it requires a few more command line skills than does Homebrew. Updates are easy as well: you just repeat the process with the new binary. This gives you the flexibility to have multiple versions on your computer. If you don't want to use `brew`, then the tarball/binary is a good choice.
+2. **Tarball.** Downloading and installing from the tarball is also easy, although it requires a few more command-line skills than does Homebrew. Updates are easy as well: you just repeat the process with the new binary. This gives you the flexibility to have multiple versions on your computer. If you don't want to use `brew`, then the tarball/binary is a good choice.
 
 3. **Building from Source.** Building from source is the most work. The advantage of building from source is that you don't have to wait for a release to add features or bug fixes. The disadvantage is that you need to spend more time managing the setup, which is manageable but requires more time than the preceding two options.
 
 {{% note %}}
-Since building from source is appealing to more seasoned command line users, this guide will focus more on installing Hugo via Homebrew and Tarball.
+Since building from source is appealing to more seasoned command-line users, this guide will focus more on installing Hugo via Homebrew and Tarball.
 {{% /note %}}
 
 ### Install Hugo with Brew
@@ -384,7 +384,7 @@ You'll need a place to store the Hugo executable, your [content][], and the gene
 
 1. Download the latest zipped Hugo executable from [Hugo Releases][releases].
 2. Extract all contents to your `..\Hugo\bin` folder.
-3. Open Windows Command Line (cmd, "DOS") to add the `hugo.exe` executable to your PATH
+3. Open Windows command-line (cmd, "DOS") to add the `hugo.exe` executable to your PATH
     * do `set PATH=%PATH%;C:\Hugo\bin` to have hugo in PATH for the currently opened cmd box
     * do `setx PATH "%PATH%;C:\Hugo\bin"` to have hugo in PATH for every newly opened cmd box
       * note: "setx", not "set", plus syntax 'key "val"', not 'key=val'

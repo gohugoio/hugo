@@ -4,7 +4,6 @@ linktitle:
 description: Page-level variables are defined in a content file's front matter, derived from the content's file location, or extracted from the content body itself.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [variables and params]
 keywords: [pages]
 draft: false

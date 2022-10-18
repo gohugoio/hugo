@@ -4,10 +4,8 @@ linktitle: Shortcode Variables
 description: Shortcodes can access page variables and also have their own specific built-in variables.
 date: 2017-03-12
 publishdate: 2017-03-12
-lastmod: 2017-03-12
 categories: [variables and params]
 keywords: [shortcodes]
-draft: false
 menu:
   docs:
     parent: "variables"
@@ -47,6 +45,3 @@ toc: false
 
 .InnerDeindent {{< new-in "0.100.0" >}}
 : Gets the `.Inner` with any indentation removed. This is what's used in the built-in `{{</* highlight */>}}` shortcode.
-
-
-

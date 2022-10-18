@@ -18,17 +18,17 @@ toc: true
 ## Template Metrics
 
 Hugo is a very fast static site generator, but it is possible to write
-inefficient templates.  Hugo's *template metrics* feature is extremely helpful
+inefficient templates. Hugo's _template metrics_ feature is extremely helpful
 in pinpointing which templates are executed most often and how long those
 executions take **in terms of CPU time**.
 
-| Metric Name         | Description |
-|---------------------|-------------|
-| cumulative duration | The cumulative time spent executing a given template. |
-| average duration    | The average time spent executing a given template. |
+| Metric Name         | Description                                                    |
+| ------------------- | -------------------------------------------------------------- |
+| cumulative duration | The cumulative time spent executing a given template.          |
+| average duration    | The average time spent executing a given template.             |
 | maximum duration    | The maximum time a single execution took for a given template. |
-| count               | The number of times a template was executed. |
-| template            | The template name. |
+| count               | The number of times a template was executed.                   |
+| template            | The template name.                                             |
 
 ```
 ▶ hugo --templateMetrics
@@ -77,20 +77,18 @@ simultaneously. Because of this parallelism, the sum of "cumulative duration"
 values is usually greater than the actual time it takes to build a site.
 {{% /note %}}
 
-
 ## Cached Partials
 
 Some `partial` templates such as sidebars or menus are executed many times
-during a site build.  Depending on the content within the `partial` template and
+during a site build. Depending on the content within the `partial` template and
 the desired output, the template may benefit from caching to reduce the number
-of executions.  The [`partialCached`][partialCached] template function provides
+of executions. The [`partialCached`][partialcached] template function provides
 caching capabilities for `partial` templates.
 
 {{% tip %}}
 Note that you can create cached variants of each `partial` by passing additional
-parameters to `partialCached` beyond the initial context.  See the
+parameters to `partialCached` beyond the initial context. See the
 `partialCached` documentation for more details.
 {{% /tip %}}
-
 
 [partialCached]:{{< ref "/functions/partialCached.md" >}}

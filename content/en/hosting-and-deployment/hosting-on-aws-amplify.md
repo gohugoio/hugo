@@ -53,5 +53,4 @@ If you need to use a different, perhaps newer, version of Hugo than the version 
 1. From the selection, click **Hugo** and ensure the version field says `latest`
 1. Click **Save** to save the changes.
 
-
 [Quick Start]: /getting-started/quick-start/
