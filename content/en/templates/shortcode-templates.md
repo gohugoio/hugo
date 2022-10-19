@@ -79,7 +79,7 @@ To access a parameter by position, use the `.Get` followed by a numeric position
 {{ .Get 0 }}
 ```
 
-For the second position, you would just use: 
+For the second position, you would just use:
 
 ```
 {{ .Get 1 }}
@@ -102,9 +102,7 @@ most helpful when the condition depends on either of the values, or both:
 
 If a closing shortcode is used, the `.Inner` variable will be populated with all of the content between the opening and closing shortcodes. If a closing shortcode is required, you can check the length of `.Inner` as an indicator of its existence.
 
-A shortcode with content declared via the `.Inner` variable can also be declared without the 
-content and without the closing 
-by using the self-closing syntax:
+A shortcode with content declared via the `.Inner` variable can also be declared without the content and without the closing by using the self-closing syntax:
 
 ```
 {{</* innershortcode /*/>}}
@@ -349,7 +347,6 @@ This will output the following HTML. Note how the first two `img` shortcodes inh
 <img src="/images/three.jpg">
 ```
 
-
 ## Error Handling in Shortcodes
 
 Use the [errorf](/functions/errorf) template func and [.Position](/variables/shortcodes/) variable to get useful error messages in shortcodes:
@@ -370,7 +367,6 @@ ERROR 2018/11/07 10:05:55 missing value for param name: "/Users/bep/dev/go/gohug
 ## More Shortcode Examples
 
 More shortcode examples can be found in the [shortcodes directory for spf13.com][spfscs] and the [shortcodes directory for the Hugo docs][docsshortcodes].
-
 
 ## Inline Shortcodes
 
@@ -403,7 +399,6 @@ The same inline shortcode can be reused later in the same content file, with dif
  ```go-text-template
 {{</* time.inline /*/>}}
 ```
-	
 
 [basic content files]: /content-management/formats/ "See how Hugo leverages markdown--and other supported formats--to create content for your website."
 [built-in shortcode]: /content-management/shortcodes/

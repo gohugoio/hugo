@@ -95,7 +95,7 @@ Finally, check again with `git version` if Git was installed successfully.
 
 ### Git Graphical Front Ends
 
-There are several [GUI clients](https://git-scm.com/downloads/guis) that help you to operate Git. Not all are available for all operating systems and maybe differ in their usage. Because of this we will document how to use the command line, since the commands are the same everywhere.
+There are several [GUI clients](https://git-scm.com/downloads/guis) that help you to operate Git. Not all are available for all operating systems and maybe differ in their usage. Because of this we will document how to use the command-line, since the commands are the same everywhere.
 
 ### Install Hub on Your System (Optional)
 
@@ -140,7 +140,7 @@ cd $HOME/src
 git clone https://github.com/gohugoio/hugo.git
 ```
 
-> Since Hugo 0.48, Hugo uses the Go Modules support built into Go 1.11 to build. 
+> Since Hugo 0.48, Hugo uses the Go Modules support built into Go 1.11 to build.
 > The easiest is to clone Hugo in a directory outside of GOPATH
 
 And then, install dependencies of Hugo by running the following in the cloned directory:
@@ -149,7 +149,6 @@ And then, install dependencies of Hugo by running the following in the cloned di
 cd $HOME/src/hugo
 go install
 ```
-
 
 Hugo relies on [mage](https://github.com/magefile/mage) for some convenient build and test targets. If you don't already have it, get it:
 
@@ -169,7 +168,7 @@ Open the [Hugo repository](https://github.com/gohugoio/hugo) on GitHub and click
 
 ![Fork button](/images/contribute/development/forking-a-repository.png)
 
-Now open your fork repository on GitHub and copy the remote url of your fork. You can choose between HTTPS and SSH as protocol that Git should use for the following operations. HTTPS works always [if you're not sure](https://help.github.com/articles/which-remote-url-should-i-use/).
+Now open your fork repository on GitHub and copy the remote URL of your fork. You can choose between HTTPS and SSH as protocol that Git should use for the following operations. HTTPS works always [if you're not sure](https://help.github.com/articles/which-remote-url-should-i-use/).
 
 ![Copy remote url](/images/contribute/development/copy-remote-url.png)
 
@@ -257,10 +256,11 @@ If you want to install the binary in `$GOPATH/bin`, run
 mage install
 ```
 
-### Test 
+### Test
+
 Sometimes changes on the codebase can cause unintended side effects. Or they don't work as expected. Most functions have their own test cases. You can find them in files ending with `_test.go`.
 
-Make sure the commands 
+Make sure the commands
 
 ```
 mage -v check
@@ -268,8 +268,9 @@ mage -v check
 
 passes.
 
-### Formatting 
-The Go code styleguide maybe is opinionated but it ensures that the codebase looks the same, regardless who wrote the code. Go comes with its own formatting tool. Let's apply the styleguide to our additions:
+### Formatting
+
+The Go code style guide maybe is opinionated but it ensures that the codebase looks the same, regardless who wrote the code. Go comes with its own formatting tool. Let's apply the style guide to our additions:
 
 ```
 mage fmt
@@ -416,7 +417,6 @@ Feel free to [open an issue][newissue] if you think you found a bug or you have 
 * [Code School and GitHub's "Try Git" Tutorial][trygit] (Free)
 * [The Git Book][gitbook] (Free)
 * [Go Bootcamp][gobootcamp]
-
 
 [codecademy]: https://www.codecademy.com/learn/learn-git
 [contributors]: https://github.com/gohugoio/hugo/graphs/contributors

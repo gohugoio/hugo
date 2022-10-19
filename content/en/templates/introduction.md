@@ -107,6 +107,7 @@ The custom variables need to be prefixed with `$`.
 {{ $address := "123 Main St." }}
 {{ $address }}
 ```
+
 Variables can be re-defined using the `=` operator. The example below
 prints "Var is Hugo Home" on the home page, and "Var is Hugo Page" on
 all other pages:
@@ -159,7 +160,7 @@ within Hugo.
 
 ### Partial
 
-The [`partial`][partials] function is used to include *partial* templates using
+The [`partial`][partials] function is used to include _partial_ templates using
 the syntax `{{ partial "<PATH>/<PARTIAL>.<EXTENSION>" . }}`.
 
 Example of including a `layouts/partials/header.html` partial:
@@ -170,9 +171,9 @@ Example of including a `layouts/partials/header.html` partial:
 
 ### Template
 
-The `template` function was used to include *partial* templates
+The `template` function was used to include _partial_ templates
 in much older Hugo versions. Now it's useful only for calling
-[*internal* templates][internal templates]. The syntax is `{{ template
+[_internal_ templates][internal templates]. The syntax is `{{ template
 "_internal/<TEMPLATE>.<EXTENSION>" . }}`.
 
 {{% note %}}
@@ -234,7 +235,7 @@ key.
 {{ end }}
 ```
 
-#### Example 5: Conditional on empty _map_, _array_, or _slice_.
+#### Example 5: Conditional on empty _map_, _array_, or _slice_
 
 If the _map_, _array_, or _slice_ passed into the range is zero-length then the else statement is evaluated.
 

@@ -25,9 +25,9 @@ To list up to 5 related pages (which share the same _date_ or _keyword_ paramete
 {{ with $related }}
 <h3>See Also</h3>
 <ul>
-	{{ range . }}
-	<li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
-	{{ end }}
+ {{ range . }}
+ <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+ {{ end }}
 </ul>
 {{ end }}
 {{< /code >}}
@@ -37,6 +37,7 @@ To list up to 5 related pages (which share the same _date_ or _keyword_ paramete
 Here is the list of "Related" methods available on a page collection such `.RegularPages`.
 
 #### .Related PAGE
+
 Returns a collection of pages related the given one.
 
 ```
@@ -44,6 +45,7 @@ Returns a collection of pages related the given one.
 ```
 
 #### .RelatedIndices PAGE INDICE1 [INDICE2 ...]
+
 Returns a collection of pages related to a given one restricted to a list of indices.
 
 ```
@@ -51,6 +53,7 @@ Returns a collection of pages related to a given one restricted to a list of ind
 ```
 
 #### .RelatedTo KEYVALS [KEYVALS2 ...]
+
 Returns a collection of pages related together by a set of indices and their match.
 
 In order to build those set and pass them as argument, one must use the `keyVals` function where the first argument would be the `indice` and the consecutive ones its potential `matches`.
@@ -64,6 +67,7 @@ Read [this blog article](https://regisphilibert.com/blog/2018/04/hugo-optmized-r
 {{% /note %}}
 
 ## Configure Related Content
+
 Hugo provides a sensible default configuration of Related Content, but you can fine-tune this in your configuration, on the global or language level if needed.
 
 ### Default configuration

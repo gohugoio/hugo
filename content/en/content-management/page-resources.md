@@ -90,6 +90,7 @@ MediaType.Suffixes
 : A slice of possible suffixes for the resource's MIME type.
 
 ## Methods
+
 ByType
 : Returns the page resources of the given type.
 
@@ -107,6 +108,7 @@ GetMatch
 : Same as `Match` but will return the first match.
 
 ### Pattern Matching
+
 ```go
 // Using Match/GetMatch to find this images/sunset.jpg ?
 .Resources.Match "images/sun*" ✅
@@ -140,8 +142,7 @@ title
 params
 : A map of custom key/values.
 
-
-###  Resources metadata example
+### Resources metadata example
 
 {{< code-toggle copy="false">}}
 title: Application

@@ -133,7 +133,7 @@ aliases:
 ---
 {{< /code >}}
 
-Now when you visit any of the locations specified in aliases---i.e., *assuming the same site domain*---you'll be redirected to the page they are specified on. For example, a visitor to `example.com/posts/my-original-url/` will be immediately redirected to `example.com/posts/my-awesome-post/`.
+Now when you visit any of the locations specified in aliases---i.e., _assuming the same site domain_---you'll be redirected to the page they are specified on. For example, a visitor to `example.com/posts/my-original-url/` will be immediately redirected to `example.com/posts/my-awesome-post/`.
 
 ### Example: Aliases in Multilingual
 
@@ -148,7 +148,7 @@ aliases:
 ---
 ```
 
-From Hugo 0.55 you can also have page-relative aliases, so ` /es/posts/my-original-post/` can be simplified to the more portable `my-original-post/`
+From Hugo 0.55 you can also have page-relative aliases, so `/es/posts/my-original-post/` can be simplified to the more portable `my-original-post/`
 
 ### How Hugo Aliases Work
 

@@ -300,9 +300,9 @@ If `hugo` is not in your `PATH`:
     ```
     nano ~/.zprofile
     ```
-    
+
     If your default shell is bash:
-    
+
     ```
     nano ~/.bash_profile
     ```
@@ -402,7 +402,7 @@ You'll need a place to store the Hugo executable, your [content][], and the gene
 
 Now you need to add Hugo to your Windows PATH settings:
 
-#### For Windows 10 Users:
+#### For Windows 10 Users
 
 * Right click on the **Start** button.
 * Click on **System**.
@@ -412,7 +412,7 @@ Now you need to add Hugo to your Windows PATH settings:
 * Click the **Browse...** button and select the directory to which `hugo.exe` was extracted, which is `C:\Hugo\bin` if you went by the instructions above. *The path entry should be the folder where Hugo lives and not the binary itself.*
 * Click OK at every window to exit.
 
-#### For Windows 7 and 8.x users:
+#### For Windows 7 and 8.x users
 
 Windows 7 and 8.1 do not include the easy path editor included in Windows 10, so non-technical users on those platforms are advised to install a free third-party path editor like [Windows Environment Variables Editor].
 

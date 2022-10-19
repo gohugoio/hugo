@@ -137,7 +137,7 @@ weight
 : used for [ordering your content in lists][ordering]. Lower weight gets higher precedence. So content with lower weight will come first. If set, weights should be non-zero, as 0 is interpreted as an *unset* weight.
 
 \<taxonomies\>
-: field name of the *plural* form of the index. See `tags` and `categories` in the above front matter examples. _Note that the plural form of user-defined taxonomies cannot be the same as any of the predefined front matter variables._
+: field name of the *plural* form of the index. See `tags` and `categories` in the above front matter examples. *Note that the plural form of user-defined taxonomies cannot be the same as any of the predefined front matter variables.*
 
 {{% note "Hugo's Default URL Destinations" %}}
 If neither `slug` nor `url` is present and [permalinks are not configured otherwise in your site `config` file](/content-management/urls/#permalinks), Hugo will use the filename of your content to create the output URL. See [Content Organization](/content-management/organization) for an explanation of paths in Hugo and [URL Management](/content-management/urls/) for ways to customize Hugo's default behaviors.
@@ -192,7 +192,7 @@ lang
 environment
 : A Glob pattern matching the build environment, e.g. "{production,development}"
 
-Any of the above can be omitted. 
+Any of the above can be omitted.
 
 ### Example
 
@@ -206,10 +206,8 @@ cascade:
 
 With the above example the Blog section page and its descendants will return `images/typewriter.jpg` when `.Params.banner` is invoked unless:
 
-- Said descendant has its own `banner` value set 
+- Said descendant has its own `banner` value set
 - Or a closer ancestor node has its own `cascade.banner` value set.
-
-
 
 ## Order Content Through Front Matter
 
@@ -221,9 +219,9 @@ It's possible to set some options for Markdown rendering in a content's front ma
 
 ## Front Matter Format Specs
 
-* [TOML Spec][toml]
-* [YAML Spec][yaml]
-* [JSON Spec][json]
+- [TOML Spec][toml]
+- [YAML Spec][yaml]
+- [JSON Spec][json]
 
 [variables]: /variables/
 [aliases]: /content-management/urls/#aliases

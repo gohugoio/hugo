@@ -93,7 +93,6 @@ Note that since v.0.77.0 you can use modules config [`replacements`](https://goh
 
 ## Print Dependency Graph
 
-
 Use `hugo mod graph` from the relevant module directory and it will print the dependency graph, including vendoring, module replacement or disabled status.
 
 E.g.:

@@ -142,7 +142,6 @@ You now have a live website served over HTTPS, distributed through CDN, and conf
 2. [Setting up HTTPS on Custom Domains][httpscustom]
 3. [Redirects and Rewrite Rules][]
 
-
 [app.netlify.com]: https://app.netlify.com
 [build command]: /getting-started/usage/#the-hugo-command
 [config]: /getting-started/configuration/

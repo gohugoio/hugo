@@ -34,7 +34,6 @@ This has many benefits. The most noticeable is performance. HTTP servers are *ve
 * ["Top 10 Static Website Generators", Netlify blog][]
 * ["The Resurgence of Static", dotCMS][dotcms]
 
-
 ["An Introduction to Static Site Generators", David Walsh]: https://davidwalsh.name/introduction-static-site-generators
 ["Static Site Generators", O'Reilly]: https://github.com/gohugoio/hugoDocs/files/1242701/static-site-generators.pdf
 ["Top 10 Static Website Generators", Netlify blog]: https://www.netlify.com/blog/2016/05/02/top-ten-static-website-generators/

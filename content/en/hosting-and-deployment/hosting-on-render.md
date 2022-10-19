@@ -37,9 +37,9 @@ Static sites are **completely free** on Render and include the following:
 
 ## Assumptions
 
-* You have an account with GitHub or GitLab.
-* You have completed the [Quick Start][] or have a Hugo website you are ready to deploy and share with the world.
-* You have a Render account. You can sign up at https://render.com/register.
+- You have an account with GitHub or GitLab.
+- You have completed the [Quick Start][] or have a Hugo website you are ready to deploy and share with the world.
+- You have a Render account. You can sign up at https://render.com/register.
 
 ## Deployment
 

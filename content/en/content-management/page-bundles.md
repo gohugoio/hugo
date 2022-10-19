@@ -72,13 +72,13 @@ bundles:
 : This leaf bundle has the `index.md`, two other content
     Markdown files and two image files.
 
-- image1, image2: 
+- image1, image2:
 These images are page resources of `my-post`
     and only available in `my-post/index.md` resources.
 
-- content1, content2: 
+- content1, content2:
 These content files are page resources of `my-post`
-    and only available in `my-post/index.md` resources. 
+    and only available in `my-post/index.md` resources.
     They will **not** be rendered as individual pages.
 
 `my-other-post`
@@ -99,8 +99,8 @@ as long as it is not inside another **leaf** bundle.
 A headless bundle is a bundle that is configured to not get published
 anywhere:
 
--   It will have no `Permalink` and no rendered HTML in `public/`.
--   It will not be part of `.Site.RegularPages`, etc.
+- It will have no `Permalink` and no rendered HTML in `public/`.
+- It will not be part of `.Site.RegularPages`, etc.
 
 But you can get it by `.Site.GetPage`. Here is an example:
 
@@ -121,9 +121,9 @@ _In this example, we are assuming the `some-headless-bundle` to be a headless
 Explanation of the above example:
 
 1. Get the `some-headless-bundle` Page "object".
-2. Collect a *slice* of resources in this *Page Bundle* that matches
+2. Collect a _slice_ of resources in this _Page Bundle_ that matches
    `"author*"` using `.Resources.Match`.
-3. Loop through that *slice* of nested pages, and output their `.Title` and
+3. Loop through that _slice_ of nested pages, and output their `.Title` and
    `.Content`.
 
 ---
@@ -137,9 +137,8 @@ headless = true
 
 There are many use cases of such headless page bundles:
 
--   Shared media galleries
--   Reusable page content "snippets"
-
+- Shared media galleries
+- Reusable page content "snippets"
 
 ## Branch Bundles {#branch-bundles}
 

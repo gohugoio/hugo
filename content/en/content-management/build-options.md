@@ -26,6 +26,7 @@ _build:
 {{< /code-toggle >}}
 
 #### render
+
 If `always`, the page will be treated as a published page, holding its dedicated output files (`index.html`, etc...) and permalink.
 
 {{< new-in "0.76.0" >}} We extended this property from a boolean to an enum in Hugo 0.76.0. Valid values are:
@@ -58,7 +59,7 @@ If true, the page will be treated as part of the project's collections and, when
 
 #### publishResources
 
-If set to true the [Bundle's Resources]({{< relref "content-management/page-bundles" >}}) will be published. 
+If set to true the [Bundle's Resources]({{< relref "content-management/page-bundles" >}}) will be published.
 Setting this to false will still publish Resources on demand (when a resource's `.Permalink` or `.RelPermalink` is invoked from the templates) but will skip the others.
 
 {{% note %}}
@@ -70,6 +71,7 @@ Any page, regardless of their build options, will always be available using the 
 ### Illustrative use cases
 
 #### Not publishing a page
+
 Project needs a "Who We Are" content file for Front Matter and body to be used by the homepage but nowhere else.
 
 ```yaml

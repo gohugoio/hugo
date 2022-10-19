@@ -136,9 +136,11 @@ The directory where Hugo finds archetype files (content templates). {{% module-m
 The directory where Hugo finds asset files used in [Hugo Pipes](/hugo-pipes/). {{% module-mounts-note %}}
 
 ### baseURL
+
 Hostname (and path) to the root, e.g. https://bep.is/
 
 ### build
+
 See [Configure Build](#configure-build)
 
 ### buildDrafts (false)
@@ -160,6 +162,7 @@ Include content already expired.
 Include content with publishdate in the future.
 
 ### caches
+
 See [Configure File Caches](#configure-file-caches)
 
 ### cascade
@@ -340,6 +343,7 @@ Don't sync permission mode of files.
 Don't sync modification time of files.
 
 ### outputFormats
+
 See [Configure Output Formats](#configure-additional-output-formats).
 
 ### paginate
@@ -355,6 +359,7 @@ Default number of elements per page in [pagination](/templates/pagination/).
 The path element used during pagination (`https://example.com/page/2`).
 
 ### permalinks
+
 See [Content Management](/content-management/urls/#permalinks).
 
 ### pluralizeListTitles
@@ -370,9 +375,10 @@ Pluralize titles in lists.
 The directory to where Hugo will write the final static site (the HTML files etc.).
 
 ### related
+
 : See [Related Content](/content-management/related/#configure-related-content).{{< new-in "0.27" >}}
 
-### relativeURLs 
+### relativeURLs
 
 **Default value:** false
 
@@ -459,6 +465,7 @@ Site title.
 See [Configure Title Case](#configure-title-case)
 
 ### uglyURLs
+
 When enabled, creates URL of the form `/filename.html` instead of `/filename/`.
 
 ### watch
@@ -544,7 +551,7 @@ Content-Security-Policy = "script-src localhost:1313"
 
 {{< new-in "0.72.0" >}}
 
-You can also specify simple redirects rules for the server. The syntax is again similar to Netlify's. 
+You can also specify simple redirects rules for the server. The syntax is again similar to Netlify's.
 
 Note that a `status` code of 200 will trigger a [URL rewrite](https://docs.netlify.com/routing/redirects/rewrites-proxies/), which is what you want in SPA situations, e.g:
 
@@ -769,9 +776,9 @@ dir
 
 ## Configuration Format Specs
 
-* [TOML Spec][toml]
-* [YAML Spec][yaml]
-* [JSON Spec][json]
+- [TOML Spec][toml]
+- [YAML Spec][yaml]
+- [JSON Spec][json]
 
 [`.Site.Params`]: /variables/site/
 [directory structure]: /getting-started/directory-structure

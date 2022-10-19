@@ -107,7 +107,6 @@ Which then returns the following:
 <h1>Events</h1>
 ```
 
-
 [contentorg]: /content-management/organization/
 [getpage]: /functions/getpage/
 [lists]: /templates/lists/

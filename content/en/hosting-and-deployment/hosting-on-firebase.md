@@ -38,11 +38,13 @@ Log in to Firebase (setup on your local machine) using `firebase login`, which o
 ```
 firebase login
 ```
+
 In the root of your Hugo project, initialize the Firebase project with the `firebase init` command:
 
 ```
 firebase init
 ```
+
 From here:
 
 1. Choose Hosting in the feature question
@@ -63,12 +65,11 @@ hugo && firebase deploy
 
 You can generate a deploy token using
 
-
 ```
 firebase login:ci
 ```
 
-You can also set up your CI (e.g., with [Wercker][]) and add the token to a private variable like `$FIREBASE_DEPLOY_TOKEN`.
+You can also set up your CI (e.g., with Wercker) and add the token to a private variable like `$FIREBASE_DEPLOY_TOKEN`.
 
 {{% note %}}
 This is a private secret and it should not appear in a public repository. Make sure you understand your chosen CI and that it's not visible to others.

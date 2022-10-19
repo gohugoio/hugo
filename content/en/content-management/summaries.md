@@ -41,9 +41,9 @@ The Hugo-defined summaries are set to use word count calculated by splitting the
 
 ### Manual Summary Splitting
 
-Alternatively, you may add the <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> summary divider where you want to split the article. 
+Alternatively, you may add the <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> summary divider where you want to split the article.
 
-For [Org mode content][org], use `# more` where you want to split the article. 
+For [Org mode content][org], use `# more` where you want to split the article.
 
 Content that comes before the summary divider will be used as that content's summary and stored in the `.Summary` page variable with all HTML formatting intact.
 

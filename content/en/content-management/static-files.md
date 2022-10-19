@@ -65,6 +65,5 @@ Note 2
 : The example above is a [multihost setup][]. In a regular setup, all
   the static directories will be available to all sites.
 
-
 [site config]: /getting-started/configuration/#all-configuration-settings
 [multihost setup]: /content-management/multilingual/#configure-multilingual-multihost

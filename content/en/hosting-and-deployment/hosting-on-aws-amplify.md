@@ -37,7 +37,7 @@ AWS Amplify is a combination of client library, CLI toolchain, and a Console for
 1. Connect a branch from your GitHub, Bitbucket, GitLab, or AWS CodeCommit repository. Connecting your repository allows Amplify to deploy updates on every code commit to a branch.
    ![Hugo Amplify](/images/hosting-and-deployment/hosting-on-aws-amplify/amplify-connect-repo.gif)
 
-1.  Accept the default build settings. The Amplify Console automatically detects your Hugo build settings and output directory.
+1. Accept the default build settings. The Amplify Console automatically detects your Hugo build settings and output directory.
    ![Hugo Amplify](/images/hosting-and-deployment/hosting-on-aws-amplify/amplify-build-settings.png)
 
 1. Review your changes and then choose **Save and deploy**. The Amplify Console will pull code from your repository, build changes to the backend and frontend, and deploy your build artifacts at `https://master.unique-id.amplifyapp.com`. Bonus: Screenshots of your app on different devices to find layout issues.

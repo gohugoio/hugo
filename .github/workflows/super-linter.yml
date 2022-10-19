@@ -33,7 +33,6 @@ jobs:
           VALIDATE_HTML: false
           VALIDATE_JAVASCRIPT_STANDARD: false
           VALIDATE_JSCPD: false
-          VALIDATE_MARKDOWN: false
           VALIDATE_NATURAL_LANGUAGE: false
           VALIDATE_SHELL_SHFMT: false
           VALIDATE_XML: false

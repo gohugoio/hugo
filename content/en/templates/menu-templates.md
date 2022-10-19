@@ -93,7 +93,6 @@ The _shadow_ implies that the pages isn't represented by a menu-item themselves,
 
 In the above, the menu item is marked as active if on the current section's list page or on a page in that section.
 
-
 ## Site Config menus
 
 The above is all that's needed. But if you want custom menu items, e.g. changing weight, name, or link title attribute, you can define them manually in the site config file:

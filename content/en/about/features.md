@@ -54,7 +54,6 @@ toc: true
 * Support for [Go][] HTML templates
 * [Syntax highlighting][] powered by [Chroma][]
 
-
 [aliases]: /content-management/urls/#aliases
 [Chroma]: https://github.com/alecthomas/chroma
 [content summaries]: /content-management/summaries/

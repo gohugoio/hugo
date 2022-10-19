@@ -4,7 +4,6 @@ linktitle: Documentation
 description: Documentation is an integral part of any open source project. The Hugo docs are as much a work in progress as the source it attempts to cover.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [contribute]
 keywords: [docs,documentation,community, contribute]
 menu:
@@ -13,7 +12,6 @@ menu:
     weight: 20
 weight: 20
 sections_weight: 20
-draft: false
 aliases: [/contribute/docs/]
 toc: true
 ---

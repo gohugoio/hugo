@@ -152,7 +152,6 @@ The pages are built on the following form (`BLANK` means no value):
 ....
 ```
 
-
 [`first`]: /functions/first/
 [`last`]: /functions/last/
 [`after`]: /functions/after/

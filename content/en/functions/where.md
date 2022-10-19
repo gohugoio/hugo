@@ -163,7 +163,7 @@ section names to hard-coded values like `"posts"` or `"post"`.
 ```
 
 If the user has not set this config parameter in their site config, it
-will default to the _section with the most pages_.
+will default to the *section with the most pages*.
 
 The user can override the default:
 

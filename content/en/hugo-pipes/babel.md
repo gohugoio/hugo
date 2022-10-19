@@ -22,7 +22,6 @@ Hugo Pipe's Babel requires the `@babel/cli` and `@babel/core` JavaScript package
 If you are using the Hugo Snap package, Babel and plugin(s) need to be installed locally within your Hugo site directory, e.g., `npm install @babel/cli @babel/core --save-dev` without the `-g` flag.
 {{% /note %}}
 
-
 ### Config
 
 {{< new-in "v0.75.0" >}}

@@ -78,7 +78,7 @@ This means the partial will *only* be able to access those variables. The partia
 
 ## Returning a value from a Partial
 
-In addition to outputting markup, partials can be used to return a value of any type. In order to return a value, a partial must include a lone `return` statement _at the end of the partial_.
+In addition to outputting markup, partials can be used to return a value of any type. In order to return a value, a partial must include a lone `return` statement *at the end of the partial*.
 
 ### Example GetFeatured
 

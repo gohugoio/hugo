@@ -26,7 +26,6 @@ replacements = ""
 workspace = ""
 {{< /code-toggle >}}
 
-
 noVendor {{< new-in "0.75.0" >}}
 : A optional Glob pattern matching module paths to skip when vendoring, e.g. "github.com/**"
 
@@ -113,7 +112,6 @@ noVendor
 
 {{< gomodules-info >}}
 
-
 ## Module Config: mounts
 
 {{% note %}}
@@ -160,7 +158,7 @@ lang
 : The language code, e.g. "en". Only relevant for `content` mounts, and `static` mounts when in multihost mode.
 
 includeFiles (string or slice)
-: One or more [glob](https://github.com/gobwas/glob) patterns matching files or directories to include. If `excludeFiles` is not set, the files matching `includeFiles` will be the files mounted. 
+: One or more [glob](https://github.com/gobwas/glob) patterns matching files or directories to include. If `excludeFiles` is not set, the files matching `includeFiles` will be the files mounted.
 
 The glob patterns are matched to the filenames starting from the `source` root, they should have Unix styled slashes even on Windows, `/` matches the mount root and `**` can be used as a  super-asterisk to match recursively down all directories, e.g `/posts/**.jpg`.
 
@@ -170,4 +168,3 @@ The search is case-insensitive.
 
 excludeFiles (string or slice)
 : One or more glob patterns matching files to exclude.
-

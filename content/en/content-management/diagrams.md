@@ -45,14 +45,9 @@ Will be rendered as:
      1   2 3   4    1   2   3   4    1   2   3   4         '--- 4          '-- 4     \ 4
 ```
 
-
-
-
-
 ## Mermaid Diagrams
 
-Hugo currently does not provide default templates for Mermaid diagrams. But you can easily add your own. One way to do it would be to create ` layouts/_default/_markup/render-codeblock-mermaid.html`:
-
+Hugo currently does not provide default templates for Mermaid diagrams. But you can easily add your own. One way to do it would be to create `layouts/_default/_markup/render-codeblock-mermaid.html`:
 
 ```go-html-template
 <div class="mermaid">
@@ -87,8 +82,6 @@ sequenceDiagram
     John->>Bob: How about you?
     Bob-->>John: Jolly good!
 ```
-
-
 
 ## Goat Ascii Diagram Examples
 
@@ -160,7 +153,7 @@ sequenceDiagram
 
 ### File tree
 
-Created from https://arthursonzogni.com/Diagon/#Tree
+Created from <https://arthursonzogni.com/Diagon/#Tree>
 
 ```goat  { width=300  color="orange" }
 ───Linux─┬─Android
@@ -176,7 +169,7 @@ Created from https://arthursonzogni.com/Diagon/#Tree
 
 ### Sequence Diagram
 
-https://arthursonzogni.com/Diagon/#Sequence
+<https://arthursonzogni.com/Diagon/#Sequence>
 
 ```goat { class="w-40" }
 ┌─────┐       ┌───┐
@@ -197,7 +190,7 @@ https://arthursonzogni.com/Diagon/#Sequence
 
 ### Flowchart
 
-https://arthursonzogni.com/Diagon/#Flowchart
+<https://arthursonzogni.com/Diagon/#Flowchart>
 
 ```goat
    _________________                                                              
@@ -243,7 +236,7 @@ https://arthursonzogni.com/Diagon/#Flowchart
 
 ### Table
 
-https://arthursonzogni.com/Diagon/#Table
+<https://arthursonzogni.com/Diagon/#Table>
 
 ```goat { class="w-80 dark-blue" }
 ┌────────────────────────────────────────────────┐

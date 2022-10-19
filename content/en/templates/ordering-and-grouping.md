@@ -4,7 +4,6 @@ linktitle: List Ordering and Grouping
 description: You can group or order your content in both your templating and content front matter.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [templates]
 keywords: []
 menu:
@@ -25,7 +24,7 @@ In Hugo, a list template is any template that will be used to render multiple pi
 
 ### Section Template
 
-This list template is used for [spf13.com](https://spf13.com/). It makes use of [partial templates][partials]. All examples use a [view](/templates/views/) called either "li" or "summary."
+This list template is used for [spf13.com](https://spf13.com/). It makes use of [partial templates](/templates/partials/). All examples use a [view](/templates/views/) called either "li" or "summary."
 
 {{< code file="layouts/section/post.html" >}}
 {{ partial "header.html" . }}
@@ -144,7 +143,6 @@ your list templates:
     </li>
 {{ end }}
 {{< /code >}}
-
 
 ### By Title
 
@@ -302,7 +300,6 @@ While these are logical defaults, they are not always the desired order. There a
 {{ range (.Pages.GroupByDate "2006-01").Reverse }}
 ```
 
-
 #### Provide the Alternate Direction
 
 ```
@@ -338,7 +335,6 @@ within each group is ordered alphabetically by title.
 
 See the [_Lists/Filtering and Limiting Lists_
 section][filteringandlimitinglists] for details.
-
 
 [views]: /templates/views/
 [filteringandlimitinglists]: /templates/lists/#filtering-and-limiting-lists

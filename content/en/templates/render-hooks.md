@@ -85,7 +85,7 @@ PlainText
 Attributes (map) {{< new-in "0.82.0" >}}
 : A map of attributes (e.g. `id`, `class`)
 
-### Link with title Markdown example:
+### Link with title Markdown example
 
 ```md
 [Text](https://www.gohugo.io "Title")
@@ -97,7 +97,7 @@ Here is a code example for how the render-link.html template could look:
 <a href="{{ .Destination | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}{{ if strings.HasPrefix .Destination "http" }} target="_blank" rel="noopener"{{ end }}>{{ .Text | safeHTML }}</a>
 {{< /code >}}
 
-### Image Markdown example:
+### Image Markdown example
 
 ```md
 ![Text](https://gohugo.io/images/hugo-logo-wide.svg "Title")

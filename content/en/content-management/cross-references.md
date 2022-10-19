@@ -116,7 +116,7 @@ produces this HTML:
 
 The behavior can, since Hugo 0.45, be configured in `config.toml`:
 
-refLinksErrorLevel ("ERROR") 
+refLinksErrorLevel ("ERROR")
 : When using `ref` or `relref` to resolve page links and a link cannot resolved, it will be logged with this log level. Valid values are `ERROR` (default) or `WARNING`. Any `ERROR` will fail the build (`exit -1`).
 
 refLinksNotFoundURL

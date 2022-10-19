@@ -22,8 +22,3 @@ Example:
 ```
 
 The above is an imaginary use case for the home page where you want to display different page listings in sections/boxes on different places on the page: 5 from `news`, 5 from the `blog` and then 10 of the pages not shown in the other listings, to _complement_ them.
-
-
-
-
-

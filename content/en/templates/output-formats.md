@@ -135,6 +135,7 @@ A `Page` in Hugo can be rendered to multiple *output formats* on the file
 system.
 
 ### Default Output Formats
+
 Every `Page` has a [`Kind`][page_kinds] attribute, and the default Output
 Formats are set based on that.
 
@@ -186,7 +187,7 @@ outputs:
 ---
 ```
 
-##  List Output formats
+## List Output formats
 
 Each `Page` has both an `.OutputFormats` (all formats, including the current) and an `.AlternativeOutputFormats` variable, the latter of which is useful for creating a `link rel` list in your site's `<head>`:
 

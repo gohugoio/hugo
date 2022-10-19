@@ -4,7 +4,6 @@ linktitle:
 description: The base and block constructs allow you to define the outer shell of your master templates (i.e., the chrome of the page).
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [templates,fundamentals]
 keywords: [blocks,base]
 menu:

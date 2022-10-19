@@ -507,6 +507,7 @@ The rendering of the main navigation works as usual. `.Site.Menus` will just con
 ```
 
 ### Dynamically localizing menus with i18n
+
 While customizing menus per language is useful, your config file can become hard to maintain if you have a lot of languages
 
 If your menus are the same in all languages (ie. if the only thing that changes is the translated name) you can use the `.Identifier` as a translation key for the menu name:
@@ -569,9 +570,8 @@ If there is more than one language defined, the `LanguagePrefix` variable will e
 
 
 ## Generate multilingual content with `hugo new`
+
 Currently, `hugo new` is not ready to support generating multilingual content. But there is a [proposal topic](https://github.com/gohugoio/hugo/issues/7732) about this in GitHub issue to discuss how it should work.
-
-
 
 [abslangurl]: /functions/abslangurl
 [config]: /getting-started/configuration/

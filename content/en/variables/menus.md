@@ -67,9 +67,9 @@ a string representing HTML.
 
 .Weight
 : _int_ <br />
-Value of the `weight` key if set for the menu entry. By default the entries in 
-a menu are sorted ascending by their `weight`. If that key is not set, and if 
-the menu entry is set in a page front-matter, this value defaults to the page's 
+Value of the `weight` key if set for the menu entry. By default the entries in
+a menu are sorted ascending by their `weight`. If that key is not set, and if
+the menu entry is set in a page front-matter, this value defaults to the page's
 `.Weight`.
 
 .Parent
@@ -122,7 +122,6 @@ See [`.IsMenuCurrent` method](/functions/ismenucurrent/).
 .HasMenuCurrent
 : _(menu string, menuEntry *MenuEntry) boolean_ <br />
 See [`.HasMenuCurrent` method](/functions/hasmenucurrent/).
-
 
 [menu-template]: /templates/menu-templates/
 [page-object]: /variables/page/

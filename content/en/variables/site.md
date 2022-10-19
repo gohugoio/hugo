@@ -129,7 +129,4 @@ You can use `.Site.Params` in a [partial template](/templates/partials/) to call
 
 {{< getcontent path="readfiles/pages-vs-site-pages.md" >}}
 
-
-
-
 [config]: /getting-started/configuration/

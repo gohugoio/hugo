@@ -176,7 +176,7 @@ Hugo injects the LiveReload `<script>` before the closing `</body>` in your temp
 
 ### Redirect automatically to the page you just saved
 
-When you are working with more than one document and want to see the markup as real-time as possible it's not ideal to keep jumping between them. 
+When you are working with more than one document and want to see the markup as real-time as possible it's not ideal to keep jumping between them.
 Fortunately Hugo has an easy, embedded and simple solution for this. It's the flag `--navigateToChanged`.
 
 ### Disable LiveReload

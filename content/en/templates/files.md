@@ -43,7 +43,7 @@ To use the `readFile` function in your templates, make sure the path is relative
 
 ### `readFile` Example: Add a Project File to Content
 
-As `readFile` is a function, it is only available to you in your templates and not your content. However, we can create a simple [shortcode template][sct] that calls `readFile`, passes the first argument through the function, and then allows an optional second argument to send the file through the markdown processor. The pattern for adding this shortcode to your content will be as follows:
+As `readFile` is a function, it is only available to you in your templates and not your content. However, we can create a simple [shortcode template][sct] that calls `readFile`, passes the first argument through the function, and then allows an optional second argument to send the file through the Markdown processor. The pattern for adding this shortcode to your content will be as follows:
 
 ```
 {{</* readfile file="/path/to/local/file.txt" markdown="true" */>}}
@@ -52,8 +52,6 @@ As `readFile` is a function, it is only available to you in your templates and n
 {{% warning %}}
 If you are going to create [custom shortcodes](/templates/shortcode-templates/) with `readFile` for a theme, note that usage of the shortcode will refer to the project root and *not* your `themes` directory.
 {{% /warning %}}
-
-
 
 [called directly in the Hugo docs]: https://github.com/gohugoio/hugoDocs/blob/master/content/en/templates/files.md
 [dirindex]: https://github.com/gohugoio/hugo/blob/master/docs/layouts/shortcodes/directoryindex.html
