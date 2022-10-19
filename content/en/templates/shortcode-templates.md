@@ -110,6 +110,11 @@ by using the self-closing syntax:
 {{</* innershortcode /*/>}}
 ```
 
+{{% warning %}}
+Any shortcode that refers to `.Inner` must be closed or self-closed.
+
+{{% /warning %}}
+
 #### `.Params`
 
 The `.Params` variable in shortcodes contains the list parameters passed to shortcode for more complicated use cases. You can also access higher-scoped parameters with the following logic:
