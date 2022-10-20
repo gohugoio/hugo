@@ -29,6 +29,7 @@ import (
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/pandoc"
 	"github.com/gohugoio/hugo/markup/rst"
+	"github.com/gohugoio/hugo/markup/minml"
 )
 
 func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, error) {
@@ -66,6 +67,10 @@ func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, erro
 		return nil
 	}
 
+	// The set of file extensions actually recognized
+	// and matched to these converter providers is in
+	// hugofs/files/classifier.go
+
 	if err := add(goldmark.Provider); err != nil {
 		return nil, err
 	}
@@ -79,6 +84,9 @@ func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, erro
 		return nil, err
 	}
 	if err := add(org.Provider); err != nil {
+		return nil, err
+	}
+	if err := add(minml.Provider, "m"); err != nil {
 		return nil, err
 	}
 

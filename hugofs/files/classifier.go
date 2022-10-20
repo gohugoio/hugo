@@ -42,6 +42,7 @@ var (
 		"rest", "rst",
 		"org",
 		"pandoc", "pdc",
+		"minml", "m",
 	}
 
 	contentFileExtensionsSet map[string]bool
