@@ -133,7 +133,7 @@ Press Ctrl+C to stop
 
 **Navigate to your new site at [http://localhost:1313/](http://localhost:1313/).**
 
-Feel free to edit or add new content and simply refresh in browser to see changes quickly. (You might need to force refresh your web browser, something like Ctrl-R usually works.)
+Feel free to edit or add new content and you will see the changes in the browser right away while the Hugo server is running. (You might need to force refresh your web browser, something like Ctrl-R usually works.)
 
 ## Step 6: Customize the Theme
 
