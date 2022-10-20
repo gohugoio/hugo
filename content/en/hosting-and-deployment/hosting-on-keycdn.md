@@ -11,7 +11,6 @@ menu:
 slug: ""
 aliases: []
 toc: false
-draft: false
 ---
 
 [KeyCDN](https://www.keycdn.com/) provides a multitude of features to help accelerate and secure your Hugo site globally including Brotli compression, Let's Encrypt support, Origin Shield, and more.

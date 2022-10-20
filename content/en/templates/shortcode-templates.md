@@ -339,7 +339,7 @@ You can then call your shortcode in your content as follows:
 
 This will output the following HTML. Note how the first two `img` shortcodes inherit the `class` value of `content-gallery` set with the call to the parent `gallery`, whereas the third `img` only uses `src`:
 
-```
+```html
 <div class="content-gallery">
     <img src="/images/one.jpg" class="content-gallery-image">
     <img src="/images/two.jpg" class="content-gallery-image">

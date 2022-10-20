@@ -24,6 +24,6 @@ The following example creates a resource file containing localized variables for
 {{ $vars := $string | resources.FromString $targetPath }}
 {{ $global := resources.Get "js/global.js" | resources.Minify }}
 
-<script type="text/javascript" src="{{ $vars.Permalink }}"></script>
-<script type="text/javascript" src="{{ $global.Permalink }}"></script>
+<script src="{{ $vars.Permalink }}"></script>
+<script src="{{ $global.Permalink }}"></script>
 ```

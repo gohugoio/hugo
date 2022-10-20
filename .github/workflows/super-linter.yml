@@ -1,10 +1,7 @@
 name: Super Linter
 
 on:
-  push:
-    branches: [master]
-  pull_request:
-    branches: [master]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -26,7 +23,6 @@ jobs:
           LOG_LEVEL: NOTICE
           MARKDOWN_CONFIG_FILE: .markdownlint.yaml
           SUPPRESS_POSSUM: true
-          VALIDATE_ALL_CODEBASE: false
           VALIDATE_CSS: false
           VALIDATE_EDITORCONFIG: false
           VALIDATE_GITLEAKS: false

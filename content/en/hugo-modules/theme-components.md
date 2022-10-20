@@ -33,7 +33,7 @@ For any given file, data entry, etc., Hugo will look first in the project and th
 
 Hugo uses two different algorithms to merge the filesystems, depending on the file type:
 
-* For `i18n` and `data` files, Hugo merges deeply using the translation id and data key inside the files.
+* For `i18n` and `data` files, Hugo merges deeply using the translation ID and data key inside the files.
 * For `static`, `layouts` (templates), and `archetypes` files, these are merged on file level. So the left-most file will be chosen.
 
 The name used in the `theme` definition above must match a folder in `/your-site/themes`, e.g. `/your-site/themes/my-shortcodes`. There are plans to improve on this and get a URL scheme so this can be resolved automatically.

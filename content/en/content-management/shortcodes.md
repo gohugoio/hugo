@@ -313,7 +313,7 @@ https://twitter.com/SanDiegoZoo/status/1453110110599868418
 
 #### Example `tweet` Input
 
-Pass the tweet's user (case-insensitive) and id from the URL as parameters to the `tweet` shortcode.
+Pass the tweet's user (case-insensitive) and ID from the URL as parameters to the `tweet` shortcode.
 
 {{< code file="example-tweet-input.md" >}}
 {{</* tweet user="SanDiegoZoo" id="1453110110599868418" */>}}

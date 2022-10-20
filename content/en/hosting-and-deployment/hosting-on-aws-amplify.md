@@ -4,7 +4,6 @@ linktitle: Host on AWS Amplify
 description: Develop and deploy a cloud-powered web app with AWS Amplify.
 date: 2018-01-31
 publishdate: 2018-01-31
-lastmod: 2018-01-31
 categories: [hosting and deployment]
 keywords: [amplify,hosting,deployment]
 authors: [Nikhil Swaminathan]
@@ -14,7 +13,6 @@ menu:
     weight: 10
 weight: 10
 sections_weight: 10
-draft: false
 aliases: []
 toc: true
 ---
@@ -42,7 +40,7 @@ AWS Amplify is a combination of client library, CLI toolchain, and a Console for
 
 1. Review your changes and then choose **Save and deploy**. The Amplify Console will pull code from your repository, build changes to the backend and frontend, and deploy your build artifacts at `https://master.unique-id.amplifyapp.com`. Bonus: Screenshots of your app on different devices to find layout issues.
 
-## Using a Newer Version of Hugo
+## Using a newer version of Hugo
 
 If you need to use a different, perhaps newer, version of Hugo than the version currently supported by AWS Amplify:
 

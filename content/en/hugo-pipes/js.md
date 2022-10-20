@@ -11,7 +11,6 @@ menu:
     weight: 45
 weight: 45
 sections_weight: 45
-draft: false
 ---
 
 Any JavaScript resource file can be transpiled and "tree shaken" using `js.Build` which takes for argument either a string for the filepath or a dict of options listed below.
@@ -166,5 +165,5 @@ Or with options:
 
 {{ $opts := dict "targetPath" "main.js" "externals" $externals "defines" $defines }}
 {{ $built := resources.Get "scripts/main.js" | js.Build $opts }}
-<script type="text/javascript" src="{{ $built.RelPermalink }}" defer></script>
+<script src="{{ $built.RelPermalink }}" defer></script>
 ```

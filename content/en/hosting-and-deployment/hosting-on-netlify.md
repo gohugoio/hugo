@@ -4,7 +4,6 @@ linktitle: Host on Netlify
 description: Netlify can host your Hugo site with CDN, continuous deployment, 1-click HTTPS, an admin GUI, and its own CLI.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-03-11
 categories: [hosting and deployment]
 keywords: [netlify,hosting,deployment]
 authors: [Ryan Watters, Seth MacLeod]
@@ -14,7 +13,6 @@ menu:
     weight: 10
 weight: 10
 sections_weight: 10
-draft: false
 aliases: []
 toc: true
 ---
@@ -39,7 +37,7 @@ Selecting GitHub will bring up an authorization modal for authentication. Select
 
 ![Screenshot of the authorization popup for Netlify and GitHub.](/images/hosting-and-deployment/hosting-on-netlify/netlify-first-authorize.jpg)
 
-## Create a New Site with Continuous Deployment
+## Create a new site with continuous deployment
 
 You're now already a Netlify member and should be brought to your new dashboard. Select "New site from git."
 
@@ -59,7 +57,7 @@ Select the repo you want to use for continuous deployment. If you have a large n
 
 Once selected, you'll be brought to a screen for basic setup. Here you can select the branch you wanted published, your [build command][], and your publish (i.e. deploy) directory. The publish directory should mirror that of what you've set in your [site configuration][config], the default of which is `public`. The following steps assume you are publishing from the `master` branch.
 
-## Configure Hugo Version in Netlify
+## Configure Hugo version in Netlify
 
 You can [set Hugo version](https://www.netlify.com/blog/2017/04/11/netlify-plus-hugo-0.20-and-beyond/) for your environments in `netlify.toml` file or set `HUGO_VERSION` as a build environment variable in the Netlify console.
 
@@ -67,14 +65,14 @@ For production:
 
 {{< code file="netlify.toml" codeLang="toml" >}}
 [context.production.environment]
-  HUGO_VERSION = "0.83.1"
+  HUGO_VERSION = "0.99.1"
 {{< /code >}}
 
 For testing:
 
 {{< code file="netlify.toml" codeLang="toml" >}}
 [context.deploy-preview.environment]
-  HUGO_VERSION = "0.83.1"
+  HUGO_VERSION = "0.99.1"
 {{< /code >}}
 
 The Netlify configuration file can be a little hard to understand and get right for the different environment, and you may get some inspiration and tips from this site's `netlify.toml`:

@@ -22,5 +22,5 @@ Any so processed asset will bear a `.Data.Integrity` property containing an inte
 ```go-html-template
 {{ $js := resources.Get "js/global.js" }}
 {{ $secureJS := $js | resources.Fingerprint "sha512" }}
-<script type="text/javascript" src="{{ $secureJS.Permalink }}" integrity="{{ $secureJS.Data.Integrity }}"></script>
+<script src="{{ $secureJS.Permalink }}" integrity="{{ $secureJS.Data.Integrity }}"></script>
 ```

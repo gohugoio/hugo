@@ -94,7 +94,7 @@ Create a new script called `deploy` the root of your Hugo tree:
 
 Add the following content. Replace the `USER`, `HOST`, and `DIR` values with your own values:
 
-```
+```bash
 #!/bin/sh
 USER=my-user
 HOST=my-server.com

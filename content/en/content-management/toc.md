@@ -27,7 +27,7 @@ Hugo [v0.60.0](https://github.com/gohugoio/hugo/releases/tag/v0.60.0) made a swi
 
 ## Usage
 
-Create your markdown the way you normally would with the appropriate headings. Here is some example content:
+Create your Markdown the way you normally would with the appropriate headings. Here is some example content:
 
 ```
 <!-- Your front matter up here -->

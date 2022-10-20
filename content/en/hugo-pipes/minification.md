@@ -11,7 +11,6 @@ menu:
     weight: 50
 weight: 50
 sections_weight: 50
-draft: false
 ---
 
 Any resource of the aforementioned types can be minified using `resources.Minify` which takes for argument the resource object.

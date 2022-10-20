@@ -31,15 +31,15 @@ In Hugo `v0.75` we improved the way we resolve JS configuration and dependencies
 
 ```js
 module.exports = {
-        presets: [
-                [
-                        require('@babel/preset-env'),
-                        {
-                                useBuiltIns: 'entry',
-                                corejs: 3
-                        }
-                ]
-        ]
+  presets: [
+    [
+      require("@babel/preset-env"),
+      {
+        useBuiltIns: "entry",
+        corejs: 3,
+      },
+    ],
+  ],
 };
 ```
 

@@ -156,7 +156,7 @@ When aliases are specified, Hugo creates a directory to match the alias entry. I
 
 For example, a content file at `posts/my-intended-url.md` with the following in the front matter:
 
-```
+```yml
 ---
 title: My New post
 aliases: [/posts/my-old-url/]
@@ -165,7 +165,7 @@ aliases: [/posts/my-old-url/]
 
 Assuming a `baseURL` of `example.com`, the contents of the auto-generated alias `.html` found at `https://example.com/posts/my-old-url/` will contain the following:
 
-```
+```html
 <!DOCTYPE html>
 <html>
   <head>
@@ -251,7 +251,6 @@ Here's the same organization run with `hugo --uglyURLs`:
         └── second.md      // <- https://example.com/quote/second.html
 ```
 
-
 ## Canonicalization
 
 By default, all relative URLs encountered in the input are left unmodified, e.g. `/css/foo.css` would stay as `/css/foo.css`. The `canonifyURLs` field in your site `config` has a default value of `false`.
@@ -299,7 +298,6 @@ title: "Custom URL!"
 url: "custom/foo"
 ---
 ```
-
 
 ## Relative URLs
 

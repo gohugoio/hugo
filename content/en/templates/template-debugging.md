@@ -1,10 +1,8 @@
 ---
 title: Template Debugging
-# linktitle: Template Debugging
 description: You can use Go templates' `printf` function to debug your Hugo  templates. These snippets provide a quick and easy visualization of the variables available to you in different contexts.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [templates]
 keywords: [debugging,troubleshooting]
 menu:
@@ -13,7 +11,6 @@ menu:
     weight: 180
 weight: 180
 sections_weight: 180
-draft: false
 aliases: []
 toc: false
 ---
@@ -32,20 +29,16 @@ You can use the template syntax, `$.`, to get the top-level template context fro
 
 This will print out the value of `.Permalink`:
 
-
 ```
 {{ printf "%#v" .Permalink }}
 ```
 
-
 This will print out a list of all the variables scoped to the current context
 (`.`, aka ["the dot"][tempintro]).
-
 
 ```
 {{ printf "%#v" . }}
 ```
-
 
 When developing a [homepage][], what does one of the pages you're looping through look like?
 
