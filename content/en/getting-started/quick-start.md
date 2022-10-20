@@ -28,6 +28,8 @@ For other approaches to learning Hugo (like books or video tutorials), refer to 
 
 ## Step 1: Install Hugo
 
+Install the **extended version of Hugo** (this is required for the current theme used).
+
 {{% note %}}
 `Homebrew` and `MacPorts`, package managers for `macOS`,  can be installed from [brew.sh](https://brew.sh/) or [macports.org](https://www.macports.org/) respectively. See [install](/getting-started/installing) if you are running Windows etc.
 {{% /note %}}
@@ -42,7 +44,10 @@ To verify your new install:
 
 ```bash
 hugo version
+# Example output: hugo v0.104.2+extended darwin/amd64 BuildDate=unknown
 ```
+
+It should state that it is `extended`. If it does not, uninstall it and try another installation method.
 
 {{< asciicast ItACREbFgvJ0HjnSNeTknxWy9 >}}
 
