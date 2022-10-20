@@ -216,6 +216,14 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dedis/matchertext v0.0.0-20221020032917-63b9be81896e h1:y6PvIz0hE5mwvzlt2vkZvjGPReghH0wUEDwndhar0nA=
 github.com/dedis/matchertext v0.0.0-20221020032917-63b9be81896e/go.mod h1:3X3tfeu2xrvxTIuTYEVCtwSvgXmVX3wQs/3wesjYa4o=
+github.com/dedis/matchertext v0.0.0-20221020081355-389613793185 h1:PKKYhUqOOs9giCSODdieP6AYbNGXGdObzed7zCbtiwI=
+github.com/dedis/matchertext v0.0.0-20221020081355-389613793185/go.mod h1:3X3tfeu2xrvxTIuTYEVCtwSvgXmVX3wQs/3wesjYa4o=
+github.com/dedis/matchertext v0.0.0-20221020090031-d0730e1c7c9d h1:6h3ix+cFSvT9X4kASyzNNJvMzrpz4x+QM/i5jujgTPU=
+github.com/dedis/matchertext v0.0.0-20221020090031-d0730e1c7c9d/go.mod h1:3X3tfeu2xrvxTIuTYEVCtwSvgXmVX3wQs/3wesjYa4o=
+github.com/dedis/matchertext v0.0.0-20221020090239-2d7dfccace06 h1:4uiSnXxd/wq5p8v3+PfFh9r92m0C47yeTBk8uKYszYk=
+github.com/dedis/matchertext v0.0.0-20221020090239-2d7dfccace06/go.mod h1:3X3tfeu2xrvxTIuTYEVCtwSvgXmVX3wQs/3wesjYa4o=
+github.com/dedis/matchertext v0.0.0-20221020215824-e12bed510756 h1:peT/Lmy2nQBy5XnFRUhLMGRoQi8F1YJwQYO1l7YwSjQ=
+github.com/dedis/matchertext v0.0.0-20221020215824-e12bed510756/go.mod h1:3X3tfeu2xrvxTIuTYEVCtwSvgXmVX3wQs/3wesjYa4o=
 github.com/denisenkom/go-mssqldb v0.9.0/go.mod h1:xbL0rPBG9cCiLr28tMa8zpbdarY27NDyej4t/EjAShU=
 github.com/devigned/tab v0.1.1/go.mod h1:XG9mPq0dFghrYvoBF3xdRrJzSTX1b7IQrvaL9mzjeJY=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=

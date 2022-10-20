@@ -21,8 +21,8 @@ import (
 
 	"github.com/gohugoio/hugo/markup/converter"
 
-	"github.com/dedis/matchertext/go/xml/minml"
-	"github.com/dedis/matchertext/go/xml/ast"
+	"github.com/dedis/matchertext/go/markup/html"
+	"github.com/dedis/matchertext/go/markup/minml"
 )
 
 // Provider is the package entry point.
@@ -35,11 +35,11 @@ func (p provide) New(cfg converter.ProviderConfig) (converter.Provider, error) {
 		func(ctx converter.DocumentContext) (
 			converter.Converter, error) {
 
-		return &minmlConverter{
-			ctx: ctx,
-			cfg: cfg,
-		}, nil
-	}), nil
+			return &minmlConverter{
+				ctx: ctx,
+				cfg: cfg,
+			}, nil
+		}), nil
 }
 
 type minmlConverter struct {
@@ -57,14 +57,17 @@ func (c *minmlConverter) Convert(ctx converter.RenderContext) (
 	result converter.Result, err error) {
 
 	// Parse the MinML input to a slice of markup nodes
-	ns, err := minml.Parse(bytes.NewReader(ctx.Src))
+	dec := minml.NewDecoder(bytes.NewReader(ctx.Src)).
+		WithTransformer(minml.EntityTransformer).
+		WithTransformer(minml.QuoteTransformer)
+	ns, err := dec.Decode()
 	if err != nil {
 		return nil, err
 	}
 
 	// Write resulting AST to a result buffer
 	buf := &bytes.Buffer{}
-	enc := ast.NewEncoder(buf)
+	enc := html.NewEncoder(buf)
 	if err := enc.Encode(ns); err != nil {
 		return nil, err
 	}
@@ -72,10 +75,8 @@ func (c *minmlConverter) Convert(ctx converter.RenderContext) (
 	return minmlResult{Result: buf}, nil
 }
 
-var featureSet = map[identity.Identity]bool{
-}
+var featureSet = map[identity.Identity]bool{}
 
 func (c *minmlConverter) Supports(feature identity.Identity) bool {
 	return featureSet[feature.GetIdentity()]
 }
-
