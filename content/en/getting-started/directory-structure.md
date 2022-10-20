@@ -4,7 +4,6 @@ linktitle: Directory Structure
 description: Hugo's CLI scaffolds a project directory structure and then takes that single directory and uses it as the input to create a complete website.
 date: 2017-01-02
 publishdate: 2017-02-01
-lastmod: 2017-03-09
 categories: [getting started,fundamentals]
 keywords: [source, organization, directories]
 menu:
@@ -13,7 +12,6 @@ menu:
     weight: 50
 weight: 50
 sections_weight: 50
-draft: false
 aliases: [/overview/source-directory/]
 toc: true
 ---
@@ -88,7 +86,7 @@ From **Hugo 0.31** you can have multiple static directories.
 [lists]: /templates/list/
 [pagevars]: /variables/page/
 [partials]: /templates/partials/
-[searchconsole]: https://support.google.com/analytics/answer/1142414?hl=en
+[searchconsole]: https://support.google.com/webmasters/answer/9008080#zippy=%2Chtml-file-upload
 [singles]: /templates/single-page-templates/
 [starters]: /tools/starter-kits/
 [taxonomies]: /content-management/taxonomies/
