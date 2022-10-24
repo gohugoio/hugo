@@ -82,7 +82,7 @@ func TestJsonify(t *testing.T) {
 	c := qt.New(t)
 	ns := New()
 
-	for _, test := range []struct {
+	for i, test := range []struct {
 		opts   any
 		v      any
 		expect any
@@ -91,6 +91,9 @@ func TestJsonify(t *testing.T) {
 		{map[string]string{"indent": "<i>"}, []string{"a", "b"}, template.HTML("[\n<i>\"a\",\n<i>\"b\"\n]")},
 		{map[string]string{"prefix": "<p>"}, []string{"a", "b"}, template.HTML("[\n<p>\"a\",\n<p>\"b\"\n<p>]")},
 		{map[string]string{"prefix": "<p>", "indent": "<i>"}, []string{"a", "b"}, template.HTML("[\n<p><i>\"a\",\n<p><i>\"b\"\n<p>]")},
+		{map[string]string{"indent": "<i>"}, []string{"a", "b"}, template.HTML("[\n<i>\"a\",\n<i>\"b\"\n]")},
+		{map[string]any{"noHTMLEscape": false}, []string{"<a>", "<b>"}, template.HTML("[\"\\u003ca\\u003e\",\"\\u003cb\\u003e\"]")},
+		{map[string]any{"noHTMLEscape": true}, []string{"<a>", "<b>"}, template.HTML("[\"<a>\",\"<b>\"]")},
 		{nil, tstNoStringer{}, template.HTML("{}")},
 		{nil, nil, template.HTML("null")},
 		// errors
@@ -108,11 +111,11 @@ func TestJsonify(t *testing.T) {
 		result, err := ns.Jsonify(args...)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.Not(qt.IsNil), qt.Commentf("#%d", i))
 			continue
 		}
 
 		c.Assert(err, qt.IsNil)
-		c.Assert(result, qt.Equals, test.expect)
+		c.Assert(result, qt.Equals, test.expect, qt.Commentf("#%d", i))
 	}
 }
