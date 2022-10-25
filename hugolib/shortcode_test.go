@@ -1087,3 +1087,96 @@ Title: {{ .Get "title" | safeHTML }}
 	b.AssertFileContent("public/p1/index.html", `Title: Steve "Francia".`)
 
 }
+
+// Issue 10391.
+func TestNestedShortcodeCustomOutputFormat(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+
+[outputFormats.Foobar]
+baseName = "foobar"
+isPlainText = true
+mediaType = "application/json"
+notAlternative = true
+
+[languages.en]
+languageName = "English"
+
+[languages.en.outputs]
+home = [ "HTML", "RSS", "Foobar" ]
+
+[languages.fr]
+languageName = "Français"
+
+[[module.mounts]]
+source = "content/en"
+target = "content"
+lang = "en"
+
+[[module.mounts]]
+source = "content/fr"
+target = "content"
+lang = "fr"
+
+-- layouts/_default/list.foobar.json --
+{{- $.Scratch.Add "data" slice -}}
+{{- range (where .Site.AllPages "Kind" "!=" "home") -}}
+	{{- $.Scratch.Add "data" (dict "content" (.Plain | truncate 10000) "type" .Type "full_url" .Permalink) -}}
+{{- end -}}
+{{- $.Scratch.Get "data" | jsonify -}}
+-- content/en/p1.md --
+---
+title: "p1"
+---
+
+### More information
+
+{{< tabs >}}
+{{% tab "Test" %}}
+
+It's a test
+
+{{% /tab %}}
+{{< /tabs >}}
+
+-- content/fr/p2.md --
+---
+title: Test
+---
+
+### Plus d'informations
+
+{{< tabs >}}
+{{% tab "Test" %}}
+
+C'est un test
+
+{{% /tab %}}
+{{< /tabs >}}
+
+-- layouts/shortcodes/tabs.html --
+<div>
+  <div class="tab-content">{{ .Inner }}</div>
+</div>
+
+-- layouts/shortcodes/tab.html --
+<div>{{ .Inner }}</div>
+
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			Running:     true,
+			Verbose:     true,
+		},
+	).Build()
+
+	b.AssertFileContent("public/fr/p2/index.html", `plus-dinformations`)
+
+}
