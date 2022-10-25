@@ -87,10 +87,10 @@ All the methods below, e.g. `.Site.RegularPages` can also be reached via the glo
 : all of the menus in the site.
 
 .Site.Pages
-: array of all content ordered by Date with the newest first. This array contains only the pages in the current language. See [`.Site.Pages`](#site-pages).
+: array of all content ordered by Date with the newest first. This array contains only the pages in the current language. See [`.Site.Pages`]({{< relref "site.md#site-pages" >}}).
 
 .Site.RegularPages
-: a shortcut to the *regular* page collection. `.Site.RegularPages` is equivalent to `where .Site.Pages "Kind" "page"`. See [`.Site.Pages`](#site-pages).
+: a shortcut to the *regular* page collection. `.Site.RegularPages` is equivalent to `where .Site.Pages "Kind" "page"`. See [`.Site.Pages`]({{< relref "site.md#site-pages" >}}).
 
 .Site.Sections
 : top-level directories of the site.

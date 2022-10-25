@@ -105,7 +105,7 @@ See also `.ExpiryDate`, `.Date`, `.PublishDate`, and [`.GitInfo`][gitinfo].
 
 .Pages
 : a collection of associated pages. This value will be `nil` within
-  the context of regular content pages. See [`.Pages`](#pages).
+  the context of regular content pages. See [`.Pages`]({{< relref "page.md#pages" >}}).
 
 .Permalink
 : the Permanent link for this page; see [Permalinks](/content-management/urls/)

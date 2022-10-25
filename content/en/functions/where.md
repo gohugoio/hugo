@@ -115,7 +115,7 @@ You can also put the returned value of the `where` clauses into a variable:
 
 Using `first` and `where` together can be very
 powerful. Below snippet gets a list of posts only from [**main
-sections**](#mainsections), sorts it using the [default
+sections**]({{< relref "where.md#mainsections" >}}), sorts it using the [default
 ordering](/templates/lists/) for lists (i.e., `weight => date`), and
 then ranges through only the first 5 posts in that list:
 
