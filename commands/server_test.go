@@ -25,6 +25,7 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/htesting"
 	"golang.org/x/net/context"
 	"golang.org/x/sync/errgroup"
 
@@ -184,6 +185,10 @@ baseURL="https://example.org"
 }
 
 func TestServerBugs(t *testing.T) {
+	// TODO(bep) this is flaky on Windows on GH Actions.
+	if htesting.IsGitHubAction() && runtime.GOOS == "windows" {
+		t.Skip("skipping on windows")
+	}
 	c := qt.New(t)
 
 	for _, test := range []struct {
