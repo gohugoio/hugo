@@ -22,7 +22,7 @@ require (
 	github.com/evanw/esbuild v0.15.12
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/frankban/quicktest v1.14.3
-	github.com/fsnotify/fsnotify v1.5.4
+	github.com/fsnotify/fsnotify v1.6.0
 	github.com/getkin/kin-openapi v0.103.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/gobuffalo/flect v0.3.0
@@ -116,7 +116,7 @@ require (
 	go.opencensus.io v0.23.0 // indirect
 	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa // indirect
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5 // indirect
-	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab // indirect
+	golang.org/x/sys v0.0.0-20220908164124-27713097b956 // indirect
 	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20220426171045-31bebdecfb46 // indirect
