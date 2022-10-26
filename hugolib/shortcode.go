@@ -381,19 +381,8 @@ func renderShortcode(
 		// Pre Hugo 0.55 this was the behaviour even for the outer-most
 		// shortcode.
 		if sc.doMarkup && (level > 0 || sc.configVersion() == 1) {
-
-			cp := p.pageOutput.cp
-			if cp == nil {
-				var err error
-				cp, err = newPageContentOutput(p, p.pageOutput)
-				if err != nil {
-					return "", false, err
-				}
-				p.pageOutput.initContentProvider(cp)
-			}
-
 			var err error
-			b, err := p.pageOutput.cp.renderContent([]byte(inner), false)
+			b, err := p.pageOutput.contentRenderer.RenderContent([]byte(inner), false)
 			if err != nil {
 				return "", false, err
 			}

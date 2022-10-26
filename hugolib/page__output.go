@@ -81,6 +81,7 @@ type pageOutput struct {
 
 	// These interface provides the functionality that is specific for this
 	// output format.
+	contentRenderer page.ContentRenderer
 	pagePerOutputProviders
 	page.ContentProvider
 	page.TableOfContentsProvider
@@ -94,10 +95,12 @@ func (p *pageOutput) initContentProvider(cp *pageContentOutput) {
 	if cp == nil {
 		return
 	}
+	p.contentRenderer = cp
 	p.ContentProvider = cp
 	p.TableOfContentsProvider = cp
 	p.PageRenderProvider = cp
 	p.cp = cp
+
 }
 
 func (p *pageOutput) enablePlaceholders() {

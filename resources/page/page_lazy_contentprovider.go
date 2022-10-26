@@ -17,6 +17,7 @@ import (
 	"html/template"
 
 	"github.com/gohugoio/hugo/lazy"
+	"github.com/gohugoio/hugo/markup/converter"
 )
 
 // OutputFormatContentProvider represents the method set that is "outputFormat aware" and that we
@@ -24,6 +25,14 @@ import (
 // Note that this set is currently not complete, but should cover the most common use cases.
 // For the others, the implementation will be from the page.NoopPage.
 type OutputFormatContentProvider interface {
+	OutputFormatPageContentProvider
+
+	// for internal use.
+	ContentRenderer
+}
+
+// OutputFormatPageContentProvider holds the exported methods from Page that are "outputFormat aware".
+type OutputFormatPageContentProvider interface {
 	ContentProvider
 	TableOfContentsProvider
 	PageRenderProvider
@@ -46,7 +55,7 @@ type LazyContentProvider struct {
 func NewLazyContentProvider(f func() (OutputFormatContentProvider, error)) *LazyContentProvider {
 	lcp := LazyContentProvider{
 		init: lazy.New(),
-		cp:   NopPage,
+		cp:   NopCPageContentRenderer,
 	}
 	lcp.init.Add(func() (any, error) {
 		cp, err := f()
@@ -121,4 +130,9 @@ func (lcp *LazyContentProvider) RenderString(args ...any) (template.HTML, error)
 func (lcp *LazyContentProvider) TableOfContents() template.HTML {
 	lcp.init.Do()
 	return lcp.cp.TableOfContents()
+}
+
+func (lcp *LazyContentProvider) RenderContent(content []byte, renderTOC bool) (converter.Result, error) {
+	lcp.init.Do()
+	return lcp.cp.RenderContent(content, renderTOC)
 }

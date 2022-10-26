@@ -909,6 +909,7 @@ func (p *pageState) shiftToOutputFormat(isRenderingSite bool, idx int) error {
 				}
 				return cp, nil
 			})
+			p.pageOutput.contentRenderer = lcp
 			p.pageOutput.ContentProvider = lcp
 			p.pageOutput.TableOfContentsProvider = lcp
 			p.pageOutput.PageRenderProvider = lcp
