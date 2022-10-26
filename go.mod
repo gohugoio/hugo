@@ -57,7 +57,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/tdewolff/minify/v2 v2.12.1
 	github.com/tdewolff/parse/v2 v2.6.3
-	github.com/yuin/goldmark v1.4.15
+	github.com/yuin/goldmark v1.5.2
 	go.uber.org/atomic v1.10.0
 	gocloud.dev v0.24.0
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
