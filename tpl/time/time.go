@@ -15,6 +15,7 @@
 package time
 
 import (
+	"errors"
 	"fmt"
 	"time"
 	_time "time"
@@ -22,20 +23,25 @@ import (
 	"github.com/gohugoio/hugo/common/htime"
 
 	"github.com/spf13/cast"
+
+	translators "github.com/gohugoio/localescompressed"
 )
 
 // New returns a new instance of the time-namespaced template functions.
-func New(timeFormatter htime.TimeFormatter, location *time.Location) *Namespace {
+func New(langCode string, timeFormatter htime.TimeFormatter, location *time.Location) *Namespace {
+	timeFormatters := make(map[string]htime.TimeFormatter)
+	timeFormatters[langCode] = timeFormatter
+	timeFormatters["default"] = timeFormatter
 	return &Namespace{
-		timeFormatter: timeFormatter,
-		location:      location,
+		timeFormatters: timeFormatters,
+		location:       location,
 	}
 }
 
 // Namespace provides template functions for the "time" namespace.
 type Namespace struct {
-	timeFormatter htime.TimeFormatter
-	location      *time.Location
+	timeFormatters map[string]htime.TimeFormatter
+	location       *time.Location
 }
 
 // AsTime converts the textual representation of the datetime string into
@@ -59,13 +65,51 @@ func (ns *Namespace) AsTime(v any, args ...any) (any, error) {
 
 // Format converts the textual representation of the datetime string in v into
 // time.Time if needed and formats it with the given layout.
-func (ns *Namespace) Format(layout string, v any) (string, error) {
+func (ns *Namespace) Format(layout string, args ...any) (string, error) {
+	var v any
+	var locale any
+
+	if len(args) == 0 {
+		return "", errors.New("missing date/time argument")
+	}
+	v = args[0]
+	if len(args) == 2 {
+		locale = args[1]
+	}
+	if len(args) > 2 {
+		return "", errors.New("missing date/time argument")
+	}
+
 	t, err := htime.ToTimeInDefaultLocationE(v, ns.location)
 	if err != nil {
 		return "", err
 	}
 
-	return ns.timeFormatter.Format(t, layout), nil
+	localeStr := ""
+	switch val := locale.(type) {
+	case string:
+		localeStr = val
+	case *string:
+		localeStr = *val
+	case nil:
+		localeStr = "default"
+	default:
+		return "", errors.New("locale must be a string or nil")
+	}
+
+	formatter, ok := ns.timeFormatters[localeStr]
+	if ok {
+		return formatter.Format(t, layout), nil
+	}
+
+	translator := translators.GetTranslator(localeStr)
+	if translator != nil {
+		formatter = htime.NewTimeFormatter(translator)
+		ns.timeFormatters[localeStr] = formatter
+		return formatter.Format(t, layout), nil
+	}
+
+	return "", errors.New("no time formatter for language '" + localeStr + "'")
 }
 
 // Now returns the current local time or `clock` time
