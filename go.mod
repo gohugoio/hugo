@@ -61,10 +61,10 @@ require (
 	go.uber.org/atomic v1.10.0
 	gocloud.dev v0.24.0
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
-	golang.org/x/net v0.0.0-20220607020251-c690dde0001d
-	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/text v0.3.7
-	golang.org/x/tools v0.1.11
+	golang.org/x/net v0.0.0-20220722155237-a158d28d115b
+	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
+	golang.org/x/text v0.4.0
+	golang.org/x/tools v0.1.12
 	google.golang.org/api v0.76.0
 	gopkg.in/yaml.v2 v2.4.0
 )
