@@ -32,6 +32,17 @@ more copies of *indent* according to the indentation nesting.
 {{ dict "title" .Title "content" .Plain | jsonify (dict "prefix" " " "indent" "  ") }}
 ```
 
+## Jsonify options
+
+indent ("")
+: Indendation to use.
+
+prefix ("")
+: Indentation prefix.
+
+noHTMLEscape (false)
+: Disable escaping of problematic HTML characters inside JSON quoted strings. The default behavior is to escape &, <, and > to \u0026, \u003c, and \u003e to avoid certain safety problems that can arise when embedding JSON in HTML.
+
 See also the `.PlainWords`, `.Plain`, and `.RawContent` [page variables][pagevars].
 
 [pagevars]: /variables/page/
