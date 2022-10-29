@@ -205,7 +205,7 @@ Replace `brew install hugo` with `brew install hugo --HEAD` if you want the abso
 `brew` should have updated your path to include Hugo. You can confirm by opening a new terminal window and running a few commands:
 
 ```
-$ # show the location of the hugo executable
+# show the location of the hugo executable
 which hugo
 /usr/local/bin/hugo
 
