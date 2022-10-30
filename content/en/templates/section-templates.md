@@ -85,25 +85,25 @@ The `.Site.GetPage` example that follows assumes the following project directory
 
 `.Site.GetPage` will return `nil` if no `_index.md` page is found. Therefore, if `content/blog/_index.md` does not exist, the template will output the section name:
 
-```
+```go-html-template
 <h1>{{ with .Site.GetPage "section" "blog" }}{{ .Title }}{{ end }}</h1>
 ```
 
 Since `blog` has a section index page with front matter at `content/blog/_index.md`, the above code will return the following result:
 
-```
+```html
 <h1>My Hugo Blog</h1>
 ```
 
 If we try the same code with the `events` section, however, Hugo will default to the section title because there is no `content/events/_index.md` from which to pull content and front matter:
 
-```
+```go-html-template
 <h1>{{ with .Site.GetPage "section" "events" }}{{ .Title }}{{ end }}</h1>
 ```
 
 Which then returns the following:
 
-```
+```html
 <h1>Events</h1>
 ```
 

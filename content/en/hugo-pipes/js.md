@@ -44,7 +44,7 @@ inject [slice] {{< new-in "0.81.0" >}}
 shims {{< new-in "0.81.0" >}}
 : This option allows swapping out a component with another. A common use case is to load dependencies like React from a CDN  (with _shims_) when in production, but running with the full bundled `node_modules` dependency during development:
 
-```
+```go-html-template
 {{ $shims := dict "react" "js/shims/react.js"  "react-dom" "js/shims/react-dom.js" }}
 {{ $js = $js | js.Build dict "shims" $shims }}
 ```

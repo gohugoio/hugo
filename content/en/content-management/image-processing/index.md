@@ -309,7 +309,7 @@ The default value is 75. You may override the default value in the [site configu
 
 <!-- Specifies a libwebp preset, not a libwebp image hint. -->
 
-Applicable to WebP images, this option corresponds to a set of pre-defined encoding parameters.
+Applicable to WebP images, this option corresponds to a set of predefined encoding parameters.
 
 Value|Example
 :--|:--
@@ -377,10 +377,10 @@ _The photo of the sunset used in the examples below is Copyright [Bjørn Erik Pe
 This is the shortcode used to generate the examples above:
 
 {{< code file="layouts/shortcodes/imgproc.html" >}}
-{{< readfile file="layouts/shortcodes/imgproc.html" >}}  
+{{< readfile file="layouts/shortcodes/imgproc.html" >}}
 {{< /code >}}
 
-Call the shortcode from your markdown like this:
+Call the shortcode from your Markdown like this:
 
 ```go-html-template
 {{</* imgproc sunset Resize "300x" /*/>}}

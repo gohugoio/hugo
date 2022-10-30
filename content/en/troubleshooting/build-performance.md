@@ -30,7 +30,7 @@ executions take **in terms of CPU time**.
 | count               | The number of times a template was executed.                   |
 | template            | The template name.                                             |
 
-```
+```txt
 ▶ hugo --templateMetrics
 Started building sites ...
 

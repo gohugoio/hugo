@@ -75,7 +75,7 @@ The list of bass players can be accessed via `.Site.Data.jazz.bass`, a single ba
 
 You can now render the list of recordings for all the bass players in a template:
 
-```
+```go-html-template
 {{ range $.Site.Data.jazz.bass }}
    {{ partial "artist.html" . }}
 {{ end }}
@@ -83,7 +83,7 @@ You can now render the list of recordings for all the bass players in a template
 
 And then in the `partials/artist.html`:
 
-```
+```go-html-template
 <ul>
 {{ range .discography }}
   <li>{{ . }}</li>
@@ -119,14 +119,14 @@ Note the use of the [`markdownify` template function][markdownify]. This will se
 
 Use `getJSON` or `getCSV` to get remote data:
 
-```
+```go-html-template
 {{ $dataJ := getJSON "url" }}
 {{ $dataC := getCSV "separator" "url" }}
 ```
 
 If you use a prefix or postfix for the URL, the functions accept [variadic arguments][variadic]:
 
-```
+```go-html-template
 {{ $dataJ := getJSON "url prefix" "arg1" "arg2" "arg n" }}
 {{ $dataC := getCSV  "separator" "url prefix" "arg1" "arg2" "arg n" }}
 ```
@@ -135,14 +135,14 @@ The separator for `getCSV` must be put in the first position and can only be one
 
 All passed arguments will be joined to the final URL:
 
-```
+```go-html-template
 {{ $urlPre := "https://api.github.com" }}
 {{ $gistJ := getJSON $urlPre "/users/GITHUB_USERNAME/gists" }}
 ```
 
 This will resolve internally to the following:
 
-```
+```go-html-template
 {{ $gistJ := getJSON "https://api.github.com/users/GITHUB_USERNAME/gists" }}
 ```
 

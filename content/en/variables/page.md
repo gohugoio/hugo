@@ -200,7 +200,7 @@ aliased form `.Pages`.
 
 Any other value defined in the front matter in a content file, including taxonomies, will be made available as part of the `.Params` variable.
 
-```
+```yml
 ---
 title: My First Post
 date: 2017-02-20T15:26:23-06:00
@@ -219,7 +219,7 @@ Page-level `.Params` are *only* accessible in lowercase.
 
 The `.Params` variable is particularly useful for the introduction of user-defined front matter fields in content files. For example, a Hugo website on book reviews could have the following front matter in `/content/review/book01.md`:
 
-```
+```yml
 ---
 ...
 affiliatelink: "http://www.my-book-link.here"
@@ -252,7 +252,7 @@ See [Archetypes](/content-management/archetypes/) for consistency of `Params` ac
 
 In Hugo, you can declare params in individual pages and globally for your entire website. A common use case is to have a general value for the site param and a more specific value for some of the pages (i.e., a header image):
 
-```
+```go-html-template
 {{ $.Param "header_image" }}
 ```
 
@@ -262,7 +262,7 @@ The `.Param` method provides a way to resolve a single value according to it's d
 
 When front matter contains nested fields like the following:
 
-```
+```yml
 ---
 author:
   given_name: John
@@ -272,13 +272,13 @@ author:
 ```
 `.Param` can access these fields by concatenating the field names together with a dot:
 
-```
+```go-html-template
 {{ $.Param "author.display_name" }}
 ```
 
 If your front matter contains a top-level key that is ambiguous with a nested key, as in the following case:
 
-```
+```yml
 ---
 favorites.flavor: vanilla
 favorites:
@@ -288,7 +288,7 @@ favorites:
 
 The top-level key will be preferred. Therefore, the following method, when applied to the previous example, will print `vanilla` and not `chocolate`:
 
-```
+```txt
 {{ $.Param "favorites.flavor" }}
 => vanilla
 ```

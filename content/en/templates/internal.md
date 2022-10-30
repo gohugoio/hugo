@@ -52,13 +52,13 @@ googleAnalytics = "UA-PROPERTY_ID"
 
 You can then include the Google Analytics internal template:
 
-```
+```go-html-template
 {{ template "_internal/google_analytics_async.html" . }}
 ```
 
 **Note:** The async template is _not_ suitable for Google Analytics 4.
 
-```
+```go-html-template
 {{ template "_internal/google_analytics.html" . }}
 ```
 
@@ -122,7 +122,7 @@ The `if` statement skips the initialization of the Disqus comment injection when
 
 You can then render your custom Disqus partial template as follows:
 
-```
+```go-html-template
 {{ partial "disqus.html" . }}
 ```
 
@@ -172,7 +172,7 @@ If using YouTube this will produce a og:video tag like `<meta property="og:video
 
 To add Open Graph metadata, include the following line between the `<head>` tags in your templates:
 
-```
+```go-html-template
 {{ template "_internal/opengraph.html" . }}
 ```
 
@@ -207,7 +207,7 @@ Hugo uses the page title and description for the card's title and description fi
 
 To add Twitter card metadata, include the following line immediately after the `<head>` element in your templates:
 
-```
+```go-html-template
 {{ template "_internal/twitter_cards.html" . }}
 ```
 

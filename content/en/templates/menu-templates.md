@@ -72,7 +72,7 @@ Use the [`absLangURL`](/functions/abslangurl) or [`relLangURL`](/functions/rella
 
 To enable this menu, configure `sectionPagesMenu` in your site `config`:
 
-```
+```yml
 sectionPagesMenu = "main"
 ```
 
@@ -82,7 +82,7 @@ This will create a menu with all the sections as menu items and all the sections
 
 The _shadow_ implies that the pages isn't represented by a menu-item themselves, but this enables you to create a top-level menu like this:
 
-```
+```go-html-template
 <nav class="sidebar-nav">
     {{ $currentPage := . }}
     {{ range .Site.Menus.main }}
@@ -116,7 +116,7 @@ It's also possible to create menu entries from the page (i.e. the `.md`-file).
 
 Here is a `yaml` example:
 
-```
+```yml
 ---
 title: Menu Templates
 linktitle: Menu Templates
@@ -147,7 +147,7 @@ That's why you have to use the go template's `with` keyword or something similar
 
 Here's an example:
 
-```
+```go-html-template
 <nav class="sidebar-nav">
   {{ range .Site.Menus.main }}
     <a href="{{ .URL }}" title="{{ .Title }}">
@@ -168,7 +168,7 @@ User-defined content on menu items are accessible via `.Params`.
 
 Here's an example:
 
-```
+```go-html-template
 <nav class="sidebar-nav">
   {{ range .Site.Menus.main }}
     <a href="{{ .URL }}" title="{{ .Title }}" class="{{ with .Params.class }}{{ . }}{{ end }}">

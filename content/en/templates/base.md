@@ -74,7 +74,7 @@ This replaces the contents of our (basically empty) "main" block with something 
 {{% warning %}}
 Code that you put outside the block definitions *can* break your layout. This even includes HTML comments. For example:
 
-```
+```go-html-template
 <!-- Seemingly harmless HTML comment..that will break your layout at build -->
 {{ define "main" }}
 ...your code here

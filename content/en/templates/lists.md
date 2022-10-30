@@ -524,21 +524,21 @@ While these are logical defaults, they are not always the desired order. There a
 
 #### 1. Adding the Reverse Method
 
-```
+```go-html-template
 {{ range (.Pages.GroupBy "Section").Reverse }}
 ```
 
-```
+```go-html-template
 {{ range (.Pages.GroupByDate "2006-01").Reverse }}
 ```
 
 #### 2. Providing the Alternate Direction
 
-```
+```go-html-template
 {{ range .Pages.GroupByDate "2006-01" "asc" }}
 ```
 
-```
+```go-html-template
 {{ range .Pages.GroupBy "Section" "desc" }}
 ```
 

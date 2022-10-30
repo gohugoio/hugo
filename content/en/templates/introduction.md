@@ -43,7 +43,7 @@ current scope (like the `.Title` example in the [Variables]({{< relref
 
 Parameters for functions are separated using spaces. The general syntax is:
 
-```
+```go-html-template
 {{ FUNCTION ARG1 ARG2 .. }}
 ```
 
@@ -529,7 +529,7 @@ An example of this is used in the Hugo docs. Most of the pages benefit from havi
 
 Here is the example front matter (YAML):
 
-```
+```yml
 ---
 title: Roadmap
 lastmod: 2017-03-05

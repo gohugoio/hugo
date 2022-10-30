@@ -97,7 +97,7 @@ Use `hugo mod graph` from the relevant module directory and it will print the de
 
 E.g.:
 
-```
+```txt
 hugo mod graph
 
 github.com/bep/my-modular-site github.com/bep/hugotestmods/mymounts@v1.2.0
