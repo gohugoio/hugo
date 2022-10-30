@@ -3,8 +3,15 @@ name: Super Linter
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read  #  to fetch code (actions/checkout)
+
 jobs:
   build:
+    permissions:
+      contents: read  #  to fetch code (actions/checkout)
+      statuses: write  #  to mark status of each linter run (github/super-linter/slim)
+
     name: Lint Code Base
     runs-on: ubuntu-latest
     if: ${{ github.actor != 'dependabot[bot]' }}
