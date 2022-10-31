@@ -22,7 +22,7 @@ It's best to make changes to the Hugo docs on your local machine to check for co
 
 You can then create a separate branch for your additions. Be sure to choose a descriptive branch name that best fits the type of content. The following is an example of a branch name you might use for adding a new website to the showcase:
 
-```
+```txt
 git checkout -b jon-doe-showcase-addition
 ```
 
@@ -32,7 +32,7 @@ The Hugo docs make heavy use of Hugo's [archetypes][] feature. All content secti
 
 Adding new content to the Hugo docs follows the same pattern, regardless of the content section:
 
-```
+```txt
 hugo new <DOCS-SECTION>/<new-content-lowercase>.md
 ```
 
@@ -40,7 +40,7 @@ hugo new <DOCS-SECTION>/<new-content-lowercase>.md
 
 Once you have cloned the Hugo repository, you can create a new function via the following command. Keep the filename lowercase.
 
-```
+```txt
 hugo new functions/newfunction.md
 ```
 
@@ -96,7 +96,7 @@ Across many pages on the Hugo docs, the typical triple-back-tick Markdown syntax
 
 Your options for languages are `xml`/`html`, `go`/`golang`, `md`/`markdown`/`mkd`, `handlebars`, `apache`, `toml`, `yaml`, `json`, `css`, `asciidoc`, `ruby`, `powershell`/`ps`, `scss`, `sh`/`zsh`/`bash`/`git`, `http`/`https`, and `javascript`/`js`.
 
-````
+````txt
 ```
 <h1>Hello world!</h1>
 ```
@@ -115,7 +115,7 @@ With the `code` shortcodes, *you must include triple back ticks and a language d
 
 `code` is the Hugo docs shortcode you'll use most often. `code` requires has only one named parameter: `file`. Here is the pattern:
 
-```
+```go-html-template
 {{%/* code file="smart/file/name/with/path.html" download="download.html" copy="true" */%}}
 A whole bunch of coding going on up in here!
 {{%/* /code */%}}
@@ -139,7 +139,7 @@ This example HTML code block tells Hugo users the following:
 1. This file *could* live in `layouts/_default`, as demonstrated by `layouts/_default/single.html` as the value for `file`.
 2. This snippet is complete enough to be downloaded and implemented in a Hugo project, as demonstrated by `download="single.html"`.
 
-```
+```go-html-template
 {{</* code file="layouts/_default/single.html" download="single.html" */>}}
 {{ define "main" }}
 <main>
@@ -207,7 +207,7 @@ The preceding `output` example will render as follows to the Hugo docs:
 
 Blockquotes can be added to the Hugo documentation using [typical Markdown blockquote syntax][bqsyntax]:
 
-```
+```md
 > Without the threat of punishment, there is no joy in flight.
 ```
 
@@ -217,7 +217,7 @@ The preceding blockquote will render as follows in the Hugo docs:
 
 However, you can add a quick and easy `<cite>` element (added on the client via JavaScript) by separating your main blockquote and the citation with a hyphen with a single space on each side:
 
-```
+```md
 > Without the threat of punishment, there is no joy in flight. - [Kobo Abe](https://en.wikipedia.org/wiki/Kobo_Abe)
 ```
 

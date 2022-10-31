@@ -70,7 +70,7 @@ There are some current limitations: For tables you can currently only apply it t
 
 Note that attributes in [code fences](/content-management/syntax-highlighting/#highlighting-in-code-fences) must come after the opening tag, with any other highlighting processing instruction, e.g.:
 
-````
+````txt
 ```go {.myclass linenos=table,hl_lines=[8,"15-17"],linenostart=199}
 // ... code
 ```

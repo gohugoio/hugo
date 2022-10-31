@@ -105,7 +105,7 @@ The [`git clone` method for installing themes][installthemes] is not supported b
 
 A *better* approach is to install a theme as a proper git submodule. You can [read the GitHub documentation for submodules][ghsm] or those found on [Git's website][gitsm] for more information, but the command is similar to that of `git clone`:
 
-```
+```txt
 cd themes
 git submodule add https://github.com/<THEMECREATOR>/<THEMENAME>
 ```
@@ -114,7 +114,7 @@ It is recommended to only use stable versions of a theme (if it’s versioned) a
 
 Switch to the theme's directory and list all available versions:
 
-```
+```txt
 cd themes/<theme>
 git tag
 # exit with q
@@ -122,13 +122,13 @@ git tag
 
 You can checkout a specific version as follows:
 
-```
+```txt
 git checkout tags/<version-name>
 ```
 
 You can update a theme to the latest version by executing the following command in the *root* directory of your project:
 
-```
+```txt
 git submodule update --rebase --remote
 ```
 

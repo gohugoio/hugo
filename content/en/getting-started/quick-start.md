@@ -85,7 +85,7 @@ echo theme = \"ananke\" >> config.toml
 
 You can manually create content files (for example as `content/<CATEGORY>/<FILE>.<FORMAT>`) and provide metadata in them, however you can use the `new` command to do a few things for you (like add title and date):
 
-```
+```txt
 hugo new posts/my-first-post.md
 ```
 
@@ -93,7 +93,7 @@ hugo new posts/my-first-post.md
 
 Edit the newly created content file if you want, it will start with something like this:
 
-```markdown
+```md
 ---
 title: "My First Post"
 date: 2019-03-26T08:47:11+01:00
@@ -112,7 +112,7 @@ Now, start the Hugo server with [drafts](/getting-started/usage/#draft-future-an
 
 {{< asciicast BvJBsF6egk9c163bMsObhuNXj >}}
 
-```
+```txt
 ▶ hugo server -D
 
                    | EN
@@ -148,7 +148,7 @@ Your new site already looks great, but you will want to tweak it a little before
 
 Open up `config.toml` in a text editor:
 
-```
+```toml
 baseURL = "https://example.org/"
 languageCode = "en-us"
 title = "My New Hugo Site"
@@ -169,7 +169,7 @@ For theme specific configuration options, see the [theme site](https://github.co
 
 It is simple. Just call:
 
-```
+```txt
 hugo -D
 ```
 

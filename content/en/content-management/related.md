@@ -40,7 +40,7 @@ Here is the list of "Related" methods available on a page collection such `.Regu
 
 Returns a collection of pages related the given one.
 
-```
+```go-html-template
 {{ $related := site.RegularPages.Related . }}
 ```
 
@@ -48,7 +48,7 @@ Returns a collection of pages related the given one.
 
 Returns a collection of pages related to a given one restricted to a list of indices.
 
-```
+```go-html-template
 {{ $related := site.RegularPages.RelatedIndices . "tags" "date" }}
 ```
 
@@ -58,7 +58,7 @@ Returns a collection of pages related together by a set of indices and their mat
 
 In order to build those set and pass them as argument, one must use the `keyVals` function where the first argument would be the `indice` and the consecutive ones its potential `matches`.
 
-```
+```go-html-template
 {{ $related := site.RegularPages.RelatedTo ( keyVals "tags" "hugo" "rocks")  ( keyVals "date" .Date ) }}
 ```
 

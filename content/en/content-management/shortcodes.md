@@ -40,11 +40,11 @@ Some shortcodes use or require closing shortcodes. Again like HTML, the opening 
 
 Here are two examples of paired shortcodes:
 
-```
+```go-html-template
 {{%/* mdshortcode */%}}Stuff to `process` in the *center*.{{%/* /mdshortcode */%}}
 ```
 
-```
+```go-html-template
 {{</* highlight go */>}} A bunch of code here {{</* /highlight */>}}
 ```
 
@@ -56,7 +56,7 @@ The examples above use two different delimiters, the difference being the `%` ch
 
 You can pass multiple lines as parameters to a shortcode by using raw string literals:
 
-```
+```go-html-template
 {{</*  myshortcode `This is some <b>HTML</b>,
 and a new line with a "quoted string".` */>}}
 ```
@@ -67,7 +67,7 @@ In Hugo `0.55` we changed how the `%` delimiter works. Shortcodes using the `%` 
 
 If you want the old behavior, you can put the following line in the start of your shortcode template:
 
-```
+```go-html-template
 {{ $_hugo_config := `{ "version": 1 }` }}
 ```
 
@@ -75,7 +75,7 @@ If you want the old behavior, you can put the following line in the start of you
 
 The `<` character indicates that the shortcode's inner content does *not* need further rendering. Often shortcodes without Markdown include internal HTML:
 
-```
+```go-html-template
 {{</* myshortcode */>}}<p>Hello <strong>World!</strong></p>{{</* /myshortcode */>}}
 ```
 
@@ -150,13 +150,13 @@ attrlink
 
 Bloggers often want to include GitHub gists when writing posts. Let's suppose we want to use the [gist at the following url][examplegist]:
 
-```
+```txt
 https://gist.github.com/spf13/7896402
 ```
 
 We can embed the gist in our content via username and gist ID pulled from the URL:
 
-```
+```go-html-template
 {{</* gist spf13 7896402 */>}}
 ```
 
@@ -222,7 +222,7 @@ To see even more options for adding syntax-highlighted code blocks to your websi
 
 If you'd like to embed a photo from [Instagram][], you only need the photo's ID. You can discern an Instagram photo ID from the URL:
 
-```
+```txt
 https://www.instagram.com/p/BWNjjyYFxVx/
 ```
 
@@ -289,7 +289,7 @@ Read a more extensive description of `ref` and `relref` in the [cross references
 
 #### Example `ref` and `relref` Input
 
-```
+```go-html-template
 [Neat]({{</* ref "blog/neat.md" */>}})
 [Who]({{</* relref "about.md#who" */>}})
 ```
@@ -298,7 +298,7 @@ Read a more extensive description of `ref` and `relref` in the [cross references
 
 Assuming that standard Hugo pretty URLs are turned on.
 
-```
+```html
 <a href="https://example.com/blog/neat">Neat</a>
 <a href="/about/#who">Who</a>
 ```
@@ -307,7 +307,7 @@ Assuming that standard Hugo pretty URLs are turned on.
 
 You want to include a single tweet into your blog post? Everything you need is the URL of the tweet:
 
-```
+```txt
 https://twitter.com/SanDiegoZoo/status/1453110110599868418
 ```
 
@@ -337,7 +337,7 @@ Using the preceding `tweet` example, the following simulates the displayed exper
 
 Adding a video from [Vimeo][] is equivalent to the [YouTube Input shortcode][].
 
-```
+```txt
 https://vimeo.com/channels/staffpicks/146022717
 ```
 
@@ -360,7 +360,7 @@ Using the preceding `vimeo` example, the following HTML will be added to your re
 {{% tip %}}
 If you want to further customize the visual styling of the YouTube or Vimeo output, add a `class` named parameter when calling the shortcode. The new `class` will be added to the `<div>` that wraps the `<iframe>` *and* will remove the inline styles. Note that you will need to call the `id` as a named parameter as well. You can also give the vimeo video a descriptive title with `title`.
 
-```
+```go
 {{</* vimeo id="146022717" class="my-vimeo-wrapper-class" title="My vimeo video" */>}}
 ```
 {{% /tip %}}
@@ -375,7 +375,7 @@ Using the preceding `vimeo` example, the following simulates the displayed exper
 
 The `youtube` shortcode embeds a responsive video player for [YouTube videos][]. Only the ID of the video is required, e.g.:
 
-```
+```txt
 https://www.youtube.com/watch?v=w7Ft2ymGmfc
 ```
 

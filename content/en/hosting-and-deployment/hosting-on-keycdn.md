@@ -81,7 +81,7 @@ The Zone ID and API key are used to purge your zone – it’s not strictly need
 
 Now it’s time to push the newly created repository to GitLab:
 
-```
+```bash
 git remote add origin git@gitlab.com:youruser/ci-example.git
 git push -u origin master
 ```

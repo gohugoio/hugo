@@ -42,7 +42,7 @@ For many websites, this is enough configuration. However, you also have the opti
 
 Disqus has its own [internal template](https://gohugo.io/templates/internal/#disqus) available, to render it add the following code where you want comments to appear:
 
-```
+```go-html-template
 {{ template "_internal/disqus.html" . }}
 ```
 

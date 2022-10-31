@@ -86,7 +86,7 @@ You also have the option to set the following in the front matter for a given pi
 
 To add Disqus, include the following line in templates where you want your comments to appear:
 
-```
+```go-html-template
 {{ template "_internal/disqus.html" . }}
 ```
 

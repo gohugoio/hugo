@@ -49,7 +49,7 @@ replacements {{< new-in "0.77.0" >}}
 
 Note that the above terms maps directly to their counterparts in Go Modules. Some of these setting may be natural to set as OS environment variables. To set the proxy server to use, as an example:
 
-```
+```txt
 env HUGO_MODULE_PROXY=https://proxy.example.org hugo
 ```
 

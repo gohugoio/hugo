@@ -19,7 +19,7 @@ toc: true
 
 Hugo! supports [GoAT](https://github.com/bep/goat) natively. This means that this code block:
 
-````
+````txt
 ```goat
       .               .                .               .--- 1          .-- 1     / 1
      / \              |                |           .---+            .-+         +

@@ -10,7 +10,6 @@ menu:
     weight: 4
 weight: 5
 sections_weight: 5
-draft: false
 aliases: [/security/]
 toc: true
 ---
@@ -40,7 +39,7 @@ The default configuration is listed below. Any build using features not in the a
 
 Note that these and other config settings in Hugo can be overridden by the OS environment. If you want to block all remote HTTP fetching of data:
 
-```
+```txt
 HUGO_SECURITY_HTTP_URLS=none hugo
 ```
 

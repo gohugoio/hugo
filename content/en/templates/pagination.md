@@ -143,7 +143,7 @@ If you want to build custom navigation, you can do so using the `.Paginator` obj
 
 The pages are built on the following form (`BLANK` means no value):
 
-```
+```txt
 [SECTION/TAXONOMY/BLANK]/index.html
 [SECTION/TAXONOMY/BLANK]/page/1/index.html => redirect to  [SECTION/TAXONOMY/BLANK]/index.html
 [SECTION/TAXONOMY/BLANK]/page/2/index.html

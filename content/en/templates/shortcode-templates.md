@@ -36,7 +36,7 @@ To create a shortcode, place an HTML template in the `layouts/shortcodes` direct
 
 You can organize your shortcodes in subfolders, e.g. in `layouts/shortcodes/boxes`. These shortcodes would then be accessible with their relative path, e.g:
 
-```
+```go-html-template
 {{</* boxes/square */>}}
 ```
 
@@ -329,7 +329,7 @@ You also have an `img` shortcode with a single named `src` parameter that you wa
 
 You can then call your shortcode in your content as follows:
 
-```
+```go-html-template
 {{</* gallery class="content-gallery" */>}}
   {{</* img src="/images/one.jpg" */>}}
   {{</* img src="/images/two.jpg" */>}}

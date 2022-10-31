@@ -108,7 +108,7 @@ Achievements:
 
 You can use the following code to render the `Short Description` in your layout:
 
-```
+```go-html-template
 <div>Short Description of {{.Site.Data.User0123.Name}}: <p>{{ index .Site.Data.User0123 "Short Description" | markdownify }}</p></div>
 ```
 
@@ -150,13 +150,13 @@ This will resolve internally to the following:
 
 {{< new-in "0.84.0" >}} Both `getJSON` and `getCSV` takes an optional map as the last argument, e.g.:
 
-```
+```go-html-template
 {{ $data := getJSON "https://example.org/api" (dict "Authorization" "Bearer abcd")  }}
 ```
 
 If you need multiple values for the same header key, use a slice:
 
-```
+```go-html-template
 {{ $data := getJSON "https://example.org/api" (dict "X-List" (slice "a" "b" "c"))  }}
 ```
 

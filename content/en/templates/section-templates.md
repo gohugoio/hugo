@@ -70,7 +70,7 @@ Examples:
 
 The `.Site.GetPage` example that follows assumes the following project directory structure:
 
-```
+```txt
 .
 └── content
     ├── blog

@@ -4,7 +4,6 @@ linktitle: Development
 description: Hugo relies heavily on contributions from the open source community.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [contribute]
 keywords: [dev,open source]
 authors: [digitalcraftsman]
@@ -14,7 +13,6 @@ menu:
     weight: 10
 weight: 10
 sections_weight: 10
-draft: false
 toc: true
 ---
 
@@ -45,13 +43,13 @@ If you are having trouble following the installation guides for Go, check out [G
 
 Once you're finished installing Go, let's confirm everything is working correctly. Open a terminal---or command line under Windows--and type the following:
 
-```
+```txt
 go version
 ```
 
 You should see something similar to the following written to the console. Note that the version here reflects the most recent version of Go as of the last update for this page:
 
-```
+```txt
 go version go1.12 darwin/amd64
 ```
 
@@ -59,7 +57,7 @@ Next, make sure that you set up your `GOPATH` [as described in the installation 
 
 You can print the `GOPATH` with `echo $GOPATH`. You should see a non-empty string containing a valid path to your Go workspace; for example:
 
-```
+```txt
 /Users/<yourusername>/Code/go
 ```
 
@@ -103,19 +101,19 @@ Hub is a great tool for working with GitHub. The main site for it is [hub.github
 
 On a Mac, you can install [Hub](https://github.com/github/hub) using [Homebrew](https://brew.sh):
 
-```
+```txt
 brew install hub
 ```
 
 Now we'll create an [alias in Bash](https://tldp.org/LDP/abs/html/aliases.html) so that typing `git` actually runs `Hub`:
 
-```
+```txt
 echo "alias git='hub'" >> ~/.bash_profile
 ```
 
 Confirm the installation:
 
-```
+```txt
 git version 2.21.0
 hub version 2.10.0
 ```
@@ -134,7 +132,7 @@ We're going to clone the [master Hugo repository](https://github.com/gohugoio/hu
 
 So, let's make a new directory and clone that master repository:
 
-```
+```txt
 mkdir $HOME/src
 cd $HOME/src
 git clone https://github.com/gohugoio/hugo.git
@@ -145,14 +143,14 @@ git clone https://github.com/gohugoio/hugo.git
 
 And then, install dependencies of Hugo by running the following in the cloned directory:
 
-```
+```txt
 cd $HOME/src/hugo
 go install
 ```
 
 Hugo relies on [mage](https://github.com/magefile/mage) for some convenient build and test targets. If you don't already have it, get it:
 
-```
+```txt
 go install github.com/magefile/mage@latest
 ```
 
@@ -174,13 +172,13 @@ Now open your fork repository on GitHub and copy the remote URL of your fork. Yo
 
 Switch back to the terminal and move into the directory of the cloned master repository from the last step.
 
-```
+```txt
 cd $HOME/src/hugo
 ```
 
 Now Git needs to know that our fork exists by adding the copied remote url:
 
-```
+```txt
 git remote add <YOUR-GITHUB-USERNAME> <COPIED REMOTE-URL>
 ```
 
@@ -188,7 +186,7 @@ git remote add <YOUR-GITHUB-USERNAME> <COPIED REMOTE-URL>
 
 Alternatively, you can use the Git wrapper Hub. Hub makes forking a repository easy:
 
-```
+```txt
 git fork
 ```
 
@@ -198,13 +196,13 @@ That command will log in to GitHub using your account, create a fork of the repo
 
 Let's check if everything went right by listing all known remotes:
 
-```
+```txt
 git remote -v
 ```
 
 The output should look similar:
 
-```
+```txt
 digitalcraftsman    git@github.com:digitalcraftsman/hugo.git (fetch)
 digitalcraftsman    git@github.com:digitalcraftsman/hugo.git (push)
 origin  https://github.com/gohugoio/hugo (fetch)
@@ -219,14 +217,14 @@ You should never develop against the "master" branch. The development team will 
 
 First, you should always pull the latest changes from the master repository:
 
-```
+```txt
 git checkout master
 git pull
 ```
 
 Now we can create a new branch for your additions:
 
-```
+```txt
 git checkout -b <BRANCH-NAME>
 ```
 
@@ -244,7 +242,7 @@ We have developed a [separate Hugo documentation contribution guide][docscontrib
 
 While making changes in the codebase it's a good idea to build the binary to test them:
 
-```
+```txt
 mage hugo
 ```
 
@@ -252,7 +250,7 @@ This command generates the binary file at the root of the repository.
 
 If you want to install the binary in `$GOPATH/bin`, run
 
-```
+```txt
 mage install
 ```
 
@@ -262,7 +260,7 @@ Sometimes changes on the codebase can cause unintended side effects. Or they don
 
 Make sure the commands
 
-```
+```txt
 mage -v check
 ```
 
@@ -272,13 +270,13 @@ passes.
 
 The Go code style guide maybe is opinionated but it ensures that the codebase looks the same, regardless who wrote the code. Go comes with its own formatting tool. Let's apply the style guide to our additions:
 
-```
+```txt
 mage fmt
 ```
 
 Once you made your additions commit your changes. Make sure that you follow our [code contribution guidelines](https://github.com/gohugoio/hugo/blob/master/CONTRIBUTING.md):
 
-```
+```txt
 # Add all changed files
 git add --all
 git commit --message "YOUR COMMIT MESSAGE"
@@ -296,20 +294,20 @@ If you are unsure what a command does leave the commit as it is. We can fix your
 
 Let's say you want to modify the last commit message. Run the following command and replace the current message:
 
-```
+```txt
 git commit --amend -m"YOUR NEW COMMIT MESSAGE"
 ```
 
 Take a look at the commit log to see the change:
 
-```
+```txt
 git log
 # Exit with q
 ```
 
 After making the last commit you may have forgot something. There is no need to create a new commit. Just add the latest changes and merge them into the intended commit:
 
-```
+```txt
 git add --all
 git commit --amend
 ```
@@ -322,13 +320,13 @@ Modifications such as those described in this section can have serious unintende
 
 This is a bit more advanced. Git allows you to [rebase](https://git-scm.com/docs/git-rebase) commits interactively. In other words: it allows you to rewrite the commit history.
 
-```
+```txt
 git rebase --interactive @~6
 ```
 
 The `6` at the end of the command represents the number of commits that should be modified. An editor should open and present a list of last six commit messages:
 
-```
+```txt
 pick 80d02a1 tpl: Add hasPrefix to the template funcs' "smoke test"
 pick aaee038 tpl: Sort the smoke tests
 pick f0dbf2c tpl: Add the other test case for hasPrefix
@@ -341,7 +339,7 @@ In the case above we should merge the last two commits in the commit of this tut
 
 All operations are written before the commit message. Replace "pick" with an operation. In this case `squash` or `s` for short:
 
-```
+```txt
 pick 80d02a1 tpl: Add hasPrefix to the template funcs' "smoke test"
 pick aaee038 tpl: Sort the smoke tests
 pick f0dbf2c tpl: Add the other test case for hasPrefix
@@ -354,7 +352,7 @@ We also want to rewrite the commits message of the third last commit. We forgot 
 
 You should end up with a similar setup:
 
-```
+```txt
 pick 80d02a1 tpl: Add hasPrefix to the template funcs' "smoke test"
 pick aaee038 tpl: Sort the smoke tests
 pick f0dbf2c tpl: Add the other test case for hasPrefix
@@ -367,7 +365,7 @@ Close the editor. It should open again with a new tab. A text is instructing you
 
 A last time a new tab opens. Enter a new commit message and save again. Your terminal should contain a status message. Hopefully this one:
 
-```
+```txt
 Successfully rebased and updated refs/heads/<BRANCHNAME>.
 ```
 
@@ -377,7 +375,7 @@ Check the commit log if everything looks as expected. Should an error occur you 
 
 To push our commits to the fork on GitHub we need to specify a destination. A destination is defined by the remote and a branch name. Earlier, the defined that the remote URL of our fork is the same as our GitHub handle, in my case `digitalcraftsman`. The branch should have the same as our local one. This makes it easy to identify corresponding branches.
 
-```
+```txt
 git push --set-upstream <YOUR-GITHUB-USERNAME> <BRANCHNAME>
 ```
 

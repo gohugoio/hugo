@@ -59,7 +59,7 @@ It is important to note that all `_index.md` content files will render according
 
 The following is an example of a typical Hugo project directory's content:
 
-```
+```txt
 .
 ...
 ├── content

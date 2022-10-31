@@ -37,7 +37,7 @@ The [`readfile` function][readFile] reads a file from disk and converts it into 
 
 To use the `readFile` function in your templates, make sure the path is relative to your *Hugo project's root directory*:
 
-```
+```go-html-template
 {{ readFile "/content/templates/local-file-templates" }}
 ```
 
@@ -45,7 +45,7 @@ To use the `readFile` function in your templates, make sure the path is relative
 
 As `readFile` is a function, it is only available to you in your templates and not your content. However, we can create a simple [shortcode template][sct] that calls `readFile`, passes the first argument through the function, and then allows an optional second argument to send the file through the Markdown processor. The pattern for adding this shortcode to your content will be as follows:
 
-```
+```go-html-template
 {{</* readfile file="/path/to/local/file.txt" markdown="true" */>}}
 ```
 

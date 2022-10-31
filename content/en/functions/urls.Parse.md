@@ -19,13 +19,13 @@ aliases: []
 `urls.Parse` takes a url as input
 
 
-```
+```go-html-template
 {{ $url := urls.Parse "http://www.gohugo.io" }}
 ```
 
 and returns a [URL](https://godoc.org/net/url#URL) structure. The struct fields are accessed via the `.` notation:
 
-```
+```go-html-template
 {{ $url.Scheme }} → "http"
 {{ $url.Host }} → "www.gohugo.io"
 ```

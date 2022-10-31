@@ -4,7 +4,6 @@ linktitle: Basic Usage
 description: Hugo's CLI is fully featured but simple to use, even for those who have very limited experience working from the command line.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [getting started]
 keywords: [usage,livereload,command line,flags]
 menu:
@@ -13,7 +12,6 @@ menu:
     weight: 40
 weight: 40
 sections_weight: 40
-draft: false
 aliases: [/overview/usage/,/extras/livereload/,/doc/usage/,/usage/]
 toc: true
 ---
@@ -24,13 +22,13 @@ The following is a description of the most common commands you will use while de
 
 Once you have [installed Hugo][install], make sure it is in your `PATH`. You can test that Hugo has been installed correctly via the `help` command:
 
-```
+```txt
 hugo help
 ```
 
 The output you see in your console should be similar to the following:
 
-```
+```txt
 hugo is the main command, used to build your Hugo site.
 
 Hugo is a Fast and Flexible Static Site Generator
@@ -112,7 +110,7 @@ This generates your website to the `public/` directory by default, although you 
 
 The command `hugo` renders your site into `public/` dir and is ready to be deployed to your web server:
 
-```
+```txt
 hugo
 0 draft content
 0 future content
@@ -141,7 +139,7 @@ All three of these can be overridden during both local development *and* deploym
 
 Hugo comes with [LiveReload](https://github.com/livereload/livereload-js) built in. There are no additional packages to install. A common way to use Hugo while developing a site is to have Hugo run a server with the `hugo server` command and watch for changes:
 
-```
+```txt
 hugo server
 0 draft content
 0 future content
@@ -185,13 +183,13 @@ LiveReload works by injecting JavaScript into the pages Hugo generates. The scri
 
 The following methods make it easy to disable LiveReload:
 
-```
+```txt
 hugo server --watch=false
 ```
 
 Or...
 
-```
+```txt
 hugo server --disableLiveReload
 ```
 

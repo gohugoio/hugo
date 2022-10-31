@@ -49,7 +49,7 @@ Options:
 
 ### Example: Highlight Shortcode
 
-```
+```go-html-template
 {{</* highlight go "linenos=table,hl_lines=8 15-17,linenostart=199" */>}}
 // ... code
 {{</* / highlight */>}}
@@ -102,7 +102,7 @@ See [Highlight](/functions/highlight/).
 
 Highlighting in code fences is enabled by default.{{< new-in "0.60.0" >}}
 
-````
+````txt
 ```go {linenos=table,hl_lines=[8,"15-17"],linenostart=199}
 // ... code
 ```

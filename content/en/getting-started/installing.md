@@ -191,7 +191,7 @@ brew install hugo
 
 If Homebrew is working properly, you should see something similar to the following:
 
-```
+```txt
 ==> Downloading https://homebrew.bintray.com/bottles/hugo-0.21.sierra.bottle.tar.gz
 ######################################################################### 100.0%
 ==> Pouring hugo-0.21.sierra.bottle.tar.gz
@@ -204,7 +204,7 @@ Replace `brew install hugo` with `brew install hugo --HEAD` if you want the abso
 
 `brew` should have updated your path to include Hugo. You can confirm by opening a new terminal window and running a few commands:
 
-```
+```txt
 $ # show the location of the hugo executable
 which hugo
 /usr/local/bin/hugo
@@ -246,7 +246,7 @@ All three locations will work for you. In the interest of brevity, this guide fo
 
 Verify that the tarball wasn't corrupted during the download:
 
-```
+```txt
 tar tvf ~/Downloads/hugo_X.Y_osx-64bit.tgz
 -rwxrwxrwx  0 0      0           0 Feb 22 04:02 hugo_X.Y_osx-64bit/hugo_X.Y_osx-64bit.tgz
 -rwxrwxrwx  0 0      0           0 Feb 22 03:24 hugo_X.Y_osx-64bit/README.md
@@ -257,7 +257,7 @@ The `.md` files are documentation for Hugo. The other file is the executable.
 
 #### Step 4: Install Into Your `bin` Directory
 
-```
+```txt
 # create the directory if needed
 mkdir -p ~/bin
 
@@ -279,7 +279,7 @@ Hugo Static Site Generator v0.13 BuildDate: 2015-02-22T04:02:30-06:00
 
 You may need to add your bin directory to your `PATH` environment variable. The `which` command will check for us. If it can find `hugo`, it will print the full path to it. Otherwise, it will not print anything.
 
-```
+```txt
 # check if hugo is in the path
 which hugo
 /Users/USERNAME/bin/hugo
@@ -289,7 +289,7 @@ If `hugo` is not in your `PATH`:
 
 1. Determine your default shell (zsh or bash).
 
-   ```
+   ```bash
    echo $SHELL
    ```
 
@@ -297,19 +297,19 @@ If `hugo` is not in your `PATH`:
 
    If your default shell is zsh:
 
-    ```
+    ```zsh
     nano ~/.zprofile
     ```
 
     If your default shell is bash:
 
-    ```
+    ```bash
     nano ~/.bash_profile
     ```
 
 3. Insert a line to add `$HOME/bin` to your existing `PATH`.
 
-    ```
+    ```txt
     export PATH=$PATH:$HOME/bin
     ```
 
@@ -323,7 +323,7 @@ You've successfully installed Hugo.
 
 If you want to compile Hugo yourself, you'll need to install Go (aka Golang). You can [install Go directly from the Go website](https://golang.org/dl/) or via Homebrew using the following command:
 
-```
+```txt
 brew install go
 ```
 
@@ -331,7 +331,7 @@ brew install go
 
 If you want to compile a specific version of Hugo, go to <https://github.com/gohugoio/hugo/releases> and download the source code for the version of your choice. If you want to compile Hugo with all the latest changes (which might include bugs), clone the Hugo repository:
 
-```
+```txt
 git clone https://github.com/gohugoio/hugo
 ```
 
@@ -343,7 +343,7 @@ Cloning the Hugo repository directly means taking the good with the bad. By usin
 
 Make the directory containing the source your working directory and then fetch Hugo's dependencies:
 
-```
+```txt
 mkdir -p src/github.com/gohugoio
 ln -sf $(pwd) src/github.com/gohugoio/hugo
 
@@ -354,7 +354,7 @@ This will fetch the absolute latest version of the dependencies. If Hugo fails t
 
 Once you have properly configured your directory, you can compile Hugo using the following command:
 
-```
+```txt
 go build -o hugo main.go
 ```
 
@@ -424,7 +424,7 @@ Run a few commands to verify that the executable is ready to run, and then build
 
 At the prompt, type `hugo help` and press the <kbd>Enter</kbd> key. You should see output that starts with:
 
-```
+```txt
 hugo is the main command, used to build your Hugo site.
 
 Hugo is a Fast and Flexible Static Site Generator
@@ -437,7 +437,7 @@ If you do, then the installation is complete. If you don't, double-check the pat
 
 At the prompt, change your directory to the `Sites` directory.
 
-```
+```txt
 C:\Program Files> cd C:\Hugo\Sites
 C:\Hugo\Sites>
 ```
@@ -446,13 +446,13 @@ C:\Hugo\Sites>
 
 Run the command to generate a new site. I'm using `example.com` as the name of the site.
 
-```
+```txt
 C:\Hugo\Sites> hugo new site example.com
 ```
 
 You should now have a directory at `C:\Hugo\Sites\example.com`. Change into that directory and list the contents. You should get output similar to the following:
 
-```
+```txt
 C:\Hugo\Sites> cd example.com
 C:\Hugo\Sites\example.com> dir
 Directory of C:\hugo\sites\example.com
@@ -481,13 +481,13 @@ Directory of C:\hugo\sites\example.com
 
 In any of the [Linux distributions that support snaps][snaps], you may install the "extended" Sass/SCSS version with this command:
 
-```
+```txt
 snap install hugo --channel=extended
 ```
 
 To install the non-extended version without Sass/SCSS support:
 
-```
+```txt
 snap install hugo
 ```
 
@@ -501,7 +501,7 @@ Hugo installed via Snap can write only inside the user’s `$HOME` directory---a
 
 [@anthonyfok](https://github.com/anthonyfok) and friends in the [Debian Go Packaging Team](https://go-team.pages.debian.net/) maintains an official hugo [Debian package](https://packages.debian.org/hugo) which is shared with [Ubuntu](https://packages.ubuntu.com/hugo) and is installable via `apt-get`:
 
-```
+```txt
 sudo apt-get install hugo
 ```
 
@@ -513,7 +513,7 @@ This option is not recommended because the Hugo in Linux package managers for De
 
 You can also install Hugo from the Arch Linux [community](https://www.archlinux.org/packages/community/x86_64/hugo/) repository. Applies also to derivatives such as Manjaro.
 
-```
+```txt
 sudo pacman -S hugo
 ```
 
@@ -521,7 +521,7 @@ sudo pacman -S hugo
 
 Fedora maintains an [official package for Hugo](https://packages.fedoraproject.org/pkgs/hugo/hugo) which may be installed with:
 
-```
+```txt
 sudo dnf install hugo
 ```
 
@@ -535,7 +535,7 @@ See the [related discussion in the Hugo forums][redhatforum].
 
 openSUSE maintains an [official package](https://software.opensuse.org/package/hugo) for the Tumbleweed rolling release distribution, it may be installed with:
 
-````
+````txt
 sudo zypper install hugo
 ````
 
@@ -543,7 +543,7 @@ sudo zypper install hugo
 
 Solus includes Hugo in its package repository, it may be installed with:
 
-```
+```txt
 sudo eopkg install hugo
 ```
 
@@ -551,7 +551,7 @@ sudo eopkg install hugo
 
 OpenBSD provides a package for Hugo via `pkg_add`:
 
-```
+```txt
 doas pkg_add hugo
 ```
 

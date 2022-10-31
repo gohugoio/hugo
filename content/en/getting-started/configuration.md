@@ -26,7 +26,7 @@ using the command-line `--config` switch.
 
 Examples:
 
-```
+```txt
 hugo --config debugconfig.toml
 hugo --config a.toml,b.toml,c.toml
 ```
@@ -57,7 +57,7 @@ foo = "bar"
 - Files can be localized to become language specific.
 
 
-```
+```txt
 ├── config
 │   ├── _default
 │   │   ├── config.toml
@@ -476,14 +476,14 @@ Watch filesystem for changes and recreate as needed.
 
 {{% note %}}
 If you are developing your site on a \*nix machine, here is a handy shortcut for finding a configuration option from the command line:
-```
+```txt
 cd ~/sites/yourhugosite
 hugo config | grep emoji
 ```
 
 which shows output like
 
-```
+```txt
 enableemoji: true
 ```
 {{% /note %}}
@@ -623,7 +623,7 @@ In addition to the 3 config options already mentioned, configuration key-values 
 
 For example, the following command will effectively set a website's title on Unix-like systems:
 
-```
+```txt
 $ env HUGO_TITLE="Some Title" hugo
 ```
 

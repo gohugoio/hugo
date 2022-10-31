@@ -29,7 +29,7 @@ Hugo [v0.60.0](https://github.com/gohugoio/hugo/releases/tag/v0.60.0) made a swi
 
 Create your Markdown the way you normally would with the appropriate headings. Here is some example content:
 
-```
+```md
 <!-- Your front matter up here -->
 
 ## Introduction

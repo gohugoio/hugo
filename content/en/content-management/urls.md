@@ -4,7 +4,6 @@ linktitle: URL Management
 description: Hugo supports permalinks, aliases, link canonicalization, and multiple options for handling relative vs absolute URLs.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-03-09
 keywords: [aliases,redirects,permalinks,urls]
 categories: [content management]
 menu:
@@ -12,7 +11,6 @@ menu:
     parent: "content-management"
     weight: 110
 weight: 110	#rem
-draft: false
 aliases: [/extras/permalinks/,/extras/aliases/,/extras/urls/,/doc/redirects/,/doc/alias/,/doc/aliases/]
 toc: true
 ---
@@ -141,7 +139,7 @@ On [multilingual sites][multilingual], each translation of a post can have uniqu
 
 In `/posts/my-new-post.es.md`:
 
-```
+```md
 ---
 aliases:
     - /es/posts/my-original-post/
@@ -204,7 +202,7 @@ Hugo's default behavior is to render your content with "pretty" URLs. No non-sta
 
 The following demonstrates the concept:
 
-```
+```txt
 content/posts/_index.md
 => example.com/posts/
 content/posts/post-1.md
@@ -219,7 +217,7 @@ If you want a specific piece of content to have an exact URL, you can specify th
 
 See [Content Organization][contentorg] for more details on paths.
 
-```
+```txt
 .
 └── content
     └── about
@@ -236,7 +234,7 @@ See [Content Organization][contentorg] for more details on paths.
 
 Here's the same organization run with `hugo --uglyURLs`:
 
-```
+```txt
 .
 └── content
     └── about
@@ -267,13 +265,13 @@ In the May 2014 release of Hugo v0.11, the default value of `canonifyURLs` was s
 
 To find out the current value of `canonifyURLs` for your website, you may use the handy `hugo config` command added in v0.13.
 
-```
+```txt
 hugo config | grep -i canon
 ```
 
 Or, if you are on Windows and do not have `grep` installed:
 
-```
+```txt
 hugo config | FINDSTR /I canon
 ```
 
