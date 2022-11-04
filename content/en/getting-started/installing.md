@@ -4,7 +4,6 @@ linktitle: Install Hugo
 description: Install Hugo on macOS, Windows, Linux, OpenBSD, FreeBSD, and on any machine where the Go compiler tool chain can run.
 date: 2016-11-01
 publishdate: 2016-11-01
-lastmod: 2018-01-02
 categories: [getting started,fundamentals]
 authors: ["Michael Henderson"]
 keywords: [install,pc,windows,linux,macos,binary,tarball]
@@ -14,17 +13,15 @@ menu:
     weight: 30
 weight: 30
 sections_weight: 30
-draft: false
 aliases: [/tutorials/installing-on-windows/,/tutorials/installing-on-mac/,/overview/installing/,/getting-started/install,/install/]
 toc: true
 ---
-
 
 {{% note %}}
 There is lots of talk about "Hugo being written in Go", but you don't need to install Go to enjoy Hugo. Just grab a precompiled binary!
 {{% /note %}}
 
-Hugo is written in [Go](https://golang.org/) with support for multiple platforms. The latest release can be found at [Hugo Releases][releases].
+Hugo is written in [Go](https://go.dev/) with support for multiple platforms. The latest release can be found at [Hugo Releases][releases].
 
 Hugo currently provides pre-built binaries for the following:
 
@@ -34,7 +31,7 @@ Hugo currently provides pre-built binaries for the following:
 * OpenBSD
 * FreeBSD
 
-Hugo may also be compiled from source wherever the Go toolchain can run; e.g., on other operating systems such as DragonFly BSD, OpenBSD, Plan&nbsp;9, Solaris, and others. See <https://golang.org/doc/install/source> for the full set of supported combinations of target operating systems and compilation architectures.
+Hugo may also be compiled from source wherever the Go toolchain can run; e.g., on other operating systems such as DragonFly BSD, OpenBSD, Plan&nbsp;9, Solaris, and others. See <https://go.dev/doc/install/source> for the full set of supported combinations of target operating systems and compilation architectures.
 
 ## Quick Install
 
@@ -110,7 +107,7 @@ scoop install hugo-extended
 
 * [Git][installgit]
 * [GCC][] (For Windows users only)
-* [Go (at least Go 1.11)](https://golang.org/dl/)
+* [Go (at least Go 1.11)](https://go.dev/dl/)
 
 #### Fetch from GitHub
 
@@ -175,7 +172,7 @@ Since building from source is appealing to more seasoned command-line users, thi
 
 #### Step 1: Install `brew` if you haven't already
 
-Go to the `brew` website, <https://brew.sh/>, and follow the directions there. The most important step is the installation from the command line:
+Go to the `brew` website, <https://brew.sh>, and follow the directions there. The most important step is the installation from the command line:
 
 {{< code file="install-brew.sh" >}}
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -321,7 +318,7 @@ You've successfully installed Hugo.
 
 ### Build from Source on Mac
 
-If you want to compile Hugo yourself, you'll need to install Go (aka Golang). You can [install Go directly from the Go website](https://golang.org/dl/) or via Homebrew using the following command:
+If you want to compile Hugo yourself, you'll need to install Go (aka Golang). You can [install Go directly from the Go website](https://go.dev/dl/) or via Homebrew using the following command:
 
 ```txt
 brew install go
@@ -575,7 +572,7 @@ Now that you've installed Hugo, read the [Quick Start guide][quickstart] and exp
 [highlight shortcode]: /content-management/shortcodes/#highlight
 [installgit]: https://git-scm.com/
 [GCC]: http://www.mingw.org/
-[installgo]: https://golang.org/dl/
+[installgo]: https://go.dev/dl/
 [linuxbrew]: https://docs.brew.sh/Homebrew-on-Linux
 [quickstart]: /getting-started/quick-start/
 [redhatforum]: https://discourse.gohugo.io/t/solved-fedora-copr-repository-out-of-service/2491
