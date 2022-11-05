@@ -32,7 +32,7 @@ import (
 )
 
 // Markdown attributes used by the Chroma hightlighter.
-var chromaHightlightProcessingAttributes = map[string]bool{
+var chromaHighlightProcessingAttributes = map[string]bool{
 	"anchorLineNos":      true,
 	"guessSyntax":        true,
 	"hl_Lines":           true,
@@ -46,8 +46,8 @@ var chromaHightlightProcessingAttributes = map[string]bool{
 }
 
 func init() {
-	for k, v := range chromaHightlightProcessingAttributes {
-		chromaHightlightProcessingAttributes[strings.ToLower(k)] = v
+	for k, v := range chromaHighlightProcessingAttributes {
+		chromaHighlightProcessingAttributes[strings.ToLower(k)] = v
 	}
 }
 
@@ -59,7 +59,7 @@ func New(cfg Config) Highlighter {
 
 type Highlighter interface {
 	Highlight(code, lang string, opts any) (string, error)
-	HighlightCodeBlock(ctx hooks.CodeblockContext, opts any) (HightlightResult, error)
+	HighlightCodeBlock(ctx hooks.CodeblockContext, opts any) (HighlightResult, error)
 	hooks.CodeBlockRenderer
 	hooks.IsDefaultCodeBlockRendererProvider
 }
@@ -82,7 +82,7 @@ func (h chromaHighlighter) Highlight(code, lang string, opts any) (string, error
 	return b.String(), nil
 }
 
-func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts any) (HightlightResult, error) {
+func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts any) (HighlightResult, error) {
 	cfg := h.cfg
 
 	var b strings.Builder
@@ -92,21 +92,21 @@ func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts a
 	options := ctx.Options()
 
 	if err := applyOptionsFromMap(options, &cfg); err != nil {
-		return HightlightResult{}, err
+		return HighlightResult{}, err
 	}
 
 	// Apply these last so the user can override them.
 	if err := applyOptions(opts, &cfg); err != nil {
-		return HightlightResult{}, err
+		return HighlightResult{}, err
 	}
 
 	if err := applyOptionsFromCodeBlockContext(ctx, &cfg); err != nil {
-		return HightlightResult{}, err
+		return HighlightResult{}, err
 	}
 
 	low, high, err := highlight(&b, ctx.Inner(), ctx.Type(), attributes, cfg)
 	if err != nil {
-		return HightlightResult{}, err
+		return HighlightResult{}, err
 	}
 
 	highlighted := b.String()
@@ -114,7 +114,7 @@ func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts a
 		high = len(highlighted)
 	}
 
-	return HightlightResult{
+	return HighlightResult{
 		highlighted: template.HTML(highlighted),
 		innerLow:    low,
 		innerHigh:   high,
@@ -150,17 +150,17 @@ func (h chromaHighlighter) GetIdentity() identity.Identity {
 	return id
 }
 
-type HightlightResult struct {
+type HighlightResult struct {
 	innerLow    int
 	innerHigh   int
 	highlighted template.HTML
 }
 
-func (h HightlightResult) Wrapped() template.HTML {
+func (h HighlightResult) Wrapped() template.HTML {
 	return h.highlighted
 }
 
-func (h HightlightResult) Inner() template.HTML {
+func (h HighlightResult) Inner() template.HTML {
 	return h.highlighted[h.innerLow:h.innerHigh]
 }
 
