@@ -82,6 +82,9 @@ type Config struct {
 	TabWidth int
 
 	GuessSyntax bool
+
+	// Lexers Add Custom highlight lexer files
+	Lexers []string
 }
 
 func (cfg Config) ToHTMLOptions() []html.Option {
