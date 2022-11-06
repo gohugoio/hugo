@@ -176,7 +176,7 @@ If the gist contains several files and you want to quote just one of them, you c
 
 #### Example `gist` Display
 
-To demonstrate the remarkably efficiency of Hugo's shortcode feature, we have embedded the `spf13` `gist` example in this page. The following simulates the experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
+To demonstrate the remarkable efficiency of Hugo's shortcode feature, we have embedded the `spf13` `gist` example in this page. The following simulates the experience for visitors to your website. Naturally, the final display will depend on your stylesheets and surrounding markup.
 
 {{< gist spf13 7896402 >}}
 
@@ -259,7 +259,7 @@ The `instagram`-shortcode refers an endpoint of Instagram's API, that's deprecat
 
 ### `param`
 
-Gets a value from the current `Page's` params set in front matter, with a fall back to the site param value. It will log an `ERROR` if the param with the given key could not be found in either.
+Gets a value from the current `Page's` params set in front matter, with a fallback to the site param value. It will log an `ERROR` if the param with the given key could not be found in either.
 
 ```bash
 {{</* param testparam */>}}

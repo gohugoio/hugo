@@ -84,7 +84,7 @@ All the methods below, e.g. `.Site.RegularPages` can also be reached via the glo
 : a string representing the date/time of the most recent change to your site. This string is based on the [`date` variable in the front matter](/content-management/front-matter) of your content pages.
 
 .Site.Menus
-: all of the menus in the site.
+: all the menus in the site.
 
 .Site.Pages
 : array of all content ordered by Date with the newest first. This array contains only the pages in the current language. See [`.Site.Pages`]({{< relref "site.md#site-pages" >}}).

@@ -210,7 +210,7 @@ To load local files with `getJSON` and `getCSV`, the source files must reside wi
 It applies the same output logic as above in [Get Remote Data](#get-remote-data).
 
 {{% note %}}
-The local CSV files to be loaded using `getCSV` must be located **outside** of the `data` directory.
+The local CSV files to be loaded using `getCSV` must be located **outside** the `data` directory.
 {{% /note %}}
 
 ## LiveReload with Data Files

@@ -127,7 +127,7 @@ Asset files must be stored in the asset directory. This is `/assets` by default,
 
 ### Asset Publishing
 
-Hugo publishes assets to the to the `publishDir` (typically `public`) when you invoke `.Permalink`, `.RelPermalink`, or `.Publish`. You can use `.Content` to inline the asset.
+Hugo publishes assets to the `publishDir` (typically `public`) when you invoke `.Permalink`, `.RelPermalink`, or `.Publish`. You can use `.Content` to inline the asset.
 
 ## Go Pipes
 

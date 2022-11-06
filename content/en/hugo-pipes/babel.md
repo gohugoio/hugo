@@ -49,7 +49,7 @@ config [string]
 : Path to the Babel configuration file. Hugo will, by default, look for a `babel.config.js` in your project. More information on these configuration files can be found here: [babel configuration](https://babeljs.io/docs/en/configuration).
 
 minified [bool]
-: Save as much bytes as possible when printing
+: Save as many bytes as possible when printing
 
 noComments [bool]
 : Write comments to generated output (true by default)

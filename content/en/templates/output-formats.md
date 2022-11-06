@@ -233,7 +233,7 @@ A new output format needs a corresponding template in order to render anything u
 The key distinction for Hugo versions 0.20 and newer is that Hugo looks at an output format's `Name` and MediaType's `Suffixes` when choosing the template used to render a given `Page`.
 {{% /note %}}
 
-The following table shows examples of different output formats, the suffix used, and Hugo's respective template [lookup order][]. All of the examples in the table can:
+The following table shows examples of different output formats, the suffix used, and Hugo's respective template [lookup order][]. All the examples in the table can:
 
 * Use a [base template][base].
 * Include [partial templates][partials]

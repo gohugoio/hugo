@@ -544,7 +544,7 @@ While these are logical defaults, they are not always the desired order. There a
 
 ### Order Within Groups
 
-Because Grouping returns a `{{.Key}}` and a slice of pages, all of the ordering methods listed above are available.
+Because Grouping returns a `{{.Key}}` and a slice of pages, all the ordering methods listed above are available.
 
 Here is the ordering for the example that follows:
 

@@ -85,7 +85,7 @@ You will need to have Git installed on your computer to contribute to Hugo devel
 
 Git is a [version control system](https://en.wikipedia.org/wiki/Version_control) to track the changes of source code. Hugo depends on smaller third-party packages that are used to extend the functionality. We use them because we don't want to reinvent the wheel.
 
-Go ships with a sub-command called `get` that will download these packages for us when we setup our working environment. The source code of the packages is tracked with Git. `get` will interact with the Git servers of the package hosters in order to fetch all dependencies.
+Go ships with a sub-command called `get` that will download these packages for us when we set up our working environment. The source code of the packages is tracked with Git. `get` will interact with the Git servers of the package hosters in order to fetch all dependencies.
 
 Move back to the terminal and check if Git is already installed. Type in `git version` and press enter. You can skip the rest of this section if the command returned a version number. Otherwise [download](https://git-scm.com/downloads) the latest version of Git and follow this [installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
 
@@ -305,7 +305,7 @@ git log
 # Exit with q
 ```
 
-After making the last commit you may have forgot something. There is no need to create a new commit. Just add the latest changes and merge them into the intended commit:
+After making the last commit you may have forgotten something. There is no need to create a new commit. Just add the latest changes and merge them into the intended commit:
 
 ```txt
 git add --all

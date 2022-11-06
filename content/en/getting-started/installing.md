@@ -111,7 +111,7 @@ scoop install hugo-extended
 
 #### Fetch from GitHub
 
-Since Hugo 0.48, Hugo uses the Go Modules support built into Go 1.11 to build. The easiest way to get started is to clone Hugo in a directory outside of the GOPATH, as in the following example:
+Since Hugo 0.48, Hugo uses the Go Modules support built into Go 1.11 to build. The easiest way to get started is to clone Hugo in a directory outside the GOPATH, as in the following example:
 
 {{< code file="from-gh.sh" >}}
 mkdir $HOME/src

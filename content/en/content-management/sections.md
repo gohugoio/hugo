@@ -87,7 +87,7 @@ Also see [Page Variables](/variables/page/).
 
 ## Content Section Lists
 
-Hugo will automatically create pages for each *root section* that list all of the content in that section. See the documentation on [section templates][] for details on customizing the way these pages are rendered.
+Hugo will automatically create a page for each *root section* that lists all the content in that section. See the documentation on [section templates][] for details on customizing the way these pages are rendered.
 
 ## Content *Section* vs Content *Type*
 

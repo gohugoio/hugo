@@ -20,8 +20,8 @@ toc: false
 ---
 
 Hugo makes no assumptions about how your rendered HTML will be
-structured. Instead, it provides all of the functions you will need to be
-able to build your menu however you want.
+structured. Instead, it provides all the functions you will need to
+build your menu however you want.
 
 The following is an example:
 

@@ -63,7 +63,7 @@ The following is the [lookup order][lookup] for content views:
 
 ## Example: Content View Inside a List
 
-The following example demonstrates how to use content views inside of your [list templates][lists].
+The following example demonstrates how to use content views inside your [list templates][lists].
 
 ### `list.html`
 

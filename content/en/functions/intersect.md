@@ -17,7 +17,7 @@ relatedfuncs: []
 deprecated: false
 aliases: []
 ---
-An useful example is to use it as `AND` filters when combined with where:
+A useful example is to use it as `AND` filters when combined with where:
 
 ## AND filter in where query
 

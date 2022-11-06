@@ -38,7 +38,7 @@ The last two examples may look strange but can be very useful. For example, the 
 </script>
 {{< /code >}}
 
-The above uses the [apply function][] and also exposes how the Go template parser JSON-encodes objects inside `<script>` tags. See [the safeJS template function][safejs] for examples of how to tell Hugo not to escape strings inside of such tags.
+The above uses the [apply function][] and also exposes how the Go template parser JSON-encodes objects inside `<script>` tags. See [the safeJS template function][safejs] for examples of how to tell Hugo not to escape strings inside such tags.
 
 {{% note "Ending Slash" %}}
 `absURL` and `relURL` are smart about missing slashes, but they will *not* add a closing slash to a URL if it is not present.
