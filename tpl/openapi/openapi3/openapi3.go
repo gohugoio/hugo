@@ -15,7 +15,7 @@ package openapi3
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 
 	gyaml "github.com/ghodss/yaml"
 
@@ -67,7 +67,7 @@ func (ns *Namespace) Unmarshal(r resource.UnmarshableResource) (*kopenapi3.T, er
 		}
 		defer reader.Close()
 
-		b, err := ioutil.ReadAll(reader)
+		b, err := io.ReadAll(reader)
 		if err != nil {
 			return nil, err
 		}

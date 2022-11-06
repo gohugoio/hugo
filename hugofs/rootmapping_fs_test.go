@@ -15,7 +15,7 @@ package hugofs
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"path/filepath"
 	"sort"
 	"testing"
@@ -267,7 +267,7 @@ func TestRootMappingFsMount(t *testing.T) {
 	tf, err := testfilem.Open()
 	c.Assert(err, qt.IsNil)
 	defer tf.Close()
-	b, err := ioutil.ReadAll(tf)
+	b, err := io.ReadAll(tf)
 	c.Assert(err, qt.IsNil)
 	c.Assert(string(b), qt.Equals, "some no content")
 

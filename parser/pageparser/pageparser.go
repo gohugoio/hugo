@@ -18,7 +18,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 
 	"github.com/gohugoio/hugo/parser/metadecoders"
 )
@@ -98,7 +97,7 @@ func ParseMain(r io.Reader, cfg Config) (Result, error) {
 }
 
 func parseSection(r io.Reader, cfg Config, start stateFunc) (Result, error) {
-	b, err := ioutil.ReadAll(r)
+	b, err := io.ReadAll(r)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read page content: %w", err)
 	}

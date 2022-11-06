@@ -21,10 +21,13 @@ import (
 
 // Append appends the arguments up to the last one to the slice in the last argument.
 // This construct allows template constructs like this:
-//     {{ $pages = $pages | append $p2 $p1 }}
+//
+//	{{ $pages = $pages | append $p2 $p1 }}
+//
 // Note that with 2 arguments where both are slices of the same type,
 // the first slice will be appended to the second:
-//     {{ $pages = $pages | append .Site.RegularPages }}
+//
+//	{{ $pages = $pages | append .Site.RegularPages }}
 func (ns *Namespace) Append(args ...any) (any, error) {
 	if len(args) < 2 {
 		return nil, errors.New("need at least 2 arguments to append")

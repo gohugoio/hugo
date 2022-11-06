@@ -428,8 +428,9 @@ func parseHTMLElement(elStr string) (el htmlElement, err error) {
 }
 
 // Variants of s
-//    <body class="b a">
-//    <div>
+//
+//	<body class="b a">
+//	<div>
 func parseStartTag(s string) string {
 	spaceIndex := strings.IndexFunc(s, func(r rune) bool {
 		return unicode.IsSpace(r)

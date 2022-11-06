@@ -16,7 +16,6 @@ package resources
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -366,7 +365,7 @@ func (l *genericResource) initContent() error {
 		defer r.Close()
 
 		var b []byte
-		b, err = ioutil.ReadAll(r)
+		b, err = io.ReadAll(r)
 		if err != nil {
 			return
 		}

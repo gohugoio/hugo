@@ -30,8 +30,6 @@ const slash = "/"
 //
 // The big motivating behind this is to have only one source of truth for URLs,
 // and by that also get rid of most of the fragile string parsing/encoding etc.
-//
-//
 type TargetPathDescriptor struct {
 	PathSpec *helpers.PathSpec
 

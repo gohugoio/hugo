@@ -41,7 +41,7 @@ func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 
 	if !defaultInSubDir {
 		pathMod = func(s string) string {
-			return strings.Replace(s, "/fr/", "/", -1)
+			return strings.ReplaceAll(s, "/fr/", "/")
 		}
 	}
 
@@ -613,13 +613,13 @@ CONTENT
 The End.
 `
 
-	contentTempl = strings.Replace(contentTempl, "CONTENT", strings.Repeat(`
+	contentTempl = strings.ReplaceAll(contentTempl, "CONTENT", strings.Repeat(`
 	
 ## Another header
 
 Some text. Some more text.
 
-`, 100), -1)
+`, 100))
 
 	var content []string
 	defaultOutputs := `outputs: ["html", "json", "rss" ]`

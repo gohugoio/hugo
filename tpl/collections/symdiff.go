@@ -14,6 +14,7 @@
 package collections
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 )
@@ -58,7 +59,7 @@ func (ns *Namespace) SymDiff(s2, s1 any) (any, error) {
 				}
 			}
 		default:
-			return nil, fmt.Errorf("arguments to symdiff must be slices or arrays")
+			return nil, errors.New("arguments to symdiff must be slices or arrays")
 		}
 	}
 

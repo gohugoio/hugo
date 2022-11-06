@@ -9,11 +9,12 @@ package template_test
 
 import (
 	"bytes"
-	"github.com/gohugoio/hugo/tpl/internal/go_templates/testenv"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"testing"
+
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/testenv"
 )
 
 // Issue 36021: verify that text/template doesn't prevent the linker from removing

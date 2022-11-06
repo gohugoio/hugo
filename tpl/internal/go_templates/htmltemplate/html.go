@@ -83,12 +83,14 @@ var htmlNormReplacementTable = []string{
 // <div id=d></div>
 // <script>(function () {
 // var a = [], d = document.getElementById("d"), i, c, s;
-// for (i = 0; i < 0x10000; ++i) {
-//   c = String.fromCharCode(i);
-//   d.innerHTML = "<span title=" + c + "lt" + c + "></span>"
-//   s = d.getElementsByTagName("SPAN")[0];
-//   if (!s || s.title !== c + "lt" + c) { a.push(i.toString(16)); }
-// }
+//
+//	for (i = 0; i < 0x10000; ++i) {
+//	  c = String.fromCharCode(i);
+//	  d.innerHTML = "<span title=" + c + "lt" + c + "></span>"
+//	  s = d.getElementsByTagName("SPAN")[0];
+//	  if (!s || s.title !== c + "lt" + c) { a.push(i.toString(16)); }
+//	}
+//
 // document.write(a.join(", "));
 // })()</script>
 var htmlNospaceReplacementTable = []string{

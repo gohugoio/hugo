@@ -78,7 +78,7 @@ func (ns *Namespace) GetCSV(sep string, args ...any) (d [][]string, err error) {
 	}
 
 	var req *http.Request
-	req, err = http.NewRequest("GET", url, nil)
+	req, err = http.NewRequest(http.MethodGet, url, http.NoBody)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request for getCSV for resource %s: %w", url, err)
 	}
@@ -107,7 +107,7 @@ func (ns *Namespace) GetJSON(args ...any) (any, error) {
 	url, headers := toURLAndHeaders(args)
 	cache := ns.cacheGetJSON
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest(http.MethodGet, url, http.NoBody)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create request for getJSON resource %s: %w", url, err)
 	}

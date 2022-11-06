@@ -721,7 +721,7 @@ func (p *pageMeta) applyDefaultValues(n *contentNode) error {
 		case page.KindTerm:
 			// TODO(bep) improve
 			key := p.sections[len(p.sections)-1]
-			p.title = strings.Replace(p.s.titleFunc(key), "-", " ", -1)
+			p.title = strings.ReplaceAll(p.s.titleFunc(key), "-", " ")
 		case page.KindTaxonomy:
 			p.title = p.s.titleFunc(p.sections[0])
 		case kind404:

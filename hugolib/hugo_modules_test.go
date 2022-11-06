@@ -963,7 +963,7 @@ workingDir = %q
 
 `
 		tomlConfig := fmt.Sprintf(configTemplate, workingDir, mounts)
-		tomlConfig = strings.Replace(tomlConfig, "WORKING_DIR", workingDir, -1)
+		tomlConfig = strings.ReplaceAll(tomlConfig, "WORKING_DIR", workingDir)
 
 		b := newTestSitesBuilder(c).Running()
 

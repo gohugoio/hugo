@@ -225,7 +225,7 @@ D1
 	b.Assert(got, hqt.IsSameString, expect)
 }
 
-//  gobench --package ./tpl/partials
+// gobench --package ./tpl/partials
 func BenchmarkIncludeCached(b *testing.B) {
 	files := `
 -- config.toml --
@@ -262,7 +262,7 @@ ABCDE
 	}
 	builders := make([]*hugolib.IntegrationTestBuilder, b.N)
 
-	for i, _ := range builders {
+	for i := range builders {
 		builders[i] = hugolib.NewIntegrationTestBuilder(cfg)
 	}
 

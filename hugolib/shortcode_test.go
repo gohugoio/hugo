@@ -565,7 +565,7 @@ weight: %d
 
 	for i := 1; i <= 5; i++ {
 		sc := fmt.Sprintf(shortcodeTemplate, i)
-		sc = strings.Replace(sc, "%%", "%", -1)
+		sc = strings.ReplaceAll(sc, "%%", "%")
 		shortcodes = append(shortcodes, []string{fmt.Sprintf("shortcodes/s%d.html", i), sc}...)
 	}
 

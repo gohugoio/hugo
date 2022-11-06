@@ -33,8 +33,9 @@ func (tl TaxonomyList) String() string {
 
 // A Taxonomy is a map of keywords to a list of pages.
 // For example
-//    TagTaxonomy['technology'] = page.WeightedPages
-//    TagTaxonomy['go']  =  page.WeightedPages
+//
+//	TagTaxonomy['technology'] = page.WeightedPages
+//	TagTaxonomy['go']  =  page.WeightedPages
 type Taxonomy map[string]page.WeightedPages
 
 // OrderedTaxonomy is another representation of an Taxonomy using an array rather than a map.

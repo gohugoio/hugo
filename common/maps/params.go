@@ -62,7 +62,7 @@ func (p Params) IsZero() bool {
 		return false
 	}
 
-	for k, _ := range p {
+	for k := range p {
 		return k == mergeStrategyKey
 	}
 

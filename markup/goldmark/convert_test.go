@@ -139,7 +139,7 @@ description
 `
 
 	// Code fences
-	content = strings.Replace(content, "§§§", "```", -1)
+	content = strings.ReplaceAll(content, "§§§", "```")
 	mconf := markup_config.Default
 	mconf.Highlight.NoClasses = false
 	mconf.Goldmark.Renderer.Unsafe = true

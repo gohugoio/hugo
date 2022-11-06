@@ -22,7 +22,6 @@ import (
 	"go/doc"
 	"go/parser"
 	"go/token"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -246,7 +245,7 @@ func getGetTplPackagesGoDoc() map[string]map[string]methodGoDocInfo {
 			basePath = filepath.Join(pwd, "tpl")
 		}
 
-		files, err := ioutil.ReadDir(basePath)
+		files, err := os.ReadDir(basePath)
 		if err != nil {
 			log.Fatal(err)
 		}

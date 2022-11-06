@@ -12,9 +12,10 @@ package template
 import (
 	"bytes"
 	"fmt"
-	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 	"os"
 	"testing"
+
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 )
 
 const (

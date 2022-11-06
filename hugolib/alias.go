@@ -108,7 +108,7 @@ func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, outputFo
 func (a aliasHandler) targetPathAlias(src string) (string, error) {
 	originalAlias := src
 	if len(src) <= 0 {
-		return "", fmt.Errorf("alias \"\" is an empty string")
+		return "", errors.New("alias \"\" is an empty string")
 	}
 
 	alias := path.Clean(filepath.ToSlash(src))

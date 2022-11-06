@@ -141,7 +141,7 @@ func (ns *Namespace) refArgsToMap(args any) (map[string]any, error) {
 		return m, nil
 	case []string:
 		if len(v) == 0 || len(v) > 2 {
-			return nil, fmt.Errorf("invalid number of arguments to ref")
+			return nil, errors.New("invalid number of arguments to ref")
 		}
 		// These where the options before we introduced the map type:
 		s = v[0]

@@ -7,12 +7,13 @@ package template
 import (
 	"errors"
 	"fmt"
-	"github.com/gohugoio/hugo/tpl/internal/go_templates/fmtsort"
-	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 	"io"
 	"reflect"
 	"runtime"
 	"strings"
+
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/fmtsort"
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 )
 
 // maxExecDepth specifies the maximum stack depth of templates within

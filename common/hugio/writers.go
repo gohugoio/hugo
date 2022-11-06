@@ -13,10 +13,7 @@
 
 package hugio
 
-import (
-	"io"
-	"io/ioutil"
-)
+import "io"
 
 // As implemented by strings.Builder.
 type FlexiWriter interface {
@@ -63,7 +60,7 @@ func ToWriteCloser(w io.Writer) io.WriteCloser {
 		io.Closer
 	}{
 		w,
-		ioutil.NopCloser(nil),
+		io.NopCloser(nil),
 	}
 }
 
@@ -79,6 +76,6 @@ func ToReadCloser(r io.Reader) io.ReadCloser {
 		io.Closer
 	}{
 		r,
-		ioutil.NopCloser(nil),
+		io.NopCloser(nil),
 	}
 }

@@ -4,7 +4,6 @@ package filenotify
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
@@ -62,7 +61,7 @@ func (w *filePoller) Add(name string) error {
 		w.watches = make(map[string]struct{})
 	}
 	if _, exists := w.watches[name]; exists {
-		return fmt.Errorf("watch exists")
+		return errors.New("watch exists")
 	}
 	w.watches[name] = struct{}{}
 
@@ -125,7 +124,7 @@ func (w *filePoller) sendEvent(e fsnotify.Event) error {
 	select {
 	case w.events <- e:
 	case <-w.done:
-		return fmt.Errorf("closed")
+		return errors.New("closed")
 	}
 	return nil
 }
@@ -135,7 +134,7 @@ func (w *filePoller) sendErr(e error) error {
 	select {
 	case w.errors <- e:
 	case <-w.done:
-		return fmt.Errorf("closed")
+		return errors.New("closed")
 	}
 	return nil
 }
@@ -267,7 +266,7 @@ func (item *itemToWatch) checkForChanges() ([]fsnotify.Event, error) {
 	dirOp := checkChange(item.left.FileInfo, item.right.FileInfo)
 
 	if dirOp != 0 {
-		evs := []fsnotify.Event{fsnotify.Event{Op: dirOp, Name: item.filename}}
+		evs := []fsnotify.Event{{Op: dirOp, Name: item.filename}}
 		return evs, nil
 	}
 

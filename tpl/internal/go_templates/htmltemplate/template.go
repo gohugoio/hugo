@@ -5,6 +5,7 @@
 package template
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -32,7 +33,7 @@ type Template struct {
 }
 
 // escapeOK is a sentinel value used to indicate valid escaping.
-var escapeOK = fmt.Errorf("template escaped correctly")
+var escapeOK = errors.New("template escaped correctly")
 
 // nameSpace is the data structure shared by all templates in an association.
 type nameSpace struct {
@@ -65,6 +66,7 @@ func (t *Template) Templates() []*Template {
 //
 // missingkey: Control the behavior during execution if a map is
 // indexed with a key that is not present in the map.
+//
 //	"missingkey=default" or "missingkey=invalid"
 //		The default behavior: Do nothing and continue execution.
 //		If printed, the result of the index operation is the string
@@ -73,7 +75,6 @@ func (t *Template) Templates() []*Template {
 //		The operation returns the zero value for the map type's element.
 //	"missingkey=error"
 //		Execution stops immediately with an error.
-//
 func (t *Template) Option(opt ...string) *Template {
 	t.text.Option(opt...)
 	return t
@@ -88,7 +89,7 @@ func (t *Template) checkCanParse() error {
 	t.nameSpace.mu.Lock()
 	defer t.nameSpace.mu.Unlock()
 	if t.nameSpace.escaped {
-		return fmt.Errorf("html/template: cannot Parse after Execute")
+		return errors.New("html/template: cannot Parse after Execute")
 	}
 	return nil
 }
@@ -369,6 +370,7 @@ func (t *Template) Lookup(name string) *Template {
 // Must is a helper that wraps a call to a function returning (*Template, error)
 // and panics if the error is non-nil. It is intended for use in variable initializations
 // such as
+//
 //	var t = template.Must(template.New("name").Parse("html"))
 func Must(t *Template, err error) *Template {
 	if err != nil {
@@ -411,7 +413,7 @@ func parseFiles(t *Template, readFile func(string) (string, []byte, error), file
 
 	if len(filenames) == 0 {
 		// Not really a problem, but be consistent.
-		return nil, fmt.Errorf("html/template: no files named in call to ParseFiles")
+		return nil, errors.New("html/template: no files named in call to ParseFiles")
 	}
 	for _, filename := range filenames {
 		name, b, err := readFile(filename)

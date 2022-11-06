@@ -14,6 +14,7 @@
 package resources
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -77,7 +78,7 @@ func AssignMetadata(metadata []map[string]any, resources ...resource.Resource) e
 		for _, meta := range metadata {
 			src, found := meta["src"]
 			if !found {
-				return fmt.Errorf("missing 'src' in metadata for resource")
+				return errors.New("missing 'src' in metadata for resource")
 			}
 
 			srcKey := strings.ToLower(cast.ToString(src))
@@ -140,5 +141,5 @@ func AssignMetadata(metadata []map[string]any, resources ...resource.Resource) e
 }
 
 func replaceResourcePlaceholders(in string, counter int) string {
-	return strings.Replace(in, counterPlaceHolder, strconv.Itoa(counter), -1)
+	return strings.ReplaceAll(in, counterPlaceHolder, strconv.Itoa(counter))
 }

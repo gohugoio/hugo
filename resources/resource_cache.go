@@ -77,12 +77,12 @@ var extAliasKeywords = map[string][]string{
 // used to do resource cache invalidations.
 //
 // We use the first directory path element and the extension, so:
-//     a/b.json => "a", "json"
-//     b.json => "json"
+//
+//	a/b.json => "a", "json"
+//	b.json => "json"
 //
 // For some of the extensions we will also map to closely related types,
 // e.g. "scss" will also return "sass".
-//
 func ResourceKeyPartitions(filename string) []string {
 	var partitions []string
 	filename = glob.NormalizePath(filename)

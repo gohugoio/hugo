@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"mime"
 	"net/http"
 	"net/http/httputil"
@@ -57,7 +56,7 @@ func toHTTPError(err error, res *http.Response) *HTTPError {
 	}
 
 	var body []byte
-	body, _ = ioutil.ReadAll(res.Body)
+	body, _ = io.ReadAll(res.Body)
 
 	return &HTTPError{
 		error: err,
@@ -135,7 +134,7 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 		return nil, nil
 	}
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read remote resource %q: %w", uri, err)
 	}

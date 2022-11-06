@@ -16,7 +16,6 @@ package hugolib
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
@@ -306,7 +305,7 @@ func TestResourceChains(t *testing.T) {
 		case "/post":
 			w.Header().Set("Content-Type", "text/plain")
 			if r.Method == http.MethodPost {
-				body, err := ioutil.ReadAll(r.Body)
+				body, err := io.ReadAll(r.Body)
 				if err != nil {
 					http.Error(w, "Internal server error", http.StatusInternalServerError)
 					return

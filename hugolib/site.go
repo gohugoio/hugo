@@ -90,16 +90,16 @@ import (
 //
 // 1. A list of Files is parsed and then converted into Pages.
 //
-// 2. Pages contain sections (based on the file they were generated from),
-//    aliases and slugs (included in a pages frontmatter) which are the
-//    various targets that will get generated.  There will be canonical
-//    listing.  The canonical path can be overruled based on a pattern.
+//  2. Pages contain sections (based on the file they were generated from),
+//     aliases and slugs (included in a pages frontmatter) which are the
+//     various targets that will get generated.  There will be canonical
+//     listing.  The canonical path can be overruled based on a pattern.
 //
-// 3. Taxonomies are created via configuration and will present some aspect of
-//    the final page and typically a perm url.
+//  3. Taxonomies are created via configuration and will present some aspect of
+//     the final page and typically a perm url.
 //
-// 4. All Pages are passed through a template based on their desired
-//    layout based on numerous different elements.
+//  4. All Pages are passed through a template based on their desired
+//     layout based on numerous different elements.
 //
 // 5. The entire collection of files is written to disk.
 type Site struct {

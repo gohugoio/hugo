@@ -502,11 +502,12 @@ func (ns *Namespace) Reverse(slice any) (any, error) {
 // Seq creates a sequence of integers.  It's named and used as GNU's seq.
 //
 // Examples:
-//     3 => 1, 2, 3
-//     1 2 4 => 1, 3
-//     -3 => -1, -2, -3
-//     1 4 => 1, 2, 3, 4
-//     1 -2 => 1, 0, -1, -2
+//
+//	3 => 1, 2, 3
+//	1 2 4 => 1, 3
+//	-3 => -1, -2, -3
+//	1 4 => 1, 2, 3, 4
+//	1 -2 => 1, 0, -1, -2
 func (ns *Namespace) Seq(args ...any) ([]int, error) {
 	if len(args) < 1 || len(args) > 3 {
 		return nil, errors.New("invalid number of arguments to Seq")

@@ -66,7 +66,7 @@ func ToSlashTrimLeading(s string) string {
 // MakeTitle converts the path given to a suitable title, trimming whitespace
 // and replacing hyphens with whitespace.
 func MakeTitle(inpath string) string {
-	return strings.Replace(strings.TrimSpace(inpath), "-", " ", -1)
+	return strings.ReplaceAll(strings.TrimSpace(inpath), "-", " ")
 }
 
 // From https://golang.org/src/net/url/url.go

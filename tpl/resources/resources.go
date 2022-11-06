@@ -279,7 +279,7 @@ func (ns *Namespace) FromString(targetPathIn, contentIn any) (resource.Resource,
 // the given data, and published to the relative target path.
 func (ns *Namespace) ExecuteAsTemplate(args ...any) (resource.Resource, error) {
 	if len(args) != 3 {
-		return nil, fmt.Errorf("must provide targetPath, the template data context and a Resource object")
+		return nil, errors.New("must provide targetPath, the template data context and a Resource object")
 	}
 	targetPath, err := cast.ToStringE(args[0])
 	if err != nil {

@@ -82,7 +82,7 @@ func collectIdentities(seqs ...any) (map[any]bool, error) {
 				seen[normalize(ev)] = true
 			}
 		default:
-			return nil, fmt.Errorf("arguments must be slices or arrays")
+			return nil, errors.New("arguments must be slices or arrays")
 		}
 	}
 

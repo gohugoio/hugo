@@ -17,7 +17,6 @@ import (
 	"bytes"
 	"errors"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -207,7 +206,7 @@ func (c *Cache) GetOrCreateBytes(id string, create func() ([]byte, error)) (Item
 
 	if r := c.getOrRemove(id); r != nil {
 		defer r.Close()
-		b, err := ioutil.ReadAll(r)
+		b, err := io.ReadAll(r)
 		return info, b, err
 	}
 
@@ -242,7 +241,7 @@ func (c *Cache) GetBytes(id string) (ItemInfo, []byte, error) {
 
 	if r := c.getOrRemove(id); r != nil {
 		defer r.Close()
-		b, err := ioutil.ReadAll(r)
+		b, err := io.ReadAll(r)
 		return info, b, err
 	}
 
@@ -314,7 +313,7 @@ func (c *Cache) getString(id string) string {
 	}
 	defer f.Close()
 
-	b, _ := ioutil.ReadAll(f)
+	b, _ := io.ReadAll(f)
 	return string(b)
 }
 

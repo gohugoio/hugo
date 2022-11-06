@@ -16,6 +16,7 @@
 package releaser
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -32,7 +33,7 @@ const commitPrefix = "releaser:"
 // New initialises a ReleaseHandler.
 func New(skipPush, try bool, step int) (*ReleaseHandler, error) {
 	if step < 1 || step > 2 {
-		return nil, fmt.Errorf("step must be 1 or 2")
+		return nil, errors.New("step must be 1 or 2")
 	}
 
 	prefix := "release-"
@@ -222,10 +223,10 @@ func git(args ...string) (string, error) {
 	return string(out), nil
 }
 
-func logf(format string, args ...interface{}) {
+func logf(format string, args ...any) {
 	fmt.Fprintf(os.Stderr, format, args...)
 }
 
-func logln(args ...interface{}) {
+func logln(args ...any) {
 	fmt.Fprintln(os.Stderr, args...)
 }

@@ -19,7 +19,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -365,7 +364,7 @@ func (imp *importResolver) importRecursive(
 func (imp *importResolver) resolve() (io.Reader, error) {
 	const importIdentifier = "@import"
 
-	content, err := ioutil.ReadAll(imp.r)
+	content, err := io.ReadAll(imp.r)
 	if err != nil {
 		return nil, err
 	}
@@ -383,10 +382,13 @@ func (imp *importResolver) resolve() (io.Reader, error) {
 // See https://www.w3schools.com/cssref/pr_import_rule.asp
 // We currently only support simple file imports, no urls, no media queries.
 // So this is OK:
-//     @import "navigation.css";
+//
+//	@import "navigation.css";
+//
 // This is not:
-//     @import url("navigation.css");
-//     @import "mobstyle.css" screen and (max-width: 768px);
+//
+//	@import url("navigation.css");
+//	@import "mobstyle.css" screen and (max-width: 768px);
 func (imp *importResolver) shouldImport(s string) bool {
 	if !strings.HasPrefix(s, importIdentifier) {
 		return false

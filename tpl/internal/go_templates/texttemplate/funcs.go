@@ -191,7 +191,7 @@ func indexArg(index reflect.Value, cap int) (int, error) {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 		x = int64(index.Uint())
 	case reflect.Invalid:
-		return 0, fmt.Errorf("cannot index slice/array with nil")
+		return 0, errors.New("cannot index slice/array with nil")
 	default:
 		return 0, fmt.Errorf("cannot index slice/array with type %s", index.Type())
 	}
@@ -209,13 +209,13 @@ func indexArg(index reflect.Value, cap int) (int, error) {
 func index(item reflect.Value, indexes ...reflect.Value) (reflect.Value, error) {
 	item = indirectInterface(item)
 	if !item.IsValid() {
-		return reflect.Value{}, fmt.Errorf("index of untyped nil")
+		return reflect.Value{}, errors.New("index of untyped nil")
 	}
 	for _, index := range indexes {
 		index = indirectInterface(index)
 		var isNil bool
 		if item, isNil = indirect(item); isNil {
-			return reflect.Value{}, fmt.Errorf("index of nil pointer")
+			return reflect.Value{}, errors.New("index of nil pointer")
 		}
 		switch item.Kind() {
 		case reflect.Array, reflect.Slice, reflect.String:
@@ -253,7 +253,7 @@ func index(item reflect.Value, indexes ...reflect.Value) (reflect.Value, error) 
 func slice(item reflect.Value, indexes ...reflect.Value) (reflect.Value, error) {
 	item = indirectInterface(item)
 	if !item.IsValid() {
-		return reflect.Value{}, fmt.Errorf("slice of untyped nil")
+		return reflect.Value{}, errors.New("slice of untyped nil")
 	}
 	if len(indexes) > 3 {
 		return reflect.Value{}, fmt.Errorf("too many slice indexes: %d", len(indexes))
@@ -262,7 +262,7 @@ func slice(item reflect.Value, indexes ...reflect.Value) (reflect.Value, error) 
 	switch item.Kind() {
 	case reflect.String:
 		if len(indexes) == 3 {
-			return reflect.Value{}, fmt.Errorf("cannot 3-index slice a string")
+			return reflect.Value{}, errors.New("cannot 3-index slice a string")
 		}
 		cap = item.Len()
 	case reflect.Array, reflect.Slice:
@@ -299,7 +299,7 @@ func slice(item reflect.Value, indexes ...reflect.Value) (reflect.Value, error) 
 func length(item reflect.Value) (int, error) {
 	item, isNil := indirect(item)
 	if isNil {
-		return 0, fmt.Errorf("len of nil pointer")
+		return 0, errors.New("len of nil pointer")
 	}
 	switch item.Kind() {
 	case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice, reflect.String:
@@ -315,7 +315,7 @@ func length(item reflect.Value) (int, error) {
 func call(fn reflect.Value, args ...reflect.Value) (reflect.Value, error) {
 	fn = indirectInterface(fn)
 	if !fn.IsValid() {
-		return reflect.Value{}, fmt.Errorf("call of nil")
+		return reflect.Value{}, errors.New("call of nil")
 	}
 	typ := fn.Type()
 	if typ.Kind() != reflect.Func {
@@ -729,7 +729,9 @@ func URLQueryEscaper(args ...any) string {
 }
 
 // evalArgs formats the list of arguments into a string. It is therefore equivalent to
+//
 //	fmt.Sprint(args...)
+//
 // except that each argument is indirected (if a pointer), as required,
 // using the same rules as the default string evaluation during template
 // execution.

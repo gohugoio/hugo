@@ -35,9 +35,9 @@ type Namespace struct{}
 // If the parameter is either an integer or a string containing an integer
 // value, the behavior is to add the appropriate ordinal.
 //
-//     Example:  "my-first-post" -> "My first post"
-//     Example:  "103" -> "103rd"
-//     Example:  52 -> "52nd"
+//	Example:  "my-first-post" -> "My first post"
+//	Example:  "103" -> "103rd"
+//	Example:  52 -> "52nd"
 func (ns *Namespace) Humanize(in any) (string, error) {
 	word, err := cast.ToStringE(in)
 	if err != nil {

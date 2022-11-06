@@ -34,7 +34,7 @@ func newPagesProcessor(h *HugoSites, sp *source.SourceSpec) *pagesProcessor {
 		procs[s.Lang()] = &sitePagesProcessor{
 			m:           s.pageMap,
 			errorSender: s.h,
-			itemChan:    make(chan interface{}, config.GetNumWorkerMultiplier()*2),
+			itemChan:    make(chan any, config.GetNumWorkerMultiplier()*2),
 		}
 	}
 	return &pagesProcessor{

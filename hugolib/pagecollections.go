@@ -143,7 +143,7 @@ func (c *PageCollections) getPageOldVersion(ref ...string) (page.Page, error) {
 	return c.getPageNew(nil, key)
 }
 
-// 	Only used in tests.
+// Only used in tests.
 func (c *PageCollections) getPage(typ string, sections ...string) page.Page {
 	refs := append([]string{typ}, path.Join(sections...))
 	p, _ := c.getPageOldVersion(refs...)

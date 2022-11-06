@@ -14,6 +14,7 @@
 package paths
 
 import (
+	"errors"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -93,7 +94,7 @@ func New(fs *hugofs.Fs, cfg config.Provider) (*Paths, error) {
 	publishDir := filepath.Clean(cfg.GetString("publishDir"))
 
 	if publishDir == "" {
-		return nil, fmt.Errorf("publishDir not set")
+		return nil, errors.New("publishDir not set")
 	}
 
 	defaultContentLanguage := cfg.GetString("defaultContentLanguage")

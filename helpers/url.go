@@ -71,8 +71,9 @@ func SanitizeURLKeepTrailingSlash(in string) string {
 
 // URLize is similar to MakePath, but with Unicode handling
 // Example:
-//     uri: Vim (text editor)
-//     urlize: vim-text-editor
+//
+//	uri: Vim (text editor)
+//	urlize: vim-text-editor
 func (p *PathSpec) URLize(uri string) string {
 	return p.URLEscape(p.MakePathSanitized(uri))
 }

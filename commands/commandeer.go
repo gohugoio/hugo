@@ -16,7 +16,7 @@ package commands
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net"
 	"os"
 	"path/filepath"
@@ -201,7 +201,7 @@ func newCommandeer(mustHaveConfigFile, failOnInitErr, running bool, h *hugoBuild
 		rebuildDebouncer = debounce.New(4 * time.Second)
 	}
 
-	out := ioutil.Discard
+	out := io.Discard
 	if !h.quiet {
 		out = os.Stdout
 	}
@@ -221,7 +221,7 @@ func newCommandeer(mustHaveConfigFile, failOnInitErr, running bool, h *hugoBuild
 		running:            running,
 
 		// This will be replaced later, but we need something to log to before the configuration is read.
-		logger: loggers.NewLogger(jww.LevelWarn, jww.LevelError, out, ioutil.Discard, running),
+		logger: loggers.NewLogger(jww.LevelWarn, jww.LevelError, out, io.Discard, running),
 	}
 
 	return c, c.loadConfig()

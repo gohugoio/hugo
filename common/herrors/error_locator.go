@@ -16,7 +16,6 @@ package herrors
 
 import (
 	"io"
-	"io/ioutil"
 	"path/filepath"
 	"strings"
 
@@ -114,7 +113,7 @@ func locateError(r io.Reader, le FileError, matches LineMatcherFn) *ErrorContext
 
 	ectx := &ErrorContext{LinesPos: -1, Position: text.Position{Offset: -1}}
 
-	b, err := ioutil.ReadAll(r)
+	b, err := io.ReadAll(r)
 	if err != nil {
 		return ectx
 	}

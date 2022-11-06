@@ -15,7 +15,7 @@ package js
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path"
 	"path/filepath"
@@ -77,7 +77,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		ctx.ReplaceOutPathExtension(".js")
 	}
 
-	src, err := ioutil.ReadAll(ctx.From)
+	src, err := io.ReadAll(ctx.From)
 	if err != nil {
 		return err
 	}
@@ -98,7 +98,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	}
 
 	if buildOptions.Sourcemap == api.SourceMapExternal && buildOptions.Outdir == "" {
-		buildOptions.Outdir, err = ioutil.TempDir(os.TempDir(), "compileOutput")
+		buildOptions.Outdir, err = os.MkdirTemp(os.TempDir(), "compileOutput")
 		if err != nil {
 			return err
 		}
@@ -110,7 +110,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		for i, ext := range opts.Inject {
 			impPath := filepath.FromSlash(ext)
 			if filepath.IsAbs(impPath) {
-				return fmt.Errorf("inject: absolute paths not supported, must be relative to /assets")
+				return errors.New("inject: absolute paths not supported, must be relative to /assets")
 			}
 
 			m := resolveComponentInAssets(t.c.rs.Assets.Fs, impPath)

@@ -18,7 +18,7 @@ package deploy
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"strings"
 
 	"google.golang.org/api/compute/v1"
@@ -28,7 +28,7 @@ import (
 func InvalidateGoogleCloudCDN(ctx context.Context, origin string) error {
 	parts := strings.Split(origin, "/")
 	if len(parts) != 2 {
-		return fmt.Errorf("origin must be <project>/<origin>")
+		return errors.New("origin must be <project>/<origin>")
 	}
 	service, err := compute.NewService(ctx)
 	if err != nil {

@@ -4,7 +4,6 @@ package filenotify
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -35,7 +34,7 @@ func TestPollerAddRemove(t *testing.T) {
 	c.Assert(w.Add("foo"), qt.Not(qt.IsNil))
 	c.Assert(w.Remove("foo"), qt.Not(qt.IsNil))
 
-	f, err := ioutil.TempFile("", "asdf")
+	f, err := os.CreateTemp("", "asdf")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -66,7 +65,7 @@ func TestPollerEvent(t *testing.T) {
 			filename := filepath.Join(subdir, "file1")
 
 			// Write to one file.
-			c.Assert(ioutil.WriteFile(filename, []byte("changed"), 0600), qt.IsNil)
+			c.Assert(os.WriteFile(filename, []byte("changed"), 0600), qt.IsNil)
 
 			var expected []fsnotify.Event
 
@@ -86,7 +85,7 @@ func TestPollerEvent(t *testing.T) {
 
 			// Add one file.
 			filename = filepath.Join(subdir, "file3")
-			c.Assert(ioutil.WriteFile(filename, []byte("new"), 0600), qt.IsNil)
+			c.Assert(os.WriteFile(filename, []byte("new"), 0600), qt.IsNil)
 			assertEvents(c, w, fsnotify.Event{Name: filename, Op: fsnotify.Create})
 
 			// Remove entire directory.
@@ -127,9 +126,9 @@ func TestPollerEvent(t *testing.T) {
 func TestPollerClose(t *testing.T) {
 	c := qt.New(t)
 	w := NewPollingWatcher(watchWaitTime)
-	f1, err := ioutil.TempFile("", "f1")
+	f1, err := os.CreateTemp("", "f1")
 	c.Assert(err, qt.IsNil)
-	f2, err := ioutil.TempFile("", "f2")
+	f2, err := os.CreateTemp("", "f2")
 	c.Assert(err, qt.IsNil)
 	filename1 := f1.Name()
 	filename2 := f2.Name()
@@ -140,12 +139,12 @@ func TestPollerClose(t *testing.T) {
 	c.Assert(w.Add(filename2), qt.IsNil)
 	c.Assert(w.Close(), qt.IsNil)
 	c.Assert(w.Close(), qt.IsNil)
-	c.Assert(ioutil.WriteFile(filename1, []byte("new"), 0600), qt.IsNil)
-	c.Assert(ioutil.WriteFile(filename2, []byte("new"), 0600), qt.IsNil)
+	c.Assert(os.WriteFile(filename1, []byte("new"), 0600), qt.IsNil)
+	c.Assert(os.WriteFile(filename2, []byte("new"), 0600), qt.IsNil)
 	// No more event as the watchers are closed.
 	assertEvents(c, w)
 
-	f2, err = ioutil.TempFile("", "f2")
+	f2, err = os.CreateTemp("", "f2")
 	c.Assert(err, qt.IsNil)
 
 	defer os.Remove(f2.Name())
@@ -172,7 +171,7 @@ func TestCheckChange(t *testing.T) {
 	c.Assert(os.Chmod(filepath.Join(filepath.Join(dir, subdir2, "file1")), 0400), qt.IsNil)
 	f1_2 := stat(subdir2, "file1")
 
-	c.Assert(ioutil.WriteFile(filepath.Join(filepath.Join(dir, subdir2, "file2")), []byte("changed"), 0600), qt.IsNil)
+	c.Assert(os.WriteFile(filepath.Join(filepath.Join(dir, subdir2, "file2")), []byte("changed"), 0600), qt.IsNil)
 	f2_2 := stat(subdir2, "file2")
 
 	c.Assert(checkChange(f0, nil), qt.Equals, fsnotify.Remove)
@@ -221,17 +220,17 @@ func BenchmarkPoller(b *testing.B) {
 }
 
 func prepareTestDirWithSomeFiles(c *qt.C, id string) string {
-	dir, err := ioutil.TempDir("", fmt.Sprintf("test-poller-dir-%s", id))
+	dir, err := os.MkdirTemp("", fmt.Sprintf("test-poller-dir-%s", id))
 	c.Assert(err, qt.IsNil)
 	c.Assert(os.MkdirAll(filepath.Join(dir, subdir1), 0777), qt.IsNil)
 	c.Assert(os.MkdirAll(filepath.Join(dir, subdir2), 0777), qt.IsNil)
 
 	for i := 0; i < 3; i++ {
-		c.Assert(ioutil.WriteFile(filepath.Join(dir, subdir1, fmt.Sprintf("file%d", i)), []byte("hello1"), 0600), qt.IsNil)
+		c.Assert(os.WriteFile(filepath.Join(dir, subdir1, fmt.Sprintf("file%d", i)), []byte("hello1"), 0600), qt.IsNil)
 	}
 
 	for i := 0; i < 3; i++ {
-		c.Assert(ioutil.WriteFile(filepath.Join(dir, subdir2, fmt.Sprintf("file%d", i)), []byte("hello2"), 0600), qt.IsNil)
+		c.Assert(os.WriteFile(filepath.Join(dir, subdir2, fmt.Sprintf("file%d", i)), []byte("hello2"), 0600), qt.IsNil)
 	}
 
 	c.Cleanup(func() {

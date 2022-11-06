@@ -299,12 +299,12 @@ func checkPageContent(t *testing.T, page page.Page, expected string, msg ...any)
 
 func normalizeContent(c string) string {
 	norm := c
-	norm = strings.Replace(norm, "\n", " ", -1)
-	norm = strings.Replace(norm, "    ", " ", -1)
-	norm = strings.Replace(norm, "   ", " ", -1)
-	norm = strings.Replace(norm, "  ", " ", -1)
-	norm = strings.Replace(norm, "p> ", "p>", -1)
-	norm = strings.Replace(norm, ">  <", "> <", -1)
+	norm = strings.ReplaceAll(norm, "\n", " ")
+	norm = strings.ReplaceAll(norm, "    ", " ")
+	norm = strings.ReplaceAll(norm, "   ", " ")
+	norm = strings.ReplaceAll(norm, "  ", " ")
+	norm = strings.ReplaceAll(norm, "p> ", "p>")
+	norm = strings.ReplaceAll(norm, ">  <", "> <")
 	return strings.TrimSpace(norm)
 }
 

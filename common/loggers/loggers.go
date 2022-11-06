@@ -17,7 +17,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"regexp"
@@ -205,7 +204,7 @@ func (l *logger) Reset() {
 	}
 }
 
-//  NewLogger creates a new Logger for the given thresholds
+// NewLogger creates a new Logger for the given thresholds
 func NewLogger(stdoutThreshold, logThreshold jww.Threshold, outHandle, logHandle io.Writer, saveErrors bool) Logger {
 	return newLogger(stdoutThreshold, logThreshold, outHandle, logHandle, saveErrors)
 }
@@ -232,12 +231,12 @@ func NewErrorLogger() Logger {
 
 // NewBasicLogger creates a new basic logger writing to Stdout.
 func NewBasicLogger(t jww.Threshold) Logger {
-	return newLogger(t, jww.LevelError, os.Stdout, ioutil.Discard, false)
+	return newLogger(t, jww.LevelError, os.Stdout, io.Discard, false)
 }
 
 // NewBasicLoggerForWriter creates a new basic logger writing to w.
 func NewBasicLoggerForWriter(t jww.Threshold, w io.Writer) Logger {
-	return newLogger(t, jww.LevelError, w, ioutil.Discard, false)
+	return newLogger(t, jww.LevelError, w, io.Discard, false)
 }
 
 // RemoveANSIColours removes all ANSI colours from the given string.
@@ -291,7 +290,7 @@ func InitGlobalLogger(stdoutThreshold, logThreshold jww.Threshold, outHandle, lo
 
 func getLogWriters(outHandle, logHandle io.Writer) (io.Writer, io.Writer) {
 	isTerm := terminal.PrintANSIColors(os.Stdout)
-	if logHandle != ioutil.Discard && isTerm {
+	if logHandle != io.Discard && isTerm {
 		// Remove any Ansi coloring from log output
 		logHandle = ansiCleaner{w: logHandle}
 	}

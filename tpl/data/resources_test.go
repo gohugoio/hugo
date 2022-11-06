@@ -103,7 +103,7 @@ func TestScpGetRemote(t *testing.T) {
 	for _, test := range tests {
 		msg := qt.Commentf("%v", test)
 
-		req, err := http.NewRequest("GET", test.path, nil)
+		req, err := http.NewRequest(http.MethodGet, test.path, http.NoBody)
 		c.Assert(err, qt.IsNil, msg)
 
 		srv, cl := getTestServer(func(w http.ResponseWriter, r *http.Request) {
@@ -141,7 +141,7 @@ func TestScpGetRemoteParallel(t *testing.T) {
 	defer func() { srv.Close() }()
 
 	url := "http://Foo.Bar/foo_Bar-Foo"
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest(http.MethodGet, url, http.NoBody)
 	c.Assert(err, qt.IsNil)
 
 	for _, ignoreCache := range []bool{false} {

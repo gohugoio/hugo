@@ -20,7 +20,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -193,7 +192,8 @@ func (c *Client) Tidy() error {
 //
 // We, by default, use the /_vendor folder first, if found. To disable,
 // run with
-//    hugo --ignoreVendorPaths=".*"
+//
+//	hugo --ignoreVendorPaths=".*"
 //
 // Given a module tree, Hugo will pick the first module for a given path,
 // meaning that if the top-level module is vendored, that will be the full
@@ -441,7 +441,7 @@ func (c *Client) Clean(pattern string) error {
 }
 
 func (c *Client) runVerify() error {
-	return c.runGo(context.Background(), ioutil.Discard, "mod", "verify")
+	return c.runGo(context.Background(), io.Discard, "mod", "verify")
 }
 
 func isProbablyModule(path string) bool {
@@ -456,7 +456,7 @@ func (c *Client) listGoMods() (goModules, error) {
 	downloadModules := func(modules ...string) error {
 		args := []string{"mod", "download"}
 		args = append(args, modules...)
-		out := ioutil.Discard
+		out := io.Discard
 		err := c.runGo(context.Background(), out, args...)
 		if err != nil {
 			return fmt.Errorf("failed to download modules: %w", err)

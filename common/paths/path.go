@@ -75,7 +75,7 @@ func AbsPathify(workingDir, inPath string) string {
 // MakeTitle converts the path given to a suitable title, trimming whitespace
 // and replacing hyphens with whitespace.
 func MakeTitle(inpath string) string {
-	return strings.Replace(strings.TrimSpace(inpath), "-", " ", -1)
+	return strings.ReplaceAll(strings.TrimSpace(inpath), "-", " ")
 }
 
 // ReplaceExtension takes a path and an extension, strips the old extension

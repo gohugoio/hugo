@@ -16,7 +16,6 @@ package hugolib
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -527,7 +526,7 @@ func TestAbsURLify(t *testing.T) {
 				}
 
 				if !canonify {
-					expected = strings.Replace(expected, baseURL, "", -1)
+					expected = strings.ReplaceAll(expected, baseURL, "")
 				}
 
 				th.assertFileContent(test.file, expected)
@@ -1093,7 +1092,7 @@ ABC.
 	b.Build(BuildCfg{})
 
 	contentMem := b.FileContent(statsFilename)
-	cb, err := ioutil.ReadFile(statsFilename)
+	cb, err := os.ReadFile(statsFilename)
 	b.Assert(err, qt.IsNil)
 	contentFile := string(cb)
 

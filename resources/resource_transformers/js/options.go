@@ -16,7 +16,7 @@ package js
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -257,7 +257,7 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 				})
 			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: nsImportHugo},
 				func(args api.OnLoadArgs) (api.OnLoadResult, error) {
-					b, err := ioutil.ReadFile(args.Path)
+					b, err := os.ReadFile(args.Path)
 					if err != nil {
 						return api.OnLoadResult{}, fmt.Errorf("failed to read %q: %w", args.Path, err)
 					}

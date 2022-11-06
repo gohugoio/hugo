@@ -15,7 +15,6 @@ package collections
 
 import (
 	"errors"
-	"fmt"
 	"reflect"
 )
 
@@ -24,7 +23,8 @@ import (
 // All elements of seqs must be slices or arrays of comparable types.
 //
 // The reasoning behind this rather clumsy API is so we can do this in the templates:
-//    {{ $c := .Pages | complement $last4 }}
+//
+//	{{ $c := .Pages | complement $last4 }}
 func (ns *Namespace) Complement(seqs ...any) (any, error) {
 	if len(seqs) < 2 {
 		return nil, errors.New("complement needs at least two arguments")
@@ -50,6 +50,6 @@ func (ns *Namespace) Complement(seqs ...any) (any, error) {
 		}
 		return sl.Interface(), nil
 	default:
-		return nil, fmt.Errorf("arguments to complement must be slices or arrays")
+		return nil, errors.New("arguments to complement must be slices or arrays")
 	}
 }

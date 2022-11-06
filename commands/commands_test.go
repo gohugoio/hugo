@@ -15,7 +15,6 @@ package commands
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -400,7 +399,7 @@ PostProcess: {{ $foo.RelPermalink }}
 
 func writeFile(t testing.TB, filename, content string) {
 	must(t, os.MkdirAll(filepath.Dir(filename), os.FileMode(0755)))
-	must(t, ioutil.WriteFile(filename, []byte(content), os.FileMode(0755)))
+	must(t, os.WriteFile(filename, []byte(content), os.FileMode(0755)))
 }
 
 func must(t testing.TB, err error) {

@@ -17,7 +17,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -44,11 +43,11 @@ func TestFileCache(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	tempWorkingDir, err := ioutil.TempDir("", "hugo_filecache_test_work")
+	tempWorkingDir, err := os.MkdirTemp("", "hugo_filecache_test_work")
 	c.Assert(err, qt.IsNil)
 	defer os.Remove(tempWorkingDir)
 
-	tempCacheDir, err := ioutil.TempDir("", "hugo_filecache_test_cache")
+	tempCacheDir, err := os.MkdirTemp("", "hugo_filecache_test_cache")
 	c.Assert(err, qt.IsNil)
 	defer os.Remove(tempCacheDir)
 
@@ -86,7 +85,7 @@ dir = ":cacheDir/c"
 		replacer := strings.NewReplacer("CACHEDIR", test.cacheDir, "WORKING_DIR", test.workingDir)
 
 		configStr = replacer.Replace(configStr)
-		configStr = strings.Replace(configStr, "\\", winPathSep, -1)
+		configStr = strings.ReplaceAll(configStr, "\\", winPathSep)
 
 		p := newPathsSpec(t, osfs, configStr)
 
@@ -123,7 +122,7 @@ dir = ":cacheDir/c"
 					io.Closer
 				}{
 					strings.NewReader(s),
-					ioutil.NopCloser(nil),
+					io.NopCloser(nil),
 				}, nil
 			}
 		}
@@ -138,7 +137,7 @@ dir = ":cacheDir/c"
 				c.Assert(err, qt.IsNil)
 				c.Assert(r, qt.Not(qt.IsNil))
 				c.Assert(info.Name, qt.Equals, "a")
-				b, _ := ioutil.ReadAll(r)
+				b, _ := io.ReadAll(r)
 				r.Close()
 				c.Assert(string(b), qt.Equals, "abc")
 
@@ -154,7 +153,7 @@ dir = ":cacheDir/c"
 
 				_, r, err = ca.GetOrCreate("a", rf("bcd"))
 				c.Assert(err, qt.IsNil)
-				b, _ = ioutil.ReadAll(r)
+				b, _ = io.ReadAll(r)
 				r.Close()
 				c.Assert(string(b), qt.Equals, "abc")
 			}
@@ -173,7 +172,7 @@ dir = ":cacheDir/c"
 		c.Assert(err, qt.IsNil)
 		c.Assert(r, qt.Not(qt.IsNil))
 		c.Assert(info.Name, qt.Equals, "mykey")
-		b, _ := ioutil.ReadAll(r)
+		b, _ := io.ReadAll(r)
 		r.Close()
 		c.Assert(string(b), qt.Equals, "Hugo is great!")
 
@@ -233,7 +232,7 @@ dir = "/cache/c"
 					return hugio.ToReadCloser(strings.NewReader(data)), nil
 				})
 				c.Assert(err, qt.IsNil)
-				b, _ := ioutil.ReadAll(r)
+				b, _ := io.ReadAll(r)
 				r.Close()
 				c.Assert(string(b), qt.Equals, data)
 				// Trigger some expiration.
@@ -260,7 +259,7 @@ func TestFileCacheReadOrCreateErrorInRead(t *testing.T) {
 				return errors.New("fail")
 			}
 
-			b, _ := ioutil.ReadAll(r)
+			b, _ := io.ReadAll(r)
 			result = string(b)
 
 			return nil

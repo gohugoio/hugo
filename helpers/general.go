@@ -219,7 +219,7 @@ func ReaderContains(r io.Reader, subslice []byte) bool {
 // GetTitleFunc returns a func that can be used to transform a string to
 // title case.
 //
-// The supported styles are
+// # The supported styles are
 //
 // - "Go" (strings.Title)
 // - "AP" (see https://www.apstylebook.com/)
