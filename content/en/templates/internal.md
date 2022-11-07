@@ -213,6 +213,8 @@ To add Twitter card metadata, include the following line immediately after the `
 
 ## The Internal Templates
 
+The code for these templates is located [here](https://github.com/gohugoio/hugo/tree/master/tpl/tplimpl/embedded/templates).
+
 * `_internal/disqus.html`
 * `_internal/google_analytics.html`
 * `_internal/google_analytics_async.html`
