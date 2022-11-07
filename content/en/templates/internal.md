@@ -203,6 +203,18 @@ If no images are found at all, then an image-less Twitter `summary` card is used
 
 Hugo uses the page title and description for the card's title and description fields. The page summary is used if no description is given.
 
+The `.Site.Social.twitter` variable is exposed from the config as the value for `twitter:site`.
+
+{{< code-toggle file="config" >}}
+[social]
+  twitter = "GoHugoIO"
+{{</ code-toggle >}}
+
+NOTE: The `@` will be added for you
+```
+<meta name="twitter:site" content="@GoHugoIO"/>
+```
+
 ### Use the Twitter Cards Template
 
 To add Twitter card metadata, include the following line immediately after the `<head>` element in your templates:
