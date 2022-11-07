@@ -1,7 +1,7 @@
 ---
 title: split
 # linktitle: split
-description: splits a string into substrings separated by a delimiter
+description: Returns an array of strings by splitting STRING by DELIM.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -18,4 +18,8 @@ deprecated: false
 aliases: []
 ---
 
-* `{{split "tag1,tag2,tag3" "," }}` → ["tag1" "tag2" "tag3"]
+* `{{ split "tag1,tag2,tag3" "," }}` → ["tag1", "tag2", "tag3"]
+
+{{% note %}}
+`split` essentially does the opposite of [delimit]({{< ref "functions/delimit" >}}). While `split` creates a slice from a string, `delimit` creates a string from a slice.
+{{% /note %}}
