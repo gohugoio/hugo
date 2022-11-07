@@ -211,7 +211,8 @@ The `.Site.Social.twitter` variable is exposed from the config as the value for 
 {{</ code-toggle >}}
 
 NOTE: The `@` will be added for you
-```
+
+```html
 <meta name="twitter:site" content="@GoHugoIO"/>
 ```
 
