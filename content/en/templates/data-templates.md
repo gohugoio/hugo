@@ -28,11 +28,25 @@ Hugo supports loading data from YAML, JSON, XML, and TOML files located in the `
 
 The `data` folder is where you can store additional data for Hugo to use when generating your site. Data files aren't used to generate standalone pages; rather, they're meant to be supplemental to content files. This feature can extend the content in case your front matter fields grow out of control. Or perhaps you want to show a larger dataset in a template (see example below). In both cases, it's a good idea to outsource the data in their own files.
 
-These files must be YAML, JSON, XML, or TOML files (using the `.yml`, `.yaml`, `.json`, `.xml`, or `.toml` extension). The data will be accessible as a `map` in the `.Site.Data` variable.
+These files must be YAML, JSON, XML, or TOML files (using the `.yml`, `.yaml`, `.json`, `.xml`, or `.toml` extension). The data will be accessible as a `map` in the `.Site.Data` variable. 
+
+If you wish to access the data using the `.Site.Data.filename` notation, the filename must begin with an underscore or a Unicode letter, followed by zero or more underscores, Unicode letters, or Unicode digits. eg:
+
+- `123.json` - Invalid
+- `x123.json` - Valid
+- `_123.json` - Valid
+
+If you wish to access the data using the [`index`](/functions/index-function/) function, the filename is irrelevant. For example:
+Data file|Template code
+:--|:--
+`123.json`|`{{ index .Site.Data "123" }}`
+`x123.json`|`{{ index .Site.Data "x123" }}`
+`_123.json`|`{{ index .Site.Data "_123" }}`
+`x-123.json`|`{{ index .Site.Data "_123" }}`
 
 ## Data Files in Themes
 
-Data Files can also be used in [Hugo themes][themes] but note that theme data files follow the same logic as other template files in the [Hugo lookup order][lookup] (i.e., given two files with the same name and relative path, the file in the root project `data` directory will override the file in the `themes/<THEME>/data` directory).
+Data Files can also be used in [Hugo themes][themes] but note that theme data files are merged with the project directory taking precedence (i.e., given two files with the same name and relative path, the data in the file in the root project `data` directory will override the data from the file in the `themes/<THEME>/data` directory *for keys that are duplicated*).
 
 Therefore, theme authors should take care to not include data files that could be easily overwritten by a user who decides to [customize a theme][customize]. For theme-specific data items that shouldn't be overridden, it can be wise to prefix the folder structure with a namespace; e.g. `mytheme/data/<THEME>/somekey/...`. To check if any such duplicate exists, run hugo with the `-v` flag.
 
