@@ -42,7 +42,7 @@ Data file|Template code
 `123.json`|`{{ index .Site.Data "123" }}`
 `x123.json`|`{{ index .Site.Data "x123" }}`
 `_123.json`|`{{ index .Site.Data "_123" }}`
-`x-123.json`|`{{ index .Site.Data "_123" }}`
+`x-123.json`|`{{ index .Site.Data "x-123" }}`
 
 ## Data Files in Themes
 
