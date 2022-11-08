@@ -19,6 +19,7 @@ import (
 	"html/template"
 
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/markup/converter"
 
 	"github.com/bep/gitmap"
 	"github.com/gohugoio/hugo/config"
@@ -103,6 +104,11 @@ type ContentProvider interface {
 
 	// Len returns the length of the content.
 	Len() int
+}
+
+// ContentRenderer provides the content rendering methods for some content.
+type ContentRenderer interface {
+	RenderContent(content []byte, renderTOC bool) (converter.Result, error)
 }
 
 // FileProvider provides the source file.

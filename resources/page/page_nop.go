@@ -16,10 +16,12 @@
 package page
 
 import (
+	"bytes"
 	"html/template"
 	"time"
 
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/markup/converter"
 
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/tpl"
@@ -41,7 +43,15 @@ import (
 )
 
 var (
-	NopPage Page = new(nopPage)
+	NopPage                 Page            = new(nopPage)
+	NopContentRenderer      ContentRenderer = new(nopContentRenderer)
+	NopCPageContentRenderer                 = struct {
+		OutputFormatPageContentProvider
+		ContentRenderer
+	}{
+		NopPage,
+		NopContentRenderer,
+	}
 	NilPage *nopPage
 )
 
@@ -512,4 +522,11 @@ func (p *nopPage) WordCount() int {
 
 func (p *nopPage) GetIdentity() identity.Identity {
 	return identity.NewPathIdentity("content", "foo/bar.md")
+}
+
+type nopContentRenderer int
+
+func (r *nopContentRenderer) RenderContent(content []byte, renderTOC bool) (converter.Result, error) {
+	b := &bytes.Buffer{}
+	return b, nil
 }

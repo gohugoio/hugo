@@ -382,7 +382,7 @@ func renderShortcode(
 		// shortcode.
 		if sc.doMarkup && (level > 0 || sc.configVersion() == 1) {
 			var err error
-			b, err := p.pageOutput.cp.renderContent([]byte(inner), false)
+			b, err := p.pageOutput.contentRenderer.RenderContent([]byte(inner), false)
 			if err != nil {
 				return "", false, err
 			}

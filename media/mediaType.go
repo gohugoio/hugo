@@ -230,8 +230,8 @@ var (
 	SASSType       = newMediaType("text", "x-sass", []string{"sass"})
 	CSVType        = newMediaType("text", "csv", []string{"csv"})
 	HTMLType       = newMediaType("text", "html", []string{"html"})
-	JavascriptType = newMediaType("application", "javascript", []string{"js", "jsm", "mjs"})
-	TypeScriptType = newMediaType("application", "typescript", []string{"ts"})
+	JavascriptType = newMediaType("text", "javascript", []string{"js", "jsm", "mjs"})
+	TypeScriptType = newMediaType("text", "typescript", []string{"ts"})
 	TSXType        = newMediaType("text", "tsx", []string{"tsx"})
 	JSXType        = newMediaType("text", "jsx", []string{"jsx"})
 

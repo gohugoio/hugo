@@ -1,4 +1,7 @@
-on: [push, pull_request]
+on:
+  push:
+    branches: [ master ]
+  pull_request:
 name: Test
 permissions:
   contents: read
