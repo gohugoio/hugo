@@ -98,6 +98,7 @@
     "funcs",
     "funcsig",
     "Garen",
+    "Garuda",
     "gcloud",
     "Getenv",
     "getjson",
@@ -150,6 +151,7 @@
     "Joomla",
     "JRBR",
     "jsonify",
+    "Karmada",
     "katex",
     "keycdn",
     "KEYVALS",
@@ -328,6 +330,7 @@
     "yoyoyo",
     "yunbox",
     "Zgotmpl",
+    "Zorin",
     "zzbbaabb",
     "مدونتي"
   ],
@@ -353,5 +356,6 @@
     "**/news/*",
     "**/showcase/*"
   ],
-  "useGitignore": true
+  "useGitignore": true,
+  "enabled": true
 }

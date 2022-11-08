@@ -58,14 +58,3 @@ error: failed to transform resource: TOCSS: failed to transform "scss/main.scss"
 We release two set of binaries for technical reasons. The extended version is not what you get by default for some installation methods. On the [release page](https://github.com/gohugoio/hugo/releases), look for archives with `extended` in the name. To build `hugo-extended`, use `go install --tags extended`
 
 To confirm, run `hugo version` and look for the word `extended`.
-
-## Do I need to install Git to create, deploy, and maintain a website with Hugo?
-
->Technically, no.
->
->Practically, yes.
-
-* The primary installation method documented by most (perhaps all) themes is via Git or the Hugo Modules feature.
-* The Hugo Modules feature requires Go, and Go “gets” with Git.
-* A Git repository is required by CI/CD hosting (Bitbucket, Cloudflare, GitHub Pages, GitLab Pages, Netlify, et. al.).
-* The canonical “last modified” date for content is its Git committer date; using anything else is error-prone.
