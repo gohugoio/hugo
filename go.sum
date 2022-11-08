@@ -226,6 +226,8 @@ github.com/dedis/matchertext v0.0.0-20221020215824-e12bed510756 h1:peT/Lmy2nQBy5
 github.com/dedis/matchertext v0.0.0-20221020215824-e12bed510756/go.mod h1:3X3tfeu2xrvxTIuTYEVCtwSvgXmVX3wQs/3wesjYa4o=
 github.com/dedis/matchertext v0.0.0-20221108135535-a88b49a84e4f h1:DV8tP+HkuIPuYY4BoLY5e/YETrAJBruIZprdh/Tunp8=
 github.com/dedis/matchertext v0.0.0-20221108135535-a88b49a84e4f/go.mod h1:3X3tfeu2xrvxTIuTYEVCtwSvgXmVX3wQs/3wesjYa4o=
+github.com/dedis/matchertext v0.0.0-20221108181432-6eb76b0224b2 h1:xtcUZr8l3fr6fI3k/neB1lMCReRzkw1b9QpKLREL1xc=
+github.com/dedis/matchertext v0.0.0-20221108181432-6eb76b0224b2/go.mod h1:3X3tfeu2xrvxTIuTYEVCtwSvgXmVX3wQs/3wesjYa4o=
 github.com/denisenkom/go-mssqldb v0.9.0/go.mod h1:xbL0rPBG9cCiLr28tMa8zpbdarY27NDyej4t/EjAShU=
 github.com/devigned/tab v0.1.1/go.mod h1:XG9mPq0dFghrYvoBF3xdRrJzSTX1b7IQrvaL9mzjeJY=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
