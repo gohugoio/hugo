@@ -57,18 +57,18 @@ func (c *minmlConverter) Convert(ctx converter.RenderContext) (
 	result converter.Result, err error) {
 
 	// Parse the MinML input to a slice of markup nodes
-	dec := minml.NewDecoder(bytes.NewReader(ctx.Src)).
+	dec := minml.NewTreeParser(bytes.NewReader(ctx.Src)).
 		WithTransformer(minml.EntityTransformer).
 		WithTransformer(minml.QuoteTransformer)
-	ns, err := dec.Decode()
+	ns, err := dec.ParseAST()
 	if err != nil {
 		return nil, err
 	}
 
 	// Write resulting AST to a result buffer
 	buf := &bytes.Buffer{}
-	enc := html.NewEncoder(buf)
-	if err := enc.Encode(ns); err != nil {
+	enc := html.NewTreeWriter(buf)
+	if err := enc.WriteAST(ns); err != nil {
 		return nil, err
 	}
 
