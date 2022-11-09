@@ -28,16 +28,6 @@ content/
         └── sunset.jpg    <-- page resource
 ```
 
-## The Image Resource
-
-The `image` resource gives you access to image-specific attributes like the picture's `Width` and `Height`, as well as powerful processing methods and filters. More on that below.
-
-Note that the `image` resource can also be retrieved from a [global resource]({{< relref "/hugo-pipes/introduction#from-file-to-resource" >}})
-
-```go-html-template
-{{ $image := .Resources.GetMatch "sunset.jpg" }}
-```
-
 ### Global Resources
 
 A global resource is a file:
