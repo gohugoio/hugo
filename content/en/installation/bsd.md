@@ -62,6 +62,10 @@ sudo pkg_add hugo
 
 [OpenBSD]: https://www.openbsd.org/
 
+{{% readfile file="/installation/common/04-docker.md" %}}
+
+{{% readfile file="/installation/common/05-build-from-source.md" %}}
+
 ## Comparison
 
 ||Prebuilt binaries|Repository packages|Docker|Build from source
