@@ -67,31 +67,24 @@ Building the binaries is an easy task for an experienced `go` getter.
 
 Use the [installation instructions in the Hugo documentation](https://gohugo.io/getting-started/installing/).
 
-### Build and Install the Binaries from Source (Advanced Install)
+### Build and Install the Binary from Source (Using the Go toolchain)
 
 #### Prerequisite Tools
 
-* [Git](https://git-scm.com/)
 * [Go (we test it with the last 2 major versions; but note that Hugo 0.95.0 only builds with >= Go 1.18.)](https://golang.org/dl/)
 
 #### Fetch from GitHub
 
-To fetch and build the source from GitHub:
+To fetch, build and install from the Github source:
 
 ```bash
-mkdir $HOME/src
-cd $HOME/src
-git clone https://github.com/gohugoio/hugo.git
-cd hugo
-go install
+go install github.com/gohugoio/hugo@latest
 ```
-
-**If you are a Windows user, substitute the `$HOME` environment variable above with `%USERPROFILE%`.**
 
 If you want to compile with Sass/SCSS support use `--tags extended` and make sure `CGO_ENABLED=1` is set in your go environment. If you don't want to have CGO enabled, you may use the following command to temporarily enable CGO only for hugo compilation:
 
 ```bash
-CGO_ENABLED=1 go install --tags extended
+CGO_ENABLED=1 go install --tags extended github.com/gohugoio/hugo@latest
 ```
 
 ## The Hugo Documentation
