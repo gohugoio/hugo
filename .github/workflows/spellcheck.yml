@@ -1,4 +1,4 @@
-name: 'Check spelling'
+name: "Check spelling"
 on: # rebuild any PRs and main branch changes
   push:
     branches-ignore:

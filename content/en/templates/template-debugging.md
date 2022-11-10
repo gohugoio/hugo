@@ -17,7 +17,7 @@ toc: false
 
 Here are some snippets you can add to your template to answer some common questions.
 
-These snippets use the `printf` function available in all Go templates.  This function is an alias to the Go function, [fmt.Printf](https://golang.org/pkg/fmt/).
+These snippets use the `printf` function available in all Go templates.  This function is an alias to the Go function, [fmt.Printf](https://pkg.go.dev/fmt).
 
 ## What Variables are Available in this Context?
 

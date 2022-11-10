@@ -55,7 +55,7 @@ These are the security threats as defined by [OWASP](https://en.wikipedia.org/wi
 
 For HTML output, this is the core security model:
 
-<https://golang.org/pkg/html/template/#hdr-Security_Model>
+<https://pkg.go.dev/html/template#hdr-Security_Model>
 
 In short:
 

@@ -30,7 +30,7 @@ Both functions return an empty string, so the messages are only printed to the c
 {{ warnf "You should update the shortcodes in %q" .Path }}
 ```
 
-Note that `errorf`, `erroridf`, and `warnf` support all the formatting verbs of the [fmt](https://golang.org/pkg/fmt/) package.
+Note that `errorf`, `erroridf`, and `warnf` support all the formatting verbs of the [fmt](https://pkg.go.dev/fmt) package.
 
 ## Suppress errors
 

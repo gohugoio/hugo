@@ -4,7 +4,6 @@ linktitle:
 description: In addition to Hugo's built-in variables, you can specify your own custom data in templates or shortcodes that pull from both local and dynamic sources.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-03-12
 categories: [templates]
 keywords: [data,dynamic,csv,json,toml,yaml,xml]
 menu:
@@ -13,7 +12,6 @@ menu:
     weight: 80
 weight: 80
 sections_weight: 80
-draft: false
 aliases: [/extras/datafiles/,/extras/datadrivencontent/,/doc/datafiles/]
 toc: true
 ---
@@ -28,7 +26,7 @@ Hugo supports loading data from YAML, JSON, XML, and TOML files located in the `
 
 The `data` folder is where you can store additional data for Hugo to use when generating your site. Data files aren't used to generate standalone pages; rather, they're meant to be supplemental to content files. This feature can extend the content in case your front matter fields grow out of control. Or perhaps you want to show a larger dataset in a template (see example below). In both cases, it's a good idea to outsource the data in their own files.
 
-These files must be YAML, JSON, XML, or TOML files (using the `.yml`, `.yaml`, `.json`, `.xml`, or `.toml` extension). The data will be accessible as a `map` in the `.Site.Data` variable. 
+These files must be YAML, JSON, XML, or TOML files (using the `.yml`, `.yaml`, `.json`, `.xml`, or `.toml` extension). The data will be accessible as a `map` in the `.Site.Data` variable.
 
 If you wish to access the data using the `.Site.Data.filename` notation, the filename must begin with an underscore or a Unicode letter, followed by zero or more underscores, Unicode letters, or Unicode digits. eg:
 

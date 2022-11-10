@@ -114,7 +114,7 @@ See also `.ExpiryDate`, `.Date`, `.PublishDate`, and [`.GitInfo`][gitinfo].
 : the Page content stripped of HTML tags and presented as a string.
 
 .PlainWords
-: the slice of strings that results from splitting .Plain into words, as defined in Go's [strings.Fields](https://golang.org/pkg/strings/#Fields).
+: the slice of strings that results from splitting .Plain into words, as defined in Go's [strings.Fields](https://pkg.go.dev/strings#Fields).
 
 .Prev
 : Points down to the previous [regular page](/variables/site/#site-pages) (sorted by Hugo's [default sort](/templates/lists#default-weight--date--linktitle--filepath)). Example: `{{if .Prev}}{{.Prev.Permalink}}{{end}}`.  Calling `.Prev` from the last page returns `nil`.

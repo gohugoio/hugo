@@ -43,7 +43,7 @@ permalinks:
   /: /:year/:month/:filename/
 {{< /code-toggle >}}
 
-If the standard date-based permalink configuration does not meet your needs, you can also format URL segments using [Go time formatting directives](https://golang.org/pkg/time/#Time.Format). For example, a URL structure with two digit years and month and day digits without zero padding can be accomplished with:
+If the standard date-based permalink configuration does not meet your needs, you can also format URL segments using [Go time formatting directives](https://pkg.go.dev/time#Time.Format). For example, a URL structure with two digit years and month and day digits without zero padding can be accomplished with:
 
 {{< code-toggle file="config" copy="false" >}}
 permalinks:

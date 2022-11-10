@@ -422,11 +422,11 @@ Feel free to [open an issue][newissue] if you think you found a bug or you have 
 [forums]: https://discourse.gohugo.io
 [gitbook]: https://git-scm.com/
 [gobootcamp]: https://www.golangbootcamp.com/book/get_setup
-[godl]: https://golang.org/dl/
-[goinstall]: https://golang.org/doc/install
+[godl]: https://go.dev/dl/
+[goinstall]: https://go.dev/doc/install
 [gvm]: https://github.com/moovweb/gvm
 [issues]: https://github.com/gohugoio/hugo/issues
 [newissue]: https://github.com/gohugoio/hugo/issues/new
 [releases]: /getting-started/
-[setupgopath]: https://golang.org/doc/code.html#Workspaces
+[setupgopath]: https://go.dev/doc/code#Workspaces
 [trygit]: https://try.github.io/levels/1/challenges/1
