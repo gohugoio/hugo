@@ -215,4 +215,4 @@ Running `hugo` *does not* remove generated files before building. This means tha
 [dirs]: /getting-started/directory-structure/
 [front matter]: /content-management/front-matter/
 [hosting]: /hosting-and-deployment/
-[install]: /getting-started/installing/
+[install]: /installation/

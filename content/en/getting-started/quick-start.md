@@ -19,7 +19,7 @@ toc: true
 ---
 
 {{% note %}}
-This quick start uses `macOS` in the examples. For instructions about how to install Hugo on other operating systems, see [install](/getting-started/installing).
+This quick start uses `macOS` in the examples. For instructions about how to install Hugo on other operating systems, see [install](/installation/).
 
 It is required to have [Git installed](https://git-scm.com/downloads) to run this tutorial.
 
@@ -31,7 +31,7 @@ For other approaches to learning Hugo (like books or video tutorials), refer to 
 Install the **extended version of Hugo** (this is required for the current theme used).
 
 {{% note %}}
-`Homebrew` and `MacPorts`, package managers for `macOS`,  can be installed from [brew.sh](https://brew.sh/) or [macports.org](https://www.macports.org/) respectively. See [install](/getting-started/installing) if you are running Windows etc.
+`Homebrew` and `MacPorts`, package managers for `macOS`,  can be installed from [brew.sh](https://brew.sh/) or [macports.org](https://www.macports.org/) respectively. See [install](/installation/) if you are running Windows etc.
 {{% /note %}}
 
 ```bash
@@ -174,4 +174,3 @@ hugo -D
 ```
 
 Output will be in `./public/` directory by default (`-d`/`--destination` flag to change it, or set `publishdir` in the config file).
-

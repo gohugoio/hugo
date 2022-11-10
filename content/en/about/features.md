@@ -67,7 +67,7 @@ toc: true
 [Google Analytics]: https://google-analytics.com/
 [homepage]: /templates/homepage/
 [hostanywhere]: /hosting-and-deployment/
-[install]: /getting-started/installing/
+[install]: /installation/
 [LiveReload]: /getting-started/usage/
 [organization for your projects]: /getting-started/directory-structure/
 [pagevars]: /variables/page/
