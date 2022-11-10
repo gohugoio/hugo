@@ -111,7 +111,7 @@ See also `.ExpiryDate`, `.Date`, `.PublishDate`, and [`.GitInfo`][gitinfo].
 : the Permanent link for this page; see [Permalinks](/content-management/urls/)
 
 .Plain
-: the Page content stripped of HTML tags and presented as a string.
+: the Page content stripped of HTML tags and presented as a string. You may need to pipe the result through the [`htmlUnescape`](/functions/htmlunescape/) function when rendering this value with the HTML [output format](/templates/output-formats#output-format-definitions).
 
 .PlainWords
 : the slice of strings that results from splitting .Plain into words, as defined in Go's [strings.Fields](https://pkg.go.dev/strings#Fields).
