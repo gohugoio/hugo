@@ -28,15 +28,16 @@ The hook kinds currently supported are:
 
 You can define [Output-Format-](/templates/output-formats) and [language-](/content-management/multilingual/)specific templates if needed. Your `layouts` folder may look like this:
 
-```goat { class="black f7" }
-layouts
-└── _default
-    └── _markup
+```text
+layouts/
+└── _default/
+    └── _markup/
+        ├── render-codeblock-bash.html
+        ├── render-codeblock.html
+        ├── render-heading.html
         ├── render-image.html
         ├── render-image.rss.xml
         └── render-link.html
-        └── render-codeblock.html
-        └── render-codeblock-bash.html
 ```
 
 Some use cases for the above:
