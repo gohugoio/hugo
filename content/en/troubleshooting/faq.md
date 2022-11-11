@@ -35,7 +35,9 @@ Yes you can! See [Configure with Environment Variables](/getting-started/configu
 How to automate the "publish at intervals" part depends on your situation:
 
 * If you deploy from your own PC/server, you can automate with [Cron](https://en.wikipedia.org/wiki/Cron) or similar.
-* If your site is hosted on a service similar to [Netlify](https://www.netlify.com/) you can use a service such as [ifttt](https://ifttt.com/date_and_time) to schedule the updates.
+* If your site is hosted on a service similar to [Netlify](https://www.netlify.com/) you can:
+  * Use a service such as [ifttt](https://ifttt.com/date_and_time) to schedule the updates
+  * Set up a deploy hook which you can run with a cron service to deploy your site at intervals, such as [cron-job.org](https://cron-job.org/) (both Netlify and Cloudflare Pages support deploy hooks)
 
 Also see this Twitter thread:
 
