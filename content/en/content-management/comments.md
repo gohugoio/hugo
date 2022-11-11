@@ -11,7 +11,6 @@ menu:
     parent: "content-management"
     weight: 140
 weight: 140	#rem
-draft: false
 aliases: [/extras/comments/]
 toc: true
 ---
@@ -55,7 +54,7 @@ These are some alternatives to Disqus:
 * [Graph Comment](https://graphcomment.com/)
 * [Hyvor Talk](https://talk.hyvor.com/) (Available as a service)
 * [IntenseDebate](https://intensedebate.com/)
-* [Isso](https://posativ.org/isso/) (Self-hosted, Python) ([tutorial][issotutorial])
+* [Isso](https://isso-comments.de/) (Self-hosted, Python) ([tutorial][issotutorial])
 * [Muut](https://muut.com/)
 * [Remark42](https://remark42.com/) (Open source, Golang, Easy to run docker)
 * [ReplyBox](https://getreplybox.com/)
