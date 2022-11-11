@@ -100,8 +100,6 @@ Default environments are __development__ with `hugo server` and __production__ w
 
 ## Merge Configuration from Themes
 
-{{< new-in "0.84.0" >}} The configuration merge described below was improved in Hugo 0.84.0 and made fully configurable. The big change/improvement was that we now, by default, do deep merging of `params` maps from themes.
-
 The configuration value for `_merge` can be one of:
 
 none
@@ -166,8 +164,6 @@ Include content with publishdate in the future.
 See [Configure File Caches](#configure-file-caches)
 
 ### cascade
-
-{{< new-in "0.86.0" >}}
 
 Pass down default configuration values (front matter) to pages in the content tree. The options in site config is the same as in page front matter, see [Front Matter Cascade](/content-management/front-matter#front-matter-cascade).
 
@@ -306,7 +302,7 @@ See [Disable a Language](/content-management/multilingual/#disable-a-language)
 
 ### markup
 
-See [Configure Markup](/getting-started/configuration-markup).{{< new-in "0.60.0" >}}
+See [Configure Markup](/getting-started/configuration-markup).
 
 ### mediaTypes
 
@@ -322,7 +318,7 @@ See [Configure Minify](#configure-minify)
 
 ### module
 
-Module config see [Module Config](/hugo-modules/configuration/).{{< new-in "0.56.0" >}}
+Module config see [Module Config](/hugo-modules/configuration/).
 
 ### newContentEditor
 
@@ -376,7 +372,7 @@ The directory to where Hugo will write the final static site (the HTML files etc
 
 ### related
 
-: See [Related Content](/content-management/related/#configure-related-content).{{< new-in "0.27" >}}
+: See [Related Content](/content-management/related/#configure-related-content).
 
 ### relativeURLs
 
@@ -450,8 +446,6 @@ Timeout for generating page contents, specified as a [duration](https://pkg.go.d
 
 ### timeZone
 
-{{< new-in "0.87.0" >}}
-
 The time zone (or location), e.g. `Europe/Oslo`,  used to parse front matter dates without such information and in the [`time` function](/functions/time/). The list of valid values may be system dependent, but should include `UTC`, `Local`, and any location in the [IANA Time Zone database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
 ### title
@@ -492,8 +486,6 @@ enableemoji: true
 
 ## Configure Build
 
-{{< new-in "0.66.0" >}}
-
 The `build` configuration section contains global build-related configuration options.
 
 {{< code-toggle file="config">}}
@@ -507,17 +499,15 @@ noJSConfigInAssets = false
 useResourceCacheWhen
 : When to use the cached resources in `/resources/_gen` for PostCSS and ToCSS. Valid values are `never`, `always` and `fallback`. The last value means that the cache will be tried if PostCSS/extended version is not available.
 
-writeStats {{< new-in "0.69.0" >}}
+writeStats
 : When enabled, a file named `hugo_stats.json` will be written to your project root with some aggregated data about the build, e.g. list of HTML entities published to be used to do [CSS pruning](/hugo-pipes/postprocess/#css-purging-with-postcss). If you're only using this for the production build, you should consider placing it below [config/production](/getting-started/configuration/#configuration-directory). It's also worth mentioning that, due to the nature of the partial server builds, new HTML entities will be added when you add or change them while the server is running, but the old values will not be removed until you restart the server or run a regular `hugo` build.
 
 **Note** that the prime use case for this is purging of unused CSS; it is built for speed and there may be false positives (e.g., detection of HTML elements that are not HTML elements).
 
-noJSConfigInAssets {{< new-in "0.78.0" >}}
+noJSConfigInAssets
 : Turn off writing a `jsconfig.json` into your `/assets` folder with mapping of imports from running [js.Build](https://gohugo.io/hugo-pipes/js). This file is intended to help with intellisense/navigation inside code editors such as [VS Code](https://code.visualstudio.com/). Note that if you do not use `js.Build`, no file will be written.
 
 ## Configure Server
-
-{{< new-in "0.67.0" >}}
 
 This is only relevant when running `hugo server`, and it allows to set HTTP headers during development, which allows you to test out your Content Security Policy and similar. The configuration format matches [Netlify's](https://docs.netlify.com/routing/headers/#syntax-for-the-netlify-configuration-file) with slightly more powerful [Glob matching](https://github.com/gobwas/glob):
 
@@ -550,9 +540,6 @@ Referrer-Policy = "strict-origin-when-cross-origin"
 Content-Security-Policy = "script-src localhost:1313"
 {{< /code-toggle >}}
 
-
-{{< new-in "0.72.0" >}}
-
 You can also specify simple redirects rules for the server. The syntax is again similar to Netlify's.
 
 Note that a `status` code of 200 will trigger a [URL rewrite](https://docs.netlify.com/routing/redirects/rewrites-proxies/), which is what you want in SPA situations, e.g:
@@ -565,7 +552,7 @@ status = 200
 force = false
 {{< /code-toggle >}}
 
-{{< new-in "0.76.0" >}} Setting `force=true` will make a redirect even if there is existing content in the path. Note that before Hugo 0.76  `force` was the default behavior, but this is inline with how Netlify does it.
+Setting `force=true` will make a redirect even if there is existing content in the path. Note that before Hugo 0.76  `force` was the default behavior, but this is inline with how Netlify does it.
 
 ## 404 Server Error Page
 
@@ -637,7 +624,7 @@ Names must be prefixed with `HUGO_` and the configuration key must be set in upp
 To set config params, prefix the name with `HUGO_PARAMS_`
 {{% /note %}}
 
-{{< new-in "0.79.0" >}} If you are using snake_cased variable names, the above will not work, so since Hugo 0.79.0 Hugo determines the delimiter to use by the first character after `HUGO`. This allows you to define environment variables on the form `HUGOxPARAMSxAPI_KEY=abcdefgh`, using any [allowed](https://stackoverflow.com/questions/2821043/allowed-characters-in-linux-environment-variable-names#:~:text=So%20names%20may%20contain%20any,not%20begin%20with%20a%20digit.) delimiter.
+If you are using snake_cased variable names, the above will not work. Hugo determines the delimiter to use by the first character after `HUGO`. This allows you to define environment variables on the form `HUGOxPARAMSxAPI_KEY=abcdefgh`, using any [allowed](https://stackoverflow.com/questions/2821043/allowed-characters-in-linux-environment-variable-names#:~:text=So%20names%20may%20contain%20any,not%20begin%20with%20a%20digit.) delimiter.
 
 {{< todo >}}
 Test and document setting params via JSON env var.
@@ -724,8 +711,6 @@ The above will try first to extract the value for `.Date` from the filename, the
 Hugo v0.20 introduced the ability to render your content to multiple output formats (e.g., to JSON, AMP html, or CSV). See [Output Formats][] for information on how to add these values to your Hugo project's configuration file.
 
 ## Configure Minify
-
-{{< new-in "0.68.0" >}}
 
 Default configuration:
 

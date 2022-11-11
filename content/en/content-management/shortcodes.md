@@ -52,8 +52,6 @@ The examples above use two different delimiters, the difference being the `%` ch
 
 ### Shortcodes with raw string parameters
 
-{{< new-in "0.64.1" >}}
-
 You can pass multiple lines as parameters to a shortcode by using raw string literals:
 
 ```go-html-template

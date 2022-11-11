@@ -40,7 +40,7 @@ Highlighting is carried out via the built-in [`highlight` shortcode](https://goh
 
 Options:
 
-* `linenos`: configure line numbers. Valid values are `true`, `false`, `table`, or `inline`. `false` will turn off line numbers if it's configured to be on in site config. {{< new-in "0.60.0" >}} `table` will give copy-and-paste friendly code blocks.
+* `linenos`: configure line numbers. Valid values are `true`, `false`, `table`, or `inline`. `false` will turn off line numbers if it's configured to be on in site config. `table` will give copy-and-paste friendly code blocks.
 * `hl_lines`: lists a set of line numbers or line number ranges to be highlighted.
 * `linenostart=199`: starts the line number count from 199.
 * `anchorlinenos`: Configure anchors on line numbers. Valid values are `true` or `false`;
@@ -100,7 +100,7 @@ See [Highlight](/functions/highlight/).
 
 ## Highlighting in Code Fences
 
-Highlighting in code fences is enabled by default.{{< new-in "0.60.0" >}}
+Highlighting in code fences is enabled by default.
 
 ````txt
 ```go {linenos=table,hl_lines=[8,"15-17"],linenostart=199}
@@ -134,7 +134,7 @@ func GetTitleFunc(style string) func(s string) string {
 }
 ```
 
-{{< new-in "0.60.0" >}}Note that only Goldmark supports passing attributes such as `hl_lines`, and it's important that it does not contain any spaces. See [goldmark-highlighting](https://github.com/yuin/goldmark-highlighting) for more information.
+Note that only Goldmark supports passing attributes such as `hl_lines`, and it's important that it does not contain any spaces. See [goldmark-highlighting](https://github.com/yuin/goldmark-highlighting) for more information.
 
 The options are the same as in the [highlighting shortcode](/content-management/syntax-highlighting/#highlight-shortcode),including `linenos=false`, but note the slightly different Markdown attribute syntax.
 

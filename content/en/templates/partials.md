@@ -121,8 +121,6 @@ Only one `return` statement is allowed per partial file.
 
 ## Inline Partials
 
-{{< new-in "0.74.0" >}}
-
 You can also define partials inline in the template. But remember that template namespace is global, so you need to make sure that the names are unique to avoid conflicts.
 
 ```go-html-template

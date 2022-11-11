@@ -40,7 +40,7 @@ Reference to the [page object][page-object] associated with the menu entry. This
 will be non-nil if the menu entry is set via a page's front-matter and not via
 the site config.
 
-.PageRef {{< new-in "0.86.0" >}}
+.PageRef
 : _string_ <br /> Can be set if defined in site config and the menu entry refers to a Page. [site.GetPage](/functions/getpage/) will be used to do the page lookup. If this is set, you don't need to set the `URL`.
 
 .Name

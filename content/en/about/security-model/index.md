@@ -29,8 +29,6 @@ But when developing and building your site, the runtime is the `hugo` executable
 
 ## Security Policy
 
-{{< new-in "0.91.0" >}}
-
 Hugo has a built-in security policy that restricts access to [os/exec](https://pkg.go.dev/os/exec), remote communication and similar.
 
 The default configuration is listed below. Any build using features not in the allow list of the security policy will fail with a detailed message about what needs to be done. Most of these settings are allow lists (string or slice, [Regular Expressions](https://pkg.go.dev/regexp) or `none` which matches nothing).

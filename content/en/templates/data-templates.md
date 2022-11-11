@@ -160,7 +160,7 @@ This will resolve internally to the following:
 
 ### Add HTTP headers
 
-{{< new-in "0.84.0" >}} Both `getJSON` and `getCSV` takes an optional map as the last argument, e.g.:
+Both `getJSON` and `getCSV` takes an optional map as the last argument, e.g.:
 
 ```go-html-template
 {{ $data := getJSON "https://example.org/api" (dict "Authorization" "Bearer abcd")  }}

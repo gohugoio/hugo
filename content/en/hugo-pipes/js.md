@@ -21,7 +21,7 @@ targetPath [string]
 : If not set, the source path will be used as the base target path.
 Note that the target path's extension may change if the target MIME type is different, e.g. when the source is TypeScript.
 
-params [map or slice] {{< new-in "0.78.0" >}}
+params [map or slice]
 : Params that can be imported as JSON in your JS files, e.g.:
 
 ```go-html-template
@@ -38,10 +38,10 @@ Note that this is meant for small data sets, e.g. config settings. For larger da
 minify [bool]
 : Let `js.Build` handle the minification.
 
-inject [slice] {{< new-in "0.81.0" >}}
+inject [slice]
 : This option allows you to automatically replace a global variable with an import from another file. The path names must be relative to `assets`.  See https://esbuild.github.io/api/#inject
 
-shims {{< new-in "0.81.0" >}}
+shims
 : This option allows swapping out a component with another. A common use case is to load dependencies like React from a CDN  (with _shims_) when in production, but running with the full bundled `node_modules` dependency during development:
 
 ```go-html-template
@@ -67,7 +67,7 @@ With the above, these imports should work in both scenarios:
 import * as React from 'react'
 import * as ReactDOM from 'react-dom';
 ```
-sourceMap [string, bool] {{< new-in "0.75.0" >}}
+sourceMap [string, bool]
 : Let `js.Build` output sourceMap. Current only inline is supported. true defaults to inline.
   One of: '`inline`, `external`
   Default is "" (disabled)
@@ -88,7 +88,7 @@ defines [map]
 {{ $defines := dict "process.env.NODE_ENV" `"development"` }}
 ```
 
-format [string] {{< new-in "0.74.3" >}}
+format [string] 
 : The output format.
   One of: `iife`, `cjs`, `esm`.
   Default is `iife`, a self-executing function, suitable for inclusion as a <script> tag.
@@ -98,9 +98,7 @@ sourceMap
 
 ### Import JS code from /assets
 
-{{< new-in "0.78.0" >}}
-
-Since Hugo `v0.78.0` `js.Build` has full support for the virtual union file system in [Hugo Modules](/hugo-modules/). You can see some simple examples in this [test project](https://github.com/gohugoio/hugoTestProjectJSModImports), but in short this means that you can do this:
+`js.Build` has full support for the virtual union file system in [Hugo Modules](/hugo-modules/). You can see some simple examples in this [test project](https://github.com/gohugoio/hugoTestProjectJSModImports), but in short this means that you can do this:
 
 ```js
 import { hello } from 'my/module';
@@ -146,7 +144,7 @@ Hugo will, by default, generate a `assets/jsconfig.json` file that maps the impo
 
 Any imports in a file outside `/assets` or that does not resolve to a component inside `/assets` will be resolved by [ESBuild](https://esbuild.github.io/) with the **project directory** as the resolve directory (used as the starting point when looking for `node_modules` etc.). Also see [hugo mod npm pack](/commands/hugo_mod_npm_pack/).  If you have any imported npm dependencies in your project, you need to make sure to run `npm install` before you run `hugo`.
 
-{{< new-in "0.78.1" >}} From Hugo `0.78.1` the start directory for resolving npm packages (aka. packages that live inside a `node_modules` folder) is always the main project folder.
+The start directory for resolving npm packages (aka. packages that live inside a `node_modules` folder) is always the main project folder.
 
 **Note:** If you're developing a theme/component that is supposed to be imported and depends on dependencies inside `package.json`, we recommend reading about [hugo mod npm pack](/commands/hugo_mod_npm_pack/), a tool to consolidate all the npm dependencies in a project.
 

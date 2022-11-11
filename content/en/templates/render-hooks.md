@@ -13,17 +13,17 @@ menu:
     weight: 20
 ---
 
-{{< new-in "0.62.0" >}} Note that this is only supported with the [Goldmark](/getting-started/configuration-markup#goldmark) renderer.
+Note that this is only supported with the [Goldmark](/getting-started/configuration-markup#goldmark) renderer.
 
 You can override certain parts of the default Markdown rendering to HTML by creating templates with base names `render-{kind}` in `layouts/_default/_markup`.
 
-You can also create type/section specific hooks in `layouts/[type/section]/_markup`, e.g.: `layouts/blog/_markup`.{{< new-in "0.71.0" >}}
+You can also create type/section specific hooks in `layouts/[type/section]/_markup`, e.g.: `layouts/blog/_markup`.
 
 The hook kinds currently supported are:
 
 * `image`
 * `link`
-* `heading` {{< new-in "0.71.0" >}}
+* `heading`
 * `codeblock`{{< new-in "0.93.0" >}}
 
 You can define [Output-Format-](/templates/output-formats) and [language-](/content-management/multilingual/)specific templates if needed. Your `layouts` folder may look like this:
@@ -82,7 +82,7 @@ Text
 PlainText
 : The plain variant of the above.
 
-Attributes (map) {{< new-in "0.82.0" >}}
+Attributes (map)
 : A map of attributes (e.g. `id`, `class`)
 
 ### Link with title Markdown example

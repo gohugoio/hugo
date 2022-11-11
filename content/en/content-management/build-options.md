@@ -29,7 +29,7 @@ _build:
 
 If `always`, the page will be treated as a published page, holding its dedicated output files (`index.html`, etc...) and permalink.
 
-{{< new-in "0.76.0" >}} We extended this property from a boolean to an enum in Hugo 0.76.0. Valid values are:
+We extended this property from a boolean to an enum in Hugo 0.76.0. Valid values are:
 
 never
 : The page will not be included in any page collection.
@@ -53,7 +53,7 @@ always (default)
 : The page will be included in all page collections, e.g. `site.RegularPages`, `$page.Pages`.
 
 local
-: The page will be included in any _local_ page collection, e.g. `$page.RegularPages`, `$page.Pages`. One use case for this would be to create fully navigable, but headless content sections. {{< new-in "0.68.0" >}}
+: The page will be included in any _local_ page collection, e.g. `$page.RegularPages`, `$page.Pages`. One use case for this would be to create fully navigable, but headless content sections.
 
 If true, the page will be treated as part of the project's collections and, when appropriate, returned by Hugo's listing methods (`.Pages`, `.RegularPages` etc...).
 

@@ -10,8 +10,6 @@ keywords: [markdown,goldmark,render]
 signature: [".RenderString MARKUP"]
 ---
 
-{{< new-in "0.62.0" >}}
-
 `.RenderString` is a method on `Page` that renders some markup to HTML using the content renderer defined for that page (if not set in the options).
 
 The method takes an optional map argument with these options:

@@ -98,8 +98,6 @@ If you do not want Hugo to create any taxonomies, set `disableKinds` in your [si
 disableKinds = ["taxonomy","term"]
 {{</ code-toggle >}}
 
-{{< new-in "0.73.0" >}} We have fixed the previously confusing page kinds used for taxonomies (see the listing below) to be in line with the terms used when we talk about taxonomies. We have been careful to avoid site breakage, and you should get an ERROR in the console if you need to adjust your `disableKinds` section.
-
 {{% page-kinds %}}
 
 ### Default Destinations

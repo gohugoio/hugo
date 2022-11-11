@@ -36,7 +36,7 @@ config [string]
 noMap [bool]
 : Default is `false`. Disable the default inline sourcemaps
 
-inlineImports [bool] {{< new-in "0.66.0" >}}
+inlineImports [bool]
 : Default is `false`. Enable inlining of @import statements. It does so recursively, but will only import a file once.
 URL imports (e.g. `@import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');`) and imports with media queries will be ignored.
 Note that this import routine does not care about the CSS spec, so you can have @import anywhere in the file.
@@ -68,8 +68,6 @@ syntax [string]
 ```
 
 ## Check Hugo Environment from postcss.config.js
-
-{{< new-in "0.66.0" >}}
 
 The current Hugo environment name (set by `--environment` or in config or OS environment) is available in the Node context, which allows constructs like this:
 

@@ -160,9 +160,7 @@ Any node or section can pass down to descendants a set of Front Matter values as
 
 ### Target Specific Pages
 
-{{< new-in "0.76.0" >}}
-
-Since Hugo 0.76 the `cascade` block can be a slice with a optional `_target` keyword, allowing for multiple `cascade` values targeting different page sets.
+The `cascade` block can be a slice with a optional `_target` keyword, allowing for multiple `cascade` values targeting different page sets.
 
 {{< code-toggle copy="false" >}}
 title ="Blog"

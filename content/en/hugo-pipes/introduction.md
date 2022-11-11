@@ -75,8 +75,6 @@ By default, Hugo calculates a cache key based on the `URL` and the `options` (e.
 
 ### Error Handling
 
-{{< new-in "0.91.0" >}}
-
 The return value from `resources.GetRemote` includes an `.Err` method that will return an error if the call failed. If you want to just log any error as a `WARNING` you can use a construct similar to the one below.
 
 ```go-html-template

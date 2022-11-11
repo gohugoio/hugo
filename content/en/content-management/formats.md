@@ -28,7 +28,7 @@ The current list of content formats in Hugo:
 
 | Name  | Markup identifiers | Comment |
 | ------------- | ------------- |-------------|
-| Goldmark  | md, markdown, goldmark  |Note that you can set the default handler of `md` and `markdown` to something else, see [Configure Markup](/getting-started/configuration-markup/).{{< new-in "0.60.0" >}} |
+| Goldmark  | md, markdown, goldmark  |Note that you can set the default handler of `md` and `markdown` to something else, see [Configure Markup](/getting-started/configuration-markup/).|
 |Emacs Org-Mode|org|See [go-org](https://github.com/niklasfasching/go-org).|
 |AsciiDoc|asciidocext, adoc, ad|Needs [Asciidoctor][ascii] installed.|
 |RST|rst|Needs [RST](https://docutils.sourceforge.io/rst.html) installed.|

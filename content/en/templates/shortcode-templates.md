@@ -370,9 +370,7 @@ More shortcode examples can be found in the [shortcodes directory for spf13.com]
 
 ## Inline Shortcodes
 
-{{< new-in "0.52" >}}
-
-Since Hugo 0.52, you can implement your shortcodes inline -- e.g. where you use them in the content file. This can be useful for scripting that you only need in one place.
+You can also implement your shortcodes inline -- e.g. where you use them in the content file. This can be useful for scripting that you only need in one place.
 
 This feature is disabled by default, but can be enabled in your site config:
 
