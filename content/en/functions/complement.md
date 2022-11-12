@@ -1,24 +1,80 @@
 ---
-title: "complement"
-description: "`collections.Complement` (alias `complement`) gives the elements of a collection that are not in any of the others."
-date: 2018-11-07
+title: complement
+description: Returns the elements of the last collection that are not in any of the others.
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
-keywords: [collections,intersect,union]
-signature: ["COLLECTION | complement COLLECTION [COLLECTION]..." ]
-hugoversion: "0.51"
+    parent: functions
+keywords: [collections]
+signature:
+- "complement COLLECTION [COLLECTION]..."
+- "collections.Complement COLLECTION [COLLECTION]..."
+relatedfuncs: [intersect,symdiff,union]
 aliases: []
 ---
 
-Example:
+To find the elements within `$c3` that do not exist in `$c1` or `$c2`:
 
 ```go-html-template
-{{ $pages := site.RegularPages | first 50 }}
-{{ $news := where $pages "Type" "news" | first 5 }}
-{{ $blog := where $pages "Type" "blog" | first 5 }}
-{{ $other := $pages | complement $news $blog | first 10 }}
+{{ $c1 := slice 3 }}
+{{ $c2 := slice 4 5  }}
+{{ $c3 := slice 1 2 3 4 5 }}
+
+{{ complement $c1 $c2 $c3 }} → [1 2]
 ```
 
-The above is an imaginary use case for the home page where you want to display different page listings in sections/boxes on different places on the page: 5 from `news`, 5 from the `blog` and then 10 of the pages not shown in the other listings, to _complement_ them.
+{{% note %}}
+Make your code simpler to understand by using a [chained pipeline]:
+
+[chained pipeline]: https://pkg.go.dev/text/template#hdr-Pipelines
+{{% /note %}}
+
+
+```go-html-template
+{{ $c3 | complement $c1 $c2 }} → [1 2]
+```
+
+You can also use the `complement` function with page collections. Let's say your site has five content types:
+
+```text
+content/
+├── blog/
+├── books/
+├── faqs/
+├── films/
+└── songs/
+```
+
+To list everything except blog articles (`blog`) and frequently asked questions (`faqs`):
+
+```go-html-template
+{{ $blog := where site.RegularPages "Type" "blog" }}
+{{ $faqs := where site.RegularPages "Type" "faqs" }}
+{{ range site.RegularPages | complement $blog $faqs }}
+  <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
+{{ end }}
+```
+
+{{% note %}}
+Although the example above demonstrates the `complement` function, you could use the [`where`] function as well:
+
+[`where`]: /functions/where/
+{{% /note %}} 
+
+```go-html-template
+{{ range where site.RegularPages "Type" "not in" (slice "blog" "faqs") }}
+  <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
+{{ end }}
+```
+
+In this example we use the `complement` function to remove [stop words] from a sentence:
+
+```go-html-template
+{{ $text := "The quick brown fox jumps over the lazy dog" }}
+{{ $stopWords := slice "a" "an" "in" "over" "the" "under" }}
+{{ $filtered := split $text " " | complement $stopWords }}
+
+{{ delimit $filtered " " }} → The quick brown fox jumps lazy dog
+```
+
+[stop words]: https://en.wikipedia.org/wiki/Stop_word
