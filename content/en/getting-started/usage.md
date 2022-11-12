@@ -104,11 +104,11 @@ Use "hugo [command] --help" for more information about a command.
 
 ## The `hugo` Command
 
-The most common usage is probably to run `hugo` with your current directory being the input directory.
+The most common usage is to run [`hugo`](/commands/hugo/) with your current directory as the input directory.
 
-This generates your website to the `public/` directory by default, although you can customize the output directory in your [site configuration][config] by changing the `publishDir` field.
+By default, this generates your site files in the `public/` directory. To set a different output directory, use the command option [`--destination`](/commands/hugo/#options) or set [`publishDir`](/getting-started/configuration/#publishdir) in your site configuration file.
 
-The command `hugo` renders your site into `public/` dir and is ready to be deployed to your web server:
+The command `hugo` renders your site into `public/` and is ready to be deployed to your web server:
 
 ```txt
 hugo
@@ -123,17 +123,21 @@ in 90 ms
 
 ## Draft, Future, and Expired Content
 
-Hugo allows you to set `draft`, `publishdate`, and even `expirydate` in your content's [front matter][]. By default, Hugo will not publish:
+Hugo allows you to set `draft`, `publishdate`, and `expirydate` in your content's [front matter][]. By default, Hugo will not publish the following:
 
-1. Content with a future `publishdate` value
-2. Content with `draft: true` status
-3. Content with a past `expirydate` value
+* Content with a future `publishdate` value.
+* Content with `draft: true` status.
+* Content with a past `expirydate` value.
+
+{{% note %}}
+If content was previously published, you must use [`--cleanDestinationDir`](/commands/hugo/#options) to remove draft, future, and expired pages from your publish directory.
+{{% /note %}}
 
 All three of these can be overridden during both local development *and* deployment by adding the following flags to `hugo` and `hugo server`, respectively, or by changing the boolean values assigned to the fields of the same name (without `--`) in your [configuration][config]:
 
-1. `--buildFuture`
-2. `--buildDrafts`
-3. `--buildExpired`
+* `--buildFuture`
+* `--buildDrafts`
+* `--buildExpired`
 
 ## LiveReload
 
@@ -206,7 +210,7 @@ After running `hugo server` for local web development, you need to do a final `h
 Since Hugo generates a static website, your site can be hosted *anywhere* using any web server. See [Hosting and Deployment][hosting] for methods for hosting and automating deployments contributed by the Hugo community.
 
 {{% warning "Generated Files are **NOT** Removed on Site Build" %}}
-Running `hugo` *does not* remove generated files before building. This means that you should delete your `public/` directory (or the publish directory you specified via flag or configuration file) before running the `hugo` command. If you do not remove these files, you run the risk of the wrong files (e.g., drafts or future posts) being left in the generated site.
+Running `hugo` *does not* remove generated files before building. This means that you should delete your `public/` directory (or the publish directory you specified via flag or configuration file) before running the `hugo` command, or use the [`--cleanDestinationDir`](/commands/hugo/#options) option. If you do not remove these files, you run the risk of unintended pages (e.g., [draft, expired, or future posts](#draft-future-and-expired-content)) appearing in the generated site.
 {{% /warning %}}
 
 
