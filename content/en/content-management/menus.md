@@ -69,7 +69,7 @@ menu:
 
 ## Add Non-content Entries to a Menu
 
-You can also add entries to menus that aren’t attached to a piece of content. This takes place in your Hugo project's [`config` file][config].
+You can also add entries to menus that aren’t attached to a piece of content. This takes place in your Hugo project's [`config` file][config] (see [Menu Entry Properties][me-props] for full details of available variables).
 
 Here’s an example snippet pulled from a configuration file:
 
