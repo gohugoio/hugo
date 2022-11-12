@@ -1,6 +1,6 @@
 ---
 title: Diagrams
-date: 2022-02-20
+description: Use fenced code blocks and markdown render hooks to display diagrams.
 categories: [content management]
 keywords: [diagrams,drawing]
 menu:
@@ -10,10 +10,7 @@ menu:
 weight: 22
 toc: true
 ---
-
-
 {{< new-in "0.93.0" >}}
-
 
 ## GoAT Diagrams (Ascii)
 

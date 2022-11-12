@@ -1,11 +1,9 @@
 ---
-title: Basic Usage
-linktitle: Basic Usage
-description: Hugo's CLI is fully featured but simple to use, even for those who have very limited experience working from the command line.
-date: 2017-02-01
-publishdate: 2017-02-01
+title: Basic usage
+linktitle: Basic usage
+description: Hugo's command line interface (CLI) is fully featured but simple to use, even for those with limited experience working from the command line.
 categories: [getting started]
-keywords: [usage,livereload,command line,flags]
+keywords: [usage,livereload,command,flags]
 menu:
   docs:
     parent: "getting-started"
@@ -16,207 +14,159 @@ aliases: [/overview/usage/,/extras/livereload/,/doc/usage/,/usage/]
 toc: true
 ---
 
-The following is a description of the most common commands you will use while developing your Hugo project. See the [Command Line Reference][commands] for a comprehensive view of Hugo's CLI.
+## Test your installation
 
-## Test Installation
+After [installing] Hugo, test your installation by running:
 
-Once you have [installed Hugo][install], make sure it is in your `PATH`. You can test that Hugo has been installed correctly via the `help` command:
+```bash
+hugo version
+```
 
-```txt
+You should see something like:
+
+```text
+hugo v0.105.0-0e3b42b4a9bdeb4d866210819fc6ddcf51582ffa+extended linux/amd64 BuildDate=2022-10-28T12:29:05Z VendorInfo=snap:0.105.0
+```
+
+## Display available commands
+
+To see a list of the available commands and flags:
+
+```bash
 hugo help
 ```
 
-The output you see in your console should be similar to the following:
+To get help with a subcommand, use the `--help` flag. For example:
 
-```txt
-hugo is the main command, used to build your Hugo site.
-
-Hugo is a Fast and Flexible Static Site Generator
-built with love by spf13 and friends in Go.
-
-Complete documentation is available at https://gohugo.io/.
-
-Usage:
-  hugo [flags]
-  hugo [command]
-
-Available Commands:
-  completion  Generate the autocompletion script for the specified shell
-  config      Print the site configuration
-  convert     Convert your content to different formats
-  deploy      Deploy your site to a Cloud provider.
-  env         Print Hugo version and environment info
-  gen         A collection of several useful generators.
-  help        Help about any command
-  import      Import your site from others.
-  list        Listing out various types of content
-  mod         Various Hugo Modules helpers.
-  new         Create new content for your site
-  server      A high performance webserver
-  version     Print the version number of Hugo
-
-Flags:
-  -b, --baseURL string             hostname (and path) to the root, e.g. https://spf13.com/
-  -D, --buildDrafts                include content marked as draft
-  -E, --buildExpired               include expired content
-  -F, --buildFuture                include content with publishdate in the future
-      --cacheDir string            filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
-      --cleanDestinationDir        remove files from destination not found in static directories
-      --config string              config file (default is path/config.yaml|json|toml)
-      --configDir string           config dir (default "config")
-  -c, --contentDir string          filesystem path to content directory
-      --debug                      debug output
-  -d, --destination string         filesystem path to write files to
-      --disableKinds strings       disable different kind of pages (home, RSS etc.)
-      --enableGitInfo              add Git revision, date, author, and CODEOWNERS info to the pages
-  -e, --environment string         build environment
-      --forceSyncStatic            copy all files when static is changed.
-      --gc                         enable to run some cleanup tasks (remove unused cache files) after the build
-  -h, --help                       help for hugo
-      --ignoreCache                ignores the cache directory
-      --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
-  -l, --layoutDir string           filesystem path to layout directory
-      --log                        enable Logging
-      --logFile string             log File path (if set, logging enabled automatically)
-      --minify                     minify any supported output format (HTML, XML etc.)
-      --noChmod                    don't sync permission mode of files
-      --noTimes                    don't sync modification time of files
-      --panicOnWarning             panic on first WARNING log
-      --poll string                set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes
-      --printI18nWarnings          print missing translations
-      --printMemoryUsage           print memory usage to screen at intervals
-      --printPathWarnings          print warnings on duplicate target paths etc.
-      --printUnusedTemplates       print warnings on unused templates.
-      --quiet                      build in quiet mode
-      --renderToMemory             render to memory (only useful for benchmark testing)
-  -s, --source string              filesystem path to read files relative from
-      --templateMetrics            display metrics about template executions
-      --templateMetricsHints       calculate some improvement hints when combined with --templateMetrics
-  -t, --theme strings              themes to use (located in /themes/THEMENAME/)
-      --themesDir string           filesystem path to themes directory
-      --trace file                 write trace to file (not useful in general)
-  -v, --verbose                    verbose output
-      --verboseLog                 verbose logging
-  -w, --watch                      watch filesystem for changes and recreate as needed
-
-Use "hugo [command] --help" for more information about a command.
+```bash
+hugo server --help
 ```
 
-## The `hugo` Command
+## Build your site
 
-The most common usage is to run [`hugo`](/commands/hugo/) with your current directory as the input directory.
+To build your site, `cd` into your project directory and run:
 
-By default, this generates your site files in the `public/` directory. To set a different output directory, use the command option [`--destination`](/commands/hugo/#options) or set [`publishDir`](/getting-started/configuration/#publishdir) in your site configuration file.
-
-The command `hugo` renders your site into `public/` and is ready to be deployed to your web server:
-
-```txt
+```bash
 hugo
-0 draft content
-0 future content
-99 pages created
-0 paginator pages created
-16 tags created
-0 groups created
-in 90 ms
 ```
 
-## Draft, Future, and Expired Content
-
-Hugo allows you to set `draft`, `publishdate`, and `expirydate` in your content's [front matter][]. By default, Hugo will not publish the following:
-
-* Content with a future `publishdate` value.
-* Content with `draft: true` status.
-* Content with a past `expirydate` value.
+The [`hugo`] command builds your site, publishing the files to the `public` directory. To publish your site to a different directory, use the [`--destination`] flag or set [`publishDir`] in your site configuration.
 
 {{% note %}}
-If content was previously published, you must use [`--cleanDestinationDir`](/commands/hugo/#options) to remove draft, future, and expired pages from your publish directory.
+Hugo does not clear the `public` directory before building your site. Existing files are overwritten, but not deleted. This behavior is intentional to prevent the inadvertent removal of files that you may have added to the `public` directory after the build.
+
+Depending on your needs, you may wish to manually clear the contents of the public directory before every build.
 {{% /note %}}
 
-All three of these can be overridden during both local development *and* deployment by adding the following flags to `hugo` and `hugo server`, respectively, or by changing the boolean values assigned to the fields of the same name (without `--`) in your [configuration][config]:
+## Draft, future, and expired content
 
-* `--buildFuture`
-* `--buildDrafts`
-* `--buildExpired`
+Hugo allows you to set `draft`, `date`, `publishDate`, and `expiryDate` in the [front matter] of your content. By default, Hugo will not publish content when:
 
-## LiveReload
 
-Hugo comes with [LiveReload](https://github.com/livereload/livereload-js) built in. There are no additional packages to install. A common way to use Hugo while developing a site is to have Hugo run a server with the `hugo server` command and watch for changes:
+- The `draft` value is `true`
+- The `date` is in the future
+- The `publishDate` is in the future
+- The `expiryDate` is in the past
 
-```txt
+You can override the default behavior when running `hugo` or `hugo server` with command line flags:
+
+```bash
+hugo --buildDrafts    # or -D
+hugo --buildExpired   # or -E
+hugo --buildFuture    # or -F
+```
+
+Although you can also set these values in your site configuration, it can lead to unwanted results unless all content authors are aware of, and understand, the settings.
+
+{{% note %}}
+As noted above, Hugo does not clear the `public` directory before building your site. Depending on the _current_ evaluation of the four conditions above, after the build your `public` directory may contain extraneous files from a previous build.
+
+A common practice is to manually clear the contents of the `public` directory before each build to remove draft, expired, and future content.
+{{% /note %}}
+
+## Develop and test your site
+
+To view your site while developing layouts or creating content, `cd` into your project directory and run:
+
+```bash
 hugo server
-0 draft content
-0 future content
-99 pages created
-0 paginator pages created
-16 tags created
-0 groups created
-in 120 ms
-Watching for changes in /Users/yourname/sites/yourhugosite/{data,content,layouts,static}
-Serving pages from /Users/yourname/sites/yourhugosite/public
-Web Server is available at http://localhost:1313/
-Press Ctrl+C to stop
 ```
 
-This will run a fully functioning web server while simultaneously watching your file system for additions, deletions, or changes within the following areas of your [project organization][dirs]:
+The [`hugo server`] command builds your site into memory, and serves your pages using a minimal HTTP server. When you run `hugo server` it will display the URL of your local site:
 
-* `/static/*`
-* `/content/*`
-* `/data/*`
-* `/i18n/*`
-* `/layouts/*`
-* `/themes/<CURRENT-THEME>/*`
-* `config`
+```text
+Web Server is available at http://localhost:1313/ 
+```
 
-Whenever you make changes, Hugo will simultaneously rebuild the site and continue to serve content. As soon as the build is finished, LiveReload tells the browser to silently reload the page.
+While the server is running, it watches your project directory for changes to assets, configuration, content, data, layouts, translations, and static files. When it detects a change, the server rebuilds your site and refreshes your browser using [LiveReload].
 
-Most Hugo builds are so fast that you may not notice the change unless looking directly at the site in your browser. This means that keeping the site open on a second monitor (or another half of your current monitor) allows you to see the most up-to-date version of your website without the need to leave your text editor.
+Most Hugo builds are so fast that you may not notice the change unless you are looking directly at your browser.
 
-{{% note "Closing `</body>` Tag"%}}
-Hugo injects the LiveReload `<script>` before the closing `</body>` in your templates and will therefore not work if this tag is not present..
+### LiveReload
+
+While the server is running, Hugo injects JavaScript into the generated HTML pages. The LiveReload script creates a connection from the browser to the server via web sockets. You do not need to install any software or browser plugins, nor is any configuration required.
+
+### Automatic redirection
+
+When editing content, if you want your browser to automatically redirect to the page you last modified, run:
+
+```bash
+hugo server --navigateToChanged
+```
+
+## Deploy your site
+
+{{% note %}}
+As noted above, Hugo does not clear the public directory before building your site. Manually clear the contents of the public directory before each build to remove draft, expired, and future content.
 {{% /note %}}
 
-### Redirect automatically to the page you just saved
+When are ready to deploy your site, run:
 
-When you are working with more than one document and want to see the markup as real-time as possible it's not ideal to keep jumping between them.
-Fortunately Hugo has an easy, embedded and simple solution for this. It's the flag `--navigateToChanged`.
-
-### Disable LiveReload
-
-LiveReload works by injecting JavaScript into the pages Hugo generates. The script creates a connection from the browser's web socket client to the Hugo web socket server.
-
-The following methods make it easy to disable LiveReload:
-
-```txt
-hugo server --watch=false
+```bash
+hugo
 ```
 
-Or...
+This builds your site, publishing the files to the public directory. The directory structure will look something like this:
 
-```txt
-hugo server --disableLiveReload
+```text
+public/
+├── categories/
+│   ├── index.html
+│   └── index.xml  <-- RSS feed for this section
+├── post/
+│   ├── my-first-post/
+│   │   └── index.html
+│   ├── index.html
+│   └── index.xml  <-- RSS feed for this section
+├── tags/
+│   ├── index.html
+│   └── index.xml  <-- RSS feed for this section
+├── index.html
+├── index.xml      <-- RSS feed for the site
+└── sitemap.xml
 ```
 
-The latter flag can be omitted by adding the following:
+In a simple hosting environment, where you typically `ftp`, `rsync`, or `scp` your files to the root of a virtual host, the contents of the `public` directory are all that you need.
 
-{{< code-toggle file="config" >}}
-disableLiveReload = true
-{{< /code-toggle >}}
+Most of our users deploy their sites using a CI/CD workflow, where a push[^1] to their GitHub or GitLab repository triggers a build and deployment. Popular providers include [AWS Amplify], [CloudCannon], [Cloudflare Pages], [GitHub Pages], [GitLab Pages], and [Netlify].
 
-## Deploy Your Website
+Learn more in the [hosting and deployment] section.
 
-After running `hugo server` for local web development, you need to do a final `hugo` run *without the `server` part of the command* to rebuild your site. You may then deploy your site by copying the `public/` directory to your production web server.
+[^1]: The Git repository contains the entire project directory, typically excluding the public directory because the site is built _after_ the push.
 
-Since Hugo generates a static website, your site can be hosted *anywhere* using any web server. See [Hosting and Deployment][hosting] for methods for hosting and automating deployments contributed by the Hugo community.
-
-{{% warning "Generated Files are **NOT** Removed on Site Build" %}}
-Running `hugo` *does not* remove generated files before building. This means that you should delete your `public/` directory (or the publish directory you specified via flag or configuration file) before running the `hugo` command, or use the [`--cleanDestinationDir`](/commands/hugo/#options) option. If you do not remove these files, you run the risk of unintended pages (e.g., [draft, expired, or future posts](#draft-future-and-expired-content)) appearing in the generated site.
-{{% /warning %}}
-
-
+[`--destination`]: /commands/hugo/#options
+[`hugo server`]: /commands/hugo_server/
+[`hugo`]: /commands/hugo/
+[`publishDir`]: /getting-started/configuration/#publishdir
+[AWS Amplify]: https://aws.amazon.com/amplify/
+[CloudCannon]: https://cloudcannon.com/
+[Cloudflare Pages]: https://pages.cloudflare.com/
 [commands]: /commands/
-[config]: /getting-started/configuration/
-[dirs]: /getting-started/directory-structure/
 [front matter]: /content-management/front-matter/
+[GitHub Pages]: https://pages.github.com/
+[GitLab Pages]: https://docs.gitlab.com/ee/user/project/pages/
+[hosting and deployment]: /hosting-and-deployment/
 [hosting]: /hosting-and-deployment/
-[install]: /installation/
+[installing]: /installation/
+[LiveReload]: https://github.com/livereload/livereload-js
+[Netlify]: https://www.netlify.com/
