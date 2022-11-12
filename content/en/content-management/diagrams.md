@@ -17,7 +17,7 @@ toc: true
 
 ## GoAT Diagrams (Ascii)
 
-Hugo! supports [GoAT](https://github.com/bep/goat) natively. This means that this code block:
+Hugo supports [GoAT](https://github.com/bep/goat) natively. This means that this code block:
 
 ````txt
 ```goat
