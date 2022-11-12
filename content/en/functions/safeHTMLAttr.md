@@ -26,5 +26,13 @@ Example: Given a site-wide `config.toml` that contains this menu entry:
     url = "irc://irc.freenode.net/#golang"
 {{< /code-toggle >}}
 
-* <span class="bad">`<a href="{{ .URL }}">` &rarr; `<a href="#ZgotmplZ">`</span>
-* <span class="good">`<a {{ printf "href=%q" .URL | safeHTMLAttr }}>` &rarr; `<a href="irc://irc.freenode.net/#golang">`</span>
+
+Attempting to use the `url` value directly in an attribute like this:
+
+- `<a href="{{ .URL }}"></a>` will produce the following: `<a href="#ZgotmplZ"></a>`.
+
+The `ZgotmplZ` value indicates that you're trying to output content at a spot
+where `template/html` deems to be unsafe. To correct the output, use the
+`safeHTMLAttr` function like so:
+
+- `<a {{ printf "href=%q" .URL | safeHTMLAttr }}></a>` which produces: `<a href="irc://irc.freenode.net/#golang"></a>`
