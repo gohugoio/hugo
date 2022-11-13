@@ -57,7 +57,7 @@ sudo pkgin install go-hugo
 [OpenBSD] includes Hugo in its package repository. This will prompt you to select which flavor of Hugo to install:
 
 ```sh
-sudo pkg_add hugo
+doas pkg_add hugo
 ```
 
 [OpenBSD]: https://www.openbsd.org/
