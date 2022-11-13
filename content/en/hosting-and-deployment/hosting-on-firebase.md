@@ -53,11 +53,11 @@ From here:
 
 ## Using Firebase & Github CI/CD
 
-In new versions of firebase, some other questions apply:
+In new versions of Firebase, some other questions apply:
 
 6. Set up automatic builds and deploys with GitHub? 
 
-Here you will be redirected to login in your github account to get permissions. Confirm.
+Here you will be redirected to login in your GitHub account to get permissions. Confirm.
 
 7. For which GitHub repository would you like to set up a GitHub workflow? (format: user/repository) 
 
@@ -72,7 +72,7 @@ Here is your oportunity to include some commands before you run the deploy.
 
 You can let in the default option (main)
 
-After that firebase has been set in your project with CI/CD. After that run:
+After that Firebase has been set in your project with CI/CD. After that run:
 
 ```
 hugo && firebase deploy
@@ -80,8 +80,7 @@ hugo && firebase deploy
 
 With this you will have the app initialized manualy. After that you can manage and fix your github workflow from: https://github.com/your-account/yout-repo/actions
 
-Dont forget to update your static pages before push!
-
+Don't forget to update your static pages before push!
 
 ## Manual Deploy
 
@@ -99,7 +98,7 @@ You can generate a deploy token using
 firebase login:ci
 ```
 
-You can also set up your CI (e.g., with Wercker) and add the token to a private variable like `$FIREBASE_DEPLOY_TOKEN`.
+You can also set up your CI and add the token to a private variable like `$FIREBASE_DEPLOY_TOKEN`.
 
 {{% note %}}
 This is a private secret and it should not appear in a public repository. Make sure you understand your chosen CI and that it's not visible to others.
@@ -115,6 +114,6 @@ firebase deploy --token $FIREBASE_DEPLOY_TOKEN
 
 * [Firebase CLI Reference](https://firebase.google.com/docs/cli/#administrative_commands)
 
-[console]: https://console.firebase.google.com
+[console]: https://console.firebase.google.com/
 [Quick Start]: /getting-started/quick-start/
 [signup]: https://console.firebase.google.com/
