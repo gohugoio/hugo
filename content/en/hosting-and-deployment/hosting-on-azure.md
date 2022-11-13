@@ -1,6 +1,6 @@
 ---
-title: Host on Azure
-linktitle: Host on Azure
+title: Host on Azure Static Web Apps
+linktitle: Host on Azure Static Web Apps
 description: Deploy Hugo to Azure Static Web Apps and automate the whole process with Github Action Workflow
 date: 2021-03-12
 publishdate: 2021-03-12
@@ -68,12 +68,12 @@ jobs:
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - name: Build And Deploy
         id: builddeploy
-        uses: Azure/static-web-apps-deploy@v0.0.1-preview
+        uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -82,7 +82,7 @@ jobs:
           api_location: "api" # Api source code path - optional
           output_location: "public" # Built app content directory - optional
         env:
-          HUGO_VERSION: 0.58.0
+          HUGO_VERSION: 0.100.2
 ```
 
 ## Use a Custom Domain
