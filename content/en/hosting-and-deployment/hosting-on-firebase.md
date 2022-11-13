@@ -51,7 +51,39 @@ From here:
 4. Accept the default for the publish directory, which is `public`
 5. Choose "No" in the question if you are deploying a single-page app
 
-## Deploy
+## Using Firebase & Github CI/CD
+
+In new versions of firebase, some other questions apply:
+
+6. Set up automatic builds and deploys with GitHub? 
+
+Here you will be redirected to login in your github account to get permissions. Confirm.
+
+7. For which GitHub repository would you like to set up a GitHub workflow? (format: user/repository) 
+
+Include the repository you will use in the format above (Account/Repo)
+Firebase script with retrive credentials, create a service account you can later manage in yout github settings.
+
+8. Set up the workflow to run a build script before every deploy? 
+
+Here is your oportunity to include some commands before you run the deploy.
+
+9. Set up automatic deployment to your site's live channel when a PR is merged? 
+
+You can let in the default option (main)
+
+After that firebase has been set in your project with CI/CD. After that run:
+
+```
+hugo && firebase deploy
+```
+
+With this you will have the app initialized manualy. After that you can manage and fix your github workflow from: https://github.com/your-account/yout-repo/actions
+
+Dont forget to update your static pages before push!
+
+
+## Manual Deploy
 
 To deploy your Hugo site, execute the `firebase deploy` command, and your site will be up in no time:
 
@@ -59,7 +91,7 @@ To deploy your Hugo site, execute the `firebase deploy` command, and your site w
 hugo && firebase deploy
 ```
 
-## CI Setup
+## CI Setup (Other tools)
 
 You can generate a deploy token using
 
