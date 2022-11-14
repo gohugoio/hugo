@@ -8,7 +8,6 @@
 package template
 
 import (
-	"bytes"
 	"math"
 	"strings"
 	"testing"
@@ -324,7 +323,7 @@ func TestEscapersOnLower7AndSelectHighCodepoints(t *testing.T) {
 
 		// Escape it rune by rune to make sure that any
 		// fast-path checking does not break escaping.
-		var buf bytes.Buffer
+		var buf strings.Builder
 		for _, c := range input {
 			buf.WriteString(test.escaper(string(c)))
 		}

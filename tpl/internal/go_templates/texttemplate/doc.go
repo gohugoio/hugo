@@ -18,7 +18,6 @@ structure as execution proceeds.
 The input text for a template is UTF-8-encoded text in any format.
 "Actions"--data evaluations or control structures--are delimited by
 "{{" and "}}"; all text outside actions is copied to the output unchanged.
-Except for raw strings, actions may not span newlines, although comments can.
 
 Once parsed, a template may be executed safely in parallel, although if parallel
 executions share a Writer the output may be interleaved.
@@ -425,10 +424,10 @@ The syntax of such definitions is to surround each template declaration with a
 The define action names the template being created by providing a string
 constant. Here is a simple example:
 
-	`{{define "T1"}}ONE{{end}}
+	{{define "T1"}}ONE{{end}}
 	{{define "T2"}}TWO{{end}}
 	{{define "T3"}}{{template "T1"}} {{template "T2"}}{{end}}
-	{{template "T3"}}`
+	{{template "T3"}}
 
 This defines two templates, T1 and T2, and a third T3 that invokes the other two
 when it is executed. Finally it invokes T3. If executed this template will

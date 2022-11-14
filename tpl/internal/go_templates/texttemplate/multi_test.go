@@ -10,10 +10,10 @@ package template
 // Tests for multiple-template parsing and execution.
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -245,7 +245,7 @@ func TestClone(t *testing.T) {
 		}
 	}
 	// Execute root.
-	var b bytes.Buffer
+	var b strings.Builder
 	err = root.ExecuteTemplate(&b, "a", 0)
 	if err != nil {
 		t.Fatal(err)
@@ -284,7 +284,7 @@ func TestAddParseTree(t *testing.T) {
 		t.Fatal(err)
 	}
 	// Execute.
-	var b bytes.Buffer
+	var b strings.Builder
 	err = added.ExecuteTemplate(&b, "a", 0)
 	if err != nil {
 		t.Fatal(err)
@@ -413,7 +413,7 @@ func TestEmptyTemplate(t *testing.T) {
 				t.Fatal(err)
 			}
 		}
-		buf := &bytes.Buffer{}
+		buf := &strings.Builder{}
 		if err := m.Execute(buf, c.in); err != nil {
 			t.Error(i, err)
 			continue
@@ -448,7 +448,7 @@ func TestIssue19294(t *testing.T) {
 				t.Fatal(err)
 			}
 		}
-		var buf bytes.Buffer
+		var buf strings.Builder
 		res.Execute(&buf, 0)
 		if buf.String() != "stylesheet" {
 			t.Fatalf("iteration %d: got %q; expected %q", i, buf.String(), "stylesheet")
