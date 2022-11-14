@@ -746,15 +746,15 @@ func (t *templateHandler) applyTemplateTransformers(ns *templateNamespace, ts *t
 //go:embed embedded/templates/*
 //go:embed embedded/templates/_default/*
 //go:embed embedded/templates/_server/*
-var embededTemplatesFs embed.FS
+var embeddedTemplateFs embed.FS
 
 func (t *templateHandler) loadEmbedded() error {
-	return fs.WalkDir(embededTemplatesFs, ".", func(path string, d fs.DirEntry, err error) error {
+	return fs.WalkDir(embeddedTemplateFs, ".", func(path string, d fs.DirEntry, err error) error {
 		if d == nil || d.IsDir() {
 			return nil
 		}
 
-		templb, err := embededTemplatesFs.ReadFile(path)
+		templb, err := embeddedTemplateFs.ReadFile(path)
 		if err != nil {
 			return err
 		}
@@ -765,7 +765,7 @@ func (t *templateHandler) loadEmbedded() error {
 		name := strings.TrimPrefix(filepath.ToSlash(path), "embedded/templates/")
 		templateName := name
 
-		// For the render hooks and the server templates it does not make sense to preseve the
+		// For the render hooks and the server templates it does not make sense to preserve the
 		// double _indternal double book-keeping,
 		// just add it if its now provided by the user.
 		if !strings.Contains(path, "_default/_markup") && !strings.HasPrefix(name, "_server/") {

@@ -249,7 +249,7 @@ func (c *Cache) GetBytes(id string) (ItemInfo, []byte, error) {
 	return info, nil, nil
 }
 
-// Get gets the file with the given id from the cahce, nil if none found.
+// Get gets the file with the given id from the cache, nil if none found.
 func (c *Cache) Get(id string) (ItemInfo, io.ReadCloser, error) {
 	id = cleanID(id)
 

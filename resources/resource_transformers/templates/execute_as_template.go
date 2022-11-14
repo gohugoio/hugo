@@ -33,7 +33,7 @@ type Client struct {
 // New creates a new Client with the given specification.
 func New(rs *resources.Spec, t tpl.TemplatesProvider) *Client {
 	if rs == nil {
-		panic("must provice a resource Spec")
+		panic("must provide a resource Spec")
 	}
 	if t == nil {
 		panic("must provide a template provider")
