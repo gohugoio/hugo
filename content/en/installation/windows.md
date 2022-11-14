@@ -10,7 +10,7 @@ menu:
 toc: true
 weight: 40
 ---
-{{% readfile file="/installation/common/01-flavors.md" %}}
+{{% readfile file="/installation/common/01-editions.md" %}}
 
 {{% readfile file="/installation/common/02-prerequisites.md" %}}
 
@@ -20,7 +20,7 @@ weight: 40
 
 ### Chocolatey
 
-[Chocolatey] is a free and open source package manager for Windows. This will install the extended flavor of Hugo:
+[Chocolatey] is a free and open source package manager for Windows. This will install the extended edition of Hugo:
 
 ```sh
 choco install hugo-extended
@@ -30,7 +30,7 @@ choco install hugo-extended
 
 ### Scoop
 
-[Scoop] is a free and open source package manager for Windows. This will install the extended flavor of Hugo:
+[Scoop] is a free and open source package manager for Windows. This will install the extended edition of Hugo:
 
 ```sh
 scoop install hugo-extended
@@ -43,7 +43,7 @@ scoop install hugo-extended
 {{% readfile file="/installation/common/05-build-from-source.md" %}}
 
 {{% note %}}
-When building the extended flavor of Hugo from source on Windows, you will also need to install the [GCC compiler]. See these [detailed instructions].
+When building the extended edition of Hugo from source on Windows, you will also need to install the [GCC compiler]. See these [detailed instructions].
 
 [detailed instructions]: https://discourse.gohugo.io/t/41370
 [GCC compiler]: https://gcc.gnu.org/

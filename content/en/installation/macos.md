@@ -10,7 +10,7 @@ menu:
 toc: true
 weight: 20
 ---
-{{% readfile file="/installation/common/01-flavors.md" %}}
+{{% readfile file="/installation/common/01-editions.md" %}}
 
 {{% readfile file="/installation/common/02-prerequisites.md" %}}
 
@@ -22,7 +22,7 @@ weight: 20
 
 ### MacPorts
 
-[MacPorts] is a free and open source package manager for macOS. This will install the extended flavor of Hugo:
+[MacPorts] is a free and open source package manager for macOS. This will install the extended edition of Hugo:
 
 ```sh
 sudo port install hugo

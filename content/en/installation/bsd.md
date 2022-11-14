@@ -10,7 +10,7 @@ menu:
 toc: true
 weight: 50
 ---
-{{% readfile file="/installation/common/01-flavors.md" %}}
+{{% readfile file="/installation/common/01-editions.md" %}}
 
 {{% readfile file="/installation/common/02-prerequisites.md" %}}
 
@@ -24,7 +24,7 @@ Most BSD derivatives maintain a repository for commonly installed applications. 
 
 ### DragonFly BSD
 
-[DragonFly BSD] includes Hugo in its package repository. This will install the extended flavor of Hugo:
+[DragonFly BSD] includes Hugo in its package repository. This will install the extended edition of Hugo:
 
 ```sh
 sudo pkg install gohugo
@@ -34,7 +34,7 @@ sudo pkg install gohugo
 
 ### FreeBSD
 
-[FreeBSD] includes Hugo in its package repository. This will install the extended flavor of Hugo:
+[FreeBSD] includes Hugo in its package repository. This will install the extended edition of Hugo:
 
 ```sh
 sudo pkg install gohugo
@@ -44,7 +44,7 @@ sudo pkg install gohugo
 
 ### NetBSD
 
-[NetBSD] includes Hugo in its package repository. This will install the extended flavor of Hugo:
+[NetBSD] includes Hugo in its package repository. This will install the extended edition of Hugo:
 
 ```sh
 sudo pkgin install go-hugo
@@ -54,7 +54,7 @@ sudo pkgin install go-hugo
 
 ### OpenBSD
 
-[OpenBSD] includes Hugo in its package repository. This will prompt you to select which flavor of Hugo to install:
+[OpenBSD] includes Hugo in its package repository. This will prompt you to select which edition of Hugo to install:
 
 ```sh
 doas pkg_add hugo
