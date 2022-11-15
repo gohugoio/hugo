@@ -198,7 +198,7 @@ func GetDependencyList() []string {
 			deps,
 			// TODO(bep) consider adding a DepsNonGo() method to these upstream projects.
 			formatDep("github.com/sass/libsass", "3.6.5"),
-			formatDep("github.com/webmproject/libwebp", "v1.2.0"),
+			formatDep("github.com/webmproject/libwebp", "v1.2.4"),
 		)
 	}
 
