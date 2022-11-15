@@ -18,7 +18,7 @@ A Fast and Flexible Static Site Generator built with love by [bep](https://githu
 * [Supported Architectures](#supported-architectures)
 * [Choose How to Install](#choose-how-to-install)
    * [Install Hugo as Your Site Generator (Binary Install)](#install-hugo-as-your-site-generator-binary-install)
-   * [Build and Install the Binaries from Source (Advanced Install)](#build-and-install-the-binaries-from-source-advanced-install)
+   * [Build and Install the Binary from Source (Using the Go toolchain)](#build-and-install-the-binary-from-source-using-the-go-toolchain)
 * [The Hugo Documentation](#the-hugo-documentation)
 * [Contributing to Hugo](#contributing-code-to-hugo)
 * [Dependencies](#dependencies)
