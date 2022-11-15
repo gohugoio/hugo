@@ -123,7 +123,12 @@ func (ns *Namespace) Copy(s any, r resource.Resource) (resource.Resource, error)
 // Get locates the filename given in Hugo's assets filesystem
 // and creates a Resource object that can be used for further transformations.
 func (ns *Namespace) Get(filename any) resource.Resource {
+
 	filenamestr, err := cast.ToStringE(filename)
+
+	if filenamestr == "" {
+		return nil
+	}
 	if err != nil {
 		panic(err)
 	}
