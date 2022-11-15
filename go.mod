@@ -12,7 +12,7 @@ require (
 	github.com/bep/goat v0.5.0
 	github.com/bep/godartsass v0.14.0
 	github.com/bep/golibsass v1.1.0
-	github.com/bep/gowebp v0.1.0
+	github.com/bep/gowebp v0.2.0
 	github.com/bep/overlayfs v0.6.0
 	github.com/bep/tmc v0.5.1
 	github.com/clbanning/mxj/v2 v2.5.7
