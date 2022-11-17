@@ -1693,22 +1693,6 @@
     "types": [
       {
         "mainType": "application",
-        "subType": "javascript",
-        "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "js",
-          "fullSuffix": ".js"
-        },
-        "type": "application/javascript",
-        "string": "application/javascript",
-        "suffixes": [
-          "js",
-          "jsm",
-          "mjs"
-        ]
-      },
-      {
-        "mainType": "application",
         "subType": "json",
         "delimiter": ".",
         "firstSuffix": {
@@ -1790,20 +1774,6 @@
         "string": "application/toml",
         "suffixes": [
           "toml"
-        ]
-      },
-      {
-        "mainType": "application",
-        "subType": "typescript",
-        "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "ts",
-          "fullSuffix": ".ts"
-        },
-        "type": "application/typescript",
-        "string": "application/typescript",
-        "suffixes": [
-          "ts"
         ]
       },
       {
@@ -2009,6 +1979,22 @@
       },
       {
         "mainType": "text",
+        "subType": "javascript",
+        "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "js",
+          "fullSuffix": ".js"
+        },
+        "type": "text/javascript",
+        "string": "text/javascript",
+        "suffixes": [
+          "js",
+          "jsm",
+          "mjs"
+        ]
+      },
+      {
+        "mainType": "text",
         "subType": "jsx",
         "delimiter": ".",
         "firstSuffix": {
@@ -2062,6 +2048,20 @@
         "string": "text/tsx",
         "suffixes": [
           "tsx"
+        ]
+      },
+      {
+        "mainType": "text",
+        "subType": "typescript",
+        "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "ts",
+          "fullSuffix": ".ts"
+        },
+        "type": "text/typescript",
+        "string": "text/typescript",
+        "suffixes": [
+          "ts"
         ]
       },
       {
