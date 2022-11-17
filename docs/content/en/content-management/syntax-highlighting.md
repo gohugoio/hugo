@@ -1,22 +1,19 @@
 ---
 title: Syntax Highlighting
+linkTitle: Syntax Highlighting
 description: Hugo comes with really fast syntax highlighting from Chroma.
-date: 2017-02-01
-publishdate: 2017-02-01
 keywords: [highlighting,chroma,code blocks,syntax]
 categories: [content management]
 menu:
   docs:
-    parent: "content-management"
-    weight: 300
-weight: 20
-sections_weight: 20
-draft: false
-aliases: [/extras/highlighting/,/extras/highlight/,/tools/syntax-highlighting/]
+    parent: content-management
+    weight: 240
 toc: true
+weight: 240
+aliases: [/extras/highlighting/,/extras/highlight/,/tools/syntax-highlighting/]
 ---
 
-Hugo uses [Chroma](https://github.com/alecthomas/chroma) as its code highlighter; it is built in Go and is really, really fast -- and for the most important parts compatible with Pygments we used before.
+Hugo uses [Chroma](https://github.com/alecthomas/chroma) as its code highlighter; it is built in Go and is really, really fast.
 
 ## Configure Syntax Highlighter
 
@@ -36,11 +33,11 @@ Run `hugo gen chromastyles -h` for more options. See https://xyproto.github.io/s
 
 ## Highlight Shortcode
 
-Highlighting is carried out via the built-in [`highlight` shortcode](https://gohugo.io/content-management/shortcodes/#highlight). It takes exactly one required parameter for the programming language to be highlighted and requires a closing shortcode. Note that `highlight` is *not* used for client-side javascript highlighting.
+Highlighting is carried out via the built-in [`highlight` shortcode](https://gohugo.io/content-management/shortcodes/#highlight). It takes exactly one required parameter for the programming language to be highlighted and requires a closing shortcode.
 
 Options:
 
-* `linenos`: configure line numbers. Valid values are `true`, `false`, `table`, or `inline`. `false` will turn off line numbers if it's configured to be on in site config. {{< new-in "0.60.0" >}} `table` will give copy-and-paste friendly code blocks.
+* `linenos`: configure line numbers. Valid values are `true`, `false`, `table`, or `inline`. `false` will turn off line numbers if it's configured to be on in site config. `table` will give copy-and-paste friendly code blocks.
 * `hl_lines`: lists a set of line numbers or line number ranges to be highlighted.
 * `linenostart=199`: starts the line number count from 199.
 * `anchorlinenos`: Configure anchors on line numbers. Valid values are `true` or `false`;
@@ -49,7 +46,7 @@ Options:
 
 ### Example: Highlight Shortcode
 
-```
+```go-html-template
 {{</* highlight go "linenos=table,hl_lines=8 15-17,linenostart=199" */>}}
 // ... code
 {{</* / highlight */>}}
@@ -100,9 +97,9 @@ See [Highlight](/functions/highlight/).
 
 ## Highlighting in Code Fences
 
-Highlighting in code fences is enabled by default.{{< new-in "0.60.0" >}}
+Highlighting in code fences is enabled by default.
 
-````
+````txt
 ```go {linenos=table,hl_lines=[8,"15-17"],linenostart=199}
 // ... code
 ```
@@ -134,8 +131,6 @@ func GetTitleFunc(style string) func(s string) string {
 }
 ```
 
-{{< new-in "0.60.0" >}}Note that only Goldmark supports passing attributes such as `hl_lines`, and it's important that it does not contain any spaces. See [goldmark-highlighting](https://github.com/yuin/goldmark-highlighting) for more information.
-
 The options are the same as in the [highlighting shortcode](/content-management/syntax-highlighting/#highlight-shortcode),including `linenos=false`, but note the slightly different Markdown attribute syntax.
 
 ## List of Chroma Highlighting Languages
@@ -143,11 +138,3 @@ The options are the same as in the [highlighting shortcode](/content-management/
 The full list of Chroma lexers and their aliases (which is the identifier used in the `highlight` template func or when doing highlighting in code fences):
 
 {{< chroma-lexers >}}
-
-[Prism]: https://prismjs.com
-[prismdownload]: https://prismjs.com/download.html
-[Highlight.js]: https://highlightjs.org/
-[Rainbow]: https://craig.is/making/rainbows
-[Syntax Highlighter]: https://alexgorbatchev.com/SyntaxHighlighter/
-[Google Prettify]: https://github.com/google/code-prettify
-[Yandex]: https://yandex.ru/

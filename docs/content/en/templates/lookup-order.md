@@ -39,7 +39,7 @@ Language
 : We will consider a language code in the template name. If the site language is `fr`, `index.fr.amp.html` will win over `index.amp.html`, but `index.amp.html` will be chosen before `index.fr.html`.
 
 Type
-: Is value of `type` if set in front matter, else it is the name of the root section (e.g. "blog"). It will always have a value, so if not set, the value is "page". 
+: Is value of `type` if set in front matter, else it is the name of the root section (e.g. "blog"). It will always have a value, so if not set, the value is "page".
 
 Section
 : Is relevant for `section`, `taxonomy` and `term` types.

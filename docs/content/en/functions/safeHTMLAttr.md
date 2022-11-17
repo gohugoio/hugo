@@ -1,30 +1,46 @@
 ---
 title: safeHTMLAttr
-# linktitle: safeHTMLAttr
 description: Declares the provided string as a safe HTML attribute.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [strings]
 signature: ["safeHTMLAttr INPUT"]
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
 aliases: []
 ---
 
-Example: Given a site-wide `config.toml` that contains this menu entry:
+Given a site configuration that contains this menu entry:
 
 {{< code-toggle file="config" >}}
 [[menu.main]]
-    name = "IRC: #golang at freenode"
-    url = "irc://irc.freenode.net/#golang"
+  name = "IRC"
+  url = "irc://irc.freenode.net/#golang"
 {{< /code-toggle >}}
 
-* <span class="bad">`<a href="{{ .URL }}">` &rarr; `<a href="#ZgotmplZ">`</span>
-* <span class="good">`<a {{ printf "href=%q" .URL | safeHTMLAttr }}>` &rarr; `<a href="irc://irc.freenode.net/#golang">`</span>
+Attempting to use the `url` value directly in an attribute:
+
+```go-html-template
+{{ range site.Menus.main }}
+  <a href="{{ .URL }}">{{ .Name }}</a>
+{{ end }}
+``` 
+
+Will produce:
+
+```html
+<a href="#ZgotmplZ">IRC</a>
+```
+
+`ZgotmplZ` is a special value, inserted by Go's [template/html] package, that indicates that unsafe content reached a CSS or URL context.
+
+To override the safety check, use the `safeHTMLAttr` function:
+
+```go-html-template
+{{ range site.Menus.main }}
+  <a {{ printf "href=%q" .URL | safeHTMLAttr }}>{{ .Name }}</a>
+{{ end }}
+``` 
+
+[template/html]: https://pkg.go.dev/html/template

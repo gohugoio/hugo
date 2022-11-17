@@ -1,19 +1,16 @@
 ---
 title: Build Options
-linktitle: Build Options
+linkTitle: Build Options
 description: Build options help define how Hugo must treat a given page when building the site.
-date: 2020-03-02
-publishdate: 2020-03-02
 keywords: [build,content,front matter, page resources]
-categories: ["content management"]
+categories: [content management]
 menu:
   docs:
-    parent: "content-management"
-    weight: 31
-weight: 31	#rem
-draft: false
-aliases: [/content/build-options/]
+    parent: content-management
+    weight: 70
 toc: true
+weight: 70
+aliases: [/content/build-options/]
 ---
 
 They are stored in a reserved Front Matter object named `_build` with the following defaults:
@@ -26,9 +23,10 @@ _build:
 {{< /code-toggle >}}
 
 #### render
+
 If `always`, the page will be treated as a published page, holding its dedicated output files (`index.html`, etc...) and permalink.
 
-{{< new-in "0.76.0" >}} We extended this property from a boolean to an enum in Hugo 0.76.0. Valid values are:
+We extended this property from a boolean to an enum in Hugo 0.76.0. Valid values are:
 
 never
 : The page will not be included in any page collection.
@@ -52,13 +50,13 @@ always (default)
 : The page will be included in all page collections, e.g. `site.RegularPages`, `$page.Pages`.
 
 local
-: The page will be included in any _local_ page collection, e.g. `$page.RegularPages`, `$page.Pages`. One use case for this would be to create fully navigable, but headless content sections. {{< new-in "0.68.0" >}}
+: The page will be included in any _local_ page collection, e.g. `$page.RegularPages`, `$page.Pages`. One use case for this would be to create fully navigable, but headless content sections.
 
 If true, the page will be treated as part of the project's collections and, when appropriate, returned by Hugo's listing methods (`.Pages`, `.RegularPages` etc...).
 
 #### publishResources
 
-If set to true the [Bundle's Resources]({{< relref "content-management/page-bundles" >}}) will be published. 
+If set to true the [Bundle's Resources]({{< relref "content-management/page-bundles" >}}) will be published.
 Setting this to false will still publish Resources on demand (when a resource's `.Permalink` or `.RelPermalink` is invoked from the templates) but will skip the others.
 
 {{% note %}}
@@ -70,6 +68,7 @@ Any page, regardless of their build options, will always be available using the 
 ### Illustrative use cases
 
 #### Not publishing a page
+
 Project needs a "Who We Are" content file for Front Matter and body to be used by the homepage but nowhere else.
 
 ```yaml

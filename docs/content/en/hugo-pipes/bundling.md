@@ -12,7 +12,6 @@ menu:
     weight: 60
 weight: 60
 sections_weight: 60
-draft: false
 ---
 
 Asset files of the same MIME type can be bundled into one resource using `resources.Concat` which takes two arguments, a target path and a slice of resource objects.

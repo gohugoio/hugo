@@ -150,7 +150,7 @@ Weights of zero are thus treated specially: if two pages have unequal weights, a
 
 Content can be assigned weight for each taxonomy that it's assigned to.
 
-```
+```txt
 +++
 tags = [ "a", "b", "c" ]
 tags_weight = 22

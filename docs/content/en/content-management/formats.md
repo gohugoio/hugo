@@ -1,19 +1,16 @@
 ---
 title: Content Formats
-linktitle: Content Formats
+linkTitle: Content Formats
 description: Both HTML and Markdown are supported content formats.
-date: 2017-01-10
-publishdate: 2017-01-10
 categories: [content management]
 keywords: [markdown,asciidoc,pandoc,content format]
 menu:
   docs:
-    parent: "content-management"
-    weight: 20
-weight: 20	#rem
-draft: false
-aliases: [/content/markdown-extras/,/content/supported-formats/,/doc/supported-formats/]
+    parent: content-management
+    weight: 40
 toc: true
+weight: 40
+aliases: [/content/markdown-extras/,/content/supported-formats/,/doc/supported-formats/]
 ---
 
 You can put any file type into your `/content` directories, but Hugo uses the `markup` front matter value if set or the file extension (see `Markup identifiers` in the table below) to determine if the markup needs to be processed, e.g.:
@@ -28,7 +25,7 @@ The current list of content formats in Hugo:
 
 | Name  | Markup identifiers | Comment |
 | ------------- | ------------- |-------------|
-| Goldmark  | md, markdown, goldmark  |Note that you can set the default handler of `md` and `markdown` to something else, see [Configure Markup](/getting-started/configuration-markup/).{{< new-in "0.60.0" >}} |
+| Goldmark  | md, markdown, goldmark  |Note that you can set the default handler of `md` and `markdown` to something else, see [Configure Markup](/getting-started/configuration-markup/).|
 |Emacs Org-Mode|org|See [go-org](https://github.com/niklasfasching/go-org).|
 |AsciiDoc|asciidocext, adoc, ad|Needs [Asciidoctor][ascii] installed.|
 |RST|rst|Needs [RST](https://docutils.sourceforge.io/rst.html) installed.|
@@ -55,13 +52,13 @@ Because additional formats are external commands, generation performance will re
 
 ### External Helper AsciiDoc
 
-[AsciiDoc](https://github.com/asciidoc/asciidoc) implementation EOLs in Jan 2020 and is no longer supported. 
-AsciiDoc development is being continued under [Asciidoctor](https://github.com/asciidoctor). The format AsciiDoc 
+[AsciiDoc](https://github.com/asciidoc/asciidoc) implementation EOLs in Jan 2020 and is no longer supported.
+AsciiDoc development is being continued under [Asciidoctor](https://github.com/asciidoctor). The format AsciiDoc
 remains of course. Please continue with the implementation Asciidoctor.
 
 ### External Helper Asciidoctor
 
-The Asciidoctor community offers a wide set of tools for the AsciiDoc format that can be installed additionally to Hugo. 
+The Asciidoctor community offers a wide set of tools for the AsciiDoc format that can be installed additionally to Hugo.
 [See the Asciidoctor docs for installation instructions](https://asciidoctor.org/docs/install-toolchain/). Make sure that also all
 optional extensions like `asciidoctor-diagram` or `asciidoctor-html5s` are installed if required.
 
@@ -100,7 +97,7 @@ Notice that for security concerns only extensions that do not have path separato
 
 Example of how to set extensions and attributes:
 
-```
+```yml
 [markup.asciidocExt]
     extensions = ["asciidoctor-html5s", "asciidoctor-diagram"]
     workingFolderCurrent = true
@@ -109,10 +106,10 @@ Example of how to set extensions and attributes:
         my-attribute-name = "my value"
 ```
 
-In a complex Asciidoctor environment it is sometimes helpful to debug the exact call to your external helper with all 
+In a complex Asciidoctor environment it is sometimes helpful to debug the exact call to your external helper with all
 parameters. Run Hugo with `-v`. You will get an output like
 
-```
+```txt
 INFO 2019/12/22 09:08:48 Rendering book-as-pdf.adoc with C:\Ruby26-x64\bin\asciidoctor.bat using asciidoc args [--no-header-footer -r asciidoctor-html5s -b html5s -r asciidoctor-diagram --base-dir D:\prototypes\hugo_asciidoc_ddd\docs -a outdir=D:\prototypes\hugo_asciidoc_ddd\build -] ...
 ```
 

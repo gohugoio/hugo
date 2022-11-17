@@ -4,7 +4,6 @@ linktitle: Sitemap Variables
 description:
 date: 2017-03-12
 publishdate: 2017-03-12
-lastmod: 2017-03-12
 categories: [variables and params]
 keywords: [sitemap]
 draft: false
