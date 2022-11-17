@@ -1,20 +1,16 @@
 ---
 title: Content Summaries
-linktitle: Summaries
+linkTitle: Summaries
 description: Hugo generates summaries of your content.
-date: 2017-01-10
-publishdate: 2017-01-10
-lastmod: 2017-01-10
 categories: [content management]
 keywords: [summaries,abstracts,read more]
 menu:
   docs:
-    parent: "content-management"
-    weight: 90
-weight: 90	#rem
-draft: false
-aliases: [/content/summaries/,/content-management/content-summaries/]
+    parent: content-management
+    weight: 160
 toc: true
+weight: 160
+aliases: [/content/summaries/,/content-management/content-summaries/]
 ---
 
 With the use of the `.Summary` [page variable][pagevariables], Hugo generates summaries of content to use as a short version in summary views.

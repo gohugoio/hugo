@@ -1,14 +1,15 @@
 ---
 title: Diagrams
+LinkTitle: Diagrams
 description: Use fenced code blocks and markdown render hooks to display diagrams.
 categories: [content management]
 keywords: [diagrams,drawing]
 menu:
   docs:
-    parent: "content-management"
-    weight: 22
-weight: 22
+    parent: content-management
+    weight: 50
 toc: true
+weight: 50
 ---
 {{< new-in "0.93.0" >}}
 

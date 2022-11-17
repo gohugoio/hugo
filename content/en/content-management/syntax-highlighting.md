@@ -1,19 +1,16 @@
 ---
 title: Syntax Highlighting
+linkTitle: Syntax Highlighting
 description: Hugo comes with really fast syntax highlighting from Chroma.
-date: 2017-02-01
-publishdate: 2017-02-01
 keywords: [highlighting,chroma,code blocks,syntax]
 categories: [content management]
 menu:
   docs:
-    parent: "content-management"
-    weight: 300
-weight: 20
-sections_weight: 20
-draft: false
-aliases: [/extras/highlighting/,/extras/highlight/,/tools/syntax-highlighting/]
+    parent: content-management
+    weight: 240
 toc: true
+weight: 240
+aliases: [/extras/highlighting/,/extras/highlight/,/tools/syntax-highlighting/]
 ---
 
 Hugo uses [Chroma](https://github.com/alecthomas/chroma) as its code highlighter; it is built in Go and is really, really fast.

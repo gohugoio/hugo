@@ -1,19 +1,16 @@
 ---
 title: Content Formats
-linktitle: Content Formats
+linkTitle: Content Formats
 description: Both HTML and Markdown are supported content formats.
-date: 2017-01-10
-publishdate: 2017-01-10
 categories: [content management]
 keywords: [markdown,asciidoc,pandoc,content format]
 menu:
   docs:
-    parent: "content-management"
-    weight: 20
-weight: 20	#rem
-draft: false
-aliases: [/content/markdown-extras/,/content/supported-formats/,/doc/supported-formats/]
+    parent: content-management
+    weight: 40
 toc: true
+weight: 40
+aliases: [/content/markdown-extras/,/content/supported-formats/,/doc/supported-formats/]
 ---
 
 You can put any file type into your `/content` directories, but Hugo uses the `markup` front matter value if set or the file extension (see `Markup identifiers` in the table below) to determine if the markup needs to be processed, e.g.:

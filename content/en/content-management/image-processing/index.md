@@ -1,16 +1,15 @@
 ---
-title: "Image Processing"
-description: "Resize, crop, rotate, filter, and convert images."
-date: 2018-01-24T13:10:00-05:00
-categories: ["content management"]
+title: Image Processing
+linkTitle: Image Processing
+description: Resize, crop, rotate, filter, and convert images.
+categories: [content management]
 keywords: [resources, images]
-weight: 4004
-draft: false
-toc: true
 menu:
   docs:
-    parent: "content-management"
-    weight: 32
+    parent: content-management
+    weight: 90
+toc: true
+weight: 90
 ---
 ## Image Resources
 

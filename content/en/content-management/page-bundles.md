@@ -1,16 +1,17 @@
 ---
-title : "Page Bundles"
-description : "Content organization using Page Bundles"
-date : 2018-01-24T13:09:00-05:00
-linktitle : "Page Bundles"
-keywords : ["page", "bundle", "leaf", "branch"]
-categories : ["content management"]
-toc : true
+title: Page Bundles
+linkTitle: Page Bundles
+description: Content organization using Page Bundles
+linkTitle: Page Bundles
+keywords: [page, bundle, leaf, branch]
+categories: [content management]
 menu :
   docs:
-    identifier : "page-bundles"
-    parent : "content-management"
-    weight : 11
+    identifier: "page-bundles"
+    parent: "content-management"
+    weight: 30
+toc: true
+weight: 30
 ---
 
 Page Bundles are a way to group [Page Resources](/content-management/page-resources/).

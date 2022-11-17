@@ -1,20 +1,17 @@
 ---
 title: Front Matter
-linktitle:
+linkTitle: Front Matter
 description: Hugo allows you to add front matter in yaml, toml, or json to your content files.
-date: 2017-01-09
-publishdate: 2017-01-09
 lastmod: 2017-02-24
 categories: [content management]
 keywords: ["front matter", "yaml", "toml", "json", "metadata", "archetypes"]
 menu:
   docs:
-    parent: "content-management"
-    weight: 30
-weight: 30	#rem
-draft: false
-aliases: [/content/front-matter/]
+    parent: content-management
+    weight: 60
 toc: true
+weight: 60
+aliases: [/content/front-matter/]
 ---
 
 **Front matter** allows you to keep metadata attached to an instance of a [content type][]---i.e., embedded inside a content file---and is one of the many features that gives Hugo its strength.

@@ -1,21 +1,17 @@
 ---
 title: Shortcodes
-linktitle:
+linkTitle: Shortcodes
 description: Shortcodes are simple snippets inside your content files calling built-in or custom templates.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2019-11-07
-menu:
-  docs:
-    parent: "content-management"
-    weight: 35
-weight: 35	#rem
 categories: [content management]
 keywords: [markdown,content,shortcodes]
-draft: false
+menu:
+  docs:
+    parent: content-management
+    weight: 100
+toc: true
+weight: 100
 aliases: [/extras/shortcodes/]
 testparam: "Hugo Rocks!"
-toc: true
 ---
 
 ## What a Shortcode is

@@ -1,19 +1,16 @@
 ---
 title: Build Options
-linktitle: Build Options
+linkTitle: Build Options
 description: Build options help define how Hugo must treat a given page when building the site.
-date: 2020-03-02
-publishdate: 2020-03-02
 keywords: [build,content,front matter, page resources]
-categories: ["content management"]
+categories: [content management]
 menu:
   docs:
-    parent: "content-management"
-    weight: 31
-weight: 31	#rem
-draft: false
-aliases: [/content/build-options/]
+    parent: content-management
+    weight: 70
 toc: true
+weight: 70
+aliases: [/content/build-options/]
 ---
 
 They are stored in a reserved Front Matter object named `_build` with the following defaults:

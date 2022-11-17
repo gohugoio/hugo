@@ -1,19 +1,17 @@
 ---
 title: Archetypes
-linktitle: Archetypes
+linkTitle: Archetypes
 description: Archetypes are templates used when creating new content.
-date: 2017-02-01
-publishdate: 2017-02-01
 keywords: [archetypes,generators,metadata,front matter]
-categories: ["content management"]
+categories: [content management]
 menu:
   docs:
-    parent: "content-management"
-    weight: 70
+    parent: content-management
+    weight: 140
   quicklinks:
-weight: 70	#rem
-aliases: [/content/archetypes/]
 toc: true
+weight: 140
+aliases: [/content/archetypes/]
 ---
 
 ## What are Archetypes?

@@ -1,19 +1,16 @@
 ---
 title: Taxonomies
-linktitle:
+linkTitle: Taxonomies
 description: Hugo includes support for user-defined taxonomies.
-date: 2017-02-01
-publishdate: 2017-02-01
 keywords: [taxonomies,metadata,front matter,terms]
 categories: [content management]
 menu:
   docs:
-    parent: "content-management"
-    weight: 80
-weight: 80	#rem
-draft: false
-aliases: [/taxonomies/overview/,/taxonomies/usage/,/indexes/overview/,/doc/indexes/,/extras/indexes]
+    parent: content-management
+    weight: 150
 toc: true
+weight: 150
+aliases: [/taxonomies/overview/,/taxonomies/usage/,/indexes/overview/,/doc/indexes/,/extras/indexes]
 ---
 
 ## What is a Taxonomy?

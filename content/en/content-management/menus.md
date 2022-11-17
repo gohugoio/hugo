@@ -1,20 +1,16 @@
 ---
 title: Menus
-linktitle: Menus
+linkTitle: Menus
 description: Hugo has a simple yet powerful menu system.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-03-31
 categories: [content management]
 keywords: [menus]
-draft: false
 menu:
   docs:
-    parent: "content-management"
-    weight: 120
-weight: 120
-aliases: [/extras/menus/]
+    parent: content-management
+    weight: 190
 toc: true
+weight: 190
+aliases: [/extras/menus/]
 ---
 
 {{% note "Lazy Blogger"%}}

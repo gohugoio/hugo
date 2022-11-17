@@ -1,19 +1,16 @@
 ---
 title: Multilingual Mode
-linktitle: Multilingual
+linkTitle: Multilingual
 description: Hugo supports the creation of websites with multiple languages side by side.
-date: 2017-01-10
-publishdate: 2017-01-10
 categories: [content management]
 keywords: [multilingual,i18n, internationalization]
 menu:
   docs:
-    parent: "content-management"
-    weight: 150
-weight: 150	#rem
-draft: false
-aliases: [/content/multilingual/,/tutorials/create-a-multilingual-site/]
+    parent: content-management
+    weight: 230
 toc: true
+weight: 230
+aliases: [/content/multilingual/,/tutorials/create-a-multilingual-site/]
 ---
 
 You should define the available languages in a `languages` section in your site configuration.

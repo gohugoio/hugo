@@ -1,17 +1,15 @@
 ---
-title : "Page Resources"
-description : "Page resources -- images, other pages, documents, etc. -- have page-relative URLs and their own metadata."
-date: 2018-01-24
-categories: ["content management"]
+title: Page Resources
+linkTitle: Page Resources
+description: Page resources -- images, other pages, documents, etc. -- have page-relative URLs and their own metadata.
+categories: [content management]
 keywords: [bundle,content,resources]
-weight: 4003
-draft: false
-toc: true
-linktitle: "Page Resources"
 menu:
   docs:
-    parent: "content-management"
-    weight: 31
+    parent: content-management
+    weight: 80
+toc: true
+weight: 80
 ---
 Page resources are only accessible from [page bundles]({{< relref
 "/content-management/page-bundles" >}}), those directories with `index.md` or

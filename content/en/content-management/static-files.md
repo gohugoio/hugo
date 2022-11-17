@@ -1,16 +1,16 @@
 ---
 title: Static Files
-description: "Files that get served **statically** (as-is, no modification) on the site root."
-date: 2017-11-18
+linkTitle: Static Files
+description: Files that get served **statically** (as-is, no modification) on the site root.
 categories: [content management]
 keywords: [source, directories]
 menu:
   docs:
-    parent: "content-management"
-    weight: 130
-weight: 130	#rem
-aliases: [/static-files]
+    parent: content-management
+    weight: 200
 toc: true
+weight: 200
+aliases: [/static-files]
 ---
 
 By default, the `static/` directory in the site project is used for

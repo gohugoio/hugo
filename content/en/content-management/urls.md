@@ -1,18 +1,16 @@
 ---
 title: URL Management
-linktitle: URL Management
+linkTitle: URL Management
 description: Hugo supports permalinks, aliases, link canonicalization, and multiple options for handling relative vs absolute URLs.
-date: 2017-02-01
-publishdate: 2017-02-01
-keywords: [aliases,redirects,permalinks,urls]
 categories: [content management]
+keywords: [aliases,redirects,permalinks,urls]
 menu:
   docs:
-    parent: "content-management"
-    weight: 110
-weight: 110	#rem
-aliases: [/extras/permalinks/,/extras/aliases/,/extras/urls/,/doc/redirects/,/doc/alias/,/doc/aliases/]
+    parent: content-management
+    weight: 180
 toc: true
+weight: 180
+aliases: [/extras/permalinks/,/extras/aliases/,/extras/urls/,/doc/redirects/,/doc/alias/,/doc/aliases/]
 ---
 
 ## Permalinks

@@ -1,17 +1,16 @@
 ---
 title: Related Content
+linkTitle: Related Content
 description: List related content in "See Also" sections.
-date: 2017-09-05
 categories: [content management]
 keywords: [content]
 menu:
   docs:
-    parent: "content-management"
-    weight: 40
-weight: 30
-draft: false
-aliases: [/content/related/,/related/]
+    parent: content-management
+    weight: 110
 toc: true
+weight: 110
+aliases: [/content/related/,/related/]
 ---
 
 Hugo uses a set of factors to identify a page's related content based on Front Matter parameters. This can be tuned to the desired set of indices and parameters or left to Hugo's default [Related Content configuration](#configure-related-content).

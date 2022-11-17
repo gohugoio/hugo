@@ -1,18 +1,16 @@
 ---
 title: Comments
-linktitle: Comments
+linkTitle: Comments
 description: Hugo ships with an internal Disqus template, but this isn't the only commenting system that will work with your new Hugo website.
-date: 2017-02-01
-publishdate: 2017-02-01
 keywords: [sections,content,organization]
 categories: [project organization, fundamentals]
 menu:
   docs:
-    parent: "content-management"
-    weight: 140
-weight: 140	#rem
-aliases: [/extras/comments/]
+    parent: content-management
+    weight: 220
 toc: true
+weight: 220
+aliases: [/extras/comments/]
 ---
 
 Hugo ships with support for [Disqus](https://disqus.com/), a third-party service that provides comment and community capabilities to websites via JavaScript.

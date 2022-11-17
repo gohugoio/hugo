@@ -1,18 +1,16 @@
 ---
 title: Links and Cross References
+linkTitle: Links and Cross References
 description: Shortcodes for creating links to documents.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-03-31
 categories: [content management]
 keywords: ["cross references","references", "anchors", "urls"]
 menu:
   docs:
-    parent: "content-management"
-    weight: 100
-weight: 100	#rem
-aliases: [/extras/crossreferences/]
+    parent: content-management
+    weight: 170
 toc: true
+weight: 170
+aliases: [/extras/crossreferences/]
 ---
 
 The `ref` and `relref` shortcodes display the absolute and relative permalinks to a document, respectively.
