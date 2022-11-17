@@ -57,7 +57,7 @@ name: github pages
 on:
   push:
     branches:
-      - main  # Set a branch to deploy
+      - main  # Set a branch that will trigger a deployment
   pull_request:
 
 jobs:
