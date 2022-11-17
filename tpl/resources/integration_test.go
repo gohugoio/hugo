@@ -98,3 +98,32 @@ func TestCopyPageShouldFail(t *testing.T) {
 	b.Assert(err, qt.IsNotNil)
 
 }
+
+func TestGet(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+baseURL = "http://example.com/blog"
+-- assets/images/pixel.png --
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+-- layouts/index.html --
+{{ with resources.Get "images/pixel.png" }}Image OK{{ else }}Image not found{{ end }}
+{{ with resources.Get "" }}Failed{{ else }}Empty string not found{{ end }}
+
+
+	`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		}).Build()
+
+	b.AssertFileContent("public/index.html", `
+Image OK
+Empty string not found
+
+		`)
+
+}
