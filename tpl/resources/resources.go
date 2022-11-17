@@ -125,13 +125,14 @@ func (ns *Namespace) Copy(s any, r resource.Resource) (resource.Resource, error)
 func (ns *Namespace) Get(filename any) resource.Resource {
 
 	filenamestr, err := cast.ToStringE(filename)
+	if err != nil {
+		panic(err)
+	}
 
 	if filenamestr == "" {
 		return nil
 	}
-	if err != nil {
-		panic(err)
-	}
+
 	r, err := ns.createClient.Get(filenamestr)
 	if err != nil {
 		panic(err)
