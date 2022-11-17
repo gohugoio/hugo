@@ -12,7 +12,7 @@ weight: 39
 sections_weight: 39
 ---
 
-Marking a resource with `resources.PostProcess` delays any transformations to after the build, typically because one or more of the steps in the transformation chain depends on the result of the build (e.g. files in `public`).{{< new-in "0.69.0" >}}
+Marking a resource with `resources.PostProcess` delays any transformations to after the build, typically because one or more of the steps in the transformation chain depends on the result of the build (e.g. files in `public`).
 
 A prime use case for this is [CSS purging with PostCSS](#css-purging-with-postcss).
 

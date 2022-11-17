@@ -57,7 +57,7 @@ copyright = "This work is licensed under a Creative Commons Attribution-ShareAli
 
 This is the default RSS template that ships with Hugo:
 
-https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/rss.xml
+<https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/rss.xml>
 
 ## Reference your RSS Feed in `<head>`
 

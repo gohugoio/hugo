@@ -27,7 +27,7 @@ copyright = "© 2015 Jane Doe.  <a href=\"https://creativecommons.org/licenses/b
 
 `{{ .Site.Copyright | safeHTML }}` in a template would then output:
 
-```
+```html
 © 2015 Jane Doe.  <a href="https://creativecommons.org/licenses/by/4.0/">Some rights reserved</a>.
 ```
 

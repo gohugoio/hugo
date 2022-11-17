@@ -21,8 +21,3 @@ Example:
 The above will print `[1 2 4]`.
 
 Also see https://en.wikipedia.org/wiki/Symmetric_difference
-
-
-
-
-

@@ -27,38 +27,42 @@ While the following internal templates are called similar to partials, they do *
 
 ## Google Analytics
 
-Hugo ships with internal templates for Google Analytics tracking, including both synchronous and asynchronous tracking codes. As well as support for both v3 and v4 of Google Analytics.
+Hugo ships with internal templates supporting Google Analytics, both [Google Analytics 4][GA4] (GA4) and Universal Analytics.
+
+**Note:** Universal Analytics are deprecated. For details, see [Universal Analytics will be going away][].
+
+[GA4]: https://support.google.com/analytics/answer/10089681
+[Universal Analytics will be going away]: https://support.google.com/analytics/answer/11583528
 
 ### Configure Google Analytics
 
-Provide your tracking id in your configuration file:
+Provide your tracking ID in your configuration file:
 
-**Google Analytics v3 (analytics.js)**
-{{< code-toggle file="config" >}}
-googleAnalytics = "UA-PROPERTY_ID"
-{{</ code-toggle >}}
-
-**Google Analytics v4 (gtag.js)**
+**Google Analytics 4 (gtag.js)**
 {{< code-toggle file="config" >}}
 googleAnalytics = "G-MEASUREMENT_ID"
+{{</ code-toggle >}}
+
+**Google Universal Analytics (analytics.js)**
+{{< code-toggle file="config" >}}
+googleAnalytics = "UA-PROPERTY_ID"
 {{</ code-toggle >}}
 
 ### Use the Google Analytics Template
 
 You can then include the Google Analytics internal template:
 
-```
-{{ template "_internal/google_analytics.html" . }}
-```
-
-
-```
+```go-html-template
 {{ template "_internal/google_analytics_async.html" . }}
 ```
 
-When using Google Analytics v4 use `_internal/google_analytics.html`.
+**Note:** The async template is _not_ suitable for Google Analytics 4.
 
-A `.Site.GoogleAnalytics` variable is also exposed from the config.
+```go-html-template
+{{ template "_internal/google_analytics.html" . }}
+```
+
+If you want to create your own template, you can access the configured ID with `{{ site.Config.Services.GoogleAnalytics.ID }}`.
 
 ## Disqus
 
@@ -82,7 +86,7 @@ You also have the option to set the following in the front matter for a given pi
 
 To add Disqus, include the following line in templates where you want your comments to appear:
 
-```
+```go-html-template
 {{ template "_internal/disqus.html" . }}
 ```
 
@@ -118,11 +122,12 @@ The `if` statement skips the initialization of the Disqus comment injection when
 
 You can then render your custom Disqus partial template as follows:
 
-```
+```go-html-template
 {{ partial "disqus.html" . }}
 ```
 
 ## Open Graph
+
 An internal template for the [Open Graph protocol](https://ogp.me/), metadata that enables a page to become a rich object in a social graph.
 This format is used for Facebook and some other sites.
 
@@ -167,7 +172,7 @@ If using YouTube this will produce a og:video tag like `<meta property="og:video
 
 To add Open Graph metadata, include the following line between the `<head>` tags in your templates:
 
-```
+```go-html-template
 {{ template "_internal/opengraph.html" . }}
 ```
 
@@ -198,15 +203,30 @@ If no images are found at all, then an image-less Twitter `summary` card is used
 
 Hugo uses the page title and description for the card's title and description fields. The page summary is used if no description is given.
 
+The `.Site.Social.twitter` variable is exposed from the config as the value for `twitter:site`.
+
+{{< code-toggle file="config" >}}
+[social]
+  twitter = "GoHugoIO"
+{{</ code-toggle >}}
+
+NOTE: The `@` will be added for you
+
+```html
+<meta name="twitter:site" content="@GoHugoIO"/>
+```
+
 ### Use the Twitter Cards Template
 
-To add Twitter card metadata, include the following line between the `<head>` tags in your templates:
+To add Twitter card metadata, include the following line immediately after the `<head>` element in your templates:
 
-```
+```go-html-template
 {{ template "_internal/twitter_cards.html" . }}
 ```
 
 ## The Internal Templates
+
+The code for these templates is located [here](https://github.com/gohugoio/hugo/tree/master/tpl/tplimpl/embedded/templates).
 
 * `_internal/disqus.html`
 * `_internal/google_analytics.html`

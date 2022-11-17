@@ -34,7 +34,7 @@ notesforauthors:
 
 The spoiler is that you can even deploy your entire website from any compatible OS with no configuration. Using SFTP for example:
 
-```
+```txt
 hugo --gc --minify
 rclone sync --interactive --sftp-host sftp.example.com --sftp-user www-data --sftp-ask-password public/ :sftp:www/
 ```
@@ -49,7 +49,7 @@ For the next commands, we will assume you configured a remote you named ``hugo-w
 
 The above 'spoiler' commands could become:
 
-```
+```txt
 hugo --gc --minify
 rclone sync --interactive public/ hugo-www:www/
 ```

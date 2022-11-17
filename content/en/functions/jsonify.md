@@ -35,7 +35,7 @@ more copies of *indent* according to the indentation nesting.
 ## Jsonify options
 
 indent ("")
-: Indendation to use.
+: Indentation to use.
 
 prefix ("")
 : Indentation prefix.

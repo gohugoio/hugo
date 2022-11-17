@@ -4,7 +4,6 @@ linktitle: Pagination
 description: Hugo supports pagination for your homepage, section pages, and taxonomies.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [templates]
 keywords: [lists,sections,pagination]
 menu:
@@ -13,7 +12,6 @@ menu:
     weight: 140
 weight: 140
 sections_weight: 140
-draft: false
 aliases: [/extras/pagination,/doc/pagination/]
 toc: true
 ---
@@ -60,7 +58,7 @@ The global page size setting (`Paginate`) can be overridden by providing a posit
 
 It is also possible to use the `GroupBy` functions in combination with pagination:
 
-```
+```go-html-template
 {{ range (.Paginate (.Pages.GroupByDate "2006")).PageGroups  }}
 ```
 
@@ -70,7 +68,7 @@ The `.Paginator` contains enough information to build a paginator interface.
 
 The easiest way to add this to your pages is to include the built-in template (with `Bootstrap`-compatible styles):
 
-```
+```go-html-template
 {{ template "_internal/pagination.html" . }}
 ```
 
@@ -80,7 +78,7 @@ If you use any filters or ordering functions to create your `.Paginator` *and* y
 
 The following example shows how to create `.Paginator` before its used:
 
-```
+```go-html-template
 {{ $paginator := .Paginate (where .Pages "Type" "posts") }}
 {{ template "_internal/pagination.html" . }}
 {{ range $paginator.Pages }}
@@ -90,7 +88,7 @@ The following example shows how to create `.Paginator` before its used:
 
 Without the `where` filter, the above example is even simpler:
 
-```
+```go-html-template
 {{ template "_internal/pagination.html" . }}
 {{ range .Paginator.Pages }}
    {{ .Title }}
@@ -145,13 +143,12 @@ If you want to build custom navigation, you can do so using the `.Paginator` obj
 
 The pages are built on the following form (`BLANK` means no value):
 
-```
+```txt
 [SECTION/TAXONOMY/BLANK]/index.html
 [SECTION/TAXONOMY/BLANK]/page/1/index.html => redirect to  [SECTION/TAXONOMY/BLANK]/index.html
 [SECTION/TAXONOMY/BLANK]/page/2/index.html
 ....
 ```
-
 
 [`first`]: /functions/first/
 [`last`]: /functions/last/

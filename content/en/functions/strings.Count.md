@@ -17,8 +17,6 @@ deprecated: false
 aliases: []
 ---
 
-{{< new-in "0.74.0" >}}
-
 If `SUBSTR` is an empty string, this function returns 1 plus the number of Unicode code points in `STRING`.
 
 Example|Result

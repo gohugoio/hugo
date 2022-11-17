@@ -26,12 +26,11 @@ replacements = ""
 workspace = ""
 {{< /code-toggle >}}
 
-
-noVendor {{< new-in "0.75.0" >}}
+noVendor
 : A optional Glob pattern matching module paths to skip when vendoring, e.g. "github.com/**"
 
-vendorClosest {{< new-in "0.81.0" >}}
-: When enabled, we will pick the vendored module closest to the module using it. The default behaviour is to pick the first. Note that there can still be only one dependency of a given module path, so once it is in use it cannot be redefined.
+vendorClosest
+: When enabled, we will pick the vendored module closest to the module using it. The default behavior is to pick the first. Note that there can still be only one dependency of a given module path, so once it is in use it cannot be redefined.
 
 proxy
 : Defines the proxy server to use to download remote modules. Default is `direct`, which means "git clone" and similar.
@@ -42,15 +41,15 @@ noProxy
 private
 : Comma separated glob list matching paths that should be treated as private.
 
-workspace {{< new-in "0.83.0" >}}
+workspace
 : The workspace file to use. This enables Go workspace mode. Note that this can also be set via OS env, e.g. `export HUGO_MODULE_WORKSPACE=/my/hugo.work` This only works with Go 1.18+.
 
-replacements {{< new-in "0.77.0" >}}
+replacements
 : A comma separated (or a slice) list of module path to directory replacement mapping, e.g. `github.com/bep/my-theme -> ../..,github.com/bep/shortcodes -> /some/path`. This is mostly useful for temporary locally development of a module, and then it makes sense to set it as an OS environment variable, e.g: `env HUGO_MODULE_REPLACEMENTS="github.com/bep/my-theme -> ../.."`. Any relative path is relate to [themesDir](https://gohugo.io/getting-started/configuration/#all-configuration-settings), and absolute paths are allowed.
 
 Note that the above terms maps directly to their counterparts in Go Modules. Some of these setting may be natural to set as OS environment variables. To set the proxy server to use, as an example:
 
-```
+```txt
 env HUGO_MODULE_PROXY=https://proxy.example.org hugo
 ```
 
@@ -99,20 +98,19 @@ path
 ignoreConfig
 : If enabled, any module configuration file, e.g. `config.toml`, will not be loaded. Note that this will also stop the loading of any transitive module dependencies.
 
-ignoreImports {{< new-in "0.80.0" >}}
+ignoreImports
 : If enabled, module imports will not be followed.
 
 disable
 : Set to `true` to disable the module while keeping any version info in the `go.*` files.
 
-noMounts {{< new-in "0.84.2" >}}
+noMounts
 :  Do not mount any folder in this import.
 
 noVendor
 :  Never vendor this import (only allowed in main project).
 
 {{< gomodules-info >}}
-
 
 ## Module Config: mounts
 
@@ -160,14 +158,11 @@ lang
 : The language code, e.g. "en". Only relevant for `content` mounts, and `static` mounts when in multihost mode.
 
 includeFiles (string or slice)
-: One or more [glob](https://github.com/gobwas/glob) patterns matching files or directories to include. If `excludeFiles` is not set, the files matching `includeFiles` will be the files mounted. 
+: One or more [glob](https://github.com/gobwas/glob) patterns matching files or directories to include. If `excludeFiles` is not set, the files matching `includeFiles` will be the files mounted.
 
 The glob patterns are matched to the filenames starting from the `source` root, they should have Unix styled slashes even on Windows, `/` matches the mount root and `**` can be used as a  super-asterisk to match recursively down all directories, e.g `/posts/**.jpg`.
 
 The search is case-insensitive.
 
-{{< new-in "0.89.0" >}}
-
 excludeFiles (string or slice)
 : One or more glob patterns matching files to exclude.
-

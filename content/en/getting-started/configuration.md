@@ -12,7 +12,6 @@ menu:
     weight: 60
 weight: 60
 sections_weight: 60
-draft: false
 aliases: [/overview/source-directory/,/overview/configuration/]
 toc: true
 ---
@@ -23,11 +22,11 @@ Hugo uses the `config.toml`, `config.yaml`, or `config.json` (if found in the
 site root) as the default site config file.
 
 The user can choose to override that default with one or more site config files
-using the command line `--config` switch.
+using the command-line `--config` switch.
 
 Examples:
 
-```
+```txt
 hugo --config debugconfig.toml
 hugo --config a.toml,b.toml,c.toml
 ```
@@ -58,7 +57,7 @@ foo = "bar"
 - Files can be localized to become language specific.
 
 
-```
+```txt
 ├── config
 │   ├── _default
 │   │   ├── config.toml
@@ -74,7 +73,7 @@ foo = "bar"
 │       └── params.toml
 ```
 
-Considering the structure above, when running `hugo --environment staging`, Hugo will use every settings from `config/_default` and merge `staging`'s on top of those.
+Considering the structure above, when running `hugo --environment staging`, Hugo will use every setting from `config/_default` and merge `staging`'s on top of those.
 
 Let's take an example to understand this better. Let's say you are using Google Analytics for your website. This requires you to specify `googleAnalytics = "G-XXXXXXXX"` in `config.toml`. Now consider the following scenario:
 - You don't want the Analytics code to be loaded in development i.e. in your `localhost`
@@ -92,17 +91,14 @@ This is how you need to configure your `config.toml` files considering the above
 3. Similarly in `staging/config.toml` you just need to have one line:
 
     ```googleAnalytics = "G-SSSSSSSS"```
-    
-    Now you need to tell Hugo that you are using the staging environment. So your build command should be `hugo --environment staging` which will load the `G-SSSSSSSS` analytics code in your staging website
 
+    Now you need to tell Hugo that you are using the staging environment. So your build command should be `hugo --environment staging` which will load the `G-SSSSSSSS` analytics code in your staging website
 
 {{% note %}}
 Default environments are __development__ with `hugo server` and __production__ with `hugo`.
 {{%/ note %}}
 
 ## Merge Configuration from Themes
-
-{{< new-in "0.84.0" >}} The configuration merge described below was improved in Hugo 0.84.0 and made fully configurable. The big change/improvement was that we now, by default, do deep merging of `params` maps from themes.
 
 The configuration value for `_merge` can be one of:
 
@@ -125,7 +121,7 @@ The following is the full list of Hugo-defined variables with their default
 value in parentheses. Users may choose to override those values in their site
 config file(s).
 
-### archetypeDir 
+### archetypeDir
 
 **Default value:** "archetypes"
 
@@ -138,9 +134,11 @@ The directory where Hugo finds archetype files (content templates). {{% module-m
 The directory where Hugo finds asset files used in [Hugo Pipes](/hugo-pipes/). {{% module-mounts-note %}}
 
 ### baseURL
+
 Hostname (and path) to the root, e.g. https://bep.is/
 
 ### build
+
 See [Configure Build](#configure-build)
 
 ### buildDrafts (false)
@@ -162,11 +160,10 @@ Include content already expired.
 Include content with publishdate in the future.
 
 ### caches
+
 See [Configure File Caches](#configure-file-caches)
 
 ### cascade
-
-{{< new-in "0.86.0" >}}
 
 Pass down default configuration values (front matter) to pages in the content tree. The options in site config is the same as in page front matter, see [Front Matter Cascade](/content-management/front-matter#front-matter-cascade).
 
@@ -304,19 +301,24 @@ See [Configure Languages](/content-management/multilingual/#configure-languages)
 See [Disable a Language](/content-management/multilingual/#disable-a-language)
 
 ### markup
-See [Configure Markup](/getting-started/configuration-markup).{{< new-in "0.60.0" >}}
+
+See [Configure Markup](/getting-started/configuration-markup).
 
 ### mediaTypes
+
 See [Configure Media Types](/templates/output-formats/#media-types).
 
 ### menus
+
 See [Add Non-content Entries to a Menu](/content-management/menus/#add-non-content-entries-to-a-menu).
 
 ### minify
+
 See [Configure Minify](#configure-minify)
 
 ### module
-Module config see [Module Config](/hugo-modules/configuration/).{{< new-in "0.56.0" >}}
+
+Module config see [Module Config](/hugo-modules/configuration/).
 
 ### newContentEditor
 
@@ -337,6 +339,7 @@ Don't sync permission mode of files.
 Don't sync modification time of files.
 
 ### outputFormats
+
 See [Configure Output Formats](#configure-additional-output-formats).
 
 ### paginate
@@ -352,6 +355,7 @@ Default number of elements per page in [pagination](/templates/pagination/).
 The path element used during pagination (`https://example.com/page/2`).
 
 ### permalinks
+
 See [Content Management](/content-management/urls/#permalinks).
 
 ### pluralizeListTitles
@@ -367,9 +371,10 @@ Pluralize titles in lists.
 The directory to where Hugo will write the final static site (the HTML files etc.).
 
 ### related
-: See [Related Content](/content-management/related/#configure-related-content).{{< new-in "0.27" >}}
 
-### relativeURLs 
+: See [Related Content](/content-management/related/#configure-related-content).
+
+### relativeURLs
 
 **Default value:** false
 
@@ -379,9 +384,10 @@ Enable this to make all relative URLs relative to content root. Note that this d
 
 **Default value:** "ERROR"
 
-When using `ref` or `relref` to resolve page links and a link cannot resolved, it will be logged with this log level. Valid values are `ERROR` (default) or `WARNING`. Any `ERROR` will fail the build (`exit -1`).
+When using `ref` or `relref` to resolve page links and a link cannot be resolved, it will be logged with this log level. Valid values are `ERROR` (default) or `WARNING`. Any `ERROR` will fail the build (`exit -1`).
 
 ### refLinksNotFoundURL
+
 URL to be used as a placeholder when a page reference cannot be found in `ref` or `relref`. Is used as-is.
 
 ### removePathAccents
@@ -394,7 +400,6 @@ Removes [non-spacing marks](https://www.compart.com/en/unicode/category/Mn) from
 content/post/hügó.md --> https://example.org/post/hugo/
 ```
 
-
 ### rssLimit
 
 **Default value:** -1 (unlimited)
@@ -402,6 +407,7 @@ content/post/hügó.md --> https://example.org/post/hugo/
 Maximum number of items in the RSS feed.
 
 ### sectionPagesMenu
+
 See ["Section Menu for Lazy Bloggers"](/templates/menu-templates/#section-menu-for-lazy-bloggers).
 
 ### security
@@ -409,6 +415,7 @@ See ["Section Menu for Lazy Bloggers"](/templates/menu-templates/#section-menu-f
 See [Security Policy](/about/security-model/#security-policy)
 
 ### sitemap
+
 Default [sitemap configuration](/templates/sitemap-template/#configuration).
 
 ### summaryLength
@@ -418,9 +425,11 @@ Default [sitemap configuration](/templates/sitemap-template/#configuration).
 The length of text in words to show in a [`.Summary`](/content-management/summaries/#automatic-summary-splitting).
 
 ### taxonomies
+
 See [Configure Taxonomies](/content-management/taxonomies#configure-taxonomies).
 
 ### theme
+
 : See [Module Config](/hugo-modules/configuration/#module-config-imports) for how to import a theme.
 
 ### themesDir
@@ -429,19 +438,18 @@ See [Configure Taxonomies](/content-management/taxonomies#configure-taxonomies).
 
 The directory where Hugo reads the themes from.
 
-### timeout 
+### timeout
 
 **Default value:** "30s"
 
 Timeout for generating page contents, specified as a [duration](https://pkg.go.dev/time#Duration) or in milliseconds. *Note:*&nbsp;this is used to bail out of recursive content generation. You might need to raise this limit if your pages are slow to generate (e.g., because they require large image processing or depend on remote contents).
 
-### timeZone 
-
-{{< new-in "0.87.0" >}}
+### timeZone
 
 The time zone (or location), e.g. `Europe/Oslo`,  used to parse front matter dates without such information and in the [`time` function](/functions/time/). The list of valid values may be system dependent, but should include `UTC`, `Local`, and any location in the [IANA Time Zone database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
 ### title
+
 Site title.
 
 ### titleCaseStyle
@@ -451,6 +459,9 @@ Site title.
 See [Configure Title Case](#configure-title-case)
 
 ### uglyURLs
+
+**Default value:** false
+
 When enabled, creates URL of the form `/filename.html` instead of `/filename/`.
 
 ### watch
@@ -461,21 +472,19 @@ Watch filesystem for changes and recreate as needed.
 
 {{% note %}}
 If you are developing your site on a \*nix machine, here is a handy shortcut for finding a configuration option from the command line:
-```
+```txt
 cd ~/sites/yourhugosite
 hugo config | grep emoji
 ```
 
 which shows output like
 
-```
+```txt
 enableemoji: true
 ```
 {{% /note %}}
 
 ## Configure Build
-
-{{< new-in "0.66.0" >}}
 
 The `build` configuration section contains global build-related configuration options.
 
@@ -490,17 +499,15 @@ noJSConfigInAssets = false
 useResourceCacheWhen
 : When to use the cached resources in `/resources/_gen` for PostCSS and ToCSS. Valid values are `never`, `always` and `fallback`. The last value means that the cache will be tried if PostCSS/extended version is not available.
 
-writeStats {{< new-in "0.69.0" >}}
+writeStats
 : When enabled, a file named `hugo_stats.json` will be written to your project root with some aggregated data about the build, e.g. list of HTML entities published to be used to do [CSS pruning](/hugo-pipes/postprocess/#css-purging-with-postcss). If you're only using this for the production build, you should consider placing it below [config/production](/getting-started/configuration/#configuration-directory). It's also worth mentioning that, due to the nature of the partial server builds, new HTML entities will be added when you add or change them while the server is running, but the old values will not be removed until you restart the server or run a regular `hugo` build.
 
-**Note** that the prime use case for this is purging of unused CSS; it is build for speed and there may be false positives (e.g. elements that isn't really a HTML element).
+**Note** that the prime use case for this is purging of unused CSS; it is built for speed and there may be false positives (e.g., detection of HTML elements that are not HTML elements).
 
-noJSConfigInAssets {{< new-in "0.78.0" >}}
+noJSConfigInAssets
 : Turn off writing a `jsconfig.json` into your `/assets` folder with mapping of imports from running [js.Build](https://gohugo.io/hugo-pipes/js). This file is intended to help with intellisense/navigation inside code editors such as [VS Code](https://code.visualstudio.com/). Note that if you do not use `js.Build`, no file will be written.
 
 ## Configure Server
-
-{{< new-in "0.67.0" >}}
 
 This is only relevant when running `hugo server`, and it allows to set HTTP headers during development, which allows you to test out your Content Security Policy and similar. The configuration format matches [Netlify's](https://docs.netlify.com/routing/headers/#syntax-for-the-netlify-configuration-file) with slightly more powerful [Glob matching](https://github.com/gobwas/glob):
 
@@ -518,7 +525,7 @@ Referrer-Policy = "strict-origin-when-cross-origin"
 Content-Security-Policy = "script-src localhost:1313"
 {{< /code-toggle >}}
 
-Since this is is "development only", it may make sense to put it below the `development` environment:
+Since this is "development only", it may make sense to put it below the `development` environment:
 
 
 {{< code-toggle file="config/development/server">}}
@@ -533,10 +540,7 @@ Referrer-Policy = "strict-origin-when-cross-origin"
 Content-Security-Policy = "script-src localhost:1313"
 {{< /code-toggle >}}
 
-
-{{< new-in "0.72.0" >}}
-
-You can also specify simple redirects rules for the server. The syntax is again similar to Netlify's. 
+You can also specify simple redirects rules for the server. The syntax is again similar to Netlify's.
 
 Note that a `status` code of 200 will trigger a [URL rewrite](https://docs.netlify.com/routing/redirects/rewrites-proxies/), which is what you want in SPA situations, e.g:
 
@@ -548,7 +552,20 @@ status = 200
 force = false
 {{< /code-toggle >}}
 
-{{< new-in "0.76.0" >}} Setting `force=true` will make a redirect even if there is existing content in the path. Note that before Hugo 0.76  `force` was the default behaviour, but this is inline with how Netlify does it.
+Setting `force=true` will make a redirect even if there is existing content in the path. Note that before Hugo 0.76  `force` was the default behavior, but this is inline with how Netlify does it.
+
+## 404 Server Error Page
+
+{{< new-in "0.103.0" >}}
+
+Hugo will, by default, render all 404 errors when running `hugo server` with the `404.html` template. Note that if you have already added one or more redirects to your [Server Config](#configure-server), you need to add the 404 redirect explicitly, e.g:
+
+```toml
+[[redirects]]
+    from   = "/**"
+    to     = "/404.html"
+    status = 404
+```
 
 ## 404 Server Error Page
 
@@ -608,7 +625,7 @@ In addition to the 3 config options already mentioned, configuration key-values 
 
 For example, the following command will effectively set a website's title on Unix-like systems:
 
-```
+```txt
 $ env HUGO_TITLE="Some Title" hugo
 ```
 
@@ -620,7 +637,7 @@ Names must be prefixed with `HUGO_` and the configuration key must be set in upp
 To set config params, prefix the name with `HUGO_PARAMS_`
 {{% /note %}}
 
-{{< new-in "0.79.0" >}} If you are using snake_cased variable names, the above will not work, so since Hugo 0.79.0 Hugo determines the delimiter to use by the first character after `HUGO`. This allows you to define environment variables on the form `HUGOxPARAMSxAPI_KEY=abcdefgh`, using any [allowed](https://stackoverflow.com/questions/2821043/allowed-characters-in-linux-environment-variable-names#:~:text=So%20names%20may%20contain%20any,not%20begin%20with%20a%20digit.) delimiter.
+If you are using snake_cased variable names, the above will not work. Hugo determines the delimiter to use by the first character after `HUGO`. This allows you to define environment variables on the form `HUGOxPARAMSxAPI_KEY=abcdefgh`, using any [allowed](https://stackoverflow.com/questions/2821043/allowed-characters-in-linux-environment-variable-names#:~:text=So%20names%20may%20contain%20any,not%20begin%20with%20a%20digit.) delimiter.
 
 {{< todo >}}
 Test and document setting params via JSON env var.
@@ -647,7 +664,6 @@ ignoreFiles = ['^/home/user/project/content/test\.md$']
 ### Configure Dates
 
 Dates are important in Hugo, and you can configure how Hugo assigns dates to your content pages. You do this by adding a `frontmatter` section to your `config.toml`.
-
 
 The default configuration is:
 
@@ -709,8 +725,6 @@ Hugo v0.20 introduced the ability to render your content to multiple output form
 
 ## Configure Minify
 
-{{< new-in "0.68.0" >}}
-
 Default configuration:
 
 {{< code-toggle config="minify" />}}
@@ -762,9 +776,9 @@ dir
 
 ## Configuration Format Specs
 
-* [TOML Spec][toml]
-* [YAML Spec][yaml]
-* [JSON Spec][json]
+- [TOML Spec][toml]
+- [YAML Spec][yaml]
+- [JSON Spec][json]
 
 [`.Site.Params`]: /variables/site/
 [directory structure]: /getting-started/directory-structure

@@ -17,6 +17,6 @@ markComment: >
   If you still think this is important, please tell us why.
 
   This issue will automatically be closed in the near future if no further activity occurs. Thank you for all your contributions.
-  
+
 # Comment to post when closing a stale issue. Set to `false` to disable
 closeComment: false

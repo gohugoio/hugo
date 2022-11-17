@@ -22,7 +22,7 @@ The following is a list of site-level (aka "global") variables. Many of these va
 
 ## Get the Site object from a partial
 
-All the methods below, e.g. `.Site.RegularPages` can also be reached via the global [`site`](/functions/site/) function, e.g. `site.RegularPages`, which can be handy in partials where the `Page` object isn't easily available. {{< new-in "0.53" >}}.
+All the methods below, e.g. `.Site.RegularPages` can also be reached via the global [`site`](/functions/site/) function, e.g. `site.RegularPages`, which can be handy in partials where the `Page` object isn't easily available.
 
 ## Site Variables List
 
@@ -84,13 +84,13 @@ All the methods below, e.g. `.Site.RegularPages` can also be reached via the glo
 : a string representing the date/time of the most recent change to your site. This string is based on the [`date` variable in the front matter](/content-management/front-matter) of your content pages.
 
 .Site.Menus
-: all of the menus in the site.
+: all the menus in the site.
 
 .Site.Pages
-: array of all content ordered by Date with the newest first. This array contains only the pages in the current language. See [`.Site.Pages`](#site-pages).
+: array of all content ordered by Date with the newest first. This array contains only the pages in the current language. See [`.Site.Pages`]({{< relref "site.md#site-pages" >}}).
 
 .Site.RegularPages
-: a shortcut to the *regular* page collection. `.Site.RegularPages` is equivalent to `where .Site.Pages "Kind" "page"`. See [`.Site.Pages`](#site-pages).
+: a shortcut to the *regular* page collection. `.Site.RegularPages` is equivalent to `where .Site.Pages "Kind" "page"`. See [`.Site.Pages`]({{< relref "site.md#site-pages" >}}).
 
 .Site.Sections
 : top-level directories of the site.
@@ -128,8 +128,5 @@ You can use `.Site.Params` in a [partial template](/templates/partials/) to call
 ### `.Site.Pages` compared to `.Pages`
 
 {{< getcontent path="readfiles/pages-vs-site-pages.md" >}}
-
-
-
 
 [config]: /getting-started/configuration/
