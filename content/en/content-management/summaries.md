@@ -1,20 +1,16 @@
 ---
 title: Content Summaries
-linktitle: Summaries
+linkTitle: Summaries
 description: Hugo generates summaries of your content.
-date: 2017-01-10
-publishdate: 2017-01-10
-lastmod: 2017-01-10
 categories: [content management]
 keywords: [summaries,abstracts,read more]
 menu:
   docs:
-    parent: "content-management"
-    weight: 90
-weight: 90	#rem
-draft: false
-aliases: [/content/summaries/,/content-management/content-summaries/]
+    parent: content-management
+    weight: 160
 toc: true
+weight: 160
+aliases: [/content/summaries/,/content-management/content-summaries/]
 ---
 
 With the use of the `.Summary` [page variable][pagevariables], Hugo generates summaries of content to use as a short version in summary views.
@@ -41,9 +37,9 @@ The Hugo-defined summaries are set to use word count calculated by splitting the
 
 ### Manual Summary Splitting
 
-Alternatively, you may add the <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> summary divider where you want to split the article. 
+Alternatively, you may add the <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> summary divider where you want to split the article.
 
-For [Org mode content][org], use `# more` where you want to split the article. 
+For [Org mode content][org], use `# more` where you want to split the article.
 
 Content that comes before the summary divider will be used as that content's summary and stored in the `.Summary` page variable with all HTML formatting intact.
 

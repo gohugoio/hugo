@@ -34,10 +34,10 @@ Hugo in Action is a step-by-step guide to using Hugo to create static websites. 
 
 ### Hugo tutorial by CloudCannon
 
-[Step-by-step written tutorial](https://cloudcannon.com/community/learn/hugo-101/) to teach you the basics of creating a Hugo site. 
+[Step-by-step written tutorial](https://cloudcannon.com/community/learn/hugo-101/) to teach you the basics of creating a Hugo site.
 
 ## Video tutorials
 
-### Video Playlist by Mike Dane
+* Mike Dane explains the various features of Hugo via dedicated tutorials on [YouTube](https://www.youtube.com/watch?list=PLLAZ4kZ9dFpOnyRlyS-liKL5ReHDcj4G3&v=qtIqKaDlqXo).
 
-Mike Dane explains the various features of Hugo via dedicated tutorials on [YouTube](https://www.youtube.com/watch?list=PLLAZ4kZ9dFpOnyRlyS-liKL5ReHDcj4G3&v=qtIqKaDlqXo).
+* [Introduction to building your first Hugo site](https://cloudcannon.com/community/learn/hugo-beginner-tutorial/) by Mike Neumegen.

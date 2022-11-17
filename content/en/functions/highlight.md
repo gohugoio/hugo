@@ -77,10 +77,10 @@ If the `LANG` parameter is blank or an unrecognized language, auto-detect the la
 {{% note %}}
 Instead of specifying both `lineNos` and `lineNumbersInTable`, you can use the following shorthand notation:
 
-`lineNos=inline` 
+`lineNos=inline`
 : equivalent to `lineNos=true` and `lineNumbersInTable=false`
 
-`lineNos=table` 
+`lineNos=table`
 : equivalent to `lineNos=true` and `lineNumbersInTable=true`
 {{% /note %}}
 

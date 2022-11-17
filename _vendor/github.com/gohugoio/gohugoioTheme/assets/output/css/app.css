@@ -4083,7 +4083,7 @@ img { max-width: 100%; }
     max-width: 30em;
   }
   .measure-wide-l {
-    max-width: 40em;
+    max-width: 34em;
   }
   .measure-narrow-l {
     max-width: 20em;
@@ -4768,11 +4768,6 @@ h6:hover .header-link {
   padding: 0;
   margin: 0;
 }
-pre, .pre  {
-  overflow-x: auto;
-  overflow-y: hidden;
-  overflow:   scroll;
-}
 code {
     padding: 0.2em;
     margin: 0;
@@ -4780,7 +4775,7 @@ code {
     background-color: rgba(27, 31, 35, .05);
     border-radius: 3px;
 }
-pre  code {
+pre code {
   display: block;
   padding: 1.5em 1.5em;
   font-size: .875rem;
@@ -4992,7 +4987,7 @@ dd {
     font-size: calc(0.70833rem + 0.83333vw);
   }
 }
-/* From http://cssfontstack.com */
+/* From https://www.cssfontstack.com */
 code, .code, pre code, .highlight pre  {
   font-family: 'inconsolata',Menlo,Monaco,'Courier New',monospace;
 }

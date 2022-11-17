@@ -47,7 +47,7 @@ Hugo is for people building a blog, a company site, a portfolio site, documentat
 [Firebase]: https://firebase.google.com/docs/hosting/ "Firebase static hosting"
 [GitHub Pages]: https://pages.github.com/
 [GitLab Pages]: https://about.gitlab.com/features/pages/
-[Go language]: https://golang.org/
+[Go language]: https://go.dev/
 [GoDaddy]: https://www.godaddy.com/ "GoDaddy.com Hosting"
 [Google Cloud Storage]: https://cloud.google.com/storage/
 [Heroku]: https://www.heroku.com/

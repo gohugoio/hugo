@@ -52,6 +52,6 @@ To return the relative permalink to another Output Format of a page:
 {{ relref . (dict "path" "about.md" "outputFormat" "rss") }}
 ```
 
-Hugo emits an error or warning if the page cannot be uniquely resolved. The error behavior is configurable; see [Ref and RelRef Configuration](/content-management/cross-references/#ref-and-relref-configuration). 
+Hugo emits an error or warning if the page cannot be uniquely resolved. The error behavior is configurable; see [Ref and RelRef Configuration](/content-management/cross-references/#ref-and-relref-configuration).
 
 This function is used by Hugo's built-in [`relref`](/content-management/shortcodes/#ref-and-relref) shortcode. For a detailed explanation of how to leverage this shortcode for content management, see [Links and Cross References](/content-management/cross-references/).
