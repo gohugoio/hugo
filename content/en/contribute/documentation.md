@@ -92,13 +92,13 @@ Code blocks are crucial for providing examples of Hugo's new features to end use
 
 ### Standard Syntax
 
-Across many pages on the Hugo docs, the typical triple-back-tick Markdown syntax (```` ``` ````) is used. If you do not want to take the extra time to implement the following code block shortcodes, please use standard GitHub-flavored Markdown. The Hugo docs use a version of [highlight.js](https://highlightjs.org/) with a specific set of languages.
-
-Your options for languages are `xml`/`html`, `go`/`golang`, `md`/`markdown`/`mkd`, `handlebars`, `apache`, `toml`, `yaml`, `json`, `css`, `asciidoc`, `ruby`, `powershell`/`ps`, `scss`, `sh`/`zsh`/`bash`/`git`, `http`/`https`, and `javascript`/`js`.
+Across many pages on the Hugo docs, the typical triple-back-tick Markdown syntax (```` ``` ````) is used. If you do not want to take the extra time to implement the following code block shortcodes, please use standard GitHub-flavored Markdown. 
 
 ````txt
-```
-<h1>Hello world!</h1>
+```go-html-template
+{{ range site.RegularPages }}
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+{{ end }}
 ```
 ````
 

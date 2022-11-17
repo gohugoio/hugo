@@ -16,7 +16,7 @@ aliases: [/extras/highlighting/,/extras/highlight/,/tools/syntax-highlighting/]
 toc: true
 ---
 
-Hugo uses [Chroma](https://github.com/alecthomas/chroma) as its code highlighter; it is built in Go and is really, really fast -- and for the most important parts compatible with Pygments we used before.
+Hugo uses [Chroma](https://github.com/alecthomas/chroma) as its code highlighter; it is built in Go and is really, really fast.
 
 ## Configure Syntax Highlighter
 
@@ -36,7 +36,7 @@ Run `hugo gen chromastyles -h` for more options. See https://xyproto.github.io/s
 
 ## Highlight Shortcode
 
-Highlighting is carried out via the built-in [`highlight` shortcode](https://gohugo.io/content-management/shortcodes/#highlight). It takes exactly one required parameter for the programming language to be highlighted and requires a closing shortcode. Note that `highlight` is *not* used for client-side JavaScript highlighting.
+Highlighting is carried out via the built-in [`highlight` shortcode](https://gohugo.io/content-management/shortcodes/#highlight). It takes exactly one required parameter for the programming language to be highlighted and requires a closing shortcode.
 
 Options:
 
@@ -134,8 +134,6 @@ func GetTitleFunc(style string) func(s string) string {
 }
 ```
 
-Note that only Goldmark supports passing attributes such as `hl_lines`, and it's important that it does not contain any spaces. See [goldmark-highlighting](https://github.com/yuin/goldmark-highlighting) for more information.
-
 The options are the same as in the [highlighting shortcode](/content-management/syntax-highlighting/#highlight-shortcode),including `linenos=false`, but note the slightly different Markdown attribute syntax.
 
 ## List of Chroma Highlighting Languages
@@ -143,11 +141,3 @@ The options are the same as in the [highlighting shortcode](/content-management/
 The full list of Chroma lexers and their aliases (which is the identifier used in the `highlight` template func or when doing highlighting in code fences):
 
 {{< chroma-lexers >}}
-
-[Prism]: https://prismjs.com
-[prismdownload]: https://prismjs.com/download.html
-[Highlight.js]: https://highlightjs.org/
-[Rainbow]: https://craig.is/making/rainbows
-[Syntax Highlighter]: https://alexgorbatchev.com/SyntaxHighlighter/
-[Google Prettify]: https://github.com/google/code-prettify
-[Yandex]: https://yandex.ru/
