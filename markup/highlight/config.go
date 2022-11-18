@@ -95,7 +95,7 @@ func (cfg Config) ToHTMLOptions() []html.Option {
 		html.BaseLineNumber(cfg.LineNoStart),
 		html.LineNumbersInTable(cfg.LineNumbersInTable),
 		html.WithClasses(!cfg.NoClasses),
-		html.LinkableLineNumbers(cfg.AnchorLineNos, lineAnchors),
+		html.WithLinkableLineNumbers(cfg.AnchorLineNos, lineAnchors),
 		html.InlineCode(cfg.Hl_inline),
 	}
 
