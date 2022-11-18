@@ -38,6 +38,13 @@ func TestItemValTyped(t *testing.T) {
 	c.Assert(Item{low: 0, high: len(source)}.ValTyped(source), qt.Equals, true)
 	source = []byte("false")
 	c.Assert(Item{low: 0, high: len(source)}.ValTyped(source), qt.Equals, false)
-	source = []byte("trued")
+	source = []byte("falsex")
+	c.Assert(Item{low: 0, high: len(source)}.ValTyped(source), qt.Equals, "falsex")
+	source = []byte("xfalse")
+	c.Assert(Item{low: 0, high: len(source)}.ValTyped(source), qt.Equals, "xfalse")
+	source = []byte("truex")
+	c.Assert(Item{low: 0, high: len(source)}.ValTyped(source), qt.Equals, "truex")
+	source = []byte("xtrue")
+	c.Assert(Item{low: 0, high: len(source)}.ValTyped(source), qt.Equals, "xtrue")
 
 }
