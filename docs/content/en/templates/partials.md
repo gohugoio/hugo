@@ -78,7 +78,7 @@ This means the partial will *only* be able to access those variables. The partia
 
 ## Returning a value from a Partial
 
-In addition to outputting markup, partials can be used to return a value of any type. In order to return a value, a partial must include a lone `return` statement _at the end of the partial_.
+In addition to outputting markup, partials can be used to return a value of any type. In order to return a value, a partial must include a lone `return` statement *at the end of the partial*.
 
 ### Example GetFeatured
 
@@ -120,8 +120,6 @@ Only one `return` statement is allowed per partial file.
 {{% /note %}}
 
 ## Inline Partials
-
-{{< new-in "0.74.0" >}}
 
 You can also define partials inline in the template. But remember that template namespace is global, so you need to make sure that the names are unique to avoid conflicts.
 

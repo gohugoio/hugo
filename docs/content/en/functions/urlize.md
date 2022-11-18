@@ -68,6 +68,4 @@ The preceding partial would then output to the rendered page as follows, assumin
 </header>
 {{< /output >}}
 
-
-
 [singletemplate]: /templates/single-page-templates/

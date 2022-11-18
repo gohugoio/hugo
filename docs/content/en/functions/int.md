@@ -38,7 +38,7 @@ this purpose.
 {{ int ("00987" | strings.TrimLeft "0") }}
 ```
 
-**Explanation**
+### Explanation
 
 The `int` function eventually calls the `ParseInt` function from the Go library
 `strconv`.

@@ -1,19 +1,16 @@
 ---
 title: Taxonomies
-linktitle:
+linkTitle: Taxonomies
 description: Hugo includes support for user-defined taxonomies.
-date: 2017-02-01
-publishdate: 2017-02-01
 keywords: [taxonomies,metadata,front matter,terms]
 categories: [content management]
 menu:
   docs:
-    parent: "content-management"
-    weight: 80
-weight: 80	#rem
-draft: false
-aliases: [/taxonomies/overview/,/taxonomies/usage/,/indexes/overview/,/doc/indexes/,/extras/indexes]
+    parent: content-management
+    weight: 150
 toc: true
+weight: 150
+aliases: [/taxonomies/overview/,/taxonomies/usage/,/indexes/overview/,/doc/indexes/,/extras/indexes]
 ---
 
 ## What is a Taxonomy?
@@ -49,7 +46,7 @@ Then, in each of the movies, you would specify terms for each of these taxonomie
 
 To continue with the example of a movie site, the following demonstrates content relationships from the perspective of the taxonomy:
 
-```
+```txt
 Actor                    <- Taxonomy
     Bruce Willis         <- Term
         The Sixth Sense  <- Value
@@ -63,7 +60,7 @@ Actor                    <- Taxonomy
 
 From the perspective of the content, the relationships would appear differently, although the data and labels used are the same:
 
-```
+```txt
 Unbreakable                 <- Value
     Actors                  <- Taxonomy
         Bruce Willis        <- Term
@@ -98,8 +95,6 @@ If you do not want Hugo to create any taxonomies, set `disableKinds` in your [si
 disableKinds = ["taxonomy","term"]
 {{</ code-toggle >}}
 
-{{< new-in "0.73.0" >}} We have fixed the before confusing page kinds used for taxonomies (see the listing below) to be in line with the terms used when we talk about taxonomies. We have been careful to avoid site breakage, and you should get an ERROR in the console if you need to adjust your `disableKinds` section.
-
 {{% page-kinds %}}
 
 ### Default Destinations
@@ -111,7 +106,7 @@ When taxonomies are used---and [taxonomy templates][] are provided---Hugo will a
 
 ## Configure Taxonomies
 
-Custom taxonomies other than the [defaults](#default-taxonomies) must be defined in your [site config][config] before they can be used throughout the site. You need to provide both the plural and singular labels for each taxonomy. For example, `singular key = "plural value"` for TOML and `singular key: "plural value"` for YAML.
+Custom taxonomies other than the [defaults]({{< relref "taxonomies.md#default-taxonomies" >}}) must be defined in your [site config][config] before they can be used throughout the site. You need to provide both the plural and singular labels for each taxonomy. For example, `singular key = "plural value"` for TOML and `singular key: "plural value"` for YAML.
 
 ### Example: Adding a custom taxonomy named "series"
 
@@ -135,7 +130,7 @@ If you want to have just the default `tags` taxonomy, and remove the `categories
   tag = "tags"
 {{</ code-toggle >}}
 
-If you want to disable all taxonomies altogether, see the use of `disableKinds` in [Hugo Taxonomy Defaults](#default-taxonomies).
+If you want to disable all taxonomies altogether, see the use of `disableKinds` in [Hugo Taxonomy Defaults]({{< relref "taxonomies.md#default-taxonomies" >}}).
 
 {{% note %}}
 You can add content and front matter to your taxonomy list and taxonomy terms pages. See [Content Organization](/content-management/organization/) for more information on how to add an `_index.md` for this purpose.
@@ -174,7 +169,7 @@ project_url = "https://github.com/gohugoio/hugo"
 
 A content file can assign weight for each of its associate taxonomies. Taxonomic weight can be used for sorting or ordering content in [taxonomy list templates][] and is declared in a content file's [front matter][]. The convention for declaring taxonomic weight is `taxonomyname_weight`.
 
-The following TOML and YAML examples show a piece of content that has a weight of 22, which can be used for ordering purposes when rendering the pages assigned to the "a", "b" and "c" values of the `tags` taxonomy. It has also been assigned the weight of 44 when rendering the "d" category page.
+The following show a piece of content that has a weight of 22, which can be used for ordering purposes when rendering the pages assigned to the "a", "b" and "c" values of the `tags` taxonomy. It has also been assigned the weight of 44 when rendering the "d" category page.
 
 ### Example: Taxonomic `weight`
 
@@ -194,7 +189,7 @@ Currently taxonomies only support the [default `weight => date` ordering of list
 
 ## Add custom metadata to a Taxonomy or Term
 
-If you need to add custom metadata to your taxonomy terms, you will need to create a page for that term at `/content/<TAXONOMY>/<TERM>/_index.md` and add your metadata in it's front matter. Continuing with our 'Actors' example, let's say you want to add a Wikipedia page link to each actor. Your terms pages would be something like this:
+If you need to add custom metadata to your taxonomy terms, you will need to create a page for that term at `/content/<TAXONOMY>/<TERM>/_index.md` and add your metadata in its front matter. Continuing with our 'Actors' example, let's say you want to add a Wikipedia page link to each actor. Your terms pages would be something like this:
 
 {{< code file="/content/actors/bruce-willis/_index.md" >}}
 ---

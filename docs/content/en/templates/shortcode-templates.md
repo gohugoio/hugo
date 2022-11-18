@@ -18,7 +18,7 @@ aliases: []
 toc: true
 ---
 
-Shortcodes are a means to consolidate templating into small, reusable snippets that you can embed directly inside of your content. In this sense, you can think of shortcodes as the intermediary between [page and list templates][templates] and [basic content files][].
+Shortcodes are a means to consolidate templating into small, reusable snippets that you can embed directly inside your content. In this sense, you can think of shortcodes as the intermediary between [page and list templates][templates] and [basic content files][].
 
 {{% note %}}
 Hugo also ships with built-in shortcodes for common use cases. (See [Content Management: Shortcodes](/content-management/shortcodes/).)
@@ -36,7 +36,7 @@ To create a shortcode, place an HTML template in the `layouts/shortcodes` direct
 
 You can organize your shortcodes in subfolders, e.g. in `layouts/shortcodes/boxes`. These shortcodes would then be accessible with their relative path, e.g:
 
-```
+```go-html-template
 {{</* boxes/square */>}}
 ```
 
@@ -69,46 +69,49 @@ All shortcode parameters can be accessed via the `.Get` method. Whether you pass
 
 To access a parameter by name, use the `.Get` method followed by the named parameter as a quoted string:
 
-```
+```go-html-template
 {{ .Get "class" }}
 ```
 
 To access a parameter by position, use the `.Get` followed by a numeric position, keeping in mind that positional parameters are zero-indexed:
 
-```
+```go-html-template
 {{ .Get 0 }}
 ```
 
-For the second position, you would just use: 
+For the second position, you would just use:
 
-```
+```go-html-template
 {{ .Get 1 }}
 ```
 
 `with` is great when the output depends on a parameter being set:
 
-```
+```go-html-template
 {{ with .Get "class" }} class="{{ . }}"{{ end }}
 ```
 
 `.Get` can also be used to check if a parameter has been provided. This is
 most helpful when the condition depends on either of the values, or both:
 
-```
+```go-html-template
 {{ if or (.Get "title") (.Get "alt") }} alt="{{ with .Get "alt" }}{{ . }}{{ else }}{{ .Get "title" }}{{ end }}"{{ end }}
 ```
 
 #### `.Inner`
 
-If a closing shortcode is used, the `.Inner` variable will be populated with all of the content between the opening and closing shortcodes. If a closing shortcode is required, you can check the length of `.Inner` as an indicator of its existence.
+If a closing shortcode is used, the `.Inner` variable will be populated with the content between the opening and closing shortcodes. If a closing shortcode is required, you can check the length of `.Inner` as an indicator of its existence.
 
-A shortcode with content declared via the `.Inner` variable can also be declared without the 
-content and without the closing 
-by using the self-closing syntax:
+A shortcode with content declared via the `.Inner` variable can also be declared without the content and without the closing by using the self-closing syntax:
 
-```
+```go-html-template
 {{</* innershortcode /*/>}}
 ```
+
+{{% warning %}}
+Any shortcode that refers to `.Inner` must be closed or self-closed.
+
+{{% /warning %}}
 
 #### `.Params`
 
@@ -129,13 +132,13 @@ The `.IsNamedParams` variable checks whether the shortcode declaration uses name
 
 For example, you could create an `image` shortcode that can take either a `src` named parameter or the first positional parameter, depending on the preference of the content's author. Let's assume the `image` shortcode is called as follows:
 
-```
+```go-html-template
 {{</* image src="images/my-image.jpg" */>}}
 ```
 
 You could then include the following as part of your shortcode templating:
 
-```
+```go-html-template
 {{ if .IsNamedParams }}
 <img src="{{ .Get "src" }}" alt="">
 {{ else }}
@@ -163,9 +166,9 @@ The following are examples of the different types of shortcodes you can create v
 
 ### Single-word Example: `year`
 
-Let's assume you would like to keep mentions of your copyright year current in your content files without having to continually review your markdown. Your goal is to be able to call the shortcode as follows:
+Let's assume you would like to keep mentions of your copyright year current in your content files without having to continually review your Markdown. Your goal is to be able to call the shortcode as follows:
 
-```
+```go-html-template
 {{</* year */>}}
 ```
 
@@ -175,9 +178,9 @@ Let's assume you would like to keep mentions of your copyright year current in y
 
 ### Single Positional Example: `youtube`
 
-Embedded videos are a common addition to markdown content that can quickly become unsightly. The following is the code used by [Hugo's built-in YouTube shortcode][youtubeshortcode]:
+Embedded videos are a common addition to Markdown content that can quickly become unsightly. The following is the code used by [Hugo's built-in YouTube shortcode][youtubeshortcode]:
 
-```
+```go-html-template
 {{</* youtube 09jf3ow9jfw */>}}
 ```
 
@@ -244,7 +247,7 @@ Would be rendered as:
 
 ### Single Flexible Example: `vimeo`
 
-```
+```go-html-template
 {{</* vimeo 49718712 */>}}
 {{</* vimeo id="49718712" class="flex-video" */>}}
 ```
@@ -288,7 +291,7 @@ The following is taken from `highlight`, which is a [built-in shortcode][] that 
 
 The template for the `highlight` shortcode uses the following code, which is already included in Hugo:
 
-```
+```go-html-template
 {{ .Get 0 | highlight .Inner }}
 ```
 
@@ -326,7 +329,7 @@ You also have an `img` shortcode with a single named `src` parameter that you wa
 
 You can then call your shortcode in your content as follows:
 
-```
+```go-html-template
 {{</* gallery class="content-gallery" */>}}
   {{</* img src="/images/one.jpg" */>}}
   {{</* img src="/images/two.jpg" */>}}
@@ -336,14 +339,13 @@ You can then call your shortcode in your content as follows:
 
 This will output the following HTML. Note how the first two `img` shortcodes inherit the `class` value of `content-gallery` set with the call to the parent `gallery`, whereas the third `img` only uses `src`:
 
-```
+```html
 <div class="content-gallery">
     <img src="/images/one.jpg" class="content-gallery-image">
     <img src="/images/two.jpg" class="content-gallery-image">
 </div>
 <img src="/images/three.jpg">
 ```
-
 
 ## Error Handling in Shortcodes
 
@@ -366,12 +368,9 @@ ERROR 2018/11/07 10:05:55 missing value for param name: "/Users/bep/dev/go/gohug
 
 More shortcode examples can be found in the [shortcodes directory for spf13.com][spfscs] and the [shortcodes directory for the Hugo docs][docsshortcodes].
 
-
 ## Inline Shortcodes
 
-{{< new-in "0.52" >}}
-
-Since Hugo 0.52, you can implement your shortcodes inline -- e.g. where you use them in the content file. This can be useful for scripting that you only need in one place.
+You can also implement your shortcodes inline -- e.g. where you use them in the content file. This can be useful for scripting that you only need in one place.
 
 This feature is disabled by default, but can be enabled in your site config:
 
@@ -398,7 +397,6 @@ The same inline shortcode can be reused later in the same content file, with dif
  ```go-text-template
 {{</* time.inline /*/>}}
 ```
-	
 
 [basic content files]: /content-management/formats/ "See how Hugo leverages markdown--and other supported formats--to create content for your website."
 [built-in shortcode]: /content-management/shortcodes/

@@ -29,7 +29,7 @@ The following are common use cases for content views:
 
 To create a new view, create a template in each of your different content type directories with the view name. The following example contains an "li" view and a "summary" view for the `posts` and `project` content types. As you can see, these sit next to the [single content view][single] template, `single.html`. You can even provide a specific view for a given type and continue to use the `_default/single.html` for the primary view.
 
-```
+```txt
   ▾ layouts/
     ▾ posts/
         li.html
@@ -44,7 +44,7 @@ To create a new view, create a template in each of your different content type d
 Hugo also has support for a default content template to be used in the event that a specific content view template has not been provided for that type. Content views can also be defined in the `_default` directory and will work the same as list and single templates who eventually trickle down to the `_default` directory as a matter of the lookup order.
 
 
-```
+```txt
 ▾ layouts/
   ▾ _default/
       li.html
@@ -63,7 +63,7 @@ The following is the [lookup order][lookup] for content views:
 
 ## Example: Content View Inside a List
 
-The following example demonstrates how to use content views inside of your [list templates][lists].
+The following example demonstrates how to use content views inside your [list templates][lists].
 
 ### `list.html`
 

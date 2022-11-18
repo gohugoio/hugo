@@ -1,49 +1,61 @@
 ---
 title: relURL
-description: Creates a baseURL-relative URL.
-date: 2017-02-01
-publishdate: 2017-02-01
+description: Returns a relative URL.
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [urls]
 signature: ["relURL INPUT"]
-workson: []
-hugoversion:
-relatedfuncs: [absURL]
-deprecated: false
-aliases: []
 ---
 
-Both `absURL` and `relURL` consider the configured value of `baseURL` in your site's [`config` file][configuration]. Given a `baseURL` set to `https://example.com/hugo/`:
+With multilingual configurations, use the [`relLangURL`] function instead. The URL returned by this function depends on:
 
+- Whether the input begins with a slash
+- The `baseURL` in site configuration
+
+### Input does not begin with a slash
+
+If the input does not begin with a slash, the resulting URL will be correct regardless of the `baseURL`.
+
+With `baseURL = https://example.org/`
+
+```go-html-template
+{{ relURL "" }}           →   /
+{{ relURL "articles" }}   →   /articles
+{{ relURL "style.css" }}  →   /style.css
 ```
-{{ "mystyle.css" | absURL }} → "https://example.com/hugo/mystyle.css"
-{{ "mystyle.css" | relURL }} → "/hugo/mystyle.css"
-{{ "http://gohugo.io/" | relURL }} →  "http://gohugo.io/"
-{{ "http://gohugo.io/" | absURL }} →  "http://gohugo.io/"
+
+With `baseURL = https://example.org/docs/`
+
+```go-html-template
+{{ relURL "" }}           →   /docs/
+{{ relURL "articles" }}   →   /docs/articles
+{{ relURL "style.css" }}  →   /docs/style.css
 ```
 
-The last two examples may look strange but can be very useful. For example, the following shows how to use `absURL` in [JSON-LD structured data for SEO][jsonld] where some of your images for a piece of content may or may not be hosted locally:
+### Input begins with a slash
 
-{{< code file="layouts/partials/schemaorg-metadata.html" download="schemaorg-metadata.html" >}}
-<script type="application/ld+json">
-{
-    "@context" : "https://schema.org",
-    "@type" : "BlogPosting",
-    "image" : {{ apply .Params.images "absURL" "." }}
-}
-</script>
-{{< /code >}}
+If the input begins with a slash, the resulting URL will be incorrect when the `baseURL` includes a subdirectory. With a leading slash, the function returns a URL relative to the protocol+host section of the `baseURL`.
 
-The above uses the [apply function][] and also exposes how the Go template parser JSON-encodes objects inside `<script>` tags. See [the safeJS template function][safejs] for examples of how to tell Hugo not to escape strings inside of such tags.
+With `baseURL = https://example.org/`
 
-{{% note "Ending Slash" %}}
-`absURL` and `relURL` are smart about missing slashes, but they will *not* add a closing slash to a URL if it is not present.
+```go-html-template
+{{ relURL "/" }}          →   /
+{{ relURL "/articles" }}  →   /articles
+{{ relURL "style.css" }}  →   /style.css
+```
+
+With `baseURL = https://example.org/docs/`
+
+```go-html-template
+{{ relURL "/" }}          →   /
+{{ relURL "/articles" }}  →   /articles
+{{ relURL "/style.css" }} →   /style.css
+```
+
+{{% note %}}
+The last three examples are not desirable in most situations. As a best practice, never include a leading slash when using this function.
 {{% /note %}}
 
-[apply function]: /functions/apply/
-[configuration]: /getting-started/configuration/
-[jsonld]: https://developers.google.com/search/docs/advanced/structured-data/intro-structured-data
-[safejs]: /functions/safejs
+[`relLangURL`]: /functions/rellangurl/

@@ -1,20 +1,16 @@
 ---
 title: Table of Contents
-linktitle:
+linkTitle: Table of Contents
 description: Hugo can automatically parse Markdown content and create a Table of Contents you can use in your templates.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [content management]
 keywords: [table of contents, toc]
 menu:
   docs:
-    parent: "content-management"
-    weight: 130
-weight: 130	#rem
-draft: false
-aliases: [/extras/toc/]
+    parent: content-management
+    weight: 210
 toc: true
+weight: 210
+aliases: [/extras/toc/]
 ---
 
 {{% note "TOC Heading Levels are Fixed" %}}
@@ -27,9 +23,9 @@ Hugo [v0.60.0](https://github.com/gohugoio/hugo/releases/tag/v0.60.0) made a swi
 
 ## Usage
 
-Create your markdown the way you normally would with the appropriate headings. Here is some example content:
+Create your Markdown the way you normally would with the appropriate headings. Here is some example content:
 
-```
+```md
 <!-- Your front matter up here -->
 
 ## Introduction

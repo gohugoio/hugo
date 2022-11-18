@@ -4,7 +4,6 @@ linktitle: Themes
 description: If you've built a Hugo theme and want to contribute back to the Hugo Community, share it with us.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-27
 categories: [contribute]
 keywords: [contribute,themes,design]
 authors: [digitalcraftsman]
@@ -14,7 +13,6 @@ menu:
     weight: 30
 weight: 30
 sections_weight: 30
-draft: false
 aliases: [/contribute/theme/]
 wip: true
 toc: true

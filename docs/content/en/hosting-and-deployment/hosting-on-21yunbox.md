@@ -4,7 +4,6 @@ linktitle: Host on 21YunBox
 description: Host your Hugo site with 21YunBox's blazing fast Chinese CDN, fully-managed SSL and auto deploys from Gitee.
 date: 2021-01-06
 publishdate: 2021-01-06
-lastmod: 2021-01-06
 categories: [hosting and deployment]
 keywords: [21yunbox,hosting,deployment]
 authors: [Toby Glei]
@@ -62,4 +61,5 @@ Every deploy automatically and instantly invalidates the CDN cache, so your user
 Add your own domains to your site easily using 21YunBox's [custom domains](https://www.21yunbox.com/docs/#/custom-domains) guide.
 
 ## Support
+
 Click [here](https://www.21yunbox.com/docs/#/contact) to contact with 21YunBox' experts if you need help.
