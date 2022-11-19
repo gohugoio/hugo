@@ -9,10 +9,10 @@ keywords: [regex]
 signature:
   - "replaceRE PATTERN REPLACEMENT INPUT [LIMIT]"
   - "strings.ReplaceRE PATTERN REPLACEMENT INPUT [LIMIT]"
-relatedfuncs: [findRE]
+relatedfuncs: [replace,findRE]
 aliases: []
 ---
-By default, the `replaceRE` function replaces all matches. You can limit the number of matches with an optional LIMIT paramater.
+By default, the `replaceRE` function replaces all matches. You can limit the number of matches with an optional LIMIT parameter.
 
 When specifying the regular expression, use a raw [string literal] (backticks) instead of an interpreted string literal (double quotes) to simplify the syntax. With an interpreted string literal you must escape backslashes.
 

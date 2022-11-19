@@ -12,7 +12,7 @@ keywords: []
 signature: ["strings.Replace INPUT OLD NEW [LIMIT]", "replace INPUT OLD NEW [LIMIT]"]
 workson: []
 hugoversion:
-relatedfuncs: []
+relatedfuncs: [replaceRE]
 deprecated: false
 aliases: []
 ---

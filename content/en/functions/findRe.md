@@ -12,7 +12,7 @@ signature:
 relatedfuncs: [replaceRE]
 aliases: []
 ---
-By default, the `findRE` function finds all matches. You can limit the number of matches with an optional LIMIT paramater.
+By default, the `findRE` function finds all matches. You can limit the number of matches with an optional LIMIT parameter.
 
 When specifying the regular expression, use a raw [string literal] (backticks) instead of an interpreted string literal (double quotes) to simplify the syntax. With an interpreted string literal you must escape backslashes.
 
