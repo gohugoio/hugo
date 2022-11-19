@@ -368,7 +368,7 @@ In case you need to pass a custom data: (`(dict "Count" numeric_value_only)` is 
 The following localization examples assume your site's primary language is English, with translations to French and German.
 
 {{< code-toggle file="config" >}}
-defaultContentLang = 'en'
+defaultContentLanguage = 'en'
 
 [languages]
 [languages.en]
