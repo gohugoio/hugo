@@ -107,6 +107,10 @@ func (f TimeFormatter) Format(t time.Time, layout string) string {
 			return f.ltr.FmtDateMedium(t)
 		case "date_short":
 			return f.ltr.FmtDateShort(t)
+		case "date_time":
+			return t.Format("2006-01-02 15:04:05")
+		case "date_only":
+			return t.Format("2006-01-02")
 		case "time_full":
 			return f.ltr.FmtTimeFull(t)
 		case "time_long":
@@ -115,6 +119,8 @@ func (f TimeFormatter) Format(t time.Time, layout string) string {
 			return f.ltr.FmtTimeMedium(t)
 		case "time_short":
 			return f.ltr.FmtTimeShort(t)
+		case "time_only":
+			return t.Format("15:04:05")
 		}
 	}
 

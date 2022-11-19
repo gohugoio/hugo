@@ -63,11 +63,14 @@ func TestTimeFormatter(t *testing.T) {
 		c.Assert(f.Format(june06, ":date_long"), qt.Equals, "June 6, 2018")
 		c.Assert(f.Format(june06, ":date_medium"), qt.Equals, "Jun 6, 2018")
 		c.Assert(f.Format(june06, ":date_short"), qt.Equals, "6/6/18")
+		c.Assert(f.Format(june06, ":date_time"), qt.Equals, "2018-06-06 02:09:37")
+		c.Assert(f.Format(june06, ":date_only"), qt.Equals, "2018-06-06")
 
 		c.Assert(f.Format(june06, ":time_full"), qt.Equals, "2:09:37 am UTC")
 		c.Assert(f.Format(june06, ":time_long"), qt.Equals, "2:09:37 am UTC")
 		c.Assert(f.Format(june06, ":time_medium"), qt.Equals, "2:09:37 am")
 		c.Assert(f.Format(june06, ":time_short"), qt.Equals, "2:09 am")
+		c.Assert(f.Format(june06, ":time_only"), qt.Equals, "02:09:37")
 
 	})
 

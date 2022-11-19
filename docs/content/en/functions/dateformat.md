@@ -46,8 +46,11 @@ The full list of custom layouts with examples for English:
 * `:date_long` => `June 6, 2018`
 * `:date_medium` => `Jun 6, 2018`
 * `:date_short` => `6/6/18`
+* `:date_time` => `2018-06-06 02:09:37`
+* `:date_only` => `2018-06-06`
 
 * `:time_full` => `2:09:37 am UTC`
 * `:time_long` => `2:09:37 am UTC`
 * `:time_medium` => `2:09:37 am`
 * `:time_short` => `2:09 am`
+* `:time_only` => `02:09:37`
