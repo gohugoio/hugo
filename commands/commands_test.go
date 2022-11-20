@@ -117,11 +117,13 @@ func TestExecute(t *testing.T) {
 
 func checkNewSiteInited(c *qt.C, basepath string) {
 	paths := []string{
-		filepath.Join(basepath, "layouts"),
-		filepath.Join(basepath, "content"),
 		filepath.Join(basepath, "archetypes"),
-		filepath.Join(basepath, "static"),
+		filepath.Join(basepath, "assets"),
+		filepath.Join(basepath, "content"),
 		filepath.Join(basepath, "data"),
+		filepath.Join(basepath, "layouts"),
+		filepath.Join(basepath, "static"),
+		filepath.Join(basepath, "themes"),
 		filepath.Join(basepath, "config.toml"),
 	}
 
