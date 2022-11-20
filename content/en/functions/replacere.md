@@ -5,7 +5,7 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [regex]
+keywords: [replace regex]
 signature:
   - "replaceRE PATTERN REPLACEMENT INPUT [LIMIT]"
   - "strings.ReplaceRE PATTERN REPLACEMENT INPUT [LIMIT]"

@@ -8,7 +8,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-keywords: []
+keywords: [replace]
 signature: ["strings.Replace INPUT OLD NEW [LIMIT]", "replace INPUT OLD NEW [LIMIT]"]
 workson: []
 hugoversion:
