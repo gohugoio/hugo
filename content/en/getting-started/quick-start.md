@@ -49,8 +49,6 @@ hugo version
 
 It should state that it is `extended`. If it does not, uninstall it and try another installation method.
 
-{{< asciicast ItACREbFgvJ0HjnSNeTknxWy9 >}}
-
 ## Step 2: Create a New Site
 
 ```bash
@@ -58,8 +56,6 @@ hugo new site quickstart
 ```
 
 The above will create a new Hugo site in a folder named `quickstart`.
-
-{{< asciicast 3mf1JGaN0AX0Z7j5kLGl3hSh8 >}}
 
 ## Step 3: Add a Theme
 
@@ -79,8 +75,6 @@ Then, add the theme to the site configuration:
 echo theme = \"ananke\" >> config.toml
 ```
 
-{{< asciicast 7naKerRYUGVPj8kiDmdh5k5h9 >}}
-
 ## Step 4: Add Some Content
 
 You can manually create content files (for example as `content/<CATEGORY>/<FILE>.<FORMAT>`) and provide metadata in them, however you can use the `new` command to do a few things for you (like add title and date):
@@ -88,8 +82,6 @@ You can manually create content files (for example as `content/<CATEGORY>/<FILE>
 ```txt
 hugo new posts/my-first-post.md
 ```
-
-{{< asciicast eUojYCfRTZvkEiqc52fUsJRBR >}}
 
 Edit the newly created content file if you want, it will start with something like this:
 
@@ -109,8 +101,6 @@ Drafts do not get deployed; once you finish a post, update the header of the pos
 ## Step 5: Start the Hugo server
 
 Now, start the Hugo server with [drafts](/getting-started/usage/#draft-future-and-expired-content) enabled:
-
-{{< asciicast BvJBsF6egk9c163bMsObhuNXj >}}
 
 ```txt
 ▶ hugo server -D
