@@ -11,7 +11,9 @@ menu:
   docs:
     parent: "functions"
 toc:
-signature: ["upper INPUT"]
+signature:
+  - "upper INPUT"
+  - "strings.ToUpper INPUT"
 workson: []
 hugoversion:
 relatedfuncs: []
