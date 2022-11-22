@@ -33,7 +33,7 @@ You must also be comfortable working from the command line.
 
 ### Commands
 
-Run these commands to create a Hugo site with the [Ananke] theme. The next section provides an explantion of each command.
+Run these commands to create a Hugo site with the [Ananke] theme. The next section provides an explanation of each command.
 
 ```text
 hugo new site quickstart
