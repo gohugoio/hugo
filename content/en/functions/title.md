@@ -10,7 +10,9 @@ menu:
   docs:
     parent: "functions"
 keywords: [strings]
-signature: ["title INPUT"]
+signature:
+  - "title INPUT"
+  - "strings.Title INPUT"
 workson: []
 hugoversion:
 relatedfuncs: []

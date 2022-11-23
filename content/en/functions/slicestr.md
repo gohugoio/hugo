@@ -10,7 +10,9 @@ menu:
   docs:
     parent: "functions"
 keywords: [strings]
-signature: ["slicestr STRING START [END]"]
+signature:
+  - "slicestr STRING START [END]"
+  - "strings.SliceStr STRING START [END]"
 workson: []
 hugoversion:
 relatedfuncs: []

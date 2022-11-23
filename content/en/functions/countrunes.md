@@ -9,7 +9,9 @@ menu:
   docs:
     parent: "functions"
 keywords: [counting, word count]
-signature: ["countrunes INPUT"]
+signature:
+  - "countrunes INPUT"
+  - "strings.CountRunes INPUT"
 workson: []
 hugoversion:
 relatedfuncs: []

@@ -10,7 +10,9 @@ menu:
   docs:
     parent: "functions"
 keywords: [strings]
-signature: ["trim INPUT CUTSET"]
+signature:
+  - "trim INPUT CUTSET"
+  - "strings.Trim INPUT CUTSET"
 workson: []
 hugoversion:
 relatedfuncs: []

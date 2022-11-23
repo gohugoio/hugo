@@ -10,7 +10,9 @@ menu:
   docs:
     parent: "functions"
 keywords: [trim]
-signature: ["chomp INPUT"]
+signature:
+  - "chomp INPUT"
+  - "strings.Chomp INPUT"
 workson: []
 hugoversion:
 relatedfuncs: [truncate]

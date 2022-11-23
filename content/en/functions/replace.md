@@ -9,7 +9,9 @@ menu:
   docs:
     parent: "functions"
 keywords: [replace]
-signature: ["strings.Replace INPUT OLD NEW [LIMIT]", "replace INPUT OLD NEW [LIMIT]"]
+signature: 
+  - "replace INPUT OLD NEW [LIMIT]"
+  - "strings.Replace INPUT OLD NEW [LIMIT]"
 workson: []
 hugoversion:
 relatedfuncs: [replaceRE]
