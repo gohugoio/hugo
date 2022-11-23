@@ -11,10 +11,8 @@ menu:
     parent: "functions"
 keywords: [strings]
 signature:
-  - "truncate SIZE INPUT"
-  - "strings.Truncate SIZE ELLIPSIS INPUT"
-  - "truncate SIZE INPUT"
-  - "strings.Truncate SIZE ELLIPSIS INPUT"
+  - "truncate SIZE [ELLIPSIS] INPUT"
+  - "strings.Truncate SIZE [ELLIPSIS] INPUT"
 workson: []
 hugoversion: 19
 relatedfuncs: []

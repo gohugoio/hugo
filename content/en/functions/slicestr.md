@@ -12,7 +12,7 @@ menu:
 keywords: [strings]
 signature:
   - "slicestr STRING START [END]"
-  - "strings.SliceStr STRING START [END]"
+  - "strings.SliceString STRING START [END]"
 workson: []
 hugoversion:
 relatedfuncs: []
