@@ -55,6 +55,7 @@ With `baseURL = https://example.org/docs/`
 {{ absLangURL "/" }}          →   https://example.org/en/
 {{ absLangURL "/articles" }}  →   https://example.org/en/articles
 {{ absLangURL "/style.css" }} →   https://example.org/en/style.css
+```
 
 {{% note %}}
 The last three examples are not desirable in most situations. As a best practice, never include a leading slash when using this function.
