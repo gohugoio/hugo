@@ -171,7 +171,7 @@ Most theme authors provide configuration guidelines and options. Make sure to vi
 
 [demonstration site]: https://gohugo-ananke-theme-demo.netlify.app/
 [documentation]: https://github.com/theNewDynamic/gohugo-theme-ananke#readme
-[The New Dynamic]: [https://www.thenewdynamic.com/]
+[The New Dynamic]: https://www.thenewdynamic.com/
 {{% /note %}}
 
 ## Publish the site
@@ -199,7 +199,7 @@ For other resources to help you learn Hugo, including books and video tutorials,
 [Ananke]: https://github.com/theNewDynamic/gohugo-theme-ananke
 [directory structure]: /getting-started/directory-structure
 [draft, future, and expired content]: /getting-started/usage/#draft-future-and-expired-content
-[draft, future, or expired content]: /getting-started/usage/#draft-future-end-expired-content
+[draft, future, or expired content]: /getting-started/usage/#draft-future-and-expired-content
 [external learning resources]:/getting-started/external-learning-resources/
 [forum]: https://discourse.gohugo.io/
 [forum]: https://discourse.gohugo.io/
