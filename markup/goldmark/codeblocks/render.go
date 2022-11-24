@@ -19,11 +19,11 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/alecthomas/chroma/v2/lexers"
 	"github.com/gohugoio/hugo/common/herrors"
 	htext "github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
+	"github.com/gohugoio/hugo/markup/highlight/chromalexers"
 	"github.com/gohugoio/hugo/markup/internal/attributes"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/ast"
@@ -94,7 +94,7 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 	}
 
 	attrtp := attributes.AttributesOwnerCodeBlockCustom
-	if isd, ok := renderer.(hooks.IsDefaultCodeBlockRendererProvider); (ok && isd.IsDefaultCodeBlockRenderer()) || lexers.Get(lang) != nil {
+	if isd, ok := renderer.(hooks.IsDefaultCodeBlockRendererProvider); (ok && isd.IsDefaultCodeBlockRenderer()) || chromalexers.Get(lang) != nil {
 		// We say that this is a Chroma code block if it's the default code block renderer
 		// or if the language is supported by Chroma.
 		attrtp = attributes.AttributesOwnerCodeBlockChroma
