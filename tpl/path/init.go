@@ -46,11 +46,11 @@ func init() {
 		ns.AddMethodMapping(ctx.Join,
 			nil,
 			[][2]string{
-				{fmt.Sprintf(`{{ slice %q "filename.txt" | path.Join  }}`, testDir), `my/path/filename.txt`},
-				{`{{  path.Join "my" "path" "filename.txt" }}`, `my/path/filename.txt`},
-				{fmt.Sprintf(`{{ %q | path.Ext  }}`, testFile), `.txt`},
-				{fmt.Sprintf(`{{ %q | path.Base  }}`, testFile), `filename.txt`},
-				{fmt.Sprintf(`{{ %q | path.Dir  }}`, testFile), `my/path`},
+				{fmt.Sprintf(`{{ slice %q "filename.txt" | path.Join }}`, testDir), `my/path/filename.txt`},
+				{`{{ path.Join "my" "path" "filename.txt" }}`, `my/path/filename.txt`},
+				{fmt.Sprintf(`{{ %q | path.Ext }}`, testFile), `.txt`},
+				{fmt.Sprintf(`{{ %q | path.Base }}`, testFile), `filename.txt`},
+				{fmt.Sprintf(`{{ %q | path.Dir }}`, testFile), `my/path`},
 			},
 		)
 
