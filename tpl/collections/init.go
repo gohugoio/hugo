@@ -42,7 +42,7 @@ func init() {
 		ns.AddMethodMapping(ctx.Complement,
 			[]string{"complement"},
 			[][2]string{
-				{`{{ slice "a" "b" "c" "d" "e" "f" | complement (slice "b" "c") (slice "d" "e")  }}`, `[a f]`},
+				{`{{ slice "a" "b" "c" "d" "e" "f" | complement (slice "b" "c") (slice "d" "e") }}`, `[a f]`},
 			},
 		)
 
@@ -197,11 +197,11 @@ func init() {
 					`[Yes, Hugo Rocks! Hugo Rocks!]`,
 				},
 				{
-					`{{  merge (dict "title" "Default Title" "description" "Yes, Hugo Rocks!") (dict "title" "Hugo Rocks!") | sort }}`,
+					`{{ merge (dict "title" "Default Title" "description" "Yes, Hugo Rocks!") (dict "title" "Hugo Rocks!") | sort }}`,
 					`[Yes, Hugo Rocks! Hugo Rocks!]`,
 				},
 				{
-					`{{  merge (dict "title" "Default Title" "description" "Yes, Hugo Rocks!") (dict "title" "Hugo Rocks!") (dict "extra" "For reals!") | sort }}`,
+					`{{ merge (dict "title" "Default Title" "description" "Yes, Hugo Rocks!") (dict "title" "Hugo Rocks!") (dict "extra" "For reals!") | sort }}`,
 					`[Yes, Hugo Rocks! For reals! Hugo Rocks!]`,
 				},
 			},
