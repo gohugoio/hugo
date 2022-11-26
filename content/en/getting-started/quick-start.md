@@ -205,7 +205,7 @@ For other resources to help you learn Hugo, including books and video tutorials,
 [external learning resources]:/getting-started/external-learning-resources/
 [forum]: https://discourse.gohugo.io/
 [forum]: https://discourse.gohugo.io/
-[front matter]: content-management/front-matter
+[front matter]: /content-management/front-matter
 [Git submodule]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
 [hosting and deployment]: /hosting-and-deployment/
 [Install Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
