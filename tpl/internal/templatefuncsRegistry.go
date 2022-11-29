@@ -141,6 +141,22 @@ func (t goDocFunc) toJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+// ToMap returns a limited map representation of the namespaces.
+func (namespaces TemplateFuncsNamespaces) ToMap() map[string]any {
+	m := make(map[string]any)
+	for _, ns := range namespaces {
+		mm := make(map[string]any)
+		for name, mapping := range ns.MethodMappings {
+			mm[name] = map[string]any{
+				"Examples": mapping.Examples,
+				"Aliases":  mapping.Aliases,
+			}
+		}
+		m[ns.Name] = mm
+	}
+	return m
+}
+
 // MarshalJSON returns the JSON encoding of namespaces.
 func (namespaces TemplateFuncsNamespaces) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
