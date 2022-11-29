@@ -22,7 +22,7 @@ const name = "diagrams"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		ctx := &Diagrams{
+		ctx := &Namespace{
 			d: d,
 		}
 
