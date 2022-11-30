@@ -416,6 +416,10 @@ func (p *testPage) Parent() Page {
 	panic("not implemented")
 }
 
+func (p *testPage) Ancestors() Pages {
+	panic("not implemented")
+}
+
 func (p *testPage) Path() string {
 	return p.path
 }

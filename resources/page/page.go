@@ -407,6 +407,9 @@ type TreeProvider interface {
 	// To get a section's subsections, see Page's Sections method.
 	Parent() Page
 
+	// Ancestors returns the ancestors of each page
+	Ancestors() Pages
+
 	// Sections returns this section's subsections, if any.
 	// Note that for non-sections, this method will always return an empty list.
 	Sections() Pages

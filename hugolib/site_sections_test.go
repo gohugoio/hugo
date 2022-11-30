@@ -181,12 +181,14 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			c.Assert(err, qt.IsNil)
 			c.Assert(active, qt.Equals, true)
 			c.Assert(p.FirstSection(), qt.Equals, p)
+			c.Assert(len(p.Ancestors()), qt.Equals, 1)
 		}},
 		{"l1", func(c *qt.C, p page.Page) {
 			c.Assert(p.Title(), qt.Equals, "L1s")
 			c.Assert(len(p.Pages()), qt.Equals, 4) // 2 pages + 2 sections
 			c.Assert(p.Parent().IsHome(), qt.Equals, true)
 			c.Assert(len(p.Sections()), qt.Equals, 2)
+			c.Assert(len(p.Ancestors()), qt.Equals, 1)
 		}},
 		{"l1,l2", func(c *qt.C, p page.Page) {
 			c.Assert(p.Title(), qt.Equals, "T2_-1")
@@ -195,6 +197,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			c.Assert(p.Parent().Title(), qt.Equals, "L1s")
 			c.Assert(p.RelPermalink(), qt.Equals, "/l1/l2/")
 			c.Assert(len(p.Sections()), qt.Equals, 1)
+			c.Assert(len(p.Ancestors()), qt.Equals, 2)
 
 			for _, child := range p.Pages() {
 				if child.IsSection() {
@@ -237,6 +240,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			c.Assert(p.Pages()[0].File().Path(), qt.Equals, filepath.FromSlash("l1/l2_2/page_2_2_1.md"))
 			c.Assert(p.Parent().Title(), qt.Equals, "L1s")
 			c.Assert(len(p.Sections()), qt.Equals, 0)
+			c.Assert(len(p.Ancestors()), qt.Equals, 2)
 		}},
 		{"l1,l2,l3", func(c *qt.C, p page.Page) {
 			nilp, _ := p.GetPage("this/does/not/exist")
@@ -245,6 +249,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			c.Assert(len(p.Pages()), qt.Equals, 2)
 			c.Assert(p.Parent().Title(), qt.Equals, "T2_-1")
 			c.Assert(len(p.Sections()), qt.Equals, 0)
+			c.Assert(len(p.Ancestors()), qt.Equals, 3)
 
 			l1 := getPage(p, "/l1")
 			isDescendant, err := l1.IsDescendant(p)
@@ -307,6 +312,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 	}
 
 	c.Assert(home, qt.Not(qt.IsNil))
+	c.Assert(len(home.Ancestors()), qt.Equals, 0)
 
 	c.Assert(len(home.Sections()), qt.Equals, 9)
 	c.Assert(s.Info.Sections(), deepEqualsPages, home.Sections())
