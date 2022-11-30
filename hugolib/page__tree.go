@@ -178,6 +178,15 @@ func (pt pageTree) Parent() page.Page {
 	return b.p
 }
 
+func (pt pageTree) Parents() (parents []page.Page) {
+	var parent page.Page
+	for parent != nil {
+		parent = pt.Parent()
+		parents = append(parents, parent)
+	}
+	return
+}
+
 func (pt pageTree) Sections() page.Pages {
 	if pt.p.bucket == nil {
 		return nil
