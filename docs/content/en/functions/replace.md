@@ -8,11 +8,13 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-keywords: []
-signature: ["strings.Replace INPUT OLD NEW [LIMIT]", "replace INPUT OLD NEW [LIMIT]"]
+keywords: [replace]
+signature: 
+  - "replace INPUT OLD NEW [LIMIT]"
+  - "strings.Replace INPUT OLD NEW [LIMIT]"
 workson: []
 hugoversion:
-relatedfuncs: []
+relatedfuncs: [replaceRE]
 deprecated: false
 aliases: []
 ---
