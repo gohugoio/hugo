@@ -9,7 +9,9 @@ menu:
   docs:
     parent: "functions"
 keywords: [dates,time,strings]
-signature: ["time.Format LAYOUT INPUT"]
+signature:
+  - "time.Format LAYOUT INPUT"
+  - "dateFormat LAYOUT INPUT"
 workson: []
 hugoversion:
 relatedfuncs: [Format,now,Unix,time]

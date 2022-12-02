@@ -20,18 +20,20 @@ toc: true
 
 {{< youtube sB0HLHjgQ7E >}}
 
-Running the `hugo new site` generator from the command-line will create a directory structure with the following elements:
+Running `hugo new site example` from the command line creates a directory structure with the following elements:
 
 ```txt
-.
-├── archetypes
-├── config.toml
-├── content
-├── data
-├── layouts
-├── public
-├── static
-└── themes
+example/
+├── archetypes/
+│   └── default.md
+├── assets/
+├── content/
+├── data/
+├── layouts/
+├── public/
+├── static/
+├── themes/
+└── config.toml
 ```
 
 ## Directory Structure Explained
@@ -43,7 +45,7 @@ The following is a high-level overview of each of the directories with links to 
 By default, Hugo will create new content files with at least `date`, `title` (inferred from the filename), and `draft = true`. This saves time and promotes consistency for sites using multiple content types. You can create your own [archetypes][] with custom preconfigured front matter fields as well.
 
 [`assets`][]
-: Stores all the files which need be processed by [Hugo Pipes](/hugo-pipes/). Only the files whose `.Permalink` or `.RelPermalink` are used will be published to the `public` directory. Note: assets directory is not created by default.
+: Stores all the files which need be processed by [Hugo Pipes](/hugo-pipes/). Only the files whose `.Permalink` or `.RelPermalink` are used will be published to the `public` directory.
 
 [`config`](/getting-started/configuration/)
 : Hugo ships with a large number of [configuration directives][].

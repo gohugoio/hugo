@@ -22,7 +22,7 @@ aliases: []
 `hugo` returns an instance that contains the following functions:
 
 hugo.Generator
-: `<meta>` tag for the version of Hugo that generated the site. `hugo.Generator` outputs a *complete* HTML tag; e.g. `<meta name="generator" content="Hugo 0.99.1" />`
+: `<meta>` tag for the version of Hugo that generated the site. `hugo.Generator` outputs a *complete* HTML tag; e.g. `<meta name="generator" content="Hugo 0.63.2">`
 
 hugo.Version
 : the current version of the Hugo binary you are using e.g. `0.99.1`

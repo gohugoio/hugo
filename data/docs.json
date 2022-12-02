@@ -101,15 +101,6 @@
         ]
       },
       {
-        "Name": "Base Makefile",
-        "Aliases": [
-          "make",
-          "makefile",
-          "mf",
-          "bsdmake"
-        ]
-      },
-      {
         "Name": "Bash",
         "Aliases": [
           "bash",
@@ -161,6 +152,12 @@
         "Name": "BNF",
         "Aliases": [
           "bnf"
+        ]
+      },
+      {
+        "Name": "BQN",
+        "Aliases": [
+          "bqn"
         ]
       },
       {
@@ -612,6 +609,12 @@
         ]
       },
       {
+        "Name": "HLSL",
+        "Aliases": [
+          "hlsl"
+        ]
+      },
+      {
         "Name": "HTML",
         "Aliases": [
           "html"
@@ -718,6 +721,15 @@
         "Name": "Lua",
         "Aliases": [
           "lua"
+        ]
+      },
+      {
+        "Name": "Makefile",
+        "Aliases": [
+          "make",
+          "makefile",
+          "mf",
+          "bsdmake"
         ]
       },
       {
@@ -1004,7 +1016,8 @@
           "posh",
           "ps1",
           "psm1",
-          "psd1"
+          "psd1",
+          "pwsh"
         ]
       },
       {
@@ -1030,6 +1043,12 @@
         "Aliases": [
           "protobuf",
           "proto"
+        ]
+      },
+      {
+        "Name": "PSL",
+        "Aliases": [
+          "psl"
         ]
       },
       {
@@ -1186,6 +1205,14 @@
         ]
       },
       {
+        "Name": "Sed",
+        "Aliases": [
+          "sed",
+          "gsed",
+          "ssed"
+        ]
+      },
+      {
         "Name": "Sieve",
         "Aliases": [
           "sieve"
@@ -1243,6 +1270,10 @@
         "Aliases": [
           "sml"
         ]
+      },
+      {
+        "Name": "stas",
+        "Aliases": null
       },
       {
         "Name": "Stylus",
@@ -1411,6 +1442,13 @@
         ]
       },
       {
+        "Name": "Vala",
+        "Aliases": [
+          "vala",
+          "vapi"
+        ]
+      },
+      {
         "Name": "VB.net",
         "Aliases": [
           "vb.net",
@@ -1428,6 +1466,14 @@
         "Name": "VHDL",
         "Aliases": [
           "vhdl"
+        ]
+      },
+      {
+        "Name": "VHS",
+        "Aliases": [
+          "vhs",
+          "tape",
+          "cassette"
         ]
       },
       {
@@ -1693,22 +1739,6 @@
     "types": [
       {
         "mainType": "application",
-        "subType": "javascript",
-        "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "js",
-          "fullSuffix": ".js"
-        },
-        "type": "application/javascript",
-        "string": "application/javascript",
-        "suffixes": [
-          "js",
-          "jsm",
-          "mjs"
-        ]
-      },
-      {
-        "mainType": "application",
         "subType": "json",
         "delimiter": ".",
         "firstSuffix": {
@@ -1790,20 +1820,6 @@
         "string": "application/toml",
         "suffixes": [
           "toml"
-        ]
-      },
-      {
-        "mainType": "application",
-        "subType": "typescript",
-        "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "ts",
-          "fullSuffix": ".ts"
-        },
-        "type": "application/typescript",
-        "string": "application/typescript",
-        "suffixes": [
-          "ts"
         ]
       },
       {
@@ -2009,6 +2025,22 @@
       },
       {
         "mainType": "text",
+        "subType": "javascript",
+        "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "js",
+          "fullSuffix": ".js"
+        },
+        "type": "text/javascript",
+        "string": "text/javascript",
+        "suffixes": [
+          "js",
+          "jsm",
+          "mjs"
+        ]
+      },
+      {
+        "mainType": "text",
         "subType": "jsx",
         "delimiter": ".",
         "firstSuffix": {
@@ -2062,6 +2094,20 @@
         "string": "text/tsx",
         "suffixes": [
           "tsx"
+        ]
+      },
+      {
+        "mainType": "text",
+        "subType": "typescript",
+        "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "ts",
+          "fullSuffix": ".ts"
+        },
+        "type": "text/typescript",
+        "string": "text/typescript",
+        "suffixes": [
+          "ts"
         ]
       },
       {

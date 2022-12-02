@@ -12,8 +12,6 @@ images:
 
 Hugo has been caching the highlighter output to disk, so for repeated builds it has been fine, but this little snippet, showing a build of the [gohugo.io](https://gohugo.io/) site without cache and with both Pygments and Chroma, should illustrate the improvement:
 
-{{< asciicast Lc5iwTVny2kuUC8lqvNnL6oDU >}}
-
 See the [Updated Documentation](https://gohugo.io/content-management/syntax-highlighting/) for more information about how this works.
 
 Worth mentioning is also the `liveReloadPort`  flag on `hugo server`, which makes it possible to do "live reloads" behind a HTTPS proxy, which makes for very cool remote customer demos.
@@ -61,4 +59,3 @@ Hugo now has:
 * Add `liveReloadPort` flag to server [b1804776](https://github.com/gohugoio/hugo/commit/b180477631555824a06293053e2b6e63c5f07361) [@bep](https://github.com/bep) [#3882](https://github.com/gohugoio/hugo/issues/3882)
 * Add `noHTTPCache` flag to hugo server (default on) [0b34af21](https://github.com/gohugoio/hugo/commit/0b34af216154367af7f53ce93d44e6b3d58c3f34) [@bep](https://github.com/bep) [#3897](https://github.com/gohugoio/hugo/issues/3897)
 * Make `noHTTPCache` default on [80c7ea60](https://github.com/gohugoio/hugo/commit/80c7ea60a0e0f488563a6b7311f3d4c23457aac7) [@bep](https://github.com/bep) [#3897](https://github.com/gohugoio/hugo/issues/3897)
-
