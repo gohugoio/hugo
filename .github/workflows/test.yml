@@ -3,6 +3,11 @@ on:
     branches: [ master ]
   pull_request:
 name: Test
+env:
+  DART_SASS_VERSION: 1.56.1
+  DART_SASS_SHA_LINUX: c6dd75ab1acb2cab98982a32622c0ba631cfaa753e7bac84efd32c6c19ea9303
+  DART_SASS_SHA_MACOS: df6f4813501f906ffc8f8af865452b037bc1c3a17448c4b8ffa3be82793eb0c8
+  DART_SASS_SHA_WINDOWS: c8bf9c009afd6bbeb1742e010845b84e1021fdba6edc80b4dd1fbbee75354b39
 permissions:
   contents: read
 jobs:
@@ -65,23 +70,23 @@ jobs:
     - if: matrix.os == 'ubuntu-latest'
       name: Install dart-sass-embedded Linux
       run: |
-        curl -LJO https://github.com/sass/dart-sass-embedded/releases/download/1.0.0-beta.6/sass_embedded-1.0.0-beta.6-linux-x64.tar.gz;
-        echo "04fc1e5e28d29a4585a701941b6dace56771d94bfbe7f9e4db28d24417ceeec3  sass_embedded-1.0.0-beta.6-linux-x64.tar.gz" | sha256sum -c;
-        tar -xvf sass_embedded-1.0.0-beta.6-linux-x64.tar.gz;
+        curl -LJO https://github.com/sass/dart-sass-embedded/releases/download/${DART_SASS_VERSION}/sass_embedded-${DART_SASS_VERSION}-linux-x64.tar.gz;
+        echo "${DART_SASS_SHA_LINUX}  sass_embedded-${DART_SASS_VERSION}-linux-x64.tar.gz" | sha256sum -c;
+        tar -xvf sass_embedded-${DART_SASS_VERSION}-linux-x64.tar.gz;
         echo "$GITHUB_WORKSPACE/sass_embedded/" >> $GITHUB_PATH
     - if: matrix.os == 'macos-latest'
       name: Install dart-sass-embedded MacOS
       run: |
-        curl -LJO https://github.com/sass/dart-sass-embedded/releases/download/1.0.0-beta.6/sass_embedded-1.0.0-beta.6-macos-x64.tar.gz;
-        echo "b3b984675a9b04aa22f6f2302dda4191b507ac2ca124467db2dfe7e58e72fbad  sass_embedded-1.0.0-beta.6-macos-x64.tar.gz" | shasum -a 256 -c;
-        tar -xvf sass_embedded-1.0.0-beta.6-macos-x64.tar.gz;
+        curl -LJO https://github.com/sass/dart-sass-embedded/releases/download/${DART_SASS_VERSION}/sass_embedded-${DART_SASS_VERSION}-macos-x64.tar.gz;
+        echo "${DART_SASS_SHA_MACOS} sass_embedded-${DART_SASS_VERSION}-macos-x64.tar.gz" | shasum -a 256 -c;
+        tar -xvf sass_embedded-${DART_SASS_VERSION}-macos-x64.tar.gz;
         echo "$GITHUB_WORKSPACE/sass_embedded/" >> $GITHUB_PATH
     - if: matrix.os == 'windows-latest'
       name: Install dart-sass-embedded Windows
       run: |
-        curl -LJO https://github.com/sass/dart-sass-embedded/releases/download/1.0.0-beta.6/sass_embedded-1.0.0-beta.6-windows-x64.zip;
-        echo "6ae442129dbb3334bc21ef851261da6c0c1b560da790ca2e1350871d00ab816d  sass_embedded-1.0.0-beta.6-windows-x64.zip" | sha256sum -c;
-        unzip sass_embedded-1.0.0-beta.6-windows-x64.zip;
+        curl -LJO https://github.com/sass/dart-sass-embedded/releases/download/${DART_SASS_VERSION}/sass_embedded-${DART_SASS_VERSION}-windows-x64.zip;
+        echo "${DART_SASS_SHA_WINDOWS} sass_embedded-${DART_SASS_VERSION}-windows-x64.zip" | sha256sum -c;
+        unzip sass_embedded-${DART_SASS_VERSION}-windows-x64.zip;
         echo  "$env:GITHUB_WORKSPACE/sass_embedded/" | Out-File -FilePath $Env:GITHUB_PATH -Encoding utf-8 -Append
     - name: Check
       run: |
