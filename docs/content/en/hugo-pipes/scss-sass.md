@@ -38,6 +38,9 @@ precision [int]
 enableSourceMap [bool]
 : When enabled, a source map will be generated.
 
+sourceMapIncludeSources [bool]
+: When enabled, sources will be embedded in the generated source map. (Dart Sass only). {{< new-in "0.108.0" >}}
+
 includePaths [string slice]
 : Additional SCSS/Sass include paths. Paths must be relative to the project directory.
 
