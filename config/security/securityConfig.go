@@ -45,7 +45,7 @@ var DefaultConfig = Config{
 		OsEnv: NewWhitelist("(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM)$"),
 	},
 	Funcs: Funcs{
-		Getenv: NewWhitelist("^HUGO_"),
+		Getenv: NewWhitelist("^HUGO_", "^CI$"),
 	},
 	HTTP: HTTP{
 		URLs:    NewWhitelist(".*"),
