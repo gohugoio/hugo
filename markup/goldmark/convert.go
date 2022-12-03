@@ -17,11 +17,11 @@ package goldmark
 import (
 	"bytes"
 
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/goldmark/codeblocks"
+	"github.com/gohugoio/hugo/markup/goldmark/images"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/extensions/attributes"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
-
-	"github.com/gohugoio/hugo/identity"
 
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
@@ -31,6 +31,10 @@ import (
 	"github.com/yuin/goldmark/renderer"
 	"github.com/yuin/goldmark/renderer/html"
 	"github.com/yuin/goldmark/text"
+)
+
+const (
+	internalAttrPrefix = "_h__"
 )
 
 // Provider is the package entry point.
@@ -92,6 +96,8 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 		parserOptions []parser.Option
 	)
 
+	extensions = append(extensions, images.New(cfg.Parser.WrapStandAloneImageWithinParagraph))
+
 	if mcfg.Highlight.CodeFences {
 		extensions = append(extensions, codeblocks.New())
 	}
@@ -131,7 +137,6 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 	if cfg.Parser.Attribute.Title {
 		parserOptions = append(parserOptions, parser.WithAttribute())
 	}
-
 	if cfg.Parser.Attribute.Block {
 		extensions = append(extensions, attributes.New())
 	}

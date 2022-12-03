@@ -37,6 +37,12 @@ type LinkContext interface {
 	PlainText() string
 }
 
+type ImageLinkContext interface {
+	LinkContext
+	IsBlock() bool
+	Ordinal() int
+}
+
 type CodeblockContext interface {
 	AttributesProvider
 	text.Positioner
