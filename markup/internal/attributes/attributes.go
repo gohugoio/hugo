@@ -126,6 +126,9 @@ func (a Attribute) ValueString() string {
 	return cast.ToString(a.Value)
 }
 
+// Empty holds no attributes.
+var Empty = &AttributesHolder{}
+
 type AttributesHolder struct {
 	// What we get from Goldmark.
 	attributes []Attribute
