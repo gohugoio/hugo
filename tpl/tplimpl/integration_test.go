@@ -115,3 +115,48 @@ counter2: 3
 `)
 
 }
+
+// Issue 10495
+func TestCommentsBeforeBlockDefinition(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+baseURL = 'http://example.com/'
+-- content/s1/p1.md --
+---
+title: "S1P1"
+---
+-- content/s2/p1.md --
+---
+title: "S2P1"
+---
+-- content/s3/p1.md --
+---
+title: "S3P1"
+---
+-- layouts/_default/baseof.html --
+{{ block "main" . }}{{ end }}
+-- layouts/s1/single.html --
+{{/* foo */}}
+{{ define "main" }}{{ .Title }}{{ end }}
+-- layouts/s2/single.html --
+{{- /* foo */}}
+{{ define "main" }}{{ .Title }}{{ end }}
+-- layouts/s3/single.html --
+{{- /* foo */ -}}
+{{ define "main" }}{{ .Title }}{{ end }}
+	`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	)
+	b.Build()
+
+	b.AssertFileContent("public/s1/p1/index.html", `S1P1`)
+	b.AssertFileContent("public/s2/p1/index.html", `S2P1`)
+	b.AssertFileContent("public/s3/p1/index.html", `S3P1`)
+}
