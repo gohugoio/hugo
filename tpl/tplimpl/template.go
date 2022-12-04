@@ -91,9 +91,15 @@ func needsBaseTemplate(templ string) bool {
 		if !inComment && strings.HasPrefix(templ[i:], "{{/*") {
 			inComment = true
 			i += 4
+		} else if !inComment && strings.HasPrefix(templ[i:], "{{- /*") {
+			inComment = true
+			i += 6
 		} else if inComment && strings.HasPrefix(templ[i:], "*/}}") {
 			inComment = false
 			i += 4
+		} else if inComment && strings.HasPrefix(templ[i:], "*/ -}}") {
+			inComment = false
+			i += 6
 		} else {
 			r, size := utf8.DecodeRuneInString(templ[i:])
 			if !inComment {
