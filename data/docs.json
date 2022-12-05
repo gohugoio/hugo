@@ -1572,7 +1572,8 @@
           "attribute": {
             "title": true,
             "block": false
-          }
+          },
+          "wrapStandAloneImageWithinParagraph": true
         },
         "extensions": {
           "typographer": true,
@@ -1722,7 +1723,8 @@
       },
       "funcs": {
         "getenv": [
-          "^HUGO_"
+          "^HUGO_",
+          "^CI$"
         ]
       },
       "http": {
@@ -3195,7 +3197,7 @@
           ],
           "Examples": [
             [
-              "{{ slice \"a\" \"b\" \"c\" \"d\" \"e\" \"f\" | complement (slice \"b\" \"c\") (slice \"d\" \"e\")  }}",
+              "{{ slice \"a\" \"b\" \"c\" \"d\" \"e\" \"f\" | complement (slice \"b\" \"c\") (slice \"d\" \"e\") }}",
               "[a f]"
             ]
           ]
@@ -3356,11 +3358,11 @@
               "[Yes, Hugo Rocks! Hugo Rocks!]"
             ],
             [
-              "{{  merge (dict \"title\" \"Default Title\" \"description\" \"Yes, Hugo Rocks!\") (dict \"title\" \"Hugo Rocks!\") | sort }}",
+              "{{ merge (dict \"title\" \"Default Title\" \"description\" \"Yes, Hugo Rocks!\") (dict \"title\" \"Hugo Rocks!\") | sort }}",
               "[Yes, Hugo Rocks! Hugo Rocks!]"
             ],
             [
-              "{{  merge (dict \"title\" \"Default Title\" \"description\" \"Yes, Hugo Rocks!\") (dict \"title\" \"Hugo Rocks!\") (dict \"extra\" \"For reals!\") | sort }}",
+              "{{ merge (dict \"title\" \"Default Title\" \"description\" \"Yes, Hugo Rocks!\") (dict \"title\" \"Hugo Rocks!\") (dict \"extra\" \"For reals!\") | sort }}",
               "[Yes, Hugo Rocks! For reals! Hugo Rocks!]"
             ]
           ]
@@ -3632,7 +3634,7 @@
           "Aliases": null,
           "Examples": [
             [
-              "{{- $m := newScratch -}}\n{{- $m.Set \"Hugo\" \"Rocks!\" -}}\n{{- $m.Values | debug.Dump | safeHTML -}}",
+              "{{ $m := newScratch }}\n{{ $m.Set \"Hugo\" \"Rocks!\" }}\n{{ $m.Values | debug.Dump | safeHTML }}",
               "map[string]interface {}{\n  \"Hugo\": \"Rocks!\",\n}"
             ]
           ]
@@ -4138,7 +4140,7 @@
           ],
           "Examples": [
             [
-              "{{add 1 2}}",
+              "{{ add 1 2 }}",
               "3"
             ]
           ]
@@ -4151,7 +4153,7 @@
           "Aliases": null,
           "Examples": [
             [
-              "{{math.Ceil 2.1}}",
+              "{{ math.Ceil 2.1 }}",
               "3"
             ]
           ]
@@ -4173,7 +4175,7 @@
           ],
           "Examples": [
             [
-              "{{div 6 3}}",
+              "{{ div 6 3 }}",
               "2"
             ]
           ]
@@ -4186,7 +4188,7 @@
           "Aliases": null,
           "Examples": [
             [
-              "{{math.Floor 1.9}}",
+              "{{ math.Floor 1.9 }}",
               "1"
             ]
           ]
@@ -4199,7 +4201,7 @@
           "Aliases": null,
           "Examples": [
             [
-              "{{math.Log 1}}",
+              "{{ math.Log 1 }}",
               "0"
             ]
           ]
@@ -4213,7 +4215,7 @@
           "Aliases": null,
           "Examples": [
             [
-              "{{math.Max 1 2 }}",
+              "{{ math.Max 1 2 }}",
               "2"
             ]
           ]
@@ -4227,7 +4229,7 @@
           "Aliases": null,
           "Examples": [
             [
-              "{{math.Min 1 2 }}",
+              "{{ math.Min 1 2 }}",
               "1"
             ]
           ]
@@ -4243,7 +4245,7 @@
           ],
           "Examples": [
             [
-              "{{mod 15 3}}",
+              "{{ mod 15 3 }}",
               "0"
             ]
           ]
@@ -4259,7 +4261,7 @@
           ],
           "Examples": [
             [
-              "{{modBool 15 3}}",
+              "{{ modBool 15 3 }}",
               "true"
             ]
           ]
@@ -4275,7 +4277,7 @@
           ],
           "Examples": [
             [
-              "{{mul 2 3}}",
+              "{{ mul 2 3 }}",
               "6"
             ]
           ]
@@ -4291,7 +4293,7 @@
           ],
           "Examples": [
             [
-              "{{math.Pow 2 3}}",
+              "{{ math.Pow 2 3 }}",
               "8"
             ]
           ]
@@ -4304,7 +4306,7 @@
           "Aliases": null,
           "Examples": [
             [
-              "{{math.Round 1.5}}",
+              "{{ math.Round 1.5 }}",
               "2"
             ]
           ]
@@ -4317,7 +4319,7 @@
           "Aliases": null,
           "Examples": [
             [
-              "{{math.Sqrt 81}}",
+              "{{ math.Sqrt 81 }}",
               "9"
             ]
           ]
@@ -4333,7 +4335,7 @@
           ],
           "Examples": [
             [
-              "{{sub 3 2}}",
+              "{{ sub 3 2 }}",
               "1"
             ]
           ]
@@ -4481,23 +4483,23 @@
           "Aliases": null,
           "Examples": [
             [
-              "{{ slice \"my/path\" \"filename.txt\" | path.Join  }}",
+              "{{ slice \"my/path\" \"filename.txt\" | path.Join }}",
               "my/path/filename.txt"
             ],
             [
-              "{{  path.Join \"my\" \"path\" \"filename.txt\" }}",
+              "{{ path.Join \"my\" \"path\" \"filename.txt\" }}",
               "my/path/filename.txt"
             ],
             [
-              "{{ \"my/path/filename.txt\" | path.Ext  }}",
+              "{{ \"my/path/filename.txt\" | path.Ext }}",
               ".txt"
             ],
             [
-              "{{ \"my/path/filename.txt\" | path.Base  }}",
+              "{{ \"my/path/filename.txt\" | path.Base }}",
               "filename.txt"
             ],
             [
-              "{{ \"my/path/filename.txt\" | path.Dir  }}",
+              "{{ \"my/path/filename.txt\" | path.Dir }}",
               "my/path"
             ]
           ]
@@ -4870,7 +4872,7 @@
           ],
           "Examples": [
             [
-              "{{chomp \"\u003cp\u003eBlockhead\u003c/p\u003e\\n\" | safeHTML }}",
+              "{{ chomp \"\u003cp\u003eBlockhead\u003c/p\u003e\\n\" | safeHTML }}",
               "\u003cp\u003eBlockhead\u003c/p\u003e"
             ]
           ]
@@ -4920,7 +4922,7 @@
           "Aliases": null,
           "Examples": [
             [
-              "{{\"aabab\" | strings.Count \"a\" }}",
+              "{{ \"aabab\" | strings.Count \"a\" }}",
               "3"
             ]
           ]
@@ -5078,11 +5080,11 @@
           ],
           "Examples": [
             [
-              "{{slicestr \"BatMan\" 0 3}}",
+              "{{ slicestr \"BatMan\" 0 3 }}",
               "Bat"
             ],
             [
-              "{{slicestr \"BatMan\" 3}}",
+              "{{ slicestr \"BatMan\" 3 }}",
               "Man"
             ]
           ]
@@ -5109,11 +5111,11 @@
           ],
           "Examples": [
             [
-              "{{substr \"BatMan\" 0 -3}}",
+              "{{ substr \"BatMan\" 0 -3 }}",
               "Bat"
             ],
             [
-              "{{substr \"BatMan\" 3 3}}",
+              "{{ substr \"BatMan\" 3 3 }}",
               "Man"
             ]
           ]
@@ -5128,11 +5130,11 @@
           ],
           "Examples": [
             [
-              "{{title \"Bat man\"}}",
+              "{{ title \"Bat man\" }}",
               "Bat Man"
             ],
             [
-              "{{title \"somewhere over the rainbow\"}}",
+              "{{ title \"somewhere over the rainbow\" }}",
               "Somewhere Over the Rainbow"
             ]
           ]
@@ -5147,7 +5149,7 @@
           ],
           "Examples": [
             [
-              "{{lower \"BatMan\"}}",
+              "{{ lower \"BatMan\" }}",
               "batman"
             ]
           ]
@@ -5162,7 +5164,7 @@
           ],
           "Examples": [
             [
-              "{{upper \"BatMan\"}}",
+              "{{ upper \"BatMan\" }}",
               "BATMAN"
             ]
           ]
@@ -5388,11 +5390,11 @@
           ],
           "Examples": [
             [
-              "{{ htmlEscape \"Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e\" | safeHTML}}",
+              "{{ htmlEscape \"Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e\" | safeHTML }}",
               "Cathal Garvey \u0026amp; The Sunshine Band \u0026lt;cathal@foo.bar\u0026gt;"
             ],
             [
-              "{{ htmlEscape \"Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e\"}}",
+              "{{ htmlEscape \"Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e\" }}",
               "Cathal Garvey \u0026amp;amp; The Sunshine Band \u0026amp;lt;cathal@foo.bar\u0026amp;gt;"
             ],
             [
@@ -5411,15 +5413,15 @@
           ],
           "Examples": [
             [
-              "{{ htmlUnescape \"Cathal Garvey \u0026amp; The Sunshine Band \u0026lt;cathal@foo.bar\u0026gt;\" | safeHTML}}",
+              "{{ htmlUnescape \"Cathal Garvey \u0026amp; The Sunshine Band \u0026lt;cathal@foo.bar\u0026gt;\" | safeHTML }}",
               "Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e"
             ],
             [
-              "{{\"Cathal Garvey \u0026amp;amp; The Sunshine Band \u0026amp;lt;cathal@foo.bar\u0026amp;gt;\" | htmlUnescape | htmlUnescape | safeHTML}}",
+              "{{ \"Cathal Garvey \u0026amp;amp; The Sunshine Band \u0026amp;lt;cathal@foo.bar\u0026amp;gt;\" | htmlUnescape | htmlUnescape | safeHTML }}",
               "Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e"
             ],
             [
-              "{{\"Cathal Garvey \u0026amp;amp; The Sunshine Band \u0026amp;lt;cathal@foo.bar\u0026amp;gt;\" | htmlUnescape | htmlUnescape }}",
+              "{{ \"Cathal Garvey \u0026amp;amp; The Sunshine Band \u0026amp;lt;cathal@foo.bar\u0026amp;gt;\" | htmlUnescape | htmlUnescape }}",
               "Cathal Garvey \u0026amp; The Sunshine Band \u0026lt;cathal@foo.bar\u0026gt;"
             ],
             [
@@ -5456,7 +5458,7 @@
           ],
           "Examples": [
             [
-              "{{ .Title | markdownify}}",
+              "{{ .Title | markdownify }}",
               "\u003cstrong\u003eBatMan\u003c/strong\u003e"
             ]
           ]
