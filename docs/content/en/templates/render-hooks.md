@@ -84,7 +84,16 @@ PlainText
 : The plain variant of the above.
 
 Attributes (map)
-: A map of attributes (e.g. `id`, `class`)
+: A map of attributes (e.g. `id`, `class`). Note that this will currently always be empty for links.
+
+The `render-image` templates will also receive:
+
+IsBlock {{< new-in "0.108.0" >}}
+: Returns true if this is a standalone image and the config option [markup.goldmark.parser.wrapStandAloneImageWithinParagraph](/getting-started/configuration-markup/#goldmark) is disabled.
+
+Ordinal  {{< new-in "0.108.0" >}}
+: Zero-based ordinal for all the images in the current document.
+
 
 ### Link with title Markdown example
 
