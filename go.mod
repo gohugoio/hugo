@@ -10,7 +10,7 @@ require (
 	github.com/bep/debounce v1.2.0
 	github.com/bep/gitmap v1.1.2
 	github.com/bep/goat v0.5.0
-	github.com/bep/godartsass v0.15.0
+	github.com/bep/godartsass v0.16.0
 	github.com/bep/golibsass v1.1.0
 	github.com/bep/gowebp v0.2.0
 	github.com/bep/overlayfs v0.6.0
