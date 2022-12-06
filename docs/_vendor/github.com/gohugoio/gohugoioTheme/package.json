@@ -18,7 +18,7 @@
     "docsearch.js": "^2.6.1",
     "file-loader": "^2.0.0",
     "glob-all": "^3.1.0",
-    "lazysizes": "^4.1.4",
+    "lazysizes": "^5.3.2",
     "mini-css-extract-plugin": "^0.4.4",
     "postcss": "^7.0.5",
     "postcss-cssnext": "^3.1.0",
@@ -30,6 +30,5 @@
     "typeface-muli": "0.0.54",
     "webpack": "^4.25.1",
     "webpack-command": "^0.4.2"
-  },
-  "dependencies": {}
+  }
 }
