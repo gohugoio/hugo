@@ -24,6 +24,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/bep/godartsass"
+	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/spf13/afero"
@@ -202,6 +204,16 @@ func GetDependencyList() []string {
 		)
 	}
 
+	if dartSass := dartSassVersion(); dartSass.ProtocolVersion != "" {
+		const dartSassPath = "github.com/sass/dart-sass-embedded"
+		deps = append(deps,
+			formatDep(dartSassPath+"/protocol", dartSass.ProtocolVersion),
+			formatDep(dartSassPath+"/compiler", dartSass.CompilerVersion),
+			formatDep(dartSassPath+"/implementation", dartSass.ImplementationVersion),
+		)
+
+	}
+
 	bi := getBuildInfo()
 	if bi == nil {
 		return deps
@@ -248,4 +260,14 @@ type Dependency struct {
 
 	// Replaced by this dependency.
 	Replace *Dependency
+}
+
+func dartSassVersion() godartsass.DartSassVersion {
+	// This is also duplicated in the dartsass package.
+	const dartSassEmbeddedBinaryName = "dart-sass-embedded"
+	if !hexec.InPath(dartSassEmbeddedBinaryName) {
+		return godartsass.DartSassVersion{}
+	}
+	v, _ := godartsass.Version(dartSassEmbeddedBinaryName)
+	return v
 }
