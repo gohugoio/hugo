@@ -186,19 +186,38 @@ func getBuildInfo() *buildInfo {
 	return bInfo
 }
 
+func formatDep(path, version string) string {
+	return fmt.Sprintf("%s=%q", path, version)
+}
+
 // GetDependencyList returns a sorted dependency list on the format package="version".
 // It includes both Go dependencies and (a manually maintained) list of C(++) dependencies.
 func GetDependencyList() []string {
 	var deps []string
 
-	formatDep := func(path, version string) string {
-		return fmt.Sprintf("%s=%q", path, version)
+	bi := getBuildInfo()
+	if bi == nil {
+		return deps
 	}
+
+	for _, dep := range bi.Deps {
+		deps = append(deps, formatDep(dep.Path, dep.Version))
+	}
+
+	deps = append(deps, GetDependencyListNonGo()...)
+
+	sort.Strings(deps)
+
+	return deps
+}
+
+// GetDependencyListNonGo returns a list of non-Go dependencies.
+func GetDependencyListNonGo() []string {
+	var deps []string
 
 	if IsExtended {
 		deps = append(
 			deps,
-			// TODO(bep) consider adding a DepsNonGo() method to these upstream projects.
 			formatDep("github.com/sass/libsass", "3.6.5"),
 			formatDep("github.com/webmproject/libwebp", "v1.2.4"),
 		)
@@ -211,20 +230,7 @@ func GetDependencyList() []string {
 			formatDep(dartSassPath+"/compiler", dartSass.CompilerVersion),
 			formatDep(dartSassPath+"/implementation", dartSass.ImplementationVersion),
 		)
-
 	}
-
-	bi := getBuildInfo()
-	if bi == nil {
-		return deps
-	}
-
-	for _, dep := range bi.Deps {
-		deps = append(deps, formatDep(dep.Path, dep.Version))
-	}
-
-	sort.Strings(deps)
-
 	return deps
 }
 
